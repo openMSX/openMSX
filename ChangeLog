@@ -1,5 +1,9 @@
 $Id$
 
+2003-10-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed VDP TR bit bug (fixes Ys-2):
+	   - TODO HMMC cmd can be simplified a lot
+
 2003-10-08 Maarten ter Huurne <maarten@treewalker.org>
 	* VDP fix: force renderer sync on sprite enable change.
 

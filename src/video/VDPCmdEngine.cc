@@ -884,7 +884,7 @@ void VDPCmdEngine::LmcmCmd::start(const EmuTime &time)
 	word NX = clipNX_1(engine->SX, engine->NX);
 	ASX = engine->SX;
 	ANX = NX;
-	engine->statusChangeTime = EmuTime::infinity;
+	engine->statusChangeTime = EmuTime::zero;
 	engine->transfer = true;
 	engine->status |= 0x80;
 }
@@ -934,7 +934,7 @@ void VDPCmdEngine::LmmcCmd::start(const EmuTime &time)
 	word NX = clipNX_1(engine->DX, engine->NX);
 	ADX = engine->DX;
 	ANX = NX;
-	engine->statusChangeTime = EmuTime::infinity;
+	engine->statusChangeTime = EmuTime::zero;
 	engine->transfer = true;
 	engine->status |= 0x80;
 }
@@ -1183,7 +1183,7 @@ void VDPCmdEngine::HmmcCmd::start(const EmuTime &time)
 	word NX = clipNX_1(engine->DX, engine->NX, PPBS[engine->scrMode]);
 	ADX = engine->DX;
 	ANX = NX;
-	engine->statusChangeTime = EmuTime::infinity;
+	engine->statusChangeTime = EmuTime::zero;
 	engine->transfer = true;
 	engine->status |= 0x80;
 }
