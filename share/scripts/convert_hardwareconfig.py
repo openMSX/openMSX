@@ -121,40 +121,25 @@ def convertDoc(dom):
 		return
 	dom.doctype.systemId = 'msxconfig2.dtd'
 
-	index = 0
-
-	def isCVSId(node):
-		if node.nodeType != dom.COMMENT_NODE: return False
-		if not node.nodeValue.startswith(' $Id'): return False
-		if not node.nodeValue.endswith('$ '): return False
-		return True
-	if isCVSId(dom.childNodes[index]):
-		index += 1
-	else:
+	sawCVSid = False
+	for child in dom.childNodes:
+		if child.nodeType == dom.COMMENT_NODE:
+			if child.nodeValue.startswith(' $Id') \
+			and child.nodeValue.endswith('$ '):
+				sawCVSid = True
+		elif child.nodeType == dom.DOCUMENT_TYPE_NODE:
+			if child.nodeName != 'msxconfig':
+				print '  NOTE: unknown document type "%s", skipping' % \
+					child.nodeName
+				return
+		elif child.nodeType == dom.ELEMENT_NODE:
+			if child.nodeName == 'msxconfig':
+				convertRoot(child)
+			else:
+				print '  NOTE: wrong root node "%s", skipping' % child.nodeName
+				return
+	if not sawCVSid:
 		print '  NOTE: no CVS id'
-	
-	def checkDocType(node):
-		if node.nodeType != dom.DOCUMENT_TYPE_NODE: return False
-		if node.nodeName != 'msxconfig': return False
-		return True
-	if checkDocType(dom.childNodes[index]):
-		index += 1
-	else:
-		print '  NOTE: unknown document type, skipping'
-		return
-	
-	def checkRoot(node):
-		if node.nodeType != dom.ELEMENT_NODE: return False
-		if node.nodeName != 'msxconfig': return False
-		return True
-	if len(dom.childNodes) - 1 != index:
-		print '  NOTE: unexpected top-level node(s)'
-		return
-	elif checkRoot(dom.childNodes[index]):
-		convertRoot(dom.childNodes[index])
-	else:
-		print '  NOTE: wrong root node, skipping'
-		return
 
 def convertRoot(node):
 	doc = node.ownerDocument
@@ -178,13 +163,6 @@ def convertRoot(node):
 				sawInfo = True
 			elif child.nodeName != 'device':
 				print '  NOTE: ignoring element at top level:', child.nodeName
-		elif child.nodeType == node.TEXT_NODE:
-			pass
-		elif child.nodeType == node.COMMENT_NODE:
-			pass
-		else:
-			print 'cannot handle node type at top level:', child
-			assert False
 
 	# Insert <info> if necessary.
 	if not sawInfo:
@@ -334,13 +312,6 @@ def convertConfig(node):
 		if child.nodeType == node.ELEMENT_NODE:
 			if child.nodeName == 'parameter':
 				child = convertParameter(child)
-		elif child.nodeType == node.TEXT_NODE:
-			pass
-		elif child.nodeType == node.COMMENT_NODE:
-			pass
-		else:
-			print 'cannot handle node inside config:', child
-			assert False
 
 	# Type is now stored in tag name instead of "id" attribute.
 	node.removeAttribute('id')
@@ -416,13 +387,6 @@ def convertDevice(node):
 					print '    rename parameter "' + child.nodeName + '" ' \
 						'to "' + newName + '"'
 					child = renameElement(child, newName)
-		elif child.nodeType == node.TEXT_NODE:
-			pass
-		elif child.nodeType == node.COMMENT_NODE:
-			pass
-		else:
-			print 'cannot handle node inside device:', child
-			assert False
 
 	# Note: must happen here because fdc_type can rename node.
 	node = renameElement(node, deviceType)
