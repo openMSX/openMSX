@@ -1,4 +1,4 @@
-; MSX Compatible BIOS ver 0.07 project "build castles in the air"
+; MSX Compatible BIOS ver 0.08 project "build castles in the air"
 ; copyright(c) 2002 boukichi
 ;
 ; [date]
@@ -26,113 +26,124 @@
 ; 2002/09/08 added WRSLT function.
 ;            added keyboard routines.
 ;            added joystick code to GTSTCK & GTTRIG. 
+; 2002/09/10 fixed memory initializing routine.
+;            added function of memory maintenance. 
+; 2002/09/11 added print_error routine.
+;            fixed ROM search routine and usage of EXPTBL.
+; 2002/09/12 added clear memory from RG8SAV to RG23SA
+;            fixed return from ENASLT with DI.
 
-
-;        title "MSX COMPATIBLE BIOS for emulators ver 0.07 by BouKiCHi"
+;        title "MSX COMPATIBLE BIOS for emulators ver 0.08 by BouKiCHi"
 
 ;---------------------------------------------------
 ; define I/O and Hook
 ;
 
-PRN_STAT equ $90 ; Printer Status
-VDP_RP   equ $98 ; VDP Read Port
-VDP_STAT equ $99 ; VDP Status & Latch Reset
+PRN_STAT equ $90	; Printer Status
+VDP_RP   equ $98	; VDP Read Port
+VDP_STAT equ $99	; VDP Status & Latch Reset
 
-PSL_STAT equ $A8 ; Slot status
-KBD_STAT equ $A9 ; Keyboard status
-GIO_REGS equ $AA ; General IO register
-PPI_REGS equ $AB ; PPI register
+PSL_STAT equ $A8	; Slot status
+KBD_STAT equ $A9	; Keyboard status
+GIO_REGS equ $AA	; General IO register
+PPI_REGS equ $AB	; PPI register
 
-PSG_REGS equ $A0 ; PSG register number
-PSG_DATA equ $A1 ; PSG data
-PSG_STAT equ $A2 ; PSG status
-
-
-MAP_REG1 equ $FC ; Mapper 0000h-3FFFh
-MAP_REG2 equ $FD ; Mapper 4000h-7FFFh
-MAP_REG3 equ $FE ; Mapper 8000h-BFFFh
-MAP_REG4 equ $FF ; Mapper C000h-FFFFh
-
-VDP_DATA equ $98 ; VDP data store
-VDP_ADDR equ $99 ; VDP address
-VDP_PALT equ $9A ; VDP palette latch
-VDP_REGS equ $9B ; VDP register access
-
-H_KEYI   equ $FD9A ; keyboard interrupt hook
-H_TIMI   equ $FD9F ; timer interrupt hook
-H_NMI    equ $FDD6 ; non maskable interrupt hook
-H_STKE   equ $FEDA ; Stack error.
+PSG_REGS equ $A0	; PSG register number
+PSG_DATA equ $A1	; PSG data
+PSG_STAT equ $A2	; PSG status
 
 
-EXP_TBL  equ $FCC1 ; second slot infomation table
-SLT_TBL  equ $FCC5 ; table of primary slot
+MAP_REG1 equ $FC	; RAM Mapper 0000h-3FFFh
+MAP_REG2 equ $FD	; RAM Mapper 4000h-7FFFh
+MAP_REG3 equ $FE	; RAM Mapper 8000h-BFFFh
+MAP_REG4 equ $FF	; RAM Mapper C000h-FFFFh
 
-SSL_REGS equ $FFFF ; register of second slot.
+VDP_DATA equ $98	; VDP data store
+VDP_ADDR equ $99	; VDP address
+VDP_PALT equ $9A	; VDP palette latch
+VDP_REGS equ $9B	; VDP register access
+
+H_KEYI   equ $FD9A	; keyboard interrupt hook
+H_TIMI   equ $FD9F	; timer interrupt hook
+H_NMI    equ $FDD6	; non maskable interrupt hook
+H_STKE   equ $FEDA	; Stack error.
+
+
+EXP_TBL  equ $FCC1	; second slot infomation table
+SLT_TBL  equ $FCC5	; table of primary slot
+
+EXBRSA   equ $FAF8	; position of SUB-ROM.
+
+SSL_REGS equ $FFFF	; register of second slot.
 
 ;----------------------------------------------
 ; WORK MEMORY TABLE
-GRPNAM   equ $F3C7  ; Screen2 Name
-GRPCOL   equ $F3C9  ; Screen2 Color
-GRPCGP   equ $F3CB  ; Screen2 CG pattern
-GRPATR   equ $F3CD  ; Screen2 Attribute
-GRPPAT   equ $F3CF  ; Screen2 Sprite pattern
+GRPNAM   equ $F3C7	; Screen2 Name
+GRPCOL   equ $F3C9	; Screen2 Color
+GRPCGP   equ $F3CB	; Screen2 CG pattern
+GRPATR   equ $F3CD	; Screen2 Attribute
+GRPPAT   equ $F3CF	; Screen2 Sprite pattern
 
 T32COL   equ $F3BF
 NAMBAS   equ $F924
 PATBAS   equ $F926
 ATRBAS   equ $F928
 
-MLTNAM   equ $F3D2  ; Screen3 Name
-MLTCOL   equ $F3D4  ; Screen3 Color
-MLTCGP   equ $F3D6  ; Screen3 CG pattern
-MLTATR   equ $F3D8  ; Screen3 Attribute
-MLTPAT   equ $F3DA  ; Screen3 Sprite pattern
+MLTNAM   equ $F3D2	; Screen3 Name
+MLTCOL   equ $F3D4	; Screen3 Color
+MLTCGP   equ $F3D6	; Screen3 CG pattern
+MLTATR   equ $F3D8	; Screen3 Attribute
+MLTPAT   equ $F3DA	; Screen3 Sprite pattern
 
-CLIKSW   equ $F3DB  ; Key Click.
+CLIKSW   equ $F3DB	; Key Click.
 
 STATFL   equ $F3E7
 RG0SAV   equ $F3DF
 RG1SAV   equ $F3E0
 
 CLIKFL   equ $FBD9
-OLDKEY   equ $FBDA 
+OLDKEY   equ $FBDA
 NEWKEY   equ $FBE5
 KEYBUF   equ $FBF0
 
-PUTPNT   equ $F3F8 ; pointer of keybuffer address
-GETPNT   equ $F3FA ; pointer of keybuffer address
-LIMPNT   equ $FC17 ; pointer of keybuffer address
+PUTPNT   equ $F3F8	; pointer of keybuffer address
+GETPNT   equ $F3FA	; pointer of keybuffer address
+LIMPNT   equ $FC17	; pointer of keybuffer address
 
-BOTTOM   equ $FC58
+BOTTOM   equ $FC48
+HIMEM    equ $FC4A
+
+JIFFY    equ $FC9E      ; timer counter.
 SCRMOD   equ $FCAF
+
 
 FORCLR   equ $F3E9
 BAKCLR   equ $F3EA
 BDRCLR   equ $F3EB
 
-PSG_DBG  equ $F3EC ; this is test flag for debug..
+PSG_DBG  equ $F3EC	; this is test flag for debug..
 
-CSRY     equ $F3DC ; cursor position(Y axis) 
-CSRX     equ $F3DD ; cursor position(X axis) 
+CSRY     equ $F3DC	; cursor position(Y axis) 
+CSRX     equ $F3DD	; cursor position(X axis) 
 
-LINWRK   equ $FC18 ; text buffer of 40 cols.
+LINWRK   equ $FC18	; text buffer of 40 cols.
 
 ;------------------------
 ;for sound_mode
 
-SMOD_TSTSND equ $FAFE ; [byte] store flag of sound test..
-SMOD_REQNUM equ $F305 ; [byte] store request number.
-SMOD_OLDKEY equ $F306 ; [byte] store oldkey.
-SMOD_ROMSUM equ $F307 ; [word] store checksum.
-SMOD_MUSLST equ $F309 ; [word] store address of music list.
-SMOD_INIT   equ $F30B ; [word] store address of initialization.
-SMOD_PLAY   equ $F30D ; [word] store address of play routine.
+SMOD_TSTSND equ $FAFE	; [byte] store flag of sound test..
+SMOD_REQNUM equ $F305	; [byte] store request number.
+SMOD_OLDKEY equ $F306	; [byte] store oldkey.
+SMOD_ROMSUM equ $F307	; [word] store checksum.
+SMOD_MUSLST equ $F309	; [word] store address of music list.
+SMOD_INIT   equ $F30B	; [word] store address of initialization.
+SMOD_PLAY   equ $F30D	; [word] store address of play routine.
 
 ;-----------------
 ; memory for the debug-subroutine
 ;-----------------
 
-DISPADDR equ $E010 ; memory of dumping address.
+DISPADDR equ $E010	; memory of dumping address.
 LASTSTAC equ $E000
 SP_REGS  equ $E002 
 
@@ -149,7 +160,12 @@ chkram
         di
         jp      soft_reset
 
+;pointer of font.
+        org     $0004
+        dw      MFonts
+
         org     $0006
+
 
 rdvdpa  db      VDP_DATA ; port of Read  VDP
 wrvdpa  db      VDP_DATA ; port of Write VDP
@@ -174,7 +190,6 @@ chrgtb
         ret
 outdo
         org     $0018
-        nop
         ret
 ;001Ch CALSLT Interslot call routine.
 calslt
@@ -199,7 +214,7 @@ slot_set org	  $0024
 romid
         org       $002d
 ; version of MSX
-        db 0 ; msx1
+        db 0 ; 0 .. msx1 ,1 .. msx2
 stat    db 0 ; ??
 stat2   db 0 ; ??
 
@@ -307,24 +322,27 @@ grpprt
         jp      in_trig
 
 ;012Dh WRTVDP .. Write VDP register.. 
-wrtvdp  org       $012d
+;wrtvdp
+        org       $012d
         ret
 
 ;0131h VDPSTA .. Read VDP status.. 
-vdpsta  org       $0131
+;vdpsta
+        org       $0131
         ret
 
 
-chgsnd  org       $0135
+;chgsnd
+        org       $0135
         ret
 
 ;0138h RDSLTREG Read register of primary slot
-g_slotreg
+;g_slotreg
         org       $0138
         jp      get_slotreg
 
 ;013Bh WRSLTREG Write register of primary slot
-s_slotreg
+;s_slotreg
         org       $013B
         jp      set_slotreg
 ;013Eh RDVDP Read VDP status.
@@ -335,47 +353,63 @@ s_slotreg
 ;        ret
 
 ;0141h SNSMAT check key mathrics
-snsmat  org       $0141
+;snsmat
+        org       $0141
         jp      in_keyboard
 
 
-phydio  org       $0144
+;phydio
+        org       $0144
         ret
 
 ;0145h RSTPLT
-rstplt  org       $0145
+;rstplt
+        org       $0145
         ret
 
 ;0149h RSTPLT?
-rstplt  org       $0149
+;rstplt
+        org       $0149
         ret
 
-getplt  org       $014d
+;getplt
+        org       $014d
         ret
 
 ;0156h KILBUF Clear buffer of keyboard.
         org       $0156
         jp        kilbuf
 
-beep    org       $017d
+;0159h CALBAS call basic interpreter
+	org	  $0159
+        jp        call_basic_intr
+
+;beep
+        org       $017d
         ret
 
-prompt  org       $0181
+;prompt
+        org       $0181
         ret
 
-newpad  org       $01ad
+;newpad
+        org       $01ad
         ret
 
-chgmdp  org       $01b5
+;chgmdp
+        org       $01b5
         ret
 
-knjprt  org       $01bd
+;knjprt
+        org       $01bd
         ret
 
-redclk  org       $01f5
+;redclk
+        org       $01f5
         ret
 
-wrtclk  org       $01f9
+;wrtclk
+        org       $01f9
         ret
 
 ; -------------------
@@ -384,18 +418,15 @@ wrtclk  org       $01f9
 
         org $0200
 soft_reset
-        ex (sp),hl
-        ld (LASTSTAC),hl
-
-        ld  hl,$0000
-        add hl,sp
-        ld (SP_REGS),hl
-
-        ld hl,$f300
-
-; initialize slot
-        xor a
-        out (PSL_STAT),a
+;for debug...
+;        ex (sp),hl
+;        ld (LASTSTAC),hl
+;
+;        ld  hl,$0000
+;        add hl,sp
+;        ld (SP_REGS),hl
+;
+;        ld hl,$f300
 
 ; initialize other interface.
         ld a,$82
@@ -403,38 +434,61 @@ soft_reset
         ld a,$50
         out (GIO_REGS),a
 
-; memory check and select slot to the memory.
-        ld bc,$0303
-chk_wrt_ram   ; check RAM on page3.
-        ld a,c
-        rrca
-        rrca
-        ; BB000000
-        out (PSL_STAT),a
+;memory bank initialize.
 
-        ld a,b
+        xor a,a
+;        out (MAP_REG1),a
+        inc a
+        out (MAP_REG2),a
+        inc a
+        out (MAP_REG3),a
+        inc a
+        out (MAP_REG4),a
+
+; memory check and select slot to the memory.
+; C = Primary,B = secondary.
+
+        ld   bc,$0303
+chk_wrt_ram               ; check RAM on page3.
+        ld   a,c
+        and  a,$03
         rrca
         rrca
-        ld (SSL_REGS),a
-        ld e,a
-        ld a,$12
-        ld ($f000),a
-        ld a,($f000)
-        cp a,$12
-        jr nz,cant_wrt
-        jp ram_ok
+        out  (PSL_STAT),a ; A = 0000BB00
+
+        ld   a,b
+        and  a,$03
+        rrca
+        rrca
+        ld   (SSL_REGS),a ; A = 0000EE00 
+        ld   e,a
+
+        ld   a,$12
+        ld   ($c010),a
+        ld   a,($c010)
+        cp   a,$12
+        jr   nz,cant_wrt
+        jp   ram_ok
 cant_wrt
-;        ld a,b
-;        or a,c
-;        jp z,hang_up_mode
         djnz chk_wrt_ram
-        dec c
-        jr nz,chk_wrt_ram
-        jp hang_up_mode
+        dec  c
+        jr   nz,chk_wrt_ram
+        ld   de,str_memory_err
+        jp   print_error
 
 ram_ok
-        ld a,e
-        ld (EXP_TBL),a
+        ld   a,e
+        ld   (SLT_TBL),a ; expanding slot.
+        and  a,$0C
+        jr   z,skip_mem
+        ld   a,e
+        or   a,$80
+        ld   e,a
+skip_mem
+        in   a,(PSL_STAT)
+        and  a,$03
+        or   a,e
+        ld   (EXP_TBL),a ; location of MAIN-ROM.
 
 ; you can write the memory.
 
@@ -443,14 +497,15 @@ ram_ok
 ;----------------------
 ;start UserInterface ...
 ;----------------------
-; set stack -> $f300
-        ld hl,$f300
-        ld sp,hl
 
+
+        ld   hl,$f300
+        ld   sp,hl        ; set stack -> $f300
+
+        call slot_clear
 
         call check_rom
 
-        call slot_clear
 
         call init_ram
         call init_vdp
@@ -459,22 +514,23 @@ ram_ok
         ld   (PSG_DBG),a
 
         call sound_init
-                
+
         ei
 
-        halt
+        ; call chksubpos
+
         call disp_info
         call start_cartprog
 
 ;----------------------
-;Start GAME
+;Start Cartridge
 ;----------------------
 
 start_game
-        ld hl,stack_error
-        push hl
-        ld hl,($4002) ; Cartridge Start Address
-        jp (hl)     ; Running ...
+        ld	hl,stack_error
+        push	hl
+        ld	hl,($4002)	; Cartridge Start Address
+        jp	(hl)		; Running ...
 
 
 ;-------------------------------
@@ -516,9 +572,22 @@ start_cartprog
         in   a,(PSL_STAT)
         rrca
         rrca
-        and  $03
-        call vout_hex8
+        and  a,$03
 
+        ld   d,$00
+        ld   e,a
+
+        call vout_hex8
+        call vout_hyphen
+
+        ld   hl,SLT_TBL
+        add  hl,de
+        ld   a,(hl)
+        rrca
+        rrca
+        and  a,$03
+        call vout_hex8
+        
         call check_sum
 
         ld   a,(SMOD_TSTSND)
@@ -528,8 +597,8 @@ start_cartprog
         call prn_text
 
 stst_skip
-        ld   b,120  ; 2sec wait (1 = 1/60sec)
-        call wait_key07 ; wait routine 
+        ld   b,120	; 2sec wait (1 = 1/60sec)
+        call wait_key07 ; wait routine
 
         bit  7,a
         call z,sound_mode
@@ -544,12 +613,12 @@ stst_skip
         call prn_text
 
 skip_msg
-        ld  hl,str_run
+        ld   hl,str_run
         call prn_text
 
         call dbg_reg
 
-        ld b,60 ; 1sec
+        ld   b,60	; 1sec
         call wait_b
 
         ret
@@ -558,11 +627,11 @@ skip_msg
 ; BIOS Debug routines
 ; ------
 sh_debug
-        ex (sp),hl
-        ld (LASTSTAC),hl
+        ex   (sp),hl
+        ld   (LASTSTAC),hl
 
 debug_mode
-        ; return the hook. 
+        ; implant return code into hook. 
         ld   a,$C9
         ld   (H_KEYI),a
         ld   (H_TIMI),a
@@ -586,7 +655,7 @@ debug_mode
 loop_dump
         call disp_dump
         call dump_keywait
-        jr loop_dump
+        jr   loop_dump
 
 
 ;-----------------
@@ -791,12 +860,13 @@ curxy
         ld  a,b
         ld  (CSRX),a
         ret
-    
+
 
 ;------------------------
 ; initialize RAM
 
 init_ram
+; implant return code into hook. 
         ld   a,$C9 ; ret code
         ld   hl,H_KEYI
         ld   (hl),a
@@ -804,6 +874,7 @@ init_ram
         ld   bc,$024D
         ldir
 
+;Clear key matrix...
         ld   a,$FF 
         ld   hl,OLDKEY
         ld   (hl),a
@@ -812,6 +883,7 @@ init_ram
         ldir
 
 
+;Clear keybuf...
         ld   a,$00 
         ld   hl,KEYBUF
         ld   (hl),a
@@ -819,20 +891,65 @@ init_ram
         ld   bc,39
         ldir
 
+        ld   a,$00 
+        ld   hl,$FFE7 ; RG8SAV
+        ld   (hl),a
+        ld   de,$FFE7+1
+        ld   bc,15
+        ldir
+
+;Set address to pointer.
         ld   hl,KEYBUF
         ld   (PUTPNT),hl
         ld   (GETPNT),hl
 
         ld   hl,$8000
-        ld   (BOTTOM),hl  ; ?????
+        ld   (BOTTOM),hl  ; page 1 and 2 are ROM. 3 and 4 are RAM.  
 
+        ld   hl,$F380
+        ld   (HIMEM),hl  ; ?????
+
+
+;Forward RDPRIM routine to RAM.
         ld   hl,m_rdprim
         ld   de,$F380
+
         ld   bc,m_prim_end-m_rdprim
         ldir
 
         ret
 
+;----------------------
+;Check SUB-ROM position.
+chksubpos
+        ld      b,$03
+        ld      hl,$0000
+loop_subpos
+        ld      a,b
+        push    bc
+        call    rdslt
+        pop     bc
+        cp      a,'C'
+        jr      z,chked_c
+slt_wrong
+        djnz    loop_subpos
+        xor     a,a
+        ld      (EXBRSA),a
+        ret
+chked_c
+        inc     hl
+        ld      a,b
+        push    bc
+        call    rdslt
+        pop     bc
+        cp      a,'D'
+        jr      z,chked_d
+        dec     hl
+        jr      slt_wrong
+chked_d
+        ld      a,b
+        ld      (EXBRSA),a
+        ret
 
 ;------------------------
 ;
@@ -852,21 +969,21 @@ dbg_reg
         call vdp_setwrt
 
 dbg_loop  ; loop until pop all stack.
-        pop ix
+        pop  ix
         call prn_hex
 
-        dec iy
-        ; ld  bc,iy
+        dec  iy
+
         push iy
         pop  bc
 
-        xor a,a
-        or  a,c
+        xor  a,a
+        or   a,c
 
-        jp nz,dbg_loop
+        jp   nz,dbg_loop
         pop  ix
         push ix
-        jp prn_hex ; Print PC
+        jp   prn_hex ; Print PC
 
 
 ;------------------------
@@ -889,7 +1006,7 @@ prn_reg
         push bc
         push iy
         pop  bc
-        ;ld  bc,iy
+
         ld  a,c
         add a,a
         add a,a
@@ -1013,6 +1130,11 @@ vout_hex8
 
         ret
 
+vout_hyphen
+        ld      a,'-'
+        out     (VDP_DATA),a
+        ret
+
 
 ;------------------------
 ; wait routine.
@@ -1102,63 +1224,102 @@ set_page2
 ; set slot value to page2.
 ; in: RegBC = slot.
 
-        ld  a,b
+        push bc
+        ld   a,b
+        and  a,$03
         rlca
         rlca
-        ; 0000BB00
 
-        ld  d,a 
-        in  a,(PSL_STAT)
-        and a,$F3
-        or  a,d
-        out (PSL_STAT),a
+        ld   d,a        ; D = 0000BB00
 
-        ld  hl,SSL_REGS
-        ld  a,c
+        in   a,(PSL_STAT)
+        and  a,$F3
+        or   a,d
+        ld   e,a        ; E = PPPPBBPP (P = PSL_STAT)
+
+        ld   a,d
         rlca
         rlca
-; (TBL&0xC3) | c<<2 = A 
-        ld  d,a
-        ld  a,(EXP_TBL)
-        and a,$F3
-        or  a,d
+        rlca
+        rlca
+        ld   d,a        ; D = BB000000
 
-        ld (hl),a
+        ld   a,e
+        and  a,$3F
+        or   a,d        ; A = BBPPBBPP 
+        out  (PSL_STAT),a
+        ld   a,c
+        and  a,$03
+        rlca
+        rlca
+        ld   c,a        ; C = 0000EE00
+        ld   a,(SSL_REGS)
+        cpl             ; inverted data. 
+        and  a,$F3
+        or   a,c
+
+        ld   c,a        ; C = OOOOEEOO ; O = Original slot.
+
+        ld   (SSL_REGS),a
+        xor  a,a
+
+        ld   hl,SLT_TBL
+
+        ; HL = HL + B
+        ld   a,b       
+        and  a,$03
+        add  a,l
+        ld   l,a
+        ld   a,h
+        adc  a,0
+        ld   h,a
+
+        ; HL = SLT_TBL + Primary Slot #.
+
+        ld   a,c       ; A = Wrote data to SSL_REGS.
+        ld   (hl),a
+
+        ld   a,e
+        out  (PSL_STAT),a
+        pop  bc
+
         ret
 
 check_rom
+
 ; RegB = the value of primary slot.
 ; RegC = second slot.
 
         ld bc,$0000
+
 chk_rom_loop
         call set_page2
 
-        ld a,($4000)
-        cp a,'A' 
-        jr nz,no_cart
+        ld   a,($4000)
+        cp   a,'A' 
+        jr   nz,no_cart
 
-        ld a,($4003)
-        cp a,$40
-        jr c,no_cart ; A-$40 < 0
-        cp a,$80
-        jr nc,no_cart ; A-$80 >= 0
+        ld   a,($4003)
+        cp   a,$40
+        jr   c,no_cart  ; A-$40 < 0
+        cp   a,$80
+        jr   nc,no_cart ; A-$80 >= 0
 
-        jp chk_rom_ok 
+        jp   chk_rom_ok 
 no_cart
-        inc c
-        ld  a,$03        ; maximum slot number.
-        cp  a,c
-        jr  nz,chk_rom_loop 
+        inc  c
+        ld   a,$03        ; maximum slot number.
+        cp   a,c
+        jr   nz,chk_rom_loop 
 
-        inc b
-        ld  c,0
-        cp  a,b
-        jr  nc,chk_rom_loop ; A-B >= 0
+        inc  b
+        ld   c,0
+        cp   a,b
+        jr   nc,chk_rom_loop ; A-B >= 0
         ; could'nt found the cartridge.
 chk_rom_ng
 
-        ld bc,$0000
+        ld   bc,$0000
         call set_page2
 
 chk_rom_ok
@@ -1265,7 +1426,7 @@ clprim equ rdprim+(m_clprim-m_rdprim)
 cl_jp  equ rdprim+(m_cl_jp-m_rdprim)
 
 
-; --------------------------
+;---------------------------
 ; sub-routine
 ;---------------------------
 ; 000Ch RDSLT
@@ -1376,7 +1537,7 @@ wordcomp
 slt_set
 
 ; A=(A >> 6)&0x3
-
+        di
         push af
         ld   a,h
         rlca
@@ -1562,8 +1723,8 @@ vdp_reg1chk
 
 ;--------------------------------
 vdp_data_rep
-        ex de,hl
-        call vdp_setwrt
+        ex      de,hl
+        call    vdp_setwrt
 lp_vd_rep
         ld      a,(de)
         out     (VDP_DATA),a
@@ -1577,86 +1738,84 @@ lp_vd_rep
 ;--------------------------------
 ;0072h INIGRP
 init_grp
-        ld a,$02
-        ld (SCRMOD),a
+        ld    a,$02
+        ld    (SCRMOD),a
 
-        in a,(VDP_STAT) ; reset Latch
+        in    a,(VDP_STAT) ; reset Latch
 
-        ld  a,(RG0SAV)
-        or  a,2
-        and a,$f3
-        ld  b,a
-        ld  c,0
-        call wrt_vdp ; VDP R#0
-        inc  c
-        ld   a,(RG1SAV)
-        and  $e7
-        ld   b,a
-        call wrt_vdp ; VDP R#1
-        ld   hl,(GRPNAM)
-        call vdp_setwrt
-        ld   b,3
-        xor  a
+        ld    a,(RG0SAV)
+        or    a,2
+        and   a,$F3
+        ld    b,a
+        ld    c,0
+        call  wrt_vdp ; VDP R#0
+        inc   c
+        ld    a,(RG1SAV)
+        and   $e7
+        ld    b,a
+        call  wrt_vdp ; VDP R#1
+        ld    hl,(GRPNAM)
+        call  vdp_setwrt
+        ld    b,3
+        xor   a
 ig_loop
-        out  (VDP_DATA),a
-        inc  a
-        jr   nz,ig_loop
-        djnz ig_loop
+        out   (VDP_DATA),a
+        inc   a
+        jr    nz,ig_loop
+        djnz  ig_loop
 
-;        ld  hl,(GRPCOL)
-;        ld  hl,(GRPCGP)
+        ld    hl,(GRPATR)
+        ld    (ATRBAS),hl
 
-        ld  hl,(GRPATR)
-        ld  (ATRBAS),hl
-        ld  hl,(GRPPAT)
-        ld  (PATBAS),hl
-        ; I want to write clear sprites and graphics
-        ld  hl,GRPNAM
-        ld  de,$7F03
-        call set_grp
-        call enascr
+        ld    hl,(GRPPAT)
+        ld    (PATBAS),hl
+
+        ld    hl,GRPNAM
+        ld    de,$7F03
+        call  set_grp
+        call  enascr
         ret
 
 ; HL = Address of table
 ; B  = DATA , C = VDP R#
 ; DE = VDPDATA
 set_grp
-        ld   bc,$0602 ; B= shift count C = R#
-        xor  a,a
-        call adr_sft
-        ld   b,10
-        ld   a,d
-        call adr_sft
-        ld   b,5
-        ld   a,e
-        call adr_sft
-        ld   b,9
-        xor  a,a
-        call adr_sft
-        ld   b,5
-        xor  a,a
-        call adr_sft
+        ld    bc,$0602 ; B= shift count C = R#
+        xor   a,a
+        call  adr_sft
+        ld    b,10
+        ld    a,d
+        call  adr_sft
+        ld    b,5
+        ld    a,e
+        call  adr_sft
+        ld    b,9
+        xor   a,a
+        call  adr_sft
+        ld    b,5
+        xor   a,a
+        call  adr_sft
         ret
 adr_sft
-        push hl
-        push af
-        ld   a,(hl)
-        inc  hl
-        ld   h,(hl)
-        ld   l,a
+        push  hl
+        push  af
+        ld    a,(hl)
+        inc   hl
+        ld    h,(hl)
+        ld    l,a
 sft_lp
-        add  hl,hl
-        adc  a,a
-        djnz sft_lp
-        ld   h,a
-        pop  af
-        or   h
-        ld   b,a
-        call wrt_vdp
-        pop  hl
-        inc  hl
-        inc  hl
-        inc  c
+        add   hl,hl
+        adc   a,a
+        djnz  sft_lp
+        ld    h,a
+        pop   af
+        or    h
+        ld    b,a
+        call  wrt_vdp
+        pop   hl
+        inc   hl
+        inc   hl
+        inc   c
         ret
 
 ;005Fh CHGMOD
@@ -1830,14 +1989,16 @@ sound_out
         out   (PSG_DATA),a
         ei
         pop   af
-        push  af
-        push  de
-        ld    d,a
-        ld    a,(PSG_DBG)
-        or    a,a
-        call  nz,disp_psg
-        pop   de
-        pop   af
+
+;        push  af
+;        push  de
+;        ld    d,a
+;        ld    a,(PSG_DBG)
+;        or    a,a
+;        call  nz,disp_psg
+;        pop   de
+;        pop   af
+
         ret
 
 ;--------------------------------
@@ -2009,6 +2170,14 @@ slot_clear
         ld (hl),a
         inc hl
         ld (hl),a
+        inc hl
+;        ld (hl),a
+        inc hl
+        ld (hl),a
+        inc hl
+        ld (hl),a
+        inc hl
+        ld (hl),a
         ret
 ;------------------
 ; interrupt routine code
@@ -2033,23 +2202,29 @@ int_start
         push    iy
         push    ix
 
-        call   H_KEYI
-        in a,(VDP_STAT)
-        or a
-        jp p,int_end
+        call    H_KEYI
+        in      a,(VDP_STAT)
+        or      a,a
+        jp      p,int_end
 
-        call H_TIMI
+        call    H_TIMI
+
+        ld      hl,(JIFFY)
+        inc     hl
+        ld      (JIFFY),hl
+
+        
         ei
-        ld (STATFL),a ; save status
+        ld      (STATFL),a ; save status
 
-        xor a
-        ld  (CLIKFL),a
-        call in_trig
+        xor     a,a
+        ld      (CLIKFL),a
+        call    in_trig
         cpl
-        and a,$01
-        ld ($F3E8),a
-        call old_key
-        call key_in
+        and     a,$01
+        ld      ($F3E8),a
+        call    old_key
+        call    key_in
 
 int_end
         pop ix
@@ -2165,19 +2340,80 @@ hang_up_mode
         org $1010
 stack_error
         call H_STKE
-        jp hang_up_mode
+        ld   de,str_stack_error
+        jp   print_error
+
+;------------------------------------
+;call basic.
+call_basic_intr
+	ld de,str_no_basic_intr
+	jp print_error
+
+;------------------------------------
+;display error.
+;in DE=address of message.
+
+print_error
+        in a,(VDP_STAT) ; reset Latch 
+        ld hl,vdp_bios
+        ld b,$0C
+	ld c,VDP_ADDR
+	otir
+
+	ld  bc,$0800
+lp_clearmem
+        xor a,a
+	out (VDP_DATA),a
+	dec bc
+	ld  a,b
+        or  a,c
+        jr  nz,lp_clearmem
+
+        ld   hl,MFonts
+        ld   bc,$0800
+lp_fontset
+        ld  a,(hl)
+	out (VDP_DATA),a
+	inc hl
+	dec bc
+	ld  a,b
+        or  a,c
+        jr  nz,lp_fontset
+
+;set cursor to (0,0)
+	ld  a,$00
+	out (VDP_ADDR),a
+	ld  a,$40
+	out (VDP_ADDR),a
+
+        ld  hl,str_error_prompt
+
+        ld  a,(hl)
+lp_errprn
+	out (VDP_DATA),a
+        inc hl
+        ld  a,(hl)
+	and a,a
+        jr  nz,lp_errprn
+
+	ld  a,(de)
+lp_strprn
+	out (VDP_DATA),a
+	inc de
+        ld  a,(de)
+	and a,a
+	jr  nz,lp_strprn
+
+	jp hang_up_mode
+
+;---------------------------------
+;system messages
 
 str_proginfo
 ;           0123456789012345678901234567890123456789 
-        db "MSX COMPATIBLE BIOS ver 0.07",$00
+        db "MSX COMPATIBLE BIOS ver 0.08",$00
         db "Copyright (C) 2002 BouKiCHi",$00
         db $00
-
-str_secretmsg
-        db " ",$00
-        db "KOGA RYOUICHI SENSEI NO [GENOME] HA",$00
-        db "SUGOKU OMOSHIROI YO!",$00
-        db " ",$00,$00
 
 str_thanks
         db " ",$00
@@ -2193,6 +2429,30 @@ str_chksum
         db "checksum:",$00,$00
 str_isgame
         db " game:",$00,$00
+
+;-------------------------------------
+;error messages
+str_error_prompt
+;
+        db "ERROR:",$00
+str_memory_err
+;
+        db "MEMORY NOT FOUND.",$00
+
+str_no_basic_intr
+;
+        db "CALLED NO EXISTANCE BASIC.",$00
+
+str_stack_error
+;
+        db "STACK ERROR.",$00
+str_secretmsg
+;
+        db " ",$00
+;        db "KOGA RYOUICHI SENSEI NO MANGA HA",$00
+;        db "SUGOKU OMOSHIROI YO!",$00
+        db " ",$00,$00
+
 
 str_canstst
         db "SOUND TEST [F3 Key]",$00,$00
@@ -2238,6 +2498,13 @@ scode_tbl
         db $00,$00,$00,$00,$1D,$1E,$1F,$1C ;08
         db $00,$00,$00,$00,$00,$00,$00,$00 ;09
         db $00,$00,$00,$00,$00,$00,$00,$00 ;0a
+
+
+vdp_bios
+        db $00,$80,$70,$81,$00,$82,$01,$84
+        db $f5,$87,$00,$40
+
+
 
 
 ;--------------------------

@@ -1,6 +1,7 @@
 Start 
         code
         org     $0000
+        db "CD"
         align
         org     $3fff
         nop
