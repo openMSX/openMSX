@@ -2,6 +2,8 @@
 
 #include "VDPVRAM.hh"
 
+// class VDPVRAM:
+
 VDPVRAM::VDPVRAM(int size) {
 	this->size = size;
 
@@ -31,11 +33,10 @@ VDPVRAM::~VDPVRAM() {
 	delete[] data;
 }
 
-VDPVRAM::Window::Window() {
-	disable();
-}
+// class Window:
 
-void VDPVRAM::Window::setData(byte *data) {
-	this->data = data;
+VDPVRAM::Window::Window() {
+	observer = NULL;
+	disable();
 }
 

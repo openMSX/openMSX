@@ -1,5 +1,10 @@
 $Id$
 
+2002-09-30 Maarten ter Huurne <mth@stack.nl>
+	* The Great VRAM Rewrite, part 4:
+	  Introduction of VRAMObserver interface. Not used yet.
+	* Minor VRAM cleanups.
+
 2002-09-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Read/Write memory cache for SCC+
 	* Unified Xanadu and Royal Blood mapper types

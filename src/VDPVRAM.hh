@@ -134,19 +134,20 @@ public:
 	  */
 	inline void cmdWrite(int address, byte value, const EmuTime &time) {
 		// Rewriting history is not allowed.
+		// TODO: Because of rounding errors, this can occur.
+		//       Can this be solved?
 		//assert(time >= currentTime);
 
-		spriteChecker->updateVRAM(address, value, time);
-		// Problem: infinite loop (renderer <-> cmdEngine)
-		// Workaround: only dirty check, no render update
-		// Solution: break the chain somehow
-		if (true || nameTable.isInside(address)
+		// TODO: Pass index instead of address?
+		if ( nameTable.isInside(address)
 		|| colourTable.isInside(address)
-		|| patternTable.isInside(address)
-		|| bitmapWindow.isInside(address)) {
-			// TODO: Call separate routines for the different windows.
-			//       Otherwise renderer has to do the range checks again.
+		|| patternTable.isInside(address) ) {
 			renderer->updateVRAM(address, value, time);
+		}
+		//bitmapWindow.notify(address, time);
+		if (spriteAttribTable.isInside(address)
+		|| spritePatternTable.isInside(address)) {
+			spriteChecker->updateVRAM(address, time);
 		}
 		data[address] = value;
 		currentTime = time;
@@ -221,17 +222,26 @@ public:
 		this->renderer = renderer;
 	}
 
-	/** Necessary becaus of circular dependencies.
+	/** Necessary because of circular dependencies.
 	  */
 	inline void setSpriteChecker(SpriteChecker *spriteChecker) {
 		this->spriteChecker = spriteChecker;
 	}
 
-	/** Necessary becaus of circular dependencies.
+	/** Necessary because of circular dependencies.
 	  */
 	inline void setCmdEngine(VDPCmdEngine *cmdEngine) {
 		this->cmdEngine = cmdEngine;
 	}
+
+	/** Interface that can be registered at VDPVRAM to be called when a certain
+	  * area of VRAM changes.
+	  * Used to mark the corresponding part of a cache as dirty.
+	  */
+	class VRAMObserver {
+	public:
+		virtual void update(int address, const EmuTime &time) = 0;
+	};
 
 	/** Specifies an address range in the VRAM.
 	  * A VDP subsystem can use this to put a claim on a certain area.
@@ -240,6 +250,8 @@ public:
 	  * The address range is specified by a mask and is not necessarily
 	  * continuous. See "doc/vram-addressing.txt" for details.
 	  * TODO: Rename to "Table"? That's the term the VDP data book uses.
+	  *       Maybe have two classes: "Table" for tables, using a mask,
+	  *       and "Window" for the command engine, using an interval.
 	  */
 	class Window {
 	private:
@@ -247,11 +259,6 @@ public:
 			return baseAddr != -1;
 		}
 	public:
-		/** Create a new window.
-		  * Initially, the window is disabled; use setRange to enable it.
-		  */
-		Window();
-
 		/** Gets the mask for this window.
 		  * Should only be called if the window is enabled.
 		  * TODO: Only used by dirty checking. Maybe a new dirty checking
@@ -308,19 +315,45 @@ public:
 
 		/** Reads a byte from VRAM in its current state.
 		  * @param index Index in table, with unused bits set to 1.
-		  * TODO: getData is more powerful; keep this method as a convenience
-		  *       or get rid of it altogether?
+		  * TODO: Rename to "read", since all access is nonplanar (NP) now.
 		  */
 		inline byte readNP(int index) {
 			return *readArea(index);
 		}
 
+		/** Register an observer on this VRAM window.
+		  * It will be called when changes occur within the window.
+		  * There can be only one observer per window at any given time.
+		  * @param observer The observer to register.
+		  */
+		inline void setObserver(VRAMObserver *observer) {
+			this->observer = observer;
+		}
+
+		/** Unregister the observer of this VRAM window.
+		  */
+		inline void resetObserver() {
+			this->observer = NULL;
+		}
+
 		/** Test whether an address is inside this window.
+		  * TODO: Might be replaced by notify().
 		  * @param address The address to test.
 		  * @return true iff the address is inside this window.
 		  */
 		inline bool isInside(int address) {
 			return (address & combiMask) == baseAddr;
+		}
+
+		/** Notifies the observer of this window of a VRAM change,
+		  * if the changes address is inside this window.
+		  * @param address The address to test.
+		  * @param time The moment in emulated time the change occurs.
+		  */
+		inline void notify(int address, const EmuTime &time) {
+			if (observer && (address & combiMask) == baseAddr) {
+				observer->update(address, time);
+			}
 		}
 
 		/** Does this window overlap the specified range?
@@ -341,9 +374,16 @@ public:
 		  */
 		friend class VDPVRAM;
 
+		/** Create a new window.
+		  * Initially, the window is disabled; use setRange to enable it.
+		  */
+		Window();
+
 		/** Used by VDPVRAM to pass a pointer to the VRAM data.
 		  */
-		void setData(byte *data);
+		void setData(byte *data) {
+			this->data = data;
+		}
 
 		/** Pointer to the entire VRAM data.
 		  */
@@ -361,12 +401,14 @@ public:
 		  */
 		int combiMask;
 
+		/** Observer associated with this VRAM window.
+		  * It will be called when changes occur within the window.
+		  * If there is no observer, this variable contains NULL.
+		  */
+		VRAMObserver *observer;
+
 	};
 
-	// TODO: Move windows to user classes?
-	// Advantage: limited scope.
-	// Disadvantage: maybe VDPVRAM needs access for deciding whether
-	//   or not to send updates.
 	Window cmdReadWindow;
 	Window cmdWriteWindow;
 	Window nameTable;
