@@ -7,6 +7,8 @@
 
 int OSDConsoleRenderer::consoleColumns;
 int OSDConsoleRenderer::consoleLines;
+int OSDConsoleRenderer::wantedConsoleRows;
+int OSDConsoleRenderer::wantedConsoleColumns;
 OSDConsoleRenderer::Placement OSDConsoleRenderer::consolePlacement;
 
 // class BackgroundSetting
@@ -144,6 +146,9 @@ void OSDConsoleRenderer::initConsoleSize()
 				consoleColumns=((screen->w / font->getWidth())*30)/32; 
 			placementString = (config->hasParameter("placement") ? config->getParameter("placement") : "bottom");
 			
+			wantedConsoleColumns = consoleColumns;
+			wantedConsoleRows = consoleLines;
+			
 			std::map<std::string, Placement>::const_iterator it;
 			it = placeMap.find(placementString);
 			if (it != placeMap.end()) 
@@ -158,6 +163,14 @@ void OSDConsoleRenderer::initConsoleSize()
 		consoleColumnsSetting = new IntegerSetting("consolecolumns","number of columns in the console",consoleColumns,32,(screen->w - CHAR_BORDER) / font->getWidth());
 		consolePlacementSetting = new EnumSetting<OSDConsoleRenderer::Placement>(
 			"consoleplacement", "position of the console within the emulator", consolePlacement, placeMap);
+		if (wantedConsoleColumns != consoleColumns){
+		consoleColumnsSetting->setValueInt(wantedConsoleColumns);	
+		}
+		if (wantedConsoleRows != consoleLines){
+		consoleLinesSetting->setValueInt(wantedConsoleRows);
+		}		
+		currentMaxX = (screen->w - CHAR_BORDER) / font->getWidth();
+		currentMaxY = screen->h / font->getHeight();
 }
 
 
@@ -165,6 +178,19 @@ void OSDConsoleRenderer::initConsoleSize()
 void OSDConsoleRenderer::updateConsoleRect(SDL_Rect & rect)
 {
 	SDL_Surface *screen = SDL_GetVideoSurface();
+	int tempMaxX = (screen->w - CHAR_BORDER) / font->getWidth();
+	int tempMaxY = screen->h / font->getHeight();
+	
+	// if the range isn't changed (x or y) AND the value is
+	// it must be set by the user
+	if ((consoleLines != consoleLinesSetting->getValue()) &&
+		(tempMaxX == currentMaxX)){
+		wantedConsoleRows = consoleLinesSetting->getValue();	
+		}
+	if ((consoleColumns != consoleColumnsSetting->getValue()) &&
+		(tempMaxY == currentMaxY)){
+		wantedConsoleColumns = consoleColumnsSetting->getValue();	
+		}	
 		
 	consoleLinesSetting->setRange(1,screen->h / font->getHeight());
 	consoleLines = consoleLinesSetting->getValue();

@@ -83,7 +83,10 @@ class OSDConsoleRenderer : public ConsoleRenderer
 		int lastCursorPosition;
 	private:
 		std::map<std::string, Placement> placeMap;		
-		
+		static int wantedConsoleColumns;
+		static int wantedConsoleRows;
+		int currentMaxX;
+		int currentMaxY;
 };
 
 #endif
