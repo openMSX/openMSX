@@ -49,6 +49,7 @@ int FDCBackEnd::physToLog(byte track, byte side, byte sector)
 	if ((track == 0) && (side == 0) && (sector == 1))	// bootsector
 		return 0;
 	if (!nbSides) readBootSector();
+	PRT_DEBUG("FDCBackEnd::physToLog(track "<<(int)track<<", side "<<(int)side <<", sector "<<(int)sector<<") returns "<< (int)(sectorsPerTrack * (side + nbSides * track) + (sector - 1)) );
 	return sectorsPerTrack * (side + nbSides * track) + (sector - 1);
 }
 

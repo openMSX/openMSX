@@ -34,6 +34,8 @@ class FDC_DSK : public FDCBackEnd
 		byte writeTrack_track;
 		byte writeTrack_side;
 		byte writeTrack_sector;
+		int writeTrack_CRCcount;
+		int tmpdebugcounter;
 };
 
 #endif

@@ -40,8 +40,9 @@ class WD2793 : public FDC
 
 		// EmuTime commandStart;
 		// EmuTime commandEnd;
-		EmuTimeFreq<1000> commandEnd;
-		EmuTimeFreq<1000> motorStartTime[2];
+		EmuTimeFreq<1000000> commandEnd;
+		EmuTimeFreq<1000000> motorStartTime[2];
+		EmuTimeFreq<1000000> DRQTime[2];
 
 
 		byte statusReg;

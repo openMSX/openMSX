@@ -91,7 +91,16 @@ byte WD2793::getMotor(const EmuTime &time)
 
 byte WD2793::getDTRQ(const EmuTime &time)
 {
-  return dataAvailable?1:0 ;
+  //return dataAvailable?1:0 ;
+  if ((commandReg&0xF0)==0xF0 && (statusReg & 1) ){ // WRITE TRACK && status busy
+	int ticks = DRQTime[current_drive].getTicksTill(time);
+	if (ticks >= 15) {// writing a byte during format takes +/- 33 us according to tech data but on trubor fdc docs it state 15 us to get data ready
+			//TODO check for clockspeed of used diagram in wdc docs this could explain mistake
+		DRQTime[current_drive]-=15;
+		DRQ=true;
+	}
+  }
+  return DRQ?1:0 ;
 }
 
 byte WD2793::getIRQ(const EmuTime &time)
@@ -247,7 +256,6 @@ void WD2793::setCommandReg(byte value,const EmuTime &time)
 	  case 0xB0: // write sector (multi)
 	  	PRT_DEBUG("FDC command: write sector");
 		INTRQ=false;
-		DRQ=false;
 		statusReg &= 0x01 ;// reset lost data,record not found & status bits 5 & 6
 	  	dataCurrent=0;
 		dataAvailable=512; // TODO should come from sector header !!!
@@ -274,8 +282,8 @@ void WD2793::setCommandReg(byte value,const EmuTime &time)
 	      PRT_DEBUG("WD2793::getBackEnd(current_drive)->initWriteTrack(current_track " << (int)current_track<<", trackReg "<< (int)trackReg<<",current_side " << (int)current_side<<")");
 
 	      //PRT_INFO("FDC command not yet implemented ");
-		CommandController::instance()->executeCommand(std::string("cpudebug"));
-		statusReg &= 254 ;// reset status on Busy
+		//CommandController::instance()->executeCommand(std::string("cpudebug"));
+		//statusReg &= 254 ;// reset status on Busy
 		// Variables below are a not-completely-correct hack:
 		// Correct behavior would indicate that one wiats until the
 		// next indexmark before the first byte is written and that
@@ -284,7 +292,8 @@ void WD2793::setCommandReg(byte value,const EmuTime &time)
 		// By setting the motorStartTime to the current value we force an imediate indexmark
 		// also the DTR line is "faked" now
 		motorStartTime[current_drive]=time;
-		dataAvailable=1; // to get correct getDTRQ return value !!!
+		DRQTime[current_drive]=time;
+		//dataAvailable=1; // to get correct getDTRQ return value !!!
 	    break;
 	}
 }
@@ -295,13 +304,13 @@ byte WD2793::getStatusReg(const EmuTime &time)
 		//Type I command so bit 1 should be the index pulse
 		if ( current_drive < 2 ){
 		   int ticks = motorStartTime[current_drive].getTicksTill(time);
-		   if ( ticks >= 200) ticks -= 200 * ( int (ticks/200) );
+		   if ( ticks >= 200000) ticks -= 200000 * ( int (ticks/200000) );
 		   
 		   //TODO: check on a real MSX how long this indexmark is visible 
 		   // According to Ricardo it is simply a sensor that is mapped
 		   // onto this bit that sees if the index mark is passing by
 		   // or not. (The little gap in the metal plate of te disk)
-		   if (ticks < 20) statusReg |= 2;
+		   if (ticks < 20000) statusReg |= 2;
 		}
 	};
 	//statusReg &= 254 ;// reset status on Busy 
@@ -345,10 +354,10 @@ void WD2793::setDataReg(byte value, const EmuTime &time)
 			// If we wait too long we should also write a partialy filled sector
 			// ofcourse and set the correct status bits !!
 			statusReg &= 0x7D ;// reset status on Busy(=bit7) reset DRQ bit(=bit1)
-			DRQ=false;
 			if (mflag==0) {
 				//TODO verify this !
 				INTRQ=true;
+				DRQ=false;
 			}
 			dataCurrent=0;
 			dataAvailable=512; // TODO should come from sector header !!!
@@ -357,10 +366,14 @@ void WD2793::setDataReg(byte value, const EmuTime &time)
 		}
 	  }
 	} else if ((commandReg&0xF0)==0xF0){ // WRITE TRACK
-	    PRT_DEBUG("WD2793 WRITE TRACK value "<<(int)value);
+	    //PRT_DEBUG("WD2793 WRITE TRACK value "<<std::hex<<(int)value<<std::dec);
 	    int ticks = motorStartTime[current_drive].getTicksTill(time);
-	    PRT_DEBUG("WD2793 WRITE TRACK ticks "<<(int)ticks);
-	    if ( ticks >= 200){
+	    //PRT_DEBUG("WD2793 WRITE TRACK ticks "<<(int)ticks);
+	    //DRQ related timing
+	    DRQ=false;
+	    DRQTime[current_drive]=time;
+	    //indexmark related timing
+	    if ( ticks >= 200000){
 	      //next indexmark has passed
 	      dataAvailable=0; //return correct DTR
 	      statusReg &= 0x7D ;// reset status on Busy(=bit7) reset DRQ bit(=bit1)
@@ -428,6 +441,7 @@ byte WD2793::getDataReg(const EmuTime &time)
       DRQ=false;
       if (!mflag) INTRQ=true;
       PRT_DEBUG("Now we terminate the read sector command or skip to next sector if multi set");
+      // TODO implement multi sector read
     }
   }
   return dataReg;

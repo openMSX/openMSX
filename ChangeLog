@@ -7,6 +7,13 @@ $Id$
 	     verify this?
 	* Fixed National FDC
 
+2002-11-11 David Heremans <david.heremans@gnu-linux.net>
+	* completed timing in WD for writeTrack command:
+	  Timing still needs some fine tunning, but not much
+	* implemented writetrackdata in DSK backend:
+	  Formatting with _format in BASIC seems to work
+	  Need to compare with some real disks just to be sure.
+
 2002-11-10 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* fixed PhilipsFDC: IDEFDISK doesn't coredump anymore
 	* use old style file functions: should work with both old and new gcc

@@ -170,7 +170,7 @@
   </device>
 
   <config id="renderer">
-    <type>SDLHi</type>
+    <type>SDLLo</type>
     <parameter name="full_screen">false</parameter>
   </config>
 

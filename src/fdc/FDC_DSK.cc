@@ -65,15 +65,28 @@ void FDC_DSK::initWriteTrack(byte phystrack, byte track, byte side)
 	writeTrack_track=track;
 	writeTrack_side=side;
 	writeTrack_sector=1;
+	writeTrack_CRCcount=0;
+
+	PRT_DEBUG("tmpdebugcounter is "<<tmpdebugcounter);
+	tmpdebugcounter=0;
 }
 
 void FDC_DSK::writeTrackData(byte data)
 {
-	// if it is a 0xF7("two CRC characters") then the previous 512 bytes are actual sectordata bytes
-	// so write them and update sector counter.
+	tmpdebugcounter++;
+	// if it is a 0xF7("two CRC characters") then the previous 512 bytes could be actual sectordata bytes
 	if (data == 0xF7){
-		write(writeTrack_phystrack,writeTrack_track,writeTrack_sector,writeTrack_side,511,writeTrackBuf);
-		writeTrack_sector++;
+		if (writeTrack_CRCcount&1){ // first CRC is sector header CRC, second CRC is actual sector data CRC
+			// so write them 
+			byte* tempWriteBuf;
+			tempWriteBuf = new byte[512] ;
+			for (int i=0; i<512 ;i++ ){
+				tempWriteBuf[i]=writeTrackBuf[(writeTrackBufCur+i)&511];
+			}
+			write(writeTrack_phystrack,writeTrack_track,writeTrack_sector,writeTrack_side,511,tempWriteBuf);
+			writeTrack_sector++; // update sector counter.
+		};
+		writeTrack_CRCcount++; 
 	} else {
 		writeTrackBuf[writeTrackBufCur++]=data;
 		writeTrackBufCur&=511;
