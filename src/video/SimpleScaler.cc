@@ -158,10 +158,12 @@ void SimpleScaler<Pixel>::scaleBlank(Pixel colour, SDL_Surface* dst,
 		return;
 	}
 	
-	const HostCPU& cpu = HostCPU::getInstance();
 	int scanline = 255 - (scanlineSetting.getValue() * 255) / 100;
 	Pixel scanlineColour = mult1.multiply(colour, scanline);
-	if (ASM_X86 && cpu.hasMMXEXT()) {
+
+	#ifdef ASM_X86
+	const HostCPU& cpu = HostCPU::getInstance();
+	if (cpu.hasMMXEXT()) {
 		// extended-MMX routine (both 16bpp and 32bpp)
 		const unsigned col32 = sizeof(Pixel) == 2
 			? (((unsigned)colour) << 16) | colour
@@ -224,26 +226,28 @@ void SimpleScaler<Pixel>::scaleBlank(Pixel colour, SDL_Surface* dst,
 			);
 		}
 		asm volatile ("emms");
-	} else {
-		// Note: SDL_FillRect is generally not allowed on locked surfaces.
-		//       However, we're using a software surface, which doesn't
-		//       have locking.
-		// TODO: But it would be more generic to just write bytes.
-		assert(!SDL_MUSTLOCK(dst));
+		return;
+	}
+	#endif
+	
+	// Note: SDL_FillRect is generally not allowed on locked surfaces.
+	//       However, we're using a software surface, which doesn't
+	//       have locking.
+	// TODO: But it would be more generic to just write bytes.
+	assert(!SDL_MUSTLOCK(dst));
 
-		SDL_Rect rect;
-		rect.x = 0;
-		rect.w = dst->w;
-		rect.h = 1;
-		for (int y = dstY; y < endDstY; y += 2) {
-			rect.y = y;
-			// Note: return code ignored.
-			SDL_FillRect(dst, &rect, colour);
-			if (y + 1 == endDstY) break;
-			rect.y = y + 1;
-			// Note: return code ignored.
-			SDL_FillRect(dst, &rect, scanlineColour);
-		}
+	SDL_Rect rect;
+	rect.x = 0;
+	rect.w = dst->w;
+	rect.h = 1;
+	for (int y = dstY; y < endDstY; y += 2) {
+		rect.y = y;
+		// Note: return code ignored.
+		SDL_FillRect(dst, &rect, colour);
+		if (y + 1 == endDstY) break;
+		rect.y = y + 1;
+		// Note: return code ignored.
+		SDL_FillRect(dst, &rect, scanlineColour);
 	}
 }
 
@@ -288,8 +292,9 @@ void SimpleScaler<Pixel>::blur256(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 	unsigned c1 = alpha / 4;
 	unsigned c2 = 256 - c1;
 
+	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
-	if (ASM_X86 && (sizeof(Pixel) == 4) && cpu.hasMMX()) { // Note: not hasMMXEXT()
+	if ((sizeof(Pixel) == 4) && cpu.hasMMX()) { // Note: not hasMMXEXT()
 		// MMX routine, 32bpp
 		asm (
 			"xorl	%%eax, %%eax;"
@@ -371,36 +376,23 @@ void SimpleScaler<Pixel>::blur256(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 			, "r" (c2)    // 3
 			: "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
 			, "eax"
-			);
+		);
+		return;
+	}
+	#endif
+	
+	// non-MMX routine, both 16bpp and 32bpp
+	mult1.setFactor(c1);
+	mult2.setFactor(c2);
+	 
+	Pixel p0 = pIn[0];
+	Pixel p1;
+	unsigned f0 = mult1.mul32(p0);
+	unsigned f1 = f0;
+	unsigned tmp;
 
-	} else {
-		// non-MMX routine, both 16bpp and 32bpp
-		mult1.setFactor(c1);
-		mult2.setFactor(c2);
-		 
-		Pixel p0 = pIn[0];
-		Pixel p1;
-		unsigned f0 = mult1.mul32(p0);
-		unsigned f1 = f0;
-		unsigned tmp;
-
-		unsigned x;
-		for (x = 0; x < (320 - 2); x += 2) {
-			tmp = mult2.mul32(p0);
-			pOut[2 * x + 0] = mult1.conv32(f1 + tmp);
-
-			p1 = pIn[x + 1];
-			f1 = mult1.mul32(p1);
-			pOut[2 * x + 1] = mult1.conv32(f1 + tmp);
-
-			tmp = mult2.mul32(p1);
-			pOut[2 * x + 2] = mult1.conv32(f0 + tmp);
-
-			p0 = pIn[x + 2];
-			f0 = mult1.mul32(p0);
-			pOut[2 * x + 3] = mult1.conv32(f0 + tmp);
-		}
-
+	unsigned x;
+	for (x = 0; x < (320 - 2); x += 2) {
 		tmp = mult2.mul32(p0);
 		pOut[2 * x + 0] = mult1.conv32(f1 + tmp);
 
@@ -411,8 +403,22 @@ void SimpleScaler<Pixel>::blur256(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 		tmp = mult2.mul32(p1);
 		pOut[2 * x + 2] = mult1.conv32(f0 + tmp);
 
-		pOut[2 * x + 3] = p1;
+		p0 = pIn[x + 2];
+		f0 = mult1.mul32(p0);
+		pOut[2 * x + 3] = mult1.conv32(f0 + tmp);
 	}
+
+	tmp = mult2.mul32(p0);
+	pOut[2 * x + 0] = mult1.conv32(f1 + tmp);
+
+	p1 = pIn[x + 1];
+	f1 = mult1.mul32(p1);
+	pOut[2 * x + 1] = mult1.conv32(f1 + tmp);
+
+	tmp = mult2.mul32(p1);
+	pOut[2 * x + 2] = mult1.conv32(f0 + tmp);
+
+	pOut[2 * x + 3] = p1;
 }
 
 template <class Pixel>
@@ -453,8 +459,9 @@ void SimpleScaler<Pixel>::blur512(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 	unsigned c1 = alpha / 4;
 	unsigned c2 = 256 - alpha / 2;
 
+	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
-	if (ASM_X86 && (sizeof(Pixel) == 4) && cpu.hasMMX()) { // Note: not hasMMXEXT()
+	if ((sizeof(Pixel) == 4) && cpu.hasMMX()) { // Note: not hasMMXEXT()
 		// MMX routine, 32bpp
 		asm (
 			"xorl	%%eax, %%eax;"
@@ -529,40 +536,37 @@ void SimpleScaler<Pixel>::blur512(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 			, "r" (c2)    // 3
 			: "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
 			, "eax"
-			);
+		);
+		return;
+	}
+	#endif
 
-	} else {
-		mult1.setFactor(c1);
-		mult3.setFactor(c2);
+	mult1.setFactor(c1);
+	mult3.setFactor(c2);
 
-		Pixel p0 = pIn[0];
-		Pixel p1;
-		unsigned f0 = mult1.mul32(p0);
-		unsigned f1 = f0;
+	Pixel p0 = pIn[0];
+	Pixel p1;
+	unsigned f0 = mult1.mul32(p0);
+	unsigned f1 = f0;
 
-		unsigned x;
-		for (x = 0; x < (640 - 2); x += 2) {
-			p1 = pIn[x + 1];
-			unsigned t0 = mult1.mul32(p1);
-			pOut[x] = mult1.conv32(
-				f0 + mult3.mul32(p0) + t0);
-			f0 = t0;
-
-			p0 = pIn[x + 2];
-			unsigned t1 = mult1.mul32(p0);
-			pOut[x + 1] = mult1.conv32(
-				f1 + mult3.mul32(p1) + t1);
-			f1 = t1;
-		}
-
+	unsigned x;
+	for (x = 0; x < (640 - 2); x += 2) {
 		p1 = pIn[x + 1];
 		unsigned t0 = mult1.mul32(p1);
-		pOut[x] = mult1.conv32(
-			f0 + mult3.mul32(p0) + t0);
+		pOut[x] = mult1.conv32(f0 + mult3.mul32(p0) + t0);
+		f0 = t0;
 
-		pOut[x + 1] = mult1.conv32(
-			f1 + mult3.mul32(p1) + t0);
+		p0 = pIn[x + 2];
+		unsigned t1 = mult1.mul32(p0);
+		pOut[x + 1] = mult1.conv32(f1 + mult3.mul32(p1) + t1);
+		f1 = t1;
 	}
+
+	p1 = pIn[x + 1];
+	unsigned t0 = mult1.mul32(p1);
+	pOut[x] = mult1.conv32(f0 + mult3.mul32(p0) + t0);
+
+	pOut[x + 1] = mult1.conv32(f1 + mult3.mul32(p1) + t0);
 }
 
 template <class Pixel>
@@ -575,8 +579,9 @@ void SimpleScaler<Pixel>::average(
 		return;
 	}
 	
+	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
-	if (ASM_X86 && (sizeof(Pixel) == 4) && cpu.hasMMXEXT()) {
+	if ((sizeof(Pixel) == 4) && cpu.hasMMXEXT()) {
 		// extended-MMX routine, 32bpp
 		asm (
 			"movd	%3, %%mm6;"
@@ -638,9 +643,10 @@ void SimpleScaler<Pixel>::average(
 			, "r" (alpha << 8) // 3
 			: "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
 			, "eax"
-			);
+		);
+		return;
 
-	} else if (ASM_X86 && (sizeof(Pixel) == 4) && cpu.hasMMX()) {
+	} else if ((sizeof(Pixel) == 4) && cpu.hasMMX()) {
 		// MMX routine, 32bpp
 		asm (
 			"movd	%3, %%mm6;"
@@ -684,14 +690,15 @@ void SimpleScaler<Pixel>::average(
 			, "r" (alpha << 7) // 3
 			: "mm0", "mm1", "mm2", "mm3", "mm6", "mm7"
 			, "eax"
-			);
+		);
+		return;
+	}
+	#endif
 		
-	} else { 
-		// non-MMX routine, both 16bpp and 32bpp
-		for (unsigned x = 0; x < 640; ++x) {
-			dst[x] = mult1.multiply(
-				blender.blend(src1[x], src2[x]), alpha);
-		}
+	// non-MMX routine, both 16bpp and 32bpp
+	for (unsigned x = 0; x < 640; ++x) {
+		dst[x] = mult1.multiply(
+			blender.blend(src1[x], src2[x]), alpha);
 	}
 }
 

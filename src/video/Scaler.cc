@@ -49,8 +49,10 @@ template <class Pixel>
 void Scaler<Pixel>::copyLine(const Pixel* pIn, Pixel* pOut, unsigned width)
 {
 	const int nBytes = width * sizeof(Pixel);
+	
+	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
-	if (ASM_X86 && cpu.hasMMXEXT()) {
+	if (cpu.hasMMXEXT()) {
 		// extended-MMX routine (both 16bpp and 32bpp)
 		asm (
 			"xorl	%%eax, %%eax;"
@@ -86,10 +88,12 @@ void Scaler<Pixel>::copyLine(const Pixel* pIn, Pixel* pOut, unsigned width)
 			: "eax"
 			, "mm0", "mm1", "mm2", "mm3"
 			, "mm4", "mm5", "mm6", "mm7"
-			);
-	} else {
-		memcpy(pOut, pIn, nBytes);
+		);
+		return;
 	}
+	#endif
+
+	memcpy(pOut, pIn, nBytes);
 }
 
 template <class Pixel>
@@ -105,8 +109,9 @@ void Scaler<Pixel>::scaleLine(
 template <class Pixel>
 void Scaler<Pixel>::scaleLine(const Pixel* pIn, Pixel* pOut, unsigned width)
 {
+	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
-	if (ASM_X86 && (sizeof(Pixel) == 2) && cpu.hasMMXEXT()) {
+	if ((sizeof(Pixel) == 2) && cpu.hasMMXEXT()) {
 		// extended-MMX routine 16bpp
 		asm (
 			"xorl	%%eax, %%eax;"
@@ -151,8 +156,10 @@ void Scaler<Pixel>::scaleLine(const Pixel* pIn, Pixel* pOut, unsigned width)
 			: "eax"
 			, "mm0", "mm1", "mm2", "mm3"
 			, "mm4", "mm5", "mm6", "mm7"
-			);
-	} else if (ASM_X86 && (sizeof(Pixel) == 4) && cpu.hasMMXEXT()) {
+		);
+		return;
+
+	} else if ((sizeof(Pixel) == 4) && cpu.hasMMXEXT()) {
 		// extended-MMX routine 32bpp
 		asm (
 			"xorl	%%eax, %%eax;"
@@ -197,11 +204,13 @@ void Scaler<Pixel>::scaleLine(const Pixel* pIn, Pixel* pOut, unsigned width)
 			: "eax"
 			, "mm0", "mm1", "mm2", "mm3"
 			, "mm4", "mm5", "mm6", "mm7"
-			);
-	} else {
-		for (unsigned x = 0; x < width; x++) {
-			pOut[x * 2] = pOut[x * 2 + 1] = pIn[x];
-		}
+		);
+		return;
+	}
+	#endif
+		
+	for (unsigned x = 0; x < width; x++) {
+		pOut[x * 2] = pOut[x * 2 + 1] = pIn[x];
 	}
 }
 
@@ -213,10 +222,11 @@ Scaler<Pixel>::Scaler()
 template <class Pixel>
 void Scaler<Pixel>::scaleBlank(
 	Pixel colour,
-	SDL_Surface* dst, int dstY, int endDstY
-) {
+	SDL_Surface* dst, int dstY, int endDstY)
+{
+	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
-	if (ASM_X86 && cpu.hasMMXEXT()) {
+	if (cpu.hasMMXEXT()) {
 		// extended-MMX (both 16bpp and 32bpp) routine
 		const unsigned col32 =
 				sizeof(Pixel) == 2
@@ -250,23 +260,25 @@ void Scaler<Pixel>::scaleBlank(
 				, "rm" (col32) // 1
 				, "r" (dst->w * sizeof(Pixel)) // 2: bytes per line
 				: "eax", "mm0"
-				);
+			);
 		}
 		asm volatile ("emms");
-	} else {
-		SDL_Rect rect;
-		rect.x = 0;
-		rect.w = dst->w;
-		rect.y = dstY;
-		rect.h = endDstY - dstY;
-		// Note: SDL_FillRect is generally not allowed on locked surfaces.
-		//       However, we're using a software surface, which doesn't
-		//       have locking.
-		// TODO: But it would be more generic to just write bytes.
-		assert(!SDL_MUSTLOCK(dst));
-		// Note: return code ignored.
-		SDL_FillRect(dst, &rect, colour);
+		return;
 	}
+	#endif
+	
+	SDL_Rect rect;
+	rect.x = 0;
+	rect.w = dst->w;
+	rect.y = dstY;
+	rect.h = endDstY - dstY;
+	// Note: SDL_FillRect is generally not allowed on locked surfaces.
+	//       However, we're using a software surface, which doesn't
+	//       have locking.
+	// TODO: But it would be more generic to just write bytes.
+	assert(!SDL_MUSTLOCK(dst));
+	// Note: return code ignored.
+	SDL_FillRect(dst, &rect, colour);
 }
 
 template <class Pixel>

@@ -15,7 +15,7 @@ HostCPU::HostCPU()
 
 	mmxFlag = false;
 	mmxExtFlag = false;
-	if (ASM_X86) {
+	#ifdef ASM_X86 
 		// Is CPUID instruction supported?
 		unsigned hasCPUID;
 		asm (
@@ -63,7 +63,7 @@ HostCPU::HostCPU()
 				mmxExtFlag = mmxFlag && sseFlag;
 			}
 		}
-	}
+	#endif
 
 	PRT_DEBUG("MMX:              " << mmxFlag);
 	PRT_DEBUG("MMX extensions:   " << mmxExtFlag);
