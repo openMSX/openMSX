@@ -91,7 +91,7 @@ void EventDistributor::sync(const EmuTime& emuTime)
 		EmuDuration emuOffset(factor * offset);
 		EmuTime schedTime = time + emuOffset;
 		if (schedTime < emuTime) {
-			cout << "input delay too short" << endl;
+			//PRT_DEBUG("input delay too short");
 			schedTime = emuTime;
 		}
 		scheduler.setSyncPoint(schedTime, this);
