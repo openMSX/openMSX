@@ -10,7 +10,7 @@ namespace openmsx {
 class ZipFileAdapter : public CompressedFileAdapter
 {
 	public:
-		ZipFileAdapter(FileBase* file);
+		ZipFileAdapter(FileBase* file) throw(FileException);
 };
 
 } // namespace openmsx

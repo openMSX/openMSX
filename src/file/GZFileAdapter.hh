@@ -11,7 +11,7 @@ namespace openmsx {
 class GZFileAdapter : public CompressedFileAdapter
 {
 	public:
-		GZFileAdapter(FileBase* file);
+		GZFileAdapter(FileBase* file) throw(FileException);
 
 	private:
 		bool skipHeader(z_stream& s);

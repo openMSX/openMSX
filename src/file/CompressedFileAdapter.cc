@@ -26,6 +26,7 @@ string CompressedFileAdapter::tmpDir;
 
 
 CompressedFileAdapter::CompressedFileAdapter(FileBase* file_)
+	throw()
 	: file(file_), buf(0), pos(0), localName(0)
 {
 }
@@ -48,42 +49,43 @@ CompressedFileAdapter::~CompressedFileAdapter()
 }
 
 
-void CompressedFileAdapter::read(byte* buffer, unsigned num)
+void CompressedFileAdapter::read(byte* buffer, unsigned num) throw()
 {
 	memcpy(buffer, &buf[pos], num);
 }
 
 void CompressedFileAdapter::write(const byte* buffer, unsigned num)
+	throw(FileException)
 {
 	throw FileException("Writing to compressed files not yet supported");
 }
 
-unsigned CompressedFileAdapter::getSize()
+unsigned CompressedFileAdapter::getSize() throw()
 {
 	return size;
 }
 
-void CompressedFileAdapter::seek(unsigned newpos)
+void CompressedFileAdapter::seek(unsigned newpos) throw()
 {
 	pos = newpos;
 }
 
-unsigned CompressedFileAdapter::getPos()
+unsigned CompressedFileAdapter::getPos() throw()
 {
 	return pos;
 }
 
-void CompressedFileAdapter::truncate(unsigned size)
+void CompressedFileAdapter::truncate(unsigned size) throw(FileException)
 {
 	throw FileException("Truncating compressed files not yet supported.");
 }
 
-const string CompressedFileAdapter::getURL() const
+const string CompressedFileAdapter::getURL() const throw(FileException)
 {
 	return file->getURL();
 }
 
-const string CompressedFileAdapter::getLocalName()
+const string CompressedFileAdapter::getLocalName() throw(FileException)
 {
 	if (!localName) {
 		// create temp dir
@@ -128,7 +130,7 @@ const string CompressedFileAdapter::getLocalName()
 	return FileOperations::getConventionalPath(localName);
 }
 
-bool CompressedFileAdapter::isReadOnly() const
+bool CompressedFileAdapter::isReadOnly() const throw()
 {
 	return true;
 }

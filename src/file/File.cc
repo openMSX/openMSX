@@ -9,7 +9,7 @@
 
 namespace openmsx {
 
-File::File(const string &url, OpenMode mode)
+File::File(const string &url, OpenMode mode) throw(FileException)
 {
 	string protocol, name;
 	unsigned pos = url.find("://");
@@ -45,52 +45,52 @@ File::~File()
 }
 
 
-void File::read(byte* buffer, unsigned num)
+void File::read(byte* buffer, unsigned num) throw(FileException)
 {
 	file->read(buffer, num);
 }
 
-void File::write(const byte* buffer, unsigned num)
+void File::write(const byte* buffer, unsigned num) throw(FileException)
 {
 	file->write(buffer, num);
 }
 
-byte* File::mmap(bool writeBack)
+byte* File::mmap(bool writeBack) throw(FileException)
 {
 	return file->mmap(writeBack);
 }
 
-void File::munmap()
+void File::munmap() throw(FileException)
 {
 	file->munmap();
 }
 
-unsigned File::getSize()
+unsigned File::getSize() throw(FileException)
 {
 	return file->getSize();
 }
 
-void File::seek(unsigned pos)
+void File::seek(unsigned pos) throw(FileException)
 {
 	file->seek(pos);
 }
 
-unsigned File::getPos()
+unsigned File::getPos() throw(FileException)
 {
 	return file->getPos();
 }
 
-const string File::getURL() const
+const string File::getURL() const throw(FileException)
 {
 	return file->getURL();
 }
 
-const string File::getLocalName() const
+const string File::getLocalName() const throw(FileException)
 {
 	return file->getLocalName();
 }
 
-bool File::isReadOnly() const
+bool File::isReadOnly() const throw(FileException)
 {
 	return file->isReadOnly();
 }

@@ -12,6 +12,7 @@
 namespace openmsx {
 
 LocalFile::LocalFile(const string &filename_, OpenMode mode)
+	throw(FileException)
 	: filename(FileOperations::expandTilde(filename_)),
 	  readOnly(false)
 {
@@ -55,7 +56,7 @@ LocalFile::~LocalFile()
 	fclose(file);
 }
 
-void LocalFile::read(byte* buffer, unsigned num)
+void LocalFile::read(byte* buffer, unsigned num) throw(FileException)
 {
 	long pos = ftell(file);
 	fseek(file, 0, SEEK_END);
@@ -71,7 +72,7 @@ void LocalFile::read(byte* buffer, unsigned num)
 	}
 }
 
-void LocalFile::write(const byte* buffer, unsigned num)
+void LocalFile::write(const byte* buffer, unsigned num) throw(FileException)
 {
 	fwrite(buffer, 1, num, file);
 	if (ferror(file)) {
@@ -80,7 +81,7 @@ void LocalFile::write(const byte* buffer, unsigned num)
 }
 
 #ifdef HAVE_MMAP
-byte* LocalFile::mmap(bool writeBack)
+byte* LocalFile::mmap(bool writeBack) throw(FileException)
 {
 	if (!mmem) {
 		int flags = writeBack ? MAP_SHARED : MAP_PRIVATE;
@@ -93,7 +94,7 @@ byte* LocalFile::mmap(bool writeBack)
 	return mmem;
 }
 
-void LocalFile::munmap()
+void LocalFile::munmap() throw()
 {
 	if (mmem) {
 		::munmap(mmem, getSize());
@@ -102,7 +103,7 @@ void LocalFile::munmap()
 }
 #endif
 
-unsigned LocalFile::getSize()
+unsigned LocalFile::getSize() throw()
 {
 	long pos = ftell(file);
 	fseek(file, 0, SEEK_END);
@@ -111,7 +112,7 @@ unsigned LocalFile::getSize()
 	return size;
 }
 
-void LocalFile::seek(unsigned pos)
+void LocalFile::seek(unsigned pos) throw(FileException)
 {
 	fseek(file, pos, SEEK_SET);
 	if (ferror(file)) {
@@ -119,13 +120,13 @@ void LocalFile::seek(unsigned pos)
 	}
 }
 
-unsigned LocalFile::getPos()
+unsigned LocalFile::getPos() throw()
 {
 	return (unsigned)ftell(file);
 }
 
 #ifdef HAVE_FTRUNCATE
-void LocalFile::truncate(unsigned size)
+void LocalFile::truncate(unsigned size) throw(FileException)
 {
 	int fd = fileno(file);
 	if (ftruncate(fd, size)) {
@@ -134,18 +135,18 @@ void LocalFile::truncate(unsigned size)
 }
 #endif
 
-const string LocalFile::getURL() const
+const string LocalFile::getURL() const throw()
 {
 	static const string prefix("file://");
 	return prefix + filename;
 }
 
-const string LocalFile::getLocalName()
+const string LocalFile::getLocalName() throw()
 {
 	return filename;
 }
 
-bool LocalFile::isReadOnly() const
+bool LocalFile::isReadOnly() const throw()
 {
 	return readOnly;
 }

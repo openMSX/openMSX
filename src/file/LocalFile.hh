@@ -13,29 +13,29 @@ namespace openmsx {
 
 class LocalFile : public FileBase
 {
-	public:
-		LocalFile(const string &filename, OpenMode mode);
-		virtual ~LocalFile();
-		virtual void read (byte* buffer, unsigned num);
-		virtual void write(const byte* buffer, unsigned num);
+public:
+	LocalFile(const string &filename, OpenMode mode) throw(FileException);
+	virtual ~LocalFile();
+	virtual void read (byte* buffer, unsigned num) throw(FileException);
+	virtual void write(const byte* buffer, unsigned num) throw(FileException);
 #ifdef	HAVE_MMAP
-		virtual byte* mmap(bool writeBack);
-		virtual void munmap();
+	virtual byte* mmap(bool writeBack) throw(FileException);
+	virtual void munmap() throw();
 #endif
-		virtual unsigned getSize();
-		virtual void seek(unsigned pos);
-		virtual unsigned getPos();
+	virtual unsigned getSize() throw();
+	virtual void seek(unsigned pos) throw(FileException);
+	virtual unsigned getPos() throw();
 #ifdef HAVE_FTRUNCATE
-		virtual void truncate(unsigned size);
+	virtual void truncate(unsigned size) throw(FileException);
 #endif
-		virtual const string getURL() const;
-		virtual const string getLocalName();
-		virtual bool isReadOnly() const;
+	virtual const string getURL() const throw();
+	virtual const string getLocalName() throw();
+	virtual bool isReadOnly() const throw();
 
-	private:
-		string filename;
-		FILE* file;
-		bool readOnly;
+private:
+	string filename;
+	FILE* file;
+	bool readOnly;
 };
 
 } // namespace openmsx

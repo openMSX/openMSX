@@ -9,31 +9,31 @@ namespace openmsx {
 
 class CompressedFileAdapter : public FileBase
 {
-	public:
-		virtual ~CompressedFileAdapter();
-		virtual void read(byte* buffer, unsigned num);
-		virtual void write(const byte* buffer, unsigned num);
-		virtual unsigned getSize();
-		virtual void seek(unsigned pos);
-		virtual unsigned getPos();
-		virtual void truncate(unsigned size);
-		virtual const string getURL() const;
-		virtual const string getLocalName();
-		virtual bool isReadOnly() const;
+public:
+	virtual void read(byte* buffer, unsigned num) throw();
+	virtual void write(const byte* buffer, unsigned num) throw(FileException);
+	virtual unsigned getSize() throw();
+	virtual void seek(unsigned pos) throw();
+	virtual unsigned getPos() throw();
+	virtual void truncate(unsigned size) throw(FileException);
+	virtual const string getURL() const throw(FileException);
+	virtual const string getLocalName() throw(FileException);
+	virtual bool isReadOnly() const throw();
 
-	protected:
-		CompressedFileAdapter(FileBase* file);
+protected:
+	CompressedFileAdapter(FileBase* file) throw();
+	virtual ~CompressedFileAdapter();
 
-		FileBase* file;
-		byte* buf;
-		unsigned size;
+	FileBase* file;
+	byte* buf;
+	unsigned size;
 
-	private:
-		unsigned pos;
+private:
+	unsigned pos;
 
-		static int tmpCount;	// nb of files in tmp dir
-		static string tmpDir;	// name of tmp dir (when tmpCount > 0)
-		char* localName;	// name of tmp file (when != 0)
+	static int tmpCount;	// nb of files in tmp dir
+	static string tmpDir;	// name of tmp dir (when tmpCount > 0)
+	char* localName;	// name of tmp file (when != 0)
 };
 
 } // namespace openmsx

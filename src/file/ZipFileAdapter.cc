@@ -7,7 +7,7 @@
 
 namespace openmsx {
 
-ZipFileAdapter::ZipFileAdapter(FileBase* file_)
+ZipFileAdapter::ZipFileAdapter(FileBase* file_) throw(FileException)
 	: CompressedFileAdapter(file_)
 {
 	byte* inputBuf = file->mmap();
