@@ -143,6 +143,10 @@
       <sampleram>640</sampleram>
     </MoonSound>
 
+    <V9990 id="Sunrise GFX9000">
+      <io base="0x60" num="0x10"/>
+    </V9990>
+
     <primary slot="2">
 
       <secondary slot="0">

@@ -10,6 +10,7 @@ following features:
 - FMPAC (slot 3-1)
 - MSX Audio
 - Moonsound with 640kB sample RAM
+- GFX9000 (note that it's still experimental)
 - 512kB MegaRAM in slot 2-2
 
 This configuration needs the following ROMs in the roms subdir:
@@ -18,5 +19,4 @@ This configuration needs the following ROMs in the roms subdir:
 - fmpac.rom: same as needed for the FMPAC extension
 - yrw801.rom: same as needed for the Moonsound extension
 
-You can make this configuration the default by changing the DefaultMachine in
-settings.xml. See the Setup Guide of the manual.
+You can make this configuration the default by changing the 'machine' setting from the console. See the Setup Guide and User's Manual sections of the manual.
