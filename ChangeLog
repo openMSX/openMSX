@@ -8,6 +8,7 @@ $Id$
 	* Made console command "fullscreen", PrtScrn is bound to this command
 	* Console command "mute" takes on/off parameter
 	* Console command "pause" takes on/off parameter
+	* Made console command "console", F10 is bound to this command
 
 2002-04-01 Joost Yervante Damad <andete@worldcity.nl>
 	* FileManager sync [WIP]

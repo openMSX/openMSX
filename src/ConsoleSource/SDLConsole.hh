@@ -5,12 +5,12 @@
 
 #include <SDL/SDL.h>
 #include "../EventDistributor.hh"
-#include "../HotKey.hh"
 #include "SDLFont.hh"
 #include "Console.hh"
+#include "Command.hh"
 
 
-class SDLConsole : public Console, private EventListener, private HotKeyListener
+class SDLConsole : public Console, private EventListener
 {
 	public:
 		virtual ~SDLConsole();
@@ -29,7 +29,6 @@ class SDLConsole : public Console, private EventListener, private HotKeyListener
 	private:
 		SDLConsole();
 	
-		void signalHotKey(SDLKey key);
 		void signalEvent(SDL_Event &event);
 
 		void alpha(unsigned char alpha);
@@ -97,6 +96,18 @@ class SDLConsole : public Console, private EventListener, private HotKeyListener
 		/** Last time the consoles cursor blinked 
 		  */
 		Uint32 lastBlinkTime;
+
+
+		class ConsoleCmd : public Command {
+			public:
+				ConsoleCmd(SDLConsole *cons);
+				virtual void execute(const std::vector<std::string> &tokens);
+				virtual void help   (const std::vector<std::string> &tokens);
+			private:
+				SDLConsole *console;
+		};
+		friend class ConsoleCmd;
+		ConsoleCmd consoleCmd;
 };
 
 #endif

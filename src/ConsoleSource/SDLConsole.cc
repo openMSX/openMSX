@@ -9,9 +9,12 @@
 #include <cassert>
 #include "../openmsx.hh"
 #include "SDLConsole.hh"
+#include "CommandController.hh"
+#include "HotKey.hh"
 
 
-SDLConsole::SDLConsole()
+SDLConsole::SDLConsole() :
+	consoleCmd(this)
 {
 	isVisible = false;
 	lastBlinkTime = 0;
@@ -52,18 +55,10 @@ void SDLConsole::hookUpSDLConsole(SDL_Surface *screen)
 	alpha(200);
 	SDL_EnableUNICODE(1);
 	EventDistributor::instance()->registerAsyncListener(SDL_KEYDOWN, this);
-	HotKey::instance()->registerAsyncHotKey(SDLK_F10, this);
+	CommandController::instance()->registerCommand(consoleCmd, "console");
+	HotKey::instance()->registerHotKeyCommand(SDLK_F10, "console");
 }
 
-// Note: this runs in a different thread
-void SDLConsole::signalHotKey(SDLKey key) {
-	if (key == SDLK_F10) {
-		isVisible = !isVisible;
-	} else {
-		assert(false);
-	}
-}
- 
 // Takes keys from the keyboard and inputs them to the console
 void SDLConsole::signalEvent(SDL_Event &event)
 {
@@ -439,3 +434,37 @@ void SDLConsole::putPixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
 			break;
 	}
 }
+
+
+// Console command
+SDLConsole::ConsoleCmd::ConsoleCmd(SDLConsole *cons)
+{
+	console = cons;
+}
+
+void SDLConsole::ConsoleCmd::execute(const std::vector<std::string> &tokens)
+{
+	switch (tokens.size()) {
+	case 1:
+		console->isVisible = !console->isVisible;
+		break;
+	case 2:
+		if (tokens[1] == "on") {
+			console->isVisible = true;
+			break;
+		}
+		if (tokens[1] == "off") {
+			console->isVisible = false;
+			break;
+		}
+	default:
+		Console::instance()->print("Syntax error");
+	}
+}
+void SDLConsole::ConsoleCmd::help   (const std::vector<std::string> &tokens)
+{
+	Console::instance()->print("This command turns console display on/off");
+	Console::instance()->print(" console:     toggle console display");
+	Console::instance()->print(" console on:  show console display");
+	Console::instance()->print(" console off: remove console display");
+} 
