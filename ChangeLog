@@ -1,5 +1,8 @@
 $Id$
 
+2004-11-02 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Removed Disk and Tape BIOS patches
+
 2004-11-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* small VDP fix:
 	   missing sync() on r#7 change in GRAPHIC7 mode with screen disabled
