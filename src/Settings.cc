@@ -8,6 +8,7 @@
 
 // Force template instantiation
 template class EnumSetting<RenderSettings::Accuracy>;
+template class EnumSetting<bool>;
 
 
 // Setting implementation:

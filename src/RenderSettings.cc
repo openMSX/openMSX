@@ -16,12 +16,18 @@ RenderSettings::RenderSettings()
 	deinterlace = new BooleanSetting(
 		"deinterlace", "deinterlacing on/off", true);
 	
-	std::map<const std::string, Accuracy> map;
-	map["screen"] = ACC_SCREEN;
-	map["line"]   = ACC_LINE;
-	map["pixel"]  = ACC_PIXEL;
+	std::map<const std::string, Accuracy> accMap;
+	accMap["screen"] = ACC_SCREEN;
+	accMap["line"]   = ACC_LINE;
+	accMap["pixel"]  = ACC_PIXEL;
 	accuracy = new EnumSetting<Accuracy>(
-		"accuracy", "rendering accuracy", ACC_LINE, map);
+		"accuracy", "rendering accuracy", ACC_LINE, accMap);
+	
+	std::map<const std::string, bool> cmdMap;
+	cmdMap["real"]   = false;
+	cmdMap["broken"] = true;
+	cmdTiming = new EnumSetting<bool>(
+		"cmdtiming", "VDP command timing", false, cmdMap);
 }
 
 RenderSettings::~RenderSettings()
@@ -30,4 +36,5 @@ RenderSettings::~RenderSettings()
 	delete horizontalBlur;
 	delete deinterlace;
 	delete accuracy;
+	delete cmdTiming;
 }

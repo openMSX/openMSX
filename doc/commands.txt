@@ -283,6 +283,13 @@ blur
   TODO
 
 
+cmdtiming
+---------
+
+  Controls VDP command execution timing.
+  [ mainly usefull for debugging purposes ]
+  
+
 deinterlace
 -----------
 

@@ -3,6 +3,9 @@ $Id$
 2002-12-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Tabcompletion for setting values:
 	   example:  set accuracy p<tab>
+	* Implemented "cmdtiming" setting:
+	   Switch between real or instantaneous VDP command timing.
+	   Should only be used for debugging purposes.
 
 2002-12-22 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Updated RealTime class:

@@ -25,6 +25,7 @@ private:
 	IntegerSetting *horizontalBlur;
 	BooleanSetting *deinterlace;
 	EnumSetting<Accuracy> *accuracy;
+	EnumSetting<bool> *cmdTiming;
 
 public:
 	/** Get singleton instance.
@@ -40,11 +41,14 @@ public:
 	/** The amount of horizontal blur [0..100]. */
 	IntegerSetting *getHorizontalBlur() { return horizontalBlur; }
 
-	/** Deinterlacing [on / off]. */
+	/** Deinterlacing [on, off]. */
 	BooleanSetting *getDeinterlace() { return deinterlace; }
 
 	/** Accuracy [screen, line, pixel] */
 	EnumSetting<Accuracy> *getAccuracy() { return accuracy; }
+	
+	/** CmdTiming [real, broken] */
+	EnumSetting<bool> *getCmdTiming() { return cmdTiming; }
 };
 
 #endif // __RENDERSETTINGS_HH__

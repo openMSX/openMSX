@@ -6,6 +6,7 @@
 #include "openmsx.hh"
 #include "EmuTime.hh"
 #include "VDP.hh"
+#include "RenderSettings.hh"
 
 class VDPVRAM;
 
@@ -14,12 +15,6 @@ class VDPVRAM;
   */
 class VDPCmdEngine
 {
-private:
-	/** Should command execute in zero EmuTime?
-	  * Debug setting, for realism set to false.
-	  */
-	static const bool NOTIME_EXECUTION = false;
-
 public:
 	// Constants:
 	static const byte REG_SXL = 0x00; // VDP R#32: source X low
@@ -106,7 +101,9 @@ public:
 			status &= 0x7F;
 		} else if (index == REG_CMD) {
 			executeCommand();
-			if (NOTIME_EXECUTION) (this->*currEngine)();
+			if (RenderSettings::instance()->getCmdTiming()->getValue()) {
+				(this->*currEngine)();
+			}
 		}
 	}
 
