@@ -76,7 +76,7 @@ void MSXRomCLI::parse(const string& arg, const string& slotname)
 	auto_ptr<XMLElement> secondary(new XMLElement("secondary"));
 	secondary->addAttribute("slot", slotname);
 	auto_ptr<XMLElement> device(new XMLElement("ROM"));
-	device->addAttribute("id", "cart" + StringOp::toString(++cartridgeNr));
+	device->addAttribute("id", "MSXRom" + StringOp::toString(++cartridgeNr));
 	auto_ptr<XMLElement> mem(new XMLElement("mem"));
 	mem->addAttribute("base", "0x0000");
 	mem->addAttribute("size", "0x10000");

@@ -18,6 +18,8 @@ XMLException::XMLException(const string& msg)
 
 // class XMLElement
 
+map<string, unsigned> XMLElement::idMap;
+
 XMLElement::XMLElement()
 	: parent(NULL)
 {
@@ -61,6 +63,9 @@ void XMLElement::init(xmlNodePtr node)
 		case XML_ATTRIBUTE_NODE: {
 			string name  = (const char*)x->name;
 			string value = (const char*)x->children->content;
+			if (name == "id") {
+				value = makeUnique(value);
+			}
 			addAttribute(name, value);
 			break;
 		}
@@ -68,6 +73,16 @@ void XMLElement::init(xmlNodePtr node)
 			// ignore
 			break;
 		}
+	}
+}
+
+string XMLElement::makeUnique(const string& str)
+{
+	unsigned num = ++idMap[str];
+	if (num == 1) {
+		return str;
+	} else {
+		return str + " (" + StringOp::toString(num) + ')';
 	}
 }
 

@@ -88,10 +88,9 @@ void Rom::init(const XMLElement& config)
 	info = RomInfo::fetchRomInfo(*this, config);
 
 	// TODO fix this, this is a hack that depends heavily on MSXRomCLI.cc
-	if (!info->getTitle().empty() && (name.substr(0, 6) == "MSXRom")) {
-		char ps = name[6];
-		char ss = name[8];
-		name = info->getTitle() + " in slot " + ps + '-' + ss;
+	if (!info->getTitle().empty() &&
+	    ((name.size() >= 6) && (name.substr(0, 6) == "MSXRom"))) {
+		name = XMLElement::makeUnique(info->getTitle());
 	}
 
 	if (size) {

@@ -1,5 +1,9 @@
 $Id$
 
+2004-08-07 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Allow multiple times the same extension (make id's unique)
+	* ROM title (from romdb) is again visible in slotmap
+
 2004-08-06 Maarten ter Huurne <maarten@treewalker.org>
 	* Avoid syncs when VDP state changes when display is blanked and
 	  the border colour is not influenced by the state change.

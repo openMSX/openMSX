@@ -79,6 +79,8 @@ public:
 	FileContext& getFileContext() const;
 
 	string dump() const;
+	
+	static string makeUnique(const string& str);
 
 protected:
 	XMLElement();
@@ -94,6 +96,8 @@ private:
 	Attributes attributes;
 	XMLElement* parent;
 	auto_ptr<FileContext> context;
+
+	static map<string, unsigned> idMap;
 };
 
 
