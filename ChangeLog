@@ -2,11 +2,15 @@ $Id$
 
 2003-11-15 Manuel Bilderbeek <manuel@msxnet.org>
 	* Moved initialization of SDL Video to RendererFactory.
-	* Added Ren-Sha Turbo device to machines which have it
+	* Added Ren-Sha Turbo device to machines which have it.
 
 2003-11-15 Maarten ter Huurne <maarten@treewalker.org>
 	* Modified Scheduler to only schedule ASAP sync points during pause.
 	  Also made ASAP resolve to CPU's current time instead of target time.
+	* Delayed start of new frame until unpause.
+	  If a renderer keeps state to reproduce the image other than the pixels
+	  themselves, this state remains available during pause.
+	* Made SDLHi renderer react to scaler changes while paused.
 
 2003-11-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Split EventDistrubutor in EventDistributor and AfterCommand:
