@@ -94,7 +94,6 @@ template <class Pixel, Renderer::Zoom zoom>
 void V9990BitmapConverter<Pixel, zoom>::rasterBYUVP(
 	Pixel* pixelPtr, uint address, int nrPixels)
 {
-	// TODO Use palette
 	for (int p = 0; p < nrPixels; p += 4) {
 		byte data[4];
 		for (int i = 0; i < 4; ++i) {
@@ -105,11 +104,15 @@ void V9990BitmapConverter<Pixel, zoom>::rasterBYUVP(
 		char v = (data[0] & 7) + ((data[1] & 3) << 3) - ((data[1] & 4) << 3);
 
 		for (int i = 0; i < 4; ++i) {
-			char y = (data[i] & 0xF8) >> 3;
-			char r = max(0, min(31, y + u));
-			char g = max(0, min(31, (5 * y - 2 * u - v) / 4));
-			char b = max(0, min(31, y + v));
-			*pixelPtr++ = palette32768[(g << 10) + (r << 5) + b];
+			if (data[i] & 0x08) {
+				*pixelPtr++ = palette64[data[i] >> 4];
+			} else {
+				char y = (data[i] & 0xF8) >> 3;
+				char r = max(0, min(31, y + u));
+				char g = max(0, min(31, (5 * y - 2 * u - v) / 4));
+				char b = max(0, min(31, y + v));
+				*pixelPtr++ = palette32768[(g << 10) + (r << 5) + b];
+			}
 		}
 	}
 }
@@ -141,7 +144,6 @@ template <class Pixel, Renderer::Zoom zoom>
 void V9990BitmapConverter<Pixel, zoom>::rasterBYJKP(
 	Pixel* pixelPtr, uint address, int nrPixels)
 {
-	// TODO Use palette
 	for (int p = 0; p < nrPixels; p += 4) {
 		byte data[4];
 		for (int i = 0; i < 4; ++i) {
@@ -152,11 +154,15 @@ void V9990BitmapConverter<Pixel, zoom>::rasterBYJKP(
 		char k = (data[0] & 7) + ((data[1] & 3) << 3) - ((data[3] & 4) << 3);
 
 		for (int i = 0; i < 4; ++i) {
-			char y = data[i] >> 3;
-			char r = max(0, min(31, y + j));
-			char g = max(0, min(31, y + k));
-			char b = max(0, min(31, (5 * y - 2 * j - k) / 4));
-			*pixelPtr++ = palette32768[(g << 10) + (r << 5) + b];
+			if (data[i] & 0x08) {
+				*pixelPtr++ = palette64[data[i] >> 4];
+			} else {
+				char y = data[i] >> 3;
+				char r = max(0, min(31, y + j));
+				char g = max(0, min(31, y + k));
+				char b = max(0, min(31, (5 * y - 2 * j - k) / 4));
+				*pixelPtr++ = palette32768[(g << 10) + (r << 5) + b];
+			}
 		}
 	}
 }
@@ -494,8 +500,6 @@ void V9990BitmapConverter<Pixel, zoom>::convertLine(
 	}
 	(this->*blendMethod)(tmp, linePtr, nrPixels);
 }
-
-
 
 } // namespace openmsx
 
