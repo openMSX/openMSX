@@ -49,7 +49,7 @@ public:
 	  * The map of this setting contains only the available renderers.
 	  * @param defaultRenderer The name of the default renderer
 	  */
-	static RendererSetting *createRendererSetting(
+	static RendererSetting* createRendererSetting(
 		const string& defaultRenderer);
 
 	/** Gets the name of the associated renderer.

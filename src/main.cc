@@ -42,8 +42,9 @@ int main(int argc, char **argv)
 	int err = 0;
 	try {
 		initializeSDL();
-		CommandLineParser::ParseStatus parseStatus =
-			CommandLineParser::instance().parse(argc, argv);
+		CommandLineParser& parser = CommandLineParser::instance();
+		parser.parse(argc, argv);
+		CommandLineParser::ParseStatus parseStatus = parser.getParseStatus();
 		if (parseStatus != CommandLineParser::EXIT) {
 			auto_ptr<CliCommInput> cliCommInput;
 			if (parseStatus) {

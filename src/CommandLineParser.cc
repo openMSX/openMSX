@@ -1,5 +1,6 @@
 // $Id$
 
+#include <cassert>
 #include <string>
 #include <sstream>
 #include <iostream>
@@ -42,7 +43,8 @@ CommandLineParser& CommandLineParser::instance()
 }
 
 CommandLineParser::CommandLineParser()
-	: msxConfig(MSXConfig::instance()),
+	: parseStatus(UNPARSED),
+	  msxConfig(MSXConfig::instance()),
 	  output(CliCommOutput::instance()),
 	  slotManager(CartridgeSlotManager::instance()),
 	  helpOption(*this),
@@ -159,7 +161,7 @@ void CommandLineParser::registerPostConfig(CLIPostConfig *post)
 	postConfigs.push_back(post);
 }
 
-CommandLineParser::ParseStatus CommandLineParser::parse(int argc, char **argv)
+void CommandLineParser::parse(int argc, char **argv)
 {
 	parseStatus = RUN;
 	
@@ -258,9 +260,13 @@ CommandLineParser::ParseStatus CommandLineParser::parse(int argc, char **argv)
 	     it != postConfigs.end(); it++) {
 		(*it)->execute(msxConfig);
 	}
-	return parseStatus;
 }
 
+CommandLineParser::ParseStatus CommandLineParser::getParseStatus() const
+{
+	assert(parseStatus != UNPARSED);
+	return parseStatus;
+}
 
 // Control option
 

@@ -25,27 +25,27 @@ class CartridgeSlotManager;
 
 class CLIOption
 {
-	public:
-		virtual bool parseOption(const string &option,
-		                         list<string> &cmdLine) = 0;
-		virtual const string& optionHelp() const = 0;
-	
-	protected:
-		const string getArgument(const string &option,
-		                         list<string> &cmdLine);
+public:
+	virtual bool parseOption(const string& option,
+	                         list<string>& cmdLine) = 0;
+	virtual const string& optionHelp() const = 0;
+
+protected:
+	const string getArgument(const string& option,
+	                         list<string>& cmdLine);
 };
 
 class CLIFileType
 {
-	public:
-		virtual void parseFileType(const string &filename) = 0;
-		virtual const string& fileTypeHelp() const = 0;
+public:
+	virtual void parseFileType(const string& filename) = 0;
+	virtual const string& fileTypeHelp() const = 0;
 };
 
 class CLIPostConfig
 {
-	public:
-		virtual void execute(MSXConfig& config) = 0;
+public:
+	virtual void execute(MSXConfig& config) = 0;
 };
 
 struct OptionData
@@ -57,96 +57,97 @@ struct OptionData
 
 class CommandLineParser
 {
+public:
+	enum ParseStatus { UNPARSED, RUN, CONTROL, EXIT };
+	
+	static CommandLineParser& instance();
+	
+	void registerOption(const string& str, CLIOption* cliOption, byte prio = 7, byte length = 2);
+	void registerFileClass(const string& str, CLIFileType* cliFileType);
+	void registerPostConfig(CLIPostConfig* post);
+	void parse(int argc, char** argv);
+	ParseStatus getParseStatus() const;
+
+//private: // should be private, but gcc-2.95.x complains
+	struct caseltstr {
+		bool operator()(const string& s1, const string& s2) const {
+			return strcasecmp(s1.c_str(), s2.c_str()) < 0;
+		}
+	};
+	map<string, OptionData> optionMap;
+	map<string, CLIFileType*, caseltstr> fileTypeMap;
+	map<string, CLIFileType*, caseltstr> fileClassMap;
+
+private:
+	bool parseFileName(const string& arg,list<string>& cmdLine);
+	bool parseOption(const string& arg,list<string>& cmdLine, byte prio);
+
+	CommandLineParser();
+	void postRegisterFileTypes();
+	vector<CLIPostConfig*> postConfigs;
+	bool haveConfig;
+	bool haveSettings;
+	bool issuedHelp;
+	ParseStatus parseStatus;
+
+	MSXConfig& msxConfig;
+	CliCommOutput& output;
+	CartridgeSlotManager& slotManager;
+	
+	class HelpOption : public CLIOption {
 	public:
-		enum ParseStatus { RUN, CONTROL, EXIT };
-		
-		static CommandLineParser& instance();
-		
-		void registerOption(const string &str, CLIOption* cliOption, byte prio = 7, byte length = 2);
-		void registerFileClass(const string &str, CLIFileType* cliFileType);
-		void registerPostConfig(CLIPostConfig *post);
-		ParseStatus parse(int argc, char **argv);
-
-	//private: // should be private, but gcc-2.95.x complains
-		struct caseltstr {
-			bool operator()(const string s1, const string s2) const {
-				return strcasecmp(s1.c_str(), s2.c_str()) < 0;
-			}
-		};
-		map<string, OptionData> optionMap;
-		map<string, CLIFileType*, caseltstr> fileTypeMap;
-		map<string, CLIFileType*, caseltstr> fileClassMap;
-	
+		HelpOption(CommandLineParser& parent);
+		virtual bool parseOption(const string& option,
+			list<string>& cmdLine);
+		virtual const string& optionHelp() const;
 	private:
-		bool parseFileName(const string &arg,list<string> &cmdLine);
-		bool parseOption(const string &arg,list<string> &cmdLine, byte prio);
+		CommandLineParser& parent;
+	} helpOption;
+	friend class HelpOption;
 
-		CommandLineParser();
-		void postRegisterFileTypes();
-		vector<CLIPostConfig*> postConfigs;
-		bool haveConfig;
-		bool haveSettings;
-		bool issuedHelp;
-		ParseStatus parseStatus;
+	class VersionOption : public CLIOption {
+	public:
+		VersionOption(CommandLineParser& parent);
+		virtual bool parseOption(const string& option,
+			list<string>& cmdLine);
+		virtual const string& optionHelp() const;
+	private:
+		CommandLineParser& parent;
+	} versionOption;
+	friend class VersionOption;
 
-		MSXConfig& msxConfig;
-		CliCommOutput& output;
-		CartridgeSlotManager& slotManager;
+	class ControlOption : public CLIOption {
+	public:
+		ControlOption(CommandLineParser& parent);
+		virtual bool parseOption(const string& option,
+			list<string>& cmdLine);
+		virtual const string& optionHelp() const;
+	private:
+		CommandLineParser& parent;
+	} controlOption;
+	friend class ConfigOption;
 		
-		class HelpOption : public CLIOption {
-		public:
-			HelpOption(CommandLineParser& parent);
-			virtual bool parseOption(const string &option,
-				list<string> &cmdLine);
-			virtual const string& optionHelp() const;
-		private:
-			CommandLineParser& parent;
-		} helpOption;
-		friend class HelpOption;
+	class MachineOption : public CLIOption {
+	public:
+		MachineOption(CommandLineParser& parent);
+		virtual bool parseOption(const string& option,
+			list<string>& cmdLine);
+		virtual const string& optionHelp() const;
+	private:
+		CommandLineParser& parent;
+	} machineOption;
+	friend class MachineOption;
 	
-		class VersionOption : public CLIOption {
-		public:
-			VersionOption(CommandLineParser& parent);
-			virtual bool parseOption(const string &option,
-				list<string> &cmdLine);
-			virtual const string& optionHelp() const;
-		private:
-			CommandLineParser& parent;
-		} versionOption;
-		friend class VersionOption;
-	
-		class ControlOption : public CLIOption {
-		public:
-			ControlOption(CommandLineParser& parent);
-			virtual bool parseOption(const string &option,
-				list<string> &cmdLine);
-			virtual const string& optionHelp() const;
-		private:
-			CommandLineParser& parent;
-		} controlOption;
-		friend class ConfigOption;
-			
-		class MachineOption : public CLIOption {
-		public:
-			MachineOption(CommandLineParser& parent);
-			virtual bool parseOption(const string &option,
-				list<string> &cmdLine);
-			virtual const string& optionHelp() const;
-		private:
-			CommandLineParser& parent;
-		} machineOption;
-		friend class MachineOption;
-		
-		class SettingOption : public CLIOption {
-		public:
-			SettingOption(CommandLineParser& parent);
-			virtual bool parseOption(const string &option,
-				list<string> &cmdLine);
-			virtual const string& optionHelp() const;
-		private:
-			CommandLineParser& parent;
-		} settingOption;
-		friend class SettingOption;
+	class SettingOption : public CLIOption {
+	public:
+		SettingOption(CommandLineParser& parent);
+		virtual bool parseOption(const string& option,
+			list<string>& cmdLine);
+		virtual const string& optionHelp() const;
+	private:
+		CommandLineParser& parent;
+	} settingOption;
+	friend class SettingOption;
 };
 
 } // namespace openmsx

@@ -168,12 +168,22 @@ template <typename ValueType>
 class EnumSetting : public Setting<ValueType>
 {
 public:
-	EnumSetting(
-		const string &name, const string &description,
-		const ValueType &initialValue,
-		const map<string, ValueType> &map
-	) : Setting<ValueType>(name, description, initialValue)
-	  , intStringMap(convertMap(map))
+	EnumSetting(const string& name, const string& description,
+		    const ValueType& initialValue,
+		    const map<string, ValueType>& map)
+		: Setting<ValueType>(name, description, initialValue),
+	          intStringMap(convertMap(map))
+	{
+		// GCC 3.4-pre complains if superclass is not explicit here.
+		SettingLeafNode::type = intStringMap.getSummary();
+	}
+
+	EnumSetting(const string& name, const string& description,
+		    const ValueType& initialValue,
+		    const ValueType& defaultValue,
+		    const map<string, ValueType>& map)
+		: Setting<ValueType>(name, description, initialValue, defaultValue),
+	          intStringMap(convertMap(map))
 	{
 		// GCC 3.4-pre complains if superclass is not explicit here.
 		SettingLeafNode::type = intStringMap.getSummary();

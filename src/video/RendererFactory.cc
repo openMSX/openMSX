@@ -1,5 +1,6 @@
 // $Id$
 
+#include <SDL/SDL.h>
 #include "RendererFactory.hh"
 #include "openmsx.hh"
 #include "RenderSettings.hh"
@@ -9,8 +10,7 @@
 #include "XRenderer.hh"
 #include "CommandConsole.hh"
 #include "CliCommOutput.hh"
-#include <SDL/SDL.h>
-
+#include "CommandLineParser.hh"
 #include "Icon.hh"
 
 namespace openmsx {
@@ -98,10 +98,14 @@ RendererFactory::RendererSetting* RendererFactory::createRendererSetting(
 			"Invalid renderer requested: \"" + defaultRenderer + "\"");
 		defaultValue = SDLHI;
 	}
+	RendererID initialValue =
+		(CommandLineParser::instance().getParseStatus() ==
+		 CommandLineParser::CONTROL)
+		? DUMMY
+		: defaultValue;
 	return new RendererSetting(
 		"renderer", "rendering back-end used to display the MSX screen",
-		defaultValue, rendererMap
-		);
+		initialValue, defaultValue, rendererMap);
 }
 
 // RendererSwitcher ========================================================
