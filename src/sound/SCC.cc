@@ -24,6 +24,7 @@ SCC::~SCC()
 
 byte SCC::readMemInterface(byte address, const EmuTime &time)
 {
+	//PRT_DEBUG("SCC read " << std::hex << (int)address << std::dec);
 	return memInterface[address];
 }
 
@@ -94,6 +95,7 @@ void SCC::getFreqVol(byte offset)
 
 void SCC::writeMemInterface(byte address, byte value, const EmuTime &time)
 {
+	//PRT_DEBUG("SCC write " << std::hex <<(int)address << " " << (int)value << std::dec);
 	Mixer::instance()->updateStream(time);
 
 	byte waveborder = (currentChipMode == SCC_plusmode) ? 0xA0 : 0x80;
@@ -279,7 +281,7 @@ void SCC::checkMute()
 		enable >>= 1;
 		volumePtr++;
 	}
-	PRT_DEBUG("SCC+: setInternalMute(" << mute << "); ");
+	//PRT_DEBUG("SCC: setInternalMute(" << mute << "); ");
 	setInternalMute(mute);
 }
 

@@ -26,18 +26,17 @@ class MSXSCCPlusCart : public MSXMemDevice
 		virtual void writeMem(word address, byte value, const EmuTime &time);
 
 	private:
+		void setMapper(int regio, byte value);
 		void setModeRegister(byte value);
 		void checkEnable();
 		
 		SCC* cartridgeSCC;
-		byte scc_banked;
-		byte ModeRegister;
-		unsigned enable;
+		byte modeRegister;
+		enum SCCEnable {EN_NONE, EN_SCC, EN_SCCPLUS} enable;
 		byte* memoryBank;
-		byte mapperMask;
 		bool isRamSegment[4];
-		byte internalMapper[4];
 		byte *internalMemoryBank[4];	// 4 blocks of 8kB starting at #4000
+		byte mapper[4];
 };
 
 #endif // ndef DONT_WANT_SCC
