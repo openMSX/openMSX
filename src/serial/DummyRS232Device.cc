@@ -16,12 +16,12 @@ const string& DummyRS232Device::getDescription() const
 	return EMPTY;
 }
 
-void DummyRS232Device::plug(Connector* connector, const EmuTime& time)
+void DummyRS232Device::plugHelper(Connector* connector, const EmuTime& time)
 	throw()
 {
 }
 
-void DummyRS232Device::unplug(const EmuTime& time)
+void DummyRS232Device::unplugHelper(const EmuTime& time)
 {
 }
 

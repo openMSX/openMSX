@@ -10,12 +10,12 @@ namespace openmsx {
 
 class DummyMidiOutDevice : public MidiOutDevice
 {
-	public:
-		// SerialDataInterface (part)
-		virtual void recvByte(byte value, const EmuTime& time);
-		virtual const string& getDescription() const;
-		virtual void plug(Connector* connector, const EmuTime& time) throw();
-		virtual void unplug(const EmuTime& time);
+public:
+	// SerialDataInterface (part)
+	virtual void recvByte(byte value, const EmuTime& time);
+	virtual const string& getDescription() const;
+	virtual void plugHelper(Connector* connector, const EmuTime& time) throw();
+	virtual void unplugHelper(const EmuTime& time);
 };
 
 } // namespace openmsx

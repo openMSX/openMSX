@@ -10,7 +10,7 @@
 namespace openmsx {
 
 MidiInReader::MidiInReader()
-	: thread(this), connector(NULL), lock(1)
+	: thread(this), lock(1)
 	, readFilenameSetting("midi-in-readfilename",
 		"filename of the file where the MIDI input is read from",
 		"/dev/midi")
@@ -23,7 +23,7 @@ MidiInReader::~MidiInReader()
 }
 
 // Pluggable
-void MidiInReader::plug(Connector *connector_, const EmuTime &time)
+void MidiInReader::plugHelper(Connector *connector_, const EmuTime &time)
 	throw(PlugException)
 {
 	file = fopen(readFilenameSetting.getValue().c_str(), "rb");
@@ -32,7 +32,7 @@ void MidiInReader::plug(Connector *connector_, const EmuTime &time)
 			+ string(strerror(errno)) );
 	}
 
-	connector = (MidiInConnector *)connector_;
+	MidiInConnector* connector = static_cast<MidiInConnector*>(connector_);
 	connector->setDataBits(SerialDataInterface::DATA_8);	// 8 data bits
 	connector->setStopBits(SerialDataInterface::STOP_1);	// 1 stop bit
 	connector->setParityBit(false, SerialDataInterface::EVEN); // no parity
@@ -40,12 +40,11 @@ void MidiInReader::plug(Connector *connector_, const EmuTime &time)
 	thread.start();
 }
 
-void MidiInReader::unplug(const EmuTime &time)
+void MidiInReader::unplugHelper(const EmuTime &time)
 {
 	lock.down();
 	thread.stop();
 	lock.up();
-	connector = NULL;
 	fclose(file);
 }
 
@@ -74,7 +73,7 @@ void MidiInReader::run()
 		if (num != 1) {
 			continue;
 		}
-		assert(connector);
+		assert(getConnector());
 		lock.down();
 		queue.push_back(buf);
 		Scheduler::instance().setAsyncPoint(this);
@@ -85,6 +84,7 @@ void MidiInReader::run()
 // MidiInDevice
 void MidiInReader::signal(const EmuTime &time)
 {
+	MidiInConnector* connector = static_cast<MidiInConnector*>(getConnector());
 	if (!connector->acceptsData()) {
 		queue.clear();
 		return;
@@ -106,7 +106,7 @@ void MidiInReader::signal(const EmuTime &time)
 // Schedulable
 void MidiInReader::executeUntil(const EmuTime& time, int userData) throw()
 {
-	if (connector) {
+	if (getConnector()) {
 		signal(time);
 	} else {
 		lock.down();

@@ -82,7 +82,7 @@ const string& WavAudioInput::getDescription() const
 	return desc;
 }
 
-void WavAudioInput::plug(Connector *connector, const EmuTime &time)
+void WavAudioInput::plugHelper(Connector *connector, const EmuTime &time)
 	throw(PlugException)
 {
 	if (buffer == 0) {
@@ -96,7 +96,7 @@ void WavAudioInput::plug(Connector *connector, const EmuTime &time)
 	plugged = true;
 }
 
-void WavAudioInput::unplug(const EmuTime &time)
+void WavAudioInput::unplugHelper(const EmuTime &time)
 {
 	freeWave();
 	plugged = false;

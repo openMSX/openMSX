@@ -16,9 +16,10 @@ public:
 	virtual void setStrobe(bool strobe, const EmuTime& time);
 	virtual void writeData(byte data, const EmuTime& time);
 
+protected:
 	virtual const string& getDescription() const;
-	virtual void plug(Connector* connector, const EmuTime& time) throw();
-	virtual void unplug(const EmuTime& time);
+	virtual void plugHelper(Connector* connector, const EmuTime& time) throw();
+	virtual void unplugHelper(const EmuTime& time);
 };
 
 

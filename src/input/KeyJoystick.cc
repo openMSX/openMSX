@@ -82,12 +82,12 @@ const string& KeyJoystick::getDescription() const
 	return desc;
 }
 
-void KeyJoystick::plug(Connector* connector, const EmuTime& time)
+void KeyJoystick::plugHelper(Connector* connector, const EmuTime& time)
 	throw()
 {
 }
 
-void KeyJoystick::unplug(const EmuTime& time)
+void KeyJoystick::unplugHelper(const EmuTime& time)
 {
 }
 

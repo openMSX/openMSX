@@ -69,12 +69,12 @@ const string& DummyY8950KeyboardDevice::getDescription() const
 	return EMPTY;
 }
 
-void DummyY8950KeyboardDevice::plug(Connector* connector, const EmuTime& time)
+void DummyY8950KeyboardDevice::plugHelper(Connector* connector, const EmuTime& time)
 	throw()
 {
 }
 
-void DummyY8950KeyboardDevice::unplug(const EmuTime& time)
+void DummyY8950KeyboardDevice::unplugHelper(const EmuTime& time)
 {
 }
 

@@ -45,7 +45,7 @@ const string& Joystick::getDescription() const
 	return desc;
 }
 
-void Joystick::plug(Connector *connector, const EmuTime &time)
+void Joystick::plugHelper(Connector *connector, const EmuTime &time)
 	throw(PlugException)
 {
 	PRT_DEBUG("Opening joystick " << SDL_JoystickName(joyNum));
@@ -62,7 +62,7 @@ void Joystick::plug(Connector *connector, const EmuTime &time)
 	         JOY_BUTTONA | JOY_BUTTONB;
 }
 
-void Joystick::unplug(const EmuTime &time)
+void Joystick::unplugHelper(const EmuTime &time)
 {
 	EventDistributor::instance().unregisterEventListener(JOY_AXIS_MOTION_EVENT, *this);
 	EventDistributor::instance().unregisterEventListener(JOY_BUTTON_DOWN_EVENT, *this);

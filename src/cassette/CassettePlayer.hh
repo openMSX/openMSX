@@ -51,8 +51,8 @@ public:
 	virtual const string& getDescription() const;
 
 	// Pluggable
-	virtual void plug(Connector* connector, const EmuTime& time) throw();
-	virtual void unplug(const EmuTime &time);
+	virtual void plugHelper(Connector* connector, const EmuTime& time) throw();
+	virtual void unplugHelper(const EmuTime &time);
 
 	// SoundDevice
 	virtual void setVolume(int newVolume);

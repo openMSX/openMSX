@@ -34,12 +34,12 @@ const string& DummyCassetteDevice::getDescription() const
 	return EMPTY;
 }
 
-void DummyCassetteDevice::plug(Connector* connector, const EmuTime& time)
+void DummyCassetteDevice::plugHelper(Connector* connector, const EmuTime& time)
 	throw()
 {
 }
 
-void DummyCassetteDevice::unplug(const EmuTime& time)
+void DummyCassetteDevice::unplugHelper(const EmuTime& time)
 {
 }
 

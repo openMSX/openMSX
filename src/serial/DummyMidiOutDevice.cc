@@ -16,12 +16,12 @@ const string& DummyMidiOutDevice::getDescription() const
 	return EMPTY;
 }
 
-void DummyMidiOutDevice::plug(Connector* connector, const EmuTime& time)
+void DummyMidiOutDevice::plugHelper(Connector* connector, const EmuTime& time)
 	throw()
 {
 }
 
-void DummyMidiOutDevice::unplug(const EmuTime& time)
+void DummyMidiOutDevice::unplugHelper(const EmuTime& time)
 {
 }
 

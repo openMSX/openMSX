@@ -172,12 +172,12 @@ const string& CassettePlayer::getDescription() const
 	return desc;
 }
 
-void CassettePlayer::plug(Connector* connector, const EmuTime& time)
+void CassettePlayer::plugHelper(Connector* connector, const EmuTime& time)
 	throw()
 {
 }
 
-void CassettePlayer::unplug(const EmuTime& time)
+void CassettePlayer::unplugHelper(const EmuTime& time)
 {
 }
 

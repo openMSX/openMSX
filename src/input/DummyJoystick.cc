@@ -29,12 +29,12 @@ const string& DummyJoystick::getDescription() const
 	return EMPTY;
 }
 
-void DummyJoystick::plug(Connector* connector, const EmuTime& time)
+void DummyJoystick::plugHelper(Connector* connector, const EmuTime& time)
 	throw()
 {
 }
 
-void DummyJoystick::unplug(const EmuTime& time)
+void DummyJoystick::unplugHelper(const EmuTime& time)
 {
 }
 

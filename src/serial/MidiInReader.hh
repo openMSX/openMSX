@@ -14,11 +14,7 @@
 
 using std::list;
 
-
 namespace openmsx {
-
-class MidiInConnector;
-
 
 class MidiInReader : public MidiInDevice, private Runnable, private Schedulable
 {
@@ -27,9 +23,9 @@ public:
 	virtual ~MidiInReader();
 
 	// Pluggable
-	virtual void plug(Connector* connector, const EmuTime& time)
+	virtual void plugHelper(Connector* connector, const EmuTime& time)
 		throw(PlugException);
-	virtual void unplug(const EmuTime& time);
+	virtual void unplugHelper(const EmuTime& time);
 	virtual const string& getName() const;
 	virtual const string& getDescription() const;
 
@@ -46,7 +42,6 @@ private:
 
 	Thread thread;
 	FILE* file;
-	MidiInConnector* connector;
 	list<byte> queue;
 	Semaphore lock; // to protect queue
 

@@ -8,7 +8,7 @@
 namespace openmsx {
 
 RS232Tester::RS232Tester()
-	: thread(this), connector(NULL), lock(1),
+	: thread(this), lock(1),
 		rs232InputFilenameSetting("rs232-inputfilename",
                 "filename of the file where the RS232 input is read from",
                 "rs232-input"),
@@ -24,7 +24,7 @@ RS232Tester::~RS232Tester()
 }
 
 // Pluggable
-void RS232Tester::plug(Connector *connector_, const EmuTime &time)
+void RS232Tester::plugHelper(Connector *connector_, const EmuTime &time)
 	throw(PlugException)
 {
 	// output
@@ -40,7 +40,7 @@ void RS232Tester::plug(Connector *connector_, const EmuTime &time)
 		throw PlugException("Error opening input file");
 	}
 
-	connector = (RS232Connector *)connector_;
+	RS232Connector* connector = static_cast<RS232Connector*>(connector_);
 	connector->setDataBits(SerialDataInterface::DATA_8);	// 8 data bits
 	connector->setStopBits(SerialDataInterface::STOP_1);	// 1 stop bit
 	connector->setParityBit(false, SerialDataInterface::EVEN); // no parity
@@ -48,7 +48,7 @@ void RS232Tester::plug(Connector *connector_, const EmuTime &time)
 	thread.start();
 }
 
-void RS232Tester::unplug(const EmuTime &time)
+void RS232Tester::unplugHelper(const EmuTime &time)
 {
 	// output
 	outFile.close();
@@ -57,7 +57,6 @@ void RS232Tester::unplug(const EmuTime &time)
 	lock.down();
 	thread.stop();
 	lock.up();
-	connector = NULL;
 	fclose(inFile);
 }
 
@@ -86,7 +85,7 @@ void RS232Tester::run()
 		if (num != 1) {
 			continue;
 		}
-		assert(connector);
+		assert(getConnector());
 		lock.down();
 		queue.push_back(buf);
 		Scheduler::instance().setAsyncPoint(this);
@@ -97,6 +96,7 @@ void RS232Tester::run()
 // input
 void RS232Tester::signal(const EmuTime &time)
 {
+	RS232Connector* connector = static_cast<RS232Connector*>(getConnector());
 	if (!connector->acceptsData()) {
 		queue.clear();
 		return;
@@ -118,7 +118,7 @@ void RS232Tester::signal(const EmuTime &time)
 // Schedulable
 void RS232Tester::executeUntil(const EmuTime &time, int userData) throw()
 {
-	if (connector) {
+	if (getConnector()) {
 		signal(time);
 	} else {
 		lock.down();

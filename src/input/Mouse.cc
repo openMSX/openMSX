@@ -48,7 +48,7 @@ const string& Mouse::getDescription() const
 	return desc;
 }
 
-void Mouse::plug(Connector* connector, const EmuTime& time)
+void Mouse::plugHelper(Connector* connector, const EmuTime& time)
 	throw()
 {
 	if (status & JOY_BUTTONA) {
@@ -61,7 +61,7 @@ void Mouse::plug(Connector* connector, const EmuTime& time)
 	}
 }
 
-void Mouse::unplug(const EmuTime& time)
+void Mouse::unplugHelper(const EmuTime& time)
 {
 }
 

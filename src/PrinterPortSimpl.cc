@@ -31,14 +31,14 @@ void PrinterPortSimpl::writeData(byte data, const EmuTime &time)
 	dac->writeDAC(data,time);
 }
 
-void PrinterPortSimpl::plug(Connector *connector, const EmuTime &time)
+void PrinterPortSimpl::plugHelper(Connector *connector, const EmuTime &time)
 	throw()
 {
 	short volume = 12000;	// TODO read from config
 	dac = new DACSound8U("simpl", getDescription(), volume, time);
 }
 
-void PrinterPortSimpl::unplug(const EmuTime &time)
+void PrinterPortSimpl::unplugHelper(const EmuTime &time)
 {
 	delete dac;
 	dac = NULL;

@@ -18,9 +18,9 @@ public:
 	virtual ~MidiOutLogger();
 
 	// Pluggable
-	virtual void plug(Connector* connector, const EmuTime& time)
+	virtual void plugHelper(Connector* connector, const EmuTime& time)
 		throw(PlugException);
-	virtual void unplug(const EmuTime& time);
+	virtual void unplugHelper(const EmuTime& time);
 	virtual const string& getName() const;
 	virtual const string& getDescription() const;
 

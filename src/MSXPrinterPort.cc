@@ -111,12 +111,12 @@ const string& DummyPrinterPortDevice::getDescription() const
 	return EMPTY;
 }
 
-void DummyPrinterPortDevice::plug(Connector* connector, const EmuTime& time)
+void DummyPrinterPortDevice::plugHelper(Connector* connector, const EmuTime& time)
 	throw ()
 {
 }
 
-void DummyPrinterPortDevice::unplug(const EmuTime& time)
+void DummyPrinterPortDevice::unplugHelper(const EmuTime& time)
 {
 }
 

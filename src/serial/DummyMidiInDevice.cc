@@ -15,12 +15,12 @@ const string& DummyMidiInDevice::getDescription() const
 	return EMPTY;
 }
 
-void DummyMidiInDevice::plug(Connector* connector, const EmuTime& time)
+void DummyMidiInDevice::plugHelper(Connector* connector, const EmuTime& time)
 	throw()
 {
 }
 
-void DummyMidiInDevice::unplug(const EmuTime& time)
+void DummyMidiInDevice::unplugHelper(const EmuTime& time)
 {
 }
 

@@ -16,7 +16,7 @@ MidiOutLogger::~MidiOutLogger()
 {
 }
 
-void MidiOutLogger::plug(Connector *connector, const EmuTime &time)
+void MidiOutLogger::plugHelper(Connector *connector, const EmuTime &time)
 	throw(PlugException)
 {
 	file.open(logFilenameSetting.getValue().c_str());
@@ -26,7 +26,7 @@ void MidiOutLogger::plug(Connector *connector, const EmuTime &time)
 	}
 }
 
-void MidiOutLogger::unplug(const EmuTime &time)
+void MidiOutLogger::unplugHelper(const EmuTime &time)
 {
 	file.close();
 }
