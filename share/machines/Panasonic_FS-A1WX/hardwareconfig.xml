@@ -37,6 +37,7 @@
       <secondary slot="2">
         <MSX-MUSIC id="MSX Music">
           <mem base="0x4000" size="0x4000"/>
+          <io base="0x7C" num="2" type="O"/>
           <rom>
             <sha1>aad42ba4289b33d8eed225d42cea930b7fc5c228</sha1>
             <filename>roms/fs-a1wx_fmbasic.rom</filename>
