@@ -30,6 +30,7 @@ class RealTime : public Schedulable
 		virtual const std::string &schedName() const;
 
 		float getRealDuration(const EmuTime &time1, const EmuTime &time2);
+		EmuDuration getEmuDuration(float realDur);
 
 		/**
 		 * Synchronize EmuTime with RealTime, normally this is done
@@ -73,7 +74,7 @@ class RealTime : public Schedulable
 		// tune exponential average (0 < alpha < 1)
 		//  alpha small -> past is more important
 		//        big   -> present is more important
-		static const float alpha = 0.5;	// TODO make tuneable???
+		static const float alpha = 0.2;	// TODO make tuneable???
 	
 		EmuTimeFreq<1000> emuRef, emuOrigin;	// in ms (rounding err!!)
 		unsigned int realRef, realOrigin;	// !! Overflow in 49 days

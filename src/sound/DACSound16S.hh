@@ -5,11 +5,10 @@
 #ifndef __DACSOUND16S_HH__
 #define __DACSOUND16S_HH__
 
+#include <list>
 #include "openmsx.hh"
 #include "SoundDevice.hh"
-
-class Mixer;
-class EmuTime;
+#include "EmuTime.hh"
 
 
 class DACSound16S : public SoundDevice
@@ -27,10 +26,26 @@ class DACSound16S : public SoundDevice
 		virtual int* updateBuffer(int length);
 		
 	private:
+		inline int getSample(const EmuTime &time);
+		
+		struct Sample {
+			Sample(int value_, const EmuTime &time_)
+				: value(value_), time(time_) {}
+			int value;
+			EmuTime time;
+		};
+		std::list<Sample> samples;
+
+		float oneSampDur;
+		int lastValue;
+		short lastWrittenValue;
+		EmuTime lastTime;
+		EmuTime nextTime;
 		int volume;
-		short lastValue;
-		int* buf;
-		Mixer* mixer;
+		int* buffer;
+
+		class MSXCPU* cpu;
+		class RealTime* realTime;
 };
 
 #endif

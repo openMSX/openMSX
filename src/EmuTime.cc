@@ -3,7 +3,9 @@
 #include "EmuTime.hh"
 
 
-const EmuTime EmuTime::zero;
+const EmuTime EmuTime::zero(0);
+const EmuTime EmuTime::infinity(INFTY);
+
 
 std::ostream &operator<<(std::ostream &os, const EmuTime &et)
 {

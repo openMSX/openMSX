@@ -64,11 +64,17 @@ class EmuTime
 		EmuTime operator -(const EmuDuration &d) const 
 			{ assert(time >= d.time);
 			  return EmuTime(time - d.time); }
+		EmuTime &operator +=(const EmuDuration &d)
+			{ time += d.time; return *this; }
+		EmuTime &operator -=(const EmuDuration &d)
+			{ assert(time >= d.time);
+			  time -= d.time; return *this; }
 		EmuDuration operator -(const EmuTime &e) const
 			{ assert(time >= e.time);
 			  return EmuDuration(time-e.time); }
 		
 		static const EmuTime zero;
+		static const EmuTime infinity;
 		
 	//protected:
 		uint64 time;

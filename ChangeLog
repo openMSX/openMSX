@@ -1,5 +1,11 @@
 $Id$
 
+2003-04-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Improved DACSound quality:
+	   - improved qualityu at the expense of an (extra) delay
+	   - samples in Swiss Demo sound acceptable now
+	   - modplayer sound better but still not very good
+
 2003-04-19 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Added alternative YM2413 core (implemented by Jarek Burczynski):
 	   - still needs some work before it can replace old core

@@ -2,24 +2,31 @@
 
 #include "DACSound16S.hh"
 #include "Mixer.hh"
+#include "MSXCPU.hh"
+#include "RealTime.hh"
+
+
+const float DELAY = 0.08;	// TODO tune
 
 
 DACSound16S::DACSound16S(short maxVolume, const EmuTime &time)
 {
-	mixer = Mixer::instance();
+	cpu = MSXCPU::instance();
+	realTime = RealTime::instance();
 	
 	setVolume(maxVolume);
-	lastValue = 0;
+	lastValue = lastWrittenValue = 0;
+	nextTime = EmuTime::infinity;
 	reset(time);
 	
-	int bufSize = mixer->registerSound(this);
-	buf = new int[bufSize];
+	int bufSize = Mixer::instance()->registerSound(this);
+	buffer = new int[bufSize];
 }
 
 DACSound16S::~DACSound16S()
 {
-	mixer->unregisterSound(this);
-	delete[] buf;
+	Mixer::instance()->unregisterSound(this);
+	delete[] buffer;
 }
 
 void DACSound16S::setInternalVolume(short newVolume)
@@ -27,9 +34,9 @@ void DACSound16S::setInternalVolume(short newVolume)
 	volume = newVolume;
 }
 
-void DACSound16S::setSampleRate (int smplRt)
+void DACSound16S::setSampleRate(int sampleRate)
 {
-	// ignore sampleRate
+	oneSampDur = 1.0 / sampleRate;
 }
 
 void DACSound16S::reset(const EmuTime &time)
@@ -39,10 +46,37 @@ void DACSound16S::reset(const EmuTime &time)
 
 void DACSound16S::writeDAC(short value, const EmuTime &time)
 {
-	mixer->updateStream(time);
-	
-	lastValue = (volume * value) >> 15;
-	setInternalMute(lastValue == 0);
+	if (value == lastWrittenValue) {
+		return;
+	}
+	lastWrittenValue = value;
+	if ((value != 0) && (isInternalMuted())) {
+		EmuDuration delay = realTime->getEmuDuration(DELAY);
+		lastTime = time - delay;
+		setInternalMute(false);
+	}
+	samples.push_back(Sample((volume * value) >> 15, time));
+	if (nextTime == EmuTime::infinity) {
+		nextTime = time;
+	}
+}
+
+inline int DACSound16S::getSample(const EmuTime &time)
+{
+	while (nextTime < time) {
+		assert(!samples.empty());
+		lastValue = samples.front().value;
+		samples.pop_front();
+		if (samples.empty()) {
+			nextTime = EmuTime::infinity;
+			if (lastWrittenValue == 0) {
+				setInternalMute(true);
+			}
+		} else {
+			nextTime = samples.front().time;
+		}
+	}
+	return lastValue;
 }
 
 int* DACSound16S::updateBuffer(int length)
@@ -50,9 +84,34 @@ int* DACSound16S::updateBuffer(int length)
 	if (isInternalMuted()) {
 		return NULL;
 	}
-	int* buffer = buf;
-	while (length--) {
-		*buffer++ = lastValue;
+	
+	EmuTime now = cpu->getCurrentTime();
+	assert(lastTime <= now);
+	EmuDuration total = now - lastTime;
+
+	float realDuration = length * oneSampDur;
+	EmuDuration duration1 = realTime->getEmuDuration(realDuration);
+	if ((lastTime + duration1) > now) {
+		duration1 = total;
 	}
-	return buf;
+	
+	EmuDuration delay = realTime->getEmuDuration(DELAY);
+	if (now < (lastTime + delay)) {
+		delay = total;
+	}
+
+	uint64 a = duration1.length();
+	uint64 b = delay.length();
+	uint64 c = total.length();
+	EmuDuration duration = ((a + b) != 0) ?
+	                  EmuDuration((uint64)((c * a) / (length * (a + b)))) :
+	                  EmuDuration((uint64)0);
+
+	int* buf = buffer;
+	while (length--) {
+		lastTime += duration;
+		*(buf++) = getSample(lastTime);
+	}
+	return buffer;
 }
+

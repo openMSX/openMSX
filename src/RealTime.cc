@@ -143,6 +143,11 @@ float RealTime::getRealDuration(const EmuTime &time1, const EmuTime &time2)
 	return (time2 - time1).toFloat() * totalFactor;
 }
 
+EmuDuration RealTime::getEmuDuration(float realDur)
+{
+	return EmuDuration(realDur / totalFactor);
+}
+
 void RealTime::reset(const EmuTime &time)
 {
 	realRef = realOrigin = SDL_GetTicks();
