@@ -22,7 +22,7 @@
 //  Only the first mode is used on MSX, only this mode is implemented yet.
 //
 //  for more detail see
-//    http://.../8255.pdf    TODO: fix url
+//    http://w3.qahwah.net/joost/openMSX/8255.pdf
 
 #ifndef __MSXPPI_HH__
 #define __MSXPPI_HH__
