@@ -198,7 +198,7 @@ PixelRenderer::~PixelRenderer()
 
 void PixelRenderer::reset(const EmuTime &time)
 {
-	displayEnabled = false;
+	displayEnabled = vdp->isDisplayEnabled();
 	frameStart(time);
 }
 
