@@ -167,7 +167,9 @@ protected:
 
 	virtual ~Setting() { }
 
+private:
 	/** The current value of this setting.
+	  * Private to force use of setValue().
 	  */
 	ValueType value;
 };
@@ -280,7 +282,7 @@ public:
 	virtual string getValueString() const {
 		// GCC 3.4-pre complains if superclass is not explicit here.
 		return intStringMap.lookupInt(
-			static_cast<int>(Setting<ValueType>::value)
+			static_cast<int>(Setting<ValueType>::getValue())
 			);
 	}
 

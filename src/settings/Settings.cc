@@ -79,13 +79,13 @@ void IntegerSetting::setRange(const int minValue, const int maxValue)
 	type = out.str();
 
 	// Clip to new range.
-	setValue(value);
+	setValue(getValue());
 }
 
 string IntegerSetting::getValueString() const
 {
 	ostringstream out;
-	out << value;
+	out << getValue();
 	return out.str();
 }
 
@@ -138,13 +138,13 @@ void FloatSetting::setRange(const float minValue, const float maxValue)
 	*/
 
 	// Clip to new range.
-	setValue(value);
+	setValue(getValue());
 }
 
 string FloatSetting::getValueString() const
 {
 	char rangeStr[5];
-	snprintf(rangeStr, 5, "%.2f", value);
+	snprintf(rangeStr, 5, "%.2f", getValue());
 	return string(rangeStr);
 	/* The following C++ style code doesn't work on GCC 2.95:
 	ostringstream out;
@@ -263,7 +263,7 @@ StringSetting::StringSetting(
 
 string StringSetting::getValueString() const
 {
-	return value;
+	return getValue();
 }
 
 void StringSetting::setValueString(const string &newValue)
