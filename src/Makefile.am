@@ -16,7 +16,7 @@ endif
 # or perhaps sometimes even more:
 # AM_CXXFLAGS = -Wall -W -DDEBUG -g3 -pipe
 
-SUBDIRS = cfg libxmlx
+SUBDIRS = cfg libxmlx ConsoleSource
 
 #bin_PROGRAMS=openmsx cfgtest
 bin_PROGRAMS=openmsx
@@ -82,11 +82,13 @@ openmsx_SOURCES=openmsx.cc icon.nn \
 	MSXRomPatchInterface.hh MSXRomPatchInterface.cc \
 	MSXTapePatch.cc MSXTapePatch.hh \
 	FileOpener.cc FileOpener.hh \
+	Console.cc Console.hh \
 	MSXDiskRomPatch.cc MSXDiskRomPatch.hh
 
 # uncomment if you want to link with libxmlx
 # doesn't do anything yet at the moment
-openmsx_LDADD = libxmlx/libxmlx.la
+openmsx_LDADD = libxmlx/libxmlx.la ConsoleSource/libSDL_console.a
+#openmsx_LDADD = ConsoleSource/libSDL_console.a
 
 # link libxmlx static, all external libs are still
 # linked dynamicaly, unfortunately, this links more stuff

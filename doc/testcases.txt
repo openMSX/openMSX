@@ -2,7 +2,7 @@
 This file is a small and simple list of programs(mostly games and demo's) and why they make intresting test case for an MSX emulator:
 
 Time Curb:
-Beside that it is a nice test for tape support, the most ineteresting thing is the samples played(Time curb, world war one, world war two, etc...). The program puts the PSG on zero frequency and then uses the volume to alter the output voltage to play samples.
+Beside that it is a nice test for tape support, the most ineteresting thing is the samples played(Time curb, world war one, world war two, etc...). The program puts the PSG channels on hold, so that they output a constant value (== like a zero frequency) and then uses the volume to alter the output voltage to play samples.
 
 Hydefoss:
 A screensplit that switches between screen 5 and 4

@@ -1,5 +1,11 @@
 $Id$
 
+2002-01-22 David Heremans <david.heremans@gnu-linux.net>
+	* Added an SDL_console:
+	  Not usefull for the moment but you can toggle it with F10
+	  No commands possible and double key registration but the
+	  effect is "cool" :-)
+
 2002-01-20 David Heremans <david.heremans@gnu-linux.net>
 	* Added DSKFMT-implementationr:.
 	  Formating of a 360kB dsk file doens't work. A 720kB dsk file

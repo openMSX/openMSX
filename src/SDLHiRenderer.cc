@@ -55,6 +55,7 @@ TODO:
 #include "VDP.hh"
 #include "RealTime.hh"
 #include <math.h>
+#include "Console.hh"
 
 
 /** Dimensions of screen.
@@ -1111,6 +1112,9 @@ template <class Pixel> void SDLHiRenderer<Pixel>::putImage(
 	// Render changes from this last frame.
 	renderUntil(vdp->isPalTiming() ? 313 : 262);
 
+	// Render console if needed
+	Console::instance()->drawConsole();
+	
 	// Update screen.
 	// Note: return value ignored.
 	SDL_Flip(screen);
@@ -1147,6 +1151,8 @@ Renderer *createSDLHiRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)
 		return NULL;
 	}
 	PRT_DEBUG("Display is " << (int)(screen->format->BitsPerPixel) << " bpp.");
+	//Trying to attach a console
+	Console::instance()->hookUpConsole(screen);
 
 	switch (screen->format->BytesPerPixel) {
 	case 1:
