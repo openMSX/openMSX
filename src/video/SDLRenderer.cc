@@ -194,7 +194,7 @@ inline void SDLRenderer<Pixel, zoom>::renderCharacterLines(
 		// Display will be wrong, but this is not really critical.
 		return;
 	}
-	
+
 	while (count--) {
 		// Render this line.
 		characterConverter.convertLine(
@@ -307,9 +307,6 @@ SDLRenderer<Pixel, zoom>::SDLRenderer(
 template <class Pixel, Renderer::Zoom zoom>
 SDLRenderer<Pixel, zoom>::~SDLRenderer()
 {
-	// Unregister caches with VDPVRAM.
-	vram->nameTable.setObserver(NULL);
-
 	delete console;
 	SDL_FreeSurface(charDisplayCache);
 	SDL_FreeSurface(bitmapDisplayCache);
