@@ -109,7 +109,7 @@ void YM2413::makeDB2LinTable()
 		dB2LinTab[i] = (i<DB_MUTE) ? 
 		        (int)((double)((1<<DB2LIN_AMP_BITS)-1)*pow(10,-(double)i*DB_STEP/20)) :
 		        0;
-		dB2LinTab[i+2*DB_MUTE] = -dB2LinTab[i] ;
+		dB2LinTab[i+2*DB_MUTE] = -dB2LinTab[i];
 	}
 }
 
@@ -125,7 +125,7 @@ void YM2413::makeSinTable()
 
 	for(int i=0; i<PG_WIDTH/2; i++)
 		halfsintable[i] = fullsintable[i];
-	for(int i=PG_WIDTH/2 ; i<PG_WIDTH; i++)
+	for(int i=PG_WIDTH/2; i<PG_WIDTH; i++)
 		halfsintable[i] = fullsintable[0];
 }
 // Liner(+0.0 - +1.0) to dB((1<<DB_BITS) - 1 -- 0)
@@ -225,7 +225,7 @@ void YM2413::makeDphaseARTable(int sampleRate)
 				break;
 			default:
 				dphaseARTable[AR][Rks] = rate_adjust(3*(RL+4) << (RM+1), sampleRate);
-				break ;
+				break;
 			}
 		}
 	}
@@ -238,7 +238,7 @@ void YM2413::makeDphaseDRTable(int sampleRate)
 		for (int Rks=0; Rks<16; Rks++) {
 			int RM = DR + (Rks>>2);
 			int RL = Rks&3;
-			if (RM>15) RM = 15 ;
+			if (RM>15) RM = 15;
 			switch(DR) { 
 			case 0:
 				dphaseDRTable[DR][Rks] = 0;
@@ -805,7 +805,7 @@ void YM2413::Slot::calc_envelope()
 	case FINISH:
 	default:
 		egout = (1<<EG_BITS) - 1;
-		break ;
+		break;
 	}
 	if (patch->AM) 
 		egout = EG2DB(egout+tll) + *(plfo_am);
@@ -1030,7 +1030,7 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 		patch[0]->TL = (data)&63;
 		for (int i=0;i<9;i++) {
 			if (ch[i].patch_number==0) {
-				ch[i].mod.updateTLL() ;
+				ch[i].mod.updateTLL();
 			}
 		}
 		break;
@@ -1051,7 +1051,7 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 		patch[0]->DR = (data)&15;
 		for (int i=0;i<9;i++) {
 			if(ch[i].patch_number==0) {
-				ch[i].mod.updateEG() ;
+				ch[i].mod.updateEG();
 			}
 		}
 		break;
@@ -1116,7 +1116,7 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 		ch[8].car.updateAll();        
 		break;
 	case 0x0f:
-		break ;
+		break;
 	case 0x10:  case 0x11:  case 0x12:  case 0x13:
 	case 0x14:  case 0x15:  case 0x16:  case 0x17:
 	case 0x18:

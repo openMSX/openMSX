@@ -186,7 +186,7 @@ class Y8950 : public SoundDevice
 		void update_noise();
 		void update_ampm();
 		
-		inline int calcSample();
+		inline int calcSample(int channelMask);
 		inline int calcAdpcm();
 		void checkMute();
 		bool checkMuteHelper();
@@ -214,7 +214,6 @@ class Y8950 : public SoundDevice
 		// Channel & Slot 
 		Channel ch[9];
 		Slot *slot[18];
-		int mask[10];	// mask[9] = RYTHM 
 
 		static const int CLOCK_FREQ = 3579545;
 		static const double PI = 3.14159265358979;

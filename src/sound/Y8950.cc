@@ -418,8 +418,6 @@ Y8950::Y8950(short volume, const EmuTime &time, Mixer::ChannelMode mode=Mixer::M
 		slot[i*2+0] = &(ch[i].mod);
 		slot[i*2+1] = &(ch[i].car);
 	}
-	for (int i=0; i<10; i++) 
-		mask[i] = 0;
 	
 	// adpcm
 	// 256Kbytes RAM 
@@ -642,33 +640,32 @@ int Y8950::Slot::calc_slot_mod(int lfo_pm, int lfo_am)
 	return feedback;
 }
 
-int Y8950::calcSample()
+int Y8950::calcSample(int channelMask)
 {
 	// while muted update_ampm() and update_noise() aren't called, probably ok
 	update_ampm();
 	update_noise();      
 
-	int inst = 0;
-	for (int i=0; i<6; i++) {
-		if ((!mask[i])&&(ch[i].car.eg_mode!=FINISH)) {
-			if (ch[i].alg)
-				inst += ch[i].car.calc_slot_car(lfo_pm, lfo_am, 0) + ch[i].mod.calc_slot_mod(lfo_pm, lfo_am);
+	int mix = 0;
+
+	if (rythm_mode) {
+		// TODO wasn't in original source either
+		channelMask &= (1<< 6) - 1;
+	}
+	
+	for (Channel *cp = ch; channelMask; channelMask >>=1, cp++) {
+		if (channelMask & 1) {
+			if (cp->alg)
+				mix += cp->car.calc_slot_car(lfo_pm, lfo_am, 0) +
+				       cp->mod.calc_slot_mod(lfo_pm, lfo_am);
 			else
-				inst += ch[i].car.calc_slot_car(lfo_pm, lfo_am, ch[i].mod.calc_slot_mod(lfo_pm, lfo_am));
+				mix += cp->car.calc_slot_car(lfo_pm, lfo_am, 
+				         cp->mod.calc_slot_mod(lfo_pm, lfo_am));
 		}
 	}
-	if (!rythm_mode) {
-		for (int i=6; i<9; i++) {
-			if ((!mask[i])&&(ch[i].car.eg_mode!=FINISH)) {
-				if (ch[i].alg)
-					inst += ch[i].car.calc_slot_car(lfo_pm, lfo_am, 0) + ch[i].mod.calc_slot_mod(lfo_pm, lfo_am);
-				else
-					inst += ch[i].car.calc_slot_car(lfo_pm, lfo_am, ch[i].mod.calc_slot_mod(lfo_pm, lfo_am));
-			}
-		}
-	}
-	inst += calcAdpcm();
-	return (inst*maxVolume)>>DB2LIN_AMP_BITS;
+
+	mix += calcAdpcm();
+	return (mix*maxVolume) >> DB2LIN_AMP_BITS;
 }
 
 
@@ -763,16 +760,15 @@ int* Y8950::updateBuffer(int length)
 		return NULL;
 	}
 
-	//TODO
-	//int channelMask = 0;
-	//for (int i = 9; i--; ) {
-	//	channelMask <<= 1;
-	//	if (ch[i].car.eg_mode != FINISH) channelMask |= 1;
-	//}
+	int channelMask = 0;
+	for (int i=9; i--; ) {
+		channelMask <<= 1;
+		if (ch[i].car.eg_mode != FINISH) channelMask |= 1;
+	}
 
 	int* buf = buffer;
 	while (length--) {
-		*(buf++) = calcSample();
+		*(buf++) = calcSample(channelMask);
 	}
 
 	checkMute();
