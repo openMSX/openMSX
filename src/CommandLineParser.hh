@@ -26,6 +26,7 @@ class CartridgeSlotManager;
 class CLIOption
 {
 public:
+	virtual ~CLIOption() {}
 	virtual bool parseOption(const string& option,
 	                         list<string>& cmdLine) = 0;
 	virtual const string& optionHelp() const = 0;
@@ -38,6 +39,7 @@ protected:
 class CLIFileType
 {
 public:
+	virtual ~CLIFileType() {}
 	virtual void parseFileType(const string& filename) = 0;
 	virtual const string& fileTypeHelp() const = 0;
 };
@@ -45,6 +47,7 @@ public:
 class CLIPostConfig
 {
 public:
+	virtual ~CLIPostConfig() {}
 	virtual void execute(MSXConfig& config) = 0;
 };
 

@@ -19,6 +19,7 @@ class EmuTime;
 class AY8910Interface
 {
 public:
+	virtual ~AY8910Interface() {}
 	virtual byte readA(const EmuTime& time) = 0;
 	virtual byte readB(const EmuTime& time) = 0;
 	virtual void writeA(byte value, const EmuTime& time) = 0;

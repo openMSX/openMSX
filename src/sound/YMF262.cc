@@ -595,7 +595,7 @@ void YMF262::advance()
 }
 
 
-signed int op_calc(unsigned phase, unsigned env, signed int pm, unsigned int wave_tab)
+static signed int op_calc(unsigned phase, unsigned env, signed int pm, unsigned int wave_tab)
 {
 	int i = (phase & ~FREQ_MASK) + (pm << 16);
 	int p = (env << 4) + sin_tab[wave_tab + ((i >> FREQ_SH ) & SIN_MASK)];
@@ -605,7 +605,7 @@ signed int op_calc(unsigned phase, unsigned env, signed int pm, unsigned int wav
 	return tl_tab[p];
 }
 
-signed int op_calc1(unsigned phase, unsigned int env, signed int pm, unsigned int wave_tab)
+static signed int op_calc1(unsigned phase, unsigned int env, signed int pm, unsigned int wave_tab)
 {
 	int i = (phase & ~FREQ_MASK) + pm;
 	int p = (env << 4) + sin_tab[wave_tab + ((i >> FREQ_SH) & SIN_MASK)];

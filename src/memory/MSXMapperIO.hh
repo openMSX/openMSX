@@ -14,6 +14,7 @@ namespace openmsx {
 class MapperMask
 {
 public:
+	virtual ~MapperMask() {}
 	virtual byte calcMask(const multiset<unsigned>& mapperSizes) = 0;
 };
 

@@ -15,6 +15,7 @@ class ClockPin;
 class ClockPinListener
 {
 public:
+	virtual ~ClockPinListener() {}
 	virtual void signal(ClockPin& pin, const EmuTime& time) = 0;
 	virtual void signalPosEdge(ClockPin& pin, const EmuTime& time) = 0;
 };

@@ -70,6 +70,9 @@ public:
 	  */
 	virtual Renderer *create(VDP *vdp) = 0;
 
+protected:
+	virtual ~RendererFactory() {}
+	
 private:
 	/** Get the factory selected by the current renderer setting.
 	  * @return The RendererFactory that can create the renderer.

@@ -135,7 +135,7 @@ bool FDC_DirAsDSK::checkFileUsedInDSK(const string& fullfilename)
 }
 
 // create an MSX filename 8.3 format, if needed in vfat like abreviation
-char toMSXChr(char a)
+static char toMSXChr(char a)
 {
 	a = ::toupper(a);
 	if (a == ' ') {

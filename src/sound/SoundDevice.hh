@@ -13,6 +13,7 @@ class SoundDevice
 {
 public:
 	SoundDevice();
+	virtual ~SoundDevice() {}
 
 	/**
 	 * Get name

@@ -10,7 +10,7 @@
 
 namespace openmsx {
 
-MSXCasCLI msxCasCLI;
+static MSXCasCLI msxCasCLI;
 
 MSXCasCLI::MSXCasCLI()
 {

@@ -17,7 +17,7 @@
 
 namespace openmsx {
 
-MSXCassettePlayerCLI msxCassettePlayerCLI;
+static MSXCassettePlayerCLI msxCassettePlayerCLI;
 
 MSXCassettePlayerCLI::MSXCassettePlayerCLI()
 {

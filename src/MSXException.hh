@@ -14,7 +14,7 @@ class MSXException
 public:
 	MSXException(const string& message_)
 		: message(message_) { }
-	~MSXException() { }
+	virtual ~MSXException() { }
 	
 	const string& getMessage() const {
 		return message;
@@ -30,7 +30,7 @@ class FatalError
 public:
 	FatalError(const string& message_)
 		: message(message_) { }
-	~FatalError() { }
+	virtual ~FatalError() { }
 
 	const string& getMessage() const {
 		return message;

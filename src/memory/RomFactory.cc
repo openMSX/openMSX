@@ -36,7 +36,7 @@
 
 namespace openmsx {
 
-MSXRomCLI msxRomCLI;
+static MSXRomCLI msxRomCLI;
 
 
 MSXRom *RomFactory::create(Device *config, const EmuTime &time)

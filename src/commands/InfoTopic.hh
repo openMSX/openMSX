@@ -15,6 +15,8 @@ namespace openmsx {
 class InfoTopic
 {
 public:
+	virtual ~InfoTopic() {}
+	
 	/** Show info on this topic
 	  * @param tokens Tokenized command line;
 	  *     tokens[1] is the topic.

@@ -1,6 +1,10 @@
 $Id$
 
 2003-12-17 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed a lot (not all) ICC compile remarks, mostly virtual
+	  destructors for base classes
+
+2003-12-17 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* VDP pause frame cleanups:
 	   always store the last frame (was already like this for SDLHi/SDLLo,
 	   and also for SDLGL when some effect was used). This simplifies the

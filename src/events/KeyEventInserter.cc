@@ -11,7 +11,7 @@
 
 namespace openmsx {
 
-KeyEventInserterCLI keyEventInserterCLI;
+static KeyEventInserterCLI keyEventInserterCLI;
 
 KeyEventInserterCLI::KeyEventInserterCLI()
 {

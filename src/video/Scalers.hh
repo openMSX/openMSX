@@ -29,7 +29,8 @@ template <class Pixel>
 class Scaler
 {
 public:
-
+	virtual ~Scaler() {}
+	
 	/** Instantiates a Scaler.
 	  * @param id Identifies the scaler algorithm.
 	  * @param blender Pixel blender that can be used by the scaler algorithm

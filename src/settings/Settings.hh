@@ -65,8 +65,6 @@ protected:
 		: SettingLeafNode(name, description),
 	          value(initialValue), defaultValue(defaultValue_) { }
 
-	virtual ~Setting() { }
-
 private:
 	/** The current value of this setting.
 	  * Private to force use of setValue().

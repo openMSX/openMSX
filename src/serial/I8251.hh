@@ -17,6 +17,7 @@ namespace openmsx {
 class I8251Interface : public SerialDataInterface
 {
 public:
+	virtual ~I8251Interface() {}
 	virtual void setRxRDY(bool status, const EmuTime& time) = 0;
 	virtual void setDTR(bool status, const EmuTime& time) = 0;
 	virtual void setRTS(bool status, const EmuTime& time) = 0;

@@ -48,6 +48,7 @@ protected:
 	CPUTables() {
 		init();
 	}
+	virtual ~CPUTables() {}
 
 private:
 	/** Initialise the table contents.

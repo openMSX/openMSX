@@ -8,7 +8,7 @@ namespace openmsx {
 /** Disassemble first opcode in buffer.
   * @return length of given opcode in bytes
   */
-int Dasm(unsigned char *buffer, char *dest, unsigned int PC);
+extern int Dasm(unsigned char *buffer, char *dest, unsigned int PC);
 
 } // namespace openmsx
 

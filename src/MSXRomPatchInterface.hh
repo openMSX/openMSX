@@ -14,11 +14,13 @@ namespace openmsx {
 
 class MSXRomPatchInterface
 {
-	public:
-		/**
-		 * called by CPU on encountering an EDFE
-		 */
-		virtual void patch(CPU::CPURegs& regs) = 0;
+public:
+	virtual ~MSXRomPatchInterface() {}
+	
+	/**
+	 * called by CPU on encountering an EDFE
+	 */
+	virtual void patch(CPU::CPURegs& regs) = 0;
 };
 
 } // namespace openmsx

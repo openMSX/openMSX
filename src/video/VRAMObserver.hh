@@ -12,6 +12,8 @@ class EmuTime;
   */
 class VRAMObserver {
 public:
+	virtual ~VRAMObserver() {}
+	
 	/** Informs the observer of a change in VRAM contents.
 	  * This update is sent just before the change,
 	  * so the subcomponent can update itself to the given time

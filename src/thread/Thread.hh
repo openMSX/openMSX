@@ -12,6 +12,7 @@ namespace openmsx {
 class Runnable
 {
 public:
+	virtual ~Runnable() {}
 	virtual void run() throw() = 0;
 };
 

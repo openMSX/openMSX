@@ -7,7 +7,7 @@
 
 namespace openmsx {
 
-DiskImageCLI diskImageCLI;
+static DiskImageCLI diskImageCLI;
 
 
 MSXFDC::MSXFDC(Device* config, const EmuTime& time)

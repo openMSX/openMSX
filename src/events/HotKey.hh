@@ -17,6 +17,8 @@ namespace openmsx {
 class HotKeyListener
 {
 public:
+	virtual ~HotKeyListener() {}
+	
 	 /**
 	  * This method gets called when the key you are interested in
 	  * is pressed.

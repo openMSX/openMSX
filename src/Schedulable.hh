@@ -18,6 +18,8 @@ class EmuTime;
 class Schedulable
 {
 public:
+	virtual ~Schedulable() {}
+	
 	/**
 	 * When the previously registered syncPoint is reached, this
 	 * method gets called. The parameter "userData" is the same

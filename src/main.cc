@@ -23,19 +23,19 @@ using std::endl;
 
 namespace openmsx {
 
-void initializeSDL()
+static void initializeSDL()
 {
 	if (SDL_Init(0) < 0) { 
 		throw FatalError(string("Couldn't init SDL: ") + SDL_GetError());
 	}
 }
 
-void unexpectedExceptionHandler()
+static void unexpectedExceptionHandler()
 {
 	cerr << "Unexpected exception." << endl;
 }
 
-int main(int argc, char **argv)
+static int main(int argc, char **argv)
 {
 	std::set_unexpected(unexpectedExceptionHandler);
 	

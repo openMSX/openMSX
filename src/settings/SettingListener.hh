@@ -12,6 +12,8 @@ class SettingLeafNode;
 class SettingListener
 {
 public:
+	virtual ~SettingListener() { }
+	
 	/** Informs a listener of a change in a setting it subscribed to.
 	  * @param setting The setting of which the value has changed.
 	  */

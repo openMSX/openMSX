@@ -9,8 +9,9 @@ class EmuTime;
 
 class CassetteImage
 {
-	public:
-		virtual short getSampleAt(const EmuTime &time) = 0;
+public:
+	virtual ~CassetteImage() {}
+	virtual short getSampleAt(const EmuTime &time) = 0;
 };
 
 } // namespace openmsx

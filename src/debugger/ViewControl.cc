@@ -74,10 +74,6 @@ bool ViewControl::linkToCriterium(Debuggable* device, const string& criteria)
 		return false;
 		//currentCriterium = currentDevice->getRegisterNumber(criteria);
 	}
-	if (currentCriterium != 0xffff) {
-		return true;
-	}
-	return false;
 }
 
 } // namespace openmsx

@@ -14,6 +14,7 @@ class Scheduler;
 class TimerCallback
 {
 public:
+	virtual ~TimerCallback() {}
 	virtual void callback(byte value) throw() = 0;
 };
 
