@@ -3,7 +3,7 @@
 #ifndef __SCALE2XSCALER_HH__
 #define __SCALE2XSCALER_HH__
 
-#include "SimpleScaler.hh"
+#include "Scaler.hh"
 
 
 namespace openmsx {

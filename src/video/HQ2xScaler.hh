@@ -3,7 +3,7 @@
 #ifndef __HQ2XSCALER_HH__
 #define __HQ2XSCALER_HH__
 
-#include "SimpleScaler.hh"
+#include "Scaler.hh"
 #include "openmsx.hh"
 
 
