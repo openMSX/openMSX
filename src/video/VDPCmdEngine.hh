@@ -219,8 +219,10 @@ private:
 		
 		/** Clipping methods
 		  */
+		inline void clipNX_SX();
 		inline void clipNX_DX();
 		inline void clipNX_SXDX();
+		inline void clipNY_SY();
 		inline void clipNY_DY();
 		inline void clipNY_SYDY();
 

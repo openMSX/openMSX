@@ -280,6 +280,10 @@ static inline int VDP_VRMP8(int X, int Y)
 	return (((X & 1) << 16) + ((Y & 511) << 7) + ((X & 255) >> 1));
 }
 
+inline void VDPCmdEngine::VDPCmd::clipNX_SX()
+{
+	NX = (engine->ARG & DIX) ? min(NX, SX + 1) : min(NX, MX - SX);
+}
 inline void VDPCmdEngine::VDPCmd::clipNX_DX()
 {
 	NX = (engine->ARG & DIX) ? min(NX, DX + 1) : min(NX, MX - DX);
@@ -287,6 +291,10 @@ inline void VDPCmdEngine::VDPCmd::clipNX_DX()
 inline void VDPCmdEngine::VDPCmd::clipNX_SXDX()
 {
 	NX = (engine->ARG & DIX) ? min(NX, min(SX, DX) + 1) : min(NX, MX - max(SX, DX));
+}
+inline void VDPCmdEngine::VDPCmd::clipNY_SY()
+{
+	NY = (engine->ARG & DIY) ? min(NY, SY + 1) : NY;
 }
 inline void VDPCmdEngine::VDPCmd::clipNY_DY()
 {
@@ -839,6 +847,8 @@ void VDPCmdEngine::LmcmCmd::start(const EmuTime &time)
 	TX = (engine->ARG & DIX) ? -1 : 1;
 	TY = (engine->ARG & DIY) ? -1 : 1;
 	MX = PPL[engine->scrMode];
+	clipNX_SX();
+	clipNY_SY();
 	ASX = SX;
 	ANX = NX;
 }
@@ -851,9 +861,10 @@ void VDPCmdEngine::LmcmCmd::execute(const EmuTime &time)
 		engine->COL = point(ASX, SY);
 		opsCount -= getVdpTimingValue(LMMV_TIMING);
 		engine->status |= 0x80;
-
-		if (!--ANX || ((ASX += TX) & MX)) {
-			if (!(--NY) || (SY += TY) == -1) {
+		ASX += TX --ANX;
+		if (ANX == 0) {
+			SY += TY; --NY;
+			if (NY == 0) {
 				// Command execution done.
 				commandDone();
 				engine->NY = NY;
@@ -911,6 +922,8 @@ void VDPCmdEngine::LmmcCmd::execute(const EmuTime &time)
 				ANX = NX;
 			}
 		}
+	} else {
+		// TODO do we need to adjust opsCount?
 	}
 }
 
@@ -1192,6 +1205,8 @@ void VDPCmdEngine::HmmcCmd::execute(const EmuTime &time)
 				ANX = NX;
 			}
 		}
+	} else {
+		// TODO do we need to adjust opsCount?
 	}
 }
 
