@@ -68,7 +68,7 @@ int main (int argc, char **argv)
 		Thread thread(EventDistributor::instance());
 		thread.start();
 
-		// Fisrt execute auto commands
+		// First execute auto commands
 		CommandController::instance()->autoCommands();
 
 		//

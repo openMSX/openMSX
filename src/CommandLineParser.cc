@@ -1,6 +1,7 @@
 #include "CommandLineParser.hh"
 #include "libxmlx/xmlx.hh"
 #include "MSXConfig.hh"
+#include "FileOpener.hh"
 
 #include <string>
 #include <sstream>
@@ -39,6 +40,7 @@ CommandLineParser::CommandLineParser()
 	addOption(MUSMOD,"-musmod",false,"inserts a Philips Music Module (rom disabled)");
 	addOption(MBSTEREO,"-mbstereo",false,"enables -fmpac and -musmod with stereo registration");
 	//addOption(JOY,"-joy <type>",true,"plug a joystick in the emulated MSX (key,stick,mouse)");
+	addOption(KEYINS,"-keyins",true,"execute content in argument as keyinserts");
 }
 
 char* CommandLineParser::getParameter(CLIoption id)
@@ -280,81 +282,163 @@ void CommandLineParser::configureFmPac(std::string mode)
 
 void CommandLineParser::parse(MSXConfig::Backend* Backconfig,int argc, char **argv)
 {
-	    int i;
-	    int fileType=0;
+	int i;
+	int fileType=0;
 
-	    config=Backconfig;
+	config=Backconfig;
 
-	    for (i=1; i<argc; i++) {
-	      // check the current option
-	      if ( *(argv[i]) == '-' ){
-		printf("need to parse general option\n");
-		fileType=checkFileType(argv[i],i,argv);
-		//if fileType has changed then the next MUST be a filename
-		if (fileType !=0) i++;
-	      } else {
-		// no '-' as first character so it is a filename :-)
-		// and we atoumagically determine the filetype
-		//printf("need to parse filename option: %s\n",argv[i]);
-		PRT_INFO("need to parse filename option: "<<argv[i]);
-		fileType=checkFileExt(argv[i]);
-	      };
+	for (i=1; i<argc; i++)
+	{
+		// check the current option
+		if ( *(argv[i]) == '-' )
+		{
+			printf("need to parse general option\n");
+			fileType=checkFileType(argv[i],i,argv);
+			//if fileType has changed then the next MUST be a filename
+			if (fileType !=0) i++;
+		}
+		else
+		{
+			// no '-' as first character so it is a filename :-)
+			// and we automagically determine the filetype
+			//printf("need to parse filename option: %s\n",argv[i]);
+			PRT_INFO("need to parse filename option: "<<argv[i]);
+			fileType=checkFileExt(argv[i]);
+		};
 
-	      // if there is a filetype known now then we parse the next argv
-	      
-	      switch (fileType){
-		  case 0: //no filetype determined
-		    break;
-		  case 1: //xml files
-		    config->loadFile(std::string(argv[i]));
-		    nrXMLfiles++;
-		    break;
-		  case 2: //dsk,di2,di1 files
-		    configureDisk(argv[i]);
-		    break;
-		  case 3: //cas files
-		    configureTape(argv[i]);
-		    break;
-		  case 4: //rom files
-		    configureCartridge(argv[i]);
-		    break;
-		  default:
-		    PRT_INFO("Couldn't make sense of argument\n");
-	      }
-	      fileType=0;
-	    }
-	    //load "special" configuration files
-	    if ( isUsed(MSX1)) { 
-		    config->loadFile(std::string("msx1.xml"));
-		    nrXMLfiles++;
-		    };
-	    if ( isUsed(MSX2)) { 
-		    config->loadFile(std::string("msx2.xml"));
-		    nrXMLfiles++;
-		    };
-	    if ( isUsed(MSX2PLUS)) { 
-		    config->loadFile(std::string("msx2plus.xml"));
-		    nrXMLfiles++;
-		    };
-	    if ( isUsed(TURBOR)) { 
-		    config->loadFile(std::string("turbor.xml"));
-		    nrXMLfiles++;
-		    };
-	  
-	    if (nrXMLfiles==0){
-	      PRT_INFO ("Using msxconfig.xml as default configuration file");
-	      config->loadFile(std::string("msxconfig.xml"));
-	    } 
-	    if ( isUsed(FMPAC)) { 
-	      // Alter subslotting if we need to insert fmpac 
-	      configureFmPac(std::string("mono"));
-	    }
-	    if ( isUsed(MUSMOD)) { 
-	      configureMusMod(std::string("mono"));
-	    }
-	    if ( isUsed(MBSTEREO)){
-	      // Alter subslotting if we need to insert fmpac 
-	      configureMusMod(std::string("right"));
-	      configureFmPac(std::string("left"));
-	    }
+		// if there is a filetype known now then we parse the next argv
+
+		switch (fileType)
+		{
+			case 0: //no filetype determined
+			break;
+			case 1: //xml files
+			config->loadFile(std::string(argv[i]));
+			nrXMLfiles++;
+			break;
+			case 2: //dsk,di2,di1 files
+			configureDisk(argv[i]);
+			break;
+			case 3: //cas files
+			configureTape(argv[i]);
+			break;
+			case 4: //rom files
+			configureCartridge(argv[i]);
+			break;
+			default:
+			PRT_INFO("Couldn't make sense of argument\n");
+		}
+		fileType=0;
+	}
+	//load "special" configuration files
+	if ( isUsed(MSX1))
+	{
+		config->loadFile(std::string("msx1.xml"));
+		 nrXMLfiles++;
+	}
+	else if ( isUsed(MSX2))
+	{
+		config->loadFile(std::string("msx2.xml"));
+		nrXMLfiles++;
+	}
+	else if ( isUsed(MSX2PLUS))
+	{
+		config->loadFile(std::string("msx2plus.xml"));
+		nrXMLfiles++;
+	}
+	else if ( isUsed(TURBOR))
+	{
+		config->loadFile(std::string("turbor.xml"));
+		nrXMLfiles++;
+	}
+
+	if (nrXMLfiles==0)
+	{
+		PRT_INFO ("Using msxconfig.xml as default configuration file");
+		config->loadFile(std::string("msxconfig.xml"));
+	}
+	if ( isUsed(FMPAC))
+	{
+		// Alter subslotting if we need to insert fmpac 
+		configureFmPac(std::string("mono"));
+	}
+	if ( isUsed(MUSMOD))
+	{
+		configureMusMod(std::string("mono"));
+	}
+	if ( isUsed(MBSTEREO))
+	{
+		// Alter subslotting if we need to insert fmpac 
+		configureMusMod(std::string("right"));
+		configureFmPac(std::string("left"));
+	}
+	if ( isUsed(KEYINS))
+	{
+		configureKeyInsert(getParameter(KEYINS));
+	}
+}
+
+void CommandLineParser::configureKeyInsert(const char *const arg)
+{
+	assert(arg != NULL);
+	std::ostringstream s;
+	s << "<msxconfig>";
+	s << "<config id=\"KeyEventInserter\">";
+	s << "<type>KeyEventInserter</type>";
+	s << "<parameter name=\"keys\">";
+	// first try and treat arg as a file
+	try
+	{
+		IFILETYPE* file = FileOpener::openFileRO(std::string(arg));
+		char buffer[2];
+		while (!file->fail())
+		{
+			file->read(buffer, 1);
+			buffer[1] = '\0';
+			std::cerr << buffer;
+			std::string temp(buffer);
+			if (buffer[0] == '\n')
+			{
+				s << "&#x0D;";
+			}
+			else
+			{
+				s << XML::Escape(temp);
+			}
+		}
+		file->close();
+	}
+	// if that fails, treat it as a string
+	catch (FileOpenerException& e)
+	{
+		std::string str(arg);
+		for (std::string::const_iterator i = str.begin(); i != str.end(); i++)
+		{
+			std::string::const_iterator j = i;
+			j++;
+			bool cr = false;
+			if  (j != str.end())
+			{
+				if ((*i) == '\\' && (*j) == 'n')
+				{
+					s << "&#x0D;";
+					i++;
+					cr = true;
+				}
+			}
+			if (!cr)
+			{
+				char buffer2[2];
+				buffer2[1] = '\0';
+				buffer2[0] = (*i);
+				std::string str2(buffer2);
+				s << XML::Escape(str2);
+			}
+		}
+	}
+	s << "</parameter>";
+	s << "</config>";
+	s << "</msxconfig>";
+	PRT_DEBUG(s.str());
+	config->loadStream(s);
 }

@@ -25,10 +25,11 @@ class CommandLineParser
     void configureMusMod(std::string mode);
     void configureFmPac(std::string mode);
 
+    void configureKeyInsert(const char *const arg);
 
     enum CLIoption {
       HELP,MSX1,MSX2,MSX2PLUS,TURBOR,
-      FMPAC,MUSMOD,MBSTEREO,JOY
+      FMPAC,MUSMOD,MBSTEREO,JOY,KEYINS
     };
 
     void addOption(CLIoption id,std::string cliOption,bool usesParameter, std::string help);
