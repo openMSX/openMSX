@@ -140,8 +140,13 @@ MapperType RomInfo::guessMapperType(const Rom& rom)
 		           (data[0] == 'A') && (data[1] == 'B')) {
 			word initAddr = data[2] + 256 * data[3];
 			word textAddr = data[8] + 256 * data[9];
-			if ((initAddr == 0) && ((textAddr & 0xC000) == 0x8000)) {
-				return PAGE2;
+			if ((textAddr & 0xC000) == 0x8000) {
+				if ( initAddr == 0
+				|| ( (initAddr & 0xC000) == 0x8000
+				     && data[initAddr & (size - 1)] == 0xC9 )
+				) {
+					return PAGE2;
+				}
 			}
 		}
 		// not correct for Konami-DAC, but does this really need
