@@ -49,6 +49,7 @@ void CommandController::tokenize(const std::string &str, std::vector<std::string
 {
 	enum ParseState {Alpha, BackSlash, Quote, Space};
 	ParseState state = Space;
+	tokens.push_back(std::string());
 	for (unsigned i=0; i<str.length(); i++) {
 		char chr = str[i];
 		switch (state) {
@@ -56,8 +57,6 @@ void CommandController::tokenize(const std::string &str, std::vector<std::string
 				if (delimiters.find(chr) != std::string::npos) {
 					// nothing
 				} else {
-					// new token
-					tokens.push_back(std::string());
 					if (chr == '\\') {
 						state = BackSlash;
 					} else if (chr == '"') {
@@ -70,7 +69,8 @@ void CommandController::tokenize(const std::string &str, std::vector<std::string
 				break;
 			case Alpha:
 				if (delimiters.find(chr) != std::string::npos) {
-					// token done
+					// token done, start new token
+					tokens.push_back(std::string());
 					state = Space;
 				} else if (chr == '\\') {
 					state = BackSlash;
@@ -93,12 +93,16 @@ void CommandController::tokenize(const std::string &str, std::vector<std::string
 				break;
 		}
 	}
+	if ((tokens.size() > 1) && (tokens[0] == ""))
+		tokens.erase(tokens.begin());
 }
 
 void CommandController::executeCommand(const std::string &cmd)
 {
 	std::vector<std::string> tokens;
 	tokenize(cmd, tokens);
+	if (tokens[tokens.size()-1] == "")
+		tokens.resize(tokens.size()-1);
 	if (tokens.empty())
 		return;
 	std::map<const std::string, Command*, ltstr>::const_iterator it;

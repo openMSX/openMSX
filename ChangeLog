@@ -1,5 +1,8 @@
 $Id$
 
+2002-06-18 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Tab-completion now works for zero-length tokens
+
 2002-06-16 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Use exceptions for command error reporting
 
