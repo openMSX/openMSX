@@ -40,6 +40,7 @@ openmsx_SOURCES=openmsx.cc icon.nn \
 	VDPCmdEngine.hh VDPCmdEngine.cc \
 	Renderer.hh Renderer.cc \
 	SDLHiRenderer.hh SDLHiRenderer.cc \
+	SDLGLRenderer.hh SDLGLRenderer.cc \
 	PlatformFactory.hh PlatformFactory.cc \
 	devicefactory.hh devicefactory.cc \
 	Scheduler.hh Scheduler.cc \

@@ -7,6 +7,7 @@
 
 // Platform dependent includes:
 #include "SDLHiRenderer.hh"
+#include "SDLGLRenderer.hh"
 
 Renderer *PlatformFactory::createRenderer(VDP *vdp, const EmuTime &time)
 {
@@ -23,6 +24,9 @@ Renderer *PlatformFactory::createRenderer(VDP *vdp, const EmuTime &time)
 	}
 	else*/ if (renderType == "SDLHi") {
 		renderer = createSDLHiRenderer(vdp, fullScreen, time);
+	}
+	else if (renderType == "SDLGL") {
+		renderer = createSDLGLRenderer(vdp, fullScreen, time);
 	}
 	else {
 		PRT_ERROR("Unknown renderer \"" << renderType << "\"");

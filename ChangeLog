@@ -1,5 +1,10 @@
 $Id$
 
+2002-03-02 Maarten ter Huurne <mth@stack.nl>
+	* Added SDLGLRenderer (work in progress).
+	* Added nms8250.xml to distributed files.
+	* Fixed compile warnings in VDPCmdEngine.
+
 2002-03-04 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* SCC cleanups and tiny tweaks
 
