@@ -22,7 +22,7 @@ class R800 : public CPU {
 		R800(CPUInterface *interf, const EmuTime &time);
 		virtual ~R800();
 		virtual void setCurrentTime(const EmuTime &time);
-		virtual const EmuTime &getCurrentTime();
+		virtual const EmuTime &getCurrentTime() const;
 
 	private:
 		#include "CPUCore.n1"

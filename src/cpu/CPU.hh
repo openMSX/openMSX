@@ -67,7 +67,7 @@ class CPU
 		/**
 		 * Returns the CPU its current time
 		 */
-		virtual const EmuTime &getCurrentTime() = 0;
+		virtual const EmuTime &getCurrentTime() const = 0;
 		
 		/**
 		 * Alter the target time. The Scheduler uses this to announce
@@ -78,7 +78,7 @@ class CPU
 		/**
 		 * Returns the previously set target time
 		 */
-		const EmuTime &getTargetTime();
+		const EmuTime &getTargetTime() const;
 
 		/**
 		 * Read a byte from memory. If possible the byte is read from

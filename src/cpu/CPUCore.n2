@@ -16,7 +16,9 @@ inline bool _CPU_::READ_PORT(word port, byte &result, ResumeFunc f)
 {
 	if ((currentTime + IO_DELAY1) < targetTime) {
 		currentTime += IO_DELAY1;
-		//assert (currentTime < targetTime);
+		assert (currentTime < targetTime);
+		//PRT_DEBUG("CPU: In 0x" << std::hex << (int)port <<
+		//          std::dec << " at " << currentTime);
 		result = interface->readIO(port, currentTime);
 		currentTime += IO_DELAY2;
 		return true;
@@ -31,7 +33,9 @@ inline bool _CPU_::WRITE_PORT(word port, byte value, ResumeFunc f)
 {
 	if ((currentTime + IO_DELAY1) < targetTime) {
 		currentTime += IO_DELAY1;
-		//assert (currentTime < targetTime);
+		assert (currentTime < targetTime);
+		//PRT_DEBUG("CPU: Out 0x" << std::hex << (int)port <<
+		//          std::dec << " at " << currentTime);
 		interface->writeIO(port, value, currentTime);
 		currentTime += IO_DELAY2;
 		return true;
@@ -72,7 +76,7 @@ inline bool _CPU_::RDMEM(word address, byte &result, ResumeFunc f)
 	// uncacheable
 	if ((currentTime + MEM_DELAY1) < targetTime) {
 		currentTime += MEM_DELAY1;
-		//assert (currentTime < targetTime);
+		assert (currentTime < targetTime);
 		result = interface->readMem(address, currentTime);
 		#ifdef CPU_DEBUG
 		debugmemory[address] = result;
@@ -110,7 +114,7 @@ inline bool _CPU_::WRMEM(word address, byte value, ResumeFunc f)
 	// uncacheable
 	if ((currentTime + MEM_DELAY1) < targetTime) {
 		currentTime += MEM_DELAY1;
-		//assert (currentTime < targetTime);
+		assert (currentTime < targetTime);
 		interface->writeMem(address, value, currentTime);
 		currentTime += MEM_DELAY2;
 		return true;
@@ -271,6 +275,7 @@ void _CPU_::executeCore() {
 			executeSlow();
 		}
 	}
+	//PRT_DEBUG("CPU: stopped at " << currentTime << " " << stop);
 }
 
 

@@ -31,7 +31,7 @@ void Z80::setCurrentTime(const EmuTime &time)
 {
 	currentTime = time;
 }
-const EmuTime &Z80::getCurrentTime()
+const EmuTime &Z80::getCurrentTime() const
 {
 	return currentTime;
 }

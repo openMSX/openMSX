@@ -1,6 +1,12 @@
 $Id$
 
 2003-01-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed CPU HALT instruction
+	* Semi-fixed CPU/Scheduler interaction:
+	   - seems to work, but I still need to take a very close look at
+	     the code 
+
+2003-01-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Large CPU rewrite:
 	   - we never perform IO at a timestamp greater or equal than
 	     the earliest sync point

@@ -18,7 +18,7 @@ void R800::setCurrentTime(const EmuTime &time)
 {
 	currentTime = time;
 }
-const EmuTime &R800::getCurrentTime()
+const EmuTime &R800::getCurrentTime() const
 {
 	return currentTime;
 }

@@ -52,12 +52,12 @@ void Scheduler::setSyncPoint(const EmuTime &timestamp, Schedulable* device, int 
 	
 	EmuTime time(timestamp);
 	if (time == ASAP)
-		time = cpu->getCurrentTime();
+		time = cpu->getTargetTime();
 	
 	if (device) 
 		PRT_DEBUG("Sched: registering " << device->schedName() << 
 		          " " << userData << " for emulation at " << time);
-	//PRT_DEBUG("Sched:  CPU is at " << cpu->getCurrentTime());
+	//PRT_DEBUG("Sched:  CPU is at " << cpu->getTargetTime());
 
 	//assert (time >= cpu->getCurrentTime());
 	if (time < cpu->getTargetTime())
@@ -100,7 +100,6 @@ void Scheduler::stopScheduling()
 
 void Scheduler::scheduleEmulation()
 {
-	bool cpuLast = false;
 	while (!exitScheduler) {
 		schedMutex.grab();
 		if (syncPoints.empty()) {
@@ -116,14 +115,13 @@ void Scheduler::scheduleEmulation()
 		} else {
 			const SynchronizationPoint sp = *(syncPoints.begin());
 			const EmuTime &time = sp.getTime();
-			if (!cpuLast && (cpu->getCurrentTime() < time)) {
+			if (cpu->getTargetTime() < time) {
 				schedMutex.release();
-				// emulate CPU till first SP, don't immediately emulate
-				// device since CPU could not have reached SP
+				// first bring CPU till SP 
+				//  (this may set earlier SP)
 				if (!paused) {
 					PRT_DEBUG ("Sched: Scheduling CPU till " << time);
 					cpu->executeUntilTarget(time);
-					cpuLast = true;
 				} else {
 					needBlock = true;
 				}
@@ -137,7 +135,6 @@ void Scheduler::scheduleEmulation()
 				PRT_DEBUG ("Sched: Scheduling " << device->schedName() << 
 				           " " << userData << " till " << time);
 				device->executeUntilEmuTime(time, userData);
-				cpuLast = false;
 			}
 		}
 		if (needBlock) {

@@ -29,7 +29,7 @@ class Z80 : public CPU {
 		Z80(CPUInterface *interf, const EmuTime &time);
 		virtual ~Z80();
 		virtual void setCurrentTime(const EmuTime &time);
-		virtual const EmuTime &getCurrentTime();
+		virtual const EmuTime &getCurrentTime() const;
 
 	private:
 		#include "CPUCore.n1"

@@ -35,7 +35,7 @@ void CPU::setTargetTime(const EmuTime &time)
 {
 	targetTime = time;
 }
-const EmuTime &CPU::getTargetTime()
+const EmuTime &CPU::getTargetTime() const
 {
 	return targetTime;
 }
