@@ -14,6 +14,9 @@ $Id$
 	* Fixed a uncaught exception when the SDLConsole is resized
 	  and the backgroundfile can't be loaded.
 	* Fixed -h when the specified machine can't be loaded.
+	* Console now resets the scrollback when any key other than 
+	  page up/down is used.
+	* Fixed the blinking cursor in the SDLConsole.
 
 2003-05-17 Reikan <openMSX4Win32@ranpub.com>
 	* Changed to single thread model.
