@@ -20,9 +20,11 @@ class RomPanasonic : public Rom8kBBlocks
 		virtual byte* getWriteCacheLine(word address) const;
 	
 	private:
+		void changeBank(byte region, int bank);
+		
 		byte control;
 		int bankSelect[8];
-		
+		class SRAM* sram;
 };
 
 #endif

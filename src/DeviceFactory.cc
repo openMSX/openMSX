@@ -25,6 +25,8 @@
 #include "MSXKanji.hh"
 #include "MSXBunsetsu.hh"
 #include "MSXMemoryMapper.hh"
+#include "PanasonicRam.hh"
+#include "PanasonicRom.hh"
 #include "MSXRTC.hh"
 #include "RomFactory.hh"
 #include "MSXPrinterPort.hh"
@@ -191,6 +193,12 @@ MSXDevice *DeviceFactory::create(Device *conf, const EmuTime &time)
 	}
 	if (type == "MemoryMapper") {
 		return new MSXMemoryMapper(conf, time);
+	}
+	if (type == "PanasonicRam") {
+		return new PanasonicRam(conf, time);
+	}
+	if (type == "PanasonicRom") {
+		return new PanasonicRom(conf, time);
 	}
 	if (type == "RTC") {
 		MSXRTC *rtc = new MSXRTC(conf, time);

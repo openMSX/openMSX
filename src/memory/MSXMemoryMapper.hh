@@ -5,21 +5,13 @@
 
 #include "MSXMemDevice.hh"
 
-// forward declaration;
 class MSXMapperIO;
 
 
 class MSXMemoryMapper : public MSXMemDevice
 {
 	public:
-		/**
-		 * Constructor
-		 */
 		MSXMemoryMapper(Device *config, const EmuTime &time);
-
-		/**
-		 * Destructor
-		 */
 		virtual ~MSXMemoryMapper();
 		
 		virtual byte readMem(word address, const EmuTime &time);
@@ -29,7 +21,7 @@ class MSXMemoryMapper : public MSXMemDevice
 		
 		virtual void reset(const EmuTime &time);
 	
-	private:
+	protected:
 		/** Converts a Z80 address to a RAM address.
 		  * @param address Index in Z80 address space.
 		  * @return Index in RAM address space.

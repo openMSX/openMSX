@@ -1,5 +1,14 @@
 $Id$
 
+2003-03-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Reimplemented Panasonic memory system:
+	   - in TurboR rom/ram are tightly connected (dram mode, ...)
+	     Memorymapper, RomMapper, BiosRom are now implemented as special
+	     as special devices
+	   - TurboR hardwareconfig.xml updated
+	   - MSXView almost works now, without "set cmdtiming broken" openmsx
+	     wait for a never ending VDP command. Still investigating...
+
 2003-03-22 Manuel Bilderbeek <manuel@msxnet.org>
 	* Refactored ROM mappertype retrieval/ROM Info (WIP, to enable readout
 	  of ROM info in the console.)
