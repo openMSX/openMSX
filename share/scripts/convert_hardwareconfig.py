@@ -121,35 +121,40 @@ def convertDoc(dom):
 		return
 	dom.doctype.systemId = 'msxconfig2.dtd'
 
+	index = 0
+
 	def isCVSId(node):
 		if node.nodeType != dom.COMMENT_NODE: return False
 		if not node.nodeValue.startswith(' $Id'): return False
 		if not node.nodeValue.endswith('$ '): return False
 		return True
-	if not isCVSId(dom.childNodes[0]):
+	if isCVSId(dom.childNodes[index]):
+		index += 1
+	else:
 		print '  NOTE: no CVS id'
 	
 	def checkDocType(node):
 		if node.nodeType != dom.DOCUMENT_TYPE_NODE: return False
 		if node.nodeName != 'msxconfig': return False
 		return True
-	if not checkDocType(dom.childNodes[1]):
+	if checkDocType(dom.childNodes[index]):
+		index += 1
+	else:
 		print '  NOTE: unknown document type, skipping'
 		return
-	
-	if len(dom.childNodes) != 3:
-		print 'unexpected top-level node(s)'
-		assert False
 	
 	def checkRoot(node):
 		if node.nodeType != dom.ELEMENT_NODE: return False
 		if node.nodeName != 'msxconfig': return False
 		return True
-	if not checkRoot(dom.childNodes[2]):
-		print 'wrong root node'
-		assert False
-	
-	convertRoot(dom.childNodes[2])
+	if len(dom.childNodes) - 1 != index:
+		print '  NOTE: unexpected top-level node(s)'
+		return
+	elif checkRoot(dom.childNodes[index]):
+		convertRoot(dom.childNodes[index])
+	else:
+		print '  NOTE: wrong root node, skipping'
+		return
 
 def convertRoot(node):
 	doc = node.ownerDocument
