@@ -1,5 +1,11 @@
 // $Id$
 
+#include <dirent.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 #include <cassert>
 #include "../openmsx.hh"
 #include "../MSXConfig.hh"
@@ -132,7 +138,7 @@ void CommandController::tabCompletion(std::vector<std::string> &tokens)
 	}
 }
 
-void CommandController::completeString(std::string &string, std::list<std::string> &list)
+bool CommandController::completeString2(std::string &string, std::list<std::string> &list)
 {
 	std::list<std::string>::iterator it;
 	
@@ -148,29 +154,64 @@ void CommandController::completeString(std::string &string, std::list<std::strin
 	}
 	if (list.empty()) {
 		// no matching commands
-		return;
+		return false;
 	}
 	if (list.size()==1) {
 		// only one match
-		string = *(list.begin()) + ' ';
-		return;
+		string = *(list.begin());
+		return true;
 	}
 	while (true) {
 		it = list.begin();
 		if (string == *it) {
 			// match is as long as first word
-			return;
+			return false;
 		}
 		// expand with one char 
 		std::string string2 = string + (*it)[string.size()];
 		for (;  it!=list.end(); it++) {
 			if (string2 != (*it).substr(0, string2.size())) {
-				return;
+				return false;
 			}
 		}
 		// no conflict found
 		string = string2;
 	}
+}
+void CommandController::completeString(std::string &string, std::list<std::string> &list)
+{
+	if (completeString2(string, list))
+		string += " ";
+}
+
+void CommandController::completeFileName(std::string &filename)
+{
+	std::string npath, dpath;
+	std::list<std::string> filenames;
+	std::string::size_type pos = filename.find_last_of("/");	// TODO std delimiter
+	if (pos==std::string::npos) {
+		dpath = ".";
+		npath = "";
+	} else {
+		dpath = filename.substr(0,pos);
+		npath = filename.substr(0,pos+1);
+	}
+	
+	DIR* dirp = opendir(dpath.c_str());
+	if (dirp != NULL) {
+		while (dirent* de = readdir(dirp)) {
+			struct stat st;
+			if (!(stat((npath+de->d_name).c_str(), &st))) {
+				std::string name = npath + de->d_name;
+				if (S_ISDIR(st.st_mode))
+					name += "/";
+				filenames.push_back(name);
+			}
+		}
+	}
+	bool t = completeString2(filename, filenames);
+	if (t && filename[filename.size()-1]!='/')
+		filename += " ";
 }
 
 // Help Command

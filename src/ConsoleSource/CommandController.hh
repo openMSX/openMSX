@@ -46,6 +46,8 @@ class CommandController
 		 * TODO
 		 */
 		static void completeString(std::string &string, std::list<std::string> &list);
+		static bool completeString2(std::string &string, std::list<std::string> &list);
+		static void completeFileName(std::string &filename);
 
 	private:
 		CommandController();

@@ -3,6 +3,7 @@ $Id$
 2002-03-15 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Fixed SCC distortion (was unsigned->signed conversion bug)
 	* [Experimental] First order high-pass IIR filtering in Mixer
+	* Tab completion of filenames for "disk" and "tape" command
 
 2002-03-14 Maarten ter Huurne <mth@stack.nl>
 	* Fixed ASCII16K MegaROM mapper.

@@ -373,3 +373,9 @@ void MSXTapePatch::help(const std::vector<std::string> &tokens)
 	Console::instance()->print("tape eject      : remove tape from virtual player");
 	Console::instance()->print("tape <filename> : change the tape file");
 }
+
+void MSXTapePatch::tabCompletion(std::vector<std::string> &tokens)
+{
+	if (tokens.size()==2)
+		CommandController::completeFileName(tokens[1]);
+}

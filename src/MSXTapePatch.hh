@@ -52,6 +52,7 @@ class MSXTapePatch: public MSXRomPatchInterface, private Command
 		// Tape Command
 		virtual void execute(const std::vector<std::string> &tokens);
 		virtual void help   (const std::vector<std::string> &tokens);
+		virtual void tabCompletion(std::vector<std::string> &tokens);
 };
 
 #endif // __MSXTapePatch_HH__
