@@ -14,7 +14,6 @@
 #include "SDL.h"
 #include "CON_console.hh"
 #include "CON_consolecommands.hh"
-#include "DT_drawtext.hh"
 #include "CON_internal.hh"
 
 
@@ -36,7 +35,7 @@ void CON_Events(SDL_Event *event)
 		switch (event->key.keysym.sym)
 		{
 			case SDLK_PAGEUP:
-				if(Topmost->ConsoleScrollBack < Topmost->TotalConsoleLines && Topmost->ConsoleScrollBack < Topmost->Line_Buffer && Topmost->Line_Buffer - Topmost->ConsoleSurface->h / DT_FontHeight(Topmost->FontNumber) > Topmost->ConsoleScrollBack + 1)
+				if(Topmost->ConsoleScrollBack < Topmost->TotalConsoleLines && Topmost->ConsoleScrollBack < Topmost->Line_Buffer && Topmost->Line_Buffer - Topmost->ConsoleSurface->h / Topmost->font->height() > Topmost->ConsoleScrollBack + 1)
 				{
 					Topmost->ConsoleScrollBack++;
 					CON_UpdateConsole(Topmost);
@@ -81,9 +80,9 @@ void CON_Events(SDL_Event *event)
 					Topmost->ConsoleLines[0][Topmost->StringLocation - 1] = '\0';
 					Topmost->StringLocation--;
 					inputbackground.x = 0;
-					inputbackground.y = Topmost->ConsoleSurface->h - DT_FontHeight(Topmost->FontNumber);
+					inputbackground.y = Topmost->ConsoleSurface->h - Topmost->font->height();
 					inputbackground.w = Topmost->ConsoleSurface->w;
-					inputbackground.h = DT_FontHeight(Topmost->FontNumber);
+					inputbackground.h = Topmost->font->height();
 					SDL_BlitSurface(Topmost->InputBackground, NULL, Topmost->ConsoleSurface, &inputbackground);
 
 				}
@@ -110,9 +109,9 @@ void CON_Events(SDL_Event *event)
 					Topmost->ConsoleLines[0][Topmost->StringLocation] = (char)event->key.keysym.unicode;
 					Topmost->StringLocation++;
 					inputbackground.x = 0;
-					inputbackground.y = Topmost->ConsoleSurface->h - DT_FontHeight(Topmost->FontNumber);
+					inputbackground.y = Topmost->ConsoleSurface->h - Topmost->font->height();
 					inputbackground.w = Topmost->ConsoleSurface->w;
-					inputbackground.h = DT_FontHeight(Topmost->FontNumber);
+					inputbackground.h = Topmost->font->height();
 					SDL_BlitSurface(Topmost->InputBackground, NULL, Topmost->ConsoleSurface, &inputbackground);
 				}
 		}
@@ -213,12 +212,8 @@ void CON_SetAlphaGL(SDL_Surface *s, int alpha)
 /* Updates the console buffer */
 void CON_UpdateConsole(ConsoleInformation *console)
 {
-	int loop;
-	int Screenlines = console->ConsoleSurface->h / DT_FontHeight(console->FontNumber);
+	int Screenlines = console->ConsoleSurface->h / console->font->height();
 	SDL_Rect DestRect;
-	BitFont *CurrentFont = DT_FontPointer(console->FontNumber);
-
-
 
 	SDL_FillRect(console->ConsoleSurface, NULL, SDL_MapRGBA(console->ConsoleSurface->format, 0, 0, 0, console->ConsoleAlpha));
 
@@ -241,14 +236,13 @@ void CON_UpdateConsole(ConsoleInformation *console)
 	 */
 	if((console->OutputScreen->flags & SDL_OPENGLBLIT) && (console->OutputScreen->format->BytesPerPixel > 2))
 	{
-		Uint32 *pix = (Uint32 *) (CurrentFont->FontSurface->pixels);
-		SDL_SetColorKey(CurrentFont->FontSurface, SDL_SRCCOLORKEY, *pix);
+		Uint32 *pix = (Uint32 *) (console->font->fontSurface->pixels);
+		SDL_SetColorKey(console->font->fontSurface, SDL_SRCCOLORKEY, *pix);
 	}
-	for(loop = 0; loop < Screenlines - 1 && loop < console->Line_Buffer - 1; loop++)
-		DT_DrawText(console->ConsoleLines[Screenlines - loop + console->ConsoleScrollBack - 1], console->ConsoleSurface, console->FontNumber, CON_CHAR_BORDER, loop * DT_FontHeight(console->FontNumber));
-
-	if(console->OutputScreen->flags & SDL_OPENGLBLIT)
-		SDL_SetColorKey(CurrentFont->FontSurface, 0, 0);
+	for(int loop=0; loop < Screenlines - 1 && loop < console->Line_Buffer - 1; loop++)
+		console->font->drawText(console->ConsoleLines[Screenlines - loop + console->ConsoleScrollBack - 1], console->ConsoleSurface, CON_CHAR_BORDER, loop * console->font->height());
+		if(console->OutputScreen->flags & SDL_OPENGLBLIT)
+		SDL_SetColorKey(console->font->fontSurface, 0, 0);
 }
 
 /* Draws the console buffer to the screen */
@@ -303,18 +297,13 @@ ConsoleInformation *CON_Init(const char *FontName, SDL_Surface *DisplayScreen, i
 	newinfo->CommandScrollBack = 0;
 	newinfo->OutputScreen = DisplayScreen;
 
-	/* Load the consoles font */
-	if(-1 == (newinfo->FontNumber = DT_LoadFont(FontName, TRANS_FONT)))
-	{
-		PRINT_ERROR("Could not load the font ");
-		fprintf(stderr, "\"%s\" for the console!\n", FontName);
-		return NULL;
-	}
+	// Load the consoles font
+	newinfo->font = new SDLFont(FontName, SDLFont::TRANS);	// TODO check for error
 
 	/* make sure that the size of the console is valid */
-	if(rect.w > newinfo->OutputScreen->w || rect.w < DT_FontWidth(newinfo->FontNumber) * 32)
+	if(rect.w > newinfo->OutputScreen->w || rect.w < newinfo->font->width() * 32)
 		rect.w = newinfo->OutputScreen->w;
-	if(rect.h > newinfo->OutputScreen->h || rect.h < DT_FontHeight(newinfo->FontNumber))
+	if(rect.h > newinfo->OutputScreen->h || rect.h < newinfo->font->height())
 		rect.h = newinfo->OutputScreen->h;
 	if(rect.x < 0 || rect.x > newinfo->OutputScreen->w - rect.w)
 		newinfo->DispX = 0;
@@ -337,8 +326,8 @@ ConsoleInformation *CON_Init(const char *FontName, SDL_Surface *DisplayScreen, i
 	SDL_FillRect(newinfo->ConsoleSurface, NULL, SDL_MapRGBA(newinfo->ConsoleSurface->format, 0, 0, 0, newinfo->ConsoleAlpha));
 
 	/* We would like to have a minumum # of lines to guarentee we don't create a memory error */
-	if(rect.h / DT_FontHeight(newinfo->FontNumber) > lines)
-		newinfo->Line_Buffer = rect.h / DT_FontHeight(newinfo->FontNumber);
+	if(rect.h / newinfo->font->height() > lines)
+		newinfo->Line_Buffer = rect.h / newinfo->font->height();
 	else
 		newinfo->Line_Buffer = lines;
 
@@ -352,7 +341,7 @@ ConsoleInformation *CON_Init(const char *FontName, SDL_Surface *DisplayScreen, i
 	}
 
 	/* Load the dirty rectangle for user input */
-	Temp = SDL_CreateRGBSurface(SDL_SWSURFACE, rect.w, DT_FontHeight(newinfo->FontNumber), newinfo->OutputScreen->format->BitsPerPixel, 0, 0, 0, 0);
+	Temp = SDL_CreateRGBSurface(SDL_SWSURFACE, rect.w, newinfo->font->height(), newinfo->OutputScreen->format->BitsPerPixel, 0, 0, 0, 0);
 	if(Temp == NULL)
 	{
 		PRINT_ERROR("Couldn't create the input background\n");
@@ -372,9 +361,8 @@ ConsoleInformation *CON_Init(const char *FontName, SDL_Surface *DisplayScreen, i
 void CON_Destroy(ConsoleInformation *console)
 {
 	CON_DestroyCommands();
-	DT_DestroyDrawText();
-	for (int i = 0; i <= console->Line_Buffer - 1; i++)
-	{
+	delete console->font;
+	for (int i = 0; i <= console->Line_Buffer - 1; i++) {
 		free(console->ConsoleLines[i]);
 		free(console->CommandLines[i]);
 	}
@@ -424,34 +412,31 @@ static void DrawCommandLine()
 {
 	SDL_Rect rect, rect2;
 	char temp[CON_CHARS_PER_LINE];
-	BitFont *CurrentFont = DT_FontPointer(Topmost->FontNumber);
 	static Uint32 LastBlinkTime = 0;	/* Last time the consoles cursor blinked */
 	static int Blink = 0;			/* Is the cursor currently blinking */
 
 
 	/* Check if the blink period is over */
-	if(SDL_GetTicks() > LastBlinkTime)
-	{
+	if(SDL_GetTicks() > LastBlinkTime) {
 		LastBlinkTime = SDL_GetTicks() + CON_BLINK_RATE;
 
-		if(Blink)
-		{
+		if(Blink) {
 			Blink = 0;
 			/* The line was being drawn before, now it must be blacked out. */
-			rect.x = strlen(Topmost->ConsoleLines[0]) * DT_FontWidth(Topmost->FontNumber) + CON_CHAR_BORDER;
-			rect.y = Topmost->ConsoleSurface->h - DT_FontHeight(Topmost->FontNumber);
-			rect.w = DT_FontWidth(Topmost->FontNumber);
-			rect.h = DT_FontHeight(Topmost->FontNumber);
+			rect.x = strlen(Topmost->ConsoleLines[0]) * Topmost->font->width() + CON_CHAR_BORDER;
+			rect.y = Topmost->ConsoleSurface->h - Topmost->font->height();
+			rect.w = Topmost->font->width();
+			rect.h = Topmost->font->height();
 			SDL_FillRect(Topmost->ConsoleSurface, &rect, SDL_MapRGBA(Topmost->ConsoleSurface->format, 0, 0, 0, Topmost->ConsoleAlpha));
 			/* Now draw the background image if applicable */
 			if(Topmost->BackgroundImage)
 			{
-				rect2.x = strlen(Topmost->ConsoleLines[0]) * DT_FontWidth(Topmost->FontNumber) + CON_CHAR_BORDER;
+				rect2.x = strlen(Topmost->ConsoleLines[0]) * Topmost->font->width() + CON_CHAR_BORDER;
 				rect.x = rect2.x - Topmost->BackX;
-				rect2.y = Topmost->ConsoleSurface->h - DT_FontHeight(Topmost->FontNumber);
+				rect2.y = Topmost->ConsoleSurface->h - Topmost->font->height();
 				rect.y = rect2.y - Topmost->BackY;
-				rect2.w = rect.w = DT_FontWidth(Topmost->FontNumber);
-				rect2.h = rect.h = DT_FontHeight(Topmost->FontNumber);
+				rect2.w = rect.w = Topmost->font->width();
+				rect2.h = rect.h = Topmost->font->height();
 				SDL_BlitSurface(Topmost->BackgroundImage, &rect, Topmost->ConsoleSurface, &rect2);
 			}
 		}
@@ -463,25 +448,22 @@ static void DrawCommandLine()
 	/* once again we're drawing text, so in OpenGL context we need to temporarily set up
 	 * software-mode transparency.
 	 */
-	if(Topmost->OutputScreen->flags & SDL_OPENGLBLIT)
-	{
-		Uint32 *pix = (Uint32 *) (CurrentFont->FontSurface->pixels);
-		SDL_SetColorKey(CurrentFont->FontSurface, SDL_SRCCOLORKEY, *pix);
+	if(Topmost->OutputScreen->flags & SDL_OPENGLBLIT) {
+		Uint32 *pix = (Uint32 *) (Topmost->font->fontSurface->pixels);
+		SDL_SetColorKey(Topmost->font->fontSurface, SDL_SRCCOLORKEY, *pix);
 	}
-	if(Blink && strlen(Topmost->ConsoleLines[0]) + 1 < CON_CHARS_PER_LINE)
-	{
+	if(Blink && strlen(Topmost->ConsoleLines[0]) + 1 < CON_CHARS_PER_LINE) {
 		strcpy(temp, Topmost->ConsoleLines[0]);
 		temp[strlen(Topmost->ConsoleLines[0])] = '_';
 		temp[strlen(Topmost->ConsoleLines[0]) + 1] = '\0';
-		DT_DrawText(temp, Topmost->ConsoleSurface, Topmost->FontNumber, CON_CHAR_BORDER, Topmost->ConsoleSurface->h - DT_FontHeight(Topmost->FontNumber));
+		Topmost->font->drawText(temp, Topmost->ConsoleSurface, CON_CHAR_BORDER, Topmost->ConsoleSurface->h - Topmost->font->height());
 	}
 	else	/* Not time to blink or the strings too long, just draw it. */
 	{
-		DT_DrawText(Topmost->ConsoleLines[0], Topmost->ConsoleSurface, Topmost->FontNumber, CON_CHAR_BORDER, Topmost->ConsoleSurface->h - DT_FontHeight(Topmost->FontNumber));
+		Topmost->font->drawText(Topmost->ConsoleLines[0], Topmost->ConsoleSurface, CON_CHAR_BORDER, Topmost->ConsoleSurface->h - Topmost->font->height());
 	}
-	if(Topmost->OutputScreen->flags & SDL_OPENGLBLIT)
-	{
-		SDL_SetColorKey(CurrentFont->FontSurface, 0, 0);
+	if(Topmost->OutputScreen->flags & SDL_OPENGLBLIT) {
+		SDL_SetColorKey(Topmost->font->fontSurface, 0, 0);
 	}
 }
 
@@ -559,14 +541,14 @@ int CON_Background(ConsoleInformation *console, const char *image, int x, int y)
 	console->BackY = y;
 
 	backgroundsrc.x = 0;
-	backgroundsrc.y = console->ConsoleSurface->h - DT_FontHeight(console->FontNumber) - console->BackY;
+	backgroundsrc.y = console->ConsoleSurface->h - console->font->height() - console->BackY;
 	backgroundsrc.w = console->BackgroundImage->w;
 	backgroundsrc.h = console->InputBackground->h;
 
 	backgrounddest.x = console->BackX;
 	backgrounddest.y = 0;
 	backgrounddest.w = console->BackgroundImage->w;
-	backgrounddest.h = DT_FontHeight(console->FontNumber);
+	backgrounddest.h = console->font->height();
 
 	SDL_FillRect(console->InputBackground, NULL, SDL_MapRGBA(console->ConsoleSurface->format, 0, 0, 0, SDL_ALPHA_OPAQUE));
 	SDL_BlitSurface(console->BackgroundImage, &backgroundsrc, console->InputBackground, &backgrounddest);
@@ -597,9 +579,9 @@ int CON_Resize(ConsoleInformation *console, SDL_Rect rect)
 
 
 	/* make sure that the size of the console is valid */
-	if(rect.w > console->OutputScreen->w || rect.w < DT_FontWidth(console->FontNumber) * 32)
+	if(rect.w > console->OutputScreen->w || rect.w < console->font->width() * 32)
 		rect.w = console->OutputScreen->w;
-	if(rect.h > console->OutputScreen->h || rect.h < DT_FontHeight(console->FontNumber))
+	if(rect.h > console->OutputScreen->h || rect.h < console->font->height())
 		rect.h = console->OutputScreen->h;
 	if(rect.x < 0 || rect.x > console->OutputScreen->w - rect.w)
 		console->DispX = 0;
@@ -623,7 +605,7 @@ int CON_Resize(ConsoleInformation *console, SDL_Rect rect)
 
 	/* Load the dirty rectangle for user input */
 	SDL_FreeSurface(console->InputBackground);
-	Temp = SDL_CreateRGBSurface(SDL_SWSURFACE, rect.w, DT_FontHeight(console->FontNumber), console->OutputScreen->format->BitsPerPixel, 0, 0, 0, 0);
+	Temp = SDL_CreateRGBSurface(SDL_SWSURFACE, rect.w, console->font->height(), console->OutputScreen->format->BitsPerPixel, 0, 0, 0, 0);
 	if(Temp == NULL)
 	{
 		PRINT_ERROR("Couldn't create the input background\n");
@@ -639,14 +621,14 @@ int CON_Resize(ConsoleInformation *console, SDL_Rect rect)
 	if(console->BackgroundImage)
 	{
 		backgroundsrc.x = 0;
-		backgroundsrc.y = console->ConsoleSurface->h - DT_FontHeight(console->FontNumber) - console->BackY;
+		backgroundsrc.y = console->ConsoleSurface->h - console->font->height() - console->BackY;
 		backgroundsrc.w = console->BackgroundImage->w;
 		backgroundsrc.h = console->InputBackground->h;
 
 		backgrounddest.x = console->BackX;
 		backgrounddest.y = 0;
 		backgrounddest.w = console->BackgroundImage->w;
-		backgrounddest.h = DT_FontHeight(console->FontNumber);
+		backgrounddest.h = console->font->height();
 
 		SDL_FillRect(console->InputBackground, NULL, SDL_MapRGBA(console->ConsoleSurface->format, 0, 0, 0, SDL_ALPHA_OPAQUE));
 		SDL_BlitSurface(console->BackgroundImage, &backgroundsrc, console->InputBackground, &backgrounddest);
@@ -664,20 +646,20 @@ void CON_Topmost(ConsoleInformation *console)
 	/* Make sure the blinking cursor is gone */
 	if(Topmost != NULL)
 	{
-		rect.x = strlen(Topmost->ConsoleLines[0]) * DT_FontWidth(Topmost->FontNumber) + CON_CHAR_BORDER;
-		rect.y = Topmost->ConsoleSurface->h - DT_FontHeight(Topmost->FontNumber);
-		rect.w = DT_FontWidth(Topmost->FontNumber);
-		rect.h = DT_FontHeight(Topmost->FontNumber);
+		rect.x = strlen(Topmost->ConsoleLines[0]) * console->font->width() + CON_CHAR_BORDER;
+		rect.y = Topmost->ConsoleSurface->h - console->font->height();
+		rect.w = console->font->width();
+		rect.h = console->font->height();
 		SDL_FillRect(Topmost->ConsoleSurface, &rect, SDL_MapRGBA(Topmost->ConsoleSurface->format, 0, 0, 0, Topmost->ConsoleAlpha));
 		/* Now draw the background image if applicable */
 		if(Topmost->BackgroundImage)
 		{
-			rect2.x = strlen(Topmost->ConsoleLines[0]) * DT_FontWidth(Topmost->FontNumber) + CON_CHAR_BORDER;
+			rect2.x = strlen(Topmost->ConsoleLines[0]) * console->font->width() + CON_CHAR_BORDER;
 			rect.x = rect2.x - Topmost->BackX;
-			rect2.y = Topmost->ConsoleSurface->h - DT_FontHeight(Topmost->FontNumber);
+			rect2.y = Topmost->ConsoleSurface->h - console->font->height();
 			rect.y = rect2.y - Topmost->BackY;
-			rect2.w = rect.w = DT_FontWidth(Topmost->FontNumber);
-			rect2.h = rect.h = DT_FontHeight(Topmost->FontNumber);
+			rect2.w = rect.w = console->font->width();
+			rect2.h = rect.h = console->font->height();
 			SDL_BlitSurface(Topmost->BackgroundImage, &rect, Topmost->ConsoleSurface, &rect2);
 		}
 	}

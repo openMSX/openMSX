@@ -8,6 +8,8 @@
 #define CON_BLINK_RATE       500
 #define CON_CHAR_BORDER      4
 
+#include "SDLFont.hh"
+
 
 /** This is a struct for each consoles data.
   * TODO: Transform this into a class.
@@ -35,9 +37,9 @@ typedef struct console_information_td
 	  */
 	int TotalCommands;
 
-	/** This is the number of the font for the console.
+	/** This is the font for the console.
 	  */
-	int FontNumber;
+	SDLFont *font;
 
 	/** The number of lines in the console.
 	  */
