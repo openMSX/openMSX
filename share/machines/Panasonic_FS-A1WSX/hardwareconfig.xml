@@ -131,4 +131,8 @@
     <parameter name="sramname">fs-a1wsx.sram</parameter>
   </device>
 
+<!-- The cassette port on this machine is combined with the RGB connector -->
+  <config id="CassettePort">
+  </config>
+
 </msxconfig>
