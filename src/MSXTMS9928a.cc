@@ -378,6 +378,28 @@ MSXTMS9928a::RenderMethod MSXTMS9928a::modeToRenderMethod[] = {
 	&MSXTMS9928a::modebogus
 };
 
+inline static int calculatePattern(byte *patternPtr, int y, int size, int mag)
+{
+	// Calculate pattern.
+	if (mag) y /= 2;
+	int pattern = patternPtr[y] << 24;
+	if (size == 16) {
+		pattern |= patternPtr[y + 16] << 16;
+	}
+	if (mag) {
+		// Double every dot.
+		int orgPattern = pattern;
+		for (int i = 16; i--; ) {
+			pattern <<= 2;
+			if (orgPattern & 0x80000000) {
+				pattern |= 3;
+			}
+			orgPattern <<= 1;
+		}
+	}
+	return pattern;
+}
+
 int MSXTMS9928a::checkSprites(int line, int *visibleSprites)
 {
 	// Optimisation:
@@ -398,7 +420,8 @@ int MSXTMS9928a::checkSprites(int line, int *visibleSprites)
 
 	// Get sprites for this line and detect 5th sprite if any.
 	int sprite, visibleIndex = 0;
-	int minStart = line - size * (mag + 1);
+	int magSize = size * (mag + 1);
+	int minStart = line - magSize;
 	byte *attributePtr = tms.vMem + tms.spriteattribute;
 	for (sprite = 0; sprite < 32; sprite++, attributePtr += 4) {
 		int y = *attributePtr;
@@ -437,9 +460,52 @@ int MSXTMS9928a::checkSprites(int line, int *visibleSprites)
 	Set when sprite patterns overlap.
 	Colour doesn't matter: sprites of colour 0 can collide.
 	Sprites with off-screen position can collide.
+
+	Implemented by checking every pair for collisions.
+	For large numbers of sprites that would be slow,
+	but there are max 4 sprites and max 6 pairs.
+	If any collision is found, method returns at once.
 	*/
-	// TODO: Implement.
-	// Use either a backbuffer or clever bit manipulation, or both.
+	// Optimisation: It takes two to collide.
+	if (visibleIndex >= 2) {
+		for (int i = visibleIndex; --i; ) {
+			byte *attributePtr = tms.vMem + tms.spriteattribute +
+				visibleSprites[i] * 4;
+			int y_i = *attributePtr++;
+			int x_i = *attributePtr++;
+			byte *patternPtr_i = tms.vMem + tms.spritepattern +
+				((size == 16) ? *attributePtr & 0xFC : *attributePtr) * 8;
+			if ((*++attributePtr) & 0x80) x_i -= 32;
+
+			for (int j = i; --j; ) {
+				attributePtr = tms.vMem + tms.spriteattribute +
+					visibleSprites[j] * 4;
+				int y_j = *attributePtr++;
+				int x_j = *attributePtr++;
+				byte *patternPtr_j = tms.vMem + tms.spritepattern +
+					((size == 16) ? *attributePtr & 0xFC : *attributePtr) * 8;
+				if ((*++attributePtr) & 0x80) x_j -= 32;
+
+				// Do sprite i and sprite j collide?
+				int dist = x_j - x_i;
+				if ((-magSize < dist) && (dist < magSize)) {
+					int pattern_i = calculatePattern(patternPtr_i, line - y_i, size, mag);
+					int pattern_j = calculatePattern(patternPtr_j, line - y_j, size, mag);
+					if (dist < 0) {
+						pattern_i >>= -dist;
+					}
+					else if (dist > 0) {
+						pattern_j >>= dist;
+					}
+					if (pattern_i & pattern_j) {
+						// Collision!
+						tms.StatusReg |= 0x20;
+						return visibleIndex;
+					}
+				}
+			}
+		}
+	}
 
 	return visibleIndex;
 }
@@ -489,27 +555,8 @@ bool MSXTMS9928a::drawSprites(Pixel *pixelPtr, int line, bool *dirty)
 		}
 		colour = XPal[colour];
 
-		// Calculate pattern.
-		y = line - y;
-		if (mag) y /= 2;
-		int pattern = patternPtr[y] << 24;
-		if (size == 16) {
-			pattern |= patternPtr[y + 16] << 16;
-		}
-		if (mag) {
-			// Double every dot.
-			int orgPattern = pattern;
-			for (int i = 16; i--; ) {
-				pattern <<= 2;
-				if (orgPattern & 0x80000000) {
-					pattern |= 3;
-				}
-				orgPattern <<= 1;
-			}
-		}
+		int pattern = calculatePattern(patternPtr, line - y, size, mag);
 
-		// Mark as dirty any area where pixels are written.
-		anyDirtyName = 1;
 		// Skip any dots that end up in the left border.
 		if (x < 0) {
 			pattern <<= -x;
@@ -518,7 +565,10 @@ bool MSXTMS9928a::drawSprites(Pixel *pixelPtr, int line, bool *dirty)
 		// Sprites are only visible in screen modes which have lines
 		// of 32 8x8 chars.
 		bool *dirtyPtr = dirty + (x / 8);
-		ret |= (pattern != 0);
+		if (pattern) {
+			anyDirtyName = true;
+			ret = true;
+		}
 		// Convert pattern to pixels.
 		bool charDirty = false;
 		while (pattern && (x < 256)) {
