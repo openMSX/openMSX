@@ -11,7 +11,7 @@
   <renderer>
     <type>SDLHi</type>
     <!-- <type>SDLGL</type> -->
-    <full_screen>true</full_screen>
+    <full_screen>false</full_screen>
   </renderer>
 
   <!-- Audio mixer settings -->
