@@ -75,6 +75,8 @@ public:
 	}
 
 private:
+	inline Pixel blend(byte colour1, byte colour2);
+
 	typedef void (BitmapConverter::*RenderMethod)
 		(Pixel *pixelPtr, const byte *vramPtr0, const byte *vramPtr1);
 

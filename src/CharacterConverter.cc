@@ -217,9 +217,13 @@ void CharacterConverter<Pixel, zoom>::renderText2(
 			int pattern = vram->patternTable.readNP(
 				patternBaseLine | (charcode * 8) );
 			if (zoom == Renderer::ZOOM_256) {
+				// TODO fix this for non 24-bit modes
+				Pixel mix = ((fg & 0xfefefe) + (bg & 0xfefefe)) / 2;
 				for (int i = 3; i--; ) {
-					*pixelPtr++ = (pattern & 0xC0) ? fg : bg;
-					pattern <<= 1;
+					*pixelPtr++ = (pattern & 0x80) ? 
+					              ((pattern & 0x40) ? fg : mix) :
+					              ((pattern & 0x40) ? mix : bg);
+					pattern <<= 2;
 				}
 			} else {
 				for (int i = 6; i--; ) {

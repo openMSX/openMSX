@@ -1,5 +1,12 @@
 $Id$
 
+2002-08-18 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* VDP code: 
+	   - trivial fixes / cleanups
+	   - low resolution (SDLLo) rendering improvements
+	     try SCREEN 0 WIDTH 80
+	     only 24bpp modes yet
+
 2002-08-16 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* major cleanups, minor tweaks / fixes
 

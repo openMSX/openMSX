@@ -21,6 +21,14 @@ BitmapConverter<Pixel, zoom>::BitmapConverter(
 }
 
 template <class Pixel, Renderer::Zoom zoom>
+inline Pixel BitmapConverter<Pixel, zoom>::blend(
+	byte colour1, byte colour2)
+{
+	// TODO fix this for non 24-bit display modes
+	return ((palette16[colour1] & 0xfefefe) + (palette16[colour2] & 0xfefefe)) / 2;
+}
+
+template <class Pixel, Renderer::Zoom zoom>
 void BitmapConverter<Pixel, zoom>::renderGraphic4(
 	Pixel *pixelPtr, const byte *vramPtr0, const byte *vramPtr1)
 {
@@ -43,13 +51,16 @@ void BitmapConverter<Pixel, zoom>::renderGraphic5(
 {
 	for (int n = 128; n--; ) {
 		byte colour = *vramPtr0++;
-		*pixelPtr++ = palette16[colour >> 6];
 		if (zoom != Renderer::ZOOM_256) {
+			*pixelPtr++ = palette16[(colour >> 6) & 3];
 			*pixelPtr++ = palette16[(colour >> 4) & 3];
-		}
-		*pixelPtr++ = palette16[(colour >> 2) & 3];
-		if (zoom != Renderer::ZOOM_256) {
-			*pixelPtr++ = palette16[colour & 3];
+			*pixelPtr++ = palette16[(colour >> 2) & 3];
+			*pixelPtr++ = palette16[(colour >> 0) & 3];
+		} else {
+			*pixelPtr++ = blend((colour >> 6) & 3,
+			                    (colour >> 4) & 3);
+			*pixelPtr++ = blend((colour >> 2) & 3,
+			                    (colour >> 0) & 3);
 		}
 	}
 }
@@ -60,14 +71,18 @@ void BitmapConverter<Pixel, zoom>::renderGraphic6(
 {
 	for (int n = 128; n--; ) {
 		byte colour = *vramPtr0++;
-		*pixelPtr++ = palette16[colour >> 4];
 		if (zoom != Renderer::ZOOM_256) {
+			*pixelPtr++ = palette16[colour >> 4];
 			*pixelPtr++ = palette16[colour & 0x0F];
+		} else {
+			*pixelPtr++ = blend(colour >> 4, colour & 0x0F);
 		}
 		colour = *vramPtr1++;
-		*pixelPtr++ = palette16[colour >> 4];
 		if (zoom != Renderer::ZOOM_256) {
+			*pixelPtr++ = palette16[colour >> 4];
 			*pixelPtr++ = palette16[colour & 0x0F];
+		} else {
+			*pixelPtr++ = blend(colour >> 4, colour & 0x0F);
 		}
 	}
 }

@@ -129,8 +129,10 @@ VDP::~VDP()
 	PRT_DEBUG("Destroying a VDP object");
 	CommandController::instance()->unregisterCommand("palette");
 	CommandController::instance()->unregisterCommand("renderer");
-	delete(cmdEngine);
-	delete(renderer);
+	delete cmdEngine;
+	delete renderer;
+	delete spriteChecker;
+	delete vram;
 }
 
 void VDP::resetInit(const EmuTime &time)
@@ -218,10 +220,10 @@ void VDP::executeUntilEmuTime(const EmuTime &time, int userData)
 		// Display area starts here, unless we're doing overscan and it
 		// was already active.
 		if (!isDisplayArea) {
-			if (controlRegs[1] & 0x40) {
+			isDisplayArea = true;
+			if (isDisplayEnabled()) {
 				vram->updateDisplayEnabled(true, time);
 			}
-			isDisplayArea = true;
 		}
 		break;
 	case VSCAN:
@@ -642,7 +644,7 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 	// Perform additional tasks before new value becomes active.
 	switch (reg) {
 	case 0:
-		if ((val ^ oldval) & 0x0E) {
+		if (change & 0x0E) {
 			updateDisplayMode(val, controlRegs[1], time);
 		}
 		break;
