@@ -12,6 +12,7 @@
 #include "CommandController.hh"
 #include "HotKey.hh"
 #include "ConsoleManager.hh"
+#include "FileOpener.hh"
 
 
 SDLConsole::SDLConsole(SDL_Surface *screen) :
@@ -26,7 +27,8 @@ SDLConsole::SDLConsole(SDL_Surface *screen) :
 	consoleSurface  = NULL;
 	inputBackground = NULL;
 	consoleAlpha = SDL_ALPHA_OPAQUE;
-	font = new SDLFont("ConsoleFont.bmp");	// TODO check for error
+	// TODO check for error
+	font = new SDLFont(FileOpener::findFileName("ConsoleFont.bmp"));
 
 	SDL_Rect rect;
 	rect.x = 20;

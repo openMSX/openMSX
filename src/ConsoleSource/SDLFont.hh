@@ -9,7 +9,7 @@
 
 class SDLFont {
 	public:
-		SDLFont(const char *BitmapName);
+		SDLFont(const std::string &bitmapName);
 		~SDLFont();
 
 		void drawText(const std::string &string, SDL_Surface *surface, int x, int y);

@@ -8,6 +8,7 @@ $Id$
 	   SDLConsole inherit from InteractiveConsole
 	   a logging-only console inherits from Console
 	* Bumped version number
+	* ConsoleFont.bmp can now be in any configured directory
 
 2002-04-04 David Heremans <david.heremans@gnu-linux.net>
 	* Added more debug info to MSXGameCartrdige.

@@ -6,15 +6,15 @@
  */
 
 #include "SDLFont.hh"
+#include "openmsx.hh"
 
 
-SDLFont::SDLFont(const char *bitmapName)
+SDLFont::SDLFont(const std::string &bitmapName)
 {
 	// load the font bitmap
-	SDL_Surface *tempSurface = SDL_LoadBMP(bitmapName);
-	if (tempSurface == NULL) {
-		//TODO throw exception
-	}
+	SDL_Surface *tempSurface = SDL_LoadBMP(bitmapName.c_str());
+	if (tempSurface == NULL)
+		PRT_ERROR("Can't load console font: "<< bitmapName);
 
 	fontSurface = SDL_DisplayFormat(tempSurface);
 	SDL_FreeSurface(tempSurface);
