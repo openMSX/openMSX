@@ -1160,23 +1160,27 @@ void SDLGLRenderer::displayPhase(
 	}
 	*/
 
-	/*
 	// Borders are drawn after the display area:
 	// V9958 can extend the left border over the display area,
 	// this is implemented using overdraw.
 	// TODO: Does the extended border clip sprites as well?
-	Pixel bgColour = getBorderColour();
-	dest.x = 0;
-	dest.y = (nextLine - lineRenderTop) * 2;
-	dest.w = getLeftBorder();
-	dest.h = (limit - nextLine) * 2;
-	// Note: SDL clipping is relied upon because interlace can push rect
-	//       one line out of the screen.
-	//SDL_FillRect(screen, &dest, bgColour);
-	dest.x = dest.w + getDisplayWidth();
-	dest.w = WIDTH - dest.x;
-	//SDL_FillRect(screen, &dest, bgColour);
-	*/
+	GLSetColour(getBorderColour());
+	int y1 = HEIGHT - (nextLine - lineRenderTop) * 2;
+	int y2 = HEIGHT - (limit - lineRenderTop) * 2;
+	glBegin(GL_QUADS);
+	// Left border:
+	int left = getLeftBorder();
+	glVertex2i(0, y1); // top left
+	glVertex2i(left, y1); // top right
+	glVertex2i(left, y2); // bottom right
+	glVertex2i(0, y2); // bottom left
+	// Right border:
+	int right = left + getDisplayWidth();
+	glVertex2i(right, y1); // top left
+	glVertex2i(WIDTH, y1); // top right
+	glVertex2i(WIDTH, y2); // bottom right
+	glVertex2i(right, y2); // bottom left
+	glEnd();
 }
 
 void SDLGLRenderer::frameStart()
