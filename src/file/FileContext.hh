@@ -82,8 +82,6 @@ public:
 
 private:
 	UserFileContext(const UserFileContext& rhs);
-	
-	bool alreadyInit;
 };
 
 } // namespace openmsx

@@ -235,4 +235,15 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 	return NULL;
 }
 
+void Interpreter::splitList(const string& list, vector<string>& result)
+{
+	int argc;
+	const char** argv;
+	if (Tcl_SplitList(interp, list.c_str(), &argc, &argv) == TCL_ERROR) {
+		throw CommandException(Tcl_GetStringResult(interp));
+	}
+	result.assign(argv, argv + argc);
+	Tcl_Free((char*)argv);
+}
+
 } // namespace openmsx

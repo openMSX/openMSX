@@ -4,6 +4,7 @@
 #define __GLOBALSETTINGS_HH__
 
 #include "BooleanSetting.hh"
+#include "StringSetting.hh"
 
 namespace openmsx {
 
@@ -20,6 +21,7 @@ public:
 	BooleanSetting& getPauseSetting();
 	BooleanSetting& getPowerSetting();
 	BooleanSetting& getAutoSaveSetting();
+	StringSetting& getUserDirSetting();
 
 private:
 	GlobalSettings();
@@ -27,6 +29,7 @@ private:
 	BooleanSetting pauseSetting;
 	BooleanSetting powerSetting;
 	BooleanSetting autoSaveSetting;
+	StringSetting userDirSetting;
 };
 
 } // namespace openmsx

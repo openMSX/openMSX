@@ -34,6 +34,8 @@ public:
 	void registerSetting(SettingLeafNode& variable);
 	void unregisterSetting(SettingLeafNode& variable);
 
+	void splitList(const string& list, vector<string>& result);
+
 private:
 	Interpreter();
 	~Interpreter();

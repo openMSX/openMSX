@@ -5,6 +5,9 @@
 #include "FileOperations.hh"
 #include "SettingsConfig.hh"
 #include "File.hh"
+#include "GlobalSettings.hh"
+#include "Interpreter.hh"
+#include "CliCommOutput.hh"
 
 namespace openmsx {
 
@@ -105,7 +108,7 @@ ConfigFileContext::ConfigFileContext(const string& path,
 	           hwDescr + '/' + userName + '/';
 }
 
-const vector<string> &ConfigFileContext::getPaths()
+const vector<string>& ConfigFileContext::getPaths()
 {
 	return paths;
 }
@@ -190,38 +193,40 @@ SettingFileContext::SettingFileContext(const SettingFileContext& rhs)
 // class UserFileContext
 
 UserFileContext::UserFileContext()
-	: alreadyInit(false)
 {
 }
 
 UserFileContext::UserFileContext(const string& savePath_)
-	: alreadyInit(false)
 {
 	savePath = FileOperations::getUserOpenMSXDir() + "/persistent/" +
 	           savePath_ + '/';
 }
 
-const vector<string> &UserFileContext::getPaths()
+const vector<string>& UserFileContext::getPaths()
 {
-	if (!alreadyInit) {
-		alreadyInit = true;
-		paths.push_back("./");
-		const XMLElement* config = SettingsConfig::instance().
-			findChild("UserDirectories");
-		if (config) {
-			XMLElement::Children pathList;
-			config->getChildren("directory", pathList);
-			for (XMLElement::Children::const_iterator it =
-			         pathList.begin();
-			     it != pathList.end(); ++it) {
-				string path = (*it)->getData();
-				if (path[path.length() - 1] != '/') {
-					path += '/';
-				}
-				path = FileOperations::expandTilde(path);
-				paths.push_back(path);
+	paths.clear();
+	paths.push_back("./");
+
+	try {
+		vector<string> dirs;
+		const string& list = GlobalSettings::instance().
+			getUserDirSetting().getValue();
+		Interpreter::instance().splitList(list, dirs);
+		for (vector<string>::const_iterator it = dirs.begin();
+		     it != dirs.end(); ++it) {
+			string path = *it;
+			if (path.empty()) {
+				continue;
 			}
+			if (path[path.length() - 1] != '/') {
+				path += '/';
+			}
+			path = FileOperations::expandTilde(path);
+			paths.push_back(path);
 		}
+	} catch (CommandException& e) {
+		CliCommOutput::instance().printWarning(
+			"user directories: " + e.getMessage());
 	}
 	return paths;
 }
@@ -232,7 +237,7 @@ UserFileContext* UserFileContext::clone() const
 }
 
 UserFileContext::UserFileContext(const UserFileContext& rhs)
-	: FileContext(rhs), alreadyInit(rhs.alreadyInit)
+	: FileContext(rhs)
 {
 }
 

@@ -10,6 +10,7 @@ GlobalSettings::GlobalSettings()
 	, autoSaveSetting("save_settings_at_exit",
 	                  "automatically save settings when openMSX exits",
 	                  false)
+	, userDirSetting("user_directories", "list of user directories", "")
 {
 }
 
@@ -32,6 +33,11 @@ BooleanSetting& GlobalSettings::getPowerSetting()
 BooleanSetting& GlobalSettings::getAutoSaveSetting()
 {
 	return autoSaveSetting;
+}
+
+StringSetting& GlobalSettings::getUserDirSetting()
+{
+	return userDirSetting;
 }
 
 } // namespace openmsx
