@@ -120,12 +120,12 @@ inline void V9990CmdEngine::V9990Bpp16::pset(V9990VRAM *vram,
   */
 V9990CmdEngine::V9990CmdEngine(V9990 *vdp_)
 {
-	this->vdp = vdp_;
-	//this->vram = vdp_->getVRAM();
+	vdp = vdp_;
 
 	V9990CmdEngine::CmdSTOP* stopCmd =
-		new V9990CmdEngine::CmdSTOP(this, vdp_->getVRAM());
+		new V9990CmdEngine::CmdSTOP(this, vdp->getVRAM());
 
+	commands[0][0]  = NULL;
 	for(int mode = 0; mode < (BP2+1); mode++) {
 		commands[0][mode] = stopCmd;
 	}
@@ -211,6 +211,7 @@ void V9990CmdEngine::setCmdReg(byte reg, byte value, const EmuTime& time)
 		NY = (NY & 0x00FF) | ((value & 0x0F) << 8);
 		break;
 	case 12: // ARG
+		ARG = value &0x0F;
 		break;
 	case 13: // LOGOP
 		LOG = value & 0x1F;
@@ -228,6 +229,7 @@ void V9990CmdEngine::setCmdReg(byte reg, byte value, const EmuTime& time)
 			if(currentCommand) {
 				// Do Something to stop the running command
 			}
+			vdp->cmdStart();
 			currentCommand = commands[cmd][vdp->getColorMode()];
 			if(currentCommand) currentCommand->start(time);
 			break;
@@ -262,8 +264,8 @@ void V9990CmdEngine::createEngines(int cmd)
 V9990CmdEngine::V9990Cmd::V9990Cmd(V9990CmdEngine* engine_,
                                    V9990VRAM*      vram_)
 {
-	engine = engine_;
-	vram   = vram_;
+	this->engine = engine_;
+	this->vram   = vram_;
 }
 
 V9990CmdEngine::V9990Cmd::~V9990Cmd()
@@ -273,16 +275,15 @@ V9990CmdEngine::V9990Cmd::~V9990Cmd()
 // ====================================================================
 // STOP
 
-V9990CmdEngine::CmdSTOP::CmdSTOP(V9990CmdEngine* engine,
-                                 V9990VRAM*      vram)
-	: V9990Cmd(engine, vram)
+V9990CmdEngine::CmdSTOP::CmdSTOP(V9990CmdEngine* engine_,
+                                 V9990VRAM*      vram_)
+	: V9990Cmd(engine_, vram_)
 {
-	
 }
 
 void V9990CmdEngine::CmdSTOP::start(const EmuTime& time)
 {
-	engine->transfer = false;
+	engine->cmdReady();
 }
 
 void V9990CmdEngine::CmdSTOP::execute(const EmuTime& time)
@@ -302,6 +303,13 @@ V9990CmdEngine::CmdLMMC<Mode>::CmdLMMC(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdLMMC<Mode>::start(const EmuTime& time)
 {
+	PRT_DEBUG("LMMC: DX=" << dec << engine->DX <<
+		         " DY=" << dec << engine->DY <<
+		         " NX=" << dec << engine->NX <<
+		         " NY=" << dec << engine->NY <<
+				 " ARG="<< hex << (int)engine->ARG <<
+				 " Bpp="<< hex << Mode::PIXELS_PER_BYTE);
+
 	engine->address = Mode::addressOf(engine->DX,
 	                                  engine->DY,
 									  engine->vdp->getImageWidth());
@@ -335,9 +343,11 @@ void V9990CmdEngine::CmdLMMC<V9990CmdEngine::V9990Bpp16>::execute(const EmuTime&
 					engine->cmdReady();
 				} else {
 					engine->ANX = engine->NX;
-					engine->address += ((width - engine->ANX) << 1);
 				}
 			}
+			engine->address = V9990Bpp16::addressOf(engine->DX,
+			                                        engine->DY,
+			                                        width);
 		}
 	}
 }
@@ -730,5 +740,6 @@ byte V9990CmdEngine::logOp(byte src, byte dest, byte mask)
 void V9990CmdEngine::cmdReady(void)
 {
 	currentCommand = (V9990Cmd *) NULL;
+	vdp->cmdReady();
 }
 }

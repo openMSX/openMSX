@@ -124,10 +124,6 @@ private:
 		CmdSTOP(V9990CmdEngine* engine, V9990VRAM* vram);
 		virtual void start(const EmuTime& time);
 		virtual void execute(const EmuTime& time);
-	protected:
-		V9990CmdEngine* engine;
-		V9990VRAM*      vram;
-		Clock<V9990DisplayTiming::UC_TICKS_PER_SECOND> clock;
 	};
 
 	// Just to make life (typing, that is) a bit easier...

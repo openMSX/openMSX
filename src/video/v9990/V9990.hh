@@ -157,6 +157,14 @@ public:
 		return (256 << ((regs[SCREEN_MODE_0] & 0x0C) >> 2));
 	}
 			
+	/** Command execution started
+	  */
+	inline void cmdStart() { status |= 0x01; }
+
+	/** Command execution ready
+	  */
+	inline void cmdReady() { status &= 0xFE; }
+
 private:
 	// Schedulable interface:
 	virtual void executeUntil(const EmuTime& time, int userData);
@@ -286,7 +294,14 @@ private:
 	// --- members ----------------------------------------------------
 
 	IRQHelper irq;
-	byte      pendingIRQs;
+
+	/** Status port (P#5)
+	  */
+	byte status;
+
+	/** Interrupt flag (P#6)
+	  */   
+	byte pendingIRQs;
 
 	/** Registers
 	  */ 
@@ -312,10 +327,6 @@ private:
 	  */
 	bool palTiming;
 
-	/** Is master clock (MCLK) active? False means XTAL (overscan) is active
-	  */
-	bool isMCLK;
-	
 	/** Emulation time when this frame was started (VSYNC)
 	  */
 	Clock<V9990DisplayTiming::UC_TICKS_PER_SECOND> frameStartTime;

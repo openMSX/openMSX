@@ -120,6 +120,7 @@ void V9990::reset(const EmuTime& time)
 	memset(regs, 0, sizeof(regs));
 	regSelect = 0xFF; // TODO check value for power-on and reset
 
+	palTiming = false;
 	// Reset sub-systems
 	renderer->reset(time);
 	cmdEngine->reset(time);
@@ -294,7 +295,7 @@ void V9990::writeIO(byte port, byte val, const EmuTime &time)
 			break;
 		
 		case SYSTEM_CONTROL:
-			isMCLK = val & 1;
+			status = (status & 0xFB) | ((val & 1) << 2); 
 			renderer->setDisplayMode(getDisplayMode(), time);
 			renderer->setImageWidth(getImageWidth());
 		break;
@@ -579,7 +580,7 @@ V9990DisplayMode V9990::getDisplayMode(void)
 		case 0x40: mode = P2;
 			break;
 		case 0x80:
-			if(isMCLK) {
+			if(status & 0x04) { /* MCLK timing */
 				switch(regs[SCREEN_MODE_0] & 0x30) {
 					case 0x00: mode = B0; break;
 					case 0x10: mode = B2; break;
@@ -587,7 +588,7 @@ V9990DisplayMode V9990::getDisplayMode(void)
 					case 0x30: /* mode = INVALID_DISPLAY_MODE; */ break;
 					default: assert(false);
 				}
-			} else {
+			} else { /* XTAL1 timing */
 				switch(regs[SCREEN_MODE_0] & 0x30) {
 					case 0x00: mode = B1; break;
 					case 0x10: mode = B3; break;
