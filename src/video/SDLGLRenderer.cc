@@ -836,7 +836,7 @@ void SDLGLRenderer::renderText1(
 			// TODO: Only bind texture once?
 			//       Currently both subroutines bind the same texture.
 			int name = (row & 31) * 40 + col;
-			int charcode = vram->nameTable.readNP(name);
+			int charcode = vram->nameTable.readNP((name + 0xC00) | (-1 << 12));
 			GLuint textureId = characterCache[charcode];
 			if (!dirtyPattern.validate(charcode)) {
 				// Update cache for current character.
