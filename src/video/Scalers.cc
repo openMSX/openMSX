@@ -2,6 +2,7 @@
 
 #include "Scalers.hh"
 #include "Scale2xScaler.hh"
+#include "HQ2xScaler.hh"
 #include "openmsx.hh"
 #include <cassert>
 
@@ -28,6 +29,10 @@ Scaler<Pixel>* Scaler<Pixel>::createScaler(ScalerID id, Blender<Pixel> blender)
 		return new SaI2xScaler<Pixel>(blender);
 	case SCALER_SCALE2X:
 		return new Scale2xScaler<Pixel>();
+	case SCALER_HQ2X:
+		return sizeof(Pixel) == 1
+			? new SimpleScaler<Pixel>()
+			: new HQ2xScaler<Pixel>();
 	default:
 		assert(false);
 		return NULL;

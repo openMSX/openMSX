@@ -18,6 +18,8 @@ enum ScalerID {
 	SCALER_SAI2X,
 	/** Scale2xScaler. */
 	SCALER_SCALE2X,
+	/** HQ2xScaler. */
+	SCALER_HQ2X,
 };
 
 /** Abstract base class for scalers.
