@@ -86,7 +86,7 @@ inline static void GLBlitLine(
 	glPixelStorei(GL_UNPACK_LSB_FIRST, GL_TRUE);
 
 	// Draw pixels in frame buffer.
-	glRasterPos2i(x, HEIGHT - y - 2);
+	glRasterPos2i(x, y + 2);
 	glDrawPixels(n, 1, GL_RGBA, GL_UNSIGNED_BYTE, line);
 }
 
@@ -260,7 +260,7 @@ SDLGLRenderer::SDLGLRenderer(
 	glViewport(0, 0, WIDTH, HEIGHT);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(0, WIDTH, 0, HEIGHT, -1, 1);
+	glOrtho(0, WIDTH, HEIGHT, 0, -1, 1);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
@@ -319,7 +319,7 @@ SDLGLRenderer::SDLGLRenderer(
 	}
 
 	// Now we're ready to start rendering the first frame.
-	frameStart();
+	frameStart(time);
 }
 
 SDLGLRenderer::~SDLGLRenderer()
@@ -765,17 +765,8 @@ void SDLGLRenderer::renderGraphic4(
 		pixelPtr += 2;
 	} while (addr & 127);
 
-	// Set pixel format.
-	glPixelStorei(GL_UNPACK_ROW_LENGTH, 256);
 	glPixelZoom(2.0, 2.0);
-
-	// Draw pixels in frame buffer.
-	glRasterPos2i(destX, HEIGHT - 1 - destY);
-	glDrawPixels(
-		256, 1,
-		GL_RGBA, GL_UNSIGNED_BYTE,
-		pixelPtr - 256
-		);
+	GLBlitLine(pixelPtr - 256, 256, destX, destY);
 }
 
 void SDLGLRenderer::renderGraphic5(
@@ -1013,8 +1004,8 @@ void SDLGLRenderer::blankPhase(
 {
 	// TODO: Only redraw if necessary.
 	GLSetColour(getBorderColour());
-	int y1 = HEIGHT - (nextLine - lineRenderTop) * 2;
-	int y2 = HEIGHT - (limit - lineRenderTop) * 2;
+	int y1 = (nextLine - lineRenderTop) * 2;
+	int y2 = (limit - lineRenderTop) * 2;
 	glBegin(GL_QUADS);
 	glVertex2i(0, y1); // top left
 	glVertex2i(WIDTH, y1); // top right
@@ -1154,8 +1145,8 @@ void SDLGLRenderer::displayPhase(
 	// this is implemented using overdraw.
 	// TODO: Does the extended border clip sprites as well?
 	GLSetColour(getBorderColour());
-	int y1 = HEIGHT - (nextLine - lineRenderTop) * 2;
-	int y2 = HEIGHT - (limit - lineRenderTop) * 2;
+	int y1 = (nextLine - lineRenderTop) * 2;
+	int y2 = (limit - lineRenderTop) * 2;
 	glBegin(GL_QUADS);
 	// Left border:
 	int left = getLeftBorder();
@@ -1172,7 +1163,7 @@ void SDLGLRenderer::displayPhase(
 	glEnd();
 }
 
-void SDLGLRenderer::frameStart()
+void SDLGLRenderer::frameStart(const EmuTime &time)
 {
 	//cerr << "timing: " << (vdp->isPalTiming() ? "PAL" : "NTSC") << "\n";
 
@@ -1195,8 +1186,7 @@ void SDLGLRenderer::frameStart()
 	//dirtyForeground = dirtyBackground = false;
 }
 
-void SDLGLRenderer::putImage(
-	const EmuTime &time)
+void SDLGLRenderer::putImage(const EmuTime &time)
 {
 	// Render changes from this last frame.
 	// TODO: Use sync instead?
@@ -1207,9 +1197,6 @@ void SDLGLRenderer::putImage(
 
 	// Update screen.
 	SDL_GL_SwapBuffers();
-
-	// Perform initialisation for next frame.
-	frameStart();
 
 	// The screen will be locked for a while, so now is a good time
 	// to perform real time sync.

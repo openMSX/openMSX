@@ -474,11 +474,10 @@ void VDP::executeUntilEmuTime(const EmuTime &time, int userData)
 		statusReg0 |= 0x80;
 		if (controlRegs[1] & 0x20) irqVertical.set();
 		break;
-	case HSCAN: {
+	case HSCAN:
 		// Horizontal scanning occurs.
 		if (controlRegs[0] & 0x10) irqHorizontal.set();
 		break;
-	}
 	default:
 		assert(false);
 	}
@@ -645,6 +644,9 @@ void VDP::frameStart(const EmuTime &time)
 		frameStartTime + getTicksPerFrame(), this, VSYNC);
 	// Schedule DISPLAY_START, VSCAN and HSCAN.
 	scheduleDisplayStart(time);
+
+	// Inform Renderer.
+	renderer->frameStart(time);
 
 	/*
 	cout << "--> frameStart = " << frameStartTime

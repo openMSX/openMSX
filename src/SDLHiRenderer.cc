@@ -315,7 +315,7 @@ template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 	}
 
 	// Now we're ready to start rendering the first frame.
-	frameStart();
+	frameStart(time);
 }
 
 template <class Pixel> SDLHiRenderer<Pixel>::~SDLHiRenderer()
@@ -1153,7 +1153,8 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	SDL_FillRect(screen, &dest, bgColour);
 }
 
-template <class Pixel> void SDLHiRenderer<Pixel>::frameStart()
+template <class Pixel> void SDLHiRenderer<Pixel>::frameStart(
+	const EmuTime &time)
 {
 	//cerr << "timing: " << (vdp->isPalTiming() ? "PAL" : "NTSC") << "\n";
 
@@ -1189,9 +1190,6 @@ template <class Pixel> void SDLHiRenderer<Pixel>::putImage(
 	// Update screen.
 	// Note: return value ignored.
 	SDL_Flip(screen);
-
-	// Perform initialisation for next frame.
-	frameStart();
 
 	// The screen will be locked for a while, so now is a good time
 	// to perform real time sync.

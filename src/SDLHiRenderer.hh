@@ -33,6 +33,7 @@ public:
 
 	// Renderer interface:
 
+	void frameStart(const EmuTime &time);
 	void putImage(const EmuTime &time);
 	void setFullScreen(bool);
 	void updateTransparency(bool enabled, const EmuTime &time);
@@ -135,10 +136,6 @@ private:
 	/** Set all dirty / clean.
 	  */
 	void setDirty(bool);
-
-	/** Set up renderer state for new frame.
-	  */
-	void frameStart();
 
 	/** RenderMethods for each screen mode.
 	  */

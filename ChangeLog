@@ -1,5 +1,9 @@
 $Id$
 
+2002-03-17 Maarten ter Huurne <mth@stack.nl>
+	* Fixed graphical glitch when switching between PAL and NTSC timing.
+	* Minor clean-ups in SDLGLRenderer.
+
 2002-03-16 Maarten ter Huurne <mth@stack.nl>
 	* Implemented blanking in SDLGLRenderer.
 	* Implemented side borders in SDLGLRenderer.

@@ -26,6 +26,13 @@ public:
 	  */
 	Renderer(bool fullScreen);
 
+	/** Signals the start of a new frame.
+	  * The Renderer can use this to get fixed-per-frame settings from
+	  * the VDP, such as PAL/NTSC timing.
+	  * @param time The moment in emulated time the frame starts.
+	  */
+	virtual void frameStart(const EmuTime &time) = 0;
+
 	/** Puts the generated image on the screen.
 	  * @param time The moment in emulated time the frame is finished.
 	  */
