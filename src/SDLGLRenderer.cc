@@ -70,7 +70,13 @@ static const int HEIGHT = 480;
   */
 static const int LINE_TOP_BORDER = 3 + 13;
 
-static void GLBlitLine(SDLGLRenderer::Pixel *line, int n, int x, int y)
+inline static void GLSetColour(SDLGLRenderer::Pixel colour)
+{
+	glColor3ub(colour & 0xFF, (colour >> 8) & 0xFF, (colour >> 16) & 0xFF);
+}
+
+inline static void GLBlitLine(
+	SDLGLRenderer::Pixel *line, int n, int x, int y)
 {
 	// Set pixel format.
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, n);
@@ -78,7 +84,7 @@ static void GLBlitLine(SDLGLRenderer::Pixel *line, int n, int x, int y)
 	glPixelStorei(GL_UNPACK_LSB_FIRST, GL_TRUE);
 
 	// Draw pixels in frame buffer.
-	glRasterPos2i(x, HEIGHT - y - 1);
+	glRasterPos2i(x, HEIGHT - y - 2);
 	glDrawPixels(n, 1, GL_RGBA, GL_UNSIGNED_BYTE, line);
 }
 
@@ -91,7 +97,7 @@ inline static void fillBool(bool *ptr, bool value, int nr)
 #if SIZEOF_BOOL == 1
 	memset(ptr, value, nr);
 #else
-	for (int i = nr; i--; ) *ptr++ = value;
+	while (nr--) *ptr++ = value;
 #endif
 }
 
@@ -1021,28 +1027,15 @@ void SDLGLRenderer::blankPhase(
 	int limit)
 {
 	// TODO: Only redraw if necessary.
-	SDL_Rect rect;
-	rect.x = 0;
-	rect.y = (nextLine - lineRenderTop) * 2;
-	rect.w = WIDTH;
-	rect.h = (limit - nextLine) * 2;
-
-	// Clip to area actually displayed.
-	// TODO: Does SDL_FillRect clip as well?
-	if (rect.y < 0) {
-		rect.h += rect.y;
-		rect.y = 0;
-	}
-	else if (rect.y + rect.h > HEIGHT) {
-		rect.h = HEIGHT - rect.y;
-	}
-
-	// Draw lines in background colour.
-	if (rect.h > 0) {
-		Pixel bgColour = getBorderColour();
-		// Note: return code ignored.
-		//SDL_FillRect(screen, &rect, bgColour);
-	}
+	GLSetColour(getBorderColour());
+	int y1 = HEIGHT - (nextLine - lineRenderTop) * 2;
+	int y2 = HEIGHT - (limit - lineRenderTop) * 2;
+	glBegin(GL_QUADS);
+	glVertex2i(0, y1); // top left
+	glVertex2i(WIDTH, y1); // top right
+	glVertex2i(WIDTH, y2); // bottom right
+	glVertex2i(0, y2); // bottom left
+	glEnd();
 }
 
 // TODO: Instead of modifying nextLine field, pass it as a parameter.
