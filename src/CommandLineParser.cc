@@ -101,6 +101,7 @@ void CommandLineParser::parse(int argc, char **argv)
 		}
 	} catch (MSXException &e) {
 		// settings.xml not found
+		PRT_INFO("Warning: No settings file found!");
 	}
 	
 	// load default config file in case the user didn't specify one
