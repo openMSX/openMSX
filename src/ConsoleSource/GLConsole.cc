@@ -139,7 +139,9 @@ bool GLConsole::loadTexture(const std::string &filename, GLuint &texture,
 // Draws the console buffer to the screen
 void GLConsole::drawConsole()
 {
-	if (!consoleSetting.getValue()) return;
+	if (!consoleSetting.getValue() || !font) {
+		return;
+	}
 
 	glPushAttrib(GL_ENABLE_BIT);
 	glDisable(GL_DEPTH_TEST);

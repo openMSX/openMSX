@@ -91,7 +91,9 @@ void SDLConsole::updateConsole()
 // Draws the console buffer to the screen
 void SDLConsole::drawConsole()
 {
-	if (!consoleSetting.getValue()) return;
+	if (!consoleSetting.getValue() || !font) {
+		return;
+	}
 	
 	drawCursor();
 

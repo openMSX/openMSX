@@ -8,6 +8,7 @@ $Id$
 	     Philips   --> WD2793
 	  The old names are deprecated, as soon as the machine configuartions
 	  are changed to use the new names, the old names will be removed.
+	* Fixed crash on missing console font
 
 2003-03-29 Manuel Bilderbeek <manuel@msxnet.org>
 	* More refactoring of Rom objects to add RomInfo:
