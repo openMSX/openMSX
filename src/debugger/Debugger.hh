@@ -6,13 +6,15 @@ using std::string;
 
 namespace openmsx {
 
+class DebugInterface;
+
 class Debugger
 {
 	public:
-		Debugger* instance();
-		void registerDevice(string, DebugInterface* interface);
-		void unregisterDevice(string);
-		DebugInterface* getInterfaceByName(string);
+		Debugger& instance();
+		void registerDevice  (const string& name, DebugInterface& interface);
+		void unregisterDevice(const string& name, DebugInterface& interface);
+		DebugInterface* getInterfaceByName(const string& name);
 
 	private:
 		Debugger();

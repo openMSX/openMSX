@@ -13,16 +13,17 @@ const int EXISTS   = 32;
 
 
 CartridgeSlotManager::CartridgeSlotManager()
+	: msxConfig(MSXConfig::instance())
 {
 	for (int slot = 0; slot < 16; slot++) {
 		slots[slot] = 0;
 	}
 }
 
-CartridgeSlotManager* CartridgeSlotManager::instance()
+CartridgeSlotManager& CartridgeSlotManager::instance()
 {
 	static CartridgeSlotManager oneInstance;
-	return &oneInstance;
+	return oneInstance;
 }
 
 
@@ -35,8 +36,7 @@ void CartridgeSlotManager::reserveSlot(int slot)
 void CartridgeSlotManager::readConfig()
 {
 	try {
-		Config* config = MSXConfig::instance()->
-					       getConfigById("ExternalSlots");
+		Config* config = msxConfig.getConfigById("ExternalSlots");
 		string slotName("slota");
 		for (int slot = 0; slot < 16; slot++) {
 			slotName[4] = 'a' + slot;

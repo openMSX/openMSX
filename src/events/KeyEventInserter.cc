@@ -15,7 +15,7 @@ KeyEventInserterCLI keyEventInserterCLI;
 
 KeyEventInserterCLI::KeyEventInserterCLI()
 {
-	CommandLineParser::instance()->registerOption("-keyins", this);
+	CommandLineParser::instance().registerOption("-keyins", this);
 }
 
 bool KeyEventInserterCLI::parseOption(const string &option,
@@ -71,9 +71,8 @@ bool KeyEventInserterCLI::parseOption(const string &option,
 	s << "</config>";
 	s << "</msxconfig>";
 	
-	MSXConfig *config = MSXConfig::instance();
 	UserFileContext context;
-	config->loadStream(context, s);
+	MSXConfig::instance().loadStream(context, s);
 	return true;
 }
 const string& KeyEventInserterCLI::optionHelp() const
@@ -86,7 +85,7 @@ const string& KeyEventInserterCLI::optionHelp() const
 KeyEventInserter::KeyEventInserter(const EmuTime& time)
 {
 	try {
-		Config* config = MSXConfig::instance()->
+		Config* config = MSXConfig::instance().
 		                            getConfigById("KeyEventInserter");
 		enter(config->getParameter("keys"), time);
 	} catch (ConfigException& e) {

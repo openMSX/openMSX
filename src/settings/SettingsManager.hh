@@ -16,6 +16,8 @@ using std::vector;
 
 namespace openmsx {
 
+class CommandController;
+
 /** Manages all settings.
   */
 class SettingsManager
@@ -24,34 +26,28 @@ private:
 	map<string, SettingNode*> settingsMap;
 
 public:
-
-	/** Get singleton instance.
-	  */
-	static SettingsManager *instance() {
-		static SettingsManager oneInstance;
-		return &oneInstance;
-	}
+	static SettingsManager& instance();
 
 	/** Get a setting by specifying its name.
 	  * @return The SettingLeafNode with the given name,
 	  *   or NULL if there is no such SettingLeafNode.
 	  */
-	SettingLeafNode *getByName(const string &name) const {
-		map<string, SettingNode *>::const_iterator it =
+	SettingLeafNode* getByName(const string& name) const {
+		map<string, SettingNode*>::const_iterator it =
 			settingsMap.find(name);
 		// TODO: The cast is valid because currently all nodes are leaves.
 		//       In the future this will no longer be the case.
 		return it == settingsMap.end()
 			? NULL
-			: static_cast<SettingLeafNode *>(it->second);
+			: static_cast<SettingLeafNode*>(it->second);
 	}
 
-	void registerSetting(const string &name, SettingNode *setting) {
+	void registerSetting(const string& name, SettingNode* setting) {
 		assert(settingsMap.find(name) == settingsMap.end());
 		settingsMap[name] = setting;
 	}
 
-	void unregisterSetting(const string &name) {
+	void unregisterSetting(const string& name) {
 		settingsMap.erase(name);
 	}
 
@@ -123,6 +119,8 @@ private:
 		SettingsManager *manager;
 	} decrCommand;
 	friend class DecrCommand;
+
+	CommandController& commandController;
 };
 
 } // namespace openmsx

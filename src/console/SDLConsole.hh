@@ -15,11 +15,11 @@ class Console;
 class SDLConsole : public OSDConsoleRenderer
 {
 	public:
-		SDLConsole(Console * console_, SDL_Surface *screen);
+		SDLConsole(Console& console_, SDL_Surface* screen);
 		virtual ~SDLConsole();
 
-		virtual bool loadFont(const string &filename);
-		virtual bool loadBackground(const string &filename);
+		virtual bool loadFont(const string& filename);
+		virtual bool loadBackground(const string& filename);
 		virtual void drawConsole();
 		virtual void updateConsole();
 		
@@ -29,23 +29,23 @@ class SDLConsole : public OSDConsoleRenderer
 		
 		/** Surface of the console.
 		  */
-		SDL_Surface *consoleSurface;
+		SDL_Surface* consoleSurface;
 
 		/** This is the screen to draw the console to.
 		  */
-		SDL_Surface *outputScreen;
+		SDL_Surface* outputScreen;
 
 		/** Background image for the console.
 		  */
-		SDL_Surface *backgroundImage;
+		SDL_Surface* backgroundImage;
 
 		/** Dirty rectangle to draw over behind the users background.
 		  */
-		SDL_Surface *inputBackground;
+		SDL_Surface* inputBackground;
 
 		/** Font Surface for the console to get unblended text
 		  */
-		SDL_Surface *fontLayer;
+		SDL_Surface* fontLayer;
 	
 		/** The top-left x coordinate of the console on the display screen.
 		  */
@@ -60,8 +60,8 @@ class SDLConsole : public OSDConsoleRenderer
 		unsigned char consoleAlpha;
 
 		BackgroundSetting* backgroundSetting;
-		FontSetting *fontSetting;
-		Console* console;
+		FontSetting* fontSetting;
+		Console& console;
 		
 		void alpha(unsigned char alpha);
 		void loadBackground();
@@ -71,7 +71,7 @@ class SDLConsole : public OSDConsoleRenderer
 		void drawCursor();
 		void updateConsole2();
 		void updateConsoleRect();
-		int zoomSurface(SDL_Surface * src, SDL_Surface * dst, bool smooth);
+		int zoomSurface(SDL_Surface* src, SDL_Surface* dst, bool smooth);
 };
 
 } // namespace openmsx

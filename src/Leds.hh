@@ -5,6 +5,8 @@
 
 namespace openmsx {
 
+class CliCommOutput;
+
 class Leds 
 {
 	public:
@@ -17,7 +19,7 @@ class Leds
 			FDD_ON,   FDD_OFF
 		};
 		
-		static Leds *instance();
+		static Leds& instance();
 		void setLed(LEDCommand led);
 		
 	private:
@@ -26,6 +28,8 @@ class Leds
 
 		bool pwrLed, capsLed, kanaLed, pauseLed, turboLed;
 		int  fddLedCounter; // only used to combine mutliple FDD leds
+
+		CliCommOutput& output;
 };
 
 } // namespace openmsx

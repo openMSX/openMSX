@@ -33,7 +33,7 @@ enum Register {
 AY8910::AY8910(AY8910Interface &interf, short volume, const EmuTime &time)
 	: semiMuted(false), interface(interf)
 {
-	int bufSize = Mixer::instance()->registerSound(this,
+	int bufSize = Mixer::instance().registerSound(this,
 	                                               volume, Mixer::MONO);
 	buffer = new int[bufSize];
 	reset(time);
@@ -42,7 +42,7 @@ AY8910::AY8910(AY8910Interface &interf, short volume, const EmuTime &time)
 
 AY8910::~AY8910()
 {
-	Mixer::instance()->unregisterSound(this);
+	Mixer::instance().unregisterSound(this);
 	delete[] buffer;
 }
 
@@ -101,11 +101,11 @@ void AY8910::writeRegister(byte reg, byte value, const EmuTime &time)
 	assert (reg<=15);
 	if ((reg<AY_PORTA) && (reg==AY_ESHAPE || regs[reg]!=value)) {
 		// update the output buffer before changing the register
-		Mixer::instance()->updateStream(time);
+		Mixer::instance().updateStream(time);
 	}
-	Mixer::instance()->lock();
+	Mixer::instance().lock();
 	wrtReg(reg, value, time);
-	Mixer::instance()->unlock();
+	Mixer::instance().unlock();
 }
 void AY8910::wrtReg(byte reg, byte value, const EmuTime &time)
 {

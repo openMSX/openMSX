@@ -1,5 +1,18 @@
 $Id$
 
+2003-11-16 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Major singleton-cleanup:
+	   - circular dependency where already fixed
+	   - now also fixed construction order. All singletons classes that
+	     are used by some other singlton must be constructed before this
+	     singlton is constructed. Done by constructing all dependant
+	     singltons in the constructor of this singleton. This also
+	     prevents new circular dependencies in the future.
+	   - because of these two points it's now save to destruct all
+	     singletons (before some were never destructed)
+	   - instance() method now returns a reference instead of a pointer
+	   - I'll post a more detailed explanation to openmsx-devel soon 
+
 2003-11-16 Reikan <openMSX4Win32@ranpub.com>
 	* Fixed "hollible slow down when open console in fullscreen on SDLHi"
 	  at Win32.

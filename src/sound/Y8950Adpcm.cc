@@ -124,7 +124,7 @@ void Y8950Adpcm::schedule(const EmuTime &time)
 		uint64 samples = stopAddr - playAddr + 1;
 		EmuTimeFreq<Y8950::CLK_FREQ> stop(time);
 		stop += (samples * (72 << 16) / delta);
-		Scheduler::instance()->setSyncPoint(stop, this);
+		Scheduler::instance().setSyncPoint(stop, this);
 	}
 }
 
@@ -152,7 +152,7 @@ void Y8950Adpcm::writeReg(byte rg, byte data, const EmuTime &time)
 			if (playing) {
 				schedule(time);
 			} else {
-				Scheduler::instance()->removeSyncPoint(this);
+				Scheduler::instance().removeSyncPoint(this);
 			}
 			break;
 

@@ -23,14 +23,14 @@ PanasonicRom::~PanasonicRom()
 byte PanasonicRom::readMem(word address, const EmuTime& time)
 {
 	int block2 = (address & 0x2000) ? block + 1 : block;
-	const byte* rom = PanasonicMemory::instance()->getRomBlock(block2);
+	const byte* rom = PanasonicMemory::instance().getRomBlock(block2);
 	return rom[address & 0x1FFF];
 }
 
 const byte* PanasonicRom::getReadCacheLine(word address) const
 {
 	int block2 = (address & 0x2000) ? block + 1 : block;
-	const byte* rom = PanasonicMemory::instance()->getRomBlock(block2);
+	const byte* rom = PanasonicMemory::instance().getRomBlock(block2);
 	return &rom[address & 0x1FFF];
 }
 

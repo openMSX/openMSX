@@ -11,7 +11,7 @@ namespace openmsx {
 class DummyDevice : public MSXIODevice, public MSXMemDevice
 {
 public:
-	static DummyDevice* instance();
+	static DummyDevice& instance();
 	virtual void reset(const EmuTime& time);
 
 private:

@@ -6,11 +6,11 @@
 
 namespace openmsx {
 
-AliasCommands::AliasCommands(CommandController& controller_)
-	: controller(controller_), aliasCmd(*this), unaliasCmd(*this)
+AliasCommands::AliasCommands()
+	: aliasCmd(*this), unaliasCmd(*this)
 {
-	controller.registerCommand(&aliasCmd, "alias");
-	controller.registerCommand(&unaliasCmd, "unalias");
+	CommandController::instance().registerCommand(&aliasCmd, "alias");
+	CommandController::instance().registerCommand(&unaliasCmd, "unalias");
 }
 
 AliasCommands::~AliasCommands()
@@ -20,8 +20,8 @@ AliasCommands::~AliasCommands()
 		delete it->second;
 	}
 	
-	controller.unregisterCommand(&aliasCmd, "alias");
-	controller.unregisterCommand(&unaliasCmd, "unalias");
+	CommandController::instance().unregisterCommand(&aliasCmd, "alias");
+	CommandController::instance().unregisterCommand(&unaliasCmd, "unalias");
 }
 
 void AliasCommands::getAliases(set<string>& result) const
@@ -34,16 +34,15 @@ void AliasCommands::getAliases(set<string>& result) const
 
 
 // alias framework
-AliasCommands::Alias::Alias(AliasCommands& parent_,
-	                    const string& name_, const string& definition_)
-	: parent(parent_), name(name_), definition(definition_)
+AliasCommands::Alias::Alias(const string& name_, const string& definition_)
+	: name(name_), definition(definition_)
 {
-	parent.controller.registerCommand(this, name);
+	CommandController::instance().registerCommand(this, name);
 }
 
 AliasCommands::Alias::~Alias()
 {
-	parent.controller.unregisterCommand(this, name);
+	CommandController::instance().unregisterCommand(this, name);
 }
 
 const string& AliasCommands::Alias::getName() const
@@ -59,7 +58,7 @@ const string& AliasCommands::Alias::getDefinition() const
 string AliasCommands::Alias::execute(const vector<string> &tokens)
 	throw(CommandException)
 {
-	return parent.controller.executeCommand(definition);
+	return CommandController::instance().executeCommand(definition);
 }
 
 string AliasCommands::Alias::help(const vector<string> &tokens) const
@@ -108,11 +107,11 @@ string AliasCommands::AliasCmd::execute(const vector<string> &tokens)
 		if (it != parent.aliasses.end()) {
 			delete it->second;
 		}
-		if (CommandController::instance()->hasCommand(tokens[1])) {
+		if (CommandController::instance().hasCommand(tokens[1])) {
 			throw CommandException("Cannot redefine command as alias");
 		}
 		parent.aliasses[tokens[1]] =
-			new Alias(parent, tokens[1], definition);
+			new Alias(tokens[1], definition);
 	}
 	}
 	return result;

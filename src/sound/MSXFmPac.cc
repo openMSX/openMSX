@@ -109,7 +109,7 @@ void MSXFmPac::writeMem(word address, byte value, const EmuTime& time)
 			byte newBank = value & 0x03;
 			if (bank != newBank) {
 				bank = newBank;
-				MSXCPU::instance()->invalidateCache(0x0000,
+				MSXCPU::instance().invalidateCache(0x0000,
 				              0x10000 / CPU::CACHE_LINE_SIZE);
 			}
 			break;
@@ -142,7 +142,7 @@ void MSXFmPac::checkSramEnable()
 	bool newEnabled = (r1ffe == 0x4D) && (r1fff == 0x69);
 	if (sramEnabled != newEnabled) {
 		sramEnabled = newEnabled;
-		MSXCPU::instance()->invalidateCache(0x0000,
+		MSXCPU::instance().invalidateCache(0x0000,
 		                              0x10000 / CPU::CACHE_LINE_SIZE);
 	}
 }

@@ -15,23 +15,25 @@ namespace openmsx {
 
 MSXCPU::MSXCPU()
 	: z80 (EmuTime::zero),
-	  r800(EmuTime::zero)
+	  r800(EmuTime::zero),
+	  timeInfo(*this),
+	  infoCmd(InfoCommand::instance())
 {
 	activeCPU = &z80;	// setActiveCPU(CPU_Z80);
 	reset(EmuTime::zero);
 
-	InfoCommand::instance().registerTopic("time", &timeInfo);
+	infoCmd.registerTopic("time", &timeInfo);
 }
 
 MSXCPU::~MSXCPU()
 {
-	InfoCommand::instance().unregisterTopic("time", &timeInfo);
+	infoCmd.unregisterTopic("time", &timeInfo);
 }
 
-MSXCPU* MSXCPU::instance()
+MSXCPU& MSXCPU::instance()
 {
 	static MSXCPU oneInstance;
-	return &oneInstance;
+	return oneInstance;
 }
 
 void MSXCPU::init(Scheduler* scheduler)
@@ -194,11 +196,15 @@ const string& MSXCPU::getDeviceName() const
 
 // class TimeInfoTopic
 
+MSXCPU::TimeInfoTopic::TimeInfoTopic(MSXCPU& parent_)
+	: parent(parent_)
+{
+}
+
 string MSXCPU::TimeInfoTopic::execute(const vector<string>& tokens) const
 	throw()
 {
-	MSXCPU* cpu = MSXCPU::instance();
-	EmuDuration dur = cpu->getCurrentTime() - cpu->reference;
+	EmuDuration dur = parent.getCurrentTime() - parent.reference;
 	ostringstream str;
 	str.precision(3);
 	str << std::fixed << std::showpoint << dur.toFloat() << '\n';

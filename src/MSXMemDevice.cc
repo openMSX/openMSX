@@ -89,11 +89,11 @@ void MSXMemDevice::registerSlots()
 	}
 	if (ps >= 0) {
 		// slot specified
-		MSXCPUInterface::instance()->
+		MSXCPUInterface::instance().
 			registerSlottedDevice(this, ps, ss, pages);
 	} else {
 		// take any free slot
-		MSXCPUInterface::instance()->
+		MSXCPUInterface::instance().
 			registerSlottedDevice(this, pages);
 	}
 }

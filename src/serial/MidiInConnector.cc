@@ -11,12 +11,12 @@ namespace openmsx {
 MidiInConnector::MidiInConnector(const string &name)
 	: Connector(name, new DummyMidiInDevice())
 {
-	PluggingController::instance()->registerConnector(this);
+	PluggingController::instance().registerConnector(this);
 }
 
 MidiInConnector::~MidiInConnector()
 {
-	PluggingController::instance()->unregisterConnector(this);
+	PluggingController::instance().unregisterConnector(this);
 }
 
 const string& MidiInConnector::getDescription() const

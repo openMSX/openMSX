@@ -14,7 +14,10 @@ using std::vector;
 
 namespace openmsx {
 
+class Leds;
 class MSXCPU;
+class CommandController;
+class EventDistributor;
 class Schedulable;
 class Renderer;
 
@@ -39,7 +42,7 @@ private:
 	};
 
 public:
-	static Scheduler* instance();
+	static Scheduler& instance();
 
 	/**
 	 * Register a syncPoint. When the emulation reaches "timestamp",
@@ -131,15 +134,23 @@ private:
 	bool emulationRunning;
 
 	bool paused;
-	MSXCPU* cpu;
+
 	Renderer* renderer;
 	BooleanSetting pauseSetting;
 	BooleanSetting powerSetting;
+	
+	Leds& leds;
+	MSXCPU& cpu;
+	CommandController& commandController;
+	EventDistributor& eventDistributor;
 
 	class QuitCommand : public Command {
 	public:
+		QuitCommand(Scheduler& parent);
 		virtual string execute(const vector<string>& tokens) throw();
 		virtual string help(const vector<string>& tokens) const throw();
+	private:
+		Scheduler& parent;
 	} quitCommand;
 	friend class QuitCommand;
 };

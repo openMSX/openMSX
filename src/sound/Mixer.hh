@@ -19,9 +19,11 @@ namespace openmsx {
 
 class SoundDevice;
 class MSXCPU;
+class MSXConfig;
 class RealTime;
+class CliCommOutput;
+class InfoCommand;
 class VolumeSetting;
-
 
 class Mixer : private SettingListener
 {
@@ -31,7 +33,7 @@ public:
 		MONO, MONO_LEFT, MONO_RIGHT, STEREO, NB_MODES
 	};
 
-	static Mixer *instance();
+	static Mixer& instance();
 
 	/**
 	 * Use this method to register a given sounddevice.
@@ -111,6 +113,9 @@ private:
 
 	MSXCPU& cpu;
 	RealTime& realTime;
+	MSXConfig& msxConfig;
+	CliCommOutput& output;
+	InfoCommand& infoCommand;
 
 	BooleanSetting muteSetting;
 	BooleanSetting& pauseSetting;
@@ -121,12 +126,15 @@ private:
 
 	class SoundDeviceInfoTopic : public InfoTopic {
 	public:
+		SoundDeviceInfoTopic(Mixer& parent);
 		virtual string execute(const vector<string> &tokens) const
 			throw(CommandException);
 		virtual string help   (const vector<string> &tokens) const
 			throw();
 		virtual void tabCompletion(vector<string>& tokens) const
 			throw();
+	private:
+		Mixer& parent;
 	} soundDeviceInfo;
 	friend class SoundDeviceInfoTopic;
 };

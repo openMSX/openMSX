@@ -24,7 +24,7 @@ RomKorean90in1::RomKorean90in1(Device* config, const EmuTime &time, Rom *rom)
 	  MSXIODevice(config, time)
 {
 	reset(time);
-	MSXCPUInterface::instance()->register_IO_Out(0x77, this);
+	MSXCPUInterface::instance().register_IO_Out(0x77, this);
 }
 
 RomKorean90in1::~RomKorean90in1()

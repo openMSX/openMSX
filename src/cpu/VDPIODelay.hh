@@ -22,7 +22,7 @@ class VDPIODelay : public MSXIODevice
 	private:
 		const EmuTime &delay(const EmuTime &time);
 
-		MSXCPU *cpu;
+		MSXCPU& cpu;
 		MSXIODevice *device;
 		EmuTimeFreq<7159090> lastTime;
 };

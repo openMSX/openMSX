@@ -13,22 +13,22 @@ namespace openmsx {
 HotKey::HotKey()
 	: bindCmd(*this), unbindCmd(*this)
 {
-	CommandController::instance()->registerCommand(&bindCmd,   "bind");
-	CommandController::instance()->registerCommand(&unbindCmd, "unbind");
+	CommandController::instance().registerCommand(&bindCmd,   "bind");
+	CommandController::instance().registerCommand(&unbindCmd, "unbind");
 }
 
 HotKey::~HotKey()
 {
-	CommandController::instance()->unregisterCommand(&bindCmd,   "bind");
-	CommandController::instance()->unregisterCommand(&unbindCmd, "unbind");
+	CommandController::instance().unregisterCommand(&bindCmd,   "bind");
+	CommandController::instance().unregisterCommand(&unbindCmd, "unbind");
 }
 
 void HotKey::registerHotKey(Keys::KeyCode key, HotKeyListener* listener)
 {
 	PRT_DEBUG("HotKey registration for key " << Keys::getName(key));
 	if (map.empty()) {
-		EventDistributor::instance()->registerEventListener(SDL_KEYDOWN, this);
-		EventDistributor::instance()->registerEventListener(SDL_KEYUP, this);
+		EventDistributor::instance().registerEventListener(SDL_KEYDOWN, this);
+		EventDistributor::instance().registerEventListener(SDL_KEYUP, this);
 	}
 	map.insert(pair<Keys::KeyCode, HotKeyListener*>(key, listener));
 }
@@ -45,8 +45,8 @@ void HotKey::unregisterHotKey(Keys::KeyCode key, HotKeyListener* listener)
 		}
 	}
 	if (map.empty()) {
-		EventDistributor::instance()->unregisterEventListener(SDL_KEYDOWN, this);
-		EventDistributor::instance()->unregisterEventListener(SDL_KEYUP, this);
+		EventDistributor::instance().unregisterEventListener(SDL_KEYDOWN, this);
+		EventDistributor::instance().unregisterEventListener(SDL_KEYUP, this);
 	}
 }
 
@@ -109,7 +109,7 @@ void HotKey::HotKeyCmd::signalHotKey(Keys::KeyCode key) throw()
 {
 	try {
 		// ignore return value
-		CommandController::instance()->executeCommand(command);
+		CommandController::instance().executeCommand(command);
 	} catch (CommandException &e) {
 		CliCommOutput::instance().printWarning(
 		        "Error executing hot key command: " + e.getMessage());

@@ -15,6 +15,7 @@
 #include "CliCommInput.hh"
 #include "HotKey.hh"
 #include "AfterCommand.hh"
+#include "AliasCommands.hh"
 
 using std::auto_ptr;
 using std::cerr;
@@ -42,7 +43,7 @@ int main(int argc, char **argv)
 	try {
 		initializeSDL();
 		CommandLineParser::ParseStatus parseStatus =
-			CommandLineParser::instance()->parse(argc, argv);
+			CommandLineParser::instance().parse(argc, argv);
 		if (parseStatus != CommandLineParser::EXIT) {
 			auto_ptr<CliCommInput> cliCommInput;
 			if (parseStatus) {
@@ -50,6 +51,7 @@ int main(int argc, char **argv)
 			}
 			HotKey hotkey;
 			AfterCommand afterCommand;
+			AliasCommands aliasCommands;
 			MSXMotherBoard motherboard;
 			motherboard.run(parseStatus == CommandLineParser::RUN);
 		}

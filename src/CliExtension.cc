@@ -17,7 +17,7 @@ namespace openmsx {
 
 CliExtension::CliExtension()
 {
-	CommandLineParser::instance()->registerOption("-ext", this);
+	CommandLineParser::instance().registerOption("-ext", this);
 
 	SystemFileContext context;
 	const vector<string>& paths = context.getPaths();
@@ -39,9 +39,9 @@ bool CliExtension::parseOption(const string &option,
 	map<string, string>::const_iterator it =
 		extensions.find(extension);
 	if (it != extensions.end()) {
-		MSXConfig *config = MSXConfig::instance();
+		MSXConfig &config = MSXConfig::instance();
 		SystemFileContext context;
-		config->loadHardware(context, it->second);
+		config.loadHardware(context, it->second);
 	} else {
 		throw FatalError("Extension \"" + extension + "\" not found!");
 	}

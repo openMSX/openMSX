@@ -25,7 +25,7 @@ class MSXRom : public MSXMemDevice
 
 		Rom* rom;
 		string romName;
-		static class MSXCPU *cpu;
+		static class MSXCPU* cpu;
 
 	private:
 		void init();

@@ -20,7 +20,6 @@ class DebugConsole : public Console, private EventListener,
                      private SettingListener
 {
 public:
-	~DebugConsole();
 	static DebugConsole* instance();
 	
 	struct ViewStruct {
@@ -53,6 +52,7 @@ public:
 
 private:
 	DebugConsole();
+	~DebugConsole();
 	void update(const SettingLeafNode *setting) throw ();
 	bool signalEvent(const SDL_Event& event) throw();
 

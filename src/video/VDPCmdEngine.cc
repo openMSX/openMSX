@@ -104,12 +104,12 @@ VDPCmdEngine::VDPCmdEngine(VDP *vdp_)
 	brokenTiming = false;
 	statusChangeTime = EmuTime::infinity;
 
-	VDPSettings::instance()->getCmdTiming()->addListener(this);
+	VDPSettings::instance().getCmdTiming()->addListener(this);
 }
 
 VDPCmdEngine::~VDPCmdEngine()
 {
-	VDPSettings::instance()->getCmdTiming()->removeListener(this);
+	VDPSettings::instance().getCmdTiming()->removeListener(this);
 
 	// skip 0, 1, 2
 	for (int i = 3; i < 16; i++) {

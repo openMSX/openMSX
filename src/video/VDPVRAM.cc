@@ -55,12 +55,12 @@ VDPVRAM::VDPVRAM(VDP *vdp, int size)
 	// TODO: Move this to cache registration.
 	bitmapCacheWindow.setMask(0x1FFFF, -1 << 17, EmuTime::zero);
 
-	CommandController::instance()->registerCommand(&dumpVRAMCmd, "vramdump");
+	CommandController::instance().registerCommand(&dumpVRAMCmd, "vramdump");
 }
 
 VDPVRAM::~VDPVRAM()
 {
-	CommandController::instance()->unregisterCommand(&dumpVRAMCmd, "vramdump");
+	CommandController::instance().unregisterCommand(&dumpVRAMCmd, "vramdump");
 
 	delete[] data;
 }

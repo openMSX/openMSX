@@ -10,10 +10,15 @@
 
 namespace openmsx {
 
+class Scheduler;
+class MSXConfig;
+
 class RealTime : private Schedulable, private SettingListener
 {
 public:
-	static RealTime* instance();
+	virtual ~RealTime();
+
+	static RealTime& instance();
 
 	/**
 	 * Convert EmuTime to RealTime and vice versa
@@ -29,9 +34,12 @@ public:
 	 */
 	float sync(const EmuTime& time);
 
+private:
+	Scheduler& scheduler;
+	MSXConfig& msxConfig;
+
 protected:
 	RealTime(); 
-	virtual ~RealTime();
 	
 	virtual float doSync(const EmuTime& time) = 0;  
 	virtual void resync() = 0;

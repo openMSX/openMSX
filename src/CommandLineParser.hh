@@ -20,7 +20,8 @@ using std::set;
 namespace openmsx {
 
 class MSXConfig;
-
+class CliCommOutput;
+class CartridgeSlotManager;
 
 class CLIOption
 {
@@ -44,7 +45,7 @@ class CLIFileType
 class CLIPostConfig
 {
 	public:
-		virtual void execute(MSXConfig *config) = 0;
+		virtual void execute(MSXConfig& config) = 0;
 };
 
 struct OptionData
@@ -59,7 +60,7 @@ class CommandLineParser
 	public:
 		enum ParseStatus { RUN, CONTROL, EXIT };
 		
-		static CommandLineParser* instance();
+		static CommandLineParser& instance();
 		
 		void registerOption(const string &str, CLIOption* cliOption, byte prio = 7, byte length = 2);
 		void registerFileClass(const string &str, CLIFileType* cliFileType);
@@ -88,43 +89,62 @@ class CommandLineParser
 		bool issuedHelp;
 		ParseStatus parseStatus;
 
+		MSXConfig& msxConfig;
+		CliCommOutput& output;
+		CartridgeSlotManager& slotManager;
+		
 		class HelpOption : public CLIOption {
 		public:
+			HelpOption(CommandLineParser& parent);
 			virtual bool parseOption(const string &option,
 				list<string> &cmdLine);
 			virtual const string& optionHelp() const;
+		private:
+			CommandLineParser& parent;
 		} helpOption;
 		friend class HelpOption;
 	
 		class VersionOption : public CLIOption {
 		public:
+			VersionOption(CommandLineParser& parent);
 			virtual bool parseOption(const string &option,
 				list<string> &cmdLine);
 			virtual const string& optionHelp() const;
+		private:
+			CommandLineParser& parent;
 		} versionOption;
 		friend class VersionOption;
 	
 		class ControlOption : public CLIOption {
 		public:
+			ControlOption(CommandLineParser& parent);
 			virtual bool parseOption(const string &option,
 				list<string> &cmdLine);
 			virtual const string& optionHelp() const;
+		private:
+			CommandLineParser& parent;
 		} controlOption;
 		friend class ConfigOption;
 			
 		class MachineOption : public CLIOption {
 		public:
+			MachineOption(CommandLineParser& parent);
 			virtual bool parseOption(const string &option,
 				list<string> &cmdLine);
 			virtual const string& optionHelp() const;
+		private:
+			CommandLineParser& parent;
 		} machineOption;
 		friend class MachineOption;
 		
 		class SettingOption : public CLIOption {
 		public:
+			SettingOption(CommandLineParser& parent);
 			virtual bool parseOption(const string &option,
 				list<string> &cmdLine);
 			virtual const string& optionHelp() const;
+		private:
+			CommandLineParser& parent;
 		} settingOption;
 		friend class SettingOption;
 };

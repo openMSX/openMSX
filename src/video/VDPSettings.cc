@@ -24,4 +24,10 @@ VDPSettings::~VDPSettings()
 	delete cmdTiming;
 }
 
+VDPSettings& VDPSettings::instance()
+{
+	static VDPSettings oneInstance;
+	return oneInstance;
+}
+
 } // namespace openmsx

@@ -1,5 +1,6 @@
 // $Id$
 
+#include <memory> // for auto_ptr
 #include "CassettePort.hh"
 #include "CassetteDevice.hh"
 #include "DummyCassetteDevice.hh"
@@ -11,17 +12,17 @@ namespace openmsx {
 
 // CassettePortFactory //
 
-CassettePortInterface *CassettePortFactory::instance()
+CassettePortInterface& CassettePortFactory::instance()
 {
-	static CassettePortInterface *oneInstance = NULL;
-	if (oneInstance == NULL) {
-		oneInstance =
-			( MSXConfig::instance()->hasConfigWithId("CassettePort")
+	PluggingController::instance(); // must have longer lifetime than CassettePort
+	static auto_ptr<CassettePortInterface> oneInstance;
+	if (!oneInstance.get()) {
+		oneInstance.reset(
+			MSXConfig::instance().hasConfigWithId("CassettePort")
 			? static_cast<CassettePortInterface *>(new CassettePort())
-			: static_cast<CassettePortInterface *>(new DummyCassettePort())
-			);
+			: static_cast<CassettePortInterface *>(new DummyCassettePort()));
 	}
-	return oneInstance;
+	return *oneInstance.get();
 }
 
 
@@ -82,12 +83,12 @@ CassettePort::CassettePort()
 	: CassettePortInterface()
 {
 	buffer = new short[BUFSIZE];
-	PluggingController::instance()->registerConnector(this);
+	PluggingController::instance().registerConnector(this);
 }
 
 CassettePort::~CassettePort()
 {
-	PluggingController::instance()->unregisterConnector(this);
+	PluggingController::instance().unregisterConnector(this);
 	delete[] buffer;
 }
 

@@ -11,7 +11,7 @@ namespace openmsx {
 IDEDevice* IDEDeviceFactory::create(const string& name,
                                     const EmuTime& time)
 {
-	Config* config = MSXConfig::instance()->getConfigById(name);
+	Config* config = MSXConfig::instance().getConfigById(name);
 	const string& type = config->getType();
 
 	if (type == "IDEHD") {

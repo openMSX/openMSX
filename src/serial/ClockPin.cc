@@ -9,9 +9,8 @@ namespace openmsx {
 
 ClockPin::ClockPin(ClockPinListener* listener_)
 	: listener(listener_), periodic(false), status(false),
-	  signalEdge(false)
+	  signalEdge(false), scheduler(Scheduler::instance())
 {
-	scheduler = Scheduler::instance();
 }
 
 ClockPin::~ClockPin()
@@ -123,12 +122,12 @@ void ClockPin::generateEdgeSignals(bool wanted, const EmuTime& time)
 
 void ClockPin::unschedule()
 {
-	scheduler->removeSyncPoint(this);
+	scheduler.removeSyncPoint(this);
 }
 
 void ClockPin::schedule(const EmuTime& time)
 {
-	scheduler->setSyncPoint(time, this);
+	scheduler.setSyncPoint(time, this);
 }
 
 void ClockPin::executeUntil(const EmuTime& time, int userdata) throw()

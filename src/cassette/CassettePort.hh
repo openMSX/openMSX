@@ -88,7 +88,7 @@ public:
 	* returns a CassettePort object, otherwise a DummyCassettePort
 	* object
 	*/
-	static CassettePortInterface *instance();
+	static CassettePortInterface& instance();
 };
 
 } // namespace openmsx

@@ -14,8 +14,8 @@ MSXCasCLI msxCasCLI;
 
 MSXCasCLI::MSXCasCLI()
 {
-	CommandLineParser::instance()->registerOption("-cas", this);
-	CommandLineParser::instance()->registerFileClass("cassetteimages", this);
+	CommandLineParser::instance().registerOption("-cas", this);
+	CommandLineParser::instance().registerFileClass("cassetteimages", this);
 }
 
 bool MSXCasCLI::parseOption(const string &option,
@@ -43,9 +43,8 @@ void MSXCasCLI::parseFileType(const string &filename_)
 	s << " </config>";
 	s << "</msxconfig>";
 
-	MSXConfig *config = MSXConfig::instance();
 	UserFileContext context;
-	config->loadStream(context, s);
+	MSXConfig::instance().loadStream(context, s);
 }
 const string& MSXCasCLI::fileTypeHelp() const
 {
@@ -75,9 +74,9 @@ MSXTapePatch::MSXTapePatch()
 {
 	file = NULL;
 
-	MSXConfig *conf = MSXConfig::instance();
-	if (conf->hasConfigWithId("cas")) {
-		Config *config = conf->getConfigById("cas");
+	MSXConfig& conf = MSXConfig::instance();
+	if (conf.hasConfigWithId("cas")) {
+		Config *config = conf.getConfigById("cas");
 		const string &filename = config->getParameter("filename");
 		try {
 			insertTape(config->getContext(), filename);
@@ -87,12 +86,12 @@ MSXTapePatch::MSXTapePatch()
 	} else {
 		// no image specified
 	}
-	CommandController::instance()->registerCommand(this, "cas");
+	CommandController::instance().registerCommand(this, "cas");
 }
 
 MSXTapePatch::~MSXTapePatch()
 {
-	CommandController::instance()->unregisterCommand(this, "cas");
+	CommandController::instance().unregisterCommand(this, "cas");
 	delete file;
 }
 

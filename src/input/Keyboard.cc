@@ -76,21 +76,21 @@ Keyboard::Keyboard(bool keyG)
 	memset(keyMatrix , 255, sizeof(keyMatrix));
 	memset(keyMatrix2, 255, sizeof(keyMatrix2));
 	try {
-		Config* config = MSXConfig::instance()->getConfigById("KeyMap");
+		Config* config = MSXConfig::instance().getConfigById("KeyMap");
 		string filename = config->getParameter("filename");
 		filename = config->getContext().resolve(filename);
 		loadKeymapfile(filename);
 	} catch (ConfigException &e) {
 		// no keymap settings.
 	}
-	EventDistributor::instance()->registerEventListener(SDL_KEYDOWN, this, 1);
-	EventDistributor::instance()->registerEventListener(SDL_KEYUP,   this, 1);
+	EventDistributor::instance().registerEventListener(SDL_KEYDOWN, this, 1);
+	EventDistributor::instance().registerEventListener(SDL_KEYUP,   this, 1);
 }
 
 Keyboard::~Keyboard()
 {
-	EventDistributor::instance()->unregisterEventListener(SDL_KEYDOWN, this, 1);
-	EventDistributor::instance()->unregisterEventListener(SDL_KEYUP,   this, 1);
+	EventDistributor::instance().unregisterEventListener(SDL_KEYDOWN, this, 1);
+	EventDistributor::instance().unregisterEventListener(SDL_KEYUP,   this, 1);
 }
 
 

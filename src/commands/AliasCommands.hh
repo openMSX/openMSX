@@ -17,21 +17,19 @@ class CommandController;
 class AliasCommands
 {
 public:
-	AliasCommands(CommandController& controller);
+	AliasCommands();
 	~AliasCommands();
 
 private:
 	void getAliases(set<string>& result) const;
 
 	class Alias;
-	CommandController& controller;
 	map<string, Alias*> aliasses;
 
 	// Commands
 	class Alias : public Command {
 	public:
-		Alias(AliasCommands& parent,
-		      const string& name, const string& definition);
+		Alias(const string& name, const string& definition);
 		virtual ~Alias();
 
 		const string& getName() const;
@@ -42,7 +40,6 @@ private:
 		virtual string help(const vector<string> &tokens) const
 			throw();
 	private:
-		AliasCommands& parent;
 		const string name;
 		const string definition;
 	};

@@ -11,6 +11,10 @@
 
 namespace openmsx {
 
+class MSXConfig;
+class CliCommOutput;
+class InfoCommand;
+
 /** Singleton containing all settings for renderers.
   * Keeping the settings here makes sure they are preserved when the user
   * switches to another renderer.
@@ -22,12 +26,7 @@ public:
 	  */
 	enum Accuracy { ACC_SCREEN, ACC_LINE, ACC_PIXEL };
 
-	/** Get singleton instance.
-	  */
-	static RenderSettings *instance() {
-		static RenderSettings oneInstance;
-		return &oneInstance;
-	}
+	static RenderSettings& instance();
 
 	/** Accuracy [screen, line, pixel] */
 	EnumSetting<Accuracy> *getAccuracy() { return accuracy; }
@@ -77,11 +76,18 @@ private:
 
 	class RendererInfo : public InfoTopic {
 	public:
+		RendererInfo(RenderSettings& parent);
 		virtual string execute(const vector<string> &tokens) const
 			throw();
 		virtual string help   (const vector<string> &tokens) const
 			throw();
+	private:
+		RenderSettings& parent;
 	} rendererInfo;
+	
+	MSXConfig& msxConfig;
+	CliCommOutput& output;
+	InfoCommand& infoCommand;
 };
 
 } // namespace openmsx

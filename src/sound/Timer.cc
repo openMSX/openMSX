@@ -12,9 +12,9 @@ template class Timer< 3125, 0x20>;
 
 template<int freq, byte flag>
 Timer<freq, flag>::Timer(TimerCallback *cb_)
-	: count(256), counting(false), cb(cb_)
+	: count(256), counting(false), cb(cb_),
+	  scheduler(Scheduler::instance())
 {
-	scheduler = Scheduler::instance();
 }
 
 template<int freq, byte flag>
@@ -46,13 +46,13 @@ template<int freq, byte flag>
 void Timer<freq, flag>::schedule(const EmuTime &time)
 {
 	EmuTimeFreq<freq> now(time);
-	scheduler->setSyncPoint(now + count, this);
+	scheduler.setSyncPoint(now + count, this);
 }
 
 template<int freq, byte flag>
 void Timer<freq, flag>::unschedule()
 {
-	scheduler->removeSyncPoint(this);
+	scheduler.removeSyncPoint(this);
 }
 
 template<int freq, byte flag>

@@ -80,7 +80,7 @@ SCC::SCC(const string& name_, short volume, const EmuTime &time,
 	: currentChipMode(mode), name(name_)
 {
 	// Register as a soundevice
-	int bufSize = Mixer::instance()->registerSound(this, volume,
+	int bufSize = Mixer::instance().registerSound(this, volume,
 	                                               Mixer::MONO);
 	buffer = new int[bufSize];
 
@@ -96,7 +96,7 @@ SCC::SCC(const string& name_, short volume, const EmuTime &time,
 
 SCC::~SCC()
 {
-	Mixer::instance()->unregisterSound(this);
+	Mixer::instance().unregisterSound(this);
 	delete[] buffer;
 }
 
@@ -257,7 +257,7 @@ byte SCC::getFreqVol(byte address)
 
 void SCC::writeMemInterface(byte address, byte value, const EmuTime &time)
 {
-	Mixer::instance()->updateStream(time);
+	Mixer::instance().updateStream(time);
 
 	switch (currentChipMode) {
 	case SCC_Real:

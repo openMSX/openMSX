@@ -3,13 +3,14 @@
 #ifndef __CARTRIDGESLOTMANAGER_HH__
 #define __CARTRIDGESLOTMANAGER_HH__
 
-
 namespace openmsx {
+
+class MSXConfig;
 
 class CartridgeSlotManager
 {
 	public:
-		static CartridgeSlotManager* instance();
+		static CartridgeSlotManager& instance();
 
 		void reserveSlot(int slot);
 		void readConfig();
@@ -20,6 +21,7 @@ class CartridgeSlotManager
 		CartridgeSlotManager();
 
 		int slots[16];
+		MSXConfig& msxConfig;
 };
 
 } // namespace openmsx

@@ -71,9 +71,9 @@ void MSXS1990::writeIO(byte port, byte value, const EmuTime &time)
 void MSXS1990::setCPUStatus(byte value)
 {
 	cpuStatus = value & 0x60;
-	MSXCPU::instance()->setActiveCPU((cpuStatus & 0x20) ? MSXCPU::CPU_Z80 :
-	                                                      MSXCPU::CPU_R800);
-	PanasonicMemory::instance()->setDRAM((cpuStatus & 0x40) ? false : true);
+	MSXCPU::instance().setActiveCPU((cpuStatus & 0x20) ? MSXCPU::CPU_Z80 :
+	                                                     MSXCPU::CPU_R800);
+	PanasonicMemory::instance().setDRAM((cpuStatus & 0x40) ? false : true);
 	// TODO bit 7 -> reset MSX ?????
 }
 

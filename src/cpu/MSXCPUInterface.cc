@@ -14,23 +14,29 @@
 
 namespace openmsx {
 
-MSXCPUInterface* MSXCPUInterface::instance()
+MSXCPUInterface& MSXCPUInterface::instance()
 {
-	static MSXCPUInterface* oneInstance = NULL;
-	if (oneInstance == NULL) {
+	static auto_ptr<MSXCPUInterface> oneInstance;
+	if (!oneInstance.get()) {
 		// TODO choose one depending on MSX model (small optimization)
-		//oneInstance = new MSXCPUInterface();
-		oneInstance = new TurborCPUInterface();
+		//oneInstance.reset(new MSXCPUInterface());
+		oneInstance.reset(new TurborCPUInterface());
 	}
-	return oneInstance;
+	return *oneInstance.get();
 }
 
 MSXCPUInterface::MSXCPUInterface()
+	: slotMapCmd(*this),
+	  slotSelectCmd(*this),
+	  dummyDevice(DummyDevice::instance()),
+	  msxConfig(MSXConfig::instance()),
+	  commandController(CommandController::instance()),
+	  msxcpu(MSXCPU::instance()),
+	  slotManager(CartridgeSlotManager::instance())
 {
-	DummyDevice* dummy = DummyDevice::instance();
 	for (int port = 0; port < 256; port++) {
-		IO_In [port] = dummy;
-		IO_Out[port] = dummy;
+		IO_In [port] = &dummyDevice;
+		IO_Out[port] = &dummyDevice;
 	}
 	for (int primSlot = 0; primSlot < 4; primSlot++) {
 		primarySlotState[primSlot]=0;
@@ -38,7 +44,7 @@ MSXCPUInterface::MSXCPUInterface()
 		subSlotRegister[primSlot] = 0;
 		for (int secSlot = 0; secSlot < 4; secSlot++) {
 			for (int page = 0; page < 4; page++) {
-				slotLayout[primSlot][secSlot][page] = dummy;
+				slotLayout[primSlot][secSlot][page] = &dummyDevice;
 			}
 		}
 	}
@@ -46,8 +52,7 @@ MSXCPUInterface::MSXCPUInterface()
 		visibleDevices[page] = 0;
 	}
 
-	Config* config = MSXConfig::instance()->
-		getConfigById("MotherBoard");
+	Config* config = msxConfig.getConfigById("MotherBoard");
 	list<Config::Parameter*>* subslotted_list;
 	subslotted_list = config->getParametersWithClass("subslotted");
 	for (list<Config::Parameter*>::const_iterator it = subslotted_list->begin();
@@ -64,24 +69,24 @@ MSXCPUInterface::MSXCPUInterface()
 	// Note: SlotState is initialised at reset
 
 	// Register console commands
-	CommandController::instance()->registerCommand(&slotMapCmd,    "slotmap");
-	CommandController::instance()->registerCommand(&slotSelectCmd, "slotselect");
+	commandController.registerCommand(&slotMapCmd,    "slotmap");
+	commandController.registerCommand(&slotSelectCmd, "slotselect");
 
-	MSXCPU::instance()->setInterface(this);
+	msxcpu.setInterface(this);
 }
 
 MSXCPUInterface::~MSXCPUInterface()
 {
-	MSXCPU::instance()->setInterface(NULL);
+	msxcpu.setInterface(NULL);
 
-	CommandController::instance()->unregisterCommand(&slotMapCmd,    "slotmap");
-	CommandController::instance()->unregisterCommand(&slotSelectCmd, "slotselect");
+	commandController.unregisterCommand(&slotMapCmd,    "slotmap");
+	commandController.unregisterCommand(&slotSelectCmd, "slotselect");
 }
 
 
 void MSXCPUInterface::register_IO_In(byte port, MSXIODevice *device)
 {
-	if (IO_In[port] == DummyDevice::instance()) {
+	if (IO_In[port] == &dummyDevice) {
 		PRT_DEBUG(device->getName() << " registers In-port "
 		          << hex << (int)port << dec);
 		IO_In[port] = device;
@@ -96,7 +101,7 @@ void MSXCPUInterface::register_IO_In(byte port, MSXIODevice *device)
 
 void MSXCPUInterface::register_IO_Out(byte port, MSXIODevice *device)
 {
-	if (IO_Out[port] == DummyDevice::instance()) {
+	if (IO_Out[port] == &dummyDevice) {
 		PRT_DEBUG(device->getName() << " registers Out-port "
 		          << hex << (int)port << dec);
 		IO_Out[port] = device;
@@ -118,7 +123,7 @@ void MSXCPUInterface::registerSlot(MSXMemDevice *device,
 			<< " does not exist, because slot is not expanded";
 		throw MSXException(s.str());
 	}
-	if (slotLayout[primSl][secSl][page] == DummyDevice::instance()) {
+	if (slotLayout[primSl][secSl][page] == &dummyDevice) {
 		PRT_DEBUG(device->getName() << " registers at "<<primSl<<" "<<secSl<<" "<<page);
 		slotLayout[primSl][secSl][page] = device;
 	} else {
@@ -149,7 +154,7 @@ void MSXCPUInterface::registerPostSlots()
 	     it != regPostSlots.end();
 	     ++it) {
 		int ps, ss;
-		CartridgeSlotManager::instance()->getSlot(ps, ss);
+		slotManager.getSlot(ps, ss);
 		registerSlottedDevice(it->device, ps, ss, it->pages);
 	}
 }
@@ -162,7 +167,7 @@ void MSXCPUInterface::updateVisible(int page)
 	if (visibleDevices[page] != newDevice) {
 		visibleDevices[page] = newDevice;
 		// Different device, so cache is no longer valid.
-		MSXCPU::instance()->invalidateCache(page * 0x4000,
+		msxcpu.invalidateCache(page * 0x4000,
 		                        0x4000 / CPU::CACHE_LINE_SIZE);
 	}
 }
@@ -331,10 +336,18 @@ MSXCPUInterface::SlotSelection* MSXCPUInterface::getCurrentSlots()
 	return slots;
 }
 
+
+// class SlotMapCmd
+
+MSXCPUInterface::SlotMapCmd::SlotMapCmd(MSXCPUInterface& parent_)
+	: parent(parent_)
+{
+}
+
 string MSXCPUInterface::SlotMapCmd::execute(const vector<string> &tokens)
 	throw()
 {
-	return MSXCPUInterface::instance()->getSlotMap();
+	return parent.getSlotMap();
 }
 
 string MSXCPUInterface::SlotMapCmd::help(const vector<string> &tokens) const
@@ -343,10 +356,18 @@ string MSXCPUInterface::SlotMapCmd::help(const vector<string> &tokens) const
 	return "Prints which slots contain which devices.\n";
 }
 
+
+// class SlotSelectCmd
+
+MSXCPUInterface::SlotSelectCmd::SlotSelectCmd(MSXCPUInterface& parent_)
+	: parent(parent_)
+{
+}
+
 string MSXCPUInterface::SlotSelectCmd::execute(const vector<string> &tokens)
 	throw()
 {
-	return MSXCPUInterface::instance()->getSlotSelection();
+	return parent.getSlotSelection();
 }
 
 string MSXCPUInterface::SlotSelectCmd::help(const vector<string> &tokens) const

@@ -12,12 +12,12 @@ namespace openmsx {
 MSXSwitchedDevice::MSXSwitchedDevice(byte id_)
 	: id(id_)
 {
-	MSXDeviceSwitch::instance()->registerDevice(id, this);
+	MSXDeviceSwitch::instance().registerDevice(id, this);
 }
 
 MSXSwitchedDevice::~MSXSwitchedDevice()
 {
-	MSXDeviceSwitch::instance()->unregisterDevice(id);
+	MSXDeviceSwitch::instance().unregisterDevice(id);
 }
 
 
@@ -43,11 +43,11 @@ MSXDeviceSwitch::~MSXDeviceSwitch()
 }
 
 
-MSXDeviceSwitch* MSXDeviceSwitch::instance()
+MSXDeviceSwitch& MSXDeviceSwitch::instance()
 {
 	static Device device("DeviceSwitch", "DeviceSwitch");
 	static MSXDeviceSwitch oneInstance(&device, EmuTime::zero);
-	return &oneInstance;
+	return oneInstance;
 }
 
 

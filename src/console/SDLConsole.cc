@@ -25,11 +25,11 @@ struct ColorRGBA {
 	Uint8 a;
 };
 
-SDLConsole::SDLConsole(Console * console_, SDL_Surface *screen)
-	:OSDConsoleRenderer (console_)
+SDLConsole::SDLConsole(Console& console_, SDL_Surface* screen)
+	: OSDConsoleRenderer(console_),
+	  console(console_)
 { 
-	console = console_;
-	string temp = console->getId();
+	string temp = console.getId();
 	blink = false;
 	lastBlinkTime = 0;
 	
@@ -39,7 +39,7 @@ SDLConsole::SDLConsole(Console * console_, SDL_Surface *screen)
 	inputBackground = NULL;
 	fontLayer = NULL;
 
-	fontSetting = new FontSetting(this, temp + "font", console->getFont());
+	fontSetting = new FontSetting(this, temp + "font", console.getFont());
 	initConsoleSize();
 
 	SDL_Rect rect;
@@ -47,7 +47,7 @@ SDLConsole::SDLConsole(Console * console_, SDL_Surface *screen)
 
 	resize(rect);
 	backgroundSetting = new BackgroundSetting(this, temp+"background", 
-	                                          console->getBackground());
+	                                          console.getBackground());
 	alpha(CONSOLE_ALPHA);
 	
 }
@@ -75,7 +75,7 @@ SDLConsole::~SDLConsole()
 // Updates the console buffer
 void SDLConsole::updateConsole()
 {
-	if (!console->isVisible()) {
+	if (!console.isVisible()) {
 		return;
 	}
 	updateConsole2();
@@ -100,8 +100,8 @@ void SDLConsole::updateConsole2()
 
 	int screenlines = consoleSurface->h / font->getHeight();
 	for (int loop = 0; loop < screenlines; loop++) {
-		int num = loop + console->getScrollBack();
-		font->drawText(console->getLine(num), CHAR_BORDER,
+		int num = loop + console.getScrollBack();
+		font->drawText(console.getLine(num), CHAR_BORDER,
 		       consoleSurface->h - (1+loop)*font->getHeight());
 	}
 }
@@ -115,7 +115,7 @@ void SDLConsole::updateConsoleRect()
 	{
 		resize(rect);
 		alpha(CONSOLE_ALPHA);
-		loadBackground(console->getBackground());
+		loadBackground(console.getBackground());
 		updateConsole2();
 	}
 }
@@ -123,7 +123,7 @@ void SDLConsole::updateConsoleRect()
 // Draws the console buffer to the screen
 void SDLConsole::drawConsole()
 {
-	if (!console->isVisible()) {
+	if (!console.isVisible()) {
 		return;
 	}
 	updateConsoleRect();
@@ -145,12 +145,12 @@ void SDLConsole::drawCursor()
 {
 	unsigned cursorX;
 	unsigned cursorY;
-	console->getCursorPosition(cursorX, cursorY);
+	console.getCursorPosition(cursorX, cursorY);
 	// Check if the blink period is over
 	if (SDL_GetTicks() > lastBlinkTime) {
 		lastBlinkTime = SDL_GetTicks() + BLINK_RATE;
 		blink = !blink;
-		if (console->getScrollBack() != 0) {
+		if (console.getScrollBack() != 0) {
 			return;
 		}
 		if (blink) {
@@ -180,7 +180,7 @@ void SDLConsole::drawCursor()
 				rect2.h = rect.h = font->getHeight();
 				SDL_BlitSurface(backgroundImage, &rect, consoleSurface, &rect2);
 			}
-			font->drawText(console->getLine(cursorY).substr(cursorX,cursorX),
+			font->drawText(console.getLine(cursorY).substr(cursorX,cursorX),
 				CHAR_BORDER + cursorX * font->getWidth(),
 				consoleSurface->h - (font->getHeight()*(cursorY + 1)));
 		}

@@ -52,11 +52,11 @@ private:
 	int volume;
 	int* buffer;
 
-	class MSXCPU* cpu;
-	class RealTime* realTime;
-
 	const string name;
 	const string desc;
+
+	class MSXCPU& cpu;
+	class RealTime& realTime;
 };
 
 } // namespace openmsx

@@ -16,10 +16,14 @@ namespace openmsx {
 
 Mixer::Mixer()
 	: muteCount(0),
-	  cpu(*MSXCPU::instance()),
-	  realTime(*RealTime::instance()),
+	  cpu(MSXCPU::instance()),
+	  realTime(RealTime::instance()),
+	  msxConfig(MSXConfig::instance()),
+	  output(CliCommOutput::instance()),
+	  infoCommand(InfoCommand::instance()),
 	  muteSetting("mute", "(un)mute the emulation sound", false),
-	  pauseSetting(Scheduler::instance()->getPauseSetting())
+	  pauseSetting(Scheduler::instance().getPauseSetting()),
+	  soundDeviceInfo(*this)
 {
 #ifdef DEBUG_MIXER
 	nbClipped = 0;
@@ -29,7 +33,7 @@ Mixer::Mixer()
 	int freq = 22050;
 	int samples = 512;
 	try {
-		Config* config = MSXConfig::instance()->getConfigById("Mixer");
+		Config* config = msxConfig.getConfigById("Mixer");
 		freq = config->getParameterAsInt("frequency", freq);
 		samples = config->getParameterAsInt("samples", samples);
 	} catch (ConfigException &e) {
@@ -49,7 +53,7 @@ Mixer::Mixer()
 	desired.callback = audioCallbackHelper;	// must be a static method
 	desired.userdata = this;
 	if (SDL_OpenAudio(&desired, &audioSpec) < 0) {
-		CliCommOutput::instance().printWarning(
+		output.printWarning(
 		        string("Couldn't open audio : ") + SDL_GetError());
 		init = false;
 	} else {
@@ -57,7 +61,7 @@ Mixer::Mixer()
 		mixBuffer = new short[audioSpec.size / sizeof(short)];
 		reInit();
 	}
-	InfoCommand::instance().registerTopic("sounddevice", &soundDeviceInfo);
+	infoCommand.registerTopic("sounddevice", &soundDeviceInfo);
 	muteSetting.addListener(this);
 	pauseSetting.addListener(this);
 }
@@ -66,17 +70,17 @@ Mixer::~Mixer()
 {
 	pauseSetting.removeListener(this);
 	muteSetting.removeListener(this);
-	InfoCommand::instance().unregisterTopic("sounddevice", &soundDeviceInfo);
+	infoCommand.unregisterTopic("sounddevice", &soundDeviceInfo);
 	if (init) {
 		SDL_CloseAudio();
 		delete[] mixBuffer;
 	}
 }
 
-Mixer* Mixer::instance()
+Mixer& Mixer::instance()
 {
 	static Mixer oneInstance;
-	return &oneInstance;
+	return oneInstance;
 }
 
 int Mixer::registerSound(SoundDevice* device, short volume, ChannelMode mode)
@@ -335,20 +339,24 @@ SoundDevice* Mixer::getSoundDevice(const string& name)
 	return NULL;
 }
 
+Mixer::SoundDeviceInfoTopic::SoundDeviceInfoTopic(Mixer& parent_)
+	: parent(parent_)
+{
+}
+
 string Mixer::SoundDeviceInfoTopic::execute(const vector<string> &tokens) const
 	throw(CommandException)
 {
 	string result;
-	Mixer* mixer = Mixer::instance();
 	switch (tokens.size()) {
 	case 2:
 		for (map<SoundDevice*, SoundDeviceInfo>::const_iterator it =
-		       mixer->infos.begin(); it != mixer->infos.end(); ++it) {
+		       parent.infos.begin(); it != parent.infos.end(); ++it) {
 			result += it->first->getName() + '\n';
 		}
 		break;
 	case 3: {
-		SoundDevice* device = mixer->getSoundDevice(tokens[2]);
+		SoundDevice* device = parent.getSoundDevice(tokens[2]);
 		if (!device) {
 			throw CommandException("Unknown sound device");
 		}
@@ -371,10 +379,9 @@ void Mixer::SoundDeviceInfoTopic::tabCompletion(vector<string>& tokens) const
 	throw()
 {
 	if (tokens.size() == 3) {
-		Mixer* mixer = Mixer::instance();
 		set<string> devices;
 		for (map<SoundDevice*, SoundDeviceInfo>::const_iterator it =
-		       mixer->infos.begin(); it != mixer->infos.end(); ++it) {
+		       parent.infos.begin(); it != parent.infos.end(); ++it) {
 			devices.insert(it->first->getName());
 		}
 		CommandController::completeString(tokens, devices);

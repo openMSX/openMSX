@@ -318,9 +318,9 @@ void IDEHD::setTransferRead(bool status)
 		transferRead = status;
 		if (!transferWrite) {
 			if (transferRead) { // (this is a bit of a hack!)
-				Leds::instance()->setLed(Leds::FDD_ON);
+				Leds::instance().setLed(Leds::FDD_ON);
 			} else {
-				Leds::instance()->setLed(Leds::FDD_OFF);
+				Leds::instance().setLed(Leds::FDD_OFF);
 			}
 		}
 	}
@@ -332,9 +332,9 @@ void IDEHD::setTransferWrite(bool status)
 		transferWrite = status;
 		if (!transferRead) {
 			if (transferWrite) { // (this is a bit of a hack!)
-				Leds::instance()->setLed(Leds::FDD_ON);
+				Leds::instance().setLed(Leds::FDD_ON);
 			} else {
-				Leds::instance()->setLed(Leds::FDD_OFF);
+				Leds::instance().setLed(Leds::FDD_OFF);
 			}
 		}
 	}

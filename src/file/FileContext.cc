@@ -205,7 +205,7 @@ const vector<string> &UserFileContext::getPaths()
 	if (!alreadyInit) {
 		alreadyInit = true;
 		try {
-			Config* config = MSXConfig::instance()->
+			Config* config = MSXConfig::instance().
 				getConfigById("UserDirectories");
 			list<Config::Parameter*>* pathList =
 				config->getParametersWithClass("");

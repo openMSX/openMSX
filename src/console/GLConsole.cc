@@ -15,12 +15,12 @@
 
 namespace openmsx {
 
-GLConsole::GLConsole(Console * console_)
-	: OSDConsoleRenderer (console_)
+GLConsole::GLConsole(Console& console_)
+	: OSDConsoleRenderer(console_),
+	  console(console_)
 {
-	console = console_;
-	string temp = console->getId();
-	fontSetting = new FontSetting(this, temp + "font", console->getFont());
+	string temp = console.getId();
+	fontSetting = new FontSetting(this, temp + "font", console.getFont());
 	initConsoleSize();
 	
 	SDL_Rect rect;
@@ -34,7 +34,7 @@ GLConsole::GLConsole(Console * console_)
 	backgroundTexture = 0;
 	
 	backgroundSetting = new BackgroundSetting(this, temp + "background",
-	                                          console->getBackground());
+	                                          console.getBackground());
 }
 
 GLConsole::~GLConsole()
@@ -159,7 +159,7 @@ void GLConsole::updateConsoleRect(SDL_Surface *screen)
 // Draws the console buffer to the screen
 void GLConsole::drawConsole()
 {
-	if (!console->isVisible()) {
+	if (!console.isVisible()) {
 		return;
 	}
 
@@ -207,9 +207,9 @@ void GLConsole::drawConsole()
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	int screenlines = consoleHeight / font->getHeight();
 	for (int loop = 0; loop < screenlines; loop++) {
-		int num = loop + console->getScrollBack();
+		int num = loop + console.getScrollBack();
 		glPushMatrix();
-		font->drawText(console->getLine(num), CHAR_BORDER,
+		font->drawText(console.getLine(num), CHAR_BORDER,
 		               consoleHeight - (1 + loop) * font->getHeight());
 		glPopMatrix();
 	}
@@ -222,13 +222,13 @@ void GLConsole::drawConsole()
 	
 	unsigned cursorX;
 	unsigned cursorY;
-	console->getCursorPosition(cursorX, cursorY);
+	console.getCursorPosition(cursorX, cursorY);
 	if (cursorX != lastCursorPosition) {
 		blink = true; // force cursor
 		lastBlinkTime=SDL_GetTicks() + BLINK_RATE; // maximum time
 		lastCursorPosition = cursorX;
 	}
-	if (console->getScrollBack() == 0) {
+	if (console.getScrollBack() == 0) {
 		if (blink) {
 			// Print cursor if there is enough room
 			font->drawText(string("_"),

@@ -228,7 +228,7 @@ protected:
 	  */
 	static const word GRAPHIC7_SPRITE_PALETTE[16];
 
-	RenderSettings *settings;
+	RenderSettings& settings;
 
 private:
 	RendererFactory::RendererID id;

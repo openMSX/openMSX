@@ -11,12 +11,12 @@ namespace openmsx {
 SettingNode::SettingNode(const string &name_, const string &description_)
 	: name(name_), description(description_)
 {
-	SettingsManager::instance()->registerSetting(name, this);
+	SettingsManager::instance().registerSetting(name, this);
 }
 
 SettingNode::~SettingNode()
 {
-	SettingsManager::instance()->unregisterSetting(name);
+	SettingsManager::instance().unregisterSetting(name);
 }
 
 // SettingLeafNode implementation:

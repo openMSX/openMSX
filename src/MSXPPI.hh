@@ -36,40 +36,41 @@ class KeyClick;
 class MSXCPUInterface;
 class CassettePortInterface;
 class Leds;
+class RenShaTurbo;
 class Keyboard;
-
 
 class MSXPPI: public MSXIODevice, public I8255Interface
 {
 // MSXDevice
 public:
-	MSXPPI(Device *config, const EmuTime &time);
+	MSXPPI(Device* config, const EmuTime& time);
 	virtual ~MSXPPI();
 
-	virtual void reset(const EmuTime &time);
-	virtual byte readIO(byte port, const EmuTime &time);
-	virtual void writeIO(byte port, byte value, const EmuTime &time);
+	virtual void reset(const EmuTime& time);
+	virtual byte readIO(byte port, const EmuTime& time);
+	virtual void writeIO(byte port, byte value, const EmuTime& time);
 
 private:
 	I8255 *i8255;
 
 // I8255Interface
 public:
-	virtual byte readA(const EmuTime &time);
-	virtual byte readB(const EmuTime &time);
-	virtual nibble readC0(const EmuTime &time);
-	virtual nibble readC1(const EmuTime &time);
-	virtual void writeA(byte value, const EmuTime &time);
-	virtual void writeB(byte value, const EmuTime &time);
-	virtual void writeC0(nibble value, const EmuTime &time);
-	virtual void writeC1(nibble value, const EmuTime &time);
+	virtual byte readA(const EmuTime& time);
+	virtual byte readB(const EmuTime& time);
+	virtual nibble readC0(const EmuTime& time);
+	virtual nibble readC1(const EmuTime& time);
+	virtual void writeA(byte value, const EmuTime& time);
+	virtual void writeB(byte value, const EmuTime& time);
+	virtual void writeC0(nibble value, const EmuTime& time);
+	virtual void writeC1(nibble value, const EmuTime& time);
 
 private:
-	MSXCPUInterface *cpuInterface;
-	CassettePortInterface *cassettePort;
-	Leds *leds;
-	KeyClick *click;
-	Keyboard *keyboard;
+	CassettePortInterface& cassettePort;
+	MSXCPUInterface& cpuInterface;
+	Leds& leds;
+	RenShaTurbo& renshaTurbo;
+	KeyClick* click;
+	Keyboard* keyboard;
 	nibble selectedRow;
 };
 

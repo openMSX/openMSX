@@ -436,7 +436,7 @@ void WD2793::step(const EmuTime &time)
 		drive->step(directionIn, time);
 		EmuTimeFreq<1000> next(time);	// ms
 		next += timePerStep[commandReg & STEP_SPEED];
-		Scheduler::instance()->setSyncPoint(next, this, FSM_SEEK);
+		Scheduler::instance().setSyncPoint(next, this, FSM_SEEK);
 	}
 }
 
@@ -476,7 +476,7 @@ void WD2793::startType2Cmd(const EmuTime &time)
 		if (commandReg & E_FLAG) {
 			EmuTimeFreq<1000> next(time);	// ms
 			next += 30;	// when 1MHz clock
-			Scheduler::instance()->setSyncPoint(next, this,
+			Scheduler::instance().setSyncPoint(next, this,
 			                                 FSM_TYPE2_WAIT_LOAD);
 		} else {
 			type2WaitLoad(time);
@@ -526,7 +526,7 @@ void WD2793::startType3Cmd(const EmuTime &time)
 		if (commandReg & E_FLAG) {
 			EmuTimeFreq<1000> next(time);	// ms
 			next += 30;	// when 1MHz clock
-			Scheduler::instance()->setSyncPoint(next, this,
+			Scheduler::instance().setSyncPoint(next, this,
 			                                 FSM_TYPE3_WAIT_LOAD);
 		} else {
 			type3WaitLoad(time);

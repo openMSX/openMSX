@@ -10,12 +10,12 @@ Y8950KeyboardConnector::Y8950KeyboardConnector()
 	: Connector("audiokeyboardport", new DummyY8950KeyboardDevice())
 	, data(255)
 {
-	PluggingController::instance()->registerConnector(this);
+	PluggingController::instance().registerConnector(this);
 }
 
 Y8950KeyboardConnector::~Y8950KeyboardConnector()
 {
-	PluggingController::instance()->unregisterConnector(this);
+	PluggingController::instance().unregisterConnector(this);
 }
 
 void Y8950KeyboardConnector::write(byte newData, const EmuTime &time)

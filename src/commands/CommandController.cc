@@ -19,27 +19,26 @@
 namespace openmsx {
 
 CommandController::CommandController()
-	: aliasCmds(*this), cmdConsole(NULL)
+	: helpCmd(*this), cmdConsole(NULL),
+	  infoCommand(InfoCommand::instance()),
+	  msxConfig(MSXConfig::instance()),
+	  output(CliCommOutput::instance())
 {
 	registerCommand(&helpCmd, "help");
-	registerCommand(&InfoCommand::instance(), "info");
+	registerCommand(&infoCommand, "info");
 }
 
 CommandController::~CommandController()
 {
-	unregisterCommand(&InfoCommand::instance(), "info");
+	unregisterCommand(&infoCommand, "info");
 	unregisterCommand(&helpCmd, "help");
 	assert(commands.empty());
 	assert(!cmdConsole);
 }
 
-CommandController *CommandController::instance()
+CommandController& CommandController::instance()
 {
-	// TODO mem leak
-	static CommandController* oneInstance = NULL;
-	if (oneInstance == NULL) {
-		oneInstance = new CommandController();
-	}
+	static CommandController oneInstance;
 	return oneInstance;
 }
 
@@ -237,7 +236,7 @@ string CommandController::executeCommand(const string &cmd)
 void CommandController::autoCommands()
 {
 	try {
-		Config* config = MSXConfig::instance()->getConfigById("AutoCommands");
+		Config* config = msxConfig.getConfigById("AutoCommands");
 		list<Config::Parameter*>* commandList;
 		commandList = config->getParametersWithClass("");
 		for (list<Config::Parameter*>::const_iterator i = commandList->begin();
@@ -245,7 +244,7 @@ void CommandController::autoCommands()
 			try {
 				executeCommand((*i)->value);
 			} catch (CommandException &e) {
-				CliCommOutput::instance().printWarning(
+				output.printWarning(
 				         "While executing autocommands: "
 				         + e.getMessage());
 			}
@@ -327,7 +326,7 @@ void CommandController::tabCompletion(vector<string> &tokens)
 
 bool CommandController::completeString2(string &str, set<string>& st)
 {
-	CommandConsole* cmdConsole = CommandController::instance()->cmdConsole;
+	CommandConsole* cmdConsole = CommandController::instance().cmdConsole;
 	assert(cmdConsole);
 	set<string>::iterator it = st.begin();
 	while (it != st.end()) {
@@ -430,24 +429,28 @@ void CommandController::completeFileName(vector<string> &tokens)
 
 // Help Command
 
+CommandController::HelpCmd::HelpCmd(CommandController& parent_)
+	: parent(parent_)
+{
+}
+
 string CommandController::HelpCmd::execute(const vector<string> &tokens)
 	throw(CommandException)
 {
 	string result;
-	CommandController *cc = CommandController::instance();
 	switch (tokens.size()) {
 	case 1: 
 		result += "Use 'help [command]' to get help for a specific command\n";
 		result += "The following commands exist:\n";
-		for (CommandMap::const_iterator it = cc->commands.begin();
-		     it != cc->commands.end(); ++it) {
+		for (CommandMap::const_iterator it = parent.commands.begin();
+		     it != parent.commands.end(); ++it) {
 			result += it->first;
 			result += '\n';
 		}
 		break;
 	default: {
-		CommandMap::iterator it = cc->commands.find(tokens[1]);
-		if (it == cc->commands.end()) {
+		CommandMap::iterator it = parent.commands.find(tokens[1]);
+		if (it == parent.commands.end()) {
 			throw CommandException(tokens[1] + ": unknown command");
 		}
 		vector<string> tokens2(++tokens.begin(), tokens.end());
@@ -467,7 +470,7 @@ void CommandController::HelpCmd::tabCompletion(vector<string> &tokens) const
 {
 	string front = tokens.front();
 	tokens.erase(tokens.begin());
-	CommandController::instance()->tabCompletion(tokens);
+	parent.tabCompletion(tokens);
 	tokens.insert(tokens.begin(), front);
 }
 

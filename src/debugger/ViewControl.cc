@@ -16,7 +16,7 @@ ViewControl::ViewControl(MemoryView* view_)
 	memoryAddress = 0;
 	linked = NULL;
 	struct MSXCPUInterface::SlotSelection* slots =
-		MSXCPUInterface::instance()->getCurrentSlots();
+		MSXCPUInterface::instance().getCurrentSlots();
 	useGlobalSlot = false;
 	for (int i = 0; i < 4; i++) {
 		slot.ps[i] = slots->primary[i];
@@ -43,14 +43,14 @@ void ViewControl::setAddress(int address)
 int ViewControl::getAddress() const
 {
 	if (indirect) {
-		MSXCPUInterface* msxcpu = MSXCPUInterface::instance();
+		MSXCPUInterface& msxcpu = MSXCPUInterface::instance();
 		if (useGlobalSlot) {
-			return msxcpu->peekMem(memoryAddress) +
-			       msxcpu->peekMem(memoryAddress + 1) * 256;
+			return msxcpu.peekMem(memoryAddress) +
+			       msxcpu.peekMem(memoryAddress + 1) * 256;
 		}
 		if (!slot.vram) {
-			return msxcpu->peekMemBySlot(memoryAddress, slot.ps[memoryAddress>>14], slot.ss[memoryAddress>>14], slot.direct) +
-					msxcpu->peekMemBySlot(memoryAddress+1,slot.ps[(memoryAddress+1)>>14],slot.ss[(memoryAddress+1)>>14], slot.direct);
+			return msxcpu.peekMemBySlot(memoryAddress, slot.ps[memoryAddress>>14], slot.ss[memoryAddress>>14], slot.direct) +
+					msxcpu.peekMemBySlot(memoryAddress+1,slot.ps[(memoryAddress+1)>>14],slot.ss[(memoryAddress+1)>>14], slot.direct);
 		}
 	}
 	if (!currentDevice) {

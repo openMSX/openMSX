@@ -12,25 +12,23 @@
 #include "MSXConfig.hh"
 #include "Device.hh"
 #include "DeviceFactory.hh"
-#include "CommandController.hh"
 #include "KeyEventInserter.hh"
-#include "MSXCPUInterface.hh"
 
 
 namespace openmsx {
 
 MSXMotherBoard::MSXMotherBoard()
 	: resetCmd(*this),
-	  powerSetting(Scheduler::instance()->getPowerSetting())
+	  powerSetting(Scheduler::instance().getPowerSetting())
 {
-	CommandController::instance()->registerCommand(&resetCmd, "reset");
+	CommandController::instance().registerCommand(&resetCmd, "reset");
 	powerSetting.addListener(this);
 }
 
 MSXMotherBoard::~MSXMotherBoard()
 {
 	powerSetting.removeListener(this);
-	CommandController::instance()->unregisterCommand(&resetCmd, "reset");
+	CommandController::instance().unregisterCommand(&resetCmd, "reset");
 }
 
 void MSXMotherBoard::addDevice(MSXDevice *device)
@@ -46,33 +44,33 @@ void MSXMotherBoard::removeDevice(MSXDevice *device)
 
 void MSXMotherBoard::resetMSX()
 {
-	const EmuTime& time = MSXCPU::instance()->getCurrentTime();
-	MSXCPUInterface::instance()->reset();
+	const EmuTime& time = MSXCPU::instance().getCurrentTime();
+	MSXCPUInterface::instance().reset();
 	for (list<MSXDevice*>::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
 		(*it)->reset(time);
 	}
-	MSXCPU::instance()->reset(time);
+	MSXCPU::instance().reset(time);
 }
 
 void MSXMotherBoard::reInitMSX()
 {
-	const EmuTime& time = MSXCPU::instance()->getCurrentTime();
-	MSXCPUInterface::instance()->reset();
+	const EmuTime& time = MSXCPU::instance().getCurrentTime();
+	MSXCPUInterface::instance().reset();
 	for (list<MSXDevice*>::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
 		(*it)->reInit(time);
 	}
-	MSXCPU::instance()->reset(time);
+	MSXCPU::instance().reset(time);
 }
 
 void MSXMotherBoard::run(bool powerOn)
 {
 	// Initialise devices.
-	MSXConfig* config = MSXConfig::instance();
-	config->initDeviceIterator();
+	MSXConfig& config = MSXConfig::instance();
+	config.initDeviceIterator();
 	Device* d;
-	while ((d = config->getNextDevice()) != 0) {
+	while ((d = config.getNextDevice()) != 0) {
 		PRT_DEBUG("Instantiating: " << d->getType());
 		MSXDevice* device = DeviceFactory::create(d, EmuTime::zero);
 		if (device) {
@@ -80,24 +78,24 @@ void MSXMotherBoard::run(bool powerOn)
 		}
 	}
 	// Register all postponed slots.
-	MSXCPUInterface::instance()->registerPostSlots();
+	MSXCPUInterface::instance().registerPostSlots();
 
 	// First execute auto commands.
-	CommandController::instance()->autoCommands();
+	CommandController::instance().autoCommands();
 
 	// Schedule key insertions.
 	// TODO move this somewhere else
 	KeyEventInserter keyEvents(EmuTime::zero);
 
 	// Initialize.
-	MSXCPUInterface::instance()->reset();
+	MSXCPUInterface::instance().reset();
 
 	// Run.
 	if (powerOn) {
-		Scheduler::instance()->powerOn();
+		Scheduler::instance().powerOn();
 	}
-	Scheduler::instance()->schedule(EmuTime::infinity);
-	Scheduler::instance()->powerOff();
+	Scheduler::instance().schedule(EmuTime::infinity);
+	Scheduler::instance().powerOff();
 
 	// Destroy emulated MSX machine.
 	for (list<MSXDevice*>::iterator it = availableDevices.begin();

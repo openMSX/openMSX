@@ -10,10 +10,10 @@ namespace openmsx {
 
 DiskImageCLI::DiskImageCLI()
 {
-	CommandLineParser::instance()->registerOption("-diska", this);
-	CommandLineParser::instance()->registerOption("-diskb", this);
+	CommandLineParser::instance().registerOption("-diska", this);
+	CommandLineParser::instance().registerOption("-diskb", this);
 
-	CommandLineParser::instance()->registerFileClass("diskimages", this);
+	CommandLineParser::instance().registerFileClass("diskimages", this);
 	driveLetter = 'a';
 }
 
@@ -41,9 +41,8 @@ void DiskImageCLI::parseFileType(const string &filename_)
 	s << "</config>";
 	s << "</msxconfig>";
 	
-	MSXConfig *config = MSXConfig::instance();
 	UserFileContext context;
-	config->loadStream(context, s);
+	MSXConfig::instance().loadStream(context, s);
 	driveLetter++;
 }
 const string& DiskImageCLI::fileTypeHelp() const

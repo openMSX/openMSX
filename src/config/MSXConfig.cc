@@ -27,10 +27,10 @@ MSXConfig::~MSXConfig()
 	}
 }
 
-MSXConfig* MSXConfig::instance()
+MSXConfig& MSXConfig::instance()
 {
 	static MSXConfig oneInstance;
-	return &oneInstance;
+	return oneInstance;
 }
 
 void MSXConfig::loadHardware(FileContext &context,

@@ -17,11 +17,11 @@ DummyDevice::~DummyDevice()
 {
 }
 
-DummyDevice* DummyDevice::instance()
+DummyDevice& DummyDevice::instance()
 {
 	static Device deviceConfig("Dummy", "empty");
 	static DummyDevice oneInstance(&deviceConfig, EmuTime::zero);
-	return &oneInstance;
+	return oneInstance;
 }
 
 

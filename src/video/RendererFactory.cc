@@ -37,7 +37,7 @@ static bool initSDLVideo()
 
 RendererFactory *RendererFactory::getCurrent()
 {
-	switch (RenderSettings::instance()->getRenderer()->getValue()) {
+	switch (RenderSettings::instance().getRenderer()->getValue()) {
 	case DUMMY:
 		return new DummyRendererFactory();
 	case SDLHI:
@@ -138,7 +138,7 @@ Renderer *SDLHiRendererFactory::create(VDP *vdp)
 	const unsigned WIDTH = 640;
 	const unsigned HEIGHT = 480;
 
-	bool fullScreen = RenderSettings::instance()->getFullScreen()->getValue();
+	bool fullScreen = RenderSettings::instance().getFullScreen()->getValue();
 	int flags = SDL_SWSURFACE | (fullScreen ? SDL_FULLSCREEN : 0);
 
 	if (!initSDLVideo()) {
@@ -193,7 +193,7 @@ Renderer *SDLLoRendererFactory::create(VDP *vdp)
 	const unsigned WIDTH = 320;
 	const unsigned HEIGHT = 240;
 
-	bool fullScreen = RenderSettings::instance()->getFullScreen()->getValue();
+	bool fullScreen = RenderSettings::instance().getFullScreen()->getValue();
 	int flags = SDL_SWSURFACE | (fullScreen ? SDL_FULLSCREEN : 0);
 
 	if (!initSDLVideo()) {
@@ -252,7 +252,7 @@ Renderer *SDLGLRendererFactory::create(VDP *vdp)
 	const unsigned WIDTH = 640;
 	const unsigned HEIGHT = 480;
 
-	bool fullScreen = RenderSettings::instance()->getFullScreen()->getValue();
+	bool fullScreen = RenderSettings::instance().getFullScreen()->getValue();
 	int flags = SDL_OPENGL | SDL_HWSURFACE
 		| (fullScreen ? SDL_FULLSCREEN : 0);
 

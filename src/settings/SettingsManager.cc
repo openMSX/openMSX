@@ -14,22 +14,28 @@ SettingsManager::SettingsManager()
 	: setCommand(this),
 	  toggleCommand(this),
 	  incrCommand(this),
-	  decrCommand(this)
+	  decrCommand(this),
+	  commandController(CommandController::instance())
 {
-	CommandController::instance()->registerCommand(&setCommand,    "set");
-	CommandController::instance()->registerCommand(&toggleCommand, "toggle");
-	CommandController::instance()->registerCommand(&incrCommand,   "incr");
-	CommandController::instance()->registerCommand(&decrCommand,   "decr");
+	commandController.registerCommand(&setCommand,    "set");
+	commandController.registerCommand(&toggleCommand, "toggle");
+	commandController.registerCommand(&incrCommand,   "incr");
+	commandController.registerCommand(&decrCommand,   "decr");
 }
 
 SettingsManager::~SettingsManager()
 {
-	CommandController::instance()->unregisterCommand(&setCommand,    "set");
-	CommandController::instance()->unregisterCommand(&toggleCommand, "toggle");
-	CommandController::instance()->unregisterCommand(&incrCommand,   "incr");
-	CommandController::instance()->unregisterCommand(&decrCommand,   "decr");
+	commandController.unregisterCommand(&setCommand,    "set");
+	commandController.unregisterCommand(&toggleCommand, "toggle");
+	commandController.unregisterCommand(&incrCommand,   "incr");
+	commandController.unregisterCommand(&decrCommand,   "decr");
 }
 
+SettingsManager& SettingsManager::instance()
+{
+	static SettingsManager oneInstance;
+	return oneInstance;
+}
 
 // Helper functions for setting commands
 

@@ -25,7 +25,7 @@ Rom::Rom(Device* config, const EmuTime& time)
 		int first = config->getParameterAsInt("firstblock");
 		int last  = config->getParameterAsInt("lastblock");
 		size = (last - first + 1) * 0x2000;
-		rom = PanasonicMemory::instance()->getRomBlock(first);
+		rom = PanasonicMemory::instance().getRomBlock(first);
 		file = NULL;
 		assert(last >= first);
 		assert(rom);
@@ -99,7 +99,7 @@ void Rom::read(Device* config, const string& filename, const EmuTime& time)
 			throw FatalError("Unknown patch interface");
 		}
 		romPatchInterfaces.push_back(patchInterface);
-		MSXCPUInterface::instance()->registerInterface(patchInterface);
+		MSXCPUInterface::instance().registerInterface(patchInterface);
 	}
 	config->getParametersWithClassClean(parameters);
 	
@@ -128,7 +128,7 @@ Rom::~Rom()
 	for (list<MSXRomPatchInterface*>::const_iterator it =
 	           romPatchInterfaces.begin();
 	     it != romPatchInterfaces.end(); ++it) {
-		MSXCPUInterface::instance()->unregisterInterface(*it);
+		MSXCPUInterface::instance().unregisterInterface(*it);
 		delete (*it);
 	}
 	if (file) {

@@ -19,7 +19,7 @@ MidiInReader::MidiInReader()
 
 MidiInReader::~MidiInReader()
 {
-	Scheduler::instance()->removeSyncPoint(this);
+	Scheduler::instance().removeSyncPoint(this);
 }
 
 // Pluggable
@@ -77,7 +77,7 @@ void MidiInReader::run() throw()
 		assert(connector);
 		lock.down();
 		queue.push_back(buf);
-		Scheduler::instance()->setSyncPoint(Scheduler::ASAP, this);
+		Scheduler::instance().setSyncPoint(Scheduler::ASAP, this);
 		lock.up();
 	}
 }

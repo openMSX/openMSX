@@ -57,7 +57,7 @@ private:
 	bool status;
 	bool signalEdge;
 
-	Scheduler* scheduler;
+	Scheduler& scheduler;
 };
 
 } // namespace openmsx

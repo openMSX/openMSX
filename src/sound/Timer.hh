@@ -34,7 +34,7 @@ private:
 	int count;
 	bool counting;
 	TimerCallback *cb;
-	Scheduler *scheduler;
+	Scheduler& scheduler;
 };
 
 } // namespace openmsx

@@ -11,17 +11,20 @@
 #include "CircularBuffer.hh"
 #include "Settings.hh"
 #include "SettingListener.hh"
-#include "MSXConfig.hh"
 
 namespace openmsx {
+
+class EventDistributor;
+class MSXConfig;
+class CommandController;
+class CliCommOutput;
+class SettingsManager;
 
 class CommandConsole : public Console, private EventListener,
                        private SettingListener
 {
 public:
-	/** Get singleton console instance.
-	  */
-	static CommandConsole *instance();
+	static CommandConsole& instance();
 	void registerDebugger();
 
 	/** Prints a string on the console.
@@ -85,6 +88,12 @@ private:
 	unsigned cursorPosition; // position within the current command
 	unsigned consoleColumns;
 	unsigned consoleRows;
+
+	EventDistributor& eventDistributor;
+	MSXConfig& msxConfig;
+	CommandController& commandController;
+	CliCommOutput& output;
+	SettingsManager& settingsManager;
 };
 
 } // namespace openmsx

@@ -13,7 +13,7 @@ MemoryView::MemoryView(unsigned rows, unsigned columns, bool border)
 {
 	// MSXMapperIO * mapper = MSXMapperIO::instance();
 	struct MSXCPUInterface::SlotSelection* slots =
-		MSXCPUInterface::instance()->getCurrentSlots();
+		MSXCPUInterface::instance().getCurrentSlots();
 	useGlobalSlot = false;
 	for (int i = 0; i < 4; i++) {
 		slot.ps[i] = slots->primary[i];
@@ -42,12 +42,12 @@ MemoryView::~MemoryView()
 
 byte MemoryView::readMemory(dword address)
 {
-	MSXCPUInterface* msxcpu = MSXCPUInterface::instance();
+	MSXCPUInterface& msxcpu = MSXCPUInterface::instance();
 	if (useGlobalSlot) {
-		return msxcpu->peekMem(address);
+		return msxcpu.peekMem(address);
 	}
 	if (!slot.vram) {
-		return msxcpu->peekMemBySlot(address, slot.ps[address>>14], slot.ss[address>>14], slot.direct);
+		return msxcpu.peekMemBySlot(address, slot.ps[address>>14], slot.ss[address>>14], slot.direct);
 	}
 	return 0;
 }

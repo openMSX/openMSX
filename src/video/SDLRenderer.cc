@@ -136,8 +136,8 @@ void SDLRenderer<Pixel, zoom>::drawEffects()
 	if (LINE_ZOOM != 2) return;
 
 	Scaler::ScalerID scalerID =
-		RenderSettings::instance()->getScaler()->getValue();
-	int scanlineAlpha = (settings->getScanlineAlpha()->getValue() * 255) / 100;
+		RenderSettings::instance().getScaler()->getValue();
+	int scanlineAlpha = (settings.getScanlineAlpha()->getValue() * 255) / 100;
 
 	// Lock surface, because we will access pixels directly.
 	if (SDL_MUSTLOCK(screen) && SDL_LockSurface(screen) < 0) {
@@ -387,9 +387,9 @@ SDLRenderer<Pixel, zoom>::SDLRenderer(
 
 	console = new SDLConsole(CommandConsole::instance(), screen);
 	debugger = NULL;
-	Console *debuggerconsole = DebugConsole::instance();
-	if (debuggerconsole){
-		debugger = new SDLConsole(debuggerconsole, screen);
+	Console* debuggerconsole = DebugConsole::instance();
+	if (debuggerconsole) {
+		debugger = new SDLConsole(*debuggerconsole, screen);
 	}
 
 	// Allocate screen which will later contain the stored image.
@@ -432,7 +432,7 @@ SDLRenderer<Pixel, zoom>::SDLRenderer(
 	SDL_ShowCursor(SDL_DISABLE);
 
 	// Init the palette.
-	precalcPalette(settings->getGamma()->getValue());
+	precalcPalette(settings.getGamma()->getValue());
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -549,7 +549,7 @@ bool SDLRenderer<Pixel, zoom>::checkSettings()
 
 	// Check full screen setting.
 	bool fullScreenState = ((screen->flags & SDL_FULLSCREEN) != 0);
-	bool fullScreenTarget = settings->getFullScreen()->getValue();
+	bool fullScreenTarget = settings.getFullScreen()->getValue();
 	if (fullScreenState == fullScreenTarget) return true;
 
 #ifdef __WIN32__
@@ -579,7 +579,7 @@ void SDLRenderer<Pixel, zoom>::frameStart(
 	// PAL:  display at [59..271).
 	lineRenderTop = vdp->isPalTiming() ? 59 - 14 : 32 - 14;
 
-	float gamma = settings->getGamma()->getValue();
+	float gamma = settings.getGamma()->getValue();
 	// (gamma != prevGamma) gives compiler warnings
 	if ((gamma > prevGamma) || (gamma < prevGamma)) {
 		precalcPalette(gamma);
@@ -788,7 +788,7 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 	screenY *= LINE_ZOOM;
 	screenLimitY *= LINE_ZOOM;
 
-	if (!(settings->getDeinterlace()->getValue())
+	if (!(settings.getDeinterlace()->getValue())
 	&& vdp->isInterlaced() && vdp->getEvenOdd()
 	&& zoom != Renderer::ZOOM_256) {
 		// Display odd field half a line lower.
@@ -835,7 +835,7 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 		}
 
 		// Which bits in the name mask determine the page?
-		bool deinterlaced = settings->getDeinterlace()->getValue()
+		bool deinterlaced = settings.getDeinterlace()->getValue()
 			&& zoom != Renderer::ZOOM_256
 			&& vdp->isInterlaced() && vdp->isEvenOddEnabled();
 		int pageMaskEven, pageMaskOdd;
@@ -976,7 +976,7 @@ void SDLRenderer<Pixel, zoom>::drawSprites(
 	}
 
 	// TODO: Code duplicated from drawDisplay.
-	if (!(settings->getDeinterlace()->getValue())
+	if (!(settings.getDeinterlace()->getValue())
 	&& vdp->isInterlaced() && vdp->getEvenOdd()
 	&& zoom != Renderer::ZOOM_256) {
 		// Display odd field half a line lower.

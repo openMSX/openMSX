@@ -20,33 +20,38 @@ namespace openmsx {
 const string PROMPT("> ");
 
 CommandConsole::CommandConsole()
-	: consoleSetting("console", "turns console display on/off", false)
+	: consoleSetting("console", "turns console display on/off", false),
+	  eventDistributor(EventDistributor::instance()),
+	  msxConfig(MSXConfig::instance()),
+	  commandController(CommandController::instance()),
+	  output(CliCommOutput::instance()),
+	  settingsManager(SettingsManager::instance())
 {
 	SDL_EnableUNICODE(1);
 	consoleSetting.addListener(this);
-	EventDistributor::instance()->registerEventListener(SDL_KEYDOWN, this);
-	EventDistributor::instance()->registerEventListener(SDL_KEYUP,   this);
+	eventDistributor.registerEventListener(SDL_KEYDOWN, this);
+	eventDistributor.registerEventListener(SDL_KEYUP,   this);
 	putPrompt();
-	Config* config = MSXConfig::instance()->getConfigById("Console");
+	Config* config = msxConfig.getConfigById("Console");
 	maxHistory = config->getParameterAsInt("historysize", 100);
 	removeDoubles = config->getParameterAsBool("removedoubles", true);
 	loadHistory();
-	CommandController::instance()->setCommandConsole(this);
+	commandController.setCommandConsole(this);
 }
 
 CommandConsole::~CommandConsole()
 {
-	CommandController::instance()->setCommandConsole(NULL);
+	commandController.setCommandConsole(NULL);
 	saveHistory();
-	EventDistributor::instance()->unregisterEventListener(SDL_KEYDOWN, this);
-	EventDistributor::instance()->unregisterEventListener(SDL_KEYUP,   this);
+	eventDistributor.unregisterEventListener(SDL_KEYDOWN, this);
+	eventDistributor.unregisterEventListener(SDL_KEYUP,   this);
 	consoleSetting.removeListener(this);
 }
 
-CommandConsole *CommandConsole::instance()
+CommandConsole& CommandConsole::instance()
 {
 	static CommandConsole oneInstance;
-	return &oneInstance;
+	return oneInstance;
 }
 
 void CommandConsole::update(const SettingLeafNode* setting) throw()
@@ -77,7 +82,7 @@ void CommandConsole::saveHistory()
 			outputfile << it->substr(PROMPT.length()) << endl;
 		}
 	} catch (FileException &e) {
-		CliCommOutput::instance().printWarning(e.getMessage());
+		output.printWarning(e.getMessage());
 	}
 }
 
@@ -376,8 +381,8 @@ void CommandConsole::commandExecute()
 	putCommandHistory(editLine);
 	splitLines();
 	try {
-		string result = CommandController::instance()->
-			executeCommand(editLine.substr(PROMPT.length()));
+		string result = commandController.executeCommand(
+			editLine.substr(PROMPT.length()));
 		if (!result.empty()) {
 			print(result);
 		}
@@ -405,7 +410,7 @@ void CommandConsole::tabCompletion()
 	combineLines(lines, lineOverflows);
 	string front(editLine.substr(pl, cursorPosition - pl));
 	string back(editLine.substr(cursorPosition));
-	CommandController::instance()->tabCompletion(front);
+	commandController.tabCompletion(front);
 	cursorPosition = pl + front.length();
 	editLine = PROMPT + front + back;
 	currentLine = editLine;
@@ -535,7 +540,7 @@ void CommandConsole::resetScrollBack()
 void CommandConsole::registerDebugger()
 {
 	SettingLeafNode* debugSetting = dynamic_cast<SettingLeafNode*>(
-		SettingsManager::instance()->getByName("debugger"));
+		settingsManager.getByName("debugger"));
 	debugSetting->addListener(this);
 }
 

@@ -10,12 +10,12 @@ namespace openmsx {
 
 MSXRomCLI::MSXRomCLI()
 {
-	CommandLineParser::instance()->registerOption("-cart", this);
-	CommandLineParser::instance()->registerOption("-carta", this);
-	CommandLineParser::instance()->registerOption("-cartb", this);
-	CommandLineParser::instance()->registerOption("-cartc", this);
-	CommandLineParser::instance()->registerOption("-cartd", this);
-	CommandLineParser::instance()->registerFileClass("romimages", this);
+	CommandLineParser::instance().registerOption("-cart", this);
+	CommandLineParser::instance().registerOption("-carta", this);
+	CommandLineParser::instance().registerOption("-cartb", this);
+	CommandLineParser::instance().registerOption("-cartc", this);
+	CommandLineParser::instance().registerOption("-cartd", this);
+	CommandLineParser::instance().registerFileClass("romimages", this);
 }
 
 bool MSXRomCLI::parseOption(const string &option,
@@ -24,10 +24,10 @@ bool MSXRomCLI::parseOption(const string &option,
 	string arg = getArgument(option, cmdLine);
 	if (option.length() == 6) {
 		int slot = option[5] - 'a';
-		CartridgeSlotManager::instance()->reserveSlot(slot);
-		CommandLineParser::instance()->registerPostConfig(new MSXRomPostName(slot, arg));
+		CartridgeSlotManager::instance().reserveSlot(slot);
+		CommandLineParser::instance().registerPostConfig(new MSXRomPostName(slot, arg));
 	} else {
-		CommandLineParser::instance()->registerPostConfig(new MSXRomPostNoName(arg));
+		CommandLineParser::instance().registerPostConfig(new MSXRomPostNoName(arg));
 	}
 	return true;
 }
@@ -40,15 +40,15 @@ MSXRomPostName::MSXRomPostName(int slot_, const string &arg_)
 	: MSXRomCLIPost(arg_), slot(slot_)
 {
 }
-void MSXRomPostName::execute(MSXConfig *config)
+void MSXRomPostName::execute(MSXConfig& config)
 {
-	CartridgeSlotManager::instance()->getSlot(slot, ps, ss);
+	CartridgeSlotManager::instance().getSlot(slot, ps, ss);
 	MSXRomCLIPost::execute(config);
 }
 
 void MSXRomCLI::parseFileType(const string &arg)
 {
-	CommandLineParser::instance()->registerPostConfig(new MSXRomPostNoName(arg));
+	CommandLineParser::instance().registerPostConfig(new MSXRomPostNoName(arg));
 }
 const string& MSXRomCLI::fileTypeHelp() const
 {
@@ -59,9 +59,9 @@ MSXRomPostNoName::MSXRomPostNoName(const string &arg_)
 	: MSXRomCLIPost(arg_)
 {
 }
-void MSXRomPostNoName::execute(MSXConfig *config)
+void MSXRomPostNoName::execute(MSXConfig& config)
 {
-	CartridgeSlotManager::instance()->getSlot(ps, ss);
+	CartridgeSlotManager::instance().getSlot(ps, ss);
 	MSXRomCLIPost::execute(config);
 }
 
@@ -69,7 +69,7 @@ MSXRomCLIPost::MSXRomCLIPost(const string &arg_)
 	: arg(arg_)
 {
 }
-void MSXRomCLIPost::execute(MSXConfig *config)
+void MSXRomCLIPost::execute(MSXConfig& config)
 {
 	string filename, mapper;
 	int pos = arg.find_last_of(',');
@@ -105,7 +105,7 @@ void MSXRomCLIPost::execute(MSXConfig *config)
 	s << "</msxconfig>";
 	PRT_DEBUG("DEBUG " << file);
 	UserFileContext context("roms/" + file);
-	config->loadStream(context, s);
+	config.loadStream(context, s);
 	delete this;
 }
 

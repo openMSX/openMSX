@@ -56,15 +56,15 @@ void MSXMemoryMapper::createMapperIO(const EmuTime& time)
 		device = new Device("MapperIO", "MapperIO");
 		mapperIO = new MSXMapperIO(device, time);
 	
-		MSXCPUInterface* cpuInterface = MSXCPUInterface::instance();
-		cpuInterface->register_IO_Out(0xFC, mapperIO);
-		cpuInterface->register_IO_Out(0xFD, mapperIO);
-		cpuInterface->register_IO_Out(0xFE, mapperIO);
-		cpuInterface->register_IO_Out(0xFF, mapperIO);
-		cpuInterface->register_IO_In(0xFC, mapperIO);
-		cpuInterface->register_IO_In(0xFD, mapperIO);
-		cpuInterface->register_IO_In(0xFE, mapperIO);
-		cpuInterface->register_IO_In(0xFF, mapperIO);
+		MSXCPUInterface& cpuInterface = MSXCPUInterface::instance();
+		cpuInterface.register_IO_Out(0xFC, mapperIO);
+		cpuInterface.register_IO_Out(0xFD, mapperIO);
+		cpuInterface.register_IO_Out(0xFE, mapperIO);
+		cpuInterface.register_IO_Out(0xFF, mapperIO);
+		cpuInterface.register_IO_In(0xFC, mapperIO);
+		cpuInterface.register_IO_In(0xFD, mapperIO);
+		cpuInterface.register_IO_In(0xFE, mapperIO);
+		cpuInterface.register_IO_In(0xFF, mapperIO);
 	}
 	++counter;
 }

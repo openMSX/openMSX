@@ -109,12 +109,12 @@ PixelRenderer::PixelRenderer(RendererFactory::RendererID id, VDP *vdp)
 		buffer.addFront(1.0);
 	}
 
-	settings->getFrameSkip()->addListener(this);
+	settings.getFrameSkip()->addListener(this);
 }
 
 PixelRenderer::~PixelRenderer()
 {
-	settings->getFrameSkip()->removeListener(this);
+	settings.getFrameSkip()->removeListener(this);
 }
 
 void PixelRenderer::reset(const EmuTime &time)
@@ -131,13 +131,13 @@ void PixelRenderer::updateDisplayEnabled(bool enabled, const EmuTime &time)
 
 void PixelRenderer::frameStart(const EmuTime &time)
 {
-	accuracy = settings->getAccuracy()->getValue();
+	accuracy = settings.getAccuracy()->getValue();
 
 	nextX = 0;
 	nextY = 0;
 
 	if (--curFrameSkip < 0) {
-		curFrameSkip = settings->getFrameSkip()->getValue().getFrameSkip();
+		curFrameSkip = settings.getFrameSkip()->getValue().getFrameSkip();
 	}
 }
 
@@ -151,10 +151,10 @@ void PixelRenderer::putImage(const EmuTime &time, bool store)
 
 	// The screen will be locked for a while, so now is a good time
 	// to perform real time sync.
-	float factor = RealTime::instance()->sync(time);
+	float factor = RealTime::instance().sync(time);
 
-	if (settings->getFrameSkip()->getValue().isAutoFrameSkip()) {
-		int frameSkip = settings->getFrameSkip()->getValue().getFrameSkip();
+	if (settings.getFrameSkip()->getValue().isAutoFrameSkip()) {
+		int frameSkip = settings.getFrameSkip()->getValue().getFrameSkip();
 		//PRT_DEBUG("FrameSkip " << frameSkip);
 		frameSkipShortAvg += (factor - buffer[4]);	// sum last 5
 		frameSkipLongAvg  += (factor - buffer[99]);	// sum last 100
@@ -168,15 +168,15 @@ void PixelRenderer::putImage(const EmuTime &time, bool store)
 			if (frameSkipShortAvg > 5.25  && frameSkip < 30) {
 				// over the last 5 frames we where on average
 				// ~5% too slow, increase frameSkip
-				settings->getFrameSkip()->setValue(
-					settings->getFrameSkip()->getValue().modify(+1)
+				settings.getFrameSkip()->setValue(
+					settings.getFrameSkip()->getValue().modify(+1)
 					);
 				frameSkipDelay = 25;
 			} else if (frameSkipLongAvg < 50.0 && frameSkip > 0) {
 				// over the last 100 frames we where on average
 				// ~50% too fast, decrease frameSkip
-				settings->getFrameSkip()->setValue(
-					settings->getFrameSkip()->getValue().modify(-1)
+				settings.getFrameSkip()->setValue(
+					settings.getFrameSkip()->getValue().modify(-1)
 					);
 				frameSkipDelay = 250;
 			}

@@ -12,17 +12,14 @@ namespace openmsx {
 
 class Scheduler;
 class MSXCPUInterface;
+class InfoCommand;
 
 class MSXCPU : public DebugInterface
 {
 public:
 	enum CPUType { CPU_Z80, CPU_R800 };
 
-	/**
-	 * This is a singleton class. This method returns a reference
-	 * to the single instance of this class.
-	 */
-	static MSXCPU* instance();
+	static MSXCPU& instance();
 
 	virtual void reset(const EmuTime &time);
 	
@@ -91,12 +88,17 @@ private:
 
 	class TimeInfoTopic : public InfoTopic {
 	public:
+		TimeInfoTopic(MSXCPU& parent);
 		virtual string execute(const vector<string>& tokens) const
 			throw();
 		virtual string help   (const vector<string>& tokens) const
 			throw();
+	private:
+		MSXCPU& parent;
 	} timeInfo;
 	EmuTime reference;
+
+	InfoCommand& infoCmd;
 };
 
 } // namespace openmsx

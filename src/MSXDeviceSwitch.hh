@@ -72,7 +72,7 @@ class MSXDeviceSwitch : public MSXIODevice
 	public:
 		virtual ~MSXDeviceSwitch();
 
-		static MSXDeviceSwitch* instance();
+		static MSXDeviceSwitch& instance();
 
 		// (un)register methods for devices
 		void registerDevice(byte id, MSXSwitchedDevice* device); 

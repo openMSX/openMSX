@@ -95,16 +95,16 @@ void CliCommInput::execute(const string& command)
 	lock.down();
 	cmds.push_back(command);
 	lock.up();
-	Scheduler::instance()->setSyncPoint(Scheduler::ASAP, this);
+	Scheduler::instance().setSyncPoint(Scheduler::ASAP, this);
 }
 
 void CliCommInput::executeUntil(const EmuTime& time, int userData) throw()
 {
-	CommandController* controller = CommandController::instance();
+	CommandController& controller = CommandController::instance();
 	lock.down();
 	while (!cmds.empty()) {
 		try {
-			string result = controller->executeCommand(cmds.front());
+			string result = controller.executeCommand(cmds.front());
 			cout << "<ok>" << result << "</ok>" << endl;
 		} catch (CommandException &e) {
 			string result = e.getMessage() + '\n';

@@ -32,7 +32,7 @@ class IRQHelper
 		inline void set() {
 			if (!request) {
 				request = true;
-				cpu->raiseIRQ();
+				cpu.raiseIRQ();
 			}
 		}
 
@@ -41,7 +41,7 @@ class IRQHelper
 		inline void reset() {
 			if (request) {
 				request = false;
-				cpu->lowerIRQ();
+				cpu.lowerIRQ();
 			}
 		}
 
@@ -54,7 +54,7 @@ class IRQHelper
 
 	private:
 		bool request;
-		MSXCPU *cpu;
+		MSXCPU& cpu;
 };
 
 } // namespace openmsx

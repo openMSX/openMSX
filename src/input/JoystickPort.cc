@@ -12,12 +12,12 @@ JoystickPort::JoystickPort(const string &name)
 	: Connector(name, new DummyJoystick())
 {
 	lastValue = 255;	// != 0
-	PluggingController::instance()->registerConnector(this);
+	PluggingController::instance().registerConnector(this);
 }
 
 JoystickPort::~JoystickPort()
 {
-	PluggingController::instance()->unregisterConnector(this);
+	PluggingController::instance().unregisterConnector(this);
 }
 
 const string& JoystickPort::getDescription() const

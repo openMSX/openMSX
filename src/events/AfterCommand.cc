@@ -15,30 +15,30 @@ namespace openmsx {
 AfterCommand::AfterCommand()
 	: lastAfterId(0)
 {
-	EventDistributor::instance()->registerEventListener(SDL_KEYUP, this);
-	EventDistributor::instance()->registerEventListener(SDL_KEYDOWN, this);
-	EventDistributor::instance()->registerEventListener(SDL_MOUSEMOTION, this);
-	EventDistributor::instance()->registerEventListener(SDL_MOUSEBUTTONUP, this);
-	EventDistributor::instance()->registerEventListener(SDL_MOUSEBUTTONDOWN, this);
-	EventDistributor::instance()->registerEventListener(SDL_MOUSEBUTTONDOWN, this);
-	EventDistributor::instance()->registerEventListener(SDL_JOYAXISMOTION, this);
-	EventDistributor::instance()->registerEventListener(SDL_JOYBUTTONUP, this);
-	EventDistributor::instance()->registerEventListener(SDL_JOYBUTTONDOWN, this);
-	CommandController::instance()->registerCommand(this, "after");
+	EventDistributor::instance().registerEventListener(SDL_KEYUP, this);
+	EventDistributor::instance().registerEventListener(SDL_KEYDOWN, this);
+	EventDistributor::instance().registerEventListener(SDL_MOUSEMOTION, this);
+	EventDistributor::instance().registerEventListener(SDL_MOUSEBUTTONUP, this);
+	EventDistributor::instance().registerEventListener(SDL_MOUSEBUTTONDOWN, this);
+	EventDistributor::instance().registerEventListener(SDL_MOUSEBUTTONDOWN, this);
+	EventDistributor::instance().registerEventListener(SDL_JOYAXISMOTION, this);
+	EventDistributor::instance().registerEventListener(SDL_JOYBUTTONUP, this);
+	EventDistributor::instance().registerEventListener(SDL_JOYBUTTONDOWN, this);
+	CommandController::instance().registerCommand(this, "after");
 }
 
 AfterCommand::~AfterCommand()
 {
-	CommandController::instance()->unregisterCommand(this, "after");
-	EventDistributor::instance()->registerEventListener(SDL_JOYBUTTONDOWN, this);
-	EventDistributor::instance()->registerEventListener(SDL_JOYBUTTONUP, this);
-	EventDistributor::instance()->registerEventListener(SDL_JOYAXISMOTION, this);
-	EventDistributor::instance()->registerEventListener(SDL_MOUSEBUTTONDOWN, this);
-	EventDistributor::instance()->registerEventListener(SDL_MOUSEBUTTONDOWN, this);
-	EventDistributor::instance()->registerEventListener(SDL_MOUSEBUTTONUP, this);
-	EventDistributor::instance()->registerEventListener(SDL_MOUSEMOTION, this);
-	EventDistributor::instance()->registerEventListener(SDL_KEYDOWN, this);
-	EventDistributor::instance()->registerEventListener(SDL_KEYUP, this);
+	CommandController::instance().unregisterCommand(this, "after");
+	EventDistributor::instance().registerEventListener(SDL_JOYBUTTONDOWN, this);
+	EventDistributor::instance().registerEventListener(SDL_JOYBUTTONUP, this);
+	EventDistributor::instance().registerEventListener(SDL_JOYAXISMOTION, this);
+	EventDistributor::instance().registerEventListener(SDL_MOUSEBUTTONDOWN, this);
+	EventDistributor::instance().registerEventListener(SDL_MOUSEBUTTONDOWN, this);
+	EventDistributor::instance().registerEventListener(SDL_MOUSEBUTTONUP, this);
+	EventDistributor::instance().registerEventListener(SDL_MOUSEMOTION, this);
+	EventDistributor::instance().registerEventListener(SDL_KEYDOWN, this);
+	EventDistributor::instance().registerEventListener(SDL_KEYUP, this);
 }
 
 string AfterCommand::execute(const vector<string>& tokens)
@@ -89,8 +89,8 @@ string AfterCommand::afterNew(const vector<string>& tokens, AfterType type)
 	cmd->id = ++lastAfterId;
 	afterCmds[cmd->id] = cmd;
 	
-	EmuTime t = MSXCPU::instance()->getCurrentTime() + EmuDuration(time);
-	Scheduler::instance()->setSyncPoint(t, cmd);
+	EmuTime t = MSXCPU::instance().getCurrentTime() + EmuDuration(time);
+	Scheduler::instance().setSyncPoint(t, cmd);
 
 	ostringstream str;
 	str << cmd->id << '\n';
@@ -124,7 +124,7 @@ string AfterCommand::afterCancel(const vector<string>& tokens)
 	if (it == afterCmds.end()) {
 		throw CommandException("No delayed command with this id");
 	}
-	Scheduler::instance()->removeSyncPoint(it->second);
+	Scheduler::instance().removeSyncPoint(it->second);
 	delete it->second;
 	afterCmds.erase(it);
 	return "";
@@ -151,10 +151,10 @@ bool AfterCommand::signalEvent(const SDL_Event& event) throw()
 	     it != afterCmds.end(); ++it) {
 		AfterCmd* cmd = it->second;
 		if (cmd->type == IDLE) {
-			Scheduler::instance()->removeSyncPoint(cmd);
-			EmuTime t = MSXCPU::instance()->getCurrentTime() +
+			Scheduler::instance().removeSyncPoint(cmd);
+			EmuTime t = MSXCPU::instance().getCurrentTime() +
 			            EmuDuration(cmd->time);
-			Scheduler::instance()->setSyncPoint(t, cmd);
+			Scheduler::instance().setSyncPoint(t, cmd);
 		}
 	}
 	return true;
@@ -176,7 +176,7 @@ void AfterCommand::AfterCmd::executeUntil(const EmuTime& time, int userData)
 	throw()
 {
 	try {
-		CommandController::instance()->executeCommand(command);
+		CommandController::instance().executeCommand(command);
 	} catch (CommandException& e) {
 		CliCommOutput::instance().printWarning(
 			"Error executig delayed command: " + e.getMessage());

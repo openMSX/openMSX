@@ -9,9 +9,9 @@ namespace openmsx {
 VDPIODelay::VDPIODelay(MSXIODevice *device_, const EmuTime &time)
 	: MSXDevice(device_->deviceConfig, time),
 	  MSXIODevice(device_->deviceConfig, time),
+	  cpu(MSXCPU::instance()),
 	  device(device_)
 {
-	cpu = MSXCPU::instance();
 }
 
 byte VDPIODelay::readIO(byte port, const EmuTime &time)
@@ -28,10 +28,10 @@ void VDPIODelay::writeIO(byte port, byte value, const EmuTime &time)
 
 const EmuTime &VDPIODelay::delay(const EmuTime &time)
 {
-	if (cpu->isR800Active()) {
+	if (cpu.isR800Active()) {
 		lastTime += 57;	// 8us
 		if (time < lastTime) {
-			cpu->wait(lastTime);
+			cpu.wait(lastTime);
 			return lastTime;
 		}
 	}

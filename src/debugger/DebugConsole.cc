@@ -16,7 +16,8 @@ DebugConsole::ViewStruct::~ViewStruct()
 
 DebugConsole* DebugConsole::instance()
 {
-	if (!MSXConfig::instance()->hasConfigWithId("Debugger")) return NULL;
+	// TODO rework this
+	if (!MSXConfig::instance().hasConfigWithId("Debugger")) return NULL;
 	static DebugConsole oneInstance;
 	return &oneInstance;
 }

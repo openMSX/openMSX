@@ -1,5 +1,7 @@
 // $Id$
 
+#include <cassert>
+#include <memory> // for auto_ptr
 #include "Keys.hh"
 #include "RealTime.hh"
 #include "MSXCPU.hh"
@@ -9,8 +11,6 @@
 #include "Scheduler.hh"
 #include "RealTimeSDL.hh"
 #include "RealTimeRTC.hh"
-
-#include <cassert>
 
 #ifndef	NO_LINUX_RTC
 #define HAVE_RTC	// TODO check this in configure
@@ -23,12 +23,14 @@ const int SYNC_INTERVAL = 50;
 
 
 RealTime::RealTime()
-	: speedSetting("speed",
+	: scheduler(Scheduler::instance()),
+	  msxConfig(MSXConfig::instance()),
+	  speedSetting("speed",
 	       "controls the emulation speed: higher is faster, 100 is normal",
 	       100, 1, 1000000),
 	  throttleSetting("throttle", "controls speed throttling", true),
-	  pauseSetting(Scheduler::instance()->getPauseSetting()),
-	  powerSetting(Scheduler::instance()->getPowerSetting())
+	  pauseSetting(scheduler.getPauseSetting()),
+	  powerSetting(scheduler.getPowerSetting())
 {
 	speedSetting.addListener(this);
 	pauseSetting.addListener(this);
@@ -37,36 +39,36 @@ RealTime::RealTime()
 	maxCatchUpTime = 2000;	// ms
 	maxCatchUpFactor = 105; // %
 	try {
-		Config *config = MSXConfig::instance()->getConfigById("RealTime");
+		Config *config = msxConfig.getConfigById("RealTime");
 		maxCatchUpTime = config->getParameterAsInt("max_catch_up_time", maxCatchUpTime);
 		maxCatchUpFactor = config->getParameterAsInt("max_catch_up_factor", maxCatchUpFactor);
 	} catch (ConfigException &e) {
 		// no Realtime section
 	}
 	
-	Scheduler::instance()->setSyncPoint(Scheduler::ASAP, this);
+	scheduler.setSyncPoint(Scheduler::ASAP, this);
 }
 
 RealTime::~RealTime()
 {
-	Scheduler::instance()->removeSyncPoint(this);
+	scheduler.removeSyncPoint(this);
 	powerSetting.removeListener(this);
 	pauseSetting.removeListener(this);
 	speedSetting.removeListener(this);
 }
 
-RealTime *RealTime::instance()
+RealTime& RealTime::instance()
 {
-	static RealTime* oneInstance = NULL;
-	if (oneInstance == NULL) {
+	static auto_ptr<RealTime> oneInstance;
+	if (!oneInstance.get()) {
 #ifdef HAVE_RTC
-		oneInstance = RealTimeRTC::create();
+		oneInstance.reset(RealTimeRTC::create());
 #endif
-		if (oneInstance == NULL) {
-			oneInstance = new RealTimeSDL();
+		if (!oneInstance.get()) {
+			oneInstance.reset(new RealTimeSDL());
 		}
 	}
-	return oneInstance;
+	return *oneInstance.get();
 }
 
 const string &RealTime::schedName() const
@@ -82,7 +84,7 @@ void RealTime::executeUntil(const EmuTime& curEmu, int userData) throw()
 
 float RealTime::sync(const EmuTime &time)
 {
-	Scheduler::instance()->removeSyncPoint(this);
+	scheduler.removeSyncPoint(this);
 	return internalSync(time);
 }
 
@@ -98,7 +100,7 @@ float RealTime::internalSync(const EmuTime &time)
 	
 	// Schedule again in future
 	EmuTimeFreq<1000> time2(time);
-	Scheduler::instance()->setSyncPoint(time2 + SYNC_INTERVAL, this);
+	scheduler.setSyncPoint(time2 + SYNC_INTERVAL, this);
 	
 	return speed;
 }

@@ -122,10 +122,10 @@ void SunriseIDE::writeControl(byte value)
 	
 	if (ideRegsEnabled != (value & 1)) {
 		ideRegsEnabled = value & 1;
-		MSXCPU::instance()->invalidateCache(0x3C00, 0x0300/CPU::CACHE_LINE_SIZE);
-		MSXCPU::instance()->invalidateCache(0x7C00, 0x0300/CPU::CACHE_LINE_SIZE);
-		MSXCPU::instance()->invalidateCache(0xBC00, 0x0300/CPU::CACHE_LINE_SIZE);
-		MSXCPU::instance()->invalidateCache(0xFC00, 0x0300/CPU::CACHE_LINE_SIZE);
+		MSXCPU::instance().invalidateCache(0x3C00, 0x0300/CPU::CACHE_LINE_SIZE);
+		MSXCPU::instance().invalidateCache(0x7C00, 0x0300/CPU::CACHE_LINE_SIZE);
+		MSXCPU::instance().invalidateCache(0xBC00, 0x0300/CPU::CACHE_LINE_SIZE);
+		MSXCPU::instance().invalidateCache(0xFC00, 0x0300/CPU::CACHE_LINE_SIZE);
 	}
 
 	byte bank = reverse(value & 0xF8);
@@ -134,7 +134,7 @@ void SunriseIDE::writeControl(byte value)
 	}
 	if (internalBank != rom.getBlock(0x4000 * bank)) {
 		internalBank = rom.getBlock(0x4000 * bank);
-		MSXCPU::instance()->invalidateCache(0x4000, 0x4000/CPU::CACHE_LINE_SIZE);
+		MSXCPU::instance().invalidateCache(0x4000, 0x4000/CPU::CACHE_LINE_SIZE);
 	}
 }
 

@@ -11,12 +11,12 @@ namespace openmsx {
 
 // MSXDevice
 MSXPSG::MSXPSG(Device* config, const EmuTime& time)
-	: MSXDevice(config, time), MSXIODevice(config, time)
+	: MSXDevice(config, time), MSXIODevice(config, time),
+	  cassette(CassettePortFactory::instance())
 {
 	keyLayoutBit = deviceConfig->getParameterAsBool("keylayoutbit", false);
 	short volume = (short)deviceConfig->getParameterAsInt("volume");
 	ay8910 = new AY8910(*this, volume, time);
-	cassette = CassettePortFactory::instance();
 
 	selectedPort = 0;
 	ports[0] = new JoystickPort("joyporta");
@@ -63,8 +63,8 @@ void MSXPSG::writeIO(byte port, byte value, const EmuTime& time)
 byte MSXPSG::readA(const EmuTime& time)
 {
 	byte joystick = ports[selectedPort]->read(time) | 
-	                ((RenShaTurbo::instance()->getSignal(time)) << 4);
-	byte cassetteInput = cassette->cassetteIn(time) ? 0x80 : 0x00;
+	                ((RenShaTurbo::instance().getSignal(time)) << 4);
+	byte cassetteInput = cassette.cassetteIn(time) ? 0x80 : 0x00;
 	byte keyLayout = keyLayoutBit ? 0x40 : 0x00;
 	return joystick | keyLayout | cassetteInput;
 }
@@ -91,7 +91,7 @@ void MSXPSG::writeB(byte value, const EmuTime& time)
 	selectedPort = (value & 0x40) >> 6;
 
 	Leds::LEDCommand kana = (value & 0x80) ? Leds::KANA_OFF : Leds::KANA_ON;
-	Leds::instance()->setLed(kana);
+	Leds::instance().setLed(kana);
 }
 
 } // namespace openmsx

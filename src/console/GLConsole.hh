@@ -21,7 +21,7 @@ class Console;
 class GLConsole : public OSDConsoleRenderer
 {
 	public:
-		GLConsole(Console * console_);
+		GLConsole(Console& console);
 		virtual ~GLConsole();
 
 		virtual bool loadFont(const string &filename);
@@ -42,7 +42,7 @@ class GLConsole : public OSDConsoleRenderer
 		int consoleHeight;
 		int dispX;
 		int dispY;
-		Console* console;
+		Console& console;
 		void updateConsoleRect(SDL_Surface *screen);
 };
 

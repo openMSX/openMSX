@@ -11,7 +11,11 @@ namespace openmsx {
 class MSXIODevice;
 class MSXMemDevice;
 class VDPIODelay;
-
+class DummyDevice;
+class MSXConfig;
+class CommandController;
+class MSXCPU;
+class CartridgeSlotManager;
 
 class MSXCPUInterface : public CPUInterface
 {
@@ -24,7 +28,7 @@ public:
 	/**
 	 * this is a singleton class
 	 */
-	static MSXCPUInterface* instance();
+	static MSXCPUInterface& instance();
 	
 	/**
 	 * Devices can register their In ports. This is normally done
@@ -146,17 +150,25 @@ private:
 			  int primSl, int secSL, int page);
 	
 	class SlotMapCmd : public Command {
+	public:
+		SlotMapCmd(MSXCPUInterface& parent);
 		virtual string execute(const vector<string> &tokens)
 			throw();
 		virtual string help(const vector<string> &tokens) const
 			throw();
-	};
+	private:
+		MSXCPUInterface& parent;
+	} slotMapCmd;
 	class SlotSelectCmd : public Command {
+	public:
+		SlotSelectCmd(MSXCPUInterface& parent);
 		virtual string execute(const vector<string> &tokens)
 			throw();
 		virtual string help(const vector<string> &tokens) const
 			throw();
-	};
+	private:
+		MSXCPUInterface& parent;
+	} slotSelectCmd;
 
 	/** Updated visibleDevices for a given page and clears the cache
 	  * on changes.
@@ -170,10 +182,6 @@ private:
 	  */
 	void printSlotMapPages(ostream &, MSXMemDevice *[]);
 	
-	// Commands
-	SlotMapCmd slotMapCmd;
-	SlotSelectCmd slotSelectCmd;
-
 	MSXIODevice* IO_In [256];
 	MSXIODevice* IO_Out[256];
 
@@ -183,6 +191,12 @@ private:
 	byte secondarySlotState[4];
 	bool isSubSlotted[4];
 	MSXMemDevice* visibleDevices[4];
+
+	DummyDevice& dummyDevice;
+	MSXConfig& msxConfig;
+	CommandController& commandController;
+	MSXCPU& msxcpu;
+	CartridgeSlotManager& slotManager;
 };
 
 class TurborCPUInterface : public MSXCPUInterface

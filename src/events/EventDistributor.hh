@@ -20,7 +20,7 @@ class EventListener;
 class EventDistributor : private SettingListener
 {
 public:
-	static EventDistributor* instance();
+	static EventDistributor& instance();
 
 	/** Poll / wait for an event and handle it.
 	  * These methods should be called from the main thread.

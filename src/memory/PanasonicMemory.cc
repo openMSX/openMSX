@@ -8,7 +8,8 @@
 namespace openmsx {
 
 PanasonicMemory::PanasonicMemory()
-	: rom(NULL), ram(NULL), dram(false)
+	: rom(NULL), ram(NULL), dram(false),
+	  msxcpu(MSXCPU::instance())
 {
 }
 
@@ -16,10 +17,10 @@ PanasonicMemory::~PanasonicMemory()
 {
 }
 
-PanasonicMemory* PanasonicMemory::instance()
+PanasonicMemory& PanasonicMemory::instance()
 {
 	static PanasonicMemory oneInstance;
-	return &oneInstance;
+	return oneInstance;
 }
 
 void PanasonicMemory::registerRom(const byte* rom_, int romSize_)
@@ -68,8 +69,7 @@ void PanasonicMemory::setDRAM(bool dram_)
 {
 	if (dram_ != dram) {
 		dram = dram_;
-		MSXCPU::instance()->
-			invalidateCache(0x0000, 0x10000 / CPU::CACHE_LINE_SIZE);
+		msxcpu.invalidateCache(0x0000, 0x10000 / CPU::CACHE_LINE_SIZE);
 	}
 }
 

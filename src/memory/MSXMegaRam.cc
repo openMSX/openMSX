@@ -105,7 +105,7 @@ void MSXMegaRam::writeIO(byte port, byte value, const EmuTime& time)
 {
 	// enable switching
 	writeMode = false;
-	MSXCPU::instance()->invalidateCache(0x0000,
+	MSXCPU::instance().invalidateCache(0x0000,
 		0x10000 / CPU::CACHE_LINE_SIZE);
 }
 
@@ -115,10 +115,10 @@ void MSXMegaRam::setBank(byte page, byte block)
 		block &= maxBlock;
 	}
 	bank[page] = block;
-	MSXCPU* cpu = MSXCPU::instance();
+	MSXCPU& cpu = MSXCPU::instance();
 	word adr = page * 0x2000;
-	cpu->invalidateCache(adr,          0x2000 / CPU::CACHE_LINE_SIZE);
-	cpu->invalidateCache(adr + 0x8000, 0x2000 / CPU::CACHE_LINE_SIZE);
+	cpu.invalidateCache(adr,          0x2000 / CPU::CACHE_LINE_SIZE);
+	cpu.invalidateCache(adr + 0x8000, 0x2000 / CPU::CACHE_LINE_SIZE);
 }
 
 } // namespace openmsx

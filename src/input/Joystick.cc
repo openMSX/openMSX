@@ -53,9 +53,9 @@ void Joystick::plug(Connector *connector, const EmuTime &time)
 		throw PlugException("Failed to open joystick device");
 	}
 
-	EventDistributor::instance()->registerEventListener(SDL_JOYAXISMOTION, this);
-	EventDistributor::instance()->registerEventListener(SDL_JOYBUTTONDOWN, this);
-	EventDistributor::instance()->registerEventListener(SDL_JOYBUTTONUP,   this);
+	EventDistributor::instance().registerEventListener(SDL_JOYAXISMOTION, this);
+	EventDistributor::instance().registerEventListener(SDL_JOYBUTTONDOWN, this);
+	EventDistributor::instance().registerEventListener(SDL_JOYBUTTONUP,   this);
 
 	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	         JOY_BUTTONA | JOY_BUTTONB;
@@ -63,9 +63,9 @@ void Joystick::plug(Connector *connector, const EmuTime &time)
 
 void Joystick::unplug(const EmuTime &time)
 {
-	EventDistributor::instance()->unregisterEventListener(SDL_JOYAXISMOTION, this);
-	EventDistributor::instance()->unregisterEventListener(SDL_JOYBUTTONDOWN, this);
-	EventDistributor::instance()->unregisterEventListener(SDL_JOYBUTTONUP,   this);
+	EventDistributor::instance().unregisterEventListener(SDL_JOYAXISMOTION, this);
+	EventDistributor::instance().unregisterEventListener(SDL_JOYBUTTONDOWN, this);
+	EventDistributor::instance().unregisterEventListener(SDL_JOYBUTTONUP,   this);
 	SDL_JoystickClose(joystick);
 }
 

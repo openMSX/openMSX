@@ -11,12 +11,12 @@ namespace openmsx {
 RS232Connector::RS232Connector(const string &name)
 	: Connector(name, new DummyRS232Device())
 {
-	PluggingController::instance()->registerConnector(this);
+	PluggingController::instance().registerConnector(this);
 }
 
 RS232Connector::~RS232Connector()
 {
-	PluggingController::instance()->unregisterConnector(this);
+	PluggingController::instance().unregisterConnector(this);
 }
 
 const string& RS232Connector::getDescription() const

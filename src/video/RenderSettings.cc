@@ -9,8 +9,12 @@
 namespace openmsx {
 
 RenderSettings::RenderSettings()
+	: rendererInfo(*this),
+	  msxConfig(MSXConfig::instance()),
+	  output(CliCommOutput::instance()),
+	  infoCommand(InfoCommand::instance())
 {
-	Config* config = MSXConfig::instance()->getConfigById("renderer");
+	Config* config = msxConfig.getConfigById("renderer");
 
 	map<string, Accuracy> accMap;
 	accMap["screen"] = ACC_SCREEN;
@@ -46,7 +50,7 @@ RenderSettings::RenderSettings()
 	try {
 		renderer->setValueString(rendererName);
 	} catch (CommandException &e) {
-		CliCommOutput::instance().printWarning(
+		output.printWarning(
 			"Invalid renderer requested: \"" + rendererName + "\"");
 		// Stick with default given by RendererFactory.
 	}
@@ -61,12 +65,12 @@ RenderSettings::RenderSettings()
 		"scanline", "amount of scanline effect: 0 = none, 100 = full",
 		20, 0, 100);
 
-	InfoCommand::instance().registerTopic("renderer", &rendererInfo);
+	infoCommand.registerTopic("renderer", &rendererInfo);
 }
 
 RenderSettings::~RenderSettings()
 {
-	InfoCommand::instance().unregisterTopic("renderer", &rendererInfo);
+	infoCommand.unregisterTopic("renderer", &rendererInfo);
 
 	delete accuracy;
 	delete deinterlace;
@@ -75,15 +79,25 @@ RenderSettings::~RenderSettings()
 	delete frameSkip;
 }
 
+RenderSettings& RenderSettings::instance()
+{
+	static RenderSettings oneInstance;
+	return oneInstance;
+}
 
 // Renderer info
+
+RenderSettings::RendererInfo::RendererInfo(RenderSettings& parent_)
+	: parent(parent_)
+{
+}
 
 string RenderSettings::RendererInfo::execute(const vector<string> &tokens) const
 	throw()
 {
 	string result;
 	set<string> renderers;
-	RenderSettings::instance()->getRenderer()->getPossibleValues(renderers);
+	parent.getRenderer()->getPossibleValues(renderers);
 	for (set<string>::const_iterator it = renderers.begin();
 	     it != renderers.end(); ++it) {
 		result += *it + '\n';

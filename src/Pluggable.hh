@@ -25,6 +25,8 @@ public:
 class Pluggable
 {
 public:
+	virtual ~Pluggable();
+
 	/**
 	 * Name used to identify this pluggable.
 	 */

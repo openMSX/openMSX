@@ -19,36 +19,37 @@ const EmuTime Scheduler::ASAP;
 Scheduler::Scheduler()
 	: sem(1),
 	  pauseSetting("pause", "pauses the emulation", false),
-	  powerSetting("power", "turn power on/off", false)
+	  powerSetting("power", "turn power on/off", false),
+	  leds(Leds::instance()),
+	  cpu(MSXCPU::instance()),
+	  commandController(CommandController::instance()),
+	  eventDistributor(EventDistributor::instance()),
+	  quitCommand(*this)
 {
 	paused = false;
 	emulationRunning = true;
-	cpu = MSXCPU::instance();
-	cpu->init(this);
+	cpu.init(this);
 	renderer = NULL;
 
 	pauseSetting.addListener(this);
 	powerSetting.addListener(this);
 
-	CommandController::instance()->registerCommand(&quitCommand, "quit");
-	EventDistributor::instance()->registerEventListener(SDL_QUIT, this);
+	commandController.registerCommand(&quitCommand, "quit");
+	eventDistributor.registerEventListener(SDL_QUIT, this);
 }
 
 Scheduler::~Scheduler()
 {
-	EventDistributor::instance()->unregisterEventListener(SDL_QUIT, this);
-	CommandController::instance()->unregisterCommand(&quitCommand, "quit");
+	eventDistributor.unregisterEventListener(SDL_QUIT, this);
+	commandController.unregisterCommand(&quitCommand, "quit");
 
 	powerSetting.removeListener(this);
 	pauseSetting.removeListener(this);
 }
 
-Scheduler* Scheduler::instance()
+Scheduler& Scheduler::instance()
 {
-	static Scheduler* oneInstance = NULL;
-	if (oneInstance == NULL) {
-		oneInstance = new Scheduler();
-	}
+	static Scheduler oneInstance;
 	return oneInstance;
 }
 
@@ -66,13 +67,13 @@ void Scheduler::setSyncPoint(const EmuTime &timeStamp, Schedulable *device, int 
 	// Tell CPU emulation to return early if necessary.
 	// TODO: Emulation may run in parallel in a seperate thread.
 	//       What we're doing here is not thread safe.
-	if (timeStamp < cpu->getTargetTime()) {
-		cpu->setTargetTime(timeStamp);
+	if (timeStamp < cpu.getTargetTime()) {
+		cpu.setTargetTime(timeStamp);
 	}
 	sem.up();
 
 	if (paused || !powerSetting.getValue()) {
-		EventDistributor::instance()->notify();
+		eventDistributor.notify();
 	}
 }
 
@@ -102,7 +103,6 @@ void Scheduler::stopScheduling()
 
 void Scheduler::schedule(const EmuTime &limit)
 {
-	EventDistributor *eventDistributor = EventDistributor::instance();
 	while (true) {
 		// Get next sync point.
 		sem.down();
@@ -120,34 +120,34 @@ void Scheduler::schedule(const EmuTime &limit)
 		}
 
 		if (time == ASAP) {
-			scheduleDevice(sp, cpu->getCurrentTime());
-			eventDistributor->poll();
+			scheduleDevice(sp, cpu.getCurrentTime());
+			eventDistributor.poll();
 		} else if (!powerSetting.getValue()) {
 			sem.up();
 			assert(renderer);
 			int fps = renderer->putPowerOffImage();
 			if (fps == 0) {
-				eventDistributor->wait();
+				eventDistributor.wait();
 			} else {
 				SDL_Delay(1000 / fps);
-				eventDistributor->poll();
+				eventDistributor.poll();
 			}
 		} else if (paused) {
 			sem.up();
 			assert(renderer);
 			renderer->putStoredImage();
-			eventDistributor->wait();
+			eventDistributor.wait();
 		} else {
-			if (cpu->getTargetTime() < time) {
+			if (cpu.getTargetTime() < time) {
 				sem.up();
 				// Schedule CPU until first sync point.
 				// This may set earlier sync point.
 				PRT_DEBUG ("Sched: Scheduling CPU till " << time);
-				cpu->executeUntilTarget(time);
+				cpu.executeUntilTarget(time);
 			} else {
 				scheduleDevice(sp, time);
 			}
-			eventDistributor->poll();
+			eventDistributor.poll();
 		}
 	}
 }
@@ -179,13 +179,13 @@ void Scheduler::pause()
 void Scheduler::powerOn()
 {
 	powerSetting.setValue(true);
-	Leds::instance()->setLed(Leds::POWER_ON);
+	leds.setLed(Leds::POWER_ON);
 }
 
 void Scheduler::powerOff()
 {
 	powerSetting.setValue(false);
-	Leds::instance()->setLed(Leds::POWER_OFF);
+	leds.setLed(Leds::POWER_OFF);
 }
 
 void Scheduler::update(const SettingLeafNode* setting) throw()
@@ -218,10 +218,15 @@ bool Scheduler::signalEvent(const SDL_Event& event) throw()
 
 // class QuitCommand
 
+Scheduler::QuitCommand::QuitCommand(Scheduler& parent_)
+	: parent(parent_)
+{
+}
+
 string Scheduler::QuitCommand::execute(const vector<string> &tokens)
 	throw()
 {
-	Scheduler::instance()->stopScheduling();
+	parent.stopScheduling();
 	return "";
 }
 

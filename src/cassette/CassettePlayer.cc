@@ -21,8 +21,8 @@ MSXCassettePlayerCLI msxCassettePlayerCLI;
 
 MSXCassettePlayerCLI::MSXCassettePlayerCLI()
 {
-	CommandLineParser::instance()->registerOption("-cassetteplayer", this);
-	CommandLineParser::instance()->registerFileClass("rawtapeimages", this);
+	CommandLineParser::instance().registerOption("-cassetteplayer", this);
+	CommandLineParser::instance().registerFileClass("rawtapeimages", this);
 }
 
 bool MSXCassettePlayerCLI::parseOption(const string &option,
@@ -49,9 +49,8 @@ void MSXCassettePlayerCLI::parseFileType(const string &filename_)
 	s << " </config>";
 	s << "</msxconfig>";
 
-	MSXConfig* config = MSXConfig::instance();
 	UserFileContext context;
-	config->loadStream(context, s);
+	MSXConfig::instance().loadStream(context, s);
 }
 const string& MSXCassettePlayerCLI::fileTypeHelp() const
 {
@@ -65,9 +64,9 @@ CassettePlayer::CassettePlayer()
 {
 	removeTape();
 
-	MSXConfig* conf = MSXConfig::instance();
-	if (conf->hasConfigWithId("cassetteplayer")) {
-		Config* config = conf->getConfigById("cassetteplayer");
+	MSXConfig& conf = MSXConfig::instance();
+	if (conf.hasConfigWithId("cassetteplayer")) {
+		Config* config = conf.getConfigById("cassetteplayer");
 		const string& filename = config->getParameter("filename");
 		try {
 			insertTape(config->getContext(), filename);
@@ -77,19 +76,18 @@ CassettePlayer::CassettePlayer()
 	} else {
 		// no cassette image specified
 	}
-	CommandController::instance()->registerCommand(this, "cassetteplayer");
+	CommandController::instance().registerCommand(this, "cassetteplayer");
 
-	int bufSize = Mixer::instance()->registerSound(this,
-	                                               5000, Mixer::MONO);
+	int bufSize = Mixer::instance().registerSound(this, 5000, Mixer::MONO);
 	buffer = new int[bufSize];
 }
 
 CassettePlayer::~CassettePlayer()
 {
-	Mixer::instance()->unregisterSound(this);
+	Mixer::instance().unregisterSound(this);
 	delete[] buffer;
 
-	CommandController::instance()->unregisterCommand(this, "cassetteplayer");
+	CommandController::instance().unregisterCommand(this, "cassetteplayer");
 	delete cassette;
 }
 

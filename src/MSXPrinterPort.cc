@@ -17,12 +17,12 @@ MSXPrinterPort::MSXPrinterPort(Device *config, const EmuTime &time)
 	strobe = false;	// != true;
 	reset(time);
 
-	PluggingController::instance()->registerConnector(this);
+	PluggingController::instance().registerConnector(this);
 }
 
 MSXPrinterPort::~MSXPrinterPort()
 {
-	PluggingController::instance()->unregisterConnector(this);
+	PluggingController::instance().unregisterConnector(this);
 }
 
 void MSXPrinterPort::reset(const EmuTime &time)

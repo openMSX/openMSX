@@ -51,7 +51,7 @@ class FontSetting : public FilenameSetting
 class OSDConsoleRenderer : public ConsoleRenderer
 {
 	public:
-		OSDConsoleRenderer(Console *console_);
+		OSDConsoleRenderer(Console& console);
 		virtual ~OSDConsoleRenderer();
 		virtual bool loadBackground(const string &filename) = 0;
 		virtual bool loadFont(const string &filename) = 0;
@@ -88,7 +88,7 @@ class OSDConsoleRenderer : public ConsoleRenderer
 
 		int currentMaxX;
 		int currentMaxY;
-		Console *console;
+		Console& console;
 };
 
 } // namespace openmsx

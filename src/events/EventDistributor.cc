@@ -20,12 +20,9 @@ EventDistributor::~EventDistributor()
 	grabInput.removeListener(this);
 }
 
-EventDistributor *EventDistributor::instance()
+EventDistributor& EventDistributor::instance()
 {
-	static EventDistributor* oneInstance = NULL;
-	if (oneInstance == NULL) {
-		oneInstance = new EventDistributor();
-	}
+	static EventDistributor oneInstance;
 	return oneInstance;
 }
 

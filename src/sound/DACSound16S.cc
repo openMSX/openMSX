@@ -13,23 +13,22 @@ const float DELAY = 0.08;	// TODO tune
 
 DACSound16S::DACSound16S(const string& name_, const string& desc_,
                          short volume, const EmuTime& time)
-	: name(name_), desc(desc_)
+	: name(name_), desc(desc_),
+	  cpu(MSXCPU::instance()),
+	  realTime(RealTime::instance())
 {
-	cpu = MSXCPU::instance();
-	realTime = RealTime::instance();
-	
 	lastValue = lastWrittenValue = 0;
 	nextTime = EmuTime::infinity;
 	reset(time);
 	
-	int bufSize = Mixer::instance()->registerSound(this,
+	int bufSize = Mixer::instance().registerSound(this,
 	                                               volume, Mixer::MONO);
 	buffer = new int[bufSize];
 }
 
 DACSound16S::~DACSound16S()
 {
-	Mixer::instance()->unregisterSound(this);
+	Mixer::instance().unregisterSound(this);
 	delete[] buffer;
 }
 
@@ -65,7 +64,7 @@ void DACSound16S::writeDAC(short value, const EmuTime &time)
 	}
 	lastWrittenValue = value;
 	if ((value != 0) && (isInternalMuted())) {
-		EmuDuration delay = realTime->getEmuDuration(DELAY);
+		EmuDuration delay = realTime.getEmuDuration(DELAY);
 		lastTime = time - delay;
 		setInternalMute(false);
 	}
@@ -99,17 +98,17 @@ int* DACSound16S::updateBuffer(int length) throw()
 		return NULL;
 	}
 	
-	EmuTime now = cpu->getCurrentTime();
+	EmuTime now = cpu.getCurrentTime();
 	assert(lastTime <= now);
 	EmuDuration total = now - lastTime;
 
 	float realDuration = length * oneSampDur;
-	EmuDuration duration1 = realTime->getEmuDuration(realDuration);
+	EmuDuration duration1 = realTime.getEmuDuration(realDuration);
 	if ((lastTime + duration1) > now) {
 		duration1 = total;
 	}
 	
-	EmuDuration delay = realTime->getEmuDuration(DELAY);
+	EmuDuration delay = realTime.getEmuDuration(DELAY);
 	if (now < (lastTime + delay)) {
 		delay = total;
 	}

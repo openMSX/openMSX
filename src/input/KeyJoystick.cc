@@ -13,8 +13,8 @@ namespace openmsx {
 
 KeyJoystick::KeyJoystick()
 {
-	EventDistributor::instance()->registerEventListener(SDL_KEYDOWN, this, 1);
-	EventDistributor::instance()->registerEventListener(SDL_KEYUP  , this, 1);
+	EventDistributor::instance().registerEventListener(SDL_KEYDOWN, this, 1);
+	EventDistributor::instance().registerEventListener(SDL_KEYUP  , this, 1);
 
 	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	         JOY_BUTTONA | JOY_BUTTONB;
@@ -28,7 +28,7 @@ KeyJoystick::KeyJoystick()
 	buttonBKey = Keys::K_NONE;
 
 	try {
-		Config* config = MSXConfig::instance()->getConfigById("KeyJoystick");
+		Config* config = MSXConfig::instance().getConfigById("KeyJoystick");
 		upKey      = getConfigKeyCode("upkey",      config);
 		rightKey   = getConfigKeyCode("rightkey",   config);
 		downKey    = getConfigKeyCode("downkey",    config);
@@ -44,8 +44,8 @@ KeyJoystick::KeyJoystick()
 
 KeyJoystick::~KeyJoystick()
 {
-	EventDistributor::instance()->unregisterEventListener(SDL_KEYDOWN, this, 1);
-	EventDistributor::instance()->unregisterEventListener(SDL_KEYUP  , this, 1);
+	EventDistributor::instance().unregisterEventListener(SDL_KEYDOWN, this, 1);
+	EventDistributor::instance().unregisterEventListener(SDL_KEYUP  , this, 1);
 }
 
 // auxilliary function for constructor

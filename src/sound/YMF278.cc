@@ -727,7 +727,7 @@ YMF278::YMF278(short volume, int ramSize, Device *config,
 	ram = new byte[ramSize];
 	endRam = endRom + ramSize;
 	
-	int bufSize = Mixer::instance()->registerSound(this,
+	int bufSize = Mixer::instance().registerSound(this,
 	                                               volume, Mixer::STEREO);
 	buffer = new int[2 * bufSize];
 	reset(time);
@@ -735,7 +735,7 @@ YMF278::YMF278(short volume, int ramSize, Device *config,
 
 YMF278::~YMF278()
 {
-	Mixer::instance()->unregisterSound(this);
+	Mixer::instance().unregisterSound(this);
 	delete[] buffer;
 	delete[] ram;
 }

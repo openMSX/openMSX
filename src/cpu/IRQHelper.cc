@@ -6,9 +6,9 @@
 namespace openmsx {
 
 IRQHelper::IRQHelper()
+	: request(false),
+	  cpu(MSXCPU::instance())
 {
-	cpu = MSXCPU::instance();
-	request = false;
 }
 
 IRQHelper::~IRQHelper()

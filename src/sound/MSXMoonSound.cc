@@ -6,7 +6,6 @@
 #include "Device.hh"
 #include "Mixer.hh"
 
-
 namespace openmsx {
 
 MSXMoonSound::MSXMoonSound(Device* config, const EmuTime& time)
@@ -38,7 +37,7 @@ void MSXMoonSound::reset(const EmuTime& time)
 
 byte MSXMoonSound::readIO(byte port, const EmuTime& time)
 {
-	Mixer::instance()->updateStream(time); // TODO optimize
+	Mixer::instance().updateStream(time); // TODO optimize
 	byte result;
 	if (port < 0xC0) {
 		// WAVE part  0x7E-0x7F

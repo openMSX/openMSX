@@ -7,16 +7,17 @@
 
 namespace openmsx {
 
-RenShaTurbo* RenShaTurbo::instance()
+RenShaTurbo& RenShaTurbo::instance()
 {
 	static RenShaTurbo oneInstance;
-	return &oneInstance;
+	return oneInstance;
 }
 
 RenShaTurbo::RenShaTurbo()
+	: msxConfig(MSXConfig::instance())
 {
 	try {
-		Config *config = MSXConfig::instance()->getConfigById("RenShaTurbo");
+		Config *config = msxConfig.getConfigById("RenShaTurbo");
 		int min_ints = config->getParameterAsInt("min_ints", 47);
 		int max_ints = config->getParameterAsInt("max_ints", 221);
 		autofire = new Autofire(min_ints, max_ints, "renshaturbo");

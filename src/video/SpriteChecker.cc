@@ -22,7 +22,7 @@ namespace openmsx {
 SpriteChecker::SpriteChecker(VDP *vdp)
 {
 	this->vdp = vdp;
-	limitSpritesSetting = VDPSettings::instance()->getLimitSprites();
+	limitSpritesSetting = VDPSettings::instance().getLimitSprites();
 	vram = vdp->getVRAM();
 	vram->spriteAttribTable.setObserver(this);
 	vram->spritePatternTable.setObserver(this);

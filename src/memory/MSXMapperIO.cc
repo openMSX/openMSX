@@ -14,7 +14,7 @@ namespace openmsx {
 MSXMapperIO::MSXMapperIO(Device* device, const EmuTime& time)
 	: MSXDevice(device, time), MSXIODevice(device, time)
 {
-	Config* config = MSXConfig::instance()->findConfigById("MapperType");
+	Config* config = MSXConfig::instance().findConfigById("MapperType");
 	if (config) {
 		const string& type = config->getParameter("type");
 		if (type == "TurboR") {
@@ -69,7 +69,7 @@ void MSXMapperIO::writeIO(byte port, byte value, const EmuTime& time)
 {
 	port &= 0x03;
 	page[port] = value;
-	MSXCPU::instance()->invalidateCache(
+	MSXCPU::instance().invalidateCache(
 		0x4000 * port, 0x4000 / CPU::CACHE_LINE_SIZE );
 }
 

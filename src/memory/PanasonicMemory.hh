@@ -5,13 +5,14 @@
 
 #include "openmsx.hh"
 
-
 namespace openmsx {
+
+class MSXCPU;
 
 class PanasonicMemory
 {
 	public:
-		static PanasonicMemory* instance();
+		static PanasonicMemory& instance();
 	
 		void registerRom(const byte* rom, int romSize);
 		void registerRam(byte* ram, int ramSize);
@@ -28,6 +29,8 @@ class PanasonicMemory
 		byte* ram;
 		int ramSize;
 		bool dram;
+
+		MSXCPU& msxcpu;
 };
 
 } // namespace openmsx

@@ -27,7 +27,7 @@ class MSXRomCLIPost : public CLIPostConfig
 	public:
 		MSXRomCLIPost(const string &arg);
 		virtual ~MSXRomCLIPost() {}
-		virtual void execute(MSXConfig *config);
+		virtual void execute(MSXConfig& config);
 	protected:
 		int ps, ss;
 		const string arg;
@@ -37,7 +37,7 @@ class MSXRomPostName : public MSXRomCLIPost
 	public:
 		MSXRomPostName(int slot, const string &arg);
 		virtual ~MSXRomPostName() {}
-		virtual void execute(MSXConfig *config);
+		virtual void execute(MSXConfig& config);
 	private:
 		int slot;
 };
@@ -46,7 +46,7 @@ class MSXRomPostNoName : public MSXRomCLIPost
 	public:
 		MSXRomPostNoName(const string &arg);
 		virtual ~MSXRomPostNoName() {}
-		virtual void execute(MSXConfig *config);
+		virtual void execute(MSXConfig& config);
 };
 
 } // namespace openmsx

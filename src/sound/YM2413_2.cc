@@ -1176,8 +1176,8 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 	PRT_DEBUG("YM2413: write reg " << (int)r << " " << (int)v);
 
 	// update the output buffer before changing the register
-	Mixer::instance()->updateStream(time);
-	Mixer::instance()->lock();
+	Mixer::instance().updateStream(time);
+	Mixer::instance().lock();
 	
 	switch (r & 0xF0) {
 	case 0x00: {
@@ -1313,7 +1313,7 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 	default:
 		break;
 	}
-	Mixer::instance()->unlock();
+	Mixer::instance().unlock();
 	checkMute();
 }
 
@@ -1365,14 +1365,14 @@ YM2413_2::YM2413_2(const string& name_, short volume, const EmuTime& time,
 	
 	init_tables();
 
-	int bufSize = Mixer::instance()->registerSound(this, volume, mode);
+	int bufSize = Mixer::instance().registerSound(this, volume, mode);
 	buffer = new int[bufSize];
 	reset(time);
 }
 
 YM2413_2::~YM2413_2()
 {
-	Mixer::instance()->unregisterSound(this);
+	Mixer::instance().unregisterSound(this);
 	delete[] buffer;
 }
 

@@ -584,7 +584,7 @@ YM2413::YM2413(const string& name_, short volume, const EmuTime& time,
 	makeSinTable();
 	makeDB2LinTable();
 
-	int bufSize = Mixer::instance()->registerSound(this, volume, mode);
+	int bufSize = Mixer::instance().registerSound(this, volume, mode);
 	buffer = new int[bufSize];
 	
 	reset(time);
@@ -593,7 +593,7 @@ YM2413::YM2413(const string& name_, short volume, const EmuTime& time,
 // Destructor
 YM2413::~YM2413()
 {
-	Mixer::instance()->unregisterSound(this);
+	Mixer::instance().unregisterSound(this);
 	delete[] buffer;
 }
 
@@ -1008,8 +1008,8 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 	//PRT_DEBUG("YM2413: write reg "<<(int)regis<<" "<<(int)data);
 
 	// update the output buffer before changing the register
-	Mixer::instance()->updateStream(time);
-	Mixer::instance()->lock();
+	Mixer::instance().updateStream(time);
+	Mixer::instance().lock();
 
 	assert (regis < 0x40);
 	switch (regis) {
@@ -1185,7 +1185,7 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 		break;
 	}
 	reg[regis] = data;
-	Mixer::instance()->unlock();
+	Mixer::instance().unlock();
 	checkMute();
 }
 

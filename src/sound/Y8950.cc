@@ -441,13 +441,13 @@ Y8950::Y8950(const string& name_, short volume, int sampleRam,
 
 	reset(time);
 
-	int bufSize = Mixer::instance()->registerSound(this, volume, mode);
+	int bufSize = Mixer::instance().registerSound(this, volume, mode);
 	buffer = new int[bufSize];
 }
 
 Y8950::~Y8950()
 {
-	Mixer::instance()->unregisterSound(this);
+	Mixer::instance().unregisterSound(this);
 	delete[] buffer;
 }
 
@@ -495,7 +495,7 @@ void Y8950::reset(const EmuTime &time)
 	noiseB_dphase = 0;
 
 	// update the output buffer before changing the register
-	Mixer::instance()->updateStream(time);
+	Mixer::instance().updateStream(time);
 	for (int i=0; i<0xFF; i++) 
 		reg[i] = 0x00;
 
@@ -871,9 +871,9 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 	//TODO also ADPCM
 	//if (rg>=0x20) {
 		// update the output buffer before changing the register
-		Mixer::instance()->updateStream(time);
+		Mixer::instance().updateStream(time);
 	//}
-	Mixer::instance()->lock();
+	Mixer::instance().lock();
 
 	switch (rg&0xe0) {
 	case 0x00: {
@@ -1097,7 +1097,7 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 		reg[rg] = data;
 	}
 	}
-	Mixer::instance()->unlock();
+	Mixer::instance().unlock();
 	//TODO only for registers that influence sound
 	checkMute();
 }
@@ -1105,7 +1105,7 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 byte Y8950::readReg(byte rg, const EmuTime &time)
 {
 	// TODO only when necessary
-	Mixer::instance()->updateStream(time);
+	Mixer::instance().updateStream(time);
 	
 	byte result;
 	switch (rg) {

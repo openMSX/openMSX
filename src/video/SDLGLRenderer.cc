@@ -180,7 +180,7 @@ void SDLGLRenderer::finishFrame(bool store)
 {
 	// Glow effect.
 	// Must be applied before storedImage is updated.
-	int glowSetting = settings->getGlow()->getValue();
+	int glowSetting = settings.getGlow()->getValue();
 	if (glowSetting != 0 && prevStored) {
 		// Draw stored image.
 		glEnable(GL_TEXTURE_2D);
@@ -199,8 +199,8 @@ void SDLGLRenderer::finishFrame(bool store)
 	}
 
 	// Determine which effects to apply.
-	int blurSetting = settings->getHorizontalBlur()->getValue();
-	int scanlineAlpha = (settings->getScanlineAlpha()->getValue() * 255) / 100;
+	int blurSetting = settings.getHorizontalBlur()->getValue();
+	int scanlineAlpha = (settings.getScanlineAlpha()->getValue() * 255) / 100;
 	// TODO: Turn off scanlines when deinterlacing.
 
 	// Store current frame as a texture.
@@ -258,8 +258,8 @@ void SDLGLRenderer::putStoredImage()
 	//       Refactor it to remove code duplication.
 
 	// Determine which effects to apply.
-	int blurSetting = settings->getHorizontalBlur()->getValue();
-	int scanlineAlpha = (settings->getScanlineAlpha()->getValue() * 255) / 100;
+	int blurSetting = settings.getHorizontalBlur()->getValue();
+	int scanlineAlpha = (settings.getScanlineAlpha()->getValue() * 255) / 100;
 	// TODO: Turn off scanlines when deinterlacing.
 
 	drawEffects(blurSetting, scanlineAlpha);
@@ -421,7 +421,7 @@ SDLGLRenderer::SDLGLRenderer(
 	debugger = NULL;
 	Console *debuggerConsole = DebugConsole::instance();
 	if (debuggerConsole){
-		debugger = new GLConsole(debuggerConsole);
+		debugger = new GLConsole(*debuggerConsole);
 	}
 	GLint size;
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size);
@@ -493,7 +493,7 @@ SDLGLRenderer::SDLGLRenderer(
 	SDL_ShowCursor(SDL_DISABLE);
 
 	// Init the palette.
-	precalcPalette(settings->getGamma()->getValue());
+	precalcPalette(settings.getGamma()->getValue());
 
 	// Register caches with VDPVRAM.
 	vram->patternTable.setObserver(&dirtyPattern);
@@ -603,7 +603,7 @@ bool SDLGLRenderer::checkSettings() {
 
 	// Check full screen setting.
 	bool fullScreenState = ((screen->flags & SDL_FULLSCREEN) != 0);
-	bool fullScreenTarget = settings->getFullScreen()->getValue();
+	bool fullScreenTarget = settings.getFullScreen()->getValue();
 	if (fullScreenState == fullScreenTarget) return true;
 
 #ifdef __WIN32__
@@ -631,7 +631,7 @@ void SDLGLRenderer::frameStart(const EmuTime &time)
 	// PAL:  display at [59..271).
 	lineRenderTop = vdp->isPalTiming() ? 59 - 14 : 32 - 14;
 
-	float gamma = settings->getGamma()->getValue();
+	float gamma = settings.getGamma()->getValue();
 	// (gamma != prevGamma) gives compiler warnings
 	if ((gamma > prevGamma) || (gamma < prevGamma)) {
 		precalcPalette(gamma);
@@ -1108,7 +1108,7 @@ void SDLGLRenderer::drawDisplay(
 ) {
 	int screenX = translateX(fromX);
 	int screenY = (fromY - lineRenderTop) * 2;
-	if (!(settings->getDeinterlace()->getValue())
+	if (!(settings.getDeinterlace()->getValue())
 	&& vdp->isInterlaced()
 	&& vdp->getEvenOdd()) {
 		// Display odd field half a line lower.
@@ -1152,7 +1152,7 @@ void SDLGLRenderer::drawDisplay(
 		}
 
 		// Which bits in the name mask determine the page?
-		bool deinterlaced = settings->getDeinterlace()->getValue()
+		bool deinterlaced = settings.getDeinterlace()->getValue()
 			&& vdp->isInterlaced() && vdp->isEvenOddEnabled();
 		int pageMaskEven, pageMaskOdd;
 		if (deinterlaced || vdp->isMultiPageScrolling()) {
@@ -1256,7 +1256,7 @@ void SDLGLRenderer::drawSprites(
 	int screenX = translateX(vdp->getLeftSprites()) + displayX * 2;
 	// TODO: Code duplicated from drawDisplay.
 	int screenY = (fromY - lineRenderTop) * 2;
-	if (!(settings->getDeinterlace()->getValue())
+	if (!(settings.getDeinterlace()->getValue())
 	&& vdp->isInterlaced()
 	&& vdp->getEvenOdd()) {
 		// Display odd field half a line lower.

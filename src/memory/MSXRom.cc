@@ -50,7 +50,7 @@ void MSXRom::init()
 	}
 	alreadyInit = true;
 
-	cpu = MSXCPU::instance();
+	cpu = &MSXCPU::instance();
 }
 
 

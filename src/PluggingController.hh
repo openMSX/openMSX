@@ -13,7 +13,9 @@ namespace openmsx {
 
 class Connector;
 class Pluggable;
-
+class MSXCPU;
+class CommandController;
+class InfoCommand;
 
 /**
  * Central administration of Connectors and Pluggables.
@@ -21,7 +23,7 @@ class Pluggable;
 class PluggingController
 {
 public:
-	static PluggingController *instance();
+	static PluggingController& instance();
 
 	/**
 	 * Connectors can be (un)registered
@@ -58,47 +60,63 @@ private:
 	// Commands
 	class PlugCmd : public Command {
 	public:
+		PlugCmd(PluggingController& parent);
 		virtual string execute(const vector<string> &tokens)
 			throw(CommandException);
 		virtual string help   (const vector<string> &tokens) const
 			throw();
 		virtual void tabCompletion(vector<string> &tokens) const
 			throw();
+	private:
+		PluggingController& parent;
 	} plugCmd;
 	friend class PlugCmd;
 
 	class UnplugCmd : public Command {
 	public:
+		UnplugCmd(PluggingController& parent);
 		virtual string execute(const vector<string> &tokens)
 			throw(CommandException);
 		virtual string help   (const vector<string> &tokens) const
 			throw();
 		virtual void tabCompletion(vector<string> &tokens) const
 			throw();
+	private:
+		PluggingController& parent;
 	} unplugCmd;
 	friend class UnplugCmd;
 
 	class PluggableInfo : public InfoTopic {
 	public:
+		PluggableInfo(PluggingController& parent);
 		virtual string execute(const vector<string> &tokens) const
 			throw(CommandException);
 		virtual string help   (const vector<string> &tokens) const
 			throw();
 		virtual void tabCompletion(vector<string> &tokens) const
 			throw();
+	private:
+		PluggingController& parent;
 	} pluggableInfo;
 	friend class PluggableInfo;
 
 	class ConnectorInfo : public InfoTopic {
 	public:
+		ConnectorInfo(PluggingController& parent);
 		virtual string execute(const vector<string> &tokens) const
 			throw(CommandException);
 		virtual string help   (const vector<string> &tokens) const
 			throw();
 		virtual void tabCompletion(vector<string> &tokens) const
 			throw();
+	private:
+		PluggingController& parent;
 	} connectorInfo;
 	friend class ConnectorInfo;
+
+	MSXCPU& msxcpu;
+	CommandController& commandController;
+	InfoCommand& infoCommand;
 };
 
 } // namespace openmsx

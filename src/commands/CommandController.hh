@@ -7,7 +7,6 @@
 #include <map>
 #include <set>
 #include <vector>
-#include "AliasCommands.hh"
 #include "Command.hh"
 
 using std::string;
@@ -18,11 +17,14 @@ using std::vector;
 namespace openmsx {
 
 class CommandConsole;
+class InfoCommand;
+class MSXConfig;
+class CliCommOutput;
 
 class CommandController
 {
 public:
-	static CommandController* instance();
+	static CommandController& instance();
 
 	/**
 	 * (Un)register a command
@@ -78,17 +80,23 @@ private:
 	// Commands
 	class HelpCmd : public Command {
 	public:
+		HelpCmd(CommandController& parent);
 		virtual string execute(const vector<string>& tokens)
 			throw(CommandException);
 		virtual string help(const vector<string>& tokens) const
 			throw();
 		virtual void tabCompletion(vector<string>& tokens) const
 			throw();
+	private:
+		CommandController& parent;
 	} helpCmd;
 	friend class HelpCmd;
 
-	AliasCommands aliasCmds;
 	CommandConsole* cmdConsole;
+	
+	InfoCommand& infoCommand;
+	MSXConfig& msxConfig;
+	CliCommOutput& output;
 };
 
 } // namespace openmsx

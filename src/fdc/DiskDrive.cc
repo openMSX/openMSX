@@ -133,9 +133,9 @@ RealDrive::RealDrive(const string &driveName, const EmuTime &time)
 	diskName = "";
 	disk = NULL;
 	
-	MSXConfig* conf = MSXConfig::instance();
-	if (conf->hasConfigWithId(driveName)) {
-		Config* config = conf->getConfigById(driveName);
+	MSXConfig& conf = MSXConfig::instance();
+	if (conf.hasConfigWithId(driveName)) {
+		Config* config = conf.getConfigById(driveName);
 		const string &filename = config->getParameter("filename");
 		try {
 			insertDisk(config->getContext(), filename);
@@ -147,12 +147,12 @@ RealDrive::RealDrive(const string &driveName, const EmuTime &time)
 		// nothing specified
 		ejectDisk();
 	}
-	CommandController::instance()->registerCommand(this, name);
+	CommandController::instance().registerCommand(this, name);
 }
 
 RealDrive::~RealDrive()
 {
-	CommandController::instance()->unregisterCommand(this, name);
+	CommandController::instance().unregisterCommand(this, name);
 	delete disk;
 }
 
@@ -196,10 +196,10 @@ void RealDrive::setMotor(bool status, const EmuTime &time)
 		 * This is in real life dependent on the FDC and should be
 		 * investigated in detail to implement it properly... TODO */
 		if (motorStatus) {
-			Leds::instance()->setLed(Leds::FDD_ON); 
+			Leds::instance().setLed(Leds::FDD_ON); 
 		}
 		else {
-			Leds::instance()->setLed(Leds::FDD_OFF);
+			Leds::instance().setLed(Leds::FDD_OFF);
 		}
 	}
 }

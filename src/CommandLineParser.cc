@@ -35,13 +35,21 @@ const string CLIOption::getArgument(const string &option, list<string>& cmdLine)
 
 // class CommandLineParser
 
-CommandLineParser* CommandLineParser::instance()
+CommandLineParser& CommandLineParser::instance()
 {
 	static CommandLineParser oneInstance;
-	return &oneInstance;
+	return oneInstance;
 }
 
 CommandLineParser::CommandLineParser()
+	: msxConfig(MSXConfig::instance()),
+	  output(CliCommOutput::instance()),
+	  slotManager(CartridgeSlotManager::instance()),
+	  helpOption(*this),
+	  versionOption(*this),
+	  controlOption(*this),
+	  machineOption(*this),
+	  settingOption(*this)
 {
 	haveConfig = false;
 	haveSettings = false;
@@ -72,7 +80,7 @@ void CommandLineParser::registerFileClass(const string &str,
 void CommandLineParser::postRegisterFileTypes()
 {
 	try {
-		Config* config = MSXConfig::instance()->getConfigById("FileTypes");
+		Config* config = msxConfig.getConfigById("FileTypes");
 		for (map<string, CLIFileType*, caseltstr>::const_iterator i = fileClassMap.begin();
 		     i != fileClassMap.end(); ++i) {
 			list<Config::Parameter*> *extensions = config->getParametersWithClass(i->first);
@@ -153,7 +161,6 @@ void CommandLineParser::registerPostConfig(CLIPostConfig *post)
 
 CommandLineParser::ParseStatus CommandLineParser::parse(int argc, char **argv)
 {
-	MSXConfig *config = MSXConfig::instance();
 	parseStatus = RUN;
 	
 	CliExtension extension; // for -ext option
@@ -171,11 +178,11 @@ CommandLineParser::ParseStatus CommandLineParser::parse(int argc, char **argv)
 				// load default settings file in case the user didn't specify one
 				try {
 					SystemFileContext context;
-					config->loadSetting(context, "share/settings.xml");
+					msxConfig.loadSetting(context, "share/settings.xml");
 					haveSettings = true;
 				} catch (FileException &e) {
 					// settings.xml not found
-					CliCommOutput::instance().printWarning(
+					output.printWarning(
 						"No settings file found!");
 				} catch (ConfigException& e) {
 					throw FatalError("Error in default settings: "
@@ -190,10 +197,10 @@ CommandLineParser::ParseStatus CommandLineParser::parse(int argc, char **argv)
 				string machine("default");
 				try {
 					Config *machineConfig =
-						config->getConfigById("DefaultMachine");
+						msxConfig.getConfigById("DefaultMachine");
 					if (machineConfig->hasParameter("machine")) {
 						machine = machineConfig->getParameter("machine");
-						CliCommOutput::instance().printInfo(
+						output.printInfo(
 							"Using default machine: " + machine);
 					}
 				} catch (ConfigException &e) {
@@ -201,7 +208,7 @@ CommandLineParser::ParseStatus CommandLineParser::parse(int argc, char **argv)
 				}
 				try {
 					SystemFileContext context;
-					config->loadHardware(context,
+					msxConfig.loadHardware(context,
 						MACHINE_PATH + machine + "/hardwareconfig.xml");
 					haveConfig = true;
 				} catch (FileException& e) {
@@ -244,12 +251,12 @@ CommandLineParser::ParseStatus CommandLineParser::parse(int argc, char **argv)
 		                 "Use \"openmsx -h\" to see a list of available options");
 	}
 	// read existing cartridge slots from config
-	CartridgeSlotManager::instance()->readConfig();
+	slotManager.readConfig();
 	
 	// execute all postponed options
 	for (vector<CLIPostConfig*>::iterator it = postConfigs.begin();
 	     it != postConfigs.end(); it++) {
-		(*it)->execute(config);
+		(*it)->execute(msxConfig);
 	}
 	return parseStatus;
 }
@@ -257,11 +264,16 @@ CommandLineParser::ParseStatus CommandLineParser::parse(int argc, char **argv)
 
 // Control option
 
+CommandLineParser::ControlOption::ControlOption(CommandLineParser& parent_)
+	: parent(parent_)
+{
+}
+
 bool CommandLineParser::ControlOption::parseOption(const string &option,
 		list<string> &cmdLine)
 {
-	CliCommOutput::instance().enableXMLOutput();
-	CommandLineParser::instance()->parseStatus = CONTROL;
+	parent.output.enableXMLOutput();
+	parent.parseStatus = CONTROL;
 	return true;
 }
 
@@ -336,12 +348,16 @@ static void printItemMap(const map<string, set<string> >& itemMap)
 	}
 }
 
+CommandLineParser::HelpOption::HelpOption(CommandLineParser& parent_)
+	: parent(parent_)
+{
+}
+
 bool CommandLineParser::HelpOption::parseOption(const string &option,
 		list<string> &cmdLine)
 {
-	CommandLineParser* parser = CommandLineParser::instance();
-	parser->issuedHelp = true;
-	if (!parser->haveSettings) {
+	parent.issuedHelp = true;
+	if (!parent.haveSettings) {
 		return false; // not parsed yet, load settings first
 	}
 	cout << "openMSX " VERSION << endl;
@@ -353,8 +369,8 @@ bool CommandLineParser::HelpOption::parseOption(const string &option,
 	cout << "  this is the list of supported options:" << endl;
 	
 	map<string, set<string> > optionMap;
-	for (map<string, OptionData>::const_iterator it = parser->optionMap.begin();
-	     it != parser->optionMap.end(); ++it) {
+	for (map<string, OptionData>::const_iterator it = parent.optionMap.begin();
+	     it != parent.optionMap.end(); ++it) {
 		optionMap[it->second.option->optionHelp()].insert(it->first);
 	}
 	printItemMap(optionMap);
@@ -363,13 +379,13 @@ bool CommandLineParser::HelpOption::parseOption(const string &option,
 	cout << "  this is the list of supported file types:" << endl;
 
 	map<string, set<string> > extMap;
-	for (map<string, CLIFileType*>::const_iterator it = parser->fileTypeMap.begin();
-	     it != parser->fileTypeMap.end(); ++it) {
+	for (map<string, CLIFileType*>::const_iterator it = parent.fileTypeMap.begin();
+	     it != parent.fileTypeMap.end(); ++it) {
 		extMap[it->second->fileTypeHelp()].insert(it->first);
 	}
 	printItemMap(extMap);
 	
-	parser->parseStatus = EXIT;
+	parent.parseStatus = EXIT;
 	return true;
 }
 
@@ -379,13 +395,20 @@ const string& CommandLineParser::HelpOption::optionHelp() const
 	return text;
 }
 
+
+// class VersionOption
+
+CommandLineParser::VersionOption::VersionOption(CommandLineParser& parent_)
+	: parent(parent_)
+{
+}
+
 bool CommandLineParser::VersionOption::parseOption(const string &option,
 		list<string> &cmdLine)
 {
-	CommandLineParser* parser = CommandLineParser::instance();
-	parser->issuedHelp = true;
+	parent.issuedHelp = true;
 	cout << "openMSX " VERSION " -- built on "__DATE__ << endl;
-	parser->parseStatus = EXIT;
+	parent.parseStatus = EXIT;
 	return true;
 }
 
@@ -397,25 +420,28 @@ const string& CommandLineParser::VersionOption::optionHelp() const
 
 
 // Machine option
+CommandLineParser::MachineOption::MachineOption(CommandLineParser& parent_)
+	: parent(parent_)
+{
+}
+
 bool CommandLineParser::MachineOption::parseOption(const string &option,
 		list<string> &cmdLine)
 {
-	CommandLineParser* parser = CommandLineParser::instance();
-	if (parser->haveConfig) {
+	if (parent.haveConfig) {
 		throw FatalError("Only one machine option allowed");
 	}
-	if (parser->issuedHelp) {
+	if (parent.issuedHelp) {
 		return true;
 	}
 	try {
-		MSXConfig *config = MSXConfig::instance();
 		string machine(getArgument(option, cmdLine));
 		SystemFileContext context;
-		config->loadHardware(context,
+		parent.msxConfig.loadHardware(context,
 			MACHINE_PATH + machine + "/hardwareconfig.xml");
-		CliCommOutput::instance().printInfo(
+		parent.output.printInfo(
 			"Using specified machine: " + machine);
-		parser->haveConfig = true;
+		parent.haveConfig = true;
 	} catch (FileException& e) {
 		throw FatalError(e.getMessage());
 	} catch (ConfigException& e) {
@@ -431,18 +457,21 @@ const string& CommandLineParser::MachineOption::optionHelp() const
 
 
 // Setting Option
+	CommandLineParser::SettingOption::SettingOption(CommandLineParser& parent_)
+	: parent(parent_)
+{
+}
+
 bool CommandLineParser::SettingOption::parseOption(const string &option,
 		list<string> &cmdLine)
 {
-	CommandLineParser* parser = CommandLineParser::instance();
-	if (parser->haveSettings) {
+	if (parent.haveSettings) {
 		throw FatalError("Only one setting option allowed");
 	}
 	try {
-		MSXConfig *config = MSXConfig::instance();
 		UserFileContext context;
-		config->loadSetting(context, getArgument(option, cmdLine));
-		parser->haveSettings = true;
+		parent.msxConfig.loadSetting(context, getArgument(option, cmdLine));
+		parent.haveSettings = true;
 	} catch (FileException& e) {
 		throw FatalError(e.getMessage());
 	} catch (ConfigException& e) {

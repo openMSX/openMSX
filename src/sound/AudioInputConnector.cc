@@ -11,12 +11,12 @@ namespace openmsx {
 AudioInputConnector::AudioInputConnector(const string &name)
 	: Connector(name, new DummyAudioInputDevice())
 {
-	PluggingController::instance()->registerConnector(this);
+	PluggingController::instance().registerConnector(this);
 }
 
 AudioInputConnector::~AudioInputConnector()
 {
-	PluggingController::instance()->unregisterConnector(this);
+	PluggingController::instance().unregisterConnector(this);
 }
 
 const string& AudioInputConnector::getDescription() const

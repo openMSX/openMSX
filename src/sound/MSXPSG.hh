@@ -34,7 +34,7 @@ class MSXPSG : public MSXIODevice, public AY8910Interface
 		virtual void writeB(byte value, const EmuTime &time);
 
 	private:
-		CassettePortInterface *cassette;
+		CassettePortInterface& cassette;
 		bool keyLayoutBit;
 
 	// joystick ports

@@ -97,7 +97,7 @@ VDP::VDP(Device* config, const EmuTime& time)
 
 	// Get renderer type from config.
 	try {
-		Config* config = MSXConfig::instance()->getConfigById("renderer");
+		Config* config = MSXConfig::instance().getConfigById("renderer");
 		rendererName = config->getType();
 	} catch (ConfigException &e) {
 		// no renderer section
@@ -107,11 +107,11 @@ VDP::VDP(Device* config, const EmuTime& time)
 	// Create renderer.
 	renderer = RendererFactory::createRenderer(this);
 	vram->setRenderer(renderer, time);
-	Scheduler::instance()->setRenderer(renderer);
+	Scheduler::instance().setRenderer(renderer);
 
 	// Register console commands.
-	CommandController::instance()->registerCommand(&vdpRegsCmd, "vdpregs");
-	CommandController::instance()->registerCommand(&paletteCmd, "palette");
+	CommandController::instance().registerCommand(&vdpRegsCmd, "vdpregs");
+	CommandController::instance().registerCommand(&paletteCmd, "palette");
 
 	// Initialise time stamps.
 	// This will be done again by frameStart, but these have to be
@@ -133,8 +133,8 @@ VDP::VDP(Device* config, const EmuTime& time)
 VDP::~VDP()
 {
 	PRT_DEBUG("Destroying a VDP object");
-	CommandController::instance()->unregisterCommand(&vdpRegsCmd,  "vdpregs");
-	CommandController::instance()->unregisterCommand(&paletteCmd,  "palette");
+	CommandController::instance().unregisterCommand(&vdpRegsCmd,  "vdpregs");
+	CommandController::instance().unregisterCommand(&paletteCmd,  "palette");
 	delete cmdEngine;
 	delete renderer;
 	delete spriteChecker;
@@ -237,14 +237,14 @@ void VDP::executeUntil(const EmuTime &time, int userData) throw()
 	// Handle the various sync types.
 	switch (userData) {
 	case VSYNC: {
-		bool paused = Scheduler::instance()->getPauseSetting().getValue();
+		bool paused = Scheduler::instance().getPauseSetting().getValue();
 		// This frame is finished.
 		renderer->putImage(time, paused);
 		if (paused) {
 			// Now that frame is finished, it is OK to pause.
-			Scheduler::instance()->pause();
+			Scheduler::instance().pause();
 			// Start a new frame on unpause.
-			Scheduler::instance()->setSyncPoint(time, this, FRAME_START);
+			Scheduler::instance().setSyncPoint(time, this, FRAME_START);
 			break;
 		}
 		// Fall through into FRAME_START...
@@ -318,7 +318,7 @@ void VDP::scheduleDisplayStart(const EmuTime &time)
 {
 	// Remove pending DISPLAY_START sync point, if any.
 	if (displayStartSyncTime > time) {
-		Scheduler::instance()->removeSyncPoint(this, DISPLAY_START);
+		Scheduler::instance().removeSyncPoint(this, DISPLAY_START);
 		//cerr << "removing predicted DISPLAY_START sync point\n";
 	}
 
@@ -338,7 +338,7 @@ void VDP::scheduleDisplayStart(const EmuTime &time)
 
 	// Register new DISPLAY_START sync point.
 	if (displayStartSyncTime > time) {
-		Scheduler::instance()->setSyncPoint(
+		Scheduler::instance().setSyncPoint(
 			displayStartSyncTime, this, DISPLAY_START);
 		//cerr << "inserting new DISPLAY_START sync point\n";
 	}
@@ -361,7 +361,7 @@ void VDP::scheduleVScan(const EmuTime &time)
 
 	// Remove pending VSCAN sync point, if any.
 	if (vScanSyncTime > time) {
-		Scheduler::instance()->removeSyncPoint(this, VSCAN);
+		Scheduler::instance().removeSyncPoint(this, VSCAN);
 		//cerr << "removing predicted VSCAN sync point\n";
 	}
 
@@ -372,7 +372,7 @@ void VDP::scheduleVScan(const EmuTime &time)
 
 	// Register new VSCAN sync point.
 	if (vScanSyncTime > time) {
-		Scheduler::instance()->setSyncPoint(vScanSyncTime, this, VSCAN);
+		Scheduler::instance().setSyncPoint(vScanSyncTime, this, VSCAN);
 		//cerr << "inserting new VSCAN sync point\n";
 	}
 }
@@ -381,7 +381,7 @@ void VDP::scheduleHScan(const EmuTime &time)
 {
 	// Remove pending HSCAN sync point, if any.
 	if (hScanSyncTime > time) {
-		Scheduler::instance()->removeSyncPoint(this, HSCAN);
+		Scheduler::instance().removeSyncPoint(this, HSCAN);
 		hScanSyncTime = time;
 	}
 
@@ -417,7 +417,7 @@ void VDP::scheduleHScan(const EmuTime &time)
 		*/
 		hScanSyncTime = frameStartTime + horizontalScanOffset;
 		if (hScanSyncTime > time) {
-			Scheduler::instance()->setSyncPoint(hScanSyncTime, this, HSCAN);
+			Scheduler::instance().setSyncPoint(hScanSyncTime, this, HSCAN);
 		}
 	}
 }
@@ -444,7 +444,7 @@ void VDP::frameStart(const EmuTime &time)
 		renderer = RendererFactory::switchRenderer(this);
 		renderer->reset(time);
 		vram->setRenderer(renderer, time);
-		Scheduler::instance()->setRenderer(renderer);
+		Scheduler::instance().setRenderer(renderer);
 	}
 
 	// Toggle E/O.
@@ -476,7 +476,7 @@ void VDP::frameStart(const EmuTime &time)
 
 	// Schedule next VSYNC.
 	frameStartTime = time;
-	Scheduler::instance()->setSyncPoint(
+	Scheduler::instance().setSyncPoint(
 		frameStartTime + getTicksPerFrame(), this, VSYNC);
 	// Schedule DISPLAY_START, VSCAN and HSCAN.
 	scheduleDisplayStart(time);
@@ -885,7 +885,7 @@ void VDP::syncAtNextLine(SyncType type, const EmuTime &time)
 	int line = getTicksThisFrame(time) / TICKS_PER_LINE;
 	int ticks = (line + 1) * TICKS_PER_LINE;
 	EmuTime nextTime = frameStartTime + ticks;
-	Scheduler::instance()->setSyncPoint(nextTime, this, type);
+	Scheduler::instance().setSyncPoint(nextTime, this, type);
 }
 
 void VDP::updateColourBase(const EmuTime &time)

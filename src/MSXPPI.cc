@@ -16,23 +16,23 @@ namespace openmsx {
 // MSXDevice
 
 MSXPPI::MSXPPI(Device* config, const EmuTime& time)
-	: MSXDevice(config, time), MSXIODevice(config, time)
+	: MSXDevice(config, time), MSXIODevice(config, time),
+	  cassettePort(CassettePortFactory::instance()),
+	  cpuInterface(MSXCPUInterface::instance()),
+	  leds(Leds::instance()),
+	  renshaTurbo(RenShaTurbo::instance())
 {
 	short volume = (short)deviceConfig->getParameterAsInt("volume");
 	bool keyGhosting = deviceConfig->getParameterAsBool("key_ghosting", true);
 	keyboard = new Keyboard(keyGhosting);
 	i8255 = new I8255(*this, time);
 	click = new KeyClick(volume, time);
-	cpuInterface = MSXCPUInterface::instance();
-	cassettePort = CassettePortFactory::instance();
-	leds = Leds::instance();
 
 	reset(time);
 }
 
 MSXPPI::~MSXPPI()
 {
-	delete cassettePort;
 	delete keyboard;
 	delete i8255;
 	delete click;
@@ -92,7 +92,7 @@ byte MSXPPI::readA(const EmuTime &time)
 }
 void MSXPPI::writeA(byte value, const EmuTime &time)
 {
-	cpuInterface->setPrimarySlots(value);
+	cpuInterface.setPrimarySlots(value);
 }
 
 byte MSXPPI::readB(const EmuTime &time)
@@ -100,7 +100,7 @@ byte MSXPPI::readB(const EmuTime &time)
        if (selectedRow != 8) {
                return keyboard->getKeys()[selectedRow];
        } else {
-               return keyboard->getKeys()[8] | RenShaTurbo::instance()->getSignal(time);
+               return keyboard->getKeys()[8] | renshaTurbo.getSignal(time);
        }
 
 }
@@ -119,11 +119,11 @@ nibble MSXPPI::readC0(const EmuTime &time)
 }
 void MSXPPI::writeC1(nibble value, const EmuTime &time)
 {
-	cassettePort->setMotor(!(value & 1), time);	// 0=0n, 1=Off
-	cassettePort->cassetteOut(value & 2, time);
+	cassettePort.setMotor(!(value & 1), time);	// 0=0n, 1=Off
+	cassettePort.cassetteOut(value & 2, time);
 
 	Leds::LEDCommand caps = (value & 4) ? Leds::CAPS_OFF : Leds::CAPS_ON;
-	Leds::instance()->setLed(caps);
+	leds.setLed(caps);
 
 	click->setClick(value & 8, time);
 }

@@ -20,10 +20,9 @@ class Device;
 
 class MSXConfig
 {
-// Let GCC-3.2.3 be quiet...
-friend class dontGenerateWarningOnOlderCompilers;
-
 public:
+	static MSXConfig& instance();
+
 	/**
 	 * load a config file's content, and add it to
 	 *  the config data [can be called multiple times]
@@ -49,11 +48,6 @@ public:
 	void initDeviceIterator();
 	Device* getNextDevice();
 
-	/**
-	 * returns the one backend, for backwards compat
-	 */
-	static MSXConfig* instance();
-
 private:
 	MSXConfig();
 	~MSXConfig();
@@ -66,6 +60,9 @@ private:
 	list<Device*> devices;
 
 	list<Device*>::const_iterator device_iterator;
+
+	// Let GCC-3.2.3 be quiet...
+	friend class dontGenerateWarningOnOlderCompilers;
 };
 
 } // namespace openmsx

@@ -215,7 +215,7 @@ void I8251::writeCommand(byte value, const EmuTime& time)
 
 	if (!(command & CMD_TXEN)) {
 		// disable transmitter
-		Scheduler::instance()->removeSyncPoint(this, TRANS);
+		Scheduler::instance().removeSyncPoint(this, TRANS);
 		status |= STAT_TXRDY | STAT_TXEMPTY;
 	}
 	if (command & CMD_RSTERR) {
@@ -235,8 +235,7 @@ void I8251::writeCommand(byte value, const EmuTime& time)
 			recvReady = true;
 		} else {
 			// disable receiver
-			Scheduler::instance()->removeSyncPoint(this, RECV);
-			recvReady = false;
+			Scheduler::instance().removeSyncPoint(this, RECV);
 			status &= ~(STAT_PE | STAT_OE | STAT_FE); // TODO
 			status &= ~STAT_RXRDY;
 		}
@@ -310,7 +309,7 @@ void I8251::recvByte(byte value, const EmuTime& time)
 	recvReady = false;
 	if (clock.isPeriodic()) {
 		EmuTime next = time + (clock.getTotalDuration() * charLength);
-		Scheduler::instance()->setSyncPoint(next, this, RECV);
+		Scheduler::instance().setSyncPoint(next, this, RECV);
 	}
 }
 
@@ -329,7 +328,7 @@ void I8251::send(byte value, const EmuTime& time)
 	sendByte = value;
 	if (clock.isPeriodic()) {
 		EmuTime next = time + (clock.getTotalDuration() * charLength);
-		Scheduler::instance()->setSyncPoint(next, this, TRANS);
+		Scheduler::instance().setSyncPoint(next, this, TRANS);
 	}
 }
 
