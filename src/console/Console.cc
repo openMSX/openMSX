@@ -92,8 +92,8 @@ bool Console::isVisible()
 void Console::updateConsole()
 {
 	for (std::list<ConsoleRenderer*>::iterator it = renderers.begin();
-	     it != renderers.end();
-	     it++) {
+		it != renderers.end();
+		it++) {
 		(*it)->updateConsole();
 	}
 }
