@@ -45,8 +45,6 @@ class SystemFileContext : public FileContext
 {
 	public:
 		SystemFileContext();
-	
-	protected:
 		virtual const std::list<std::string> &getPaths();
 
 	private:

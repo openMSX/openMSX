@@ -85,6 +85,7 @@ openmsx_SOURCES=\
 	RomTypes.hh RomTypes.cc \
 	MSXRomPatchInterface.hh \
 	CommandLineParser.cc CommandLineParser.hh \
+	CliExtension.cc CliExtension.hh \
 	MSXDiskRomPatch.cc MSXDiskRomPatch.hh \
 	atoll.c \
 	md5.cc md5.hh \

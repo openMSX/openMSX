@@ -34,6 +34,7 @@ class CLIPostConfig
 		virtual void execute(MSXConfig *config) = 0;
 };
 
+
 class CommandLineParser
 {
 	public:

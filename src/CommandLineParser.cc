@@ -1,13 +1,13 @@
 // $Id$
 
+#include <string>
+#include <sstream>
+#include <cstdio>
 #include "CommandLineParser.hh"
 #include "libxmlx/xmlx.hh"
 #include "MSXConfig.hh"
 #include "CartridgeSlotManager.hh"
-
-#include <string>
-#include <sstream>
-#include <cstdio>
+#include "CliExtension.hh"
 
 
 CommandLineParser* CommandLineParser::instance()
@@ -50,6 +50,8 @@ void CommandLineParser::registerPostConfig(CLIPostConfig *post)
 
 void CommandLineParser::parse(int argc, char **argv)
 {
+	CliExtension extension;
+	
 	std::list<std::string> cmdLine;
 	for (int i = 1; i < argc; i++) {
 		cmdLine.push_back(argv[i]);

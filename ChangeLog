@@ -1,5 +1,14 @@
 $Id$
 
+2003-02-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented command line extensions:
+	   - you can load configuration files located in
+	      ~/.openMSX/extensions/
+	      /opt/openMSX/extensions/
+	     with the "-ext" command line option
+	   - example:
+	      ./openmsx SDNATCH1.DSK -ext scc+
+
 2003-02-19 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented "console_font" setting:
 	   - change the console font at run-time
