@@ -23,10 +23,12 @@ class LocalFile : public FileBase
 		virtual int getPos();
 		virtual const std::string getURL() const;
 		virtual const std::string getLocalName() const;
+		virtual bool isReadOnly() const;
 
 	private:
 		std::string filename;
 		FILE* file;
+		bool readOnly;
 };
 
 #endif

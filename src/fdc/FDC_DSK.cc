@@ -161,7 +161,7 @@ bool FDC_DSK::ready()
 
 bool FDC_DSK::writeProtected()
 {
-	return false;	// TODO
+	return file.isReadOnly();
 }
 
 bool FDC_DSK::doubleSided()

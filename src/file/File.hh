@@ -103,6 +103,12 @@ class File
 		 */
 		const std::string getLocalName() const;
 
+		/**
+		 * Check if this file is readonly
+		 * @result true iff file is readonly
+		 */
+		bool isReadOnly() const;
+
 	private:
 		FileBase *file;
 };

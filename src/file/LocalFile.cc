@@ -7,7 +7,8 @@
 
 
 LocalFile::LocalFile(const std::string &filename_, OpenMode mode)
-	: filename(FileOperations::expandTilde(filename_))
+	: filename(FileOperations::expandTilde(filename_)),
+	  readOnly(false)
 {
 	PRT_DEBUG("LocalFile: " << filename);
 
@@ -35,6 +36,7 @@ LocalFile::LocalFile(const std::string &filename_, OpenMode mode)
 		if (!file) {
 			// if that fails try read only
 			file = fopen(name, "rb");
+			readOnly = true;
 		}
 	}
 	if (!file) {
@@ -115,4 +117,9 @@ const std::string LocalFile::getURL() const
 const std::string LocalFile::getLocalName() const
 {
 	return filename;
+}
+
+bool LocalFile::isReadOnly() const
+{
+	return readOnly;
 }

@@ -76,3 +76,8 @@ const std::string File::getLocalName() const
 {
 	return file->getLocalName();
 }
+
+bool File::isReadOnly() const
+{
+	return file->isReadOnly();
+}

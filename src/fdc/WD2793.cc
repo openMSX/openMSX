@@ -189,11 +189,14 @@ void WD2793::setDataReg(byte value, const EmuTime &time)
 		if (dataAvailable == 0) {
 			PRT_DEBUG("FDC: Now we call the backend to write a sector");
 			try {
+				dataCurrent = 0;
 				drive->write(sectorReg, dataBuffer,
 				             onDiskTrack, onDiskSector,
 					     onDiskSide, onDiskSize);
+				dataAvailable = onDiskSize;
 				if (onDiskTrack != trackReg) {
 					// TODO we should wait for 6 index holes
+					PRT_DEBUG("FDC: Record not found");
 					statusReg |= RECORD_NOT_FOUND;
 					endCmd();
 					return;
@@ -208,10 +211,12 @@ void WD2793::setDataReg(byte value, const EmuTime &time)
 					setIRQ();
 					DRQ = false;
 				}
-				dataCurrent = 0;
-				dataAvailable = onDiskSize;
 			} catch (MSXException &e) {
 				// Backend couldn't write data
+				// TODO which status bit should be set?
+				statusReg |= RECORD_NOT_FOUND;
+				endCmd();
+				return;
 			}
 		}
 	} else if ((commandReg & 0xF0) == 0xF0) {
@@ -484,6 +489,7 @@ void WD2793::type2WaitLoad(const EmuTime& time)
 	
 	if (((commandReg & 0xE0) == 0xA0) && (drive->writeProtected())) {
 		// write command and write protected
+		PRT_DEBUG("FDC: write protected");
 		statusReg |= WRITE_PROTECTED;
 		endCmd();
 	} else {
@@ -565,6 +571,7 @@ void WD2793::writeTrackCmd(const EmuTime &time)
 
 	if (drive->writeProtected()) {
 		// write track command and write protected
+		PRT_DEBUG("FDC: write protected");
 		statusReg |= WRITE_PROTECTED;
 		endCmd();
 	} else {

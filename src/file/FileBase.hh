@@ -21,6 +21,7 @@ class FileBase
 		virtual int getPos() = 0;
 		virtual const std::string getURL() const = 0;
 		virtual const std::string getLocalName() const = 0;
+		virtual bool isReadOnly() const = 0;
 
 	protected:
 		byte* mmem;
