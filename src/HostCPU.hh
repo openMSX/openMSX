@@ -8,6 +8,13 @@
 
 namespace openmsx {
 
+/** Information about the host CPU's capabilities,
+  * which are determined at run time.
+  * Query capabilities like this:
+  *   if (ASM_X86 && cpu.hasMMX()) { ...inline MMX asm... }
+  * This makes sure instructions for a different CPU family are never fed
+  * to the assembler, which may not be able to handle them.
+  */
 class HostCPU {
 public:
 	/** Get singleton instance.
@@ -19,31 +26,13 @@ public:
 		return INSTANCE;
 	}
 
-	/* Note:
-	These methods must be inline and check the CPU family, so that they return
-	false at compile time if the family does not match. That way, we won't
-	generate code that will never be used, or could cause compile errors it
-	the assembler for another CPU family is not available.
-	*/
-
 	/** Does this CPU support the MMX instructions?
 	  */
-	bool hasMMX() const {
-		return ASM_X86 && mmxFlag;
-	}
+	bool hasMMX() const { return mmxFlag; }
 
 	/** Does this CPU support MMX and the MMX extensions that came with SSE?
 	  */
-	bool hasMMXEXT() const {
-		return ASM_X86 && mmxExtFlag;
-	}
-
-	/** Does this CPU support an impossible feature?
-	  * No CPU does; this method is for testing conditional compilation.
-	  */
-	bool hasImpossible() const {
-		return false;
-	}
+	bool hasMMXEXT() const { return mmxExtFlag; }
 
 private:
 	HostCPU();
