@@ -5,6 +5,9 @@
 #include "CommandController.hh"
 #include "EmuTime.hh"
 
+#include <fstream>
+using std::ofstream;
+
 
 // class VRAMWindow:
 
@@ -19,9 +22,7 @@ VRAMWindow::VRAMWindow() {
 // class VDPVRAM:
 
 VDPVRAM::VDPVRAM(VDP *vdp, int size)
-#ifdef DEBUG
 	: dumpVRAMCmd(this)
-#endif
 {
 	this->vdp = vdp;
 	this->size = size;
@@ -52,16 +53,12 @@ VDPVRAM::VDPVRAM(VDP *vdp, int size)
 	// TODO: Move this to cache registration.
 	bitmapCacheWindow.setMask(0x1FFFF, -1 << 17, EmuTime::zero);
 
-	#ifdef DEBUG
 	CommandController::instance()->registerCommand(&dumpVRAMCmd, "vramdump");
-	#endif
 }
 
 VDPVRAM::~VDPVRAM()
 {
-	#ifdef DEBUG
 	CommandController::instance()->unregisterCommand(&dumpVRAMCmd, "vramdump");
-	#endif
 
 	delete[] data;
 }
@@ -97,10 +94,6 @@ void VDPVRAM::setRenderer(Renderer *renderer, const EmuTime &time) {
 	bitmapVisibleWindow.setObserver(renderer);
 }
 
-#ifdef DEBUG
-#include <fstream>
-
-using std::ofstream;
 
 // class DumpVRAMCmd
 
@@ -117,7 +110,6 @@ void VDPVRAM::DumpVRAMCmd::execute(const vector<string> &tokens)
 
 void VDPVRAM::DumpVRAMCmd::help(const vector<string> &tokens) const
 {
-	print("[DEBUG] Dump vram content to file \"vramdump\"");
+	print("Dump vram content to file \"vramdump\"");
 }
 
-#endif

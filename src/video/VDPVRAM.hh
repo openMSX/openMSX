@@ -456,7 +456,6 @@ private:
 	  */
 	EmuTimeFreq<VDP::TICKS_PER_SECOND> currentTime;
 
-#ifdef DEBUG
 	class DumpVRAMCmd : public Command {
 	public:
 		DumpVRAMCmd(VDPVRAM *vram_);
@@ -466,7 +465,6 @@ private:
 		VDPVRAM *vram;
 	} dumpVRAMCmd;
 	friend class DumpVRAMCmd;
-#endif
 };
 
 #endif //__VDPVRAM_HH__
