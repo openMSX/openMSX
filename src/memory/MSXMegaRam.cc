@@ -39,6 +39,10 @@ MSXMegaRam::MSXMegaRam(Device* config, const EmuTime &time)
 	maxBlock = blocks - 1;
 	ram = new byte[blocks * 0x2000];
 	
+	for (int i = 0; i < 4; i++) {
+		setBank(i, 0);
+	}
+	
 	reset(time);
 }
 
@@ -49,10 +53,8 @@ MSXMegaRam::~MSXMegaRam()
 
 void MSXMegaRam::reset(const EmuTime &time)
 {
-	for (int i = 0; i < 4; i++) {
-		setBank(i, 0);
-	}
-	writeMode = false;
+	// selected banks don't change after reset
+	writeMode = false; // TODO changed after reset?
 }
 
 byte MSXMegaRam::readMem(word address, const EmuTime &time)
