@@ -52,6 +52,7 @@ MSXMotherBoard::MSXMotherBoard()
 
 	// Register console commands.
 	Console::instance()->registerCommand(this, "slotmap");
+	Console::instance()->registerCommand(this, "slotselect");
 
 }
 
@@ -107,7 +108,15 @@ void MSXMotherBoard::registerSlottedDevice(MSXMemDevice *device, int primSl, int
 	}
 	if (SlotLayout[primSl][secSl][page] == DummyDevice::instance()) {
 		PRT_DEBUG(device->getName() << " registers at "<<primSl<<" "<<secSl<<" "<<page);
-		SlotLayout[primSl][secSl][page] = device;
+		if (isSubSlotted[primSl]) {
+			SlotLayout[primSl][secSl][page] = device;
+		} else {
+			// Slot is not expanded. Register in every subslot to make
+			// sure this device is visible in every subslot selection.
+			for (secSl = 0; secSl < 4; secSl++) {
+				SlotLayout[primSl][secSl][page] = device;
+			}
+		}
 	} else {
 		PRT_ERROR(device->getName() << " trying to register taken slot");
 	}
@@ -280,17 +289,46 @@ void MSXMotherBoard::printSlotMapPages(
 	}
 }
 
+std::string MSXMotherBoard::getSlotSelection()
+{
+	std::ostringstream out;
+	for (int page = 0; page < 4; page++) {
+		char pageStr[5];
+		snprintf(pageStr, sizeof(pageStr), "%04X", page * 0x4000);
+		out << pageStr << ": ";
+
+		int prim = PrimarySlotState[page];
+		int sec = (SubSlot_Register[prim] >> (page * 2)) & 3;
+		if (isSubSlotted[prim]) {
+			out << "slot " << prim << "." << sec << "\n";
+		} else {
+			out << "slot " << prim << "\n";
+		}
+	}
+	return out.str();
+}
+
 void MSXMotherBoard::ConsoleCallback(char *commandLine)
 {
-	assert(strncmp(commandLine, "slotmap", 7) == 0);
-	//cout << getSlotMap();
-	Console::instance()->printOnConsole(getSlotMap());
+	if (strncmp(commandLine, "slotmap", 7) == 0) {
+		Console::instance()->printOnConsole(getSlotMap());
+	} else if (strncmp(commandLine, "slotselect", 10) == 0) {
+		Console::instance()->printOnConsole(getSlotSelection());
+	} else {
+		assert(false);
+	}
 }
 
 void MSXMotherBoard::ConsoleHelp(char *commandLine)
 {
-	assert(strncmp(commandLine, "slotmap", 7) == 0);
-	Console::instance()->printOnConsole(
-		"Prints which slots contain which devices.");
+	if (strncmp(commandLine, "slotmap", 7) == 0) {
+		Console::instance()->printOnConsole(
+			"Prints which slots contain which devices.");
+	} else if (strncmp(commandLine, "slotselect", 10) == 0) {
+		Console::instance()->printOnConsole(
+			"Prints which slots are currently selected.");
+	} else {
+		assert(false);
+	}
 }
 

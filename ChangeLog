@@ -1,5 +1,10 @@
 $Id$
 
+2002-02-04 Maarten ter Huurne <mth@stack.nl>
+	* Fixed bug where devices in non-expanded slots would only be
+	  visible when subslot 0 was selected.
+	* Implemented "slotselect" console command.
+
 2002-02-03 Maarten ter Huurne <mth@stack.nl>
 	* Implemented "slotmap" console command.
 	* Console::printOnConsole now accepts multi-line texts.

@@ -158,9 +158,16 @@ class MSXMotherBoard : public CPUInterface, private ConsoleInterface
 		  */
 		std::string getSlotMap();
 
+		/** Gets a string representation of the currently selected slots.
+		  * @return a multi-line string describing which slot are currently
+		  *     selected.
+		  */
+		std::string getSlotSelection();
+
 		/*
 		 * Should only be used by PPI
-		 *  TODO make friend
+		 *  TODO: make friend
+		 *  TODO: rename to setPrimarySlots
 		 */
 		void set_A8_Register(byte value);
 
