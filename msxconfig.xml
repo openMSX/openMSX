@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!-- $Id$ -->
+<msxconfig>
+  <device>
+    <type>DummyDevice</type>
+	<slotted>
+	  <page>0</page>
+	  <ps>0</ps>
+	  <ss>0</ss>
+	</slotted>
+	<parameter name="hello">world</parameter>
+	<parameter name="hi">alpha centauri</parameter>
+  </device>
+  <device>
+    <type>VDP</type>
+	<parameter name="foo_bug">no</parameter>
+  </device>
+</msxconfig>
