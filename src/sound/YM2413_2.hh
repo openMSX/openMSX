@@ -7,11 +7,11 @@
 #include "SoundDevice.hh"
 #include "Mixer.hh"
 #include "YM2413Core.hh"
+#include "Debuggable.hh"
 
 namespace openmsx {
 
 class EmuTime;
-
 
 class Slot
 {
@@ -80,7 +80,7 @@ public:
 	byte sus;	// sus on/off (release speed in percussive mode)
 };
 
-class YM2413_2 : public YM2413Core, public SoundDevice
+class YM2413_2 : public YM2413Core, private SoundDevice, private Debuggable
 {
 public:
 	YM2413_2(const string& name, short volume, const EmuTime& time,
@@ -90,13 +90,6 @@ public:
 	void reset(const EmuTime &time);
 	void writeReg(byte r, byte v, const EmuTime &time);
 	
-	// SoundDevice
-	virtual const string& getName() const;
-	virtual const string& getDescription() const;
-	virtual void setInternalVolume(short newVolume);
-	virtual int* updateBuffer(int length) throw();
-	virtual void setSampleRate(int sampleRate);
-
 private:
 	void checkMute();
 	bool checkMuteHelper();
@@ -115,7 +108,21 @@ private:
 	void load_instrument(byte chan, byte slot, byte* inst);
 	void update_instrument_zero(byte r);
 	void setRhythmMode(bool newMode);
+	
+	// SoundDevice
+	virtual const string& getName() const;
+	virtual const string& getDescription() const;
+	virtual void setInternalVolume(short newVolume);
+	virtual int* updateBuffer(int length) throw();
+	virtual void setSampleRate(int sampleRate);
 
+	// Debuggable
+	virtual unsigned getSize() const;
+	//virtual const string& getDescription() const;  // also in SoundDevice!!
+	virtual byte read(unsigned address);
+	virtual void write(unsigned address, byte value);
+
+	
 	int* buffer;
 	short maxVolume;
 
@@ -151,6 +158,7 @@ private:
 	byte LFO_PM;
 
 	const string name;
+	byte reg[0x40];
 };
 
 } // namespace openmsx

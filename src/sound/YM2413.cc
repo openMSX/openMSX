@@ -11,9 +11,10 @@
 #include <algorithm>
 #include "YM2413.hh"
 #include "Mixer.hh"
+#include "Debugger.hh"
+#include "Scheduler.hh"
 
 using std::min;
-
 
 namespace openmsx {
 
@@ -588,11 +589,14 @@ YM2413::YM2413(const string& name_, short volume, const EmuTime& time,
 	buffer = new int[bufSize];
 	
 	reset(time);
+
+	Debugger::instance().registerDebuggable(name, *this);
 }
 
 // Destructor
 YM2413::~YM2413()
 {
+	Debugger::instance().unregisterDebuggable(name, *this);
 	Mixer::instance().unregisterSound(this);
 	delete[] buffer;
 }
@@ -1187,6 +1191,24 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 	reg[regis] = data;
 	Mixer::instance().unlock();
 	checkMute();
+}
+
+
+// Debuggable
+
+unsigned YM2413::getSize() const
+{
+	return 0x40;
+}
+
+byte YM2413::read(unsigned address)
+{
+	return reg[address];
+}
+
+void YM2413::write(unsigned address, byte value)
+{
+	writeReg(address, value, Scheduler::instance().getCurrentTime());
 }
 
 } // namespace openmsx

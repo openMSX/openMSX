@@ -2,6 +2,7 @@ $Id$
 
 2004-03-04 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Made memory mapper debuggable
+	* Made YM2413 debuggable
 
 2004-03-03 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented R800 refresh delay:

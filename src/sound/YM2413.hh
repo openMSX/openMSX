@@ -7,13 +7,13 @@
 #include "SoundDevice.hh"
 #include "Mixer.hh"
 #include "YM2413Core.hh"
+#include "Debuggable.hh"
 
 namespace openmsx {
 
 class EmuTime;
 
-
-class YM2413 : public YM2413Core, public SoundDevice
+class YM2413 : public YM2413Core, private SoundDevice, private Debuggable
 {
 	class Patch {
 	public:
@@ -169,6 +169,12 @@ private:
 	inline static int LOWBITS(int c, int b);
 	inline static int EXPAND_BITS(int x, int s, int d);
 	inline static unsigned int rate_adjust(double x, int sampleRate);
+
+	// Debuggable
+	virtual unsigned getSize() const;
+	//virtual const string& getDescription() const;  // also in SoundDevice!!
+	virtual byte read(unsigned address);
+	virtual void write(unsigned address, byte value);
 
 private:
 	static const int CLOCK_FREQ = 3579545;

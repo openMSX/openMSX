@@ -21,9 +21,10 @@
  *    Which games use this feature ?
  */
 
-#include "YM2413_2.hh"
 #include <cmath>
-
+#include "YM2413_2.hh"
+#include "Debugger.hh"
+#include "Scheduler.hh"
 
 namespace openmsx {
 
@@ -1174,6 +1175,7 @@ void YM2413_2::setRhythmMode(bool newMode)
 void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 {
 	PRT_DEBUG("YM2413: write reg " << (int)r << " " << (int)v);
+	reg[r] = v;
 
 	// update the output buffer before changing the register
 	Mixer::instance().updateStream(time);
@@ -1368,10 +1370,13 @@ YM2413_2::YM2413_2(const string& name_, short volume, const EmuTime& time,
 	int bufSize = Mixer::instance().registerSound(this, volume, mode);
 	buffer = new int[bufSize];
 	reset(time);
+
+	Debugger::instance().registerDebuggable(name, *this);
 }
 
 YM2413_2::~YM2413_2()
 {
+	Debugger::instance().unregisterDebuggable(name, *this);
 	Mixer::instance().unregisterSound(this);
 	delete[] buffer;
 }
@@ -1447,6 +1452,24 @@ bool YM2413_2::checkMuteHelper()
 void YM2413_2::setInternalVolume(short newVolume)
 {
 	maxVolume = newVolume;
+}
+
+
+// Debuggable
+
+unsigned YM2413_2::getSize() const
+{
+	return 0x40;
+}
+
+byte YM2413_2::read(unsigned address)
+{
+	return reg[address];
+}
+
+void YM2413_2::write(unsigned address, byte value)
+{
+	writeReg(address, value, Scheduler::instance().getCurrentTime());
 }
 
 } // namespace openmsx
