@@ -82,6 +82,8 @@ private:
 	void renderGraphic2(Pixel *pixelPtr, int line);
 	void renderGraphic4(Pixel *pixelPtr, int line);
 	void renderGraphic5(Pixel *pixelPtr, int line);
+	void renderGraphic6(Pixel *pixelPtr, int line);
+	void renderGraphic7(Pixel *pixelPtr, int line);
 	void renderMulti(Pixel *pixelPtr, int line);
 	void renderMultiQ(Pixel *pixelPtr, int line);
 	void renderBogus(Pixel *pixelPtr, int line);

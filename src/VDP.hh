@@ -143,7 +143,18 @@ public:
 	  * @return True iff the current mode is a bitmap mode.
 	  */
 	inline bool isBitmapMode() {
-		return (displayMode & 0x10) || (displayMode & 0x0C) == 0x0C;
+		return (displayMode & 0x10) || ((displayMode & 0x0C) == 0x0C);
+	}
+
+	/** Is VRAM "planar" in the current display mode?
+	  * Graphic6 and 7 spread their bytes over two VRAM ICs,
+	  * such that the even bytes go to the first half of the address
+	  * space and the odd bytes to the second half.
+	  * @return True iff the current display mode has planar VRAM.
+	  */
+	inline bool isPlanar() {
+		// TODO: Is the display mode check OK? Profile undefined modes.
+		return (displayMode & 0x14) == 0x14;
 	}
 
 	/** Read a byte from the VRAM.

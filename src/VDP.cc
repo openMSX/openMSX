@@ -625,10 +625,13 @@ void VDP::writeIO(byte port, byte value, const EmuTime &time)
 		// Then sync sprite checking, which only reads VRAM and
 		// is used by the Renderer.
 		updateSprites(time);
-		// Then sync with the Renderer.
-		setVRAM(addr, value, time);
+		// Then sync with the Renderer and commit the change.
+		if (isPlanar()) {
+			setVRAM(((addr >> 1) | (addr << 16)) & vramMask, value, time);
+		} else {
+			setVRAM(addr, value, time);
+		}
 
-		// Finally, commit the change.
 		vramPointer = (vramPointer + 1) & 0x3FFF;
 		if (vramPointer == 0 && (displayMode & 0x18)) {
 			// In MSX2 video modes, pointer range is 128K.
@@ -883,11 +886,16 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		break;
 	}
 	case 7:
-		if ((val ^ oldval) & 0xF0) {
+		if (change & 0xF0) {
 			renderer->updateForegroundColour(val >> 4, time);
 		}
-		if ((val ^ oldval) & 0x0F) {
+		if (change & 0x0F) {
 			renderer->updateBackgroundColour(val & 0x0F, time);
+		}
+		break;
+	case 8:
+		if (change & 0x20) {
+			renderer->updateTransparency((val & 0x20) == 0, time);
 		}
 		break;
 	case 16:
@@ -895,7 +903,7 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		paletteLatch = -1;
 		break;
 	case 18:
-		if ((val ^ oldval) & 0x0F) {
+		if (change & 0x0F) {
 			renderer->updateHorizontalAdjust((val & 0x0F) ^ 0x07, time);
 		}
 		break;

@@ -2,6 +2,9 @@
 
 /*
 TODO:
+- What is the correct border colour in Graphic 7?
+- Implement sprite colour in Graphic 7.
+- Implement sprite pixels in Graphic 5.
 - Is it possible to combine dirtyPattern and dirtyColour into a single
   dirty array?
   Pitfalls:
@@ -141,7 +144,7 @@ template <class Pixel> SDLHiRenderer<Pixel>::RenderMethod
 		&SDLHiRenderer::renderBogus,
 		&SDLHiRenderer::renderBogus,
 		&SDLHiRenderer::renderBogus,
-		&SDLHiRenderer::renderBogus, // renderGraphic6
+		&SDLHiRenderer::renderGraphic6,
 		&SDLHiRenderer::renderBogus,
 		&SDLHiRenderer::renderBogus,
 		&SDLHiRenderer::renderBogus,
@@ -150,7 +153,7 @@ template <class Pixel> SDLHiRenderer<Pixel>::RenderMethod
 		&SDLHiRenderer::renderBogus,
 		&SDLHiRenderer::renderBogus,
 		&SDLHiRenderer::renderBogus,
-		&SDLHiRenderer::renderBogus, // renderGraphic7
+		&SDLHiRenderer::renderGraphic7,
 		&SDLHiRenderer::renderBogus,
 		&SDLHiRenderer::renderBogus,
 		&SDLHiRenderer::renderBogus
@@ -194,7 +197,7 @@ template <class Pixel> SDLHiRenderer<Pixel>::DirtyChecker
 		&SDLHiRenderer::checkDirtyBitmap, // Graphic 7
 		&SDLHiRenderer::checkDirtyBitmap,
 		&SDLHiRenderer::checkDirtyBitmap,
-		&SDLHiRenderer::checkDirtyBitmap,
+		&SDLHiRenderer::checkDirtyBitmap
 	};
 
 template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
@@ -353,7 +356,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updatePalette(
 		V9938_COLOURS[(grb >> 4) & 7][(grb >> 8) & 7][grb & 7];
 
 	// Is this the background colour?
-	if (vdp->getBackgroundColour() == index) {
+	if (vdp->getBackgroundColour() == index && vdp->getTransparency()) {
 		dirtyBackground = true;
 		// Transparent pixels have background colour.
 		palFg[0] = palBg[vdp->getBackgroundColour()];
@@ -684,6 +687,39 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderGraphic5(
 	} while (addr & 127);
 }
 
+template <class Pixel> void SDLHiRenderer<Pixel>::renderGraphic6(
+	Pixel *pixelPtr, int line)
+{
+	int addr = line << 7;
+	do {
+		byte colour = vdp->getVRAM(addr);
+		*pixelPtr++ = palFg[colour >> 4];
+		*pixelPtr++ = palFg[colour & 0x0F];
+		colour = vdp->getVRAM(0x10000 | addr);
+		*pixelPtr++ = palFg[colour >> 4];
+		*pixelPtr++ = palFg[colour & 0x0F];
+	} while (++addr & 127);
+}
+
+template <class Pixel> void SDLHiRenderer<Pixel>::renderGraphic7(
+	Pixel *pixelPtr, int line)
+{
+	int addr = line << 7;
+	do {
+		byte rgb = vdp->getVRAM(addr);
+		pixelPtr[0] = pixelPtr[1] = V9938_COLOURS
+			[(rgb & 0xE0) >> 5]
+			[(rgb & 0x1C) >> 2]
+			[((rgb & 0x03) << 1) | ((rgb & 0x02) >> 1)];
+		rgb = vdp->getVRAM(0x10000 | addr);
+		pixelPtr[2] = pixelPtr[3] = V9938_COLOURS
+			[(rgb & 0xE0) >> 5]
+			[(rgb & 0x1C) >> 2]
+			[((rgb & 0x03) << 1) | ((rgb & 0x02) >> 1)];
+		pixelPtr += 4;
+	} while (++addr & 127);
+}
+
 template <class Pixel> void SDLHiRenderer<Pixel>::renderMulti(
 	Pixel *pixelPtr, int line)
 {
@@ -950,15 +986,20 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	if (vdp->isBitmapMode()) {
 		int line = scrolledLine;
 		int n = numLines;
+		bool planar = vdp->isPlanar();
 		do {
-			// TODO: Use variables to store settings that are different
-			//   in SCREEN7/8.
-			int addr = vdp->getNameMask() & (0x18000 | (line << 7));
+			int addr = planar
+				? vdp->getNameMask() & (0x08000 | (line << 7))
+				: vdp->getNameMask() & (0x18000 | (line << 7));
 			int vramLine = addr >> 7;
-			if (lineValidInMode[vramLine] != vdp->getDisplayMode()) {
+			if ( (lineValidInMode[vramLine] != vdp->getDisplayMode())
+			|| (planar && (lineValidInMode[vramLine | 512] != vdp->getDisplayMode())) ) {
 				(this->*renderMethod)
 					(getLinePtr(displayCache, vramLine), vramLine);
 				lineValidInMode[vramLine] = vdp->getDisplayMode();
+				if (planar) {
+					lineValidInMode[vramLine | 512] = vdp->getDisplayMode();
+				}
 			}
 			line++;
 		} while (--n);
