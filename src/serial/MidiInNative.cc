@@ -108,7 +108,7 @@ void MidiInNative::procShortMsg(DWORD param)
 		queue.push_back(param & 0xFF);
 		param >>= 8;
 	}
-	Scheduler::instance().setAsyncPoint(this);
+	Scheduler::instance().setSyncPoint(Scheduler::ASAP,this);
 	lock.up();
 }
 
