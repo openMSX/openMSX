@@ -6063,7 +6063,7 @@
   </rom>
   <rom>
     <title>Wizardry</title>
-    <romtype>ASCII8-8</romtype>
+    <romtype>WIZARDRY</romtype>
     <sha1>34635bf3518c7b33164f3d96da769c7a01102d28</sha1>
     <year>1988</year>
     <company>Ascii</company>

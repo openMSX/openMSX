@@ -11,7 +11,9 @@ namespace openmsx {
 class RomAscii8_8 : public Rom8kBBlocks
 {
 public:
-	RomAscii8_8(Config* config, const EmuTime& time, Rom* rom);
+	enum SubType { ASCII8_8, KOEI_8, KOEI_32, WIZARDRY };
+	RomAscii8_8(Config* config, const EmuTime& time, Rom* rom,
+	            SubType subType);
 	virtual ~RomAscii8_8();
 	
 	virtual void reset(const EmuTime& time);
@@ -21,6 +23,9 @@ public:
 private:
 	SRAM sram;
 	byte sramEnabled;
+	byte sramBlock[8];
+	byte sramEnableBit;
+	byte sramPages;
 };
 
 } // namespace openmsx

@@ -1,26 +1,34 @@
 // $Id$
 
-// ASCII 8kB cartridges with 8kB SRAM
+// ASCII 8kB based cartridges with SRAM
+//   - ASCII8-8  /  KOEI-8  /  KOEI-32  /  WIZARDRY
 // 
-// this type is used in Xanadu and Royal Blood
-//
 // The address to change banks:
 //  bank 1: 0x6000 - 0x67ff (0x6000 used)
 //  bank 2: 0x6800 - 0x6fff (0x6800 used)
 //  bank 3: 0x7000 - 0x77ff (0x7000 used)
 //  bank 4: 0x7800 - 0x7fff (0x7800 used)
 //
-//  To select SRAM set bit 5/6/7 (depends on size) of the bank.
-//  The SRAM can only be written to if selected in bank 3 or 4.
+//  To select SRAM set bit 7 (for WIZARDRY) or the bit just above the
+//  rom selection bits (bit 5/6/7 depending on ROM size). For KOEI-32
+//  the lowest bits indicate which SRAM page is selected. SRAM is
+//  readable at 0x8000-0xBFFF. For the KOEI-x types SRAM is also
+//  readable at 0x4000-0x5FFF
 
 #include "RomAscii8_8.hh"
 
 namespace openmsx {
 
-RomAscii8_8::RomAscii8_8(Config* config, const EmuTime& time, Rom* rom)
+RomAscii8_8::RomAscii8_8(Config* config, const EmuTime& time, Rom* rom,
+		         SubType subType)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom),
-	  sram(0x2000, config)
+	  sram((subType == KOEI_32) ? 0x8000 : 0x2000, config)
 {
+	sramEnableBit = (subType == WIZARDRY) ? 0x80
+	                                     : rom->getSize() / 0x2000;
+	sramPages = ((subType == KOEI_8) || (subType == KOEI_32))
+	          ? 0x34 : 0x30;
+
 	reset(time);
 }
 
@@ -46,17 +54,21 @@ void RomAscii8_8::writeMem(word address, byte value, const EmuTime& time)
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		// bank switching
 		byte region = ((address >> 11) & 3) + 2;
-		byte sramEnableBit = rom->getSize() / 8192;
 		if (value & sramEnableBit) {
-			setBank(region, sram.getBlock());
-			sramEnabled |= (1 << region);
+			sramBlock[region] = value & ((sram.getSize() / 0x2000) - 1);
+			setBank(region, sram.getBlock(sramBlock[region] * 0x2000));
+			sramEnabled |= (1 << region) & sramPages;
 		} else {
 			setRom(region, value);
 			sramEnabled &= ~(1 << region);
 		}
-	} else if ((1 << (address >> 13)) & sramEnabled & 0x30) {
-		// write to SRAM
-		sram.write(address & 0x1FFF, value);
+	} else {
+		byte bank = address >> 13;
+		if ((1 << bank) & sramEnabled) {
+			// write to SRAM
+			word addr = (sramBlock[bank] * 0x2000) + (address & 0x1FFF);
+			sram.write(addr, value);
+		}
 	}
 }
 
@@ -65,9 +77,11 @@ byte* RomAscii8_8::getWriteCacheLine(word address) const
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		// bank switching
 		return NULL;
-	} else if ((1 << (address >> 13)) & sramEnabled & 0x30) {
+	} else if ((1 << (address >> 13)) & sramEnabled) {
 		// write to SRAM
-		return sram.getBlock(address & 0x1FFF);
+		byte bank = address >> 13;
+		word addr = (sramBlock[bank] * 0x2000) + (address & 0x1FFF);
+		return sram.getBlock(addr);
 	} else {
 		return unmappedWrite;
 	}

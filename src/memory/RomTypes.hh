@@ -49,6 +49,7 @@ enum MapperType {
 	NATIONAL     = 64 + 4,
 	KOEI_8       = 64 + 5,
 	KOEI_32      = 64 + 6,
+	WIZARDRY     = 64 + 7,
 
 	HAS_DAC      = 128,
 	MAJUTSUSHI   = 128 + 0,

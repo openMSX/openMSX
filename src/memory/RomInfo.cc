@@ -99,6 +99,7 @@ MapperType RomInfo::nameToMapperType(const string& name)
 		mappertype["ASCII8-8"]    = ASCII8_8; 
 		mappertype["KOEI-8"]      = KOEI_8; 
 		mappertype["KOEI-32"]     = KOEI_32; 
+		mappertype["WIZARDRY"]    = WIZARDRY; 
 
 		mappertype["GAMEMASTER2"] = GAME_MASTER2;
 		mappertype["RC755"]       = GAME_MASTER2;
