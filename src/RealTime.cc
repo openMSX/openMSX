@@ -10,6 +10,7 @@
 #include "CommandController.hh"
 #include "Scheduler.hh"
 #include "Timer.hh"
+#include "EventDistributor.hh"
 
 namespace openmsx {
 
@@ -103,8 +104,12 @@ void RealTime::internalSync(const EmuTime& time, bool allowSleep)
 			idealRealTime = currentRealTime - MAX_LAG / 2;
 		}
 	}
-	emuTime = time;
+	if (allowSleep) {
+		EventDistributor::instance().sync(time);
+	}
 
+	emuTime = time;
+	
 	// Schedule again in future
 	scheduler.setSyncPoint(time + getEmuDuration(SYNC_INTERVAL), this);
 }

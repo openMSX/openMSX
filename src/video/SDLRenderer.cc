@@ -82,6 +82,7 @@ template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::finishFrame()
 {
 	putImage();
+	Event* finishFrameEvent = new SimpleEvent<FINISH_FRAME_EVENT>();
 	EventDistributor::instance().distributeEvent(finishFrameEvent);
 }
 

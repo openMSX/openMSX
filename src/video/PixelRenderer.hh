@@ -10,7 +10,6 @@
 #include "SettingListener.hh"
 #include "RenderSettings.hh"
 #include "DisplayMode.hh"
-#include "Event.hh"
 #include "InfoTopic.hh"
 
 namespace openmsx {
@@ -154,10 +153,6 @@ protected:
 	/** The sprite checker whose sprites are rendered.
 	  */
 	SpriteChecker *spriteChecker;
-
-	/** This event gets distibuted when a frame is rendered.
-	 */
-	SimpleEvent<FINISH_FRAME_EVENT> finishFrameEvent;
 
 private:
 	/** Indicates whether the area to be drawn is border or display. */

@@ -3,6 +3,9 @@ $Id$
 2004-04-10 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Don't allow one Pluggable to be plugged in two Connectors at once
 	* Also send update event when media is ejected (diska eject)
+	* Experimental:
+	    delay input events (currently by a fixed time) to avoid key misses
+	    
 
 2004-04-09 Maarten ter Huurne <maarten@treewalker.org>
 	* Added support for compilation on FreeBSD 5.

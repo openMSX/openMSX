@@ -24,14 +24,12 @@ const EmuTime Scheduler::ASAP;
 
 Scheduler::Scheduler()
 	: sem(1), depth(0), paused(false), powered(false), needReset(false),
-	  renderer(NULL), motherboard(NULL),
+	  renderer(NULL), motherboard(NULL), eventGenerator(NULL),
 	  pauseSetting("pause", "pauses the emulation", paused),
 	  powerSetting("power", "turn power on/off", powered),
 	  leds(Leds::instance()),
 	  cpu(MSXCPU::instance()),
 	  commandController(CommandController::instance()),
-	  eventDistributor(EventDistributor::instance()),
-	  eventGenerator(InputEventGenerator::instance()),
 	  quitCommand(*this),
 	  resetCommand(*this)
 {
@@ -45,12 +43,10 @@ Scheduler::Scheduler()
 	commandController.registerCommand(&quitCommand, "quit");
 	commandController.registerCommand(&quitCommand, "exit");
 	commandController.registerCommand(&resetCommand, "reset");
-	eventDistributor.registerEventListener(QUIT_EVENT, *this);
 }
 
 Scheduler::~Scheduler()
 {
-	eventDistributor.unregisterEventListener(QUIT_EVENT, *this);
 	commandController.unregisterCommand(&resetCommand, "reset");
 	commandController.unregisterCommand(&quitCommand, "exit");
 	commandController.unregisterCommand(&quitCommand, "quit");
@@ -63,6 +59,28 @@ Scheduler& Scheduler::instance()
 {
 	static Scheduler oneInstance;
 	return oneInstance;
+}
+
+void Scheduler::setRenderer(Renderer* renderer_)
+{
+	renderer = renderer_;
+}
+
+void Scheduler::setMotherBoard(MSXMotherBoard* motherboard_)
+{
+	motherboard = motherboard_;
+}
+
+void Scheduler::setEventDistributor(EventDistributor* eventDistributor)
+{
+	eventDistributor->registerEventListener(QUIT_EVENT, *this,
+	                                       EventDistributor::NATIVE);
+}
+
+void Scheduler::unsetEventDistributor(EventDistributor* eventDistributor)
+{
+	eventDistributor->unregisterEventListener(QUIT_EVENT, *this,
+	                                         EventDistributor::NATIVE);
 }
 
 void Scheduler::setSyncPoint(const EmuTime& timeStamp, Schedulable* device, int userData)
@@ -86,8 +104,8 @@ void Scheduler::setSyncPoint(const EmuTime& timeStamp, Schedulable* device, int 
 	}
 	sem.up();
 
-	if (pauseCounter > 0) {
-		eventGenerator.notify();
+	if ((pauseCounter > 0) && eventGenerator) {
+		eventGenerator->notify();
 	}
 }
 
@@ -105,8 +123,8 @@ void Scheduler::setAsyncPoint(Schedulable* device, int userData)
 
 	sem.up();
 
-	if (pauseCounter > 0) {
-		eventGenerator.notify();
+	if ((pauseCounter > 0) && eventGenerator) {
+		eventGenerator->notify();
 	}
 }
 
@@ -150,6 +168,7 @@ void Scheduler::schedule(const EmuTime& from, const EmuTime& limit)
 	scheduleTime = from;
 	++depth;
 
+	eventGenerator = &InputEventGenerator::instance();
 	while (true) {
 		if (!emulationRunning) {
 			// only when not called resursivly it's safe to break
@@ -179,21 +198,21 @@ void Scheduler::schedule(const EmuTime& from, const EmuTime& limit)
 		}
 		if (time == ASAP) {
 			scheduleDevice(sp, scheduleTime);
-			eventGenerator.poll();
+			eventGenerator->poll();
 		} else if (pauseCounter > 0) {
 			sem.up();
 			assert(renderer);
 			if (!powerSetting.getValue()) {
 				int fps = renderer->putPowerOffImage();
 				if (fps == 0) {
-					eventGenerator.wait();
+					eventGenerator->wait();
 				} else {
 					SDL_Delay(1000 / fps);
-					eventGenerator.poll();
+					eventGenerator->poll();
 				}
 			} else {
 				renderer->putImage();
-				eventGenerator.wait();
+				eventGenerator->wait();
 			}
 		} else {
 			if (cpu.getTargetTime() < time) {
@@ -210,7 +229,7 @@ void Scheduler::schedule(const EmuTime& from, const EmuTime& limit)
 			} else {
 				scheduleDevice(sp, time);
 			}
-			eventGenerator.poll();
+			eventGenerator->poll();
 		}
 	}
 	--depth;

@@ -86,8 +86,8 @@ Keyboard::Keyboard(bool keyG)
 	} catch (ConfigException &e) {
 		// no keymap settings.
 	}
-	EventDistributor::instance().registerEventListener(KEY_DOWN_EVENT, *this, 1);
-	EventDistributor::instance().registerEventListener(KEY_UP_EVENT,   *this, 1);
+	EventDistributor::instance().registerEventListener(KEY_DOWN_EVENT, *this);
+	EventDistributor::instance().registerEventListener(KEY_UP_EVENT,   *this);
 
 	CommandController::instance().registerCommand(&keyMatrixUpCmd,   "keymatrixup");
 	CommandController::instance().registerCommand(&keyMatrixDownCmd, "keymatrixdown");
@@ -100,8 +100,8 @@ Keyboard::~Keyboard()
 	CommandController::instance().unregisterCommand(&keyMatrixDownCmd, "keymatrixdown");
 	CommandController::instance().unregisterCommand(&keyMatrixUpCmd,   "keymatrixup");
 
-	EventDistributor::instance().unregisterEventListener(KEY_UP_EVENT,   *this, 1);
-	EventDistributor::instance().unregisterEventListener(KEY_DOWN_EVENT, *this, 1);
+	EventDistributor::instance().unregisterEventListener(KEY_UP_EVENT,   *this);
+	EventDistributor::instance().unregisterEventListener(KEY_DOWN_EVENT, *this);
 }
 
 

@@ -29,8 +29,10 @@ void HotKey::registerHotKey(Keys::KeyCode key, HotKeyListener* listener)
 {
 	PRT_DEBUG("HotKey registration for key " << Keys::getName(key));
 	if (listenerMap.empty()) {
-		EventDistributor::instance().registerEventListener(KEY_DOWN_EVENT, *this);
-		EventDistributor::instance().registerEventListener(KEY_UP_EVENT, *this);
+		EventDistributor::instance().registerEventListener(
+			KEY_DOWN_EVENT, *this, EventDistributor::NATIVE);
+		EventDistributor::instance().registerEventListener(
+			KEY_UP_EVENT, *this, EventDistributor::NATIVE);
 	}
 	listenerMap.insert(ListenerMap::value_type(key, listener));
 }
@@ -47,8 +49,10 @@ void HotKey::unregisterHotKey(Keys::KeyCode key, HotKeyListener* listener)
 		}
 	}
 	if (listenerMap.empty()) {
-		EventDistributor::instance().unregisterEventListener(KEY_UP_EVENT, *this);
-		EventDistributor::instance().unregisterEventListener(KEY_DOWN_EVENT, *this);
+		EventDistributor::instance().unregisterEventListener(
+			KEY_UP_EVENT, *this, EventDistributor::NATIVE);
+		EventDistributor::instance().unregisterEventListener(
+			KEY_DOWN_EVENT, *this, EventDistributor::NATIVE);
 	}
 }
 

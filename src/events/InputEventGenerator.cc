@@ -101,62 +101,67 @@ static JoystickAxisMotionEvent::Axis convertJoyAxis(Uint8 sdlAxis)
 	}
 }
 
-void InputEventGenerator::handle(const SDL_Event& event)
+void InputEventGenerator::handle(const SDL_Event& evt)
 {
-	switch (event.type) {
+	switch (evt.type) {
 	case SDL_KEYUP: {
-		KeyUpEvent event(Keys::getCode(event.key.keysym.sym,
-		                               event.key.keysym.mod,
-		                               true),
-		                 event.key.keysym.unicode);
+		Event* event = new KeyUpEvent(Keys::getCode(evt.key.keysym.sym,
+		                                            evt.key.keysym.mod,
+		                                            true),
+		                              evt.key.keysym.unicode);
 		distributor.distributeEvent(event);
 		break;
 	}
 	case SDL_KEYDOWN: {
-		KeyDownEvent event(Keys::getCode(event.key.keysym.sym,
-		                                 event.key.keysym.mod,
-		                                 false),
-		                   event.key.keysym.unicode);
+		Event* event = new KeyDownEvent(Keys::getCode(evt.key.keysym.sym,
+		                                              evt.key.keysym.mod,
+		                                              false),
+		                                evt.key.keysym.unicode);
 		distributor.distributeEvent(event);
 		break;
 	}
 
 	case SDL_MOUSEBUTTONUP: {
-		MouseButtonUpEvent event(convertMouseButton(event.button.button));
+		Event* event = new MouseButtonUpEvent(
+		                        convertMouseButton(evt.button.button));
 		distributor.distributeEvent(event);
 		break;
 	}
 	case SDL_MOUSEBUTTONDOWN: {
-		MouseButtonDownEvent event(convertMouseButton(event.button.button));
+		Event* event = new MouseButtonDownEvent(
+		                        convertMouseButton(evt.button.button));
 		distributor.distributeEvent(event);
 		break;
 	}
 	case SDL_MOUSEMOTION: {
-		MouseMotionEvent event(event.motion.xrel, event.motion.yrel);
+		Event* event = new MouseMotionEvent(evt.motion.xrel,
+		                                    evt.motion.yrel);
 		distributor.distributeEvent(event);
 		break;
 	}
 
 	case SDL_JOYBUTTONUP: {
-		JoystickButtonUpEvent event(event.jbutton.which, event.jbutton.button);
+		Event* event = new JoystickButtonUpEvent(evt.jbutton.which,
+		                                         evt.jbutton.button);
 		distributor.distributeEvent(event);
 		break;
 	}
 	case SDL_JOYBUTTONDOWN: {
-		JoystickButtonDownEvent event(event.jbutton.which, event.jbutton.button);
+		Event* event = new JoystickButtonDownEvent(evt.jbutton.which,
+		                                           evt.jbutton.button);
 		distributor.distributeEvent(event);
 		break;
 	}
 	case SDL_JOYAXISMOTION: {
-		JoystickAxisMotionEvent event(event.jaxis.which,
-		                              convertJoyAxis(event.jaxis.axis),
-		                              event.jaxis.value);
+		Event* event = new JoystickAxisMotionEvent(evt.jaxis.which,
+		                              convertJoyAxis(evt.jaxis.axis),
+		                              evt.jaxis.value);
 		distributor.distributeEvent(event);
 		break;
 	}
 	      
 	case SDL_QUIT: {
-		QuitEvent event;
+		Event* event = new QuitEvent();
 		distributor.distributeEvent(event);
 	}
 

@@ -1,7 +1,6 @@
 // $Id$
 
 #include <fstream>
-#include <SDL.h>	// TODO 
 #include "CommandConsole.hh"
 #include "CommandController.hh"
 #include "EventDistributor.hh"
@@ -37,8 +36,10 @@ CommandConsole::CommandConsole()
 {
 	prompt = PROMPT1;
 	consoleSetting.addListener(this);
-	eventDistributor.registerEventListener(KEY_DOWN_EVENT, *this);
-	eventDistributor.registerEventListener(KEY_UP_EVENT,   *this);
+	eventDistributor.registerEventListener(KEY_DOWN_EVENT, *this,
+	                                       EventDistributor::NATIVE);
+	eventDistributor.registerEventListener(KEY_UP_EVENT,   *this,
+	                                       EventDistributor::NATIVE);
 	putPrompt();
 	Config* config = settingsConfig.getConfigById("Console");
 	maxHistory = config->getParameterAsInt("historysize", 100);
@@ -51,8 +52,10 @@ CommandConsole::~CommandConsole()
 {
 	commandController.setCommandConsole(NULL);
 	saveHistory();
-	eventDistributor.unregisterEventListener(KEY_DOWN_EVENT, *this);
-	eventDistributor.unregisterEventListener(KEY_UP_EVENT,   *this);
+	eventDistributor.unregisterEventListener(KEY_DOWN_EVENT, *this,
+	                                         EventDistributor::NATIVE);
+	eventDistributor.unregisterEventListener(KEY_UP_EVENT,   *this,
+	                                         EventDistributor::NATIVE);
 	consoleSetting.removeListener(this);
 }
 

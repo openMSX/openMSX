@@ -16,32 +16,54 @@ AfterCommand::AfterCmdMap AfterCommand::afterCmds;
 
 AfterCommand::AfterCommand()
 {
-	EventDistributor::instance().registerEventListener(KEY_UP_EVENT, *this);
-	EventDistributor::instance().registerEventListener(KEY_DOWN_EVENT, *this);
-	EventDistributor::instance().registerEventListener(MOUSE_MOTION_EVENT, *this);
-	EventDistributor::instance().registerEventListener(MOUSE_BUTTON_UP_EVENT, *this);
-	EventDistributor::instance().registerEventListener(MOUSE_BUTTON_DOWN_EVENT, *this);
-	EventDistributor::instance().registerEventListener(JOY_AXIS_MOTION_EVENT, *this);
-	EventDistributor::instance().registerEventListener(JOY_BUTTON_UP_EVENT, *this);
-	EventDistributor::instance().registerEventListener(JOY_BUTTON_DOWN_EVENT, *this);
-	EventDistributor::instance().registerEventListener(FINISH_FRAME_EVENT, *this);
-	EventDistributor::instance().registerEventListener(BREAK_EVENT, *this);
+	EventDistributor::instance().registerEventListener(
+		KEY_UP_EVENT, *this, EventDistributor::NATIVE);
+	EventDistributor::instance().registerEventListener(
+		KEY_DOWN_EVENT, *this, EventDistributor::NATIVE);
+	EventDistributor::instance().registerEventListener(
+		MOUSE_MOTION_EVENT, *this, EventDistributor::NATIVE);
+	EventDistributor::instance().registerEventListener(
+		MOUSE_BUTTON_UP_EVENT, *this, EventDistributor::NATIVE);
+	EventDistributor::instance().registerEventListener(
+		MOUSE_BUTTON_DOWN_EVENT, *this, EventDistributor::NATIVE);
+	EventDistributor::instance().registerEventListener(
+		JOY_AXIS_MOTION_EVENT, *this, EventDistributor::NATIVE);
+	EventDistributor::instance().registerEventListener(
+		JOY_BUTTON_UP_EVENT, *this, EventDistributor::NATIVE);
+	EventDistributor::instance().registerEventListener(
+		JOY_BUTTON_DOWN_EVENT, *this, EventDistributor::NATIVE);
+	EventDistributor::instance().registerEventListener(
+		FINISH_FRAME_EVENT, *this, EventDistributor::NATIVE);
+	EventDistributor::instance().registerEventListener(
+		BREAK_EVENT, *this, EventDistributor::NATIVE);
+
 	CommandController::instance().registerCommand(this, "after");
 }
 
 AfterCommand::~AfterCommand()
 {
 	CommandController::instance().unregisterCommand(this, "after");
-	EventDistributor::instance().unregisterEventListener(BREAK_EVENT, *this);
-	EventDistributor::instance().unregisterEventListener(FINISH_FRAME_EVENT, *this);
-	EventDistributor::instance().unregisterEventListener(JOY_BUTTON_DOWN_EVENT, *this);
-	EventDistributor::instance().unregisterEventListener(JOY_BUTTON_UP_EVENT, *this);
-	EventDistributor::instance().unregisterEventListener(JOY_AXIS_MOTION_EVENT, *this);
-	EventDistributor::instance().unregisterEventListener(MOUSE_BUTTON_DOWN_EVENT, *this);
-	EventDistributor::instance().unregisterEventListener(MOUSE_BUTTON_UP_EVENT, *this);
-	EventDistributor::instance().unregisterEventListener(MOUSE_MOTION_EVENT, *this);
-	EventDistributor::instance().unregisterEventListener(KEY_DOWN_EVENT, *this);
-	EventDistributor::instance().unregisterEventListener(KEY_UP_EVENT, *this);
+	
+	EventDistributor::instance().unregisterEventListener(
+		BREAK_EVENT, *this, EventDistributor::NATIVE);
+	EventDistributor::instance().unregisterEventListener(
+		FINISH_FRAME_EVENT, *this, EventDistributor::NATIVE);
+	EventDistributor::instance().unregisterEventListener(
+		JOY_BUTTON_DOWN_EVENT, *this, EventDistributor::NATIVE);
+	EventDistributor::instance().unregisterEventListener(
+		JOY_BUTTON_UP_EVENT, *this, EventDistributor::NATIVE);
+	EventDistributor::instance().unregisterEventListener(
+		JOY_AXIS_MOTION_EVENT, *this, EventDistributor::NATIVE);
+	EventDistributor::instance().unregisterEventListener(
+		MOUSE_BUTTON_DOWN_EVENT, *this, EventDistributor::NATIVE);
+	EventDistributor::instance().unregisterEventListener(
+		MOUSE_BUTTON_UP_EVENT, *this, EventDistributor::NATIVE);
+	EventDistributor::instance().unregisterEventListener(
+		MOUSE_MOTION_EVENT, *this, EventDistributor::NATIVE);
+	EventDistributor::instance().unregisterEventListener(
+		KEY_DOWN_EVENT, *this, EventDistributor::NATIVE);
+	EventDistributor::instance().unregisterEventListener(
+		KEY_UP_EVENT, *this, EventDistributor::NATIVE);
 }
 
 string AfterCommand::execute(const vector<string>& tokens)

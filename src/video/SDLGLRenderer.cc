@@ -212,6 +212,7 @@ void SDLGLRenderer::finishFrame()
 	frameDirty = false;
 
 	putImage();
+	Event* finishFrameEvent = new SimpleEvent<FINISH_FRAME_EVENT>();
 	EventDistributor::instance().distributeEvent(finishFrameEvent);
 }
 

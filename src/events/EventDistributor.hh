@@ -4,15 +4,24 @@
 #define __EVENTDISTRIBUTOR_HH__
 
 #include <map>
+#include <vector>
+#include <deque>
 #include "Event.hh"
+#include "EmuTime.hh"
+#include "Schedulable.hh"
+#include "FloatSetting.hh"
 
 using std::multimap;
+using std::vector;
+using std::deque;
 
 namespace openmsx {
 
 class EventListener;
+class RealTime;
+class Scheduler;
 
-class EventDistributor
+class EventDistributor : private Schedulable
 {
 public:
 	static EventDistributor& instance();
@@ -22,27 +31,49 @@ public:
 	 * events.
 	 * @param type The type of the events you want to receive
 	 * @param listener Object that will be notified when the events arrives
-	 * @param priority The priority of the listener (lower number is higher
-	 *        priority). Higher priority listeners may block an event for
-	 *        lower priority listeners. Normally you don't need to specify
-	 *        a priority.
-	 *        Note: in the current implementation there are only two
-	 *              priority levels (0 and !=0)
+	 * @param listenerType Is the event ment for the MSX or just to control
+	 *        openMSX (console for example). Native events are delivered
+	 *        immediatly, emu events can get queued. Native event listeners
+	 *        can block events for emu event listeners.
 	 * The delivery of the event is done by the 'main-emulation-thread',
 	 * so there is no need for extra synchronization.
 	 */
-	void   registerEventListener(EventType type, EventListener& listener, int priority = 0);
-	void unregisterEventListener(EventType type, EventListener& listener, int priority = 0);
+	enum ListenerType { EMU, NATIVE };
+	void   registerEventListener(EventType type, EventListener& listener,
+	                             ListenerType listenerType = EMU);
+	void unregisterEventListener(EventType type, EventListener& listener,
+	                             ListenerType listenerType = EMU);
 
-	void distributeEvent(const Event& event);
+	void distributeEvent(Event* event);
+	void sync(const EmuTime& emuTime);
 	
 private:
 	EventDistributor();
 	virtual ~EventDistributor();
 
+	// Schedulable
+	virtual void executeUntil(const EmuTime& time, int userData) throw();
+	virtual const string& schedName() const;
+
 	typedef multimap<EventType, EventListener*> ListenerMap;
-	ListenerMap lowMap;
-	ListenerMap highMap;
+	ListenerMap nativeListeners;
+	ListenerMap emuListeners;
+
+	struct EventTime {
+		EventTime(Event* event_, unsigned time_)
+			: event(event_), time(time_) {}
+		Event* event;
+		unsigned time;
+	};
+	vector<EventTime> toBeScheduledEvents;
+	deque<Event*> scheduledEvents;
+
+	EmuTime prevEmu;
+	unsigned prevReal;
+	FloatSetting delaySetting;
+
+	RealTime& realTime;
+	Scheduler& scheduler;
 };
 
 } // namespace openmsx

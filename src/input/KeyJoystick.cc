@@ -14,8 +14,8 @@ namespace openmsx {
 
 KeyJoystick::KeyJoystick()
 {
-	EventDistributor::instance().registerEventListener(KEY_DOWN_EVENT, *this, 1);
-	EventDistributor::instance().registerEventListener(KEY_UP_EVENT  , *this, 1);
+	EventDistributor::instance().registerEventListener(KEY_DOWN_EVENT, *this);
+	EventDistributor::instance().registerEventListener(KEY_UP_EVENT  , *this);
 
 	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	         JOY_BUTTONA | JOY_BUTTONB;
@@ -45,8 +45,8 @@ KeyJoystick::KeyJoystick()
 
 KeyJoystick::~KeyJoystick()
 {
-	EventDistributor::instance().unregisterEventListener(KEY_DOWN_EVENT, *this, 1);
-	EventDistributor::instance().unregisterEventListener(KEY_UP_EVENT  , *this, 1);
+	EventDistributor::instance().unregisterEventListener(KEY_DOWN_EVENT, *this);
+	EventDistributor::instance().unregisterEventListener(KEY_UP_EVENT  , *this);
 }
 
 // auxilliary function for constructor

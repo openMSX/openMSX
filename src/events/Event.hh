@@ -24,10 +24,10 @@ class Event
 {
 public:
 	EventType getType() const { return type; }
+	virtual ~Event() {}
 
 protected:
 	Event(EventType type_) : type(type_) {}
-	virtual ~Event() {}
 
 private:
 	EventType type;

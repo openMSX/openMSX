@@ -172,7 +172,7 @@ void CPU::doBreak2()
 	ostringstream os;
 	os << "0x" << hex << (int)R.PC.w;
 	CliCommOutput::instance().update(CliCommOutput::BREAK, "pc", os.str());
-	static SimpleEvent<BREAK_EVENT> breakEvent;
+	Event* breakEvent = new SimpleEvent<BREAK_EVENT>();
 	EventDistributor::instance().distributeEvent(breakEvent);
 }
 
