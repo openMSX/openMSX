@@ -255,6 +255,29 @@ void PixelRenderer::putImage(const EmuTime &time)
 	}
 }
 
+void PixelRenderer::updateHorizontalScrollLow(
+	byte scroll, const EmuTime &time
+) {
+	sync(time);
+}
+
+void PixelRenderer::updateHorizontalScrollHigh(
+	byte scroll, const EmuTime &time
+) {
+	sync(time);
+}
+
+void PixelRenderer::updateBorderMask(
+	bool masked, const EmuTime &time
+) {
+	sync(time);
+}
+
+void PixelRenderer::updateMultiPage(
+	bool multiPage, const EmuTime &time
+) {
+	sync(time);
+}
 
 // class FramsSkipSetting
 

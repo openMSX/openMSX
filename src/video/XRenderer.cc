@@ -141,6 +141,18 @@ void XRenderer::updatePalette(int index, int grb, const EmuTime &time) {
 void XRenderer::updateVerticalScroll(int scroll, const EmuTime &time) {
 }
 
+void XRenderer::updateHorizontalScrollLow(byte scroll, const EmuTime &time) {
+}
+
+void XRenderer::updateHorizontalScrollHigh(byte scroll, const EmuTime &time) {
+}
+
+void XRenderer::updateBorderMask(bool masked, const EmuTime &time) {
+}
+
+void XRenderer::updateMultiPage(bool multiPage, const EmuTime &time) {
+}
+
 void XRenderer::updateHorizontalAdjust(int adjust, const EmuTime &time) {
 }
 

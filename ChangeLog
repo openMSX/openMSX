@@ -1,5 +1,8 @@
 $Id$
 
+2003-04-23 Maarten ter Huurne <maarten@treewalker.org>
+	* Added update calls for horizontal scroll settings.
+
 2003-04-22 Maarten ter Huurne <maarten@treewalker.org>
 	* Partial horizontal scroll implementation: scroll low and border mask.
 	  Scroll high and multi page to be done.

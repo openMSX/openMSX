@@ -26,6 +26,10 @@ public:
 	void frameStart(const EmuTime &time);
 	void putImage(const EmuTime &time);
 	void updateDisplayEnabled(bool enabled, const EmuTime &time);
+	void updateHorizontalScrollLow(byte scroll, const EmuTime &time);
+	void updateHorizontalScrollHigh(byte scroll, const EmuTime &time);
+	void updateBorderMask(bool masked, const EmuTime &time);
+	void updateMultiPage(bool multiPage, const EmuTime &time);
 	/*
 	void setFullScreen(bool);
 	void updateTransparency(bool enabled, const EmuTime &time);
@@ -135,14 +139,6 @@ protected:
 		//       scheme at a higher level. Probably. But how...
 		vram->sync(time);
 		renderUntil(time);
-	}
-
-	/** Get start of display in ticks since start of line.
-	  */
-	int getDisplayLeft() {
-		return 100 + 102 + 56
-			+ (vdp->getHorizontalAdjust() - 7) * 4
-			+ (vdp->getDisplayMode().isTextMode() ? 36 : 0);
 	}
 
 	/** The VDP of which the video output is being rendered.

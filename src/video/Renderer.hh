@@ -116,6 +116,34 @@ public:
 	  */
 	virtual void updateVerticalScroll(int scroll, const EmuTime &time) = 0;
 
+	/** Informs the renderer of a horizontal scroll change:
+	  * the lower scroll value has changed.
+	  * @param scroll The new scroll value.
+	  * @param time The moment in emulated time this change occurs.
+	  */
+	virtual void updateHorizontalScrollLow(byte scroll, const EmuTime &time) = 0;
+	
+	/** Informs the renderer of a horizontal scroll change:
+	  * the higher scroll value has changed.
+	  * @param scroll The new scroll value.
+	  * @param time The moment in emulated time this change occurs.
+	  */
+	virtual void updateHorizontalScrollHigh(byte scroll, const EmuTime &time) = 0;
+	
+	/** Informs the renderer of a horizontal scroll change:
+	  * the border mask has been enabled/disabled.
+	  * @param masked true iff enabled.
+	  * @param time The moment in emulated time this change occurs.
+	  */
+	virtual void updateBorderMask(bool masked, const EmuTime &time) = 0;
+	
+	/** Informs the renderer of a horizontal scroll change:
+	  * the multi page setting has changed.
+	  * @param multiPage The new multi page flag.
+	  * @param time The moment in emulated time this change occurs.
+	  */
+	virtual void updateMultiPage(bool multiPage, const EmuTime &time) = 0;
+
 	/** Informs the renderer of a horizontal adjust change.
 	  * Note that there is no similar method for vertical adjust updates,
 	  * because vertical adjust is calculated at start of frame and

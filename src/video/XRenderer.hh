@@ -44,6 +44,10 @@ public:
 	void updateBlinkState(bool enabled, const EmuTime &time);
 	void updatePalette(int index, int grb, const EmuTime &time);
 	void updateVerticalScroll(int scroll, const EmuTime &time);
+	void updateHorizontalScrollLow(byte scroll, const EmuTime &time);
+	void updateHorizontalScrollHigh(byte scroll, const EmuTime &time);
+	void updateBorderMask(bool masked, const EmuTime &time);
+	void updateMultiPage(bool multiPage, const EmuTime &time);
 	void updateHorizontalAdjust(int adjust, const EmuTime &time);
 	void updateDisplayEnabled(bool enabled, const EmuTime &time);
 	void updateDisplayMode(DisplayMode mode, const EmuTime &time);

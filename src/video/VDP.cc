@@ -656,9 +656,10 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		return;
 	}
 
+	// Make sure only bits that actually exist are written.
 	val &= controlValueMasks[reg];
-	byte oldval = controlRegs[reg];
-	byte change = val ^ oldval;
+	// Determine the difference between new and old value.
+	byte change = val ^ controlRegs[reg];
 
 	// Register 13 is special because writing it resets blinking state,
 	// even if the value in the register doesn't change.
@@ -775,6 +776,18 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		if (change & 0x08) {
 			setHorAdjust(time);
 		}
+		if (change & 0x02) {
+			renderer->updateBorderMask(val & 0x02, time);
+		}
+		if (change & 0x01) {
+			renderer->updateMultiPage(val & 0x01, time);
+		}
+		break;
+	case 26:
+		renderer->updateHorizontalScrollHigh(val, time);
+		break;
+	case 27:
+		renderer->updateHorizontalScrollLow(val, time);
 		break;
 	}
 

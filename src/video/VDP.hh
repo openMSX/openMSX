@@ -193,6 +193,15 @@ public:
 		return controlRegs[27];
 	}
 
+	/** Gets the current horizontal scroll higher bits.
+	  * This value determines how many 8-pixel steps the background is
+	  * rotated to the left.
+	  * @return Horizontal scroll high register value.
+	  */
+	inline byte getHorizontalScrollHigh() {
+		return controlRegs[26];
+	}
+
 	/** Gets the current border mask setting.
 	  * Border mask extends the left border by 8 pixels if enabled.
 	  * This is a V9958 feature, on older VDPs it always returns false.
@@ -200,6 +209,16 @@ public:
 	  */
 	inline bool isBorderMasked() {
 		return controlRegs[25] & 0x02;
+	}
+
+	/** Is multi page scrolling enabled?
+	  * It is considered enabled if both the multi page scrolling flag is
+	  * enabled and the current page is odd. Scrolling wraps into the
+	  * lower even page.
+	  * @return true iff enabled.
+	  */
+	inline bool isMultiPageScrolling() {
+		return (controlRegs[25] & 0x01) && (controlRegs[2] & 0x20);
 	}
 
 	/** Gets the current horizontal display adjust.
@@ -645,6 +664,10 @@ private:
 	int controlRegMask;
 
 	/** Mask on the values of control registers.
+	  * This saves a lot of masking when using the register values,
+	  * because it is guaranteed non-existant bits are always zero.
+	  * It also disables access to VDP features on a VDP model
+	  * which does not support those features.
 	  */
 	byte controlValueMasks[32];
 
