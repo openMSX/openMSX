@@ -88,7 +88,7 @@ private:
 	void updtStrm(int samples);
 	static void audioCallbackHelper(void* userdata, Uint8* stream, int len);
 	void audioCallback(short* stream);
-	void muteHelper(int muteCount);
+	void muteHelper();
 	
 	void updateMasterVolume(int masterVolume);
 

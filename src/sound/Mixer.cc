@@ -79,6 +79,11 @@ Mixer::Mixer()
 		output.printWarning(
 			string("Couldn't open audio : ") + SDL_GetError());
 	}
+
+	// Set correct initial mute state.
+	if (muteSetting->getValue()) muteCount++;
+	if (pauseSetting.getValue()) muteCount++;
+	muteHelper();
 }
 
 Mixer::~Mixer()
@@ -134,14 +139,12 @@ int Mixer::registerSound(SoundDevice& device, short volume, ChannelMode mode)
 	infos[&device] = info;
 
 	lock();
-	if (init && buffers.size() == 0) {
-		SDL_PauseAudio(0);	// unpause when first dev registers
-	}
 	buffers.push_back(NULL);	// make room for one more
 	devices[mode].push_back(&device);
 	device.setSampleRate(init ? audioSpec.freq : 44100);
 	device.setVolume((info.normalVolume * info.volumeSetting->getValue() *
 	                   masterVolume->getValue()) / (100 * 100));
+	muteHelper();
 	unlock();
 
 	return init ? audioSpec.samples : 1024;
@@ -165,9 +168,7 @@ void Mixer::unregisterSound(SoundDevice& device)
 	delete it->second.modeSetting;
 	infos.erase(it);
 
-	if (init && buffers.size() == 0) {
-		SDL_PauseAudio(1);	// pause when last dev unregisters
-	}
+	muteHelper();
 	unlock();
 }
 
@@ -293,22 +294,20 @@ void Mixer::unlock()
 
 void Mixer::mute()
 {
-	muteHelper(++muteCount);
+	muteCount++;
+	muteHelper();
 }
 void Mixer::unmute()
 {
 	assert(muteCount);
-	muteHelper(--muteCount);
+	muteCount--;
+	muteHelper();
 }
-void Mixer::muteHelper(int muteCount)
+void Mixer::muteHelper()
 {
 	if (!init) return;
-
-	if (buffers.size() == 0)
-		return;
-	SDL_PauseAudio(muteCount);
+	SDL_PauseAudio(buffers.size() == 0 ? 1 : muteCount);
 }
-
 
 void Mixer::update(const SettingLeafNode* setting)
 {
