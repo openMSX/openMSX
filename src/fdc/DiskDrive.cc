@@ -276,7 +276,7 @@ void RealDrive::execute(const vector<string> &tokens)
 		if (diskName.length()>0)
 			print ("Current disk: " + diskName);
 		else
-			print ("There is currently no disk inserted");
+			print ("There is currently no disk inserted in drive with name \"" + name + "\"");
 	}
 	else
 	if (tokens.size() != 2)
