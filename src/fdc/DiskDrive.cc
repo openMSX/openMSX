@@ -179,7 +179,7 @@ bool RealDrive::track00(const EmuTime &time)
 void RealDrive::setMotor(bool status, const EmuTime &time)
 {
 	if (motorStatus != status) {
-		motorStatus = status;
+		motorStatus = status && disk->ready();
 		motorTime = time;
 	}
 }
