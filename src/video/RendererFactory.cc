@@ -12,6 +12,8 @@
 #include "CommandLineParser.hh"
 #include "Icon.hh"
 #include "InputEventGenerator.hh"
+#include "Version.hh"
+
 
 namespace openmsx {
 
@@ -21,7 +23,7 @@ static bool initSDLVideo()
 		//throw FatalError(string("Couldn't init SDL video: ") + SDL_GetError());
 		return false; // TODO: use exceptions here too
 	}
-	SDL_WM_SetCaption("openMSX " PACKAGE_VERSION " [alpha]", 0);
+	SDL_WM_SetCaption(Version::WINDOW_TITLE.c_str(), 0);
 
 	// Set icon
 	static unsigned int iconRGBA[256];

@@ -15,6 +15,7 @@
 #include "FileContext.hh"
 #include "FileOperations.hh"
 #include "CliCommOutput.hh"
+#include "Version.hh"
 
 
 namespace openmsx {
@@ -406,8 +407,8 @@ bool CommandLineParser::HelpOption::parseOption(const string &option,
 	if (!parent.haveSettings) {
 		return false; // not parsed yet, load settings first
 	}
-	cout << "openMSX " PACKAGE_VERSION << endl;
-	cout << "========" << string(strlen(PACKAGE_VERSION), '=') << endl;
+	cout << Version::FULL_VERSION << endl;
+	cout << string(Version::FULL_VERSION.length(), '=') << endl;
 	cout << endl;
 	cout << "usage: openmsx [arguments]" << endl;
 	cout << "  an argument is either an option or a filename" << endl;
@@ -457,7 +458,7 @@ bool CommandLineParser::VersionOption::parseOption(const string &option,
 		list<string> &cmdLine)
 {
 	parent.issuedHelp = true;
-	cout << "openMSX " PACKAGE_VERSION " -- built on "__DATE__ << endl;
+	cout << Version::FULL_VERSION << endl;
 	parent.parseStatus = EXIT;
 	return true;
 }

@@ -1,10 +1,10 @@
 // $Id$
 
-#include <cassert>
-#include "config.h"
 #include "InfoCommand.hh"
 #include "CommandController.hh"
 #include "CommandResult.hh"
+#include "Version.hh"
+#include <cassert>
 
 namespace openmsx {
 
@@ -120,7 +120,7 @@ void InfoCommand::VersionInfo::execute(const vector<string> &tokens,
                                        CommandResult& result) const
 	throw()
 {
-	result.setString("openMSX " PACKAGE_VERSION " -- built on "__DATE__);
+	result.setString(Version::FULL_VERSION);
 }
 
 string InfoCommand::VersionInfo::help(const vector<string> &tokens) const
