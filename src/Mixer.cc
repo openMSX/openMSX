@@ -16,7 +16,7 @@ Mixer::Mixer()
 	
 	SDL_AudioSpec desired;
 	desired.freq     = 22050;	// TODO make configurable
-	desired.samples  = 8192;	// TODO make configurable
+	desired.samples  = 512;	// TODO make configurable
 	desired.channels = 2;
 	desired.format   = AUDIO_S16LSB;	// check MSB <-> LSB
 	desired.callback = audioCallback;	// must be a static method

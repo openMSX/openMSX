@@ -102,6 +102,15 @@
 	E Gray          0.80	0.47	0.47	0.80	0.80	0.80	204	204	204
 	F White         1.00	0.47	0.47	1.00	1.00	1.00	255	255	255
 */
+
+
+#define IMAGE_SIZE (256*192)        /* size of rendered image        */
+
+#define TMS_SPRITES_ENABLED ((tms.Regs[1] & 0x50) == 0x40)
+#define TMS99x8A 1
+#define TMS_MODE ( (tms.model == TMS99x8A ? (tms.Regs[0] & 2) : 0) | \
+	((tms.Regs[1] & 0x10)>>4) | ((tms.Regs[1] & 8)>>1))
+
 static unsigned char TMS9928A_palette[16*3] =
 {
 	0, 0, 0,
@@ -160,6 +169,8 @@ void MSXTMS9928a::mode0(struct osd_bitmap* bmp){
       colour = tms.vMem[tms.colour+charcode/8];
       fg = XPal[colour / 16];
       bg = XPal[colour & 15];
+      if (bg == 0) bg = XPal[tms.Regs[7] & 15]; // If transparant then background color
+
       for (yy=0;yy<8;yy++) {
 	pattern=*patternptr++;
 	for (xx=0;xx<8;xx++) {
@@ -251,6 +262,8 @@ void MSXTMS9928a::mode2(struct osd_bitmap* bmp){
 	colour = *colourptr++;
 	fg = XPal[colour / 16];
 	bg = XPal[colour & 15];
+	if (bg == 0) bg = XPal[tms.Regs[7] & 15]; // If transparant then background color
+
 	for (xx=0;xx<8;xx++) {
 	  plot_pixel (bmp, x*8+xx, y*8+yy,
 	      (pattern & 0x80) ? fg : bg);
@@ -313,9 +326,250 @@ void MSXTMS9928a::mode12(struct osd_bitmap* bmp){
   }
   //_TMS9928A_set_dirty (0);
 };
-void MSXTMS9928a::mode3(struct osd_bitmap*){PRT_DEBUG("Have to implement renderer for mode3")};
-void MSXTMS9928a::modebogus(struct osd_bitmap*){PRT_DEBUG("Have to implement renderer for modebogus")};
-void MSXTMS9928a::mode23(struct osd_bitmap*){PRT_DEBUG("Have to implement renderer for mode23")};
+
+void MSXTMS9928a::mode3(struct osd_bitmap* bmp){
+  int x,y,yy,yyy,name,charcode;
+  byte fg,bg,*patternptr;
+
+  //if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
+  //  return;
+
+  name = 0;
+  for (y=0;y<24;y++) {
+    for (x=0;x<32;x++) {
+      charcode = tms.vMem[tms.nametbl+name];
+      /*
+	 if ( !(tms.DirtyName[name] || tms.DirtyPattern[charcode]) &&
+	 tms.anyDirtyColour)
+	 continue;
+       */
+      name++; // got the ++  out of previous line
+      patternptr = tms.vMem+tms.pattern+charcode*8+(y&3)*2;
+      for (yy=0;yy<2;yy++) {
+	fg = XPal[(*patternptr / 16)];
+	bg = XPal[((*patternptr++) & 15)];
+	if (bg == 0) bg = XPal[tms.Regs[7] & 15]; // If transparant then background color
+
+	for (yyy=0;yyy<4;yyy++) {
+	  plot_pixel (bmp, x*8+0, y*8+yy*4+yyy, fg);
+	  plot_pixel (bmp, x*8+1, y*8+yy*4+yyy, fg);
+	  plot_pixel (bmp, x*8+2, y*8+yy*4+yyy, fg);
+	  plot_pixel (bmp, x*8+3, y*8+yy*4+yyy, fg);
+	  plot_pixel (bmp, x*8+4, y*8+yy*4+yyy, bg);
+	  plot_pixel (bmp, x*8+5, y*8+yy*4+yyy, bg);
+	  plot_pixel (bmp, x*8+6, y*8+yy*4+yyy, bg);
+	  plot_pixel (bmp, x*8+7, y*8+yy*4+yyy, bg);
+	}
+      }
+    }
+  }
+  //_TMS9928A_set_dirty (0);
+};
+
+void MSXTMS9928a::modebogus(struct osd_bitmap* bmp){
+  byte fg,bg;
+  int x,y,n,xx;
+
+  //if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
+  //  return;
+
+  fg = XPal[tms.Regs[7] / 16];
+  bg = XPal[tms.Regs[7] & 15];
+
+  for (y=0;y<192;y++) {
+    xx=0;
+    n=8; while (n--) plot_pixel (bmp, xx++, y, bg);
+    for (x=0;x<40;x++) {
+      n=4; while (n--) plot_pixel (bmp, xx++, y, fg);
+      n=2; while (n--) plot_pixel (bmp, xx++, y, bg);
+    }
+    n=8; while (n--) plot_pixel (bmp, xx++, y, bg);
+  }
+
+  //_TMS9928A_set_dirty (0);
+};
+
+void MSXTMS9928a::mode23(struct osd_bitmap* bmp){
+  int x,y,yy,yyy,name,charcode;
+  byte fg,bg,*patternptr;
+
+  //if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
+  //  return;
+
+  name = 0;
+  for (y=0;y<24;y++) {
+    for (x=0;x<32;x++) {
+      charcode = tms.vMem[tms.nametbl+name];
+      /*
+	 if ( !(tms.DirtyName[name++] || tms.DirtyPattern[charcode]) &&
+	 tms.anyDirtyColour)
+	 continue;
+       */
+      name++; // got the ++  out of previous line
+      patternptr = tms.vMem + tms.pattern +
+	((charcode+(y&3)*2+(y/8)*256)&tms.patternmask)*8;
+      for (yy=0;yy<2;yy++) {
+	fg = XPal[(*patternptr / 16)];
+	bg = XPal[((*patternptr++) & 15)];
+	if (bg == 0) bg = XPal[tms.Regs[7] & 15]; // If transparant then background color
+
+	for (yyy=0;yyy<4;yyy++) {
+	  plot_pixel (bmp, x*8+0, y*8+yy*4+yyy, fg);
+	  plot_pixel (bmp, x*8+1, y*8+yy*4+yyy, fg);
+	  plot_pixel (bmp, x*8+2, y*8+yy*4+yyy, fg);
+	  plot_pixel (bmp, x*8+3, y*8+yy*4+yyy, fg);
+	  plot_pixel (bmp, x*8+4, y*8+yy*4+yyy, bg);
+	  plot_pixel (bmp, x*8+5, y*8+yy*4+yyy, bg);
+	  plot_pixel (bmp, x*8+6, y*8+yy*4+yyy, bg);
+	  plot_pixel (bmp, x*8+7, y*8+yy*4+yyy, bg);
+	}
+      }
+    }
+  }
+  //_TMS9928A_set_dirty (0);
+};
+
+/*
+** This function renders the sprites. Sprite collision is calculated in
+** in a back buffer (tms.dBackMem), because sprite collision detection
+** is rather complicated (transparent sprites also cause the sprite
+** collision bit to be set, and ``illegal'' sprites do not count
+** (they're not displayed)).
+**
+** This code should be optimized. One day.
+**
+*/
+void MSXTMS9928a::sprites(struct osd_bitmap* bmp){
+    byte *attributeptr,*patternptr,c;
+    int p,x,y,size,i,j,large,yy,xx,limit[192],
+        illegalsprite,illegalspriteline;
+    word line,line2;
+
+    attributeptr = tms.vMem + tms.spriteattribute;
+    size = (tms.Regs[1] & 2) ? 16 : 8;
+    large = (int)(tms.Regs[1] & 1);
+
+    for (x=0;x<192;x++) limit[x] = 4;
+    tms.StatusReg = 0x80;
+    illegalspriteline = 255;
+    illegalsprite = 0;
+
+    memset (tms.dBackMem, 0, IMAGE_SIZE);
+    for (p=0;p<32;p++) {
+      y = *attributeptr++;
+        if (y == 208) break;
+        if (y > 208) {
+            y=-(~y&255);
+        } else {
+            y++;
+        }
+        x = *attributeptr++;
+        patternptr = tms.vMem + tms.spritepattern +
+            ((size == 16) ? *attributeptr & 0xfc : *attributeptr) * 8;
+        attributeptr++;
+        c = (*attributeptr & 0x0f);
+        if (*attributeptr & 0x80) x -= 32;
+        attributeptr++;
+
+        if (!large) {
+            /* draw sprite (not enlarged) */
+            for (yy=y;yy<(y+size);yy++) {
+                if ( (yy < 0) || (yy > 191) ) continue;
+                if (limit[yy] == 0) {
+                    /* illegal sprite line */
+                    if (yy < illegalspriteline) {
+                        illegalspriteline = yy;
+                        illegalsprite = p;
+                    } else if (illegalspriteline == yy) {
+                        if (illegalsprite > p) {
+                            illegalsprite = p;
+                        }
+                    }
+                    if (tms.LimitSprites) continue;
+                } else limit[yy]--;
+                line = 256*patternptr[yy-y] + patternptr[yy-y+16];
+                for (xx=x;xx<(x+size);xx++) {
+                    if (line & 0x8000) {
+                        if ((xx >= 0) && (xx < 256)) {
+                            if (tms.dBackMem[yy*256+xx]) {
+                                tms.StatusReg |= 0x20;
+                            } else {
+                                tms.dBackMem[yy*256+xx] = 0x01;
+                            }
+                            if (c && ! (tms.dBackMem[yy*256+xx] & 0x02))
+                            {
+                            	tms.dBackMem[yy*256+xx] |= 0x02;
+                            	if (bmp)
+									plot_pixel (bmp, xx, yy, XPal[c]);
+							}
+                        }
+                    }
+                    line *= 2;
+                }
+            }
+        } else {
+            /* draw enlarged sprite */
+            for (i=0;i<size;i++) {
+                yy=y+i*2;
+                line2 = 256*patternptr[i] + patternptr[i+16];
+                for (j=0;j<2;j++) {
+                    if ( (yy >= 0) && (yy <= 191) ) {
+                        if (limit[yy] == 0) {
+                            /* illegal sprite line */
+                            if (yy < illegalspriteline) {
+                                illegalspriteline = yy;
+                                 illegalsprite = p;
+                            } else if (illegalspriteline == yy) {
+                                if (illegalsprite > p) {
+                                    illegalsprite = p;
+                                }
+                            }
+                            if (tms.LimitSprites) continue;
+                        } else limit[yy]--;
+                        line = line2;
+                        for (xx=x;xx<(x+size*2);xx+=2) {
+                            if (line & 0x8000) {
+                                if ((xx >=0) && (xx < 256)) {
+                                    if (tms.dBackMem[yy*256+xx]) {
+                                        tms.StatusReg |= 0x20;
+                                    } else {
+                                        tms.dBackMem[yy*256+xx] = 0x01;
+                                    }
+		                            if (c && ! (tms.dBackMem[yy*256+xx] & 0x02))
+        		                    {
+                		            	tms.dBackMem[yy*256+xx] |= 0x02;
+                                        if (bmp)
+                                        	plot_pixel (bmp, xx, yy, XPal[c]);
+                		            }
+                                }
+                                if (((xx+1) >=0) && ((xx+1) < 256)) {
+                                    if (tms.dBackMem[yy*256+xx+1]) {
+                                        tms.StatusReg |= 0x20;
+                                    } else {
+                                        tms.dBackMem[yy*256+xx+1] = 0x01;
+                                    }
+		                            if (c && ! (tms.dBackMem[yy*256+xx+1] & 0x02))
+        		                    {
+                		            	tms.dBackMem[yy*256+xx+1] |= 0x02;
+                                        if (bmp)
+                                        	plot_pixel (bmp, xx+1, yy, XPal[c]);
+									}
+                                }
+                            }
+                            line *= 2;
+                        }
+                    }
+                    yy++;
+                }
+            }
+        }
+    }
+    if (illegalspriteline == 255) {
+        tms.StatusReg |= (p > 31) ? 31 : p;
+    } else {
+        tms.StatusReg |= 0x40 + illegalsprite;
+    }
+}
 
 /*
 void (*ModeHandlers[])(struct osd_bitmap*) = {
@@ -337,12 +591,6 @@ moderoutines ModeHandlers[] = {
         mode3, modebogus, mode23,
         modebogus };
 */
-#define IMAGE_SIZE (256*192)        /* size of rendered image        */
-
-#define TMS_SPRITES_ENABLED ((tms.Regs[1] & 0x50) == 0x40)
-#define TMS99x8A 1
-#define TMS_MODE ( (tms.model == TMS99x8A ? (tms.Regs[0] & 2) : 0) | \
-	((tms.Regs[1] & 0x10)>>4) | ((tms.Regs[1] & 8)>>1))
 
 /*
 ** initialize the palette 
@@ -736,8 +984,9 @@ void MSXTMS9928a::fullScreenRefresh()
     int c,i,j;
 
     // Change background color from value if needed
-    // TODO: If color is drawn in color 0 then get correct color from register 7 
-    // instead of fidling with the entire color table. This is currently a 
+    //
+    /* Changed: if color is drawn in color 0 then get correct color from register 7 
+    // instead of fidling with the entire color table. This was a
     // remaining thing from Sean all-in-one screen build method
     if (tms.Change) {
         c = tms.Regs[7] & 15; if (!c) c=1;
@@ -750,6 +999,7 @@ void MSXTMS9928a::fullScreenRefresh()
 	    //full_border_fil(); // already done in changing R7 itself
         }
     }
+    */
     
     // Really redraw if needed
     if (tms.Change) {
@@ -784,9 +1034,10 @@ void MSXTMS9928a::fullScreenRefresh()
 	  }
 	  
 	  // if sprites enabled in this mode
-	  if (TMS_SPRITES_ENABLED) {
-	    PRT_DEBUG("TMS9928A: Need to include sprite routines.");
-	    // _TMS9928A_sprites (bmp);
+	  if (TMS_SPRITES_ENABLED ) {
+	    //PRT_DEBUG("TMS9928A: Need to include sprite routines.");
+	    // We just render them over the current image
+	    sprites(bitmapscreen);
 	  }
         }
     } 
