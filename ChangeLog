@@ -4,6 +4,8 @@ $Id$
 	* Console cleanup
 	* Added console prompt 
 	* Tab completion for help command
+	* Fixed uninitialized variable (enabledSCC) in MSXGameCartridge
+	* made MSXConfig::getParameterAsXXX() methods throw execptions again
 
 2002-03-08 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Split Console in Console and CommandController:

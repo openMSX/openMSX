@@ -11,33 +11,34 @@ MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &tim
 	: MSXDevice(config, time)
 {
 	PRT_DEBUG("Creating an MSXGameCartridge object");
-
 	try {
 		romSize = deviceConfig->getParameterAsInt("filesize");
-		// filesize zero is specifiying to autodetermine size
-		if (romSize == 0){
-			romSize = loadFile(&memoryBank);
-		} else {
-			loadFile(&memoryBank, romSize);
+		if (romSize == 0) {
+			// filesize zero is specifiying to autodetermine size
+			throw MSXConfig::Exception("auto detect");
 		}
+		loadFile(&memoryBank, romSize);
 	} catch(MSXConfig::Exception& e) {
-		// filesize was not specified
+		// filesize was not specified or 0
 		romSize = loadFile(&memoryBank);
 	}
-
+	
 	// Calculate mapperMask
 	int nrblocks = romSize>>13;	//number of 8kB pages
 	for (mapperMask=1; mapperMask<nrblocks; mapperMask<<=1);
 	mapperMask--;
-
+	
 	mapperType = retrieveMapperType();
-	//only instanciate SCC if needed
+	
+	// only instantiate SCC if needed
 	if (mapperType==2) {
 		short volume = (short)config->getParameterAsInt("volume");
 		cartridgeSCC = new SCC(volume);
 	} else {
 		cartridgeSCC = NULL;
 	}
+	
+	// only instantiate DACSound if needed
 	if (mapperType==64) {
 		short volume = (short)config->getParameterAsInt("volume");
 		dac = new DACSound(volume, 16000, time);
@@ -62,6 +63,7 @@ void MSXGameCartridge::reset(const EmuTime &time)
 	if (cartridgeSCC) {
 		cartridgeSCC->reset();
 	}
+	enabledSCC = false;
 	if (dac) {
 		dac->reset(time);
 	}
@@ -119,12 +121,10 @@ void MSXGameCartridge::reset(const EmuTime &time)
 	}
 }
 
-struct ltstr
-{
-  bool operator()(const char* s1, const char* s2) const
-  {
-    return strcmp(s1, s2) < 0;
-  }
+struct ltstr {
+	bool operator()(const char* s1, const char* s2) const {
+		return strcmp(s1, s2) < 0;
+	}
 };
 
 int MSXGameCartridge::retrieveMapperType()
@@ -137,20 +137,20 @@ int MSXGameCartridge::retrieveMapperType()
 			PRT_DEBUG("Using mapper type " << type);
 
 			map<const char*, int, ltstr> mappertype;
-			
+
 			mappertype["0"]=0;
 			mappertype["8kB"]=0;
-			
+
 			mappertype["1"]=1;
 			mappertype["16kB"]=1;
-			
+
 			mappertype["2"]=2;
 			mappertype["KONAMI5"]=2;
 			mappertype["SCC"]=2;
-			
+
 			mappertype["3"]=3;
 			mappertype["KONAMI4"]=3;
-			
+
 			mappertype["4"]=4;
 			mappertype["ASCII8"]=4;
 
@@ -163,11 +163,8 @@ int MSXGameCartridge::retrieveMapperType()
 			mappertype["64"]=64;
 			mappertype["KONAMIDAC"]=64;
 
-			
 			//TODO: catch wrong options passed
-			int typenr = mappertype[type.c_str()];
-			
-			return typenr;
+			return mappertype[type.c_str()];
 		}
 	} catch (MSXConfig::Exception& e) {
 		// missing parameter

@@ -118,8 +118,7 @@ const bool Config::getParameterAsBool(const std::string &name)
 	{
 		return MSXConfig::Config::Parameter::stringToBool(p->pcdata);
 	}
-	// TODO XXX exception?
-	return false;
+	throw MSXConfig::Exception("Missing parameter: " + name);
 }
 
 const int Config::getParameterAsInt(const std::string &name)
@@ -129,8 +128,7 @@ const int Config::getParameterAsInt(const std::string &name)
 	{
 		return MSXConfig::Config::Parameter::stringToInt(p->pcdata);
 	}
-	// TODO XXX exception?
-	return 0;
+	throw MSXConfig::Exception("Missing parameter: " + name);
 }
 
 const uint64 Config::getParameterAsUint64(const std::string &name)
@@ -140,8 +138,7 @@ const uint64 Config::getParameterAsUint64(const std::string &name)
 	{
 		return MSXConfig::Config::Parameter::stringToUint64(p->pcdata);
 	}
-	// TODO XXX exception?
-	return 0L;
+	throw MSXConfig::Exception("Missing parameter: " + name);
 }
 
 std::list<MSXConfig::Config::Parameter*>* Config::getParametersWithClass(const std::string &clasz)
