@@ -7,6 +7,7 @@ $Id$
 	* Init and shutdown in VideoSystem subclass, instead of init in
 	  RendererFactory subclass and shutdown in Renderer subclass.
 	  Applied to SDLGL, other systems to follow.
+	* Applied to SDLHi/Lo and Dummy as well.
 
 2004-07-22 Maarten ter Huurne <maarten@treewalker.org>
 	* Changed scanline drawing from a post-processing operation to
