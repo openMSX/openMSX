@@ -14,7 +14,8 @@ endif
 noinst_LTLIBRARIES = libIDE.la
 libIDE_la_SOURCES = \
 	SunriseIDE.cc SunriseIDE.hh \
-	IDEDevice.hh DummyIDEDevice.cc DummyIDEDevice.hh
+	IDEDevice.hh DummyIDEDevice.cc DummyIDEDevice.hh \
+	IDEHD.cc IDEHD.hh
 
 nodebug: resetdebug all
 debug: setdebug all

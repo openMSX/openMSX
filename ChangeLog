@@ -3,6 +3,12 @@ $Id$
 2002-10-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented Sunrise IDE interface:
 	   only interface, no IDE devices yet
+	* Implemented very simple IDE harddisk:
+	   IDE-BIOS detects the disk
+	      IDE Master:LBA,Mode 4:OPEN MSX HARD DISK
+	      IDE Slave :not detected.
+	   but the disk can't be used. Probably because the HD isn't
+	   partioned yet.
 
 2002-10-12 Maarten ter Huurne <mth@stack.nl>
 	* Split off some functionality from SDLHiRenderer into new PixelRenderer.

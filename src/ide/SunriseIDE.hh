@@ -12,14 +12,7 @@ class IDEDevice;
 class SunriseIDE : public MSXMemDevice, MSXRomDevice
 {
 	public:
-		/**
-		 * Constructor
-		 */
 		SunriseIDE(MSXConfig::Device *config, const EmuTime &time);
-
-		/**
-		 * Destructor
-		 */
 		virtual ~SunriseIDE();
 		
 		virtual void reset(const EmuTime &time);
@@ -32,17 +25,18 @@ class SunriseIDE : public MSXMemDevice, MSXRomDevice
 		void writeControl(byte value);
 		byte reverse(byte a);
 		
-		byte SunriseIDE::readDataLow(const EmuTime &time);
-		byte SunriseIDE::readDataHigh(const EmuTime &time);
-		word SunriseIDE::readData(const EmuTime &time);
-		byte SunriseIDE::readReg(nibble reg, const EmuTime &time);
-		void SunriseIDE::writeDataLow(byte value, const EmuTime &time);
-		void SunriseIDE::writeDataHigh(byte value, const EmuTime &time);
-		void SunriseIDE::writeData(word value, const EmuTime &time);
+		byte readDataLow(const EmuTime &time);
+		byte readDataHigh(const EmuTime &time);
+		word readData(const EmuTime &time);
+		byte readReg(nibble reg, const EmuTime &time);
+		void writeDataLow(byte value, const EmuTime &time);
+		void writeDataHigh(byte value, const EmuTime &time);
+		void writeData(word value, const EmuTime &time);
 		void writeReg(nibble reg, byte value, const EmuTime &time);
 
 		byte* internalBank;
 		bool ideRegsEnabled;
+		bool softReset;
 		byte readLatch;
 		byte writeLatch;
 		byte selectedDevice;

@@ -3,13 +3,14 @@
 #include "SunriseIDE.hh"
 #include "IDEDevice.hh"
 #include "DummyIDEDevice.hh"
+#include "IDEHD.hh"
 
 
 SunriseIDE::SunriseIDE(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXMemDevice(config, time),
 	  MSXRomDevice(config, time)
 {
-	device[0] = new DummyIDEDevice();
+	device[0] = new IDEHD();
 	device[1] = new DummyIDEDevice();
 
 	writeControl(0xFF);
@@ -26,6 +27,7 @@ SunriseIDE::~SunriseIDE()
 void SunriseIDE::reset(const EmuTime &time)
 {
 	selectedDevice = 0;
+	softReset = false;
 	device[0]->reset(time);
 	device[1]->reset(time);
 }
@@ -38,14 +40,14 @@ byte SunriseIDE::readMem(word address, const EmuTime &time)
 	if (ideRegsEnabled && ((address & 0x3E00) == 0x3C00)) {
 		// 0x7C00 - 0x7DFF   ide data register
 		if ((address & 1) == 0) {
-			readDataLow(time);
+			return readDataLow(time);
 		} else {
-			readDataHigh(time);
+			return readDataHigh(time);
 		}
 	}
 	if (ideRegsEnabled && ((address & 0x3F00) == 0x3E00)) {
 		// 0x7E00 - 0x7EFF   ide registers
-		readReg(address & 0xF, time);
+		return readReg(address & 0xF, time);
 	}
 	if ((0x4000 <= address) && (address < 0x8000)) {
 		// read normal (flash) rom
@@ -84,6 +86,8 @@ void SunriseIDE::writeMem(word address, byte value, const EmuTime &time)
 
 void SunriseIDE::writeControl(byte value)
 {
+	PRT_DEBUG("IDE control: " << (int)value);
+	
 	ideRegsEnabled = value & 1; // TODO cache
 
 	byte bank = reverse(value & 0xF8);
@@ -114,21 +118,39 @@ byte SunriseIDE::readDataHigh(const EmuTime &time)
 }
 word SunriseIDE::readData(const EmuTime &time)
 {
-	return device[selectedDevice]->readData(time);
+	word result = device[selectedDevice]->readData(time);
+	PRT_DEBUG("IDE write data: 0x" << std::hex << int(result) << std::dec);
+	return result;
 }
 
 byte SunriseIDE::readReg(nibble reg, const EmuTime &time)
 {
-	if (reg == 0) {
-		return readData(time) & 0xFF;
-	} else {
-		byte temp = device[selectedDevice]->readReg(reg, time);
-		if (reg == 6) {
-			temp &= 0xEF;
-			temp |= selectedDevice ? 0x10 : 0x00;
-		}
-		return temp;
+	byte result;
+	if (reg == 14) {
+		// alternate status register
+		reg = 7;
 	}
+	if (softReset) {
+		if (reg == 7) {
+			// read status
+			result = 0xFF;	// BUSY
+		} else {
+			// all others 
+			result = 0x7F;	// don't care
+		}
+	} else {
+		if (reg == 0) {
+			result = readData(time) & 0xFF;
+		} else {
+			result = device[selectedDevice]->readReg(reg, time);
+			if (reg == 6) {
+				result &= 0xEF;
+				result |= selectedDevice ? 0x10 : 0x00;
+			}
+		}
+	}
+	PRT_DEBUG("IDE read reg: " << (int)reg << " 0x" << std::hex << (int)result << std::dec);
+	return result;
 }
 
 
@@ -143,18 +165,34 @@ void SunriseIDE::writeDataHigh(byte value, const EmuTime &time)
 }
 void SunriseIDE::writeData(word value, const EmuTime &time)
 {
+	PRT_DEBUG("IDE write data: 0x" << std::hex << int(value) << std::dec);
 	device[selectedDevice]->writeData(value, time);
 }
 
 void SunriseIDE::writeReg(nibble reg, byte value, const EmuTime &time)
 {
-	if (reg == 0) {
-		writeData((value << 8) | value, time);
-	} else {
-		if (reg == 6) {
-			selectedDevice = (value & 0x10) ? 1 : 0;
-			value &= 0xEF;
+	PRT_DEBUG("IDE write reg: " << (int)reg << " 0x" << std::hex << (int)value << std::dec);
+	if (softReset) {
+		if ((reg == 14) && !(value & 0x04)) {
+			// clear SRST
+			softReset = false;
 		}
-		device[selectedDevice]->writeReg(reg, value, time);
+		// ignore all other writes
+	} else {
+		if (reg == 0) {
+			writeData((value << 8) | value, time);
+		} else {
+			if ((reg == 14) && (value & 0x04)) {
+				// set SRST
+				softReset = true;
+				device[0]->reset(time);
+				device[1]->reset(time);
+			} else {
+				if (reg == 6) {
+					selectedDevice = (value & 0x10) ? 1 : 0;
+				}
+				device[selectedDevice]->writeReg(reg, value, time);
+			}
+		}
 	}
 }
