@@ -30,7 +30,7 @@ fi
 
 if ( libtoolize --version ) </dev/null > /dev/null 2>&1; then
 	echo "Building ltmain.sh"
-	libtoolize
+	libtoolize -f
 else
 	echo "libtoolize not found -- aborting"
 	exit
