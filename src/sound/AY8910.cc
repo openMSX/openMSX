@@ -75,7 +75,9 @@ void AY8910::writeRegister(byte reg, byte value, const EmuTime &time)
 		// update the output buffer before changing the register
 		Mixer::instance()->updateStream(time);
 	}
+	Mixer::instance()->lock();
 	wrtReg(reg, value, time);
+	Mixer::instance()->unlock();
 }
 void AY8910::wrtReg(byte reg, byte value, const EmuTime &time)
 {

@@ -992,8 +992,9 @@ void YM2413::setInternalVolume(short newVolume)
 
 void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 {
-	 // update the output buffer before changing the register
-	 Mixer::instance()->updateStream(time);
+	// update the output buffer before changing the register
+	Mixer::instance()->updateStream(time);
+	Mixer::instance()->lock();
 
 	assert (regis < 0x40);
 	switch (regis) {
@@ -1201,5 +1202,6 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 		break;
 	}
 	reg[regis] = data;
+	Mixer::instance()->unlock();
 	checkMute();
 }

@@ -190,8 +190,6 @@ class Y8950 : public SoundDevice
 		inline int calcAdpcm();
 		void checkMute();
 		bool checkMuteHelper();
-		inline bool update_stage();
-		inline void update_output(nibble val);
 
 		void setStatus(int flags);
 		void resetStatus(int flags);
@@ -306,7 +304,7 @@ class Y8950 : public SoundDevice
 
 		static const int GETA_BITS       = 14;
 		static const int DELTA_ADDR_MAX  = 1<<(16+GETA_BITS);
-		static const int DELTA_ADDR_MASK = DELTA_ADDR_MAX-1;
+
 
 		byte status;		// STATUS Register
 		byte statusMask;	//  bit=0 -> masked 
@@ -315,13 +313,14 @@ class Y8950 : public SoundDevice
 		byte* wave;		// ADPCM DATA
 		byte* memory[2];	// [0] RAM, [1] ROM
 
-		bool play_start;
+		bool adpcmPlaying;
 		int start_addr;
 		int stop_addr;
 		int play_addr; 		// Current play address * 2
-		int delta_addr;		// 16bit address
+		int delta_addr;
 		int delta_n;
 		int play_addr_mask;
+		int memPntr;
 
 		int adpcmOutput[2];
 		int diff;

@@ -423,7 +423,8 @@ Y8950::Y8950(short volume, const EmuTime &time, Mixer::ChannelMode mode=Mixer::M
 	// 256Kbytes RAM 
 	memory[0] = new byte[256*1024];
 	// 256Kbytes ROM 
-	memory[1] = new byte[256*1024];
+	//memory[1] = new byte[256*1024];
+	memory[1] = memory[0];
 	
 	reset(time);
 
@@ -437,7 +438,7 @@ Y8950::~Y8950()
 	Mixer::instance()->unregisterSound(this);
 	delete[] buffer;
 	delete[] memory[0];
-	delete[] memory[1];
+	//delete[] memory[1];
 }
 
 void Y8950::setSampleRate(int sampleRate)
@@ -474,7 +475,7 @@ void Y8950::reset(const EmuTime &time)
 
 	// adpcm
 	reg[0x04] = 0x18;
-	play_start = false;
+	adpcmPlaying = false;
 	status = 0x06;	// TODO
 	statusMask = 0;
 	play_addr = 0;
@@ -669,58 +670,47 @@ int Y8950::calcSample(int channelMask)
 }
 
 
-// Update ADPCM data stage (Register 0x0F) 
-bool Y8950::update_stage()
-{
-	delta_addr += delta_n;
-	if (delta_addr & DELTA_ADDR_MAX) {
-		delta_addr &= DELTA_ADDR_MASK;
-		play_addr = (play_addr+1) & play_addr_mask;
-		if (play_addr == (stop_addr & play_addr_mask)) {
-			if (reg[0x07] & R07_REPEAT) {
-				play_addr = start_addr & play_addr_mask;
-			} else {
-				play_start = false;
-				setStatus(STATUS_EOS);
-			}
-		} else {
-			reg[0x0F] = wave[play_addr>>1];
-		}
-		return true;
-	}
-	return false;
-}
-
-void Y8950::update_output(nibble val)
-{
-	// This table values are from ymdelta.c by Tatsuyuki Satoh.
-	static int F[] = {
-		57,  57,  57,  57,  77, 102, 128, 153
-	};
-
-	adpcmOutput[1] = adpcmOutput[0];
-	if (val&8)
-		adpcmOutput[0] -= (diff * ((val&7)*2+1)) >> 3;
-	else
-		adpcmOutput[0] += (diff * ((val&7)*2+1)) >> 3;
-	adpcmOutput[0] = CLAP(DECODE_MIN, adpcmOutput[0], DECODE_MAX);
-	diff = CLAP(DMIN, (diff * F[val&7])>>6, DMAX);
-}
-
 int Y8950::calcAdpcm()
 {
-	if (reg[0x07] & R07_SP_OFF) 
+	if ((reg[0x07]&R07_SP_OFF) || !adpcmPlaying)
 		return 0;
-	if (play_start && update_stage()) {
+	delta_addr += delta_n;
+	while (delta_addr >= DELTA_ADDR_MAX) {
+		delta_addr -= DELTA_ADDR_MAX;
+		
 		nibble val;
-		if (play_addr&1)
+		if (play_addr & 1) {
 			val = reg[0x0f]&0x0f;
-		else
+		} else {
+			reg[0x0f] = wave[play_addr/2];
 			val = reg[0x0f]>>4;
-		update_output(val);
+		}
+		// This table values are from ymdelta.c by Tatsuyuki Satoh.
+		static const int F1[16] = { 1,   3,   5,   7,   9,  11,  13,  15,
+		                           -1,  -3,  -5,  -7,  -9, -11, -13, -15};
+		static const int F2[16] = {57,  57,  57,  57,  77, 102, 128, 153,
+		                           57,  57,  57,  57,  77, 102, 128, 153};
+		adpcmOutput[1] = adpcmOutput[0];
+		adpcmOutput[0] += (diff*F1[val]) >> 3;
+		adpcmOutput[0] = CLAP(DECODE_MIN, adpcmOutput[0], DECODE_MAX);
+		diff = CLAP(DMIN, (diff*F2[val]) >> 6, DMAX);
+		
+		play_addr++;
+		if (play_addr > stop_addr) {
+			if (reg[0x07] & R07_REPEAT) {
+				play_addr = start_addr;
+				delta_addr = 0;
+				adpcmOutput[0] = 0;
+				adpcmOutput[1] = 0;
+				diff = DDEF;
+			} else {
+				adpcmPlaying = false;
+				setStatus(STATUS_EOS);
+			}
+		}
 	}
 	// TODO adjust relative volume
-	return ((adpcmOutput[0] + adpcmOutput[1]) * reg[0x12]) >> 13;
+	return ((adpcmOutput[0] + adpcmOutput[1]) * reg[0x12]) >> 12;
 }
 
 
@@ -747,7 +737,8 @@ bool Y8950::checkMuteHelper()
 		if (ch[8].car.eg_mode!=FINISH) return false;
 	}
 
-	//TODO adpcm
+	if (!(reg[0x07]&R07_SP_OFF) && adpcmPlaying)
+		return false;
 	
 	return true;	// nothing is playing, then mute
 }
@@ -798,10 +789,11 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 
 	//TODO only for registers that influence sound
 	//TODO also ADPCM
-	if (rg>=0x20) {
+	//if (rg>=0x20) {
 		// update the output buffer before changing the register
 		Mixer::instance()->updateStream(time);
-	}
+	//}
+	Mixer::instance()->lock();
 
 	switch (rg&0xe0) {
 	case 0x00: {
@@ -860,13 +852,13 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 			reg[0x06] = data;
 			break;
 
-		case 0x07: // START/REC/MEM DATA/REPEAT/SP-OFF/-/-/RESET 
+		case 0x07: // START/REC/MEM DATA/REPEAT/SP-OFF/-/-/RESET
 			if (data & R07_RESET) {
-				play_start = false;
+				adpcmPlaying = false;
 				break;
 			} else if (data & R07_START) {
-				play_start = true;
-				play_addr = start_addr & play_addr_mask;
+				adpcmPlaying = true;
+				play_addr = start_addr;
 				delta_addr = 0;
 				adpcmOutput[0] = 0;
 				adpcmOutput[1] = 0;
@@ -879,18 +871,21 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 			reg[0x08] = data;
 			wave = reg[0x08]&R08_ROM ? memory[1] : memory[0];
 			play_addr_mask = reg[0x08]&R08_64K ? (1<<17)-1 : (1<<19)-1;
+			start_addr =  ((reg[0x0A]*256+reg[0x09])*8)    & play_addr_mask;
+			stop_addr  = (((reg[0x0C]*256+reg[0x0B])*8)+7) & play_addr_mask;
 			break;
 
 		case 0x09: // START ADDRESS (L) 
 		case 0x0A: // START ADDRESS (H) 
 			reg[rg] = data;
-			start_addr = ((reg[0x0A]<<8)|reg[0x09]) << 3;
+			start_addr = ((reg[0x0A]*256+reg[0x09])*8) & play_addr_mask;
+			memPntr = 0;
 			break;
 
 		case 0x0B: // STOP ADDRESS (L) 
 		case 0x0C: // STOP ADDRESS (H) 
 			reg[rg] = data;
-			stop_addr = (((reg[0x0C])<<8)|reg[0x0B]) << 3;
+			stop_addr  = (((reg[0x0C]*256+reg[0x0B])*8)+7) & play_addr_mask;
 			break;
 
 		case 0x0D: // PRESCALE (L) 
@@ -901,11 +896,9 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 		case 0x0F: // ADPCM-DATA 
 			reg[0x0F] = data;
 			if ((reg[0x07]&R07_REC) && (reg[0x07]&R07_MEMORY_DATA)) {
-				wave[play_addr>>1] = data;
-				play_addr = (play_addr+2)&(play_addr_mask);
-				if (play_addr >= (stop_addr & play_addr_mask)) {
-					//setStatus(STATUS_EOS); // Bug? 
-				}
+				int tmp = (start_addr + memPntr) & play_addr_mask;
+				wave[tmp/2] = data;
+				memPntr += 2;
 			}
 			setStatus(STATUS_BUF_RDY);
 			break;
@@ -1031,6 +1024,7 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 		reg[rg] = data;
 	}
 	}
+	Mixer::instance()->unlock();
 	//TODO only for registers that influence sound
 	checkMute();
 }
