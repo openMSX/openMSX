@@ -844,7 +844,7 @@ void Y8950::setInternalVolume(short newVolume)
 
 void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 {
-	PRT_DEBUG("Y8950 write " << (int)rg << " " << (int)data);
+	//PRT_DEBUG("Y8950 write " << (int)rg << " " << (int)data);
 	int stbl[32] = {
 		 0, 2, 4, 1, 3, 5,-1,-1,
 		 6, 8,10, 7, 9,11,-1,-1,

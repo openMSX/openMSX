@@ -31,7 +31,7 @@ MSXRomDevice::~MSXRomDevice()
 	
 	std::list<MSXRomPatchInterface*>::iterator i;
 	for (i=romPatchInterfaces.begin(); i!=romPatchInterfaces.end(); i++) {
-		//MSXMotherBoard::instance()->unregisterInterface(*i);
+		MSXMotherBoard::instance()->unregisterInterface(*i);
 		delete (*i);
 	}
 	delete[] romBank;

@@ -4,7 +4,7 @@
 #define __CONSOLEMANAGER_HH__
 
 #include <string>
-#include <vector>
+#include <list>
 
 // Forward declarations
 class Console;
@@ -21,13 +21,14 @@ class ConsoleManager
 		void print(const std::string &text);
 
 		/**
-		 * Register a new Console
+		 * (Un)register a Console
 		 */
 		void registerConsole(Console *console);
+		void unregisterConsole(Console *console);
 		
 	private:
 		static ConsoleManager* oneInstance;
-		std::vector<Console*> consoles;
+		std::list<Console*> consoles;
 };
 
 #endif

@@ -17,13 +17,9 @@ class CommandController
 		static CommandController* instance();
 
 		/**
-		 * TODO
+		 * (Un)register a command
 		 */
 		void registerCommand(Command &commandObject, const std::string &str);
-
-		/**
-		 * TODO
-		 */
 		void unregisterCommand(const std::string &str);
 
 		/**
@@ -40,7 +36,7 @@ class CommandController
 		 * Complete a given command
 		 */
 		void tabCompletion(std::string &command);
-		void CommandController::tabCompletion(std::vector<std::string> &tokens);
+		void tabCompletion(std::vector<std::string> &tokens);
 
 		/**
 		 * TODO

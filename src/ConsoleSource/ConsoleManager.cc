@@ -15,7 +15,7 @@ ConsoleManager* ConsoleManager::oneInstance = NULL;
 
 void ConsoleManager::print(const std::string &text)
 {
-	std::vector<Console*>::iterator i;
+	std::list<Console*>::iterator i;
 	for (i = consoles.begin(); i != consoles.end(); i++) {
 		(*i)->print(text);
 	}
@@ -24,4 +24,8 @@ void ConsoleManager::print(const std::string &text)
 void ConsoleManager::registerConsole(Console *console)
 {
 	consoles.push_back(console);
+}
+void ConsoleManager::unregisterConsole(Console *console)
+{
+	consoles.remove(console);
 }

@@ -988,7 +988,7 @@ void YM2413::setInternalVolume(short newVolume)
 
 void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 {
-	PRT_DEBUG("YM2413: write reg "<<(int)regis<<" "<<(int)data);
+	//PRT_DEBUG("YM2413: write reg "<<(int)regis<<" "<<(int)data);
 
 	// update the output buffer before changing the register
 	Mixer::instance()->updateStream(time);

@@ -41,9 +41,10 @@ class CPUInterface {
 		void patch(CPU::CPURegs& regs);
 
 		/**
-		 * Register a MSXRomPatchInterface
+		 * (Un)register a MSXRomPatchInterface
 		 */
-		void registerInterface(const MSXRomPatchInterface *i);
+		void   registerInterface(const MSXRomPatchInterface *i);
+		void unregisterInterface(const MSXRomPatchInterface *i);
 
 		/**
 		 * Called when RETI accurs
