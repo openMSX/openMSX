@@ -272,7 +272,9 @@ void SDLGLRenderer::finishFrame()
 		// TODO: These are always the same lines: use a display list.
 		// TODO: If interlace is active, draw scanlines on even/odd lines
 		//       for odd/even frames respectively.
-		if (scanlineAlpha != 255) {
+		if (scanlineAlpha == 255) {
+			glDisable(GL_BLEND);
+		} else {
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		}
