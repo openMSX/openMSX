@@ -104,6 +104,7 @@ Document::~Document()
 }
 
 Element::Element(xmlNodePtr node)
+:pcdata("")
 {
 	name = std::string((const char*)node->name);
 	for (xmlNodePtr x = node->children; x != 0 ; x=x->next)
@@ -112,7 +113,7 @@ Element::Element(xmlNodePtr node)
 		switch (x->type)
 		{
 			case XML_TEXT_NODE:
-			pcdata = std::string((const char*)x->content);
+			pcdata += std::string((const char*)x->content);
 			break;
 
 			case XML_ELEMENT_NODE:
@@ -135,8 +136,8 @@ Element::Element(xmlNodePtr node)
 			attributes.push_back(new Attribute(x));
 			break;
 
-#ifdef XMLX_DEBUG
 			default:
+#ifdef XMLX_DEBUG
 			std::cout << "skipping node with type: " << x->type << std::endl;
 #endif
 			break;

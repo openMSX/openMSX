@@ -3,7 +3,8 @@
 lib_LTLIBRARIES = libxmlx.la
 libxmlx_la_SOURCES = libxmlx.cc xmlx.hh
 
-AM_CXXFLAGS = -Wall -DXMLX_DEBUG -g3 -pipe
+#AM_CXXFLAGS = -Wall -DXMLX_DEBUG -g3 -pipe
+AM_CXXFLAGS = -Wall -g3 -pipe
 
 #  uncomment the following if libxmlx requires the math library
 #libxmlx_LDADD=-lm
