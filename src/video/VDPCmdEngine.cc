@@ -44,19 +44,25 @@ TODO:
 namespace openmsx {
 
 // Constants:
-static const byte MASK[4] = { 0x0F, 0x03, 0x0F, 0xFF };
-static const int  PPB[4]  = { 2, 4, 2, 1 };
-static const int  PPL[4]  = { 256, 512, 512, 256 };
+const byte DIY = 0x08;
+const byte DIX = 0x04;
+const byte EQ  = 0x02;
+const byte MAJ = 0x01;
 
-//                      Sprites:    On   On   Off  Off
-//                      Screen:     Off  On   Off  On
-static const int SRCH_TIMING[8] = {  92, 125,  92,  92 };
-static const int LINE_TIMING[8] = { 120, 147, 120, 132 };
-static const int HMMV_TIMING[8] = {  49,  65,  49,  62 };
-static const int LMMV_TIMING[8] = {  98, 137,  98, 124 };
-static const int YMMM_TIMING[8] = {  65, 125,  65,  68 };
-static const int HMMM_TIMING[8] = {  92, 136,  92,  97 };
-static const int LMMM_TIMING[8] = { 129, 197, 129, 132 };
+
+const byte MASK[4] = { 0x0F, 0x03, 0x0F, 0xFF };
+const int  PPB[4]  = { 2, 4, 2, 1 };
+const int  PPL[4]  = { 256, 512, 512, 256 };
+
+//               Sprites:    On   On   Off  Off
+//               Screen:     Off  On   Off  On
+const int SRCH_TIMING[8] = {  92, 125,  92,  92 };
+const int LINE_TIMING[8] = { 120, 147, 120, 132 };
+const int HMMV_TIMING[8] = {  49,  65,  49,  62 };
+const int LMMV_TIMING[8] = {  98, 137,  98, 124 };
+const int YMMM_TIMING[8] = {  65, 125,  65,  68 };
+const int HMMM_TIMING[8] = {  92, 136,  92,  97 };
+const int LMMM_TIMING[8] = { 129, 197, 129, 132 };
 
 
 
@@ -245,18 +251,56 @@ void VDPCmdEngine::reportVdpCommand()
 	fprintf(stderr,
 		"V9938: Opcode %s-%s (%d,%d)->(%d,%d),%d [%d,%d]%s\n",
 		COMMANDS[CMD], OPS[LOG], SX, SY, DX, DY, COL,
-		((ARG & 0x04) ? -NX : NX),
-		((ARG & 0x08) ? -NY : NY),
+		((ARG & DIX) ? -NX : NX),
+		((ARG & DIY) ? -NY : NY),
 		((ARG & 0x70) ? " on ExtVRAM" : ""));
 }
 
 
 // Inline methods first, to make sure they are actually inlined.
 
-#define VDP_VRMP5(X, Y) (((Y & 1023) << 7) + ((X & 255) >> 1))
-#define VDP_VRMP6(X, Y) (((Y & 1023) << 7) + ((X & 511) >> 2))
-#define VDP_VRMP7(X, Y) (((X & 2) << 15) + ((Y & 511) << 7) + ((X & 511) >> 2))
-#define VDP_VRMP8(X, Y) (((X & 1) << 16) + ((Y & 511) << 7) + ((X & 255) >> 1))
+static inline int VDP_VRMP5(int X, int Y)
+{
+	return (((Y & 1023) << 7) + ((X & 255) >> 1));
+}
+static inline int VDP_VRMP6(int X, int Y)
+{
+	return (((Y & 1023) << 7) + ((X & 511) >> 2));
+}
+static inline int VDP_VRMP7(int X, int Y)
+{
+	return (((X & 2) << 15) + ((Y & 511) << 7) + ((X & 511) >> 2));
+}
+static inline int VDP_VRMP8(int X, int Y)
+{
+	return (((X & 1) << 16) + ((Y & 511) << 7) + ((X & 255) >> 1));
+}
+
+static inline int min(int a, int b)
+{
+	return (a < b) ? a : b; 
+}
+static inline int max(int a, int b)
+{
+	return (a > b) ? a : b; 
+}
+
+inline void VDPCmdEngine::VDPCmd::clipNX_DX()
+{
+	NX = (engine->ARG & DIX) ? min(NX, DX + 1) : min(NX, MX - DX);
+}
+inline void VDPCmdEngine::VDPCmd::clipNX_SXDX()
+{
+	NX = (engine->ARG & DIX) ? min(NX, min(SX, DX) + 1) : min(NX, MX - max(SX, DX));
+}
+inline void VDPCmdEngine::VDPCmd::clipNY_DY()
+{
+	NY = (engine->ARG & DIY) ? min(NY, DY + 1) : NY;
+}
+inline void VDPCmdEngine::VDPCmd::clipNY_SYDY()
+{
+	NY = (engine->ARG & DIY) ? min(NY, min(SY, DY) + 1) : NY;
+}
 
 inline int VDPCmdEngine::VDPCmd::vramAddr(int x, int y)
 {
@@ -533,9 +577,9 @@ void VDPCmdEngine::SrchCmd::start(const EmuTime &time)
 	vram->cmdWriteWindow.disable(currentTime);
 	SX = engine->SX;
 	SY = engine->SY;
-	TX = (engine->ARG & 0x04) ? -1 : 1;
+	TX = (engine->ARG & DIX) ? -1 : 1;
 	CL = engine->COL & MASK[engine->scrMode];
-	ANX = (engine->ARG & 0x02) != 0; // TODO: Do we look for "==" or "!="?
+	ANX = (engine->ARG & EQ) != 0; // TODO: Do we look for "==" or "!="?
 }
 
 void VDPCmdEngine::SrchCmd::execute(const EmuTime &time)
@@ -593,8 +637,8 @@ void VDPCmdEngine::LineCmd::start(const EmuTime &time)
 	DY = engine->DY;
 	NX = engine->NX;
 	NY = engine->NY;	// don't transform 0 -> 1024
-	TX = (engine->ARG & 0x04) ? -1 : 1;
-	TY = (engine->ARG & 0x08) ? -1 : 1;
+	TX = (engine->ARG & DIX) ? -1 : 1;
+	TY = (engine->ARG & DIY) ? -1 : 1;
 	CL = engine->COL & MASK[engine->scrMode];
 	LO = engine->LOG;
 	ASX = ((NX - 1) >> 1);
@@ -633,7 +677,7 @@ void VDPCmdEngine::LineCmd::execute(const EmuTime &time)
 		} \
 	}
 
-	if ((engine->ARG & 0x01) == 0) {
+	if ((engine->ARG & MAJ) == 0) {
 		// X-Axis is major direction.
 		switch (engine->scrMode) {
 		case 0: pre_loop pset5(DX, DY, CL, LO); post_linexmaj(256)
@@ -679,8 +723,8 @@ void VDPCmdEngine::LmmvCmd::start(const EmuTime &time)
 	DY = engine->DY;
 	NX = engine->NX;
 	NY = engine->NY ? engine->NY : 1024;
-	TX = (engine->ARG & 0x04) ? -1 : 1;
-	TY = (engine->ARG & 0x08) ? -1 : 1;
+	TX = (engine->ARG & DIX) ? -1 : 1;
+	TY = (engine->ARG & DIY) ? -1 : 1;
 	CL = engine->COL & MASK[engine->scrMode];
 	LO = engine->LOG;
 	ADX = DX;
@@ -737,8 +781,8 @@ void VDPCmdEngine::LmmmCmd::start(const EmuTime &time)
 	DY = engine->DY;
 	NX = engine->NX;
 	NY = engine->NY ? engine->NY : 1024;
-	TX = (engine->ARG & 0x04) ? -1 : 1;
-	TY = (engine->ARG & 0x08) ? -1 : 1;
+	TX = (engine->ARG & DIX) ? -1 : 1;
+	TY = (engine->ARG & DIY) ? -1 : 1;
 	LO = engine->LOG;
 	ASX = SX;
 	ADX = DX;
@@ -800,8 +844,8 @@ void VDPCmdEngine::LmcmCmd::start(const EmuTime &time)
 	DY = engine->DY;
 	NX = engine->NX;
 	NY = engine->NY ? engine->NY : 1024;
-	TX = (engine->ARG & 0x04) ? -1 : 1;
-	TY = (engine->ARG & 0x08) ? -1 : 1;
+	TX = (engine->ARG & DIX) ? -1 : 1;
+	TY = (engine->ARG & DIY) ? -1 : 1;
 	MX = PPL[engine->scrMode];
 	ASX = SX;
 	ANX = NX;
@@ -844,8 +888,8 @@ void VDPCmdEngine::LmmcCmd::start(const EmuTime &time)
 	DY = engine->DY;
 	NX = engine->NX;
 	NY = engine->NY ? engine->NY : 1024;
-	TX = (engine->ARG & 0x04) ? -1 : 1;
-	TY = (engine->ARG & 0x08) ? -1 : 1;
+	TX = (engine->ARG & DIX) ? -1 : 1;
+	TY = (engine->ARG & DIY) ? -1 : 1;
 	MX = PPL[engine->scrMode];
 	LO = engine->LOG;
 	ADX = DX;
@@ -891,8 +935,8 @@ void VDPCmdEngine::HmmvCmd::start(const EmuTime &time)
 	DY = engine->DY;
 	NX = engine->NX / PPB[engine->scrMode];
 	NY = engine->NY ? engine->NY : 1024;
-	TX = (engine->ARG & 0x04) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
-	TY = (engine->ARG & 0x08) ? -1 : 1;
+	TX = (engine->ARG & DIX) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
+	TY = (engine->ARG & DIY) ? -1 : 1;
 	CL = engine->COL;
 	ADX = DX;
 	ANX = NX;
@@ -952,8 +996,8 @@ void VDPCmdEngine::HmmmCmd::start(const EmuTime &time)
 	DY = engine->DY;
 	NX = engine->NX / PPB[engine->scrMode];
 	NY = engine->NY ? engine->NY : 1024;
-	TX = (engine->ARG & 0x04) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
-	TY = (engine->ARG & 0x08) ? -1 : 1;
+	TX = (engine->ARG & DIX) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
+	TY = (engine->ARG & DIY) ? -1 : 1;
 	ASX = SX;
 	ADX = DX;
 	ANX = NX;
@@ -1029,8 +1073,8 @@ void VDPCmdEngine::YmmmCmd::start(const EmuTime &time)
 	DX = engine->DX;
 	DY = engine->DY;
 	NY = engine->NY ? engine->NY : 1024;
-	TX = (engine->ARG & 0x04) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
-	TY = (engine->ARG & 0x08) ? -1 : 1;
+	TX = (engine->ARG & DIX) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
+	TY = (engine->ARG & DIY) ? -1 : 1;
 	ADX = DX;
 }
 
@@ -1104,8 +1148,8 @@ void VDPCmdEngine::HmmcCmd::start(const EmuTime &time)
 	DY = engine->DY;
 	NX = engine->NX / PPB[engine->scrMode];
 	NY = engine->NY ? engine->NY : 1024;
-	TX = (engine->ARG & 0x04) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
-	TY = (engine->ARG & 0x08) ? -1 : 1;
+	TX = (engine->ARG & DIX) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
+	TY = (engine->ARG & DIY) ? -1 : 1;
 	MX = PPL[engine->scrMode];
 	ADX = DX;
 	ANX = NX;

@@ -144,6 +144,21 @@ private:
 		VDPCmd(VDPCmdEngine *engine_, VDPVRAM *vram_)
 			: engine(engine_), vram(vram_) {}
 
+		/** Prepare execution of cmd
+		  */
+		virtual void start(const EmuTime &time) = 0;
+
+		/** Perform a given V9938 graphical operation.
+		  */
+		virtual void execute(const EmuTime &time) = 0;
+
+		/** Will this command change the status register before the
+		  * specified time? It is allowed to return true if you're not
+		  * sure the status register will change.
+		  */
+		virtual bool willStatusChange(const EmuTime &time) { return true; }
+
+	protected:
 		/** Calculate addr of a pixel in VRAM.
 		  */
 		inline int vramAddr(int x, int y);
@@ -192,20 +207,6 @@ private:
 		  */
 		inline void pset(int dx, int dy, byte cl, LogOp op);
 
-		/** Prepare execution of cmd
-		  */
-		virtual void start(const EmuTime &time) = 0;
-
-		/** Perform a given V9938 graphical operation.
-		  */
-		virtual void execute(const EmuTime &time) = 0;
-
-		/** Will this command change the status register before the
-		  * specified time? It is allowed to return true if you're not
-		  * sure the status register will change.
-		  */
-		virtual bool willStatusChange(const EmuTime &time) { return true; }
-
 		/** Finshed executing graphical operation.
 		  */
 		void commandDone();
@@ -215,12 +216,27 @@ private:
 		  *   values for the VDP command in question.
 		  */
 		int getVdpTimingValue(const int *timingValues);
+		
+		/** Clipping methods
+		  */
+		inline void clipNX_DX();
+		inline void clipNX_SXDX();
+		inline void clipNY_DY();
+		inline void clipNY_SYDY();
 
-	protected:
 		VDPCmdEngine *engine;
 		VDPVRAM *vram;
 		EmuTimeFreq<VDP::TICKS_PER_SECOND> currentTime;
 		int opsCount;
+
+		int SX, SY;
+		int DX, DY;
+		int NX, NY;
+		int TX, TY;
+		int ASX, ADX, ANX;
+		int MX;
+		byte CL;
+		LogOp LO;
 	};
 	friend class VDPCmd;
 
@@ -268,11 +284,6 @@ private:
 			: VDPCmd(engine, vram) {}
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
-
-		int SX, SY;
-		int TX, MX;
-		int ANX;
-		byte CL;
 	};
 	friend class SrchCmd;
 
@@ -284,13 +295,6 @@ private:
 			: VDPCmd(engine, vram) {}
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
-
-		int DX, DY;
-		int NX, NY;
-		int TX, TY;
-		int ASX, ADX;
-		byte CL;
-		LogOp LO;
 	};
 	friend class LineCmd;
 
@@ -302,13 +306,6 @@ private:
 			: VDPCmd(engine, vram) {}
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
-
-		int DX, DY;
-		int TX, TY;
-		int NX, NY;
-		int ADX, ANX;
-		byte CL;
-		LogOp LO;
 	};
 	friend class LmmvCmd;
 
@@ -320,13 +317,6 @@ private:
 			: VDPCmd(engine, vram) {}
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
-
-		int SX, SY;
-		int DX, DY;
-		int TX, TY;
-		int NX, NY;
-		int ASX, ADX, ANX;
-		LogOp LO;
 	};
 	friend class LmmmCmd;
 
@@ -338,12 +328,6 @@ private:
 			: VDPCmd(engine, vram) {}
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
-
-		int SX, SY;
-		int DY, NX;
-		int NY, MX;
-		int TX, TY;
-		int ASX, ANX;
 	};
 	friend class LmcmCmd;
 
@@ -355,13 +339,6 @@ private:
 			: VDPCmd(engine, vram) {}
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
-
-		int DX, DY;
-		int NX, NY;
-		int TX, TY;
-		int MX;
-		int ADX, ANX;
-		LogOp LO;
 	};
 	friend class LmmcCmd;
 
@@ -373,12 +350,6 @@ private:
 			: VDPCmd(engine, vram) {}
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
-
-		int DX, DY;
-		int NX, NY;
-		int TX, TY;
-		int ADX, ANX;
-		byte CL;
 	};
 	friend class HmmvCmd;
 
@@ -390,12 +361,6 @@ private:
 			: VDPCmd(engine, vram) {}
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
-
-		int SX, SY;
-		int DX, DY;
-		int TX, TY;
-		int NX, NY;
-		int ASX, ADX, ANX;
 	};
 	friend class HmmmCmd;
 
@@ -407,12 +372,6 @@ private:
 			: VDPCmd(engine, vram) {}
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
-
-		int SY;
-		int NY;
-		int DX, DY;
-		int TX, TY;
-		int ADX;
 	};
 	friend class YmmmCmd;
 
@@ -424,12 +383,6 @@ private:
 			: VDPCmd(engine, vram) {}
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
-
-		int DX, DY;
-		int NX, NY;
-		int TX, TY;
-		int MX;
-		int ADX, ANX;
 	};
 	friend class HmmcCmd;
 };
