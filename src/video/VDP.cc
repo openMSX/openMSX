@@ -34,6 +34,7 @@ TODO:
 #include "RendererFactory.hh"
 #include "Debugger.hh"
 #include "ScreenShotSaver.hh"
+#include "CliCommOutput.hh"
 
 using std::setw;
 
@@ -1182,6 +1183,7 @@ string VDP::ScreenShotCmd::execute(const vector<string>& tokens)
 	}
 	
 	vdp.renderer->takeScreenShot(filename);
+	CliCommOutput::instance().printInfo("Screen saved to " + filename);
 	return filename;
 }
 

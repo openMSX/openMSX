@@ -1,5 +1,9 @@
 $Id$
 
+2004-03-16 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Screenshot 'feedback' was only given for non-GL renderer, moved code
+	  to a common (gl / non-gl) code path.
+
 2004-03-16 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Fixed saving persistent data in windows (SRAM, cmos, history)
 

@@ -8,7 +8,6 @@
 #include <sys/types.h>
 #include <png.h>
 #include "ScreenShotSaver.hh"
-#include "CliCommOutput.hh"
 #include "FileOperations.hh"
 
 using std::ostringstream;
@@ -125,7 +124,6 @@ void ScreenShotSaver::save(SDL_Surface* surface, const string& filename)
 	if (!result) {
 		throw CommandException("Failed to write " + filename);
 	}
-	CliCommOutput::instance().printInfo("Screen saved to " + filename);
 }
 
 void ScreenShotSaver::save(unsigned width, unsigned height,
