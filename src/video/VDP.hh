@@ -184,6 +184,24 @@ public:
 		return controlRegs[23];
 	}
 
+	/** Gets the current horizontal scroll lower bits.
+	  * Rather than actually scrolling the screen, this setting shifts the
+	  * screen 0..7 bytes to the right.
+	  * @return Horizontal scroll low register value.
+	  */
+	inline byte getHorizontalScrollLow() {
+		return controlRegs[27];
+	}
+
+	/** Gets the current border mask setting.
+	  * Border mask extends the left border by 8 pixels if enabled.
+	  * This is a V9958 feature, on older VDPs it always returns false.
+	  * @return true iff enabled.
+	  */
+	inline bool isBorderMasked() {
+		return controlRegs[25] & 0x02;
+	}
+
 	/** Gets the current horizontal display adjust.
 	  * @return Adjust: 0 is leftmost, 7 is center, 15 is rightmost.
 	  */
@@ -323,6 +341,45 @@ public:
 			getTicksThisFrame(time) <= getTicksPerFrame();
 	}
 
+	/** Gets the number of VDP clockticks between start of line and the start
+	  * of the sprite plane.
+	  * The location of the sprite plane is not influenced by horizontal scroll
+	  * or border mask.
+	  * TODO: Leave out the text mode case, since there are no sprites
+	  *       in text mode?
+	  */
+	inline int getLeftSprites() {
+		return 100 + 102 + 56
+			+ (horizontalAdjust - 7) * 4
+			+ (displayMode.isTextMode() ? 36 : 0);
+	}
+
+	/** Gets the number of VDP clockticks between start of line and the end
+	  * of the left border.
+	  * Does not include extra pixels of horizontal scroll low, since those
+	  * are not actually border pixels (sprites appear in front of them).
+	  */
+	inline int getLeftBorder() {
+		return getLeftSprites() + (isBorderMasked() ? 8 * 4 : 0);
+	}
+
+	/** Gets the number of VDP clockticks between start of line and the start
+	  * of the right border.
+	  */
+	inline int getRightBorder() {
+		return getLeftSprites()
+			+ (displayMode.isTextMode() ? 960 : 1024);
+	}
+
+	/** Gets the number of VDP clockticks between start of line and the time
+	  * when the background pixel with X coordinate 0 would be drawn.
+	  * This includes extra pixels of horizontal scroll low,
+	  * but disregards border mask.
+	  */
+	inline int getLeftBackground() {
+		return getLeftSprites() + getHorizontalScrollLow() * 4;
+	}
+
 private:
 	class VDPRegsCmd : public Command {
 	public:
@@ -398,8 +455,6 @@ private:
 	/** Gets the value of the horizontal retrace status bit.
 	  * Note that HR flipping continues at all times, not just during
 	  * vertical display range.
-	  * TODO: This method is used just once currently, if it stays
-	  *   that way substitute the code instead of having a method.
 	  * @param ticksThisFrame The screen position (in VDP ticks)
 	  *    to return HR for.
 	  * @return True iff the VDP scanning is inside the left/right

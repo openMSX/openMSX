@@ -142,7 +142,7 @@ protected:
 	int getDisplayLeft() {
 		return 100 + 102 + 56
 			+ (vdp->getHorizontalAdjust() - 7) * 4
-			+ (vdp->getDisplayMode().isTextMode() ? 28 : 0);
+			+ (vdp->getDisplayMode().isTextMode() ? 36 : 0);
 	}
 
 	/** The VDP of which the video output is being rendered.
@@ -159,7 +159,7 @@ protected:
 
 private:
 	/** Indicates whether the area to be drawn is border or display. */
-	enum DrawType { DRAW_BORDER, DRAW_DISPLAY };
+	enum DrawType { DRAW_BORDER, DRAW_DISPLAY, DRAW_SPRITES };
 
 	/** Call the right draw method in the subclass,
 	  * depending on passed drawType.

@@ -94,9 +94,12 @@ private:
 	inline void renderPlanarBitmapLines(byte line, int count);
 	inline void renderCharacterLines(byte line, int count);
 
-	inline void renderText1(int vramLine, int screenLine, int count);
-	inline void renderGraphic2(int vramLine, int screenLine, int count);
-	inline void renderGraphic2Row(int row, int screenLine);
+	inline void renderText1(
+		int vramLine, int screenLine, int count, int minX, int maxX );
+	inline void renderGraphic2(
+		int vramLine, int screenLine, int count, int minX, int maxX );
+	inline void renderGraphic2Row(
+		int row, int screenLine, int col, int endCol );
 
 	/** Get a pointer to the start of a VRAM line in the cache.
 	  * @param displayCache The display cache to use.

@@ -47,10 +47,13 @@ template <class Pixel, Renderer::Zoom zoom>
 inline int SDLRenderer<Pixel, zoom>::translateX(int absoluteX)
 {
 	if (absoluteX == VDP::TICKS_PER_LINE) return WIDTH;
-	// Note: The "& ~1" forces the ticks to a pixel (2-tick) boundary.
+	// Note: The ROUND_MASK forces the ticks to a pixel (2-tick) boundary.
 	//       If this is not done, rounding errors will occur.
+	//       This is especially tricky because division of a negative number
+	//       is rounded towards zero instead of down.
+	const int ROUND_MASK = (zoom == Renderer::ZOOM_256 ? ~3 : ~1);
 	int screenX =
-		(absoluteX - (TICKS_VISIBLE_MIDDLE & ~1))
+		((absoluteX & ROUND_MASK) - (TICKS_VISIBLE_MIDDLE & ROUND_MASK))
 		/ (zoom == Renderer::ZOOM_256 ? 4 : 2)
 		+ WIDTH / 2;
 	return screenX < 0 ? 0 : screenX;
@@ -672,7 +675,9 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 	source.x = displayX;
 	source.w = displayWidth;
 	source.h = 1;
-	dest.x = translateX(fromX);
+	dest.x = translateX(vdp->getLeftBackground()) + displayX;
+	// TODO: Find out why this causes 1-pixel jitter:
+	//dest.x = translateX(fromX);
 
 	DisplayMode mode = vdp->getDisplayMode();
 	if (mode.isBitmapMode()) {
@@ -769,7 +774,7 @@ void SDLRenderer<Pixel, zoom>::drawSprites(
 	Pixel *pixelPtr0 = (Pixel *)(
 		(byte *)screen->pixels
 		+ screenY * screen->pitch
-		+ translateX(getDisplayLeft()) * sizeof(Pixel)
+		+ translateX(vdp->getLeftSprites()) * sizeof(Pixel)
 		);
 	for (int y = fromY; y < limitY; y++) {
 		Pixel *pixelPtr1 = 

@@ -29,11 +29,10 @@ inline void PixelRenderer::draw(
 	case DRAW_BORDER:
 		drawBorder(startX, startY, endX, endY);
 		break;
-	case DRAW_DISPLAY: {
+	case DRAW_DISPLAY:
+	case DRAW_SPRITES: {
 		// Calculate display coordinates.
-		// TODO: Passing startX in pixels instead of ticks
-		//       avoids tricky rounding problems.
-		int displayX = (startX - getDisplayLeft()) / 2;
+		int displayX = (startX - vdp->getLeftSprites()) / 2;
 		int displayY = startY - vdp->getLineZero();
 		if (!vdp->getDisplayMode().isTextMode()) {
 			displayY += vdp->getVerticalScroll();
@@ -45,16 +44,19 @@ inline void PixelRenderer::draw(
 		assert(0 <= displayX);
 		assert(displayX + displayWidth <= 512);
 		
-		drawDisplay(
-			startX, startY,
-			displayX, displayY,
-			displayWidth, displayHeight
-			);
-		drawSprites(
-			startX, startY,
-			displayX / 2, displayY,
-			(displayWidth + 1) / 2, displayHeight
-			);
+		if (drawType == DRAW_DISPLAY) {
+			drawDisplay(
+				startX, startY,
+				displayX - vdp->getHorizontalScrollLow() * 2, displayY,
+				displayWidth, displayHeight
+				);
+		} else { // DRAW_SPRITES
+			drawSprites(
+				startX, startY,
+				displayX / 2, displayY,
+				(displayWidth + 1) / 2, displayHeight
+				);
+		}
 		break;
 	}
 	default:
@@ -142,20 +144,29 @@ inline void PixelRenderer::renderUntil(const EmuTime &time)
 		// Update sprite checking, so that subclass can call getSprites.
 		spriteChecker->checkUntil(time);
 
-		// Calculate start and end of display in ticks since start of line.
-		int displayL = getDisplayLeft();
-		int displayR = displayL +
-			(vdp->getDisplayMode().isTextMode() ? 960 : 1024);
+		// Calculate start and end of borders in ticks since start of line.
+		// The 0..7 extra horizontal scroll low pixels should be drawn in
+		// border colour. These will be drawn together with the border,
+		// but sprites above these pixels are clipped at the actual border
+		// rather than the end of the border coloured area.
+		// TODO: Move these calculations and getDisplayLeft() to VDP.
+		int borderL = vdp->getLeftBorder();
+		int displayL =
+			vdp->isBorderMasked() ? borderL : vdp->getLeftBackground();
+		int borderR = vdp->getRightBorder();
 
 		// Left border.
 		subdivide(nextX, nextY, limitX, limitY,
 			0, displayL, DRAW_BORDER );
 		// Display area.
 		subdivide(nextX, nextY, limitX, limitY,
-			displayL, displayR, DRAW_DISPLAY );
+			displayL, borderR, DRAW_DISPLAY );
+		// Sprite plane.
+		subdivide(nextX, nextY, limitX, limitY,
+			borderL, borderR, DRAW_SPRITES );
 		// Right border.
 		subdivide(nextX, nextY, limitX, limitY,
-			displayR, VDP::TICKS_PER_LINE, DRAW_BORDER );
+			borderR, VDP::TICKS_PER_LINE, DRAW_BORDER );
 	} else {
 		subdivide(nextX, nextY, limitX, limitY,
 			0, VDP::TICKS_PER_LINE, DRAW_BORDER );

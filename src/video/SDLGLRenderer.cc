@@ -80,22 +80,21 @@ inline static void GLUpdateTexture(
 		);
 }
 
-inline static void GLDrawTexture(GLuint textureId, int leftBorder, int y, int minX, int maxX, int lines)
-{
+inline static void GLDrawTexture(
+	GLuint textureId, int texX,
+	int screenX, int screenY, int width, int height
+) {
+	float texL = texX / 512.0f;
+	float texR = (texX + width) / 512.0f;
+	int screenL = screenX;
+	int screenR = screenL + width;
 	glBindTexture(GL_TEXTURE_2D, textureId);
 	glBegin(GL_QUADS);
-	glTexCoord2f(minX / 512.0f, 0); glVertex2i(leftBorder + minX, y + lines);	// Bottom Left
-	glTexCoord2f(maxX / 512.0f, 0); glVertex2i(leftBorder + maxX, y + lines);	// Bottom Right
-	glTexCoord2f(maxX / 512.0f, 1); glVertex2i(leftBorder + maxX, y);	// Top Right
-	glTexCoord2f(minX / 512.0f, 1); glVertex2i(leftBorder + minX, y);	// Top Left
+	glTexCoord2f(texL, 1); glVertex2i(screenL, screenY);
+	glTexCoord2f(texR, 1); glVertex2i(screenR, screenY);
+	glTexCoord2f(texR, 0); glVertex2i(screenR, screenY + height);
+	glTexCoord2f(texL, 0); glVertex2i(screenL, screenY + height);
 	glEnd();
-}
-
-inline static void GLBlitLine(
-	GLint textureId, const SDLGLRenderer::Pixel *data, int leftBorder, int y, int minX, int maxX)
-{
-	GLUpdateTexture(textureId, data, 256);
-	GLDrawTexture(textureId, leftBorder, y, minX, maxX, 2);
 }
 
 inline static void GLBindMonoBlock(GLuint textureId, const byte *pixels)
@@ -184,7 +183,10 @@ inline static int translateX(int absoluteX)
 	if (absoluteX == VDP::TICKS_PER_LINE) return WIDTH;
 	// Note: The "& ~1" forces the ticks to a pixel (2-tick) boundary.
 	//       If this is not done, rounding errors will occur.
-	int screenX = (absoluteX - (TICKS_VISIBLE_MIDDLE & ~1)) / 2 + WIDTH / 2;
+	//       This is especially tricky because division of a negative number
+	//       is rounded towards zero instead of down.
+	int screenX = WIDTH / 2 +
+		((absoluteX & ~1) - (TICKS_VISIBLE_MIDDLE & ~1)) / 2;
 	return screenX < 0 ? 0 : screenX;
 }
 
@@ -817,8 +819,9 @@ void SDLGLRenderer::drawBorder(int fromX, int fromY, int limitX, int limitY)
 	glEnd();
 }
 
-void SDLGLRenderer::renderText1(int vramLine, int screenLine, int count)
-{
+void SDLGLRenderer::renderText1(
+	int vramLine, int screenLine, int count, int minX, int maxX
+) {
 	Pixel fg = palFg[vdp->getForegroundColour()];
 	Pixel bg = palBg[vdp->getBackgroundColour()];
 
@@ -826,18 +829,23 @@ void SDLGLRenderer::renderText1(int vramLine, int screenLine, int count)
 	int fgColour[4] = { fg & 0xFF, (fg >> 8) & 0xFF, (fg >> 16) & 0xFF, 0xFF };
 	glTexEnviv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, fgColour);
 
+	int leftBackground = translateX(vdp->getLeftBackground());
+
 	// Render complete characters and cut off the invisible part.
 	int screenHeight = 2 * count;
-	glScissor(0, HEIGHT - screenLine - screenHeight, WIDTH, screenHeight);
+	glScissor(
+		leftBackground + minX, HEIGHT - screenLine - screenHeight,
+		maxX - minX, screenHeight
+		);
 	glEnable(GL_SCISSOR_TEST);
 
-	int leftBorder = translateX(getDisplayLeft());
-
+	int begCol = minX / 12;
+	int endCol = (maxX + 11) / 12;
 	int endRow = (vramLine + count + 7) / 8;
 	screenLine -= (vramLine & 7) * 2;
 	int verticalScroll = vdp->getVerticalScroll();
 	for (int row = vramLine / 8; row < endRow; row++) {
-		for (int col = 0; col < 40; col++) {
+		for (int col = begCol; col < endCol; col++) {
 			// TODO: Only bind texture once?
 			//       Currently both subroutines bind the same texture.
 			int name = (row & 31) * 40 + col;
@@ -858,40 +866,52 @@ void SDLGLRenderer::renderText1(int vramLine, int screenLine, int count)
 			}
 			// Plot current character.
 			// TODO: SCREEN 0.40 characters are 12 wide, not 16.
-			GLDrawMonoBlock(textureId, leftBorder + col * 12,
-			                screenLine, bg, verticalScroll);
+			GLDrawMonoBlock(
+				textureId, leftBackground + col * 12,
+				screenLine, bg, verticalScroll
+				);
 		}
 		screenLine += 16;
 	}
 	glDisable(GL_SCISSOR_TEST);
 }
 
-void SDLGLRenderer::renderGraphic2(int vramLine, int screenLine, int count)
-{
+void SDLGLRenderer::renderGraphic2(
+	int vramLine, int screenLine, int count, int minX, int maxX
+) {
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 	
-	// Render complete characters and cut off the invisible part
+	// Render complete characters and cut off the invisible part.
 	int screenHeight = 2 * count;
-	glScissor(0, HEIGHT - screenLine - screenHeight, WIDTH, screenHeight);
+	glScissor(
+		translateX(vdp->getLeftBackground()) + minX, // x
+		HEIGHT - screenLine - screenHeight, // y
+		maxX - minX, // w
+		screenHeight // h
+		);
 	glEnable(GL_SCISSOR_TEST);
 
+	int col = minX / 16;
+	int endCol = (maxX + 15) / 16;
 	int endRow = (vramLine + count + 7) / 8;
 	screenLine -= (vramLine & 7) * 2;
 	for (int row = vramLine / 8; row < endRow; row++) {
-		renderGraphic2Row(row & 31, screenLine);
+		renderGraphic2Row(row & 31, screenLine, col, endCol);
 		screenLine += 16;
 	}
 	glDisable(GL_SCISSOR_TEST);
 }
 
-void SDLGLRenderer::renderGraphic2Row(int row, int screenLine)
-{
-	int nameStart = row * 32;
-	int nameEnd = nameStart + 32;
+void SDLGLRenderer::renderGraphic2Row(
+	int row, int screenLine, int col, int endCol
+) {
+	int nameStart = row * 32 + col;
+	int nameEnd = row * 32 + endCol;
 	int quarter = nameStart & ~0xFF;
 	int patternMask = vram->patternTable.getMask() / 8;
 	int colourMask = vram->colourTable.getMask() / 8;
-	int x = translateX(getDisplayLeft());
+	int x = translateX(vdp->getLeftBackground()) + col * 16;
+	
 	for (int name = nameStart; name < nameEnd; name++) {
 		int charNr = quarter | vram->nameTable.readNP((-1 << 10) | name);
 		int colourNr = charNr & colourMask;
@@ -916,12 +936,12 @@ void SDLGLRenderer::renderGraphic2Row(int row, int screenLine)
 	}
 }
 
-// TODO: Clean up this routine.
 void SDLGLRenderer::drawDisplay(
 	int fromX, int fromY,
 	int displayX, int displayY,
 	int displayWidth, int displayHeight
 ) {
+	int screenX = translateX(fromX);
 	int screenY = (fromY - lineRenderTop) * 2;
 	if (!(settings->getDeinterlace()->getValue())
 	&& vdp->isInterlaced()
@@ -931,15 +951,8 @@ void SDLGLRenderer::drawDisplay(
 	}
 	int screenLimitY = screenY + displayHeight * 2;
 
-	// Render background lines:
-
-	int minX = displayX;
-	int maxX = displayX + displayWidth;
-	assert(maxX <= 512);
-
 	// TODO: Complete separation of character and bitmap modes.
 	glEnable(GL_TEXTURE_2D);
-	int leftBorder = translateX(getDisplayLeft());
 	DisplayMode mode = vdp->getDisplayMode();
 	if (mode.isBitmapMode()) {
 		if (mode.isPlanar()) {
@@ -961,31 +974,51 @@ void SDLGLRenderer::drawDisplay(
 		}
 		for (int y = screenY; y < screenLimitY; y += 2) {
 			if (deinterlaced) {
-				int vramLine1 = (vram->nameTable.getMask() >> 7) & (pageMaskEven | displayY);
-				GLDrawTexture(bitmapTextureIds[vramLine1], leftBorder, y+0, minX, maxX, 1);
-				int vramLine2 = (vram->nameTable.getMask() >> 7) & (pageMaskOdd  | displayY);
-				GLDrawTexture(bitmapTextureIds[vramLine2], leftBorder, y+1, minX, maxX, 1);
+				int vramLine1 = (vram->nameTable.getMask() >> 7)
+					& (pageMaskEven | displayY);
+				GLDrawTexture(
+					bitmapTextureIds[vramLine1], displayX,
+					screenX, y + 0, displayWidth, 1
+					);
+				int vramLine2 = (vram->nameTable.getMask() >> 7)
+					& (pageMaskOdd  | displayY);
+				GLDrawTexture(
+					bitmapTextureIds[vramLine2], displayX,
+					screenX, y + 1, displayWidth, 1
+					);
 			} else {
-				int vramLine = (vram->nameTable.getMask() >> 7) & (pageMaskEven | displayY);
-				GLDrawTexture(bitmapTextureIds[vramLine], leftBorder, y, minX, maxX, 2);
+				int vramLine = (vram->nameTable.getMask() >> 7)
+					& (pageMaskEven | displayY);
+				GLDrawTexture(
+					bitmapTextureIds[vramLine], displayX,
+					screenX, y, displayWidth, 2
+					);
 			}
 			displayY = (displayY + 1) & 255;
 		}
 	} else {
 		switch (mode.getByte()) {
 		case DisplayMode::TEXT1:
-			renderText1(displayY, screenY, displayHeight);
+			renderText1(
+				displayY, screenY, displayHeight,
+				displayX, displayX + displayWidth
+				);
 			break;
 		case DisplayMode::GRAPHIC2:
 		case DisplayMode::GRAPHIC3:
-			renderGraphic2(displayY, screenY, displayHeight);
+			renderGraphic2(
+				displayY, screenY, displayHeight,
+				displayX, displayX + displayWidth
+				);
 			break;
 		default:
 			renderCharacterLines(displayY, displayHeight);
 			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 			for (int y = screenY; y < screenLimitY; y += 2) {
-				GLDrawTexture(charTextureIds[displayY],
-					leftBorder, y, minX, maxX, 2 );
+				GLDrawTexture(
+					charTextureIds[displayY], displayX,
+					screenX, y, displayWidth, 2
+					);
 				displayY = (displayY + 1) & 255;
 			}
 			break;
@@ -1007,6 +1040,7 @@ void SDLGLRenderer::drawSprites(
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
+	int screenX = translateX(vdp->getLeftSprites()) + displayX * 2;
 	// TODO: Code duplicated from drawDisplay.
 	int screenY = (fromY - lineRenderTop) * 2;
 	if (!(settings->getDeinterlace()->getValue())
@@ -1016,7 +1050,6 @@ void SDLGLRenderer::drawSprites(
 		screenY++;
 	}
 	
-	int leftBorder = translateX(getDisplayLeft());
 	int displayLimitX = displayX + displayWidth;
 	int limitY = fromY + displayHeight;
 	for (int y = fromY; y < limitY; y++) {
@@ -1033,8 +1066,14 @@ void SDLGLRenderer::drawSprites(
 			spriteConverter.drawMode2(y, displayX, displayLimitX, lineBuffer);
 		}
 		
-		GLBlitLine(spriteTextureIds[y], lineBuffer,
-			leftBorder, screenY, displayX * 2, displayLimitX * 2 );
+		// Make line buffer into a texture and draw it.
+		GLint textureId = spriteTextureIds[y];
+		GLUpdateTexture(textureId, lineBuffer, 256);
+		GLDrawTexture(
+			textureId, displayX * 2,
+			screenX, screenY, displayWidth * 2, 2
+			);
+		
 		screenY += 2;
 	}
 	
