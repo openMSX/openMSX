@@ -6,6 +6,9 @@ $Id$
 	   - low resolution (SDLLo) rendering improvements
 	     try SCREEN 0 WIDTH 80
 	     only 24bpp modes yet
+	* Z80 fix:
+	   IFF2 should be reset while acknowledging an IRQ
+	   this fixes music in "Break-In"
 
 2002-08-16 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* major cleanups, minor tweaks / fixes

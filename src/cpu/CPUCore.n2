@@ -1898,7 +1898,7 @@ void _CPU_::execute()
 			} else if (R.IFF1 && IRQStatus) {
 				// normal interrupt
 				R.HALT = false;
-				R.IFF1 = R.nextIFF1 = false;
+				R.IFF1 = R.nextIFF1 = R.IFF2 = false;
 				PRT_DEBUG("CPU: acknowledge IRQ");
 				switch (R.IM) {
 					case 2:
