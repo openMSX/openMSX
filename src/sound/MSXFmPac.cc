@@ -2,8 +2,6 @@
 
 #include "MSXFmPac.hh"
 
-#ifndef DONT_WANT_FMPAC
-
 #include "FileOpener.hh"
 #include <string.h>
 
@@ -115,4 +113,3 @@ void MSXFmPac::checkSramEnable()
 	sramEnabled = ((r5ffe == 0x4d) && (r5fff == 0x69)) ? true : false;
 }
 
-#endif // ndef DONT_WANT_FMPAC

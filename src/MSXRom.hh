@@ -12,9 +12,7 @@
 #include "RomTypes.hh"
 
 // forward declarations
-#ifndef DONT_WANT_SCC
 class SCC;
-#endif
 class DACSound;
 
 
@@ -47,10 +45,8 @@ class MSXRom : public MSXMemDevice, public MSXRomDevice
 		byte *memorySRAM;
 		byte regioSRAM;	//bit n=1 => SRAM in [n*0x2000, (n+1)*0x2000)
 
-#ifndef DONT_WANT_SCC
 		SCC* cartridgeSCC;
 		bool enabledSCC;
-#endif
 		DACSound* dac;
 };
 

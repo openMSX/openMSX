@@ -3,6 +3,8 @@ dnl (c) 2001 Joost Yervante Damad
 dnl License: GPL
 dnl $Id$
 
+dnl these are NOT used at the moment!
+
 AC_DEFUN([AC_ENABLE_SCC],[
 AC_MSG_CHECKING(if we want SCC)
 AC_ARG_ENABLE(SCC, [  --disable-SCC           Disable SCC],enable_scc=no,enable_scc=yes)

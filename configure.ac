@@ -70,15 +70,6 @@ AC_CXX_FSTREAM_TEMPL
 AM_CONDITIONAL(PROFILE, test "$enable_profile" = yes)
 AM_CONDITIONAL(RELEASE, test "$enable_release" = yes)
 
-dnl check for realistic interlace
-AC_REALISTIC_INTERLACE
-
-dnl a bunch of disable/enable
-AC_ENABLE_SCC
-AC_ENABLE_FMPAC
-AC_ENABLE_MSXMUSIC
-dnl AC_ENABLE_GLRENDERER
-
 dnl Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS(unistd.h)

@@ -2,8 +2,6 @@
 
 #include "MSXYM2413.hh"
 
-#if !defined(DONT_WANT_FMPAC) || !defined(DONT_WANT_MSXMUSIC)
-
 #include "MSXCPUInterface.hh"
 #include "Mixer.hh"
 #include "YM2413.hh"
@@ -68,5 +66,3 @@ void MSXYM2413::writeDataPort(byte value, const EmuTime &time)
 	Mixer::instance()->updateStream(time);
 	ym2413->writeReg(registerLatch, value, time);
 }
-
-#endif // not defined(DONT_WANT_FMPAC) || not defined(DONT_WANT_MSXMUSIC)

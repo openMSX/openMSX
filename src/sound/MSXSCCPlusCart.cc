@@ -2,8 +2,6 @@
 
 #include "MSXSCCPlusCart.hh"
 
-#ifndef DONT_WANT_SCC
-
 #include "SCC.hh"
 #include "FileOpener.hh"
 #include "MSXCPU.hh"
@@ -234,5 +232,3 @@ void MSXSCCPlusCart::checkEnable()
 		enable = EN_NONE;
 	}
 }
-
-#endif // ndef DONT_WANT_SCC

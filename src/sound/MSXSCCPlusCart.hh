@@ -7,8 +7,6 @@
 #include "config.h"
 #endif
 
-#ifndef DONT_WANT_SCC
-
 #include "MSXMemDevice.hh"
 
 // forward declaration
@@ -40,7 +38,5 @@ class MSXSCCPlusCart : public MSXMemDevice
 		byte *internalMemoryBank[4];	// 4 blocks of 8kB starting at #4000
 		byte mapper[4];
 };
-
-#endif // ndef DONT_WANT_SCC
 
 #endif //__MSXSCCPlusCart_HH__

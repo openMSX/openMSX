@@ -7,8 +7,6 @@
 #include "config.h"
 #endif
 
-#if !defined(DONT_WANT_FMPAC) || !defined(DONT_WANT_MSXMUSIC)
-
 #include "openmsx.hh"
 #include "SoundDevice.hh"
 #include "Mixer.hh"
@@ -310,7 +308,5 @@ class YM2413 : public SoundDevice
 		// Phase incr table for PG 
 		static unsigned int dphaseTable[512][8][16];
 };
-
-#endif // not defined(DONT_WANT_FMPAC) || not defined(DONT_WANT_MSXMUSIC)
 
 #endif

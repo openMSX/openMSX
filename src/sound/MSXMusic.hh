@@ -7,8 +7,6 @@
 #include "config.h"
 #endif
 
-#ifndef DONT_WANT_MSXMUSIC
-
 #include "MSXRomDevice.hh"
 #include "MSXYM2413.hh"
 #include "MSXMemDevice.hh"
@@ -31,7 +29,5 @@ class MSXMusic : public MSXYM2413, public MSXMemDevice, public MSXRomDevice
 		virtual byte readMem(word address, const EmuTime &time);
 		virtual void writeMem(word address, byte value, const EmuTime &time);
 };
-
-#endif // ndef DONT_WANT_MSXMUSIC
 
 #endif

@@ -1,5 +1,8 @@
 $Id$
 
+2002-10-16 Joost Yervante Damad <joost@lumatec.be>
+	* removed compile-time disables for now
+
 2002-10-13 Maarten ter Huurne <mth@stack.nl>
 	* Moved absolute X coordinate to screen X coordinate translation from
 	  PixelRenderer to SDLHiRenderer.

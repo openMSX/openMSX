@@ -32,7 +32,6 @@ MSXRom::MSXRom(MSXConfig::Device *config, const EmuTime &time)
 		memorySRAM = NULL;
 	}
 
-#ifndef DONT_WANT_SCC
 	// only instantiate SCC if needed
 	if (mapperType == KONAMI5) {
 		short volume = (short)config->getParameterAsInt("volume");
@@ -40,7 +39,6 @@ MSXRom::MSXRom(MSXConfig::Device *config, const EmuTime &time)
 	} else {
 		cartridgeSCC = NULL;
 	}
-#endif
 
 	// only instantiate DACSound if needed
 	if (mapperType & HAS_DAC) {
@@ -86,9 +84,7 @@ void MSXRom::retrieveMapperType()
 MSXRom::~MSXRom()
 {
 	delete dac;
-#ifndef DONT_WANT_SCC
 	delete cartridgeSCC;
-#endif
 	if ((mapperType & HAS_SRAM) && deviceConfig->getParameterAsBool("savesram")) {
 		std::string filename = deviceConfig->getParameter("sramname");
 		PRT_DEBUG("Trying to save to "<<filename<<" for SRAM of the cartrdige");
@@ -103,11 +99,9 @@ MSXRom::~MSXRom()
 
 void MSXRom::reset(const EmuTime &time)
 {
-#ifndef DONT_WANT_SCC
 	if (cartridgeSCC)
 		cartridgeSCC->reset();
 	enabledSCC = false;
-#endif
 	if (dac)
 		dac->reset(time);
 	
@@ -195,22 +189,18 @@ byte MSXRom::readMem(word address, const EmuTime &time)
 	// If MSXCPUInterface would support hot-plugging of devices,
 	// it would be possible to insert an SCC supporting device
 	// only when the SCC is enabled.
-#ifndef DONT_WANT_SCC
 	if (enabledSCC && 0x9800<=address && address<0xa000) {
 		return cartridgeSCC->readMemInterface(address&0xff, time);
 	}
-#endif
 	return internalMemoryBank[address>>12][address&0x0fff];
 }
 
 byte* MSXRom::getReadCacheLine(word start)
 {
-#ifndef DONT_WANT_SCC
 	if (enabledSCC && 0x9800<=start && start<0xa000) {
 		// don't cache SCC
 		return NULL;
 	}
-#endif
 	if (CPU::CACHE_LINE_SIZE <= 0x1000) {
 		return &internalMemoryBank[start>>12][start&0x0fff];
 	} else {
@@ -251,7 +241,6 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 		//  bank 4: 0xB000 - 0xB7ff (0xB000 used)
 
 		if (address<0x5000 || address>=0xc000) break;
-#ifndef DONT_WANT_SCC
 		// Write to SCC?
 		if (enabledSCC && 0x9800<=address && address<0xa000) {
 			cartridgeSCC->writeMemInterface(address&0xff, value, time);
@@ -263,7 +252,6 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 			enabledSCC = ((value & 0x3f) == 0x3f);
 			MSXCPU::instance()->invalidateCache(0x9800, 0x0800/CPU::CACHE_LINE_SIZE);
 		}
-#endif
 		// Page selection?
 		if ((address & 0x1800) == 0x1000)
 			setROM8kB(address>>13, value);

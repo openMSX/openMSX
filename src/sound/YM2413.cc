@@ -8,8 +8,6 @@
 
 #include "YM2413.hh"
 
-#if !defined(DONT_WANT_FMPAC) || !defined(DONT_WANT_MSXMUSIC)
-
 #include <math.h>
 #include <cassert>
 #include "Mixer.hh"
@@ -1171,5 +1169,3 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 	Mixer::instance()->unlock();
 	checkMute();
 }
-
-#endif // not defined(DONT_WANT_FMPAC) || not defined(DONT_WANT_MSXMUSIC)

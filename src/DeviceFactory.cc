@@ -65,16 +65,12 @@ MSXDevice *DeviceFactory::create(MSXConfig::Device *conf, const EmuTime &time) {
 	if (conf->getType()=="PSG") {
 		device = new MSXPSG(conf, time);
 	} else
-#ifndef DONT_WANT_MSXMUSIC
 	if (conf->getType()=="Music") {
 		device = new MSXMusic(conf, time);
 	} else
-#endif
-#ifndef DONT_WANT_FMPAC
 	if (conf->getType()=="FM-PAC") {
 		device = new MSXFmPac(conf, time);
 	} else
-#endif
 	if (conf->getType()=="Audio") {
 		device = new MSXAudio(conf, time);
 	} else
@@ -96,11 +92,9 @@ MSXDevice *DeviceFactory::create(MSXConfig::Device *conf, const EmuTime &time) {
 	if (conf->getType()=="PrinterPort") {
 		device = new MSXPrinterPort(conf, time);
 	} else
-#ifndef DONT_WANT_SCC
 	if (conf->getType()=="SCCPlusCart") {
 		device = new MSXSCCPlusCart(conf, time);
 	} else
-#endif
 	if (conf->getType()=="ARCdebug") {
 		device = new MSXARCdebug(conf, time);
 	} else 

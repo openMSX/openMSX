@@ -2,8 +2,6 @@
 
 #include "SCC.hh"
 
-#ifndef DONT_WANT_SCC
-
 #include "Mixer.hh"
 
 
@@ -282,5 +280,3 @@ void SCC::checkMute()
 	//PRT_DEBUG("SCC: setInternalMute(" << mute << "); ");
 	setInternalMute(mute);
 }
-
-#endif // ndef DONT_WANT_SCC
