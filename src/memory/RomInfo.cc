@@ -301,20 +301,12 @@ RomInfo *RomInfo::fetchRomInfo(const Rom *rom, const Device &deviceConfig)
 	// Look for the ROM in the ROM DB.
 	RomInfo *info = searchRomDB(rom);
 	if (!info) {
-		info = new RomInfo(
-			deviceConfig.getId(), "", "", "", UNKNOWN
-			);
+		info = new RomInfo(deviceConfig.getId(), "", "", "", UNKNOWN);
 	}
 	
 	// Get specified mapper type from the config.
 	// Note: config may specify "auto" as well.
-	string typestr;
-	if (deviceConfig.hasParameter("mappertype")) {
-		typestr = deviceConfig.getParameter("mappertype");
-	} else {
-		typestr = "auto";
-	}
-	
+	string typestr = deviceConfig.getParameter("mappertype", "auto");
 	if (typestr == "auto") {
 		// Guess mapper type, if it was not in DB.
 		if (info->mapperType == UNKNOWN) {

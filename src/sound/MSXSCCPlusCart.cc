@@ -31,26 +31,21 @@ MSXSCCPlusCart::MSXSCCPlusCart(Device *config, const EmuTime &time)
 			PRT_ERROR("Error reading " << filename);
 		}
 	}
-	if (deviceConfig->hasParameter("subtype")) {
-		const string &subtype
-			= deviceConfig->getParameter("subtype");
-		if (subtype == "Snatcher") {
-			mapperMask = 0x0F;
-			lowRAM  = true;
-			highRAM = false;
-		} else if (subtype == "SD-Snatcher") {
-			mapperMask = 0x0F;
-			lowRAM  = false;
-			highRAM = true;
-		} else if (subtype == "mirrored") {
-			mapperMask = 0x07;
-			lowRAM = highRAM = true;
-		} else {
-			// subtype "expanded", and all others
-			mapperMask = 0x0F;
-			lowRAM = highRAM = true;
-		}
+	const string &subtype =
+		deviceConfig->getParameter("subtype", "expanded");
+	if (subtype == "Snatcher") {
+		mapperMask = 0x0F;
+		lowRAM  = true;
+		highRAM = false;
+	} else if (subtype == "SD-Snatcher") {
+		mapperMask = 0x0F;
+		lowRAM  = false;
+		highRAM = true;
+	} else if (subtype == "mirrored") {
+		mapperMask = 0x07;
+		lowRAM = highRAM = true;
 	} else {
+		// subtype "expanded", and all others
 		mapperMask = 0x0F;
 		lowRAM = highRAM = true;
 	}

@@ -22,10 +22,7 @@ RenderSettings::RenderSettings()
 
 	frameSkip = new FrameSkipSetting();
 
-	bool fsBool = false;
-	if (config->hasParameter("full_screen")) {
-		fsBool = config->getParameterAsBool("full_screen");
-	}
+	bool fsBool = config->getParameterAsBool("full_screen", false);
 	fullScreen = new BooleanSetting(
 		"fullscreen", "full screen display on/off", fsBool);
 

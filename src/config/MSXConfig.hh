@@ -59,7 +59,7 @@ class Config
 
 		bool hasParameter(const string &name) const;
 		const string &getParameter(const string &name) const;
-		const string &getParameter(const string &name, const string &defaultValue) const;
+		const string getParameter(const string &name, const string &defaultValue) const;
 		const bool getParameterAsBool(const string &name) const;
 		const bool getParameterAsBool(const string &name, bool defaultValue) const;
 		const int getParameterAsInt(const string &name) const;

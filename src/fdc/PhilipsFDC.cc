@@ -12,11 +12,7 @@ namespace openmsx {
 PhilipsFDC::PhilipsFDC(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), WD2793BasedFDC(config, time)
 {
-	if (deviceConfig->hasParameter("brokenFDCread")) {
-		brokenFDCread = deviceConfig->getParameterAsBool("brokenFDCread");
-	} else {
-		brokenFDCread = false;
-	}
+	brokenFDCread = deviceConfig->getParameterAsBool("brokenFDCread", false);
 	reset(time);
 }
 

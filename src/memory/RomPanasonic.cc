@@ -18,23 +18,14 @@ RomPanasonic::RomPanasonic(Device* config, const EmuTime &time, Rom *rom)
 {
 	PanasonicMemory::instance()->registerRom(rom->getBlock(), rom->getSize());
 	
-	int sramSize;
-	if (config->hasParameter("sramsize")) {
-		sramSize = config->getParameterAsInt("sramsize");
+	int sramSize = config->getParameterAsInt("sramsize", 0);
+	if (sramSize) {
 		sram = new SRAM(sramSize * 1024, config);
 	} else {
-		sramSize = 0;
 		sram = NULL;
 	}
 
-	bool sramMirrored;
-	if (config->hasParameter("sram-mirrored")) {
-		sramMirrored = config->getParameterAsBool("sram-mirrored");
-	} else {
-		sramMirrored = false;
-	}
-	
-	if (sramMirrored) {
+	if (config->getParameterAsBool("sram-mirrored", false)) {
 		maxSRAMBank = SRAM_BASE + 8;
 	} else {
 		maxSRAMBank = SRAM_BASE + (sramSize / 8);

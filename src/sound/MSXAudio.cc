@@ -23,12 +23,7 @@ MSXAudio::MSXAudio(Device *config, const EmuTime &time)
 	}
 
 	// SampleRAM size
-	int ramSize;	// size in kb
-	if (config->hasParameter("sampleram")) {
-		ramSize = config->getParameterAsInt("sampleram");
-	} else {
-		ramSize = 256;
-	}
+	int ramSize = config->getParameterAsInt("sampleram", 256); // size in kb
 
 	y8950 = new Y8950(config->getId(), volume, ramSize * 1024, time, mode);
 	reset(time);

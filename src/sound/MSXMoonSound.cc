@@ -13,14 +13,7 @@ MSXMoonSound::MSXMoonSound(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	short volume = (short)deviceConfig->getParameterAsInt("volume");
-	
-	// SampleRAM size
-	int ramSize;	// size in kb
-	if (config->hasParameter("sampleram")) {
-		ramSize = config->getParameterAsInt("sampleram");
-	} else {
-		ramSize = 512;
-	}
+	int ramSize = config->getParameterAsInt("sampleram", 512); // size in kb
 
 	ymf262 = new YMF262(volume, time);
 	ymf278 = new YMF278(volume, ramSize, config, time);

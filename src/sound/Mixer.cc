@@ -23,12 +23,8 @@ Mixer::Mixer()
 	int samples = 512;
 	try {
 		Config *config = MSXConfig::instance()->getConfigById("Mixer");
-		if (config->hasParameter("frequency")) {
-			freq = config->getParameterAsInt("frequency");
-		}
-		if (config->hasParameter("samples")) {
-			samples = config->getParameterAsInt("samples");
-		}
+		freq = config->getParameterAsInt("frequency", freq);
+		samples = config->getParameterAsInt("samples", samples);
 	} catch (ConfigException &e) {
 		// no Mixer section
 	}

@@ -71,7 +71,8 @@ const string &Config::getParameter(const string &name) const
 	throw ConfigException("Missing parameter: " + name);
 }
 
-const string &Config::getParameter(const string &name, const string &defaultValue) const
+const string Config::getParameter(const string &name, const string &defaultValue) const
+// don't return reference!
 {
 	XML::Element* p = getParameterElement(name);
 	return p ? p->pcdata : defaultValue;

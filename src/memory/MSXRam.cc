@@ -11,33 +11,18 @@ MSXRam::MSXRam(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXMemDevice(config, time)
 {
 	// slow drain on reset
-	if (deviceConfig->hasParameter("slow_drain_on_reset")) {
-		slowDrainOnReset = deviceConfig->getParameterAsBool("slow_drain_on_reset");
-	} else {
-		slowDrainOnReset = false;
-	}
+	slowDrainOnReset = deviceConfig->getParameterAsBool("slow_drain_on_reset", false);
 
-	// size / end
-	int s;
-	if (deviceConfig->hasParameter("size")) {
-		s = deviceConfig->getParameterAsInt("size");
-		if ((s <= 0) || (s > 64)) {
-			PRT_ERROR("Wrong RAM size");
-		}
-	} else {
-		s = 64; 
+	// size / base
+	int s = deviceConfig->getParameterAsInt("size", 64);
+	int b = deviceConfig->getParameterAsInt("base", 0);
+	if ((s <= 0) || (s > 64)) {
+		PRT_ERROR("Wrong RAM size");
 	}
-
-	// base
-	if (deviceConfig->hasParameter("base")) {
-		int b = deviceConfig->getParameterAsInt("base");
-		if ((b < 0) || ((b + s) > 64)) {
-			PRT_ERROR("Wrong RAM base");
-		}
-		base = b * 1024;
-	} else {
-		base = 0;
+	if ((b < 0) || ((b + s) > 64)) {
+		PRT_ERROR("Wrong RAM base");
 	}
+	base = b * 1024;
 	int size = s * 1024;
 	end = base + size;
 	
