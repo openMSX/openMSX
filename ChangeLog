@@ -1,6 +1,11 @@
 $Id$
 
-2003-10-20 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2003-10-22 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Added "-control" cli option to enable CliCommunicator:
+	   - commands are accepted on stdin
+	   - output is in XML
+
+2003-10-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Converted CliCommunicator to take XML input
 	* replaced PRT_INFO macro with printInfo(), printWarning() or
 	  printUpdate()

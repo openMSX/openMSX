@@ -46,11 +46,12 @@ CommandLineParser::CommandLineParser()
 	haveSettings = false;
 	issuedHelp = false;
 
-	registerOption("-config",  &configFile,2);
+	registerOption("-config",  &configFile, 2);
 	registerFileType(".xml",   &configFile);
-	registerOption("-machine", &machineOption,3);
-	registerOption("-setting", &settingOption,2);
-	registerOption("-h", &helpOption,1,1); 
+	registerOption("-machine", &machineOption, 3);
+	registerOption("-setting", &settingOption, 2);
+	registerOption("-h",       &helpOption, 1, 1); 
+	registerOption("-control", &controlOption, 1, 1); 
 }
 
 void CommandLineParser::registerOption(const string &str, CLIOption* cliOption, byte prio, byte length)
@@ -258,13 +259,32 @@ void CommandLineParser::parse(int argc, char **argv)
 	}
 	optionMap.erase(optionMap.begin(), optionMap.end());
 }
+
+
+// Control option
+
+bool CommandLineParser::ControlOption::parseOption(const string &option,
+		list<string> &cmdLine)
+{
+	CliCommunicator::instance().enable();
+	return true;
+}
+
+const string& CommandLineParser::ControlOption::optionHelp() const
+{
+	static const string text("Enable external control of openmsx process");
+	return text;
+}
+
+
 // Help option
+
 bool CommandLineParser::HelpOption::parseOption(const string &option,
 		list<string> &cmdLine)
 {
 	CommandLineParser* parser = CommandLineParser::instance();
 	parser->issuedHelp = true;
-	if (!parser->haveSettings){
+	if (!parser->haveSettings) {
 		return false; // not parsed yet, load settings first
 	}
 	cout << "OpenMSX " VERSION << endl;
@@ -302,7 +322,7 @@ bool CommandLineParser::HelpOption::parseOption(const string &option,
 		delete itTempOptionMap->second;
 	}
 	for (itSet = printSet.begin(); itSet != printSet.end(); itSet++) {
-		cout << (*itSet);
+		cout << *itSet << endl;
 	}
 	printSet.clear();
 	

@@ -15,12 +15,12 @@ using std::string;
 
 namespace openmsx {
 
-class CliCommunicator : public Runnable, private Schedulable
+class CliCommunicator : private Runnable, private Schedulable
 {
 public:
 	static CliCommunicator& instance();
-	virtual void run();
-
+	void enable();
+	
 	void printInfo(const string& message);
 	void printWarning(const string& message);
 	void printUpdate(const string& message);
@@ -32,9 +32,11 @@ private:
 	void execute(const string& command);
 	virtual void executeUntilEmuTime(const EmuTime& time, int userData);
 	virtual const string& schedName() const;
+	virtual void run();
 	
 	deque<string> cmds;
 	Semaphore lock;
+	Thread* thread;
 	
 	enum State {
 		START, TAG_OPENMSX, TAG_COMMAND

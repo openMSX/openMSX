@@ -59,7 +59,7 @@ class CommandLineParser
 	public:
 		static CommandLineParser* instance();
 		
-		void registerOption(const string &str, CLIOption* cliOption, byte prio=7, byte length =2);
+		void registerOption(const string &str, CLIOption* cliOption, byte prio = 7, byte length = 2);
 		void registerFileType(const string &str, CLIFileType* cliFileType);
 		void registerPostConfig(CLIPostConfig *post);
 		void parse(int argc, char **argv);
@@ -88,16 +88,26 @@ class CommandLineParser
 			virtual bool parseOption(const string &option,
 				list<string> &cmdLine);
 			virtual const string& optionHelp() const;
+		private:
 			string formatSet(set<string> * inputSet,unsigned columns);
 			string formatHelptext(string helpText,unsigned maxlength, unsigned indent);
 		} helpOption;
 		friend class HelpOption;
+		
+		class ControlOption : public CLIOption {
+		public:
+			virtual bool parseOption(const string &option,
+				list<string> &cmdLine);
+			virtual const string& optionHelp() const;
+		} controlOption;
+		friend class ConfigOption;
 			
 		class ConfigFile : public CLIOption, public CLIFileType {
 		public:
 			virtual bool parseOption(const string &option,
 				list<string> &cmdLine);
 			virtual const string& optionHelp() const;
+		private:
 			virtual void parseFileType(const string &filename);
 			virtual const string& fileTypeHelp() const;
 		} configFile;

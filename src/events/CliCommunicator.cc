@@ -17,30 +17,51 @@ CliCommunicator& CliCommunicator::instance()
 	return oneInstance;
 }
 
-CliCommunicator::CliCommunicator()
-	: lock(1)
+void CliCommunicator::enable()
 {
 	cout << "<openmsx-output>" << endl;
+	thread = new Thread(this);
+	thread->start();
+}
+
+CliCommunicator::CliCommunicator()
+	: lock(1), thread(NULL)
+{
 }
 
 CliCommunicator::~CliCommunicator()
 {
-	cout << "</openmsx-output>" << endl;
+	if (thread) {
+		delete thread; // this also stops the thread
+		cout << "</openmsx-output>" << endl;
+	}
 }
 
 void CliCommunicator::printInfo(const string& message)
 {
-	cout << "<info>" << message << "</info>" << endl;
+	if (thread) {
+		cout << "<info>" << message << "</info>" << endl;
+	} else {
+		cout << message << endl;
+	}
 }
 
 void CliCommunicator::printWarning(const string& message)
 {
-	cout << "<warning>" << message << "</warning>" << endl;
+	if (thread) {
+		cout << "<warning>" << message << "</warning>" << endl;
+	} else {
+		cout << "Warning: " << message << endl;
+	}
 }
 
 void CliCommunicator::printUpdate(const string& message)
 {
-	cout << "<update>" << message << "</update>" << endl;
+	if (thread) {
+		cout << "<update>" << message << "</update>" << endl;
+	} else {
+		cout << message << endl;
+	}
 }
 
 

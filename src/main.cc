@@ -9,17 +9,14 @@
 #include "config.h"
 #include "MSXConfig.hh"
 #include <SDL/SDL.h>
-#include "Thread.hh"
 #include "MSXMotherBoard.hh"
 #include "DeviceFactory.hh"
-#include "EventDistributor.hh"
 #include "EmuTime.hh"
 #include "CommandLineParser.hh"
 #include "Icon.hh"
 #include "CommandController.hh"
 #include "KeyEventInserter.hh"
 #include "MSXCPUInterface.hh"
-#include "CliCommunicator.hh"
 
 
 namespace openmsx {
@@ -49,18 +46,18 @@ void initializeSDL()
 
 int main(int argc, char **argv)
 {
+	int err = 0;
 	try {
 		CommandLineParser::instance()->parse(argc, argv);
 		initializeSDL();
 
 		// Initialise devices.
-		EmuTime zero;
 		MSXConfig* config = MSXConfig::instance();
 		config->initDeviceIterator();
 		Device* d;
 		while ((d = config->getNextDevice()) != 0) {
 			PRT_DEBUG("Instantiating: " << d->getType());
-			MSXDevice *device = DeviceFactory::create(d, zero);
+			MSXDevice *device = DeviceFactory::create(d, EmuTime::zero);
 			MSXMotherBoard::instance()->addDevice(device);
 		}
 		// Register all postponed slots.
@@ -71,30 +68,26 @@ int main(int argc, char **argv)
 
 		// Schedule key insertions.
 		// TODO move this somewhere else
-		KeyEventInserter* keyEvents = new KeyEventInserter(zero);
+		KeyEventInserter keyEvents(EmuTime::zero);
 
-		Thread communicatorThread(&CliCommunicator::instance());
-		communicatorThread.start();
-		
 		// Start emulation thread.
-		PRT_DEBUG("Starting MSX");
 		MSXMotherBoard::instance()->run();
-
-		communicatorThread.stop();
-		delete keyEvents;
 
 	} catch (FatalError& e) {
 		cerr << "Fatal error: " << e.getMessage() << endl;
+		err = 1;
 	} catch (MSXException& e) {
 		cerr << "Uncaught exception: " << e.getMessage() << endl;
+		err = 1;
 	} catch (...) {
 		cerr << "Uncaught exception of unexpected type." << endl;
+		err = 1;
 	}
 	// Clean up.
 	if (SDL_WasInit(SDL_INIT_EVERYTHING)) {
 		SDL_Quit();
 	}
-	return 0;
+	return err;
 }
 
 } // namespace openmsx
