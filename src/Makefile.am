@@ -120,7 +120,6 @@ openmsx_LDADD = \
 	thread/libThread.la \
 	@XML_LIBS@ \
 	-lSDL_image @SDL_LIBS@ \
-	-ltcl8.4
 
 #cfgtest_SOURCES = MSXConfig.hh MSXConfig.cc \
 #	cfgtest.cc EmuTime.hh \

@@ -65,11 +65,16 @@ fi
 
 dnl SDL_image
 AC_CHECK_HEADERS(SDL_image.h SDL/SDL_image.h , break)
-AC_CHECK_LIB(SDL_image, IMG_Load, LIB="$LIBS -lSDL_image", AC_MSG_ERROR([Sorry no SDL_image library found]))
+AC_CHECK_LIB(SDL_image, IMG_Load, LIBS="$LIBS -lSDL_image", AC_MSG_ERROR([Sorry no SDL_image library found]))
 
 dnl libpng
 AC_CHECK_HEADERS(png.h, break)
-AC_CHECK_LIB(png, png_create_read_struct, LIB="$LIBS -lpng")
+AC_CHECK_LIB(png, png_create_read_struct, LIBS="$LIBS -lpng")
+
+dnl libtcl
+AC_CHECK_HEADERS(tcl.h tcl8.4/tcl.h , break)
+AC_CHECK_LIB(tcl8.4, Tcl_CreateInterp, LIBS="$LIBS -ltcl8.4")
+AC_CHECK_LIB(tcl84, Tcl_CreateInterp, LIBS="$LIBS -ltcl84")
 
 dnl check if fstream can be used as template
 AC_CXX_FSTREAM_TEMPL
