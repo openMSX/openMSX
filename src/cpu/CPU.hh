@@ -11,13 +11,6 @@ namespace openmsx {
 
 class EmuTime;
 
-template <bool bigEndian> struct z80regpair_8bit;
-template <> struct z80regpair_8bit<false> { byte l, h; };
-template <> struct z80regpair_8bit<true>  { byte h, l; };
-
-/**
- *
- */
 class CPU
 {
 public:
@@ -41,21 +34,42 @@ public:
 	
 	typedef std::multiset<word> BreakPoints;
 	
-	typedef union {
-		z80regpair_8bit<OPENMSX_BIGENDIAN> B;
-		word w;
-	} z80regpair;
-
 	class CPURegs {
 	public:
-		z80regpair AF,  BC,  DE,  HL, IX, IY, PC, SP;
-		z80regpair AF2, BC2, DE2, HL2;
+		word AF,  BC,  DE,  HL, IX, IY, PC, SP;
+		word AF2, BC2, DE2, HL2;
 		bool nextIFF1, IFF1, IFF2, HALT;
 		byte IM, I;
 		byte R, R2;	// refresh = R&127 | R2&128
 
-		void ei() { IFF1 = nextIFF1 = IFF2 = true; }
-		void di() { IFF1 = nextIFF1 = IFF2 = false; }
+		inline byte getA()   const { return AF >> 8; }
+		inline byte getF()   const { return AF & 255; }
+		inline byte getB()   const { return BC >> 8; }
+		inline byte getC()   const { return BC & 255; }
+		inline byte getD()   const { return DE >> 8; }
+		inline byte getE()   const { return DE & 255; }
+		inline byte getH()   const { return HL >> 8; }
+		inline byte getL()   const { return HL & 255; }
+		inline byte getIXh() const { return IX >> 8; }
+		inline byte getIXl() const { return IX & 255; }
+		inline byte getIYh() const { return IY >> 8; }
+		inline byte getIYl() const { return IY & 255; }
+
+		inline void setA(byte x)   { AF = (AF & 0x00FF) | (x << 8); }
+		inline void setF(byte x)   { AF = (AF & 0xFF00) | x; }
+		inline void setB(byte x)   { BC = (BC & 0x00FF) | (x << 8); }
+		inline void setC(byte x)   { BC = (BC & 0xFF00) | x; }
+		inline void setD(byte x)   { DE = (DE & 0x00FF) | (x << 8); }
+		inline void setE(byte x)   { DE = (DE & 0xFF00) | x; }
+		inline void setH(byte x)   { HL = (HL & 0x00FF) | (x << 8); }
+		inline void setL(byte x)   { HL = (HL & 0xFF00) | x; }
+		inline void setIXh(byte x) { IX = (IX & 0x00FF) | (x << 8); }
+		inline void setIXl(byte x) { IX = (IX & 0xFF00) | x; }
+		inline void setIYh(byte x) { IY = (IY & 0x00FF) | (x << 8); }
+		inline void setIYl(byte x) { IY = (IY & 0xFF00) | x; }
+		
+		inline void ei() { IFF1 = nextIFF1 = IFF2 = true; }
+		inline void di() { IFF1 = nextIFF1 = IFF2 = false; }
 	};
 	
 	/**

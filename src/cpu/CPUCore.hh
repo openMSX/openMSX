@@ -109,7 +109,7 @@ private:
 	int IRQStatus;
 	bool exitLoop;
 
-	z80regpair memptr;
+	word memptr;
 	offset ofst;
 
 	MSXCPUInterface* interface;
@@ -143,6 +143,7 @@ private:
 	inline void WRMEM_common(word address, byte value);
 	void WRMEMslow(word address, byte value);
 	inline byte RDMEM_OPCODE(word address);
+	inline word RD_WORD_PC();
 	inline byte RDMEM(word address);
 	inline void WRMEM(word address, byte value);
 
@@ -314,7 +315,7 @@ private:
 
 	void ld_xbyte_a();
 
-	inline void WR_NN_Y(z80regpair reg);
+	inline void WR_NN_Y(word reg);
 	void ld_xword_bc();
 	void ld_xword_de();
 	void ld_xword_hl();
@@ -332,7 +333,6 @@ private:
 
 	void ld_a_xbyte();
 
-	inline void RD_R_N(byte& reg);
 	void ld_a_byte();
 	void ld_b_byte();
 	void ld_c_byte();
@@ -345,7 +345,6 @@ private:
 	void ld_iyh_byte();
 	void ld_iyl_byte();
 
-	inline void RD_R_HL(byte& reg);
 	void ld_b_xhl();
 	void ld_c_xhl();
 	void ld_d_xhl();
@@ -353,8 +352,7 @@ private:
 	void ld_h_xhl();
 	void ld_l_xhl();
 
-	inline void RD_R_X(byte& reg);
-	inline void RD_R_XIX(byte& reg);
+	inline byte RD_R_XIX();
 	void ld_b_xix();
 	void ld_c_xix();
 	void ld_d_xix();
@@ -362,7 +360,7 @@ private:
 	void ld_h_xix();
 	void ld_l_xix();
 
-	inline void RD_R_XIY(byte& reg);
+	inline byte RD_R_XIY();
 	void ld_b_xiy();
 	void ld_c_xiy();
 	void ld_d_xiy();
@@ -370,7 +368,7 @@ private:
 	void ld_h_xiy();
 	void ld_l_xiy();
 
-	inline void RD_P_XX(z80regpair& reg);
+	inline word RD_P_XX();
 	void ld_bc_xword();
 	void ld_de_xword();
 	void ld_hl_xword();
@@ -378,7 +376,6 @@ private:
 	void ld_iy_xword();
 	void ld_sp_xword();
 
-	inline void RD_P_NN(z80regpair& reg);
 	void ld_bc_word();
 	void ld_de_word();
 	void ld_hl_word();
@@ -530,7 +527,7 @@ private:
 	void xor_xix();
 	void xor_xiy();
 
-	inline void DEC(byte &reg);
+	inline byte DEC(byte reg);
 	void dec_a();
 	void dec_b();
 	void dec_c();
@@ -547,7 +544,7 @@ private:
 	void dec_xix();
 	void dec_xiy();
 
-	inline void INC(byte &reg);
+	inline byte INC(byte reg);
 	void inc_a();
 	void inc_b();
 	void inc_c();
@@ -692,7 +689,7 @@ private:
 	void bit_6_xiy();
 	void bit_7_xiy();
 
-	inline void RES(byte bit, byte &reg);
+	inline byte RES(byte bit, byte reg);
 	void res_0_a();
 	void res_0_b();
 	void res_0_c();
@@ -750,10 +747,10 @@ private:
 	void res_7_h();
 	void res_7_l();
 
-	inline void RES_X(byte bit, byte& reg, word x);
-	inline void RES_X_(byte bit, byte& reg, word x);
-	inline void RES_X_X(byte bit, byte& reg);
-	inline void RES_X_Y(byte bit, byte& reg);
+	inline byte RES_X(byte bit, word x);
+	inline byte RES_X_(byte bit, word x);
+	inline byte RES_X_X(byte bit);
+	inline byte RES_X_Y(byte bit);
 	void res_0_xhl();
 	void res_1_xhl();
 	void res_2_xhl();
@@ -891,7 +888,7 @@ private:
 	void res_7_xiy_h();
 	void res_7_xiy_l();
 
-	inline void SET(byte bit, byte &reg);
+	inline byte SET(byte bit, byte reg);
 	void set_0_a();
 	void set_0_b();
 	void set_0_c();
@@ -949,10 +946,10 @@ private:
 	void set_7_h();
 	void set_7_l();
 
-	inline void SET_X(byte bit, byte& reg, word x);
-	inline void SET_X_(byte bit, byte& reg, word x);
-	inline void SET_X_X(byte bit, byte& reg);
-	inline void SET_X_Y(byte bit, byte& reg);
+	inline byte SET_X(byte bit, word x);
+	inline byte SET_X_(byte bit, word x);
+	inline byte SET_X_X(byte bit);
+	inline byte SET_X_Y(byte bit);
 	void set_0_xhl();
 	void set_1_xhl();
 	void set_2_xhl();
@@ -1090,7 +1087,11 @@ private:
 	void set_7_xiy_h();
 	void set_7_xiy_l();
 
-	inline void RL(byte &reg);
+	inline byte RL(byte reg);
+	inline byte RL_X(word x);
+	inline byte RL_X_(word x);
+	inline byte RL_X_X();
+	inline byte RL_X_Y();
 	void rl_a();
 	void rl_b();
 	void rl_c();
@@ -1098,10 +1099,6 @@ private:
 	void rl_e();
 	void rl_h();
 	void rl_l();
-	inline void RL_X(byte& reg, word x);
-	inline void RL_X_(byte& reg, word x);
-	inline void RL_X_X(byte& reg);
-	inline void RL_X_Y(byte& reg);
 	void rl_xhl();
 	void rl_xix  ();
 	void rl_xix_a();
@@ -1120,7 +1117,11 @@ private:
 	void rl_xiy_h();
 	void rl_xiy_l();
 
-	inline void RLC(byte &reg);
+	inline byte RLC(byte reg);
+	inline byte RLC_X(word x);
+	inline byte RLC_X_(word x);
+	inline byte RLC_X_X();
+	inline byte RLC_X_Y();
 	void rlc_a();
 	void rlc_b();
 	void rlc_c();
@@ -1128,10 +1129,6 @@ private:
 	void rlc_e();
 	void rlc_h();
 	void rlc_l();
-	inline void RLC_X(byte& reg, word x);
-	inline void RLC_X_(byte& reg, word x);
-	inline void RLC_X_X(byte& reg);
-	inline void RLC_X_Y(byte& reg);
 	void rlc_xhl();
 	void rlc_xix  ();
 	void rlc_xix_a();
@@ -1150,7 +1147,11 @@ private:
 	void rlc_xiy_h();
 	void rlc_xiy_l();
 
-	inline void RR(byte &reg);
+	inline byte RR(byte reg);
+	inline byte RR_X(word x);
+	inline byte RR_X_(word x);
+	inline byte RR_X_X();
+	inline byte RR_X_Y();
 	void rr_a();
 	void rr_b();
 	void rr_c();
@@ -1158,10 +1159,6 @@ private:
 	void rr_e();
 	void rr_h();
 	void rr_l();
-	inline void RR_X(byte& reg, word x);
-	inline void RR_X_(byte& reg, word x);
-	inline void RR_X_X(byte& reg);
-	inline void RR_X_Y(byte& reg);
 	void rr_xhl();
 	void rr_xix  ();
 	void rr_xix_a();
@@ -1180,7 +1177,11 @@ private:
 	void rr_xiy_h();
 	void rr_xiy_l();
 
-	inline void RRC(byte &reg);
+	inline byte RRC(byte reg);
+	inline byte RRC_X(word x);
+	inline byte RRC_X_(word x);
+	inline byte RRC_X_X();
+	inline byte RRC_X_Y();
 	void rrc_a();
 	void rrc_b();
 	void rrc_c();
@@ -1188,10 +1189,6 @@ private:
 	void rrc_e();
 	void rrc_h();
 	void rrc_l();
-	inline void RRC_X(byte& reg, word x);
-	inline void RRC_X_(byte& reg, word x);
-	inline void RRC_X_X(byte& reg);
-	inline void RRC_X_Y(byte& reg);
 	void rrc_xhl();
 	void rrc_xix  ();
 	void rrc_xix_a();
@@ -1210,7 +1207,11 @@ private:
 	void rrc_xiy_h();
 	void rrc_xiy_l();
 
-	inline void SLA(byte &reg);
+	inline byte SLA(byte reg);
+	inline byte SLA_X(word x);
+	inline byte SLA_X_(word x);
+	inline byte SLA_X_X();
+	inline byte SLA_X_Y();
 	void sla_a();
 	void sla_b();
 	void sla_c();
@@ -1218,10 +1219,6 @@ private:
 	void sla_e();
 	void sla_h();
 	void sla_l();
-	inline void SLA_X(byte& reg, word x);
-	inline void SLA_X_(byte& reg, word x);
-	inline void SLA_X_X(byte& reg);
-	inline void SLA_X_Y(byte& reg);
 	void sla_xhl();
 	void sla_xix  ();
 	void sla_xix_a();
@@ -1240,7 +1237,11 @@ private:
 	void sla_xiy_h();
 	void sla_xiy_l();
 
-	inline void SLL(byte &reg);
+	inline byte SLL(byte reg);
+	inline byte SLL_X(word x);
+	inline byte SLL_X_(word x);
+	inline byte SLL_X_X();
+	inline byte SLL_X_Y();
 	void sll_a();
 	void sll_b();
 	void sll_c();
@@ -1248,10 +1249,6 @@ private:
 	void sll_e();
 	void sll_h();
 	void sll_l();
-	inline void SLL_X(byte& reg, word x);
-	inline void SLL_X_(byte& reg, word x);
-	inline void SLL_X_X(byte& reg);
-	inline void SLL_X_Y(byte& reg);
 	void sll_xhl();
 	void sll_xix  ();
 	void sll_xix_a();
@@ -1270,7 +1267,11 @@ private:
 	void sll_xiy_h();
 	void sll_xiy_l();
 
-	inline void SRA(byte &reg);
+	inline byte SRA(byte reg);
+	inline byte SRA_X(word x);
+	inline byte SRA_X_(word x);
+	inline byte SRA_X_X();
+	inline byte SRA_X_Y();
 	void sra_a();
 	void sra_b();
 	void sra_c();
@@ -1278,10 +1279,6 @@ private:
 	void sra_e();
 	void sra_h();
 	void sra_l();
-	inline void SRA_X(byte& reg, word x);
-	inline void SRA_X_(byte& reg, word x);
-	inline void SRA_X_X(byte& reg);
-	inline void SRA_X_Y(byte& reg);
 	void sra_xhl();
 	void sra_xix  ();
 	void sra_xix_a();
@@ -1300,7 +1297,11 @@ private:
 	void sra_xiy_h();
 	void sra_xiy_l();
 
-	inline void SRL(byte &reg);
+	inline byte SRL(byte reg);
+	inline byte SRL_X(word x);
+	inline byte SRL_X_(word x);
+	inline byte SRL_X_X();
+	inline byte SRL_X_Y();
 	void srl_a();
 	void srl_b();
 	void srl_c();
@@ -1308,10 +1309,6 @@ private:
 	void srl_e();
 	void srl_h();
 	void srl_l();
-	inline void SRL_X(byte& reg, word x);
-	inline void SRL_X_(byte& reg, word x);
-	inline void SRL_X_X(byte& reg);
-	inline void SRL_X_Y(byte& reg);
 	void srl_xhl();
 	void srl_xix  ();
 	void srl_xix_a();
@@ -1338,8 +1335,7 @@ private:
 	void rld();
 	void rrd();
 
-	inline void PUSH2(z80regpair reg);
-	inline void PUSH(z80regpair reg);
+	inline void PUSH(word reg);
 	void push_af();
 	void push_bc();
 	void push_de();
@@ -1347,7 +1343,7 @@ private:
 	void push_ix();
 	void push_iy();
 
-	inline void POP(z80regpair& reg);
+	inline word POP();
 	void pop_af();
 	void pop_bc();
 	void pop_de();
@@ -1414,12 +1410,12 @@ private:
 	void jr_z();
 	void djnz();
 
-	inline void EX_SP(z80regpair& reg);
+	inline void EX_SP(word& reg);
 	void ex_xsp_hl();
 	void ex_xsp_ix();
 	void ex_xsp_iy();
 
-	inline void IN(byte& reg);
+	inline byte IN();
 	void in_a_c();
 	void in_b_c();
 	void in_c_c();

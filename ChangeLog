@@ -1,5 +1,10 @@
 $Id$
 
+2005-01-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Z80 speedup:
+	   union optimization is actually a pessimization on modern CPUs (and
+	   an optimizing compiler)
+
 2005-01-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Changed command line parsing of IPS files and rom type:
 	  - There are two new options "-ips" and "-romtype" these must

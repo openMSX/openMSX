@@ -181,7 +181,7 @@ const string& MSXCPU::getDescription() const
 byte MSXCPU::read(unsigned address)
 {
 	const CPU::CPURegs& regs = activeCPU->getRegisters(); 
-	const CPU::z80regpair* registers[] = {
+	const word* registers[] = {
 		&regs.AF,  &regs.BC,  &regs.DE,  &regs.HL, 
 		&regs.AF2, &regs.BC2, &regs.DE2, &regs.HL2, 
 		&regs.IX,  &regs.IY,  &regs.PC,  &regs.SP
@@ -199,9 +199,9 @@ byte MSXCPU::read(unsigned address)
 		return regs.IFF1 + 2 * regs.IFF2;
 	default:
 		if (address & 1) {
-			return registers[address / 2]->B.l;
+			return *registers[address / 2] & 255;
 		} else {
-			return registers[address / 2]->B.h;
+			return *registers[address / 2] >> 8;
 		}
 	}
 }
@@ -209,7 +209,7 @@ byte MSXCPU::read(unsigned address)
 void MSXCPU::write(unsigned address, byte value)
 {
 	CPU::CPURegs& regs = activeCPU->getRegisters(); 
-	CPU::z80regpair* registers[] = {
+	word* registers[] = {
 		&regs.AF,  &regs.BC,  &regs.DE,  &regs.HL, 
 		&regs.AF2, &regs.BC2, &regs.DE2, &regs.HL2, 
 		&regs.IX,  &regs.IY,  &regs.PC,  &regs.SP
@@ -233,10 +233,11 @@ void MSXCPU::write(unsigned address, byte value)
 		regs.IFF2 = value & 0x02;
 		break;
 	default:
+		word& w = *registers[address / 2];
 		if (address & 1) {
-			registers[address / 2]->B.l = value;
+			w = (w & 0xFF00) | value;
 		} else {
-			registers[address / 2]->B.h = value;
+			w = (w & 0x00FF) | (value << 8);
 		}
 		break;
 	}
