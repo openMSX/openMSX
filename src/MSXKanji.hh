@@ -25,8 +25,6 @@ class MSXKanji : public MSXIODevice, public MSXRomDevice
 		virtual void reset(const EmuTime &time);
 
 	private:
-		static const int ROM_SIZE = 256*1024;
-		
 		int adr1, adr2;
 };
 

@@ -7,15 +7,21 @@
 
 MSXKanji::MSXKanji(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
-	  MSXRomDevice(config, time, ROM_SIZE)
+	  MSXRomDevice(config, time)
 {
+	if (!((romSize == 0x20000) || (romSize == 0x40000))) {
+		PRT_ERROR("MSXKanji: wrong kanji rom");
+	}
+	
 	MSXCPUInterface::instance()->register_IO_In (0xD9, this);
 	MSXCPUInterface::instance()->register_IO_Out(0xD8, this);
 	MSXCPUInterface::instance()->register_IO_Out(0xD9, this);
-	
-	MSXCPUInterface::instance()->register_IO_In (0xDB, this);
-	MSXCPUInterface::instance()->register_IO_Out(0xDA, this);
-	MSXCPUInterface::instance()->register_IO_Out(0xDB, this);
+
+	if (romSize == 0x40000) {
+		MSXCPUInterface::instance()->register_IO_In (0xDB, this);
+		MSXCPUInterface::instance()->register_IO_Out(0xDA, this);
+		MSXCPUInterface::instance()->register_IO_Out(0xDB, this);
+	}
 
 	reset(time);
 }
