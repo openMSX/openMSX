@@ -30,7 +30,7 @@ byte MSXS1990::readIO(byte port, const EmuTime &time)
 		PRT_DEBUG("S1990: read reg "<<(int)registerSelect);
 		switch (registerSelect) {
 		case 5:
-			return frontSwitch.isOn() ? 0x40 : 0x00;
+			return frontSwitch.getValue() ? 0x40 : 0x00;
 		case 6:
 			return cpuStatus;
 		case 13:

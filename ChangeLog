@@ -1,5 +1,10 @@
 $Id$
 
+2003-03-31 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Don't abort (only warn) when there occurs an error during processing
+	  of autocommands
+	* Converted "frontswitch" command into a setting
+
 2003-03-30 Maarten ter Huurne <maarten@treewalker.org>
 	* Removed fullScreen parameter from Renderer constructors.
 	* Made Renderer constructors private, only available to their

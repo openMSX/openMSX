@@ -34,7 +34,7 @@ byte MSXMatsushita::readIO(byte port, const EmuTime &time)
 		result = ~ID;
 		break;
 	case 1:
-		result = frontSwitch.isOn() ? 0x7F : 0xFF;
+		result = frontSwitch.getValue() ? 0x7F : 0xFF;
 		break;
 	case 3:
 		result = (((pattern & 0x80) ? color2 : color1) << 4)

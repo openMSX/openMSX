@@ -290,6 +290,19 @@ frameskip
     set frameskip auto      automatically set frameskip depending on CPU load
 
 
+frontswitch
+-----------
+
+  Some machines (e.g. TurboR) have a switch on the front that controls if the
+  machine should boot 'normally' or start the build in software. This setting
+  controls the position of that switch.
+
+  usage:
+    set frontswitch      shows the current setting
+    set frontswitch on   in this position the internal software is started
+    set frontswitch off  in this position the machine boots 'normally'
+
+
 fullscreen
 ----------
 
