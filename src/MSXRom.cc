@@ -604,7 +604,7 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 			}
 		} else {
 			// Writting to SRAM?
-			if ((1 << (address>>13)) & regioSRAM & 0x0C) {
+			if ((1 << (address>>13)) & regioSRAM & 0x30) {
 				// TODO use real mirroring instead
 				for (word adr = address & 0x7FF; adr < 0x2000; adr += 0x800) {
 					sram->write(adr, value);
