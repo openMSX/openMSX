@@ -35,4 +35,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __EVENTDISTRIBUTOR_HH__
+#endif // __LEDEVENT_HH__

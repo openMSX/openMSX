@@ -30,6 +30,8 @@ enum EventType
 	CONSOLE_ON_EVENT,
 	CONSOLE_OFF_EVENT,
 	// focus change events may be added here later
+	/** Display is updated */ 
+	DISPLAY_UPDATE_EVENT,
 };
 
 class Event

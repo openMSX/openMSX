@@ -1065,7 +1065,7 @@ byte V9990CmdEngine::logOp(byte src, byte dest, byte mask)
 
 void V9990CmdEngine::cmdReady()
 {
-	currentCommand = NULL;
+	currentCommand = (V9990Cmd *) NULL;
 	vdp->cmdReady();
 }
 

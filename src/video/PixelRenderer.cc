@@ -14,6 +14,7 @@ TODO:
 #include "VDPVRAM.hh"
 #include "SpriteChecker.hh"
 #include "EventDistributor.hh"
+#include "FinishFrameEvent.hh"
 #include "RealTime.hh"
 #include "Timer.hh"
 #include <algorithm>
@@ -200,13 +201,9 @@ void PixelRenderer::frameEnd(const EmuTime& time)
 		frameDurationSum += duration - frameDurations.removeBack();
 		frameDurations.addFront(duration);
 
-		Event* finishFrameEvent = new SimpleEvent<FINISH_FRAME_EVENT>();
-		EventDistributor::instance().distributeEvent(finishFrameEvent);
+		FinishFrameEvent* f = new FinishFrameEvent(RenderSettings::VIDEO_MSX);
+		EventDistributor::instance().distributeEvent(f);
 	}
-
-	// The screen will be locked for a while, so now is a good time
-	// to perform real time sync.
-	RealTime::instance().sync(time, draw);
 }
 
 void PixelRenderer::updateHorizontalScrollLow(

@@ -4,9 +4,12 @@
 #include "VideoSystem.hh"
 #include "ScreenShotSaver.hh"
 #include "EventDistributor.hh"
+#include "FinishFrameEvent.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"
 #include "CliCommOutput.hh"
+#include "Scheduler.hh"
+#include "RealTime.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -94,9 +97,22 @@ Display::Layers::iterator Display::baseLayer()
 	}
 }
 
-bool Display::signalEvent(const Event& /*event*/)
+bool Display::signalEvent(const Event& event)
 {
-	repaint();
+	assert(event.getType() == FINISH_FRAME_EVENT);
+	
+	const FinishFrameEvent& ffe = static_cast<const FinishFrameEvent&>(event);
+	RenderSettings::VideoSource eventSource = ffe.getSource();
+	RenderSettings::VideoSource visibleSource = 
+		RenderSettings::instance().getVideoSource()->getValue();
+
+	bool draw = visibleSource == eventSource;
+	if(draw) {
+		repaint();
+	}
+
+	RealTime::instance().sync(Scheduler::instance().getCurrentTime(),
+			                  draw);
 	return true;
 }
 

@@ -1,5 +1,8 @@
 $Id$
 
+2004-12-27 Eric Boon <e.boon4@chello.nl>
+	* Introduced FinishFrameEvent for V9990
+
 2004-12-27 Manuel Bilderbeek <manuel@msxnet.org>
 	* Rom type naming clean up part 1. TODO: romdb.xml, class/file names
 

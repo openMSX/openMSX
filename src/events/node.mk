@@ -16,6 +16,7 @@ HDR_ONLY:= \
 	Event \
 	InputEvents \
 	LedEvent \
+	FinishFrameEvent
 
 include build/node-end.mk
 

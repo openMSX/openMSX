@@ -287,6 +287,7 @@ void V9990::writeIO(byte port, byte val, const EmuTime& time)
 		
 		case SYSTEM_CONTROL:
 			status = (status & 0xFB) | ((val & 1) << 2); 
+			status = (status & 0xFB) | ((val & 1) << 2); 
 			calcDisplayMode();
 			renderer->setDisplayMode(getDisplayMode(), time);
 			renderer->setImageWidth(getImageWidth());
@@ -624,16 +625,15 @@ void V9990::calcDisplayMode()
 			mode = P2;
 			break;
 		case 0x80:
-			if (status & 0x04) {
-				// MCLK timing
-				switch (regs[SCREEN_MODE_0] & 0x30) {
+			if(status & 0x04) { /* MCLK timing */
+				switch(regs[SCREEN_MODE_0] & 0x30) {
 				case 0x00: mode = B0; break;
 				case 0x10: mode = B2; break;
 				case 0x20: mode = B4; break;
 				case 0x30: mode = INVALID_DISPLAY_MODE; break;
+				default: assert(false);
 				}
-			} else {
-				// XTAL1 timing
+			} else { /* XTAL1 timing */
 				switch(regs[SCREEN_MODE_0] & 0x30) {
 				case 0x00: mode = B1; break;
 				case 0x10: mode = B3; break;

@@ -7,6 +7,9 @@
 #include "Scheduler.hh"
 #include "Display.hh"
 #include "VideoSystem.hh"
+#include "FinishFrameEvent.hh"
+#include "EventDistributor.hh"
+#include "RenderSettings.hh"
 #include "openmsx.hh"
 
 namespace openmsx {
@@ -56,6 +59,9 @@ void V9990PixelRenderer::frameEnd(const EmuTime& time)
 	renderUntil(time);
 	lastX = 0; lastY = 0;
 	rasterizer->frameEnd();
+
+	FinishFrameEvent *f = new FinishFrameEvent(RenderSettings::VIDEO_GFX9000);
+	EventDistributor::instance().distributeEvent(f);
 }
 
 void V9990PixelRenderer::renderUntil(const EmuTime& time)
