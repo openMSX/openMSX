@@ -19,7 +19,6 @@
 #include "MSXMapperIO.hh"
 #include "MSXPSG.hh"
 #include "MSXMusic.hh"
-#include "MSXMusic_2.hh"
 #include "MSXFmPac.hh"
 #include "MSXAudio.hh"
 #include "MSXMoonSound.hh"
@@ -159,12 +158,6 @@ MSXDevice *DeviceFactory::create(Device *conf, const EmuTime &time)
 	}
 	if (type == "Music") {
 		MSXMusic *music = new MSXMusic(conf, time);
-		cpuInterface->register_IO_Out(0x7C, music);
-		cpuInterface->register_IO_Out(0x7D, music);
-		return music;
-	}
-	if (type == "Music_2") {
-		MSXMusic_2 *music = new MSXMusic_2(conf, time);
 		cpuInterface->register_IO_Out(0x7C, music);
 		cpuInterface->register_IO_Out(0x7D, music);
 		return music;

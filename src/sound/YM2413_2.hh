@@ -6,6 +6,7 @@
 #include "openmsx.hh"
 #include "SoundDevice.hh"
 #include "Mixer.hh"
+#include "YM2413Core.hh"
 
 namespace openmsx {
 
@@ -79,7 +80,7 @@ class Channel
 		byte sus;	// sus on/off (release speed in percussive mode)
 };
 
-class YM2413_2 : public SoundDevice
+class YM2413_2 : public YM2413Core, public SoundDevice
 {
 	public:
 		YM2413_2(const string &name, short volume, const EmuTime &time,

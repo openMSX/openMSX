@@ -3,6 +3,7 @@
 #include "MSXMusic.hh"
 #include "Mixer.hh"
 #include "YM2413.hh"
+#include "YM2413_2.hh"
 #include "MSXConfig.hh"
 
 
@@ -20,7 +21,12 @@ MSXMusic::MSXMusic(Device *config, const EmuTime &time)
 		if (stereoMode == "left") mode = Mixer::MONO_LEFT;
 		if (stereoMode == "right") mode = Mixer::MONO_RIGHT;
 	}
-	ym2413 = new YM2413(config->getId(), volume, time, mode);
+	if (config->getParameterAsBool("alternative", false)) {
+		ym2413 = new YM2413_2(config->getId(), volume, time, mode);
+	} else {
+		ym2413 = new YM2413(config->getId(), volume, time, mode);
+	}
+		
 	reset(time);
 }
 

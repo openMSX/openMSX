@@ -6,14 +6,14 @@
 #include "openmsx.hh"
 #include "SoundDevice.hh"
 #include "Mixer.hh"
+#include "YM2413Core.hh"
 
 namespace openmsx {
 
-// forward declarations
 class EmuTime;
 
 
-class YM2413 : public SoundDevice
+class YM2413 : public YM2413Core, public SoundDevice
 {
 	class Patch {
 		public:

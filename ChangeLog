@@ -3,6 +3,8 @@ $Id$
 2003-08-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Improved tabcompleteion for plug command:
 	   - only complete pluggables that will fit in the selected connector
+	* Made it easier to switch between MSX-MUSIC cores:
+	   - use the parameter "alternative" in the device config section
 
 2003-08-23 Manuel Bilderbeek <manuel@msxnet.org>
 	* Made the keys of the key joystick configurable.

@@ -12,11 +12,14 @@ SRC_HDR:= \
 	Timer \
 	Y8950 Y8950Adpcm Y8950KeyboardConnector Y8950KeyboardDevice \
 	MC6850 \
-	MSXFmPac MSXMusic MSXMusic_2 \
+	MSXFmPac MSXMusic \
 	YM2413 YM2413_2 \
 	MSXTurboRPCM \
 	YMF262 YMF278 MSXMoonSound \
 	AudioInputConnector AudioInputDevice DummyAudioInputDevice WavAudioInput
+
+HDR_ONLY:= \
+	YM2413Core
 
 $(eval $(PROCESS_NODE))
 
