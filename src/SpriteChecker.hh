@@ -224,6 +224,33 @@ public:
 		return spriteCount[line];
 	}
 
+	/** Calculate the position of the rightmost 1-bit in a SpritePattern,
+	  * this can be used to calculate the effective width of a SpritePattern.
+	  * @param pattern The SpritePattern
+	  * @return The position of the rightmost 1-bit in the pattern.
+	  *   Positions are numbered from left to right.
+	  */
+	static inline int patternWidth(SpritePattern a) {
+		// following code is functionally equivalent with
+		//     int width = 0;
+		//     while(a) { width++; a<<=1; }
+		//     return width;
+
+		int width;
+		if (a & 0xffff) { width  = 16; a &= 0xffff; }
+		else            { width  =  0; a >>= 16;    }
+		if (a & 0x00ff) { width +=  8; a &= 0x00ff; }
+		else            {              a >>=  8;    }
+		if (a & 0x000f) { width +=  4; a &= 0x000f; }
+		else            {              a >>=  4;    }
+		if (a & 0x0003) { width +=  2; a &= 0x0003; }
+		else            {              a >>=  2;    }
+		//if (a & 0x0001) { width +=  2;              } // slower !!!
+		if (a & 0x0001) { width +=  1 + (a & 1);    }
+		else            { width += (a >> 1);        }
+		return width;
+	}
+
 private:
 	/** Update sprite checking to specified time.
 	  * @param time The moment in emulated time to update to.

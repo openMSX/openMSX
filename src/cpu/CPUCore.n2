@@ -4694,6 +4694,11 @@ void _CPU_::execute()
 				R.R += halts;
 				currentTime += halts*hltStates;
 			} else {
+				#ifdef CPU_DEBUG
+					start_pc = R.PC.w;
+					before = currentTime;
+				#endif
+				
 				// normal instructions
 				R.IFF1 = R.nextIFF1;
 				executeInstruction(RDOP(R.PC.w++));

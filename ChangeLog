@@ -1,5 +1,8 @@
 $Id$
 
+2002-05-19 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* small sprite rendering optimizations
+
 2002-05-18 Bas Wijnen <b.wijnen@student.rug.nl>
 	* Added files for Xlib renderer. Mostly unimplemented.
 

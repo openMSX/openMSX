@@ -700,15 +700,11 @@ void SDLGLRenderer::drawSprites(int absLine)
 		for (int i = 0; i < visibleIndex; i++) {
 			combined |= visibleSprites[i].pattern;
 		}
-		int size = 0;
-		while (combined) {
-			size++;
-			combined <<= 1;
-		}
+		int maxSize = SpriteChecker::patternWidth(combined);
 		// Left-to-right scan.
 		for (int pixelDone = 0; pixelDone < 256; pixelDone++) {
 			// Skip pixels if possible.
-			int minStart = pixelDone - size;
+			int minStart = pixelDone - maxSize;
 			int leftMost = 0xFFFF;
 			for (int i = 0; i < visibleIndex; i++) {
 				int x = visibleSprites[i].x;
@@ -723,7 +719,7 @@ void SDLGLRenderer::drawSprites(int absLine)
 			for (int i = 0; i < visibleIndex; i++) {
 				SpriteChecker::SpriteInfo *sip = &visibleSprites[i];
 				int shift = pixelDone - sip->x;
-				if ((0 <= shift && shift < 32)
+				if ((0 <= shift && shift < maxSize)
 				&& ((sip->pattern << shift) & 0x80000000)) {
 					byte c = sip->colourAttrib & 0x0F;
 					if (c == 0 && vdp->getTransparency()) continue;
@@ -733,7 +729,7 @@ void SDLGLRenderer::drawSprites(int absLine)
 						sip = &visibleSprites[i];
 						if (!(sip->colourAttrib & 0x40)) break;
 						int shift = pixelDone - sip->x;
-						if ((0 <= shift && shift < 32)
+						if ((0 <= shift && shift < maxSize)
 						&& ((sip->pattern << shift) & 0x80000000)) {
 							colour |= sip->colourAttrib & 0x0F;
 						}

@@ -621,11 +621,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 		for (int i = 0; i < visibleIndex; i++) {
 			combined |= visibleSprites[i].pattern;
 		}
-		int maxSize = 0;
-		while (combined) {
-			maxSize++;
-			combined <<= 1;
-		}
+		int maxSize = SpriteChecker::patternWidth(combined);
 		// Left-to-right scan.
 		for (int pixelDone = 0; pixelDone < 256; pixelDone++) {
 			// Skip pixels if possible.
