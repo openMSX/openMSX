@@ -491,7 +491,7 @@ void Y8950::reset(const EmuTime &time)
 		reg[i] = 0x00;
 
 	reg[0x04] = 0x18;
-	status = 0x06;	// TODO
+	status = 0x00;
 	statusMask = 0;
 	
 	adpcm.reset(time);
@@ -1122,9 +1122,9 @@ byte Y8950::readReg(byte rg, const EmuTime &time)
 byte Y8950::readStatus()
 {
 	setStatus(STATUS_BUF_RDY);	// temp hack
-	byte tmp = status & (0x86 | statusMask);
+	byte tmp = status & (0x80 | statusMask);
 	//PRT_DEBUG("Y8950 read status " << (int)tmp);
-	return tmp;
+	return tmp | 0x06;	// bit 1 and 2 are always 1
 }
 
 void Y8950::callback(byte flag)
