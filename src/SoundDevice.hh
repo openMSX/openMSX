@@ -11,12 +11,12 @@ class SoundDevice
 		/**
 		 *
 		 */
-		virtual void init();
+		virtual void init() {}
 
 		/**
 		 *
 		 */
-		virtual void reset();
+		virtual void reset() {}
 
 		/**
 		 * Set the relative volume for this sound device, this
@@ -25,16 +25,16 @@ class SoundDevice
 		 * 
 		 *    0 <= newVolume <= 32767
 		 */
-		virtual void setVolume (int newVolume);
+		virtual void setVolume (int newVolume) {}
 
 		/**
 		 *
 		 */
-		virtual void setSampleRate (int newSampleRate);
+		virtual void setSampleRate (int newSampleRate) {}
 
 		/**
 		 * TODO update sound buffers
 		 */
-		virtual void updateBuffer (short *buffer, int length);
+		virtual void updateBuffer (short *buffer, int length) {}
 };
 #endif
