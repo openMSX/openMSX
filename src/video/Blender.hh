@@ -3,7 +3,7 @@
 #ifndef __BLENDER_HH__
 #define __BLENDER_HH__
 
-#include "SDL/SDL.h"
+#include <SDL/SDL.h>
 
 /** Small utility class for blending colours.
   * The blender can be applied to 8bpp pixels safely,
@@ -30,7 +30,7 @@ private:
 public:
 
 	/** A dummy blender which can be used if you need to pass a blender object
-	  * but don't actually intend to blend anything.
+	  * but don't intend to actually blend anything.
 	  */
 	static Blender dummy() {
 		return Blender(0);
@@ -57,7 +57,6 @@ public:
 	}
 
 	/** Blend the given colours into a single colour.
-	  * Initialise the blender before calling this method.
 	  */
 	Pixel blend(Pixel colour1, Pixel colour2) {
 		if (sizeof(Pixel) == 1) {
