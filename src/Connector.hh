@@ -7,6 +7,7 @@
 
 //forward declarations
 class Pluggable;
+class EmuTime;
 
 
 class Connector {
@@ -28,7 +29,7 @@ public:
 	 * This plugs a pluggable in this connector. The default
 	 * implementation is ok.
 	 */
-	virtual void plug(Pluggable *device);
+	virtual void plug(Pluggable *device, const EmuTime &time);
 
 	/**
 	 * This unplugs a device (if inserted) from this connector. 
@@ -37,7 +38,7 @@ public:
 	 * it must redefine this method (the new implementation must call 
 	 * this original method)
 	 */
-	virtual void unplug();
+	virtual void unplug(const EmuTime &time);
 
 protected:
 	Pluggable *pluggable;

@@ -16,7 +16,7 @@ class JoystickDevice : public Pluggable
 		 *   7    6       5         4         3       2      1     0 
 		 * | xx | xx | BUTTON_B | BUTTON_A | RIGHT | LEFT | DOWN | UP |
 		 */
-		virtual byte read() = 0;
+		virtual byte read(const EmuTime &time) = 0;
 
 		/**
 		 * Write a value to the joystick device. The bits in the written
@@ -24,6 +24,9 @@ class JoystickDevice : public Pluggable
 		 *   7    6    5    4    3     2      1      0
 		 * | xx | xx | xx | xx | xx | pin8 | pin7 | pin6 |
 		 */
-		virtual void write(byte value) = 0;
+		virtual void write(byte value, const EmuTime &time) = 0;
+
+		virtual const std::string &getClass();
+		static const std::string className;
 };
 #endif

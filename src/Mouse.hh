@@ -16,11 +16,10 @@ class Mouse : public JoystickDevice, EventListener
 		
 		//Pluggable
 		const std::string &getName();
-		const std::string &getClass();
 		
 		//JoystickDevice
-		byte read();
-		void write(byte value);
+		byte read(const EmuTime &time);
+		void write(byte value, const EmuTime &time);
 	
 		//EventListener
 		void signalEvent(SDL_Event &event);
@@ -36,7 +35,6 @@ class Mouse : public JoystickDevice, EventListener
 		static const int STROBE = 0x04;
 
 		static const std::string name;
-		static const std::string className;
 
 		byte status;
 		int faze;

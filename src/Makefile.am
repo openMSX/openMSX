@@ -52,7 +52,8 @@ openmsx_SOURCES=openmsx.cc icon.nn \
 	Leds.hh Leds.cc \
 	MSXE6Timer.hh MSXE6Timer.cc \
 	DummyDevice.hh DummyDevice.cc \
-	JoystickPorts.hh JoystickPorts.cc JoystickDevice.hh \
+	JoystickPorts.hh JoystickPorts.cc \
+	JoystickDevice.hh JoystickDevice.cc \
 	DummyJoystick.hh DummyJoystick.cc \
 	Joystick.hh Joystick.cc Mouse.hh Mouse.cc \
 	MSXPrinterPort.hh MSXPrinterPort.cc PrinterPortDevice.hh \

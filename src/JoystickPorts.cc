@@ -8,17 +8,17 @@
 #include <cassert>
 
 
-JoystickPort::JoystickPort(const std::string &nm)
+JoystickPort::JoystickPort(const std::string &nm, const EmuTime &time)
 {
 	name = nm;
 	PluggingController::instance()->registerConnector(this);
 	
-	unplug();
+	unplug(time);
 }
 
 JoystickPort::~JoystickPort()
 {
-	unplug();
+	//unplug(time);
 	PluggingController::instance()->unregisterConnector(this);
 }
 
@@ -33,34 +33,36 @@ std::string JoystickPort::getClass()
 }
 std::string JoystickPort::className("Joystick Port");
 
-void JoystickPort::plug(Pluggable *device)
+void JoystickPort::plug(Pluggable *device, const EmuTime &time)
 {
-	Connector::plug(device);
+	Connector::plug(device, time);
+	write(lastValue, time);
 }
 
-void JoystickPort::unplug()
+void JoystickPort::unplug(const EmuTime &time)
 {
-	Connector::unplug();
-	plug(DummyJoystick::instance());
+	Connector::unplug(time);
+	plug(DummyJoystick::instance(), time);
 }
 
-byte JoystickPort::read()
+byte JoystickPort::read(const EmuTime &time)
 {
-	return ((JoystickDevice*)pluggable)->read();
+	return ((JoystickDevice*)pluggable)->read(time);
 }
 
-void JoystickPort::write(byte value)
+void JoystickPort::write(byte value, const EmuTime &time)
 {
-	((JoystickDevice*)pluggable)->write(value);
+	lastValue = value;
+	((JoystickDevice*)pluggable)->write(value, time);
 }
 
 ///
 
-JoystickPorts::JoystickPorts()
+JoystickPorts::JoystickPorts(const EmuTime &time)
 {
 	selectedPort = 0;
-	ports[0] = new JoystickPort("joyporta");
-	ports[1] = new JoystickPort("joyportb");
+	ports[0] = new JoystickPort("joyporta", time);
+	ports[1] = new JoystickPort("joyportb", time);
 }
 
 JoystickPorts::~JoystickPorts()
@@ -69,17 +71,17 @@ JoystickPorts::~JoystickPorts()
 	delete ports[1];
 }
 
-byte JoystickPorts::read()
+byte JoystickPorts::read(const EmuTime &time)
 {
-	return ports[selectedPort]->read();
+	return ports[selectedPort]->read(time);
 }
 
-void JoystickPorts::write(byte value)
+void JoystickPorts::write(byte value, const EmuTime &time)
 {
 	byte val0 =  (value&0x03)    |((value&0x10)>>2);
 	byte val1 = ((value&0x0c)>>2)|((value&0x20)>>3);
-	ports[0]->write(val0);
-	ports[1]->write(val1);
+	ports[0]->write(val0, time);
+	ports[1]->write(val1, time);
 	selectedPort = (value&0x40)>>6;
 }
 

@@ -1,5 +1,8 @@
 $Id$
 
+2002-03-11 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* made Connector-Pluggable aware of EmuTime
+
 2002-03-10 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Console cleanup
 	* Added console prompt 

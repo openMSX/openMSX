@@ -43,21 +43,15 @@ const std::string &Joystick::getName()
 	return name;
 }
 
-const std::string &Joystick::getClass()
-{
-	return className;
-}
-const std::string Joystick::className("Joystick Port");
-
 
 //JoystickDevice
-byte Joystick::read()
+byte Joystick::read(const EmuTime &time)
 {
 	EventDistributor::instance()->pollSyncEvents();
 	return status;
 }
 
-void Joystick::write(byte value)
+void Joystick::write(byte value, const EmuTime &time)
 {
 	//do nothing
 }

@@ -20,12 +20,12 @@ DummyJoystick* DummyJoystick::instance()
 DummyJoystick* DummyJoystick::oneInstance = 0;
 
 
-byte DummyJoystick::read()
+byte DummyJoystick::read(const EmuTime &time)
 {
 	return 0x3f;
 }
 
-void DummyJoystick::write(byte value)
+void DummyJoystick::write(byte value, const EmuTime &time)
 {
 	// do nothing
 }
@@ -35,9 +35,3 @@ const std::string &DummyJoystick::getName()
 	return name;
 }
 const std::string DummyJoystick::name("Dummy Joystick");
-
-const std::string &DummyJoystick::getClass()
-{
-	return className;
-}
-const std::string DummyJoystick::className("Joystick Port");

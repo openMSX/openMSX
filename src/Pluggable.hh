@@ -5,6 +5,9 @@
 
 #include <string>
 
+// forward declarations
+class EmuTime;
+
 
 class Pluggable {
 public:
@@ -23,13 +26,13 @@ public:
 	 * This method is called just before this pluggable is inserted in a
 	 * connector. The default implementation does nothing.
 	 */
-	virtual void plug() {}
+	virtual void plug(const EmuTime &time) {}
 
 	/**
 	 * This method is called when this pluggable is removed from a 
 	 * conector. The default implementation does nothing.
 	 */
-	virtual void unplug() {}
+	virtual void unplug(const EmuTime &time) {}
 };
 
 #endif //__PLUGGABLE__

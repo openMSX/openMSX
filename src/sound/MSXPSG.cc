@@ -14,7 +14,7 @@ MSXPSG::MSXPSG(MSXConfig::Device *config, const EmuTime &time)
 	
 	short volume = (short)deviceConfig->getParameterAsInt("volume");
 	ay8910 = new AY8910(*this, volume, time);
-	joyPorts = new JoystickPorts();
+	joyPorts = new JoystickPorts(time);
 	cassette = CassettePortFactory::instance();
 	
 	MSXMotherBoard::instance()->register_IO_Out(0xA0,this);
@@ -28,7 +28,7 @@ MSXPSG::~MSXPSG()
 {
 	PRT_DEBUG("Destroying an MSXPSG object");
 	delete ay8910;
-	//delete joyPorts;	// is singleton
+	delete joyPorts;
 }
 
 void MSXPSG::reset(const EmuTime &time)
@@ -64,7 +64,7 @@ void MSXPSG::writeIO(byte port, byte value, const EmuTime &time)
 // AY8910Interface
 byte MSXPSG::readA(const EmuTime &time)
 {
-	byte joystick = joyPorts->read();
+	byte joystick = joyPorts->read(time);
 	byte keyLayout = 0;		//TODO
 	byte cassetteInput = cassette->cassetteIn(time) ? 128 : 0;
 	return joystick | (keyLayout<<6) | cassetteInput;
@@ -85,7 +85,7 @@ void MSXPSG::writeA(byte value, const EmuTime &time)
 
 void MSXPSG::writeB(byte value, const EmuTime &time)
 {
-	joyPorts->write(value);
+	joyPorts->write(value, time);
 	
 	Leds::LEDCommand kana = (value&0x80) ? Leds::KANA_OFF : Leds::KANA_ON;
 	Leds::instance()->setLed(kana);

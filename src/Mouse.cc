@@ -32,15 +32,9 @@ const std::string &Mouse::getName()
 }
 const std::string Mouse::name("mouse");
 
-const std::string &Mouse::getClass()
-{
-	return className;
-}
-const std::string Mouse::className("Joystick Port");
-
 
 //JoystickDevice
-byte Mouse::read()
+byte Mouse::read(const EmuTime &time)
 {
 	EventDistributor::instance()->pollSyncEvents();
 	switch (faze) {
@@ -58,7 +52,7 @@ byte Mouse::read()
 	}
 }
 
-void Mouse::write(byte value)
+void Mouse::write(byte value, const EmuTime &time)
 {
 	switch (faze) {
 	case FAZE_XHIGH:

@@ -3,6 +3,7 @@
 #include <cassert>
 #include "ConsoleSource/Console.hh"
 #include "ConsoleSource/CommandController.hh"
+#include "cpu/MSXCPU.hh"
 #include "PluggingController.hh"
 #include "Connector.hh"
 #include "Pluggable.hh"
@@ -104,8 +105,9 @@ void PluggingController::PlugCmd::execute(const std::vector<std::string> &tokens
 		Console::instance()->print("Doesn't fit");
 		return;
 	}
-	connector->unplug();
-	connector->plug(pluggable);
+	const EmuTime &time = MSXCPU::instance()->getCurrentTime();
+	connector->unplug(time);
+	connector->plug(pluggable, time);
 }
 
 void PluggingController::PlugCmd::help   (const std::vector<std::string> &tokens)
@@ -157,7 +159,8 @@ void PluggingController::UnplugCmd::execute(const std::vector<std::string> &toke
 		Console::instance()->print("No such connector");
 		return;
 	}
-	connector->unplug();
+	const EmuTime &time = MSXCPU::instance()->getCurrentTime();
+	connector->unplug(time);
 }
 
 void PluggingController::UnplugCmd::help   (const std::vector<std::string> &tokens)
