@@ -1,5 +1,13 @@
 $Id$
 
+2003-02-10 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Uninline cpu rdmem and wrmem slowpaths:
+	   this actually increased performance a little
+	* RTC uses generic SRAM class for persistent data:
+	   - SRAM is now the _only_ class in the whole tree that writes files
+	   - parameters "filename, load, save" changed to "sramname, loadsram,
+	     savesram". This means all configuartion files must be updated.
+
 2003-02-08 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed MSX-AUDIO mapper:
 	   - it has 4 pages of 32kB instead of only 2
