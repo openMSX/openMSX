@@ -15,6 +15,10 @@ openmsx (0.5.0-3) unstable; urgency=low
 
 openmsx (0.5.0-2) unstable; urgency=low
 
+  * close ITP (Closes: #221086)
+  * close old ITP (Closes: #226346)
+  * close old ITP (Closes: #226379)
+  * close old ITP (Closes: #226412)
   * don't install cbios
   * use external cbios
   * fix short description
