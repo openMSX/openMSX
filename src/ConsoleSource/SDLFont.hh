@@ -3,12 +3,12 @@
 #ifndef __SDLFONT_HH__
 #define __SDLFONT_HH__
 
-#include <SDL/SDL.h>
-#include <iostream>
 #include <string>
+#include "SDL/SDL.h"
 
 
-class SDLFont {
+class SDLFont
+{
 	public:
 		SDLFont(const std::string &bitmapName);
 		~SDLFont();
@@ -18,11 +18,9 @@ class SDLFont {
 		int width();
 
 	private:
-		void setAlphaGL(int alpha);
-
 		int charWidth;
 		int charHeight;
-	public: SDL_Surface *fontSurface; // temp hack, should be private
+		SDL_Surface *fontSurface;
 };
 
 #endif

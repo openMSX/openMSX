@@ -1,9 +1,15 @@
 dnl $Id$
 dnl Process this file with autoconf to produce a configure script.
 
+
 AC_INIT(src/main.cc)
 dnl Every other copy of the package version number gets its value from here
 AM_INIT_AUTOMAKE(openmsx, 0.1.9)
+
+if test "$prefix" = "NONE"; then
+  prefix="/usr/local"
+fi
+LIBS="-L$prefix/lib $LIBS"
 
 dnl create a config.h file (Automake will add -DHAVE_CONFIG_H)
 AM_CONFIG_HEADER(src/config.h)
@@ -50,6 +56,9 @@ dnl openGL
 AC_CHECK_HEADERS(gl.h GL/gl.h, break)
 AC_CHECK_LIB(GL, glViewport)
 
+dnl SDL_image
+AC_CHECK_LIB(SDL_image, IMG_Load)
+ 
 dnl libpng
 AC_CHECK_HEADERS(png.h, break)
 AC_CHECK_LIB(png, png_create_read_struct)

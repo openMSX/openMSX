@@ -18,9 +18,11 @@ libSDL_console_la_SOURCES = \
 	InteractiveConsole.cc InteractiveConsole.hh \
 	CircularBuffer.cc CircularBuffer.hh \
 	SDLConsole.cc SDLConsole.hh \
+	GLConsole.cc GLConsole.hh \
 	CommandController.cc CommandController.hh \
 	Command.cc Command.hh \
-	SDLFont.cc SDLFont.hh
+	SDLFont.cc SDLFont.hh \
+	GLFont.cc GLFont.hh
 
 nodebug: resetdebug all
 debug: setdebug all

@@ -43,7 +43,7 @@ TODO:
 #include "VDPVRAM.hh"
 #include "SpriteChecker.hh"
 #include "RealTime.hh"
-#include "SDLConsole.hh"
+#include "GLConsole.hh"
 #include <math.h>
 
 /** Dimensions of screen.
@@ -381,7 +381,7 @@ SDLGLRenderer::SDLGLRenderer(
 	, characterConverter(vdp, palFg, palBg)
 	, bitmapConverter(palFg, PALETTE256)
 {
-	console = new SDLConsole(screen);
+	console = new GLConsole();
 
 	GLint size;
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size);
@@ -1143,8 +1143,8 @@ void SDLGLRenderer::putImage(const EmuTime &time)
 
 Renderer *createSDLGLRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)
 {
-	int flags = SDL_OPENGL | SDL_OPENGLBLIT | SDL_HWSURFACE
-		| (fullScreen ? SDL_FULLSCREEN : 0);
+	int flags = SDL_OPENGL | SDL_HWSURFACE |
+	            (fullScreen ? SDL_FULLSCREEN : 0);
 
 	// Enables OpenGL double buffering.
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, true);

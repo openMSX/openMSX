@@ -22,17 +22,14 @@ class SDLConsole : public InteractiveConsole, private EventListener
 
 	private:
 		virtual bool signalEvent(SDL_Event &event);
+		virtual void updateConsole();
 
 		void alpha(unsigned char alpha);
 		void background(const std::string &image, int x, int y);
 		void position(int x, int y);
 		void resize(SDL_Rect rect);
 		void reloadBackground();
-		void updateConsole();
-		void setAlphaGL(SDL_Surface *s, int alpha);
 		void drawCursor();
-		void putPixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
-		Uint32 getPixel(SDL_Surface *surface, int x, int y);
 
 		static const int BLINK_RATE = 500;
 		static const int CHAR_BORDER = 4;

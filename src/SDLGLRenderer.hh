@@ -23,7 +23,7 @@
 class VDP;
 class VDPVRAM;
 class SpriteChecker;
-class SDLConsole;
+class GLConsole;
 
 
 /** Factory method to create SDLGLRenderer objects.
@@ -297,7 +297,7 @@ private:
 	  */
 	BitmapConverter<Pixel, Renderer::ZOOM_REAL> bitmapConverter;
 
-	SDLConsole* console;
+	GLConsole* console;
 };
 
 #endif // OpenGL header check.

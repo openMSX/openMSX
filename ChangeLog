@@ -1,5 +1,14 @@
 $Id$
 
+2002-08-25 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Use SDL_image to load images (.png .bmp .jpg ...)
+	* Implemented GLConsole for SDLGLRenderer
+	    - old console didn't always work for SDLGLRenderer
+	    - a lot faster
+	    - per pixel alpha blending:
+	       ConsoleBackground and ConsoleFont can be true RGBA images
+	       (current pictures are .bmp, they don't have an alpha channel)
+
 2002-08-22 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented R-Type mapper
 	* Fixed vertical scrolling in text modes
