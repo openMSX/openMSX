@@ -106,7 +106,7 @@ void Console::loadHistory()
 		if (!inputfile) throw FileException("Error loading Consolehistory");
 		while (inputfile){
 			getline(inputfile,line);
-			if (!line.empty(){
+			if (!line.empty()){
 				line.insert(0,PROMPT);
 				putCommandHistory(line);
 			}
