@@ -8,8 +8,8 @@
 #include "VDPVRAM.hh"
 #include "SpriteChecker.hh"
 #include "RealTime.hh"
-#include "CliCommOutput.hh"
-#include "StringOp.hh"
+#include "InfoCommand.hh"
+#include "CommandResult.hh"
 
 using std::max;
 
@@ -111,7 +111,7 @@ inline void PixelRenderer::subdivide(
 }
 
 PixelRenderer::PixelRenderer(RendererFactory::RendererID id, VDP *vdp)
-	: Renderer(id)
+	: Renderer(id), fpsInfo(*this)
 {
 	this->vdp = vdp;
 	vram = vdp->getVRAM();
@@ -131,13 +131,14 @@ PixelRenderer::PixelRenderer(RendererFactory::RendererID id, VDP *vdp)
 		frameDurationSum += 20;
 	}
 	prevTimeStamp = RealTime::instance().getTime();
-	printCounter = PRINT_FPS_FREQ;
 	
 	settings.getFrameSkip()->addListener(this);
+	InfoCommand::instance().registerTopic("fps", &fpsInfo);
 }
 
 PixelRenderer::~PixelRenderer()
 {
+	InfoCommand::instance().unregisterTopic("fps", &fpsInfo);
 	settings.getFrameSkip()->removeListener(this);
 }
 
@@ -179,12 +180,6 @@ void PixelRenderer::frameEnd(const EmuTime &time)
 		prevTimeStamp = timeStamp;
 		frameDurationSum += duration - frameDurations.removeBack();
 		frameDurations.addFront(duration);
-		float fps = 1000.0 * NUM_FRAME_DURATIONS / frameDurationSum;
-		if (--printCounter == 0) {
-			printCounter = PRINT_FPS_FREQ;
-			CliCommOutput::instance().update(CliCommOutput::FPS, "",
-			     StringOp::toString(fps));
-		}
 	}
 
 	// The screen will be locked for a while, so now is a good time
@@ -452,6 +447,26 @@ void PixelRenderer::renderUntil(const EmuTime &time)
 void PixelRenderer::update(const SettingLeafNode* setting) throw()
 {
 	curFrameSkip = 1;	// reset frameskip counter
+}
+
+
+// class FpsInfoTopic
+
+PixelRenderer::FpsInfoTopic::FpsInfoTopic(PixelRenderer& parent_)
+	: parent(parent_)
+{
+}
+
+void PixelRenderer::FpsInfoTopic::execute(const vector<string>& tokens,
+                                          CommandResult& result) const throw()
+{
+	result.setDouble(1000.0 * NUM_FRAME_DURATIONS / parent.frameDurationSum);
+}
+
+string PixelRenderer::FpsInfoTopic::help (const vector<string>& tokens) const
+	throw()
+{
+	return "Returns the current rendering speed in frames per second.";
 }
 
 } // namespace openmsx

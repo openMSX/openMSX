@@ -11,6 +11,7 @@
 #include "RenderSettings.hh"
 #include "DisplayMode.hh"
 #include "Event.hh"
+#include "InfoTopic.hh"
 
 namespace openmsx {
 
@@ -220,8 +221,17 @@ private:
 	CircularBuffer<unsigned, NUM_FRAME_DURATIONS> frameDurations;
 	unsigned frameDurationSum;
 	unsigned prevTimeStamp;
-	static const unsigned PRINT_FPS_FREQ = 250;
-	unsigned printCounter;
+	
+	class FpsInfoTopic : public InfoTopic {
+	public:
+		FpsInfoTopic(PixelRenderer& parent);
+		virtual void execute(const vector<string>& tokens,
+		                     CommandResult& result) const throw();
+		virtual string help (const vector<string>& tokens) const
+			throw();
+	private:
+		PixelRenderer& parent;
+	} fpsInfo;
 
 	// internal VDP counter, actually belongs in VDP
 	int textModeCounter;
