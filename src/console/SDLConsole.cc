@@ -225,7 +225,7 @@ int SDLConsole::zoomSurface(SDL_Surface* src, SDL_Surface* dst, bool smooth)
 	int x, y, sx, sy, *sax, *say, *csax, *csay, csx, csy, ex, ey, t1, t2, sstep;
 	ColorRGBA *c00, *c01, *c10, *c11;
 	ColorRGBA *sp, *csp, *dp;
-	int sgap, dgap;
+	int dgap;
 
 	// Variable setup
 	if (smooth) {
@@ -268,7 +268,6 @@ int SDLConsole::zoomSurface(SDL_Surface* src, SDL_Surface* dst, bool smooth)
 	// Pointer setup
 	sp = csp = (ColorRGBA *) src->pixels;
 	dp = (ColorRGBA *) dst->pixels;
-	sgap = src->pitch - src->w * 4;
 	dgap = dst->pitch - dst->w * 4;
 
 	// Switch between interpolating and non-interpolating code
