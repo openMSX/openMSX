@@ -302,6 +302,10 @@
     <parameter name="mode">right</parameter>
     <parameter name="sampleram">256</parameter>
   </device>
+  
+  <device id="MSX-Audio-Midi">
+    <type>Audio-Midi</type>
+  </device>
 -->    
   <device id="cpu">
     <type>CPU</type>

@@ -12,6 +12,7 @@ MSXMemDevice::MSXMemDevice(MSXConfig::Device *config, const EmuTime &time)
 
 byte MSXMemDevice::readMem(word address, const EmuTime &time)
 {
+	PRT_DEBUG("MSXMemDevice: read from unmapped memory " << std::hex << (int)address);
 	return 255;
 }
 

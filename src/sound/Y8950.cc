@@ -922,7 +922,7 @@ void Y8950::setInternalVolume(short newVolume)
 
 void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 {
-	//PRT_DEBUG("Y8950 write " << (int)rg << " " << (int)data);
+	PRT_DEBUG("Y8950 write " << (int)rg << " " << (int)data);
 	int stbl[32] = {
 		 0, 2, 4, 1, 3, 5,-1,-1,
 		 6, 8,10, 7, 9,11,-1,-1,
@@ -1208,7 +1208,7 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 
 byte Y8950::readReg(byte rg)
 {
-	//PRT_DEBUG("Y8950 read " << (int)rg);
+	PRT_DEBUG("Y8950 read " << (int)rg);
 	switch (rg) {
 		case 0x05: // (KEYBOARD IN)
 			// TODO
@@ -1235,7 +1235,9 @@ byte Y8950::readReg(byte rg)
 byte Y8950::readStatus()
 {
 	setStatus(STATUS_BUF_RDY);	// temp hack
-	return status & (0x80 | statusMask);
+	byte tmp = status & (0x80 | statusMask);
+	PRT_DEBUG("Y8950 read status " << (int)tmp);
+	return tmp;
 }
 
 void Y8950::setStatus(int flags)

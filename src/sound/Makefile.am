@@ -13,20 +13,21 @@ endif
 
 noinst_LTLIBRARIES = libSound.la
 libSound_la_SOURCES = \
+	Mixer.cc Mixer.hh \
+	SoundDevice.cc SoundDevice.hh \
+	MSXPSG.cc MSXPSG.hh \
 	AY8910.cc AY8910.hh \
 	DACSound.cc DACSound.hh \
 	KeyClick.hh KeyClick.cc \
-	MSXAudio.cc MSXAudio.hh \
-	MSXFmPac.cc MSXFmPac.hh \
-	MSXMusic.cc MSXMusic.hh \
-	MSXPSG.cc MSXPSG.hh \
-	MSXSCCPlusCart.cc MSXSCCPlusCart.hh \
-	MSXYM2413.cc MSXYM2413.hh \
-	Mixer.cc Mixer.hh \
 	SCC.cc SCC.hh \
-	SoundDevice.cc SoundDevice.hh \
+	MSXSCCPlusCart.cc MSXSCCPlusCart.hh \
+	MSXAudio.cc MSXAudio.hh \
 	Y8950.cc Y8950.hh \
 	Y8950Timer.cc Y8950Timer.hh \
+	MC6850.cc MC6850.hh \
+	MSXFmPac.cc MSXFmPac.hh \
+	MSXMusic.cc MSXMusic.hh \
+	MSXYM2413.cc MSXYM2413.hh \
 	YM2413.cc YM2413.hh
 
 nodebug: resetdebug all
