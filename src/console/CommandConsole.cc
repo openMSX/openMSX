@@ -192,13 +192,13 @@ bool CommandConsole::signalEvent(const Event& event) throw()
 	Keys::KeyCode key = static_cast<const KeyEvent&>(event).getKeyCode();
 	switch (key) {
 		case (Keys::K_PAGEUP | Keys::KM_SHIFT):
-			scroll(min(static_cast<int>(getRows()) - 1, 1));
+			scroll(max(static_cast<int>(getRows()) - 1, 1));
 			break;
 		case Keys::K_PAGEUP:
 			scroll(1);
 			break;
 		case (Keys::K_PAGEDOWN | Keys::KM_SHIFT):
-			scroll(-min(static_cast<int>(getRows()) - 1, 1));
+			scroll(-max(static_cast<int>(getRows()) - 1, 1));
 			break;
 		case Keys::K_PAGEDOWN:
 			scroll(-1);
