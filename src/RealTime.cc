@@ -113,30 +113,34 @@ void RealTime::internalSync(const EmuTime &curEmu)
 		if (catchUpTime < 0) {
 			// we are too fast
 			sleep = -catchUpTime;
-		} else if (catchUpTime > maxCatchUpTime) {
-			// we are way too slow
-			int lost = catchUpTime - maxCatchUpTime;
-			realOrigin += lost;
-			PRT_DEBUG("RT: Emulation too slow, lost " << lost << "ms");
-		} else if (maxCatchUpFactor * (sleep + realPassed) < 100 * emuPassed) {
-			// we are slightly too slow, avoid catching up too fast
-			sleep = (100 * emuPassed) / maxCatchUpFactor - realPassed;
-			//PRT_DEBUG("RT: max catchup: " << sleep << "ms");
+		} else {
+			if (catchUpTime > maxCatchUpTime) {
+				// we are way too slow
+				int lost = catchUpTime - maxCatchUpTime;
+				realOrigin += lost;
+				PRT_DEBUG("RT: Emulation too slow, lost " << lost << "ms");
+			}
+			if (maxCatchUpFactor * realPassed < 100 * emuPassed) {
+				// we are slightly too slow, avoid catching up too fast
+				sleep = (100 * emuPassed) / maxCatchUpFactor - realPassed;
+				//PRT_DEBUG("RT: max catchup: " << sleep << "ms");
+			}
 		}
 		PRT_DEBUG("RT: want to sleep " << sleep << "ms");
 		sleep += (int)sleepAdjust;
-		int slept;
+		int slept, delta;
 		if (sleep > 0) {
 			PRT_DEBUG("RT: Sleeping for " << sleep << "ms");
 			SDL_Delay(sleep);
 			slept = SDL_GetTicks() - curReal;
 			PRT_DEBUG("RT: Realy slept for " << slept << "ms");
-			int delta = sleep - slept;
-			sleepAdjust = sleepAdjust * (1 - alpha) + delta * alpha;
-			PRT_DEBUG("RT: SleepAdjust: " << sleepAdjust);
+			delta = sleep - slept;
 		} else {
 			slept = 0;
+			delta = 0;
 		}
+		sleepAdjust = sleepAdjust * (1 - alpha) + delta * alpha;
+		PRT_DEBUG("RT: SleepAdjust: " << sleepAdjust);
 
 		// estimate current speed, values are inaccurate so take average
 		float curTotalFac = (slept + realPassed) / (float)emuPassed;
