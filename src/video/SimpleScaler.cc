@@ -766,8 +766,11 @@ void SimpleScaler<Pixel>::scale256(SDL_Surface* src, int srcY, int endSrcY,
 		dstY += 2;
 	}
 
-	Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, dstY);
-	average(prevDstLine0, dstLine0, dstLine1, scanline);
+	// When interlace is enabled, bottom line can fall off the screen.
+	if (dstY < dst->h) {
+		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, dstY);
+		average(prevDstLine0, dstLine0, dstLine1, scanline);
+	}
 }
 
 template <class Pixel>
@@ -795,8 +798,11 @@ void SimpleScaler<Pixel>::scale512(
 		dstY += 2;
 	}
 
-	Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, dstY);
-	average(prevDstLine0, dstLine0, dstLine1, scanline);
+	// When interlace is enabled, bottom line can fall off the screen.
+	if (dstY < dst->h) {
+		Pixel* dstLine1 = Scaler<Pixel>::linePtr(dst, dstY);
+		average(prevDstLine0, dstLine0, dstLine1, scanline);
+	}
 }
 
 } // namespace openmsx
