@@ -7,8 +7,6 @@
     <parameter name="filename">roms/FMPAC.ROM</parameter>
     <parameter name="volume">13000</parameter>
     <parameter name="mode">mono</parameter>
-    <parameter name="loadsram">true</parameter>
-    <parameter name="savesram">true</parameter>
     <parameter name="sramname">FMPAC.PAC</parameter>
   </device>
 </msxconfig>

@@ -92,8 +92,6 @@
     <parameter name="mappertype">PANASONIC</parameter>
     <parameter name="sramsize">32</parameter>
     <parameter name="sram-mirrored">false</parameter>
-    <parameter name="loadsram">true</parameter>
-    <parameter name="savesram">true</parameter>
     <parameter name="sramname">fs-a1gt.sram</parameter>
   </device>
 

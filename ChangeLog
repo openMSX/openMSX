@@ -1,5 +1,9 @@
 $Id$
 
+2003-06-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed mouse (hopefully)
+	* Removed "loadsram" and "savesram" settings
+
 2003-05-31 Maarten ter Huurne <maarten@treewalker.org>
 	* When pausing, store last frame and keep plotting it during pause.
 	  Also keep redrawing the console, so it is usable during pause.

@@ -54,8 +54,6 @@
     <parameter name="mappertype">PANASONIC</parameter>
     <parameter name="sramsize">16</parameter>
     <parameter name="sram-mirrored">true</parameter>
-    <parameter name="loadsram">true</parameter>
-    <parameter name="savesram">true</parameter>
     <parameter name="sramname">fs-a1wx.sram</parameter>
   </device>
 
@@ -101,8 +99,6 @@
   <device id="Real time clock">
     <type>RTC</type>
     <parameter name="mode">EmuTime</parameter>
-    <parameter name="loadsram">true</parameter>
-    <parameter name="savesram">true</parameter>
     <parameter name="sramname">fs-a1wx.cmos</parameter>
   </device>
 
@@ -121,8 +117,6 @@
 
   <device id="Switch">
     <type>Matsushita</type>
-    <parameter name="loadsram">false</parameter>
-    <parameter name="savesram">false</parameter>
     <parameter name="sramname">fs-a1wx.sram</parameter>
   </device>
 

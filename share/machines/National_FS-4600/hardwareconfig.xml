@@ -62,8 +62,6 @@
     <slotted> <ps>3</ps> <ss>1</ss> <page>3</page> </slotted>
     <parameter name="filename">fs-4600_msxword.rom</parameter>
     <parameter name="mappertype">NATIONAL</parameter>
-    <parameter name="loadsram">true</parameter>
-    <parameter name="savesram">true</parameter>
     <parameter name="sramname">fs-4600.sram</parameter>
   </device>
 

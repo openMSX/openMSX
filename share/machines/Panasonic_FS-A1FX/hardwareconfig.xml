@@ -85,8 +85,6 @@
   <device id="Real time clock">
     <type>RTC</type>
     <parameter name="mode">EmuTime</parameter>
-    <parameter name="loadsram">true</parameter>
-    <parameter name="savesram">true</parameter>
     <parameter name="sramname">fs-a1fx.cmos</parameter>
   </device>
 
@@ -105,8 +103,6 @@
 
   <device id="Switch">
     <type>Matsushita</type>
-    <parameter name="loadsram">false</parameter>
-    <parameter name="savesram">false</parameter>
     <parameter name="sramname">fs-a1fx.sram</parameter>
   </device>
 

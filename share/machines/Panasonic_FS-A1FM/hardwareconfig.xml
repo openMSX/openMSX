@@ -50,8 +50,6 @@
     <slotted> <ps>3</ps> <ss>3</ss> <page>3</page> </slotted>
     <parameter name="filename">fs-a1fm_firmware.rom</parameter>
     <parameter name="mappertype">PANASONIC</parameter>
-    <parameter name="loadsram">true</parameter>
-    <parameter name="savesram">true</parameter>
     <parameter name="sramname">fs-a1fm.sram</parameter>
   </device>
 
@@ -95,8 +93,6 @@
   <device id="Real time clock">
     <type>RTC</type>
     <parameter name="mode">EmuTime</parameter>
-    <parameter name="loadsram">true</parameter>
-    <parameter name="savesram">true</parameter>
     <parameter name="sramname">fs-a1fm.cmos</parameter>
   </device>
 
