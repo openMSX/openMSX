@@ -57,7 +57,7 @@
     <parameter name="filename">MSX.ROM</parameter>
     <parameter name="skip_headerbytes">16384</parameter>
   </device>
-<!--
+
   <device id="diskrom">
     <type>Rom16KB</type>
     <slotted>
@@ -84,7 +84,7 @@
     <parameter name="0x0021" class="patch">0xC9</parameter>
     <parameter name="" class="patchcode">MSXDiskRomPatch</parameter>
   </device>
--->
+
   <device id="ppi">
     <type>PPI</type>
     <parameter name="volume">16000</parameter>
@@ -101,16 +101,16 @@
     <type>SDLLo</type>
     <parameter name="full_screen">false</parameter>
   </config>
-<!--
+
   <device id="Turbo-R timer">
     <type>E6Timer</type>
   </device>
--->
+
   <device id="psg">
     <type>PSG</type>
     <parameter name="volume">21000</parameter>
   </device>
-<!--
+
   <device id="Kanji ROM">
     <type>Kanji</type>
     <parameter name="filename">KANJI.ROM</parameter>
@@ -152,14 +152,14 @@
     <type>RTC</type>
     <parameter name="mode">EmuTime</parameter>
   </device>
--->
+
   <config id="RealTime">
     <type>RealTime</type>
     <parameter name="sync_interval">50</parameter>
     <parameter name="max_catch_up_time">1500</parameter>
     <parameter name="min_real_time">40</parameter>
   </config>
-<!--  
+  
   <device id="Penguin Adventure Cartridge">
     <type>MegaRom</type>
     <slotted>
@@ -176,7 +176,7 @@
     <parameter name="filesize">131072</parameter>
     <parameter name="skip_headerbytes">0</parameter>
   </device>
-
+<!--
   <device id="FM PAC">
     <type>FM-PAC</type>
     <slotted>
@@ -188,7 +188,7 @@
     <parameter name="skip_headerbytes">0</parameter>
     <parameter name="volume">20000</parameter>
   </device>
-
+-->
   <device id="MSX Music">
     <type>Music</type>
     <slotted>
@@ -200,7 +200,6 @@
     <parameter name="skip_headerbytes">0</parameter>
     <parameter name="volume">20000</parameter>
   </device>
--->
  
   <device id="cpu">
     <type>CPU</type>

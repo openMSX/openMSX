@@ -3,7 +3,7 @@
 inline void Z80::M1Cycle()
 {
 	R++;
-	currentTime += waitCycles;
+	currentTime += (1+waitCycles);
 }
 
 
@@ -14,7 +14,6 @@ inline void Z80::executeInstruction(byte opcode)
 		word start_pc = PC.w-1;
 	#endif
 	M1Cycle();
-	currentTime += cycles_main[opcode];
 	(this->*opcode_main[opcode])();	// currentTime can be raised extra
 	#ifdef Z80DEBUG
 		printf("%04x : instruction ", start_pc);
@@ -31,30 +30,42 @@ inline void Z80::executeInstruction(byte opcode)
  * Input a byte from given I/O port
  */
 inline byte Z80::Z80_In (word port) {
-	return interface->readIO(port, currentTime);
+	currentTime += 1;
+	byte result = interface->readIO(port, currentTime);
+	currentTime += 3;
+	return result;
 }
 /*
  * Output a byte to given I/O port
  */
 inline void Z80::Z80_Out (word port,byte value) { 
+	currentTime += 1;
 	interface->writeIO(port, value, currentTime);
+	currentTime += 3;
 }
 /*
  * Read a byte from given memory location
  */
 inline byte Z80::Z80_RDMEM(word address) {
 #ifdef Z80DEBUG
+	currentTime += 1;
 	debugmemory[address] = interface->readMem(address, currentTime);
+	currentTime += 2;
 	return debugmemory[address];
 #else
-	return interface->readMem(address, currentTime);
+	currentTime += 1;
+	byte result = interface->readMem(address, currentTime);
+	currentTime += 2;
+	return result;
 #endif
 }
 /*
  * Write a byte to given memory location
  */
 inline void Z80::Z80_WRMEM(word address, byte value) {
+	currentTime += 1;
 	interface->writeMem(address, value, currentTime);
+	currentTime += 2;
 	// No debugmemory[A] here otherwise self-modifying code could
 	// alter the executing code before the disassembled opcode
 	// is printed;
@@ -86,11 +97,6 @@ inline byte Z80::Z80_RDSTACK(word A) { return Z80_RDMEM(A); }
 inline void Z80::Z80_WRSTACK(word A, byte V) { Z80_WRMEM(A,V); }
 
 
-inline void Z80::M_SKIP_CALL() { PC.w += 2; }
-inline void Z80::M_SKIP_JP()   { PC.w += 2; }
-inline void Z80::M_SKIP_JR()   { PC.w += 1; }
-inline void Z80::M_SKIP_RET()  { }
-
 inline bool Z80::M_C()  { return AF.B.l&C_FLAG; }
 inline bool Z80::M_NC() { return !M_C(); }
 inline bool Z80::M_Z()  { return AF.B.l&Z_FLAG; }
@@ -105,18 +111,30 @@ inline byte Z80::Z80_RDMEM_OPCODE () {
 	return Z80_RDOP_ARG(PC.w++);
 }
 inline word Z80::Z80_RDMEM_WORD (word A) {
-	return Z80_RDMEM(A) + (Z80_RDMEM(((A)+1)&0xFFFF)<<8);
+	byte low  = Z80_RDMEM(A);
+	byte high = Z80_RDMEM(((A)+1)&0xFFFF);
+	return low+256*high;
 }
 inline void Z80::Z80_WRMEM_WORD (word A,word V) {
 	Z80_WRMEM (A, V&255);
 	Z80_WRMEM (((A)+1)&0xFFFF, V>>8);
 }
 inline word Z80::Z80_RDMEM_OPCODE_WORD () {
-	return Z80_RDMEM_OPCODE() + (Z80_RDMEM_OPCODE()<<8);
+	byte low  = Z80_RDMEM_OPCODE();
+	byte high = Z80_RDMEM_OPCODE();
+	return low+256*high;
 }
 
-inline word Z80::M_XIX() { return (IX.w+(offset)Z80_RDMEM_OPCODE())&0xFFFF; }
-inline word Z80::M_XIY() { return (IY.w+(offset)Z80_RDMEM_OPCODE())&0xFFFF; }
+inline word Z80::M_XIX() { 
+	word result = (IX.w+(offset)Z80_RDMEM_OPCODE())&0xFFFF;
+	currentTime += 5;
+	return result;
+}
+inline word Z80::M_XIY() { 
+	word result = (IY.w+(offset)Z80_RDMEM_OPCODE())&0xFFFF;
+	currentTime += 5;
+	return result;
+}
 inline byte Z80::M_RD_XHL() { return Z80_RDMEM(HL.w); }
 inline byte Z80::M_RD_XIX() { return Z80_RDMEM(M_XIX()); }
 inline byte Z80::M_RD_XIY() { return Z80_RDMEM(M_XIY()); }
@@ -125,40 +143,29 @@ inline void Z80::M_WR_XIY(byte a) { Z80_WRMEM(M_XIY(), a); }
 
 
 inline void Z80::M_POP(word &Rg) {
-	Rg = Z80_RDSTACK(SP.w)+(Z80_RDSTACK((SP.w+1)&65535)<<8);
-	SP.w += 2;
+	byte low  = Z80_RDSTACK(SP.w++);
+	byte high = Z80_RDSTACK(SP.w++);
+	Rg = low+256*high;
 }
-
 inline void Z80::M_PUSH(word Rg) {
-	SP.w -= 2;
-	Z80_WRSTACK(SP.w, Rg);
-	Z80_WRSTACK((SP.w+1)&65535, Rg>>8);
+	currentTime++;
+	Z80_WRSTACK(--SP.w, Rg>>8);
+	Z80_WRSTACK(--SP.w, Rg);
 }
 
-inline void Z80::M_CALL() {
-	word q = Z80_RDMEM_OPCODE_WORD();
+inline void Z80::M_CALL(word adrs) {
 	M_PUSH(PC.w);
-	PC.w = q;
-	currentTime += 7; // extraTab
+	PC.w = adrs;
 }
-
-inline void Z80::M_JR() {
-	PC.w += ((offset)Z80_RDOP_ARG(PC.w))+1;
-	currentTime += 5; // extraTab
+inline void Z80::M_JR(offset e) {
+	PC.w += e;
+	currentTime += 5;
 }
-
 inline void Z80::M_RET() {
 	M_POP(PC.w);
-	currentTime += 6; // extraTab
 }
-
-inline void Z80::M_JP() {
-        PC.w = Z80_RDOP_ARG(PC.w)+((Z80_RDOP_ARG((PC.w+1)&65535))<<8);
-}
-
-inline void Z80::M_RST(word Addr) {
-	M_PUSH(PC.w);
-	PC.w = Addr;
+inline void Z80::M_JP(word adrs) {
+	PC.w = adrs;
 }
 
 inline void Z80::M_SET(int Bit, byte &Reg) { 
@@ -322,6 +329,7 @@ inline void Z80::M_ADDW(word &Reg1, word Reg2) {
 	         ((q>>16)&C_FLAG)|
 	         XYTable[(q>>8)&255];
 	Reg1 = q;
+	currentTime += 7;
 }
 inline void Z80::M_ADCW(word Reg) {
 	int q = HL.w+Reg+(AF.B.l&C_FLAG);
@@ -332,6 +340,7 @@ inline void Z80::M_ADCW(word Reg) {
 	         (((Reg^HL.w^0x8000)&(Reg^q)&0x8000)>>13)|
 	         XYTable[(q>>8)&255];
 	HL.w = q;
+	currentTime += 7;
 }
 inline void Z80::M_SBCW(word Reg) {
 	int q = HL.w-Reg-(AF.B.l&C_FLAG);
@@ -343,5 +352,6 @@ inline void Z80::M_SBCW(word Reg) {
 		   XYTable[(q>>8)&255]|
 	           N_FLAG;
 	HL.w = q;
+	currentTime += 7;
 }
 

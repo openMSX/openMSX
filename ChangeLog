@@ -1,6 +1,10 @@
 $Id$
 
-2001-11-13 David Heremans
+2001-12-10 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* Implemented Z80 inter-instruction-timing
+	   (DD CB instructions not correct yet)
+
+2001-12-11 David Heremans
 	* uploaded SCC soundchip:
 	  This chip can emulate the SCC hardware in the 3 know modes
 	   - Real SCC

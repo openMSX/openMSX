@@ -95,13 +95,6 @@ class Z80 : public CPU {
 		static const opcode_fn opcode_fd[256];
 		static const opcode_fn opcode_main[256];
 
-		// T-States tables 
-		static const int cycles_main[256];
-		static const int cycles_cb[256];
-		static const int cycles_xx_cb[256];
-		static const int cycles_xx[256];
-		static const int cycles_ed[256];
-
 		z80regpair AF,  BC,  DE,  HL, IX, IY, PC, SP;
 		z80regpair AF2, BC2, DE2, HL2;
 		bool nextIFF1, IFF1, IFF2, HALT;
