@@ -48,6 +48,7 @@ libVideo_la_SOURCES = \
 	Blender.hh \
 	Scalers.hh Scalers.cc \
 	Scale2xScaler.hh Scale2xScaler.cc \
+	HQ2xScaler.hh HQ2xScaler.cc \
 	GLUtil.hh GLUtil.cc
 
 libVideo_la_LIBADD =
