@@ -56,6 +56,9 @@ V9990::V9990(const XMLElement& config, const EmuTime& time)
 {
 	PRT_DEBUG("[" << time << "] V9990::Create");
 
+        // clear regs TODO find realistic init values
+        memset(regs, 0, sizeof(regs));
+
 	// create VRAM
 	vram.reset(new V9990VRAM(this, time));
 
