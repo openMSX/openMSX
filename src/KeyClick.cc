@@ -8,21 +8,17 @@
 
 KeyClick::KeyClick()
 {
+	dac = new DACSound();	// TODO find a good value and put it in config file
 }
 
 KeyClick::~KeyClick()
 {
+	delete dac;
 }
 
 void KeyClick::init()
 {
 	PRT_DEBUG("Initializing a KeyClick Device");
-	
-	bufSize = Mixer::instance()->registerSound(this);
-	buffer = new int[bufSize];	// TODO fix race
-
-	setVolume(20000); //TODO find a good value and put it in config file
-	
 	reset();
 }
 
@@ -32,27 +28,11 @@ void KeyClick::reset()
 	setClick(false, dummy);
 }
 
-void KeyClick::setClick(bool status, const Emutime &time)
+void KeyClick::setClick(bool newStatus, const Emutime &time)
 {
 	PRT_DEBUG("KeyClick: " << status << " time: " << time);
-	Mixer::instance()->updateStream(time);
-	setInternalMute(!status);	// mute if low (=false)
-}
-
-void KeyClick::setInternalVolume(short newVolume)
-{
-	for (int i=0; i<bufSize; i++) {
-		buffer[i] = newVolume;
+	if (newStatus != status) {
+		status = newStatus;
+		dac->writeDAC(status ? 0x80 : 0xff, time);
 	}
-}
-
-void KeyClick::setSampleRate(int sampleRate)
-{
-	// ignore sample rate
-}
-
-int* KeyClick::updateBuffer(int length)
-{
-	PRT_DEBUG("KeyClick update buffer");
-	return buffer;
 }

@@ -6,9 +6,10 @@
 #include "openmsx.hh"
 #include "SoundDevice.hh"
 #include "emutime.hh"
+#include "DACSound.hh"
 
 
-class KeyClick : public SoundDevice
+class KeyClick
 {
 	public:
 		KeyClick(); 
@@ -18,13 +19,8 @@ class KeyClick : public SoundDevice
 		void reset();
 		void setClick(bool status, const Emutime &time);
 
-		//SoundDevice
-		void setInternalVolume(short newVolume);
-		void setSampleRate(int sampleRate);
-		int* updateBuffer(int length);
-
 	private:
-		int bufSize;
-		int* buffer;
+		DACSound* dac;
+		bool status;
 };
 #endif

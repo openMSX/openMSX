@@ -19,6 +19,8 @@ MSXPPI::MSXPPI()
 MSXPPI::~MSXPPI()
 {
 	PRT_DEBUG("Destroying an MSXPPI object");
+	delete i8255;
+	delete click;
 }
 
 MSXPPI* MSXPPI::instance(void)
