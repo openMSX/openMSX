@@ -152,7 +152,7 @@ PixelRenderer::~PixelRenderer()
 #include <stdio.h>
 void PixelRenderer::reset(const EmuTime &time)
 {
-	printf("PixelRenderer::reset\n");
+	PRT_DEBUG("PixelRenderer::reset");
 	displayEnabled = false;
 	frameStart(time);
 }
