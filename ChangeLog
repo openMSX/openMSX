@@ -1,11 +1,15 @@
 $Id$
 
-2003-20-24 Manuel Bilderbeek <manuel@msxnet.org>
+2003-10-14 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added provisional FDD LED emulation:
 	  - works only when the emulated FDC uses the DiskDrive class
 	  - LED goes on when diskdrive motor is on (not always correct!)
 	  - IDEHD also turns on FDD LED, when there is a read or write action
 	  - all possible FDD LEDs are ORed with each other
+	* Implemented boolean setting 'turborpause', which sets the pause
+	  function of the MSX turbo R. TODO: pause function of other MSX
+	  computers like Sony HB-501 and MSX2+ machines (setting may need to
+	  be renamed!)
 
 2003-10-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Continue VDP Cmds on display mode switch:

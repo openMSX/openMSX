@@ -13,7 +13,7 @@
 #define __TURBORPAUSE_HH__
 
 #include "MSXIODevice.hh"
-
+#include "Settings.hh"
 
 namespace openmsx {
 
@@ -27,7 +27,7 @@ class MSXTurboRPause : public MSXIODevice
 		virtual byte readIO(byte port, const EmuTime &time);
 	
 	private:
-		byte status;
+		BooleanSetting turboRPauseSetting;
 };
 
 } // namespace openmsx
