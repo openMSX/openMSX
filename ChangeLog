@@ -1,5 +1,9 @@
 $Id$
 
+2004-05-15 Manuel Bilderbeek <manuel@msxnet.org>
+	* implemented scrolling in console by a whole page, using 
+	  SHIFT+PAGEUP and SHIFT+PAGEDOWN
+
 2004-05-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* really fixed TCL_STDOUT redirection
 	* fixed passing of binary data in console command:

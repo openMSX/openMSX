@@ -186,11 +186,17 @@ bool CommandConsole::signalEvent(const Event& event) throw()
 
 	Keys::KeyCode key = static_cast<const KeyEvent&>(event).getKeyCode();
 	switch (key) {
+		case (Keys::K_PAGEUP | Keys::KM_SHIFT):
+			scrollUp(getRows()==1 ? 1 : getRows()-1);
+			break;
 		case Keys::K_PAGEUP:
-			scrollUp();
+			scrollUp(1);
+			break;
+		case (Keys::K_PAGEDOWN | Keys::KM_SHIFT):
+			scrollDown(getRows()==1 ? 1 : getRows()-1);
 			break;
 		case Keys::K_PAGEDOWN:
-			scrollDown();
+			scrollDown(1);
 			break;
 		case Keys::K_UP:
 			prevCommand();
@@ -418,17 +424,19 @@ void CommandConsole::tabCompletion()
 	splitLines();
 }
 
-void CommandConsole::scrollUp()
+void CommandConsole::scrollUp(unsigned noflines)
 {
-	if (consoleScrollBack < lines.size()) {
+	while (consoleScrollBack < lines.size() && noflines > 0) {
 		consoleScrollBack++;
+		noflines--;
 	}
 }
 
-void CommandConsole::scrollDown()
+void CommandConsole::scrollDown(unsigned noflines)
 {
-	if (consoleScrollBack > 0) {
+	while (consoleScrollBack > 0 && noflines > 0) {
 		consoleScrollBack--;
+		noflines--;
 	}
 }
 

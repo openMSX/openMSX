@@ -50,8 +50,8 @@ private:
 	virtual bool signalEvent(const Event& event) throw();
 	void tabCompletion();
 	void commandExecute();
-	void scrollUp();
-	void scrollDown();
+	void scrollUp(unsigned noflines);
+	void scrollDown(unsigned noflines);
 	void prevCommand();
 	void nextCommand();
 	void clearCommand();
