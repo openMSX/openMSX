@@ -7,6 +7,7 @@
 #include "Renderer.hh"
 #include "VDP.hh"
 #include "VDPCmdEngine.hh"
+#include "SpriteChecker.hh"
 #include <cassert>
 
 class EmuTime;
@@ -39,6 +40,7 @@ public:
 		// Rewriting history is not allowed.
 		//assert(time >= currentTime);
 
+		spriteChecker->sync(time);
 		// Problem: infinite loop (renderer <-> cmdEngine)
 		// Workaround: only dirty check, no render update
 		// Solution: break the chain somehow
@@ -50,7 +52,6 @@ public:
 			//       Otherwise renderer has to do the range checks again.
 			renderer->updateVRAM(address, value, time);
 		}
-		// TODO: Inform sprites checker.
 		data[address] = value;
 		currentTime = time;
 	}
@@ -114,6 +115,14 @@ public:
 		this->renderer = renderer;
 	}
 
+	/** Necessary becaus of circular dependencies.
+	  */
+	inline void setSpriteChecker(SpriteChecker *spriteChecker) {
+		this->spriteChecker = spriteChecker;
+	}
+
+	/** Necessary becaus of circular dependencies.
+	  */
 	inline void setCmdEngine(VDPCmdEngine *cmdEngine) {
 		this->cmdEngine = cmdEngine;
 	}
@@ -205,6 +214,7 @@ private:
 
 	Renderer *renderer;
 	VDPCmdEngine *cmdEngine;
+	SpriteChecker *spriteChecker;
 
 	/** Current time: the moment up until when the VRAM is updated.
 	  * TODO: Is this just for debugging or is it functional?

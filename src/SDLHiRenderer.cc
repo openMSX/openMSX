@@ -16,6 +16,7 @@ TODO:
 #include "SDLHiRenderer.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
+#include "SpriteChecker.hh"
 #include "RealTime.hh"
 #include <math.h>
 #include "ConsoleSource/SDLConsole.hh"
@@ -213,6 +214,7 @@ template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 	this->vdp = vdp;
 	this->screen = screen;
 	vram = vdp->getVRAM();
+	spriteChecker = vdp->getSpriteChecker();
 	// TODO: Store current time.
 	//       Does the renderer actually have to keep time?
 	//       Keeping render position should be good enough.
@@ -558,18 +560,14 @@ template <class Pixel> void SDLHiRenderer<Pixel>::setDirty(
 template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 	int absLine)
 {
-	// Calculate display line.
-	// Negative line numbers (possible on overscan) wrap around.
-	int displayLine = (absLine - vdp->getLineZero()) & 255;
-
 	// Check whether this line is inside the host screen.
 	int screenLine = (absLine - lineRenderTop) * 2;
 	if (screenLine >= HEIGHT) return;
 
 	// Determine sprites visible on this line.
-	VDP::SpriteInfo *visibleSprites;
+	SpriteChecker::SpriteInfo *visibleSprites;
 	int visibleIndex =
-		vdp->getSprites(displayLine, visibleSprites);
+		spriteChecker->getSprites(absLine, visibleSprites);
 	// Optimisation: return at once if no sprites on this line.
 	// Lines without any sprites are very common in most programs.
 	if (visibleIndex == 0) return;
@@ -583,14 +581,14 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 		// Sprite mode 1: render directly to screen using overdraw.
 		while (visibleIndex--) {
 			// Get sprite info.
-			VDP::SpriteInfo *sip = &visibleSprites[visibleIndex];
+			SpriteChecker::SpriteInfo *sip = &visibleSprites[visibleIndex];
 			Pixel colour = sip->colourAttrib & 0x0F;
 			// Don't draw transparent sprites in sprite mode 1.
 			// TODO: Verify on real V9938 that sprite mode 1 indeed
 			//       ignores the transparency bit.
 			if (colour == 0) continue;
 			colour = palSprites[colour];
-			VDP::SpritePattern pattern = sip->pattern;
+			SpriteChecker::SpritePattern pattern = sip->pattern;
 			int x = sip->x;
 			// Skip any dots that end up in the border.
 			if (x < 0) {
@@ -617,7 +615,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 		// Sprite mode 2: single pass left-to-right render.
 
 		// Determine width of sprites.
-		VDP::SpritePattern combined = 0;
+		SpriteChecker::SpritePattern combined = 0;
 		for (int i = 0; i < visibleIndex; i++) {
 			combined |= visibleSprites[i].pattern;
 		}
@@ -642,7 +640,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 			// Calculate colour of pixel to be plotted.
 			byte colour = 0xFF;
 			for (int i = 0; i < visibleIndex; i++) {
-				VDP::SpriteInfo *sip = &visibleSprites[i];
+				SpriteChecker::SpriteInfo *sip = &visibleSprites[i];
 				int shift = pixelDone - sip->x;
 				if ((0 <= shift && shift < 32)
 				&& ((sip->pattern << shift) & 0x80000000)) {

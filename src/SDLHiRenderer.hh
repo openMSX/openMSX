@@ -12,6 +12,7 @@
 #include "VDP.hh"
 
 class VDPVRAM;
+class SpriteChecker;
 class SDLConsole;
 
 
@@ -141,9 +142,13 @@ private:
 	  */
 	VDP *vdp;
 
-	/** The VRAM whose contents are used for rendering.
+	/** The VRAM whose contents are rendered.
 	  */
 	VDPVRAM *vram;
+
+	/** The sprite checker whose sprites are rendered.
+	  */
+	SpriteChecker *spriteChecker;
 
 	/** Current time: the moment up until when the rendering is emulated.
 	  */

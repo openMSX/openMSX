@@ -19,6 +19,7 @@
 #endif
 
 class VDP;
+class SpriteChecker;
 class VDPVRAM;
 
 /** Factory method to create SDLGLRenderer objects.

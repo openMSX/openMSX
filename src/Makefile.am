@@ -39,9 +39,9 @@ openmsx_SOURCES=\
 	VDP.hh VDP.cc \
 	VDPCmdEngine.hh VDPCmdEngine.cc \
 	VDPVRAM.hh VDPVRAM.cc \
+	SpriteChecker.hh SpriteChecker.cc \
 	Renderer.hh Renderer.cc \
 	SDLHiRenderer.hh SDLHiRenderer.cc \
-	SDLGLRenderer.hh SDLGLRenderer.cc \
 	BitmapConverter.hh BitmapConverter.cc \
 	CharacterConverter.hh CharacterConverter.cc \
 	PlatformFactory.hh PlatformFactory.cc \
@@ -84,9 +84,10 @@ openmsx_SOURCES=\
 	PluggingController.hh PluggingController.cc \
 	Connector.hh Connector.cc Pluggable.hh \
 	config.h
-
-#	MSXPrinter.cc MSXPrinter.hh
+# Very much out of date:
 #	SDLLoRenderer.hh SDLLoRenderer.cc
+# Fix after Tilburg:
+#	SDLGLRenderer.hh SDLGLRenderer.cc
 
 openmsx_LDADD = \
 	config/libConfig.la \

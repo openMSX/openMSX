@@ -59,6 +59,7 @@ TODO:
 
 #include "VDP.hh"
 #include "VDPVRAM.hh"
+#include "SpriteChecker.hh"
 #include "RealTime.hh"
 //#include "ConsoleSource/SDLConsole.hh"
 #include <math.h>

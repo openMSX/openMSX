@@ -17,6 +17,7 @@
 class EmuTime;
 class VDPCmdEngine;
 class VDPVRAM;
+class SpriteChecker;
 
 /** Unified implementation of MSX Video Display Processors (VDPs).
   * MSX1 VDP is Texas Instruments TMS9918A or TMS9928A.
@@ -65,30 +66,6 @@ public:
 		  */
 		V9958
 	};
-
-	/** Bitmap of length 32 describing a sprite pattern.
-	  * Visible pixels are 1, transparent pixels are 0.
-	  * If the sprite is less than 32 pixels wide,
-	  * the lower bits are unused.
-	  */
-	typedef unsigned int SpritePattern;
-
-	/** Contains all the information to draw a line of a sprite.
-	  */
-	typedef struct {
-		/** Pattern of this sprite line, corrected for magnification.
-		  */
-		SpritePattern pattern;
-		/** X-coordinate of sprite, corrected for early clock.
-		  */
-		short int x;
-		/** Bit 3..0 are index in palette.
-		  * Bit 6 is 0 for sprite mode 1 like behaviour,
-		  * or 1 for OR-ing of sprite colours.
-		  * Other bits are undefined.
-		  */
-		byte colourAttrib;
-	} SpriteInfo;
 
 	/** Number of VDP clock ticks per second.
 	  */
@@ -173,6 +150,12 @@ public:
 	  */
 	inline VDPVRAM *getVRAM() {
 		return vram;
+	}
+
+	/** Get the sprite checker for this VDP.
+	  */
+	inline SpriteChecker *getSpriteChecker() {
+		return spriteChecker;
 	}
 
 	/** Gets the current transparency setting.
@@ -278,45 +261,6 @@ public:
 		return spritePatternBase;
 	}
 
-private:
-	/** Calculate sprite patterns.
-	  */
-	inline void updateSprites(const EmuTime &time) {
-		// TODO: Use method pointer.
-		if (displayMode < 8) {
-			updateSprites1(time);
-		} else {
-			updateSprites2(time);
-		}
-	}
-
-public:
-	/** Get sprites for a display line.
-	  * Separated from display code to make MSX behaviour consistent
-	  * no matter how displaying is handled.
-	  * @param line The line number for which sprites should be returned.
-	  * @param visibleSprites Output parameter in which the pointer to
-	  *   a SpriteInfo array containing the sprites to be displayed is
-	  *   returned.
-	  *   The array's contents are valid until the next time the VDP
-	  *   is scheduled.
-	  * @return The number of sprites stored in the visibleSprites array.
-	  */
-	inline int getSprites(int line, SpriteInfo *&visibleSprites) {
-		EmuTime time = frameStartTime + line * TICKS_PER_LINE;
-		if (line >= spriteLine) {
-			/*
-			cout << "performing extra updateSprites: "
-				<< "old line = " << (spriteLine - 1)
-				<< ", new line = " << line
-				<< "\n";
-			*/
-			updateSprites(time);
-		}
-		visibleSprites = spriteBuffer[line];
-		return spriteCount[line];
-	}
-
 	/** Gets the current vertical scroll (line displayed at Y=0).
 	  * @return Vertical scroll register value.
 	  */
@@ -416,6 +360,45 @@ public:
 			| (palTiming ? 4 : 0);        // NTSC/PAL
 	}
 
+	/** Gets the sprite size in pixels (8/16).
+	  */
+	inline int getSpriteSize() {
+		return ((controlRegs[1] & 2) << 2) + 8;
+	}
+
+	/** Gets the sprite magnification (0 = normal, 1 = double).
+	  */
+	inline int getSpriteMag() {
+		return controlRegs[1] & 1;
+	}
+
+	/** Are sprites enabled?
+	  * @return True iff blanking is off, the current mode supports
+	  *   sprites and sprites are not disabled.
+	  */
+	inline bool spritesEnabled() {
+		return ((controlRegs[1] & 0x50) == 0x40)
+			&& ((controlRegs[8] & 0x02) == 0x00);
+	}
+
+	/** Read a byte from the VRAM.
+	  * TODO: Move this to VDPVRAM? (possible if it keeps displayMode)
+	  * Takes planar addressing into account if necessary.
+	  * @param addr The address to read.
+	  *   No bounds checking is done, so make sure it is a legal address.
+	  * @return The VRAM contents at the specified address.
+	  */
+	inline byte getVRAMReordered(int addr, const EmuTime &time);
+
+	/** Write a byte to the VRAM.
+	  * TODO: Move this to VDPVRAM? (possible if it keeps displayMode)
+	  * Takes planar addressing into account if necessary.
+	  * @param addr The address to write.
+	  * @param value The value to write.
+	  * @param time The moment in emulated time this write occurs.
+	  */
+	inline void setVRAMReordered(int addr, byte value, const EmuTime &time);
+
 private:
 	class PaletteCmd : public Command {
 	public:
@@ -464,79 +447,6 @@ private:
 		  */
 		HSCAN
 	};
-
-	/** Read a byte from the VRAM.
-	  * Takes planar addressing into account if necessary.
-	  * @param addr The address to read.
-	  *   No bounds checking is done, so make sure it is a legal address.
-	  * @return The VRAM contents at the specified address.
-	  */
-	inline byte getVRAMReordered(int addr, const EmuTime &time);
-
-	/** Write a byte to the VRAM.
-	  * Takes planar addressing into account if necessary.
-	  * @param addr The address to write.
-	  * @param value The value to write.
-	  * @param time The moment in emulated time this write occurs.
-	  */
-	inline void setVRAMReordered(int addr, byte value, const EmuTime &time);
-
-	/** Doubles a sprite pattern.
-	  */
-	inline SpritePattern doublePattern(SpritePattern pattern);
-
-	/** Gets the sprite size in pixels (8/16).
-	  */
-	inline int getSpriteSize() {
-		return ((controlRegs[1] & 2) << 2) + 8;
-	}
-
-	/** Gets the sprite magnification (0 = normal, 1 = double).
-	  */
-	inline int getSpriteMag() {
-		return controlRegs[1] & 1;
-	}
-
-	/** Are sprites enabled?
-	  * @return True iff blanking is off, the current mode supports
-	  *   sprites and sprites are not disabled.
-	  */
-	inline bool spritesEnabled() {
-		return ((controlRegs[1] & 0x50) == 0x40)
-			&& ((controlRegs[8] & 0x02) == 0x00);
-	}
-
-	/** Calculates a sprite pattern.
-	  * @param patternNr Number of the sprite pattern [0..255].
-	  *   For 16x16 sprites, patternNr should be a multiple of 4.
-	  * @param y The line number within the sprite: 0 <= y < size.
-	  * @return A bit field of the sprite pattern.
-	  *   Bit 31 is the leftmost bit of the sprite.
-	  *   Unused bits are zero.
-	  */
-	inline SpritePattern calculatePattern(int patternNr, int y, const EmuTime &time);
-
-	/** Check sprite collision and number of sprites per line.
-	  * This routine implements sprite mode 1 (MSX1).
-	  * Separated from display code to make MSX behaviour consistent
-	  * no matter how displaying is handled.
-	  * @param line The line number for which sprites should be checked.
-	  * @param visibleSprites Pointer to a 32-entry SpriteInfo array
-	  *   in which the sprites to be displayed are returned.
-	  * @return The number of sprites stored in the visibleSprites array.
-	  */
-	inline int checkSprites1(int line, SpriteInfo *visibleSprites, const EmuTime &time);
-
-	/** Check sprite collision and number of sprites per line.
-	  * This routine implements sprite mode 2 (MSX2).
-	  * Separated from display code to make MSX behaviour consistent
-	  * no matter how displaying is handled.
-	  * @param line The line number for which sprites should be checked.
-	  * @param visibleSprites Pointer to a 32-entry SpriteInfo array
-	  *   in which the sprites to be displayed are returned.
-	  * @return The number of sprites stored in the visibleSprites array.
-	  */
-	inline int checkSprites2(int line, SpriteInfo *visibleSprites, const EmuTime &time);
 
 	/** Gets the number of VDP clockticks (21MHz) per frame.
 	  */
@@ -599,14 +509,6 @@ private:
 	  */
 	void scheduleHScan(const EmuTime &time);
 
-	/** Calculate sprite pattern for sprite mode 1.
-	  */
-	void updateSprites1(const EmuTime &time);
-
-	/** Calculate sprite pattern for sprite mode 2.
-	  */
-	void updateSprites2(const EmuTime &time);
-
 	/** Byte is read from VRAM by the CPU.
 	  */
 	byte vramRead(const EmuTime &time);
@@ -634,13 +536,9 @@ private:
 	  */
 	VDPCmdEngine *cmdEngine;
 
-	/** Limit number of sprites per display line?
-	  * Option only affects display, not MSX state.
-	  * In other words: when false there is no limit to the number of
-	  * sprites drawn, but the status register acts like the usual limit
-	  * is still effective.
+	/** Sprite checker: calculates sprite patterns and collisions.
 	  */
-	bool limitSprites;
+	SpriteChecker *spriteChecker;
 
 	/** VDP version.
 	  */
@@ -706,10 +604,6 @@ private:
 	  */
 	int verticalAdjust;
 
-	/** Sprites are checked up to and excluding this display line.
-	  */
-	int spriteLine;
-
 	/** Control registers.
 	  */
 	byte controlRegs[32];
@@ -725,6 +619,8 @@ private:
 	byte controlValueMasks[32];
 
 	/** Status register 0.
+	  * All bits except bit 7 is always zero,
+	  * their value can be retrieved from the sprite checker.
 	  */
 	byte statusReg0;
 
@@ -740,18 +636,6 @@ private:
 	  * their value can be retrieved from the command engine.
 	  */
 	byte statusReg2;
-
-	/** X coordinate of sprite collision.
-	  * 9 bits long -> [0..511]?
-	  */
-	int collisionX;
-
-	/** Y coordinate of sprite collision.
-	  * 9 bits long -> [0..511]?
-	  * Bit 9 contains EO, I guess that's a copy of the even/odd flag
-	  * of the frame on which the collision occurred.
-	  */
-	int collisionY;
 
 	/** V9938 palette.
 	  */
@@ -799,18 +683,6 @@ private:
 	/** VRAM address where the sprite pattern table starts.
 	  */
 	int spritePatternBase;
-
-	/** Buffer containing the sprites that are visible on each
-	  * display line.
-	  */
-	SpriteInfo spriteBuffer[256][32];
-
-	/** Buffer containing the number of sprites that are visible
-	  * on each display line.
-	  * In other words, spriteCount[i] is the number of sprites
-	  * in spriteBuffer[i].
-	  */
-	int spriteCount[256];
 
 	/** First byte written through port #99, or -1 for none.
 	  */

@@ -19,10 +19,12 @@ Renderer *PlatformFactory::createRenderer(
 	else*/ if (name == "SDLHi") {
 		return createSDLHiRenderer(vdp, fullScreen, time);
 	}
+#if 0
 #ifdef __SDLGLRENDERER_AVAILABLE__
 	else if (name == "SDLGL") {
 		return createSDLGLRenderer(vdp, fullScreen, time);
 	}
+#endif
 #endif
 	else {
 		// throw exception?
