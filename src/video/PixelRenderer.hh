@@ -4,7 +4,6 @@
 #define __PIXELRENDERER_HH__
 
 #include "Renderer.hh"
-#include "CircularBuffer.hh"
 #include "SettingListener.hh"
 #include "RenderSettings.hh"
 #include "DisplayMode.hh"
@@ -56,7 +55,6 @@ public:
 	virtual void updateSpritesEnabled(bool enabled, const EmuTime &time);
 	virtual void updateVRAM(unsigned offset, const EmuTime &time);
 	virtual void updateWindow(bool enabled, const EmuTime &time);
-	virtual double getFrameRate() const;
 
 private:
 	/** Indicates whether the area to be drawn is border or display. */
@@ -138,11 +136,6 @@ private:
 
 	int frameSkipCounter;
 	double finishFrameDuration;
-	
-	static const unsigned NUM_FRAME_DURATIONS = 50;
-	CircularBuffer<unsigned long long, NUM_FRAME_DURATIONS> frameDurations;
-	unsigned long long frameDurationSum;
-	unsigned long long prevTimeStamp;
 	
 	// internal VDP counter, actually belongs in VDP
 	int textModeCounter;

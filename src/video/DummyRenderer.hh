@@ -39,7 +39,6 @@ public:
 	void updateSpritesEnabled(bool enabled, const EmuTime& time);
 	void updateVRAM(unsigned offset, const EmuTime& time);
 	void updateWindow(bool enabled, const EmuTime& time);
-	virtual double getFrameRate() const;
 
 	// Layer interface:
 	virtual void paint();

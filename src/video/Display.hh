@@ -6,6 +6,8 @@
 #include "Layer.hh"
 #include "EventListener.hh"
 #include "Command.hh"
+#include "InfoTopic.hh"
+#include "CircularBuffer.hh"
 #include "openmsx.hh"
 #include <memory>
 #include <string>
@@ -40,18 +42,24 @@ public:
 	void addLayer(Layer* layer);
 
 private:
-	virtual void updateCoverage(Layer* layer, Layer::Coverage coverage);
-	virtual void updateZ(Layer* layer, Layer::ZIndex z);
-
 	typedef std::vector<Layer*> Layers;
-
+	
 	/** Find frontmost opaque layer.
 	  */
 	Layers::iterator baseLayer();
 
-	Layers layers;
+	// LayerListener interface
+	virtual void updateCoverage(Layer* layer, Layer::Coverage coverage);
+	virtual void updateZ(Layer* layer, Layer::ZIndex z);
 
+	Layers layers;
 	std::auto_ptr<VideoSystem> videoSystem;
+
+	// fps related data
+	static const unsigned NUM_FRAME_DURATIONS = 50;
+	CircularBuffer<unsigned long long, NUM_FRAME_DURATIONS> frameDurations;
+	unsigned long long frameDurationSum;
+	unsigned long long prevTimeStamp;
 
 	class ScreenShotCmd : public SimpleCommand {
 	public:
@@ -61,6 +69,16 @@ private:
 	private:
 		Display& display;
 	} screenShotCmd;
+
+	class FpsInfoTopic : public InfoTopic {
+	public:
+		FpsInfoTopic(Display& parent);
+		virtual void execute(const std::vector<CommandArgument>& tokens,
+		                     CommandArgument& result) const;
+		virtual std::string help(const std::vector<std::string>& tokens) const;
+	private:
+		Display& parent;
+	} fpsInfo;
 };
 
 } // namespace openmsx

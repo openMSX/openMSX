@@ -7,9 +7,11 @@
 #include "FinishFrameEvent.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"
+#include "InfoCommand.hh"
 #include "CliCommOutput.hh"
 #include "Scheduler.hh"
 #include "RealTime.hh"
+#include "Timer.hh"
 #include "RenderSettings.hh"
 #include "VideoSourceSetting.hh"
 #include <algorithm>
@@ -24,19 +26,28 @@ namespace openmsx {
 
 std::auto_ptr<Display> Display::INSTANCE;
 
-Display::Display(std::auto_ptr<VideoSystem> videoSystem)
-	: screenShotCmd(*this)
+Display::Display(std::auto_ptr<VideoSystem> videoSystem_)
+	: videoSystem(videoSystem_)
+	, screenShotCmd(*this)
+	, fpsInfo(*this)
 {
-	this->videoSystem = videoSystem;
+	frameDurationSum = 0;
+	for (unsigned i = 0; i < NUM_FRAME_DURATIONS; ++i) {
+		frameDurations.addFront(20);
+		frameDurationSum += 20;
+	}
+	prevTimeStamp = Timer::getTime();
 
 	EventDistributor::instance().registerEventListener(
 		FINISH_FRAME_EVENT, *this, EventDistributor::NATIVE );
 	CommandController::instance().registerCommand(
 		&screenShotCmd, "screenshot" );
+	InfoCommand::instance().registerTopic("fps", &fpsInfo);
 }
 
 Display::~Display()
 {
+	InfoCommand::instance().unregisterTopic("fps", &fpsInfo);
 	CommandController::instance().unregisterCommand(
 		&screenShotCmd, "screenshot" );
 	EventDistributor::instance().unregisterEventListener(
@@ -105,6 +116,13 @@ void Display::repaint()
 	}
 	
 	videoSystem->flush();
+
+	// update fps statistics
+	unsigned long long now = Timer::getTime();
+	unsigned long long duration = now - prevTimeStamp;
+	prevTimeStamp = now;
+	frameDurationSum += duration - frameDurations.removeBack();
+	frameDurations.addFront(duration);
 }
 
 void Display::addLayer(Layer* layer)
@@ -161,6 +179,25 @@ string Display::ScreenShotCmd::help(const vector<string>& /*tokens*/) const
 	return
 		"screenshot             Write screenshot to file \"openmsxNNNN.png\"\n"
 		"screenshot <filename>  Write screenshot to indicated file\n";
+}
+
+// FpsInfoTopic inner class:
+
+Display::FpsInfoTopic::FpsInfoTopic(Display& parent_)
+	: parent(parent_)
+{
+}
+
+void Display::FpsInfoTopic::execute(const vector<CommandArgument>& /*tokens*/,
+                                    CommandArgument& result) const
+{
+	double fps = 1000000.0 * NUM_FRAME_DURATIONS / parent.frameDurationSum;
+	result.setDouble(fps);
+}
+
+string Display::FpsInfoTopic::help (const vector<string>& /*tokens*/) const
+{
+	return "Returns the current rendering speed in frames per second.";
 }
 
 } // namespace openmsx

@@ -5,7 +5,6 @@
 
 #include "openmsx.hh"
 #include "VRAMObserver.hh"
-#include "InfoTopic.hh"
 
 namespace openmsx {
 
@@ -191,10 +190,6 @@ public:
 	  */
 	virtual void updateSpritesEnabled(bool enabled, const EmuTime& time) = 0;
 
-	/** Returns an (estimation) for the current frames per seconds.
-	  */
-	virtual double getFrameRate() const = 0;
-
 	/** NTSC version of the MSX1 palette.
 	  * An array of 16 RGB triples.
 	  * Each component ranges from 0 (off) to 255 (full intensity).
@@ -209,17 +204,6 @@ public:
 
 protected:
 	RenderSettings& settings;
-
-private:
-	class FpsInfoTopic : public InfoTopic {
-	public:
-		FpsInfoTopic(Renderer& parent);
-		virtual void execute(const std::vector<CommandArgument>& tokens,
-		                     CommandArgument& result) const;
-		virtual std::string help(const std::vector<std::string>& tokens) const;
-	private:
-		Renderer& parent;
-	} fpsInfo;
 };
 
 } // namespace openmsx

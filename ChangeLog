@@ -2,6 +2,8 @@ $Id$
 
 2005-01-04 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Split Display.xx files in Display.xx and Layer.xx
+	* Moved fps code from (V99x8) Renderer to Display:
+	   "openmsx_info fps" now also works for gfx9000
 
 2005-01-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented deinterlace for V9990

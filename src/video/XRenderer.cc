@@ -16,15 +16,16 @@
 
 namespace openmsx {
 
-XRenderer::XRenderer(RendererFactory::RendererID id, VDP *vdp)
-:
-Renderer (id),
-vdp (vdp),
-vram (vdp->getVRAM()) {
+XRenderer::XRenderer(RendererFactory::RendererID id, VDP* vdp)
+	: Renderer (id)
+	, vdp (vdp)
+	, vram (vdp->getVRAM())
+{
 	SDL_CreateThread (LoopCaller, this);
 }
 
-void XRenderer::EventLoop (void) {
+void XRenderer::EventLoop()
+{
 	if (NULL == (X.display = XOpenDisplay (NULL))) {
 		throw FatalError("XRenderer: Unable to open display");
 	}
@@ -110,11 +111,13 @@ void XRenderer::EventLoop (void) {
 	XCloseDisplay (X.display);
 }
 
-XRenderer::~XRenderer () {
+XRenderer::~XRenderer ()
+{
 	PRT_DEBUG ("XRenderer: Destructing XRenderer object");
 }
 
-bool XRenderer::checkSettings() {
+bool XRenderer::checkSettings()
+{
 	// First check this is the right renderer.
 	if (!Renderer::checkSettings()) return false;
 	
@@ -122,78 +125,73 @@ bool XRenderer::checkSettings() {
 	return true;
 }
 
-void XRenderer::frameStart(const EmuTime &time) {
+void XRenderer::frameStart(const EmuTime& time) {
 }
 
-void XRenderer::frameEnd(const EmuTime &time) {
+void XRenderer::frameEnd(const EmuTime& time) {
 }
 
-void XRenderer::updateTransparency(bool enabled, const EmuTime &time) {
+void XRenderer::updateTransparency(bool enabled, const EmuTime& time) {
 }
 
-void XRenderer::updateForegroundColour(int colour, const EmuTime &time) {
+void XRenderer::updateForegroundColour(int colour, const EmuTime& time) {
 }
 
-void XRenderer::updateBackgroundColour(int colour, const EmuTime &time) {
+void XRenderer::updateBackgroundColour(int colour, const EmuTime& time) {
 }
 
-void XRenderer::updateBlinkForegroundColour(int colour, const EmuTime &time) {
+void XRenderer::updateBlinkForegroundColour(int colour, const EmuTime& time) {
 }
 
-void XRenderer::updateBlinkBackgroundColour(int colour, const EmuTime &time) {
+void XRenderer::updateBlinkBackgroundColour(int colour, const EmuTime& time) {
 }
 
-void XRenderer::updateBlinkState(bool enabled, const EmuTime &time) {
+void XRenderer::updateBlinkState(bool enabled, const EmuTime& time) {
 }
 
-void XRenderer::updatePalette(int index, int grb, const EmuTime &time) {
+void XRenderer::updatePalette(int index, int grb, const EmuTime& time) {
 }
 
-void XRenderer::updateVerticalScroll(int scroll, const EmuTime &time) {
+void XRenderer::updateVerticalScroll(int scroll, const EmuTime& time) {
 }
 
-void XRenderer::updateHorizontalScrollLow(byte scroll, const EmuTime &time) {
+void XRenderer::updateHorizontalScrollLow(byte scroll, const EmuTime& time) {
 }
 
-void XRenderer::updateHorizontalScrollHigh(byte scroll, const EmuTime &time) {
+void XRenderer::updateHorizontalScrollHigh(byte scroll, const EmuTime& time) {
 }
 
-void XRenderer::updateBorderMask(bool masked, const EmuTime &time) {
+void XRenderer::updateBorderMask(bool masked, const EmuTime& time) {
 }
 
-void XRenderer::updateMultiPage(bool multiPage, const EmuTime &time) {
+void XRenderer::updateMultiPage(bool multiPage, const EmuTime& time) {
 }
 
-void XRenderer::updateHorizontalAdjust(int adjust, const EmuTime &time) {
+void XRenderer::updateHorizontalAdjust(int adjust, const EmuTime& time) {
 }
 
-void XRenderer::updateDisplayEnabled(bool enabled, const EmuTime &time) {
+void XRenderer::updateDisplayEnabled(bool enabled, const EmuTime& time) {
 }
 
-void XRenderer::updateDisplayMode(DisplayMode mode, const EmuTime &time) {
+void XRenderer::updateDisplayMode(DisplayMode mode, const EmuTime& time) {
 }
 
-void XRenderer::updateNameBase(int addr, const EmuTime &time) {
+void XRenderer::updateNameBase(int addr, const EmuTime& time) {
 }
 
-void XRenderer::updatePatternBase(int addr, const EmuTime &time) {
+void XRenderer::updatePatternBase(int addr, const EmuTime& time) {
 }
 
-void XRenderer::updateColourBase(int addr, const EmuTime &time) {
+void XRenderer::updateColourBase(int addr, const EmuTime& time) {
 }
 
-void XRenderer::updateSpritesEnabled(bool enabled, const EmuTime &time) {
+void XRenderer::updateSpritesEnabled(bool enabled, const EmuTime& time) {
 }
 
-void XRenderer::updateVRAM(int offset, const EmuTime &time) {
+void XRenderer::updateVRAM(int offset, const EmuTime& time) {
 }
 
-void XRenderer::updateWindow(bool enabled, const EmuTime &time) {
-}
-
-double XRenderer::getFrameRate() const
-{
-	return 0.0;
+void XRenderer::updateWindow(bool enabled, const EmuTime& time) {
 }
 
 static const struct {KeySym x; SDLKey sdl;} _keymap[] = {
@@ -204,7 +202,8 @@ static const struct {KeySym x; SDLKey sdl;} _keymap[] = {
 {'u', SDLK_u}, {'v', SDLK_v}, {'w', SDLK_w}, {'x', SDLK_x}, {'y', SDLK_y},
 {'z', SDLK_z}, {XK_F12, SDLK_F12}, {0,} };
 
-map<KeySym, SDLKey> *XRenderer::convert::makemap() {
+map<KeySym, SDLKey> *XRenderer::convert::makemap()
+{
 	map<KeySym, SDLKey> *retval = new map<KeySym, SDLKey>();
 	for (int i = 0; _keymap[i].x; ++i) {
 		(*retval)[_keymap[i].x] = _keymap[i].sdl;

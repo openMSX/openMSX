@@ -118,13 +118,6 @@ PixelRenderer::PixelRenderer(VDP* vdp)
 	finishFrameDuration = 0;
 	drawFrame = true;
 
-	frameDurationSum = 0;
-	for (unsigned i = 0; i < NUM_FRAME_DURATIONS; ++i) {
-		frameDurations.addFront(20);
-		frameDurationSum += 20;
-	}
-	prevTimeStamp = Timer::getTime();
-
 	settings.getMaxFrameSkip()->addListener(this);
 	settings.getMinFrameSkip()->addListener(this);
 }
@@ -196,12 +189,6 @@ void PixelRenderer::frameEnd(const EmuTime& time)
 		finishFrameDuration = finishFrameDuration * (1 - ALPHA) +
 		                      current * ALPHA;
 	
-		// update fps statistics
-		unsigned long long duration = time2 - prevTimeStamp;
-		prevTimeStamp = time2;
-		frameDurationSum += duration - frameDurations.removeBack();
-		frameDurations.addFront(duration);
-
 		FinishFrameEvent* f = new FinishFrameEvent(VIDEO_MSX);
 		EventDistributor::instance().distributeEvent(f);
 	}
@@ -576,11 +563,6 @@ void PixelRenderer::update(const Setting* setting)
 	} else {
 		assert(false);
 	}
-}
-
-double PixelRenderer::getFrameRate() const
-{
-	return 1000000.0 * NUM_FRAME_DURATIONS / frameDurationSum;
 }
 
 } // namespace openmsx

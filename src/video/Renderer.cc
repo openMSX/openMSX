@@ -2,11 +2,6 @@
 
 #include "Renderer.hh"
 #include "RenderSettings.hh"
-#include "InfoCommand.hh"
-#include "CommandArgument.hh"
-
-using std::string;
-using std::vector;
 
 namespace openmsx {
 
@@ -69,32 +64,12 @@ const word Renderer::GRAPHIC7_SPRITE_PALETTE[16] = {
 };
 
 Renderer::Renderer()
-	: settings(RenderSettings::instance()), fpsInfo(*this)
+	: settings(RenderSettings::instance())
 {
-	InfoCommand::instance().registerTopic("fps", &fpsInfo);
 }
 
 Renderer::~Renderer()
 {
-	InfoCommand::instance().unregisterTopic("fps", &fpsInfo);
-}
-
-// class FpsInfoTopic
-
-Renderer::FpsInfoTopic::FpsInfoTopic(Renderer& parent_)
-	: parent(parent_)
-{
-}
-
-void Renderer::FpsInfoTopic::execute(const vector<CommandArgument>& /*tokens*/,
-                                     CommandArgument& result) const
-{
-	result.setDouble(parent.getFrameRate());
-}
-
-string Renderer::FpsInfoTopic::help (const vector<string>& /*tokens*/) const
-{
-	return "Returns the current rendering speed in frames per second.";
 }
 
 } // namespace openmsx
