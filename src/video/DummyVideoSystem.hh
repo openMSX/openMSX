@@ -8,6 +8,7 @@
 
 namespace openmsx {
 
+class Renderer;
 
 class DummyVideoSystem: public VideoSystem
 {
@@ -17,6 +18,9 @@ public:
 
 	// VideoSystem interface:
 	virtual void flush();
+
+	/** TODO: Only here for backwards compatibility. */
+	Renderer* renderer;
 };
 
 } // namespace openmsx

@@ -4,7 +4,6 @@
 #include "RendererFactory.hh"
 #include "openmsx.hh"
 #include "RenderSettings.hh"
-#include "DummyRenderer.hh"
 #include "CliCommOutput.hh"
 #include "CommandLineParser.hh"
 #include "Icon.hh"
@@ -15,19 +14,12 @@
 #include "CommandConsole.hh"
 #include "SDLUtil.hh"
 
-// Video system Dummy
-// Note: DummyRenderer is not part of Dummy video system.
+// Video systems:
 #include "DummyVideoSystem.hh"
-
-// Video system SDL
 #include "SDLVideoSystem.hh"
-
-// Video system SDLGL
 #ifdef COMPONENT_GL
 #include "SDLGLVideoSystem.hh"
 #endif
-
-// Video system X11
 #include "XRenderer.hh"
 
 
@@ -105,15 +97,8 @@ bool DummyRendererFactory::isAvailable()
 
 Renderer* DummyRendererFactory::create(VDP* /*vdp*/)
 {
-	// Destruct old layers.
-	Display::INSTANCE.reset();
-	Display* display = new Display(auto_ptr<VideoSystem>(
-		new DummyVideoSystem() ));
-	Renderer* renderer = new DummyRenderer(DUMMY);
-	display->addLayer(dynamic_cast<Layer*>(renderer));
-	display->setAlpha(dynamic_cast<Layer*>(renderer), 255);
-	Display::INSTANCE.reset(display);
-	return renderer;
+	DummyVideoSystem* videoSystem = new DummyVideoSystem();
+	return videoSystem->renderer;
 }
 
 // SDLHi ===================================================================

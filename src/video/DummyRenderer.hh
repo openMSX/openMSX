@@ -48,7 +48,7 @@ public:
 	virtual const string& getName();
 
 private:
-	friend class DummyRendererFactory;
+	friend class DummyVideoSystem;
 
 	/** Constructor, called by DummyRendererFactory.
 	  */
