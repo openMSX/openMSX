@@ -1,5 +1,8 @@
 $Id$
 
+2005-03-04 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Also accept the enter key on the numerical pad in the console
+
 2005-03-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* In deinterlace mode render always two consecutive frames:
 	   When every other frame is skipped deinterlacer worked on 1 new

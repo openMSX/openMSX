@@ -196,6 +196,7 @@ bool CommandConsole::signalEvent(const Event& event)
 			tabCompletion();
 			break;
 		case Keys::K_RETURN:
+		case Keys::K_KP_ENTER:
 			commandExecute();
 			cursorLocationX = prompt.length();
 			break;
