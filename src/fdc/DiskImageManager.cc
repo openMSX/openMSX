@@ -41,8 +41,8 @@ DiskImageManager::Drive::Drive(const std::string &driveName)
 	backEnd = NULL;
 	try {
 		MSXConfig::Config *config = MSXConfig::Backend::instance()->
-			getConfigById("Media");
-		std::string disk = config->getParameter(driveName);
+			getConfigById(driveName);
+		std::string disk = config->getParameter("filename");
 		insertDisk(disk);
 	} catch (MSXException &e) {
 		// nothing specified or file not found

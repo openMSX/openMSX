@@ -86,8 +86,12 @@
     <parameter name="" class="patchcode">MSXTapePatch</parameter>
   </device>
 
-  <config id="tapepatch">
+  <config id="tape">
     <parameter name="filename">timecurb.cas</parameter>
+  </config>
+  
+  <config id="diska">
+    <parameter name="filename">PSYCHO.DSK</parameter>
   </config>
 
 -->  

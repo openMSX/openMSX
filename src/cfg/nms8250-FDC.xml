@@ -127,8 +127,8 @@
   </device>
 
   <!--
-  <config id="Media">
-    <parameter name="diska">PSYCHO.DSK</parameter>
+  <config id="diska">
+    <parameter name="filename">PSYCHO.DSK</parameter>
   </config>
   -->
 

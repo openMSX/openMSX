@@ -141,6 +141,7 @@ int CommandLineParser::checkFileExt(char* filename){
 	if (0 == strncasecmp(Extension,".di2",4)) fileType=2;
 	if (0 == strncasecmp(Extension,".xsa",4)) fileType=2;
 	if (0 == strncasecmp(Extension,".cas",4)) fileType=3;
+	if (0 == strncasecmp(Extension,".wav",4)) fileType=3;
 	if (0 == strncasecmp(Extension,".rom",4)) fileType=4;
 	if (0 == strncasecmp(Extension,".crt",4)) fileType=4;
 	if (0 == strncasecmp(Extension,".ri",3)) fileType=4;
@@ -163,10 +164,8 @@ void CommandLineParser::configureTape(char* filename)
 	std::ostringstream s;
 	s << "<?xml version=\"1.0\"?>";
 	s << "<msxconfig>";
-	s << " <config id=\"tapepatch\">";
-	s << "  <type>tape</type>";
-	s << "  <parameter name=\"filename\">";
-	s << sfilename << "</parameter>";
+	s << " <config id=\"tape\">";
+	s << "  <parameter name=\"filename\">" << sfilename << "</parameter>";
 	s << " </config>";
 	s << "</msxconfig>";
 	PRT_DEBUG(s.str());
@@ -177,17 +176,15 @@ void CommandLineParser::configureDisk(char* filename)
 {
 	char* file;
 	char* readonly;
-	for (readonly=file=filename ; (*readonly!=0) && (*readonly!=',') ; readonly++){};
-	if (*readonly == ','){
-		*(readonly++)=0;
-	};
+	for (readonly=file=filename; (*readonly!=0) && (*readonly!=','); readonly++) {}
+	if (*readonly == ',')
+		*(readonly++) = 0;
 	std::string sfile(file); XML::Escape(sfile);
 	std::ostringstream s;
 	s << "<?xml version=\"1.0\"?>";
 	s << "<msxconfig>";
-	s << "<config id=\"Media\">";
-	s << "<type>disk</type>";
-	s << "<parameter name=\"disk" << driveLetter << "\">" << sfile << "</parameter>";
+	s << "<config id=\"disk" << driveLetter << "\">";
+	s << "<parameter name=\"filename\">" << sfile << "</parameter>";
 	//s << "<parameter name=\"readonly\">";
 	//if (*readonly == 0){
 	//	s << "false";

@@ -27,7 +27,7 @@ MSXTapePatch::MSXTapePatch()
 
 	try {
 		MSXConfig::Config *config =
-			MSXConfig::Backend::instance()->getConfigById("tapepatch");
+			MSXConfig::Backend::instance()->getConfigById("tape");
 		std::string filename = config->getParameter("filename");
 		insertTape(filename);
 	} catch (MSXException& e) {

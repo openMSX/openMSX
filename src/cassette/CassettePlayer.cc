@@ -11,6 +11,14 @@ CassettePlayer::CassettePlayer()
 {
 	motor = false;
 	audioLength = 0;	// no tape inserted (yet)
+	try {
+		MSXConfig::Config *config =
+			MSXConfig::Backend::instance()->getConfigById("tape");
+		std::string filename = config->getParameter("filename");
+		insertTape(filename);
+	} catch (MSXException& e) {
+		PRT_DEBUG("No correct tape insertion!");
+	}
 	PluggingController::instance()->registerPluggable(this);
 	CommandController::instance()->registerCommand(*this, "tape");
 }
