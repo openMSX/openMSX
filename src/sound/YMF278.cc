@@ -732,9 +732,11 @@ byte YMF278::readStatus(const EmuTime& time)
 	return result;
 }
 
-YMF278::YMF278(int ramSize, const XMLElement& config, const EmuTime& time)
-	: debugRegisters(*this), debugMemory(*this),
-	  rom(getName() + " ROM", "rom", config)
+YMF278::YMF278(const string& name_, int ramSize, const XMLElement& config,
+               const EmuTime& time)
+	: debugRegisters(*this), debugMemory(*this)
+	, name(name_)
+	, rom(getName() + " ROM", "rom", config)
 {
 	memadr = 0;	// avoid UMR
 	setSampleRate(44100);	// make valgrind happy
@@ -764,7 +766,6 @@ YMF278::~YMF278()
 
 const string& YMF278::getName() const
 {
-	static const string name("MoonSoundWave");
 	return name;
 }
 

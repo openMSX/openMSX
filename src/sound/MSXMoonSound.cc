@@ -12,8 +12,8 @@ MSXMoonSound::MSXMoonSound(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time)
 {
 	int ramSize = config.getChildDataAsInt("sampleram", 512); // size in kb
-	ymf262.reset(new YMF262(config, time));
-	ymf278.reset(new YMF278(ramSize, config, time));
+	ymf262.reset(new YMF262(getName() + " fm", config, time));
+	ymf278.reset(new YMF278(getName() + " wave", ramSize, config, time));
 	reset(time);
 }
 

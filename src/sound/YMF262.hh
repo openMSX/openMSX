@@ -131,7 +131,7 @@ public:
 class YMF262 : private SoundDevice, private EmuTimerCallback, private Debuggable
 {
 public:
-	YMF262(const XMLElement& config, const EmuTime& time);
+	YMF262(const string& name, const XMLElement& config, const EmuTime& time);
 	virtual ~YMF262();
 	
 	virtual void reset(const EmuTime& time);
@@ -222,6 +222,8 @@ private:
 
 	int chanout[18];		// 18 channels 
 	int maxVolume;
+	
+	const string name;
 };
 
 } // namespace openmsx

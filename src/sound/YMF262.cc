@@ -1803,8 +1803,8 @@ void YMF262::reset(const EmuTime& time)
 	setMute(true);
 }
 
-YMF262::YMF262(const XMLElement& config, const EmuTime& time)
-	: timer1(this), timer2(this)
+YMF262::YMF262(const string& name_, const XMLElement& config, const EmuTime& time)
+	: timer1(this), timer2(this) , name(name_)
 {
 	LFO_AM = LFO_PM = 0;
 	lfo_am_depth = lfo_pm_depth_range = lfo_am_cnt = lfo_pm_cnt = 0;
@@ -1828,7 +1828,6 @@ YMF262::~YMF262()
 
 const string& YMF262::getName() const
 {
-	static const string name("MoonSoundFM");
 	return name;
 }
 

@@ -1,5 +1,9 @@
 $Id$
 
+2004-09-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Don't assert when there are two Moonsounds (not really usefull, but
+	  in a real MSX it's also possible to have multiple Moonsounds)
+
 2004-09-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Bindings are saved in settings.xml
 

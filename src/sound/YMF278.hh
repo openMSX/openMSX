@@ -68,7 +68,8 @@ public:
 class YMF278 : private SoundDevice
 {
 public:
-	YMF278(int ramSize, const XMLElement& config, const EmuTime& time);
+	YMF278(const string& name, int ramSize, const XMLElement& config,
+	       const EmuTime& time);
 	virtual ~YMF278();
 	void reset(const EmuTime& time);
 	void writeRegOPL4(byte reg, byte data, const EmuTime& time);
@@ -150,6 +151,7 @@ private:
 	int fm_l, fm_r;
 	int pcm_l, pcm_r;
 
+	const string name;
 	Rom rom;
 	byte* ram;
 	unsigned endRom;
