@@ -11,7 +11,7 @@ EXTRA_DIST=openmsx.lsm.in #NAME.texinfo openmsx.spec.in
 #TESTS=chk
 
 #  build and install the .info pages
-info_TEXINFOS = openmsx.texinfo
+#info_TEXINFOS = openmsx.texinfo
 #openmsx_TEXINFOS = gpl.texinfo
 
 #  install the man pages

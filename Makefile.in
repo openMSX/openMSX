@@ -67,7 +67,7 @@ PACKAGE = @PACKAGE@
 VERSION = @VERSION@
 
 bin_PROGRAMS = openmsx
-openmsx_SOURCES = openmsx.cc openmsx.1 xmalloc.c system.h aclocal.m4 getopt.c getopt1.c getopt.h
+openmsx_SOURCES = openmsx.cc openmsx.1 system.h aclocal.m4
 
 #  uncomment the following if openmsx requires the math library
 #openmsx_LDADD=-lm
@@ -79,8 +79,8 @@ EXTRA_DIST = openmsx.lsm.in #NAME.texinfo openmsx.spec.in
 #TESTS=chk
 
 #  build and install the .info pages
-info_TEXINFOS = openmsx.texinfo
-openmsx_TEXINFOS = gpl.texinfo
+#info_TEXINFOS = openmsx.texinfo
+#openmsx_TEXINFOS = gpl.texinfo
 
 #  install the man pages
 man_MANS = openmsx.1
@@ -95,7 +95,7 @@ DEFS = @DEFS@ -I. -I$(srcdir) -I.
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
-openmsx_OBJECTS =  openmsx.o xmalloc.o getopt.o getopt1.o
+openmsx_OBJECTS =  openmsx.o
 openmsx_LDADD = $(LDADD)
 openmsx_DEPENDENCIES = 
 openmsx_LDFLAGS = 
@@ -107,32 +107,27 @@ CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
-TEXI2DVI = texi2dvi
-INFO_DEPS = openmsx.info
-DVIS = openmsx.dvi
-TEXINFOS = openmsx.texinfo
 man1dir = $(mandir)/man1
 MANS = $(man_MANS)
 
 NROFF = nroff
-DIST_COMMON =  README $(openmsx_TEXINFOS) ./stamp-h.in AUTHORS COPYING \
-ChangeLog INSTALL Makefile.am Makefile.in NEWS aclocal.m4 config.guess \
-config.h.in config.sub configure configure.in install-sh missing \
-mkinstalldirs openmsx.lsm.in openmsx.spec.in texinfo.tex
+DIST_COMMON =  README ./stamp-h.in AUTHORS COPYING ChangeLog INSTALL \
+Makefile.am Makefile.in NEWS aclocal.m4 config.guess config.h.in \
+config.sub configure configure.in install-sh missing mkinstalldirs \
+openmsx.lsm.in openmsx.spec.in
 
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP_ENV = --best
-DEP_FILES =  .deps/getopt.P .deps/getopt1.P .deps/openmsx.P \
-.deps/xmalloc.P
+DEP_FILES =  .deps/openmsx.P
 SOURCES = $(openmsx_SOURCES)
 OBJECTS = $(openmsx_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
-.SUFFIXES: .S .c .cc .dvi .info .o .ps .s .texi .texinfo .txi
+.SUFFIXES: .S .c .cc .o .s
 $(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
 	cd $(top_srcdir) && $(AUTOMAKE) --gnu Makefile
 
@@ -226,123 +221,6 @@ openmsx: $(openmsx_OBJECTS) $(openmsx_DEPENDENCIES)
 	$(CXXLINK) $(openmsx_LDFLAGS) $(openmsx_OBJECTS) $(openmsx_LDADD) $(LIBS)
 .cc.o:
 	$(CXXCOMPILE) -c $<
-
-openmsx.info: openmsx.texinfo $(openmsx_TEXINFOS)
-openmsx.dvi: openmsx.texinfo $(openmsx_TEXINFOS)
-
-
-DVIPS = dvips
-
-.texi.info:
-	@cd $(srcdir) && rm -f $@ $@-[0-9] $@-[0-9][0-9]
-	cd $(srcdir) \
-	  && $(MAKEINFO) `echo $< | sed 's,.*/,,'`
-
-.texi.dvi:
-	TEXINPUTS=.:$$TEXINPUTS \
-	  MAKEINFO='$(MAKEINFO) -I $(srcdir)' $(TEXI2DVI) $<
-
-.texi:
-	@cd $(srcdir) && rm -f $@ $@-[0-9] $@-[0-9][0-9]
-	cd $(srcdir) \
-	  && $(MAKEINFO) `echo $< | sed 's,.*/,,'`
-
-.texinfo.info:
-	@cd $(srcdir) && rm -f $@ $@-[0-9] $@-[0-9][0-9]
-	cd $(srcdir) \
-	  && $(MAKEINFO) `echo $< | sed 's,.*/,,'`
-
-.texinfo:
-	@cd $(srcdir) && rm -f $@ $@-[0-9] $@-[0-9][0-9]
-	cd $(srcdir) \
-	  && $(MAKEINFO) `echo $< | sed 's,.*/,,'`
-
-.texinfo.dvi:
-	TEXINPUTS=.:$$TEXINPUTS \
-	  MAKEINFO='$(MAKEINFO) -I $(srcdir)' $(TEXI2DVI) $<
-
-.txi.info:
-	@cd $(srcdir) && rm -f $@ $@-[0-9] $@-[0-9][0-9]
-	cd $(srcdir) \
-	  && $(MAKEINFO) `echo $< | sed 's,.*/,,'`
-
-.txi.dvi:
-	TEXINPUTS=.:$$TEXINPUTS \
-	  MAKEINFO='$(MAKEINFO) -I $(srcdir)' $(TEXI2DVI) $<
-
-.txi:
-	@cd $(srcdir) && rm -f $@ $@-[0-9] $@-[0-9][0-9]
-	cd $(srcdir) \
-	  && $(MAKEINFO) `echo $< | sed 's,.*/,,'`
-.dvi.ps:
-	$(DVIPS) $< -o $@
-
-install-info-am: $(INFO_DEPS)
-	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) $(DESTDIR)$(infodir)
-	@list='$(INFO_DEPS)'; \
-	for file in $$list; do \
-	  d=$(srcdir); \
-	  for ifile in `cd $$d && echo $$file $$file-[0-9] $$file-[0-9][0-9]`; do \
-	    if test -f $$d/$$ifile; then \
-	      echo " $(INSTALL_DATA) $$d/$$ifile $(DESTDIR)$(infodir)/$$ifile"; \
-	      $(INSTALL_DATA) $$d/$$ifile $(DESTDIR)$(infodir)/$$ifile; \
-	    else : ; fi; \
-	  done; \
-	done
-	@$(POST_INSTALL)
-	@if $(SHELL) -c 'install-info --version | sed 1q | fgrep -s -v -i debian' >/dev/null 2>&1; then \
-	  list='$(INFO_DEPS)'; \
-	  for file in $$list; do \
-	    echo " install-info --info-dir=$(DESTDIR)$(infodir) $(DESTDIR)$(infodir)/$$file";\
-	    install-info --info-dir=$(DESTDIR)$(infodir) $(DESTDIR)$(infodir)/$$file || :;\
-	  done; \
-	else : ; fi
-
-uninstall-info:
-	$(PRE_UNINSTALL)
-	@if $(SHELL) -c 'install-info --version | sed 1q | fgrep -s -v -i debian' >/dev/null 2>&1; then \
-	  ii=yes; \
-	else ii=; fi; \
-	list='$(INFO_DEPS)'; \
-	for file in $$list; do \
-	  test -z "$ii" \
-	    || install-info --info-dir=$(DESTDIR)$(infodir) --remove $$file; \
-	done
-	@$(NORMAL_UNINSTALL)
-	list='$(INFO_DEPS)'; \
-	for file in $$list; do \
-	  (cd $(DESTDIR)$(infodir) && rm -f $$file $$file-[0-9] $$file-[0-9][0-9]); \
-	done
-
-dist-info: $(INFO_DEPS)
-	list='$(INFO_DEPS)'; \
-	for base in $$list; do \
-	  d=$(srcdir); \
-	  for file in `cd $$d && eval echo $$base*`; do \
-	    test -f $(distdir)/$$file \
-	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
-	    || cp -p $$d/$$file $(distdir)/$$file; \
-	  done; \
-	done
-
-mostlyclean-aminfo:
-	-rm -f openmsx.aux openmsx.cp openmsx.cps openmsx.dvi openmsx.fn \
-	  openmsx.fns openmsx.ky openmsx.kys openmsx.ps openmsx.log \
-	  openmsx.pg openmsx.toc openmsx.tp openmsx.tps openmsx.vr \
-	  openmsx.vrs openmsx.op openmsx.tr openmsx.cv openmsx.cn
-
-clean-aminfo:
-
-distclean-aminfo:
-
-maintainer-clean-aminfo:
-	cd $(srcdir) && for i in $(INFO_DEPS); do \
-	  rm -f $$i; \
-	  if test "`echo $$i-[0-9]*`" != "$$i-[0-9]*"; then \
-	    rm -f $$i-[0-9]*; \
-	  fi; \
-	done
 
 install-man1:
 	$(mkinstalldirs) $(DESTDIR)$(man1dir)
@@ -465,7 +343,6 @@ distdir: $(DISTFILES)
 	    || cp -p $$d/$$file $(distdir)/$$file || :; \
 	  fi; \
 	done
-	$(MAKE) $(AM_MAKEFLAGS) top_distdir="$(top_distdir)" distdir="$(distdir)" dist-info
 
 DEPS_MAGIC := $(shell mkdir .deps > /dev/null 2>&1 || :)
 
@@ -517,9 +394,9 @@ maintainer-clean-depend:
 	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
 	    >> .deps/$(*F).P; \
 	rm -f .deps/$(*F).pp
-info-am: $(INFO_DEPS)
+info-am:
 info: info-am
-dvi-am: $(DVIS)
+dvi-am:
 dvi: dvi-am
 check-am: all-am
 check: check-am
@@ -531,21 +408,20 @@ all-recursive-am: config.h
 install-exec-am: install-binPROGRAMS
 install-exec: install-exec-am
 
-install-data-am: install-info-am install-man
+install-data-am: install-man
 install-data: install-data-am
 
 install-am: all-am
 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
 install: install-am
-uninstall-am: uninstall-binPROGRAMS uninstall-info uninstall-man
+uninstall-am: uninstall-binPROGRAMS uninstall-man
 uninstall: uninstall-am
-all-am: Makefile $(INFO_DEPS) $(PROGRAMS) $(MANS) config.h
+all-am: Makefile $(PROGRAMS) $(MANS) config.h
 all-redirect: all-am
 install-strip:
 	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
 installdirs:
-	$(mkinstalldirs)  $(DESTDIR)$(bindir) $(DESTDIR)$(infodir) \
-		$(DESTDIR)$(mandir)/man1
+	$(mkinstalldirs)  $(DESTDIR)$(bindir) $(DESTDIR)$(mandir)/man1
 
 
 mostlyclean-generic:
@@ -558,27 +434,27 @@ distclean-generic:
 
 maintainer-clean-generic:
 mostlyclean-am:  mostlyclean-hdr mostlyclean-binPROGRAMS \
-		mostlyclean-compile mostlyclean-aminfo mostlyclean-tags \
-		mostlyclean-depend mostlyclean-generic
+		mostlyclean-compile mostlyclean-tags mostlyclean-depend \
+		mostlyclean-generic
 
 mostlyclean: mostlyclean-am
 
-clean-am:  clean-hdr clean-binPROGRAMS clean-compile clean-aminfo \
-		clean-tags clean-depend clean-generic mostlyclean-am
+clean-am:  clean-hdr clean-binPROGRAMS clean-compile clean-tags \
+		clean-depend clean-generic mostlyclean-am
 
 clean: clean-am
 
 distclean-am:  distclean-hdr distclean-binPROGRAMS distclean-compile \
-		distclean-aminfo distclean-tags distclean-depend \
-		distclean-generic clean-am
+		distclean-tags distclean-depend distclean-generic \
+		clean-am
 
 distclean: distclean-am
 	-rm -f config.status
 
 maintainer-clean-am:  maintainer-clean-hdr maintainer-clean-binPROGRAMS \
-		maintainer-clean-compile maintainer-clean-aminfo \
-		maintainer-clean-tags maintainer-clean-depend \
-		maintainer-clean-generic distclean-am
+		maintainer-clean-compile maintainer-clean-tags \
+		maintainer-clean-depend maintainer-clean-generic \
+		distclean-am
 	@echo "This command is intended for maintainers to use;"
 	@echo "it deletes files that may require special tools to rebuild."
 
@@ -589,9 +465,7 @@ maintainer-clean: maintainer-clean-am
 mostlyclean-binPROGRAMS distclean-binPROGRAMS clean-binPROGRAMS \
 maintainer-clean-binPROGRAMS uninstall-binPROGRAMS install-binPROGRAMS \
 mostlyclean-compile distclean-compile clean-compile \
-maintainer-clean-compile install-info-am uninstall-info \
-mostlyclean-aminfo distclean-aminfo clean-aminfo \
-maintainer-clean-aminfo install-man1 uninstall-man1 install-man \
+maintainer-clean-compile install-man1 uninstall-man1 install-man \
 uninstall-man tags mostlyclean-tags distclean-tags clean-tags \
 maintainer-clean-tags distdir mostlyclean-depend distclean-depend \
 clean-depend maintainer-clean-depend info-am info dvi-am dvi check \

@@ -1,0 +1,10 @@
+config.log
+config.h
+config.cache
+config.status
+stamp-h
+Makefile
+openmsx.lsm
+openmsx.spec
+.deps
+openmsx
