@@ -33,6 +33,7 @@ void AY8910::init()
 
 void AY8910::reset()
 {
+	oldEnable = 0;
 	random = 1;
 	outputA = outputB = outputC = 0;
 	outputN = 0xff;
@@ -172,6 +173,19 @@ void AY8910::writeRegister(byte reg, byte value)
 		if (envelopeA) volA = volE;
 		if (envelopeB) volB = volE;
 		if (envelopeC) volC = volE;
+		break;
+	case AY_ENABLE:
+		if ((value     & PORT_A_DIRECTION) &&
+		   !(oldEnable & PORT_A_DIRECTION)) {
+			// changed from input to output
+			writeRegister(AY_PORTA, regs[AY_PORTA]);
+		}
+		if ((value     & PORT_B_DIRECTION) &&
+		   !(oldEnable & PORT_B_DIRECTION)) {
+			// changed from input to output
+			writeRegister(AY_PORTB, regs[AY_PORTB]);
+		}
+		oldEnable = value;
 		break;
 	case AY_PORTA:
 		if (regs[AY_ENABLE] & PORT_A_DIRECTION)

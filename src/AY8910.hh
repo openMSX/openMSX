@@ -75,6 +75,7 @@ class AY8910 : public SoundDevice
 		bool hold, alternate, holding;
 		int random;
 		unsigned int volTable[16];
+		byte oldEnable;
 		
 		AY8910Interface &interface;
 };
