@@ -1,5 +1,9 @@
 $Id$
 
+2002-02-24 Maarten ter Huurne <mth@stack.nl>
+	* Fixed port C read bug in PPI.
+	  Now keyboard works in SBB promo and CAPS is off at boot time.
+
 2002-02-23 Maarten ter Huurne <mth@stack.nl>
 	* Fixed Graphic7 border colour.
 

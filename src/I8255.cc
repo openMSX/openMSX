@@ -58,7 +58,7 @@ byte I8255::readPortB(const EmuTime &time) {
 }
 
 byte I8255::readPortC(const EmuTime &time) {
-	byte tmp = readC1(time) & readC0(time);
+	byte tmp = readC1(time) | readC0(time);
 	switch (control & MODE_A) {
 	case MODEA_0:
 		// do nothing
