@@ -29,13 +29,13 @@ void Autofire::update(const SettingLeafNode* setting) throw()
 {
 	assert(setting == &speedSetting);
 	int speed = speedSetting.getValue();
-	freq_divider = (MAIN_FREQ * (max_ints - (speed * (max_ints - min_ints)) / 100)) / (2 * 50 * 60);
+	freq = (2 * 50 * 60) / (max_ints - (speed * (max_ints - min_ints)) / 100);
 }
 
 byte Autofire::getSignal(const EmuTime &time)
 {
 	if (speedSetting.getValue() != 0) {
-		return (time.time / freq_divider) & 1;
+		return time.getTicksAt(freq) & 1;
 	} else {
 		return 0;
 	}

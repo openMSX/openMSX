@@ -11,8 +11,8 @@ using std::ostream;
 
 namespace openmsx {
 
-// predefines
 class EmuTime;
+template<unsigned> class EmuTimeFreq;
 ostream &operator <<(ostream &os, const EmuTime &e);
 
 // constants
@@ -78,6 +78,7 @@ class EmuTime
 public:
 	// friends
 	friend ostream &operator<<(ostream &os, const EmuTime &et);
+	template<unsigned> friend class EmuTimeFreq;
 
 	// constructors
 	EmuTime()                  { time = 0; }
@@ -127,7 +128,7 @@ public:
 	static const EmuTime zero;
 	static const EmuTime infinity;
 	
-//protected:
+protected:
 	uint64 time;
 };
 
@@ -136,9 +137,8 @@ class EmuTimeFreq : public EmuTime
 {
 public:
 	// constructor
-	EmuTimeFreq()                          { time  = 0; }
-	explicit EmuTimeFreq(const EmuTime &e) { time = e.time; }
-	//EmuTimeFreq(uint64 n)   { time  = n * (MAIN_FREQ / freq); }
+	EmuTimeFreq() : EmuTime() { }
+	explicit EmuTimeFreq(const EmuTime &e) : EmuTime(e) { }
 
 	void operator()(uint64 n) { time  = n * (MAIN_FREQ / freq); }
 

@@ -60,7 +60,7 @@ private:
 	IntegerSetting speedSetting;
 
 	/** Derived from speed, min_ints and max_ints. */
-	unsigned freq_divider;
+	unsigned freq;
 };
 
 } // namespace openmsx
