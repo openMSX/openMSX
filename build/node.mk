@@ -2,9 +2,6 @@
 
 include build/node-start.mk
 
-SUBDIRS:=\
-	m4
-
 DIST:= \
 	config.guess detectsys.sh \
 	configure.ac \
