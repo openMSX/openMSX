@@ -180,6 +180,7 @@ void CommandLineParser::parse(int argc, char **argv)
 					PRT_INFO("Warning: No settings file found!");
 					}
 					haveSettings = true;
+					postRegisterFileTypes();
 				}
 				break;
 			case 5:
@@ -207,7 +208,6 @@ void CommandLineParser::parse(int argc, char **argv)
 						}
 					}
 					haveConfig = true;
-					postRegisterFileTypes();
 				}
 				break;
 			default:
