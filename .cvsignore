@@ -11,3 +11,4 @@ openmsx.spec
 openmsx
 configure
 *.swp
+stamp-h.in
