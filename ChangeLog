@@ -1,5 +1,10 @@
 $Id$
 
+2003-04-28 David Heremans <david.heremans@gnu-linux.net>
+	* Fixed make install to /opt/openMSX and create extra link for
+	  binary in /usr/local/bin
+	* added (no)debug to main makefile
+
 2003-04-27 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented more complete filename completion as described in
 	  feature request 713442

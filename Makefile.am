@@ -17,6 +17,16 @@ MAINTAINERCLEANFILES = aclocal.m4 Makefile.in \
 
 EXTRA_DIST=openmsx.lsm.in GPL TODO config-i686.sh autogen.sh share
 
+# Altough (no)debug only needed in the src dir, we want 
+# to use the parameters here also
+nodebug: resetdebug all
+debug: setdebug all
+
+resetdebug:
+	@-rm -f src/debug
+setdebug:
+	@touch src/.debug
+
 
 #  if you write a self-test script named `chk', uncomment the
 #  following and add `chk' to the EXTRA_DIST list
@@ -26,6 +36,9 @@ install-data-hook:
 	cp -rv $(srcdir)/share $(prefix)/ 
 ##needs find trick because otherwise find tries to descent into rm'ed dir
 	find $(srcdir)/share -name CVS -type d -exec rm -rf $(prefix)/{} \;
+##Creating a link for the binary in /usr/local/bin
+##TODO: Make this configurable !!
+	ln -s $(prefix)/bin/openmsx /usr/local/bin/
 
 ## a simple cp -R isn't portable so we should use this long winded thing below
 ## but I need to check if `find` is portabel. code below isn't tested !!!
