@@ -50,17 +50,12 @@ Mixer::Mixer()
 	desired.freq     = freq;
 	desired.samples  = samples;
 	desired.channels = 2;			// stereo
-#ifdef WORDS_BIGENDIAN
-	desired.format   = AUDIO_S16MSB;
-#else
-	desired.format   = AUDIO_S16LSB;
-#endif
-
+	desired.format   = OPENMSX_BIGENDIAN ? AUDIO_S16MSB : AUDIO_S16LSB;
 	desired.callback = audioCallbackHelper;	// must be a static method
 	desired.userdata = this;
 	if (SDL_OpenAudio(&desired, &audioSpec) < 0) {
 		output.printWarning(
-		        string("Couldn't open audio : ") + SDL_GetError());
+			string("Couldn't open audio : ") + SDL_GetError());
 		init = false;
 	} else {
 		init = true;

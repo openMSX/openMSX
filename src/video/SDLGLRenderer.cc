@@ -51,11 +51,11 @@ static const int TICKS_VISIBLE_MIDDLE =
 
 inline static SDLGLRenderer::Pixel GLMapRGB(int r, int g, int b)
 {
-#ifdef WORDS_BIGENDIAN
-	return (r << 24) | (g << 16) | (b <<  8) | 0x000000FF;
-#else
-	return (r <<  0) | (g <<  8) | (b << 16) | 0xFF000000;
-#endif
+	if (OPENMSX_BIGENDIAN) {
+		return (r << 24) | (g << 16) | (b <<  8) | 0x000000FF;
+	} else {
+		return (r <<  0) | (g <<  8) | (b << 16) | 0xFF000000;
+	}
 }
 
 inline static void GLSetColour(SDLGLRenderer::Pixel colour)

@@ -5,6 +5,7 @@
 
 #include <set>
 #include <string>
+#include "config.h"
 #include "openmsx.hh"
 #include "EmuTime.hh"
 #include "CPUTables.hh"
@@ -27,17 +28,16 @@ class Scheduler;
 
 typedef signed char offset;
 
+template <bool bigEndian> struct z80regpair_8bit;
+template <> struct z80regpair_8bit<false> { byte l, h; };
+template <> struct z80regpair_8bit<true>  { byte h, l; };
 
 class CPU : public CPUTables, private SettingListener
 {
 friend class MSXCPU;
 public:
 	typedef union {
-	#ifndef WORDS_BIGENDIAN
-		struct { byte l,h; } B;
-	#else
-		struct { byte h,l; } B;
-	#endif
+		z80regpair_8bit<OPENMSX_BIGENDIAN> B;
 		word w;
 	} z80regpair;
 
