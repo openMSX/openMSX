@@ -39,6 +39,11 @@ void CPU::setTargetTime(const EmuTime &time)
 	targetTime = time;
 }
 
+const EmuTime &CPU::getTargetTime() const
+{
+	return targetTime;
+}
+
 void CPU::invalidateCache(word start, int num)
 {
 	//PRT_DEBUG("cache: invalidate "<<start<<" "<<num*CACHE_LINE_SIZE);

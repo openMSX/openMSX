@@ -74,6 +74,11 @@ class CPU
 		 * changes in the scheduling
 		 */
 		void setTargetTime(const EmuTime &time);
+		
+		/**
+		 * Get the target time. Only used to switch active CPU
+		 */
+		const EmuTime &getTargetTime() const;
 
 		/**
 		 * Read a byte from memory. If possible the byte is read from

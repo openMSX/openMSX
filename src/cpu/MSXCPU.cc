@@ -64,9 +64,10 @@ void MSXCPU::setActiveCPU(CPUType cpu)
 			newCPU = NULL;	// prevent warning
 	}
 	if (newCPU != activeCPU) {
-		const EmuTime &time = activeCPU->getCurrentTime();
-		setTargetTime(time);
-		newCPU->setCurrentTime(time);
+		const EmuTime &currentTime = activeCPU->getCurrentTime();
+		const EmuTime &targetTime  = activeCPU->getTargetTime();
+		newCPU->setCurrentTime(currentTime);
+		newCPU->setTargetTime(targetTime);
 		newCPU->invalidateCache(0x0000, 0x10000/CPU::CACHE_LINE_SIZE);
 		activeCPU = newCPU;
 	}
