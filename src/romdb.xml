@@ -38,6 +38,7 @@
     <md5>03e7119173912f9444cb96ed58ba4957</md5>
     <romtype>XANADU</romtype>
   </rom>
+<!--
   <rom id="Royal Blood">
     <md5>6a1571a643e6c34837535a3240f85ef2</md5>
     <romtype>ROYALBLOOD</romtype>
@@ -46,6 +47,7 @@
     <md5>114264bbcd0fdfa7bd083a983606a200</md5>
     <romtype>ASCII8</romtype>
   </rom>
+-->
   <rom id="War of the Dead (crack/modified)">
     <md5>ae08cb529c454ee7477ac61662e02858</md5>
     <md5>41f4c112671b666220137f721e1460aa</md5>
@@ -5776,7 +5778,11 @@
     <remark></remark>
   </rom>
   <rom id="Royal Blood">
-    <romtype>ASCII8-8</romtype>
+<!--    <romtype>ASCII8-8</romtype> 
+    This should be changed back as soon as a generic ASCII8-8 type 
+    is implemented 
+-->
+    <romtype>ROYALBLOOD</romtype> 
     <md5>6a1571a643e6c34837535a3240f85ef2</md5>
     <crc32>fb9e42e1</crc32>
     <year>1991</year>
