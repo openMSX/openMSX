@@ -88,7 +88,7 @@ public:
 	  */
 	void setCmdReg(byte index, byte value, const EmuTime& time);
 
-	/** Read the content of a command register. This method is ment to
+	/** Read the content of a command register. This method is meant to
 	  * be used by the debugger, there is no strict guarantee that the
 	  * returned value is the correct value at _exactly_ this moment in
 	  * time (IOW this method does not sync the complete CmdEngine)
