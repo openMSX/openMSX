@@ -31,7 +31,6 @@ public:
 
 		bool getAsBool() const;
 		int getAsInt() const ;
-		uint64 getAsUint64() const;
 
 		const string name;
 		const string value;
@@ -39,7 +38,6 @@ public:
 
 		static bool stringToBool(const string& str);
 		static int stringToInt(const string& str);
-		static uint64 stringToUint64(const string& str);
 	};
 
 	Config(XML::Element* element, FileContext& context);
@@ -58,8 +56,6 @@ public:
 	bool getParameterAsBool(const string& name, bool defaultValue) const;
 	int getParameterAsInt(const string& name) const throw(ConfigException);
 	int getParameterAsInt(const string& name, int defaultValue) const;
-	uint64 getParameterAsUint64(const string& name) const throw(ConfigException);
-	uint64 getParameterAsUint64(const string& name, const uint64& defaultValue) const;
 
 	/**
 	 * This returns a freshly allocated list with freshly allocated

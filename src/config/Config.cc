@@ -119,22 +119,6 @@ int Config::getParameterAsInt(const string& name, int defaultValue) const
 	return p ? Config::Parameter::stringToInt(p->pcdata) : defaultValue;
 }
 
-uint64 Config::getParameterAsUint64(const string& name) const
-	throw(ConfigException)
-{
-	XML::Element* p = getParameterElement(name);
-	if (!p) {
-		throw ConfigException("Missing parameter: " + name);
-	}
-	return Config::Parameter::stringToUint64(p->pcdata);
-}
-
-uint64 Config::getParameterAsUint64(const string& name, const uint64& defaultValue) const
-{
-	XML::Element* p = getParameterElement(name);
-	return p ? Config::Parameter::stringToUint64(p->pcdata) : defaultValue;
-}
-
 list<Config::Parameter*>* Config::getParametersWithClass(const string& clasz)
 {
 	list<Config::Parameter*>* l = new list<Config::Parameter*>;
@@ -188,11 +172,6 @@ int Config::Parameter::stringToInt(const string& str)
 	return strtol(str.c_str(), 0, 0);
 }
 
-uint64 Config::Parameter::stringToUint64(const string& str)
-{
-	return atoll(str.c_str());
-}
-
 bool Config::Parameter::getAsBool() const
 {
 	return stringToBool(value);
@@ -201,11 +180,6 @@ bool Config::Parameter::getAsBool() const
 int Config::Parameter::getAsInt() const
 {
 	return stringToInt(value);
-}
-
-uint64 Config::Parameter::getAsUint64() const
-{
-	return stringToUint64(value);
 }
 
 } // namespace openmsx
