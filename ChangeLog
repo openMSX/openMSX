@@ -1,6 +1,10 @@
 $Id$
 
 2005-02-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* fixed cassette WavImage DC correction:
+	    forgot to properly clip signal
+
+2005-02-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Replaced 'plain' mapper type with 'mirrored' and 'normal', makes it
 	  easier to implement the new database mapper types:
 	   - for backwards compatibility 'plain' is treated as an alias for

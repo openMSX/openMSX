@@ -45,15 +45,15 @@ WavImage::WavImage(const string& fileName)
 	length = (int)(audioCVT.len * audioCVT.len_ratio) / 2;
 
 	// calculate the average to subtract it later (simple DC filter)
-	if (length>0)
-	{
+	if (length > 0) {
 		long long total = 0;
-		for (int i = 0; i<length; ++i) {
+		for (int i = 0; i < length; ++i) {
 			total += ((short*)buffer)[i];
 		}
-		average = (short)(total/length);
+		average = (short)(total / length);
+	} else {
+		average = 0;
 	}
-	else average = 0;
 }
 
 WavImage::~WavImage()
@@ -64,7 +64,11 @@ WavImage::~WavImage()
 short WavImage::getSampleAt(const EmuTime& time)
 {
 	int pos = clock.getTicksTill(time);
-	return pos < length ? ((short*)buffer)[pos]-average : 0;
+	int tmp = (pos < length) ? (((short*)buffer)[pos]) : 0;
+	tmp -= average;
+	if (tmp > 32767) tmp = 32767;
+	else if (tmp < -32768) tmp = -32768;
+	return tmp;
 }
 
 } // namespace openmsx
