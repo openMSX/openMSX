@@ -71,26 +71,26 @@ static void initMap()
 	romtype["MSX-AUDIO"]   = ROM_MSX_AUDIO;
 
 	// non-mapper ROM types
-	romtype["mirrored"]    = ROM_MIRRORED;
-	romtype["mirrored0000"]= ROM_MIRRORED0000;
-	romtype["mirrored4000"]= ROM_MIRRORED4000;
-	romtype["mirrored8000"]= ROM_MIRRORED8000;
-	romtype["mirroredC000"]= ROM_MIRROREDC000;
-	romtype["normal"]      = ROM_NORMAL;
-	romtype["normal0000"]  = ROM_NORMAL0000;
-	romtype["normal4000"]  = ROM_NORMAL4000;
-	romtype["normal8000"]  = ROM_NORMAL8000;
-	romtype["normalC000"]  = ROM_NORMALC000;
-	romtype["page0"]       = ROM_PAGE0;
-	romtype["page01"]      = ROM_PAGE01;
-	romtype["page012"]     = ROM_PAGE012;
-	romtype["page0123"]    = ROM_PAGE0123;
-	romtype["page1"]       = ROM_PAGE1;
-	romtype["page12"]      = ROM_PAGE12;
-	romtype["page123"]     = ROM_PAGE123;
-	romtype["page2"]       = ROM_PAGE2;
-	romtype["page23"]      = ROM_PAGE23;
-	romtype["page3"]       = ROM_PAGE3;
+	romtype["Mirrored"]    = ROM_MIRRORED;
+	romtype["Mirrored0000"]= ROM_MIRRORED0000;
+	romtype["Mirrored4000"]= ROM_MIRRORED4000;
+	romtype["Mirrored8000"]= ROM_MIRRORED8000;
+	romtype["MirroredC000"]= ROM_MIRROREDC000;
+	romtype["Normal"]      = ROM_NORMAL;
+	romtype["Normal0000"]  = ROM_NORMAL0000;
+	romtype["Normal4000"]  = ROM_NORMAL4000;
+	romtype["Normal8000"]  = ROM_NORMAL8000;
+	romtype["NormalC000"]  = ROM_NORMALC000;
+	romtype["Page0"]       = ROM_PAGE0;
+	romtype["Page01"]      = ROM_PAGE01;
+	romtype["Page012"]     = ROM_PAGE012;
+	romtype["Page0123"]    = ROM_PAGE0123;
+	romtype["Page1"]       = ROM_PAGE1;
+	romtype["Page12"]      = ROM_PAGE12;
+	romtype["Page123"]     = ROM_PAGE123;
+	romtype["Page2"]       = ROM_PAGE2;
+	romtype["Page23"]      = ROM_PAGE23;
+	romtype["Page3"]       = ROM_PAGE3;
 }
 
 RomInfo::RomInfo(const string& ntitle, const string& nyear,
@@ -130,15 +130,15 @@ RomType RomInfo::nameToRomType(string name)
 		aliasMap["3"]            = "Konami";
 		aliasMap["4"]            = "ASCII8";
 		aliasMap["5"]            = "ASCII16";
-		aliasMap["64kB"]         = "mirrored";
-		aliasMap["plain"]        = "mirrored";
-		aliasMap["0x0000"]       = "normal0000";
-		aliasMap["0x4000"]       = "normal4000";
-		aliasMap["0x8000"]       = "normal8000";
-		aliasMap["0xC000"]       = "normalC000";
+		aliasMap["64kB"]         = "Mirrored";
+		aliasMap["Plain"]        = "Mirrored";
+		aliasMap["0x0000"]       = "Normal0000";
+		aliasMap["0x4000"]       = "Normal4000";
+		aliasMap["0x8000"]       = "Normal8000";
+		aliasMap["0xC000"]       = "NormalC000";
 		aliasMap["HYDLIDE2"]     = "ASCII16SRAM2";
 		aliasMap["RC755"]        = "GameMaster2";
-		aliasMap["ROMBAS"]       = "page2";
+		aliasMap["ROMBAS"]       = "Normal8000";
 		aliasMap["RTYPE"]        = "R-Type";
 		aliasMap["KOREAN80IN1"]  = "Zemina80in1";
 		aliasMap["KOREAN90IN1"]  = "Zemina90in1";
@@ -284,10 +284,10 @@ static void parseDB(const XMLElement& doc, DBMap& result)
 				parseNewEntry(*megarom, result, title, year, company,
 				              remark, megarom->getChildData("type"));
 			} else if (const XMLElement* rom = dump.findChild("rom")) {
-				string type = rom->getChildData("type", "mirrored");
-				if (type == "normal") {
+				string type = rom->getChildData("type", "Mirrored");
+				if (type == "Normal") {
 					type += parseStart(*rom);
-				} else if (type == "mirrored") {
+				} else if (type == "Mirrored") {
 					type += parseStart(*rom);
 				}
 				parseNewEntry(*rom, result, title, year, company,

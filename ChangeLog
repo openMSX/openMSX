@@ -4,6 +4,7 @@ $Id$
 	* Last minute db format change:
 	   type for normal roms is now structured like this
 	   <rom> <type>normal</type> <start>0x4000</start> ... </rom>
+	* romtypes should start with capital (e.g. 'Normal' iso 'normal)
 
 2005-03-01 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Don't send LED events when LED status didn't change:

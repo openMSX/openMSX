@@ -137,7 +137,7 @@ auto_ptr<MSXDevice> RomFactory::create(const XMLElement& config,
 
 	// Get specified mapper type from the config.
 	RomType type;
-	string typestr = config.getChildData("mappertype", "mirrored");
+	string typestr = config.getChildData("mappertype", "Mirrored");
 	if (typestr == "auto") {
 		// Guess mapper type, if it was not in DB.
 		type = rom->getInfo().getRomType();

@@ -73,7 +73,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">9a63d48c4fc05e76c9de25e5c5f2a0c99b5d1be4</hash>
 			</rom>
@@ -88,7 +88,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">f8164d3872b5d54eaeafc6de3bb98a472f0c828d</hash>
 			</rom>
@@ -96,7 +96,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">6fe8c1725c35d85a5e489c0c8d21134def09ecfb</hash>
 			</rom>
@@ -111,7 +111,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">8f71dddd429173df7ce52c5245af1a76b482a901</hash>
 			</rom>
@@ -713,7 +713,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">ec53d72e41e114574f4c116cab19e1633f3da207</hash>
 			</rom>
@@ -925,7 +925,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">469b07eef08348c9acc14e63ba0cd35aef236983</hash>
 			</rom>
@@ -933,7 +933,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">1a6a751334c663fbfdf93f617a7d779f76f488ce</hash>
 			</rom>
@@ -941,7 +941,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="crc32">99DFD902</hash>
 				<remark>
@@ -1400,7 +1400,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">b4dd886d4a44cc42fc9e95d2db0943d422e4bda8</hash>
 			</rom>
@@ -1440,7 +1440,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="crc32">0596A961</hash>
 			</rom>
@@ -1731,7 +1731,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">b15e73a5ff1ae17ac67f2cebb5862d5e5bd80bc0</hash>
 				<remark>
@@ -1742,7 +1742,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">1ffef57e6c06068b330027294aae173103c8f141</hash>
 			</rom>
@@ -1845,7 +1845,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">208ce6cbff7402bfe52b1062e6b10ae09c0a3179</hash>
 			</rom>
@@ -1873,7 +1873,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">3d065377f11b23410282b6b76f26bd93b9d05184</hash>
 			</rom>
@@ -1888,7 +1888,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="crc32">775FE34E</hash>
 			</rom>
@@ -2597,7 +2597,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">4075ef9f51b4e010bd2481a648e05b2c29b3329d</hash>
 			</rom>
@@ -2910,7 +2910,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">a054ddeaf471212764cc596bcbd30e94b10e6c28</hash>
 			</rom>
@@ -3088,7 +3088,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">E73FB56555A7232758D4B5BF2DD6736C9B3D5358</hash>
 			</rom>
@@ -3212,7 +3212,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">ff5b12275950edae9ece3f49ed59402d47f23b1b</hash>
 			</rom>
@@ -3220,7 +3220,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">5d5dfe6cec605de421c3aed3a743d6840fec1457</hash>
 			</rom>
@@ -3333,7 +3333,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">d0e8bc3f5fd93dcd07cbb945b00018a491842242</hash>
 			</rom>
@@ -3341,7 +3341,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="crc32">73F3C7E2</hash>
 			</rom>
@@ -3349,7 +3349,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">3d2d0a2eb3d12fa67ecbbb90b7ac1bdc76ad8412</hash>
 			</rom>
@@ -3357,7 +3357,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">c6f090882886dcf783e5b65bff75c5e034fbb2eb</hash>
 			</rom>
@@ -3482,7 +3482,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">7c618058809302bc3553d6189bcf310f2e5b0e08</hash>
 			</rom>
@@ -3490,7 +3490,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">50eafa5d735af5b34d14f9f6b8c2d9cd2f0441db</hash>
 			</rom>
@@ -3498,7 +3498,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">6a4e8325d2174747d56cbe4c6803cbf40eb40a62</hash>
 			</rom>
@@ -4175,7 +4175,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">D31EB4FF4D6E4B3AF645F24388C734A1D00A0C47</hash>
 			</rom>
@@ -4190,7 +4190,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="crc32">1AC005A0</hash>
 			</rom>
@@ -4316,7 +4316,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">b5b28f53b16d43742d9d7daf5ee7dcf74b80e6c8</hash>
 			</rom>
@@ -4324,7 +4324,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">ded8d969542b7be02524037fa244e6648c3f4e03</hash>
 			</rom>
@@ -4332,7 +4332,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="crc32">CC79E505</hash>
 			</rom>
@@ -5067,7 +5067,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="crc32">570C1150</hash>
 				<remark>
@@ -5078,7 +5078,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">e4c8f3b87d755c21572040c51cec1431ae59a0be</hash>
 				<remark>
@@ -5096,7 +5096,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="crc32">51F7DDD1</hash>
 				<remark>
@@ -5501,7 +5501,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">1ce1ebbb0f62224aa776c4523e2ef708154e7b52</hash>
 			</rom>
@@ -5680,7 +5680,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">69bda8b4a96187597b95cd5c43e58da0716d0fc8</hash>
 			</rom>
@@ -6084,7 +6084,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">3ea788262557f578b25e4e36e61c1cf9fb1155d1</hash>
 			</rom>
@@ -6092,7 +6092,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">dcf79362f68853733326a22eb8fdafa17bca281e</hash>
 			</rom>
@@ -6100,7 +6100,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">acd46021a228b2b612c82d04c124b78e7d4c25e3</hash>
 			</rom>
@@ -6108,7 +6108,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">a6b77c5873f220c00578339761552e5ee82fab62</hash>
 			</rom>
@@ -6968,7 +6968,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="crc32">24783377</hash>
 			</rom>
@@ -7338,7 +7338,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">95ae5b3e24ad0bea21902cb7dfd3fd9581166a76</hash>
 			</rom>
@@ -7793,7 +7793,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">223337db25c942ece732214aba5dd624b574e9c4</hash>
 			</rom>
@@ -8223,7 +8223,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="crc32">33BE6192</hash>
 			</rom>
@@ -8939,7 +8939,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">15ca962994fd25a56bee2f543a83f133f9d2265f</hash>
 			</rom>
@@ -9088,7 +9088,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">4025045e93f51afd58545104cc2c897226febaf7</hash>
 			</rom>
@@ -9417,7 +9417,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">a66e19e58ac5b4da7db071ca7ead40c28a332198</hash>
 			</rom>
@@ -9863,7 +9863,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">7d0bb1dac966ceee2e4c53f77e6e057d65f15d4d</hash>
 			</rom>
@@ -9960,7 +9960,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">b2d9dcee787ace26f8f4d2d18e24a3d645a6f853</hash>
 			</rom>
@@ -10082,7 +10082,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">B76F2E8DF68968E3AF8A10F7E5966448D6665CB6</hash>
 			</rom>
@@ -10254,7 +10254,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">c1c350c719236af5eef8798c4532351befcfd348</hash>
 			</rom>
@@ -10466,7 +10466,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">ca05a183f4e7e56102706d1b9b852ad4350264ba</hash>
 			</rom>
@@ -10539,7 +10539,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="crc32">DE5206B9</hash>
 			</rom>
@@ -10560,7 +10560,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">85e3386d30dd9a64f4cc1bca03cff35b440f70b5</hash>
 			</rom>
@@ -10588,7 +10588,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">fb968a2407eee00c683af3ac19e88015341564ad</hash>
 			</rom>
@@ -11137,7 +11137,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">80c82bb4010476a679cb616ac31fc691b8e8a526</hash>
 			</rom>
@@ -11145,7 +11145,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">df13ed647ed4f5a6b04f1710fc1140ea65dc966f</hash>
 			</rom>
@@ -11153,7 +11153,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">27bc809518fbb6c0d52c949e7cbe81980a801d32</hash>
 			</rom>
@@ -11269,7 +11269,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">a6b2fdae9551ef3633926f6177c771d794d1e91b</hash>
 			</rom>
@@ -11284,7 +11284,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">aeb705ac42f8d9d62ecdb25899535d1f14f1c49c</hash>
 			</rom>
@@ -11545,7 +11545,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">a4f15647a4e50f1ca7777604df07267dbaa8e12c</hash>
 			</rom>
@@ -12293,7 +12293,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">c72af5118835e49ac6d181cc832336ab22ec5dcb</hash>
 			</rom>
@@ -12515,7 +12515,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">34544106fbd29b2a72e1e8c2e0f260b79a0b0883</hash>
 			</rom>
@@ -12779,7 +12779,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">c73d4c27aa2b0fb946e398323bd67d9e53c4f9ef</hash>
 			</rom>
@@ -13056,7 +13056,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">3c0263c152e0feaa93cb15bfa04eea61acb5236d</hash>
 			</rom>
@@ -13175,7 +13175,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">136d838cc1297940d96cd8e27aea9f9e3c7088a6</hash>
 			</rom>
@@ -13183,7 +13183,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">72845ccc50f714562ddb87f978c99b4076aa120a</hash>
 			</rom>
@@ -13191,7 +13191,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">12f7eafa2e41135173dafed907c8643cf5298d31</hash>
 			</rom>
@@ -13639,7 +13639,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">225894da7e3afabf33abf05e519e1f6bcac77a21</hash>
 			</rom>
@@ -13900,7 +13900,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">05d7016f39e94bf9fc33d0e8482ff3038d6e01bd</hash>
 			</rom>
@@ -13908,7 +13908,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="crc32">A82D11C7</hash>
 			</rom>
@@ -14455,7 +14455,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">b5cf03684c03dd74a9d5def34a4c2fc621c8b20d</hash>
 			</rom>
@@ -14947,7 +14947,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="crc32">28C5DBFA</hash>
 			</rom>
@@ -15020,7 +15020,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">dfd7ef6fd86efd5c8019b59d8fa5c5a47cf90cd0</hash>
 			</rom>
@@ -15048,7 +15048,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">4a35065d97d81a94a7649d19b3f9abd34f834eab</hash>
 			</rom>
@@ -15056,7 +15056,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">b1d515978727888ffe3eaf31caf296235893e01d</hash>
 			</rom>
@@ -15223,7 +15223,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="crc32">BCA34BAD</hash>
 			</rom>
@@ -15422,7 +15422,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">9b4da7636809d5690d6bd5d782ffa3cf9f4c63ec</hash>
 			</rom>
@@ -21104,7 +21104,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">2c9600c6e0025fee10d249e97448ecaa37e38c42</hash>
 			</systemrom>
@@ -21112,7 +21112,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">f8cd4c05083decfc098cff077e055a4ae1e91a73</hash>
 			</systemrom>
@@ -21141,7 +21141,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">4f2a7e0172f0214f025f23845f6e053d0ffd28e8</hash>
 			</systemrom>
 		</dump>
@@ -21169,7 +21169,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="crc32">C74C005C</hash>
 			</systemrom>
 		</dump>
@@ -21240,7 +21240,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">fb51c505adfbc174df94289fa894ef969f5357bc</hash>
 			</systemrom>
 		</dump>
@@ -21254,7 +21254,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">47a9d9a24e4fc6f9467c6e7d61a02d45f5a753ef</hash>
 			</systemrom>
@@ -21297,7 +21297,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">87936f808423dddfd00629056d6807b4be1dc63e</hash>
 			</systemrom>
@@ -21326,7 +21326,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">b6d3649a6647fa9f6bd61efc317485a20901128f</hash>
 			</systemrom>
 		</dump>
@@ -21354,7 +21354,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">6a50295ea35e720ba6f4ba5616c3441128b384ed</hash>
 			</systemrom>
@@ -21383,7 +21383,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">d41676fde0a3047792f93c4a41509b8749e55e74</hash>
 			</systemrom>
@@ -21391,7 +21391,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">4421fa2504cbce18f7c84b5ea97f04e017007f07</hash>
 			</systemrom>
@@ -21545,7 +21545,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="crc32">2852B383</hash>
 			</systemrom>
 		</dump>
@@ -21559,7 +21559,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="crc32">EC60596E</hash>
 			</systemrom>
 		</dump>
@@ -21573,7 +21573,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="crc32">5E1BA117</hash>
 			</systemrom>
 		</dump>
@@ -21587,7 +21587,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="crc32">DB9CB5EC</hash>
 			</systemrom>
@@ -21687,7 +21687,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">d4cea8c815f3eeabe0c6a1c845f902ec4318bf6b</hash>
 			</systemrom>
@@ -21695,7 +21695,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">91e22b727002ceeb0cf5fb1019a0c907c3cd24a5</hash>
 			</systemrom>
@@ -21755,7 +21755,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">4f41f85124a682b0243e9d64a5f7f6a99258ea20</hash>
 			</systemrom>
 		</dump>
@@ -21797,7 +21797,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">181bf58da7184e128cd419da3109b93344a543cf</hash>
 			</systemrom>
@@ -21805,7 +21805,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">b25b7fda37ba2a02362a45b2acdb2103f9a6e323</hash>
 			</systemrom>
@@ -21820,7 +21820,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">47370bec7ca1f0615a54eda548b07fbc0c7ef398</hash>
 			</systemrom>
@@ -21828,7 +21828,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">c279c3f41d5368761f9088157b80214d835a548c</hash>
 			</systemrom>
@@ -21843,7 +21843,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">ebd1f02fa4e5f165d756ab78864f882022ede844</hash>
 			</systemrom>
@@ -21927,7 +21927,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">5f2ab7f9c4e8218b956dd76f3706e9e7de3361f3</hash>
 			</systemrom>
 		</dump>
@@ -21996,7 +21996,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">77bd67d5d10d459d343e79eafcd8e17eb0f209dd</hash>
 			</systemrom>
@@ -22011,7 +22011,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">931d6318774bd495a32ec3dabf8d0edfc9913324</hash>
 			</systemrom>
 		</dump>
@@ -22053,7 +22053,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">3f047469b62d93904005a0ea29092e892724ce0b</hash>
 			</systemrom>
 		</dump>
@@ -22081,7 +22081,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">df07e89fa0b1c7874f9cdf184c136f964fea4ff4</hash>
 			</systemrom>
 		</dump>
@@ -22095,7 +22095,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">c63db26660da96af56f8a7d3ea18544b9ae5a37c</hash>
 			</systemrom>
 		</dump>
@@ -22137,7 +22137,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">6442c1c5cece64c6dae90cc6ae3675f070d93e06</hash>
 			</systemrom>
 		</dump>
@@ -22151,7 +22151,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">4c8ea05c09b40c41888fa18db065575a317fda16</hash>
 			</systemrom>
 		</dump>
@@ -22165,7 +22165,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">3ce8e35790eb4689b21e14c7ecdd4b63943ee158</hash>
 			</systemrom>
 		</dump>
@@ -22179,7 +22179,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">b8e30d604d319d511cbfbc61e5d8c38fbb9c5a33</hash>
 			</systemrom>
 		</dump>
@@ -22221,7 +22221,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">31292b9ca9fe7d1d8833530f44c0a5671bfefe4e</hash>
 			</systemrom>
 		</dump>
@@ -22235,7 +22235,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">02155fc25c9bd23e1654fe81c74486351e1ecc28</hash>
 			</systemrom>
 		</dump>
@@ -22249,7 +22249,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">3a9a942ed888dd641cddf8deada1879c454df3c6</hash>
 			</systemrom>
@@ -22264,7 +22264,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">0fbd45ef3dd7bb82d4c31f1947884f411f1ca344</hash>
 			</systemrom>
 		</dump>
@@ -22306,7 +22306,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">f5af1d2a8bcf247f78847e1a9d995e581df87e8e</hash>
 			</systemrom>
 		</dump>
@@ -22348,7 +22348,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">98bbfa3ab07b7a5cad55d7ddf7cbd9440caa2a86</hash>
 			</systemrom>
 		</dump>
@@ -22362,7 +22362,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">b677a861b67e8763a11d5dcf52416b42493ade57</hash>
 			</systemrom>
 		</dump>
@@ -22390,7 +22390,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">4be8371f3b03e70ddaca495958345f3c4f8e2d36</hash>
 			</systemrom>
 		</dump>
@@ -22452,7 +22452,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">352ec8c99fe1397a88ecb3aee6dbb4d121c818e9</hash>
 				<remark>
 					<text>KMcs - MSX Club Gouda</text>
@@ -22501,7 +22501,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">63098f27beac9eca6b39d837d2a552395df33fe1</hash>
 			</systemrom>
@@ -22516,7 +22516,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">7f5b76605e3d898cc4b5aacf1d7682b82fe84353</hash>
 			</systemrom>
@@ -22531,7 +22531,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">2752cd89754c05abdf7c23cba132d38e3ef0f27d</hash>
 			</systemrom>
@@ -22546,7 +22546,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">e194d290ebfa4595ce0349ea2fc15442508485b0</hash>
 			</systemrom>
@@ -22561,7 +22561,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">a3f4e2e4934074925d775afe30ac72f150ede543</hash>
 			</systemrom>
@@ -22576,7 +22576,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">4a99f2444f29c2b642efd6f084081d6fd96bfa9b</hash>
 			</systemrom>
@@ -22591,7 +22591,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">ea35cc2cad9cfdf56cae224d8ee41579de37f000</hash>
 			</systemrom>
@@ -22648,7 +22648,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">a11949a2072d5a2f58cb63e934877bac46809285</hash>
 			</systemrom>
@@ -22684,7 +22684,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">d552319a19814494e3016de4b8f010e8f7b97e02</hash>
 			</systemrom>
 		</dump>
@@ -22698,7 +22698,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">9d67fab55b85f4ac4f5924323a70020eb8589057</hash>
 			</systemrom>
@@ -22727,7 +22727,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">fe0254cbfc11405b79e7c86c7769bd6322b04995</hash>
 			</systemrom>
 		</dump>
@@ -22776,7 +22776,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">1ef3956f7f918873fb9b031339bba45d1e5e5878</hash>
 			</systemrom>
@@ -22847,7 +22847,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">b4433a3975c57dd440d6bf12dbd28b2ac1b90ef4</hash>
 			</systemrom>
@@ -22862,7 +22862,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">242e73d8284a012b275c0a266844ebbc4269d787</hash>
 			</systemrom>
 		</dump>
@@ -22876,7 +22876,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">018d7a5222f28514908fb1b1513286a6558a6d05</hash>
 			</systemrom>
 		</dump>
@@ -22890,7 +22890,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">5b39c1ccd3a213b78e02927f56a9abc72cd8c28d</hash>
 			</systemrom>
@@ -22975,7 +22975,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="crc32">C6A4A2A1</hash>
 			</systemrom>
@@ -22990,7 +22990,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">f078b5ec56884bfb81481d45c7151418770bff5a</hash>
 			</systemrom>
 		</dump>
@@ -23004,7 +23004,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">373412f9c32762de1c3a7e27fc3d80614e0a0c8e</hash>
 			</systemrom>
 		</dump>
@@ -23067,7 +23067,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">dcc3a67732aa01c4f2ee8d1ad886444a4dbafe06</hash>
 			</systemrom>
@@ -23242,7 +23242,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">7cc524ba5002b92fb285ac86eaae8fde16ee027e</hash>
 			</systemrom>
 		</dump>
@@ -23269,7 +23269,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">f081a884505af9a1080b2b57e86b6da93b784301</hash>
 			</systemrom>
@@ -23316,7 +23316,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">f5eb0a396097572589f2a6efeed045044e9425e4</hash>
 			</systemrom>
 		</dump>
@@ -23358,7 +23358,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">e7905d16d2ccd57a013c122dc432106cd59ef52c</hash>
 			</systemrom>
 		</dump>
@@ -23400,7 +23400,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="crc32">781BA055</hash>
 			</systemrom>
 		</dump>
@@ -23414,7 +23414,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">5c1f9c7fb655e43d38e5dd1fcc6b942b2ff68b02</hash>
 			</systemrom>
 		</dump>
@@ -23443,7 +23443,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">4ab7b2030d022f5486abaab22aaeaf8aa23e05f3</hash>
 				<remark>
 					<text>Ge</text>
@@ -23531,7 +23531,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="crc32">90B8A114</hash>
 			</systemrom>
@@ -23545,7 +23545,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">92a433e877626461a6481ca75c252e643752f0c4</hash>
 			</systemrom>
@@ -23553,7 +23553,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">7aec0134ad6a5177f4056fcb6047083e8e00529b</hash>
 			</systemrom>
@@ -23568,7 +23568,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">5d387d26b36347ff68a07d6ae98a95d71efc0727</hash>
 			</systemrom>
@@ -23583,7 +23583,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">db07b3da69674e36356bc78caa2ac524dee26477</hash>
 			</systemrom>
@@ -23598,7 +23598,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">868dd14480f716e02453d0afac6a09d6a7f10853</hash>
 			</systemrom>
@@ -23613,7 +23613,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">d74885c9739159805bc9fa66163c56c6a0daa5fb</hash>
 			</systemrom>
@@ -23653,7 +23653,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">40348c56add3cf5a4b40b8cbc94a39e0ec94ff0a</hash>
 			</systemrom>
 		</dump>
@@ -23667,7 +23667,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="crc32">90CA25B5</hash>
 			</systemrom>
 		</dump>
@@ -23744,7 +23744,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">22b3191d865010264001b9d896186a9818478a6b</hash>
 			</systemrom>
@@ -23801,7 +23801,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="crc32">74567244</hash>
 			</systemrom>
@@ -23816,7 +23816,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">e84d3ec7a595ee36b50e979683c84105c1871857</hash>
 			</systemrom>
@@ -23844,7 +23844,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">97ce59892573cac3c440efff6d74c8a1c29a5ad3</hash>
 				<remark>
@@ -23878,7 +23878,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">b262aedc71b445303f84efe5e865cbb71fd7d952</hash>
 			</systemrom>
@@ -23893,7 +23893,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">9db72bb78792595a12499c821048504dc96ef848</hash>
 			</systemrom>
@@ -23908,7 +23908,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">aa78fc9bcd2343f84cf790310a768ee47f90c841</hash>
 			</systemrom>
@@ -23923,7 +23923,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">58accf41a90693874b86ce98d8d43c27beb8b6dc</hash>
 			</systemrom>
@@ -23938,7 +23938,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="crc32">DCACF970</hash>
 			</systemrom>
@@ -23953,7 +23953,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="crc32">B0241A61</hash>
 			</systemrom>
@@ -23968,7 +23968,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="crc32">44A10E6A</hash>
 			</systemrom>
@@ -24151,7 +24151,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">3288894e1be6af705871499b23c85732dbc40993</hash>
 			</systemrom>
 		</dump>
@@ -24179,7 +24179,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">792e6b2814ab783d06c7576c1e3ccd6a9bbac34a</hash>
 			</systemrom>
 		</dump>
@@ -24221,7 +24221,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">1e9a955943aeea9b1807ddf1250ba6436d8dd276</hash>
 			</systemrom>
 		</dump>
@@ -24249,7 +24249,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">558b7383544542cf7333700ff90c3efbf93ba2a3</hash>
 			</systemrom>
@@ -24264,7 +24264,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">2d1880d1f5a6944fcb1b198b997a3d90ecd1903d</hash>
 			</systemrom>
@@ -24279,7 +24279,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">8cc1f7ceeef745bb34e80253971e137213671486</hash>
 			</systemrom>
@@ -24294,7 +24294,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">7b4a96402847decfc110ff9eda713bdcd218bd83</hash>
 			</systemrom>
 		</dump>
@@ -24308,7 +24308,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="crc32">06CF1DA6</hash>
 			</systemrom>
@@ -24323,7 +24323,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="crc32">D0417C20</hash>
 			</systemrom>
@@ -24442,7 +24442,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="crc32">3353DCC6</hash>
 			</systemrom>
@@ -24450,7 +24450,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">9de525e042d7345f6b725a696bd1b6fef69ecbf1</hash>
 			</systemrom>
@@ -24481,7 +24481,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="crc32">871D364B</hash>
 			</systemrom>
 		</dump>
@@ -24510,7 +24510,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="crc32">094A9E7A</hash>
 				<remark>
 					<text>Ag</text>
@@ -24542,7 +24542,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="crc32">4FB8FAB3</hash>
 				<remark>
@@ -24601,7 +24601,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">0d246b0e3edc63803fcce861ea07eadf29dc488c</hash>
 			</systemrom>
@@ -24652,7 +24652,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="crc32">196FBEB6</hash>
 				<remark>
@@ -24685,7 +24685,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<hash algo="sha1">03bf6d2ac86f5c9ab618e155442787c700f99fed</hash>
 				<remark>
 					<text>Ru</text>
@@ -24717,7 +24717,7 @@
 		<dump>
 			<original value="false"/>
 			<systemrom>
-				<type>normal</type>
+				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="crc32">31CFB0E9</hash>
 				<remark>
