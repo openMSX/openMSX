@@ -54,7 +54,7 @@ vector<Display::LayerInfo*>::iterator Display::baseLayer()
 	}
 }
 
-bool Display::signalEvent(const Event& event)
+bool Display::signalEvent(const Event& /*event*/)
 {
 	repaint();
 	return true;

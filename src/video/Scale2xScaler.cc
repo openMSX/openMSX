@@ -77,13 +77,13 @@ void Scale2xScaler<Pixel>::scale256(
 {
 	int prevY = srcY;
 	while (srcY < endSrcY) {
-		Pixel* srcPrev = linePtr(src, prevY);
-		Pixel* srcCurr = linePtr(src, srcY);
-		Pixel* srcNext = linePtr(src, min(srcY + 1, endSrcY - 1));
-		Pixel* dstUpper = linePtr(dst, dstY++);
+		Pixel* srcPrev = Scaler<Pixel>::linePtr(src, prevY);
+		Pixel* srcCurr = Scaler<Pixel>::linePtr(src, srcY);
+		Pixel* srcNext = Scaler<Pixel>::linePtr(src, min(srcY + 1, endSrcY - 1));
+		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, dstY++);
 		scaleLine256Half(dstUpper, srcPrev, srcCurr, srcNext, 320);
 		if (dstY == dst->h) break;
-		Pixel* dstLower = linePtr(dst, dstY++);
+		Pixel* dstLower = Scaler<Pixel>::linePtr(dst, dstY++);
 		scaleLine256Half(dstLower, srcNext, srcCurr, srcPrev, 320);
 		prevY = srcY;
 		srcY++;

@@ -254,12 +254,12 @@ void SaI2xScaler<Pixel>::scale256(
 {
 	assert(dst->w == WIDTH256 * 2);
 	for (int y = srcY; y < endSrcY; y++) {
-		const Pixel* srcLine0 = linePtr(src, max(y - 1, srcY));
-		const Pixel* srcLine1 = linePtr(src, y);
-		const Pixel* srcLine2 = linePtr(src, min(y + 1, endSrcY - 1));
-		const Pixel* srcLine3 = linePtr(src, min(y + 2, endSrcY - 1));
-		Pixel* dstUpper = linePtr(dst, dstY++);
-		Pixel* dstLower = linePtr(dst, min(dstY++, HEIGHT - 1));
+		const Pixel* srcLine0 = Scaler<Pixel>::linePtr(src, max(y - 1, srcY));
+		const Pixel* srcLine1 = Scaler<Pixel>::linePtr(src, y);
+		const Pixel* srcLine2 = Scaler<Pixel>::linePtr(src, min(y + 1, endSrcY - 1));
+		const Pixel* srcLine3 = Scaler<Pixel>::linePtr(src, min(y + 2, endSrcY - 1));
+		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, dstY++);
+		Pixel* dstLower = Scaler<Pixel>::linePtr(dst, min(dstY++, HEIGHT - 1));
 		
 		scaleLine256(
 			srcLine0, srcLine1, srcLine2, srcLine3, dstUpper, dstLower );
@@ -273,12 +273,12 @@ void SaI2xScaler<Pixel>::scale512(
 {
 	assert(dst->w == WIDTH512);
 	for (int y = srcY; y < endSrcY; y++) {
-		const Pixel* srcLine0 = linePtr(src, max(y - 1, srcY));
-		const Pixel* srcLine1 = linePtr(src, y);
-		const Pixel* srcLine2 = linePtr(src, min(y + 1, endSrcY - 1));
-		const Pixel* srcLine3 = linePtr(src, min(y + 2, endSrcY - 1));
-		Pixel* dstUpper = linePtr(dst, dstY++);
-		Pixel* dstLower = linePtr(dst, min(dstY++, HEIGHT - 1));
+		const Pixel* srcLine0 = Scaler<Pixel>::linePtr(src, max(y - 1, srcY));
+		const Pixel* srcLine1 = Scaler<Pixel>::linePtr(src, y);
+		const Pixel* srcLine2 = Scaler<Pixel>::linePtr(src, min(y + 1, endSrcY - 1));
+		const Pixel* srcLine3 = Scaler<Pixel>::linePtr(src, min(y + 2, endSrcY - 1));
+		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, dstY++);
+		Pixel* dstLower = Scaler<Pixel>::linePtr(dst, min(dstY++, HEIGHT - 1));
 		
 		scaleLine512(
 			srcLine0, srcLine1, srcLine2, srcLine3, dstUpper, dstLower );

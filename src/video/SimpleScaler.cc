@@ -25,10 +25,10 @@ void SimpleScaler<Pixel>::scale256(
 	const int WIDTH = 320; // TODO: Specify this in a clean way.
 	assert(dst->w == WIDTH * 2);
 	while (srcY < endSrcY) {
-		const Pixel* srcLine = linePtr(src, srcY++);
-		Pixel* dstUpper = linePtr(dst, dstY++);
+		const Pixel* srcLine = Scaler<Pixel>::linePtr(src, srcY++);
+		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, dstY++);
 		Pixel* dstLower =
-			dstY == dst->h ? dstUpper : linePtr(dst, dstY++);
+			dstY == dst->h ? dstUpper : Scaler<Pixel>::linePtr(dst, dstY++);
 		for (int x = 0; x < WIDTH; x++) {
 			dstUpper[x * 2] = dstUpper[x * 2 + 1] =
 			dstLower[x * 2] = dstLower[x * 2 + 1] =
@@ -43,9 +43,9 @@ void SimpleScaler<Pixel>::scale512(
 	SDL_Surface* dst, int dstY )
 {
 	while (srcY < endSrcY) {
-		copyLine(src, srcY, dst, dstY++);
+		Scaler<Pixel>::copyLine(src, srcY, dst, dstY++);
 		if (dstY == dst->h) break;
-		copyLine(src, srcY, dst, dstY++);
+		Scaler<Pixel>::copyLine(src, srcY, dst, dstY++);
 		srcY++;
 	}
 }
