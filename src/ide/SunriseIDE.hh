@@ -4,7 +4,7 @@
 #define __SunriseIDE_HH__
 
 #include "MSXMemDevice.hh"
-#include "MSXRomDevice.hh"
+#include "Rom.hh"
 
 class IDEDevice;
 
@@ -34,7 +34,7 @@ class SunriseIDE : public MSXMemDevice
 		void writeData(word value, const EmuTime &time);
 		void writeReg(nibble reg, byte value, const EmuTime &time);
 
-		MSXRomDevice rom;
+		Rom rom;
 		const byte* internalBank;
 		bool ideRegsEnabled;
 		bool softReset;

@@ -7,7 +7,7 @@
 #include "config.h"
 #endif
 
-#include "MSXRomDevice.hh"
+#include "Rom.hh"
 #include "MSXMemDevice.hh"
 #include "RomTypes.hh"
 #include "CommandLineParser.hh"
@@ -87,7 +87,7 @@ class MSXRom : public MSXMemDevice
 		byte *internalMemoryBank[16];	// 16 blocks of 4kB
 		byte *unmapped;
 		
-		MSXRomDevice rom;
+		Rom rom;
 		SRAM *sram;
 		byte regioSRAM;	//bit n=1 => SRAM in [n*0x2000, (n+1)*0x2000)
 

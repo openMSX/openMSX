@@ -10,13 +10,13 @@ class MSXRomPatchInterface;
 class File;
 
 
-class MSXRomDevice
+class Rom
 {
 	public:
-		MSXRomDevice(Device *config, const EmuTime &time);
-		MSXRomDevice(Device *config, const std::string &filename,
+		Rom(Device *config, const EmuTime &time);
+		Rom(Device *config, const std::string &filename,
 		             const EmuTime &time);
-		virtual ~MSXRomDevice();
+		virtual ~Rom();
 
 		byte read(unsigned int address) const {
 			assert(address < size);

@@ -4,7 +4,7 @@
 #define __MSXKANJI_HH__
 
 #include "MSXIODevice.hh"
-#include "MSXRomDevice.hh"
+#include "Rom.hh"
 
 
 class MSXKanji : public MSXIODevice
@@ -25,7 +25,7 @@ class MSXKanji : public MSXIODevice
 		virtual void reset(const EmuTime &time);
 
 	private:
-		MSXRomDevice rom;
+		Rom rom;
 		int adr1, adr2;
 };
 

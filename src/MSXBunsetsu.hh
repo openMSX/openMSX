@@ -4,7 +4,7 @@
 #define __MSXBUNSETSU_HH__
 
 #include "MSXMemDevice.hh"
-#include "MSXRomDevice.hh"
+#include "Rom.hh"
 
 
 class MSXBunsetsu : public MSXMemDevice
@@ -20,8 +20,8 @@ class MSXBunsetsu : public MSXMemDevice
 		virtual const byte* getReadCacheLine(word start) const;
 
 	private:
-		MSXRomDevice rom;
-		MSXRomDevice jisyoRom;
+		Rom rom;
+		Rom jisyoRom;
 		int jisyoAddress;
 };
 #endif

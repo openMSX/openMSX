@@ -8,11 +8,11 @@ DriveMultiplexer::DriveMultiplexer(DiskDrive* drv[4])
 	motor = false;
 	side = false;
 	selected = NO_DRIVE;
-	this->drive[DRIVE_A]  = drv[0];
-	this->drive[DRIVE_B]  = drv[1];
-	this->drive[DRIVE_C]  = drv[2];
-	this->drive[DRIVE_D]  = drv[3];
-	this->drive[NO_DRIVE] = new DummyDrive();
+	drive[DRIVE_A]  = drv[0];
+	drive[DRIVE_B]  = drv[1];
+	drive[DRIVE_C]  = drv[2];
+	drive[DRIVE_D]  = drv[3];
+	drive[NO_DRIVE] = new DummyDrive();
 }
 
 DriveMultiplexer::~DriveMultiplexer()

@@ -9,7 +9,7 @@
 
 #include "MSXIODevice.hh"
 #include "MSXMemDevice.hh"
-#include "MSXRomDevice.hh"
+#include "Rom.hh"
 
 class YM2413;
 
@@ -29,7 +29,7 @@ class MSXMusic : public MSXIODevice, MSXMemDevice
 		void writeRegisterPort(byte value, const EmuTime &time);
 		void writeDataPort(byte value, const EmuTime &time);
 
-		MSXRomDevice rom;
+		Rom rom;
 		YM2413 *ym2413;
 
 	private:

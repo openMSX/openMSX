@@ -4,7 +4,7 @@
 #define __MSXFDC_HH__
 
 #include "MSXMemDevice.hh"
-#include "MSXRomDevice.hh"
+#include "Rom.hh"
 
 class DiskDrive;
 
@@ -19,7 +19,7 @@ class MSXFDC : public MSXMemDevice
 		virtual const byte* getReadCacheLine(word start) const;
 	
 	protected:
-		MSXRomDevice rom;
+		Rom rom;
 		DiskDrive* drives[4];
 };
 #endif

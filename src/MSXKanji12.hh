@@ -4,7 +4,7 @@
 #define __MSXKANJI12_HH__
 
 #include "MSXDevice.hh"
-#include "MSXRomDevice.hh"
+#include "Rom.hh"
 #include "MSXDeviceSwitch.hh"
 
 
@@ -19,7 +19,7 @@ class MSXKanji12 : public MSXDevice, public MSXSwitchedDevice
 		virtual void writeIO(byte port, byte value, const EmuTime &time);
 
 	private:
-		MSXRomDevice rom;
+		Rom rom;
 		int adr;
 		int size;
 };

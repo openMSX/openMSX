@@ -2,7 +2,7 @@
 
 #include <string>
 #include "MSXConfig.hh"
-#include "MSXRomDevice.hh"
+#include "Rom.hh"
 #include "MSXDiskRomPatch.hh"
 #include "MSXTapePatch.hh"
 #include "MSXCPUInterface.hh"
@@ -10,7 +10,7 @@
 #include "File.hh"
 
 
-MSXRomDevice::MSXRomDevice(Device* config, const EmuTime &time)
+Rom::Rom(Device* config, const EmuTime &time)
 {
 	if (config->hasParameter("filename")) {
 		std::string filename = config->getParameter("filename");
@@ -21,13 +21,13 @@ MSXRomDevice::MSXRomDevice(Device* config, const EmuTime &time)
 	}
 }
 
-MSXRomDevice::MSXRomDevice(Device* config, const std::string &filename,
+Rom::Rom(Device* config, const std::string &filename,
                            const EmuTime &time)
 {
 	read(config, filename, time);	// TODO config
 }
 
-void MSXRomDevice::read(Device* config,
+void Rom::read(Device* config,
                         const std::string &filename, const EmuTime &time)
 {
 	// open file
@@ -102,7 +102,7 @@ void MSXRomDevice::read(Device* config,
 }
 
 
-MSXRomDevice::~MSXRomDevice()
+Rom::~Rom()
 {
 	std::list<MSXRomPatchInterface*>::iterator i;
 	for (i=romPatchInterfaces.begin(); i!=romPatchInterfaces.end(); i++) {
