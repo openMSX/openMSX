@@ -48,6 +48,8 @@ class EventDistributor : public Runnable , private Schedulable
 		 */
 		void registerAsyncListener(int type, EventListener *listener);
 
+		enum handled {};	// to throw
+
 	private:
 		EventDistributor();
 		static EventDistributor *oneInstance;

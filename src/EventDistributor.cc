@@ -37,35 +37,38 @@ void EventDistributor::run()
 {
 	SDL_Event event;
 	while (SDL_WaitEvent(&event)) {
-		PRT_DEBUG("SDL event received");
+		try {
+			PRT_DEBUG("SDL event received");
 		
-		std::multimap<int, EventListener*>::iterator it;
+			std::multimap<int, EventListener*>::iterator it;
 
-		asyncMutex.grab();
-		for (it = asyncMap.lower_bound(event.type);
-		     (it != asyncMap.end()) && (it->first == event.type);
-		     it++) {
-			it->second->signalEvent(event);
-		}
-		asyncMutex.release();
+			asyncMutex.grab();
+			for (it = asyncMap.lower_bound(event.type);
+			     (it != asyncMap.end()) && (it->first == event.type);
+			     it++) {
+				it->second->signalEvent(event);
+			}
+			asyncMutex.release();
 
-		bool anySync = false;
-		syncMutex.grab();
-		queueMutex.grab();
-		for (it = syncMap.lower_bound(event.type);
-		     (it != syncMap.end()) && (it->first == event.type);
-		     it++) {
-			//it->second->signalEvent(event);
-			queue.push(std::pair<SDL_Event, EventListener*>(event, it->second));
-			anySync = true;
+			bool anySync = false;
+			syncMutex.grab();
+			queueMutex.grab();
+			for (it = syncMap.lower_bound(event.type);
+			     (it != syncMap.end()) && (it->first == event.type);
+			     it++) {
+				//it->second->signalEvent(event);
+				queue.push(std::pair<SDL_Event, EventListener*>(event, it->second));
+				anySync = true;
+			}
+			queueMutex.release();
+			syncMutex.release();
+			if (anySync) {
+				Scheduler::instance()->removeSyncPoint(this);
+				EmuTime zero; // 0
+				Scheduler::instance()->setSyncPoint(zero, this);
+			}
 		}
-		queueMutex.release();
-		syncMutex.release();
-		if (anySync) {
-			Scheduler::instance()->removeSyncPoint(this);
-			EmuTime zero; // 0
-			Scheduler::instance()->setSyncPoint(zero, this);
-		}
+		catch (handled) {}
 	}
 	PRT_ERROR("Error while waiting for event");
 }

@@ -1,3 +1,6 @@
+#ifndef _FILETYPE_HH
+#define _FILETYPE_HH
+
 #include <fstream>
 
 #ifdef HAVE_FSTREAM_TEMPL
@@ -49,7 +52,9 @@
 	#define OFILETYPE OFileType
 	#define IOFILETYPE IOFileType
 #else
-	#define IFILETYPE ifstream
-	#define OFILETYPE ofstream
-	#define IOFILETYPE fstream
+	#define IFILETYPE std::ifstream
+	#define OFILETYPE std::ofstream
+	#define IOFILETYPE std::fstream
 #endif
+
+#endif	// ndef _FILETYPE_HH

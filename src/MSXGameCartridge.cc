@@ -319,6 +319,7 @@ int MSXGameCartridge::guessMapperType()
 					break;
 				case 0x77FF:
 					typeGuess[5]++;
+					break;
 				default:
 					if (value > 0xB000 && value < 0xC000) typeGuess[6]++;
 				}

@@ -88,6 +88,7 @@ void SDLConsole::signalEvent(SDL_Event &event)
 				normalKey((char)event.key.keysym.unicode);
 	}
 	updateConsole();
+	throw EventDistributor::handled();
 }
 
 /* setAlphaGL() -- sets the alpha channel of an SDL_Surface to the

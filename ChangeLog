@@ -1,5 +1,8 @@
 $Id$
 
+2002-05-08 Bas Wijnen <b.wijnen@student.rug.nl>
+	* fixed console-key-pass-bug and some minor things
+
 2002-05-05 Bas Wijnen <b.wijnen@student.rug.nl>
 	* Game Master 2 is working with SRAM and guessing.
 
