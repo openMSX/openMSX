@@ -13,7 +13,7 @@ DiskImageCLI::DiskImageCLI()
 	CommandLineParser::instance()->registerOption("-diska", this);
 	CommandLineParser::instance()->registerOption("-diskb", this);
 
-	CommandLineParser::instance()->registerFileType("diskimages", this);
+	CommandLineParser::instance()->registerFileClass("diskimages", this);
 	driveLetter = 'a';
 }
 

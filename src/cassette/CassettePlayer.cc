@@ -21,7 +21,7 @@ MSXCassettePlayerCLI msxCassettePlayerCLI;
 MSXCassettePlayerCLI::MSXCassettePlayerCLI()
 {
 	CommandLineParser::instance()->registerOption("-cassetteplayer", this);
-	CommandLineParser::instance()->registerFileType("rawtapeimages", this);
+	CommandLineParser::instance()->registerFileClass("rawtapeimages", this);
 }
 
 bool MSXCassettePlayerCLI::parseOption(const string &option,

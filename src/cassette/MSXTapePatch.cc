@@ -14,7 +14,7 @@ MSXCasCLI msxCasCLI;
 MSXCasCLI::MSXCasCLI()
 {
 	CommandLineParser::instance()->registerOption("-cas", this);
-	CommandLineParser::instance()->registerFileType("cassetteimages", this);
+	CommandLineParser::instance()->registerFileClass("cassetteimages", this);
 }
 
 bool MSXCasCLI::parseOption(const string &option,

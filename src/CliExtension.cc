@@ -17,13 +17,12 @@ namespace openmsx {
 
 CliExtension::CliExtension()
 {
-	CommandLineParser::instance()->
-		registerOption(string("-ext"), this);
+	CommandLineParser::instance()->registerOption("-ext", this);
 
 	SystemFileContext context;
-	const vector<string> &paths = context.getPaths();
-	vector<string>::const_iterator it;
-	for (it = paths.begin(); it != paths.end(); it++) {
+	const vector<string>& paths = context.getPaths();
+	for (vector<string>::const_iterator it = paths.begin();
+	     it != paths.end(); ++it) {
 		string path = FileOperations::expandTilde(*it);
 		createExtensions(path + "share/extensions/");
 	}
@@ -56,7 +55,7 @@ const string& CliExtension::optionHelp() const
 }
 
 
-int select(const struct dirent* d)
+static int select(const struct dirent* d)
 {
 	struct stat s;
 	// entry must be a directory
@@ -78,7 +77,7 @@ int select(const struct dirent* d)
 	return 1;
 }
 
-void CliExtension::createExtensions(const string &basepath)
+void CliExtension::createExtensions(const string& basepath)
 {
 	char buf[PATH_MAX];
 	if (!getcwd(buf, PATH_MAX)) {
@@ -96,10 +95,7 @@ void CliExtension::createExtensions(const string &basepath)
 				string name(d->d_name);
 				string path(basepath + name +
 				                       "/hardwareconfig.xml");
-				if (extensions.find(name) == extensions.end()) {
-					// doesn't already exists
-					extensions[name] = path;
-				}
+				extensions[name] = path;
 			}
 			d = readdir(dir);
 		}

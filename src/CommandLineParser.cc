@@ -46,8 +46,8 @@ CommandLineParser::CommandLineParser()
 	haveSettings = false;
 	issuedHelp = false;
 
+	fileTypeMap["xml"] = &configFile;
 	registerOption("-config",  &configFile, 2);
-	registerFileType(".xml",   &configFile);
 	registerOption("-machine", &machineOption, 3);
 	registerOption("-setting", &settingOption, 2);
 	registerOption("-h",       &helpOption, 1, 1); 
@@ -63,35 +63,27 @@ void CommandLineParser::registerOption(const string &str, CLIOption* cliOption, 
 	optionMap[str] = temp;
 }
 
-void CommandLineParser::registerFileType(const string &str,
+void CommandLineParser::registerFileClass(const string &str,
 		CLIFileType* cliFileType)
 {
-	if (str[0] == '.') {
-		// a real extention
-		fileTypeMap[str.substr(1)] = cliFileType;
-	} else {
-		// or a file class
-		fileClassMap[str] = cliFileType;
-	}
+	fileClassMap[str] = cliFileType;
 }
 
 void CommandLineParser::postRegisterFileTypes()
 {
-	list<Config::Parameter*> *extensions;
-	map<string, CLIFileType*, caseltstr>::const_iterator i;
 	try {
 		Config *config = MSXConfig::instance()->getConfigById("FileTypes");
-		for (i = fileClassMap.begin(); i != fileClassMap.end(); i++) {
-			extensions = config->getParametersWithClass(i->first);
-			list<Config::Parameter*>::const_iterator j;
-			for (j = extensions->begin(); j != extensions->end(); j++) {
+		for (map<string, CLIFileType*, caseltstr>::const_iterator i = fileClassMap.begin();
+		     i != fileClassMap.end(); ++i) {
+			list<Config::Parameter*> *extensions = config->getParametersWithClass(i->first);
+			for (list<Config::Parameter*>::const_iterator j = extensions->begin();
+			     j != extensions->end(); ++j) {
 				fileTypeMap[(*j)->value] = i->second;
 			}
 			config->getParametersWithClassClean(extensions);
 		}
 	} catch (ConfigException &e) {
-		map<string,string> fileExtMap;
-		map<string,string>::const_iterator j;
+		map<string, string> fileExtMap;
 		fileExtMap["rom"] = "romimages";
 		fileExtMap["dsk"] = "diskimages";
 		fileExtMap["di1"] = "diskimages";
@@ -99,8 +91,10 @@ void CommandLineParser::postRegisterFileTypes()
 		fileExtMap["xsa"] = "diskimages";
 		fileExtMap["cas"] = "cassetteimages";
 		fileExtMap["wav"] = "cassettesounds";
-		for (j = fileExtMap.begin(); j != fileExtMap.end(); j++) {
-			i = fileClassMap.find((*j).second);
+		for (map<string, string>::const_iterator j = fileExtMap.begin();
+		     j != fileExtMap.end(); ++j) {
+			map<string, CLIFileType*, caseltstr>::const_iterator i =
+				fileClassMap.find((*j).second);
 			if (i != fileClassMap.end()) {
 				fileTypeMap[j->first] = i->second;
 			}
@@ -108,10 +102,9 @@ void CommandLineParser::postRegisterFileTypes()
 	}
 }
 
-bool CommandLineParser::parseOption(const string &arg,list<string> &cmdLine, byte priority)
+bool CommandLineParser::parseOption(const string& arg, list<string>& cmdLine, byte priority)
 {
-	map<string, OptionData>::const_iterator it1;
-	it1 = optionMap.find(arg);
+	map<string, OptionData>::const_iterator it1 = optionMap.find(arg);
 	if (it1 != optionMap.end()) {
 		// parse option
 		if (it1->second.prio <= priority) {
@@ -121,7 +114,7 @@ bool CommandLineParser::parseOption(const string &arg,list<string> &cmdLine, byt
 	return false; // unknown
 }
 
-bool CommandLineParser::parseFileName(const string &arg, list<string>& cmdLine)
+bool CommandLineParser::parseFileName(const string& arg, list<string>& cmdLine)
 {
 	unsigned begin = arg.find_last_of('.');
 	if (begin != string::npos) {
@@ -141,8 +134,8 @@ bool CommandLineParser::parseFileName(const string &arg, list<string>& cmdLine)
 				extension = arg.substr(begin + 1, end - begin - 1);
 			}
 		}
-		map<string, CLIFileType*>::const_iterator it2;
-		it2 = fileTypeMap.find(extension);
+		map<string, CLIFileType*>::const_iterator it2 =
+			fileTypeMap.find(extension);
 		if (it2 != fileTypeMap.end()) {
 			// parse filetype
 			it2->second->parseFileType(arg);
@@ -160,7 +153,9 @@ void CommandLineParser::registerPostConfig(CLIPostConfig *post)
 
 void CommandLineParser::parse(int argc, char **argv)
 {
-	CliExtension extension;
+	MSXConfig *config = MSXConfig::instance();
+	
+	CliExtension extension; // for -ext option
 	
 	list<string> cmdLine;
 	list<string> backupCmdLine;
@@ -170,50 +165,45 @@ void CommandLineParser::parse(int argc, char **argv)
 
 	for (int priority = 1; priority <= 7; priority++) {
 		switch (priority) {
-		case 4: {
-			// load default settings file in case the user didn't specify one
-			MSXConfig *config = MSXConfig::instance();
-			try {
-				if (!settingOption.parsed) {
+		case 4:
+			if (!haveSettings) {
+				// load default settings file in case the user didn't specify one
+				try {
 					SystemFileContext context;
 					config->loadSetting(context, "share/settings.xml");
+					haveSettings = true;
+				} catch (MSXException &e) {
+					// settings.xml not found
+					CliCommunicator::instance().printWarning(
+						"No settings file found!");
 				}
-			} catch (MSXException &e) {
-				// settings.xml not found
-				CliCommunicator::instance().printWarning(
-					"No settings file found!");
 			}
-			haveSettings = true;
 			postRegisterFileTypes();
 			break;
-		}
 		case 5:
-			if ((!issuedHelp) && (!haveConfig)){
+			if (!issuedHelp && !haveConfig) {
 				// load default config file in case the user didn't specify one
-				MSXConfig *config = MSXConfig::instance();
-				if (!haveConfig) {
-					string machine("default");
-					try {
-						Config *machineConfig =
-							config->getConfigById("DefaultMachine");
-						if (machineConfig->hasParameter("machine")) {
-							machine = machineConfig->getParameter("machine");
-							CliCommunicator::instance().printInfo(
-								"Using default machine: " + machine);
-						}
-					} catch (ConfigException &e) {
-						// no DefaultMachine section
+				string machine("default");
+				try {
+					Config *machineConfig =
+						config->getConfigById("DefaultMachine");
+					if (machineConfig->hasParameter("machine")) {
+						machine = machineConfig->getParameter("machine");
+						CliCommunicator::instance().printInfo(
+							"Using default machine: " + machine);
 					}
-					try {
-						SystemFileContext context;
-						config->loadHardware(context,
-						MACHINE_PATH + machine + "/hardwareconfig.xml");
-					} catch (FileException &e) {
-						CliCommunicator::instance().printWarning(
-							"No machine file found!");
-					}
+				} catch (ConfigException &e) {
+					// no DefaultMachine section
 				}
-				haveConfig = true;
+				try {
+					SystemFileContext context;
+					config->loadHardware(context,
+						MACHINE_PATH + machine + "/hardwareconfig.xml");
+					haveConfig = true;
+				} catch (FileException &e) {
+					CliCommunicator::instance().printWarning(
+						"No machine file found!");
+				}
 			}
 			break;
 		default:
@@ -227,13 +217,12 @@ void CommandLineParser::parse(int argc, char **argv)
 					if (!parseFileName(arg, cmdLine)) {
 						// no option or known file
 						backupCmdLine.push_back(arg);
-						map<string, OptionData>::const_iterator it1;
-						it1 = optionMap.find(arg);
+						map<string, OptionData>::const_iterator it1 =
+							optionMap.find(arg);
 						if (it1 != optionMap.end()) {
 							for (int i = 0; i < it1->second.length - 1; ++i) {
-								arg = cmdLine.front();
+								backupCmdLine.push_back(cmdLine.front());
 								cmdLine.pop_front();
-								backupCmdLine.push_back(arg);
 							}
 						}
 					}
@@ -248,16 +237,14 @@ void CommandLineParser::parse(int argc, char **argv)
 		throw FatalError("Error parsing command line: " + cmdLine.front() + "\n" +
 		                 "Use \"openmsx -h\" to see a list of available options");
 	}
-	MSXConfig *config = MSXConfig::instance();
 	// read existing cartridge slots from config
 	CartridgeSlotManager::instance()->readConfig();
 	
 	// execute all postponed options
-	vector<CLIPostConfig*>::iterator it;
-	for (it = postConfigs.begin(); it != postConfigs.end(); it++) {
+	for (vector<CLIPostConfig*>::iterator it = postConfigs.begin();
+	     it != postConfigs.end(); it++) {
 		(*it)->execute(config);
 	}
-	optionMap.erase(optionMap.begin(), optionMap.end());
 }
 
 
@@ -350,7 +337,7 @@ bool CommandLineParser::HelpOption::parseOption(const string &option,
 		return false; // not parsed yet, load settings first
 	}
 	cout << "OpenMSX " VERSION << endl;
-	cout << "=============" << endl;
+	cout << "========" << string(strlen(VERSION), '=') << endl;
 	cout << endl;
 	cout << "usage: openmsx [arguments]" << endl;
 	cout << "  an argument is either an option or a filename" << endl;
@@ -414,8 +401,13 @@ const string& CommandLineParser::ConfigFile::fileTypeHelp() const
 bool CommandLineParser::MachineOption::parseOption(const string &option,
 		list<string> &cmdLine)
 {
-	CommandLineParser * parser = CommandLineParser::instance();
-	if ((parser->issuedHelp) || (parser->haveConfig)) return true;
+	CommandLineParser* parser = CommandLineParser::instance();
+	if (parser->haveConfig) {
+		throw FatalError("Only one machine option allowed");
+	}
+	if (parser->issuedHelp) {
+		return true;
+	}
 	MSXConfig *config = MSXConfig::instance();
 	string machine(getArgument(option, cmdLine));
 	SystemFileContext context;
@@ -437,7 +429,7 @@ const string& CommandLineParser::MachineOption::optionHelp() const
 bool CommandLineParser::SettingOption::parseOption(const string &option,
 		list<string> &cmdLine)
 {
-	CommandLineParser * parser = CommandLineParser::instance();
+	CommandLineParser* parser = CommandLineParser::instance();
 	if (parser->haveSettings) {
 		throw FatalError("Only one setting option allowed");
 	}

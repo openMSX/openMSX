@@ -60,7 +60,7 @@ class CommandLineParser
 		static CommandLineParser* instance();
 		
 		void registerOption(const string &str, CLIOption* cliOption, byte prio = 7, byte length = 2);
-		void registerFileType(const string &str, CLIFileType* cliFileType);
+		void registerFileClass(const string &str, CLIFileType* cliFileType);
 		void registerPostConfig(CLIPostConfig *post);
 		void parse(int argc, char **argv);
 		bool parseFileName(const string &arg,list<string> &cmdLine);
@@ -120,11 +120,9 @@ class CommandLineParser
 		
 		class SettingOption : public CLIOption {
 		public:
-			SettingOption() : parsed(false) {}
 			virtual bool parseOption(const string &option,
 				list<string> &cmdLine);
 			virtual const string& optionHelp() const;
-			bool parsed;
 		} settingOption;
 		friend class SettingOption;
 };

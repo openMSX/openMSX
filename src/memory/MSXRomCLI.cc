@@ -15,7 +15,7 @@ MSXRomCLI::MSXRomCLI()
 	CommandLineParser::instance()->registerOption("-cartb", this);
 	CommandLineParser::instance()->registerOption("-cartc", this);
 	CommandLineParser::instance()->registerOption("-cartd", this);
-	CommandLineParser::instance()->registerFileType("romimages", this);
+	CommandLineParser::instance()->registerFileClass("romimages", this);
 }
 
 bool MSXRomCLI::parseOption(const string &option,
