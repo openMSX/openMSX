@@ -10,6 +10,7 @@
 namespace openmsx {
 
 class Scheduler;
+class MSXCPUInterface;
 
 class MSXCPU : public DebugInterface
 {
@@ -68,6 +69,8 @@ public:
 	virtual dword getRegisterNumber(const string& regName) const;
 	virtual byte readDebugData (dword address) const;
 	virtual const string& getDeviceName() const;
+
+	void setInterface(MSXCPUInterface* interf);
 
 private:
 	MSXCPU();

@@ -20,8 +20,7 @@ namespace openmsx {
 
 #include "Z80Tables.nn"
 
-Z80::Z80(CPUInterface *interf, const EmuTime &time) :
-	CPU(interf)
+Z80::Z80(const EmuTime &time)
 {
 	reset(time);
 }

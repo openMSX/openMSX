@@ -16,9 +16,9 @@ BooleanSetting *CPU::traceSetting =
 	new BooleanSetting("cputrace", "CPU tracing on/off", false);
 #endif
 
-CPU::CPU(CPUInterface *interf)
+CPU::CPU()
+	: interface(NULL)
 {
-	interface = interf;
 }
 
 CPU::~CPU()
@@ -30,8 +30,14 @@ void CPU::init(Scheduler* scheduler_)
 	scheduler = scheduler_;
 }
 
+void CPU::setInterface(CPUInterface* interf)
+{
+	interface = interf;
+}
+
 void CPU::executeUntilTarget(const EmuTime &time)
 {
+	assert(interface);
 	setTargetTime(time);
 	executeCore();
 }

@@ -2,8 +2,8 @@
 
 #include <cassert>
 #include "MSXCPU.hh"
-#include "MSXConfig.hh"
 #include "MSXCPUInterface.hh"
+#include "MSXConfig.hh"
 #include "DebugInterface.hh"
 #include "CPU.hh"
 
@@ -11,8 +11,8 @@
 namespace openmsx {
 
 MSXCPU::MSXCPU()
-	: z80 (MSXCPUInterface::instance(), EmuTime::zero),
-	  r800(MSXCPUInterface::instance(), EmuTime::zero)
+	: z80 (EmuTime::zero),
+	  r800(EmuTime::zero)
 {
 	activeCPU = &z80;	// setActiveCPU(CPU_Z80);
 	reset(EmuTime::zero);
@@ -30,13 +30,19 @@ MSXCPU* MSXCPU::instance()
 
 void MSXCPU::init(Scheduler* scheduler)
 {
-	z80.init(scheduler);
+	z80 .init(scheduler);
 	r800.init(scheduler);
+}
+
+void MSXCPU::setInterface(MSXCPUInterface* interface)
+{
+	z80 .setInterface(interface); 
+	r800.setInterface(interface); 
 }
 
 void MSXCPU::reset(const EmuTime &time)
 {
-	z80.reset(time);
+	z80 .reset(time);
 	r800.reset(time);
 }
 
@@ -96,12 +102,12 @@ void MSXCPU::invalidateCache(word start, int num)
 
 void MSXCPU::raiseIRQ()
 {
-	z80.raiseIRQ();
+	z80 .raiseIRQ();
 	r800.raiseIRQ();
 }
 void MSXCPU::lowerIRQ()
 {
-	z80.lowerIRQ();
+	z80 .lowerIRQ();
 	r800.lowerIRQ();
 }
 

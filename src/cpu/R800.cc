@@ -8,8 +8,7 @@ namespace openmsx {
 
 #include "R800Tables.nn"
 
-R800::R800(CPUInterface *interf, const EmuTime &time) :
-	CPU(interf)
+R800::R800(const EmuTime &time)
 {
 	reset(time);
 }

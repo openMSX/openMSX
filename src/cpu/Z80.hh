@@ -24,7 +24,7 @@ typedef void (Z80::*Z80_ResumeFunc)();
 class Z80 : public CPU {
 	public:
 		static const int CLOCK_FREQ = 3579545;
-		Z80(CPUInterface *interf, const EmuTime &time);
+		Z80(const EmuTime &time);
 		virtual ~Z80();
 		virtual void setCurrentTime(const EmuTime &time);
 		virtual const EmuTime &getCurrentTime() const;

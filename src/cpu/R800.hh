@@ -19,7 +19,7 @@ typedef void (R800::*R800_ResumeFunc)();
 class R800 : public CPU {
 	public:
 		static const int CLOCK_FREQ = 7159090;
-		R800(CPUInterface *interf, const EmuTime &time);
+		R800(const EmuTime &time);
 		virtual ~R800();
 		virtual void setCurrentTime(const EmuTime &time);
 		virtual const EmuTime &getCurrentTime() const;

@@ -66,10 +66,14 @@ MSXCPUInterface::MSXCPUInterface()
 	// Register console commands
 	CommandController::instance()->registerCommand(&slotMapCmd,    "slotmap");
 	CommandController::instance()->registerCommand(&slotSelectCmd, "slotselect");
+
+	MSXCPU::instance()->setInterface(this);
 }
 
 MSXCPUInterface::~MSXCPUInterface()
 {
+	MSXCPU::instance()->setInterface(NULL);
+
 	CommandController::instance()->unregisterCommand(&slotMapCmd,    "slotmap");
 	CommandController::instance()->unregisterCommand(&slotSelectCmd, "slotselect");
 }

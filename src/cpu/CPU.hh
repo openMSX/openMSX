@@ -49,6 +49,7 @@ class CPU: public CPUTables
 		virtual ~CPU();
 		
 		void init(Scheduler* scheduler);
+		void setInterface(CPUInterface* interf);
 
 		/**
 		 * Reset the CPU.
@@ -134,7 +135,7 @@ class CPU: public CPUTables
 		/** Create a new CPU.
 		  * @param interf Interface between this CPU and the bus.
 		  */
-		CPU(CPUInterface *interf);
+		CPU();
 
 		/** Emulate CPU till a previously set target time,
 		  * the target may change (become smaller) during emulation.
