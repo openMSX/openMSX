@@ -154,6 +154,7 @@ void GLConsole::paint()
 		glEnable(GL_TEXTURE_2D);
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 		glBindTexture(GL_TEXTURE_2D, backgroundTexture);
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 	} else {
 		glDisable(GL_TEXTURE_2D);
 		glColor4ub(0, 0, 0, CONSOLE_ALPHA);
