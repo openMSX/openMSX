@@ -1,5 +1,9 @@
 $Id$
 
+2002-03-25 Joost Yervante Damad <andete@worldcity.nl>
+	* made VPATH compiles work, fixes 'make distcheck' also
+	* bumped version no
+
 2002-03-25 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* implemented RYTHM sounds for Y8950 (MSX-AUDIO): untested!
 

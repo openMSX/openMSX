@@ -1,6 +1,6 @@
 # $Id$
 
-AM_CXXFLAGS_BASE = -Wall -pipe `test -f ../.debug && echo "-DDEBUG"` -fhuge-objects -Icpu @XML_CFLAGS@ @SDL_CFLAGS@
+AM_CXXFLAGS_BASE = -Wall -pipe `test -f $(srcdir)/../.debug && echo "-DDEBUG"` -fhuge-objects -I$(srcdir)/../cpu -I$(srcdir)/.. @XML_CFLAGS@ @SDL_CFLAGS@
 if PROFILE
 AM_CXXFLAGS = $(AM_CXXFLAGS_BASE) -pg
 else
@@ -27,6 +27,6 @@ nodebug: resetdebug all
 debug: setdebug all
 
 resetdebug:
-	@-rm -f ../.debug
+	@-rm -f $(srcdir)/../.debug
 setdebug:
-	@touch ../.debug
+	@touch $(srcdir)/../.debug
