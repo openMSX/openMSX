@@ -19,7 +19,7 @@
   <rom>
     <title>Hydlide 2 (crack/modified?)</title>
     <sha1>552a758f77a7c35969523dbaca74587f0b59eb2b</sha1>
-    <romtype>HYDLIDE2</romtype>
+    <romtype>ASCII16-2</romtype>
   </rom>
   <rom>
     <title>War of the Dead (crack/modified)</title>
@@ -1772,11 +1772,11 @@
   </rom>
   <rom>
     <title>Genghis Khan</title>
-    <romtype>ASCII8-8</romtype>
+    <romtype>KOEI-32</romtype>
     <sha1>12b3c31f0fd10ff5823dcc8bf6dfeb785a8af2f7</sha1>
     <year>1988</year>
     <company>Koei</company>
-    <remark></remark>
+    <remark>Unsure about amount of SRAM</remark>
   </rom>
   <rom>
     <title>Ghost Busters</title>
@@ -2164,7 +2164,7 @@
   </rom>
   <rom>
     <title>Hydlide 2</title>
-    <romtype>HYDLIDE2</romtype>
+    <romtype>ASCII16-2</romtype>
     <sha1>da4b44c734029f60388b7cea4ab97c3d5c6a09e9</sha1>
     <year>1986</year>
     <company>T&amp;E Soft</company>
@@ -4999,7 +4999,7 @@
   </rom>
   <rom>
     <title>Daikoukai Jidai</title>
-    <romtype>ASCII8-8</romtype>
+    <romtype>KOEI-8</romtype>
     <sha1>2a4aef32db28c059c30f5f972f1c09708ef6ce62</sha1>
     <year>1990</year>
     <company>Koei</company>
@@ -5119,7 +5119,7 @@
   </rom>
   <rom>
     <title>Europe War</title>
-    <romtype>ASCII8-8</romtype>
+    <romtype>KOEI-32</romtype>
     <sha1>475c3af7495922759a5f424d2e22d7e4073d5992</sha1>
     <year>1992</year>
     <company>Koei</company>
@@ -5255,7 +5255,7 @@
   </rom>
   <rom>
     <title>Genchouhishi</title>
-    <romtype>ASCII8-8</romtype>
+    <romtype>KOEI-32</romtype>
     <sha1>74d1c7f66242335c736da29413037bd23384efaa</sha1>
     <year>1992</year>
     <company>Koei</company>
@@ -5263,11 +5263,11 @@
   </rom>
   <rom>
     <title>Genghis Khan</title>
-    <romtype>ASCII8-8</romtype>
+    <romtype>KOEI-32</romtype>
     <sha1>8a4bcf0f38c9f243443a4d4865278f695bd83dc8</sha1>
     <year>1988</year>
     <company>Koei</company>
-    <remark></remark>
+    <remark>Unsure about amount of SRAM</remark>
   </rom>
   <rom>
     <title>Girly Block</title>
@@ -5375,7 +5375,7 @@
   </rom>
   <rom>
     <title>Inindou Datou Nobunaga</title>
-    <romtype>ASCII8-8</romtype>
+    <romtype>KOEI-8</romtype>
     <sha1>0cc6c30c6918fcf780e57d40f58a4cf2a82225cd</sha1>
     <year>1991</year>
     <company>Koei</company>
@@ -5383,7 +5383,7 @@
   </rom>
   <rom>
     <title>Isin No Arashi</title>
-    <romtype>ASCII8-8</romtype>
+    <romtype>KOEI-8</romtype>
     <sha1>6420d61002da325403fcb6f41afb1d348eeba3b4</sha1>
     <year>1989</year>
     <company>Koei</company>
@@ -5503,7 +5503,7 @@
   </rom>
   <rom>
     <title>Lempereur</title>
-    <romtype>ASCII8-8</romtype>
+    <romtype>KOEI-8</romtype>
     <sha1>22f5998b4de47bf2ccc077d5881ac448e6b0484d</sha1>
     <year>1990</year>
     <company>Koei</company>
@@ -5631,7 +5631,7 @@
   </rom>
   <rom>
     <title>Nobunaga No Yabou - Sengoku Gunyuuden</title>
-    <romtype>ASCII8-8</romtype>
+    <romtype>KOEI-8</romtype>
     <sha1>89943ae938fb308f4b5149ebc0cbea597b9b0223</sha1>
     <year>1989</year>
     <company>Koei</company>
@@ -5639,7 +5639,7 @@
   </rom>
   <rom>
     <title>Nobunaga No Yabou - Bushou Fuuunroku</title>
-    <romtype>ASCII8-8</romtype>
+    <romtype>KOEI-32</romtype>
     <sha1>cb6bd26961387def757c7faeec7563d77d404d01</sha1>
     <year>1991</year>
     <company>Koei</company>
@@ -5647,7 +5647,7 @@
   </rom>
   <rom>
     <title>Nobunaga No Yabou - Zenkokuban</title>
-    <romtype>ASCII8-8</romtype>
+    <romtype>KOEI-8</romtype>
     <sha1>fbfdd89ec183ceae63d3d66b0ab45faa951b525a</sha1>
     <year>1987</year>
     <company>Koei</company>
@@ -5799,7 +5799,7 @@
   </rom>
   <rom>
     <title>Royal Blood</title>
-    <romtype>ASCII8-8</romtype> 
+    <romtype>KOEI-8</romtype> 
     <sha1>522a53034cf40448d441683f3308fcb4b65e6d7c</sha1>
     <year>1991</year>
     <company>Koei</company>
@@ -5807,7 +5807,7 @@
   </rom>
   <rom>
     <title>Sangokusi</title>
-    <romtype>ASCII8-8</romtype>
+    <romtype>KOEI-32</romtype>
     <sha1>dab5a9f93a35fcb92c01e4250b01928fe8bd294b</sha1>
     <year>1988</year>
     <company>Koei</company>
@@ -5815,7 +5815,7 @@
   </rom>
   <rom>
     <title>Sangokusi 2</title>
-    <romtype>ASCII8-8</romtype>
+    <romtype>KOEI-32</romtype>
     <sha1>25ffc7e8ca90274566c31e10b5998cca6522673a</sha1>
     <year>1991</year>
     <company>Koei</company>
@@ -5895,7 +5895,7 @@
   </rom>
   <rom>
     <title>Suikoden</title>
-    <romtype>ASCII8-8</romtype>
+    <romtype>KOEI-8</romtype>
     <sha1>de251a0af1df3be18469578dc00d414e572ee33e</sha1>
     <year>1989</year>
     <company>Koei</company>
@@ -5967,7 +5967,7 @@
   </rom>
   <rom>
     <title>Teitoku No Ketsudan</title>
-    <romtype>ASCII8-8</romtype>
+    <romtype>KOEI-32</romtype>
     <sha1>b2ce0bc86f82f727db956dfbbe2a3fd0cb72f5fc</sha1>
     <year>1991</year>
     <company>Koei</company>
