@@ -144,8 +144,8 @@ static const byte eg_inc[15 * RATE_STEPS] =
 #define O(a) (a * RATE_STEPS)
 static const byte eg_rate_select[16 + 64 + 16] =
 {
-	// Envelope Generator rates (16 + 64 rates + 16 RKS) */
-	// 16 infinite time rates */
+	// Envelope Generator rates (16 + 64 rates + 16 RKS)
+	// 16 infinite time rates
 	O(14),O(14),O(14),O(14),O(14),O(14),O(14),O(14),
 	O(14),O(14),O(14),O(14),O(14),O(14),O(14),O(14),
 
@@ -339,7 +339,7 @@ static const char lfo_pm_table[8 * 8] =
 	7, 3, 0,-3,-7,-3, 0, 3,
 };
 
-// This is not 100% perfect yet but very close */
+// This is not 100% perfect yet but very close
 //
 // - multi parameters are 100% correct (instruments and drums)
 // - LFO PM and AM enable are 100% correct
@@ -368,7 +368,7 @@ static const byte table[19][8] = {
 	  {0x01, 0x01, 0x55, 0x03, 0xf3, 0x92, 0xf3, 0xf3 },	//E
 	  {0x61, 0x41, 0x89, 0x03, 0xf1, 0xf4, 0xf0, 0x13 },	//F
 
-	// drum instruments definitions */
+	// drum instruments definitions
 	// MULTI MULTI modTL  xxx  AR/DR AR/DR SL/RR SL/RR
 	//   0     1     2     3     4     5     6    7
 	  {0x01, 0x01, 0x16, 0x00, 0xfd, 0xf8, 0x2f, 0x6d },// BD(multi verified, modTL verified, mod env - verified(close), carr. env verifed)
@@ -475,8 +475,8 @@ inline void YM2413::advance()
 				break;
 
 			case EG_REL:    // release phase
-				// exclude modulators in melody channels from performing anything in this mode*/
-				// allowed are only carriers in melody mode and rhythm slots in rhythm mode */
+				// exclude modulators in melody channels from performing anything in this mode
+				// allowed are only carriers in melody mode and rhythm slots in rhythm mode
 				//
 				// This table shows which operators and on what conditions are allowed to perform EG_REL:
 				// (a) - always perform EG_REL
@@ -856,7 +856,7 @@ void YM2413::init_tables()
 		// non-standard sinus
 		double m = sin(((i * 2) + 1) * PI / SIN_LEN); // checked against the real chip
 
-		// we never reach zero here due to ((i*2)+1) */
+		// we never reach zero here due to ((i*2)+1)
 		double o = (m > 0.0) ?
 		           (8 * log( 1.0 / m) / log(2)) :	// convert to 'decibels'
 		           (8 * log(-1.0 / m) / log(2));	// convert to 'decibels'
