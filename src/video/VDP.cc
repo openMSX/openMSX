@@ -249,7 +249,8 @@ void VDP::executeUntil(const EmuTime& time, int userData)
 		<< "," << ((ticksThisFrame - displayStart) / TICKS_PER_LINE)
 		<< "), IRQ_H = " << (int)irqHorizontal.getState()
 		<< " IRQ_V = " << (int)irqVertical.getState()
-		<< ", frame = " << frameStartTime << "\n";
+		//<< ", frame = " << frameStartTime
+		<< "\n";
 	*/
 
 	// Handle the various sync types.
@@ -559,8 +560,10 @@ void VDP::writeIO(byte port, byte value, const EmuTime& time)
 		if (paletteDataStored) {
 			int index = controlRegs[16];
 			int grb = ((value << 8) | dataLatch) & 0x777;
-			renderer->updatePalette(index, grb, time);
-			palette[index] = grb;
+			if (palette[index] != grb) {
+				renderer->updatePalette(index, grb, time);
+				palette[index] = grb;
+			}
 			controlRegs[16] = (index + 1) & 0x0F;
 			paletteDataStored = false;
 		} else {
