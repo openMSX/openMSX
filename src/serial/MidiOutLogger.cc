@@ -1,33 +1,37 @@
 // $Id$
 
+#include <cassert>
 #include "MidiOutLogger.hh"
-
 
 namespace openmsx {
 
 MidiOutLogger::MidiOutLogger()
 	: logFilenameSetting("midi-out-logfilename",
 		"filename of the file where the MIDI output is logged to",
-		"/dev/midi")
+		"/dev/midi"),
+	  file(0)
 {
 }
 
 MidiOutLogger::~MidiOutLogger()
 {
+	delete file;
 }
 
 void MidiOutLogger::plug(Connector *connector, const EmuTime &time)
 	throw(PlugException)
 {
-	file.open(logFilenameSetting.getValue().c_str());
-	if (file.fail()) {
+	file = new ofstream(logFilenameSetting.getValue().c_str());
+	if (file->fail()) {
+		unplug(time);
 		throw PlugException("Error opening log file");
 	}
 }
 
 void MidiOutLogger::unplug(const EmuTime &time)
 {
-	file.close();
+	delete file;
+	file = 0;
 }
 
 const string& MidiOutLogger::getName() const
@@ -47,8 +51,9 @@ const string& MidiOutLogger::getDescription() const
 
 void MidiOutLogger::recvByte(byte value, const EmuTime &time)
 {
-	file.put(value);
-	file.flush();
+	assert(file);
+	file->put(value);
+	file->flush();
 }
 
 } // namespace openmsx

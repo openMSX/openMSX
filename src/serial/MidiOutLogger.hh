@@ -9,7 +9,6 @@
 
 using std::ofstream;
 
-
 namespace openmsx {
 
 class MidiOutLogger : public MidiOutDevice
@@ -29,9 +28,8 @@ public:
 	virtual void recvByte(byte value, const EmuTime& time);
 
 private:
-	ofstream file;
-
 	StringSetting logFilenameSetting;
+	ofstream* file;
 };
 
 } // namespace openmsx
