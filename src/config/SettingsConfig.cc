@@ -38,12 +38,11 @@ SettingsConfig& SettingsConfig::instance()
 
 void SettingsConfig::loadSetting(FileContext& context, const string& filename)
 {
+	saveName = context.resolveCreate(filename);
 	File file(context.resolve(filename));
 	XMLDocument doc(file.getLocalName(), "settings.dtd");
 	SystemFileContext systemContext;
 	handleDoc(*this, doc, systemContext);
-	
-	saveName = context.resolveCreate(filename);
 }
 
 void SettingsConfig::saveSetting(const string& filename)

@@ -1,5 +1,8 @@
 $Id$
 
+2004-10-05 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* saving_settings didn't work when file didn't exist yet
+
 2004-10-04 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Don't use exceptions to report unconnected drive in ready() method:
 	   - this was quite heavily used in the MSX boot sequence, and caused
