@@ -232,7 +232,7 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		// also in the memRead
 
 		//--==>> Generic 8kB cartridges <<==--
-		if ((address<0x4000) || (address>=0xC000))
+		if (address<0x4000 || address>=0xC000)
 			return;
 		if ((address&0xE000) == 0x8000) {
 			// 0x8000..0x9FFF is used as SCC switch
@@ -245,7 +245,7 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		break;
 	case 1:
 		//--==**>> Generic 16kB cartridges (MSXDOS2, Hole in one special) <<**==--
-		if ((address<0x4000) || (address>=0xC000))
+		if (address<0x4000 || address>=0xC000)
 			return;
 		region = (address&0xC000)>>13;	// 0, 2, 4, 6
 		value &= (2*value)&mapperMask;
@@ -290,7 +290,7 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		// page at 4000 is fixed, other banks are switched
 		// by writting at 0x6000,0x8000 and 0xA000
 
-		if (address<0x6000 || address>=0xA000 || address&0x1FFF) return;
+		if (address&0x1FFF || address<0x6000 || address>=0xC000) return;
 		value &= mapperMask;
 		setBank(address>>13, memoryBank+(value<<13));
 		break;
@@ -305,7 +305,7 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		//  bank 3: 0x7000 - 0x77FF (0x9000 used)
 		//  bank 4: 0x7800 - 0x7FFF (0xB000 used)
 
-		if (address<0x6000 || address>0x7FFF) return;
+		if (address<0x6000 || address>=0x8000) return;
 		region = ((address>>11)&3)+2;
 		value &= mapperMask;
 		setBank(region, memoryBank+(value<<13));
