@@ -261,6 +261,17 @@ private:
 	  */
 	inline SpritePattern calculatePattern(int patternNr, int y);
 
+	/** Calculates a sprite pattern.
+	  * Ignores planar addressing.
+	  * @param patternNr Number of the sprite pattern [0..255].
+	  *   For 16x16 sprites, patternNr should be a multiple of 4.
+	  * @param y The line number within the sprite: 0 <= y < size.
+	  * @return A bit field of the sprite pattern.
+	  *   Bit 31 is the leftmost bit of the sprite.
+	  *   Unused bits are zero.
+	  */
+	inline SpritePattern calculatePatternNP(int patternNr, int y);
+
 	/** Check sprite collision and number of sprites per line.
 	  * This routine implements sprite mode 1 (MSX1).
 	  * Separated from display code to make MSX behaviour consistent

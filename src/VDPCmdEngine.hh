@@ -32,7 +32,7 @@ public:
 	static const byte REG_ARG = 0x0D; // VDP R#45: argument
 	static const byte REG_CMD = 0x0E; // VDP R#46: command
 	static const byte NUM_REGS = REG_CMD+1;
-	
+
 	/** Constructor.
 	  */
 	VDPCmdEngine(VDP *vdp, const EmuTime &time);
@@ -123,10 +123,6 @@ private:
 	typedef void (VDPCmdEngine::*EngineMethod)();
 
 	// Methods:
-
-	/** TODO: Get rid of this.
-	  */
-	inline byte getVRAM(int address);
 
 	/** Calculate addr of a pixel in VRAM.
 	  */

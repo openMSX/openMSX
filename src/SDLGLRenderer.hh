@@ -8,9 +8,12 @@
 #if (defined(HAVE_GL_GL_H) || defined(HAVE_GL_H))
 #define __SDLGLRENDERER_AVAILABLE__
 
+#include <SDL/SDL.h>
 #include "openmsx.hh"
 #include "Renderer.hh"
-#include <SDL/SDL.h>
+#include "CharacterConverter.hh"
+#include "BitmapConverter.hh"
+#include "VDP.hh"
 
 #ifdef HAVE_GL_GL_H
 #include <GL/gl.h>
@@ -18,7 +21,6 @@
 #include <gl.h>
 #endif
 
-class VDP;
 class SpriteChecker;
 class VDPVRAM;
 
@@ -76,6 +78,10 @@ private:
 
 	inline void sync(const EmuTime &time);
 	inline void renderUntil(int limit);
+
+	inline void renderBitmapLines(byte line, const EmuTime &until);
+	inline void renderPlanarBitmapLines(byte line, const EmuTime &until);
+	inline void renderCharacterLines(byte line, const EmuTime &until);
 
 	/** Get width of the left border in pixels.
 	  * This is equal to the X coordinate of the display area.
@@ -171,27 +177,34 @@ private:
 	  */
 	SpriteChecker *spriteChecker;
 
-	/** SDL colours corresponding to each VDP palette entry.
+	/** Current time: the moment up until when the rendering is emulated.
+	  */
+	EmuTimeFreq<VDP::TICKS_PER_SECOND> currentTime;
+
+	/** RGB colours corresponding to each VDP palette entry.
 	  * palFg has entry 0 set to the current background colour,
 	  * palBg has entry 0 set to black.
 	  */
 	Pixel palFg[16], palBg[16];
 
-	/** SDL colours corresponding to each Graphic 7 sprite colour.
+	/** RGB colours corresponding to each Graphic 7 sprite colour.
 	  */
 	Pixel palGraphic7Sprites[16];
 
-	/** SDL colours of current sprite palette.
+	/** RGB colours of current sprite palette.
 	  * Points to either palBg or palGraphic7Sprites.
 	  */
 	Pixel *palSprites;
 
-	/** SDL colours corresponding to each possible V9938 colour.
+	/** RGB colours corresponding to each possible V9938 colour.
 	  * Used by updatePalette to adjust palFg and palBg.
-	  * Since SDL_MapRGB may be slow, this array stores precalculated
-	  * SDL colours for all possible RGB values.
 	  */
 	Pixel V9938_COLOURS[8][8][8];
+
+	/** RGB colours corresponding to the 256 colour palette of Graphic7.
+	  * Used by BitmapConverter.
+	  */
+	Pixel PALETTE256[256];
 
 	/** Rendering method for the current display mode.
 	  */
@@ -259,6 +272,14 @@ private:
 	/** Did background colour change since last screen update?
 	  */
 	bool dirtyBackground;
+
+	/** VRAM to pixels converter for character display modes.
+	  */
+	CharacterConverter<Pixel> characterConverter;
+
+	/** VRAM to pixels converter for bitmap display modes.
+	  */
+	BitmapConverter<Pixel> bitmapConverter;
 
 };
 

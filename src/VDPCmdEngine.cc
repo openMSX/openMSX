@@ -87,10 +87,6 @@ static const int LMMM_TIMING[8]={ 129, 197, 129, 132 };
 
 // Inline methods first, to make sure they are actually inlined.
 
-inline byte VDPCmdEngine::getVRAM(int address) {
-	return vram->cmdRead(address);
-}
-
 inline int VDPCmdEngine::vramAddr(int x, int y)
 {
 	switch(scrMode) {
@@ -104,22 +100,22 @@ inline int VDPCmdEngine::vramAddr(int x, int y)
 
 inline byte VDPCmdEngine::point5(int sx, int sy)
 {
-	return ( getVRAM(VDP_VRMP5(sx, sy)) >> (((~sx)&1)<<2) ) & 15;
+	return ( vram->readNP(VDP_VRMP5(sx, sy)) >> (((~sx)&1)<<2) ) & 15;
 }
 
 inline byte VDPCmdEngine::point6(int sx, int sy)
 {
-	return ( getVRAM(VDP_VRMP6(sx, sy)) >> (((~sx)&3)<<1) ) & 3;
+	return ( vram->readNP(VDP_VRMP6(sx, sy)) >> (((~sx)&3)<<1) ) & 3;
 }
 
 inline byte VDPCmdEngine::point7(int sx, int sy)
 {
-	return ( getVRAM(VDP_VRMP7(sx, sy)) >> (((~sx)&1)<<2) ) & 15;
+	return ( vram->readNP(VDP_VRMP7(sx, sy)) >> (((~sx)&1)<<2) ) & 15;
 }
 
 inline byte VDPCmdEngine::point8(int sx, int sy)
 {
-	return getVRAM(VDP_VRMP8(sx, sy));
+	return vram->readNP(VDP_VRMP8(sx, sy));
 }
 
 inline byte VDPCmdEngine::point(int sx, int sy)
@@ -139,52 +135,52 @@ inline void VDPCmdEngine::psetLowLevel(
 	switch (op) {
 	case OP_IMP:
 		vram->cmdWrite(
-			addr, (getVRAM(addr) & mask) | colour,
+			addr, (vram->readNP(addr) & mask) | colour,
 			currentTime);
 		break;
 	case OP_AND:
 		vram->cmdWrite(addr,
-			getVRAM(addr) & (colour | mask),
+			vram->readNP(addr) & (colour | mask),
 			currentTime);
 		break;
 	case OP_OR:
 		vram->cmdWrite(addr,
-			getVRAM(addr) | colour,
+			vram->readNP(addr) | colour,
 			currentTime);
 		break;
 	case OP_XOR:
 		vram->cmdWrite(addr,
-			getVRAM(addr) ^ colour,
+			vram->readNP(addr) ^ colour,
 			currentTime);
 		break;
 	case OP_NOT:
 		vram->cmdWrite(addr,
-			(getVRAM(addr) & mask) | ~(colour | mask),
+			(vram->readNP(addr) & mask) | ~(colour | mask),
 			currentTime);
 		break;
 	case OP_TIMP:
 		if (colour) vram->cmdWrite(addr,
-			(getVRAM(addr) & mask) | colour,
+			(vram->readNP(addr) & mask) | colour,
 			currentTime);
 		break;
 	case OP_TAND:
 		if (colour) vram->cmdWrite(addr,
-			getVRAM(addr) & (colour | mask),
+			vram->readNP(addr) & (colour | mask),
 			currentTime);
 		break;
 	case OP_TOR:
 		if (colour) vram->cmdWrite(addr,
-			getVRAM(addr) | colour,
+			vram->readNP(addr) | colour,
 			currentTime);
 		break;
 	case OP_TXOR:
 		if (colour) vram->cmdWrite(addr,
-			getVRAM(addr) ^ colour,
+			vram->readNP(addr) ^ colour,
 			currentTime);
 		break;
 	case OP_TNOT:
 		if (colour) vram->cmdWrite(addr,
-			(getVRAM(addr) & mask) | ~(colour|mask),
+			(vram->readNP(addr) & mask) | ~(colour|mask),
 			currentTime);
 		break;
 	default:
@@ -589,7 +585,7 @@ void VDPCmdEngine::hmmmEngine()
 		pre_loop
 		vram->cmdWrite(
 			VDP_VRMP5(ADX, DY),
-			getVRAM(VDP_VRMP5(ASX, SY)),
+			vram->readNP(VDP_VRMP5(ASX, SY)),
 			currentTime);
 		post_xxyy(256)
 		break;
@@ -597,7 +593,7 @@ void VDPCmdEngine::hmmmEngine()
 		pre_loop
 		vram->cmdWrite(
 			VDP_VRMP6(ADX, DY),
-			getVRAM(VDP_VRMP6(ASX, SY)),
+			vram->readNP(VDP_VRMP6(ASX, SY)),
 			currentTime);
 		post_xxyy(512)
 		break;
@@ -605,7 +601,7 @@ void VDPCmdEngine::hmmmEngine()
 		pre_loop
 		vram->cmdWrite(
 			VDP_VRMP7(ADX, DY),
-			getVRAM(VDP_VRMP7(ASX, SY)),
+			vram->readNP(VDP_VRMP7(ASX, SY)),
 			currentTime);
 		post_xxyy(512)
 		break;
@@ -613,7 +609,7 @@ void VDPCmdEngine::hmmmEngine()
 		pre_loop
 		vram->cmdWrite(
 			VDP_VRMP8(ADX, DY),
-			getVRAM(VDP_VRMP8(ASX, SY)),
+			vram->readNP(VDP_VRMP8(ASX, SY)),
 			currentTime);
 		post_xxyy(256)
 		break;
@@ -664,7 +660,7 @@ void VDPCmdEngine::ymmmEngine()
 		pre_loop
 		vram->cmdWrite(
 			VDP_VRMP5(ADX, DY),
-			getVRAM(VDP_VRMP5(ADX, SY)),
+			vram->readNP(VDP_VRMP5(ADX, SY)),
 			currentTime);
 		post__xyy(256)
 		break;
@@ -672,7 +668,7 @@ void VDPCmdEngine::ymmmEngine()
 		pre_loop
 		vram->cmdWrite(
 			VDP_VRMP6(ADX, DY),
-			getVRAM(VDP_VRMP6(ADX, SY)),
+			vram->readNP(VDP_VRMP6(ADX, SY)),
 			currentTime);
 		post__xyy(512)
 		break;
@@ -680,7 +676,7 @@ void VDPCmdEngine::ymmmEngine()
 		pre_loop
 		vram->cmdWrite(
 			VDP_VRMP7(ADX, DY),
-			getVRAM(VDP_VRMP7(ADX, SY)),
+			vram->readNP(VDP_VRMP7(ADX, SY)),
 			currentTime);
 		post__xyy(512)
 		break;
@@ -688,7 +684,7 @@ void VDPCmdEngine::ymmmEngine()
 		pre_loop
 		vram->cmdWrite(
 			VDP_VRMP8(ADX, DY),
-			getVRAM(VDP_VRMP8(ADX, SY)),
+			vram->readNP(VDP_VRMP8(ADX, SY)),
 			currentTime);
 		post__xyy(256)
 		break;
