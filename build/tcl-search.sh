@@ -47,13 +47,23 @@ do
 		then
 			BEST_MAJOR_VERSION=$TCL_MAJOR_VERSION
 			BEST_MINOR_VERSION=$TCL_MINOR_VERSION
-			eval BEST_CFLAGS=$TCL_INCLUDE_SPEC
-			if [ -z "$TCL_LIB_FLAG" ]
+			BEST_CFLAGS=''
+			for FLAG in $TCL_INCLUDE_SPEC
+			do
+				eval EVALFLAG=$FLAG
+				BEST_CFLAGS="${BEST_CFLAGS}${EVALFLAG} "
+			done
+			if [ -z "$TCL_LIB_SPEC" ]
 			then
 				# Workaround for MSYS.
 				BEST_LDFLAGS=-ltcl$TCL_MAJOR_VERSION$TCL_MINOR_VERSION
 			else
-				eval BEST_LDFLAGS=$TCL_LIB_FLAG
+				BEST_LDFLAGS=''
+				for FLAG in $TCL_LIB_SPEC
+				do
+					eval EVALFLAG=$FLAG
+					BEST_LDFLAGS="${BEST_LDFLAGS}${EVALFLAG} "
+				done
 			fi
 		fi
 	#else
@@ -67,8 +77,8 @@ then
 	echo "TCL_FOUND := false"
 else
 	echo "Found TCL $BEST_MAJOR_VERSION.$BEST_MINOR_VERSION" 1>&2
-	echo "TCL_CFLAGS := $BEST_CFLAGS"
-	echo "TCL_LDFLAGS := $BEST_LDFLAGS"
-	echo "TCL_FOUND := true"
-	echo "TCL_VERSION := $BEST_MAJOR_VERSION.$BEST_MINOR_VERSION"
+	echo "TCL_CFLAGS:=$BEST_CFLAGS"
+	echo "TCL_LDFLAGS:=$BEST_LDFLAGS"
+	echo "TCL_FOUND:=true"
+	echo "TCL_VERSION:=$BEST_MAJOR_VERSION.$BEST_MINOR_VERSION"
 fi
