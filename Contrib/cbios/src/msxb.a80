@@ -1,4 +1,4 @@
-; MSX Compatible BIOS ver 0.11 project "build castles in the air"
+; MSX Compatible BIOS ver 0.12 project "build castles in the air"
 ; copyright(c) 2002 BouKiCHi
 ;
 ; [date]
@@ -39,9 +39,12 @@
 ;	     added scroll routine.
 ;            fixed init_grp 
 ; 2002/09/22 fixed init_sc5
-
-
-;        title "MSX COMPATIBLE BIOS for emulators ver 0.11 by BouKiCHi"
+; 2002/09/23 routine of disk was added.
+; 2002/09/25   ENASLT was rewrtten.
+;            init_sc7 was added.
+; 2002/09/26 the keyboard routines were fixed.
+;
+;        title "MSX COMPATIBLE BIOS for emulators ver 0.12 by BouKiCHi"
 
 ;---------------------------------------------------
 ; define I/O and Hook
@@ -76,6 +79,7 @@ H_TIMI          equ $FD9F      ; timer interrupt hook
 H_NMI           equ $FDD6      ; non maskable interrupt hook
 H_STKE          equ $FEDA      ; Stack error.
 
+STKTOP          equ $F674
 
 EXP_TBL         equ $FCC1      ; second slot infomation table
 SLT_TBL         equ $FCC5      ; table of primary slot
@@ -92,7 +96,19 @@ GRPCGP          equ $F3CB      ; Screen2 CG pattern
 GRPATR          equ $F3CD      ; Screen2 Attribute
 GRPPAT          equ $F3CF      ; Screen2 Sprite pattern
 
+TXTNAM          equ $F3B3
+TXTCOL          equ $F3B5
+TXTCGP          equ $F3B7
+TXTATR          equ $F3B9
+TXTPAT          equ $F3BB
+
+T32NAM          equ $F3BD
 T32COL          equ $F3BF
+T32CGP          equ $F3C1
+T32ATR          equ $F3C3
+T32PAT          equ $F3C5
+
+
 NAMBAS          equ $F922
 CGPBAS          equ $F924
 PATBAS          equ $F926
@@ -205,9 +221,9 @@ chrgtb
         org     $0014
         jp      wrslt
         ret
-outdo
+;0018h OUTDO
         org     $0018
-        ret
+        jp      ch_put
 ;001Ch CALSLT Interslot call routine.
 calslt
         org     $001c
@@ -222,7 +238,7 @@ dcompr  org     $0020
 ;0024h ENA_SLT Change of Slot
 
         org     $0024
-	jp	slt_set
+        jp      enaslt
 
 ;0028h MATH-PACK
         org     $0028
@@ -286,7 +302,7 @@ romid
 ;005Fh Change VDP screen mode.
        org      $005f
        jp       chgmod
-
+                
 ;0062h  CHGCLR
        org      $0062
        jp       chgclr
@@ -487,17 +503,28 @@ soft_reset
 
         ld      bc,$0303
 chk_wrt_ram               ; check RAM on page3.
+        in      a,(PSL_STAT)
+        and     a,$3F
+        ld      e,a
+
         ld      a,c
         and     a,$03
         rrca
         rrca
-        out     (PSL_STAT),a ; A = 0000BB00
+        or      a,e     
+        out     (PSL_STAT),a ; A = BBxxxxxx
+
+        ld      a,(SSL_REGS)
+        cpl
+        and     a,$3F
+        ld      e,a
 
         ld      a,b
         and     a,$03
         rrca
         rrca
-        ld      (SSL_REGS),a ; A = 0000EE00 
+        or      a,e
+        ld      (SSL_REGS),a ; A = EExxxxxx 
         ld      e,a
 
         ld      a,$12
@@ -507,28 +534,34 @@ chk_wrt_ram               ; check RAM on page3.
         jr      nz,cant_wrt
         jp      ram_ok
 cant_wrt
-        djnz    chk_wrt_ram
+        dec     b
+        jp      p,chk_wrt_ram
+        ld      b,$03
         dec     c
-        jr      nz,chk_wrt_ram
+        jp      p,chk_wrt_ram
         ld      de,str_memory_err
         jp      print_error
 
 ram_ok
+        ld      hl,SLT_TBL
+        ld      b,0
+        ld      c,a
+        add     hl,bc
+
         ld      a,e
-        ld      (SLT_TBL),a ; expanding slot.
+        ld      (hl),a ; expanding slot.
+
         and     a,$0C
-        jr      z,skip_mem
-        ld      a,e
-        or      a,$80
-        ld      e,a
-skip_mem
 
         in      a,(PSL_STAT)
         and     a,$03
-        or      a,e
-        ld      (EXP_TBL),a ; location of MAIN-ROM.
-
-
+        or      a,$80
+        ld      (EXP_TBL),a   ; location of MAIN-ROM.
+        and     a,$80
+        ld      (EXP_TBL+1),a
+        ld      (EXP_TBL+2),a
+        ld      (EXP_TBL+3),a
+ 
 ; you can write the memory.
 
 
@@ -543,9 +576,10 @@ skip_mem
         call    init_ram
 
         call    check_rom
-        in      a,(PSL_STAT)
-        ld      ($F000),a
-        call    p3_chk
+
+;        in      a,(PSL_STAT)
+;        ld      ($F000),a
+;        call    p3_chk
 
         call    init_vdp
 
@@ -556,8 +590,6 @@ skip_mem
 
         ei
 
-        ; call chksubpos
-
         call    disp_info
         call    start_cartprog
 
@@ -566,7 +598,16 @@ skip_mem
 ;----------------------
 
 start_game
-        ld	hl,stack_error
+        in      a,(PSL_STAT)
+        rrca
+        rrca
+        and     a,$03
+        cp      a,$03
+        jr      z,dont_chgscr
+        ld      a,$01
+        call    chgmod
+dont_chgscr
+        ld      hl,stack_error
         push	hl
         ld      a,($4000)
         cp      a,'A'
@@ -625,12 +666,15 @@ start_cartprog
         rrca
         and     a,$03
 
+
         ld      d,$00
         ld      e,a
+        push    de
 
         call    vout_hex8
         call    vout_hyphen
 
+        pop     de
         ld      hl,SLT_TBL
         add     hl,de
         ld      a,(hl)
@@ -639,8 +683,9 @@ start_cartprog
         and     a,$03
         call    vout_hex8
 
-;for sound-mode.
-;        call    check_sum
+;for debug & check motion.
+
+        call    check_sum
 
         ld      a,(SMOD_TSTSND)
         or      a,a
@@ -831,6 +876,18 @@ dumpkey_loop
         jr      z,dumpkey_loop
 
 skip_kchk
+        push    af
+        ld      a,$06
+        call    in_keyboard
+        bit     0,a
+        jr      nz,norm
+        ld      iy,$1000
+        jr      bit_chk
+norm
+        ld      iy,$100
+bit_chk
+        pop     af
+
         bit     7,a
         jr      z,on_pagedown
         bit     6,a
@@ -851,10 +908,12 @@ skip_kchk
         jp      dumpkey_loop
 
 on_pagedown
-        ld      bc,$100
+        push    iy
+        pop     bc
         jr      up_addr
 on_pageup
-        ld      bc,$100
+        push    iy
+        pop     bc
         jr      down_addr
 on_down
         ld      bc,$10
@@ -995,6 +1054,12 @@ init_ram
         ld      hl,$F380
         ld      (HIMEM),hl   ;  the address of work rom >= HIMEM.
 
+        ld      (STKTOP),hl   ;  the address of BASIC stack.
+
+        ld      hl,disk_intr
+        ld      a,$C3
+        ld      (H_STKE),a
+        ld      (H_STKE+1),hl
 
 ;Forward RDPRIM routine to RAM.
         ld      hl,m_rdprim
@@ -1002,6 +1067,18 @@ init_ram
 
         ld      bc,m_prim_end-m_rdprim
         ldir
+
+; screen 1 initial address.
+        ld      hl,$1800
+        ld      (T32NAM),hl
+        ld      hl,$2000
+        ld      (T32COL),hl
+        ld      hl,$0000
+        ld      (T32CGP),hl
+        ld      hl,$1B00
+        ld      (T32ATR),hl
+        ld      hl,$3800
+        ld      (T32PAT),hl
 
 ; screen 2 initial address.
         ld      hl,$1800
@@ -1299,127 +1376,57 @@ prn_str_disp
 nul_term
         ret
 
-
-; -------------------------
-; check a cartridge in slot.
-; -------------------------
-set_page2
-; set slot value to page2.
-; in: RegBC = slot.
-
-        push    bc
-
-        call    get_slotreg
-        ld      e,a
-        and     a,$3F
-        ld      d,a
-
-        ld      a,b
-        and     a,$03
-        rrca
-        rrca    ; A = BB000000
-        or      a,d
-
-        out     (PSL_STAT),a
-
-        ld      a,c
-        and     a,$03
-        rlca
-        rlca
-        ld      c,a
-        rlca
-        rlca
-        or      a,c    
-        ld      c,a    ; 00CCCC00
-
-        ld      a,(SSL_REGS)
-        cpl
-        and     a,$C3
-        or      a,c
-        ld      (SSL_REGS),a
-        ld      c,a
-
-        ld      a,e
-        and     a,$C3
-        ld      e,a
-
-        ld      a,b
-        and     a,$03
-        rlca
-        rlca
-        ld      d,a
-        rlca
-        rlca
-        or      a,d
-        or      a,e
-        out     (PSL_STAT),a
-
-        ld      hl,SLT_TBL
-
-        ; HL = HL + B
-        ld      a,b       
-        and     a,$03
-        add     a,l
-        ld      l,a
-        ld      a,h
-        adc     a,0
-        ld      h,a
-
-        ; HL = SLT_TBL + Primary Slot #.
-
-        ld      a,c       ; A = Wrote data to SSL_REGS.
-        ld      (hl),a
-
-        pop     bc
-
-        ret
-
+;---------------------------------------------
 check_rom
 
-; RegB = the value of primary slot.
-; RegC = second slot.
-
-        ld      bc,$0000
+        ld      b,$80
 
 chk_rom_loop
-        call    set_page2
+        ld      h,$40
+        ld      a,b
+        push    bc
+        call    enaslt
+        pop     bc
 
         ld      a,($4000)
-        cp      a,'A' 
-        jr      z,chk_p2
-        ld      a,($8000)
-        cp      a,'A' 
-        jr      z,chk_p3
-        jr      no_cart
-chk_p2
+        cp      a,'A'
+        jr      nz,chk_p3
+
         ld      a,($4003)
         cp      a,$40
-        jr      c,no_cart  ; A-$40 < 0
-        cp      a,$C0
-        jr      nc,no_cart ; A-$C0 >= 0
+        jr      c,chk_p3  ; A-$40 < 0
+        cp      a,$80
+        jr      nc,chk_p3 ; A-$80 >= 0
         jp      chk_rom_ok 
+;
 chk_p3
+        ld      h,$80
+        ld      a,b
+        push    bc
+        call    enaslt
+        pop     bc
+        
         ld      a,($8003)
-        cp      a,$40
-        jr      c,no_cart  ; A-$40 < 0
+        cp      a,$80
+        jr      c,no_cart  ; A-$80 < 0
         cp      a,$C0
         jr      nc,no_cart ; A-$C0 >= 0
         jp      chk_rom_ok 
+;
 no_cart
-        inc     c
-        ld      a,$03        ; maximum slot number.
-        cp      a,c
+        inc     b
+        ld      a,b
+        and     a,$7f
+        cp      a,$10
         jr      nz,chk_rom_loop 
 
-        inc     b
-        ld      c,0
-        cp      a,b
-        jr      nc,chk_rom_loop ; A-B >= 0
-        ; could'nt found the cartridge.
 chk_rom_ng
+        ld      h,$40
+        ld      a,$80
 
-        ld      bc,$0000
-        call    set_page2
+        push    bc
+        call    enaslt
+        pop     bc
 
 chk_rom_ok
         ret
@@ -1682,61 +1689,119 @@ wordcomp
 ; F = Flag of Extended slot.
 ; E = Extended slot#
 ; S = slot#
+; Dest. AF,BC,DE,DI
 
-slt_set
+enaslt
 
 ; A=(A >> 6)&0x3
         di
-        push    af
+	push	hl
+
+	ld      l,a 	; L = FxxxEEPP
+
+	and     a,$03   ; A = 000000PP
+	ld      b,a
+	ld      a,$AB
+psl_dup_lp
+	add	a,$55
+	dec	b
+        jp      p,psl_dup_lp
+
+	ld      d,a     ; D = PP PP PP PP
+
+	ld  	a,h
+	rlca
+	rlca
+	and	a,$03
+
+	ld      h,a	; H = addess upper 2bit
+
+	ld      b,a
+
+	ld	a,$C0
+page_msk_lp
+	rlca
+	rlca
+	dec	b
+        jp      p,page_msk_lp
+
+	ld	e,a	; E = 00 00 11 00(Page mask)
+	cpl
+	ld	c,a	; C = 11 11 00 11(AND MASK)
+
+	ld	a,d
+	and	a,e
+	ld	b,a     ; B = 00 00 PP 00
+
+	ld	a,l
+	and	a,a
+	jp	p,chg_psl
+
+;SSL-Change
+	rrca
+	rrca
+	and	a,$03   ; A = 000000SS
+
+	push	hl
+	push	bc
+
+	ld	b,a
+	ld      a,$AB
+ssl_dup_lp
+	add	a,$55
+	dec	b
+        jp      p,ssl_dup_lp
+
+	and	a,e
+	ld	b,a	; B = 00 00 SS 00
+
+	ld	a,d
+	and	a,$C0
+	ld      h,a
+
+	in	a,(PSL_STAT)
+	ld	l,a
+	and	a,$C0
+	or	a,h
+	out	(PSL_STAT),a
+
+	ld	a,(SSL_REGS)
+	cpl
+	and	a,c
+	or	a,b    ; A = xx xx SS xx ( x = old value )
+	ld	c,a
+	ld	(SSL_REGS),a
+
+	ld	a,l
+	out	(PSL_STAT),a
+
+	; (SLTTBL + PP) <- RegC
+
+	ld	hl,SLT_TBL
+
+        ld      a,d
+        and     a,$03	; A = 000000PP
+
+        add     a,l
+        ld      l,a	; L = L + A
+
         ld      a,h
-        rlca
-        rlca
-        and     a,$03      ; H=upper 2bit
-        ld      h,a
-        pop     af
-        push    af
+        adc     a,0
+        ld      h,a	; H = H + Cy
 
-;       
+	ld	a,c
+	ld	(hl),a
 
-        call    p_slot
-        pop     af
-        push    de
-        and     a,a
-;           jp   p,s_slot
-        pop     de
-        in      a,(PSL_STAT)
-        and     a,d
-        or      a,e
+	pop	bc
+	pop	hl
+
+chg_psl
+	in      a,(PSL_STAT)
+        and     a,c
+        or      a,b
         out     (PSL_STAT),a
 
-        ret
-
-p_slot
-        ld      d,a        ; D = slot#
-        rrca
-        rrca
-        and     a,$C0      ; SS000000
-        ld      b,h        ; B = page#
-        inc     b
-ps_lp1
-        rlca
-        rlca
-        djnz    ps_lp1
-
-        ld      e,a         ; E = shifted slot#
-
-        ld      b,h
-        inc     b
-        ld      a,$C0      ; a=MASK
-ps_lp2
-        rlca
-        rlca
-        djnz    ps_lp2
-
-        cpl
-
-        ld      d,a         ; B = ~MASK
-        
+	pop	hl
         ret
 
 
@@ -1754,7 +1819,7 @@ call_lf
         push    de
         push    hl
         push    af
-        call    slt_set
+        call    enaslt
         pop     af
         pop     hl
         jp      (hl)
@@ -1930,7 +1995,7 @@ init_sc5
         call    wrt_vdp		; write VDP R#0
 
 
-        ld      a,(RG1SAV)
+        ld      a,(RG0SAV+1)
         and     a,$E7           ; MASK 11100111
 
         ld      b,a             ; B = R#1 data
@@ -1946,13 +2011,20 @@ init_sc5
         ld      hl,$7800
         ld      (PATBAS),hl
 
-        ld      b,$1F             ; B = data
+        ld      b,$1F           ; B = data
         ld      c,2
         call    wrt_vdp         ; write VDP R#2
 
-        ld      b,$01             ; B = data
+        ld      a,(RG0SAV+4)
+        ld      b,a             ; B = data
         ld      c,4
         call    wrt_vdp         ; write VDP R#4
+
+        ld      a,(RG0SAV+3)
+        ld      b,a             ; B = data
+        ld      c,3
+        call    wrt_vdp         ; write VDP R#3
+
 
         ld      b,0             ; B = data
         ld      c,10
@@ -1964,9 +2036,23 @@ init_sc5
         inc     c
         call    wrt_vdp         ; write VDP R#12
 
-        ld      b,$80           ; B = data
-        ld      c,3
-        call    wrt_vdp         ; write VDP R#3
+
+        ld      b,$00           ; B = data
+        ld      c,19
+        call    wrt_vdp         ; write VDP R#19
+
+        ld      b,$01           ; B = data
+        ld      c,15
+        call    wrt_vdp         ; write VDP R#15
+
+        in      a,(VDP_STAT)	; reset Latch
+
+
+        ld      b,$00           ; B = data
+        ld      c,15
+        call    wrt_vdp         ; write VDP R#15
+
+
 
 
         ld      b,$ef           ; B = data
@@ -1978,6 +2064,97 @@ init_sc5
 
         call    enascr
         ret
+
+;------------------------------
+;Initialize VDP to screen 7.
+init_sc7
+        ld      a,$07
+        ld      (SCRMOD),a
+
+        in      a,(VDP_STAT)	; reset Latch
+
+        call    chgclr
+
+        ld      a,(RG0SAV)
+        and     a,$F1		; MASK 11110001
+        or      a,$0A           ; M4,M3 = 1
+
+        ld      b,a             ; B = R#0 data
+        ld      c,0
+
+        call    wrt_vdp		; write VDP R#0
+
+
+        ld      a,(RG0SAV+1)
+        and     a,$E7           ; MASK 11100111
+
+        ld      b,a             ; B = R#1 data
+        inc     c
+
+        call    wrt_vdp         ; write VDP R#1
+
+        ld      hl,$0000
+        ld      (NAMBAS),hl
+        ld      (CGPBAS),hl
+        ld      hl,$7600
+        ld      (ATRBAS),hl
+        ld      hl,$7800
+        ld      (PATBAS),hl
+
+        ld      b,$1F           ; B = data
+        ld      c,2
+        call    wrt_vdp         ; write VDP R#2
+
+        ld      a,(RG0SAV+4)
+        ld      b,a             ; B = data
+        ld      c,4
+        call    wrt_vdp         ; write VDP R#4
+
+        ld      a,(RG0SAV+3)
+        ld      b,a             ; B = data
+        ld      c,3
+        call    wrt_vdp         ; write VDP R#3
+
+
+        ld      b,0             ; B = data
+        ld      c,10
+        call    wrt_vdp         ; write VDP R#10
+        ld      b,0             ; B = data
+        inc     c
+        call    wrt_vdp         ; write VDP R#11
+        ld      b,0             ; B = data
+        inc     c
+        call    wrt_vdp         ; write VDP R#12
+
+
+        ld      b,$00           ; B = data
+        ld      c,19
+        call    wrt_vdp         ; write VDP R#19
+
+        ld      b,$01           ; B = data
+        ld      c,15
+        call    wrt_vdp         ; write VDP R#15
+
+        in      a,(VDP_STAT)	; reset Latch
+
+
+        ld      b,$00           ; B = data
+        ld      c,15
+        call    wrt_vdp         ; write VDP R#15
+
+
+
+
+        ld      b,$ef           ; B = data
+        ld      c,5
+        call    wrt_vdp         ; write VDP R#5
+        ld      b,$0f           ; B = data
+        inc     c
+        call    wrt_vdp         ; write VDP R#6
+
+        call    enascr
+        ret
+
 
 ;--------------------------------
 ;0072h INIGRP
@@ -2084,7 +2261,8 @@ sft_lp
         inc     c
         ret
 
-;005Fh CHGMOD
+;----------------------------------
+;005Fh CHGMOD   Change Screen mode
 chgmod
         or      a,a
         jp      z,init_text  ; screen 0
@@ -2102,14 +2280,137 @@ chgmod
 ;
         dec     a
         jp      z,init_sc5   ; screen 5
+        dec     a
+;        jp      z,init_sc6  ; screen 6
+        dec     a
+        jp      z,init_sc7   ; screen 7
 
         ret
 
 init_text
+        ld      a,$00
+        ld      (SCRMOD),a
+
+        call    clr_text40
+
+        in      a,(VDP_STAT)	; reset Latch
+        call    chgclr
+
+        ld      a,(RG0SAV)
+        and     a,$F1		; MASK 11110001
+
+        ld      b,a             ; B = R#0 data
+        ld      c,0
+
+        call    wrt_vdp		; write VDP R#0
+
+
+        ld      a,(RG1SAV)
+        and     a,$E7           ; MASK 11100111
+        or      a,$10
+
+        ld      b,a             ; B = R#1 data
+        inc     c
+
+        call    wrt_vdp		; write VDP R#1
+
+        ret
+
 ;????h INITTXT32
 init_txt32
+        ; screen 1
+        ld      a,$01
+        ld      (SCRMOD),a
+
         call    clr_text40
+
+        in      a,(VDP_STAT)	; reset Latch
+
         call    chgclr
+
+        ld      a,(RG0SAV)
+        and     a,$F1		; MASK 11110001
+
+        ld      b,a             ; B = R#0 data
+        ld      c,0
+
+        call    wrt_vdp		; write VDP R#0
+
+
+        ld      a,(RG1SAV)
+        and     a,$E7           ; MASK 11100111
+
+        ld      b,a             ; B = R#1 data
+        inc     c
+
+        call    wrt_vdp		; write VDP R#1
+
+        ld     hl,(T32NAM)
+        ld     (NAMBAS),hl
+        ld     hl,(T32CGP)
+        ld     (CGPBAS),hl
+        ld     hl,(T32PAT)
+        ld     (PATBAS),hl
+        ld     hl,(T32ATR)
+        ld     (ATRBAS),hl
+
+        ld      hl,(T32NAM)
+        ld      a,h
+        rrca
+        rrca
+        and     a,$3F
+
+        ld      b,a
+        ld      c,2
+        call    wrt_vdp         ; write VDP R#2
+
+
+        ld     hl,(T32COL)
+        ld     b,2
+tcol_lp
+        xor    a,a
+        rl     l
+        rl     h
+        djnz   tcol_lp
+        ld     a,h
+
+        ld     b,a
+        ld     c,3
+        call    wrt_vdp         ; write VDP R#3
+
+        ld      hl,(T32CGP)
+        ld      a,h
+        rrca
+        rrca
+        rrca
+        and     a,$1F
+
+        ld      b,a
+        ld      c,4
+        call    wrt_vdp         ; write VDP R#4
+
+        ld      hl,(T32ATR)
+        rl     l
+        rl     h
+        ld     a,h
+
+        ld     b,a
+        ld     c,5
+        call   wrt_vdp         ; write VDP R#5
+        
+        ld      hl,(T32PAT)
+        ld    a,h
+        rrca
+        rrca
+        rrca
+        and     a,$1F
+        ld     b,a
+        ld     c,6
+        call   wrt_vdp         ; write VDP R#6
+
+
+
+
         ret
 
 ;0062h CHGCLR
@@ -2182,17 +2483,20 @@ disscr
 ;009Ch  CHSNS
 ch_sns
         push    hl
+        push    de
         ld      hl,(GETPNT)
         ld      de,(PUTPNT)
         call    wordcomp
         jr      z,no_chr
         ld      a,(hl)
         and     a,a
+        pop     de
         pop     hl
         ret
 no_chr
         xor     a,a
         and     a,a
+        pop     de
         pop     hl
         ret
 
@@ -2202,6 +2506,7 @@ ch_get
         ld      a,$00
         push    hl
         push    de
+        push    bc
 loop_chget
         ld      hl,(GETPNT)
         ld      de,(PUTPNT)
@@ -2215,16 +2520,17 @@ get_ch
         ld      bc,(GETPNT)
         ld      a,(bc)
         and     a,a
+        push    af
         ld      bc,39
         ld      hl,(GETPNT)
         inc     hl
         ld      de,(GETPNT)
-        push    af
         ldir
         ld      de,(PUTPNT)
         dec     de
         ld      (PUTPNT),de
         pop     af
+        pop     bc
         pop     de
         pop     hl
         ret
@@ -2476,6 +2782,9 @@ vdp_stat_in
 
 ;--------------------------------
 ;0141h SNSMAT
+; in a = Keyboard row number.
+;dest AF,C,EI
+
 in_keyboard
         di
         ld      c,a
@@ -2490,9 +2799,13 @@ in_keyboard
 ;--------------------------------
 ;00D5h GTSTCK
 ; a = InID...
+; dest AF,BC,EI
 in_joy
+
+        push    bc
         cp      a,$00
         jr      nz,joy_stc1
+
         ld      a,$08
         call    in_keyboard
         rrca
@@ -2502,17 +2815,24 @@ in_joy
         cpl
         and     a,$0f ; 0000RDUL
        
+        push    hl
         ld      hl,joypos_kbd_tbl
         ld      b,0
         ld      c,a
         add     hl,bc
         ld      a,(hl)
+        pop     hl
+        pop     bc
+        and     a,a
         ret
 joy_stc1
 ;PSG reg 15h
 ;0J001111
 ;PSG reg 14h
 ;00BARLDU
+        push    hl
+        push    de
+
         ld      e,0
         dec     a
         jr      z,sel_stc1
@@ -2520,14 +2840,18 @@ joy_stc1
         ld      e,a
 sel_stc1
         ld      a,$0F
+        di
         call    sound_stat
+        ei
         and     a,$BF
         or      a,e
         ld      e,a
         ld      a,$0F
         call    sound_out
         ld      a,$0e
+        di
         call    sound_stat
+        ei
         cpl
         and     a,$0f ; 0000RLDU
         
@@ -2537,10 +2861,17 @@ sel_stc1
         ld      c,a
         add     hl,bc
         ld      a,(hl)
+        pop     de
+        pop     hl
+
+        pop     bc
+        and     a,a
         ret
 
 joy_end
         ld      a,$00
+        pop     bc
+        and     a,a
         ret
 
 joypos_joy_tbl
@@ -2558,10 +2889,12 @@ joypos_kbd_tbl
 
 ;--------------------------------
 ;00D8h GTTRIG
+;dest AF,BC,EI
+;
+
 in_trig
         cp      a,$00
         jr      z,kbd_spc
-        dec     a
         jr      joy_trig
 kbd_spc
         ld      a,$08
@@ -2577,6 +2910,8 @@ spc_off
         ret
 
 joy_trig
+        di
+        dec     a
         push    de
         ld      e,$00
         ld      b,a
@@ -2599,7 +2934,9 @@ sel_trig1
         ld      b,$20
 istrg_a
         ld      a,$0e
+        di
         call    sound_stat
+        ei
         pop     de
         and     a,b
         jr      z,trig_on
@@ -2610,6 +2947,8 @@ trig_on
 trig_off
         xor     a,a
         ret
+
+
 
 
 ;------------------
@@ -2780,16 +3119,27 @@ ki_end
 
 ;-------------------
         org     $1000
+
+        ld      a,$82
+        out     (PPI_REGS),a
+
+        ld      a,$C9
+        ld      (H_KEYI),a
+        ld      (H_TIMI),a
+
+        ei
+
 hang_up_mode
-        halt
         ld      a,$06
         call    in_keyboard
         bit     0,a
         jp      z,debug_mode
 
+        halt
+
         jp      hang_up_mode
 
-        org     $1010
+        org     $1020
 stack_error
         call    H_STKE
         ld      de,str_stack_error
@@ -2858,12 +3208,124 @@ lp_strprn
 
         jp      hang_up_mode
 
+
+;------------------------------------
+;the disk routines
+;------------------------------------
+
+DISKIO  equ     $4010
+
+disk_intr
+        ld      hl,str_flist
+        call    prn_text
+
+        xor     a,a
+        ld      bc,$01F9
+        ld      de,$0000
+        ld      hl,$C000
+        and     a,a
+
+        call    DISKIO
+        jp      c,disk_error
+        ld      hl,($C00B)
+
+        ; byte of sector / 0x20(file structure)
+
+        ld      b,5        
+shift_adr
+        and     a,a
+        rr      h
+        rr      l
+        djnz    shift_adr        
+
+        ld      ($E100),hl
+
+        ld      a,($C010)
+        ld      b,a
+        ld      hl,$0001
+        ld      de,($C016)
+dsk_lp
+        add     hl,de
+        djnz    dsk_lp
+
+        ex      de,hl
+        xor     a,a
+        ld      bc,$01F9
+        ld      hl,$C000
+        and     a,a
+        call    DISKIO
+        jp      c,disk_error
+
+        ld      ix,$C000
+
+        ld      a,($E100)
+        ld      c,a
+
+file_lp
+        ld      a,(ix)
+        and     a,a
+        jp      z,end_lp
+        ld      b,8
+name_lp
+        ld      a,(ix)
+        inc     ix
+        call    ch_put
+        djnz    name_lp
+
+        ld      a,'.'
+        call    ch_put
+
+        ld      b,3
+ext_lp
+        ld      a,(ix)
+        inc     ix
+        call    ch_put
+        djnz    ext_lp
+
+        ld      de,$0015
+        add     ix,de
+
+        ld      hl,str_crlf
+        call    prn_text
+
+        dec     c
+        jr      nz,file_lp
+
+end_lp
+        
+        jp      hang_up_mode
+
+;        ld      de,str_disk
+;        jp      print_error
+
+disk_error
+        push    af
+        ld      hl,str_diskerr
+        call    prn_text
+        pop     af
+        ld      b,0
+        ld      c,a
+        ld      hl,str_de_addr
+        add     hl,bc
+
+        ld      e,(hl)
+        inc     hl
+        ld      d,(hl)
+
+        ex      de,hl
+        call    prn_text
+
+        jp      hang_up_mode
+        
+
+
 ;---------------------------------
 ;system messages
+;---------------------------------
 
 str_proginfo
 ;                0123456789012345678901234567890123456789 
-        db      "MSX COMPATIBLE BIOS ver 0.11",$0d,$0a
+        db      "MSX COMPATIBLE BIOS ver 0.12",$0d,$0a
         db      "Copyright (C) 2002 BouKiCHi",$0d,$0a
         db      $00
 
@@ -2894,6 +3356,10 @@ str_no_basic_intr
 ;
         db      "CALLED NO EXISTANCE BASIC.",$00
 
+str_disk
+;
+        db      "CALLED DISK ROUTINE.",$00
+
 str_stack_error
 ;
         db      "STACK ERROR.",$00
@@ -2905,6 +3371,37 @@ str_secretmsg
 
 str_crlf
         db      $0d,$0a,$00
+
+str_flist
+        db      $0d,$0a,"--- display disk file list ---",$0d,$0a,$00
+
+str_diskerr
+        db      "Disk Error:",$00
+
+str_de_addr
+        dw str_de_wp
+        dw str_de_nr
+        dw str_de_de
+        dw str_de_se
+        dw str_de_rn
+        dw str_de_wf
+        dw str_de_oe
+
+str_de_wp
+        db      "Write protected",$0d,$0a,$00
+str_de_nr
+        db      "Not ready",$0d,$0a,$00
+str_de_de
+        db      "Data (CRC) error",$0d,$0a,$00
+str_de_se
+        db      "Seek error",$0d,$0a,$00
+str_de_rn
+        db      "Record not found",$0d,$0a,$00
+str_de_wf
+        db      "Write fault",$0d,$0a,$00
+str_de_oe
+        db      "Other Error",$0d,$0a,$00
+
 
 str_canstst
         db      $0d,$0a
@@ -2981,7 +3478,7 @@ sound_mode
         and     $03             ; A=CART ROM slot
 
         ld      hl,$8000
-        call    slt_set         ; duplicate page1 to page2
+        call    enaslt         ; duplicate page1 to page2
 
         ; takeover the hook.
 

@@ -15,7 +15,7 @@ for allowing us to distribute it.
 Contents
 ========
 
-cbios: C-BIOS 0.11 (2002-09-22)
+cbios: C-BIOS 0.12 (2002-09-27)
 	C-BIOS is a BIOS written from scratch that aims to be compatible with
 	the MSX BIOS. The current version runs many MSX1 ROM games succesfully.
 	Use the config file "src/cfg/cbios.xml" to use C-BIOS in openMSX.
