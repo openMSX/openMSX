@@ -18,13 +18,13 @@ MAINTAINERCLEANFILES = aclocal.m4 Makefile.in \
 EXTRA_DIST = openmsx.lsm.in GPL TODO config-i686.sh autogen.sh share \
              README.MD5SUMS
 
-# Altough (no)debug only needed in the src dir, we want 
+# Altough (no)debug only needed in the src dir, we want
 # to use the parameters here also
 nodebug: resetdebug all
 debug: setdebug all
 
 resetdebug:
-	@-rm -f src/debug
+	@-rm -f src/.debug
 setdebug:
 	@touch src/.debug
 
