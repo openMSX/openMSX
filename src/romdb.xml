@@ -75,7 +75,7 @@
     <remark></remark>
   </rom>
   <rom id="3D Golf Simulation - High-Speed Edition">
-    <romtype>PLAIN</romtype>
+    <romtype>ROMBAS</romtype>
     <md5>ae898e560f7c672540b0ac95b6e03c24</md5>
     <crc32>cb935a50</crc32>
     <year>1984</year>
@@ -91,7 +91,7 @@
     <remark></remark>
   </rom>
   <rom id="3D Golf Simulation - Normal Edition (2)">
-    <romtype>PLAIN</romtype>
+    <romtype>ROMBAS</romtype>
     <md5>6cf80e1861de859e3e8e84941ca33ef1</md5>
     <crc32>f83d4b0d</crc32>
     <year>1983</year>
@@ -99,7 +99,7 @@
     <remark></remark>
   </rom>
   <rom id="3D Tennis">
-    <romtype>PLAIN</romtype>
+    <romtype>ROMBAS</romtype>
     <md5>8ea4964b35509ba0d021d35aa76f324c</md5>
     <crc32>fb00f21b</crc32>
     <year>1983</year>
@@ -595,7 +595,7 @@
     <remark></remark>
   </rom>
   <rom id="The Brain">
-    <romtype>PLAIN</romtype>
+    <romtype>ROMBAS</romtype>
     <md5>d427cd092abd45d178d56e41e7822679</md5>
     <crc32>bb402b47</crc32>
     <year>1983</year>
@@ -603,7 +603,7 @@
     <remark></remark>
   </rom>
   <rom id="Break Out">
-    <romtype>PLAIN</romtype>
+    <romtype>ROMBAS</romtype>
     <md5>d0e57136b7dd3569eeeeeb04188ef4ed</md5>
     <crc32>70113f76</crc32>
     <year>1983</year>
@@ -899,7 +899,7 @@
     <remark></remark>
   </rom>
   <rom id="Comet Tail">
-    <romtype>PLAIN</romtype>
+    <romtype>ROMBAS</romtype>
     <md5>22416ba63118ef8f1cc14d2bcaf3c56e</md5>
     <crc32>74af0726</crc32>
     <year>1983</year>
@@ -995,7 +995,7 @@
     <remark></remark>
   </rom>
   <rom id="Crazy Bullet">
-    <romtype>PLAIN</romtype>
+    <romtype>ROMBAS</romtype>
     <md5>69cae7694b271d2c071c8413fd2d42f1</md5>
     <crc32>d0e8f418</crc32>
     <year>1983</year>
@@ -1075,7 +1075,7 @@
     <remark></remark>
   </rom>
   <rom id="Danger X4">
-    <romtype>PLAIN</romtype>
+    <romtype>ROMBAS</romtype>
     <md5>77739e3d0a583f1fb220b37b0fccf5d9</md5>
     <crc32>571f12fb</crc32>
     <year>1984</year>
@@ -1379,7 +1379,7 @@
     <remark></remark>
   </rom>
   <rom id="Exchanger">
-    <romtype>PLAIN</romtype>
+    <romtype>ROMBAS</romtype>
     <md5>702e8cb880a60132c3ace8fd21ba9560</md5>
     <crc32>2c2b8a0e</crc32>
     <year>1983</year>
@@ -1723,7 +1723,7 @@
     <remark></remark>
   </rom>
   <rom id="Gang Master">
-    <romtype>PLAIN</romtype>
+    <romtype>ROMBAS</romtype>
     <md5>79af27b8292ce59123f7d8ac64cca55c</md5>
     <crc32>c3ee7e15</crc32>
     <year>1983</year>
@@ -1779,7 +1779,7 @@
     <remark></remark>
   </rom>
   <rom id="Golf Game">
-    <romtype>PLAIN</romtype>
+    <romtype>ROMBAS</romtype>
     <md5>277b93f5f1a7ef399479ffdf98844922</md5>
     <crc32>5d88275f</crc32>
     <year>1983</year>
@@ -2227,7 +2227,7 @@
     <remark></remark>
   </rom>
   <rom id="Iriegas">
-    <romtype>PLAIN</romtype>
+    <romtype>ROMBAS</romtype>
     <md5>b4571f90a52854c579a33fc5998f88da</md5>
     <crc32>36a08e0b</crc32>
     <year>1983</year>
@@ -2643,7 +2643,7 @@
     <remark></remark>
   </rom>
   <rom id="Ladder Building">
-    <romtype>PLAIN</romtype>
+    <romtype>ROMBAS</romtype>
     <md5>89074bc1801abc318012c4f20eea0bf7</md5>
     <crc32>c6064ce0</crc32>
     <year>1984</year>
@@ -2675,7 +2675,7 @@
     <remark></remark>
   </rom>
   <rom id="Lord Over">
-    <romtype>PLAIN</romtype>
+    <romtype>ROMBAS</romtype>
     <md5>33f5d0e33f702c97222bd101c70c7588</md5>
     <crc32>ab5e42fe</crc32>
     <year>1983</year>
@@ -2779,7 +2779,7 @@
     <remark></remark>
   </rom>
   <rom id="Marine Battle">
-    <romtype>PLAIN</romtype>
+    <romtype>ROMBAS</romtype>
     <md5>80ca2c6be9f35d3f8a90e163a935548d</md5>
     <crc32>24923bdb</crc32>
     <year>1983</year>
@@ -2915,7 +2915,7 @@
     <remark></remark>
   </rom>
   <rom id="Mole">
-    <romtype>PLAIN</romtype>
+    <romtype>ROMBAS</romtype>
     <md5>11a66bb4d76b97f3e7195886abf88b3c</md5>
     <crc32>d0e39c9b</crc32>
     <year>1983</year>
@@ -2963,7 +2963,7 @@
     <remark></remark>
   </rom>
   <rom id="Moon Landing">
-    <romtype>PLAIN</romtype>
+    <romtype>ROMBAS</romtype>
     <md5>4d938e6e42a98b00dbcc51896545f537</md5>
     <crc32>8a2c11da</crc32>
     <year>1983</year>
@@ -3107,7 +3107,7 @@
     <remark>Not Playable / Needs FS-4000</remark>
   </rom>
   <rom id="MSX Derby">
-    <romtype>PLAIN</romtype>
+    <romtype>ROMBAS</romtype>
     <md5>666a2c98b77d86fe27db2bb703af4887</md5>
     <crc32>268cc301</crc32>
     <year>1983</year>
@@ -3155,7 +3155,7 @@
     <remark></remark>
   </rom>
   <rom id="MSX21">
-    <romtype>PLAIN</romtype>
+    <romtype>ROMBAS</romtype>
     <md5>becba7dc8e80ae8dd2a98171d2574e60</md5>
     <crc32>13b8243c</crc32>
     <year>1983</year>
@@ -3443,7 +3443,7 @@
     <remark></remark>
   </rom>
   <rom id="Pass Ball">
-    <romtype>PLAIN</romtype>
+    <romtype>ROMBAS</romtype>
     <md5>455df4d49ff8300c702ce961919ac61c</md5>
     <crc32>82b8f501</crc32>
     <year>1983</year>
@@ -3875,7 +3875,7 @@
     <remark></remark>
   </rom>
   <rom id="Scope On">
-    <romtype>PLAIN</romtype>
+    <romtype>ROMBAS</romtype>
     <md5>e6fbef6e5c344b9533ecbce493f33668</md5>
     <crc32>5b33e583</crc32>
     <year>1983</year>
@@ -4499,7 +4499,7 @@
     <remark></remark>
   </rom>
   <rom id="Trial Ski">
-    <romtype>PLAIN</romtype>
+    <romtype>ROMBAS</romtype>
     <md5>4a21eb60960d1aa20a83b593910ee322</md5>
     <crc32>152bebc2</crc32>
     <year>1984</year>
@@ -4611,7 +4611,7 @@
     <remark></remark>
   </rom>
   <rom id="Warrior">
-    <romtype>PLAIN</romtype>
+    <romtype>ROMBAS</romtype>
     <md5>b2f25b3999413001f9af20ccd8b4a91b</md5>
     <crc32>21a0b009</crc32>
     <year>1983</year>
