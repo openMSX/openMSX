@@ -6,7 +6,7 @@
 USE_SYMLINK:=false
 
 # Default build flavour.
-OPENMSX_FLAVOUR?=uow32
+OPENMSX_FLAVOUR?=win32
 
 # Default compiler.
 OPENMSX_CXX?=g++
