@@ -624,7 +624,7 @@
     <sha1>b15e73a5ff1ae17ac67f2cebb5862d5e5bd80bc0</sha1>
     <year>1986</year>
     <company>System Soft</company>
-    <remark>Doesn't work correctly in openMSX yet.</remark>
+    <remark>This game has a bug. Because of this bug it won't work on all MSX machines. To solve this bug change in the ROM image the byte at address 0x003A from 0x03 to 0x0C, or try it in slot 3.</remark>
   </rom>
   <rom>
     <title>The Brain</title>
