@@ -6,12 +6,8 @@
 #           'left' or 'right'. Default is 'top'
 #  example: load_icons set1 bottom
 
-proc load_icons { set_name set_position render } {
-	# TO FIX:
-	# how do I get the output of "set renderer"???
-	#
-	#set render [ set renderer ] fails, $renderer fails,...
-	#
+proc load_icons { set_name set_position } {
+	global renderer
 
 	# Check skin directory
 	set directory [data_file "skins/$set_name"]
@@ -37,6 +33,12 @@ proc load_icons { set_name set_position render } {
 		source $script
 	}
 
+	# and since SDLLo has almost no screen estate we deliberately
+	# ingnore the spacing settings for this renderer
+	if { "SDLLo" == $renderer } {
+		set xspacing $xwidth
+		set yspacing $yheight
+	}
 
 	# change according to <position> parameter
 	if { $set_position == "left" } {
@@ -45,7 +47,7 @@ proc load_icons { set_name set_position render } {
 
 	if { $set_position == "right" } {
 		set horizontal 0
-		if { "SDLLo" == $render } {
+		if { "SDLLo" == $renderer } {
 			set xbase [ expr 320 - $xwidth ]
 		} else {
 			set xbase [ expr 640 - $xwidth ]
@@ -53,7 +55,7 @@ proc load_icons { set_name set_position render } {
 	}
 
 	if { $set_position == "bottom" } {
-		if { "SDLLo" == $render } {
+		if { "SDLLo" == $renderer } {
 			set power off
 			set ybase [ expr 240 - $yheight ]
 		} else {

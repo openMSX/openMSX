@@ -1,5 +1,9 @@
 $Id$
 
+2005-02-02 David Heremans <david.heremans@gnu-linux.net>
+	* Fixed a minor announce in the load_icon tcl script
+	   and added extra SDLLo checks
+
 2005-02-01 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* documented icon related settings
 	* Fixed 13-bit MSX-AUDIO DAC
