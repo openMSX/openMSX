@@ -73,6 +73,7 @@ openmsx_SOURCES=\
 	CommandLineParser.cc CommandLineParser.hh \
 	MSXDiskRomPatch.cc MSXDiskRomPatch.hh \
 	atoll.c \
+	md5.cc md5.hh \
 	PluggingController.hh PluggingController.cc \
 	Connector.hh Connector.cc Pluggable.hh \
 	config.h \
