@@ -1,0 +1,650 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.0//EN"
+"http://www.w3.org/TR/xhtml-basic/xhtml-basic10.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<link title="Purple" rel="stylesheet" href="manual-purple.css" type="text/css" />
+<link title="Plain" rel="alternate stylesheet" href="manual-plain.css" type="text/css" />
+<title>openMSX Compilation Guide</title>
+</head>
+
+<body>
+
+<h1>openMSX Compilation Guide</h1>
+
+<h2>Contents</h2>
+<ol class="toc">
+	<li><a class="internal" href="#intro">1. Introduction</a>
+		<ol class="toc">
+			<li><a class="internal" href="#newver">1.1. New Versions of this Document</a></li>
+			<li><a class="internal" href="#purpose">1.2. Purpose</a></li>
+			<li><a class="internal" href="#contrib">1.3. Contributors</a></li>
+			<li><a class="internal" href="#history">1.4. Revision History</a></li>
+		</ol>
+	</li>
+	<li><a class="internal" href="#getsource">2. Getting the Source Code</a>
+		<ol class="toc">
+			<li><a class="internal" href="#getrelease">2.1. Retrieve Normal Releases</a></li>
+			<li><a class="internal" href="#getcvs">2.2. Retrieve Stuff from CVS</a></li>
+		</ol>
+	</li>
+	<li><a class="internal" href="#compile">3. Compiling</a>
+		<ol class="toc">
+			<li><a class="internal" href="#tools">3.1. Build Tools</a></li>
+			<li><a class="internal" href="#libs">3.2. Libraries</a></li>
+			<li><a class="internal" href="#compilenow">3.3. Compilation Itself</a></li>
+		</ol>
+	</li>
+	<li><a class="internal" href="#install">4. Installation</a></li>
+	<li><a class="internal" href="#next">5. Next Steps</a></li>
+	<li><a class="internal" href="#contact">6. Contact Info</a></li>
+</ol>
+
+<h2><a id="intro">1. Introduction</a></h2>
+
+<h3><a id="newver">1.1. New Versions of this Document</a></h3>
+<p>
+The latest version of this document can be found
+in the CVS directory of openMSX.
+Try this link:
+http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/openmsx/openMSX/doc/openMSX-HOWTO.txt?rev=HEAD&amp;content-type=text/vnd.viewcvs-markup
+</p>
+<p class="todo">
+With XHTML the document consists of multiple files,
+so a link like the one above is no longer useful.
+The manual should be installed on the openMSX home page.
+</p>
+
+<h3><a id="purpose">1.2. Purpose</a></h3>
+<p>
+This guide is about openMSX, the open source MSX emulator that tries to achieve
+near-perfect emulation by using a novel emulation model.
+The home page of openMSX can be found here:
+<a class="external" href="http://openmsx.sf.net/">http://openmsx.sf.net/</a>
+</p>
+
+<p>
+openMSX is in alpha state, which means that some things work but not all
+features are implemented yet.
+Many emulation features are implemented, but in terms of user interface
+it is rather bare bones.
+However, since the emulation is already pretty good,
+it would be nice if non-insiders would be able to play with it, too.
+For those people, we have written this guide.
+It explains how you can get the emulator running on your system,
+i.e. how to get the sources and compile them.
+</p>
+
+<p>
+This guide describes how you can get the openMSX sources and compile them
+on a Linux machine.
+Linux is the OS used by most openMSX developers.
+Running on BSD, Mac OS X, BeOS etc (wherever SDL runs) should be possible,
+but will probably not work out-of-the-box.
+If you are compiling on such a platform,
+please share your experiences
+(see below for <a class="internal" href="#contact">contact info</a>),
+so we can make openMSX more portable.
+Win32 users should have a look at Reikan's Win32 port, which is located at:
+<a class="external" href="http://www.ranpub.com/openMSX4Win32/"
+>http://www.ranpub.com/openMSX4Win32/</a>.
+There are Win32 binaries available as well, so you only have to build from
+source if you're interested in making changes.
+</p>
+
+<p>
+<em>Disclaimer:</em>
+We do not claim this guide is complete or even correct!
+What you do with the information in it is enterily at your own risk.
+We just hope it helps you enjoy openMSX more.
+</p>
+
+<h3><a id="contrib">1.3. Contributors</a></h3>
+
+<p>
+The following people contributed to this document in one way or another:
+</p>
+
+<dl>
+
+<dt>Jorrith Schaap</dt>
+<dd>openMSX user who came with the idea to write this document and
+helped write the first version.</dd>
+
+<dt>Manuel Bilderbeek</dt>
+<dd>openMSX developer who wrote most of this document.
+Manuel does a lot of the testing and documentation of openMSX.</dd>
+
+<dt>Maarten ter Huurne</dt>
+<dd>openMSX developer who restructured the original document
+and converted it to XHTML.</dd>
+
+<dt>other openMSX developers</dt>
+<dd>Various people made small contributions to this document.</dd>
+
+</dl>
+
+<h3><a id="history">1.4. Revision History</a></h3>
+
+<p>
+This section gives an overview of the changes that were made to this document.
+It doesn't contain every single modification (use the CVS log for that),
+only the big picture.
+</p>
+
+<dl>
+
+<dt>2003-07-06: Maarten ter Huurne</dt>
+<dd>
+Split the Compilation Guide off from the openMSX HOWTO.
+Converted to XHTML.
+Restructured the document.
+Rewrote some text to fit better in the new structure and format.
+</dd>
+
+<dt>2002, 2003: Manuel Bilderbeek</dt>
+<dd>
+Various updates to the HOWTO.
+</dd>
+
+<dt>2002: Manuel Bilderbeek &amp; Jorrith Schaap</dt>
+<dd>
+Original text written as part of the openMSX HOWTO.
+</dd>
+
+</dl>
+
+<h2><a id="getsource">2. Getting the Source Code</a></h2>
+
+<p>
+There are several options for getting the source code:
+</p>
+
+<dl>
+
+<dt>release version</dt>
+<dd>
+These are tested versions, which should give you little problem compiling
+and running.
+However, as openMSX development if often quite fast, they may not have all
+the latest features.
+Also there could be bugs that have been fixed since the last release.
+</dd>
+
+<dt>CVS checkout</dt>
+<dd>
+Through anonymous CVS you can get the same development version the
+openMSX developers are using.
+This is the bleeding edge:
+the latest stuff, which may be great or may be horribly broken.
+Usually openMSX CVS compiles and runs fine, but we're only human,
+so once in a while it breaks.
+Also there may be changes that are not documented yet.
+</dd>
+
+<dt>CVS snapshot</dt>
+<dd>
+These are archives created from a recent CVS checkout.
+It is therefore quite similar to a CVS checkout,
+but it doesn't require you to install and use CVS.
+</dd>
+
+</dl>
+
+<p>
+Releases are intended for general users, CVS and CVS snapshots are intended for
+(would be) developers, heavy testers and people who want to follow new
+developments closely. It might be a good idea to play with a release first. If
+you like what you see and want to get in deeper, you can switch to CVS later.
+If you update often, it is best to use a CVS checkout rather than
+a CVS snapshot, because with a checkout you can do efficient incremental
+updates, saving network bandwith and compile time.
+</p>
+
+<p>
+If you downloaded a version that is either a lot older or a lot newer than
+this guide, it is a good idea to read the guide included in your downloaded
+version instead of the version you're reading right now.
+You can find the Compilation Guide in the directory openMSX/doc/manual.
+</p>
+
+<h3><a id="getrelease">2.1. Retrieve normal releases</a></h3>
+
+<p>
+You can download a release version of openMSX from the following page:
+<a class="external" href="http://sourceforge.net/project/showfiles.php?group_id=38274"
+>http://sourceforge.net/project/showfiles.php?group_id=38274</a>
+</p>
+
+<p>
+After downloading, type:
+</p>
+<div class="commandline">tar xzvf openmsx-VERSION.tar.gz</div>
+<p>
+in which <code>VERSION</code> is the current openMSX version,
+or use the file name you saved the tar.gz file with.
+The directory that is created by uncompressing the tar.gz file
+is called the top of the source tree.
+</p>
+
+<h3><a id="getcvs">2.2. Retrieve stuff from CVS</a></h3>
+
+<p>
+For bleeding-edge versions of openMSX, you can get the sources from CVS.  (Or
+download the snap shot, see above.)
+</p>
+
+<p class="todo">
+CVS snapshots are under-documented
+</p>
+
+<p>
+In short, you use CVS (which is a system for version management) to retrieve
+the latest version of the source code of openMSX. This means you will need to
+install a CVS client.
+</p>
+
+<p>
+With the following line you can login to the openMSX CVS server:
+</p>
+<div class="commandline">
+cvs -d:pserver:anonymous@cvs.openmsx.sourceforge.net:/cvsroot/openmsx login
+</div>
+<p>
+In this line you specified where you want to retrieve the files from (the
+:pserver stuff), as who you want to retrieve the stuff (since you're not a
+developer, anonymous will do), and what project you want to retrieve (openmsx in
+this case).
+</p>
+<p>
+You will be prompted for a password. Just press enter if you're logging in as
+user anonymous.
+</p>
+<p>
+Example output:
+</p>
+<div class="commandline">
+jorrith@jardel openmsx $ cvs -d:pserver:anonymous@cvs.openmsx.sourceforge.net:/cvsroot/openmsx login
+</div>
+<div class="commandline">
+Logging in to :pserver:anonymous@cvs.openmsx.sourceforge.net:2401/cvsroot/openmsx
+</div>
+<div class="commandline">
+CVS password:
+</div>
+<div class="commandline">
+jorrith@jardel openmsx $
+</div>
+<p>
+Now you can retrieve the latest sources with the following command:
+</p>
+<div class="commandline">
+cvs -d:pserver:anonymous@cvs.openmsx.sourceforge.net:/cvsroot/openmsx export -D now openMSX
+</div>
+<p>
+or, alternatively
+</p>
+<div class="commandline">
+cvs -z3 -d:pserver:anonymous@cvs.openmsx.sourceforge.net:/cvsroot/openmsx checkout openMSX
+</div>
+<p>
+This will create a directory called openMSX for you in the current directory.
+If you want to update your source tree later, go to this directory again and
+type cvs update -d (the -d means that it will create new directories too.) This
+only works if you used the second method ("checkout").
+The latter method also creates the CVS administrative directories necessary to
+perform commits and updates.
+</p>
+
+<h2><a id="compile">3. Compiling</a></h2>
+
+<p>
+Before you can start compiling openMSX, you have to make sure your PC
+has all the necessary build tools installed, as well as the libraries
+openMSX depends upon.
+The following sections list the packages you need.
+</p>
+
+<h3><a id="tools">3.1. Build Tools</a></h3>
+
+<p>
+For compilation, you need Make and a C++ compiler.
+If you have compiled packages from source before,
+you probably have these installed already.
+</p>
+
+<dl>
+
+<dt>make</dt>
+<dd>GNU make command</dd>
+
+<dt>g++</dt>
+<dd>The GNU C++ compiler.
+Version 3.2 or 3.3 is recommended;
+2.95 should work, but may not be supported in the near future.
+</dd>
+
+</dl>
+
+<p>
+If you want to install source from CVS, you need the GNU Automake utilities.
+This includes the following packages:
+</p>
+
+<dl>
+
+<dt>automake</dt>
+<dd>A tool for generating GNU Standards-compliant Makefiles.</dd>
+
+<dt>autoconf</dt>
+<dd>automatic configure script builder</dd>
+
+<dt>libtool</dt>
+<dd>Generic library support script</dd>
+
+<dt>m4</dt>
+<dd>a macro processing language</dd>
+
+</dl>
+
+<h3><a id="libs">3.2. Libraries</a></h3>
+
+<p>
+openMSX depends on several libraries.
+You must have the runtime packages of these libraries install to be
+able to run openMSX.
+The runtime package for the library "foo" is typically called "libfoo".
+Also, for compiling openMSX you need the development packages of these
+libraries installed as well.
+Development packages are typically named "libfoo-dev" or "libfoo-devel".
+</p>
+
+<p>
+First of all, you need a lot of SDL packages;
+the run time ones and also the developer packages (we're compiling here!).
+You need the SDL_image, SDL_mixer, SDL_net (for future usage)
+and the general SDL libs.
+The exact names of the package are different for each distribution.
+On a Debian testing system, they are called:
+</p>
+
+<dl>
+
+<dt>libsdl-image1.2</dt>
+<dd>image loading library for Simple DirectMedia Layer 1.2</dd>
+
+<dt>libsdl-image1.2-dev</dt>
+<dd>development files for SDL 1.2 image loading library</dd>
+
+<dt>libsdl-mixer1.2</dt>
+<dd>mixer library for Simple DirectMedia Layer 1.2</dd>
+
+<dt>libsdl-mixer1.2-dev</dt>
+<dd>development files for SDL1.2 mixer library</dd>
+
+<dt>libsdl-net1.2</dt>
+<dd>network library for Simple DirectMedia Layer</dd>
+
+<dt>libsdl-net1.2-dev</dt>
+<dd>Development files for SDL network library</dd>
+
+<dt>libsdl1.2-dev</dt>
+<dd>Simple DirectMedia Layer development files</dd>
+
+<dt>libsdl1.2debian</dt>
+<dd>Simple DirectMedia Layer</dd>
+
+<dt>libsdl1.2debian-all</dt>
+<dd>Simple DirectMedia Layer (with all available options)</dd>
+
+</dl>
+
+<p>
+Furthermore, you need the XML library and the PNG library:
+</p>
+
+<dl>
+
+<dt>libxml2</dt>
+<dd>GNOME XML library</dd>
+
+<dt>libxml2-dev</dt>
+<dd>Development files for the GNOME XML library</dd>
+
+<dt>libpng12-0</dt>
+<dd>PNG library - runtime</dd>
+
+<dt>libpng12-0-dev</dt>
+<dd>PNG library - development</dd>
+
+</dl>
+
+<p>
+openMSX can optionally use OpenGL for graphics.
+If you want to use this, make sure you have both the runtime and development
+packages for OpenGL installed.
+If you have an nVidia card, go to the
+<a class="external" href="http://www.nvidia.com/linux">nVidia web site</a> for drivers,
+which include an OpenGL implementation.
+For other cards, try Mesa, which can be found in packages like
+<code>xlibmesa-dev</code> and <code>xlibmesa3</code>.
+</p>
+
+<p>
+Probably you even need some more, which I don't know by heart. They should all
+be needed as dependencies for the SDL and XML packages, though. And it should be
+checked by the configure scripts anyway.
+</p>
+
+<p class="todo">
+Capitalization of package description is inconsistent.
+</p>
+
+<h3><a id="compilenow">3.3. Compilation Itself</a></h3>
+
+<p>
+If you are very experienced in compiling stuff in Linux, you can skip the rest
+of this chapter. Others, please skip the next sentence.
+Quick building instructions: the usual ./autogen.sh; ./configure (or
+./config-686.sh for Pentium Pro); make for the CVS sources and just ./configure;
+make for the tar.gz released version; make install to install.
+</p>
+
+<p>
+After you installed at least the above mentioned packages, go to your openMSX
+source tree again. Then, run the following command, in case you used CVS to get
+the sources:
+</p>
+<div class="commandline">
+./autogen.sh
+</div>
+<p>
+This will generate the appropriate configure and make stuff.
+</p>
+
+<p>
+Now it's time for the tools to probe the system configuration.
+Just type the following command:
+</p>
+<div class="commandline">
+./configure
+</div>
+<p>
+If you have a Pentium II or higher machine, instead configure it like this:
+</p>
+<div class="commandline">
+./config-i686.sh
+</div>
+<p>
+This will let openMSX compile with optimisations for your system's CPU.
+</p>
+
+<p>
+You will see loads of checks for available stuff and so on... Just ignore it,
+except if it exits with any errors. This probably means you will have to
+install more packages, the error message will tell you what is broken. If the
+problem is with openMSX, please give feedback, see chapter 9. If possible,
+attach the config.log file that is made as part of the configure step to the
+bug report, in case there is a ./configure error.
+</p>
+
+<p>
+After the (successful) configure step, it's time to compile
+everything. Type
+</p>
+<div class="commandline">
+make
+</div>
+<p>
+and everything will be compiled. If you get errors during compilation, there may
+be something wrong that was not detected by configure. Try to see if you forgot
+to install one of the mentioned packages. (Note that you need also the
+developer's versions and not only the run time libraries.)
+</p>
+
+<h2><a id="install">4. Installation</a></h2>
+
+<p>
+To install openMSX, run the following command:
+</p>
+<div class="commandline">
+make install
+</div>
+<p>
+This installs openMSX, by default in /opt/openMSX. You can override this
+location by specifying "--prefix=location" to "configure"/"config-i686.sh".
+Note that only root has rights to write to system-wide directories such as
+/opt, so you may have to do "su" before "make install".
+</p>
+
+<p>
+The binary of the latest version is about 36MB, most of which is debugging
+symbols. If you don't plan on any debugging and want a smaller executable,
+you can "strip" the binary (reducing it to under 2MB). Instead of running
+"make install", run:
+</p>
+<div class="commandline">
+make install-stripped
+</div>
+
+<p>
+If you want an even smaller binary, then after "make install-stripped" you
+can run gzexe on the binary:
+</p>
+<div class="commandline">
+gzexe /opt/openMSX/bin/openmsx
+</div>
+<p>
+This just compresses the binary, but keeps it still executable.
+For this you need the gzip package. But probably you have that already.
+See also man gzexe.
+</p>
+
+<h2><a id="next">5. Next Steps</a></h2>
+
+<p>
+If all went well, you should have openMSX installed now.
+You can test it by executing openMSX from the command line:
+</p>
+<div class="commandline">
+openmsx
+</div>
+<p>
+You should get a screen similar to this:
+</p>
+<div class="commandline"><pre>
+C-BIOS ver 0.16
+Copyright (C) 2002-2003 BouKiCHi
+
+        Cartridge not found.
+</pre></div>
+<p>
+C-BIOS is the default system BIOS used by openMSX.
+It was written from scratch by BouKiCHi and he was kind enough to let us
+distribute it together with openMSX.
+It is not perfect yet, but it runs many ROM games well.
+Reikan took over the job of maintaining C-BIOS and you can find his page at:
+<a class="external" href="http://www.ranpub.com/CBIOS/"
+>http://www.ranpub.com/CBIOS/</a>.
+</p>
+<p>
+If you have a ROM image ready, you can try to run it with C-BIOS:
+</p>
+<div class="commandline">
+openmsx ~/msx/games/my-favourite-game.rom
+</div>
+<p>
+The next step would be to read the openMSX Setup Guide.
+That document describes how you can configure openMSX to emulate
+actual MSX machines, such as the Panasonic FS-A1GT (turbo R).
+It also describes how you can have openMSX start up with your
+personal settings, how you can configure openMSX and your system
+for optimal performance and several other configuration related
+topics.
+And finally there is ofcourse the openMSX User's Manual,
+which describes all the things you can do with openMSX once
+it is fully running.
+</p>
+
+<p class="todo">
+Create the Setup Guide and User's Manual document and link to them.
+</p>
+
+<p>
+If you got stuck somewhere in the compilation and installation process,
+please contact us. The next chapter will tell you how.
+</p>
+
+<h2><a id="contact">6. Contact Info</a></h2>
+
+<p>
+Since openMSX is still in heavy development, feedback and bug reports are very
+welcome!
+</p>
+
+<p>
+If you encounter problems, you have several options:
+</p>
+
+<ol>
+<li>
+if you're a regular user and want to discuss openMSX and possible problems,
+join our mailing list openmsx-user@lists.sourceforge.net, see openmsx.sf.net
+-> Project Summary -> Lists
+</li>
+<li>
+go to our IRC channel: #openMSX on irc.freenode.net and ask
+</li>
+<li>
+send an e-mail to the openMSX developer's mailing list:
+openmsx-devel@lists.sourceforge.net. See the project page on SourceForge.
+</li>
+<li>
+go visit the SourceForge page of openMSX:
+http://sourceforge.net/projects/openmsx/
+Then click on "Tracker". This will show you four trackers (at the moment).
+Use the bug tracker to look for bugs and post new ones. You can use the
+Support Request tracker to submit support requests. Feature requests can be
+submitted in the Feature Requests tracker.
+</li>
+</ol>
+
+<p>
+For experienced users: if you get a crash, try to provide a gdb backtrace
+(don't use strip on the openMSX executable then!).
+</p>
+
+<p>
+In any case, try to give as much information as possible when you describe your
+bug or request.
+</p>
+
+<hr />
+
+<p class="version">
+$Id$
+</p>
+
+</body>
+</html>

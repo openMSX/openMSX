@@ -1,0 +1,40 @@
+body {
+	color: black;
+	background-color: white;
+}
+ol.toc {
+	list-style: none;
+	padding-left: 16pt;
+}
+p, dl {
+	margin-left: 16pt;
+}
+p.version {
+	font-size: 50%;
+	text-align: right;
+}
+dt {
+	/*font-style: italic;*/
+}
+dd {
+	margin-left: 16pt;
+	margin-bottom: 0.5em;
+}
+div.commandline {
+	font-family: monospace;
+	margin-left: 32pt;
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+p.todo {
+	color: red;
+}
+a.internal, a.external:visited {
+	color: #000080;
+}
+a.external:link {
+	color: #0000FF;
+}
+a.external:active {
+	color: #8080FF;
+}

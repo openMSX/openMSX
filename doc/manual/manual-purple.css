@@ -1,0 +1,16 @@
+@import "manual.css";
+hr {
+	border: none;
+	border-bottom: 2px groove #8070C0;
+}
+h1 {
+	border-bottom: 2px groove #8070C0;
+}
+h2 {
+	background-color: #C8C0FF;
+	padding-left: 4pt;
+}
+h3 {
+	background-color: #E8E4FF;
+	padding-left: 4pt;
+}
