@@ -439,6 +439,16 @@ void VDP::executeUntilEmuTime(const EmuTime &time, int userData)
 	PRT_DEBUG("Executing VDP at time " << time
 		<< ", sync type " << userData);
 	*/
+	/*
+	int ticksThisFrame = getTicksThisFrame(time);
+	cout << (userData == VSYNC ? "VSYNC" :
+			(userData == VSCAN ? "VSCAN" : "HSCAN"))
+		<< " at (" << (ticksThisFrame % TICKS_PER_LINE)
+		<< "," << ((ticksThisFrame - displayStart) / TICKS_PER_LINE)
+		<< "), IRQ_H = " << (int)irqHorizontal
+		<< " IRQ_V = " << (int)irqVertical
+		<< ", frame = " << frameStartTime << "\n";
+	*/
 
 	// Handle the various sync types.
 	switch (userData) {
@@ -501,6 +511,7 @@ void VDP::scheduleHScan(const EmuTime &time)
 	// Remove pending HSCAN sync point, if any.
 	if (hScanSyncTime > time) {
 		Scheduler::instance()->removeSyncPoint(this, HSCAN);
+		hScanSyncTime = time;
 	}
 
 	// Calculate moment in time line match occurs.
@@ -521,6 +532,8 @@ void VDP::scheduleHScan(const EmuTime &time)
 // TODO: inline?
 void VDP::frameStart(const EmuTime &time)
 {
+	//cout << "VDP::frameStart @ " << time << "\n";
+
 	// Toggle E/O.
 	// Actually this should occur half a line earlier,
 	// but for now this is accurate enough.
@@ -545,7 +558,9 @@ void VDP::frameStart(const EmuTime &time)
 		  : (3 + 13 + 26) * TICKS_PER_LINE
 		  )
 		);
+	//cout << "VDP::frameStart PASS 1\n";
 	scheduleHScan(time);
+	//cout << "VDP::frameStart PASS 2\n";
 	Scheduler::instance()->setSyncPoint(
 		frameStartTime + (displayStart +
 			( controlRegs[9] & 0x80
@@ -553,9 +568,18 @@ void VDP::frameStart(const EmuTime &time)
 			: 192 * TICKS_PER_LINE
 			)
 		), this, VSCAN);
+	//cout << "VDP::frameStart PASS 3\n";
 	Scheduler::instance()->setSyncPoint(
 		frameStartTime + getTicksPerFrame(),
 		this, VSYNC);
+	/*
+	cout << "--> frameStart = " << frameStartTime
+		<< ", frameEnd = " << (frameStartTime + getTicksPerFrame())
+		<< ", hscan = " << hScanSyncTime
+		<< ", displayStart = " << displayStart
+		<< ", timing: " << (palTiming ? "PAL" : "NTSC")
+		<< "\n";
+	*/
 }
 
 void VDP::updateSprites1(int limit)
@@ -591,10 +615,13 @@ void VDP::writeIO(byte port, byte value, const EmuTime &time)
 
 		// First sync with the command engine, which can write VRAM.
 		cmdEngine->updateVRAM(addr, time);
-		// Then sync with the Renderer, which only reads VRAM, and
-		// finally commit the change.
+		// Then sync sprite checking, which only reads VRAM and
+		// is used by the Renderer.
+		updateSprites(time);
+		// Then sync with the Renderer.
 		setVRAM(addr, value, time);
 
+		// Finally, commit the change.
 		vramPointer = (vramPointer + 1) & 0x3FFF;
 		if (vramPointer == 0 && (displayMode & 0x18)) {
 			// In MSX2 video modes, pointer range is 128K.
@@ -680,8 +707,10 @@ byte VDP::readIO(byte port, const EmuTime &time)
 	}
 	else { // port == 0x99
 
-		// Abort any port 0x98 writes in progress.
+		// Abort any port 0x99 writes in progress.
 		firstByte = -1;
+
+		//cout << "read S#" << (int)controlRegs[15] << "\n";
 
 		// Calculate status register contents.
 		switch (controlRegs[15]) {
@@ -696,6 +725,7 @@ byte VDP::readIO(byte port, const EmuTime &time)
 		}
 		case 1: {
 			/*
+			int ticksThisFrame = getTicksThisFrame(time);
 			cout << "S#1 read at (" << (ticksThisFrame % TICKS_PER_LINE)
 				<< "," << ((ticksThisFrame - displayStart) / TICKS_PER_LINE)
 				<< "), IRQ_H = " << (int)irqHorizontal
@@ -873,19 +903,28 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 
 	// Perform additional tasks after new value became active.
 	switch (reg) {
-		case 0:
-			if (change & 0x10) { // IE1
-				if (val & 0x10) {
-					scheduleHScan(time);
-				} else {
-					irqHorizontal = false;
-					updateIRQ();
-				}
+	case 0:
+		if (change & 0x10) { // IE1
+			if (val & 0x10) {
+				scheduleHScan(time);
+			} else {
+				irqHorizontal = false;
+				updateIRQ();
 			}
-		case 19:
-		case 23:
-			scheduleHScan(time);
-			break;
+		}
+		break;
+	case 1:
+		if (change & 0x20) { // IE0
+			if (!(val & 0x20)) {
+				irqVertical = false;
+				updateIRQ();
+			}
+		}
+		break;
+	case 19:
+	case 23:
+		scheduleHScan(time);
+		break;
 	}
 }
 
