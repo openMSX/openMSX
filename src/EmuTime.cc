@@ -1,10 +1,10 @@
 // $Id$
 
-#include "emutime.hh"
+#include "EmuTime.hh"
 
-std::ostream &operator<<(std::ostream &os, const Emutime &et)
+std::ostream &operator<<(std::ostream &os, const EmuTime &et)
 {
-	os << et._emutime << " " << et._scale;
+	os << et._EmuTime << " " << et._scale;
 	return os;
 }
 
@@ -13,8 +13,8 @@ int main (int argc, char** argv)
 {
 	assert (sizeof(uint64)==8);
 
-	Emutime e1 (3579545);
-	Emutime e2 (3579545*2, 2);
+	EmuTime e1 (3579545);
+	EmuTime e2 (3579545*2, 2);
 
 	assert (e1 <  e2);
 	assert (e1 <= e2);

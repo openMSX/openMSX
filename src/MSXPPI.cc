@@ -57,7 +57,7 @@ void MSXPPI::reset()
 	click->reset();
 }
 
-byte MSXPPI::readIO(byte port, Emutime &time)
+byte MSXPPI::readIO(byte port, EmuTime &time)
 {
 	switch (port) {
 	case 0xA8:
@@ -74,7 +74,7 @@ byte MSXPPI::readIO(byte port, Emutime &time)
 	}
 }
 
-void MSXPPI::writeIO(byte port, byte value, Emutime &time)
+void MSXPPI::writeIO(byte port, byte value, EmuTime &time)
 {
 	switch (port) {
 	case 0xA8:
@@ -97,16 +97,16 @@ void MSXPPI::writeIO(byte port, byte value, Emutime &time)
 
 // I8255Interface
 
-byte MSXPPI::readA(const Emutime &time) {
+byte MSXPPI::readA(const EmuTime &time) {
 	// port A is normally an output on MSX, reading from an output port
 	// is handled internally in the 8255
 	return 255;	//TODO check this
 }
-void MSXPPI::writeA(byte value, const Emutime &time) {
+void MSXPPI::writeA(byte value, const EmuTime &time) {
 	MSXMotherBoard::instance()->set_A8_Register(value);
 }
 
-byte MSXPPI::readB(const Emutime &time) {
+byte MSXPPI::readB(const EmuTime &time) {
 	const byte* src = keyboard->getKeys(); //reading the keyboard events into the matrix
 	byte* dst = MSXKeyMatrix;
 	for (int i=0; i<Keyboard::NR_KEYROWS; i++) {
@@ -114,17 +114,17 @@ byte MSXPPI::readB(const Emutime &time) {
 	}
 	return MSXKeyMatrix[selectedRow];
 }
-void MSXPPI::writeB(byte value, const Emutime &time) {
+void MSXPPI::writeB(byte value, const EmuTime &time) {
 	// probably nothing happens on a real MSX
 }
 
-nibble MSXPPI::readC1(const Emutime &time) {
+nibble MSXPPI::readC1(const EmuTime &time) {
 	return 15;	// TODO check this
 }
-nibble MSXPPI::readC0(const Emutime &time) {
+nibble MSXPPI::readC0(const EmuTime &time) {
 	return 15;	// TODO check this
 }
-void MSXPPI::writeC1(nibble value, const Emutime &time) {
+void MSXPPI::writeC1(nibble value, const EmuTime &time) {
 	cassette->setMotor(!(value&1), time);		// 0=0n, 1=Off
 	cassette->cassetteOut(value&2, time);
 	
@@ -133,6 +133,6 @@ void MSXPPI::writeC1(nibble value, const Emutime &time) {
 
 	click->setClick(value&8, time);
 }
-void MSXPPI::writeC0(nibble value, const Emutime &time) {
+void MSXPPI::writeC0(nibble value, const EmuTime &time) {
 	selectedRow = value;
 }

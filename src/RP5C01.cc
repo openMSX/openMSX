@@ -38,7 +38,7 @@ void RP5C01::reset()
 	writePort(RESET_REG, 0, reference);
 }
 
-nibble RP5C01::readPort(nibble port, const Emutime &time)
+nibble RP5C01::readPort(nibble port, const EmuTime &time)
 {
 	assert (port<=0x0f);
 	switch (port) {
@@ -57,7 +57,7 @@ nibble RP5C01::readPort(nibble port, const Emutime &time)
 	}
 }
 
-void RP5C01::writePort(nibble port, nibble value, const Emutime &time)
+void RP5C01::writePort(nibble port, nibble value, const EmuTime &time)
 {
 	assert (port<=0x0f);
 	switch (port) {
@@ -152,10 +152,10 @@ void RP5C01::time2Regs()
 	reg[ALARM_BLOCK][11] =  leapYear;
 }
 
-void RP5C01::updateTimeRegs(const Emutime &time)
+void RP5C01::updateTimeRegs(const EmuTime &time)
 {
 	if (emuTimeBased) {
-		// sync with emutime, perfect emulation
+		// sync with EmuTime, perfect emulation
 		uint64 elapsed = (modeReg & MODE_TIMERENABLE) ? (reference.getTicksTill(time)) : 0;
 		reference = time;
 

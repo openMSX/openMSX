@@ -3,7 +3,7 @@
 #ifndef __SCHEDULER_HH__
 #define __SCHEDULER_HH__
 
-#include "emutime.hh"
+#include "EmuTime.hh"
 #include "HotKey.hh"
 #include <SDL/SDL.h>
 #include <set>
@@ -13,7 +13,7 @@
 class Schedulable
 {
 	public:
-		virtual void executeUntilEmuTime(const Emutime &time) = 0;
+		virtual void executeUntilEmuTime(const EmuTime &time) = 0;
 		virtual const std::string &getName();
 	protected:
 		static const std::string defaultName;
@@ -23,12 +23,12 @@ class Schedulable
 class SynchronizationPoint
 {
 	public:
-		SynchronizationPoint (const Emutime &time, Schedulable &dev) : timeStamp(time), device(dev) {}
-		const Emutime &getTime() const { return timeStamp; }
+		SynchronizationPoint (const EmuTime &time, Schedulable &dev) : timeStamp(time), device(dev) {}
+		const EmuTime &getTime() const { return timeStamp; }
 		Schedulable &getDevice() const { return device; }
 		bool operator< (const SynchronizationPoint &n) const { return getTime() < n.getTime(); }
 	private: 
-		const Emutime timeStamp;	// copy of original timestamp
+		const EmuTime timeStamp;	// copy of original timestamp
 		Schedulable &device;		// alias
 };
 
@@ -37,7 +37,7 @@ class Scheduler : public EventListener, public HotKeyListener
 	public:
 		virtual ~Scheduler();
 		static Scheduler *instance();
-		void setSyncPoint(const Emutime &timestamp, Schedulable &activedevice);
+		void setSyncPoint(const EmuTime &timestamp, Schedulable &activedevice);
 		void scheduleEmulation();
 		void stopScheduling();
 		// EventListener
@@ -53,7 +53,7 @@ class Scheduler : public EventListener, public HotKeyListener
 		static Scheduler *oneInstance;
 		std::set<SynchronizationPoint> scheduleList;
 
-		static const Emutime infinity;
+		static const EmuTime infinity;
 
 		bool paused;
 		bool runningScheduler;

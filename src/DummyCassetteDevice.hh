@@ -11,8 +11,8 @@ class DummyCassetteDevice : public CassetteDevice
 		DummyCassetteDevice();
 		static DummyCassetteDevice* instance();
 	
-		void setMotor(bool status, const Emutime &time);
-		short readSample(const Emutime &time);
+		void setMotor(bool status, const EmuTime &time);
+		short readSample(const EmuTime &time);
 		void writeWave(short *buf, int length);
 		int getWriteSampleRate();
 

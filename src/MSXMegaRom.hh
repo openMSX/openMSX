@@ -4,7 +4,7 @@
 #define __MSXMEGAROM_HH__
 
 #include "MSXDevice.hh"
-#include "emutime.hh"
+#include "EmuTime.hh"
 
 class MSXMegaRom : public MSXDevice
 {
@@ -21,8 +21,8 @@ class MSXMegaRom : public MSXDevice
 		
 		void init();
 		
-		byte readMem(word address, Emutime &time);
-		void writeMem(word address, byte value, Emutime &time);
+		byte readMem(word address, EmuTime &time);
+		void writeMem(word address, byte value, EmuTime &time);
 
 	private:
 		int romSize;

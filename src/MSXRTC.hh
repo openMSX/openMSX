@@ -4,7 +4,7 @@
 #define __MSXRTC_HH__
 
 #include "MSXDevice.hh"
-#include "emutime.hh"
+#include "EmuTime.hh"
 #include "RP5C01.hh"
 
 
@@ -23,8 +23,8 @@ class MSXRTC : public MSXDevice
 		
 		void init();
 		void reset();
-		byte readIO(byte port, Emutime &time);
-		void writeIO(byte port, byte value, Emutime &time);
+		byte readIO(byte port, EmuTime &time);
+		void writeIO(byte port, byte value, EmuTime &time);
 	private:
 		RP5C01 *rp5c01;
 		nibble registerLatch;

@@ -38,7 +38,7 @@ void MSXKanji::reset()
 	adr2 = count2 = 0;	// TODO check this
 }
 
-byte MSXKanji::readIO(byte port, Emutime &time)
+byte MSXKanji::readIO(byte port, EmuTime &time)
 {
 	byte tmp;
 	switch (port) {
@@ -55,7 +55,7 @@ byte MSXKanji::readIO(byte port, Emutime &time)
 	}
 }
 
-void MSXKanji::writeIO(byte port, byte value, Emutime &time)
+void MSXKanji::writeIO(byte port, byte value, EmuTime &time)
 {
 	//TODO check this
 	switch (port) {

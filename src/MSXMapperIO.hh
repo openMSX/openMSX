@@ -6,7 +6,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "emutime.hh"
+#include "EmuTime.hh"
 #include "MSXDevice.hh"
 
 class MSXMapperIODevice
@@ -47,8 +47,8 @@ class MSXMapperIO : public MSXDevice
 		 */
 		static MSXMapperIO *instance();
 		
-		byte readIO(byte port, Emutime &time);
-		void writeIO(byte port, byte value, Emutime &time);
+		byte readIO(byte port, EmuTime &time);
+		void writeIO(byte port, byte value, EmuTime &time);
 		
 		void init();
 		void reset();

@@ -7,7 +7,7 @@
 #include <vector>
 #include "MSXDevice.hh"
 #include "Scheduler.hh"
-#include "emutime.hh"
+#include "EmuTime.hh"
 
 
 class MSXMotherBoard : public MSXDevice
@@ -57,10 +57,10 @@ class MSXMotherBoard : public MSXDevice
 		void SaveStateMSX(std::ofstream &savestream);
 
 		// This will be used by CPU to read data from "visual" devices
-		byte readMem(word address, Emutime &time);
-		void writeMem(word address, byte value, Emutime &time);
-		byte readIO(byte port, Emutime &time);
-		void writeIO(byte port, byte value, Emutime &time);
+		byte readMem(word address, EmuTime &time);
+		void writeMem(word address, byte value, EmuTime &time);
+		byte readIO(byte port, EmuTime &time);
+		void writeIO(byte port, byte value, EmuTime &time);
 
 		void set_A8_Register(byte value);
 

@@ -7,7 +7,7 @@
 #include <fstream>
 #include <string>
 #include "msxconfig.hh"
-#include "emutime.hh"
+#include "EmuTime.hh"
 #include "openmsx.hh"
 #include "Scheduler.hh"
 
@@ -27,33 +27,33 @@ class MSXDevice : public Schedulable
 		 * device.
 		 * The deafult implementation returns 255.
 		 */
-		virtual byte readMem(word address, Emutime &time);
+		virtual byte readMem(word address, EmuTime &time);
 
 		/**
 		 * Write a given byte to a given location at a certain time 
 		 * to this device.
 		 * The default implementation ignores the write (does nothing).
 		 */
-		virtual void writeMem(word address, byte value, Emutime &time);
+		virtual void writeMem(word address, byte value, EmuTime &time);
 
 		/**
 		 * Read a byte from an IO port at a certain time from this device.
 		 * The default implementation returns 255.
 		 */
-		virtual byte readIO(byte port, Emutime &time);
+		virtual byte readIO(byte port, EmuTime &time);
 
 		/**
 		 * Write a byte to a given IO port at a certain time to this
 		 * device.
 		 * The default implementation ignores the write (does nothing)
 		 */
-		virtual void writeIO(byte port, byte value, Emutime &time);
+		virtual void writeIO(byte port, byte value, EmuTime &time);
 
 		/**
 		 * Emulates this device until a given time.
 		 * The Default implementation does nothing.
 		 */
-		virtual void executeUntilEmuTime(const Emutime &time);
+		virtual void executeUntilEmuTime(const EmuTime &time);
 		
 		/**
 		 * This method is called when all devices are instantiated

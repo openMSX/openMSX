@@ -62,28 +62,28 @@ void MSXCPU::setActiveCPU(CPUType cpu)
 	}
 }
 
-void MSXCPU::executeUntilTarget(const Emutime &time)
+void MSXCPU::executeUntilTarget(const EmuTime &time)
 {
 	activeCPU->executeUntilTarget(time);
 }
 
 
-void MSXCPU::setTargetTime(const Emutime &time)
+void MSXCPU::setTargetTime(const EmuTime &time)
 {
 	activeCPU->setTargetTime(time);
 }
-const Emutime &MSXCPU::getTargetTime()
+const EmuTime &MSXCPU::getTargetTime()
 {
 	return activeCPU->getTargetTime();
 }
 
-const Emutime &MSXCPU::getCurrentTime()
+const EmuTime &MSXCPU::getCurrentTime()
 {
 	return activeCPU->getCurrentTime();
 }
 
 
-void MSXCPU::executeUntilEmuTime(const Emutime &time)
+void MSXCPU::executeUntilEmuTime(const EmuTime &time)
 {
 	assert(false);
 }
@@ -95,20 +95,20 @@ bool MSXCPU::IRQStatus()
 	return mb->IRQstatus();
 }
 
-byte MSXCPU::readIO(word port, Emutime &time)
+byte MSXCPU::readIO(word port, EmuTime &time)
 {
 	return mb->readIO(port&255, time);
 }
 
-void MSXCPU::writeIO (word port, byte value, Emutime &time) {
+void MSXCPU::writeIO (word port, byte value, EmuTime &time) {
 	mb->writeIO(port&255, value, time);
 }
 
-byte MSXCPU::readMem(word address, Emutime &time) {
+byte MSXCPU::readMem(word address, EmuTime &time) {
 	return  mb->readMem(address, time);
 }
 
-void MSXCPU::writeMem(word address, byte value, Emutime &time) {
+void MSXCPU::writeMem(word address, byte value, EmuTime &time) {
 	mb->writeMem(address, value, time);
 }
 

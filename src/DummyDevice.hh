@@ -7,7 +7,7 @@
 #include <string>
 
 #include "MSXDevice.hh"
-#include "emutime.hh"
+#include "EmuTime.hh"
 
 class DummyDevice : public MSXDevice
 {

@@ -30,15 +30,15 @@ public:
 
 	void putImage();
 	void setFullScreen(bool);
-	void updateBackgroundColour(int colour, Emutime &time);
-	void updateBlanking(bool enabled, Emutime &time);
-	void updateDisplayMode(int mode, Emutime &time);
-	void updateNameBase(int addr, Emutime &time);
-	void updatePatternBase(int addr, int mask, Emutime &time);
-	void updateColourBase(int addr, int mask, Emutime &time);
-	void updateSpriteAttributeBase(int addr, Emutime &time);
-	void updateSpritePatternBase(int addr, Emutime &time);
-	void updateVRAM(int addr, byte data, Emutime &time);
+	void updateBackgroundColour(int colour, EmuTime &time);
+	void updateBlanking(bool enabled, EmuTime &time);
+	void updateDisplayMode(int mode, EmuTime &time);
+	void updateNameBase(int addr, EmuTime &time);
+	void updatePatternBase(int addr, int mask, EmuTime &time);
+	void updateColourBase(int addr, int mask, EmuTime &time);
+	void updateSpriteAttributeBase(int addr, EmuTime &time);
+	void updateSpritePatternBase(int addr, EmuTime &time);
+	void updateVRAM(int addr, byte data, EmuTime &time);
 
 private:
 	typedef void (SDLLoRenderer::*RenderMethod)(int line);

@@ -105,12 +105,12 @@ int MSXMegaRom::retriefMapperType()
 	return type;
 }
 
-byte MSXMegaRom::readMem(word address, Emutime &time)
+byte MSXMegaRom::readMem(word address, EmuTime &time)
 {
   return internalMemoryBank[(address>>13)-2][address & 0x1fff];
 }
 
-void MSXMegaRom::writeMem(word address, byte value, Emutime &time)
+void MSXMegaRom::writeMem(word address, byte value, EmuTime &time)
 {
   byte regio;
   

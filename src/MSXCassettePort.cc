@@ -55,19 +55,19 @@ DummyCassettePort::DummyCassettePort()
 {
 	unplug();
 }
-void DummyCassettePort::setMotor(bool status, const Emutime &time)
+void DummyCassettePort::setMotor(bool status, const EmuTime &time)
 {
 	// do nothing
 }
-void DummyCassettePort::cassetteOut(bool output, const Emutime &time)
+void DummyCassettePort::cassetteOut(bool output, const EmuTime &time)
 {
 	// do nothing
 }
-bool DummyCassettePort::cassetteIn(const Emutime &time)
+bool DummyCassettePort::cassetteIn(const EmuTime &time)
 {
 	return true;	// TODO check on Turbo-R
 }
-void DummyCassettePort::flushOutput(const Emutime &time)
+void DummyCassettePort::flushOutput(const EmuTime &time)
 {
 	// do nothing
 }
@@ -87,13 +87,13 @@ CassettePort::~CassettePort()
 	delete[] buffer;
 }
 
-void CassettePort::setMotor(bool status, const Emutime &time)
+void CassettePort::setMotor(bool status, const EmuTime &time)
 {
 	device->setMotor(status, time);
 	//TODO make 'click' sound
 }
 
-void CassettePort::cassetteOut(bool output, const Emutime &time)
+void CassettePort::cassetteOut(bool output, const EmuTime &time)
 {
 	// this implements a VERY rough filter
 	//   on a transition the output is 0
@@ -104,7 +104,7 @@ void CassettePort::cassetteOut(bool output, const Emutime &time)
 	lastOutput = output;
 }
 
-bool CassettePort::cassetteIn(const Emutime &time)
+bool CassettePort::cassetteIn(const EmuTime &time)
 {
 	// All analog filtering is ignored for now
 	//   only important component is DC-removal
@@ -113,7 +113,7 @@ bool CassettePort::cassetteIn(const Emutime &time)
 	return (sample > 0); // comparator
 }
 
-void CassettePort::flushOutput(const Emutime &time)
+void CassettePort::flushOutput(const EmuTime &time)
 {
 	int sampleRate = device->getWriteSampleRate();	// can be changed since prev flush
 	if (sampleRate == 0) {

@@ -4,7 +4,7 @@
 #define __CASSETTEDEVICE_HH__
 
 #include "openmsx.hh"
-#include "emutime.hh"
+#include "EmuTime.hh"
 
 class CassetteDevice
 {
@@ -13,12 +13,12 @@ class CassetteDevice
 		 * Sets the cassette motor relay
 		 *  false = off   true = on
 		 */
-		virtual void setMotor(bool status, const Emutime &time) = 0;
+		virtual void setMotor(bool status, const EmuTime &time) = 0;
 		
 		/**
 		 * Read wave data from cassette device
 		 */
-		virtual short readSample(const Emutime &time) = 0;
+		virtual short readSample(const EmuTime &time) = 0;
 		
 		/**
 		 * Write wave data to cassette device

@@ -14,7 +14,7 @@
 
 #include "MSXDevice.hh"
 #include "MSXMotherBoard.hh"
-#include "emutime.hh"
+#include "EmuTime.hh"
 
 class MSXE6Timer : public MSXDevice
 {
@@ -32,11 +32,11 @@ class MSXE6Timer : public MSXDevice
 		void init();
 		void reset();
 		
-		byte readIO(byte port, Emutime &time);
-		void writeIO(byte port, byte value, Emutime &time);
+		byte readIO(byte port, EmuTime &time);
+		void writeIO(byte port, byte value, EmuTime &time);
 
 	private:
-		Emutime reference;
+		EmuTime reference;
 };
 
 #endif //__E6TIMER_HH__

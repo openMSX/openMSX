@@ -59,13 +59,13 @@ void MSXMapperIO::reset()
 	pageNum[3] = 0;
 }
 
-byte MSXMapperIO::readIO(byte port, Emutime &time)
+byte MSXMapperIO::readIO(byte port, EmuTime &time)
 {
 	assert(0xfc <= port);
 	return device->convert(pageNum[port-0xfc]);
 }
 
-void MSXMapperIO::writeIO(byte port, byte value, Emutime &time)
+void MSXMapperIO::writeIO(byte port, byte value, EmuTime &time)
 {
 	assert (0xfc <= port);
 	pageNum[port-0xfc] = value;

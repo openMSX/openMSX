@@ -25,13 +25,13 @@ void MSXPrinterPort::init()
 	unplug();
 }
 
-byte MSXPrinterPort::readIO(byte port, Emutime &time)
+byte MSXPrinterPort::readIO(byte port, EmuTime &time)
 {
 	assert(port == 0x90);
 	return device->getStatus() ? 0xff : 0xfd;	// bit 1 = status / other bits always 1
 }
 
-void MSXPrinterPort::writeIO(byte port, byte value, Emutime &time)
+void MSXPrinterPort::writeIO(byte port, byte value, EmuTime &time)
 {
 	switch (port) {
 	case 0x90:

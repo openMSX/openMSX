@@ -11,7 +11,7 @@ openmsx_SOURCES=openmsx.cc \
 	msxconfig_device.nn msxconfig_exception.nn \
 	msxconfig_config.nn \
 	xmlhelper.ii xmlhelper.hh \
-	emutime.hh emutime.cc \
+	EmuTime.hh EmuTime.cc \
 	msxexception.hh \
 	MSXDevice.hh MSXDevice.cc \
 	MSXMotherBoard.hh MSXMotherBoard.cc \

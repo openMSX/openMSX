@@ -5,7 +5,7 @@
 
 #include "MSXDevice.hh"
 #include "DACSound.hh"
-#include "emutime.hh"
+#include "EmuTime.hh"
 
 class MSXKonamiSynthesizer : public MSXDevice
 {
@@ -22,8 +22,8 @@ class MSXKonamiSynthesizer : public MSXDevice
 		
 		void init();
 		
-		byte readMem(word address, Emutime &time);
-		void writeMem(word address, byte value, Emutime &time);
+		byte readMem(word address, EmuTime &time);
+		void writeMem(word address, byte value, EmuTime &time);
 
 	private:
 		byte* memoryBank;

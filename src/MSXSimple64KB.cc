@@ -46,12 +46,12 @@ void MSXSimple64KB::init()
 	registerSlots();
 }
 
-byte MSXSimple64KB::readMem(word address, Emutime &time)
+byte MSXSimple64KB::readMem(word address, EmuTime &time)
 {
 	return memoryBank [address];
 }
 
-void MSXSimple64KB::writeMem(word address, byte value, Emutime &time)
+void MSXSimple64KB::writeMem(word address, byte value, EmuTime &time)
 {
 	memoryBank[address] = value;
 }

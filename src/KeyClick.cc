@@ -3,7 +3,7 @@
 #include "KeyClick.hh"
 #include "openmsx.hh"
 #include "Mixer.hh"
-#include "emutime.hh"
+#include "EmuTime.hh"
 #include "MSXCPU.hh"
 
 
@@ -23,7 +23,7 @@ void KeyClick::reset()
 	setClick(false, MSXCPU::instance()->getCurrentTime());
 }
 
-void KeyClick::setClick(bool newStatus, const Emutime &time)
+void KeyClick::setClick(bool newStatus, const EmuTime &time)
 {
 	if (newStatus != status) {
 		PRT_DEBUG("KeyClick: " << status << " time: " << time);

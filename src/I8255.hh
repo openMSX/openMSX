@@ -12,20 +12,20 @@
 #define __I8255_HH__
 
 #include "openmsx.hh"
-#include "emutime.hh"
+#include "EmuTime.hh"
 
 
 class I8255Interface
 {
 	public:
-		virtual byte readA(const Emutime &time)=0;
-		virtual byte readB(const Emutime &time)=0;
-		virtual nibble readC0(const Emutime &time)=0;
-		virtual nibble readC1(const Emutime &time)=0;
-		virtual void writeA(byte value, const Emutime &time)=0;
-		virtual void writeB(byte value, const Emutime &time)=0;
-		virtual void writeC0(nibble value, const Emutime &time)=0;
-		virtual void writeC1(nibble value, const Emutime &time)=0;
+		virtual byte readA(const EmuTime &time)=0;
+		virtual byte readB(const EmuTime &time)=0;
+		virtual nibble readC0(const EmuTime &time)=0;
+		virtual nibble readC1(const EmuTime &time)=0;
+		virtual void writeA(byte value, const EmuTime &time)=0;
+		virtual void writeB(byte value, const EmuTime &time)=0;
+		virtual void writeC0(nibble value, const EmuTime &time)=0;
+		virtual void writeC1(nibble value, const EmuTime &time)=0;
 };
 
 class I8255
@@ -36,14 +36,14 @@ class I8255
 		
 		void reset();
 	
-		byte readPortA(const Emutime &time);
-		byte readPortB(const Emutime &time);
-		byte readPortC(const Emutime &time);
-		byte readControlPort(const Emutime &time);
-		void writePortA(byte value, const Emutime &time);
-		void writePortB(byte value, const Emutime &time);
-		void writePortC(byte value, const Emutime &time);
-		void writeControlPort(byte value, const Emutime &time);
+		byte readPortA(const EmuTime &time);
+		byte readPortB(const EmuTime &time);
+		byte readPortC(const EmuTime &time);
+		byte readControlPort(const EmuTime &time);
+		void writePortA(byte value, const EmuTime &time);
+		void writePortB(byte value, const EmuTime &time);
+		void writePortC(byte value, const EmuTime &time);
+		void writeControlPort(byte value, const EmuTime &time);
 		
 	private:
 		static const int MODE_A   = 0x60;
@@ -62,11 +62,11 @@ class I8255
 		static const int BIT_NR    = 0x0e;
 		static const int SET_RESET = 0x01;
 		
-		byte readC0(const Emutime &time);
-		byte readC1(const Emutime &time);
-		void outputPortA(byte value, const Emutime &time);
-		void outputPortB(byte value, const Emutime &time);
-		void outputPortC(byte value, const Emutime &time);
+		byte readC0(const EmuTime &time);
+		byte readC1(const EmuTime &time);
+		void outputPortA(byte value, const EmuTime &time);
+		void outputPortB(byte value, const EmuTime &time);
+		void outputPortC(byte value, const EmuTime &time);
 
 		int control;
 		int latchPortA;

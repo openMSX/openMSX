@@ -152,7 +152,7 @@ template <class Pixel> void SDLLoRenderer<Pixel>::setFullScreen(
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::updateBackgroundColour(
-	int colour, Emutime &time)
+	int colour, EmuTime &time)
 {
 	XPalFg[0] = XPalBg[colour];
 	// Any line containing transparent pixels must be repainted.
@@ -163,7 +163,7 @@ template <class Pixel> void SDLLoRenderer<Pixel>::updateBackgroundColour(
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::updateBlanking(
-	bool enabled, Emutime &time)
+	bool enabled, EmuTime &time)
 {
 	// TODO: Keep local copy of value.
 	// When display is re-enabled, consider every pixel dirty.
@@ -171,14 +171,14 @@ template <class Pixel> void SDLLoRenderer<Pixel>::updateBlanking(
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::updateDisplayMode(
-	int mode, Emutime &time)
+	int mode, EmuTime &time)
 {
 	displayMode = mode;
 	setDirty(true);
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::updateNameBase(
-	int addr, Emutime &time)
+	int addr, EmuTime &time)
 {
 	nameBase = addr;
 	anyDirtyName = true;
@@ -186,7 +186,7 @@ template <class Pixel> void SDLLoRenderer<Pixel>::updateNameBase(
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::updatePatternBase(
-	int addr, int mask, Emutime &time)
+	int addr, int mask, EmuTime &time)
 {
 	patternBase = addr;
 	patternMask = mask;
@@ -195,7 +195,7 @@ template <class Pixel> void SDLLoRenderer<Pixel>::updatePatternBase(
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::updateColourBase(
-	int addr, int mask, Emutime &time)
+	int addr, int mask, EmuTime &time)
 {
 	colourBase = addr;
 	colourMask = mask;
@@ -204,19 +204,19 @@ template <class Pixel> void SDLLoRenderer<Pixel>::updateColourBase(
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::updateSpriteAttributeBase(
-	int addr, Emutime &time)
+	int addr, EmuTime &time)
 {
 	spriteAttributeBase = addr;
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::updateSpritePatternBase(
-	int addr, Emutime &time)
+	int addr, EmuTime &time)
 {
 	spritePatternBase = addr;
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::updateVRAM(
-	int addr, byte data, Emutime &time)
+	int addr, byte data, EmuTime &time)
 {
 	int i = addr - nameBase;
 	if ((i >= 0) && ((unsigned int)i < sizeof(dirtyName))) {

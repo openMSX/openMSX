@@ -140,7 +140,7 @@ void MSXMotherBoard::SaveStateMSX(std::ofstream &savestream)
 }
 
 
-byte MSXMotherBoard::readMem(word address, Emutime &time)
+byte MSXMotherBoard::readMem(word address, EmuTime &time)
 {
 	if (address == 0xFFFF) {
 		int CurrentSSRegister = (A8_Register>>6)&3;
@@ -151,7 +151,7 @@ byte MSXMotherBoard::readMem(word address, Emutime &time)
 	return visibleDevices[address>>14]->readMem(address, time);
 }
 
-void MSXMotherBoard::writeMem(word address, byte value, Emutime &time)
+void MSXMotherBoard::writeMem(word address, byte value, EmuTime &time)
 {
 	if (address == 0xFFFF) {
 		int CurrentSSRegister = (A8_Register>>6)&3;
@@ -188,12 +188,12 @@ void MSXMotherBoard::set_A8_Register(byte value)
 }
 
 
-byte MSXMotherBoard::readIO(byte port, Emutime &time)
+byte MSXMotherBoard::readIO(byte port, EmuTime &time)
 {
 	return IO_In[port]->readIO(port, time);
 }
 
-void MSXMotherBoard::writeIO(byte port, byte value, Emutime &time)
+void MSXMotherBoard::writeIO(byte port, byte value, EmuTime &time)
 {
 	IO_Out[port]->writeIO(port, value, time);
 }

@@ -34,7 +34,7 @@ void MSXRealTime::reset()
 	Scheduler::instance()->setSyncPoint(emuRef+SYNCINTERVAL, *this);
 }
 	
-void MSXRealTime::executeUntilEmuTime(const Emutime &curEmu)
+void MSXRealTime::executeUntilEmuTime(const EmuTime &curEmu)
 {
 	unsigned int curReal = SDL_GetTicks();
 	
@@ -81,7 +81,7 @@ void MSXRealTime::executeUntilEmuTime(const Emutime &curEmu)
 	Scheduler::instance()->setSyncPoint(curEmu+SYNCINTERVAL, *this);
 }
 
-float MSXRealTime::getRealDuration(Emutime time1, Emutime time2)
+float MSXRealTime::getRealDuration(EmuTime time1, EmuTime time2)
 {
 	return time1.getDuration(time2) * factor;
 }

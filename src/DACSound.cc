@@ -38,13 +38,13 @@ void DACSound::reset()
 	setInternalMute(true);
 }
 
-byte DACSound::readDAC(byte value, const Emutime &time)
+byte DACSound::readDAC(byte value, const EmuTime &time)
 {
 	return DACValue;
 }
 
 
-void DACSound::writeDAC(byte value, const Emutime &time)
+void DACSound::writeDAC(byte value, const EmuTime &time)
 {
 	DACValue = value;
 	

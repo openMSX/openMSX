@@ -7,7 +7,7 @@
 #include <vector>
 #include "openmsx.hh"
 #include "SoundDevice.hh"
-#include "emutime.hh"
+#include "EmuTime.hh"
 
 class Mixer
 {
@@ -38,7 +38,7 @@ class Mixer
 		 * Use this method to force an 'early' call to all
 		 * updateBuffer() methods. 
 		 */
-		void updateStream(const Emutime &time);
+		void updateStream(const EmuTime &time);
 
 		/**
 		 * This method pauses the sound
@@ -64,7 +64,7 @@ class Mixer
 		short* mixBuffer;
 		int samplesLeft;
 		int offset;
-		Emutime prevTime;
+		EmuTime prevTime;
 };
 
 #endif //__MIXER_HH__

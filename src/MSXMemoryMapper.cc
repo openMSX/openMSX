@@ -43,12 +43,12 @@ void MSXMemoryMapper::reset()
 	}
 }
 
-byte MSXMemoryMapper::readMem(word address, Emutime &time)
+byte MSXMemoryMapper::readMem(word address, EmuTime &time)
 {
 	return buffer[getAdr(address)];
 }
 
-void MSXMemoryMapper::writeMem(word address, byte value, Emutime &time)
+void MSXMemoryMapper::writeMem(word address, byte value, EmuTime &time)
 {
 	buffer[getAdr(address)] = value;
 }

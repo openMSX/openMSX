@@ -6,7 +6,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "emutime.hh"
+#include "EmuTime.hh"
 #include "MSXDevice.hh"
 
 class MSXMemoryMapper : public MSXDevice
@@ -22,8 +22,8 @@ class MSXMemoryMapper : public MSXDevice
 		 */
 		~MSXMemoryMapper();
 		
-		byte readMem(word address, Emutime &time);
-		void writeMem(word address, byte value, Emutime &time);
+		byte readMem(word address, EmuTime &time);
+		void writeMem(word address, byte value, EmuTime &time);
 		
 		void init();
 		void reset();

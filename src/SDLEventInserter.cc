@@ -1,6 +1,6 @@
 #include "SDLEventInserter.hh"
 
-SDLEventInserter::SDLEventInserter(SDL_Event &evnt, const Emutime &time)
+SDLEventInserter::SDLEventInserter(SDL_Event &evnt, const EmuTime &time)
 {
 	event = evnt;
 	Scheduler::instance()->setSyncPoint(time, *this);
@@ -10,7 +10,7 @@ SDLEventInserter::~SDLEventInserter()
 {
 }
 
-void SDLEventInserter::executeUntilEmuTime(const Emutime &time)
+void SDLEventInserter::executeUntilEmuTime(const EmuTime &time)
 {
 	SDL_PushEvent(&event);
 	delete this;	// job is done

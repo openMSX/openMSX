@@ -20,7 +20,7 @@ KeyEventInserter &KeyEventInserter::operator<<(const char *cstr)
 void KeyEventInserter::flush(uint64 offset)
 {
 	SDL_Event event;
-	Emutime time(10);	// 10 Hz
+	EmuTime time(10);	// 10 Hz
 	time = MSXCPU::instance()->getCurrentTime();
 	for (unsigned i=0; i<buffer.length(); i++) {
 		event.key.keysym.sym = (SDLKey)buffer[i];

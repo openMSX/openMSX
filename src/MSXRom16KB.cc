@@ -25,7 +25,7 @@ void MSXRom16KB::init()
 	registerSlots();
 }
 
-byte MSXRom16KB::readMem(word address, Emutime &time)
+byte MSXRom16KB::readMem(word address, EmuTime &time)
 {
 	return memoryBank [address & 0x3fff];
 }

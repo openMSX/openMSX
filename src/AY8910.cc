@@ -40,7 +40,7 @@ void AY8910::reset()
 	outputN = 0xff;
 	periodA = periodB = periodC = periodN = periodE = 0;
 	countA  = countB  = countC  = countN  = countE  = 0;
-	Emutime dummy;
+	EmuTime dummy;
 	for (int i=0; i<=15; i++) {
 		wrtReg(i, 0, dummy);
 	}
@@ -48,7 +48,7 @@ void AY8910::reset()
 }
 
 
-byte AY8910::readRegister(byte reg, const Emutime &time)
+byte AY8910::readRegister(byte reg, const EmuTime &time)
 {
 	assert (reg<=15);
 	
@@ -68,7 +68,7 @@ byte AY8910::readRegister(byte reg, const Emutime &time)
 }
 
 
-void AY8910::writeRegister(byte reg, byte value, const Emutime &time)
+void AY8910::writeRegister(byte reg, byte value, const EmuTime &time)
 {
 	assert (reg<=15);
 	if ((reg<AY_PORTA) && (reg==AY_ESHAPE || regs[reg]!=value)) {
@@ -77,7 +77,7 @@ void AY8910::writeRegister(byte reg, byte value, const Emutime &time)
 	}
 	wrtReg(reg, value, time);
 }
-void AY8910::wrtReg(byte reg, byte value, const Emutime &time)
+void AY8910::wrtReg(byte reg, byte value, const EmuTime &time)
 {
 	int old;
 	regs[reg] = value;

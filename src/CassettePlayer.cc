@@ -39,14 +39,14 @@ void CassettePlayer::removeTape()
 	audioLength = 0;
 }
 
-int CassettePlayer::calcSamples(const Emutime &time)
+int CassettePlayer::calcSamples(const EmuTime &time)
 {
 	float duration = timeReference.getDuration(time);
 	int samples = (int)(duration*audioSpec.freq);
 	return posReference + samples;
 }
 
-void CassettePlayer::setMotor(bool status, const Emutime &time)
+void CassettePlayer::setMotor(bool status, const EmuTime &time)
 {
 	if (motor != status) {
 		motor = status;
@@ -60,7 +60,7 @@ void CassettePlayer::setMotor(bool status, const Emutime &time)
 	}
 }
 
-short CassettePlayer::readSample(const Emutime &time)
+short CassettePlayer::readSample(const EmuTime &time)
 {
 	if (motor) {
 		// motor on

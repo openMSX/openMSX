@@ -286,7 +286,7 @@ calculated on demand.
 So only the rendering remains. Then it's probably better to schedule
 the renderer directly, instead of through the VDP.
 */
-void MSXTMS9928a::executeUntilEmuTime(const Emutime &time)
+void MSXTMS9928a::executeUntilEmuTime(const EmuTime &time)
 {
 	PRT_DEBUG("Executing TMS9928a at time " << time);
 
@@ -305,7 +305,7 @@ void MSXTMS9928a::executeUntilEmuTime(const Emutime &time)
 
 // The I/O functions.
 
-void MSXTMS9928a::writeIO(byte port, byte value, Emutime &time)
+void MSXTMS9928a::writeIO(byte port, byte value, EmuTime &time)
 {
 	switch (port){
 	case 0x98: {
@@ -352,7 +352,7 @@ byte MSXTMS9928a::vramRead()
 	return ret;
 }
 
-byte MSXTMS9928a::readIO(byte port, Emutime &time)
+byte MSXTMS9928a::readIO(byte port, EmuTime &time)
 {
 	switch (port) {
 	case 0x98:
@@ -370,7 +370,7 @@ byte MSXTMS9928a::readIO(byte port, Emutime &time)
 	}
 }
 
-void MSXTMS9928a::changeRegister(byte reg, byte val, Emutime &time)
+void MSXTMS9928a::changeRegister(byte reg, byte val, EmuTime &time)
 {
 	static const byte REG_MASKS[8] =
 		{ 0x03, 0xfb, 0x0f, 0xff, 0x07, 0x7f, 0x07, 0xff };
@@ -463,7 +463,7 @@ void MSXTMS9928a::changeRegister(byte reg, byte val, Emutime &time)
 	}
 }
 
-void MSXTMS9928a::updateDisplayMode(Emutime &time)
+void MSXTMS9928a::updateDisplayMode(EmuTime &time)
 {
 	static const char *MODE_STRINGS[] = {
 		"Mode 0 (GRAPHIC 1)", "Mode 1 (TEXT 1)", "Mode 2 (GRAPHIC 2)",

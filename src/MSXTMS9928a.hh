@@ -9,7 +9,7 @@
 #include "MSXDevice.hh"
 #include "Scheduler.hh"
 #include "MSXMotherBoard.hh"
-#include "emutime.hh"
+#include "EmuTime.hh"
 #include "HotKey.hh"
 
 class Renderer;
@@ -45,9 +45,9 @@ public:
 	~MSXTMS9928a();
 
 	// interaction with CPU
-	byte readIO(byte port, Emutime &time);
-	void writeIO(byte port, byte value, Emutime &time);
-	void executeUntilEmuTime(const Emutime &time);
+	byte readIO(byte port, EmuTime &time);
+	void writeIO(byte port, byte value, EmuTime &time);
+	void executeUntilEmuTime(const EmuTime &time);
 
 	// mainlife cycle of an MSXDevice
 	void init();
@@ -147,11 +147,11 @@ private:
 	byte vramRead();
 	/** VDP control register has changed, work out the consequences.
 	  */
-	void changeRegister(byte reg, byte val, Emutime &time);
+	void changeRegister(byte reg, byte val, EmuTime &time);
 	/** Display mode may have changed.
 	  * If it has, update displayMode's value and inform the Renderer.
 	  */
-	void updateDisplayMode(Emutime &time);
+	void updateDisplayMode(EmuTime &time);
 
 	/** Renderer that converts this VDP's state into an image.
 	  */
@@ -175,7 +175,7 @@ private:
 	/** Emulation time of the VDP.
 	  * In other words, the time of the last update.
 	  */
-	Emutime currentTime;
+	EmuTime currentTime;
 	/** Control registers.
 	  */
 	byte controlRegs[8];

@@ -1,7 +1,7 @@
 #ifndef __KEYEVENTINSERTER_HH__
 #define __KEYEVENTINSERTER_HH__
 
-#include "emutime.hh"
+#include "EmuTime.hh"
 #include "SDLEventInserter.hh"
 #include <string>
 

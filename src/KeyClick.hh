@@ -5,7 +5,7 @@
 
 #include "openmsx.hh"
 #include "SoundDevice.hh"
-#include "emutime.hh"
+#include "EmuTime.hh"
 #include "DACSound.hh"
 
 
@@ -16,7 +16,7 @@ class KeyClick
 		virtual ~KeyClick(); 
 	
 		void reset();
-		void setClick(bool status, const Emutime &time);
+		void setClick(bool status, const EmuTime &time);
 
 	private:
 		DACSound* dac;

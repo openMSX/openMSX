@@ -4,7 +4,7 @@
 #define __MSXROM16KB_HH__
 
 #include "MSXDevice.hh"
-#include "emutime.hh"
+#include "EmuTime.hh"
 
 class MSXRom16KB : public MSXDevice
 {
@@ -22,7 +22,7 @@ class MSXRom16KB : public MSXDevice
 		// don't forget you inherited from MSXDevice
 		void init();
 		
-		byte readMem(word address, Emutime &time);
+		byte readMem(word address, EmuTime &time);
 
 	private:
 		byte* memoryBank;

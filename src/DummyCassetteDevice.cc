@@ -15,12 +15,12 @@ DummyCassetteDevice *DummyCassetteDevice::instance()
 }
 DummyCassetteDevice *DummyCassetteDevice::oneInstance = NULL;
 
-void DummyCassetteDevice::setMotor(bool status, const Emutime &time)
+void DummyCassetteDevice::setMotor(bool status, const EmuTime &time)
 {
 	// do nothing
 }
 
-short DummyCassetteDevice::readSample(const Emutime &time)
+short DummyCassetteDevice::readSample(const EmuTime &time)
 {
 	return 32767;	// TODO check value
 }

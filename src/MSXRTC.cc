@@ -35,13 +35,13 @@ void MSXRTC::reset()
 	rp5c01->reset();
 }
 
-byte MSXRTC::readIO(byte port, Emutime &time)
+byte MSXRTC::readIO(byte port, EmuTime &time)
 {
 	assert(port==0xB5);
 	return rp5c01->readPort(registerLatch, time) | 0xf0;	//TODO check this
 }
 
-void MSXRTC::writeIO(byte port, byte value, Emutime &time)
+void MSXRTC::writeIO(byte port, byte value, EmuTime &time)
 {
 	switch (port) {
 	case 0xB4:

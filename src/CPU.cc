@@ -13,27 +13,27 @@ CPU::~CPU()
 {
 }
 
-void CPU::executeUntilTarget(const Emutime &time)
+void CPU::executeUntilTarget(const EmuTime &time)
 {
 	setTargetTime(time);
 	execute();
 }
 
-void CPU::setCurrentTime(const Emutime &time)
+void CPU::setCurrentTime(const EmuTime &time)
 {
 	currentTime = time;
 }
-const Emutime &CPU::getCurrentTime()
+const EmuTime &CPU::getCurrentTime()
 {
 	return currentTime;
 }
 
-void CPU::setTargetTime(const Emutime &time)
+void CPU::setTargetTime(const EmuTime &time)
 {
 	targetTime = time;
 	targetChanged = true;
 }
-const Emutime &CPU::getTargetTime()
+const EmuTime &CPU::getTargetTime()
 {
 	return targetTime;
 }

@@ -28,12 +28,12 @@ void MSXKonamiSynthesizer::init()
 	registerSlots();
 }
 
-byte MSXKonamiSynthesizer::readMem(word address, Emutime &time)
+byte MSXKonamiSynthesizer::readMem(word address, EmuTime &time)
 {
 	return memoryBank [address-0x4000];
 }
 
-void MSXKonamiSynthesizer::writeMem(word address, byte value, Emutime &time)
+void MSXKonamiSynthesizer::writeMem(word address, byte value, EmuTime &time)
 {
 	// Should be only for 0x4000, but since this isn't confirmed on a real
 	// cratridge we will simply use every write.

@@ -29,7 +29,7 @@ void MSXMusic::reset()
 	registerLatch = 0; // TODO check
 }
 
-void MSXMusic::writeIO(byte port, byte value, Emutime &time)
+void MSXMusic::writeIO(byte port, byte value, EmuTime &time)
 {
 	switch(port) {
 	case 0x7c:

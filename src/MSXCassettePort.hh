@@ -5,7 +5,7 @@
 
 #include "MSXDevice.hh"
 #include "CassetteDevice.hh"
-#include "emutime.hh"
+#include "EmuTime.hh"
 
 
 class CassettePortInterface
@@ -15,7 +15,7 @@ class CassettePortInterface
 		 * Sets the casette motor relay
 		 *  false = off   true = on
 		 */
-		virtual void setMotor(bool status, const Emutime &time) = 0;
+		virtual void setMotor(bool status, const EmuTime &time) = 0;
 
 		/**
 		 * Writes one bit to the cassette port.
@@ -24,7 +24,7 @@ class CassettePortInterface
 		 *   taken to the cassette DIN socket as the MIC signal. All
 		 *   cassette tone generation is performed in software.
 		 */
-		virtual void cassetteOut(bool output, const Emutime &time) = 0;
+		virtual void cassetteOut(bool output, const EmuTime &time) = 0;
 
 		/**
 		 * Reads one bit from the cassette port.
@@ -34,7 +34,7 @@ class CassettePortInterface
 		 *   to clean the edges and to convert to digital levels,
 		 *   but is otherwise unprocessed.
 		 */
-		virtual bool cassetteIn(const Emutime &time) = 0;
+		virtual bool cassetteIn(const EmuTime &time) = 0;
 
 
 		/**
@@ -53,7 +53,7 @@ class CassettePortInterface
 		 *  CassetteDevice may ask for an 'early' write because for 
 		 *  example it wants to remove the tape.
 		 */
-		virtual void flushOutput(const Emutime &time) = 0;
+		virtual void flushOutput(const EmuTime &time) = 0;
 
 	protected:
 		CassetteDevice *device;
@@ -64,16 +64,16 @@ class CassettePort : public CassettePortInterface
 	public:
 		CassettePort();
 		virtual ~CassettePort();
-		void setMotor(bool status, const Emutime &time);
-		void cassetteOut(bool output, const Emutime &time);
-		bool cassetteIn(const Emutime &time);
-		void flushOutput(const Emutime &time);
+		void setMotor(bool status, const EmuTime &time);
+		void cassetteOut(bool output, const EmuTime &time);
+		bool cassetteIn(const EmuTime &time);
+		void flushOutput(const EmuTime &time);
 	private:
 		static const int BUFSIZE = 256;
 		
 		bool lastOutput;
 		short nextSample;
-		Emutime prevTime;
+		EmuTime prevTime;
 		short *buffer;
 };
 
@@ -81,10 +81,10 @@ class DummyCassettePort : public CassettePortInterface
 {
 	public:
 		DummyCassettePort();
-		void setMotor(bool status, const Emutime &time);
-		void cassetteOut(bool output, const Emutime &time);
-		bool cassetteIn(const Emutime &time);
-		void flushOutput(const Emutime &time);
+		void setMotor(bool status, const EmuTime &time);
+		void cassetteOut(bool output, const EmuTime &time);
+		bool cassetteIn(const EmuTime &time);
+		void flushOutput(const EmuTime &time);
 };
 
 

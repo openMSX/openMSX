@@ -14,13 +14,13 @@ class CassettePlayer : public CassetteDevice
 		virtual ~CassettePlayer();
 		void insertTape(const char* filename);
 		void removeTape();
-		void setMotor(bool status, const Emutime &time);
-		short readSample(const Emutime &time);
+		void setMotor(bool status, const EmuTime &time);
+		short readSample(const EmuTime &time);
 		void writeWave(short *buf, int length);
 		int getWriteSampleRate();
 
 	private:
-		int calcSamples(const Emutime &time);
+		int calcSamples(const EmuTime &time);
 		
 		// audio-related variables
 		SDL_AudioSpec audioSpec;
@@ -29,7 +29,7 @@ class CassettePlayer : public CassetteDevice
 		
 		// player-related variables
 		bool motor;
-		Emutime timeReference;
+		EmuTime timeReference;
 		Uint32 posReference;
 };
 

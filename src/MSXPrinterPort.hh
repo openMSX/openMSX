@@ -22,8 +22,8 @@ class MSXPrinterPort : public MSXDevice
 
 		void init();
 		
-		byte readIO(byte port, Emutime &time);
-		void writeIO(byte port, byte value, Emutime &time);
+		byte readIO(byte port, EmuTime &time);
+		void writeIO(byte port, byte value, EmuTime &time);
 		
 		void plug(PrinterPortDevice *dev);
 		void unplug();

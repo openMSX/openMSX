@@ -5,7 +5,7 @@
 
 #include "MSXDevice.hh"
 #include "MSXMotherBoard.hh"
-#include "emutime.hh"
+#include "EmuTime.hh"
 
 
 class MSXRealTime : public MSXDevice
@@ -30,9 +30,9 @@ class MSXRealTime : public MSXDevice
 		static MSXRealTime *instance();
 		
 		void reset();
-		void executeUntilEmuTime(const Emutime &time);
+		void executeUntilEmuTime(const EmuTime &time);
 
-		float getRealDuration(Emutime time1, Emutime time2);
+		float getRealDuration(EmuTime time1, EmuTime time2);
 
 	private:
 		//TODO put these in config file
@@ -42,7 +42,7 @@ class MSXRealTime : public MSXDevice
 	
 		static MSXRealTime *oneInstance;
 
-		Emutime emuRef, emuOrigin;
+		EmuTime emuRef, emuOrigin;
 		unsigned int realRef, realOrigin;	// !! Overflow in 49 days
 		int catchUpTime;  // number of milliseconds overtime.
 		float factor;

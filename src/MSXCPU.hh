@@ -39,22 +39,22 @@ class MSXCPU : public MSXDevice, public CPUInterface
 		
 		// CPUInterface
 		bool IRQStatus();
-		byte readIO(word port, Emutime &time);
-		void writeIO (word port, byte value, Emutime &time);
-		byte readMem(word address, Emutime &time);
-		void writeMem(word address, byte value, Emutime &time);
+		byte readIO(word port, EmuTime &time);
+		void writeIO (word port, byte value, EmuTime &time);
+		byte readMem(word address, EmuTime &time);
+		void writeMem(word address, byte value, EmuTime &time);
 
 		// MSXCPU
-		void executeUntilTarget(const Emutime &time);
-		void setTargetTime(const Emutime &time);
-		const Emutime &getCurrentTime();
+		void executeUntilTarget(const EmuTime &time);
+		void setTargetTime(const EmuTime &time);
+		const EmuTime &getCurrentTime();
 		
 		void setActiveCPU(CPUType cpu);
-		const Emutime &getTargetTime();
+		const EmuTime &getTargetTime();
 
 	private:
 		static MSXCPU *oneInstance;
-		void executeUntilEmuTime(const Emutime &time); // prevent use
+		void executeUntilEmuTime(const EmuTime &time); // prevent use
 
 		Z80 *z80;
 		//MSXR800 *r800;

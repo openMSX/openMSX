@@ -11,7 +11,7 @@
 #define __RP5C01_HH__
 
 #include "openmsx.hh"
-#include "emutime.hh"
+#include "EmuTime.hh"
 
 
 class RP5C01
@@ -21,11 +21,11 @@ class RP5C01
 		~RP5C01(); 
 		
 		void reset();
-		nibble readPort(nibble port, const Emutime &time);
-		void writePort(nibble port, nibble value, const Emutime &time);
+		nibble readPort(nibble port, const EmuTime &time);
+		void writePort(nibble port, nibble value, const EmuTime &time);
 	private:
 		void initializeTime();
-		void updateTimeRegs(const Emutime &time);
+		void updateTimeRegs(const EmuTime &time);
 		void regs2Time();
 		void time2Regs();
 		int daysInMonth(int month, int leapYear);
@@ -59,7 +59,7 @@ class RP5C01
 		static const nibble mask[4][13];
 
 		bool emuTimeBased;
-		Emutime reference;
+		EmuTime reference;
 		int fraction;
 		int seconds, minutes, hours;
 		int dayWeek, days, months, years, leapYear;

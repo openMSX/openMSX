@@ -45,7 +45,7 @@ Scheduler* Scheduler::instance()
 Scheduler *Scheduler::oneInstance = NULL;
 
 
-void Scheduler::setSyncPoint(const Emutime &time, Schedulable &device) 
+void Scheduler::setSyncPoint(const EmuTime &time, Schedulable &device) 
 {
 	PRT_DEBUG("Sched: registering " << device.getName() << " for emulation at " << time);
 	PRT_DEBUG("Sched:  CPU is at " << MSXCPU::instance()->getCurrentTime());
@@ -72,7 +72,7 @@ void Scheduler::stopScheduling()
 	runningScheduler=false;
 	//CPU can always be run :-)
 	// We set current time as SP (maybe schedule INFINITE running ?)
-	Emutime now = MSXCPU::instance()->getCurrentTime();
+	EmuTime now = MSXCPU::instance()->getCurrentTime();
 	setSyncPoint(now, *(MSXCPU::instance())); 
 }
 
@@ -85,7 +85,7 @@ void Scheduler::scheduleEmulation()
 //	std::ifstream quakef("starquake/quake");
 //	byte quakeb[128];
 //	quakef.read(quakeb, 127);
-//	Emutime foo;
+//	EmuTime foo;
 //	std::cerr << "foo" << std::endl;
 //	for (int joosti=0;joosti<127;joosti++)
 //	{
@@ -102,7 +102,7 @@ void Scheduler::scheduleEmulation()
 			MSXCPU::instance()->executeUntilTarget(infinity);
 		} else {
 			const SynchronizationPoint &sp = getFirstSP();
-			const Emutime &time = sp.getTime();
+			const EmuTime &time = sp.getTime();
 			if (MSXCPU::instance()->getCurrentTime() < time) {
 				// emulate CPU till first SP, don't immediately emulate
 				// device since CPU could not have reached SP
@@ -118,7 +118,7 @@ void Scheduler::scheduleEmulation()
 		}
 	}
 }
-const Emutime Scheduler::infinity = Emutime(1, Emutime::INFINITY);
+const EmuTime Scheduler::infinity = EmuTime(1, EmuTime::INFINITY);
 
 // Note: this runs in a different thread
 void Scheduler::signalEvent(SDL_Event &event) {

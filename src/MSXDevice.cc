@@ -23,23 +23,23 @@ MSXDevice::~MSXDevice()
 }
 
 // interaction with CPU
-byte MSXDevice::readMem(word address, Emutime &time)
+byte MSXDevice::readMem(word address, EmuTime &time)
 {
 	return 255;
 }
-void MSXDevice::writeMem(word address, byte value, Emutime &time)
+void MSXDevice::writeMem(word address, byte value, EmuTime &time)
 {
 	// do nothing
 }
-byte MSXDevice:: readIO(byte port, Emutime &time)
+byte MSXDevice:: readIO(byte port, EmuTime &time)
 {
 	return 255;
 }
-void MSXDevice::writeIO(byte port, byte value, Emutime &time)
+void MSXDevice::writeIO(byte port, byte value, EmuTime &time)
 {
 	// do nothing
 }
-void MSXDevice::executeUntilEmuTime(const Emutime &time)
+void MSXDevice::executeUntilEmuTime(const EmuTime &time)
 {
 	PRT_DEBUG ("Empty executeUntilEmuTime function");
 }

@@ -11,7 +11,7 @@
 #define __I8254_HH__
 
 #include "openmsx.hh"
-#include "emutime.hh"
+#include "EmuTime.hh"
 
 
 class I8254Interface
@@ -28,14 +28,14 @@ class I8254
 		public:
 			Counter(int freq, I8254 *parent, int id);
 			void reset();
-			byte readIO(const Emutime &time);
-			void writeIO(byte value, const Emutime &time);
-			void setGateStatus(bool status, const Emutime &time);
-			bool getOutput(const Emutime &time);
-			void writeControlWord(byte value, const Emutime &time);
-			void latchStatus(const Emutime &time);
-			void latchCounter(const Emutime &time);
-			void advance(const Emutime &time);
+			byte readIO(const EmuTime &time);
+			void writeIO(byte value, const EmuTime &time);
+			void setGateStatus(bool status, const EmuTime &time);
+			bool getOutput(const EmuTime &time);
+			void writeControlWord(byte value, const EmuTime &time);
+			void latchStatus(const EmuTime &time);
+			void latchCounter(const EmuTime &time);
+			void advance(const EmuTime &time);
 		private:
 			enum ByteOrder {LOW, HIGH};
 			static const byte WRT_FRMT = 0x30;
@@ -56,7 +56,7 @@ class I8254
 			void writeLoad(word value);
 			void changeOutput(bool newOutput);
 
-			Emutime currentTime;
+			EmuTime currentTime;
 			I8254 *parent;
 			int id;
 			int counter;
@@ -77,10 +77,10 @@ class I8254
 		
 		void reset();
 
-		byte readIO(byte port, const Emutime &time);
-		void writeIO(byte port, byte value, const Emutime &time);
-		void setGateStatus(byte counter, bool status, const Emutime &time);
-		bool getOutput(byte counter, const Emutime &time);
+		byte readIO(byte port, const EmuTime &time);
+		void writeIO(byte port, byte value, const EmuTime &time);
+		void setGateStatus(byte counter, bool status, const EmuTime &time);
+		bool getOutput(byte counter, const EmuTime &time);
 
 		void outputCallback(int id, bool status);
 
@@ -92,7 +92,7 @@ class I8254
 		static const byte RB_STATUS = 0x10;
 		static const byte RB_COUNT  = 0x20;
 		
-		void readBackHelper(byte value, byte cntr, const Emutime &time);
+		void readBackHelper(byte value, byte cntr, const EmuTime &time);
 	
 		I8254Interface *interface;
 		Counter* counter[NR_COUNTERS];

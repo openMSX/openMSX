@@ -7,7 +7,7 @@
 
 #include "openmsx.hh"
 #include "SoundDevice.hh"
-#include "emutime.hh"
+#include "EmuTime.hh"
 #include "MSXRealTime.hh"
 
 
@@ -18,8 +18,8 @@ class DACSound : public SoundDevice
 		virtual ~DACSound(); 
 	
 		void reset();
-		byte readDAC(byte value, const Emutime &time);
-		void writeDAC(byte value, const Emutime &time);
+		byte readDAC(byte value, const EmuTime &time);
+		void writeDAC(byte value, const EmuTime &time);
 		
 		//SoundDevice
 		void setInternalVolume(short newVolume);
@@ -33,7 +33,7 @@ class DACSound : public SoundDevice
 		static const int CENTER = 0x80;
 	
 		MSXRealTime* realtime;
-		Emutime ref;
+		EmuTime ref;
 		float left, tempVal;
 		int sampleRate;
 

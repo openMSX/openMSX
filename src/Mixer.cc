@@ -82,7 +82,7 @@ void Mixer::reInit()
 	prevTime = MSXCPU::instance()->getCurrentTime();
 }
 
-void Mixer::updateStream(const Emutime &time)
+void Mixer::updateStream(const EmuTime &time)
 {
 	assert(prevTime<=time);
 	float duration = MSXRealTime::instance()->getRealDuration(prevTime, time);

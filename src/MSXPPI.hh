@@ -29,7 +29,7 @@
 
 #include "MSXDevice.hh"
 #include "MSXMotherBoard.hh"
-#include "emutime.hh"
+#include "EmuTime.hh"
 #include "I8255.hh"
 #include "Keyboard.hh"
 #include "KeyClick.hh"
@@ -73,22 +73,22 @@ class MSXPPI : public MSXDevice, I8255Interface
 		
 		void init();
 		void reset();
-		byte readIO(byte port, Emutime &time);
-		void writeIO(byte port, byte value, Emutime &time);
+		byte readIO(byte port, EmuTime &time);
+		void writeIO(byte port, byte value, EmuTime &time);
 	private:
 		static MSXPPI *oneInstance;
 		I8255 *i8255;
 	
 	// I8255Interface
 	public:
-		byte readA(const Emutime &time);
-		byte readB(const Emutime &time);
-		nibble readC0(const Emutime &time);
-		nibble readC1(const Emutime &time);
-		void writeA(byte value, const Emutime &time);
-		void writeB(byte value, const Emutime &time);
-		void writeC0(nibble value, const Emutime &time);
-		void writeC1(nibble value, const Emutime &time);
+		byte readA(const EmuTime &time);
+		byte readB(const EmuTime &time);
+		nibble readC0(const EmuTime &time);
+		nibble readC1(const EmuTime &time);
+		void writeA(byte value, const EmuTime &time);
+		void writeB(byte value, const EmuTime &time);
+		void writeC0(nibble value, const EmuTime &time);
+		void writeC1(nibble value, const EmuTime &time);
 	
 	private:
 		Keyboard *keyboard;

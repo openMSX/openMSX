@@ -11,7 +11,7 @@
 
 #include "openmsx.hh"
 #include "SoundDevice.hh"
-#include "emutime.hh"
+#include "EmuTime.hh"
 
 #define MIN(x,y)	(x) < (y) ? (x) : (y)
 
@@ -19,10 +19,10 @@
 class AY8910Interface
 {
 	public:
-		virtual byte readA(const Emutime &time)=0;
-		virtual byte readB(const Emutime &time)=0;
-		virtual void writeA(byte value, const Emutime &time)=0;
-		virtual void writeB(byte value, const Emutime &time)=0;
+		virtual byte readA(const EmuTime &time)=0;
+		virtual byte readB(const EmuTime &time)=0;
+		virtual void writeA(byte value, const EmuTime &time)=0;
+		virtual void writeB(byte value, const EmuTime &time)=0;
 };
 
 class AY8910 : public SoundDevice
@@ -31,8 +31,8 @@ class AY8910 : public SoundDevice
 		AY8910(AY8910Interface &interf); 
 		virtual ~AY8910(); 
 	
-		byte readRegister(byte reg, const Emutime &time);
-		void writeRegister(byte reg, byte value, const Emutime &time);
+		byte readRegister(byte reg, const EmuTime &time);
+		void writeRegister(byte reg, byte value, const EmuTime &time);
 
 		//SoundDevice
 		void reset();
@@ -41,7 +41,7 @@ class AY8910 : public SoundDevice
 		int* updateBuffer(int length);
 		
 	private:
-		void wrtReg(byte reg, byte value, const Emutime &time);
+		void wrtReg(byte reg, byte value, const EmuTime &time);
 		void checkMute();
 		
 		static const int FP_UNIT = 0x8000;	// fixed point representation of 1

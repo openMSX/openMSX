@@ -3,7 +3,7 @@
 #ifndef __RENDERER_HH__
 #define __RENDERER_HH__
 
-class Emutime;
+class EmuTime;
 
 class Renderer
 {
@@ -32,48 +32,48 @@ public:
 	  *    colour.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateBackgroundColour(int colour, Emutime &time) = NULL;
+	virtual void updateBackgroundColour(int colour, EmuTime &time) = NULL;
 
 	/** Informs the renderer of a VDP blanking change.
 	  * @param enabled Is blanking enabled?
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateBlanking(bool enabled, Emutime &time) = NULL;
+	virtual void updateBlanking(bool enabled, EmuTime &time) = NULL;
 
 	/** Informs the renderer of a VDP display mode change.
 	  * @param mode The new display mode (M2..M0).
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateDisplayMode(int mode, Emutime &time) = NULL;
+	virtual void updateDisplayMode(int mode, EmuTime &time) = NULL;
 
 	/** Informs the renderer of a name table base address change.
 	  * @param addr The new base address.
 	  */
-	virtual void updateNameBase(int addr, Emutime &time) = NULL;
+	virtual void updateNameBase(int addr, EmuTime &time) = NULL;
 
 	/** Informs the renderer of a pattern table base address change.
 	  * @param addr The new base address.
 	  * @param mask Pattern table mask, or -1 for N/A.
 	  *   Note that only the undocumented display modes have masks.
 	  */
-	virtual void updatePatternBase(int addr, int mask, Emutime &time) = NULL;
+	virtual void updatePatternBase(int addr, int mask, EmuTime &time) = NULL;
 
 	/** Informs the renderer of a colour table base address change.
 	  * @param addr The new base address.
 	  * @param mask Colour table mask, or -1 for N/A.
 	  *   Note that only the undocumented display modes have masks.
 	  */
-	virtual void updateColourBase(int addr, int mask, Emutime &time) = NULL;
+	virtual void updateColourBase(int addr, int mask, EmuTime &time) = NULL;
 
 	/** Informs the renderer of a sprite attribute table base address change.
 	  * @param addr The new base address.
 	  */
-	virtual void updateSpriteAttributeBase(int addr, Emutime &time) = NULL;
+	virtual void updateSpriteAttributeBase(int addr, EmuTime &time) = NULL;
 
 	/** Informs the renderer of a sprite pattern table base address change.
 	  * @param addr The new base address.
 	  */
-	virtual void updateSpritePatternBase(int addr, Emutime &time) = NULL;
+	virtual void updateSpritePatternBase(int addr, EmuTime &time) = NULL;
 
 	/** Informs the renderer of a change in VRAM contents.
 	  * @param addr The address that is changed.
@@ -83,7 +83,7 @@ public:
 	  *   smarter way to update (for example, subscribe to VRAM
 	  *   address regions).
 	  */
-	virtual void updateVRAM(int addr, byte data, Emutime &time) = NULL;
+	virtual void updateVRAM(int addr, byte data, EmuTime &time) = NULL;
 
 };
 

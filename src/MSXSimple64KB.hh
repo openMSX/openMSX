@@ -5,7 +5,7 @@
 
 #include "MSXDevice.hh"
 #include "MSXMotherBoard.hh"
-#include "emutime.hh"
+#include "EmuTime.hh"
 
 class MSXSimple64KB : public MSXDevice
 {
@@ -27,8 +27,8 @@ class MSXSimple64KB : public MSXDevice
 		
 		//void SaveStateMSX(ofstream savestream);
 		
-		byte readMem(word address, Emutime &time);
-		void writeMem(word address, byte value, Emutime &time);  
+		byte readMem(word address, EmuTime &time);
+		void writeMem(word address, byte value, EmuTime &time);  
 	
 	private:
 		byte* memoryBank;

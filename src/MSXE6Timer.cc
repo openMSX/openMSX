@@ -27,7 +27,7 @@ void MSXE6Timer::reset()
 	reference(0);
 }
 
-byte MSXE6Timer::readIO(byte port, Emutime &time)
+byte MSXE6Timer::readIO(byte port, EmuTime &time)
 {
 	int counter = reference.getTicksTill(time);
 	switch (port) {
@@ -41,7 +41,7 @@ byte MSXE6Timer::readIO(byte port, Emutime &time)
 	}
 }
 
-void MSXE6Timer::writeIO(byte port, byte value, Emutime &time)
+void MSXE6Timer::writeIO(byte port, byte value, EmuTime &time)
 {
 	assert (port == 0xE6);
 	reference = time;	// freq does not change
