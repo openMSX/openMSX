@@ -241,7 +241,6 @@
 
 <!-- This is a settings-type of configuration. See settings.xml -->
   <config id="RealTime">
-    <parameter name="sync_interval">50</parameter>
     <parameter name="max_catch_up_time">2000</parameter>
     <parameter name="max_catch_up_factor">105</parameter>
   </config>

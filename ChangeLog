@@ -2,6 +2,7 @@ $Id$
 
 2003-01-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed Z80/R800 switching again
+	* Removed "sync_interval" parameter from RealTime
 
 2003-01-26 Maarten ter Huurne <maarten@treewalker.org>
 	* Relaxed over-zealous assert in PixelRenderer by one tick.

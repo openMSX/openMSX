@@ -23,7 +23,6 @@
       in the right pace -->
   <config id="RealTime">
     <type>RealTime</type>
-    <parameter name="sync_interval">50</parameter>
     <parameter name="max_catch_up_time">2000</parameter>
     <parameter name="max_catch_up_factor">105</parameter>
   </config>
@@ -31,11 +30,11 @@
  <!-- Audio mixer settings -->
   <config id="Mixer">
     <type>Mixer</type>
+  <!-- Sample frequency, 22kHz should be enough for MSX -->
+    <parameter name="frequency">22050</parameter>
   <!-- Use more samples when FM sound quality is bad, e.g.
-    <parameter name="frequency">44100</parameter>
     <parameter name="samples">1024</parameter>
    --> 
-    <parameter name="frequency">22050</parameter>
     <parameter name="samples">512</parameter>
   </config>
 

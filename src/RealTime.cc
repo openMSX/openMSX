@@ -8,11 +8,12 @@
 #include "CommandController.hh"
 #include "Scheduler.hh"
 
+const int SYNC_INTERVAL = 50;
+
 
 RealTime::RealTime()
 {
 	Config *config = MSXConfig::instance()->getConfigById("RealTime");
-	syncInterval     = config->getParameterAsInt("sync_interval");
 	maxCatchUpTime   = config->getParameterAsInt("max_catch_up_time");
 	maxCatchUpFactor = config->getParameterAsInt("max_catch_up_factor");
 	
@@ -22,7 +23,7 @@ RealTime::RealTime()
 	throttle = true;
 	EmuTime zero;
 	reset(zero);
-	scheduler->setSyncPoint(emuRef+syncInterval, this);
+	scheduler->setSyncPoint(emuRef + SYNC_INTERVAL, this);
 	
 	CommandController::instance()->registerCommand(&pauseCmd, "pause");
 	CommandController::instance()->registerCommand(&throttleCmd, "throttle");
@@ -136,7 +137,7 @@ void RealTime::internalSync(const EmuTime &curEmu)
 	} 
 	// schedule again in future
 	EmuTimeFreq<1000> time(curEmu);
-	scheduler->setSyncPoint(time + syncInterval, this);
+	scheduler->setSyncPoint(time + SYNC_INTERVAL, this);
 }
 
 float RealTime::getRealDuration(const EmuTime &time1, const EmuTime &time2)
