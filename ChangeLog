@@ -4,6 +4,9 @@ $Id$
 	* Implemented V9990 SRCH command
 	* XIMM bits (R#6) are ignored in Px modes
 	* Implemented V9990 BMLL command
+	* BMLL is always done on interleaved VRAM
+	* Fixed V9990 VRAM interleaving:
+	   together with previous item fixes scrolling in power basic
 
 2005-01-30 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* When a new settings is created and a TCL variable with the same name

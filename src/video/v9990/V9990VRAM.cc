@@ -39,6 +39,11 @@ V9990VRAM::~V9990VRAM()
 // V9990VRAM
 // -------------------------------------------------------------------------
 
+static unsigned interleave(unsigned address)
+{
+	return ((address & 1) << 18) | ((address & 0x7FFFE) >> 1);
+}
+
 static unsigned mapAddress(unsigned address, V9990DisplayMode mode) {
 	address &= 0x7FFFF;
 	switch(mode) {
@@ -53,20 +58,29 @@ static unsigned mapAddress(unsigned address, V9990DisplayMode mode) {
 			} /* else { address = address; } */
 			break;
 		default /* Bx */:
-			address = ((address >> 18) & 0x1) |
-			          ((address <<  1) & 0x7FFFE);
+			address = interleave(address);
 	}
 	return address;
 }
 
-/*inline*/ byte V9990VRAM::readVRAM(unsigned address)
+byte V9990VRAM::readVRAM(unsigned address)
 {
 	return data[mapAddress(address, vdp->getDisplayMode())];
 }
 
-/*inline*/ void V9990VRAM::writeVRAM(unsigned address, byte value)
+void V9990VRAM::writeVRAM(unsigned address, byte value)
 {
 	data[mapAddress(address, vdp->getDisplayMode())] = value;
+}
+
+byte V9990VRAM::readVRAMInterleave(unsigned address)
+{
+	return data[interleave(address)];
+}
+
+void V9990VRAM::writeVRAMInterleave(unsigned address, byte value)
+{
+	data[interleave(address)] = value;
 }
 
 // -------------------------------------------------------------------------

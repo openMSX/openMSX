@@ -894,12 +894,13 @@ void V9990CmdEngine::CmdBMLL<Mode>::execute(const EmuTime& time)
 	// TODO DIX DIY?
 	//      Log op?
 	while (engine->nbBytes) {
-		byte src = vram->readVRAM(engine->srcAddress);
-		byte dst = vram->readVRAM(engine->dstAddress);
+		byte src = vram->readVRAMInterleave(engine->srcAddress);
+		byte dst = vram->readVRAMInterleave(engine->dstAddress);
 		byte mask = (engine->dstAddress & 1)
 		          ? (engine->WM >> 8) : (engine->WM & 0xFF);
+		mask = 255;
 		byte res = (src & mask) | (dst & ~mask); 
-		vram->writeVRAM(engine->dstAddress, res);
+		vram->writeVRAMInterleave(engine->dstAddress, res);
 		++engine->srcAddress;
 		++engine->dstAddress;
 		--engine->nbBytes;

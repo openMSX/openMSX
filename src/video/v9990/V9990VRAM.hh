@@ -34,8 +34,10 @@ public:
 		// not much to do, yet
 	}
 
-	/*inline*/ byte readVRAM(unsigned address);
-	/*inline*/ void writeVRAM(unsigned address, byte val);
+	byte readVRAM(unsigned address);
+	void writeVRAM(unsigned address, byte val);
+	byte readVRAMInterleave(unsigned address);
+	void writeVRAMInterleave(unsigned address, byte val);
 
 	/** Obtain a pointer to the data.
 	  */
