@@ -239,13 +239,12 @@ static inline bool overlap(
 	//       VRAM region cannot wrap around.
 ) {
 	if (displayY0 <= displayY1) {
-		if (vramLine1 > displayY0 && vramLine0 <= displayY1) {
-			return true;
+		if (vramLine1 > displayY0) {
+			if (vramLine0 <= displayY1) return true;
 		}
 	} else {
-		if (vramLine1 > displayY0 || vramLine0 <= displayY1) {
-			return true;
-		}
+		if (vramLine1 > displayY0) return true;
+		if (vramLine0 <= displayY1) return true;
 	}
 	return false;
 }
@@ -274,13 +273,9 @@ inline bool PixelRenderer::checkSync(int offset, const EmuTime &time) {
 		if (vram->colourTable.isInside(offset)) {
 			int vramQuarter = (offset & 0x1800) >> 11;
 			int mask = (vram->colourTable.getMask() & 0x1800) >> 11;
-			int displayQuarter = 0;
-			if (overlap(displayY0, displayY1,   0,  64)) displayQuarter |= 1;
-			if (overlap(displayY0, displayY1,  64, 128)) displayQuarter |= 2;
-			if (overlap(displayY0, displayY1, 128, 192)) displayQuarter |= 4;
-			if (overlap(displayY0, displayY1, 192, 256)) displayQuarter |= 8;
 			for (int i = 0; i < 4; i++) {
-				if (((1 << i) & displayQuarter) && (i & mask) == vramQuarter) {
+				if ( (i & mask) == vramQuarter
+				&& overlap(displayY0, displayY1, i * 64, (i + 1) * 64) ) {
 					/*fprintf(stderr,
 						"colour table: %05X %04X - quarter %d\n",
 						offset, offset & 0x1FFF, i
@@ -292,13 +287,9 @@ inline bool PixelRenderer::checkSync(int offset, const EmuTime &time) {
 		if (vram->patternTable.isInside(offset)) {
 			int vramQuarter = (offset & 0x1800) >> 11;
 			int mask = (vram->patternTable.getMask() & 0x1800) >> 11;
-			int displayQuarter = 0;
-			if (overlap(displayY0, displayY1,   0,  64)) displayQuarter |= 1;
-			if (overlap(displayY0, displayY1,  64, 128)) displayQuarter |= 2;
-			if (overlap(displayY0, displayY1, 128, 192)) displayQuarter |= 4;
-			if (overlap(displayY0, displayY1, 192, 256)) displayQuarter |= 8;
 			for (int i = 0; i < 4; i++) {
-				if (((1 << i) & displayQuarter) && (i & mask) == vramQuarter) {
+				if ( (i & mask) == vramQuarter
+				&& overlap(displayY0, displayY1, i * 64, (i + 1) * 64) ) {
 					/*fprintf(stderr,
 						"pattern table: %05X %04X - quarter %d\n",
 						offset, offset & 0x1FFF, i
@@ -318,6 +309,22 @@ inline bool PixelRenderer::checkSync(int offset, const EmuTime &time) {
 			}
 		}
 		return false;
+	case DisplayMode::GRAPHIC4:
+	case DisplayMode::GRAPHIC5: {
+		// Is the address inside the visual page(s)?
+		// TODO: Also look at which lines are touched inside pages.
+		int visiblePage = vram->nameTable.getMask()
+			& (0x10000 | (vdp->getEvenOddMask() << 7));
+		if (vdp->isMultiPageScrolling()) {
+			return (offset & 0x18000) == visiblePage
+				|| (offset & 0x18000) == (visiblePage & 0x10000);
+		} else {
+			return (offset & 0x18000) == visiblePage;
+		}
+	}
+	case DisplayMode::GRAPHIC6:
+	case DisplayMode::GRAPHIC7:
+		return true; // TODO: Implement better detection.
 	default:
 		// Range unknown; assume full range.
 		return vram->nameTable.isInside(offset)
@@ -327,7 +334,16 @@ inline bool PixelRenderer::checkSync(int offset, const EmuTime &time) {
 }
 
 void PixelRenderer::updateVRAM(int offset, const EmuTime &time) {
-	if (checkSync(offset, time)) renderUntil(time);
+	// Note: No need to sync if display is disabled, because then the
+	//       output does not depend on VRAM (only on background colour).
+	if (displayEnabled && checkSync(offset, time)) {
+		/*
+		fprintf(stderr, "vram sync @ line %d\n",
+			vdp->getTicksThisFrame(time) / VDP::TICKS_PER_LINE
+			);
+		*/
+		renderUntil(time);
+	}
 	updateVRAMCache(offset);
 }
 
