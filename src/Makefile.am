@@ -64,7 +64,7 @@ openmsx_SOURCES=\
 	JoyNet.hh JoyNet.cc \
 	MSXPrinterPort.hh MSXPrinterPort.cc \
 	PrinterPortDevice.hh PrinterPortDevice.cc \
-	PrinterPortSimple.hh PrinterPortSimple.cc \
+	PrinterPortSimpl.hh PrinterPortSimpl.cc \
 	PrinterPortLogger.cc PrinterPortLogger.hh \
 	MSXKanji.hh MSXKanji.cc \
 	MSXMemoryMapper.hh MSXMemoryMapper.cc MSXMapperIO.hh MSXMapperIO.cc \

@@ -23,9 +23,12 @@ Y8950KeyboardConnector::~Y8950KeyboardConnector()
 }
 
 
-void Y8950KeyboardConnector::write(byte data, const EmuTime &time)
+void Y8950KeyboardConnector::write(byte newData, const EmuTime &time)
 {
-	((Y8950KeyboardDevice*)pluggable)->write(data, time);
+	if (newData != data) {
+		data = newData;
+		((Y8950KeyboardDevice*)pluggable)->write(data, time);
+	}
 }
 
 byte Y8950KeyboardConnector::read(const EmuTime &time)

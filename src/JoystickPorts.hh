@@ -15,24 +15,24 @@ class Joystick;
 
 class JoystickPort : public Connector
 {
-public:
-	JoystickPort(const std::string &name, const EmuTime &time);
-	virtual ~JoystickPort();
+	public:
+		JoystickPort(const std::string &name, const EmuTime &time);
+		virtual ~JoystickPort();
 
-	virtual const std::string &getName();
-	virtual const std::string &getClass();
-	virtual void plug(Pluggable *device, const EmuTime &time);
-	virtual void unplug(const EmuTime &time);
+		virtual const std::string &getName();
+		virtual const std::string &getClass();
+		virtual void plug(Pluggable *device, const EmuTime &time);
+		virtual void unplug(const EmuTime &time);
 
-	byte read(const EmuTime &time);
-	void write(byte value, const EmuTime &time);
+		byte read(const EmuTime &time);
+		void write(byte value, const EmuTime &time);
 
-private:
-	DummyJoystick* dummy;
-	std::string name;
-	static const std::string className;
+	private:
+		DummyJoystick* dummy;
+		std::string name;
+		static const std::string className;
 
-	byte lastValue;
+		byte lastValue;
 };
 
 class JoystickPorts

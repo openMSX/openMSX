@@ -26,8 +26,10 @@ class PrinterPortDevice : public Pluggable
 		virtual void setStrobe(bool strobe, const EmuTime &time) = 0;
 
 		/**
-		 * Sets the data signals.
-		 * Always use strobe to see wheter data is valid
+		 * Sets the data signals. Always use strobe to see wheter data
+		 * is valid.
+		 * As an optimization, this method might not be called when the
+		 * new data is the same as the previous data.
 		 */
 		virtual void writeData(byte data, const EmuTime &time) = 0;
 

@@ -5,7 +5,7 @@
 #include "MSXMotherBoard.hh"
 #include "PrinterPortDevice.hh"
 #include "PluggingController.hh"
-#include "PrinterPortSimple.hh"
+#include "PrinterPortSimpl.hh"
 #include "PrinterPortLogger.hh"
 
 
@@ -23,7 +23,7 @@ MSXPrinterPort::MSXPrinterPort(MSXConfig::Device *config, const EmuTime &time)
 	reset(time);
 	
 	logger = new PrinterPortLogger();
-	simple = new PrinterPortSimple();
+	simple = new PrinterPortSimpl();
 }
 
 MSXPrinterPort::~MSXPrinterPort()
@@ -39,10 +39,8 @@ MSXPrinterPort::~MSXPrinterPort()
 
 void MSXPrinterPort::reset(const EmuTime &time)
 {
-	data = 0;	// TODO check this
-	strobe = true;	// TODO 
-	((PrinterPortDevice*)pluggable)->writeData(data, time);
-	((PrinterPortDevice*)pluggable)->setStrobe(strobe, time);
+	writeData(0, time);	// TODO check this
+	setStrobe(true, time);	// TODO check this
 }
 
 
@@ -56,18 +54,30 @@ void MSXPrinterPort::writeIO(byte port, byte value, const EmuTime &time)
 {
 	switch (port) {
 	case 0x90:
-		strobe = value&1;	// bit 0 = strobe
-		((PrinterPortDevice*)pluggable)->setStrobe(strobe, time);
+		setStrobe(value&1, time);	// bit 0 = strobe
 		break;
 	case 0x91:
-		data = value;
-		((PrinterPortDevice*)pluggable)->writeData(data, time);
+		writeData(value, time);
 		break;
 	default:
 		assert(false);
 	}
 }
 
+void MSXPrinterPort::setStrobe(bool newStrobe, const EmuTime &time)
+{
+	if (newStrobe != strobe) {
+		strobe = newStrobe;
+		((PrinterPortDevice*)pluggable)->setStrobe(strobe, time);
+	}
+}
+void MSXPrinterPort::writeData(byte newData, const EmuTime &time)
+{
+	if (newData != data) {
+		data = newData;
+		((PrinterPortDevice*)pluggable)->writeData(data, time);
+	}
+}
 
 const std::string &MSXPrinterPort::getName()
 {

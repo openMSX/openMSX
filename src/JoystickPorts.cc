@@ -40,7 +40,7 @@ const std::string JoystickPort::className("Joystick Port");
 void JoystickPort::plug(Pluggable *device, const EmuTime &time)
 {
 	Connector::plug(device, time);
-	write(lastValue, time);
+	((JoystickDevice*)pluggable)->write(lastValue, time);
 }
 
 void JoystickPort::unplug(const EmuTime &time)
@@ -56,8 +56,10 @@ byte JoystickPort::read(const EmuTime &time)
 
 void JoystickPort::write(byte value, const EmuTime &time)
 {
-	lastValue = value;
-	((JoystickDevice*)pluggable)->write(value, time);
+	if (lastValue != value) {
+		lastValue = value;
+		((JoystickDevice*)pluggable)->write(value, time);
+	}
 }
 
 ///

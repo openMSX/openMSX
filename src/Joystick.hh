@@ -31,12 +31,6 @@ class Joystick : public JoystickDevice, EventListener
 		virtual void signalEvent(SDL_Event &event);
 
 	private:
-		static const int JOY_UP      = 0x01;
-		static const int JOY_DOWN    = 0x02;
-		static const int JOY_LEFT    = 0x04;
-		static const int JOY_RIGHT   = 0x08;
-		static const int JOY_BUTTONA = 0x10;
-		static const int JOY_BUTTONB = 0x20;
 		static const int THRESHOLD = 32768/10;
 
 		std::string name;

@@ -8,7 +8,7 @@
 #include "Connector.hh"
 
 // forward declarations
-class PrinterPortSimple;
+class PrinterPortSimpl;
 class PrinterPortLogger;
 
 
@@ -41,9 +41,12 @@ class MSXPrinterPort : public MSXIODevice , public Connector
 		virtual void unplug(const EmuTime &time);
 
 	private:
+		void setStrobe(bool newStrobe, const EmuTime &time);
+		void writeData(byte newData, const EmuTime &time);
+
 		DummyPrinterPortDevice *dummy;
 		PrinterPortLogger *logger;
-		PrinterPortSimple *simple;
+		PrinterPortSimpl *simple;
 		
 		bool strobe;
 		byte data;

@@ -7,11 +7,11 @@
 class DACSound;
 
 
-class PrinterPortSimple : public PrinterPortDevice
+class PrinterPortSimpl : public PrinterPortDevice
 {
 	public:
-		PrinterPortSimple();
-		virtual ~PrinterPortSimple();
+		PrinterPortSimpl();
+		virtual ~PrinterPortSimpl();
 
 		// PrinterPortDevice
 		virtual bool getStatus(const EmuTime &time);
