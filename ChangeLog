@@ -1,5 +1,11 @@
 $Id$
 
+2003-11-19 Maarten ter Huurne <maarten@treewalker.org>
+	* Extended Scaler interface to scale modes of 512-pixels wide as well.
+	  These modes are scaled in the vertical direction only.
+	* Implemented vertical-only scaling for "simple" and "2xsai".
+	* Minor cleanup of SaI2xScaler class.
+
 2003-11-19 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented "restoredefault" command
 
@@ -25,7 +31,7 @@ $Id$
 	   - because of these two points it's now save to destruct all
 	     singletons (before some were never destructed)
 	   - instance() method now returns a reference instead of a pointer
-	   - I'll post a more detailed explanation to openmsx-devel soon 
+	   - I'll post a more detailed explanation to openmsx-devel soon
 	* Fixed hd image file creation:
 	   - automatically create or enlarge hd-image when the specified file
 	     doesn't exist or is too small

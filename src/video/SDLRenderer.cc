@@ -149,15 +149,16 @@ void SDLRenderer<Pixel, zoom>::drawEffects()
 	if (LINE_ZOOM == 2) {
 		Scaler* scaler = scalers[scalerID];
 		for (unsigned y = 0; y < HEIGHT; y += 2) {
-			//fprintf(stderr, "post processing line %d: %d\n", y, processLines[y]);
-			switch (processLines[y]) {
-			case PROC_NONE:
+			//fprintf(stderr, "post processing line %d: %d\n", y, lineContent[y]);
+			switch (lineContent[y]) {
+			case LINE_BLANK:
+			case LINE_DONTTOUCH:
 				break;
-			case PROC_COPY:
-				scalers[Scaler::SIMPLE]->scaleLine(screen, y);
+			case LINE_256:
+				scaler->scaleLine256(screen, y);
 				break;
-			case PROC_SCALE:
-				scaler->scaleLine(screen, y);
+			case LINE_512:
+				scaler->scaleLine512(screen, y);
 				break;
 			default:
 				assert(false);
@@ -588,7 +589,7 @@ void SDLRenderer<Pixel, zoom>::frameStart(
 
 	if (LINE_ZOOM == 2) {
 		for (unsigned y = 0; y < HEIGHT; y++) {
-			processLines[y] = PROC_NONE;
+			lineContent[y] = LINE_BLANK;
 		}
 	}
 }
@@ -800,6 +801,7 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 	//dest.x = translateX(fromX);
 
 	DisplayMode mode = vdp->getDisplayMode();
+	LineContent lineType = mode.getLineWidth() == 256 ? LINE_256 : LINE_512;
 	int hScroll =
 		  mode.isTextMode()
 		? 0
@@ -875,7 +877,7 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 						bitmapDisplayCache, &source, screen, &dest
 						);
 				}
-				if (LINE_ZOOM == 2) processLines[y] = PROC_NONE;
+				if (LINE_ZOOM == 2) lineContent[y] = LINE_DONTTOUCH;
 			} else {
 				int firstPageWidth = pageBorder - displayX;
 				if (firstPageWidth > 0) {
@@ -903,10 +905,7 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 						bitmapDisplayCache, &source, screen, &dest
 						);
 				}
-				if (LINE_ZOOM == 2) {
-					processLines[y] =
-						(mode.getLineWidth() == 256) ? PROC_SCALE : PROC_COPY;
-				}
+				if (LINE_ZOOM == 2) lineContent[y] = lineType;
 			}
 			displayY = (displayY + 1) & 255;
 		}
@@ -930,10 +929,7 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 				source.y, dest.y);
 			*/
 			SDL_BlitSurface(charDisplayCache, &source, screen, &dest);
-			if (LINE_ZOOM == 2) {
-				processLines[y] =
-					(mode.getLineWidth() == 256) ? PROC_SCALE : PROC_COPY;
-			}
+			if (LINE_ZOOM == 2) lineContent[y] = lineType;
 			displayY = (displayY + 1) & 255;
 		}
 	}

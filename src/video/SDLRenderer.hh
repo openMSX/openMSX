@@ -148,20 +148,24 @@ private:
 	  */
 	int lineRenderTop;
 
-	/** Determines what type of postprocessing a line should yet.
+	/** Remembers the type of pixels on a line.
+	  * This is used to select the right scaler algorithm for a line.
 	  */
-	enum LinePostProcess {
-		/** Don't post process this line.
+	enum LineContent {
+		/** Line contains border colour.
 		  */
-		PROC_NONE,
-		/** Copy even numbered line to odd numbered line.
+		LINE_BLANK,
+		/** Line contains 256 (wide) pixels.
 		  */
-		PROC_COPY,
-		/** Apply scaling algorithm.
+		LINE_256,
+		/** Line contains 512 (narrow) pixels.
 		  */
-		PROC_SCALE
+		LINE_512,
+		/** Line does not need postprocessing.
+		  */
+		LINE_DONTTOUCH
 	};
-	LinePostProcess processLines[HEIGHT];
+	LineContent lineContent[HEIGHT];
 
 	Scaler **scalers;
 

@@ -2,6 +2,7 @@
 
 #include "Scalers.hh"
 #include "openmsx.hh"
+#include <cassert>
 
 
 namespace openmsx {
@@ -9,23 +10,20 @@ namespace openmsx {
 Scaler::Scaler() {
 }
 
-/** Returns an array containing an instance of every Scaler subclass,
-* indexed by ScaledID.
-*/
 template <class Pixel>
-Scaler **Scaler::createScalers(Blender<Pixel> blender) {
-	Scaler **ret = new Scaler *[LAST];
+Scaler** Scaler::createScalers(Blender<Pixel> blender) {
+	Scaler** ret = new Scaler*[LAST];
 	ret[SIMPLE] = new SimpleScaler();
 	ret[SAI2X] = new SaI2xScaler<Pixel>(blender);
 	return ret;
 }
 
 // Force template instantiation.
-template Scaler **Scaler::createScalers<byte>(Blender<byte> blender);
-template Scaler **Scaler::createScalers<word>(Blender<word> blender);
-template Scaler **Scaler::createScalers<unsigned int>(Blender<unsigned int> blender);
+template Scaler** Scaler::createScalers<byte>(Blender<byte> blender);
+template Scaler** Scaler::createScalers<word>(Blender<word> blender);
+template Scaler** Scaler::createScalers<unsigned int>(Blender<unsigned int> blender);
 
-void Scaler::disposeScalers(Scaler **scalers) {
+void Scaler::disposeScalers(Scaler** scalers) {
 	for (int i = 0; i < LAST; i++) {
 		delete scalers[i];
 	}
@@ -37,14 +35,22 @@ void Scaler::disposeScalers(Scaler **scalers) {
 SimpleScaler::SimpleScaler() {
 }
 
-void SimpleScaler::scaleLine(SDL_Surface *surface, int y) {
+inline void SimpleScaler::copyLine(SDL_Surface* surface, int y) {
 	// TODO: Cheating (or at least using an undocumented feature) by
 	//       assuming that pixels are already doubled horizontally.
 	memcpy(
-		(byte *)surface->pixels + (y+1) * surface->pitch,
-		(byte *)surface->pixels + y * surface->pitch,
+		(byte*)surface->pixels + (y+1) * surface->pitch,
+		(byte*)surface->pixels + y * surface->pitch,
 		surface->pitch
 		);
+}
+
+void SimpleScaler::scaleLine256(SDL_Surface* surface, int y) {
+	copyLine(surface, y);
+}
+
+void SimpleScaler::scaleLine512(SDL_Surface* surface, int y) {
+	copyLine(surface, y);
 }
 
 // === SaI2xScaler =========================================================
@@ -67,45 +73,20 @@ SaI2xScaler<Pixel>::SaI2xScaler(Blender<Pixel> blender)
 }
 
 template <class Pixel>
-inline static Pixel *linePtr(SDL_Surface *surface, int y) {
+inline static Pixel* linePtr(SDL_Surface* surface, int y) {
 	if (y < 0) y = 0;
-	if (y >= surface->h) y = surface->h - 1;
-	return (Pixel *)((byte *)surface->pixels + y * surface->pitch);
+	if (y >= surface->h) y = surface->h - 2;
+	return (Pixel*)((byte*)surface->pixels + y * surface->pitch);
 }
 
 template <class Pixel>
-inline static int getResult1(Pixel A, Pixel B, Pixel C, Pixel D)
+void SaI2xScaler<Pixel>::scaleLine256(SDL_Surface* surface, int y)
 {
-	int x = 0;
-	int y = 0;
-	int r = 0;
-	if (A == C) x+=1; else if (B == C) y+=1;
-	if (A == D) x+=1; else if (B == D) y+=1;
-	if (x <= 1) r+=1;
-	if (y <= 1) r-=1;
-	return r;
-}
-
-template <class Pixel>
-inline static int getResult2(Pixel A, Pixel B, Pixel C, Pixel D)
-{
-	int x = 0;
-	int y = 0;
-	int r = 0;
-	if (A == C) x+=1; else if (B == C) y+=1;
-	if (A == D) x+=1; else if (B == D) y+=1;
-	if (x <= 1) r-=1;
-	if (y <= 1) r+=1;
-	return r;
-}
-
-template <class Pixel>
-void SaI2xScaler<Pixel>::scaleLine(SDL_Surface *surface, int y)
-{
-	Pixel *pixels0 = linePtr<Pixel>(surface, y - 2);
-	Pixel *pixels1 = linePtr<Pixel>(surface, y);
-	Pixel *pixels2 = linePtr<Pixel>(surface, y + 2);
-	Pixel *pixels3 = linePtr<Pixel>(surface, y + 4);
+	Pixel* pixels0 = linePtr<Pixel>(surface, y - 2);
+	Pixel* pixels1 = linePtr<Pixel>(surface, y);
+	Pixel* pixelsN = linePtr<Pixel>(surface, y + 1);
+	Pixel* pixels2 = linePtr<Pixel>(surface, y + 2);
+	Pixel* pixels3 = linePtr<Pixel>(surface, y + 4);
 
 	int width = (surface->w - 4) & ~1;
 	for (int x = 2; x < width; x += 2) {
@@ -171,28 +152,23 @@ void SaI2xScaler<Pixel>::scaleLine(SDL_Surface *surface, int y)
 			product2 = colorB;
 		} else if (colorA == colorD && colorB == colorC) {
 			if (colorA == colorB) {
-				product = colorA;
-				product1 = colorA;
-				product2 = colorA;
+				product = product1 = product2 = colorA;
 			} else {
-				int r =
-					getResult1<Pixel>(colorA, colorB, colorG, colorE) +
-					getResult2<Pixel>(colorB, colorA, colorK, colorF) +
-					getResult2<Pixel>(colorB, colorA, colorH, colorN) +
-					getResult1<Pixel>(colorA, colorB, colorL, colorO);
-				product = blender.blend(colorA, colorB);
-				product1 = blender.blend(colorA, colorC);
-				product2 =
-					( r > 0
-					? colorA
-					: ( r < 0
-					  ? colorB
-					  : blender.blend( // TODO: Quad-blend may be better?
-					      blender.blend(colorA, colorB),
-					      blender.blend(colorC, colorD)
-					      )
-					  )
-					);
+				int r = 0;
+				if (colorE == colorG) {
+					if (colorA == colorE) r--; else if (colorB == colorE) r++;
+				}
+				if (colorF == colorK) {
+					if (colorA == colorF) r--; else if (colorB == colorF) r++;
+				}
+				if (colorH == colorN) {
+					if (colorA == colorH) r--; else if (colorB == colorH) r++;
+				}
+				if (colorL == colorO) {
+					if (colorA == colorL) r--; else if (colorB == colorL) r++;
+				}
+				product = product1 = blender.blend(colorA, colorB);
+				product2 = r > 0 ? colorA : (r < 0 ? colorB : product);
 			}
 		} else {
 			product =
@@ -217,30 +193,89 @@ void SaI2xScaler<Pixel>::scaleLine(SDL_Surface *surface, int y)
 				);
 		}
 
-		Pixel *pixelsN = linePtr<Pixel>(surface, y + 1);
 		//pixels1[x] = colorA; // retains original colour
 		pixels1[x + 1] = product;
 		pixelsN[x] = product1;
 		pixelsN[x + 1] = product2;
 	}
-
 }
 
-/* test scaler: horizontal blur, vertical double
 template <class Pixel>
-void Scaler<Pixel>::scaleLine(SDL_Surface *surface, int y)
+void SaI2xScaler<Pixel>::scaleLine512(SDL_Surface* surface, int y)
 {
-	Pixel *p = (Pixel *)
-		((byte *)surface->pixels + y * surface->pitch);
-	Pixel *pn = (Pixel *)
-		((byte *)surface->pixels + (y + 1) * surface->pitch);
+	// Apply 2xSaI and keep the bottom-left pixel.
+	// It's not great, but at least it looks better than doubling the pixel
+	// like SimpleScaler does.
+	Pixel* pixels0 = linePtr<Pixel>(surface, y - 2);
+	Pixel* pixels1 = linePtr<Pixel>(surface, y);
+	Pixel* pixelsN = linePtr<Pixel>(surface, y + 1);
+	Pixel* pixels2 = linePtr<Pixel>(surface, y + 2);
+	Pixel* pixels3 = linePtr<Pixel>(surface, y + 4);
 	int width = surface->w;
-	for (int x = 0; x < width - 2; x += 2) {
-		pn[x] = p[x];
-		pn[x + 1] = p[x + 1] = blender.blend(p[x], p[x + 2]);
+
+	pixelsN[0] = blender.blend(pixels1[0], pixels2[0]);
+	for (int x = 1; x < width - 1; x++) {
+		// Map of the pixels:
+		//   I E F
+		//   G A B
+		//   H C D
+		//   M N O
+
+		Pixel colorI = pixels0[x - 1];
+		//Pixel colorE = pixels0[x];
+		Pixel colorF = pixels0[x + 1];
+
+		Pixel colorG = pixels1[x - 1];
+		Pixel colorA = pixels1[x];
+		Pixel colorB = pixels1[x + 1];
+
+		Pixel colorH = pixels2[x - 1];
+		Pixel colorC = pixels2[x];
+		Pixel colorD = pixels2[x + 1];
+
+		Pixel colorM = pixels3[x - 1];
+		//Pixel colorN = pixels3[x];
+		Pixel colorO = pixels3[x + 1];
+
+		Pixel product1;
+
+		if (colorA == colorD && colorB != colorC) {
+			product1 =
+				( ( (colorA == colorG && colorC == colorO)
+				  || (colorA == colorB && colorA == colorH && colorG != colorC && colorC == colorM)
+				  )
+				? colorA
+				: blender.blend(colorA, colorC)
+				);
+		} else if (colorB == colorC && colorA != colorD) {
+			product1 =
+				( ( (colorC == colorH && colorA == colorF)
+				  || (colorC == colorG && colorC == colorD && colorA != colorH && colorA == colorI)
+				  )
+				? colorC
+				: blender.blend(colorA, colorC)
+				);
+		} else if (colorA == colorD && colorB == colorC) {
+			if (colorA == colorC) {
+				product1 = colorA;
+			} else {
+				product1 = blender.blend(colorA, colorC);
+			}
+		} else {
+			product1 =
+				( colorA == colorB && colorA == colorH && colorG != colorC && colorC == colorM
+				? colorA
+				: ( colorC == colorG && colorC == colorD && colorA != colorH && colorA == colorI
+				  ? colorC
+				  : blender.blend(colorA, colorC)
+				  )
+				);
+		}
+
+		pixelsN[x] = product1;
 	}
-	pn[width - 1] = p[width - 1] = p[width - 2];
+	pixelsN[width - 1] = blender.blend(pixels1[width - 1], pixels2[width - 1]);
 }
-*/
 
 } // namespace openmsx
+
