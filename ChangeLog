@@ -1,5 +1,13 @@
 $Id$
 
+2004-04-05 Maarten ter Huurne <maarten@treewalker.org>
+	* Minimized usage of auto*:
+	  - only run configure checks of which we actually use the results
+	  - use "sizeof(bool)" instead of "SIZEOF_BOOL":
+	    a lot simpler and the generated code is equally efficient
+	  - dropped libtool
+	  Thanks to Reikan for his patch from which I copied at lot.
+
 2004-04-03 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Changed frameskip setting:
 	   there is no explicit frameskip "auto" anymore, instead the framskip
