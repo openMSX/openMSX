@@ -1,5 +1,9 @@
 $Id$
 
+2004-11-03 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Moved speed and throttle setting to GlobalSettings:
+	   as cleanup and as preparation for Mixer changes
+
 2004-11-02 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Removed Disk and Tape BIOS patches
 	* Fixed cassetteplayer noise

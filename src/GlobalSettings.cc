@@ -7,7 +7,11 @@
 namespace openmsx {
 
 GlobalSettings::GlobalSettings()
-	: pauseSetting("pause", "pauses the emulation", false, DONT_SAVE_SETTING)
+	: speedSetting("speed",
+	       "controls the emulation speed: higher is faster, 100 is normal",
+	       100, 1, 1000000)
+	, throttleSetting("throttle", "controls speed throttling", true)
+	, pauseSetting("pause", "pauses the emulation", false, DONT_SAVE_SETTING)
 	, powerSetting("power", "turn power on/off", false, DONT_SAVE_SETTING)
 	, autoSaveSetting("save_settings_on_exit",
 	                  "automatically save settings when openMSX exits",
@@ -22,6 +26,16 @@ GlobalSettings& GlobalSettings::instance()
 {
 	static GlobalSettings oneInstance;
 	return oneInstance;
+}
+
+IntegerSetting& GlobalSettings::getSpeedSetting()
+{
+	return speedSetting;
+}
+
+BooleanSetting& GlobalSettings::getThrottleSetting()
+{
+	return throttleSetting;
 }
 
 BooleanSetting& GlobalSettings::getPauseSetting()

@@ -12,16 +12,14 @@
 
 namespace openmsx {
 
-const float              SYNC_INTERVAL = 0.125;  // s
+const float              SYNC_INTERVAL = 0.08;  // s
 const long long          MAX_LAG       = 200000; // us
 const unsigned long long ALLOWED_LAG   =  20000; // us
 
 RealTime::RealTime()
 	: scheduler(Scheduler::instance())
-	, speedSetting("speed",
-	       "controls the emulation speed: higher is faster, 100 is normal",
-	       100, 1, 1000000)
-	, throttleSetting("throttle", "controls speed throttling", true)
+	, throttleSetting(GlobalSettings::instance().getThrottleSetting())
+	, speedSetting(GlobalSettings::instance().getSpeedSetting())
 	, pauseSetting(GlobalSettings::instance().getPauseSetting())
 	, powerSetting(GlobalSettings::instance().getPowerSetting())
 {

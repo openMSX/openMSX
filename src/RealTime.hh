@@ -56,9 +56,8 @@ private:
 
 	Scheduler& scheduler;
 
-	IntegerSetting speedSetting;
-
-	BooleanSetting throttleSetting;
+	BooleanSetting& throttleSetting;
+	IntegerSetting& speedSetting;
 	BooleanSetting& pauseSetting;
 	BooleanSetting& powerSetting;
 

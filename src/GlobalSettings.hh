@@ -3,6 +3,7 @@
 #ifndef __GLOBALSETTINGS_HH__
 #define __GLOBALSETTINGS_HH__
 
+#include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
 #include "StringSetting.hh"
 #include <memory.h>
@@ -23,6 +24,8 @@ class GlobalSettings
 public:
 	static GlobalSettings& instance();
 
+	IntegerSetting& getSpeedSetting();
+	BooleanSetting& getThrottleSetting();
 	BooleanSetting& getPauseSetting();
 	BooleanSetting& getPowerSetting();
 	BooleanSetting& getAutoSaveSetting();
@@ -33,6 +36,8 @@ public:
 private:
 	GlobalSettings();
 	
+	IntegerSetting speedSetting;
+	BooleanSetting throttleSetting;
 	BooleanSetting pauseSetting;
 	BooleanSetting powerSetting;
 	BooleanSetting autoSaveSetting;
