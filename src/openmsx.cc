@@ -23,9 +23,6 @@ main (int argc, char **argv)
 	// this is mainly for me (Joost), for testing the xml parsing
 	MSXConfig::instance()->loadFile(argv[1]);
 
-	/* do the work */
-	printf("Hello, World\n");
-
 	exit (0);
 }
 

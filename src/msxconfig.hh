@@ -26,7 +26,8 @@ public:
 	class Device
 	{
 	public:
-		Device(XMLNode *deviceNode);
+		Device(XMLNode *deviceNodeP);
+		~Device();
 		const string &getType();
 		const string &getId();
 		bool  isSlotted();
@@ -39,6 +40,7 @@ public:
 		Device(); // block usage
 		Device(const Device &foo); // block usage
 		Device &operator=(const Device &foo); // block usage
+		XMLNode *deviceNode;
 	};
 
 	list<Device*> deviceList;
