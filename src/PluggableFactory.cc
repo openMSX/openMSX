@@ -15,7 +15,7 @@
 #include "PrinterPortSimpl.hh"
 #include "RS232Tester.hh"
 #include "WavAudioInput.hh"
-#if	defined(__WIN32__)
+#if	defined(_WIN32)
 #include "MidiInNative.hh"
 #include "MidiOutNative.hh"
 #endif
@@ -49,7 +49,7 @@ void PluggableFactory::createAll(PluggingController *controller)
 
 	// MIDI:
 	controller->registerPluggable(new MidiInReader());
-#if defined(__WIN32__)
+#if defined(_WIN32)
 	MidiInNative::registerAll(controller);
 	MidiOutNative::registerAll(controller);
 #endif

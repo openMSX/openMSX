@@ -307,7 +307,7 @@ bool CommandLineParser::ControlOption::parseOption(const string& option,
 	}
 	map<string, CommandLineParser::ControlType> controlTypeMap;
 	controlTypeMap["stdio"] = IO_STD;
-#ifdef __WIN32__
+#ifdef _WIN32
 	controlTypeMap["pipe"] = IO_PIPE;
 #endif
 	if (controlTypeMap.find(type_name) == controlTypeMap.end()) {

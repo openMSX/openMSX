@@ -3,7 +3,7 @@
 #ifndef __MIDIINNATIVE_HH__
 #define __MIDIINNATIVE_HH__
 
-#if defined(__WIN32__)
+#if defined(_WIN32)
 
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -66,6 +66,6 @@ private:
 
 } // namespace openmsx
 
-#endif // defined(__WIN32__)
+#endif // defined(_WIN32)
 #endif // __MIDIINNATIVE_HH__
 

@@ -28,7 +28,7 @@
 // maintain in openMSX: $Id:
 
 
-#ifdef __WIN32__
+#ifdef _WIN32
 
 #include <string>
 
@@ -61,4 +61,4 @@ extern int	w32_midiInClose(unsigned idx);
 
 } // namespace openmsx
 
-#endif // __WIN32__
+#endif // _WIN32

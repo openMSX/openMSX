@@ -1,6 +1,6 @@
 // $Id$
 
-#if defined(__WIN32__)
+#if defined(_WIN32)
 #include "MidiInNative.hh"
 #include "MidiInConnector.hh"
 #include "PluggingController.hh"
@@ -188,4 +188,4 @@ const string &MidiInNative::schedName() const
 
 } // namespace openmsx
 
-#endif // defined(__WIN32__)
+#endif // defined(_WIN32)

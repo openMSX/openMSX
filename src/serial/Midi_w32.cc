@@ -28,7 +28,7 @@
 // maintain in openMSX: $Id:
 
 
-#ifdef __WIN32__
+#ifdef _WIN32
 
 #define WIN32_LEAN_AND_MEAN
 #define _WIN32_IE 0x0400
@@ -418,4 +418,4 @@ int w32_midiInClose(unsigned idx)
 
 } // namespace openmsx
 
-#endif // __WIN32__
+#endif // _WIN32

@@ -1,5 +1,11 @@
 $Id$
 
+2004-09-18 Reikan <openMSX4Win32@ranpub.com>
+	* Converted the macro __WIN32__ to _WIN32.
+	  Please use _WIN32 instead of __WIN32__ now.
+	  _WIN32 is more popular in Win32 compilers.
+	  Although we require gcc3 for now, it would be safer in future.
+
 2004-09-15 Maarten ter Huurne <maarten@treewalker.org>
 	* Added new type of event listener (DETACHED).
 	* Fixed timing bug in VDP command engine: replaced "clock.advance" by

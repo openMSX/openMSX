@@ -1,6 +1,6 @@
 // $Id$
 
-#ifdef	__WIN32__
+#ifdef	_WIN32
 #define WIN32_LEAN_AND_MEAN
 #define	_WIN32_IE	0x0400
 #include <windows.h>
@@ -26,7 +26,7 @@
 #include "MSXException.hh"
 
 
-#if	defined(__WIN32__)
+#if	defined(_WIN32)
 #ifdef	__cplusplus
 extern "C" {
 #endif
@@ -198,7 +198,7 @@ string FileOperations::getBaseName(const string& path)
 
 string FileOperations::getNativePath(const string &path)
 {
-#if	defined(__WIN32__)
+#if	defined(_WIN32)
 	string result(path);
 	replace(result.begin(), result.end(), '/', '\\');
 	return result;
@@ -209,7 +209,7 @@ string FileOperations::getNativePath(const string &path)
 
 string FileOperations::getConventionalPath(const string &path)
 {
-#if	defined(__WIN32__)
+#if	defined(_WIN32)
 	string result(path);
 	replace(result.begin(), result.end(), '\\', '/');
 	return result;
@@ -220,7 +220,7 @@ string FileOperations::getConventionalPath(const string &path)
 
 bool FileOperations::isAbsolutePath(const string& path)
 {
-#if	defined(__WIN32__)
+#if	defined(_WIN32)
 	if ((path.size() >= 3) && (path[1] == ':') && (path[2] == '/')) {
 		char drive = tolower(path[0]);
 		if (('a' <= drive) && (drive <= 'z')) {
@@ -235,7 +235,7 @@ const string& FileOperations::getUserHomeDir()
 {
 	static string userDir;
 	if (userDir.empty()) {
-#if	defined(__WIN32__)
+#if	defined(_WIN32)
 		HMODULE sh32dll = LoadLibraryA("SHELL32.DLL");
 		if (sh32dll) {
 			FARPROC funcp = GetProcAddress(sh32dll, "SHGetSpecialFolderPathA");
@@ -262,7 +262,7 @@ const string& FileOperations::getUserHomeDir()
 
 const string& FileOperations::getUserOpenMSXDir()
 {
-#if defined(__WIN32__)
+#if defined(_WIN32)
 	static const string OPENMSX_DIR = expandTilde("~/openMSX");
 #else
 	static const string OPENMSX_DIR = expandTilde("~/.openMSX");
@@ -292,7 +292,7 @@ string FileOperations::getSystemDataDir()
 	}
 
 	string newValue;
-#if defined(__WIN32__)
+#if defined(_WIN32)
 	char p[MAX_PATH + 1];
 	int res = GetModuleFileNameA(NULL, p, MAX_PATH);
 	if ((res == 0) || (res == MAX_PATH)) {
@@ -313,7 +313,7 @@ string FileOperations::getSystemDataDir()
 string FileOperations::expandCurrentDirFromDrive (const string& path)
 {			
 	string result = path;
-#ifdef __WIN32__
+#ifdef _WIN32
 	if (((path.size() == 2) && (path[1]==':')) ||
 		((path.size() >=3) && (path[1]==':') && (path[2] != '/'))){
 		// get current directory for this drive

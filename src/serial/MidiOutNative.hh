@@ -3,7 +3,7 @@
 #ifndef __MIDIOUTNATIVE_HH__
 #define __MIDIOUTNATIVE_HH__
 
-#if defined(__WIN32__)
+#if defined(_WIN32)
 #include "MidiOutDevice.hh"
 
 namespace openmsx {
@@ -35,6 +35,6 @@ private:
 
 } // namespace openmsx
 
-#endif // defined(__WIN32__)
+#endif // defined(_WIN32)
 #endif // __MIDIOUTNATIVE_HH__
 

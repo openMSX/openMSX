@@ -10,7 +10,7 @@
 #include "openmsx.hh"
 #include <SDL.h>
 
-#ifdef __WIN32__
+#ifdef _WIN32
 #include <windows.h>
 static int lastWindowX = 0;
 static int lastWindowY = 0;
@@ -79,7 +79,7 @@ SDL_Surface* openSDLVideo(int width, int height, int flags)
 	}
 	PRT_DEBUG("Display is " << (int)(screen->format->BitsPerPixel) << " bpp.");
 
-#ifdef __WIN32__
+#ifdef _WIN32
 	// Find our current location...
 	HWND handle = GetActiveWindow();
 	RECT windowRect;
@@ -98,7 +98,7 @@ SDL_Surface* openSDLVideo(int width, int height, int flags)
 
 void closeSDLVideo(SDL_Surface* screen)
 {
-#ifdef __WIN32__
+#ifdef _WIN32
 	// Find our current location.
 	if ((screen->flags & SDL_FULLSCREEN) == 0) {
 		HWND handle = GetActiveWindow();

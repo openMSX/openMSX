@@ -59,7 +59,7 @@ bool SDLGLVideoSystem::checkSettings()
 		RenderSettings::instance().getFullScreen()->getValue();
 	if (fullScreenState == fullScreenTarget) return true;
 
-#ifdef __WIN32__
+#ifdef _WIN32
 	// Under win32, toggling full screen requires opening a new SDL screen.
 	return false;
 #else

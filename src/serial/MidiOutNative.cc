@@ -1,6 +1,6 @@
 // $Id$
 
-#if defined(__WIN32__)
+#if defined(_WIN32)
 
 #include "Midi_w32.hh"
 #include "MidiOutNative.hh"
@@ -59,4 +59,4 @@ void MidiOutNative::recvByte(byte value, const EmuTime& time)
 
 } // namespace openmsx
 
-#endif // defined(__WIN32__)
+#endif // defined(_WIN32)

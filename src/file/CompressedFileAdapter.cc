@@ -10,7 +10,7 @@
 #include "File.hh"
 #include "FileOperations.hh"
 #include "CompressedFileAdapter.hh"
-#ifdef	__WIN32__
+#ifdef	_WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
@@ -96,7 +96,7 @@ const string CompressedFileAdapter::getLocalName()
 	if (!localName) {
 		// create temp dir
 		if (tmpCount == 0) {
-#ifdef	__WIN32__
+#ifdef	_WIN32
 			char tmppath[MAX_PATH];
 			if (!GetTempPathA(MAX_PATH, tmppath)) {
 				throw FileException("Coundn't get temp file path");
@@ -111,7 +111,7 @@ const string CompressedFileAdapter::getLocalName()
 		}
 		
 		// create temp file
-#ifdef	__WIN32__
+#ifdef	_WIN32
 		char tmpname[MAX_PATH];
 		if (!GetTempFileNameA(tmpDir.c_str(), "openmsx", 0, tmpname)) {
 			throw FileException("Coundn't get temp file name");

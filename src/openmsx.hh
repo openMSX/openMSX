@@ -35,7 +35,7 @@ typedef unsigned short word;
 /** 32 bit unsigned integer */
 typedef unsigned int uint32;
 
-#ifdef __WIN32__
+#ifdef _WIN32
 #ifdef	__MINGW32__
 #include <_mingw.h>	// for __int64
 #endif

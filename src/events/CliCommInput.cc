@@ -1,6 +1,6 @@
 // $Id$
 
-#ifdef __WIN32__
+#ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
@@ -91,7 +91,7 @@ void CliCommInput::cb_text(ParseState* user_data, const xmlChar* chars, int len)
 
 void CliCommInput::run()
 {
-#ifdef __WIN32__
+#ifdef _WIN32
 	bool useNamedPipes = false;
 	if (ioType == CommandLineParser::IO_PIPE) {
 		OSVERSIONINFO info;
@@ -130,7 +130,7 @@ void CliCommInput::run()
 	char buf[4096];
 	while (true) {
 		ssize_t n = -1;
-#ifdef __WIN32__
+#ifdef _WIN32
 		if (useNamedPipes) {
 			unsigned long bytesRead;
 			if (ReadFile(pipeHandle, buf, 4096, &bytesRead, NULL)) {
