@@ -12,6 +12,8 @@ $Id$
 	                   720kb disks
 	* Implemented "joyport" command:
 	    joyport[a|b] [unplug|mouse|joystick[1|2]]
+	* First cleanup in ConsoleSource:
+	   use hash_map in CON_consolecommand instead of self-made linked list
 
 2002-02-05 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Implemented "reset" console command.

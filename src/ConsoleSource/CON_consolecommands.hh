@@ -6,13 +6,6 @@
 #include "CON_console.hh"
 #include "../ConsoleCommand.hh"
 
-typedef struct CommandInfo_td
-{
-	//void			(*CommandCallback)(ConsoleInformation *console, char *Parameters);
-	ConsoleCommand *tocall;
-	char			*CommandWord;
-	struct CommandInfo_td	*NextCommand;
-} CommandInfo;
 
 void	CON_CommandExecute(ConsoleInformation *console);
 void	CON_CommandHelp(ConsoleInformation *console);
