@@ -49,7 +49,6 @@ class FDC_DSK : public FDCBackEnd
 		int writeTrack_CRCcount;
 		byte* readTrackDataBuf;
 		int readTrackDataCount;
-		int tmpdebugcounter;
 };
 
 #endif
