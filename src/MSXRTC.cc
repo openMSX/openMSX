@@ -11,20 +11,22 @@ MSXRTC::MSXRTC(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time)
 {
 	PRT_DEBUG("Creating an MSXRTC object");
-	bool emuTimeBased;
-	if (deviceConfig->getParameter("mode")=="RealTime")
-		emuTimeBased = false;
-	else	emuTimeBased = true;
-	if (deviceConfig->getParameterAsBool("load")) {
-		std::string filename = deviceConfig->getParameter("filename");
-		IFILETYPE* file = FileOpener::openFileRO(filename);
-		char buffer[4*13];
-		file->read(buffer, 4*13);
-		rp5c01 = new RP5C01(emuTimeBased, buffer, time);	// use data from buffer
-		file->close();
-		delete file;
-	} else {
-		rp5c01 = new RP5C01(emuTimeBased, time);		// use default values
+	bool emuTimeBased = (deviceConfig->getParameter("mode")=="RealTime") ? 
+	                    false : true;
+	try {
+		if (deviceConfig->getParameterAsBool("load")) {
+			std::string filename = deviceConfig->getParameter("filename");
+			IFILETYPE* file = FileOpener::openFileRO(filename);
+			char buffer[4*13];
+			file->read(buffer, 4*13);
+			rp5c01 = new RP5C01(emuTimeBased, buffer, time);	// use data from buffer
+			file->close();
+			delete file;
+		} else {
+			throw FileOpenerException("dummy");	// use default values
+		}
+	} catch (FileOpenerException &e) {
+		rp5c01 = new RP5C01(emuTimeBased, time);	// use default values
 	}
 	MSXMotherBoard::instance()->register_IO_Out(0xB4,this);
 	MSXMotherBoard::instance()->register_IO_Out(0xB5,this);

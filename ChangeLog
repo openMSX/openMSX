@@ -7,6 +7,7 @@ $Id$
 2002-03-14 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Fixed tab completion bug
 	* Fixed printed CPU T-States (only printed value was wrong)
+	* Fixed crash when RTC.SAVE or FMPAC.PAC where missing
 
 2002-03-12 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* convert CassettePort to Connector-Pluggable structure

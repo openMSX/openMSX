@@ -12,8 +12,8 @@ inline void _CPU_::executeInstruction(byte opcode)
 			printf("%04x : instruction ", start_pc);
 			Dasm(&debugmemory[start_pc], to_print_string, start_pc );
 			printf("%s\n", to_print_string );
-			printf("      A=%02x F=%02x BC=%04x DE=%04x HL=%04x\n", 
-				      R.AF.B.h, R.AF.B.l, R.BC.w, R.DE.w, R.HL.w);
+			printf("      A=%02x F=%02x BC=%04x DE=%04x HL=%04x IX=%04x IY=%04x\n", 
+				      R.AF.B.h, R.AF.B.l, R.BC.w, R.DE.w, R.HL.w, R.IX.w, R.IY.w);
 			PRT_DEBUG("CPU: Took "<<currentTime.subtract(before)/24<<"T-States");
 		}
 	#endif

@@ -10,17 +10,21 @@ MSXFmPac::MSXFmPac(MSXConfig::Device *config, const EmuTime &time)
 {
 	PRT_DEBUG("Creating an MSXFmPac object");
 	sramBank = new byte[0x1ffe];
-	if (deviceConfig->getParameterAsBool("load")) {
-		char buffer[16];
-		std::string filename = deviceConfig->getParameter("sramname");
-		IFILETYPE* file = FileOpener::openFileRO(filename);
-		file->read(buffer, 16);
-		if (strncmp(PAC_Header, buffer, 16)==0) {
-			// correct header
-			file->read(sramBank, 0x1ffe);
+	try {
+		if (deviceConfig->getParameterAsBool("load")) {
+			char buffer[16];
+			std::string filename = deviceConfig->getParameter("sramname");
+			IFILETYPE* file = FileOpener::openFileRO(filename);
+			file->read(buffer, 16);
+			if (strncmp(PAC_Header, buffer, 16)==0) {
+				// correct header
+				file->read(sramBank, 0x1ffe);
+			}
+			file->close();
+			delete file;
 		}
-		file->close();
-		delete file;
+	} catch (FileOpenerException &e) {
+		// do nothing
 	}
 	loadFile(&memoryBank, 0x10000);
 	reset(time);
