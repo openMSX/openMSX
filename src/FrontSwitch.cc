@@ -6,6 +6,6 @@
 FrontSwitch::FrontSwitch()
 	: BooleanSetting("frontswitch",
 	                 "This setting controls the front switch",
-	                 true)
+	                 false)
 {
 }
