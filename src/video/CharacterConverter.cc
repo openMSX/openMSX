@@ -302,44 +302,14 @@ void CharacterConverter<Pixel, zoom>::renderGraphic2(
 }
 
 template <class Pixel, Renderer::Zoom zoom>
-void CharacterConverter<Pixel, zoom>::renderMulti(
-	Pixel *pixelPtr, int line)
+void CharacterConverter<Pixel, zoom>::renderMultiHelper(
+	Pixel *pixelPtr, int line, int mask, int patternQuarter)
 {
 	if (!(anyDirtyName || anyDirtyPattern)) return;
 
-	int baseLine = (-1 << 11) | ((line / 4) & 7);
+	int baseLine = mask | ((line / 4) & 7);
 	int nameStart = (line / 8) * 32;
 	int nameEnd = nameStart + 32;
-	const byte *namePtr = vram->nameTable.readArea(nameStart | (-1 << 10));
-	for (int name = nameStart; name < nameEnd; name++) {
-		int charcode = *namePtr++;
-		if (dirtyName[name] || dirtyPattern[charcode]) {
-			int colour = vram->patternTable.readNP((charcode * 8) | baseLine);
-			Pixel cl = palFg[colour >> 4];
-			Pixel cr = palFg[colour & 0x0F];
-			if (zoom == Renderer::ZOOM_512) {
-				for (int n = 8; n--; ) *pixelPtr++ = cl;
-				for (int n = 8; n--; ) *pixelPtr++ = cr;
-			} else {
-				for (int n = 4; n--; ) *pixelPtr++ = cl;
-				for (int n = 4; n--; ) *pixelPtr++ = cr;
-			}
-		} else {
-			pixelPtr += zoom == Renderer::ZOOM_512 ? 16 : 8;
-		}
-	}
-}
-
-template <class Pixel, Renderer::Zoom zoom>
-void CharacterConverter<Pixel, zoom>::renderMultiQ(
-	Pixel *pixelPtr, int line)
-{
-	if (!(anyDirtyName || anyDirtyPattern)) return;
-
-	int nameStart = (line / 8) * 32;
-	int nameEnd = nameStart + 32;
-	int patternQuarter = nameStart & ~0xFF;
-	int baseLine = (-1 << 13) | ((line / 4) & 7);
 	const byte *namePtr = vram->nameTable.readArea(nameStart | (-1 << 10));
 	for (int name = nameStart; name < nameEnd; name++) {
 		int patternNr = patternQuarter | *namePtr++;
@@ -358,6 +328,22 @@ void CharacterConverter<Pixel, zoom>::renderMultiQ(
 			pixelPtr += zoom == Renderer::ZOOM_512 ? 16 : 8;
 		}
 	}
+}
+template <class Pixel, Renderer::Zoom zoom>
+void CharacterConverter<Pixel, zoom>::renderMulti(
+	Pixel *pixelPtr, int line)
+{
+	int mask = (-1 << 11);
+	renderMultiHelper(pixelPtr, line, mask, 0);
+}
+
+template <class Pixel, Renderer::Zoom zoom>
+void CharacterConverter<Pixel, zoom>::renderMultiQ(
+	Pixel *pixelPtr, int line)
+{
+	int mask = (-1 << 13);
+	int patternQuarter = (line * 4) & ~0xFF;  // (line / 8) * 32
+	renderMultiHelper(pixelPtr, line, mask, patternQuarter);
 }
 
 template <class Pixel, Renderer::Zoom zoom>

@@ -156,6 +156,8 @@ private:
 	void renderText2(Pixel *pixelPtr, int line);
 	void renderGraphic1(Pixel *pixelPtr, int line);
 	void renderGraphic2(Pixel *pixelPtr, int line);
+	void renderMultiHelper(Pixel *pixelPtr, int line,
+	                       int mask, int patternQuarter);
 	void renderMulti(Pixel *pixelPtr, int line);
 	void renderMultiQ(Pixel *pixelPtr, int line);
 	void renderBogus(Pixel *pixelPtr, int line);
