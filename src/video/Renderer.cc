@@ -4,7 +4,7 @@
 #include "CommandController.hh"
 #include "RenderSettings.hh"
 #include "InfoCommand.hh"
-#include "CommandResult.hh"
+#include "CommandArgument.hh"
 
 namespace openmsx {
 
@@ -94,8 +94,8 @@ Renderer::FpsInfoTopic::FpsInfoTopic(Renderer& parent_)
 {
 }
 
-void Renderer::FpsInfoTopic::execute(const vector<string>& tokens,
-                                          CommandResult& result) const
+void Renderer::FpsInfoTopic::execute(const vector<CommandArgument>& tokens,
+                                     CommandArgument& result) const
 {
 	result.setDouble(parent.getFrameRate());
 }

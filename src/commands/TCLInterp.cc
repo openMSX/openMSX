@@ -3,7 +3,7 @@
 #include "openmsx.hh"
 #include "TCLInterp.hh"
 #include "CommandConsole.hh"
-#include "TCLCommandResult.hh"
+#include "CommandArgument.hh"
 #include "MSXException.hh"
 
 namespace openmsx {
@@ -100,15 +100,12 @@ int TCLInterp::commandProc(ClientData clientData, Tcl_Interp* interp,
                            int objc, Tcl_Obj* const objv[])
 {
 	Command& command = *static_cast<Command*>(clientData);
-	vector<string> tokens;
+	vector<CommandArgument> tokens;
 	tokens.reserve(objc);
 	for (int i = 0; i < objc; ++i) {
-		// TODO optimization: use TCL objects to avoid string conversion
-		int length;
-		char* data = (char*)Tcl_GetByteArrayFromObj(objv[i], &length);
-		tokens.push_back(string(data, length));
+		tokens.push_back(CommandArgument(interp, objv[i]));
 	}
-	TCLCommandResult result(interp);
+	CommandResult result(interp);
 	try {
 		command.execute(tokens, result);
 		return TCL_OK;

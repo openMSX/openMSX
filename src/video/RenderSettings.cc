@@ -4,7 +4,6 @@
 #include "SettingsConfig.hh"
 #include "Config.hh"
 #include "CliCommOutput.hh"
-#include "CommandResult.hh"
 #include "IntegerSetting.hh"
 #include "FloatSetting.hh"
 #include "BooleanSetting.hh"

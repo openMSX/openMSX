@@ -13,7 +13,7 @@
 #include "SettingsManager.hh"
 #include "InfoTopic.hh"
 #include "InfoCommand.hh"
-#include "CommandResult.hh"
+#include "CommandArgument.hh"
 
 using std::map;
 using std::set;
@@ -60,8 +60,8 @@ private:
 	class EnumInfo : public InfoTopic {
 	public:
 		EnumInfo(EnumSettingBase& parent);
-		virtual void execute(const vector<string>& tokens,
-		                     CommandResult& result) const;
+		virtual void execute(const vector<CommandArgument>& tokens,
+		                     CommandArgument& result) const;
 		virtual string help(const vector<string>& tokens) const;
 	private:
 		EnumSettingBase& parent;
@@ -194,7 +194,7 @@ EnumSettingBase<ValueType>::EnumInfo::EnumInfo(EnumSettingBase& parent_)
 
 template<typename ValueType>
 void EnumSettingBase<ValueType>::EnumInfo::execute(
-	const vector<string>& tokens, CommandResult& result) const
+	const vector<CommandArgument>& tokens, CommandArgument& result) const
 {
 	set<string> values;
 	parent.getPossibleValues(values);

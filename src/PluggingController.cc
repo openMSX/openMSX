@@ -10,7 +10,7 @@
 #include "PluggableFactory.hh"
 #include "openmsx.hh"
 #include "InfoCommand.hh"
-#include "CommandResult.hh"
+#include "CommandArgument.hh"
 #include "CliCommOutput.hh"
 
 namespace openmsx {
@@ -269,8 +269,8 @@ PluggingController::PluggableInfo::PluggableInfo(PluggingController& parent_)
 {
 }
 
-void PluggingController::PluggableInfo::execute(const vector<string>& tokens,
-	CommandResult& result) const
+void PluggingController::PluggableInfo::execute(const vector<CommandArgument>& tokens,
+	CommandArgument& result) const
 {
 	switch (tokens.size()) {
 	case 2:
@@ -281,7 +281,7 @@ void PluggingController::PluggableInfo::execute(const vector<string>& tokens,
 		}
 		break;
 	case 3: {
-		const Pluggable* pluggable = parent.getPluggable(tokens[2]);
+		const Pluggable* pluggable = parent.getPluggable(tokens[2].getString());
 		if (!pluggable) {
 			throw CommandException("No such pluggable");
 		}
@@ -319,8 +319,8 @@ PluggingController::ConnectorInfo::ConnectorInfo(PluggingController& parent_)
 {
 }
 
-void PluggingController::ConnectorInfo::execute(const vector<string>& tokens,
-	CommandResult& result) const
+void PluggingController::ConnectorInfo::execute(const vector<CommandArgument>& tokens,
+	CommandArgument& result) const
 {
 	switch (tokens.size()) {
 	case 2:
@@ -331,7 +331,7 @@ void PluggingController::ConnectorInfo::execute(const vector<string>& tokens,
 		}
 		break;
 	case 3: {
-		const Connector* connector = parent.getConnector(tokens[2]);
+		const Connector* connector = parent.getConnector(tokens[2].getString());
 		if (!connector) {
 			throw CommandException("No such connector");
 		}
@@ -368,8 +368,8 @@ PluggingController::ConnectionClassInfo::ConnectionClassInfo(PluggingController&
 {
 }
 
-void PluggingController::ConnectionClassInfo::execute(const vector<string>& tokens,
-	CommandResult& result) const
+void PluggingController::ConnectionClassInfo::execute(const vector<CommandArgument>& tokens,
+	CommandArgument& result) const
 {
 	switch (tokens.size()) {
 	case 2: {
@@ -391,12 +391,13 @@ void PluggingController::ConnectionClassInfo::execute(const vector<string>& toke
 		break;
 	}
 	case 3: {
-		const Connector* connector = parent.getConnector(tokens[2]);
+		string arg = tokens[2].getString();
+		const Connector* connector = parent.getConnector(arg);
 		if (connector) {
 			result.setString(connector->getClass());
 			break;
 		}
-		const Pluggable* pluggable = parent.getPluggable(tokens[2]);
+		const Pluggable* pluggable = parent.getPluggable(arg);
 		if (pluggable) {
 			result.setString(pluggable->getClass());
 			break;

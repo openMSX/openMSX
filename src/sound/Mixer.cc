@@ -11,7 +11,7 @@
 #include "CliCommOutput.hh"
 #include "InfoCommand.hh"
 #include "Scheduler.hh"
-#include "CommandResult.hh"
+#include "CommandArgument.hh"
 
 using std::remove;
 
@@ -375,8 +375,8 @@ Mixer::SoundDeviceInfoTopic::SoundDeviceInfoTopic(Mixer& parent_)
 {
 }
 
-void Mixer::SoundDeviceInfoTopic::execute(const vector<string>& tokens,
-	CommandResult& result) const
+void Mixer::SoundDeviceInfoTopic::execute(const vector<CommandArgument>& tokens,
+	CommandArgument& result) const
 {
 	switch (tokens.size()) {
 	case 2:
@@ -386,7 +386,7 @@ void Mixer::SoundDeviceInfoTopic::execute(const vector<string>& tokens,
 		}
 		break;
 	case 3: {
-		SoundDevice* device = parent.getSoundDevice(tokens[2]);
+		SoundDevice* device = parent.getSoundDevice(tokens[2].getString());
 		if (!device) {
 			throw CommandException("Unknown sound device");
 		}

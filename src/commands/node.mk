@@ -9,11 +9,10 @@ SRC_HDR:= \
 	InfoCommand \
 	TCLInterp \
 	Interpreter \
-	TCLCommandResult
+	CommandArgument
 
 HDR_ONLY:= \
-	InfoTopic \
-	CommandResult
+	InfoTopic
 
 include build/node-end.mk
 

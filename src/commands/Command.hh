@@ -12,7 +12,7 @@ using std::vector;
 
 namespace openmsx {
 
-class CommandResult;
+class CommandArgument;
 
 class CommandCompleter
 {
@@ -37,7 +37,8 @@ public:
 	  * @throws CommandException Thrown when there was an error while
 	  *                          executing this command.
 	  */
-	virtual void execute(const vector<string>& tokens, CommandResult& result) = 0;
+	virtual void execute(const vector<CommandArgument>& tokens,
+	                     CommandArgument& result) = 0;
 
 	/** Print help for this command.
 	  */
@@ -61,8 +62,8 @@ class SimpleCommand : public Command
 public:
 	virtual string execute(const vector<string>& tokens) = 0;
 	
-	virtual void execute(const vector<string>& tokens,
-	                     CommandResult& result);
+	virtual void execute(const vector<CommandArgument>& tokens,
+	                     CommandArgument& result);
 };
 
 } // namespace openmsx

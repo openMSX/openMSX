@@ -81,8 +81,8 @@ private:
 	class PluggableInfo : public InfoTopic {
 	public:
 		PluggableInfo(PluggingController& parent);
-		virtual void execute(const vector<string>& tokens,
-		                     CommandResult& result) const;
+		virtual void execute(const vector<CommandArgument>& tokens,
+		                     CommandArgument& result) const;
 		virtual string help   (const vector<string>& tokens) const;
 		virtual void tabCompletion(vector<string>& tokens) const;
 	private:
@@ -92,8 +92,8 @@ private:
 	class ConnectorInfo : public InfoTopic {
 	public:
 		ConnectorInfo(PluggingController& parent);
-		virtual void execute(const vector<string>& tokens,
-		                     CommandResult& result) const;
+		virtual void execute(const vector<CommandArgument>& tokens,
+		                     CommandArgument& result) const;
 		virtual string help   (const vector<string>& tokens) const;
 		virtual void tabCompletion(vector<string>& tokens) const;
 	private:
@@ -103,8 +103,8 @@ private:
 	class ConnectionClassInfo : public InfoTopic {
 	public:
 		ConnectionClassInfo(PluggingController& parent);
-		virtual void execute(const vector<string>& tokens,
-		                     CommandResult& result) const;
+		virtual void execute(const vector<CommandArgument>& tokens,
+		                     CommandArgument& result) const;
 		virtual string help   (const vector<string>& tokens) const;
 		virtual void tabCompletion(vector<string>& tokens) const;
 	private:

@@ -87,8 +87,8 @@ public:
 	string doStep();
 	string doContinue();
 	string doBreak();
-	string setBreakPoint(const vector<string>& tokens);
-	string removeBreakPoint(const vector<string>& tokens);
+	string setBreakPoint(word addr);
+	string removeBreakPoint(word addr);
 	string listBreakPoints() const;
 
 private:
@@ -110,8 +110,8 @@ private:
 	class TimeInfoTopic : public InfoTopic {
 	public:
 		TimeInfoTopic(MSXCPU& parent);
-		virtual void execute(const vector<string>& tokens,
-		                     CommandResult& result) const;
+		virtual void execute(const vector<CommandArgument>& tokens,
+		                     CommandArgument& result) const;
 		virtual string help (const vector<string>& tokens) const;
 	private:
 		MSXCPU& parent;

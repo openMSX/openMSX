@@ -8,7 +8,7 @@
 #include "CPU.hh"
 #include "InfoCommand.hh"
 #include "Debugger.hh"
-#include "CommandResult.hh"
+#include "CommandArgument.hh"
 
 using std::ostringstream;
 
@@ -232,16 +232,6 @@ void MSXCPU::write(unsigned address, byte value)
 
 // Command
 
-static word getAddress(const string& str)
-{
-	char* endPtr;
-	unsigned long addr = strtoul(str.c_str(), &endPtr, 0);
-	if ((*endPtr != '\0') || (addr >= 0x10000)) {
-		throw CommandException("Invalid address");
-	}
-	return addr;
-}
-
 string MSXCPU::doStep()
 {
 	activeCPU->doStep();
@@ -260,15 +250,14 @@ string MSXCPU::doBreak()
 	return "";
 }
 
-string MSXCPU::setBreakPoint(const vector<string>& tokens)
+string MSXCPU::setBreakPoint(word addr)
 {
-	activeCPU->breakPoints.insert(getAddress(tokens[2]));
+	activeCPU->breakPoints.insert(addr);
 	return "";
 }
 
-string MSXCPU::removeBreakPoint(const vector<string>& tokens)
+string MSXCPU::removeBreakPoint(word addr)
 {
-	word addr = getAddress(tokens[2]);
 	multiset<word>::iterator it = activeCPU->breakPoints.find(addr);
 	if (it != activeCPU->breakPoints.end()) {
 		activeCPU->breakPoints.erase(it);
@@ -294,8 +283,8 @@ MSXCPU::TimeInfoTopic::TimeInfoTopic(MSXCPU& parent_)
 {
 }
 
-void MSXCPU::TimeInfoTopic::execute(const vector<string>& tokens,
-                                    CommandResult& result) const
+void MSXCPU::TimeInfoTopic::execute(const vector<CommandArgument>& tokens,
+                                    CommandArgument& result) const
 {
 	EmuDuration dur = parent.getCurrentTimeUnsafe() - parent.reference;
 	result.setDouble(dur.toFloat());

@@ -19,7 +19,8 @@ public:
 	void unregisterTopic(const string& name, const InfoTopic* topic);
 	
 	// Command
-	virtual void execute(const vector<string>& tokens, CommandResult& result);
+	virtual void execute(const vector<CommandArgument>& tokens,
+	                     CommandArgument& result);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 
@@ -31,8 +32,8 @@ private:
 
 	class VersionInfo : public InfoTopic {
 	public:
-		virtual void execute(const vector<string>& tokens,
-		                     CommandResult& result) const;
+		virtual void execute(const vector<CommandArgument>& tokens,
+		                     CommandArgument& result) const;
 		virtual string help(const vector<string>& tokens) const;
 	} versionInfo;
 };

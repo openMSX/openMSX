@@ -134,8 +134,8 @@ private:
 	class SoundDeviceInfoTopic : public InfoTopic {
 	public:
 		SoundDeviceInfoTopic(Mixer& parent);
-		virtual void execute(const vector<string>& tokens,
-		                     CommandResult& result) const;
+		virtual void execute(const vector<CommandArgument>& tokens,
+		                     CommandArgument& result) const;
 		virtual string help   (const vector<string>& tokens) const;
 		virtual void tabCompletion(vector<string>& tokens) const;
 	private:

@@ -2,7 +2,7 @@
 
 #include "InfoCommand.hh"
 #include "CommandController.hh"
-#include "CommandResult.hh"
+#include "CommandArgument.hh"
 #include "Version.hh"
 #include <cassert>
 
@@ -41,7 +41,8 @@ void InfoCommand::unregisterTopic(const string& name,
 
 // Command
 
-void InfoCommand::execute(const vector<string>& tokens, CommandResult& result)
+void InfoCommand::execute(const vector<CommandArgument>& tokens,
+                          CommandArgument& result)
 {
 	switch (tokens.size()) {
 	case 1:
@@ -54,10 +55,11 @@ void InfoCommand::execute(const vector<string>& tokens, CommandResult& result)
 	default:
 		// show info about topic
 		assert(tokens.size() >= 2);
+		string topic = tokens[1].getString();
 		map<string, const InfoTopic*>::const_iterator it =
-			infoTopics.find(tokens[1]);
+			infoTopics.find(topic);
 		if (it == infoTopics.end()) {
-			throw CommandException("No info on: " + tokens[1]);
+			throw CommandException("No info on: " + topic);
 		}
 		it->second->execute(tokens, result);
 		break;
@@ -114,8 +116,8 @@ void InfoCommand::tabCompletion(vector<string>& tokens) const
 
 // Version info
 
-void InfoCommand::VersionInfo::execute(const vector<string>& tokens,
-                                       CommandResult& result) const
+void InfoCommand::VersionInfo::execute(const vector<CommandArgument>& tokens,
+                                       CommandArgument& result) const
 {
 	result.setString(Version::FULL_VERSION);
 }

@@ -11,13 +11,11 @@ using std::vector;
 
 namespace openmsx {
 
-class CommandResult;
+class CommandArgument;
 
 class InfoTopic
 {
 public:
-	virtual ~InfoTopic() {}
-	
 	/** Show info on this topic
 	  * @param tokens Tokenized command line;
 	  *     tokens[1] is the topic.
@@ -26,8 +24,8 @@ public:
 	  * @throw CommandException Thrown when there was an error while
 	  *                         executing this InfoTopic.
 	  */
-	virtual void execute(const vector<string>& tokens,
-	                     CommandResult& result) const = 0;
+	virtual void execute(const vector<CommandArgument>& tokens,
+	                     CommandArgument& result) const = 0;
 
 	/** Print help for this topic.
 	  * @param tokens Tokenized command line;

@@ -248,8 +248,8 @@ private:
 	class FpsInfoTopic : public InfoTopic {
 	public:
 		FpsInfoTopic(Renderer& parent);
-		virtual void execute(const vector<string>& tokens,
-		                     CommandResult& result) const;
+		virtual void execute(const vector<CommandArgument>& tokens,
+		                     CommandArgument& result) const;
 		virtual string help (const vector<string>& tokens) const;
 	private:
 		Renderer& parent;
