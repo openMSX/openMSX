@@ -4,7 +4,7 @@
 #define __MIDIOUTLOGGER_HH__
 
 #include "MidiOutDevice.hh"
-#include "StringSetting.hh"
+#include "FilenameSetting.hh"
 #include <fstream>
 
 namespace openmsx {
@@ -25,7 +25,7 @@ public:
 	virtual void recvByte(byte value, const EmuTime& time);
 
 private:
-	StringSetting logFilenameSetting;
+	FilenameSetting logFilenameSetting;
 	std::ofstream file;
 };
 

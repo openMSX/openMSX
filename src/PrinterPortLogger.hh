@@ -5,7 +5,7 @@
 
 #include <memory>
 #include "PrinterPortDevice.hh"
-#include "StringSetting.hh"
+#include "FilenameSetting.hh"
 
 namespace openmsx {
 
@@ -33,7 +33,7 @@ private:
 	bool prevStrobe;
 	std::auto_ptr<File> file;
 
-	StringSetting logFilenameSetting;
+	FilenameSetting logFilenameSetting;
 };
 
 } // namespace openmsx

@@ -8,7 +8,7 @@
 #include "Thread.hh"
 #include "Schedulable.hh"
 #include "Semaphore.hh"
-#include "StringSetting.hh"
+#include "FilenameSetting.hh"
 #include <cstdio>
 #include <deque>
 
@@ -42,7 +42,7 @@ private:
 	std::deque<byte> queue;
 	Semaphore lock; // to protect queue
 
-	StringSetting readFilenameSetting;
+	FilenameSetting readFilenameSetting;
 };
 
 } // namespace openmsx

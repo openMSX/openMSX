@@ -11,7 +11,6 @@
 #include "Thread.hh"
 #include "Schedulable.hh"
 #include "Semaphore.hh"
-#include "StringSetting.hh"
 #include "FilenameSetting.hh"
 
 namespace openmsx {
@@ -50,7 +49,7 @@ private:
 	std::ofstream outFile;
 
 	FilenameSetting rs232InputFilenameSetting;
-	StringSetting rs232OutputFilenameSetting;
+	FilenameSetting rs232OutputFilenameSetting;
 };
 
 } // namespace openmsx

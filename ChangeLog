@@ -5,6 +5,8 @@ $Id$
 	   - prefer not to use the 'using' statement in header files,
 	     in implementation files it is ok
 	   - removed unnecessary #include statements
+	* Use FilenameSetting iso StringSetting for all filenames:
+	    previously it was only possible for already existing files
 
 2004-12-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed TurboR DRAM support, TRCAS works now
