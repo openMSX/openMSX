@@ -27,9 +27,11 @@ class Scheduler
 		Emutime currentTime;
 		int stateIRQline;
 		bool keepRunning;
+		static Scheduler *oneInstance;
 	public:
 		Scheduler(void);
 		~Scheduler(void);
+		static Scheduler *instance();
 		const Emutime &getCurrentTime();
 		const SchedulerNode &getFirstNode();
 		void removeFirstNode();

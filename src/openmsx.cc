@@ -123,8 +123,8 @@ main (int argc, char **argv)
 	cout << "Initing MSX\n\n";
 	moederbord->InitMSX();
 	
-	Emutime dummy(DUMMY_FREQ, 100000);
-	moederbord->scheduler.insertStamp(dummy , *geheugen); //om toch een SP te hebben :-)
+	//Emutime dummy(DUMMY_FREQ, 100000);
+	//moederbord->scheduler.insertStamp(dummy , *geheugen); //om toch een SP te hebben :-)
 	cout << "starting MSX\n\n";
 	moederbord->StartMSX();
 

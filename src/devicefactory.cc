@@ -12,7 +12,8 @@ MSXDevice *deviceFactory::create(MSXConfig::Device *conf) {
 	MSXDevice *device = 0;
 	if ( conf->getType().compare("MotherBoard") == 0 ){
 		// if 0 then strings are equal
-		MSXMotherBoard::instance()->setConfigDevice(conf);
+		//MSXMotherBoard::instance()->setConfigDevice(conf);
+		device = MSXMotherBoard::instance();
 	};
 
 	if ( conf->getType().compare("Rom16KB") == 0 ){
@@ -40,12 +41,12 @@ MSXDevice *deviceFactory::create(MSXConfig::Device *conf) {
 		device=new MSXE6Timer();
 	};
 
-	//assert (device != 0);
-	if (device == 0) {
-		PRT_DEBUG("device == 0  in devicefactory"); // TODO check
-	} else {
+	assert (device != 0);
+	//if (device == 0) {
+	//	PRT_DEBUG("device == 0  in devicefactory"); // TODO check
+	//} else {
 		device->setConfigDevice(conf);
-	}
+	//}
 	return device;
 }
 

@@ -27,7 +27,7 @@ void MSXSimple64KB::start()
 
 void MSXSimple64KB::reset()
 {
-	PRT_DEBUG("Reseting an MSXSimple64KB object");
+	MSXDevice::reset();
 	if (!slow_drain_on_reset ) {
 		PRT_DEBUG("Clearing ram of " << getName());
 		memset(memoryBank,0,65536);

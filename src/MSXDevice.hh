@@ -18,11 +18,12 @@
 
 class MSXDevice
 {
-	public:
+	protected:
 		//constructor and destructor
 		MSXDevice(void);
 		virtual ~MSXDevice(void);
 		//
+	public:
 		//instantiate method used in DeviceFactory
 		//Must be overwritten in derived classes !!!!
 		//static MSXDevice* instantiate(void);

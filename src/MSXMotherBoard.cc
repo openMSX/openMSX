@@ -120,10 +120,11 @@ void MSXMotherBoard::InitMSX()
 		(*i)->init();
 	}
 }
-void MSXMotherBoard::insertStamp(Emutime timestamp,MSXDevice &activedevice)
-{
-	scheduler.insertStamp(timestamp, activedevice);
-}
+
+//void MSXMotherBoard::insertStamp(Emutime timestamp,MSXDevice &activedevice)
+//{
+//	scheduler.insertStamp(timestamp, activedevice);
+//}
 //void MSXMotherBoard::setLaterSP(Emutime latertimestamp, MSXDevice &activedevice)
 //{
 //	scheduler.setLaterSP(latertimestamp,activedevice);
@@ -140,7 +141,7 @@ void MSXMotherBoard::StartMSX()
 	for (i = availableDevices->begin(); i != availableDevices->end(); i++) {
 		(*i)->start();
 	}
-	scheduler.scheduleEmulation();
+	Scheduler::instance()->scheduleEmulation();
 }
 void MSXMotherBoard::SaveStateMSX(ofstream &savestream)
 {

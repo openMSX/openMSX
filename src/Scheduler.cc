@@ -21,6 +21,16 @@ Scheduler::~Scheduler(void)
 	//}
 }
 
+Scheduler* Scheduler::instance()
+{
+	if (oneInstance == NULL ) {
+		oneInstance = new Scheduler();
+	}
+	return oneInstance;
+}
+
+Scheduler *Scheduler::oneInstance;
+
 const SchedulerNode &Scheduler::getFirstNode()
 {
 	assert (!scheduleList.empty());
@@ -77,7 +87,7 @@ void Scheduler::scheduleEmulation()
 		currentTime=time;
 	//3. Get the device from the first SP in the list and let it reach its T-state.
 		// TODO following print gives seg fault
-		//PRT_DEBUG ("Scheduling " << device.getName() << "\n");
+		PRT_DEBUG ("Scheduling " << device.getName() << "\n");
 		device.executeUntilEmuTime(time);
 	//4. Remove the first element from the list
 		removeFirstNode();
@@ -89,4 +99,5 @@ void Scheduler::stopEmulation()
 {
 	keepRunning=false;
 }
+
 

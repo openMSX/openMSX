@@ -297,18 +297,18 @@ void MSXTMS9928a::start()
 {
 	MSXDevice::start();
 	//First interrupt in Pal mode here
-	MSXMotherBoard::instance()->insertStamp(currentTime+71285, *this);
+	Scheduler::instance()->insertStamp(currentTime+71285, *this);
 	PutImage();
 }
 
 void MSXTMS9928a::executeUntilEmuTime(Emutime &time)
 {
-  //Next interrupt in Pal mode here
-  MSXMotherBoard::instance()->insertStamp(currentTime+71285, *this);
+	//Next interrupt in Pal mode here
+	Scheduler::instance()->insertStamp(currentTime+71285, *this);
 
-  //TODO:: Call full screen refresh
-  //TODO:: Set interrupt if bits enable it
-  PutImage();
+	//TODO:: Call full screen refresh
+	//TODO:: Set interrupt if bits enable it
+	PutImage();
 }
 
 /*

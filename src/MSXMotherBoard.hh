@@ -35,9 +35,10 @@ class MSXMotherBoard : public MSXDevice
 		static MSXMotherBoard *instance();
 	 
 		MSXDevice* visibleDevices[4]; // TODO: must be private but for test purposes, must be adjusted when #A8,subslot or mapper is changed
-		Scheduler scheduler; // TODO: must be private but for test purposes
-		void insertStamp(Emutime timestamp, MSXDevice &activedevice);
+		//Scheduler scheduler; // TODO: must be private but for test purposes
+		//void insertStamp(Emutime timestamp, MSXDevice &activedevice);
 		//void setLaterSP(Emutime latertimestamp, MSXDevice &activedevice);
+		
 		//constructor and destructor
 		~MSXMotherBoard();
 		//note: Motherboard should be a special case (singleton)
