@@ -2,6 +2,7 @@
 
 #include "MSXDeviceSwitch.hh"
 #include "EmuTime.hh"
+#include "Device.hh"
 
 
 namespace openmsx {
@@ -44,7 +45,8 @@ MSXDeviceSwitch::~MSXDeviceSwitch()
 
 MSXDeviceSwitch* MSXDeviceSwitch::instance()
 {
-	static MSXDeviceSwitch oneInstance(NULL, EmuTime::zero);
+	static Device device("DeviceSwitch", "DeviceSwitch");
+	static MSXDeviceSwitch oneInstance(&device, EmuTime::zero);
 	return &oneInstance;
 }
 
