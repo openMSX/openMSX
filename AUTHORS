@@ -1,13 +1,13 @@
 $Id$
 
-Prime Authors:
+Prime Developers:
 David Heremans       <david.heremans@gnu-linux.net>
 Wouter Vermaelen     <wouter.vermaelen@pi.be>
-Joost Yervante Damad <joost@lumatec.be>
 Maarten ter Huurne   <mth@stack.nl>
+Manuel Bilderbeek    <manuel@msxnet.org>
 
-
-
+Retired Developers:
+Joost Yervante Damad <joost@lumatec.be>
 
 And before altering (or completely rewriting) we
 used code from the following contributors:
@@ -36,6 +36,8 @@ With many thanks to:
 Alex Wulms           <awulms@inter.nl.net>
 Marcel Harkema       <marcel@qahwah.net>
 Jon Deschrijver      <jon@msx.ch>
-Manuel Bilderbeek    <manuel@msxnet.org>
+atarulum             <atarulum@yahoo.co.jp>
+Patriek Lesparre     <patriekl@dds.nl>
+Reikan               <Reikan@ranpub.com>
 
 ... this list is not complete!! ... [please add]

@@ -1,5 +1,8 @@
 $Id$
 
+2002-12-30 Joost Yervante Damad <joost@lumatec.be>
+	* updated AUTHORS
+
 2002-12-30 Maarten ter Huurne <maarten@treewalker.org>
 	* Let VDPVRAM::Window notify its observer of base/index changes and
 	  windows that become disabled.
