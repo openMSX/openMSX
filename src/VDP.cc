@@ -673,6 +673,7 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		break;
 	case 2: {
 		int base = ((val << 10) | ~(-1 << 10)) & vramMask;
+		if (isPlanar()) base = ((base << 16) | (base >> 1)) & 0x1FFFF;
 		renderer->updateNameBase(base, time);
 		// TODO: Actual number of index bits is lower than 17.
 		vram->nameTable.setMask(base, 17);
