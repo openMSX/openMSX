@@ -211,7 +211,7 @@ void VDP::reset(const EmuTime &time)
 	spriteChecker->reset(time);
 	cmdEngine->reset(time);
 	renderer->reset(time);
-	
+
 	// Tell the subsystems of the new mask values.
 	resetMasks(time);
 }
@@ -240,10 +240,18 @@ void VDP::executeUntil(const EmuTime &time, int userData) throw()
 		bool paused = Scheduler::instance()->getPauseSetting().getValue();
 		// This frame is finished.
 		renderer->putImage(time, paused);
+		if (paused) {
+			// Now that frame is finished, it is OK to pause.
+			Scheduler::instance()->pause();
+			// Start a new frame on unpause.
+			Scheduler::instance()->setSyncPoint(time, this, FRAME_START);
+			break;
+		}
+		// Fall through into FRAME_START...
+	}
+	case FRAME_START: {
 		// Begin next frame.
 		frameStart(time);
-		// Now that frame is finished, it is OK to pause.
-		if (paused) Scheduler::instance()->pause();
 		break;
 	}
 	case DISPLAY_START:
