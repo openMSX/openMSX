@@ -225,7 +225,7 @@ void SimpleScaler<Pixel>::scale256(
 				);
 		// TODO: Test code, remove once we're satisfied all supported
 		//       compilers skip code generation here.
-		} else if (ASM_NOSUCHMACHINE && cpu.hasImpossible()) {
+		} else if (ASM_NOSUCHMACHINE) {
 			asm ("nosuchinstruction");
 		// End of test code.
 		} else {
