@@ -71,9 +71,7 @@ bool RealTime::timeLeft(unsigned us, const EmuTime& time)
 
 void RealTime::sync(const EmuTime& time, bool allowSleep)
 {
-	if (allowSleep) {
-		scheduler.removeSyncPoint(this);
-	}
+	scheduler.removeSyncPoint(this);
 	internalSync(time, allowSleep);
 }
 
