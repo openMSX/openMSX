@@ -1,5 +1,8 @@
 $Id$
 
+2003-07-26 Maarten ter Huurne <maarten@treewalker.org>
+	* Refactored settings code.
+
 2003-07-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* A few midi in related fixes. Still needs to be tested
 	  with real midi hardware
@@ -19,10 +22,10 @@ $Id$
 	     MIDI in pluggable
 
 2003-07-20 Herman Oudejans <hn.oudejans@quicknet.nl>
-	* first steps toward a debugger. For now it's just a 
-	  static hexdump. 
+	* first steps toward a debugger. For now it's just a
+	  static hexdump.
 	* Temperary removed an assert in de settingsmanager
-	  because the consolesettings are init twice. 
+	  because the consolesettings are init twice.
 
 2003-07-19 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed bug in MSX-Audio sample RAM

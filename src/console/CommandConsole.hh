@@ -62,8 +62,8 @@ class CommandConsole : public Console, private EventListener,
 		void loadHistory();
 		void saveHistory();
 		
-		void notify(Setting *setting);
-		
+		void update(const SettingLeafNode *setting);
+
 		BooleanSetting consoleSetting;
 		unsigned int maxHistory;
 		string editLine;

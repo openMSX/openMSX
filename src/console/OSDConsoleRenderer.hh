@@ -13,6 +13,9 @@
 #include "SDL/SDL_image.h"
 #endif
 
+#include <string>
+using std::string;
+
 
 class OSDConsoleRenderer;
 class Console;
@@ -23,10 +26,9 @@ class BackgroundSetting : public FilenameSetting
 {
 	public:
 		BackgroundSetting(OSDConsoleRenderer *console,
-		                  const std::string &filename);
+		                  const string &filename);
 
-	protected:
-		virtual bool checkUpdate(const std::string &newValue);
+		virtual void setValue(const string &newValue);
 
 	private:
 		OSDConsoleRenderer* console;
@@ -36,10 +38,9 @@ class FontSetting : public FilenameSetting
 {
 	public:
 		FontSetting(OSDConsoleRenderer *console,
-		            const std::string &filename);
+		            const string &filename);
 
-	protected:
-		virtual bool checkUpdate(const std::string &newValue);
+		virtual void setValue(const string &newValue);
 
 	private:
 		OSDConsoleRenderer* console;
@@ -50,24 +51,24 @@ class OSDConsoleRenderer : public ConsoleRenderer
 	public:
 		OSDConsoleRenderer(Console * console_);
 		virtual ~OSDConsoleRenderer();
-		virtual bool loadBackground(const std::string &filename) = 0;
-		virtual bool loadFont(const std::string &filename) = 0;
+		virtual bool loadBackground(const string &filename) = 0;
+		virtual bool loadFont(const string &filename) = 0;
 		virtual void drawConsole() = 0;
-		
+
 		enum Placement {
 			CP_TOPLEFT,    CP_TOP,    CP_TOPRIGHT,
 			CP_LEFT,       CP_CENTER, CP_RIGHT,
 			CP_BOTTOMLEFT, CP_BOTTOM, CP_BOTTOMRIGHT
 		};
-		void setBackgroundName(const std::string &name);
-		void setFontName(const std::string &name);
-		
+		void setBackgroundName(const string &name);
+		void setFontName(const string &name);
+
 	protected:
 		/** How transparent is the console? (0=invisible, 255=opaque)
 		  * Note that when using a background image on the GLConsole,
 		  * that image's alpha channel is used instead.
 		  */
-		
+
 		void updateConsoleRect(SDL_Rect & rect);
 		void initConsoleSize(void);
 		static const int CONSOLE_ALPHA = 180;
@@ -76,8 +77,8 @@ class OSDConsoleRenderer : public ConsoleRenderer
 		int consoleRows;
 		int consoleColumns;
 		static Placement consolePlacement;
-		static std::string fontName;
-		static std::string backgroundName;
+		static string fontName;
+		static string backgroundName;
 		EnumSetting<Placement> *consolePlacementSetting;
 		IntegerSetting* consoleRowsSetting;
 		IntegerSetting* consoleColumnsSetting;

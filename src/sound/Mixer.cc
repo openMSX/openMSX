@@ -17,7 +17,7 @@ Mixer::Mixer()
 #ifdef DEBUG_MIXER
 	nbClipped = 0;
 #endif
-	
+
 	// default values
 	int freq = 22050;
 	int samples = 512;
@@ -32,7 +32,7 @@ Mixer::Mixer()
 	} catch (MSXException &e) {
 		// no Mixer section
 	}
-	
+
 	SDL_AudioSpec desired;
 	desired.freq     = freq;
 	desired.samples  = samples;
@@ -54,14 +54,14 @@ Mixer::Mixer()
 		cpu = MSXCPU::instance();
 		realTime = RealTime::instance();
 		reInit();
-		muteSetting.registerListener(this);
+		muteSetting.addListener(this);
 	}
 }
 
 Mixer::~Mixer()
 {
 	if (init) {
-		muteSetting.unregisterListener(this);
+		muteSetting.removeListener(this);
 		SDL_CloseAudio();
 		delete[] mixBuffer;
 	}
@@ -70,7 +70,7 @@ Mixer::~Mixer()
 Mixer* Mixer::instance(void)
 {
 	static Mixer oneInstance;
-	
+
 	return &oneInstance;
 }
 
@@ -251,8 +251,9 @@ void Mixer::muteHelper(int muteCount)
 }
 
 
-void Mixer::notify(Setting *setting)
+void Mixer::update(const SettingLeafNode *setting)
 {
+	assert(setting == &muteSetting);
 	if (muteSetting.getValue()) {
 		mute();
 	} else {

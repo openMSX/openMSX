@@ -51,14 +51,14 @@ class Mixer : private SettingListener
 		
 		/**
 		 * Use this method to force an 'early' call to all
-		 * updateBuffer() methods. 
+		 * updateBuffer() methods.
 		 */
 		void updateStream(const EmuTime &time);
 
 		/**
 		 * This methods (un)locks the audio thread.
 		 * You can use this method to delay the call to the SoundDevices
-		 * updateBuffer() method. For example, this is usefull if 
+		 * updateBuffer() method. For example, this is usefull if
 		 * you are updating a lot of registers and you don't want the
 		 * half updated set being used to produce sound
 		 */
@@ -80,8 +80,8 @@ class Mixer : private SettingListener
 		static void audioCallbackHelper(void *userdata, Uint8 *stream, int len);
 		void audioCallback(short* stream);
 		void muteHelper(int muteCount);
-		virtual void notify(Setting *setting);
-		
+		virtual void update(const SettingLeafNode *setting);
+
 		bool init;
 		int muteCount;
 
@@ -94,7 +94,7 @@ class Mixer : private SettingListener
 		SDL_AudioSpec audioSpec;
 		vector<SoundDevice*> devices[NB_MODES];
 		vector<int*> buffers;
-		
+
 		short* mixBuffer;
 		int samplesLeft;
 		int offset;

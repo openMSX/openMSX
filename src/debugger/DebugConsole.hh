@@ -46,26 +46,14 @@ class DebugConsole : public Console, private EventListener,
 
 	private:
 		DebugConsole();
-		void notify(Setting *setting);
+		void update(const SettingLeafNode *setting);
 		bool signalEvent(SDL_Event &event);
-		
+
 		map<int, ViewStruct*> viewList;
 		vector<string> lines;
 		BooleanSetting debuggerSetting;
 		int debugColumns;
 		int debugRows;
 };
-
-
-
-
-
-
-
-
-
-
-
-
 
 #endif

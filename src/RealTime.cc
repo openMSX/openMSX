@@ -9,6 +9,8 @@
 #include "RealTimeSDL.hh"
 #include "RealTimeRTC.hh"
 
+#include <cassert>
+
 #define HAVE_RTC	// TODO check this in configure
 
 
@@ -22,8 +24,8 @@ RealTime::RealTime()
 	  pauseSetting("pause", "pauses the emulation", false),
 	  throttleSetting("throttle", "controls speed throttling", true)
 {
-	speedSetting.registerListener(this);
-	pauseSetting.registerListener(this);
+	speedSetting.addListener(this);
+	pauseSetting.addListener(this);
 	
 	// default values
 	maxCatchUpFactor = 105; // %
@@ -48,8 +50,8 @@ RealTime::RealTime()
 RealTime::~RealTime()
 {
 	Scheduler::instance()->removeSyncPoint(this);
-	pauseSetting.unregisterListener(this);
-	speedSetting.unregisterListener(this);
+	pauseSetting.removeListener(this);
+	speedSetting.removeListener(this);
 }
 
 RealTime *RealTime::instance()
@@ -111,11 +113,10 @@ EmuDuration RealTime::getEmuDuration(float realDur)
 }
 
 
-void RealTime::notify(Setting *setting)
+void RealTime::update(const SettingLeafNode *setting)
 {
 	if (setting == &pauseSetting) {
-		bool newValue = pauseSetting.getValue();
-		if (newValue) {
+		if (pauseSetting.getValue()) {
 			// VDP has taken over this role.
 			// TODO: Should it stay that way?
 			//Scheduler::instance()->pause();
@@ -125,5 +126,8 @@ void RealTime::notify(Setting *setting)
 		}
 	} else if (setting == &speedSetting) {
 		RealTime::instance()->resync();
+	} else {
+		assert(false);
 	}
 }
+

@@ -21,36 +21,26 @@ using std::list;
 /*
 TODO: Reduce code duplication.
 It is possible to put a lot of the common code in templates:
-- give Setting base class a value type
 - make OrderedSetting/OrdinalSetting/NumberSetting/ScalarSetting
   base class for IntegerSetting and FloatSetting
-
-TODO: A way to inform listeners of a setting update.
-
-Listen to one or multiple settings?
-One may be uncomfortable, because inner classes in C++ don't automatically
-have a reference to the outer class.
-But multiple bring the problem of identifying the source.
-
-Identifying source:
-- by name (string)
-- by pointer
-- by ID (to be added)
-
 */
 
-class Setting;
+class SettingLeafNode;
 
+/** Interface for listening to setting changes.
+  */
 class SettingListener
 {
 public:
-	virtual void notify(Setting *setting) = 0;
+	/** Informs a listener of a change in a setting it subscribed to.
+	  * @param setting The setting of which the value has changed.
+	  */
+	virtual void update(const SettingLeafNode *setting) = 0;
 };
 
-
-/** Abstract base class for Settings.
+/** Node in the hierarchical setting namespace.
   */
-class Setting
+class SettingNode
 {
 public:
 	/** Get the name of this setting.
@@ -61,6 +51,34 @@ public:
 	  */
 	const string &getDescription() const { return description; }
 
+	/** Complete a partly typed value.
+	  */
+	virtual void tabCompletion(vector<string> &tokens) const {}
+
+	// TODO: Does it make sense to listen to inner (group) nodes?
+	//       If so, move listener mechanism to this class.
+
+protected:
+	SettingNode(const string &name, const string &description);
+
+	virtual ~SettingNode();
+
+private:
+	/** The name of this setting.
+	  */
+	string name;
+
+	/** A description of this setting that can be presented to the user.
+	  */
+	string description;
+};
+
+/** Leaf in the hierarchical setting namespace.
+  * A leaf contains a single setting.
+  */
+class SettingLeafNode: public SettingNode
+{
+public:
 	/** Get the current value of this setting in a string format that can be
 	  * presented to the user.
 	  */
@@ -76,56 +94,84 @@ public:
 	  */
 	const string &getTypeString() const { return type; }
 
-	/** Complete a partly typed value
+	/** Subscribes a listener to changes of this setting.
 	  */
-	virtual void tabCompletion(vector<string> &tokens) const {}
+	void addListener(SettingListener *listener);
 
-	void registerListener(SettingListener *listener);
-	void unregisterListener(SettingListener *listener);
+	/** Unsubscribes a listener to changes of this setting.
+	  */
+	void removeListener(SettingListener *listener);
 
 protected:
-	Setting(const string &name, const string &description);
+	SettingLeafNode(const string &name, const string &description);
 
-	virtual ~Setting();
+	virtual ~SettingLeafNode();
+
+	/** Notify all listeners of a change to this setting's value.
+	  */
+	void notify() const;
 
 	/** A description of the type of this setting's value that can be
 	  * presented to the user.
 	  */
 	string type;
 
-	void notifyAll();
-
 private:
-	/** The name of this setting.
-	  */
-	string name;
+	list<SettingListener *> listeners;
+};
 
-	/** A description of this setting that can be presented to the user.
+/** Abstract base class for Settings.
+  */
+template <class ValueType>
+class Setting: public SettingLeafNode
+{
+public:
+	/** Gets the current value of this setting.
 	  */
-	string description;
+	const ValueType &getValue() const { return value; }
 
-	list<SettingListener*> listeners;
+	/** Changes the current value of this setting.
+	  * If the given value is invalid, it will be mapped to the closest
+	  * valid value.
+	  * If that is not appropriate or possible,
+	  * the value of this setting will not change.
+	  * The implementation of setValueString should use this method
+	  * to set the new value.
+	  * @param newValue The new value.
+	  */
+	virtual void setValue(const ValueType &newValue) {
+		if (newValue != value) {
+			value = newValue;
+			notify();
+		}
+	}
+
+protected:
+	Setting(
+		const string &name, const string &description,
+		const ValueType &initialValue
+		)
+		: SettingLeafNode(name, description)
+		, value(initialValue)
+	{
+	}
+
+	virtual ~Setting() { }
+
+	/** The current value of this setting.
+	  */
+	ValueType value;
 };
 
 
 /** A Setting with an integer value.
   */
-class IntegerSetting: public Setting
+class IntegerSetting: public Setting<int>
 {
 public:
 	IntegerSetting(
 		const string &name, const string &description,
 		int initialValue, int minValue, int maxValue);
-
-	/** Get the current value of this setting.
-	  */
-	int getValue() const { return value; }
-
-	/** Change the current value of this setting.
-	  * The value will be clipped to the allowed range if necessary.
-	  * @param newValue The new value.
-	  */
-	virtual void setValueInt(int newValue);
 
 	/** Change the allowed range.
 	  * @param minValue New minimal value (inclusive).
@@ -136,43 +182,21 @@ public:
 	// Implementation of Setting interface:
 	virtual string getValueString() const;
 	virtual void setValueString(const string &valueString);
-
+	virtual void setValue(const int &newValue);
 
 protected:
-	/**
-	 * Called just before this setting is assigned a new value
-	 * @param newValue The new value, the variable value still
-	 * contains the old value
-	 * @return Only when the result is true the new value is assigned
-	 */
-	virtual bool checkUpdate(int newValue) {
-		return true;
-	}
-
-	int value;
 	int minValue;
 	int maxValue;
 };
 
-
 /** A Setting with a floating point value.
   */
-class FloatSetting: public Setting
+class FloatSetting: public Setting<float>
 {
 public:
 	FloatSetting(
 		const string &name, const string &description,
 		float initialValue, float minValue, float maxValue);
-
-	/** Get the current value of this setting.
-	  */
-	float getValue() const { return value; }
-
-	/** Change the current value of this setting.
-	  * The value will be clipped to the allowed range if necessary.
-	  * @param newValue The new value.
-	  */
-	virtual void setValueFloat(float newValue);
 
 	/** Change the allowed range.
 	  * @param minValue New minimal value (inclusive).
@@ -183,23 +207,12 @@ public:
 	// Implementation of Setting interface:
 	virtual string getValueString() const;
 	virtual void setValueString(const string &valueString);
+	virtual void setValue(const float &newValue);
 
 protected:
-	/**
-	 * Called just before this setting is assigned a new value
-	 * @param newValue The new value, the variable value still
-	 * contains the old value
-	 * @return Only when the result is true the new value is assigned
-	 */
-	virtual bool checkUpdate(float newValue) {
-		return true;
-	}
-
-	float value;
 	float minValue;
 	float maxValue;
 };
-
 
 /** Associates pairs of an a integer and a string.
   * Used internally by EnumSetting to associate enum constants with strings.
@@ -239,36 +252,18 @@ private:
   * The type parameter can be anything that can be converted from and to
   * an integer.
   */
-template <class T>
-class EnumSetting : public Setting
+template <class ValueType>
+class EnumSetting : public Setting<ValueType>
 {
 public:
 	EnumSetting(
 		const string &name, const string &description,
-		const T &initialValue,
-		const map<const string, T> &map
-	) : Setting(name, description)
-	  , value(initialValue)
+		const ValueType &initialValue,
+		const map<const string, ValueType> &map
+	) : Setting<ValueType>(name, description, initialValue)
 	  , intStringMap(convertMap(map))
 	{
 		type = intStringMap.getSummary();
-	}
-
-	/** Get the current value of this setting.
-	  */
-	T getValue() const { return value; }
-
-	/** Set the current value of this setting.
-	  * @param newValue The new value.
-	  */
-	void setValue(T newValue) {
-		// TODO: Move code to Setting.
-		if (value != newValue) {
-			if (checkUpdate(newValue)) {
-				value = newValue;
-				notifyAll();
-			}
-		}
 	}
 
 	// Implementation of Setting interface:
@@ -277,7 +272,9 @@ public:
 	}
 
 	virtual void setValueString(const string &valueString) {
-		setValue(static_cast<T>(intStringMap.lookupString(valueString)));
+		setValue(
+			static_cast<ValueType>(intStringMap.lookupString(valueString))
+			);
 	}
 
 	virtual void tabCompletion(vector<string> &tokens) const {
@@ -287,32 +284,20 @@ public:
 	}
 
 protected:
-	/**
-	 * Called just before this setting is assigned a new value
-	 * @param newValue The new value, the variable value still
-	 * contains the old value
-	 * @return Only when the result is true the new value is assigned
-	 */
-	virtual bool checkUpdate(T newValue) {
-		return true;
-	}
-
-	T value;
 	IntStringMap intStringMap;
 
 private:
 	static map<const string, int> *convertMap(
-		const map<const string, T> &map_
+		const map<const string, ValueType> &map_
 	) {
 		map<const string, int> *ret = new map<const string, int>();
-		typename map<const string, T>::const_iterator it;
-		for (it = map_.begin() ; it != map_.end() ; it++) {
+		typename map<const string, ValueType>::const_iterator it;
+		for (it = map_.begin(); it != map_.end(); ++it) {
 			(*ret)[it->first] = static_cast<int>(it->second);
 		}
 		return ret;
 	}
 };
-
 
 /** A Setting with a boolean value.
   */
@@ -330,7 +315,7 @@ private:
 
 /** A Setting with a string value.
   */
-class StringSetting : public Setting
+class StringSetting : public Setting<string>
 {
 public:
 	StringSetting(const string &name, const string &description,
@@ -340,20 +325,7 @@ public:
 	virtual string getValueString() const;
 	virtual void setValueString(const string &valueString);
 
-protected:
-	/**
-	 * Called just before this setting is assigned a new value
-	 * @param newValue The new value, the variable value still
-	 *                 contains the old value
-	 * @return Only when the result is true the new value is assigned
-	 */
-	virtual bool checkUpdate(const string &newValue) {
-		return true;
-	}
-
-	string value;
 };
-
 
 class File;
 class FileContext;
@@ -371,13 +343,12 @@ public:
 	virtual void tabCompletion(vector<string> &tokens) const;
 };
 
-
 /** Manages all settings.
   */
 class SettingsManager
 {
 private:
-	map<const string, Setting *> settingsMap;
+	map<const string, SettingNode *> settingsMap;
 
 public:
 
@@ -389,18 +360,17 @@ public:
 	}
 
 	/** Get a setting by specifying its name.
-	  * @return The Setting with the given name,
-	  *   or NULL if there is no such Setting.
+	  * @return The SettingNode with the given name,
+	  *   or NULL if there is no such SettingNode.
 	  */
-	Setting *getByName(const string &name) const {
-		map<string, Setting *>::const_iterator it =
+	SettingNode *getByName(const string &name) const {
+		map<string, SettingNode *>::const_iterator it =
 			settingsMap.find(name);
 		return it == settingsMap.end() ? NULL : it->second;
 	}
 
-	void registerSetting(const string &name, Setting *setting) {
-//TODO !!! fix this !!!!!!
-//		assert(settingsMap.find(name) == settingsMap.end());
+	void registerSetting(const string &name, SettingNode *setting) {
+		assert(settingsMap.find(name) == settingsMap.end());
 		settingsMap[name] = setting;
 	}
 	void unregisterSetting(const string &name) {

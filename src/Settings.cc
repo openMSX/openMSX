@@ -13,45 +13,55 @@
 
 using std::ostringstream;
 
+// SettingNode implementation:
 
-// Setting implementation:
-
-Setting::Setting(const string &name_, const string &description_)
+SettingNode::SettingNode(const string &name_, const string &description_)
 	: name(name_), description(description_)
 {
 	SettingsManager::instance()->registerSetting(name, this);
 }
 
-Setting::~Setting()
+SettingNode::~SettingNode()
 {
 	SettingsManager::instance()->unregisterSetting(name);
 }
 
-void Setting::registerListener(SettingListener *listener)
+// SettingLeafNode implementation:
+
+SettingLeafNode::SettingLeafNode(
+	const string &name_, const string &description_)
+	: SettingNode(name_, description_)
 {
-	listeners.push_back(listener);
 }
 
-void Setting::unregisterListener(SettingListener *listener)
+SettingLeafNode::~SettingLeafNode()
 {
-	listeners.remove(listener);
 }
 
-void Setting::notifyAll()
-{
-	list<SettingListener*>::iterator it;
-	for (it = listeners.begin(); it != listeners.end(); it++) {
-		(*it)->notify(this);
+void SettingLeafNode::notify() const {
+	list<SettingListener *>::const_iterator it;
+	for (it = listeners.begin(); it != listeners.end(); ++it) {
+		(*it)->update(this);
 	}
 }
 
+void SettingLeafNode::addListener(SettingListener *listener) {
+	listeners.push_back(listener);
+}
+
+void SettingLeafNode::removeListener(SettingListener *listener) {
+	listeners.remove(listener);
+}
+
+// Setting implementation:
+// Located in .hh to avoid template instantiation problems.
 
 // IntegerSetting implementation:
 
 IntegerSetting::IntegerSetting(
 	const string &name_, const string &description_,
 	int initialValue, int minValue_, int maxValue_)
-	: Setting(name_, description_), value(initialValue)
+	: Setting<int>(name_, description_, initialValue)
 {
 	setRange(minValue_, maxValue_);
 }
@@ -61,12 +71,13 @@ void IntegerSetting::setRange(const int minValue, const int maxValue)
 	this->minValue = minValue;
 	this->maxValue = maxValue;
 
-	// update the setting type to the new range
+	// Update the setting type to the new range.
 	ostringstream out;
 	out << minValue << " - " << maxValue;
 	type = out.str();
 
-	if (value < minValue || value > maxValue) setValueInt(value);
+	// Clip to new range.
+	setValue(value);
 }
 
 string IntegerSetting::getValueString() const
@@ -84,22 +95,18 @@ void IntegerSetting::setValueString(const string &valueString)
 		throw CommandException(
 			"Not a valid integer: \"" + valueString + "\"");
 	}
-	setValueInt(newValue);
+	setValue(newValue);
 }
 
-void IntegerSetting::setValueInt(int newValue)
+void IntegerSetting::setValue(const int &newValue)
 {
-	if (newValue < minValue) {
-		newValue = minValue;
-	} else if (newValue > maxValue) {
-		newValue = maxValue;
+	int nv = newValue;
+	if (nv < minValue) {
+		nv = minValue;
+	} else if (nv > maxValue) {
+		nv = maxValue;
 	}
-	if (value != newValue) {
-		if (checkUpdate(newValue)) {
-			value = newValue;
-			notifyAll();
-		}
-	}
+	Setting<int>::setValue(nv);
 }
 
 // FloatSetting implementation:
@@ -107,7 +114,7 @@ void IntegerSetting::setValueInt(int newValue)
 FloatSetting::FloatSetting(
 	const string &name_, const string &description_,
 	float initialValue, float minValue_, float maxValue_)
-	: Setting(name_, description_), value(initialValue)
+	: Setting<float>(name_, description_, initialValue)
 {
 	setRange(minValue_, maxValue_);
 }
@@ -117,7 +124,7 @@ void FloatSetting::setRange(const float minValue, const float maxValue)
 	this->minValue = minValue;
 	this->maxValue = maxValue;
 
-	// update the setting type to the new range
+	// Update the setting type to the new range.
 	char rangeStr[12];
 	snprintf(rangeStr, 12, "%.2f - %.2f", minValue, maxValue);
 	type = string(rangeStr);
@@ -128,7 +135,8 @@ void FloatSetting::setRange(const float minValue, const float maxValue)
 	type = out.str();
 	*/
 
-	if (value < minValue || value > maxValue) setValueFloat(value);
+	// Clip to new range.
+	setValue(value);
 }
 
 string FloatSetting::getValueString() const
@@ -152,22 +160,20 @@ void FloatSetting::setValueString(const string &valueString)
 		throw CommandException(
 			"Not a valid float: \"" + valueString + "\"");
 	}
-	setValueFloat(newValue);
+	setValue(newValue);
 }
 
-void FloatSetting::setValueFloat(float newValue)
+void FloatSetting::setValue(const float &newValue)
 {
-	if (newValue < minValue) {
-		newValue = minValue;
-	} else if (newValue > maxValue) {
-		newValue = maxValue;
+	// TODO: Almost identical copy of IntegerSetting::setValue.
+	//       A definate sign Ranged/OrdinalSetting is a good idea.
+	float nv = newValue;
+	if (nv < minValue) {
+		nv = minValue;
+	} else if (nv > maxValue) {
+		nv = maxValue;
 	}
-	if (value != newValue) {
-		if (checkUpdate(newValue)) {
-			value = newValue;
-			notifyAll();
-		}
-	}
+	Setting<float>::setValue(nv);
 }
 
 // IntStringMap implementation:
@@ -185,7 +191,7 @@ IntStringMap::~IntStringMap()
 const string &IntStringMap::lookupInt(int n) const
 {
 	for (MapIterator it = stringToInt->begin()
-	; it != stringToInt->end() ; it++) {
+	; it != stringToInt->end() ; ++it) {
 		if (it->second == n) return it->first;
 	}
 	throw MSXException("Integer not in map: " + n);
@@ -205,7 +211,7 @@ string IntStringMap::getSummary() const
 	ostringstream out;
 	MapIterator it = stringToInt->begin();
 	out << it->first;
-	for (it++; it != stringToInt->end(); it++) {
+	for (++it; it != stringToInt->end(); ++it) {
 		out << ", " << it->first;
 	}
 	return out.str();
@@ -215,7 +221,7 @@ set<string> *IntStringMap::createStringSet() const
 {
 	set<string> *ret = new set<string>;
 	for (MapIterator it = stringToInt->begin()
-	; it != stringToInt->end(); it++) {
+	; it != stringToInt->end(); ++it) {
 		ret->insert(it->first);
 	}
 	return ret;
@@ -249,7 +255,7 @@ const map<const string, bool> &BooleanSetting::getMap()
 StringSetting::StringSetting(
 	const string &name_, const string &description_,
 	const string &initialValue)
-	: Setting(name_, description_), value(initialValue)
+	: Setting<string>(name_, description_, initialValue)
 {
 }
 
@@ -260,12 +266,7 @@ string StringSetting::getValueString() const
 
 void StringSetting::setValueString(const string &newValue)
 {
-	if (value != newValue) {
-		if (checkUpdate(newValue)) {
-			value = newValue;
-			notifyAll();
-		}
-	}
+	setValue(newValue);
 }
 
 
@@ -318,17 +319,21 @@ void SettingsManager::SetCommand::execute(
 
 	if (nrTokens == 1) {
 		// List all settings.
-		map<string, Setting *>::const_iterator it =
+		map<string, SettingNode *>::const_iterator it =
 			manager->settingsMap.begin();
-		for (; it != manager->settingsMap.end(); it++) {
+		for (; it != manager->settingsMap.end(); ++it) {
 			print(it->first);
 		}
 		return;
 	}
 
 	// Get setting object.
+	// TODO: The cast is valid because currently all nodes are leaves.
+	//       In the future this will no longer be the case.
 	const string &name = tokens[1];
-	Setting *setting = manager->getByName(name);
+	SettingLeafNode *setting = static_cast<SettingLeafNode *>(
+		manager->getByName(name)
+		);
 	if (!setting) {
 		throw CommandException("There is no setting named \""
 		                       + name + "\"");
@@ -364,9 +369,9 @@ void SettingsManager::SetCommand::tabCompletion(
 		case 2: {
 			// complete setting name
 			set<string> settings;
-			map<string, Setting *>::const_iterator it
+			map<string, SettingNode *>::const_iterator it
 				= manager->settingsMap.begin();
-			for (; it != manager->settingsMap.end(); it++) {
+			for (; it != manager->settingsMap.end(); ++it) {
 				settings.insert(it->first);
 			}
 			CommandController::completeString(tokens, settings);
@@ -374,7 +379,7 @@ void SettingsManager::SetCommand::tabCompletion(
 		}
 		case 3: {
 			// complete setting value
-			map<string, Setting*>::iterator it =
+			map<string, SettingNode *>::iterator it =
 				manager->settingsMap.find(tokens[1]);
 			if (it != manager->settingsMap.end()) {
 				it->second->tabCompletion(tokens);
@@ -401,19 +406,19 @@ void SettingsManager::ToggleCommand::execute(
 
 	if (nrTokens == 1) {
 		// list all boolean settings
-		map<string, Setting *>::const_iterator it =
+		map<string, SettingNode *>::const_iterator it =
 			manager->settingsMap.begin();
-		for (; it != manager->settingsMap.end(); it++) {
+		for (; it != manager->settingsMap.end(); ++it) {
 			if (dynamic_cast<BooleanSetting*>(it->second)) {
 				print(it->first);
 			}
 		}
 		return;
 	}
- 
+
 	// get setting object
 	const string &name = tokens[1];
-	Setting *setting = manager->getByName(name);
+	SettingNode *setting = manager->getByName(name);
 	if (!setting) {
 		throw CommandException(
 			"There is no setting named \"" + name + "\"" );
@@ -442,9 +447,9 @@ void SettingsManager::ToggleCommand::tabCompletion(
 		case 2: {
 			// complete setting name
 			set<string> settings;
-			map<string, Setting *>::const_iterator it
+			map<string, SettingNode *>::const_iterator it
 				= manager->settingsMap.begin();
-			for (; it != manager->settingsMap.end(); it++) {
+			for (; it != manager->settingsMap.end(); ++it) {
 				if (dynamic_cast<BooleanSetting*>(it->second)) {
 					settings.insert(it->first);
 				}

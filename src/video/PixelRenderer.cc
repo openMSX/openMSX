@@ -132,7 +132,7 @@ void PixelRenderer::frameStart(const EmuTime &time)
 	nextY = 0;
 
 	if (--curFrameSkip < 0) {
-		curFrameSkip = settings->getFrameSkip()->getFrameSkip();
+		curFrameSkip = settings->getFrameSkip()->getValue().getFrameSkip();
 	}
 }
 
@@ -148,8 +148,8 @@ void PixelRenderer::putImage(const EmuTime &time, bool store)
 	// to perform real time sync.
 	float factor = RealTime::instance()->sync(time);
 
-	if (settings->getFrameSkip()->isAutoFrameSkip()) {
-		int frameSkip = settings->getFrameSkip()->getFrameSkip();
+	if (settings->getFrameSkip()->getValue().isAutoFrameSkip()) {
+		int frameSkip = settings->getFrameSkip()->getValue().getFrameSkip();
 		//PRT_DEBUG("FrameSkip " << frameSkip);
 		frameSkipShortAvg += (factor - buffer[4]);	// sum last 5
 		frameSkipLongAvg  += (factor - buffer[99]);	// sum last 100
@@ -163,12 +163,16 @@ void PixelRenderer::putImage(const EmuTime &time, bool store)
 			if (frameSkipShortAvg > 5.25  && frameSkip < 30) {
 				// over the last 5 frames we where on average
 				// ~5% too slow, increase frameSkip
-				settings->getFrameSkip()->setFrameSkip(frameSkip + 1);
+				settings->getFrameSkip()->setValue(
+					settings->getFrameSkip()->getValue().modify(+1)
+					);
 				frameSkipDelay = 25;
 			} else if (frameSkipLongAvg < 50.0 && frameSkip > 0) {
 				// over the last 100 frames we where on average
 				// ~50% too fast, decrease frameSkip
-				settings->getFrameSkip()->setFrameSkip(frameSkip - 1);
+				settings->getFrameSkip()->setValue(
+					settings->getFrameSkip()->getValue().modify(-1)
+					);
 				frameSkipDelay = 250;
 			}
 		}

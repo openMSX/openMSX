@@ -7,70 +7,68 @@
 
 int OSDConsoleRenderer::wantedColumns;
 int OSDConsoleRenderer::wantedRows;
-std::string OSDConsoleRenderer::fontName;
-std::string OSDConsoleRenderer::backgroundName;
+string OSDConsoleRenderer::fontName;
+string OSDConsoleRenderer::backgroundName;
 OSDConsoleRenderer::Placement OSDConsoleRenderer::consolePlacement;
 
 
 // class BackgroundSetting
 
 BackgroundSetting::BackgroundSetting(OSDConsoleRenderer *console_,
-                                     const std::string &filename)
+                                     const string &filename)
 	: FilenameSetting("consolebackground", "console background file", ""),
 	  console(console_)
 {
 	setValueString(filename);
-	if (getValueString() != filename) {
-		PRT_INFO("Warning: Couldn't read background image: \"" <<
-		         filename << "\"");
-	}
 }
 
-bool BackgroundSetting::checkUpdate(const std::string &newValue)
+void BackgroundSetting::setValue(const string &newValue)
 {
-	bool result;
+	string resolved;
 	try {
 		UserFileContext context;
-		result = console->loadBackground(context.resolve(newValue));
-		if (result) {
-			console->setBackgroundName(context.resolve(newValue));
-		}
+		resolved = context.resolve(newValue);
 	} catch (FileException &e) {
 		// file not found
-		result = false;
+		PRT_INFO("Warning: Couldn't read background image: \"" <<
+		         newValue << "\"");
+		return;
 	}
-	return result;
+	bool ok = console->loadBackground(resolved);
+	if (ok) {
+		console->setBackgroundName(resolved);
+		FilenameSetting::setValue(newValue);
+	}
 }
 
 
 // class FontSetting
 
 FontSetting::FontSetting(OSDConsoleRenderer *console_,
-                         const std::string &filename)
+                         const string &filename)
 	: FilenameSetting("consolefont", "console font file", ""),
 	  console(console_)
 {
 	setValueString(filename);
-	if (getValueString() != filename) {
-		PRT_INFO("Warning: Couldn't read font image: \"" <<
-		         filename << "\"");
-	}
 }
 
-bool FontSetting::checkUpdate(const std::string &newValue)
+void FontSetting::setValue(const string &newValue)
 {
-	bool result;
+	string resolved;
 	try {
 		UserFileContext context;
-		result = console->loadFont(context.resolve(newValue));
-		if (result) {
-			console->setFontName (context.resolve(newValue));
-		}
+		resolved = context.resolve(newValue);
 	} catch (FileException &e) {
 		// file not found
-		result = false;
+		PRT_INFO("Warning: Couldn't read font image: \"" <<
+		         newValue << "\"");
+		return;
 	}
-	return result;
+	bool ok = console->loadFont(resolved);
+	if (ok) {
+		console->setFontName(resolved);
+		FilenameSetting::setValue(newValue);
+	}
 }
 
 
@@ -129,12 +127,12 @@ OSDConsoleRenderer::~OSDConsoleRenderer()
 	delete consoleColumnsSetting;
 }
 
-void OSDConsoleRenderer::setBackgroundName(const std::string &name)
+void OSDConsoleRenderer::setBackgroundName(const string &name)
 {
 	backgroundName = name;
 }
 
-void OSDConsoleRenderer::setFontName(const std::string &name)
+void OSDConsoleRenderer::setFontName(const string &name)
 {
 	fontName = name;
 }
@@ -144,7 +142,7 @@ void OSDConsoleRenderer::initConsoleSize()
 	static bool placementInitDone = false;
 
 	// define all possible positions
-	std::map<const std::string, Placement> placeMap;
+	std::map<const string, Placement> placeMap;
 	placeMap["topleft"]     = CP_TOPLEFT;
 	placeMap["top"]         = CP_TOP;
 	placeMap["topright"]    = CP_TOPRIGHT;
@@ -169,11 +167,11 @@ void OSDConsoleRenderer::initConsoleSize()
 		             config->getParameterAsInt("rows") :
 		             ((screen->h / font->getHeight()) * 6) / 15;
 
-		std::string placementString;
+		string placementString;
 		placementString = config->hasParameter("placement") ?
 		                  config->getParameter("placement") :
 		                  "bottom";
-		std::map<std::string, Placement>::const_iterator it;
+		std::map<string, Placement>::const_iterator it;
 		it = placeMap.find(placementString);
 		if (it != placeMap.end()) {
 			consolePlacement = it->second;

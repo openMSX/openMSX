@@ -42,15 +42,15 @@ class RealTime : public Schedulable, private SettingListener
 		
 		virtual float doSync(const EmuTime &time) = 0;  
 		virtual void resync() = 0;
-		
+
 		IntegerSetting speedSetting;
 		int maxCatchUpTime;	// max nb of ms overtime
 		int maxCatchUpFactor;	// max catch up speed factor (percentage)
-	
+
 	private:
 		float internalSync(const EmuTime &time);
-		void notify(Setting *setting);
-		
+		void update(const SettingLeafNode *setting);
+
 		BooleanSetting pauseSetting;
 		BooleanSetting throttleSetting;
 };

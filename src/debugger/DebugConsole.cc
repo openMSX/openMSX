@@ -13,7 +13,7 @@ DebugConsole* DebugConsole::instance()
 DebugConsole::DebugConsole()
 	: debuggerSetting("debugger", "turns the debugger on or off", false)
 {
-	debuggerSetting.registerListener(this);
+	debuggerSetting.addListener(this);
 	for (int i = 0; i < 20; i++) {
 		lines.push_back(" ");
 	}
@@ -29,11 +29,12 @@ DebugConsole::~DebugConsole()
 			delete it->second;
 		}
 	}
-	debuggerSetting.unregisterListener(this);
+	debuggerSetting.removeListener(this);
 }
 
-void DebugConsole::notify(Setting *setting)
+void DebugConsole::update(const SettingLeafNode *setting)
 {
+	assert(setting == &debuggerSetting);
 }
 
 bool DebugConsole::signalEvent(SDL_Event &event)

@@ -1,5 +1,6 @@
 // $Id$
 
+#include <cassert>
 #include <iostream>
 #include "EventDistributor.hh"
 #include "EventListener.hh"
@@ -17,14 +18,14 @@ EventDistributor::EventDistributor()
 {
 	// Make sure HotKey is instantiated
 	HotKey::instance();	// TODO is there a better place for this?
-	grabInput.registerListener(this);
+	grabInput.addListener(this);
 	CommandController::instance()->registerCommand(&quitCommand, "quit");
 }
 
 EventDistributor::~EventDistributor()
 {
 	CommandController::instance()->unregisterCommand(&quitCommand, "quit");
-	grabInput.unregisterListener(this);
+	grabInput.removeListener(this);
 }
 
 EventDistributor *EventDistributor::instance()
@@ -106,11 +107,8 @@ void EventDistributor::QuitCommand::help(
 	print("Use this command to stop the emulator");
 }
 
-void EventDistributor::notify(Setting *setting)
+void EventDistributor::update(const SettingLeafNode *setting)
 {
-	if (grabInput.getValue()) {
-		SDL_WM_GrabInput(SDL_GRAB_ON);
-	} else {
-		SDL_WM_GrabInput(SDL_GRAB_OFF);
-	}
+	assert(setting == &grabInput);
+	SDL_WM_GrabInput(grabInput.getValue() ? SDL_GRAB_ON : SDL_GRAB_OFF);
 }

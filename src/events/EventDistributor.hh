@@ -48,15 +48,15 @@ class EventDistributor : private SettingListener
 		/** Passes an event to the emulation thread.
 		  */
 		void handleInEmu(SDL_Event &event);
-		
-		void notify(Setting *setting);
+
+		void update(const SettingLeafNode *setting);
 
 		std::multimap <int, EventListener*> lowMap;
 		std::multimap <int, EventListener*> highMap;
 		std::queue <std::pair<SDL_Event, EventListener*> > lowQueue;
 		std::queue <std::pair<SDL_Event, EventListener*> > highQueue;
 		BooleanSetting grabInput;
-		
+
 		/** Quit openMSX.
 		  * Starts the shutdown procedure.
 		  */

@@ -3,6 +3,8 @@
 #include "VolumeSetting.hh"
 #include "SoundDevice.hh"
 
+#include <cassert>
+
 
 VolumeSetting::VolumeSetting(const std::string &name, int initialValue,
                              SoundDevice *device_)
@@ -10,15 +12,16 @@ VolumeSetting::VolumeSetting(const std::string &name, int initialValue,
 	  volumeSetting(name + "_volume", "the volume of this sound chip",
 	                initialValue, 0, 32767)
 {
-	volumeSetting.registerListener(this);
+	volumeSetting.addListener(this);
 }
 
 VolumeSetting::~VolumeSetting()
 {
-	volumeSetting.unregisterListener(this);
+	volumeSetting.removeListener(this);
 }
 
-void VolumeSetting::notify(Setting *setting)
+void VolumeSetting::update(const SettingLeafNode *setting)
 {
+	assert(setting == &volumeSetting);
 	device->setVolume(volumeSetting.getValue());
 }
