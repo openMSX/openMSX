@@ -11,16 +11,18 @@
 
 #define EXIT_FAILURE 1
 
+#include "msxconfig.hh"
 
 int
 main (int argc, char **argv)
 {
-  int i;
+	MSXConfig::instance()->loadFile("msxconfig.xml");
 
-  /* do the work */
-  printf("Hello, World\n");
 
-  exit (0);
+	/* do the work */
+	printf("Hello, World\n");
+
+	exit (0);
 }
 
 /*
