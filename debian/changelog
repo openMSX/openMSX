@@ -1,6 +1,7 @@
 openmsx (0.5.0-4) unstable; urgency=low
 
   * add note to README.Debian about the local settings
+  * delete unneeded copy of GPL
 
  -- Joost Yervante Damad <joost@lumatec.be>  Mon, 20 Dec 2004 11:35:10 +0100
 

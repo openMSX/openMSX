@@ -74,6 +74,7 @@ install: build
 		SYMLINK_FOR_BINARY=false \
 		OPENMSX_INSTALL=$(CURDIR)/debian/tmp/usr
 	@echo "  Cleaning up the installed package..."
+	@rm $(CURDIR)/debian/tmp/usr/share/doc/openmsx/GPL
 	@find $(CURDIR)/debian/tmp/usr/share -name CVS | xargs rm -rf
 	@find $(CURDIR)/debian/tmp/usr/share/openmsx/extensions/ -name hardwareconfig.xml -exec chmod a-x {} \;
 	@find $(CURDIR)/debian/tmp -name .cvsignore |xargs rm -f
