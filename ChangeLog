@@ -9,6 +9,10 @@ $Id$
 	          -> key_ghosting parameter
 	    Mixer -> frequency parameter
 	          -> samples parameter
+	* RealTime cleanups:
+	   - MSXRealTime renamed to RealTime
+	   - RealTime is no longer a MSXDevice
+	   - moved parameters to config file
 
 2001-12-09 Maarten ter Huurne <mth@stack.nl>
 	* Faked enough V9938 features to make nms8250.xml boot.

@@ -5,6 +5,7 @@
 // 01-09-2001: Fixed set_a8_register
 
 #include "MSXMotherBoard.hh"
+#include "RealTime.hh"
 #include "DummyDevice.hh"
 #include "Leds.hh"
 
@@ -110,6 +111,7 @@ void MSXMotherBoard::StartMSX()
 	IRQLine = 0;
 	set_A8_Register(0);
 	Leds::instance()->setLed(Leds::POWER_ON);
+	RealTime::instance();
 	Scheduler::instance()->scheduleEmulation();
 }
 

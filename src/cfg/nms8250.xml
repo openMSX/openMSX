@@ -129,9 +129,12 @@
     <parameter name="mode">EmuTime</parameter>
   </device>
 
-  <device id="Real time synchronizer">
+  <config id="RealTime">
     <type>RealTime</type>
-  </device>
+    <parameter name="sync_interval">50</parameter>
+    <parameter name="max_catch_up_time">1500</parameter>
+    <parameter name="min_real_time">40</parameter>
+  </config>
 
 <!--
   <device id="Penguin Adventure Cartridge">

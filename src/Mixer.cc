@@ -4,7 +4,7 @@
 #include <cassert>
 #include "Mixer.hh"
 #include "MSXCPU.hh"
-#include "MSXRealTime.hh"
+#include "RealTime.hh"
 #include "msxconfig.hh"
 
 
@@ -96,7 +96,7 @@ void Mixer::reInit()
 void Mixer::updateStream(const EmuTime &time)
 {
 	assert(prevTime<=time);
-	float duration = MSXRealTime::instance()->getRealDuration(prevTime, time);
+	float duration = RealTime::instance()->getRealDuration(prevTime, time);
 	PRT_DEBUG("Mix: update, duration " << duration << "s");
 	assert(duration>=0);
 	prevTime = time;

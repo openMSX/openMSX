@@ -52,7 +52,7 @@ openmsx_SOURCES=openmsx.cc \
 	MSXMapperIOTurboR.hh MSXMapperIOTurboR.cc \
 	MSXMapperIOPhilips.hh MSXMapperIOPhilips.cc \
 	MSXRTC.hh MSXRTC.cc RP5C01.hh RP5C01.cc \
-	MSXRealTime.hh MSXRealTime.cc \
+	RealTime.hh RealTime.cc \
 	MSXMegaRom.hh MSXMegaRom.cc \
 	MSXKonamiSynthesizer.hh  MSXKonamiSynthesizer.cc \
 	DACSound.cc DACSound.hh \

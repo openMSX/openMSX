@@ -15,7 +15,6 @@
 #include "MSXKanji.hh"
 #include "MSXMemoryMapper.hh"
 #include "MSXRTC.hh"
-#include "MSXRealTime.hh"
 #include "MSXMegaRom.hh"
 #include "MSXKonamiSynthesizer.hh"
 #include "MSXPrinterPort.hh"
@@ -26,9 +25,6 @@ MSXDevice *deviceFactory::create(MSXConfig::Device *conf, const EmuTime &time) {
 	MSXDevice *device = NULL;
 	if (conf->getType()=="CPU") {
 		device = MSXCPU::instance();
-	} else
-	if (conf->getType()=="RealTime") {
-		device = MSXRealTime::instance();
 	} else
 	if (conf->getType()=="PPI") {
 		device = new MSXPPI(conf, time);

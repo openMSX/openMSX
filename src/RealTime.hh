@@ -3,26 +3,25 @@
 #ifndef __MSXREALTIME_HH__
 #define __MSXREALTIME_HH__
 
-#include "MSXDevice.hh"
+#include "Scheduler.hh"
 #include "MSXMotherBoard.hh"
 #include "EmuTime.hh"
 
 
-class MSXRealTime : public MSXDevice, public HotKeyListener
+class RealTime : public Schedulable, public HotKeyListener
 {
 	public:
 		/**
 		 * Destructor
 		 */
-		~MSXRealTime(); 
+		virtual ~RealTime(); 
 
 		/**
 		 * This is a singleton class. This method returns a reference
 		 * to the single instance of this class.
 		 */
-		static MSXRealTime *instance();
+		static RealTime *instance();
 		
-		void reset(const EmuTime &time);
 		void executeUntilEmuTime(const EmuTime &time);
 
 		float getRealDuration(const EmuTime time1, const EmuTime time2);
@@ -33,24 +32,23 @@ class MSXRealTime : public MSXDevice, public HotKeyListener
 		/**
 		 * Constructor.
 		 */
-		MSXRealTime(MSXConfig::Device *config, const EmuTime &time); 
+		RealTime(); 
 
-		//TODO put these in config file
-		static const int SYNCINTERVAL    = 50;	// sync every 50ms
-		static const int MAX_CATCHUPTIME = 1500;	// max nb of ms overtime
-		static const int MIN_REALTIME    = 40;	// min duration of interval
+		int syncInterval;	// sync every ..ms
+		int maxCatchUpTime;	// max nb of ms overtime
+		int minRealTime;	// min duration of interval
+
+		// tune exponential average (0 < alpha < 1)
+		//  alpha small -> past is more important
+		//        big   -> present is more important
+		static const float alpha = 0.5;	// TODO make tuneable???
 	
-		static MSXRealTime *oneInstance;
+		static RealTime *oneInstance;
 
 		EmuTimeFreq<1000> emuRef, emuOrigin;	// in ms (rounding err!!)
 		unsigned int realRef, realOrigin;	// !! Overflow in 49 days
 		int catchUpTime;  // number of milliseconds overtime.
 		float factor;
-		
-		// tune exponential average (0 < ALPHA < 1)
-		//  ALPHA small -> past is more important
-		//        BIG   -> present is more important
-		static const float ALPHA = 0.5;
 
 		bool paused;
 };

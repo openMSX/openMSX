@@ -10,7 +10,7 @@
 #include <assert.h>
 #include "DACSound.hh"
 #include "Mixer.hh"
-#include "MSXRealTime.hh"
+#include "RealTime.hh"
 
 
 DACSound::DACSound(short maxVolume, const EmuTime &time)
@@ -52,7 +52,7 @@ void DACSound::writeDAC(byte value, const EmuTime &time)
 	DACValue = value;
 	
 	// duration is number of samples since last writeDAC (this is a float!!)
-	float duration = MSXRealTime::instance()->getRealDuration(ref, time) * sampleRate;
+	float duration = RealTime::instance()->getRealDuration(ref, time) * sampleRate;
 	ref = time;
 	
 	if (left != 1) {

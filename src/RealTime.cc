@@ -2,53 +2,45 @@
 
 #include <SDL/SDL.h>
 #include <list>
-#include "MSXRealTime.hh"
+#include "RealTime.hh"
 #include "MSXCPU.hh"
 #include "msxconfig.hh"
 
 
-MSXRealTime::MSXRealTime(MSXConfig::Device *config, const EmuTime &time)
-	: MSXDevice(config, time) 
+RealTime::RealTime()
 {
-	PRT_DEBUG("Constructing a MSXRealTime object");
-	oneInstance = this;
+	PRT_DEBUG("Constructing a RealTime object");
+	
+	MSXConfig::Config *config = MSXConfig::instance()->getConfigById("RealTime");
+	syncInterval   = config->getParameterAsInt("sync_interval");
+	maxCatchUpTime = config->getParameterAsInt("max_catch_up_time");
+	minRealTime    = config->getParameterAsInt("min_real_time");
+	
+	realRef = SDL_GetTicks();
+	realOrigin = realRef;
+	factor = 1;
 	paused = false;
+	
 	HotKey::instance()->registerAsyncHotKey(SDLK_PAUSE, this);
-	reset(time);
+	Scheduler::instance()->setSyncPoint(emuRef+syncInterval, *this);
 }
 
-MSXRealTime::~MSXRealTime()
+RealTime::~RealTime()
 {
-	PRT_DEBUG("Destroying a MSXRealTime object");
+	PRT_DEBUG("Destroying a RealTime object");
 }
 
-MSXRealTime *MSXRealTime::instance()
+RealTime *RealTime::instance()
 {
 	if (oneInstance == NULL) {
-		std::list<MSXConfig::Device*> deviceList;
-		deviceList = MSXConfig::instance()->getDeviceByType("RealTime");
-		if (deviceList.size() != 1)
-			PRT_ERROR("There must be exactly one RealTime in config file");
-		MSXConfig::Device* config = deviceList.front();
-		EmuTime zero;
-		new MSXRealTime(config, zero);
+		oneInstance = new RealTime();
 	}
 	return oneInstance;
 }
-MSXRealTime *MSXRealTime::oneInstance = NULL;
+RealTime *RealTime::oneInstance = NULL;
 
 
-void MSXRealTime::reset(const EmuTime &time)
-{
-	realRef = SDL_GetTicks();
-	realOrigin = realRef;
-	emuOrigin = time;
-	emuRef = time;
-	factor = 1;
-	Scheduler::instance()->setSyncPoint(emuRef+SYNCINTERVAL, *this);
-}
-	
-void MSXRealTime::executeUntilEmuTime(const EmuTime &curEmu)
+void RealTime::executeUntilEmuTime(const EmuTime &curEmu)
 {
 	unsigned int curReal = SDL_GetTicks();
 	
@@ -67,15 +59,15 @@ void MSXRealTime::executeUntilEmuTime(const EmuTime &curEmu)
 	if (catchUpTime < 0) {
 		// we are too fast
 		sleep = -catchUpTime;
-	} else if (catchUpTime > MAX_CATCHUPTIME) {
+	} else if (catchUpTime > maxCatchUpTime) {
 		// way too slow
-		int lost = catchUpTime - MAX_CATCHUPTIME;
+		int lost = catchUpTime - maxCatchUpTime;
 		realOrigin += lost;
 		PRT_DEBUG("RT: Emulation too slow, lost " << lost << "ms");
 	}
-	if ((sleep+realPassed) < MIN_REALTIME) {
+	if ((sleep+realPassed) < minRealTime) {
 		// avoid catching up too fast
-		sleep = MIN_REALTIME-sleep;
+		sleep = minRealTime - sleep;
 	}
 	if (sleep > 0) {
 		PRT_DEBUG("RT: Sleeping for " << sleep << "ms");
@@ -84,7 +76,7 @@ void MSXRealTime::executeUntilEmuTime(const EmuTime &curEmu)
 
 	// estimate current speed, values are inaccurate so take average
 	float curFactor = (sleep+realPassed) / (float)emuPassed;
-	factor = factor*(1-ALPHA)+curFactor*ALPHA;	// estimate with exponential average
+	factor = factor*(1-alpha)+curFactor*alpha;	// estimate with exponential average
 	PRT_DEBUG("RT: Estimated speed factor (real/emu): " << factor);
 	
 	// adjust short period references
@@ -92,16 +84,16 @@ void MSXRealTime::executeUntilEmuTime(const EmuTime &curEmu)
 	emuRef = curEmu;
 
 	// schedule again in future
-	Scheduler::instance()->setSyncPoint(emuRef+SYNCINTERVAL, *this);
+	Scheduler::instance()->setSyncPoint(emuRef+syncInterval, *this);
 }
 
-float MSXRealTime::getRealDuration(const EmuTime time1, const EmuTime time2)
+float RealTime::getRealDuration(const EmuTime time1, const EmuTime time2)
 {
 	return time1.getDuration(time2) * factor;
 }
 
 // Note: this runs in a different thread
-void MSXRealTime::signalHotKey(SDLKey key) {
+void RealTime::signalHotKey(SDLKey key) {
 	if (key == SDLK_PAUSE) {
 		if (paused) {
 			// reset timing variables 
