@@ -28,9 +28,10 @@ public:
 private:
 	string afterTime(const vector<string>& tokens);
 	string afterIdle(const vector<string>& tokens);
-	string afterFrame(const vector<string>& tokens);
 	string afterInfo(const vector<string>& tokens);
 	string afterCancel(const vector<string>& tokens);
+	template<EventType T> string afterEvent(const vector<string>& tokens);
+	template<EventType T> void executeEvents();
 
 	// EventListener
 	virtual bool signalEvent(const Event& event) throw();
@@ -66,12 +67,6 @@ private:
 		float time;
 	};
 
-	class AfterFrameCmd : public AfterCmd {
-	public:
-		AfterFrameCmd(const string& command);
-		virtual const string& getType() const;
-	};
-
 	class AfterTimeCmd : public AfterTimedCmd {
 	public:
 		AfterTimeCmd(const string& command, float time);
@@ -81,6 +76,13 @@ private:
 	class AfterIdleCmd : public AfterTimedCmd {
 	public:
 		AfterIdleCmd(const string& command, float time);
+		virtual const string& getType() const;
+	};
+	
+	template<EventType T>
+	class AfterEventCmd : public AfterCmd {
+	public:
+		AfterEventCmd(const string& command);
 		virtual const string& getType() const;
 	};
 	

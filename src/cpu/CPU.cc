@@ -1,10 +1,12 @@
 // $Id$
 
+#include <sstream>
 #include "CPU.hh"
 #include "CPUInterface.hh"
 #include "Scheduler.hh"
 #include "CliCommOutput.hh"
-#include <sstream>
+#include "Event.hh"
+#include "EventDistributor.hh"
 
 #ifdef CPU_DEBUG
 #include "BooleanSetting.hh"
@@ -166,10 +168,11 @@ void CPU::doBreak2()
 
 	scheduler->increasePauseCounter();
 	
-	// TODO
-	//ostringstream os;
-	//os << "0x" << hex << (int)R.PC.w;
-	//CliCommOutput::instance().update(CliCommOutput::BREAK, os.str());
+	ostringstream os;
+	os << "0x" << hex << (int)R.PC.w;
+	CliCommOutput::instance().update(CliCommOutput::BREAK, "pc", os.str());
+	static SimpleEvent<BREAK_EVENT> breakEvent;
+	EventDistributor::instance().distributeEvent(breakEvent);
 }
 
 void CPU::doStep()

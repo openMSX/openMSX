@@ -22,8 +22,7 @@ HDR_ONLY:= \
 	VRAMObserver \
 	SpriteConverter \
 	Blender \
-	GLUtil \
-	VideoEvents
+	GLUtil
 
 include build/node-end.mk
 

@@ -64,8 +64,8 @@ void CliCommOutput::reply(ReplyStatus status, const string& message)
 
 void CliCommOutput::update(UpdateType type, const string& name, const string& value)
 {
-	const char* updateStr[1] = {
-		"led"
+	const char* updateStr[2] = {
+		"led", "break"
 	};
 
 	if (xmlOutput) {

@@ -10,7 +10,7 @@
 #include "SettingListener.hh"
 #include "RenderSettings.hh"
 #include "DisplayMode.hh"
-#include "VideoEvents.hh"
+#include "Event.hh"
 
 namespace openmsx {
 
@@ -156,7 +156,7 @@ protected:
 
 	/** This event gets distibuted when a frame is rendered.
 	 */
-	FinishFrameEvent finishFrameEvent;
+	SimpleEvent<FINISH_FRAME_EVENT> finishFrameEvent;
 
 private:
 	/** Indicates whether the area to be drawn is border or display. */

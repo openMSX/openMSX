@@ -25,12 +25,14 @@ AfterCommand::AfterCommand()
 	EventDistributor::instance().registerEventListener(JOY_BUTTON_UP_EVENT, *this);
 	EventDistributor::instance().registerEventListener(JOY_BUTTON_DOWN_EVENT, *this);
 	EventDistributor::instance().registerEventListener(FINISH_FRAME_EVENT, *this);
+	EventDistributor::instance().registerEventListener(BREAK_EVENT, *this);
 	CommandController::instance().registerCommand(this, "after");
 }
 
 AfterCommand::~AfterCommand()
 {
 	CommandController::instance().unregisterCommand(this, "after");
+	EventDistributor::instance().unregisterEventListener(BREAK_EVENT, *this);
 	EventDistributor::instance().unregisterEventListener(FINISH_FRAME_EVENT, *this);
 	EventDistributor::instance().unregisterEventListener(JOY_BUTTON_DOWN_EVENT, *this);
 	EventDistributor::instance().unregisterEventListener(JOY_BUTTON_UP_EVENT, *this);
@@ -53,7 +55,9 @@ string AfterCommand::execute(const vector<string>& tokens)
 	} else if (tokens[1] == "idle") {
 		return afterIdle(tokens);
 	} else if (tokens[1] == "frame") {
-		return afterFrame(tokens);
+		return afterEvent<FINISH_FRAME_EVENT>(tokens);
+	} else if (tokens[1] == "break") {
+		return afterEvent<BREAK_EVENT>(tokens);
 	} else if (tokens[1] == "info") {
 		return afterInfo(tokens);
 	} else if (tokens[1] == "cancel") {
@@ -94,12 +98,13 @@ string AfterCommand::afterIdle(const vector<string>& tokens)
 	return cmd->getId();
 }
 
-string AfterCommand::afterFrame(const vector<string>& tokens)
+template<EventType T>
+string AfterCommand::afterEvent(const vector<string>& tokens)
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	AfterFrameCmd* cmd = new AfterFrameCmd(tokens[2]);
+	AfterEventCmd<T>* cmd = new AfterEventCmd<T>(tokens[2]);
 	return cmd->getId();
 }
 
@@ -142,6 +147,7 @@ string AfterCommand::help(const vector<string>& tokens) const
 	return "after time <seconds> <command>  execute a command after some time\n"
 	       "after idle <seconds> <command>  execute a command after some time being idle\n"
 	       "after frame <command>           execute a command after a new frame is drawn\n"
+	       "after break <command>           execute a command after a breakpoint is reached\n"
 	       "after info                      list all postponed commands\n"
 	       "after cancel <id>               cancel the postponed command with given id\n";
 }
@@ -152,20 +158,13 @@ void AfterCommand::tabCompletion(vector<string>& tokens)
 	// TODO
 }
 
+
 bool AfterCommand::signalEvent(const Event& event) throw()
 {
 	if (event.getType() == FINISH_FRAME_EVENT) {
-		vector<AfterCmd*> tmp; // make copy because map will change
-		for (AfterCmdMap::const_iterator it = afterCmds.begin();
-		     it != afterCmds.end(); ++it) {
-			if (dynamic_cast<AfterFrameCmd*>(it->second)) {
-				tmp.push_back(it->second);
-			}
-		}
-		for (vector<AfterCmd*>::iterator it = tmp.begin();
-		     it != tmp.end(); ++it) {
-			(*it)->execute();
-		}
+		executeEvents<FINISH_FRAME_EVENT>();
+	} else if (event.getType() == BREAK_EVENT) {
+		executeEvents<BREAK_EVENT>();
 	} else {
 		for (AfterCmdMap::const_iterator it = afterCmds.begin();
 		     it != afterCmds.end(); ++it) {
@@ -175,6 +174,21 @@ bool AfterCommand::signalEvent(const Event& event) throw()
 		}
 	}
 	return true;
+}
+
+template<EventType T> void AfterCommand::executeEvents()
+{
+	vector<AfterCmd*> tmp; // make copy because map will change
+	for (AfterCmdMap::const_iterator it = afterCmds.begin();
+	     it != afterCmds.end(); ++it) {
+		if (dynamic_cast<AfterEventCmd<T>*>(it->second)) {
+			tmp.push_back(it->second);
+		}
+	}
+	for (vector<AfterCmd*>::iterator it = tmp.begin();
+	     it != tmp.end(); ++it) {
+		(*it)->execute();
+	}
 }
 
 
@@ -257,19 +271,6 @@ const string& AfterCommand::AfterTimedCmd::schedName() const
 }
 
 
-//class AfterFrameCmd
-
-AfterCommand::AfterFrameCmd::AfterFrameCmd(const string& command)
-	: AfterCmd(command)
-{
-}
-
-const string& AfterCommand::AfterFrameCmd::getType() const
-{
-	static const string type("frame");
-	return type;
-}
-
 // class AfterTimeCmd
 
 AfterCommand::AfterTimeCmd::AfterTimeCmd(const string& command, float time)
@@ -296,5 +297,29 @@ const string& AfterCommand::AfterIdleCmd::getType() const
 	static const string type("idle");
 	return type;
 }
+
+
+// class AfterEventCmd
+
+template<EventType T>
+AfterCommand::AfterEventCmd<T>::AfterEventCmd(const string& command)
+	: AfterCmd(command)
+{
+}
+
+template<>
+const string& AfterCommand::AfterEventCmd<FINISH_FRAME_EVENT>::getType() const
+{
+	static const string type("frame");
+	return type;
+}
+
+template<>
+const string& AfterCommand::AfterEventCmd<BREAK_EVENT>::getType() const
+{
+	static const string type("break");
+	return type;
+}
+
 
 } // namespace openmsx

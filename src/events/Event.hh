@@ -17,6 +17,7 @@ enum EventType
 	JOY_BUTTON_DOWN_EVENT,
 	QUIT_EVENT,
 	FINISH_FRAME_EVENT,
+	BREAK_EVENT,
 };
 
 class Event
@@ -30,6 +31,14 @@ protected:
 
 private:
 	EventType type;
+};
+
+// implementation for events that don't need additional data
+template<EventType T>
+class SimpleEvent : public Event
+{
+public:
+	SimpleEvent() : Event(T) {}
 };
 
 } // namespace openmsx
