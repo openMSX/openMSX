@@ -1,0 +1,89 @@
+openMSX Release Process
+=======================
+
+This is a kind of recepy for doing releases. Having it written down
+decreases the change of forgetting a small but crucial step during the
+hectic work of getting a release out.
+
+Preparing for a release
+-----------------------
+
+- Tell all developers to commit only fixes.
+- Verify the documentation is up-to-date.
+  Currently most documentation is in "doc/openMSX-HOWTO.txt".
+- Write release notes in "doc/release-notes.txt".
+- Add the change list to "doc/release-history.txt".
+
+Creating a release candidate
+----------------------------
+
+- Tag the CVS archive:
+    cvs rtag RELEASE_1_2_3 openMSX
+- Export the tagged code:
+    cvs -d :ext:user@cvs.openmsx.sourceforge.net:/cvsroot/openmsx \
+    export -r RELEASE_1_2_3 openMSX
+  This step makes sure that exactly the tagged code will be released.
+  Export instead of checkout gets rid of the CVS admin directories.
+- Edit the version number in configure.ac:
+    OPENMSX_VERSION=1.2.3
+- Have auto* create its output:
+    ./autogen.sh
+    ./configure
+- Create the distribution tar.gz file:
+    make dist
+- Save the created file somewhere you can find it again:
+    mv openmsx-1.2.3.tar.gz <some_dir>/openmsx-1.2.3-rc1.tar.gz
+  This is the release candidate.
+
+Test release candidate
+----------------------
+
+- Distribute tar.gz to fellow developers and testers.
+- Compile to check for warnings:
+    ./config-i686
+    make > /dev/null
+- Test installation:
+    su
+    make install
+- Check that the default config (cbios-msx2) works.
+- Check random other configs.
+- Verify the version number in the title bar.
+TODO: More standard tests?
+
+Repeat until release worthy
+---------------------------
+
+Create and test release candidates until a satisfactory release candidate
+is made, which will become the release.
+
+To move the release tag, use the following CVS command:
+  cvs tag -r <revision> -F RELEASE_1_2_3 <file>
+Maybe in the future release candidates will be made public as well, in that
+because they deserve a separate tag ("RELEASE_1_2_3_RC1").
+
+Make the release public
+-----------------------
+
+Put the release on SourceForge:
+- Upload the release tar.gz to "ftp://upload.sourceforge.net/incoming/".
+- On the project page, choose "Admin", followed by "File Releases".
+- At the bottom, choose "Add Release".
+- As the release name, type the version number ("1.2.3").
+- For the Release Notes, select "doc/release-notes.txt".
+- For the Change Log, select "doc/release-history.txt".
+- Check "Preserve my pre-formatted text" and choose "Submit/Refresh".
+  Now you should see the release notes and change history filled in in the
+  edit boxes.
+- Select the uploaded file from the file list and choose "Add Files and/or
+  Refresh View".
+- File info: "Processor = Platform Independent", "File Type = Source .gz".
+  Finally, choose "Update/Refresh".
+
+Announce:
+- Post change list to msx.org.
+- Post news item on sourceforge.net.
+
+Finally:
+- Put "Released openmsx-1.2.3." entry in the ChangeLog in CVS.
+- Change version number in configure.ac in CVS:
+    OPENMSX_VERSION=0.3.2[CVS]
