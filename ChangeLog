@@ -1,5 +1,13 @@
 $Id$
 
+2003-03-29 Manuel Bilderbeek <manuel@msxnet.org>
+	* Moved other configs from src/cfg to share/machines
+	* Added some more extensions
+	* Changed settings.xml to use cbios-msx2 and added skins/ prefix to
+	  ConsoleFont.png
+	* Updated the HOWTO. I wish the make install was finished, so that I
+	  can cut 10% of the HOWTO... (it's getting complicated to explain...)
+
 2003-03-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed crashes on missing arguments (e.g. "openmsx -ext")
 	* Added extra FDC names:
@@ -10,7 +18,7 @@ $Id$
 	  are changed to use the new names, the old names will be removed.
 	* Fixed crash on missing console font
 
-2003-03-29 Manuel Bilderbeek <manuel@msxnet.org>
+2003-03-28 Manuel Bilderbeek <manuel@msxnet.org>
 	* More refactoring of Rom objects to add RomInfo:
 	  - all Rom objects now have a RomInfo object
 	  - get information that was in the romdb from that object
