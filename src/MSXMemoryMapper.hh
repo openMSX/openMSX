@@ -8,6 +8,7 @@
 
 // forward declaration;
 class EmuTime;
+class MSXMapperIO;
 
 
 class MSXMemoryMapper : public MSXMemDevice
@@ -38,8 +39,8 @@ class MSXMemoryMapper : public MSXMemDevice
 		inline int calcAddress(word address);
 
 		byte *buffer;
-		int size;
-		int sizeMask;
+		MSXMapperIO* mapperIO;
+		int nbBlocks;
 		bool slowDrainOnReset;
 };
 

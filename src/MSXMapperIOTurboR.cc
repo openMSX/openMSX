@@ -3,13 +3,8 @@
 #include "MSXMapperIOTurboR.hh"
 
 
-MSXMapperIOTurboR::MSXMapperIOTurboR(MSXConfig::Device *config, const EmuTime &time)
-	: MSXDevice(config, time), MSXMapperIOPhilips(config, time)
+byte MSXMapperIOTurboR::calcMask(std::list<int> &mapperSizes)
 {
-}
-
-void  MSXMapperIOTurboR::registerMapper(int blocks)
-{
-	MSXMapperIOPhilips::registerMapper(blocks);
-	mask |= 0xe0;	// upper 3 bits are always "1"
+	// upper 3 bits are always "1"
+	return MSXMapperIOPhilips::calcMask(mapperSizes) | 0xe0;
 }

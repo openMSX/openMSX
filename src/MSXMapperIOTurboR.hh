@@ -8,8 +8,7 @@
 class MSXMapperIOTurboR : public MSXMapperIOPhilips
 {
 	public:
-		MSXMapperIOTurboR(MSXConfig::Device *config, const EmuTime &time);
-		void registerMapper(int blocks);
+		virtual byte calcMask(std::list<int> &mapperSizes);
 };
 
 #endif //__MSXMAPPERIOTURBOR_HH__

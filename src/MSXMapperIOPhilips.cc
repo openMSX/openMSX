@@ -3,26 +3,17 @@
 #include <cassert>
 #include "MSXMapperIOPhilips.hh"
 
-MSXMapperIOPhilips::MSXMapperIOPhilips(MSXConfig::Device *config, const EmuTime &time)
-	: MSXDevice(config, time), MSXMapperIO(config, time)
-{
-	largest = 0;
-	mask = 255;
-}
-
 // unused bits read always "1"
-byte MSXMapperIOPhilips::convert(byte value)
+byte MSXMapperIOPhilips::calcMask(std::list<int> &mapperSizes)
 {
-	return value|mask;
-}
-
-void MSXMapperIOPhilips::registerMapper(int blocks)
-{
-	if (blocks > largest) {
-		largest = blocks;
-		int bits = log2RoundedUp(blocks);
-		mask = (256-(1<<bits))&255;
+	int largest = 1;
+	std::list<int>::iterator i;
+	for (i=mapperSizes.begin(); i!=mapperSizes.end(); i++) {
+		if (*i > largest)
+			largest = *i;
 	}
+	int bits = log2RoundedUp(largest);
+	return (256-(1<<bits)) & 255;
 }
 
 /* 

@@ -4,15 +4,14 @@
 #include "MSXMapperIO.hh"
 
 
-// Inlined methods first, to make sure they are actually inlined:
+// Inlined methods first, to make sure they are actually inlined
 inline int MSXMemoryMapper::calcAddress(word address)
 {
-	// TODO: Keep pageAddr per mapper and apply mask on reg write.
-	int base = (MSXMapperIO::pageAddr[address>>14] <= sizeMask) ? 
-	           (MSXMapperIO::pageAddr[address>>14]) :
-		   (MSXMapperIO::pageAddr[address>>14] & sizeMask);
-	return base | (address & 0x3FFF);
+	int page = mapperIO->getSelectedPage(address >> 14);
+	page = (page < nbBlocks) ? page : page & (nbBlocks-1);
+	return (page << 14) | (address & 0x3FFF);
 }
+
 
 MSXMemoryMapper::MSXMemoryMapper(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXMemDevice(config, time)
@@ -24,23 +23,24 @@ MSXMemoryMapper::MSXMemoryMapper(MSXConfig::Device *config, const EmuTime &time)
 	if (kSize % 16 != 0) {
 		PRT_ERROR("Mapper size is not a multiple of 16K: " << kSize);
 	}
-	int blocks = kSize/16;
-	size = 16384 * blocks;
-	sizeMask = size - 1; // Both convenient and correct!
-	if (!(buffer = new byte[size]))
+	nbBlocks = kSize/16;
+	if (!(buffer = new byte[nbBlocks * 16384]))
 		PRT_ERROR("Couldn't allocate memory for " << getName());
-	//Isn't completely true, but let's suppose that ram will
-	//always contain all zero if started
-	memset(buffer, 0, size);
+	// Isn't completely true, but let's suppose that ram will
+	// always contain all zero if started
+	memset(buffer, 0, nbBlocks * 16384);
 
-	MSXMapperIO::instance()->registerMapper(blocks);
+	mapperIO = MSXMapperIO::instance();
+	mapperIO->registerMapper(nbBlocks);
 }
 
 MSXMemoryMapper::~MSXMemoryMapper()
 {
 	PRT_DEBUG("Destructing an MSXMemoryMapper object");
+
+	// TODO first fix dependencies between MSXMemoryMapper and MSXMapperIO
+	//mapperIO->unregisterMapper(nbBlocks); 
 	delete[] buffer;
-	//TODO unregisterMapper
 }
 
 void MSXMemoryMapper::reset(const EmuTime &time)
@@ -48,7 +48,7 @@ void MSXMemoryMapper::reset(const EmuTime &time)
 	MSXDevice::reset(time);
 	if (!slowDrainOnReset) {
 		PRT_DEBUG("Clearing ram of " << getName());
-		memset(buffer, 0, size);
+		memset(buffer, 0, nbBlocks * 16384);
 	}
 }
 

@@ -5,19 +5,13 @@
 
 #include "MSXMapperIO.hh"
 
-class MSXMapperIOPhilips : public MSXMapperIO
+class MSXMapperIOPhilips : public MapperMask
 {
 	public:
-		MSXMapperIOPhilips(MSXConfig::Device *config, const EmuTime &time);
-		byte convert(byte value);
-		void registerMapper(int blocks);
+		virtual byte calcMask(std::list<int> &mapperSizes);
 
-	protected:
-		byte mask;
-		
 	private:
 		int log2RoundedUp(int num);
-		int largest;
 };
 
 #endif //__MSXMAPPERIOPHILIPS_HH__
