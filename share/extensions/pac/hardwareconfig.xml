@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
+<msxconfig>
+  <device id="PAC">
+    <type>PAC</type>
+    <slotted><ps>-1</ps><ss>-1</ss><page>1</page></slotted>
+    <parameter name="sramname">PAC.PAC</parameter>
+  </device>
+</msxconfig>
