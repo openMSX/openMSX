@@ -12,7 +12,8 @@
 # Default build flavour: probably the best for most users.
 OPENMSX_FLAVOUR?=i686
 
-BUILD_PATH:=derived/$(OPENMSX_FLAVOUR)
+BUILD_BASE:=derived
+BUILD_PATH:=$(BUILD_BASE)/$(OPENMSX_FLAVOUR)
 
 # Load flavour specific settings.
 CXXFLAGS:=
@@ -90,7 +91,12 @@ BINARY_FULL:=$(BINARY_PATH)/openmsx
 LOG_PATH:=$(BUILD_PATH)/log
 
 # Default target; make sure this is always the first target in this Makefile.
-all: $(BINARY_FULL)
+all: config | $(BINARY_FULL)
+
+config:
+	@echo "Build configuration:"
+	@echo "  Flavour: $(OPENMSX_FLAVOUR)"
+	@echo "  Profile: $(OPENMSX_PROFILE)"
 
 # Include dependency files.
 ifeq ($(filter $(NODEPEND_TARGETS),$(MAKECMDGOALS)),)
@@ -116,9 +122,10 @@ $(DEPEND_FULL):
 
 # Link executable.
 $(BINARY_FULL): $(OBJECTS_FULL)
-	@echo "Linking $(patsubst $(BINARY_PATH)/%,%,$@)..."
+	@echo "Linking $(notdir $@)..."
 	@mkdir -p $(@D)
 	@gcc -o $@ $(CXXFLAGS) $(LINK_FLAGS) $(LIBS_FLAGS) $^
+	@ln -sf $(@:$(BUILD_BASE)/%=%) $(BUILD_BASE)/$(notdir $@)
 
 # Run executable.
 run: all
