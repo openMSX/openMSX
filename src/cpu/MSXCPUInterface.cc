@@ -379,21 +379,18 @@ string MSXCPUInterface::getIOMap() const
 {
 	ostringstream out;
 	string spec="", prevSpec;
-	string devNameIn;
-	string devNameOut;
-	string iostr, devName="";
 	string prevDevName="";
-	int lines;
 	int prevLines=0;
 	int firstPort = 0;
 	for (int port = 0; port <= 256; ++port) { // 256 is a marker to finish the last range
-	devNameIn="empty";
-	devNameOut="empty";		
-	if (port < 256){	
-		devNameIn  = IO_In[port]->getName();
-		devNameOut = IO_Out[port]->getName();
-	}
-		lines=1;
+		string iostr, devName="";
+		string devNameIn="empty";
+		string devNameOut="empty";		
+		if (port < 256){	
+			devNameIn  = IO_In[port]->getName();
+			devNameOut = IO_Out[port]->getName();
+		}
+		int lines=1;
 		if (devNameIn != "empty" && devNameOut != "empty"){
 			devName=devNameIn;
 			if (devNameIn != devNameOut){
@@ -410,10 +407,10 @@ string MSXCPUInterface::getIOMap() const
 			iostr="I  ";
 			devName=devNameIn;
 		}
-		
+
 		prevSpec = spec;
 		spec = iostr + " " + devName;
-													
+
 		if ((spec != prevSpec) &&  (prevSpec != "")){
 			if (prevDevName != "empty"){
 				for (int i=0; i < prevLines; ++i){
@@ -427,7 +424,7 @@ string MSXCPUInterface::getIOMap() const
 						out << firstPort << "-" << hex << std::setw(2) << std::setfill('0') << std::uppercase << (port-1) << ":";
 					out <<  " " << prevSpec << "\n";
 				}
-				
+
 			}
 			firstPort=port;				
 		}
