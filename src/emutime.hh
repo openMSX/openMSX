@@ -2,6 +2,12 @@
 //
 // Emutime class for usage when referencing to the absolute emulation time
 //
+// usage:
+//
+//   Emutime time(0);
+//   time++;
+//   time+=100;
+//
 
 #ifndef __Emutime_HH__
 #define __Emutime_HH__
