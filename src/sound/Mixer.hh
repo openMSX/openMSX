@@ -20,12 +20,11 @@ class Mixer
 {
 	public:
 		static const int MAX_VOLUME = 32767;
-		enum ChannelMode { MONO, MONO_LEFT, MONO_RIGHT, STEREO };
-		static const int NB_MODES = STEREO+1;
+		enum ChannelMode { MONO, MONO_LEFT, MONO_RIGHT, STEREO, NB_MODES };
 
 		~Mixer();
 		static Mixer *instance();
-		
+
 		/**
 		 * Use this method to register a given sounddevice.
 		 *
@@ -38,7 +37,7 @@ class Mixer
 		 * method.
 		 */
 		int registerSound(SoundDevice *device, ChannelMode mode=MONO);
-	
+
 		/**
 		 * Every sounddevice must unregister before it is destructed
 		 */
