@@ -65,10 +65,11 @@ const std::string &RealTime::schedName()
 }
 
 
-void RealTime::sync()
+float RealTime::sync()
 {
 	scheduler->removeSyncPoint(this);
 	internalSync(cpu->getCurrentTime());
+	return float;
 }
 
 void RealTime::internalSync(const EmuTime &curEmu)

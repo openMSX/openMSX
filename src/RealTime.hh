@@ -37,7 +37,7 @@ class RealTime : public Schedulable
 		 * and can indicate 'good' moments to sync, eg: VDP can call
 		 * this method at the end of each frame.
 		 */
-		void sync();
+		float sync();
 
 	private:
 		RealTime(); 
