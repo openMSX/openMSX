@@ -13,6 +13,7 @@ $Id$
 	  - added the Id tags when missing
 	  - filename cleanups
 	  - fixed some typos
+	  - added SHA1SUMS files in each roms dir, when available
 	* Added a few extensions
 
 2003-06-25 Wouter Vermaelen <wouter.vermaelen@pi.be>
