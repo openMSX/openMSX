@@ -28,13 +28,13 @@ SDLConsole::SDLConsole(Console * console_, SDL_Surface *screen)
 	consoleSurface  = NULL;
 	inputBackground = NULL;
 	fontLayer = NULL;
-	
+
 	fontSetting = new FontSetting(this, temp+"font", fontName);
 	initConsoleSize();
-	
+
 	SDL_Rect rect;
 	OSDConsoleRenderer::updateConsoleRect(rect);
-	
+
 	resize(rect);
 	backgroundSetting = new BackgroundSetting(this, temp+"background", backgroundName);
 	alpha(CONSOLE_ALPHA);
@@ -99,14 +99,14 @@ void SDLConsole::updateConsoleRect()
 {
 	SDL_Rect rect;
 	OSDConsoleRenderer::updateConsoleRect(rect);
-	if ((consoleSurface->h != rect.h) || (consoleSurface->w != rect.w) 
+	if ((consoleSurface->h != rect.h) || (consoleSurface->w != rect.w)
 		|| (dispX != rect.x) || (dispY != rect.y))
 	{
 		resize(rect);
 		alpha(CONSOLE_ALPHA);
 		loadBackground(backgroundName);
 		updateConsole2();
-	}		
+	}
 }
 
 // Draws the console buffer to the screen
@@ -203,7 +203,7 @@ bool SDLConsole::loadBackground(const string &filename)
 	if (filename.empty()) {
 		return false;
 	}
-	
+
 	SDL_Surface *pictureSurface;
 	try {
 		File file(filename);
@@ -211,6 +211,9 @@ bool SDLConsole::loadBackground(const string &filename)
 	} catch (FileException &e) {
 		return false;
 	}
+	// If file does exist, but cannot be read as an image,
+	// IMG_Load returns NULL.
+	if (pictureSurface == NULL) return false;
 
 	if (backgroundImage) {
 		SDL_FreeSurface(backgroundImage);
@@ -309,7 +312,7 @@ void SDLConsole::position(int x, int y)
 
 void SDLConsole::reloadBackground()
 {
-	SDL_FillRect(inputBackground, NULL, 
+	SDL_FillRect(inputBackground, NULL,
 		SDL_MapRGBA(consoleSurface->format, 0, 0, 0, SDL_ALPHA_OPAQUE));
 	if (backgroundImage) {
 		SDL_Rect src;
