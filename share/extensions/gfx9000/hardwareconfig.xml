@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!-- $Id$ -->
-<!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
+<!DOCTYPE msxconfig SYSTEM "msxconfig2.dtd">
 <msxconfig>
   <V9990 id="Sunrise GFX9000">
     <io base="0x60" num="0x10"/>

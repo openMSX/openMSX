@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <!-- $Id$ -->
-<!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
+<!DOCTYPE msxconfig SYSTEM "msxconfig2.dtd">
 <msxconfig>
 
   <info>
     <manufacturer>Panasonic</manufacturer>
     <code>FS-A1WX</code>
-    <release_year>???</release_year>
+    <release_year>?</release_year>
     <description></description>
     <type>MSX2+</type>
   </info>
