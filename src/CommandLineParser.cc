@@ -521,7 +521,7 @@ bool CommandLineParser::SettingOption::parseOption(const string &option,
 		throw FatalError("Only one setting option allowed");
 	}
 	try {
-		UserFileContext context;
+		UserFileContext context("", true); // skip user directories
 		parent.settingsConfig.loadSetting(
 			context, getArgument(option, cmdLine));
 		parent.haveSettings = true;

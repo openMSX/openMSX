@@ -5,6 +5,11 @@ $Id$
 	  media settings bug. It's no longer used now.
 	* Fixed type commando:
 	   sometimes the first chr was missed
+	* Fixed "-setting" command line option:
+	   Settings were loaded wrong when the -setting option was given. Was
+	   a problem in the order of creation of settings (no settings may be
+	   created before the settings.xml is loaded). Current code is a bit
+	   fragile in this respect. Refactor it after the release.
 
 2004-09-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Removed settings.xml from CVS

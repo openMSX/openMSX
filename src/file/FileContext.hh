@@ -75,12 +75,12 @@ private:
 class UserFileContext : public FileContext
 {
 public:
-	UserFileContext();
-	UserFileContext(const string& savePath);
+	UserFileContext(const string& savePath = "", bool skipUserDirs = false);
 	virtual const vector<string>& getPaths();
 	virtual UserFileContext* clone() const;
 
 private:
+	void initPaths(bool skipUserDirs);
 	UserFileContext(const UserFileContext& rhs);
 };
 

@@ -192,20 +192,21 @@ SettingFileContext::SettingFileContext(const SettingFileContext& rhs)
 
 // class UserFileContext
 
-UserFileContext::UserFileContext()
+UserFileContext::UserFileContext(const string& savePath_, bool skipUserDirs)
 {
+	if (!savePath_.empty()) {
+		savePath = FileOperations::getUserOpenMSXDir() +
+		           "/persistent/" + savePath_ + '/';
+	}
+	initPaths(skipUserDirs);
 }
 
-UserFileContext::UserFileContext(const string& savePath_)
+void UserFileContext::initPaths(bool skipUserDirs)
 {
-	savePath = FileOperations::getUserOpenMSXDir() + "/persistent/" +
-	           savePath_ + '/';
-}
-
-const vector<string>& UserFileContext::getPaths()
-{
-	paths.clear();
 	paths.push_back("./");
+	if (skipUserDirs) {
+		return;
+	}
 
 	try {
 		vector<string> dirs;
@@ -228,6 +229,10 @@ const vector<string>& UserFileContext::getPaths()
 		CliCommOutput::instance().printWarning(
 			"user directories: " + e.getMessage());
 	}
+}
+
+const vector<string>& UserFileContext::getPaths()
+{
 	return paths;
 }
 

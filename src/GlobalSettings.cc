@@ -13,9 +13,7 @@ GlobalSettings::GlobalSettings()
 	                  "automatically save settings when openMSX exits",
 	                  false)
 	, userDirSetting("user_directories", "list of user directories", "")
-	, mediaConfig(new XMLElement("media"))
 {
-	mediaConfig->setFileContext(auto_ptr<FileContext>(new UserFileContext()));
 }
 
 GlobalSettings& GlobalSettings::instance()
@@ -46,6 +44,11 @@ StringSetting& GlobalSettings::getUserDirSetting()
 
 XMLElement& GlobalSettings::getMediaConfig()
 {
+	if (!mediaConfig.get()) {
+		mediaConfig.reset(new XMLElement("media"));
+		mediaConfig->setFileContext(
+			auto_ptr<FileContext>(new UserFileContext()));
+	}
 	return *mediaConfig;
 }
 
