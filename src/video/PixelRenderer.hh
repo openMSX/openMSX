@@ -11,6 +11,7 @@
 #include "RenderSettings.hh"
 #include "DisplayMode.hh"
 
+
 namespace openmsx {
 
 class VDP;
@@ -174,6 +175,8 @@ private:
 	inline void subdivide(
 		int startX, int startY, int endX, int endY,
 		int clipL, int clipR, DrawType drawType );
+
+	inline bool PixelRenderer::checkSync(int offset, const EmuTime &time);
 
 	/** Render lines until specified moment in time.
 	  * Unlike sync(), this method does not sync with VDPVRAM.

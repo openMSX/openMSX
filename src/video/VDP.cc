@@ -780,8 +780,11 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		}
 		*/
 		renderer->updateNameBase(base, time);
-		// TODO: Actual number of index bits is lower than 17.
-		vram->nameTable.setMask(base, -1 << 17, time);
+		int indexMask =
+			  displayMode.isBitmapMode()
+			? -1 << 17 // TODO: Calculate actual value; how to handle planar?
+			: -1 << (displayMode.isTextMode() ? 12 : 10);
+		vram->nameTable.setMask(base, indexMask, time);
 		break;
 	}
 	case 7:

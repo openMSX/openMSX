@@ -324,14 +324,12 @@ public:
 
 		assert(vdp->isInsideFrame(time));
 
-		/*
-		// TODO: Pass index instead of address?
-		if (true || nameTable.isInside(address)
-		|| colourTable.isInside(address)
-		|| patternTable.isInside(address) ) {
-			renderer->updateVRAM(address, value, time);
-		}
-		*/
+		// Check that VRAM will actually be changed.
+		// A lot of costly syncs can be saved if the same value is written.
+		// For example Penguin Adventure always uploads the whole frame,
+		// even if it is the same as the previous frame.
+		if (data[address] == value) return;
+
 		// Subsystem synchronisation should happen before the commit,
 		// to be able to draw backlog using old state.
 		bitmapVisibleWindow.notify(address, time);

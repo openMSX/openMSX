@@ -11,6 +11,7 @@
 
 using std::max;
 
+
 namespace openmsx {
 
 /** Line number where top border starts.
@@ -47,11 +48,11 @@ inline void PixelRenderer::draw(
 				textModeCounter += (high - low);
 			}
 		}
-		
+
 		displayY &= 255; // Page wrap.
 		int displayWidth = (endX - (startX & ~1)) / 2;
 		int displayHeight = endY - startY;
-		
+
 		assert(0 <= displayX);
 		assert(displayX + displayWidth <= 512);
 
@@ -229,15 +230,104 @@ void PixelRenderer::updateSpritesEnabled(
 	sync(time);
 }
 
-void PixelRenderer::updateVRAM(int offset, const EmuTime &time) {
+static inline bool overlap(
+	int displayY0, // start of display region, inclusive
+	int displayY1, // end of display region, exclusive
+	int vramLine0, // start of VRAM region, inclusive
+	int vramLine1  // end of VRAM region, exclusive
+	// Note: Display region can wrap around: 256 -> 0.
+	//       VRAM region cannot wrap around.
+) {
+	if (displayY0 <= displayY1) {
+		if (vramLine1 > displayY0 && vramLine0 <= displayY1) {
+			return true;
+		}
+	} else {
+		if (vramLine1 > displayY0 || vramLine0 <= displayY1) {
+			return true;
+		}
+	}
+	return false;
+}
+
+inline bool PixelRenderer::checkSync(int offset, const EmuTime &time) {
+	// TODO: Because range is entire VRAM, offset == address.
+
 	// If display is disabled, VRAM changes will not affect the
 	// renderer output, therefore sync is not necessary.
 	// TODO: Have bitmapVisibleWindow disabled in this case.
-	if (vdp->isDisplayEnabled() && curFrameSkip == 0
-	&& accuracy != RenderSettings::ACC_SCREEN) {
-		renderUntil(time);
+	if (!vdp->isDisplayEnabled()) return false;
+	if (curFrameSkip != 0) return false;
+	if (accuracy == RenderSettings::ACC_SCREEN) return false;
+
+	// Calculate what display lines are scanned between current
+	// renderer time and update-to time.
+	// Note: displayY1 is inclusive.
+	int deltaY = vdp->getVerticalScroll() - vdp->getLineZero();
+	int limitY = vdp->getTicksThisFrame(time) / VDP::TICKS_PER_LINE;
+	int displayY0 = (nextY + deltaY) & 255;
+	int displayY1 = (limitY + deltaY) & 255;
+
+	switch(vdp->getDisplayMode().getBase()) {
+	case DisplayMode::GRAPHIC2:
+	case DisplayMode::GRAPHIC3:
+		if (vram->colourTable.isInside(offset)) {
+			int vramQuarter = (offset & 0x1800) >> 11;
+			int mask = (vram->colourTable.getMask() & 0x1800) >> 11;
+			int displayQuarter = 0;
+			if (overlap(displayY0, displayY1,   0,  64)) displayQuarter |= 1;
+			if (overlap(displayY0, displayY1,  64, 128)) displayQuarter |= 2;
+			if (overlap(displayY0, displayY1, 128, 192)) displayQuarter |= 4;
+			if (overlap(displayY0, displayY1, 192, 256)) displayQuarter |= 8;
+			for (int i = 0; i < 4; i++) {
+				if (((1 << i) & displayQuarter) && (i & mask) == vramQuarter) {
+					/*fprintf(stderr,
+						"colour table: %05X %04X - quarter %d\n",
+						offset, offset & 0x1FFF, i
+						);*/
+					return true;
+				}
+			}
+		}
+		if (vram->patternTable.isInside(offset)) {
+			int vramQuarter = (offset & 0x1800) >> 11;
+			int mask = (vram->patternTable.getMask() & 0x1800) >> 11;
+			int displayQuarter = 0;
+			if (overlap(displayY0, displayY1,   0,  64)) displayQuarter |= 1;
+			if (overlap(displayY0, displayY1,  64, 128)) displayQuarter |= 2;
+			if (overlap(displayY0, displayY1, 128, 192)) displayQuarter |= 4;
+			if (overlap(displayY0, displayY1, 192, 256)) displayQuarter |= 8;
+			for (int i = 0; i < 4; i++) {
+				if (((1 << i) & displayQuarter) && (i & mask) == vramQuarter) {
+					/*fprintf(stderr,
+						"pattern table: %05X %04X - quarter %d\n",
+						offset, offset & 0x1FFF, i
+						);*/
+					return true;
+				}
+			}
+		}
+		if (vram->nameTable.isInside(offset)) {
+			int vramLine = ((offset & 0x3FF) / 32) * 8;
+			if (overlap(displayY0, displayY1, vramLine, vramLine + 8)) {
+				/*fprintf(stderr,
+					"name table: %05X %03X - line %d\n",
+					offset, offset & 0x3FF, vramLine
+					);*/
+				return true;
+			}
+		}
+		return false;
+	default:
+		// Range unknown; assume full range.
+		return vram->nameTable.isInside(offset)
+			|| vram->colourTable.isInside(offset)
+			|| vram->patternTable.isInside(offset);
 	}
-	// TODO: Because range is entire VRAM, offset == address.
+}
+
+void PixelRenderer::updateVRAM(int offset, const EmuTime &time) {
+	if (checkSync(offset, time)) renderUntil(time);
 	updateVRAMCache(offset);
 }
 

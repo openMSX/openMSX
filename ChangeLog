@@ -1,5 +1,11 @@
 $Id$
 
+2004-02-03 Maarten ter Huurne <maarten@treewalker.org>
+	* Perform less renderer syncs on VRAM writes:
+	  - skip sync if written value equals the current value in VRAM
+	  - only sync if scan region contains written VRAM address
+	    (currently only checked in Graphic2/3 modes)
+
 2004-02-01 Maarten ter Huurne <maarten@treewalker.org>
 	* Simplified rendering interface and code:
 	  - unified putImage and putStoredImage
