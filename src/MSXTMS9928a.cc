@@ -73,7 +73,7 @@
 ** 12/10/2001
 ** Miss-used the dirtyNames table to indicate which chars are overdrawn with sprites.
 ** Noticed some timing issues that need to be looked into.
-** 
+**
 */
 
 #include <string>
@@ -159,38 +159,38 @@ static unsigned char TMS9928A_palette[16*3] =
 **
 */
 
-// RENDERERS for one-pass rendering
+// RENDERERS for line-based scanline conversion
 void MSXTMS9928a::mode0(struct osd_bitmap* bmp){
 
-  int pattern,x,y,yy,xx,name,charcode,colour;
-  byte fg,bg,*patternptr;
+	for (int line = 0; line < 192; line++) {
+		int name = (line / 8) * 32;
+		int x = 0;
+		while (x < 256) {
+			int charcode = tms.vMem[tms.nametbl + name];
+			// TODO: is tms.DirtyColour[charcode / 64] correct?
+			if (tms.DirtyName[name] || tms.DirtyPattern[charcode]
+			|| tms.DirtyColour[charcode / 64]) {
 
-  name = 0;
-  for (y=0;y<24;y++) {
-    for (x=0;x<32;x++,name++) {
-      charcode = tms.vMem[tms.nametbl+name];
-      
-      if ( !(tms.DirtyName[name] || tms.DirtyPattern[charcode] ||
-	    tms.DirtyColour[charcode/64]) )
-	continue;
-      
-      patternptr = tms.vMem + tms.pattern + charcode*8;
-      colour = tms.vMem[tms.colour+charcode/8];
-      fg = XPal[colour / 16];
-      bg = XPal[colour & 15];
-      if (bg == 0) bg = XPal[tms.Regs[7] & 15]; // If transparant then background color
+				int colour = tms.vMem[tms.colour + charcode / 8];
+				byte fg = XPal[colour >> 4];
+				byte bg = XPal[colour & 0x0F];
+				// If transparant then background color:
+				if (bg == 0) bg = XPal[tms.Regs[7] & 0x0F];
 
-      for (yy=0;yy<8;yy++) {
-	pattern=*patternptr++;
-	for (xx=0;xx<8;xx++) {
-	  plot_pixel (bmp, x*8+xx, y*8+yy,
-	      (pattern & 0x80) ? fg : bg);
-	      pattern *= 2;
+				int pattern = tms.vMem[tms.pattern + charcode * 8 + (line & 0x07)];
+				for (int i = 8; i--; ) {
+					plot_pixel (bmp, x++, line, (pattern & 0x80) ? fg : bg);
+					pattern <<= 1;
+				}
+			}
+			else {
+				x += 8;
+			}
+			name++;
+		}
 	}
-      }
-    }
-  }
-  _TMS9928A_set_dirty (0);
+
+	_TMS9928A_set_dirty(0);
 };
 
 void MSXTMS9928a::mode1(struct osd_bitmap* bmp){
@@ -222,7 +222,7 @@ void MSXTMS9928a::mode1(struct osd_bitmap* bmp){
       if ( !(tms.DirtyName[name] || tms.DirtyPattern[charcode]) &&
 	  !tms.anyDirtyColour)
 	continue;
-      
+
       patternptr = tms.vMem + tms.pattern + (charcode*8);
       for (yy=0;yy<8;yy++) {
 	pattern = *patternptr++;
@@ -255,7 +255,7 @@ void MSXTMS9928a::mode2(struct osd_bitmap* bmp){
       if ( !(tms.DirtyName[name] || tms.DirtyPattern[pattern] ||
 	    tms.DirtyColour[colour]) )
 	continue;
-      
+
       patternptr = tms.vMem+tms.pattern+colour*8;
       colourptr = tms.vMem+tms.colour+pattern*8;
       for (yy=0;yy<8;yy++) {
@@ -489,7 +489,7 @@ void MSXTMS9928a::sprites(struct osd_bitmap* bmp){
 	tms.DirtyName[dirtycheat+99]=1;
 	}
 	// worst case is 32*24+99(=867)
-	// DirtyName 40x24(=960)  => is large enough 
+	// DirtyName 40x24(=960)  => is large enough
 	tms.anyDirtyName =1;
 	// No need to clean sprites if no vram write so tms.Change could remain false;
 
@@ -617,7 +617,7 @@ moderoutines ModeHandlers[] = {
 /*
 ** initialize the palette 
 */
-//void tms9928A_init_palette (unsigned char *palette, 
+//void tms9928A_init_palette (unsigned char *palette,
 //	unsigned short *colortable,const unsigned char *color_prom) {
 //    memcpy (palette, &TMS9928A_palette, sizeof(TMS9928A_palette));
 //}
@@ -644,14 +644,14 @@ void MSXTMS9928a::reset ()
 	tms.spritepattern = tms.spriteattribute = 0;
 	tms.colourmask = tms.patternmask = 0;
 	tms.Addr = tms.ReadAhead = 0;
-    //tms.INT = 0;
+	//tms.INT = 0;
 	tms.mode = tms.BackColour = 0;
 	tms.Change = 1;
 	tms.FirstByte = -1;
 	_TMS9928A_set_dirty (1);
 };
 
-//int TMS9928A_start (int model, unsigned int vram) 
+//int TMS9928A_start (int model, unsigned int vram)
 void MSXTMS9928a::init(void)
 {
 	MSXDevice::init();
@@ -722,9 +722,9 @@ void MSXTMS9928a::init(void)
     //if(Verbose) printf("OK\n  Opening display...");
     PRT_DEBUG ("OK\n  Opening display...");
     #ifdef FULLSCREEN
-      if ((screen=SDL_SetVideoMode(WIDTH,HEIGHT,8,SDL_SWSURFACE|SDL_FULLSCREEN))==NULL)
+      if ((screen=SDL_SetVideoMode(WIDTH,HEIGHT,8,SDL_HWSURFACE|SDL_FULLSCREEN))==NULL)
     #else
-      if ((screen=SDL_SetVideoMode(WIDTH,HEIGHT,8,SDL_SWSURFACE))==NULL)
+      if ((screen=SDL_SetVideoMode(WIDTH,HEIGHT,8,SDL_HWSURFACE))==NULL)
     #endif
 	{ printf("FAILED");return; }
 	//{ if(Verbose) printf("FAILED");return; }
@@ -803,15 +803,13 @@ void MSXTMS9928a::executeUntilEmuTime(const Emutime &time)
 };
 */
 
-/*
-** Set all dirty / clean
-*
-*/
+/** Set all dirty / clean
+  */
 void MSXTMS9928a::_TMS9928A_set_dirty (char dirty) {
     tms.anyDirtyColour = tms.anyDirtyName = tms.anyDirtyPattern = dirty;
-    memset (tms.DirtyName, dirty, MAX_DIRTY_NAME);
-    memset (tms.DirtyColour, dirty, MAX_DIRTY_COLOUR);
-    memset (tms.DirtyPattern, dirty, MAX_DIRTY_PATTERN);
+    memset(tms.DirtyName, dirty, MAX_DIRTY_NAME);
+    memset(tms.DirtyColour, dirty, MAX_DIRTY_COLOUR);
+    memset(tms.DirtyPattern, dirty, MAX_DIRTY_PATTERN);
 };
 
 /*
@@ -916,7 +914,7 @@ void MSXTMS9928a::_TMS9928A_change_register (byte reg, byte val) {
         "Mode 1+2 (TEXT 1 variation)", "Mode 3 (MULTICOLOR)",
         "Mode 1+3 (BOGUS)", "Mode 2+3 (MULTICOLOR variation)",
         "Mode 1+2+3 (BOGUS)" };
-    byte b,oldval;
+    byte oldval;
     int mode;
 
     val &= Mask[reg];
@@ -932,7 +930,7 @@ void MSXTMS9928a::_TMS9928A_change_register (byte reg, byte val) {
     switch (reg) {
     case 0:
         if ( (val ^ oldval) & 2) {
-            // re-calculate masks and pattern generator & colour 
+            // re-calculate masks and pattern generator & colour
             if (val & 2) {
                 tms.colour = ((tms.Regs[3] & 0x80) * 64) & (tms.vramsize - 1);
                 tms.colourmask = (tms.Regs[3] & 0x7f) * 8 | 7;
@@ -1028,7 +1026,7 @@ void MSXTMS9928a::fullScreenRefresh()
         }
     }
     */
-    
+
     // Really redraw if needed
     if (tms.Change) {
         if (! (tms.Regs[1] & 0x40) ) {
@@ -1041,7 +1039,7 @@ void MSXTMS9928a::fullScreenRefresh()
 	    }
         } else {
 	  // draw background
-          
+
 	  //ModeHandlers[tms.mode](bitmapscreen);
 	  switch (tms.mode){
 	    case 0: mode0(bitmapscreen);
@@ -1060,7 +1058,7 @@ void MSXTMS9928a::fullScreenRefresh()
 		    break;
 	    case 7: modebogus(bitmapscreen);
 	  }
-	  
+
 	  // if sprites enabled in this mode
 	  if (TMS_SPRITES_ENABLED ) {
 	    //PRT_DEBUG("TMS9928A: Need to include sprite routines.");
@@ -1068,7 +1066,7 @@ void MSXTMS9928a::fullScreenRefresh()
 	    sprites(bitmapscreen);
 	  }
         }
-    } 
+    }
     /*
     else {
 		tms.StatusReg = tms.oldStatusReg;
