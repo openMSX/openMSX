@@ -1,5 +1,10 @@
 $Id$
 
+2005-01-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented V9990 IRQ stuff:
+	   not completely correct yet, but good enough to make the xor-demo
+	   work
+
 2005-01-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Removed more #include dependencies
 	* Fixed compilation errors on icc

@@ -58,6 +58,7 @@ V9990::V9990(const XMLElement& config, const EmuTime& time)
 	, v9990PalDebug(*this)
 	, v9990RegsCmd(*this)
 	, pendingIRQs(0)
+	, hScanSyncTime(time)
 {
 	PRT_DEBUG("[" << time << "] V9990::Create");
 
@@ -120,6 +121,7 @@ void V9990::reset(const EmuTime& time)
 	PRT_DEBUG("[" << time << "] V9990::reset");
 
 	Scheduler::instance().removeSyncPoint(this, V9990_VSYNC);
+	Scheduler::instance().removeSyncPoint(this, V9990_HSCAN);
 
 	// Reset IRQs
 	writeIO(INTERRUPT_FLAG, 0xFF, time);
@@ -280,13 +282,13 @@ void V9990::writeIO(byte port, byte val, const EmuTime& time)
 		
 		case INTERRUPT_FLAG:
 			pendingIRQs &= ~val;
-			if (!pendingIRQs) {
+			if (!(pendingIRQs & regs[INTERRUPT_0])) {
 				irq.reset();
 			}
+			scheduleHscan(time);
 			break;
 		
 		case SYSTEM_CONTROL:
-			status = (status & 0xFB) | ((val & 1) << 2); 
 			status = (status & 0xFB) | ((val & 1) << 2); 
 			calcDisplayMode();
 			renderer->setDisplayMode(getDisplayMode(), time);
@@ -322,10 +324,15 @@ void V9990::executeUntil(const EmuTime& time, int userData)
 		case V9990_VSYNC:
 			renderer->frameEnd(time);
 			frameStart(time);
+
+			// TODO happens at a different moment in time
+			raiseIRQ(VER_IRQ);
+			break;
+		case V9990_HSCAN:
+			raiseIRQ(HOR_IRQ);
 			break;
 		default:
-			/* ignore */
-			break;
+			assert(false);
 	}
 }
 
@@ -504,6 +511,11 @@ void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
 					irq.reset();
 				}
 				break;
+			case INTERRUPT_1:
+			case INTERRUPT_2:
+			case INTERRUPT_3:
+				scheduleHscan(time);
+				break;
 			case SCREEN_MODE_0:
 			case SCREEN_MODE_1:
 				calcDisplayMode();
@@ -653,6 +665,38 @@ void V9990::calcDisplayMode()
 
 	// TODO Check
 	if (mode == INVALID_DISPLAY_MODE) mode = P1;
+}
+
+void V9990::scheduleHscan(const EmuTime& time)
+{
+	// remove pending HSCAN, if any
+	if (hScanSyncTime > time) {
+		Scheduler::instance().removeSyncPoint(this, V9990_HSCAN);
+		hScanSyncTime = time;
+	}
+	
+	if (pendingIRQs & HOR_IRQ) {
+		// flag already set, no need to schedule
+		return;
+	}
+
+	int ticks = frameStartTime.getTicksTill(time);
+	int offset;
+	if (regs[INTERRUPT_2] & 0x80) {
+		// every line
+		offset = ticks - (ticks % V9990DisplayTiming::UC_TICKS_PER_LINE);
+	} else {
+		offset =  (regs[INTERRUPT_1] + 256 * (regs[INTERRUPT_2] & 3)) *
+		       V9990DisplayTiming::UC_TICKS_PER_LINE;
+	}
+	int mult = (status & 0x04) ? 3 : 2; // MCLK / XTAL1
+	offset += (regs[INTERRUPT_3] & 0x0F) * 64 * mult;
+	if (offset <= ticks) {
+		offset += V9990DisplayTiming::getUCTicksPerFrame(palTiming);
+	}
+
+	hScanSyncTime = frameStartTime + offset;
+	Scheduler::instance().setSyncPoint(hScanSyncTime, this, V9990_HSCAN);
 }
 
 } // namespace openmsx

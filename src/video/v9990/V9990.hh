@@ -197,7 +197,10 @@ public:
 
 	/** Command execution ready
 	  */
-	inline void cmdReady() { status &= 0xFE; }
+	inline void cmdReady() {
+		status &= 0xFE;
+		raiseIRQ(CMD_IRQ);
+	}
 
 private:
 	// Schedulable interface:
@@ -249,6 +252,10 @@ private:
 		/** Vertical Sync: transition to next frame.
 		  */
 		V9990_VSYNC,
+
+		/** Horizontal Sync (line interrupt)
+		  */
+		V9990_HSCAN,
 	};
 	
 	/** IRQ types
@@ -382,6 +389,10 @@ private:
 	  */ 
 	V9990DisplayMode mode;
 
+	/** Time of the last set HSCAN sync point
+	  */
+	EmuTime hScanSyncTime;
+	
 	// --- methods ----------------------------------------------------
 
 	/** Get VRAM read or write address from V9990 registers
@@ -435,6 +446,12 @@ private:
 	/** Precalculate the display mode
 	  */ 
 	void calcDisplayMode();
+
+	/** Calculate the moment in time the next line interrupt will occur
+	  * @param time The current time
+	  * @result Timestamp for next hor irq
+	  */
+	void scheduleHscan(const EmuTime& time);
 };
 
 } // namespace openmsx
