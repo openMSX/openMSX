@@ -5,7 +5,7 @@
 //   Use the class I8255Interface to do that.
 // * Only mode 0 (basic input/output) is implemented
 // * For techncal details on 8255 see
-//    http://.../8255.pdf    TODO: fix url
+//    http://w3.qahwah.net/joost/openMSX/8255.pdf
 
 #ifndef __I8255_HH__
 #define __I8255_HH__

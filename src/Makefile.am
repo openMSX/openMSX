@@ -12,8 +12,7 @@ openmsx_SOURCES=openmsx.cc \
 	msxexception.hh \
 	MSXDevice.hh MSXDevice.cc \
 	MSXMotherBoard.hh MSXMotherBoard.cc \
-	MSXPPI.hh MSXPPI.cc \
-	I8255.hh I8255.cc \
+	MSXPPI.hh MSXPPI.cc I8255.hh I8255.cc \
 	MSXRom16KB.hh MSXRom16KB.cc \
 	MSXSimple64KB.hh MSXSimple64KB.cc \
 	MSXTMS9928a.hh MSXTMS9928a.cc \
@@ -24,7 +23,10 @@ openmsx_SOURCES=openmsx.cc \
 	Leds.hh Leds.cc \
 	Z80.cc Z80.hh Z80DAA.h Z80Codes.h opc__Z80.h \
 	MSXE6Timer.hh MSXE6Timer.cc \
-	DummyDevice.hh DummyDevice.cc
+	DummyDevice.hh DummyDevice.cc \
+	SoundDeice.hh \
+	MSXPSG.hh MSXPSG.cc AY8910.hh AY8910.cc
+	
 
 # libxml++ and SDL
 openmsx_LDADD= -lxml++ -lSDL -lpthread

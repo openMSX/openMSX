@@ -1,5 +1,8 @@
 $Id$
 
+2001-09-15 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* started implemention of MSXPSG (no sound generation yet)
+
 2001-09-15 Joost Yervante Damad <j.damad@qahwah.net>
 	* reworked msxconfig.cc by using the xmlhelper
 	* xmlhelper is a simplified xml interface
