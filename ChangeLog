@@ -3,6 +3,8 @@ $Id$
 2001-06-22 Joost Yervante Damad <j.damad@qahwah.net>
 
 	* added MSXException exception base class.
+	* created MSXConfig exceptions
+	* started using them.
 
 2001-06-21 Joost Yervante Damad <j.damad@qahwah.net>
 
