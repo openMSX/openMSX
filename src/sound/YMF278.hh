@@ -45,16 +45,16 @@ public:
 	char RC;   		// rate correction
 	char RR;
 
-	int step;               // fixed-point frequency step
-	int stepptr;		// fixed-point pointer into the sample
-	int pos;
+	unsigned step;               // fixed-point frequency step
+	unsigned stepptr;		// fixed-point pointer into the sample
+	unsigned pos;
 	short sample1, sample2;
 
 	bool active;		// slot keyed on
 	byte bits;		// width of the samples
-	int startaddr;
-	int loopaddr;
-	int endaddr;
+	unsigned startaddr;
+	unsigned loopaddr;
+	unsigned endaddr;
 
 	byte state;
 	int env_vol;
