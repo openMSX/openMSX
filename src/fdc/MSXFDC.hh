@@ -1,8 +1,8 @@
+// $Id$
+
 #ifndef __MSXFDC_HH__
 #define __MSXFDC_HH__
 
-#include "MSXDevice.hh"
-#include "MSXMemDevice.hh"
 #include "MSXRom.hh"
 
 // This is the interface for the emulated MSX towards the FDC
@@ -13,11 +13,10 @@
 // to talk to actual disk(image)s
 
 // forward declarations
-class EmuTime;
 class FDC;
 
 
-class MSXFDC :  virtual public MSXRom
+class MSXFDC : public MSXRom
 {
 	public:
 		/**
@@ -32,12 +31,10 @@ class MSXFDC :  virtual public MSXRom
 		
 		void reset(const EmuTime &time);
 		
-		//void SaveStateMSX(ofstream savestream);
-		
 		byte readMem(word address, const EmuTime &time);
 		void writeMem(word address, byte value, const EmuTime &time);  
 		byte* getReadCacheLine(word start);
-		byte* getWriteCacheLine(word start);
+	
 	private:
 		FDC* controller;
 		bool brokenFDCread;

@@ -1,3 +1,5 @@
+// $Id$
+
 #ifndef __XRENDERER_HH__
 #define __XRENDERER_HH__
 

@@ -1,3 +1,5 @@
+// $Id$
+
 #include "CommandLineParser.hh"
 #include "libxmlx/xmlx.hh"
 #include "MSXConfig.hh"

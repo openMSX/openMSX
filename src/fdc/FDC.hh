@@ -1,10 +1,10 @@
+// $Id$
+
 #ifndef __FDC_HH__
 #define __FDC_HH__
 
-#include "openmsx.hh"
 #include "MSXConfig.hh"
 
-class EmuTime;
 
 class FDC
 {

@@ -1,9 +1,10 @@
+// $Id$
+
 #ifndef __FDC2793_HH__
 #define __FDC2793_HH__
 
 #include "FDC.hh"
 
-class FDCBackEnd;
 
 class FDC2793 : public FDC
 {
@@ -74,6 +75,6 @@ class FDC2793 : public FDC
 	byte dataBuffer[1024];	// max sector size possible
 	int dataCurrent;	// which byte in dataBuffer is next to be read/write
 	int dataAvailable;	// how many bytes left in sector
-	
 };
+
 #endif

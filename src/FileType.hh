@@ -1,3 +1,5 @@
+// $Id$
+
 #ifndef __FILETYPE_HH__
 #define __FILETYPE_HH__
 
