@@ -178,14 +178,14 @@ inline void _CPU_::BIT(int bit, byte reg) {
 		   H_FLAG;
 }
 inline void _CPU_::BIT_HL(int bit) {
-	int i = RD_XHL();
+	byte i = RD_XHL();
 	R.AF.B.l = (R.AF.B.l & C_FLAG) |
 	            ZSPTable[i & (1 << bit)] | 
 		    H_FLAG;
 	SMALL_DELAY();
 }
 inline void _CPU_::BIT_IX(int bit, offset n) {
-	int i = RD_XIX(n);
+	byte i = RD_XIX(n);
 	R.AF.B.l = (R.AF.B.l & C_FLAG) | 
 	           ZSPTable[i & (1 << bit)] | 
 		   H_FLAG |
@@ -193,7 +193,7 @@ inline void _CPU_::BIT_IX(int bit, offset n) {
 	SMALL_DELAY();
 }
 inline void _CPU_::BIT_IY(int bit, offset n) {
-	int i = RD_XIY(n);
+	byte i = RD_XIY(n);
 	R.AF.B.l = (R.AF.B.l & C_FLAG) | 
 	           ZSPTable[i & (1 << bit)] | 
 		   H_FLAG |

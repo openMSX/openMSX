@@ -46,7 +46,7 @@ void CPU::makeTables()
 		byte sFlag = i & S_FLAG;
 		byte xFlag = i & X_FLAG;
 		byte yFlag = i & Y_FLAG;
-		byte pFlag = 0;
+		byte pFlag = V_FLAG;
 		for (int p = 128; p != 0; p >>= 1)
 			if (i & p) pFlag ^= V_FLAG;
 		ZSTable[i]    = zFlag | sFlag;
