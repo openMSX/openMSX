@@ -22,3 +22,6 @@
 /* Version number of package */
 #undef VERSION
 
+/* define if the stdc++ library supports fstream as template */
+#undef HAVE_FSTREAM_TEMPL
+

@@ -47,4 +47,7 @@ AC_C_BIGENDIAN
 dnl check size of long
 AC_CHECK_SIZEOF(long)
 
+dnl check if fstream can be used as template
+AC_CXX_FSTREAM_TEMPL
+
 AC_OUTPUT(Makefile openmsx.lsm openmsx.spec doc/Makefile src/Makefile)
