@@ -152,7 +152,7 @@
 
     <F4Device id="F4Device">
       <io base="0xF4" num="1"/>
-      <inverted>false</inverted>
+      <inverted>true</inverted>
     </F4Device>
 
     <Matsushita id="Matsushita">
