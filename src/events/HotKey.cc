@@ -19,7 +19,6 @@ HotKey::HotKey()
 
 HotKey::~HotKey()
 {
-	assert(map.empty());
 	CommandController::instance()->unregisterCommand(&bindCmd,   "bind");
 	CommandController::instance()->unregisterCommand(&unbindCmd, "unbind");
 }
