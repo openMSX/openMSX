@@ -98,9 +98,9 @@ string AliasCommands::AliasCmd::execute(const vector<string> &tokens)
 		}
 	default: {
 		assert(tokens.size() >= 3);
-		string definition;
-		for (unsigned i = 2; i < tokens.size(); ++i) {
-			if (i != 2) definition += ' ';
+		string definition = tokens[2];
+		for (unsigned i = 3; i < tokens.size(); ++i) {
+			definition += ' ';
 			string token = tokens[i];
 			if (token.find_first_of(" ") != string::npos) {
 				token = "\"" + token + "\"";
