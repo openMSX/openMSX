@@ -108,7 +108,7 @@ const byte* Keyboard::getKeys()
 }
 
 
-bool Keyboard::signalEvent(SDL_Event &event)
+bool Keyboard::signalEvent(SDL_Event &event) throw()
 {
 	switch (event.type) {
 	case SDL_KEYDOWN: {

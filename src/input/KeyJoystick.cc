@@ -103,7 +103,7 @@ void KeyJoystick::write(byte value, const EmuTime &time)
 
 
 // EventListener
-bool KeyJoystick::signalEvent(SDL_Event &event)
+bool KeyJoystick::signalEvent(SDL_Event &event) throw()
 {
 	Keys::KeyCode theKey = Keys::getCode(event.key.keysym.sym);
 	switch (event.type) {

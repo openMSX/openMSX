@@ -43,7 +43,7 @@ void DebugConsole::update(const SettingLeafNode *setting)
 {
 }
 
-bool DebugConsole::signalEvent(SDL_Event &event)
+bool DebugConsole::signalEvent(SDL_Event &event) throw()
 {
 	if (!isVisible()) {
 		return true;

@@ -35,7 +35,7 @@ class Joystick : public JoystickDevice, EventListener
 		virtual void write(byte value, const EmuTime &time);
 
 		//EventListener
-		virtual bool signalEvent(SDL_Event &event);
+		virtual bool signalEvent(SDL_Event &event) throw();
 
 	private:
 		Joystick(int joyNum);

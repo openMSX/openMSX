@@ -42,7 +42,7 @@ class CommandConsole : public Console, private EventListener,
 		
 		CommandConsole();
 		virtual ~CommandConsole();
-		virtual bool signalEvent(SDL_Event &event);
+		virtual bool signalEvent(SDL_Event &event) throw();
 		void tabCompletion();
 		void commandExecute();
 		void scrollUp();

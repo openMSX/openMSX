@@ -59,7 +59,7 @@ private:
 	};
 	
 	// EventListener
-	virtual bool signalEvent(SDL_Event &event);
+	virtual bool signalEvent(SDL_Event &event) throw();
 
 	HotKey();
 

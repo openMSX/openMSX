@@ -12,32 +12,32 @@ namespace openmsx {
 
 class Mouse : public JoystickDevice, EventListener
 {
-	public:
-		Mouse();
-		virtual ~Mouse();
+public:
+	Mouse();
+	virtual ~Mouse();
 
-		//Pluggable
-		virtual const string& getName() const;
-		virtual const string& getDescription() const;
-		virtual void plug(Connector* connector, const EmuTime& time) throw();
-		virtual void unplug(const EmuTime& time);
+	//Pluggable
+	virtual const string& getName() const;
+	virtual const string& getDescription() const;
+	virtual void plug(Connector* connector, const EmuTime& time) throw();
+	virtual void unplug(const EmuTime& time);
 
-		//JoystickDevice
-		virtual byte read(const EmuTime &time);
-		virtual void write(byte value, const EmuTime &time);
+	//JoystickDevice
+	virtual byte read(const EmuTime &time);
+	virtual void write(byte value, const EmuTime &time);
 
-		//EventListener
-		virtual bool signalEvent(SDL_Event &event);
+	//EventListener
+	virtual bool signalEvent(SDL_Event &event) throw();
 
-	private:
-		void emulateJoystick();
-		
-		byte status;
-		int faze;
-		int xrel, yrel;
-		int curxrel, curyrel;
-		EmuTimeFreq<1000> lastTime;	// ms
-		bool mouseMode;
+private:
+	void emulateJoystick();
+	
+	byte status;
+	int faze;
+	int xrel, yrel;
+	int curxrel, curyrel;
+	EmuTimeFreq<1000> lastTime;	// ms
+	bool mouseMode;
 };
 
 } // namespace openmsx

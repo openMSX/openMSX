@@ -84,7 +84,7 @@ void HotKey::unregisterHotKeyCommand(Keys::KeyCode key, const string &command)
 }
 
 
-bool HotKey::signalEvent(SDL_Event &event)
+bool HotKey::signalEvent(SDL_Event &event) throw()
 {
 	Keys::KeyCode key = (Keys::KeyCode)event.key.keysym.sym;
 	if (event.type == SDL_KEYUP)
