@@ -57,6 +57,7 @@ RenderSettings::RenderSettings()
 	scalerMap["2xSaI"] = SCALER_SAI2X;
 	scalerMap["Scale2x"] = SCALER_SCALE2X;
 	scalerMap["hq2x"] = SCALER_HQ2X;
+	scalerMap["hq2xlite"] = SCALER_HQ2XLITE;
 	scaler.reset(new EnumSetting<ScalerID>(
 		"scaler", "scaler algorithm", SCALER_SIMPLE, scalerMap));
 

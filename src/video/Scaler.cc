@@ -5,6 +5,7 @@
 #include "SaI2xScaler.hh"
 #include "Scale2xScaler.hh"
 #include "HQ2xScaler.hh"
+#include "HQ2xLiteScaler.hh"
 #include "HostCPU.hh"
 #include <cstring>
 
@@ -30,6 +31,8 @@ auto_ptr<Scaler<Pixel> > Scaler<Pixel>::createScaler(
 		return auto_ptr<Scaler<Pixel> >(new Scale2xScaler<Pixel>());
 	case SCALER_HQ2X:
 		return auto_ptr<Scaler<Pixel> >(new HQ2xScaler<Pixel>());
+	case SCALER_HQ2XLITE:
+		return auto_ptr<Scaler<Pixel> >(new HQ2xLiteScaler<Pixel>());
 	default:
 		assert(false);
 		return auto_ptr<Scaler<Pixel> >();

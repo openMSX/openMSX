@@ -1,5 +1,10 @@
 $Id$
 
+2005-03-10 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added HQ2xLite scaler:
+	   Resulting image is close to hq2x but can be calculated a lot faster
+	   See comments at the top of HQ2XLiteScaler.cc for details.
+
 2005-03-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* HQ2xScaler speedup
 
