@@ -8,6 +8,7 @@
 class DummyCassetteDevice : public CassetteDevice
 {
 	public:
+		DummyCassetteDevice();
 		static DummyCassetteDevice* instance();
 	
 		void setMotor(bool status, const Emutime &time);

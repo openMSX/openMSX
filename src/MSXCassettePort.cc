@@ -35,11 +35,6 @@ CassettePortInterface *MSXCassettePort::oneInstance = NULL;
 
 // CassettePortInterface //
 
-CassettePortInterface::CassettePortInterface()
-{
-	unplug();	// TODO put in config
-}
-
 void CassettePortInterface::plug(CassetteDevice *dev)
 {
 	if (device != dev) {
@@ -56,6 +51,10 @@ void CassettePortInterface::unplug()
 
 // DummyCassettePort //
 
+DummyCassettePort::DummyCassettePort()
+{
+	unplug();
+}
 void DummyCassettePort::setMotor(bool status, const Emutime &time)
 {
 	// do nothing
@@ -78,6 +77,7 @@ void DummyCassettePort::flushOutput(const Emutime &time)
 
 CassettePort::CassettePort()
 {
+	unplug();
 	buffer = new short[BUFSIZE];
 }
 

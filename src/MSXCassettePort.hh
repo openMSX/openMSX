@@ -12,11 +12,6 @@ class CassettePortInterface
 {
 	public:
 		/**
-		 * Constructor
-		 */
-		CassettePortInterface();
-
-		/**
 		 * Sets the casette motor relay
 		 *  false = off   true = on
 		 */
@@ -85,6 +80,7 @@ class CassettePort : public CassettePortInterface
 class DummyCassettePort : public CassettePortInterface
 {
 	public:
+		DummyCassettePort();
 		void setMotor(bool status, const Emutime &time);
 		void cassetteOut(bool output, const Emutime &time);
 		bool cassetteIn(const Emutime &time);

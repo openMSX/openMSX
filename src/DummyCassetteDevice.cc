@@ -2,6 +2,10 @@
 
 #include "DummyCassetteDevice.hh"
 
+DummyCassetteDevice::DummyCassetteDevice()
+{
+}
+
 DummyCassetteDevice *DummyCassetteDevice::instance()
 {
 	if (oneInstance == NULL) {
