@@ -8,43 +8,47 @@
 
 using std::string;
 
+
 namespace openmsx {
 
 class Rom;
 class Device;
 
+
 class RomInfo
 {
-	public:
-		RomInfo(const string &nid, const string &nyear,
-		        const string &ncompany, const string &nremark,
-		        const MapperType &nmapperType);
-		
-		const string &getTitle()          const { return title; }
-		const string &getYear()           const { return year; }
-		const string &getCompany()        const { return company; }
-		const string &getRemark()         const { return remark; }
-		const MapperType &getMapperType() const { return mapperType; }
+public:
+	RomInfo(
+		const string& nid, const string& nyear,
+		const string& ncompany, const string& nremark,
+		const MapperType& nmapperType);
+	~RomInfo();
 
-		static RomInfo *fetchRomInfo(
-		        const Rom *rom, const Device &deviceConfig);
-		static MapperType nameToMapperType(const string &name);
-		void print();
+	const string& getTitle()          const { return title; }
+	const string& getYear()           const { return year; }
+	const string& getCompany()        const { return company; }
+	const string& getRemark()         const { return remark; }
+	const MapperType& getMapperType() const { return mapperType; }
 
-	private:
-		/** Search for a ROM in the ROM database.
-		  * @param rom ROM to look up.
-		  * @return The information found in the database,
-		  * 	or NULL if the given ROM is not in the database.
-		  */
-		static RomInfo *searchRomDB(const Rom *rom);
-		static MapperType guessMapperType(const Rom *rom);
-		
-		string title;
-		string year;
-		string company;
-		string remark;
-		MapperType mapperType;
+	static RomInfo* fetchRomInfo(
+		const Rom* rom, const Device& deviceConfig);
+	static MapperType nameToMapperType(const string& name);
+	void print();
+
+private:
+	/** Search for a ROM in the ROM database.
+	  * @param rom ROM to look up.
+	  * @return The information found in the database,
+	  * 	or NULL if the given ROM is not in the database.
+	  */
+	static RomInfo* searchRomDB(const Rom* rom);
+	static MapperType guessMapperType(const Rom* rom);
+
+	string title;
+	string year;
+	string company;
+	string remark;
+	MapperType mapperType;
 };
 
 } // namespace openmsx

@@ -12,6 +12,7 @@
 #include "Device.hh"
 #include "CliCommOutput.hh"
 
+
 namespace openmsx {
 
 struct caseltstr {
@@ -29,6 +30,10 @@ RomInfo::RomInfo(const string& ntitle, const string& nyear,
 	company = ncompany;
 	remark = nremark;
 	mapperType = nmapperType;
+}
+
+RomInfo::~RomInfo()
+{
 }
 
 // TODO: Turn MapperType into a class and move naming there.
