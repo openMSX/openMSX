@@ -6,6 +6,8 @@ $Id$
 	* Implemented "disk" command (similar as "tape" command):
 	    works only for drive a:
 	                   720kb disks
+	* Implemented "joyport" command:
+	    joyport[a|b] [unplug|mouse|joystick[1|2]]
 
 2002-02-05 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Implemented "reset" console command.

@@ -23,13 +23,13 @@ byte Mouse::read()
 	EventDistributor::instance()->pollSyncEvents();
 	switch (faze) {
 	case FAZE_XHIGH:
-		return ((xrel>>4)&0x0f)|status;
+		return (((xrel/SCALE)>>4)&0x0f)|status;
 	case FAZE_XLOW:
-		return  (xrel    &0x0f)|status;
+		return  ((xrel/SCALE)    &0x0f)|status;
 	case FAZE_YHIGH:
-		return ((yrel>>4)&0x0f)|status;
+		return (((yrel/SCALE)>>4)&0x0f)|status;
 	case FAZE_YLOW:
-		return  (yrel    &0x0f)|status;
+		return  ((yrel/SCALE)    &0x0f)|status;
 	default:
 		assert(false);
 		return status;	// avoid warning
@@ -63,12 +63,12 @@ void Mouse::signalEvent(SDL_Event &event)
 {
 	switch (event.type) {
 	case SDL_MOUSEMOTION:
-		curxrel += event.motion.xrel;
-		curyrel += event.motion.yrel;
-		if (curxrel> 127) curxrel= 127;
-		if (curxrel<-128) curxrel=-128;
-		if (curyrel> 127) curyrel= 127;
-		if (curyrel<-128) curyrel=-128;
+		curxrel -= event.motion.xrel;
+		curyrel -= event.motion.yrel;
+		if (curxrel> 127*SCALE) curxrel= 127*SCALE;
+		if (curxrel<-128*SCALE) curxrel=-128*SCALE;
+		if (curyrel> 127*SCALE) curyrel= 127*SCALE;
+		if (curyrel<-128*SCALE) curyrel=-128*SCALE;
 		break;
 	case SDL_MOUSEBUTTONDOWN:
 		switch (event.button.button) {

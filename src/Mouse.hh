@@ -22,6 +22,7 @@ class Mouse : public JoystickDevice, EventListener
 		void signalEvent(SDL_Event &event);
 
 	private:
+		static const int SCALE = 2;
 		static const int JOY_BUTTONA = 0x10;
 		static const int JOY_BUTTONB = 0x20;
 		static const int FAZE_XHIGH = 0;

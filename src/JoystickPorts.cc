@@ -3,6 +3,9 @@
 #include "JoystickPorts.hh"
 #include "JoystickDevice.hh"
 #include "DummyJoystick.hh"
+#include "Console.hh"
+#include "Mouse.hh"
+#include "Joystick.hh"
 #include <cassert>
 
 
@@ -11,6 +14,9 @@ JoystickPorts::JoystickPorts()
 	selectedPort = 0;
 	unplug(0);
 	unplug(1);
+
+	Console::instance()->registerCommand(joyPortCmd, "joyporta");
+	Console::instance()->registerCommand(joyPortCmd, "joyportb");
 }
 
 JoystickPorts::~JoystickPorts()
@@ -52,3 +58,43 @@ void JoystickPorts::unplug(int port)
 	plug (port, DummyJoystick::instance());
 }
 
+JoystickPorts::JoyPortCmd::JoyPortCmd()
+{
+	mouse = new Mouse();
+	joystick1 = new Joystick(1);
+	joystick2 = new Joystick(2);
+}
+JoystickPorts::JoyPortCmd::~JoyPortCmd()
+{
+	delete mouse;
+	delete joystick1;
+	delete joystick2;
+}
+void JoystickPorts::JoyPortCmd::execute(char* commandLine)
+{
+	// TODO stricter syntax checking
+	int port = (commandLine[7] == 'b') ? 1 : 0;
+	switch (commandLine[9]) {
+	case 'u':
+		JoystickPorts::instance()->unplug(port);
+		break;
+	case 'm':
+		JoystickPorts::instance()->plug(port, mouse);
+		break;
+	case 'j':
+		if (commandLine[17] == '2') {
+			JoystickPorts::instance()->plug(port, joystick1);
+		} else {
+			JoystickPorts::instance()->plug(port, joystick2);
+		}
+		break;
+	default:
+		Console::instance()->printOnConsole("syntax error");
+	}
+}
+void JoystickPorts::JoyPortCmd::help(char *commandLine)
+{
+	Console::instance()->printOnConsole("joyport[a|b] unplug        unplugs device from port");
+	Console::instance()->printOnConsole("joyport[a|b] mouse         plugs mouse in port");
+	Console::instance()->printOnConsole("joyport[a|b] joystick[1|2] plugs joystick in port");
+}

@@ -4,9 +4,12 @@
 #define __JOYSTICKPORTS_HH__
 
 #include "openmsx.hh"
+#include "ConsoleCommand.hh"
 
 // forward declaration
 class JoystickDevice;
+class Mouse;
+class Joystick;
 
 
 class JoystickPorts
@@ -26,5 +29,18 @@ class JoystickPorts
 
 		int selectedPort;
 		JoystickDevice* ports[2];
+
+		// ConsoleCommands
+		class JoyPortCmd : public ConsoleCommand {
+		public:
+			JoyPortCmd();
+			virtual ~JoyPortCmd();
+			virtual void execute(char *commandLine);
+			virtual void help(char *commandLine);
+			Mouse *mouse;
+			Joystick *joystick1;
+			Joystick *joystick2;
+		};
+		JoyPortCmd joyPortCmd;
 };
 #endif
