@@ -4,7 +4,9 @@
 #include "CommandConsole.hh"
 #include "CommandArgument.hh"
 #include "MSXException.hh"
+#include "SettingNode.hh"
 #include "Interpreter.hh"
+
 
 namespace openmsx {
 
