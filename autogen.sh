@@ -32,8 +32,13 @@ if ( libtoolize --version ) </dev/null > /dev/null 2>&1; then
 	echo "Building ltmain.sh"
 	libtoolize -f
 else
-	echo "libtoolize not found -- aborting"
-	exit
+	if ( glibtoolize --version ) </dev/null > /dev/null 2>&1; then
+		echo "Building ltmain.sh"
+		glibtoolize -f
+	else
+		echo "(g)libtoolize not found -- aborting"
+		exit
+	fi
 fi
 
 if ( automake --version ) </dev/null > /dev/null 2>&1; then
