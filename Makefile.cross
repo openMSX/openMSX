@@ -10,6 +10,7 @@ export CROSS_DIR
 CONF_ENV=CC=/usr/bin/$(CROSS_TARGET)-gcc \
 CXX=/usr/bin/$(CROSS_TARGET)-c++ \
 AR=/usr/bin/$(CROSS_TARGET)-ar \
+AS=/usr/bin/$(CROSS_TARGET)-as \
 RANLIB=/usr/bin/$(CROSS_TARGET)-ranlib \
 \
 ac_cv_c_bigendian=no \
