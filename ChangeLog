@@ -1,5 +1,15 @@
 $Id$
 
+2004-04-24 Maarten ter Huurne <maarten@treewalker.org>
+	* Build uses same compile and link flags as probe.
+	* Integrated part of the mingw32 probe fixes from Reikan.
+	* Implemented probe overrides for FreeBSD (untested).
+
+2004-04-22 Maarten ter Huurne <maarten@treewalker.org>
+	* Enhanced system probe: now it also scans for mandatory headers
+	  and libs. It performs all checks and then reports what it found
+	  and what is missing.
+
 2004-04-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed [ 933628 ] assertion with accuracy=screen in "puyo puyo"
 	* Fixed OR-ing of unalligned sprites
