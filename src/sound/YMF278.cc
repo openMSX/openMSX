@@ -19,6 +19,8 @@ const int EG_SUS = 2;
 const int EG_REL = 1;
 const int EG_OFF = 0;
 
+const int EG_REV = 5;	//pseudo reverb
+const int EG_DMP = 6;	//damp
 
 // Pan values, units are -3dB, i.e. 8.
 const int pan_left[16]  = {
@@ -35,7 +37,7 @@ const int mix_level[8] = {
 
 // decay level table (3dB per step) 
 // 0 - 15: 0, 3, 6, 9,12,15,18,21,24,27,30,33,36,39,42,93 (dB)
-#define SC(db) (unsigned) (db * (2.0/ENV_STEP))
+#define SC(db) (unsigned)(db * (2.0 / ENV_STEP))
 const unsigned dl_tab[16] = {
  SC( 0), SC( 1), SC( 2), SC(3 ), SC(4 ), SC(5 ), SC(6 ), SC( 7),
  SC( 8), SC( 9), SC(10), SC(11), SC(12), SC(13), SC(14), SC(31)
@@ -65,7 +67,7 @@ const byte eg_inc[15 * RATE_STEPS] = {
 	 0, 0,  0, 0,  0, 0,  0, 0, // 14  infinity rates for attack and decay(s)
 };
 
-#define O(a) (a*RATE_STEPS)
+#define O(a) (a * RATE_STEPS)
 const unsigned char eg_rate_select[64] = {
 	O( 0),O( 1),O( 2),O( 3),
 	O( 0),O( 1),O( 2),O( 3),
@@ -89,7 +91,7 @@ const unsigned char eg_rate_select[64] = {
 //rate  0,    1,    2,    3,   4,   5,   6,  7,  8,  9,  10, 11, 12, 13, 14, 15 
 //shift 12,   11,   10,   9,   8,   7,   6,  5,  4,  3,  2,  1,  0,  0,  0,  0  
 //mask  4095, 2047, 1023, 511, 255, 127, 63, 31, 15, 7,  3,  1,  0,  0,  0,  0  
-#define O(a) (a*1)
+#define O(a) (a * 1)
 const unsigned char eg_rate_shift[64] = {
 	O(12),O(12),O(12),O(12),
 	O(11),O(11),O(11),O(11),
@@ -111,11 +113,37 @@ const unsigned char eg_rate_shift[64] = {
 #undef O
 
 
+//number of steps to take in quarter of lfo frequency
+//TODO check if frequency matches real chip
+#define O(a) ((int)((EG_TIMER_OVERFLOW / a) / 6))
+const int lfo_period[8] = {
+	O(0.168), O(2.019), O(3.196), O(4.206),
+	O(5.215), O(5.888), O(6.224), O(7.066) 
+};
+#undef O
+
+
+#define O(a) ((int)(a * 65536))
+const int vib_depth[8] = {
+	O(0),	   O(3.378),  O(5.065),  O(6.750),
+	O(10.114), O(20.170), O(40.106), O(79.307)
+};
+#undef O
+
+
+#define SC(db) (unsigned) (db * (2.0 / ENV_STEP))
+const int am_depth[8] = {
+	SC(0),	   SC(1.781), SC(2.906), SC(3.656),
+	SC(4.406), SC(5.906), SC(7.406), SC(11.91)
+};
+#undef SC
+
 
 YMF278Slot::YMF278Slot()
 {
 	reset();
 }
+
 
 void YMF278Slot::reset()
 {
@@ -125,6 +153,11 @@ void YMF278Slot::reset()
 	bits = startaddr = loopaddr = endaddr = 0;
 	env_vol = MAX_ATT_INDEX;
 	//env_vol_step = env_vol_lim = 0;
+	
+	lfo_active = false;
+	lfo_cnt = lfo_step = 0;
+	lfo_max = lfo_period[0];
+	
 	state = EG_OFF;
 	active = false;
 }
@@ -154,6 +187,33 @@ int YMF278Slot::compute_rate(int val)
 	return res;
 }
 
+
+int YMF278Slot::compute_vib()
+{
+	return (((lfo_step << 8) / lfo_max) * vib_depth[vib]) >> 24;
+}
+
+
+int YMF278Slot::compute_am()
+{
+	if (lfo_active && AM) {
+		return (((lfo_step << 8) / lfo_max) * am_depth[AM]) >> 12;
+	} else {
+		return 0;
+	}
+}
+
+
+void YMF278Slot::set_lfo(int newlfo)
+{
+	lfo_step = (((lfo_step << 8) / lfo_max) * newlfo) >> 8;
+	lfo_cnt  = (((lfo_cnt  << 8) / lfo_max) * newlfo) >> 8;
+
+	lfo = newlfo;
+	lfo_max = lfo_period[lfo];
+}
+
+
 void YMF278::advance()
 {
 	eg_timer += eg_timer_add;
@@ -163,6 +223,20 @@ void YMF278::advance()
 
 		for (int i = 0; i < 24; i++) {
 			YMF278Slot &op = slots[i];
+			
+			if (op.lfo_active) {
+				op.lfo_cnt++;
+				if (op.lfo_cnt < op.lfo_max) {
+					op.lfo_step++;
+				} else if (op.lfo_cnt < (op.lfo_max * 3)) {
+					op.lfo_step--;
+				} else {
+					op.lfo_step++;
+					if (op.lfo_cnt == (op.lfo_max * 4)) {
+						op.lfo_cnt = 0;
+					}
+				}
+			}
 			
 			// Envelope Generator 
 			switch(op.state) {
@@ -191,8 +265,13 @@ void YMF278::advance()
 				if (!(eg_cnt & ((1 << shift) -1))) {
 					byte select = eg_rate_select[rate];
 					op.env_vol += eg_inc[select + ((eg_cnt >> shift) & 7)];
-					if (op.env_vol >= op.DL) {
-						op.state = EG_SUS;
+
+					if (((unsigned)op.env_vol > dl_tab[6]) && op.PRVB) {
+						op.state = EG_REV;
+					} else {
+						if (op.env_vol >= op.DL) {
+							op.state = EG_SUS;
+						}
 					}
 				}
 				break;
@@ -206,10 +285,15 @@ void YMF278::advance()
 				if (!(eg_cnt & ((1 << shift) -1))) {
 					byte select = eg_rate_select[rate];
 					op.env_vol += eg_inc[select + ((eg_cnt >> shift) & 7)];
-					if (op.env_vol >= MAX_ATT_INDEX) {
-						op.env_vol = MAX_ATT_INDEX;
-						op.active = false;
-						checkMute();
+
+					if (((unsigned)op.env_vol > dl_tab[6]) && op.PRVB) {
+						op.state = EG_REV;
+					} else {
+						if (op.env_vol >= MAX_ATT_INDEX) {
+							op.env_vol = MAX_ATT_INDEX;
+							op.active = false;
+							checkMute();
+						}
 					}
 				}
 				break;
@@ -223,6 +307,49 @@ void YMF278::advance()
 				if (!(eg_cnt & ((1 << shift) -1))) {
 					byte select = eg_rate_select[rate];
 					op.env_vol += eg_inc[select + ((eg_cnt >> shift) & 7)];
+
+					if (((unsigned)op.env_vol > dl_tab[6]) && op.PRVB) {
+						op.state = EG_REV;
+					} else {
+						if (op.env_vol >= MAX_ATT_INDEX) {
+							op.env_vol = MAX_ATT_INDEX;
+							op.active = false;
+							checkMute();
+						}
+					}
+				}
+				break;
+			}
+			case EG_REV: {	//pseudo reverb
+				//TODO improve env_vol update
+				byte rate = op.compute_rate(4);
+				if (rate < 4) {
+					break;
+				}
+				byte shift = eg_rate_shift[rate];
+				if (!(eg_cnt & ((1 << shift) - 1))) {
+					byte select = eg_rate_select[rate];
+					op.env_vol += eg_inc[select + ((eg_cnt >> shift) & 7)];
+
+					if (op.env_vol >= MAX_ATT_INDEX) {
+						op.env_vol = MAX_ATT_INDEX;
+						op.active = false;
+						checkMute();
+					}
+				}
+				break;
+			}
+			case EG_DMP: {	//damping
+				//TODO improve env_vol update, damp is just fastest decay now
+				byte rate = op.compute_rate(15);
+				if (rate < 4) {
+					break;
+				}
+				byte shift = eg_rate_shift[rate];
+				if (!(eg_cnt & ((1 << shift) - 1))) {
+					byte select = eg_rate_select[rate];
+					op.env_vol += eg_inc[select + ((eg_cnt >> shift) & 7)];
+
 					if (op.env_vol >= MAX_ATT_INDEX) {
 						op.env_vol = MAX_ATT_INDEX;
 						op.active = false;
@@ -310,16 +437,27 @@ int* YMF278::updateBuffer(int length)
 			if (!sl.active) {
 				continue;
 			}
-	
+
 			short sample = (sl.sample1 * (0x10000 - sl.stepptr) +
 			                sl.sample2 * sl.stepptr) >> 16;
-			int vol = sl.TL + (sl.env_vol >> 2);
+			int vol = sl.TL + (sl.env_vol >> 2) + sl.compute_am();
+
 			int volLeft  = vol + pan_left [(int)sl.pan] + vl;
 			int volRight = vol + pan_right[(int)sl.pan] + vr;
 			left  += (sample * volume[volLeft] ) >> 16;
 			right += (sample * volume[volRight]) >> 16;
+		
+			if (sl.lfo_active && sl.vib) {
+				int oct = sl.OCT;
+				if (oct & 8) {
+					oct |= -8;
+				}
+				int step = ((sl.FN | 1024) + sl.compute_vib()) << (oct + 5);
+				sl.stepptr += (int)(step * freqbase);
+			} else {
+				sl.stepptr += sl.step;
+			}
 
-			sl.stepptr += sl.step;
 			while (sl.stepptr >= 0x10000) {
 				sl.stepptr -= 0x10000;
 				sl.sample1 = sl.sample2;
@@ -340,7 +478,6 @@ int* YMF278::updateBuffer(int length)
 
 void YMF278::writeRegOPL4(byte reg, byte data, const EmuTime &time)
 {
-	regs[reg] = data;
 	if (BUSY_Time < time) {
 		BUSY_Time = time;
 	}
@@ -365,7 +502,7 @@ void YMF278::writeRegOPL4(byte reg, byte data, const EmuTime &time)
 				buf[i] = readMem(base + i);
 			}
 			slot.bits = (buf[0] & 0xC0);
-			slot.lfo  = (buf[7] >> 2) & 7;
+			slot.set_lfo((buf[7] >> 3) & 7);
 			slot.vib  = buf[7] & 7;
 			slot.AR   = buf[8] >> 4;
 			slot.D1R  = buf[8] & 0xF;
@@ -388,19 +525,19 @@ void YMF278::writeRegOPL4(byte reg, byte data, const EmuTime &time)
 				oct |= -8;
 			}
 			int step = (slot.FN | 1024) << (oct + 5);
-			slot.step = (unsigned)(step * freqbase);
+			slot.step = (int)(step * freqbase);
 			break;
 		}
 		case 2: {
 			slot.FN = (slot.FN & 0x07F) | ((data & 0x07) << 7);
-			slot.PRVB = ((data & 0x04) >> 3);
+			slot.PRVB = ((data & 0x08) >> 3);
 			slot.OCT =  ((data & 0xF0) >> 4);
 			int oct = slot.OCT;
 			if (oct & 8) {
 				oct |= -8;
 			}
 			int step = (slot.FN | 1024) << (oct + 5);
-			slot.step = (unsigned)(step * freqbase);
+			slot.step = (int)(step * freqbase);
 			break;
 		}
 		case 3:
@@ -409,31 +546,54 @@ void YMF278::writeRegOPL4(byte reg, byte data, const EmuTime &time)
 			break;
 		case 4:
 			slot.pan = data & 0x0F;
-			if (data & 0x80) {
-				slot.active = true;
-				setInternalMute(false);
 
-				int oct = slot.OCT;
-				if (oct & 8) {
-					oct |= -8;
-				}
-				int step = (slot.FN | 1024) << (oct + 5);
-				slot.step = (unsigned)(step * freqbase);
-				slot.state = EG_ATT;
-				slot.stepptr = 0;
-				slot.pos = 0;
-				slot.sample1 = getSample(slot);
-				slot.pos = 1;
-				slot.sample2 = getSample(slot);
+			if (data & 0x020) {
+				// LFO reset
+				slot.lfo_active = false;
+				slot.lfo_cnt = 0;
+				slot.lfo_max = lfo_period[slot.vib];
+				slot.lfo_step = 0;
 			} else {
-				if (slot.active) {
+				// LFO activate
+				slot.lfo_active = true;
+			}
+
+			switch (data >> 6) {
+			case 0:	//tone off, no damp
+				if (slot.active && (slot.state != EG_REV) ) {
 					slot.state = EG_REL;
 				}
+				break;
+			case 1:	//tone off, damp
+				slot.state = EG_DMP;
+				break;
+			case 2:	//tone on, no damp
+				if (!(regs[reg] & 0x080)) {
+					slot.active = true;
+					setInternalMute(false);
+					
+					int oct = slot.OCT;
+					if (oct & 8) {
+						oct |= -8;
+					}
+					int step = (slot.FN | 1024) << (oct + 5);
+					slot.step = (int)(step * freqbase);
+					slot.state = EG_ATT;
+					slot.stepptr = 0;
+					slot.pos = 0;
+					slot.sample1 = getSample(slot);
+					slot.pos = 1;
+					slot.sample2 = getSample(slot);
+				}
+				break;
+			case 3:	//tone on, damp
+				slot.state = EG_DMP;
+				break;
 			}
 			break;
 		case 5:
 			slot.vib = data & 0x7;
-			slot.lfo = (data >> 3) & 0x7;
+			slot.set_lfo((data >> 3) & 0x7);
 			break;
 		case 6:
 			slot.AR  = data >> 4;
@@ -493,6 +653,8 @@ void YMF278::writeRegOPL4(byte reg, byte data, const EmuTime &time)
 			break;
 		}
 	}
+	
+	regs[reg] = data;
 }
 
 byte YMF278::readRegOPL4(byte reg, const EmuTime &time)

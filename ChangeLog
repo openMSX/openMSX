@@ -1,5 +1,8 @@
 $Id$
 
+2003-06-05 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Merged Arjan's YMF278 fixes/improvements, plus did some optimizations
+
 2003-06-04 Maarten ter Huurne <maarten@treewalker.org>
 	* New console font: ConsoleFontRaveL.png, this is a larger version of
 	  ConsoleFontRave.png (easier to read on hi-res screens).

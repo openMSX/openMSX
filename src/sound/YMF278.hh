@@ -21,7 +21,10 @@ class YMF278Slot
 		int compute_rate(int val);
 		unsigned decay_rate(int num, int sample_rate);
 		void envelope_next(int sample_rate);
-		
+		inline int compute_vib();
+		inline int compute_am();
+		void set_lfo(int newlfo);
+
 		short wave;		// wavetable number
 		short FN;		// f-number
 		char OCT;		// octave
@@ -40,13 +43,13 @@ class YMF278Slot
 		char RC;   		// rate correction
 		char RR;
 
-		int step;		// fixed-point frequency step
+		int step;               // fixed-point frequency step
 		int stepptr;		// fixed-point pointer into the sample
 		int pos;
 		short sample1, sample2;
 
 		bool active;		// slot keyed on
-		char bits;		// width of the samples
+		byte bits;		// width of the samples
 		int startaddr;
 		int loopaddr;
 		int endaddr;
@@ -55,6 +58,11 @@ class YMF278Slot
 		int env_vol;
 		unsigned env_vol_step;
 		unsigned env_vol_lim;
+
+		bool lfo_active;
+		int lfo_cnt;
+		int lfo_step;
+		int lfo_max;
 };
 
 class YMF278 : public SoundDevice
