@@ -172,9 +172,13 @@ void CassettePlayer::execute(const std::vector<std::string> &tokens)
 		print("Tape ejected");
 		removeTape();
 	} else {
-		print("Changing tape");
-		UserFileContext context;
-		insertTape(&context, tokens[1]);
+		try {
+			print("Changing tape");
+			UserFileContext context;
+			insertTape(&context, tokens[1]);
+		} catch (MSXException &e) {
+			throw CommandException(e.getMessage());
+		}
 	}
 }
 
