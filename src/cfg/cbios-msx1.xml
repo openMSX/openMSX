@@ -39,14 +39,24 @@
     </slotted>
   </device>
 
-  <device id="biosrom">
+  <device id="C-BIOS main">
     <type>Rom</type>
     <slotted>
       <ps>0</ps>
       <ss>0</ss>
       <page>0</page>
     </slotted>
-    <parameter name="filename">../Contrib/cbios/MSXB.BIN</parameter>
+    <parameter name="filename">../Contrib/cbios/CB_MAIN.BIN</parameter>
+  </device>
+
+  <device id="C-BIOS second half">
+    <type>Rom</type>
+    <slotted>
+      <ps>0</ps>
+      <ss>0</ss>
+      <page>1</page>
+    </slotted>
+    <parameter name="filename">../Contrib/cbios/CB_SH.BIN</parameter>
   </device>
 
   <device id="ppi">

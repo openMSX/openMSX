@@ -47,34 +47,34 @@
     <parameter name="slow_drain_on_reset">false</parameter>
   </device>
 
-  <device id="biosrom">
+  <device id="C-BIOS main">
     <type>Rom</type>
     <slotted>
       <ps>0</ps>
       <ss>0</ss>
       <page>0</page>
     </slotted>
-    <parameter name="filename">../Contrib/cbios/MSXB.BIN</parameter>
+    <parameter name="filename">../Contrib/cbios/CB_MAIN.BIN</parameter>
   </device>
 
-  <device id="biosrom2">
+  <device id="C-BIOS second half">
     <type>Rom</type>
     <slotted>
       <ps>0</ps>
       <ss>0</ss>
       <page>1</page>
     </slotted>
-    <parameter name="filename">../Contrib/cbios/MSXB_SH.BIN</parameter>
+    <parameter name="filename">../Contrib/cbios/CB_SH.BIN</parameter>
   </device>
 
-  <device id="subrom">
+  <device id="C-BIOS subrom">
     <type>Rom</type>
     <slotted>
       <ps>3</ps>
       <ss>0</ss>
       <page>0</page>
     </slotted>
-    <parameter name="filename">../Contrib/cbios/MSXB_SUB.BIN</parameter>
+    <parameter name="filename">../Contrib/cbios/CB_SUB.BIN</parameter>
   </device>
 
   <device id="ppi">
@@ -89,17 +89,17 @@
     <parameter name="vram">128</parameter>
   </device>
 
-  <config id="renderer">
-    <type>SDLHi</type>
-    <parameter name="full_screen">false</parameter>
-  </config>
-
   <device id="Real time clock">
     <type>RTC</type>
     <parameter name="mode">EmuTime</parameter>
     <parameter name="loadsram">true</parameter>
     <parameter name="savesram">true</parameter>
     <parameter name="sramname">RTC.SAVE</parameter>
+  </device>
+
+  <device id="psg">
+    <type>PSG</type>
+    <parameter name="volume">21000</parameter>
   </device>
 
   <device id="cpu">
