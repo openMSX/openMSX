@@ -2,6 +2,9 @@
 
 /*
 TODO:
+- Scanline emulation.
+- Use 8x8 textures in character mode.
+- Use GL display lists for geometry speedup.
 - Idea: make an abstract superclass for line-based Renderers, this
   class would know when to sync etc, but not be SDL dependent.
   Since most of the abstraction is done using <Pixel>, most code
@@ -61,6 +64,39 @@ inline static void GLSetColour(SDLGLRenderer::Pixel colour)
 inline static void GLBlitLine(
 	SDLGLRenderer::Pixel *line, int n, int x, int y)
 {
+if (0) {
+	GLuint textureId;
+	glGenTextures(1, &textureId);
+	glBindTexture(GL_TEXTURE_2D, textureId);
+	glTexImage2D(
+		GL_TEXTURE_2D,
+		0, // level
+		GL_RGBA,
+		n, // width
+		1, // height
+		0, // border
+		GL_RGBA,
+		GL_UNSIGNED_BYTE,
+		line
+		);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	// bind again if necessary, currently not
+	GLSetColour(0xFFFFFFu);
+	glBegin(GL_QUADS);
+	int x1 = x + 512;
+	int y1 = y + 2;
+	glTexCoord2i(0, 0); glVertex2i(x,  y1); // Bottom Left
+	glTexCoord2i(1, 0); glVertex2i(x1, y1); // Bottom Right
+	glTexCoord2i(1, 1); glVertex2i(x1, y ); // Top Right
+	glTexCoord2i(0, 1); glVertex2i(x,  y ); // Top Left
+	glEnd();
+	glDeleteTextures(1, &textureId);
+
+} else {
+
+	GLSetColour(0xFFFFFFu);
+
 	// Set pixel format.
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, n);
 	//glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_TRUE);
@@ -69,6 +105,39 @@ inline static void GLBlitLine(
 	// Draw pixels in frame buffer.
 	glRasterPos2i(x, y + 2);
 	glDrawPixels(n, 1, GL_RGBA, GL_UNSIGNED_BYTE, line);
+}
+}
+
+inline static void GLUpdateTexture(
+	GLuint textureId, SDLGLRenderer::Pixel *data, int lineWidth)
+{
+	glBindTexture(GL_TEXTURE_2D, textureId);
+	glTexImage2D(
+		GL_TEXTURE_2D,
+		0, // level
+		GL_RGBA,
+		lineWidth, // width
+		1, // height
+		0, // border
+		GL_RGBA,
+		GL_UNSIGNED_BYTE,
+		data
+		);
+}
+
+inline static void GLDrawTexture(
+	GLuint textureId, int x, int y)
+{
+	glBindTexture(GL_TEXTURE_2D, textureId);
+	GLSetColour(0xFFFFFFu);
+	glBegin(GL_QUADS);
+	int x1 = x + 512;
+	int y1 = y + 2;
+	glTexCoord2i(0, 0); glVertex2i(x,  y1); // Bottom Left
+	glTexCoord2i(1, 0); glVertex2i(x1, y1); // Bottom Right
+	glTexCoord2i(1, 1); glVertex2i(x1, y ); // Top Right
+	glTexCoord2i(0, 1); glVertex2i(x,  y ); // Top Left
+	glEnd();
 }
 
 /** Fill a boolean array with a single value.
@@ -161,8 +230,8 @@ inline void SDLGLRenderer::renderBitmapLines(
 		if (lineValidInMode[vramLine] != mode) {
 			int addr = (vramLine << 7) & vdp->getNameMask();
 			const byte *vramPtr = vram->readArea(addr, addr + 128);
-			bitmapConverter.convertLine(
-				getLinePtr(bitmapDisplayCache, vramLine), vramPtr );
+			bitmapConverter.convertLine(lineBuffer, vramPtr);
+			GLUpdateTexture(bitmapTextureIds[vramLine], lineBuffer, lineWidth);
 			lineValidInMode[vramLine] = mode;
 		}
 		line++; // is a byte, so wraps at 256
@@ -184,9 +253,8 @@ inline void SDLGLRenderer::renderPlanarBitmapLines(
 			int addr1 = addr0 | 0x10000;
 			const byte *vramPtr0 = vram->readArea(addr0, addr0 + 128);
 			const byte *vramPtr1 = vram->readArea(addr1, addr1 + 128);
-			bitmapConverter.convertLinePlanar(
-				getLinePtr(bitmapDisplayCache, vramLine),
-				vramPtr0, vramPtr1 );
+			bitmapConverter.convertLinePlanar(lineBuffer, vramPtr0, vramPtr1);
+			GLUpdateTexture(bitmapTextureIds[vramLine], lineBuffer, lineWidth);
 			lineValidInMode[vramLine] =
 				lineValidInMode[vramLine | 512] = mode;
 		}
@@ -199,8 +267,8 @@ inline void SDLGLRenderer::renderCharacterLines(
 {
 	while (count--) {
 		// Render this line.
-		characterConverter.convertLine(
-			getLinePtr(charDisplayCache, line), line);
+		characterConverter.convertLine(lineBuffer, line);
+		GLUpdateTexture(charTextureIds[line], lineBuffer, lineWidth);
 		line++; // is a byte, so wraps at 256
 	}
 }
@@ -274,10 +342,26 @@ SDLGLRenderer::SDLGLRenderer(
 	setDirty(true);
 	dirtyForeground = dirtyBackground = true;
 
-	// Create display caches.
-	charDisplayCache = new Pixel[(vdp->isMSX1VDP() ? 192 : 256) * 512];
-	bitmapDisplayCache =
-		vdp->isMSX1VDP() ? NULL : new Pixel[256 * 4 * 512];
+	// Create character display cache.
+	glGenTextures(256, charTextureIds);
+	for (int i = 0; i < 256; i++) {
+		glBindTexture(GL_TEXTURE_2D, charTextureIds[i]);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	}
+
+	// Create bitmap display cache.
+	if (vdp->isMSX1VDP()) {
+		//bitmapDisplayCache = NULL;
+	} else {
+		//bitmapDisplayCache = new Pixel[256 * 4 * 512];
+		glGenTextures(4 * 256, bitmapTextureIds);
+		for (int i = 0; i < 4 * 256; i++) {
+			glBindTexture(GL_TEXTURE_2D, bitmapTextureIds[i]);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		}
+	}
 	memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 
 	// Hide mouse cursor.
@@ -333,8 +417,7 @@ SDLGLRenderer::SDLGLRenderer(
 
 SDLGLRenderer::~SDLGLRenderer()
 {
-	delete charDisplayCache;
-	delete bitmapDisplayCache;
+	// TODO: Free textures.
 }
 
 void SDLGLRenderer::setFullScreen(
@@ -559,8 +642,7 @@ void SDLGLRenderer::setDirty(
 	fillBool(dirtyPattern, dirty, sizeof(dirtyPattern));
 }
 
-void SDLGLRenderer::drawSprites(
-	int absLine)
+void SDLGLRenderer::drawSprites(int absLine)
 {
 	// Check whether this line is inside the host screen.
 	int screenLine = (absLine - lineRenderTop) * 2;
@@ -575,7 +657,6 @@ void SDLGLRenderer::drawSprites(
 	if (visibleIndex == 0) return;
 
 	int leftBorder = getLeftBorder();
-	glPixelZoom(2.0, 2.0);
 
 	if (vdp->getDisplayMode() < 8) {
 		// Sprite mode 1: render directly to screen using overdraw.
@@ -613,8 +694,7 @@ void SDLGLRenderer::drawSprites(
 		// Sprite mode 2: single pass left-to-right render.
 
 		// Buffer to render sprite pixel to; start with all transparent.
-		Pixel buffer[256];
-		memset(buffer, 0, sizeof(buffer));
+		memset(lineBuffer, 0, 256 * sizeof(Pixel));
 		// Determine width of sprites.
 		SpriteChecker::SpritePattern combined = 0;
 		for (int i = 0; i < visibleIndex; i++) {
@@ -663,10 +743,10 @@ void SDLGLRenderer::drawSprites(
 			}
 			// Plot it.
 			if (colour != 0xFF) {
-				buffer[pixelDone] = palSprites[colour];
+				lineBuffer[pixelDone] = palSprites[colour];
 			}
 		}
-		GLBlitLine(buffer, 256, leftBorder, screenLine);
+		GLBlitLine(lineBuffer, 256, leftBorder, screenLine);
 	}
 }
 
@@ -699,20 +779,13 @@ void SDLGLRenderer::displayPhase(
 	}
 	if (fromLine >= limit) return;
 
-	// GL render settings.
-	glDisable(GL_BLEND);
-	if (lineWidth == 512) {
-		glPixelZoom(1.0, 2.0);
-	} else {
-		glPixelZoom(2.0, 2.0);
-	}
-
 	// Perform vertical scroll.
 	int scrolledLine =
 		(fromLine - vdp->getLineZero() + vdp->getVerticalScroll()) & 0xFF;
 
 	// Render background lines.
 	// TODO: Complete separation of character and bitmap modes.
+	glEnable(GL_TEXTURE_2D);
 	int leftBorder = getLeftBorder();
 	int y = (fromLine - lineRenderTop) * 2;
 	if (vdp->isBitmapMode()) {
@@ -726,21 +799,7 @@ void SDLGLRenderer::displayPhase(
 			(vdp->isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
 		do {
 			int vramLine = (vdp->getNameMask() >> 7) & (pageMask | line);
-			//Pixel lineBuffer[512];
-			/*
-			if ( (lineValidInMode[vramLine] != vdp->getDisplayMode())
-			|| (planar && (lineValidInMode[vramLine | 512] != vdp->getDisplayMode())) ) {
-				(this->*renderMethod)
-					(getLinePtr(displayCache, vramLine), vramLine);
-				lineValidInMode[vramLine] = vdp->getDisplayMode();
-				if (planar) {
-					lineValidInMode[vramLine | 512] = vdp->getDisplayMode();
-				}
-			}
-			*/
-			GLBlitLine(getLinePtr(bitmapDisplayCache, vramLine), lineWidth,
-				leftBorder, y);
-			//(this->*renderMethod)(lineBuffer, vramLine, leftBorder, y);
+			GLDrawTexture(bitmapTextureIds[vramLine], leftBorder, y);
 			line = (line + 1) & 0xFF;
 			y += 2;
 		} while (--n);
@@ -749,67 +808,21 @@ void SDLGLRenderer::displayPhase(
 		int n = limit - fromLine;
 		renderCharacterLines(line, n);
 		do {
-			/*
-			(this->*renderMethod)
-				(getLinePtr(displayCache, line), line, leftBorder, y);
-			*/
-			GLBlitLine(getLinePtr(charDisplayCache, line), lineWidth,
-				leftBorder, y);
+			GLDrawTexture(charTextureIds[line], leftBorder, y);
 			line = (line + 1) & 0xFF;
 			y += 2;
 		} while (--n);
 	}
-
-	/*
-	// Copy background image.
-	// TODO: Unify MSX1 and MSX2 modes?
-	SDL_Rect source;
-	source.x = 0;
-	source.w = getDisplayWidth();
-	source.h = 1;
-	SDL_Rect dest;
-	dest.x = getLeftBorder();
-	dest.y = (fromLine - lineRenderTop) * 2;
-	int line = scrolledLine;
-	int pageMaskEven, pageMaskOdd;
-	if (vdp->isInterlaced() && vdp->isEvenOddEnabled()) {
-		pageMaskEven = vdp->isPlanar() ? 0x000 : 0x200;
-		pageMaskOdd  = vdp->isPlanar() ? 0x100 : 0x300;
-	} else {
-		pageMaskEven = pageMaskOdd = pageMask;
-	}
-	// TODO: Optimise.
-	for (int n = limit - fromLine; n--; ) {
-		source.y =
-			( vdp->isBitmapMode()
-			? (vdp->getNameMask() >> 7) & (pageMaskEven | line)
-			: line
-			);
-		// TODO: Can we safely use SDL_LowerBlit?
-		// Note: return value is ignored.
-		//SDL_BlitSurface(displayCache, &source, screen, &dest);
-		glPixelZoom(1.0, 2.0);
-		GLBlitLine(getLinePtr(displayCache, source.y), dest.x, dest.y);
-		dest.y++;
-		source.y =
-			( vdp->isBitmapMode()
-			? (vdp->getNameMask() >> 7) & (pageMaskOdd | line)
-			: line
-			);
-		//SDL_BlitSurface(displayCache, &source, screen, &dest);
-		//GLBlitLine(getLinePtr(displayCache, source.y), dest.x, dest.y);
-		dest.y++;
-		line = (line + 1) & 0xFF;
-	}
-	*/
+	glDisable(GL_TEXTURE_2D);
 
 	// Render sprites.
-	glEnable(GL_ALPHA_TEST);
-	glAlphaFunc(GL_GEQUAL, 0.5f);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glPixelZoom(2.0, 2.0);
 	for (int line = fromLine; line < limit; line++) {
 		drawSprites(line);
 	}
-	glDisable(GL_ALPHA_TEST);
+	glDisable(GL_BLEND);
 
 	// Borders are drawn after the display area:
 	// V9958 can extend the left border over the display area,

@@ -221,18 +221,22 @@ private:
 	  */
 	SDL_Surface *screen;
 
+	/** Work area for redefining textures.
+	  */
+	Pixel lineBuffer[512];
+
 	/** Cache for rendered VRAM in character modes.
 	  * Cache line (N + scroll) corresponds to display line N.
 	  * It holds a single page of 256 lines.
 	  */
-	Pixel *charDisplayCache;
+	GLuint charTextureIds[256];
 
 	/** Cache for rendered VRAM in bitmap modes.
 	  * Cache line N corresponds to VRAM at N * 128.
 	  * It holds up to 4 pages of 256 lines each.
 	  * In Graphics6/7 the lower two pages are used.
 	  */
-	Pixel *bitmapDisplayCache;
+	GLuint bitmapTextureIds[4 * 256];
 
 	/** Display mode the line is valid in.
 	  * 0xFF means invalid in every mode.
