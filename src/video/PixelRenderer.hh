@@ -72,7 +72,7 @@ private:
 	/** Call the right draw method in the subclass,
 	  * depending on passed drawType.
 	  */
-	inline void draw(
+	void draw(
 		int startX, int startY, int endX, int endY, DrawType drawType,
 		bool atEnd);
 
@@ -83,7 +83,7 @@ private:
 	  *   If DRAW_BORDER, draw rectangles using drawBorder;
 	  *   if DRAW_DISPLAY, draw rectangles using drawDisplay.
 	  */
-	inline void subdivide(
+	void subdivide(
 		int startX, int startY, int endX, int endY,
 		int clipL, int clipR, DrawType drawType );
 
@@ -94,24 +94,7 @@ private:
 	  * @param force When screen accuracy is used,
 	  * 	rendering is only performed if this parameter is true.
 	  */
-	void sync(const EmuTime &time, bool force = false) {
-		// Synchronisation is done in two phases:
-		// 1. update VRAM
-		// 2. update other subsystems
-		// Note that as part of step 1, type 2 updates can be triggered.
-		// Executing step 2 takes care of the subsystem changes that occur
-		// after the last VRAM update.
-		// This scheme makes sure type 2 routines such as renderUntil and
-		// checkUntil are not re-entered, which was causing major pain in
-		// the past.
-		// TODO: I wonder if it's possible to enforce this synchronisation
-		//       scheme at a higher level. Probably. But how...
-		//if ((frameSkipCounter == 0) && TODO
-		if (accuracy != RenderSettings::ACC_SCREEN || force) {
-			vram->sync(time);
-			renderUntil(time);
-		}
-	}
+	void sync(const EmuTime &time, bool force = false);
 
 	/** Render lines until specified moment in time.
 	  * Unlike sync(), this method does not sync with VDPVRAM.

@@ -30,7 +30,7 @@ namespace openmsx {
   */
 static const int LINE_TOP_BORDER = 3 + 13;
 
-inline void PixelRenderer::draw(
+void PixelRenderer::draw(
 	int startX, int startY, int endX, int endY, DrawType drawType, bool atEnd)
 {
 	switch(drawType) {
@@ -83,7 +83,7 @@ inline void PixelRenderer::draw(
 	}
 }
 
-inline void PixelRenderer::subdivide(
+void PixelRenderer::subdivide(
 	int startX, int startY, int endX, int endY, int clipL, int clipR,
 	DrawType drawType )
 {
@@ -469,6 +469,25 @@ void PixelRenderer::updateWindow(bool /*enabled*/, const EmuTime& /*time*/) {
 	// This update is redundant: Renderer will be notified in another way
 	// as well (updateDisplayEnabled or updateNameBase, for example).
 	// TODO: Can this be used as the main update method instead?
+}
+
+void PixelRenderer::sync(const EmuTime &time, bool force) {
+	// Synchronisation is done in two phases:
+	// 1. update VRAM
+	// 2. update other subsystems
+	// Note that as part of step 1, type 2 updates can be triggered.
+	// Executing step 2 takes care of the subsystem changes that occur
+	// after the last VRAM update.
+	// This scheme makes sure type 2 routines such as renderUntil and
+	// checkUntil are not re-entered, which was causing major pain in
+	// the past.
+	// TODO: I wonder if it's possible to enforce this synchronisation
+	//       scheme at a higher level. Probably. But how...
+	//if ((frameSkipCounter == 0) && TODO
+	if (accuracy != RenderSettings::ACC_SCREEN || force) {
+		vram->sync(time);
+		renderUntil(time);
+	}
 }
 
 void PixelRenderer::renderUntil(const EmuTime& time)
