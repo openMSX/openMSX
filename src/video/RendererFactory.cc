@@ -18,7 +18,7 @@ namespace openmsx {
 
 static bool initSDLVideo()
 {
-	if (SDL_InitSubSystem(SDL_INIT_VIDEO) < 0) {
+	if (!SDL_WasInit(SDL_INIT_VIDEO) && SDL_InitSubSystem(SDL_INIT_VIDEO) < 0) {
 		//throw FatalError(string("Couldn't init SDL video: ") + SDL_GetError());
 		return false; // TODO: use exceptions here too
 	}

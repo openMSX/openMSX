@@ -1,5 +1,9 @@
 $Id$
 
+2004-01-04 Reikan <openMSX4Win32@ranpub.com>
+	* Fix SDL_Video subsystem initialization.
+	  This fix boot up unstability.
+
 2004-01-04 Manuel Bilderbeek <manuel@msxnet.org>
 	* Implemented "info scaler"
 
@@ -200,7 +204,7 @@ $Id$
 	     alpha blending to speed up blitting
 
 2003-11-16 Reikan <openMSX4Win32@ranpub.com>
-	* Quixk fix for console input after switched renderer.
+	* Quick fix for console input after switched renderer.
 
 2003-11-16 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Major singleton-cleanup:
