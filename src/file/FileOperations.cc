@@ -1,15 +1,5 @@
 // $Id$
 
-#include <cerrno>
-#include <cstdlib>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include "config.h"
-#include "FileOperations.hh"
-#include "openmsx.hh"
-#include "CliCommOutput.hh"
-#include "MSXException.hh"
 #ifdef	__WIN32__
 #define WIN32_LEAN_AND_MEAN
 #define	_WIN32_IE	0x0400
@@ -21,6 +11,16 @@
 #define	MAXPATHLEN	MAX_PATH
 #define	mode_t	unsigned short int
 #endif
+#include <cerrno>
+#include <cstdlib>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include "config.h"
+#include "FileOperations.hh"
+#include "openmsx.hh"
+#include "CliCommOutput.hh"
+#include "MSXException.hh"
 
 
 namespace openmsx {
