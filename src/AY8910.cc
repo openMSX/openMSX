@@ -29,10 +29,11 @@ AY8910::~AY8910()
 
 void AY8910::init()
 {
-	setVolume(Mixer::MAX_VOLUME);
+	//setVolume(Mixer::MAX_VOLUME);
+	setVolume(25000);
 	reset();
 	int bufSize = Mixer::instance()->registerSound(this);
-	buffer = new short[bufSize];	// TODO fix race
+	buffer = new int[bufSize];	// TODO fix race
 }
 
 
@@ -213,7 +214,7 @@ void AY8910::setVolume(short newVolume)
 {
 	// calculate the volume->voltage conversion table
 	// The AY-3-8910 has 16 levels, in a logarithmic scale (3dB per step)
-	double out = newVolume / 3;		// avoid clipping
+	double out = newVolume;		// avoid clipping
 	for (int i=15; i>0; i--) {
 		volTable[i] = (unsigned int)(out+0.5);	// round to nearest
 		out *= 0.707945784384;			// 1/(10^(3/20)) = 1/(3dB)
@@ -236,7 +237,7 @@ void AY8910::setSampleRate (int sampleRate)
 }
 
 
-short* AY8910::updateBuffer(int length)
+int* AY8910::updateBuffer(int length)
 {
 	// The 8910 has three outputs, each output is the mix of one of the three
 	// tone generators and of the (single) noise generator. The two are mixed
@@ -280,7 +281,7 @@ short* AY8910::updateBuffer(int length)
 	int outn = (outputN | regs[AY_ENABLE]);
 
 	// buffering loop
-	short* buf = buffer;
+	int* buf = buffer;
 	while (length) {
 		// semiVolA, semiVolB and semiVolC keep track of how long each
 		// square wave stays in the 1 position during the sample period.
