@@ -36,9 +36,7 @@ class CommandLineParser
 		void registerFileType(const std::string &str, CLIFileType* cliFileType);
 		void parse(int argc, char **argv);
 
-	private:
-		CommandLineParser();
-
+	//private: // should be private, but gcc-2.95.x complains
 		struct caseltstr {
 			bool operator()(const std::string s1, const std::string s2) const {
 				return strcasecmp(s1.c_str(), s2.c_str()) < 0;
@@ -46,6 +44,10 @@ class CommandLineParser
 		};
 		std::map<std::string, CLIOption*> optionMap;
 		std::map<std::string, CLIFileType*, caseltstr> fileTypeMap;
+		
+	private:
+		CommandLineParser();
+
 
 		bool haveConfig;
 
