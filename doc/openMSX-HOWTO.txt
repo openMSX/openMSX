@@ -544,7 +544,8 @@ the FM PAC commander with CALL FMPAC in the emulated MSX!
 Alternatively, if you have setup an FM PAC hardwareconfig.xml file in
 ~/.openMSX/extensions/fmpac e.g., you can also use `-ext fmpac' to use an FM
 PAC. But, as I just said, you need to have a hardware description in that
-subdirectory of extensions/, see chapter 5.
+subdirectory of extensions/, see chapter 5. You can use the file fmpac.xml for
+that, which comes with openMSX.
 
 In a similar fashion, you can also add an MSX-Audio device (<device
 id="MSX-Audio">, note that some programs also need the MSX-Audio-Midi device to
@@ -628,6 +629,9 @@ AutoCommands and KeyEventInserter
 In the config file section AutoCommands, you can specify some console commands
 that should be executed automatically. See the exampleconfigs.xml file for some
 examples. The settings.xml file uses this to create the default key bindings.
+You can also use it to make default settings that are done with Console
+commands. In my case I set blur and scanline to 0, since they don't work
+correctly with my Radeon drivers.
 The KeyEventInserter section can be used to have something typed into the MSX
 after it booted. Again, see the exampleconfigs.xml file. Examine this file to
 learn what you can configure more.
