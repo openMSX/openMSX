@@ -48,55 +48,56 @@ inline static void fillBool(bool *ptr, bool value, int nr)
 template <class Pixel> inline void SDLHiRenderer<Pixel>::renderUntil(
 	const EmuTime &time)
 {
+	int limitTicks = vdp->getTicksThisFrame(time);
+
 	switch (accuracy) {
 	case ACC_PIXEL: {
-		int limitTicks = vdp->getTicksThisFrame(time);
 		int limitX = limitTicks % VDP::TICKS_PER_LINE;
 		//limitX = (limitX - 100 - (VDP::TICKS_PER_LINE - 100) / 2 + WIDTH) / 2;
+		// TODO: Apply these transformations in the phaseHandler instead.
 		limitX = (limitX - 100 / 2 - 102) / 2;
-		int limitY = limitTicks / VDP::TICKS_PER_LINE - lineRenderTop;
-		if (limitY < 0) {
-			limitX = 0;
-			limitY = 0;
-		} else if (limitY >= HEIGHT / 2 - 1) {
-			limitX = WIDTH;
-			limitY = HEIGHT / 2 - 1;
-		} else if (limitX < 0) {
+		if (limitX < 0) {
 			limitX = 0;
 		} else if (limitX > WIDTH) {
 			limitX = WIDTH;
 		}
-		assert(limitY <= (vdp->isPalTiming() ? 313 : 262));
 
-		// split in rectangles
-		if (nextY == limitY) {
-			// only one line
-			(this->*phaseHandler)(nextX, nextY, limitX, limitY);
-		} else {
-			if (nextX != 0) {
-				// top
-				(this->*phaseHandler)(nextX, nextY, WIDTH, nextY);
-				nextY++;
-			}
-			if (limitX == WIDTH) {
-				// middle + bottom
-				(this->*phaseHandler)(0, nextY, WIDTH, limitY);
-			} else {
-				if (limitY > nextY)
-					// middle
-					(this->*phaseHandler)(0, nextY, WIDTH, limitY - 1);
-				// bottom
-				(this->*phaseHandler)(0, limitY, limitX, limitY);
-			}
+		int limitY = limitTicks / VDP::TICKS_PER_LINE;
+		// TODO: Because of rounding errors, this might not always be true.
+		//assert(limitY <= (vdp->isPalTiming() ? 313 : 262));
+		int totalLines = vdp->isPalTiming() ? 313 : 262;
+		if (limitY > totalLines) {
+			limitX = WIDTH;
+			limitY = totalLines;
 		}
+
+		// Split in rectangles:
+
+		// Finish any partial top line.
+		if (0 < nextX && nextX < WIDTH) {
+			(this->*phaseHandler)(nextX, nextY, WIDTH, nextY + 1);
+			nextY++;
+		}
+		// Draw full-width middle part (multiple lines).
+		if (limitY > nextY) {
+			// middle
+			(this->*phaseHandler)(0, nextY, WIDTH, limitY);
+		}
+		// Start any partial bottom line.
+		if (0 < limitX && limitX < WIDTH) {
+			(this->*phaseHandler)(0, limitY, limitX, limitY + 1);
+		}
+
 		nextX = limitX;
 		nextY = limitY;
 		break;
 	}
 	case ACC_LINE: {
-		int limitTicks = vdp->getTicksThisFrame(time);
-		int limitY = limitTicks / VDP::TICKS_PER_LINE - lineRenderTop;
-		assert(limitY <= (vdp->isPalTiming() ? 313 : 262));
+		int limitY = limitTicks / VDP::TICKS_PER_LINE;
+		// TODO: Because of rounding errors, this might not always be true.
+		//assert(limitY <= (vdp->isPalTiming() ? 313 : 262));
+		int totalLines = vdp->isPalTiming() ? 313 : 262;
+		if (limitY > totalLines) limitY = totalLines;
 		if (nextY < limitY) {
 			(this->*phaseHandler)(0, nextY, WIDTH, limitY);
 			nextY = limitY ;
@@ -162,7 +163,7 @@ template <class Pixel> inline void SDLHiRenderer<Pixel>::renderBitmapLines(
 		// Display will be wrong, but this is not really critical.
 		return;
 	}
-	
+
 	int mode = vdp->getDisplayMode();
 	// Which bits in the name mask determine the page?
 	int pageMask = 0x200 | vdp->getEvenOddMask();
@@ -177,7 +178,7 @@ template <class Pixel> inline void SDLHiRenderer<Pixel>::renderBitmapLines(
 		}
 		line++; // is a byte, so wraps at 256
 	}
-	
+
 	// Unlock surface.
 	if (SDL_MUSTLOCK(bitmapDisplayCache)) SDL_UnlockSurface(bitmapDisplayCache);
 }
@@ -190,7 +191,7 @@ template <class Pixel> inline void SDLHiRenderer<Pixel>::renderPlanarBitmapLines
 		// Display will be wrong, but this is not really critical.
 		return;
 	}
-	
+
 	int mode = vdp->getDisplayMode();
 	// Which bits in the name mask determine the page?
 	int pageMask = vdp->getEvenOddMask();
@@ -211,7 +212,7 @@ template <class Pixel> inline void SDLHiRenderer<Pixel>::renderPlanarBitmapLines
 		}
 		line++; // is a byte, so wraps at 256
 	}
-	
+
 	// Unlock surface.
 	if (SDL_MUSTLOCK(bitmapDisplayCache)) SDL_UnlockSurface(bitmapDisplayCache);
 }
@@ -640,6 +641,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::setDirty(
 template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 	int screenLine, int leftBorder, int minX, int maxX)
 {
+	// TODO: Pass absLine as a parameter instead of converting back.
 	int absLine = screenLine / 2 + lineRenderTop;
 
 	// Determine sprites visible on this line.
@@ -756,13 +758,13 @@ template <class Pixel> void SDLHiRenderer<Pixel>::blankPhase(
 	if (fromX == limitX) return;
 	assert(fromX < limitX);
 	//PRT_DEBUG("BlankPhase: ("<<fromX<<","<<fromY<<")-("<<limitX-1<<","<<limitY<<")");
-	
+
 	// TODO: Only redraw if necessary.
 	SDL_Rect rect;
 	rect.x = fromX;
 	rect.w = limitX - fromX;
-	rect.y = fromY * 2;
-	rect.h = (limitY - fromY + 1) * 2;
+	rect.y = (fromY - lineRenderTop) * 2;
+	rect.h = (limitY - fromY) * 2;
 
 	// Note: return code ignored.
 	SDL_FillRect(screen, &rect, getBorderColour());
@@ -774,11 +776,12 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	if (fromX == limitX) return;
 	assert(fromX < limitX);
 	//PRT_DEBUG("DisplayPhase: ("<<fromX<<","<<fromY<<")-("<<limitX-1<<","<<limitY<<")");
-	
-	int n = limitY - fromY + 1;
-	int minY = fromY * 2;
-	if (!deinterlace && vdp->isInterlaced() && vdp->getEvenOdd())
+
+	int n = limitY - fromY;
+	int minY = (fromY - lineRenderTop) * 2;
+	if (!deinterlace && vdp->isInterlaced() && vdp->getEvenOdd()) {
 		minY++;
+	}
 	int maxY = minY + 2 * n;
 
 	// V9958 can extend the left border over the display area,
@@ -805,11 +808,12 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	if (minX < 512) {
 		int maxX = limitX - leftBorder;
 		if (maxX > 512) maxX = 512;
-		
-		// Perform vertical scroll (wraps at 256)
-		byte line = lineRenderTop + fromY - vdp->getLineZero();
-		if (!vdp->isTextMode())
+
+		// Calculate display line (wraps at 256).
+		byte line = fromY - vdp->getLineZero();
+		if (!vdp->isTextMode()) {
 			line += vdp->getVerticalScroll();
+		}
 
 		// Copy background image.
 		SDL_Rect source, dest;
@@ -817,12 +821,13 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 		source.w = maxX - minX;
 		source.h = 1;
 		dest.x = fromX;
-		
+
 		if (vdp->isBitmapMode()) {
-			if (vdp->isPlanar())
+			if (vdp->isPlanar()) {
 				renderPlanarBitmapLines(line, n);
-			else
+			} else {
 				renderBitmapLines(line, n);
+			}
 
 			int pageMaskEven, pageMaskOdd;
 			if (deinterlace && vdp->isInterlaced() && vdp->isEvenOddEnabled()) {
@@ -832,24 +837,32 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 				pageMaskEven = pageMaskOdd =
 					(vdp->isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
 			}
+			// Bring bitmap cache up to date.
 			for (dest.y = minY; dest.y < maxY; ) {
-				source.y = (vram->nameTable.getMask() >> 7) & (pageMaskEven | line);
+				source.y = (vram->nameTable.getMask() >> 7)
+					& (pageMaskEven | line);
 				// TODO: Can we safely use SDL_LowerBlit?
 				// Note: return value is ignored.
 				SDL_BlitSurface(bitmapDisplayCache, &source, screen, &dest);
 				dest.y++;
-				source.y = (vram->nameTable.getMask() >> 7) & (pageMaskOdd | line);
+				source.y = (vram->nameTable.getMask() >> 7)
+					& (pageMaskOdd | line);
 				SDL_BlitSurface(bitmapDisplayCache, &source, screen, &dest);
 				dest.y++;
 				line++;	// wraps at 256
 			}
 		} else {
 			renderCharacterLines(line, n);
-		
+
 			for (dest.y = minY; dest.y < maxY; ) {
+				assert(!vdp->isMSX1VDP() || line < 192);
 				source.y = line;
 				// TODO: Can we safely use SDL_LowerBlit?
 				// Note: return value is ignored.
+				/*
+				printf("plotting character cache line %d to screen line %d\n",
+					source.y, dest.y);
+				*/
 				SDL_BlitSurface(charDisplayCache, &source, screen, &dest);
 				dest.y++;
 				SDL_BlitSurface(charDisplayCache, &source, screen, &dest);

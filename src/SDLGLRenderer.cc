@@ -199,55 +199,56 @@ inline void SDLGLRenderer::setDisplayMode(int mode)
 
 inline void SDLGLRenderer::renderUntil(const EmuTime &time)
 {
+	int limitTicks = vdp->getTicksThisFrame(time);
+
 	switch (accuracy) {
 	case ACC_PIXEL: {
-		int limitTicks = vdp->getTicksThisFrame(time);
 		int limitX = limitTicks % VDP::TICKS_PER_LINE;
 		//limitX = (limitX - 100 - (VDP::TICKS_PER_LINE - 100) / 2 + WIDTH) / 2;
+		// TODO: Apply these transformations in the phaseHandler instead.
 		limitX = (limitX - 100 / 2 - 102) / 2;
-		int limitY = limitTicks / VDP::TICKS_PER_LINE - lineRenderTop;
-		if (limitY < 0) {
-			limitX = 0;
-			limitY = 0;
-		} else if (limitY >= HEIGHT / 2 - 1) {
-			limitX = WIDTH;
-			limitY = HEIGHT / 2 - 1;
-		} else if (limitX < 0) {
+		if (limitX < 0) {
 			limitX = 0;
 		} else if (limitX > WIDTH) {
 			limitX = WIDTH;
 		}
-		assert(limitY <= (vdp->isPalTiming() ? 313 : 262));
 
-		// split in rectangles
-		if (nextY == limitY) {
-			// only one line
-			(this->*phaseHandler)(nextX, nextY, limitX, limitY);
-		} else {
-			if (nextX != 0) {
-				// top
-				(this->*phaseHandler)(nextX, nextY, WIDTH, nextY);
-				nextY++;
-			}
-			if (limitX == WIDTH) {
-				// middle + bottom
-				(this->*phaseHandler)(0, nextY, WIDTH, limitY);
-			} else { 
-				if (limitY > nextY)
-					// middle
-					(this->*phaseHandler)(0, nextY, WIDTH, limitY - 1);
-				// bottom
-				(this->*phaseHandler)(0, limitY, limitX, limitY);
-			}
+		int limitY = limitTicks / VDP::TICKS_PER_LINE;
+		// TODO: Because of rounding errors, this might not always be true.
+		//assert(limitY <= (vdp->isPalTiming() ? 313 : 262));
+		int totalLines = vdp->isPalTiming() ? 313 : 262;
+		if (limitY > totalLines) {
+			limitX = WIDTH;
+			limitY = totalLines;
 		}
+
+		// Split in rectangles:
+
+		// Finish any partial top line.
+		if (0 < nextX && nextX < WIDTH) {
+			(this->*phaseHandler)(nextX, nextY, WIDTH, nextY + 1);
+			nextY++;
+		}
+		// Draw full-width middle part (multiple lines).
+		if (limitY > nextY) {
+			// middle
+			(this->*phaseHandler)(0, nextY, WIDTH, limitY);
+		}
+		// Start any partial bottom line.
+		if (0 < limitX && limitX < WIDTH) {
+			(this->*phaseHandler)(0, limitY, limitX, limitY + 1);
+		}
+
 		nextX = limitX;
 		nextY = limitY;
 		break;
 	}
 	case ACC_LINE: {
-		int limitTicks = vdp->getTicksThisFrame(time);
-		int limitY = limitTicks / VDP::TICKS_PER_LINE - lineRenderTop;
-		assert(limitY <= (vdp->isPalTiming() ? 313 : 262));
+		int limitY = limitTicks / VDP::TICKS_PER_LINE;
+		// TODO: Because of rounding errors, this might not always be true.
+		//assert(limitY <= (vdp->isPalTiming() ? 313 : 262));
+		int totalLines = vdp->isPalTiming() ? 313 : 262;
+		if (limitY > totalLines) limitY = totalLines;
 		if (nextY < limitY) {
 			(this->*phaseHandler)(0, nextY, WIDTH, limitY);
 			nextY = limitY ;
@@ -801,6 +802,7 @@ void SDLGLRenderer::setDirty(
 
 void SDLGLRenderer::drawSprites(int screenLine, int leftBorder, int minX, int maxX)
 {
+	// TODO: Pass absLine as a parameter instead of converting back.
 	int absLine = screenLine / 2 + lineRenderTop;
 
 	// Determine sprites visible on this line.
@@ -924,8 +926,8 @@ void SDLGLRenderer::blankPhase(
 	GLSetColour(getBorderColour());
 	int minX = fromX;
 	int maxX = limitX;
-	int minY = fromY * 2;
-	int maxY = limitY * 2 + 2;
+	int minY = (fromY - lineRenderTop) * 2;
+	int maxY = (limitY - lineRenderTop) * 2;
 	glBegin(GL_QUADS);
 	glVertex2i(minX, minY);	// top left
 	glVertex2i(maxX, minY);	// top right
@@ -1046,10 +1048,11 @@ void SDLGLRenderer::displayPhase(
 	assert(fromX < limitX);
 	//PRT_DEBUG("DisplayPhase: ("<<fromX<<","<<fromY<<")-("<<limitX-1<<","<<limitY<<")");
 
-	int n = limitY - fromY + 1;
-	int minY = fromY * 2;
-	if (!deinterlace && vdp->isInterlaced() && vdp->getEvenOdd())
+	int n = limitY - fromY;
+	int minY = (fromY - lineRenderTop) * 2;
+	if (!deinterlace && vdp->isInterlaced() && vdp->getEvenOdd()) {
 		minY++;
+	}
 	int maxY = minY + 2 * n;
 
 	// V9958 can extend the left border over the display area,
@@ -1076,18 +1079,20 @@ void SDLGLRenderer::displayPhase(
 		int maxX = limitX - leftBorder;
 		if (maxX > 512) maxX = 512;
 		
-		// Perform vertical scroll (wraps at 256)
-		byte line = lineRenderTop + fromY - vdp->getLineZero();
-		if (!vdp->isTextMode())
+		// Perform vertical scroll (wraps at 256).
+		byte line = fromY - vdp->getLineZero();
+		if (!vdp->isTextMode()) {
 			line += vdp->getVerticalScroll();
+		}
 
 		// TODO: Complete separation of character and bitmap modes.
 		glEnable(GL_TEXTURE_2D);
 		if (vdp->isBitmapMode()) {
-			if (vdp->isPlanar())
+			if (vdp->isPlanar()) {
 				renderPlanarBitmapLines(line, n);
-			else
+			} else {
 				renderBitmapLines(line, n);
+			}
 			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 			// Which bits in the name mask determine the page?
 			bool deinterlaced = deinterlace && vdp->isInterlaced() && vdp->isEvenOddEnabled();
