@@ -1,8 +1,9 @@
 
 #include <iostream>
+#include <assert.h>
+
 #include "Leds.hh"
 #include "openmsx.hh"
-#include <assert.h>
 
 
 Leds* Leds::oneInstance = NULL;

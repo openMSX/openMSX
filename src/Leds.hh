@@ -20,11 +20,11 @@
 class Leds 
 {
 	public:
-		~Leds(); 
+		~Leds();
 		static Leds *instance();
 		void setLed(int led);
 	private:
 		Leds();
-		static Leds* oneInstance; 
+		static Leds* oneInstance;
 };
 #endif
