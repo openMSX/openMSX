@@ -20,6 +20,8 @@ class CassettePlayer : public CassetteDevice
 		void writeWave(short *buf, int length);
 		int getWriteSampleRate();
 
+		virtual const std::string &getName();
+
 	private:
 		int calcSamples(const EmuTime &time);
 		
@@ -32,6 +34,8 @@ class CassettePlayer : public CassetteDevice
 		bool motor;
 		EmuTime timeReference;
 		Uint32 posReference;
+
+		static const std::string name;
 };
 
 #endif

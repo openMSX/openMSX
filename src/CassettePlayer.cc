@@ -1,13 +1,15 @@
 // $Id$
 
-#include "CassettePlayer.hh"
 #include <stdlib.h>
+#include "CassettePlayer.hh"
+#include "PluggingController.hh"
 
 
 CassettePlayer::CassettePlayer()
 {
 	motor = false;
 	audioLength = 0;	// no tape inserted (yet)
+	PluggingController::instance()->registerPluggable(this);
 }
 
 CassettePlayer::CassettePlayer(const char* filename) 
@@ -18,6 +20,7 @@ CassettePlayer::CassettePlayer(const char* filename)
 
 CassettePlayer::~CassettePlayer()
 {
+	PluggingController::instance()->unregisterPluggable(this);
 	removeTape();	// free memory
 }
 
@@ -87,3 +90,10 @@ int CassettePlayer::getWriteSampleRate()
 	// recording not implemented yet
 	return 0;	// 0 -> not interested in writeWave() data
 }
+
+
+const std::string &CassettePlayer::getName()
+{
+	return name;
+}
+const std::string CassettePlayer::name("cassetteplayer");

@@ -26,3 +26,9 @@ int DummyCassetteDevice::getWriteSampleRate()
 {
 	return 0;	// 0 means not interested
 }
+
+const std::string &DummyCassetteDevice::getName()
+{
+	return name;
+}
+const std::string DummyCassetteDevice::name("dummy");

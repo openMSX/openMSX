@@ -1,5 +1,8 @@
 $Id$
 
+2002-03-12 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* convert CassettePort to Connector-Pluggable structure
+
 2002-03-11 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* made Connector-Pluggable aware of EmuTime
 	* convert PrinterPort to Connector-Pluggable structure

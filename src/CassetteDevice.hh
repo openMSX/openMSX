@@ -3,11 +3,13 @@
 #ifndef __CASSETTEDEVICE_HH__
 #define __CASSETTEDEVICE_HH__
 
+#include "Pluggable.hh"
+
 // forward declarations
 class EmuTime;
 
 
-class CassetteDevice
+class CassetteDevice : public Pluggable
 {
 	public:
 		/**
@@ -32,6 +34,11 @@ class CassetteDevice
 		 * in writeWave() data.
 		 */
 		virtual int getWriteSampleRate() = 0;
+
+
+		virtual const std::string &getClass();
+private:
+		static const std::string className;
 };
 
 #endif

@@ -8,6 +8,8 @@
 
 // forward declaration
 class DummyJoystick;
+class Mouse;
+class Joystick;
 
 
 class JoystickPort : public Connector
@@ -44,5 +46,8 @@ class JoystickPorts
 	private:
 		int selectedPort;
 		JoystickPort* ports[2];
+
+		Mouse* mouse;
+		Joystick* joystick[10];
 };
 #endif

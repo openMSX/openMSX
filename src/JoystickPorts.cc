@@ -1,10 +1,12 @@
 // $Id$
 
+#include <cassert>
 #include "JoystickPorts.hh"
 #include "JoystickDevice.hh"
 #include "DummyJoystick.hh"
 #include "PluggingController.hh"
-#include <cassert>
+#include "Mouse.hh"
+#include "Joystick.hh"
 
 
 JoystickPort::JoystickPort(const std::string &nm, const EmuTime &time)
@@ -64,12 +66,24 @@ JoystickPorts::JoystickPorts(const EmuTime &time)
 	selectedPort = 0;
 	ports[0] = new JoystickPort("joyporta", time);
 	ports[1] = new JoystickPort("joyportb", time);
+
+	mouse = new Mouse();
+	try {
+		for (int i=0; i<10; i++)
+			joystick[i] = new Joystick(i);
+	} catch(JoystickException &e) {
+	}
 }
 
 JoystickPorts::~JoystickPorts()
 {
 	delete ports[0];
 	delete ports[1];
+	
+	delete mouse;
+	for (int i=0; i<10; i++)
+		delete joystick[i];
+	
 }
 
 byte JoystickPorts::read(const EmuTime &time)

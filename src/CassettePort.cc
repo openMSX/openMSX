@@ -3,7 +3,9 @@
 #include "CassettePort.hh"
 #include "CassetteDevice.hh"
 #include "DummyCassetteDevice.hh"
+#include "PluggingController.hh"
 #include "cpu/MSXCPU.hh"
+#include "CassettePlayer.hh"
 
 
 // CassettePortFactory //
@@ -31,7 +33,7 @@ CassettePortInterface *CassettePortFactory::oneInstance = NULL;
 CassettePortInterface::CassettePortInterface(const EmuTime &time)
 {
 	dummy = new DummyCassetteDevice();
-	device = dummy;	//unplug(time);
+	pluggable = dummy;	//unplug(time);
 }
 
 CassettePortInterface::~CassettePortInterface()
@@ -40,18 +42,29 @@ CassettePortInterface::~CassettePortInterface()
 	delete dummy;
 }
 
-void CassettePortInterface::plug(CassetteDevice *dev, const EmuTime &time)
+void CassettePortInterface::plug(Pluggable *dev, const EmuTime &time)
 {
-	if (device != dev) {
-		flushOutput(time);
-		device = dev;
-	}
+	Connector::plug(dev, time);
 }
 
 void CassettePortInterface::unplug(const EmuTime &time)
 {
+	flushOutput(time);
+	Connector::unplug(time);
 	plug(dummy, time);
 }
+
+const std::string &CassettePortInterface::getName()
+{
+	return name;
+}
+const std::string CassettePortInterface::name("cassetteport");
+
+const std::string &CassettePortInterface::getClass()
+{
+	return className;
+}
+const std::string CassettePortInterface::className("Cassette Port");
 
 
 // DummyCassettePort //
@@ -83,16 +96,21 @@ void DummyCassettePort::flushOutput(const EmuTime &time)
 CassettePort::CassettePort(const EmuTime &time) : CassettePortInterface(time)
 {
 	buffer = new short[BUFSIZE];
+	PluggingController::instance()->registerConnector(this);
+
+	player = new CassettePlayer();
 }
 
 CassettePort::~CassettePort()
 {
+	delete player;
+	PluggingController::instance()->unregisterConnector(this);
 	delete[] buffer;
 }
 
 void CassettePort::setMotor(bool status, const EmuTime &time)
 {
-	device->setMotor(status, time);
+	((CassetteDevice*)pluggable)->setMotor(status, time);
 	//TODO make 'click' sound
 }
 
@@ -112,13 +130,13 @@ bool CassettePort::cassetteIn(const EmuTime &time)
 	// All analog filtering is ignored for now
 	//   only important component is DC-removal
 	//   we just assume sample has no DC component
-	short sample = device->readSample(time);	// read 1 sample  
+	short sample = ((CassetteDevice*)pluggable)->readSample(time);	// read 1 sample  
 	return (sample > 0); // comparator
 }
 
 void CassettePort::flushOutput(const EmuTime &time)
 {
-	int sampleRate = device->getWriteSampleRate();	// can be changed since prev flush
+	int sampleRate = ((CassetteDevice*)pluggable)->getWriteSampleRate();	// can be changed since prev flush
 	if (sampleRate == 0) {
 		// 99% of the time
 		PRT_DEBUG("Cas: must not generate wave");
@@ -130,13 +148,13 @@ void CassettePort::flushOutput(const EmuTime &time)
 	PRT_DEBUG("Cas: generate " << samples << " samples");
 	
 	// dumb implementation, good enough for now
-	device->writeWave(&nextSample, 1);
+	((CassetteDevice*)pluggable)->writeWave(&nextSample, 1);
 	samples--;
 	nextSample = lastOutput ? 32767 : -32768;
 	int numSamples = (samples > BUFSIZE) ? BUFSIZE : samples;
 	for (int i=1; i<numSamples; i++) buffer[i] = nextSample;
 	while (samples) {
-		device->writeWave(buffer, numSamples);
+		((CassetteDevice*)pluggable)->writeWave(buffer, numSamples);
 		samples -= numSamples;
 		numSamples = (samples > BUFSIZE) ? BUFSIZE : samples;
 	}

@@ -2,6 +2,7 @@
 
 #include "PrinterPortDevice.hh"
 
+
 const std::string &PrinterPortDevice::getClass()
 {
 	return className;

@@ -32,7 +32,8 @@ openmsx_SOURCES=openmsx.cc icon.nn \
 	MSXMotherBoard.hh MSXMotherBoard.cc \
 	MSXPPI.hh MSXPPI.cc I8255.hh I8255.cc \
 	CassettePort.hh CassettePort.cc \
-	CassetteDevice.hh DummyCassetteDevice.hh DummyCassetteDevice.cc \
+	CassetteDevice.hh CassetteDevice.cc \
+	DummyCassetteDevice.hh DummyCassetteDevice.cc \
 	CassettePlayer.hh CassettePlayer.cc \
 	MSXRom16KB.hh MSXRom16KB.cc \
 	MSXSimple64KB.hh MSXSimple64KB.cc \

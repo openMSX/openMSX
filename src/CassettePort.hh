@@ -4,13 +4,15 @@
 #define __MSXCASSETTEPORT_HH__
 
 #include "EmuTime.hh"
+#include "Connector.hh"
 
 // forward declaration
 class CassetteDevice;
 class DummyCassetteDevice;
+class CassettePlayer;
 
 
-class CassettePortInterface
+class CassettePortInterface : public Connector
 {
 	public:
 		CassettePortInterface(const EmuTime &time);
@@ -41,17 +43,6 @@ class CassettePortInterface
 		 */
 		virtual bool cassetteIn(const EmuTime &time) = 0;
 
-
-		/**
-		 * Plugs a given CassetteDevice in this CassettePort
-		 */
-		virtual void plug(CassetteDevice *device, const EmuTime &time);
-
-		/**
-		 * Unplugs a CassetteDevice from this CassettePort
-		 */
-		virtual void unplug(const EmuTime &time);
-
 		/**
 		 * Writes all buffered data to CassetteDevice.
 		 *  A CassettePort may write data anytime it wants to, but a
@@ -59,12 +50,18 @@ class CassettePortInterface
 		 *  example it wants to remove the tape.
 		 */
 		virtual void flushOutput(const EmuTime &time) = 0;
-
-	protected:
-		CassetteDevice *device;
+		
+		// Connector
+		virtual const std::string &getName();
+		virtual const std::string &getClass();
+		virtual void plug(Pluggable *dev, const EmuTime &time);
+		virtual void unplug(const EmuTime &time);
 
 	private:
 		DummyCassetteDevice* dummy;
+		
+		static const std::string name;
+		static const std::string className;
 };
 
 class CassettePort : public CassettePortInterface
@@ -83,6 +80,8 @@ class CassettePort : public CassettePortInterface
 		short nextSample;
 		EmuTime prevTime;
 		short *buffer;
+
+		CassettePlayer* player;
 };
 
 class DummyCassettePort : public CassettePortInterface
