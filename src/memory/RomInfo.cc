@@ -174,6 +174,56 @@ static string parseRemarks(const XMLElement& elem)
 	return result;
 }
 
+static void addEntry(RomInfo* romInfo, const string& sha1,
+                     map<string, RomInfo*>& result)
+{
+	if (result.find(sha1) == result.end()) {
+		result[sha1] = romInfo;
+	} else {
+		CliCommOutput::instance().printWarning(
+			"duplicate romdb entry SHA1: " + sha1);
+	}
+}
+
+static void parseOldEntry(
+	const XMLElement& soft, map<string, RomInfo*>& result,
+	const string& title, const string& year,
+	const string& company, const string& remark,
+	const string& type)
+{
+	RomType romType = RomInfo::nameToRomType(type);
+	RomInfo* romInfo = new RomInfo(title, year, company, remark, romType);
+	
+	XMLElement::Children sha1Tags;
+	soft.getChildren("sha1", sha1Tags);
+	for (XMLElement::Children::const_iterator it2 = sha1Tags.begin();
+	     it2 != sha1Tags.end(); ++it2) {
+		string sha1 = (*it2)->getData();
+		addEntry(romInfo, sha1, result);
+	}
+}
+
+static void parseNewEntry(
+	const XMLElement& rom, map<string, RomInfo*>& result,
+	const string& title, const string& year,
+	const string& company, const string& remark,
+	const string& type)
+{
+	RomType romType = RomInfo::nameToRomType(type);
+	RomInfo* romInfo = new RomInfo(title, year, company, remark, romType);
+		
+	XMLElement::Children hashTags;
+	rom.getChildren("hash", hashTags);
+	for (XMLElement::Children::const_iterator it2 = hashTags.begin();
+	     it2 != hashTags.end(); ++it2) {
+		if ((*it2)->getAttribute("algo") != "sha1") {
+			continue;
+		}
+		string sha1 = (*it2)->getData();
+		addEntry(romInfo, sha1, result);
+	}
+}
+
 static void parseDB(const XMLElement& doc, map<string, RomInfo*>& result)
 {
 	const XMLElement::Children& children = doc.getChildren();
@@ -184,7 +234,7 @@ static void parseDB(const XMLElement& doc, map<string, RomInfo*>& result)
 		const XMLElement& soft = **it1;
 		
 		const XMLElement* system = soft.findChild("system");
-		if (system && (system->getData() != "msx")) {
+		if (system && (system->getData() != "MSX")) {
 			// skip non-MSX entries
 			continue;
 		}
@@ -195,34 +245,23 @@ static void parseDB(const XMLElement& doc, map<string, RomInfo*>& result)
 		string company = soft.getChildData("company", "");
 		string remark  = parseRemarks(soft);
 		
-		RomType type = UNKNOWN;
-		const XMLElement* sha1Elem = 0;
-		if (const XMLElement* megarom = soft.findChild("megarom")) {
-			type = RomInfo::nameToRomType(megarom->getChildData("type"));
-			sha1Elem = megarom;
-		} else if (const XMLElement* rom = soft.findChild("rom")) {
-			// TODO <start> is ignored
-			type = PLAIN;
-			sha1Elem = rom;
-		} else if (const XMLElement* romType = soft.findChild("romtype")) {
-			type = RomInfo::nameToRomType(romType->getData());
-			sha1Elem = &soft;
+		if (const XMLElement* romType = soft.findChild("romtype")) {
+			parseOldEntry(soft, result, title, year, company,
+			              remark, romType->getData());
 		}
-		if (type == UNKNOWN) {
-			continue;
-		}
-		RomInfo* romInfo = new RomInfo(title, year, company, remark, type);
 		
-		XMLElement::Children sha1Tags;
-		sha1Elem->getChildren("sha1", sha1Tags);
-		for (XMLElement::Children::const_iterator it2 = sha1Tags.begin();
-		     it2 != sha1Tags.end(); ++it2) {
-			string sha1 = (*it2)->getData();
-			if (result.find(sha1) == result.end()) {
-				result[sha1] = romInfo;
-			} else {
-				CliCommOutput::instance().printWarning(
-					"duplicate romdb entry SHA1: " + sha1);
+		XMLElement::Children dumps;
+		soft.getChildren("dump", dumps);
+		for (XMLElement::Children::const_iterator it2 = dumps.begin();
+		     it2 != dumps.end(); ++it2) {
+			const XMLElement& dump = **it2;
+			if (const XMLElement* megarom = dump.findChild("megarom")) {
+				parseNewEntry(*megarom, result, title, year, company,
+				              remark, megarom->getChildData("type"));
+			} else if (const XMLElement* rom = soft.findChild("rom")) {
+				// TODO parse <start> tag
+				parseNewEntry(*rom, result, title, year, company,
+				              remark, "plain");
 			}
 		}
 	}
