@@ -25,7 +25,7 @@
 void initializeSDL()
 {
 	Uint32 sdl_initval = SDL_INIT_VIDEO | SDL_INIT_EVENTTHREAD;
-	if (DEBUGVAL) sdl_initval |= SDL_INIT_NOPARACHUTE; // dump copre on segfault
+	if (DEBUGVAL) sdl_initval |= SDL_INIT_NOPARACHUTE; // dump core on segfault
 	if (SDL_Init(sdl_initval) < 0)
 		PRT_ERROR("Couldn't init SDL: " << SDL_GetError());
 	SDL_WM_SetCaption("openMSX " VERSION " [alpha]", 0);
@@ -66,10 +66,10 @@ int main(int argc, char **argv)
 		thread.start();
 
 		// First execute auto commands
-		CommandController::instance()->autoCommands();
+		CommandController::instance()->autoCommands(zero);
 
 		//
-		new KeyEventInserter();
+		new KeyEventInserter(zero);
 
 		PRT_DEBUG ("Starting MSX");
 		MSXMotherBoard::instance()->startMSX();

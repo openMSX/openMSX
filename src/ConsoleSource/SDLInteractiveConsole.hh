@@ -18,12 +18,13 @@ class SDLInteractiveConsole : public InteractiveConsole, private EventListener
 		bool isVisible;
 
 	private:
-		virtual bool signalEvent(SDL_Event &event);
+		virtual bool signalEvent(SDL_Event &event, const EmuTime &time);
 		
 		class ConsoleCmd : public Command {
 			public:
 				ConsoleCmd(SDLInteractiveConsole *cons);
-				virtual void execute(const std::vector<std::string> &tokens);
+				virtual void execute(const std::vector<std::string> &tokens,
+				                     const EmuTime &time);
 				virtual void help(const std::vector<std::string> &tokens) const;
 			private:
 				SDLInteractiveConsole *console;

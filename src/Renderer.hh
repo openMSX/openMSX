@@ -217,7 +217,8 @@ private:
 	class FullScreenCmd : public Command {
 		public:
 			FullScreenCmd(Renderer *rend);
-			virtual void execute(const std::vector<std::string> &tokens);
+			virtual void execute(const std::vector<std::string> &tokens,
+			                     const EmuTime &time);
 			virtual void help(const std::vector<std::string> &tokens) const;
 		private:
 			Renderer *renderer;

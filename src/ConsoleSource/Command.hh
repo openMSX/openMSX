@@ -7,6 +7,8 @@
 #include <vector>
 #include "MSXException.hh"
 
+class EmuTime;
+
 
 class CommandException : public MSXException {
 	public:
@@ -23,7 +25,8 @@ class Command
 		/**
 		 * called by the console when a command is typed
 		 */
-		virtual void execute(const std::vector<std::string> &tokens) = 0;
+		virtual void execute(const std::vector<std::string> &tokens,
+		                     const EmuTime &time) = 0;
 		/**
 		 * called by the console when a help command is typed
 		 */

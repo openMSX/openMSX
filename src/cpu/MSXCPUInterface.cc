@@ -252,7 +252,8 @@ std::string MSXCPUInterface::getSlotSelection()
 }
 
 
-void MSXCPUInterface::SlotMapCmd::execute(const std::vector<std::string> &tokens)
+void MSXCPUInterface::SlotMapCmd::execute(const std::vector<std::string> &tokens,
+                                          const EmuTime &time)
 {
 	print(MSXCPUInterface::instance()->getSlotMap());
 }
@@ -261,7 +262,8 @@ void MSXCPUInterface::SlotMapCmd::help(const std::vector<std::string> &tokens) c
 	print("Prints which slots contain which devices.");
 }
 
-void MSXCPUInterface::SlotSelectCmd::execute(const std::vector<std::string> &tokens)
+void MSXCPUInterface::SlotSelectCmd::execute(const std::vector<std::string> &tokens,
+                                             const EmuTime &time)
 {
 	print(MSXCPUInterface::instance()->getSlotSelection());
 }

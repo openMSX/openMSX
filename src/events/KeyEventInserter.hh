@@ -21,10 +21,8 @@ class KeyEventInserterCLI : public CLIOption
 class KeyEventInserter
 {
 	public:
-		KeyEventInserter();
-		KeyEventInserter &operator<<(const std::string &str);
-		KeyEventInserter &operator<<(const char* cstr);
-		void enter(const std::string &str);
+		KeyEventInserter(const EmuTime &time);
+		void enter(const std::string &str, const EmuTime &time);
 
 	private:
 		static const SDLKey keymap[256][4];

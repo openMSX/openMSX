@@ -105,11 +105,13 @@ class MSXCPUInterface : public CPUInterface
 		MSXCPUInterface();
 		
 		class SlotMapCmd : public Command {
-			virtual void execute(const std::vector<std::string> &tokens);
+			virtual void execute(const std::vector<std::string> &tokens,
+			                     const EmuTime &time);
 			virtual void help(const std::vector<std::string> &tokens) const;
 		};
 		class SlotSelectCmd : public Command {
-			virtual void execute(const std::vector<std::string> &tokens);
+			virtual void execute(const std::vector<std::string> &tokens,
+			                     const EmuTime &time);
 			virtual void help(const std::vector<std::string> &tokens) const;
 		};
 

@@ -33,7 +33,7 @@ SDLInteractiveConsole::~SDLInteractiveConsole()
 
 
 // Takes keys from the keyboard and inputs them to the console
-bool SDLInteractiveConsole::signalEvent(SDL_Event &event)
+bool SDLInteractiveConsole::signalEvent(SDL_Event &event, const EmuTime &time)
 {
 	if (!isVisible)
 		return true;
@@ -61,7 +61,7 @@ bool SDLInteractiveConsole::signalEvent(SDL_Event &event)
 			tabCompletion();
 			break;
 		case Keys::K_RETURN:
-			commandExecute();
+			commandExecute(time);
 			break;
 		default:
 			if (event.key.keysym.unicode)
@@ -78,7 +78,8 @@ SDLInteractiveConsole::ConsoleCmd::ConsoleCmd(SDLInteractiveConsole *cons)
 	console = cons;
 }
 
-void SDLInteractiveConsole::ConsoleCmd::execute(const std::vector<std::string> &tokens)
+void SDLInteractiveConsole::ConsoleCmd::execute(const std::vector<std::string> &tokens,
+                                                const EmuTime &time)
 {
 	switch (tokens.size()) {
 	case 1:

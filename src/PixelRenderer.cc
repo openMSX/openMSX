@@ -224,7 +224,8 @@ PixelRenderer::FrameSkipCmd::FrameSkipCmd(PixelRenderer *rend)
 {
 	renderer = rend;
 }
-void PixelRenderer::FrameSkipCmd::execute(const std::vector<std::string> &tokens)
+void PixelRenderer::FrameSkipCmd::execute(const std::vector<std::string> &tokens,
+                                          const EmuTime &time)
 {
 	switch (tokens.size()) {
 	case 1: {

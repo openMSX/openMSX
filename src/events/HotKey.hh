@@ -17,7 +17,8 @@ class HotKeyListener
 		  * This method gets called when the key you are interested in
 		  * is pressed.
 		  */
-		 virtual void signalHotKey(Keys::KeyCode key) = 0;
+		 virtual void signalHotKey(Keys::KeyCode key,
+		                           const EmuTime &time) = 0;
 }; 
 
 
@@ -49,13 +50,14 @@ class HotKey : private EventListener
 				HotKeyCmd(const std::string &cmd);
 				virtual ~HotKeyCmd();
 				const std::string &getCommand();
-				virtual void signalHotKey(Keys::KeyCode key);
+				virtual void signalHotKey(Keys::KeyCode key,
+				                          const EmuTime &time);
 			private:
 				std::string command;
 		};
 		
 		// EventListener
-		virtual bool signalEvent(SDL_Event &event);
+		virtual bool signalEvent(SDL_Event &event, const EmuTime &time);
 
 		HotKey();
 
@@ -64,7 +66,8 @@ class HotKey : private EventListener
 
 		class BindCmd : public Command {
 			public:
-				virtual void execute(const std::vector<std::string> &tokens);
+				virtual void execute(const std::vector<std::string> &tokens,
+				                     const EmuTime &time);
 				virtual void help(const std::vector<std::string> &tokens) const;
 		};
 		friend class BindCmd;
@@ -72,7 +75,8 @@ class HotKey : private EventListener
 			
 		class UnbindCmd : public Command {
 			public:
-				virtual void execute(const std::vector<std::string> &tokens);
+				virtual void execute(const std::vector<std::string> &tokens,
+				                     const EmuTime &time);
 				virtual void help(const std::vector<std::string> &tokens) const;
 		};
 		friend class UnbindCmd;

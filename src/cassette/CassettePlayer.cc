@@ -161,7 +161,8 @@ const std::string &CassettePlayer::getName() const
 }
 
 
-void CassettePlayer::execute(const std::vector<std::string> &tokens)
+void CassettePlayer::execute(const std::vector<std::string> &tokens,
+                             const EmuTime &time)
 {
 	if (tokens.size() != 2)
 		throw CommandException("Syntax error");

@@ -5,13 +5,12 @@
 
 #include <list>
 #include "Command.hh"
-#include "Schedulable.hh"
 
 // forward declarations
 class MSXDevice;
 
 
-class MSXMotherBoard : public Schedulable
+class MSXMotherBoard
 {
 	public:
 		/**
@@ -59,10 +58,10 @@ class MSXMotherBoard : public Schedulable
 
 	private:
 		MSXMotherBoard();
-		virtual void executeUntilEmuTime(const EmuTime &time, int userData);
 		
 		class ResetCmd : public Command {
-			virtual void execute(const std::vector<std::string> &tokens);
+			virtual void execute(const std::vector<std::string> &tokens,
+			                     const EmuTime &time);
 			virtual void help(const std::vector<std::string> &tokens) const;
 		};
 		ResetCmd resetCmd;

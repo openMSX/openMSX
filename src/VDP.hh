@@ -396,7 +396,8 @@ private:
 	class VDPRegsCmd : public Command {
 	public:
 		VDPRegsCmd(VDP *vdp);
-		virtual void execute(const std::vector<std::string> &tokens);
+		virtual void execute(const std::vector<std::string> &tokens,
+		                     const EmuTime &time);
 		virtual void help(const std::vector<std::string> &tokens) const;
 	private:
 		VDP *vdp;
@@ -406,7 +407,8 @@ private:
 	class PaletteCmd : public Command {
 	public:
 		PaletteCmd(VDP *vdp);
-		virtual void execute(const std::vector<std::string> &tokens);
+		virtual void execute(const std::vector<std::string> &tokens,
+		                     const EmuTime &time);
 		virtual void help(const std::vector<std::string> &tokens) const;
 	private:
 		VDP *vdp;
@@ -415,7 +417,8 @@ private:
 	class RendererCmd : public Command {
 	public:
 		RendererCmd(VDP *vdp);
-		virtual void execute(const std::vector<std::string> &tokens);
+		virtual void execute(const std::vector<std::string> &tokens,
+		                     const EmuTime &time);
 		virtual void help(const std::vector<std::string> &tokens) const;
 	private:
 		VDP *vdp;

@@ -108,7 +108,7 @@ class Scheduler : private EventListener
 		Scheduler();
 
 		// EventListener
-		virtual bool signalEvent(SDL_Event &event);
+		virtual bool signalEvent(SDL_Event &event, const EmuTime &time);
 
 		/** Vector used as heap, not a priority queue because that
 		  * doesn't allow removal of non-top element.
@@ -128,13 +128,15 @@ class Scheduler : private EventListener
 		// commands
 		class QuitCmd : public Command {
 		public:
-			virtual void execute(const std::vector<std::string> &tokens);
+			virtual void execute(const std::vector<std::string> &tokens,
+			                     const EmuTime &time);
 			virtual void help(const std::vector<std::string> &tokens) const;
 		};
 		QuitCmd quitCmd;
 		class MuteCmd : public Command {
 		public:
-			virtual void execute(const std::vector<std::string> &tokens);
+			virtual void execute(const std::vector<std::string> &tokens,
+			                     const EmuTime &time);
 			virtual void help(const std::vector<std::string> &tokens) const;
 		};
 		friend class MuteCmd;

@@ -20,7 +20,8 @@ RealTime::RealTime()
 	speed = 256;
 	paused = false;
 	throttle = true;
-	reset(MSXCPU::instance()->getCurrentTime());
+	EmuTime zero;
+	reset(zero);
 	scheduler->setSyncPoint(emuRef+syncInterval, this);
 	
 	CommandController::instance()->registerCommand(pauseCmd, "pause");
@@ -152,13 +153,14 @@ void RealTime::reset(const EmuTime &time)
 	sleepAdjust = 0.0;
 }
 
-void RealTime::PauseCmd::execute(const std::vector<std::string> &tokens)
+void RealTime::PauseCmd::execute(const std::vector<std::string> &tokens,
+                                 const EmuTime &time)
 {
 	Scheduler *sch = Scheduler::instance();
 	switch (tokens.size()) {
 	case 1:
 		if (sch->isPaused()) {
-			RealTime::instance()->reset(MSXCPU::instance()->getCurrentTime()); 
+			RealTime::instance()->reset(time); 
 			sch->unpause();
 		} else {
 			sch->pause();
@@ -170,7 +172,7 @@ void RealTime::PauseCmd::execute(const std::vector<std::string> &tokens)
 			break;
 		}
 		if (tokens[1] == "off") {
-			RealTime::instance()->reset(MSXCPU::instance()->getCurrentTime()); 
+			RealTime::instance()->reset(time); 
 			sch->unpause();
 			break;
 		}
@@ -187,7 +189,8 @@ void RealTime::PauseCmd::help(const std::vector<std::string> &tokens) const
 	print(" pause off: unpause emulation");
 }
 
-void RealTime::ThrottleCmd::execute(const std::vector<std::string> &tokens)
+void RealTime::ThrottleCmd::execute(const std::vector<std::string> &tokens,
+                                    const EmuTime &time)
 {
 	RealTime *rt = RealTime::instance();
 	switch (tokens.size()) {
@@ -216,7 +219,8 @@ void RealTime::ThrottleCmd::help(const std::vector<std::string> &tokens) const
 	print(" throttle off: run emulation on maximum speed");
 }
 
-void RealTime::SpeedCmd::execute(const std::vector<std::string> &tokens)
+void RealTime::SpeedCmd::execute(const std::vector<std::string> &tokens,
+                                 const EmuTime &time)
 {
 	RealTime *rt = RealTime::instance();
 	switch (tokens.size()) {
@@ -230,7 +234,7 @@ void RealTime::SpeedCmd::execute(const std::vector<std::string> &tokens)
 		int tmp = strtol(tokens[1].c_str(), NULL, 0);
 		if (tmp > 0) {
 			rt->speed = 25600 / tmp;
-			rt->reset(MSXCPU::instance()->getCurrentTime());
+			rt->reset(time);
 		} else {
 			throw CommandException("Illegal argument");
 		}

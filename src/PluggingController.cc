@@ -66,7 +66,8 @@ void PluggingController::unregisterPluggable(Pluggable *pluggable)
 // === Commands ===
 //  plug command
 
-void PluggingController::PlugCmd::execute(const std::vector<std::string> &tokens)
+void PluggingController::PlugCmd::execute(const std::vector<std::string> &tokens,
+                                          const EmuTime &time)
 {
 	PluggingController* controller = PluggingController::instance();
 	switch (tokens.size()) {
@@ -124,7 +125,6 @@ void PluggingController::PlugCmd::execute(const std::vector<std::string> &tokens
 				throw CommandException("No such pluggable");
 			if (connector->getClass() != pluggable->getClass())
 				throw CommandException("Doesn't fit");
-			const EmuTime &time = MSXCPU::instance()->getCurrentTime();
 			connector->unplug(time);
 			connector->plug(pluggable, time);
 			break;
@@ -165,7 +165,8 @@ void PluggingController::PlugCmd::tabCompletion(std::vector<std::string> &tokens
 
 //  unplug command
 
-void PluggingController::UnplugCmd::execute(const std::vector<std::string> &tokens)
+void PluggingController::UnplugCmd::execute(const std::vector<std::string> &tokens,
+                                            const EmuTime &time)
 {
 	if (tokens.size() != 2)
 		throw CommandException("Syntax error");
@@ -180,7 +181,6 @@ void PluggingController::UnplugCmd::execute(const std::vector<std::string> &toke
 	}
 	if (connector == NULL)
 		throw CommandException("No such connector");
-	const EmuTime &time = MSXCPU::instance()->getCurrentTime();
 	connector->unplug(time);
 }
 

@@ -242,7 +242,8 @@ void RealDrive::ejectDisk()
 	disk = new FDCDummyBackEnd();
 }
 
-void RealDrive::execute(const std::vector<std::string> &tokens)
+void RealDrive::execute(const std::vector<std::string> &tokens,
+                        const EmuTime &time)
 {
 	if (tokens.size() != 2)
 		throw CommandException("Syntax error");

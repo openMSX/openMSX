@@ -79,7 +79,7 @@ void HotKey::unregisterHotKeyCommand(Keys::KeyCode key, const std::string &comma
 }
 
 
-bool HotKey::signalEvent(SDL_Event &event)
+bool HotKey::signalEvent(SDL_Event &event, const EmuTime &time)
 {
 	Keys::KeyCode key = (Keys::KeyCode)event.key.keysym.sym;
 	if (event.type == SDL_KEYUP)
@@ -89,7 +89,7 @@ bool HotKey::signalEvent(SDL_Event &event)
 	for (it = map.lower_bound(key);
 	     (it != map.end()) && (it->first == key);
 	     it++) {
-		it->second->signalHotKey(key);
+		it->second->signalHotKey(key, time);
 	}
 	return true;
 }
@@ -106,13 +106,14 @@ const std::string &HotKey::HotKeyCmd::getCommand()
 {
 	return command;
 }
-void HotKey::HotKeyCmd::signalHotKey(Keys::KeyCode key)
+void HotKey::HotKeyCmd::signalHotKey(Keys::KeyCode key, const EmuTime &time)
 {
-	CommandController::instance()->executeCommand(command);
+	CommandController::instance()->executeCommand(command, time);
 }
 
 
-void HotKey::BindCmd::execute(const std::vector<std::string> &tokens)
+void HotKey::BindCmd::execute(const std::vector<std::string> &tokens,
+                              const EmuTime &time)
 {
 	HotKey *hk = HotKey::instance();
 	switch (tokens.size()) {
@@ -158,7 +159,8 @@ void HotKey::BindCmd::help(const std::vector<std::string> &tokens) const
 	print("bind <key> <cmd> : bind key to command");
 }
 
-void HotKey::UnbindCmd::execute(const std::vector<std::string> &tokens)
+void HotKey::UnbindCmd::execute(const std::vector<std::string> &tokens,
+                                const EmuTime &time)
 {
 	HotKey *hk = HotKey::instance();
 	switch (tokens.size()) {

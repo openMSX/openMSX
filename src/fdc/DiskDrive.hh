@@ -164,7 +164,8 @@ class RealDrive : public DiskDrive, public Command
 
 	private:
 		// Command interface
-		virtual void execute(const std::vector<std::string> &tokens);
+		virtual void execute(const std::vector<std::string> &tokens,
+		                     const EmuTime &time);
 		virtual void help   (const std::vector<std::string> &tokens) const;
 		virtual void tabCompletion(std::vector<std::string> &tokens) const;
 		void insertDisk(const std::string &disk);

@@ -941,7 +941,8 @@ VDP::VDPRegsCmd::VDPRegsCmd(VDP *vdp)
 	this->vdp = vdp;
 }
 
-void VDP::VDPRegsCmd::execute(const std::vector<std::string> &tokens)
+void VDP::VDPRegsCmd::execute(const std::vector<std::string> &tokens,
+                              const EmuTime &time)
 {
 	// Print palette in 4x4 table.
 	std::ostringstream out;
@@ -971,7 +972,8 @@ VDP::PaletteCmd::PaletteCmd(VDP *vdp)
 	this->vdp = vdp;
 }
 
-void VDP::PaletteCmd::execute(const std::vector<std::string> &tokens)
+void VDP::PaletteCmd::execute(const std::vector<std::string> &tokens,
+                              const EmuTime &time)
 {
 	// Print palette in 4x4 table.
 	std::ostringstream out;
@@ -1000,7 +1002,8 @@ VDP::RendererCmd::RendererCmd(VDP *vdp)
 	this->vdp = vdp;
 }
 
-void VDP::RendererCmd::execute(const std::vector<std::string> &tokens)
+void VDP::RendererCmd::execute(const std::vector<std::string> &tokens,
+                               const EmuTime &time)
 {
 	switch (tokens.size()) {
 		case 1:

@@ -185,7 +185,7 @@ SettingsManager::SetCommand::SetCommand(
 }
 
 void SettingsManager::SetCommand::execute(
-	const std::vector<std::string> &tokens )
+	const std::vector<std::string> &tokens, const EmuTime &time)
 {
 	int nrTokens = tokens.size();
 	if (nrTokens == 0 || nrTokens > 3) {

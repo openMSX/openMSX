@@ -168,14 +168,15 @@ bool Scheduler::isPaused()
 }
 
 
-bool Scheduler::signalEvent(SDL_Event &event)
+bool Scheduler::signalEvent(SDL_Event &event, const EmuTime &time)
 {
 	stopScheduling();
 	return true;
 }
 
 
-void Scheduler::QuitCmd::execute(const std::vector<std::string> &tokens)
+void Scheduler::QuitCmd::execute(const std::vector<std::string> &tokens,
+                                 const EmuTime &time)
 {
 	Scheduler::instance()->stopScheduling();
 }
@@ -185,7 +186,8 @@ void Scheduler::QuitCmd::help(const std::vector<std::string> &tokens) const
 }
 
 //TODO this command belongs in Mixer instead of Scheduler
-void Scheduler::MuteCmd::execute(const std::vector<std::string> &tokens)
+void Scheduler::MuteCmd::execute(const std::vector<std::string> &tokens,
+                                 const EmuTime &time)
 {
 	Scheduler *sch = Scheduler::instance();
 	switch (tokens.size()) {

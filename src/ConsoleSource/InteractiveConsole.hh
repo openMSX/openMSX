@@ -6,6 +6,8 @@
 #include "Console.hh"
 #include "CircularBuffer.hh"
 
+class EmuTime;
+
 
 class InteractiveConsole : public Console
 {
@@ -22,7 +24,7 @@ class InteractiveConsole : public Console
 		
 	protected:
 		void tabCompletion();
-		void commandExecute();
+		void commandExecute(const EmuTime &time);
 		void scrollUp();
 		void scrollDown();
 		void prevCommand();

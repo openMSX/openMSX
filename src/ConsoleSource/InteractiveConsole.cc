@@ -52,12 +52,12 @@ void InteractiveConsole::putCommandHistory(const std::string &command)
 	history.addFront(command);
 }
 
-void InteractiveConsole::commandExecute()
+void InteractiveConsole::commandExecute(const EmuTime &time)
 {
 	putCommandHistory(lines[0]);
 	try {
 		CommandController::instance()->
-			executeCommand(lines[0].substr(PROMPT.length()));
+			executeCommand(lines[0].substr(PROMPT.length()), time);
 	} catch (CommandException &e) {
 		print(e.desc);
 	}

@@ -103,5 +103,4 @@ class CassettePortFactory
 		static CassettePortInterface *instance(const EmuTime &time);
 };
 
-
 #endif

@@ -199,7 +199,8 @@ private:
 	class SetCommand : public Command {
 	public:
 		SetCommand(SettingsManager *manager);
-		virtual void execute(const std::vector<std::string> &tokens);
+		virtual void execute(const std::vector<std::string> &tokens,
+		                     const EmuTime &time);
 		virtual void help   (const std::vector<std::string> &tokens) const;
 		virtual void tabCompletion(std::vector<std::string> &tokens) const;
 	private:

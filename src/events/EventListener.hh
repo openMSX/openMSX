@@ -5,6 +5,8 @@
 
 #include <SDL/SDL.h>
 
+class EmuTime;
+
 
 class EventListener
 {
@@ -16,7 +18,8 @@ class EventListener
 		 * EventListener may also receive this event (normally always
 		 * the case except for Console)
 		 */
-		virtual bool signalEvent(SDL_Event &event) = 0;
+		virtual bool signalEvent(SDL_Event &event,
+		                         const EmuTime &time) = 0;
 };
 
 #endif

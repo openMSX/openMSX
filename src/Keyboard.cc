@@ -36,7 +36,7 @@ const byte* Keyboard::getKeys()
 }
 
 
-bool Keyboard::signalEvent(SDL_Event &event)
+bool Keyboard::signalEvent(SDL_Event &event, const EmuTime &time)
 {
 	int key;
 	switch (event.type) {

@@ -65,15 +65,11 @@ void MSXMotherBoard::destroyMSX()
 	}
 }
 
-void MSXMotherBoard::executeUntilEmuTime(const EmuTime &time, int userData)
-{
-	resetMSX(time);
-}
 
-
-void MSXMotherBoard::ResetCmd::execute(const std::vector<std::string> &tokens)
+void MSXMotherBoard::ResetCmd::execute(const std::vector<std::string> &tokens,
+                                       const EmuTime &time)
 {
-	Scheduler::instance()->setSyncPoint(Scheduler::ASAP, MSXMotherBoard::instance());
+	MSXMotherBoard::instance()->resetMSX(time);
 }
 void MSXMotherBoard::ResetCmd::help(const std::vector<std::string> &tokens) const
 {

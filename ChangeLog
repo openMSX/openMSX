@@ -1,5 +1,10 @@
 $Id$
 
+2003-01-11 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* removed MSXCPU::getTargetTime() method
+	* added EmuTime argument to the execute() method of a Command:
+	   this removes some of the calls to MSXCPU::getCurrentTime()
+
 2003-01-09 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed CPU on big endian machines
 	* TurboR PCM update:

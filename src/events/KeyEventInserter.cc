@@ -1,7 +1,6 @@
 // $Id$
 
 #include "KeyEventInserter.hh"
-#include "MSXCPU.hh"
 #include "SDLEventInserter.hh"
 #include "EmuTime.hh"
 #include "MSXConfig.hh"
@@ -79,33 +78,21 @@ const std::string& KeyEventInserterCLI::optionHelp() const
 }
 
 
-KeyEventInserter::KeyEventInserter()
+KeyEventInserter::KeyEventInserter(const EmuTime &time)
 {
 	try {
 		MSXConfig::Config *config = MSXConfig::Backend::instance()->
 		                            getConfigById("KeyEventInserter");
-		enter(config->getParameter("keys"));
+		enter(config->getParameter("keys"), time);
 	} catch(MSXException &e) {
 		// do nothing
 	}
 }
 
-KeyEventInserter &KeyEventInserter::operator<<(const std::string &str)
-{
-	enter(str);
-	return *this;
-}
-
-KeyEventInserter &KeyEventInserter::operator<<(const char *cstr)
-{
-	std::string str(cstr);
-	return operator<<(str);
-}
-
-void KeyEventInserter::enter(const std::string &str)
+void KeyEventInserter::enter(const std::string &str, const EmuTime &time_)
 {
 	SDL_Event event;
-	EmuTimeFreq<5> time(MSXCPU::instance()->getCurrentTime());
+	EmuTimeFreq<5> time(time_);
 	time += 10*5; // wait for bootlogo
 	for (unsigned i=0; i<str.length(); i++) {
 		const SDLKey* events;

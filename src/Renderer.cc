@@ -91,7 +91,8 @@ Renderer::FullScreenCmd::FullScreenCmd(Renderer *rend)
 	renderer = rend;
 }
 
-void Renderer::FullScreenCmd::execute(const std::vector<std::string> &tokens)
+void Renderer::FullScreenCmd::execute(const std::vector<std::string> &tokens,
+                                      const EmuTime &time)
 {
 	switch (tokens.size()) {
 	case 1:
