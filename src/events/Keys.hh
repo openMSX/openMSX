@@ -172,7 +172,6 @@ class Keys {
 			}
 		};
 		static std::map<const std::string, KeyCode, ltstr> keymap;
-		static const std::string unknown;
 };
 
 #endif

@@ -42,7 +42,6 @@ class MSXMapperIO : public MSXIODevice
 	private:
 		MSXMapperIO(MSXConfig::Device *config, const EmuTime &time);
 		
-		static MSXMapperIO* oneInstance;
 		MapperMask* mapperMask;
 		std::list<int> mapperSizes;
 		byte mask;

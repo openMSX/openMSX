@@ -11,6 +11,8 @@ Keys::KeyCode Keys::getCode(const std::string &name)
 
 const std::string &Keys::getName(const KeyCode keyCode)
 {
+	static const std::string unknown("unknown");
+
 	initialize();
 	std::map<const std::string, KeyCode, ltstr>::const_iterator it;
 	for (it = keymap.begin(); it != keymap.end(); it++) {
@@ -19,7 +21,6 @@ const std::string &Keys::getName(const KeyCode keyCode)
 	}
 	return unknown;
 }
-const std::string Keys::unknown = std::string("unknown");
 
 void Keys::initialize()
 {

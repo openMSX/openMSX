@@ -11,7 +11,7 @@ class EmuTime;
 class Y8950;
 
 
-class Y8950Adpcm : private Schedulable
+class Y8950Adpcm : public Schedulable
 {
 	public:
 		Y8950Adpcm(Y8950 *y8950, int sampleRam);

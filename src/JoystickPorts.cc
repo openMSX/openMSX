@@ -34,9 +34,9 @@ const std::string &JoystickPort::getName()
 
 const std::string &JoystickPort::getClass()
 {
+	static const std::string className("Joystick Port");
 	return className;
 }
-const std::string JoystickPort::className("Joystick Port");
 
 void JoystickPort::plug(Pluggable *device, const EmuTime &time)
 {

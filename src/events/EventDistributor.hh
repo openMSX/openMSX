@@ -14,7 +14,7 @@
 class EventListener;
 
 
-class EventDistributor : public Runnable , private Schedulable
+class EventDistributor : public Runnable , public Schedulable
 {
 	public:
 		virtual ~EventDistributor();
@@ -40,10 +40,9 @@ class EventDistributor : public Runnable , private Schedulable
 	private:
 		EventDistributor();
 		virtual void executeUntilEmuTime(const EmuTime &time, int userdata);
+		virtual const std::string &schedName();
 		virtual void run();
 
-		static EventDistributor *oneInstance;
-		
 		std::multimap <int, EventListener*> lowMap;
 		std::multimap <int, EventListener*> highMap;
 		std::queue <std::pair<SDL_Event, EventListener*> > lowQueue;

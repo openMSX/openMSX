@@ -37,8 +37,6 @@ class CassetteDevice : public Pluggable
 
 
 		virtual const std::string &getClass();
-	private:
-		static const std::string className;
 };
 
 #endif

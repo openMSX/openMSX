@@ -49,8 +49,6 @@ class CommandController
 		void tokenize(const std::string &str, std::vector<std::string> &tokens, const std::string &delimiters = " ");
 		static bool completeString2(std::string &string, std::list<std::string> &list);
 
-		static CommandController* oneInstance;
-		
 		struct ltstr {
 			bool operator()(const std::string &s1, const std::string &s2) const {
 				return s1 < s2;

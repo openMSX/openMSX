@@ -81,15 +81,15 @@ void MSXPrinterPort::writeData(byte newData, const EmuTime &time)
 
 const std::string &MSXPrinterPort::getName()
 {
+	static const std::string name("printerport");
 	return name;
 }
-const std::string MSXPrinterPort::name("printerport");
 
 const std::string &MSXPrinterPort::getClass()
 {
+	static const std::string className("Printer Port");
 	return className;
 }
-const std::string MSXPrinterPort::className("Printer Port");
 
 void MSXPrinterPort::plug(Pluggable *dev, const EmuTime &time)
 {
@@ -124,6 +124,6 @@ void DummyPrinterPortDevice::writeData(byte data, const EmuTime &time)
 
 const std::string &DummyPrinterPortDevice::getName()
 {
+	static const std::string name("dummy");
 	return name;
 }
-const std::string DummyPrinterPortDevice::name("dummy");

@@ -30,8 +30,6 @@ class Y8950KeyboardDevice : public Pluggable
 
 
 		virtual const std::string &getClass();
-private:
-		static const std::string className;
 };
 
 #endif

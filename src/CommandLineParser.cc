@@ -10,13 +10,12 @@
 
 #include <cstdio>
 
-CommandLineParser* CommandLineParser::oneInstance = NULL;
 
 CommandLineParser* CommandLineParser::instance()
 {
-	if (oneInstance == NULL) {
+	static CommandLineParser* oneInstance = NULL;
+	if (oneInstance == NULL)
 		oneInstance = new CommandLineParser();
-	} 
 	return oneInstance;
 }
 

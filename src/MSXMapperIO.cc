@@ -45,6 +45,7 @@ MSXMapperIO::~MSXMapperIO()
 
 MSXMapperIO* MSXMapperIO::instance()
 {
+	static MSXMapperIO* oneInstance = NULL;
 	if (oneInstance == NULL) {
 		MSXConfig::Device* config = MSXConfig::Backend::instance()->getDeviceById("MapperIO");
 		EmuTime dummy;
@@ -52,7 +53,6 @@ MSXMapperIO* MSXMapperIO::instance()
 	}
 	return oneInstance;
 }
-MSXMapperIO* MSXMapperIO::oneInstance = NULL;
 
 
 void MSXMapperIO::registerMapper(int blocks)

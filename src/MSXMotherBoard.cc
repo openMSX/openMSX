@@ -22,13 +22,12 @@ MSXMotherBoard::~MSXMotherBoard()
 
 MSXMotherBoard *MSXMotherBoard::instance()
 {
-	if (oneInstance == NULL) {
+	static MSXMotherBoard* oneInstance = NULL;
+	if (oneInstance == NULL)
 		oneInstance = new MSXMotherBoard(
 			MSXConfig::Backend::instance()->getConfigById("MotherBoard"));
-	}
 	return oneInstance;
 }
-MSXMotherBoard *MSXMotherBoard::oneInstance = NULL;
 
 
 void MSXMotherBoard::addDevice(MSXDevice *device)

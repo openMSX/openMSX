@@ -12,7 +12,6 @@ class DummyY8950KeyboardDevice : public Y8950KeyboardDevice
 	virtual void write(byte data, const EmuTime &time);
 	virtual byte read(const EmuTime &time);
 	virtual const std::string &getName();
-	static const std::string name;
 };
 
 
@@ -35,9 +34,6 @@ class Y8950KeyboardConnector : public Connector
 		DummyY8950KeyboardDevice *dummy;
 		
 		byte data;
-
-		static const std::string name;
-		static const std::string className;
 };
 
 #endif

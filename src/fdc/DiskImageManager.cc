@@ -9,11 +9,11 @@
 
 DiskImageManager* DiskImageManager::instance()
 {
+	static DiskImageManager* oneInstance = NULL;
 	if (oneInstance == NULL)
 		oneInstance = new DiskImageManager();
 	return oneInstance;
 }
-DiskImageManager* DiskImageManager::oneInstance = NULL;
 
 
 void DiskImageManager::registerDrive(const std::string &driveName)

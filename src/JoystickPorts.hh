@@ -30,7 +30,6 @@ class JoystickPort : public Connector
 	private:
 		DummyJoystick* dummy;
 		std::string name;
-		static const std::string className;
 
 		byte lastValue;
 };

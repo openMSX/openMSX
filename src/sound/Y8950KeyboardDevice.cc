@@ -5,7 +5,6 @@
 
 const std::string &Y8950KeyboardDevice::getClass()
 {
+	static const std::string className("Y8950 Keyboard Port");
 	return className;
 }
-
-const std::string Y8950KeyboardDevice::className("Y8950 Keyboard Port");

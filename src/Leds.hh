@@ -21,7 +21,6 @@ class Leds
 		
 	private:
 		Leds();
-		static Leds* oneInstance;
 
 		bool pwrLed, capsLed, kanaLed, pauseLed, turboLed, fddLed;
 };

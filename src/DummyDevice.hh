@@ -20,7 +20,6 @@ class DummyDevice : public MSXIODevice, public MSXMemDevice
 	
 	private:
 		DummyDevice(MSXConfig::Device *config, const EmuTime &time);
-		static DummyDevice *oneInstance;
 };
 
 #endif //__DUMMYDEVICE_HH__

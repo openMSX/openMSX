@@ -111,7 +111,6 @@ class Scheduler : private EventListener
 		// EventListener
 		virtual bool signalEvent(SDL_Event &event);
 
-		static Scheduler *oneInstance;
 		/** Vector used as heap, not a priority queue because that
 		  * doesn't allow removal of non-top element.
 		  */

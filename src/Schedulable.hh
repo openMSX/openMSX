@@ -27,10 +27,7 @@ class Schedulable
 		/**
 		 * This method is only used to print meaningfull debug messages
 		 */
-		virtual const std::string &getName();
-
-	protected:
-		static const std::string defaultName;
+		virtual const std::string &schedName();
 };
 
 #endif

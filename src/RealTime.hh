@@ -26,7 +26,8 @@ class RealTime : public Schedulable
 		 */
 		static RealTime *instance();
 		
-		void executeUntilEmuTime(const EmuTime &time, int userData);
+		virtual void executeUntilEmuTime(const EmuTime &time, int userData);
+		virtual const std::string &schedName();
 
 		float getRealDuration(const EmuTime &time1, const EmuTime &time2);
 
@@ -52,8 +53,6 @@ class RealTime : public Schedulable
 		//        big   -> present is more important
 		static const float alpha = 0.5;	// TODO make tuneable???
 	
-		static RealTime *oneInstance;
-
 		EmuTimeFreq<1000> emuRef, emuOrigin;	// in ms (rounding err!!)
 		unsigned int realRef, realOrigin;	// !! Overflow in 49 days
 		int catchUpTime;  // number of milliseconds overtime.

@@ -50,7 +50,6 @@ class MSXDevice
 		MSXDevice(MSXConfig::Device *config, const EmuTime &time);
 
 		MSXConfig::Device *deviceConfig;
-		static const std::string defaultName;
 };
 
 #endif //__MSXDEVICE_HH__

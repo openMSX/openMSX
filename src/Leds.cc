@@ -21,12 +21,11 @@ Leds::~Leds()
 
 Leds* Leds::instance()
 {
-	if (oneInstance == NULL) {
+	static Leds* oneInstance = NULL;
+	if (oneInstance == NULL)
 		oneInstance = new Leds();
-	}
 	return oneInstance;
 }
-Leds* Leds::oneInstance = NULL;
 
 
 void Leds::setLed(LEDCommand led)

@@ -59,9 +59,6 @@ class CassettePortInterface : public Connector
 
 	private:
 		DummyCassetteDevice* dummy;
-		
-		static const std::string name;
-		static const std::string className;
 };
 
 class CassettePort : public CassettePortInterface
@@ -104,9 +101,6 @@ class CassettePortFactory
 		 * object
 		 */
 		static CassettePortInterface *instance(const EmuTime &time);
-		
-	private:
-		static CassettePortInterface *oneInstance;
 };
 
 

@@ -23,12 +23,11 @@ PluggingController::~PluggingController()
 
 PluggingController* PluggingController::instance()
 {
-	if (oneInstance == NULL) {
+	static PluggingController* oneInstance = NULL;
+	if (oneInstance == NULL)
 		oneInstance = new PluggingController();
-	}
 	return oneInstance;
 }
-PluggingController* PluggingController::oneInstance = NULL;
 
 
 void PluggingController::registerConnector(Connector *connector)

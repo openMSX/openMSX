@@ -12,7 +12,7 @@ class Scheduler;
 
 
 template<int freq, byte flag>
-class Y8950Timer : Schedulable
+class Y8950Timer : public Schedulable
 {
 	public:
 		Y8950Timer(Y8950 *y8950);

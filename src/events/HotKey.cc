@@ -20,12 +20,11 @@ HotKey::~HotKey()
 
 HotKey* HotKey::instance()
 {
-	if (oneInstance == NULL) {
+	static HotKey* oneInstance = NULL;
+	if (oneInstance == NULL)
 		oneInstance = new HotKey();
-	}
 	return oneInstance;
 }
-HotKey* HotKey::oneInstance = NULL;
 
 
 void HotKey::registerHotKey(Keys::KeyCode key, HotKeyListener *listener)

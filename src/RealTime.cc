@@ -46,18 +46,24 @@ RealTime::~RealTime()
 
 RealTime *RealTime::instance()
 {
-	if (oneInstance == NULL) {
+	static RealTime* oneInstance = NULL;
+	if (oneInstance == NULL)
 		oneInstance = new RealTime();
-	}
 	return oneInstance;
 }
-RealTime *RealTime::oneInstance = NULL;
 
 
 void RealTime::executeUntilEmuTime(const EmuTime &curEmu, int userData)
 {
 	internalSync(curEmu);
 }
+
+const std::string &RealTime::schedName()
+{
+	static const std::string name("RealTime");
+	return name;
+}
+
 
 void RealTime::sync()
 {

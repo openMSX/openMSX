@@ -4,8 +4,10 @@
 #include "MSXDevice.hh"
 
 
-const std::string &Schedulable::getName()
+const std::string &Schedulable::schedName()
 {
+	static const std::string defaultName("[Schedulable, no name]");
+	
 	MSXDevice *dev = dynamic_cast<MSXDevice*>(this);
 	if (dev) {
 		return dev->getName();
@@ -13,5 +15,4 @@ const std::string &Schedulable::getName()
 		return defaultName;
 	}
 }
-const std::string Schedulable::defaultName = "[Schedulable, no name]";
 

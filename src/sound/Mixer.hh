@@ -73,8 +73,6 @@ class Mixer
 		static void audioCallbackHelper(void *userdata, Uint8 *stream, int len);
 		void audioCallback(short* stream);
 		
-		static Mixer *oneInstance;
-
 		SDL_AudioSpec audioSpec;
 		std::list<SoundDevice*> devices[NB_MODES];
 		std::vector<int*> buffers;

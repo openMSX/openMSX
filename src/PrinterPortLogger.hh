@@ -22,12 +22,11 @@ class PrinterPortLogger : public PrinterPortDevice
 		virtual void plug(const EmuTime &time);
 		virtual void unplug(const EmuTime &time);
 		virtual const std::string &getName();
+
 	private:
 		byte toPrint;
 		bool prevStrobe;
 		IOFILETYPE* file;
-		
-		static const std::string name;
 };
 
 #endif

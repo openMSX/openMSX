@@ -5,7 +5,6 @@
 
 const std::string &PrinterPortDevice::getClass()
 {
+	static const std::string className("Printer Port");
 	return className;
 }
-
-const std::string PrinterPortDevice::className("Printer Port");

@@ -12,6 +12,7 @@
 
 CassettePortInterface *CassettePortFactory::instance(const EmuTime &time)
 {
+	static CassettePortInterface* oneInstance = NULL;
 	if (oneInstance == NULL) {
 		try {
 			MSXConfig::Backend::instance()->getConfigById("CassettePort");
@@ -24,7 +25,6 @@ CassettePortInterface *CassettePortFactory::instance(const EmuTime &time)
 	}
 	return oneInstance;
 }
-CassettePortInterface *CassettePortFactory::oneInstance = NULL;
 
 
 
@@ -56,15 +56,15 @@ void CassettePortInterface::unplug(const EmuTime &time)
 
 const std::string &CassettePortInterface::getName()
 {
+	static const std::string name("cassetteport");
 	return name;
 }
-const std::string CassettePortInterface::name("cassetteport");
 
 const std::string &CassettePortInterface::getClass()
 {
+	static const std::string className("Cassette Port");
 	return className;
 }
-const std::string CassettePortInterface::className("Cassette Port");
 
 
 // DummyCassettePort //

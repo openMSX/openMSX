@@ -39,15 +39,15 @@ byte Y8950KeyboardConnector::read(const EmuTime &time)
 
 const std::string &Y8950KeyboardConnector::getName()
 {
+	static const std::string name("audiokeyboardport");
 	return name;
 }
-const std::string Y8950KeyboardConnector::name("audiokeyboardport");
 
 const std::string &Y8950KeyboardConnector::getClass()
 {
+	static const std::string className("Y8950 Keyboard Port");
 	return className;
 }
-const std::string Y8950KeyboardConnector::className("Y8950 Keyboard Port");
 
 void Y8950KeyboardConnector::plug(Pluggable *dev, const EmuTime &time)
 {
@@ -76,6 +76,6 @@ byte DummyY8950KeyboardDevice::read(const EmuTime &time)
 
 const std::string &DummyY8950KeyboardDevice::getName()
 {
+	static const std::string name("dummy");
 	return name;
 }
-const std::string DummyY8950KeyboardDevice::name("dummy");

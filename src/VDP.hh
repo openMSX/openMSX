@@ -43,7 +43,7 @@ class SpriteChecker;
   * A note about timing: the start of a frame or line is defined as
   * the starting time of the corresponding sync (vsync, hsync).
   */
-class VDP : public MSXIODevice, private Schedulable
+class VDP : public MSXIODevice, public Schedulable
 {
 public:
 	/** VDP version: the VDP model being emulated.

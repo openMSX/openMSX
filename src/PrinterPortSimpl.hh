@@ -25,8 +25,6 @@ class PrinterPortSimpl : public PrinterPortDevice
 		
 	private:
 		DACSound* dac;
-
-		static const std::string name;
 };
 #endif
 

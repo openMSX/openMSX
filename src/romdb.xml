@@ -39,5 +39,18 @@
     <md5>114264bbcd0fdfa7bd083a983606a200</md5>
     <romtype>ASCII8</romtype>
   </rom>
+  <rom id="War of the Dead">
+    <md5>ae08cb529c454ee7477ac61662e02858</md5>
+<!--<md5>41f4c112671b666220137f721e1460aa</md5>-->
+    <romtype>8kB</romtype>
+  </rom>
+  <rom id="Xevious">
+    <md5>72430889f4e5239a5ed9742a1b84c03a</md5>
+    <romtype>ASCII16</romtype>
+  </rom>
+  <rom id="Fantasy Zone II">
+    <md5>88ab9038be379184c70ed4aef1766a57</md5>
+    <romtype>ASCII16</romtype>
+  </rom>
 </romdb>
 

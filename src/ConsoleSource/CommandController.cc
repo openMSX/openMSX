@@ -25,12 +25,12 @@ CommandController::~CommandController()
 
 CommandController *CommandController::instance()
 {
+	static CommandController* oneInstance = NULL;
 	if (oneInstance == NULL) {
 		oneInstance = new CommandController();
 	}
 	return oneInstance;
 }
-CommandController *CommandController::oneInstance = NULL;
 
 
 void CommandController::registerCommand(Command &command, const std::string &str)

@@ -71,6 +71,5 @@ class MSXMotherBoard : public MSXCPUInterface, public Schedulable
 		ResetCmd resetCmd;
 
 		std::list<MSXDevice*> availableDevices;
-		static MSXMotherBoard *oneInstance;
 };
 #endif //__MSXMOTHERBOARD_HH__

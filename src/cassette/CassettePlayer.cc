@@ -94,6 +94,6 @@ int CassettePlayer::getWriteSampleRate()
 
 const std::string &CassettePlayer::getName()
 {
+	static const std::string name("cassetteplayer");
 	return name;
 }
-const std::string CassettePlayer::name("cassetteplayer");

@@ -60,8 +60,6 @@ class CommandLineParser
 		};
 
 		std::map<CLIoption,CommandLineParser::CommandLineOption*> optionList;
-
-		static CommandLineParser* oneInstance;
 };
 
 #endif

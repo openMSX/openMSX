@@ -58,7 +58,6 @@ class HotKey : private EventListener
 		virtual bool signalEvent(SDL_Event &event);
 
 		HotKey();
-		static HotKey *oneInstance;
 
 		std::multimap <Keys::KeyCode, HotKeyListener*> map;
 		std::multimap <Keys::KeyCode, HotKeyCmd*> cmdMap;

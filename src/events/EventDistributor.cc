@@ -21,12 +21,11 @@ EventDistributor::~EventDistributor()
 
 EventDistributor *EventDistributor::instance()
 {
-	if (oneInstance == NULL) {
+	static EventDistributor* oneInstance = NULL;
+	if (oneInstance == NULL)
 		oneInstance = new EventDistributor();
-	}
 	return oneInstance;
 }
-EventDistributor *EventDistributor::oneInstance = NULL;
 
 
 /**
@@ -80,6 +79,11 @@ void EventDistributor::executeUntilEmuTime(const EmuTime &time, int userdata)
 	mutex.release();
 }
 
+const std::string &EventDistributor::schedName()
+{
+	static const std::string name("EventDistributor");
+	return name;
+}
 
 void EventDistributor::registerEventListener(int type, EventListener *listener, int priority)
 {

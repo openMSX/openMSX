@@ -27,7 +27,6 @@ class ConsoleManager
 		void unregisterConsole(Console *console);
 		
 	private:
-		static ConsoleManager* oneInstance;
 		std::list<Console*> consoles;
 };
 

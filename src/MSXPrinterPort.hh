@@ -18,7 +18,6 @@ class DummyPrinterPortDevice : public PrinterPortDevice
 	virtual void setStrobe(bool strobe, const EmuTime &time);
 	virtual void writeData(byte data, const EmuTime &time);
 	virtual const std::string &getName();
-	static const std::string name;
 };
 
 
@@ -50,9 +49,6 @@ class MSXPrinterPort : public MSXIODevice , public Connector
 		
 		bool strobe;
 		byte data;
-
-		static const std::string name;
-		static const std::string className;
 };
 
 #endif

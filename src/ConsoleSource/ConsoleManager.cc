@@ -6,12 +6,12 @@
 
 ConsoleManager* ConsoleManager::instance()
 {
+	static ConsoleManager* oneInstance = NULL;
 	if (oneInstance == NULL) {
 		oneInstance = new ConsoleManager();
 	}
 	return oneInstance;
 }
-ConsoleManager* ConsoleManager::oneInstance = NULL;
 
 void ConsoleManager::print(const std::string &text)
 {

@@ -29,6 +29,6 @@ int DummyCassetteDevice::getWriteSampleRate()
 
 const std::string &DummyCassetteDevice::getName()
 {
+	static const std::string name("dummy");
 	return name;
 }
-const std::string DummyCassetteDevice::name("dummy");

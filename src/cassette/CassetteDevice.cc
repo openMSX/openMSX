@@ -5,7 +5,6 @@
 
 const std::string &CassetteDevice::getClass()
 {
+	static const std::string className("Cassette Port");
 	return className;
 }
-
-const std::string CassetteDevice::className("Cassette Port");

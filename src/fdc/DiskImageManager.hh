@@ -44,9 +44,7 @@ class DiskImageManager
 		 */
 		FDCBackEnd* getBackEnd(const std::string &driveName);
 		
-		
 	private:
-		static DiskImageManager* oneInstance;
 		std::map <const std::string, Drive*> drives;
 };
 

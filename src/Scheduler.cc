@@ -39,12 +39,11 @@ Scheduler::~Scheduler()
 
 Scheduler* Scheduler::instance()
 {
-	if (oneInstance == NULL ) {
+	static Scheduler* oneInstance = NULL;
+	if (oneInstance == NULL )
 		oneInstance = new Scheduler();
-	}
 	return oneInstance;
 }
-Scheduler *Scheduler::oneInstance = NULL;
 
 
 void Scheduler::setSyncPoint(const EmuTime &timestamp, Schedulable* device, int userData)
@@ -53,8 +52,8 @@ void Scheduler::setSyncPoint(const EmuTime &timestamp, Schedulable* device, int 
 	
 	schedMutex.grab();
 	
-	PRT_DEBUG("Sched: registering " << device->getName() << " for emulation at " << time);
-	PRT_DEBUG("Sched:  CPU is at " << cpu->getCurrentTime());
+	PRT_DEBUG("Sched: registering " << device->schedName() << " for emulation at " << time);
+	//PRT_DEBUG("Sched:  CPU is at " << cpu->getCurrentTime());
 
 	if (time == ASAP)
 		time = cpu->getCurrentTime();
@@ -131,7 +130,7 @@ void Scheduler::scheduleEmulation()
 				schedMutex.release();
 				Schedulable *device = sp.getDevice();
 				int userData = sp.getUserData();
-				PRT_DEBUG ("Sched: Scheduling " << device->getName() << " till " << time);
+				PRT_DEBUG ("Sched: Scheduling " << device->schedName() << " till " << time);
 				device->executeUntilEmuTime(time, userData);
 				
 			}

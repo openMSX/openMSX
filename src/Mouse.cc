@@ -35,9 +35,9 @@ Mouse::~Mouse()
 //Pluggable
 const std::string &Mouse::getName()
 {
+	static const std::string name("mouse");
 	return name;
 }
-const std::string Mouse::name("mouse");
 
 
 //JoystickDevice

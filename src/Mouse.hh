@@ -31,8 +31,6 @@ class Mouse : public JoystickDevice, EventListener
 		static const int FAZE_YLOW  = 3;
 		static const int STROBE = 0x04;
 
-		static const std::string name;
-
 		byte status;
 		int faze;
 		int xrel, yrel;

@@ -17,13 +17,13 @@ DummyDevice::~DummyDevice()
 
 DummyDevice* DummyDevice::instance()
 {
+	static DummyDevice* oneInstance = NULL;
 	if (oneInstance == NULL) {
 		EmuTime dummy;
 		oneInstance = new DummyDevice(NULL, dummy); //TODO make a MSXConfig 
 	}
 	return oneInstance;
 }
-DummyDevice *DummyDevice::oneInstance = NULL;
 
 
 // Block usage of the following methods

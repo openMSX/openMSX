@@ -34,8 +34,6 @@ class CassettePlayer : public CassetteDevice
 		bool motor;
 		EmuTime timeReference;
 		Uint32 posReference;
-
-		static const std::string name;
 };
 
 #endif
