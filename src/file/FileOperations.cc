@@ -23,7 +23,7 @@
 #include "FileOperations.hh"
 #include "FileException.hh"
 #include "openmsx.hh"
-#include "CliCommOutput.hh"
+#include "CliComm.hh"
 
 using std::string;
 
@@ -143,7 +143,7 @@ string FileOperations::expandTilde(const string& path)
 		return getUserHomeDir() + path.substr(1);
 	} else {
 		// other user
-		CliCommOutput::instance().printWarning(
+		CliComm::instance().printWarning(
 			"~<user>/ not yet implemented");
 		return path;
 	}

@@ -6,7 +6,7 @@
 #include "Timer.hh"
 #include "SDLImage.hh"
 #include "IntegerSetting.hh"
-#include "CliCommOutput.hh"
+#include "CliComm.hh"
 #include "components.hh"
 #include "Display.hh"
 #ifdef COMPONENT_GL
@@ -79,7 +79,7 @@ void IconLayer<IMAGE>::createSettings(LedEvent::Led led, const string& name)
 		try {
 			ledInfo[led].name[i]->setChecker(this);
 		} catch (MSXException& e) {
-			CliCommOutput::instance().printWarning(e.getMessage());
+			CliComm::instance().printWarning(e.getMessage());
 		}
 	}
 }

@@ -9,7 +9,7 @@
 #include "WavImage.hh"
 #include "CasImage.hh"
 #include "DummyCassetteImage.hh"
-#include "CliCommOutput.hh"
+#include "CliComm.hh"
 #include "CommandException.hh"
 
 using std::auto_ptr;
@@ -183,8 +183,8 @@ string CassettePlayer::execute(const vector<string>& tokens)
 	if (tokens[1] == "eject") {
 		result += "Tape ejected\n";
 		removeTape();
-		CliCommOutput::instance().update(CliCommOutput::MEDIA,
-		                                 "cassetteplayer", "");
+		CliComm::instance().update(CliComm::MEDIA,
+		                           "cassetteplayer", "");
 	} else if (tokens[1] == "rewind") {
 		result += "Tape rewinded\n";
 		rewind();
@@ -199,7 +199,7 @@ string CassettePlayer::execute(const vector<string>& tokens)
 			result += "Changing tape\n";
 			UserFileContext context;
 			insertTape(context.resolve(tokens[1]));
-			CliCommOutput::instance().update(CliCommOutput::MEDIA,
+			CliComm::instance().update(CliComm::MEDIA,
 			                         "cassetteplayer", tokens[1]);
 		} catch (MSXException &e) {
 			throw CommandException(e.getMessage());

@@ -12,7 +12,7 @@
 #include "Timer.hh"
 #include "DummyFont.hh"
 #include "FileContext.hh"
-#include "CliCommOutput.hh"
+#include "CliComm.hh"
 #include <algorithm>
 #include <SDL.h>
 
@@ -99,7 +99,7 @@ void OSDConsoleRenderer::initConsole()
 	try {
 		backgroundSetting->setChecker(this);
 	} catch (MSXException& e) {
-		CliCommOutput::instance().printWarning(e.getMessage());
+		CliComm::instance().printWarning(e.getMessage());
 	}
 }
 

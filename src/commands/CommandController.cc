@@ -8,7 +8,7 @@
 #include "FileContext.hh"
 #include "File.hh"
 #include "openmsx.hh"
-#include "CliCommOutput.hh"
+#include "CliComm.hh"
 #include "Interpreter.hh"
 #include "InfoCommand.hh"
 #include "ReadDir.hh"
@@ -243,7 +243,7 @@ void CommandController::autoCommands()
 	} catch (FileException& e) {
 		// no init.tcl
 	} catch (CommandException& e) {
-		CliCommOutput::instance().printWarning(
+		CliComm::instance().printWarning(
 			 "While executing init.tcl: " + e.getMessage());
 	}
 }

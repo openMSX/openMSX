@@ -8,7 +8,7 @@
 #include "FileOperations.hh"
 #include "FileContext.hh"
 #include "RomInfo.hh"
-#include "CliCommOutput.hh"
+#include "CliComm.hh"
 #include "MSXException.hh"
 
 using std::auto_ptr;
@@ -79,7 +79,7 @@ void MSXRomCLI::parse(const string& arg, const string& slotname,
 		if (RomInfo::nameToRomType(tmp) != ROM_UNKNOWN) {
 			romfile = arg.substr(0, pos);
 			mapper = tmp;
-			CliCommOutput::instance().printWarning(
+			CliComm::instance().printWarning(
 				"'<romfile>,<romtype>' format is deprecated, "
 				"instead use the -romtype option.");
 		}

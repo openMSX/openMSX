@@ -21,7 +21,7 @@ class CommandController;
 class MSXCPU;
 class Scheduler;
 class Debugger;
-class CliCommOutput;
+class CliComm;
 
 class MSXCPUInterface
 {
@@ -268,7 +268,7 @@ private:
 	MSXCPU& msxcpu;
 	Scheduler& scheduler;
 	Debugger& debugger;
-	CliCommOutput& cliCommOutput;
+	CliComm& cliCommOutput;
 };
 
 class TurborCPUInterface : public MSXCPUInterface

@@ -8,7 +8,7 @@ SRC_HDR:= \
 	AfterCommand \
 	Keys \
 	SDLEventInserter \
-	CliCommInput CliCommOutput \
+	CliComm Socket \
 	InputEventGenerator
 
 HDR_ONLY:= \

@@ -6,7 +6,7 @@
 #include "MSXCPUInterface.hh"
 #include "Scheduler.hh"
 #include "MSXMotherBoard.hh"
-#include "CliCommOutput.hh"
+#include "CliComm.hh"
 #include "Event.hh"
 #include "EventDistributor.hh"
 #include "BooleanSetting.hh"
@@ -178,7 +178,7 @@ template <class T> void CPUCore<T>::doBreak2()
 
 	std::ostringstream os;
 	os << "0x" << std::hex << (int)R.PC;
-	CliCommOutput::instance().update(CliCommOutput::BREAK, "pc", os.str());
+	CliComm::instance().update(CliComm::BREAK, "pc", os.str());
 	Event* breakEvent = new SimpleEvent<BREAK_EVENT>();
 	EventDistributor::instance().distributeEvent(breakEvent);
 }

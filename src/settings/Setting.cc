@@ -2,7 +2,7 @@
 
 #include "Setting.hh"
 #include "SettingListener.hh"
-#include "CliCommOutput.hh"
+#include "CliComm.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -26,8 +26,8 @@ void Setting::notify() const
 	     it != listeners.end(); ++it) {
 		(*it)->update(this);
 	}
-	CliCommOutput::instance().update(CliCommOutput::SETTING, getName(),
-	                                 getValueString());
+	CliComm::instance().update(CliComm::SETTING, getName(),
+	                           getValueString());
 }
 
 void Setting::addListener(SettingListener* listener)

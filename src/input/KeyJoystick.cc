@@ -6,7 +6,7 @@
 #include "EventDistributor.hh"
 #include "Keys.hh"
 #include "SettingsConfig.hh"
-#include "CliCommOutput.hh"
+#include "CliComm.hh"
 #include "InputEvents.hh"
 
 using std::string;
@@ -21,7 +21,7 @@ static Keys::KeyCode getConfigKeyCode(const string& keyname,
 	string key = keyElem.getData();
 	Keys::KeyCode testKey = Keys::getCode(key);
 	if (testKey == Keys::K_NONE) {
-		CliCommOutput::instance().printWarning(
+		CliComm::instance().printWarning(
 			"unknown keycode \"" + key + "\" for key \"" +
 			keyname + "\" in KeyJoystick configuration");
 	}

@@ -7,7 +7,7 @@
 #include "FileContext.hh"
 #include "FileOperations.hh"
 #include "FileException.hh"
-#include "CliCommOutput.hh"
+#include "CliComm.hh"
 #include "SettingsConfig.hh"
 #include "InputEvents.hh"
 #include "Display.hh"
@@ -31,7 +31,7 @@ const char* const PROMPT2 = "| ";
 CommandConsole::CommandConsole()
 	: settingsConfig(SettingsConfig::instance()),
 	  commandController(CommandController::instance()),
-	  output(CliCommOutput::instance())
+	  output(CliComm::instance())
 {
 	prompt = PROMPT1;
 	putPrompt();

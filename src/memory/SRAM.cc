@@ -5,7 +5,7 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
-#include "CliCommOutput.hh"
+#include "CliComm.hh"
 
 using std::string;
 
@@ -45,11 +45,11 @@ void SRAM::init()
 		if (headerOk) {
 			file.read(&(this->operator[](0)), getSize());
 		} else {
-			CliCommOutput::instance().printWarning(
+			CliComm::instance().printWarning(
 				"Warning no correct SRAM file: " + filename);
 		}
 	} catch (FileException &e) {
-		CliCommOutput::instance().printWarning(
+		CliComm::instance().printWarning(
 			"Couldn't load SRAM " + filename +
 			" (" + e.getMessage() + ").");
 	}
@@ -68,7 +68,7 @@ SRAM::~SRAM()
 		}
 		file.write(&(this->operator[](0)), getSize());
 	} catch (FileException& e) {
-		CliCommOutput::instance().printWarning(
+		CliComm::instance().printWarning(
 			"Couldn't save SRAM " + filename +
 			" (" + e.getMessage() + ").");
 	}

@@ -1,7 +1,7 @@
 // $Id$
 
 #include "FDC_DirAsDSK.hh"
-#include "CliCommOutput.hh"
+#include "CliComm.hh"
 
 #include <algorithm>
 #include <cassert>
@@ -297,7 +297,7 @@ FDC_DirAsDSK::FDC_DirAsDSK(const string& fileName)
 				//fread(BootBlock, 1, SECTOR_SIZE, file);
 				fclose(file);
 			} else {
-				CliCommOutput::instance().printWarning(
+				CliComm::instance().printWarning(
 					"Couldn't open file " + tmpfilename);
 			}
 		} else {
@@ -337,7 +337,7 @@ FDC_DirAsDSK::~FDC_DirAsDSK()
 			}
 			fclose(file);
 		} else {
-			CliCommOutput::instance().printWarning(
+			CliComm::instance().printWarning(
 				"Couldn't create cached sector file " + filename);
 		}
 	} else {
@@ -548,7 +548,7 @@ void FDC_DirAsDSK::updateFileInDisk(const int dirindex)
 	} else {
 		//TODO: don't we need a EOF_FAT in this case as well ?
 		// find out and adjust code here
-		CliCommOutput::instance().printWarning("Fake Diskimage full: " +
+		CliComm::instance().printWarning("Fake Diskimage full: " +
 			mapdir[dirindex].filename + " truncated.");
 	}
 	//write (possibly truncated) file size
@@ -576,7 +576,7 @@ void FDC_DirAsDSK::write(byte track, byte sector, byte side,
 			fwrite(buf, 1, SECTOR_SIZE, file);
 			fclose(file);
 		} else {
-			CliCommOutput::instance().printWarning(
+			CliComm::instance().printWarning(
 				"Couldn't create bootsector file " + filename);
 		}
 	} else if (logicalSector < (1 + 2 * SECTORS_PER_FAT)) {
@@ -638,7 +638,7 @@ void FDC_DirAsDSK::write(byte track, byte sector, byte side,
 				if ( chgClus && chgName){
 					PRT_DEBUG("Major change: new file started !!!!");
 				} else {
-					CliCommOutput::instance().printWarning(
+					CliComm::instance().printWarning(
 						"! A unussual change has been performed on this disk\n"
 						"! are you running a disk editor or optimizer, or maybe\n"
 						"! a diskcache program\n"
@@ -654,7 +654,7 @@ void FDC_DirAsDSK::write(byte track, byte sector, byte side,
 					//enough for host OS files when writing
 					//sectors?
 					} else {
-						CliCommOutput::instance().printWarning(
+						CliComm::instance().printWarning(
 							"File has been renamed in emulated disk, Host OS file (" +
 							mapdir[dirCount].filename + ") remains untouched!");
 					}
@@ -672,7 +672,7 @@ void FDC_DirAsDSK::write(byte track, byte sector, byte side,
 			dirCount++;
 			buf += 32;
 		}
-		CliCommOutput::instance().printWarning(
+		CliComm::instance().printWarning(
 			"writing to DIR not yet fully implemented !!!!");
 	} else {
 	  // simply buffering everything for now, no write-through to host-OS
@@ -711,13 +711,13 @@ void FDC_DirAsDSK::updateFileInDSK(const string& fullfilename)
 	struct stat fst;
 
 	if (stat(fullfilename.c_str(), &fst)) {
-		CliCommOutput::instance().printWarning(
+		CliComm::instance().printWarning(
 			"Error accessing " + fullfilename);
 		return;
 	}
 	if (!S_ISREG(fst.st_mode)) {
 		// we only handle regular files for now
-		CliCommOutput::instance().printWarning(
+		CliComm::instance().printWarning(
 			"Not a regular file: " + fullfilename);
 		return;
 	}
@@ -741,7 +741,7 @@ void FDC_DirAsDSK::addFileToDSK(const string& fullfilename)
 	}
 	PRT_DEBUG("Adding on dirindex " << dirindex);
 	if (dirindex == 112) {
-		CliCommOutput::instance().printWarning(
+		CliComm::instance().printWarning(
 			"Couldn't add " + fullfilename + ": root dir full");
 		return;
 	}
@@ -754,7 +754,7 @@ void FDC_DirAsDSK::addFileToDSK(const string& fullfilename)
 	PRT_DEBUG("Using MSX filename " << MSXfilename );
 	if (checkMSXFileExists(MSXfilename)) {
 		//TODO: actually should increase vfat abrev if possible!!
-		CliCommOutput::instance().printWarning(
+		CliComm::instance().printWarning(
 			"Couldn't add " + fullfilename + ": MSX name "
 		         + MSXfilename + " existed already");
 		return;

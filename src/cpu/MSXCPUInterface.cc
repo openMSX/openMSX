@@ -13,7 +13,7 @@
 #include "HardwareConfig.hh"
 #include "VDPIODelay.hh"
 #include "Debugger.hh"
-#include "CliCommOutput.hh"
+#include "CliComm.hh"
 #include "MSXMultiIODevice.hh"
 #include "MSXException.hh"
 
@@ -55,7 +55,7 @@ MSXCPUInterface::MSXCPUInterface()
 	  msxcpu(MSXCPU::instance()),
 	  scheduler(Scheduler::instance()),
 	  debugger(Debugger::instance()),
-	  cliCommOutput(CliCommOutput::instance())
+	  cliCommOutput(CliComm::instance())
 {
 	for (int port = 0; port < 256; ++port) {
 		IO_In [port] = &dummyDevice;

@@ -18,7 +18,7 @@ class SoundDevice;
 class MSXCPU;
 class SettingsConfig;
 class RealTime;
-class CliCommOutput;
+class CliComm;
 class InfoCommand;
 class VolumeSetting;
 class IntegerSetting;
@@ -128,7 +128,7 @@ private:
 	MSXCPU& cpu;
 	RealTime& realTime;
 	SettingsConfig& settingsConfig;
-	CliCommOutput& output;
+	CliComm& output;
 	InfoCommand& infoCommand;
 
 	std::auto_ptr<BooleanSetting> muteSetting;

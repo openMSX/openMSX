@@ -12,7 +12,7 @@
 #include "InfoCommand.hh"
 #include "CommandArgument.hh"
 #include "CommandException.hh"
-#include "CliCommOutput.hh"
+#include "CliComm.hh"
 
 using std::set;
 using std::string;
@@ -151,8 +151,8 @@ string PluggingController::PlugCmd::execute(const vector<string>& tokens)
 			connector->unplug(time);
 			try {
 				connector->plug(pluggable, time);
-				CliCommOutput::instance().update(
-					CliCommOutput::PLUG, tokens[1], tokens[2]);
+				CliComm::instance().update(
+					CliComm::PLUG, tokens[1], tokens[2]);
 			} catch (PlugException &e) {
 				throw CommandException("plug: plug failed: " + e.getMessage());
 			}
@@ -217,7 +217,7 @@ string PluggingController::UnplugCmd::execute(const vector<string>& tokens)
 	}
 	const EmuTime &time = parent.scheduler.getCurrentTime();
 	connector->unplug(time);
-	CliCommOutput::instance().update(CliCommOutput::UNPLUG, tokens[1], "");
+	CliComm::instance().update(CliComm::UNPLUG, tokens[1], "");
 	return "";
 }
 

@@ -12,7 +12,7 @@
 #include "HardwareConfig.hh"
 #include "DeviceFactory.hh"
 #include "LedEvent.hh"
-#include "CliCommOutput.hh"
+#include "CliComm.hh"
 #include "EventDistributor.hh"
 #include "Display.hh"
 #include "Timer.hh"
@@ -32,7 +32,7 @@ MSXMotherBoard::MSXMotherBoard()
 	, emulationRunning(true)
         , pauseSetting(GlobalSettings::instance().getPauseSetting())
 	, powerSetting(GlobalSettings::instance().getPowerSetting())
-	, output(CliCommOutput::instance())
+	, output(CliComm::instance())
 	, quitCommand(*this)
 	, resetCommand(*this)
 {
@@ -172,7 +172,7 @@ void MSXMotherBoard::unpause()
 {
 	if (paused) {
 		paused = false;
-		output.update(CliCommOutput::STATUS, "paused", "false");
+		output.update(CliComm::STATUS, "paused", "false");
 		--blockedCounter;
 	}
 }
@@ -181,7 +181,7 @@ void MSXMotherBoard::pause()
 {
 	if (!paused) {
 		paused = true;
-		output.update(CliCommOutput::STATUS, "paused", "true");
+		output.update(CliComm::STATUS, "paused", "true");
 		++blockedCounter;
 		MSXCPU::instance().exitCPULoop();
 	}

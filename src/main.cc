@@ -12,7 +12,7 @@
 #include "MSXMotherBoard.hh"
 #include "CommandLineParser.hh"
 #include "CartridgeSlotManager.hh"
-#include "CliCommInput.hh"
+#include "CliComm.hh"
 #include "HotKey.hh"
 #include "AfterCommand.hh"
 #include "Interpreter.hh"
@@ -56,13 +56,6 @@ static int main(int argc, char **argv)
 		CommandLineParser::ParseStatus parseStatus = parser.getParseStatus();
 		if (parseStatus != CommandLineParser::EXIT) {
 			CartridgeSlotManager::instance().readConfig();
-			auto_ptr<CliCommInput> cliCommInput;
-			if (parseStatus == CommandLineParser::CONTROL) {
-				CommandLineParser::ControlType type;
-				string argument;
-				parser.getControlParameters(type, argument);
-				cliCommInput.reset(new CliCommInput(type, argument));
-			}
 			HotKey hotkey;
 			AfterCommand afterCommand;
 			RendererFactory::createVideoSystem();

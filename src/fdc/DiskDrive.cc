@@ -9,7 +9,7 @@
 #include "FDC_DirAsDSK.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
-#include "CliCommOutput.hh"
+#include "CliComm.hh"
 #include "EventDistributor.hh"
 #include "LedEvent.hh"
 #include "CommandException.hh"
@@ -357,8 +357,7 @@ string RealDrive::execute(const vector<string>& tokens)
 		}
 	} else if (tokens[1] == "eject") {
 		ejectDisk();
-		CliCommOutput::instance().update(CliCommOutput::MEDIA,
-		                                 name, "");
+		CliComm::instance().update(CliComm::MEDIA, name, "");
 	} else {
 		try {
 			UserFileContext context;
@@ -368,8 +367,8 @@ string RealDrive::execute(const vector<string>& tokens)
 			}
 			insertDisk(context.resolve(tokens[1]), patches);
 			diskChangedFlag = true;
-			CliCommOutput::instance().update(CliCommOutput::MEDIA,
-			                                 name, tokens[1]);
+			CliComm::instance().update(CliComm::MEDIA,
+			                           name, tokens[1]);
 		} catch (FileException &e) {
 			throw CommandException(e.getMessage());
 		}

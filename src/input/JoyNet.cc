@@ -6,7 +6,7 @@
 #include <sstream>
 #include "JoyNet.hh"
 #include "SettingsConfig.hh"
-#include "CliCommOutput.hh"
+#include "CliComm.hh"
 
 using std::string;
 
@@ -90,7 +90,7 @@ void JoyNet::setupConnections()
 void JoyNet::setupWriter()
 {
 	if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-		CliCommOutput::instance().printWarning(
+		CliComm::instance().printWarning(
 			"JoyNet: socket error in connection setup");
 		sockfd = 0;
 	} else {
@@ -99,12 +99,12 @@ void JoyNet::setupWriter()
 		servaddr.sin_port = htons(portname);
 
 		if (inet_pton(AF_INET, hostname.c_str(), &servaddr.sin_addr) <= 0) {
-			CliCommOutput::instance().printWarning(
+			CliComm::instance().printWarning(
 				"JoyNet: inet_pton error for " + hostname);
 			sockfd = 0;
 		} else {
 			if (connect(sockfd, (struct sockaddr*)&servaddr, sizeof(servaddr)) < 0) {
-				CliCommOutput::instance().printWarning(
+				CliComm::instance().printWarning(
 					"JoyNet: connect error");
 				sockfd = 0;
 			}
@@ -151,14 +151,14 @@ void JoyNet::ConnectionListener::run()
 
 	// Build a socket -> bind -> listen
 	if ((listenfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-		CliCommOutput::instance().printWarning(
+		CliComm::instance().printWarning(
 			"Socket error");
 		return;
 	}
 
 	int opt = 1;
 	if (setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(opt)) == -1)
-		CliCommOutput::instance().printWarning(
+		CliComm::instance().printWarning(
 			"TCP/IP Problems SO_REUSEADDR");
 
 	memset(&servaddr, 0, sizeof(servaddr));
@@ -168,21 +168,21 @@ void JoyNet::ConnectionListener::run()
 	
 	std::ostringstream out;
 	out << "TCP/IP Trying to listen on port " << port;
-	CliCommOutput::instance().printInfo(out.str());
+	CliComm::instance().printInfo(out.str());
 
 	if (bind(listenfd, (struct sockaddr*)&servaddr, sizeof(servaddr)) < 0) {
-		CliCommOutput::instance().printWarning(
+		CliComm::instance().printWarning(
 			"TCP/IP Bind error");
 		return;
 	}
 
 	if (listen(listenfd, 1024) < 0) {
-		CliCommOutput::instance().printWarning(
+		CliComm::instance().printWarning(
 			"TCP/IP Listen error");
 		return;
 	}
 	if ((connectfd = accept(listenfd, (struct sockaddr*)NULL, NULL)) < 0) {
-		CliCommOutput::instance().printWarning(
+		CliComm::instance().printWarning(
 			"TCP/IP accept error");
 		return;
 	}
@@ -193,7 +193,7 @@ void JoyNet::ConnectionListener::run()
 	while ((charcounter = ::read(connectfd, statuspointer, 1)) > 0) {
 	}
 	if (charcounter < 0) {
-		CliCommOutput::instance().printWarning(
+		CliComm::instance().printWarning(
 			"TCP/IP read error");
 	}
   }

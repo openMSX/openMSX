@@ -14,7 +14,7 @@ namespace openmsx {
 
 class HardwareConfig;
 class SettingsConfig;
-class CliCommOutput;
+class CliComm;
 class MSXRomCLI;
 class CliExtension;
 class MSXCassettePlayerCLI;
@@ -58,7 +58,6 @@ public:
 	enum ParseStatus { UNPARSED, RUN, CONTROL, EXIT };
 	enum ControlType { IO_STD, IO_PIPE };
 	static CommandLineParser& instance();
-	void getControlParameters (ControlType& type, std::string& arguments);
 	void registerOption(const std::string& str, CLIOption* cliOption,
 		byte prio = 7, byte length = 2);
 	void registerFileClass(const std::string& str,
@@ -92,7 +91,7 @@ private:
 
 	HardwareConfig& hardwareConfig;
 	SettingsConfig& settingsConfig;
-	CliCommOutput& output;
+	CliComm& output;
 	SettingsManager& settingsManager;
 
 	class HelpOption : public CLIOption {
@@ -124,8 +123,6 @@ private:
 		virtual bool parseOption(const std::string& option,
 			std::list<std::string>& cmdLine);
 		virtual const std::string& optionHelp() const;
-		CommandLineParser::ControlType type;
-		std::string arguments;
 	private:
 		CommandLineParser& parent;
 	} controlOption;

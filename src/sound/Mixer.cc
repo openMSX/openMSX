@@ -5,7 +5,7 @@
 #include "RealTime.hh"
 #include "SoundDevice.hh"
 #include "SettingsConfig.hh"
-#include "CliCommOutput.hh"
+#include "CliComm.hh"
 #include "InfoCommand.hh"
 #include "GlobalSettings.hh"
 #include "CommandArgument.hh"
@@ -33,7 +33,7 @@ Mixer::Mixer()
 	, cpu(MSXCPU::instance())
 	, realTime(RealTime::instance())
 	, settingsConfig(SettingsConfig::instance())
-	, output(CliCommOutput::instance())
+	, output(CliComm::instance())
 	, infoCommand(InfoCommand::instance())
 	, pauseSetting(GlobalSettings::instance().getPauseSetting())
 	, speedSetting(GlobalSettings::instance().getSpeedSetting())

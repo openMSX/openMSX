@@ -11,7 +11,7 @@
 
 namespace openmsx {
 
-class CliCommOutput;
+class CliComm;
 class MSXDevice;
 class BooleanSetting;
 class XMLElement;
@@ -72,7 +72,7 @@ private:
 	
 	BooleanSetting& pauseSetting;
 	BooleanSetting& powerSetting;
-	CliCommOutput& output;
+	CliComm& output;
 
 	class QuitCommand : public SimpleCommand {
 	public:

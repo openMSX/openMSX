@@ -2,7 +2,7 @@
 
 #include "AfterCommand.hh"
 #include "CommandController.hh"
-#include "CliCommOutput.hh"
+#include "CliComm.hh"
 #include "Scheduler.hh"
 #include "EventDistributor.hh"
 #include "CommandException.hh"
@@ -248,7 +248,7 @@ void AfterCommand::AfterCmd::execute()
 	try {
 		CommandController::instance().executeCommand(command);
 	} catch (CommandException& e) {
-		CliCommOutput::instance().printWarning(
+		CliComm::instance().printWarning(
 			"Error executig delayed command: " + e.getMessage());
 	}
 	delete this;

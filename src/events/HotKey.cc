@@ -6,7 +6,7 @@
 #include "CommandController.hh"
 #include "CommandException.hh"
 #include "EventDistributor.hh"
-#include "CliCommOutput.hh"
+#include "CliComm.hh"
 #include "InputEvents.hh"
 #include "SettingsConfig.hh"
 
@@ -172,7 +172,7 @@ void HotKey::HotKeyCmd::execute()
 		// ignore return value
 		CommandController::instance().executeCommand(getCommand());
 	} catch (CommandException &e) {
-		CliCommOutput::instance().printWarning(
+		CliComm::instance().printWarning(
 		        "Error executing hot key command: " + e.getMessage());
 	}
 }

@@ -5,7 +5,7 @@
 #include "FileException.hh"
 #include "GlobalSettings.hh"
 #include "Interpreter.hh"
-#include "CliCommOutput.hh"
+#include "CliComm.hh"
 #include "CommandException.hh"
 #include "StringSetting.hh"
 #include "openmsx.hh"
@@ -202,7 +202,7 @@ UserFileContext::UserFileContext(const string& savePath, bool skipUserDirs)
 				paths.push_back(path);
 			}
 		} catch (CommandException& e) {
-			CliCommOutput::instance().printWarning(
+			CliComm::instance().printWarning(
 				"user directories: " + e.getMessage());
 		}
 	}

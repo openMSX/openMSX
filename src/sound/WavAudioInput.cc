@@ -3,7 +3,7 @@
 #include "WavAudioInput.hh"
 #include "MSXException.hh"
 #include "FilenameSetting.hh"
-#include "CliCommOutput.hh"
+#include "CliComm.hh"
 #include <SDL.h>
 
 using std::string;
@@ -113,7 +113,7 @@ void WavAudioInput::update(const Setting* setting)
 			loadWave();
 		} catch (MSXException &e) {
 			// TODO proper error handling, message should go to console
-			CliCommOutput::instance().printWarning(
+			CliComm::instance().printWarning(
 				"Load of wave file failed: " + e.getMessage());
 		}
 	}

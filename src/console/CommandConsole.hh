@@ -13,7 +13,7 @@ namespace openmsx {
 
 class SettingsConfig;
 class CommandController;
-class CliCommOutput;
+class CliComm;
 
 class CommandConsole : public Console
 {
@@ -79,7 +79,7 @@ private:
 
 	SettingsConfig& settingsConfig;
 	CommandController& commandController;
-	CliCommOutput& output;
+	CliComm& output;
 };
 
 } // namespace openmsx

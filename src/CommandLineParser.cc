@@ -12,7 +12,7 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"
-#include "CliCommOutput.hh"
+#include "CliComm.hh"
 #include "Version.hh"
 #include "MSXRomCLI.hh"
 #include "CliExtension.hh"
@@ -64,7 +64,7 @@ CommandLineParser::CommandLineParser()
 	, sound(true)
 	, hardwareConfig(HardwareConfig::instance())
 	, settingsConfig(SettingsConfig::instance())
-	, output(CliCommOutput::instance())
+	, output(CliComm::instance())
 	, settingsManager(SettingsManager::instance()) // lifetime management
 	, helpOption(*this)
 	, versionOption(*this)
@@ -275,12 +275,6 @@ bool CommandLineParser::wantSound() const
 	return sound;
 }
 
-void CommandLineParser::getControlParameters(ControlType& type, string& argument)
-{
-	type = controlOption.type;
-	argument = controlOption.arguments;
-}
-
 void CommandLineParser::loadMachine(const string& machine)
 {
 	try {
@@ -348,6 +342,7 @@ bool CommandLineParser::ControlOption::parseOption(const string& option,
 	string arg(getArgument(option, cmdLine));
 	string::size_type colon = arg.find(':');
 	string type_name;
+	string arguments;
 	if (colon == string::npos) {
 		type_name = arg;
 		//arguments = "";
@@ -363,9 +358,9 @@ bool CommandLineParser::ControlOption::parseOption(const string& option,
 	if (controlTypeMap.find(type_name) == controlTypeMap.end()) {
 		throw FatalError("Unknown control type: '"  + type_name + "'");
 	}
-	type = controlTypeMap[type_name];
+	CommandLineParser::ControlType type = controlTypeMap[type_name];
 
-	parent.output.enableXMLOutput();
+	CliComm::instance().startInput(type, arguments);
 	parent.parseStatus = CONTROL;
 	return true;
 }

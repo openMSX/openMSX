@@ -3,7 +3,7 @@
 #include "SDLImage.hh"
 #include "File.hh"
 #include "FileException.hh"
-#include "CliCommOutput.hh"
+#include "CliComm.hh"
 #include <SDL_image.h>
 #include <SDL.h>
 
@@ -133,12 +133,12 @@ SDL_Surface* SDLImage::readImage(const string& filename)
 		File file(filename);
 		SDL_Surface* result = IMG_Load(file.getLocalName().c_str());
 		if (result == NULL) {
-			CliCommOutput::instance().printWarning("File \"" +
+			CliComm::instance().printWarning("File \"" +
 			        file.getURL() + "\" is not a valid image");
 		}
 		return result;
 	} catch (FileException& e) {
-		CliCommOutput::instance().printWarning("Could not open file \"" +
+		CliComm::instance().printWarning("Could not open file \"" +
 		        filename + "\": " + e.getMessage());
 		return NULL;
 	}

@@ -8,7 +8,7 @@
 #include "CommandController.hh"
 #include "CommandException.hh"
 #include "InfoCommand.hh"
-#include "CliCommOutput.hh"
+#include "CliComm.hh"
 #include "Scheduler.hh"
 #include "RealTime.hh"
 #include "Timer.hh"
@@ -245,7 +245,7 @@ string Display::ScreenShotCmd::execute(const vector<string>& tokens)
 	}
 
 	Display::instance().getVideoSystem().takeScreenShot(filename);
-	CliCommOutput::instance().printInfo("Screen saved to " + filename);
+	CliComm::instance().printInfo("Screen saved to " + filename);
 	return filename;
 }
 

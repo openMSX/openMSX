@@ -7,7 +7,7 @@
 #include "FileException.hh"
 #include "CommandController.hh"
 #include "GlobalSettings.hh"
-#include "CliCommOutput.hh"
+#include "CliComm.hh"
 #include "BooleanSetting.hh"
 #include <memory>
 
@@ -35,7 +35,7 @@ SettingsConfig::~SettingsConfig()
 		try {
 			saveSetting();
 		} catch (FileException& e) {
-			CliCommOutput::instance().printWarning(
+			CliComm::instance().printWarning(
 				"Auto-saving of settings failed: " + e.getMessage() );
 		}
 	}
@@ -60,7 +60,7 @@ void SettingsConfig::loadSetting(FileContext& context, const string& filename)
 			file.getLocalName(), "settings.dtd"));
 		merge(*doc);
 	} catch (XMLException& e) {
-		CliCommOutput::instance().printWarning(
+		CliComm::instance().printWarning(
 			"Loading of settings failed: " + e.getMessage() + "\n"
 			"Reverting to default settings.");
 	}

@@ -12,7 +12,7 @@
 #include "StringOp.hh"
 #include "Debugger.hh"
 #include "sha1.hh"
-#include "CliCommOutput.hh"
+#include "CliComm.hh"
 #include "FilePool.hh"
 #include "ConfigException.hh"
 #include "HardwareConfig.hh"
@@ -158,7 +158,7 @@ void Rom::read(const XMLElement& config, const string& filename)
 
 	// verify SHA1
 	if (!checkSHA1(config)) {
-		CliCommOutput::instance().printWarning(
+		CliComm::instance().printWarning(
 			"SHA1 sum for '" + config.getId() +
 			"' does not match with sum of '" + filename +
 			"'.");

@@ -7,7 +7,7 @@
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "File.hh"
-#include "CliCommOutput.hh"
+#include "CliComm.hh"
 #include "StringOp.hh"
 #include "XMLLoader.hh"
 #include "XMLElement.hh"
@@ -195,7 +195,7 @@ static void addEntry(RomInfo* romInfo, const string& sha1, DBMap& result)
 	if (result.find(sha1) == result.end()) {
 		result[sha1] = romInfo;
 	} else {
-		CliCommOutput::instance().printWarning(
+		CliComm::instance().printWarning(
 			"duplicate romdb entry SHA1: " + sha1);
 	}
 }
@@ -306,7 +306,7 @@ static auto_ptr<XMLElement> openDB(const string& filename, const string& type)
 	} catch (FileException& e) {
 		// couldn't read file
 	} catch (XMLException& e) {
-		CliCommOutput::instance().printWarning(
+		CliComm::instance().printWarning(
 			"Could not parse ROM DB: " + e.getMessage() + "\n"
 			"Romtype detection might fail because of this.");
 	}
@@ -343,7 +343,7 @@ auto_ptr<RomInfo> RomInfo::searchRomDB(const Rom& rom)
 			}
 		}
 		if (romDBSHA1.empty()) {
-			CliCommOutput::instance().printWarning(
+			CliComm::instance().printWarning(
 				"Couldn't load rom database.\n"
 				"Romtype detection might fail because of this.");
 		}
@@ -393,7 +393,7 @@ void RomInfo::print()
 	if (!getRemark().empty()) {
 		info += "\n  Remark:   " + getRemark();
 	}
-	CliCommOutput::instance().printInfo(info);
+	CliComm::instance().printInfo(info);
 }
 
 } // namespace openmsx

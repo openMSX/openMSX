@@ -6,6 +6,15 @@ $Id$
 	  There is still a lot TODO - see the comment in Mixer.cc
 
 2005-03-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added socket support:
+	   - openmsx now listens to incomming connections on TCP/IP port 9938
+	     when a connection is established the same communication is
+	     possible as with the CliComm stuff over stdio
+	   - For the moment port 9938 is open for everyone: security hole!
+	     Sockets should be explicitly enabled and by default only for
+	     local connections
+
+2005-03-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed various warnings:
 	   - doxygen warnings
 	   - compiler warnings while compiling with -Wall -Wextra
