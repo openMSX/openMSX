@@ -6,9 +6,7 @@
 #include <string>
 #include <map>
 #include <vector>
-
-// forward declaration
-class Command;
+#include "Command.hh"
 
 
 class CommandController
@@ -48,6 +46,15 @@ class CommandController
 			}
 		};
 		std::map<const std::string, Command*, ltstr> commands;
+
+		// Commands
+		class HelpCmd : public Command {
+		public:
+			virtual void execute(const std::vector<std::string> &tokens);
+			virtual void help   (const std::vector<std::string> &tokens);
+		};
+		friend class HelpCmd;
+		HelpCmd helpCmd;
 };
 
 #endif

@@ -125,28 +125,6 @@ void Console::newLineCommand()
 }
 
 
-// executes the help command passed in from the string
-void Console::commandHelp()
-{
-	print("Help currently broken");
-	/*
-	std::string cmd(consoleLines[0]);
-	vector<std::string> tokens;
-	tokenize(cmd, tokens);
-	if (tokens.empty())
-		return;
-	
-	newLineConsole();
-	std::map<const std::string, ConsoleCommand*, ltstr>::const_iterator it;
-	it = commands.find(tokens[0]);
-	if (it==commands.end()) {
-		print("No help for command");
-	} else {
-		it->second->help(tokens);
-	}
-	*/
-}
-
 void Console::commandExecute(const std::string &cmd)
 {
 	newLineConsole();

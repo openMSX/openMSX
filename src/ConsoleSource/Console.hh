@@ -30,7 +30,6 @@ class Console
 		Console();
 		void tabCompletion();
 		void newLineCommand();
-		void commandHelp();
 		void commandExecute(const std::string &cmd);
 		void out(const char *str, ...);
 		void newLineConsole();

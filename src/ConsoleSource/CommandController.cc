@@ -5,10 +5,12 @@
 #include "../MSXConfig.hh"
 #include "CommandController.hh"
 #include "Command.hh"
+#include "Console.hh"
 
 
 CommandController::CommandController()
 {
+	registerCommand(helpCmd, "help");
 }
 
 CommandController::~CommandController()
@@ -85,13 +87,32 @@ void CommandController::autoCommands()
 }
 
 
-// Lists all the commands in the console
-/*
-void CommandController::listCommands()
+// Help Command
+
+void CommandController::HelpCmd::execute(const std::vector<std::string> &tokens)
 {
-	std::map<const std::string, Command*, ltstr>::const_iterator it;
-	for (it=commands.begin(); it!=commands.end(); it++) {
-		Console::instance()->print(it->first);
+	Console *console = Console::instance();
+	CommandController *cc = CommandController::instance();
+	if (tokens.size() == 1) {
+		console->print("Use 'help [command]' to get help for a specific command");
+		console->print("The following commands exists:");
+		std::map<const std::string, Command*, ltstr>::const_iterator it;
+		for (it=cc->commands.begin(); it!=cc->commands.end(); it++) {
+			console->print(it->first);
+		}
+	} else {
+		std::map<const std::string, Command*, ltstr>::const_iterator it;
+		it = cc->commands.find(tokens[1]);
+		if (it==cc->commands.end()) {
+			console->print("Unknown command");
+		} else {
+			std::vector<std::string> tokens2(tokens);
+			tokens2.erase(tokens2.begin());
+			it->second->help(tokens2);
+		}
 	}
 }
-*/
+void CommandController::HelpCmd::help(const std::vector<std::string> &tokens)
+{
+	Console::instance()->print("prints help information for commands");
+}
