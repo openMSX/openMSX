@@ -4,7 +4,6 @@
 #define __RENDERER_HH__
 
 #include "openmsx.hh"
-#include "HotKey.hh"
 #include "Command.hh"
 
 class EmuTime;

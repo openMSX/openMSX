@@ -8,6 +8,7 @@
 //#include "CharacterConverter.hh"
 //#include "BitmapConverter.hh"
 #include "VDP.hh"
+#include "Keys.hh"
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 #include <X11/Xutil.h>

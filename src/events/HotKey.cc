@@ -108,7 +108,11 @@ const std::string &HotKey::HotKeyCmd::getCommand()
 }
 void HotKey::HotKeyCmd::signalHotKey(Keys::KeyCode key, const EmuTime &time)
 {
-	CommandController::instance()->executeCommand(command, time);
+	try {
+		CommandController::instance()->executeCommand(command, time);
+	} catch (CommandException &e) {
+		// ignore error
+	}
 }
 
 

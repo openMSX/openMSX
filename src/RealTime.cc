@@ -4,7 +4,6 @@
 #include "RealTime.hh"
 #include "MSXCPU.hh"
 #include "MSXConfig.hh"
-#include "HotKey.hh"
 #include "CommandController.hh"
 #include "Scheduler.hh"
 
@@ -28,14 +27,10 @@ RealTime::RealTime()
 	CommandController::instance()->registerCommand(&pauseCmd, "pause");
 	CommandController::instance()->registerCommand(&throttleCmd, "throttle");
 	CommandController::instance()->registerCommand(&speedCmd, "speed");
-	HotKey::instance()->registerHotKeyCommand(Keys::K_PAUSE, "pause");
-	HotKey::instance()->registerHotKeyCommand(Keys::K_F9, "throttle");
 }
 
 RealTime::~RealTime()
 {
-	HotKey::instance()->unregisterHotKeyCommand(Keys::K_PAUSE, "pause");
-	HotKey::instance()->unregisterHotKeyCommand(Keys::K_F9, "throttle");
 	CommandController::instance()->unregisterCommand(&pauseCmd, "pause");
 	CommandController::instance()->unregisterCommand(&throttleCmd, "throttle");
 	CommandController::instance()->unregisterCommand(&speedCmd, "speed");

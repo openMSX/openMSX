@@ -45,5 +45,19 @@
     <parameter name="background">ConsoleBackground.png</parameter>
   </config>
 
+  <config id="AutoCommands">
+    <parameter>bind print fullscreen</parameter>
+    <parameter>bind pause pause</parameter>
+    <parameter>bind F9 throttle</parameter>
+    <parameter>bind F10 console</parameter>
+    <parameter>bind F11 mute</parameter>
+    <parameter>bind F12 quit</parameter>
+    <!--<parameter>bind F9    "throttle off"</parameter>
+        <parameter>bind F9,up "throttle on"</parameter>-->
+    <!--<parameter>unplug joyporta</parameter>
+        <parameter>plug joyportb mouse</parameter>
+        <parameter>plug cassetteport cassetteplayer</parameter>-->
+  </config>
+
 </msxconfig>
 

@@ -5,6 +5,7 @@ $Id$
 	   - you can specify an alternative file with the "-setting" command
 	     line option
 	   - For the moment "settings.xml" must be in the current directory
+	* Moved hard-coded HotKey bindings to settings.xml
 
 2003-01-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed Z80/R800 switching again
