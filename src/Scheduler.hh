@@ -9,7 +9,7 @@
 #include "EmuTime.hh"
 #include "HotKey.hh"
 #include "Mutex.hh"
-#include "ConsoleCommand.hh"
+#include "ConsoleSource/ConsoleCommand.hh"
 
 /**
  * Every class that wants to get scheduled at some point must inherit from

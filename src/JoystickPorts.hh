@@ -4,7 +4,7 @@
 #define __JOYSTICKPORTS_HH__
 
 #include "openmsx.hh"
-#include "ConsoleCommand.hh"
+#include "ConsoleSource/ConsoleCommand.hh"
 
 // forward declaration
 class JoystickDevice;

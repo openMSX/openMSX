@@ -7,7 +7,7 @@
 #include <string>
 #include "openmsx.hh"
 #include "MSXRomPatchInterface.hh"
-#include "ConsoleCommand.hh"
+#include "ConsoleSource/ConsoleCommand.hh"
 #include "config.h"
 #include "CPU.hh"
 #include "FileOpener.hh"

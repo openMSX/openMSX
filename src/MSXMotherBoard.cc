@@ -10,8 +10,7 @@
 #include "MSXIODevice.hh"
 #include "MSXMemDevice.hh"
 #include "MSXException.hh"
-#include "Console.hh"
-
+#include "ConsoleSource/Console.hh"
 #include <cassert>
 #include <sstream>
 
@@ -314,24 +313,24 @@ void MSXMotherBoard::ResetCmd::execute(char* commandLine)
 }
 void MSXMotherBoard::ResetCmd::help(char *commandLine)
 {
-	Console::instance()->printOnConsole("Resets the MSX.");
+	Console::instance()->print("Resets the MSX.");
 }
 
 void MSXMotherBoard::SlotMapCmd::execute(char* commandLine)
 {
-	Console::instance()->printOnConsole(MSXMotherBoard::instance()->getSlotMap());
+	Console::instance()->print(MSXMotherBoard::instance()->getSlotMap());
 }
 void MSXMotherBoard::SlotMapCmd::help(char *commandLine)
 {
-	Console::instance()->printOnConsole("Prints which slots contain which devices.");
+	Console::instance()->print("Prints which slots contain which devices.");
 }
 
 void MSXMotherBoard::SlotSelectCmd::execute(char* commandLine)
 {
-	Console::instance()->printOnConsole(MSXMotherBoard::instance()->getSlotSelection());
+	Console::instance()->print(MSXMotherBoard::instance()->getSlotSelection());
 }
 void MSXMotherBoard::SlotSelectCmd::help(char *commandLine)
 {
-	Console::instance()->printOnConsole("Prints which slots are currently selected.");
+	Console::instance()->print("Prints which slots are currently selected.");
 }
 

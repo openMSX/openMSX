@@ -81,7 +81,6 @@ openmsx_SOURCES=openmsx.cc icon.nn \
 	MSXRomPatchInterface.hh MSXRomPatchInterface.cc \
 	MSXTapePatch.cc MSXTapePatch.hh \
 	FileOpener.cc FileOpener.hh \
-	Console.cc Console.hh \
 	MSXARCdebug.cc MSXARCdebug.hh \
 	CommandLineParser.cc CommandLineParser.hh \
 	MSXDiskRomPatch.cc MSXDiskRomPatch.hh

@@ -7,7 +7,7 @@
 #include <vector>
 #include "CPUInterface.hh"
 #include "MSXConfig.hh"
-#include "ConsoleCommand.hh"
+#include "ConsoleSource/ConsoleCommand.hh"
 
 // forward declarations
 class MSXDevice;

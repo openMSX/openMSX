@@ -5,7 +5,7 @@
 #include "MSXConfig.hh"
 #include "CPU.hh"
 #include "MSXCPU.hh"
-#include "Console.hh"
+#include "ConsoleSource/Console.hh"
 
 
 const byte MSXTapePatch::TapeHeader[];
@@ -359,13 +359,13 @@ void MSXTapePatch::STMOTR(CPU::CPURegs& R) const
 void MSXTapePatch::execute(char *string)
 {
 	if (0 == strcmp(string,"tape eject")) {
-		Console::instance()->printOnConsole("Tape ejected");
+		Console::instance()->print("Tape ejected");
 		ejectTape();
 	} else {
 		char tapefile[250];
 		/* Get the tapefile out of the string */
 		if (EOF != sscanf(string, "tape %s", tapefile)) {
-			Console::instance()->printOnConsole("Changing tape");
+			Console::instance()->print("Changing tape");
 			insertTape(std::string(tapefile));
 		}
 	}
@@ -373,6 +373,6 @@ void MSXTapePatch::execute(char *string)
 
 void MSXTapePatch::help(char *string)
 {
-	Console::instance()->printOnConsole("tape eject      : remove tape from virtual player");
-	Console::instance()->printOnConsole("tape <filename> : change the tape file");
+	Console::instance()->print("tape eject      : remove tape from virtual player");
+	Console::instance()->print("tape <filename> : change the tape file");
 }

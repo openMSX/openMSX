@@ -55,7 +55,7 @@ TODO:
 #include "VDP.hh"
 #include "RealTime.hh"
 #include <math.h>
-#include "Console.hh"
+#include "ConsoleSource/SDLConsole.hh"
 
 
 /** Dimensions of screen.
@@ -1152,7 +1152,7 @@ Renderer *createSDLHiRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)
 	}
 	PRT_DEBUG("Display is " << (int)(screen->format->BitsPerPixel) << " bpp.");
 	//Trying to attach a console
-	Console::instance()->hookUpConsole(screen);
+	SDLConsole::instance()->hookUpSDLConsole(screen);
 
 	switch (screen->format->BytesPerPixel) {
 	case 1:

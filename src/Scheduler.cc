@@ -3,7 +3,7 @@
 #include "Scheduler.hh"
 #include "MSXCPU.hh"
 #include "HotKey.hh"
-#include "Console.hh"
+#include "ConsoleSource/Console.hh"
 #include "Mixer.hh"
 #include <cassert>
 #include <SDL/SDL.h>
@@ -197,7 +197,7 @@ void Scheduler::QuitCmd::execute(char *string)
 }
 void Scheduler::QuitCmd::help(char *string)
 {
-	Console::instance()->printOnConsole("Use this command to stop the emulator");
+	Console::instance()->print("Use this command to stop the emulator");
 }
 
 void Scheduler::PauseCmd::execute(char *string)
@@ -210,5 +210,5 @@ void Scheduler::PauseCmd::execute(char *string)
 }
 void Scheduler::PauseCmd::help(char *string)
 {
-	Console::instance()->printOnConsole("Use this command to pause/unpause the emulator");
+	Console::instance()->print("Use this command to pause/unpause the emulator");
 }

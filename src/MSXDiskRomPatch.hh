@@ -8,7 +8,7 @@
 #include "config.h"
 #include "CPU.hh"
 #include "FileOpener.hh"
-#include "ConsoleCommand.hh"
+#include "ConsoleSource/ConsoleCommand.hh"
 
 
 class MSXDiskRomPatch: public MSXRomPatchInterface, private ConsoleCommand

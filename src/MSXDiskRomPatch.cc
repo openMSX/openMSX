@@ -6,7 +6,7 @@
 #include "CPU.hh"
 #include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
-#include "Console.hh"
+#include "ConsoleSource/Console.hh"
 
 
 const int MSXDiskRomPatch::A_PHYDIO = 0x4010;
@@ -501,14 +501,14 @@ void MSXDiskRomPatch::execute(char *string)
 	// TODO only works for drive A: with 720Kb disks
 	
 	if (0 == strcmp(string,"disk eject")) {
-		Console::instance()->printOnConsole("Disk ejected");
+		Console::instance()->print("Disk ejected");
 		delete disk[0];
 		disk[0] = NULL;
 	} else {
 		char diskfile[250];
 		/* Get the tapefile out of the string */
 		if (EOF != sscanf(string, "disk %s", diskfile)) {
-			Console::instance()->printOnConsole("Changing disk");
+			Console::instance()->print("Changing disk");
 			delete disk[0];
 			disk[0] = new DiskImage(std::string(diskfile), std::string("720"));
 		}
@@ -517,6 +517,6 @@ void MSXDiskRomPatch::execute(char *string)
 
 void MSXDiskRomPatch::help(char *string)
 {
-	Console::instance()->printOnConsole("disk eject      : remove disk from virtual drive");
-	Console::instance()->printOnConsole("disk <filename> : change the disk file");
+	Console::instance()->print("disk eject      : remove disk from virtual drive");
+	Console::instance()->print("disk <filename> : change the disk file");
 }

@@ -3,7 +3,7 @@
 #include "JoystickPorts.hh"
 #include "JoystickDevice.hh"
 #include "DummyJoystick.hh"
-#include "Console.hh"
+#include "ConsoleSource/Console.hh"
 #include "Mouse.hh"
 #include "Joystick.hh"
 #include <cassert>
@@ -89,12 +89,12 @@ void JoystickPorts::JoyPortCmd::execute(char* commandLine)
 		}
 		break;
 	default:
-		Console::instance()->printOnConsole("syntax error");
+		Console::instance()->print("syntax error");
 	}
 }
 void JoystickPorts::JoyPortCmd::help(char *commandLine)
 {
-	Console::instance()->printOnConsole("joyport[a|b] unplug        unplugs device from port");
-	Console::instance()->printOnConsole("joyport[a|b] mouse         plugs mouse in port");
-	Console::instance()->printOnConsole("joyport[a|b] joystick[1|2] plugs joystick in port");
+	Console::instance()->print("joyport[a|b] unplug        unplugs device from port");
+	Console::instance()->print("joyport[a|b] mouse         plugs mouse in port");
+	Console::instance()->print("joyport[a|b] joystick[1|2] plugs joystick in port");
 }
