@@ -149,31 +149,80 @@ void RomInfo::getAllRomTypes(set<string>& result)
 	}
 }
 
+static string parseRemarks(const XMLElement& elem)
+{
+	string result;
+	XMLElement::Children remarks;
+	elem.getChildren("remark", remarks);
+	for (XMLElement::Children::const_iterator it = remarks.begin();
+	     it != remarks.end(); ++it) {
+		const XMLElement& remark = **it;
+		if (!remark.getChildren().empty()) {
+			// new format
+			XMLElement::Children texts;
+			remark.getChildren("text", texts);
+			for (XMLElement::Children::const_iterator it = texts.begin();
+			     it != texts.end(); ++it) {
+				// TODO language attribute is ignored
+				result += (*it)->getData() + '\n';
+			}
+		} else {
+			// old format
+			result += remark.getData() + '\n';
+		}
+	}
+	return result;
+}
+
 static void parseDB(const XMLElement& doc, map<string, RomInfo*>& result)
 {
 	const XMLElement::Children& children = doc.getChildren();
 	for (XMLElement::Children::const_iterator it1 = children.begin();
 	     it1 != children.end(); ++it1) {
-		// TODO there can be multiple title tags
-		string title   = (*it1)->getChildData("title", "");
-		string year    = (*it1)->getChildData("year", "");
-		string company = (*it1)->getChildData("company", "");
-		string remark  = (*it1)->getChildData("remark", "");
-		string romtype = (*it1)->getChildData("romtype", "");
+		// Parse all entries. In the old format it are <rom> tags,
+		// in the new format it are <software> tags
+		const XMLElement& soft = **it1;
 		
-		RomInfo* romInfo = new RomInfo(title, year,
-		   company, remark, RomInfo::nameToRomType(romtype));
-		const XMLElement::Children& sub_children = (*it1)->getChildren();
-		for (XMLElement::Children::const_iterator it2 = sub_children.begin();
-		     it2 != sub_children.end(); ++it2) {
-			if ((*it2)->getName() == "sha1") {
-				string sha1 = (*it2)->getData();
-				if (result.find(sha1) == result.end()) {
-					result[sha1] = romInfo;
-				} else {
-					CliCommOutput::instance().printWarning(
-						"duplicate romdb entry SHA1: " + sha1);
-				}
+		const XMLElement* system = soft.findChild("system");
+		if (system && (system->getData() != "msx")) {
+			// skip non-MSX entries
+			continue;
+		}
+		
+		// TODO there can be multiple title tags
+		string title   = soft.getChildData("title", "");
+		string year    = soft.getChildData("year", "");
+		string company = soft.getChildData("company", "");
+		string remark  = parseRemarks(soft);
+		
+		RomType type = UNKNOWN;
+		const XMLElement* sha1Elem = 0;
+		if (const XMLElement* megarom = soft.findChild("megarom")) {
+			type = RomInfo::nameToRomType(megarom->getChildData("type"));
+			sha1Elem = megarom;
+		} else if (const XMLElement* rom = soft.findChild("rom")) {
+			// TODO <start> is ignored
+			type = PLAIN;
+			sha1Elem = rom;
+		} else if (const XMLElement* romType = soft.findChild("romtype")) {
+			type = RomInfo::nameToRomType(romType->getData());
+			sha1Elem = &soft;
+		}
+		if (type == UNKNOWN) {
+			continue;
+		}
+		RomInfo* romInfo = new RomInfo(title, year, company, remark, type);
+		
+		XMLElement::Children sha1Tags;
+		sha1Elem->getChildren("sha1", sha1Tags);
+		for (XMLElement::Children::const_iterator it2 = sha1Tags.begin();
+		     it2 != sha1Tags.end(); ++it2) {
+			string sha1 = (*it2)->getData();
+			if (result.find(sha1) == result.end()) {
+				result[sha1] = romInfo;
+			} else {
+				CliCommOutput::instance().printWarning(
+					"duplicate romdb entry SHA1: " + sha1);
 			}
 		}
 	}
