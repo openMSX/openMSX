@@ -1,5 +1,6 @@
 // $Id$
 
+//TODO update heading 
 /*** Z80Em: Portable Z80 emulator *******************************************/
 /***                                                                      ***/
 /***                                 Z80.h                                ***/
@@ -50,28 +51,20 @@ class Z80 : public CPU {
 		void reset();
 
 		/**
-		 * Execute one single CPU instruction
-		 *  return the T-States of that instruction
+		 * Execute CPU till a previously set target-time, the target
+		 * may change during emulation
 		 */
 		void execute();
 
 
 	private:
 		int executeHelper();
-
+		void M1Cycle();
 		void init();
 		
-		/*
-		 * Set number of memory wait states.
-		 * This only affects opcode fetching, so
-		 * wait state adjustment is still
-		 * necessary in Z80_RDMEM, Z80_RDOP_ARG,
-		 * Z80_RDSTACK and Z80_WRSTACK           
-		 */
-		void setWaitStates (int n);
-	
 		#include "Z80Core.hh"
 
+		// flag positions
 		static const byte S_FLAG = 0x80;
 		static const byte Z_FLAG = 0x40;
 		static const byte Y_FLAG = 0x20;
@@ -101,13 +94,12 @@ class Z80 : public CPU {
 		static const opcode_fn opcode_fd[256];
 		static const opcode_fn opcode_main[256];
 
-		//TODO should not be static
-		static int waitStates;
-		static int cycles_main[256];
-		static int cycles_cb[256];
-		static int cycles_xx_cb[256];
-		static int cycles_xx[256];
-		static int cycles_ed[256];
+		// T-States tables 
+		static const int cycles_main[256];
+		static const int cycles_cb[256];
+		static const int cycles_xx_cb[256];
+		static const int cycles_xx[256];
+		static const int cycles_ed[256];
 
 		z80regpair AF,  BC,  DE,  HL, IX, IY, PC, SP;
 		z80regpair AF2, BC2, DE2, HL2;
@@ -115,6 +107,7 @@ class Z80 : public CPU {
 		byte IM, I;
 		byte R, R2;	// refresh = R&127 | R2&128
 		int ICount;	// T-state count
+		int waitCycles;
 		
 		#ifdef Z80DEBUG
 			byte debugmemory[65536];

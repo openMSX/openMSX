@@ -1,5 +1,6 @@
 // $Id$
 
+// TODO update heading
 /*** Z80Em: Portable Z80 emulator *******************************************/
 /***                                                                      ***/
 /***                                 Z80.c                                ***/
@@ -19,19 +20,16 @@
 #include "Z80Dasm.h"
 #endif
 
-Z80::Z80(CPUInterface *interf, int clockFreq, int waitCycles) : CPU(interf, clockFreq)
+Z80::Z80(CPUInterface *interf, int clockFreq, int waitCycl) : CPU(interf, clockFreq)
 {
-	//CPU::CPU(interf, clockFreq);
 	init();
-	setWaitStates(waitCycles);
+	waitCycles = waitCycl;
 }
 Z80::~Z80()
 {
 }
 
-/****************************************************************************/
-/* Initialise the various lookup tables used by the emulation code          */
-/****************************************************************************/
+// Initialise the various lookup tables used by the emulation code
 void Z80::init ()
 {
 	for (int i=0; i<256; ++i) {
@@ -55,25 +53,6 @@ void Z80::init ()
 		ZSPXYTable[i] = zFlag | sFlag | xFlag | yFlag | pFlag;
 	}
 }
-
-/****************************************************************************/
-/* Set number of memory refresh wait states (i.e. extra cycles inserted     */
-/* when the refresh register is being incremented)                          */
-/****************************************************************************/
-void Z80::setWaitStates (int n)
-{
-	int diff = n - waitStates;
-	waitStates = n;
-	for (int i=0; i<256; ++i) {
-		cycles_main[i] += diff;
-		cycles_cb[i]   += diff;
-		cycles_ed[i]   += diff;
-		cycles_xx[i]   += diff;
-		//cycles_xx_cb[i]+= diff;	//TODO check this not needed
-	}
-}
-int Z80::waitStates = 0;
-
 
 /****************************************************************************/
 /* Reset the CPU emulation core                                             */
@@ -125,14 +104,16 @@ int Z80::executeHelper()
 {
 	byte opcode;
 	
+	ICount = 0;
 	if (interface->NMIEdge()) { 
 		// NMI occured
 		HALT = false; 
 		IFF1 = nextIFF1 = false;
 		M_PUSH (PC.w);
 		PC.w=0x0066;
-		R++;
-		return 11;
+		M1Cycle();
+		ICount += 11;
+		return ICount;
 	} 
 	if (IFF1 && interface->IRQStatus()) {
 		// normal interrupt
@@ -143,8 +124,9 @@ int Z80::executeHelper()
 			// Interrupt mode 2  Call [I:databyte]
 			M_PUSH (PC.w);
 			PC.w=Z80_RDMEM_WORD((interface->dataBus())|(I<<8));
-			R++;
-			return 19;
+			M1Cycle();
+			ICount += 19;
+			return ICount;
 		case 1:
 			// Interrupt mode 1
 			opcode = 0xff;	// RST 38h
@@ -155,7 +137,7 @@ int Z80::executeHelper()
 			// TODO current implementation only works for 1-byte instructions
 			//      ok for MSX 
 			opcode = interface->dataBus();
-			ICount = 2;
+			ICount += 2;
 			break;
 		default:
 			assert(false);
@@ -163,18 +145,16 @@ int Z80::executeHelper()
 		}
 	} else if (HALT) {
 		// in halt mode
-		ICount = 0;
 		opcode = 0;	// nop
 	} else {
 		// normal instruction
-		ICount = 0;
 		opcode = Z80_RDOP(PC.w++);
 	}
 	IFF1 = nextIFF1;
 	#ifdef Z80DEBUG
 		word start_pc = PC.w-1;
 	#endif
-	R++;
+	M1Cycle();
 	ICount += cycles_main[opcode];
 	(this->*opcode_main[opcode])();	// ICount can be raised extra
 	#ifdef Z80DEBUG
@@ -189,6 +169,11 @@ int Z80::executeHelper()
 	return ICount;
 }
 
+inline void Z80::M1Cycle()
+{
+	R++;
+	ICount += waitCycles;
+}
 
 /*
  * Input a byte from given I/O port
@@ -4296,19 +4281,19 @@ void Z80::fd_cb() {
 	PC.w++;
 }
 void Z80::cb() {
-	R++;
+	M1Cycle();
 	unsigned opcode = Z80_RDOP(PC.w++);
 	ICount += cycles_cb[opcode];
 	(this->*opcode_cb[opcode])();
 }
 void Z80::ed() {
-	R++;
+	M1Cycle();
 	unsigned opcode = Z80_RDOP(PC.w++);
 	ICount += cycles_ed[opcode];
 	(this->*opcode_ed[opcode])();
 }
 void Z80::dd() {
-	R++;
+	M1Cycle();
 	dd2();
 }
 void Z80::dd2() {
@@ -4317,7 +4302,7 @@ void Z80::dd2() {
 	(this->*opcode_dd[opcode])();
 }
 void Z80::fd() {
-	R++;
+	M1Cycle();
 	fd2();
 }
 void Z80::fd2() {

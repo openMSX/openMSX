@@ -64,6 +64,6 @@ class CPU
 		CPUInterface *interface;
 		Emutime targetTime;
 		Emutime currentTime;
-		bool targetChanged;
+		bool targetChanged;	// optimization
 };
 #endif //__CPU_HH__
