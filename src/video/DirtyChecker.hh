@@ -7,6 +7,8 @@
 #include <cassert>
 
 #include <stdio.h>
+namespace openmsx {
+
 /** Helper class for renderer caches: keeps a record of which VRAM bytes
   * were modified since the last cache validation.
   * The template parameter "unit" determines the unit size in bytes:
@@ -63,5 +65,7 @@ private:
 	const char *name;
 
 };
+
+} // namespace openmsx
 
 #endif // __DIRTYCHECKER_HH__

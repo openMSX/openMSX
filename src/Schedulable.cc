@@ -4,6 +4,8 @@
 #include "MSXDevice.hh"
 
 
+namespace openmsx {
+
 const string &Schedulable::schedName() const
 {
 	static const string defaultName("[Schedulable, no name]");
@@ -15,4 +17,6 @@ const string &Schedulable::schedName() const
 		return defaultName;
 	}
 }
+
+} // namespace openmsx
 

@@ -8,6 +8,8 @@
 #include "WD2793.hh"
 
 
+namespace openmsx {
+
 class WD2793BasedFDC : public MSXFDC
 {
 	public:
@@ -20,5 +22,7 @@ class WD2793BasedFDC : public MSXFDC
 		DriveMultiplexer multiplexer;
 		WD2793 controller;
 };
+
+} // namespace openmsx
 
 #endif

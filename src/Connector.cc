@@ -4,6 +4,8 @@
 #include "Pluggable.hh"
 
 
+namespace openmsx {
+
 Connector::Connector()
 {
 	pluggable = NULL;
@@ -27,3 +29,5 @@ Pluggable* Connector::getPlug() const
 {
 	return pluggable;
 }
+
+} // namespace openmsx

@@ -7,6 +7,8 @@
 #include "Settings.hh"
 #include "EmuTime.hh"
 
+namespace openmsx {
+
 class RealTime : public Schedulable, private SettingListener
 {
 	public:
@@ -54,5 +56,7 @@ class RealTime : public Schedulable, private SettingListener
 		BooleanSetting pauseSetting;
 		BooleanSetting throttleSetting;
 };
+
+} // namespace openmsx
 
 #endif

@@ -12,6 +12,8 @@
 #include "Command.hh"
 #include "DisplayMode.hh"
 
+namespace openmsx {
+
 class EmuTime;
 class SpriteChecker;
 
@@ -466,6 +468,8 @@ private:
 	} dumpVRAMCmd;
 	friend class DumpVRAMCmd;
 };
+
+} // namespace openmsx
 
 #endif //__VDPVRAM_HH__
 

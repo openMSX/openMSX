@@ -7,6 +7,8 @@
 #include "SRAM.hh"
 
 
+namespace openmsx {
+
 class RomGameMaster2 : public Rom4kBBlocks
 {
 	public:
@@ -22,5 +24,7 @@ class RomGameMaster2 : public Rom4kBBlocks
 		SRAM sram;
 		bool sramEnabled;
 };
+
+} // namespace openmsx
 
 #endif

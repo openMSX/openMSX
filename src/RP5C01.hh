@@ -14,6 +14,8 @@
 #include "EmuTime.hh"
 
 
+namespace openmsx {
+
 class RP5C01
 {
 	public:
@@ -42,4 +44,6 @@ class RP5C01
 		int seconds, minutes, hours;
 		int dayWeek, days, months, years, leapYear;
 };
+
+} // namespace openmsx
 #endif

@@ -7,6 +7,8 @@
 #include "PluggingController.hh"
 
 
+namespace openmsx {
+
 MidiOutConnector::MidiOutConnector(const string& name_, const EmuTime& time)
 	: name(name_)
 {
@@ -65,3 +67,5 @@ void MidiOutConnector::recvByte(byte value, const EmuTime& time)
 {
 	((MidiOutDevice*)pluggable)->recvByte(value, time);
 }
+
+} // namespace openmsx

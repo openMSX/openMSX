@@ -6,6 +6,8 @@
 #include "CommandLineParser.hh"
 
 
+namespace openmsx {
+
 class MSXRomCLI : public CLIOption, public CLIFileType
 {
 	public:
@@ -46,5 +48,7 @@ class MSXRomPostNoName : public MSXRomCLIPost
 		virtual ~MSXRomPostNoName() {}
 		virtual void execute(MSXConfig *config);
 };
+
+} // namespace openmsx
 
 #endif

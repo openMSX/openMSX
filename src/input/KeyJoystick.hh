@@ -8,6 +8,8 @@
 #include <SDL/SDL.h>
 
 
+namespace openmsx {
+
 class KeyJoystick : public JoystickDevice, EventListener
 {
 	public:
@@ -29,5 +31,7 @@ class KeyJoystick : public JoystickDevice, EventListener
 	private:
 		byte status;
 };
+
+} // namespace openmsx
 
 #endif

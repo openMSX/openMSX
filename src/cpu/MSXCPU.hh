@@ -8,6 +8,8 @@
 #include "Z80.hh"
 #include "R800.hh"
 
+namespace openmsx {
+
 class Scheduler;
 
 class MSXCPU : public MSXDevice, public DebugInterface
@@ -76,4 +78,6 @@ class MSXCPU : public MSXDevice, public DebugInterface
 	
 		CPU *activeCPU;
 };
+
+} // namespace openmsx
 #endif //__MSXCPU_HH__

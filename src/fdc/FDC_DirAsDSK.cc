@@ -21,6 +21,8 @@
 #define rdsh(x) (x[0]+(x[1]<<8))
 #define rdlg(x) (x[0]+(x[1]<<8)+(x[2]<<16)+(x[3]<<24))
 
+namespace openmsx {
+
 #define EOF_FAT 0xFFF /* signals EOF in FAT */
 
 //Bootblock taken from a philips  nms8250 formatted disk
@@ -441,3 +443,5 @@ void FDC_DirAsDSK::addFileToDSK(const string& fullfilename)
 		name[6]='-';name[7]='1';
 	}
 */
+
+} // namespace openmsx

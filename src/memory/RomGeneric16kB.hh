@@ -6,6 +6,8 @@
 #include "Rom16kBBlocks.hh"
 
 
+namespace openmsx {
+
 class RomGeneric16kB : public Rom16kBBlocks
 {
 	public:
@@ -17,5 +19,7 @@ class RomGeneric16kB : public Rom16kBBlocks
 		                      const EmuTime &time);
 		virtual byte* getWriteCacheLine(word address) const;
 };
+
+} // namespace openmsx
 
 #endif

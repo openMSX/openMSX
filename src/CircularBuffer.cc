@@ -4,6 +4,8 @@
 
 
 #if 0
+namespace openmsx {
+
 int main()
 {
 	CircularBuffer<int, 2> buf;
@@ -33,4 +35,6 @@ int main()
 	buf.removeFront();
 	assert(buf.isEmpty());
 }
+
+} // namespace openmsx
 #endif

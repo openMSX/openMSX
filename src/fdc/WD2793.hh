@@ -6,6 +6,8 @@
 #include "EmuTime.hh"
 #include "Schedulable.hh"
 
+namespace openmsx {
+
 class DiskDrive;
 
 
@@ -111,5 +113,7 @@ class WD2793 : private Schedulable
 		int dataCurrent;	// which byte in dataBuffer is next to be read/write
 		int dataAvailable;	// how many bytes left in sector
 };
+
+} // namespace openmsx
 
 #endif

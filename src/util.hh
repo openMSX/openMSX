@@ -7,6 +7,8 @@
 
 #include "config.h"
 
+namespace openmsx {
+
 /** Fill a boolean array with a single value.
   * Optimised for byte-sized booleans, but correct for every size.
   */
@@ -18,5 +20,7 @@ inline static void fillBool(bool *ptr, bool value, int nr)
 	while (nr--) *ptr++ = value;
 #endif
 }
+
+} // namespace openmsx
  
 #endif // __UTIL_HH__

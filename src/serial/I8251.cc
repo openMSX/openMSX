@@ -5,6 +5,8 @@
 #include "Scheduler.hh"
 
 
+namespace openmsx {
+
 const byte STAT_TXRDY   = 0x01;
 const byte STAT_RXRDY   = 0x02;
 const byte STAT_TXEMPTY = 0x04;
@@ -360,3 +362,5 @@ const string& I8251::schedName() const
 	static const string I8251_NAME("I8251");
 	return I8251_NAME;
 }
+
+} // namespace openmsx

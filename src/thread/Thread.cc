@@ -6,6 +6,8 @@
 #include "Thread.hh"
 
 
+namespace openmsx {
+
 Thread::Thread(Runnable *runnable_)
 	: runnable(runnable_)
 {
@@ -47,3 +49,5 @@ int Thread::startThread(void *runnable)
 	((Runnable *)runnable)->run();
 	return 0;
 }
+
+} // namespace openmsx

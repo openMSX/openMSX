@@ -6,6 +6,8 @@
 #include "Rom8kBBlocks.hh"
 
 
+namespace openmsx {
+
 class RomPanasonic : public Rom8kBBlocks
 {
 	public:
@@ -27,5 +29,7 @@ class RomPanasonic : public Rom8kBBlocks
 		class SRAM* sram;
 		int maxSRAMBank;
 };
+
+} // namespace openmsx
 
 #endif

@@ -5,6 +5,8 @@
 #include <cassert>
 
 
+namespace openmsx {
+
 Keyboard::Keyboard(bool keyG)
 {
 	keyGhosting = keyG;
@@ -193,4 +195,6 @@ const byte Keyboard::Keys[336][2] = {
   {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},
   {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00}
 };
+
+} // namespace openmsx
 

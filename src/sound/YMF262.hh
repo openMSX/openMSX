@@ -46,6 +46,8 @@
 #include "Timer.hh"
 
 
+namespace openmsx {
+
 class YMF262Slot
 {
 	public:
@@ -211,5 +213,7 @@ class YMF262 : public SoundDevice, public TimerCallback
 		int* buffer;
 		short maxVolume;
 };
+
+} // namespace openmsx
 
 #endif

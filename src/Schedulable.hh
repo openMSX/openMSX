@@ -7,6 +7,8 @@
 
 using std::string;
 
+namespace openmsx {
+
 class EmuTime;
 
 /**
@@ -28,5 +30,7 @@ class Schedulable
 		 */
 		virtual const string &schedName() const;
 };
+
+} // namespace openmsx
 
 #endif

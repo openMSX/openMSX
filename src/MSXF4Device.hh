@@ -12,6 +12,8 @@
 #include "MSXIODevice.hh"
 
 
+namespace openmsx {
+
 class MSXF4Device : public MSXIODevice
 {
 	public:
@@ -26,5 +28,7 @@ class MSXF4Device : public MSXIODevice
 		bool inverted;
 		byte status;
 };
+
+} // namespace openmsx
 
 #endif

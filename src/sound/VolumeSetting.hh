@@ -5,6 +5,8 @@
 
 #include "Settings.hh"
 
+namespace openmsx {
+
 class SoundDevice;
 
 
@@ -21,6 +23,8 @@ class VolumeSetting : private SettingListener
 		SoundDevice *device;
 		IntegerSetting volumeSetting;
 };
+
+} // namespace openmsx
 
 #endif
 

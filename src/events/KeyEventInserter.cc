@@ -8,6 +8,8 @@
 #include "File.hh"
 
 
+namespace openmsx {
+
 KeyEventInserterCLI keyEventInserterCLI;
 
 KeyEventInserterCLI::KeyEventInserterCLI()
@@ -162,3 +164,5 @@ const SDLKey KeyEventInserter::keymap[256][4] = {
 	{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
 	{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
 };
+
+} // namespace openmsx

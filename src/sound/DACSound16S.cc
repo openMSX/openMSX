@@ -6,6 +6,8 @@
 #include "RealTime.hh"
 
 
+namespace openmsx {
+
 const float DELAY = 0.08;	// TODO tune
 
 
@@ -115,4 +117,6 @@ int* DACSound16S::updateBuffer(int length)
 	}
 	return buffer;
 }
+
+} // namespace openmsx
 

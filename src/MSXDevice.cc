@@ -4,6 +4,8 @@
 #include "MSXConfig.hh"
 
 
+namespace openmsx {
+
 MSXDevice::MSXDevice(Device *config, const EmuTime &time)
 	: deviceConfig(config)
 {
@@ -31,3 +33,5 @@ const string &MSXDevice::getName() const
 		return defaultName;
 	}
 }
+
+} // namespace openmsx

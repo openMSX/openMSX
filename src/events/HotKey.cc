@@ -7,6 +7,8 @@
 #include <cassert>
 
 
+namespace openmsx {
+
 HotKey::HotKey()
 {
 	CommandController::instance()->registerCommand(&bindCmd,   "bind");
@@ -206,3 +208,5 @@ void HotKey::UnbindCmd::help(const vector<string> &tokens) const
 	print("unbind <key>       : unbind all for this key");
 	print("unbind <key> <cmd> : unbind a specific command");
 }
+
+} // namespace openmsx

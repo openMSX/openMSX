@@ -1,5 +1,7 @@
 #include "DebugInterface.hh"
 
+namespace openmsx {
+
 DebugInterface::DebugInterface ()
 {
 //	Debugger::instance()->register
@@ -13,3 +15,5 @@ void DebugInterface::registerDevice()
 {
 //	Debugger::instance()->registerDevice(getName (),this);
 }
+
+} // namespace openmsx

@@ -8,6 +8,8 @@
 
 using std::vector;
 
+namespace openmsx {
+
 class Connector;
 class Pluggable;
 
@@ -57,5 +59,7 @@ private:
 	} unplugCmd;
 	friend class UnplugCmd;
 };
+
+} // namespace openmsx
 
 #endif //__PLUGGING_CONTROLLER__

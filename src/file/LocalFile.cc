@@ -6,6 +6,8 @@
 #include "FileOperations.hh"
 
 
+namespace openmsx {
+
 LocalFile::LocalFile(const string &filename_, OpenMode mode)
 	: filename(FileOperations::expandTilde(filename_)),
 	  readOnly(false)
@@ -131,3 +133,5 @@ bool LocalFile::isReadOnly() const
 {
 	return readOnly;
 }
+
+} // namespace openmsx

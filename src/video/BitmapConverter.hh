@@ -8,6 +8,8 @@
 #include "DisplayMode.hh"
 #include "Blender.hh"
 
+namespace openmsx {
+
 /** Utility class for converting VRAM contents to host pixels.
   */
 template <class Pixel, Renderer::Zoom zoom>
@@ -126,5 +128,7 @@ private:
 
 	Blender<Pixel> blender;
 };
+
+} // namespace openmsx
 
 #endif // __BITMAPCONVERTER_HH__

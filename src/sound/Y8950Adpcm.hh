@@ -6,6 +6,8 @@
 #include "openmsx.hh"
 #include "Schedulable.hh"
 
+namespace openmsx {
+
 // Forward declarartions
 class Y8950;
 
@@ -91,6 +93,8 @@ class Y8950Adpcm : public Schedulable
 		static const int GETA_BITS  = 14;
 		static const unsigned int MAX_STEP   = 1<<(16+GETA_BITS);
 };
+
+} // namespace openmsx
 
 
 #endif 

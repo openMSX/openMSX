@@ -17,6 +17,8 @@ using std::map;
 using std::vector;
 using std::set;
 
+namespace openmsx {
+
 class MSXConfig;
 
 
@@ -109,5 +111,7 @@ class CommandLineParser
 			bool parsed;
 		} settingOption;
 };
+
+} // namespace openmsx
 
 #endif

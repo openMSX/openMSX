@@ -7,6 +7,8 @@
 
 using std::string;
 
+namespace openmsx {
+
 class EmuTime;
 class Connector;
 
@@ -36,5 +38,7 @@ public:
 	 */
 	virtual void unplug(const EmuTime &time) = 0;
 };
+
+} // namespace openmsx
 
 #endif //__PLUGGABLE__

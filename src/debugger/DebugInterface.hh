@@ -8,6 +8,8 @@
 #include <string>
 #include <cassert>
 
+namespace openmsx {
+
 class DebugInterface
 {
 	public:
@@ -26,5 +28,7 @@ class DebugInterface
 		virtual std::string getDeviceName ()=0;
 		void registerDevice ();
 };
+
+} // namespace openmsx
 
 #endif

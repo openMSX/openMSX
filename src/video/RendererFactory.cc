@@ -9,6 +9,8 @@
 #include <SDL/SDL.h>
 
 
+namespace openmsx {
+
 RendererFactory *RendererFactory::getCurrent()
 {
 	switch (RenderSettings::instance()->getRenderer()->getValue()) {
@@ -228,4 +230,6 @@ Renderer *XRendererFactory::create(VDP *vdp)
 {
 	return new XRenderer(XLIB, vdp);
 }
+
+} // namespace openmsx
 

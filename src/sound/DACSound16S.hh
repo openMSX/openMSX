@@ -14,6 +14,8 @@
 using std::list;
 using std::string;
 
+namespace openmsx {
+
 class DACSound16S : public SoundDevice
 {
 	public:
@@ -51,5 +53,7 @@ class DACSound16S : public SoundDevice
 		class MSXCPU* cpu;
 		class RealTime* realTime;
 };
+
+} // namespace openmsx
 
 #endif

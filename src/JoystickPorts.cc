@@ -11,6 +11,8 @@
 #include "KeyJoystick.hh"
 
 
+namespace openmsx {
+
 JoystickPort::JoystickPort(const string &nm, const EmuTime &time)
 	: name(nm)
 {
@@ -118,4 +120,6 @@ void JoystickPorts::write(byte value, const EmuTime &time)
 	ports[1]->write(val1, time);
 	selectedPort = (value & 0x40) >> 6;
 }
+
+} // namespace openmsx
 

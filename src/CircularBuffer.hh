@@ -6,6 +6,8 @@
 #include <cassert>
 
 
+namespace openmsx {
+
 template<class T, unsigned MAXSIZE>
 class CircularBuffer
 {
@@ -69,5 +71,7 @@ class CircularBuffer
 		T buffer[MAXSIZE + 1];
 		unsigned first, last;
 };
+
+} // namespace openmsx
 
 #endif

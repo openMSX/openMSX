@@ -9,6 +9,8 @@
 #include "Blender.hh"
 #include <cassert>
 
+namespace openmsx {
+
 class VDP;
 class VDPVRAM;
 
@@ -183,5 +185,7 @@ private:
 	bool dirtyForeground, dirtyBackground;
 
 };
+
+} // namespace openmsx
 
 #endif // __CHARACTERCONVERTER_HH__

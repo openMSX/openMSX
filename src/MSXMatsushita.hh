@@ -9,6 +9,8 @@
 #include "SRAM.hh"
 
 
+namespace openmsx {
+
 class MSXMatsushita : public MSXDevice, public MSXSwitchedDevice
 {
 	public:
@@ -27,5 +29,7 @@ class MSXMatsushita : public MSXDevice, public MSXSwitchedDevice
 		nibble color1, color2;
 		byte pattern;
 };
+
+} // namespace openmsx
 
 #endif

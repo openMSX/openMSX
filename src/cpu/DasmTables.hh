@@ -1,3 +1,5 @@
+namespace openmsx {
+
 // $Id$
 
 static const char* mnemonic_xx_cb[256] =
@@ -179,3 +181,5 @@ static const char* mnemonic_main[256] =
 	"ret p"    ,"pop af"   ,"jp p,W"   ,"di"        ,"call p,W" ,"push af"  ,"or B"      ,"rst 30h"  ,
 	"ret m"    ,"ld sp,hl" ,"jp m,W"   ,"ei"        ,"call m,W" ,"fd"       ,"cp B"      ,"rst 38h"
 };
+
+} // namespace openmsx

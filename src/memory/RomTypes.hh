@@ -3,6 +3,8 @@
 #ifndef __ROMTYPES_HH__
 #define __ROMTYPES_HH__
 
+namespace openmsx {
+
 enum MapperType {
 	GENERIC_8KB  = 0,
 	GENERIC_16KB = 1,
@@ -50,5 +52,7 @@ enum MapperType {
 
 	UNKNOWN      = 128
 };
+
+} // namespace openmsx
 
 #endif

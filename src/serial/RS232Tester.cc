@@ -6,6 +6,8 @@
 #include "Scheduler.hh"
 
 
+namespace openmsx {
+
 RS232Tester::RS232Tester()
 	: thread(this), connector(NULL), lock(1)
 {
@@ -119,3 +121,5 @@ void RS232Tester::recvByte(byte value, const EmuTime& time)
 	outFile.put(value);
 	outFile.flush();
 }
+
+} // namespace openmsx

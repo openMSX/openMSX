@@ -6,6 +6,8 @@
 #include "EventDistributor.hh"
 
 
+namespace openmsx {
+
 Joystick::Joystick(int joyNum_)
 	: joyNum(joyNum_)
 {
@@ -137,3 +139,5 @@ bool Joystick::signalEvent(SDL_Event &event)
 	}
 	return true;
 }
+
+} // namespace openmsx

@@ -5,6 +5,8 @@
 #include "MidiInDevice.hh"
 
 
+namespace openmsx {
+
 MSXMidi::MSXMidi(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
 	  MidiInConnector("msx-midi-in", time),
@@ -292,4 +294,6 @@ void MSXMidi::recvByte(byte value, const EmuTime& time)
 {
 	i8251.recvByte(value, time);
 }
+
+} // namespace openmsx
 

@@ -6,6 +6,8 @@
 #include <list>
 #include <string>
 
+namespace openmsx {
+
 class ConsoleRenderer;
 
 using std::list;
@@ -45,5 +47,7 @@ class Console
 	private:
 		list<ConsoleRenderer*> renderers;
 };
+
+} // namespace openmsx
 
 #endif

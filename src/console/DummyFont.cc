@@ -3,6 +3,8 @@
 #include "DummyFont.hh"
 
 
+namespace openmsx {
+
 DummyFont::DummyFont()
 {
 	// dummy values
@@ -14,3 +16,5 @@ void DummyFont::drawText(const string &string, int x, int y)
 {
 	// do nothing
 }
+
+} // namespace openmsx

@@ -6,6 +6,8 @@
 #include "Connector.hh"
 #include "SerialDataInterface.hh"
 
+namespace openmsx {
+
 class DummyMidiInDevice;
 class MidiInReader;
 
@@ -30,5 +32,7 @@ class MidiInConnector : public Connector, public SerialDataInterface
 
 		MidiInReader* reader;
 };
+
+} // namespace openmsx
 
 #endif

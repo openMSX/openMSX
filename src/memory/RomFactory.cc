@@ -32,6 +32,8 @@
 #include "Rom.hh"
 
 
+namespace openmsx {
+
 MSXRomCLI msxRomCLI;
 
 
@@ -108,4 +110,6 @@ MSXRom *RomFactory::create(Device *config, const EmuTime &time)
 			return NULL;
 	}
 }
+
+} // namespace openmsx
 

@@ -9,6 +9,8 @@
 
 #include "openmsx.hh"
 
+namespace openmsx {
+
 class EmuTime;
 class DiskDrive;
 
@@ -159,5 +161,7 @@ class TC8566AF
 		byte Sector[512];
 		word SectorByteCount;
 };
+
+} // namespace openmsx
 
 #endif

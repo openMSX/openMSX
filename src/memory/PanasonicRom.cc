@@ -5,6 +5,8 @@
 #include "MSXConfig.hh"
 
 
+namespace openmsx {
+
 PanasonicRom::PanasonicRom(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXMemDevice(config, time)
 {
@@ -40,3 +42,5 @@ byte* PanasonicRom::getWriteCacheLine(word address) const
 {
 	return unmappedWrite;
 }
+
+} // namespace openmsx

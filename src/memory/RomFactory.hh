@@ -6,6 +6,8 @@
 #include "RomTypes.hh"
 #include "MSXRom.hh"
 
+namespace openmsx {
+
 class EmuTime;
 class Device;
 
@@ -15,5 +17,7 @@ class RomFactory
 	public:
 		static MSXRom *create(Device *config, const EmuTime &time);
 };
+
+} // namespace openmsx
 
 #endif

@@ -4,6 +4,8 @@
 #include "PluggingController.hh"
 #include "EventDistributor.hh"
 
+namespace openmsx {
+
 const int TRESHOLD = 2;
 const int SCALE = 2;
 const int FAZE_XHIGH = 0;
@@ -214,3 +216,5 @@ bool Mouse::signalEvent(SDL_Event &event)
 	}
 	return true;
 }
+
+} // namespace openmsx

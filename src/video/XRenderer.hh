@@ -15,6 +15,8 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
+namespace openmsx {
+
 class VDP;
 class VDPVRAM;
 class SpriteChecker;
@@ -94,5 +96,7 @@ private:
 		static map<KeySym, SDLKey> *keymap;
 	};
 };
+
+} // namespace openmsx
 
 #endif // __XRENDERER_HH__

@@ -2,6 +2,8 @@
 
 #include "EmuTime.hh"
 
+namespace openmsx {
+
 // Do not use INFINITY because it is macro-expanded on some systems
 static const uint64 INFTY = 18446744073709551615ULL; //ULLONG_MAX;
 
@@ -17,7 +19,10 @@ ostream &operator<<(ostream &os, const EmuTime &et)
 	return os;
 }
 
+} // namespace openmsx
+
 #if 0
+using openmsx::EmuTime;
 int main (int argc, char** argv)
 {
 	assert (sizeof(uint64)==8);

@@ -6,6 +6,8 @@
 #include "MSXConfig.hh"
 
 
+namespace openmsx {
+
 MSXAudio::MSXAudio(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
@@ -80,3 +82,5 @@ void MSXAudio::writeIO(byte port, byte value, const EmuTime &time)
 		assert(false);
 	}
 }
+
+} // namespace openmsx

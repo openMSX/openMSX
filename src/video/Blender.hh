@@ -5,6 +5,8 @@
 
 #include <SDL/SDL.h>
 
+namespace openmsx {
+
 /** Small utility class for blending colours.
   * The blender can be applied to 8bpp pixels safely,
   * but in that case it doesn't actually blend.
@@ -70,5 +72,7 @@ public:
 	}
 
 };
+
+} // namespace openmsx
 
 #endif // __BLENDER_HH__

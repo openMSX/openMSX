@@ -14,6 +14,8 @@ using std::map;
 using std::queue;
 using std::pair;
 
+namespace openmsx {
+
 class EventListener;
 
 
@@ -73,5 +75,7 @@ class EventDistributor : private SettingListener
 		} quitCommand;
 		friend class QuitCommand;
 };
+
+} // namespace openmsx
 
 #endif

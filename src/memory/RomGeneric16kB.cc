@@ -3,6 +3,8 @@
 #include "RomGeneric16kB.hh"
 
 
+namespace openmsx {
+
 RomGeneric16kB::RomGeneric16kB(Device* config, const EmuTime &time, Rom *rom)
 	: MSXDevice(config, time), Rom16kBBlocks(config, time, rom)
 {
@@ -34,3 +36,5 @@ byte* RomGeneric16kB::getWriteCacheLine(word address) const
 		return unmappedWrite;
 	}
 }
+
+} // namespace openmsx

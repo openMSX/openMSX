@@ -12,6 +12,8 @@
 #include "PanasonicMemory.hh"
 
 
+namespace openmsx {
+
 Rom::Rom(Device* config, const EmuTime &time)
 {
 	if (config->hasParameter("filename")) {
@@ -131,3 +133,5 @@ Rom::~Rom()
 	}
 	delete info;
 }
+
+} // namespace openmsx

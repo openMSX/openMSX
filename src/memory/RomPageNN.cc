@@ -3,6 +3,8 @@
 #include "RomPageNN.hh"
 
 
+namespace openmsx {
+
 RomPageNN::RomPageNN(Device* config, const EmuTime &time, Rom *rom, byte pages)
 	: MSXDevice(config, time), Rom16kBBlocks(config, time, rom)
 {
@@ -19,4 +21,6 @@ RomPageNN::RomPageNN(Device* config, const EmuTime &time, Rom *rom, byte pages)
 RomPageNN::~RomPageNN()
 {
 }
+
+} // namespace openmsx
 

@@ -38,6 +38,8 @@ TODO:
 #include "VDPVRAM.hh"
 #include "util.hh"
 
+namespace openmsx {
+
 // Force template instantiation for these types.
 // Without this, object file contains no method implementations.
 template class CharacterConverter<byte, Renderer::ZOOM_256>;
@@ -383,4 +385,6 @@ void CharacterConverter<Pixel, zoom>::renderBogus(
 		for (int n = 8; n--; ) *pixelPtr++ = bg;
 	}
 }
+
+} // namespace openmsx
 

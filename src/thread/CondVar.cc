@@ -4,6 +4,8 @@
 #include "CondVar.hh"
 
 
+namespace openmsx {
+
 CondVar::CondVar()
 {
 	mutex = SDL_CreateMutex();
@@ -37,3 +39,5 @@ void CondVar::signalAll()
 {
 	SDL_CondBroadcast(cond);
 }
+
+} // namespace openmsx

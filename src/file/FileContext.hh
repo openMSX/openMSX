@@ -12,6 +12,8 @@ using  std::vector;
 using  std::map;
 
 
+namespace openmsx {
+
 class FileContext
 {
 	public:
@@ -84,5 +86,7 @@ class UserFileContext : public FileContext
 		
 		bool alreadyInit;
 };
+
+} // namespace openmsx
 
 #endif

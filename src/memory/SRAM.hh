@@ -6,6 +6,8 @@
 #include "openmsx.hh"
 #include <cassert>
 
+namespace openmsx {
+
 class Config;
 
 
@@ -38,5 +40,7 @@ class SRAM
 		const char* header;
 		byte* sram;
 };
+
+} // namespace openmsx
 
 #endif

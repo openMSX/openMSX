@@ -6,6 +6,8 @@
 #include "MSXMemDevice.hh"
 #include "Rom.hh"
 
+namespace openmsx {
+
 class DiskDrive;
 
 
@@ -22,4 +24,6 @@ class MSXFDC : public MSXMemDevice
 		Rom rom;
 		DiskDrive* drives[4];
 };
+
+} // namespace openmsx
 #endif

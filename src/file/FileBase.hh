@@ -8,6 +8,8 @@
 
 using std::string;
 
+namespace openmsx {
+
 class FileBase
 {
 	public:
@@ -31,5 +33,7 @@ class FileBase
 		bool mmapWrite;
 		int mmapSize;
 };
+
+} // namespace openmsx
 
 #endif

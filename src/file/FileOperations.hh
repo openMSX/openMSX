@@ -8,6 +8,8 @@
 using std::string;
 
 
+namespace openmsx {
+
 class FileOperations
 {
 	public:
@@ -42,5 +44,7 @@ class FileOperations
 		 */
 		static string getBaseName(const string &path);
 };
+
+} // namespace openmsx
 
 #endif

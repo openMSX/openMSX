@@ -6,6 +6,8 @@
 #include "MSXMemDevice.hh"
 
 
+namespace openmsx {
+
 class MSXRam : public MSXMemDevice
 {
 	public:
@@ -34,4 +36,6 @@ class MSXRam : public MSXMemDevice
 		bool slowDrainOnReset;
 		byte* memoryBank;
 };
+
+} // namespace openmsx
 #endif

@@ -13,6 +13,8 @@
 
 #include "openmsx.hh"
 
+namespace openmsx {
+
 class EmuTime;
 
 
@@ -60,5 +62,7 @@ class I8255
 
 		I8255Interface &interface;
 };
+
+} // namespace openmsx
 
 #endif

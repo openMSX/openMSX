@@ -9,6 +9,8 @@
 #include "FDC_DirAsDSK.hh"
 
 
+namespace openmsx {
+
 /// class DiskDrive ///
 
 DiskDrive::~DiskDrive()
@@ -431,3 +433,5 @@ void DoubleSidedDrive::writeSector(const byte* buf, int sector)
 {
 	disk->writeSector(buf, sector);
 }
+
+} // namespace openmsx

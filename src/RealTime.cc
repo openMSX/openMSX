@@ -14,6 +14,8 @@
 #define HAVE_RTC	// TODO check this in configure
 
 
+namespace openmsx {
+
 const int SYNC_INTERVAL = 50;
 
 
@@ -130,4 +132,6 @@ void RealTime::update(const SettingLeafNode *setting)
 		assert(false);
 	}
 }
+
+} // namespace openmsx
 

@@ -9,6 +9,8 @@
 #include "FileOperations.hh"
 
 
+namespace openmsx {
+
 // class CommandConsole
 
 const string PROMPT("> ");
@@ -539,3 +541,5 @@ std::string CommandConsole::getId ()
 {
 	return "console";
 }
+
+} // namespace openmsx

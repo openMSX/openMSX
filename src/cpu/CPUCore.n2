@@ -12,6 +12,8 @@ using std::setfill;
 #endif
 
 
+namespace openmsx {
+
 inline void _CPU_::READ_PORT(word port, byte &result)
 {
 	memptr.w = port + 1;
@@ -2523,3 +2525,6 @@ void _CPU_::patch() {
 word _CPU_::start_pc;
 EmuTimeFreq<CLOCK_FREQ> _CPU_::before;
 #endif
+
+} // namespace openmsx
+

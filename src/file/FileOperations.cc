@@ -8,6 +8,8 @@
 #include "openmsx.hh"
 
 
+namespace openmsx {
+
 string FileOperations::expandTilde(const string &path)
 {
 	if (path.size() <= 1) {
@@ -62,3 +64,5 @@ string FileOperations::getBaseName(const string &path)
 		return path.substr(0, pos + 1);
 	}
 }
+
+} // namespace openmsx

@@ -9,6 +9,8 @@
 #include <SDL/SDL.h>
 
 
+namespace openmsx {
+
 class JoystickException : public MSXException {
 	public:
 		JoystickException(const string &desc) : MSXException(desc) {}
@@ -41,4 +43,6 @@ class Joystick : public JoystickDevice, EventListener
 		SDL_Joystick *joystick;
 		byte status;
 };
+
+} // namespace openmsx
 #endif

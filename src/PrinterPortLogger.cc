@@ -7,6 +7,8 @@
 #include <cassert>
 
 
+namespace openmsx {
+
 PrinterPortLogger::PrinterPortLogger()
 {
 	file = NULL;
@@ -60,3 +62,5 @@ const string &PrinterPortLogger::getName() const
 	static const string name("logger");
 	return name;
 }
+
+} // namespace openmsx

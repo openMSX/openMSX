@@ -13,6 +13,8 @@ using std::hex;
 using std::dec;
 
 
+namespace openmsx {
+
 /** 4 bit integer */
 typedef unsigned char nibble;
 
@@ -77,5 +79,7 @@ extern Mutex outputmutex, errormutex;
 		errormutex.release();		\
 		exit(1);			\
 	} while (0)
+
+} // namespace openmsx
 
 #endif //__OPENMSX_HH__

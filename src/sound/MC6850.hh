@@ -6,6 +6,8 @@
 #include "MSXIODevice.hh"
 
 
+namespace openmsx {
+
 class MC6850 : public MSXIODevice
 {
 	public:
@@ -16,4 +18,6 @@ class MC6850 : public MSXIODevice
 		virtual byte readIO(byte port, const EmuTime &time);
 		virtual void writeIO(byte port, byte value, const EmuTime &time);
 };
+
+} // namespace openmsx
 #endif

@@ -6,6 +6,8 @@
 #include "CPU.hh"
 
 
+namespace openmsx {
+
 static const char* PAC_Header = "PAC2 BACKUP DATA";
 //                               1234567890123456
 
@@ -144,3 +146,5 @@ void MSXFmPac::checkSramEnable()
 		                              0x10000 / CPU::CACHE_LINE_SIZE);
 	}
 }
+
+} // namespace openmsx

@@ -7,6 +7,8 @@
 #include "openmsx.hh"
 
 
+namespace openmsx {
+
 class NoSuchSectorException : public MSXException {
 	public:
 		NoSuchSectorException(const string &desc)
@@ -64,5 +66,7 @@ class Disk
 		int sectorsPerTrack;
 		int nbSides;
 };
+
+} // namespace openmsx
 
 #endif

@@ -5,6 +5,8 @@
 
 #include "MSXIODevice.hh"
 
+namespace openmsx {
+
 /**
  * The MSX2 Hardware Specification says ports 0x41-0x4F are Switched I/O ports.
  * Output of a ID value to port 0x40 selects a specific I/O device and connects
@@ -86,5 +88,7 @@ class MSXDeviceSwitch : public MSXIODevice
 		byte selected;
 		MSXSwitchedDevice* devices[256];
 };
+
+} // namespace openmsx
 
 #endif

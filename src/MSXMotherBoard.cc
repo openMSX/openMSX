@@ -10,6 +10,8 @@
 #include "EmuTime.hh"
 
 
+namespace openmsx {
+
 MSXMotherBoard::MSXMotherBoard()
 {
 	CommandController::instance()->registerCommand(&resetCmd, "reset");
@@ -82,4 +84,6 @@ void MSXMotherBoard::ResetCmd::help(const vector<string> &tokens) const
 {
 	print("Resets the MSX.");
 }
+
+} // namespace openmsx
 

@@ -3,6 +3,8 @@
 #include "MidiOutDevice.hh"
 
 
+namespace openmsx {
+
 MidiOutDevice::~MidiOutDevice()
 {
 }
@@ -28,3 +30,5 @@ void MidiOutDevice::setParityBit(bool enable, ParityBit parity)
 {
 	// ignore
 }
+
+} // namespace openmsx

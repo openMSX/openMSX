@@ -7,6 +7,8 @@
 #include "CommandConsole.hh"
 #include <iostream>
 
+namespace openmsx {
+
 DebugConsole* DebugConsole::instance()
 {
 	static DebugConsole oneInstance;
@@ -192,3 +194,5 @@ std::string DebugConsole::getId ()
 {
 	return "debugger";
 }
+
+} // namespace openmsx

@@ -16,6 +16,8 @@
 #include "EmuTime.hh"
 
 
+namespace openmsx {
+
 class MSXE6Timer : public MSXIODevice
 {
 	public:
@@ -30,5 +32,7 @@ class MSXE6Timer : public MSXIODevice
 	private:
 		EmuTimeFreq<255681> reference;	// 1/14 * 3.58MHz
 };
+
+} // namespace openmsx
 
 #endif //__E6TIMER_HH__

@@ -4,6 +4,8 @@
 #define __SOUNDDEVICE_HH__
 
 
+namespace openmsx {
+
 class SoundDevice
 {
 	public:
@@ -102,4 +104,6 @@ class SoundDevice
 		short volume;
 		bool userMuted, internalMuted;
 };
+
+} // namespace openmsx
 #endif

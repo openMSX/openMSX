@@ -4,8 +4,10 @@
 #define __THREAD_HH__
 
 // forward declarations
-class SDL_Thread;
+struct SDL_Thread;
 
+
+namespace openmsx {
 
 class Runnable
 {
@@ -50,5 +52,7 @@ class Thread
 		Runnable *runnable;
 		SDL_Thread *thread;
 };
+
+} // namespace openmsx
 
 #endif // __THREAD_HH__

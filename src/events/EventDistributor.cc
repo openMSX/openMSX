@@ -11,6 +11,8 @@
 #include "HotKey.hh"
 
 
+namespace openmsx {
+
 EventDistributor::EventDistributor()
 	: grabInput("grabinput",
 		"This setting controls if openmsx takes over mouse and keyboard input",
@@ -110,3 +112,5 @@ void EventDistributor::update(const SettingLeafNode *setting)
 	assert(setting == &grabInput);
 	SDL_WM_GrabInput(grabInput.getValue() ? SDL_GRAB_ON : SDL_GRAB_OFF);
 }
+
+} // namespace openmsx

@@ -6,6 +6,8 @@
 #include "Connector.hh"
 #include "SerialDataInterface.hh"
 
+namespace openmsx {
+
 class DummyRS232Device;
 class RS232Tester;
 
@@ -34,5 +36,7 @@ class RS232Connector : public Connector, public SerialDataInterface
 		DummyRS232Device* dummy;
 		RS232Tester* tester;
 };
+
+} // namespace openmsx
 
 #endif

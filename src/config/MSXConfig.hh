@@ -12,6 +12,8 @@
 #include "FileContext.hh"
 
 
+namespace openmsx {
+
 class ConfigException: public MSXException
 {
 	public:
@@ -158,5 +160,7 @@ class MSXConfig
 
 		list<Device*>::const_iterator device_iterator;
 };
+
+} // namespace openmsx
 
 #endif

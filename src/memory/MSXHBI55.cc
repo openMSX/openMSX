@@ -5,6 +5,8 @@
 #include "MSXConfig.hh"
 
 
+namespace openmsx {
+
 // MSXDevice
 
 MSXHBI55::MSXHBI55(Device *config, const EmuTime &time)
@@ -137,3 +139,5 @@ void MSXHBI55::writeC0(nibble value, const EmuTime &time)
 		// nothing 
 	}
 }
+
+} // namespace openmsx

@@ -6,6 +6,8 @@
 #include "CPU.hh"
 
 
+namespace openmsx {
+
 RomSynthesizer::RomSynthesizer(Device* config, const EmuTime &time, Rom *rom)
 	: MSXDevice(config, time), Rom16kBBlocks(config, time, rom)
 {
@@ -45,3 +47,5 @@ byte* RomSynthesizer::getWriteCacheLine(word address) const
 		return unmappedWrite;
 	}
 }
+
+} // namespace openmsx

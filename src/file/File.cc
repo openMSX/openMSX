@@ -5,6 +5,8 @@
 #include "LocalFile.hh"
 
 
+namespace openmsx {
+
 File::File(const string &url, OpenMode mode)
 {
 	string protocol, name;
@@ -81,3 +83,5 @@ bool File::isReadOnly() const
 {
 	return file->isReadOnly();
 }
+
+} // namespace openmsx

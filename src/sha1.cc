@@ -5,6 +5,8 @@
 #include "config.h"
 #include "sha1.hh"
 
+namespace openmsx {
+
 // Rotate x bits to the left
 #define ROL32(value, bits) (((value)<<(bits))|((value)>>(32-(bits))))
 
@@ -146,3 +148,5 @@ string SHA1::hex_digest()
 	s[40] = '\0';
 	return string(s);
 }
+
+} // namespace openmsx

@@ -6,6 +6,8 @@
 #include "Settings.hh"
 
 
+namespace openmsx {
+
 /** Singleton containing all settings for the VDP.
   */
 class VDPSettings
@@ -40,6 +42,8 @@ public:
 	EnumSetting<bool> *getCmdTiming() { return cmdTiming; }
 
 };
+
+} // namespace openmsx
 
 #endif // __VDPSETTINGS_HH__
 

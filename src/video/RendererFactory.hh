@@ -10,6 +10,8 @@
 #include "Settings.hh"
 #include "GLUtil.hh" // for __OPENGL_AVAILABLE__
 
+namespace openmsx {
+
 class Renderer;
 class EmuTime;
 class VDP;
@@ -211,6 +213,8 @@ public:
 	Renderer *create(VDP *vdp);
 
 };
+
+} // namespace openmsx
 
 #endif //__RENDERERFACTORY_HH__
 

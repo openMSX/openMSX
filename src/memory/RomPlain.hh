@@ -6,6 +6,8 @@
 #include "Rom8kBBlocks.hh"
 
 
+namespace openmsx {
+
 class RomPlain : public Rom8kBBlocks
 {
 	public:
@@ -16,5 +18,7 @@ class RomPlain : public Rom8kBBlocks
 		void guessHelper(word offset, int* pages);
 		word guessLocation();
 };
+
+} // namespace openmsx
 
 #endif

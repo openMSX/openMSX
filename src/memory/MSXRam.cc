@@ -5,6 +5,8 @@
 #include "MSXConfig.hh"
 
 
+namespace openmsx {
+
 MSXRam::MSXRam(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXMemDevice(config, time)
 {
@@ -98,3 +100,5 @@ byte* MSXRam::getWriteCacheLine(word start) const
 		return unmappedWrite;
 	}
 }
+
+} // namespace openmsx

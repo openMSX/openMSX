@@ -5,11 +5,15 @@
 
 #include "MSXMemoryMapper.hh"
 
+namespace openmsx {
+
 class PanasonicRam : public MSXMemoryMapper
 {
 	public:
 		PanasonicRam(Device *config, const EmuTime &time);
 		virtual ~PanasonicRam();
 };
+
+} // namespace openmsx
 
 #endif

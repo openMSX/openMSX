@@ -3,6 +3,8 @@
 #include "DummyMidiOutDevice.hh"
 
 
+namespace openmsx {
+
 void DummyMidiOutDevice::recvByte(byte value, const EmuTime& time)
 {
 	// ignore
@@ -16,3 +18,5 @@ void DummyMidiOutDevice::plug(Connector* connector, const EmuTime& time)
 void DummyMidiOutDevice::unplug(const EmuTime& time)
 {
 }
+
+} // namespace openmsx

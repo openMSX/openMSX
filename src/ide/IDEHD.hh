@@ -5,6 +5,8 @@
 
 #include "IDEDevice.hh"
 
+namespace openmsx {
+
 class Config;
 class File;
 
@@ -51,4 +53,6 @@ class IDEHD : public IDEDevice
 
 		static byte identifyBlock[512];
 };
+
+} // namespace openmsx
 #endif

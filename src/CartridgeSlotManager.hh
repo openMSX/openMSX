@@ -4,6 +4,8 @@
 #define __CARTRIDGESLOTMANAGER_HH__
 
 
+namespace openmsx {
+
 class CartridgeSlotManager
 {
 	public:
@@ -19,6 +21,8 @@ class CartridgeSlotManager
 
 		int slots[16];
 };
+
+} // namespace openmsx
 
 #endif
 

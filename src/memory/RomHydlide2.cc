@@ -19,6 +19,8 @@
 #include "CPU.hh"
 
 
+namespace openmsx {
+
 RomHydlide2::RomHydlide2(Device* config, const EmuTime &time, Rom *rom)
 	: MSXDevice(config, time), RomAscii16kB(config, time, rom),
 	  sram(0x0800, config)
@@ -85,3 +87,5 @@ byte* RomHydlide2::getWriteCacheLine(word address) const
 		return RomAscii16kB::getWriteCacheLine(address);
 	}
 }
+
+} // namespace openmsx

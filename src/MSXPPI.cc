@@ -10,6 +10,8 @@
 #include "MSXConfig.hh"
 
 
+namespace openmsx {
+
 // MSXDevice
 
 MSXPPI::MSXPPI(Device *config, const EmuTime &time)
@@ -128,3 +130,5 @@ void MSXPPI::writeC0(nibble value, const EmuTime &time)
 {
 	selectedRow = value;
 }
+
+} // namespace openmsx

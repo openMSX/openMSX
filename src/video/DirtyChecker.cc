@@ -4,6 +4,8 @@
 #include "config.h"
 #include <string.h>
 
+namespace openmsx {
+
 // Force template instantiation:
 template class DirtyChecker<1>;
 template class DirtyChecker<8>;
@@ -38,4 +40,6 @@ template <int unit>
 void DirtyChecker<unit>::updateWindow(bool enabled, const EmuTime &time) {
 	if (enabled) flush();
 }
+
+} // namespace openmsx
 

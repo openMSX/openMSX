@@ -6,6 +6,8 @@
 #include "SDL/SDL.h"
 #include "Font.hh"
 
+namespace openmsx {
+
 class File;
 
 
@@ -22,5 +24,7 @@ class SDLFont : public Font
 		SDL_Surface *fontSurface;
 		SDL_Surface *drawSurface;
 };
+
+} // namespace openmsx
 
 #endif

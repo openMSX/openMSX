@@ -6,6 +6,8 @@
 #include "openmsx.hh"
 #include "DACSound8U.hh"
 
+namespace openmsx {
+
 // forward declaration
 class EmuTime;
 
@@ -23,4 +25,6 @@ class KeyClick
 		DACSound8U dac;
 		bool status;
 };
+
+} // namespace openmsx
 #endif

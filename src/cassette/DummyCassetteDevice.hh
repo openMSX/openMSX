@@ -6,6 +6,8 @@
 #include "CassetteDevice.hh"
 
 
+namespace openmsx {
+
 class DummyCassetteDevice : public CassetteDevice
 {
 	public:
@@ -19,4 +21,6 @@ class DummyCassetteDevice : public CassetteDevice
 		virtual void plug(Connector* connector, const EmuTime& time);
 		virtual void unplug(const EmuTime& time);
 };
+
+} // namespace openmsx
 #endif

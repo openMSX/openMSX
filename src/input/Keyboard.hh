@@ -7,6 +7,8 @@
 #include "EventListener.hh"
 
 
+namespace openmsx {
+
 class Keyboard : public EventListener
 {
 	public:
@@ -40,4 +42,6 @@ class Keyboard : public EventListener
 		bool keysChanged;
 		static const byte Keys[336][2];
 };
+
+} // namespace openmsx
 #endif

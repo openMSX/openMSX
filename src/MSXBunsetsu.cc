@@ -5,6 +5,8 @@
 #include "MSXConfig.hh"
 
 
+namespace openmsx {
+
 MSXBunsetsu::MSXBunsetsu(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXMemDevice(config, time),
 	  rom(config, time),
@@ -71,3 +73,5 @@ byte* MSXBunsetsu::getWriteCacheLine(word start) const
 		return unmappedWrite;
 	}
 }
+
+} // namespace openmsx

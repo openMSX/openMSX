@@ -13,6 +13,8 @@
 #include "Console.hh"
 
 
+namespace openmsx {
+
 GLConsole::GLConsole(Console * console_)
 	:OSDConsoleRenderer (console_)
 {
@@ -232,5 +234,7 @@ void GLConsole::drawConsole()
 	glPopMatrix();
 	glPopAttrib();
 }
+
+} // namespace openmsx
 
 #endif // __OPENGL_AVAILABLE__

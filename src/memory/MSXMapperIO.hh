@@ -9,6 +9,8 @@
 
 using std::list;
 
+namespace openmsx {
+
 class MapperMask
 {
 	public:
@@ -46,5 +48,7 @@ class MSXMapperIO : public MSXIODevice
 		byte mask;
 		byte page[4];
 };
+
+} // namespace openmsx
 
 #endif

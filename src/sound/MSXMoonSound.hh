@@ -6,6 +6,8 @@
 #include "MSXIODevice.hh"
 
 
+namespace openmsx {
+
 class MSXMoonSound : public MSXIODevice
 {
 	public:
@@ -22,5 +24,7 @@ class MSXMoonSound : public MSXIODevice
 		int opl3latch;
 		byte opl4latch;
 };
+
+} // namespace openmsx
 
 #endif

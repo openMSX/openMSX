@@ -18,6 +18,8 @@ using std::string;
 using std::vector;
 using std::list;
 
+namespace openmsx {
+
 /*
 TODO: Reduce code duplication.
 It is possible to put a lot of the common code in templates:
@@ -430,5 +432,7 @@ private:
 	friend class ToggleCommand;
 	ToggleCommand toggleCommand;
 };
+
+} // namespace openmsx
 
 #endif //__SETTINGS_HH__

@@ -5,6 +5,8 @@
 
 #include "openmsx.hh"
 
+namespace openmsx {
+
 /** Represents a VDP display mode.
   * A display mode determines how bytes in the VRAM are converted to pixel
   * colours.
@@ -194,6 +196,8 @@ public:
 	}
 
 };
+
+} // namespace openmsx
 
 #endif //__DISPLAYMODE_HH__
 

@@ -5,6 +5,8 @@
 #include "Scheduler.hh"
 
 
+namespace openmsx {
+
 //**************************************************//
 //                                                  //
 //  Helper functions                                //
@@ -266,4 +268,6 @@ int Y8950Adpcm::calcSample()
 	output += sampleStep;
 	return output >> 12;
 }
+
+} // namespace openmsx
 

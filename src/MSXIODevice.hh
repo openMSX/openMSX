@@ -7,6 +7,8 @@
 #include "openmsx.hh"
 
 
+namespace openmsx {
+
 class MSXIODevice : virtual public MSXDevice
 {
 	public:
@@ -26,6 +28,8 @@ class MSXIODevice : virtual public MSXDevice
 		 */
 		virtual void writeIO(byte port, byte value, const EmuTime &time);
 };
+
+} // namespace openmsx
 
 #endif
 

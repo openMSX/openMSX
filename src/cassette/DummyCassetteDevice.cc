@@ -3,6 +3,8 @@
 #include "DummyCassetteDevice.hh"
 
 
+namespace openmsx {
+
 DummyCassetteDevice::DummyCassetteDevice()
 {
 }
@@ -33,3 +35,5 @@ void DummyCassetteDevice::plug(Connector* connector, const EmuTime& time)
 void DummyCassetteDevice::unplug(const EmuTime& time)
 {
 }
+
+} // namespace openmsx

@@ -6,6 +6,8 @@
 #include "FileOperations.hh"
 
 
+namespace openmsx {
+
 MSXRomCLI::MSXRomCLI()
 {
 	CommandLineParser::instance()->registerOption("-cart", this);
@@ -105,3 +107,5 @@ void MSXRomCLIPost::execute(MSXConfig *config)
 	config->loadStream(context, s);
 	delete this;
 }
+
+} // namespace openmsx

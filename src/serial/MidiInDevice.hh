@@ -6,6 +6,8 @@
 #include "Pluggable.hh"
 
 
+namespace openmsx {
+
 class MidiInDevice : public Pluggable
 {
 	public:
@@ -14,6 +16,8 @@ class MidiInDevice : public Pluggable
 		
 		virtual void signal(const EmuTime& time) = 0;
 };
+
+} // namespace openmsx
 
 #endif
 

@@ -3,6 +3,8 @@
 #include "RS232Device.hh"
 
 
+namespace openmsx {
+
 const string& RS232Device::getClass() const
 {
 	static const string className("RS232");
@@ -43,3 +45,5 @@ void RS232Device::setRTS(bool status, const EmuTime& time)
 {
 	// ignore
 }
+
+} // namespace openmsx

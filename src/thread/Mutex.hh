@@ -3,8 +3,10 @@
 #ifndef __MUTEX_HH__
 #define __MUTEX_HH__
 
-class SDL_mutex;
+struct SDL_mutex;
 
+
+namespace openmsx {
 
 class Mutex
 {
@@ -17,4 +19,7 @@ class Mutex
 	private:
 		SDL_mutex* mutex;
 };
+
+} // namespace openmsx
+
 #endif

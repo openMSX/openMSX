@@ -6,6 +6,8 @@
 #include "DasmTables.hh"
 #include "DisAsmView.hh"
 
+namespace openmsx {
+
 DisAsmView::DisAsmView (int rows_, int columns_, bool border_):
 	MemoryView (rows_, columns_, border_)
 {
@@ -189,3 +191,5 @@ byte DisAsmView::abs (byte data)
 	if (data & 128) return 256 - data;
 	else return data;
 }
+
+} // namespace openmsx

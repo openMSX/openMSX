@@ -5,6 +5,8 @@
 
 #include "openmsx.hh"
 
+namespace openmsx {
+
 class EmuTime;
 
 class SerialDataInterface
@@ -26,5 +28,7 @@ class SerialDataInterface
 		virtual void setParityBit(bool enable, ParityBit parity) = 0;
 		virtual void recvByte(byte value, const EmuTime& time) = 0;
 };
+
+} // namespace openmsx
 
 #endif

@@ -3,6 +3,8 @@
 #include "Semaphore.hh"
 
 
+namespace openmsx {
+
 Semaphore::Semaphore(unsigned value)
 {
 	semaphore = SDL_CreateSemaphore(value);
@@ -22,3 +24,5 @@ void Semaphore::down()
 {
 	SDL_SemWait(semaphore);
 }
+
+} // namespace openmsx

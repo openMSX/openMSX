@@ -43,6 +43,8 @@
 #include "MSXConfig.hh"
 
 
+namespace openmsx {
+
 RomGameMaster2::RomGameMaster2(Device* config, const EmuTime &time, Rom *rom)
 	: MSXDevice(config, time), Rom4kBBlocks(config, time, rom),
 	  sram(0x2000, config)
@@ -109,3 +111,5 @@ byte* RomGameMaster2::getWriteCacheLine(word address) const
 		return unmappedWrite;
 	}
 }
+
+} // namespace openmsx

@@ -10,6 +10,8 @@
 
 using std::string;
 
+namespace openmsx {
+
 class FileContext;
 
 
@@ -26,5 +28,7 @@ class WavImage : public CassetteImage
 		Uint8* buffer;
 		int freq;
 };
+
+} // namespace openmsx
 
 #endif

@@ -5,6 +5,8 @@
 
 #include "MSXMemDevice.hh"
 
+namespace openmsx {
+
 // forward declaration
 class SCC;
 
@@ -37,5 +39,7 @@ class MSXSCCPlusCart : public MSXMemDevice
 		byte mapperMask;
 		bool lowRAM, highRAM; 
 };
+
+} // namespace openmsx
 
 #endif //__MSXSCCPlusCart_HH__

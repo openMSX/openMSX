@@ -4,6 +4,8 @@
 #include "MSXCPU.hh"
 
 
+namespace openmsx {
+
 VDPIODelay::VDPIODelay(MSXIODevice *device_, const EmuTime &time)
 	: MSXDevice(device_->deviceConfig, time),
 	  MSXIODevice(device_->deviceConfig, time),
@@ -32,3 +34,5 @@ const EmuTime &VDPIODelay::delay(const EmuTime &time)
 	}
 	return lastTime;
 }
+
+} // namespace openmsx

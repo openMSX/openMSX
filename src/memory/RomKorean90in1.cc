@@ -17,6 +17,8 @@
 #include "MSXCPUInterface.hh"
 
 
+namespace openmsx {
+
 RomKorean90in1::RomKorean90in1(Device* config, const EmuTime &time, Rom *rom)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom),
 	  MSXIODevice(config, time)
@@ -70,3 +72,5 @@ byte* RomKorean90in1::getWriteCacheLine(word address) const
 {
 	return unmappedWrite;
 }
+
+} // namespace openmsx

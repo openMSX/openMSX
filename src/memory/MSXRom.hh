@@ -8,6 +8,8 @@
 #include <string>
 
 
+namespace openmsx {
+
 class MSXRom : public MSXMemDevice
 {
 	public:
@@ -27,5 +29,7 @@ class MSXRom : public MSXMemDevice
 	private:
 		void init();
 };
+
+} // namespace openmsx
 
 #endif

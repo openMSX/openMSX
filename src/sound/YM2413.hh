@@ -7,6 +7,8 @@
 #include "SoundDevice.hh"
 #include "Mixer.hh"
 
+namespace openmsx {
+
 // forward declarations
 class EmuTime;
 
@@ -305,5 +307,7 @@ class YM2413 : public SoundDevice
 		// Phase incr table for PG 
 		static unsigned int dphaseTable[512][8][16];
 };
+
+} // namespace openmsx
 
 #endif

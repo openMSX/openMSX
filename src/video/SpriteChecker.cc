@@ -17,6 +17,8 @@ TODO:
 #include "VDPSettings.hh"
 #include <cassert>
 
+namespace openmsx {
+
 SpriteChecker::SpriteChecker(VDP *vdp)
 {
 	this->vdp = vdp;
@@ -325,4 +327,6 @@ void SpriteChecker::updateSprites2(int limit)
 		currentLine++;
 	}
 }
+
+} // namespace openmsx
 

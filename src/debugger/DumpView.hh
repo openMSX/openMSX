@@ -5,6 +5,8 @@
 
 #include "MemoryView.hh"
 
+namespace openmsx {
+
 class DumpView: public MemoryView
 {
 	public:
@@ -17,5 +19,7 @@ class DumpView: public MemoryView
 		int numericSize;
 		bool displayAscii;
 };
+
+} // namespace openmsx
 
 #endif

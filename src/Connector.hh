@@ -7,6 +7,8 @@
 
 using std::string;
 
+namespace openmsx {
+
 class Pluggable;
 class EmuTime;
 
@@ -48,5 +50,7 @@ public:
 protected:
 	Pluggable *pluggable;
 };
+
+} // namespace openmsx
 
 #endif //__CONNECTOR__

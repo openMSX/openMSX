@@ -8,6 +8,8 @@
 
 using std::string;
 
+namespace openmsx {
+
 class DisAsmView: public MemoryView
 {
 	public:
@@ -24,5 +26,7 @@ class DisAsmView: public MemoryView
 		byte createDisAsmText (dword address, std::string & dest);
 		void createByteText (dword address, std::string & dest, byte size);
 };
+
+} // namespace openmsx
 
 #endif

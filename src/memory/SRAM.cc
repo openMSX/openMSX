@@ -5,6 +5,8 @@
 #include "File.hh"
 
 
+namespace openmsx {
+
 SRAM::SRAM(int size_, Config *config_, const char *header_)
 {
 	size = size_;
@@ -56,3 +58,5 @@ SRAM::~SRAM()
 	}
 	delete[] sram;
 }
+
+} // namespace openmsx

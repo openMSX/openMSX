@@ -15,6 +15,8 @@
 #include "DirtyChecker.hh"
 #include "DisplayMode.hh"
 
+namespace openmsx {
+
 class OSDConsoleRenderer;
 
 
@@ -255,6 +257,8 @@ private:
 	OSDConsoleRenderer *debugger;
 
 };
+
+} // namespace openmsx
 
 #endif // __OPENGL_AVAILABLE__
 #endif // __SDLGLRENDERER_HH__

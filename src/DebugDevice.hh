@@ -11,6 +11,8 @@ using std::vector;
 using std::fstream;
 using std::ofstream;
 
+namespace openmsx {
+
 class EmuTime;
 class FilenameSetting;
 
@@ -41,5 +43,7 @@ class DebugDevice : public MSXIODevice
 		string fileNameString;
 		vector<byte> buffer;
 };
+
+} // namespace openmsx
 
 #endif

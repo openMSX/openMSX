@@ -9,6 +9,8 @@
 #include "CommandLineParser.hh"
 #include "SoundDevice.hh"
 
+namespace openmsx {
+
 class FileContext;
 class CassetteImage;
 
@@ -72,5 +74,7 @@ class CassettePlayer : public CassetteDevice, private Command, public SoundDevic
 		EmuDuration delta;
 		EmuTime playTapeTime;
 };
+
+} // namespace openmsx
 
 #endif

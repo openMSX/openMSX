@@ -6,6 +6,8 @@
 #include <cassert>
 
 
+namespace openmsx {
+
 VolumeSetting::VolumeSetting(const string &name, int initialValue,
                              SoundDevice *device_)
 	: device(device_),
@@ -25,3 +27,5 @@ void VolumeSetting::update(const SettingLeafNode *setting)
 	assert(setting == &volumeSetting);
 	device->setVolume(volumeSetting.getValue());
 }
+
+} // namespace openmsx

@@ -3,6 +3,8 @@
 #include "VDPSettings.hh"
 
 
+namespace openmsx {
+
 VDPSettings::VDPSettings()
 {
 	limitSprites = new BooleanSetting(
@@ -21,3 +23,5 @@ VDPSettings::~VDPSettings()
 	delete limitSprites;
 	delete cmdTiming;
 }
+
+} // namespace openmsx

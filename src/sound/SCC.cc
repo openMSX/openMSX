@@ -73,6 +73,8 @@
 #include "Mixer.hh"
 
 
+namespace openmsx {
+
 SCC::SCC(const string &name, short volume, const EmuTime &time,
          ChipMode mode)
 	: currentChipMode(mode)
@@ -470,3 +472,5 @@ void SCC::checkMute()
 	}
 	setInternalMute(mute);
 }
+
+} // namespace openmsx

@@ -15,6 +15,8 @@
 #include "MSXIODevice.hh"
 
 
+namespace openmsx {
+
 class MSXTurboRPause : public MSXIODevice
 {
 	public:
@@ -27,5 +29,7 @@ class MSXTurboRPause : public MSXIODevice
 	private:
 		byte status;
 };
+
+} // namespace openmsx
 
 #endif

@@ -6,6 +6,8 @@
 #include <SDL/SDL.h>
 
 
+namespace openmsx {
+
 class Semaphore
 {
 	public:
@@ -17,5 +19,7 @@ class Semaphore
 	private:
 		SDL_sem* semaphore;
 };
+
+} // namespace openmsx
 
 #endif

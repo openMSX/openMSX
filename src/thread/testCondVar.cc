@@ -3,6 +3,8 @@
 #include <unistd.h>
 #include <iostream>
 
+namespace openmsx {
+
 CondVar v1;
 
 class R1 : public Runnable
@@ -46,3 +48,5 @@ int main() {
 	t1->stop();
 	t2->stop();
 }
+
+} // namespace openmsx

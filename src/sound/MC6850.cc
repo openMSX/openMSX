@@ -4,6 +4,8 @@
 #include <cassert>
 
 
+namespace openmsx {
+
 MC6850::MC6850(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
@@ -45,3 +47,5 @@ void MC6850::writeIO(byte port, byte value, const EmuTime &time)
 		break;
 	}
 }
+
+} // namespace openmsx

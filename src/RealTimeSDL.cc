@@ -3,6 +3,8 @@
 #include "RealTimeSDL.hh"
 #include <SDL/SDL.h>
 
+namespace openmsx {
+
 const float ALPHA = 0.2; // TODO: make tuneable???
 
 
@@ -99,4 +101,6 @@ void RealTimeSDL::reset(const EmuTime &time)
 	emuFactor   = 1.0;
 	sleepAdjust = 0.0;
 }
+
+} // namespace openmsx
 

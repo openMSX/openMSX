@@ -5,6 +5,8 @@
 #include "openmsx.hh"
 
 
+namespace openmsx {
+
 Leds::Leds()
 {
 	pwrLed = capsLed = kanaLed = pauseLed = turboLed = fddLed = true;
@@ -104,3 +106,5 @@ void Leds::setLed(LEDCommand led)
 		break;
 	}
 }
+
+} // namespace openmsx

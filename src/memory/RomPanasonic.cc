@@ -7,6 +7,8 @@
 #include "CPU.hh"
 
 
+namespace openmsx {
+
 const int SRAM_BASE = 0x80;
 const int RAM_BASE  = 0x180;
 
@@ -175,3 +177,5 @@ void RomPanasonic::changeBank(byte region, int bank)
 		setRom(region, bank);
 	}
 }
+
+} // namespace openmsx

@@ -13,6 +13,8 @@
 #include "EmuTime.hh"
 #include "Settings.hh"
 
+namespace openmsx {
+
 class SoundDevice;
 class MSXCPU;
 class RealTime;
@@ -109,6 +111,8 @@ class Mixer : private SettingListener
 		int nbClipped;
 #endif
 };
+
+} // namespace openmsx
 
 #endif //__MIXER_HH__
 

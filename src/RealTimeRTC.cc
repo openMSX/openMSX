@@ -13,6 +13,8 @@
 
 
 
+namespace openmsx {
+
 RealTimeRTC* RealTimeRTC::create()
 {
 	RealTimeRTC* rt = new RealTimeRTC();
@@ -146,3 +148,5 @@ void RealTimeRTC::reset(const EmuTime &time)
 	prevOverslept = 0;
 	emuRef = time;
 }
+
+} // namespace openmsx

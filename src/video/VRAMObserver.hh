@@ -3,6 +3,8 @@
 #ifndef __VRAMOBSERVER_HH__
 #define __VRAMOBSERVER_HH__
 
+namespace openmsx {
+
 class EmuTime;
 
 /** Interface that can be registered at VRAMWindow,
@@ -35,6 +37,8 @@ public:
 	  */
 	virtual void updateWindow(bool enabled, const EmuTime &time) = 0;
 };
+
+} // namespace openmsx
 
 #endif //__VRAMOBSERVER_HH__
 

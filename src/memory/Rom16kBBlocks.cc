@@ -5,6 +5,8 @@
 #include "CPU.hh"
 
 
+namespace openmsx {
+
 Rom16kBBlocks::Rom16kBBlocks(Device* config, const EmuTime &time, Rom *rom)
 	: MSXDevice(config, time), MSXRom(config, time, rom)
 {
@@ -43,3 +45,5 @@ void Rom16kBBlocks::setRom(byte region, int block)
 		setBank(region, unmappedRead);
 	}
 }
+
+} // namespace openmsx

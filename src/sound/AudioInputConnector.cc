@@ -7,6 +7,8 @@
 #include "PluggingController.hh"
 
 
+namespace openmsx {
+
 AudioInputConnector::AudioInputConnector()
 {
 	dummy = new DummyAudioInputDevice();
@@ -47,3 +49,5 @@ short AudioInputConnector::readSample(const EmuTime &time)
 {
 	return static_cast<AudioInputDevice*>(pluggable)->readSample(time);
 }
+
+} // namespace openmsx

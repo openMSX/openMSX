@@ -10,6 +10,8 @@
 #include "Mixer.hh"
 #include "Rom.hh"
 
+namespace openmsx {
+
 class MSXConfig;
 
 
@@ -122,5 +124,7 @@ class YMF278 : public SoundDevice
 		EmuTimeFreq<MASTER_CLK> LD_Time;
 		EmuTimeFreq<MASTER_CLK> BUSY_Time;
 };
+
+} // namespace openmsx
 
 #endif

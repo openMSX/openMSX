@@ -6,6 +6,8 @@
 #include "MSXRom.hh"
 
 
+namespace openmsx {
+
 class Rom8kBBlocks : public MSXRom
 {
 	public:
@@ -21,5 +23,7 @@ class Rom8kBBlocks : public MSXRom
 
 		byte* bank[8];
 };
+
+} // namespace openmsx
 
 #endif

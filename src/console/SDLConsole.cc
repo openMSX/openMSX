@@ -15,6 +15,8 @@
 #include "CommandConsole.hh"
 #include "DebugConsole.hh"
 
+namespace openmsx {
+
 // TODO: Replacing this by a 4-entry array would simplify the code.
 struct ColorRGBA {
 	Uint8 r;
@@ -464,3 +466,5 @@ int SDLConsole::zoomSurface(SDL_Surface * src, SDL_Surface * dst, bool smooth)
 
 	return 0;
 }
+
+} // namespace openmsx

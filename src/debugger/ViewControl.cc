@@ -6,6 +6,8 @@
 #include "DebugInterface.hh"
 #include <map>
 
+namespace openmsx {
+
 ViewControl::ViewControl (MemoryView * view_)
 {
 	view = view_;
@@ -68,3 +70,5 @@ bool ViewControl::linkToCriterium(DebugInterface * device, std::string criteria)
 	}
 	return false;
 }
+
+} // namespace openmsx

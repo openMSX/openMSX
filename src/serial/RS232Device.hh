@@ -7,6 +7,8 @@
 #include "SerialDataInterface.hh"
 
 
+namespace openmsx {
+
 class RS232Device : public Pluggable, public SerialDataInterface
 {
 	public:
@@ -27,6 +29,8 @@ class RS232Device : public Pluggable, public SerialDataInterface
 		virtual void setDTR(bool status, const EmuTime& time);
 		virtual void setRTS(bool status, const EmuTime& time);
 };
+
+} // namespace openmsx
 
 #endif
 

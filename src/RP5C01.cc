@@ -5,6 +5,8 @@
 #include <time.h>
 #include <string>
 
+namespace openmsx {
+
 //TODO  ALARM is not implemented        (not connected on MSX)
 //TODO  1Hz 16Hz output not implemented (not connected on MSX)
 
@@ -217,3 +219,5 @@ void RP5C01::resetAlarm()
 		reg[ALARM_BLOCK * 13 + i] = 0;
 	}
 }
+
+} // namespace openmsx

@@ -8,6 +8,8 @@
 #include "CPU.hh"
 
 
+namespace openmsx {
+
 MSXCPU::MSXCPU(Device *config, const EmuTime &time)
 	: MSXDevice(config, time),
 	  z80 (MSXCPUInterface::instance(), time),
@@ -154,3 +156,5 @@ std::string MSXCPU::getDeviceName ()
 {
 	return "cpu";
 }
+
+} // namespace openmsx

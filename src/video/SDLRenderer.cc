@@ -19,6 +19,8 @@ TODO:
 #include "util.hh"
 
 
+namespace openmsx {
+
 // Force template instantiation:
 template class SDLRenderer<Uint8, Renderer::ZOOM_256>;
 template class SDLRenderer<Uint8, Renderer::ZOOM_512>;
@@ -840,3 +842,5 @@ void SDLRenderer<Pixel, zoom>::drawSprites(
 	if (SDL_MUSTLOCK(screen))
 		SDL_UnlockSurface(screen);
 }
+
+} // namespace openmsx

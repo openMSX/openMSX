@@ -6,6 +6,8 @@
 #include "Rom8kBBlocks.hh"
 
 
+namespace openmsx {
+
 class RomHalnote : public Rom8kBBlocks
 {
 	public:
@@ -17,5 +19,7 @@ class RomHalnote : public Rom8kBBlocks
 		                      const EmuTime &time);
 		virtual byte* getWriteCacheLine(word address) const;
 };
+
+} // namespace openmsx
 
 #endif

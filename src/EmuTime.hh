@@ -9,6 +9,8 @@
 
 using std::ostream;
 
+namespace openmsx {
+
 // predefines
 class EmuTime;
 ostream &operator <<(ostream &os, const EmuTime &e);
@@ -165,5 +167,7 @@ class EmuTimeFreq : public EmuTime
 			       (MAIN_FREQ / freq); // round up
 		}
 };
+
+} // namespace openmsx
 
 #endif

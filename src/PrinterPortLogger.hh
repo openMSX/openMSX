@@ -5,6 +5,8 @@
 
 #include "PrinterPortDevice.hh"
 
+namespace openmsx {
+
 class File;
 
 
@@ -29,5 +31,7 @@ class PrinterPortLogger : public PrinterPortDevice
 		bool prevStrobe;
 		File* file;
 };
+
+} // namespace openmsx
 
 #endif

@@ -6,6 +6,8 @@
 #include "Disk.hh"
 
 
+namespace openmsx {
+
 class DummyDisk : public Disk
 {
 	public:
@@ -22,5 +24,7 @@ class DummyDisk : public Disk
 		virtual bool writeProtected();
 		virtual bool doubleSided();
 };
+
+} // namespace openmsx
 
 #endif

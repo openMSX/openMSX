@@ -12,6 +12,8 @@
 #include "Schedulable.hh"
 
 
+namespace openmsx {
+
 class I8251Interface : public SerialDataInterface
 {
 	public:
@@ -76,5 +78,7 @@ class I8251 : public SerialDataInterface, private Schedulable
 		byte sendBuffer;
 		bool sendBuffered;
 };
+
+} // namespace openmsx
 
 #endif

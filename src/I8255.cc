@@ -3,6 +3,8 @@
 #include "I8255.hh"
 #include <cassert>
 
+namespace openmsx {
+
 const int MODE_A       = 0x60;
 const int MODEA_0      = 0x00;
 const int MODEA_1      = 0x20;
@@ -237,4 +239,6 @@ void I8255::writeControlPort(byte value, const EmuTime &time)
 		}
 	}
 }
+
+} // namespace openmsx
 	

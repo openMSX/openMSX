@@ -3,6 +3,8 @@
 #include "DummyIDEDevice.hh"
 
 
+namespace openmsx {
+
 void DummyIDEDevice::reset(const EmuTime &time)
 {
 	// do nothing
@@ -27,3 +29,5 @@ void DummyIDEDevice::writeReg(nibble reg, byte value, const EmuTime &time)
 {
 	// do nothing
 }
+
+} // namespace openmsx

@@ -5,6 +5,8 @@
 #include "Scheduler.hh"
 
 
+namespace openmsx {
+
 WD2793::WD2793(DiskDrive* drive_, const EmuTime &time)
 	: drive(drive_)
 {
@@ -609,4 +611,6 @@ void WD2793::endCmd()
 	setIRQ();
 	statusReg &= ~BUSY;
 }
+
+} // namespace openmsx
 

@@ -8,6 +8,8 @@
 #include "SpriteChecker.hh"
 #include "RealTime.hh"
 
+namespace openmsx {
+
 /** Line number where top border starts.
   * This is independent of PAL/NTSC timing or number of lines per screen.
   */
@@ -294,3 +296,5 @@ void PixelRenderer::renderUntil(const EmuTime &time)
 	nextX = limitX;
 	nextY = limitY;
 }
+
+} // namespace openmsx

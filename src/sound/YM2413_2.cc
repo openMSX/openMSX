@@ -23,6 +23,8 @@
 #include "YM2413_2.hh"
 
 
+namespace openmsx {
+
 const double PI = 3.14159265358979323846;
 
 const int FREQ_SH = 16;	// 16.16 fixed point (frequency calculations)
@@ -1432,3 +1434,5 @@ void YM2413_2::setInternalVolume(short newVolume)
 {
 	maxVolume = newVolume;
 }
+
+} // namespace openmsx

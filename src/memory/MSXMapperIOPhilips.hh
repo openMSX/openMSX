@@ -6,6 +6,8 @@
 #include "MSXMapperIO.hh"
 
 
+namespace openmsx {
+
 class MSXMapperIOPhilips : public MapperMask
 {
 	public:
@@ -14,6 +16,8 @@ class MSXMapperIOPhilips : public MapperMask
 	private:
 		int log2RoundedUp(int num);
 };
+
+} // namespace openmsx
 
 #endif //__MSXMAPPERIOPHILIPS_HH__
 

@@ -5,6 +5,8 @@
 #include "Scheduler.hh"
 
 
+namespace openmsx {
+
 ClockPin::ClockPin(ClockPinListener* listener_)
 	: listener(listener_), periodic(false), status(false),
 	  signalEdge(false)
@@ -143,3 +145,5 @@ const string& ClockPin::schedName() const
 	static const string name("ClockPin");
 	return name;
 }
+
+} // namespace openmsx

@@ -8,6 +8,8 @@
 #include "RomHolyQuran.hh"
 
 
+namespace openmsx {
+
 RomHolyQuran::RomHolyQuran(Device* config, const EmuTime &time, Rom *rom)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
@@ -46,3 +48,5 @@ byte* RomHolyQuran::getWriteCacheLine(word address) const
 		return unmappedWrite;
 	}
 }
+
+} // namespace openmsx

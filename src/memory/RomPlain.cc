@@ -4,6 +4,8 @@
 #include "MSXConfig.hh"
 
 
+namespace openmsx {
+
 RomPlain::RomPlain(Device* config, const EmuTime &time, Rom *rom)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
@@ -113,3 +115,5 @@ word RomPlain::guessLocation()
 	}
 	return (lowest * 0x4000) & 0xFFFF;
 }
+
+} // namespace openmsx

@@ -11,6 +11,8 @@
 #include "SpriteConverter.hh"
 #include "DisplayMode.hh"
 
+namespace openmsx {
+
 class OSDConsoleRenderer;
 
 
@@ -215,5 +217,7 @@ private:
 	OSDConsoleRenderer *console;
 	OSDConsoleRenderer *debugger;
 };
+
+} // namespace openmsx
 
 #endif //__SDLRENDERER_HH__

@@ -5,6 +5,9 @@
 #include "MSXMapperIO.hh"
 #include "MSXCPUInterface.hh"
 
+
+namespace openmsx {
+
 MemoryView::MemoryView (int rows_, int columns_, bool border_)
 	: DebugView(rows_, columns_, border_)
 {
@@ -98,3 +101,5 @@ void MemoryView::update ()
 		fill();
 	}
 }
+
+} // namespace openmsx

@@ -6,6 +6,8 @@
 #include "RS232Device.hh"
 
 
+namespace openmsx {
+
 class DummyRS232Device : public RS232Device
 {
 	public:
@@ -16,5 +18,7 @@ class DummyRS232Device : public RS232Device
 		// SerialDataInterface (part)
 		virtual void recvByte(byte value, const EmuTime& time);
 };
+
+} // namespace openmsx
 
 #endif

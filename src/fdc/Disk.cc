@@ -3,6 +3,8 @@
 #include "Disk.hh"
 
 
+namespace openmsx {
+
 Disk::Disk()
 {
 	nbSides = 0;
@@ -91,4 +93,6 @@ void Disk::readBootSector()
 	//PRT_DEBUG("Disk sectorsPerTrack " << sectorsPerTrack);
 	//PRT_DEBUG("Disk nbSides         " << nbSides);
 }
+
+} // namespace openmsx
 

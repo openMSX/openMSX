@@ -4,6 +4,8 @@
 #include <cassert>
 
 
+namespace openmsx {
+
 FileBase::FileBase()
 	: mmem(NULL)
 {
@@ -39,3 +41,5 @@ void FileBase::munmap()
 		mmem = NULL;
 	}
 }
+
+} // namespace openmsx

@@ -5,6 +5,8 @@
 #include "MSXConfig.hh"
 
 
+namespace openmsx {
+
 // Inlined methods first, to make sure they are actually inlined
 inline int MSXMemoryMapper::calcAddress(word address) const
 {
@@ -67,3 +69,5 @@ byte* MSXMemoryMapper::getWriteCacheLine(word start) const
 {
 	return &buffer[calcAddress(start)];
 }
+
+} // namespace openmsx

@@ -4,6 +4,8 @@
 #include <iostream>
 #include <cstdio>
 
+namespace openmsx {
+
 DebugView::DebugView (int rows_, int columns_, bool border_):
 			rows(rows_),columns(columns_),border(border_)
 {
@@ -67,3 +69,5 @@ std::string DebugView::getLine (int line)
 {
 	return lines[line];
 }
+
+} // namespace openmsx

@@ -6,6 +6,8 @@
 #include "Rom8kBBlocks.hh"
 
 
+namespace openmsx {
+
 class RomMajutsushi : public Rom8kBBlocks
 {
 	public:
@@ -20,5 +22,7 @@ class RomMajutsushi : public Rom8kBBlocks
 	private:
 		class DACSound8U* dac;
 };
+
+} // namespace openmsx
 
 #endif

@@ -5,6 +5,8 @@
 #include "RenderSettings.hh"
 
 
+namespace openmsx {
+
 /*
 TMS99X8A palette.
 Source: TMS9918/28/29 Data Book, page 2-17.
@@ -77,3 +79,5 @@ bool Renderer::checkSettings()
 {
 	return settings->getRenderer()->getValue() == id;
 }
+
+} // namespace openmsx

@@ -5,6 +5,8 @@
 
 #include "CassetteImage.hh"
 
+namespace openmsx {
+
 class DummyCassetteImage : public CassetteImage
 {
 	public:
@@ -13,5 +15,7 @@ class DummyCassetteImage : public CassetteImage
 	
 		virtual short getSampleAt(const EmuTime &time);
 };
+
+} // namespace openmsx
 
 #endif

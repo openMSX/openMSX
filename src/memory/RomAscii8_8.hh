@@ -7,6 +7,8 @@
 #include "SRAM.hh"
 
 
+namespace openmsx {
+
 class RomAscii8_8 : public Rom8kBBlocks
 {
 	public:
@@ -22,5 +24,7 @@ class RomAscii8_8 : public Rom8kBBlocks
 		SRAM sram;
 		byte sramEnabled;
 };
+
+} // namespace openmsx
 
 #endif

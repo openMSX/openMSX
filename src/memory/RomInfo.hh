@@ -8,6 +8,8 @@
 
 using std::string;
 
+namespace openmsx {
+
 class Rom;
 class Device;
 
@@ -44,5 +46,7 @@ class RomInfo
 		string remark;
 		MapperType mapperType;
 };
+
+} // namespace openmsx
 
 #endif

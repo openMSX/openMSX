@@ -4,6 +4,8 @@
 #include "CPU.hh"
 
 
+namespace openmsx {
+
 RomCrossBlaim::RomCrossBlaim(Device* config, const EmuTime &time, Rom *rom)
 	: MSXDevice(config, time), Rom16kBBlocks(config, time, rom)
 {
@@ -37,3 +39,5 @@ byte* RomCrossBlaim::getWriteCacheLine(word address) const
 		return unmappedWrite;
 	}
 }
+
+} // namespace openmsx

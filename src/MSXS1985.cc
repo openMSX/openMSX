@@ -3,6 +3,8 @@
 #include "MSXS1985.hh"
 
 
+namespace openmsx {
+
 const byte ID = 0xFE;
 
 MSXS1985::MSXS1985(Device *config, const EmuTime &time)
@@ -61,3 +63,5 @@ void MSXS1985::writeIO(byte port, byte value, const EmuTime &time)
 		break;
 	}
 }
+
+} // namespace openmsx

@@ -7,6 +7,8 @@
 #include "openmsx.hh"
 #include "MSXException.hh"
 
+namespace openmsx {
+
 class FileBase;
 
 
@@ -111,6 +113,8 @@ class File
 	private:
 		FileBase *file;
 };
+
+} // namespace openmsx
 
 #endif
 

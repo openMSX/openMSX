@@ -6,6 +6,8 @@
 #include "MSXConfig.hh"
 
 
+namespace openmsx {
+
 // MSXDevice
 MSXPSG::MSXPSG(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time), joyPorts(time)
@@ -83,3 +85,5 @@ void MSXPSG::writeB(byte value, const EmuTime &time)
 	Leds::LEDCommand kana = (value & 0x80) ? Leds::KANA_OFF : Leds::KANA_ON;
 	Leds::instance()->setLed(kana);
 }
+
+} // namespace openmsx

@@ -3,6 +3,8 @@
 #include "IRQHelper.hh"
 
 
+namespace openmsx {
+
 IRQHelper::IRQHelper()
 {
 	cpu = MSXCPU::instance();
@@ -13,3 +15,5 @@ IRQHelper::~IRQHelper()
 {
 	reset();
 }
+
+} // namespace openmsx

@@ -2,12 +2,18 @@
 
 #include "CPUInterface.hh"
 #include "CPU.hh"
-#include "CPUTables.nn"
 #include "Scheduler.hh"
-
 
 #ifdef CPU_DEBUG
 #include "Settings.hh"
+#endif
+
+
+namespace openmsx {
+
+#include "CPUTables.nn"
+
+#ifdef CPU_DEBUG
 BooleanSetting *CPU::traceSetting =
 	new BooleanSetting("cputrace", "CPU tracing on/off", false);
 #endif
@@ -122,3 +128,5 @@ void CPU::wait(const EmuTime &time)
 	}
 	setCurrentTime(time);
 }
+
+} // namespace openmsx

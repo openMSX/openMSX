@@ -54,6 +54,8 @@ using std::istream;
 using std::ifstream;
 using std::ostream;
 
+namespace openmsx {
+
 class MD5
 {
 	private:
@@ -113,5 +115,7 @@ class MD5
 		static inline void II(uint4& a, uint4 b, uint4 c, uint4 d,
 		                      uint4 x, uint4 s, uint4 ac);
 };
+
+} // namespace openmsx
 
 #endif

@@ -13,6 +13,8 @@
 #include "DACSound16S.hh"
 
 
+namespace openmsx {
+
 class Y8950 : public SoundDevice, public TimerCallback
 {
 	class Patch {
@@ -313,5 +315,7 @@ class Y8950 : public SoundDevice, public TimerCallback
 		// 13-bit (exponential) DAC
 		DACSound16S dac13;
 };
+
+} // namespace openmsx
 
 #endif

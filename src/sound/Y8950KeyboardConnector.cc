@@ -4,6 +4,8 @@
 #include "PluggingController.hh"
 
 
+namespace openmsx {
+
 Y8950KeyboardConnector::Y8950KeyboardConnector(const EmuTime &time)
 	: data(0)
 {
@@ -80,3 +82,5 @@ void DummyY8950KeyboardDevice::plug(Connector* connector, const EmuTime& time)
 void DummyY8950KeyboardDevice::unplug(const EmuTime& time)
 {
 }
+
+} // namespace openmsx

@@ -8,6 +8,8 @@
 #include "RendererFactory.hh"
 #include "VRAMObserver.hh"
 
+namespace openmsx {
+
 class EmuTime;
 class RenderSettings;
 class DisplayMode;
@@ -225,6 +227,8 @@ private:
 	RendererFactory::RendererID id;
 
 };
+
+} // namespace openmsx
 
 #endif //__RENDERER_HH__
 

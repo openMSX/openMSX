@@ -7,6 +7,8 @@
 #include "Connector.hh"
 
 
+namespace openmsx {
+
 class DummyY8950KeyboardDevice : public Y8950KeyboardDevice
 {
 	virtual void write(byte data, const EmuTime &time);
@@ -38,5 +40,7 @@ class Y8950KeyboardConnector : public Connector
 		
 		byte data;
 };
+
+} // namespace openmsx
 
 #endif

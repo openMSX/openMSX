@@ -5,6 +5,8 @@
 
 #include "openmsx.hh"
 
+namespace openmsx {
+
 /**
  * This class calculates CRC numbers for the polygon
  *   x^16 + x^12 + x^5 + 1
@@ -46,5 +48,7 @@ class CRC16
 			return crc;
 		}
 };
+
+} // namespace openmsx
 
 #endif

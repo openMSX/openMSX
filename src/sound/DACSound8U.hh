@@ -8,6 +8,8 @@
 #include "DACSound16S.hh"
 
 
+namespace openmsx {
+
 class DACSound8U : public DACSound16S
 {
 	public:
@@ -17,5 +19,7 @@ class DACSound8U : public DACSound16S
 	
 		void writeDAC(byte value, const EmuTime &time);
 };
+
+} // namespace openmsx
 
 #endif

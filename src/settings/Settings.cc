@@ -13,6 +13,8 @@
 
 using std::ostringstream;
 
+namespace openmsx {
+
 // SettingNode implementation:
 
 SettingNode::SettingNode(const string &name_, const string &description_)
@@ -479,3 +481,5 @@ void SettingsManager::ToggleCommand::tabCompletion(
 		}
 	}
 }
+
+} // namespace openmsx

@@ -8,6 +8,8 @@
 #include "DiskDrive.hh"
 
 
+namespace openmsx {
+
 TC8566AF::TC8566AF(DiskDrive* drv[4], const EmuTime &time)
 {
 	drive[0] = drv[0];
@@ -525,3 +527,5 @@ void TC8566AF::writeReg(int reg, byte data, const EmuTime &time)
 		break;
 	}
 }
+
+} // namespace openmsx

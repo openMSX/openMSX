@@ -15,6 +15,8 @@
 using std::list;
 using std::ofstream;
 
+namespace openmsx {
+
 class RS232Connector;
 
 
@@ -51,5 +53,7 @@ class RS232Tester : public RS232Device, private Runnable, private Schedulable
 		
 		ofstream outFile;
 };
+
+} // namespace openmsx
 
 #endif

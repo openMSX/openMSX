@@ -10,6 +10,8 @@
 #include "MSXConfig.hh"
 
 
+namespace openmsx {
+
 SunriseIDE::SunriseIDE(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXMemDevice(config, time),
 	  rom(config, time)
@@ -228,3 +230,5 @@ void SunriseIDE::writeReg(nibble reg, byte value, const EmuTime &time)
 		}
 	}
 }
+
+} // namespace openmsx

@@ -5,6 +5,8 @@
 
 #include "MSXIODevice.hh"
 
+namespace openmsx {
+
 class Y8950;
 
 
@@ -23,5 +25,7 @@ class MSXAudio : public MSXIODevice
 		Y8950 *y8950;
 		int registerLatch;
 };
+
+} // namespace openmsx
 
 #endif

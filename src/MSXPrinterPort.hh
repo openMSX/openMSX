@@ -7,6 +7,8 @@
 #include "PrinterPortDevice.hh"
 #include "Connector.hh"
 
+namespace openmsx {
+
 class PrinterPortSimpl;
 class PrinterPortLogger;
 
@@ -54,5 +56,7 @@ class MSXPrinterPort : public MSXIODevice , public Connector
 		bool strobe;
 		byte data;
 };
+
+} // namespace openmsx
 
 #endif

@@ -35,6 +35,8 @@ TODO:
 #include <cassert>
 
 
+namespace openmsx {
+
 // Inlined methods first, to make sure they are actually inlined:
 // TODO: None left?
 
@@ -1040,4 +1042,6 @@ void VDP::PaletteCmd::help(const vector<string> &tokens) const
 {
 	print("Prints the current VDP palette (i:rgb).");
 }
+
+} // namespace openmsx
 

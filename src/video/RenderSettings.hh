@@ -8,6 +8,8 @@
 #include "FrameSkipSetting.hh"
 
 
+namespace openmsx {
+
 /** Singleton containing all settings for renderers.
   * Keeping the settings here makes sure they are preserved when the user
   * switches to another renderer.
@@ -70,6 +72,8 @@ public:
 	IntegerSetting *getScanlineAlpha() { return scanlineAlpha; }
 
 };
+
+} // namespace openmsx
 
 #endif // __RENDERSETTINGS_HH__
 

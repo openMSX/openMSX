@@ -7,6 +7,8 @@
 #include "CPU.hh"
 
 
+namespace openmsx {
+
 class PhilipsFDC : public WD2793BasedFDC
 {
 	public:
@@ -24,4 +26,6 @@ class PhilipsFDC : public WD2793BasedFDC
 		byte sideReg;
 		byte driveReg;
 };
+
+} // namespace openmsx
 #endif

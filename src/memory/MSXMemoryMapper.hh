@@ -5,6 +5,8 @@
 
 #include "MSXMemDevice.hh"
 
+namespace openmsx {
+
 class MSXMapperIO;
 
 
@@ -33,5 +35,7 @@ class MSXMemoryMapper : public MSXMemDevice
 		int nbBlocks;
 		bool slowDrainOnReset;
 };
+
+} // namespace openmsx
 
 #endif //__MSXMEMORYMAPPER_HH__

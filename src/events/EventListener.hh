@@ -6,6 +6,8 @@
 #include <SDL/SDL.h>
 
 
+namespace openmsx {
+
 class EventListener
 {
 	public:
@@ -18,5 +20,7 @@ class EventListener
 		 */
 		virtual bool signalEvent(SDL_Event &event) = 0;
 };
+
+} // namespace openmsx
 
 #endif

@@ -6,6 +6,8 @@
 #include "RealTime.hh"
 
 
+namespace openmsx {
+
 class RealTimeRTC : public RealTime
 {
 	public:
@@ -32,5 +34,7 @@ class RealTimeRTC : public RealTime
 		int prevOverslept;
 		EmuTimeFreq<RTC_HERTZ> emuRef;
 };
+
+} // namespace openmsx
 
 #endif

@@ -6,6 +6,8 @@
 #include "MSXIODevice.hh"
 #include "SRAM.hh"
 
+namespace openmsx {
+
 class RP5C01;
 
 
@@ -24,5 +26,7 @@ class MSXRTC : public MSXIODevice
 		SRAM sram;
 		nibble registerLatch;
 };
+
+} // namespace openmsx
 
 #endif

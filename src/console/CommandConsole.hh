@@ -12,6 +12,8 @@
 #include "Settings.hh"
 #include "MSXConfig.hh"
 
+namespace openmsx {
+
 class CommandConsole : public Console, private EventListener,
                        private SettingListener
 {
@@ -82,5 +84,7 @@ class CommandConsole : public Console, private EventListener,
 		int consoleColumns;
 		int consoleRows;
 };
+
+} // namespace openmsx
 
 #endif

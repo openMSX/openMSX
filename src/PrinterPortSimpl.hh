@@ -5,6 +5,8 @@
 
 #include "PrinterPortDevice.hh"
 
+namespace openmsx {
+
 class DACSound8U;
 
 
@@ -27,6 +29,8 @@ class PrinterPortSimpl : public PrinterPortDevice
 	private:
 		DACSound8U* dac;
 };
+
+} // namespace openmsx
 
 #endif
 

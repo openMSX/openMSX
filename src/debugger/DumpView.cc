@@ -3,6 +3,8 @@
 #include <cstdio>
 #include "DumpView.hh"
 
+namespace openmsx {
+
 DumpView::DumpView (int rows_, int columns_, bool border_):
 	MemoryView (rows_, columns_, border_)
 {
@@ -68,3 +70,5 @@ void DumpView::fill()
 void DumpView::scroll (enum ScrollDirection direction, int lines)
 {
 }
+
+} // namespace openmsx

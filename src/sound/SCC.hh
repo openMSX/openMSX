@@ -10,6 +10,8 @@
 
 using std::string;
 
+namespace openmsx {
+
 class SCC : public SoundDevice
 {
 	public:
@@ -66,5 +68,7 @@ class SCC : public SoundDevice
 		bool readOnly[5];
 		byte offset[5];
 };
+
+} // namespace openmsx
 
 #endif //__SCC_HH__

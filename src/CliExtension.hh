@@ -6,6 +6,8 @@
 #include "CommandLineParser.hh"
 
 
+namespace openmsx {
+
 class CliExtension : public CLIOption
 {
 	public:
@@ -21,5 +23,7 @@ class CliExtension : public CLIOption
 		
 		map<string, string> extensions;
 };
+
+} // namespace openmsx
 
 #endif

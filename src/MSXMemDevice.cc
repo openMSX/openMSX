@@ -5,6 +5,8 @@
 #include "MSXConfig.hh"
 
 
+namespace openmsx {
+
 byte MSXMemDevice::unmappedRead[0x10000];
 byte MSXMemDevice::unmappedWrite[0x10000];
 
@@ -98,4 +100,6 @@ void MSXMemDevice::registerSlots()
 			registerSlottedDevice(this, pages);
 	}
 }
+
+} // namespace openmsx
 

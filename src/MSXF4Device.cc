@@ -4,6 +4,8 @@
 #include "MSXConfig.hh"
 
 
+namespace openmsx {
+
 MSXF4Device::MSXF4Device(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
@@ -34,3 +36,5 @@ void MSXF4Device::writeIO(byte port, byte value, const EmuTime &time)
 		status = (status & 0x20) | (value & 0xa0);
 	}
 }
+
+} // namespace openmsx

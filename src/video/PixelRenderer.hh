@@ -11,6 +11,8 @@
 #include "RenderSettings.hh"
 #include "DisplayMode.hh"
 
+namespace openmsx {
+
 class VDP;
 class SpriteChecker;
 
@@ -202,6 +204,8 @@ private:
 	int frameSkipDelay;
 	CircularBuffer<float, 100> buffer;
 };
+
+} // namespace openmsx
 
 #endif //__PIXELRENDERER_HH__
 

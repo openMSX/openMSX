@@ -5,6 +5,8 @@
 #include "MSXConfig.hh"
 
 
+namespace openmsx {
+
 const int RESERVED = 16;
 const int EXISTS   = 32;
 
@@ -78,3 +80,5 @@ void CartridgeSlotManager::getSlot(int &ps, int &ss)
 	}
 	PRT_ERROR("Not enough free cartridge slots");
 }
+
+} // namespace openmsx

@@ -9,6 +9,8 @@
 #include "Font.hh"
 
 
+namespace openmsx {
+
 class GLFont : public Font
 {
 	public:
@@ -21,6 +23,8 @@ class GLFont : public Font
 		GLuint fontTexture;
 		int listBase;
 };
+
+} // namespace openmsx
 
 #endif // __OPENGL_AVAILABLE__
 #endif // __GLFONT_HH__

@@ -13,6 +13,8 @@
 #include "SerialDataInterface.hh"
 
 
+namespace openmsx {
+
 class MSXMidi : public MSXIODevice, public MidiInConnector
 {
 	public:
@@ -95,5 +97,7 @@ class MSXMidi : public MSXIODevice, public MidiInConnector
 		I8251 i8251;
 		MidiOutConnector outConnector;
 };
+
+} // namespace openmsx
 
 #endif

@@ -17,6 +17,8 @@
 using std::string;
 
 
+namespace openmsx {
+
 class OSDConsoleRenderer;
 class Console;
 class FileContext;
@@ -99,5 +101,7 @@ class OSDConsoleRenderer : public ConsoleRenderer
 		int currentMaxY;
 		Console *console;
 };
+
+} // namespace openmsx
 
 #endif

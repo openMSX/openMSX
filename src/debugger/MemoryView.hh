@@ -5,6 +5,8 @@
 
 #include "DebugView.hh"
 
+namespace openmsx {
+
 class ViewControl;
 
 enum ScrollDirection {SCR_UP, SCR_DOWN, SCR_LEFT, SCR_RIGHT};
@@ -47,5 +49,7 @@ class MemoryView: public DebugView
 		int numericBase;
 		bool displayAddress;
 };
+
+} // namespace openmsx
 
 #endif

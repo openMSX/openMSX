@@ -7,6 +7,8 @@
 #include "MSXMemDevice.hh"
 #include "Rom.hh"
 
+namespace openmsx {
+
 class YM2413;
 
 
@@ -31,5 +33,7 @@ class MSXMusic : public MSXIODevice, public MSXMemDevice
 	private:
 		int registerLatch;
 };
+
+} // namespace openmsx
 
 #endif

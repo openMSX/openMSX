@@ -6,6 +6,8 @@
 #include "RealTime.hh"
 
 
+namespace openmsx {
+
 class RealTimeSDL : public RealTime
 {
 	public:
@@ -26,5 +28,7 @@ class RealTimeSDL : public RealTime
 		float emuFactor;
 		float sleepAdjust;
 };
+
+} // namespace openmsx
 
 #endif

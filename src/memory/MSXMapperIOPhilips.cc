@@ -4,6 +4,8 @@
 #include "MSXMapperIOPhilips.hh"
 
 
+namespace openmsx {
+
 // unused bits read always "1"
 byte MSXMapperIOPhilips::calcMask(list<int> &mapperSizes)
 {
@@ -41,4 +43,6 @@ int MSXMapperIOPhilips::log2RoundedUp(int num)
 	} 
 	return res;
 }
+
+} // namespace openmsx
 

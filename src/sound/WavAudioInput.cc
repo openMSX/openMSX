@@ -5,6 +5,8 @@
 #include "PluggingController.hh"
 
 
+namespace openmsx {
+
 WavAudioInput::WavAudioInput()
 	: length(0), buffer(0), freq(44100)
 {
@@ -70,3 +72,5 @@ short WavAudioInput::readSample(const EmuTime &time)
 		return 0;
 	}
 }
+
+} // namespace openmsx

@@ -11,6 +11,8 @@
 #include "File.hh"
 #include "MSXConfig.hh"
 
+namespace openmsx {
+
 struct caseltstr {
 	bool operator()(const string s1, const string s2) const {
 		return strcasecmp(s1.c_str(), s2.c_str()) < 0;
@@ -342,4 +344,6 @@ void RomInfo::print()
 		PRT_INFO("  Remark:   " << getRemark());
 	}
 }
+
+} // namespace openmsx
 

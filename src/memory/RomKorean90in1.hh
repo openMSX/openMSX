@@ -7,6 +7,8 @@
 #include "MSXIODevice.hh"
 
 
+namespace openmsx {
+
 class RomKorean90in1 : public Rom8kBBlocks, public MSXIODevice
 {
 	public:
@@ -17,5 +19,7 @@ class RomKorean90in1 : public Rom8kBBlocks, public MSXIODevice
 		void writeIO(byte port, byte value, const EmuTime & time);
 		virtual byte* getWriteCacheLine(word address) const;
 };
+
+} // namespace openmsx
 
 #endif

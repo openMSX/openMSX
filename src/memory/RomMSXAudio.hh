@@ -6,6 +6,8 @@
 #include "MSXRom.hh"
 
 
+namespace openmsx {
+
 class RomMSXAudio : public MSXRom
 {
 	public:
@@ -23,5 +25,7 @@ class RomMSXAudio : public MSXRom
 		byte bankSelect;
 		byte* ram;
 };
+
+} // namespace openmsx
 
 #endif

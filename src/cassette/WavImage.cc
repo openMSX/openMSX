@@ -6,6 +6,8 @@
 #include "EmuTime.hh"
 
 
+namespace openmsx {
+
 WavImage::WavImage(FileContext &context, const string &fileName)
 	: length(0), buffer(0), freq(44100)
 {
@@ -57,3 +59,5 @@ short WavImage::getSampleAt(const EmuTime &time)
 		return 0;
 	}
 }
+
+} // namespace openmsx

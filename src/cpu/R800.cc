@@ -2,8 +2,11 @@
 
 #include "R800.hh"
 #include "CPUInterface.hh"
-#include "R800Tables.nn"
 
+
+namespace openmsx {
+
+#include "R800Tables.nn"
 
 R800::R800(CPUInterface *interf, const EmuTime &time) :
 	CPU(interf)
@@ -40,4 +43,7 @@ inline void R800::IM2_DELAY()      { currentTime += 3; } // TODO check this
 inline void R800::SMALL_DELAY()    { }
 inline int R800::haltStates() { return 1; }	// HALT + M1 // TODO check this
 
+} // namespace openmsx
+
 #include "CPUCore.n2"
+

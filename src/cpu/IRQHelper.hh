@@ -6,6 +6,8 @@
 #include "MSXCPU.hh"
 
 
+namespace openmsx {
+
 /** Helper class for doing interrupt request (IRQ) administration.
   * IRQ is either enabled or disabled; when enabled it contributes
   * one to the CPU IRQ count, when disabled zero.
@@ -54,5 +56,7 @@ class IRQHelper
 		bool request;
 		MSXCPU *cpu;
 };
+
+} // namespace openmsx
 
 #endif

@@ -9,6 +9,8 @@
 #include "MSXConfig.hh"
 
 
+namespace openmsx {
+
 MSXSCCPlusCart::MSXSCCPlusCart(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXMemDevice(config, time)
 {
@@ -272,3 +274,5 @@ void MSXSCCPlusCart::checkEnable()
 		enable = EN_NONE;
 	}
 }
+
+} // namespace openmsx

@@ -6,6 +6,8 @@
 #include "MidiOutDevice.hh"
 
 
+namespace openmsx {
+
 class DummyMidiOutDevice : public MidiOutDevice
 {
 	public:
@@ -14,6 +16,8 @@ class DummyMidiOutDevice : public MidiOutDevice
 		virtual void plug(Connector* connector, const EmuTime& time);
 		virtual void unplug(const EmuTime& time);
 };
+
+} // namespace openmsx
 
 #endif
 

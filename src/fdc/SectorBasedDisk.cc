@@ -4,6 +4,8 @@
 #include "FileContext.hh"
 
 
+namespace openmsx {
+
 SectorBasedDisk::SectorBasedDisk()
 {
 }
@@ -119,3 +121,5 @@ bool SectorBasedDisk::ready()
 {
 	return true;
 }
+
+} // namespace openmsx

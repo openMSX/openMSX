@@ -5,6 +5,8 @@
 #include "DiskImageCLI.hh"
 #include "MSXConfig.hh"
 
+namespace openmsx {
+
 DiskImageCLI diskImageCLI;
 
 
@@ -41,3 +43,5 @@ const byte* MSXFDC::getReadCacheLine(word start) const
 {
 	return rom.getBlock(start & 0x3FFF);
 }
+
+} // namespace openmsx

@@ -6,6 +6,8 @@
 #include "DiskDrive.hh"
 
 
+namespace openmsx {
+
 /**
  * This class connects to a FDC as a normal DiskDrive and deligates all
  * requests to one of four other DiskDrives.
@@ -56,5 +58,7 @@ class DriveMultiplexer : public DiskDrive
 		bool motor;
 		bool side;
 };
+
+} // namespace openmsx
 
 #endif

@@ -7,6 +7,8 @@
 
 using std::string;
 
+namespace openmsx {
+
 class MSXException
 {
 	public:
@@ -26,5 +28,7 @@ class MSXException
 	private:
 		const string message;
 };
+
+} // namespace openmsx
 
 #endif

@@ -10,6 +10,8 @@
 #include "File.hh"
 
 
+namespace openmsx {
+
 const string homedir("~/.openMSX/");
 const string systemdir("/opt/openMSX/");
 
@@ -232,3 +234,5 @@ UserFileContext::UserFileContext(const UserFileContext& rhs)
 	: FileContext(rhs), alreadyInit(rhs.alreadyInit)
 {
 }
+
+} // namespace openmsx

@@ -27,6 +27,8 @@ TODO:
 #include "VDPSettings.hh"
 
 
+namespace openmsx {
+
 // Constants:
 static const byte MASK[4] = { 0x0F, 0x03, 0x0F, 0xFF };
 static const int  PPB[4]  = { 2, 4, 2, 1 };
@@ -1104,3 +1106,5 @@ void VDPCmdEngine::HmmcCmd::execute(const EmuTime &time)
 		}
 	}
 }
+
+} // namespace openmsx

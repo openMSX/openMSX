@@ -5,6 +5,8 @@
 #include "RS232Device.hh"
 
 
+namespace openmsx {
+
 MSXRS232::MSXRS232(Device *config, const EmuTime &time)
 	: MSXDevice(config, time),
 	  MSXIODevice(config, time),
@@ -293,4 +295,6 @@ void MSXRS232::recvByte(byte value, const EmuTime& time)
 {
 	i8251.recvByte(value, time);
 }
+
+} // namespace openmsx
 

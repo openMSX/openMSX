@@ -3,6 +3,8 @@
 #include "Console.hh"
 #include "OSDConsoleRenderer.hh"
 
+namespace openmsx {
+
 Console::Console ()
 {
 }
@@ -29,3 +31,5 @@ void Console::updateConsole()
 		(*it)->updateConsole();
 	}
 }
+
+} // namespace openmsx

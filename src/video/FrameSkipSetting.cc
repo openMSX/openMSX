@@ -6,6 +6,8 @@
 using std::ostringstream;
 
 
+namespace openmsx {
+
 FrameSkipSetting::FrameSkipSetting()
 	: Setting<FrameSkip>(
 		"frameskip", "set the amount of frameskip",
@@ -45,3 +47,5 @@ void FrameSkipSetting::setValueString(
 void FrameSkipSetting::setValue(const FrameSkip &newValue) {
 	Setting<FrameSkip>::setValue(newValue);
 }
+
+} // namespace openmsx

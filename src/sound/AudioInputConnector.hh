@@ -5,6 +5,8 @@
 
 #include "Connector.hh"
 
+namespace openmsx {
+
 class DummyAudioInputDevice;
 class WavAudioInput;
 
@@ -26,5 +28,7 @@ class AudioInputConnector : public Connector
 		DummyAudioInputDevice* dummy;
 		WavAudioInput* wavInput;
 };
+
+} // namespace openmsx
 
 #endif

@@ -6,6 +6,8 @@
 #include "Pluggable.hh"
 
 
+namespace openmsx {
+
 class CassetteDevice : public Pluggable
 {
 	public:
@@ -35,5 +37,7 @@ class CassetteDevice : public Pluggable
 		// Pluggable
 		virtual const string &getClass() const;
 };
+
+} // namespace openmsx
 
 #endif

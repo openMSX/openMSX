@@ -3,6 +3,8 @@
 #include "DriveMultiplexer.hh"
 
 
+namespace openmsx {
+
 DriveMultiplexer::DriveMultiplexer(DiskDrive* drv[4])
 {
 	motor = false;
@@ -120,3 +122,5 @@ void DriveMultiplexer::writeTrackData(byte data)
 {
 	drive[selected]->writeTrackData(data);
 }
+
+} // namespace openmsx

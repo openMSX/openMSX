@@ -11,6 +11,8 @@
 #endif
 
 
+namespace openmsx {
+
 class BooleanSetting;
 class CPUInterface;
 class Scheduler;
@@ -195,4 +197,6 @@ class CPU
 		char to_print_string[300];
 	#endif
 };
+
+} // namespace openmsx
 #endif //__CPU_HH__

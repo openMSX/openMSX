@@ -15,6 +15,8 @@
 #include "RealTime.hh"
 
 
+namespace openmsx {
+
 MSXCassettePlayerCLI msxCassettePlayerCLI;
 
 MSXCassettePlayerCLI::MSXCassettePlayerCLI()
@@ -240,3 +242,5 @@ int* CassettePlayer::updateBuffer(int length)
 	}
 	return buffer;
 }
+
+} // namespace openmsx

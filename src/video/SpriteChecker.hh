@@ -8,6 +8,8 @@
 #include "VDPVRAM.hh"
 #include "DisplayMode.hh"
 
+namespace openmsx {
+
 class BooleanSetting;
 
 class SpriteChecker: public VRAMObserver
@@ -401,5 +403,7 @@ private:
 	int spriteCount[313];
 
 };
+
+} // namespace openmsx
 
 #endif // __SPRITECHECKER_HH__

@@ -12,6 +12,8 @@
 #include "CliExtension.hh"
 #include "File.hh"
 
+namespace openmsx {
+
 const char* const MACHINE_PATH = "share/machines/";
 
 
@@ -431,3 +433,5 @@ const string& CommandLineParser::SettingOption::optionHelp() const
 	static const string text("Load an alternative settings file");
 	return text;
 }
+
+} // namespace openmsx

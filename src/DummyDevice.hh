@@ -7,6 +7,8 @@
 #include "MSXMemDevice.hh"
 
 
+namespace openmsx {
+
 class DummyDevice : public MSXIODevice, public MSXMemDevice
 {
 	public:
@@ -17,6 +19,8 @@ class DummyDevice : public MSXIODevice, public MSXMemDevice
 	private:
 		DummyDevice(Device *config, const EmuTime &time);
 };
+
+} // namespace openmsx
 
 #endif //__DUMMYDEVICE_HH__
 

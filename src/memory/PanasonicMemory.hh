@@ -6,6 +6,8 @@
 #include "openmsx.hh"
 
 
+namespace openmsx {
+
 class PanasonicMemory
 {
 	public:
@@ -27,5 +29,7 @@ class PanasonicMemory
 		int ramSize;
 		bool dram;
 };
+
+} // namespace openmsx
 
 #endif

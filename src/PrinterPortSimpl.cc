@@ -6,6 +6,8 @@
 #include "PluggingController.hh"
 
 
+namespace openmsx {
+
 PrinterPortSimpl::PrinterPortSimpl()
 {
 	dac = NULL;
@@ -50,3 +52,5 @@ const string &PrinterPortSimpl::getName() const
 	static const string name("simpl");
 	return name;
 }
+
+} // namespace openmsx

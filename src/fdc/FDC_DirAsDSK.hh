@@ -5,6 +5,8 @@
 
 #include "SectorBasedDisk.hh"
 
+namespace openmsx {
+
 class FileContext;
 
 struct MSXDirEntry {
@@ -66,5 +68,7 @@ class FDC_DirAsDSK : public SectorBasedDisk
 
 		static const byte BootBlock[];
 };
+
+} // namespace openmsx
 
 #endif

@@ -8,6 +8,8 @@
 #include "MSXConfig.hh"
 
 
+namespace openmsx {
+
 MSXMapperIO::MSXMapperIO(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
@@ -99,4 +101,6 @@ byte MSXMapperIO::getSelectedPage(int bank)
 {
 	return page[bank];
 }
+
+} // namespace openmsx
 

@@ -7,6 +7,8 @@
 #include "Schedulable.hh"
 
 
+namespace openmsx {
+
 class SDLEventInserter : public Schedulable
 {
 	public:
@@ -19,5 +21,7 @@ class SDLEventInserter : public Schedulable
 	private:
 		SDL_Event event;
 };
+
+} // namespace openmsx
 
 #endif

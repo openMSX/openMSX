@@ -11,6 +11,8 @@
 #include "VDPIODelay.hh"
 
 
+namespace openmsx {
+
 MSXCPUInterface* MSXCPUInterface::instance()
 {
 	static MSXCPUInterface* oneInstance = NULL;
@@ -374,3 +376,5 @@ MSXIODevice *TurborCPUInterface::getDelayDevice(MSXIODevice *device)
 	}
 	return delayDevice;
 }
+
+} // namespace openmsx

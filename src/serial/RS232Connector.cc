@@ -7,6 +7,8 @@
 #include "PluggingController.hh"
 
 
+namespace openmsx {
+
 RS232Connector::RS232Connector(const string& name_, const EmuTime& time)
 	: name(name_)
 {
@@ -45,3 +47,5 @@ void RS232Connector::unplug(const EmuTime& time)
 	Connector::unplug(time);
 	plug(dummy, time);
 }
+
+} // namespace openmsx

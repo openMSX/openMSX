@@ -8,6 +8,8 @@
 #include <cassert>
 
 
+namespace openmsx {
+
 MSXPrinterPort::MSXPrinterPort(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
@@ -128,3 +130,5 @@ void DummyPrinterPortDevice::plug(Connector* connector, const EmuTime& time)
 void DummyPrinterPortDevice::unplug(const EmuTime& time)
 {
 }
+
+} // namespace openmsx

@@ -5,6 +5,8 @@
 #include "IDEHD.hh"
 
 
+namespace openmsx {
+
 IDEDevice* IDEDeviceFactory::create(const string &name,
                                     const EmuTime &time)
 {
@@ -18,3 +20,5 @@ IDEDevice* IDEDeviceFactory::create(const string &name,
 	PRT_ERROR("Unknown IDE device: " << type);
 	return NULL;
 }
+
+} // namespace openmsx

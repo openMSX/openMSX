@@ -13,6 +13,8 @@ extern "C" long long atoll(const char *nptr);
 #endif
 
 
+namespace openmsx {
+
 // class Config
 
 Config::Config(XML::Element *element_, FileContext& context_)
@@ -393,3 +395,5 @@ void Config::getParametersWithClassClean(list<Parameter*>* lst)
 	}
 	delete lst;
 }
+
+} // namespace openmsx

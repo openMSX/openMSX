@@ -7,6 +7,8 @@
 
 #include "MSXRomPatchInterface.hh"
 
+namespace openmsx {
+
 class DoubleSidedDrive;
 
 
@@ -48,5 +50,7 @@ class MSXDiskRomPatch : public MSXRomPatchInterface
 		static const int LAST_DRIVE = 2;
 		DoubleSidedDrive *drives[LAST_DRIVE];
 };
+
+} // namespace openmsx
 
 #endif // __MSXDISKROMPATCH_HH__

@@ -7,6 +7,8 @@
 #include "MSXIODevice.hh"
 
 
+namespace openmsx {
+
 class MSXMegaRam : public MSXMemDevice, public MSXIODevice
 {
 	public:
@@ -31,5 +33,7 @@ class MSXMegaRam : public MSXMemDevice, public MSXIODevice
 		byte bank[4];
 		bool writeMode;
 };
+
+} // namespace openmsx
 
 #endif

@@ -7,6 +7,8 @@
 #include <SDL/SDL.h>
 #include "CommandLineParser.hh"
 
+namespace openmsx {
+
 class EmuTime;
 
 
@@ -29,5 +31,7 @@ class KeyEventInserter
 	private:
 		static const SDLKey keymap[256][4];
 };
+
+} // namespace openmsx
 
 #endif

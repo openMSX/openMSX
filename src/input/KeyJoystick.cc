@@ -7,6 +7,8 @@
 #include "Keys.hh"
 
 
+namespace openmsx {
+
 KeyJoystick::KeyJoystick()
 {
 	EventDistributor::instance()->registerEventListener(SDL_KEYDOWN, this, 1);
@@ -113,3 +115,5 @@ bool KeyJoystick::signalEvent(SDL_Event &event)
 	}
 	return true;
 }
+
+} // namespace openmsx

@@ -9,6 +9,8 @@
 #include "MSXCPUInterface.hh"
 
 
+namespace openmsx {
+
 MSXDevice* FDCFactory::create(Device *config, const EmuTime &time)
 {
 	const string &type = config->getParameter("type");
@@ -38,3 +40,5 @@ MSXDevice* FDCFactory::create(Device *config, const EmuTime &time)
 	PRT_ERROR("Unknown FDC type \"" << type << "\"!");
 	return NULL;
 }
+
+} // namespace openmsx

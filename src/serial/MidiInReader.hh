@@ -13,6 +13,8 @@
 
 using std::list;
 
+namespace openmsx {
+
 class MidiInConnector;
 
 
@@ -45,6 +47,8 @@ class MidiInReader : public MidiInDevice, private Runnable, private Schedulable
 		Semaphore lock; // to protect queue
 		
 };
+
+} // namespace openmsx
 
 #endif
 

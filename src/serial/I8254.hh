@@ -13,6 +13,8 @@
 #include "ClockPin.hh"
 
 
+namespace openmsx {
+
 class I8254
 {
 	class Counter {
@@ -90,4 +92,6 @@ class I8254
 		Counter counter1;
 		Counter counter2;
 };
+
+} // namespace openmsx
 #endif

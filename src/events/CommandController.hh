@@ -15,6 +15,8 @@ using std::set;
 using std::vector;
 
 
+namespace openmsx {
+
 class CommandController
 {
 	public:
@@ -77,5 +79,7 @@ class CommandController
 		friend class HelpCmd;
 		HelpCmd helpCmd;
 };
+
+} // namespace openmsx
 
 #endif

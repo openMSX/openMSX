@@ -7,6 +7,8 @@
 #include "Connector.hh"
 
 
+namespace openmsx {
+
 class JoystickPort : public Connector
 {
 	public:
@@ -47,5 +49,7 @@ class JoystickPorts
 		class KeyJoystick* keyJoystick;
 		class Joystick* joystick[10];
 };
+
+} // namespace openmsx
 
 #endif

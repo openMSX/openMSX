@@ -30,6 +30,8 @@
 #include "MSXIODevice.hh"
 #include "I8255.hh"
 
+namespace openmsx {
+
 class KeyClick;
 class MSXCPUInterface;
 class CassettePortInterface;
@@ -71,5 +73,7 @@ class MSXPPI : public MSXIODevice, public I8255Interface
 		Keyboard *keyboard;
 		nibble selectedRow;
 };
+
+} // namespace openmsx
 
 #endif

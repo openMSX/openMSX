@@ -13,6 +13,8 @@
 
 
 
+namespace openmsx {
+
 class DebugView;
 
 
@@ -61,5 +63,7 @@ class DebugConsole : public Console, private EventListener,
 		int debugColumns;
 		int debugRows;
 };
+
+} // namespace openmsx
 
 #endif

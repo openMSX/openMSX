@@ -6,6 +6,8 @@
 #include "EmuTime.hh"
 #include "Connector.hh"
 
+namespace openmsx {
+
 class CassetteDevice;
 class DummyCassetteDevice;
 class CassettePlayer;
@@ -103,5 +105,7 @@ class CassettePortFactory
 		 */
 		static CassettePortInterface *instance(const EmuTime &time);
 };
+
+} // namespace openmsx
 
 #endif

@@ -13,6 +13,8 @@
 #include "CPU.hh"
 
 
+namespace openmsx {
+
 RomKonami4::RomKonami4(Device* config, const EmuTime &time, Rom *rom)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
@@ -53,3 +55,5 @@ byte* RomKonami4::getWriteCacheLine(word address) const
 		return unmappedWrite;
 	}
 }
+
+} // namespace openmsx

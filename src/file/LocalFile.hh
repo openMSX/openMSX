@@ -9,6 +9,8 @@
 #include "File.hh"
 
 
+namespace openmsx {
+
 class LocalFile : public FileBase
 {
 	public:
@@ -30,6 +32,8 @@ class LocalFile : public FileBase
 		FILE* file;
 		bool readOnly;
 };
+
+} // namespace openmsx
 
 #endif
 

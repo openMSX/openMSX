@@ -7,6 +7,8 @@
 #include "SerialDataInterface.hh"
 
 
+namespace openmsx {
+
 class MidiOutDevice : public Pluggable, public SerialDataInterface
 {
 	public:
@@ -20,6 +22,8 @@ class MidiOutDevice : public Pluggable, public SerialDataInterface
 		virtual void setStopBits(StopBits bits);
 		virtual void setParityBit(bool enable, ParityBit parity);
 };
+
+} // namespace openmsx
 
 #endif
 

@@ -5,6 +5,8 @@
 
 #include "openmsx.hh"
 
+namespace openmsx {
+
 class EmuTime;
 
 
@@ -19,4 +21,6 @@ class IDEDevice
 		virtual void writeData(word value, const EmuTime &time) = 0;
 		virtual void writeReg(nibble reg, byte value, const EmuTime &time) = 0;
 };
+
+} // namespace openmsx
 #endif

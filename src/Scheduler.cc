@@ -10,6 +10,8 @@
 #include "Renderer.hh" // TODO: Temporary?
 
 
+namespace openmsx {
+
 const EmuTime Scheduler::ASAP;
 
 Scheduler::Scheduler()
@@ -158,4 +160,6 @@ void Scheduler::pause()
 		Mixer::instance()->mute();
 	}
 }
+
+} // namespace openmsx
 

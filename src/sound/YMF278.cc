@@ -2,6 +2,8 @@
 #include "YMF278.hh"
 
 
+namespace openmsx {
+
 const int EG_SH = 16;	// 16.16 fixed point (EG timing)
 const unsigned EG_TIMER_OVERFLOW = 1 << EG_SH;
 
@@ -793,4 +795,6 @@ void YMF278::writeMem(unsigned address, byte value)
 		// can't write to unmapped memory
 	}
 }
+
+} // namespace openmsx
 

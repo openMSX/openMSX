@@ -7,6 +7,8 @@
 #include "Pluggable.hh"
 
 
+namespace openmsx {
+
 class Y8950KeyboardDevice : public Pluggable
 {
 	public:
@@ -31,5 +33,7 @@ class Y8950KeyboardDevice : public Pluggable
 
 		virtual const string &getClass() const;
 };
+
+} // namespace openmsx
 
 #endif

@@ -14,6 +14,8 @@
 #include "FileOperations.hh"
 
 
+namespace openmsx {
+
 CommandController::CommandController()
 {
 	registerCommand(&helpCmd, "help");
@@ -340,3 +342,5 @@ void CommandController::HelpCmd::tabCompletion(vector<string> &tokens) const
 	CommandController::instance()->tabCompletion(tokens);
 	tokens.insert(tokens.begin(), front);
 }
+
+} // namespace openmsx

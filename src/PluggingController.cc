@@ -9,6 +9,8 @@
 #include "openmsx.hh"
 
 
+namespace openmsx {
+
 PluggingController::PluggingController()
 {
 	CommandController::instance()->registerCommand(&plugCmd,   "plug");
@@ -218,3 +220,5 @@ void PluggingController::UnplugCmd::tabCompletion(vector<string> &tokens) const
 		CommandController::completeString(tokens, connectors);
 	}
 }
+
+} // namespace openmsx

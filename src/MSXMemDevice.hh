@@ -6,6 +6,8 @@
 #include "MSXDevice.hh"
 #include "openmsx.hh"
 
+namespace openmsx {
+
 class MSXMemDevice : virtual public MSXDevice
 {
 	public:
@@ -80,6 +82,8 @@ class MSXMemDevice : virtual public MSXDevice
 		virtual void registerSlots();
 
 };
+
+} // namespace openmsx
 
 #endif
 

@@ -13,6 +13,8 @@
 
 #include <string>
 
+namespace openmsx {
+
 class Renderer;
 class VDPCmdEngine;
 class VDPVRAM;
@@ -739,6 +741,8 @@ private:
 	PaletteCmd paletteCmd;
 
 };
+
+} // namespace openmsx
 
 #endif //__VDP_HH__
 

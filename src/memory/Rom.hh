@@ -10,6 +10,8 @@
 
 using std::list;
 
+namespace openmsx {
+
 class EmuTime;
 class Config;
 class MSXRomPatchInterface;
@@ -52,5 +54,7 @@ class Rom
 		list<MSXRomPatchInterface*> romPatchInterfaces;
 		RomInfo *info;
 };
+
+} // namespace openmsx
 
 #endif

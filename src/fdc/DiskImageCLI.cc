@@ -6,6 +6,8 @@
 #include "FileContext.hh"
 
 
+namespace openmsx {
+
 DiskImageCLI::DiskImageCLI()
 {
 	CommandLineParser::instance()->registerOption("-diska", this);
@@ -48,3 +50,5 @@ const string& DiskImageCLI::fileTypeHelp() const
 	static const string text("Disk image");
 	return text;
 }
+
+} // namespace openmsx

@@ -6,10 +6,14 @@
 #include "Settings.hh"
 
 
+namespace openmsx {
+
 class FrontSwitch : public BooleanSetting
 {
 	public:
 		FrontSwitch();
 };
+
+} // namespace openmsx
 
 #endif

@@ -4,6 +4,8 @@
 #define __CONSOLERENDERER_HH__
 
 
+namespace openmsx {
+
 class ConsoleRenderer
 {
 	public:
@@ -12,5 +14,7 @@ class ConsoleRenderer
 
 		virtual void updateConsole() = 0;
 };
+
+} // namespace openmsx
 
 #endif

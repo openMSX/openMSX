@@ -9,6 +9,8 @@
 using std::ofstream;
 
 
+namespace openmsx {
+
 // class VRAMWindow:
 
 VRAMWindow::VRAMWindow() {
@@ -112,4 +114,6 @@ void VDPVRAM::DumpVRAMCmd::help(const vector<string> &tokens) const
 {
 	print("Dump vram content to file \"vramdump\"");
 }
+
+} // namespace openmsx
 

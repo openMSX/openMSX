@@ -45,6 +45,8 @@
 #include "DebugDevice.hh"
 
 
+namespace openmsx {
+
 // TODO: Add the switched device to the config files.
 static void createDeviceSwitch()
 {
@@ -313,3 +315,5 @@ MSXDevice *DeviceFactory::create(Device *conf, const EmuTime &time)
 	PRT_ERROR("Unknown device \""<<type<<"\" specified in configuration");
 	return NULL;
 }
+
+} // namespace openmsx

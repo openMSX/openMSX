@@ -5,6 +5,8 @@
 #include "PanasonicMemory.hh"
 
 
+namespace openmsx {
+
 MSXS1990::MSXS1990(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
@@ -74,3 +76,5 @@ void MSXS1990::setCPUStatus(byte value)
 	PanasonicMemory::instance()->setDRAM((cpuStatus & 0x40) ? false : true);
 	// TODO bit 7 -> reset MSX ?????
 }
+
+} // namespace openmsx

@@ -4,6 +4,8 @@
 #include "MSXConfig.hh"
 
 
+namespace openmsx {
+
 const byte ID = 0x08;
 
 MSXMatsushita::MSXMatsushita(Device *config, const EmuTime &time)
@@ -82,3 +84,5 @@ void MSXMatsushita::writeIO(byte port, byte value, const EmuTime &time)
 		break;
 	}
 }
+
+} // namespace openmsx

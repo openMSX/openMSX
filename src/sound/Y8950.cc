@@ -10,6 +10,8 @@
 #include "Y8950.hh"
 
 
+namespace openmsx {
+
 short Y8950::dB2LinTab[(2*DB_MUTE)*2];
 int   Y8950::Slot::sintable[PG_WIDTH];
 int   Y8950::Slot::tllTable[16][8][1<<TL_BITS][4];
@@ -1160,4 +1162,6 @@ void Y8950::changeStatusMask(byte newMask)
 		irq.reset();
 	}
 }
+
+} // namespace openmsx
 

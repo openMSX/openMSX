@@ -6,6 +6,8 @@
 #include "MSXIODevice.hh"
 #include "EmuTime.hh"
 
+namespace openmsx {
+
 class MSXCPU;
 
 
@@ -24,5 +26,7 @@ class VDPIODelay : public MSXIODevice
 		MSXIODevice *device;
 		EmuTimeFreq<7159090> lastTime;
 };
+
+} // namespace openmsx
 
 #endif

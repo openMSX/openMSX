@@ -7,6 +7,8 @@
 #include "VDP.hh"
 #include "DisplayMode.hh"
 
+namespace openmsx {
+
 class VDPVRAM;
 
 /** VDP command engine by Alex Wulms.
@@ -429,5 +431,7 @@ private:
 	friend class HmmcCmd;
 
 };
+
+} // namespace openmsx
 
 #endif // __VDPCMDENGINE_HH__

@@ -9,6 +9,8 @@
 
 using std::list;
 
+namespace openmsx {
+
 class MSXDevice;
 
 
@@ -62,4 +64,6 @@ class MSXMotherBoard
 
 		list<MSXDevice*> availableDevices;
 };
+
+} // namespace openmsx
 #endif //__MSXMOTHERBOARD_HH__

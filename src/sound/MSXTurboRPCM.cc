@@ -5,6 +5,8 @@
 #include "MSXConfig.hh"
 
 
+namespace openmsx {
+
 MSXTurboRPCM::MSXTurboRPCM(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
@@ -121,3 +123,5 @@ const string& MSXTurboRPCM::getName() const
 	static const string name("pcminput");
 	return name;
 }
+
+} // namespace openmsx

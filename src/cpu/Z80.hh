@@ -22,6 +22,8 @@
 #undef  CLOCK_FREQ
 #define CLOCK_FREQ 3579545
 
+namespace openmsx {
+
 class CPUInterface;
 class Z80;
 typedef void (Z80::*Z80_ResumeFunc)();
@@ -56,6 +58,8 @@ class Z80 : public CPU {
 
 		Z80_ResumeFunc resume;
 };
+
+} // namespace openmsx
 
 #endif
 

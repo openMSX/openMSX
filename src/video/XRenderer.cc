@@ -10,6 +10,8 @@
 #define WIDTH 640
 #define HEIGHT 480
 
+namespace openmsx {
+
 XRenderer::XRenderer(RendererFactory::RendererID id, VDP *vdp)
 :
 Renderer (id),
@@ -201,3 +203,5 @@ map<KeySym, SDLKey> *XRenderer::convert::makemap() {
 }
 
 map<KeySym, SDLKey> *XRenderer::convert::keymap = XRenderer::convert::makemap();
+
+} // namespace openmsx

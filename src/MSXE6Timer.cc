@@ -4,6 +4,8 @@
 #include <cassert>
 
 
+namespace openmsx {
+
 MSXE6Timer::MSXE6Timer(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
@@ -37,4 +39,6 @@ byte MSXE6Timer::readIO(byte port, const EmuTime &time)
 		return 0;
 	}
 }
+
+} // namespace openmsx
 

@@ -8,6 +8,8 @@
 
 using std::ofstream;
 
+namespace openmsx {
+
 class MidiOutLogger : public MidiOutDevice
 {
 	public:
@@ -25,6 +27,8 @@ class MidiOutLogger : public MidiOutDevice
 	private:
 		ofstream file;
 };
+
+} // namespace openmsx
 
 #endif
 

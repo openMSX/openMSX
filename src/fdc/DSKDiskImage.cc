@@ -4,6 +4,8 @@
 #include "FileContext.hh"
 
 
+namespace openmsx {
+
 DSKDiskImage::DSKDiskImage(FileContext &context, const string &fileName)
 	: file(context.resolve(fileName))
 {
@@ -68,3 +70,5 @@ bool DSKDiskImage::doubleSided()
 {
 	return nbSides == 2;
 }
+
+} // namespace openmsx

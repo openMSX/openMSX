@@ -6,6 +6,8 @@
 #include "CommandConsole.hh"
 #include "File.hh"
 
+namespace openmsx {
+
 int OSDConsoleRenderer::wantedColumns;
 int OSDConsoleRenderer::wantedRows;
 string OSDConsoleRenderer::fontName;
@@ -253,3 +255,5 @@ void OSDConsoleRenderer::updateConsoleRect(SDL_Rect & rect)
 			break;
 	}
 }
+
+} // namespace openmsx

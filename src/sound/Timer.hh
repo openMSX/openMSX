@@ -7,6 +7,8 @@
 #include "openmsx.hh"
 
 
+namespace openmsx {
+
 class Scheduler;
 
 class TimerCallback
@@ -34,5 +36,7 @@ class Timer : public Schedulable
 		TimerCallback *cb;
 		Scheduler *scheduler;
 };
+
+} // namespace openmsx
 
 #endif

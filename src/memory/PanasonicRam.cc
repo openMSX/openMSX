@@ -4,6 +4,8 @@
 #include "PanasonicMemory.hh"
 
 
+namespace openmsx {
+
 PanasonicRam::PanasonicRam(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXMemoryMapper(config, time)
 {
@@ -13,3 +15,5 @@ PanasonicRam::PanasonicRam(Device *config, const EmuTime &time)
 PanasonicRam::~PanasonicRam()
 {
 }
+
+} // namespace openmsx

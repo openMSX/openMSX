@@ -5,6 +5,8 @@
 #include "DriveMultiplexer.hh"
 
 
+namespace openmsx {
+
 MicrosolFDC::MicrosolFDC(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), WD2793BasedFDC(config, time),
 	  MSXIODevice(config, time)
@@ -106,3 +108,5 @@ void MicrosolFDC::writeIO(byte port, byte value, const EmuTime &time)
 		break;
 	}
 }
+
+} // namespace openmsx

@@ -6,6 +6,8 @@
 #include "DebugView.hh"
 #include <string>
 
+namespace openmsx {
+
 class DebugInterface;
 
 class ViewControl
@@ -26,6 +28,8 @@ class ViewControl
 		struct DebugSlot slot;
 		bool linkToCriterium(DebugInterface * device, std::string regName);
 };
+
+} // namespace openmsx
 
 
 

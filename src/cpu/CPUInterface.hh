@@ -9,6 +9,8 @@
 
 using std::list;
 
+namespace openmsx {
+
 class MSXRomPatchInterface;
 
 
@@ -105,5 +107,7 @@ class CPUInterface {
 		bool prevNMIStat;
 		list<MSXRomPatchInterface*> romPatchInterfaceList;
 };
+
+} // namespace openmsx
 
 #endif

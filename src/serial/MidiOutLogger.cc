@@ -3,6 +3,8 @@
 #include "MidiOutLogger.hh"
 #include "PluggingController.hh"
 
+namespace openmsx {
+
 MidiOutLogger::MidiOutLogger()
 {
 	PluggingController::instance()->registerPluggable(this);
@@ -34,3 +36,5 @@ void MidiOutLogger::recvByte(byte value, const EmuTime& time)
 	file.put(value);
 	file.flush();
 }
+
+} // namespace openmsx

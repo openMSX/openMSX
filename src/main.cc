@@ -23,6 +23,8 @@
 #include "MSXCPUInterface.hh"
 
 
+namespace openmsx {
+
 void initializeSDL()
 {
 	Uint32 sdl_initval = SDL_INIT_VIDEO;
@@ -45,7 +47,7 @@ void initializeSDL()
 }
 
 
-int main(int argc, char **argv)
+inline int main(int argc, char **argv)
 {
 	try {
 		CommandLineParser::instance()->parse(argc, argv);
@@ -79,9 +81,9 @@ int main(int argc, char **argv)
 
 		// Clean up.
 		SDL_Quit();
-		
+
 		return 0;
-		
+
 	} catch (MSXException &e) {
 		PRT_ERROR("Uncaught exception: " << e.getMessage());
 	} catch (...) {
@@ -89,3 +91,10 @@ int main(int argc, char **argv)
 	}
 }
 
+} // namespace openmsx
+
+// Enter the openMSX namespace.
+int main(int argc, char **argv)
+{
+	openmsx::main(argc, argv);
+}

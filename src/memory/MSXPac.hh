@@ -7,6 +7,8 @@
 #include "SRAM.hh"
 
 
+namespace openmsx {
+
 class MSXPac : public MSXMemDevice
 {
 	public:
@@ -26,5 +28,7 @@ class MSXPac : public MSXMemDevice
 		byte r1ffe, r1fff;
 		SRAM sram;
 };
+
+} // namespace openmsx
 
 #endif

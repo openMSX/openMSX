@@ -9,6 +9,8 @@
 using std::ostringstream;
 
 
+namespace openmsx {
+
 MSXCPU *MSXRom::cpu;
 
 MSXRom::MSXRom(Device *config, const EmuTime &time, Rom *rom)
@@ -66,3 +68,5 @@ const string &MSXRom::getName() const
 {
 	return romName;
 }
+
+} // namespace openmsx

@@ -11,6 +11,8 @@
 using std::vector;
 using std::string;
 
+namespace openmsx {
+
 class FileContext;
 
 
@@ -35,5 +37,7 @@ class CasImage : public CassetteImage
 		int baudRate;
 		vector<char> output;
 };
+
+} // namespace openmsx
 
 #endif

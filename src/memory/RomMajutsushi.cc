@@ -14,6 +14,8 @@
 #include "DACSound8U.hh"
 
 
+namespace openmsx {
+
 RomMajutsushi::RomMajutsushi(Device* config, const EmuTime &time, Rom *rom)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
@@ -58,3 +60,5 @@ byte* RomMajutsushi::getWriteCacheLine(word address) const
 		return unmappedWrite;
 	}
 }
+
+} // namespace openmsx

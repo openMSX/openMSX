@@ -3,6 +3,8 @@
 #include "CRC16.hh"
 
 
+namespace openmsx {
+
 // Accelerator table to compute the CRC eight bits at a time
 
 const word CRC16::CRC16Table[256] = {
@@ -40,7 +42,10 @@ const word CRC16::CRC16Table[256] = {
 	0x6E17, 0x7E36, 0x4E55, 0x5E74, 0x2E93, 0x3EB2, 0x0ED1, 0x1EF0,
 };
 
+} // namespace openmsx
+
 #if 0
+using openmsx::CRC16;
 int main(int argc, char** argv)
 {
 	CRC16 crc1;

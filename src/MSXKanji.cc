@@ -4,6 +4,8 @@
 #include "MSXKanji.hh"
 
 
+namespace openmsx {
+
 MSXKanji::MSXKanji(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
 	  rom(config, time)
@@ -90,4 +92,6 @@ This really works!
 130 PRINT
 140 NEXT
 */
+
+} // namespace openmsx
 

@@ -7,6 +7,8 @@
 #include "Mixer.hh"
 
 
+namespace openmsx {
+
 MSXMoonSound::MSXMoonSound(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
@@ -112,3 +114,5 @@ void MSXMoonSound::writeIO(byte port, byte value, const EmuTime &time)
 		}
 	}
 }
+
+} // namespace openmsx

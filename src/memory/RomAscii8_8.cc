@@ -17,6 +17,8 @@
 #include "MSXConfig.hh"
 
 
+namespace openmsx {
+
 RomAscii8_8::RomAscii8_8(Device* config, const EmuTime &time, Rom *rom)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom),
 	  sram(0x2000, config)
@@ -72,3 +74,5 @@ byte* RomAscii8_8::getWriteCacheLine(word address) const
 		return unmappedWrite;
 	}
 }
+
+} // namespace openmsx

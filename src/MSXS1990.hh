@@ -13,6 +13,8 @@
 #include "FrontSwitch.hh"
 
 
+namespace openmsx {
+
 class MSXS1990 : public MSXIODevice
 {
 	public:
@@ -30,5 +32,7 @@ class MSXS1990 : public MSXIODevice
 		byte registerSelect;
 		byte cpuStatus;
 };
+
+} // namespace openmsx
 
 #endif

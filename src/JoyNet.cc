@@ -5,6 +5,8 @@
 #include "MSXConfig.hh"
 
 
+namespace openmsx {
+
 JoyNet::JoyNet()
 {
 	sockfd = 0;
@@ -180,3 +182,5 @@ void JoyNet::ConnectionListener::run()
 	}
   }
 }
+
+} // namespace openmsx

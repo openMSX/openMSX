@@ -7,6 +7,8 @@
 #include "Pluggable.hh"
 
 
+namespace openmsx {
+
 class JoystickDevice : public Pluggable
 {
 	public:
@@ -39,4 +41,6 @@ class JoystickDevice : public Pluggable
 		static const int JOY_BUTTONB = 0x20;
 
 };
+
+} // namespace openmsx
 #endif

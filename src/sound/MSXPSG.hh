@@ -7,6 +7,8 @@
 #include "AY8910.hh"
 #include "JoystickPorts.hh"
 
+namespace openmsx {
+
 class CassettePortInterface;
 
 
@@ -37,4 +39,6 @@ class MSXPSG : public MSXIODevice, public AY8910Interface
 		JoystickPorts joyPorts;
 		CassettePortInterface *cassette;
 };
+
+} // namespace openmsx
 #endif

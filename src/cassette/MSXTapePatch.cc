@@ -7,6 +7,8 @@
 #include "File.hh"
 
 
+namespace openmsx {
+
 MSXCasCLI msxCasCLI;
 
 MSXCasCLI::MSXCasCLI()
@@ -431,3 +433,5 @@ void MSXTapePatch::tabCompletion(vector<string> &tokens) const
 	if (tokens.size()==2)
 		CommandController::completeFileName(tokens);
 }
+
+} // namespace openmsx

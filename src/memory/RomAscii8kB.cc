@@ -14,6 +14,8 @@
 #include "RomAscii8kB.hh"
 
 
+namespace openmsx {
+
 RomAscii8kB::RomAscii8kB(Device* config, const EmuTime &time, Rom *rom)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
@@ -51,3 +53,5 @@ byte* RomAscii8kB::getWriteCacheLine(word address) const
 		return unmappedWrite;
 	}
 }
+
+} // namespace openmsx

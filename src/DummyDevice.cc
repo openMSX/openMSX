@@ -5,6 +5,8 @@
 #include <cassert>
 
 
+namespace openmsx {
+
 DummyDevice::DummyDevice(Device *config, const EmuTime &time) 
 	: MSXDevice(config, time), MSXIODevice(config, time),
 	  MSXMemDevice(config, time)
@@ -28,3 +30,5 @@ void DummyDevice::reset(const EmuTime &time)
 {
 	assert(false);
 }
+
+} // namespace openmsx

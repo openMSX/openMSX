@@ -11,6 +11,8 @@ using std::map;
 using std::string;
 
 
+namespace openmsx {
+
 class Keys {
 	public:
 		enum KeyCode {
@@ -179,5 +181,7 @@ class Keys {
 		};
 		static map<string, KeyCode, ltstrcase> keymap;
 };
+
+} // namespace openmsx
 
 #endif

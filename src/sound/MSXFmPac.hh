@@ -7,6 +7,8 @@
 #include "SRAM.hh"
 
 
+namespace openmsx {
+
 class MSXFmPac : public MSXMusic
 {
 	public:
@@ -29,5 +31,7 @@ class MSXFmPac : public MSXMusic
 		byte r1ffe, r1fff;
 		SRAM sram;
 };
+
+} // namespace openmsx
 
 #endif

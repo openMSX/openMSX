@@ -7,6 +7,8 @@
 
 using std::string;
 
+namespace openmsx {
+
 class EmuTime;
 class Device;
 
@@ -55,6 +57,8 @@ class MSXDevice
 		Device *deviceConfig;
 		friend class VDPIODelay;
 };
+
+} // namespace openmsx
 
 #endif //__MSXDEVICE_HH__
 

@@ -6,6 +6,8 @@
 #include "SectorBasedDisk.hh"
 #include "File.hh"
 
+namespace openmsx {
+
 class FileContext;
 
 
@@ -31,5 +33,7 @@ class DSKDiskImage : public SectorBasedDisk
 	private:
 		File file;
 };
+
+} // namespace openmsx
 
 #endif

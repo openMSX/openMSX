@@ -12,6 +12,8 @@
 
 #include "SectorBasedDisk.hh"
 
+namespace openmsx {
+
 class File;
 class FileContext;
 
@@ -70,5 +72,7 @@ class XSADiskImage : public SectorBasedDisk
 		static const int cpdext[TBLSIZE];	// Extra bits for distance codes
 		huf_node huftbl[2*TBLSIZE-1];
 };
+
+} // namespace openmsx
 
 #endif

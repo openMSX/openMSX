@@ -6,6 +6,8 @@
 #include "MSXMemDevice.hh"
 
 
+namespace openmsx {
+
 class PanasonicRom : public MSXMemDevice
 {
 	public:
@@ -21,5 +23,7 @@ class PanasonicRom : public MSXMemDevice
 	private:
 		int block;
 };
+
+} // namespace openmsx
 
 #endif

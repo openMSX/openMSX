@@ -27,6 +27,8 @@ TODO:
 #include <cassert>
 
 
+namespace openmsx {
+
 /** Dimensions of screen.
   */
 static const int WIDTH = 640;
@@ -1264,5 +1266,7 @@ void SDLGLRenderer::drawSprites(
 	glDisable(GL_BLEND);
 	glDisable(GL_TEXTURE_2D);
 }
+
+} // namespace openmsx
 
 #endif // __OPENGL_AVAILABLE__

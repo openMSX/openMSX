@@ -18,6 +18,8 @@
 #include "File.hh"
 
 
+namespace openmsx {
+
 const int NUM_CHRS = 256;
 const int CHARS_PER_ROW = 16;
 const int CHARS_PER_COL = NUM_CHRS / CHARS_PER_ROW;
@@ -121,3 +123,5 @@ void SDLFont::drawText(const string &string, int x, int y)
 		destRect.x += charWidth;
 	}
 }
+
+} // namespace openmsx

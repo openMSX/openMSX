@@ -8,6 +8,8 @@
 #include "MSXConfig.hh"
 
 
+namespace openmsx {
+
 // CassettePortFactory //
 
 CassettePortInterface *CassettePortFactory::instance(const EmuTime &time)
@@ -168,3 +170,5 @@ void CassettePort::flushOutput(const EmuTime &time)
 		numSamples = (samples > BUFSIZE) ? BUFSIZE : samples;
 	}
 }
+
+} // namespace openmsx

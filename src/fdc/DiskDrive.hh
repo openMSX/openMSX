@@ -7,6 +7,8 @@
 #include "EmuTime.hh"
 #include "Command.hh"
 
+namespace openmsx {
+
 class Disk;
 class FileContext;
 
@@ -229,6 +231,8 @@ class DoubleSidedDrive : public RealDrive
 	private:
 		int side;
 };
+
+} // namespace openmsx
 
 
 #endif

@@ -3,6 +3,8 @@
 #include "Timer.hh"
 #include "Scheduler.hh"
 
+namespace openmsx {
+
 // Force template instantiation
 template class Timer<12500, 0x40>;
 template class Timer< 3125, 0x20>;
@@ -59,3 +61,5 @@ void Timer<freq, flag>::executeUntilEmuTime(const EmuTime &time, int userData)
 	cb->callback(flag);
 	schedule(time);
 }
+
+} // namespace openmsx

@@ -6,6 +6,8 @@
 #include "Pluggable.hh"
 
 
+namespace openmsx {
+
 class AudioInputDevice : public Pluggable
 {
 	public:
@@ -17,5 +19,7 @@ class AudioInputDevice : public Pluggable
 		// Pluggable
 		virtual const string &getClass() const;
 };
+
+} // namespace openmsx
 
 #endif

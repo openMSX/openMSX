@@ -2,6 +2,8 @@
 
 #include "BitmapConverter.hh"
 
+namespace openmsx {
+
 // Force template instantiation for these types.
 // Without this, object file contains no method implementations.
 template class BitmapConverter<byte, Renderer::ZOOM_256>;
@@ -186,4 +188,6 @@ void BitmapConverter<Pixel, zoom>::renderBogus(
 		for (int n = 256; n--; ) *pixelPtr++ = colour;
 	}
 }
+
+} // namespace openmsx
 

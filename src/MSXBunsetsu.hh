@@ -7,6 +7,8 @@
 #include "Rom.hh"
 
 
+namespace openmsx {
+
 class MSXBunsetsu : public MSXMemDevice
 {
 	public:
@@ -25,5 +27,7 @@ class MSXBunsetsu : public MSXMemDevice
 		Rom jisyoRom;
 		int jisyoAddress;
 };
+
+} // namespace openmsx
 
 #endif

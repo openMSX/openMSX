@@ -3,6 +3,8 @@
 #ifndef __LEDS_HH__
 #define __LEDS_HH__
 
+namespace openmsx {
+
 class Leds 
 {
 	public:
@@ -24,4 +26,6 @@ class Leds
 
 		bool pwrLed, capsLed, kanaLed, pauseLed, turboLed, fddLed;
 };
+
+} // namespace openmsx
 #endif

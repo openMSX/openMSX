@@ -7,6 +7,8 @@
 #include "SoundDevice.hh"
 #include "Mixer.hh"
 
+namespace openmsx {
+
 class EmuTime;
 
 
@@ -144,5 +146,7 @@ class YM2413_2 : public SoundDevice
 		byte LFO_AM;
 		byte LFO_PM;
 };
+
+} // namespace openmsx
 
 #endif

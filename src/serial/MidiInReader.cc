@@ -6,6 +6,8 @@
 #include "Scheduler.hh"
 
 
+namespace openmsx {
+
 MidiInReader::MidiInReader()
 	: thread(this), connector(NULL), lock(1)
 {
@@ -103,3 +105,5 @@ const string& MidiInReader::schedName() const
 {
 	return getName();
 }
+
+} // namespace openmsx

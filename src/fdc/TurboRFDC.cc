@@ -8,6 +8,8 @@
 #include "MSXCPU.hh"
 
 
+namespace openmsx {
+
 TurboRFDC::TurboRFDC(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXFDC(config, time), controller(drives, time)
 {
@@ -126,3 +128,5 @@ byte* TurboRFDC::getWriteCacheLine(word address) const
 		return unmappedWrite;
 	}
 }
+
+} // namespace openmsx

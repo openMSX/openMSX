@@ -5,6 +5,8 @@
 #include "CPU.hh"
 
 
+namespace openmsx {
+
 RomMSXAudio::RomMSXAudio(Device* config, const EmuTime &time, Rom *rom)
 	: MSXDevice(config, time), MSXRom(config, time, rom)
 {
@@ -68,3 +70,5 @@ byte* RomMSXAudio::getWriteCacheLine(word address) const
 		return unmappedWrite;
 	}
 }
+
+} // namespace openmsx

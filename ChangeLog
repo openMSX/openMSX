@@ -1,5 +1,12 @@
 $Id$
 
+2003-08-09 Maarten ter Huurne <maarten@treewalker.org>
+	* Put all openMSX code in namespace "openmsx".
+	  This avoids name clashes with C libs, for example "Font" being
+	  defined by us and by Xlib.
+	  Those name clashes occur earlier when precompiling headers,
+	  but otherwise it's still an accident waiting to happen.
+
 2003-08-09 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed FileContext owner ship semantics (fixes memory leak):
 	   - the class that creates a FileContext object should also destroy it

@@ -7,6 +7,8 @@
 #include "MSXConfig.hh"
 
 
+namespace openmsx {
+
 PhilipsFDC::PhilipsFDC(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), WD2793BasedFDC(config, time)
 {
@@ -153,3 +155,5 @@ byte* PhilipsFDC::getWriteCacheLine(word address) const
 		return unmappedWrite;
 	}
 }
+
+} // namespace openmsx

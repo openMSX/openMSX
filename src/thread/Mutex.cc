@@ -4,6 +4,8 @@
 #include "Mutex.hh"
 
 
+namespace openmsx {
+
 Mutex outputmutex, errormutex;
 
 Mutex::Mutex()
@@ -25,3 +27,5 @@ void Mutex::release()
 {
 	SDL_mutexV(mutex);
 }
+
+} // namespace openmsx

@@ -6,6 +6,8 @@
 #include "Rom8kBBlocks.hh"
 
 
+namespace openmsx {
+
 class RomKonami5 : public Rom8kBBlocks
 {
 	public:
@@ -23,5 +25,7 @@ class RomKonami5 : public Rom8kBBlocks
 		class SCC* scc;
 		bool sccEnabled;
 };
+
+} // namespace openmsx
 
 #endif

@@ -6,6 +6,8 @@
 #include "CPUInterface.hh"
 #include "Command.hh"
 
+namespace openmsx {
+
 class MSXIODevice;
 class MSXMemDevice;
 class VDPIODelay;
@@ -192,5 +194,7 @@ class TurborCPUInterface : public MSXCPUInterface
 		
 		VDPIODelay *delayDevice;
 };
+
+} // namespace openmsx
 
 #endif //__MSXCPUINTERFACE_HH__

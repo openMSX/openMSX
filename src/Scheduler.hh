@@ -9,6 +9,8 @@
 
 using std::vector;
 
+namespace openmsx {
+
 class MSXCPU;
 class Schedulable;
 class Renderer;
@@ -126,5 +128,7 @@ class Scheduler
 		MSXCPU *cpu;
 		Renderer *renderer;
 };
+
+} // namespace openmsx
 
 #endif

@@ -12,6 +12,8 @@
 #include "Mixer.hh"
 
 
+namespace openmsx {
+
 int YM2413::pmtable[PM_PG_WIDTH];
 int YM2413::amtable[AM_PG_WIDTH];
 int YM2413::tllTable[16][8][1 << TL_BITS][4];
@@ -1177,3 +1179,5 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 	Mixer::instance()->unlock();
 	checkMute();
 }
+
+} // namespace openmsx

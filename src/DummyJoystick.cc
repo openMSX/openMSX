@@ -2,6 +2,8 @@
 
 #include "DummyJoystick.hh"
 
+namespace openmsx {
+
 DummyJoystick::DummyJoystick()
 {
 }
@@ -28,3 +30,5 @@ void DummyJoystick::plug(Connector* connector, const EmuTime& time)
 void DummyJoystick::unplug(const EmuTime& time)
 {
 }
+
+} // namespace openmsx

@@ -23,6 +23,8 @@
 
 using std::string;
 
+namespace openmsx {
+
 class SHA1
 {
 	public:
@@ -54,5 +56,7 @@ class SHA1
 			unsigned long l[16];
 		} SHA1_WORKSPACE_BLOCK;
 };
+
+} // namespace openmsx
 
 #endif

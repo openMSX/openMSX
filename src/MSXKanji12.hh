@@ -8,6 +8,8 @@
 #include "MSXDeviceSwitch.hh"
 
 
+namespace openmsx {
+
 class MSXKanji12 : public MSXDevice, public MSXSwitchedDevice
 {
 	public:
@@ -23,5 +25,7 @@ class MSXKanji12 : public MSXDevice, public MSXSwitchedDevice
 		int adr;
 		int size;
 };
+
+} // namespace openmsx
 
 #endif //__MSXKANJI12_HH__

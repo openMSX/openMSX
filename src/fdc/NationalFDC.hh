@@ -7,6 +7,8 @@
 #include "CPU.hh"
 
 
+namespace openmsx {
+
 class NationalFDC : public WD2793BasedFDC
 {
 	public:
@@ -21,4 +23,6 @@ class NationalFDC : public WD2793BasedFDC
 	private:
 		byte driveReg;
 };
+
+} // namespace openmsx
 #endif

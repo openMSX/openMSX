@@ -11,6 +11,8 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
+namespace openmsx {
+
 /*
  * Standard JoyNet cable for MSX (to link two or more MSX computers) 
  * =================================================================
@@ -83,4 +85,6 @@ class JoyNet : public JoystickDevice
 		void sendByte(byte value);
 		ConnectionListener* listener;
 };
+
+} // namespace openmsx
 #endif

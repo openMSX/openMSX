@@ -10,6 +10,8 @@
 #include "CPU.hh"
 
 
+namespace openmsx {
+
 class MSXRomPatchInterface
 {
 	public:
@@ -18,5 +20,7 @@ class MSXRomPatchInterface
 		 */
 		virtual void patch(CPU::CPURegs& regs) = 0;
 };
+
+} // namespace openmsx
 
 #endif // __MSXROMPATCHINTERFACE_HH__

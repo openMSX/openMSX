@@ -6,6 +6,8 @@
 #include "Disk.hh"
 
 
+namespace openmsx {
+
 class SectorBasedDisk : public Disk
 {
 	public: 
@@ -34,5 +36,7 @@ class SectorBasedDisk : public Disk
 		byte readTrackDataBuf[RAWTRACK_SIZE];
 		int readTrackDataCount;
 };
+
+} // namespace openmsx
 
 #endif

@@ -7,6 +7,8 @@
 #include "TC8566AF.hh"
 
 
+namespace openmsx {
+
 class TurboRFDC : public MSXFDC
 {
 	public:
@@ -25,4 +27,6 @@ class TurboRFDC : public MSXFDC
 		const byte* memory;
 		TC8566AF controller;
 };
+
+} // namespace openmsx
 #endif

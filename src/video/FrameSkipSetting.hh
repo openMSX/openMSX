@@ -7,6 +7,8 @@
 
 #include <cassert>
 
+namespace openmsx {
+
 /*
 TODO:
 It makes sense so split auto and the skip amount:
@@ -70,6 +72,8 @@ public:
 	void setValueString(const string &valueString);
 	void setValue(const FrameSkip &newValue);
 };
+
+} // namespace openmsx
 
 #endif
 

@@ -30,6 +30,8 @@
 #include "CPU.hh"
 
 
+namespace openmsx {
+
 MSXMegaRam::MSXMegaRam(Device* config, const EmuTime &time)
 	: MSXDevice(config, time), MSXMemDevice(config, time),
 	  MSXIODevice(config, time)
@@ -118,3 +120,5 @@ void MSXMegaRam::setBank(byte page, byte block)
 	cpu->invalidateCache(adr,          0x2000 / CPU::CACHE_LINE_SIZE);
 	cpu->invalidateCache(adr + 0x8000, 0x2000 / CPU::CACHE_LINE_SIZE);
 }
+
+} // namespace openmsx

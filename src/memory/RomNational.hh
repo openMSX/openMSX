@@ -7,6 +7,8 @@
 #include "SRAM.hh"
 
 
+namespace openmsx {
+
 class RomNational : public Rom16kBBlocks
 {
 	public:
@@ -26,5 +28,7 @@ class RomNational : public Rom16kBBlocks
 		SRAM sram;
 		int sramAddr;
 };
+
+} // namespace openmsx
 
 #endif

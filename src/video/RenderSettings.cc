@@ -4,6 +4,8 @@
 #include "MSXConfig.hh"
 
 
+namespace openmsx {
+
 RenderSettings::RenderSettings()
 {
 	Config *config = MSXConfig::instance()->getConfigById("renderer");
@@ -62,3 +64,5 @@ RenderSettings::~RenderSettings()
 	delete scanlineAlpha;
 	delete frameSkip;
 }
+
+} // namespace openmsx

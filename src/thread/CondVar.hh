@@ -6,6 +6,8 @@
 #include <SDL/SDL.h>
 
 
+namespace openmsx {
+
 class CondVar
 {
 	public:
@@ -20,4 +22,6 @@ class CondVar
 		SDL_cond* cond;
 		SDL_mutex* mutex;
 };
+
+} // namespace openmsx
 #endif

@@ -3,6 +3,8 @@
 #include "DummyAudioInputDevice.hh"
 
 
+namespace openmsx {
+
 DummyAudioInputDevice::DummyAudioInputDevice()
 {
 }
@@ -19,3 +21,5 @@ short DummyAudioInputDevice::readSample(const EmuTime &time)
 {
 	return 0;	// silence
 }
+
+} // namespace openmsx

@@ -7,6 +7,8 @@
 #include "Pluggable.hh"
 
 
+namespace openmsx {
+
 class PrinterPortDevice : public Pluggable
 {
 	public:
@@ -36,5 +38,7 @@ class PrinterPortDevice : public Pluggable
 
 		virtual const string &getClass() const;
 };
+
+} // namespace openmsx
 
 #endif

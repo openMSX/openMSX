@@ -4,6 +4,8 @@
 #include "I8254.hh"
 
 
+namespace openmsx {
+
 /// class I8254 ///
 
 I8254::I8254(ClockPinListener* output0, ClockPinListener* output1,
@@ -405,3 +407,5 @@ void I8254::Counter::advance(const EmuTime &time)
 		assert(false);
 	}
 }
+
+} // namespace openmsx

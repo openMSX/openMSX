@@ -3,6 +3,8 @@
 #include "MSXKanji12.hh"
 
 
+namespace openmsx {
+
 const byte ID = 0xF7;
 
 MSXKanji12::MSXKanji12(Device *config, const EmuTime &time)
@@ -73,3 +75,5 @@ void MSXKanji12::writeIO(byte port, byte value, const EmuTime &time)
 		}
 	}
 }
+
+} // namespace openmsx

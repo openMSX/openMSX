@@ -12,6 +12,8 @@
 #include "RomRType.hh"
 
 
+namespace openmsx {
+
 RomRType::RomRType(Device* config, const EmuTime &time, Rom *rom)
 	: MSXDevice(config, time), Rom16kBBlocks(config, time, rom)
 {
@@ -46,3 +48,5 @@ byte* RomRType::getWriteCacheLine(word address) const
 		return unmappedWrite;
 	}
 }
+
+} // namespace openmsx

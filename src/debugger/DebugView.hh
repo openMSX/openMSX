@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 
+namespace openmsx {
+
 class DebugView
 {
 	public:
@@ -31,5 +33,7 @@ class DebugView
 		void addLine (std::string message="");
 
 };
+
+} // namespace openmsx
 
 #endif

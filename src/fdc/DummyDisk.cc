@@ -3,6 +3,8 @@
 #include "DummyDisk.hh"
 
 
+namespace openmsx {
+
 void DummyDisk::read(byte track, byte sector,
                            byte side, int size, byte* buf)
 {
@@ -41,3 +43,5 @@ bool DummyDisk::doubleSided()
 {
 	return false;	// TODO check
 }
+
+} // namespace openmsx

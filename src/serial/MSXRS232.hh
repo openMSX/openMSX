@@ -13,6 +13,8 @@
 #include "RS232Connector.hh"
 
 
+namespace openmsx {
+
 class MSXRS232 : public MSXIODevice, public MSXMemDevice, public RS232Connector
 {
 	public:
@@ -94,5 +96,7 @@ class MSXRS232 : public MSXIODevice, public MSXMemDevice, public RS232Connector
 		I8251 i8251;
 		Rom rom;
 };
+
+} // namespace openmsx
 
 #endif

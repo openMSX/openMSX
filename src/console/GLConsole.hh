@@ -14,6 +14,8 @@
 
 #include "OSDConsoleRenderer.hh"
 
+namespace openmsx {
+
 class Console;
 
 class GLConsole : public OSDConsoleRenderer
@@ -43,6 +45,8 @@ class GLConsole : public OSDConsoleRenderer
 		Console* console;
 		void updateConsoleRect(SDL_Surface *screen);
 };
+
+} // namespace openmsx
 
 #endif // __OPENGL_AVAILABLE__
 #endif // __GLCONSOLE_HH__

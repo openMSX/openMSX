@@ -8,6 +8,8 @@
 #include "EmuTime.hh"
 
 
+namespace openmsx {
+
 class Mouse : public JoystickDevice, EventListener
 {
 	public:
@@ -36,4 +38,6 @@ class Mouse : public JoystickDevice, EventListener
 		EmuTimeFreq<1000> lastTime;	// ms
 		bool mouseMode;
 };
+
+} // namespace openmsx
 #endif

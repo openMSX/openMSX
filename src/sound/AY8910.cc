@@ -17,6 +17,8 @@
 #include "Mixer.hh"
 
 
+namespace openmsx {
+
 AY8910::AY8910(AY8910Interface &interf, short volume, const EmuTime &time)
 	: semiMuted(false), interface(interf)
 {
@@ -489,3 +491,5 @@ int* AY8910::updateBuffer(int length)
 	}
 	return buffer;
 }
+
+} // namespace openmsx

@@ -3,6 +3,8 @@
 #include "MSXIODevice.hh"
 
 
+namespace openmsx {
+
 MSXIODevice::MSXIODevice(Device *config, const EmuTime &time)
 	: MSXDevice(config, time)
 {
@@ -25,3 +27,5 @@ void MSXIODevice::writeIO(byte port, byte value, const EmuTime &time)
 		<<",value "<<(int)value<<") : No device implementation.");
 	// do nothing
 }
+
+} // namespace openmsx

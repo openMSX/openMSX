@@ -15,6 +15,8 @@
 #undef  CLOCK_FREQ
 #define CLOCK_FREQ 7159090
 
+namespace openmsx {
+
 class CPUInterface;
 class R800;
 typedef void (R800::*R800_ResumeFunc)();
@@ -48,6 +50,8 @@ class R800 : public CPU {
 
 		R800_ResumeFunc resume;
 };
+
+} // namespace openmsx
 
 #endif
 

@@ -6,6 +6,8 @@
 #include "MSXConfig.hh"
 
 
+namespace openmsx {
+
 MSXMusic::MSXMusic(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
 	  MSXMemDevice(config, time), rom(config, time)
@@ -68,3 +70,5 @@ const byte* MSXMusic::getReadCacheLine(word start) const
 {
 	return rom.getBlock(start & 0x3FFF);
 }
+
+} // namespace openmsx

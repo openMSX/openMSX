@@ -7,6 +7,8 @@
 #include "SRAM.hh"
 
 
+namespace openmsx {
+
 class RomHydlide2 : public RomAscii16kB
 {
 	public:
@@ -24,5 +26,7 @@ class RomHydlide2 : public RomAscii16kB
 		SRAM sram;
 		byte sramEnabled;
 };
+
+} // namespace openmsx
 
 #endif

@@ -8,6 +8,8 @@
 using std::string;
 
 
+namespace openmsx {
+
 class Font
 {
 	public:
@@ -20,5 +22,7 @@ class Font
 		int charWidth;
 		int charHeight;
 };
+
+} // namespace openmsx
 
 #endif

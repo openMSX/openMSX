@@ -7,6 +7,8 @@
 #include "CommandLineParser.hh"
 
 
+namespace openmsx {
+
 class DiskImageCLI : public CLIOption, public CLIFileType
 {
 	public:
@@ -20,5 +22,7 @@ class DiskImageCLI : public CLIOption, public CLIFileType
 	private:
 		char driveLetter;
 };
+
+} // namespace openmsx
 
 #endif

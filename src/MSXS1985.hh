@@ -16,6 +16,8 @@
 #include "MSXDeviceSwitch.hh"
 
 
+namespace openmsx {
+
 class MSXS1985 : public MSXDevice, public MSXSwitchedDevice
 {
 	public:
@@ -34,5 +36,7 @@ class MSXS1985 : public MSXDevice, public MSXSwitchedDevice
 		byte color2;
 		byte pattern;
 };
+
+} // namespace openmsx
 
 #endif

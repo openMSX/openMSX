@@ -3,6 +3,8 @@
 #include "Keys.hh"
 
 
+namespace openmsx {
+
 Keys::KeyCode Keys::getCode(const string &name)
 {
 	initialize();
@@ -184,5 +186,7 @@ void Keys::initialize()
 }
 
 map<string, Keys::KeyCode, Keys::ltstrcase> Keys::keymap;
+
+} // namespace openmsx
 
 

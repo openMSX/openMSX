@@ -7,6 +7,8 @@
 #include "EmuTime.hh"
 #include "AudioInputConnector.hh"
 
+namespace openmsx {
+
 class DACSound8U;
 
 
@@ -33,5 +35,7 @@ class MSXTurboRPCM : public MSXIODevice, private AudioInputConnector
 		byte hold;
 		DACSound8U* dac;
 };
+
+} // namespace openmsx
 
 #endif

@@ -11,6 +11,8 @@
 #include "SDL/SDL_image.h"
 #endif
 
+namespace openmsx {
+
 const int NUM_CHRS = 256;
 const int CHARS_PER_ROW = 16;
 const int CHARS_PER_COL = NUM_CHRS / CHARS_PER_ROW;
@@ -64,5 +66,7 @@ void GLFont::drawText(const string &string, int x, int y)
 	glListBase(listBase);
 	glCallLists(strlen(text), GL_UNSIGNED_BYTE, text);
 }
+
+} // namespace openmsx
 
 #endif // __OPENGL_AVAILABLE__

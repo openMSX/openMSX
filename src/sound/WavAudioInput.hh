@@ -8,6 +8,8 @@
 #include "EmuTime.hh"
 
 
+namespace openmsx {
+
 class WavAudioInput : public AudioInputDevice
 {
 	public:
@@ -26,5 +28,7 @@ class WavAudioInput : public AudioInputDevice
 		int freq;
 		EmuTime reference;
 };
+
+} // namespace openmsx
 
 #endif

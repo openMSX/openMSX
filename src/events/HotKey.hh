@@ -12,6 +12,8 @@
 using std::string;
 using std::multimap;
 
+namespace openmsx {
+
 class HotKeyListener
 {
 	public:
@@ -80,5 +82,7 @@ class HotKey : private EventListener
 		friend class UnbindCmd;
 		UnbindCmd unbindCmd;
 };
+
+} // namespace openmsx
 
 #endif

@@ -6,6 +6,8 @@
 #include "DriveMultiplexer.hh"
 
 
+namespace openmsx {
+
 NationalFDC::NationalFDC(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), WD2793BasedFDC(config, time)
 {
@@ -123,3 +125,5 @@ byte* NationalFDC::getWriteCacheLine(word address) const
 		return unmappedWrite;
 	}
 }
+
+} // namespace openmsx

@@ -6,6 +6,8 @@
 #include "EmuTime.hh"
 #include "Schedulable.hh"
 
+namespace openmsx {
+
 class Scheduler;
 class ClockPin;
 
@@ -59,5 +61,7 @@ class ClockPin : private Schedulable
 
 		Scheduler* scheduler;
 };
+
+} // namespace openmsx
 
 #endif

@@ -10,6 +10,8 @@
 #include "VolumeSetting.hh"
 
 
+namespace openmsx {
+
 Mixer::Mixer()
 	: muteCount(0),
 	  muteSetting("mute", "(un)mute the emulation sound", false)
@@ -260,3 +262,5 @@ void Mixer::update(const SettingLeafNode *setting)
 		unmute();
 	}
 }
+
+} // namespace openmsx

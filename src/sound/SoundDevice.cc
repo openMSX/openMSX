@@ -3,6 +3,8 @@
 #include "SoundDevice.hh"
 
 
+namespace openmsx {
+
 SoundDevice::SoundDevice()
 {
 	internalMuted = true;
@@ -41,3 +43,5 @@ bool SoundDevice::isInternalMuted() const
 {
 	return (internalMuted || userMuted);
 }
+
+} // namespace openmsx

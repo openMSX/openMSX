@@ -6,6 +6,8 @@
 #include "MSXMemDevice.hh"
 #include "Rom.hh"
 
+namespace openmsx {
+
 class IDEDevice;
 
 
@@ -43,4 +45,6 @@ class SunriseIDE : public MSXMemDevice
 		byte selectedDevice;
 		IDEDevice* device[2];
 };
+
+} // namespace openmsx
 #endif

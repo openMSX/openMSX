@@ -3,6 +3,8 @@
 #include "CPUInterface.hh"
 #include "MSXRomPatchInterface.hh"
 
+namespace openmsx {
+
 CPUInterface::CPUInterface()
 {
 	prevNMIStat = NMIStatus();
@@ -58,4 +60,6 @@ void CPUInterface::reti(CPU::CPURegs& regs)
 void CPUInterface::retn(CPU::CPURegs& regs)
 {
 }
+
+} // namespace openmsx
 

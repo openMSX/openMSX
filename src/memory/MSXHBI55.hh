@@ -36,6 +36,8 @@
 #include "SRAM.hh"
 
 
+namespace openmsx {
+
 class MSXHBI55 : public MSXIODevice, public I8255Interface
 {
 	// MSXDevice
@@ -66,5 +68,7 @@ class MSXHBI55 : public MSXIODevice, public I8255Interface
 		word address;
 		byte mode;
 };
+
+} // namespace openmsx
 
 #endif

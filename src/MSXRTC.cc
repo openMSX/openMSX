@@ -6,6 +6,8 @@
 #include "MSXConfig.hh"
 
 
+namespace openmsx {
+
 MSXRTC::MSXRTC(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time), sram(4 * 13, config) 
 {
@@ -42,4 +44,6 @@ void MSXRTC::writeIO(byte port, byte value, const EmuTime &time)
 		assert(false);
 	}
 }
+
+} // namespace openmsx
 

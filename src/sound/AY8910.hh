@@ -12,6 +12,8 @@
 #include "openmsx.hh"
 #include "SoundDevice.hh"
 
+namespace openmsx {
+
 // forward declarations
 class EmuTime;
 
@@ -78,4 +80,6 @@ class AY8910 : public SoundDevice
 		
 		AY8910Interface &interface;
 };
+
+} // namespace openmsx
 #endif

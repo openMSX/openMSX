@@ -6,6 +6,8 @@
 #include "Rom16kBBlocks.hh"
 
 
+namespace openmsx {
+
 class RomSynthesizer : public Rom16kBBlocks
 {
 	public:
@@ -20,5 +22,7 @@ class RomSynthesizer : public Rom16kBBlocks
 	private:
 		class DACSound8U* dac;
 };
+
+} // namespace openmsx
 
 #endif

@@ -7,6 +7,8 @@
 #include "Rom.hh"
 
 
+namespace openmsx {
+
 class MSXKanji : public MSXIODevice
 {
 	public:
@@ -21,6 +23,8 @@ class MSXKanji : public MSXIODevice
 		Rom rom;
 		int adr1, adr2;
 };
+
+} // namespace openmsx
 
 #endif //__MSXKANJI_HH__
 

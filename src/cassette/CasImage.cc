@@ -6,6 +6,8 @@
 #include "EmuTime.hh"
 
 
+namespace openmsx {
+
 // output settings
 const int OUTPUT_FREQUENCY = 43200;
 
@@ -173,3 +175,5 @@ void CasImage::convert()
 		}
 	}
 }
+
+} // namespace openmsx

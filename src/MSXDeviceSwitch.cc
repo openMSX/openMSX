@@ -4,6 +4,8 @@
 #include "EmuTime.hh"
 
 
+namespace openmsx {
+
 /// class MSXSwitchedDevice ///
 
 MSXSwitchedDevice::MSXSwitchedDevice(byte id_)
@@ -96,3 +98,5 @@ void MSXDeviceSwitch::writeIO(byte port, byte value, const EmuTime &time)
 		//ignore
 	}
 }
+
+} // namespace openmsx

@@ -5,6 +5,8 @@
 
 #include <string>
 
+namespace openmsx {
+
 class IDEDevice;
 class EmuTime;
 
@@ -17,5 +19,7 @@ class IDEDeviceFactory
 		static IDEDevice* create(const string &name,
 		                         const EmuTime &time);
 };
+
+} // namespace openmsx
 
 #endif

@@ -6,6 +6,8 @@
 #include "Connector.hh"
 #include "SerialDataInterface.hh"
 
+namespace openmsx {
+
 class DummyMidiOutDevice;
 class MidiOutLogger;
 
@@ -33,5 +35,7 @@ class MidiOutConnector : public Connector, public SerialDataInterface
 
 		MidiOutLogger* logger;
 };
+
+} // namespace openmsx
 
 #endif

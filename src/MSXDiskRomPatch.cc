@@ -9,6 +9,8 @@
 #include "Disk.hh"
 
 
+namespace openmsx {
+
 const int SECTOR_SIZE = 512;
 
 const int A_PHYDIO = 0x4010;
@@ -396,3 +398,5 @@ void MSXDiskRomPatch::DRVOFF(CPU::CPURegs& regs)
 
 	// do nothing
 }
+
+} // namespace openmsx

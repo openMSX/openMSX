@@ -7,6 +7,8 @@
 #include "Command.hh"
 #include "CommandLineParser.hh"
 
+namespace openmsx {
+
 class File;
 class FileContext;
 
@@ -64,5 +66,7 @@ class MSXTapePatch : public MSXRomPatchInterface, private Command
 		virtual void help   (const vector<string> &tokens) const;
 		virtual void tabCompletion(vector<string> &tokens) const;
 };
+
+} // namespace openmsx
 
 #endif // __MSXTapePatch_HH__

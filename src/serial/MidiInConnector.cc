@@ -7,6 +7,8 @@
 #include "MidiInReader.hh"
 
 
+namespace openmsx {
+
 MidiInConnector::MidiInConnector(const string& name_, const EmuTime& time)
 	: name(name_)
 {
@@ -45,4 +47,6 @@ void MidiInConnector::unplug(const EmuTime& time)
 	Connector::unplug(time);
 	plug(dummy, time);
 }
+
+} // namespace openmsx
 

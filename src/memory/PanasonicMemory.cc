@@ -5,6 +5,8 @@
 #include "CPU.hh"
 
 
+namespace openmsx {
+
 PanasonicMemory::PanasonicMemory()
 	: rom(NULL), ram(NULL), dram(false)
 {
@@ -70,3 +72,5 @@ void PanasonicMemory::setDRAM(bool dram_)
 			invalidateCache(0x0000, 0x10000 / CPU::CACHE_LINE_SIZE);
 	}
 }
+
+} // namespace openmsx

@@ -6,6 +6,8 @@
 #include "AudioInputDevice.hh"
 
 
+namespace openmsx {
+
 class DummyAudioInputDevice : public AudioInputDevice
 {
 	public:
@@ -16,5 +18,7 @@ class DummyAudioInputDevice : public AudioInputDevice
 
 		virtual short readSample(const EmuTime &time);
 };
+
+} // namespace openmsx
 
 #endif

@@ -6,8 +6,11 @@
 #include "OSDConsoleRenderer.hh"
 
 struct SDL_Surface;
-class Console;
 
+
+namespace openmsx {
+
+class Console;
 
 class SDLConsole : public OSDConsoleRenderer
 {
@@ -70,5 +73,7 @@ class SDLConsole : public OSDConsoleRenderer
 		void updateConsoleRect();
 		int zoomSurface(SDL_Surface * src, SDL_Surface * dst, bool smooth);
 };
+
+} // namespace openmsx
 
 #endif

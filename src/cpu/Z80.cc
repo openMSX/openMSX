@@ -14,8 +14,11 @@
 #include <cassert>
 #include "Z80.hh"
 #include "CPUInterface.hh"
-#include "Z80Tables.nn"
 
+
+namespace openmsx {
+
+#include "Z80Tables.nn"
 
 Z80::Z80(CPUInterface *interf, const EmuTime &time) :
 	CPU(interf)
@@ -53,6 +56,7 @@ inline void Z80::IM2_DELAY()      { currentTime += 19; }
 inline void Z80::SMALL_DELAY()    { currentTime += 1; }	// TODO more detailed?
 inline int Z80::haltStates() { return 4 + WAIT_CYCLES; }	// HALT + M1
 
-#include "CPUCore.n2"
+} // namespace openmsx
 
+#include "CPUCore.n2"
 

@@ -13,6 +13,8 @@
 #include "FileContext.hh"
 
 
+namespace openmsx {
+
 CliExtension::CliExtension()
 {
 	CommandLineParser::instance()->
@@ -104,3 +106,5 @@ void CliExtension::createExtensions(const string &basepath)
 	}
 	chdir(buf);
 }
+
+} // namespace openmsx

@@ -11,6 +11,8 @@ using std::string;
 using std::vector;
 
 
+namespace openmsx {
+
 class CommandException : public MSXException {
 	public:
 		CommandException(const string &desc_)
@@ -43,5 +45,7 @@ class Command
 		  */
 		void print(const string &message) const;
 };
+
+} // namespace openmsx
 
 #endif //_COMMAND_HH__
