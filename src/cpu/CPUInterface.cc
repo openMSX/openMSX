@@ -12,7 +12,7 @@ CPUInterface::~CPUInterface()
 {
 }
 
-inline bool CPUInterface::NMIStatus()
+bool CPUInterface::NMIStatus()
 {
 	return false;
 }
