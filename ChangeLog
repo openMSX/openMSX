@@ -1,5 +1,11 @@
 $Id$
 
+2003-06-01 Herman Oudejans <hn.oudejans@quicknet.nl>
+	* Added a setting for grabbing mouse and keyboard input. When input
+	  is grabbed, the windowsmanager won't be able to mask keys from 
+	  openmsx and the mousecursor won't be able to leave the openmsx
+	  window.
+
 2003-06-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed mouse (hopefully)
 	* Removed "loadsram" and "savesram" settings

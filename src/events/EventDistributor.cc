@@ -14,13 +14,14 @@ EventDistributor::EventDistributor()
 {
 	// Make sure HotKey is instantiated
 	HotKey::instance();	// TODO is there a better place for this?
-
+	grabInput = new GrabInputSetting();
 	CommandController::instance()->registerCommand(&quitCommand, "quit");
 }
 
 EventDistributor::~EventDistributor()
 {
 	CommandController::instance()->unregisterCommand(&quitCommand, "quit");
+	delete grabInput;
 }
 
 EventDistributor *EventDistributor::instance()

@@ -8,6 +8,7 @@
 #include <queue>
 #include "Schedulable.hh"
 #include "Command.hh"
+#include "GrabInput.hh"
 
 // forward declaration
 class EventListener;
@@ -53,7 +54,7 @@ class EventDistributor
 		std::multimap <int, EventListener*> highMap;
 		std::queue <std::pair<SDL_Event, EventListener*> > lowQueue;
 		std::queue <std::pair<SDL_Event, EventListener*> > highQueue;
-
+		GrabInputSetting * grabInput;
 		/** Quit openMSX.
 		  * Starts the shutdown procedure.
 		  */
