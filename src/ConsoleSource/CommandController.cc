@@ -136,7 +136,12 @@ void CommandController::autoCommands(const EmuTime &time)
 		commandList = config->getParametersWithClass("");
 		std::list<Device::Parameter*>::const_iterator i;
 		for (i = commandList->begin(); i != commandList->end(); i++) {
-			executeCommand((*i)->value, time);
+			try {
+				executeCommand((*i)->value, time);
+			} catch (CommandException &e) {
+				PRT_INFO("Warning, while executing autocommands:\n"
+				         "   " << e.getMessage());
+			}
 		}
 	} catch (ConfigException &e) {
 		// no auto commands defined
