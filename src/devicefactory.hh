@@ -3,7 +3,6 @@
 #ifndef __DEVICEFACTORY_HH__
 #define __DEVICEFACTORY_HH__
 
-#include <string>
 #include "MSXDevice.hh"
 
 
