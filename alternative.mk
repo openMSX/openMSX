@@ -20,6 +20,19 @@ CXXFLAGS:=
 LDFLAGS:=
 include config-$(OPENMSX_FLAVOUR).mk
 
+# Determine compiler.
+OPENMSX_CXX?=g++
+CXX:=$(OPENMSX_CXX)
+
+# Use precompiled headers?
+# TODO: Autodetect this: USE_PRECOMPH == compiler_is_g++ && g++_version >= 3.4
+USE_PRECOMPH?=false
+# Problem: When using precompiled headers, the generated dependency files
+#          only contain dependencies 1 level deep.
+#          If generated without compiling as well, it depends on every
+#          include there is.
+# So one-shot compilation works great, but incremental compilation does not.
+
 # Generic compilation flags.
 CXXFLAGS+=-pipe
 # Stricter warning and error reporting.
@@ -62,10 +75,12 @@ SOURCES_PATH:=src
 # TODO: Use node.mk system for building sources list.
 SOURCES_FULL:=$(sort $(shell find $(SOURCES_PATH)/$(OPENMSX_SUBSET) -name "*.cc"))
 SOURCES_FULL:=$(filter-out $(SOURCES_PATH)/debugger/Debugger.cc,$(SOURCES_FULL))
-SOURCES_FULL:=$(filter-out $(SOURCES_PATH)/debugger/Views.cc,$(SOURCES_FULL))
 SOURCES_FULL:=$(filter-out $(SOURCES_PATH)/thread/testCondVar.cc,$(SOURCES_FULL))
 SOURCES_FULL:=$(filter-out $(SOURCES_PATH)/libxmlx/xmlxdump.cc,$(SOURCES_FULL))
 SOURCES:=$(SOURCES_FULL:$(SOURCES_PATH)/%.cc=%)
+
+HEADERS_FULL:=$(sort $(shell find $(SOURCES_PATH)/$(OPENMSX_SUBSET) -name "*.hh"))
+HEADERS:=$(HEADERS_FULL:$(SOURCES_PATH)/%=%)
 
 DEPEND_PATH:=$(BUILD_PATH)/dep
 DEPEND_FULL:=$(addsuffix .d,$(addprefix $(DEPEND_PATH)/,$(SOURCES)))
@@ -93,6 +108,20 @@ LINK_FLAGS_PREFIX:=-Wl,
 LINK_FLAGS:=$(addprefix $(LINK_FLAGS_PREFIX),$(LDFLAGS))
 LINK_FLAGS+=$(addprefix -l,$(LIBS_PLAIN))
 LINK_FLAGS+=$(foreach lib,$(LIBS_CONFIG),$(shell $(lib)-config --libs))
+ifeq ($(OPENMSX_FLAVOUR),gcc34)
+# TODO: Temp to force g++ 3.4-pre to pick up the right libs.
+LINK_FLAGS:=-L/opt/gcc-cvs/lib $(LINK_FLAGS)
+endif
+
+# Precompiled headers.
+PRECOMPH_PATH:=$(BUILD_PATH)/hdr
+PRECOMPH_COMB:=$(PRECOMPH_PATH)/all.h
+PRECOMPH_FILE:=$(PRECOMPH_COMB).gch
+ifeq ($(USE_PRECOMPH),true)
+PRECOMPH_FLAGS:=-include $(PRECOMPH_COMB)
+else
+PRECOMPH_FLAGS:=
+endif
 
 # Default target; make sure this is always the first target in this Makefile.
 all: config $(BINARY_FULL)
@@ -121,10 +150,13 @@ $(OBJECTS_FULL): $(OBJECTS_PATH)/%.o: $(SOURCES_PATH)/%.cc $(DEPEND_PATH)/%.d
 	@echo "Compiling $(patsubst $(SOURCES_PATH)/%,%,$<)..."
 	@mkdir -p $(@D)
 	@mkdir -p $(patsubst $(OBJECTS_PATH)%,$(DEPEND_PATH)%,$(@D))
-	@gcc \
-		-MMD -MT $(DEPEND_SUBST) -MF $(DEPEND_SUBST) \
+	@$(CXX) $(PRECOMPH_FLAGS) \
+		-MMD -MP -MT $(DEPEND_SUBST) -MF $(DEPEND_SUBST) \
 		-o $@ $(CXXFLAGS) $(INCLUDE_FLAGS) -c $<
 	@touch $@ # Force .o file to be newer than .d file.
+# Generate dependencies that do not exist yet.
+# This is only in case some .d files have been deleted;
+# in normal operation this rule is never triggered.
 $(DEPEND_FULL):
 
 # Link executable.
@@ -132,7 +164,7 @@ $(BINARY_FULL): $(OBJECTS_FULL)
 ifeq ($(OPENMSX_SUBSET),)
 	@echo "Linking $(notdir $@)..."
 	@mkdir -p $(@D)
-	@gcc -o $@ $(CXXFLAGS) $(LINK_FLAGS) $^
+	@$(CXX) -o $@ $(CXXFLAGS) $(LINK_FLAGS) $^
 	@ln -sf $(@:$(BUILD_BASE)/%=%) $(BUILD_BASE)/$(notdir $@)
 else
 	@echo "Not linking $(notdir $@) because only a subset was built."
@@ -152,3 +184,19 @@ else
 	@echo "Running $(notdir $(BINARY_FULL))..."
 	@$(BINARY_FULL)
 endif
+
+ifeq ($(USE_PRECOMPH),true)
+$(OBJECTS_FULL): $(PRECOMPH_FILE)
+endif
+
+$(PRECOMPH_COMB): $(HEADERS_FULL)
+	@echo "Generating combined header..."
+	@mkdir -p $(PRECOMPH_PATH)
+	@for header in $(HEADERS); do echo "#include \"$$header\""; done > $@
+
+.DELETE_ON_ERROR: $(PRECOMPH_FILE)
+.SECONDARY: $(PRECOMPH_FILE)
+$(PRECOMPH_FILE): $(PRECOMPH_COMB)
+	@echo "Precompiling headers..."
+	@$(CXX) $(CXXFLAGS) $(INCLUDE_FLAGS) $<
+
