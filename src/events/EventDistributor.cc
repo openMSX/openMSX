@@ -59,6 +59,13 @@ void EventDistributor::poll()
 	}
 }
 
+void EventDistributor::notify()
+{
+	static SDL_Event event;
+	event.type = SDL_USEREVENT;
+	SDL_PushEvent(&event);
+}
+
 void EventDistributor::quit()
 {
 	Scheduler::instance()->stopScheduling();

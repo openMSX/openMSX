@@ -54,6 +54,9 @@ void Scheduler::setSyncPoint(const EmuTime &timeStamp, Schedulable* device, int 
 	syncPoints.push_back(SynchronizationPoint (time, device, userData));
 	push_heap(syncPoints.begin(), syncPoints.end());
 	sem.up();
+	if (paused) {
+		EventDistributor::instance()->notify();
+	}
 }
 
 void Scheduler::removeSyncPoint(Schedulable* device, int userData)

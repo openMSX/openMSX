@@ -29,6 +29,7 @@ public:
 	  */
 	void poll();
 	void wait();
+	void notify();
 
 	/**
 	 * Use this method to (un)register a given class to receive
