@@ -1,0 +1,31 @@
+dnl $Id$
+dnl Process this file with autoconf to produce a configure script.
+
+
+AC_INIT()
+
+dnl Change default prefix.
+AC_PREFIX_DEFAULT(/opt/openMSX)
+
+AC_CANONICAL_SYSTEM
+
+
+dnl In just before do output, do some reflection for our local use...
+OPENMSX_TARGET_OS="$target_os"
+case "$target_cpu" in
+  i?86)		OPENMSX_TARGET_CPU=x86;;
+  *)		OPENMSX_TARGET_CPU="$target_cpu";;
+esac
+AC_SUBST(OPENMSX_TARGET_OS)
+AC_SUBST(OPENMSX_TARGET_CPU)
+
+
+dnl For when call configure later, save build, host, target...
+AC_SUBST(build)
+AC_SUBST(host)
+AC_SUBST(target)
+
+
+dnl Do final output.
+AC_OUTPUT(detectsys.mk
+)
