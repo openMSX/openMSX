@@ -49,7 +49,7 @@ public:
 protected:
 	void finishFrame(bool store);
 	void putStoredImage();
-	void updateVRAMCache(int addr);
+	void updateVRAMCache(int address);
 	void drawBorder(int fromX, int fromY, int limitX, int limitY);
 	void drawDisplay(
 		int fromX, int fromY,

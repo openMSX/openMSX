@@ -20,7 +20,7 @@ namespace openmsx {
 class OSDConsoleRenderer;
 
 
-/** Hi-res (640x480) renderer on SDL.
+/** Hi-res (640x480) renderer using OpenGL through SDL.
   */
 class SDLGLRenderer : public PixelRenderer
 {
@@ -100,12 +100,6 @@ private:
 	inline void renderMultiColour(
 		int vramLine, int screenLine, int count, int minX, int maxX );
 
-	/** Get a pointer to the start of a VRAM line in the cache.
-	  * @param displayCache The display cache to use.
-	  * @param line The VRAM line, range depends on display cache.
-	  */
-	inline Pixel *getLinePtr(Pixel *displayCache, int line);
-
 	/** Get the pixel colour of a graphics 7 colour index.
 	  */
 	inline Pixel graphic7Colour(byte index);
@@ -146,6 +140,16 @@ private:
 	  * 	0 <= scanlineAlpha <= 255, 0 = transparent, 255 = opaque.
 	  */
 	void drawEffects(int blurSetting, int scanlineAlpha);
+
+	/** Line to render at top of display.
+	  * After all, our screen is 240 lines while display is 262 or 313.
+	  */
+	int lineRenderTop;
+
+	/** Number of host pixels per line.
+	  * In Graphic 5 and 6 this is 512, in all other modes it is 256.
+	  */
+	int lineWidth;
 
 	/** RGB colours corresponding to each VDP palette entry.
 	  * palFg has entry 0 set to the current background colour,
@@ -219,16 +223,6 @@ private:
 	  */
 	byte lineValidInMode[256 * 4];
 
-	/** Line to render at top of display.
-	  * After all, our screen is 240 lines while display is 262 or 313.
-	  */
-	int lineRenderTop;
-
-	/** Number of host pixels per line.
-	  * In Graphic 5 and 6 this is 512, in all other modes it is 256.
-	  */
-	int lineWidth;
-
 	/** Display mode for which character cache is valid.
 	  * This is used to speed up bitmap/character mode splits,
 	  * like Space Manbow and Psycho World use.
@@ -255,7 +249,6 @@ private:
 
 	OSDConsoleRenderer *console;
 	OSDConsoleRenderer *debugger;
-
 };
 
 } // namespace openmsx

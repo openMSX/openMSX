@@ -46,6 +46,11 @@ static const int TICKS_LEFT_BORDER = 100 + 102;
 static const int TICKS_VISIBLE_MIDDLE =
 	TICKS_LEFT_BORDER + (VDP::TICKS_PER_LINE - TICKS_LEFT_BORDER - 27) / 2;
 
+inline static SDLGLRenderer::Pixel GLMapRGB(int r, int g, int b)
+{
+	return r | (g << 8) | (b << 16) | 0xFF000000;
+}
+
 inline static void GLSetColour(SDLGLRenderer::Pixel colour)
 {
 	glColor3ub(colour & 0xFF, (colour >> 8) & 0xFF, (colour >> 16) & 0xFF);
@@ -241,7 +246,7 @@ void SDLGLRenderer::finishFrame(bool store)
 
 	// Render consoles if needed.
 	console->drawConsole();
-	if (debugger)debugger->drawConsole();
+	if (debugger) debugger->drawConsole();
 
 	// Update screen.
 	SDL_GL_SwapBuffers();
@@ -323,12 +328,6 @@ void SDLGLRenderer::drawEffects(int blurSetting, int scanlineAlpha)
 		glEnd();
 	}
 	glDisable(GL_BLEND);
-}
-
-inline SDLGLRenderer::Pixel *SDLGLRenderer::getLinePtr(
-	Pixel *displayCache, int line)
-{
-	return displayCache + line * 512;
 }
 
 // TODO: Cache this?
@@ -554,22 +553,22 @@ void SDLGLRenderer::precalcPalette(float gamma)
 		// Fixed palette.
 		for (int i = 0; i < 16; i++) {
 			const byte *rgb = TMS99X8A_PALETTE[i];
-			palFg[i] = palBg[i] =
-			   (int)(::pow((float)rgb[0] / 255.0, gamma) * 255) |
-			  ((int)(::pow((float)rgb[1] / 255.0, gamma) * 255) << 8) |
-			  ((int)(::pow((float)rgb[2] / 255.0, gamma) * 255) << 16) |
-			  0xFF000000;
+			palFg[i] = palBg[i] = GLMapRGB(
+				(int)(::pow((float)rgb[0] / 255.0, gamma) * 255),
+				(int)(::pow((float)rgb[1] / 255.0, gamma) * 255),
+				(int)(::pow((float)rgb[2] / 255.0, gamma) * 255)
+				);
 		}
 	} else {
 		// Precalculate palette for V9938 colours.
 		for (int r = 0; r < 8; r++) {
 			for (int g = 0; g < 8; g++) {
 				for (int b = 0; b < 8; b++) {
-					V9938_COLOURS[r][g][b] =
-					   (int)(::pow((float)r / 7.0, gamma) * 255)
-					| ((int)(::pow((float)g / 7.0, gamma) * 255) << 8)
-					| ((int)(::pow((float)b / 7.0, gamma) * 255) << 16)
-					| 0xFF000000;
+					V9938_COLOURS[r][g][b] = GLMapRGB(
+						(int)(::pow((float)r / 7.0, gamma) * 255),
+						(int)(::pow((float)g / 7.0, gamma) * 255),
+						(int)(::pow((float)b / 7.0, gamma) * 255)
+						);
 				}
 			}
 		}
@@ -577,11 +576,11 @@ void SDLGLRenderer::precalcPalette(float gamma)
 		for (int r = 0; r < 32; r++) {
 			for (int g = 0; g < 32; g++) {
 				for (int b = 0; b < 32; b++) {
-					V9958_COLOURS[(r<<10) + (g<<5) + b] =
-					   (int)(::pow((float)r / 31.0, gamma) * 255)
-					| ((int)(::pow((float)g / 31.0, gamma) * 255) << 8)
-					| ((int)(::pow((float)b / 31.0, gamma) * 255) << 16)
-					| 0xFF000000;
+					V9958_COLOURS[(r<<10) + (g<<5) + b] = GLMapRGB(
+						(int)(::pow((float)r / 31.0, gamma) * 255),
+						(int)(::pow((float)g / 31.0, gamma) * 255),
+						(int)(::pow((float)b / 31.0, gamma) * 255)
+						);
 				}
 			}
 		}
