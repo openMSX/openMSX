@@ -18,7 +18,7 @@
 
   <MapperType>TurboR</MapperType>
 
-  <PanasonicRom>
+  <PanasonicRom id="Firmware ROM">
     <rom>
       <sha1>e779c338eb91a7dea3ff75f3fde76b8af22c4a3a</sha1>
       <sha1>5fa3aa79aeba2c0441f349e78e9a16d9d64422ea</sha1>
