@@ -46,6 +46,5 @@ inline int R800::haltStates() { return 1; }	// HALT + M1 // TODO check this
 } // namespace openmsx
 
 #define _CPU_ R800
-#define ResumeFunc R800_ResumeFunc
 #include "CPUCore.n2"
 

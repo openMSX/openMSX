@@ -59,6 +59,5 @@ inline int Z80::haltStates() { return 4 + WAIT_CYCLES; }	// HALT + M1
 } // namespace openmsx
 
 #define _CPU_ Z80
-#define ResumeFunc Z80_ResumeFunc
 #include "CPUCore.n2"
 
