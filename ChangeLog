@@ -1,5 +1,8 @@
 $Id$
 
+2004-04-28 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented VRAM reading/writing for V9990
+
 2004-04-28 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Implemented 32x32 icon. In win32 the icon MUST be 32x32 and Linux
 	   doesn't care about size, so 32x32 for all OS'es (thx to Reikan).

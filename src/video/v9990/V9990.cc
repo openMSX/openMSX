@@ -27,6 +27,8 @@ V9990::V9990(Config* config, const EmuTime& time)
 {
 	PRT_DEBUG("[" << time << "] V9990::Create");
 
+	vram = new byte[0x080000]; // 512kb
+	
 	Debugger::instance().registerDebuggable("v9990-regs", v9990RegDebug);
 	Debugger::instance().registerDebuggable("v9990-ports", v9990PortDebug);
 
@@ -37,8 +39,10 @@ V9990::~V9990()
 {
 	PRT_DEBUG("[--now--] V9990::Destroy");
 
-	Debugger::instance().unregisterDebuggable("v9990-regs", v9990RegDebug);
 	Debugger::instance().unregisterDebuggable("v9990-ports", v9990PortDebug);
+	Debugger::instance().unregisterDebuggable("v9990-regs", v9990RegDebug);
+	
+	delete[] vram;
 }
 
 void V9990::executeUntil(const EmuTime &time, int userData) throw()
@@ -54,48 +58,134 @@ const string& V9990::schedName() const
 	return name;
 }
 
-byte V9990::readIO(byte port, const EmuTime &time)
+
+inline unsigned V9990::getVRAMAddr(RegId base) const
 {
-	byte value = 0;
+	return   regs[base + 0] +
+	        (regs[base + 1] << 8) +
+	       ((regs[base + 2] & 0x07) << 16);
+}
 
-	PRT_DEBUG("[" << time << "] "
-		  "V9990::readIO - port=0x" << hex << int(port));
+inline void V9990::setVRAMAddr(RegId base, unsigned addr)
+{
+	regs[base + 0] =   addr &     0xFF;
+	regs[base + 1] =  (addr &   0xFF00) >> 8;
+	regs[base + 2] = ((addr & 0x070000) >> 16) | regs[base + 2] & 0x80; // TODO check
+}
 
-	switch(PortId(port & 0x0F)){
-		case VRAM_DATA:
+byte V9990::readIO(byte port, const EmuTime& time)
+{
+	port &= 0x0F;
+	
+	byte value;
+	switch (port) {
+		case VRAM_DATA: {
+			// read from VRAM
+			unsigned addr = getVRAMAddr(VRAM_RD_ADR0);
+			value = readVRAM(addr, time);
+			if (!(regs[VRAM_RD_ADR2] & 0x80)) {
+				setVRAMAddr(VRAM_RD_ADR0, addr + 1);
+			}
+			break;
+		}
+		case REGISTER_DATA: {
+			// read register
+			byte regSelect = ports[REGISTER_SELECT];
+			value = readRegister(regSelect & 0x3F, time);
+			if (!(regSelect & 0x40)) {
+				ports[REGISTER_SELECT] =
+				    regSelect & 0xC0 | ((regSelect + 1) & 0x3F);
+			}
+			break;
+		}
 		case PALETTE_DATA:
-		case REGISTER_DATA:
-		case REGISTER_SELECT:
+		case COMMAND_DATA:
 		case STATUS:
 		case INTERRUPT_FLAG:
-		case KANJI_ROM_1:
-		case KANJI_ROM_2:
+			// TODO
 			value = ports[port];
 			break;
+		
+		case KANJI_ROM_1:
+		case KANJI_ROM_3:
+			// not used in Gfx9000
+			value = 0xFF;	// TODO check
+			break;
+
+		case REGISTER_SELECT:
+		case SYSTEM_CONTROL:
+		case KANJI_ROM_0:
+		case KANJI_ROM_2:
 		default:
+			// write-only
 			value = 0xFF;
 			break;
 	}
-	return value;		
+	
+	PRT_DEBUG("[" << time << "] "
+		  "V9990::readIO - port=0x" << hex << (int)port <<
+		                  " val=0x" << hex << (int)value);
+
+	return value;
 }
+
 
 void V9990::writeIO(byte port, byte val, const EmuTime &time)
 {
+	port &= 0x0F;
+	
 	PRT_DEBUG("[" << time << "] "
 		  "V9990::writeIO - port=0x" << hex << int(port) << 
 		                   " val=0x" << hex << int(val));
 
-	switch(PortId(port & 0x0F)){
-		case STATUS:
-			/* do nothing */ ;
+	switch (port) {
+		case VRAM_DATA: {
+			// write vram
+			unsigned addr = getVRAMAddr(VRAM_WR_ADR0);
+			writeVRAM(addr, val, time);
+			if (!(regs[VRAM_WR_ADR2] & 0x80)) {
+				setVRAMAddr(VRAM_WR_ADR0, addr + 1);
+			}
 			break;
+		}
+		case REGISTER_DATA: {
+			// write register
+			byte regSelect = ports[REGISTER_SELECT];
+			writeRegister(regSelect & 0x3F, val, time);
+			if (!(regSelect & 0x80)) {
+				ports[REGISTER_SELECT] =
+				    regSelect & 0xC0 | ((regSelect + 1) & 0x3F);
+			}
+			break;
+		}
+		case REGISTER_SELECT:
+			ports[port] = val;
+			break;
+
+		case STATUS:
+			// read-only, ignore writes
+			break;
+		
+		case KANJI_ROM_0:
+		case KANJI_ROM_1:
+		case KANJI_ROM_2:
+		case KANJI_ROM_3:
+			// not used in Gfx9000
+			ports[port] = val;
+			break;
+			
+		case PALETTE_DATA:
+		case COMMAND_DATA:
+		case INTERRUPT_FLAG:
+		case SYSTEM_CONTROL:
 		default:
+			// TODO
 			ports[port] = val;
 			break;
 	}
 }
 
-void V9990::reset(const EmuTime &time)
+void V9990::reset(const EmuTime& time)
 {
 	PRT_DEBUG("[" << time << "] V9990::reset");
 
@@ -106,11 +196,56 @@ void V9990::reset(const EmuTime &time)
 	memcpy(ports, INITIAL_PORT_VALUES, 16);
 }
 
-void V9990::changeRegister(byte reg, byte val, const EmuTime& time)
+byte V9990::readRegister(byte reg, const EmuTime& time)
 {
-	if (reg < 54) {
-		registers[reg] = val;
+	// TODO sync(time) (if needed at all)
+	byte result;
+	switch (reg) {
+		case VRAM_WR_ADR0:
+		case VRAM_WR_ADR1:
+		case VRAM_WR_ADR2:
+		case VRAM_RD_ADR0:
+		case VRAM_RD_ADR1:
+		case VRAM_RD_ADR2:
+			// write-only registers
+			result = 0xFF;
+			break;
+
+		default:
+			result = regs[reg];
 	}
+	PRT_DEBUG("[" << time << "] "
+		  "V9990::readRegister - reg=0x" << hex << (int)reg <<
+		                       " val=0x" << hex << (int)result);
+	return result;
+}
+
+void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
+{
+	PRT_DEBUG("[" << time << "] "
+		  "V9990::writeRegister - reg=0x" << hex << int(reg) << 
+		                        " val=0x" << hex << int(val));
+	// TODO sync(time)
+	regs[reg] = val;
+}
+
+byte V9990::readVRAM(unsigned addr, const EmuTime& time)
+{
+	// TODO sync(time)
+	byte result = vram[addr];
+	PRT_DEBUG("[" << time << "] "
+		  "V9990::readVRAM - adr=0x" << hex << addr <<
+		                   " val=0x" << hex << (int)result);
+	return result;
+}
+
+void V9990::writeVRAM(unsigned addr, byte value, const EmuTime& time)
+{
+	PRT_DEBUG("[" << time << "] "
+		  "V9990::writeVRAM - adr=0x" << hex << addr <<
+		                    " val=0x" << hex << (int)value);
+	// TODO sync(time)
+	vram[addr] = value;
 }
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -137,13 +272,13 @@ const string& V9990::V9990RegDebug::getDescription() const
 
 byte V9990::V9990RegDebug::read(unsigned address)
 {
-	return (address < 54)? parent.registers[address]: 0xFF;
+	return parent.regs[address];
 }
 
 void V9990::V9990RegDebug::write(unsigned address, byte value)
 {
 	const EmuTime& time = Scheduler::instance().getCurrentTime();
-	parent.changeRegister(address, value, time);
+	parent.writeRegister(address, value, time);
 }
 
 // V9990PortDebug
@@ -166,7 +301,7 @@ const string& V9990::V9990PortDebug::getDescription() const
 
 byte V9990::V9990PortDebug::read(unsigned address)
 {
-	return (address < 16)? parent.ports[address]: 0xFF;
+	return parent.ports[address];
 }
 
 void V9990::V9990PortDebug::write(unsigned address, byte value)

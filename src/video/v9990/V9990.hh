@@ -96,9 +96,28 @@ private:
 	
 	/** VDP Registers
 	  */
-	byte registers[54];
+	enum RegId {
+		VRAM_WR_ADR0,
+		VRAM_WR_ADR1,
+		VRAM_WR_ADR2,
+		VRAM_RD_ADR0,
+		VRAM_RD_ADR1,
+		VRAM_RD_ADR2,
+		/* ... */
+	};
+	byte regs[0x40];
 
-	virtual void changeRegister(byte reg, byte val, const EmuTime &time);
+	inline unsigned getVRAMAddr(RegId base) const;
+	inline void setVRAMAddr(RegId base, unsigned addr);
+
+	byte readRegister(byte reg, const EmuTime& time);
+	void writeRegister(byte reg, byte val, const EmuTime& time);
+	byte readVRAM(unsigned addr, const EmuTime& time);
+	void writeVRAM(unsigned addr, byte value, const EmuTime& time);
+
+	/** VRAM
+	  */
+	byte* vram;
 };
 
 } // namespace openmsx
