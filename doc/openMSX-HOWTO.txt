@@ -2,6 +2,45 @@ OpenMSX compile, install, config and run HOWTO
 ==============================================
 or: get most out of openMSX in 11 simple steps! ;-)
 
+Contents:
+
+0.  Introduction
+1.  Get the source code
+    1.a  Retrieve normal releases
+    1.b  Retrieve stuff from CVS
+2.  Compiling
+    2.1  Getting the right software packages installed
+    2.2  Compilation itself
+3.  Preparing the emulator for a first test
+4.  Starting the emulator for the first time
+5.  Installing and setting things up
+    5.1  Installing
+    5.2  Setting up the .openMSX directory (optional)
+    5.3  The settings.xml file
+6.  Running MSX software (simple)
+7.  Adding MSX devices to your (custom) config file
+    7.1  Using extensions
+    7.2  Modifying the internals of the MSX
+8.  Using the emulator (more advanced)
+    8.1 Renderers
+    8.2 Console
+    8.3 Renderer accuracy
+    8.4 AutoCommands and KeyEventInserter
+    8.5  Running tape games
+    8.6 Other Console commands
+9.  Reporting bugs and giving feedback
+10. Some notes
+    10.1 Porting
+    10.2 C-BIOS
+    10.3 Real disks (Linux)
+    10.4 Performance
+    10.5 Timing using the Real Time Clock (Linux)
+11. Have fun!    
+
+
+0. Introduction
+   ------------
+
 First note this:
 - Authors: Jorrith Schaap & Manuel Bilderbeek & the other openMSX developers
 - We do not claim this HOWTO is complete or even correct! We just hope it helps
@@ -305,7 +344,7 @@ This just compresses the binary, but keeps it still executable.
 For this you need the gzip package. But probably you have that already.
 See also man gzexe.
 
-5.2 Setting up the .openMSX directory
+5.2 Setting up the .openMSX directory (optional)
 
 This section discusses setting up a ".openMSX" configuration
 directory in your home directory. This is not strictly necessary, but it allows
