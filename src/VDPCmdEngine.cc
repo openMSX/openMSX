@@ -18,6 +18,7 @@ TODO:
 #include "VDPCmdEngine.hh"
 #include "EmuTime.hh"
 #include "VDP.hh"
+#include "VDPVRAM.hh"
 
 #include <stdio.h>
 #include <cassert>
@@ -124,6 +125,10 @@ static const int LMMM_TIMING[8]={ 1160, 1599, 1160, 1172,
 
 // Inline methods first, to make sure they are actually inlined.
 
+inline byte VDPCmdEngine::getVRAM(int address) {
+	return vram->cmdRead(address);
+}
+
 inline int VDPCmdEngine::vramAddr(int x, int y)
 {
 	switch(scrMode) {
@@ -131,28 +136,28 @@ inline int VDPCmdEngine::vramAddr(int x, int y)
 	case 1: return VDP_VRMP6(x, y);
 	case 2: return VDP_VRMP7(x, y);
 	case 3: return VDP_VRMP8(x, y);
-	default: assert(false); return 0; // avoid warning
+	default: assert(false); return 0;
 	}
 }
 
 inline byte VDPCmdEngine::point5(int sx, int sy)
 {
-	return ( vdp->getVRAM(VDP_VRMP5(sx, sy)) >> (((~sx)&1)<<2) ) & 15;
+	return ( getVRAM(VDP_VRMP5(sx, sy)) >> (((~sx)&1)<<2) ) & 15;
 }
 
 inline byte VDPCmdEngine::point6(int sx, int sy)
 {
-	return ( vdp->getVRAM(VDP_VRMP6(sx, sy)) >> (((~sx)&3)<<1) ) & 3;
+	return ( getVRAM(VDP_VRMP6(sx, sy)) >> (((~sx)&3)<<1) ) & 3;
 }
 
 inline byte VDPCmdEngine::point7(int sx, int sy)
 {
-	return ( vdp->getVRAM(VDP_VRMP7(sx, sy)) >> (((~sx)&1)<<2) ) & 15;
+	return ( getVRAM(VDP_VRMP7(sx, sy)) >> (((~sx)&1)<<2) ) & 15;
 }
 
 inline byte VDPCmdEngine::point8(int sx, int sy)
 {
-	return vdp->getVRAM(VDP_VRMP8(sx, sy));
+	return getVRAM(VDP_VRMP8(sx, sy));
 }
 
 inline byte VDPCmdEngine::point(int sx, int sy)
@@ -172,51 +177,51 @@ inline void VDPCmdEngine::psetLowLevel(
 	switch (op) {
 	case 0:
 		vdp->setVRAM(
-			addr, (vdp->getVRAM(addr) & mask) | colour, currentTime);
+			addr, (getVRAM(addr) & mask) | colour, currentTime);
 		break;
 	case 1:
 		vdp->setVRAM(addr,
-			vdp->getVRAM(addr) & (colour | mask),
+			getVRAM(addr) & (colour | mask),
 			currentTime);
 		break;
 	case 2:
 		vdp->setVRAM(addr,
-			vdp->getVRAM(addr) | colour,
+			getVRAM(addr) | colour,
 			currentTime);
 		break;
 	case 3:
 		vdp->setVRAM(addr,
-			vdp->getVRAM(addr) ^ colour,
+			getVRAM(addr) ^ colour,
 			currentTime);
 		break;
 	case 4:
 		vdp->setVRAM(addr,
-			(vdp->getVRAM(addr) & mask) | ~(colour | mask),
+			(getVRAM(addr) & mask) | ~(colour | mask),
 			currentTime);
 		break;
 	case 8:
 		if (colour) vdp->setVRAM(addr,
-			(vdp->getVRAM(addr) & mask) | colour,
+			(getVRAM(addr) & mask) | colour,
 			currentTime);
 		break;
 	case 9:
 		if (colour) vdp->setVRAM(addr,
-			vdp->getVRAM(addr) & (colour | mask),
+			getVRAM(addr) & (colour | mask),
 			currentTime);
 		break;
 	case 10:
 		if (colour) vdp->setVRAM(addr,
-			vdp->getVRAM(addr) | colour,
+			getVRAM(addr) | colour,
 			currentTime);
 		break;
 	case 11:
 		if (colour) vdp->setVRAM(addr,
-			vdp->getVRAM(addr) ^ colour,
+			getVRAM(addr) ^ colour,
 			currentTime);
 		break;
 	case 12:
 		if (colour) vdp->setVRAM(addr,
-			(vdp->getVRAM(addr) & mask) | ~(colour|mask),
+			(getVRAM(addr) & mask) | ~(colour|mask),
 			currentTime);
 		break;
 	}
@@ -630,7 +635,7 @@ void VDPCmdEngine::hmmmEngine()
 		pre_loop
 		vdp->setVRAM(
 			VDP_VRMP5(ADX, DY),
-			vdp->getVRAM(VDP_VRMP5(ASX, SY)),
+			getVRAM(VDP_VRMP5(ASX, SY)),
 			currentTime);
 		post_xxyy(256)
 		break;
@@ -638,7 +643,7 @@ void VDPCmdEngine::hmmmEngine()
 		pre_loop
 		vdp->setVRAM(
 			VDP_VRMP6(ADX, DY),
-			vdp->getVRAM(VDP_VRMP6(ASX, SY)),
+			getVRAM(VDP_VRMP6(ASX, SY)),
 			currentTime);
 		post_xxyy(512)
 		break;
@@ -646,7 +651,7 @@ void VDPCmdEngine::hmmmEngine()
 		pre_loop
 		vdp->setVRAM(
 			VDP_VRMP7(ADX, DY),
-			vdp->getVRAM(VDP_VRMP7(ASX, SY)),
+			getVRAM(VDP_VRMP7(ASX, SY)),
 			currentTime);
 		post_xxyy(512)
 		break;
@@ -654,7 +659,7 @@ void VDPCmdEngine::hmmmEngine()
 		pre_loop
 		vdp->setVRAM(
 			VDP_VRMP8(ADX, DY),
-			vdp->getVRAM(VDP_VRMP8(ASX, SY)),
+			getVRAM(VDP_VRMP8(ASX, SY)),
 			currentTime);
 		post_xxyy(256)
 		break;
@@ -706,7 +711,7 @@ void VDPCmdEngine::ymmmEngine()
 		pre_loop
 		vdp->setVRAM(
 			VDP_VRMP5(ADX, DY),
-			vdp->getVRAM(VDP_VRMP5(ADX, SY)),
+			getVRAM(VDP_VRMP5(ADX, SY)),
 			currentTime);
 		post__xyy(256)
 		break;
@@ -714,7 +719,7 @@ void VDPCmdEngine::ymmmEngine()
 		pre_loop
 		vdp->setVRAM(
 			VDP_VRMP6(ADX, DY),
-			vdp->getVRAM(VDP_VRMP6(ADX, SY)),
+			getVRAM(VDP_VRMP6(ADX, SY)),
 			currentTime);
 		post__xyy(512)
 		break;
@@ -722,7 +727,7 @@ void VDPCmdEngine::ymmmEngine()
 		pre_loop
 		vdp->setVRAM(
 			VDP_VRMP7(ADX, DY),
-			vdp->getVRAM(VDP_VRMP7(ADX, SY)),
+			getVRAM(VDP_VRMP7(ADX, SY)),
 			currentTime);
 		post__xyy(512)
 		break;
@@ -730,7 +735,7 @@ void VDPCmdEngine::ymmmEngine()
 		pre_loop
 		vdp->setVRAM(
 			VDP_VRMP8(ADX, DY),
-			vdp->getVRAM(VDP_VRMP8(ADX, SY)),
+			getVRAM(VDP_VRMP8(ADX, SY)),
 			currentTime);
 		post__xyy(256)
 		break;
@@ -949,6 +954,7 @@ VDPCmdEngine::VDPCmdEngine(VDP *vdp, const EmuTime &time)
 {
 	this->vdp = vdp;
 	currentTime = time;
+	vram = vdp->getVRAM();
 
 	opsCount = 1;
 	currEngine = &VDPCmdEngine::dummyEngine;

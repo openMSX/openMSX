@@ -7,6 +7,7 @@
 #include "EmuTime.hh"
 
 class VDP;
+class VDPVRAM;
 
 /** VDP command engine by Alex Wulms.
   * Implements command execution unit of V9938/58.
@@ -104,6 +105,10 @@ private:
 	typedef void (VDPCmdEngine::*EngineMethod)();
 
 	// Methods:
+
+	/** TODO: Get rid of this.
+	  */
+	inline byte getVRAM(int address);
 
 	/** Calculate addr of a pixel in VRAM.
 	  */
@@ -254,6 +259,10 @@ private:
 	/** The VDP this command engine is part of.
 	  */
 	VDP *vdp;
+
+	/** The VRAM this command engine operates on.
+	  */
+	VDPVRAM *vram;
 
 	/** Current screen mode.
 	  * 0 -> SCREEN5, 1 -> SCREEN6, 2 -> SCREEN7, 3 -> SCREEN8,

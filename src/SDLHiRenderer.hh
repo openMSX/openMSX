@@ -7,8 +7,8 @@
 #include "openmsx.hh"
 #include "Renderer.hh"
 
-
 class VDP;
+class VDPVRAM;
 
 /** Factory method to create SDLHiRenderer objects.
   * TODO: Add NTSC/PAL selection
@@ -149,6 +149,10 @@ private:
 	  */
 	VDP *vdp;
 
+	/** The VRAM whose contents are used for rendering.
+	  */
+	VDPVRAM *vram;
+
 	/** SDL colours corresponding to each VDP palette entry.
 	  * palFg has entry 0 set to the current background colour,
 	  * palBg has entry 0 set to black.
@@ -182,6 +186,10 @@ private:
 	/** Dirty checker: update dirty tables on VRAM write.
 	  */
 	DirtyChecker dirtyChecker;
+
+	/** Moment in emulated time the current frame started.
+	  */
+	EmuTime frameStartTime;
 
 	/** Number of the next line to render.
 	  * Absolute line number: [0..262) for NTSC, [0..313) for PAL.

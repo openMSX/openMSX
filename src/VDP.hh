@@ -6,13 +6,14 @@
 #include "openmsx.hh"
 #include "Scheduler.hh"
 #include "MSXIODevice.hh"
+#include "VDPVRAM.hh"
 #include "IRQHelper.hh"
 #include "IRQHelper.ii"
 #include "EmuTime.hh"
 #include "Renderer.hh"
 #include "ConsoleSource/Command.hh"
 
-
+class EmuTime;
 class VDPCmdEngine;
 
 /** Unified implementation of MSX Video Display Processors (VDPs).
@@ -153,29 +154,10 @@ public:
 		return (displayMode & 0x14) == 0x14;
 	}
 
-	/** Read a byte from the VRAM.
-	  * Ignores planar addressing: since renderer and command engine
-	  * know the display mode there is no need to dynamically handle
-	  * planar/non-planar addressing.
-	  * TODO: If called from the Renderer, sync with command engine first.
-	  * @param addr The address to read.
-	  *   No bounds checking is done, so make sure it is a legal address.
-	  * @return The VRAM contents at the specified address.
+	/** Get the VRAM object for this VDP.
 	  */
-	inline byte getVRAM(int addr) {
-		//fprintf(stderr, "read VRAM @ %04X\n", addr);
-		return vramData[addr];
-	}
-
-	/** Read a byte from the VRAM.
-	  * Takes planar addressing into account if necessary.
-	  * @param addr The address to read.
-	  *   No bounds checking is done, so make sure it is a legal address.
-	  * @return The VRAM contents at the specified address.
-	  */
-	inline byte getVRAMReordered(int addr) {
-		return getVRAM(
-			isPlanar() ? ((addr << 16) | (addr >> 1)) & vramMask : addr);
+	inline VDPVRAM *getVRAM() {
+		return vram;
 	}
 
 	/** Write a byte to the VRAM.
@@ -193,24 +175,13 @@ public:
 		// TODO: Remove the assert once I trust no bugs were introduced
 		//       by the command engine integration.
 		assert((addr & vramMask) == addr);
+		vram->cpuWrite(addr, value, time);
+		/*
 		if (vramData[addr] != value) {
 			renderer->updateVRAM(addr, value, time);
 			vramData[addr] = value;
 		}
-	}
-
-	/** Write a byte to the VRAM.
-	  * Takes planar addressing into account if necessary.
-	  * @param addr The address to write.
-	  *   No bounds checking is done, so make sure it is a legal address.
-	  * @param value The value to write.
-	  * @param time The moment in emulated time this write occurs.
-	  * @return The VRAM contents at the specified address.
-	  */
-	inline void setVRAMReordered(int addr, byte value, const EmuTime &time) {
-		setVRAM(
-			isPlanar() ? ((addr << 16) | (addr >> 1)) & vramMask : addr,
-			value, time);
+		*/
 	}
 
 	/** Gets the current transparency setting.
@@ -316,6 +287,19 @@ public:
 		return spritePatternBase;
 	}
 
+private:
+	/** Calculate sprite patterns.
+	  */
+	inline void updateSprites(const EmuTime &time) {
+		// TODO: Use method pointer.
+		if (displayMode < 8) {
+			updateSprites1(time);
+		} else {
+			updateSprites2(time);
+		}
+	}
+
+public:
 	/** Get sprites for a display line.
 	  * Separated from display code to make MSX behaviour consistent
 	  * no matter how displaying is handled.
@@ -328,6 +312,7 @@ public:
 	  * @return The number of sprites stored in the visibleSprites array.
 	  */
 	inline int getSprites(int line, SpriteInfo *&visibleSprites) {
+		EmuTime time = frameStartTime + line * TICKS_PER_LINE;
 		if (line >= spriteLine) {
 			/*
 			cout << "performing extra updateSprites: "
@@ -335,15 +320,7 @@ public:
 				<< ", new line = " << line
 				<< "\n";
 			*/
-
-			// TODO: Duplicated code.
-			// TODO: Would be faster if we knew how much to render ahead.
-			//       Either VDP keeps track or renderer gives parameter.
-			if (displayMode < 8) {
-				updateSprites1(line + 1);
-			} else {
-				updateSprites2(line + 1);
-			}
+			updateSprites(time);
 		}
 		visibleSprites = spriteBuffer[line];
 		return spriteCount[line];
@@ -487,6 +464,32 @@ private:
 		HSCAN
 	};
 
+	/** Read a byte from the VRAM.
+	  * Takes planar addressing into account if necessary.
+	  * @param addr The address to read.
+	  *   No bounds checking is done, so make sure it is a legal address.
+	  * @return The VRAM contents at the specified address.
+	  */
+	inline byte getVRAMReordered(int addr, const EmuTime &time) {
+		return vram->read(
+			isPlanar() ? ((addr << 16) | (addr >> 1)) & vramMask : addr,
+			time);
+	}
+
+	/** Write a byte to the VRAM.
+	  * Takes planar addressing into account if necessary.
+	  * @param addr The address to write.
+	  *   No bounds checking is done, so make sure it is a legal address.
+	  * @param value The value to write.
+	  * @param time The moment in emulated time this write occurs.
+	  * @return The VRAM contents at the specified address.
+	  */
+	inline void setVRAMReordered(int addr, byte value, const EmuTime &time) {
+		setVRAM(
+			isPlanar() ? ((addr << 16) | (addr >> 1)) & vramMask : addr,
+			value, time);
+	}
+
 	/** Doubles a sprite pattern.
 	  */
 	inline SpritePattern doublePattern(SpritePattern pattern);
@@ -512,19 +515,6 @@ private:
 			&& ((controlRegs[8] & 0x02) == 0x00);
 	}
 
-	/** Calculate sprite patterns.
-	  */
-	inline void updateSprites(const EmuTime &time) {
-		int limit =
-			(getTicksThisFrame(time) - displayStart) / TICKS_PER_LINE;
-		// TODO: Use method pointer.
-		if (displayMode < 8) {
-			updateSprites1(limit);
-		} else {
-			updateSprites2(limit);
-		}
-	}
-
 	/** Calculates a sprite pattern.
 	  * @param patternNr Number of the sprite pattern [0..255].
 	  *   For 16x16 sprites, patternNr should be a multiple of 4.
@@ -533,7 +523,7 @@ private:
 	  *   Bit 31 is the leftmost bit of the sprite.
 	  *   Unused bits are zero.
 	  */
-	inline SpritePattern calculatePattern(int patternNr, int y);
+	inline SpritePattern calculatePattern(int patternNr, int y, const EmuTime &time);
 
 	/** Check sprite collision and number of sprites per line.
 	  * This routine implements sprite mode 1 (MSX1).
@@ -544,7 +534,7 @@ private:
 	  *   in which the sprites to be displayed are returned.
 	  * @return The number of sprites stored in the visibleSprites array.
 	  */
-	inline int checkSprites1(int line, SpriteInfo *visibleSprites);
+	inline int checkSprites1(int line, SpriteInfo *visibleSprites, const EmuTime &time);
 
 	/** Check sprite collision and number of sprites per line.
 	  * This routine implements sprite mode 2 (MSX2).
@@ -555,7 +545,7 @@ private:
 	  *   in which the sprites to be displayed are returned.
 	  * @return The number of sprites stored in the visibleSprites array.
 	  */
-	inline int checkSprites2(int line, SpriteInfo *visibleSprites);
+	inline int checkSprites2(int line, SpriteInfo *visibleSprites, const EmuTime &time);
 
 	/** Gets the number of VDP clockticks (21MHz) per frame.
 	  */
@@ -620,15 +610,15 @@ private:
 
 	/** Calculate sprite pattern for sprite mode 1.
 	  */
-	void updateSprites1(int limit);
+	void updateSprites1(const EmuTime &time);
 
 	/** Calculate sprite pattern for sprite mode 2.
 	  */
-	void updateSprites2(int limit);
+	void updateSprites2(const EmuTime &time);
 
 	/** Byte is read from VRAM by the CPU.
 	  */
-	byte vramRead();
+	byte vramRead(const EmuTime &time);
 
 	/** VDP control register has changed, work out the consequences.
 	  */
@@ -783,9 +773,9 @@ private:
 	  */
 	int paletteLatch;
 
-	/** Pointer to VRAM data block.
+	/** VRAM management object.
 	  */
-	byte *vramData;
+	VDPVRAM *vram;
 
 	/** VRAM mask: bit mask that indicates which address bits are
 	  * present in the VRAM.

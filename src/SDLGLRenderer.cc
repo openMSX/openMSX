@@ -252,6 +252,7 @@ SDLGLRenderer::SDLGLRenderer(
 {
 	this->vdp = vdp;
 	this->screen = screen;
+	vram = vdp->getVRAM();
 	// TODO: Store current time.
 	//       Does the renderer actually have to keep time?
 	//       Keeping render position should be good enough.
@@ -578,9 +579,9 @@ void SDLGLRenderer::renderText1(
 	int nameStart = (line / 8) * 40;
 	int nameEnd = nameStart + 40;
 	for (int name = nameStart; name < nameEnd; name++) {
-		int charcode = vdp->getVRAM(nameBase | name);
+		int charcode = vram->getVRAM(nameBase | name);
 		if (dirtyColours || dirtyName[name] || dirtyPattern[charcode]) {
-			int pattern = vdp->getVRAM(patternBaseLine | (charcode * 8));
+			int pattern = vram->getVRAM(patternBaseLine | (charcode * 8));
 			for (int i = 6; i--; ) {
 				pixelPtr[0] = pixelPtr[1] = ((pattern & 0x80) ? fg : bg);
 				pixelPtr += 2;
@@ -610,9 +611,9 @@ void SDLGLRenderer::renderText1Q(
 
 	// Actual display.
 	for (int name = nameStart; name < nameEnd; name++) {
-		int patternNr = vdp->getVRAM(nameBase | name) | patternQuarter;
+		int patternNr = vram->getVRAM(nameBase | name) | patternQuarter;
 		if (dirtyColours || dirtyName[name] || dirtyPattern[patternNr]) {
-			int pattern = vdp->getVRAM(patternBaseLine | (patternNr * 8));
+			int pattern = vram->getVRAM(patternBaseLine | (patternNr * 8));
 			for (int i = 6; i--; ) {
 				pixelPtr[0] = pixelPtr[1] = ((pattern & 0x80) ? fg : bg);
 				pixelPtr += 2;
@@ -656,13 +657,13 @@ void SDLGLRenderer::renderText2(
 	for (int name = nameStart; name < nameEnd; name++) {
 		// Colour table contains one bit per character.
 		if ((name & 7) == 0) {
-			colourPattern = vdp->getVRAM(
+			colourPattern = vram->getVRAM(
 				((-1 << 9) | (name >> 3)) & vdp->getColourMask() );
 		} else {
 			colourPattern <<= 1;
 		}
 		int maskedName = name & nameMask;
-		int charcode = vdp->getVRAM(nameBase | maskedName);
+		int charcode = vram->getVRAM(nameBase | maskedName);
 		if (dirtyColours || dirtyName[maskedName] || dirtyPattern[charcode]) {
 			Pixel fg, bg;
 			if (colourPattern & 0x80) {
@@ -672,7 +673,7 @@ void SDLGLRenderer::renderText2(
 				fg = plainFg;
 				bg = plainBg;
 			}
-			int pattern = vdp->getVRAM(patternBaseLine | (charcode * 8));
+			int pattern = vram->getVRAM(patternBaseLine | (charcode * 8));
 			for (int i = 6; i--; ) {
 				*pixelPtr++ = (pattern & 0x80) ? fg : bg;
 				pattern <<= 1;
@@ -696,14 +697,14 @@ void SDLGLRenderer::renderGraphic1(
 	int colourBase = (-1 << 6) & vdp->getColourMask();
 
 	for (int x = 0; x < 256; x += 8) {
-		int charcode = vdp->getVRAM(nameBase | name);
+		int charcode = vram->getVRAM(nameBase | name);
 		if (dirtyName[name] || dirtyPattern[charcode]
 		|| dirtyColour[charcode / 64]) {
-			int colour = vdp->getVRAM(colourBase | (charcode / 8));
+			int colour = vram->getVRAM(colourBase | (charcode / 8));
 			Pixel fg = palFg[colour >> 4];
 			Pixel bg = palFg[colour & 0x0F];
 
-			int pattern = vdp->getVRAM(patternBaseLine | (charcode * 8));
+			int pattern = vram->getVRAM(patternBaseLine | (charcode * 8));
 			// TODO: Compare performance of this loop vs unrolling.
 			for (int i = 8; i--; ) {
 				pixelPtr[0] = pixelPtr[1] = ((pattern & 0x80) ? fg : bg);
@@ -733,13 +734,13 @@ void SDLGLRenderer::renderGraphic2(
 	int colourNrBase = 0x3FF & (vdp->getColourMask() / 8);
 	int colourBaseLine = ((-1 << 13) | (line & 7)) & vdp->getColourMask();
 	for (int name = nameStart; name < nameEnd; name++) {
-		int charCode = vdp->getVRAM(nameBase | name);
+		int charCode = vram->getVRAM(nameBase | name);
 		int colourNr = (quarter | charCode) & colourNrBase;
 		int patternNr = patternQuarter | charCode;
 		if (dirtyName[name] || dirtyPattern[patternNr]
 		|| dirtyColour[colourNr]) {
-			int pattern = vdp->getVRAM(patternBaseLine | (patternNr * 8));
-			int colour = vdp->getVRAM(colourBaseLine | (colourNr * 8));
+			int pattern = vram->getVRAM(patternBaseLine | (patternNr * 8));
+			int colour = vram->getVRAM(colourBaseLine | (colourNr * 8));
 			Pixel fg = palFg[colour >> 4];
 			Pixel bg = palFg[colour & 0x0F];
 			for (int i = 8; i--; ) {
@@ -759,7 +760,7 @@ void SDLGLRenderer::renderGraphic4(
 {
 	int addr = (line << 7) & vdp->getNameMask();
 	do {
-		byte colour = vdp->getVRAM(addr++);
+		byte colour = vram->getVRAM(addr++);
 		pixelPtr[0] = palFg[colour >> 4];
 		pixelPtr[1] = palFg[colour & 15];
 		pixelPtr += 2;
@@ -774,7 +775,7 @@ void SDLGLRenderer::renderGraphic5(
 {
 	int addr = (line << 7) & vdp->getNameMask();
 	do {
-		byte colour = vdp->getVRAM(addr++);
+		byte colour = vram->getVRAM(addr++);
 		*pixelPtr++ = palFg[colour >> 6];
 		*pixelPtr++ = palFg[(colour >> 4) & 3];
 		*pixelPtr++ = palFg[(colour >> 2) & 3];
@@ -790,10 +791,10 @@ void SDLGLRenderer::renderGraphic6(
 {
 	int addr = (line << 7) & vdp->getNameMask();
 	do {
-		byte colour = vdp->getVRAM(addr);
+		byte colour = vram->getVRAM(addr);
 		*pixelPtr++ = palFg[colour >> 4];
 		*pixelPtr++ = palFg[colour & 0x0F];
-		colour = vdp->getVRAM(0x10000 | addr);
+		colour = vram->getVRAM(0x10000 | addr);
 		*pixelPtr++ = palFg[colour >> 4];
 		*pixelPtr++ = palFg[colour & 0x0F];
 	} while (++addr & 127);
@@ -808,9 +809,9 @@ void SDLGLRenderer::renderGraphic7(
 	int addr = (line << 7) & vdp->getNameMask();
 	do {
 		pixelPtr[0] = pixelPtr[1] =
-			graphic7Colour(vdp->getVRAM(addr));
+			graphic7Colour(vram->getVRAM(addr));
 		pixelPtr[2] = pixelPtr[3] =
-			graphic7Colour(vdp->getVRAM(0x10000 | addr));
+			graphic7Colour(vram->getVRAM(0x10000 | addr));
 		pixelPtr += 4;
 	} while (++addr & 127);
 
@@ -829,9 +830,9 @@ void SDLGLRenderer::renderMulti(
 	int nameStart = (line / 8) * 32;
 	int nameEnd = nameStart + 32;
 	for (int name = nameStart; name < nameEnd; name++) {
-		int charcode = vdp->getVRAM(nameBase | name);
+		int charcode = vram->getVRAM(nameBase | name);
 		if (dirtyName[name] || dirtyPattern[charcode]) {
-			int colour = vdp->getVRAM(patternBaseLine | (charcode * 8));
+			int colour = vram->getVRAM(patternBaseLine | (charcode * 8));
 			Pixel cl = palFg[colour >> 4];
 			Pixel cr = palFg[colour & 0x0F];
 			for (int n = 8; n--; ) *pixelPtr++ = cl;
@@ -855,9 +856,9 @@ void SDLGLRenderer::renderMultiQ(
 	int patternBaseLine = ((-1 << 13) | ((line / 4) & 7))
 		& vdp->getPatternMask();
 	for (int name = nameStart; name < nameEnd; name++) {
-		int patternNr = patternQuarter | vdp->getVRAM(nameBase | name);
+		int patternNr = patternQuarter | vram->getVRAM(nameBase | name);
 		if (dirtyName[name] || dirtyPattern[patternNr]) {
-			int colour = vdp->getVRAM(patternBaseLine | (patternNr * 8));
+			int colour = vram->getVRAM(patternBaseLine | (patternNr * 8));
 			Pixel cl = palFg[colour >> 4];
 			Pixel cr = palFg[colour & 0x0F];
 			for (int n = 8; n--; ) *pixelPtr++ = cl;

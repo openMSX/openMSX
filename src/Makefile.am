@@ -38,6 +38,7 @@ openmsx_SOURCES=\
 	MSXSimple64KB.hh MSXSimple64KB.cc \
 	VDP.hh VDP.cc \
 	VDPCmdEngine.hh VDPCmdEngine.cc \
+	VDPVRAM.hh VDPVRAM.cc \
 	Renderer.hh Renderer.cc \
 	SDLHiRenderer.hh SDLHiRenderer.cc \
 	SDLGLRenderer.hh SDLGLRenderer.cc \

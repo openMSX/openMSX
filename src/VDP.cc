@@ -57,20 +57,22 @@ inline VDP::SpritePattern VDP::doublePattern(VDP::SpritePattern a)
 }
 
 // TODO Separate planar / non-planar routines.
-inline VDP::SpritePattern VDP::calculatePattern(int patternNr, int y)
+inline VDP::SpritePattern VDP::calculatePattern(
+	int patternNr, int y, const EmuTime &time)
 {
 	// Optimise getSpriteSize? No, GCC is smart enough!
 	if (getSpriteMag()) y /= 2;
 	SpritePattern pattern = getVRAMReordered(
-		spritePatternBase + patternNr * 8 + y) << 24;
+		spritePatternBase + patternNr * 8 + y, time) << 24;
 	if (getSpriteSize() == 16) {
 		pattern |= getVRAMReordered(
-			spritePatternBase + patternNr * 8 + y + 16) << 16;
+			spritePatternBase + patternNr * 8 + y + 16, time) << 16;
 	}
 	return (getSpriteMag() ? doublePattern(pattern) : pattern);
 }
 
-inline int VDP::checkSprites1(int line, VDP::SpriteInfo *visibleSprites)
+inline int VDP::checkSprites1(
+	int line, VDP::SpriteInfo *visibleSprites, const EmuTime &time)
 {
 	if (!spritesEnabled()) return 0;
 
@@ -83,7 +85,8 @@ inline int VDP::checkSprites1(int line, VDP::SpriteInfo *visibleSprites)
 	int size = getSpriteSize();
 	int magSize = size * (getSpriteMag() + 1);
 	int minStart = line - magSize;
-	byte *attributePtr = vramData + spriteAttributeBase;
+	const byte *attributePtr = vram->readArea(
+		spriteAttributeBase, spriteAttributeBase + 4 * 32, time);
 	for (sprite = 0; sprite < 32; sprite++, attributePtr += 4) {
 		int y = *attributePtr;
 		if (y == 208) break;
@@ -104,7 +107,7 @@ inline int VDP::checkSprites1(int line, VDP::SpriteInfo *visibleSprites)
 			SpriteInfo *sip = &visibleSprites[visibleIndex++];
 			int patternIndex = (size == 16
 				? attributePtr[2] & 0xFC : attributePtr[2]);
-			sip->pattern = calculatePattern(patternIndex, line - y);
+			sip->pattern = calculatePattern(patternIndex, line - y, time);
 			sip->x = attributePtr[1];
 			if (attributePtr[3] & 0x80) sip->x -= 32;
 			sip->colourAttrib = attributePtr[3];
@@ -164,7 +167,8 @@ inline int VDP::checkSprites1(int line, VDP::SpriteInfo *visibleSprites)
 
 // TODO: For higher performance, have separate routines for planar and
 //       non-planar modes.
-inline int VDP::checkSprites2(int line, VDP::SpriteInfo *visibleSprites)
+inline int VDP::checkSprites2(
+	int line, VDP::SpriteInfo *visibleSprites, const EmuTime &time)
 {
 	if (!spritesEnabled()) return 0;
 
@@ -184,7 +188,7 @@ inline int VDP::checkSprites2(int line, VDP::SpriteInfo *visibleSprites)
 	// TODO: Verify CC implementation.
 	for (sprite = 0; sprite < 32; sprite++,
 			attributeAddr += 4, colourAddr += 16) {
-		int y = getVRAMReordered(attributeAddr);
+		int y = getVRAMReordered(attributeAddr, time);
 		if (y == 216) break;
 		// Compensate for vertical scroll.
 		// TODO: Use overscan and check what really happens.
@@ -200,16 +204,16 @@ inline int VDP::checkSprites2(int line, VDP::SpriteInfo *visibleSprites)
 				}
 				if (limitSprites) break;
 			}
-			byte colourAttrib = getVRAMReordered(colourAddr + line - y);
+			byte colourAttrib = getVRAMReordered(colourAddr + line - y, time);
 			// Sprites with CC=1 are only visible if preceded by
 			// a sprite with CC=0.
 			if ((colourAttrib & 0x40) && visibleIndex == 0) continue;
 			SpriteInfo *sip = &visibleSprites[visibleIndex++];
-			int patternIndex = getVRAMReordered(attributeAddr + 2);
+			int patternIndex = getVRAMReordered(attributeAddr + 2, time);
 			// TODO: Precalc pattern index mask.
 			if (size == 16) patternIndex &= 0xFC;
-			sip->pattern = calculatePattern(patternIndex, line - y);
-			sip->x = getVRAMReordered(attributeAddr + 1);
+			sip->pattern = calculatePattern(patternIndex, line - y, time);
+			sip->x = getVRAMReordered(attributeAddr + 1, time);
 			if (colourAttrib & 0x80) sip->x -= 32;
 			sip->colourAttrib = colourAttrib;
 		}
@@ -325,19 +329,18 @@ VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
 	}
 	vramSize *= 1024;
 	vramMask = vramSize - 1;
-	vramData = new byte[vramSize];
-	// TODO: Use exception instead?
-	if (!vramData) return ;//1;
-	memset(vramData, 0, vramSize);
+	vram = new VDPVRAM(vramSize);
 
 	// Put VDP into reset state, but do not call Renderer methods.
 	resetInit(time);
 
 	// Create command engine.
 	cmdEngine = new VDPCmdEngine(this, time);
+	vram->setCmdEngine(cmdEngine);
 
 	// Create renderer.
 	renderer = PlatformFactory::createRenderer(this, time);
+	vram->setRenderer(renderer);
 
 	MSXMotherBoard::instance()->register_IO_In((byte)0x98, this);
 	MSXMotherBoard::instance()->register_IO_Out((byte)0x98, this);
@@ -362,8 +365,8 @@ VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
 VDP::~VDP()
 {
 	PRT_DEBUG("Destroying a VDP object");
+	delete(cmdEngine);
 	delete(renderer);
-	delete[](vramData);
 }
 
 void VDP::resetInit(const EmuTime &time)
@@ -664,23 +667,29 @@ void VDP::frameStart(const EmuTime &time)
 	*/
 }
 
-void VDP::updateSprites1(int limit)
+void VDP::updateSprites1(const EmuTime &time)
 {
+	int limit =
+		(getTicksThisFrame(time) - displayStart) / TICKS_PER_LINE;
 	// TODO: Replace by display / blank check.
 	if (limit > 256) limit = 256;
+	// TODO: Use actual time instead of limit time.
 	for ( ; spriteLine < limit; spriteLine++) {
 		spriteCount[spriteLine] =
-			checkSprites1(spriteLine, spriteBuffer[spriteLine]);
+			checkSprites1(spriteLine, spriteBuffer[spriteLine], time);
 	}
 }
 
-void VDP::updateSprites2(int limit)
+void VDP::updateSprites2(const EmuTime &time)
 {
+	int limit =
+		(getTicksThisFrame(time) - displayStart) / TICKS_PER_LINE;
 	// TODO: Replace by display / blank check.
 	if (limit > 256) limit = 256;
+	// TODO: Use actual time instead of limit time.
 	for ( ; spriteLine < limit; spriteLine++) {
 		spriteCount[spriteLine] =
-			checkSprites2(spriteLine, spriteBuffer[spriteLine]);
+			checkSprites2(spriteLine, spriteBuffer[spriteLine], time);
 	}
 }
 
@@ -730,7 +739,7 @@ void VDP::writeIO(byte port, byte value, const EmuTime &time)
 				vramPointer = ((word)value << 8 | firstByte) & 0x3FFF;
 				if (!(value & 0x40)) {
 					// Read ahead.
-					vramRead();
+					vramRead(time);
 				}
 			}
 			firstByte = -1;
@@ -766,11 +775,11 @@ void VDP::writeIO(byte port, byte value, const EmuTime &time)
 	}
 }
 
-byte VDP::vramRead()
+byte VDP::vramRead(const EmuTime &time)
 {
 	byte ret = readAhead;
 	int addr = (controlRegs[14] << 14) | vramPointer;
-	readAhead = getVRAMReordered(addr);
+	readAhead = getVRAMReordered(addr, time);
 	vramPointer = (vramPointer + 1) & 0x3FFF;
 	if (vramPointer == 0 && (displayMode & 0x18)) {
 		// In MSX2 video mode, pointer range is 128K.
@@ -784,7 +793,7 @@ byte VDP::readIO(byte port, const EmuTime &time)
 {
 	assert(port == 0x98 || port == 0x99);
 	if (port == 0x98) {
-		return vramRead();
+		return vramRead(time);
 	}
 	else { // port == 0x99
 

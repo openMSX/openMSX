@@ -1,5 +1,10 @@
 $Id$
 
+2002-03-30 Maarten ter Huurne <mth@stack.nl>
+	* Added new VDPVRAM class, which manages VRAM.
+	  It is far from finished, but even in the current state it should be
+	  no less accurate than what we had before.
+
 2002-03-30 Joost Yervante Damad <andete@worldcity.nl>
 	* made CommandlineParser xml entity safe
 
@@ -55,7 +60,7 @@ $Id$
 	* this is WIP, and is not finished yet!
 
 2002-03-21 David Heremans <david.heremans@gnu-linux.net>
-	* Again a (total) rewrite of CommandlineParser. 
+	* Again a (total) rewrite of CommandlineParser.
 	  A simpler and cleaner design then the previous one, and
 	  easy to extend for other CLI-options.
 
@@ -65,7 +70,7 @@ $Id$
 	* if you make xml that is feeded into libxmlx,
 	  you need to escape it first, to allow entity
 	  escaping for &, <, >, ...
-	* cleaned up libxmlx dir, libxmlx is now dual 
+	* cleaned up libxmlx dir, libxmlx is now dual
 	  licensed GPL and LGPL
 
 2002-03-19 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>

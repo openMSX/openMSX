@@ -19,6 +19,7 @@
 #endif
 
 class VDP;
+class VDPVRAM;
 
 /** Factory method to create SDLGLRenderer objects.
   * TODO: Add NTSC/PAL selection
@@ -162,6 +163,10 @@ private:
 	/** The VDP of which the video output is being rendered.
 	  */
 	VDP *vdp;
+
+	/** The VRAM whose contents are used for rendering.
+	  */
+	VDPVRAM *vram;
 
 	/** SDL colours corresponding to each VDP palette entry.
 	  * palFg has entry 0 set to the current background colour,
