@@ -55,9 +55,9 @@ int main (int argc, char **argv)
 		config->initDeviceIterator();
 		MSXConfig::Device* d;
 		while ((d=config->getNextDevice()) != 0) {
-			std::cout << "<device>" << std::endl;
-			d->dump();
-			std::cout << "</device>" << std::endl << std::endl;
+			//std::cout << "<device>" << std::endl;
+			//d->dump();
+			//std::cout << "</device>" << std::endl << std::endl;
 			MSXDevice *device = deviceFactory::create(d, zero);
 			MSXMotherBoard::instance()->addDevice(device);
 			PRT_DEBUG ("Instantiated: " << d->getType());

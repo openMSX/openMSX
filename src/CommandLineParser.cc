@@ -164,7 +164,7 @@ void CommandLineParser::configureTape(char* filename)
   s << sfilename << "</parameter>";
   s << " </config>";
   s << "</msxconfig>";
-  PRT_INFO(s.str());
+  PRT_DEBUG(s.str());
   config->loadStream(s);
 }
 
@@ -193,7 +193,7 @@ void CommandLineParser::configureDisk(char* filename)
     s << "<parameter name=\"defaultsize\">720</parameter>";
     s << "</config>";
     s << "</msxconfig>";
-    PRT_INFO(s.str());
+    PRT_DEBUG(s.str());
     config->loadStream(s);
     driveLetter++;
 }
@@ -232,7 +232,7 @@ void CommandLineParser::configureCartridge(char* filename)
   s << "<parameter name=\"sramname\">"<<sfile<<".SRAM</parameter>";
   s << " </device>";
   s << "</msxconfig>";
-  PRT_INFO(s.str());
+  PRT_DEBUG(s.str());
   config->loadStream(s);
   cartridgeNr++;
 }
@@ -252,7 +252,7 @@ void CommandLineParser::configureMusMod(std::string mode)
   s << "  <type>Audio-Midi</type>";
   s << "</device>";
   s << "</msxconfig>";
-  PRT_INFO(s.str());
+  PRT_DEBUG(s.str());
   config->loadStream(s);
   cartridgeNr++;
 }
@@ -273,7 +273,7 @@ void CommandLineParser::configureFmPac(std::string mode)
   s << "<parameter name=\"sramname\">FMPAC.PAC</parameter>";
   s << " </device>";
   s << "</msxconfig>";
-  PRT_INFO(s.str());
+  PRT_DEBUG(s.str());
   config->loadStream(s);
   cartridgeNr++;
 }

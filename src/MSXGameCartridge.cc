@@ -37,6 +37,7 @@ MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &tim
 	mapperMask--;
 	
 	mapperType = retrieveMapperType();
+	PRT_INFO("mapperType: "<<mapperType);
 
 	// only if needed reserve memory for SRAM
 	regioSRAM=0;
@@ -44,9 +45,13 @@ MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &tim
 	if (mapperType&16) {
 		enabledSRAM= true;
 		memorySRAM = new byte[0x2000];
+		//"Clear" ram contents
+		//TODO: can one use the C memfil here ?
+		for (int i=0 ; i<0x2000 ; i++)memorySRAM[i]=255;
 		try {
 			if (deviceConfig->getParameterAsBool("loadsram")) {
 				std::string filename = deviceConfig->getParameter("sramname");
+				PRT_INFO("Trying to read "<<filename<<" as SRAM of the cartrdige");
 				IFILETYPE* file = FileOpener::openFileRO(filename);
 				file->read(memorySRAM, 0x2000);
 				file->close();
@@ -88,6 +93,7 @@ MSXGameCartridge::~MSXGameCartridge()
 		delete cartridgeSCC;
 	if ((mapperType&16) && deviceConfig->getParameterAsBool("savesram")) {
 		std::string filename = deviceConfig->getParameter("sramname");
+		PRT_INFO("Trying to save to "<<filename<<" for SRAM of the cartrdige");
 		IOFILETYPE* file = FileOpener::openFileTruncate(filename);
 		file->write(memorySRAM, 0x2000);
 		file->close();
@@ -215,8 +221,13 @@ int MSXGameCartridge::retrieveMapperType()
 			mappertype["HYDLIDE2"]=16;
 
 			mappertype["17"]=17;
-			mappertype["GAMEMASTER2"]=17;
-			mappertype["RC755"]=17;
+			mappertype["ASCII8SRAM"]=17;
+			mappertype["XANADU"]=17;
+			mappertype["ROYALBLOOD"]=17;
+
+			mappertype["18"]=18;
+			mappertype["GAMEMASTER2"]=18;
+			mappertype["RC755"]=18;
 
 			// Done
 
@@ -301,10 +312,11 @@ int MSXGameCartridge::guessMapperType()
 		// in case of even type 5 and 4 we would prefer 5
 		// but we would still prefer 0 above 4 or 5
 		if ((type==5) && (typeGuess[0] == typeGuess[5] ) ){type=0;};
-	for (int i=0; i<6; i++) {
-	PRT_DEBUG("MSXGameCartridge: typeGuess["<<i<<"]="<<typeGuess[i]);
-	}
-		PRT_DEBUG("MSXGameCartridge: I Guess this is a nr " << type << " GameCartridge mapper type.")
+		for (int i=0; i<6; i++) {
+		PRT_DEBUG("MSXGameCartridge: typeGuess["<<i<<"]="<<typeGuess[i]);
+		}
+		std::string typeNames[]={"8kB","16kB","SCC","KONAMI4","ASCII8","ASCII16"};
+		PRT_INFO("MSXGameCartridge: I Guess this is a " << typeNames[type] << " GameCartridge type.")
 		return type;
 	}
 }
@@ -477,6 +489,36 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 				setBank(region,   memoryBank+(value<<13));
 				setBank(region+1, memoryBank+(value<<13)+0x2000);
 				regioSRAM&=(region==2?0xFD:0xF4);
+			}
+		};
+		break;
+	case 17:
+		//--==**>> ASCII 8kB cartridges with 8kB SRAM<<**==--
+		// this type is used in Xanadu and Royal Blood
+		//
+		// The address to change banks:
+		//  bank 1: 0x6000 - 0x67FF (0x5000 used)
+		//  bank 2: 0x6800 - 0x6FFF (0x7000 used)
+		//  bank 3: 0x7000 - 0x77FF (0x9000 used)
+		//  bank 4: 0x7800 - 0x7FFF (0xB000 used)
+
+		if (address<0x6000 || address>=0x8000){
+			//Normal ASCII8 would return but maybe 
+			//we are writting to the SRAM?
+			if (adr2pag[address>>13]&regioSRAM&0x0C){ 
+				memorySRAM[address & maskSRAM]=value;
+			}
+		} else {
+			region = ((address>>11)&3)+2;
+			if (value&0xA0){
+				//bit 7 for Royal Blood
+				//bit 5 for Xanadu
+				setBank(region, memorySRAM);
+				regioSRAM|=adr2pag[address>>13];
+			} else {
+				value &= mapperMask;
+				setBank(region, memoryBank+(value<<13));
+				regioSRAM&=(!adr2pag[address>>13]);
 			}
 		};
 		break;

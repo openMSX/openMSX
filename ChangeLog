@@ -1,5 +1,8 @@
 $Id$
 
+2002-04-11 David Heremans <david.heremans@gnu-linux.net>
+	* Added (not tested) support for ASCII8SRAM type to MSXGameCartridge.
+
 2002-04-08 David Heremans <david.heremans@gnu-linux.net>
 	* Added support for Hydlide2 type to MSXGameCartridge.
 	* Added generic support for SRAM to MSXGameCartridge.
