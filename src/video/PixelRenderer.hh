@@ -67,7 +67,7 @@ protected:
 
 	/** Let underlying graphics system finish rendering this frame.
 	  * The image is stored for plotting later, once or multiple times,
-	  * using the putImage method.
+	  * using Layer::paint.
 	  */
 	virtual void finishFrame() = 0;
 

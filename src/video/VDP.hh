@@ -618,7 +618,7 @@ private:
 
 	/** Renderer that converts this VDP's state into an image.
 	  */
-	auto_ptr<Renderer> renderer;
+	Renderer* renderer;
 
 	/** Name of the current Renderer.
 	  * TODO: Retrieve this from the Renderer object?

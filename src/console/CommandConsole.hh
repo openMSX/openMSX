@@ -6,25 +6,19 @@
 #include <list>
 #include <string>
 #include "Console.hh"
-#include "EventListener.hh"
 #include "CircularBuffer.hh"
-#include "BooleanSetting.hh"
-#include "SettingListener.hh"
 
 using std::list;
 using std::string;
 
+
 namespace openmsx {
 
-class EventDistributor;
 class SettingsConfig;
 class CommandController;
 class CliCommOutput;
-class SettingsManager;
-class InputEventGenerator;
 
-class CommandConsole : public Console, private EventListener,
-                       private SettingListener
+class CommandConsole : public Console
 {
 public:
 	static CommandConsole& instance();
@@ -37,7 +31,6 @@ public:
 
 	virtual unsigned getScrollBack() const;
 	virtual const string &getLine(unsigned line) const;
-	virtual bool isVisible() const;
 	virtual void getCursorPosition(unsigned& xPosition, unsigned& yPosition) const;
 	virtual void setCursorPosition(unsigned xPosition, unsigned yPosition);
 	virtual void setConsoleDimensions(unsigned columns, unsigned rows);
@@ -70,9 +63,6 @@ private:
 	void loadHistory();
 	void saveHistory();
 
-	void update(const SettingLeafNode* setting);
-
-	BooleanSetting consoleSetting;
 	unsigned int maxHistory;
 	string editLine;
 	string commandBuffer;
@@ -93,12 +83,9 @@ private:
 	unsigned consoleColumns;
 	unsigned consoleRows;
 
-	EventDistributor& eventDistributor;
 	SettingsConfig& settingsConfig;
 	CommandController& commandController;
 	CliCommOutput& output;
-	SettingsManager& settingsManager;
-	InputEventGenerator& inputEventGenerator;
 };
 
 } // namespace openmsx

@@ -6,6 +6,9 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "IntegerSetting.hh"
+#include "Display.hh"
+#include "EventDistributor.hh"
+#include "InputEventGenerator.hh"
 #include <algorithm>
 #include <SDL.h>
 
@@ -68,8 +71,13 @@ bool FontSetting::checkFile(const string& filename)
 
 // class OSDConsoleRenderer
 
+BooleanSetting OSDConsoleRenderer::consoleSetting(
+	"console", "turns console display on/off", false);
+
 OSDConsoleRenderer::OSDConsoleRenderer(Console& console_)
 	: console(console_)
+	, eventDistributor(EventDistributor::instance())
+	, inputEventGenerator(InputEventGenerator::instance())
 {
 	bool initiated = true;
 	static set<string> initsDone;
@@ -114,10 +122,17 @@ OSDConsoleRenderer::OSDConsoleRenderer(Console& console_)
 	lastBlinkTime = 0;
 	unsigned cursorY;
 	console.getCursorPosition(lastCursorPosition, cursorY);
+
+	Display::INSTANCE->addLayer(this);
+	active = false;
+	consoleSetting.addListener(this);
+	setActive(consoleSetting.getValue());
 }
 
 OSDConsoleRenderer::~OSDConsoleRenderer()
 {
+	consoleSetting.removeListener(this);
+	setActive(false);
 	if (!console.getFont().empty()) {
 		console.unregisterConsole(this);
 	}
@@ -205,6 +220,34 @@ void OSDConsoleRenderer::adjustColRow()
 		consoleRows = screen->h / font->getHeight();
 	} else {
 		consoleRows = console.getRows();
+	}
+}
+
+void OSDConsoleRenderer::update(const SettingLeafNode* setting)
+{
+	assert(setting == &consoleSetting);
+	setActive(consoleSetting.getValue());
+}
+
+void OSDConsoleRenderer::setActive(bool active)
+{
+	if (this->active == active) return;
+	this->active = active;
+	inputEventGenerator.setKeyRepeat(active);
+	// TODO: Even if console alpha is 255, it doesn't cover the full screen,
+	//       so underlying layers still need to be painted.
+	//       Display interface design flaw?
+	Display::INSTANCE->setAlpha(this, active ? 128 : 0);
+	if (active) {
+		eventDistributor.registerEventListener(
+			KEY_UP_EVENT,   console, EventDistributor::NATIVE );
+		eventDistributor.registerEventListener(
+			KEY_DOWN_EVENT, console, EventDistributor::NATIVE );
+	} else {
+		eventDistributor.unregisterEventListener(
+			KEY_DOWN_EVENT, console, EventDistributor::NATIVE );
+		eventDistributor.unregisterEventListener(
+			KEY_UP_EVENT,   console, EventDistributor::NATIVE );
 	}
 }
 

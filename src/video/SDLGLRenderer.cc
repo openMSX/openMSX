@@ -20,17 +20,17 @@ TODO:
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 #include "RenderSettings.hh"
-#include "CommandConsole.hh"
-#include "GLConsole.hh"
-#include "ScreenShotSaver.hh"
 #include "EventDistributor.hh"
 #include "FloatSetting.hh"
+#include "SDLGLVideoSystem.hh"
+#include "Scheduler.hh"
 
 #ifdef __WIN32__
 #include <windows.h>
 static int lastWindowX = 0;
 static int lastWindowY = 0;
 #endif
+
 
 namespace openmsx {
 
@@ -185,65 +185,24 @@ void SDLGLRenderer::finishFrame()
 	// Store current frame as a texture.
 	storedFrame.store();
 
-	// Avoid repainting the buffer by putImage.
+	// Avoid repainting the buffer by paint().
 	frameDirty = false;
 
-	putImage();
 	Event* finishFrameEvent = new SimpleEvent<FINISH_FRAME_EVENT>();
 	EventDistributor::instance().distributeEvent(finishFrameEvent);
 }
 
-void SDLGLRenderer::drawRest()
-{
-	drawEffects();
-
-	// Render consoles if needed.
-	console->drawConsole();
-
-	// Update screen.
-	SDL_GL_SwapBuffers();
-}
-
-int SDLGLRenderer::putPowerOffImage()
-{
-	// draw noise texture.
-	float x = (float)rand() / RAND_MAX;
-	float y = (float)rand() / RAND_MAX;
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, noiseTextureId);
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.0f + x, 1.5f + y); glVertex2i(   0, HEIGHT - 512);
-	glTexCoord2f(3.0f + x, 1.5f + y); glVertex2i(1024, HEIGHT - 512);
-	glTexCoord2f(3.0f + x, 0.0f + y); glVertex2i(1024, HEIGHT);
-	glTexCoord2f(0.0f + x, 0.0f + y); glVertex2i(   0, HEIGHT);
-	glEnd();
-	glDisable(GL_TEXTURE_2D);
-	
-	// Render console if needed.
-	console->drawConsole();
-
-	// Update screen.
-	SDL_GL_SwapBuffers();
-	return 10;	// 10 fps
-}
-
-void SDLGLRenderer::putImage()
+void SDLGLRenderer::paint()
 {
 	if (frameDirty) storedFrame.draw(0, 0);
-	drawRest();
-	frameDirty = true; // drawRest made it dirty...
+	drawEffects();
+	frameDirty = true;
 }
 
-void SDLGLRenderer::takeScreenShot(const string& filename)
+const string& SDLGLRenderer::getName()
 {
-	byte* row_pointers[HEIGHT];
-	byte buffer[WIDTH * HEIGHT * 3];
-	for (int i = 0; i < HEIGHT; ++i) {
-		row_pointers[HEIGHT - 1 - i] = &buffer[WIDTH * 3 * i];
-	}
-	glReadPixels(0, 0, WIDTH, HEIGHT, GL_RGB, GL_UNSIGNED_BYTE, buffer);
-	ScreenShotSaver::save(WIDTH, HEIGHT, row_pointers, filename);
+	static const string NAME = "SDLGLRenderer";
+	return NAME;
 }
 
 void SDLGLRenderer::drawEffects()
@@ -380,9 +339,9 @@ SDLGLRenderer::SDLGLRenderer(
 	, characterConverter(vdp, palFg, palBg)
 	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS)
 	, spriteConverter(vdp->getSpriteChecker())
+	, powerSetting(Scheduler::instance().getPowerSetting())
 {
 	this->screen = screen;
-	console.reset(new GLConsole(CommandConsole::instance()));
 	GLint size;
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size);
 	printf("Max texture size: %d\n", size);
@@ -431,18 +390,6 @@ SDLGLRenderer::SDLGLRenderer(
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	}
 
-	// create noise texture.
-	byte buf[128 * 128];
-	for (int i = 0; i < 128 * 128; ++i) {
-		buf[i] = (byte)rand();
-	}
-	glGenTextures(1, &noiseTextureId);
-	glBindTexture(GL_TEXTURE_2D, noiseTextureId);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE8, 128, 128, 0,
-	             GL_LUMINANCE, GL_UNSIGNED_BYTE, buf);
-
 	// Create bitmap display cache.
 	bitmapTextures = vdp->isMSX1VDP() ? NULL : new LineTexture[4 * 256];
 
@@ -467,10 +414,14 @@ SDLGLRenderer::SDLGLRenderer(
 			handle, HWND_TOP, lastWindowX, lastWindowY, 0, 0, SWP_NOSIZE );
 	}
 #endif
+
+	powerSetting.addListener(this);
 }
 
 SDLGLRenderer::~SDLGLRenderer()
 {
+	powerSetting.removeListener(this);
+
 #ifdef __WIN32__
 	// Find our current location.
 	if ((screen->flags & SDL_FULLSCREEN) == 0) {
@@ -490,6 +441,15 @@ SDLGLRenderer::~SDLGLRenderer()
 	delete[] bitmapTextures;
 
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
+}
+
+void SDLGLRenderer::update(const SettingLeafNode* setting)
+{
+	if (setting == &powerSetting) {
+		Display::INSTANCE->setAlpha(this, powerSetting.getValue() ? 255 : 0);
+	} else {
+		PixelRenderer::update(setting);
+	}
 }
 
 void SDLGLRenderer::precalcPalette(float gamma)

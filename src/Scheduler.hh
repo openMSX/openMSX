@@ -19,7 +19,6 @@ namespace openmsx {
 class Leds;
 class MSXCPU;
 class CommandController;
-class Renderer;
 class MSXMotherBoard;
 class InputEventGenerator;
 class EventDistributor;
@@ -100,10 +99,6 @@ public:
 	void schedule();
 	void scheduleFromCPU(const EmuTime& limit);
 
-	/** Set renderer to call when emulation is paused.
-	  * TODO: Function will be moved to OSD later.
-	  */
-	void setRenderer(Renderer* renderer);
 	void setMotherBoard(MSXMotherBoard* motherboard);
 	void setEventDistributor(EventDistributor* eventDistributor);
 	void unsetEventDistributor(EventDistributor* eventDistributor);
@@ -164,7 +159,6 @@ private:
 	bool needReset;
 	EmuTime scheduleTime;
 
-	Renderer* renderer;
 	MSXMotherBoard* motherboard;
 	InputEventGenerator* eventGenerator;
 	BooleanSetting pauseSetting;

@@ -3,10 +3,10 @@
 #ifndef __SDLGLRENDERER_HH__
 #define __SDLGLRENDERER_HH__
 
-#include <memory>
 #include <SDL.h>
 #include "openmsx.hh"
 #include "PixelRenderer.hh"
+#include "Display.hh"
 #include "CharacterConverter.hh"
 #include "BitmapConverter.hh"
 #include "SpriteConverter.hh"
@@ -14,16 +14,14 @@
 #include "DisplayMode.hh"
 #include "GLUtil.hh"
 
-using std::auto_ptr;
 
 namespace openmsx {
 
-class OSDConsoleRenderer;
-
+class BooleanSetting;
 
 /** Hi-res (640x480) renderer using OpenGL through SDL.
   */
-class SDLGLRenderer : public PixelRenderer
+class SDLGLRenderer : public PixelRenderer, public Layer
 {
 public:
 	// TODO: Make private.
@@ -37,9 +35,6 @@ public:
 	virtual bool checkSettings();
 	virtual void frameStart(const EmuTime& time);
 	//virtual void frameEnd(const EmuTime& time);
-	virtual void putImage();
-	virtual int  putPowerOffImage();
-	virtual void takeScreenShot(const string& filename);
 	virtual void updateTransparency(bool enabled, const EmuTime& time);
 	virtual void updateForegroundColour(int colour, const EmuTime& time);
 	virtual void updateBackgroundColour(int colour, const EmuTime& time);
@@ -57,7 +52,13 @@ public:
 	//virtual void updateVRAM(int offset, const EmuTime& time);
 	//virtual void updateWindow(bool enabled, const EmuTime& time);
 
+	// Layer interface:
+	virtual void paint();
+	virtual const string& getName();
+
 protected:
+	virtual void update(const SettingLeafNode* setting);
+
 	void finishFrame();
 	void updateVRAMCache(int address);
 	void drawBorder(int fromX, int fromY, int limitX, int limitY);
@@ -214,7 +215,6 @@ private:
 	  * Used for effects and for putStoredImage.
 	  */
 	StoredFrame storedFrame;
-	GLuint noiseTextureId;
 
 	/** Is the frame buffer dirty?
 	  */
@@ -253,7 +253,7 @@ private:
 	  */
 	SpriteConverter<Pixel, Renderer::ZOOM_REAL> spriteConverter;
 
-	auto_ptr<OSDConsoleRenderer> console;
+	BooleanSetting& powerSetting;
 };
 
 } // namespace openmsx

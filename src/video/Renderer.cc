@@ -6,6 +6,7 @@
 #include "InfoCommand.hh"
 #include "CommandArgument.hh"
 
+
 namespace openmsx {
 
 /*
@@ -80,11 +81,6 @@ Renderer::~Renderer()
 bool Renderer::checkSettings()
 {
 	return settings.getRenderer()->getValue() == id;
-}
-
-void Renderer::takeScreenShot(const string& /*filename*/)
-{
-	throw CommandException("Taking screenshot not possible with current renderer.");
 }
 
 // class FpsInfoTopic

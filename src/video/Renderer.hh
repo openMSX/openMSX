@@ -81,22 +81,6 @@ public:
 	  */
 	virtual void frameEnd(const EmuTime& time) = 0;
 
-	/** Paints the last full frame on the screen.
-	  * Typically, this method will be called just after frameEnd,
-	  * but it is valid to call this method at any time.
-	  */
-	virtual void putImage() = 0;
-
-	/** Refreshes the screen by drawing an image that does not depend on
-	  * VDP state. Examples: black screen, logo, snow.
-	  */
-	virtual int putPowerOffImage() = 0;
-
-	/** Take a screenshot.
-	  * @param filename Name of the file to save the screenshot to.
-	  */
-	virtual void takeScreenShot(const string& filename);
-
 	/** Informs the renderer of a VDP transparency enable/disable change.
 	  * @param enabled The new transparency state.
 	  * @param time The moment in emulated time this change occurs.

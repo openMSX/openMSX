@@ -11,43 +11,24 @@
  */
 
 
-#include "VDP.hh"
-#include "VDPVRAM.hh"
-#include "RenderSettings.hh"
 #include "DummyRenderer.hh"
-#include "Scheduler.hh"
+#include "DisplayMode.hh"
+
 
 namespace openmsx {
 
-DummyRenderer::DummyRenderer(RendererFactory::RendererID id, VDP *vdp)
-:
-Renderer (id),
-vdp (vdp),
-vram (vdp->getVRAM()) {
+DummyRenderer::DummyRenderer(RendererFactory::RendererID id)
+: Renderer(id) {
 }
 
 DummyRenderer::~DummyRenderer () {
 	PRT_DEBUG ("DummyRenderer: Destructing DummyRenderer object");
 }
 
-bool DummyRenderer::checkSettings() {
-	// First check this is the right renderer.
-	if (!Renderer::checkSettings()) return false;
-
-	return true;
-}
-
 void DummyRenderer::frameStart(const EmuTime& /*time*/) {
 }
 
 void DummyRenderer::frameEnd(const EmuTime& /*time*/) {
-}
-
-void DummyRenderer::putImage() {
-}
-
-int DummyRenderer::putPowerOffImage() {
-	return 0;
 }
 
 void DummyRenderer::updateTransparency(bool /*enabled*/, const EmuTime& /*time*/) {
@@ -116,6 +97,14 @@ void DummyRenderer::updateWindow(bool /*enabled*/, const EmuTime& /*time*/) {
 float DummyRenderer::getFrameRate() const
 {
 	return 0.0;
+}
+
+void DummyRenderer::paint() {
+}
+
+const string& DummyRenderer::getName() {
+	static const string NAME = "DummyRenderer";
+	return NAME;
 }
 
 } // namespace openmsx

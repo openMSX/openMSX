@@ -2,16 +2,13 @@
 
 #include "CommandConsole.hh"
 #include "CommandController.hh"
-#include "EventDistributor.hh"
 #include "Keys.hh"
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"
-#include "SettingsManager.hh"
 #include "CliCommOutput.hh"
 #include "SettingsConfig.hh"
 #include "InputEvents.hh"
-#include "InputEventGenerator.hh"
 #include <algorithm>
 #include <fstream>
 
@@ -30,20 +27,11 @@ const char* const PROMPT1 = "> ";
 const char* const PROMPT2 = "| ";
 
 CommandConsole::CommandConsole()
-	: consoleSetting("console", "turns console display on/off", false),
-	  eventDistributor(EventDistributor::instance()),
-	  settingsConfig(SettingsConfig::instance()),
+	: settingsConfig(SettingsConfig::instance()),
 	  commandController(CommandController::instance()),
-	  output(CliCommOutput::instance()),
-	  settingsManager(SettingsManager::instance()),
-	  inputEventGenerator(InputEventGenerator::instance())
+	  output(CliCommOutput::instance())
 {
 	prompt = PROMPT1;
-	consoleSetting.addListener(this);
-	eventDistributor.registerEventListener(KEY_DOWN_EVENT, *this,
-	                                       EventDistributor::NATIVE);
-	eventDistributor.registerEventListener(KEY_UP_EVENT,   *this,
-	                                       EventDistributor::NATIVE);
 	putPrompt();
 	maxHistory = 100;
 	removeDoubles = true;
@@ -60,24 +48,12 @@ CommandConsole::~CommandConsole()
 {
 	commandController.setCommandConsole(NULL);
 	saveHistory();
-	eventDistributor.unregisterEventListener(KEY_DOWN_EVENT, *this,
-	                                         EventDistributor::NATIVE);
-	eventDistributor.unregisterEventListener(KEY_UP_EVENT,   *this,
-	                                         EventDistributor::NATIVE);
-	consoleSetting.removeListener(this);
 }
 
 CommandConsole& CommandConsole::instance()
 {
 	static CommandConsole oneInstance;
 	return oneInstance;
-}
-
-void CommandConsole::update(const SettingLeafNode* setting)
-{
-	assert(setting == &consoleSetting);
-	updateConsole();
-	inputEventGenerator.setKeyRepeat(consoleSetting.getValue());
 }
 
 void CommandConsole::saveHistory()
@@ -153,11 +129,6 @@ const string& CommandConsole::getLine(unsigned line) const
 	return line < lines.size() ? lines[line] : EMPTY;
 }
 
-bool CommandConsole::isVisible() const
-{
-	return consoleSetting.getValue();
-}
-
 void CommandConsole::setConsoleDimensions(unsigned columns, unsigned rows)
 {
 	consoleRows = rows;
@@ -185,9 +156,6 @@ void CommandConsole::setConsoleDimensions(unsigned columns, unsigned rows)
 
 bool CommandConsole::signalEvent(const Event& event)
 {
-	if (!isVisible()) {
-		return true;
-	}
 	if (event.getType() == KEY_UP_EVENT) {
 		return false;	// don't pass event to MSX-Keyboard
 	}
@@ -265,7 +233,6 @@ bool CommandConsole::signalEvent(const Event& event)
 		default:
 			normalKey((char)static_cast<const KeyEvent&>(event).getUnicode());
 	}
-	updateConsole();
 	return false;	// don't pass event to MSX-Keyboard
 }
 

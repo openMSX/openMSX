@@ -34,8 +34,10 @@ TODO:
 #include "Debugger.hh"
 #include "ScreenShotSaver.hh"
 #include "CliCommOutput.hh"
+#include "Display.hh" // TODO: Remove after screenshot is moved.
 
 using std::setw;
+
 
 namespace openmsx {
 
@@ -102,7 +104,8 @@ VDP::VDP(const XMLElement& config, const EmuTime& time)
 	vram->setCmdEngine(cmdEngine.get());
 
 	// Get renderer type from config.
-	const XMLElement* rendererConfig = SettingsConfig::instance().findChild("renderer");
+	const XMLElement* rendererConfig =
+		SettingsConfig::instance().findChild("renderer");
 	rendererName = "SDLHi";
 	if (rendererConfig) {
 		rendererName = rendererConfig->getChildData("type", rendererName);
@@ -112,8 +115,7 @@ VDP::VDP(const XMLElement& config, const EmuTime& time)
 	
 	// Create renderer.
 	renderer = RendererFactory::createRenderer(this);
-	vram->setRenderer(renderer.get(), time);
-	Scheduler::instance().setRenderer(renderer.get());
+	vram->setRenderer(renderer, time);
 
 	// Register console commands.
 	CommandController::instance().registerCommand(&vdpRegsCmd, "vdpregs");
@@ -442,12 +444,11 @@ void VDP::frameStart(const EmuTime& time)
 
 	// Tell renderer to sync with render settings.
 	if (!renderer->checkSettings()) {
+		// TODO: Switch VideoSystem, not just Renderer.
 		// Renderer failed to sync; replace it.
-		renderer.reset(); // destroy old renderer before creating a new one
 		renderer = RendererFactory::createRenderer(this);
 		renderer->reset(time);
-		vram->setRenderer(renderer.get(), time);
-		Scheduler::instance().setRenderer(renderer.get());
+		vram->setRenderer(renderer, time);
 	}
 
 	// Toggle E/O.
@@ -1154,6 +1155,7 @@ string VDP::PaletteCmd::help(const vector<string>& /*tokens*/) const
 }
 
 // ScreenShotCmd inner class
+// TODO: Move elsewhere.
 VDP::ScreenShotCmd::ScreenShotCmd(VDP& vdp_)
 	: vdp(vdp_)
 {
@@ -1173,7 +1175,7 @@ string VDP::ScreenShotCmd::execute(const vector<string>& tokens)
 		throw SyntaxError();
 	}
 	
-	vdp.renderer->takeScreenShot(filename);
+	Display::INSTANCE->getVideoSystem()->takeScreenShot(filename);
 	CliCommOutput::instance().printInfo("Screen saved to " + filename);
 	return filename;
 }

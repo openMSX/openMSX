@@ -6,11 +6,14 @@
 #include <memory>
 #include <string>
 #include <SDL.h>	// TODO get rid of this
+#include "Display.hh"
 #include "EnumSetting.hh"
 #include "FilenameSetting.hh"
 #include "DummyFont.hh"
 #include "Console.hh"
 #include "NonInheritable.hh"
+#include "BooleanSetting.hh"
+#include "SettingListener.hh"
 
 using std::auto_ptr;
 using std::string;
@@ -20,6 +23,8 @@ namespace openmsx {
 class OSDConsoleRenderer;
 class IntegerSetting;
 class Font;
+class InputEventGenerator;
+class EventDistributor;
 
 NON_INHERITABLE_PRE(BackgroundSetting)
 class BackgroundSetting : public FilenameSettingBase,
@@ -50,14 +55,13 @@ private:
 	OSDConsoleRenderer* console;
 };
 
-class OSDConsoleRenderer
+class OSDConsoleRenderer: public Layer, private SettingListener
 {
 public:
 	OSDConsoleRenderer(Console& console);
 	virtual ~OSDConsoleRenderer();
 	virtual bool loadBackground(const string& filename) = 0;
 	virtual bool loadFont(const string& filename) = 0;
-	virtual void drawConsole() = 0;
 	virtual void updateConsole() = 0;
 
 	void setBackgroundName(const string& name);
@@ -86,11 +90,18 @@ protected:
 	unsigned lastCursorPosition;
 
 private:
-	void adjustColRow();
+	static BooleanSetting consoleSetting;
 
+	void adjustColRow();
+	void update(const SettingLeafNode* setting);
+	void setActive(bool active);
+
+	bool active;
 	int currentMaxX;
 	int currentMaxY;
 	Console& console;
+	EventDistributor& eventDistributor;
+	InputEventGenerator& inputEventGenerator;
 };
 
 } // namespace openmsx

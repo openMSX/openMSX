@@ -9,6 +9,7 @@
 #include "Console.hh"
 #include "CliCommOutput.hh"
 
+
 namespace openmsx {
 
 GLConsole::GLConsole(Console& console_)
@@ -38,6 +39,7 @@ GLConsole::~GLConsole()
 	if (backgroundTexture) {
 		glDeleteTextures(1, &backgroundTexture);
 	}
+	backgroundSetting.reset();
 }
 
 
@@ -149,13 +151,8 @@ void GLConsole::updateConsoleRect()
 	consoleWidth = rect.w;
 }
 
-// Draws the console buffer to the screen
-void GLConsole::drawConsole()
+void GLConsole::paint()
 {
-	if (!console.isVisible()) {
-		return;
-	}
-
 	glPushAttrib(GL_ENABLE_BIT);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
@@ -236,6 +233,12 @@ void GLConsole::drawConsole()
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glPopAttrib();
+}
+
+const string& GLConsole::getName()
+{
+	static const string NAME = "GLConsole";
+	return NAME;
 }
 
 } // namespace openmsx

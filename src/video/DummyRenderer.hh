@@ -5,27 +5,21 @@
 
 #include "openmsx.hh"
 #include "Renderer.hh"
-#include "VDP.hh"
+#include "Display.hh"
+
 
 namespace openmsx {
 
-class VDP;
-class VDPVRAM;
-class SpriteChecker;
-
 /** Dummy Renderer
   */
-class DummyRenderer : public Renderer
+class DummyRenderer : public Renderer, public Layer
 {
 public:
 	// Renderer interface:
 
 	void reset(const EmuTime& /*time*/) {} // TODO
-	bool checkSettings();
 	void frameStart(const EmuTime& time);
 	void frameEnd(const EmuTime& time);
-	void putImage();
-	int putPowerOffImage();
 	void updateTransparency(bool enabled, const EmuTime& time);
 	void updateForegroundColour(int colour, const EmuTime& time);
 	void updateBackgroundColour(int colour, const EmuTime& time);
@@ -49,19 +43,20 @@ public:
 	void updateWindow(bool enabled, const EmuTime& time);
 	virtual float getFrameRate() const;
 
+	// Layer interface:
+	virtual void paint();
+	virtual const string& getName();
+
 private:
 	friend class DummyRendererFactory;
 
 	/** Constructor, called by DummyRendererFactory.
 	  */
-	DummyRenderer(RendererFactory::RendererID id, VDP *vdp);
+	DummyRenderer(RendererFactory::RendererID id);
 
 	/** Destructor.
 	  */
 	virtual ~DummyRenderer();
-	
-	VDP *vdp;
-	VDPVRAM *vram;
 };
 
 } // namespace openmsx

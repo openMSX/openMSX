@@ -21,8 +21,10 @@ public:
 
 	virtual bool loadFont(const string& filename);
 	virtual bool loadBackground(const string& filename);
-	virtual void drawConsole();
 	virtual void updateConsole();
+
+	virtual void paint();
+	virtual const string& getName();
 
 private:
 	SDL_Surface* outputScreen;

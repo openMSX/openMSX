@@ -40,8 +40,6 @@ public:
 	bool checkSettings();
 	void frameStart(const EmuTime& time);
 	void frameEnd(const EmuTime& time);
-	void putImage();
-	int putPowerOffImage();
 	void updateTransparency(bool enabled, const EmuTime& time);
 	void updateForegroundColour(int colour, const EmuTime& time);
 	void updateBackgroundColour(int colour, const EmuTime& time);

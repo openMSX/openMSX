@@ -16,10 +16,12 @@
 #include "HotKey.hh"
 #include "AfterCommand.hh"
 #include "Interpreter.hh"
+#include "Display.hh"
 
 using std::auto_ptr;
 using std::cerr;
 using std::endl;
+
 
 namespace openmsx {
 
@@ -63,6 +65,7 @@ static int main(int argc, char **argv)
 			AfterCommand afterCommand;
 			MSXMotherBoard motherboard;
 			motherboard.run(parseStatus == CommandLineParser::RUN);
+			Display::INSTANCE.reset();
 		}
 	} catch (FatalError& e) {
 		cerr << "Fatal error: " << e.getMessage() << endl;

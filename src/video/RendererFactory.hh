@@ -40,7 +40,7 @@ public:
 	  * Use this method for initial renderer creation in the main thread.
 	  * @param vdp The VDP whose display will be rendered.
 	  */
-	static auto_ptr<Renderer> createRenderer(VDP* vdp);
+	static Renderer* createRenderer(VDP* vdp);
 
 	/** Create the renderer setting.
 	  * The map of this setting contains only the available renderers.
@@ -65,7 +65,7 @@ public:
 	  * @return A newly created Renderer, or NULL if creation failed.
 	  *   TODO: Throwing an exception would be cleaner.
 	  */
-	virtual auto_ptr<Renderer> create(VDP* vdp) = 0;
+	virtual Renderer* create(VDP* vdp) = 0;
 
 private:
 	/** Get the factory selected by the current renderer setting.
@@ -90,7 +90,7 @@ public:
 
 	virtual bool isAvailable();
 
-	virtual auto_ptr<Renderer> create(VDP* vdp);
+	virtual Renderer* create(VDP* vdp);
 };
 
 /** RendererFactory for SDLHiRenderer.
@@ -109,7 +109,7 @@ public:
 
 	virtual bool isAvailable();
 
-	virtual auto_ptr<Renderer> create(VDP* vdp);
+	virtual Renderer* create(VDP* vdp);
 };
 
 /** RendererFactory for SDLLoRenderer.
@@ -128,7 +128,7 @@ public:
 
 	virtual bool isAvailable();
 
-	virtual auto_ptr<Renderer> create(VDP* vdp);
+	virtual Renderer* create(VDP* vdp);
 };
 
 #ifdef COMPONENT_GL
@@ -149,7 +149,7 @@ public:
 
 	virtual bool isAvailable();
 
-	virtual auto_ptr<Renderer> create(VDP* vdp);
+	virtual Renderer* create(VDP* vdp);
 };
 
 #endif // COMPONENT_GL
@@ -170,9 +170,9 @@ public:
 		return "Xlib";
 	}
 
-	bool isAvailable();
+	virtual bool isAvailable();
 
-	auto_ptr<Renderer> create(VDP* vdp);
+	virtual Renderer* create(VDP* vdp);
 };
 
 #endif // HAVE_X11

@@ -3,18 +3,19 @@
 #ifndef __CONSOLE_HH__
 #define __CONSOLE_HH__
 
+#include "EventListener.hh"
 #include <list>
 #include <string>
-
-namespace openmsx {
-
-class OSDConsoleRenderer;
 
 using std::list;
 using std::string;
 
 
-class Console
+namespace openmsx {
+
+class OSDConsoleRenderer;
+
+class Console: public EventListener
 {
 public:
 	enum Placement {
@@ -51,7 +52,6 @@ public:
 	
 	virtual unsigned getScrollBack() const = 0;
 	virtual const string& getLine(unsigned line) const = 0;
-	virtual bool isVisible() const = 0;
 	virtual void getCursorPosition(unsigned& xPosition, unsigned& yPosition) const = 0;
 	virtual void setCursorPosition(unsigned xPosition, unsigned yPosition) = 0;
 	virtual void setConsoleDimensions(unsigned columns, unsigned rows) = 0;

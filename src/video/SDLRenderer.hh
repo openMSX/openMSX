@@ -6,6 +6,7 @@
 #include <memory>
 #include <SDL.h>
 #include "PixelRenderer.hh"
+#include "Display.hh"
 #include "SettingListener.hh"
 #include "CharacterConverter.hh"
 #include "BitmapConverter.hh"
@@ -19,14 +20,13 @@ using std::auto_ptr;
 
 namespace openmsx {
 
-class OSDConsoleRenderer;
 template <class Pixel> class Scaler;
 
 
 /** Renderer on SDL surface.
   */
 template <class Pixel, Renderer::Zoom zoom>
-class SDLRenderer : public PixelRenderer
+class SDLRenderer : public PixelRenderer, public Layer
 {
 public:
 	// Renderer interface:
@@ -35,9 +35,6 @@ public:
 	virtual bool checkSettings();
 	virtual void frameStart(const EmuTime& time);
 	virtual void frameEnd(const EmuTime& time);
-	virtual void putImage();
-	virtual int putPowerOffImage();
-	virtual void takeScreenShot(const string& filename);
 	virtual void updateTransparency(bool enabled, const EmuTime& time);
 	virtual void updateForegroundColour(int colour, const EmuTime& time);
 	virtual void updateBackgroundColour(int colour, const EmuTime& time);
@@ -54,6 +51,10 @@ public:
 	virtual void updateColourBase(int addr, const EmuTime& time);
 	//virtual void updateVRAM(int offset, const EmuTime& time);
 	//virtual void updateWindow(bool enabled, const EmuTime& time);
+
+	// Layer interface:
+	virtual void paint();
+	virtual const string& getName();
 
 protected:
 	// PixelRenderer:
@@ -296,11 +297,7 @@ private:
 	  */
 	SpriteConverter<Pixel, zoom> spriteConverter;
 
-	auto_ptr<OSDConsoleRenderer> console;
-
-	/** Gray values for noise
-	  */
-	Pixel gray[256];
+	BooleanSetting& powerSetting;
 };
 
 } // namespace openmsx

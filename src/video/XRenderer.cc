@@ -128,13 +128,6 @@ void XRenderer::frameStart(const EmuTime &time) {
 void XRenderer::frameEnd(const EmuTime &time) {
 }
 
-void XRenderer::putImage() {
-}
-
-int XRenderer::putPowerOffImage() {
-	return 0;
-}
-
 void XRenderer::updateTransparency(bool enabled, const EmuTime &time) {
 }
 

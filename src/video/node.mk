@@ -10,13 +10,15 @@ SRC_HDR:= \
 	VDPSettings \
 	Icon \
 	Renderer RendererFactory RenderSettings PixelRenderer \
-	SDLRenderer \
+	SDLVideoSystem SDLRenderer SDLSnow \
 	DummyRenderer \
 	XRenderer \
 	BitmapConverter CharacterConverter \
 	Scaler SimpleScaler SaI2xScaler Scale2xScaler HQ2xScaler \
 	Deinterlacer \
-	ScreenShotSaver
+	ScreenShotSaver \
+	Display \
+	DummyVideoSystem
 
 HDR_ONLY:= \
 	DirtyChecker \
@@ -27,7 +29,7 @@ HDR_ONLY:= \
 	GLUtil
 
 SRC_HDR_$(COMPONENT_GL)+= \
-	SDLGLRenderer GLUtil
+	SDLGLVideoSystem SDLGLRenderer GLSnow GLUtil
 
 include build/node-end.mk
 

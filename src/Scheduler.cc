@@ -9,9 +9,9 @@
 #include "Schedulable.hh"
 #include "CommandController.hh"
 #include "Leds.hh"
-#include "Renderer.hh" // TODO: Temporary?
 #include "MSXMotherBoard.hh"
 #include "Timer.hh"
+#include "Display.hh"
 
 using std::swap;
 using std::make_heap;
@@ -25,7 +25,7 @@ const EmuTime Scheduler::ASAP;
 
 Scheduler::Scheduler()
 	: sem(1), paused(false), powered(false), needReset(false),
-	  renderer(NULL), motherboard(NULL), eventGenerator(NULL),
+	  motherboard(NULL), eventGenerator(NULL),
 	  pauseSetting("pause", "pauses the emulation", paused),
 	  powerSetting("power", "turn power on/off", powered),
 	  leds(Leds::instance()),
@@ -60,11 +60,6 @@ Scheduler& Scheduler::instance()
 {
 	static Scheduler oneInstance;
 	return oneInstance;
-}
-
-void Scheduler::setRenderer(Renderer* renderer_)
-{
-	renderer = renderer_;
 }
 
 void Scheduler::setMotherBoard(MSXMotherBoard* motherboard_)
@@ -179,19 +174,9 @@ void Scheduler::schedule()
 			eventGenerator->poll();
 		} else if (pauseCounter > 0) {
 			sem.up();
-			assert(renderer);
-			if (!powerSetting.getValue()) {
-				int fps = renderer->putPowerOffImage();
-				if (fps == 0) {
-					eventGenerator->wait();
-				} else {
-					Timer::sleep(1000000 / fps);
-					eventGenerator->poll();
-				}
-			} else {
-				renderer->putImage();
-				eventGenerator->wait();
-			}
+			Display::INSTANCE->repaint();
+			Timer::sleep(100 * 1000);
+			eventGenerator->poll();
 		} else {
 			if (cpu.getTargetTime() < time) {
 				sem.up();

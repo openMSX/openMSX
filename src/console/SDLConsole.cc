@@ -66,12 +66,8 @@ void SDLConsole::updateConsoleRect()
 	}
 }
 
-// Draws the console buffer to the screen
-void SDLConsole::drawConsole()
+void SDLConsole::paint()
 {
-	if (!console.isVisible()) {
-		return;
-	}
 	updateConsoleRect();
 
 	// draw the background image if there is one
@@ -108,6 +104,12 @@ void SDLConsole::drawConsole()
 				destRect.y + destRect.h - (font->getHeight() * (cursorY + 1)));
 		}
 	}
+}
+
+const string& SDLConsole::getName()
+{
+	static const string NAME = "SDLConsole";
+	return NAME;
 }
 
 // Adds background image to the console

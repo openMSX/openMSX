@@ -14,12 +14,11 @@ TODO:
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 #include "RenderSettings.hh"
-#include "CommandConsole.hh"
-#include "SDLConsole.hh"
 #include "Scaler.hh"
 #include "ScreenShotSaver.hh"
 #include "EventDistributor.hh"
 #include "FloatSetting.hh"
+#include "Scheduler.hh"
 
 #ifdef __WIN32__
 #include <windows.h>
@@ -29,6 +28,7 @@ static int lastWindowY = 0;
 
 using std::max;
 using std::min;
+
 
 namespace openmsx {
 
@@ -76,6 +76,8 @@ void SDLRenderer<Pixel, zoom>::update(const SettingLeafNode* setting)
 {
 	if (setting == settings.getDeinterlace()) {
 		initWorkScreens();
+	} else if (setting == &powerSetting) {
+		Display::INSTANCE->setAlpha(this, powerSetting.getValue() ? 255 : 0);
 	} else {
 		PixelRenderer::update(setting);
 	}
@@ -84,87 +86,23 @@ void SDLRenderer<Pixel, zoom>::update(const SettingLeafNode* setting)
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::finishFrame()
 {
-	putImage();
 	Event* finishFrameEvent = new SimpleEvent<FINISH_FRAME_EVENT>();
 	EventDistributor::instance().distributeEvent(finishFrameEvent);
 }
 
-// random routine, less random than libc rand(), but a lot faster
-static int random() {
-	static int seed = 1;
-
-	const int IA = 16807;
-	const int IM = 2147483647;
-	const int IQ = 127773;
-	const int IR = 2836;
-
-	int k = seed / IQ;
-	seed = IA * (seed - k * IQ) - IR * k;
-	if (seed < 0) seed += IM;
-	return seed;
-}
-
 template <class Pixel, Renderer::Zoom zoom>
-int SDLRenderer<Pixel, zoom>::putPowerOffImage()
-{
-	// Lock surface, because we will access pixels directly.
-	if (SDL_MUSTLOCK(screen) && SDL_LockSurface(screen) < 0) {
-		// Display will be wrong, but this is not really critical.
-		return 1; // Try again next frame.
-	}
-	Pixel* pixels = (Pixel*)screen->pixels;
-	for (unsigned y = 0; y < HEIGHT; y += 2) {
-		Pixel* p = &pixels[WIDTH * y];
-		for (unsigned x = 0; x < WIDTH; x += 2) {
-			byte a = (byte)random();
-			p[x + 0] = p[x + 1] = gray[a];
-		}
-		memcpy(p + WIDTH, p, WIDTH * sizeof(Pixel));
-	}
-	// Unlock surface.
-	if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
-
-	// TODO: This is a copy of finishFrame, without the call to drawEffects.
-	// Render consoles if needed.
-	console->drawConsole();
-
-	// Update screen.
-	SDL_Flip(screen);
-
-	return 8;
-}
-
-template <class Pixel, Renderer::Zoom zoom>
-void SDLRenderer<Pixel, zoom>::putImage()
+void SDLRenderer<Pixel, zoom>::paint()
 {
 	// Draw screen using image in workScreen.
+	// TODO: Move body of drawEffects here.
 	drawEffects();
-
-	// Render consoles if needed.
-	console->drawConsole();
-
-	// Update screen.
-	SDL_Flip(screen);
 }
 
 template <class Pixel, Renderer::Zoom zoom>
-void SDLRenderer<Pixel, zoom>::takeScreenShot(const string& filename)
+const string& SDLRenderer<Pixel, zoom>::getName()
 {
-	if (SDL_MUSTLOCK(screen) && SDL_LockSurface(screen) < 0) {
-		return;
-	}
-	try {
-		ScreenShotSaver::save(screen, filename);
-		if (SDL_MUSTLOCK(screen)) {
-			SDL_UnlockSurface(screen);
-		}
-	} catch (CommandException& e) {
-		// TODO make a SDLSurfaceLocker class to get rid of this code duplication
-		if (SDL_MUSTLOCK(screen)) {
-			SDL_UnlockSurface(screen);
-		}
-		throw;
-	}
+	static const string NAME = "SDLRenderer";
+	return NAME;
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -496,11 +434,10 @@ SDLRenderer<Pixel, zoom>::SDLRenderer(
 		Blender<Pixel>::createFromFormat(screen->format) )
 	, spriteConverter(vdp->getSpriteChecker(),
 		Blender<Pixel>::createFromFormat(screen->format) )
+	, powerSetting(Scheduler::instance().getPowerSetting())
 {
 	this->screen = screen;
 	currScalerID = (ScalerID)-1; // not a valid scaler
-
-	console.reset(new SDLConsole(CommandConsole::instance(), screen));
 
 	// Allocate work surface.
 	initWorkScreens(true);
@@ -548,11 +485,16 @@ SDLRenderer<Pixel, zoom>::SDLRenderer(
 		SetWindowPos(handle, HWND_TOP,lastWindowX,lastWindowY,0,0,SWP_NOSIZE);
 	}
 #endif 
+
+	powerSetting.addListener(this);
 }
 
 template <class Pixel, Renderer::Zoom zoom>
 SDLRenderer<Pixel, zoom>::~SDLRenderer()
 {
+	powerSetting.removeListener(this);
+	settings.getDeinterlace()->removeListener(this);
+
 #ifdef __WIN32__
 	// Find our current location
 	if ((screen->flags & SDL_FULLSCREEN) == 0){
@@ -563,8 +505,6 @@ SDLRenderer<Pixel, zoom>::~SDLRenderer()
 		lastWindowY = windowRect.top;
 	}
 #endif	 
-
-	settings.getDeinterlace()->removeListener(this);
 
 	SDL_FreeSurface(charDisplayCache);
 	SDL_FreeSurface(bitmapDisplayCache);
@@ -689,11 +629,6 @@ void SDLRenderer<Pixel, zoom>::precalcPalette(float gamma)
 				V9938_COLOURS[(grb >> 4) & 7][grb >> 8][grb & 7];
 		}
 	}
-
-	// Precalc gray values for noise
-	for (unsigned i = 0; i < 256; i++) {
-		gray[i] = SDL_MapRGB(screen->format, i, i, i);
-	}
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -772,7 +707,7 @@ template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::frameEnd(const EmuTime& time)
 {
 	// Remember interlace status of the completed frame,
-	// for use in putImage.
+	// for use in paint().
 	interlaced = vdp->isInterlaced();
 
 	PixelRenderer::frameEnd(time);

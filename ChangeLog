@@ -1,5 +1,16 @@
 $Id$
 
+2004-07-21 Maarten ter Huurne <maarten@treewalker.org>
+	* Introduced display which manages multiple layers.
+	  Currently, the following layers exist:
+	  - background (TV snow)
+	  - renderer
+	  - console
+	  In the future, a second renderer will be added (for GFX9000).
+	  Also, OSD features are possible (such as status icons).
+	  The code has some rough edges, but it works.
+	* Along the way, fixed console cursor blinking during pause.
+
 2004-07-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* a few small fixes
 
