@@ -1,5 +1,8 @@
 $Id$
 
+2002-02-27 Maarten ter Huurne <mth@stack.nl>
+	* Fixed even/odd page flipping, it was overzealous.
+
 2002-02-27 Joost Yervante Damad <andete@worldcity.nl>
 	* simplified auto* setup for crosscompiling
 	* added atoll.c code for platforms that don't support that function

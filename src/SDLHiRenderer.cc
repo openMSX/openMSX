@@ -1032,8 +1032,8 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 		vdp->isBitmapMode() ? bitmapDisplayCache : charDisplayCache;
 
 	// Which bits in the name mask determine the page?
-	int pageMask = (vdp->isPlanar() ? 0x100 : 0x300)
-		& vdp->getEvenOddMask();
+	int pageMask =
+		(vdp->isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
 
 	// Lock surface, because we will access pixels directly.
 	if (SDL_MUSTLOCK(displayCache) && SDL_LockSurface(displayCache) < 0) {
