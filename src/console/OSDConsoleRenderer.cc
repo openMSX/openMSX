@@ -16,11 +16,13 @@ OSDConsoleRenderer::Placement OSDConsoleRenderer::consolePlacement;
 
 BackgroundSetting::BackgroundSetting(OSDConsoleRenderer *console_,
                                      const std::string &filename)
-	: FilenameSetting("consolebackground", "console background file",
-	                  filename),
+	: FilenameSetting("consolebackground", "console background file", ""),
 	  console(console_)
 {
 	setValueString(filename);
+	if (getValueString() != filename) {
+		PRT_INFO("Warning: Couldn't read background image");
+	}
 }
 
 bool BackgroundSetting::checkUpdate(const std::string &newValue)
@@ -42,10 +44,13 @@ bool BackgroundSetting::checkUpdate(const std::string &newValue)
 
 FontSetting::FontSetting(OSDConsoleRenderer *console_,
                          const std::string &filename)
-	: FilenameSetting("consolefont", "console font file", filename),
+	: FilenameSetting("consolefont", "console font file", ""),
 	  console(console_)
 {
 	setValueString(filename);
+	if (getValueString() != filename) {
+		PRT_INFO("Warning: Couldn't read font image");
+	}
 }
 
 bool FontSetting::checkUpdate(const std::string &newValue)

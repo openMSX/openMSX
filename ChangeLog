@@ -2,6 +2,7 @@ $Id$
 
 2003-06-08 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Don't abort on "cassetteplayer <file>" cmd with invalid filename
+	* Print warning when initial font or background images can't be read
 
 2003-06-08 Maarten ter Huurne <maarten@treewalker.org>
 	* In the command engine, only act on display mode switches if a
