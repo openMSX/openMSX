@@ -1,0 +1,13 @@
+config.log
+config.h
+config.cache
+config.status
+stamp-h
+Makefile
+Makefile.in
+.deps
+*.swp
+openmsx
+stamp-h.in
+.libs
+*.rpo

@@ -1,6 +1,6 @@
 # $Id$
 
-SUBDIRS = src doc
+SUBDIRS = src doc m4
 
 #bin_PROGRAMS=openmsx
 #openmsx_SOURCES=openmsx.cc openmsx.1 system.h aclocal.m4
