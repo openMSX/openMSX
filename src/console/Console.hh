@@ -41,14 +41,14 @@ class Console : private EventListener
 		void getCursorPosition(int * xPosition, int * yPosition);
 		void setCursorPosition(const int xPosition,const int yPosition);
 		void setCursorPosition(struct CursorXY pos);
-		void setConsoleColumns(int columns){consoleColumns=columns;};
+		void setConsoleColumns(int columns);
 
 	private:
+		static const int LINESHISTORY = 100;
+		
 		Console();
 		virtual ~Console();
-
 		virtual bool signalEvent(SDL_Event &event);
-			
 		void tabCompletion();
 		void commandExecute();
 		void scrollUp();
@@ -64,7 +64,10 @@ class Console : private EventListener
 		void putPrompt();
 		void updateConsole();
 		void resetScrollBack();
-		void combineLines();
+		
+		void combineLines(CircularBuffer<std::string,LINESHISTORY> & buffer,
+							CircularBuffer<bool,LINESHISTORY> & overflows,
+							bool fromTop = false);
 		void splitLines();
 		
 		class ConsoleSetting : public BooleanSetting
@@ -80,11 +83,12 @@ class Console : private EventListener
 		
 		unsigned int maxHistory;
 		std::list<ConsoleRenderer*> renderers;
-		CircularBuffer<std::string, 100> lines;
+		
 		std::string editLine;
 // 		Are double commands allowed ?
 		bool removeDoubles;
-//		CircularBuffer<std::string, 25> history;
+		CircularBuffer<std::string, 100> lines;
+		CircularBuffer<bool,100> lineOverflows;
 		std::list<std::string> history;
 		std::list<std::string>::iterator commandScrollBack;
 		// saves Current Command to enable command recall
@@ -93,7 +97,6 @@ class Console : private EventListener
 		struct CursorXY cursorLocation; // full cursorcoordinates
 		int cursorPosition; // position within the current command
 		int consoleColumns;
-		int commandLines; // number of lines in the CURRENT command
 };
 
 #endif
