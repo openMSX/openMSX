@@ -1,11 +1,12 @@
 // $Id$
 
-#include <sstream>
 #include "AfterCommand.hh"
 #include "CommandController.hh"
 #include "CliCommOutput.hh"
 #include "Scheduler.hh"
 #include "EventDistributor.hh"
+#include <cstdlib>
+#include <sstream>
 
 using std::ostringstream;
 
@@ -75,7 +76,10 @@ string AfterCommand::afterNew(const vector<string>& tokens, AfterType type)
 	}
 	AfterCmd* cmd = new AfterCmd(*this);
 	cmd->type = type;
-	float time = strtof(tokens[2].c_str(), NULL);
+	// Use "strtod" instead of "strtof" because the latter doesn't exist in
+	// the libc of FreeBSD. It's not equivalent, but we don't need maximum
+	// precision or range checks, so it's close enough.
+	float time = (float)strtod(tokens[2].c_str(), NULL);
 	if (time <= 0) {
 		throw CommandException("Not a valid time specification");
 	}
