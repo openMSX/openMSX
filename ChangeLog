@@ -1,5 +1,8 @@
 $Id$
 
+2002-03-30 Joost Yervante Damad <andete@worldcity.nl>
+	* made CommandlineParser xml entity safe
+
 2002-03-28 David Heremans <david.heremans@gnu-linux.net>
 	* Added MC6850 and sampleram to '-musmod' CLI option.
 	* Added article written for the Dutch MSX-infoblad.

@@ -1,8 +1,11 @@
 #include "CommandLineParser.hh"
+#include "libxmlx/xmlx.hh"
+#include "MSXConfig.hh"
+
 #include <string>
 #include <sstream>
-#include "MSXConfig.hh"
-#include <stdio.h>
+
+#include <cstdio>
 
 CommandLineParser* CommandLineParser::oneInstance = NULL;
 
@@ -57,12 +60,12 @@ void CommandLineParser::addOption(CLIoption id,std::string cliOption,bool usesPa
 }
 
 
-void CommandLineParser::showHelp()
+void CommandLineParser::showHelp(const char* progname)
 {
     PRT_INFO("OpenMSX command line options");
     PRT_INFO("============================\n\n");
     PRT_INFO("Normal usage of openMSX\n");
-    PRT_INFO(" ./open [extra options] [[specifier] <filename>[,<extra mode>]]\n");
+    PRT_INFO(" " << progname << " [extra options] [[specifier] <filename>[,<extra mode>]]\n");
     PRT_INFO("specifier: normally the files are recognized by their extension ");
     PRT_INFO("           however it is possible to explicite state the files  ");
     PRT_INFO("           nature by using one of the folowing specifiers:      ");
@@ -87,7 +90,7 @@ int CommandLineParser::checkFileType(char* parameter,int &i, char **argv)
   if ( (0 == strcasecmp(parameter,"-?")) || 
        (0 == strcasecmp(parameter,"-h")) ||
        (0 == strcasecmp(parameter,"-help")) ) { 
-  		    showHelp();
+  		    showHelp(argv[0]);
 		    exit(0);
 		    };
   // now we see if there is a 'general' option that matches
@@ -151,13 +154,14 @@ void CommandLineParser::configureTape(char* filename)
 	*(readonly++)=0;
   };
   */
+  std::string sfilename(filename); XML::Escape(sfilename);
   std::ostringstream s;
   s << "<?xml version=\"1.0\"?>";
   s << "<msxconfig>";
   s << " <config id=\"tapepatch\">";
   s << "  <type>tape</type>";
   s << "  <parameter name=\"filename\">";
-  s << std::string(filename) << "</parameter>";
+  s << sfilename << "</parameter>";
   s << " </config>";
   s << "</msxconfig>";
   PRT_INFO(s.str());
@@ -172,12 +176,13 @@ void CommandLineParser::configureDisk(char* filename)
   if (*readonly == ','){
 	*(readonly++)=0;
   };
+	std::string sfile(file); XML::Escape(sfile);
     std::ostringstream s;
     s << "<?xml version=\"1.0\"?>";
     s << "<msxconfig>";
-    s << "<config id=\"diskpatch_disk"<< driveLetter <<"\">";
+    s << "<config id=\"diskpatch_disk" << driveLetter << "\">";
     s << "<type>disk</type>";
-    s << "<parameter name=\"filename\">"<<std::string(file)<<"</parameter>";
+    s << "<parameter name=\"filename\">" << sfile << "</parameter>";
     s << "<parameter name=\"readonly\">";
     if (*readonly == 0){
 	s << "false";
@@ -201,6 +206,8 @@ void CommandLineParser::configureCartridge(char* filename)
   if (*mapper == ','){
 	*(mapper++)=0;
   };
+	std::string sfile(file); XML::Escape(sfile);
+	std::string smapper(mapper); XML::Escape(smapper);
   std::ostringstream s;
   s << "<?xml version=\"1.0\"?>";
   s << "<msxconfig>";
@@ -210,13 +217,13 @@ void CommandLineParser::configureCartridge(char* filename)
   s << "<slotted><ps>";
   s << (int)(1+cartridgeNr) <<"</ps><ss>0</ss><page>2</page></slotted>";
   s << "<parameter name=\"filename\">";
-  s << std::string(file) << "</parameter>";
+  s << sfile << "</parameter>";
   s << "<parameter name=\"filesize\">0</parameter>";
   s << "<parameter name=\"volume\">13000</parameter>";
   s << "<parameter name=\"automappertype\">";
   if (*mapper != 0){
      s << "false</parameter>";
-     s << "<parameter name=\"mappertype\">"<<std::string(mapper)<<"</parameter>";
+     s << "<parameter name=\"mappertype\">"<<smapper<<"</parameter>";
   } else {
      s << "true</parameter>";
   };
@@ -236,7 +243,7 @@ void CommandLineParser::configureMusMod(std::string mode)
   s << "  <type>Audio</type>";
   s << "<parameter name=\"volume\">20000</parameter>";
   s << "<parameter name=\"sampleram\">256</parameter>";
-  s << "<parameter name=\"mode\">"<< mode <<"</parameter>";
+  s << "<parameter name=\"mode\">"<< XML::Escape(mode) <<"</parameter>";
   s << " </device>";
   s << "<device id=\"MSX-Audio-Midi\">";
   s << "  <type>Audio-Midi</type>";
@@ -257,7 +264,7 @@ void CommandLineParser::configureFmPac(std::string mode)
   s << "<slotted><ps>2</ps><ss>0</ss><page>1</page></slotted>";
   s << "<parameter name=\"filename\">FMPAC.ROM</parameter>";
   s << "<parameter name=\"volume\">13000</parameter>";
-  s << "<parameter name=\"mode\">"<< mode <<"</parameter>";
+  s << "<parameter name=\"mode\">"<< XML::Escape(mode) <<"</parameter>";
   s << "<parameter name=\"load\">true</parameter>";
   s << "<parameter name=\"save\">true</parameter>";
   s << "<parameter name=\"sramname\">FMPAC.PAC</parameter>";

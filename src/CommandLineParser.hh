@@ -17,7 +17,7 @@ class CommandLineParser
     int checkFileExt(char* filename);
     void parse(MSXConfig::Backend* Backconfig,int argc, char **argv);
 
-    void showHelp();
+    void showHelp(const char* progname);
 
     void configureDisk(char* filename);
     void configureTape(char* filename);
