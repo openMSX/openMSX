@@ -1,5 +1,8 @@
 $Id$
 
+2002-11-29 David Heremans <david.heremans@gnu-linux.net>
+	* Still working towards raw track read
+
 2002-11-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* fixed auto frameskip:
 	   probably still needs some finetuning

@@ -98,19 +98,51 @@ void FDC_DSK::writeTrackData(byte data)
 void FDC_DSK::initReadTrack(byte track, byte side){
 	readTrackDataCount=0;
 	/* init following data structure
+	according to Alex Wulms
 	122 bytes track header aka pre-gap
 	9 * 628 bytes sectordata (sector header, data en closure gap)
 	1080 bytes end-of-track gap
+
+	This data comes from the TC8566AF manual
+	each track in IBM format contains
+	'4E' x 80, '00' x 12, 'C2' x 3
+	'FC' x 1, '4E' x 50, sector data 1 to n
+	'4E' x ?? (closing gap)
+	each sector data contains
+	'00' x 12, 'A1' x 3, 'FE' x 1,
+	C,H,R,N,CRC(2bytes), '4E' x 22, '00' x 12,
+	'A1' x 4,'FB'('F8') x 1, data(512 bytes),CRC(2bytes),'4E'(gap3)
 	*/
 	byte* tmppoint;
 	tmppoint=readTrackDataBuf;
-	for (int i=0 ; i<122 ; i++ ) *(tmppoint++)=0 ; //TODO look up value of this first pre-gap
+	// Fill track header
+	for (int i=0 ; i<80 ; i++ ) *(tmppoint++)=0x4E;
+	for (int i=0 ; i<12 ; i++ ) *(tmppoint++)=0x00;
+	for (int i=0 ; i<3 ; i++ ) *(tmppoint++)=0xC2;
+	*(tmppoint++)=0xFC;
+	for (int i=0 ; i<50 ; i++ ) *(tmppoint++)=0x4E;
+	// Fill sector
 	for (byte j=0 ; j<9 ; j++){
-		*(tmppoint++)=(byte)(j+1);
-		//TODO build correct header and read sector +place gap
+		// Fill sector header
+		for (int i=0 ; i<12 ; i++ ) *(tmppoint++)=0x00;
+		for (int i=0 ; i<3 ; i++ ) *(tmppoint++)=0xA1;
+		*(tmppoint++)=0xFE;
+		*(tmppoint++)=track;	//C: Cylinder number
+		*(tmppoint++)=side;	//H: Head Address
+		*(tmppoint++)=(byte)(j+1); //R: Record
+		*(tmppoint++)=0x02;	//N: Number (indicates length of sector)
+		*(tmppoint++)=0x00; //CRC byte 1
+		*(tmppoint++)=0x00; //CRC byte 2
+		//read sector data
+		read(track, j+1, side, 512, tmppoint);
+		tmppoint+=512;
+		//end of sector
+		*(tmppoint++)=(byte)(j+1); //CRC byte 1
+		*(tmppoint++)=(byte)(j+1); //CRC byte 2
+		for (int i=0 ; i<55 ; i++ ) *(tmppoint++)=0x4E; // TODO: check this number
+		//TODO build correct CRC and read sector +place gap
 	};
-	for (int i=0 ; i<1080 ; i++ ) *(tmppoint++)=0 ; //TODO look up value of this end-of-track gap
-
+	for (int i=0 ; i<1080 ; i++ ) *(tmppoint++)=0x4E ; //TODO look up value of this end-of-track gap
 
 
 }
