@@ -5,6 +5,6 @@
     <type>MoonSound</type>
     <parameter name="filename">roms/yrw801.rom</parameter>
     <parameter name="volume">12000</parameter>
-    <parameter name="sampleram">256</parameter>
+    <parameter name="sampleram">640</parameter>
   </device>
 </msxconfig>
