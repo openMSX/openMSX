@@ -10,6 +10,11 @@
 #include "File.hh"
 #include "FileOperations.hh"
 #include "CompressedFileAdapter.hh"
+#ifdef	__WIN32__
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
+
 
 using std::ostringstream;
 
@@ -28,11 +33,11 @@ CompressedFileAdapter::CompressedFileAdapter(FileBase* file_)
 CompressedFileAdapter::~CompressedFileAdapter()
 {
 	if (localName) {
-		unlink(localName);
+		unlink(FileOperations::getNativePath(localName).c_str());
 		free(localName);
 		--tmpCount;
 		if (tmpCount == 0) {
-			rmdir(tmpDir.c_str());
+			rmdir(FileOperations::getNativePath(tmpDir).c_str());
 		}
 	}
 
@@ -76,6 +81,22 @@ const string CompressedFileAdapter::getURL() const
 const string CompressedFileAdapter::getLocalName()
 {
 	if (localName == 0) {
+#ifdef	__WIN32__
+		char tmppath[MAX_PATH];
+		char tmpname[MAX_PATH];
+		if (tmpCount == 0) {
+			ostringstream os;
+			if (!GetTempPathA(MAX_PATH,tmppath)) {
+			throw FileException("Coundn't get temp file path");
+			}
+			tmpDir = FileOperations::getConventionalPath(tmppath);
+		}
+		if (!GetTempFileNameA(tmppath,"openmsx",0,tmpname)) {
+			throw FileException("Coundn't get temp file name");
+		}
+		localName = strdup(FileOperations::getConventionalPath(tmpname).c_str());
+		FILE *file = fopen(FileOperations::getNativePath(tmpname).c_str(), "w");
+#else
 		if (tmpCount == 0) {
 			ostringstream os;
 			os << "/tmp/openmsx." << getpid();
@@ -86,6 +107,7 @@ const string CompressedFileAdapter::getLocalName()
 		localName = strdup(templ.c_str());
 		int fd = mkstemp(localName);
 		FILE* file = fdopen(fd, "w");
+#endif
 		if (!file) {
 			throw FileException("Couldn't create temp file");
 		}

@@ -19,6 +19,7 @@
 #include "CommandController.hh"
 #include "KeyEventInserter.hh"
 #include "MSXCPUInterface.hh"
+#include "FileOperations.hh"
 
 
 namespace openmsx {
@@ -48,8 +49,46 @@ void initializeSDL()
 
 inline int main(int argc, char **argv)
 {
+	if (FileOperations::setSysDir())
+	{	fprintf(stderr,"Cannot detect openMSX directory.\n");
+		fflush(stderr);
+		return	2;
+	}
+
+	if (FileOperations::setUsrDir())
+	{	fprintf(stderr,"Cannot get user-directory.\n");
+		fflush(stderr);
+		return	2;
+	}
+#if	defined(__WIN32__)
+	char	**nargv;
+	int	i;
+	if ((nargv=(char**)malloc(argc * sizeof(*argv)))==NULL) {
+		fprintf(stderr,"Cannot allocate argument buffer.\n");
+		fflush(stderr);
+		return	2;
+	}
+	for (i=0;i<argc;i++)
+		if ((nargv[i]=(char*)malloc(strlen(argv[i])+1))!=NULL)
+			strcpy(nargv[i], FileOperations::getConventionalPath(argv[i]).c_str());
+	for (i=0;i<argc;i++)
+		if (nargv[i]==NULL) {
+			for (i=0;i<argc;i++)
+				if (nargv[i]!=NULL)
+					free(nargv[i]);
+			free(nargv);
+			fprintf(stderr,"Cannot allocate arguments buffer.\n");
+			fflush(stderr);
+			return	2;
+		}
+
+	try {
+		CommandLineParser::instance()->parse(argc, nargv);
+#else
+
 	try {
 		CommandLineParser::instance()->parse(argc, argv);
+#endif
 		initializeSDL();
 
 		// Initialise devices.
@@ -81,6 +120,12 @@ inline int main(int argc, char **argv)
 		// Clean up.
 		SDL_Quit();
 
+#if	defined(__WIN32__)
+		for (i=0;i<argc;i++)
+			if (nargv[i]!=NULL)
+				free(nargv[i]);
+		free(nargv);
+#endif
 		return 0;
 
 	} catch (MSXException &e) {
@@ -95,5 +140,5 @@ inline int main(int argc, char **argv)
 // Enter the openMSX namespace.
 int main(int argc, char **argv)
 {
-	openmsx::main(argc, argv);
+	return	openmsx::main(argc, argv);
 }

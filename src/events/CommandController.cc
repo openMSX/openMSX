@@ -263,9 +263,13 @@ void CommandController::completeFileName(vector<string> &tokens)
 	filename = FileOperations::expandTilde(filename);
 	string basename = FileOperations::getBaseName(filename);
 	vector<string> paths;
-	if (!filename.empty() && (filename[0] == '/')) {
+	if (!filename.empty() && FileOperations::isAbsolutePath(filename)) {
 		// absolute path
+#if	defined(__WIN32__)
+		paths.push_back("");
+#else
 		paths.push_back("/");
+#endif
 	} else {
 		// realtive path, also try user directories
 		UserFileContext context;
@@ -277,17 +281,17 @@ void CommandController::completeFileName(vector<string> &tokens)
 	     it != paths.end();
 	     ++it) {
 		string dirname = *it + basename;
-		DIR* dirp = opendir(dirname.c_str());
+		DIR* dirp = opendir(FileOperations::getNativePath(dirname).c_str());
 		if (dirp != NULL) {
 			while (dirent* de = readdir(dirp)) {
 				struct stat st;
 				string name = dirname + de->d_name;
-				if (!(stat(name.c_str(), &st))) {
+				if (!(stat(FileOperations::getNativePath(name).c_str(), &st))) {
 					string nm = basename + de->d_name;
 					if (S_ISDIR(st.st_mode)) {
 						nm += "/";
 					}
-					filenames.insert(nm);
+					filenames.insert(FileOperations::getConventionalPath(nm));
 				}
 			}
 			closedir(dirp);

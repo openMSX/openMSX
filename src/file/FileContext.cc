@@ -12,8 +12,12 @@
 
 namespace openmsx {
 
+#if	defined(__WIN32__)
+const string homedir("~/openMSX/");
+#else
 const string homedir("~/.openMSX/");
-const string systemdir("/opt/openMSX/");
+#endif
+string systemdir("/opt/openMSX/");
 
 
 
@@ -50,7 +54,7 @@ const string FileContext::resolve(const vector<string> &pathList,
 	
 	PRT_DEBUG("Context: "<<filename);
 	if ((filename.find("://") != string::npos) ||
-	    (filename[0] == '/')) {
+	    FileOperations::isAbsolutePath(filename)) {
 		// protocol specified or absolute path, don't resolve
 		return filename;
 	}
@@ -65,7 +69,7 @@ const string FileContext::resolve(const vector<string> &pathList,
 		}
 		struct stat buf;
 		PRT_DEBUG("Context: try "<<name);
-		if (!stat(name.c_str(), &buf)) {
+		if (!stat(FileOperations::getNativePath(name).c_str(), &buf)) {
 			// found
 			return name;
 		}

@@ -24,7 +24,7 @@ LocalFile::LocalFile(const string &filename_, OpenMode mode)
 		}
 	}
 	
-	const char* name = filename.c_str(); 
+	const char* name = FileOperations::getNativePath(filename).c_str(); 
 	if ((mode == SAVE_PERSISTENT) || (mode == TRUNCATE)) {
 		// open file read/write truncated
 		file = fopen(name, "wb+");
