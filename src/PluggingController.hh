@@ -39,8 +39,8 @@ private:
 	PluggingController();
 
 	static PluggingController *oneInstance;
-	vector<Connector*> connectors;
-	vector<Pluggable*> pluggables;
+	std::vector<Connector*> connectors;
+	std::vector<Pluggable*> pluggables;
 
 	// Commands
 	class PlugCmd : public Command {
