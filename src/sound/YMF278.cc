@@ -302,15 +302,12 @@ int* YMF278::updateBuffer(int length)
 			unsigned pos = sl.stepptr >> 16;
 			short sample1 = getSample(sl, pos);
 			pos++;
-			if (pos == (sl.endaddr >> 16)) {
-				pos = (sl.loopaddr >> 16);
+			if (pos == sl.endaddr) {
+				pos = sl.loopaddr;
 			}
 			short sample2 = getSample(sl, pos);
 			int delta = sl.stepptr & 0xFFFF;
 			short sample = (sample1 * (0x10000 - delta) + sample2 * delta) >> 16;
-			//PRT_DEBUG("DEBUG: " << sl.step << " " << sl.startaddr << " " <<(sl.stepptr >> 16) << " " << (int)sample);
-			
-			
 			int vol = sl.TL + (sl.env_vol >> 2);
 			int volLeft  = vol + pan_left [sl.pan] + vl;
 			int volRight = vol + pan_right[sl.pan] + vr;
@@ -319,15 +316,13 @@ int* YMF278::updateBuffer(int length)
 
 			// update frequency
 			sl.stepptr += sl.step;
-			if (sl.stepptr >= sl.endaddr) {
-				sl.stepptr -= sl.endaddr - sl.loopaddr;
+			if ((sl.stepptr >> 16) >= sl.endaddr) {
+				sl.stepptr -= (sl.endaddr - sl.loopaddr) << 16;
 				// If the step is bigger than the loop, finish
 				// the sample forcibly
-				if (sl.stepptr >= sl.endaddr) {
+				if ((sl.stepptr >> 16) >= sl.endaddr) {
 					sl.env_vol = MAX_ATT_INDEX;
 					sl.active = false;
-					sl.stepptr = 0;
-					sl.step = 0;
 				}
 			}
 		}
@@ -377,10 +372,8 @@ void YMF278::writeRegOPL4(byte reg, byte data, const EmuTime &time)
 			slot.AM   = buf[11] & 7;
 			slot.startaddr = buf[2] | (buf[1] << 8) | 
 			                 ((buf[0] & 0x3F) << 16);
-			slot.loopaddr  = ((buf[4] << 16) | (buf[3] << 24)) +
-			                  0x00010000U;
-			slot.endaddr   = (((buf[6] << 16) | (buf[5] << 24)) -
-			                  0x00010000U) ^ 0xFFFF0000U;
+			slot.loopaddr = buf[4] + (buf[3] << 8);
+			slot.endaddr  = (((buf[6] + (buf[5] << 8)) ^ 0xFFFF) + 1);
 			break;
 		}
 		case 1: {
