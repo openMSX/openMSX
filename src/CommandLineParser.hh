@@ -10,6 +10,7 @@
 #include <set>
 #include <memory>
 #include "openmsx.hh"
+#include "StringOp.hh"
 
 using std::string;
 using std::list;
@@ -80,15 +81,10 @@ public:
 	ParseStatus getParseStatus() const;
 
 private:
-	struct caseltstr {
-		bool operator()(const string& s1, const string& s2) const {
-			return strcasecmp(s1.c_str(), s2.c_str()) < 0;
-		}
-	};
 	map<string, OptionData> optionMap;
-	typedef map<string, CLIFileType*, caseltstr> FileTypeMap;
+	typedef map<string, CLIFileType*, StringOp::caseless> FileTypeMap;
 	FileTypeMap fileTypeMap;
-	typedef map<string, CLIFileType*, caseltstr> FileClassMap;
+	typedef map<string, CLIFileType*, StringOp::caseless> FileClassMap;
 	FileClassMap fileClassMap;
 
 	bool parseFileName(const string& arg,list<string>& cmdLine);

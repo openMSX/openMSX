@@ -4,6 +4,7 @@
 #define __CLIEXTENSION_HH__
 
 #include "CommandLineParser.hh"
+#include "StringOp.hh"
 
 namespace openmsx {
 
@@ -21,12 +22,7 @@ private:
 	
 #ifdef FS_CASEINSENSE
 	// on win32, MacOSX, filesystem itself is case-insensitive...
-	struct caseltstr {
-		bool operator()(const string& s1, const string& s2) const {
-			return strcasecmp(s1.c_str(), s2.c_str()) < 0;
-		}
-	};
-	typedef map<string, string, caseltstr> ExtensionsMap;
+	typedef map<string, string, StringOp::caseless> ExtensionsMap;
 #else
 	typedef map<string, string> ExtensionsMap;
 #endif

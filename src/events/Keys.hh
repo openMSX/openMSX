@@ -6,6 +6,7 @@
 #include <SDL_keysym.h> // TODO
 #include <map>
 #include <string>
+#include "StringOp.hh"
 
 using std::map;
 using std::string;
@@ -204,12 +205,7 @@ public:
 private:
 	static void initialize();
 
-	struct ltstrcase {
-		bool operator()(const string& s1, const string& s2) const {
-			return strcasecmp(s1.c_str(), s2.c_str()) < 0;
-		}
-	};
-	typedef map<string, KeyCode, ltstrcase> KeyMap;
+	typedef map<string, KeyCode, StringOp::caseless> KeyMap;
 	static KeyMap keymap;
 };
 

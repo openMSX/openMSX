@@ -14,6 +14,7 @@
 #include "InfoTopic.hh"
 #include "InfoCommand.hh"
 #include "CommandArgument.hh"
+#include "StringOp.hh"
 
 using std::map;
 using std::set;
@@ -29,13 +30,7 @@ template <typename ValueType>
 class EnumSettingBase : public Setting<ValueType>
 {
 public:
-	struct caseltstr {
-		bool operator()(const string& s1, const string& s2) const {
-			return strcasecmp(s1.c_str(), s2.c_str()) < 0;
-		}
-	};
-
-	typedef map<string, ValueType, caseltstr> Map;
+	typedef map<string, ValueType, StringOp::caseless> Map;
 
 	// Implementation of Setting interface:
 	virtual string getValueString() const;

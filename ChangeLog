@@ -22,6 +22,7 @@ $Id$
 	   update the other machines and extensions.
 	* Also got rid of <parameter name=".."> ... </parameter> constructs in
 	  settings.xml
+	* Removed duplicate code for case insensitive string comparisons
 
 2004-05-30 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added channel mode 'off' to mute individual sound devices

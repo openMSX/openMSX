@@ -9,15 +9,9 @@
 #include "File.hh"
 #include "Config.hh"
 #include "CliCommOutput.hh"
-
+#include "StringOp.hh"
 
 namespace openmsx {
-
-struct caseltstr {
-	bool operator()(const string s1, const string s2) const {
-		return strcasecmp(s1.c_str(), s2.c_str()) < 0;
-	}
-};
 
 RomInfo::RomInfo(const string& ntitle, const string& nyear,
                  const string& ncompany, const string& nremark,
@@ -37,7 +31,8 @@ RomInfo::~RomInfo()
 // TODO: Turn MapperType into a class and move naming there.
 MapperType RomInfo::nameToMapperType(const string& name)
 {
-	static map<string, MapperType, caseltstr> mappertype;
+	typedef map<string, MapperType, StringOp::caseless> MapperTypeMap;
+	static MapperTypeMap mappertype;
 	static bool init = false;
 
 	if (!init) {
@@ -121,8 +116,7 @@ MapperType RomInfo::nameToMapperType(const string& name)
 		mappertype["PAGE3"]       = PAGE3;
 	}
 
-	map<string, MapperType, caseltstr>::const_iterator
-		it = mappertype.find(name);
+	MapperTypeMap::const_iterator it = mappertype.find(name);
 	if (it == mappertype.end()) {
 		return UNKNOWN;
 	}

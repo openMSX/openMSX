@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-map<string, Keys::KeyCode, Keys::ltstrcase> Keys::keymap;
+Keys::KeyMap Keys::keymap;
 
 Keys::KeyCode Keys::getCode(const string& name)
 {
