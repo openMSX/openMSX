@@ -11,6 +11,9 @@
 #include "CommandController.hh"
 #include "NonInheritable.hh"
 #include "SettingsManager.hh"
+#include "InfoTopic.hh"
+#include "InfoCommand.hh"
+#include "CommandResult.hh"
 
 using std::map;
 using std::set;
@@ -49,9 +52,21 @@ protected:
 	                const ValueType& initialValue,
 	                const ValueType& defaultValue,
 	                const Map& map_);
+	virtual ~EnumSettingBase();
 
 private:
+	void init();
 	string getSummary() const;
+
+	class EnumInfo : public InfoTopic {
+	public:
+		EnumInfo(EnumSettingBase& parent);
+		virtual void execute(const vector<string>& tokens,
+		                     CommandResult& result) const throw();
+		virtual string help(const vector<string>& tokens) const throw();
+	private:
+		EnumSettingBase& parent;
+	} enumInfo;
 
 	Map enumMap;
 };
@@ -85,10 +100,9 @@ EnumSettingBase<ValueType>::EnumSettingBase(
 	const ValueType& initialValue,
 	const Map& map_)
 	: Setting<ValueType>(name, description, initialValue),
-	  enumMap(map_)
+	  enumInfo(*this), enumMap(map_)
 {
-	// GCC 3.4-pre complains if superclass is not explicit here.
-	SettingLeafNode::type = getSummary();
+	init();
 }
 
 template<typename ValueType>
@@ -99,10 +113,23 @@ EnumSettingBase<ValueType>::EnumSettingBase(
 	const ValueType& defaultValue,
 	const Map& map_)
 	: Setting<ValueType>(name, description, initialValue, defaultValue),
-	  enumMap(map_)
+	  enumInfo(*this), enumMap(map_)
+{
+	init();
+}
+
+template<typename ValueType>
+void EnumSettingBase<ValueType>::init()
 {
 	// GCC 3.4-pre complains if superclass is not explicit here.
 	SettingLeafNode::type = getSummary();
+	InfoCommand::instance().registerTopic(getName(), &enumInfo);
+}
+
+template<typename ValueType>
+EnumSettingBase<ValueType>::~EnumSettingBase()
+{
+	InfoCommand::instance().unregisterTopic(getName(), &enumInfo);
 }
 
 template<typename ValueType>
@@ -157,6 +184,31 @@ string EnumSettingBase<ValueType>::getSummary() const
 		out << ", " << it->first;
 	}
 	return out.str();
+}
+
+template<typename ValueType>
+EnumSettingBase<ValueType>::EnumInfo::EnumInfo(EnumSettingBase& parent_)
+	: parent(parent_)
+{
+}
+
+template<typename ValueType>
+void EnumSettingBase<ValueType>::EnumInfo::execute(
+	const vector<string>& tokens, CommandResult& result) const throw()
+{
+	set<string> values;
+	parent.getPossibleValues(values);
+	for (set<string>::const_iterator it = values.begin();
+	     it != values.end(); ++it) {
+		result.addListElement(*it);
+	}
+}
+
+template<typename ValueType>
+string EnumSettingBase<ValueType>::EnumInfo::help(const vector<string>& tokens)
+	const throw()
+{
+	return "Returns all possible values for this setting.";
 }
 
 

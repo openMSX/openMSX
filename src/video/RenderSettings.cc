@@ -4,17 +4,12 @@
 #include "SettingsConfig.hh"
 #include "Config.hh"
 #include "CliCommOutput.hh"
-#include "InfoCommand.hh"
 #include "CommandResult.hh"
 
 namespace openmsx {
 
 RenderSettings::RenderSettings()
-	: rendererInfo(*this),
-	  scalerInfo(*this),
-	  accuracyInfo(*this),
-	  settingsConfig(SettingsConfig::instance()),
-	  infoCommand(InfoCommand::instance())
+	: settingsConfig(SettingsConfig::instance())
 {
 	Config* config = settingsConfig.getConfigById("renderer");
 
@@ -61,18 +56,10 @@ RenderSettings::RenderSettings()
 	scanlineAlpha = new IntegerSetting(
 		"scanline", "amount of scanline effect: 0 = none, 100 = full",
 		20, 0, 100);
-
-	infoCommand.registerTopic("renderer", &rendererInfo);
-	infoCommand.registerTopic("scaler", &scalerInfo);
-	infoCommand.registerTopic("accuracy", &accuracyInfo);
 }
 
 RenderSettings::~RenderSettings()
 {
-	infoCommand.unregisterTopic("scaler", &scalerInfo);
-	infoCommand.unregisterTopic("renderer", &rendererInfo);
-	infoCommand.unregisterTopic("accuracy", &accuracyInfo);
-
 	delete accuracy;
 	delete deinterlace;
 	delete horizontalBlur;
@@ -84,78 +71,6 @@ RenderSettings& RenderSettings::instance()
 {
 	static RenderSettings oneInstance;
 	return oneInstance;
-}
-
-// Renderer info
-
-RenderSettings::RendererInfo::RendererInfo(RenderSettings& parent_)
-	: parent(parent_)
-{
-}
-
-void RenderSettings::RendererInfo::execute(const vector<string>& tokens,
-	CommandResult& result) const throw()
-{
-	set<string> renderers;
-	parent.getRenderer()->getPossibleValues(renderers);
-	for (set<string>::const_iterator it = renderers.begin();
-	     it != renderers.end(); ++it) {
-		result.addListElement(*it);
-	}
-}
-
-string RenderSettings::RendererInfo::help(const vector<string>& tokens) const
-	throw()
-{
-	return "Shows a list of available renderers.\n";
-}
-
-// Scaler info
-
-RenderSettings::ScalerInfo::ScalerInfo(RenderSettings& parent_)
-	: parent(parent_)
-{
-}
-
-void RenderSettings::ScalerInfo::execute(const vector<string>& tokens,
-	CommandResult& result) const throw()
-{
-	set<string> scalers;
-	parent.getScaler()->getPossibleValues(scalers);
-	for (set<string>::const_iterator it = scalers.begin();
-	     it != scalers.end(); ++it) {
-		result.addListElement(*it);
-	}
-}
-
-string RenderSettings::ScalerInfo::help(const vector<string>& tokens) const
-	throw()
-{
-	return "Shows a list of available scalers.\n";
-}
-
-// Accuracy info
-
-RenderSettings::AccuracyInfo::AccuracyInfo(RenderSettings& parent_)
-	: parent(parent_)
-{
-}
-
-void RenderSettings::AccuracyInfo::execute(const vector<string>& tokens,
-	CommandResult& result) const throw()
-{
-	set<string> accuracies;
-	parent.getAccuracy()->getPossibleValues(accuracies);
-	for (set<string>::const_iterator it = accuracies.begin();
-	     it != accuracies.end(); ++it) {
-		result.addListElement(*it);
-	}
-}
-
-string RenderSettings::AccuracyInfo::help(const vector<string>& tokens) const
-	throw()
-{
-	return "Shows a list of available accuracies.\n";
 }
 
 } // namespace openmsx
