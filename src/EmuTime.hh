@@ -256,7 +256,7 @@ public:
 	  * @param freq New frequency in Hertz.
 	  */
 	void setFreq(unsigned freq) {
-		assert((MAIN_FREQ / freq) < (1 << 25));
+		assert((MAIN_FREQ / freq) < (1ull << 32));
 		step = MAIN_FREQ / freq;
 	}
 

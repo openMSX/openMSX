@@ -8,6 +8,11 @@ $Id$
 	* correctly give "write protected" err msg on read only disk:
 	   without the head loaded delay our WD2793 detected too fast that the
 	   disk was write protected (too fast for the disk rom software)
+	* assertion in Clock was a bit too strict:
+	   very low clock frequencies (~1Hz) are not allowed (because we use a
+	   32bit variable iso 64 bit for speed). But the assertion was already
+	   triggered by frequencies around 100Hz. Renshaturbo circuit uses
+	   such low frequencies.
 
 2004-10-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Improved disk geometry detection heuristics
