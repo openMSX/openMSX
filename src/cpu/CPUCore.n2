@@ -58,7 +58,12 @@ inline bool _CPU_::RDMEM(word address, byte &result, ResumeFunc f)
 		#endif
 		return true;
 	}
+	RDMEMslow(address, result, f);
+}
+bool _CPU_::RDMEMslow(word address, byte &result, ResumeFunc f)
+{
 	// not cached
+	int line = address >> CACHE_LINE_BITS;
 	if (!readCacheTried[line]) {
 		// try to cache now
 		readCacheTried[line] = true;
@@ -99,7 +104,12 @@ inline bool _CPU_::WRMEM(word address, byte value, ResumeFunc f)
 		writeCacheLine[line][address&CACHE_LINE_LOW] = value;
 		return true;
 	}
+	WRMEMslow(address, value, f);
+}
+bool _CPU_::WRMEMslow(word address, byte value, ResumeFunc f)
+{
 	// not cached
+	int line = address >> CACHE_LINE_BITS;
 	if (!writeCacheTried[line]) {
 		// try to cache now
 		writeCacheTried[line] = true;
