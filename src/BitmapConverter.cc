@@ -4,8 +4,11 @@
 
 // Force template instantiation for these types.
 // Without this, object file contains no method implementations.
+template class BitmapConverter<byte, Renderer::ZOOM_256>;
 template class BitmapConverter<byte, Renderer::ZOOM_512>;
+template class BitmapConverter<word, Renderer::ZOOM_256>;
 template class BitmapConverter<word, Renderer::ZOOM_512>;
+template class BitmapConverter<unsigned int, Renderer::ZOOM_256>;
 template class BitmapConverter<unsigned int, Renderer::ZOOM_512>;
 template class BitmapConverter<unsigned int, Renderer::ZOOM_REAL>;
 

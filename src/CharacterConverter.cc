@@ -51,8 +51,11 @@ inline static void fillBool(bool *ptr, bool value, int nr)
 
 // Force template instantiation for these types.
 // Without this, object file contains no method implementations.
+template class CharacterConverter<byte, Renderer::ZOOM_256>;
 template class CharacterConverter<byte, Renderer::ZOOM_512>;
+template class CharacterConverter<word, Renderer::ZOOM_256>;
 template class CharacterConverter<word, Renderer::ZOOM_512>;
+template class CharacterConverter<unsigned int, Renderer::ZOOM_256>;
 template class CharacterConverter<unsigned int, Renderer::ZOOM_512>;
 template class CharacterConverter<unsigned int, Renderer::ZOOM_REAL>;
 

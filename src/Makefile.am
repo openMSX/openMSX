@@ -36,6 +36,7 @@ openmsx_SOURCES=\
 	VDPVRAM.hh VDPVRAM.cc \
 	SpriteChecker.hh SpriteChecker.cc \
 	Renderer.hh Renderer.cc \
+	SDLLoRenderer.hh SDLLoRenderer.cc \
 	SDLHiRenderer.hh SDLHiRenderer.cc \
 	SDLGLRenderer.hh SDLGLRenderer.cc \
 	XRenderer.hh XRenderer.cc \

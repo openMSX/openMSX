@@ -5,6 +5,7 @@
 #include "MSXConfig.hh"
 
 // Platform dependent includes:
+#include "SDLLoRenderer.hh"
 #include "SDLHiRenderer.hh"
 #include "SDLGLRenderer.hh"
 #include "XRenderer.hh"
@@ -13,10 +14,10 @@ Renderer *PlatformFactory::createRenderer(
 	const std::string &name, VDP *vdp,
 	bool fullScreen, const EmuTime &time)
 {
-	/*if (renderType == "SDLLo") {
+	if (name == "SDLLo") {
 		return createSDLLoRenderer(vdp, fullScreen, time);
 	}
-	else*/ if (name == "SDLHi") {
+	else if (name == "SDLHi") {
 		return createSDLHiRenderer(vdp, fullScreen, time);
 	}
 	else if (name == "Xlib") {
