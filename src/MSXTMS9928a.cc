@@ -3,7 +3,11 @@
 /* TODO:
 - Verify the dirty checks, especially those of mode3 and mode23,
   which were different before.
-- Is it guaranteed that sizeof(bool) == 1? (needed for memset).
+- Is it guaranteed that sizeof(bool) == 1? (needed for memset)
+- Implement collision detection.
+- Apply line-based scheduling.
+- Sprite attribute readout probably happens one line in advance.
+  This matters when line-based scheduling is operational.
 
 Idea:
 For bitmap modes, cache VRAM lines rather than screen lines.
@@ -487,7 +491,7 @@ bool MSXTMS9928a::drawSprites(Pixel *pixelPtr, int line, bool *dirty)
 
 		// Calculate pattern.
 		y = line - y;
-		if (mag) y *= 2;
+		if (mag) y /= 2;
 		int pattern = patternPtr[y] << 24;
 		if (size == 16) {
 			pattern |= patternPtr[y + 16] << 16;
@@ -516,17 +520,24 @@ bool MSXTMS9928a::drawSprites(Pixel *pixelPtr, int line, bool *dirty)
 		bool *dirtyPtr = dirty + (x / 8);
 		ret |= (pattern != 0);
 		// Convert pattern to pixels.
+		bool charDirty = false;
 		while (pattern && (x < 256)) {
 			// Draw pixel if sprite has a dot.
 			if (pattern & 0x80000000) {
 				pixelPtr[x] = colour;
-				*dirtyPtr = true;
+				charDirty = true;
 			}
 			// Advancing behaviour.
-			x++;
-			if ((x & 7) == 0) dirtyPtr++;
 			pattern <<= 1;
+			x++;
+			if ((x & 7) == 0) {
+				if (charDirty) *dirtyPtr = true;
+				charDirty = false;
+				dirtyPtr++;
+			}
 		}
+		// Semi-filled characters can be dirty as well.
+		if ((x < 256) && charDirty) *dirtyPtr = true;
 	}
 
 	return ret;
