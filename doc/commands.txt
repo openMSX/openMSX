@@ -606,6 +606,49 @@ grabinput
     set grabinput off  turn input grabbing mode off
 
 
+icon.<name>.xcoord
+icon.<name>.ycoord
+icon.<name>.active.image
+icon.<name>.non-active.image
+icon.<name>.active.fade-delay
+icon.<name>.active.fade-duration
+icon.<name>.non-active.fade-delay
+icon.<name>.non-active.fade-duration
+------------------------------------
+
+  Controls the appearance of the OSD LED icons.
+  
+  <name> can be 'caps', 'fdd', 'kana', 'pause', 'power' or 'turbo'.
+
+  The position is set with the 'xccord' and 'ycoord' settings. The active and
+  non-active version have the same position. The value is in pixels and (0,0)
+  corresponds to the top-left of the screen.
+  Note: In the future this will most likely change so that it is resolution
+        independent (SDLHi <-> SDLLo)
+
+  The image for the LED can be specified with the '(non-)active.image' setting.
+  This can be an image of any size and the image can have an alpha
+  (=transparency) channel. Typically this will be .png files.
+
+  Fade duration and delay control how (and if) the icon will fade away. When
+  the LED changes status (on->off or off->on) the image is always shown, after
+  the 'delay' time it will start to fade out. The time from completely visible
+  to completely transparent is controlled with the fade.duration setting. Both
+  fade.duration and fade.delay are specied in milliseconds. A fade delay of 0
+  means don't fade out. Duration and delay can be set independently for active
+  and non-active image.
+
+  usage:
+    set icon.fdd.xcoord 250
+    set icon.fdd.ycoord 0
+    set icon.fdd.active.image fdd-on.png
+    set icon.fdd.active.image fdd-off.png
+    set icon.fdd.active.fade-delay 0             don't fade out active fdd LED
+    set icon.fdd.active.fade-duration 5000
+    set icon.fdd.non-active.fade-delay 5000
+    set icon.fdd.non-active.fade-duration 5000
+    
+
 inputdelay
 ----------
 

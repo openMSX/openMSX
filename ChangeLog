@@ -1,5 +1,8 @@
 $Id$
 
+2005-02-01 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* documented icon related settings
+
 2005-02-01 David Heremans <david.heremans@gnu-linux.net>
 	* An extra set of LED images.
 	* Enhanced the load_icon tcl script
@@ -7,7 +10,7 @@ $Id$
 2005-01-31 David Heremans <david.heremans@gnu-linux.net>
 	* Changed default led settings
 
-2005-01-30 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2005-01-31 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented V9990 SRCH command
 	* XIMM bits (R#6) are ignored in Px modes
 	* Implemented V9990 BMLL command
