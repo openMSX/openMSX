@@ -14,13 +14,14 @@
 #include "Mixer.hh"
 #include "Debugger.hh"
 #include "Scheduler.hh"
+#include "AY8910Periphery.hh"
 #include <cassert>
 
 using std::string;
 
 namespace openmsx {
 
-static const bool FORCE_PORTA_INPUT = true; 
+static const bool FORCE_PORTA_INPUT = true;
 
 // Fixed point representation of 1.
 static const int FP_UNIT = 0x8000;
@@ -274,14 +275,14 @@ inline void AY8910::Envelope::setShape(byte shape)
 		C AtAlH
 		0 0 x x  \___
 		0 1 x x  /___
-		1 0 0 0  \\\\ 
+		1 0 0 0  \\\\
 		1 0 0 1  \___
 		1 0 1 0  \/\/
-		1 0 1 1  \   
+		1 0 1 1  \
 		1 1 0 0  ////
-		1 1 0 1  /   
-		1 1 1 0  /\/\ 
-		1 1 1 1  /___ 
+		1 1 0 1  /
+		1 1 1 0  /\/\
+		1 1 1 1  /___
 	*/
 	attack = (shape & 0x04) ? 0x0F : 0x00;
 	if ((shape & 0x08) == 0) {
@@ -336,15 +337,15 @@ inline void AY8910::Envelope::advance(int duration)
 
 // AY8910 main class:
 
-AY8910::AY8910(AY8910Interface& interf, const XMLElement& config,
+AY8910::AY8910(AY8910Periphery& periphery_, const XMLElement& config,
                const EmuTime& time)
-	: interface(interf)
+	: periphery(periphery_)
 	, envelope(amplitude)
 {
 	// make valgrind happy
 	memset(regs, 0, sizeof(regs));
 	setSampleRate(44100);
-	
+
 	reset(time);
 	registerSound(config);
 	Debugger::instance().registerDebuggable(getName() + " regs", *this);
@@ -391,12 +392,12 @@ byte AY8910::readRegister(byte reg, const EmuTime& time)
 	case AY_PORTA:
 		if (FORCE_PORTA_INPUT ||
 		    !(regs[AY_ENABLE] & PORT_A_DIRECTION)) { //input
-			regs[reg] = interface.readA(time);
+			regs[reg] = periphery.readA(time);
 		}
 		break;
 	case AY_PORTB:
 		if (!(regs[AY_ENABLE] & PORT_B_DIRECTION)) { //input
-			regs[reg] = interface.readB(time);
+			regs[reg] = periphery.readB(time);
 		}
 		break;
 	}
@@ -410,12 +411,12 @@ byte AY8910::peekRegister(byte reg, const EmuTime& time) const
 	case AY_PORTA:
 		if (FORCE_PORTA_INPUT ||
 		    !(regs[AY_ENABLE] & PORT_A_DIRECTION)) { //input
-			return interface.peekA(time);
+			return periphery.readA(time);
 		}
 		break;
 	case AY_PORTB:
 		if (!(regs[AY_ENABLE] & PORT_B_DIRECTION)) { //input
-			return interface.peekB(time);
+			return periphery.readB(time);
 		}
 		break;
 	}
@@ -471,12 +472,12 @@ void AY8910::wrtReg(byte reg, byte value, const EmuTime& time)
 		    (value      & PORT_A_DIRECTION) &&
 		    !(oldEnable & PORT_A_DIRECTION)) {
 			// Changed from input to output.
-			interface.writeA(regs[AY_PORTA], time);
+			periphery.writeA(regs[AY_PORTA], time);
 		}
 		if ((value     & PORT_B_DIRECTION) &&
 		    !(oldEnable & PORT_B_DIRECTION)) {
 			// Changed from input to output.
-			interface.writeB(regs[AY_PORTB], time);
+			periphery.writeB(regs[AY_PORTB], time);
 		}
 		oldEnable = value;
 		checkMute();
@@ -484,12 +485,12 @@ void AY8910::wrtReg(byte reg, byte value, const EmuTime& time)
 	case AY_PORTA:
 		if (!FORCE_PORTA_INPUT &&
 		    regs[AY_ENABLE] & PORT_A_DIRECTION) { // output
-			interface.writeA(value, time);
+			periphery.writeA(value, time);
 		}
 		break;
 	case AY_PORTB:
 		if (regs[AY_ENABLE] & PORT_B_DIRECTION) { // output
-			interface.writeB(value, time);
+			periphery.writeB(value, time);
 		}
 		break;
 	}
@@ -515,7 +516,7 @@ void AY8910::setSampleRate(int sampleRate)
 	// at the given sample rate. No. of events = sample rate / (clock/8).
 	// FP_UNIT is a multiplier used to turn the fraction into a fixed point
 	// number.
-	
+
 	// !! look out for overflow !!
 	updateStep = (FP_UNIT * sampleRate) / (CLOCK / 8);
 }

@@ -1,5 +1,11 @@
 $Id$
 
+2005-04-02 Maarten ter Huurne <maarten@treewalker.org>
+	* Refactored AY8910Interface and renamed to AY8910Periphery.
+	  Main difference is the discovery that peek and read actually are the
+	  same thing on this interface, not just in the implemenation but in
+	  the conceptual model as well.
+
 2005-04-01 Manuel Bilderbeek <manuel@msxnet.org>
 	* WIP: make Okazaki core more like 0.61
 	* Swapped default and alternative YM2413 cores, because Okazaki core
@@ -23,7 +29,7 @@ $Id$
 	   - preparation for Tk integration
 
 2005-03-25 Herman Oudejans <hn.oudejans@quicknet.nl>
-	* fixed -control stdio on windows. With this option, the 
+	* fixed -control stdio on windows. With this option, the
 	  StdioConnection was not created.
 
 2005-03-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
@@ -73,9 +79,9 @@ $Id$
 
 2005-03-13 Manuel Bilderbeek <manuel@msxnet.org>
 	* Implemented soundlog toggle command.
-	* Implemented tabCompletion for soundlog command and partially for 
+	* Implemented tabCompletion for soundlog command and partially for
 	  after command
-	* Stop logging sound when frequency setting is changed. 
+	* Stop logging sound when frequency setting is changed.
 	  Alternative: ignore frequency change when logging sound.
 
 2005-03-13 Herman Oudejans <hn.oudejans@quicknet.nl>

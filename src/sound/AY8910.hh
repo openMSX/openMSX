@@ -1,10 +1,4 @@
 // $Id$
-// This class implements the AY-3-8910 sound chip
-//
-// * Only the AY-3-8910 is emulated, no surrounding hardware. 
-//   Use the class AY8910Interface to do that.
-// * For techncal details on AY-3-8910
-//    http://w3.qahwah.net/joost/openMSX/AY-3-8910.pdf
 
 #ifndef AY8910_HH
 #define AY8910_HH
@@ -15,25 +9,18 @@
 
 namespace openmsx {
 
+class AY8910Periphery;
 class XMLElement;
 class EmuTime;
 
-class AY8910Interface
-{
-public:
-	virtual ~AY8910Interface() {}
-	virtual byte readA(const EmuTime& time) = 0;
-	virtual byte readB(const EmuTime& time) = 0;
-	virtual byte peekA(const EmuTime& time) const = 0;
-	virtual byte peekB(const EmuTime& time) const = 0;
-	virtual void writeA(byte value, const EmuTime& time) = 0;
-	virtual void writeB(byte value, const EmuTime& time) = 0;
-};
-
+/** This class implements the AY-3-8910 sound chip.
+  * Only the AY-3-8910 is emulated, no surrounding hardware,
+  * use the class AY8910Periphery to connect peripherals.
+  */
 class AY8910 : private SoundDevice, private Debuggable
 {
 public:
-	AY8910(AY8910Interface& interf, const XMLElement& config,
+	AY8910(AY8910Periphery& periphery_, const XMLElement& config,
 	       const EmuTime& time );
 	virtual ~AY8910();
 
@@ -71,7 +58,7 @@ private:
 		  * @param duration Length of interval to simulate.
 		  * @return Amount of time the generator output is 1 during the given
 		  *    time interval.
-		  *    This value is only calculated if template parameter "enabled" 
+		  *    This value is only calculated if template parameter "enabled"
 		  *    is true, otherwise 0 is returned.
 		  */
 		template <bool enabled>
@@ -152,8 +139,8 @@ private:
 
 	void wrtReg(byte reg, byte value, const EmuTime& time);
 	void checkMute();
-	
-	AY8910Interface& interface;
+
+	AY8910Periphery& periphery;
 	unsigned int updateStep;
 	byte regs[16];
 	byte oldEnable;
@@ -165,4 +152,4 @@ private:
 
 } // namespace openmsx
 
-#endif
+#endif // AY8910_HH

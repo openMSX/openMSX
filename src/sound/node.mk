@@ -5,7 +5,7 @@ include build/node-start.mk
 SRC_HDR:= \
 	Mixer \
 	SoundDevice \
-	MSXPSG AY8910 \
+	MSXPSG AY8910 AY8910Periphery \
 	DACSound16S DACSound8U \
 	KeyClick \
 	SCC MSXSCCPlusCart \

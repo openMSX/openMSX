@@ -6,13 +6,14 @@
 #include <memory>
 #include "MSXDevice.hh"
 #include "AY8910.hh"
+#include "AY8910Periphery.hh"
 
 namespace openmsx {
 
 class CassettePortInterface;
 class JoystickPort;
 
-class MSXPSG : public MSXDevice, public AY8910Interface
+class MSXPSG : public MSXDevice, public AY8910Periphery
 {
 public:
 	MSXPSG(const XMLElement& config, const EmuTime& time);
@@ -25,12 +26,8 @@ public:
 	virtual void writeIO(byte port, byte value, const EmuTime& time);
 
 private:
-	// AY8910Interface
+	// AY8910Periphery: port A input, port B output
 	virtual byte readA(const EmuTime& time);
-	virtual byte readB(const EmuTime& time);
-	virtual byte peekA(const EmuTime& time) const;
-	virtual byte peekB(const EmuTime& time) const;
-	virtual void writeA(byte value, const EmuTime& time);
 	virtual void writeB(byte value, const EmuTime& time);
 
 	std::auto_ptr<AY8910> ay8910;
