@@ -122,7 +122,7 @@ endif
 
 # Ignore rest of Makefile if autodetection was not performed yet.
 # Note that the include above will force a reload of the Makefile.
-ifneq (PLATFORM,)
+ifneq ($(PLATFORM),)
 
 # Load CPU specific settings.
 $(call DEFCHECK,OPENMSX_TARGET_CPU)
