@@ -1,5 +1,12 @@
 $Id$
 
+2004-03-17 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed debugger assertion:
+	   - scheduler did not notice the CPU stoped early because of
+	     breakpoint
+	   - the whole CPU <-> Scheduler interaction is a bit of a mess, need
+	     to clean this up someday
+
 2004-03-16 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Screenshot 'feedback' was only given for non-GL renderer, moved code
 	  to a common (gl / non-gl) code path.

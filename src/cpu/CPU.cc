@@ -167,6 +167,7 @@ void CPU::doBreak2()
 	breaked = true;
 
 	scheduler->increasePauseCounter();
+	scheduler->setCurrentTime(currentTime);
 	
 	ostringstream os;
 	os << "0x" << hex << (int)R.PC.w;

@@ -88,6 +88,11 @@ public:
 	 * Get the current scheduler time.
 	 */
 	const EmuTime& getCurrentTime() const;
+
+	/**
+	 * Set scheduler time. Only CPU is allowed to call this method
+	 */
+	void setCurrentTime(const EmuTime& time);
 	
 	/**
 	 * Schedule till a certain moment in time.

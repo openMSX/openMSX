@@ -65,12 +65,11 @@ Scheduler& Scheduler::instance()
 	return oneInstance;
 }
 
-void Scheduler::setSyncPoint(const EmuTime &timeStamp, Schedulable *device, int userData)
+void Scheduler::setSyncPoint(const EmuTime& timeStamp, Schedulable* device, int userData)
 {
-	if (device) {
-		//PRT_DEBUG("Sched: registering " << device->schedName() <<
-		//          " " << userData << " for emulation at " << timeStamp);
-	}
+	assert(device);
+	//PRT_DEBUG("Sched: registering " << device->schedName() <<
+	//          " " << userData << " for emulation at " << timeStamp);
 
 	sem.down();
 	EmuTime time = timeStamp == ASAP ? scheduleTime : timeStamp;
@@ -133,6 +132,11 @@ const EmuTime& Scheduler::getCurrentTime() const
 	return scheduleTime;
 }
 
+void Scheduler::setCurrentTime(const EmuTime& time)
+{
+	scheduleTime = time;
+}
+
 void Scheduler::stopScheduling()
 {
 	PRT_DEBUG("schedule stop @ " << scheduleTime);
@@ -164,7 +168,7 @@ void Scheduler::schedule(const EmuTime& from, const EmuTime& limit)
 			  syncPoints.empty()
 			? SynchronizationPoint(EmuTime::infinity, NULL, 0)
 			: syncPoints.front();
-		const EmuTime &time = sp.getTime();
+		const EmuTime& time = sp.getTime();
 
 		// Return when we've gone far enough.
 		// If limit and time are both infinity, scheduling will continue.
@@ -212,15 +216,15 @@ void Scheduler::schedule(const EmuTime& from, const EmuTime& limit)
 	--depth;
 }
 
-void Scheduler::scheduleDevice(
-	const SynchronizationPoint &sp, const EmuTime &time )
+void Scheduler::scheduleDevice(const SynchronizationPoint &sp,
+                               const EmuTime& time)
 {
 	assert(scheduleTime <= time);
 	scheduleTime = time;
 	pop_heap(syncPoints.begin(), syncPoints.end());
 	syncPoints.pop_back();
 	sem.up();
-	Schedulable *device = sp.getDevice();
+	Schedulable* device = sp.getDevice();
 	assert(device);
 	int userData = sp.getUserData();
 	PRT_DEBUG ("Sched: Scheduling " << device->schedName()
