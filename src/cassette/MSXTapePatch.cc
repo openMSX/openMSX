@@ -17,10 +17,11 @@ MSXCasCLI::MSXCasCLI()
 	CommandLineParser::instance()->registerFileType("cassetteimages", this);
 }
 
-void MSXCasCLI::parseOption(const string &option,
+bool MSXCasCLI::parseOption(const string &option,
                             list<string> &cmdLine)
 {
 	parseFileType(getArgument(option, cmdLine));
+	return true;
 }
 const string& MSXCasCLI::optionHelp() const
 {

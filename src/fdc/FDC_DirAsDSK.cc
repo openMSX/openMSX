@@ -1,9 +1,12 @@
 // $Id$
 
+
+
 #include "File.hh"
 #include "FDC_DirAsDSK.hh"
 #include "FileContext.hh"
 
+#include <algorithm>
 #include <cassert>
 #include <dirent.h>
 #include <stdio.h>
@@ -12,6 +15,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+
+using std::transform;
 
 /* macros to change DirEntries */
 #define setsh(x,y) {x[0]=y;x[1]=y>>8;}

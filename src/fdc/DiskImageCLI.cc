@@ -17,11 +17,12 @@ DiskImageCLI::DiskImageCLI()
 	driveLetter = 'a';
 }
 
-void DiskImageCLI::parseOption(const string &option,
+bool DiskImageCLI::parseOption(const string &option,
                          list<string> &cmdLine)
 {
 	driveLetter = option[5];	// -disk_
 	parseFileType(getArgument(option, cmdLine));
+	return true;
 }
 const string& DiskImageCLI::optionHelp() const
 {

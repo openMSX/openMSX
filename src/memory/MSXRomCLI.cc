@@ -18,7 +18,7 @@ MSXRomCLI::MSXRomCLI()
 	CommandLineParser::instance()->registerFileType("romimages", this);
 }
 
-void MSXRomCLI::parseOption(const string &option,
+bool MSXRomCLI::parseOption(const string &option,
                          list<string> &cmdLine)
 {
 	string arg = getArgument(option, cmdLine);
@@ -29,6 +29,7 @@ void MSXRomCLI::parseOption(const string &option,
 	} else {
 		CommandLineParser::instance()->registerPostConfig(new MSXRomPostNoName(arg));
 	}
+	return true;
 }
 const string& MSXRomCLI::optionHelp() const
 {

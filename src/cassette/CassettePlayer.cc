@@ -25,10 +25,11 @@ MSXCassettePlayerCLI::MSXCassettePlayerCLI()
 	CommandLineParser::instance()->registerFileType("rawtapeimages", this);
 }
 
-void MSXCassettePlayerCLI::parseOption(const string &option,
+bool MSXCassettePlayerCLI::parseOption(const string &option,
                                        list<string> &cmdLine)
 {
 	parseFileType(getArgument(option, cmdLine));
+	return true;
 }
 const string& MSXCassettePlayerCLI::optionHelp() const
 {

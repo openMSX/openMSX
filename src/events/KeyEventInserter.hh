@@ -16,7 +16,7 @@ class KeyEventInserterCLI : public CLIOption
 {
 	public:
 		KeyEventInserterCLI();
-		virtual void parseOption(const string &option,
+		virtual bool parseOption(const string &option,
 		                         list<string> &cmdLine);
 		virtual const string& optionHelp() const;
 };

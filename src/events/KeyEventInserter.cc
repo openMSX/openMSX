@@ -17,7 +17,7 @@ KeyEventInserterCLI::KeyEventInserterCLI()
 	CommandLineParser::instance()->registerOption("-keyins", this);
 }
 
-void KeyEventInserterCLI::parseOption(const string &option,
+bool KeyEventInserterCLI::parseOption(const string &option,
                          list<string> &cmdLine)
 {
 	string arg = getArgument(option, cmdLine);
@@ -73,6 +73,7 @@ void KeyEventInserterCLI::parseOption(const string &option,
 	MSXConfig *config = MSXConfig::instance();
 	UserFileContext context;
 	config->loadStream(context, s);
+	return true;
 }
 const string& KeyEventInserterCLI::optionHelp() const
 {

@@ -19,7 +19,7 @@ class MSXCassettePlayerCLI : public CLIOption, public CLIFileType
 {
 	public:
 		MSXCassettePlayerCLI();
-		virtual void parseOption(const string &option,
+		virtual bool parseOption(const string &option,
 				list<string> &cmdLine);
 		virtual const string& optionHelp() const;
 		virtual void parseFileType(const string &filename);

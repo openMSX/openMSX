@@ -1,5 +1,9 @@
 $Id$
 
+2003-08-16 Herman Oudejans <hn.oudejans@quicknet.nl>
+	* Added priority to the commandline parser. When the -h option
+	  is invoked, there won't be any machines loaded.
+
 2003-08-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Basic support for .zip files, for now always the first file in
 	  the .zip is taken

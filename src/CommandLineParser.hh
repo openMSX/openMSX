@@ -25,7 +25,7 @@ class MSXConfig;
 class CLIOption
 {
 	public:
-		virtual void parseOption(const string &option,
+		virtual bool parseOption(const string &option,
 			list<string> &cmdLine) = 0;
 		virtual const string& optionHelp() const = 0;
 	
@@ -47,18 +47,23 @@ class CLIPostConfig
 		virtual void execute(MSXConfig *config) = 0;
 };
 
+struct OptionData
+{
+	CLIOption * option;
+	byte prio;
+};
 
 class CommandLineParser
 {
 	public:
 		static CommandLineParser* instance();
 		
-		void registerOption(const string &str, CLIOption* cliOption);
+		void registerOption(const string &str, CLIOption* cliOption, byte prio=7);
 		void registerFileType(const string &str, CLIFileType* cliFileType);
 		void registerPostConfig(CLIPostConfig *post);
 		void parse(int argc, char **argv);
 		bool parseFileName(const string &arg,list<string> &cmdLine);
-		bool parseOption(const string &arg,list<string> &cmdLine);
+		bool parseOption(const string &arg,list<string> &cmdLine, byte prio);
 
 	//private: // should be private, but gcc-2.95.x complains
 		struct caseltstr {
@@ -66,7 +71,7 @@ class CommandLineParser
 				return strcasecmp(s1.c_str(), s2.c_str()) < 0;
 			}
 		};
-		map<string, CLIOption*> optionMap;
+		map<string, OptionData > optionMap;
 		map<string, CLIFileType*, caseltstr> fileTypeMap;
 		map<string, CLIFileType*, caseltstr> fileClassMap;
 	private:
@@ -74,19 +79,22 @@ class CommandLineParser
 		void postRegisterFileTypes();
 		vector<CLIPostConfig*> postConfigs;
 		bool haveConfig;
+		bool haveSettings;
+		bool issuedHelp;
 
 		class HelpOption : public CLIOption {
 		public:
-			virtual void parseOption(const string &option,
+			virtual bool parseOption(const string &option,
 				list<string> &cmdLine);
 			virtual const string& optionHelp() const;
 			string formatSet(set<string> * inputSet,unsigned columns);
 			string formatHelptext(string helpText,unsigned maxlength, unsigned indent);
 		} helpOption;
-		
+		friend class HelpOption;
+			
 		class ConfigFile : public CLIOption, public CLIFileType {
 		public:
-			virtual void parseOption(const string &option,
+			virtual bool parseOption(const string &option,
 				list<string> &cmdLine);
 			virtual const string& optionHelp() const;
 			virtual void parseFileType(const string &filename);
@@ -96,7 +104,7 @@ class CommandLineParser
 		
 		class MachineOption : public CLIOption {
 		public:
-			virtual void parseOption(const string &option,
+			virtual bool parseOption(const string &option,
 				list<string> &cmdLine);
 			virtual const string& optionHelp() const;
 		} machineOption;
@@ -105,11 +113,12 @@ class CommandLineParser
 		class SettingOption : public CLIOption {
 		public:
 			SettingOption() : parsed(false) {}
-			virtual void parseOption(const string &option,
+			virtual bool parseOption(const string &option,
 				list<string> &cmdLine);
 			virtual const string& optionHelp() const;
 			bool parsed;
 		} settingOption;
+		friend class SettingOption;
 };
 
 } // namespace openmsx

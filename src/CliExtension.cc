@@ -33,7 +33,7 @@ CliExtension::~CliExtension()
 {
 }
 
-void CliExtension::parseOption(const string &option,
+bool CliExtension::parseOption(const string &option,
                                list<string> &cmdLine)
 {
 	string extension = getArgument(option, cmdLine);
@@ -46,6 +46,7 @@ void CliExtension::parseOption(const string &option,
 	} else {
 		PRT_ERROR("Extension \"" << extension << "\" not found!");
 	}
+	return true;
 }
 
 const string& CliExtension::optionHelp() const
