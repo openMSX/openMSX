@@ -1,5 +1,9 @@
 $Id$
 
+2002-11-01 Maarten ter Huurne <mth@stack.nl>
+	* Scanline emulation in SDLGLRenderer.
+	  Very rudimentary in this stage, but it works.
+
 2002-10-31 Maarten ter Huurne <mth@stack.nl>
 	* Changed SDLGLRenderer to make it a subclass of PixelRenderer.
 	* Minor cleanups in SDLHiRenderer.

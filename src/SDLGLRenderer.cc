@@ -215,6 +215,25 @@ inline void SDLGLRenderer::setDisplayMode(int mode)
 
 void SDLGLRenderer::finishFrame()
 {
+	// Draw scanlines if enabled.
+	// TODO: Turn off scanlines when deinterlacing.
+	if (scanlineAlpha != 0) {
+		// TODO: These are always the same lines: use a display list.
+		// TODO: If interlace is active, draw scanlines on even/odd lines
+		//       for odd/even frames respectively.
+		if (scanlineAlpha != 255) {
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		}
+		glColor4ub(0, 0, 0, scanlineAlpha);
+		glBegin(GL_LINES);
+		for (int y = 0; y < HEIGHT; y += 2) {
+			glVertex2i(0, y); glVertex2i(WIDTH, y);
+		}
+		glEnd();
+		glDisable(GL_BLEND);
+	}
+
 	// Render console if needed.
 	console->drawConsole();
 
@@ -347,6 +366,7 @@ SDLGLRenderer::SDLGLRenderer(
 	, bitmapConverter(palFg, PALETTE256)
 {
 	console = new GLConsole();
+	scanlineAlpha = 64;
 
 	GLint size;
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size);

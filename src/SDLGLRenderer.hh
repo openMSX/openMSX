@@ -210,6 +210,11 @@ private:
 	  */
 	GLuint spriteTextureIds[313];
 
+	/** Alpha value of scanlines:
+	  * 0 turns off scanlines, 255 draws full black scanlines.
+	  */
+	int scanlineAlpha;
+
 	/** Display mode the line is valid in.
 	  * 0xFF means invalid in every mode.
 	  */
@@ -253,6 +258,7 @@ private:
 	BitmapConverter<Pixel, Renderer::ZOOM_REAL> bitmapConverter;
 
 	GLConsole* console;
+
 };
 
 #endif // OpenGL header check.
