@@ -2,6 +2,7 @@ config.log
 config.h
 config.h.in
 config.cache
+config.cross.cache
 config.status
 stamp-h
 Makefile
@@ -25,3 +26,4 @@ ltmain.sh
 missing
 mkinstalldirs
 tmp
+*.diff
