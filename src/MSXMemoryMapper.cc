@@ -7,6 +7,7 @@
 #include "MSXMapperIOTurboR.hh"
 #include "MSXMapperIOPhilips.hh"
 #include "MSXMotherBoard.hh"
+#include "MSXCPU.hh"
 
 
 MSXMemoryMapper::MSXMemoryMapper(MSXConfig::Device *config, const EmuTime &time)
@@ -53,6 +54,16 @@ byte MSXMemoryMapper::readMem(word address, const EmuTime &time)
 void MSXMemoryMapper::writeMem(word address, byte value, const EmuTime &time)
 {
 	buffer[getAdr(address)] = value;
+}
+
+byte* MSXMemoryMapper::getReadCacheLine(word start, word length)
+{
+	return &buffer[getAdr(start)];
+}
+
+byte* MSXMemoryMapper::getWriteCacheLine(word start, word length)
+{
+	return &buffer[getAdr(start)];
 }
 
 word MSXMemoryMapper::getAdr(word address)
@@ -111,6 +122,8 @@ void MSXMemoryMapper::writeIO(byte port, byte value, const EmuTime &time)
 {
 	assert (0xfc <= port);
 	pageNum[port-0xfc] = value;
+	MSXCPU::instance()->invalidateCache(0x4000*(port-0xfc), 0x4000);
 }
 
 byte MSXMemoryMapper::pageNum[4];
+

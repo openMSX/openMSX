@@ -8,6 +8,7 @@
 #include "RealTime.hh"
 #include "DummyDevice.hh"
 #include "Leds.hh"
+#include "MSXCPU.hh"
 #include "MSXDevice.hh"
 #include "MSXIODevice.hh"
 #include "MSXMemDevice.hh"
@@ -146,6 +147,8 @@ void MSXMotherBoard::set_A8_Register(byte value)
 		                               [SecondarySlotState[j]]
 		                               [j];
 	}
+	// invalidate cache
+	MSXCPU::instance()->invalidateCache(0x0000, 0x10000);
 }
 
 
@@ -175,6 +178,8 @@ void MSXMotherBoard::writeMem(word address, byte value, const EmuTime &time)
 					visibleDevices[i]= SlotLayout [PrimarySlotState[i]]
 					                              [SecondarySlotState[i]]
 					                              [i];
+					// invalidate cache
+					MSXCPU::instance()->invalidateCache(0x0000, 0x10000);
 				}
 			}
 			return;
@@ -213,3 +218,16 @@ void MSXMotherBoard::lowerIRQ()
 	IRQLine--;
 }
 
+byte* MSXMotherBoard::getReadCacheLine(word start, word length)
+{
+	if ((start+length) > 0xffff)
+		return NULL;
+	return visibleDevices[start>>14]->getReadCacheLine(start, length);
+}
+
+byte* MSXMotherBoard::getWriteCacheLine(word start, word length)
+{
+	if ((start+length) > 0xffff)
+		return NULL;
+	return visibleDevices[start>>14]->getWriteCacheLine(start, length);
+}

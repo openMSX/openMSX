@@ -43,7 +43,7 @@ openmsx_SOURCES=openmsx.cc \
 	SDLLoRenderer.hh SDLLoRenderer.cc \
 	SDLHiRenderer.hh SDLHiRenderer.cc \
 	MSXCPU.hh MSXCPU.cc \
-	CPU.hh CPU.cc CPUInterface.hh CPUInterface.cc \
+	CPU.hh CPU.cc CPU.ii CPUInterface.hh CPUInterface.cc \
 	Z80.cc Z80.hh Z80.ii opc_R800.h Z80Core.hh \
 	Z80Tables.hh Z80Dasm.h \
 	devicefactory.hh devicefactory.cc \

@@ -94,6 +94,12 @@ void MSXCPU::executeUntilEmuTime(const EmuTime &time, int userData)
 	assert(false);
 }
 
+void MSXCPU::invalidateCache(word start, int length)
+{
+	z80->invalidateCache(start, length);
+	//r800->invalidateCache(start, length);
+}
+
 CPU &MSXCPU::getActiveCPU()
 {
 	return *activeCPU;

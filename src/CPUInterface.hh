@@ -63,6 +63,11 @@ class CPUInterface {
 		 * Destructor
 		 */
 		 virtual ~CPUInterface();
+
+		//TODO
+		virtual byte* getReadCacheLine(word start, word length) = 0;
+		virtual byte* getWriteCacheLine(word start, word length) = 0;
+	
 	protected:
 		/*
 		 * Constructor

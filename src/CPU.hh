@@ -83,6 +83,12 @@ class CPU
 		 */
 		void setCPURegs(const CPURegs &regs);
 
+
+		// TODO
+		byte CPU::readMem(word address, const EmuTime &time);
+		void CPU::writeMem(word address, byte value, const EmuTime &time);
+		void invalidateCache(word start, int length);
+
 	protected:
 		/*
 		 * Constructor
@@ -102,6 +108,11 @@ class CPU
 		bool targetChanged;	// optimization
 
 		CPURegs R;
+
+	private:
+		byte* readCacheLine[0x100];
+		byte* writeCacheLine[0x100];
+		int hit, miss;
 };
 #endif //__CPU_HH__
 

@@ -9,6 +9,11 @@ class MSXIODevice : virtual public MSXDevice
 {
 	public:
 		/**
+		 * Constructor
+		 */
+		MSXIODevice();
+		
+		/**
 		 * Read a byte from an IO port at a certain time from this device.
 		 * The default implementation returns 255.
 		 */

@@ -2,6 +2,11 @@
  
 #include "MSXIODevice.hh"
 
+MSXIODevice::MSXIODevice()
+{
+	// TODO registerIO();
+}
+
 byte MSXIODevice:: readIO(byte port, const EmuTime &time)
 {
 	return 255;

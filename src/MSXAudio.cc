@@ -39,6 +39,7 @@ byte MSXAudio::readIO(byte port, const EmuTime &time)
 		return y8950->readReg(registerLatch);
 	default:
 		assert(false);
+		return 0;	// avoid warning
 	}
 }
 

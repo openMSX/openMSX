@@ -23,7 +23,9 @@
 #endif
 
 #include "Z80Tables.hh"
+#include "CPU.ii"
 #include "Z80.ii"
+
 
 Z80::Z80(CPUInterface *interf, int waitCycl, const EmuTime &time) : CPU(interf)
 {

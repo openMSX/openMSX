@@ -12,6 +12,9 @@
 
 // Schedulable 
 
+Schedulable::Schedulable() {
+}
+
 const std::string &Schedulable::getName()
 {
 	return defaultName;

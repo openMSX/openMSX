@@ -31,3 +31,13 @@ void MSXMemDevice::registerSlots()
 		MSXMotherBoard::instance()->registerSlottedDevice(this,ps,ss,page);
 	}
 }
+
+byte* MSXMemDevice::getReadCacheLine(word start, word length)
+{
+	return NULL;
+}
+
+byte* MSXMemDevice::getWriteCacheLine(word start, word length)
+{
+	return NULL;
+}

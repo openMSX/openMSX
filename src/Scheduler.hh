@@ -16,6 +16,8 @@
 class Schedulable
 {
 	public:
+		Schedulable();
+
 		/**
 		 * When the previously registered syncPoint is reached, this
 		 * method gets called. The parameter "userData" is the same 

@@ -22,5 +22,7 @@ class MSXRom16KB : public MSXMemDevice, public MSXRom
 		~MSXRom16KB();
 		
 		byte readMem(word address, const EmuTime &time);
+
+		byte* getReadCacheLine(word start, word length);
 };
 #endif

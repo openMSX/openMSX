@@ -1,5 +1,10 @@
 $Id$
 
+2001-12-29 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* Memory reads/writes can now be cached (if possible)
+	  measured 10% - 20% performance gain
+	  not completely finished, especially documentation
+
 2001-12-29 Joost Yervante Damad <j.damad@qahwah.net>
 	* synced in libxmlx skeleton [W.I.P.!]
 	* header file include cleanup, this should avoid alot

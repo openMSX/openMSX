@@ -146,6 +146,10 @@ class MSXMotherBoard : public CPUInterface
 		 */
 		void lowerIRQ();
 
+		// TODO
+		virtual byte* getReadCacheLine(word start, word length);
+		virtual byte* getWriteCacheLine(word start, word length);
+
 
 		/*
 		 * Should only be used by PPI

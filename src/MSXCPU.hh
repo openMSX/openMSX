@@ -41,6 +41,9 @@ class MSXCPU : public MSXDevice, public Schedulable
 		
 		const EmuTime &getTargetTime();
 
+		//TODO
+		void invalidateCache(word start, int length);
+
 	private:
 		/**
 		 * Constructor.

@@ -24,8 +24,10 @@ class MSXSimple64KB : public MSXMemDevice
 		//void SaveStateMSX(ofstream savestream);
 		
 		byte readMem(word address, const EmuTime &time);
-		void writeMem(word address, byte value, const EmuTime &time);
-	
+		void writeMem(word address, byte value, const EmuTime &time);  
+		byte* getReadCacheLine(word start, word length);
+		byte* getWriteCacheLine(word start, word length);
+
 	private:
 		byte* memoryBank;
 		bool slowDrainOnReset;
