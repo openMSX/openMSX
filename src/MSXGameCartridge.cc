@@ -5,6 +5,7 @@
 #include "DACSound.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
+#include <map>
 
 MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time)
@@ -118,15 +119,55 @@ void MSXGameCartridge::reset(const EmuTime &time)
 	}
 }
 
+struct ltstr
+{
+  bool operator()(const char* s1, const char* s2) const
+  {
+    return strcmp(s1, s2) < 0;
+  }
+};
+
 int MSXGameCartridge::retrieveMapperType()
 {
 	try {
 		if (deviceConfig->getParameterAsBool("automappertype")) {
 			return guessMapperType();
 		} else {
-			int type = deviceConfig->getParameterAsInt("mappertype");
+			std::string  type = deviceConfig->getParameter("mappertype");
 			PRT_DEBUG("Using mapper type " << type);
-			return type;
+
+			map<const char*, int, ltstr> mappertype;
+			
+			mappertype["0"]=0;
+			mappertype["8kB"]=0;
+			
+			mappertype["1"]=1;
+			mappertype["16kB"]=1;
+			
+			mappertype["2"]=2;
+			mappertype["KONAMI5"]=2;
+			mappertype["SCC"]=2;
+			
+			mappertype["3"]=3;
+			mappertype["KONAMI4"]=3;
+			
+			mappertype["4"]=4;
+			mappertype["ASCII8"]=4;
+
+			mappertype["5"]=5;
+			mappertype["ASCII16"]=5;
+
+			mappertype["5"]=6;
+			mappertype["GAMEMASTER2"]=6;
+
+			mappertype["64"]=64;
+			mappertype["KONAMIDAC"]=64;
+
+			
+			//TODO: catch wrong options passed
+			int typenr = mappertype[type.c_str()];
+			
+			return typenr;
 		}
 	} catch (MSXConfig::Exception& e) {
 		// missing parameter

@@ -1,5 +1,11 @@
 $Id$
 
+2002-02-15 David Heremans <david.heremans@gnu-linux.net>
+	* Nicer mappertypes for the MSXGameCartridge:
+	  As requested by Maarten you can now specify easier to remember
+	  names (like ASCII8, SCC,KONAMI4,...) for the different mapper
+	  types instead of the numbers.
+
 2002-02-13 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* CPU speedup:
 	   CPU doesn't check the IRQ line after each instruction anymore, only
