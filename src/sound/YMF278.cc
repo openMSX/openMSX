@@ -459,7 +459,10 @@ int* YMF278::updateBuffer(int length) throw()
 				if (oct & 8) {
 					oct |= -8;
 				}
-				int step = ((sl.FN | 1024) + sl.compute_vib()) << (oct + 5);
+				oct += 5;
+				int step = (oct >= 0)
+					? ((sl.FN | 1024) + sl.compute_vib()) << oct
+					: ((sl.FN | 1024) + sl.compute_vib()) >> -oct;
 				sl.stepptr += (int)(step * freqbase);
 			} else {
 				sl.stepptr += sl.step;
@@ -492,7 +495,10 @@ void YMF278::keyOnHelper(YMF278Slot& slot)
 	if (oct & 8) {
 		oct |= -8;
 	}
-	int step = (slot.FN | 1024) << (oct + 5);
+	oct += 5;
+	int step = (oct >= 0)
+		? (slot.FN | 1024) << oct
+		: (slot.FN | 1024) >> -oct;
 	slot.step = (int)(step * freqbase);
 	slot.state = EG_ATT;
 	slot.stepptr = 0;
@@ -553,7 +559,10 @@ void YMF278::writeRegOPL4(byte reg, byte data, const EmuTime &time)
 			if (oct & 8) {
 				oct |= -8;
 			}
-			int step = (slot.FN | 1024) << (oct + 5);
+			oct += 5;
+			int step = (oct >= 0)
+				? (slot.FN | 1024) << oct
+				: (slot.FN | 1024) >> -oct;
 			slot.step = (int)(step * freqbase);
 			break;
 		}
