@@ -23,7 +23,6 @@
 #include "MSXBunsetsu.hh"
 #include "MSXMemoryMapper.hh"
 #include "PanasonicRam.hh"
-#include "PanasonicRom.hh"
 #include "MSXRTC.hh"
 #include "RomFactory.hh"
 #include "MSXRom.hh"
@@ -120,9 +119,6 @@ MSXDevice *DeviceFactory::create(Config* conf, const EmuTime& time)
 	}
 	if (type == "PanasonicRAM") {
 		return new PanasonicRam(conf, time);
-	}
-	if (type == "PanasonicROM") {
-		return new PanasonicRom(conf, time);
 	}
 	if (type == "RTC") {
 		return new MSXRTC(conf, time);

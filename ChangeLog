@@ -2,6 +2,7 @@ $Id$
 
 2004-06-03 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed creation of internal datastructures to match the new XML format
+	* Removed deprecated device PanasonicRom
 
 2004-06-03 Manuel Bilderbeek <manuel@msxnet.org>
 	* More config file changes: 

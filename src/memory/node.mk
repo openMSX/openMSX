@@ -21,7 +21,7 @@ SRC_HDR:= \
 	RomPanasonic RomNational \
 	RomMSXAudio RomHalnote RomHolyQuran \
 	RomFSA1FM \
-	PanasonicMemory PanasonicRam PanasonicRom \
+	PanasonicMemory PanasonicRam \
 	MSXMegaRam \
 	MSXPac \
 	MSXHBI55
