@@ -137,6 +137,8 @@ packages (we're compiling here!). You need the SDL_image, SDL_mixer, SDL_net
 Furthermore, you need
 libxml2 - GNOME XML library
 libxml2-dev - Development files for the GNOME XML library
+libpng12-0 - PNG library - runtime
+libpng12-0-dev - PNG library - development
 g++ - The GNU C++ compiler. (2.95.3 or 3.2 is recommended for now)
 
 The package uses the GNU Automake utilities. Thus, you also need:
