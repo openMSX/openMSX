@@ -50,9 +50,8 @@ private:
 	int playAddr;
 	int addrMask;
 	int memPntr;
-	byte* wave;
+	bool romBank;
 	byte* ramBank;
-	byte* romBank;
 	
 	bool playing;
 	int volume;

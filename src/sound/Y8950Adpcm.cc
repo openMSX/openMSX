@@ -60,13 +60,10 @@ int Y8950Adpcm::CLAP(int min, int x, int max)
 //**********************************************************//
 
 Y8950Adpcm::Y8950Adpcm(Y8950& y8950_, const string& name_, int sampleRam)
-	: y8950(y8950_), name(name_ + "_ram"), volume(0)
+	: y8950(y8950_), name(name_ + "_ram"), ramSize(sampleRam), volume(0)
 {
-	ramSize = sampleRam;
-	ramBank = new byte[256*1024];
-	romBank = new byte[256*1024];
-	memset(ramBank, 255, 256*1024);
-	memset(romBank, 255, 256*1024);
+	ramBank = new byte[ramSize];
+	memset(ramBank, 0xFF, ramSize);
 
 	Debugger::instance().registerDebuggable(name, *this);
 }
@@ -75,7 +72,6 @@ Y8950Adpcm::~Y8950Adpcm()
 {
 	Debugger::instance().unregisterDebuggable(name, *this);
 	delete[] ramBank;
-	delete[] romBank;
 }
 
 void Y8950Adpcm::reset(const EmuTime &time)
@@ -86,7 +82,6 @@ void Y8950Adpcm::reset(const EmuTime &time)
 	memPntr = 0;
 	delta = 0;
 	step = 0;
-	wave = ramBank;
 	addrMask = (1 << 19) - 1;
 	reg7 = 0;
 	reg15 = 0;
@@ -166,8 +161,8 @@ void Y8950Adpcm::writeReg(byte rg, byte data, const EmuTime &time)
 			break;
 
 		case 0x08: // CSM/KEY BOARD SPLIT/-/-/SAMPLE/DA AD/64K/ROM 
-			//wave = data&R08_ROM ? romBank : ramBank;
-			addrMask = data&R08_64K ? (1<<17)-1 : (1<<19)-1;
+			romBank = data & R08_ROM;
+			addrMask = data & R08_64K ? (1<<17)-1 : (1<<19)-1;
 			break;
 
 		case 0x09: // START ADDRESS (L)
@@ -193,7 +188,9 @@ void Y8950Adpcm::writeReg(byte rg, byte data, const EmuTime &time)
 			{
 				int tmp = ((startAddr + memPntr) & addrMask) / 2;
 				tmp = (tmp < ramSize) ? tmp : (tmp & (ramSize - 1)); 
-				wave[tmp] = data;
+				if (!romBank) {
+					ramBank[tmp] = data;
+				}
 				//PRT_DEBUG("Y8950Adpcm: mem " << tmp << " " << (int)data);
 				memPntr += 2;
 				if ((startAddr + memPntr) > stopAddr) {
@@ -243,7 +240,11 @@ byte Y8950Adpcm::readReg(byte rg)
 		case 0x0F: { // ADPCM-DATA
 			// TODO don't advance pointer when playing???
 			int adr = ((startAddr + memPntr) & addrMask) / 2;
-			result = wave[adr];
+			if (romBank || (adr >= ramSize)) {
+				result = 0xFF;
+			} else {
+				result = ramBank[adr];
+			}
 			memPntr += 2;
 			if ((startAddr + memPntr) > stopAddr) {
 				y8950.setStatus(Y8950::STATUS_EOS);
@@ -282,7 +283,12 @@ int Y8950Adpcm::calcSample()
 			nibble val;
 			if (!(playAddr & 1)) {
 				// n-th nibble
-				reg15 = wave[playAddr / 2];
+				int tmp = playAddr / 2;
+				if (romBank || (tmp >= ramSize)) {
+					reg15 = 0xFF;
+				} else {
+					reg15 = ramBank[tmp];
+				}
 				val = reg15 >> 4;
 			} else {
 				// (n+1)-th nibble

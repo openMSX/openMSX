@@ -1,5 +1,9 @@
 $Id$
 
+2004-03-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Reduce memory usage in Y8950Adpcm:
+	   - found by massif (part of valgrind)
+
 2004-03-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Another config refactoring:
 	   - split MSXConfig in hardware and settings part
