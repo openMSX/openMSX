@@ -2293,11 +2293,7 @@ inline void _CPU_::BLOCK_IN(bool increase, bool repeat) {
 	if (val & S_FLAG) R.AF.B.l |= N_FLAG;
 	int k = val + ((R.BC.B.l + (increase ? 1 : -1)) & 0xFF);
 	if (k & 0x100) R.AF.B.l |= H_FLAG | C_FLAG;
-	if ((irep_tmp1[R.BC.B.l & 3][val & 3] ^
-	    breg_tmp2[R.BC.B.h]                 ^
-	    (R.BC.B.l >> 2)                     ^
-	    (val >> 2)                          ) & 1)
-		R.AF.B.l |= P_FLAG;
+	R.AF.B.l |= ZSPXYTable[(k & 0x07) ^ R.BC.B.h] & P_FLAG;
 	if (repeat && R.BC.B.h) { BLOCK_DELAY(); R.PC.w -= 2; }
 }
 void _CPU_::ind() {
@@ -2325,11 +2321,7 @@ inline void _CPU_::BLOCK_OUT(bool increase, bool repeat) {
 	if (val & S_FLAG) R.AF.B.l |= N_FLAG;
 	int k = val + R.HL.B.l;
 	if (k & 0x100) R.AF.B.l |= H_FLAG | C_FLAG;
-	if ((irep_tmp1[R.BC.B.l & 3][val & 3] ^
-	    breg_tmp2[R.BC.B.h]                 ^
-	    (R.BC.B.l >> 2)                     ^
-	    (val >> 2)                          ) & 1)
-		R.AF.B.l |= P_FLAG;
+	R.AF.B.l |= ZSPXYTable[(k & 0x07) ^ R.BC.B.h] & P_FLAG;
 	if (repeat && R.BC.B.h) { BLOCK_DELAY(); R.PC.w -= 2; }
 }
 void _CPU_::outd() {

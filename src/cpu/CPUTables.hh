@@ -5,10 +5,10 @@
 
 #include "openmsx.hh"
 
-
 namespace openmsx {
 
-class CPUTables {
+class CPUTables
+{
 public:
 	// flag positions
 	static const byte S_FLAG = 0x80;
@@ -22,41 +22,20 @@ public:
 	static const byte C_FLAG = 0x01;
 
 protected:
+	CPUTables();
+
 	// flag-register tables
 	// These are initialized at run-time
 	static byte ZSTable[256];
 	static byte ZSXYTable[256];
 	static byte ZSPXYTable[256];
 	static byte ZSPTable[256];
-
-	static const word DAATable[0x800];
-
-	/** tmp1 value for ini/inir/outi/otir for [C.1-0][io.1-0]
-	  */
-	static const byte irep_tmp1[4][4];
-
-	/** tmp1 value for ind/indr/outd/otdr for [C.1-0][io.1-0]
-	  */
-	static const byte drep_tmp1[4][4];
-
-	/** tmp2 value for all in/out repeated opcodes for B.7-0
-	  */
-	static const byte breg_tmp2[256];
-
-	/** Forces table initialisation.
-	  */
-	CPUTables() {
-		init();
-	}
-	virtual ~CPUTables() {}
+	static word DAATable[0x800];
 
 private:
 	/** Initialise the table contents.
-	  * Some tables are initialised at run time,
-	  * so it is essential to call this method before using any tables.
 	  */
 	static void init();
-
 };
 
 } // namespace openmsx
