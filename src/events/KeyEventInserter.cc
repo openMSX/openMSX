@@ -19,7 +19,7 @@ void KeyEventInserterCLI::parseOption(const std::string &option,
                          std::list<std::string> &cmdLine)
 {
 	std::string arg = getArgument(option, cmdLine);
-	
+
 	std::ostringstream s;
 	s << "<msxconfig>";
 	s << "<config id=\"KeyEventInserter\">";
@@ -96,8 +96,8 @@ void KeyEventInserter::enter(const std::string &str, const EmuTime &time_)
 	time += 10*5; // wait for bootlogo
 	for (unsigned i=0; i<str.length(); i++) {
 		const SDLKey* events;
-		
-		events = keymap[str[i]];
+
+		events = keymap[(unsigned char)str[i]];
 		event.type = SDL_KEYDOWN;
 		while (*events != (SDLKey)0) {
 			event.key.keysym.sym = *events;
@@ -105,8 +105,8 @@ void KeyEventInserter::enter(const std::string &str, const EmuTime &time_)
 			events++;
 		}
 		time++;
-		
-		events = keymap[str[i]];
+
+		events = keymap[(unsigned char)str[i]];
 		event.type = SDL_KEYUP;
 		while (*events != (SDLKey)0) {
 			event.key.keysym.sym = *events;
