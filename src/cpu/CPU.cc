@@ -121,8 +121,8 @@ void CPU::wait(const EmuTime& time)
 void CPU::extendTarget(const EmuTime& time)
 {
 	assert(getTargetTime() <= time);
-	scheduler->schedule(time);
 	setTargetTime(time);
+	scheduler->schedule(time);
 }
 
 } // namespace openmsx
