@@ -5,7 +5,6 @@ SUBDIRS:= \
 	input libxmlx memory serial settings sound thread video
 
 SRC_HDR:= \
-	Icon \
 	EmuTime \
 	MSXDevice MSXIODevice MSXMemDevice \
 	MSXMotherBoard \

@@ -1,5 +1,8 @@
 $Id$
 
+2003-11-15 Manuel Bilderbeek <manuel@msxnet.org>
+	* Moved initialization of SDL Video to RendererFactory.
+
 2003-11-15 Maarten ter Huurne <maarten@treewalker.org>
 	* Modified Scheduler to only schedule ASAP sync points during pause.
 	  Also made ASAP resolve to CPU's current time instead of target time.

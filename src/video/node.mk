@@ -4,6 +4,7 @@ SRC_HDR:= \
 	VDP VDPCmdEngine VDPVRAM SpriteChecker \
 	DirtyChecker \
 	VDPSettings FrameSkipSetting \
+	Icon \
 	Renderer RendererFactory RenderSettings PixelRenderer \
 	SDLRenderer \
 	SDLGLRenderer GLUtil \

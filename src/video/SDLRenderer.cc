@@ -380,6 +380,8 @@ SDLRenderer<Pixel, zoom>::~SDLRenderer()
 	SDL_FreeSurface(charDisplayCache);
 	SDL_FreeSurface(bitmapDisplayCache);
 	SDL_FreeSurface(storedImage);
+
+	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
 template <class Pixel, Renderer::Zoom zoom>

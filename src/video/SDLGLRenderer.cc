@@ -511,6 +511,8 @@ SDLGLRenderer::~SDLGLRenderer()
 	delete debugger;
 	// TODO: Free all textures.
 	delete[] bitmapTextures;
+		
+	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
 void SDLGLRenderer::precalcPalette(float gamma)

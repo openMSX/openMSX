@@ -36,6 +36,7 @@ libVideo_la_SOURCES = \
 	FrameSkipSetting.hh FrameSkipSetting.cc \
 	Renderer.hh Renderer.cc \
 	RendererFactory.hh RendererFactory.cc \
+	Icon.hh Icon.cc \
 	PixelRenderer.hh PixelRenderer.cc \
 	DummyRenderer.hh DummyRenderer.cc \
 	SDLRenderer.hh SDLRenderer.cc \

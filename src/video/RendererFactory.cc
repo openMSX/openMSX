@@ -9,8 +9,31 @@
 #include "XRenderer.hh"
 #include <SDL/SDL.h>
 
+#include "Icon.hh"
 
 namespace openmsx {
+
+static bool initSDLVideo()
+{
+	if (SDL_InitSubSystem(SDL_INIT_VIDEO) < 0) {
+		//throw FatalError(string("Couldn't init SDL video: ") + SDL_GetError());
+		return false; // TODO: use exceptions here too
+	}
+	SDL_WM_SetCaption("openMSX " VERSION " [alpha]", 0);
+
+	// Set icon
+	static unsigned int iconRGBA[256];
+	for (int i = 0; i < 256; i++) {
+		iconRGBA[i] = iconColours[iconData[i]];
+	}
+	SDL_Surface *iconSurf = SDL_CreateRGBSurfaceFrom(
+		iconRGBA, 16, 16, 32, 64,
+		0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
+	SDL_SetColorKey(iconSurf, SDL_SRCCOLORKEY, 0);
+	SDL_WM_SetIcon(iconSurf, NULL);
+	SDL_FreeSurface(iconSurf);
+	return true;
+}
 
 RendererFactory *RendererFactory::getCurrent()
 {
@@ -118,6 +141,11 @@ Renderer *SDLHiRendererFactory::create(VDP *vdp)
 	bool fullScreen = RenderSettings::instance()->getFullScreen()->getValue();
 	int flags = SDL_SWSURFACE | (fullScreen ? SDL_FULLSCREEN : 0);
 
+	if (!initSDLVideo()) {
+		printf("FAILED to init SDL video!");
+		return NULL;
+	}
+
 	// Try default bpp.
 	SDL_Surface *screen = SDL_SetVideoMode(WIDTH, HEIGHT, 0, flags);
 	// Can we handle this bbp?
@@ -133,6 +161,7 @@ Renderer *SDLHiRendererFactory::create(VDP *vdp)
 
 	if (!screen) {
 		printf("FAILED to open any screen!");
+		SDL_QuitSubSystem(SDL_INIT_VIDEO);
 		// TODO: Throw exception.
 		return NULL;
 	}
@@ -147,6 +176,7 @@ Renderer *SDLHiRendererFactory::create(VDP *vdp)
 		return new SDLRenderer<Uint32, Renderer::ZOOM_512>(SDLHI, vdp, screen);
 	default:
 		printf("FAILED to open supported screen!");
+		SDL_QuitSubSystem(SDL_INIT_VIDEO);
 		return NULL;
 	}
 }
@@ -166,6 +196,11 @@ Renderer *SDLLoRendererFactory::create(VDP *vdp)
 	bool fullScreen = RenderSettings::instance()->getFullScreen()->getValue();
 	int flags = SDL_SWSURFACE | (fullScreen ? SDL_FULLSCREEN : 0);
 
+	if (!initSDLVideo()) {
+		printf("FAILED to init SDL video!");
+		return NULL;
+	}
+
 	// Try default bpp.
 	SDL_Surface *screen = SDL_SetVideoMode(WIDTH, HEIGHT, 0, flags);
 	// Can we handle this bbp?
@@ -181,6 +216,7 @@ Renderer *SDLLoRendererFactory::create(VDP *vdp)
 
 	if (!screen) {
 		printf("FAILED to open any screen!");
+		SDL_QuitSubSystem(SDL_INIT_VIDEO);
 		// TODO: Throw exception.
 		return NULL;
 	}
@@ -195,6 +231,7 @@ Renderer *SDLLoRendererFactory::create(VDP *vdp)
 		return new SDLRenderer<Uint32, Renderer::ZOOM_256>(SDLLO, vdp, screen);
 	default:
 		printf("FAILED to open supported screen!");
+		SDL_QuitSubSystem(SDL_INIT_VIDEO);
 		// TODO: Throw exception.
 		return NULL;
 	}
@@ -219,6 +256,11 @@ Renderer *SDLGLRendererFactory::create(VDP *vdp)
 	int flags = SDL_OPENGL | SDL_HWSURFACE
 		| (fullScreen ? SDL_FULLSCREEN : 0);
 
+	if (!initSDLVideo()) {
+		printf("FAILED to init SDL video!");
+		return NULL;
+	}
+
 	// Enables OpenGL double buffering.
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, true);
 
@@ -232,6 +274,7 @@ Renderer *SDLGLRendererFactory::create(VDP *vdp)
 
 	if (!screen) {
 		printf("FAILED to open any screen!");
+		SDL_QuitSubSystem(SDL_INIT_VIDEO);
 		// TODO: Throw exception.
 		return NULL;
 	}

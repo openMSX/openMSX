@@ -42,7 +42,7 @@ SUBDIRS = \
 bin_PROGRAMS=openmsx
 
 openmsx_SOURCES=\
-	main.cc Icon.hh Icon.cc \
+	main.cc \
 	openmsx.hh util.hh \
 	EmuTime.hh EmuTime.cc \
 	MSXException.hh \
