@@ -13,6 +13,11 @@ FilePath::FilePath()
 
 FilePath::~FilePath()
 {
+	std::list<std::string*>::iterator i = paths.begin();
+	while (i != paths.end())
+	{
+		delete (*i);
+	}
 }
 
 }; // end namespace MSXConfig

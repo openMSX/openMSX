@@ -2,6 +2,7 @@ $Id$
 
 2002-03-24 Joost Yervante Damad <andete@worldcity.nl>
 	* fixed configure.in
+	* continuation of <filepath>
 
 2002-03-23 Joost Yervante Damad <andete@worldcity.nl>
 	* more CustomConfig framework

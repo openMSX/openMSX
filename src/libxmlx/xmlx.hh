@@ -136,6 +136,12 @@ public:
 	 */
 	const std::string &getElementPcdata(const std::string &name);
 
+	/**
+	 * get attribute with name 'name2' from element from children
+	 * with name 'name'
+	 */
+	const std::string &getElementAttribute(const std::string &name, const std::string &name2);
+
 private:
 	/// construct attribute from libxml xmlNodePtr node
 	Element(xmlNodePtr node);

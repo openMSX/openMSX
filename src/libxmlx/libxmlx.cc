@@ -211,6 +211,15 @@ const std::string &Element::getElementPcdata(const std::string &name)
 	return empty;
 }
 
+const std::string &Element::getElementAttribute(const std::string &name, const std::string &name2)
+{
+	for (std::list<Element*>::iterator i = children.begin(); i != children.end(); i++)
+	{
+		if ((*i)->name == name) return (*i)->getAttribute(name2);
+	}
+	return empty;
+}
+
 xmlDocPtr Document::convertToXmlDoc()
 {
 	//xmlDocPtr d = xmlNewDoc("1.0");
