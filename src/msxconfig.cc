@@ -53,12 +53,9 @@ void MSXConfig::loadFile(const string &filename)
 
 MSXConfig::Device::~Device()
 {
-	list<string*>::iterator i=parameter_names.begin();
-	list<string*>::iterator j=parameter_values.begin();
-	for (; i != parameter_names.end(); i++,j++)
+	for (list<Parameter*>::iterator i=parameters.begin(); i != parameters.end(); i++)
 	{
 		delete *i;
-		delete *j;
 	}
 }
 
@@ -191,21 +188,26 @@ MSXConfig::Device::Device(XMLNode *deviceNodeP):deviceNode(deviceNodeP),page(0),
 			snprintf(buffer,200,"Expected mandatory 'name' property in <parameter> child node in <device id='%s'>.", id.c_str());
 			throw MSXConfig::XMLParseException(buffer);
 		}
-		string *name=new string((*dci)->property("name")->value());
+		string name((*dci)->property("name")->value());
+		// class is optional
+		string clasz("");
+		if ((*dci)->property("class")!=0)
+		{
+			clasz=(*dci)->property("class")->value();
+		}
 		if ((*dci)->children().size()!=1)
 		{
-			snprintf(buffer,200,"Missing content node for <parameter name='%s'> for <device id='%s'>.", name->c_str(), id.c_str());
+			snprintf(buffer,200,"Missing content node for <parameter name='%s'> for <device id='%s'>.", name.c_str(), id.c_str());
 			throw MSXConfig::XMLParseException(buffer);
 		}
 		cn = (*dci)->children().begin();
 		if (!((*cn)->is_content()))
 		{
-			snprintf(buffer,200,"Child node of <parameter name='%s'> for <device id='%s'> is not a content node.", name->c_str(), id.c_str());
+			snprintf(buffer,200,"Child node of <parameter name='%s'> for <device id='%s'> is not a content node.", name.c_str(), id.c_str());
 			throw MSXConfig::XMLParseException(buffer);
 		}
-		string *value=new string((*cn)->content());
-		parameter_names.push_back(name);
-		parameter_values.push_back(value);
+		string value((*cn)->content());
+		parameters.push_back(new Parameter(name,value,clasz));
 		dci++;
 	}
 //        <parameter name="hello">world</parameter>
@@ -246,9 +248,9 @@ int MSXConfig::Device::getSS()
 
 bool MSXConfig::Device::hasParameter(const string &name)
 {
-	for (list<string*>::iterator i=parameter_names.begin(); i != parameter_names.end(); i++)
+	for (list<Parameter*>::const_iterator i=parameters.begin(); i != parameters.end(); i++)
 	{
-		if ((*(*i))==name)
+		if ((*i)->name==name)
 			return true;
 	}
 	return false;
@@ -257,12 +259,10 @@ bool MSXConfig::Device::hasParameter(const string &name)
 const string &MSXConfig::Device::getParameter(const string &name)
 {
 	char buffer[200];
-	list<string*>::iterator i=parameter_names.begin();
-	list<string*>::iterator j=parameter_values.begin();
-	for (; i != parameter_names.end(); i++,j++)
+	for (list<Parameter*>::const_iterator i=parameters.begin(); i != parameters.end(); i++)
 	{
-		if ((*(*i))==name)
-			return (*(*j));
+		if ((*i)->name==name)
+			return ((*i)->value);
 	}
 	snprintf(buffer,200,"Trying to get non-existing parameter %s for device %s.", name.c_str(), id.c_str());
 	throw Exception(buffer);
@@ -279,10 +279,23 @@ void MSXConfig::Device::dump()
 	{
 		cout << "       not slotted." << endl;
 	}
-	list<string*>::iterator i=parameter_names.begin();
-	list<string*>::iterator j=parameter_values.begin();
-	for (; i != parameter_names.end(); i++,j++)
+	for (list<Parameter*>::const_iterator i=parameters.begin(); i != parameters.end(); i++)
 	{
-		cout << "       parameter name='" << **i << "' value='" << **j << "'" << endl;
+		cout << "       parameter name='" << (*i)->name << "' value='" << (*i)->value << "' class='" << (*i)->clasz << "'" << endl;
 	}
+}
+
+MSXConfig::Device::Parameter::Parameter(const string &nam, const string &valu, const string &clas=""):name(nam),value(valu),clasz(clas)
+{
+}
+
+list<const MSXConfig::Device::Parameter*> MSXConfig::Device::getParametersWithClass(const string &clasz)
+{
+	list<const Parameter*> a;
+	for (list <Parameter*>::const_iterator i=parameters.begin();i!=parameters.end();i++)
+	{
+		if ((*i)->clasz==clasz)
+			a.push_back(*i);
+	}
+	return a;
 }

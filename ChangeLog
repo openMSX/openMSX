@@ -1,5 +1,16 @@
 $Id$
 
+2001-07-07 Joost Yervante Damad <j.damad@qahwah.net>
+
+	* added class property to <parameter> tag in msxconfig
+	* also slightly reworked that code
+	* bumbed version to 0.1.1
+
+2001-07-06 Joost Yervante Damad <j.damad@qahwah.net>
+
+	* merge David's code in CVS
+	  this includes: PPI, Z80, RomDevice, Motherboard, ...
+
 2001-06-26 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 
 	* more updates tex docu file

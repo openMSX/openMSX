@@ -29,6 +29,20 @@ public:
 	class Device
 	{
 	public:
+		class Parameter
+		{
+		public:
+			Parameter(const string &name, const string &value, const string &clasz);
+			~Parameter() {}
+		private:
+			Parameter(); // block usage
+			Parameter(const Parameter &); // block usage
+			Parameter &operator=(const Parameter &); // block usage
+		public:
+			const string name;
+			const string value;
+			const string clasz;
+		};
 		Device(XMLNode *deviceNodeP);
 		~Device();
 		const string &getType();
@@ -39,6 +53,7 @@ public:
 		int   getSS();
 		bool  hasParameter(const string &name);
 		const string &getParameter(const string &name);
+		list<const Parameter*> getParametersWithClass(const string &clasz);
 		void  dump();
 	private:
 		Device(); // block usage
@@ -48,8 +63,7 @@ public:
 		string id, deviceType;
 		int page, ps, ss;
 		bool slotted;
-		list<string*> parameter_names;
-		list<string*> parameter_values;
+		list<Parameter*> parameters;
 	};
 
 public:
