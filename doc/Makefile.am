@@ -14,7 +14,8 @@ pkgdata_DATA = \
 	vram-addressing.txt \
 	openMSX-HOWTO.txt \
 	after-bussum-FAQ.txt \
-	exampleconfigs.xml
+	exampleconfigs.xml \
+	debugdevice.txt
 
 EXTRA_DIST = $(man_MANS) $(pkgdata_DATA)
 
