@@ -64,6 +64,8 @@ Display::~Display()
 	for (Layers::iterator it = layers.begin(); it != layers.end(); ++it) {
 		delete *it;
 	}
+	
+	alarm.cancel();
 }
 
 Display::Layers::iterator Display::baseLayer()
@@ -109,7 +111,7 @@ bool Display::signalEvent(const Event& event)
 
 void Display::repaint()
 {
-	alarm.reset(); // cancel delayed repaint
+	alarm.cancel(); // cancel delayed repaint
 
 	assert(videoSystem.get());
 	// TODO: Is this the proper way to react?
@@ -118,12 +120,14 @@ void Display::repaint()
 	//       it is unknown whether a failure is transient or permanent.
 	if (!videoSystem->prepare()) return;
 	
+	/*
 	for(Layers::iterator it = baseLayer(); it != layers.end(); ++it) {
 		if ((*it)->coverage != Layer::COVER_NONE) {
 			//std::cout << "Painting layer " << (*it)->getName() << std::endl;
 			(*it)->paint();
 		}
 	}
+	*/
 	
 	videoSystem->flush();
 
@@ -137,11 +141,11 @@ void Display::repaint()
 
 void Display::repaintDelayed(unsigned long long delta)
 {
-	if (alarm.get()) {
+	if (alarm.pending()) {
 		// already a pending repaint
 		return;
 	}
-	alarm.reset(new RepaintAlarm(delta));
+	alarm.schedule(delta);
 }
 
 void Display::addLayer(Layer* layer)
@@ -169,11 +173,6 @@ void Display::updateZ(Layer* layer, Layer::ZIndex z)
 
 
 // RepaintAlarm inner class
-
-Display::RepaintAlarm::RepaintAlarm(unsigned long long delay)
-	: Alarm(delay)
-{
-}
 
 void Display::RepaintAlarm::alarm()
 {

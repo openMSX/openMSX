@@ -65,12 +65,9 @@ private:
 
 	// Delayed repaint stuff
 	class RepaintAlarm : public Alarm {
-	public:
-		RepaintAlarm(unsigned long long delay);
 	private:
 		virtual void alarm();
-	};
-	std::auto_ptr<RepaintAlarm> alarm;
+	} alarm;
 
 	// Commands
 	class ScreenShotCmd : public SimpleCommand {

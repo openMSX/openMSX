@@ -2,6 +2,9 @@ $Id$
 
 2005-02-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added 'none' icon set
+	* Fixed a (the?) 'pure virtual method called' bug:
+	   an Alarm object was deleted in main thread while it was
+	   executing in another thread
 
 2005-02-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed CPU tracing (patch created by Maarten)
