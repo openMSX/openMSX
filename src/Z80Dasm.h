@@ -212,7 +212,8 @@ static int Z80_Dasm (unsigned char *buffer,char *dest,unsigned PC)
  char *S;
  char *r;
  int i,j,k;
- unsigned char buf[10];
+ //unsigned char buf[10];
+ char buf[10];
  char Offset;
  i=Offset=0;
  r="INTERNAL PROGRAM ERROR";
@@ -266,39 +267,39 @@ static int Z80_Dasm (unsigned char *buffer,char *dest,unsigned PC)
   switch (S[j])
   {
    case 'B':
-    sprintf (buf,"$%02x",buffer[i++]);
+    sprintf (buf,"#%02X",buffer[i++]);
     strcat (dest,buf);
     break;
    case 'R':
-    sprintf (buf,"$%04x",(PC+2+(signed char)buffer[i])&0xFFFF);
+    sprintf (buf,"#%04X",(PC+2+(signed char)buffer[i])&0xFFFF);
     i++;
     strcat (dest,buf);
     break;
    case 'W':
-    sprintf (buf,"$%04x",buffer[i]+buffer[i+1]*256);
+    sprintf (buf,"#%04X",buffer[i]+buffer[i+1]*256);
     i+=2;
     strcat (dest,buf);
     break;
    case 'X':
-    sprintf (buf,"(%s%c$%02x)",r,Sign(buffer[i]),Abs(buffer[i]));
+    sprintf (buf,"(%s%c#%02X)",r,Sign(buffer[i]),Abs(buffer[i]));
     i++;
     strcat (dest,buf);
     break;
    case 'Y':
-    sprintf (buf,"(%s%c$%02x)",r,Sign(Offset),Abs(Offset));
+    sprintf (buf,"(%s%c#%02X)",r,Sign(Offset),Abs(Offset));
     strcat (dest,buf);
     break;
    case 'I':
     strcat (dest,r);
     break;
    case '!':
-    sprintf (dest,"db     $ed,$%02x",buffer[1]);
+    sprintf (dest,"db     #ED,#%02X",buffer[1]);
     return 2;
    case '@':
-    sprintf (dest,"db     $%02x",buffer[0]);
+    sprintf (dest,"db     #%02X",buffer[0]);
     return 1;
    case '#':
-    sprintf (dest,"db     $%02x,$cb,$%02x",buffer[0],buffer[2]);
+    sprintf (dest,"db     #%02X,#CB,#%02X",buffer[0],buffer[2]);
     return 2;
    case ' ':
     k=strlen(dest);

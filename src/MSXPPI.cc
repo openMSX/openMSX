@@ -2,6 +2,7 @@
 
 #include "MSXDevice.hh"
 #include "MSXMotherBoard.hh"
+#include "Inputs.hh"
 #include "MSXPPI.hh"
 #include <SDL/SDL.h>
 
@@ -13,6 +14,7 @@ MSXPPI *volatile MSXPPI::oneInstance;
 MSXPPI::MSXPPI()
 {
 	cout << "Creating an MSXPPI object \n";
+	real_MSX_keyboard=1;
 }
 
 MSXPPI::~MSXPPI()
@@ -23,13 +25,21 @@ MSXPPI::~MSXPPI()
 MSXDevice* MSXPPI::instance(void)
 {
 	if (oneInstance == NULL ){
-		oneInstance == new MSXPPI;
+		oneInstance = new MSXPPI;
 	};
 	return oneInstance;
 }
 
-void MSXPPI::InitMSX()
-{
+void MSXPPI::init()
+{	
+	// in most cases just one PPI so we register permenantly with 
+	// Inputs object for now.
+	//
+	// The Sunrise Dual Haeded MSX experiment had two!
+	// Recreating this would mean making a second PPI instance by means
+	// of a derived class (MSXPPI is singleton !!)
+	Inputs::instance()->setPPI(this);
+
   // Register I/O ports A8..AB for reading
 	MSXMotherBoard::instance()->register_IO_In(0xA8,this);
 	MSXMotherBoard::instance()->register_IO_In(0xA9,this);
@@ -52,205 +62,55 @@ byte MSXPPI::readIO(byte port,UINT64 TStates)
 		return MSXMotherBoard::instance()->A8_Register;
 		break;
 	case 0xA9:
+		Inputs::instance()->getKeys(); //reading the keyboard events into the matrix
+		if (real_MSX_keyboard){
+			KeyGhosting();
+		}
+		return MSXKeyMatrix[port_aa & 15];
 		break;
 	case 0xAA:
+        return port_aa;
 		break;
 	case 0xAB:
+        //TODO: test what a real MSX returns
+        // normally after a the MSX is started 
+        // you don't tough this register, but hey
+        // we go for the perfect emulation :-)
+        return port_ab;
 		break;
   }
 }
 
 void MSXPPI::writeIO(byte port,byte value,UINT64 TStates)
 {
-  int J;
-
   switch( port ){
 	case 0xA8:
 	  if ( value != MSXMotherBoard::instance()->A8_Register){
 	    //TODO: do slotswitching if needed
-	    MSXMotherBoard::instance()->A8_Register=value;
-	    for (J=0;J<4;J++,value>>=2){
-	      // Change the slot structure
-	      MSXMotherBoard::instance()->PrimarySlotState[J]=value&3;
-	      MSXMotherBoard::instance()->SecondarySlotState[J]= 
-		3&(MSXMotherBoard::instance()->SubSlot_Register[value&3]>>(J*2));
-	      // Change the visible devices
-	      MSXMotherBoard::instance()->visibleDevices[J]=
-		MSXMotherBoard::instance()->SlotLayout
-		[MSXMotherBoard::instance()->PrimarySlotState[J]]
-		[MSXMotherBoard::instance()->SecondarySlotState[J]]
-		[J];
-	    }
+	    MSXMotherBoard::instance()->set_A8_Register(value);
 	  }
 	  break;
 	case 0xA9:
+        //BOGUS read-only register
 		break;
 	case 0xAA:
+        port_aa=value;
+        //TODO use these bits
+		//4    CASON  Cassette motor relay        (0=On, 1=Off)
+		//5    CASW   Cassette audio out          (Pulse)
+		//6    CAPS   CAPS-LOCK lamp              (0=On, 1=Off)
+		//7    SOUND  Keyboard klick bit          (Pulse)
+
 		break;
 	case 0xAB:
+	//Theoretically these registers can be used as input or output 
+	//ports. However, in the MSX, PPI Port A and C are always used as output, 
+	//and PPI Port B as input. The BIOS initializes it like that by writing 
+	//82h to Port ABh on startup. Afterwards it makes no sense to change this 
+	//setting, and thus we simply discard any write :-)
+
 		break;
   }
-}
-
-/** Keyboard bindings ****************************************/
-byte MSXPPI::Keys[336][2] =
-{
-/* 0000 */
-  {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},
-  {7,0x20},{7,0x08},{0,0x00},{0,0x00},{0,0x00},{7,0x80},{0,0x00},{0,0x00},
-/* 0010 */
-  {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},
-  {0,0x00},{0,0x00},{0,0x00},{7,0x04},{0,0x00},{0,0x00},{0,0x00},{0,0x00},
-/* 0020 */
-  {8,0x01},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{2,0x01},
-  {0,0x00},{0,0x00},{0,0x00},{0,0x00},{2,0x04},{1,0x04},{2,0x08},{2,0x10},
-/* 0030 */
-  {0,0x01},{0,0x02},{0,0x04},{0,0x08},{0,0x10},{0,0x20},{0,0x40},{0,0x80},
-  {1,0x01},{1,0x02},{0,0x00},{1,0x80},{0,0x00},{1,0x08},{0,0x00},{0,0x00},
-/* 0040 */
-  {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},
-  {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},
-/* 0050 */
-  {0,0x00},{8,0x10},{8,0x20},{8,0x80},{8,0x40},{0,0x00},{0,0x00},{0,0x00},
-  {0,0x00},{0,0x00},{0,0x00},{1,0x20},{1,0x10},{1,0x40},{0,0x00},{0,0x00},
-/* 0060 */
-  {2,0x02},{2,0x40},{2,0x80},{3,0x01},{3,0x02},{3,0x04},{3,0x08},{3,0x10},
-  {3,0x20},{3,0x40},{3,0x80},{4,0x01},{4,0x02},{4,0x04},{4,0x08},{4,0x10},
-/* 0070 */
-  {4,0x20},{4,0x40},{4,0x80},{5,0x01},{5,0x02},{5,0x04},{5,0x08},{5,0x10},
-  {5,0x20},{5,0x40},{5,0x80},{0,0x00},{0,0x00},{0,0x00},{6,0x04},{8,0x08},
-/* 0080 */
-  {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},
-  {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},
-/* 0090 */
-  {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},
-  {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},
-/* 00A0 */
-  {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},
-  {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},
-/* 00B0 */
-  {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},
-  {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},
-/* 00C0 */
-  {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},
-  {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},
-/* 00D0 */
-  {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},
-  {8,0x02},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},
-/* 00E0 */
-  {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},
-  {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},
-/* 00F0 */
-  {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},
-  {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},
-/* 0100 */
-  {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},
-  {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},
-/* 0110 */
-  {0,0x00},{8,0x20},{8,0x40},{8,0x80},{8,0x10},{8,0x04},{8,0x02},{0,0x00},
-  {0,0x00},{0,0x00},{6,0x20},{6,0x40},{6,0x80},{7,0x01},{7,0x02},{0,0x00},
-/* 0120 */
-  {7,0x40},{7,0x10},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},
-  {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{6,0x01},
-/* 0130 */
-  {6,0x01},{2,0x20},{6,0x02},{6,0x10},{6,0x04},{0,0x00},{0,0x00},{0,0x00},
-  {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},
-/* 0140 */
-  {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},
-  {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00}
-};
-
-/** Keyboard() ***********************************************/
-/** Check for keyboard events, parse them, and modify MSX   **/
-/** keyboard matrix.                                        **/
-/*************************************************************/
-void MSXPPI::Keyboard(void)
-{
-
-  SDL_Event event;
-  static byte Control=0;
-  int key,I;
-
-  /* Check for keypresses/keyreleases */
-  while(SDL_PollEvent(&event))
-  {
-	 key=event.key.keysym.sym;
-
-     //if(event.type==SDL_QUIT) ExitNow=1;
-
-     if(event.type==SDL_KEYDOWN)
-	 {
-//	   switch(key)
-//	   {
-//#ifdef DEBUG
-//         case SDLK_F9:
-//		   CPU.Trace=!CPU.Trace;
-//		   break;
-//#endif
-//
-//	 case SDLK_F6:
-//           if(Control) AutoFire=!AutoFire;
-//           break;
-//
-//         case SDLK_F10:
-//         case SDLK_F11:
-//           if(Control)
-//		   {
-//             I=(key==SDLK_F11)? 1:0;
-//             if(Disks[I][0])
-//			 {
-//               CurDisk[I]=(CurDisk[I]+1)%MAXDISKS;
-//			   if(!Disks[I][CurDisk[I]]) CurDisk[I]=0;
-//			   ChangeDisk(I,Disks[I][CurDisk[I]]);
-//			 }
-//		   }
-//           break;
-//
-//         case SDLK_F12:
-//           ExitNow=1;
-//           break;
-//
-//         case SDLK_UP:    JoyState|=0x01;break;
-//         case SDLK_DOWN:  JoyState|=0x02;break;
-//         case SDLK_LEFT:  JoyState|=0x04;break;
-//         case SDLK_RIGHT: JoyState|=0x08;break;
-//         case SDLK_LALT:  JoyState|=0x10;break;
-//         case SDLK_LCTRL:
-//           if(key==SDLK_LCTRL) JoyState|=0x20;
-//             Control=1;
-//             break;
-//	   }
-//
-       /* Key pressed: reset bit in KeyMap */
-       if(key<0x150) MSXKeyMatrix[Keys[key][0]]&=~Keys[key][1];
-	 }
-	 
-	 if(event.type==SDL_KEYUP)
-	 {	
-       /* Special keys released... */
-//       switch(key)
-//	   {
-//         case SDLK_UP:    JoyState&=0xFE;break;
-//         case SDLK_DOWN:  JoyState&=0xFD;break;
-//         case SDLK_LEFT:  JoyState&=0xFB;break;
-//         case SDLK_RIGHT: JoyState&=0xF7;break;
-//         case SDLK_LALT:  JoyState&=0xEF;break;
-//         case SDLK_LCTRL:
-//           if(key==SDLK_LCTRL) JoyState&=0xDF;
-//             Control=0;
-//             break;
-//	   }
-//
-	   /* Key released: set bit in KeyMap */
-       if(key<0x150) MSXKeyMatrix[Keys[key][0]]|=Keys[key][1];
-	 }
-
-  }
-
-  /* Keyboard handling is done once per screen update */
-  /* That's whay we wait here for the timer */
- // WaitTimer();
-
 }
 
 /** SetColor() ***********************************************/
@@ -264,3 +124,40 @@ void MSXPPI::Keyboard(void)
 //
 //  if(N) XPal[N]= J; else XPal0=J;
 //}
+
+void MSXPPI::KeyGhosting(void)
+{
+
+#define NR_KEYROWS 15
+
+int changed_something;
+int rowanded;
+
+// This routine enables keyghosting as seen on a real MSX
+//
+// If on a real MSX in the keyboardmatrix the
+// real buttons are pressed as in the left matrix
+//           then the matrix to the
+// 10111111  right will be read by   10110101
+// 11110101  because of the simple   10110101
+// 10111101  electrical connections  10110101
+//           that are established  by
+// the closed switches 
+
+  changed_something=0;
+  do {
+    for (int i=0 ; i<NR_KEYROWS ;i++){
+      for (int j=i+1 ; j<NR_KEYROWS+1 ; j++){
+        if ( (MSXKeyMatrix[i]|MSXKeyMatrix[j])!=255 ){
+          rowanded=MSXKeyMatrix[i]&MSXKeyMatrix[j];
+          if  ( rowanded != MSXKeyMatrix[i]){
+            MSXKeyMatrix[i]=rowanded;
+            changed_something=1;
+          }
+        }
+      }
+    }
+  } while (changed_something);
+
+};
+

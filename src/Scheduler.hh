@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __SCHEDULER_H__
-#define __SCHEDULER_H__
+#ifndef __SCHEDULER_HH__
+#define __SCHEDULER_HH__
 // in MSXDevice.h : typedef unsigned long int UINT64;
 
 class MSXZ80;

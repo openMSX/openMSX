@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MSXPPI_H__
-#define __MSXPPI_H__
+#ifndef __MSXPPI_HH__
+#define __MSXPPI_HH__
 
 #include "MSXDevice.hh"
 #include "MSXMotherBoard.hh"
@@ -23,22 +23,25 @@ class MSXPPI : public MSXDevice
 	// usage: MSXConfig::instance()->method(args);
  
 	static MSXDevice *instance();
-	static byte Keys[336][2];
 
 	private:
-		MSXPPI(); // private constructor -> can only construct self
+		//MSXPPI(); // private constructor -> can only construct self
 		static MSXPPI *volatile oneInstance; 
 		void Keyboard(void);
+		void KeyGhosting(void);
+		int real_MSX_keyboard;
 		byte MSXKeyMatrix[16];
+		byte port_a9;
+		byte port_aa;
+		byte port_ab;
 	public:
+		MSXPPI(); 
 		~MSXPPI(); 
 		// don't forget you inherited from MSXDevice
-		void InitMSX();
-		//void ResetMSX();
-		//void StopMSX();
-		//void RestoreMSX();
-		//void SaveStateMSX(ofstream savestream);
+		void init();
 		byte readIO(byte port,UINT64 TStates);
 		void writeIO(byte port,byte value,UINT64 TStates);
+
+        friend class Inputs;
 };
 #endif

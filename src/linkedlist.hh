@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __LINKEDLIST_H__
-#define __LINKEDLIST_H__
+#ifndef __LINKEDLIST_HH__
+#define __LINKEDLIST_HH__
 
 #include "MSXDevice.hh"
 class ElementNode

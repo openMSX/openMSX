@@ -13,17 +13,36 @@
 
 #include "msxconfig.hh"
 
+
+//David Heremans
+#include <iostream>
+#include <fstream.h>
+#include <stdlib.h>
+#include <string.h>
+#include <SDL/SDL.h>
+#include "MSXDevice.hh"
+#include "MSXMotherBoard.hh"
+#include "MSXZ80.hh"
+#include "MSXSimple64KB.hh"
+#include "MSXRom16KB.hh"
+#include "devicefactory.hh"
+
+//David Heremans
+
 int
 main (int argc, char **argv)
 {
+	char *configfile="msxconfig.xml";
+
 	if (argc<2) {
-		cerr << "Usage: " << argv[0] << " msxconfig.xml" << endl;
-		exit(1);
+		cout << "Using " << configfile << " as default configuration file." << endl;
+	} else {
+	configfile=argv[1];
 	}
 	// this is mainly for me (Joost), for testing the xml parsing
 	try
 	{
-		MSXConfig::instance()->loadFile(argv[1]);
+		MSXConfig::instance()->loadFile(configfile);
 	}
 	catch (MSXException e)
 	{
@@ -35,7 +54,75 @@ main (int argc, char **argv)
 	{
 		(*i)->dump();
 	}
+	// End of Joosts test routine 
+	// Here comes the Real Stuff(tm) :-)
+	// (Actualy David's test stuff)
 	
+
+
+	//MSXMotherBoard* MSX;
+	MSXMotherBoard* moederbord;
+	MSXDevice* device;
+	MSXDevice* geheugen;
+	MSXRom16KB *rom1,*rom2;
+	//MSXDevice* processor;
+	MSXZ80* processor;
+
+	//Werkt SDL ?
+	if (SDL_Init(SDL_INIT_VIDEO)<0)
+	{
+	  printf("Couldn't init SDL: %s\n", SDL_GetError());
+	  exit(1);
+	}
+	atexit(SDL_Quit);
+
+	// Een moederbord als eerste
+	moederbord=MSXMotherBoard::instance();
+	// en dan nu al de devices die volgens de xml nodig zijn
+	list<MSXConfig::Device*>::const_iterator j=MSXConfig::instance()->deviceList.begin();
+	for (; j != MSXConfig::instance()->deviceList.end(); j++)
+	{
+		(*j)->dump();
+		//TODO 
+		//device=deviceFactory::create( (*j)->getType() );
+		device=deviceFactory::create( (*j) );
+		if (device != 0){
+			moederbord->addDevice(device);
+		cout << "---------------------------\nfactory:"<< (*j)->getType() << "\n\n";
+		}
+	}
+	// dan maar de CPU
+	processor=new MSXZ80();
+	processor->Motherb=moederbord;
+	moederbord->addDevice(processor);
+	moederbord->setActiveCPU(processor);
+	// dan geheugen
+//	geheugen=new MSXSimple64KB();
+//	moederbord->addDevice(geheugen);
+//	moederbord->visibleDevices[2]=geheugen;
+//	moederbord->visibleDevices[3]=geheugen;
+	// dan rom 1
+//	rom1=new MSXRom16KB();
+//	strcpy(rom1->romfile,"BIOS.ROM");
+//	moederbord->addDevice(rom1);
+//	moederbord->visibleDevices[0]=rom1;
+	// dan rom 2
+//	rom2=new MSXRom16KB();
+//	strcpy(rom2->romfile,"BASIC.ROM");
+//	moederbord->addDevice(rom2);
+//	moederbord->visibleDevices[1]=rom2;
+	//moederbord->registerSlottedDevice(geheugen,0,0,0);
+	//moederbord->registerSlottedDevice(geheugen,0,0,1);
+//	moederbord->registerSlottedDevice(geheugen,0,0,2);
+//	moederbord->registerSlottedDevice(geheugen,0,0,3);
+	
+	cout << "Initing MSX\n\n";
+	moederbord->InitMSX();
+	
+	moederbord->scheduler.setLaterSP(100000,geheugen); //om toch een SP te hebben :-)
+	cout << "starting MSX\n\n";
+	moederbord->StartMSX();
+
 	exit (0);
 }
 

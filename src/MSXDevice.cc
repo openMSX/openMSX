@@ -7,8 +7,8 @@
 MSXDevice::MSXDevice(void)
 {
 //TODO: something usefull here ??
-	cout << "instantiating an MSXDevice object";
-}
+	cout << "instantiating an MSXDevice object\n";
+};
 
 MSXDevice::~MSXDevice(void)
 {
@@ -21,6 +21,12 @@ MSXDevice* MSXDevice::instantiate(void)
 	return new MSXDevice;
 };
 
+void MSXDevice::setConfigDevice(MSXConfig::Device *config)
+{
+	deviceConfig=config;
+	deviceName=&config->getId();
+
+};
 		
 // interaction with CPU
 byte MSXDevice::readMem(word address,UINT64 TStates)
@@ -58,19 +64,32 @@ int MSXDevice::getUsedTStates(void)
 //
 void MSXDevice::init()
 {
+	return;
+}
+void MSXDevice::start()
+{
+	return;
+}
+void MSXDevice::stop()
+{
+	return;
 }
 void MSXDevice::reset()
 {
+	return;
 }
 //
 void MSXDevice::saveState(ofstream writestream)
 {
+	return;
 }
 void MSXDevice::restoreState(char *devicestring,ifstream readstream)
 {
+	return;
 }
 void MSXDevice::setParameter(char *param,char *valuelist)
 {
+	return;
 }
 char* MSXDevice::getParameter(char *param)
 {
@@ -93,9 +112,11 @@ char* MSXDevice::getParamLongHelp(int nr)
 //savefile-structure
 bool MSXDevice::writeSaveStateHeader(ofstream readstream )
 {
+	return true;
 };
 bool MSXDevice::checkSaveStateHeader(char *devicestring)
 {
+	return true;
 };
 //char* MSXDevice::deviceName;
 //char* MSXDevice::deviceVersion;

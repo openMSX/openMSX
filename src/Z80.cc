@@ -15,6 +15,9 @@
 #include <string.h>
 #include <stdlib.h>
 
+//debugercode
+#include "Z80Dasm.h"
+
 #include "Z80.hh"
 /*
 extern "C++" 
@@ -24,6 +27,10 @@ extern "C++"
 */
 // added JYD 22-01-2001
 int Z80_IRQ;
+#ifdef DEBUG
+ byte debugmemory[65536];
+ char to_print_string[300];
+#endif
 
 #define M_RDMEM(A)      Z80_RDMEM(A)
 #define M_WRMEM(A,V)    Z80_WRMEM(A,V)
@@ -2047,6 +2054,10 @@ unsigned Z80_GetPC (void)
 int Z80_SingleInstruction(void)
 {
  static unsigned opcode;
+#ifdef DEBUG
+ word start_pc;
+// char* to_print_string="                            ";
+#endif
  // tijdelijk static voor debugger: unsigned opcode;
  /*
   * Z80_Running=1;
@@ -2061,6 +2072,8 @@ int Z80_SingleInstruction(void)
   pc_count=(pc_count+1)&255;
 #endif
 #ifdef DEBUG
+  start_pc=R.PC.W.l;
+  printf("%04x : ",start_pc);
 //  if (R.PC.W.l==R.Trap) R.Trace=1;
 //  if (Z80_Trace) Z80_Debug(&R);
 //  if (!Z80_Running) break;
@@ -2077,6 +2090,11 @@ int Z80_SingleInstruction(void)
     //R.ICount=0;
 //  TODO: still need to adapt all other code to change the CurrentCPUTime 
  // Moved to MSXZ80 Interrupt (Z80_Interrupt());
+#ifdef DEBUG
+  printf("instruction ");
+  Z80_Dasm(&debugmemory[start_pc], to_print_string,start_pc );
+  printf("%s\n",to_print_string );
+#endif
  return Z80_Running;
 }
 

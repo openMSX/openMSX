@@ -12,12 +12,27 @@
 MSXSimple64KB::MSXSimple64KB()
 {
 	cout << "Creating an MSXSimple64KB object \n";
+	slow_drain_on_reset=false;
 }
 
 MSXSimple64KB::~MSXSimple64KB()
 {
 	delete [] memoryBank; // C++ can handle null-pointers
 	cout << "Destructing an MSXSimple64KB object \n";
+}
+
+void MSXSimple64KB::start()
+{
+	cout << "Starting an MSXSimple64KB object \n";
+}
+
+void MSXSimple64KB::reset()
+{
+	cout << "Reseting an MSXSimple64KB object \n";
+	if (!slow_drain_on_reset ){
+		cout << "Clearing ram of MSXSimple64KB object \n";
+		memset(memoryBank,0,65536);
+	}
 }
 
 void MSXSimple64KB::init()
@@ -33,6 +48,12 @@ void MSXSimple64KB::init()
 	}
 	// MSXMotherBoard.register_IO_In((byte)81,this);
 	// MSXMotherBoard.register_IO_Out((byte)80,this);
+
+	//MSXMotherBoard::instance()->registerSlottedDevice(this,0,0,0);
+	//MSXMotherBoard::instance()->registerSlottedDevice(this,0,0,1);
+	MSXMotherBoard::instance()->registerSlottedDevice(this,0,0,2);
+	MSXMotherBoard::instance()->registerSlottedDevice(this,0,0,3);
+
 }
 
 byte MSXSimple64KB::readMem(word address,UINT64 TStates)

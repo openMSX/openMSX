@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MSXZ80_H__
-#define __MSXZ80_H__
+#ifndef __MSXZ80_HH__
+#define __MSXZ80_HH__
 
 #include <iostream.h>
 #include "MSXDevice.hh"
@@ -11,6 +11,7 @@
 
 class MSXZ80 : public MSXDevice
 {
+friend int Z80_SingleInstruction(void);
 friend void Z80_Out (byte Port,byte Value);
 friend byte Z80_RDMEM(word A);
 friend byte Z80_In (byte Port);

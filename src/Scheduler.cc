@@ -127,6 +127,7 @@ void Scheduler::scheduleEmulation()
 		Start->device->executeUntilEmuTime(Start->tstamp);
 	//4. Remove the first element from the list
 		removeFirstStamp();
+	// TODO: loop if there are other devices with the same timestamp
 	}
 }
 
@@ -134,3 +135,4 @@ void Scheduler::stopEmulation()
 {
 	keepRunning=0;
 }
+

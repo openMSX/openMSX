@@ -15,9 +15,11 @@ MSXZ80::MSXZ80(void)
 {
 //TODO: something usefull here ??
 	cout << "instantiating an MSXZ80 object";
+	CurrentCPUTime=0;
 }
 void MSXZ80::init(void)
 {
+	CurrentCPUTime=0;
 	Z80_Running=1;
 	InitTables();
 	timeScaler=6;
@@ -70,7 +72,13 @@ void Z80_Out (byte Port,byte Value)
 //unsigned Z80_RDMEM(dword A);
 byte Z80_RDMEM(word A)
 {
+#ifdef DEBUG
+		debugmemory[A]=MSXZ80::Motherb->readMem(A,Scheduler::nowRunning->CurrentCPUTime);
+		return debugmemory[A];
+#endif
+#ifndef DEBUG
 	return  MSXZ80::Motherb->readMem(A,Scheduler::nowRunning->CurrentCPUTime);
+#endif
 };
 
 /****************************************************************************/
@@ -80,6 +88,9 @@ byte Z80_RDMEM(word A)
 void Z80_WRMEM(word A,byte V)
 {
 	 MSXZ80::Motherb->writeMem(A,V,Scheduler::nowRunning->CurrentCPUTime);
+	 // No debugmemory[A] here otherwise self-modifying code could 
+	 // alter the executing code before the disassembled opcode
+	 // is printed;
 };
 
 

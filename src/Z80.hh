@@ -78,7 +78,7 @@ typedef union
    dword D;
  #endif
 #endif
-} pair;
+} z80regpair;
 
 #endif /* EMU_TYPES */
 
@@ -96,8 +96,8 @@ typedef union
 /****************************************************************************/
 typedef struct
 {
-  pair AF,BC,DE,HL,IX,IY,PC,SP;
-  pair AF2,BC2,DE2,HL2;
+  z80regpair AF,BC,DE,HL,IX,IY,PC,SP;
+  z80regpair AF2,BC2,DE2,HL2;
   unsigned IFF1,IFF2,HALT,IM,I,R,R2;
   //added by David Heremans
   #ifdef DEBUG
@@ -173,6 +173,6 @@ void InitTables (void);
 //void reset_IPeriod(void);
 
 extern CPU_Regs R;
-
+extern byte debugmemory[];
 #endif /* _Z80_H */
 

@@ -26,6 +26,6 @@ class MSXRom16KB : public MSXDevice
 		//void SaveStateMSX(ofstream savestream);
 		//
 		byte readMem(word address,UINT64 TStates);
-		char  romfile[255]; //temporary public
+//		char  romfile[255]; //temporary public
 };
 #endif

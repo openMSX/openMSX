@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MSXMOTHERBOARD_H__
-#define __MSXMOTHERBOARD_H__
+#ifndef __MSXMOTHERBOARD_HH__
+#define __MSXMOTHERBOARD_HH__
 
 #include "MSXDevice.hh"
 #include "Scheduler.hh"
@@ -19,11 +19,13 @@ class MSXMotherBoard : public MSXDevice
 
 		MSXDevice* IO_In[256];
 		MSXDevice* IO_Out[256];
+		MSXDevice* emptydevice;
 		MSXDevList* availableDevices;
 		
 		MSXDevice* SlotLayout[4][4][4];
 		byte A8_Register;
 		byte SubSlot_Register[4];
+		bool isSubSlotted[4];
 
 		static MSXMotherBoard *volatile oneInstance;
 
@@ -77,6 +79,7 @@ class MSXMotherBoard : public MSXDevice
 		void writeMem(word address,byte value,UINT64 TStates);
 		byte readIO(byte port,UINT64 TStates);
 		void writeIO(byte port,byte value,UINT64 TStates);
+		void set_A8_Register(byte value);
 
 		friend class MSXPPI;
 };

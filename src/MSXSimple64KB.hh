@@ -13,6 +13,7 @@ class MSXSimple64KB : public MSXDevice
 {
 	private:
 		byte* memoryBank;	
+		bool slow_drain_on_reset;
 	public:
 		//constructor and destructor
 		MSXSimple64KB();
@@ -20,6 +21,8 @@ class MSXSimple64KB : public MSXDevice
 		
 		// don't forget you inherited from MSXDevice
 		void init();
+		void start();
+		void reset();
 		//void reset();
 		//void SaveStateMSX(ofstream savestream);
 		//
