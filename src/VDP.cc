@@ -268,8 +268,8 @@ void VDP::scheduleDisplayStart(const EmuTime &time)
 	displayStart =
 		( isDisplayArea // overscan?
 		? 3 + 13 // sync + top erase
-		: lineZero * TICKS_PER_LINE
-		);
+		: lineZero
+		) * TICKS_PER_LINE;
 	displayStartSyncTime = frameStartTime + displayStart;
 	//cerr << "new DISPLAY_START is " << (displayStart / TICKS_PER_LINE) << "\n";
 

@@ -73,7 +73,7 @@ public:
 
 private:
 	typedef void (SDLGLRenderer::*PhaseHandler)
-		(int line, int limit);
+		(int fromX, int fromY, int limitX, int limitY);
 	typedef void (SDLGLRenderer::*DirtyChecker)
 		(int addr, byte data);
 
@@ -133,14 +133,14 @@ private:
 	  * @param line First line to render.
 	  * @param limit Last line to render (exclusive).
 	  */
-	void blankPhase(int line, int limit);
+	void blankPhase(int fromX, int fromY, int limitX, int limitY);
 
 	/** Render pixels according to VRAM.
 	  * Used for the display part of scanning.
 	  * @param line First line to render.
 	  * @param limit Last line to render (exclusive).
 	  */
-	void displayPhase(int line, int limit);
+	void displayPhase(int fromX, int fromY, int limitX, int limitY);
 
 	/** Dirty checking that does nothing (but is a valid method).
 	  */
@@ -219,12 +219,16 @@ private:
 	  */
 	DirtyChecker dirtyChecker;
 
-	/** Number of the next line to render.
-	  * Absolute line number: [0..262) for NTSC, [0..313) for PAL.
-	  * Any number larger than the number of lines means
-	  * "no more lines to render for this frame".
+	/** Number of the next position within a line to render.
+	  * Expressed in "small pixels" (Text2, Graphics 5/6) from the
+	  * left border of the rendered screen.
 	  */
-	int nextLine;
+	int nextX;
+
+	/** Number of the next line to render.
+	  * Expressed in number of lines above lineRenderTop.
+	  */
+	int nextY;
 
 	/** The surface which is visible to the user.
 	  */

@@ -93,7 +93,7 @@ void MSXRomDevice::readFile(IFILETYPE* file, int fileSize)
 {
 	int offset = 0;
 	try {
-		int offset = deviceConfig->getParameterAsInt("skip_headerbytes");
+		offset = deviceConfig->getParameterAsInt("skip_headerbytes");
 		file->seekg(offset);
 	} catch(MSXConfig::Exception e) {
 		// no offset specified

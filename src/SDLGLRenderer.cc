@@ -230,15 +230,58 @@ inline void SDLGLRenderer::setDisplayMode(int mode)
 
 inline void SDLGLRenderer::renderUntil(const EmuTime &time)
 {
-	// TODO: Also calculate position within a line.
-	int limit =
-		(vdp->getTicksThisFrame(time) + VDP::TICKS_PER_LINE - 400)
-		/ VDP::TICKS_PER_LINE;
-	assert(limit <= (vdp->isPalTiming() ? 313 : 262));
-	if (nextLine < limit) {
-		(this->*phaseHandler)(nextLine, limit);
-		nextLine = limit ;
+#define PIXEL_ACCURATE
+#ifdef PIXEL_ACCURATE
+	int limitTicks = vdp->getTicksThisFrame(time);
+	int limitX = limitTicks % VDP::TICKS_PER_LINE;
+	//limitX = (limitX - 100 - (VDP::TICKS_PER_LINE - 100) / 2 + WIDTH) / 2;
+	limitX = (limitX - 100 / 2 - 102) / 2;
+	int limitY = limitTicks / VDP::TICKS_PER_LINE - lineRenderTop;
+	if (limitY < 0) {
+		limitX = 0;
+		limitY = 0;
+	} else if (limitY >= HEIGHT / 2 - 1) {
+		limitX = WIDTH;
+		limitY = HEIGHT / 2 - 1;
+	} else if (limitX < 0) {
+		limitX = 0;
+	} else if (limitX > WIDTH) {
+		limitX = WIDTH;
 	}
+	assert(limitY <= (vdp->isPalTiming() ? 313 : 262));
+
+	// split in rectangles
+	if (nextY == limitY) {
+		// only one line
+		(this->*phaseHandler)(nextX, nextY, limitX, limitY);
+	} else {
+		if (nextX != 0) {
+			// top
+			(this->*phaseHandler)(nextX, nextY, WIDTH, nextY);
+			nextY++;
+		}
+		if (limitX == WIDTH) {
+			// middle + bottom
+			(this->*phaseHandler)(0, nextY, WIDTH, limitY);
+		} else { 
+			if (limitY > nextY)
+				// middle
+				(this->*phaseHandler)(0, nextY, WIDTH, limitY - 1);
+			// bottom
+			(this->*phaseHandler)(0, limitY, limitX, limitY);
+		}
+	}
+	nextX = limitX;
+	nextY = limitY;
+#else
+	int limitTicks = vdp->getTicksThisFrame(time);
+	int limitY = limitTicks / VDP::TICKS_PER_LINE - lineRenderTop;
+	assert(limitY <= (vdp->isPalTiming() ? 313 : 262));
+	if (nextY < limitY) {
+		(this->*phaseHandler)(0, nextY, WIDTH, limitY);
+		nextY = limitY ;
+	}
+#endif
 }
 
 inline void SDLGLRenderer::sync(const EmuTime &time)
@@ -896,17 +939,23 @@ void SDLGLRenderer::drawSprites(int absLine)
 }
 
 void SDLGLRenderer::blankPhase(
-	int fromLine, int limit)
+	int fromX, int fromY, int limitX, int limitY)
 {
+	if (fromX == limitX) return;
+	assert(fromX < limitX);
+	//PRT_DEBUG("BlankPhase: ("<<fromX<<","<<fromY<<")-("<<limitX-1<<","<<limitY<<")");
+
 	// TODO: Only redraw if necessary.
 	GLSetColour(getBorderColour());
-	int y1 = (fromLine - lineRenderTop) * 2;
-	int y2 = (limit - lineRenderTop) * 2;
+	int x1 = fromX;
+	int x2 = limitX;
+	int y1 = fromY * 2;
+	int y2 = limitY * 2 + 2;
 	glBegin(GL_QUADS);
-	glVertex2i(0, y1); // top left
-	glVertex2i(WIDTH, y1); // top right
-	glVertex2i(WIDTH, y2); // bottom right
-	glVertex2i(0, y2); // bottom left
+	glVertex2i(x1, y1); // top left
+	glVertex2i(x2, y1); // top right
+	glVertex2i(x2, y2); // bottom right
+	glVertex2i(x1, y2); // bottom left
 	glEnd();
 }
 
@@ -925,9 +974,9 @@ void SDLGLRenderer::renderText1(int vramLine, int screenLine, int count)
 	glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, fgColour);
 
 	// Render complete characters and cut off the invisible part
-	int screenHeight = 2 * count;
-	glScissor(0, HEIGHT - screenLine - screenHeight, WIDTH, screenHeight);
-	glEnable(GL_SCISSOR_TEST);
+	//int screenHeight = 2 * count;
+	//glScissor(0, HEIGHT - screenLine - screenHeight, WIDTH, screenHeight);
+	//glEnable(GL_SCISSOR_TEST);
 	
 	int leftBorder = getLeftBorder();
 
@@ -962,7 +1011,7 @@ void SDLGLRenderer::renderText1(int vramLine, int screenLine, int count)
 		}
 		screenLine += 16;
 	}
-	glDisable(GL_SCISSOR_TEST);
+	//glDisable(GL_SCISSOR_TEST);
 }
 
 void SDLGLRenderer::renderGraphic2(int vramLine, int screenLine, int count)
@@ -970,9 +1019,9 @@ void SDLGLRenderer::renderGraphic2(int vramLine, int screenLine, int count)
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 	
 	// Render complete characters and cut off the invisible part
-	int screenHeight = 2 * count;
-	glScissor(0, HEIGHT - screenLine - screenHeight, WIDTH, screenHeight);
-	glEnable(GL_SCISSOR_TEST);
+	//int screenHeight = 2 * count;
+	//glScissor(0, HEIGHT - screenLine - screenHeight, WIDTH, screenHeight);
+	//glEnable(GL_SCISSOR_TEST);
 
 	int endRow = (vramLine + count + 7) / 8;
 	screenLine -= (vramLine & 7) * 2;
@@ -980,7 +1029,7 @@ void SDLGLRenderer::renderGraphic2(int vramLine, int screenLine, int count)
 		renderGraphic2Row(row & 31, screenLine);
 		screenLine += 16;
 	}
-	glDisable(GL_SCISSOR_TEST);
+	//glDisable(GL_SCISSOR_TEST);
 }
 
 void SDLGLRenderer::renderGraphic2Row(int row, int screenLine)
@@ -1016,21 +1065,18 @@ void SDLGLRenderer::renderGraphic2Row(int row, int screenLine)
 }
 
 void SDLGLRenderer::displayPhase(
-	int fromLine, int limit)
+	int fromX, int fromY, int limitX, int limitY)
 {
-	//cerr << "displayPhase from " << fromLine << " until " << limit << "\n";
+	if (fromX == limitX) return;
+	assert(fromX < limitX);
+	//PRT_DEBUG("DisplayPhase: ("<<fromX<<","<<fromY<<")-("<<limitX-1<<","<<limitY<<")");
 
-	// Check for bottom erase; even on overscan this suspends display.
-	if (limit > lineBottomErase) {
-		limit = lineBottomErase;
-	}
-	if (limit > lineRenderTop + HEIGHT / 2) {
-		limit = lineRenderTop + HEIGHT / 2;
-	}
-	if (fromLine >= limit) return;
-
+	int n = limitY - fromY + 1;
+	glScissor(fromX, HEIGHT - 2 - limitY * 2, limitX - fromX, n * 2);
+	glEnable(GL_SCISSOR_TEST);
+	
 	// Perform vertical scroll (wraps at 256)
-	byte line = fromLine - vdp->getLineZero();
+	byte line = lineRenderTop + fromY - vdp->getLineZero();
 	if (!vdp->isTextMode())
 		line += vdp->getVerticalScroll();
 
@@ -1038,9 +1084,8 @@ void SDLGLRenderer::displayPhase(
 	// TODO: Complete separation of character and bitmap modes.
 	glEnable(GL_TEXTURE_2D);
 	int leftBorder = getLeftBorder();
-	int y = (fromLine - lineRenderTop) * 2;
+	int y = fromY * 2;
 	if (vdp->isBitmapMode()) {
-		int n = limit - fromLine;
 		bool planar = vdp->isPlanar();
 		if (planar) renderPlanarBitmapLines(line, n);
 		else renderBitmapLines(line, n);
@@ -1055,7 +1100,6 @@ void SDLGLRenderer::displayPhase(
 			y += 2;
 		} while (--n);
 	} else {
-		int n = limit - fromLine;
 		switch (vdp->getDisplayMode()) {
 		case 1:
 			renderText1(line, y, n);
@@ -1084,8 +1128,8 @@ void SDLGLRenderer::displayPhase(
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glPixelZoom(2.0, 2.0);
-	for (int line = fromLine; line < limit; line++) {
-		drawSprites(line);
+	for (int line = fromY; line <= limitY; line++) {
+		drawSprites(lineRenderTop + line);
 	}
 	glDisable(GL_BLEND);
 	glDisable(GL_TEXTURE_2D);
@@ -1095,22 +1139,24 @@ void SDLGLRenderer::displayPhase(
 	// this is implemented using overdraw.
 	// TODO: Does the extended border clip sprites as well?
 	GLSetColour(getBorderColour());
-	int y1 = (fromLine - lineRenderTop) * 2;
-	int y2 = (limit - lineRenderTop) * 2;
+	int y1 = fromY * 2;
+	int y2 = limitY * 2 + 2;
 	glBegin(GL_QUADS);
 	// Left border:
 	int left = getLeftBorder();
-	glVertex2i(0, y1); // top left
+	glVertex2i(fromX, y1); // top left
 	glVertex2i(left, y1); // top right
 	glVertex2i(left, y2); // bottom right
-	glVertex2i(0, y2); // bottom left
+	glVertex2i(fromX, y2); // bottom left
 	// Right border:
 	int right = left + getDisplayWidth();
 	glVertex2i(right, y1); // top left
-	glVertex2i(WIDTH, y1); // top right
-	glVertex2i(WIDTH, y2); // bottom right
+	glVertex2i(limitX, y1); // top right
+	glVertex2i(limitX, y2); // bottom right
 	glVertex2i(right, y2); // bottom left
 	glEnd();
+	
+	glDisable(GL_SCISSOR_TEST);
 }
 
 void SDLGLRenderer::frameStart(const EmuTime &time)
@@ -1127,7 +1173,9 @@ void SDLGLRenderer::frameStart(const EmuTime &time)
 
 	// Calculate important moments in frame rendering.
 	lineBottomErase = vdp->isPalTiming() ? 313 - 3 : 262 - 3;
-	nextLine = lineRenderTop;
+	nextX = 0;
+	nextY = 0;
+	
 
 	// Screen is up-to-date, so nothing is dirty.
 	// TODO: Either adapt implementation to work with incremental

@@ -23,13 +23,13 @@ GLFont::GLFont(GLuint texture, int width, int height, GLfloat *texCoord)
 		glNewList(listBase + i, GL_COMPILE);
 		  glBegin(GL_QUADS);
 		    glTexCoord2f(x, 0.0f);				// top left
-		    glVertex2d(0, 0);
+		    glVertex2i(0, 0);
 		    glTexCoord2f(x, texChrHeight);			// bottom left
-		    glVertex2d(0, charHeight);
+		    glVertex2i(0, charHeight);
 		    glTexCoord2f(x + texChrWidth, texChrHeight);	// bottom right
-		    glVertex2d(charWidth, charHeight);
+		    glVertex2i(charWidth, charHeight);
 		    glTexCoord2f(x + texChrWidth, 0.0f);		// top right
-		    glVertex2d(charWidth, 0);
+		    glVertex2i(charWidth, 0);
 		  glEnd();
 		  glTranslated(charWidth, 0, 0);
 		glEndList();
