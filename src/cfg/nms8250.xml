@@ -3,6 +3,8 @@
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
 
+  <filepath/>
+
   <config id="MotherBoard">
     <type>MotherBoard</type>
     <parameter name="0" class="subslotted">false</parameter>
