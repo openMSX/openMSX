@@ -3,7 +3,8 @@
 #include "Renderer.hh"
 #include "CommandController.hh"
 #include "RenderSettings.hh"
-
+#include "InfoCommand.hh"
+#include "CommandResult.hh"
 
 namespace openmsx {
 
@@ -66,12 +67,14 @@ const word Renderer::GRAPHIC7_SPRITE_PALETTE[16] = {
 };
 
 Renderer::Renderer(RendererFactory::RendererID id_)
-	: settings(RenderSettings::instance()), id(id_)
+	: settings(RenderSettings::instance()), id(id_), fpsInfo(*this)
 {
+	InfoCommand::instance().registerTopic("fps", &fpsInfo);
 }
 
 Renderer::~Renderer()
 {
+	InfoCommand::instance().unregisterTopic("fps", &fpsInfo);
 }
 
 bool Renderer::checkSettings()
@@ -83,6 +86,25 @@ void Renderer::takeScreenShot(const string& filename)
 	throw (CommandException)
 {
 	throw CommandException("Taking screenshot not possible with current renderer.");
+}
+
+// class FpsInfoTopic
+
+Renderer::FpsInfoTopic::FpsInfoTopic(Renderer& parent_)
+	: parent(parent_)
+{
+}
+
+void Renderer::FpsInfoTopic::execute(const vector<string>& tokens,
+                                          CommandResult& result) const throw()
+{
+	result.setDouble(parent.getFrameRate());
+}
+
+string Renderer::FpsInfoTopic::help (const vector<string>& tokens) const
+	throw()
+{
+	return "Returns the current rendering speed in frames per second.";
 }
 
 } // namespace openmsx

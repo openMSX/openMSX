@@ -8,7 +8,7 @@
 #include "RendererFactory.hh"
 #include "VRAMObserver.hh"
 #include "CommandException.hh"
-
+#include "InfoTopic.hh"
 
 namespace openmsx {
 
@@ -224,6 +224,10 @@ public:
 	  */
 	virtual void updateSpritesEnabled(bool enabled, const EmuTime& time) = 0;
 
+	/** Returns an (estimation) for the current frames per seconds.
+	  */
+	virtual float getFrameRate() const = 0;
+
 protected:
 	/** NTSC version of the MSX1 palette.
 	  * An array of 16 RGB triples.
@@ -242,6 +246,16 @@ protected:
 private:
 	RendererFactory::RendererID id;
 
+	class FpsInfoTopic : public InfoTopic {
+	public:
+		FpsInfoTopic(Renderer& parent);
+		virtual void execute(const vector<string>& tokens,
+		                     CommandResult& result) const throw();
+		virtual string help (const vector<string>& tokens) const
+			throw();
+	private:
+		Renderer& parent;
+	} fpsInfo;
 };
 
 } // namespace openmsx

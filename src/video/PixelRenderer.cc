@@ -9,8 +9,6 @@
 #include "SpriteChecker.hh"
 #include "RealTime.hh"
 #include "Timer.hh"
-#include "InfoCommand.hh"
-#include "CommandResult.hh"
 
 using std::max;
 
@@ -108,7 +106,7 @@ inline void PixelRenderer::subdivide(
 }
 
 PixelRenderer::PixelRenderer(RendererFactory::RendererID id, VDP *vdp)
-	: Renderer(id), fpsInfo(*this)
+	: Renderer(id)
 {
 	this->vdp = vdp;
 	vram = vdp->getVRAM();
@@ -126,12 +124,10 @@ PixelRenderer::PixelRenderer(RendererFactory::RendererID id, VDP *vdp)
 	
 	settings.getMaxFrameSkip()->addListener(this);
 	settings.getMinFrameSkip()->addListener(this);
-	InfoCommand::instance().registerTopic("fps", &fpsInfo);
 }
 
 PixelRenderer::~PixelRenderer()
 {
-	InfoCommand::instance().unregisterTopic("fps", &fpsInfo);
 	settings.getMinFrameSkip()->removeListener(this);
 	settings.getMaxFrameSkip()->removeListener(this);
 }
@@ -435,23 +431,9 @@ void PixelRenderer::update(const SettingLeafNode* setting) throw()
 }
 
 
-// class FpsInfoTopic
-
-PixelRenderer::FpsInfoTopic::FpsInfoTopic(PixelRenderer& parent_)
-	: parent(parent_)
+float PixelRenderer::getFrameRate() const
 {
-}
-
-void PixelRenderer::FpsInfoTopic::execute(const vector<string>& tokens,
-                                          CommandResult& result) const throw()
-{
-	result.setDouble(1000000.0 * NUM_FRAME_DURATIONS / parent.frameDurationSum);
-}
-
-string PixelRenderer::FpsInfoTopic::help (const vector<string>& tokens) const
-	throw()
-{
-	return "Returns the current rendering speed in frames per second.";
+	return 1000000.0 * NUM_FRAME_DURATIONS / frameDurationSum;
 }
 
 } // namespace openmsx

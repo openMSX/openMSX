@@ -198,6 +198,11 @@ void XRenderer::updateVRAM(int offset, const EmuTime &time) {
 void XRenderer::updateWindow(bool enabled, const EmuTime &time) {
 }
 
+float XRenderer::getFrameRate() const
+{
+	return 0.0;
+}
+
 static const struct {KeySym x; SDLKey sdl;} _keymap[] = {
 {'a', SDLK_a}, {'b', SDLK_b}, {'c', SDLK_c}, {'d', SDLK_d}, {'e', SDLK_e},
 {'f', SDLK_f}, {'g', SDLK_g}, {'h', SDLK_h}, {'i', SDLK_i}, {'j', SDLK_j},

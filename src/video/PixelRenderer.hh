@@ -10,7 +10,6 @@
 #include "SettingListener.hh"
 #include "RenderSettings.hh"
 #include "DisplayMode.hh"
-#include "InfoTopic.hh"
 
 namespace openmsx {
 
@@ -53,6 +52,7 @@ public:
 	void updateSpritesEnabled(bool enabled, const EmuTime &time);
 	void updateVRAM(int offset, const EmuTime &time);
 	void updateWindow(bool enabled, const EmuTime &time);
+	virtual float getFrameRate() const;
 
 protected:
 	/** Constructor.
@@ -214,17 +214,6 @@ private:
 	unsigned frameDurationSum;
 	unsigned prevTimeStamp;
 	
-	class FpsInfoTopic : public InfoTopic {
-	public:
-		FpsInfoTopic(PixelRenderer& parent);
-		virtual void execute(const vector<string>& tokens,
-		                     CommandResult& result) const throw();
-		virtual string help (const vector<string>& tokens) const
-			throw();
-	private:
-		PixelRenderer& parent;
-	} fpsInfo;
-
 	// internal VDP counter, actually belongs in VDP
 	int textModeCounter;
 };
