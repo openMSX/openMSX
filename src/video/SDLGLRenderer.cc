@@ -261,6 +261,7 @@ void SDLGLRenderer::putImage()
 		// Copy stored image to screen.
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, storedImageTextureId);
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 		// Note: Without blending enabled, this method is rather efficient.
 		GLDrawBlur(0, 0, 1.0);
 		glDisable(GL_TEXTURE_2D);
