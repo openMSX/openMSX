@@ -279,11 +279,30 @@ FilenameSetting::FilenameSetting(const string &name,
 {
 }
 
+void FilenameSetting::setValue(const string &newValue)
+{
+	string resolved;
+	try {
+		UserFileContext context;
+		resolved = context.resolve(newValue);
+	} catch (FileException &e) {
+		// File not found.
+		PRT_INFO("Warning: couldn't find file: \"" << newValue << "\"");
+		return;
+	}
+	bool ok = checkFile(resolved);
+	if (ok) StringSetting::setValue(newValue);
+}
+
 void FilenameSetting::tabCompletion(vector<string> &tokens) const
 {
 	CommandController::completeFileName(tokens);
 }
 
+bool FilenameSetting::checkFile(const string &filename)
+{
+	return true;
+}
 
 // SettingsManager implementation:
 
