@@ -20,16 +20,18 @@ MSXRomDevice::MSXRomDevice(Device* config, const EmuTime &time)
 	}
 }
 
-MSXRomDevice::MSXRomDevice(const std::string &filename, const EmuTime &time)
+MSXRomDevice::MSXRomDevice(Device* config, const std::string &filename,
+                           const EmuTime &time)
 {
-	read(NULL, filename, time);
+	read(config, filename, time);	// TODO config
 }
 
 void MSXRomDevice::read(Device* config,
                         const std::string &filename, const EmuTime &time)
 {
 	// open file
-	file = new File(filename, ROM);
+	const std::string &context = config->getContext();
+	file = new File(context, filename);
 	
 	// get filesize
 	int fileSize;
@@ -87,7 +89,7 @@ void MSXRomDevice::read(Device* config,
 		config->getParametersWithClass("patch");
 	std::list<Config::Parameter*>::const_iterator i;
 	for (i=parameters2->begin(); i!=parameters2->end(); i++) {
-		int offset = strtol((*i)->name.c_str(), 0, 0);
+		unsigned int offset = strtol((*i)->name.c_str(), 0, 0);
 		int value  = (*i)->getAsInt();
 		if (offset >= size) {
 			PRT_DEBUG("Ignoring illegal ROM patch-offset: " << offset);

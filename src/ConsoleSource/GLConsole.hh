@@ -30,7 +30,9 @@ class GLConsole : public SDLInteractiveConsole
 
 	private:
 		int powerOfTwo(int a);
-		GLuint loadTexture(const std::string &filename, int &width, int &height, GLfloat *texCoord);
+		GLuint loadTexture(const std::string &context,
+		                   const std::string &filename,
+		                   int &width, int &height, GLfloat *texCoord);
 
 		static const int BLINK_RATE = 500;
 		static const int CHAR_BORDER = 4;

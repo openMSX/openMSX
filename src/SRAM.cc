@@ -13,11 +13,12 @@ SRAM::SRAM(int size_, Device *config_, const char *header_)
 	memset(sram, 0xFF, size);
 	
 	if (config->getParameterAsBool("loadsram")) {
-		std::string filename = config->getParameter("sramname");
+		const std::string &filename = config->getParameter("sramname");
+		const std::string &context = config->getContext();
 		PRT_DEBUG("SRAM: read " << filename);
 		try {
 			bool headerOk = true;
-			File file(filename, STATE);
+			File file(context, filename);
 			if (header) {
 				int length = strlen(header);
 				byte* temp = new byte[length];
@@ -39,10 +40,11 @@ SRAM::SRAM(int size_, Device *config_, const char *header_)
 SRAM::~SRAM()
 {
 	if (config->getParameterAsBool("savesram")) {
-		std::string filename = config->getParameter("sramname");
+		const std::string &filename = config->getParameter("sramname");
+		const std::string &context = config->getContext();
 		PRT_DEBUG("SRAM: save " << filename);
 		try {
-			File file(filename, STATE, TRUNCATE);
+			File file(context, filename, TRUNCATE);
 			if (header) {
 				int length = strlen(header);
 				file.write((byte*)header, length);

@@ -5,7 +5,8 @@
 #include "LocalFile.hh"
 #include "File.hh"
 
-LocalFile::LocalFile(const std::string &filename, int options)
+LocalFile::LocalFile(const std::string &filename_, int options)
+	: filename(filename_)
 {
 	const char* name = filename.c_str(); 
 	if (options & TRUNCATE) {
@@ -86,4 +87,9 @@ void LocalFile::seek(int pos)
 int LocalFile::pos()
 {
 	return (int)ftell(file);
+}
+
+const std::string& LocalFile::getLocalName()
+{
+	return filename;
 }

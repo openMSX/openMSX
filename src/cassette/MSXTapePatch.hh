@@ -35,7 +35,8 @@ class MSXTapePatch : public MSXRomPatchInterface, private Command
 		static const byte TapeHeader[] = { 0x1F,0xA6,0xDE,0xBA,0xCC,0x13,0x7D,0x74 };
 		File* file;
 
-		void insertTape(std::string filename);
+		void insertTape(const std::string &context,
+		                const std::string &filename);
 		void ejectTape();
 
 		// 0x00E1 Tape input ON

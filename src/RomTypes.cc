@@ -173,8 +173,8 @@ MapperType RomTypes::searchDataBase(byte* data, int size)
 	if (!init) {
 		init = true;
 		try {
-			std::string dbLocation(File::findName("romdb.xml", CONFIG));
-			XML::Document doc(dbLocation);
+			File file("", "romdb.xml");	// TODO to config
+			XML::Document doc(file.getLocalName().c_str());
 			std::list<XML::Element*>::iterator it1 = doc.root->children.begin();
 			for ( ; it1 != doc.root->children.end(); it1++) {
 				const std::string romType((*it1)->getElementPcdata("romtype"));

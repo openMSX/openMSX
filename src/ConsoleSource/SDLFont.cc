@@ -14,16 +14,24 @@
 #include "SDLFont.hh"
 #include "openmsx.hh"
 #include "MSXException.hh"
+#include "MSXConfig.hh"
+#include "File.hh"
+
 
 const int NUM_CHRS = 256;
 const int CHARS_PER_ROW = 16;
 const int CHARS_PER_COL = NUM_CHRS / CHARS_PER_ROW;
 
-SDLFont::SDLFont(const std::string &bitmapName)
+
+SDLFont::SDLFont(Config *config)
 {
+	const std::string &fontName = config->getParameter("font");
+	const std::string &context = config->getContext();
+	File file(context, fontName);
+
 	// load the font bitmap
 	SDL_Surface *tempSurface;
-	if (!(tempSurface = IMG_Load(bitmapName.c_str())))
+	if (!(tempSurface = IMG_Load(file.getLocalName().c_str())))
 		throw MSXException("Can't load font");
 
 	fontSurface = SDL_DisplayFormat(tempSurface);

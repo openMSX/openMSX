@@ -45,7 +45,7 @@ void DiskImageCLI::parseFileType(const std::string &filename_)
 	s << "</msxconfig>";
 	
 	MSXConfig *config = MSXConfig::instance();
-	config->loadStream(s);
+	config->loadStream("", s);
 	driveLetter++;
 }
 const std::string& DiskImageCLI::fileTypeHelp() const

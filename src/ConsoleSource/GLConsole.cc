@@ -30,17 +30,18 @@ GLConsole::GLConsole()
 	int width, height;
 	GLfloat fontTexCoord[4];
 	Config *config = MSXConfig::instance()->getConfigById("Console");
-	std::string fontName = config->getParameter("font");
-	GLuint fontTexture = loadTexture(fontName,width, height, fontTexCoord);
+	const std::string &fontName = config->getParameter("font");
+	const std::string &context = config->getContext();
+	GLuint fontTexture = loadTexture(context, fontName,
+	                                 width, height, fontTexCoord);
 	font = new GLFont(fontTexture, width, height, fontTexCoord);
 
-	try {
+	if (config->hasParameter("background")) {
 		int width, height;
-		std::string backgroundName = config->getParameter("background");
-		backgroundTexture = loadTexture(backgroundName,
+		const std::string &backgroundName =
+			config->getParameter("background");
+		backgroundTexture = loadTexture(context, backgroundName,
 		                                width, height, backTexCoord);
-	} catch(MSXException &e) {
-		// no background or missing file
 	}
 }
 
@@ -59,9 +60,12 @@ int GLConsole::powerOfTwo(int a)
 	return res;
 }
 
-GLuint GLConsole::loadTexture(const std::string &filename, int &width, int &height, GLfloat *texCoord)
+GLuint GLConsole::loadTexture(const std::string &context, 
+                              const std::string &filename,
+                              int &width, int &height, GLfloat *texCoord)
 {
-	SDL_Surface* image1 = IMG_Load(File::findName(filename, CONFIG).c_str());
+	File file(context, filename);
+	SDL_Surface* image1 = IMG_Load(file.getLocalName().c_str());
 	if (image1 == NULL)
 		throw MSXException("Error loading texture");
 	SDL_SetAlpha(image1, 0, 0);

@@ -32,8 +32,8 @@ SDLConsole::SDLConsole(SDL_Surface *screen)
 	consoleAlpha = SDL_ALPHA_OPAQUE;
 	
 	Config *config = MSXConfig::instance()->getConfigById("Console");
-	std::string fontName = config->getParameter("font");
-	font = new SDLFont(File::findName(fontName, CONFIG));
+	
+	font = new SDLFont(config);
 	
 	SDL_Rect rect;
 	rect.x = (screen->w / 32);
@@ -43,11 +43,8 @@ SDLConsole::SDLConsole(SDL_Surface *screen)
 	resize(rect);
 	alpha(180);
 
-	try {
-		std::string backgroundName = config->getParameter("background");
-		background(File::findName(backgroundName, CONFIG), 0, 0);
-	} catch(MSXException &e) {
-		// no background or missing file
+	if (config->hasParameter("background")) {
+		background(config, 0, 0);
 	}
 }
 
@@ -154,10 +151,14 @@ void SDLConsole::alpha(unsigned char alpha)
 
 // Adds  background image to the console
 //  x and y are based on console x and y
-void SDLConsole::background(const std::string &image, int x, int y)
+void SDLConsole::background(Config *config, int x, int y)
 {
+	const std::string &backgroundFile = config->getParameter("background");
+	const std::string &context = config->getContext();
+	File file(context, backgroundFile);
+	
 	SDL_Surface *temp;
-	if (!(temp = IMG_Load(image.c_str())))
+	if (!(temp = IMG_Load(file.getLocalName().c_str())))
 		return;
 	if (backgroundImage)
 		SDL_FreeSurface(backgroundImage);

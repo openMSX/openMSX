@@ -8,6 +8,7 @@
 // forward declaration
 class SDLFont;
 class SDL_Surface;
+class Config;
 
 
 class SDLConsole : public SDLInteractiveConsole
@@ -22,7 +23,7 @@ class SDLConsole : public SDLInteractiveConsole
 		virtual void updateConsole();
 
 		void alpha(unsigned char alpha);
-		void background(const std::string &image, int x, int y);
+		void background(Config *config, int x, int y);
 		void position(int x, int y);
 		void resize(SDL_Rect rect);
 		void reloadBackground();

@@ -43,7 +43,7 @@ void MSXCassettePlayerCLI::parseFileType(const std::string &filename_)
 	s << "</msxconfig>";
 
 	MSXConfig *config = MSXConfig::instance();
-	config->loadStream(s);
+	config->loadStream("", s);
 }
 const std::string& MSXCassettePlayerCLI::fileTypeHelp() const
 {
@@ -59,8 +59,9 @@ CassettePlayer::CassettePlayer()
 	try {
 		Config *config =
 			MSXConfig::instance()->getConfigById("cassetteplayer");
-		std::string filename = config->getParameter("filename");
-		insertTape(filename);
+		const std::string &filename = config->getParameter("filename");
+		const std::string &context = config->getContext();
+		insertTape(context, filename);
 	} catch (MSXException& e) {
 		PRT_DEBUG("Incorrect tape insertion!");
 	}
@@ -75,13 +76,15 @@ CassettePlayer::~CassettePlayer()
 	removeTape();	// free memory
 }
 
-void CassettePlayer::insertTape(const std::string &filename)
+void CassettePlayer::insertTape(const std::string &context,
+                                const std::string &filename)
 {
 	// TODO throw exceptions instead of PRT_ERROR
-	const char* file = File::findName(filename, TAPE).c_str();
+	File file(context, filename);
+	const char* name = file.getLocalName().c_str();
 	if (audioLength != 0)
 		removeTape();
-	if (SDL_LoadWAV(file, &audioSpec, &audioBuffer, &audioLength) == NULL)
+	if (SDL_LoadWAV(name, &audioSpec, &audioBuffer, &audioLength) == NULL)
 		PRT_ERROR("CassettePlayer error: " << SDL_GetError());
 	if (audioSpec.format != AUDIO_S16)
 		PRT_ERROR("CassettePlayer error: unsupported WAV format");
@@ -171,7 +174,7 @@ void CassettePlayer::execute(const std::vector<std::string> &tokens,
 		removeTape();
 	} else {
 		print("Changing tape");
-		insertTape(tokens[1]);
+		insertTape("", tokens[1]);
 	}
 }
 

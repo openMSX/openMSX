@@ -6,11 +6,13 @@
 #include <string>
 #include "SDL/SDL.h"
 
+class Config;
+
 
 class SDLFont
 {
 	public:
-		SDLFont(const std::string &bitmapName);
+		SDLFont(Config *config);
 		~SDLFont();
 
 		void drawText(const std::string &string, SDL_Surface *surface, int x, int y);

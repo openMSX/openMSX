@@ -4,9 +4,9 @@
 
 
 
-FDC_DSK::FDC_DSK(const std::string &fileName)
+FDC_DSK::FDC_DSK(const std::string &context, const std::string &fileName)
 {
-	file = new File(fileName, DISK);
+	file = new File(context, fileName);
 	nbSectors = file->size() / SECTOR_SIZE;
 	writeTrackBuf = new byte[SECTOR_SIZE];
 	readTrackDataBuf = new byte[RAWTRACK_SIZE];

@@ -15,7 +15,8 @@ class MSXRomDevice
 {
 	public:
 		MSXRomDevice(Device *config, const EmuTime &time);
-		MSXRomDevice(const std::string &filename, const EmuTime &time);
+		MSXRomDevice(Device *config, const std::string &filename,
+		             const EmuTime &time);
 		virtual ~MSXRomDevice();
 
 		byte read(unsigned int address) const {

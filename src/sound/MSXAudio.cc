@@ -31,7 +31,7 @@ void MSXAudioCLI::parseOption(const std::string &option,
 	s << "</msxconfig>";
 	
 	MSXConfig *config = MSXConfig::instance();
-	config->loadStream(s);
+	config->loadStream("", s);
 }
 const std::string& MSXAudioCLI::optionHelp() const
 {

@@ -42,7 +42,7 @@ void MSXCasCLI::parseFileType(const std::string &filename_)
 	s << "</msxconfig>";
 
 	MSXConfig *config = MSXConfig::instance();
-	config->loadStream(s);
+	config->loadStream("", s);
 }
 const std::string& MSXCasCLI::fileTypeHelp() const
 {
@@ -76,8 +76,9 @@ MSXTapePatch::MSXTapePatch()
 	try {
 		Config *config =
 			MSXConfig::instance()->getConfigById("cas");
-		std::string filename = config->getParameter("filename");
-		insertTape(filename);
+		const std::string &filename = config->getParameter("filename");
+		const std::string &context = config->getContext();
+		insertTape(context, filename);
 	} catch (MSXException& e) {
 		PRT_DEBUG("Incorrect tape insertion!");
 	}
@@ -119,12 +120,13 @@ void MSXTapePatch::patch(CPU::CPURegs& R)
 	}
 }
 
-void MSXTapePatch::insertTape(std::string filename)
+void MSXTapePatch::insertTape(const std::string &context,
+                              const std::string &filename)
 {
 	ejectTape();
 	PRT_DEBUG("Loading file " << filename << " as tape ...");
 	try {
-		file = new File(filename, TAPE);
+		file = new File(context, filename);
 	} catch (FileException &e) {
 		PRT_DEBUG("Loading file failed");
 		file = NULL;
@@ -405,7 +407,7 @@ void MSXTapePatch::execute(const std::vector<std::string> &tokens,
 		ejectTape();
 	} else {
 		print("Changing tape");
-		insertTape(tokens[1]);
+		insertTape("", tokens[1]);
 	}
 }
 

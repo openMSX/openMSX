@@ -43,27 +43,21 @@ class Config
 			static bool stringToBool(const std::string &str);
 			static int stringToInt(const std::string &str);
 			static uint64 stringToUint64(const std::string &str);
-		
-		private:
-			// block usage
-			Parameter(const Parameter &);
-			Parameter &operator=(const Parameter &);
 		};
 
-		Config(XML::Element *element);
+		Config(XML::Element *element, const std::string &context);
 		virtual ~Config();
 
-		virtual bool isDevice();
-		virtual const std::string &getType();
-		virtual const std::string &getId();
-		virtual const std::string &getDesc();
-		virtual const std::string &getRem();
+		const std::string &getType() const;
+		const std::string &getId() const;
 
-		virtual bool hasParameter(const std::string &name);
-		virtual const std::string &getParameter(const std::string &name);
-		virtual const bool getParameterAsBool(const std::string &name);
-		virtual const int getParameterAsInt(const std::string &name);
-		virtual const uint64 getParameterAsUint64(const std::string &name);
+		const std::string &getContext() const;
+
+		bool hasParameter(const std::string &name) const;
+		const std::string &getParameter(const std::string &name) const;
+		const bool getParameterAsBool(const std::string &name) const;
+		const int getParameterAsInt(const std::string &name) const;
+		const uint64 getParameterAsUint64(const std::string &name) const;
 
 		/**
 		 * This returns a freshly allocated list with freshly allocated
@@ -75,12 +69,12 @@ class Config
 		 * cleanup function for getParametersWithClass
 		 */
 		static void getParametersWithClassClean(std::list<Parameter*>* list);
-
-		virtual void dump();
+	
 	private:
-		XML::Element* element;
-		XML::Element* getParameterElement(const std::string &name);
+		XML::Element* getParameterElement(const std::string &name) const;
 		
+		XML::Element* element;
+		const std::string context;
 };
 
 class Device: virtual public Config
@@ -93,38 +87,22 @@ class Device: virtual public Config
 			Slotted(int PS, int SS=-1, int Page=-1);
 			~Slotted();
 			
-			bool hasSS();
-			bool hasPage();
-			int getPS();
-			int getSS();
-			int getPage();
+			bool hasSS() const;
+			bool hasPage() const;
+			int getPS() const;
+			int getSS() const;
+			int getPage() const;
 
-			void dump();
-			
 		private:
-			// block usage
-			Slotted(const Slotted &);
-			Slotted &operator=(const Slotted &);
-			
 			int ps;
 			int ss;
 			int page;
 		};
 
-		Device(XML::Element *element);
+		Device(XML::Element *element, const std::string &context);
 		virtual ~Device();
 
-		virtual bool isDevice();
-		bool  isSlotted();
-
 		std::list <Slotted*> slotted;
-
-		virtual void dump();
-		
-	private:
-		// block usage
-		Device(const Device &foo);
-		Device &operator=(const Device &foo);
 };
 
 
@@ -132,48 +110,44 @@ class MSXConfig
 {
 	public:
 		/**
-		 * load a config file's content, and add it
-		 * to the config data [can be called multiple
-		 * times]
+		 * load a config file's content, and add it to
+		 *  the config data [can be called multiple times]
 		 */
-		virtual void loadFile(const std::string &filename);
-		virtual void loadStream(const std::ostringstream &stream);
+		void loadFile(const std::string &context,
+		              const std::string &filename);
+		void loadStream(const std::string &context,
+		                const std::ostringstream &stream);
 
 		/**
 		 * save current config to file
 		 */
-		virtual void saveFile();
-		virtual void saveFile(const std::string &filename);
+		void saveFile();
+		void saveFile(const std::string &filename);
 
 		/**
 		 * get a config or device or customconfig by id
 		 */
-		virtual Config* getConfigById(const std::string &id);
-		virtual Device* getDeviceById(const std::string &id);
+		Config* getConfigById(const std::string &id);
+		Device* getDeviceById(const std::string &id);
 
 		/**
 		 * get a device
 		 */
-		virtual void initDeviceIterator();
-		virtual Device* getNextDevice();
+		void initDeviceIterator();
+		Device* getNextDevice();
 
 		/**
 		 * returns the one backend, for backwards compat
 		 */
 		static MSXConfig* instance();
 
-		virtual ~MSXConfig();
-
-	protected:
-		MSXConfig();
+		~MSXConfig();
 
 	private:
-		// block usage
-		MSXConfig(const MSXConfig &foo);
-		MSXConfig &operator=(const MSXConfig &foo);
+		MSXConfig();
 
 		bool hasConfigWithId(const std::string &id);
-		void handleDoc(XML::Document* doc);
+		void handleDoc(XML::Document* doc, const std::string &context);
 
 		std::list<XML::Document*> docs;
 		std::list<Config*> configs;

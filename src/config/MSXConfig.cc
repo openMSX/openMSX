@@ -15,8 +15,8 @@ extern "C" long long atoll(const char *nptr);
 
 // class Config
 
-Config::Config(XML::Element *element_)
-	: element(element_)
+Config::Config(XML::Element *element_, const std::string &context_)
+	: element(element_), context(context_)
 {
 }
 
@@ -24,28 +24,89 @@ Config::~Config()
 {
 }
 
-bool Config::isDevice()
+const std::string &Config::getType() const
 {
-	return false;
+	return element->getElementPcdata("type");
 }
 
-void Config::dump()
+const std::string &Config::getId() const
 {
-	std::cout << "Config" << std::endl;
-	std::cout << "    type: " << getType() << std::endl;
-	std::cout << "    id: " << getId() << std::endl;
-	std::cout << "    desc: " << getDesc() << std::endl;
-	std::cout << "    rem: " << getRem() << std::endl;
-	
-	std::cout << "Device" << std::endl;
+	return element->getAttribute("id");
+}
+
+const std::string &Config::getContext() const
+{
+	return context;
+}
+
+XML::Element* Config::getParameterElement(const std::string &name) const
+{
 	std::list<XML::Element*>::iterator i;
 	for (i = element->children.begin(); i != element->children.end(); i++) {
 		if ((*i)->name == "parameter") {
-			std::cout << "    parameter name='" << (*i)->getAttribute("name") 
-			          << "' class='" << (*i)->getAttribute("class")
-				  << "' value='" << (*i)->pcdata << "'" << std::endl;
+			if ((*i)->getAttribute("name") == name) {
+				return (*i);
+			}
 		}
 	}
+	return 0;
+}
+
+
+bool Config::hasParameter(const std::string &name) const
+{
+	XML::Element* p = getParameterElement(name);
+	return (p != 0);
+}
+
+const std::string &Config::getParameter(const std::string &name) const
+{
+	XML::Element* p = getParameterElement(name);
+	if (p != 0) {
+		return p->pcdata;
+	}
+	throw ConfigException("Missing parameter: " + name);
+}
+
+const bool Config::getParameterAsBool(const std::string &name) const
+{
+	XML::Element* p = getParameterElement(name);
+	if (p != 0) {
+		return Config::Parameter::stringToBool(p->pcdata);
+	}
+	throw ConfigException("Missing parameter: " + name);
+}
+
+const int Config::getParameterAsInt(const std::string &name) const
+{
+	XML::Element* p = getParameterElement(name);
+	if (p != 0) {
+		return Config::Parameter::stringToInt(p->pcdata);
+	}
+	throw ConfigException("Missing parameter: " + name);
+}
+
+const uint64 Config::getParameterAsUint64(const std::string &name) const
+{
+	XML::Element* p = getParameterElement(name);
+	if (p != 0) {
+		return Config::Parameter::stringToUint64(p->pcdata);
+	}
+	throw ConfigException("Missing parameter: " + name);
+}
+
+std::list<Config::Parameter*>* Config::getParametersWithClass(const std::string &clasz)
+{
+	std::list<Config::Parameter*>* l = new std::list<Config::Parameter*>;
+	std::list<XML::Element*>::const_iterator i;
+	for (i = element->children.begin(); i != element->children.end(); i++) {
+		if ((*i)->name == "parameter") {
+			if ((*i)->getAttribute("class") == clasz) {
+				l->push_back(new Config::Parameter((*i)->getAttribute("name"), (*i)->pcdata, clasz));
+			}
+		}
+	}
+	return l;
 }
 
 
@@ -98,8 +159,8 @@ const uint64 Config::Parameter::getAsUint64() const
 
 // class Device
 
-Device::Device(XML::Element *element)
-	: Config(element)
+Device::Device(XML::Element *element, const std::string &context)
+	: Config(element, context)
 {
 	// TODO: create slotted-eds ???
 	std::list<XML::Element*>::iterator i;
@@ -127,110 +188,6 @@ Device::~Device()
 {
 }
 
-bool Device::isDevice()
-{
-	return true;
-}
-
-void Device::dump()
-{
-	std::cout << "Device" << std::endl;
-	std::list<Slotted*>::const_iterator i;
-	for (i = slotted.begin(); i != slotted.end(); i++) {
-		(*i)->dump();
-	}
-}
-
-const std::string &Config::getType()
-{
-	return element->getElementPcdata("type");
-}
-
-const std::string &Config::getDesc()
-{
-	return element->getElementPcdata("desc");
-}
-
-const std::string &Config::getRem()
-{
-	return element->getElementPcdata("rem");
-}
-
-const std::string &Config::getId()
-{
-	return element->getAttribute("id");
-}
-
-XML::Element* Config::getParameterElement(const std::string &name)
-{
-	std::list<XML::Element*>::iterator i;
-	for (i = element->children.begin(); i != element->children.end(); i++) {
-		if ((*i)->name == "parameter") {
-			if ((*i)->getAttribute("name") == name) {
-				return (*i);
-			}
-		}
-	}
-	return 0;
-}
-
-
-bool Config::hasParameter(const std::string &name)
-{
-	XML::Element* p = getParameterElement(name);
-	return (p != 0);
-}
-
-const std::string &Config::getParameter(const std::string &name)
-{
-	XML::Element* p = getParameterElement(name);
-	if (p != 0) {
-		return p->pcdata;
-	}
-	throw ConfigException("Missing parameter: " + name);
-}
-
-const bool Config::getParameterAsBool(const std::string &name)
-{
-	XML::Element* p = getParameterElement(name);
-	if (p != 0) {
-		return Config::Parameter::stringToBool(p->pcdata);
-	}
-	throw ConfigException("Missing parameter: " + name);
-}
-
-const int Config::getParameterAsInt(const std::string &name)
-{
-	XML::Element* p = getParameterElement(name);
-	if (p != 0) {
-		return Config::Parameter::stringToInt(p->pcdata);
-	}
-	throw ConfigException("Missing parameter: " + name);
-}
-
-const uint64 Config::getParameterAsUint64(const std::string &name)
-{
-	XML::Element* p = getParameterElement(name);
-	if (p != 0) {
-		return Config::Parameter::stringToUint64(p->pcdata);
-	}
-	throw ConfigException("Missing parameter: " + name);
-}
-
-std::list<Config::Parameter*>* Config::getParametersWithClass(const std::string &clasz)
-{
-	std::list<Config::Parameter*>* l = new std::list<Config::Parameter*>;
-	std::list<XML::Element*>::const_iterator i;
-	for (i = element->children.begin(); i != element->children.end(); i++) {
-		if ((*i)->name == "parameter") {
-			if ((*i)->getAttribute("class") == clasz) {
-				l->push_back(new Config::Parameter((*i)->getAttribute("name"), (*i)->pcdata, clasz));
-			}
-		}
-	}
-	return l;
-}
-
 // class Slotted
 
 Device::Slotted::Slotted(int PS, int SS, int Page)
@@ -238,43 +195,36 @@ Device::Slotted::Slotted(int PS, int SS, int Page)
 {
 }
 
-void Device::Slotted::dump()
-{
-	std::cout << "        slotted: PS: " << ps << " SS: " << ss << " Page: " << page << std::endl;
-}
-
 Device::Slotted::~Slotted()
 {
 }
 
-bool Device::Slotted::hasSS()
+bool Device::Slotted::hasSS() const
 {
-	return (ps!=-1);
+	return (ps != -1);
 }
 
-bool Device::Slotted::hasPage()
+bool Device::Slotted::hasPage() const
 {
-	return (page!=-1);
+	return (page != -1);
 }
 
-int Device::Slotted::getPS()
+int Device::Slotted::getPS() const
 {
 	return ps;
 }
 
-int Device::Slotted::getSS()
+int Device::Slotted::getSS() const
 {
-	if (ss==-1)
-	{
+	if (ss == -1) {
 		throw ConfigException("Request for SS on a Slotted without SS");
 	}
 	return ss;
 }
 
-int Device::Slotted::getPage()
+int Device::Slotted::getPage() const
 {
-	if (page==-1)
-	{
+	if (page == -1) {
 		throw ConfigException("Request for Page on a Slotted without Page");
 	}
 	return page;
@@ -310,19 +260,28 @@ MSXConfig* MSXConfig::instance()
 	return &oneInstance;
 }
 
-void MSXConfig::loadFile(const std::string &filename)
+void MSXConfig::loadFile(const std::string &context,
+                         const std::string &filename)
 {
-	XML::Document* doc = new XML::Document(File::findName(filename, CONFIG));
-	handleDoc(doc);
+	File file(context, filename);
+	XML::Document* doc = new XML::Document(file.getLocalName());
+
+	std::string base;
+	unsigned int pos = filename.find_last_of('/');
+	if (pos != std::string::npos) {
+		base = filename.substr(0, pos + 1);
+	}
+	handleDoc(doc, base);
 }
 
-void MSXConfig::loadStream(const std::ostringstream &stream)
+void MSXConfig::loadStream(const std::string &context,
+                           const std::ostringstream &stream)
 {
 	XML::Document* doc = new XML::Document(stream);
-	handleDoc(doc);
+	handleDoc(doc, context);
 }
 
-void MSXConfig::handleDoc(XML::Document* doc)
+void MSXConfig::handleDoc(XML::Document* doc, const std::string &context)
 {
 	docs.push_back(doc);
 	// TODO update/append Devices/Configs
@@ -339,9 +298,9 @@ void MSXConfig::handleDoc(XML::Document* doc)
 				throw ConfigException(s);
 			}
 			if ((*i)->name=="config") {
-				configs.push_back(new Config((*i)));
+				configs.push_back(new Config(*i, context));
 			} else if ((*i)->name=="device") {
-				devices.push_back(new Device((*i)));
+				devices.push_back(new Device(*i, context));
 			}
 		}
 	}

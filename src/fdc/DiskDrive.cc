@@ -131,7 +131,8 @@ RealDrive::RealDrive(const std::string &driveName, const EmuTime &time)
 		Config *config = MSXConfig::instance()->
 			getConfigById(driveName);
 		std::string disk = config->getParameter("filename");
-		insertDisk(disk);
+		std::string context = config->getContext();
+		insertDisk(context, disk);
 	} catch (MSXException &e) {
 		// nothing specified or file not found
 		ejectDisk();
@@ -222,15 +223,16 @@ bool RealDrive::headLoaded(const EmuTime &time)
 	       (headLoadTime.getTicksTill(time) > 10);
 }
 
-void RealDrive::insertDisk(const std::string &diskImage)
+void RealDrive::insertDisk(const std::string &context,
+                           const std::string &diskImage)
 {
 	FDCBackEnd* tmp;
 	try {
 		// first try XSA
-		tmp = new FDC_XSA(diskImage);
+		tmp = new FDC_XSA(context, diskImage);
 	} catch (MSXException &e) {
 		// if that fails use DSK
-		tmp = new FDC_DSK(diskImage);
+		tmp = new FDC_DSK(context, diskImage);
 	}
 	delete disk;
 	disk = tmp;
@@ -251,7 +253,7 @@ void RealDrive::execute(const std::vector<std::string> &tokens,
 		ejectDisk();
 	} else {
 		try {
-			insertDisk(tokens[1]);
+			insertDisk("", tokens[1]);
 		} catch (MSXException &e) {
 			throw CommandException(e.desc);
 		}

@@ -41,7 +41,7 @@ void MSXFmPacCLI::execute(MSXConfig *config)
 	s << "<parameter name=\"sramname\">FMPAC.PAC</parameter>";
 	s << "</device>";
 	s << "</msxconfig>";
-	config->loadStream(s);
+	config->loadStream("", s);
 }
 
 

@@ -168,7 +168,8 @@ class RealDrive : public DiskDrive, public Command
 		                     const EmuTime &time);
 		virtual void help   (const std::vector<std::string> &tokens) const;
 		virtual void tabCompletion(std::vector<std::string> &tokens) const;
-		void insertDisk(const std::string &disk);
+		void insertDisk(const std::string &context,
+		                const std::string &disk);
 		void ejectDisk();
 
 		std::string name;

@@ -11,8 +11,9 @@ MSXRTC::MSXRTC(Device *config, const EmuTime &time)
 	bool emuTimeBased = deviceConfig->getParameter("mode") != "RealTime";
 	try {
 		if (deviceConfig->getParameterAsBool("load")) {
-			std::string filename = deviceConfig->getParameter("filename");
-			File file(filename, STATE);
+			const std::string &filename = deviceConfig->getParameter("filename");
+			const std::string &context = deviceConfig->getContext();
+			File file(context, filename);
 			byte buffer[4 * 13];
 			file.read(buffer, 4 * 13);
 			rp5c01 = new RP5C01(emuTimeBased, buffer, time);	// use data from buffer
@@ -28,8 +29,9 @@ MSXRTC::MSXRTC(Device *config, const EmuTime &time)
 MSXRTC::~MSXRTC()
 {
 	if (deviceConfig->getParameterAsBool("save")) {
-		std::string filename = deviceConfig->getParameter("filename");
-		File file(filename, STATE, TRUNCATE);
+		const std::string &filename = deviceConfig->getParameter("filename");
+		const std::string &context = deviceConfig->getContext();
+		File file(context, filename, TRUNCATE);
 		file.write(rp5c01->getRegs(), 4 * 13);
 	}
 	delete rp5c01;

@@ -20,8 +20,10 @@ class LocalFile : public FileBase
 		virtual int size();
 		virtual void seek(int pos);
 		virtual int pos();
+		virtual const std::string& getLocalName();
 
 	private:
+		const std::string filename;
 		FILE* file;
 };
 
