@@ -35,8 +35,6 @@ public:
 
 	/** Instantiate the associated Renderer.
 	  * @param vdp VDP whose state will be rendered.
-	  * @param fullScreen Start the new renderer full screen?
-	  *   TODO: Handle fullScreen through a setting.
 	  * @param time Moment in emulated time the renderer is created.
 	  * @return a newly created Renderer, or NULL if creation failed.
 	  *   TODO: Throwing an exception would be cleaner.
