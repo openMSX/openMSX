@@ -5,7 +5,6 @@
 
 #include "MSXMemDevice.hh"
 #include "MSXRom.hh"
-#include "msxconfig.hh"
 
 // forward declarations
 class EmuTime;

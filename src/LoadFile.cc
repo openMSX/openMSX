@@ -58,11 +58,11 @@ void LoadFile::patchFile(byte* memoryBank, int size)
 	 * example:
 	 * <parameter name="0x0010" class="patch">0xED</parameter>
 	 */
-	std::list<const MSXConfig::Config::Parameter*> parameters =
+	std::list<MSXConfig::Config::Parameter*>* parameters =
 		getDeviceConfig()->getParametersWithClass("patch");
-	std::list<const MSXConfig::Config::Parameter*>::const_iterator i =
-		parameters.begin();
-	for ( /**/ ; i!=parameters.end(); i++)
+	std::list<MSXConfig::Config::Parameter*>::const_iterator i =
+		parameters->begin();
+	for ( /**/ ; i!=parameters->end(); i++)
 	{
 		int offset = strtol((*i)->name.c_str(),0,0);
 		int value  = (*i)->getAsInt();
@@ -76,4 +76,5 @@ void LoadFile::patchFile(byte* memoryBank, int size)
 			memoryBank[offset] = value;
 		}
 	}
+	getDeviceConfig()->getParametersWithClassClean(parameters);
 }

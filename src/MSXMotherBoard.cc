@@ -34,11 +34,11 @@ MSXMotherBoard::MSXMotherBoard()
 		isSubSlotted[primSlot] = false;
 	}
 
-	config = MSXConfig::instance()->getConfigById("MotherBoard");
-	std::list<const MSXConfig::Device::Parameter*> subslotted_list;
+	config = MSXConfig::Backend::instance()->getConfigById("MotherBoard");
+	std::list<MSXConfig::Device::Parameter*>* subslotted_list;
 	subslotted_list = config->getParametersWithClass("subslotted");
-	std::list<const MSXConfig::Device::Parameter*>::const_iterator i;
-	for (i=subslotted_list.begin(); i != subslotted_list.end(); i++) {
+	std::list<MSXConfig::Device::Parameter*>::const_iterator i;
+	for (i=subslotted_list->begin(); i != subslotted_list->end(); i++) {
 		bool hasSubs=false;
 		if ((*i)->value == "true") {
 			hasSubs=true;
@@ -47,6 +47,7 @@ MSXMotherBoard::MSXMotherBoard()
 		isSubSlotted[counter]=hasSubs;
 		PRT_DEBUG("Slot: " << counter << " expanded: " << hasSubs);
 	}
+	config->getParametersWithClassClean(subslotted_list);
 }
 
 MSXMotherBoard::~MSXMotherBoard()

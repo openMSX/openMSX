@@ -2,7 +2,7 @@
  
 #include <iostream>
 #include "MSXSCCPlusCart.hh"
-#include "msxconfig.hh"
+#include "MSXConfig.hh"
 #include "SCC.hh"
 #include "config.h"
 

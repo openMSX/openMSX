@@ -7,7 +7,7 @@
  */
 
 #include "config.h"
-#include "msxconfig.hh"
+#include "MSXConfig.hh"
 #include <string>
 #include <SDL/SDL.h>
 #include "Thread.hh"
@@ -16,32 +16,9 @@
 #include "EventDistributor.hh"
 #include "EmuTime.hh"
 
+#define __OPENMSX_CC__
 
-static int iconColours[] = {
-	0x00000000,
-	0xFF000000,
-	0xFFFFFFFF,
-	0xFFDBDB24,
-};
-static char iconData[] = {
-	0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,
-	0,0,0,0,0,0,1,1,1,2,2,1,2,1,0,0,
-	0,0,0,0,0,1,1,1,2,2,1,2,1,2,0,0,
-	0,0,0,0,0,1,1,1,2,2,1,2,1,2,0,0,
-	0,1,1,1,0,1,1,1,1,3,3,3,3,3,3,0,
-	1,1,1,1,1,1,1,1,3,3,3,3,1,3,3,0,
-	1,0,1,1,1,1,1,1,1,3,3,3,3,3,1,0,
-	0,0,0,1,1,1,1,1,2,2,2,2,2,1,1,1,
-	0,0,0,1,1,1,1,2,2,2,2,2,2,2,1,1,
-	1,0,1,1,1,1,2,2,2,2,2,2,2,1,1,0,
-	1,1,1,1,1,1,2,2,2,2,2,2,2,2,0,0,
-	1,1,1,1,1,2,2,2,2,2,2,1,2,0,0,0,
-	0,1,1,1,1,2,2,2,2,3,3,3,3,0,0,0,
-	0,0,0,1,1,1,1,2,3,3,3,3,3,0,0,0,
-	0,1,1,1,1,1,1,1,3,3,3,1,1,1,1,0,
-	0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,
-};
-
+#include "icon.nn"
 
 void initializeSDL()
 {
@@ -65,27 +42,43 @@ void initializeSDL()
 
 int main (int argc, char **argv)
 {
-	char *configfile = "msxconfig.xml";
+	// create configuration backend
+	// for now there is only one, "xml" based
+	MSXConfig::Backend* config = MSXConfig::Backend::createBackend("xml");
+	
+	// create a list of used config files
+	std::list<std::string> configfiles;
 	if (argc<2) {
-		PRT_INFO ("Using " << configfile << " as default configuration file.");
+		configfiles.push_back(std::string("msxconfig.xml"));
+		PRT_INFO ("Using msxconfig.xml as default configuration file.");
 	} else {
-		configfile=argv[1];
+		for (int i = 1; i < argc; i++)
+		{
+		configfiles.push_back(std::string(argv[i]));
+		}
 	}
 
 	try {
-		MSXConfig::instance()->loadFile(configfile);
+		// Load all config files in memory
+		for (std::list<std::string>::const_iterator i = configfiles.begin(); i != configfiles.end(); i++)
+		{
+			config->loadFile(*i);
+		}
 		
 		initializeSDL();
 	
 		EmuTime zero;
-		std::list<MSXConfig::Device*>::const_iterator i;
-		for (i = MSXConfig::instance()->deviceList.begin();
-		     i != MSXConfig::instance()->deviceList.end();
-		     i++) {
-			(*i)->dump();
-			MSXDevice *device = deviceFactory::create(*i, zero);
+
+		config->initDeviceIterator();
+		MSXConfig::Device* d=0;
+		while ((d=config->getNextDevice()) != 0)
+		{
+			//std::cout << "<device>" << std::endl;
+			//d->dump();
+			//std::cout << "</device>" << std::endl << std::endl;
+			MSXDevice *device = deviceFactory::create(d, zero);
 			MSXMotherBoard::instance()->addDevice(device);
-			PRT_DEBUG ("Instantiated:" << (*i)->getType());
+			PRT_DEBUG ("Instantiated:" << d->getType());
 		}
 
 		// Start a new thread for event handling

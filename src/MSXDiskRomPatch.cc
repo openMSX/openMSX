@@ -2,7 +2,7 @@
 
 #include "openmsx.hh"
 #include "MSXDiskRomPatch.hh"
-#include "msxconfig.hh"
+#include "MSXConfig.hh"
 #include "CPU.hh"
 #include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
@@ -62,7 +62,7 @@ MSXDiskRomPatch::MSXDiskRomPatch()
 	for (int i=0; i<LAST_DRIVE; i++) {
 		disk[i] = NULL;
 		try {
-			MSXConfig::Config *config = MSXConfig::instance()->getConfigById(name);
+			MSXConfig::Config *config = MSXConfig::Backend::instance()->getConfigById(name);
 			filename = config->getParameter("filename");
 			disk[i] = new DiskImage(filename);
 		} catch (MSXException& e) {

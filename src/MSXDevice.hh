@@ -6,7 +6,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "msxconfig.hh"
+#include "MSXConfig.hh"
 #include "openmsx.hh"
 
 // forward declarations

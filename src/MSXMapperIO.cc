@@ -34,11 +34,11 @@ MSXMapperIO::~MSXMapperIO()
 MSXMapperIO* MSXMapperIO::instance()
 {
 	if (oneInstance == NULL) {
-		std::list<MSXConfig::Device*> deviceList;
-		deviceList = MSXConfig::instance()->getDeviceByType("MapperIO");
-		if (deviceList.size() != 1)
-			PRT_ERROR("There must be exactly one MapperIO in config file");
-		MSXConfig::Device* config = deviceList.front();
+		//std::list<MSXConfig::Device*> deviceList;
+		MSXConfig::Device* config = MSXConfig::Backend::instance()->getDeviceById("MapperIO");
+		//if (deviceList.size() != 1)
+		//	PRT_ERROR("There must be exactly one MapperIO in config file");
+		//MSXConfig::Device* config = deviceList.front();
 		EmuTime dummy;
 		std::string type = config->getParameter("type");
 		if (type == "TurboR") {

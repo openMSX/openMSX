@@ -7,7 +7,7 @@
 
 #include "config.h"
 #include "openmsx.hh"
-#include "msxconfig.hh"
+#include "MSXConfig.hh"
 #include <fstream>
 
 #ifdef HAVE_FSTREAM_TEMPL

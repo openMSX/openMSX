@@ -6,7 +6,7 @@
 #include <fstream>
 #include <vector>
 #include "CPUInterface.hh"
-#include "msxconfig.hh"
+#include "MSXConfig.hh"
 
 // forward declarations
 class MSXDevice;

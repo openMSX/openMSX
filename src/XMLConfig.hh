@@ -27,6 +27,8 @@ public:
 	virtual const uint64 getParameterAsUint64(const std::string &name);
 	virtual std::list<Parameter*>* getParametersWithClass(const std::string &clasz);
 
+	virtual void dump();
+
 private:
 	Config(); // block usage
 	Config(const Config &foo);            // block usage
@@ -42,6 +44,8 @@ class Device: public XMLConfig::Config, public MSXConfig::Device
 public:
 	Device(XML::Element *element);
 	virtual ~Device();
+
+	virtual void dump();
 
 private:
 	Device(); // block usage
@@ -61,6 +65,10 @@ public:
 	virtual void saveFile(const std::string &filename);
 
 	virtual MSXConfig::Config* getConfigById(const std::string &id);
+	virtual MSXConfig::Device* getDeviceById(const std::string &id);
+
+	virtual void initDeviceIterator();
+	virtual MSXConfig::Device* getNextDevice();
 
 protected:
 	virtual ~Backend();
@@ -75,6 +83,8 @@ private:
 	std::list<XML::Document*> docs;
 	std::list<Config*> configs;
 	std::list<Device*> devices;
+
+	std::list<Device*>::const_iterator device_iterator;
 };
 
 }; // end namespace XMLConfig

@@ -21,32 +21,38 @@ std::string FileOpener::findFileName(std::string filename)
 	// on Mac machines it is ':'
 	try
 	{
-	  MSXConfig::Config *config = MSXConfig::instance()->getConfigById("rompath");
+		MSXConfig::Config *config = MSXConfig::Backend::instance()->getConfigById("rompath");
 
-	  std::string separator =  config->getParameter("separator");
-	  if (strstr(filename.c_str(),separator.c_str())==0){
-	    std::list<const MSXConfig::Device::Parameter*> path_list;
-	    path_list = config->getParametersWithClass("path");
-	    std::list<const MSXConfig::Device::Parameter*>::const_iterator i;
-	    bool notFound=true;
-	    for (i=path_list.begin(); (i != path_list.end()) && notFound ; i++) {
-	      std::string path =(*i)->value;
-	      std::string testfilename=path + separator + filename;
-	      PRT_DEBUG("Should be testing for: " << testfilename << " as file ");
-	      IFILETYPE *file=new IFILETYPE(testfilename.c_str());
-	      if (!file->fail()){
-	        PRT_DEBUG("Found : " << testfilename << " file ");
-	      	filename= testfilename;
-		notFound=false;
-	      }
-	    }
-	  } else {
-	      PRT_DEBUG("Directory-separator found in filename ");
-	  }
+		std::string separator =  config->getParameter("separator");
+		if (strstr(filename.c_str(),separator.c_str())==0)
+		{
+			std::list<MSXConfig::Device::Parameter*>* path_list;
+			path_list = config->getParametersWithClass("path");
+			std::list<MSXConfig::Device::Parameter*>::const_iterator i;
+			bool notFound=true;
+			for (i=path_list->begin(); (i != path_list->end()) && notFound ; i++)
+			{
+				std::string path =(*i)->value;
+				std::string testfilename=path + separator + filename;
+				PRT_DEBUG("Should be testing for: " << testfilename << " as file ");
+				IFILETYPE *file=new IFILETYPE(testfilename.c_str());
+				if (!file->fail())
+				{
+					PRT_DEBUG("Found : " << testfilename << " file ");
+					filename= testfilename;
+					notFound=false;
+				}
+			}
+			config->getParametersWithClassClean(path_list);
+		}
+		else
+		{
+			PRT_DEBUG("Directory-separator found in filename ");
+		}
 	}
 	catch (MSXException& e)
 	{
-	  PRT_DEBUG("No correct rompath info in xml ?!");
+		PRT_DEBUG("No correct rompath info in xml ?!");
 	}
 	
 	return filename;

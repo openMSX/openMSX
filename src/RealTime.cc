@@ -3,14 +3,14 @@
 #include <SDL/SDL.h>
 #include "RealTime.hh"
 #include "MSXCPU.hh"
-#include "msxconfig.hh"
+#include "MSXConfig.hh"
 
 
 RealTime::RealTime()
 {
 	PRT_DEBUG("Constructing a RealTime object");
 	
-	MSXConfig::Config *config = MSXConfig::instance()->getConfigById("RealTime");
+	MSXConfig::Config *config = MSXConfig::Backend::instance()->getConfigById("RealTime");
 	syncInterval     = config->getParameterAsInt("sync_interval");
 	maxCatchUpTime   = config->getParameterAsInt("max_catch_up_time");
 	maxCatchUpFactor = config->getParameterAsInt("max_catch_up_factor");

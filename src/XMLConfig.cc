@@ -15,10 +15,49 @@ Config::Config(XML::Element *element_)
 Device::Device(XML::Element *element)
 :XMLConfig::Config(element)
 {
+	// TODO: create slotted-eds
+	for (std::list<XML::Element*>::iterator i = element->children.begin(); i != element->children.end(); i++)
+	{
+		if ((*i)->name=="slotted")
+		{
+			std::cout << "BLA BLA" << element->name << std::endl;
+			int PS=-1;
+			int SS=-1;
+			int Page=-1;
+			for (std::list<XML::Element*>::iterator j = (*i)->children.begin(); j != (*i)->children.end(); j++)
+			{
+				std::cout << (*j)->name << std::endl;
+				if ((*j)->name=="ps") PS = MSXConfig::Config::Parameter::stringToInt((*j)->pcdata);
+				if ((*j)->name=="ss") SS = MSXConfig::Config::Parameter::stringToInt((*j)->pcdata);
+				if ((*j)->name=="page") Page = MSXConfig::Config::Parameter::stringToInt((*j)->pcdata);
+			}
+			if (PS != -1) slotted.push_back(new MSXConfig::Device::Slotted(PS,SS,Page));
+		}
+	}
 }
 
 Config::~Config()
 {
+}
+
+void Config::dump()
+{
+	MSXConfig::Config::dump();
+	std::cout << "XMLConfig::Device" << std::endl;
+	for (std::list<XML::Element*>::iterator i = element->children.begin(); i != element->children.end(); i++)
+	{
+		if ((*i)->name=="parameter")
+		{
+			std::cout <<  "    parameter name='" << (*i)->getAttribute("name") << "' class='" << (*i)->getAttribute("class") << "' value='" << (*i)->pcdata << "'" << std::endl;
+		}
+	}
+}
+
+void Device::dump()
+{
+	MSXConfig::Device::dump();
+	XMLConfig::Config::dump();
+	std::cout << "XMLConfig::Device" << std::endl;
 }
 
 const std::string &Config::getType()
@@ -233,5 +272,35 @@ MSXConfig::Config* Backend::getConfigById(const std::string &id)
 	throw MSXConfig::Exception(s);
 }
 
+MSXConfig::Device* Backend::getDeviceById(const std::string &id)
+{
+	for (std::list<XMLConfig::Device*>::const_iterator i = devices.begin(); i != devices.end(); i++)
+	{
+		if ((*i)->getId()==id)
+		{
+			return (*i);
+		}
+	}
+	// TODO XXX raise exception?
+	std::ostringstream s;
+	s << "<device> with id:" << id << " not found";
+	throw MSXConfig::Exception(s);
+}
+
+void Backend::initDeviceIterator()
+{
+	device_iterator = devices.begin();
+}
+
+MSXConfig::Device* Backend::getNextDevice()
+{
+	if (device_iterator != devices.end())
+	{
+		MSXConfig::Device* t= (*device_iterator);
+		++device_iterator;
+		return t;
+	}
+	return 0;
+}
 
 }; // end namespace XMLConfig

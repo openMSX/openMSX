@@ -345,7 +345,7 @@ VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
 	//   It should be possible to switch the Renderer at run time,
 	//   probably on user request.
 	MSXConfig::Config *renderConfig =
-		MSXConfig::instance()->getConfigById("renderer");
+		MSXConfig::Backend::instance()->getConfigById("renderer");
 	fullScreen = renderConfig->getParameterAsBool("full_screen");
 	std::string renderType = renderConfig->getType();
 	PRT_DEBUG("OK\n  Opening display... ");

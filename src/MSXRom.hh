@@ -5,7 +5,7 @@
 #ifndef __MSXROM_HH__
 #define __MSXROM_HH__
 
-#include "msxconfig.hh"
+#include "MSXConfig.hh"
 #include "MSXDevice.hh"
 #include "LoadFile.hh"
 

@@ -4,7 +4,7 @@
 #define __MSXDISKROMPATCH_HH__
 
 #include "MSXRomPatchInterface.hh"
-#include "msxconfig.hh"
+#include "MSXConfig.hh"
 #include "config.h"
 #include "CPU.hh"
 #include "FileOpener.hh"

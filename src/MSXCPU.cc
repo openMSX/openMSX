@@ -3,7 +3,7 @@
 #include <cassert>
 #include <list>
 #include "MSXCPU.hh"
-#include "msxconfig.hh"
+#include "MSXConfig.hh"
 #include "MSXMotherBoard.hh"
 #include "CPU.hh"
 #include "Z80.hh"
@@ -30,11 +30,10 @@ MSXCPU::~MSXCPU()
 MSXCPU* MSXCPU::instance()
 {
 	if (oneInstance == NULL) {
-		std::list<MSXConfig::Device*> deviceList;
-		deviceList = MSXConfig::instance()->getDeviceByType("CPU");
-		if (deviceList.size() != 1)
-			PRT_ERROR("There must be exactly one CPU in config file");
-		MSXConfig::Device* config = deviceList.front();
+		MSXConfig::Device* config = MSXConfig::Backend::instance()->getDeviceById("cpu");
+		//if (deviceList.size() != 1)
+		//	PRT_ERROR("There must be exactly one CPU in config file");
+		//MSXConfig::Device* config = deviceList.front();
 		EmuTime zero;
 		new MSXCPU(config, zero);
 	}

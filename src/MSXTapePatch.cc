@@ -2,7 +2,7 @@
 
 #include "openmsx.hh"
 #include "MSXTapePatch.hh"
-#include "msxconfig.hh"
+#include "MSXConfig.hh"
 #include "CPU.hh"
 #include "MSXCPU.hh"
 
@@ -26,7 +26,7 @@ MSXTapePatch::MSXTapePatch()
 
 	try {
 		MSXConfig::Config *config =
-			MSXConfig::instance()->getConfigById(name);
+			MSXConfig::Backend::instance()->getConfigById(name);
 		filename = config->getParameter("filename");
 		insertTape(filename);
 	} catch (MSXException& e) {

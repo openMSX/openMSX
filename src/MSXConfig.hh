@@ -79,6 +79,8 @@ public:
 	 */
 	static void getParametersWithClassClean(std::list<Parameter*>* list);
 
+	virtual void dump();
+
 };
 
 class Device: virtual public Config
@@ -104,6 +106,8 @@ public:
 		int getPS();
 		int getSS();
 		int getPage();
+
+		void dump();
 	};
 
 	Device();
@@ -116,6 +120,8 @@ public:
 	int   getSS(); // of first slotted [backward compat]
 
 	std::list <Slotted*> slotted;
+
+	virtual void dump();
 	
 private:
 	Device(const Device &foo); // block usage
@@ -142,6 +148,13 @@ public:
 	 * get a config or device by id
 	 */
 	virtual Config* getConfigById(const std::string &id)=0;
+	virtual Device* getDeviceById(const std::string &id)=0;
+
+	/**
+	 * get a device
+	 */
+	virtual void initDeviceIterator()=0;
+	virtual Device* getNextDevice()=0;
 
 	/**
 	 * backend factory
@@ -150,11 +163,19 @@ public:
 	 */
 	static Backend* createBackend(const std::string &name);
 
+	/**
+	 * returns the one backend, for backwards compat
+	 */
+	static Backend* instance();
+
 	virtual ~Backend();
 
 protected:
 	Backend();
 	// only I create instances of me
+
+private:
+	static Backend* _instance;
 
 };
 

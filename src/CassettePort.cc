@@ -12,7 +12,7 @@ CassettePortInterface *CassettePortFactory::instance()
 {
 	if (oneInstance == NULL) {
 		try {
-			MSXConfig::instance()->getConfigById("CassettePort");
+			MSXConfig::Backend::instance()->getConfigById("CassettePort");
 			// there is a CassettePort in config
 			oneInstance = new CassettePort();
 		} catch (MSXConfig::Exception& e) {

@@ -18,13 +18,13 @@ endif
 
 SUBDIRS = cfg libxmlx
 
-bin_PROGRAMS=openmsx cfgtest
-openmsx_SOURCES=openmsx.cc \
+#bin_PROGRAMS=openmsx cfgtest
+bin_PROGRAMS=openmsx
+
+openmsx_SOURCES=openmsx.cc icon.nn \
 	system.h openmsx.hh \
-	msxconfig.hh msxconfig.cc \
-	msxconfig_device.nn msxconfig_exception.nn \
-	msxconfig_config.nn \
-	xmlhelper.ii xmlhelper.hh \
+	MSXConfig.cc MSXConfig.hh \
+	XMLConfig.cc XMLConfig.hh \
 	EmuTime.hh EmuTime.cc \
 	msxexception.hh \
 	MSXDevice.hh MSXDevice.cc \
@@ -86,14 +86,19 @@ openmsx_SOURCES=openmsx.cc \
 
 # uncomment if you want to link with libxmlx
 # doesn't do anything yet at the moment
-# openmsx_LDADD = libxmlx/libxmlx.la
+openmsx_LDADD = libxmlx/libxmlx.la
 
-cfgtest_SOURCES = MSXConfig.hh MSXConfig.cc \
-	cfgtest.cc EmuTime.hh \
-	XMLConfig.hh XMLConfig.cc \
-	openmsx.hh msxexception.hh
+# link libxmlx static, all external libs are still
+# linked dynamicaly, unfortunately, this links more stuff
+# static, soo leave it in comments for now
+# openmsx_LDFLAGS = -static
 
-cfgtest_LDADD = libxmlx/libxmlx.la
+#cfgtest_SOURCES = MSXConfig.hh MSXConfig.cc \
+#	cfgtest.cc EmuTime.hh \
+#	XMLConfig.hh XMLConfig.cc \
+#	openmsx.hh msxexception.hh
+#
+#cfgtest_LDADD = libxmlx/libxmlx.la
 
 MAINTAINERCLEANFILES = Makefile.in config.h.in stamp-h.in
 

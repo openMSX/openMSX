@@ -1,5 +1,18 @@
 $Id$
 
+2002-01-19 Joost Yervante Damad <j.damad@qahwah.net>
+	* openmsx now uses new config code
+	* features:
+		- supports multiple config files
+		- it's possible to create alternative config backends
+		- no more libxml++ *yipee*
+		- uses libxmlx, right now still linked dynamically,
+		  this means that ./openmsx is actually a libtool provided
+		  script, soo for debugging use .libs/openmsx and alter
+		  the LD_LIBRARY_PATH environment variable if needed
+		- support for save not yet added, but it will be easy
+	* xmlconfig raises exception on duplicate "id"
+
 2002-01-12 Maarten ter Huurne <mth@stack.nl>
 	* Compile fix for Thread class:
 	  explicitly convert between Runnable pointer and void pointer.

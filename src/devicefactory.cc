@@ -1,6 +1,6 @@
 // $Id$
 
-#include "msxconfig.hh"
+#include "MSXConfig.hh"
 #include "devicefactory.hh"
 #include "MSXSimple64KB.hh"
 #include "MSXRom16KB.hh"

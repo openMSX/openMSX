@@ -34,11 +34,11 @@ void MSXRom::handleRomPatchInterfaces()
 {
 	// for each patchcode parameter, construct apropriate patch
 	// object and register it at 
-	std::list<const MSXConfig::Config::Parameter*> parameters =
+	std::list<MSXConfig::Config::Parameter*>* parameters =
 		deviceConfig->getParametersWithClass("patchcode");
-	std::list<const MSXConfig::Config::Parameter*>::const_iterator i =
-		parameters.begin();
-	for ( /**/ ; i!=parameters.end(); i++)
+	std::list<MSXConfig::Config::Parameter*>::const_iterator i =
+		parameters->begin();
+	for ( /**/ ; i!=parameters->end(); i++)
 	{
 		if ((*i)->value == "MSXDiskRomPatch")
 		{
@@ -57,4 +57,5 @@ void MSXRom::handleRomPatchInterfaces()
 			MSXMotherBoard::instance()->registerInterface(i);
 		}
 	}
+	deviceConfig->getParametersWithClassClean(parameters);
 }

@@ -6,14 +6,14 @@
 #include "MSXCPU.hh"
 #include "RealTime.hh"
 #include "SoundDevice.hh"
-#include "msxconfig.hh"
+#include "MSXConfig.hh"
 
 
 Mixer::Mixer()
 {
 	PRT_DEBUG("Creating a Mixer object");
 	
-	MSXConfig::Config *config = MSXConfig::instance()->getConfigById("Mixer");
+	MSXConfig::Config *config = MSXConfig::Backend::instance()->getConfigById("Mixer");
 	int freq    = config->getParameterAsInt("frequency");
 	int samples = config->getParameterAsInt("samples");
 	SDL_AudioSpec desired;

@@ -89,6 +89,11 @@ Device::Slotted::Slotted(int PS, int SS=-1, int Page=-1)
 {
 }
 
+void Device::Slotted::dump()
+{
+	std::cout << "        slotted: PS: " << ps << " SS: " << ss << " Page: " << page << std::endl;
+}
+
 Device::Slotted::~Slotted()
 {
 }
@@ -134,13 +139,21 @@ Backend::~Backend()
 {
 }
 
+Backend* Backend::_instance;
+
 Backend* Backend::createBackend(const std::string &name)
 {
 	if (name=="xml")
 	{
-		return new XMLConfig::Backend();
+		Backend::_instance = new XMLConfig::Backend();
+		return Backend::_instance;
 	}
 	return 0;
+}
+
+Backend* Backend::instance()
+{
+	return _instance;
 }
 
 void Config::getParametersWithClassClean(std::list<Parameter*>* list)
@@ -150,6 +163,26 @@ void Config::getParametersWithClassClean(std::list<Parameter*>* list)
 		delete (*i);
 	}
 	delete list;
+}
+
+void Config::dump()
+{
+	std::cout << "MSXConfig::Config" << std::endl;
+	std::cout << "    type: " << getType() << std::endl;
+	std::cout << "    id: " << getId() << std::endl;
+	std::cout << "    desc: " << getDesc() << std::endl;
+	std::cout << "    rem: " << getRem() << std::endl;
+	// parameters have to be dumped by the backend
+}
+
+void Device::dump()
+{
+	//Config::dump();
+	std::cout << "MSXConfig::Device" << std::endl;
+	for (std::list<Slotted*>::const_iterator i = slotted.begin(); i != slotted.end(); i++)
+	{
+		(*i)->dump();
+	}
 }
 
 }; // end namespace MSXConfig
