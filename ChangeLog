@@ -2,6 +2,9 @@ $Id$
 
 2003-07-07 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Don't clear SCC wave forms on reset
+	* Added MSX-Midi:
+	   - except for sending and receiving data it works, thus
+	     timers and interrupt generation work
 
 2003-07-05 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Started implementing MSX-Midi

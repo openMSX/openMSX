@@ -72,6 +72,7 @@ class I8254
 		
 		void setGate(byte counter, bool status, const EmuTime &time);
 		ClockPin& getClockPin(byte cntr);
+		ClockPin& getOutputPin(byte cntr);
 
 	private:
 		static const byte READ_BACK = 0xC0;

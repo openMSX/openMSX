@@ -32,9 +32,9 @@ void ClockPin::setState(bool newStatus, const EmuTime& time)
 		}
 	} else {
 		status = newStatus;
-		if (listener) {
-			listener->signal(*this, time);
-		}
+	}
+	if (listener) {
+		listener->signal(*this, time);
 	}
 }
 
@@ -49,9 +49,8 @@ void ClockPin::setPeriodicState(const EmuDuration& total,
 	if (listener) {
 		if (signalEdge) {
 			executeUntilEmuTime(time, 0);
-		} else {
-			listener->signal(*this, time);
 		}
+		listener->signal(*this, time);
 	}
 }
 
@@ -94,7 +93,7 @@ int ClockPin::getTicksBetween(const EmuTime& begin, const EmuTime& end) const
 	if (!periodic) {
 		return 0;
 	}
-	int a = (begin - referenceTime) / totalDur;
+	int a = (begin < referenceTime) ? 0 : (begin - referenceTime) / totalDur;
 	int b = (end   - referenceTime) / totalDur;
 	return b - a;
 }

@@ -98,6 +98,11 @@ ClockPin& I8254::getClockPin(byte cntr)
 	return getCounter(cntr).clock;
 }
 
+ClockPin& I8254::getOutputPin(byte cntr)
+{
+	return getCounter(cntr).output;
+}
+
 I8254::Counter& I8254::getCounter(byte cntr)
 {
 	switch (cntr) {

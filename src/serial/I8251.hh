@@ -1,0 +1,51 @@
+// $Id$
+
+// This class implements the Intel 8251 chip (UART)
+
+#ifndef __I8251_HH__
+#define __I8251_HH__
+
+#include "openmsx.hh"
+#include "EmuTime.hh"
+#include "ClockPin.hh"
+
+class I8251Interface
+{
+	public:
+		virtual void setRxRDY(bool status, const EmuTime& time) = 0;
+		virtual void setDTR(bool status, const EmuTime& time) = 0;
+		virtual void setRTS(bool status, const EmuTime& time) = 0;
+		virtual byte getDSR(const EmuTime& time) = 0;
+		// TODO send method
+};
+
+class I8251
+{
+	public:
+		I8251(I8251Interface* interf, const EmuTime &time); 
+		~I8251(); 
+		
+		void reset(const EmuTime& time);
+		byte readIO(byte port, const EmuTime& time);
+		void writeIO(byte port, byte value, const EmuTime& time);
+		ClockPin& getClockPin();
+	
+		// TODO recv method 
+
+		
+	private:
+		void writeCommand(byte value, const EmuTime& time);
+		byte readStatus(const EmuTime& time);
+		byte readRecv(const EmuTime& time);
+		void writeTrans(byte value, const EmuTime& time);
+
+		I8251Interface* interf;
+		enum CmdFaze {
+			FAZE_MODE, FAZE_SYNC1, FAZE_SYNC2, FAZE_CMD
+		} cmdFaze;
+		byte status;
+		byte mode;
+		byte sync1, sync2;
+		ClockPin clock;
+};
+#endif

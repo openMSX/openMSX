@@ -20,6 +20,7 @@ endif
 
 noinst_LTLIBRARIES = libSerial.la
 libSerial_la_SOURCES = \
+	I8251.cc I8251.hh \
 	I8254.cc I8254.hh \
 	ClockPin.cc ClockPin.hh \
 	MSXMidi.cc MSXMidi.hh
