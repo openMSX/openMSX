@@ -1,5 +1,14 @@
 $Id$
 
+2003-12-29 Maarten ter Huurne <maarten@treewalker.org>
+	Various alternative.mk improvements:
+	* Automatic generation of config.h.
+	* Changed OPENMSX_PLATFORM format from OS-CPU to CPU-OS.
+	* Integrated support for compiling with ICC 8.0.
+	  You can select ICC with "export OPENMSX_PLATFORM=x86-linux-icc".
+	  Note that if a header file is removed, incremental compile will abort
+	  with an error. Workaround: manually remove the dependency file.
+
 2003-12-27 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed console drawing in SDLLo during pause.
 
