@@ -173,16 +173,28 @@ public:
 		return regs[BACK_DROP_COLOR];
 	}
 
-	/** Returns the X scroll offset
+	/** Returns the X scroll offset for screen A of P1 and other modes
 	  */
-	inline int getScrollX() {
+	inline int getScrollAX() {
 		return regs[SCROLL_CONTROL_AX0] + 8 * regs[SCROLL_CONTROL_AX1];
 	}
 
-	/** Returns the Y scroll offset
+	/** Returns the Y scroll offset for screen A of P1 and other modes
 	  */
-	inline int getScrollY() {
+	inline int getScrollAY() {
 		return regs[SCROLL_CONTROL_AY0] + 256 * regs[SCROLL_CONTROL_AY1];
+	}
+
+	/** Returns the X scroll offset for screen B of P1 and other modes
+	  */
+	inline int getScrollBX() {
+		return regs[SCROLL_CONTROL_BX0] + 8 * regs[SCROLL_CONTROL_BX1];
+	}
+
+	/** Returns the Y scroll offset for screen B of P1 and other modes
+	  */
+	inline int getScrollBY() {
+		return regs[SCROLL_CONTROL_BY0] + 256 * regs[SCROLL_CONTROL_BY1];
 	}
 
 	/** Return the image width

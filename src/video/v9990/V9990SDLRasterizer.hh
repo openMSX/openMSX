@@ -5,6 +5,7 @@
 
 #include "V9990Rasterizer.hh"
 #include "V9990BitmapConverter.hh"
+#include "V9990P1Converter.hh"
 #include "Renderer.hh"
 
 namespace openmsx {
@@ -112,10 +113,14 @@ private:
 	  * These are colors influenced by the palette IO ports and registers
 	  */
 	Pixel palette64[64];
-
+	
 	/** Bitmap converter. Converts VRAM into pixels
 	  */
 	V9990BitmapConverter<Pixel, zoom> bitmapConverter;
+
+	/** P1 Converter
+	  */
+	V9990P1Converter<Pixel, zoom> p1Converter;
 	
 	/** Deinterlace setting
 	  */
@@ -128,6 +133,11 @@ private:
 	/** Fill the palettes.
 	  */
 	void precalcPalettes();
+
+	/** Draw P1 mode.
+	  */ 
+	void drawP1Mode(int fromX, int fromY, int displayX, int displayY,
+	                int displayWidth, int displayHeight);
 
 	/** Draw Bx mode.
 	  */ 

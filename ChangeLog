@@ -1,5 +1,8 @@
 $Id$
 
+2005-01-21 Eric Boon <e.boon4@chello.nl>
+	* First steps towards V9990 P1 mode
+
 2005-01-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed some valgrind stuff (UMR, FMR)
 
