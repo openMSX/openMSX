@@ -1,5 +1,10 @@
 // $Id$
 
+/*
+TODO: 
+- Implement sprite pixels in Graphic 5.
+*/
+
 #ifndef __SPRITECONVERTER_HH__
 #define __SPRITECONVERTER_HH__
 
@@ -125,7 +130,6 @@ public:
 		int absLine, int minX, int maxX,
 		Pixel *pixelPtr0, Pixel *pixelPtr1 = NULL
 	) {
-		// TODO: SDLGL is different here.
 		assert((zoom == Renderer::ZOOM_512) != (pixelPtr1 == NULL));
 
 		// Determine sprites visible on this line.
