@@ -50,20 +50,14 @@ dnl openGL
 AC_CHECK_HEADERS(gl.h GL/gl.h, break)
 AC_CHECK_LIB(GL, glViewport)
 
-dnl libxml++
-dnl AM_LIBXMLPP
-dnl CXXFLAGS="$CXXFLAGS $LIBXMLPP_CFLAGS"
-dnl LIBS="$LIBXMLPP_LIBS $LIBS"
-dnl next 3 lines are actually a workaround for a bug in libxml++
-dnl LIBXML_LIBS="$XML_LIBS"
-dnl AC_SUBST(LIBXML_LIBS)
-dnl AC_SUBST(XML_CONFIG)
-
 dnl check if fstream can be used as template
 AC_CXX_FSTREAM_TEMPL
 
 AM_CONDITIONAL(PROFILE, test "$enable_profile" = yes)
 AM_CONDITIONAL(RELEASE, test "$enable_release" = yes)
+
+dnl check for realistic interlace
+AC_REALISTIC_INTERLACE
 
 dnl Checks for header files.
 AC_HEADER_STDC

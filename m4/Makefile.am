@@ -1,3 +1,3 @@
 # $Id$
 
-EXTRA_DIST       = ac_help_string.m4 mdl_have_opengl.m4 fstream_templ.m4
+EXTRA_DIST       = fstream_templ.m4 realistic_interlace.m4
