@@ -9,6 +9,8 @@
 #include <png.h>
 #include "ScreenShotSaver.hh"
 #include "CliCommOutput.hh"
+#include "FileContext.hh"
+#include "FileOperations.hh"
 
 using std::ostringstream;
 using std::max;
@@ -159,7 +161,14 @@ string ScreenShotSaver::getFileName()
 {
 	int max_num = 0;
 	
-	DIR* dir = opendir(".");
+	string dirName = FileContext::getOpenMSXDir() + "screenshots";
+	try {
+		FileOperations::mkdirp(dirName);
+	} catch (FileException& e) {
+		// ignore
+	}
+
+	DIR* dir = opendir(dirName.c_str());
 	if (dir) {
 		struct dirent* d = readdir(dir);
 		while (d) {
@@ -170,7 +179,7 @@ string ScreenShotSaver::getFileName()
 	}
 
 	ostringstream os;
-	os << "openmsx";
+	os << dirName << "/openmsx";
 	os.width(4);
 	os.fill('0');
 	os << (max_num + 1) << ".png";

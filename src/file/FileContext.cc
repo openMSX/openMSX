@@ -13,10 +13,10 @@
 
 namespace openmsx {
 
-#if	defined(__WIN32__)
-const string HOMEDIR("~/openMSX/");
+#if defined(__WIN32__)
+const string OPENMSX_DIR("~/openMSX/");
 #else
-const string HOMEDIR("~/.openMSX/");
+const string OPENMSX_DIR("~/.openMSX/");
 #endif
 
 
@@ -98,6 +98,11 @@ FileContext::FileContext(const FileContext& rhs)
 {
 }
 
+string FileContext::getOpenMSXDir()
+{
+	return FileOperations::expandTilde(OPENMSX_DIR);
+}
+
 
 // class ConfigFileContext
 
@@ -116,7 +121,7 @@ ConfigFileContext::ConfigFileContext(const string& path,
 		snprintf(buf, 20, "untitled%d", num);
 		userName = buf;
 	}
-	savePath = HOMEDIR + "persistent/" + hwDescr +
+	savePath = OPENMSX_DIR + "persistent/" + hwDescr +
 	                       '/' + userName + '/';
 }
 
@@ -140,7 +145,7 @@ ConfigFileContext::ConfigFileContext(const ConfigFileContext& rhs)
 
 SystemFileContext::SystemFileContext()
 {
-	paths.push_back(HOMEDIR);		// user directory
+	paths.push_back(OPENMSX_DIR);		// user directory
 	paths.push_back(FileOperations::getSystemDir());
 }
 
@@ -168,7 +173,7 @@ SettingFileContext::SettingFileContext(const string& url)
 	paths.push_back(path);
 	PRT_DEBUG("SettingFileContext: "<<path);
 
-	string home(FileOperations::expandTilde(HOMEDIR));
+	string home(FileOperations::expandTilde(OPENMSX_DIR));
 	
 	unsigned pos1 = path.find(home);
 	if (pos1 != string::npos) {
@@ -205,7 +210,7 @@ UserFileContext::UserFileContext()
 UserFileContext::UserFileContext(const string& savePath_)
 	: alreadyInit(false)
 {
-	savePath = string(HOMEDIR + "persistent/") + savePath_ + '/';
+	savePath = string(OPENMSX_DIR + "persistent/") + savePath_ + '/';
 }
 
 const vector<string> &UserFileContext::getPaths()

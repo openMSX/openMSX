@@ -23,6 +23,8 @@ public:
 	const string resolveSave(const string& filename);
 	
 	virtual FileContext* clone() const = 0;
+
+	static string getOpenMSXDir();
 	
 protected:
 	FileContext();

@@ -2,6 +2,8 @@ $Id$
 
 2004-01-07 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed crash when trying to save screenshot to read-only directory
+	* Save screenshots in ~/.openMSX/screenshots (only when filename is not
+	  explicitly given)
 
 2004-01-07 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Updated control-type selection code (written by tcm1998):
