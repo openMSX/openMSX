@@ -4,6 +4,7 @@ $Id$
 	* made Philips mapper-IO behaviour
 	* read mapper behaviour from config file, this needed some
 	  restructuring in MapperIO and related classes
+	* Fixed TurboR ST mapperIO
 
 2001-10-01 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Z80 converted to a C++ class, still needs cleanups

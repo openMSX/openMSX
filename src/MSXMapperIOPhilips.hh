@@ -12,10 +12,12 @@ class MSXMapperIOPhilips : public MSXMapperIODevice
 		byte convert(byte value);
 		void registerMapper(int blocks);
 
+	protected:
+		byte mask;
+		
 	private:
 		int log2RoundedUp(int num);
 		int largest;
-		byte mask;
 };
 
 #endif //__MSXMAPPERIOPHILIPS_HH__

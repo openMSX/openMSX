@@ -3,12 +3,11 @@
 #ifndef __MSXMAPPERIOTURBOR_HH__
 #define __MSXMAPPERIOTURBOR_HH__
 
-#include "MSXMapperIO.hh"
+#include "MSXMapperIOPhilips.hh"
 
-class MSXMapperIOTurboR : public MSXMapperIODevice
+class MSXMapperIOTurboR : public MSXMapperIOPhilips
 {
 	public:
-		byte convert(byte value);
 		void registerMapper(int blocks);
 };
 
