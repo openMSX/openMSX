@@ -348,31 +348,23 @@ static const byte table[19][8] = {
 	// MULT  MULT modTL DcDmFb AR/DR AR/DR SL/RR SL/RR
 	//   0     1     2     3     4     5     6    7
 	  {0x49, 0x4c, 0x4c, 0x12, 0x00, 0x00, 0x00, 0x00 },	//0
-
 	  {0x61, 0x61, 0x1e, 0x17, 0xf0, 0x78, 0x00, 0x17 },	//1
 	  {0x13, 0x41, 0x1e, 0x0d, 0xd7, 0xf7, 0x13, 0x13 },	//2
 	  {0x13, 0x01, 0x99, 0x04, 0xf2, 0xf4, 0x11, 0x23 },	//3
 	  {0x21, 0x61, 0x1b, 0x07, 0xaf, 0x64, 0x40, 0x27 },	//4
-
 	//{0x22, 0x21, 0x1e, 0x09, 0xf0, 0x76, 0x08, 0x28 },	//5
 	  {0x22, 0x21, 0x1e, 0x06, 0xf0, 0x75, 0x08, 0x18 },	//5
-
 	//{0x31, 0x22, 0x16, 0x09, 0x90, 0x7f, 0x00, 0x08 },	//6
 	  {0x31, 0x22, 0x16, 0x05, 0x90, 0x71, 0x00, 0x13 },	//6
-
 	  {0x21, 0x61, 0x1d, 0x07, 0x82, 0x80, 0x10, 0x17 },	//7
 	  {0x23, 0x21, 0x2d, 0x16, 0xc0, 0x70, 0x07, 0x07 },	//8
 	  {0x61, 0x61, 0x1b, 0x06, 0x64, 0x65, 0x10, 0x17 },	//9
-
 	//{0x61, 0x61, 0x0c, 0x08, 0x85, 0xa0, 0x79, 0x07 },	//A
 	  {0x61, 0x61, 0x0c, 0x18, 0x85, 0xf0, 0x70, 0x07 },	//A
-
 	  {0x23, 0x01, 0x07, 0x11, 0xf0, 0xa4, 0x00, 0x22 },	//B
 	  {0x97, 0xc1, 0x24, 0x07, 0xff, 0xf8, 0x22, 0x12 },	//C
-
 	//{0x61, 0x10, 0x0c, 0x08, 0xf2, 0xc4, 0x40, 0xc8 },	//D
 	  {0x61, 0x10, 0x0c, 0x05, 0xf2, 0xf4, 0x40, 0x44 },	//D
-
 	  {0x01, 0x01, 0x55, 0x03, 0xf3, 0x92, 0xf3, 0xf3 },	//E
 	  {0x61, 0x41, 0x89, 0x03, 0xf1, 0xf4, 0xf0, 0x13 },	//F
 
@@ -711,7 +703,7 @@ inline int YM2413::rhythm_calc(bool noise)
 		}
 		SLOT6_1.op1_out[1] = op_calc1(SLOT6_1.phase, env, (out << SLOT6_1.fb_shift), SLOT6_1.wavetable);
 	}
-
+	
 	// SLOT 2
 	env = SLOT6_2.volume_calc(LFO_AM);
 	if (env < ENV_QUIET) {
@@ -1136,52 +1128,32 @@ void YM2413::setRhythmMode(bool newMode)
 		// OFF -> ON
 		
 		// Load instrument settings for channel seven
-		byte chan = 6;
-		byte* inst = &inst_tab[16][0];
-		byte sl = chan * 2;
-		load_instrument(chan, sl, inst);
+		load_instrument(6, 12, &inst_tab[16][0]);
 
-		// Load instrument settings for channel eight. (High hat and snare drum) 
-		chan = 7;
-		inst = &inst_tab[17][0];
-		sl = chan * 2;
-		load_instrument(chan, sl, inst);
-
-		Channel& ch = channels[chan];
+		// Load instrument settings for channel eight. (High hat and snare drum)
+		load_instrument(7, 14, &inst_tab[17][0]);
+		Channel& ch = channels[7];
 		Slot& slot = ch.slots[SLOT1]; // modulator envelope is HH 
-		slot.TL  = ((instvol_r[chan] >> 4) << 2) << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0) 
+		slot.TL  = ((instvol_r[7] >> 4) << 2) << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0) 
 		slot.TLL = slot.TL + (ch.ksl_base >> slot.ksl);
 
 		// Load instrument settings for channel nine. (Tom-tom and top cymbal) 
-		chan = 8;
-		inst = &inst_tab[18][0];
-		sl = chan * 2;
-		load_instrument(chan, sl, inst);
-
-		ch = channels[chan];
+		load_instrument(8, 16, &inst_tab[18][0]);
+		ch = channels[8];
 		slot = ch.slots[SLOT1]; // modulator envelope is TOM 
-		slot.TL  = ((instvol_r[chan] >> 4) << 2) << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0) 
+		slot.TL  = ((instvol_r[8] >> 4) << 2) << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0) 
 		slot.TLL = slot.TL + (ch.ksl_base >> slot.ksl);
 	} else {
 		// ON -> OFF
 		
 		// Load instrument settings for channel seven
-		byte chan = 6;
-		byte* inst = &inst_tab[instvol_r[chan] >> 4][0];
-		byte sl = chan * 2;
-		load_instrument(chan, sl, inst);
+		load_instrument(6, 12, &inst_tab[instvol_r[6] >> 4][0]);
 
 		// Load instrument settings for channel eight.
-		chan = 7;
-		inst = &inst_tab[instvol_r[chan] >> 4][0];
-		sl = chan * 2;
-		load_instrument(chan, sl, inst);
+		load_instrument(7, 14, &inst_tab[instvol_r[7] >> 4][0]);
 
 		// Load instrument settings for channel nine.
-		chan = 8;
-		inst = &inst_tab[instvol_r[chan] >> 4][0];
-		sl = chan * 2;
-		load_instrument(chan, sl, inst);
+		load_instrument(8, 16, &inst_tab[instvol_r[8] >> 4][0]);
 		
 		// BD key off 
 		channels[6].slots[SLOT1].KEY_OFF(~2);
@@ -1207,7 +1179,7 @@ void YM2413::writeReg(byte r, byte v, const EmuTime &time)
 	
 	switch (r & 0xF0) {
 	case 0x00: {
-		// 00-0f:control 
+		// 00-0F:control 
 		switch (r & 0x0F) {
 		case 0x00:  // AM/VIB/EGTYP/KSR/MULTI (modulator) 
 		case 0x01:  // AM/VIB/EGTYP/KSR/MULTI (carrier) 
@@ -1221,7 +1193,7 @@ void YM2413::writeReg(byte r, byte v, const EmuTime &time)
 			update_instrument_zero(r & 7);
 			break;
 
-		case 0x0e: {
+		case 0x0E: {
 			// x, x, r,bd,sd,tom,tc,hh 
 			setRhythmMode(v & 0x20);
 			if (rhythm) {
@@ -1319,9 +1291,9 @@ void YM2413::writeReg(byte r, byte v, const EmuTime &time)
 		slot.TLL = slot.TL + (ch.ksl_base >> slot.ksl);
 
 		//check wether we are in rhythm mode and handle instrument/volume register accordingly
-		if ((chan >= 6) && (rhythm & 0x20)) {
+		if ((chan >= 6) && rhythm) {
 			// we're in rhythm mode
-			if (chan>=7) {
+			if (chan >= 7) {
 				// only for channel 7 and 8 (channel 6 is handled in usual way)
 				slot = ch.slots[SLOT1]; // modulator envelope is HH(chan=7) or TOM(chan=8) 
 				slot.TL  = ((instvol_r[chan] >> 4) << 2) << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0) 
@@ -1408,7 +1380,6 @@ int* YM2413::updateBuffer(int length)
 		return NULL;
 	}
 	
-	bool rhythmEnabled = rhythm & 0x20;
 	int* buf = buffer;
 	while (length--) {
 		int output = 0;
@@ -1419,14 +1390,14 @@ int* YM2413::updateBuffer(int length)
 		output += channels[3].chan_calc(LFO_AM);
 		output += channels[4].chan_calc(LFO_AM);
 		output += channels[5].chan_calc(LFO_AM);
-		if (!rhythmEnabled) {
+		if (!rhythm) {
 			output += channels[6].chan_calc(LFO_AM);
 			output += channels[7].chan_calc(LFO_AM);
 			output += channels[8].chan_calc(LFO_AM);
 		} else {
-			output += rhythm_calc(noise_rng & 2);
+			output += rhythm_calc(noise_rng & 1);
 		}
-		*(buf++) = (maxVolume * output) >> 12;
+		*(buf++) = (maxVolume * output) >> 11;
 		advance();
 	}
 	checkMute();
@@ -1439,8 +1410,25 @@ void YM2413::checkMute()
 }
 bool YM2413::checkMuteHelper()
 {
-	// TODO
-	return false;
+	for (int i = 0; i < 6; i++) {
+		if (channels[i].slots[SLOT2].state != EG_OFF) {
+			return false;
+		}
+	}
+	if (!rhythm) {
+		for (int i = 6; i < 9; i++) {
+			if (channels[i].slots[SLOT2].state != EG_OFF) {
+				return false;
+			}
+		}
+	} else {
+		if (channels[6].slots[SLOT2].state != EG_OFF) return false;
+		if (channels[7].slots[SLOT1].state != EG_OFF) return false;
+		if (channels[7].slots[SLOT2].state != EG_OFF) return false;
+		if (channels[8].slots[SLOT1].state != EG_OFF) return false;
+		if (channels[8].slots[SLOT2].state != EG_OFF) return false;
+	}
+	return true;	// nothing playing, mute
 }
 
 void YM2413::setInternalVolume(short newVolume)

@@ -1,5 +1,9 @@
 $Id$
 
+2003-05-07 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* a few fixes in new YM2413 code. Still not made default because
+	  drums in illusion city are screwed
+
 2003-05-03 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* release openmsx-0.3.0
 	* added "mbstereo" extension
