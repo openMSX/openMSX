@@ -39,7 +39,8 @@ SRAM::SRAM(int size_, Config* config_, const char* header_)
 		}
 	} catch (FileException &e) {
 		CliCommOutput::instance().printWarning(
-			"Couldn't load SRAM " + filename);
+			"Couldn't load SRAM " + filename +
+			" (" + e.getMessage() + ").");
 	}
 }
 
@@ -57,7 +58,8 @@ SRAM::~SRAM()
 		file.write(sram, size);
 	} catch (FileException& e) {
 		CliCommOutput::instance().printWarning(
-			"Couldn't save SRAM " + filename);
+			"Couldn't save SRAM " + filename +
+			" (" + e.getMessage() + ").");
 	}
 	delete[] sram;
 }
