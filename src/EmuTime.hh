@@ -9,7 +9,7 @@
 
 // predefines
 class EmuTime;
-std::ostream &operator<<(std::ostream &os, const EmuTime &e);
+ostream &operator<<(ostream &os, const EmuTime &e);
 
 // constants
 const uint64 MAIN_FREQ = 3579545 * 24;
@@ -62,7 +62,7 @@ class EmuTime
 {
 	public:
 		// friends
-		friend std::ostream &operator<<(std::ostream &os, const EmuTime &et);
+		friend ostream &operator<<(ostream &os, const EmuTime &et);
 
 		// constructors
 		EmuTime()                  { time = 0; }

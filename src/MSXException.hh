@@ -5,11 +5,12 @@
 
 #include <string>
 
+using namespace std;
 
 class MSXException
 {
 	public:
-		MSXException(const std::string &message_)
+		MSXException(const string &message_)
 			: message(message_)
 		{
 		}
@@ -18,12 +19,12 @@ class MSXException
 		{
 		}
 		
-		const std::string &getMessage() const {
+		const string &getMessage() const {
 			return message;
 		}
 		
 	private:
-		const std::string message;
+		const string message;
 };
 
 #endif

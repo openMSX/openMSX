@@ -66,9 +66,9 @@ RealTime *RealTime::instance()
 	return oneInstance;
 }
 
-const std::string &RealTime::schedName() const
+const string &RealTime::schedName() const
 {
-	static const std::string name("RealTime");
+	static const string name("RealTime");
 	return name;
 }
 

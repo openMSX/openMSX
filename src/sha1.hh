@@ -21,6 +21,7 @@
 
 #include <string>
 
+using namespace std;
 
 class SHA1
 {
@@ -36,7 +37,7 @@ class SHA1
 
 		// Finalize hash and report
 		void finalize();
-		std::string hex_digest();
+		string hex_digest();
 
 	private:
 		// Private SHA-1 transformation

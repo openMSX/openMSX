@@ -10,11 +10,11 @@
 class JoystickPort : public Connector
 {
 	public:
-		JoystickPort(const std::string &name, const EmuTime &time);
+		JoystickPort(const string &name, const EmuTime &time);
 		virtual ~JoystickPort();
 
-		virtual const std::string &getName() const;
-		virtual const std::string &getClass() const;
+		virtual const string &getName() const;
+		virtual const string &getClass() const;
 		virtual void plug(Pluggable *device, const EmuTime &time);
 		virtual void unplug(const EmuTime &time);
 
@@ -23,7 +23,7 @@ class JoystickPort : public Connector
 
 	private:
 		class DummyJoystick* dummy;
-		std::string name;
+		string name;
 
 		byte lastValue;
 };
@@ -47,4 +47,5 @@ class JoystickPorts
 		class KeyJoystick* keyJoystick;
 		class Joystick* joystick[10];
 };
+
 #endif

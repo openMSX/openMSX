@@ -78,15 +78,15 @@ void MSXPrinterPort::writeData(byte newData, const EmuTime &time)
 	}
 }
 
-const std::string &MSXPrinterPort::getName() const
+const string &MSXPrinterPort::getName() const
 {
-	static const std::string name("printerport");
+	static const string name("printerport");
 	return name;
 }
 
-const std::string &MSXPrinterPort::getClass() const
+const string &MSXPrinterPort::getClass() const
 {
-	static const std::string className("Printer Port");
+	static const string className("Printer Port");
 	return className;
 }
 

@@ -12,7 +12,8 @@
 #include "Settings.hh"
 #include "MSXConfig.hh"
 
-class CommandConsole : public Console, private EventListener, private SettingListener
+class CommandConsole : public Console, private EventListener,
+                       private SettingListener
 {
 	public:
 		/** Get singleton console instance.
@@ -21,12 +22,12 @@ class CommandConsole : public Console, private EventListener, private SettingLis
 	
 		/** Prints a string on the console.
 		  */
-		void printFast(const std::string &text);
+		void printFast(const string &text);
 		void printFlush();
-		void print(const std::string &text);
+		void print(const string &text);
 		
 		int getScrollBack();
-		const std::string &getLine(int line);
+		const string &getLine(unsigned line);
 		bool isVisible();
 		void getCursorPosition(int *xPosition, int *yPosition);
 		void setCursorPosition(int xPosition, int yPosition);
@@ -49,12 +50,12 @@ class CommandConsole : public Console, private EventListener, private SettingLis
 		void backspace();
 		void delete_key();
 		void normalKey(char chr);
-		void putCommandHistory(const std::string &command);
-		void newLineConsole(const std::string &line);
+		void putCommandHistory(const string &command);
+		void newLineConsole(const string &line);
 		void putPrompt();
 		void resetScrollBack();
 		
-		void combineLines(CircularBuffer<std::string, LINESHISTORY> &buffer,
+		void combineLines(CircularBuffer<string, LINESHISTORY> &buffer,
 		                  CircularBuffer<bool, LINESHISTORY> &overflows,
 		                  bool fromTop = false);
 		void splitLines();
@@ -65,16 +66,16 @@ class CommandConsole : public Console, private EventListener, private SettingLis
 		
 		BooleanSetting consoleSetting;
 		unsigned int maxHistory;
-		std::string editLine;
+		string editLine;
 		// Are double commands allowed ?
 		bool removeDoubles;
-		CircularBuffer<std::string, 100> lines;
-		CircularBuffer<bool, 100> lineOverflows;
-		std::list<std::string> history;
-		std::list<std::string>::iterator commandScrollBack;
+		CircularBuffer<string, LINESHISTORY> lines;
+		CircularBuffer<bool, LINESHISTORY> lineOverflows;
+		list<string> history;
+		list<string>::iterator commandScrollBack;
 		// saves Current Command to enable command recall
-		std::string currentLine;
-		int consoleScrollBack;
+		string currentLine;
+		unsigned consoleScrollBack;
 		struct CursorXY cursorLocation; // full cursorcoordinates
 		int cursorPosition; // position within the current command
 		int consoleColumns;

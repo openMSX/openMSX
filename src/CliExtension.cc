@@ -16,13 +16,13 @@
 CliExtension::CliExtension()
 {
 	CommandLineParser::instance()->
-		registerOption(std::string("-ext"), this);
+		registerOption(string("-ext"), this);
 
 	SystemFileContext context;
-	const std::list<std::string> &paths = context.getPaths();
-	std::list<std::string>::const_iterator it;
+	const list<string> &paths = context.getPaths();
+	list<string>::const_iterator it;
 	for (it = paths.begin(); it != paths.end(); it++) {
-		std::string path = FileOperations::expandTilde(*it);
+		string path = FileOperations::expandTilde(*it);
 		createExtensions(path + "share/extensions/");
 	}
 }
@@ -31,11 +31,11 @@ CliExtension::~CliExtension()
 {
 }
 
-void CliExtension::parseOption(const std::string &option,
-                               std::list<std::string> &cmdLine)
+void CliExtension::parseOption(const string &option,
+                               list<string> &cmdLine)
 {
-	std::string extension = getArgument(option, cmdLine);
-	std::map<std::string, std::string>::const_iterator it =
+	string extension = getArgument(option, cmdLine);
+	map<string, string>::const_iterator it =
 		extensions.find(extension);
 	if (it != extensions.end()) {
 		MSXConfig *config = MSXConfig::instance();
@@ -45,9 +45,9 @@ void CliExtension::parseOption(const std::string &option,
 	}
 }
 
-const std::string& CliExtension::optionHelp() const
+const string& CliExtension::optionHelp() const
 {
-	static std::string help("Insert the extension specified in argument");
+	static string help("Insert the extension specified in argument");
 	return help;
 }
 
@@ -64,7 +64,7 @@ int select(const struct dirent* d)
 	}
 
 	// directory must contain the file "hardwareconfig.xml"
-	std::string file(std::string(d->d_name) + "/hardwareconfig.xml");
+	string file(string(d->d_name) + "/hardwareconfig.xml");
 	if (stat(file.c_str(), &s)) {
 		return 0;
 	}
@@ -74,7 +74,7 @@ int select(const struct dirent* d)
 	return 1;
 }
 
-void CliExtension::createExtensions(const std::string &path)
+void CliExtension::createExtensions(const string &path)
 {
 	char buf[PATH_MAX];
 	if (!getcwd(buf, PATH_MAX)) {
@@ -89,8 +89,8 @@ void CliExtension::createExtensions(const std::string &path)
 		struct dirent* d = readdir(dir);
 		while (d) {
 			if (select(d)) {
-				std::string name(d->d_name);
-				std::string path(path + name +
+				string name(d->d_name);
+				string path(path + name +
 				                       "/hardwareconfig.xml");
 				if (extensions.find(name) == extensions.end()) {
 					// doesn't already exists

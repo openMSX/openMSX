@@ -6,7 +6,6 @@
 #include "MSXIODevice.hh"
 #include "SRAM.hh"
 
-// forward declaration
 class RP5C01;
 
 
@@ -25,4 +24,5 @@ class MSXRTC : public MSXIODevice
 		SRAM sram;
 		nibble registerLatch;
 };
+
 #endif

@@ -1,29 +1,30 @@
 // $Id$
 
-#include "DebugConsole.hh"
 #include <iostream>
+#include "Views.hh"
+#include "DebugConsole.hh"
 
-DebugConsole * DebugConsole::instance ()
+DebugConsole* DebugConsole::instance()
 {
 	static DebugConsole oneInstance;
 	return &oneInstance;
 }
 
-DebugConsole::DebugConsole ()
+DebugConsole::DebugConsole()
 	: debuggerSetting("debugger", "turns the debugger on or off", false)
 {
 	debuggerSetting.registerListener(this);
-	for (int i=0;i<20;i++){
-	lines.push_back(" ");
+	for (int i = 0; i < 20; i++) {
+		lines.push_back(" ");
 	}
-	addView (0,0,50,6,DUMPVIEW);
+	addView (0, 0, 50, 6, DUMPVIEW);
 }
 
 DebugConsole::~DebugConsole()
 {
-	std::map<int, struct DebugConsole::ViewStruct *>::iterator it;
-	for (it = viewList.begin();it != viewList.end();it ++){
-		if (it->second != NULL){
+	map<int, ViewStruct*>::const_iterator it;
+	for (it = viewList.begin(); it != viewList.end(); ++it) {
+		if (it->second != NULL) {
 			delete it->second->view;
 			delete it->second;
 		}
@@ -43,9 +44,10 @@ bool DebugConsole::signalEvent(SDL_Event &event)
 	return false; // don't send anything to the MSX if visible
 }
 
-int DebugConsole::addView(int cursorX, int cursorY, int columns, int rows, DebugConsole::ViewType viewType)
+int DebugConsole::addView(int cursorX, int cursorY, int columns, int rows,
+                          ViewType viewType)
 {
-	DebugConsole::ViewStruct * viewData = new DebugConsole::ViewStruct;
+	ViewStruct* viewData = new ViewStruct();
 	viewData->cursorX = cursorX;
 	viewData->cursorY = cursorY;
 	viewData->columns = columns;
@@ -53,22 +55,22 @@ int DebugConsole::addView(int cursorX, int cursorY, int columns, int rows, Debug
 	viewData->view = NULL;
 	// determen view to create
 	
-	switch (viewType){
+	switch (viewType) {
 	case DUMPVIEW:
-		viewData->view = new DumpView(rows,columns,true);
+		viewData->view = new DumpView(rows, columns, true);
 		break;
 	default:
 		break;
 	}
 	
-	if (viewData->view){
+	if (viewData->view) {
 		viewData->view->fill();
 	}
 	
 	//finally, determen which number to take for it
-	std::map<int, struct DebugConsole::ViewStruct *>::iterator it;
-	for (it = viewList.begin();it != viewList.end();it ++){
-		if (it->second == NULL){
+	map<int, ViewStruct*>::iterator it;
+	for (it = viewList.begin(); it != viewList.end(); ++it) {
+		if (it->second == NULL) {
 			it->second = viewData;
 			return it->first;
 		}
@@ -80,9 +82,9 @@ int DebugConsole::addView(int cursorX, int cursorY, int columns, int rows, Debug
 
 bool DebugConsole::removeView(int id)
 {
-	std::map<int, struct DebugConsole::ViewStruct *>::iterator it;
-	for (it = viewList.begin();it != viewList.end();it ++){
-		if ((it->first == id) && (it->second != NULL)){
+	map<int, ViewStruct*>::iterator it;
+	for (it = viewList.begin(); it != viewList.end(); ++it) {
+		if ((it->first == id) && (it->second != NULL)) {
 			delete it->second->view;
 			delete it->second;
 			it->second = NULL;
@@ -92,37 +94,44 @@ bool DebugConsole::removeView(int id)
 	return false;
 }
 
-void DebugConsole::buildLayout ()
+void DebugConsole::buildLayout()
 {
-	std::map<int, struct DebugConsole::ViewStruct *>::iterator it;
-	for (it = viewList.begin();it != viewList.end();it ++){
-		for (int i=it->second->cursorY;i < it->second->cursorY+it->second->rows-1;i++){
-			if (i < debugRows){
-				if (lines[debugRows-1-i].size() < (unsigned)it->second->cursorX+it->second->columns){
-					std::string temp(it->second->cursorX+it->second->columns-lines[debugRows-1-i].size(),' ');
-					lines[debugRows-1-i]+=temp;
+	map<int, ViewStruct*>::const_iterator it;
+	for (it = viewList.begin(); it != viewList.end(); ++it) {
+		for (int i = it->second->cursorY; 
+		     i < it->second->cursorY + it->second->rows - 1;
+		     ++i) {
+			if (i < debugRows) {
+				if (lines[debugRows - 1 - i].size() <
+				    (unsigned)it->second->cursorX + it->second->columns) {
+					string temp(it->second->cursorX +
+					            it->second->columns - 
+						    lines[debugRows - 1 - i].size(), ' ');
+					lines[debugRows - 1 - i] += temp;
 				}
-				lines[debugRows-1-i].replace (it->second->cursorX,it->second->columns,it->second->view->getLine(i-it->second->cursorY));
+				lines[debugRows - 1 - i].replace(
+				  it->second->cursorX, it->second->columns,
+				  it->second->view->getLine(i - it->second->cursorY));
 			}
 		}
 	}
 }
 
-void DebugConsole::loadLayout ()
+void DebugConsole::loadLayout()
 {
 	// TODO
 }
 
-void DebugConsole::saveLayout ()
+void DebugConsole::saveLayout()
 {
 	// TODO
 }
 
-void DebugConsole::resizeView (int cursorX, int cursorY, int columns, int rows, int id)
+void DebugConsole::resizeView(int cursorX, int cursorY, int columns, int rows, int id)
 {
-	std::map<int, struct DebugConsole::ViewStruct *>::iterator it;
-	for (it = viewList.begin();it != viewList.end();it ++){
-		if ((it->first == id) && (it->second != NULL)){
+	map<int, ViewStruct*>::const_iterator it;
+	for (it = viewList.begin(); it != viewList.end(); ++it) {
+		if ((it->first == id) && (it->second != NULL)) {
 			it->second->view->resize(columns, rows);
 			it->second->cursorX = cursorX;
 			it->second->cursorY = cursorY;
@@ -134,9 +143,9 @@ void DebugConsole::resizeView (int cursorX, int cursorY, int columns, int rows, 
 
 void DebugConsole::updateViews()
 {
-	std::map<int, struct DebugConsole::ViewStruct *>::iterator it;
-	for (it = viewList.begin();it != viewList.end();it ++){
-		if (it->second != NULL){
+	map<int, ViewStruct*>::const_iterator it;
+	for (it = viewList.begin(); it != viewList.end(); ++it) {
+		if (it->second != NULL) {
 			it->second->view->update();
 		}
 	}
@@ -154,12 +163,12 @@ void DebugConsole::setCursorPosition(int xPosition, int yPosition)
 
 void DebugConsole::setCursorPosition(CursorXY pos)
 {
-	setCursorPosition(pos.x,pos.y);
+	setCursorPosition(pos.x, pos.y);
 }
 
-const std::string& DebugConsole::getLine(int line)
+const string& DebugConsole::getLine(unsigned line)
 {
-	static std::string EMPTY;
+	static string EMPTY;
 	return (unsigned)line < lines.size() ? lines[line] : EMPTY;
 }
 

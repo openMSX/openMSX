@@ -17,13 +17,12 @@ const char* const MACHINE_PATH = "share/machines/";
 
 // class CLIOption
 
-const std::string CLIOption::getArgument(const std::string &option,
-	std::list<std::string> &cmdLine)
+const string CLIOption::getArgument(const string &option, list<string>& cmdLine)
 {
 	if (cmdLine.empty()) {
 		PRT_ERROR("Missing argument for option \"" << option <<"\"");
 	}
-	std::string argument = cmdLine.front();
+	string argument = cmdLine.front();
 	cmdLine.pop_front();
 	return argument;
 }
@@ -47,13 +46,12 @@ CommandLineParser::CommandLineParser()
 	registerOption("-setting", &settingOption);
 }
 
-void CommandLineParser::registerOption(const std::string &str,
-		CLIOption* cliOption)
+void CommandLineParser::registerOption(const string &str, CLIOption* cliOption)
 {
 	optionMap[str] = cliOption;
 }
 
-void CommandLineParser::registerFileType(const std::string &str,
+void CommandLineParser::registerFileType(const string &str,
 		CLIFileType* cliFileType)
 {
 	if (str[0] == '.') {
@@ -67,20 +65,20 @@ void CommandLineParser::registerFileType(const std::string &str,
 
 void CommandLineParser::postRegisterFileTypes()
 {
-	std::list<Config::Parameter*> *extensions;
-	std::map<std::string, CLIFileType*, caseltstr>::const_iterator i;
+	list<Config::Parameter*> *extensions;
+	map<string, CLIFileType*, caseltstr>::const_iterator i;
 	try {
 		Config *config = MSXConfig::instance()->getConfigById("FileTypes");
 		for (i = fileClassMap.begin(); i != fileClassMap.end(); i++) {
 			extensions = config->getParametersWithClass(i->first);
-			std::list<Config::Parameter*>::const_iterator j;
+			list<Config::Parameter*>::const_iterator j;
 			for (j = extensions->begin(); j != extensions->end(); j++) {
 				fileTypeMap[(*j)->value] = i->second;
 			}
 		}
 	} catch (MSXException &e) {
-		std::map<std::string,std::string> fileExtMap;
-		std::map<std::string,std::string>::const_iterator j;
+		map<string,string> fileExtMap;
+		map<string,string>::const_iterator j;
 		fileExtMap["rom"] = "romimages";
 		fileExtMap["dsk"] = "diskimages";
 		fileExtMap["di1"] = "diskimages";
@@ -97,9 +95,9 @@ void CommandLineParser::postRegisterFileTypes()
 	}
 }
 
-bool CommandLineParser::parseOption(const std::string &arg,std::list<std::string> &cmdLine)
+bool CommandLineParser::parseOption(const string &arg,list<string> &cmdLine)
 {
-	std::map<std::string, CLIOption*>::const_iterator it1;
+	map<string, CLIOption*>::const_iterator it1;
 	it1 = optionMap.find(arg);
 	if (it1 != optionMap.end()) {
 		// parse option
@@ -109,20 +107,19 @@ bool CommandLineParser::parseOption(const std::string &arg,std::list<std::string
 	return false; // unknown
 }
 
-bool CommandLineParser::parseFileName(const std::string &arg,
-                                      std::list<std::string> &cmdLine)
+bool CommandLineParser::parseFileName(const string &arg, list<string>& cmdLine)
 {
 	int begin = arg.find_last_of('.');
 	if (begin != -1) {
 		// there is an extension
 		int end = arg.find_last_of(',');
-		std::string extension;
+		string extension;
 		if ((end == -1) || (end <= begin)) {
 			extension = arg.substr(begin + 1);
 		} else {
 			extension = arg.substr(begin + 1, end - begin - 1);
 		}
-		std::map<std::string, CLIFileType*>::const_iterator it2;
+		map<string, CLIFileType*>::const_iterator it2;
 		it2 = fileTypeMap.find(extension);
 		if (it2 != fileTypeMap.end()) {
 			// parse filetype
@@ -143,15 +140,15 @@ void CommandLineParser::parse(int argc, char **argv)
 {
 	CliExtension extension;
 	
-	std::list<std::string> cmdLine;
-	std::list<std::string> fileCmdLine;
+	list<string> cmdLine;
+	list<string> fileCmdLine;
 	for (int i = 1; i < argc; i++) {
 		cmdLine.push_back(argv[i]);
 	}
 
 	// iterate over all arguments
 	while (!cmdLine.empty()) {
-		std::string arg = cmdLine.front();
+		string arg = cmdLine.front();
 		cmdLine.pop_front();
 		
 		// first try options
@@ -168,7 +165,7 @@ void CommandLineParser::parse(int argc, char **argv)
 	try {
 		if (!settingOption.parsed) {
 			config->loadSetting(new SystemFileContext(),
-			                 "share/settings.xml");
+			                    "share/settings.xml");
 		}
 	} catch (MSXException &e) {
 		// settings.xml not found
@@ -177,7 +174,7 @@ void CommandLineParser::parse(int argc, char **argv)
 	
 	// load default config file in case the user didn't specify one
 	if (!haveConfig) {
-		std::string machine("default");
+		string machine("default");
 		try {
 			Config *machineConfig =
 				config->getConfigById("DefaultMachine");
@@ -194,7 +191,7 @@ void CommandLineParser::parse(int argc, char **argv)
 				MACHINE_PATH + machine + "/hardwareconfig.xml");
 		} catch (FileException &e) {
 			bool found = false;
-			std::list<std::string>::const_iterator it;
+			list<string>::const_iterator it;
 			for (it = fileCmdLine.begin(); it != fileCmdLine.end(); it++) {
 				if (*it == "-h") {
 					found = true;
@@ -211,7 +208,7 @@ void CommandLineParser::parse(int argc, char **argv)
 	
 	// now that the configs are loaded, try filenames
 	while (!fileCmdLine.empty()) {
-		std::string arg = fileCmdLine.front();
+		string arg = fileCmdLine.front();
 		fileCmdLine.pop_front();
 		// first, try the options
 		if (!parseOption(arg, cmdLine)) {
@@ -227,7 +224,7 @@ void CommandLineParser::parse(int argc, char **argv)
 	CartridgeSlotManager::instance()->readConfig();
 	
 	// execute all postponed options
-	std::vector<CLIPostConfig*>::iterator it;
+	vector<CLIPostConfig*>::iterator it;
 	for (it = postConfigs.begin(); it != postConfigs.end(); it++) {
 		(*it)->execute(config);
 	}
@@ -235,8 +232,8 @@ void CommandLineParser::parse(int argc, char **argv)
 
 
 // Help option
-void CommandLineParser::HelpOption::parseOption(const std::string &option,
-		std::list<std::string> &cmdLine)
+void CommandLineParser::HelpOption::parseOption(const string &option,
+		list<string> &cmdLine)
 {
 	CommandLineParser* parser = CommandLineParser::instance();
 	
@@ -249,24 +246,24 @@ void CommandLineParser::HelpOption::parseOption(const std::string &option,
 	PRT_INFO("");
 	PRT_INFO("  this is the list of supported options:");
 	
-	std::set<std::string> printSet;
-	std::map<CLIOption*, std::set<std::string>*> tempOptionMap;
-	std::map<CLIOption*, std::set<std::string>*>::iterator itTempOptionMap;
-	std::set<std::string>::iterator itSet;
-	std::map<std::string, CLIOption*>::const_iterator itOption;
+	set<string> printSet;
+	map<CLIOption*, set<string>*> tempOptionMap;
+	map<CLIOption*, set<string>*>::const_iterator itTempOptionMap;
+	set<string>::const_iterator itSet;
+	map<string, CLIOption*>::const_iterator itOption;
 	for (itOption = parser->optionMap.begin();
 	     itOption != parser->optionMap.end();
 	     itOption++) {
 		itTempOptionMap = tempOptionMap.find(itOption->second);
 		if (itTempOptionMap == tempOptionMap.end()) {
-			tempOptionMap[itOption->second] = new std::set<std::string>;
+			tempOptionMap[itOption->second] = new set<string>;
 		}
 		itTempOptionMap = tempOptionMap.find(itOption->second);
 		if (itTempOptionMap != tempOptionMap.end()) {
 			itTempOptionMap->second->insert(itOption->first);
 		}
 	}
-	std::string tempString;
+	string tempString;
 	for (itTempOptionMap = tempOptionMap.begin();
 	     itTempOptionMap != tempOptionMap.end();
 	     itTempOptionMap++) {
@@ -283,15 +280,15 @@ void CommandLineParser::HelpOption::parseOption(const std::string &option,
 	PRT_INFO("");
 	PRT_INFO("  this is the list of supported file types:");
 
-	std::map<CLIFileType*, std::set<std::string>*> tempExtMap;
-	std::map<CLIFileType*, std::set<std::string>*>::iterator itTempExtMap;
-	std::map<std::string, CLIFileType*>::const_iterator itFileType;
+	map<CLIFileType*, set<string>*> tempExtMap;
+	map<CLIFileType*, set<string>*>::const_iterator itTempExtMap;
+	map<string, CLIFileType*>::const_iterator itFileType;
 	for (itFileType = parser->fileTypeMap.begin();
 	     itFileType != parser->fileTypeMap.end();
 	     itFileType++) {
 		itTempExtMap = tempExtMap.find(itFileType->second);
 		if (itTempExtMap == tempExtMap.end()) {
-			tempExtMap[itFileType->second] = new std::set<std::string>;
+			tempExtMap[itFileType->second] = new set<string>;
 		}
 		itTempExtMap = tempExtMap.find(itFileType->second);
 		if (itTempExtMap != tempExtMap.end()) {
@@ -312,21 +309,21 @@ void CommandLineParser::HelpOption::parseOption(const std::string &option,
 	exit(0);
 }
 
-const std::string& CommandLineParser::HelpOption::optionHelp() const
+const string& CommandLineParser::HelpOption::optionHelp() const
 {
-	static const std::string text("Shows this text");
+	static const string text("Shows this text");
 	return text;
 }
 
-std::string CommandLineParser::HelpOption::formatSet(std::set<std::string> *inputSet,
+string CommandLineParser::HelpOption::formatSet(set<string> *inputSet,
                                                      unsigned columns)
 {
-	std::string fillString(60, ' ');
-	std::set<std::string>::iterator it4;
-	std::string outString;
+	string fillString(60, ' ');
+	set<string>::iterator it4;
+	string outString;
 	unsigned totalLength = 0; // ignore the starting spaces for now
 	for (it4 = inputSet->begin(); it4 != inputSet->end(); it4++) {
-		std::string temp = *it4;
+		string temp = *it4;
 		if (totalLength == 0) {
 			// first element ?
 			outString += "    " + temp;
@@ -348,12 +345,12 @@ std::string CommandLineParser::HelpOption::formatSet(std::set<std::string> *inpu
 	return outString;
 }
 
-std::string CommandLineParser::HelpOption::formatHelptext(std::string helpText,
+string CommandLineParser::HelpOption::formatHelptext(string helpText,
                    unsigned maxlength, unsigned indent)
 {
-	std::string outText;
+	string outText;
 	unsigned pos;
-	std::string fillString(60, ' ');
+	string fillString(60, ' ');
 	unsigned index = 0;
 	while (helpText.substr(index).length() > maxlength) {
 		pos = helpText.substr(index).rfind(' ', index+maxlength);
@@ -371,51 +368,51 @@ std::string CommandLineParser::HelpOption::formatHelptext(std::string helpText,
 }
 
 // Config file type
-void CommandLineParser::ConfigFile::parseOption(const std::string &option,
-		std::list<std::string> &cmdLine)
+void CommandLineParser::ConfigFile::parseOption(const string &option,
+		list<string> &cmdLine)
 {
 	parseFileType(getArgument(option, cmdLine));
 }
-const std::string& CommandLineParser::ConfigFile::optionHelp() const
+const string& CommandLineParser::ConfigFile::optionHelp() const
 {
-	static const std::string text("Use configuration file specified in argument");
+	static const string text("Use configuration file specified in argument");
 	return text;
 }
-void CommandLineParser::ConfigFile::parseFileType(const std::string &filename)
+void CommandLineParser::ConfigFile::parseFileType(const string &filename)
 {
 	MSXConfig *config = MSXConfig::instance();
 	config->loadHardware(new UserFileContext(), filename);
 
 	CommandLineParser::instance()->haveConfig = true;
 }
-const std::string& CommandLineParser::ConfigFile::fileTypeHelp() const
+const string& CommandLineParser::ConfigFile::fileTypeHelp() const
 {
-	static const std::string text("Configuration file");
+	static const string text("Configuration file");
 	return text;
 }
 
 
 // Machine option
-void CommandLineParser::MachineOption::parseOption(const std::string &option,
-		std::list<std::string> &cmdLine)
+void CommandLineParser::MachineOption::parseOption(const string &option,
+		list<string> &cmdLine)
 {
 	MSXConfig *config = MSXConfig::instance();
-	std::string machine(getArgument(option, cmdLine));
+	string machine(getArgument(option, cmdLine));
 	config->loadHardware(new SystemFileContext(),
 		MACHINE_PATH + machine + "/hardwareconfig.xml");
 	PRT_INFO("Using specified machine: " << machine);
 	CommandLineParser::instance()->haveConfig = true;
 }
-const std::string& CommandLineParser::MachineOption::optionHelp() const
+const string& CommandLineParser::MachineOption::optionHelp() const
 {
-	static const std::string text("Use machine specified in argument");
+	static const string text("Use machine specified in argument");
 	return text;
 }
 
 
 // Setting Option
-void CommandLineParser::SettingOption::parseOption(const std::string &option,
-		std::list<std::string> &cmdLine)
+void CommandLineParser::SettingOption::parseOption(const string &option,
+		list<string> &cmdLine)
 {
 	if (parsed) {
 		PRT_ERROR("Only one setting option allowed");
@@ -424,8 +421,8 @@ void CommandLineParser::SettingOption::parseOption(const std::string &option,
 	MSXConfig *config = MSXConfig::instance();
 	config->loadSetting(new UserFileContext(), getArgument(option, cmdLine));
 }
-const std::string& CommandLineParser::SettingOption::optionHelp() const
+const string& CommandLineParser::SettingOption::optionHelp() const
 {
-	static const std::string text("Load an alternative settings file");
+	static const string text("Load an alternative settings file");
 	return text;
 }

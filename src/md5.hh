@@ -49,6 +49,7 @@
 #include <iostream>
 #include <cstdio>
 
+using namespace std;
 
 class MD5
 {
@@ -62,22 +63,22 @@ class MD5
 		// methods for controlled operation:
 		MD5           ();  // simple initializer
 		void  update  (const uint1 *input, uint4 input_length);
-		void  update  (std::istream& stream);
+		void  update  (istream& stream);
 		void  update  (FILE *file);
-		void  update  (std::ifstream& stream);
+		void  update  (ifstream& stream);
 		void  finalize();
 
 		// constructors for special circumstances.  All these constructors finalize
 		// the MD5 context.
 		MD5           (unsigned char *string);	// digest string, finalize
-		MD5           (std::istream& stream);	// digest stream, finalize
+		MD5           (istream& stream);	// digest stream, finalize
 		MD5           (FILE *file);		// digest file, close, finalize
-		MD5           (std::ifstream& stream);	// digest stream, close, finalize
+		MD5           (ifstream& stream);	// digest stream, close, finalize
 
 		// methods to acquire finalized result
 		unsigned char*       raw_digest();	// digest as a 16-byte binary array
-		std::string          hex_digest();	// digest as a 33-byte ascii-hex string
-		friend std::ostream& operator<< (std::ostream&, MD5 context);
+		string          hex_digest();	// digest as a 33-byte ascii-hex string
+		friend ostream& operator<< (ostream&, MD5 context);
 
 	private:
 		// next, the private data:

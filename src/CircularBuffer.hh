@@ -6,38 +6,41 @@
 #include <cassert>
 
 
-template<class T, int maxSize>
-class CircularBuffer {
+template<class T, unsigned MAXSIZE>
+class CircularBuffer
+{
 	public:
 		CircularBuffer() {
 			first = last = 0;
 		}
-		void addFront(const T &element) {
+		void addFront(const T& element) {
 			assert(!isFull());
 			first = prev(first);
 			buffer[first] = element;
 		}
-		void addBack (const T &element) {
+		void addBack(const T& element) {
 			assert(!isFull());
-			int tmp = last;
+			unsigned tmp = last;
 			last = next(last);
 			buffer[tmp] = element;
 		}
-		T &removeFront() {
+		T& removeFront() {
 			assert(!isEmpty());
-			int tmp = first;
+			unsigned tmp = first;
 			first = next(first);
 			return buffer[tmp];
 		}
-		T &removeBack () {
+		T& removeBack() {
 			assert(!isEmpty());
 			last = prev(last);
 			return buffer[last];
 		}
-		T &operator[](int pos) {
-			assert(pos < maxSize);
-			int tmp = first+pos;
-			if (tmp>maxSize) tmp -= (maxSize+1);
+		T& operator[](unsigned pos) {
+			assert(pos < MAXSIZE);
+			unsigned tmp = first + pos;
+			if (tmp > MAXSIZE) {
+				tmp -= (MAXSIZE + 1);
+			}
 			return buffer[tmp];
 		}
 		bool isEmpty() const {
@@ -46,22 +49,25 @@ class CircularBuffer {
 		bool isFull() const {
 			return (first == next(last));
 		}
-		int size() const {
-			int tmp = last-first;
-			if (tmp<0) tmp += (maxSize+1);
-			return tmp;
+		unsigned size() const {
+			if (first > last) {
+				return MAXSIZE + 1 - first + last;
+			} else {
+				return last - first;
+			}
 		}
 
 	private:
-		inline int next(int a) const {
-			return (a==maxSize) ? 0 : a+1;
+		inline unsigned next(unsigned a) const {
+			return (a == MAXSIZE) ? 0 : a + 1;
 		}
-		inline int prev(int a) const {
-			return (a==0) ? maxSize : a-1;
+		inline unsigned prev(unsigned a) const {
+			return (a == 0) ? MAXSIZE : a - 1;
 		}
 		
-		T buffer[maxSize+1];
-		int first, last;
+		// one extra to be able to distinguish full and empty
+		T buffer[MAXSIZE + 1];
+		unsigned first, last;
 };
 
 #endif

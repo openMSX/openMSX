@@ -110,7 +110,7 @@ void MD5::update(FILE *file)
 
 // MD5 update for istreams.
 // Like update for files; see above.
-void MD5::update(std::istream& stream)
+void MD5::update(istream& stream)
 {
 	unsigned char buf[1024];
 	
@@ -123,7 +123,7 @@ void MD5::update(std::istream& stream)
 
 // MD5 update for ifstreams.
 // Like update for files; see above.
-void MD5::update(std::ifstream& stream)
+void MD5::update(ifstream& stream)
 {
 	unsigned char buf[1024];
 
@@ -176,14 +176,14 @@ MD5::MD5(FILE *file)
 	finalize();
 }
 
-MD5::MD5(std::istream& stream)
+MD5::MD5(istream& stream)
 {
 	init();  // must called by all constructors
 	update(stream);
 	finalize();
 }
 
-MD5::MD5(std::ifstream& stream)
+MD5::MD5(ifstream& stream)
 {
 	init();  // must called by all constructors
 	update(stream);
@@ -200,7 +200,7 @@ unsigned char *MD5::raw_digest()
 	return s;
 }
 
-std::string MD5::hex_digest()
+string MD5::hex_digest()
 {
 	assert(finalized);	// Can't get digest if you haven't finalized the digest!
 	
@@ -210,11 +210,11 @@ std::string MD5::hex_digest()
 	}
 	s[32]='\0';
 
-	return std::string(s);
+	return string(s);
 }
 
 
-std::ostream& operator<<(std::ostream &stream, MD5 context)
+ostream& operator<<(ostream &stream, MD5 context)
 {
 	stream << context.hex_digest();
 	return stream;

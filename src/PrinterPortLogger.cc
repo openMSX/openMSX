@@ -45,7 +45,7 @@ void PrinterPortLogger::writeData(byte data, const EmuTime &time)
 
 void PrinterPortLogger::plug(Connector* connector, const EmuTime& time)
 {
-	const std::string filename("printer.log");	// TODO read from config
+	const string filename("printer.log");	// TODO read from config
 	file = new File(filename, TRUNCATE);
 }
 
@@ -55,8 +55,8 @@ void PrinterPortLogger::unplug(const EmuTime &time)
 	file = NULL;
 }
 
-const std::string &PrinterPortLogger::getName() const
+const string &PrinterPortLogger::getName() const
 {
-	static const std::string name("logger");
+	static const string name("logger");
 	return name;
 }

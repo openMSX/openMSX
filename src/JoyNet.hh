@@ -48,7 +48,7 @@ class JoyNet : public JoystickDevice
 		virtual ~JoyNet();
 
 		//Pluggable
-		virtual const std::string &getName() const;
+		virtual const string &getName() const;
 		virtual void plug(Connector* connector, const EmuTime& time);
 		virtual void unplug(const EmuTime& time);
 
@@ -72,7 +72,7 @@ class JoyNet : public JoystickDevice
 
 		byte status;
 		//For IP connection
-		std::string hostname;
+		string hostname;
 		int portname;
 
 		int sockfd;

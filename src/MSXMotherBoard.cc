@@ -44,7 +44,7 @@ void MSXMotherBoard::resetMSX()
 {
 	const EmuTime &time = MSXCPU::instance()->getCurrentTime();
 	MSXCPUInterface::instance()->reset();
-	std::list<MSXDevice*>::iterator i;
+	list<MSXDevice*>::iterator i;
 	for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
 		(*i)->reset(time);
 	}
@@ -61,7 +61,7 @@ void MSXMotherBoard::run()
 		EmuTime time(Scheduler::instance()->scheduleEmulation());
 
 		// Destroy.
-		std::list<MSXDevice*>::iterator i;
+		list<MSXDevice*>::iterator i;
 		for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
 			(*i)->powerDown(time);
 			delete (*i);
@@ -74,11 +74,11 @@ void MSXMotherBoard::run()
 }
 
 
-void MSXMotherBoard::ResetCmd::execute(const std::vector<std::string> &tokens)
+void MSXMotherBoard::ResetCmd::execute(const vector<string> &tokens)
 {
 	MSXMotherBoard::instance()->resetMSX();
 }
-void MSXMotherBoard::ResetCmd::help(const std::vector<std::string> &tokens) const
+void MSXMotherBoard::ResetCmd::help(const vector<string> &tokens) const
 {
 	print("Resets the MSX.");
 }

@@ -21,7 +21,7 @@ class RealTime : public Schedulable, private SettingListener
 		}
 
 		virtual void executeUntilEmuTime(const EmuTime &time, int userData);
-		virtual const std::string &schedName() const;
+		virtual const string &schedName() const;
 
 		/**
 		 * Convert EmuTime to RealTime and vice versa

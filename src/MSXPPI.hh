@@ -30,7 +30,6 @@
 #include "MSXIODevice.hh"
 #include "I8255.hh"
 
-// forward declarations
 class KeyClick;
 class MSXCPUInterface;
 class CassettePortInterface;
@@ -42,14 +41,7 @@ class MSXPPI : public MSXIODevice, public I8255Interface
 {
 	// MSXDevice
 	public:
-		/**
-		 * Constructor.
-		 */
 		MSXPPI(Device *config, const EmuTime &time); 
-
-		/**
-		 * Destructor
-		 */
 		virtual ~MSXPPI(); 
 
 		virtual void powerOff(const EmuTime &time);
@@ -79,4 +71,5 @@ class MSXPPI : public MSXIODevice, public I8255Interface
 		Keyboard *keyboard;
 		nibble selectedRow;
 };
+
 #endif

@@ -12,14 +12,14 @@ class CliExtension : public CLIOption
 		CliExtension();
 		virtual ~CliExtension();
 		
-		virtual void parseOption(const std::string &option,
-		                         std::list<std::string> &cmdLine);
-		virtual const std::string& optionHelp() const;
+		virtual void parseOption(const string &option,
+		                         list<string> &cmdLine);
+		virtual const string& optionHelp() const;
 		
 	private:
-		void createExtensions(const std::string &path);
+		void createExtensions(const string &path);
 		
-		std::map<std::string, std::string> extensions;
+		map<string, string> extensions;
 };
 
 #endif

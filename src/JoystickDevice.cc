@@ -3,8 +3,8 @@
 #include "JoystickDevice.hh"
 
 
-const std::string &JoystickDevice::getClass() const
+const string &JoystickDevice::getClass() const
 {
-	static const std::string className("Joystick Port");
+	static const string className("Joystick Port");
 	return className;
 }

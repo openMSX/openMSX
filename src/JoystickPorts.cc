@@ -11,9 +11,9 @@
 #include "KeyJoystick.hh"
 
 
-JoystickPort::JoystickPort(const std::string &nm, const EmuTime &time)
+JoystickPort::JoystickPort(const string &nm, const EmuTime &time)
+	: name(nm)
 {
-	name = nm;
 	dummy = new DummyJoystick();
 	lastValue = 255;	// != 0
 	PluggingController::instance()->registerConnector(this);
@@ -27,14 +27,14 @@ JoystickPort::~JoystickPort()
 	delete dummy;
 }
 
-const std::string &JoystickPort::getName() const
+const string &JoystickPort::getName() const
 {
 	return name;
 }
 
-const std::string &JoystickPort::getClass() const
+const string &JoystickPort::getClass() const
 {
-	static const std::string className("Joystick Port");
+	static const string className("Joystick Port");
 	return className;
 }
 
@@ -74,13 +74,15 @@ JoystickPorts::JoystickPorts(const EmuTime &time)
 	mouse = new Mouse(time);
 	joynet = new JoyNet();
 	keyJoystick = new KeyJoystick();
-	int i=0;
+	int i = 0;
 	try {
-		for (; i<10; i++)
+		for (; i < 10; i++) {
 			joystick[i] = new Joystick(i);
+		}
 	} catch(JoystickException &e) {
-		for (; i<10; i++)
+		for (; i < 10; i++) {
 			joystick[i] = NULL;
+		}
 	}
 }
 
@@ -92,8 +94,9 @@ JoystickPorts::~JoystickPorts()
 	delete keyJoystick;
 	delete mouse;
 	delete joynet;
-	for (int i=0; i<10; i++)
+	for (int i = 0; i < 10; i++) {
 		delete joystick[i];
+	}
 }
 
 void JoystickPorts::powerOff(const EmuTime &time)
@@ -109,10 +112,10 @@ byte JoystickPorts::read(const EmuTime &time)
 
 void JoystickPorts::write(byte value, const EmuTime &time)
 {
-	byte val0 =  (value&0x03)    |((value&0x10)>>2);
-	byte val1 = ((value&0x0c)>>2)|((value&0x20)>>3);
+	byte val0 =  (value & 0x03)       | ((value & 0x10) >> 2);
+	byte val1 = ((value & 0x0C) >> 2) | ((value & 0x20) >> 3);
 	ports[0]->write(val0, time);
 	ports[1]->write(val1, time);
-	selectedPort = (value&0x40)>>6;
+	selectedPort = (value & 0x40) >> 6;
 }
 

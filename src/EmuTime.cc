@@ -11,7 +11,7 @@ const EmuTime EmuTime::zero((uint64)0);
 const EmuTime EmuTime::infinity(INFTY);
 
 
-std::ostream &operator<<(std::ostream &os, const EmuTime &et)
+ostream &operator<<(ostream &os, const EmuTime &et)
 {
 	os << et.time;
 	return os;

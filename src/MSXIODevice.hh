@@ -4,6 +4,7 @@
 #define __MSXIODEVICE_HH__
 
 #include "MSXDevice.hh"
+#include "openmsx.hh"
 
 
 class MSXIODevice : virtual public MSXDevice

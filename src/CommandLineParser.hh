@@ -17,20 +17,20 @@ class MSXConfig;
 class CLIOption
 {
 	public:
-		virtual void parseOption(const std::string &option,
-			std::list<std::string> &cmdLine) = 0;
-		virtual const std::string& optionHelp() const = 0;
+		virtual void parseOption(const string &option,
+			list<string> &cmdLine) = 0;
+		virtual const string& optionHelp() const = 0;
 	
 	protected:
-		const std::string getArgument(const std::string &option,
-			std::list<std::string> &cmdLine);
+		const string getArgument(const string &option,
+			list<string> &cmdLine);
 };
 
 class CLIFileType
 {
 	public:
-		virtual void parseFileType(const std::string &filename) = 0;
-		virtual const std::string& fileTypeHelp() const = 0;
+		virtual void parseFileType(const string &filename) = 0;
+		virtual const string& fileTypeHelp() const = 0;
 };
 
 class CLIPostConfig
@@ -45,61 +45,61 @@ class CommandLineParser
 	public:
 		static CommandLineParser* instance();
 		
-		void registerOption(const std::string &str, CLIOption* cliOption);
-		void registerFileType(const std::string &str, CLIFileType* cliFileType);
+		void registerOption(const string &str, CLIOption* cliOption);
+		void registerFileType(const string &str, CLIFileType* cliFileType);
 		void registerPostConfig(CLIPostConfig *post);
 		void parse(int argc, char **argv);
-		bool parseFileName(const std::string &arg,std::list<std::string> &cmdLine);
-		bool parseOption(const std::string &arg,std::list<std::string> &cmdLine);
+		bool parseFileName(const string &arg,list<string> &cmdLine);
+		bool parseOption(const string &arg,list<string> &cmdLine);
 
 	//private: // should be private, but gcc-2.95.x complains
 		struct caseltstr {
-			bool operator()(const std::string s1, const std::string s2) const {
+			bool operator()(const string s1, const string s2) const {
 				return strcasecmp(s1.c_str(), s2.c_str()) < 0;
 			}
 		};
-		std::map<std::string, CLIOption*> optionMap;
-		std::map<std::string, CLIFileType*, caseltstr> fileTypeMap;
-		std::map<std::string, CLIFileType*, caseltstr> fileClassMap;
+		map<string, CLIOption*> optionMap;
+		map<string, CLIFileType*, caseltstr> fileTypeMap;
+		map<string, CLIFileType*, caseltstr> fileClassMap;
 	private:
 		CommandLineParser();
 		void postRegisterFileTypes();
-		std::vector<CLIPostConfig*> postConfigs;
+		vector<CLIPostConfig*> postConfigs;
 		bool haveConfig;
 
 		class HelpOption : public CLIOption {
 		public:
-			virtual void parseOption(const std::string &option,
-				std::list<std::string> &cmdLine);
-			virtual const std::string& optionHelp() const;
-			std::string formatSet(std::set<std::string> * inputSet,unsigned columns);
-			std::string formatHelptext(std::string helpText,unsigned maxlength, unsigned indent);
+			virtual void parseOption(const string &option,
+				list<string> &cmdLine);
+			virtual const string& optionHelp() const;
+			string formatSet(set<string> * inputSet,unsigned columns);
+			string formatHelptext(string helpText,unsigned maxlength, unsigned indent);
 		} helpOption;
 		
 		class ConfigFile : public CLIOption, public CLIFileType {
 		public:
-			virtual void parseOption(const std::string &option,
-				std::list<std::string> &cmdLine);
-			virtual const std::string& optionHelp() const;
-			virtual void parseFileType(const std::string &filename);
-			virtual const std::string& fileTypeHelp() const;
+			virtual void parseOption(const string &option,
+				list<string> &cmdLine);
+			virtual const string& optionHelp() const;
+			virtual void parseFileType(const string &filename);
+			virtual const string& fileTypeHelp() const;
 		} configFile;
 		friend class ConfigFile;
 		
 		class MachineOption : public CLIOption {
 		public:
-			virtual void parseOption(const std::string &option,
-				std::list<std::string> &cmdLine);
-			virtual const std::string& optionHelp() const;
+			virtual void parseOption(const string &option,
+				list<string> &cmdLine);
+			virtual const string& optionHelp() const;
 		} machineOption;
 		friend class MachineOption;
 		
 		class SettingOption : public CLIOption {
 		public:
 			SettingOption() : parsed(false) {}
-			virtual void parseOption(const std::string &option,
-				std::list<std::string> &cmdLine);
-			virtual const std::string& optionHelp() const;
+			virtual void parseOption(const string &option,
+				list<string> &cmdLine);
+			virtual const string& optionHelp() const;
 			bool parsed;
 		} settingOption;
 };

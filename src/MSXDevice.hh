@@ -4,10 +4,12 @@
 #define __MSXDEVICE_HH__
 
 #include <string>
-#include "openmsx.hh"
+//#include "openmsx.hh"
 
 class EmuTime;
 class Device;
+
+using namespace std;
 
 
 /** An MSXDevice is an emulated hardware component connected to the bus
@@ -36,7 +38,7 @@ class MSXDevice
 		 * print debug info.
 		 * Default implementation is normally ok.
 		 */
-		virtual const std::string &getName() const;
+		virtual const string &getName() const;
 
 		/**
 		 * This method is called right before we power down our MSX.

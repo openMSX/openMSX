@@ -87,8 +87,8 @@ void MSXDiskRomPatch::PHYDIO(CPU::CPURegs& regs)
 	PRT_DEBUG("    drive: " << (int)drive);
 	PRT_DEBUG("    num_sectors: " << (int)regs.BC.B.h);
 	PRT_DEBUG("    sector_number: " << (int)sectorNumber);
-	PRT_DEBUG("    transfer_address: 0x" << std::hex << transferAddress << std::dec);
-	PRT_DEBUG("    write/read: " << std::string(write?"write":"read"));
+	PRT_DEBUG("    transfer_address: 0x" << hex << transferAddress << dec);
+	PRT_DEBUG("    write/read: " << string(write?"write":"read"));
 
 	if (drive >= LAST_DRIVE) {
 		// illegal drive letter
@@ -106,7 +106,7 @@ void MSXDiskRomPatch::PHYDIO(CPU::CPURegs& regs)
 	EmuTime dummy; // TODO
 	MSXCPUInterface* cpuInterface = MSXCPUInterface::instance();
 	int pri_slot = cpuInterface->readIO(0xA8, dummy);
-	int sec_slot = cpuInterface->readMem(0xFFFF, dummy)^0xFF;
+	int sec_slot = cpuInterface->readMem(0xFFFF, dummy) ^ 0xFF;
 	PRT_DEBUG("Primary: "
 		<< "s3:" << ((pri_slot & 0xC0)>>6) << " "
 		<< "s2:" << ((pri_slot & 0x30)>>4) << " "
@@ -121,9 +121,9 @@ void MSXDiskRomPatch::PHYDIO(CPU::CPURegs& regs)
 	pri_slot_target += pri_slot_target*4 + pri_slot_target*16 + pri_slot_target*64;
 	int sec_slot_target = ((sec_slot & 0xC0)>>6);
 	sec_slot_target += sec_slot_target*4 + sec_slot_target*16 + sec_slot_target*64;
-	PRT_DEBUG("Switching slots toward: pri:0x" << std::hex
+	PRT_DEBUG("Switching slots toward: pri:0x" << hex
 		<< pri_slot_target
-		<< " sec:0x" << sec_slot_target << std::dec);
+		<< " sec:0x" << sec_slot_target << dec);
 	cpuInterface->writeIO(0xA8, pri_slot_target, dummy);
 	cpuInterface->writeMem(0xFFFF, sec_slot_target, dummy);
 
@@ -234,8 +234,8 @@ void MSXDiskRomPatch::GETDPB(CPU::CPURegs& regs)
 			maxclus = 635;
 			break;
 		default:
-			PRT_DEBUG("    Illegal media_descriptor: " << std::hex
-				<< static_cast<int>(media_descriptor) << std::dec);
+			PRT_DEBUG("    Illegal media_descriptor: " << hex
+				<< static_cast<int>(media_descriptor) << dec);
 			regs.AF.B.l |= (CPU::C_FLAG);
 			return;
 	}

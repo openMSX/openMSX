@@ -17,7 +17,9 @@ void Connector::plug(Pluggable *device, const EmuTime &time)
 
 void Connector::unplug(const EmuTime &time)
 {
-	if (pluggable) pluggable->unplug(time);
+	if (pluggable) {
+		pluggable->unplug(time);
+	}
 	//pluggable = DUMMY_DEVICE;
 }
 

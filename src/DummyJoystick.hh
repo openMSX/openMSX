@@ -16,4 +16,5 @@ class DummyJoystick : public JoystickDevice
 		virtual void plug(Connector* connector, const EmuTime& time);
 		virtual void unplug(const EmuTime& time);
 };
+
 #endif

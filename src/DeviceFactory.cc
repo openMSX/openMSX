@@ -45,7 +45,8 @@
 
 
 // TODO: Add the switched device to the config files.
-static void createDeviceSwitch() {
+static void createDeviceSwitch()
+{
 	static bool deviceSwitchCreated = false;
 	if (!deviceSwitchCreated) {
 		MSXDeviceSwitch *deviceSwitch = MSXDeviceSwitch::instance();
@@ -59,7 +60,7 @@ static void createDeviceSwitch() {
 
 MSXDevice *DeviceFactory::create(Device *conf, const EmuTime &time)
 {
-	const std::string type = conf->getType();
+	const string type = conf->getType();
 	MSXCPUInterface *cpuInterface = MSXCPUInterface::instance();
 	if (type == "CPU") {
 		return MSXCPU::instance();

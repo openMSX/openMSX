@@ -34,11 +34,11 @@ void CartridgeSlotManager::readConfig()
 	try {
 		Config *config = MSXConfig::instance()->
 					       getConfigById("ExternalSlots");
-		std::string slotName("slota");
+		string slotName("slota");
 		for (int slot = 0; slot < 16; slot++) {
 			slotName[4] = 'a' + slot;
 			if (config->hasParameter(slotName)) {
-				std::string slotValue = config->getParameter(slotName);
+				string slotValue = config->getParameter(slotName);
 				int ps = slotValue[0] - '0';
 				int ss = slotValue[2] - '0';
 				if ((ps < 0) || (ps > 3) || (ss < 0) || (ss > 3) ||

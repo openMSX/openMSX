@@ -28,7 +28,7 @@ class JoystickDevice : public Pluggable
 		 */
 		virtual void write(byte value, const EmuTime &time) = 0;
 
-		virtual const std::string &getClass() const;
+		virtual const string &getClass() const;
 		
 	protected:
 		static const int JOY_UP      = 0x01;

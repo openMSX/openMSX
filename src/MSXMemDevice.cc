@@ -27,8 +27,8 @@ void MSXMemDevice::init()
 
 byte MSXMemDevice::readMem(word address, const EmuTime &time)
 {
-	PRT_DEBUG("MSXMemDevice: read from unmapped memory " << std::hex <<
-	           (int)address << std::dec);
+	PRT_DEBUG("MSXMemDevice: read from unmapped memory " << hex <<
+	           (int)address << dec);
 	return 0xFF;
 }
 
@@ -39,8 +39,8 @@ const byte* MSXMemDevice::getReadCacheLine(word start) const
 
 void MSXMemDevice::writeMem(word address, byte value, const EmuTime &time)
 {
-	PRT_DEBUG("MSXMemDevice: write to unmapped memory " << std::hex <<
-	           (int)address << std::dec);
+	PRT_DEBUG("MSXMemDevice: write to unmapped memory " << hex <<
+	           (int)address << dec);
 	// do nothing
 }
 
@@ -74,7 +74,7 @@ void MSXMemDevice::registerSlots()
 	int ps = deviceConfig->slotted.front()->getPS();
 	int ss = deviceConfig->slotted.front()->getSS();
 	int pages = 0;
-	std::list<Device::Slotted*>::const_iterator it;
+	list<Device::Slotted*>::const_iterator it;
 	for (it  = deviceConfig->slotted.begin();
 	     it != deviceConfig->slotted.end();
 	     it++) {

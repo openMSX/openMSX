@@ -25,4 +25,5 @@ class MSXBunsetsu : public MSXMemDevice
 		Rom jisyoRom;
 		int jisyoAddress;
 };
+
 #endif

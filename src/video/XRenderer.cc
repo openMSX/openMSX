@@ -37,13 +37,13 @@ void XRenderer::EventLoop (void) {
 	vals.background = WhitePixel (X.display, X.screen);
 	X.gc = XCreateGC (X.display, RootWindow (X.display, X.screen),
 		GCFont | GCForeground | GCBackground, &vals);
-	char *nam = "openMSX [ALPHA]";
+	char *nam = const_cast<char*>("openMSX [ALPHA]");
 	XTextProperty name, iconname;
-	if (!XStringListToTextProperty(&nam,1,&name)) {
+	if (!XStringListToTextProperty(&nam, 1, &name)) {
 		PRT_INFO ("XRenderer: error setting window name");
 	}
-	char *iconnam = "openMSX";
-	if (!XStringListToTextProperty(&iconnam,1,&iconname)) {
+	char *iconnam = const_cast<char*>("openMSX");
+	if (!XStringListToTextProperty(&iconnam, 1, &iconname)) {
 		PRT_INFO ("XRenderer: error setting iconname");
 	}
 	XSizeHints xsh;
@@ -52,8 +52,8 @@ void XRenderer::EventLoop (void) {
 	xsh.flags = PMinSize | PMaxSize;
 	xsh.min_width = xsh.max_width = WIDTH;
 	xsh.min_height = xsh.max_height = HEIGHT;
-	xch.res_name = "openMSX";
-	xch.res_class = "openMSX";
+	xch.res_name  = const_cast<char*>("openMSX");
+	xch.res_class = const_cast<char*>("openMSX");
 	xwmh.flags = StateHint | InputHint;
 	xwmh.input = True;
 	xwmh.initial_state = NormalState;

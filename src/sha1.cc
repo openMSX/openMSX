@@ -136,12 +136,12 @@ void SHA1::finalize()
 }
 
 // Get the final hash as a pre-formatted string
-std::string SHA1::hex_digest()
+string SHA1::hex_digest()
 {
 	char s[41];
 	for (int i = 0; i < 20; i++) {
 		sprintf(s + i * 2, "%02x", m_digest[i]);
 	}
 	s[40] = '\0';
-	return std::string(s);
+	return string(s);
 }

@@ -3,8 +3,8 @@
 #include "PrinterPortDevice.hh"
 
 
-const std::string &PrinterPortDevice::getClass() const
+const string &PrinterPortDevice::getClass() const
 {
-	static const std::string className("Printer Port");
+	static const string className("Printer Port");
 	return className;
 }

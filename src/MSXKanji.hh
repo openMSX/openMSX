@@ -10,14 +10,7 @@
 class MSXKanji : public MSXIODevice
 {
 	public:
-		/**
-		 * Constructor
-		 */
 		MSXKanji(Device *config, const EmuTime &time);
-
-		/**
-		 * Destructor
-		 */
 		virtual ~MSXKanji();
 		
 		virtual byte readIO(byte port, const EmuTime &time);

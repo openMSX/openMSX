@@ -3,35 +3,41 @@
 #ifndef __DEBUGCONSOLE_HH__
 #define __DEBUGCONSOLE_HH__
 
+#include <map>
 #include "EventListener.hh"
 #include "Settings.hh"
 #include "Console.hh"
-#include "Views.hh"
-#include <map>
 
-class DebugConsole : public Console, private EventListener, private SettingListener
+class DebugView;
+
+
+class DebugConsole : public Console, private EventListener,
+                     private SettingListener
 {
 	public:
-		static DebugConsole * instance();
 		~DebugConsole ();
-		struct ViewStruct
-		{
+		static DebugConsole* instance();
+		
+		struct ViewStruct {
 			int cursorX;
 			int cursorY;
 			int columns;
 			int rows;
-			DebugView * view;
+			DebugView* view;
 		};
 		enum ViewType {DUMPVIEW};
-		int addView (int cursorX, int cursorY, int columns, int rows, DebugConsole::ViewType viewType);
-		bool removeView (int id);
-		void buildLayout ();
+		
+		int addView(int cursorX, int cursorY, int columns, int rows,
+		            ViewType viewType);
+		bool removeView(int id);
+		void buildLayout();
 		void loadLayout();
 		void saveLayout();
-		void resizeView (int cursorX, int cursorY, int columns, int rows, int id);
+		void resizeView(int cursorX, int cursorY, int columns,
+		                int rows, int id);
 		void updateViews();
-		int getScrollBack(){return 0;}
-		const std::string &getLine(int line);
+		int getScrollBack() { return 0; }
+		const string& getLine(unsigned line);
 		bool isVisible();
 		void getCursorPosition(int *xPosition, int *yPosition);
 		void setCursorPosition(int xPosition, int yPosition);
@@ -39,11 +45,12 @@ class DebugConsole : public Console, private EventListener, private SettingListe
 		void setConsoleDimensions(int columns, int rows);
 
 	private:
-		DebugConsole ();
+		DebugConsole();
 		void notify(Setting *setting);
 		bool signalEvent(SDL_Event &event);
-		std::map <int, struct DebugConsole::ViewStruct *> viewList;
-		std::vector<std::string> lines;
+		
+		map<int, ViewStruct*> viewList;
+		vector<string> lines;
 		BooleanSetting debuggerSetting;
 		int debugColumns;
 		int debugRows;
