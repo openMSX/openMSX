@@ -157,7 +157,6 @@ class Keys {
 			K_MENU		= SDLK_MENU,
 			K_POWER		= SDLK_POWER,	// Power Macintosh power key
 			K_EURO		= SDLK_EURO,	// Some european keyboards
-			K_UNDO		= SDLK_UNDO,	// Atari keyboard has Undo
 		};
 		
 		static Keys::KeyCode getCode(const std::string &name);

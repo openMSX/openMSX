@@ -172,7 +172,6 @@ void Keys::initialize()
 	keymap["MENU"]		= K_MENU;
 	keymap["POWER"]		= K_POWER;	// Power Macintosh power key
 	keymap["EURO"]		= K_EURO;	// Some european keyboards
-	keymap["UNDO"]		= K_UNDO;	// Atari keyboard has Undo
 }
 
 bool Keys::init = false;

@@ -6,14 +6,21 @@
 #include "openmsx.hh"
 #include "config.h"
 #include "Scheduler.hh"
+#include "ConsoleManager.hh"
+#include "CommandController.hh"
+#include "HotKey.hh"
 
 
 EventDistributor::EventDistributor()
 {
+	CommandController::instance()->registerCommand(bindCmd,   "bind");
+	CommandController::instance()->registerCommand(unbindCmd, "unbind");
 }
 
 EventDistributor::~EventDistributor()
 {
+	CommandController::instance()->unregisterCommand("bind");
+	CommandController::instance()->unregisterCommand("unbind");
 }
 
 EventDistributor *EventDistributor::instance()
@@ -95,3 +102,52 @@ void EventDistributor::unregisterEventListener(int type, EventListener *listener
 	syncMutex.release();
 }
 
+
+void EventDistributor::BindCmd::execute(const std::vector<std::string> &tokens)
+{
+	switch (tokens.size()) {
+	case 1:
+		// TODO show all bounded keys
+		break;
+	case 2:
+		// TODO show binding for this key
+		break;
+	case 3: {
+		Keys::KeyCode key = Keys::getCode(tokens[1]);
+		if (key == Keys::K_UNKNOWN)
+			throw CommandException("Unknown key");
+		HotKey::instance()->registerHotKeyCommand(key, tokens[2]);
+		break;
+	}
+	default:
+		throw CommandException("Syntax error");
+	}
+}
+void EventDistributor::BindCmd::help(const std::vector<std::string> &tokens)
+{
+	// TODO
+	ConsoleManager::instance()->print("bind:  TODO");
+}
+
+void EventDistributor::UnbindCmd::execute(const std::vector<std::string> &tokens)
+{
+	switch (tokens.size()) {
+	case 2:
+		// TODO unbind all for this key
+		break;
+	case 3: {
+		Keys::KeyCode key = Keys::getCode(tokens[1]);
+		if (key == Keys::K_UNKNOWN)
+			throw CommandException("Unknown key");
+		HotKey::instance()->unregisterHotKeyCommand(key, tokens[2]);
+		break;
+	}
+	default:
+		throw CommandException("Syntax error");
+	}
+}
+void EventDistributor::UnbindCmd::help(const std::vector<std::string> &tokens)
+{
+	// TODO
+	ConsoleManager::instance()->print("unbind:  TODO");
+}
