@@ -1,5 +1,9 @@
 $Id$
 
+2001-09-19 Joost Yervante Damad <j.damad@qahwah.net>
+	* various small fixes around the code
+	* the 16k rom still needs a C++ makeover
+
 2001-09-17 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* implemented kana/code led
 	* implemented joystick-ports. This is only the port, not the devices
