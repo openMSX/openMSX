@@ -15,14 +15,14 @@ class Runnable
 class Thread
 {
 	public:
-		Thread(Runnable* runnable);
+		Thread(Runnable *runnable);
 		void start();
 		void stop();
 
 	private:
-		static int startThread(Runnable* runnable);
+		static int startThread(void *runnable);
 
-		Runnable* runnable;
-		SDL_Thread* thread;
+		Runnable *runnable;
+		SDL_Thread *thread;
 };
 #endif

@@ -2,9 +2,9 @@
 
 #include "Thread.hh"
 
-Thread::Thread(Runnable* _runnable)
+Thread::Thread(Runnable *runnable)
 {
-	runnable = _runnable;
+	this->runnable = runnable;
 }
 
 void Thread::start()
@@ -17,8 +17,8 @@ void Thread::stop()
 	SDL_KillThread(thread);
 }
 
-int Thread::startThread(Runnable* runnable)
+int Thread::startThread(void *runnable)
 {
-	runnable->run();
+	((Runnable *)runnable)->run();
 	return 0;
 }

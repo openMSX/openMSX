@@ -1,16 +1,20 @@
 $Id$
 
+2002-01-12 Maarten ter Huurne <mth@stack.nl>
+	* Compile fix for Thread class:
+	  explicitly convert between Runnable pointer and void pointer.
+
 2002-01-12 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
-	* made a Thread class, interface is SDL independent, 
+	* made a Thread class, interface is SDL independent,
 	  implemenation uses SDL
 	* made a Mutex class, analog as Thread
 	* sync MSX-MUSIC and MSX-AUDIO on register write
 	* made all sound related classes (except Mixer) SDL independent
 
 2002-01-11 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
-	* Implemented RTC load/save on power on/off 
+	* Implemented RTC load/save on power on/off
 	  (this is not the same as saveState)
-	* Implemented FMPAC-SRAM load/save on power on/off 
+	* Implemented FMPAC-SRAM load/save on power on/off
 
 2002-01-10 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* MSXMemoryMapper <-> MSXMapperIO cleanup (thanks Maarten)
