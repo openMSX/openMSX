@@ -17,6 +17,18 @@ void FDCBackEnd::getSectorHeader(byte phystrack, byte track, byte sector, byte s
 	PRT_DEBUG("FDCBackEnd::getSectorHeader [unimplemented]");
 }
 
+void FDCBackEnd::initWriteTrack(byte phystrack, byte track, byte side)
+{
+	PRT_DEBUG("FDCBackEnd::initWriteTrack [unimplemented]");
+}
+
+void FDCBackEnd::writeTrackData(byte data)
+{
+	PRT_DEBUG("FDCBackEnd::writeTrackData [unimplemented]");
+}
+
+
+
 void FDCBackEnd::readSector(byte* buf, int logSector)
 {
 	byte track, side, sector;

@@ -3,18 +3,18 @@
 #include "FDC_DSK.hh"
 
 
-const int SECTOR_SIZE = 512;
-
 
 FDC_DSK::FDC_DSK(const std::string &fileName)
 {
 	file = new File(fileName, DISK);
 	nbSectors = file->size() / SECTOR_SIZE;
+	writeTrackBuf = new byte[SECTOR_SIZE];
 }
 
 FDC_DSK::~FDC_DSK()
 {
 	delete file;
+	delete[] writeTrackBuf;
 }
 
 void FDC_DSK::read(byte phystrack, byte track, byte sector, byte side,
@@ -55,5 +55,27 @@ void FDC_DSK::readBootSector()
 		nbSides = 1;
 	} else {
 		FDCBackEnd::readBootSector();
+	}
+}
+
+void FDC_DSK::initWriteTrack(byte phystrack, byte track, byte side)
+{
+	writeTrackBufCur=0;
+	writeTrack_phystrack=phystrack;
+	writeTrack_track=track;
+	writeTrack_side=side;
+	writeTrack_sector=1;
+}
+
+void FDC_DSK::writeTrackData(byte data)
+{
+	// if it is a 0xF7("two CRC characters") then the previous 512 bytes are actual sectordata bytes
+	// so write them and update sector counter.
+	if (data == 0xF7){
+		write(writeTrack_phystrack,writeTrack_track,writeTrack_sector,writeTrack_side,511,writeTrackBuf);
+		writeTrack_sector++;
+	} else {
+		writeTrackBuf[writeTrackBufCur++]=data;
+		writeTrackBufCur&=511;
 	}
 }

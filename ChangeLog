@@ -1,5 +1,9 @@
 $Id$
 
+2002-11-02 David Heremans <david.heremans@gnu-linux.net>
+	* Added two calls to the FDC backend:
+	   These should later be used to enable the writeTrack command
+
 2002-11-02 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Basic TC8566AF disk controller support (TurboR):
 	   - Based on code from NLMSX written by Frits Hilderink

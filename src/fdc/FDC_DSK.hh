@@ -6,6 +6,7 @@
 #include "FDCBackEnd.hh"
 #include "File.hh"
 
+const int SECTOR_SIZE = 512;
 
 class FDC_DSK : public FDCBackEnd
 {
@@ -17,12 +18,22 @@ class FDC_DSK : public FDCBackEnd
 		virtual void write(byte phystrack, byte track, byte sector,
 		                   byte side, int size, const byte* buf);
 
+		virtual void initWriteTrack(byte phystrack, byte track, byte side);
+		virtual void writeTrackData(byte data);
+
 	protected:
 		virtual void readBootSector();
 		int nbSectors;
 
 	private:
 		File* file;
+		byte* writeTrackBuf;
+		int writeTrackBufCur;
+		int writeTrackSectorCur;
+		byte writeTrack_phystrack;
+		byte writeTrack_track;
+		byte writeTrack_side;
+		byte writeTrack_sector;
 };
 
 #endif

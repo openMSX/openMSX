@@ -40,7 +40,9 @@ class FDCBackEnd
 		                             byte side, byte* buf);
 		virtual void getTrackHeader(byte phystrack, byte track,
 		                            byte side, byte* buf);
-
+		virtual void initWriteTrack(byte phystrack, byte track, byte side);
+		virtual void writeTrackData(byte data);
+		
 		void readSector(byte* buf, int sector);
 		void writeSector(const byte* buf, int sector);
 

@@ -227,6 +227,7 @@
     <parameter name="frequency">22050</parameter>
     <parameter name="samples">512</parameter>
   </config>
+  <!-- replaced with the SearchPaths section below
   <config id="rompath">
     <type>rompath</type>
     <parameter name="separator">/</parameter>
@@ -234,11 +235,27 @@
     <parameter name="2" class="path">TAPES</parameter>
     <parameter name="3" class="path">DISKS</parameter>
   </config>
+  -->
+
+  <config id="SearchPaths">
+    <parameter class="disk">disks</parameter>
+    <parameter class="rom">roms</parameter>
+    <parameter class="rom">cfg</parameter>
+    <parameter class="tape">tapes</parameter>
+    <parameter class="config">cfg</parameter>
+    <parameter class="state">cfg</parameter>
+  </config>
 
   <config id="Console">
     <type>Console</type>
-    <parameter name="font">ConsoleFont.bmp</parameter>
+    <parameter name="font">ConsoleFont.png</parameter>
     <parameter name="background">ConsoleBackground.bmp</parameter>
+  </config>
+
+  <config id="ExternalSlots">
+    <parameter name="slota">1-0</parameter>
+    <parameter name="slotb">2-0</parameter>
+
   </config>
 
 </msxconfig>

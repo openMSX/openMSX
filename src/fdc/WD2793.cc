@@ -269,6 +269,7 @@ void WD2793::setCommandReg(byte value,const EmuTime &time)
 	      PRT_DEBUG("FDC command: write track");
 	      statusReg &= 0x01 ;// reset lost data,record not found & status bits 5 & 6
 	      statusReg |= 2; DRQ=true;
+	      getBackEnd(current_drive)->initWriteTrack(current_track, trackReg,current_side); 
 	      //PRT_INFO("FDC command not yet implemented ");
 	    break;
 	}
@@ -343,6 +344,15 @@ void WD2793::setDataReg(byte value, const EmuTime &time)
 	  }
 	} else if ((commandReg&0xF0)==0xF0){ // WRITE TRACK
 	    PRT_DEBUG("WD2793 WRITE TRACK value "<<(int)value);
+	    getBackEnd(current_drive)->writeTrackData(value); 
+	    /* followin switch stement belongs in the backend, since we do not
+	     * know how the actual diskimage stores the data. It might simply
+	     * drop all the extra CRC/header stuff and just use some of the
+	     * switches to actually simply write a 512 bytes sector...
+	     *
+	     * However, timing should be done here :-\
+	     *
+	     
 	    switch ( value ){
 	      case 0xFE:
 	      case 0xFD:
@@ -368,6 +378,9 @@ void WD2793::setDataReg(byte value, const EmuTime &time)
 	    }
 	    	//shouldn't been done here !!
 		statusReg &= 0x7D ;// reset status on Busy(=bit7) reset DRQ bit(=bit1)
+	    */
+
+	    
 	    /*
 	    if (indexmark){
 		statusReg &= 0x7D ;// reset status on Busy(=bit7) reset DRQ bit(=bit1)
