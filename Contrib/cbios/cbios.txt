@@ -1,15 +1,18 @@
-/------------------------------------
-/C-BIOS ver 0.16
-/        Copyright(C) 2002-2003 BouKiCHi
-/------------------------------------
+/--------------------------------------------------------------
+/ C-BIOS ver 0.17
+/        Copyright(c) 2002-2003 BouKiCHi.  All rights reserved.
+/        Copyright(c) 2003 Reikan.  All rights reserved.
+/--------------------------------------------------------------
 
 このソフトウェアはMSXエミュレータを動作させるときに必要になる、
 BIOSの代りをするものです。
 カートリッジ動作を目的としています。
 ご使用の際にはご使用条件の項目を必ずご覧ください。
 
-◆使用方法
+＊ver 0.17以降の使用条件はver 0.16以前とは異なります。ご注意下さい。＊
 
+
+◆使用方法
 
 SETB.BATを使用してファイルを結合します。
 CBIOS.ROMが出来上がりますので、エミュレータ側で設定でBIOSに指定するか、
@@ -17,105 +20,152 @@ MSX.ROMにリネームします。
 
 SHIFTキーを押しながらの起動で、ダンプモードに入ります。
 
-◆ご使用条件 ver 2.0J
 
-　プログラムを使う際には以下の条件をご承諾ください。
-ご承諾できない場合は、ご使用なされないようお願いします。
 
-　このプログラムの著作権は作者にあり、ネット上にて作者が無償で配布したものです。
-このプログラムを使用したとしても、すべてのゲームやアプリケーションが
-正常に動くわけではなく、途中でバグったり、ハングアップする可能性もあります。
-その結果、あらゆる効果、損失に対し、作者は一切の責任を負わないこととします。
-使用者の責任においてご使用ください。
+◆使用条件
 
-　雑誌などのインターネット以外の媒体（メディア）での掲載、紹介は
-作者の了解なしに行わないようにしてください。
+ Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
+ Copyright (c) 2003 Reikan.  All rights reserved.
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 1. Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+ 2. Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+ 
+ THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+ IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+ INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-　このプログラムのネット上の再配布は制限しませんが、
-その場合、アーカイブを改変しないようにしてください。
 
-　改良はもちろん歓迎いたします。
+以下に参考訳を示しておきますが、訳の正確性について保証しません。
+使用条件(ライセンス)としては上記の英文を正式なものとし、
+上記の英文と下記の参考訳との間に差異が存在する場合は、
+上記の英文を優先するものとします。
+（注意）：従って、再配布に際して、下記の参考訳のみを含み、英文を含まない
+　　　　　場合は、再配布条件に違反することになります。
+　　　　　逆に、英文のみを含み、下記の参考訳を含まない場合は問題ありません。
 
-　改良ないし改変した場合は、改良・改変したことを、このテキストファイルか、
-あるいは新たなテキストファイルに記述さえしていただければ、
-どのような配布形態でもかまいません。
-（ソースの有無は問いませんが、あればうれしいです）
 
-　著作権表記は改変者名を記入することは可能ですが、
-著者名を記述した部分は改ざんしないでください。（追加は自由）
+ Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
+ Copyright (c) 2003 Reikan.  All rights reserved.
+ 
+ ソース形式・バイナリ形式 共に、改変の有無を問わず、再配布および使用は
+ 以下の条件が満たされる場合に許可されます。：
+ 1. 再配布されるソースコードには、
+    上記の著作権表記 および この使用条件表記 および 下記の免責規定が
+    保持されていなければなりません。
+ 2. バイナリ形式での再配布は、
+    上記の著作権表記 および この使用条件表記 および 下記の免責規定を
+    配布物に含まれる ドキュメント および／または 他の構成要素に
+    含めなければなりません。
+ 
+ このソフトウェアは著者により「現状のまま」で供給されるものであり、
+ 明示的または暗黙的を問わず、
+ 商用品として通常備えるべき品質を備えているという保証や
+ 特定の目的に適合するという保証を含めて(ただしこれらに限定しない)、
+ あらゆる保証をしません。
+ 事由・損害発生原因の如何を問わず、かつ、責任根拠の契約・厳格責任・
+ 不法行為（過失やその他を含む）を問わず、著者も寄与者も、
+ 仮にそのような損害が発生する可能性を知らされていたとしても、
+ このソフトウェアを使用したことによる直接的損害・間接的損害・偶発的損害・
+ 特殊な損害・典型的損害・結果的損害のいずれに対しても
+ （代替品またはサービスの提供や、使用機会・データ・利益の損失に対する補償、
+ 業務中断に対する補償を含めて(ただしこれらに限定しない)）
+ いっさいの責任を負いません。
+
+
 
 ◆履歴
-ver 0.01　初版
 
-ver 0.02  02/08/15
+ver 0.01  初版
+ver 0.02  2002-08-15
           オリジナルフォントを搭載し画面表示を行うようにした。
-　　　　　ダンプモードを搭載した。カートリッジの認識方法を変更し、
+          ダンプモードを搭載した。カートリッジの認識方法を変更し、
           カートリッジを優先的に認識できるようにした。
-ver 0.03  02/08/19
+ver 0.03  2002-08-19
           Okeiさんの提言によりBIOSの20h(HLとDEの比較)を書いた結果、
           某社製ソフトのシューティングがかなり動くようになりました。
           Okeiさんに感謝！！
-ver 0.04  02/08/20
+ver 0.04  2002-08-20
           FCC2h-FCC4hの初期化を行った。
           GTSTCKとGTTRIGの機能を暫定的に追加した。
           msxb.binを半分に分割した。setb.batで結合とコピーを行うようにした。
-ver 0.05  02/08/27
-	  INITGRP(Screen2のみ),CHGMOD(グラフィックモード変更ルーチン）
+ver 0.05  2002-08-27
+          INITGRP(Screen2のみ),CHGMOD(グラフィックモード変更ルーチン）
           H.STKEを呼び出すルーチンを追加した。
-　　　　　メモリ認識システムを書き換えた。
-　　　　　その他、色々なバグをフィックスした。
-	  サウンドテスト機能を追加しました。
-ver 0.06  02/09/01
-	  色関係を修正。
-ver 0.07  02/09/09
+          メモリ認識システムを書き換えた。
+          その他、色々なバグをフィックスした。
+          サウンドテスト機能を追加しました。
+ver 0.06  2002-09-01
+          色関係を修正。
+ver 0.07  2002-09-09
           各種キーボードルーチンを追加した。
           GTSTCKとGTTRIGにジョイスティック機能を追加した。
-ver 0.08  02/09/12
+ver 0.08  2002-09-12
           メモリ初期化ルーチンを再構成。
           エラー表示ルーチンを追加。
           カートリッジ等検索ルーチンを修正。
           EXPTBLの使用方法を修正。
           RG8SAVからRG23SAを初期化した。
           ENASLTルーチンから割り込み禁止のまま戻すようにした。
-ver 0.09  02/09/19
-　　　　　フォントの残り半分を作成した。
-　　　　　キー入力ルーティンを改善した。
-　　　　　CHPUTを新設した。それに伴って表示ルーチンを書きなおした。
-	  init_grpを修正した。
-　　　　　ファイル名をCBIOS.ROM、CBIOS_SUB.ROMに変更した。
-ver 0.10  02/09/20
-	  インデントの修正など。
-ver 0.10a 02/09/22
+ver 0.09  2002-09-19
+          フォントの残り半分を作成した。
+          キー入力ルーティンを改善した。
+          CHPUTを新設した。それに伴って表示ルーチンを書きなおした。
+          init_grpを修正した。
+          ファイル名をCBIOS.ROM、CBIOS_SUB.ROMに変更した。
+ver 0.10  2002-09-20
+          インデントの修正など。
+ver 0.10a 2002-09-22
           注意の項目を少し使用条件を修正。
           Page3のROMに対応。
-ver 0.11  02/09/22
+ver 0.11  2002-09-22
           init_sc5に若干の修正を加えた。
 ver 0.12beta
-          02/09/25
+          2002-09-25
           ディスクアクセス用の試作ルーチンを追加。要DISK.ROM。
           init_sc7を追加した。
           ENASLTを改良し、カートリッジ検索にENASLTを使用するように。
           RAM検出を改良した。
-ver 0.12  02/09/27
+ver 0.12  2002-09-27
           カートリッジ検出を再度変更。
           カートリッジ実行時の画面モードを変更。
           キーボードルーチンの修正。
           スティックルーチンの割り込みに対する修正。
-ver 0.13  02/10/02
+ver 0.13  2002-10-02
           OpenMSX開発者、Maarten氏の情報から
           SCREEN 5関連を修正。
           具体的にはライン数の切り替え、
           VDPステータスレジスタの読み込みバグの一時的処置など。
-ver 0.14  02/10/10
-	  ソース中のコメントを日本語で書き直した。
-ver 0.15  03/02/26
+ver 0.14  2002-10-10
+          ソース中のコメントを日本語で書き直した。
+ver 0.15  2003-02-26
           一部コメントを再度、英語に。
-　　　　　フォントファイルが欠落していてコンパイルできない状況を修正した。
-　　　　　ファイル名や一部ラベル名、文字列などを変更した。
+          フォントファイルが欠落していてコンパイルできない状況を修正した。
+          ファイル名や一部ラベル名、文字列などを変更した。
+ver 0.16  2003-04-16
+          ソースからサウンドテストを分離した。
+          （無効化してあります）
+ver 0.16a 2003-06-01
+          CHGMOD で screen0/1 時にフォントをVRAMへロードするようにした。
+          CHPUT がscreen0専用になっていたのをscreen1にも対応した。
+ver 0.16b 2003-08-10
+          INITXT, INIT32 内の画面クリアに失敗していたのを直した。
+          CHPUT 内でのスクロール処理がおかしかったのを直した。
+ver 0.17  2003-08-10
+          使用条件(ライセンス)の変更。
 
-ver 0.16  03/04/16
-	　ソースからサウンドテストを分離した。
-	　（無効化してあります）
 
 ◆スペシャルサンクス
 MSX情報をネットにアップされている方々。

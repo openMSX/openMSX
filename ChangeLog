@@ -1,5 +1,8 @@
 $Id$
 
+2003-08-13 Maarten ter Huurne <maarten@treewalker.org>
+	* Reikan released C-BIOS 0.17; I updated it in Contrib.
+
 2003-08-12 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Now any file can be gzipped, including files loaded by SDL and libxml
 

@@ -1,50 +1,77 @@
-; C-BIOS ver 0.16
-; copyright(c) 2002-2003 BouKiCHi
+; C-BIOS ver 0.17
+;
+; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
+; Copyright (c) 2003 Reikan.  All rights reserved.
+;
+; Redistribution and use in source and binary forms, with or without
+; modification, are permitted provided that the following conditions
+; are met:
+; 1. Redistributions of source code must retain the above copyright
+;    notice, this list of conditions and the following disclaimer.
+; 2. Redistributions in binary form must reproduce the above copyright
+;    notice, this list of conditions and the following disclaimer in the
+;    documentation and/or other materials provided with the distribution.
+;
+; THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+; IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+; OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+; IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+; INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+; NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+; DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+; THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+; (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+; THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+;
 ;
 ; [date]
-; 2002/08/07 start development.
-; 2002/08/09 it's my birthday,this version was playable games.
-; 2002/08/13 added fonts and key input routine,displayed infomation.
+; 2002-08-07 start development.
+; 2002-08-09 it's my birthday,this version was playable games.
+; 2002-08-13 added fonts and key input routine,displayed infomation.
 ;
-; 2002/08/15 improved cartridge knowledge.
-; 2002/08/19 added DCOMPR function and adjusted wait.
-; 2002/08/20 added initilize table of $fcc2-$fcc4
+; 2002-08-15 improved cartridge knowledge.
+; 2002-08-19 added DCOMPR function and adjusted wait.
+; 2002-08-20 added initilize table of $fcc2-$fcc4
 ;            added in_joy and in_trig
 ;            filesize reduced from 32KB to 16KB.
 ;	     set.bat can be restoring for only 32kb readable emulators. 
-; 2002/08/21 name of this project was changed.
-; 2002/08/24 added INITGRP,CHGMOD and sound_init.
-; 2002/08/26 added initialize value of GRP??? and MLT???.
+; 2002-08-21 name of this project was changed.
+; 2002-08-24 added INITGRP,CHGMOD and sound_init.
+; 2002-08-26 added initialize value of GRP??? and MLT???.
 ;            re-adjust memory ack function.
 ;            added calling H.STKE function.
 ;            re-adjust routines.
-; 2002/08/27 added sound mode.
+; 2002-08-27 added sound mode.
 ;            syntax adjust for other assemblers.
 ;            fixed RDPRIM.
-; 2002/09/08 fixed WRSLT.
+; 2002-09-08 fixed WRSLT.
 ;            added keyboard routine.
 ;            added GTSTCK and GTTRIG.
-; 2002/09/10 improved clearing memory routine.
+; 2002-09-10 improved clearing memory routine.
 ;            added memory saving trap.
-; 2002/09/11 added print_error function.
+; 2002-09-11 added print_error function.
 ;            added ROM searching and fixed usage of EXPTBL.
-; 2002/09/12 initilize from RG8SAV to RG23
+; 2002-09-12 initilize from RG8SAV to RG23
 ;            ENASLT returns state of disable interrupt.
-; 2002/09/16 added half of system font.
-; 2002/09/18 added CHPUT routine.
+; 2002-09-16 added half of system font.
+; 2002-09-18 added CHPUT routine.
 ;            rewrite curs2de and de2curs routine again.
-; 2002/09/19 improved stroke speed of keyboard input.
+; 2002-09-19 improved stroke speed of keyboard input.
 ;	     added scroll routines.
 ;	     fixed init_grp.
-; 2002/09/22 fixed init_sc5.
-; 2002/09/23 added disk routine.
-; 2002/09/25 rewrite ENASLT.
+; 2002-09-22 fixed init_sc5.
+; 2002-09-23 added disk routine.
+; 2002-09-25 rewrite ENASLT.
 ;            added init_sc7.
-; 2002/09/26 fixed keyboard routine.
-; 2002/10/02 improved init_sc5.
-; 2003/04/16 divided sound routine from main kernel.
+; 2002-09-26 fixed keyboard routine.
+; 2002-10-02 improved init_sc5.
+; 2003-04-16 divided sound routine from main kernel.
+; 2003-06-01 fixed chgmod related. (init_txt, init_txt32 font load added)
+;            fixed curs2de, de2curs (screen1 support added)
+; 2003-08-10 fixed clear problem in init_txt, init_txt32.
+;            fixed scroll in CHPUT on txt40/graphic1 modes.
 
-;        title "C-BIOS ver 0.16 by BouKiCHi"
+;        title "C-BIOS ver 0.17 by BouKiCHi/Reikan"
 
 ;---------------------------------------------------
 ; I/Oとフックの定義
@@ -123,6 +150,8 @@ CLIKSW          equ $F3DB      ; Key Click.
 STATFL          equ $F3E7
 RG0SAV          equ $F3DF
 RG1SAV          equ $F3E0
+
+RG4SAV          equ $F3E3
 
 RG8SAV          equ $FFE7
 
@@ -305,7 +334,15 @@ romid
         org     $0069
         ret
 
-;0072h INITGRP	VDPをグラフィックモードに初期化。
+;006Ch INITXT	画面をTEXT1モードに初期化。
+	org	$006C
+	jp	init_txt
+
+;006Fh INIT32	画面をGRAPHIC1モードに初期化。
+	org	$006F
+	jp	init_txt32
+
+;0072h INITGRP	画面をGRAPHIC2モードに初期化。
 
         org     $0072
         jp      init_grp
@@ -944,6 +981,7 @@ init_vdp
         ld      bc,$0800
         call    vdp_fillmem
 
+;				for screen 1 color table
         ld      a ,$F5
         ld      hl,$2000
         ld      bc,$0020
@@ -964,7 +1002,7 @@ init_vdp
         ld      hl,B_Font
 
         ld      de,$800
-        ld      bc,$1000
+        ld      bc,$800
         call    vdp_data_rep
 
 
@@ -974,13 +1012,23 @@ init_vdp
 ; 画面表示されているテキストをクリアする。
 clr_text40
         xor     a,a
-        ld      bc,$0800
-        ld      hl,$0000
+        ld      bc,$0400
+        ld      hl,(TXTNAM)
         call    vdp_fillmem
         ld      a,1
         ld      (CSRY),a
         ld      (CSRX),a
         ret
+
+clr_text32
+	xor	a,a
+	ld	bc,$0300
+	ld	hl,(T32NAM)
+	call	vdp_fillmem
+	ld	a,1
+	ld	(CSRY),a
+	ld	(CSRX),a
+	ret
 
 ;------------------------
 ; RAMの初期化
@@ -1053,7 +1101,13 @@ init_ram
         ld      bc,m_prim_end-m_rdprim
         ldir
 
-; screen 1用テーブルの初期化。
+; screen 0 テーブルの初期化。
+	ld	hl,$0000
+	ld	(TXTNAM),hl
+	ld	hl,$0800
+	ld	(TXTCGP),hl
+
+; screen 1 テーブルの初期化。
         ld      hl,$1800
         ld      (T32NAM),hl
         ld      hl,$2000
@@ -1077,13 +1131,24 @@ init_ram
         ld      hl,$3800
         ld      (GRPPAT),hl
 
+; screen 3 テーブルの初期化
+        ld      hl,$0800
+        ld      (MLTNAM),hl
+        ld      hl,$0000
+        ld      (MLTCGP),hl
+        ld      hl,$1B00
+        ld      (MLTATR),hl
+        ld      hl,$3800
+        ld      (MLTPAT),hl
+
 ; その他の設定。
-        ld      a,37
-        ld      (LINLEN),a
+        ld      a,39
+        ld      (LINL40),a
         ld      a,29
         ld      (LINL32),a
-        ld      a,37
-        ld      (LINL40),a
+;        ld      a,29
+        ld      a,39
+        ld      (LINLEN),a
         ld      a,24
         ld      (CRTCNT),a
 
@@ -1491,8 +1556,18 @@ curs2de
         push    bc
         push    hl
 
+	xor	a
+	ld	hl,SCRMOD
+	cp	(hl)
+	jr	nz,c2d_scr1
+        ld      hl,(TXTNAM)
         ld      de,40    ; text40 
-        ld      hl,$0000
+	jr	c2d_do
+c2d_scr1
+	ld	hl,(T32NAM)
+	ld	de,32	; text32
+;	jr	c2d_do
+c2d_do
 
         ld      a,(CSRY)
         cp      a,2
@@ -1528,11 +1603,24 @@ de2curs
         push    de
         push    hl
 
-        ; 256 - 16 = 240
         ex      de,hl
+
+	xor	a
+	ld	hl,SCRMOD
+	cp	(hl)
+	jr	nz,d2c_scr1
+        ld      de,(TXTNAM)
         ld      bc,40
-        ld      de,$0000
-        jr      under_chk
+        jr      d2c_do
+d2c_scr1
+	ld	de,(T32NAM)
+	ld	bc,32	; text32
+;	jr	d2c_do
+d2c_do
+	inc	a
+	ld	c,a
+	jr	under_chk
+
 d2c_sub_lp
         and     a
         sbc     hl,bc
@@ -2300,7 +2388,7 @@ sft_lp
 ;005Fh CHGMOD   画面モードの変更
 chgmod
         or      a,a
-        jp      z,init_text  ; screen 0
+        jp      z,init_txt   ; screen 0
         dec     a
         jp      z,init_txt32 ; screen 1
         dec     a
@@ -2322,7 +2410,9 @@ chgmod
 
         ret
 
-init_text
+;--------------------------------
+;006Ch INITXT
+init_txt
         ld      a,$00
         ld      (SCRMOD),a
 
@@ -2349,17 +2439,37 @@ init_text
 
         call    wrt_vdp		; write VDP R#1
 
+	ld	bc,$0104	; R#4 PatGenTBLaddr=$0800
+	call	wrt_vdp		; write VDP R#4
+
+	ld	bc,$0002	; R#2 PatNamTBLaddr=$0000
+	call	wrt_vdp		; write VDP R#2
+
+        in      a,(VDP_STAT)	; reset Latch
+
+        ld      hl,B_Font
+        ld      de,(TXTCGP)
+        ld      bc,$800
+        call    vdp_data_rep	; init Font
+
+        ld     hl,$0000
+        ld     (NAMBAS),hl
+        ld     hl,$0800
+        ld     (CGPBAS),hl
+
+	ld	a,39
+	ld	(LINLEN),a
+
         ret
 
-;????h INITTXT32
+;--------------------------------
+;006Fh INIT32
 init_txt32
         ; screen 1
         ld      a,$01
         ld      (SCRMOD),a
 
-        call    clr_text40
-
-        in      a,(VDP_STAT)	; reset Latch
+        call    clr_text32
 
         call    chgclr
 
@@ -2443,8 +2553,20 @@ tcol_lp
         ld     c,6
         call   wrt_vdp         ; write VDP R#6
 
+        in      a,(VDP_STAT)	; reset Latch
+
+        ld      hl,B_Font
+        ld      de,(T32CGP)
+        ld      bc,$800
+        call    vdp_data_rep	; init Font
 
 
+;        ld      a,1
+;        ld      (CSRY),a
+;        ld      (CSRX),a
+
+	ld	a,29
+	ld	(LINLEN),a
 
         ret
 
@@ -2583,6 +2705,61 @@ ch_put
         pop     af
         pop     de
 	ret
+
+scr_txt_mode
+        pop     af
+        push    af
+
+	; CTRL code
+        cp      a,$08
+        jp      z,back_spc
+        cp      a,$0d
+        jp      z,ctrl_cr
+        cp      a,$0a
+        jp      z,ctrl_lf
+
+	; Charactor code
+
+        call    set_curs
+        pop     af
+        push    af
+        out     (VDP_DATA),a
+        ld      a,(LINLEN)
+        ld      e,a
+        ld      a,(CSRX)
+        cp      a,e
+        jr      nc,chput_nx
+
+	; next point
+        inc     a
+chput_ret
+        ld      (CSRX),a
+        pop     af
+        pop     de
+	ret
+chput_nx
+	ld	a,(CRTCNT)
+	ld	e,a
+	ld	a,(CSRY)
+	cp	a,e
+	jr	nc,chput_scrll
+        ld      a,(CSRY)
+        inc     a
+        ld      (CSRY),a
+        ld      a,1
+	jr	chput_ret
+chput_scrll
+	call	scroll_txt
+	ld	a,1
+	jr	chput_ret
+
+set_curs
+        call    curs2de
+        ex      de,hl
+        call    vdp_setwrt
+        ex      de,hl
+	ret
+
 back_spc
         ld      a,(CSRX)
         cp      a,2
@@ -2617,105 +2794,77 @@ ctrl_lf
         pop     de
 	ret
 lf_scroll
-	; スクロールルーチン
-        push    hl
+	call	scroll_txt
+	pop	af
+	pop	de
+	ret
+
+; スクロールルーチン
+scroll_txt
+	push	af
         push    bc
+        push    hl
+        push	de
         ld      hl,(NAMBAS)
         ld      de,LINWRK
         ld      a,(CRTCNT)
-        ld      (CSRY),a
-        dec     a
+;        ld      (CSRY),a
+;        dec     a
         ld      b,a
+	ld	a,(SCRMOD)
+	and	a
+	jr	nz,scroll_n0
+	ld	c,40
+	jr	scr_loop
+scroll_n0
+	dec	a
+	jr	nz,scroll_n1
+	ld	c,32
 
 scr_loop
-        push    bc
+	push	bc
+	xor	a
+	ld	b,a
 
-        ld      bc,40
         add     hl,bc
-
         push    hl
         push    de
+	push	bc
         call    vdp_ldirmv  ; HL=VRAM,DE=RAM,BC=LENGTH
+	pop	bc
         pop     de
         pop     hl
 
-        ld      bc,$FFD8   ; -40
-        add     hl,bc
+	sbc	hl,bc
 
         ex      de,hl      ; DE = VRAM,HL = RAM
 
-        ld      bc,40
         push    hl
         push    de
+	push	bc
         call    vdp_data_rep
+	pop	bc
         pop     de
         pop     hl
 
         ex      de,hl      ; DE = RAM,HL = VRAM
 
-        ld      bc,40      ; 80
         add     hl,bc
-        pop     bc
 
+	pop	bc
         djnz    scr_loop
 
-        ld      bc,40
         ld      a,0
         call    vdp_fillmem
 
-        pop     bc
+
+scroll_n1
+        pop     de
         pop     hl
+        pop     bc
         pop     af
-        pop     de
 	ret
 
-scr_txt_mode
-        pop     af
-        push    af
-
-	; CTRL code
-        cp      a,$08
-        jp      z,back_spc
-        cp      a,$0d
-        jp      z,ctrl_cr
-        cp      a,$0a
-        jp      z,ctrl_lf
-
-	; Charactor code
-
-        call    set_curs
-        pop     af
-        push    af
-        out     (VDP_DATA),a
-        ld      a,(LINLEN)
-        ld      e,a
-        ld      a,(CSRX)
-        cp      a,e
-        jr      nc,next_ptr
-
-	; next point
-        inc     a
-        ld      (CSRX),a
-        pop     af
-        pop     de
-	ret
-
-next_ptr
-        ld      a,1
-        ld      (CSRX),a
-        ld      a,(CSRY)
-        inc     a
-        ld      (CSRY),a
-        pop     af
-        pop     de
-	ret
-
-set_curs
-        call    curs2de
-        ex      de,hl
-        call    vdp_setwrt
-        ex      de,hl
-	ret
 
 
 ;-----------------------
@@ -3209,7 +3358,7 @@ lp_clearmem
         jr      nz,lp_clearmem
 
         ld      hl,B_Font
-        ld      bc,$1000
+        ld      bc,$800
 lp_fontset
         ld      a,(hl)
         out     (VDP_DATA),a
@@ -3362,8 +3511,9 @@ disk_error
 
 str_proginfo
 ;                0123456789012345678901234567890123456789 
-        db      "C-BIOS ver 0.16",$0d,$0a
+        db      "C-BIOS ver 0.17",$0d,$0a
         db      "Copyright (C) 2002-2003 BouKiCHi",$0d,$0a
+        db      "Copyright (C) 2003 Reikan",$0d,$0a
         db      $00
 
 str_slot
