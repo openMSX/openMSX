@@ -28,7 +28,7 @@ class AY8910Interface
 class AY8910 : public SoundDevice
 {
 	public:
-		AY8910(AY8910Interface &interf, const EmuTime &time); 
+		AY8910(AY8910Interface &interf, short volume, const EmuTime &time); 
 		virtual ~AY8910(); 
 	
 		byte readRegister(byte reg, const EmuTime &time);

@@ -1,5 +1,6 @@
 // $Id$
 
+#include <cassert>
 #include "MSXMapperIOPhilips.hh"
 
 MSXMapperIOPhilips::MSXMapperIOPhilips()

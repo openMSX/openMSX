@@ -3,13 +3,9 @@
 #ifndef __MSXMAPPERIO_HH__
 #define __MSXMAPPERIO_HH__
 
-#include <iostream>
-#include <fstream>
-#include <string>
-#include "EmuTime.hh"
-#include "MSXIODevice.hh"
+#include "openmsx.hh"
 
-class MSXMapperIODevice
+class MSXMapperIO
 {
 	public:
 		/**
@@ -26,39 +22,4 @@ class MSXMapperIODevice
 		virtual void registerMapper(int blocks) = 0;
 };
 
-class MSXMapperIO : public MSXIODevice
-{
-	public:
-		/**
-		 * Destructor
-		 */
-		~MSXMapperIO();
-
-		/**
-		 * This is a singleton class. This method returns a reference
-		 * to the single instance of this class.
-		 */
-		static MSXMapperIO *instance();
-		
-		byte readIO(byte port, const EmuTime &time);
-		void writeIO(byte port, byte value, const EmuTime &time);
-		
-		void reset(const EmuTime &time);
-		
-		void registerMapper(int blocks);
-		byte getPageNum(int page);
-	
-	private:
-		/**
-		 * Constructor.
-		 */
-		MSXMapperIO(MSXConfig::Device *config, const EmuTime &time);
-
-		static MSXMapperIO *oneInstance;
-
-		MSXMapperIODevice *device;
-		byte pageNum[4];
-};
-
-#endif //__MSXMAPPERIO_HH__
-
+#endif

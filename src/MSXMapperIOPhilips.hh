@@ -5,7 +5,7 @@
 
 #include "MSXMapperIO.hh"
 
-class MSXMapperIOPhilips : public MSXMapperIODevice
+class MSXMapperIOPhilips : public MSXMapperIO
 {
 	public:
 		MSXMapperIOPhilips();

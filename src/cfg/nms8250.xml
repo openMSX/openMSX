@@ -11,10 +11,10 @@
     <parameter name="3" class="subslotted">true</parameter>
   </config>
 
-  <device id="Mapper IO">
+  <config id="MapperIO">
     <type>MapperIO</type>
     <parameter name="type">Philips</parameter>
-  </device>
+  </config>
 
   <device id="Main RAM">
     <type>MemoryMapper</type>
@@ -104,7 +104,8 @@
 
   <device id="ppi">
     <type>PPI</type>
-    <parameter name="foo_bug">no</parameter>
+    <parameter name="volume">16000</parameter>
+    <parameter name="key_ghosting">true</parameter>
   </device>
 
   <device id="VDP">
@@ -120,6 +121,7 @@
 
   <device id="psg">
     <type>PSG</type>
+    <parameter name="volume">21000</parameter>
   </device>
 
   <device id="Real time clock">
@@ -153,6 +155,12 @@
   <device id="cpu">
     <type>CPU</type>
   </device>
+
+  <config id="Mixer">
+    <type>Mixer</type>
+    <parameter name="frequency">22050</parameter>
+    <parameter name="samples">512</parameter>
+  </config>
 
 </msxconfig>
 

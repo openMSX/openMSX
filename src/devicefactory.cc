@@ -14,7 +14,6 @@
 #include "MSXFmPac.hh"
 #include "MSXKanji.hh"
 #include "MSXMemoryMapper.hh"
-#include "MSXMapperIO.hh"
 #include "MSXRTC.hh"
 #include "MSXRealTime.hh"
 #include "MSXMegaRom.hh"
@@ -30,9 +29,6 @@ MSXDevice *deviceFactory::create(MSXConfig::Device *conf, const EmuTime &time) {
 	} else
 	if (conf->getType()=="RealTime") {
 		device = MSXRealTime::instance();
-	} else
-	if (conf->getType()=="MapperIO") {
-		device = MSXMapperIO::instance();
 	} else
 	if (conf->getType()=="PPI") {
 		device = new MSXPPI(conf, time);

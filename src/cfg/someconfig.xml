@@ -87,7 +87,8 @@
 
   <device id="ppi">
     <type>PPI</type>
-    <parameter name="foo_bug">no</parameter>
+    <parameter name="volume">16000</parameter>
+    <parameter name="key_ghosting">true</parameter>
   </device>
 
   <device id="VDP">
@@ -107,50 +108,51 @@
 
   <device id="psg">
     <type>PSG</type>
+    <parameter name="volume">21000</parameter>
   </device>
-
+<!--
   <device id="Kanji ROM">
     <type>Kanji</type>
     <parameter name="filename">KANJI.ROM</parameter>
     <parameter name="skip_headerbytes">0</parameter>
   </device>
 
-  <device id="Mapper IO">
+  <config id="MapperIO">
     <type>MapperIO</type>
     <parameter name="type">Philips</parameter>
-  </device>
-<!--
+  </config>
+
   <device id="mymapper1">
     <type>MemoryMapper</type>
     <slotted>
-      <ps>1</ps>
-      <ss>0</ss>
+      <ps>3</ps>
+      <ss>2</ss>
       <page>0</page>
     </slotted>
     <slotted>
-      <ps>1</ps>
-      <ss>0</ss>
+      <ps>3</ps>
+      <ss>2</ss>
       <page>1</page>
     </slotted>
     <slotted>
-      <ps>1</ps>
-      <ss>0</ss>
+      <ps>3</ps>
+      <ss>2</ss>
       <page>2</page>
     </slotted>
     <slotted>
-      <ps>1</ps>
-      <ss>0</ss>
+      <ps>3</ps>
+      <ss>2</ss>
       <page>3</page>
     </slotted>
     <parameter name="slow_drain_on_reset">false</parameter>
     <parameter name="size">512</parameter>
   </device>
--->
+
   <device id="Real time clock">
     <type>RTC</type>
     <parameter name="mode">EmuTime</parameter>
   </device>
-
+-->
   <device id="Real time synchronizer">
     <type>RealTime</type>
   </device>
@@ -182,6 +184,7 @@
     </slotted>
     <parameter name="filename">FMPAC.ROM</parameter>
     <parameter name="skip_headerbytes">0</parameter>
+    <parameter name="volume">20000</parameter>
   </device>
 -->
 <!--
@@ -194,12 +197,19 @@
     </slotted>
     <parameter name="filename">MUSIC.ROM</parameter>
     <parameter name="skip_headerbytes">0</parameter>
+    <parameter name="volume">20000</parameter>
   </device>
 -->
  
   <device id="cpu">
     <type>CPU</type>
   </device>
+
+  <config id="Mixer">
+    <type>Mixer</type>
+    <parameter name="frequency">22050</parameter>
+    <parameter name="samples">512</parameter>
+  </config>
   
 </msxconfig>
 

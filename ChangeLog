@@ -1,5 +1,15 @@
 $Id$
 
+2001-12-10 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* Cleanups in MSXMemoryMapper, requires config file change
+	* More config file changes:
+	    PSG   -> volume parameter
+	    MUSIC -> volume parameter
+	    PPI   -> volume parameter
+	          -> key_ghosting parameter
+	    Mixer -> frequency parameter
+	          -> samples parameter
+
 2001-12-09 Maarten ter Huurne <mth@stack.nl>
 	* Faked enough V9938 features to make nms8250.xml boot.
 

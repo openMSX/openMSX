@@ -17,9 +17,9 @@
 #include "Mixer.hh"
 
 
-AY8910::AY8910(AY8910Interface &interf, const EmuTime &time) : interface(interf)
+AY8910::AY8910(AY8910Interface &interf, short volume, const EmuTime &time) : interface(interf)
 {
-	setVolume(21000);	// TODO find a good value and put it in config file
+	setVolume(volume);
 	int bufSize = Mixer::instance()->registerSound(this);
 	buffer = new int[bufSize];
 	reset(time);

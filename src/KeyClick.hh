@@ -12,7 +12,7 @@
 class KeyClick
 {
 	public:
-		KeyClick(const EmuTime &time); 
+		KeyClick(short volume, const EmuTime &time); 
 		virtual ~KeyClick(); 
 	
 		void reset(const EmuTime &time);

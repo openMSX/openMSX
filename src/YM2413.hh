@@ -89,7 +89,7 @@ class YM2413 : public SoundDevice
 	};
 	
 	public:
-		YM2413();
+		YM2413(short volume);
 		virtual ~YM2413();
 
 		void reset();

@@ -11,7 +11,8 @@ MSXMusic::MSXMusic(MSXConfig::Device *config, const EmuTime &time)
 	
 	MSXMotherBoard::instance()->register_IO_Out(0x7c, this);
 	MSXMotherBoard::instance()->register_IO_Out(0x7d, this);
-	ym2413 = new YM2413();
+	short volume = (short)deviceConfig->getParameterAsInt("volume");
+	ym2413 = new YM2413(volume);
 	loadFile(&memoryBank, 0x4000);
 	reset(time);
 }

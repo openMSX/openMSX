@@ -607,7 +607,7 @@ void YM2413::Channel::reset()
 
 
 // Constructor
-YM2413::YM2413()
+YM2413::YM2413(short volume)
 {
 	for (int i=0; i<19*2; i++) {
 		patch[i] = new Patch();
@@ -632,7 +632,7 @@ YM2413::YM2413()
 	reset();
 	reset_patch();
 
-	setVolume(20000);	// TODO find a god value and put it in config file
+	setVolume(volume);
 	int bufSize = Mixer::instance()->registerSound(this);
 	buffer = new int[bufSize];
 }

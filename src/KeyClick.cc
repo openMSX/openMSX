@@ -7,9 +7,9 @@
 #include "MSXCPU.hh"
 
 
-KeyClick::KeyClick(const EmuTime &time)
+KeyClick::KeyClick(short volume, const EmuTime &time)
 {
-	dac = new DACSound(15000, time);	// TODO find a good value and put it in config file
+	dac = new DACSound(volume, time);
 	status = false;
 }
 

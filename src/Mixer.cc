@@ -5,15 +5,19 @@
 #include "Mixer.hh"
 #include "MSXCPU.hh"
 #include "MSXRealTime.hh"
+#include "msxconfig.hh"
 
 
 Mixer::Mixer()
 {
 	PRT_DEBUG("Creating a Mixer object");
 	
+	MSXConfig::Config *config = MSXConfig::instance()->getConfigById("Mixer");
+	int freq    = config->getParameterAsInt("frequency");
+	int samples = config->getParameterAsInt("samples");
 	SDL_AudioSpec desired;
-	desired.freq     = 22050;		// TODO make configurable
-	desired.samples  = 512;			// TODO make configurable
+	desired.freq     = freq;
+	desired.samples  = samples;
 	desired.channels = 2;			// stereo
 	desired.format   = AUDIO_S16LSB;	// TODO check low|high endian
 	desired.callback = audioCallbackHelper;	// must be a static method

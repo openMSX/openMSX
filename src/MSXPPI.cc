@@ -13,9 +13,11 @@ MSXPPI::MSXPPI(MSXConfig::Device *config, const EmuTime &time)
 {
 	PRT_DEBUG("Creating an MSXPPI object");
 	
-	keyboard = new Keyboard(true); // TODO make configurable
+	short volume = (short)deviceConfig->getParameterAsInt("volume");
+	bool keyGhosting = deviceConfig->getParameterAsBool("key_ghosting");
+	keyboard = new Keyboard(keyGhosting);
 	i8255 = new I8255(*this, time);
-	click = new KeyClick(time);
+	click = new KeyClick(volume, time);
 	
 	// Register I/O ports A8..AB for reading
 	MSXMotherBoard::instance()->register_IO_In(0xA8,this);
