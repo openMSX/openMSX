@@ -105,13 +105,22 @@ public:
 		return displayMode;
 	}
 
+	/** Is the given mode a text mode?
+	  * Text1 and Text2 are text modes.
+	  * @param mode Mode to test for text mode.
+	  * @return True iff the current mode is a bitmap mode.
+	  */
+	inline static bool isTextMode(int mode) {
+		// TODO: Is the display mode check OK? Profile undefined modes.
+		return (mode & 0x17) == 0x01;
+	}
+
 	/** Is the current mode a text mode?
 	  * Text1 and Text2 are text modes.
 	  * @return True iff the current mode is a bitmap mode.
 	  */
 	inline bool isTextMode() {
-		// TODO: Is the display mode check OK? Profile undefined modes.
-		return (displayMode & 0x17) == 0x01;
+		return isTextMode(displayMode);
 	}
 
 	/** Is the specified mode a bitmap mode?
@@ -151,6 +160,32 @@ public:
 	  */
 	inline bool isPlanar() {
 		return isPlanar(displayMode);
+	}
+
+	/** Get the sprite mode of a given display mode.
+	  * @param mode Display mode to get sprite mode for.
+	  * @return The current sprite mode:
+	  * 	0 means no sprites,
+	  * 	1 means sprite mode 1 (MSX1 display modes),
+	  * 	2 means sprite mode 2 (MSX2 display modes).
+	  */
+	inline static int getSpriteMode(int mode) {
+		return
+			( isTextMode(mode)
+			? 0
+			: (mode & 0x18 == 0 ? 1 : 2)
+			);
+	}
+
+	/** Get the sprite mode of the current display mode.
+	  * @return The current sprite mode:
+	  * 	0 means no sprites,
+	  * 	1 means sprite mode 1 (MSX1 display modes),
+	  * 	2 means sprite mode 2 (MSX2 display modes).
+	  */
+	inline int getSpriteMode() {
+		// TODO: Precalc on mode changes.
+		return getSpriteMode(displayMode);
 	}
 
 	/** Get the VRAM object for this VDP.

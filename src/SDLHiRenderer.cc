@@ -610,7 +610,8 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 		+ screenLine * screen->pitch + leftBorder * sizeof(Pixel));
 	Pixel *pixelPtr1 = (Pixel *)(((byte *)pixelPtr0) + screen->pitch);
 
-	if (vdp->getDisplayMode() < 8) {
+	// visibleIndex != 0 implies there are sprites in the current mode.
+	if (vdp->getSpriteMode() == 1) {
 		// Sprite mode 1: render directly to screen using overdraw.
 		while (visibleIndex--) {
 			// Get sprite info.

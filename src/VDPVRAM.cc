@@ -1,6 +1,7 @@
 // $Id$
 
 #include "VDPVRAM.hh"
+#include "SpriteChecker.hh"
 
 // class VDPVRAM:
 
@@ -31,6 +32,23 @@ VDPVRAM::VDPVRAM(int size) {
 
 VDPVRAM::~VDPVRAM() {
 	delete[] data;
+}
+
+void VDPVRAM::updateDisplayMode(int mode, const EmuTime &time) {
+	renderer->updateDisplayMode(mode, time);
+	cmdEngine->updateDisplayMode(mode, time);
+	spriteChecker->updateDisplayMode(mode, time);
+}
+
+void VDPVRAM::updateDisplayEnabled(bool enabled, const EmuTime &time) {
+	renderer->updateDisplayEnabled(enabled, time);
+	cmdEngine->sync(time);
+	spriteChecker->updateDisplayEnabled(enabled, time);
+}
+
+void VDPVRAM::updateSpritesEnabled(bool enabled, const EmuTime &time) {
+	cmdEngine->sync(time);
+	spriteChecker->updateSpritesEnabled(enabled, time);
 }
 
 // class Window:

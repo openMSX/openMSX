@@ -1,5 +1,9 @@
 $Id$
 
+2002-12-29 Maarten ter Huurne <maarten@treewalker.org>
+	* The VDPVRAM::VRAMObserver interface is put to use for the first time,
+	  by SpriteChecker. Cleans up the VDP subsystem synchronisation code.
+
 2002-12-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Released 0.2.1
 	* Better rom placement heuristics:

@@ -838,7 +838,8 @@ void SDLGLRenderer::drawSprites(int screenLine, int leftBorder, int minX, int ma
 	// Lines without any sprites are very common in most programs.
 	if (visibleIndex == 0) return;
 
-	if (vdp->getDisplayMode() < 8) {
+	// visibleIndex != 0 implies there are sprites in the current mode.
+	if (vdp->getSpriteMode() == 1) {
 		// Sprite mode 1: render directly to screen using overdraw.
 
 		// Buffer to render sprite pixel to; start with all transparent.

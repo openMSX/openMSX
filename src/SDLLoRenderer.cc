@@ -615,7 +615,8 @@ template <class Pixel> void SDLLoRenderer<Pixel>::drawSprites(
 	Pixel *pixelPtr0 = (Pixel *)( (byte *)screen->pixels
 		+ screenLine * screen->pitch + leftBorder * sizeof(Pixel));
 
-	if (vdp->getDisplayMode() < 8) {
+	// visibleIndex != 0 implies there are sprites in the current mode.
+	if (vdp->getSpriteMode() == 1) {
 		// Sprite mode 1: render directly to screen using overdraw.
 		while (visibleIndex--) {
 			// Get sprite info.

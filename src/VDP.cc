@@ -841,35 +841,53 @@ void VDP::updateSpriteAttributeBase(const EmuTime &time)
 	int base = ((controlRegs[11] << 15) | (controlRegs[5] << 7)
 		| ~(-1 << 7)) & vramMask;
 	if (isPlanar()) base = ((base << 16) | (base >> 1)) & 0x1FFFF;
+	// TODO: Do base updates through VRAMObserver?
 	spriteChecker->updateSpriteAttributeBase(base, time);
-	// TODO: Actual number of index bits is lower than 17.
-	vram->spriteAttribTable.setMask(base, 17);
+	switch (getSpriteMode()) {
+	case 0:
+		vram->spriteAttribTable.disable();
+		break;
+	case 1:
+		vram->spriteAttribTable.setMask(base, 7);
+		break;
+	case 2:
+		vram->spriteAttribTable.setMask(base, 10);
+		break;
+	}
 }
 
 void VDP::updateSpritePatternBase(const EmuTime &time)
 {
 	int base = ((controlRegs[6] << 11) | ~(-1 << 11)) & vramMask;
 	if (isPlanar()) base = ((base << 16) | (base >> 1)) & 0x1FFFF;
+	// TODO: Do base updates through VRAMObserver?
 	spriteChecker->updateSpritePatternBase(base, time);
 	vram->spritePatternTable.setMask(base, 11);
 }
 
-void VDP::updateDisplayMode(byte reg0, byte reg1, byte reg25,
-                            const EmuTime &time)
+void VDP::updateDisplayMode(
+	byte reg0, byte reg1, byte reg25, const EmuTime &time )
 {
 	int newMode =
-		  ((reg0  & 0x0E) << 1)  // M5..M3
+		  ((reg25 & 0x18) << 2)  // YAE YJK
+		| ((reg0  & 0x0E) << 1)  // M5..M3
 		| ((reg1  & 0x08) >> 2)  // M2
-		| ((reg1  & 0x10) >> 4)  // M1
-		| ((reg25 & 0x18) << 2); // YAE YJK
+		| ((reg1  & 0x10) >> 4); // M1
 	if (newMode != displayMode) {
 		//PRT_DEBUG("VDP: mode " << newMode);
 		vram->updateDisplayMode(newMode, time);
-		if (isPlanar(newMode) != isPlanar(displayMode)) {
-			// Switched from planar to nonplanar or vice versa.
-			updateSpriteAttributeBase(time);
+		// Switched from planar to nonplanar or vice versa.
+		bool planarChange = isPlanar(newMode) != isPlanar();
+		// Sprite mode changed.
+		bool spriteModeChange = getSpriteMode(newMode) != getSpriteMode();
+
+		if (planarChange) {
 			updateSpritePatternBase(time);
 		}
+		if (planarChange || spriteModeChange) {
+			updateSpriteAttributeBase(time);
+		}
+
 		displayMode = newMode;
 		// To be extremely accurate, reschedule hscan when changing
 		// from/to text mode. Text mode has different border width,

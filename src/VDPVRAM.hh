@@ -7,10 +7,10 @@
 #include "Renderer.hh"
 #include "VDP.hh"
 #include "VDPCmdEngine.hh"
-#include "SpriteChecker.hh"
 #include <cassert>
 
-
+class SpriteChecker;
+      
 /*
 Note: The way VRAM is accessed depends a lot on who is doing the accessing.
 
@@ -115,6 +115,15 @@ can decide for itself how many bytes to read.
 class VDPVRAM {
 public:
 
+	/** Interface that can be registered at VDPVRAM to be called when
+	  * a certain area of VRAM changes.
+	  * Used to mark the corresponding part of a cache as dirty.
+	  */
+	class VRAMObserver {
+	public:
+		virtual void updateVRAM(int address, const EmuTime &time) = 0;
+	};
+
 	VDPVRAM(int size);
 	~VDPVRAM();
 
@@ -145,10 +154,9 @@ public:
 			renderer->updateVRAM(address, value, time);
 		}
 		//bitmapWindow.notify(address, time);
-		if (true || spriteAttribTable.isInside(address)
-		|| spritePatternTable.isInside(address)) {
-			spriteChecker->updateVRAM(address, time);
-		}
+		spriteAttribTable.notify(address, time);
+		spritePatternTable.notify(address, time);
+
 		data[address] = value;
 		currentTime = time;
 	}
@@ -184,16 +192,11 @@ public:
 	/** Used by the VDP to signal display mode changes.
 	  * VDPVRAM will inform the Renderer, command engine and the sprite
 	  * checker of this change.
+	  * TODO: Does this belong in VDPVRAM?
 	  * @param mode The new display mode: M5..M1.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	inline void updateDisplayMode(int mode, const EmuTime &time) {
-		// Synchronise subsystems.
-		// TODO: Does this belong in VDPVRAM?
-		renderer->updateDisplayMode(mode, time);
-		cmdEngine->updateDisplayMode(mode, time);
-		spriteChecker->updateDisplayMode(mode, time);
-	}
+	void updateDisplayMode(int mode, const EmuTime &time);
 
 	/** Used by the VDP to signal display enabled changes.
 	  * Both the regular border start/end and forced blanking by clearing
@@ -201,22 +204,13 @@ public:
 	  * @param enabled The new display enabled state.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	inline void updateDisplayEnabled(bool enabled, const EmuTime &time) {
-		// Synchronise subsystems.
-		renderer->updateDisplayEnabled(enabled, time);
-		cmdEngine->sync(time);
-		spriteChecker->updateDisplayEnabled(enabled, time);
-	}
+	void updateDisplayEnabled(bool enabled, const EmuTime &time);
 
 	/** Used by the VDP to signal sprites enabled changes.
 	  * @param enabled The new sprites enabled state.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	inline void updateSpritesEnabled(bool enabled, const EmuTime &time) {
-		// Synchronise subsystems.
-		cmdEngine->sync(time);
-		spriteChecker->updateSpritesEnabled(enabled, time);
-	}
+	void updateSpritesEnabled(bool enabled, const EmuTime &time);
 
 	inline void setRenderer(Renderer *renderer) {
 		this->renderer = renderer;
@@ -233,15 +227,6 @@ public:
 	inline void setCmdEngine(VDPCmdEngine *cmdEngine) {
 		this->cmdEngine = cmdEngine;
 	}
-
-	/** Interface that can be registered at VDPVRAM to be called when a certain
-	  * area of VRAM changes.
-	  * Used to mark the corresponding part of a cache as dirty.
-	  */
-	class VRAMObserver {
-	public:
-		virtual void update(int address, const EmuTime &time) = 0;
-	};
 
 	/** Specifies an address range in the VRAM.
 	  * A VDP subsystem can use this to put a claim on a certain area.
@@ -351,8 +336,8 @@ public:
 		  * @param time The moment in emulated time the change occurs.
 		  */
 		inline void notify(int address, const EmuTime &time) {
-			if (observer && (address & combiMask) == baseAddr) {
-				observer->update(address, time);
+			if (observer && isInside(address)) {
+				observer->updateVRAM(address, time);
 			}
 		}
 

@@ -22,8 +22,10 @@ SpriteChecker::SpriteChecker(VDP *vdp, const EmuTime &time)
 	this->vdp = vdp;
 	limitSpritesSetting = VDPSettings::instance()->getLimitSprites();
 	vram = vdp->getVRAM();
-
 	reset(time);
+
+	vram->spriteAttribTable.setObserver(this);
+	vram->spritePatternTable.setObserver(this);
 }
 
 void SpriteChecker::reset(const EmuTime &time)
@@ -293,20 +295,6 @@ inline int SpriteChecker::checkSprites2(
 	}
 
 	return visibleIndex;
-}
-
-void SpriteChecker::sync(const EmuTime &time)
-{
-	// Debug:
-	// This method is not re-entrant, so check explicitly that it is not
-	// re-entered. This can disappear once the VDP-internal scheduling
-	// has become stable.
-	static bool syncInProgress = false;
-	assert(!syncInProgress);
-	syncInProgress = true;
-	vram->sync(time);
-	checkUntil(time);
-	syncInProgress = false;
 }
 
 void SpriteChecker::updateSprites1(int limit)

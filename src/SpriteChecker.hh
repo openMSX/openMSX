@@ -5,12 +5,39 @@
 
 #include "EmuTime.hh"
 #include "VDP.hh"
+#include "VDPVRAM.hh"
 
-class VDPVRAM;
 class BooleanSetting;
 
-class SpriteChecker
+class SpriteChecker: public VDPVRAM::VRAMObserver
 {
+private:
+	/** Update sprite checking to specified time.
+	  * This includes a VRAM sync.
+	  * @param time The moment in emulated time to update to.
+	  */
+	inline void sync(const EmuTime &time) {
+		// Debug:
+		// This method is not re-entrant, so check explicitly that it is not
+		// re-entered. This can disappear once the VDP-internal scheduling
+		// has become stable.
+		static bool syncInProgress = false;
+		assert(!syncInProgress);
+		syncInProgress = true;
+		vram->sync(time);
+		checkUntil(time);
+		syncInProgress = false;
+	}
+
+	inline void initFrame(const EmuTime &time) {
+		frameStartTime = time;
+		currentLine = 0;
+		linesPerFrame = vdp->isPalTiming() ? 313 : 262;
+		// Debug: -1 means uninitialised.
+		for (int i = 0; i < 313; i++) spriteCount[i] = -1;
+		// TODO: Reset anything else? Does the real VDP?
+	}
+
 public:
 
 	/** Bitmap of length 32 describing a sprite pattern.
@@ -154,32 +181,11 @@ public:
 		}
 	}
 
-private:
-	/** Update sprite checking to specified time.
-	  * This includes a VRAM sync.
-	  * @param time The moment in emulated time to update to.
-	  * TODO: Inline would be nice, but there are cyclic dependencies
-	  *       with VDPVRAM.
-	  *       To break those, implement VDPVRAM::VRAMObserver.
-	  */
-	void sync(const EmuTime &time);
-
-	inline void initFrame(const EmuTime &time) {
-		frameStartTime = time;
-		currentLine = 0;
-		linesPerFrame = vdp->isPalTiming() ? 313 : 262;
-		// Debug: -1 means uninitialised.
-		for (int i = 0; i < 313; i++) spriteCount[i] = -1;
-		// TODO: Reset anything else? Does the real VDP?
-	}
-
-public:
 	/** Informs the sprite checker of a change in VRAM contents.
 	  * @param addr The address that will change.
-	  * @param data The new value.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	inline void updateVRAM(int addr, const EmuTime &time) {
+	void updateVRAM(int addr, const EmuTime &time) {
 		checkUntil(time);
 	}
 
