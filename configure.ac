@@ -57,6 +57,8 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 
 dnl Checks for library functions.
 AC_CHECK_FUNCS(ftruncate)
+AC_CHECK_FUNCS(gettimeofday)
+AC_CHECK_FUNCS(usleep)
 
 dnl Check for mmap.
 AC_FUNC_MMAP

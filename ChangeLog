@@ -1,5 +1,11 @@
 $Id$
 
+2004-04-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Simplified RealTime class:
+	    added Timer class (had to rename existing Timer class to EmuTimer)
+	    removed RTC synchronziation (linux) because it was complicated and
+	    didn't really improve anything
+
 2004-04-05 Maarten ter Huurne <maarten@treewalker.org>
 	* Minimized usage of auto*:
 	  - only run configure checks of which we actually use the results

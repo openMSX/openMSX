@@ -16,7 +16,8 @@ libThread_la_SOURCES = \
 	Thread.cc Thread.hh \
 	Mutex.cc Mutex.hh \
 	CondVar.cc CondVar.hh \
-	Semaphore.cc Semaphore.hh
+	Semaphore.cc Semaphore.hh \
+	Timer.cc Timer.hh
 
 nodebug: resetdebug all
 debug: setdebug all

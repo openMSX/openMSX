@@ -1,7 +1,6 @@
 // $Id$
 
 #include <cassert>
-#include <memory> // for auto_ptr
 #include "config.h"
 #include "Keys.hh"
 #include "RealTime.hh"
@@ -10,10 +9,7 @@
 #include "Config.hh"
 #include "CommandController.hh"
 #include "Scheduler.hh"
-#include "RealTimeSDL.hh"
-#include "RealTimeRTC.hh"
-
-using std::auto_ptr;
+#include "Timer.hh"
 
 namespace openmsx {
 
@@ -38,11 +34,7 @@ RealTime::RealTime()
 	powerSetting.addListener(this);
 	
 	scheduler.setSyncPoint(Scheduler::ASAP, this);
-}
-
-void RealTime::initBase()
-{
-	reset();
+	
 	resync();
 }
 
@@ -57,16 +49,8 @@ RealTime::~RealTime()
 
 RealTime& RealTime::instance()
 {
-	static auto_ptr<RealTime> oneInstance;
-	if (!oneInstance.get()) {
-#ifdef HAVE_LINUX_RTC_H
-		oneInstance.reset(RealTimeRTC::create());
-#endif
-		if (!oneInstance.get()) {
-			oneInstance.reset(new RealTimeSDL());
-		}
-	}
-	return *oneInstance.get();
+	static RealTime oneInstance;
+	return oneInstance;
 }
 
 float RealTime::getRealDuration(const EmuTime& time1, const EmuTime& time2)
@@ -82,7 +66,7 @@ EmuDuration RealTime::getEmuDuration(float realDur)
 bool RealTime::timeLeft(unsigned us, const EmuTime& time)
 {
 	unsigned realDuration = (unsigned)(getRealDuration(emuTime, time) * 1000000);
-	unsigned currentRealTime = getRealTime();
+	unsigned currentRealTime = Timer::getTime();
 	return (currentRealTime + us) < (idealRealTime + realDuration + ALLOWED_LAG);
 }
 
@@ -97,10 +81,10 @@ void RealTime::internalSync(const EmuTime& time, bool allowSleep)
 	if (throttleSetting.getValue()) {
 		unsigned realDuration = (unsigned)(getRealDuration(emuTime, time) * 1000000);
 		idealRealTime += realDuration;
-		unsigned currentRealTime = getRealTime();
+		unsigned currentRealTime = Timer::getTime();
 		int sleep = idealRealTime - currentRealTime;
 		if (allowSleep && (sleep > 0)) {
-			doSleep(sleep);
+			Timer::sleep(sleep);
 		}
 		if (-sleep > MAX_LAG) {
 			idealRealTime = currentRealTime - MAX_LAG / 2;
@@ -131,7 +115,7 @@ void RealTime::update(const SettingLeafNode* setting) throw()
 
 void RealTime::resync()
 {
-	idealRealTime = getRealTime();
+	idealRealTime = Timer::getTime();
 }
 
 } // namespace openmsx

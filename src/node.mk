@@ -25,7 +25,7 @@ SRC_HDR:= \
 	PrinterPortDevice PrinterPortSimpl PrinterPortLogger \
 	MSXKanji MSXKanji12 MSXBunsetsu \
 	MSXRTC RP5C01 \
-	RealTime RealTimeSDL RealTimeRTC \
+	RealTime \
 	CartridgeSlotManager \
 	MSXDeviceSwitch \
 	MSXMatsushita \

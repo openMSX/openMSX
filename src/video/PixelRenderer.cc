@@ -8,6 +8,7 @@
 #include "VDPVRAM.hh"
 #include "SpriteChecker.hh"
 #include "RealTime.hh"
+#include "Timer.hh"
 #include "InfoCommand.hh"
 #include "CommandResult.hh"
 
@@ -125,7 +126,7 @@ PixelRenderer::PixelRenderer(RendererFactory::RendererID id, VDP *vdp)
 		frameDurations.addFront(20);
 		frameDurationSum += 20;
 	}
-	prevTimeStamp = RealTime::instance().getRealTime();
+	prevTimeStamp = Timer::getTime();
 	
 	settings.getMaxFrameSkip()->addListener(this);
 	settings.getMinFrameSkip()->addListener(this);
@@ -180,9 +181,9 @@ void PixelRenderer::frameEnd(const EmuTime& time)
 		frameSkipCounter = settings.getMaxFrameSkip()->getValue();
 		
 		// Let underlying graphics system finish rendering this frame.
-		unsigned time1 = RealTime::instance().getRealTime();
+		unsigned time1 = Timer::getTime();
 		finishFrame();
-		unsigned time2 = RealTime::instance().getRealTime();
+		unsigned time2 = Timer::getTime();
 		finishFrameDuration = time2 - time1;
 	
 		// update fps statistics

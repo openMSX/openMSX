@@ -17,14 +17,7 @@ class SettingsConfig;
 class RealTime : private Schedulable, private SettingListener
 {
 public:
-	virtual ~RealTime();
-
 	static RealTime& instance();
-
-	/**
-	 * Get the real time (in us)
-	 */
-	virtual unsigned getRealTime() = 0;
 
 	/**
 	 * Convert EmuTime to RealTime and vice versa
@@ -42,13 +35,10 @@ public:
 	 */
 	void sync(const EmuTime& time, bool allowSleep);
 
-protected:
-	RealTime(); 
-	void initBase();
-	virtual void doSleep(unsigned us) = 0;
-	virtual void reset() = 0;
-	
 private:
+	RealTime(); 
+	virtual ~RealTime();
+
 	// Schedulable
 	virtual void executeUntil(const EmuTime& time, int userData) throw();
 	virtual const string& schedName() const;
