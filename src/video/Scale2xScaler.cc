@@ -44,6 +44,7 @@ void Scale2xScaler<Pixel>::scaleLine256Half(Pixel* dst,
 			"movq	(%0), %%mm1;"        // m1 | e1  or  w2 | m2
 			"xorl	%%eax, %%eax;"
 			"pshufw	$238, %%mm1, %%mm0;" // xx | w1
+			".p2align 4,,15;"
 		"0:"
 			"movq	(%1,%%eax), %%mm2;"  // n1 | n2
 			"movq	%%mm2, %%mm3;"       // n1 | n2
@@ -146,6 +147,7 @@ void Scale2xScaler<Pixel>::scaleLine256Half(Pixel* dst,
 			"xorl	%%eax, %%eax;"
 			"movq	%%mm1, %%mm0;"       // w1 | xx
 			"punpckldq %%mm0, %%mm0;"    // xx | w1
+			".p2align 4,,15;"
 		"0:"
 			"movq	(%1,%%eax), %%mm2;"  // n1 | n2
 			"movq	%%mm2, %%mm3;"       // n1 | n2
@@ -269,6 +271,7 @@ void Scale2xScaler<Pixel>::scaleLine256Half(Pixel* dst,
 			"movq	(%0), %%mm1;"        // 1 2 3 4
 			"xorl	%%eax, %%eax;"
 			"pshufw	$0, %%mm1, %%mm0;"   // x x x 1
+			".p2align 4,,15;"
 		"0:"
 			"movq	(%1,%%eax), %%mm2;"  // a b c d
 			"movq	%%mm2, %%mm3;"       // a b c d
@@ -379,6 +382,7 @@ void Scale2xScaler<Pixel>::scaleLine256Half(Pixel* dst,
 			"xorl	%%eax, %%eax;"
 			"movq	%%mm1, %%mm0;"       // 1 x x x
 			"psllq	$48, %%mm0;"         // x x x 1
+			".p2align 4,,15;"
 		"0:"
 			"movq	(%1,%%eax), %%mm2;"  // a b c d
 			"movq	%%mm2, %%mm3;"       // a b c d
@@ -614,6 +618,7 @@ void Scale2xScaler<Pixel>::scaleLine512Half(Pixel* dst,
 			"movq	(%0), %%mm0;"        // 1 2
 			"xorl	%%eax, %%eax;"
 			"pshufw	$68, %%mm0, %%mm2;"  // 1 1
+			".p2align 4,,15;"
 		"0:"
 			"movq	(%1,%%eax), %%mm4;"  // a b
 			"pshufw	$238, %%mm0, %%mm3;" // 2 2
@@ -712,6 +717,7 @@ void Scale2xScaler<Pixel>::scaleLine512Half(Pixel* dst,
 			"xorl	%%eax, %%eax;"
 			"movq	%%mm0, %%mm2;"       // 1 2
 			"punpckldq %%mm2, %%mm2;"    // 1 1
+			".p2align 4,,15;"
 		"0:"
 			"movq	(%1,%%eax), %%mm4;"  // a b
 			"movq	%%mm0, %%mm3;"       // 1 2
@@ -816,6 +822,7 @@ void Scale2xScaler<Pixel>::scaleLine512Half(Pixel* dst,
 			"movq	(%0), %%mm1;"        // 1234
 			"xorl	%%eax, %%eax;"
 			"pshufw	$0, %%mm1, %%mm0;"   // ...0
+			".p2align 4,,15;"
 		"0:"
 			"movq	(%1,%%eax), %%mm4;"  // aceg
 			"psrlq	$48, %%mm0;"         // 0...
@@ -930,6 +937,7 @@ void Scale2xScaler<Pixel>::scaleLine512Half(Pixel* dst,
 			"xorl	%%eax, %%eax;"
 			"movq	%%mm1, %%mm0;"       // 1234
 			"psllq	$48, %%mm0;"         // ...0
+			".p2align 4,,15;"
 		"0:"
 			"movq	(%1,%%eax), %%mm4;"  // aceg
 			"psrlq	$48, %%mm0;"         // 0...

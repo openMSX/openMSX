@@ -58,6 +58,7 @@ void Scaler<Pixel>::copyLine(const Pixel* pIn, Pixel* pOut, unsigned width,
 		// extended-MMX routine (both 16bpp and 32bpp)
 		asm (
 			"xorl	%%eax, %%eax;"
+			".p2align 4,,15;"
 		"0:"
 			// Load.
 			"movq	  (%0,%%eax), %%mm0;"
@@ -98,6 +99,7 @@ void Scaler<Pixel>::copyLine(const Pixel* pIn, Pixel* pOut, unsigned width,
 		// MMX routine (both 16bpp and 32bpp)
 		asm (
 			"xorl	%%eax, %%eax;"
+			".p2align 4,,15;"
 		"0:"
 			// Load.
 			"movq	  (%0,%%eax), %%mm0;"
@@ -158,6 +160,7 @@ void Scaler<Pixel>::scaleLine(const Pixel* pIn, Pixel* pOut, unsigned width,
 		// extended-MMX routine 16bpp
 		asm (
 			"xorl	%%eax, %%eax;"
+			".p2align 4,,15;"
 		"0:"
 			// Load.
 			"movq	  (%0,%%eax,4), %%mm0;"
@@ -207,6 +210,7 @@ void Scaler<Pixel>::scaleLine(const Pixel* pIn, Pixel* pOut, unsigned width,
 		// MMX routine 16bpp
 		asm (
 			"xorl	%%eax, %%eax;"
+			".p2align 4,,15;"
 		"0:"
 			// Load.
 			"movq	  (%0,%%eax,4), %%mm0;"
@@ -256,6 +260,7 @@ void Scaler<Pixel>::scaleLine(const Pixel* pIn, Pixel* pOut, unsigned width,
 		// extended-MMX routine 32bpp
 		asm (
 			"xorl	%%eax, %%eax;"
+			".p2align 4,,15;"
 		"0:"
 			// Load.
 			"movq	  (%0,%%eax,4), %%mm0;"
@@ -305,6 +310,7 @@ void Scaler<Pixel>::scaleLine(const Pixel* pIn, Pixel* pOut, unsigned width,
 		// MMX routine 32bpp
 		asm (
 			"xorl	%%eax, %%eax;"
+			".p2align 4,,15;"
 		"0:"
 			// Load.
 			"movq	  (%0,%%eax,4), %%mm0;"
@@ -377,6 +383,7 @@ void Scaler<Pixel>::fillLine(Pixel* pOut, Pixel colour, unsigned width)
 			"movd	%1, %%mm0;"
 			"punpckldq	%%mm0, %%mm0;"
 			"xorl	%%eax, %%eax;"
+			".p2align 4,,15;"
 		"0:"
 			// Store.
 			"movntq	%%mm0,   (%0,%%eax);"
@@ -409,6 +416,7 @@ void Scaler<Pixel>::fillLine(Pixel* pOut, Pixel colour, unsigned width)
 			"movd	%1, %%mm0;"
 			"punpckldq	%%mm0, %%mm0;"
 			"xorl	%%eax, %%eax;"
+			".p2align 4,,15;"
 		"0:"
 			// Store.
 			"movq	%%mm0,   (%0,%%eax);"

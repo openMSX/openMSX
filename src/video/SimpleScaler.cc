@@ -272,6 +272,7 @@ void SimpleScaler<Pixel>::blur256(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 			"pmullw	%%mm5, %%mm2;"		// f0 = multiply(p0, c1)
 			"movq	%%mm2, %%mm3;"		// f1 = f0
 			
+			".p2align 4,,15;"
 		"1:"
 			"pmullw	%%mm6, %%mm0;"
 			"movq	%%mm0, %%mm4;"		// tmp = multiply(p0, c2)
@@ -439,6 +440,7 @@ void SimpleScaler<Pixel>::blur512(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 			"pmullw	%%mm5, %%mm2;"		// f0 = multiply(p0, c1)
 			"movq	%%mm2, %%mm3;"		// f1 = f0
 		
+			".p2align 4,,15;"
 		"1:"
 			"movd	4(%0,%%eax,4), %%mm1;"
 			"pxor	%%mm7, %%mm7;"
@@ -548,6 +550,7 @@ void SimpleScaler<Pixel>::average(
 			"pxor	%%mm7, %%mm7;"
 			"xorl	%%eax, %%eax;"
 			"pshufw $0, %%mm6, %%mm6;"
+			".p2align 4,,15;"
 		"1:"
 			"movq	(%0,%%eax,4), %%mm0;"
 			"pavgb	(%1,%%eax,4), %%mm0;"
@@ -615,6 +618,7 @@ void SimpleScaler<Pixel>::average(
 			"punpckldq %%mm6, %%mm6;"
 
 			"xorl	%%eax, %%eax;"
+			".p2align 4,,15;"
 		"1:"
 			// load
 			"movq	(%0,%%eax,4), %%mm0;"
@@ -666,6 +670,7 @@ void SimpleScaler<Pixel>::average(
 			"xorl	%%ecx, %%ecx;"
 			"pshufw	$0, %%mm7, %%mm7;"
 			
+			".p2align 4,,15;"
 		"1:"	"movq	 (%0,%%ecx,2), %%mm0;"
 			"movq	8(%0,%%ecx,2), %%mm1;"
 			"movq	 (%1,%%ecx,2), %%mm2;"

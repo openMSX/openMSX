@@ -1,5 +1,10 @@
 $Id$
 
+2005-01-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Machine code executes faster is loop is aligned (on 16 byte boundary
+	  for athlon CPUs):
+	   I measured 1.5% speedup because of this
+
 2005-01-24 Manuel Bilderbeek <manuel@msxnet.org>
 	* Made a separate extension for MegaRAM Disk
 	* Updated ROM types to new names in romdb.xml; also commented out some
