@@ -6,7 +6,7 @@
 #           'left' or 'right'. Default is 'top'
 #  example: load_icons set1 bottom
 
-proc load_icons { set_name set_position } {
+proc load_icons { set_name { set_position top } } {
 	global renderer
 
 	# Check skin directory
