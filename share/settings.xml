@@ -69,6 +69,8 @@
     <parameter>bind F10 toggle console</parameter>
     <parameter>bind F11 toggle mute</parameter>
     <parameter>bind F12 quit</parameter>
+    <!--<parameter>set frontswitch off</parameter>
+        <parameter>set accuracy pixel</parameter> -->
     <!--<parameter>bind F9    "set throttle off"</parameter>
         <parameter>bind F9,up "set throttle on"</parameter>-->
     <!--<parameter>unplug joyporta</parameter>
