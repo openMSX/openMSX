@@ -138,7 +138,7 @@
   </config>
 
   <device id="Penguin Adventure Cartridge">
-    <type>MegaRom</type>
+    <type>GameCartridge</type>
     <slotted>
       <ps>1</ps>
       <ss>0</ss>
@@ -150,8 +150,11 @@
       <page>2</page>
     </slotted>
     <parameter name="filename">PENGUIN.ROM</parameter>
-    <parameter name="filesize">131072</parameter>
+    <parameter name="filesize">0</parameter>
     <parameter name="skip_headerbytes">0</parameter>
+    <parameter name="volume">11500</parameter>
+    <parameter name="automappertype">true</parameter>
+    <parameter name="mappertype">2</parameter>
   </device>
 
   <device id="cpu">
