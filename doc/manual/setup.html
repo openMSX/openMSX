@@ -29,6 +29,14 @@
 		<ol class="toc">
 			<li><a class="internal" href="#cbios">3.1. C-BIOS</a></li>
 			<li><a class="internal" href="#dumprom">3.2. Dumping ROMs</a></li>
+				<ol class="toc">
+					<li><a class="internal" href="#dumpromtools">3.2.1. Tools</a></li>
+					<li><a class="internal" href="#dumpromlocation">3.2.2. ROM Locations</a></li>
+					<li><a class="internal" href="#dumpromsplit">3.2.3. How to handle split ROMs</a></li>
+					<li><a class="internal" href="#dumpromchecksums">3.2.4. Checksums</a></li>
+					<li><a class="internal" href="#dumpromlegal">3.2.5. Legal Issues</a></li>
+				</ol>
+
 			<li><a class="internal" href="#downloadrom">3.3. Downloading ROMs</a></li>
 		</ol>
 	</li>
@@ -256,6 +264,8 @@ to create ROM images you can run in openMSX.
 This way, you can emulate the MSX machines you are familiar with.
 </p>
 
+<h4><a id="dumpromtools">3.2.1 Tools</a></h4>
+
 <p>
 The easiest way to dump system ROMs is to run special dumping tool on your
 real MSX, which copies the contents of the system ROMs to disk.
@@ -266,6 +276,8 @@ These tools can also be used to dump cartridge ROMs, which may be useful later,
 if you want to use certain extensions or play games.
 </p>
 
+<h4><a id="dumpromlocation">3.2.2 ROM Locations</a></h4>
+
 <p>
 When the ROMs are dumped, you have a disk with a number of ROM images.
 Copy these images to the subdirectory called <code>roms</code> in the
@@ -275,6 +287,15 @@ copy them to <code>share/machines/Philips_NMS_8250/roms</code>.
 Look in the file hardwareconfig.xml for the file names openMSX expects
 the ROM images to have.
 </p>
+
+<p>Alternatively, since openMSX 0.5.0 there is an easier way. These
+versions support ROM pools: special directories where openMSX will look
+for ROM files. The default ROM pool is the <code>share/systemroms</code>
+directory. So, if you're using 0.5.0 or higher, you can just as well
+put all your system ROMs in that directory.
+</p>
+
+<h4><a id="dumpromsplit">3.2.3 How to handle split ROMs</a></h4>
 
 <p>
 The machine configurations bundled with openMSX often refer to ROM files
@@ -295,6 +316,7 @@ In Windows, open a command prompt and issue this command:
 copy /b bios.rom + basic.rom nms8250_basic-bios2.rom
 </div>
 
+<h4><a id="dumpromchecksums">3.2.4 Checksums</a></h4>
 <p>
 You can check whether you have the same images as the machine configuration
 was tested with using the <code>SHA1SUMS</code> file.
@@ -308,6 +330,16 @@ If the checksums do not match, it could mean something went wrong
 dumping the ROMs, or it could mean you have a slightly older/newer model
 which contains different system ROMs.
 </p>
+
+<p>
+In openMSX versions from 0.5.0 the sha1sums are also included in the
+machine configuration files. This enables openMSX to find the right ROM
+file from one of the ROM pools. If the ROM is explicitly specified in
+the configuration file and the sha1sum doesn't match a warning will be
+printed.
+</p>
+
+<h4><a id="dumpromlegal">3.2.5 Legal Issues</a></h4>
 
 <p>
 Using ROMs dumped from machines you own is generally considered
@@ -325,7 +357,7 @@ is legal in your country to use dumped ROMs of machines you own.
 Some WWW and FTP sites offer MSX system ROMs as a download.
 Some MSX emulators include system ROMs in their distribution.
 Downloaded system ROMs can be used in the same way as
-system ROMs you dumped yourself.
+system ROMs you dumped yourself, see the previous section.
 </p>
 
 <p>
