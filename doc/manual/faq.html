@@ -33,7 +33,7 @@
 <p>If you're using Windows, the easiest way to install openMSX is by running the installer. It's the .exe file you can find in <a class="external" href="http://sourceforge.net/project/showfiles.php?group_id=38274">the downloads section</a> of the openMSX SourceForge.net site. After this, you should have a working openMSX and openMSX Catapult. 
 </p>
 
-<p>If you're using another system, there is no installer available. If your system has a package management system, it's easy to install openMSX by using that, of course. If you have to install it from source, it's also not very difficult. Just read the <a class="external" href="compile.html">Compilation Guide</a>.
+<p>If you're using another operating system, there is no installer available. If your system has a package management system, it's easy to install openMSX by using that, of course. If you have to install it from source, it's also not very difficult. Just read the <a class="external" href="compile.html">Compilation Guide</a>.
 </p>
 <p>
 Note that in any case, there are no system ROMs installed, so only the C-BIOS machines work out-of-the-box. See also the next couple of questions.
@@ -88,10 +88,13 @@ So, the message is not from openMSX, but from C-BIOS, which tries to start a car
 
 <h2><a id="samples040">6. The sound quality is quite bad in the 0.4.0 release, is that normal?</a></h2>
 
-<p>Unfortunately, we made a small mistake in the Windows release of 0.4.0. However, the problem can be easily fixed by editing the file <code>share\settings.xml</code> with Notepad or some similar text editor. Look for the section marked "Audio mixer settings" and change the 'samples' setting from 512 to 1024 or 2048. You can play around with the setting: just save the file and restart openMSX to test it.
+<p>Unfortunately, we made a small mistake in the Windows release of 0.4.0. However, the problem can be easily fixed by editing the file <code>share\settings.xml</code> with Notepad or some similar text editor. Look for the section marked "Audio mixer settings" and change the 'samples' setting from 512 to 1024 or 2048. You can play around with the setting: just save the file and restart openMSX to test it. 
+</p>
+<p>
+The effect of a wrong setting is that if it is too high, you will get an irregular tempo of the music (high latencies) and if it's too low, the music will sound choppy.
 </p>
 
-<p>At the moment, it is not clear what the default value of this setting should be anyway. It seems that the perfect combination of samples and frequency depends on the system. So, feel free to experiment with them.
+<p>At the moment, it is not clear what the default value of this setting should be. It seems that the perfect combination of samples and frequency depends on the system. So, feel free to experiment with them.
 </p>
 
 <h2><a id="harddisk">7. What is the openMSX harddisk support?</a></h2>
