@@ -8,14 +8,7 @@
 
 #include <cassert>
 
-#ifdef HAVE_SDL_IMAGE_H
-#include "SDL_image.h"
-#else
-#include "SDL/SDL_image.h"
-#endif
-
 #include "SDLConsole.hh"
-#include "DummyFont.hh"
 #include "SDLFont.hh"
 #include "MSXConfig.hh"
 #include "File.hh"
@@ -33,19 +26,18 @@ SDLConsole::SDLConsole(SDL_Surface *screen)
 	backgroundImage = NULL;
 	consoleSurface  = NULL;
 	inputBackground = NULL;
-	font = new DummyFont();
-	
+
 	fontSetting = new FontSetting(this, fontName);
 	
 	SDL_Rect rect;
-	rect.x = (screen->w / 32);
-	rect.w = (screen->w / 32) * 30;
-	rect.y = (screen->h / 15) * 9;
-	rect.h = (screen->h / 15) * 6;
+	OSDConsoleRenderer::updateConsoleRect(rect);
+	
+	rect.x=0;rect.y=0;rect.h=100;rect.w=300;
+	
+	
 	resize(rect);
 	
 	backgroundSetting = new BackgroundSetting(this, backgroundName);
-	
 	alpha(CONSOLE_ALPHA);
 }
 
@@ -62,7 +54,6 @@ SDLConsole::~SDLConsole()
 	}
 	delete fontSetting;
 	delete backgroundSetting;
-	delete font;
 }
 
 
@@ -98,13 +89,27 @@ void SDLConsole::updateConsole2()
 	}
 }
 
+void SDLConsole::updateConsoleRect()
+{
+	SDL_Rect rect;
+	OSDConsoleRenderer::updateConsoleRect(rect);
+	if ((consoleSurface->h != rect.h) || (consoleSurface->w != rect.w) 
+		|| (dispX != rect.x) || (dispY != rect.y))
+	{
+		resize(rect);
+		alpha(CONSOLE_ALPHA);
+		loadBackground(backgroundName);
+		updateConsole2();
+	}		
+}
+
 // Draws the console buffer to the screen
 void SDLConsole::drawConsole()
 {
 	if (!console->isVisible()) {
 		return;
 	}
-	
+	updateConsoleRect();
 	drawCursor();
 
 	// Setup the rect the console is being blitted into based on the output screen
@@ -120,14 +125,14 @@ void SDLConsole::drawConsole()
 // Draws the command line the user is typing in to the screen
 void SDLConsole::drawCursor()
 {
+	int cursorLocation = console->getCursorPosition();
 	// Check if the blink period is over
-	if (SDL_GetTicks() > lastBlinkTime) {
+	if (SDL_GetTicks() > lastBlinkTime){
 		lastBlinkTime = SDL_GetTicks() + BLINK_RATE;
 		blink = !blink;
 		if (console->getScrollBack() != 0) {
 			return;
 		}
-		int cursorLocation = console->getLine(0).length();
 		if (blink) {
 			// Print cursor if there is enough room
 			font->drawText(std::string("_"),
@@ -140,7 +145,7 @@ void SDLConsole::drawCursor()
 			rect.y = consoleSurface->h - font->getHeight();
 			rect.w = font->getWidth();
 			rect.h = font->getHeight();
-			SDL_FillRect(consoleSurface, &rect, 
+			SDL_FillRect(consoleSurface, &rect,
 			     SDL_MapRGBA(consoleSurface->format, 0, 0, 0, consoleAlpha));
 			if (backgroundImage) {
 				// draw the background image if applicable
@@ -153,7 +158,18 @@ void SDLConsole::drawCursor()
 				rect2.h = rect.h = font->getHeight();
 				SDL_BlitSurface(backgroundImage, &rect, consoleSurface, &rect2);
 			}
+			font->drawText(console->getLine(0).substr(cursorLocation,cursorLocation),
+				      CHAR_BORDER + cursorLocation * font->getWidth(),
+				      consoleSurface->h - font->getHeight());		
 		}
+	}
+	if (cursorLocation != lastCursorPosition){
+		blink=true; // force cursor
+		lastBlinkTime=SDL_GetTicks() + BLINK_RATE; // maximum time
+		lastCursorPosition=cursorLocation;
+		font->drawText(std::string("_"),
+		      CHAR_BORDER + cursorLocation * font->getWidth(),
+		      consoleSurface->h - font->getHeight());
 	}
 }
 
@@ -184,7 +200,14 @@ bool SDLConsole::loadBackground(const std::string &filename)
 	if (backgroundImage) {
 		SDL_FreeSurface(backgroundImage);
 	}
-	backgroundImage = SDL_DisplayFormat(temp);
+	SDL_Surface * tempbackgroundImage = SDL_DisplayFormat(temp);
+	SDL_Rect rect;
+	OSDConsoleRenderer::updateConsoleRect(rect); // get the size
+	backgroundImage = SDL_CreateRGBSurface(SDL_SWSURFACE, rect.w, rect.h, 
+	                            outputScreen->format->BitsPerPixel, 0, 0, 0, 0);
+	zoomSurface (tempbackgroundImage,backgroundImage,1);
+	
+	SDL_FreeSurface(tempbackgroundImage);	
 	SDL_FreeSurface(temp);
 	reloadBackground();
 
@@ -264,4 +287,183 @@ void SDLConsole::reloadBackground()
 			dest.h = font->getHeight();
 		SDL_BlitSurface(backgroundImage, &src, inputBackground, &dest);
 	}
+}
+
+int SDLConsole::zoomSurface(SDL_Surface * src, SDL_Surface * dst, int smooth)
+{
+    int x, y, sx, sy, *sax, *say, *csax, *csay, csx, csy, ex, ey, t1, t2, sstep;
+    tColorRGBA *c00, *c01, *c10, *c11;
+    tColorRGBA *sp, *csp, *dp;
+    int sgap, dgap;
+
+    /*
+     * Variable setup
+     */
+    if (smooth) {
+	/*
+	 * For interpolation: assume source dimension is one pixel
+	 */
+	/*
+	 * smaller to avoid overflow on right and bottom edge.
+	 */
+	sx = (int) (65536.0 * (float) (src->w - 1) / (float) dst->w);
+	sy = (int) (65536.0 * (float) (src->h - 1) / (float) dst->h);
+    } else {
+	sx = (int) (65536.0 * (float) src->w / (float) dst->w);
+	sy = (int) (65536.0 * (float) src->h / (float) dst->h);
+    }
+
+    /*
+     * Allocate memory for row increments
+     */
+    if ((sax = (int *) malloc((dst->w + 1) * sizeof(Uint32))) == NULL) {
+	return (-1);
+    }
+    if ((say = (int *) malloc((dst->h + 1) * sizeof(Uint32))) == NULL) {
+	free(sax);
+	return (-1);
+    }
+
+    /*
+     * Precalculate row increments
+     */
+    csx = 0;
+    csax = sax;
+    for (x = 0; x <= dst->w; x++) {
+	*csax = csx;
+	csax++;
+	csx &= 0xffff;
+	csx += sx;
+    }
+    csy = 0;
+    csay = say;
+    for (y = 0; y <= dst->h; y++) {
+	*csay = csy;
+	csay++;
+	csy &= 0xffff;
+	csy += sy;
+    }
+
+    /*
+     * Pointer setup
+     */
+    sp = csp = (tColorRGBA *) src->pixels;
+    dp = (tColorRGBA *) dst->pixels;
+    sgap = src->pitch - src->w * 4;
+    dgap = dst->pitch - dst->w * 4;
+
+    /*
+     * Switch between interpolating and non-interpolating code
+     */
+    if (smooth) {
+
+	/*
+	 * Interpolating Zoom
+	 */
+
+	/*
+	 * Scan destination
+	 */
+	csay = say;
+	for (y = 0; y < dst->h; y++) {
+	    /*
+	     * Setup color source pointers
+	     */
+	    c00 = csp;
+	    c01 = csp;
+	    c01++;
+	    c10 = (tColorRGBA *) ((Uint8 *) csp + src->pitch);
+	    c11 = c10;
+	    c11++;
+	    csax = sax;
+	    for (x = 0; x < dst->w; x++) {
+
+		/*
+		 * Interpolate colors
+		 */
+		ex = (*csax & 0xffff);
+		ey = (*csay & 0xffff);
+		t1 = ((((c01->r - c00->r) * ex) >> 16) + c00->r) & 0xff;
+		t2 = ((((c11->r - c10->r) * ex) >> 16) + c10->r) & 0xff;
+		dp->r = (((t2 - t1) * ey) >> 16) + t1;
+		t1 = ((((c01->g - c00->g) * ex) >> 16) + c00->g) & 0xff;
+		t2 = ((((c11->g - c10->g) * ex) >> 16) + c10->g) & 0xff;
+		dp->g = (((t2 - t1) * ey) >> 16) + t1;
+		t1 = ((((c01->b - c00->b) * ex) >> 16) + c00->b) & 0xff;
+		t2 = ((((c11->b - c10->b) * ex) >> 16) + c10->b) & 0xff;
+		dp->b = (((t2 - t1) * ey) >> 16) + t1;
+		t1 = ((((c01->a - c00->a) * ex) >> 16) + c00->a) & 0xff;
+		t2 = ((((c11->a - c10->a) * ex) >> 16) + c10->a) & 0xff;
+		dp->a = (((t2 - t1) * ey) >> 16) + t1;
+
+		/*
+		 * Advance source pointers
+		 */
+		csax++;
+		sstep = (*csax >> 16);
+		c00 += sstep;
+		c01 += sstep;
+		c10 += sstep;
+		c11 += sstep;
+		/*
+		 * Advance destination pointer
+		 */
+		dp++;
+	    }
+	    /*
+	     * Advance source pointer
+	     */
+	    csay++;
+	    csp = (tColorRGBA *) ((Uint8 *) csp + (*csay >> 16) * src->pitch);
+	    /*
+	     * Advance destination pointers
+	     */
+	    dp = (tColorRGBA *) ((Uint8 *) dp + dgap);
+	}
+
+    } else {
+
+	/*
+	 * Non-Interpolating Zoom
+	 */
+
+	csay = say;
+	for (y = 0; y < dst->h; y++) {
+	    sp = csp;
+	    csax = sax;
+	    for (x = 0; x < dst->w; x++) {
+		/*
+		 * Draw
+		 */
+		*dp = *sp;
+		/*
+		 * Advance source pointers
+		 */
+		csax++;
+		sp += (*csax >> 16);
+		/*
+		 * Advance destination pointer
+		 */
+		dp++;
+	    }
+	    /*
+	     * Advance source pointer
+	     */
+	    csay++;
+	    csp = (tColorRGBA *) ((Uint8 *) csp + (*csay >> 16) * src->pitch);
+	    /*
+	     * Advance destination pointers
+	     */
+	    dp = (tColorRGBA *) ((Uint8 *) dp + dgap);
+	}
+
+    }
+
+    /*
+     * Remove temp arrays
+     */
+    free(sax);
+    free(say);
+
+    return (0);
 }

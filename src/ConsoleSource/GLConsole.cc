@@ -1,15 +1,10 @@
 // $Id$
 
 #include "GLConsole.hh"
+
 #ifdef __OPENGL_AVAILABLE__
 
 #include <cassert>
-
-#ifdef HAVE_SDL_IMAGE_H
-#include "SDL_image.h"
-#else
-#include "SDL/SDL_image.h"
-#endif
 
 #include "MSXConfig.hh"
 #include "DummyFont.hh"
@@ -21,18 +16,15 @@
 GLConsole::GLConsole()
 {
 	console = Console::instance();
-	SDL_Surface *screen = SDL_GetVideoSurface();
-	blink = false;
-	lastBlinkTime = 0;
-	dispX         = (screen->w / 32);
-	dispY         = (screen->h / 15) * 9;
-	consoleWidth  = (screen->w / 32) * 30;
-	consoleHeight = (screen->h / 15) * 6;
+	fontSetting = new FontSetting(this, fontName);	
 	
-	// load font
-	font = new DummyFont();
-	fontSetting = new FontSetting(this, fontName);
-
+	SDL_Rect rect;
+	OSDConsoleRenderer::updateConsoleRect(rect);
+	dispX = rect.x;
+	dispY = rect.y;
+	consoleHeight = rect.h;
+	consoleWidth = rect.w;
+	
 	// load background
 	backgroundTexture = 0;
 	backgroundSetting = new BackgroundSetting(this, backgroundName);
@@ -42,7 +34,6 @@ GLConsole::~GLConsole()
 {
 	delete backgroundSetting;
 	delete fontSetting;
-	delete font;
 	if (backgroundTexture) {
 		glDeleteTextures(1, &backgroundTexture);
 	}
@@ -139,13 +130,24 @@ void GLConsole::updateConsole()
 {
 }
 
+void GLConsole::updateConsoleRect(SDL_Surface *screen)
+{
+	SDL_Rect rect;
+	OSDConsoleRenderer::updateConsoleRect(rect);
+	dispX = rect.x;
+	dispY = rect.y;
+	consoleHeight = rect.h;
+	consoleWidth = rect.w;
+}
+
 // Draws the console buffer to the screen
 void GLConsole::drawConsole()
 {
 	if (!console->isVisible()) {
 		return;
 	}
-
+	
+	
 	glPushAttrib(GL_ENABLE_BIT);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
@@ -153,6 +155,9 @@ void GLConsole::drawConsole()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	SDL_Surface *screen = SDL_GetVideoSurface();
+	
+	updateConsoleRect(screen);
+	
 	glViewport(0, 0, screen->w, screen->h);
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
@@ -198,10 +203,15 @@ void GLConsole::drawConsole()
 		lastBlinkTime = SDL_GetTicks() + BLINK_RATE;
 		blink = !blink;
 	}
+	int cursorLocation = console->getCursorPosition();
+	if (cursorLocation != lastCursorPosition){
+		blink=true; // force cursor
+		lastBlinkTime=SDL_GetTicks() + BLINK_RATE; // maximum time
+		lastCursorPosition=cursorLocation;	
+	}
 	if (console->getScrollBack() == 0) {
 		if (blink) {
 			// Print cursor if there is enough room
-			int cursorLocation = console->getLine(0).length();
 			font->drawText(std::string("_"), 
 			      CHAR_BORDER + cursorLocation * font->getWidth(),
 			      consoleHeight - font->getHeight());

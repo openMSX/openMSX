@@ -5,6 +5,17 @@
 
 #include "OSDConsoleRenderer.hh"
 
+    typedef struct tColorRGBA {
+	Uint8 r;
+	Uint8 g;
+	Uint8 b;
+	Uint8 a;
+    } tColorRGBA;
+
+    typedef struct tColorY {
+	Uint8 y;
+    } tColorY;
+
 class SDL_Surface;
 
 
@@ -18,12 +29,11 @@ class SDLConsole : public OSDConsoleRenderer
 		virtual bool loadBackground(const std::string &filename);
 		virtual void drawConsole();
 		virtual void updateConsole();
-
+		
 	private:
 		/** This is the font for the console.
 		  */
-		class Font *font;
-
+		
 		/** Surface of the console.
 		  */
 		SDL_Surface *consoleSurface;
@@ -52,17 +62,8 @@ class SDLConsole : public OSDConsoleRenderer
 		  */
 		unsigned char consoleAlpha;
 
-		/** Is the cursor currently blinking
-		  */
-		bool blink;
-
-		/** Last time the consoles cursor blinked 
-		  */
-		Uint32 lastBlinkTime;
-	
 		BackgroundSetting* backgroundSetting;
 		FontSetting *fontSetting;
-
 		class Console* console;
 		
 		void alpha(unsigned char alpha);
@@ -72,6 +73,8 @@ class SDLConsole : public OSDConsoleRenderer
 		void reloadBackground();
 		void drawCursor();
 		void updateConsole2();
+		void updateConsoleRect();
+		int zoomSurface(SDL_Surface * src, SDL_Surface * dst, int smooth);
 };
 
 #endif

@@ -6,6 +6,12 @@
 #include "GLUtil.hh"
 #ifdef __OPENGL_AVAILABLE__
 
+#ifdef HAVE_SDL_IMAGE_H
+#include "SDL_image.h"
+#else
+#include "SDL/SDL_image.h"
+#endif
+
 #include "OSDConsoleRenderer.hh"
 
 
@@ -25,7 +31,6 @@ class GLConsole : public OSDConsoleRenderer
 		bool loadTexture(const std::string &filename, GLuint &texture,
 		                 int &width, int &height, GLfloat *texCoord);
 
-		class Font *font;
 		GLuint backgroundTexture;
 		BackgroundSetting* backgroundSetting;
 		FontSetting* fontSetting;
@@ -34,9 +39,8 @@ class GLConsole : public OSDConsoleRenderer
 		int consoleHeight;
 		int dispX;
 		int dispY;
-		bool blink;
-		unsigned lastBlinkTime;
 		class Console* console;
+		void updateConsoleRect(SDL_Surface *screen);
 };
 
 #endif // __OPENGL_AVAILABLE__
