@@ -18,7 +18,7 @@ endif
 # AM_CXXFLAGS = -Wall -W -DDEBUG -g3 -pipe
 
 SUBDIRS = cfg libxmlx ConsoleSource cpu sound config \
-          tools fdc file ide thread cassette events memory
+          fdc file ide thread cassette events memory
 
 #bin_PROGRAMS=openmsx cfgtest
 bin_PROGRAMS=openmsx
