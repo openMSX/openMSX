@@ -1,8 +1,13 @@
 $Id$
 
+2003-06-04 Maarten ter Huurne <maarten@treewalker.org>
+	* New console font: ConsoleFontRaveL.png, this is a larger version of
+	  ConsoleFontRave.png (easier to read on hi-res screens).
+	* New extensions: 512K/1MB/2MB/4MB external mapper.
+
 2003-06-04 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Background and Fonts are not reset anymore when changing renderers.
-	* Added 10 machine configurations, made by BifiMsx 
+	* Added 10 machine configurations, made by BifiMsx
 
 2003-06-04 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* support 8kb roms
@@ -13,6 +18,11 @@ $Id$
 2003-06-03 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed SDLGL tile cache when character and pattern table use mirroring.
 	  Solves glitches in Dr Archie, Relax and probably others.
+
+2003-06-02 Maarten ter Huurne <maarten@treewalker.org>
+	* New console font: ConsoleFontRave.png, based on Bitstream Vera, but
+	  renamed due to license requirements (see http://www.gnome.org/fonts/).
+	* Re-encoded existing console fonts to make their files smaller.
 
 2003-06-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented MegaRam
