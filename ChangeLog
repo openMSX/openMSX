@@ -1,5 +1,9 @@
 $Id$
 
+2004-09-26 Arnold Metselaar <arnold_m@operamail.com>
+	* Let Keyboard and KeyJoystick release all keys when the console 
+	  becomes active.
+	
 2004-09-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Don't print "couldn't find file" warnings on startup
 
