@@ -1,5 +1,11 @@
 $Id$
 
+2003-04-12 Maarten ter Huurne <maarten@treewalker.org>
+	* Created util.hh: currently only contains fillBool, which used to be
+	  duplicated in SDLRenderer and SDLGLRenderer.
+	* Removed system.h: this file has probably been obsolete for some time,
+	  but managed to escape everyone's attention.
+
 2003-04-10 Maarten ter Huurne <maarten@treewalker.org>
 	* Moved the VDP and rendering code into new "video" directory.
 	  Thanks to Manuel for suggesting how to solve symbol dependencies.

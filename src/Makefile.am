@@ -25,7 +25,7 @@ bin_PROGRAMS=openmsx
 
 openmsx_SOURCES=\
 	main.cc icon.nn \
-	system.h openmsx.hh \
+	openmsx.hh util.hh \
 	EmuTime.hh EmuTime.cc \
 	MSXException.hh \
 	MSXDevice.hh MSXDevice.cc \
