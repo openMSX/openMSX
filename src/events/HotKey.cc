@@ -142,6 +142,7 @@ bool HotKey::signalEvent(const Event& event)
 	CommandMap::iterator it = cmdMap.find(key);
 	if (it != cmdMap.end()) {
 		it->second->execute();
+		return false;
 	}
 	return true;
 }
