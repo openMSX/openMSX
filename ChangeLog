@@ -1,8 +1,12 @@
 $Id$
 
+2003-09-24 Maarten ter Huurne <maarten@treewalker.org>
+	* Major rewrites and editing in Setup Guide.
+	  Thanks to Manuel for preparing the file for me.
+
 2003-09-22 Reikan <openMSX4Win32@ranpub.com>
 	* Add MIDI support for Win32.
-	  It's missing to know association between parameter names and 
+	  It's missing to know association between parameter names and
 	  real device. Ok. we'll call it as TODO.
 
 2003-09-21 Herman Oudejans <hn.oudejans@quicknet.nl>

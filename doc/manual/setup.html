@@ -24,8 +24,23 @@
 			<li><a class="internal" href="#history">1.4. Revision History</a></li>
 		</ol>
 	</li>
-	<li><a class="internal" href="#next">5. Next Steps</a></li>
-	<li><a class="internal" href="#contact">6. Contact Info</a></li>
+	<li><a class="internal" href="#machext">2. Machines and Extensions</a></li>
+	<li><a class="internal" href="#systemroms">3. System ROMs</a>
+		<ol class="toc">
+			<li><a class="internal" href="#cbios">3.1. C-BIOS</a></li>
+			<li><a class="internal" href="#dumprom">3.2. Dumping ROMs</a></li>
+			<li><a class="internal" href="#downloadrom">3.3. Downloading ROMs</a></li>
+		</ol>
+	</li>
+	<li><a class="internal" href="#settings">4. User Preferences</a></li>
+	<li><a class="internal" href="#hardwareedit">5. Writing Machine Descriptions</a></li>
+	<li><a class="internal" href="#tuning">6. Performance Tuning</a>
+		<ol class="toc">
+			<li><a class="internal" href="#slow">6.1. If openMSX Runs Slow</a></li>
+			<li><a class="internal" href="#linuxrtc">6.2. Timing using the Real Time Clock (Linux)</a></li>
+		</ol>
+	</li>
+	<li><a class="internal" href="#contact">7. Contact Info</a></li>
 </ol>
 
 <h2><a id="intro">1. Introduction</a></h2>
@@ -127,279 +142,210 @@ Original text written as part of the openMSX HOWTO.
 
 </dl>
 
-<h2><a id="foo3">3. Preparing the emulator for a first test</a></h2>
+<h2><a id="machext">2. Machines and Extensions</a></h2>
 
 <p>
-Two options here. You can either try to run a real MSX, but for that you need
-the ROMs for that MSX. They are not supplied with openMSX. An alternative is
-using C-BIOS: an MSX compatible BIOS made by BouKiChi, which can be used to run
-most ROM games with openMSX. For a first test, you don't need to do anything to
-use C-BIOS. Otherwise, here are the instructions for using a simple machine. If
-you want to use C-BIOS, you can skip the rest of this section. But you may want
-to read it later, because it contains some valuable hints.
+We use the word <em>machine</em> to refer to a specific
+MSX model. For example, the Sony HB-75P is a machine.
+openMSX does not have a fixed machine hardcoded into it.
+Instead, many different MSX machines can be emulated.
+The details of a machine are described in an XML file.
+This file describes how much memory a machine has,
+what video processor it has, in which slots its system ROMs are located,
+whether the machine has a built-in disk drive etc.
+openMSX reads the machine description XML and will then emulate exactly
+that MSX machine, which can be anything from an MSX1 with 16K of RAM
+to the MSX turbo R GT.
 </p>
 
 <p>
-First, get the needed ROMs for the emulator. You need the following ROMs:
-</p>
-<ul>
-<li>an MSX2 BIOS/BASIC ROM (other emulators may call this MSX2.ROM, it contains
-  the BIOS and BASIC, see below)</li>
-<li>a disk ROM (often called DISK.ROM)</li>
-<li>the sub-ROM (often called MSX2EXT.ROM)</li>
-<li>and, optional, the 64kB FMPAC.ROM, if you would like to use the FM PAC.</li>
-</ul>
-
-<p>
-Suppose you have the following files:
-</p>
-<ul>
-<li><code>msx2.zip</code> (rename the extracted file to nms8250_basic-bios2.rom)</li>
-<li><code>msx2ext.zip</code> (rename extracted file to nms8250-sub.rom)</li>
-<li><code>disk.zip</code> (rename the extracted file to nms8250-disk.rom - this rom image may be patched though, I'm not sure if it works)</li>
-<li><code>fmpac.zip</code></li>
-</ul>
-
-<p>
-Now that you have all ROMs, you can place them into the
-<code>share/machines/Philips_NMS_8250/roms</code> directory for now. You noticed I let you
-rename the ROMs. This is because one of the configuration files (which configs
-openMSX to emulate a Philips NMS 8250), included in the openMSX distribution,
-assumes those names for the ROM files. In other words: we are going to emulate
-a Philips NMS 8250.
+The openMSX distribution contains XML files describing many existing MSX
+models.
+You can find them in the <code>share/machines</code> directory.
+If you want to run one of those machines,
+you also need the system ROMs for that machine.
+See the <a class="internal" href="#systemroms">next chapter</a> for more
+information on system ROMs.
+You can also create your own machine descriptions,
+to expand existing MSX models or to create your own fantasy MSX.
+More about that in a
+<a class="internal" href="#hardwareedit">later chapter</a>.
 </p>
 
 <p>
-You can also get the ROMs from your real MSX of course. I'm not going to
-explain how to do that in this HOWTO though. It will at least guarantee you
-that you have exactly the right ROMs.
+An <em>extension</em> is a piece of MSX hardware that can be
+inserted into a cartridge slot to extend the capabilities of an MSX.
+Examples of extensions are the Panasonic FM-PAC, the Sunrise IDE interface
+and an external 4MB memory mapper.
+Extensions, like machines, are described in XML files.
+You can find a lot of predefined extensions
+in the <code>share/extensions</code> directory.
+Some extensions need ROM images in order to run, similar to system ROMs.
+</p>
+
+<h2><a id="systemroms">3. System ROMs</a></h2>
+
+<p>
+An MSX machine consists of a lot of hardware, but also contains some software.
+Such software includes the BIOS, MSX-BASIC, software controlling disk drives
+and built-in applications (firmware).
+openMSX emulates the MSX hardware, but it needs MSX system software to emulate
+a full MSX system.
+Because the internal software is located in ROM chips, it is referred to as
+<em>system ROMs</em>.
 </p>
 
 <p>
-Later, you may want to emulate the real 8250 (i.e., using the real ROMs of the
-8250) or another specific MSX. openMSX provides a lot premade configuration
-files for that, but we can not distribute the ROM files for them.  You need to
-dump them from your own machine or find another way to get them.
+The software in the system ROMs, like most software, is copyrighted.
+Depending on your local laws, there are certain things you are allowed to
+do with copyrighted software and certain things you are not allowed to do.
+In this manual, a couple of options are listed for providing system ROMs
+to your openMSX installation.
+It is up to you, the user, to select an option that is legal in your country.
 </p>
 
-<h2><a id="foo4">4. Starting the emulator for the first time</a></h2>
+<h3><a id="cbios">3.1. C-BIOS</a></h3>
 
 <p>
-Now we can try starting the emulator for the first time!
-Go to your src directory (e.g. openMSX/src).
+C-BIOS stands for "Compatible BIOS".
+It tries to be compatible with the MSX BIOS found in real MSX machines,
+but it was written from scratch, so all copyrights belong to its authors.
+BouKiChi, the original author of C-BIOS, was kind enough to allow C-BIOS
+to be distributed together with openMSX.
+Since then, Reikan took over maintenance of C-BIOS and the license
+was changed to give users and developers even more freedom in using C-BIOS.
+Every now and then, an updated version of C-BIOS is released.
+You can wait for it to be included in the next openMSX release,
+or download it directly from the
+<a class="external" href="http://www.ranpub.com/CBIOS/">C-BIOS home page</a>.
 </p>
 
 <p>
-If you didn't get ROMs, you can use C-BIOS.
-Give the following command:
+C-BIOS can be used to run most MSX1 and MSX2 cartridge-based games.
+It does not include MSX-BASIC and does not support disk drives,
+so programs depending on that will not run.
+openMSX contains two machine configurations using C-BIOS.
+The machine <code>cbios-msx1</code> is an MSX1 with 64K RAM.
+The machine <code>cbios-msx2</code> is an MSX2 with 512K RAM and 128K VRAM.
+The latter is the default machine for openMSX after installation,
+so if you change nothing to the openMSX configuration,
+then <code>cbios-msx2</code> is the machine that will be booted.
 </p>
 
+<p>
+It is always legal for you to run the C-BIOS ROMs in openMSX.
+You are allowed to use C-BIOS and its source code in various other ways
+as well, read the C-BIOS license for details.
+It is located in the files <code>cbios.txt</code> (Japanese) and
+<code>cbios.en.txt</code> (English).
+</p>
+
+<h3><a id="dumprom">3.2. Dumping ROMs</a></h3>
+
+<p>
+If you own a real MSX machine, you can dump the contents of its system ROMs
+to create ROM images you can run in openMSX.
+This way, you can emulate the MSX machines you are familiar with.
+</p>
+
+<p>
+The easiest way to dump system ROMs is to run special dumping tool on your
+real MSX, which copies the contents of the system ROMs to disk.
+Sean Young has made such tools, you can find the
+<a class="external" href="http://www.msxnet.org/utils/saverom">tools and documentation</a>
+on his web site.
+These tools can also be used to dump cartridge ROMs, which may be useful later,
+if you want to use certain extensions or play games.
+</p>
+
+<p>
+When the ROMs are dumped, you have a disk with a number of ROM images.
+Copy these images to the subdirectory called <code>roms</code> in the
+machine directory.
+For example, if you dumped the ROMs of a Philips NMS 8250 machine,
+copy them to <code>share/machines/Philips_NMS_8250/roms</code>.
+Look in the file hardwareconfig.xml for the file names openMSX expects
+the ROM images to have.
+</p>
+
+<p>
+The machine configurations bundled with openMSX often refer to ROM files
+that span multiple 16K pages.
+For example, in the NMS 8250 configuration, the BIOS and MSX-BASIC are
+expected in a single 32K ROM image.
+If you created two 16K images when dumping, you can concatenate them
+using tools included with your OS.
+In Linux and other Unix(-like) systems you can do it like this:
+</p>
 <div class="commandline">
-./openmsx -setting ../share/settings.xml ../share/machines/cbios-msx2/hardwareconfig.xml
+cat bios.rom basic.rom &gt; nms8250_basic-bios2.rom
+</div>
+<p>
+In Windows, open a command prompt and issue this command:
+</p>
+<div class="commandline">
+copy /b bios.rom + basic.rom nms8250_basic-bios2.rom
 </div>
 
 <p>
-Or, if you did get the ROMs as mentioned in section 3, give the following
-command:
-</p>
-
-<div class="commandline">
-./openmsx -setting ../share/settings.xml ../share/machines/Philips_NMS_8250/hardwareconfig.xml
-</div>
-
-<p>
-Now the emulator should work, i.e. you will see the opening screen of C-BIOS or
-the MSX boot logo scrolling up when you got ROMs, all in a window. What did we
-just do, actually? We started openMSX and told it that it should use the
-settings defined in the file settings.xml (which is in the directory <code>share/</code>) and
-that it should emulate a fantasy MSX machine with the C-BIOS (or a Philips
-NMS-8250), whose hardware is described in the file <code>cbios-msx2/hardwareconfig.xml</code>
-(or <code>Philips_NMS_8250/hardwareconfig.xml</code>), in <code>share/machines/</code>. This is basically
-how one uses openMSX. We'll make it easier below.
+You can check whether you have the same images as the machine configuration
+was tested with using the <code>SHA1SUMS</code> file.
+This file contains checksums of ROM images that are known to work.
+You can compare the checksums of your ROM images to this file with the
+<code>sha1sum</code> tool.
+It is installed by default on most Linux systems,
+on Windows you would have to download it separately.
+If the checksums match, it is almost certain you have correct system ROMs.
+If the checksums do not match, it could mean something went wrong
+dumping the ROMs, or it could mean you have a slightly older/newer model
+which contains different system ROMs.
 </p>
 
 <p>
-If you want to use real MSX ROMs, go back to step 3.
+Using ROMs dumped from machines you own is generally considered
+a proper thing to do in the MSX community.
+When the MSX machine was bought in a shop years ago, you or the person that
+originally bought it paid money for the MSX machine.
+A small part of that money paid for the software in the system ROMs.
+However, we are no legal experts, so it is up to you to check whether it
+is legal in your country to use dumped ROMs of machines you own.
 </p>
 
-
-<h3><a id="foo5.2">5.2 Setting up the <code>.openMSX</code> directory (optional)</a></h3>
-
-<p>
-This section discusses setting up a "<code>.openMSX</code>" configuration
-directory in your home directory. This is not strictly necessary, but it allows
-you to customise the openMSX settings and add new MSX machines and hardware
-extensions to run in openMSX. Manuel Bilderbeek will tell you how he did it.
-</p>
+<h3><a id="downloadrom">3.3. Downloading ROMs</a></h3>
 
 <p>
-I created a directory with the name <code>.openMSX</code> in my home dir. There, I created
-the subdirectory <code>share/</code>. This is one of the directories that openMSX looks in,
-to find the (default) <code>settings.xml</code> (see 5.3) and <code>romdb.xml</code> (a ROM database to
-identify ROM mapper types).
+Some WWW and FTP sites offer MSX system ROMs as a download.
+Some MSX emulators include system ROMs in their distribution.
+Downloaded system ROMs can be used in the same way as
+system ROMs you dumped yourself.
 </p>
 
 <p>
-So, <code>.openMSX/</code> contains settings and other user specific openMSX files. It also
-contains the machine configurations, in the subdirectory <code>share/machines/</code>. The
-name of this subdirectory is important: openMSX searches here for those machine
-configurations. In this share/machines/ directory, all machines have their own
-subdirectory. I created my personal MSX configuration (see below) in the
-directory <code>mymsx/</code> under <code>/share/machines/</code>.
+It may be illegal in your country to download system ROMs.
+Please inform yourself of the legal aspects before considering this option.
+Whatever you decide, is your own responsibility.
+</p>
+
+<h2><a id="settings">4. User Preferences</a></h2>
+
+<p>
+In the file <code>share/settings.xml</code> you can specify
+your user preferences.
+These will be loaded every time openMSX starts.
+Note for Linux users: it is convenient to use the file
+<code>~/.openMSX/share/settings.xml</code> to store your custom settings,
+instead of editing <code>settings.xml</code> in the openMSX installation
+directory.
 </p>
 
 <p>
-Note that hardware configurations should have the name '<code>hardwareconfig.xml</code>' in
-these machine directories. Also the ROM files needed for those machines should
-be put in their own directories.
+One of the preferences is the default machine:
+the machine openMSX uses if you did not specify one on the command line.
 </p>
 
 <p>
-In my case, this <code>share/machines/</code> directory is just a symlink to the
-<code>share/machines</code> directory of the openMSX CVS tree. Of course, for the machines
-to work, they need to have the ROM files specified in the <code>hardwareconfig.xml</code>
-files.
-</p>
-
-<p>
-In <code>~/.openMSX</code> also some decorations like ConsoleBackgrounds (in the
-subdirectory <code>share/skins</code>, see below) and other related files should be stored.
-You need <code>settings.xml</code> also here (in <code>share/</code>), unless you want to specify it
-manually on the command line with the <code>-setting</code> option, as we have done above.
-In <code>settings.xml</code> you can also specify what machine should be used by default.
-Edit the file and you will see how to do that. Also, in a subdirectory <code>share/</code>,
-<code>romdb.xml</code> should be put. Personally, I used a symbolic link to my CVS source
-tree version.
-</p>
-
-<p>
-Furthermore, I created a subdirectory <code>extensions/</code> in <code>~/.openMSX/share</code>, which is
-also a symbolic link to <code>share/extensions</code> in my CVS tree. This is one of
-the directories openMSX searches in when you use the <code>-ext</code> command line option.
-</p>
-
-<p>
-With this option you can specify an `extension', which is in most cases an
-external cartridge with some special hardware in it (e.g., a Panasonic FS-CA1
-MSX Audio cartridge, an IDE interface, an FM-PAC, or an MSX-DOS2 cartridge). It
-works similarly to the <code>share/machines/</code> directory and the <code>-machine</code> command. At
-the moment, you can just put an XML file with the hardware description of that
-cartridge in its own subdirectory in this directory. If you have an XML file
-that describes an MSX-DOS 2 cartridge, e.g., you can create a subdirectory
-msxdos2 here, in which you put the file <code>hardwareconfig.xml</code> (which is that
-description of the MSX DOS 2 cartridge) and the ROM file. Then you can use `<code>-ext
-msxdos2</code>' on the command line to use it.  So, the ROM files that are needed for
-the extensions have to be in their subdirectories also, if there is no path
-given in the hardware description XML file. We prefer to put the ROM files in
-their own subdir '<code>roms</code>' though, to separate them from other files that could be
-put in such an extension directory.
-</p>
-
-<pre>
-/home/manuel/.openMSX:
-drwx------    4 manuel   manuel       4096 Feb 17 22:00 persistent/
-drwx------    2 manuel   manuel       4096 Mar 29 14:28 share/
-
-
-/home/manuel/openMSX/share:
-lrwxrwxrwx    1 manuel   manuel         50 Mar 29 13:14 extensions -&gt; /home/manuel/cvs/openmsx/openMSX/share/extensions//
-lrwxrwxrwx    1 manuel   manuel         48 Mar 29 12:15 machines -&gt;
-/home/manuel/cvs/openmsx/openMSX/share/machines//
-lrwxrwxrwx    1 manuel   manuel         46 Feb 26 22:41 romdb.xml -&gt; /home/manuel/cvs/openmsx/openMSX/src/romdb.xml
--rw-------    1 manuel   manuel       2391 Feb 18 20:46 settings.xml
-lrwxrwxrwx    1 manuel   manuel         45 Mar 29 14:28 skins -&gt; /home/manuel/cvs/openmsx/openMSX/share/skins//
-
-/home/manuel/.openMSX/share/skins:
--rw-------    1 manuel   manuel      21203 Mar 24 23:27 ConsoleBackground.png
--rw-------    1 manuel   manuel       6016 Mar 24 23:27 ConsoleBackground1.png
--rw-------    1 manuel   manuel      13101 Mar 24 23:27 ConsoleBackground2.png
--rw-------    1 manuel   manuel       3348 Mar 24 23:27 ConsoleBackground3.png
--rw-------    1 manuel   manuel       5136 Mar 24 23:27 ConsoleBackground4.png
--rw-------    1 manuel   manuel       6602 Mar 24 23:27 ConsoleBackground5.png
--rw-------    1 manuel   manuel       1471 Mar 24 23:27 ConsoleFont.png
--rw-------    1 manuel   manuel       1402 Mar 24 23:27 ConsoleFont1.png
-
-/home/manuel/.openMSX/share/machines:
-drwx------    3 manuel   manuel       4096 Mar 28 23:59 National_CF-1200/
-drwx------    3 manuel   manuel       4096 Mar 29 12:32 National_CF-2000/
-drwx------    3 manuel   manuel       4096 Mar 28 23:59 National_CF-2700/
-[snip!]
-drwx------    3 manuel   manuel       4096 Mar 29 12:18 Sanyo_PHC-70FD2/
-drwx------    3 manuel   manuel       4096 Mar 29 12:23 cbios-msx1/
-drwx------    3 manuel   manuel       4096 Mar 29 12:23 cbios-msx2/
-drwx------    2 manuel   manuel       4096 Feb 19 22:29 mymsx/
-
-/home/manuel/.openMSX/share/extensions:
-drwx------    4 manuel   manuel       4096 Mar 29 13:37 Panasonic_FS-CA1/
-drwx------    3 manuel   manuel       4096 Mar 25 20:52 audio/
-drwx------    4 manuel   manuel       4096 Mar 29 13:33 fmpac/
-drwx------    4 manuel   manuel       4096 Mar 29 13:16 ide/
-drwx------    4 manuel   manuel       4096 Mar 29 14:12 msxdos2/
-drwx------    3 manuel   manuel       4096 Mar 25 20:52 scc/
-drwx------    3 manuel   manuel       4096 Mar 25 20:52 scc+/
-
-/home/manuel/.openMSX/share/extensions/fs-ca1:
--rw-------    1 manuel   manuel        517 Feb 23 16:00 hardwareconfig.xml
-drwx------    2 manuel   manuel       4096 Mar 29 13:37 roms/
-
-/home/manuel/.openMSX/share/extensions/fs-ca1/roms:
--r--------    1 manuel   manuel     131072 Mar 29 13:17 fs-ca1.rom
-
-/home/manuel/.openMSX/share/extensions/ide:
--rw-------    1 manuel   manuel        668 Dec 18 21:21 hardwareconfig.xml
--rw-------    1 manuel   manuel   107373568 Nov 10 23:01 hd.dsk
-drwx------    2 manuel   manuel       4096 Mar 29 13:16 roms/
-
-/home/manuel/.openMSX/share/extensions/ide/roms:
--rw-------    1 manuel   manuel     131072 Nov  3 01:35 IDE210.ROM
-</pre>
-
-<p>
-The directory <code>persistent/</code> is automatically created when you close openMSX. There,
-persistent states of your MSX machines will be saved: the Real Time Clock
-settings, SRAM contents, etc.
-</p>
-
-<p>
-Note that the config syntax is still subject to changes, so XML files from one
-release may not be compatible with those of other releases. If you want to be
-really safe, keep a separate binary + configs per release/CVS date.
-</p>
-
-<p>
-If you want to emulate another machine that the one you specified as default
-machine, use the <code>-machine</code> command line option. Example:
-</p>
-<div class="commandline">
-openmsx -machine mymsx
-</div>
-<p>
-will start openMSX with the configuration specified in
-<code>~/.openMSX/share/machines/mymsx/hardwareconfig.xml</code>.
-</p>
-
-<p>
-Make sure that starting openMSX by just typing '<code>openmsx</code>' in your shell works
-now, with your default machine configuration. For now, I'm assuming that you are
-emulating the Philips NMS 8250.
-</p>
-
-<p class="todo">
-This paragraph should be completely rewritten, since installation is a lot easier now.
-</p>
-
-
-<h3><a id="foo5.3">5.3 The settings.xml file</a></h3>
-
-<p>
-As as I said above, I'm using a manually configured MSX machine, that is
-described in <code>~/.openMSX/share/machines/mymsx/hardwareconfig.xml</code>. So, I
-configured in <code>settings.xml</code> that mymsx is the default machine to emulate.
-</p>
-
-
-<p>
-The default <code>settings.xml</code> also contains a UserDirectories section. In this
+The default <code>settings.xml</code> also contains a UserDirectories section.
+In this
 section you can specify directories in which openMSX should look for to find
 files that you mention on the command line or in the Console (see below). If
 you have some big directory with a lot of disk images, e.g., you can add a line
@@ -409,10 +355,18 @@ Use this to make things just a little more comfortable.
 </p>
 
 <p>
-You can also register more file extensions in the <code>settings.xml</code> file. See the
-"FileTypes" section of the file.
+You can also register more file extensions in the <code>settings.xml</code> file.
+See the "FileTypes" section of the file.
 </p>
 
+<p>
+A special section is <code>AutoCommands</code>.
+Here you can list console commands that will be executed
+when openMSX starts up.
+By using the <code>set</code> command you can modify the runtime settings
+of openMSX.
+By using the <code>bind</code> command you can create custom key bindings.
+</p>
 
 <p>
 There are more settings you can make using this file. Just look at the file
@@ -420,46 +374,37 @@ after you have a little more experience with openMSX and the comments in it
 will tell you what everything means.
 </p>
 
+<h2><a id="hardwareedit">5. Writing Machine Descriptions</a></h2>
 
 <p>
-This concludes this section.
-</p>
-
-<h2><a id="foo7">7. Adding MSX devices to your (custom) config file</a></h2>
-
-<p>
-OK, a standard NMS-8250 is a bit dull. Let's add some devices.
-</p>
-
-<p>
-There are two ways to use extra devices in your emulated MSX. You can use an
-extension (which is analogous to inserting a cartridge with the device into the
-MSX) or you can modify the hardware configuration file (which is analogous to
-open the MSX and build in the device). As it is in the real world, the former is
-the easiest thing and the latter the more complicated thing. So, let's start
-with the former.
-</p>
-
-<h3><a id="foo7.2">7.2 Modifying the internals of the MSX</a></h3>
-
-
-<p>
-Now, let's talk about modifying the internals of your emulated MSX... This is a
-bit more advanced, you may skip the rest of this section and read it later, it
-won't spoil the fun.
+There are two ways to use extra devices in your emulated MSX:
+you can use an extension
+(which is analogous to inserting a cartridge with the device into the MSX)
+or you can modify the hardware configuration file
+(which is analogous to open the MSX and build in the device).
+As in the real world, extensions are easier to use,
+but modifying the machine gives you more possibilities.
+Using extensions is covered in the
+<a class="external" href="user.html">User's Manual</a>;
+this chapter tells you how you can create or modify machine descriptions.
+By editing the XML files, you can for example increase the amount of RAM,
+add a built-in MSX-MUSIC, add a disk drive, create extra cartridge slots etc.
 </p>
 
 <p>
 You can modify an MSX machine (e.g. to add devices) by editing the XML config
 file. So, let's make a copy of <code>machines/Philips_NMS_8250/hardwareconfig.xml</code> and
-put it in <code>~/.openMSX/share/machines/mymsx/</code> under the name of <code>hardwareconfig.xml</code>.
+put it in <code>machines/mymsx/</code> under the name of <code>hardwareconfig.xml</code>.
 It's the config we are going to play with; our custom MSX.
+Note for Linux users: it is convenient to use the directory
+<code>~/.openMSX/share/machines</code> to store your home-made machines,
+instead of the openMSX installation directory.
 </p>
 
 <p>
 There is a special config file in the source tree that isn't usable by itself,
 but contains XML fragments of some possible devices currently implemented in
-openMSX. This file is called "<code>exampleconfigs.xml</code>" and is currently located in
+openMSX. This file is called <code>exampleconfigs.xml</code> and is currently located in
 the directory <code>doc/</code>. It is very convenient to copy and paste
 parts of it to your own <code>mymsx/hardwareconfig.xml</code>. Of course, you can also use
 fragments from other existing configurations that can be found in
@@ -484,7 +429,7 @@ some place in your <code>mymsx/hardwareconfig.xml</code> file (between the <code
 </pre>
 
 <p>
-Don't forget to add the <code>fmpac.rom</code> file to the roms direcory of your machine.
+Don't forget to add the <code>fmpac.rom</code> file to the roms directory of your machine.
 </p>
 
 <p>
@@ -525,76 +470,100 @@ Another thing you may want to change: the amount of RAM of the MSX: change the
 </p>
 
 <p>
-If you understand the basics of XML, you should be able to compose most of your MSX now!
+If you understand the basics of XML, you should be able to compose your MSX now!
+You can use the ready-made configurations in <code>share/machines</code> as
+examples.
 </p>
 
-<!--
-9. Reporting bugs and giving feedback
-
-Since openMSX is still in heavy development, feedback and bug reports are very
-welcome!
-
-If you encounter problems, you have several options:
-
-1) if you're a regular user and want to discuss openMSX and possible problems,
-   join our mailing list openmsx-user@lists.sourceforge.net, see openmsx.sf.net
-   -&gt; Project Summary -&gt; Lists
-2) go to our IRC channel: #openMSX on irc.freenode.net and ask
-3) send an e-mail to the openMSX developer's mailing list:
-   openmsx-devel@lists.sourceforge.net. See the project page on SourceForge.
-4) go visit the SourceForge page of openMSX:
-   http://sourceforge.net/projects/openmsx/
-   Then click on "Tracker". This will show you four trackers (at the moment).
-   Use the bug tracker to look for bugs and post new ones. You can use the
-   Support Request tracker to submit support requests. Feature requests can be
-   submitted in the Feature Requests tracker.
-
-For experienced users: if you get a crash, try to provide a gdb backtrace
-(don't use strip on the openMSX executable then!).
-
-In any case, try to give as much information as possible when you describe your
-bug or request.
--->
-
-<h2><a id="notes">10. Some notes</a></h2>
-
-<h3><a id="foo10.2">10.2 C-BIOS</a></h3>
+<h2><a id="tuning">6. Performance Tuning</a></h2>
 
 <p>
-As already mentioned, there is an alternative for the copyrighted MSX ROMs: you
-can also use the C-BIOS, a home made MSX compatible BIOS, by BouKiChi.  There
-are config files for it in the <code>share/machines</code> directory. With this BIOS you can
-only run an increasing number of ROM files. The files needed for the C-BIOS
-itself are in the <code>Contrib/cbios</code> directory. However, you can also just use the
-machine "cbios-msx1" or "cbios-msx2" to use C-BIOS.
+This chapter contains some tips for tuning the performance of openMSX
+on your system.
 </p>
 
-<h3><a id="foo10.5">10.5 Timing using the Real Time Clock (Linux)</a></h3>
+<h3><a id="slow">6.1. If openMSX Runs Slow</a></h3>
 
 <p>
-If you find the openMSX timing bad (i.e. too irregular), you may want to enable
-RealTimeClock (RTC) based timing. Most systems don't let you use this though.
-You will have to have read permission to <code>/dev/rtc</code> on your system (which maybe a
-symlink to <code>/dev/misc/rtc</code> or something else). After arranging this, you will
-also need to type the following as root:
+CPU and graphics performance varies a lot, depending on the openMSX
+settings and the MSX hardware and software you're emulating.
+Some things run fine on a 200MHz machine, others are slow on a 2GHz
+machine.
+</p>
+
+<p>
+If openMSX runs slow, you can try the following measures:
+</p>
+<ul>
+<li>
+Make sure there are no CPU or I/O heavy background processes is running.
+Downloads, distributed calculation efforts, search indexers etc may grab
+the CPU from time to time, leaving less time for openMSX to do its job.
+Even if they only do so only once in a while, it may be enough to cause
+emulation to stutter.
+</li>
+<li>
+The SDLGL renderer needs hardware acceleration to run at a decent speed.
+If your OpenGL driver is not hardware accelerated,
+use the SDLHi renderer instead.
+If you have hardware accelerated OpenGL, but an older graphics card,
+try disabling scanlines and blur (set them to 0).
+</li>
+<li>
+Use 16-bit colour mode instead of 32-bit.
+openMSX uses your platform's default setting.
+</li>
+<li>
+Use line accuracy (default) instead of pixel accuracy.
+Pixel accuracy takes a lot of overhead, while it is only really needed
+for a couple of demos (Unknown Reality, Verti).
+</li>
+<li>
+Turn on frame skip ("set frameskip auto").
+</li>
+<li>
+Use the low-res SDLLo renderer (75% less pixels to fill).
+</li>
+<li>
+Use a lower sound mixing frequency, for example 22050Hz instead of 44100Hz.
+</li>
+<li>
+Use less sound channels, for example use MSX-MUSIC (maximum 9 channels)
+instead of MoonSound (maximum 18+24 channels).
+</li>
+</ul>
+
+<h3><a id="linuxrtc">6.2. Timing using the Real Time Clock (Linux)</a></h3>
+
+<p>
+If you find the openMSX timing bad (i.e. too irregular),
+you may want to enable RealTimeClock (RTC) based timing.
+This feature is only available in the Linux version of openMSX.
+</p>
+
+<p>
+Most Linux systems need some configuration before the RTC is usable.
+You will have to have read permission to the device <code>/dev/rtc</code>
+on your system
+(which maybe a symlink to <code>/dev/misc/rtc</code> or something else).
+You should also have RTC support in your kernel or loaded as a kernel module.
+After arranging this, you will also need to type the following as root:
 </p>
 <div class="commandline">
- echo 1024 &gt; /proc/sys/dev/rtc/max-user-freq
+echo 1024 &gt; /proc/sys/dev/rtc/max-user-freq
 </div>
 <p>
 or add it to your system startup scripts.
+This line gives user processes, such as openMSX, permission to configure
+the RTC to generate interrupts at frequencies up to 1024Hz.
 </p>
 
 <p>
-openMSX will try to use RTC timing by default, but if that fails, it prints a
-warning and falls back to less accurate SDL timing.
+openMSX will try to use RTC timing by default, but if that fails,
+it prints a warning and falls back to the less accurate SDL timing.
 </p>
 
-<h2><a id="contact">6. Contact Info</a></h2>
-
-<h3>6.1. Contact Info</h3>
-
-<h4>6.1.1. Contact Info</h4>
+<h2><a id="contact">7. Contact Info</a></h2>
 
 <p>
 Since openMSX is still in heavy development, feedback and bug reports are very
