@@ -1,4 +1,22 @@
 
+accuracy
+--------
+
+  Sets the render accuracy. Currently there are three render modes:
+    - screen accurate: This is the fastest but also least accurate mode.
+    - line accurate: This is the recommended mode. Most tricks are 
+                     rendered correctly.
+    - pixel accuracte: This is the slowest but also most accuracte mode.
+                       In this mode even the 'Unknown Reality scoop part'
+                       is renderer correctly.
+  Note: not all renderers support all render modes
+
+  usage:
+    accuracy          shows the current setting
+    accuracy screen   selects screen accuracte rendering
+    accuracy line     selects line accurate rendering
+    accuracy pixel    selects pixel accurate rendering
+
 bind / unbind
 -------------
   

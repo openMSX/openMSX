@@ -199,58 +199,68 @@ inline void SDLGLRenderer::setDisplayMode(int mode)
 
 inline void SDLGLRenderer::renderUntil(const EmuTime &time)
 {
-#define PIXEL_ACCURATE
-#ifdef PIXEL_ACCURATE
-	int limitTicks = vdp->getTicksThisFrame(time);
-	int limitX = limitTicks % VDP::TICKS_PER_LINE;
-	//limitX = (limitX - 100 - (VDP::TICKS_PER_LINE - 100) / 2 + WIDTH) / 2;
-	limitX = (limitX - 100 / 2 - 102) / 2;
-	int limitY = limitTicks / VDP::TICKS_PER_LINE - lineRenderTop;
-	if (limitY < 0) {
-		limitX = 0;
-		limitY = 0;
-	} else if (limitY >= HEIGHT / 2 - 1) {
-		limitX = WIDTH;
-		limitY = HEIGHT / 2 - 1;
-	} else if (limitX < 0) {
-		limitX = 0;
-	} else if (limitX > WIDTH) {
-		limitX = WIDTH;
-	}
-	assert(limitY <= (vdp->isPalTiming() ? 313 : 262));
+	switch (accuracy) {
+	case ACC_PIXEL: {
+		int limitTicks = vdp->getTicksThisFrame(time);
+		int limitX = limitTicks % VDP::TICKS_PER_LINE;
+		//limitX = (limitX - 100 - (VDP::TICKS_PER_LINE - 100) / 2 + WIDTH) / 2;
+		limitX = (limitX - 100 / 2 - 102) / 2;
+		int limitY = limitTicks / VDP::TICKS_PER_LINE - lineRenderTop;
+		if (limitY < 0) {
+			limitX = 0;
+			limitY = 0;
+		} else if (limitY >= HEIGHT / 2 - 1) {
+			limitX = WIDTH;
+			limitY = HEIGHT / 2 - 1;
+		} else if (limitX < 0) {
+			limitX = 0;
+		} else if (limitX > WIDTH) {
+			limitX = WIDTH;
+		}
+		assert(limitY <= (vdp->isPalTiming() ? 313 : 262));
 
-	// split in rectangles
-	if (nextY == limitY) {
-		// only one line
-		(this->*phaseHandler)(nextX, nextY, limitX, limitY);
-	} else {
-		if (nextX != 0) {
-			// top
-			(this->*phaseHandler)(nextX, nextY, WIDTH, nextY);
-			nextY++;
+		// split in rectangles
+		if (nextY == limitY) {
+			// only one line
+			(this->*phaseHandler)(nextX, nextY, limitX, limitY);
+		} else {
+			if (nextX != 0) {
+				// top
+				(this->*phaseHandler)(nextX, nextY, WIDTH, nextY);
+				nextY++;
+			}
+			if (limitX == WIDTH) {
+				// middle + bottom
+				(this->*phaseHandler)(0, nextY, WIDTH, limitY);
+			} else { 
+				if (limitY > nextY)
+					// middle
+					(this->*phaseHandler)(0, nextY, WIDTH, limitY - 1);
+				// bottom
+				(this->*phaseHandler)(0, limitY, limitX, limitY);
+			}
 		}
-		if (limitX == WIDTH) {
-			// middle + bottom
+		nextX = limitX;
+		nextY = limitY;
+		break;
+	}
+	case ACC_LINE: {
+		int limitTicks = vdp->getTicksThisFrame(time);
+		int limitY = limitTicks / VDP::TICKS_PER_LINE - lineRenderTop;
+		assert(limitY <= (vdp->isPalTiming() ? 313 : 262));
+		if (nextY < limitY) {
 			(this->*phaseHandler)(0, nextY, WIDTH, limitY);
-		} else { 
-			if (limitY > nextY)
-				// middle
-				(this->*phaseHandler)(0, nextY, WIDTH, limitY - 1);
-			// bottom
-			(this->*phaseHandler)(0, limitY, limitX, limitY);
+			nextY = limitY ;
 		}
+		break;
 	}
-	nextX = limitX;
-	nextY = limitY;
-#else
-	int limitTicks = vdp->getTicksThisFrame(time);
-	int limitY = limitTicks / VDP::TICKS_PER_LINE - lineRenderTop;
-	assert(limitY <= (vdp->isPalTiming() ? 313 : 262));
-	if (nextY < limitY) {
-		(this->*phaseHandler)(0, nextY, WIDTH, limitY);
-		nextY = limitY ;
+	case ACC_SCREEN: {
+		// TODO
+		break;
 	}
-#endif
+	default:
+		assert(false);
+	}
 }
 
 inline void SDLGLRenderer::sync(const EmuTime &time)

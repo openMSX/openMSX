@@ -198,6 +198,11 @@ protected:
 	  */
 	static const word GRAPHIC7_SPRITE_PALETTE[16];
 
+	/** Render accuracy
+	 */
+	enum Accuracy { ACC_SCREEN, ACC_LINE, ACC_PIXEL };
+	Accuracy accuracy;
+
 private:
 
 	/** Render full screen or windowed?
@@ -216,6 +221,17 @@ private:
 	};
 	friend class FullScreenCmd;
 	FullScreenCmd fullScreenCmd;
+	
+	class AccuracyCmd : public Command {
+		public:
+			AccuracyCmd(Renderer *rend);
+			virtual void execute(const std::vector<std::string> &tokens);
+			virtual void help   (const std::vector<std::string> &tokens);
+		private:
+			Renderer *renderer;
+	};
+	friend class AccuracyCmd;
+	AccuracyCmd accuracyCmd;
 };
 
 #endif //__RENDERER_HH__

@@ -64,10 +64,12 @@ const word Renderer::GRAPHIC7_SPRITE_PALETTE[16] = {
 };
 
 Renderer::Renderer(bool fullScreen) :
-	fullScreenCmd(this)
+	fullScreenCmd(this), accuracyCmd(this)
 {
 	this->fullScreen = fullScreen;
+	accuracy = ACC_LINE;
 	CommandController::instance()->registerCommand(fullScreenCmd, "fullscreen");
+	CommandController::instance()->registerCommand(accuracyCmd, "accuracy");
 	HotKey::instance()->registerHotKeyCommand(Keys::K_PRINT, "fullscreen");
 }
 
@@ -75,6 +77,7 @@ Renderer::~Renderer()
 {
 	HotKey::instance()->unregisterHotKeyCommand(Keys::K_PRINT, "fullscreen");
 	CommandController::instance()->unregisterCommand("fullscreen");
+	CommandController::instance()->unregisterCommand("accuracy");
 }
 
 void Renderer::setFullScreen(bool enabled)
@@ -109,10 +112,60 @@ void Renderer::FullScreenCmd::execute(const std::vector<std::string> &tokens)
 		throw CommandException("Syntax error");
 	}
 }
-void Renderer::FullScreenCmd::help   (const std::vector<std::string> &tokens)
+void Renderer::FullScreenCmd::help(const std::vector<std::string> &tokens)
 {
 	print("This command turns full-screen display on/off");
 	print(" fullscreen:     toggle full-screen");
 	print(" fullscreen on:  switch to full-screen display");
 	print(" fullscreen off: switch to windowed display");
+}
+
+
+// Accuracy command
+Renderer::AccuracyCmd::AccuracyCmd(Renderer *rend)
+{
+	renderer = rend;
+}
+
+void Renderer::AccuracyCmd::execute(const std::vector<std::string> &tokens)
+{
+	switch (tokens.size()) {
+	case 1:
+		switch (renderer->accuracy) {
+		case ACC_SCREEN:
+			print("screen");
+			break;
+		case ACC_LINE:
+			print("line");
+			break;
+		case ACC_PIXEL:
+			print("pixel");
+			break;
+		}
+		break;
+	case 2:
+		if (tokens[1] == "screen") {
+			renderer->accuracy = ACC_SCREEN;
+			break;
+		}
+		if (tokens[1] == "line") {
+			renderer->accuracy = ACC_LINE;
+			break;
+		}
+		if (tokens[1] == "pixel") {
+			renderer->accuracy = ACC_PIXEL;
+			break;
+		}
+		// fall through
+	default:
+		throw CommandException("Syntax error");
+	}
+}
+void Renderer::AccuracyCmd::help(const std::vector<std::string> &tokens)
+{
+	print("This command sets the render accuracy");
+	print(" accuracy:         displays the current setting");
+	print(" accuracy screen:  sets screen accurate rendering");
+	print(" accuracy line:    sets line accurate rendering");
+	print(" accuracy pixel:   sets pixel accurate rendering");
 }
