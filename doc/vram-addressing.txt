@@ -1,0 +1,245 @@
+$Id$
+
+VRAM Addressing
+===============
+
+This document describes a model for the way the V9938 VDP calculates
+addresses in VRAM using base registers and indices.
+
+General Formula
+---------------
+
+General formula for VRAM addressing:
+  vram_address = index1 & mask
+where:
+  vram_address is the index in VRAM
+  index1 is the index in the particular table, such as the name table or
+    colour table. The unused bits of index are all ones.
+  mask is the value in the table's base register. The unused bits of mask
+    are all ones.
+
+Examples:
+
+The name table base register is VDP R#2.
+It contains A16-A10 of the mask, the other bits are 1.
+If R#2 would contain 24h, the mask would be:
+  (24h << 10) | ~(-1 << 10) = 093FFh
+
+In SCREEN1 (Graphic 1) there are usually 24 lines of 32 characters each.
+However, the actual screen height is 32 lines, as can be seen when the
+vertical adjust register R#23 is used. So the number of characters per
+screen is 32*32 = 1024 = 2^10. With one byte per character, the index is
+10 bits wide.
+
+If the index would be 157h, this is extended with leading ones for A10 and
+higher (1FC00h) to become 1FD57h. Then the final address is:
+  vram_address = 1FD57h & 093FFh = 09157h
+
+Note that in this case, the final address is equal to:
+  R#2 * 2^10 + index = 09000h + 157h = 09157h
+This is true for all display modes in which the used bits in the base
+register (A16..A10 in this case) do not overlap the bits in the index
+(A9..A0 in this case). This is also the way application programmers
+typically use the table base address registers.
+
+In SCREEN5 (Graphic 4) there are 256 lines of 128 bytes each. Only 212 lines
+are visible at a time, but using the vertical adjust register R#23 all 256
+lines can be seen. A line is 256 pixels wide, with 4 bits per pixel that
+makes 128 bytes per line. So the total number of bytes per screen is
+256 * 128 = 32768 = 2^15. Therefore the index is 15 bits wide.
+
+If the index would be 4521h, this is extended with leading ones for A16 and
+A15 (18000h) to become 1C521h. Using the same mask as before (093FFh), the
+final address is:
+  vram_address = 1C521h & 093FFh = 08121h
+
+Note that in this case, the final address is NOT equal to:
+  R#2 * 2^10 + index = 09000h + 4521h = 0D521h
+The VDP data book states that in SCREEN5 bit4 to bit0 should be 1, in those
+cases the general formula is equivalent to addition. But when some of those
+bits are zeroes, the general formula gives the same result the real VDP
+does, while addition does not. The many-scrollers part of Anma's "Source of
+Power" demo uses this feature to display the same scrolling text many times
+on the same screen.
+
+Range Checking
+--------------
+
+Different VDP subsystems are interested in different tables. For example,
+the sprite subsystem is only interested in the sprite name and pattern
+tables. On reads and writes to tables, interested subsystems must be
+informed so they can update their internal state. Therefore an algorithm is
+needed which calculates in which tables (if any) a given address is located.
+
+TODO: Create a simple function that returns true iff a given address is
+      inside a given table.
+
+Index Width
+-----------
+
+Which address bits are stored in the table base address registers is
+documented in the VDP data book, but which address bits are produced by the
+index is not documented there. This section fills that gap.
+
+- Name Table -
+
+Name table base address is [A16..A10] (R#2).
+
+Display mode:   Index width in bits:
+   Text 1         12 (*1)
+   Text 2         12
+ Multicolour      10 (*2)
+  Graphic 1       10 (*2)
+  Graphic 2       10 (*2)
+  Graphic 3       10 (*2)
+  Graphic 4       15
+  Graphic 5       15
+  Graphic 6       15 + plane (*3)
+  Graphic 7       15 + plane (*3)
+(*1) Text 1 index is calculated as 00C00h + position.
+     On MSX1 it was 10 bits wide. For some reason, unifying address
+     calculation with Text 2 must have been simpler than keeping it 10 bits
+     wide, even though unification requires an add operation.
+(*2) Maybe this is 12 bits and index = 00C00h + position just like Text 1.
+     That's equivalent to 10 bits though, because there are 1024 characters
+     per screen.
+(*3) See "Planar Addressing" section for details.
+
+- Pattern Table -
+
+Pattern table base address is [A16..A11] (R#4).
+
+Display mode:   Index width in bits:
+   Text 1         11
+   Text 2         11
+ Multicolour      11
+  Graphic 1       11
+  Graphic 2       13
+  Graphic 3       13
+  Graphic 4       -
+  Graphic 5       -
+  Graphic 6       -
+  Graphic 7       -
+
+- Colour Table -
+
+Colour table base address is [A16..A6] (R#3 and R#10).
+
+Display mode:   Index width in bits:
+   Text 1         -
+   Text 2         9
+ Multicolour      -
+  Graphic 1       6 (*1)
+  Graphic 2       13
+  Graphic 3       13
+  Graphic 4       -
+  Graphic 5       -
+  Graphic 6       -
+  Graphic 7       -
+(*1) Bit5 is fixed to zero.
+
+- Sprite Attribute Table -
+
+TODO
+
+- Sprite Pattern Table -
+
+TODO
+
+Index Calculation
+-----------------
+
+The following variables occur in every display mode:
+  org_line: display line,
+            0 <= org_line < 256
+  line:     org_line after scroll adjustment (R#23 is applied),
+            0 <= line < 256
+  name:     value in VRAM at address (name_index & name_mask),
+            0 <= name < 256
+
+The "/" operation is integer division ("div").
+The "%" operation is modulo/remainder ("mod").
+
+- Text 1 -
+
+Aka SCREEN0, WIDTH40.
+0 <= x < 40
+y = org_line / 8
+name_index = 00C00h + y * 40 + x
+pattern_index = name * 8 + line % 8
+
+Adding 00C00h was probably done to make the index 12 bits wide, just like
+in Text 2 mode. You can see this addition in action if you enable 212 lines
+display and then play with different values of R#2. Pay attention to the
+characters displayed in the lower few lines of the screen.
+
+- Text 2 -
+
+Aka SCREEN0, WIDTH80.
+0 <= x < 80
+y = org_line / 8
+name_index = y * 80 + x
+pattern_index = name * 8 + line % 8
+
+- Multicolour -
+
+Aka SCREEN3.
+0 <= x < 32
+y = line / 8
+name_index = y * 32 + x
+pattern_index = name * 8 + line % 4
+
+- Graphic 1 -
+
+Aka SCREEN1.
+0 <= x < 32
+y = line / 8
+name_index = y * 32 + x
+pattern_index = name * 8 + line % 8
+colour_index = name / 8
+
+- Graphic 2 and 3 -
+
+These modes are equivalent, except for the sprite mode.
+Aka SCREEN2 and SCREEN4.
+0 <= x < 32
+y = line / 8
+name_index = y * 32 + x
+pattern_index = ((line / 64) * 256 + name) * 8 + line % 8
+colour_index = ((line / 64) * 256 + name) * 8 + line % 8
+
+- Graphic 4 -
+
+0 <= x < 256
+name_index = line * 128 + x / 2
+
+- Graphic 5 -
+
+0 <= x < 512
+name_index = line * 128 + x / 4
+
+- Graphic 6 -
+
+0 <= x < 512
+name_index = line * 128 + x / 4
+plane = (x / 2) % 2
+
+- Graphic 7 -
+
+0 <= x < 256
+name_index = line * 128 + x / 2
+plane = x % 2
+
+- Sprite Mode 1 -
+
+TODO
+
+- Sprite Mode 2 -
+
+TODO
+
+Planar Addressing
+-----------------
+
+TODO: What is it? Where in the 'pipeline' does it happen?
+
