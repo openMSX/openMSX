@@ -1,6 +1,7 @@
 // $Id$
 
 #include <sstream>
+#include <typeinfo>
 #include "Settings.hh"
 #include "CommandController.hh"
 #include "RenderSettings.hh"
