@@ -29,4 +29,7 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 
 dnl Checks for library functions.
 
-AC_OUTPUT(Makefile openmsx.lsm openmsx.spec)
+dnl libtool
+AC_PROG_LIBTOOL
+
+AC_OUTPUT(Makefile openmsx.lsm openmsx.spec doc/Makefile src/Makefile)

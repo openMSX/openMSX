@@ -1,3 +1,5 @@
+SUBDIRS = src doc
+
 bin_PROGRAMS=openmsx
 openmsx_SOURCES=openmsx.cc openmsx.1 system.h aclocal.m4
 
@@ -10,9 +12,3 @@ EXTRA_DIST=openmsx.lsm.in #NAME.texinfo openmsx.spec.in
 #  following and add `chk' to the EXTRA_DIST list
 #TESTS=chk
 
-#  build and install the .info pages
-#info_TEXINFOS = openmsx.texinfo
-#openmsx_TEXINFOS = gpl.texinfo
-
-#  install the man pages
-man_MANS=openmsx.1
