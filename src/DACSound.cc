@@ -53,7 +53,7 @@ void DACSound::writeDAC(byte value, const Emutime &time)
 	ref = time;
 	
 	if (left != 1) {
-		// complete a previous written sample 
+		// complete a previously written sample 
 		if (duration >= left) {
 			// complete till end of sample
 			insertSamples(1, tempVal + left*volTable[value]); // 1 interpolated sample
@@ -80,6 +80,7 @@ void DACSound::writeDAC(byte value, const Emutime &time)
 		left -= duration;
 	}
 
+	PRT_DEBUG("DAC unmuted");
 	setInternalMute(false);	// set not muted
 }
 
@@ -89,6 +90,7 @@ void DACSound::insertSamples(int nbSamples, short sample)
 	audioBuffer[bufWriteIndex].nbSamples = nbSamples;
 	audioBuffer[bufWriteIndex].sample    = sample;
 	bufWriteIndex = (bufWriteIndex+1) % BUFSIZE;
+	assert(bufWriteIndex!=bufReadIndex);
 }
 
 void DACSound::setInternalVolume(short newVolume)
@@ -123,6 +125,7 @@ int* DACSound::updateBuffer(int length)
 				*(buffer++) = volTable[DACValue];
 			}
 			if (DACValue == CENTER)
+				PRT_DEBUG("DAC muted");
 				setInternalMute(true);	// set muted
 		} else {
 			// update from bufreadindex
@@ -134,6 +137,7 @@ int* DACSound::updateBuffer(int length)
 				for (;nbSamples>0; nbSamples--) {
 					*(buffer++) = sample;
 				}
+				bufReadIndex = (bufReadIndex+1) % BUFSIZE;
 			} else {
 				audioBuffer[bufReadIndex].nbSamples -= length;
 				for (;length>0; length--) {
@@ -141,7 +145,6 @@ int* DACSound::updateBuffer(int length)
 				}
 			}
 		}
-		bufReadIndex = (bufReadIndex+1) % BUFSIZE;
 	}
 	return buf;
 }

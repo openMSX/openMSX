@@ -4,12 +4,13 @@
 #include "openmsx.hh"
 #include "Mixer.hh"
 #include "emutime.hh"
+#include "MSXCPU.hh"
 
 
 KeyClick::KeyClick()
 {
 	dac = new DACSound(15000);	// TODO find a good value and put it in config file
-	reset();
+	status = false;
 }
 
 KeyClick::~KeyClick()
@@ -19,8 +20,7 @@ KeyClick::~KeyClick()
 
 void KeyClick::reset()
 {
-	Emutime dummy;
-	setClick(false, dummy);
+	setClick(false, MSXCPU::instance()->getCurrentTime());
 }
 
 void KeyClick::setClick(bool newStatus, const Emutime &time)
