@@ -40,12 +40,12 @@ public:
 
 	/** MSXIODevice interface
 	  */  
-	virtual byte readIO(byte port, const EmuTime &time);
-	virtual void writeIO(byte port, byte value, const EmuTime &time);
+	virtual byte readIO(byte port, const EmuTime& time);
+	virtual void writeIO(byte port, byte value, const EmuTime& time);
 
 	/** MSXDevice interface
 	  */ 
-	virtual void reset(const EmuTime &time);
+	virtual void reset(const EmuTime& time);
 	
 
 private:
@@ -97,12 +97,13 @@ private:
 	/** VDP Registers
 	  */
 	enum RegId {
-		VRAM_WR_ADR0,
-		VRAM_WR_ADR1,
-		VRAM_WR_ADR2,
-		VRAM_RD_ADR0,
-		VRAM_RD_ADR1,
-		VRAM_RD_ADR2,
+		VRAM_WR_ADR0 =  0,
+		VRAM_WR_ADR1 =  1,
+		VRAM_WR_ADR2 =  2,
+		VRAM_RD_ADR0 =  3,
+		VRAM_RD_ADR1 =  4,
+		VRAM_RD_ADR2 =  5,
+		PALETTE_PTR  = 14,
 		/* ... */
 	};
 	byte regs[0x40];
@@ -118,6 +119,10 @@ private:
 	/** VRAM
 	  */
 	byte* vram;
+
+	/** Palette
+	  */
+	byte palette[256];
 };
 
 } // namespace openmsx

@@ -2,6 +2,7 @@ $Id$
 
 2004-04-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented a faster DC removal filter, thanks to dvik
+	* Implemeted V9990 palette reading/writing 
 
 2004-05-01 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* fixed [926293] Win32: specifying driveletter without path 
