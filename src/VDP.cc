@@ -875,11 +875,18 @@ void VDP::updateDisplayMode(
 		| ((reg1  & 0x10) >> 4); // M1
 	if (newMode != displayMode) {
 		//PRT_DEBUG("VDP: mode " << newMode);
+		
+		// Synchronise subsystems.
 		vram->updateDisplayMode(newMode, time);
+
+		// What aspects have changed:
 		// Switched from planar to nonplanar or vice versa.
 		bool planarChange = isPlanar(newMode) != isPlanar();
 		// Sprite mode changed.
 		bool spriteModeChange = getSpriteMode(newMode) != getSpriteMode();
+
+		// Commit the new display mode.
+		displayMode = newMode;
 
 		if (planarChange) {
 			updateSpritePatternBase(time);
@@ -888,7 +895,6 @@ void VDP::updateDisplayMode(
 			updateSpriteAttributeBase(time);
 		}
 
-		displayMode = newMode;
 		// To be extremely accurate, reschedule hscan when changing
 		// from/to text mode. Text mode has different border width,
 		// which affects the moment hscan occurs.
