@@ -8,7 +8,7 @@
 #include <fstream>
 
 using std::vector;
-using std::fstream;
+using std::ostream;
 using std::ofstream;
 
 namespace openmsx {
