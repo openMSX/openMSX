@@ -110,7 +110,7 @@ VDPCmdEngine::VDPCmdEngine(VDP *vdp_)
 VDPCmdEngine::~VDPCmdEngine()
 {
 	VDPSettings::instance()->getCmdTiming()->removeListener(this);
-	
+
 	// skip 0, 1, 2
 	for (int i = 3; i < 16; i++) {
 		delete commands[i];
@@ -230,9 +230,15 @@ void VDPCmdEngine::updateDisplayMode(DisplayMode mode, const EmuTime &time)
 	if (newScrMode != scrMode) {
 		sync(time);
 		scrMode = newScrMode;
-		// TODO for now abort cmd in progress, find out what really happens
 		if (CMD) {
 			PRT_DEBUG("Warning: VDP mode switch while command in progress");
+			if (scrMode == -1) {
+				// TODO: For now abort cmd in progress,
+				//       later find out what really happens.
+				//       At least CE remains high for a while,
+				//       but it is not yet clear what happens in VRAM.
+				commandDone(time);
+			}
 		}
 	}
 }
@@ -742,7 +748,7 @@ VDPCmdEngine::BlockCmd::BlockCmd(VDPCmdEngine *engine, VDPVRAM *vram,
 void VDPCmdEngine::BlockCmd::calcFinishTime(word NX, word NY)
 {
 	if (engine->CMD) {
-		int ticks = ((NX * (NY - 1)) + ANX) * timing[engine->getTiming()]; 
+		int ticks = ((NX * (NY - 1)) + ANX) * timing[engine->getTiming()];
 		engine->statusChangeTime = currentTime + ticks;
 	}
 }
