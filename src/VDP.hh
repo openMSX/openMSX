@@ -236,7 +236,7 @@ public:
 	  * @return Adjust: 0 is leftmost, 7 is center, 15 is rightmost.
 	  */
 	inline int getHorizontalAdjust() {
-		return (controlRegs[18] & 0x0F) ^ 0x07;
+		return horizontalAdjust;
 	}
 
 	/** Gets the current vertical display adjust.
@@ -407,7 +407,10 @@ private:
 		VSCAN,
 		/** Horizontal scanning: line interrupt.
 		  */
-		HSCAN
+		HSCAN,
+		/** Horizontal adjust change
+		  */
+		HOR_ADJUST,
 	};
 
 	/** Gets the number of VDP clockticks (21MHz) per frame.
@@ -569,6 +572,12 @@ private:
 	  * @see getLineZero
 	  */
 	int lineZero;
+
+	/** Horizontal display adjust.
+	  * This value is update at the start of a line.
+	  * @see getHorizontalAdjust.
+	  */
+	int horizontalAdjust;
 
 	/** Vertical display adjust.
 	  * This value is updated at the start of every frame.

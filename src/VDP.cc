@@ -153,6 +153,8 @@ void VDP::resetInit(const EmuTime &time)
 	paletteLatch = -1;
 	blinkState = false;
 	blinkCount = 0;
+	horizontalAdjust = 0;
+	verticalAdjust = 0;
 
 	// Init status registers.
 	statusReg0 = 0x00;
@@ -245,6 +247,10 @@ void VDP::executeUntilEmuTime(const EmuTime &time, int userData)
 	case HSCAN:
 		// Horizontal scanning occurs.
 		if (controlRegs[0] & 0x10) irqHorizontal.set();
+		break;
+	case HOR_ADJUST:
+		renderer->updateHorizontalAdjust(horizontalAdjust, time);
+		horizontalAdjust = (controlRegs[18] & 0x0F) ^ 0x07;
 		break;
 	default:
 		assert(false);
@@ -739,7 +745,10 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		break;
 	case 18:
 		if (change & 0x0F) {
-			renderer->updateHorizontalAdjust((val & 0x0F) ^ 0x07, time);
+			int line = getTicksThisFrame(time) / TICKS_PER_LINE;
+			int ticks = (line + 1) * TICKS_PER_LINE;
+			EmuTime nextTime = frameStartTime + ticks;
+			Scheduler::instance()->setSyncPoint(nextTime, this, HOR_ADJUST);
 		}
 		break;
 	case 23:

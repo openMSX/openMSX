@@ -1,5 +1,9 @@
 $Id$
 
+2002-10-07 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Horizontal adjust is only updated the next scanline:
+	   fixes some glitches in the "threedee rules" part of "relax"
+
 2002-10-05 Maarten ter Huurne <mth@stack.nl>
 	Last minute Bussum fixes:
 	* Temporarily reverted name table base fix.
