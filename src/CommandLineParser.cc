@@ -60,11 +60,13 @@ CommandLineParser::CommandLineParser()
 	haveSettings = false;
 	issuedHelp = false;
 
-	registerOption("-machine", &machineOption, 3);
-	registerOption("-setting", &settingOption, 2);
-	registerOption("-h",       &helpOption, 1, 1);
-	registerOption("-v",       &versionOption, 1, 1);
-	registerOption("-control", &controlOption, 1, 1);
+	registerOption("-machine",  &machineOption, 3);
+	registerOption("-setting",  &settingOption, 2);
+	registerOption("-h",        &helpOption, 1, 1);
+	registerOption("--help",    &helpOption, 1, 1);
+	registerOption("-v",        &versionOption, 1, 1);
+	registerOption("--version", &versionOption, 1, 1);
+	registerOption("-control",  &controlOption, 1, 1);
 }
 
 CommandLineParser::~CommandLineParser()
