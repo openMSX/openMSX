@@ -32,27 +32,42 @@ inline unsigned Multiply<unsigned>::convert(unsigned p)
 
 Multiply<word>::Multiply(SDL_PixelFormat* format)
 {
-	Rmask = format->Rmask;;
-	Gmask = format->Gmask;
-	Bmask = format->Bmask;
-	Rshift1 =      format->Rshift + format->Rloss;
-	Gshift1 = 8  - format->Gshift + format->Gloss;
+	Rmask1 = format->Rmask;;
+	Gmask1 = format->Gmask;
+	Bmask1 = format->Bmask;
+
+	Rshift1 =  0 - format->Rshift + format->Rloss;
+	Gshift1 =  8 - format->Gshift + format->Gloss;
 	Bshift1 = 16 - format->Bshift + format->Bloss;
-	Rshift2 = Rshift1 + 8;
-	Gshift2 = Gshift1 + 8;
-	Bshift2 = Bshift1 + 8;
+
+	Rmask2 = ((1 << format->Rloss) - 1) <<
+	                (8 + format->Rshift - 2 * format->Rloss);
+	Gmask2 = ((1 << format->Gloss) - 1) <<
+	                (8 + format->Gshift - 2 * format->Gloss);
+	Bmask2 = ((1 << format->Bloss) - 1) <<
+	                (8 + format->Bshift - 2 * format->Bloss);
+
+	Rshift2 =   8 - 2 * format->Rloss + format->Rshift -  0;  // right
+	Gshift2 =   8 - 2 * format->Gloss + format->Gshift -  8;  // right
+	Bshift2 = -(8 - 2 * format->Bloss + format->Bshift - 16); // left
+	
+	Rshift3 = Rshift1 + 8;
+	Gshift3 = Gshift1 + 8;
+	Bshift3 = Bshift1 + 8;
 }
 inline unsigned Multiply<word>::multiply(word p, unsigned factor)
 {
-	return ((((p & Rmask) * factor) << Rshift1) & 0x0000FF) |
-	       ((((p & Gmask) * factor) << Gshift1) & 0x00FF00) |
-	       ((((p & Bmask) * factor) << Bshift1) & 0xFF0000);
+	unsigned r = (p & Rmask1) << Rshift1 | (p & Rmask2) >> Rshift2;
+	unsigned g = (p & Gmask1) << Gshift1 | (p & Gmask2) >> Gshift2;
+	unsigned b = (p & Bmask1) << Bshift1 | (p & Bmask2) << Bshift2;
+	return (((r | b) * factor) & 0xFF00FF00) |
+	       (( g      * factor) & 0x00FF0000); 
 }
 inline word Multiply<word>::convert(unsigned p)
 {
-	return ((p >> Rshift2) & Rmask) |
-	       ((p >> Gshift2) & Gmask) |
-	       ((p >> Bshift2) & Bmask);
+	return ((p >> Rshift3) & Rmask1) |
+	       ((p >> Gshift3) & Gmask1) |
+	       ((p >> Bshift3) & Bmask1);
 }
 
 template <class Pixel>
