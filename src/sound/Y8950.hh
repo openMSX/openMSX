@@ -150,7 +150,6 @@ class Y8950: private SoundDevice, private TimerCallback, private Debuggable
 		/** Liner to Log curve conversion table (for Attack rate). */
 		static int AR_ADJUST_TABLE[1<<EG_BITS];
 	};
-	friend class Slot;
 
 	class Channel {
 	public:

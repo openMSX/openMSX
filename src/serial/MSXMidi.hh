@@ -17,12 +17,12 @@ namespace openmsx {
 
 class MSXMidi: public MSXIODevice, public MidiInConnector {
 public:
-	MSXMidi(Device *config, const EmuTime &time);
+	MSXMidi(Device *config, const EmuTime& time);
 	virtual ~MSXMidi();
 
-	virtual void reset(const EmuTime &time);
-	virtual byte readIO(byte port, const EmuTime &time);
-	virtual void writeIO(byte port, byte value, const EmuTime &time);
+	virtual void reset(const EmuTime& time);
+	virtual byte readIO(byte port, const EmuTime& time);
+	virtual void writeIO(byte port, byte value, const EmuTime& time);
 
 	// MidiInConnector
 	virtual bool ready();
@@ -57,7 +57,7 @@ private:
 	private:
 		MSXMidi& midi;
 	} cntr0;
-	friend class Counter0;
+	
 	// counter 2 clock pin
 	class Counter2 : public ClockPinListener {
 	public:
@@ -70,7 +70,7 @@ private:
 	private:
 		MSXMidi& midi;
 	} cntr2;
-	friend class Counter2;
+	
 	I8254 i8254;
 
 	// I8251Interface
@@ -91,7 +91,7 @@ private:
 	private:
 		MSXMidi& midi;
 	} interf;
-	friend class I8251Interf;
+	
 	I8251 i8251;
 	MidiOutConnector outConnector;
 };

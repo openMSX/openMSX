@@ -182,7 +182,6 @@ private:
 	private:
 		Scheduler& parent;
 	} quitCommand;
-	friend class QuitCommand;
 
 	class ResetCmd : public SimpleCommand {
 	public:

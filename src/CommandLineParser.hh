@@ -110,7 +110,6 @@ private:
 	private:
 		CommandLineParser& parent;
 	} helpOption;
-	friend class HelpOption;
 
 	class VersionOption : public CLIOption {
 	public:
@@ -122,7 +121,6 @@ private:
 	private:
 		CommandLineParser& parent;
 	} versionOption;
-	friend class VersionOption;
 
 	class ControlOption : public CLIOption {
 	public:
@@ -136,7 +134,6 @@ private:
 	private:
 		CommandLineParser& parent;
 	} controlOption;
-	friend class ControlOption;
 
 	class MachineOption : public CLIOption {
 	public:
@@ -148,7 +145,6 @@ private:
 	private:
 		CommandLineParser& parent;
 	} machineOption;
-	friend class MachineOption;
 
 	class SettingOption : public CLIOption {
 	public:
@@ -160,7 +156,6 @@ private:
 	private:
 		CommandLineParser& parent;
 	} settingOption;
-	friend class SettingOption;
 };
 
 } // namespace openmsx

@@ -25,7 +25,6 @@ class OSDConsoleRenderer;
 class SDLGLRenderer : public PixelRenderer
 {
 public:
-
 	// TODO: Make private.
 	// The reason it's public is that non-member functions in SDLGLRenderer.cc
 	// are using this type.
@@ -33,30 +32,30 @@ public:
 
 	// Renderer interface:
 
-	virtual void reset(const EmuTime &time);
+	virtual void reset(const EmuTime& time);
 	virtual bool checkSettings();
-	virtual void frameStart(const EmuTime &time);
-	//virtual void frameEnd(const EmuTime &time);
+	virtual void frameStart(const EmuTime& time);
+	//virtual void frameEnd(const EmuTime& time);
 	virtual void putImage();
 	virtual int  putPowerOffImage();
 	virtual void takeScreenShot(const string& filename)
 		throw(CommandException);
-	virtual void updateTransparency(bool enabled, const EmuTime &time);
-	virtual void updateForegroundColour(int colour, const EmuTime &time);
-	virtual void updateBackgroundColour(int colour, const EmuTime &time);
-	virtual void updateBlinkForegroundColour(int colour, const EmuTime &time);
-	virtual void updateBlinkBackgroundColour(int colour, const EmuTime &time);
-	virtual void updateBlinkState(bool enabled, const EmuTime &time);
-	virtual void updatePalette(int index, int grb, const EmuTime &time);
-	virtual void updateVerticalScroll(int scroll, const EmuTime &time);
-	virtual void updateHorizontalAdjust(int adjust, const EmuTime &time);
-	//virtual void updateDisplayEnabled(bool enabled, const EmuTime &time);
-	virtual void updateDisplayMode(DisplayMode mode, const EmuTime &time);
-	virtual void updateNameBase(int addr, const EmuTime &time);
-	virtual void updatePatternBase(int addr, const EmuTime &time);
-	virtual void updateColourBase(int addr, const EmuTime &time);
-	//virtual void updateVRAM(int offset, const EmuTime &time);
-	//virtual void updateWindow(bool enabled, const EmuTime &time);
+	virtual void updateTransparency(bool enabled, const EmuTime& time);
+	virtual void updateForegroundColour(int colour, const EmuTime& time);
+	virtual void updateBackgroundColour(int colour, const EmuTime& time);
+	virtual void updateBlinkForegroundColour(int colour, const EmuTime& time);
+	virtual void updateBlinkBackgroundColour(int colour, const EmuTime& time);
+	virtual void updateBlinkState(bool enabled, const EmuTime& time);
+	virtual void updatePalette(int index, int grb, const EmuTime& time);
+	virtual void updateVerticalScroll(int scroll, const EmuTime& time);
+	virtual void updateHorizontalAdjust(int adjust, const EmuTime& time);
+	//virtual void updateDisplayEnabled(bool enabled, const EmuTime& time);
+	virtual void updateDisplayMode(DisplayMode mode, const EmuTime& time);
+	virtual void updateNameBase(int addr, const EmuTime& time);
+	virtual void updatePatternBase(int addr, const EmuTime& time);
+	virtual void updateColourBase(int addr, const EmuTime& time);
+	//virtual void updateVRAM(int offset, const EmuTime& time);
+	//virtual void updateWindow(bool enabled, const EmuTime& time);
 
 protected:
 	void finishFrame();
@@ -74,7 +73,6 @@ protected:
 		);
 
 private:
-
 	friend class SDLGLRendererFactory;
 
 	/** Constructor, called by SDLGLRendererFactory.

@@ -78,7 +78,6 @@ private:
 	private:
 		HotKey& parent;
 	} bindCmd;
-	friend class BindCmd;
 
 	class UnbindCmd : public SimpleCommand {
 	public:
@@ -90,7 +89,6 @@ private:
 	private:
 		HotKey& parent;
 	} unbindCmd;
-	friend class UnbindCmd;
 };
 
 } // namespace openmsx

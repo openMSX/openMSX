@@ -18,13 +18,13 @@ namespace openmsx {
 class MSXRS232:
 	public MSXIODevice, public MSXMemDevice, public RS232Connector {
 public:
-	MSXRS232(Device *config, const EmuTime &time);
+	MSXRS232(Device *config, const EmuTime& time);
 	virtual ~MSXRS232();
 
-	virtual void reset(const EmuTime &time);
-	virtual byte readIO(byte port, const EmuTime &time);
-	virtual void writeIO(byte port, byte value, const EmuTime &time);
-	virtual byte readMem(word address, const EmuTime &time);
+	virtual void reset(const EmuTime& time);
+	virtual byte readIO(byte port, const EmuTime& time);
+	virtual void writeIO(byte port, byte value, const EmuTime& time);
+	virtual byte readMem(word address, const EmuTime& time);
 	virtual const byte *getReadCacheLine(word start) const;
 
 	// RS232Connector  (input)
@@ -57,7 +57,7 @@ private:
 	private:
 		MSXRS232& rs232;
 	} cntr0;
-	friend class Counter0;
+	
 	// counter 1 tx clock pin
 	class Counter1 : public ClockPinListener {
 	public:
@@ -70,7 +70,7 @@ private:
 	private:
 		MSXRS232& rs232;
 	} cntr1;
-	friend class Counter1;
+	
 	I8254 i8254;
 
 	// I8251Interface
@@ -91,7 +91,7 @@ private:
 	private:
 		MSXRS232& rs232;
 	} interf;
-	friend class I8251Interf;
+	
 	I8251 i8251;
 	Rom rom;
 };

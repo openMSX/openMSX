@@ -34,6 +34,8 @@ public:
 	/** Execute this command.
 	  * @param tokens Tokenized command line;
 	  * 	tokens[0] is the command itself.
+	  * @param result The result of the command must be assigned to this
+	  *               parameter.
 	  */
 	virtual void execute(const vector<string>& tokens, CommandResult& result)
 		throw (CommandException) = 0;

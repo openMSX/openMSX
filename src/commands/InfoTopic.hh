@@ -22,6 +22,8 @@ public:
 	/** Show info on this topic
 	  * @param tokens Tokenized command line;
 	  *     tokens[1] is the topic.
+	  * @param result The result of this topic must be assigned to this
+	  *               parameter.
 	  */
 	virtual void execute(const vector<string>& tokens,
 	                     CommandResult& result) const

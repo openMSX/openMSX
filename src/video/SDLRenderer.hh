@@ -28,7 +28,6 @@ template <class Pixel, Renderer::Zoom zoom>
 class SDLRenderer : public PixelRenderer
 {
 public:
-
 	// Renderer interface:
 
 	virtual void reset(const EmuTime& time);
@@ -76,7 +75,6 @@ protected:
 	virtual void update(const SettingLeafNode* setting) throw();
 
 private:
-
 	/** Horizontal dimensions of the screen.
 	  */
 	static const unsigned WIDTH = (zoom == Renderer::ZOOM_256 ? 320 : 640);
