@@ -57,7 +57,7 @@ public:
 	  * Bit 0 (CE) is set when a command is in progress.
 	  */
 	inline byte getStatus(const EmuTime &time) {
-		if (commands[CMD]->willStatusChange(time)) {
+		if (CMD && commands[CMD]->willStatusChange(time)) {
 			sync(time);
 		}
 		return status;
@@ -108,6 +108,10 @@ private:
 	
 	void executeCommand(const EmuTime &time);
 	
+	/** Finshed executing graphical operation.
+	  */
+	void commandDone(const EmuTime& time);
+	
 	/** Report to stdout the VDP command specified in the registers.
 	  */
 	void reportVdpCommand();
@@ -134,7 +138,8 @@ private:
 	/** The VDP this command engine is part of.
 	  */
 	VDP *vdp;
-
+	VDPVRAM* vram;
+	
 	/** Current screen mode.
 	  * 0 -> SCREEN5, 1 -> SCREEN6, 2 -> SCREEN7, 3 -> SCREEN8,
 	  * -1 -> other.
@@ -223,10 +228,6 @@ private:
 		/** Set a pixel on the screen.
 		  */
 		inline void pset(int dx, int dy, byte cl, LogOp op);
-
-		/** Finshed executing graphical operation.
-		  */
-		void commandDone();
 
 		/** Clipping methods
 		  */

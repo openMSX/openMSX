@@ -74,7 +74,7 @@ const int LMMM_TIMING[5] = { 129, 197, 129, 132, 0 };
 VDPCmdEngine::VDPCmdEngine(VDP *vdp_)
 	: vdp(vdp_)
 {
-	VDPVRAM *vram = vdp->getVRAM();
+	vram = vdp->getVRAM();
 	AbortCmd *abort = new AbortCmd(this, vram);
 	commands[0x0] = abort;
 	commands[0x1] = abort;
@@ -239,8 +239,7 @@ void VDPCmdEngine::updateDisplayMode(DisplayMode mode, const EmuTime &time)
 		// TODO for now abort cmd in progress, find out what really happens
 		if (CMD) {
 			PRT_DEBUG("Warning: VDP mode switch while command in progress");
-			CMD = 0;
-			executeCommand(time);
+			commandDone(time);
 		}
 	}
 }
@@ -250,6 +249,7 @@ void VDPCmdEngine::executeCommand(const EmuTime &time)
 	// V9938 ops only work in SCREEN 5-8.
 	// V9958 ops work in non SCREEN 5-8 when CMD bit is set
 	if (scrMode < 0) {
+		commandDone(time);
 		return;
 	}
 
@@ -488,12 +488,12 @@ inline void VDPCmdEngine::VDPCmd::pset(int dx, int dy, byte cl, LogOp op)
 	}
 }
 
-void VDPCmdEngine::VDPCmd::commandDone()
+void VDPCmdEngine::commandDone(const EmuTime& time)
 {
-	engine->status &= 0xFE;
-	engine->CMD = 0;
-	vram->cmdReadWindow.disable(currentTime);
-	vram->cmdWriteWindow.disable(currentTime);
+	status &= 0xFE;
+	CMD = 0;
+	vram->cmdReadWindow.disable(time);
+	vram->cmdWriteWindow.disable(time);
 }
 
 void VDPCmdEngine::VDPCmd::updateTiming()
@@ -518,7 +518,7 @@ void VDPCmdEngine::VDPCmd::updateTiming()
 			engine->DY += TY; --(engine->NY); \
 			ADX = engine->DX; ANX = NX; \
 			if (--NY == 0) { \
-				commandDone(); \
+				engine->commandDone(currentTime); \
 				break; \
 			} \
 		} \
@@ -531,7 +531,7 @@ void VDPCmdEngine::VDPCmd::updateTiming()
 			engine->SY += TY; engine->DY += TY; --(engine->NY); \
 			ASX = engine->SX; ADX = engine->DX; ANX = NX; \
 			if (--NY == 0) { \
-				commandDone(); \
+				engine->commandDone(currentTime); \
 				break; \
 			} \
 		} \
@@ -546,7 +546,7 @@ VDPCmdEngine::AbortCmd::AbortCmd(VDPCmdEngine *engine, VDPVRAM *vram)
 
 void VDPCmdEngine::AbortCmd::start(const EmuTime &time)
 {
-	commandDone();
+	engine->commandDone(time);
 }
 
 void VDPCmdEngine::AbortCmd::execute(const EmuTime &time)
@@ -555,6 +555,7 @@ void VDPCmdEngine::AbortCmd::execute(const EmuTime &time)
 
 bool VDPCmdEngine::AbortCmd::willStatusChange(const EmuTime &time)
 {
+	assert(!(engine->status & 1));
 	return false;
 }
 
@@ -572,7 +573,7 @@ void VDPCmdEngine::PointCmd::start(const EmuTime &time)
 	vram->cmdWriteWindow.disable(currentTime);
 
 	engine->COL = point(engine->SX, engine->SY);
-	commandDone();
+	engine->commandDone(currentTime);
 }
 
 void VDPCmdEngine::PointCmd::execute(const EmuTime &time)
@@ -581,6 +582,7 @@ void VDPCmdEngine::PointCmd::execute(const EmuTime &time)
 
 bool VDPCmdEngine::PointCmd::willStatusChange(const EmuTime &time)
 {
+	assert(!(engine->status & 1));
 	return false;
 }
 
@@ -600,7 +602,7 @@ void VDPCmdEngine::PsetCmd::start(const EmuTime &time)
 
 	byte col = engine->COL & MASK[engine->scrMode];
 	pset(engine->DX, engine->DY, col, engine->LOG);
-	commandDone();
+	engine->commandDone(currentTime);
 }
 
 void VDPCmdEngine::PsetCmd::execute(const EmuTime &time)
@@ -609,6 +611,7 @@ void VDPCmdEngine::PsetCmd::execute(const EmuTime &time)
 
 bool VDPCmdEngine::PsetCmd::willStatusChange(const EmuTime &time)
 {
+	assert(!(engine->status & 1));
 	return false;
 }
 
@@ -644,13 +647,13 @@ void VDPCmdEngine::SrchCmd::execute(const EmuTime &time)
 #define post_srch(MX) \
 		== CL) ^ ANX) { \
 			engine->status |= 0x10; /* Border detected */ \
-			commandDone(); \
+			engine->commandDone(currentTime); \
 			engine->borderX = 0xFE00 | ASX; \
 			break; \
 		} \
 		if ((ASX += TX) & MX) { \
 			engine->status &= 0xEF; /* Border not detected */ \
-			commandDone(); \
+			engine->commandDone(currentTime); \
 			engine->borderX = 0xFE00 | ASX; \
 			break; \
 		} \
@@ -714,7 +717,7 @@ void VDPCmdEngine::LineCmd::execute(const EmuTime &time)
 		ASX -= NY; \
 		ASX &= 1023; /* Mask to 10 bits range */ \
 		if (ANX++ == NX || (ADX & MX)) { \
-			commandDone(); \
+			engine->commandDone(currentTime); \
 			break; \
 		} \
 	}
@@ -727,7 +730,7 @@ void VDPCmdEngine::LineCmd::execute(const EmuTime &time)
 		ASX -= NY; \
 		ASX &= 1023; /* Mask to 10 bits range */ \
 		if (ANX++ == NX || (ADX & MX)) { \
-			commandDone(); \
+			engine->commandDone(currentTime); \
 			break; \
 		} \
 	}
@@ -937,7 +940,7 @@ void VDPCmdEngine::LmcmCmd::execute(const EmuTime &time)
 			engine->SY += TY; --(engine->NY);
 			ASX = engine->SX; ANX = NX;
 			if (--NY == 0) {
-				commandDone();
+				engine->commandDone(currentTime);
 			}
 		}
 	} else {
@@ -987,7 +990,7 @@ void VDPCmdEngine::LmmcCmd::execute(const EmuTime &time)
 			engine->DY += TY; --(engine->NY);
 			ADX = engine->DX; ANX = NX;
 			if (--NY == 0) {
-				commandDone();
+				engine->commandDone(currentTime);
 			}
 		}
 	} else {
@@ -1232,7 +1235,7 @@ void VDPCmdEngine::HmmcCmd::execute(const EmuTime &time)
 			engine->DY += TY; --(engine->NY);
 			ADX = engine->DX; ANX = NX;
 			if (--NY == 0) {
-				commandDone();
+				engine->commandDone(currentTime);
 			}
 		}
 	} else {
