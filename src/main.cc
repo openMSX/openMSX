@@ -19,6 +19,7 @@
 #include "CommandController.hh"
 #include "KeyEventInserter.hh"
 #include "MSXCPUInterface.hh"
+#include "CliCommunicator.hh"
 
 
 namespace openmsx {
@@ -72,10 +73,15 @@ int main(int argc, char **argv)
 		// TODO move this somewhere else
 		KeyEventInserter* keyEvents = new KeyEventInserter(zero);
 
+		CliCommunicator communicator;
+		Thread communicatorThread(&communicator);
+		communicatorThread.start();
+		
 		// Start emulation thread.
 		PRT_DEBUG("Starting MSX");
 		MSXMotherBoard::instance()->run();
 
+		communicatorThread.stop();
 		delete keyEvents;
 
 		// Clean up.

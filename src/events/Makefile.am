@@ -30,7 +30,8 @@ libEvents_la_SOURCES = \
 	Keys.cc Keys.hh \
 	SDLEventInserter.cc SDLEventInserter.hh \
 	Command.cc Command.hh \
-	CommandController.cc CommandController.hh
+	CommandController.cc CommandController.hh \
+	CliCommunicator.cc CliCommunicator.hh
 
 nodebug: resetdebug all
 debug: setdebug all
