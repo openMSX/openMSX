@@ -236,9 +236,9 @@ void SDLRasterizer<Pixel, zoom>::paint()
 	// All of the current postprocessing steps require hi-res.
 	if (LINE_ZOOM != 2) {
 		// Just copy the image as-is.
-		SDL_UnlockSurface(screen);
+		if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
 		SDL_BlitSurface(workScreen, NULL, screen, NULL);
-		SDL_LockSurface(screen);
+		if (SDL_MUSTLOCK(screen)) SDL_LockSurface(screen);
 		return;
 	}
 
