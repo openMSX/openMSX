@@ -76,8 +76,9 @@ void V9990PixelRenderer::renderUntil(const EmuTime& time)
 	               - verTiming->blank;
 	
 	// Screen accuracy for now...
-	if(nofTicks < V9990DisplayTiming::getUCTicksPerFrame(vdp->isPalTiming()))
-	   return;
+	if (nofTicks < V9990DisplayTiming::getUCTicksPerFrame(vdp->isPalTiming())) {
+		return;
+	}
 	
 	// edges of the DISPLAY part of the vdp output
 	int left       = horTiming->border1;
@@ -87,23 +88,27 @@ void V9990PixelRenderer::renderUntil(const EmuTime& time)
 	int bottom     = top    + verTiming->display;
 	int bottomEdge = bottom + verTiming->border2;
 
-	// top border
-	render(lastX, lastY, toX, toY,
-		   0, 0, rightEdge,top, DRAW_BORDER);
+	if (vdp->isDisplayEnabled()) {
+		// top border
+		render(lastX, lastY, toX, toY,
+		       0, 0, rightEdge, top, DRAW_BORDER);
 
-	// display area: left border/display/right border
-	render(lastX, lastY, toX, toY,
-	       0, top, left, bottom, DRAW_BORDER);
-	render(lastX, lastY, toX, toY,
-	       left, top, right, bottom, DRAW_DISPLAY);
-	render(lastX, lastY, toX, toY,
-		   right, top, rightEdge, bottom,
-		   DRAW_BORDER);
+		// display area: left border/display/right border
+		render(lastX, lastY, toX, toY,
+		       0, top, left, bottom, DRAW_BORDER);
+		render(lastX, lastY, toX, toY,
+		       left, top, right, bottom, DRAW_DISPLAY);
+		render(lastX, lastY, toX, toY,
+		       right, top, rightEdge, bottom, DRAW_BORDER);
 
-	// bottom border
-	render(lastX, lastY, toX, toY,
-		   0, bottom, rightEdge, bottomEdge,
-		   DRAW_BORDER);
+		// bottom border
+		render(lastX, lastY, toX, toY,
+		       0, bottom, rightEdge, bottomEdge, DRAW_BORDER);
+	} else {
+		// complete screen
+		render(lastX, lastY, toX, toY,
+		       0, 0, rightEdge, bottomEdge, DRAW_BORDER);
+	}
 
 	lastX = toX;
 	lastY = toY;

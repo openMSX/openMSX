@@ -62,6 +62,15 @@ public:
 	inline bool getEvenOdd() const {
 		return status & 0x02;
 	}
+
+	/** Is the display enabled?
+	  *  Note this is simpler than the V99x8 version. Probably ok
+	  *  because V9990 doesn't have the same overscan trick (?)
+	  * @return true iff enabled
+	  */
+	inline bool isDisplayEnabled() const {
+		return regs[CONTROL] & 0x80;
+	}
 	
 	/** Get the number of elapsed UC ticks in this frame.
 	  * @param  time Point in emulated time.

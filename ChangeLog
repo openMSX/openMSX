@@ -6,6 +6,7 @@ $Id$
 2004-12-29 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed bug in V9990 cmds (address masking bug):
 	   underwater demo works now!
+	* Support V9990 screen enable/disable bit 
 
 2004-12-29 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added v9990cmdtracing setting
