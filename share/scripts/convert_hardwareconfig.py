@@ -56,6 +56,7 @@ ioAddresses = {
 	'ROM': [],
 	'RAM': [],
 	'PanasonicRAM': [],
+	'Bunsetsu': [],
 	'SunriseIDE': [],
 	'PAC': [],
 	'SCCPlusCart': [], # TODO: Why "Cart"?
