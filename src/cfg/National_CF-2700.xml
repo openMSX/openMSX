@@ -37,7 +37,6 @@
   <device id="VDP">
     <type>VDP</type>
     <parameter name="version">TMS99X8A</parameter>
-    <parameter name="limit_sprites">true</parameter>
   </device>
 
   <device id="psg">

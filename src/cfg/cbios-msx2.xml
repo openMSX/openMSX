@@ -87,7 +87,6 @@
     <type>VDP</type>
     <parameter name="version">V9938</parameter>
     <parameter name="vram">128</parameter>
-    <parameter name="limit_sprites">true</parameter>
   </device>
 
   <config id="renderer">

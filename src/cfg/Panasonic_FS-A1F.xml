@@ -95,7 +95,6 @@
   <device id="VDP">
     <type>VDP</type>
     <parameter name="version">V9938</parameter>
-    <parameter name="limit_sprites">true</parameter>
     <parameter name="vram">128</parameter>
   </device>
 
