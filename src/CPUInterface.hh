@@ -102,7 +102,7 @@ class CPUInterface {
 		 * Returns true when NMI line is active.
 		 * On MSX this line is never active.
 		 */
-		inline bool NMIStatus();
+		virtual bool NMIStatus();
 
 	private:
 		bool prevNMIStat;

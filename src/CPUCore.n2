@@ -4,21 +4,23 @@ inline void _CPU_::M1Cycle() { R.R++; M1_DELAY(); }
 
 inline void _CPU_::executeInstruction(byte opcode)
 {
-	R.IFF1 = R.nextIFF1;
 	#ifdef CPU_DEBUG
 		word start_pc = R.PC.w-1;
+		EmuTime before(currentTime);
 	#endif
+	
 	M1Cycle();
 	(this->*opcode_main[opcode])();	// currentTime can be raised extra
 	
 	#ifdef CPU_DEBUG
-	if (cpudebug) {
-		printf("%04x : instruction ", start_pc);
-		Dasm(&debugmemory[start_pc], to_print_string, start_pc );
-		printf("%s\n", to_print_string );
-		printf("      A=%02x F=%02x BC=%04x DE=%04x HL=%04x\n", 
-		              R.AF.B.h, R.AF.B.l, R.BC.w, R.DE.w, R.HL.w);
-	}
+		if (cpudebug) {
+			printf("%04x : instruction ", start_pc);
+			Dasm(&debugmemory[start_pc], to_print_string, start_pc );
+			printf("%s\n", to_print_string );
+			printf("      A=%02x F=%02x BC=%04x DE=%04x HL=%04x\n", 
+				      R.AF.B.h, R.AF.B.l, R.BC.w, R.DE.w, R.HL.w);
+			PRT_DEBUG("CPU: Took "<<currentTime.subtract(before)/24<<"T-States");
+		}
 	#endif
 }
 
@@ -642,6 +644,7 @@ void _CPU_::ei() {
 	R.IFF1 = false;		// no ints after this instruction
 	R.nextIFF1 = true;	// but allow them after next instruction
 	R.IFF2 = true;
+	slowInstructions = 2;
 }
 
 void _CPU_::djnz() {
@@ -689,7 +692,7 @@ void _CPU_::exx() {
 	i = R.HL.w; R.HL.w = R.HL2.w; R.HL2.w = i;
 }
 
-void _CPU_::halt() { R.HALT = true; }
+void _CPU_::halt() { R.HALT = true; slowInstructions = 2; }
 
 void _CPU_::im_0() { R.IM = 0; }
 void _CPU_::im_1() { R.IM = 1; }
@@ -2250,8 +2253,18 @@ void _CPU_::ret_pe() { SMALL_DELAY(); if (PE()) RET(); }
 void _CPU_::ret_po() { SMALL_DELAY(); if (PO()) RET(); }
 void _CPU_::ret_z()  { SMALL_DELAY(); if (Z())  RET(); }
 
-void _CPU_::reti() { R.IFF1 = R.nextIFF1 = R.IFF2; interface->reti(); RET(); }	// same as retn!!
-void _CPU_::retn() { R.IFF1 = R.nextIFF1 = R.IFF2; interface->retn(); RET(); }
+void _CPU_::reti() { // same as retn
+	R.IFF1 = R.nextIFF1 = R.IFF2;
+	interface->reti();
+	RET();
+	slowInstructions = 2;
+}
+void _CPU_::retn() {
+	R.IFF1 = R.nextIFF1 = R.IFF2;
+	interface->retn();
+	RET(); 
+	slowInstructions = 2;
+}
 
 void _CPU_::rl_xhl() {
 	byte i = RDMEM(R.HL.w);
@@ -4639,61 +4652,59 @@ void _CPU_::fd2() {
 
 void _CPU_::execute()
 {
+	slowInstructions = 2;
 	while (currentTime < targetTime) {
-		if (interface->NMIEdge()) {
-			// NMI occured
-			R.HALT = false;
-			R.IFF1 = R.nextIFF1 = false;
-			PUSH (R.PC.w);
-			R.PC.w=0x0066;
-			M1Cycle();
-			NMI_DELAY();
-		} else if (R.IFF1 && interface->IRQStatus()) {
-			// normal interrupt
-			R.HALT = false;
-			R.IFF1 = R.nextIFF1 = false;
-			switch (R.IM) {
-				case 2:
-					// Interrupt mode 2  Call [I:databyte]
-					PUSH (R.PC.w);
-					R.PC.w=RDMEM_WORD((interface->dataBus())|(R.I<<8));
-					M1Cycle();
-					IM2_DELAY();
-					break;
-				case 1:
-					// Interrupt mode 1
-					IM1_DELAY();
-					executeInstruction(0xff);	// RST 38h
+		if (slowInstructions > 0) {
+			slowInstructions--;
+			if (interface->NMIEdge()) {
+				// NMI occured
+				R.HALT = false;
+				R.IFF1 = R.nextIFF1 = false;
+				PUSH (R.PC.w);
+				R.PC.w=0x0066;
+				M1Cycle();
+				NMI_DELAY();
+			} else if (R.IFF1 && interface->IRQStatus()) {
+				// normal interrupt
+				R.HALT = false;
+				R.IFF1 = R.nextIFF1 = false;
+				switch (R.IM) {
+					case 2:
+						// Interrupt mode 2  Call [I:databyte]
+						PUSH (R.PC.w);
+						R.PC.w=RDMEM_WORD((interface->dataBus())|(R.I<<8));
+						M1Cycle();
+						IM2_DELAY();
 						break;
-				case 0:
-					// Interrupt mode 0
-					// TODO current implementation only works for 1-byte instructions
-					//      ok for MSX
-					IM0_DELAY();
-					executeInstruction(interface->dataBus());
-					break;
-				default:
-					assert(false);
-			}
-		} else if (R.HALT) {
-			// in halt mode
-			uint64 ticks = currentTime.getTicksTillUp(targetTime);
-			int halts = (ticks+(haltStates()-1))/haltStates();	// rounded up
-				R.R += halts;
-			currentTime += halts*haltStates();
-		} else {
-			// normal instructions
-			#ifdef CPU_DEBUG
-			if (cpudebug) {
-				EmuTime before(currentTime);
-				executeInstruction(RDOP(R.PC.w++));
-				PRT_DEBUG("CPU: Took "<<currentTime.subtract(before)/24<<"T-States");
+					case 1:
+						// Interrupt mode 1
+						IM1_DELAY();
+						executeInstruction(0xff);	// RST 38h
+							break;
+					case 0:
+						// Interrupt mode 0
+						// TODO current implementation only works for 1-byte instructions
+						//      ok for MSX
+						IM0_DELAY();
+						executeInstruction(interface->dataBus());
+						break;
+					default:
+						assert(false);
+				}
+			} else if (R.HALT) {
+				// in halt mode
+				uint64 ticks = currentTime.getTicksTillUp(targetTime);
+				int halts = (ticks+(haltStates()-1))/haltStates();	// rounded up
+					R.R += halts;
+				currentTime += halts*haltStates();
 			} else {
+				// normal instructions
+				R.IFF1 = R.nextIFF1;
 				executeInstruction(RDOP(R.PC.w++));
 			}
-			#else
-				executeInstruction(RDOP(R.PC.w++));
-			#endif
+		} else {
+			// fast normal instructions
+			executeInstruction(RDOP(R.PC.w++));
 		}
 	}
 }

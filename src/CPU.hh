@@ -138,7 +138,7 @@ class CPU
 		CPUInterface *interface;
 		EmuTime targetTime;
 		CPURegs R;
-
+		int slowInstructions;
 
 		// flag-register tables
 		static byte ZSTable[256];
