@@ -115,8 +115,9 @@ CassettePort::~CassettePort()
 
 void CassettePort::setMotor(bool status, const EmuTime &time)
 {
-	((CassetteDevice*)pluggable)->setMotor(status, time);
 	//TODO make 'click' sound
+	//PRT_DEBUG("CassettePort: motor " << status);
+	((CassetteDevice*)pluggable)->setMotor(status, time);
 }
 
 void CassettePort::cassetteOut(bool output, const EmuTime &time)
@@ -136,7 +137,9 @@ bool CassettePort::cassetteIn(const EmuTime &time)
 	//   only important component is DC-removal
 	//   we just assume sample has no DC component
 	short sample = ((CassetteDevice*)pluggable)->readSample(time);	// read 1 sample  
-	return (sample >= 0); // comparator
+	bool result = (sample >= 0); // comparator
+	//PRT_DEBUG("CassettePort:: read " << result);
+	return result;
 }
 
 void CassettePort::flushOutput(const EmuTime &time)
@@ -144,13 +147,13 @@ void CassettePort::flushOutput(const EmuTime &time)
 	int sampleRate = ((CassetteDevice*)pluggable)->getWriteSampleRate();	// can be changed since prev flush
 	if (sampleRate == 0) {
 		// 99% of the time
-		PRT_DEBUG("Cas: must not generate wave");
+		//PRT_DEBUG("Cas: must not generate wave");
 		prevTime = time;
 		return;
 	}
 	int samples = (int)((time - prevTime).toFloat() * sampleRate);
 	prevTime = time;
-	PRT_DEBUG("Cas: generate " << samples << " samples");
+	//PRT_DEBUG("Cas: generate " << samples << " samples");
 	
 	// dumb implementation, good enough for now
 	((CassetteDevice*)pluggable)->writeWave(&nextSample, 1);

@@ -116,11 +116,11 @@ void CassettePlayer::setMotor(bool status, const EmuTime &time)
 		motor = status;
 		if (motor) {
 			// motor turned on
-			PRT_DEBUG("CasPlayer motor on");
+			//PRT_DEBUG("CassettePlayer motor on");
 			timeReference = time;
 		} else {
 			// motor turned off
-			PRT_DEBUG("CasPlayer motor off");
+			//PRT_DEBUG("CassettePlayer motor off");
 			posReference = calcSamples(time);
 		}
 	}
@@ -141,7 +141,7 @@ short CassettePlayer::readSample(const EmuTime &time)
 		// motor off or no tape
 		samp = 0;
 	}
-	//PRT_DEBUG("CasPlayer read "<<(int)samp);
+	//PRT_DEBUG("CassettePlayer read "<<(int)samp);
 	return samp;
 }
 
@@ -184,8 +184,8 @@ void CassettePlayer::execute(const std::vector<std::string> &tokens)
 
 void CassettePlayer::help(const std::vector<std::string> &tokens) const
 {
-	print("tape eject      : remove tape from virtual player");
-	print("tape <filename> : change the tape file");
+	print("cassetteplayer eject      : remove tape from virtual player");
+	print("cassetteplayer <filename> : change the tape file");
 }
 
 void CassettePlayer::tabCompletion(std::vector<std::string> &tokens) const
