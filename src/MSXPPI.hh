@@ -34,6 +34,9 @@
 // forward declarations
 class KeyClick;
 class EmuTime;
+class MSXMotherBoard;
+class CassettePortInterface;
+class Leds;
 
 
 // David Hermans original comments 
@@ -83,9 +86,12 @@ class MSXPPI : public MSXIODevice, public I8255Interface
 		void writeC1(nibble value, const EmuTime &time);
 	
 	private:
+		MSXMotherBoard *motherBoard;
+		CassettePortInterface *cassettePort;
+		Leds *leds;
+		KeyClick *click;
 		Keyboard *keyboard;
 		byte MSXKeyMatrix[Keyboard::NR_KEYROWS];
 		int selectedRow;
-		KeyClick *click;
 };
 #endif

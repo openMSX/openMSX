@@ -20,6 +20,9 @@ MSXPPI::MSXPPI(MSXConfig::Device *config, const EmuTime &time)
 	keyboard = new Keyboard(keyGhosting);
 	i8255 = new I8255(*this, time);
 	click = new KeyClick(volume, time);
+	motherBoard = MSXMotherBoard::instance();
+	cassettePort = CassettePortFactory::instance();
+	leds = Leds::instance();
 	
 	// Register I/O ports A8..AB for reading
 	MSXMotherBoard::instance()->register_IO_In(0xA8,this);
@@ -97,7 +100,7 @@ byte MSXPPI::readA(const EmuTime &time) {
 	return 255;	//TODO check this
 }
 void MSXPPI::writeA(byte value, const EmuTime &time) {
-	MSXMotherBoard::instance()->setPrimarySlots(value);
+	motherBoard->setPrimarySlots(value);
 }
 
 byte MSXPPI::readB(const EmuTime &time) {
@@ -119,8 +122,8 @@ nibble MSXPPI::readC0(const EmuTime &time) {
 	return 15;	// TODO check this
 }
 void MSXPPI::writeC1(nibble value, const EmuTime &time) {
-	CassettePortFactory::instance()->setMotor(!(value&1), time);	// 0=0n, 1=Off
-	CassettePortFactory::instance()->cassetteOut(value&2, time);
+	cassettePort->setMotor(!(value&1), time);	// 0=0n, 1=Off
+	cassettePort->cassetteOut(value&2, time);
 	
 	Leds::LEDCommand caps = (value&4) ? Leds::CAPS_OFF : Leds::CAPS_ON;
 	Leds::instance()->setLed(caps);

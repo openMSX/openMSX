@@ -6,6 +6,9 @@
 #include "Scheduler.hh"
 #include "EmuTime.hh"
 
+// forward declarations
+class MSXCPU;
+
 
 class RealTime : public Schedulable, public HotKeyListener
 {
@@ -60,5 +63,7 @@ class RealTime : public Schedulable, public HotKeyListener
 		float factor;
 
 		bool paused;
+		MSXCPU *cpu;
+		Scheduler *scheduler; 
 };
 #endif

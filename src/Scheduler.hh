@@ -11,6 +11,10 @@
 #include "Mutex.hh"
 #include "ConsoleSource/ConsoleCommand.hh"
 
+//forward declarations
+class MSXCPU;
+
+
 /**
  * Every class that wants to get scheduled at some point must inherit from
  * this class
@@ -140,6 +144,7 @@ class Scheduler : private EventListener, private HotKeyListener
 		bool exitScheduler;
 		bool paused;
 		Mutex pauseMutex;
+		MSXCPU *cpu;
 		
 		// Console commands
 		class QuitCmd : public ConsoleCommand {

@@ -10,6 +10,8 @@
 
 // forward declarations
 class SoundDevice;
+class MSXCPU;
+class RealTime;
 
 
 class Mixer
@@ -83,6 +85,9 @@ class Mixer
 		int samplesLeft;
 		int offset;
 		EmuTime prevTime;
+
+		MSXCPU *cpu;
+		RealTime *realTime; 
 };
 
 #endif //__MIXER_HH__

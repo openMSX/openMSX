@@ -35,6 +35,8 @@ Scheduler::Scheduler()
 	HotKey::instance()->registerAsyncHotKey(SDLK_F11, this);
 	Console::instance()->registerCommand(quitCmd, "quit");
 	Console::instance()->registerCommand(pauseCmd, "pause");
+
+	cpu = MSXCPU::instance();
 }
 
 Scheduler::~Scheduler()
@@ -54,10 +56,10 @@ Scheduler *Scheduler::oneInstance = NULL;
 void Scheduler::setSyncPoint(const EmuTime &time, Schedulable* device, int userData = 0)
 {
 	PRT_DEBUG("Sched: registering " << device->getName() << " for emulation at " << time);
-	PRT_DEBUG("Sched:  CPU is at " << MSXCPU::instance()->getCurrentTime());
-	//assert (time >= MSXCPU::instance()->getCurrentTime());
-	if (time < MSXCPU::instance()->getTargetTime())
-		MSXCPU::instance()->setTargetTime(time);
+	PRT_DEBUG("Sched:  CPU is at " << cpu->getCurrentTime());
+	//assert (time >= cpu->getCurrentTime());
+	if (time < cpu->getTargetTime())
+		cpu->setTargetTime(time);
 	syncPoints.push_back(SynchronizationPoint (time, device, userData));
 	push_heap(syncPoints.begin(), syncPoints.end());
 }
@@ -95,8 +97,8 @@ void Scheduler::stopScheduling()
 	runningScheduler = false;
 	// We set current time as SP, this means reschedule as sson as possible.
 	// We must give a device, we choose MSXCPU.
-	EmuTime now = MSXCPU::instance()->getCurrentTime();
-	setSyncPoint(now, MSXCPU::instance());
+	EmuTime now = cpu->getCurrentTime();
+	setSyncPoint(now, cpu);
 	unpause();
 }
 
@@ -122,15 +124,15 @@ void Scheduler::scheduleEmulation()
 				// nothing scheduled, emulate CPU
 				PRT_DEBUG ("Sched: Scheduling CPU till infinity");
 				const EmuTime infinity = EmuTime(EmuTime::INFINITY);
-				MSXCPU::instance()->executeUntilTarget(infinity);
+				cpu->executeUntilTarget(infinity);
 			} else {
 				const SynchronizationPoint &sp = getFirstSP();
 				const EmuTime &time = sp.getTime();
-				if (MSXCPU::instance()->getCurrentTime() < time) {
+				if (cpu->getCurrentTime() < time) {
 					// emulate CPU till first SP, don't immediately emulate
 					// device since CPU could not have reached SP
 					PRT_DEBUG ("Sched: Scheduling CPU till " << time);
-					MSXCPU::instance()->executeUntilTarget(time);
+					cpu->executeUntilTarget(time);
 				} else {
 					// if CPU has reached SP, emulate the device
 					Schedulable *device = sp.getDevice();

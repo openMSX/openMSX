@@ -31,6 +31,9 @@ Mixer::Mixer()
 	nbAllDevices = 0;
 	samplesLeft = audioSpec.samples;
 	offset = 0;
+
+	cpu = MSXCPU::instance();
+	realTime = RealTime::instance();
 }
 
 Mixer::~Mixer()
@@ -91,13 +94,13 @@ void Mixer::reInit()
 {
 	samplesLeft = audioSpec.samples;
 	offset = 0;
-	prevTime = MSXCPU::instance()->getCurrentTime();
+	prevTime = cpu->getCurrentTime();
 }
 
 void Mixer::updateStream(const EmuTime &time)
 {
 	assert(prevTime<=time);
-	float duration = RealTime::instance()->getRealDuration(prevTime, time);
+	float duration = realTime->getRealDuration(prevTime, time);
 	PRT_DEBUG("Mix: update, duration " << duration << "s");
 	assert(duration>=0);
 	prevTime = time;

@@ -22,6 +22,9 @@ RealTime::RealTime()
 	
 	HotKey::instance()->registerAsyncHotKey(SDLK_PAUSE, this);
 	Scheduler::instance()->setSyncPoint(emuRef+syncInterval, this);
+
+	scheduler = Scheduler::instance();
+	cpu = MSXCPU::instance();
 }
 
 RealTime::~RealTime()
@@ -46,8 +49,8 @@ void RealTime::executeUntilEmuTime(const EmuTime &curEmu, int userData)
 
 void RealTime::sync()
 {
-	Scheduler::instance()->removeSyncPoint(this);
-	internalSync(MSXCPU::instance()->getCurrentTime());
+	scheduler->removeSyncPoint(this);
+	internalSync(cpu->getCurrentTime());
 }
 
 void RealTime::internalSync(const EmuTime &curEmu)
@@ -98,7 +101,7 @@ void RealTime::internalSync(const EmuTime &curEmu)
 		emuRef = curEmu;
 	}
 	// schedule again in future
-	Scheduler::instance()->setSyncPoint(emuRef+syncInterval, this);
+	scheduler->setSyncPoint(emuRef+syncInterval, this);
 }
 
 float RealTime::getRealDuration(const EmuTime time1, const EmuTime time2)
