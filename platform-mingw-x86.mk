@@ -3,7 +3,7 @@
 # Configuration for MinGW on x86 machines.
 
 # Does platform support symlinks?
-USE_SYMLINK:=true
+USE_SYMLINK:=false
 
 # Default build flavour.
 OPENMSX_FLAVOUR?=uow32
