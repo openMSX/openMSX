@@ -1,9 +1,14 @@
 $Id$
 
-
 2003-05-31 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Changed console save file into ascii. When loading the history,
 	  empty lines are ignored.
+	* Removed error when unable to load consolehistory
+	* Only two identical commando's directly after eachothers are now 
+	  removed if removedoubles is active to improve performance.
+	* Remove settings for consolehistory load & save. Default are now:
+	  - Always load and save. 
+	  - Filename is now fixed as 'history.txt'
 
 2003-05-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Refactored VDPCmdEngine, use VDPCmd subclasses for each command

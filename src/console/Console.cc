@@ -52,19 +52,12 @@ Console::Console()
 	else{
 		removeDoubles = false;
 	}
-	if ((config->hasParameter("loadhistory")) &&
-		(config->getParameterAsBool("loadhistory"))){
-		loadHistory(config);
-	}
+	loadHistory();
 }
 
 Console::~Console()
 {
-	Config *config = MSXConfig::instance()->getConfigById("Console");
-	if ((config->hasParameter("savehistory")) &&
-		(config->getParameterAsBool("savehistory"))){
-		saveHistory(config);
-	}
+	saveHistory();
 	EventDistributor::instance()->unregisterEventListener(SDL_KEYDOWN, this);
 	EventDistributor::instance()->unregisterEventListener(SDL_KEYUP,   this);
 }
@@ -85,11 +78,11 @@ void Console::unregisterConsole(ConsoleRenderer *console)
 	renderers.remove(console);
 }
 
-void Console::saveHistory(Config * config)
+void Console::saveHistory()
 {
 
-	const std::string &filename = config->getParameter("historyname");
-	UserFileContext context ("history");
+	const std::string &filename = "history.txt";
+	UserFileContext context ("console");
 	try {
 		std::list<std::string>::iterator it;
 		std::ofstream outputfile(FileOperations::expandTilde(context.resolveSave(filename)).c_str());
@@ -98,28 +91,28 @@ void Console::saveHistory(Config * config)
 			outputfile << it->substr(PROMPT.length()) << std::endl;
 		}
 	}catch (FileException &e) {
-		PRT_INFO("error saving consolehistory: " << filename << "\n");
+		PRT_INFO("Error while saving the consolehistory: " << filename << "\n");
 	}
 }
 
-void Console::loadHistory(Config * config)
+void Console::loadHistory()
 {
 
-	const std::string &filename = config->getParameter("historyname");
-	UserFileContext context ("history");
+	const std::string &filename = "history.txt";
+	UserFileContext context ("console");
 	try {
 		std::string line;
 		std::ifstream inputfile(FileOperations::expandTilde(context.resolveSave(filename)).c_str());
 		if (!inputfile) throw FileException("Error loading Consolehistory");
 		while (inputfile){
 			getline(inputfile,line);
-			if (!line.empty()){
+			if (!line.empty(){
 				line.insert(0,PROMPT);
 				putCommandHistory(line);
 			}
 		}	
 	} catch (FileException &e) {
-		PRT_INFO("error loading consolehistory: " << filename << "\n");
+		PRT_DEBUG("Error while loading the consolehistory: " << filename << "\n");
 	}	
 }
 
@@ -360,19 +353,12 @@ void Console::newLineConsole(const std::string &line)
 
 void Console::putCommandHistory(const std::string &command)
 {
-	if (removeDoubles){
-		std::list<std::string>::iterator it;
-		it=history.begin();
-		while ((it !=history.end()) && (*it != command)) it++; // empty loop
-		if (it!=history.end()){
-			history.erase(it); // delete double element
+	if (!removeDoubles || (history.back()!=command)){
+		history.push_back(command);
+		if (history.size()>maxHistory){
+			history.pop_front();
 		}
 	}
-	if (history.size()==maxHistory){
-	history.pop_front();
-	}		
-	history.push_back(command);
-
 }
 
 void Console::commandExecute()

@@ -71,8 +71,8 @@ class Console : private EventListener
 							CircularBuffer<bool,LINESHISTORY> & overflows,
 							bool fromTop = false);
 		void splitLines();
-		void loadHistory(Config * config);
-		void saveHistory(Config * config);
+		void loadHistory();
+		void saveHistory();
 		
 		class ConsoleSetting : public BooleanSetting
 		{

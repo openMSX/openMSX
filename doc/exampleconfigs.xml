@@ -328,9 +328,6 @@
     <parameter name="placement">bottom</parameter>
     <parameter name="removedoubles">false</parameter>
     <parameter name="historysize">100</parameter>
-    <parameter name="loadhistory">true</parameter>
-    <parameter name="savehistory">false</parmeter>
-    <parameter name="historyname">consolehistory</parameter>
 
   </config>
 

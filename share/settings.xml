@@ -48,9 +48,8 @@
     <parameter name="columns">100</parameter>
     <parameter name="rows">14</parameter>
     <parameter name="placement">bottom</parameter>
-    <parameter name="loadhistory">true</parameter>
-    <parameter name="savehistory">true</parameter>
-    <parameter name="historyname">consolehistory</parameter>
+    <parameter name="historysize">100</parameter>
+    <parameter name="removedoubles">true</parameter>
   </config>
 
  <!-- Commands that should be executed automatically after boot -->
