@@ -1,6 +1,7 @@
 // $Id: CassettePlayer.cc,v
 
 #include "CassettePlayer.hh"
+#include <stdlib.h>
 
 
 CassettePlayer::CassettePlayer()
@@ -24,7 +25,7 @@ void CassettePlayer::insertTape(const char* filename)
 {
 	// TODO throw exceptions instead of PRT_ERROR
 	//      use String instead of char*
-	if (audioLength != 0) 
+	if (audioLength != 0)
 		removeTape();
 	if (SDL_LoadWAV(filename, &audioSpec, &audioBuffer, &audioLength) == NULL)
 		PRT_ERROR("CassettePlayer error: " << SDL_GetError());

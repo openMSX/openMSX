@@ -1,6 +1,10 @@
 $Id$
 
 2001-12-01 Maarten ter Huurne <mth@stack.nl>
+	* Fixed compile error in CassettePlayer.cc:
+	  PRT_ERROR contains exit(), which needs <stdlib.h>.
+
+2001-12-01 Maarten ter Huurne <mth@stack.nl>
 	* Fixed bug which caused Z80 to fail when methods were not inlined.
 	  Problem was that ld_xix_byte() and ld_xiy_byte() called Z80_WRMEM
 	  with two parameters, each of which read an opcode, an operation
