@@ -65,6 +65,10 @@ private:
 	  */
 	inline int getLeftBorder();
 
+	/** Get width of the display area in pixels.
+	  */
+	inline int getDisplayWidth();
+
 	/** Get a pointer to the start of a VRAM line in the cache.
 	  * @param line The VRAM line:
 	  *   [0..192) for MSX1, [0..256*4) for MSX2.

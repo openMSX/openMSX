@@ -12,7 +12,6 @@ TODO:
 - Clean up renderGraphics2, it is currently very hard to understand
   with all the masks and quarters etc.
 - Try using a generic inlined pattern-to-pixels converter.
-- Draw text mode extended border together with the rest of the border.
 - Separate dirty checking and caching for character and bitmap modes?
   Dirty checking is pretty much separated already and there is a
   connection between caching and dirty checking.
@@ -107,7 +106,13 @@ template <class Pixel> inline void SDLHiRenderer<Pixel>::sync(
 
 template <class Pixel> inline int SDLHiRenderer<Pixel>::getLeftBorder()
 {
-	return (WIDTH - 512) / 2 - 14 + vdp->getHorizontalAdjust() * 2;
+	return (WIDTH - 512) / 2 - 14 + vdp->getHorizontalAdjust() * 2
+		+ (vdp->isTextMode() ? 16 : 0);
+}
+
+template <class Pixel> inline int SDLHiRenderer<Pixel>::getDisplayWidth()
+{
+	return vdp->isTextMode() ? 480 : 512;
 }
 
 template <class Pixel> inline Pixel *SDLHiRenderer<Pixel>::getLinePtr(
@@ -481,8 +486,6 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderText1(
 	int nameBase = (-1 << 10) & vdp->getNameMask();
 	int patternBaseLine = ((-1 << 11) | (line & 7)) & vdp->getPatternMask();
 
-	// Extended left border.
-	for (int n = 16; n--; ) *pixelPtr++ = bg;
 	// Actual display.
 	int nameStart = (line / 8) * 40;
 	int nameEnd = nameStart + 40;
@@ -500,8 +503,6 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderText1(
 			pixelPtr += 12;
 		}
 	}
-	// Extended right border.
-	for (int n = 16; n--; ) *pixelPtr++ = bg;
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::renderText1Q(
@@ -519,8 +520,6 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderText1Q(
 	int patternQuarter = (nameStart & ~0xFF) & (vdp->getPatternMask() / 8);
 	int patternBaseLine = ((-1 << 13) | (line & 7)) & vdp->getPatternMask();
 
-	// Extended left border.
-	for (int n = 16; n--; ) *pixelPtr++ = bg;
 	// Actual display.
 	for (int name = nameStart; name < nameEnd; name++) {
 		int patternNr = vdp->getVRAM(nameBase | name) | patternQuarter;
@@ -536,8 +535,6 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderText1Q(
 			pixelPtr += 12;
 		}
 	}
-	// Extended right border.
-	for (int n = 16; n--; ) *pixelPtr++ = bg;
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::renderText2(
@@ -553,8 +550,6 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderText2(
 	int nameMask = ~(-1 << 12) & vdp->getNameMask();
 	int patternBaseLine = ((-1 << 11) | (line & 7)) & vdp->getPatternMask();
 
-	// Extended left border.
-	for (int n = 16; n--; ) *pixelPtr++ = bg;
 	// Actual display.
 	// TODO: Implement blinking.
 	int nameStart = (line / 8) * 80;
@@ -573,8 +568,6 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderText2(
 			pixelPtr += 6;
 		}
 	}
-	// Extended right border.
-	for (int n = 16; n--; ) *pixelPtr++ = bg;
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::renderGraphic1(
@@ -963,7 +956,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	} else {
 		source.y = scrolledLine;
 	}
-	source.w = 512;
+	source.w = getDisplayWidth();
 	source.h = 1;
 	SDL_Rect dest;
 	dest.x = getLeftBorder();
@@ -1013,7 +1006,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	dest.w = getLeftBorder();
 	dest.h = numLines * 2;
 	SDL_FillRect(screen, &dest, bgColour);
-	dest.x = dest.w + 512;
+	dest.x = dest.w + getDisplayWidth();
 	dest.w = WIDTH - dest.x;
 	SDL_FillRect(screen, &dest, bgColour);
 
