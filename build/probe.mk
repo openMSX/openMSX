@@ -98,7 +98,7 @@ SDL_LDFLAGS:=`sdl-config --libs 2>> $(LOG)`
 SDL_RESULT:=`sdl-config --version`
 
 # Note: "=" instead of ":=", so overriden value of SDL_LDFLAGS will be used.
-SDL_IMAGE_LDFLAGS="$(SDL_LDFLAGS) -lSDL_image"
+SDL_IMAGE_LDFLAGS=$(SDL_LDFLAGS) -lSDL_image
 SDL_IMAGE_RESULT:=yes
 
 TCL_LDFLAGS:=$(TCL_LDFLAGS)
@@ -140,9 +140,10 @@ check-targets: $(CHECK_TARGETS)
 print-libs: $(PRINT_LIBS)
 
 # Run the tcl-search.sh script.
+# Note: Because "init" target is executed after this, logging is overwritten.
 $(OUTTCL): build/tcl-search.sh
 	@mkdir -p $(@D)
-	@sh $< >> $@ 2>> $(LOG)
+	@sh $< > $@ 2>> $(LOG)
 
 # Create empty log and result files.
 init:
@@ -181,7 +182,7 @@ $(CHECK_HEADERS): init
 	@if [ -n "$($(@:%_H=%)_PREHEADER)" ]; then \
 		echo "#include $($(@:%_H=%)_PREHEADER)"; fi >> $(OUTDIR)/$@.cc
 	@echo "#include $($(@:%_H=%)_HEADER)" >> $(OUTDIR)/$@.cc
-	@if FLAGS=$($(@:%_H=%_CFLAGS)) && $(COMPILE) $(CXXFLAGS) $$FLAGS \
+	@if FLAGS="$($(@:%_H=%_CFLAGS))" && $(COMPILE) $(CXXFLAGS) $$FLAGS \
 		-c $(OUTDIR)/$@.cc -o $(OUTDIR)/$@.o 2>> $(LOG); \
 	then echo "Found header: $(@:%_H=%)" >> $(LOG); \
 	     echo "#define HAVE_$@ 1" >> $(OUTHEADER); \
@@ -196,7 +197,7 @@ $(CHECK_HEADERS): init
 # Try to link dummy program to the library.
 $(CHECK_LIBS): init
 	@echo "int main(char **argv, int argc) { return 0; }" > $(OUTDIR)/$@.cc
-	@if FLAGS=$($@_LDFLAGS) && $(COMPILE) $(CXXFLAGS) \
+	@if FLAGS="$($@_LDFLAGS)" && $(COMPILE) $(CXXFLAGS) \
 		$(OUTDIR)/$@.cc -o $(OUTDIR)/$@.exe $(LINK_FLAGS) $$FLAGS 2>> $(LOG); \
 	then echo "Found library: $@" >> $(LOG); \
 	     echo "#define HAVE_$@_LIB 1" >> $(OUTHEADER); \
