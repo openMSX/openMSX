@@ -102,8 +102,9 @@ manpage.1: manpage.sgml
     <title>OPTIONS</title>
 
     <para>These programs follow the usual a command line syntax,
-      with long options starting with one dash (`-').  A summary of
-      options is included below. </para>
+      with long options starting with two dashes (`-'). Some commands also
+	  start with one dash.
+	  A summary of options is included below. </para>
     <variablelist>
       <varlistentry>
         <term>
