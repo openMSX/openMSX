@@ -8,6 +8,7 @@
 #include "VDP.hh"
 #include "MSXE6Timer.hh"
 #include "MSXCPU.hh"
+#include "MSXMapperIO.hh"
 #include "MSXPSG.hh"
 #include "MSXMusic.hh"
 #include "MSXFmPac.hh"
@@ -25,6 +26,9 @@ MSXDevice *deviceFactory::create(MSXConfig::Device *conf, const EmuTime &time) {
 	MSXDevice *device = NULL;
 	if (conf->getType()=="CPU") {
 		device = MSXCPU::instance();
+	} else
+	if (conf->getType()=="MapperIO") {
+		device = MSXMapperIO::instance();
 	} else
 	if (conf->getType()=="PPI") {
 		device = new MSXPPI(conf, time);

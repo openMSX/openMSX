@@ -168,10 +168,10 @@
     <parameter name="filename">KANJI.ROM</parameter>
   </device>
 
-  <config id="MapperIO">
+  <device id="MapperIO">
     <type>MapperIO</type>
     <parameter name="type">Philips</parameter>
-  </config>
+  </device>
 
   <device id="mymapper1">
     <type>MemoryMapper</type>

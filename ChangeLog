@@ -1,6 +1,9 @@
 $Id$
 
-2002-01-03 David Heremans <david.heremans@gnu-linux.net>
+2002-01-10 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* MSXMemoryMapper <-> MSXMapperIO cleanup (thanks Maarten)
+
+2002-01-10 David Heremans <david.heremans@gnu-linux.net>
 	* Added FileOpener. This implements the needed routines to
 	  support "rompaths". It also provides easy to use functions
 	  to open files in the other devices.

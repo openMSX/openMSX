@@ -3,7 +3,8 @@
 #include <cassert>
 #include "MSXMapperIOPhilips.hh"
 
-MSXMapperIOPhilips::MSXMapperIOPhilips()
+MSXMapperIOPhilips::MSXMapperIOPhilips(MSXConfig::Device *config, const EmuTime &time)
+	: MSXMapperIO(config, time)
 {
 	largest = 0;
 	mask = 255;

@@ -64,7 +64,7 @@ openmsx_SOURCES=openmsx.cc \
 	Joystick.hh Joystick.cc Mouse.hh Mouse.cc \
 	MSXPrinterPort.hh MSXPrinterPort.cc PrinterPortDevice.hh \
 	MSXKanji.hh MSXKanji.cc \
-	MSXMemoryMapper.hh MSXMemoryMapper.cc MSXMapperIO.hh \
+	MSXMemoryMapper.hh MSXMemoryMapper.cc MSXMapperIO.hh MSXMapperIO.cc \
 	MSXMapperIOTurboR.hh MSXMapperIOTurboR.cc \
 	MSXMapperIOPhilips.hh MSXMapperIOPhilips.cc \
 	MSXRTC.hh MSXRTC.cc RP5C01.hh RP5C01.cc \

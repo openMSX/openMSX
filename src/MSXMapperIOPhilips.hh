@@ -8,7 +8,7 @@
 class MSXMapperIOPhilips : public MSXMapperIO
 {
 	public:
-		MSXMapperIOPhilips();
+		MSXMapperIOPhilips(MSXConfig::Device *config, const EmuTime &time);
 		byte convert(byte value);
 		void registerMapper(int blocks);
 

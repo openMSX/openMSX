@@ -230,6 +230,10 @@ void MSXDiskRomPatch::DSKCHG(CPU::CPURegs& regs) const
 		PRT_DEBUG("    I/O error reading FAT");
 		regs.AF.w = 0x0A01; // I/O error
 		return;
+	} catch (NoSuchSectorException* e) {
+		PRT_DEBUG("    no sector 1, check your disk image");
+		regs.AF.w = 0x0A01; // I/O error
+		return;
 	}
 	regs.BC.B.h = buffer[0];
 	GETDPB(regs);

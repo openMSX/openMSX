@@ -11,10 +11,10 @@
     <parameter name="3" class="subslotted">true</parameter>
   </config>
 
-  <config id="MapperIO">
+  <device id="MapperIO">
     <type>MapperIO</type>
     <parameter name="type">Philips</parameter>
-  </config>
+  </device>
 
   <device id="Main RAM">
     <type>MemoryMapper</type>
