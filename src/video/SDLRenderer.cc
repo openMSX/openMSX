@@ -70,6 +70,11 @@ void SDLRenderer<Pixel, zoom>::finishFrame(bool store)
 	// TODO: Postprocess after store, so the user can try out postprocessing
 	//       options during pause and see the result applied immediately.
 	if (LINE_ZOOM == 2) {
+		// Lock surface, because we will access pixels directly.
+		if (SDL_MUSTLOCK(workScreen) && SDL_LockSurface(workScreen) < 0) {
+			// Display will be wrong, but this is not really critical.
+			return;
+		}
 		Scaler *scaler = scalers[
 			RenderSettings::instance()->getScaler()->getValue()
 			];
@@ -89,11 +94,11 @@ void SDLRenderer<Pixel, zoom>::finishFrame(bool store)
 				break;
 			}
 		}
+		// Unlock surface.
+		if (SDL_MUSTLOCK(workScreen)) SDL_UnlockSurface(workScreen);
 	}
 
 	if (store) {
-		// Update screen.
-		SDL_UpdateRect(workScreen, 0, 0, 0, 0);
 		// Copy entire screen to stored image.
 		SDL_BlitSurface(workScreen, NULL, storedImage, NULL);
 	}
@@ -104,13 +109,13 @@ void SDLRenderer<Pixel, zoom>::finishFrame(bool store)
 
 	// Update screen.
 	SDL_BlitSurface(workScreen, NULL, screen, NULL);
-	SDL_UpdateRect(screen, 0, 0, 0, 0);
+	SDL_Flip(screen);
 }
 
 // random routine, less random than libc rand(), but a lot faster
 static int random() {
 	static int seed = 1;
-	
+
 	const int IA = 16807;
 	const int IM = 2147483647;
 	const int IQ = 127773;
@@ -125,6 +130,11 @@ static int random() {
 template <class Pixel, Renderer::Zoom zoom>
 int SDLRenderer<Pixel, zoom>::putPowerOffImage()
 {
+	// Lock surface, because we will access pixels directly.
+	if (SDL_MUSTLOCK(storedImage) && SDL_LockSurface(storedImage) < 0) {
+		// Display will be wrong, but this is not really critical.
+		return 1; // Try again next frame.
+	}
 	Pixel* pixels = (Pixel*)storedImage->pixels;
 	for (unsigned y = 0; y < HEIGHT; y += 2) {
 		Pixel* p = &pixels[WIDTH * y];
@@ -134,6 +144,9 @@ int SDLRenderer<Pixel, zoom>::putPowerOffImage()
 		}
 		memcpy(p + WIDTH, p, WIDTH * sizeof(Pixel));
 	}
+	// Unlock surface.
+	if (SDL_MUSTLOCK(storedImage)) SDL_UnlockSurface(storedImage);
+
 	putStoredImage();
 	return 8;
 }
@@ -152,7 +165,7 @@ void SDLRenderer<Pixel, zoom>::putStoredImage()
 	if (debugger) debugger->drawConsole();
 
 	// Update screen.
-	SDL_UpdateRect(screen, 0, 0, 0, 0);
+	SDL_Flip(screen);
 }
 
 template <class Pixel, Renderer::Zoom zoom>

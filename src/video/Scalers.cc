@@ -40,14 +40,11 @@ SimpleScaler::SimpleScaler() {
 void SimpleScaler::scaleLine(SDL_Surface *surface, int y) {
 	// TODO: Cheating (or at least using an undocumented feature) by
 	//       assuming that pixels are already doubled horizontally.
-	SDL_Rect source, dest;
-	source.x = 0;
-	source.y = y;
-	source.w = surface->w;
-	source.h = 1;
-	dest.x = 0;
-	dest.y = y + 1;
-	SDL_BlitSurface(surface, &source, surface, &dest);
+	memcpy(
+		(byte *)surface->pixels + (y+1) * surface->pitch,
+		(byte *)surface->pixels + y * surface->pitch,
+		surface->pitch
+		);
 }
 
 // === SaI2xScaler =========================================================

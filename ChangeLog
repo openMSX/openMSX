@@ -1,5 +1,12 @@
 $Id$
 
+2003-11-10 Maarten ter Huurne <maarten@treewalker.org>
+	* Integrated part of Reikan's SDLRenderer patch:
+	  - added missing SDL_LockSurface calls when accessing surfaces directly
+	  - do not blit from a surface to itself, instead use memcpy
+	    (apparently DirectX doet not like blit source equal to destination)
+	  - make SDLHi and SDLLo double buffered
+
 2003-11-10 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed crash on resursive aliasses:
 	   - these commands
