@@ -127,7 +127,4 @@
     <parameter name="sramname">fs-a1wsx.sram</parameter>
   </device>
 
-  <config id="CassettePort">
-  </config>
-
 </msxconfig>
