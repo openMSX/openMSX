@@ -98,7 +98,7 @@ void FloatSetting::setRange(const float minValue, const float maxValue)
 
 	// update the setting type to the new range
 	char rangeStr[12];
-	snprintf(rangeStr, 12, "%'.2f - %'.2f", minValue, maxValue);
+	snprintf(rangeStr, 12, "%.2f - %.2f", minValue, maxValue);
 	type = string(rangeStr);
 	/* The following C++ style code doesn't work on GCC 2.95:
 	ostringstream out;
@@ -113,7 +113,7 @@ void FloatSetting::setRange(const float minValue, const float maxValue)
 string FloatSetting::getValueString() const
 {
 	char rangeStr[5];
-	snprintf(rangeStr, 5, "%'.2f", value);
+	snprintf(rangeStr, 5, "%.2f", value);
 	return string(rangeStr);
 	/* The following C++ style code doesn't work on GCC 2.95:
 	ostringstream out;
