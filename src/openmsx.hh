@@ -63,9 +63,5 @@ extern Mutex outputmutex, errormutex;
 		exit(1);			\
 	} while (0)
 
-//#ifndef DEBUG
-//#define NDEBUG		// for assert.h
-//#endif
-
 #endif //__OPENMSX_HH__
 

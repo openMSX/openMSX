@@ -58,14 +58,13 @@ void MSXRomDevice::handleRomPatchInterfaces()
 
 void MSXRomDevice::loadFile()
 {
-	try {
+	if (deviceConfig->hasParameter("filesize")) {
 		const char* str = deviceConfig->getParameter("filesize").c_str();
-		if (strcasecmp("auto", str) != 0)
+		if (strcasecmp("auto", str) != 0) {
 			loadFile(atoi(str));
-	} catch (MSXException &e) {
-		// no filesize parameter
+			return;
+		}
 	}
-
 	// autodetect filesize
 	IFILETYPE* file = openFile();
 	file->seekg(0, std::ios::end);
@@ -99,6 +98,8 @@ void MSXRomDevice::readFile(IFILETYPE* file, int fileSize)
 		// no offset specified
 	}
 	romSize = fileSize - offset;
+	if (romSize <= 0)
+		PRT_ERROR("Offset greater than filesize");
 	if (!(romBank = new byte[romSize]))
 		PRT_ERROR("Couldn't allocate enough memory");
 	file->read(romBank, romSize);
@@ -107,7 +108,6 @@ void MSXRomDevice::readFile(IFILETYPE* file, int fileSize)
 		//       message which includes the file name.
 		PRT_ERROR("Error reading ROM image : " <<  deviceConfig->getParameter("filename") );
 	}
-	file->close();
 	// also patch the file if needed:
 	patchFile();
 }

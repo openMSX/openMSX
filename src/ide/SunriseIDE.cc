@@ -4,6 +4,8 @@
 #include "IDEDevice.hh"
 #include "DummyIDEDevice.hh"
 #include "IDEHD.hh"
+#include "MSXCPU.hh"
+#include "CPU.hh"
 
 
 SunriseIDE::SunriseIDE(MSXConfig::Device *config, const EmuTime &time)
@@ -35,8 +37,6 @@ void SunriseIDE::reset(const EmuTime &time)
 
 byte SunriseIDE::readMem(word address, const EmuTime &time)
 {
-	// TODO is it possible to read the control register
-	
 	if (ideRegsEnabled && ((address & 0x3E00) == 0x3C00)) {
 		// 0x7C00 - 0x7DFF   ide data register
 		if ((address & 1) == 0) {
@@ -59,7 +59,13 @@ byte SunriseIDE::readMem(word address, const EmuTime &time)
 
 byte* SunriseIDE::getReadCacheLine(word start)
 {
-	return NULL;	// TODO
+	if (ideRegsEnabled && ((start & 0x3E00) == 0x3C00))
+		return NULL;
+	if (ideRegsEnabled && ((start & 0x3F00) == 0x3E00))
+		return NULL;
+	if ((0x4000 <= start) && (start < 0x8000))
+		return &internalBank[start & 0x3FFF];
+	return NULL;
 }
 
 void SunriseIDE::writeMem(word address, byte value, const EmuTime &time)
@@ -67,6 +73,7 @@ void SunriseIDE::writeMem(word address, byte value, const EmuTime &time)
 	if ((address & 0xBF04) == 0x0104) {
 		// control register
 		writeControl(value);
+		return;
 	}
 	if (ideRegsEnabled && ((address & 0x3E00) == 0x3C00)) {
 		// 0x7C00 - 0x7DFF   ide data register
@@ -75,10 +82,12 @@ void SunriseIDE::writeMem(word address, byte value, const EmuTime &time)
 		} else {
 			writeDataHigh(value, time);
 		}
+		return;
 	}
 	if (ideRegsEnabled && ((address & 0x3F00) == 0x3E00)) {
 		// 0x7E00 - 0x7EFF   ide registers
 		writeReg(address & 0xF, value, time);
+		return;
 	}
 	// all other writes ignored
 }
@@ -86,15 +95,24 @@ void SunriseIDE::writeMem(word address, byte value, const EmuTime &time)
 
 void SunriseIDE::writeControl(byte value)
 {
-	PRT_DEBUG("IDE control: " << (int)value);
+	PRT_DEBUG("IDE write control: " << (int)value);
 	
-	ideRegsEnabled = value & 1; // TODO cache
+	if (ideRegsEnabled != value & 1) {
+		ideRegsEnabled = value & 1;
+		MSXCPU::instance()->invalidateCache(0x3C00, 0x0300/CPU::CACHE_LINE_SIZE);
+		MSXCPU::instance()->invalidateCache(0x7C00, 0x0300/CPU::CACHE_LINE_SIZE);
+		MSXCPU::instance()->invalidateCache(0xBC00, 0x0300/CPU::CACHE_LINE_SIZE);
+		MSXCPU::instance()->invalidateCache(0xFC00, 0x0300/CPU::CACHE_LINE_SIZE);
+	}
 
 	byte bank = reverse(value & 0xF8);
 	if (bank >= (romSize / 0x4000)) {
 		bank &= ((romSize / 0x4000) - 1);
 	}
-	internalBank = &romBank[0x4000 * bank];
+	if (internalBank != &romBank[0x4000 * bank]) {
+		internalBank = &romBank[0x4000 * bank];
+		MSXCPU::instance()->invalidateCache(0x4000, 0x4000/CPU::CACHE_LINE_SIZE);
+	}
 }
 
 byte SunriseIDE::reverse(byte a)
@@ -119,7 +137,7 @@ byte SunriseIDE::readDataHigh(const EmuTime &time)
 word SunriseIDE::readData(const EmuTime &time)
 {
 	word result = device[selectedDevice]->readData(time);
-	PRT_DEBUG("IDE write data: 0x" << std::hex << int(result) << std::dec);
+	PRT_DEBUG("IDE read data: 0x" << std::hex << int(result) << std::dec);
 	return result;
 }
 

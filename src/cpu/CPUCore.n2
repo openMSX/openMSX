@@ -15,8 +15,8 @@ inline void _CPU_::executeInstruction(byte opcode)
 		if (cpudebug) {
 			Dasm(&debugmemory[start_pc], to_print_string, start_pc);
 			printf("%04x : %s", start_pc, to_print_string);
-			printf("AF=%04x BC=%04x DE=%04x HL=%04x IX=%04x IY=%04x\n", 
-			       R.AF.w, R.BC.w, R.DE.w, R.HL.w, R.IX.w, R.IY.w);
+			printf("AF=%04x BC=%04x DE=%04x HL=%04x IX=%04x IY=%04x SP=%04x\n", 
+			       R.AF.w, R.BC.w, R.DE.w, R.HL.w, R.IX.w, R.IY.w, R.SP.w);
 			//PRT_DEBUG("CPU: Took " << before.getTicksTill(currentTime) << "T-States");
 		}
 	#endif
