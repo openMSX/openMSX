@@ -16,7 +16,7 @@
     <slotted> <ps>-1</ps> <ss>-1</ss> <page>1</page> </slotted>
     <slotted> <ps>-1</ps> <ss>-1</ss> <page>2</page> </slotted>
     <slotted> <ps>-1</ps> <ss>-1</ss> <page>3</page> </slotted>
-    <parameter name="filename">FS-CA1.ROM</parameter>
+    <parameter name="filename">roms/FS-CA1.ROM</parameter>
     <parameter name="mappertype">MSX-AUDIO</parameter>
   </device>
   

@@ -6,7 +6,7 @@
     <type>Rom</type>
     <slotted> <ps>-1</ps> <ss>-1</ss> <page>1</page> </slotted>
     <slotted> <ps>-1</ps> <ss>-1</ss> <page>2</page> </slotted>
-    <parameter name="filename">msxdos22.rom</parameter>
+    <parameter name="filename">roms/msxdos22.rom</parameter>
     <parameter name="automappertype">false</parameter>
     <parameter name="mappertype">1</parameter>
   </device>
