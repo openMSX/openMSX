@@ -1,5 +1,9 @@
 $Id$
 
+2003-04-25 David Heremans <david.heremans@gnu-linux.net>
+	* Allowed JoyNet to accept a new connection if
+	  previous connection is closed.
+
 2003-04-25 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed sprite colours in Graphic5 (SCREEN6).
 	  The turbo R boot logo looks OK now.

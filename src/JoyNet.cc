@@ -95,8 +95,12 @@ void JoyNet::sendByte(byte value)
 	// No transformation of bits to be directly read into openMSX later on
 	// needed since it is a one-on-one mapping
 
-	if (!sockfd) setupWriter();
+	if (!sockfd){
+		setupWriter();
+		PRT_DEBUG("called setupWriter()");
+		};
 	if (sockfd) ::write(sockfd, &value, 1);	//TODO non-blocking
+	PRT_DEBUG("W:  sendByte " << std::hex << (int)value << std::dec);
 
 	/* Joynet cable looped for Maartens test program
 	   status=value;
@@ -121,8 +125,10 @@ void JoyNet::ConnectionListener::run()
 	int connectfd;
 	struct sockaddr_in servaddr;
 
-	// Build a socket -> bind -> listen
+  //keep opening looping in case somebody close connection
+  while ( 1 ){ 
 
+	// Build a socket -> bind -> listen
 	if ((listenfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 		PRT_INFO("Socket error");
 		return;
@@ -161,4 +167,5 @@ void JoyNet::ConnectionListener::run()
 	if (charcounter < 0) {
 		PRT_INFO("TCP/IP read error ");
 	}
+  }
 }
