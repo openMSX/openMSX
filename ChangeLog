@@ -1,5 +1,16 @@
 $Id$
 
+2002-01-24 David Heremans <david.heremans@gnu-linux.net>
+	* Altered SDL_Console:
+		- C++-ed the code and files
+		- dumped unwanted function
+		- now registers objects from type ConsoleInterface
+		  to use for callback instead of C-function pointers
+	* Scheduler has now one (1) registered command with console:
+		- press tab for autocomplete :-)
+	* Added cartridge to help debug ARC protection cartridge
+	* DummyDevice warns about unregistered I/O port calls
+
 2002-01-22 David Heremans <david.heremans@gnu-linux.net>
 	* Added an SDL_console:
 	  Not usefull for the moment but you can toggle it with F10

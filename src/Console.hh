@@ -3,7 +3,8 @@
 #ifndef __CONSOLE_HH__
 #define __CONSOLE_HH__
 #include <SDL/SDL.h>
-#include "ConsoleSource/CON_console.h"
+#include "ConsoleSource/CON_console.hh"
+#include "ConsoleSource/CON_consolecommands.hh"
 #include "openmsx.hh"
 #include "EventDistributor.hh"
 #include "HotKey.hh"
@@ -18,16 +19,16 @@ class Console : private EventListener , private HotKeyListener
 
 		// objects that want to accept commands from the console use
 		// the bool returns indicate failure or succes.
-		bool registerCommand(ConsoleInterface registeredObject,char *command);
-		bool unRegisterCommand(ConsoleInterface registeredObject,char *command);
+		bool registerCommand(ConsoleInterface *registeredObject,char *command);
+		bool unRegisterCommand(ConsoleInterface *registeredObject,char *command);
 
 		// SDL dependend stuff
 		// TODO: make SDL independend if possible
 
 		// The render that instanciates the SDL_Screen needs to call this function
 		/**
-		 * Every MSXMemoryMapper must registers its size.
-		 * This is used to influence the result returned in convert().
+		 * Every SDLRenderer must registers its SDL_screen.
+		 * This is used to influence the result of the Renderer
 		 */
 		void hookUpConsole(SDL_Surface *Screen);
 		void unHookConsole(SDL_Surface *Screen);

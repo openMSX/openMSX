@@ -3,6 +3,7 @@
 #include "Scheduler.hh"
 #include "MSXCPU.hh"
 #include "HotKey.hh"
+#include "Console.hh"
 #include "Mixer.hh"
 #include <cassert>
 #include <SDL/SDL.h>
@@ -32,6 +33,7 @@ Scheduler::Scheduler()
 	EventDistributor::instance()->registerAsyncListener(SDL_QUIT, this);
 	HotKey::instance()->registerAsyncHotKey(SDLK_F12, this);
 	HotKey::instance()->registerAsyncHotKey(SDLK_F11, this);
+	Console::instance()->registerCommand(this, "quit");
 }
 
 Scheduler::~Scheduler()
@@ -187,3 +189,14 @@ void Scheduler::signalHotKey(SDLKey key) {
 	}
 }
 
+void Scheduler::ConsoleCallback(char *string)
+{
+  // only quit is registered :-)
+  stopScheduling();
+  unpause();
+}
+
+void Scheduler::ConsoleHelp(char *string)
+{
+  //nothing for the moment
+}

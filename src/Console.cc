@@ -22,17 +22,18 @@ Console* Console::instance()
 	   oneInstance->Con_rect.h=180;
 	   oneInstance->isHookedUp=false;
 	   oneInstance->isVisible=false;
+	   //oneInstance->registeredCounter=0;
 	}
 	return oneInstance;
 }
 
-bool Console::registerCommand(ConsoleInterface registeredObject,char *command)
+bool Console::registerCommand(ConsoleInterface *registeredObject,char *command)
 {
-  assert(true);
-  assert(false);
+    CON_AddCommand(registeredObject,command);
+    return true;
 }
 
-bool Console::unRegisterCommand(ConsoleInterface registeredObject,char *command)
+bool Console::unRegisterCommand(ConsoleInterface *registeredObject,char *command)
 {
   assert(true);
   assert(false);

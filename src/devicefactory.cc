@@ -19,6 +19,7 @@
 #include "MSXGameCartridge.hh"
 #include "MSXPrinterPort.hh"
 #include "MSXSCCPlusCart.hh"
+#include "MSXARCdebug.hh"
 //#include "MSXPostLoad.hh"
 
 
@@ -74,6 +75,9 @@ MSXDevice *deviceFactory::create(MSXConfig::Device *conf, const EmuTime &time) {
 	} else
 	if (conf->getType()=="SCCPlusCart") {
 		device = new MSXSCCPlusCart(conf, time);
+	} else
+	if (conf->getType()=="ARCdebug") {
+		device = new MSXARCdebug(conf, time);
 	}
 //	} else
 //	if (conf->getType()=="PostLoad") {

@@ -9,6 +9,7 @@
 #include "EmuTime.hh"
 #include "HotKey.hh"
 #include "Mutex.hh"
+#include "ConsoleInterface.hh"
 
 /**
  * Every class that wants to get scheduled at some point must inherit from
@@ -35,7 +36,7 @@ class Schedulable
 		static const std::string defaultName;
 };
 
-class Scheduler : private EventListener, private HotKeyListener
+class Scheduler : private EventListener, private HotKeyListener, private ConsoleInterface
 {
 	class SynchronizationPoint
 	{
@@ -118,6 +119,9 @@ class Scheduler : private EventListener, private HotKeyListener
 		void signalEvent(SDL_Event &event);
 		// HotKeyListener
 		void signalHotKey(SDLKey key);
+		// from the ConsoleInterface
+		void ConsoleCallback(char *string);
+		void ConsoleHelp(char *string);
 
 	private:
 		Scheduler();

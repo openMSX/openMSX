@@ -6,9 +6,27 @@ Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 Joost Yervante Damad <j.damad@qahwah.net>
 Maarten Ter Huurne   <mth@stack.nl>
 
-Code contributors:
-tms9918a: Sean Young <sean@msxnet.org>
-z80: Marcel de Kogel
+
+
+
+And before altering (or completely rewriting) we
+used code from the following contributors:
+
+tms9918a:
+	Sean Young <sean@msxnet.org>
+z80:
+	Marcel de Kogel
+SDL_Console:
+	Garrett Banuk <mongoose@mongeese.org>
+AY8190:
+	Mostly taken from xmame-0.37b16.1.
+        Based on various code snippets by Ville Hallik,
+	Michael Cuddy, Tatsuyuki Satoh, Fabrice Frances,
+	Nicola Salmoria
+Y8950 and YM2413 emulator :
+	written by Mitsutaka Okazaki
+
+
 
 With many thanks to:
 Alex Wulms           <awulms@inter.nl.net>

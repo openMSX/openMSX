@@ -68,22 +68,22 @@ MSXMotherBoard *MSXMotherBoard::oneInstance = NULL;
 void MSXMotherBoard::register_IO_In(byte port, MSXIODevice *device)
 {
 	if (IO_In[port] == DummyDevice::instance()) {
-		PRT_DEBUG (device->getName() << " registers In-port " << (int)port);
+		PRT_DEBUG (device->getName() << " registers In-port " <<std::hex<< (int)port<<std::dec);
 		IO_In[port] = device;
 	} else {
 		PRT_ERROR (device->getName() << " trying to register taken In-port " 
-		                        << (int)port);
+		                        <<std::hex << (int)port << std::dec);
 	}
 }
 
 void MSXMotherBoard::register_IO_Out(byte port, MSXIODevice *device)
 {
 	if (IO_Out[port] == DummyDevice::instance()) {
-		PRT_DEBUG (device->getName() << " registers Out-port " << (int)port);
+		PRT_DEBUG (device->getName() << " registers Out-port " <<std::hex<<(int)port<<std::dec);
 		IO_Out[port] = device;
 	} else {
 		PRT_ERROR (device->getName() << " trying to register taken Out-port "
-		                        << (int)port);
+		                        <<std::hex<< (int)port<<std::dec);
 	}
 }
 

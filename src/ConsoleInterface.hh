@@ -13,11 +13,11 @@ class ConsoleInterface
 		/**
 		 * called by the console when a command is typed
 		 */
-		virtual void ConsoleCallback(char *string);
+		virtual void ConsoleCallback(char *string)=0;
 		/**
 		 * called by the console when a help command is typed
 		 */
-		virtual void ConsoleHelp();
+		virtual void ConsoleHelp(char *string)=0;
 };
 
 #endif //__MSXCONSOLEINTERFACE_HH__
