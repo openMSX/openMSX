@@ -252,6 +252,21 @@ void MSXRom::reset(const EmuTime &time)
 		}
 		break;
 
+	             case PAGE0:   case PAGE1:   case PAGE01:
+	case PAGE2:  case PAGE02:  case PAGE12:  case PAGE012:
+	case PAGE3:  case PAGE03:  case PAGE13:  case PAGE013:
+	case PAGE23: case PAGE023: case PAGE123: case PAGE0123: {
+		int bank = 0;
+		for (int page = 0; page < 4; page++) {
+			if (mapperType & (1 << page)) {
+				setROM16kB(page, bank++);
+			} else {
+				setBank16kB(page, unmapped);
+			}
+		}
+		mapperType = PLAIN;
+		break;
+	}
 	case PANASONIC:
 		control = 0;
 		for (int region = 0; region < 8; region++) {

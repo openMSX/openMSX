@@ -5,6 +5,11 @@ $Id$
 	* Better rom placement heuristics:
 	   should solve bug 658430 point 3 (rom files without "AB" header)
 	* Allow filenames that contain a ',' on the commandline
+	* Support roms that don't like to be mirrored:
+	   - solves bug 658430 point 1 (BASIC prog at 0x8000)
+	   - can't be autodetected (yet?), you must specify romtype as
+	     "PAGE[...]" (examples "PAGE2", "PAGE01", "PAGE12", ...)
+	   - romdb.xml should be updated for these 'problem' roms
 
 2002-12-28 Maarten ter Huurne <maarten@treewalker.org>
 	* Cleaned up sprite checker synchronisation.

@@ -28,6 +28,22 @@ enum MapperType {
 	HAS_DAC      = 32,
 	MAJUTSUSHI   = 32,
 	SYNTHESIZER  = 33,
+
+	PAGE0        = 48 + 1,
+	PAGE1        = 48 + 2,
+	PAGE01       = 48 + 3,
+	PAGE2        = 48 + 4,
+	PAGE02       = 48 + 5,
+	PAGE12       = 48 + 6,
+	PAGE012      = 48 + 7,
+	PAGE3        = 48 + 8,
+	PAGE03       = 48 + 9,
+	PAGE13       = 48 + 10,
+	PAGE013      = 48 + 11,
+	PAGE23       = 48 + 12,
+	PAGE023      = 48 + 13,
+	PAGE123      = 48 + 14,
+	PAGE0123     = 48 + 15,
 };
 
 class NotInDataBaseException : public MSXException {

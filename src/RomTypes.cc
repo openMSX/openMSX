@@ -67,6 +67,17 @@ MapperType RomTypes::nameToMapperType(const std::string &name)
 		
 		mappertype["SYNTHESIZER"] = SYNTHESIZER;
 		
+		mappertype["PAGE0"]       = PAGE0;
+		mappertype["PAGE01"]      = PAGE01;
+		mappertype["PAGE012"]     = PAGE012;
+		mappertype["PAGE0123"]    = PAGE0123;
+		mappertype["PAGE1"]       = PAGE1;
+		mappertype["PAGE12"]      = PAGE12;
+		mappertype["PAGE123"]     = PAGE123;
+		mappertype["PAGE2"]       = PAGE2;
+		mappertype["ROMBAS"]      = PAGE2;
+		mappertype["PAGE23"]      = PAGE23;
+		mappertype["PAGE3"]       = PAGE3;
 	}
 
 	if (mappertype.find(name) == mappertype.end())
