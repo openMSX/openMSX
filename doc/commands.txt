@@ -56,12 +56,13 @@ decr
   Decrement an integer setting.
 
   usage:
-    decr            shows all integer settings
-    decr <setting>  decrement the specified setting
+    decr                  shows all integer settings
+    decr <setting>        decrement the specified setting
+    decr <setting> <num>  decrement the specified setting with given amount
 
   examples:
     decr speed
-    decr renshaturbo
+    decr renshaturbo 10
 
 
 diska / diskb
@@ -92,12 +93,13 @@ incr
   Increment an integer setting.
 
   usage:
-    incr            shows all integer settings
-    incr <setting>  increment the specified setting
+    incr                  shows all integer settings
+    incr <setting>        increment the specified setting
+    incr <setting> <num>  increment the specified setting with given amount
 
   examples:
     incr speed
-    incr renshaturbo
+    incr renshaturbo 10
 
 
 palette

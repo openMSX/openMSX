@@ -1,5 +1,6 @@
 // $Id$
 
+#include <cstdlib>
 #include "SettingsManager.hh"
 #include "Settings.hh"
 #include "CommandController.hh"
@@ -204,16 +205,20 @@ SettingsManager::IncrCommand::IncrCommand(SettingsManager *manager_)
 string SettingsManager::IncrCommand::execute(const vector<string> &tokens)
 {
 	string result;
+	int count = 1;
 	switch (tokens.size()) {
 	case 1:
 		// list all integer settings
 		manager->getSettingNames<IntegerSetting>(result);
 		break;
 
+	case 3:
+		count = strtol(tokens[2].c_str(), NULL, 0);
+		// fall-through
 	case 2: {
 		IntegerSetting *intSetting =
 			manager->getByName<IntegerSetting>("incr", tokens[1]);
-		intSetting->setValue(intSetting->getValue() + 1);
+		intSetting->setValue(intSetting->getValue() + count);
 		break;
 	}
 	default:
@@ -224,8 +229,9 @@ string SettingsManager::IncrCommand::execute(const vector<string> &tokens)
 
 string SettingsManager::IncrCommand::help(const vector<string> &tokens) const
 {
-	return "incr      : list all integer settings\n"
-	       "incr name : increase an integer setting\n";
+	return "incr            : list all integer settings\n"
+	       "incr name       : increase the given integer setting\n"
+	       "incr name count : decrease the given integer setting by count\n";
 }
 
 void SettingsManager::IncrCommand::tabCompletion(vector<string> &tokens) const
@@ -252,28 +258,33 @@ SettingsManager::DecrCommand::DecrCommand(SettingsManager *manager_)
 string SettingsManager::DecrCommand::execute(const vector<string> &tokens)
 {
 	string result;
+	int count = 1;
 	switch (tokens.size()) {
 	case 1:
 		// list all integer settings
 		manager->getSettingNames<IntegerSetting>(result);
 		break;
 
+	case 3:
+		count = strtol(tokens[2].c_str(), NULL, 0);
+		// fall-through
 	case 2: {
 		IntegerSetting *intSetting =
 			manager->getByName<IntegerSetting>("decr", tokens[1]);
-		intSetting->setValue(intSetting->getValue() - 1);
+		intSetting->setValue(intSetting->getValue() - count);
 		break;
 	}
 	default:
-		throw CommandException("incr: wrong number of parameters");
+		throw CommandException("decr: wrong number of parameters");
 	}
 	return result;
 }
 
 string SettingsManager::DecrCommand::help(const vector<string> &tokens) const
 {
-	return "decr      : list all integer settings\n"
-	       "decr name : decrease an integer setting\n";
+	return "decr            : list all integer settings\n"
+	       "decr name       : decrease the given integer setting\n"
+	       "decr name count : decrease the given integer setting by count\n";
 }
 
 void SettingsManager::DecrCommand::tabCompletion(vector<string> &tokens) const
