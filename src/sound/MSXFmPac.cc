@@ -5,12 +5,12 @@
 #ifndef DONT_WANT_FMPAC
 
 #include "FileOpener.hh"
-
 #include <string.h>
+
 
 MSXFmPac::MSXFmPac(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXYM2413(config, time), 
-	  MSXMemDevice(config, time), MSXRomDevice(config, time)
+	  MSXMemDevice(config, time), MSXRomDevice(config, time, 0x10000)
 {
 	PRT_DEBUG("Creating an MSXFmPac object");
 	sramBank = new byte[0x1ffe];
@@ -30,7 +30,6 @@ MSXFmPac::MSXFmPac(MSXConfig::Device *config, const EmuTime &time)
 	} catch (FileOpenerException &e) {
 		// do nothing
 	}
-	loadFile(&memoryBank, 0x10000);
 	reset(time);
 }
 
@@ -76,7 +75,7 @@ byte MSXFmPac::readMem(word address, const EmuTime &time)
 		if (sramEnabled && (address < 0x1ffe)) {
 			return sramBank[address];
 		} else {
-			return memoryBank[bank*0x4000 + address];
+			return romBank[bank*0x4000 + address];
 		}
 	}
 }

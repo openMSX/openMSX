@@ -40,7 +40,6 @@ class MSXRom : public MSXMemDevice, public MSXRomDevice
 		inline void setROM8kB  (int region, int block);
 		inline void setROM16kB (int region, int block);
 		
-		int romSize;
 		int mapperType;
 		byte *internalMemoryBank[16];	// 16 blocks of 4kB
 		byte *unmapped;

@@ -7,6 +7,9 @@ $Id$
 	* Renamed:
 	     MSXRom           -> MSXRomDevice
 	     MSXGameCartridge -> MSXRom
+	* Moved common code to MSXRomDevice
+	* "filesize 0" no longer means autodetection, instead use
+	  "filesize auto" (or just don't mention filesize)
 
 2002-06-12 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* ConsoleCommand parser now understands quoted tokens or tokens with

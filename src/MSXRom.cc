@@ -11,23 +11,8 @@
 MSXRom::MSXRom(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXMemDevice(config, time), MSXRomDevice(config, time)
 {
-	PRT_DEBUG("Creating an MSXRom object");
-	try {
-		try {
-			romSize = deviceConfig->getParameterAsInt("filesize");
-			if (romSize == 0) {
-				// filesize zero is specifying to autodetermine size
-				throw MSXConfig::Exception("auto detect");
-			}
-			loadFile(&memoryBank, romSize);
-		} catch (MSXConfig::Exception& e) {
-			// filesize was not specified or 0
-			romSize = loadFile(&memoryBank);
-		}
-	} catch (MSXException &e) {
-		// TODO why isn't exception thrown beyond constructor
-		PRT_ERROR(e.desc);
-	}
+	PRT_DEBUG("Creating a MSXRom object");
+	
 	retrieveMapperType();
 
 	// only if needed reserve memory for SRAM
@@ -77,7 +62,7 @@ MSXRom::MSXRom(MSXConfig::Device *config, const EmuTime &time)
 
 MSXRom::~MSXRom()
 {
-	PRT_DEBUG("Destructing an MSXRom object");
+	PRT_DEBUG("Destructing a MSXRom object");
 	if (dac)
 		delete dac;
 #ifndef DONT_WANT_SCC
@@ -250,8 +235,8 @@ int MSXRom::guessMapperType()
 	} else {
 		unsigned int typeGuess[] = {0,0,0,0,0,0,0};
 		for (int i=0; i<romSize-3; i++) {
-			if (memoryBank[i] == 0x32) {
-				word value = memoryBank[i+1]+(memoryBank[i+2]<<8);
+			if (romBank[i] == 0x32) {
+				word value = romBank[i+1]+(romBank[i+2]<<8);
 				switch (value) {
 				case 0x5000:
 				case 0x9000:
@@ -577,17 +562,17 @@ void MSXRom::setROM4kB(int region, int block)
 {
 	int nrBlocks = romSize >> 12;
 	block = (block < nrBlocks) ? block : block & (nrBlocks - 1);
-	setBank4kB(region, memoryBank + (block<<12));
+	setBank4kB(region, romBank + (block<<12));
 }
 void MSXRom::setROM8kB(int region, int block)
 {
 	int nrBlocks = romSize >> 13;
 	block = (block < nrBlocks) ? block : block & (nrBlocks - 1);
-	setBank8kB(region, memoryBank + (block<<13));
+	setBank8kB(region, romBank + (block<<13));
 }
 void MSXRom::setROM16kB(int region, int block)
 {
 	int nrBlocks = romSize >> 14;
 	block = (block < nrBlocks) ? block : block & (nrBlocks - 1);
-	setBank16kB(region, memoryBank + (block<<14));
+	setBank16kB(region, romBank + (block<<14));
 }

@@ -6,10 +6,9 @@
 
 MSXMusic::MSXMusic(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXYM2413(config, time),
-	  MSXMemDevice(config, time), MSXRomDevice(config, time)
+	  MSXMemDevice(config, time), MSXRomDevice(config, time, 0x4000)
 {
 	PRT_DEBUG("Creating an MSXMusic object");
-	loadFile(&memoryBank, 0x4000);
 	enable = 1;
 }
 
@@ -33,7 +32,7 @@ byte MSXMusic::readMem(word address, const EmuTime &time)
 		return enable;
 	//case 0x7ff7:
 	default:
-		return memoryBank[address&0x3fff];
+		return romBank[address&0x3fff];
 	}
 }
 

@@ -6,15 +6,9 @@
 
 
 MSXKanji::MSXKanji(MSXConfig::Device *config, const EmuTime &time)
-	: MSXDevice(config, time), MSXIODevice(config, time), MSXRomDevice(config, time)
+	: MSXDevice(config, time), MSXIODevice(config, time),
+	  MSXRomDevice(config, time, ROM_SIZE)
 {
-	try {
-		loadFile(&memoryBank, ROM_SIZE);
-	} catch (MSXException &e) {
-		// TODO why isn't exception thrown beyond constructor
-		PRT_ERROR(e.desc);
-	}
-	
 	MSXMotherBoard::instance()->register_IO_In (0xD9, this);
 	MSXMotherBoard::instance()->register_IO_Out(0xD8, this);
 	MSXMotherBoard::instance()->register_IO_Out(0xD9, this);
@@ -41,11 +35,11 @@ byte MSXKanji::readIO(byte port, const EmuTime &time)
 	byte tmp;
 	switch (port) {
 	case 0xd9:
-		tmp = memoryBank[adr1+count1];
+		tmp = romBank[adr1+count1];
 		count1 = (count1+1)&0x1f;		//TODO check counter behaviour
 		return tmp;
 	case 0xdb:
-		tmp = memoryBank[adr2+count2+0x20000];
+		tmp = romBank[adr2+count2+0x20000];
 		count2 = (count2+1)&0x1f;		//TODO check counter behaviour
 		return tmp;
 	default:

@@ -95,7 +95,7 @@ byte MSXFDC::readMem(word address, const EmuTime &time)
 	   
 	default:
 	  if (address<0x8000)
-	    value=memoryBank [address & 0x3FFF];
+	    value=romBank [address & 0x3FFF];
 	  // quick hack to have FDC register in the correct ranges but not the rom
 	  // (other wise calculus says to litle TPA memory :-)
 	  // The rom needs to be visible in the 0x4000-0x7FFF range
@@ -141,7 +141,7 @@ byte* MSXFDC::getReadCacheLine(word start)
 	//if address overlap 0x7ff8-0x7ffb then return NULL, else normal ROM behaviour
 	if ( (start&0x3FF8&CPU::CACHE_LINE_HIGH)==(0x3FF8&CPU::CACHE_LINE_HIGH) ) return NULL;
 	if (start>0x7FFF) return emptyRom;
-	return &memoryBank[start & 0x3fff];
+	return &romBank[start & 0x3fff];
 	PRT_DEBUG("MSXFDC getReadCacheLine");
 	return NULL;
 }

@@ -221,7 +221,7 @@ void CommandLineParser::configureCartridge(char* filename)
 	s << "<slotted><ps>"<<(int)(1+cartridgeNr)<<"</ps><ss>0</ss><page>2</page></slotted>";
 	s << "<slotted><ps>"<<(int)(1+cartridgeNr)<<"</ps><ss>0</ss><page>3</page></slotted>";
 	s << "<parameter name=\"filename\">"<<sfile<<"</parameter>";
-	s << "<parameter name=\"filesize\">0</parameter>";
+	s << "<parameter name=\"filesize\">auto</parameter>";
 	s << "<parameter name=\"volume\">9000</parameter>";
 	s << "<parameter name=\"automappertype\">";
 	if (*mapper != 0) {

@@ -19,45 +19,17 @@ class MSXRomDevice: virtual public MSXDevice
 {
 	public:
 		MSXRomDevice(MSXConfig::Device *config, const EmuTime &time);
+		MSXRomDevice(MSXConfig::Device *config, const EmuTime &time, int fileSize);
 
-		/**
-		 * delete memory bank
-		 */
 		virtual ~MSXRomDevice();
 
 	protected:
 		/**
-		 * Load a file into memory.
-		 * A memory block is automatically allocated (don't forget to
-		 * free it later) the pointer memoryBank will point to this 
-		 * memory block. 
-		 * The filename is specified in the config file
-		 * Optionally a "skip_headerbytes" parameter can be specified in
-		 * the config file, in that case the first n bytes of the file
-		 * are ignored.
-		 * The filesize must be passed as a function parameter.
-		 */
-		void loadFile(byte** memoryBank, int fileSize);
-		
-		/**
-		 * Load a file into memory.
-		 * A memory block is automatically allocated (don't forget to
-		 * free it later) the pointer memoryBank will point to this 
-		 * memory block. 
-		 * The filename is specified in the config file
-		 * Optionally a "skip_headerbytes" parameter can be specified in
-		 * the config file, in that case the first n bytes of the file
-		 * are ignored.
-		 * This function will autodetect the filesize. The filesize is
-		 * also returned.
-		 */
-		int loadFile(byte** memoryBank);
-
-		/**
 		 * Byte region used by inherited classes
 		 * to store the ROM's memory bank.
 		 */
-		byte* memoryBank;
+		byte* romBank;
+		int romSize;
 
 	private:
 		/**
@@ -69,13 +41,27 @@ class MSXRomDevice: virtual public MSXDevice
 		void handleRomPatchInterfaces();
 		
 		/**
+		 * Load a file into memory.
+		 * A memory block is automatically allocated (don't forget to
+		 * free it later) the pointer memoryBank will point to this 
+		 * memory block. 
+		 * The filename is specified in the config file
+		 * Optionally a "skip_headerbytes" parameter can be specified in
+		 * the config file, in that case the first n bytes of the file
+		 * are ignored.
+		 * The filesize must be passed as a function parameter.
+		 */
+		void loadFile(int fileSize);
+		void loadFile();
+
+		IFILETYPE* openFile();
+		void readFile(IFILETYPE* file, int fileSize);
+		
+		/**
 		 * patch a file after it has being loaded in the memory bank
 		 * if configured in configfile
 		 */
-		void patchFile(byte* memoryBank, int size);
-		
-		IFILETYPE* openFile();
-		void readFile(IFILETYPE* file, int fileSize, byte** memoryBank);
+		void patchFile();
 		
 		std::list<MSXRomPatchInterface*> romPatchInterfaces;
 };
