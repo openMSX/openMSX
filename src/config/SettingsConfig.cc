@@ -41,7 +41,8 @@ void SettingsConfig::loadSetting(FileContext& context, const string& filename)
 	loadName = context.resolveCreate(filename);
 	File file(loadName);
 	XMLDocument doc(file.getLocalName());
-	handleDoc(*this, doc, context);
+	SystemFileContext systemContext;
+	handleDoc(*this, doc, systemContext);
 }
 
 void SettingsConfig::saveSetting(const string& filename)
