@@ -6,6 +6,7 @@
 #include "EmuTime.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
+#include "DisplayMode.hh"
 
 class BooleanSetting;
 
@@ -93,17 +94,25 @@ public:
 	}
 
 	/** Informs the sprite checker of a VDP display mode change.
-	  * @param mode The new display mode: M5..M1.
+	  * @param mode The new display mode.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	inline void updateDisplayMode(int mode, const EmuTime &time) {
+	inline void updateDisplayMode(DisplayMode mode, const EmuTime &time) {
 		sync(time);
-		if ((mode & 0x1F) < 8) {
+		switch(mode.getSpriteMode()) {
+		case 0:
+			updateSpritesMethod = &SpriteChecker::updateSpritesDummy;
+			break;
+		case 1:
 			updateSpritesMethod = &SpriteChecker::updateSprites1;
-		} else {
+			break;
+		case 2:
 			updateSpritesMethod = &SpriteChecker::updateSprites2;
+			break;
+		default:
+			assert(false);
 		}
-		planar = VDP::isPlanar(mode);
+		planar = mode.isPlanar();
 	}
 
 	/** Informs the sprite checker of a VDP display enabled change.
@@ -156,8 +165,7 @@ public:
 		// accurate model of sprite checking.
 		int limit = frameStartTime.getTicksTill(time) / VDP::TICKS_PER_LINE;
 		if (currentLine < limit) {
-			// This calls either updateSprites1 or updateSprites2,
-			// depending on the current DisplayMode.
+			// Call the right update method for the current display mode.
 			(this->*updateSpritesMethod)(limit);
 		}
 	}
@@ -262,11 +270,15 @@ public:
 	}
 
 private:
-	/** Calculate sprite pattern for sprite mode 1.
+	/** Do not calculate sprite patterns, because this mode is spriteless.
+	  */
+	void updateSpritesDummy(int limit);
+	
+	/** Calculate sprite patterns for sprite mode 1.
 	  */
 	void updateSprites1(int limit);
 
-	/** Calculate sprite pattern for sprite mode 2.
+	/** Calculate sprite patterns for sprite mode 2.
 	  */
 	void updateSprites2(int limit);
 

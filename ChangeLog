@@ -1,5 +1,10 @@
 $Id$
 
+2003-03-31 Maarten ter Huurne <maarten@treewalker.org>
+	* Turned DisplayMode into a class (makes code easier to read).
+	* SpriteChecker no longer checks sprites in text mode.
+	* Various minor cleanups along the way.
+
 2003-03-31 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Don't abort (only warn) when there occurs an error during processing
 	  of autocommands

@@ -295,6 +295,10 @@ inline int SpriteChecker::checkSprites2(
 	return visibleIndex;
 }
 
+void SpriteChecker::updateSpritesDummy(int limit)
+{
+}
+
 void SpriteChecker::updateSprites1(int limit)
 {
 	while (currentLine < limit) {
