@@ -73,7 +73,7 @@ done:
 	if (info_ptr->palette) {
 		free(info_ptr->palette);
 	}
-	png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+	png_destroy_write_struct(&png_ptr, &info_ptr);
 
 	fclose(fp);
 	return result;
@@ -110,15 +110,17 @@ ScreenShotSaver::ScreenShotSaver(SDL_Surface* surface, const string& filename)
 			row_pointers[i][j * 3 + 2] = (Uint8)temp;
 		}
 	}
-	
-	if (IMG_SavePNG_RW(surface->w, surface->h, row_pointers, filename) < 0) {
-		throw CommandException("Failed to write " + filename);
-	}
-	
+
+	int result = IMG_SavePNG_RW(surface->w, surface->h, row_pointers, filename);
+
 	for (int i = 0; i < surface->h; ++i) {
 		free(row_pointers[i]);
 	}
 	free(row_pointers);
+	
+	if (result < 0) {
+		throw CommandException("Failed to write " + filename);
+	}
 }
 
 ScreenShotSaver::ScreenShotSaver(unsigned width, unsigned height,
