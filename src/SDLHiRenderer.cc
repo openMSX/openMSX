@@ -429,7 +429,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateVRAM(
 	Well-behaving programs don't write to the visual area during
 	scanning anyway.
 	*/
-	//sync(time);
+	sync(time);
 	(this->*dirtyChecker)(addr, data, time);
 }
 

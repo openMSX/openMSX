@@ -1,5 +1,9 @@
 $Id$
 
+2002-01-03 Maarten ter Huurne <mth@stack.nl>
+	* SDLHiRenderer needs to sync on VRAM updates after all.
+	  This solves the disappearing boss blocks of Knightmare stage 1.
+
 2002-01-03 Joost Yervante Damad <j.damad@qahwah.net>
 	* libxmlx sync
 
