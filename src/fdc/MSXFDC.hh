@@ -4,6 +4,7 @@
 #define __MSXFDC_HH__
 
 #include "MSXRom.hh"
+#include "MSXIODevice.hh"
 
 // This is the interface for the emulated MSX towards the FDC
 // in a first stage it will be only on memmorymappedFDC as in
@@ -16,7 +17,7 @@
 class FDC;
 
 
-class MSXFDC : public MSXRom
+class MSXFDC : public MSXRom, public MSXIODevice
 {
 	public:
 		/**
@@ -34,10 +35,14 @@ class MSXFDC : public MSXRom
 		byte readMem(word address, const EmuTime &time);
 		void writeMem(word address, byte value, const EmuTime &time);  
 		byte* getReadCacheLine(word start);
-	
+
+		byte readIO(byte port, const EmuTime &time);
+		void writeIO(byte port, byte value, const EmuTime &time);
 	private:
 		FDC* controller;
 		bool brokenFDCread;
 		byte* emptyRom;
+		byte interface;
+		byte driveD4;
 };
 #endif

@@ -8,7 +8,10 @@ $Id$
 	   - just a copy-paste from SDLHi and adjusted a few routines
 	   - console is disabled in SDLLo
 	   - not very well tested yet
- 
+
+2002-07-07 David Heremans <david.heremans@gnu-linux.net>
+	* Added portbased interface to MSXFDC for Brazilian MSX's
+
 2002-07-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Moved cassette related code to its own directory
 	* Cleanups

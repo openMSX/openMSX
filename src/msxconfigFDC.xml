@@ -128,6 +128,9 @@
     </slotted>
     <parameter name="brokenFDCread">false</parameter>
     <parameter name="filename">cfg/nms8250-disk.rom</parameter>
+    <!-- use to determine the correct Z80 to FDC interface -->
+    <!-- allowed value 'memory','port' or the not really existend 'hybrid' -->
+    <parameter name="interface">hybrid</parameter>
     <!-- use to instantiate the correct FDC -->
     <parameter name="chip">2793</parameter>
     <!-- used by the FDC to instantiate correct back-end-->
