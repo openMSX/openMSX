@@ -67,8 +67,8 @@ int main (int argc, char **argv)
 		}
 
 		// Joost test stuff
-		MSXConfig::FilePath* fp = dynamic_cast<MSXConfig::FilePath*>(config->getCustomConfigByTag("filepath"));
-		fp->dump();
+//		MSXConfig::FilePath* fp = dynamic_cast<MSXConfig::FilePath*>(config->getCustomConfigByTag("filepath"));
+//		fp->dump();
 
 		//exit(0);
 
