@@ -49,15 +49,15 @@ void MSXDevice::executeUntilEmuTime(const Emutime &time)
     return;
 }
 
-int MSXDevice::executeTStates(int TStates)
-{
-	return (int)0;
-}
+//int MSXDevice::executeTStates(int TStates)
+//{
+//	return (int)0;
+//}
 
-int MSXDevice::getUsedTStates(void)
-{
-	return (int)0;
-}
+//int MSXDevice::getUsedTStates(void)
+//{
+//	return (int)0;
+//}
 
 
 //

@@ -89,9 +89,10 @@ MSXConfig::Device::~Device()
 	}
 }
 
-//MSXConfig::Device::Device(XMLNode *deviceNodeP):deviceNode(deviceNodeP),slotted(false)
 MSXConfig::Device::Device(XMLNode *deviceNode):desc(""),rem("")
 {
+// TODO: rework this
+
 	ostringstream buffer;
 
 // device - <!ELEMENT msxconfig (device)+>
