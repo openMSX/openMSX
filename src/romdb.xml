@@ -1,12 +1,17 @@
 <?xml version="1.0"?>
 <!-- $Id$ -->
 <!DOCTYPE romdb SYSTEM "romdb.dtd">
-
 <romdb>
+
+<!-- THE ORIGINAL DB -->
+<!-- SOME ARE COMMENTED OUT TO PREVENT DOUBLES LATER ON -->
+
+<!--
   <rom id="Game Master 2">
     <md5>1fecd63cf4967dd6d2d4f6901d8d210b</md5>
     <romtype>GAMEMASTER2</romtype>
   </rom>
+-->
   <rom id="Bubbler">
     <md5>3c4113a49c1cbcefc0a73655f807691a</md5>
     <romtype>KONAMI5</romtype>
@@ -15,6 +20,7 @@
     <md5>403cdea1cbd2bb24fae506941f8f655e</md5>
     <romtype>PLAIN</romtype>
   </rom>
+<!--
   <rom id="Konami's Synthesizer">
     <md5>458365aa94bedcef0718207c7ecbcf85</md5>
     <romtype>SYNTHESIZER</romtype>
@@ -23,11 +29,12 @@
     <md5>157948f839762dc9922e4011bb4dc9e6</md5>
     <romtype>MAJUTSUSHI</romtype>
   </rom>
-  <rom id="Hydlide 2">
+-->
+  <rom id="Hydlide 2 (crack/modified?)">
     <md5>4ad6b44220390d76e8565be2abcdadda</md5>
     <romtype>HYDLIDE2</romtype>
   </rom>
-  <rom id="Xanadu">
+  <rom id="Xanadu (crack/modified?)">
     <md5>03e7119173912f9444cb96ed58ba4957</md5>
     <romtype>XANADU</romtype>
   </rom>
@@ -39,31 +46,6079 @@
     <md5>114264bbcd0fdfa7bd083a983606a200</md5>
     <romtype>ASCII8</romtype>
   </rom>
-  <rom id="War of the Dead">
+  <rom id="War of the Dead (crack/modified)">
     <md5>ae08cb529c454ee7477ac61662e02858</md5>
     <md5>41f4c112671b666220137f721e1460aa</md5>
     <romtype>8kB</romtype>
   </rom>
-  <rom id="Xevious">
+  <rom id="Xevious (modified?)">
     <md5>72430889f4e5239a5ed9742a1b84c03a</md5>
     <romtype>ASCII16</romtype>
   </rom>
-  <rom id="Fantasy Zone II">
+  <rom id="Fantasy Zone II (modified?)">
     <md5>88ab9038be379184c70ed4aef1766a57</md5>
     <romtype>ASCII16</romtype>
   </rom>
-  <rom id="R-Type">
-    <md5>3ce7e6360a798f33940405e6501dcff2</md5>
-    <md5>99bc435a1e7885f02b28b7fe94ab2499</md5>
+  <rom id="R-Type (modified?)">
+    <md5>3ce7e6360a798f33940405e6501dcff2</md5> 
     <romtype>RTYPE</romtype>
   </rom>
   <rom id="Strategic Mars (cracked?)">
     <md5>62be2cd42b3db21e68df4c6a529188ed</md5>
     <romtype>16kB</romtype>
   </rom>
+<!--
    <rom id="Strategic Mars">
     <md5>0f235700eecb79b0e5a517118d48112c</md5>
     <romtype>ASCII16</romtype>
   </rom>
+-->
+
+<!-- THE NEW PART CONVERTED FROM JIROU KANEDA'S DB, MSX1 PART -->
+
+  <rom id="10-Yard Fight">
+    <romtype>PLAIN</romtype>
+    <md5>023c05cfb90d7c334a424acbd9cbc768</md5>
+    <crc32>4e20d256</crc32>
+    <year>1986</year>
+    <company>Irem</company>
+    <remark></remark>
+  </rom>
+  <rom id="1942">
+    <romtype>ASCII8</romtype>
+    <md5>284f6df2bc8b829bc99775b52a00c509</md5>
+    <crc32>a27787af</crc32>
+    <year>1986</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="3D Golf Simulation - High-Speed Edition">
+    <romtype>PLAIN</romtype>
+    <md5>ae898e560f7c672540b0ac95b6e03c24</md5>
+    <crc32>cb935a50</crc32>
+    <year>1984</year>
+    <company>T&amp;E Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="3D Golf Simulation - Normal Edition (1)">
+    <romtype>PLAIN</romtype>
+    <md5>66c604647010990ffdb372683f4ddfd1</md5>
+    <crc32>0c989ad1</crc32>
+    <year>1983</year>
+    <company>T&amp;E Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="3D Golf Simulation - Normal Edition (2)">
+    <romtype>PLAIN</romtype>
+    <md5>6cf80e1861de859e3e8e84941ca33ef1</md5>
+    <crc32>f83d4b0d</crc32>
+    <year>1983</year>
+    <company>T&amp;E Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="3D Tennis">
+    <romtype>PLAIN</romtype>
+    <md5>8ea4964b35509ba0d021d35aa76f324c</md5>
+    <crc32>fb00f21b</crc32>
+    <year>1983</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="A Life M36 Planet">
+    <romtype>ASCII8</romtype>
+    <md5>ee9fe57e172b4e734847b95cdb57e9d5</md5>
+    <crc32>fa8f9bbc</crc32>
+    <year>1987</year>
+    <company>Pixel</company>
+    <remark></remark>
+  </rom>
+  <rom id="A.E.">
+    <romtype>PLAIN</romtype>
+    <md5>66a5c9c5989fa72f8d89876f2876b5a1</md5>
+    <crc32>2e1b3dd4</crc32>
+    <year>1983</year>
+    <company>Toshiba EMI</company>
+    <remark></remark>
+  </rom>
+  <rom id="A1 Spirit">
+    <romtype>KONAMI5</romtype>
+    <md5>dfa4dc1f4fbf0edd19d5c58c4384eb21</md5>
+    <crc32>2608c959</crc32>
+    <year>1987</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Actman">
+    <romtype>PLAIN</romtype>
+    <md5>399552677f6eceb94f6c86878f4acb12</md5>
+    <crc32>e4dbcdbd</crc32>
+    <year>1984</year>
+    <company>Mass Tael</company>
+    <remark></remark>
+  </rom>
+  <rom id="Adven'chuta!">
+    <romtype>PLAIN</romtype>
+    <md5>49ab15c69631f664c2596f10d78fa8ad</md5>
+    <crc32>96e02df3</crc32>
+    <year>1983</year>
+    <company>Mia</company>
+    <remark></remark>
+  </rom>
+  <rom id="Alcazar">
+    <romtype>PLAIN</romtype>
+    <md5>4448ff0e82651aaf079621584aeac9df</md5>
+    <crc32>3ee454b0</crc32>
+    <year>1985</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Alibaba And 40 Thieves">
+    <romtype>PLAIN</romtype>
+    <md5>fadf6a531358780542a2463e57ac3f0d</md5>
+    <crc32>2f72b1e3</crc32>
+    <year>1984</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Alien 2">
+    <romtype>ASCII16</romtype>
+    <md5>3dbb75d222dc216c72a8a046e400f2e6</md5>
+    <crc32>c6fc7bd7</crc32>
+    <year>1987</year>
+    <company>Square</company>
+    <remark></remark>
+  </rom>
+  <rom id="Alien 8">
+    <romtype>PLAIN</romtype>
+    <md5>2d71ca6a0ee125631020ebd7b2aa791c</md5>
+    <crc32>93a25be1</crc32>
+    <year>1986</year>
+    <company>Jaleco</company>
+    <remark></remark>
+  </rom>
+  <rom id="Alpha Roid">
+    <romtype>PLAIN</romtype>
+    <md5>caa610054ef09f874dbbdb56dfc067d1</md5>
+    <crc32>4ef7c4e7</crc32>
+    <year>1986</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Alpha Squadron">
+    <romtype>PLAIN</romtype>
+    <md5>e0a2d5ac2eab2cfe6a37c999f9a827ec</md5>
+    <crc32>055254e0</crc32>
+    <year>1984</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="American Truck (1)">
+    <romtype>PLAIN</romtype>
+    <md5>56babc13770b5f0e851b1137999047b5</md5>
+    <crc32>ee8bc1b7</crc32>
+    <year>1985</year>
+    <company>Telenet</company>
+    <remark></remark>
+  </rom>
+  <rom id="American Truck (2)">
+    <romtype>PLAIN</romtype>
+    <md5>0a1d92b42302637d885a5eea06a2792a</md5>
+    <crc32>1dd9b4d9</crc32>
+    <year>1985</year>
+    <company>Telenet</company>
+    <remark></remark>
+  </rom>
+  <rom id="Anaza">
+    <romtype>PLAIN</romtype>
+    <md5>6095e9f6232af47b719dfa5ff8b2e82b</md5>
+    <crc32>7dc880eb</crc32>
+    <year>1987</year>
+    <company>Hot-B</company>
+    <remark></remark>
+  </rom>
+  <rom id="Angelo">
+    <romtype>PLAIN</romtype>
+    <md5>c2e31aaed6d7ae6adeb7656ac5a20ffd</md5>
+    <crc32>20143ec7</crc32>
+    <year>1984</year>
+    <company>Mass Tael</company>
+    <remark></remark>
+  </rom>
+  <rom id="Animal Land Satsujin Jiken">
+    <romtype>ASCII8</romtype>
+    <md5>8a8cbe37e5bd6633fd0e6798d7936a75</md5>
+    <crc32>15a0f98a</crc32>
+    <year>1987</year>
+    <company>Enix</company>
+    <remark>Not Playable</remark>
+  </rom>
+  <rom id="Antarctic Adventure">
+    <romtype>PLAIN</romtype>
+    <md5>97ee96f00fac07a5d70a3801d8a9805a</md5>
+    <crc32>aae7028b</crc32>
+    <year>1984</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Anty">
+    <romtype>PLAIN</romtype>
+    <md5>cf623b0847e0dc101cb183d7ade3cb27</md5>
+    <crc32>b1ace0a0</crc32>
+    <year>1984</year>
+    <company>Bothtec</company>
+    <remark></remark>
+  </rom>
+  <rom id="Aquapolis SOS">
+    <romtype>PLAIN</romtype>
+    <md5>0a57575fa460e4e49fe6f460b2953079</md5>
+    <crc32>f115257a</crc32>
+    <year>1983</year>
+    <company>Paxon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Aquattack">
+    <romtype>PLAIN</romtype>
+    <md5>796881611b3499463ccdbd59dc9f731a</md5>
+    <crc32>f3297895</crc32>
+    <year>1984</year>
+    <company>Toshiba EMI</company>
+    <remark></remark>
+  </rom>
+  <rom id="Aramo">
+    <romtype>PLAIN</romtype>
+    <md5>aa341df27be5cdf8bb5d42eb081b4f63</md5>
+    <crc32>ab6b56ba</crc32>
+    <year>1986</year>
+    <company>Sein</company>
+    <remark></remark>
+  </rom>
+  <rom id="Arkanoid">
+    <romtype>PLAIN</romtype>
+    <md5>9a911c98431ba82aec9907142aee3eff</md5>
+    <crc32>c9a22dfc</crc32>
+    <year>1986</year>
+    <company>Taito</company>
+    <remark></remark>
+  </rom>
+  <rom id="Arubatoros">
+    <romtype>PLAIN</romtype>
+    <md5>e6fe7ddf8f1b3ab0ad1d7071e3bcffa5</md5>
+    <crc32>e27f41df</crc32>
+    <year>1986</year>
+    <company>Telenet</company>
+    <remark></remark>
+  </rom>
+  <rom id="Athletic Ball">
+    <romtype>PLAIN</romtype>
+    <md5>0855944d76448a593ac0c05f645ab257</md5>
+    <crc32>11bac0e6</crc32>
+    <year>1984</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Athletic Land (2)">
+    <romtype>PLAIN</romtype>
+    <md5>2ad5cea9a2f22cb66b95317bb864e176</md5>
+    <crc32>7b1acdea</crc32>
+    <year>1984</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Athletic Land (1)">
+    <romtype>PLAIN</romtype>
+    <md5>71d8e4e09decc1c6e691d18cc0402cca</md5>
+    <crc32>d14361b2</crc32>
+    <year>1984</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Attack 4 Women Volleyball">
+    <romtype>PLAIN</romtype>
+    <md5>1b267ec91bc535e4f34cdce66165e8d8</md5>
+    <crc32>7fdf81e9</crc32>
+    <year>1986</year>
+    <company>Pax</company>
+    <remark></remark>
+  </rom>
+  <rom id="B.C's Quest">
+    <romtype>PLAIN</romtype>
+    <md5>bd46ca36c8380c023bf9d36f4ab2aa0d</md5>
+    <crc32>9c9420d0</crc32>
+    <year>1985</year>
+    <company>Toshiba EMI</company>
+    <remark></remark>
+  </rom>
+  <rom id="Back To The Future">
+    <romtype>PLAIN</romtype>
+    <md5>ed4f0d4d8f406525d873a312b872e1a7</md5>
+    <crc32>dbdb64ac</crc32>
+    <year>1985</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Back Gammon (1)">
+    <romtype>PLAIN</romtype>
+    <md5>e89d06514855e8a5e2ef9f09624ef260</md5>
+    <crc32>b632b6bb</crc32>
+    <year>1984</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Back Gammon (2)">
+    <romtype>PLAIN</romtype>
+    <md5>1d32d26352d70562f351a8fe5b9b9352</md5>
+    <crc32>70c79a87</crc32>
+    <year>1984</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Balance (2)">
+    <romtype>PLAIN</romtype>
+    <md5>9c3c4f7c76ce97efb8b755c0b1dac233</md5>
+    <crc32>cdabd75b</crc32>
+    <year>1984</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="Balance (1)">
+    <romtype>PLAIN</romtype>
+    <md5>b74e3a747d1af22583be5880aacd168a</md5>
+    <crc32>336fdcd9</crc32>
+    <year>1984</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="Banana">
+    <romtype>PLAIN</romtype>
+    <md5>e276218c030d9c339d590562cf349b1a</md5>
+    <crc32>6aa7cbe0</crc32>
+    <year>1984</year>
+    <company>Studio Gen</company>
+    <remark></remark>
+  </rom>
+  <rom id="Bank Panic">
+    <romtype>PLAIN</romtype>
+    <md5>0242d2ebf0f2e7b8d4d840c13f426c73</md5>
+    <crc32>d5e18df0</crc32>
+    <year>1985</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="BASIC Nyuumon">
+    <romtype>PLAIN</romtype>
+    <md5>e83ff70e142bb29c208afe8f69522801</md5>
+    <crc32>ee0a750e</crc32>
+    <year>1984</year>
+    <company>Casio</company>
+    <remark></remark>
+  </rom>
+  <rom id="BASIC Nyuumon 2">
+    <romtype>PLAIN</romtype>
+    <md5>5f3a89839e39ee53b9e7d65de43bf75f</md5>
+    <crc32>13014324</crc32>
+    <year>1985</year>
+    <company>Casio</company>
+    <remark></remark>
+  </rom>
+  <rom id="Batman - Rescue The Rovin">
+    <romtype>ASCII8</romtype>
+    <md5>58fb5a8f48406f2afb142a6ea64d929d</md5>
+    <crc32>637f0494</crc32>
+    <year>1987</year>
+    <company>Pack In Video</company>
+    <remark></remark>
+  </rom>
+  <rom id="Batten Tanuki No Daibouken (2)">
+    <romtype>PLAIN</romtype>
+    <md5>c74e9a3355b49eb2a8f3065881691e99</md5>
+    <crc32>e403ebea</crc32>
+    <year>1985</year>
+    <company>Tecno Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="Batten Tanuki No Daibouken (1)">
+    <romtype>PLAIN</romtype>
+    <md5>e10711878c2e67e33f29e5e82438df86</md5>
+    <crc32>42262bd4</crc32>
+    <year>1985</year>
+    <company>Tecno Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="Battle Cross">
+    <romtype>PLAIN</romtype>
+    <md5>916ad37b0ef7dc3a01f5ec52936a52b8</md5>
+    <crc32>25e675ea</crc32>
+    <year>1984</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Battle Ship Clapton 2">
+    <romtype>PLAIN</romtype>
+    <md5>8891a92de2734be03f50e624b555ecff</md5>
+    <crc32>85f4767b</crc32>
+    <year>1983</year>
+    <company>T&amp;E Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="Beam Rider">
+    <romtype>PLAIN</romtype>
+    <md5>c78403672546ed9f505dd74773ebfa7e</md5>
+    <crc32>1553e408</crc32>
+    <year>1984</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Becky">
+    <romtype>PLAIN</romtype>
+    <md5>c47b53b72c6c3588ea5b881c0fcdba2b</md5>
+    <crc32>a580b72a</crc32>
+    <year>1983</year>
+    <company>Mia</company>
+    <remark></remark>
+  </rom>
+  <rom id="Bee &amp; Flower">
+    <romtype>PLAIN</romtype>
+    <md5>a6c86938d04ee2cae83add54ea44eb9e</md5>
+    <crc32>0ad3707d</crc32>
+    <year>1983</year>
+    <company>Raison</company>
+    <remark></remark>
+  </rom>
+  <rom id="Bifamu">
+    <romtype>PLAIN</romtype>
+    <md5>413de66ccb31f9be011f09a75be4701a</md5>
+    <crc32>f3c1119a</crc32>
+    <year>1984</year>
+    <company>Bandai</company>
+    <remark></remark>
+  </rom>
+  <rom id="The Black Onyx">
+    <romtype>PLAIN</romtype>
+    <md5>8eacc9d87174d02723ec1ffc9680fa67</md5>
+    <crc32>e258c032</crc32>
+    <year>1985</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="The Black Onyx 2">
+    <romtype>ASCII16</romtype>
+    <md5>530efdc907d45137a97a9df917e6d7bd</md5>
+    <crc32>67bf8337</crc32>
+    <year>1986</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Blagger">
+    <romtype>PLAIN</romtype>
+    <md5>5a839dd19d6d0992ca92d79af65b1961</md5>
+    <crc32>50475a7c</crc32>
+    <year>1986</year>
+    <company>Micro Cabin</company>
+    <remark></remark>
+  </rom>
+  <rom id="Blockade Runner">
+    <romtype>PLAIN</romtype>
+    <md5>fa3f66390a2ed8d3e4db6d75de81b91d</md5>
+    <crc32>8334b431</crc32>
+    <year>1984</year>
+    <company>Toshiba EMI</company>
+    <remark></remark>
+  </rom>
+  <rom id="Boggy'84">
+    <romtype>PLAIN</romtype>
+    <md5>ed3620892fb8a70154732ffac6f0b1ef</md5>
+    <crc32>ec089246</crc32>
+    <year>1984</year>
+    <company>Nippon Columbia</company>
+    <remark></remark>
+  </rom>
+  <rom id="Bokosuka Wars">
+    <romtype>PLAIN</romtype>
+    <md5>f1ae6a6ab7619ba331f8f83f02914ebe</md5>
+    <crc32>dd6d9aad</crc32>
+    <year>1984</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Bomber King">
+    <romtype>ASCII8</romtype>
+    <md5>ab3fb38f829d4bf3d47f2da56a9c1436</md5>
+    <crc32>8cf0e6c0</crc32>
+    <year>1988</year>
+    <company>Hudson</company>
+    <remark></remark>
+  </rom>
+  <rom id="Bomber Man">
+    <romtype>PLAIN</romtype>
+    <md5>7a277f7ac3fcc30b995cbd672c8fc094</md5>
+    <crc32>9a5aef05</crc32>
+    <year>1983</year>
+    <company>Hudson</company>
+    <remark></remark>
+  </rom>
+  <rom id="Bomberman Special">
+    <romtype>PLAIN</romtype>
+    <md5>310a80f84ffa24c3b873df0e6a7168ab</md5>
+    <crc32>042ad44d</crc32>
+    <year>1986</year>
+    <company>Hudson</company>
+    <remark></remark>
+  </rom>
+  <rom id="Boogie Woogi Jungle">
+    <romtype>PLAIN</romtype>
+    <md5>00c5e4b1acb6cccc97add5b23f0388b7</md5>
+    <crc32>90ccea11</crc32>
+    <year>1983</year>
+    <company>Ample</company>
+    <remark></remark>
+  </rom>
+  <rom id="Boomerang">
+    <romtype>PLAIN</romtype>
+    <md5>51f979ced0eb81acfc0b03d21df07503</md5>
+    <crc32>0a140b27</crc32>
+    <year>1984</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Break In">
+    <romtype>PLAIN</romtype>
+    <md5>eab747201237ef95c210148a3888a0b1</md5>
+    <crc32>8801b31e</crc32>
+    <year>1987</year>
+    <company>Jaleco</company>
+    <remark>Not Playable</remark>
+  </rom>
+  <rom id="Borfesu">
+    <romtype>ASCII16</romtype>
+    <md5>9e98015a26d7615db9dea90f6d97b4b9</md5>
+    <crc32>e040e8a1</crc32>
+    <year>1987</year>
+    <company>Xtal Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="Bosconian">
+    <romtype>PLAIN</romtype>
+    <md5>cf6ff5a10589cb4bfb7a181df45379c9</md5>
+    <crc32>02f1997a</crc32>
+    <year>1984</year>
+    <company>Namcot</company>
+    <remark></remark>
+  </rom>
+  <rom id="Bouken Roman">
+    <romtype>PLAIN</romtype>
+    <md5>48ef84c090c1f9d1fdf590f9c34c1cfe</md5>
+    <crc32>57efca5a</crc32>
+    <year>1986</year>
+    <company>System Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="The Brain">
+    <romtype>PLAIN</romtype>
+    <md5>d427cd092abd45d178d56e41e7822679</md5>
+    <crc32>bb402b47</crc32>
+    <year>1983</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Break Out">
+    <romtype>PLAIN</romtype>
+    <md5>d0e57136b7dd3569eeeeeb04188ef4ed</md5>
+    <crc32>70113f76</crc32>
+    <year>1983</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Bruce Lee">
+    <romtype>PLAIN</romtype>
+    <md5>844141f51c9d8bc24d13882257a53300</md5>
+    <crc32>a20b196d</crc32>
+    <year>1985</year>
+    <company>Comptiq</company>
+    <remark></remark>
+  </rom>
+  <rom id="Burger Time">
+    <romtype>PLAIN</romtype>
+    <md5>b74d9122eb2b0deb67b17d3523449a88</md5>
+    <crc32>e4a7c230</crc32>
+    <year>1986</year>
+    <company>Dempa</company>
+    <remark></remark>
+  </rom>
+  <rom id="Buru To Marty Kikiippatsu">
+    <romtype>PLAIN</romtype>
+    <md5>e0936235730855d17d91b402c047201c</md5>
+    <crc32>9cf39bd6</crc32>
+    <year>1986</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="Butamaru Pants">
+    <romtype>PLAIN</romtype>
+    <md5>5591580e9b0fccd4efc351ef6ffb4db3</md5>
+    <crc32>4b2aa972</crc32>
+    <year>1983</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="Cabbage Patch Kids">
+    <romtype>PLAIN</romtype>
+    <md5>a46dbb59535bf812574bd8cef354b491</md5>
+    <crc32>057d2790</crc32>
+    <year>1983</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Candoo Ninja">
+    <romtype>PLAIN</romtype>
+    <md5>75ddcb444dc1139678d0848ae902cd3a</md5>
+    <crc32>b6ab6786</crc32>
+    <year>1983</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Cannon Ball">
+    <romtype>PLAIN</romtype>
+    <md5>fab05f70b7e480d9dee494f65b95ab52</md5>
+    <crc32>a667ad8a</crc32>
+    <year>1983</year>
+    <company>Hudson</company>
+    <remark></remark>
+  </rom>
+  <rom id="Captain Chef">
+    <romtype>PLAIN</romtype>
+    <md5>16d02d09df5e0d87d7ad188f740d00a7</md5>
+    <crc32>8e985857</crc32>
+    <year>1984</year>
+    <company>Nippon Columbia</company>
+    <remark></remark>
+  </rom>
+  <rom id="Captain Cosmo">
+    <romtype>PLAIN</romtype>
+    <md5>fd6e245decc4a7a7d09a888794ab577a</md5>
+    <crc32>5780acfd</crc32>
+    <year>1984</year>
+    <company>Nexa</company>
+    <remark></remark>
+  </rom>
+  <rom id="Car Fighter">
+    <romtype>PLAIN</romtype>
+    <md5>afb607270f33db1915766b58108c6af7</md5>
+    <crc32>303187f5</crc32>
+    <year>1985</year>
+    <company>Casio</company>
+    <remark></remark>
+  </rom>
+  <rom id="Car Jamboree">
+    <romtype>PLAIN</romtype>
+    <md5>81658dfd6791b94ca64b253ecd019a2c</md5>
+    <crc32>94fc9169</crc32>
+    <year>1984</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Car Race">
+    <romtype>PLAIN</romtype>
+    <md5>0efef976545353c5ef315fc4da5502ac</md5>
+    <crc32>3f0db564</crc32>
+    <year>1983</year>
+    <company>Ample</company>
+    <remark></remark>
+  </rom>
+  <rom id="Casio Daishougai Keiba">
+    <romtype>PLAIN</romtype>
+    <md5>0b59208a8e7d66ee00fbdae83d18dccd</md5>
+    <crc32>5312db08</crc32>
+    <year>1984</year>
+    <company>Casio</company>
+    <remark></remark>
+  </rom>
+  <rom id="Casio Worldopen">
+    <romtype>PLAIN</romtype>
+    <md5>db93fa660f66160a63c5944940e4dc03</md5>
+    <crc32>338491f5</crc32>
+    <year>1985</year>
+    <company>Casio</company>
+    <remark></remark>
+  </rom>
+  <rom id="Castle Excellent">
+    <romtype>PLAIN</romtype>
+    <md5>0d17cff46c7d26c08fc65671f8761b40</md5>
+    <crc32>90f38029</crc32>
+    <year>1986</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="The Castle">
+    <romtype>PLAIN</romtype>
+    <md5>5ae339850b9ee628a9326c95dcab040c</md5>
+    <crc32>2149c32d</crc32>
+    <year>1986</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Chack'n Pop (1)">
+    <romtype>PLAIN</romtype>
+    <md5>aa1a772ec0da33f7de6de68440b6c07b</md5>
+    <crc32>04f7e0b1</crc32>
+    <year>1984</year>
+    <company>Taito</company>
+    <remark></remark>
+  </rom>
+  <rom id="Chack'n Pop (2)">
+    <romtype>PLAIN</romtype>
+    <md5>615ec47a3030cec2d880c0dc0eb9e31b</md5>
+    <crc32>0fff4d26</crc32>
+    <year>1984</year>
+    <company>Taito</company>
+    <remark></remark>
+  </rom>
+  <rom id="Challenge Durby">
+    <romtype>PLAIN</romtype>
+    <md5>4b8cef832a46cbbd348ff6d2f432ad89</md5>
+    <crc32>a90daa22</crc32>
+    <year>1985</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Champion Boulder Dash">
+    <romtype>PLAIN</romtype>
+    <md5>33c3a00f268f2a99807f08029f18f259</md5>
+    <crc32>a3a56524</crc32>
+    <year>1985</year>
+    <company>Comptiq</company>
+    <remark></remark>
+  </rom>
+  <rom id="Champion Boxing">
+    <romtype>PLAIN</romtype>
+    <md5>7164b72a06b210804174630131b718a8</md5>
+    <crc32>c4b7a5b9</crc32>
+    <year>1985</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Champion Ice Hockey">
+    <romtype>PLAIN</romtype>
+    <md5>9626a8b01a0d22173f9980b52e9771d4</md5>
+    <crc32>bf4b018f</crc32>
+    <year>1986</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Champion Kendou">
+    <romtype>PLAIN</romtype>
+    <md5>7cf02a10f4645ac6936d5ebfde194f74</md5>
+    <crc32>0103c767</crc32>
+    <year>1986</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Champion Pro Wrestling">
+    <romtype>PLAIN</romtype>
+    <md5>3500c4ef753939c05c526e5472da4223</md5>
+    <crc32>6686c84e</crc32>
+    <year>1985</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Champion Soccer">
+    <romtype>PLAIN</romtype>
+    <md5>b63b643c4a212f0106f93320e3f8b371</md5>
+    <crc32>67ab6f8f</crc32>
+    <year>1985</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Championship Lode Runner">
+    <romtype>PLAIN</romtype>
+    <md5>4180cc41bf2efb3033c2e7ef867cc87e</md5>
+    <crc32>2f75e79c</crc32>
+    <year>1985</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Checkers In Tantan Tanuki">
+    <romtype>PLAIN</romtype>
+    <md5>6d6736a701cba17bce17dadba748630a</md5>
+    <crc32>d2b8c058</crc32>
+    <year>1985</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Cheese">
+    <romtype>PLAIN</romtype>
+    <md5>0ca0bc3192891c844813963545cb27a8</md5>
+    <crc32>325bb241</crc32>
+    <year>1984</year>
+    <company>Nipon Electronics</company>
+    <remark></remark>
+  </rom>
+  <rom id="Choplifter">
+    <romtype>PLAIN</romtype>
+    <md5>27121600b9c989885fae3dcece2cf07a</md5>
+    <crc32>1f5eafc8</crc32>
+    <year>1985</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Choro-Q">
+    <romtype>PLAIN</romtype>
+    <md5>fb48d5e9cdea7d080dbcf1702f533642</md5>
+    <crc32>5506bf9b</crc32>
+    <year>1984</year>
+    <company>Taito</company>
+    <remark></remark>
+  </rom>
+  <rom id="Chugaku Hisshu Eibunpo 1">
+    <romtype>PLAIN</romtype>
+    <md5>0107c217236386593b307be7e5d07c91</md5>
+    <crc32>097e4a7e</crc32>
+    <year>1987</year>
+    <company>Stratford CCC</company>
+    <remark></remark>
+  </rom>
+  <rom id="Circus Charlie">
+    <romtype>PLAIN</romtype>
+    <md5>5995cc6f08fdc9e883ecce34d1398029</md5>
+    <crc32>83b8d8f3</crc32>
+    <year>1984</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="City Connection">
+    <romtype>PLAIN</romtype>
+    <md5>8a3339bc88a1d1bf3aeb0b39202b7951</md5>
+    <crc32>6031a583</crc32>
+    <year>1986</year>
+    <company>Jaleco</company>
+    <remark></remark>
+  </rom>
+  <rom id="Coaster Race">
+    <romtype>PLAIN</romtype>
+    <md5>f85dee784fa3210cc470d9273a2d8992</md5>
+    <crc32>399fd445</crc32>
+    <year>1986</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Color Ball">
+    <romtype>PLAIN</romtype>
+    <md5>51d3e2426907224ab2244315cb05132c</md5>
+    <crc32>12552a1f</crc32>
+    <year>1983</year>
+    <company>Hudson</company>
+    <remark></remark>
+  </rom>
+  <rom id="Color Midway">
+    <romtype>PLAIN</romtype>
+    <md5>95144c997793a55abf77c61bc611b9ce</md5>
+    <crc32>40e2f32a</crc32>
+    <year>1983</year>
+    <company>Magic Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="Comet Tail">
+    <romtype>PLAIN</romtype>
+    <md5>22416ba63118ef8f1cc14d2bcaf3c56e</md5>
+    <crc32>74af0726</crc32>
+    <year>1983</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Color Tochika - Pillbox">
+    <romtype>PLAIN</romtype>
+    <md5>c922b5ef698059cd4130b0ca6cde7feb</md5>
+    <crc32>436c3f29</crc32>
+    <year>1983</year>
+    <company>Magic Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="Come On! Picot">
+    <romtype>PLAIN</romtype>
+    <md5>9f3a1432a34a25241f9f7705a34fd81a</md5>
+    <crc32>98b1cc99</crc32>
+    <year>1986</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Comic Bakery">
+    <romtype>PLAIN</romtype>
+    <md5>df0af27c7fda4d2992a12ff1bd287f01</md5>
+    <crc32>a4097e41</crc32>
+    <year>1984</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Computer Billiards">
+    <romtype>PLAIN</romtype>
+    <md5>99522573a9f136a4b392241fd0e39266</md5>
+    <crc32>9098682d</crc32>
+    <year>1983</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Computer Chess">
+    <romtype>PLAIN</romtype>
+    <md5>496d62f19424927657c141b5e3ffa816</md5>
+    <crc32>11eed1c7</crc32>
+    <year>1984</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Computer Nyuumon">
+    <romtype>PLAIN</romtype>
+    <md5>fe59fd69aae36aa1841b29979b112ad0</md5>
+    <crc32>50bb1930</crc32>
+    <year>1985</year>
+    <company>Casio</company>
+    <remark></remark>
+  </rom>
+  <rom id="Computer Othello">
+    <romtype>PLAIN</romtype>
+    <md5>2140b617656f08da8393066d44e2cce1</md5>
+    <crc32>6936c965</crc32>
+    <year>1984</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Con-dori">
+    <romtype>PLAIN</romtype>
+    <md5>115327e682914f4f82e7ca6b2ae8dffd</md5>
+    <crc32>d9006ebe</crc32>
+    <year>1983</year>
+    <company>Raison</company>
+    <remark></remark>
+  </rom>
+  <rom id="Cosmo Explorer">
+    <romtype>PLAIN</romtype>
+    <md5>bbf3cc9c6ceb4f84943dcb5c4d6ed4e2</md5>
+    <crc32>3f534824</crc32>
+    <year>1985</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Courageous Perseus">
+    <romtype>PLAIN</romtype>
+    <md5>7b2afcbfb1747c0fa11d3db9d09753f2</md5>
+    <crc32>b6d707c7</crc32>
+    <year>1985</year>
+    <company>Cosmos</company>
+    <remark></remark>
+  </rom>
+  <rom id="Craze">
+    <romtype>ASCII16</romtype>
+    <md5>4bfa1379a388c19e90810b064ad351a2</md5>
+    <crc32>d83966d0</crc32>
+    <year>1988</year>
+    <company>Heart Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="Crazy Bullet">
+    <romtype>PLAIN</romtype>
+    <md5>69cae7694b271d2c071c8413fd2d42f1</md5>
+    <crc32>d0e8f418</crc32>
+    <year>1983</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Crazy Train (2)">
+    <romtype>PLAIN</romtype>
+    <md5>35ca518bee64c9781cad8b4a3974d10d</md5>
+    <crc32>d8fe84b2</crc32>
+    <year>1983</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Crazy Train (1)">
+    <romtype>PLAIN</romtype>
+    <md5>c853d2dfc162e0c0de883f4502ff0f1f</md5>
+    <crc32>125a9884</crc32>
+    <year>1983</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Cross Blaim">
+    <romtype>CROSSBLAIM</romtype>
+    <md5>37b5e404cd71956c41ef5677659d7beb</md5>
+    <crc32>47273220</crc32>
+    <year>1985</year>
+    <company>dB-Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="Crusader (2)">
+    <romtype>PLAIN</romtype>
+    <md5>3f6ca4ab412a7c5e8ca9ded41c7ecf91</md5>
+    <crc32>0b69dd50</crc32>
+    <year>1985</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Crusader (1)">
+    <romtype>PLAIN</romtype>
+    <md5>73d601525efb66ddbd3f0ef46e133a07</md5>
+    <crc32>e167fede</crc32>
+    <year>1985</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="C-SO">
+    <romtype>PLAIN</romtype>
+    <md5>029dbdaeace66734fc8d07b2e1f379a5</md5>
+    <crc32>f302aef4</crc32>
+    <year>1985</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Daidassou">
+    <romtype>PLAIN</romtype>
+    <md5>a268a017b074dc92050acd7571a2401f</md5>
+    <crc32>fc17c9bc</crc32>
+    <year>1985</year>
+    <company>Carry Lab</company>
+    <remark></remark>
+  </rom>
+  <rom id="Daiva Story 4">
+    <romtype>ASCII8</romtype>
+    <md5>908c850c61c688f1cafcea2f8c0abea7</md5>
+    <crc32>99198ed9</crc32>
+    <year>1987</year>
+    <company>T&amp;E Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="The Dam Busters">
+    <romtype>PLAIN</romtype>
+    <md5>1c5ce09d76d9d51123e9756ed3d7917b</md5>
+    <crc32>6fde5bca</crc32>
+    <year>1985</year>
+    <company>Comptiq</company>
+    <remark></remark>
+  </rom>
+  <rom id="Danger X4">
+    <romtype>PLAIN</romtype>
+    <md5>77739e3d0a583f1fb220b37b0fccf5d9</md5>
+    <crc32>571f12fb</crc32>
+    <year>1984</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="David 2">
+    <romtype>PLAIN</romtype>
+    <md5>a2b5bb5de0869e0948165ff010754dfd</md5>
+    <crc32>e04bffe5</crc32>
+    <year>1984</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Dawn Patrol">
+    <romtype>PLAIN</romtype>
+    <md5>63c4c6c984fde23357f62d19a244d306</md5>
+    <crc32>1fc65e80</crc32>
+    <year>1987</year>
+    <company>Pony Cannon</company>
+    <remark>Not Playable</remark>
+  </rom>
+  <rom id="D-Day">
+    <romtype>PLAIN</romtype>
+    <md5>f791fdd30dfd64019281ae53e4343bd4</md5>
+    <crc32>5d284ea6</crc32>
+    <year>1984</year>
+    <company>Toshiba EMI</company>
+    <remark></remark>
+  </rom>
+  <rom id="Decathlon">
+    <romtype>PLAIN</romtype>
+    <md5>42149c1162bb8c6f00ae679d9f52d430</md5>
+    <crc32>cd016b93</crc32>
+    <year>1984</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Deep Dungeon 1">
+    <romtype>ASCII8-8</romtype>
+    <md5>4010db3f6e840fb420da733a151d0e58</md5>
+    <crc32>27fd8f9a</crc32>
+    <year>1988</year>
+    <company>Scap Trust</company>
+    <remark></remark>
+  </rom>
+  <rom id="Deep Dungeon 2">
+    <romtype>ASCII8-8</romtype>
+    <md5>44ba30921c8d352683009b62f442db00</md5>
+    <crc32>101db19c</crc32>
+    <year>1988</year>
+    <company>Scap Trust</company>
+    <remark></remark>
+  </rom>
+  <rom id="The Demon Crystal">
+    <romtype>PLAIN</romtype>
+    <md5>71c5fe1b4dec31174289ccf54b9ffe86</md5>
+    <crc32>11de4dfd</crc32>
+    <year>1986</year>
+    <company>Dempa</company>
+    <remark></remark>
+  </rom>
+  <rom id="Devil's Heaven">
+    <romtype>PLAIN</romtype>
+    <md5>d79662571a44ddc6a4f9e2803b6ab554</md5>
+    <crc32>ce08f27d</crc32>
+    <year>1984</year>
+    <company>Paxon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Dig Dug">
+    <romtype>PLAIN</romtype>
+    <md5>c0cbfd77ff3cabb9cf44ed53bf0ed14b</md5>
+    <crc32>3c749758</crc32>
+    <year>1984</year>
+    <company>Namcot</company>
+    <remark></remark>
+  </rom>
+  <rom id="Disk Basic 1.0 (For FS-FD1)">
+    <romtype>DISKROM</romtype>
+    <md5>e38a9bfb8b397aa6c721f47eefe130b9</md5>
+    <crc32>4c9b8214</crc32>
+    <year>1987</year>
+    <company>Panasonic</company>
+    <remark></remark>
+  </rom>
+  <rom id="Disk Basic 1.0 (For FS-FD1A)">
+    <romtype>DISKROM</romtype>
+    <md5>8428d1c1fb1d7a039fb68a222dd237fd</md5>
+    <crc32>4b673b29</crc32>
+    <year>1987</year>
+    <company>Panasonic</company>
+    <remark>Not Playable</remark>
+  </rom>
+  <rom id="Disk Basic 1.0 (For FS-FD351)">
+    <romtype>DISKROM</romtype>
+    <md5>125330dc743633dd4393d8f9a06fd2ea</md5>
+    <crc32>006fba38</crc32>
+    <year>1985</year>
+    <company>National</company>
+    <remark>Not Playable</remark>
+  </rom>
+  <rom id="Disk Basic 1.0 (For HBD-F1/HB-F900/HB-F1XD/HB-F1XDmk2)">
+    <romtype>DISKROM</romtype>
+    <md5>c79c07b3a898f7edf84c66a18a25588f</md5>
+    <crc32>af99376f</crc32>
+    <year>1987</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Disk Basic 1.0 (For HB-F1XDJ)">
+    <romtype>DISKROM</romtype>
+    <md5>efdf72c6a135655d9fa996bc242fb779</md5>
+    <crc32>a21f5266</crc32>
+    <year>1988</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Disk Basic 1.0 (For HB-F1XV)">
+    <romtype>DISKROM</romtype>
+    <md5>9c5357b593f142e0d832999809e9dc04</md5>
+    <crc32>04e4e533</crc32>
+    <year>1989</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Doki Doki Penguin Land">
+    <romtype>PLAIN</romtype>
+    <md5>15f5f13185a90b1497867e14318150fe</md5>
+    <crc32>652d0e39</crc32>
+    <year>1985</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="DoorDoor mk2">
+    <romtype>PLAIN</romtype>
+    <md5>50435ce4bb1373f57c903d85bc3c7986</md5>
+    <crc32>f8ad9717</crc32>
+    <year>1984</year>
+    <company>Enix</company>
+    <remark></remark>
+  </rom>
+  <rom id="Dorodon">
+    <romtype>PLAIN</romtype>
+    <md5>f6e96ac27933c8066fc69bbddd81d6e2</md5>
+    <crc32>5aa63a76</crc32>
+    <year>1984</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Dr.Copy">
+    <romtype>PLAIN</romtype>
+    <md5>515d5e66d1c215642d0e40a5e4bb9091</md5>
+    <crc32>f7848700</crc32>
+    <year>1987</year>
+    <company>Emiiru</company>
+    <remark></remark>
+  </rom>
+  <rom id="Dragon Attack">
+    <romtype>PLAIN</romtype>
+    <md5>4905a90dbb014d941e133a0dadd48d00</md5>
+    <crc32>a0ff8771</crc32>
+    <year>1983</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="Dragon Quest">
+    <romtype>ASCII8</romtype>
+    <md5>a05839977faccd697c4f5c93ccd3c005</md5>
+    <crc32>49f5478b</crc32>
+    <year>1986</year>
+    <company>Enix</company>
+    <remark></remark>
+  </rom>
+  <rom id="Dragon Quest 2">
+    <romtype>ASCII8</romtype>
+    <md5>24e032267e25c5de56d988f07b973f7f</md5>
+    <crc32>8076fec6</crc32>
+    <year>1987</year>
+    <company>Enix</company>
+    <remark></remark>
+  </rom>
+  <rom id="Dragon Slayer">
+    <romtype>PLAIN</romtype>
+    <md5>b1218cc7f604cb1abed7c7be4f057ebb</md5>
+    <crc32>6a515349</crc32>
+    <year>1985</year>
+    <company>Square</company>
+    <remark></remark>
+  </rom>
+  <rom id="Dragon Slayer 4">
+    <romtype>ASCII8</romtype>
+    <md5>4e0428536041219c7c4a58856e10e9d5</md5>
+    <crc32>87dcd309</crc32>
+    <year>1987</year>
+    <company>Falcom</company>
+    <remark></remark>
+  </rom>
+  <rom id="Drainer">
+    <romtype>PLAIN</romtype>
+    <md5>2793dc76b379f3bf8f0059415d7848e5</md5>
+    <crc32>db803e8a</crc32>
+    <year>1987</year>
+    <company>Victor</company>
+    <remark></remark>
+  </rom>
+  <rom id="Dungeon Hunter">
+    <romtype>ASCII16</romtype>
+    <md5>8dd86df557313164d5f50f134843069f</md5>
+    <crc32>2526e568</crc32>
+    <year>1989</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Dungeon Master">
+    <romtype>PLAIN</romtype>
+    <md5>e9ee344fa47388cc33f74f36bbfd56c6</md5>
+    <crc32>33700744</crc32>
+    <year>1986</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Dunk Shot (1)">
+    <romtype>PLAIN</romtype>
+    <md5>167f1d9ff7d743bfc774b6162129c055</md5>
+    <crc32>6c366b32</crc32>
+    <year>1986</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="Dunk Shot (2)">
+    <romtype>PLAIN</romtype>
+    <md5>d440664792946c7d9c4e6489c04b3d4f</md5>
+    <crc32>99b7eab1</crc32>
+    <year>1986</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="DX7 Voicing Program (YRM-13)">
+    <romtype>PLAIN</romtype>
+    <md5>420b729aba0e206f7ec7f52957bf2e1e</md5>
+    <crc32>3755ca3d</crc32>
+    <year>1984</year>
+    <company>Yamaha</company>
+    <remark>Needs FM Sound Synthesizer Unit</remark>
+  </rom>
+  <rom id="Dynamite Bowl">
+    <romtype>ASCII16</romtype>
+    <md5>92c65a326270b3baa0478959f91b7ed6</md5>
+    <crc32>47ec57da</crc32>
+    <year>1988</year>
+    <company>Toshiba EMI</company>
+    <remark></remark>
+  </rom>
+  <rom id="E.I. - Exa Innova">
+    <romtype>PLAIN</romtype>
+    <md5>a691a81c0ebeaa439d649d1488eb3a12</md5>
+    <crc32>4ff88059</crc32>
+    <year>1984</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Eagle Fighter">
+    <romtype>PLAIN</romtype>
+    <md5>de791775915fa550aafcaa05a8110831</md5>
+    <crc32>5c808e73</crc32>
+    <year>1985</year>
+    <company>Casio</company>
+    <remark></remark>
+  </rom>
+  <rom id="Eddy 2">
+    <romtype>PLAIN</romtype>
+    <md5>5ba2c72617eea98101acd59dc0696a99</md5>
+    <crc32>2de03477</crc32>
+    <year>1984</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="Eggerland Mystery">
+    <romtype>PLAIN</romtype>
+    <md5>1214bdfb319da16a7e9a7eb646238005</md5>
+    <crc32>232b1050</crc32>
+    <year>1985</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="Elevator Action">
+    <romtype>PLAIN</romtype>
+    <md5>4ececca3e5358198c39747d08d3e5f66</md5>
+    <crc32>39886593</crc32>
+    <year>1985</year>
+    <company>Taito</company>
+    <remark></remark>
+  </rom>
+  <rom id="Erika">
+    <romtype>PLAIN</romtype>
+    <md5>c3ee55f1ac8e844b7f599401cad2d047</md5>
+    <crc32>85ac5626</crc32>
+    <year>1987</year>
+    <company>Jast</company>
+    <remark></remark>
+  </rom>
+  <rom id="Exchanger">
+    <romtype>PLAIN</romtype>
+    <md5>702e8cb880a60132c3ace8fd21ba9560</md5>
+    <crc32>2c2b8a0e</crc32>
+    <year>1983</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Exerion">
+    <romtype>PLAIN</romtype>
+    <md5>165e08772153f210dd5080e06b27bfa6</md5>
+    <crc32>7abefd3d</crc32>
+    <year>1984</year>
+    <company>Jaleco</company>
+    <remark></remark>
+  </rom>
+  <rom id="Exerion 2 - Zorni">
+    <romtype>PLAIN</romtype>
+    <md5>e8519fc1f9a4af0115a8abb450b32bd6</md5>
+    <crc32>0b6c146f</crc32>
+    <year>1984</year>
+    <company>Toshiba EMI</company>
+    <remark></remark>
+  </rom>
+  <rom id="Exoide-Z">
+    <romtype>PLAIN</romtype>
+    <md5>1bb9d2437c2304088d36ebbc655fe2c1</md5>
+    <crc32>6e19c254</crc32>
+    <year>1986</year>
+    <company>Casio</company>
+    <remark></remark>
+  </rom>
+  <rom id="Exoide-Z Area 5">
+    <romtype>PLAIN</romtype>
+    <md5>1c7c29b7f4527bba7160641616fcb6a3</md5>
+    <crc32>ad529df0</crc32>
+    <year>1986</year>
+    <company>Casio</company>
+    <remark></remark>
+  </rom>
+  <rom id="F1 Spirit (1)">
+    <romtype>KONAMI5</romtype>
+    <md5>603d4c819a51d0c20ff9fa9f902d3ffd</md5>
+    <crc32>12bfd3a9</crc32>
+    <year>1987</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="F1 Spirit (2)">
+    <romtype>KONAMI5</romtype>
+    <md5>910cc3718c00c9af6a808e277f0e7586</md5>
+    <crc32>64d2df7c</crc32>
+    <year>1987</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="F16 Fighting Falcon">
+    <romtype>PLAIN</romtype>
+    <md5>c7c38266c0778d3e3669cd3a8de313fe</md5>
+    <crc32>70a0cb2c</crc32>
+    <year>1984</year>
+    <company>Nexa</company>
+    <remark></remark>
+  </rom>
+  <rom id="Fairy">
+    <romtype>PLAIN</romtype>
+    <md5>137210cd4b18cf23b6801ffccfef384b</md5>
+    <crc32>314728c3</crc32>
+    <year>1985</year>
+    <company>Zap</company>
+    <remark></remark>
+  </rom>
+  <rom id="The Fairy Land Story">
+    <romtype>ASCII8</romtype>
+    <md5>cc9c7dfcf2331de6b5effc67ba873503</md5>
+    <crc32>26e34f05</crc32>
+    <year>1987</year>
+    <company>Hot-B</company>
+    <remark></remark>
+  </rom>
+  <rom id="Falc">
+    <romtype>PLAIN</romtype>
+    <md5>67ee3b624b84977a6fbc8bb1e1d8beb9</md5>
+    <crc32>fd8a5c1d</crc32>
+    <year>1983</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="The Fantasm Soldier Valis">
+    <romtype>ASCII8</romtype>
+    <md5>5f695680c415f5ccd2f0a0fe740a63a5</md5>
+    <crc32>309d996c</crc32>
+    <year>1986</year>
+    <company>Telenet</company>
+    <remark></remark>
+  </rom>
+  <rom id="Fantasy Zone 1">
+    <romtype>ASCII8</romtype>
+    <md5>27b5d76f266e5a480b68ecb866adf0d3</md5>
+    <crc32>3e96d005</crc32>
+    <year>1986</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="FB-01 Voicing Program (YRM-56)">
+    <romtype>PLAIN</romtype>
+    <md5>60d987d27e6003c90678a5cb43ed148f</md5>
+    <crc32>6f2e48ab</crc32>
+    <year>1985</year>
+    <company>Yamaha</company>
+    <remark>Needs FM Sound Synthesizer Unit</remark>
+  </rom>
+  <rom id="Final Justice (2)">
+    <romtype>PLAIN</romtype>
+    <md5>3941897f18adcdbf9fd41bce79b65daa</md5>
+    <crc32>851ba4bb</crc32>
+    <year>1985</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Final Justice (1)">
+    <romtype>PLAIN</romtype>
+    <md5>a2199bc0faa46aabd3b588d624e7c443</md5>
+    <crc32>41a86301</crc32>
+    <year>1985</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Final Mahjong">
+    <romtype>PLAIN</romtype>
+    <md5>1ae71fcafe599dfb0a552e2e2c866bc4</md5>
+    <crc32>b120b314</crc32>
+    <year>1983</year>
+    <company>Mia</company>
+    <remark></remark>
+  </rom>
+  <rom id="Final Zone Wolf">
+    <romtype>ASCII8</romtype>
+    <md5>7320bfe382401088813ef3936cfb8e23</md5>
+    <crc32>14e2efcc</crc32>
+    <year>1986</year>
+    <company>Telenet</company>
+    <remark></remark>
+  </rom>
+  <rom id="Fire Rescue">
+    <romtype>PLAIN</romtype>
+    <md5>de4dadeea372b1883fecd5365b40a87c</md5>
+    <crc32>8005a9ba</crc32>
+    <year>1984</year>
+    <company>Hudson</company>
+    <remark></remark>
+  </rom>
+  <rom id="Flappy Limited">
+    <romtype>PLAIN</romtype>
+    <md5>b4398263f3fd64715537028acc491c00</md5>
+    <crc32>b6285a0b</crc32>
+    <year>1984</year>
+    <company>dB-Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="Flappy Limited 85">
+    <romtype>PLAIN</romtype>
+    <md5>e29f65233b000520f5481517e0027e41</md5>
+    <crc32>4a4f3084</crc32>
+    <year>1985</year>
+    <company>dB-Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="Flash Sprash">
+    <romtype>PLAIN</romtype>
+    <md5>6a1dee46a182e896696c2e8f4c5ca9c1</md5>
+    <crc32>5c187cf7</crc32>
+    <year>1984</year>
+    <company>Toshiba EMI</company>
+    <remark></remark>
+  </rom>
+  <rom id="Flicky">
+    <romtype>PLAIN</romtype>
+    <md5>a892a61a27e35d5d72b89fbfd77d0c11</md5>
+    <crc32>88250e5d</crc32>
+    <year>1986</year>
+    <company>Micronet</company>
+    <remark></remark>
+  </rom>
+  <rom id="Flight Deck 2">
+    <romtype>PLAIN</romtype>
+    <md5>00dc00046fe00258d2f901deaf00aecb</md5>
+    <crc32>a00526d0</crc32>
+    <year>1986</year>
+    <company>Pony Cannon</company>
+    <remark>Not Playable</remark>
+  </rom>
+  <rom id="Flight Simulator">
+    <romtype>ASCII8</romtype>
+    <md5>dfb14df7ccc7b8b3837a1aee1bc5e669</md5>
+    <crc32>a6165bd4</crc32>
+    <year>1988</year>
+    <company>Sublogic</company>
+    <remark></remark>
+  </rom>
+  <rom id="Flipper Slipper">
+    <romtype>PLAIN</romtype>
+    <md5>cc2e6b180df7b928e7cbeb6b514b18b6</md5>
+    <crc32>fd7de91e</crc32>
+    <year>1983</year>
+    <company>Spectravideo</company>
+    <remark></remark>
+  </rom>
+  <rom id="FM Music Composer (YRM-15)">
+    <romtype>PLAIN</romtype>
+    <md5>c652303f533c9bb0f8fbd272931e1d05</md5>
+    <crc32>8c13ccea</crc32>
+    <year>1984</year>
+    <company>Yamaha</company>
+    <remark>Needs FM Sound Synthesizer Unit</remark>
+  </rom>
+  <rom id="FM Music Composer II (YRM-55)">
+    <romtype>PLAIN</romtype>
+    <md5>ae2e0440defd75a8a986cc28ebef8354</md5>
+    <crc32>2cbfe03e</crc32>
+    <year>1985</year>
+    <company>Yamaha</company>
+    <remark>Needs FM Sound Synthesizer Unit</remark>
+  </rom>
+  <rom id="FM Music Macro (YRM-11)">
+    <romtype>PLAIN</romtype>
+    <md5>bea9539ae16ddc69711f25c878c99d1a</md5>
+    <crc32>fad0860b</crc32>
+    <year>1984</year>
+    <company>Yamaha</company>
+    <remark>Needs FM Sound Synthesizer Unit</remark>
+  </rom>
+  <rom id="FM Pana Amusement Cartridge (FM-PAC)">
+    <romtype>FMPAC</romtype>
+    <md5>6f69cc8b5ed761b03afd78000dfb0e19</md5>
+    <crc32>0e84505d</crc32>
+    <year>1988</year>
+    <company>Panasoft</company>
+    <remark>Includes I/O-accessed Device</remark>
+  </rom>
+  <rom id="FM Voicing Program (YRM-12)">
+    <romtype>PLAIN</romtype>
+    <md5>bf430274deb3f62d90986c6b40869978</md5>
+    <crc32>70b36f17</crc32>
+    <year>1985</year>
+    <company>Yamaha</company>
+    <remark>Needs FM Sound Synthesizer Unit</remark>
+  </rom>
+  <rom id="Formation Z">
+    <romtype>PLAIN</romtype>
+    <md5>9add9b8b02369b48a507494df5c7303e</md5>
+    <crc32>37b55d09</crc32>
+    <year>1985</year>
+    <company>Jaleco</company>
+    <remark></remark>
+  </rom>
+  <rom id="Frogger">
+    <romtype>PLAIN</romtype>
+    <md5>4daf350513798227186c3454bb396114</md5>
+    <crc32>97e2fcb4</crc32>
+    <year>1983</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Front Line">
+    <romtype>PLAIN</romtype>
+    <md5>5ea44c3480d577de238eddcd7b2c6b91</md5>
+    <crc32>b9d03f7b</crc32>
+    <year>1984</year>
+    <company>Taito</company>
+    <remark></remark>
+  </rom>
+  <rom id="Fruit Search">
+    <romtype>PLAIN</romtype>
+    <md5>4edecdd9f495a690333bfbf06bcde944</md5>
+    <crc32>eba95a38</crc32>
+    <year>1983</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="Funky Mouse">
+    <romtype>PLAIN</romtype>
+    <md5>0982842b41ac13b03b574b41b46b7de0</md5>
+    <crc32>b5c0dace</crc32>
+    <year>1984</year>
+    <company>Zap</company>
+    <remark></remark>
+  </rom>
+  <rom id="Galaga (2)">
+    <romtype>PLAIN</romtype>
+    <md5>ad242a3199771cd5ee35ea5cdd5276b5</md5>
+    <crc32>8856961d</crc32>
+    <year>1984</year>
+    <company>Namcot</company>
+    <remark></remark>
+  </rom>
+  <rom id="Galaga (1)">
+    <romtype>PLAIN</romtype>
+    <md5>117c0f6c294c73af928443a504850994</md5>
+    <crc32>89f7fb19</crc32>
+    <year>1984</year>
+    <company>Namcot</company>
+    <remark></remark>
+  </rom>
+  <rom id="Galaxian (1)">
+    <romtype>PLAIN</romtype>
+    <md5>7b12aba02cceae5e3a05ce9f0ca9acf3</md5>
+    <crc32>e223ffd1</crc32>
+    <year>1984</year>
+    <company>Namcot</company>
+    <remark></remark>
+  </rom>
+  <rom id="Galaxian (2)">
+    <romtype>PLAIN</romtype>
+    <md5>08165f2fec4cd6acaf7fbe0bf49303ea</md5>
+    <crc32>4980ffac</crc32>
+    <year>1984</year>
+    <company>Namcot</company>
+    <remark></remark>
+  </rom>
+  <rom id="Gall Force">
+    <romtype>ASCII16</romtype>
+    <md5>c5fa1c8c6676faa382db530eeab349b6</md5>
+    <crc32>99ef860e</crc32>
+    <year>1986</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Gambler Jikochuushinha">
+    <romtype>ASCII8</romtype>
+    <md5>1e248329a15a995969958a138fb25038</md5>
+    <crc32>91955bcd</crc32>
+    <year>1988</year>
+    <company>Gamearts</company>
+    <remark>MSX1 Mode</remark>
+  </rom>
+  <rom id="Game Land">
+    <romtype>PLAIN</romtype>
+    <md5>6156187523e00a072f0f9500e5111624</md5>
+    <crc32>004976d3</crc32>
+    <year>1984</year>
+    <company>Casio</company>
+    <remark></remark>
+  </rom>
+  <rom id="Gang Master">
+    <romtype>PLAIN</romtype>
+    <md5>79af27b8292ce59123f7d8ac64cca55c</md5>
+    <crc32>c3ee7e15</crc32>
+    <year>1983</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Glider">
+    <romtype>PLAIN</romtype>
+    <md5>a9e41cb3920ec0ce6348325c638a19ad</md5>
+    <crc32>ae35e4ad</crc32>
+    <year>1985</year>
+    <company>Zap</company>
+    <remark></remark>
+  </rom>
+  <rom id="Genghis Khan">
+    <romtype>ASCII8-8</romtype>
+    <md5>702cdc13d4050b011bf4339e64708f5f</md5>
+    <crc32>4ead5098</crc32>
+    <year>1988</year>
+    <company>Koei</company>
+    <remark></remark>
+  </rom>
+  <rom id="Ghost Busters">
+    <romtype>PLAIN</romtype>
+    <md5>006f1a686f2904762d57e71fda555613</md5>
+    <crc32>c9bcbe5a</crc32>
+    <year>1984</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Gofer No Yabou Episode 2 (1)">
+    <romtype>KONAMI5</romtype>
+    <md5>dc31287ced6e601ea7fdf2af9759c58f</md5>
+    <crc32>4b61ae91</crc32>
+    <year>1988</year>
+    <company>Konami</company>
+    <remark>MSX1 Mode</remark>
+  </rom>
+  <rom id="Gofer No Yabou Episode 2 (2)">
+    <romtype>KONAMI5</romtype>
+    <md5>ff9fede25893dc32f6a7db275173b2b9</md5>
+    <crc32>0db7132f</crc32>
+    <year>1988</year>
+    <company>Konami</company>
+    <remark>MSX1 Mode</remark>
+  </rom>
+  <rom id="Gokiburi Daisakusen">
+    <romtype>PLAIN</romtype>
+    <md5>b56500ebb55c2e5fb20de542ef739d5b</md5>
+    <crc32>69ecb2ed</crc32>
+    <year>1983</year>
+    <company>Magic Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="Golf Game">
+    <romtype>PLAIN</romtype>
+    <md5>277b93f5f1a7ef399479ffdf98844922</md5>
+    <crc32>5d88275f</crc32>
+    <year>1983</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Golf-Kyou">
+    <romtype>PLAIN</romtype>
+    <md5>3a0ca365d2e9446defc3dad2b5483bbd</md5>
+    <crc32>d83a6a3f</crc32>
+    <year>1984</year>
+    <company>Hudson</company>
+    <remark></remark>
+  </rom>
+  <rom id="Golgo 13 Okami No Su">
+    <romtype>PLAIN</romtype>
+    <md5>4a8c2cddaf5561d8747e056442b2beee</md5>
+    <crc32>40d3889f</crc32>
+    <year>1986</year>
+    <company>Pont Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Golvellius">
+    <romtype>ASCII16</romtype>
+    <md5>ab0fe259831647da8f6e8dcf24fb0b45</md5>
+    <crc32>5eac55df</crc32>
+    <year>1987</year>
+    <company>Compile</company>
+    <remark></remark>
+  </rom>
+  <rom id="Gomoku Narabe">
+    <romtype>PLAIN</romtype>
+    <md5>bba195151fc2247a00d92e9bf5e51a79</md5>
+    <crc32>269f079f</crc32>
+    <year>1984</year>
+    <company>Toshiba EMI</company>
+    <remark></remark>
+  </rom>
+  <rom id="The Goonies">
+    <romtype>PLAIN</romtype>
+    <md5>24a6d9cfa9e38e120678a538663e8ad2</md5>
+    <crc32>db327847</crc32>
+    <year>1986</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Gozira 3D">
+    <romtype>PLAIN</romtype>
+    <md5>8a7c8149f1f3b7a5fc93cd66a7fb2ad5</md5>
+    <crc32>be071826</crc32>
+    <year>1984</year>
+    <company>Bandai</company>
+    <remark></remark>
+  </rom>
+  <rom id="Gozira-Kun (1)">
+    <romtype>PLAIN</romtype>
+    <md5>4724699f410fa266a6bcb223ee8c99fc</md5>
+    <crc32>ed4a211d</crc32>
+    <year>1985</year>
+    <company>Toho</company>
+    <remark></remark>
+  </rom>
+  <rom id="Gozira-Kun (2)">
+    <romtype>PLAIN</romtype>
+    <md5>b197c822f012647a5c30eea2ba009fc5</md5>
+    <crc32>6498865f</crc32>
+    <year>1985</year>
+    <company>Toho</company>
+    <remark></remark>
+  </rom>
+  <rom id="Gp World">
+    <romtype>PLAIN</romtype>
+    <md5>cdacedb676f2ab537beea78a4c1f742a</md5>
+    <crc32>9dbdd4bc</crc32>
+    <year>1985</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Gradius (2)">
+    <romtype>KONAMI4</romtype>
+    <md5>25c0349164616a7540faa04dcc90237a</md5>
+    <crc32>4d44255f</crc32>
+    <year>1986</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Gradius (1)">
+    <romtype>KONAMI4</romtype>
+    <md5>1d19e90b3df492f0f1956747279fbbac</md5>
+    <crc32>4dfcc009</crc32>
+    <year>1986</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Gradius 2 (1)">
+    <romtype>KONAMI5</romtype>
+    <md5>abbcfc00f71051434e0e82e29b6ea1ef</md5>
+    <crc32>db847b2b</crc32>
+    <year>1987</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Gradius 2 (2)">
+    <romtype>KONAMI5</romtype>
+    <md5>ee3e6a50e3de131d217e5dab55519011</md5>
+    <crc32>32aba4e3</crc32>
+    <year>1987</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Gradius 2 (Demo Version)">
+    <romtype>KONAMI5</romtype>
+    <md5>76d211421642fe6cfcd56af525b0d877</md5>
+    <crc32>c8fac21a</crc32>
+    <year>1987</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Grog's Revenge">
+    <romtype>PLAIN</romtype>
+    <md5>f8c9dfcac1321bec1c8ce7b7c65b51c6</md5>
+    <crc32>5f74ae0e</crc32>
+    <year>1985</year>
+    <company>Comptiq</company>
+    <remark></remark>
+  </rom>
+  <rom id="Guardic">
+    <romtype>PLAIN</romtype>
+    <md5>9e21b956d02cdf275baa501837aca094</md5>
+    <crc32>6aebb9d3</crc32>
+    <year>1986</year>
+    <company>Compile</company>
+    <remark></remark>
+  </rom>
+  <rom id="Gulkave">
+    <romtype>PLAIN</romtype>
+    <md5>862e4a94ab67be5dfc3b9667647e3bd3</md5>
+    <crc32>a02029d0</crc32>
+    <year>1986</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Gun Fright">
+    <romtype>PLAIN</romtype>
+    <md5>c980274acb56219033c8bb6431df8c42</md5>
+    <crc32>f877b3d6</crc32>
+    <year>1986</year>
+    <company>Jaleco</company>
+    <remark></remark>
+  </rom>
+  <rom id="Gunjin Shogi Mars">
+    <romtype>PLAIN</romtype>
+    <md5>e2d53d146bf8becd62dbd5f910632dfb</md5>
+    <crc32>174f409d</crc32>
+    <year>1985</year>
+    <company>Toshiba EMI</company>
+    <remark></remark>
+  </rom>
+  <rom id="Gyrodine">
+    <romtype>PLAIN</romtype>
+    <md5>99e8e6260b5b42069b64e281209a1143</md5>
+    <crc32>0e89433b</crc32>
+    <year>1986</year>
+    <company>Taito</company>
+    <remark></remark>
+  </rom>
+  <rom id="Hadesu No Monshou">
+    <romtype>PLAIN</romtype>
+    <md5>de05bcaefe28dea107f7467d8fa3a2f0</md5>
+    <crc32>4d105f57</crc32>
+    <year>1986</year>
+    <company>Casio</company>
+    <remark></remark>
+  </rom>
+  <rom id="Hajya No Fuin">
+    <romtype>ASCII8</romtype>
+    <md5>6d4defe4ebf20968c5ea2fc843736b75</md5>
+    <crc32>6a603b8c</crc32>
+    <year>1987</year>
+    <company>Kagado</company>
+    <remark></remark>
+  </rom>
+  <rom id="Hanafuda Koi Koi">
+    <romtype>PLAIN</romtype>
+    <md5>6cbfebd9ac448ed19a5c8da61e634e15</md5>
+    <crc32>17b160cb</crc32>
+    <year>1984</year>
+    <company>Ramsoft</company>
+    <remark></remark>
+  </rom>
+  <rom id="Hanafuda">
+    <romtype>PLAIN</romtype>
+    <md5>9ed14f5bfe1bd83d2a82c93debbae959</md5>
+    <crc32>5d6655c5</crc32>
+    <year>1984</year>
+    <company>Toshiba EMI</company>
+    <remark></remark>
+  </rom>
+  <rom id="Hang On">
+    <romtype>PLAIN</romtype>
+    <md5>8ed0c9f88fdc84b877451c1b528abae3</md5>
+    <crc32>48e7212c</crc32>
+    <year>1985</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Harapeko Pakkun">
+    <romtype>PLAIN</romtype>
+    <md5>7c364b9c215d6ddc49262f5ef0e2742e</md5>
+    <crc32>145bb27b</crc32>
+    <year>1984</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Harryfox MSX Special">
+    <romtype>ASCII16-2</romtype>
+    <md5>164cfdb577f0c976bfb30956761cba1c</md5>
+    <crc32>96b7faca</crc32>
+    <year>1986</year>
+    <company>Micro Cabin</company>
+    <remark></remark>
+  </rom>
+  <rom id="Harryfox Yuki No Maou">
+    <romtype>PLAIN</romtype>
+    <md5>4a9fcb047e8d56241f1104db1260ad13</md5>
+    <crc32>c7fe3ee1</crc32>
+    <year>1985</year>
+    <company>Micro Cabin</company>
+    <remark>Not Playable</remark>
+  </rom>
+  <rom id="Hayabusa - Moonsweeper">
+    <romtype>PLAIN</romtype>
+    <md5>ecd6a109c73d2c90dd1828f551009c3e</md5>
+    <crc32>f1637c31</crc32>
+    <year>1985</year>
+    <company>Toshiba EMI</company>
+    <remark></remark>
+  </rom>
+  <rom id="Heavy Boxing">
+    <romtype>PLAIN</romtype>
+    <md5>483a80daa6374e0abe2467ef01593093</md5>
+    <crc32>11e46700</crc32>
+    <year>1983</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="The Heist">
+    <romtype>PLAIN</romtype>
+    <md5>f5d051ec82b155864a7bb12456fe01ec</md5>
+    <crc32>04e454c5</crc32>
+    <year>1985</year>
+    <company>Comptiq</company>
+    <remark></remark>
+  </rom>
+  <rom id="Heli Tank">
+    <romtype>PLAIN</romtype>
+    <md5>905d9c68751745e0412875020edb1f37</md5>
+    <crc32>cd63cd50</crc32>
+    <year>1983</year>
+    <company>Nabu Network</company>
+    <remark></remark>
+  </rom>
+  <rom id="Hero">
+    <romtype>PLAIN</romtype>
+    <md5>2ba6f43da5d2f31c3aab9f8b0a29317b</md5>
+    <crc32>8fdad3af</crc32>
+    <year>1984</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="High Way Star">
+    <romtype>PLAIN</romtype>
+    <md5>552e7ccf6514b49bdf5a3e70fe0bc688</md5>
+    <crc32>24851440</crc32>
+    <year>1983</year>
+    <company>Way Limit</company>
+    <remark></remark>
+  </rom>
+  <rom id="Hisya">
+    <romtype>PLAIN</romtype>
+    <md5>8272eef7c3e3b5e6bacd5656651a1e22</md5>
+    <crc32>136bba04</crc32>
+    <year>1985</year>
+    <company>Micro Cabin</company>
+    <remark></remark>
+  </rom>
+  <rom id="Hitsuji Yai">
+    <romtype>PLAIN</romtype>
+    <md5>d359766a67b048685ff297d415720f2a</md5>
+    <crc32>11502a96</crc32>
+    <year>1984</year>
+    <company>Hudson</company>
+    <remark></remark>
+  </rom>
+  <rom id="Hole In One (3)">
+    <romtype>PLAIN</romtype>
+    <md5>27c969ed0e07cd33288974b977ab09cc</md5>
+    <crc32>98e7b01b</crc32>
+    <year>1984</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="Hole In One (1)">
+    <romtype>PLAIN</romtype>
+    <md5>361bc72571b9eb44e74ea97c963f116f</md5>
+    <crc32>86731751</crc32>
+    <year>1984</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="Hole In One (2)">
+    <romtype>PLAIN</romtype>
+    <md5>c786b6fe4d57ec4d74eb1baa2c71873e</md5>
+    <crc32>5bd60572</crc32>
+    <year>1984</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="Hole In One Professional">
+    <romtype>PLAIN</romtype>
+    <md5>b106f5a35ed5d8803b2858a053788aa4</md5>
+    <crc32>acfcbba6</crc32>
+    <year>1985</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="Home Calc">
+    <romtype>PLAIN</romtype>
+    <md5>31ec0861771017d024dd2e9ae72c2687</md5>
+    <crc32>906c24ae</crc32>
+    <year>1984</year>
+    <company>National</company>
+    <remark></remark>
+  </rom>
+  <rom id="Hustle Chummy">
+    <romtype>PLAIN</romtype>
+    <md5>5b746084672688b835bb0b29bf807d6f</md5>
+    <crc32>99518a12</crc32>
+    <year>1984</year>
+    <company>Paxon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Hydlide">
+    <romtype>PLAIN</romtype>
+    <md5>0c7c6f7e2316f6dccce75fa497a2690f</md5>
+    <crc32>0f9d6f56</crc32>
+    <year>1985</year>
+    <company>T&amp;E Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="Hydlide 2">
+    <romtype>ASCII16-2</romtype>
+    <md5>35e314e2976d37fafe2d5be15c9c3611</md5>
+    <crc32>d8055f5f</crc32>
+    <year>1986</year>
+    <company>T&amp;E Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="Hydlide 3">
+    <romtype>ASCII8</romtype>
+    <md5>45dfa17e171be705ac724b5c9dd41704</md5>
+    <crc32>00c5d5b5</crc32>
+    <year>1987</year>
+    <company>T&amp;E Soft</company>
+    <remark>Not Playable</remark>
+  </rom>
+  <rom id="Hyper Olympic 1">
+    <romtype>PLAIN</romtype>
+    <md5>5352404e1434c53266169a2be3db0866</md5>
+    <crc32>fef1d8fa</crc32>
+    <year>1984</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Hyper Olympic 2">
+    <romtype>PLAIN</romtype>
+    <md5>77f023fcb66181850aa2f62bd24325d8</md5>
+    <crc32>38cb690b</crc32>
+    <year>1984</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Hyper Rally">
+    <romtype>PLAIN</romtype>
+    <md5>d302ba993f34a093e64829a8c60a7993</md5>
+    <crc32>f94d452e</crc32>
+    <year>1985</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Hyper Sports 1">
+    <romtype>PLAIN</romtype>
+    <md5>b870891550234b6ada5d876f88c57b6f</md5>
+    <crc32>18db4ff2</crc32>
+    <year>1984</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Hyper Sports 2">
+    <romtype>PLAIN</romtype>
+    <md5>665e6c909788650bb0187a8d7ddded80</md5>
+    <crc32>968fa8d6</crc32>
+    <year>1984</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Hyper Sports 3">
+    <romtype>PLAIN</romtype>
+    <md5>01a2c85070d987a1b83f591e83b5bcfe</md5>
+    <crc32>80a831e1</crc32>
+    <year>1985</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Ice World">
+    <romtype>PLAIN</romtype>
+    <md5>849fe2e7103c6185970a2b161ae4bfdb</md5>
+    <crc32>16e7b4be</crc32>
+    <year>1985</year>
+    <company>Casio</company>
+    <remark></remark>
+  </rom>
+  <rom id="Iga Ninpoutyou">
+    <romtype>PLAIN</romtype>
+    <md5>27f1765968e11bafacde1205edb7885a</md5>
+    <crc32>51727e48</crc32>
+    <year>1985</year>
+    <company>Casio</company>
+    <remark></remark>
+  </rom>
+  <rom id="Iga Ninpoutyou 2">
+    <romtype>PLAIN</romtype>
+    <md5>0ef0f6936855bb39b42b1afac0c52c71</md5>
+    <crc32>4aa97644</crc32>
+    <year>1986</year>
+    <company>Casio</company>
+    <remark></remark>
+  </rom>
+  <rom id="Indian No Bouken">
+    <romtype>PLAIN</romtype>
+    <md5>1c54de46a5bb1fceadd60d5d63035055</md5>
+    <crc32>3a550788</crc32>
+    <year>1983</year>
+    <company>Hudson</company>
+    <remark></remark>
+  </rom>
+  <rom id="Iriegas">
+    <romtype>PLAIN</romtype>
+    <md5>b4571f90a52854c579a33fc5998f88da</md5>
+    <crc32>36a08e0b</crc32>
+    <year>1983</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="J.P. Winkle">
+    <romtype>PLAIN</romtype>
+    <md5>d0c96d2790dc3fb78278c31a8d79f292</md5>
+    <crc32>57e1221c</crc32>
+    <year>1984</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Issunboushi No Donnamondai">
+    <romtype>PLAIN</romtype>
+    <md5>8aedc43b85bbc6a20a4742eb8eae22a3</md5>
+    <crc32>a7c43855</crc32>
+    <year>1987</year>
+    <company>Casio</company>
+    <remark></remark>
+  </rom>
+  <rom id="Jagur 5">
+    <romtype>ASCII16</romtype>
+    <md5>b9486302bb42747a3f847df144d63fd3</md5>
+    <crc32>d6465702</crc32>
+    <year>1987</year>
+    <company>Hudson</company>
+    <remark></remark>
+  </rom>
+  <rom id="Janka">
+    <romtype>PLAIN</romtype>
+    <md5>95449c74aa6f968c609ec46e5d95f716</md5>
+    <crc32>61ea6742</crc32>
+    <year>1985</year>
+    <company>Uchudo</company>
+    <remark></remark>
+  </rom>
+  <rom id="Japanese MSX-Write">
+    <romtype>ASCII16</romtype>
+    <md5>151f3659d993f68b1694fd1bfde022d5</md5>
+    <crc32>ef02e4f3</crc32>
+    <year>1986</year>
+    <company>Ascii</company>
+    <remark>MSX1 Mode / Not Playable / Kanji ROM Needs</remark>
+  </rom>
+  <rom id="Jet Set Willy">
+    <romtype>PLAIN</romtype>
+    <md5>1db0a91beaa256b00cbf9540511e04b4</md5>
+    <crc32>9191c890</crc32>
+    <year>1985</year>
+    <company>Hudson</company>
+    <remark></remark>
+  </rom>
+  <rom id="Jigsaw Set">
+    <romtype>PLAIN</romtype>
+    <md5>94233a7cedff37b82069e687b197a248</md5>
+    <crc32>f278c6f3</crc32>
+    <year>1983</year>
+    <company>Mia</company>
+    <remark></remark>
+  </rom>
+  <rom id="Jissen 4-Nin Mahjong">
+    <romtype>PLAIN</romtype>
+    <md5>3132cdef39cdd9889b9603d1e8e57224</md5>
+    <crc32>e8df4aa8</crc32>
+    <year>1984</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Jisyo Data (For FS-SR022)">
+    <romtype>PLAIN</romtype>
+    <md5>aa63ec638470e181f00954358f44d011</md5>
+    <crc32>46e90b77</crc32>
+    <year>1985</year>
+    <company>National</company>
+    <remark></remark>
+  </rom>
+  <rom id="Joytelop">
+    <romtype>PLAIN</romtype>
+    <md5>68fb0edd8ac141d1d49535e5c5a98a04</md5>
+    <crc32>6f9deb1b</crc32>
+    <year>1984</year>
+    <company>Victor</company>
+    <remark></remark>
+  </rom>
+  <rom id="Jump">
+    <romtype>PLAIN</romtype>
+    <md5>e64f0823048093864b905796fc074ad2</md5>
+    <crc32>0599617b</crc32>
+    <year>1985</year>
+    <company>Mass Tael</company>
+    <remark></remark>
+  </rom>
+  <rom id="Jump Coaster">
+    <romtype>PLAIN</romtype>
+    <md5>467b9ef1f35187bab918be84eaf98bae</md5>
+    <crc32>c15a25da</crc32>
+    <year>1984</year>
+    <company>Nippon Columbia</company>
+    <remark></remark>
+  </rom>
+  <rom id="Juno First">
+    <romtype>PLAIN</romtype>
+    <md5>823b00451a33b68152af9943cc6ab025</md5>
+    <crc32>d902be7c</crc32>
+    <year>1983</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Jyan Friend">
+    <romtype>PLAIN</romtype>
+    <md5>4bb6f0ebbe4810cea08c04a313434ab5</md5>
+    <crc32>6567f14d</crc32>
+    <year>1984</year>
+    <company>Taito</company>
+    <remark></remark>
+  </rom>
+  <rom id="Jyan-Kyou">
+    <romtype>PLAIN</romtype>
+    <md5>1ebb3629249282ad170da852e2251932</md5>
+    <crc32>7382f3ac</crc32>
+    <year>1984</year>
+    <company>Hudson</company>
+    <remark></remark>
+  </rom>
+  <rom id="Jyanyuu">
+    <romtype>PLAIN</romtype>
+    <md5>45fc6994d275524482f28696824b0d96</md5>
+    <crc32>c8ff3829</crc32>
+    <year>1987</year>
+    <company>Tecno Soft</company>
+    <remark>MSX1 Mode</remark>
+  </rom>
+  <rom id="Kage No Densetsu">
+    <romtype>PLAIN</romtype>
+    <md5>8e59c543f38bf4ca3986e7117d68f87d</md5>
+    <crc32>69367e10</crc32>
+    <year>1986</year>
+    <company>Taito</company>
+    <remark></remark>
+  </rom>
+  <rom id="Kakikukekon">
+    <romtype>PLAIN</romtype>
+    <md5>3c041801933e4cd9e63de4170474979e</md5>
+    <crc32>4a4a6148</crc32>
+    <year>1985</year>
+    <company>Casio</company>
+    <remark></remark>
+  </rom>
+  <rom id="Kanji Rom - JIS 1st Class (For Japanese MSX-Write)">
+    <romtype>PLAIN</romtype>
+    <md5>f35edf0808fdd1a81f86ea647e5b38ee</md5>
+    <crc32>3b8fdf44</crc32>
+    <year>1986</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Karamaru Chindoutyuu">
+    <romtype>PLAIN</romtype>
+    <md5>95d08a2b399d8e5974ff4a15be09182f</md5>
+    <crc32>12be29fc</crc32>
+    <year>1984</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="Karuizawa Yuukaiannai">
+    <romtype>ASCII8</romtype>
+    <md5>762af9d1fc7ce79eac231c7c858da568</md5>
+    <crc32>6a30c707</crc32>
+    <year>1986</year>
+    <company>Enix</company>
+    <remark></remark>
+  </rom>
+  <rom id="The Keiba">
+    <romtype>PLAIN</romtype>
+    <md5>c7694ec0996ebcd6a850be7064e48753</md5>
+    <crc32>df958ed5</crc32>
+    <year>1986</year>
+    <company>Champion Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="Keystone Kapers">
+    <romtype>PLAIN</romtype>
+    <md5>3603d0bd610e6e42bbde4617a2cc9de3</md5>
+    <crc32>7ff117f9</crc32>
+    <year>1984</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Kick It">
+    <romtype>PLAIN</romtype>
+    <md5>b8e00a95125c7f0a1bc082cc52cbd006</md5>
+    <crc32>e4f63cb7</crc32>
+    <year>1987</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="King &amp; Balloon (1)">
+    <romtype>PLAIN</romtype>
+    <md5>8c307660c8fb29cfd8ff8342c95218cb</md5>
+    <crc32>2aba2253</crc32>
+    <year>1984</year>
+    <company>Namcot</company>
+    <remark></remark>
+  </rom>
+  <rom id="King &amp; Balloon (2)">
+    <romtype>PLAIN</romtype>
+    <md5>03c8743fa19d446f6c53d1091ffad78f</md5>
+    <crc32>1eeba987</crc32>
+    <year>1984</year>
+    <company>Namcot</company>
+    <remark></remark>
+  </rom>
+  <rom id="King's Knight">
+    <romtype>ASCII16</romtype>
+    <md5>edff7b7511f1055afa483ff3bed04d84</md5>
+    <crc32>a0481321</crc32>
+    <year>1986</year>
+    <company>Square</company>
+    <remark></remark>
+  </rom>
+  <rom id="King's Valley (2)">
+    <romtype>PLAIN</romtype>
+    <md5>dcd8d9508be4fd38fdb4c8f50b16dbe3</md5>
+    <crc32>dfac2125</crc32>
+    <year>1985</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="King's Valley (1)">
+    <romtype>PLAIN</romtype>
+    <md5>dc990d182c3ec2b053e9bbe5b3fbf488</md5>
+    <crc32>5a141c44</crc32>
+    <year>1985</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="King's Valley 2">
+    <romtype>KONAMI5</romtype>
+    <md5>2f8a812f46e09e39dd3d0da8524ee96c</md5>
+    <crc32>e82a8e8e</crc32>
+    <year>1988</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Kinnikuman">
+    <romtype>PLAIN</romtype>
+    <md5>46051f8a0aaefaa012b8783ada3da4fd</md5>
+    <crc32>166781b7</crc32>
+    <year>1985</year>
+    <company>Bandai</company>
+    <remark></remark>
+  </rom>
+  <rom id="Knight Lore">
+    <romtype>PLAIN</romtype>
+    <md5>489075d5e2f3b9b60c41fbf8ad27ac7e</md5>
+    <crc32>b575c44a</crc32>
+    <year>1986</year>
+    <company>Jaleco</company>
+    <remark></remark>
+  </rom>
+  <rom id="Knither Special">
+    <romtype>ASCII16</romtype>
+    <md5>cfe9bb7e89718d3596bcb9f3451a9ff8</md5>
+    <crc32>a3b2fe71</crc32>
+    <year>1987</year>
+    <company>Dempa</company>
+    <remark></remark>
+  </rom>
+  <rom id="Konami's Baseball">
+    <romtype>PLAIN</romtype>
+    <md5>039a7ea2de0aa7261cad28ac8539e887</md5>
+    <crc32>b660494b</crc32>
+    <year>1984</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Konami's Boxing">
+    <romtype>PLAIN</romtype>
+    <md5>3c276ae556ddd0feea9df0d5d31a5e1d</md5>
+    <crc32>3a442408</crc32>
+    <year>1985</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Konami's Game Master (1)">
+    <romtype>PLAIN</romtype>
+    <md5>9d5784c6b9b0f1dd3530b36edcdcc47f</md5>
+    <crc32>8f1a102e</crc32>
+    <year>1985</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Konami's Game Master (2)">
+    <romtype>PLAIN</romtype>
+    <md5>fc825e62a51500b01f202dc08514a038</md5>
+    <crc32>bd1c5a59</crc32>
+    <year>1985</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Konami's Game Master 2">
+    <romtype>GAMEMASTER2</romtype>
+    <md5>1fecd63cf4967dd6d2d4f6901d8d210b</md5>
+    <crc32>084c5803</crc32>
+    <year>1987</year>
+    <company>Konami</company>
+    <remark>MSX1 Mode</remark>
+  </rom>
+  <rom id="Konami's Golf (1)">
+    <romtype>PLAIN</romtype>
+    <md5>7d22b53c88fe5b6b352e9af89e1c16d3</md5>
+    <crc32>08c7e406</crc32>
+    <year>1985</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Konami's Golf (2)">
+    <romtype>PLAIN</romtype>
+    <md5>dc5029e65c38582e1503127704e33477</md5>
+    <crc32>0e3380fe</crc32>
+    <year>1985</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Konami's Mahjong Doujou">
+    <romtype>PLAIN</romtype>
+    <md5>a2f99279d0f9a7be065886020af54763</md5>
+    <crc32>114198e5</crc32>
+    <year>1984</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Konami's Ping Pong (1)">
+    <romtype>PLAIN</romtype>
+    <md5>9352eca87ee56a2e1e5db813fd686b91</md5>
+    <crc32>3f200491</crc32>
+    <year>1985</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Konami's Ping Pong (2)">
+    <romtype>PLAIN</romtype>
+    <md5>5a8f82ff60e53a6d7aee01b0b8354e5d</md5>
+    <crc32>bbcdd731</crc32>
+    <year>1985</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Konami's Soccer (2)">
+    <romtype>PLAIN</romtype>
+    <md5>a113021087cc957f6bd64600a315e44d</md5>
+    <crc32>74bc8295</crc32>
+    <year>1985</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Konami's Soccer (1)">
+    <romtype>PLAIN</romtype>
+    <md5>5075ee182797e8ba048ace606d55e9dd</md5>
+    <crc32>58ea53b9</crc32>
+    <year>1985</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Konami's Synthesizer">
+    <romtype>SYNTHESIZER</romtype>
+    <md5>458365aa94bedcef0718207c7ecbcf85</md5>
+    <crc32>b9b0999a</crc32>
+    <year>1986</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Konami's Tennis (1)">
+    <romtype>PLAIN</romtype>
+    <md5>d7c2393662307613df1b8d497b11d147</md5>
+    <crc32>61726be4</crc32>
+    <year>1984</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Konami's Tennis (2)">
+    <romtype>PLAIN</romtype>
+    <md5>40a928853f589a082db157d999667a93</md5>
+    <crc32>cfce0a28</crc32>
+    <year>1984</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Koneko No Daibouken">
+    <romtype>PLAIN</romtype>
+    <md5>23732e5bcb4b6669b5cb6e3677a856bc</md5>
+    <crc32>5a0b8739</crc32>
+    <year>1986</year>
+    <company>Casio</company>
+    <remark></remark>
+  </rom>
+  <rom id="Kung-Fu Master">
+    <romtype>PLAIN</romtype>
+    <md5>5c45dcc46e8adb05dafe338132d4439c</md5>
+    <crc32>08f23b3e</crc32>
+    <year>1983</year>
+    <company>Mass Tael</company>
+    <remark></remark>
+  </rom>
+  <rom id="Kung-Fu Taikun">
+    <romtype>PLAIN</romtype>
+    <md5>8debfe14cb9a88a0bfda8d2023dddbb8</md5>
+    <crc32>c1aaf8cb</crc32>
+    <year>1984</year>
+    <company>Toshiba EMI</company>
+    <remark></remark>
+  </rom>
+  <rom id="Ladder Building">
+    <romtype>PLAIN</romtype>
+    <md5>89074bc1801abc318012c4f20eea0bf7</md5>
+    <crc32>c6064ce0</crc32>
+    <year>1984</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Laptick 2">
+    <romtype>PLAIN</romtype>
+    <md5>cb12bd103e67278893b530dfa42aba7e</md5>
+    <crc32>091fe438</crc32>
+    <year>1986</year>
+    <company>dB-Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="Lode Runner">
+    <romtype>PLAIN</romtype>
+    <md5>86e45796f8ef150484283d97af31ab44</md5>
+    <crc32>adc58732</crc32>
+    <year>1984</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Lode Runner 2">
+    <romtype>PLAIN</romtype>
+    <md5>93d8d13ddfc7ab1d8d92466a83c40e0e</md5>
+    <crc32>32ab8b20</crc32>
+    <year>1984</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Lord Over">
+    <romtype>PLAIN</romtype>
+    <md5>33f5d0e33f702c97222bd101c70c7588</md5>
+    <crc32>ab5e42fe</crc32>
+    <year>1983</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Lot Lot">
+    <romtype>PLAIN</romtype>
+    <md5>6dd83d93dfee5d65f563aa2dfe00574e</md5>
+    <crc32>c1679aeb</crc32>
+    <year>1986</year>
+    <company>Irem</company>
+    <remark></remark>
+  </rom>
+  <rom id="Lunar Ball">
+    <romtype>PLAIN</romtype>
+    <md5>cfbf0a20549f3b91e3d6e6251dca5781</md5>
+    <crc32>d8a116d8</crc32>
+    <year>1983</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Macross">
+    <romtype>PLAIN</romtype>
+    <md5>4ca58d79550605f2425002a9c2ffcf4a</md5>
+    <crc32>6e742024</crc32>
+    <year>1985</year>
+    <company>Bothtec</company>
+    <remark></remark>
+  </rom>
+  <rom id="Magical Kid Wiz">
+    <romtype>PLAIN</romtype>
+    <md5>34e4f27c45d352bcce57c9be0e77fc98</md5>
+    <crc32>8c2f2c59</crc32>
+    <year>1986</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Magical Tree">
+    <romtype>PLAIN</romtype>
+    <md5>91181b037e4a772149a00990e9f8b51c</md5>
+    <crc32>827038a2</crc32>
+    <year>1984</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Magunam - Kiki Ippatsu">
+    <romtype>ASCII16</romtype>
+    <md5>6ddbcfa5f75e3fbed798c699b570bda6</md5>
+    <crc32>d446ba1e</crc32>
+    <year>1988</year>
+    <company>Toshiba EMI</company>
+    <remark></remark>
+  </rom>
+  <rom id="Majyou Densetsu">
+    <romtype>PLAIN</romtype>
+    <md5>ebfcaba358d7ceca95c7385276321f78</md5>
+    <crc32>0db84205</crc32>
+    <year>1986</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Manes (1)">
+    <romtype>PLAIN</romtype>
+    <md5>98f3372b44e5c18bdb3d9edd6d28b64b</md5>
+    <crc32>b7002f08</crc32>
+    <year>1984</year>
+    <company>Zap</company>
+    <remark></remark>
+  </rom>
+  <rom id="Manes (2)">
+    <romtype>PLAIN</romtype>
+    <md5>0220c76abbd036df95a0fd6702623099</md5>
+    <crc32>a97a19ec</crc32>
+    <year>1984</year>
+    <company>Zap</company>
+    <remark></remark>
+  </rom>
+  <rom id="Mappy (2)">
+    <romtype>PLAIN</romtype>
+    <md5>134f8a060bb879a343afcae975e45adf</md5>
+    <crc32>3b702e9a</crc32>
+    <year>1984</year>
+    <company>Namcot</company>
+    <remark></remark>
+  </rom>
+  <rom id="Mappy (1)">
+    <romtype>PLAIN</romtype>
+    <md5>1c8f344249b311b13ad4bade12ca49d3</md5>
+    <crc32>a0358870</crc32>
+    <year>1984</year>
+    <company>Namcot</company>
+    <remark></remark>
+  </rom>
+  <rom id="Marchen Veil">
+    <romtype>ASCII8</romtype>
+    <md5>88d9acd090f139cb2fd539c71a95e95f</md5>
+    <crc32>44aa5422</crc32>
+    <year>1987</year>
+    <company>System Sacom</company>
+    <remark></remark>
+  </rom>
+  <rom id="Marine Battle">
+    <romtype>PLAIN</romtype>
+    <md5>80ca2c6be9f35d3f8a90e163a935548d</md5>
+    <crc32>24923bdb</crc32>
+    <year>1983</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Mashou No Yakata Gabalin">
+    <romtype>PLAIN</romtype>
+    <md5>65f4de7e2dad263973dad54b70a79f74</md5>
+    <crc32>d34d74f7</crc32>
+    <year>1987</year>
+    <company>Pony Cannon</company>
+    <remark>Not Playable</remark>
+  </rom>
+  <rom id="The Maze Of Galious">
+    <romtype>KONAMI4</romtype>
+    <md5>0924cf4480c9a4f3fbd922449900c913</md5>
+    <crc32>fe23d253</crc32>
+    <year>1987</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Megamitensei">
+    <romtype>ASCII8</romtype>
+    <md5>5faaa5ab88e24224584577c4c43efc40</md5>
+    <crc32>25fc11fa</crc32>
+    <year>1987</year>
+    <company>Telenet</company>
+    <remark></remark>
+  </rom>
+  <rom id="Megaropolis SOS">
+    <romtype>PLAIN</romtype>
+    <md5>d340d1c2c3bdea0bd45bd7ba2a32a41b</md5>
+    <crc32>cf744d2e</crc32>
+    <year>1983</year>
+    <company>Paxon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Meikyuu Heno Tobira - Gate Of Labyrinth">
+    <romtype>ASCII16</romtype>
+    <md5>e6cced1f7b8be930eca6ad07d13aa540</md5>
+    <crc32>2c2020a0</crc32>
+    <year>1987</year>
+    <company>Dempa</company>
+    <remark></remark>
+  </rom>
+  <rom id="Meikyuushinwa">
+    <romtype>ASCII16</romtype>
+    <md5>acdf6caf45f51f7ade125c34bee747db</md5>
+    <crc32>2f8065eb</crc32>
+    <year>1986</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="MIDI Macro (YRM-33)">
+    <romtype>PLAIN</romtype>
+    <md5>5683b507aeb089380af82a68e1b5463a</md5>
+    <crc32>91daf424</crc32>
+    <year>1986</year>
+    <company>Yamaha</company>
+    <remark>Needs FM Sound Synthesizer Unit</remark>
+  </rom>
+  <rom id="Midnight Brothers">
+    <romtype>PLAIN</romtype>
+    <md5>c55de6b14318add3dd52e9859d2652b4</md5>
+    <crc32>ce2882f6</crc32>
+    <year>1986</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Midnight Building">
+    <romtype>PLAIN</romtype>
+    <md5>00e338d94573c8294b27f89aa8715ddc</md5>
+    <crc32>7b5282e4</crc32>
+    <year>1983</year>
+    <company>Way Limited</company>
+    <remark></remark>
+  </rom>
+  <rom id="Mini Golf">
+    <romtype>PLAIN</romtype>
+    <md5>d8202641e594ad22109778bb0520ceaa</md5>
+    <crc32>855ca028</crc32>
+    <year>1985</year>
+    <company>Namcot</company>
+    <remark></remark>
+  </rom>
+  <rom id="Mirai - Future">
+    <romtype>ASCII8</romtype>
+    <md5>6469a75ef7c2574b8a46778681267f10</md5>
+    <crc32>72eb9d0e</crc32>
+    <year>1987</year>
+    <company>Xain</company>
+    <remark></remark>
+  </rom>
+  <rom id="Mitsumega Toohru">
+    <romtype>ASCII8</romtype>
+    <md5>2d2f5b2ea8bea2f6daa765efffcf6a4b</md5>
+    <crc32>4faccae0</crc32>
+    <year>1989</year>
+    <company>Natsume</company>
+    <remark></remark>
+  </rom>
+  <rom id="Moai No Hibou">
+    <romtype>PLAIN</romtype>
+    <md5>11be236e0b417b2109c64e72205d1d09</md5>
+    <crc32>0427df83</crc32>
+    <year>1986</year>
+    <company>Casio</company>
+    <remark></remark>
+  </rom>
+  <rom id="Mobile Planet Suthirus">
+    <romtype>PLAIN</romtype>
+    <md5>6549ba87c4e7df1f45fe772fc216c606</md5>
+    <crc32>eba19259</crc32>
+    <year>1986</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="Mobile Suit Gundam">
+    <romtype>PLAIN</romtype>
+    <md5>1c494b6738dbe37efaa9250bb0fb5bce</md5>
+    <crc32>1d27d31f</crc32>
+    <year>1984</year>
+    <company>Bandai</company>
+    <remark></remark>
+  </rom>
+  <rom id="Moukarimakka Bothibothidenna!">
+    <romtype>PLAIN</romtype>
+    <md5>63cc9f241760ea7c37385745dc96ee7f</md5>
+    <crc32>d40f481d</crc32>
+    <year>1986</year>
+    <company>Lebrn Pro</company>
+    <remark></remark>
+  </rom>
+  <rom id="Mole">
+    <romtype>PLAIN</romtype>
+    <md5>11a66bb4d76b97f3e7195886abf88b3c</md5>
+    <crc32>d0e39c9b</crc32>
+    <year>1983</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Mole Mole 2">
+    <romtype>PLAIN</romtype>
+    <md5>1e65207d8ef8f93149123cb11c0da193</md5>
+    <crc32>309f886b</crc32>
+    <year>1987</year>
+    <company>Victor</company>
+    <remark></remark>
+  </rom>
+  <rom id="Monkey Academy (2)">
+    <romtype>PLAIN</romtype>
+    <md5>ad8f1b9ba57345e38020bc0df4aabc41</md5>
+    <crc32>98cd6912</crc32>
+    <year>1984</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Monkey Academy (1)">
+    <romtype>PLAIN</romtype>
+    <md5>00d7c24cf63e82c3216463a38a16b8d5</md5>
+    <crc32>e73c12e6</crc32>
+    <year>1984</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Monkey Academy (3)">
+    <romtype>PLAIN</romtype>
+    <md5>882abba83b68b51af0d8e4c3457d0068</md5>
+    <crc32>3ddcac18</crc32>
+    <year>1984</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Monster's Fair">
+    <romtype>PLAIN</romtype>
+    <md5>eb62bceea0b6d367cdda7c8ba22daeb0</md5>
+    <crc32>1ba6e461</crc32>
+    <year>1986</year>
+    <company>Toho</company>
+    <remark></remark>
+  </rom>
+  <rom id="Moon Landing">
+    <romtype>PLAIN</romtype>
+    <md5>4d938e6e42a98b00dbcc51896545f537</md5>
+    <crc32>8a2c11da</crc32>
+    <year>1983</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Moon Patrol">
+    <romtype>PLAIN</romtype>
+    <md5>5a9e04834727d034a27dfc7d67780333</md5>
+    <crc32>febb1155</crc32>
+    <year>1984</year>
+    <company>Dempa</company>
+    <remark></remark>
+  </rom>
+  <rom id="Mopi Ranger (1)">
+    <romtype>PLAIN</romtype>
+    <md5>393713df47b733544c62356f79993576</md5>
+    <crc32>9d73e4c5</crc32>
+    <year>1985</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Mopi Ranger (2)">
+    <romtype>PLAIN</romtype>
+    <md5>5c1330f308a90e214201127899f2ed38</md5>
+    <crc32>097f4e4a</crc32>
+    <year>1985</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Morita Kazurou No Othello">
+    <romtype>PLAIN</romtype>
+    <md5>7509f98c9d864fa6b54569530e1ed40d</md5>
+    <crc32>a94d7d08</crc32>
+    <year>1986</year>
+    <company>Toshiba EMI</company>
+    <remark></remark>
+  </rom>
+  <rom id="Mouser">
+    <romtype>PLAIN</romtype>
+    <md5>7074eb1975d750e13b24fad5cddd3c3a</md5>
+    <crc32>06a64527</crc32>
+    <year>1983</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Mr.Chin">
+    <romtype>PLAIN</romtype>
+    <md5>1fac7bc23b97ee0c67ff5edfb33bf355</md5>
+    <crc32>414d29bc</crc32>
+    <year>1984</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="Mr.Do">
+    <romtype>PLAIN</romtype>
+    <md5>97d7328b35c053aa57f2e3f8fe0b48e1</md5>
+    <crc32>4098d71d</crc32>
+    <year>1984</year>
+    <company>Nippon Columbia</company>
+    <remark></remark>
+  </rom>
+  <rom id="Mr.Do V.S Unicorns">
+    <romtype>PLAIN</romtype>
+    <md5>24962c3c58880b7ee9cf08bb5fe0c45f</md5>
+    <crc32>09090135</crc32>
+    <year>1984</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Mr.Do's Wildride">
+    <romtype>PLAIN</romtype>
+    <md5>f2c5eae5e6d01f4a3509dc71e6cac660</md5>
+    <crc32>6786a7ee</crc32>
+    <year>1985</year>
+    <company>Nippon Columbia</company>
+    <remark></remark>
+  </rom>
+  <rom id="MSX AID">
+    <romtype>PLAIN</romtype>
+    <md5>b71ea4135e7693d0f58e4d383c67b691</md5>
+    <crc32>a7c4ac70</crc32>
+    <year>1987</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="MSX Audio (FS-CA1)">
+    <romtype>PLAIN</romtype>
+    <md5>337c2abc33dc539c6aa2dbe0f5e7f523</md5>
+    <crc32>90e893ba</crc32>
+    <year>1988</year>
+    <company>Panasoic</company>
+    <remark>Includes I/O-accessed Device</remark>
+  </rom>
+  <rom id="MSX Audio (HX-MU900)">
+    <romtype>PLAIN</romtype>
+    <md5>38eb2e535b8fe6886597081f79f27243</md5>
+    <crc32>dc405f8c</crc32>
+    <year>1985</year>
+    <company>Toshiba</company>
+    <remark></remark>
+  </rom>
+  <rom id="MSX Baseball (1)">
+    <romtype>PLAIN</romtype>
+    <md5>3e4cee14d1bb740b7820b57137dfc010</md5>
+    <crc32>f928f075</crc32>
+    <year>1984</year>
+    <company>Panasoft</company>
+    <remark></remark>
+  </rom>
+  <rom id="MSX Baseball (2)">
+    <romtype>PLAIN</romtype>
+    <md5>ef0d5ee35c0da882700fb70f3a741852</md5>
+    <crc32>f79d3088</crc32>
+    <year>1984</year>
+    <company>Panasoft</company>
+    <remark></remark>
+  </rom>
+  <rom id="MSX Baseball 2">
+    <romtype>PLAIN</romtype>
+    <md5>4f6042f6eb61229a4fbcd6e3c0f74dab</md5>
+    <crc32>0cb78f0e</crc32>
+    <year>1986</year>
+    <company>Panasoft</company>
+    <remark></remark>
+  </rom>
+  <rom id="MSX Basic-Kun">
+    <romtype>PLAIN</romtype>
+    <md5>2a905423946f9876ebbfade9445bc82b</md5>
+    <crc32>0ea62a4d</crc32>
+    <year>1986</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="MSX Bunsetsu Henkan Jisyo (FS-SR022)">
+    <romtype>PLAIN</romtype>
+    <md5>38ceac0e507ce410fd6095fee0ac7ac7</md5>
+    <crc32>381b3431</crc32>
+    <year>1985</year>
+    <company>National</company>
+    <remark>Not Playable / Needs FS-4000</remark>
+  </rom>
+  <rom id="MSX Derby">
+    <romtype>PLAIN</romtype>
+    <md5>666a2c98b77d86fe27db2bb703af4887</md5>
+    <crc32>268cc301</crc32>
+    <year>1983</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="MSX Eiwa Jiten (English-Japanese Dictionary)">
+    <romtype>ASCII8</romtype>
+    <md5>1c5dd99177224f2f7e3f2b38d1e5e13c</md5>
+    <crc32>1b10cf79</crc32>
+    <year>1988</year>
+    <company>Hi-Score</company>
+    <remark></remark>
+  </rom>
+  <rom id="MSX Rugby">
+    <romtype>PLAIN</romtype>
+    <md5>dbe509fd2177719e978521ea761a897c</md5>
+    <crc32>61b33748</crc32>
+    <year>1985</year>
+    <company>Panasoft</company>
+    <remark></remark>
+  </rom>
+  <rom id="MSX Shogi Game">
+    <romtype>PLAIN</romtype>
+    <md5>1e8d3c5d0d024378bf87c0b6f6ccfd3e</md5>
+    <crc32>18ad3380</crc32>
+    <year>1984</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="MSX Soccer (1)">
+    <romtype>PLAIN</romtype>
+    <md5>bfdc3abde91b4a27faef30b4fb9c7c46</md5>
+    <crc32>6824e45d</crc32>
+    <year>1985</year>
+    <company>Panasoft</company>
+    <remark></remark>
+  </rom>
+  <rom id="MSX Soccer (2)">
+    <romtype>PLAIN</romtype>
+    <md5>890fc9338125ec372eaa05a9dee0ead2</md5>
+    <crc32>f31d13b9</crc32>
+    <year>1985</year>
+    <company>Panasoft</company>
+    <remark></remark>
+  </rom>
+  <rom id="MSX21">
+    <romtype>PLAIN</romtype>
+    <md5>becba7dc8e80ae8dd2a98171d2574e60</md5>
+    <crc32>13b8243c</crc32>
+    <year>1983</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="MSX-FAN Fandom Library 1">
+    <romtype>ASCII8</romtype>
+    <md5>68d3187e88680c2f82a14b69c4050972</md5>
+    <crc32>519be53e</crc32>
+    <year>1988</year>
+    <company>Tecnopolis Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="MSX-FAN Fandom Library 2">
+    <romtype>ASCII8</romtype>
+    <md5>7ec4cf6afc2f8d9e5341d1eadf86a4e8</md5>
+    <crc32>53c25b6b</crc32>
+    <year>1988</year>
+    <company>Tecnopolis Soft</company>
+    <remark>MSX1 Mode</remark>
+  </rom>
+  <rom id="MSX-FAN Fandom Library 3">
+    <romtype>ASCII8</romtype>
+    <md5>3190ce45a2a2cf02eb34ba3233db018a</md5>
+    <crc32>790d5335</crc32>
+    <year>1988</year>
+    <company>Tecnopolis Soft</company>
+    <remark>MSX1 Mode</remark>
+  </rom>
+  <rom id="Music Editior">
+    <romtype>PLAIN</romtype>
+    <md5>228105879b1514b0b1b6ea60821808d4</md5>
+    <crc32>74cf041b</crc32>
+    <year>1984</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="Music Harmonizer 3">
+    <romtype>PLAIN</romtype>
+    <md5>ab600ef7556da280ca270c277d55d864</md5>
+    <crc32>4583548c</crc32>
+    <year>1983</year>
+    <company>Rittor Music Inc.</company>
+    <remark></remark>
+  </rom>
+  <rom id="Music Studio G7">
+    <romtype>PLAIN</romtype>
+    <md5>5a56fd9162fb3f6b10d7b795c08381b5</md5>
+    <crc32>ba215cfe</crc32>
+    <year>1985</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Never Forget to Nausicaa Game Forever">
+    <romtype>PLAIN</romtype>
+    <md5>044e427840993306ff6797b6b463e6ab</md5>
+    <crc32>e84994f7</crc32>
+    <year>1984</year>
+    <company>Tecnopolis Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="Nessen Koushien">
+    <romtype>PLAIN</romtype>
+    <md5>770fc71692fa332730519cedbd615366</md5>
+    <crc32>2afbf7d1</crc32>
+    <year>1984</year>
+    <company>Casio</company>
+    <remark></remark>
+  </rom>
+  <rom id="New Horizon English Course 1">
+    <romtype>ASCII8</romtype>
+    <md5>17f498d5d5d6154013dcb70067fa408e</md5>
+    <crc32>85d47f39</crc32>
+    <year>1987</year>
+    <company>Tokyo Shoseki</company>
+    <remark></remark>
+  </rom>
+  <rom id="NGA">
+    <romtype>PLAIN</romtype>
+    <md5>c2c97d709c4a372fecf7924665e1536e</md5>
+    <crc32>87b72f40</crc32>
+    <year>1985</year>
+    <company>The Links</company>
+    <remark></remark>
+  </rom>
+  <rom id="NGA II">
+    <romtype>PLAIN</romtype>
+    <md5>cc5456c42e5c3e6b7f6c8e29f8c3ddfc</md5>
+    <crc32>351b6deb</crc32>
+    <year>1985</year>
+    <company>The Links</company>
+    <remark></remark>
+  </rom>
+  <rom id="Night Shade">
+    <romtype>PLAIN</romtype>
+    <md5>946e95371ec006580df1a06e3959c64d</md5>
+    <crc32>72ddb449</crc32>
+    <year>1985</year>
+    <company>Jaleco</company>
+    <remark></remark>
+  </rom>
+  <rom id="Nihon-Shi Nenpyou">
+    <romtype>PLAIN</romtype>
+    <md5>8f95a94ad8cc520c75500fc65280e941</md5>
+    <crc32>c903a4ec</crc32>
+    <year>1987</year>
+    <company>Stratford CCC</company>
+    <remark></remark>
+  </rom>
+  <rom id="Ningyo Densetsu - Fathom">
+    <romtype>PLAIN</romtype>
+    <md5>17b009c75b552171bfcb162c3a8f45a1</md5>
+    <crc32>f06a58da</crc32>
+    <year>1985</year>
+    <company>Toshiba EMI</company>
+    <remark></remark>
+  </rom>
+  <rom id="Ninja Jajamaru Kun">
+    <romtype>PLAIN</romtype>
+    <md5>51f452871408b5a5b6c7ccfd371a57fa</md5>
+    <crc32>2a28ff97</crc32>
+    <year>1986</year>
+    <company>Jaleco</company>
+    <remark></remark>
+  </rom>
+  <rom id="Ninja Kage">
+    <romtype>PLAIN</romtype>
+    <md5>3fcbac54faf796d7809ecf90a3624189</md5>
+    <crc32>b202f481</crc32>
+    <year>1984</year>
+    <company>Hudson</company>
+    <remark></remark>
+  </rom>
+  <rom id="Ninja Kun - Majyou No Bouken">
+    <romtype>PLAIN</romtype>
+    <md5>93781b29a22fc0110b7a02411cb663b5</md5>
+    <crc32>ef339b82</crc32>
+    <year>1984</year>
+    <company>Jaleco</company>
+    <remark></remark>
+  </rom>
+  <rom id="Ninja Kun">
+    <romtype>PLAIN</romtype>
+    <md5>dd57940f08dbc691f817dd5ffa512ce1</md5>
+    <crc32>d388cfd1</crc32>
+    <year>1983</year>
+    <company>Micro Cabin</company>
+    <remark></remark>
+  </rom>
+  <rom id="Ninja Princess">
+    <romtype>PLAIN</romtype>
+    <md5>b7c462bf90f0f97123d7d5590df4e206</md5>
+    <crc32>203ef741</crc32>
+    <year>1986</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Nobunaga No Yabou - Zenkokuban">
+    <romtype>ASCII8-8</romtype>
+    <md5>b4f2413986ba1e3f3186e1c18824c380</md5>
+    <crc32>3aa33a30</crc32>
+    <year>1987</year>
+    <company>Koei</company>
+    <remark></remark>
+  </rom>
+  <rom id="Nyannyan Pro Wrestling">
+    <romtype>PLAIN</romtype>
+    <md5>6a705ece3771e49c30b4424f567aadad</md5>
+    <crc32>02ae3eda</crc32>
+    <year>1986</year>
+    <company>Victor</company>
+    <remark></remark>
+  </rom>
+  <rom id="Nyorols">
+    <romtype>PLAIN</romtype>
+    <md5>e83e8d43c8ca5e6fec21996d47a619ed</md5>
+    <crc32>6d81d863</crc32>
+    <year>1983</year>
+    <company>Mia</company>
+    <remark></remark>
+  </rom>
+  <rom id="Oil's Well">
+    <romtype>PLAIN</romtype>
+    <md5>9cb4a6ae96b0c98ae826b520ac268af6</md5>
+    <crc32>3c7f3767</crc32>
+    <year>1985</year>
+    <company>Comptiq</company>
+    <remark></remark>
+  </rom>
+  <rom id="O'mac Farmer">
+    <romtype>PLAIN</romtype>
+    <md5>92303b04dd5db753b478f1a0782b6557</md5>
+    <crc32>b05ffed2</crc32>
+    <year>1984</year>
+    <company>Mass Tael</company>
+    <remark></remark>
+  </rom>
+  <rom id="Othello">
+    <romtype>PLAIN</romtype>
+    <md5>3591483233b665dc5ce55e123f51af4b</md5>
+    <crc32>fd3921cd</crc32>
+    <year>1985</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Oyoide Tango">
+    <romtype>PLAIN</romtype>
+    <md5>a6db1eab822a7bb71d6acf389a186a62</md5>
+    <crc32>01a24ca7</crc32>
+    <year>1984</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="Pachicom">
+    <romtype>PLAIN</romtype>
+    <md5>798e2e45ba5e084453e686c31328709d</md5>
+    <crc32>ce7f6c91</crc32>
+    <year>1985</year>
+    <company>Toshiba EMI</company>
+    <remark></remark>
+  </rom>
+  <rom id="Pachinko U.F.O">
+    <romtype>PLAIN</romtype>
+    <md5>4aeb3abae877421186b94af41bb79561</md5>
+    <crc32>4088efaa</crc32>
+    <year>1984</year>
+    <company>Casio</company>
+    <remark></remark>
+  </rom>
+  <rom id="Pac-Man (2)">
+    <romtype>PLAIN</romtype>
+    <md5>01078dd71f4e70e95bc3acdf605c19da</md5>
+    <crc32>d74dffa2</crc32>
+    <year>1984</year>
+    <company>Namcot</company>
+    <remark></remark>
+  </rom>
+  <rom id="Pac-Man (1)">
+    <romtype>PLAIN</romtype>
+    <md5>e32bc0a181dc1073afb74e615c085775</md5>
+    <crc32>505acae7</crc32>
+    <year>1984</year>
+    <company>Namcot</company>
+    <remark></remark>
+  </rom>
+  <rom id="Pai Panic">
+    <romtype>PLAIN</romtype>
+    <md5>da801620c9472cb14c31ea9f3c1dc196</md5>
+    <crc32>6fd70773</crc32>
+    <year>1983</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Pairs">
+    <romtype>PLAIN</romtype>
+    <md5>36eba31f25bb907d3e3c90d39baed63a</md5>
+    <crc32>9c1c10ca</crc32>
+    <year>1983</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Panther">
+    <romtype>PLAIN</romtype>
+    <md5>629f18292b2f7a7d3862678a7c221a95</md5>
+    <crc32>33b9968c</crc32>
+    <year>1986</year>
+    <company>Irem</company>
+    <remark></remark>
+  </rom>
+  <rom id="Parodius">
+    <romtype>KONAMI5</romtype>
+    <md5>790972d4e53fcbc2ee46317a583fb52e</md5>
+    <crc32>9bb308f5</crc32>
+    <year>1988</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Pasokon Sakkyokuka">
+    <romtype>PLAIN</romtype>
+    <md5>2d63114526a7dab0b8c4b277fe601589</md5>
+    <crc32>e74b7943</crc32>
+    <year>1983</year>
+    <company>Rittor Music Inc.</company>
+    <remark></remark>
+  </rom>
+  <rom id="Pass Ball">
+    <romtype>PLAIN</romtype>
+    <md5>455df4d49ff8300c702ce961919ac61c</md5>
+    <crc32>82b8f501</crc32>
+    <year>1983</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Pastfinder">
+    <romtype>PLAIN</romtype>
+    <md5>7224fa4aadd5a2614aff3bbc339b1ce1</md5>
+    <crc32>d6d8d1d7</crc32>
+    <year>1984</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Payload">
+    <romtype>PLAIN</romtype>
+    <md5>331f8aaf504e51c650979d6c55875d8a</md5>
+    <crc32>d15b0b1a</crc32>
+    <year>1985</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Peetan">
+    <romtype>PLAIN</romtype>
+    <md5>ec2e7ba716246b7cba3af0c24a32e73c</md5>
+    <crc32>941069ae</crc32>
+    <year>1984</year>
+    <company>Nippon Columbia</company>
+    <remark></remark>
+  </rom>
+  <rom id="Pegasus">
+    <romtype>PLAIN</romtype>
+    <md5>1d7cf641645355b56725d98f61df87e5</md5>
+    <crc32>c23fa0d5</crc32>
+    <year>1986</year>
+    <company>Victor</company>
+    <remark></remark>
+  </rom>
+  <rom id="Penguin-Kun Wars 1">
+    <romtype>PLAIN</romtype>
+    <md5>f6b948ef25c59441e4efd0b7f8115ef7</md5>
+    <crc32>6d2b3e0c</crc32>
+    <year>1985</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Picture Puzzle">
+    <romtype>PLAIN</romtype>
+    <md5>9383ba8643fd1000b5cc099cf9d46822</md5>
+    <crc32>9e51ae0a</crc32>
+    <year>1983</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="Pingball Maker">
+    <romtype>PLAIN</romtype>
+    <md5>c157e3e1518dee347f6150428d2e7ab5</md5>
+    <crc32>2eff15e7</crc32>
+    <year>1985</year>
+    <company>Nippon Columbia</company>
+    <remark></remark>
+  </rom>
+  <rom id="Pine Applin">
+    <romtype>PLAIN</romtype>
+    <md5>a2bc1c96c6cc21fb1845f52950d88a5f</md5>
+    <crc32>7411c6f2</crc32>
+    <year>1984</year>
+    <company>Zap</company>
+    <remark></remark>
+  </rom>
+  <rom id="Pipi">
+    <romtype>PLAIN</romtype>
+    <md5>a444d0018a1ecc80913e93a6500b10bb</md5>
+    <crc32>6f172cd8</crc32>
+    <year>1984</year>
+    <company>Jaleco</company>
+    <remark></remark>
+  </rom>
+  <rom id="Pippols">
+    <romtype>PLAIN</romtype>
+    <md5>f4afc761cda302c78f20f81c1922aa36</md5>
+    <crc32>be6a5e19</crc32>
+    <year>1985</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Pitfall">
+    <romtype>PLAIN</romtype>
+    <md5>1368d138cdeb0a143da75834c8679a2f</md5>
+    <crc32>5a009c55</crc32>
+    <year>1984</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Pitfall 2">
+    <romtype>PLAIN</romtype>
+    <md5>79759c816dddc119c453bbc8c1e4a379</md5>
+    <crc32>d307a7b8</crc32>
+    <year>1984</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Play Card System (UPA-01)">
+    <romtype>PLAIN</romtype>
+    <md5>0f65402bea72f3326502706f49da122f</md5>
+    <crc32>309ba37a</crc32>
+    <year>1985</year>
+    <company>Yamaha</company>
+    <remark>Includes I/O-accessed Device / Needs FM Sound Synthesizer Unit</remark>
+  </rom>
+  <rom id="Playball">
+    <romtype>PLAIN</romtype>
+    <md5>ba0097e85d210df4777149c9904a9d9d</md5>
+    <crc32>d178833b</crc32>
+    <year>1986</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Pooyan">
+    <romtype>PLAIN</romtype>
+    <md5>f38f3aa7da1635cb8a6397304bd3a0eb</md5>
+    <crc32>558a09f6</crc32>
+    <year>1985</year>
+    <company>Hudson</company>
+    <remark></remark>
+  </rom>
+  <rom id="Poiny X Senryousakusen">
+    <romtype>PLAIN</romtype>
+    <md5>928e172112796922674275e1e2028ad7</md5>
+    <crc32>9d59f2d1</crc32>
+    <year>1986</year>
+    <company>Victor</company>
+    <remark></remark>
+  </rom>
+  <rom id="The Police Story">
+    <romtype>PLAIN</romtype>
+    <md5>9c6c811bcbb8aa94b39de0bcde159a3e</md5>
+    <crc32>7867d044</crc32>
+    <year>1985</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Poppaq The Fish">
+    <romtype>PLAIN</romtype>
+    <md5>82f35e875d31df810af990ae62bd80ce</md5>
+    <crc32>bd387377</crc32>
+    <year>1984</year>
+    <company>Mass Tael</company>
+    <remark></remark>
+  </rom>
+  <rom id="Professional Baseball">
+    <romtype>PLAIN</romtype>
+    <md5>33fcad51a0a896d6c85848371b9d82be</md5>
+    <crc32>8ca4cd58</crc32>
+    <year>1986</year>
+    <company>Tecnopolis Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="Professional Mahjong">
+    <romtype>PLAIN</romtype>
+    <md5>cfe18b0a192efe6e6f5de55f82b2a8e1</md5>
+    <crc32>f1ec5e18</crc32>
+    <year>1985</year>
+    <company>Chatnoir</company>
+    <remark></remark>
+  </rom>
+  <rom id="The Protector">
+    <romtype>PLAIN</romtype>
+    <md5>5bde548d26288b4c7c7cd05159f5a493</md5>
+    <crc32>5747e69d</crc32>
+    <year>1985</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="PSG Music Writer">
+    <romtype>PLAIN</romtype>
+    <md5>7c8edd81b65f2a09c388be06a5321fc9</md5>
+    <crc32>77c3424c</crc32>
+    <year>1984</year>
+    <company>Rittor Music Inc.</company>
+    <remark></remark>
+  </rom>
+  <rom id="Psychic War">
+    <romtype>ASCII8</romtype>
+    <md5>ca26bbf9d960a99da1220535209f834a</md5>
+    <crc32>b8fc19a4</crc32>
+    <year>1987</year>
+    <company>Kogado</company>
+    <remark></remark>
+  </rom>
+  <rom id="Puzzle Panic">
+    <romtype>PLAIN</romtype>
+    <md5>9e72e4378debddae3ffe9bdc3282d674</md5>
+    <crc32>1313c0c7</crc32>
+    <year>1986</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Pyramid Warp">
+    <romtype>PLAIN</romtype>
+    <md5>6b9f3f0c3a6d1d6abd3d4a4589ccdd1f</md5>
+    <crc32>0aec8ddb</crc32>
+    <year>1983</year>
+    <company>T&amp;E Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="Q-Bert">
+    <romtype>PLAIN</romtype>
+    <md5>977f313ed84fbf4b2308151547e040b7</md5>
+    <crc32>0e988f0e</crc32>
+    <year>1986</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Queen's Golf (2)">
+    <romtype>PLAIN</romtype>
+    <md5>6533ea0cb544a8f2f57bd6fb890c8084</md5>
+    <crc32>40eef5cd</crc32>
+    <year>1984</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Queen's Golf (1)">
+    <romtype>PLAIN</romtype>
+    <md5>cd349578fbe18f0bea6f92620b21121e</md5>
+    <crc32>27b78cb3</crc32>
+    <year>1984</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Raid On Bungeling Bay">
+    <romtype>PLAIN</romtype>
+    <md5>9ae80f681fc4ad5a3d9d2b2b577d1a4c</md5>
+    <crc32>a87a666d</crc32>
+    <year>1984</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Rally-X (3)">
+    <romtype>PLAIN</romtype>
+    <md5>3e5900c0f1b940095f82c16b3e7cfb00</md5>
+    <crc32>63413493</crc32>
+    <year>1984</year>
+    <company>Namcot</company>
+    <remark></remark>
+  </rom>
+  <rom id="Rally-X (1)">
+    <romtype>PLAIN</romtype>
+    <md5>679f1d3aff24008b17a62189612dfe26</md5>
+    <crc32>9fd2f1dc</crc32>
+    <year>1984</year>
+    <company>Namcot</company>
+    <remark></remark>
+  </rom>
+  <rom id="Rally-X (2)">
+    <romtype>PLAIN</romtype>
+    <md5>5a60b80cc16a9fc4e8ae5e9e1235bd32</md5>
+    <crc32>2b5cb04e</crc32>
+    <year>1984</year>
+    <company>Namcot</company>
+    <remark></remark>
+  </rom>
+  <rom id="Rambo (1)">
+    <romtype>PLAIN</romtype>
+    <md5>3b32ea457edd4b727db2f9b1eac21e0b</md5>
+    <crc32>6a2e3726</crc32>
+    <year>1985</year>
+    <company>Pack In Video</company>
+    <remark></remark>
+  </rom>
+  <rom id="Rambo (2)">
+    <romtype>PLAIN</romtype>
+    <md5>436be4c449fc3e195f790579417a28b9</md5>
+    <crc32>dba4377b</crc32>
+    <year>1985</year>
+    <company>Pack In Video</company>
+    <remark></remark>
+  </rom>
+  <rom id="Real Tennis">
+    <romtype>PLAIN</romtype>
+    <md5>38c0aca7b477941bd12358cf6b949490</md5>
+    <crc32>25fe441c</crc32>
+    <year>1983</year>
+    <company>Takara</company>
+    <remark></remark>
+  </rom>
+  <rom id="Red Zone">
+    <romtype>PLAIN</romtype>
+    <md5>a52bfd0531581f53c9f7fc4149685c31</md5>
+    <crc32>e9b5b6ff</crc32>
+    <year>1985</year>
+    <company>Yellow Horn</company>
+    <remark></remark>
+  </rom>
+  <rom id="Relics">
+    <romtype>ASCII8</romtype>
+    <md5>1cfa94cdab75e1a2e98bfe48659f9a47</md5>
+    <crc32>b612d79a</crc32>
+    <year>1986</year>
+    <company>Bothtec</company>
+    <remark></remark>
+  </rom>
+  <rom id="Renju &amp; Ojama Dogs">
+    <romtype>PLAIN</romtype>
+    <md5>c191d4ab4dbbacd362d2850b86bea1d4</md5>
+    <crc32>40df2723</crc32>
+    <year>1985</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Riseout">
+    <romtype>PLAIN</romtype>
+    <md5>53025aa48a41a6a1b7fab88b93074d6f</md5>
+    <crc32>6a6d37cf</crc32>
+    <year>1983</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="River Raid">
+    <romtype>PLAIN</romtype>
+    <md5>e71fac4870e00b7600db3e8e31988a32</md5>
+    <crc32>0f22a553</crc32>
+    <year>1984</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Road Fighter">
+    <romtype>PLAIN</romtype>
+    <md5>dbbf94864bfdda2482af75736aa1e893</md5>
+    <crc32>01ddb68f</crc32>
+    <year>1985</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Robowres 2001">
+    <romtype>ASCII16</romtype>
+    <md5>6cc72822cf9d537dad2932b877119537</md5>
+    <crc32>788637d5</crc32>
+    <year>1987</year>
+    <company>Micronet</company>
+    <remark></remark>
+  </rom>
+  <rom id="Rock'n'bolt">
+    <romtype>PLAIN</romtype>
+    <md5>c38f3cf4ff4cfedf568e225288ea270a</md5>
+    <crc32>430e5789</crc32>
+    <year>1985</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Roller Ball">
+    <romtype>PLAIN</romtype>
+    <md5>cf7cde41848c71a012cd31a33ba10a5e</md5>
+    <crc32>56200fef</crc32>
+    <year>1984</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="Romancia">
+    <romtype>ASCII16</romtype>
+    <md5>a79b39eb8308b292cdd5ee2eb2fccc0d</md5>
+    <crc32>387c1de7</crc32>
+    <year>1986</year>
+    <company>Falcom</company>
+    <remark></remark>
+  </rom>
+  <rom id="Rotors">
+    <romtype>PLAIN</romtype>
+    <md5>d2560e3b7d4e137bdbba8426030d2f44</md5>
+    <crc32>1cdb462e</crc32>
+    <year>1984</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="R-Type">
+    <romtype>RTYPE</romtype>
+    <md5>99bc435a1e7885f02b28b7fe94ab2499</md5>
+    <crc32>a884911c</crc32>
+    <year>1988</year>
+    <company>Irem</company>
+    <remark>MSX1 Mode</remark>
+  </rom>
+  <rom id="Salamander">
+    <romtype>KONAMI5</romtype>
+    <md5>ec869b375d7517a7ba6161b10f5dee06</md5>
+    <crc32>c36f559d</crc32>
+    <year>1987</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Sangokusi (2)">
+    <romtype>ASCII8</romtype>
+    <md5>c39692644983104279c32f0e2538c773</md5>
+    <crc32>10621440</crc32>
+    <year>1986</year>
+    <company>Koei</company>
+    <remark></remark>
+  </rom>
+  <rom id="Sangokusi (1)">
+    <romtype>ASCII8</romtype>
+    <md5>740a3e9d6a90ae40e37d9dadf94cf10e</md5>
+    <crc32>803cc690</crc32>
+    <year>1986</year>
+    <company>Koei</company>
+    <remark></remark>
+  </rom>
+  <rom id="Sasa">
+    <romtype>PLAIN</romtype>
+    <md5>77c7883244434c541c2b4ff159471d7d</md5>
+    <crc32>7faf00c0</crc32>
+    <year>1983</year>
+    <company>Mass Tael</company>
+    <remark></remark>
+  </rom>
+  <rom id="Scarlet 7">
+    <romtype>PLAIN</romtype>
+    <md5>8f36b2807f33063d4f68f8d2822105ef</md5>
+    <crc32>c2ed4c08</crc32>
+    <year>1986</year>
+    <company>Toshiba EMI</company>
+    <remark></remark>
+  </rom>
+  <rom id="Scion">
+    <romtype>PLAIN</romtype>
+    <md5>855e2bf57c9211ba347facc0b3124b0d</md5>
+    <crc32>ba3a8ea1</crc32>
+    <year>1985</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Scope On">
+    <romtype>PLAIN</romtype>
+    <md5>e6fbef6e5c344b9533ecbce493f33668</md5>
+    <crc32>5b33e583</crc32>
+    <year>1983</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Scramble Eggs">
+    <romtype>PLAIN</romtype>
+    <md5>0f48f90e059527aeb99c8b7e73850c09</md5>
+    <crc32>02dc77e8</crc32>
+    <year>1983</year>
+    <company>Ample</company>
+    <remark></remark>
+  </rom>
+  <rom id="Seiken Acho">
+    <romtype>PLAIN</romtype>
+    <md5>a2bda3945fd30a31af5019aa9ac3c87a</md5>
+    <crc32>999dd794</crc32>
+    <year>1985</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Senjyo">
+    <romtype>PLAIN</romtype>
+    <md5>c129fbaa8caabb21cc28e3fe35304576</md5>
+    <crc32>126bc4cd</crc32>
+    <year>1984</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Senjyou No Ookami">
+    <romtype>ASCII8</romtype>
+    <md5>0feb4713cac3a4ed491363259f9d163b</md5>
+    <crc32>427b3f14</crc32>
+    <year>1987</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Sewer Sam">
+    <romtype>PLAIN</romtype>
+    <md5>5351cca0de390954762edc6e71a00bc7</md5>
+    <crc32>925c0aee</crc32>
+    <year>1984</year>
+    <company>Toshiba EMI</company>
+    <remark></remark>
+  </rom>
+  <rom id="Shalom">
+    <romtype>KONAMI4</romtype>
+    <md5>355f48b2a181880e60314f69752f9084</md5>
+    <crc32>cf60fa7d</crc32>
+    <year>1987</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Shougi">
+    <romtype>PLAIN</romtype>
+    <md5>ce5d57ac6753a16926f3dae48aaf896e</md5>
+    <crc32>a44495d5</crc32>
+    <year>1985</year>
+    <company>Micro Cabin</company>
+    <remark></remark>
+  </rom>
+  <rom id="Shougi">
+    <romtype>PLAIN</romtype>
+    <md5>113761f27c6c8594646ac71fc80b2cb8</md5>
+    <crc32>ece16709</crc32>
+    <year>1985</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Shougi Meijin">
+    <romtype>PLAIN</romtype>
+    <md5>6a33115cfaeb4ab837cea08b80847f6c</md5>
+    <crc32>b90dee1d</crc32>
+    <year>1985</year>
+    <company>Toshiba EMI</company>
+    <remark></remark>
+  </rom>
+  <rom id="Shougi Sinan 1">
+    <romtype>PLAIN</romtype>
+    <md5>3af3c665a9bc926db76e4e2933322803</md5>
+    <crc32>ead8e29c</crc32>
+    <year>1986</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Shout Match">
+    <romtype>PLAIN</romtype>
+    <md5>90b4fd28773830d2f6cd5b70d9b7d909</md5>
+    <crc32>729d2540</crc32>
+    <year>1987</year>
+    <company>Victor</company>
+    <remark></remark>
+  </rom>
+  <rom id="Simple ASM 1.0">
+    <romtype>PLAIN</romtype>
+    <md5>d2bcc5e5c7d391484572bfd840293f09</md5>
+    <crc32>2d46778a</crc32>
+    <year>1984</year>
+    <company>Coral</company>
+    <remark></remark>
+  </rom>
+  <rom id="Sinbad">
+    <romtype>PLAIN</romtype>
+    <md5>914f1a6fb163dcd6d057cd9289a1961f</md5>
+    <crc32>8273fd0e</crc32>
+    <year>1986</year>
+    <company>Casio</company>
+    <remark></remark>
+  </rom>
+  <rom id="Ski Command">
+    <romtype>PLAIN</romtype>
+    <md5>b5b6d2fdf248d384867cdd958750503e</md5>
+    <crc32>d8750242</crc32>
+    <year>1984</year>
+    <company>Casio</company>
+    <remark></remark>
+  </rom>
+  <rom id="Skooter">
+    <romtype>PLAIN</romtype>
+    <md5>e13740c751dde4bb4f36b7bdc34c2422</md5>
+    <crc32>53b87deb</crc32>
+    <year>1987</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Sky Galdo">
+    <romtype>PLAIN</romtype>
+    <md5>bc2a68a2e2a923be4b50f6e95deac9b8</md5>
+    <crc32>54f84047</crc32>
+    <year>1986</year>
+    <company>Magical Zoo</company>
+    <remark></remark>
+  </rom>
+  <rom id="Sky Jaguar">
+    <romtype>PLAIN</romtype>
+    <md5>f8c4add212b508f673974c808639e09e</md5>
+    <crc32>e4f725fd</crc32>
+    <year>1984</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Snake-It">
+    <romtype>PLAIN</romtype>
+    <md5>7bacb69889a402d4a759949026fb5675</md5>
+    <crc32>4a44bf23</crc32>
+    <year>1986</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="Sofia">
+    <romtype>ASCII8</romtype>
+    <md5>fb79c061294a3350734c6d3bbea69602</md5>
+    <crc32>14811951</crc32>
+    <year>1987</year>
+    <company>Dempa</company>
+    <remark></remark>
+  </rom>
+  <rom id="Soukoban">
+    <romtype>PLAIN</romtype>
+    <md5>4b73979eae8b309294caec36f2510965</md5>
+    <crc32>030ddf11</crc32>
+    <year>1984</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Space Camp">
+    <romtype>PLAIN</romtype>
+    <md5>b6ae80810e49e4e919490f821e58acb6</md5>
+    <crc32>eb197b9d</crc32>
+    <year>1986</year>
+    <company>Pack In Video</company>
+    <remark></remark>
+  </rom>
+  <rom id="Space Invader">
+    <romtype>PLAIN</romtype>
+    <md5>cc67dc39f1c37ac5d2bdcaa9f9016756</md5>
+    <crc32>de02932d</crc32>
+    <year>1984</year>
+    <company>Taito</company>
+    <remark></remark>
+  </rom>
+  <rom id="Space Maze Attack">
+    <romtype>PLAIN</romtype>
+    <md5>cd2d390baeb71771621652a1fc8b3529</md5>
+    <crc32>4a45cbc0</crc32>
+    <year>1983</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="Space Trouble">
+    <romtype>PLAIN</romtype>
+    <md5>6a5d57300184097c19bed1540556ddcc</md5>
+    <crc32>26119f0a</crc32>
+    <year>1984</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="Sparkie">
+    <romtype>PLAIN</romtype>
+    <md5>a0b0b038a04a7a24b3f5c3c98354e091</md5>
+    <crc32>3e14b585</crc32>
+    <year>1983</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Spelunker">
+    <romtype>PLAIN</romtype>
+    <md5>29293a0887a32a2aaab79369efaebe0b</md5>
+    <crc32>dc948a3a</crc32>
+    <year>1986</year>
+    <company>Irem</company>
+    <remark></remark>
+  </rom>
+  <rom id="Squish'em">
+    <romtype>PLAIN</romtype>
+    <md5>607675acf5b615248e30762d8459ca68</md5>
+    <crc32>f3b22c91</crc32>
+    <year>1983</year>
+    <company>Sirius</company>
+    <remark></remark>
+  </rom>
+  <rom id="Square Dancer">
+    <romtype>PLAIN</romtype>
+    <md5>e0802f030dca1800c02339778a920499</md5>
+    <crc32>dd5cf5c8</crc32>
+    <year>1984</year>
+    <company>Toshiba EMI</company>
+    <remark></remark>
+  </rom>
+  <rom id="Star Blazer">
+    <romtype>PLAIN</romtype>
+    <md5>00cc2c958e5f37d16ce8f65129f2452e</md5>
+    <crc32>fd902e5d</crc32>
+    <year>1985</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Star Command">
+    <romtype>PLAIN</romtype>
+    <md5>b014d74e1c846c619719271ce6e6d483</md5>
+    <crc32>4579ce12</crc32>
+    <year>1983</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Star Force">
+    <romtype>PLAIN</romtype>
+    <md5>202e2df136f4ba32d175dd8e93210bbb</md5>
+    <crc32>c14e53a1</crc32>
+    <year>1985</year>
+    <company>Hudson</company>
+    <remark></remark>
+  </rom>
+  <rom id="Star Soldier">
+    <romtype>PLAIN</romtype>
+    <md5>5009b3eb94b67ceecb026685c1d9ae89</md5>
+    <crc32>0b3d975d</crc32>
+    <year>1986</year>
+    <company>Hudson</company>
+    <remark></remark>
+  </rom>
+  <rom id="Star Trap">
+    <romtype>PLAIN</romtype>
+    <md5>e02e64f42071c0177779e78211e89dfb</md5>
+    <crc32>dcde05dd</crc32>
+    <year>1987</year>
+    <company>Jast</company>
+    <remark></remark>
+  </rom>
+  <rom id="Starship Simulator">
+    <romtype>PLAIN</romtype>
+    <md5>02c744b0d7c6c3e21d0daa487919def4</md5>
+    <crc32>236d2ab1</crc32>
+    <year>1984</year>
+    <company>Nexa</company>
+    <remark></remark>
+  </rom>
+  <rom id="Step Up (2)">
+    <romtype>PLAIN</romtype>
+    <md5>90a46682a91cb55e7bdad88921cbbf34</md5>
+    <crc32>cabcddf1</crc32>
+    <year>1983</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="Step Up (1)">
+    <romtype>PLAIN</romtype>
+    <md5>50149f6ebe9cc884b9e9fe39c13ca6c4</md5>
+    <crc32>60a8927b</crc32>
+    <year>1983</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="Stepper">
+    <romtype>PLAIN</romtype>
+    <md5>6f573f1647ac30bf6a484d754d15aef2</md5>
+    <crc32>0fb7df8f</crc32>
+    <year>1985</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="The Stone Of Wisdom">
+    <romtype>PLAIN</romtype>
+    <md5>c5b05f12e6c3bfe8f8391e949508eff7</md5>
+    <crc32>8c7a7435</crc32>
+    <year>1986</year>
+    <company>Casio</company>
+    <remark></remark>
+  </rom>
+  <rom id="Strange Loop">
+    <romtype>PLAIN</romtype>
+    <md5>b7d39c884ecaca2b273212ed6f240168</md5>
+    <crc32>6554c0c5</crc32>
+    <year>1987</year>
+    <company>Jaleco</company>
+    <remark></remark>
+  </rom>
+  <rom id="Super Billiards">
+    <romtype>PLAIN</romtype>
+    <md5>a97be3921464521ac2068ad3796b07b2</md5>
+    <crc32>79bc12b2</crc32>
+    <year>1984</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="Super Cobra">
+    <romtype>PLAIN</romtype>
+    <md5>94620318823a2aeb024a8db03e96d823</md5>
+    <crc32>97425d70</crc32>
+    <year>1983</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Super Drinker">
+    <romtype>PLAIN</romtype>
+    <md5>303de81590f62c06c1ab211ad5326feb</md5>
+    <crc32>3254017e</crc32>
+    <year>1983</year>
+    <company>Ample</company>
+    <remark></remark>
+  </rom>
+  <rom id="Super Golf">
+    <romtype>PLAIN</romtype>
+    <md5>4428bdf16978821240a237e28e9d4dec</md5>
+    <crc32>66aadfa8</crc32>
+    <year>1984</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Super Laydock Mission Striker">
+    <romtype>ASCII8</romtype>
+    <md5>f5065590fd8fbf6c286cb60623336403</md5>
+    <crc32>5dc45624</crc32>
+    <year>1987</year>
+    <company>T&amp;E Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="Super Monitor 1.1">
+    <romtype>PLAIN</romtype>
+    <md5>caa68e3e518d463cc6bd11c33c8b6d21</md5>
+    <crc32>c7b2e638</crc32>
+    <year>1985</year>
+    <company>Emiiru</company>
+    <remark></remark>
+  </rom>
+  <rom id="Super Monitor 1.2">
+    <romtype>PLAIN</romtype>
+    <md5>e9c4d73991e625624319a3eb9b6081f1</md5>
+    <crc32>0dd5ea7d</crc32>
+    <year>1985</year>
+    <company>Emiiru</company>
+    <remark></remark>
+  </rom>
+  <rom id="Super Pachinko">
+    <romtype>PLAIN</romtype>
+    <md5>0ffb57fa3b81cafd4b5ed3a4b9606b64</md5>
+    <crc32>8aebddd2</crc32>
+    <year>1985</year>
+    <company>Nippon Columbia</company>
+    <remark></remark>
+  </rom>
+  <rom id="Super Pierrot">
+    <romtype>ASCII16</romtype>
+    <md5>ce0ba8915eae1567eb946151d37f08d9</md5>
+    <crc32>f00b4bbc</crc32>
+    <year>1987</year>
+    <company>Taito</company>
+    <remark>MSX1 Mode</remark>
+  </rom>
+  <rom id="Super Snake">
+    <romtype>PLAIN</romtype>
+    <md5>535bdbecccc21117ad4c4ba6d05172cd</md5>
+    <crc32>491c6af0</crc32>
+    <year>1983</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="Super Soccer">
+    <romtype>PLAIN</romtype>
+    <md5>cbeb5bc8a176421c10ed7f4bcaff1f1a</md5>
+    <crc32>6408ed24</crc32>
+    <year>1985</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Super Synth">
+    <romtype>PLAIN</romtype>
+    <md5>3d24f0c7c609cf6848826a00927fcd7a</md5>
+    <crc32>168832a2</crc32>
+    <year>1984</year>
+    <company>Victor</company>
+    <remark></remark>
+  </rom>
+  <rom id="Super Tennis">
+    <romtype>PLAIN</romtype>
+    <md5>5686175c42ac6cd0b82e0a40cbe7a9dc</md5>
+    <crc32>d560d9c0</crc32>
+    <year>1984</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Sweet Acorn">
+    <romtype>PLAIN</romtype>
+    <md5>55823c5d69588499a1d366fc1127f6a5</md5>
+    <crc32>58670a22</crc32>
+    <year>1984</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Swing">
+    <romtype>PLAIN</romtype>
+    <md5>45e8238e7405ade86c027f158bcf9446</md5>
+    <crc32>c93fadf4</crc32>
+    <year>1985</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Syougun">
+    <romtype>ASCII8-8</romtype>
+    <md5>c8aba1d3bcd38f7b7061662571bbb03f</md5>
+    <crc32>0e691c47</crc32>
+    <year>1987</year>
+    <company>Jaleco</company>
+    <remark></remark>
+  </rom>
+  <rom id="Takahashi Meijin No Boukenjima">
+    <romtype>PLAIN</romtype>
+    <md5>6ef4d4a19ffb1cba9511716b7751bf45</md5>
+    <crc32>892266ca</crc32>
+    <year>1986</year>
+    <company>Hudson</company>
+    <remark></remark>
+  </rom>
+  <rom id="Takeru Densetsu">
+    <romtype>PLAIN</romtype>
+    <md5>6c7e44dc11ea013d16817dd831d9f6c1</md5>
+    <crc32>c57272c3</crc32>
+    <year>1987</year>
+    <company>Takeru</company>
+    <remark></remark>
+  </rom>
+  <rom id="Tank Battalion">
+    <romtype>PLAIN</romtype>
+    <md5>2cc55ac499325b6f245ca1d0aca14f3d</md5>
+    <crc32>f48a0c3b</crc32>
+    <year>1984</year>
+    <company>Namcot</company>
+    <remark></remark>
+  </rom>
+  <rom id="Tatica">
+    <romtype>PLAIN</romtype>
+    <md5>24d2c81046e7d885202143edab4884a6</md5>
+    <crc32>7914f7a6</crc32>
+    <year>1984</year>
+    <company>Mass Tael</company>
+    <remark></remark>
+  </rom>
+  <rom id="Tawarakun">
+    <romtype>PLAIN</romtype>
+    <md5>585670c8dc5e70438173bea1dc9fa4f8</md5>
+    <crc32>589ce03e</crc32>
+    <year>1984</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Tear Of Nile">
+    <romtype>PLAIN</romtype>
+    <md5>f30a7df481a0eecf71fb4a0d1168f35d</md5>
+    <crc32>867ba302</crc32>
+    <year>1986</year>
+    <company>Victor</company>
+    <remark></remark>
+  </rom>
+  <rom id="Telebunnie">
+    <romtype>PLAIN</romtype>
+    <md5>b8339dfc3d0d8ad80c46d1f9b4e7ee02</md5>
+    <crc32>377fefef</crc32>
+    <year>1983</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Tensai Rabbian Daifunsen">
+    <romtype>PLAIN</romtype>
+    <md5>cf04ddbc4642154f4bf0d0ed66bd0627</md5>
+    <crc32>b7322600</crc32>
+    <year>1986</year>
+    <company>Toshiba EMI</company>
+    <remark></remark>
+  </rom>
+  <rom id="Tenshitachi No Gogo">
+    <romtype>PLAIN</romtype>
+    <md5>ccf9a69648906bf242096824785817a9</md5>
+    <crc32>c58fbb99</crc32>
+    <year>1987</year>
+    <company>Jast</company>
+    <remark></remark>
+  </rom>
+  <rom id="Tetsuman (2)">
+    <romtype>PLAIN</romtype>
+    <md5>5e5611ea29b3346dc396c50dbf39b1a3</md5>
+    <crc32>929d6786</crc32>
+    <year>1985</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="Tetsuman (1)">
+    <romtype>PLAIN</romtype>
+    <md5>ded4a820cbb0e21e6692d8c29a1aadba</md5>
+    <crc32>b6c02ae7</crc32>
+    <year>1985</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="Thexder">
+    <romtype>PLAIN</romtype>
+    <md5>fa240b615fc870ab0f693cbc2ea135c1</md5>
+    <crc32>599aa9ac</crc32>
+    <year>1986</year>
+    <company>Gamearts</company>
+    <remark></remark>
+  </rom>
+  <rom id="Theseus">
+    <romtype>PLAIN</romtype>
+    <md5>3939bebd01324a75f3912289b3ac2404</md5>
+    <crc32>80495007</crc32>
+    <year>1984</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Thunder Ball">
+    <romtype>PLAIN</romtype>
+    <md5>91395e79e8ddf88b62aee35c53c314c3</md5>
+    <crc32>86f902a9</crc32>
+    <year>1985</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Thunder Bolt (2)">
+    <romtype>PLAIN</romtype>
+    <md5>39e14f12c73ac5f709e8f466e64dee20</md5>
+    <crc32>d8739501</crc32>
+    <year>1986</year>
+    <company>Pixel</company>
+    <remark></remark>
+  </rom>
+  <rom id="Thunder Bolt (1)">
+    <romtype>PLAIN</romtype>
+    <md5>39c9f7fd4b126b9342687a55d41ea258</md5>
+    <crc32>6b63047c</crc32>
+    <year>1986</year>
+    <company>Pixel</company>
+    <remark></remark>
+  </rom>
+  <rom id="Time Pilot (1)">
+    <romtype>PLAIN</romtype>
+    <md5>e40a0e17187516dae62cb022e592e950</md5>
+    <crc32>e4abe008</crc32>
+    <year>1983</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Time Pilot (2)">
+    <romtype>PLAIN</romtype>
+    <md5>8484030b071a2f15b1ca9d9f73471ee7</md5>
+    <crc32>23152fc3</crc32>
+    <year>1983</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Top Roller">
+    <romtype>PLAIN</romtype>
+    <md5>1b840745ab51d80945bf9f95b49330ce</md5>
+    <crc32>ca28cbb2</crc32>
+    <year>1984</year>
+    <company>Jaleco</company>
+    <remark></remark>
+  </rom>
+  <rom id="Topple Zip">
+    <romtype>PLAIN</romtype>
+    <md5>1c15a83d25ad1e3b93682128260ac0c8</md5>
+    <crc32>190f4ce5</crc32>
+    <year>1986</year>
+    <company>Bothtec</company>
+    <remark></remark>
+  </rom>
+  <rom id="The Tower Of Druaga">
+    <romtype>PLAIN</romtype>
+    <md5>8da49cfb7782c6f6391b61cf66105d69</md5>
+    <crc32>47bef309</crc32>
+    <year>1986</year>
+    <company>Namcot</company>
+    <remark></remark>
+  </rom>
+  <rom id="Traffic">
+    <romtype>PLAIN</romtype>
+    <md5>befcb461d2e1314802629479ae417d79</md5>
+    <crc32>b80ebeb4</crc32>
+    <year>1986</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Trial Ski">
+    <romtype>PLAIN</romtype>
+    <md5>4a21eb60960d1aa20a83b593910ee322</md5>
+    <crc32>152bebc2</crc32>
+    <year>1984</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Triton">
+    <romtype>PLAIN</romtype>
+    <md5>a358a0ddc52590fecea1a1cbd9ec0221</md5>
+    <crc32>c0a81a48</crc32>
+    <year>1986</year>
+    <company>Sein</company>
+    <remark></remark>
+  </rom>
+  <rom id="Trump Aid">
+    <romtype>PLAIN</romtype>
+    <md5>6faeffed313261654f20cec30b221c54</md5>
+    <crc32>dfada43c</crc32>
+    <year>1986</year>
+    <company>Toshiba EMI</company>
+    <remark></remark>
+  </rom>
+  <rom id="Tsumego 120">
+    <romtype>ASCII16</romtype>
+    <md5>20e3a7434f2c0512ebeb086870af4e2e</md5>
+    <crc32>b9b69a43</crc32>
+    <year>1987</year>
+    <company>Champion Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="Turboat">
+    <romtype>PLAIN</romtype>
+    <md5>668751f47fef040a740ec741328303f0</md5>
+    <crc32>c7abc409</crc32>
+    <year>1983</year>
+    <company>Mass Tael</company>
+    <remark></remark>
+  </rom>
+  <rom id="Turmoil">
+    <romtype>PLAIN</romtype>
+    <md5>faf6e9bc623449da97ea1fd68361342a</md5>
+    <crc32>17683f42</crc32>
+    <year>1983</year>
+    <company>Sirius</company>
+    <remark></remark>
+  </rom>
+  <rom id="Twinbee">
+    <romtype>PLAIN</romtype>
+    <md5>5d88a7bf93f788e4dabf820e32912447</md5>
+    <crc32>c730d4a4</crc32>
+    <year>1986</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="TZR Grandprix Rider">
+    <romtype>PLAIN</romtype>
+    <md5>3315e22d7fa88bbeeffa93b89631e5de</md5>
+    <crc32>d792c827</crc32>
+    <year>1986</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Ultraman">
+    <romtype>PLAIN</romtype>
+    <md5>a42f93d075d81cfcd0b5956377bc0a39</md5>
+    <crc32>973d816d</crc32>
+    <year>1984</year>
+    <company>Bandai</company>
+    <remark></remark>
+  </rom>
+  <rom id="Vaxol">
+    <romtype>ASCII16</romtype>
+    <md5>b8f49b4081017cbfbf40b9fad57a4e2a</md5>
+    <crc32>fea70207</crc32>
+    <year>1987</year>
+    <company>Heart Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="Venus Fire">
+    <romtype>PLAIN</romtype>
+    <md5>eb02fc17381df7f03a6efced2d545a68</md5>
+    <crc32>ee0b8452</crc32>
+    <year>1987</year>
+    <company>Victor</company>
+    <remark></remark>
+  </rom>
+  <rom id="Video Hustler">
+    <romtype>PLAIN</romtype>
+    <md5>08a7bf1ad4fdc213a203f191615bbc9c</md5>
+    <crc32>64853262</crc32>
+    <year>1984</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Volguard">
+    <romtype>PLAIN</romtype>
+    <md5>1db1908a3b8710f0c8debc5cb7dac6d5</md5>
+    <crc32>874e59fb</crc32>
+    <year>1985</year>
+    <company>dB-Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="Warp Warp">
+    <romtype>PLAIN</romtype>
+    <md5>a594c61fd7de01723674eb6fcb19875d</md5>
+    <crc32>90f5f414</crc32>
+    <year>1984</year>
+    <company>Namcot</company>
+    <remark></remark>
+  </rom>
+  <rom id="Warrior">
+    <romtype>PLAIN</romtype>
+    <md5>b2f25b3999413001f9af20ccd8b4a91b</md5>
+    <crc32>21a0b009</crc32>
+    <year>1983</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Warroid">
+    <romtype>PLAIN</romtype>
+    <md5>487f6f4ec935c471f440749bd5609c73</md5>
+    <crc32>a0a19fd5</crc32>
+    <year>1985</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Wing Man 2">
+    <romtype>ASCII8</romtype>
+    <md5>61f7e08cd80de5be1452667d80d4531a</md5>
+    <crc32>5c9d8f62</crc32>
+    <year>1987</year>
+    <company>Enix</company>
+    <remark></remark>
+  </rom>
+  <rom id="Xanadu">
+    <romtype>ASCII8-8</romtype>
+    <md5>368bcf39ce5fb246f24fd58c8655f017</md5>
+    <crc32>d640deaf</crc32>
+    <year>1987</year>
+    <company>Falcom</company>
+    <remark></remark>
+  </rom>
+  <rom id="Xyxolog">
+    <romtype>PLAIN</romtype>
+    <md5>493258bdfeac3b0d9f48420868019335</md5>
+    <crc32>c7303910</crc32>
+    <year>1984</year>
+    <company>Taito</company>
+    <remark></remark>
+  </rom>
+  <rom id="Yakyuu-Kyou">
+    <romtype>PLAIN</romtype>
+    <md5>6d2bf2f354ab79ad1ae04f80ac8900cf</md5>
+    <crc32>24b94274</crc32>
+    <year>1984</year>
+    <company>Hudson</company>
+    <remark></remark>
+  </rom>
+  <rom id="Yellow Submarine">
+    <romtype>PLAIN</romtype>
+    <md5>3d8c3484191ebc324f2bb24a4b088086</md5>
+    <crc32>71e6605f</crc32>
+    <year>1987</year>
+    <company>Takeru</company>
+    <remark></remark>
+  </rom>
+  <rom id="Yie Ar Kung-Fu">
+    <romtype>PLAIN</romtype>
+    <md5>983a3d5031cda4c9701eee524566eba5</md5>
+    <crc32>8a12ec4f</crc32>
+    <year>1985</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Yie Ar Kung-Fu 2 (1)">
+    <romtype>PLAIN</romtype>
+    <md5>b591bb62cec12fcc13f54885cf3c7df6</md5>
+    <crc32>d66034a9</crc32>
+    <year>1985</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Yie Ar Kung-Fu 2 (2)">
+    <romtype>PLAIN</romtype>
+    <md5>75b15feb6fc3976c606b988e8f904d0a</md5>
+    <crc32>8099f5c7</crc32>
+    <year>1985</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Youkai Tantei Chima Chima">
+    <romtype>PLAIN</romtype>
+    <md5>7120eac2ff88c302d80d2cfc5dfcc03c</md5>
+    <crc32>8d636963</crc32>
+    <year>1985</year>
+    <company>Bothtec</company>
+    <remark></remark>
+  </rom>
+  <rom id="Youkai Yashiki">
+    <romtype>PLAIN</romtype>
+    <md5>bcec9fdac121e3ee668946cdbedf63cf</md5>
+    <crc32>2faf6e26</crc32>
+    <year>1986</year>
+    <company>Casio</company>
+    <remark></remark>
+  </rom>
+  <rom id="Young Sherlock">
+    <romtype>ASCII8</romtype>
+    <md5>4c0d373e999ce241b8d5f41ffe379205</md5>
+    <crc32>bdf332f2</crc32>
+    <year>1987</year>
+    <company>Pack In Video</company>
+    <remark></remark>
+  </rom>
+  <rom id="Yume Tairiku Adventure">
+    <romtype>KONAMI4</romtype>
+    <md5>9c3b9492f2b565cbddf562195f540993</md5>
+    <crc32>0f6418d3</crc32>
+    <year>1986</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Zaider - Battle Of Peguss">
+    <romtype>PLAIN</romtype>
+    <md5>b115607552685656f43f324868d200a8</md5>
+    <crc32>beccf133</crc32>
+    <year>1986</year>
+    <company>Cosmos</company>
+    <remark></remark>
+  </rom>
+  <rom id="Zanac">
+    <romtype>PLAIN</romtype>
+    <md5>7ae5847140746484ec6cf739eede5b15</md5>
+    <crc32>425e0d34</crc32>
+    <year>1986</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Zaxxon">
+    <romtype>PLAIN</romtype>
+    <md5>8ad24cb1636b8cce01e1cb6f9fcd6fd6</md5>
+    <crc32>0b3ba595</crc32>
+    <year>1985</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Zenji">
+    <romtype>PLAIN</romtype>
+    <md5>39f2e4db9272e79e8b6a0fc8bb2e3708</md5>
+    <crc32>1a4aebb2</crc32>
+    <year>1984</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Zexas Limited">
+    <romtype>PLAIN</romtype>
+    <md5>23f4722a2359120c3ca93cffe3d1da18</md5>
+    <crc32>efefa02a</crc32>
+    <year>1985</year>
+    <company>dB-Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="Zoom 909">
+    <romtype>PLAIN</romtype>
+    <md5>d8e09f622af52e07a83f19ca58aee194</md5>
+    <crc32>64283863</crc32>
+    <year>1985</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+
+<!-- THE NEW PART CONVERTED FROM JIROU KANEDA'S DB, MSX2 PART -->
+  
+  <rom id="Ide Yousuke No Jissen Mahjong">
+    <romtype>ASCII8</romtype>
+    <md5>77a23da8af09ccb05f19ca50e717875b</md5>
+    <crc32>935f1bde</crc32>
+    <year>1988</year>
+    <company>Pack In Video</company>
+    <remark></remark>
+  </rom>
+  <rom id="1942">
+    <romtype>ASCII8</romtype>
+    <md5>668570dd413d5cdf271e58d61b5b99e7</md5>
+    <crc32>c99e5601</crc32>
+    <year>1986</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="A-Class Mahjong">
+    <romtype>ASCII16</romtype>
+    <md5>4761dc4891d87f2f2feeeb237c9cd526</md5>
+    <crc32>f5174422</crc32>
+    <year>1988</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="A-Train">
+    <romtype>ASCII16-2</romtype>
+    <md5>9c8bc23c7acad95ba2cbda6cbf48339b</md5>
+    <crc32>c956e1df</crc32>
+    <year>1989</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Acrojet">
+    <romtype>ASCII16</romtype>
+    <md5>1f73a16c2b3cd400e026b578b7567a72</md5>
+    <crc32>d2ee4051</crc32>
+    <year>1988</year>
+    <company>System Soft</company>
+    <remark>Not Playable</remark>
+  </rom>
+  <rom id="Akumajyo Drakyula - Vampire Killer (2)">
+    <romtype>KONAMI4</romtype>
+    <md5>92ba9dab3c7a4ac6c8a130f6ccbac91c</md5>
+    <crc32>5953d084</crc32>
+    <year>1986</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Akumajyo Drakyula - Vampire Killer (1)">
+    <romtype>KONAMI4</romtype>
+    <md5>51d021af50c3a48124331a9fbc738b97</md5>
+    <crc32>0aedea40</crc32>
+    <year>1986</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Akumajyo Drakyula - Vampire Killer (3)">
+    <romtype>KONAMI4</romtype>
+    <md5>5d50c1c7bc164c3d01c41b0b8a501d72</md5>
+    <crc32>038c250d</crc32>
+    <year>1986</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Akumajyo Drakyula - Vampire Killer (4)">
+    <romtype>KONAMI4</romtype>
+    <md5>273c3dff8315a6a4fced758f07d54aaa</md5>
+    <crc32>217935d0</crc32>
+    <year>1986</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Aleste">
+    <romtype>ASCII16</romtype>
+    <md5>7087b51f3ccfdf314ce60d5d8aaf644a</md5>
+    <crc32>c29edd84</crc32>
+    <year>1988</year>
+    <company>Compile</company>
+    <remark></remark>
+  </rom>
+  <rom id="American Soccer">
+    <romtype>ASCII8</romtype>
+    <md5>a3648a5dd95179c00fc11fe455bb5828</md5>
+    <crc32>bcf03d8b</crc32>
+    <year>1987</year>
+    <company>Taito</company>
+    <remark></remark>
+  </rom>
+  <rom id="Andorogynus">
+    <romtype>ASCII16</romtype>
+    <md5>65ed7fce763e5e7ec60306e86fff872f</md5>
+    <crc32>c6f74489</crc32>
+    <year>1988</year>
+    <company>Telenet</company>
+    <remark></remark>
+  </rom>
+  <rom id="Arctic">
+    <romtype>ASCII16</romtype>
+    <md5>f709083da5b2b078c3621a17374aaf1e</md5>
+    <crc32>ae3167ee</crc32>
+    <year>1989</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Arkanoid 2">
+    <romtype>ASCII8</romtype>
+    <md5>2d594d9ebfb36faba7eea3c6b4e55dc8</md5>
+    <crc32>00d36af6</crc32>
+    <year>1987</year>
+    <company>Taito</company>
+    <remark></remark>
+  </rom>
+  <rom id="Arsene Lupin 3rd - Babiron No Ougon Densetsu">
+    <romtype>ASCII8</romtype>
+    <md5>b15c73f408756e444bd8ee347e7f98ae</md5>
+    <crc32>bfe150c4</crc32>
+    <year>1988</year>
+    <company>Toho</company>
+    <remark></remark>
+  </rom>
+  <rom id="Arsene Lupin 3rd - Cariostoro No Siro">
+    <romtype>ASCII8</romtype>
+    <md5>14c078a9ed5c14ac54a6eb5e94fa34d2</md5>
+    <crc32>c4096e6b</crc32>
+    <year>1987</year>
+    <company>Toho</company>
+    <remark></remark>
+  </rom>
+  <rom id="Arugiisu No Tsubasa">
+    <romtype>ASCII8</romtype>
+    <md5>790e45f34cec0f5064161109653537c5</md5>
+    <crc32>225705cc</crc32>
+    <year>1988</year>
+    <company>Kogado</company>
+    <remark></remark>
+  </rom>
+  <rom id="Ashiguine">
+    <romtype>ASCII8</romtype>
+    <md5>851aca1e5d3f0e8d9b1cbec2e8451831</md5>
+    <crc32>3cb34efb</crc32>
+    <year>1987</year>
+    <company>Bit2</company>
+    <remark></remark>
+  </rom>
+  <rom id="Ashiguine 2">
+    <romtype>ASCII8</romtype>
+    <md5>3b191ba16e7c5def2f1e9febc1fb92e5</md5>
+    <crc32>47a82d74</crc32>
+    <year>1987</year>
+    <company>T&amp;E Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="Ashiguine 3">
+    <romtype>ASCII8</romtype>
+    <md5>f582df437dde65d958eec72260801b32</md5>
+    <crc32>353382ce</crc32>
+    <year>1987</year>
+    <company>Micro Cabin</company>
+    <remark></remark>
+  </rom>
+  <rom id="Bubble Bobble">
+    <romtype>ASCII8</romtype>
+    <md5>bd8b1f6c998657b96bf7dc7825d0a600</md5>
+    <crc32>6524d9fc</crc32>
+    <year>1987</year>
+    <company>Taito</company>
+    <remark></remark>
+  </rom>
+  <rom id="Cheese 2">
+    <romtype>PLAIN</romtype>
+    <md5>16f08e7cdce9aa13259b9e904eeb0e2b</md5>
+    <crc32>2ffb49c3</crc32>
+    <year>1985</year>
+    <company>Nipon Electronics</company>
+    <remark></remark>
+  </rom>
+  <rom id="Crimuzon">
+    <romtype>ASCII8</romtype>
+    <md5>c787a2825169fa5b13bcb1eaec3e289a</md5>
+    <crc32>8528a795</crc32>
+    <year>1987</year>
+    <company>Scap Trust</company>
+    <remark></remark>
+  </rom>
+  <rom id="Daikoukai Jidai">
+    <romtype>ASCII8-8</romtype>
+    <md5>cc6d64c4a9880b6111f6b491275eb62a</md5>
+    <crc32>ec7a8012</crc32>
+    <year>1990</year>
+    <company>Koei</company>
+    <remark></remark>
+  </rom>
+  <rom id="Daisenryaku">
+    <romtype>ASCII16-2</romtype>
+    <md5>57f718a9f3add36b71f606d636cb1d6f</md5>
+    <crc32>a987a0d8</crc32>
+    <year>1986</year>
+    <company>Micro Cabin</company>
+    <remark></remark>
+  </rom>
+  <rom id="Darwin 4078">
+    <romtype>ASCII8</romtype>
+    <md5>ca9cb10e2415775418c85f47e1bfb5d5</md5>
+    <crc32>7098faf0</crc32>
+    <year>1987</year>
+    <company>Hudson</company>
+    <remark></remark>
+  </rom>
+  <rom id="Deep Forest">
+    <romtype>ASCII8</romtype>
+    <md5>dc9c2178fec7958fdde3f7762ffe0b2e</md5>
+    <crc32>f221b845</crc32>
+    <year>1987</year>
+    <company>Xain</company>
+    <remark></remark>
+  </rom>
+  <rom id="Dires">
+    <romtype>ASCII8-8</romtype>
+    <md5>9c16b2ba7956a86819bdbc12cd266e29</md5>
+    <crc32>5acbd591</crc32>
+    <year>1987</year>
+    <company>Telenet</company>
+    <remark></remark>
+  </rom>
+  <rom id="Double Vision">
+    <romtype>ASCII8</romtype>
+    <md5>0cb6d4d086306f22d6d4a8c96a0f44e3</md5>
+    <crc32>e1148738</crc32>
+    <year>1988</year>
+    <company>Hard</company>
+    <remark></remark>
+  </rom>
+  <rom id="Dragon Quest">
+    <romtype>ASCII8</romtype>
+    <md5>b6a39a89fb0df0be5dff7d64f5fe8900</md5>
+    <crc32>7729e7a9</crc32>
+    <year>1986</year>
+    <company>Enix</company>
+    <remark></remark>
+  </rom>
+  <rom id="Dragon Quest 2">
+    <romtype>ASCII8</romtype>
+    <md5>b2e0120f0a937fab09a37a252ab0faea</md5>
+    <crc32>0bf0c3f5</crc32>
+    <year>1987</year>
+    <company>Enix</company>
+    <remark></remark>
+  </rom>
+  <rom id="Dragon Buster">
+    <romtype>ASCII8</romtype>
+    <md5>52bd14a491aa5802e842bff023d4f728</md5>
+    <crc32>49252882</crc32>
+    <year>1987</year>
+    <company>Namcot</company>
+    <remark></remark>
+  </rom>
+  <rom id="Dragon Slayer 4">
+    <romtype>ASCII8</romtype>
+    <md5>38209dd384ca5a791e97ffc6c68097a2</md5>
+    <crc32>98095852</crc32>
+    <year>1987</year>
+    <company>Falcom</company>
+    <remark></remark>
+  </rom>
+  <rom id="Druid">
+    <romtype>ASCII8</romtype>
+    <md5>62f67225074fec95baa131f687238fd0</md5>
+    <crc32>94982598</crc32>
+    <year>1988</year>
+    <company>Jaleco</company>
+    <remark></remark>
+  </rom>
+  <rom id="Dynamite Bowl">
+    <romtype>ASCII16</romtype>
+    <md5>14311b9fe54716ed22efe313a7503e53</md5>
+    <crc32>9935e9bd</crc32>
+    <year>1987</year>
+    <company>Toshiba EMI</company>
+    <remark></remark>
+  </rom>
+  <rom id="Eidolon">
+    <romtype>ASCII8</romtype>
+    <md5>ff25f8ccde5cf7d49a758d19f46e41d0</md5>
+    <crc32>14913432</crc32>
+    <year>1986</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Erusurid - Elslid">
+    <romtype>ASCII8-8</romtype>
+    <md5>3f68d8e286b9b46b5400381bdacbaa52</md5>
+    <crc32>a8e9ac9b</crc32>
+    <year>1988</year>
+    <company>NCS</company>
+    <remark></remark>
+  </rom>
+  <rom id="Ikari">
+    <romtype>ASCII16</romtype>
+    <md5>65c426e4cf02a1f211641a2dfc035486</md5>
+    <crc32>a9a66075</crc32>
+    <year>1987</year>
+    <company>SNK</company>
+    <remark></remark>
+  </rom>
+  <rom id="Europe War">
+    <romtype>ASCII8-8</romtype>
+    <md5>35d9d247a298181bb0c70a45d5e0746e</md5>
+    <crc32>413d4700</crc32>
+    <year>1992</year>
+    <company>Koei</company>
+    <remark></remark>
+  </rom>
+  <rom id="F15 Strike Eagle">
+    <romtype>ASCII8</romtype>
+    <md5>c4c2bf153650b33aaab97ac00d07685b</md5>
+    <crc32>53cce88d</crc32>
+    <year>1987</year>
+    <company>System Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="Famicle Parodic">
+    <romtype>ASCII8</romtype>
+    <md5>eccbb5b0e92ba466da7a55434bbc0556</md5>
+    <crc32>0e03847b</crc32>
+    <year>1988</year>
+    <company>Bit2</company>
+    <remark></remark>
+  </rom>
+  <rom id="Family Billiard">
+    <romtype>ASCII8</romtype>
+    <md5>54038e0dcc4ad3f0a2fd3859eb3e5c9b</md5>
+    <crc32>7c867d98</crc32>
+    <year>1987</year>
+    <company>Pack In Video</company>
+    <remark></remark>
+  </rom>
+  <rom id="Family Boxing">
+    <romtype>ASCII8</romtype>
+    <md5>9b92eb8a340fed695fb4d86d94e6a4d6</md5>
+    <crc32>7030f2ab</crc32>
+    <year>1988</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Family Stadium">
+    <romtype>ASCII16</romtype>
+    <md5>206945b66a897271269cdcf12070993b</md5>
+    <crc32>356b7d2a</crc32>
+    <year>1989</year>
+    <company>Namcot</company>
+    <remark></remark>
+  </rom>
+  <rom id="Fantasy Zone 2">
+    <romtype>ASCII16</romtype>
+    <md5>cf739db66adc5a2f2d06f19e3d852ccb</md5>
+    <crc32>1bdfaeeb</crc32>
+    <year>1987</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Fire Ball">
+    <romtype>ASCII8</romtype>
+    <md5>beae4b0bee7b028644804fa41da96f40</md5>
+    <crc32>cdcdc6c0</crc32>
+    <year>1988</year>
+    <company>Humming Bird Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="Fleet Commander 2">
+    <romtype>ASCII8</romtype>
+    <md5>c164b82e38be62c3cfe38d587e20cc31</md5>
+    <crc32>9f152e9b</crc32>
+    <year>1990</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Gakuen Monogatari - High School Story">
+    <romtype>ASCII16</romtype>
+    <md5>d58d87e7a359df92c3aeae0ea93672b5</md5>
+    <crc32>fbdafe4e</crc32>
+    <year>1988</year>
+    <company>Great</company>
+    <remark></remark>
+  </rom>
+  <rom id="Gambler Jikochuushinha 2">
+    <romtype>ASCII8</romtype>
+    <md5>889e438fea6eeece702446311afce84f</md5>
+    <crc32>eb67d4d6</crc32>
+    <year>1988</year>
+    <company>Gamearts</company>
+    <remark></remark>
+  </rom>
+  <rom id="Ganbare Goemon">
+    <romtype>KONAMI4</romtype>
+    <md5>44c47ae77d38ee95d311f90204ed4ac5</md5>
+    <crc32>40e53ea3</crc32>
+    <year>1987</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Garakuta">
+    <romtype>ASCII16</romtype>
+    <md5>a0fb9b61195d7cfa9905f72d32c0c730</md5>
+    <crc32>33c37313</crc32>
+    <year>1988</year>
+    <company>Wachi Electronics</company>
+    <remark></remark>
+  </rom>
+  <rom id="Garyuuou">
+    <romtype>ASCII8</romtype>
+    <md5>c9a6c43add06e8f57ffdb4fe40df753c</md5>
+    <crc32>2fb0ed30</crc32>
+    <year>1987</year>
+    <company>Xain</company>
+    <remark></remark>
+  </rom>
+  <rom id="Gekitotsu Pennant Race (2)">
+    <romtype>KONAMI5</romtype>
+    <md5>d289fa8bcf442197900082a0d6f87b25</md5>
+    <crc32>c08faf0e</crc32>
+    <year>1988</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Gekitotsu Pennant Race 2">
+    <romtype>KONAMI5</romtype>
+    <md5>af91306740ff42ffd25f0f75d3e4fca8</md5>
+    <crc32>c44c6330</crc32>
+    <year>1989</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Gekitotsu Pennant Race (1)">
+    <romtype>KONAMI5</romtype>
+    <md5>ab8c5e6d4be4a2979019df24ca0ad679</md5>
+    <crc32>b0a7800f</crc32>
+    <year>1988</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Genchouhishi">
+    <romtype>ASCII8-8</romtype>
+    <md5>76bba6b3f1ae93cfafb3af904b978098</md5>
+    <crc32>075ab646</crc32>
+    <year>1992</year>
+    <company>Koei</company>
+    <remark></remark>
+  </rom>
+  <rom id="Genghis Khan">
+    <romtype>ASCII8-8</romtype>
+    <md5>67bc15b268c9e35df72121911d4412ea</md5>
+    <crc32>3b5b3fd8</crc32>
+    <year>1988</year>
+    <company>Koei</company>
+    <remark></remark>
+  </rom>
+  <rom id="Girly Block">
+    <romtype>ASCII16</romtype>
+    <md5>8a5f64a74e66be96ebf1f1719e669b89</md5>
+    <crc32>28094960</crc32>
+    <year>1988</year>
+    <company>Telenet</company>
+    <remark></remark>
+  </rom>
+  <rom id="Kitahei">
+    <romtype>ASCII8</romtype>
+    <md5>cb955ec12b62b62d8f3df6f2073acfc1</md5>
+    <crc32>0767af40</crc32>
+    <year>1986</year>
+    <company>Micro Cabin</company>
+    <remark></remark>
+  </rom>
+  <rom id="Hacker">
+    <romtype>ASCII16</romtype>
+    <md5>5fd491b7b8c674fc78a56405c27d9221</md5>
+    <crc32>8df56d42</crc32>
+    <year>1988</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Hai No Majutsushi">
+    <romtype>MAJUTSUSHI</romtype>
+    <md5>a9187c70ab0f678e06c773dabf2f7e5f</md5>
+    <crc32>e0e72736</crc32>
+    <year>1989</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Halnote">
+    <romtype>PLAIN</romtype>
+    <md5>43e912285287a9cf52abdc3bfab2951f</md5>
+    <crc32>40313fec</crc32>
+    <year>1987</year>
+    <company>Hal</company>
+    <remark>Not Playable / System Disk Needs</remark>
+  </rom>
+  <rom id="Hardball">
+    <romtype>ASCII8</romtype>
+    <md5>53cb808a7a5a5e4cb13f8905e8bd9a34</md5>
+    <crc32>1d7040af</crc32>
+    <year>1987</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Heroes Of The Lance">
+    <romtype>ASCII8-8</romtype>
+    <md5>ea1ca54cfe5222b49ead093cc6eafca0</md5>
+    <crc32>6ac18445</crc32>
+    <year>1991</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="High School Kimengumi">
+    <romtype>ASCII8</romtype>
+    <md5>d18fa99ae42ebb6ac7b10556c172de7e</md5>
+    <crc32>1123545c</crc32>
+    <year>1987</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Hinotori (1)">
+    <romtype>KONAMI4</romtype>
+    <md5>8d89caf4804637e302fe1d57d2e2af73</md5>
+    <crc32>3ab5ae57</crc32>
+    <year>1987</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Hinotori (2)">
+    <romtype>KONAMI4</romtype>
+    <md5>c35d87613bc6c7f5c03bfb8fa220a3f6</md5>
+    <crc32>d95116b0</crc32>
+    <year>1987</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Hole In One Special (2)">
+    <romtype>ASCII16</romtype>
+    <md5>df9d9e1dd54409d5b35339ea60b1045e</md5>
+    <crc32>4708bdd1</crc32>
+    <year>1987</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="Hole In One Special (1)">
+    <romtype>ASCII16</romtype>
+    <md5>6beaf41221e7cd325d32b3112cc898da</md5>
+    <crc32>f35df283</crc32>
+    <year>1987</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="Hydlide 3">
+    <romtype>ASCII8</romtype>
+    <md5>c8f2a1a93f852096eaebaa18e59350cf</md5>
+    <crc32>00db86c8</crc32>
+    <year>1987</year>
+    <company>T&amp;E Soft</company>
+    <remark>Not Playable</remark>
+  </rom>
+  <rom id="Inindou Datou Nobunaga">
+    <romtype>ASCII8-8</romtype>
+    <md5>d2f178fb8b16b2ebe002fefccb7d3191</md5>
+    <crc32>881b3849</crc32>
+    <year>1991</year>
+    <company>Koei</company>
+    <remark></remark>
+  </rom>
+  <rom id="Isin No Arashi">
+    <romtype>ASCII8-8</romtype>
+    <md5>6c3ac4fc067d82977a11611ec29ae4c4</md5>
+    <crc32>8bc34dca</crc32>
+    <year>1989</year>
+    <company>Koei</company>
+    <remark></remark>
+  </rom>
+  <rom id="Japanese MSX-Write II">
+    <romtype>ASCII8-8</romtype>
+    <md5>1e4ef11e18575f052ea5de49872d4f4b</md5>
+    <crc32>459478cb</crc32>
+    <year>1988</year>
+    <company>Ascii</company>
+    <remark>Kanji ROM Needs</remark>
+  </rom>
+  <rom id="Jyansei (1)">
+    <romtype>ASCII16</romtype>
+    <md5>f64c38d0010b872a435b041936100cbd</md5>
+    <crc32>2c2924ed</crc32>
+    <year>1986</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Jyansei (2)">
+    <romtype>ASCII16</romtype>
+    <md5>d9c9ee473b5e1e372b2b53a3c9558d5f</md5>
+    <crc32>00b8e82e</crc32>
+    <year>1986</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Kanji Rom - JIS 1st+2nd Class (For Japanese MSX-Write II)">
+    <romtype>PLAIN</romtype>
+    <md5>cb30a978bd4bddf957c66d1d05273658</md5>
+    <crc32>17e58926</crc32>
+    <year>1988</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Kenpelen Chess">
+    <romtype>ASCII16</romtype>
+    <md5>a7e3b3b64a54078d7d92fbea2e1cf8a8</md5>
+    <crc32>053aa66e</crc32>
+    <year>1988</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Kikikaikai">
+    <romtype>ASCII8</romtype>
+    <md5>7c981f0ddf3a459fb854c9b827061a44</md5>
+    <crc32>5c859406</crc32>
+    <year>1987</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="King's Valley 2 (Edit Contest Version)">
+    <romtype>KONAMI5</romtype>
+    <md5>a94a47593514299cae379b974dc088f5</md5>
+    <crc32>774c70fc</crc32>
+    <year>1988</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="King's Valley 2">
+    <romtype>KONAMI5</romtype>
+    <md5>dfcaf859e699f8995d054622c5a561ba</md5>
+    <crc32>b1cb1052</crc32>
+    <year>1988</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="King Kong 2">
+    <romtype>KONAMI4</romtype>
+    <md5>a7bc0525d6367fe9b32eb568a14133e7</md5>
+    <crc32>23b78a2d</crc32>
+    <year>1986</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Kisei">
+    <romtype>ASCII8-8</romtype>
+    <md5>8cfe4ebb5bfd4c2ab838b81b0d2acb37</md5>
+    <crc32>167a53da</crc32>
+    <year>1987</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Kontora - Contra">
+    <romtype>KONAMI5</romtype>
+    <md5>855dc91e683d897662c2f676b4dc3e3a</md5>
+    <crc32>4e82660d</crc32>
+    <year>1989</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Koronis Rift">
+    <romtype>ASCII16</romtype>
+    <md5>e95759a5332959a0f497c99508f738cc</md5>
+    <crc32>fb348de6</crc32>
+    <year>1987</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Kyouto Ryu No Tera Satsujin Jiken">
+    <romtype>ASCII8</romtype>
+    <md5>4140b44e0923026e50f88787e208ccb5</md5>
+    <crc32>dcb1a61e</crc32>
+    <year>1988</year>
+    <company>Taito</company>
+    <remark></remark>
+  </rom>
+  <rom id="Labyrinth">
+    <romtype>ASCII8</romtype>
+    <md5>121eb1b9dce5c12832a5c7b97265a773</md5>
+    <crc32>9926f43c</crc32>
+    <year>1987</year>
+    <company>Pack In Video</company>
+    <remark></remark>
+  </rom>
+  <rom id="Lempereur">
+    <romtype>ASCII8-8</romtype>
+    <md5>cafaa2eab655943ad4064a1dbdb09a67</md5>
+    <crc32>c7521809</crc32>
+    <year>1990</year>
+    <company>Koei</company>
+    <remark></remark>
+  </rom>
+  <rom id="Mad Rider">
+    <romtype>ASCII8</romtype>
+    <md5>93c665dab6503b4ff2712adfeb3a8531</md5>
+    <crc32>f87bd172</crc32>
+    <year>1987</year>
+    <company>Carry Lab</company>
+    <remark></remark>
+  </rom>
+  <rom id="Maison Ikkoku">
+    <romtype>ASCII8</romtype>
+    <md5>68ee449de249d7b2cf0e1900a6cd319c</md5>
+    <crc32>f4d127c0</crc32>
+    <year>1987</year>
+    <company>Micro Cabin</company>
+    <remark></remark>
+  </rom>
+  <rom id="Maison Ikkoku Final">
+    <romtype>ASCII8</romtype>
+    <md5>ed5c5d1f0a3ccd435ac3d28668ee5ec9</md5>
+    <crc32>94191aae</crc32>
+    <year>1988</year>
+    <company>Micro Cabin</company>
+    <remark></remark>
+  </rom>
+  <rom id="Makaijima - Higemaru">
+    <romtype>ASCII16</romtype>
+    <md5>1811f67fac1f6c98c83ef0281371c7fb</md5>
+    <crc32>17baf3ed</crc32>
+    <year>1987</year>
+    <company>Capcom</company>
+    <remark></remark>
+  </rom>
+  <rom id="Malaya No Hihou">
+    <romtype>ASCII16</romtype>
+    <md5>8153cc9023d0e38d7da0b359c47df5e8</md5>
+    <crc32>f7a9591d</crc32>
+    <year>1988</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Metal Gear">
+    <romtype>KONAMI4</romtype>
+    <md5>12e302954fa9b23c11ce7c8f5770b82a</md5>
+    <crc32>fafe1303</crc32>
+    <year>1987</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Metal Gear 2 - Solid Snake (Demo Version)">
+    <romtype>KONAMI5</romtype>
+    <md5>0b5fd35204aa279fb106e3761f90085e</md5>
+    <crc32>dcee5080</crc32>
+    <year>1990</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Metal Gear 2 - Solid Snake">
+    <romtype>KONAMI5</romtype>
+    <md5>9f50d92d35e19d5de37d75a36a410588</md5>
+    <crc32>18b1f34b</crc32>
+    <year>1990</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Mirai - Future">
+    <romtype>ASCII8</romtype>
+    <md5>f15a35b66270858d4c1c5d1351e04d6e</md5>
+    <crc32>70aa93cf</crc32>
+    <year>1987</year>
+    <company>Xain</company>
+    <remark></remark>
+  </rom>
+  <rom id="Mississippi Satsujin Jiken">
+    <romtype>ASCII8</romtype>
+    <md5>5564c666d127fa6765b756311a19f45d</md5>
+    <crc32>3f69a464</crc32>
+    <year>1987</year>
+    <company>Jaleco</company>
+    <remark></remark>
+  </rom>
+  <rom id="Moero! Nettou Yakyuu'88">
+    <romtype>ASCII8</romtype>
+    <md5>50b6f805f48865d0a0021d604be1c58e</md5>
+    <crc32>68745c64</crc32>
+    <year>1988</year>
+    <company>Jaleco</company>
+    <remark></remark>
+  </rom>
+  <rom id="Mon Mon Monstar">
+    <romtype>ASCII8</romtype>
+    <md5>924f7eb26bcdf28047ec4211eec5f8b7</md5>
+    <crc32>ebccb796</crc32>
+    <year>1989</year>
+    <company>Hot-B</company>
+    <remark></remark>
+  </rom>
+  <rom id="Ninja Kun">
+    <romtype>ASCII8</romtype>
+    <md5>01d18e427d829e3f1aa3550ff15c107c</md5>
+    <crc32>f56a00e6</crc32>
+    <year>1987</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="MSX Basic-Kun Plus">
+    <romtype>PLAIN</romtype>
+    <md5>4d42677b708457feec2978b75c45cc79</md5>
+    <crc32>a13615d2</crc32>
+    <year>1988</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Nekketsu Juudou">
+    <romtype>ASCII8</romtype>
+    <md5>7a3012784c5e42194c141edbf0f7a94d</md5>
+    <crc32>758c6087</crc32>
+    <year>1989</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Nobunaga No Yabou - Sengoku Gunyuuden">
+    <romtype>ASCII8-8</romtype>
+    <md5>c2cbcad9411b575e9291c3739118785c</md5>
+    <crc32>69c11d81</crc32>
+    <year>1989</year>
+    <company>Koei</company>
+    <remark></remark>
+  </rom>
+  <rom id="Nobunaga No Yabou - Bushou Fuuunroku">
+    <romtype>ASCII8-8</romtype>
+    <md5>65e30c8ef671b789fdc1c08780207e26</md5>
+    <crc32>0ff8e2c7</crc32>
+    <year>1991</year>
+    <company>Koei</company>
+    <remark></remark>
+  </rom>
+  <rom id="Nobunaga No Yabou - Zenkokuban">
+    <romtype>ASCII8-8</romtype>
+    <md5>4fe04555caed46046b80d5624d44151f</md5>
+    <crc32>653f1c73</crc32>
+    <year>1987</year>
+    <company>Koei</company>
+    <remark></remark>
+  </rom>
+  <rom id="Ogre">
+    <romtype>ASCII16</romtype>
+    <md5>82cd46d7908c42417ff7f40b4d277e45</md5>
+    <crc32>f2544e2e</crc32>
+    <year>1986</year>
+    <company>System Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="Outrun">
+    <romtype>ASCII8</romtype>
+    <md5>eff230804098ffe4d342f389b5209eac</md5>
+    <crc32>0a9f8d6c</crc32>
+    <year>1988</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Pac-Mania">
+    <romtype>ASCII8</romtype>
+    <md5>45f9b96088f36697f779af7de373f8fe</md5>
+    <crc32>7df16fc8</crc32>
+    <year>1989</year>
+    <company>Namcot</company>
+    <remark></remark>
+  </rom>
+  <rom id="Pachipro Densetsu">
+    <romtype>ASCII8</romtype>
+    <md5>aee5bfde07da953eada70d618a933d06</md5>
+    <crc32>252798f6</crc32>
+    <year>1988</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="Penguin-Kun Wars 2">
+    <romtype>ASCII16</romtype>
+    <md5>3db77573e81184156486fe743b828e58</md5>
+    <crc32>b1b24da1</crc32>
+    <year>1988</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Predator">
+    <romtype>ASCII8</romtype>
+    <md5>3a3bef37cb175a665e7abbbc80b32e92</md5>
+    <crc32>e85a4a6b</crc32>
+    <year>1988</year>
+    <company>Pack In Video</company>
+    <remark></remark>
+  </rom>
+  <rom id="Pro Baseball Fan">
+    <romtype>ASCII8</romtype>
+    <md5>3cd4e9d0369842440ad5888a52cdcf9a</md5>
+    <crc32>c065bc29</crc32>
+    <year>1987</year>
+    <company>Telenet</company>
+    <remark></remark>
+  </rom>
+  <rom id="Professional Mahjong Gokuh">
+    <romtype>ASCII16-2</romtype>
+    <md5>4f9c53d6f5ed2aa2876bb78408b39084</md5>
+    <crc32>2abb1ec4</crc32>
+    <year>1988</year>
+    <company>Chatnoir</company>
+    <remark></remark>
+  </rom>
+  <rom id="Project A2">
+    <romtype>ASCII8</romtype>
+    <md5>9ffa0d56003931c45b232521724b2b8b</md5>
+    <crc32>1b285fe3</crc32>
+    <year>1987</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Quarth">
+    <romtype>KONAMI5</romtype>
+    <md5>b34b756e16f07e26c2052823bab93592</md5>
+    <crc32>a0014e7f</crc32>
+    <year>1990</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Quarth (Demo Version)">
+    <romtype>KONAMI5</romtype>
+    <md5>a95a4348dfbb8c0d9e3e0a9da770031b</md5>
+    <crc32>c4ccb75f</crc32>
+    <year>1990</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Quinpl">
+    <romtype>ASCII8</romtype>
+    <md5>bc946d90bd20e0805984f67bb4b93fc2</md5>
+    <crc32>8d94af7d</crc32>
+    <year>1988</year>
+    <company>Bit2</company>
+    <remark></remark>
+  </rom>
+  <rom id="Rastan Saga">
+    <romtype>ASCII8</romtype>
+    <md5>114264bbcd0fdfa7bd083a983606a200</md5>
+    <crc32>84461e73</crc32>
+    <year>1988</year>
+    <company>Taito</company>
+    <remark></remark>
+  </rom>
+  <rom id="Relics">
+    <romtype>ASCII8</romtype>
+    <md5>dd3e2f7c437f00ac77eeb9e9975ed947</md5>
+    <crc32>babc68f2</crc32>
+    <year>1986</year>
+    <company>Bothtec</company>
+    <remark></remark>
+  </rom>
+  <rom id="Replicart">
+    <romtype>ASCII8</romtype>
+    <md5>7d4c77200788e78126b98a7d7ba53d3c</md5>
+    <crc32>6eee12c4</crc32>
+    <year>1987</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Return Of Jelda">
+    <romtype>ASCII8</romtype>
+    <md5>50312d8faaef4ffa55f49feab5669b0c</md5>
+    <crc32>5ccc09ab</crc32>
+    <year>1987</year>
+    <company>Carry Lab</company>
+    <remark></remark>
+  </rom>
+  <rom id="Rick &amp; Mick's Adventure">
+    <romtype>ASCII8</romtype>
+    <md5>9df54a16476239e572747cc9a83c5b32</md5>
+    <crc32>e79aa962</crc32>
+    <year>1987</year>
+    <company>Humming Bird Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="Romancia">
+    <romtype>ASCII16</romtype>
+    <md5>560544f37bf6f806b200d5db3d562e26</md5>
+    <crc32>17f9ee7f</crc32>
+    <year>1986</year>
+    <company>Falcom</company>
+    <remark></remark>
+  </rom>
+  <rom id="Royal Blood">
+    <romtype>ASCII8-8</romtype>
+    <md5>6a1571a643e6c34837535a3240f85ef2</md5>
+    <crc32>fb9e42e1</crc32>
+    <year>1991</year>
+    <company>Koei</company>
+    <remark></remark>
+  </rom>
+  <rom id="Sangokusi">
+    <romtype>ASCII8-8</romtype>
+    <md5>afe6a9160c79d579f18b2980f8874a6e</md5>
+    <crc32>b83aa6f5</crc32>
+    <year>1988</year>
+    <company>Koei</company>
+    <remark></remark>
+  </rom>
+  <rom id="Sangokusi 2">
+    <romtype>ASCII8-8</romtype>
+    <md5>34301e3f3f3aa4e0cbd657caab003237</md5>
+    <crc32>c89b93b5</crc32>
+    <year>1991</year>
+    <company>Koei</company>
+    <remark></remark>
+  </rom>
+  <rom id="Satsujin Club - Murder Club">
+    <romtype>ASCII8</romtype>
+    <md5>f65b39a6475911f935b3d8c00b8b52a0</md5>
+    <crc32>fe797d88</crc32>
+    <year>1988</year>
+    <company>Micro Cabin</company>
+    <remark></remark>
+  </rom>
+  <rom id="Scramble Formation">
+    <romtype>ASCII8</romtype>
+    <md5>5951dc047c5a102e9cf9e1a59d2596d2</md5>
+    <crc32>226795e0</crc32>
+    <year>1987</year>
+    <company>Taito</company>
+    <remark></remark>
+  </rom>
+  <rom id="Seikima 2 Special">
+    <romtype>ASCII8</romtype>
+    <md5>42b81e1c71ec8af3f37d90e4c020c697</md5>
+    <crc32>e37b681e</crc32>
+    <year>1987</year>
+    <company>Sony</company>
+    <remark></remark>
+  </rom>
+  <rom id="Shanghai">
+    <romtype>ASCII16</romtype>
+    <md5>6429d308164ccb0aea2888f5cffa66aa</md5>
+    <crc32>3b815dc6</crc32>
+    <year>1987</year>
+    <company>System Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="Shougi Sinan 2">
+    <romtype>ASCII8-8</romtype>
+    <md5>29020908bafea060960ca7e65cdfe6ca</md5>
+    <crc32>f640670c</crc32>
+    <year>1988</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Siryousensen - War Of The Dead">
+    <romtype>ASCII8-8</romtype>
+    <md5>89db61d03a72aede925d79e02706f666</md5>
+    <crc32>39e1c37a</crc32>
+    <year>1987</year>
+    <company>Victor</company>
+    <remark></remark>
+  </rom>
+  <rom id="Space Manbow">
+    <romtype>KONAMI5</romtype>
+    <md5>f78b9f4ea885cf072e5b41dce9f15436</md5>
+    <crc32>27405eed</crc32>
+    <year>1989</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Star Virgin">
+    <romtype>ASCII8</romtype>
+    <md5>d2f51a8ac5b78d322d6ba404e962f07a</md5>
+    <crc32>cbdfcc35</crc32>
+    <year>1988</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Strategic Mars">
+    <romtype>ASCII16</romtype>
+    <md5>0f235700eecb79b0e5a517118d48112c</md5>
+    <crc32>4a3abb65</crc32>
+    <year>1989</year>
+    <company>dB-Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="Suikoden">
+    <romtype>ASCII8-8</romtype>
+    <md5>22f48218a0db04edd8f90bc4355e2de9</md5>
+    <crc32>187d3a21</crc32>
+    <year>1989</year>
+    <company>Koei</company>
+    <remark></remark>
+  </rom>
+  <rom id="Super Daisenryaku">
+    <romtype>ASCII16-2</romtype>
+    <md5>4350a658720a2e8f7ecc46fb99c2209e</md5>
+    <crc32>8df9945a</crc32>
+    <year>1988</year>
+    <company>Micro Cabin</company>
+    <remark></remark>
+  </rom>
+  <rom id="Super Lode Runner">
+    <romtype>SUPERLODERUNNER</romtype>
+    <md5>581fd0c7ab5d2e355c5bffa3946bdbf6</md5>
+    <crc32>80ecac11</crc32>
+    <year>1987</year>
+    <company>Irem</company>
+    <remark></remark>
+  </rom>
+  <rom id="Super Rambo Special">
+    <romtype>ASCII16</romtype>
+    <md5>1a504223fdc2476a57198f80e8410a2a</md5>
+    <crc32>b2392ef3</crc32>
+    <year>1986</year>
+    <company>Pack In Video</company>
+    <remark></remark>
+  </rom>
+  <rom id="Tetris">
+    <romtype>ASCII8</romtype>
+    <md5>3ae183edb7f89666b23f041fd592df3c</md5>
+    <crc32>aa598dfd</crc32>
+    <year>1988</year>
+    <company>Bps</company>
+    <remark></remark>
+  </rom>
+  <rom id="Super Runner">
+    <romtype>ASCII8</romtype>
+    <md5>a5fc4e9b290ee0e2e8ebb7f8b49d1ace</md5>
+    <crc32>5a5be701</crc32>
+    <year>1987</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Super Triton">
+    <romtype>ASCII8</romtype>
+    <md5>3032194b7fbc4c7af47b140739e7ce84</md5>
+    <crc32>cbb00ef1</crc32>
+    <year>1986</year>
+    <company>Sein</company>
+    <remark></remark>
+  </rom>
+  <rom id="Synthe Saurus 1.1">
+    <romtype>ASCII8</romtype>
+    <md5>81404a245c25a421c8ec4dc629ec4952</md5>
+    <crc32>7122e8e3</crc32>
+    <year>1988</year>
+    <company>Bit2</company>
+    <remark></remark>
+  </rom>
+  <rom id="Taiyouno Sinden - Asteka 2">
+    <romtype>ASCII8</romtype>
+    <md5>3ea01c97fe0201aede87a3f772b1871a</md5>
+    <crc32>ae82a874</crc32>
+    <year>1987</year>
+    <company>Falcom</company>
+    <remark></remark>
+  </rom>
+  <rom id="Teitoku No Ketsudan">
+    <romtype>ASCII8-8</romtype>
+    <md5>5dee9db145d631a97bf4c645e76f3b20</md5>
+    <crc32>c31f459c</crc32>
+    <year>1991</year>
+    <company>Koei</company>
+    <remark></remark>
+  </rom>
+  <rom id="Tengoku Yoitoko">
+    <romtype>ASCII8</romtype>
+    <md5>88e940bb5c15d201bf1779821c10d923</md5>
+    <crc32>7e637801</crc32>
+    <year>1987</year>
+    <company>Taito</company>
+    <remark></remark>
+  </rom>
+  <rom id="The Cockpit">
+    <romtype>ASCII16</romtype>
+    <md5>10b02d5c4600b342e98559518bdbc96d</md5>
+    <crc32>5f354e65</crc32>
+    <year>1987</year>
+    <company>Taito</company>
+    <remark></remark>
+  </rom>
+  <rom id="The Return Of Ishtar">
+    <romtype>ASCII16</romtype>
+    <md5>795918ec755dbd76a8e1138f1c9abb73</md5>
+    <crc32>8ee8212c</crc32>
+    <year>1988</year>
+    <company>Namcot</company>
+    <remark></remark>
+  </rom>
+  <rom id="Topple Zip">
+    <romtype>ASCII8</romtype>
+    <md5>d5ec6055da9a7acf301e3e7fd8ebee27</md5>
+    <crc32>96b33497</crc32>
+    <year>1987</year>
+    <company>Bothtec</company>
+    <remark></remark>
+  </rom>
+  <rom id="Tsurikichi Sanpei Blue Marlin Hen">
+    <romtype>ASCII8</romtype>
+    <md5>ac309104c4bcc0cbf56ac1d2295f1119</md5>
+    <crc32>ff7395a3</crc32>
+    <year>1988</year>
+    <company>Cross Media</company>
+    <remark></remark>
+  </rom>
+  <rom id="Tsurikichi Sanpei Tsurisennin Hen">
+    <romtype>ASCII8</romtype>
+    <md5>b94a21a6017844335f0ad989968f0786</md5>
+    <crc32>24238b21</crc32>
+    <year>1989</year>
+    <company>Cross Media</company>
+    <remark></remark>
+  </rom>
+  <rom id="Ultima Exodus">
+    <romtype>ASCII8-8</romtype>
+    <md5>dfd60916a37e37b3a5b36523f6349109</md5>
+    <crc32>37b9e10f</crc32>
+    <year>1987</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Urusei Yatsura">
+    <romtype>ASCII8</romtype>
+    <md5>2b4f2b6eac82422eda32badf60aee213</md5>
+    <crc32>e564a25f</crc32>
+    <year>1987</year>
+    <company>Micro Cabin</company>
+    <remark></remark>
+  </rom>
+  <rom id="Usas (1)">
+    <romtype>KONAMI4</romtype>
+    <md5>750d755fa577e033754c95c6a850b878</md5>
+    <crc32>1f1f1f26</crc32>
+    <year>1987</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Usas (2)">
+    <romtype>KONAMI4</romtype>
+    <md5>9aab75984b06c21ed8e6214474d3a68e</md5>
+    <crc32>30396650</crc32>
+    <year>1987</year>
+    <company>Konami</company>
+    <remark></remark>
+  </rom>
+  <rom id="Victorious Nine 2">
+    <romtype>ASCII16</romtype>
+    <md5>4f4d65a9e3f86349abfcab82e52cd207</md5>
+    <crc32>94ebc319</crc32>
+    <year>1987</year>
+    <company>Taito</company>
+    <remark></remark>
+  </rom>
+  <rom id="Wizardry">
+    <romtype>ASCII8-8</romtype>
+    <md5>53975cfff7a51f79e707e29e984d215a</md5>
+    <crc32>08a5ca60</crc32>
+    <year>1988</year>
+    <company>Ascii</company>
+    <remark></remark>
+  </rom>
+  <rom id="Woody Poco">
+    <romtype>ASCII16</romtype>
+    <md5>3d8c2a836a4b16a739003b07d76c0459</md5>
+    <crc32>aea8d064</crc32>
+    <year>1987</year>
+    <company>dB-Soft</company>
+    <remark></remark>
+  </rom>
+  <rom id="Xevious - Fardraut Saga">
+    <romtype>ASCII16</romtype>
+    <md5>261a860dee771ea77c2d813b97366f9e</md5>
+    <crc32>97591725</crc32>
+    <year>1989</year>
+    <company>Namcot</company>
+    <remark></remark>
+  </rom>
+  <rom id="Yaksa">
+    <romtype>ASCII8</romtype>
+    <md5>c271c503c50bbbba7efc04f5f9ac6dec</md5>
+    <crc32>ff974ee3</crc32>
+    <year>1987</year>
+    <company>Wolf Team</company>
+    <remark></remark>
+  </rom>
+  <rom id="Yuureikun">
+    <romtype>ASCII8</romtype>
+    <md5>fd325b9f4997d70397f59379e679e420</md5>
+    <crc32>712ae3c6</crc32>
+    <year>1988</year>
+    <company>System Sacom</company>
+    <remark></remark>
+  </rom>
+  <rom id="Zanac-EX">
+    <romtype>ASCII16</romtype>
+    <md5>03d381a40baed2be60f09a91b52316cc</md5>
+    <crc32>d153b2f2</crc32>
+    <year>1986</year>
+    <company>Pony Cannon</company>
+    <remark></remark>
+  </rom>
+  <rom id="Zoids">
+    <romtype>ASCII16</romtype>
+    <md5>3ba77f331a92acf0d3e64847d4a2ca24</md5>
+    <crc32>2605031e</crc32>
+    <year>1988</year>
+    <company>Toshiba EMI</company>
+    <remark></remark>
+  </rom>
+  <rom id="Zombie Hunter">
+    <romtype>ASCII8</romtype>
+    <md5>81a5853b8d046a8b3078283ac78bf2d1</md5>
+    <crc32>a29e6ab4</crc32>
+    <year>1989</year>
+    <company>Hi-Score</company>
+    <remark></remark>
+  </rom>
+  <rom id="Zukkoke Yajikita Onmitsudoutyuu (2)">
+    <romtype>ASCII8</romtype>
+    <md5>ba2e644a68677cf42c116781579896d7</md5>
+    <crc32>4968e84e</crc32>
+    <year>1987</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+  <rom id="Zukkoke Yajikita Onmitsudoutyuu (1)">
+    <romtype>ASCII8</romtype>
+    <md5>532c46b3f3b28ea4e1ddb215ba7ab5b0</md5>
+    <crc32>d0ececc6</crc32>
+    <year>1987</year>
+    <company>Hal</company>
+    <remark></remark>
+  </rom>
+
 </romdb>
 

@@ -26,6 +26,7 @@ MapperType RomTypes::nameToMapperType(const std::string &name)
 
 		mappertype["1"]           = GENERIC_16KB;
 		mappertype["16kB"]        = GENERIC_16KB;
+		mappertype["MSXDOS2"]     = GENERIC_16KB; /* For now...*/
 
 		mappertype["2"]           = KONAMI5;
 		mappertype["KONAMI5"]     = KONAMI5;
@@ -49,6 +50,12 @@ MapperType RomTypes::nameToMapperType(const std::string &name)
 		mappertype["HYDLIDE2"]    = HYDLIDE2;
 
 		mappertype["XANADU"]      = XANADU;
+		/* The following is probably wrong, but most games seem to work
+		 * when this is enabled. (FIXME)
+		 * TODO: proper support for ASCII 8kB with a certain
+		 * amount of SRAM (8 - 32kB)
+		 */
+		mappertype["ASCII8-8"]    = XANADU; 
 
 		mappertype["ROYALBLOOD"]  = ROYAL_BLOOD;
 
