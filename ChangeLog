@@ -1,5 +1,12 @@
 $Id$
 
+2003-10-19 Maarten ter Huurne <maarten@treewalker.org>
+	* Moved some low-level GL stuff from SDLGLRenderer to GLUtil.
+	* Changed GL implementation of SCREEN1 to render in cached blocks
+	  instead of lines.
+	* Abort VDP command when switching to non-bitmap mode.
+	  Fixes assert in Psycho World stage 4.
+
 2003-10-19 Reikan <openMSX4Win32@ranpub.com>
 	* Call SDL_Quit() also when exit by error.
 	  This will fix crash(Win9x)/hang(Win2k/XP) on error exit.
@@ -9,7 +16,7 @@ $Id$
 	   - the updateTiming() method did a sync() with the old register
 	     values (correct). But also updated the timimng variable with the
 	     old register values (wrong).
-	   - fixes "Coding Melpots" part in "Metal Limit" 
+	   - fixes "Coding Melpots" part in "Metal Limit"
 	* Replaced all PRT_ERROR macros with 'throw FatalError'
 
 2003-10-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
