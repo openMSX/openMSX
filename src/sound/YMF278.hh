@@ -87,6 +87,7 @@ class YMF278 : public SoundDevice
 		void advance();
 		void checkMute();
 		bool anyActive();
+		void keyOnHelper(YMF278Slot& slot);
 
 		static const int MASTER_CLK = 33868800;
 

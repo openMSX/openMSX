@@ -479,6 +479,25 @@ int* YMF278::updateBuffer(int length)
 	return buffer;
 }
 
+void YMF278::keyOnHelper(YMF278Slot& slot)
+{
+	slot.active = true;
+	setInternalMute(false);
+	
+	int oct = slot.OCT;
+	if (oct & 8) {
+		oct |= -8;
+	}
+	int step = (slot.FN | 1024) << (oct + 5);
+	slot.step = (int)(step * freqbase);
+	slot.state = EG_ATT;
+	slot.stepptr = 0;
+	slot.pos = 0;
+	slot.sample1 = getSample(slot);
+	slot.pos = 1;
+	slot.sample2 = getSample(slot);
+}
+
 void YMF278::writeRegOPL4(byte reg, byte data, const EmuTime &time)
 {
 	if (BUSY_Time < time) {
@@ -518,6 +537,7 @@ void YMF278::writeRegOPL4(byte reg, byte data, const EmuTime &time)
 			                 ((buf[0] & 0x3F) << 16);
 			slot.loopaddr = buf[4] + (buf[3] << 8);
 			slot.endaddr  = (((buf[6] + (buf[5] << 8)) ^ 0xFFFF) + 1);
+			keyOnHelper(slot);
 			break;
 		}
 		case 1: {
@@ -579,21 +599,7 @@ void YMF278::writeRegOPL4(byte reg, byte data, const EmuTime &time)
 				break;
 			case 2:	//tone on, no damp
 				if (!(regs[reg] & 0x080)) {
-					slot.active = true;
-					setInternalMute(false);
-					
-					int oct = slot.OCT;
-					if (oct & 8) {
-						oct |= -8;
-					}
-					int step = (slot.FN | 1024) << (oct + 5);
-					slot.step = (int)(step * freqbase);
-					slot.state = EG_ATT;
-					slot.stepptr = 0;
-					slot.pos = 0;
-					slot.sample1 = getSample(slot);
-					slot.pos = 1;
-					slot.sample2 = getSample(slot);
+					keyOnHelper(slot);
 				}
 				break;
 			case 3:	//tone on, damp
