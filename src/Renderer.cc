@@ -1,8 +1,13 @@
 // $Id$
 
 #include "Renderer.hh"
+#include "ConsoleSource/Console.hh"
+#include "ConsoleSource/CommandController.hh"
+#include "HotKey.hh"
+
 // TODO: Get rid of SDL specific code in this class.
-#include <SDL/SDL.h>
+#include <SDL/SDL.h>	// for HotKey
+
 
 /*
 TMS99X8A palette.
@@ -62,20 +67,49 @@ const word Renderer::GRAPHIC7_SPRITE_PALETTE[16] = {
 	0x472, 0x007, 0x070, 0x077, 0x700, 0x707, 0x770, 0x777
 };
 
-Renderer::Renderer(bool fullScreen)
+Renderer::Renderer(bool fullScreen) :
+	fullScreenCmd(this)
 {
 	this->fullScreen = fullScreen;
+	CommandController::instance()->registerCommand(fullScreenCmd, "fullscreen");
+	HotKey::instance()->registerHotKeyCommand(SDLK_PRINT, "fullscreen");
 }
 
 void Renderer::setFullScreen(bool enabled)
 {
-	// Default behaviour: do nothing.
+	fullScreen = enabled;
 }
 
-void Renderer::signalHotKey(SDLKey key)
+
+// FullScreen command
+Renderer::FullScreenCmd::FullScreenCmd(Renderer *rend)
 {
-	// Only key currently registered is full screen toggle.
-	fullScreen = !fullScreen;
-	setFullScreen(fullScreen);
+	renderer = rend;
 }
 
+void Renderer::FullScreenCmd::execute(const std::vector<std::string> &tokens)
+{
+	switch (tokens.size()) {
+	case 1:
+		renderer->setFullScreen(!renderer->fullScreen);
+		break;
+	case 2:
+		if (tokens[1] == "on") {
+			renderer->setFullScreen(true);
+			break;
+		}
+		if (tokens[1] == "off") {
+			renderer->setFullScreen(false);
+			break;
+		}
+	default:
+		Console::instance()->print("Syntax error");
+	}
+}
+void Renderer::FullScreenCmd::help   (const std::vector<std::string> &tokens)
+{
+	Console::instance()->print("This command turns full-screen display on/off");
+	Console::instance()->print(" fullscreen:     toggle full-screen");
+	Console::instance()->print(" fullscreen on:  switch to full-screen display");
+	Console::instance()->print(" fullscreen off: switch to windowed display");
+}

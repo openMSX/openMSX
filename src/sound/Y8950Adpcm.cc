@@ -173,7 +173,6 @@ int Y8950Adpcm::calcSample()
 			// (n+1)-th nibble
 			val = reg15&0x0f;
 		}
-		assert((0<=val)&&(val<=15));
 		// This table values are from ymdelta.c by Tatsuyuki Satoh.
 		static const int F1[16] = { 1,   3,   5,   7,   9,  11,  13,  15,
 		                           -1,  -3,  -5,  -7,  -9, -11, -13, -15};

@@ -5,6 +5,7 @@ $Id$
 	* Fixed ADPCM bug: 
 	   addresses where a factor 8 too low, only first sample was
 	   played correctly
+	* Made console command "fullscreen", PrtScrn is bound to this command
 
 2002-04-01 Joost Yervante Damad <andete@worldcity.nl>
 	* FileManager sync [WIP]

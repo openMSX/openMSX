@@ -5,8 +5,10 @@
 
 #include "openmsx.hh"
 #include "HotKey.hh"
+#include "ConsoleSource/Command.hh"
 
 class EmuTime;
+
 
 /** Abstract base class for Renderers.
   * A Renderer is a class that converts VDP state to visual
@@ -16,7 +18,7 @@ class EmuTime;
   * the VDP, so that the renderer can update itself to the specified
   * time using the old settings.
   */
-class Renderer : public HotKeyListener
+class Renderer
 {
 public:
 
@@ -169,10 +171,6 @@ public:
 	  */
 	virtual void updateVRAM(int addr, byte data, const EmuTime &time) = 0;
 
-	/** Handle "toggle full screen" hotkey requests.
-	  */
-	void signalHotKey(SDLKey key);
-
 protected:
 	/** NTSC version of the MSX1 palette.
 	  * An array of 16 RGB triples.
@@ -193,7 +191,17 @@ private:
 	  *       renderers at run time.
 	  */
 	bool fullScreen;
-
+	
+	class FullScreenCmd : public Command {
+		public:
+			FullScreenCmd(Renderer *rend);
+			virtual void execute(const std::vector<std::string> &tokens);
+			virtual void help   (const std::vector<std::string> &tokens);
+		private:
+			Renderer *renderer;
+	};
+	friend class FullScreenCmd;
+	FullScreenCmd fullScreenCmd;
 };
 
 #endif //__RENDERER_HH__

@@ -328,6 +328,7 @@ template <class Pixel> SDLHiRenderer<Pixel>::~SDLHiRenderer()
 template <class Pixel> void SDLHiRenderer<Pixel>::setFullScreen(
 	bool fullScreen)
 {
+	Renderer::setFullScreen(fullScreen);
 	if (((screen->flags & SDL_FULLSCREEN) != 0) != fullScreen) {
 		SDL_WM_ToggleFullScreen(screen);
 	}

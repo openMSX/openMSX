@@ -3,7 +3,6 @@
 // Platform independent includes:
 #include "PlatformFactory.hh"
 #include "MSXConfig.hh"
-#include "HotKey.hh"
 
 // Platform dependent includes:
 #include "SDLHiRenderer.hh"
@@ -31,12 +30,10 @@ Renderer *PlatformFactory::createRenderer(VDP *vdp, const EmuTime &time)
 	}
 #endif
 	else {
+		// throw excption?
 		PRT_ERROR("Unknown renderer \"" << renderType << "\"");
 		return 0; // unreachable
 	}
-
-	// Register hotkey for fullscreen togling
-	HotKey::instance()->registerAsyncHotKey(SDLK_PRINT, renderer);
 
 	return renderer;
 }

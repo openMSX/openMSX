@@ -187,7 +187,6 @@ class Y8950 : public SoundDevice
 		inline static int LOWBITS(int c, int b);
 		inline static int EXPAND_BITS(int x, int s, int d);
 		inline static int rate_adjust(double x, int rate); 
-		inline static int CLAP(int min, int x, int max);
 		
 		void makeDphaseNoiseTable(int sampleRate);
 		void makePmTable();

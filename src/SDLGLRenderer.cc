@@ -331,6 +331,7 @@ SDLGLRenderer::~SDLGLRenderer()
 void SDLGLRenderer::setFullScreen(
 	bool fullScreen)
 {
+	Renderer::setFullScreen(fullScreen);
 	if (((screen->flags & SDL_FULLSCREEN) != 0) != fullScreen) {
 		SDL_WM_ToggleFullScreen(screen);
 	}
