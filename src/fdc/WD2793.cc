@@ -120,7 +120,7 @@ bool WD2793::getIRQ(const EmuTime &time)
 	   return tmp; */
 }
 
-void WD2793::setCommandReg(byte value,const EmuTime &time)
+void WD2793::setCommandReg(byte value, const EmuTime &time)
 {
 	commandReg = value;
 	statusReg |= 1;	// set status on Busy
@@ -314,6 +314,7 @@ void WD2793::tryToReadSector(void)
 		DRQ = true;	// data ready to be read
 	} catch (MSXException &e) {
 		DRQ = false;	// TODO data not ready (read error)
+		statusReg = 0;	// reset flags
 	}
 }
 
@@ -389,7 +390,7 @@ void WD2793::setDataReg(byte value, const EmuTime &time)
 				// If we wait too long we should also write a
 				// partialy filled sector ofcourse and set the
 				// correct status bits!
-				statusReg &= ~0x83;	// reset status on Busy and DRQ and Busy
+				statusReg &= ~0x03;	// reset status on Busy and DRQ
 				if (mflag == 0) {
 					//TODO verify this !
 					INTRQ = true;
@@ -415,7 +416,7 @@ void WD2793::setDataReg(byte value, const EmuTime &time)
 			if (ticks >= 200000) {
 				//next indexmark has passed
 				dataAvailable = 0; //return correct DTR
-				statusReg &= ~0x82;	// reset status on Busy and DRQ
+				statusReg &= ~0x03;	// reset status on Busy and DRQ
 				DRQ = false;
 				INTRQ = true;
 				dataCurrent = 0;
@@ -455,13 +456,13 @@ void WD2793::setDataReg(byte value, const EmuTime &time)
 				break;
 			 }
 			 //shouldn't been done here !!
-			 statusReg &= ~0x82;	// reset status on Busy and DRQ
+			 statusReg &= ~0x03;	// reset status on Busy and DRQ
 			 */
 
 
 			/*
 			   if (indexmark) {
-			   statusReg &= ~0x82;	// reset status on Busy and DRQ
+			   statusReg &= ~0x03;	// reset status on Busy and DRQ
 			   INTRQ = true;
 			   DRQ = false; 
 			   }
@@ -479,13 +480,14 @@ byte WD2793::getDataReg(const EmuTime &time)
 		dataAvailable--;
 		if (dataAvailable == 0) {
 			if (!mflag){
-				statusReg &= ~0x83;	// reset status on Busy and DRQ and Busy
+				statusReg &= ~0x03;	// reset status on Busy and DRQ
 				DRQ = false;
 				INTRQ = true;
 				PRT_DEBUG("FDC: Now we terminate the read sector command or skip to next sector if multi set");
 			} else {
-			// TODO ceck in tech data (or on real machine) if implementation multi sector read is
-			// correct, since this is programmed by hart.
+				// TODO ceck in tech data (or on real machine)
+				// if implementation multi sector read is
+				// correct, since this is programmed by hart.
 				sectorReg++;
 				tryToReadSector();
 			}
