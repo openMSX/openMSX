@@ -451,7 +451,8 @@ install: all
 	@cp -rf share $(OPENMSX_INSTALL)/
 	@echo "  C-BIOS..."
 	@mkdir -p $(OPENMSX_INSTALL)/Contrib/cbios
-	@cp -f Contrib/cbios/*.BIN $(OPENMSX_INSTALL)/Contrib/cbios
+	@cp -f Contrib/README.cbios $(OPENMSX_INSTALL)/Contrib
+	@cp -f $(addprefix Contrib/cbios/,*.BIN *.txt) $(OPENMSX_INSTALL)/Contrib/cbios
 	@echo "  Documentation..."
 	@mkdir -p $(OPENMSX_INSTALL)/doc
 	@cp -f README GPL AUTHORS $(OPENMSX_INSTALL)/doc
