@@ -4,71 +4,79 @@
 #define __SIMPLESCALER_HH__
 
 #include "Scaler.hh"
-#include "SettingListener.hh"
-
+#include "Blender.hh"
 
 namespace openmsx {
 
 class IntegerSetting;
 
+/**
+ * Helper class to perform 'pixel x scalar' calculations. This is a template
+ * class with specializations for word (16bpp) and unsigned (32bpp).
+ */
+template<typename Pixel> class Multiply;
 
-template <typename Pixel> class Darkener;
-
-template<> class Darkener<word> {
+template<> class Multiply<word> {
 public:
-	Darkener(SDL_PixelFormat* format);
-	inline word darken(word p, unsigned factor);
-	void setFactor(unsigned f);
-	inline word darken(word p);
-	inline unsigned darkenDouble(word p);
-	inline unsigned* getTable();
+	Multiply(SDL_PixelFormat* format);
+	inline word multiply(word p, unsigned factor);
+	void setFactor(unsigned factor);
+	inline unsigned mul32(word p);
+	inline word conv32(unsigned p);
 private:
-	SDL_PixelFormat* format;
-	unsigned factor;
 	unsigned tab[0x10000];
+	unsigned factor;
+	unsigned Rshift1, Gshift1, Bshift1;
+	unsigned Rshift2, Gshift2, Bshift2;
+	unsigned Rshift3, Gshift3, Bshift3;
+	word     Rmask1,  Gmask1,  Bmask1;
+	word     Rmask2,  Gmask2,  Bmask2;
 };
 
-template<> class Darkener<unsigned> {
+template<> class Multiply<unsigned> {
 public:
-	Darkener(SDL_PixelFormat* format);
-	inline unsigned darken(unsigned p, unsigned factor);
-	inline void setFactor(unsigned f);
-	inline unsigned darken(unsigned p);
-	inline unsigned darkenDouble(unsigned p);
-	unsigned* getTable();
+	Multiply(SDL_PixelFormat* format);
+	inline unsigned multiply(unsigned p, unsigned factor);
+	inline void setFactor(unsigned factor);
+	inline unsigned mul32(unsigned p);
+	inline unsigned conv32(unsigned p);
 private:
 	unsigned factor;
 };
 
 
-
-/** Scaler which assigns the colour of the original pixel to all pixels in
-  * the 2x2 square.
+/** Scaler which assigns the color of the original pixel to all pixels in
+  * the 2x2 square. Optionally it can draw darkended scanlines (scanline has
+  * the averga color from the pixel above and below). It can also optionally
+  * perform a horizontal blur.
   */
 template <class Pixel>
-class SimpleScaler: public Scaler<Pixel>, private SettingListener
+class SimpleScaler: public Scaler<Pixel>
 {
 public:
 	SimpleScaler(SDL_PixelFormat* format);
 	virtual ~SimpleScaler();
-	virtual void scaleBlank(
-		Pixel colour,
-		SDL_Surface* dst, int dstY, int endDstY );
-	virtual void scale256(
-		SDL_Surface* src, int srcY, int endSrcY,
-		SDL_Surface* dst, int dstY );
-	virtual void scale512(
-		SDL_Surface* src, int srcY, int endSrcY,
-		SDL_Surface* dst, int dstY );
-private:
-	// SettingListener interface:
-	virtual void update(const SettingLeafNode* setting);
-	
-	IntegerSetting* scanlineAlphaSetting;
-	/** Current alpha value, range [0..255]. */
-	int scanlineAlpha;
 
-	Darkener<Pixel> darkener;
+	virtual void scaleBlank(Pixel colour,
+	                        SDL_Surface* dst, int dstY, int endDstY);
+	virtual void scale256(SDL_Surface* src, int srcY, int endSrcY,
+	                      SDL_Surface* dst, int dstY);
+	virtual void scale512(SDL_Surface* src, int srcY, int endSrcY,
+	                      SDL_Surface* dst, int dstY);
+
+private:
+	void blur256(const Pixel* pIn, Pixel* pOut, unsigned alpha);
+	void blur512(const Pixel* pIn, Pixel* pOut, unsigned alpha);
+	void average(const Pixel* src1, const Pixel* src2, Pixel* dst,
+	             unsigned alpha);
+
+	IntegerSetting& scanlineSetting;
+	IntegerSetting& blurSetting;
+
+	Blender<Pixel> blender;
+	Multiply<Pixel> mult1;
+	Multiply<Pixel> mult2;
+	Multiply<Pixel> mult3;
 };
 
 } // namespace openmsx

@@ -15,7 +15,7 @@ SRC_HDR:= \
 	DummyRenderer \
 	XRenderer \
 	BitmapConverter CharacterConverter \
-	Scaler SimpleScaler SaI2xScaler Scale2xScaler HQ2xScaler BlurScaler \
+	Scaler SimpleScaler SaI2xScaler Scale2xScaler HQ2xScaler \
 	Deinterlacer \
 	ScreenShotSaver \
 	VideoSystem Display VideoLayer \

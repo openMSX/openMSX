@@ -5,7 +5,6 @@
 #include "SaI2xScaler.hh"
 #include "Scale2xScaler.hh"
 #include "HQ2xScaler.hh"
-#include "BlurScaler.hh"
 #include "HostCPU.hh"
 #include <cstring>
 
@@ -30,8 +29,6 @@ auto_ptr<Scaler<Pixel> > Scaler<Pixel>::createScaler(
 		return auto_ptr<Scaler<Pixel> >(new Scale2xScaler<Pixel>());
 	case SCALER_HQ2X:
 		return auto_ptr<Scaler<Pixel> >(new HQ2xScaler<Pixel>());
-	case SCALER_BLUR:
-		return auto_ptr<Scaler<Pixel> >(new BlurScaler<Pixel>(format));
 	default:
 		assert(false);
 		return auto_ptr<Scaler<Pixel> >();
@@ -43,9 +40,15 @@ void Scaler<Pixel>::copyLine(
 	SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY )
 {
 	assert(src->w == dst->w);
-	Pixel* srcLine = linePtr(src, srcY);
-	Pixel* dstLine = linePtr(dst, dstY);
-	const int nBytes = dst->w * sizeof(Pixel);
+	Pixel* pIn  = linePtr(src, srcY);
+	Pixel* pOut = linePtr(dst, dstY);
+	copyLine(pIn, pOut, src->w);
+}
+
+template <class Pixel>
+void Scaler<Pixel>::copyLine(const Pixel* pIn, Pixel* pOut, unsigned width)
+{
+	const int nBytes = width * sizeof(Pixel);
 	const HostCPU& cpu = HostCPU::getInstance();
 	if (ASM_X86 && cpu.hasMMXEXT()) {
 		// extended-MMX routine (both 16bpp and 32bpp)
@@ -77,15 +80,15 @@ void Scaler<Pixel>::copyLine(
 			"emms;"
 			
 			: // no output
-			: "r" (srcLine) // 0
-			, "r" (dstLine) // 1
+			: "r" (pIn) // 0
+			, "r" (pOut) // 1
 			, "r" (nBytes) // 2
 			: "eax"
 			, "mm0", "mm1", "mm2", "mm3"
 			, "mm4", "mm5", "mm6", "mm7"
 			);
 	} else {
-		memcpy(dstLine, srcLine, nBytes);
+		memcpy(pOut, pIn, nBytes);
 	}
 }
 
@@ -93,10 +96,15 @@ template <class Pixel>
 void Scaler<Pixel>::scaleLine(
 	SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY )
 {
-	const int width = 320; // TODO: Specify this in a clean way.
-	assert(dst->w == width * 2);
-	Pixel* srcLine = linePtr(src, srcY);
-	Pixel* dstLine = linePtr(dst, dstY);
+	assert(dst->w == 640);
+	Pixel* pIn  = linePtr(src, srcY);
+	Pixel* pOut = linePtr(dst, dstY);
+	scaleLine(pIn, pOut, 320);
+}
+
+template <class Pixel>
+void Scaler<Pixel>::scaleLine(const Pixel* pIn, Pixel* pOut, unsigned width)
+{
 	const HostCPU& cpu = HostCPU::getInstance();
 	if (ASM_X86 && (sizeof(Pixel) == 2) && cpu.hasMMXEXT()) {
 		// extended-MMX routine 16bpp
@@ -137,8 +145,8 @@ void Scaler<Pixel>::scaleLine(
 			"emms;"
 	
 			: // no output
-			: "r" (srcLine) // 0
-			, "r" (dstLine) // 1
+			: "r" (pIn) // 0
+			, "r" (pOut) // 1
 			, "r" (width) // 2
 			: "eax"
 			, "mm0", "mm1", "mm2", "mm3"
@@ -183,16 +191,16 @@ void Scaler<Pixel>::scaleLine(
 			"emms;"
 	
 			: // no output
-			: "r" (srcLine) // 0
-			, "r" (dstLine) // 1
+			: "r" (pIn) // 0
+			, "r" (pOut) // 1
 			, "r" (width) // 2
 			: "eax"
 			, "mm0", "mm1", "mm2", "mm3"
 			, "mm4", "mm5", "mm6", "mm7"
 			);
 	} else {
-		for (int x = 0; x < width; x++) {
-			dstLine[x * 2] = dstLine[x * 2 + 1] = srcLine[x];
+		for (unsigned x = 0; x < width; x++) {
+			pOut[x * 2] = pOut[x * 2 + 1] = pIn[x];
 		}
 	}
 }

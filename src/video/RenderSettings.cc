@@ -65,7 +65,6 @@ RenderSettings::RenderSettings()
 	scalerMap["2xSaI"] = SCALER_SAI2X;
 	scalerMap["Scale2x"] = SCALER_SCALE2X;
 	scalerMap["hq2x"] = SCALER_HQ2X;
-	scalerMap["blur"] = SCALER_BLUR;
 	scaler.reset(new EnumSetting<ScalerID>(
 		"scaler", "scaler algorithm", SCALER_SIMPLE, scalerMap));
 

@@ -24,8 +24,6 @@ enum ScalerID {
 	SCALER_SCALE2X,
 	/** HQ2xScaler. */
 	SCALER_HQ2X,
-	/** BlurScaler. */
-	SCALER_BLUR,
 };
 
 /** Abstract base class for scalers.
@@ -102,7 +100,8 @@ protected:
 	  * @param dstY Line number on destination surface.
 	  */
 	static void copyLine(
-		SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY );
+		SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY);
+	static void copyLine(const Pixel* pIn, Pixel* pOut, unsigned width);
 
 	/** Scales the given line a factor 2 horizontally.
 	  * @param src Source: surface to copy from.
@@ -112,6 +111,7 @@ protected:
 	  */
 	static void scaleLine(
 		SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY );
+	static void scaleLine(const Pixel* pIn, Pixel* pOut, unsigned width);
 };
 
 } // namespace openmsx
