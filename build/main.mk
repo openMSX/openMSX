@@ -217,6 +217,7 @@ CHANGELOG_REVISION:=\
 include $(MAKE_PATH)/info2code.mk
 ifneq ($(filter $(DEPEND_TARGETS),$(MAKECMDGOALS)),)
 -include $(PROBE_MAKE)
+-include $(CONFIG_PATH)/config-tcl.mk
 endif
 
 
