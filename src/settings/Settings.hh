@@ -129,7 +129,7 @@ private:
 
 /** Abstract base class for Settings.
   */
-template <class ValueType>
+template <typename ValueType>
 class Setting: public SettingLeafNode
 {
 public:
@@ -259,7 +259,7 @@ private:
   * The type parameter can be anything that can be converted from and to
   * an integer.
   */
-template <class ValueType>
+template <typename ValueType>
 class EnumSetting : public Setting<ValueType>
 {
 public:
@@ -270,12 +270,16 @@ public:
 	) : Setting<ValueType>(name, description, initialValue)
 	  , intStringMap(convertMap(map))
 	{
-		type = intStringMap.getSummary();
+		// GCC 3.4-pre complains if superclass is not explicit here.
+		SettingLeafNode::type = intStringMap.getSummary();
 	}
 
 	// Implementation of Setting interface:
 	virtual string getValueString() const {
-		return intStringMap.lookupInt(static_cast<int>(value));
+		// GCC 3.4-pre complains if superclass is not explicit here.
+		return intStringMap.lookupInt(
+			static_cast<int>(Setting<ValueType>::value)
+			);
 	}
 
 	virtual void setValueString(const string &valueString) {
