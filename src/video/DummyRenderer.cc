@@ -14,6 +14,9 @@ DummyRenderer::~DummyRenderer () {
 	PRT_DEBUG ("DummyRenderer: Destructing DummyRenderer object");
 }
 
+void DummyRenderer::reset(const EmuTime& /*time*/) {
+}
+
 void DummyRenderer::frameStart(const EmuTime& /*time*/) {
 }
 

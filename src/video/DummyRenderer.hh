@@ -15,7 +15,7 @@ class DummyRenderer : public Renderer, public Layer
 {
 public:
 	// Renderer interface:
-	void reset(const EmuTime& /*time*/) {} // TODO
+	void reset(const EmuTime& time);
 	void frameStart(const EmuTime& time);
 	void frameEnd(const EmuTime& time);
 	void updateTransparency(bool enabled, const EmuTime& time);
