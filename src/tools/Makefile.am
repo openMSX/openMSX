@@ -22,10 +22,10 @@ bin2c_SOURCES=\
 	bin2c.cc
 
 check_db_SOURCES=\
-	check-db.cc
+	check-db.cc \
+	../RomTypes.cc ../RomTypes.hh \
+	../md5.cc ../md5.hh
 check_db_LDADD=\
-	../RomTypes.o \
-	../md5.o \
 	../libxmlx/libxmlx.la \
 	@XML_LIBS@
 
