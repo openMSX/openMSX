@@ -355,4 +355,10 @@
     <parameter name="filename">KANJI12.ROM</parameter>
   </device>
 
+<!-- A debug device to be controlled from the msx -->
+  <device id="DebugDevice">
+    <type>DebugDevice</type>
+    <parameter name="filename">debugtxt.out</parameter>
+  </device>
+
 </msxconfig>
