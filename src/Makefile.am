@@ -43,6 +43,7 @@ openmsx_SOURCES=openmsx.cc \
 	MSXPSG.hh MSXPSG.cc AY8910.hh AY8910.cc \
 	YM2413.hh YM2413.cc MSXYM2413.hh MSXYM2413.cc\
 	MSXMusic.hh MSXMusic.cc MSXFmPac.hh MSXFmPac.cc \
+	Y8950.hh Y8950.cc MSXAudio.hh MSXAudio.cc \
 	JoystickPorts.hh JoystickPorts.cc JoystickDevice.hh \
 	DummyJoystick.hh DummyJoystick.cc \
 	Joystick.hh Joystick.cc Mouse.hh Mouse.cc \

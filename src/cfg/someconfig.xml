@@ -242,7 +242,12 @@
     <parameter name="skip_headerbytes">0</parameter>
     <parameter name="volume">20000</parameter>
   </device>
--->
+
+  <device id="MSX-Audio">
+    <type>Audio</type>
+    <parameter name="volume">20000</parameter>
+  </device>
+-->    
   <device id="cpu">
     <type>CPU</type>
   </device>

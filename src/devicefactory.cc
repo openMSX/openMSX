@@ -11,6 +11,7 @@
 #include "MSXPSG.hh"
 #include "MSXMusic.hh"
 #include "MSXFmPac.hh"
+#include "MSXAudio.hh"
 #include "MSXKanji.hh"
 #include "MSXMemoryMapper.hh"
 #include "MSXRTC.hh"
@@ -48,6 +49,9 @@ MSXDevice *deviceFactory::create(MSXConfig::Device *conf, const EmuTime &time) {
 	} else
 	if (conf->getType()=="FM-PAC") {
 		device = new MSXFmPac(conf, time);
+	} else
+	if (conf->getType()=="Audio") {
+		device = new MSXAudio(conf, time);
 	} else
 	if (conf->getType()=="Kanji") {
 		device = new MSXKanji(conf, time);

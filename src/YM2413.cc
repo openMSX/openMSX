@@ -653,6 +653,7 @@ YM2413::~YM2413()
 	Mixer::instance()->unregisterSound(this);
 	for (int i=0; i<19*2; i++)
 		delete patch[i];
+	delete[] buffer;
 }
 
 // Reset whole of OPLL except patch datas
