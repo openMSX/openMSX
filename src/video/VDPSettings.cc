@@ -9,7 +9,7 @@ VDPSettings::VDPSettings()
 		"limitsprites", "limit number of sprites per line "
 		"(on for realism, off to reduce sprite flashing)", true);
 
-	std::map<std::string, bool> cmdMap;
+	std::map<const std::string, bool> cmdMap;
 	cmdMap["real"]   = false;
 	cmdMap["broken"] = true;
 	cmdTiming = new EnumSetting<bool>(
