@@ -4,34 +4,70 @@
 #include "JoystickDevice.hh"
 #include "DummyJoystick.hh"
 #include "ConsoleSource/Console.hh"
-#include "Mouse.hh"
-#include "Joystick.hh"
+#include "PluggingController.hh"
 #include <cassert>
 
+
+JoystickPort::JoystickPort(const std::string &nm)
+{
+	name = nm;
+	PluggingController::instance()->registerConnector(this);
+	
+	unplug();
+}
+
+JoystickPort::~JoystickPort()
+{
+	unplug();
+	PluggingController::instance()->unregisterConnector(this);
+}
+
+std::string JoystickPort::getName()
+{
+	return name;
+}
+
+std::string JoystickPort::getClass()
+{
+	return className;
+}
+std::string JoystickPort::className("Joystick Port");
+
+void JoystickPort::plug(Pluggable *device)
+{
+	Connector::plug(device);
+}
+
+void JoystickPort::unplug()
+{
+	Connector::unplug();
+	plug(DummyJoystick::instance());
+}
+
+byte JoystickPort::read()
+{
+	return ((JoystickDevice*)pluggable)->read();
+}
+
+void JoystickPort::write(byte value)
+{
+	((JoystickDevice*)pluggable)->write(value);
+}
+
+///
 
 JoystickPorts::JoystickPorts()
 {
 	selectedPort = 0;
-	unplug(0);
-	unplug(1);
-
-	Console::instance()->registerCommand(joyPortCmd, "joyporta");
-	Console::instance()->registerCommand(joyPortCmd, "joyportb");
+	ports[0] = new JoystickPort("joyporta");
+	ports[1] = new JoystickPort("joyportb");
 }
 
 JoystickPorts::~JoystickPorts()
 {
+	delete ports[0];
+	delete ports[1];
 }
-
-JoystickPorts* JoystickPorts::instance()
-{
-	if (oneInstance == 0 ) {
-		oneInstance = new JoystickPorts();
-	}
-	return oneInstance;
-}
-JoystickPorts* JoystickPorts::oneInstance = 0;
- 
 
 byte JoystickPorts::read()
 {
@@ -47,67 +83,3 @@ void JoystickPorts::write(byte value)
 	selectedPort = (value&0x40)>>6;
 }
 
-void JoystickPorts::plug(int port, JoystickDevice *device)
-{
-	assert ((port==0)||(port==1));
-	ports[port] = device;
-}
-
-void JoystickPorts::unplug(int port)
-{
-	plug (port, DummyJoystick::instance());
-}
-
-JoystickPorts::JoyPortCmd::JoyPortCmd()
-{
-	mouse = NULL;
-	for (int i=0; i<NUM_JOYSTICKS; i++) {
-		joystick[i] = NULL;
-	}
-}
-JoystickPorts::JoyPortCmd::~JoyPortCmd()
-{
-	delete mouse;
-	for (int i=0; i<NUM_JOYSTICKS; i++) {
-		delete joystick[i];
-	}
-}
-void JoystickPorts::JoyPortCmd::execute(const std::vector<std::string> &tokens)
-{
-	bool error = false;
-	int port;
-	if      (tokens[0]=="joyporta") port = 0;
-	else if (tokens[0]=="joyportb") port = 1;
-	else assert(false);
-	
-	if        (tokens[1]=="unplug") {
-		JoystickPorts::instance()->unplug(port);
-	} else if (tokens[1]=="mouse") {
-		if (mouse==NULL)
-			mouse = new Mouse();
-		JoystickPorts::instance()->plug(port, mouse);
-	} else if (tokens[1].substr(0, 8)=="joystick") {
-		int num = tokens[1][8]-'1';
-		if (num<0 || num>NUM_JOYSTICKS) {
-			error = true;
-		} else {
-			try {
-				if (joystick[num]==NULL)
-					joystick[num] = new Joystick(num);
-				JoystickPorts::instance()->plug(port, joystick[num]);
-			} catch (JoystickException &e) {
-				Console::instance()->print(e.desc);
-			}
-		}
-	} else {
-		error = true;
-	}
-	if (error)
-		Console::instance()->print("syntax error");
-}
-void JoystickPorts::JoyPortCmd::help   (const std::vector<std::string> &tokens)
-{
-	Console::instance()->print("joyport[a|b] unplug        unplugs device from port");
-	Console::instance()->print("joyport[a|b] mouse         plugs mouse in port");
-	Console::instance()->print("joyport[a|b] joystick[1|2] plugs joystick in port");
-}

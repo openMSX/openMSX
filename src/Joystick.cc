@@ -1,7 +1,8 @@
 // $Id$
 
-#include "Joystick.hh"
 #include <cassert>
+#include "Joystick.hh"
+#include "PluggingController.hh"
 
 
 Joystick::Joystick(int joyNum)
@@ -13,9 +14,11 @@ Joystick::Joystick(int joyNum)
 		SDL_JoystickEventState(SDL_ENABLE);	// joysticks generate events
 		SDLJoysticksInitialized = true;
 	}
-	
+
 	if (SDL_NumJoysticks() <= joyNum) 
 		throw JoystickException("No such joystick number");
+
+	name = std::string("joystick")+(char)("1"+joyNum);
 	
 	PRT_DEBUG("Opening joystick " << SDL_JoystickName(joyNum));
 	this->joyNum = joyNum;
@@ -23,13 +26,29 @@ Joystick::Joystick(int joyNum)
 	EventDistributor::instance()->registerSyncListener(SDL_JOYAXISMOTION, this);
 	EventDistributor::instance()->registerSyncListener(SDL_JOYBUTTONDOWN, this);
 	EventDistributor::instance()->registerSyncListener(SDL_JOYBUTTONUP,   this);
+
+	PluggingController::instance()->registerPluggable(this);
 }
 bool Joystick::SDLJoysticksInitialized = false;
 
 Joystick::~Joystick()
 {
+	PluggingController::instance()->unregisterPluggable(this);
 	SDL_JoystickClose(joystick);
 }
+
+//Pluggable
+const std::string &Joystick::getName()
+{
+	return name;
+}
+
+const std::string &Joystick::getClass()
+{
+	return className;
+}
+const std::string Joystick::className("Joystick Port");
+
 
 //JoystickDevice
 byte Joystick::read()

@@ -1,6 +1,7 @@
 // $Id$
 
 #include "Mouse.hh"
+#include "PluggingController.hh"
 
 
 //TODO implement timeout
@@ -15,11 +16,28 @@ Mouse::Mouse()
 	EventDistributor::instance()->registerSyncListener(SDL_MOUSEMOTION,     this);
 	EventDistributor::instance()->registerSyncListener(SDL_MOUSEBUTTONDOWN, this);
 	EventDistributor::instance()->registerSyncListener(SDL_MOUSEBUTTONUP,   this);
+
+	PluggingController::instance()->registerPluggable(this);
 }
 
 Mouse::~Mouse()
 {
+	PluggingController::instance()->unregisterPluggable(this);
 }
+
+//Pluggable
+const std::string &Mouse::getName()
+{
+	return name;
+}
+const std::string Mouse::name("mouse");
+
+const std::string &Mouse::getClass()
+{
+	return className;
+}
+const std::string Mouse::className("Joystick Port");
+
 
 //JoystickDevice
 byte Mouse::read()

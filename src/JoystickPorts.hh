@@ -5,6 +5,7 @@
 
 #include "openmsx.hh"
 #include "ConsoleSource/ConsoleCommand.hh"
+#include "Connector.hh"
 
 // forward declaration
 class JoystickDevice;
@@ -12,36 +13,36 @@ class Mouse;
 class Joystick;
 
 
+class JoystickPort : public Connector
+{
+public:
+	JoystickPort(const std::string &name);
+	virtual ~JoystickPort();
+
+	virtual std::string getName();
+	virtual std::string getClass();
+	virtual void plug(Pluggable *device);
+	virtual void unplug();
+
+	byte read();
+	void write(byte value);
+
+private:
+	std::string name;
+	static std::string className;
+};
+
 class JoystickPorts
 {
 	public:
+		JoystickPorts();
 		~JoystickPorts();
-		static JoystickPorts *instance();
 
 		byte read();
 		void write(byte value);
-		void plug(int port, JoystickDevice *device);
-		void unplug(int port);
 
 	private:
-		JoystickPorts();
-		static JoystickPorts *oneInstance;
-
 		int selectedPort;
-		JoystickDevice* ports[2];
-
-		// ConsoleCommands
-		class JoyPortCmd : public ConsoleCommand {
-		public:
-			JoyPortCmd();
-			virtual ~JoyPortCmd();
-			virtual void execute(const std::vector<std::string> &tokens);
-			virtual void help   (const std::vector<std::string> &tokens);
-			
-			static const int NUM_JOYSTICKS = 9;
-			Mouse *mouse;
-			Joystick *joystick[NUM_JOYSTICKS];
-		};
-		JoyPortCmd joyPortCmd;
+		JoystickPort* ports[2];
 };
 #endif

@@ -4,8 +4,10 @@
 #define __JOYSTICKDEVICE_HH__
 
 #include "openmsx.hh"
+#include "Pluggable.hh"
 
-class JoystickDevice
+
+class JoystickDevice : public Pluggable
 {
 	public:
 		/**

@@ -21,6 +21,8 @@
 #include "icon.nn"
 #include "ConsoleSource/SDLConsole.hh"
 
+#include "Mouse.hh"
+#include "Joystick.hh"
 
 void initializeSDL()
 {
@@ -72,6 +74,14 @@ int main (int argc, char **argv)
 
 		// Fisrt execute auto commands
 		Console::instance()->autoCommands();
+
+		// TODO this doesn't belong here
+		new Mouse();
+		try {
+			for (int i=0; i<10; i++)
+				new Joystick(i);
+		} catch(JoystickException &e) {
+		}
 
 		PRT_DEBUG ("starting MSX");
 		MSXMotherBoard::instance()->startMSX();

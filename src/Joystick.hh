@@ -20,12 +20,16 @@ class Joystick : public JoystickDevice, EventListener
 		Joystick(int joyNum);
 		virtual ~Joystick();
 
+		//Pluggable
+		virtual const std::string &getName();
+		virtual const std::string &getClass();
+		
 		//JoystickDevice
-		byte read();
-		void write(byte value);
+		virtual byte read();
+		virtual void write(byte value);
 
 		//EventListener
-		void signalEvent(SDL_Event &event);
+		virtual void signalEvent(SDL_Event &event);
 
 	private:
 		static const int JOY_UP      = 0x01;
@@ -35,6 +39,9 @@ class Joystick : public JoystickDevice, EventListener
 		static const int JOY_BUTTONA = 0x10;
 		static const int JOY_BUTTONB = 0x20;
 		static const int THRESHOLD = 32768/10;
+
+		std::string name;
+		static const std::string className;
 
 		static bool SDLJoysticksInitialized;
 		int joyNum;

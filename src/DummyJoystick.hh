@@ -11,11 +11,16 @@ class DummyJoystick : public JoystickDevice
 	public:
 		virtual ~DummyJoystick();
 		static DummyJoystick *instance();
-		byte read();
-		void write(byte value);
+		virtual byte read();
+		virtual void write(byte value);
+
+		virtual const std::string &getName();
+		virtual const std::string &getClass();
 
 	private:
 		DummyJoystick();
 		static DummyJoystick *oneInstance;
+		static const std::string name;
+		static const std::string className;
 };
 #endif

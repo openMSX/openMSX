@@ -19,8 +19,8 @@
   </config>
 
   <config id="AutoCommands">
-    <parameter>joyporta mouse</parameter>
-    <parameter>joyportb joystick1</parameter>
+    <parameter>plug joyporta mouse</parameter>
+    <parameter>plug joyportb joystick1</parameter>
   </config>
   
   <device id="myram1">

@@ -74,7 +74,9 @@ openmsx_SOURCES=openmsx.cc icon.nn \
 	MSXPrinterLogger.cc MSXPrinterLogger.hh \
 	CommandLineParser.cc CommandLineParser.hh \
 	MSXDiskRomPatch.cc MSXDiskRomPatch.hh \
-	atoll.c
+	atoll.c \
+	PluggingController.hh PluggingController.cc \
+	Connector.hh Connector.cc Pluggable.hh
 
 #	MSXPrinter.cc MSXPrinter.hh \
 #	SDLLoRenderer.hh SDLLoRenderer.cc \

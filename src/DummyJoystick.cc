@@ -30,3 +30,14 @@ void DummyJoystick::write(byte value)
 	// do nothing
 }
 
+const std::string &DummyJoystick::getName()
+{
+	return name;
+}
+const std::string DummyJoystick::name("Dummy Joystick");
+
+const std::string &DummyJoystick::getClass()
+{
+	return className;
+}
+const std::string DummyJoystick::className("Joystick Port");
