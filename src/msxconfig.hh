@@ -22,9 +22,12 @@ public:
 	int   getPage();
 	int   getPS();
 	int   getSS();
+	bool  hasParameter(const string &name);
 	const string &getParameter(const string &name);
 private:
-	MSXConfigDevice();
+	MSXConfigDevice(); // block usage
+	MSXConfigDevice(const MSXConfigDevice &foo); // block usage
+	MSXConfigDevice &operator=(const MSXConfigDevice &foo); // block usage
 };
 
 class MSXConfig
@@ -45,8 +48,8 @@ public:
 private:
 	MSXConfig(); // private constructor -> can only construct self
 	~MSXConfig();
-	MSXConfig(const MSXConfig &foo) {} // block usage
-	MSXConfig &operator=(const MSXConfig &foo) {} // block usage
+	MSXConfig(const MSXConfig &foo); // block usage
+	MSXConfig &operator=(const MSXConfig &foo); // block usage
 
 	static MSXConfig *volatile oneInstance;
 	XMLTree *tree;
