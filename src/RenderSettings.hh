@@ -13,7 +13,7 @@
 class RenderSettings
 {
 public:
-	/** Render accuracy
+	/** Render accuracy: granularity of the rendered area.
 	  */
 	enum Accuracy { ACC_SCREEN, ACC_LINE, ACC_PIXEL };
 
@@ -25,7 +25,6 @@ private:
 	IntegerSetting *horizontalBlur;
 	BooleanSetting *deinterlace;
 	EnumSetting<Accuracy> *accuracy;
-	EnumSetting<bool> *cmdTiming;
 
 public:
 	/** Get singleton instance.
@@ -46,9 +45,7 @@ public:
 
 	/** Accuracy [screen, line, pixel] */
 	EnumSetting<Accuracy> *getAccuracy() { return accuracy; }
-	
-	/** CmdTiming [real, broken] */
-	EnumSetting<bool> *getCmdTiming() { return cmdTiming; }
+
 };
 
 #endif // __RENDERSETTINGS_HH__

@@ -1,5 +1,8 @@
 $Id$
 
+2002-12-27 Maarten ter Huurne <maarten@treewalker.org>
+	* Created VDPSettings class, moved cmdTiming there.
+
 2002-12-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Support for second MSX-AUDIO:
 	   - add this to the AUDIO section in the config

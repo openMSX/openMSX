@@ -35,6 +35,7 @@ openmsx_SOURCES=\
 	VDP.hh VDP.cc \
 	VDPCmdEngine.hh VDPCmdEngine.cc \
 	VDPVRAM.hh VDPVRAM.cc \
+	VDPSettings.hh VDPSettings.cc \
 	SpriteChecker.hh SpriteChecker.cc \
 	RenderSettings.hh RenderSettings.cc \
 	Renderer.hh Renderer.cc \

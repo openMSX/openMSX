@@ -223,7 +223,7 @@ inline void VDPCmdEngine::pset(
 
 int VDPCmdEngine::getVdpTimingValue(const int *timingValues)
 {
-	return RenderSettings::instance()->getCmdTiming()->getValue() 
+	return VDPSettings::instance()->getCmdTiming()->getValue() 
 	       ? 0
 	       : timingValues[vdp->getAccessTiming()];
 }
