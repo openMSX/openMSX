@@ -64,7 +64,7 @@
     <parameter name="mappertype">NATIONAL</parameter>
     <parameter name="loadsram">true</parameter>
     <parameter name="savesram">true</parameter>
-    <parameter name="sramname">fs-4600_fs-4600.sram</parameter>
+    <parameter name="sramname">fs-4600.sram</parameter>
   </device>
 
   <device id="MSX Kanji Driver">
@@ -121,7 +121,7 @@
     <parameter name="mode">EmuTime</parameter>
     <parameter name="load">true</parameter>
     <parameter name="save">true</parameter>
-    <parameter name="filename">fs-4600_fs-4600.save</parameter>
+    <parameter name="filename">fs-4600.cmos</parameter>
   </device>
 
   <device id="cpu">

@@ -117,7 +117,7 @@
     <parameter name="mode">EmuTime</parameter>
     <parameter name="load">true</parameter>
     <parameter name="save">true</parameter>
-    <parameter name="filename">RTC.SAVE</parameter>
+    <parameter name="filename">nms_8250.cmos</parameter>
   </device>
 
   <device id="cpu">

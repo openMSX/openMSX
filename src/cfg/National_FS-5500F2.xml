@@ -93,7 +93,7 @@
     <parameter name="mode">EmuTime</parameter>
     <parameter name="load">true</parameter>
     <parameter name="save">true</parameter>
-    <parameter name="filename">fs-5500_fs-5500f2.save</parameter>
+    <parameter name="filename">fs-5500f2.cmos</parameter>
   </device>
 
   <device id="cpu">

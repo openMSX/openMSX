@@ -77,7 +77,7 @@
     <parameter name="mode">EmuTime</parameter>
     <parameter name="load">true</parameter>
     <parameter name="save">true</parameter>
-    <parameter name="filename">fs-a1_fs-a1.save</parameter>
+    <parameter name="filename">fs-a1.cmos</parameter>
   </device>
 
   <device id="cpu">

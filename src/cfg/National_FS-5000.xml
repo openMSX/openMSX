@@ -99,7 +99,7 @@
     <parameter name="mode">EmuTime</parameter>
     <parameter name="load">true</parameter>
     <parameter name="save">true</parameter>
-    <parameter name="filename">fs-5000_fs-5000.save</parameter>
+    <parameter name="filename">fs-5000.cmos</parameter>
   </device>
 
   <device id="cpu">

@@ -52,7 +52,7 @@
     <parameter name="mappertype">PANASONIC</parameter>
     <parameter name="loadsram">true</parameter>
     <parameter name="savesram">true</parameter>
-    <parameter name="sramname">fs-a1fm_fs-a1fm.sram</parameter>
+    <parameter name="sramname">fs-a1fm.sram</parameter>
   </device>
 
   <device id="Kanji ROM">
@@ -119,7 +119,7 @@
     <parameter name="mode">EmuTime</parameter>
     <parameter name="load">true</parameter>
     <parameter name="save">true</parameter>
-    <parameter name="filename">fs-a1fm_fs-a1fm.save</parameter>
+    <parameter name="filename">fs-a1fm.cmos</parameter>
   </device>
 
   <device id="cpu">

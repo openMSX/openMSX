@@ -48,7 +48,7 @@
     <type>Matsushita</type>
     <parameter name="loadsram">true</parameter>
     <parameter name="savesram">true</parameter>
-    <parameter name="sramname">fs-4500_fs-4500.sram</parameter>
+    <parameter name="sramname">fs-4500.sram</parameter>
   </device>
 
   <device id="Word Font">
@@ -124,7 +124,7 @@
     <parameter name="mode">EmuTime</parameter>
     <parameter name="load">true</parameter>
     <parameter name="save">true</parameter>
-    <parameter name="filename">fs-4500_fs-4500.save</parameter>
+    <parameter name="filename">fs-4500.cmos</parameter>
   </device>
 
   <device id="cpu">

@@ -70,7 +70,7 @@
     <parameter name="mappertype">PANASONIC</parameter>
     <parameter name="loadsram">true</parameter>
     <parameter name="savesram">true</parameter>
-    <parameter name="sramname">fs-a1wsx_fs-a1wsx.sram</parameter>
+    <parameter name="sramname">fs-a1wsx.sram</parameter>
   </device>
 
   <device id="MSX Kanji Driver with BASIC">
@@ -135,7 +135,7 @@
     <parameter name="mode">EmuTime</parameter>
     <parameter name="load">true</parameter>
     <parameter name="save">true</parameter>
-    <parameter name="filename">fs-a1wsx_fs-a1wsx.save</parameter>
+    <parameter name="filename">fs-a1wsx.cmos</parameter>
   </device>
 
   <device id="cpu">
@@ -155,7 +155,7 @@
     <type>Matsushita</type>
     <parameter name="loadsram">false</parameter>
     <parameter name="savesram">false</parameter>
-    <parameter name="sramname">fs-a1wsx_fs-a1wsx.sram</parameter>
+    <parameter name="sramname">fs-a1wsx.sram</parameter>
   </device>
 
 </msxconfig>
