@@ -13,6 +13,11 @@ alias / unalias
     alias <name> <command>  (re)define an alias
     unalias <name>          remove the given alias
 
+  examples:
+    alias gl "set renderer SDLGL"
+    alias restart "set power off ; set power on"
+    unalias gl
+
 
 bind / unbind
 -------------
