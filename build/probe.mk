@@ -92,7 +92,7 @@ CHECK_LIBS+=ABC XYZ
 GL_LDFLAGS:=-lGL
 GL_RESULT:=yes
 
-PNG_LDFLAGS:=`libpng-config --libs 2>> $(LOG)`
+PNG_LDFLAGS:=`libpng-config --ldflags 2>> $(LOG)`
 PNG_RESULT:=`libpng-config --version`
 
 SDL_LDFLAGS:=`sdl-config --libs 2>> $(LOG)`
