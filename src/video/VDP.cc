@@ -289,8 +289,11 @@ void VDP::executeUntilEmuTime(const EmuTime &time, int userData)
 			time);
 		break;
 	case SET_BLANK: {
-		displayEnabled = controlRegs[1] & 0x40;
-		vram->updateDisplayEnabled(isDisplayEnabled(), time);
+		bool newDisplayEnabled = controlRegs[1] & 0x40;
+		if (isDisplayArea) {
+			vram->updateDisplayEnabled(newDisplayEnabled, time);
+		}
+		displayEnabled = newDisplayEnabled;
 		break;
 	}
 	default:
