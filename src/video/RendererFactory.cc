@@ -93,6 +93,7 @@ auto_ptr<RendererFactory::RendererSetting> RendererFactory::createRendererSettin
 	auto_ptr<RendererSetting> setting(new RendererSetting(
 		"renderer", "rendering back-end used to display the MSX screen",
 		SDLHI, rendererMap));
+	setting->setDefaultValue(setting->getValue());
 	if (CommandLineParser::instance().getParseStatus() ==
 	    CommandLineParser::CONTROL) {
 		setting->setValue(DUMMY);

@@ -34,6 +34,10 @@ public:
 	  */
 	const ValueType& getDefaultValue() const { return defaultValue; }
 
+	/** Set a new default value
+	  */
+	void setDefaultValue(const ValueType& value) { defaultValue = value; }
+
 	/** Changes the current value of this setting.
 	  * If the given value is invalid, it will be mapped to the closest
 	  * valid value.
