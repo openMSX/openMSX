@@ -1,5 +1,8 @@
 $Id$
 
+2001-11-20 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* Small CassettePort update, implemented very primitive filter
+
 2001-11-25 Maarten ter Huurne <mth@stack.nl>
 	* Sprites are now rendered in the screen buffer rather than in the
 	  display cache (which replaced "canvas"). As a result, sprite drawing

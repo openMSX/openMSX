@@ -84,18 +84,15 @@ const byte MSXTMS9928a::TMS9928A_PALETTE[16 * 3] =
 	255, 255, 255
 };
 
-int MSXTMS9928a::doublePattern(int pattern)
+int MSXTMS9928a::doublePattern(int a)
 {
-	// Double every dot.
-	int ret = 0;
-	for (int i = 16; i--; ) {
-		ret <<= 2;
-		if (pattern & 0x80000000) {
-			ret |= 3;
-		}
-		pattern <<= 1;
-	}
-	return ret;
+	// bit-pattern "abcd" gets expanded to "aabbccdd"
+	a =  (a<<16)             |  a;
+	a = ((a<< 8)&0x00ffff00) | (a&0xff0000ff);
+	a = ((a<< 4)&0x0ff00ff0) | (a&0xf00ff00f);
+	a = ((a<< 2)&0x3c3c3c3c) | (a&0xc3c3c3c3);
+	a = ((a<< 1)&0x66666666) | (a&0x99999999);
+	return a;
 }
 
 int MSXTMS9928a::checkSprites(int line, int *visibleSprites)

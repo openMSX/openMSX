@@ -58,7 +58,7 @@ class CassettePortInterface
 		 *  CassetteDevice may ask for an 'early' write because for 
 		 *  example it wants to remove the tape.
 		 */
-		virtual void flushOutput() = 0;
+		virtual void flushOutput(const Emutime &time) = 0;
 
 	protected:
 		CassetteDevice *device;
@@ -67,11 +67,19 @@ class CassettePortInterface
 class CassettePort : public CassettePortInterface
 {
 	public:
+		CassettePort();
 		virtual ~CassettePort();
 		void setMotor(bool status, const Emutime &time);
 		void cassetteOut(bool output, const Emutime &time);
 		bool cassetteIn(const Emutime &time);
-		void flushOutput();
+		void flushOutput(const Emutime &time);
+	private:
+		static const int BUFSIZE = 256;
+		
+		bool lastOutput;
+		short nextSample;
+		Emutime prevTime;
+		short *buffer;
 };
 
 class DummyCassettePort : public CassettePortInterface
@@ -80,7 +88,7 @@ class DummyCassettePort : public CassettePortInterface
 		void setMotor(bool status, const Emutime &time);
 		void cassetteOut(bool output, const Emutime &time);
 		bool cassetteIn(const Emutime &time);
-		void flushOutput();
+		void flushOutput(const Emutime &time);
 };
 
 

@@ -18,17 +18,12 @@ class CassetteDevice
 		/**
 		 * Read wave data from cassette device
 		 */
-		virtual void readWave(short *buf, int length, const Emutime &time) = 0;
-		
-		/**
-		 * Returns the sample rate of the readWave() wave form
-		 */
-		virtual int getReadSampleRate() = 0;
+		virtual short readSample(const Emutime &time) = 0;
 		
 		/**
 		 * Write wave data to cassette device
 		 */
-		virtual void writeWave(short *buf, int length, const Emutime &time) = 0;
+		virtual void writeWave(short *buf, int length) = 0;
 		
 		/**
 		 * Returns the sample rate of the writeWave() wave form.
