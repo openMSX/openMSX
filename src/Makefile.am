@@ -2,7 +2,7 @@
 
 # we want most warnings
 
-AM_CXXFLAGS_BASE = -Wall -pipe `test -f .debug && echo "-DDEBUG"` -fhuge-objects -Icpu -Isound @XML_CFLAGS@ @SDL_CFLAGS@
+AM_CXXFLAGS_BASE = -Wall -pipe `test -f .debug && echo "-DDEBUG"` -fhuge-objects -Icpu -Isound -Iconfig @XML_CFLAGS@ @SDL_CFLAGS@
 if PROFILE
 AM_CXXFLAGS = $(AM_CXXFLAGS_BASE) -pg
 else
@@ -16,15 +16,13 @@ endif
 # or perhaps sometimes even more:
 # AM_CXXFLAGS = -Wall -W -DDEBUG -g3 -pipe
 
-SUBDIRS = cfg libxmlx ConsoleSource cpu sound
+SUBDIRS = cfg libxmlx ConsoleSource cpu sound config
 
 #bin_PROGRAMS=openmsx cfgtest
 bin_PROGRAMS=openmsx
 
 openmsx_SOURCES=openmsx.cc icon.nn \
 	system.h openmsx.hh \
-	MSXConfig.cc MSXConfig.hh \
-	XMLConfig.cc XMLConfig.hh \
 	EmuTime.hh EmuTime.cc \
 	MSXException.hh \
 	MSXDevice.hh MSXDevice.cc \
@@ -85,6 +83,7 @@ openmsx_SOURCES=openmsx.cc icon.nn \
 #	SDLLoRenderer.hh SDLLoRenderer.cc
 
 openmsx_LDADD = \
+	config/libConfig.la \
 	libxmlx/libxmlx.la \
 	ConsoleSource/libSDL_console.la \
 	cpu/libCPU.la \

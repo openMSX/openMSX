@@ -8,8 +8,8 @@
 
 #include <stdio.h>
 #include <cassert>
-#include "../openmsx.hh"
-#include "../MSXConfig.hh"
+#include "openmsx.hh"
+#include "MSXConfig.hh"
 #include "Console.hh"
 #include "CommandController.hh"
 #include "Command.hh"

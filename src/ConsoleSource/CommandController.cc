@@ -7,8 +7,8 @@
 #include <unistd.h>
 
 #include <cassert>
-#include "../openmsx.hh"
-#include "../MSXConfig.hh"
+#include "openmsx.hh"
+#include "MSXConfig.hh"
 #include "CommandController.hh"
 #include "Command.hh"
 #include "Console.hh"
