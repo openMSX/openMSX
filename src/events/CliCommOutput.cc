@@ -32,7 +32,7 @@ CliCommOutput::CliCommOutput()
 	  commandController(CommandController::instance())
 {
 	for (int i = 0; i < NUM_UPDATES; ++i) {
-		updateEnabled[i] = true;
+		updateEnabled[i] = false;
 	}
 	commandController.registerCommand(&updateCmd, "update");
 }

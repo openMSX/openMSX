@@ -1,5 +1,8 @@
 $Id$
 
+2004-03-27 Herman Oudejans <hn.oudejans@quicknet.nl>
+	* update events are now disabled by default.
+
 2004-03-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented simple subsription mechanism for update events:
 	   - openmsx command   "update <enable|disable> <type>"
