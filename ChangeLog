@@ -1,5 +1,15 @@
 $Id$
 
+2002-11-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented 'PUT KANJI acceleration' of S1985:
+	   This fixes the font printing problem of the FS-4600F internal
+	   software. AFAIK the FS-4600F now works completely (or at least
+	   as good as NMS8250).
+	   You need to add this to the FS-4600F config file:
+	     <device id="S1985">
+	       <type>S1985</type>
+	     <device>
+
 2002-11-11 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* National mapper type fixes:
 	   - FS-4600F internal software seems to work, but I'm not certain

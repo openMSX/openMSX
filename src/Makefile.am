@@ -54,6 +54,7 @@ openmsx_SOURCES=\
 	MSXF4Device.hh MSXF4Device.cc \
 	MSXTurboRLeds.hh MSXTurboRLeds.cc \
 	MSXTurboRPause.hh MSXTurboRPause.cc \
+	MSXS1985.hh MSXS1985.cc \
 	MSXS1990.hh MSXS1990.cc \
 	DummyDevice.hh DummyDevice.cc \
 	JoystickPorts.hh JoystickPorts.cc \
