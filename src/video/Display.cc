@@ -70,7 +70,7 @@ void Display::repaint()
 	if (!videoSystem->prepare()) return;
 	
 	vector<LayerInfo*>::iterator it = baseLayer();
-	bool mustPaint = forceRepaint;
+	//bool mustPaint = forceRepaint;
 	for (; it != layers.end(); ++it) {
 		// TODO: Dirty check is wrong.
 		//       Correct approach: draw if any visible layer is dirty.
@@ -82,7 +82,7 @@ void Display::repaint()
 			(*it)->layer->paint();
 			(*it)->dirty = false;
 			// All layers above this must be repainted too.
-			mustPaint = true;
+			//mustPaint = true;
 		}
 	}
 	forceRepaint = false;
@@ -97,14 +97,12 @@ void Display::addLayer(Layer* layer)
 
 vector<Display::LayerInfo*>::iterator Display::findLayer(Layer* layer)
 {
-	for (vector<LayerInfo*>::iterator it = layers.begin();
-		it != layers.end(); ++it
-	) {
+	for (vector<LayerInfo*>::iterator it = layers.begin(); ; ++it) {
+		assert(it != layers.end());
 		if ((*it)->layer == layer) {
 			return it;
 		}
 	}
-	assert(false);
 }
 
 void Display::layerToBack(Layer* layer)
