@@ -5,8 +5,8 @@
 #include "ConsoleSource/CommandController.hh"
 #include "HotKey.hh"
 
-// TODO: Get rid of SDL specific code in this class.
-#include <SDL/SDL.h>	// for HotKey
+// TODO: Get rid of SDL specific code in this class
+//  only SDLK_PRINT left
 
 
 /*

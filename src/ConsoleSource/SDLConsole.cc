@@ -43,7 +43,7 @@ SDLConsole::SDLConsole(SDL_Surface *screen) :
 	SDL_EnableUNICODE(1);
 
 	ConsoleManager::instance()->registerConsole(this);
-	EventDistributor::instance()->registerAsyncListener(SDL_KEYDOWN, this);
+	EventDistributor::instance()->registerEventListener(SDL_KEYDOWN, this);
 	CommandController::instance()->registerCommand(consoleCmd, "console");
 	HotKey::instance()->registerHotKeyCommand(SDLK_F10, "console");
 }
@@ -88,7 +88,6 @@ void SDLConsole::signalEvent(SDL_Event &event)
 				normalKey((char)event.key.keysym.unicode);
 	}
 	updateConsole();
-	throw EventDistributor::handled();
 }
 
 /* setAlphaGL() -- sets the alpha channel of an SDL_Surface to the

@@ -28,57 +28,39 @@ EventDistributor *EventDistributor::oneInstance = NULL;
 
 /**
  * This is the main-loop. It waits for events and 
- *   - delivers them to asynchronous listeners
- *   - queues them for later synchronous delivery
+ *  queues them for later synchronous delivery
  * Note: this method runs in a different thread!!
  */
 void EventDistributor::run()
 {
 	SDL_Event event;
 	while (SDL_WaitEvent(&event)) {
-		try {
-			PRT_DEBUG("SDL event received");
-		
-			std::multimap<int, EventListener*>::iterator it;
+		PRT_DEBUG("SDL event received");
+	
+		std::multimap<int, EventListener*>::iterator it;
 
-			asyncMutex.grab();
-			for (it = asyncMap.lower_bound(event.type);
-			     (it != asyncMap.end()) && (it->first == event.type);
-			     it++) {
-				it->second->signalEvent(event);
-			}
-			asyncMutex.release();
-
-			bool anySync = false;
-			syncMutex.grab();
+		bool anySync = false;
+		syncMutex.grab();
+		for (it = syncMap.lower_bound(event.type);
+		     (it != syncMap.end()) && (it->first == event.type);
+		     it++) {
 			queueMutex.grab();
-			for (it = syncMap.lower_bound(event.type);
-			     (it != syncMap.end()) && (it->first == event.type);
-			     it++) {
-				//it->second->signalEvent(event);
-				queue.push(std::pair<SDL_Event, EventListener*>(event, it->second));
-				anySync = true;
-			}
+			queue.push(std::pair<SDL_Event, EventListener*>(event, it->second));
 			queueMutex.release();
-			syncMutex.release();
-			if (anySync) {
-				Scheduler::instance()->removeSyncPoint(this);
-				Scheduler::instance()->setSyncPoint(Scheduler::ASAP, this);
-			}
+			anySync = true;
 		}
-		catch (handled) {}
+		syncMutex.release();
+		
+		if (anySync) {
+			Scheduler::instance()->removeSyncPoint(this);
+			Scheduler::instance()->setSyncPoint(Scheduler::ASAP, this);
+		}
 	}
-	PRT_ERROR("Error while waiting for event");
+	// this loop never ends
+	assert(false);
 }
 
-void EventDistributor::registerAsyncListener(int type, EventListener *listener)
-{
-	asyncMutex.grab();
-	asyncMap.insert(std::pair<int, EventListener*>(type, listener));
-	asyncMutex.release();
-}
-
-void EventDistributor::registerSyncListener (int type, EventListener *listener)
+void EventDistributor::registerEventListener (int type, EventListener *listener)
 {
 	syncMutex.grab();
 	syncMap.insert(std::pair<int, EventListener*>(type, listener));

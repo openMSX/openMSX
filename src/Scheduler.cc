@@ -19,11 +19,11 @@ Scheduler::Scheduler()
 {
 	paused = false;
 	noSound = false;
-	runningScheduler = true;
+	needBlock = false;
 	exitScheduler = false;
 	cpu = MSXCPU::instance();
 	
-	EventDistributor::instance()->registerAsyncListener(SDL_QUIT, this);
+	EventDistributor::instance()->registerEventListener(SDL_QUIT, this);
 	CommandController::instance()->registerCommand(quitCmd, "quit");
 	CommandController::instance()->registerCommand(muteCmd, "mute");
 	HotKey::instance()->registerHotKeyCommand(SDLK_F12, "quit");
@@ -63,6 +63,7 @@ void Scheduler::setSyncPoint(const EmuTime &timestamp, Schedulable* device, int 
 	syncPoints.push_back(SynchronizationPoint (time, device, userData));
 	push_heap(syncPoints.begin(), syncPoints.end());
 
+	pauseCond.signal();
 	schedMutex.release();
 }
 
@@ -90,13 +91,13 @@ bool Scheduler::removeSyncPoint(Schedulable* device, int userData)
 void Scheduler::stopScheduling()
 {
 	exitScheduler = true;
-	runningScheduler = false;
 	reschedule();
 	unpause();
 }
 
 void Scheduler::reschedule()
 {
+	// TODO
 	// Reschedule ASAP. We must give a device, choose MSXCPU.
 	EmuTime zero;
 	setSyncPoint(zero, cpu);
@@ -105,38 +106,45 @@ void Scheduler::reschedule()
 void Scheduler::scheduleEmulation()
 {
 	while (!exitScheduler) {
-		while (runningScheduler) {
-			schedMutex.grab();
-			if (syncPoints.empty()) {
-				// nothing scheduled, emulate CPU
-				schedMutex.release();
+		schedMutex.grab();
+		if (syncPoints.empty()) {
+			// nothing scheduled, emulate CPU
+			schedMutex.release();
+			if (!paused) {
 				PRT_DEBUG ("Sched: Scheduling CPU till infinity");
 				const EmuTime infinity = EmuTime(EmuTime::INFTY);
 				cpu->executeUntilTarget(infinity);
 			} else {
-				const SynchronizationPoint sp = *(syncPoints.begin());
-				const EmuTime &time = sp.getTime();
-				if (cpu->getCurrentTime() < time) {
-					schedMutex.release();
-					// emulate CPU till first SP, don't immediately emulate
-					// device since CPU could not have reached SP
+				needBlock = true;
+			}
+		} else {
+			const SynchronizationPoint sp = *(syncPoints.begin());
+			const EmuTime &time = sp.getTime();
+			if (cpu->getCurrentTime() < time) {
+				schedMutex.release();
+				// emulate CPU till first SP, don't immediately emulate
+				// device since CPU could not have reached SP
+				if (!paused) {
 					PRT_DEBUG ("Sched: Scheduling CPU till " << time);
 					cpu->executeUntilTarget(time);
 				} else {
-					// if CPU has reached SP, emulate the device
-					pop_heap(syncPoints.begin(), syncPoints.end());
-					syncPoints.pop_back();
-					schedMutex.release();
-					Schedulable *device = sp.getDevice();
-					int userData = sp.getUserData();
-					PRT_DEBUG ("Sched: Scheduling " << device->getName() << " till " << time);
-					device->executeUntilEmuTime(time, userData);
-					
+					needBlock = true;
 				}
+			} else {
+				// if CPU has reached SP, emulate the device
+				pop_heap(syncPoints.begin(), syncPoints.end());
+				syncPoints.pop_back();
+				schedMutex.release();
+				Schedulable *device = sp.getDevice();
+				int userData = sp.getUserData();
+				PRT_DEBUG ("Sched: Scheduling " << device->getName() << " till " << time);
+				device->executeUntilEmuTime(time, userData);
+				
 			}
 		}
-		pauseMutex.grab();	// grab and release mutex, if unpaused this will
-		pauseMutex.release();	//  succeed else we sleep till unpaused
+		if (needBlock) {
+			pauseCond.wait();
+		}
 	}
 }
 
@@ -144,18 +152,16 @@ void Scheduler::unpause()
 {
 	if (paused) {
 		paused = false;
-		runningScheduler = true;
+		needBlock = false;
 		Mixer::instance()->pause(noSound);
 		PRT_DEBUG("Unpaused");
-		pauseMutex.release();
+		pauseCond.signal();
 	}
 }
 void Scheduler::pause()
 {
 	if (!paused) {
-		pauseMutex.grab();
 		paused = true;
-		runningScheduler = false;
 		Mixer::instance()->pause(true);
 		PRT_DEBUG("Paused");
 	}

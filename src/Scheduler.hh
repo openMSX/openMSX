@@ -6,6 +6,7 @@
 #include <SDL/SDL.h>
 #include "EmuTime.hh"
 #include "Mutex.hh"
+#include "CondVar.hh"
 #include "ConsoleSource/Command.hh"
 #include "EventListener.hh"
 
@@ -123,10 +124,10 @@ class Scheduler : private EventListener
 		/** The scheduler is considered running unless it is paused
 		  * or exited.
 		  */
-		bool runningScheduler;
+		bool needBlock;
 		bool exitScheduler;
 		bool paused;
-		Mutex pauseMutex;
+		CondVar pauseCond;
 		MSXCPU *cpu;
 		
 		// commands

@@ -27,7 +27,7 @@
 
 void initializeSDL()
 {
-	Uint32 sdl_initval = SDL_INIT_VIDEO;
+	Uint32 sdl_initval = SDL_INIT_VIDEO | SDL_INIT_EVENTTHREAD;
 	if (DEBUGVAL) sdl_initval |= SDL_INIT_NOPARACHUTE; // dump copre on segfault
 	if (SDL_Init(sdl_initval)<0)
 		PRT_ERROR("Couldn't init SDL: " << SDL_GetError());

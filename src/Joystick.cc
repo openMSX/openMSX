@@ -23,9 +23,9 @@ Joystick::Joystick(int joyNum)
 	PRT_DEBUG("Opening joystick " << SDL_JoystickName(joyNum));
 	this->joyNum = joyNum;
 	joystick = SDL_JoystickOpen(joyNum);
-	EventDistributor::instance()->registerSyncListener(SDL_JOYAXISMOTION, this);
-	EventDistributor::instance()->registerSyncListener(SDL_JOYBUTTONDOWN, this);
-	EventDistributor::instance()->registerSyncListener(SDL_JOYBUTTONUP,   this);
+	EventDistributor::instance()->registerEventListener(SDL_JOYAXISMOTION, this);
+	EventDistributor::instance()->registerEventListener(SDL_JOYBUTTONDOWN, this);
+	EventDistributor::instance()->registerEventListener(SDL_JOYBUTTONUP,   this);
 
 	PluggingController::instance()->registerPluggable(this);
 }

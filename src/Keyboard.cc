@@ -9,8 +9,8 @@ Keyboard::Keyboard(bool keyG)
 	keyGhosting = keyG;
 	memset(keyMatrix , 255, sizeof(keyMatrix) );
 	memset(keyMatrix2, 255, sizeof(keyMatrix2));
-	EventDistributor::instance()->registerSyncListener(SDL_KEYDOWN, this);
-	EventDistributor::instance()->registerSyncListener(SDL_KEYUP,   this);
+	EventDistributor::instance()->registerEventListener(SDL_KEYDOWN, this);
+	EventDistributor::instance()->registerEventListener(SDL_KEYUP,   this);
 }
 
 Keyboard::~Keyboard()

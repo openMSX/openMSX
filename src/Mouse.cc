@@ -14,9 +14,9 @@ Mouse::Mouse()
 	status = JOY_BUTTONA | JOY_BUTTONB;
 	faze = FAZE_YLOW;
 	xrel = yrel = curxrel = curyrel = 0;
-	EventDistributor::instance()->registerSyncListener(SDL_MOUSEMOTION,     this);
-	EventDistributor::instance()->registerSyncListener(SDL_MOUSEBUTTONDOWN, this);
-	EventDistributor::instance()->registerSyncListener(SDL_MOUSEBUTTONUP,   this);
+	EventDistributor::instance()->registerEventListener(SDL_MOUSEMOTION,     this);
+	EventDistributor::instance()->registerEventListener(SDL_MOUSEBUTTONDOWN, this);
+	EventDistributor::instance()->registerEventListener(SDL_MOUSEBUTTONUP,   this);
 
 	PluggingController::instance()->registerPluggable(this);
 }

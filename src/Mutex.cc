@@ -2,6 +2,7 @@
 
 #include "Mutex.hh"
 
+
 Mutex outputmutex, errormutex;
 
 Mutex::Mutex()

@@ -7,16 +7,14 @@
 #include <string>
 #include <map>
 #include "EventListener.hh"
-#include "Mutex.hh"
 
 
 class HotKeyListener
 {
-	 public:
+	public:
 		 /**
 		  * This method gets called when the key you are interested in
 		  * is pressed.
-		  * Note: HotKeys are deliverd in a different thread!!
 		  */
 		 virtual void signalHotKey(SDLKey key) = 0;
 }; 
@@ -31,15 +29,17 @@ class HotKey : private EventListener
 		/**
 		 * This is just an extra filter for SDL_KEYDOWN events, now
 		 * events are only passed for specific keys.
-		 * See EventDistributor::registerAsyncListener for more details
+		 * See EventDistributor::registerListener for more details
 		 */
-		void registerAsyncHotKey(SDLKey key, HotKeyListener *listener);
+		void registerHotKey(SDLKey key, HotKeyListener *listener);
+		//void unregisterHotKey(HotKeyListener *listener);
 
 		/**
 		 * When the given hotkey is pressed the given command is
 		 * automatically executed.
 		 */
-		void registerHotKeyCommand(SDLKey key, std::string command);
+		void registerHotKeyCommand(SDLKey key, const std::string &command);
+		//void unregisterHotKeyCommand(const std::string &command);
 
 	private:
 		// EventListener
@@ -50,12 +50,11 @@ class HotKey : private EventListener
 
 		int nbListeners;
 		std::multimap <SDLKey, HotKeyListener*> map;
-		Mutex mapMutex;	// to lock variable map
 
 	class HotKeyCmd : public HotKeyListener
 	{
 		public:
-			HotKeyCmd(std::string cmd);
+			HotKeyCmd(const std::string &cmd);
 			virtual ~HotKeyCmd();
 			virtual void signalHotKey(SDLKey key);
 		private:

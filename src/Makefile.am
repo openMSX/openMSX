@@ -51,6 +51,7 @@ openmsx_SOURCES=\
 	EventDistributor.hh EventDistributor.cc EventListener.hh \
 	Thread.hh Thread.cc \
 	Mutex.hh Mutex.cc \
+	CondVar.hh CondVar.cc \
 	HotKey.hh HotKey.cc \
 	Keyboard.hh Keyboard.cc \
 	Leds.hh Leds.cc \

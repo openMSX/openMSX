@@ -1,5 +1,17 @@
 $Id$
 
+2002-06-19 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Console commands and HotKeys are now executed by the main thread:
+	   - this removes some (potential) races, so some bugs like
+	       "This crashed once, but I can't reproduce it"
+	     might be gone.
+	   - this is a rather fundamental change, it might still contain some
+	     glitches.
+	* Removed all registerAsync__() methods:
+	   they aren't used anymore and they shouldn't be in the future
+	* Introduced condition variables (thread locking):
+	   used in Scheduler to implement pause
+
 2002-06-18 David Heremans <david.heremans@gnu-linux.net>
 	* Basic timing for all FDC Type I commands
 
