@@ -1,6 +1,10 @@
 $Id$
 
 2004-11-03 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* a few small improvements
+	* clear ram on power off/on
+
+2004-11-03 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Moved speed and throttle setting to GlobalSettings:
 	   as cleanup and as preparation for Mixer changes
 	* Changed float to double everywhere:

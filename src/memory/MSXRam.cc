@@ -32,6 +32,11 @@ MSXRam::~MSXRam()
 {
 }
 
+void MSXRam::reInit(const EmuTime& /*time*/)
+{
+	ram->clear();
+}
+
 bool MSXRam::isInside(word address) const
 {
 	return ((base <= address) && (address < end));
