@@ -4,6 +4,7 @@
 bind print "screenshot"
 bind pause "toggle pause"
 bind ctrl+pause "quit"
+bind alt+F4 "quit"
 bind F9 "toggle throttle"
 bind F10 "toggle console"
 bind F11 "toggle mute"
