@@ -1,6 +1,6 @@
 // $Id$
 
-/**
+/*
  * Based on code from NLMSX written by Frits Hilderink
  */
 
