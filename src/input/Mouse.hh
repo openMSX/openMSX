@@ -13,14 +13,14 @@ class Mouse : public JoystickDevice, EventListener
 	public:
 		Mouse(const EmuTime &time);
 		virtual ~Mouse();
-		
+
 		//Pluggable
 		virtual const std::string &getName() const;
-		
+
 		//JoystickDevice
 		virtual byte read(const EmuTime &time);
 		virtual void write(byte value, const EmuTime &time);
-	
+
 		//EventListener
 		virtual bool signalEvent(SDL_Event &event);
 

@@ -17,7 +17,7 @@ class KeyJoystick : public JoystickDevice, EventListener
 
 		// Pluggable
 		virtual const std::string &getName() const;
-		
+
 		// KeyJoystickDevice
 		virtual byte read(const EmuTime &time);
 		virtual void write(byte value, const EmuTime &time);

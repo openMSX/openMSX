@@ -19,16 +19,16 @@ class Keyboard : public EventListener
 		/**
 		 * Destructor
 		 */
-		virtual ~Keyboard(); 
+		virtual ~Keyboard();
 
 		/**
 		 * Returns a pointer to the current KeyBoard matrix
 		 */
 		const byte* getKeys();
-		
+
 		//EventListener
 		virtual bool signalEvent(SDL_Event &event);
-		
+
 		static const int NR_KEYROWS = 12;
 
 	private:

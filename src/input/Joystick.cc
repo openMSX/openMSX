@@ -16,8 +16,9 @@ Joystick::Joystick(int joyNum_)
 		SDL_JoystickEventState(SDL_ENABLE);	// joysticks generate events
 	}
 
-	if (SDL_NumJoysticks() <= joyNum)
+	if (SDL_NumJoysticks() <= joyNum) {
 		throw JoystickException("No such joystick number");
+	}
 
 	name = std::string("joystick")+(char)('1'+joyNum);
 
@@ -28,7 +29,7 @@ Joystick::Joystick(int joyNum_)
 	EventDistributor::instance()->registerEventListener(SDL_JOYBUTTONUP,   this);
 
 	PluggingController::instance()->registerPluggable(this);
-	
+
 	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	         JOY_BUTTONA | JOY_BUTTONB;
 }

@@ -13,7 +13,7 @@ KeyJoystick::KeyJoystick()
 	EventDistributor::instance()->registerEventListener(SDL_KEYUP  , this, 1);
 
 	PluggingController::instance()->registerPluggable(this);
-	
+
 	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	         JOY_BUTTONA | JOY_BUTTONB;
 }
@@ -21,7 +21,7 @@ KeyJoystick::KeyJoystick()
 KeyJoystick::~KeyJoystick()
 {
 	PluggingController::instance()->unregisterPluggable(this);
-	
+
 	EventDistributor::instance()->unregisterEventListener(SDL_KEYDOWN, this, 1);
 	EventDistributor::instance()->unregisterEventListener(SDL_KEYUP  , this, 1);
 }
@@ -52,7 +52,7 @@ bool KeyJoystick::signalEvent(SDL_Event &event)
 	switch (event.type) {
 	case SDL_KEYDOWN:
 		switch (event.key.keysym.sym) {
-		case Keys::K_UP: 
+		case Keys::K_UP:
 			status &= ~JOY_UP;
 			break;
 		case Keys::K_DOWN:

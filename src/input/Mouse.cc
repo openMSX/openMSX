@@ -11,7 +11,7 @@ Mouse::Mouse(const EmuTime &time)
 	status = JOY_BUTTONA | JOY_BUTTONB;
 	faze = FAZE_YLOW;
 	xrel = yrel = curxrel = curyrel = 0;
-	
+
 	EventDistributor::instance()->registerEventListener(SDL_MOUSEMOTION,     this);
 	EventDistributor::instance()->registerEventListener(SDL_MOUSEBUTTONDOWN, this);
 	EventDistributor::instance()->registerEventListener(SDL_MOUSEBUTTONUP,   this);
@@ -22,7 +22,7 @@ Mouse::Mouse(const EmuTime &time)
 Mouse::~Mouse()
 {
 	PluggingController::instance()->unregisterPluggable(this);
-	
+
 	EventDistributor::instance()->unregisterEventListener(SDL_MOUSEMOTION,     this);
 	EventDistributor::instance()->unregisterEventListener(SDL_MOUSEBUTTONDOWN, this);
 	EventDistributor::instance()->unregisterEventListener(SDL_MOUSEBUTTONUP,   this);
