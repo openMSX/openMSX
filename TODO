@@ -2,9 +2,11 @@
 #
 # add things todo to this file, to avoid them being forgotten
 
+In short: better check our RFE and Bug trackers, since this file is hardly ever
+updated.
+
 * backend issues: [MSXDevice <-> OS/SDL]
  - trackball support
- - LED status visualization
 
 * devices: [MSXDevice]
  - V9958 (scrolling in character modes)
@@ -18,8 +20,6 @@
  - http support
  - settings.xml should get its own doctype and DTD:
    it is essentially different from hardware descriptions.
- - Key bindings are currently stored in settings.xml, which is the right place.
-   However, they are still stored as autocommands, which is not good.
  - Currently a ROM file name passed on the command line is used to generate
    XML in memory which is later used to create a Rom object. However, this
    complicates the process of gathering the ROM meta info in RomInfo, because
@@ -37,4 +37,3 @@
  - session management? (save state of frontswitches and inserted disk or
    cassette images at exit for a specific machine; also speed setting and
    things plugged into connector)
- - fix hardcoded path in FileOperations.hh to enable proper packaging
