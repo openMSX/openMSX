@@ -6,6 +6,7 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "IntegerSetting.hh"
+#include "BooleanSetting.hh"
 #include "Display.hh"
 #include "EventDistributor.hh"
 #include "InputEventGenerator.hh"
@@ -18,11 +19,12 @@ namespace openmsx {
 // class BackgroundSetting
 
 BackgroundSetting::BackgroundSetting(
-	OSDConsoleRenderer& console_, XMLElement& node)
-	: FilenameSettingBase(node, "console background file")
+	OSDConsoleRenderer& console_, const string& initialValue)
+	: FilenameSettingBase("consolebackground", "console background file",
+	                      initialValue)
 	, console(console_)
 {
-	initSetting();
+	initSetting(SAVE_SETTING);
 }
 
 BackgroundSetting::~BackgroundSetting()
@@ -39,11 +41,12 @@ bool BackgroundSetting::checkFile(const string& filename)
 // class FontSetting
 
 FontSetting::FontSetting(
-	OSDConsoleRenderer& console_, XMLElement& node)
-	: FilenameSettingBase(node, "console font file")
+	OSDConsoleRenderer& console_, const string& initialValue)
+	: FilenameSettingBase("consolefont", "console font file",
+	                      initialValue)
 	, console(console_)
 {
-	initSetting();
+	initSetting(SAVE_SETTING);
 }
 
 FontSetting::~FontSetting()
@@ -60,7 +63,7 @@ bool FontSetting::checkFile(const string& filename)
 // class OSDConsoleRenderer
 
 BooleanSetting OSDConsoleRenderer::consoleSetting(
-	"console", "turns console display on/off", false);
+	"console", "turns console display on/off", false, DONT_SAVE_SETTING);
 
 OSDConsoleRenderer::OSDConsoleRenderer(Console& console_)
 	: console(console_)
@@ -87,25 +90,17 @@ OSDConsoleRenderer::~OSDConsoleRenderer()
 
 void OSDConsoleRenderer::initConsole()
 {
-	XMLElement& config = SettingsConfig::instance().getCreateChild("console");
-
 	// font
-	XMLElement& fontElem = config.getCreateChild(
-		"consolefont", "skins/ConsoleFont.png");
-	fontSetting.reset(new FontSetting(*this, fontElem));
+	fontSetting.reset(new FontSetting(*this, "skins/ConsoleFont.png"));
 	
 	// rows / columns
 	SDL_Surface* screen = SDL_GetVideoSurface();
 	int columns = (((screen->w - CHAR_BORDER) / font->getWidth()) * 30) / 32;
 	int rows = ((screen->h / font->getHeight()) * 6) / 15;
-	XMLElement& columnsElem = config.getCreateChild(
-		"consolecolumns", StringOp::toString(columns));
-	XMLElement& rowsElem    = config.getCreateChild(
-		"consolerows",    StringOp::toString(rows));
-	consoleColumnsSetting.reset(new IntegerSetting(
-		columnsElem, "number of columns in the console", 32, 999));
-	consoleRowsSetting.reset(new IntegerSetting(
-		rowsElem, "number of rows in the console", 1, 99));
+	consoleColumnsSetting.reset(new IntegerSetting("consolecolumns",
+		"number of columns in the console", columns, 32, 999));
+	consoleRowsSetting.reset(new IntegerSetting("consolerows",
+		"number of rows in the console", rows, 1, 99));
 	console.setColumns(consoleColumnsSetting->getValue());
 	console.setRows(consoleRowsSetting->getValue());
 	adjustColRow();
@@ -123,22 +118,15 @@ void OSDConsoleRenderer::initConsole()
 	placeMap["bottomleft"]  = CP_BOTTOMLEFT;
 	placeMap["bottom"]      = CP_BOTTOM;
 	placeMap["bottomright"] = CP_BOTTOMRIGHT;
-	XMLElement& placeElem   = config.getCreateChild("consoleplacement", "bottom");
-	Placement placement = CP_BOTTOM;
-	PlaceMap::const_iterator it = placeMap.find(placeElem.getData());
-	if (it != placeMap.end()) {
-		placement = it->second;
-	}
 	consolePlacementSetting.reset(new EnumSetting<Placement>(
-		placeElem, "position of the console within the emulator",
-		placement, placeMap));
+		"consoleplacement", "position of the console within the emulator",
+		CP_BOTTOM, placeMap));
 	
 	updateConsoleRect(destRect);
 	
 	// background
-	XMLElement& backgroundElem = config.getCreateChild(
-		"consolebackground", "skins/ConsoleBackground.png");
-	backgroundSetting.reset(new BackgroundSetting(*this, backgroundElem));
+	backgroundSetting.reset(new BackgroundSetting(
+		*this, "skins/ConsoleBackground.png"));
 }
 
 void OSDConsoleRenderer::adjustColRow()

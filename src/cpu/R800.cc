@@ -6,10 +6,10 @@ namespace openmsx {
 
 #include "R800Tables.nn"
 
-R800::R800(const EmuTime& time)
-	: CPU("r800", CLOCK_FREQ),
-	  lastPage(-1),
-	  lastRefreshTime(time)
+R800::R800(const EmuTime& time, const BooleanSetting& traceSetting)
+	: CPU("r800", CLOCK_FREQ, traceSetting)
+	, lastPage(-1)
+	, lastRefreshTime(time)
 {
 	reset(time);
 }

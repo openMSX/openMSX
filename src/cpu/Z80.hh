@@ -20,7 +20,7 @@ class Z80 : public CPU
 {
 public:
 	static const int CLOCK_FREQ = 3579545;
-	Z80(const EmuTime &time);
+	Z80(const EmuTime& time, const BooleanSetting& traceSetting);
 	virtual ~Z80();
 
 private:

@@ -17,8 +17,8 @@ namespace openmsx {
 
 #include "Z80Tables.nn"
 
-Z80::Z80(const EmuTime &time)
-	: CPU("z80", CLOCK_FREQ)
+Z80::Z80(const EmuTime& time, const BooleanSetting& traceSetting)
+	: CPU("z80", CLOCK_FREQ, traceSetting)
 {
 	reset(time);
 }

@@ -9,18 +9,9 @@
 #include "Event.hh"
 #include "EventDistributor.hh"
 
-#ifdef CPU_DEBUG
-#include "BooleanSetting.hh"
-#endif
-
 using std::ostringstream;
 
-
 namespace openmsx {
-
-#ifdef CPU_DEBUG
-BooleanSetting CPU::traceSetting("cputrace", "CPU tracing on/off", false);
-#endif
 
 multiset<word> CPU::breakPoints;
 bool CPU::breaked = false;
@@ -28,7 +19,8 @@ bool CPU::continued = false;
 bool CPU::step = false;
 
 
-CPU::CPU(const string& name, int defaultFreq)
+CPU::CPU(const string& name, int defaultFreq,
+	 const BooleanSetting& traceSetting_)
 	: interface(NULL)
 	, scheduler(Scheduler::instance())
 	, freqLocked(name + "_freq_locked",
@@ -38,6 +30,7 @@ CPU::CPU(const string& name, int defaultFreq)
 	            "custom " + name + " frequency (only valid when unlocked)",
 	            defaultFreq, 1000000, 100000000)
 	, freq(defaultFreq)
+	, traceSetting(traceSetting_)
 {
 	clock.setFreq(defaultFreq);
 

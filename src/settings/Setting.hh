@@ -5,6 +5,7 @@
 
 #include "SettingsManager.hh"
 #include "SettingNode.hh"
+#include "SettingsConfig.hh"
 #include "xmlx.hh"
 #include <string>
 
@@ -12,16 +13,11 @@ using std::string;
 
 namespace openmsx {
 
-static string getNameHelper(const XMLElement& elem)
-{
-	string result = elem.getName();
-	if (elem.hasAttribute("id")) {
-		result = elem.getAttribute("id") + '_' + result;
-	}
-	return result;
-}
+enum SaveSetting {
+	SAVE_SETTING,
+	DONT_SAVE_SETTING,
+};
 
-	
 /** Abstract base class for Settings.
   */
 template <typename ValueType>
@@ -67,17 +63,16 @@ protected:
 		: SettingLeafNode(name, description)
 		, xmlNode(NULL)
 		, value(initialValue), defaultValue(initialValue) { }
-	Setting(XMLElement& node, const string& description,
-		const ValueType& initialValue)
-		: SettingLeafNode(getNameHelper(node), description)
-		, xmlNode(&node), value(initialValue)
-		, defaultValue(initialValue) {}
 
 	/**
 	 * This method must be called from the constructor of the child class
 	 */
-	void initSetting() {
-		if (xmlNode) {
+	void initSetting(SaveSetting save) {
+		if (save == SAVE_SETTING) {
+			XMLElement& config = SettingsConfig::instance().
+				getCreateChild("settings");
+			xmlNode = &config.getCreateChildWithAttribute(
+				"setting", "id", getName(), getValueString());
 			setValueString(xmlNode->getData());
 		}
 		SettingsManager::instance().registerSetting(*this);

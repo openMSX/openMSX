@@ -15,7 +15,7 @@ class R800 : public CPU
 {
 public:
 	static const int CLOCK_FREQ = 7159090;
-	R800(const EmuTime& time);
+	R800(const EmuTime& time, const BooleanSetting& traceSetting);
 	virtual ~R800();
 
 private:

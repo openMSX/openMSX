@@ -55,11 +55,10 @@ void HotKey::registerHotKeyCommand(Keys::KeyCode key, const string& command)
 	if (it != cmdMap.end()) {
 		unregisterHotKeyCommand(key);
 	}
-	auto_ptr<XMLElement> elem(new XMLElement("bind"));
-	elem->addAttribute("key", Keys::getName(key));
-	elem->setData(command);
-	cmdMap[key] = new HotKeyCmd(*elem);
-	bindingsElement.addChild(elem);
+	XMLElement& elem = bindingsElement.getCreateChildWithAttribute(
+		"bind", "key", Keys::getName(key));
+	elem.setData(command);
+	cmdMap[key] = new HotKeyCmd(elem);
 }
 
 void HotKey::unregisterHotKeyCommand(Keys::KeyCode key)

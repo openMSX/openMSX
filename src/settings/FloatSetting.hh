@@ -16,8 +16,6 @@ class FloatSetting: public Setting<float>, NON_INHERITABLE(FloatSetting)
 public:
 	FloatSetting(const string& name, const string& description,
 	             float initialValue, float minValue, float maxValue);
-	FloatSetting(XMLElement& node, const string& description,
-	             float minValue, float maxValue);
 	virtual ~FloatSetting();
 
 	/** Change the allowed range.

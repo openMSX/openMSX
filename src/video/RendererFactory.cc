@@ -53,11 +53,8 @@ Renderer* RendererFactory::createRenderer(VDP* vdp)
 	}
 }
 
-auto_ptr<RendererFactory::RendererSetting> RendererFactory::createRendererSetting(
-	XMLElement& rendererElem)
+auto_ptr<RendererFactory::RendererSetting> RendererFactory::createRendererSetting()
 {
-	string defaultRenderer = rendererElem.getData();
-	
 	typedef EnumSetting<RendererID>::Map RendererMap;
 	RendererMap rendererMap;
 	rendererMap["none"] = DUMMY; // TODO: only register when in CliComm mode
@@ -70,18 +67,9 @@ auto_ptr<RendererFactory::RendererSetting> RendererFactory::createRendererSettin
 	// XRenderer is not ready for users.
 	// rendererMap["Xlib" ] = XLIB;
 #endif
-	RendererMap::const_iterator it = rendererMap.find(defaultRenderer);
-	RendererID defaultValue;
-	if (it != rendererMap.end()) {
-		defaultValue = it->second;
-	} else {
-		CliCommOutput::instance().printWarning(
-			"Invalid renderer requested: \"" + defaultRenderer + "\"");
-		defaultValue = SDLHI;
-	}
 	auto_ptr<RendererSetting> setting(new RendererSetting(
-		rendererElem, "rendering back-end used to display the MSX screen",
-		defaultValue, rendererMap));
+		"renderer", "rendering back-end used to display the MSX screen",
+		SDLHI, rendererMap));
 	if (CommandLineParser::instance().getParseStatus() ==
 	    CommandLineParser::CONTROL) {
 		setting->setValue(DUMMY);

@@ -5,6 +5,7 @@
 
 #include <set>
 #include <string>
+#include <memory>
 #include "build-info.hh"
 #include "openmsx.hh"
 #include "EmuTime.hh"
@@ -19,6 +20,7 @@
 
 using std::multiset;
 using std::string;
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -136,9 +138,8 @@ public:
 	void setFreq(unsigned freq);
 	
 protected:
-	/** Create a new CPU.
-	  */
-	CPU(const string& name, int defaultFreq);
+	CPU(const string& name, int defaultFreq,
+	    const BooleanSetting& traceSetting);
 
 	/**
 	  * Execute further than strictly requested by
@@ -181,8 +182,6 @@ protected:
 	Scheduler& scheduler;
 
 #ifdef CPU_DEBUG
-	static BooleanSetting traceSetting;
-
 public:
 	byte debugmemory[65536];
 	char to_print_string[300];
@@ -197,6 +196,9 @@ private:
 	unsigned freq;
 	
 	MSXMotherBoard* motherboard;
+
+protected:
+	const BooleanSetting& traceSetting;
 };
 
 } // namespace openmsx

@@ -202,10 +202,9 @@ void CommandLineParser::parse(int argc, char** argv)
 			postRegisterFileTypes();
 			break;
 		case 5: {
-			XMLElement& machineConfig =
-				settingsConfig.getCreateChild("machine", "cbios-msx2");
-			machineSetting.reset(new StringSetting(machineConfig,
-				"default machine (takes effect next time openMSX is started)"));
+			machineSetting.reset(new StringSetting("machine",
+				"default machine (takes effect next time openMSX is started)",
+				"cbios-msx2"));
 	
 			if (!issuedHelp && !haveConfig) {
 				// load default config file in case the user didn't specify one

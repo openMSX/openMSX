@@ -36,13 +36,10 @@ Mixer::Mixer()
 	nbClipped = 0;
 #endif
 	
-	XMLElement& config = settingsConfig.getCreateChild("sound");
-	XMLElement& muteElem = config.getCreateChild("mute", "off");
 	muteSetting.reset(new BooleanSetting(
-		muteElem, "(un)mute the emulation sound"));
-	XMLElement& masterElem = config.getCreateChild("master_volume", "75");
+		"mute", "(un)mute the emulation sound", false));
 	masterVolume.reset(new IntegerSetting(
-		masterElem, "master volume", 0, 100));
+		"master_volume", "master volume", 75, 0, 100));
 
 	infoCommand.registerTopic("sounddevice", &soundDeviceInfo);
 	muteSetting->addListener(this);
@@ -54,14 +51,12 @@ Mixer::Mixer()
 	}
 	
 	// default values
-	XMLElement& freqElem = config.getCreateChild("frequency", "44100");
-	XMLElement& samplesElem = config.getCreateChild("samples", "1024");
-	frequencySetting.reset(new IntegerSetting(freqElem,
+	frequencySetting.reset(new IntegerSetting("frequency",
 		"mixer frequency (takes effect next time openMSX is started)",
-		11025, 44100)); // TODO stricter value checks
-	samplesSetting.reset(new IntegerSetting(samplesElem,
+		44100, 11025, 44100)); // TODO stricter value checks
+	samplesSetting.reset(new IntegerSetting("samples",
 		"mixer samples (takes effect next time openMSX is started)",
-		256, 4096)); // TODO stricter value checks
+		1024, 256, 4096)); // TODO stricter value checks
 
 	SDL_AudioSpec desired;
 	desired.freq     = frequencySetting->getValue();
@@ -115,11 +110,8 @@ int Mixer::registerSound(SoundDevice& device, short volume, ChannelMode mode)
 	
 	const string& name = device.getName();
 	SoundDeviceInfo info;
-	XMLElement& config = settingsConfig.getChild("sound");
-	XMLElement& volumeElem = config.getCreateChildWithAttribute(
-		"volume", "id", name, "75");
 	info.volumeSetting = new IntegerSetting(
-		volumeElem, "the volume of this sound chip", 0, 100);
+		name + "_volume", "the volume of this sound chip", 75, 0, 100);
 
 	// once we're stereo, stay stereo. Once mono, stay mono.
 	// we could also choose not to offer any modeSetting in case we have
@@ -136,10 +128,8 @@ int Mixer::registerSound(SoundDevice& device, short volume, ChannelMode mode)
 		modeMap["right"] = MONO_RIGHT;
 	}
 	modeMap["off"] = OFF;
-	XMLElement& modeElem = config.getCreateChildWithAttribute(
-		"mode", "id", name, defaultMode);
 	info.modeSetting = new EnumSetting<ChannelMode>(
-		modeElem, "the channel mode of this sound chip",
+		name + "_mode", "the channel mode of this sound chip",
 		modeMap[defaultMode], modeMap);
 	
 	info.mode = mode;

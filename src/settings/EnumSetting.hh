@@ -40,8 +40,6 @@ public:
 protected:
 	EnumSettingBase(const string& name, const string& description,
 	                const ValueType& initialValue, const Map& map_);
-	EnumSettingBase(XMLElement& node, const string& description,
-	                const ValueType& initialValue, const Map& map_);
 	virtual ~EnumSettingBase();
 
 private:
@@ -71,8 +69,6 @@ public:
 
 	EnumSetting(const string& name, const string& description,
 		    const ValueType& initialValue, const Map& map);
-	EnumSetting(XMLElement& node, const string& description,
-		    const ValueType& initialValue, const Map& map);
 	virtual ~EnumSetting();
 };
 
@@ -87,18 +83,6 @@ EnumSettingBase<ValueType>::EnumSettingBase(
 	const ValueType& initialValue,
 	const Map& map_)
 	: Setting<ValueType>(name, description, initialValue)
-	, enumInfo(*this), enumMap(map_)
-{
-	init();
-}
-
-template<typename ValueType>
-EnumSettingBase<ValueType>::EnumSettingBase(
-	XMLElement& node,
-	const string& description,
-	const ValueType& initialValue,
-	const Map& map_)
-	: Setting<ValueType>(node, description, initialValue)
 	, enumInfo(*this), enumMap(map_)
 {
 	init();
@@ -208,16 +192,7 @@ EnumSetting<ValueType>::EnumSetting(
 	const ValueType& initialValue, const Map& map_)
 	: EnumSettingBase<ValueType>(name, description, initialValue, map_)
 {
-	Setting<ValueType>::initSetting();
-}
-
-template<typename ValueType>
-EnumSetting<ValueType>::EnumSetting(
-	XMLElement& node, const string& description,
-	const ValueType& initialValue, const Map& map_)
-	: EnumSettingBase<ValueType>(node, description, initialValue, map_)
-{
-	Setting<ValueType>::initSetting();
+	Setting<ValueType>::initSetting(SAVE_SETTING);
 }
 
 template<typename ValueType>

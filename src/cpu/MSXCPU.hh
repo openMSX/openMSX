@@ -5,6 +5,7 @@
 
 #include "Debuggable.hh"
 #include "InfoTopic.hh"
+#include "BooleanSetting.hh"
 #include "Z80.hh"
 #include "R800.hh"
 
@@ -103,6 +104,7 @@ private:
 	void wait(const EmuTime& time);
 	friend class VDPIODelay;
 
+	BooleanSetting traceSetting;
 	Z80 z80;
 	R800 r800;
 

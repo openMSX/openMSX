@@ -2,44 +2,6 @@
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
 
-<!-- This file contains the settings or user preferences.  -->
-
-  <!-- The machine that is loaded if no machine is specified -->
-  <machine>cbios-msx2</machine>
-
-  <!-- video settings: determines how openMSX outputs graphics -->
-  <video>
-    <renderer>SDLHi</renderer>
-    <!-- <renderer>SDLGL</renderer> -->
-    <fullscreen>false</fullscreen>
-  </video>
-
-  <!-- Audio mixer settings -->
-  <sound>
-    <!-- Sample frequency, if you need more speed: 22kHz should be enough for 
-         normal MSX, 44.1kHz is for Moonsound -->
-    <frequency>44100</frequency>
-    <!-- Use more samples when FM sound quality is bad,
-         use less samples if the tempo is very irregular.
-    -->
-    <samples>1024</samples>
-  </sound>
-
-  <RTC>
-    <rtcmode>EmuTime</rtcmode>
-  </RTC>
-
-  <!-- Console font file, decorations and other settings -->
-  <console>
-    <consolefont>skins/ConsoleFont.png</consolefont>
-    <consolebackground>skins/ConsoleBackground.png</consolebackground>
-    <consolecolumns>100</consolecolumns>
-    <consolerows>14</consolerows>
-    <consoleplacement>bottom</consoleplacement>
-    <historysize>100</historysize>
-    <removedoubles>true</removedoubles>
-  </console>
-
   <!-- Directories that are searched in, when looking for files mentioned
       on the command line or Console -->
   <UserDirectories>

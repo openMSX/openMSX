@@ -12,8 +12,8 @@
 #include "DummyFont.hh"
 #include "Console.hh"
 #include "NonInheritable.hh"
-#include "BooleanSetting.hh"
 #include "SettingListener.hh"
+#include "BooleanSetting.hh"
 
 using std::auto_ptr;
 using std::string;
@@ -31,7 +31,8 @@ class BackgroundSetting : public FilenameSettingBase,
                           NON_INHERITABLE(BackgroundSetting)
 {
 public:
-	BackgroundSetting(OSDConsoleRenderer& console, XMLElement& node);
+	BackgroundSetting(OSDConsoleRenderer& console,
+	                  const string& initialValue);
 	virtual ~BackgroundSetting();
 
 	virtual bool checkFile(const string& filename);
@@ -44,7 +45,8 @@ NON_INHERITABLE_PRE(FontSetting)
 class FontSetting : public FilenameSettingBase, NON_INHERITABLE(FontSetting)
 {
 public:
-	FontSetting(OSDConsoleRenderer& console, XMLElement& node);
+	FontSetting(OSDConsoleRenderer& console,
+	            const string& initialValue);
 	virtual ~FontSetting();
 
 	virtual bool checkFile(const string& filename);

@@ -17,12 +17,6 @@ FilenameSettingBase::FilenameSettingBase(
 {
 }
 
-FilenameSettingBase::FilenameSettingBase(
-	XMLElement& node, const string& description)
-	: StringSettingBase(node, description)
-{
-}
-
 void FilenameSettingBase::setValue(const string& newValue)
 {
 	string resolved;
@@ -62,14 +56,7 @@ FilenameSetting::FilenameSetting(
 	const string& initialValue)
 	: FilenameSettingBase(name, description, initialValue)
 {
-	initSetting();
-}
-
-FilenameSetting::FilenameSetting(
-	XMLElement& node, const string& description)
-	: FilenameSettingBase(node, description)
-{
-	initSetting();
+	initSetting(SAVE_SETTING);
 }
 
 FilenameSetting::~FilenameSetting()

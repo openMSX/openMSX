@@ -46,16 +46,8 @@ RP5C01::RP5C01(byte* data, const EmuTime& time)
 	EnumSetting<RTCMode>::Map modeMap;
 	modeMap["EmuTime"] = EMUTIME;
 	modeMap["RealTime"] = REALTIME;
-	XMLElement& config = SettingsConfig::instance().getCreateChild("RTC");
-	XMLElement& modeElem = config.getCreateChild("rtcmode", "EmuTime");
-	RTCMode modeValue = EMUTIME;
-	EnumSetting<RTCMode>::Map::const_iterator modeIt =
-		modeMap.find(modeElem.getData());
-	if (modeIt != modeMap.end()) {
-		modeValue = modeIt->second;
-	}
 	modeSetting.reset(new EnumSetting<RTCMode>(
-		modeElem, "Real Time Clock mode", modeValue, modeMap));
+		"rtcmode", "Real Time Clock mode", EMUTIME, modeMap));
 	
 	initializeTime();
 	reset(time);

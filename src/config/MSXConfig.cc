@@ -8,6 +8,7 @@ namespace openmsx {
 MSXConfig::MSXConfig(const string& name)
 	: XMLElement(name)
 {
+	setFileContext(auto_ptr<FileContext>(new SystemFileContext()));
 }
 
 void MSXConfig::loadConfig(XMLElement& root, const FileContext& context,

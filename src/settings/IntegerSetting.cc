@@ -15,14 +15,7 @@ IntegerSetting::IntegerSetting(const string& name, const string& description,
 	: Setting<int>(name, description, initialValue)
 {
 	setRange(minValue, maxValue);
-	initSetting();
-}
-IntegerSetting::IntegerSetting(XMLElement& node, const string& description,
-                               int minValue, int maxValue)
-	: Setting<int>(node, description, node.getDataAsInt())
-{
-	setRange(minValue, maxValue);
-	initSetting();
+	initSetting(SAVE_SETTING);
 }
 
 IntegerSetting::~IntegerSetting()

@@ -1,5 +1,14 @@
 $Id$
 
+2004-09-18 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Rewrote saving of settings code:
+	   - All settings are now saved by default, only exception is
+	     "console" setting. But there are probably more that don't need to
+	     be saved.
+	   - settings.xml fileformat has changed again. All settings are now
+	     saved in a uniform way.
+	   - Code is a lot simpler now
+
 2004-09-18 Maarten ter Huurne <maarten@treewalker.org>
 	* Cleaned up layer system:
 	  - "alpha" was not really alpha, renamed to "coverage"

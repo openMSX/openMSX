@@ -46,8 +46,7 @@ public:
 	  * The map of this setting contains only the available renderers.
 	  * @param defaultRenderer The name of the default renderer
 	  */
-	static auto_ptr<RendererSetting> createRendererSetting(
-		XMLElement& rendererElem);
+	static auto_ptr<RendererSetting> createRendererSetting();
 };
 
 } // namespace openmsx

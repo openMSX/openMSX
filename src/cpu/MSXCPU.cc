@@ -14,11 +14,12 @@ using std::ostringstream;
 namespace openmsx {
 
 MSXCPU::MSXCPU()
-	: z80 (EmuTime::zero),
-	  r800(EmuTime::zero),
-	  timeInfo(*this),
-	  infoCmd(InfoCommand::instance()),
-	  debugger(Debugger::instance())
+	: traceSetting("cputrace", "CPU tracing on/off", false)
+	, z80 (EmuTime::zero, traceSetting)
+	, r800(EmuTime::zero, traceSetting)
+	, timeInfo(*this)
+	, infoCmd(InfoCommand::instance())
+	, debugger(Debugger::instance())
 {
 	activeCPU = &z80;	// setActiveCPU(CPU_Z80);
 	reset(EmuTime::zero);

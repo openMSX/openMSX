@@ -13,12 +13,6 @@ StringSettingBase::StringSettingBase(
 {
 }
 
-StringSettingBase::StringSettingBase(
-	XMLElement& node, const string& description)
-	: Setting<string>(node, description, node.getData())
-{
-}
-
 string StringSettingBase::getValueString() const
 {
 	return getValue();
@@ -36,13 +30,7 @@ StringSetting::StringSetting(const string& name, const string& description,
                              const string& initialValue)
 	: StringSettingBase(name, description, initialValue)
 {
-	initSetting();
-}
-
-StringSetting::StringSetting(XMLElement& node, const string& description)
-	: StringSettingBase(node, description)
-{
-	initSetting();
+	initSetting(SAVE_SETTING);
 }
 
 StringSetting::~StringSetting()
