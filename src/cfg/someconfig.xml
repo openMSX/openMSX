@@ -176,10 +176,11 @@
      <parameter name="filename">NEMESIS2.ROM</parameter>
     <parameter name="filesize">131072</parameter>
     <parameter name="skip_headerbytes">0</parameter>
-    <parameter name="volume">22500</parameter>
+    <parameter name="volume">13000</parameter>
   </device>
+
   <device id="Nemesis 2 Cartridge">
-    <type>MegaRom</type>
+    <type>GameCartridge</type>
     <slotted>
       <ps>1</ps>
       <ss>0</ss>
@@ -193,12 +194,12 @@
     <parameter name="filename">NEMESIS2.ROM</parameter>
     <parameter name="filesize">131072</parameter>
     <parameter name="skip_headerbytes">0</parameter>
-    <parameter name="volume">22500</parameter>
+    <parameter name="volume">13000</parameter>
   </device>
 
-  
+-->
   <device id="Penguin Adventure Cartridge">
-    <type>MegaRom</type>
+    <type>GameCartridge</type>
     <slotted>
       <ps>1</ps>
       <ss>0</ss>
@@ -213,7 +214,7 @@
     <parameter name="filesize">131072</parameter>
     <parameter name="skip_headerbytes">0</parameter>
   </device>
-  
+<!--  
   <device id="FM PAC">
     <type>FM-PAC</type>
     <slotted>
@@ -225,7 +226,7 @@
     <parameter name="skip_headerbytes">0</parameter>
     <parameter name="volume">20000</parameter>
   </device>
--->
+
   <device id="MSX Music">
     <type>Music</type>
     <slotted>
@@ -237,7 +238,7 @@
     <parameter name="skip_headerbytes">0</parameter>
     <parameter name="volume">20000</parameter>
   </device>
- 
+-->
   <device id="cpu">
     <type>CPU</type>
   </device>

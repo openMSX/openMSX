@@ -1,5 +1,8 @@
 $Id$
 
+2001-12-14 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* sound on/off (F11) and pause (PAUSE) now work together
+
 2001-12-16 David Heremans <david.heremans@gnu-linux.net>
 	* Extende LoadFile to autodetermine file-size.
 	* Renamed MSXMegaRom to MSXGameCartrdige.
