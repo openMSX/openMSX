@@ -72,7 +72,7 @@ class FDC_DirAsDSK : public SectorBasedDisk
 		word ReadFAT(word clnr);
 		void WriteFAT(word clnr, word val);
 		MappedDirEntry mapdir[112];	// max nr of entries in root directory: 7 sectors, each 16 entries
-		ReverseSector sectormap[1440];
+		ReverseSector sectormap[1440]; // was 1440, quick hack to fix formatting
 		byte FAT[SECTOR_SIZE * SECTORS_PER_FAT];
 
 		static const byte DefaultBootBlock[];
@@ -81,6 +81,7 @@ class FDC_DirAsDSK : public SectorBasedDisk
 		byte BootBlock[SECTOR_SIZE];
 		string MSXrootdir;
 		map<const int, byte*> cachedSectors;
+		bool saveCachedSectors;
 };
 
 } // namespace openmsx

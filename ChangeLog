@@ -6,6 +6,16 @@ $Id$
 2003-09-11 Reikan <openMSX4Win32@ranpub.com>
 	* Added workaround for Win32 on pathname/path-delimiter.
 
+2003-09-11 David Heremans <david.heremans@gnu-linux.net>
+	* FDC_DirAsDSK: Figured out why a format didn't work correctly with 
+	  my default emulated msx2 (NMS8250). Now the code can handle
+	  formating, didn't check on other machines yet
+
+2003-09-09 David Heremans <david.heremans@gnu-linux.net>
+	* FDC_DirAsDSK: Have cached sectors saved and loaded correctly, now 
+	  you can use the entire fakedisk for writing as well.
+	* Small bugfixes
+
 2003-09-07 Maarten ter Huurne <maarten@treewalker.org>
 	* Have the "plug" command handle PlugException correctly.
 	* Changed Connector interface so that subclasses require less code.
@@ -26,6 +36,9 @@ $Id$
 	* VDPCmdEngine: correct behaviour when registers are changed while cmd
 	  is executing. There seem to be a few glitches left though.
 	* Fix VDPCmdEngine timimg (was broken by previous patch)
+
+2003-09-05 David Heremans <david.heremans@gnu-linux.net>
+	* Corrected destructor behaviour for the Disk class
 
 2003-09-03 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed bug: when CPU has to force extra device scheduling, it should

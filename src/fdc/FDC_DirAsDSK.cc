@@ -228,6 +228,7 @@ FDC_DirAsDSK::FDC_DirAsDSK(FileContext &context, const string &fileName)
 	}
 
 	// Make a full clear FAT
+	saveCachedSectors=false;
 	memset(FAT, 0, SECTOR_SIZE * SECTORS_PER_FAT);
 	// for some reason the first 3bytes are used to indicate the end of a cluster, making the first available cluster nr 2
 	// some sources say that this indicates the disk fromat and FAT[0]should 0xF7 for single sided disk, and 0xF9 for double sided disks
@@ -248,9 +249,7 @@ FDC_DirAsDSK::FDC_DirAsDSK(FileContext &context, const string &fileName)
 		string name(d->d_name);
 		PRT_DEBUG("reading name in dir :" << name);
 		//TODO: if bootsector read from file we should skip this file
-		if ( ! readBootBlockFromFile ){
-			updateFileInDSK(fileName + '/' + name); // used here to add file into fake dsk
-		} else if ( name != BootBlockFileName ) {
+		if ( !(readBootBlockFromFile && name == BootBlockFileName) && name != CachedSectorsFileName ) {
 			updateFileInDSK(fileName + '/' + name); // used here to add file into fake dsk
 		}
 		d = readdir(dir);
@@ -263,24 +262,48 @@ FDC_DirAsDSK::FDC_DirAsDSK(FileContext &context, const string &fileName)
 	tmpfilename=std::string(MSXrootdir) + "/" + CachedSectorsFileName ;
 	PRT_DEBUG("Trying to read cached sector file" << tmpfilename);
 	if (stat(tmpfilename.c_str(), &fst) ==0 ) {
-		if ( ( fst.st_size % ( SECTOR_SIZE + sizeof(byte)) ) == 0 ){
+		if ( ( fst.st_size % ( SECTOR_SIZE + sizeof(int)) ) == 0 ){
 		FILE* file = fopen(tmpfilename.c_str(), "rb");
 		if (file) {
 			PRT_INFO("reading cached sectors from " << tmpfilename);
+			saveCachedSectors=true; //make sure that we don't destroy the cache when destroying this object
 			int i;
 			byte* tmpbuf;
-			while ( ! feof(file) ){
-				fread(&i , 1, sizeof(int), file);
-				PRT_DEBUG("reading cached sector " << i);
+			while ( fread(&i , 1, sizeof(int), file) ){ // feof(file) 
+				
+				PRT_INFO("reading cached sector " << i);
+				if (i == 0){
+					PRT_DEBUG("cached sector is 0, this should be impossible!");
+				} else if ( i < (1 + 2 * SECTORS_PER_FAT) ){
+					i=(i-1) % SECTORS_PER_FAT;
+					PRT_DEBUG("cached sector is FAT sector "<< i);
+					fread(FAT + i * SECTOR_SIZE , 1, SECTOR_SIZE, file);
+				} else if ( i < 14 ){
+					i -= (1 + 2 * SECTORS_PER_FAT);
+					PRT_DEBUG("cached sector is DIR sector "<< i);
+					int dirCount = i * 16;
+					for (int j = 0; j < 16; j++) {
+					  fread( &(mapdir[dirCount++].msxinfo), 1 ,32 ,file );
+					}
+				} else {
+				//regular cached sector
+				PRT_DEBUG("reading regular cached sector " << i);
 				tmpbuf=(byte*)malloc(SECTOR_SIZE); //TODO check failure!!
-				cachedSectors[i]=tmpbuf;
-
 				fread(tmpbuf , 1, SECTOR_SIZE, file);
+				cachedSectors[i]=tmpbuf;
+				sectormap[i].dirEntryNr = CACHEDSECTOR ;
+
+				}
 			}
 
 			//fread(BootBlock, 1, SECTOR_SIZE, file);
 			fclose(file);
-		}
+		} else {
+				PRT_INFO("Couldn't open file " << tmpfilename);
+			}
+		} else {
+		// fst.st_size % ( SECTOR_SIZE + sizeof(int))
+	  	PRT_DEBUG("Wrong filesize for file" << tmpfilename << "=" << fst.st_size);
 		}
 	} else {
 	  PRT_DEBUG("Couldn't stat cached sector file" << tmpfilename);
@@ -293,7 +316,11 @@ FDC_DirAsDSK::~FDC_DirAsDSK()
 	map<const int, byte*>::const_iterator it;
 	//writing the cached sectors to a file
 	std::string filename=std::string(MSXrootdir) + "/" + CachedSectorsFileName ;
-	if ( cachedSectors.begin() != cachedSectors.end() ){
+	//PRT_DEBUG (" cachedSectors.begin() " << (int)cachedSectors.begin() );
+	//PRT_DEBUG (" cachedSectors.end() " << (int)cachedSectors.end() );
+	
+	//if ( cachedSectors.begin() != cachedSectors.end() )
+	if ( saveCachedSectors ) {
 		FILE* file = fopen(filename.c_str(), "wb");
 		if (file) {
 		  // if we have cached sectors we need also to save the fat and dir sectors!
@@ -305,9 +332,11 @@ FDC_DirAsDSK::~FDC_DirAsDSK()
 		  }
 
 		  for ( it = cachedSectors.begin() ; it != cachedSectors.end() ; it++ ) {
+		    PRT_DEBUG("Saving cached sector file" << it->first);
 		    fwrite(&(it->first) , 1, sizeof(int), file);
 		    fwrite(it->second , 1, SECTOR_SIZE, file);
 		  }
+		  fclose(file);
 		} else {
 		PRT_INFO("Couldn't create cached sector file" << filename);
 	  }
@@ -330,7 +359,7 @@ void FDC_DirAsDSK::read(byte track, byte sector, byte side,
 	assert(size == SECTOR_SIZE);
 	
 	int logicalSector = physToLog(track, side, sector);
-	if (logicalSector > nbSectors) {
+	if (logicalSector > (nbSectors+1) ) { // not sure about the  +1, just aquick hack to fix formatting
 		throw NoSuchSectorException("No such sector");
 	}
 	read(logicalSector, size, buf);
@@ -559,9 +588,28 @@ void FDC_DirAsDSK::write(byte track, byte sector, byte side,
 		}
 	} else if (logicalSector < (1 + 2 * SECTORS_PER_FAT)) {
 		//copy to correct sector from FAT
+		//make sure we write changed sectors to the cache file later on
+		saveCachedSectors=true;
+
+		//during formatting sectors > 1+SECTORS_PER_FAT are empty (all
+		//bytes are 0) so we would erase the 3 bytes indentifier at the
+		//beginning of the FAT !! 
+		//Since the two FATs should be identical after "normal" usage,
+		//we simply ignore writes (for now, later we could cache them
+		//perhaps)
+		if (logicalSector  < (1 + SECTORS_PER_FAT)){
 		logicalSector = (logicalSector - 1) % SECTORS_PER_FAT;
 		memcpy( FAT + logicalSector * SECTOR_SIZE, buf , size);
+		};
+		PRT_DEBUG("FAT[0] :"<< std::hex << (int)FAT[0] );
+		PRT_DEBUG("FAT[1] :"<< (int)FAT[1] );
+		PRT_DEBUG("FAT[2] :"<< (int)FAT[2] );
+		PRT_DEBUG("buf[0] :"<< std::hex << (int)buf[0] );
+		PRT_DEBUG("buf[1] :"<< (int)buf[1] );
+		PRT_DEBUG("buf[2] :"<< (int)buf[2] << std::dec );
 	} else if (logicalSector < 14) {
+		//make sure we write changed sectors to the cache file later on
+		saveCachedSectors=true;
 		//create correct DIR sector 
 		/*
 		 We assume that the dir entry is updatet as latest: So 
@@ -632,6 +680,10 @@ void FDC_DirAsDSK::write(byte track, byte sector, byte side,
 	} else {
 	  // simply buffering everything for now, no write-through to host-OS
 		//check if cachedSectors exists, if not assign memory.
+
+		//make sure we write cached sectors to a file later on
+		saveCachedSectors=true;
+
 		if ( cachedSectors[logicalSector] == NULL ) { // is this test actually valid C++ ??
 			PRT_DEBUG("cachedSectors["<<logicalSector<<"] == NULL");
 			byte *tmp;
