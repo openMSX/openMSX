@@ -10,12 +10,10 @@
 
 namespace openmsx {
 
-const string connectorName("printerport");
-
 MSXPrinterPort::MSXPrinterPort(Device *config, const EmuTime &time)
 	: MSXDevice(config, time)
 	, MSXIODevice(config, time)
-	, Connector(connectorName, new DummyPrinterPortDevice())
+	, Connector("printerport", new DummyPrinterPortDevice())
 {
 	data = 255;	// != 0;
 	strobe = false;	// != true;

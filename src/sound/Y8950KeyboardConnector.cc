@@ -6,10 +6,8 @@
 
 namespace openmsx {
 
-const string connectorName("audiokeyboardport");
-
 Y8950KeyboardConnector::Y8950KeyboardConnector()
-	: Connector(connectorName, new DummyY8950KeyboardDevice())
+	: Connector("audiokeyboardport", new DummyY8950KeyboardDevice())
 	, data(255)
 {
 	PluggingController::instance()->registerConnector(this);

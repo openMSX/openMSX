@@ -28,10 +28,8 @@ CassettePortInterface *CassettePortFactory::instance()
 
 // CassettePortInterface //
 
-const string connectorName("cassetteport");
-
 CassettePortInterface::CassettePortInterface()
-	: Connector(connectorName, new DummyCassetteDevice())
+	: Connector("cassetteport", new DummyCassetteDevice())
 {
 }
 

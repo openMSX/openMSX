@@ -7,11 +7,9 @@
 
 namespace openmsx {
 
-const string connectorName("pcminput");
-
 MSXTurboRPCM::MSXTurboRPCM(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
-	, AudioInputConnector(connectorName)
+	, AudioInputConnector("pcminput")
 {
 	short volume = (short)deviceConfig->getParameterAsInt("volume");
 	dac = new DACSound8U("PCM", volume, time);
