@@ -19,6 +19,15 @@
 	#define LSB_FIRST
 #endif
 
+#if (SIZEOF_LONG==8)
+	#define __64BIT__
+	#warning 64 bit mode is not tested yet
+#endif
+#if (SIZEOF_LONG==16)
+	#define __128BIT__
+	#warning 128 bit mode is not tested yet
+#endif
+
 /****************************************************************************/
 /*** Machine dependent definitions                                        ***/
 /****************************************************************************/

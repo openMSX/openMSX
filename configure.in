@@ -44,4 +44,7 @@ AM_PATH_SDL
 dnl check ENDIAN-ness
 AC_C_BIGENDIAN
 
+dnl check size of long
+AC_CHECK_SIZEOF(long)
+
 AC_OUTPUT(Makefile openmsx.lsm openmsx.spec doc/Makefile src/Makefile)
