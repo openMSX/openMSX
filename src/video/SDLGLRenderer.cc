@@ -15,7 +15,6 @@ TODO:
 */
 
 #include "SDLGLRenderer.hh"
-#ifdef __OPENGL_AVAILABLE__
 
 #include <cmath>
 #include <cassert>
@@ -1355,4 +1354,3 @@ void SDLGLRenderer::drawSprites(
 
 } // namespace openmsx
 
-#endif // __OPENGL_AVAILABLE__

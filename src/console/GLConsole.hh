@@ -3,10 +3,8 @@
 #ifndef __GLCONSOLE_HH__
 #define __GLCONSOLE_HH__
 
-#include "GLUtil.hh"
-#ifdef __OPENGL_AVAILABLE__
-
 #include "OSDConsoleRenderer.hh"
+#include "GLUtil.hh"
 
 struct SDL_Surface;
 
@@ -46,5 +44,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __OPENGL_AVAILABLE__
 #endif // __GLCONSOLE_HH__

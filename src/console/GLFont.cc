@@ -1,7 +1,6 @@
 // $Id$
 
 #include "GLFont.hh"
-#ifdef __OPENGL_AVAILABLE__
 
 
 namespace openmsx {
@@ -61,4 +60,3 @@ void GLFont::drawText(const string& string, int x, int y)
 
 } // namespace openmsx
 
-#endif // __OPENGL_AVAILABLE__

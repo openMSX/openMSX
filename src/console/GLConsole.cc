@@ -2,8 +2,6 @@
 
 #include "GLConsole.hh"
 
-#ifdef __OPENGL_AVAILABLE__
-
 #include "MSXConfig.hh"
 #include "DummyFont.hh"
 #include "GLFont.hh"
@@ -248,4 +246,3 @@ void GLConsole::drawConsole()
 
 } // namespace openmsx
 
-#endif // __OPENGL_AVAILABLE__

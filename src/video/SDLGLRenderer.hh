@@ -4,7 +4,6 @@
 #define __SDLGLRENDERER_HH__
 
 #include "GLUtil.hh"
-#ifdef __OPENGL_AVAILABLE__
 
 #include <SDL.h>
 #include "openmsx.hh"
@@ -262,5 +261,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __OPENGL_AVAILABLE__
 #endif // __SDLGLRENDERER_HH__

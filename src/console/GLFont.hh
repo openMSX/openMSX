@@ -3,10 +3,8 @@
 #ifndef __GLFONT_HH__
 #define __GLFONT_HH__
 
-#include "GLUtil.hh"
-#ifdef __OPENGL_AVAILABLE__
-
 #include "Font.hh"
+#include "GLUtil.hh"
 
 
 namespace openmsx {
@@ -26,5 +24,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __OPENGL_AVAILABLE__
 #endif // __GLFONT_HH__

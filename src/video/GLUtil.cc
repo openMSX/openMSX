@@ -1,7 +1,6 @@
 // $Id$
 
 #include "GLUtil.hh"
-#ifdef __OPENGL_AVAILABLE__
 
 
 namespace openmsx {
@@ -50,4 +49,3 @@ void LineTexture::draw(
 
 } // namespace openmsx
 
-#endif // __OPENGL_AVAILABLE__
