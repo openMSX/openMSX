@@ -5,7 +5,7 @@
 
 #include "XRenderer.hh"
 #include <SDL.h>
-#include <SDL/SDL_thread.h>
+#include <SDL_thread.h>
 #include "SDLEventInserter.hh"
 #include <X11/keysym.h>
 #include "Scheduler.hh"

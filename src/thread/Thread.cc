@@ -1,6 +1,6 @@
 // $Id$
 
-#include <SDL/SDL_thread.h>
+#include <SDL_thread.h>
 #include <cstddef>
 #include <cassert>
 #include "Thread.hh"

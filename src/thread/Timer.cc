@@ -1,6 +1,6 @@
 // $Id$
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 #include "Timer.hh"
 
 #include "config.h"
