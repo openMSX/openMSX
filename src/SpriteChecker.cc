@@ -32,7 +32,7 @@ void SpriteChecker::reset(const EmuTime &time)
 	collisionX = 0;
 	collisionY = 0;
 	currentTime = time;
-	
+
 	initFrame(time);
 
 	updateSpritesMethod = &SpriteChecker::updateSprites1;
@@ -86,9 +86,9 @@ inline int SpriteChecker::checkSprites1(
 	if (!vdp->spritesEnabled()) return 0;
 
 	// Calculate display line.
-	// Compensate for the fact that sprites are calculated one line
-	// before they are plotted.
-	line = line - vdp->getLineZero() + vdp->getVerticalScroll() - 1;
+	// This is the line sprites are checked at; the line they are displayed
+	// at is one lower.
+	line = line - vdp->getLineZero() + vdp->getVerticalScroll();
 
 	// Get sprites for this line and detect 5th sprite if any.
 	bool limitSprites = limitSpritesSetting->getValue();
@@ -180,10 +180,9 @@ inline int SpriteChecker::checkSprites2(
 	if (!vdp->spritesEnabled()) return 0;
 
 	// Calculate display line.
-	// Compensate for the fact that sprites are calculated one line
-	// before they are plotted.
-	// TODO: Actually fetch the data one line earlier.
-	line = line - vdp->getLineZero() + vdp->getVerticalScroll() - 1;
+	// This is the line sprites are checked at; the line they are displayed
+	// at is one lower.
+	line = line - vdp->getLineZero() + vdp->getVerticalScroll();
 
 	// Get sprites for this line and detect 5th sprite if any.
 	bool limitSprites = limitSpritesSetting->getValue();
@@ -298,8 +297,11 @@ inline int SpriteChecker::checkSprites2(
 
 void SpriteChecker::sync(const EmuTime &time)
 {
+	// Debug:
+	// This method is not re-entrant, so check explicitly that it is not
+	// re-entered. This can disappear once the VDP-internal scheduling
+	// has become stable.
 	static bool syncInProgress = false;
-	
 	assert(!syncInProgress);
 	syncInProgress = true;
 	vram->sync(time);

@@ -1,5 +1,8 @@
 $Id$
 
+2002-12-28 Maarten ter Huurne <maarten@treewalker.org>
+	* Cleaned up sprite checker synchronisation.
+
 2002-12-27 Maarten ter Huurne <maarten@treewalker.org>
 	* Created VDPSettings class, moved cmdTiming there.
 	* Moved limitSprites from config to VDPSettings.

@@ -600,16 +600,16 @@ byte VDP::readIO(byte port, const EmuTime &time)
 				| cmdEngine->getStatus(time);
 		}
 		case 3:
-			return (byte)spriteChecker->getCollisionX();
+			return (byte)spriteChecker->getCollisionX(time);
 		case 4:
-			return (byte)(spriteChecker->getCollisionX() >> 8) | 0xFE;
+			return (byte)(spriteChecker->getCollisionX(time) >> 8) | 0xFE;
 		case 5: {
-			byte ret = (byte)spriteChecker->getCollisionY();
+			byte ret = (byte)spriteChecker->getCollisionY(time);
 			spriteChecker->resetCollision();
 			return ret;
 		}
 		case 6:
-			return (byte)(spriteChecker->getCollisionY() >> 8) | 0xFC;
+			return (byte)(spriteChecker->getCollisionY(time) >> 8) | 0xFC;
 		case 7:
 			return cmdEngine->readColour(time);
 		case 8:

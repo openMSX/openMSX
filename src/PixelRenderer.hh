@@ -102,6 +102,17 @@ protected:
 	  * @param time Moment in emulated time to update to.
 	  */
 	void sync(const EmuTime &time) {
+		// Synchronisation is done in two phases:
+		// 1. update VRAM
+		// 2. update other subsystems
+		// Note that as part of step 1, type 2 updates can be triggered.
+		// Executing step 2 takes care of the subsystem changes that occur
+		// after the last VRAM update.
+		// This scheme makes sure type 2 routines such as renderUntil and
+		// checkUntil are not re-entered, which was causing major pain in
+		// the past.
+		// TODO: I wonder if it's possible to enforce this synchronisation
+		//       scheme at a higher level. Probably. But how...
 		vram->sync(time);
 		renderUntil(time);
 	}

@@ -107,6 +107,9 @@ inline void PixelRenderer::renderUntil(const EmuTime &time)
 	assert(limitY <= (vdp->isPalTiming() ? 313 : 262));
 
 	if (displayEnabled) {
+		// Update sprite checking, so that subclass can call getSprites.
+		spriteChecker->checkUntil(time);
+
 		// Calculate end of display in ticks since start of line.
 		int displayR = displayL + (vdp->isTextMode() ? 960 : 1024);
 
@@ -143,7 +146,7 @@ PixelRenderer::PixelRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)
 	while (!buffer.isFull()) {
 		buffer.addFront(1.0);
 	}
-	
+
 	CommandController::instance()->registerCommand(frameSkipCmd, "frameskip");
 
 	// Now we're ready to start rendering the first frame.
@@ -189,13 +192,13 @@ void PixelRenderer::putImage(const EmuTime &time)
 	// The screen will be locked for a while, so now is a good time
 	// to perform real time sync.
 	float factor = RealTime::instance()->sync(time);
-	
+
 	if (autoFrameSkip) {
 		frameSkipShortAvg += (factor - buffer[9]);	// sum last 10
 		frameSkipLongAvg  += (factor - buffer[99]);	// sum last 100
 		buffer.removeBack();
 		buffer.addFront(factor);
-	
+
 		if (frameSkipDelay) {
 			// recently changed frameSkip, give time to stabilize
 			frameSkipDelay--;

@@ -136,38 +136,39 @@ public:
 		// TODO: Update VRAM window range.
 	}
 
-private:
 	/** Update sprite checking until specified line.
-	  * @param limit Line (exclusive) to update sprite checking to.
+	  * VRAM must be up-to-date before this method is called.
+	  * @param time The moment in emulated time to update to.
 	  */
-	inline void checkUntil(int limit) {
-		// This calls either updateSprites1 or updateSprites2,
-		// depending on the current DisplayMode.
-		int linesPerFrame = vdp->isPalTiming() ? 313 : 262;
-		if (limit == linesPerFrame + 1) {
-			// TODO:
-			// Sprite memory is read one line in advance.
-			// This doesn't integrate nicely with frameStart() yet:
-			// line counter is reset at frame start, while line 0 sprite
-			// data is read at last line of previous frame.
-			// As a workaround, we read line 0 data at line 0 time,
-			// all other lines are read one line in advance as it should be.
-			limit--;
-		} else if (limit > linesPerFrame) {
-			std::cout << "checkUntil: limit = " << limit << "\n";
-			assert(false);
+	inline void checkUntil(const EmuTime &time) {
+		// TODO:
+		// Currently the sprite checking is done atomically at the end of
+		// the display line. In reality, sprite checking is probably done
+		// during most of the line. Run tests on real MSX to make a more
+		// accurate model of sprite checking.
+		int limit = frameStartTime.getTicksTill(time) / VDP::TICKS_PER_LINE;
+		if (currentLine < limit) {
+			// This calls either updateSprites1 or updateSprites2,
+			// depending on the current DisplayMode.
+			(this->*updateSpritesMethod)(limit);
 		}
-		(this->*updateSpritesMethod)(limit);
 	}
 
-	inline void checkUntil(const EmuTime &time) {
-		checkUntil(
-			frameStartTime.getTicksTill(time) / VDP::TICKS_PER_LINE + 1 );
-	}
+private:
+	/** Update sprite checking to specified time.
+	  * This includes a VRAM sync.
+	  * @param time The moment in emulated time to update to.
+	  * TODO: Inline would be nice, but there are cyclic dependencies
+	  *       with VDPVRAM.
+	  *       To break those, implement VDPVRAM::VRAMObserver.
+	  */
+	void sync(const EmuTime &time);
 
 	inline void initFrame(const EmuTime &time) {
 		frameStartTime = time;
 		currentLine = 0;
+		linesPerFrame = vdp->isPalTiming() ? 313 : 262;
+		// Debug: -1 means uninitialised.
 		for (int i = 0; i < 313; i++) spriteCount[i] = -1;
 		// TODO: Reset anything else? Does the real VDP?
 	}
@@ -184,13 +185,21 @@ public:
 
 	/** Get X coordinate of sprite collision.
 	  */
-	inline int getCollisionX() { return collisionX; }
+	inline int getCollisionX(const EmuTime &time) {
+		sync(time);
+		return collisionX;
+	}
 
 	/** Get Y coordinate of sprite collision.
 	  */
-	inline int getCollisionY() { return collisionY; }
+	inline int getCollisionY(const EmuTime &time) {
+		sync(time);
+		return collisionY;
+	}
 
 	/** Reset sprite collision coordinates.
+	  * This happens directly after a read, so a timestamp for syncing is
+	  * not necessary.
 	  */
 	inline void resetCollision() {
 		collisionX = collisionY = 0;
@@ -207,8 +216,9 @@ public:
 	}
 
 	/** Get sprites for a display line.
-	  * Separated from display code to make MSX behaviour consistent
-	  * no matter how displaying is handled.
+	  * Returns the contents of the line the last time it was sprite checked;
+	  * before getting the sprites, you should sync to a moment in time
+	  * after the sprites are checked, or you'll get last frame's sprites.
 	  * @param line The absolute line number for which sprites should
 	  *   be returned. Range is [0..313) for PAL and [0..262) for NTSC.
 	  * @param visibleSprites Output parameter in which the pointer to
@@ -219,9 +229,16 @@ public:
 	  * @return The number of sprites stored in the visibleSprites array.
 	  */
 	inline int getSprites(int line, SpriteInfo *&visibleSprites) {
-		if (line >= currentLine) checkUntil(line + 1);
+		// Compensate for the fact sprites are checked one line earlier
+		// than they are displayed.
+		line--;
+
+		// TODO: Is there ever a sprite on absolute line 0?
+		//       Maybe there is, but it is never displayed.
+		if (line < 0) return 0;
+
 		visibleSprites = spriteBuffer[line];
-		//assert(spriteCount[line] != -1);
+		assert(spriteCount[line] != -1);
 		if (spriteCount[line] < 0) return 0;
 		return spriteCount[line];
 	}
@@ -254,13 +271,6 @@ public:
 	}
 
 private:
-	/** Update sprite checking to specified time.
-	  * @param time The moment in emulated time to update to.
-	  * TODO: Inline would be nice, but there are cyclic dependencies
-	  *       with VDPVRAM.
-	  */
-	void sync(const EmuTime &time);
-
 	/** Calculate sprite pattern for sprite mode 1.
 	  */
 	void updateSprites1(int limit);
@@ -318,7 +328,11 @@ private:
 
 	typedef void (SpriteChecker::*UpdateSpritesMethod)(int limit);
 	UpdateSpritesMethod updateSpritesMethod;
-	
+
+	/** Number of lines (262/313) in the current frame.
+	  */
+	int linesPerFrame;
+
 	/** Is current display mode planar or not?
 	  * TODO: Introduce separate update methods for planar/nonplanar modes.
 	  */
@@ -345,6 +359,7 @@ private:
 	EmuTimeFreq<VDP::TICKS_PER_SECOND> frameStartTime;
 
 	/** The emulation time up to when sprite checking was performed.
+	  * TODO: Currently not used. Should it replace currentLine?
 	  */
 	EmuTimeFreq<VDP::TICKS_PER_SECOND> currentTime;
 
