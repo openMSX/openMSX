@@ -47,12 +47,12 @@ VDPVRAM::VDPVRAM(VDP *vdp, unsigned size, const EmuTime& time)
 	// TODO: Move this to cache registration.
 	bitmapCacheWindow.setMask(0x1FFFF, -1 << 17, EmuTime::zero);
 
-	Debugger::instance().registerDebuggable("vram", *this);
+	Debugger::instance().registerDebuggable("VRAM", *this);
 }
 
 VDPVRAM::~VDPVRAM()
 {
-	Debugger::instance().unregisterDebuggable("vram", *this);
+	Debugger::instance().unregisterDebuggable("VRAM", *this);
 
 	delete[] data;
 }

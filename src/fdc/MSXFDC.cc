@@ -8,7 +8,7 @@ namespace openmsx {
 
 MSXFDC::MSXFDC(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time),
-	  rom(getName() + "_ROM", "rom", config) 
+	  rom(getName() + " ROM", "rom", config) 
 {
 	string drivename("drivename1");
 	//                0123456789

@@ -60,7 +60,7 @@ int Y8950Adpcm::CLAP(int min, int x, int max)
 //**********************************************************//
 
 Y8950Adpcm::Y8950Adpcm(Y8950& y8950_, const string& name_, int sampleRam)
-	: y8950(y8950_), name(name_ + "_ram"), ramSize(sampleRam), volume(0)
+	: y8950(y8950_), name(name_ + " RAM"), ramSize(sampleRam), volume(0)
 {
 	ramBank = new byte[ramSize];
 	memset(ramBank, 0xFF, ramSize);

@@ -9,7 +9,7 @@ const byte ID = 0x08;
 
 MSXMatsushita::MSXMatsushita(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXSwitchedDevice(ID),
-	  sram(getName(), 0x800, config)
+	  sram(getName() + " SRAM", 0x800, config)
 {
 	// TODO find out what ports 0x41 0x45 0x46 are used for
 	//      (and if they belong to this device)

@@ -590,13 +590,13 @@ YM2413::YM2413(const string& name_, short volume, const EmuTime& time,
 	
 	reset(time);
 
-	Debugger::instance().registerDebuggable(name, *this);
+	Debugger::instance().registerDebuggable(name + " regs", *this);
 }
 
 // Destructor
 YM2413::~YM2413()
 {
-	Debugger::instance().unregisterDebuggable(name, *this);
+	Debugger::instance().unregisterDebuggable(name + " regs", *this);
 	Mixer::instance().unregisterSound(this);
 	delete[] buffer;
 }

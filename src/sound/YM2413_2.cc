@@ -1371,12 +1371,12 @@ YM2413_2::YM2413_2(const string& name_, short volume, const EmuTime& time,
 	buffer = new int[bufSize];
 	reset(time);
 
-	Debugger::instance().registerDebuggable(name, *this);
+	Debugger::instance().registerDebuggable(name + " regs", *this);
 }
 
 YM2413_2::~YM2413_2()
 {
-	Debugger::instance().unregisterDebuggable(name, *this);
+	Debugger::instance().unregisterDebuggable(name + " regs", *this);
 	Mixer::instance().unregisterSound(this);
 	delete[] buffer;
 }

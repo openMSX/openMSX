@@ -10,7 +10,7 @@ namespace openmsx {
 
 MSXMusic::MSXMusic(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
-	  MSXMemDevice(config, time), rom(getName() + "_ROM", "rom", config)
+	  MSXMemDevice(config, time), rom(getName() + " ROM", "rom", config)
 {
 	short volume = (short)deviceConfig->getParameterAsInt("volume");
 	Mixer::ChannelMode mode = Mixer::MONO;

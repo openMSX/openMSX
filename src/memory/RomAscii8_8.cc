@@ -22,7 +22,7 @@ namespace openmsx {
 RomAscii8_8::RomAscii8_8(Config* config, const EmuTime& time, auto_ptr<Rom> rom_,
                          SubType subType)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom_),
-	  sram(getName() + "-SRAM", (subType == KOEI_32) ? 0x8000 : 0x2000, config)
+	  sram(getName() + " SRAM", (subType == KOEI_32) ? 0x8000 : 0x2000, config)
 {
 	sramEnableBit = (subType == WIZARDRY) ? 0x80
 	                                      : rom->getSize() / 0x2000;

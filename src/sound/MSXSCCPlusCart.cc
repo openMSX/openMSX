@@ -13,7 +13,7 @@ namespace openmsx {
 
 MSXSCCPlusCart::MSXSCCPlusCart(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time),
-	  ram(getName() + "-RAM", "SCC+ RAM", 0x20000)
+	  ram(getName() + " RAM", "SCC+ RAM", 0x20000)
 {
 	if (config->hasParameter("filename")) {
 		// read the rom file

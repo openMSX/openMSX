@@ -1820,12 +1820,12 @@ YMF262::YMF262(short volume, const EmuTime& time)
 	buffer = new int[2 * bufSize];
 	reset(time);
 
-	Debugger::instance().registerDebuggable(getName(), *this);
+	Debugger::instance().registerDebuggable(getName() + " regs", *this);
 }
 
 YMF262::~YMF262()
 {
-	Debugger::instance().unregisterDebuggable(getName(), *this);
+	Debugger::instance().unregisterDebuggable(getName() + " regs", *this);
 	Mixer::instance().unregisterSound(this);
 	delete[] buffer;
 }

@@ -419,7 +419,7 @@ void Y8950::Channel::keyOff()
 Y8950::Y8950(const string& name_, short volume, int sampleRam,
              const EmuTime& time, Mixer::ChannelMode mode)
 	: timer1(this), timer2(this), adpcm(*this, name_, sampleRam), connector(),
-	  dac13(name_ + "_DAC", "MSX-AUDIO 13-bit DAC", volume, time),
+	  dac13(name_ + " DAC", "MSX-AUDIO 13-bit DAC", volume, time),
           name(name_)
 {
 	makePmTable();
@@ -444,12 +444,12 @@ Y8950::Y8950(const string& name_, short volume, int sampleRam,
 
 	int bufSize = Mixer::instance().registerSound(this, volume, mode);
 	buffer = new int[bufSize];
-	Debugger::instance().registerDebuggable(name, *this);
+	Debugger::instance().registerDebuggable(name + " regs", *this);
 }
 
 Y8950::~Y8950()
 {
-	Debugger::instance().unregisterDebuggable(name, *this);
+	Debugger::instance().unregisterDebuggable(name + " regs", *this);
 	Mixer::instance().unregisterSound(this);
 	delete[] buffer;
 }

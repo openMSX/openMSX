@@ -9,7 +9,7 @@ namespace openmsx {
 
 MSXRTC::MSXRTC(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
-	  sram(getName(), 4 * 13, config)
+	  sram(getName() + " SRAM", 4 * 13, config)
 {
 	bool emuTimeBased = deviceConfig->getParameter("mode") != "RealTime";
 	

@@ -741,7 +741,7 @@ byte YMF278::readStatus(const EmuTime& time)
 YMF278::YMF278(short volume, int ramSize, Config* config,
                const EmuTime& time)
 	: debugRegisters(*this), debugMemory(*this),
-	  rom(getName() + "_rom", "rom", config)
+	  rom(getName() + " ROM", "rom", config)
 {
 	memadr = 0;	// avoid UMR
 	endRom = rom.getSize();
@@ -754,14 +754,14 @@ YMF278::YMF278(short volume, int ramSize, Config* config,
 	buffer = new int[2 * bufSize];
 	reset(time);
 
-	Debugger::instance().registerDebuggable(getName() + "_regs", debugRegisters);
-	Debugger::instance().registerDebuggable(getName() + "_mem", debugMemory);
+	Debugger::instance().registerDebuggable(getName() + " regs", debugRegisters);
+	Debugger::instance().registerDebuggable(getName() + " mem", debugMemory);
 }
 
 YMF278::~YMF278()
 {
-	Debugger::instance().unregisterDebuggable(getName() + "_mem", debugMemory);
-	Debugger::instance().unregisterDebuggable(getName() + "_regs", debugRegisters);
+	Debugger::instance().unregisterDebuggable(getName() + " mem", debugMemory);
+	Debugger::instance().unregisterDebuggable(getName() + " regs", debugRegisters);
 	Mixer::instance().unregisterSound(this);
 	delete[] buffer;
 	delete[] ram;

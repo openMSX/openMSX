@@ -85,8 +85,8 @@ MSXCPUInterface::MSXCPUInterface()
 	commandController.registerCommand(&slotSelectCmd, "slotselect");
 
 	debugger.registerDebuggable("memory", memoryDebug);
-	debugger.registerDebuggable("slotted-memory", slottedMemoryDebug);
-	debugger.registerDebuggable("io", ioDebug);
+	debugger.registerDebuggable("slotted memory", slottedMemoryDebug);
+	debugger.registerDebuggable("I/O ports", ioDebug);
 
 	msxcpu.setInterface(this);
 }
@@ -96,8 +96,8 @@ MSXCPUInterface::~MSXCPUInterface()
 	msxcpu.setInterface(NULL);
 
 	debugger.unregisterDebuggable("memory", memoryDebug);
-	debugger.unregisterDebuggable("slotted-memory", slottedMemoryDebug);
-	debugger.unregisterDebuggable("io", ioDebug);
+	debugger.unregisterDebuggable("slotted memory", slottedMemoryDebug);
+	debugger.unregisterDebuggable("I/O ports", ioDebug);
 
 	commandController.unregisterCommand(&slotMapCmd,    "slotmap");
 	commandController.unregisterCommand(&slotSelectCmd, "slotselect");

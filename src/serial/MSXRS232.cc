@@ -21,10 +21,10 @@ MSXRS232::MSXRS232(Config* config, const EmuTime& time)
 	, i8254(&cntr0, &cntr1, NULL, time)
 	, interf(*this)
 	, i8251(&interf, time)
-	, rom(MSXDevice::getName() + "_ROM", "rom", config)
+	, rom(MSXDevice::getName() + " ROM", "rom", config)
 {
 	if (config->getParameterAsBool("ram", false)) {
-		ram = new Ram(MSXDevice::getName(), "RS232 RAM", RAM_SIZE);
+		ram = new Ram(MSXDevice::getName() + " RAM", "RS232 RAM", RAM_SIZE);
 	} else {
 		ram = NULL;
 	}

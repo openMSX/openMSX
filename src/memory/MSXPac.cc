@@ -13,7 +13,7 @@ static const char* const PAC_Header = "PAC2 BACKUP DATA";
 
 MSXPac::MSXPac(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time), 
-	  sram(getName() + "-SRAM", 0x1FFE, config, PAC_Header)
+	  sram(getName() + " SRAM", 0x1FFE, config, PAC_Header)
 {
 	reset(time);
 }

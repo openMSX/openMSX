@@ -93,12 +93,12 @@ SCC::SCC(const string& name_, short volume, const EmuTime& time,
 	}
 	
 	reset(time);
-	Debugger::instance().registerDebuggable(name, sccDebuggable);
+	Debugger::instance().registerDebuggable(name + " SCC", sccDebuggable);
 }
 
 SCC::~SCC()
 {
-	Debugger::instance().unregisterDebuggable(name, sccDebuggable);
+	Debugger::instance().unregisterDebuggable(name + " SCC", sccDebuggable);
 	Mixer::instance().unregisterSound(this);
 	delete[] buffer;
 }

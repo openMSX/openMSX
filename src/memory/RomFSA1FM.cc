@@ -46,7 +46,7 @@ namespace openmsx {
 // common sram //
 
 FSA1FMRam::FSA1FMRam(Config* config)
-	: sram(config->getId() + "-SRAM", 0x2000, config)
+	: sram(config->getId() + " SRAM", 0x2000, config)
 {
 }
 

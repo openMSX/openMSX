@@ -26,12 +26,12 @@ MSXCPU::MSXCPU()
 
 	infoCmd.registerTopic("time", &timeInfo);
 	debugger.setCPU(this);
-	debugger.registerDebuggable("cpu-regs", *this);
+	debugger.registerDebuggable("CPU regs", *this);
 }
 
 MSXCPU::~MSXCPU()
 {
-	debugger.unregisterDebuggable("cpu-regs", *this);
+	debugger.unregisterDebuggable("CPU regs", *this);
 	debugger.setCPU(0);
 	infoCmd.unregisterTopic("time", &timeInfo);
 }

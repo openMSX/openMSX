@@ -123,8 +123,8 @@ VDP::VDP(Config* config, const EmuTime& time)
 	CommandController::instance().registerCommand(&paletteCmd, "palette");
 	CommandController::instance().registerCommand(&screenShotCmd, "screenshot");
 
-	Debugger::instance().registerDebuggable("vdp-regs", vdpRegDebug);
-	Debugger::instance().registerDebuggable("vdp-status-regs", vdpStatusRegDebug);
+	Debugger::instance().registerDebuggable("VDP regs", vdpRegDebug);
+	Debugger::instance().registerDebuggable("VDP status regs", vdpStatusRegDebug);
 
 	// Initialise time stamps.
 	// This will be done again by frameStart, but these have to be
@@ -141,8 +141,8 @@ VDP::VDP(Config* config, const EmuTime& time)
 
 VDP::~VDP()
 {
-	Debugger::instance().unregisterDebuggable("vdp-status-regs", vdpStatusRegDebug);
-	Debugger::instance().unregisterDebuggable("vdp-regs", vdpRegDebug);
+	Debugger::instance().unregisterDebuggable("VDP status regs", vdpStatusRegDebug);
+	Debugger::instance().unregisterDebuggable("VDP regs", vdpRegDebug);
 
 	CommandController::instance().unregisterCommand(&screenShotCmd, "screenshot");
 	CommandController::instance().unregisterCommand(&vdpRegsCmd,  "vdpregs");

@@ -40,8 +40,8 @@ V9990::V9990(Config* config, const EmuTime& time)
 		palette[4 * i + 3] = 0x00;
 	}
 	
-	Debugger::instance().registerDebuggable("v9990-regs", v9990RegDebug);
-	Debugger::instance().registerDebuggable("v9990-vram", v9990VRAMDebug);
+	Debugger::instance().registerDebuggable("V9990 regs", v9990RegDebug);
+	Debugger::instance().registerDebuggable("V9990 VRAM", v9990VRAMDebug);
 
 	reset(time);
 }
@@ -50,8 +50,8 @@ V9990::~V9990()
 {
 	PRT_DEBUG("[--now--] V9990::Destroy");
 
-	Debugger::instance().unregisterDebuggable("v9990-vram", v9990VRAMDebug);
-	Debugger::instance().unregisterDebuggable("v9990-regs", v9990RegDebug);
+	Debugger::instance().unregisterDebuggable("V9990 VRAM", v9990VRAMDebug);
+	Debugger::instance().unregisterDebuggable("V9990 regs", v9990RegDebug);
 	
 	delete[] vram;
 }

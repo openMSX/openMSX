@@ -19,7 +19,7 @@ RomPanasonic::RomPanasonic(Config* config, const EmuTime& time, auto_ptr<Rom> ro
 	
 	int sramSize = config->getParameterAsInt("sramsize", 0);
 	if (sramSize) {
-		sram = new SRAM(getName() + "-SRAM", sramSize * 1024, config);
+		sram = new SRAM(getName() + " SRAM", sramSize * 1024, config);
 	} else {
 		sram = NULL;
 	}

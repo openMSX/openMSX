@@ -38,13 +38,13 @@ AY8910::AY8910(AY8910Interface& interf, short volume, const EmuTime& time)
 	                                              volume, Mixer::MONO);
 	buffer = new int[bufSize];
 	reset(time);
-	Debugger::instance().registerDebuggable(getName(), *this);
+	Debugger::instance().registerDebuggable(getName() + " regs", *this);
 }
 
 
 AY8910::~AY8910()
 {
-	Debugger::instance().unregisterDebuggable(getName(), *this);
+	Debugger::instance().unregisterDebuggable(getName() + " regs", *this);
 	Mixer::instance().unregisterSound(this);
 	delete[] buffer;
 }

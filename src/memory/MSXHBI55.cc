@@ -38,7 +38,7 @@ namespace openmsx {
 
 MSXHBI55::MSXHBI55(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
-	  sram(getName() + "-SRAM", 0x1000, config)
+	  sram(getName() + " SRAM", 0x1000, config)
 {
 	i8255 = new I8255(*this, time);
 

@@ -14,7 +14,7 @@ namespace openmsx {
 
 SunriseIDE::SunriseIDE(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time),
-	  rom(getName() + "_ROM", "rom", config)
+	  rom(getName() + " ROM", "rom", config)
 {
 	device[0] = (config->hasParameter("master")) 
 	            ? IDEDeviceFactory::create(config->getParameter("master"), time)
