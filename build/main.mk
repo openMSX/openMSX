@@ -10,6 +10,14 @@
 # "Recursive Make Considered Harmful".
 # http://www.tip.net.au/~millerp/rmch/recu-make-cons-harm.html
 
+# TODO:
+# - Refuse to build if COMPONENT_CORE is false.
+# - Show different text after running probe-results.mk depending on
+#   components that can be built.
+# - If COMPONENT_GL is false, do not build SDLGL.
+# - Move calculation of CFLAGS and LDFLAGS to components.mk?
+# - Change output format of tcl-search.sh to match probed_defs.mk format.
+
 
 # Logical Targets
 # ===============
@@ -115,9 +123,6 @@ include $(MAKE_PATH)/platform-$(OPENMSX_PLATFORM).mk
 # Check that all expected variables were defined by platform specific Makefile:
 # - executable file name extension
 $(call DEFCHECK,EXEEXT)
-# - library names
-$(call DEFCHECK,LIBS_PLAIN)
-$(call DEFCHECK,LIBS_CONFIG)
 # - flavour (user selectable; platform specific default)
 $(call DEFCHECK,OPENMSX_FLAVOUR)
 # - platform supports symlinks?
@@ -217,7 +222,11 @@ CHANGELOG_REVISION:=\
 include $(MAKE_PATH)/info2code.mk
 ifneq ($(filter $(DEPEND_TARGETS),$(MAKECMDGOALS)),)
 -include $(PROBE_MAKE)
--include $(CONFIG_PATH)/config-tcl.mk
+ifeq ($(PROBE_MAKE_INCLUDED),true)
+include $(MAKE_PATH)/components.mk
+$(call BOOLCHECK,COMPONENT_CORE)
+$(call BOOLCHECK,COMPONENT_GL)
+endif
 endif
 
 
@@ -295,22 +304,27 @@ ifeq ($(OPENMSX_STRIP),true)
   LDFLAGS+=--strip-all
 endif
 
-# Determine include flags.
+
+# Determine common compile flags.
 INCLUDE_INTERNAL:=$(filter-out %/CVS,$(shell find $(SOURCES_PATH) -type d))
 INCLUDE_INTERNAL+=$(CONFIG_PATH)
 INCLUDE_EXTERNAL:= # TODO: Define these here or platform-*.mk?
 INCLUDE_EXTERNAL+=/usr/X11R6/include
-LIB_FLAGS:=$(addprefix -I,$(INCLUDE_EXTERNAL))
-LIB_FLAGS+=$(foreach lib,$(LIBS_CONFIG),$(shell $(lib)-config --cflags))
-LIB_FLAGS+=$(TCL_CFLAGS)
-COMPILE_FLAGS:=$(addprefix -I,$(INCLUDE_INTERNAL)) $(LIB_FLAGS)
+COMPILE_FLAGS:=$(addprefix -I,$(INCLUDE_INTERNAL) $(INCLUDE_EXTERNAL))
 
-# Determine link flags.
+# Determine common link flags.
 LINK_FLAGS_PREFIX:=-Wl,
 LINK_FLAGS+=$(addprefix $(LINK_FLAGS_PREFIX),$(LDFLAGS))
-LINK_FLAGS+=$(addprefix -l,$(LIBS_PLAIN))
-LINK_FLAGS+=$(foreach lib,$(LIBS_CONFIG),$(shell $(lib)-config --libs))
-LINK_FLAGS+=$(TCL_LDFLAGS)
+
+# Determine component specific compile and link flags.
+ifeq ($(COMPONENT_CORE),true)
+COMPILE_FLAGS+=$(foreach lib,$(CORE_LIBS),$($(lib)_CFLAGS))
+LINK_FLAGS+=$(foreach lib,$(CORE_LIBS),$($(lib)_LDFLAGS))
+endif
+ifeq ($(COMPONENT_GL),true)
+COMPILE_FLAGS+=$(GL_CFLAGS)
+LINK_FLAGS+=$(GL_LDFLAGS)
+endif
 
 
 # Build Rules
@@ -333,7 +347,7 @@ endif
 $(PROBE_MAKE): $(PROBE_SCRIPT) $(MAKE_PATH)/tcl-search.sh
 	@OUTDIR=$(@D) OPENMSX_PLATFORM=$(OPENMSX_PLATFORM) COMPILE="$(CXX)" \
 		$(MAKE) --no-print-directory -f $<
-	@PROBE_MAKE=$(PROBE_MAKE) \
+	@PROBE_MAKE=$(PROBE_MAKE) COMPONENTS_MAKE=$(MAKE_PATH)/components.mk \
 		$(MAKE) --no-print-directory -f $(MAKE_PATH)/probe-results.mk
 
 all: $(CONFIG_HEADER) $(VERSION_HEADER) config $(BINARY_FULL)
