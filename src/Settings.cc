@@ -138,7 +138,7 @@ void FloatSetting::setValueFloat(float newValue)
 
 // IntStringMap implementation:
 
-IntStringMap::IntStringMap(const std::map<const string, int> *map_)
+IntStringMap::IntStringMap(BaseMap *map_)
 {
 	this->stringToInt = map_;
 }
