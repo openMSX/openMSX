@@ -10,7 +10,7 @@
 
 class BooleanSetting;
 
-class SpriteChecker: public VDPVRAM::VRAMObserver
+class SpriteChecker: public VRAMObserver
 {
 private:
 	/** Update sprite checking to specified time.
@@ -18,6 +18,7 @@ private:
 	  * @param time The moment in emulated time to update to.
 	  */
 	inline void sync(const EmuTime &time) {
+		if (mode0) return;
 		// Debug:
 		// This method is not re-entrant, so check explicitly that it is not
 		// re-entered. This can disappear once the VDP-internal scheduling
@@ -102,7 +103,8 @@ public:
 		switch(mode.getSpriteMode()) {
 		case 0:
 			updateSpritesMethod = &SpriteChecker::updateSprites0;
-			break;
+			mode0 = true;
+			return;
 		case 1:
 			updateSpritesMethod = &SpriteChecker::updateSprites1;
 			break;
@@ -112,6 +114,7 @@ public:
 		default:
 			assert(false);
 		}
+		mode0 = false;
 		planar = mode.isPlanar();
 	}
 
@@ -155,6 +158,7 @@ public:
 
 	/** Update sprite checking until specified line.
 	  * VRAM must be up-to-date before this method is called.
+	  * It is not allowed to call this method in a spriteless display mode.
 	  * @param time The moment in emulated time to update to.
 	  */
 	inline void checkUntil(const EmuTime &time) {
@@ -272,7 +276,7 @@ private:
 	/** Do not calculate sprite patterns, because this mode is spriteless.
 	  */
 	void updateSprites0(int limit);
-	
+
 	/** Calculate sprite patterns for sprite mode 1.
 	  */
 	void updateSprites1(int limit);
@@ -335,6 +339,10 @@ private:
 	/** Number of lines (262/313) in the current frame.
 	  */
 	int linesPerFrame;
+
+	/** Is the current display mode spriteless?
+	  */
+	bool mode0;
 
 	/** Is current display mode planar or not?
 	  * TODO: Introduce separate update methods for planar/nonplanar modes.

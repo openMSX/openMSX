@@ -46,22 +46,8 @@ public:
 	void updatePatternBase(int addr, const EmuTime &time);
 	void updateColourBase(int addr, const EmuTime &time);
 	*/
-
-	void updateVRAM(int addr, byte data, const EmuTime &time) {
-		// TODO: Is it possible to get rid of this method?
-		//       One method call is a considerable overhead since VRAM
-		//       changes occur pretty often.
-		//       For example, register dirty checker at caller.
-
-		// If display is disabled, VRAM changes will not affect the
-		// renderer output, therefore sync is not necessary.
-		// TODO: Changes in invisible pages do not require sync either.
-		//       Maybe this is a task for the dirty checker, because what is
-		//       visible is display mode dependant.
-		if (vdp->isDisplayEnabled()) renderUntil(time);
-
-		updateVRAMCache(addr, data);
-	}
+	void updateVRAM(int addr, const EmuTime &time);
+	void updateWindow(const EmuTime &time);
 
 protected:
 	/** Constructor.
@@ -120,7 +106,7 @@ protected:
 
 	/** Notifies the VRAM cache of a VRAM write.
 	  */
-	virtual void updateVRAMCache(int addr, byte data) = 0;
+	virtual void updateVRAMCache(int addr) = 0;
 
 	/** Update renderer state to specified moment in time.
 	  * @param time Moment in emulated time to update to.

@@ -41,12 +41,13 @@ public:
 	void updateNameBase(int addr, const EmuTime &time);
 	void updatePatternBase(int addr, const EmuTime &time);
 	void updateColourBase(int addr, const EmuTime &time);
-	//void updateVRAM(int addr, byte data, const EmuTime &time);
+	//void updateVRAM(int address, const EmuTime &time);
+	//void updateWindow(const EmuTime &time);
 
 protected:
 	void finishFrame();
-	void updateVRAMCache(int addr, byte data) {
-		(this->*dirtyChecker)(addr, data);
+	void updateVRAMCache(int addr) {
+		(this->*dirtyChecker)(addr);
 	}
 	void drawBorder(int fromX, int fromY, int limitX, int limitY);
 	void drawDisplay(
@@ -62,8 +63,7 @@ protected:
 
 private:
 
-	typedef void (SDLRenderer::*DirtyChecker)
-		(int addr, byte data);
+	typedef void (SDLRenderer::*DirtyChecker)(int addr);
 
 	/** Horizontal dimensions of the screen.
 	  */
@@ -128,19 +128,19 @@ private:
 	
 	/** Dirty checking that does nothing (but is a valid method).
 	  */
-	void checkDirtyNull(int addr, byte data);
+	void checkDirtyNull(int addr);
 
 	/** Dirty checking for MSX1 display modes.
 	  */
-	void checkDirtyMSX1(int addr, byte data);
+	void checkDirtyMSX1(int addr);
 
 	/** Dirty checking for Text2 display mode.
 	  */
-	void checkDirtyText2(int addr, byte data);
+	void checkDirtyText2(int addr);
 
 	/** Dirty checking for bitmap modes.
 	  */
-	void checkDirtyBitmap(int addr, byte data);
+	void checkDirtyBitmap(int addr);
 
 	/** Set all dirty / clean.
 	  */

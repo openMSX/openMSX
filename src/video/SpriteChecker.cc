@@ -35,6 +35,7 @@ void SpriteChecker::reset(const EmuTime &time)
 	initFrame(time);
 
 	updateSpritesMethod = &SpriteChecker::updateSprites1;
+	mode0 = false;
 }
 
 inline SpriteChecker::SpritePattern SpriteChecker::doublePattern(SpriteChecker::SpritePattern a)
@@ -296,10 +297,11 @@ inline int SpriteChecker::checkSprites2(
 
 void SpriteChecker::updateSprites0(int limit)
 {
-	while (currentLine < limit) {
-		spriteCount[currentLine] = 0;
-		currentLine++;
-	}
+	// If this method is called, that means somewhere a check for sprite
+	// mode 0 is missing and performance is being wasted.
+	// The updateSpritesN methods are called by checkUntil, which is
+	// documented as not allowed to be called in sprite mode 0.
+	assert(false);
 }
 
 void SpriteChecker::updateSprites1(int limit)

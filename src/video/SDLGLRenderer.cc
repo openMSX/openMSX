@@ -282,7 +282,8 @@ inline void SDLGLRenderer::renderBitmapLine(
 	byte mode, int vramLine)
 {
 	if (lineValidInMode[vramLine] != mode) {
-		const byte *vramPtr = vram->bitmapWindow.readArea(vramLine << 7);
+		const byte *vramPtr =
+			vram->bitmapCacheWindow.readArea(vramLine << 7);
 		bitmapConverter.convertLine(lineBuffer, vramPtr);
 		GLUpdateTexture(bitmapTextureIds[vramLine], lineBuffer, lineWidth);
 		lineValidInMode[vramLine] = mode;
@@ -314,8 +315,10 @@ inline void SDLGLRenderer::renderPlanarBitmapLine(
 	|| lineValidInMode[vramLine | 512] != mode ) {
 		int addr0 = vramLine << 7;
 		int addr1 = addr0 | 0x10000;
-		const byte *vramPtr0 = vram->bitmapWindow.readArea(addr0);
-		const byte *vramPtr1 = vram->bitmapWindow.readArea(addr1);
+		const byte *vramPtr0 =
+			vram->bitmapCacheWindow.readArea(addr0);
+		const byte *vramPtr1 =
+			vram->bitmapCacheWindow.readArea(addr1);
 		bitmapConverter.convertLinePlanar(lineBuffer, vramPtr0, vramPtr1);
 		GLUpdateTexture(bitmapTextureIds[vramLine], lineBuffer, lineWidth);
 		lineValidInMode[vramLine] =
@@ -757,15 +760,13 @@ void SDLGLRenderer::updateColourBase(
 	fillBool(dirtyColour, true, sizeof(dirtyColour) / sizeof(bool));
 }
 
-void SDLGLRenderer::checkDirtyNull(
-	int addr, byte data)
+void SDLGLRenderer::checkDirtyNull(int addr)
 {
 	// Do nothing: this is a bogus mode whose display doesn't depend
 	// on VRAM contents.
 }
 
-void SDLGLRenderer::checkDirtyMSX1Text(
-	int addr, byte data)
+void SDLGLRenderer::checkDirtyMSX1Text(int addr)
 {
 	if (vram->nameTable.isInside(addr)) {
 		dirtyName[addr & ~(-1 << 10)] = anyDirtyName = true;
@@ -778,8 +779,7 @@ void SDLGLRenderer::checkDirtyMSX1Text(
 	}
 }
 
-void SDLGLRenderer::checkDirtyMSX1Graphic(
-	int addr, byte data)
+void SDLGLRenderer::checkDirtyMSX1Graphic(int addr)
 {
 	if (vram->nameTable.isInside(addr)) {
 		dirtyName[addr & ~(-1 << 10)] = anyDirtyName = true;
@@ -792,8 +792,7 @@ void SDLGLRenderer::checkDirtyMSX1Graphic(
 	}
 }
 
-void SDLGLRenderer::checkDirtyText2(
-	int addr, byte data)
+void SDLGLRenderer::checkDirtyText2(int addr)
 {
 	if (vram->nameTable.isInside(addr)) {
 		dirtyName[addr & ~(-1 << 12)] = anyDirtyName = true;
@@ -824,8 +823,7 @@ void SDLGLRenderer::checkDirtyText2(
 	}
 }
 
-void SDLGLRenderer::checkDirtyBitmap(
-	int addr, byte data)
+void SDLGLRenderer::checkDirtyBitmap(int addr)
 {
 	lineValidInMode[addr >> 7] = 0xFF;
 }
@@ -1116,14 +1114,11 @@ void SDLGLRenderer::drawSprites(
 	int displayX, int displayY,
 	int displayWidth, int displayHeight
 ) {
-	int spriteMode = vdp->getDisplayMode().getSpriteMode();
-	if (spriteMode == 0) return;
-	
 	glEnable(GL_TEXTURE_2D);
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
+
 	int screenX = translateX(vdp->getLeftSprites()) + displayX * 2;
 	// TODO: Code duplicated from drawDisplay.
 	int screenY = (fromY - lineRenderTop) * 2;
@@ -1133,15 +1128,16 @@ void SDLGLRenderer::drawSprites(
 		// Display odd field half a line lower.
 		screenY++;
 	}
-	
+
+	int spriteMode = vdp->getDisplayMode().getSpriteMode();
 	int displayLimitX = displayX + displayWidth;
 	int limitY = fromY + displayHeight;
 	int pixelZoom = vdp->getDisplayMode().isSpriteNarrow() ? 2 : 1;
 	for (int y = fromY; y < limitY; y++) {
-		
+
 		// Buffer to render sprite pixels to; start with all transparent.
 		memset(lineBuffer, 0, pixelZoom * 256 * sizeof(Pixel));
-		
+
 		// TODO: Possible speedups:
 		// - for mode 1: create a texture in 1bpp, or in luminance
 		// - use VRAM to render sprite blocks instead of lines

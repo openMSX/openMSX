@@ -6,6 +6,7 @@
 #include "openmsx.hh"
 #include "Command.hh"
 #include "RendererFactory.hh"
+#include "VRAMObserver.hh"
 
 class EmuTime;
 class RenderSettings;
@@ -20,7 +21,7 @@ class DisplayMode;
   * the VDP, so that the renderer can update itself to the specified
   * time using the old settings.
   */
-class Renderer
+class Renderer : public VRAMObserver
 {
 public:
 
@@ -135,21 +136,21 @@ public:
 	  * @param time The moment in emulated time this change occurs.
 	  */
 	virtual void updateHorizontalScrollLow(byte scroll, const EmuTime &time) = 0;
-	
+
 	/** Informs the renderer of a horizontal scroll change:
 	  * the higher scroll value has changed.
 	  * @param scroll The new scroll value.
 	  * @param time The moment in emulated time this change occurs.
 	  */
 	virtual void updateHorizontalScrollHigh(byte scroll, const EmuTime &time) = 0;
-	
+
 	/** Informs the renderer of a horizontal scroll change:
 	  * the border mask has been enabled/disabled.
 	  * @param masked true iff enabled.
 	  * @param time The moment in emulated time this change occurs.
 	  */
 	virtual void updateBorderMask(bool masked, const EmuTime &time) = 0;
-	
+
 	/** Informs the renderer of a horizontal scroll change:
 	  * the multi page setting has changed.
 	  * @param multiPage The new multi page flag.
@@ -197,16 +198,6 @@ public:
 	  * @param time The moment in emulated time this change occurs.
 	  */
 	virtual void updateColourBase(int addr, const EmuTime &time) = 0;
-
-	/** Informs the renderer of a change in VRAM contents.
-	  * TODO: Maybe this is a performance problem, if so think of a
-	  *   smarter way to update (for example, subscribe to VRAM
-	  *   address regions).
-	  * @param addr The address that will change.
-	  * @param data The new value.
-	  * @param time The moment in emulated time this change occurs.
-	  */
-	virtual void updateVRAM(int addr, byte data, const EmuTime &time) = 0;
 
 protected:
 	/** NTSC version of the MSX1 palette.

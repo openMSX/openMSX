@@ -101,7 +101,8 @@ inline void SDLRenderer<Pixel, zoom>::renderBitmapLine(
 	byte mode, int vramLine)
 {
 	if (lineValidInMode[vramLine] != mode) {
-		const byte *vramPtr = vram->bitmapWindow.readArea(vramLine << 7);
+		const byte *vramPtr =
+			vram->bitmapCacheWindow.readArea(vramLine << 7);
 		bitmapConverter.convertLine(
 			getLinePtr(bitmapDisplayCache, vramLine), vramPtr );
 		lineValidInMode[vramLine] = mode;
@@ -144,8 +145,10 @@ inline void SDLRenderer<Pixel, zoom>::renderPlanarBitmapLine(
 	|| lineValidInMode[vramLine | 512] != mode ) {
 		int addr0 = vramLine << 7;
 		int addr1 = addr0 | 0x10000;
-		const byte *vramPtr0 = vram->bitmapWindow.readArea(addr0);
-		const byte *vramPtr1 = vram->bitmapWindow.readArea(addr1);
+		const byte *vramPtr0 =
+			vram->bitmapCacheWindow.readArea(addr0);
+		const byte *vramPtr1 =
+			vram->bitmapCacheWindow.readArea(addr1);
 		bitmapConverter.convertLinePlanar(
 			getLinePtr(bitmapDisplayCache, vramLine),
 			vramPtr0, vramPtr1
@@ -586,16 +589,14 @@ void SDLRenderer<Pixel, zoom>::updateColourBase(
 }
 
 template <class Pixel, Renderer::Zoom zoom>
-void SDLRenderer<Pixel, zoom>::checkDirtyNull(
-	int addr, byte data)
+void SDLRenderer<Pixel, zoom>::checkDirtyNull(int addr)
 {
 	// Do nothing: this is a bogus mode whose display doesn't depend
 	// on VRAM contents.
 }
 
 template <class Pixel, Renderer::Zoom zoom>
-void SDLRenderer<Pixel, zoom>::checkDirtyMSX1(
-	int addr, byte data)
+void SDLRenderer<Pixel, zoom>::checkDirtyMSX1(int addr)
 {
 	if (vram->nameTable.isInside(addr)) {
 		dirtyName[addr & ~(-1 << 10)] = anyDirtyName = true;
@@ -609,8 +610,7 @@ void SDLRenderer<Pixel, zoom>::checkDirtyMSX1(
 }
 
 template <class Pixel, Renderer::Zoom zoom>
-void SDLRenderer<Pixel, zoom>::checkDirtyText2(
-	int addr, byte data)
+void SDLRenderer<Pixel, zoom>::checkDirtyText2(int addr)
 {
 	if (vram->nameTable.isInside(addr)) {
 		dirtyName[addr & ~(-1 << 12)] = anyDirtyName = true;
@@ -642,8 +642,7 @@ void SDLRenderer<Pixel, zoom>::checkDirtyText2(
 }
 
 template <class Pixel, Renderer::Zoom zoom>
-void SDLRenderer<Pixel, zoom>::checkDirtyBitmap(
-	int addr, byte data)
+void SDLRenderer<Pixel, zoom>::checkDirtyBitmap(int addr)
 {
 	lineValidInMode[addr >> 7] = 0xFF;
 }
@@ -849,9 +848,6 @@ void SDLRenderer<Pixel, zoom>::drawSprites(
 	int displayX, int displayY,
 	int displayWidth, int displayHeight
 ) {
-	int spriteMode = vdp->getDisplayMode().getSpriteMode();
-	if (spriteMode == 0) return;
-	
 	// Clip to screen area.
 	// TODO: Code duplicated from drawDisplay.
 	if (fromY < lineRenderTop) {
@@ -875,7 +871,7 @@ void SDLRenderer<Pixel, zoom>::drawSprites(
 		// Display will be wrong, but this is not really critical.
 		return;
 	}
-	
+
 	// TODO: Code duplicated from drawDisplay.
 	int screenY = (fromY - lineRenderTop) * LINE_ZOOM;
 	if (!(settings->getDeinterlace()->getValue())
@@ -885,7 +881,8 @@ void SDLRenderer<Pixel, zoom>::drawSprites(
 		// Display odd field half a line lower.
 		screenY++;
 	}
-	
+
+	int spriteMode = vdp->getDisplayMode().getSpriteMode();
 	int displayLimitX = displayX + displayWidth;
 	int limitY = fromY + displayHeight;
 	Pixel *pixelPtr0 = (Pixel *)(
@@ -894,12 +891,12 @@ void SDLRenderer<Pixel, zoom>::drawSprites(
 		+ translateX(vdp->getLeftSprites()) * sizeof(Pixel)
 		);
 	for (int y = fromY; y < limitY; y++) {
-		Pixel *pixelPtr1 = 
+		Pixel *pixelPtr1 =
 			( LINE_ZOOM == 1
 			? NULL
 			: (Pixel *)(((byte *)pixelPtr0) + screen->pitch)
 			);
-		
+
 		if (spriteMode == 1) {
 			spriteConverter.drawMode1(
 				y, displayX, displayLimitX, pixelPtr0, pixelPtr1 );
@@ -907,10 +904,10 @@ void SDLRenderer<Pixel, zoom>::drawSprites(
 			spriteConverter.drawMode2(
 				y, displayX, displayLimitX, pixelPtr0, pixelPtr1 );
 		}
-		
+
 		pixelPtr0 = (Pixel *)(((byte *)pixelPtr0) + screen->pitch * LINE_ZOOM);
 	}
-	
+
 	// Unlock surface.
 	if (SDL_MUSTLOCK(screen))
 		SDL_UnlockSurface(screen);

@@ -43,7 +43,7 @@ inline void PixelRenderer::draw(
 		
 		assert(0 <= displayX);
 		assert(displayX + displayWidth <= 512);
-		
+
 		if (drawType == DRAW_DISPLAY) {
 			drawDisplay(
 				startX, startY,
@@ -204,6 +204,21 @@ void PixelRenderer::updateMultiPage(
 	sync(time);
 }
 
+void PixelRenderer::updateVRAM(int addr, const EmuTime &time) {
+	// If display is disabled, VRAM changes will not affect the
+	// renderer output, therefore sync is not necessary.
+	// TODO: Have bitmapVisibleWindow disabled in this case.
+	if (vdp->isDisplayEnabled()) renderUntil(time);
+	updateVRAMCache(addr);
+}
+
+void PixelRenderer::updateWindow(const EmuTime &time) {
+	// The bitmapVisibleWindow has moved to a different area.
+	// This update is redundant: Renderer will be notified in another way
+	// as well (updateDisplayEnabled or updateNameBase, for example).
+	// TODO: Can this be used as the main update method instead?
+}
+
 void PixelRenderer::renderUntil(const EmuTime &time)
 {
 	if (curFrameSkip != 0) return;
@@ -244,8 +259,6 @@ void PixelRenderer::renderUntil(const EmuTime &time)
 	if (limitX == nextX && limitY == nextY) return;
 
 	if (displayEnabled) {
-		// Update sprite checking, so that subclass can call getSprites.
-		spriteChecker->checkUntil(time);
 
 		// Calculate start and end of borders in ticks since start of line.
 		// The 0..7 extra horizontal scroll low pixels should be drawn in
@@ -265,8 +278,12 @@ void PixelRenderer::renderUntil(const EmuTime &time)
 		subdivide(nextX, nextY, limitX, limitY,
 			displayL, borderR, DRAW_DISPLAY );
 		// Sprite plane.
-		subdivide(nextX, nextY, limitX, limitY,
-			borderL, borderR, DRAW_SPRITES );
+		if (vdp->spritesEnabled()) {
+			// Update sprite checking, so that subclass can call getSprites.
+			spriteChecker->checkUntil(time);
+			subdivide(nextX, nextY, limitX, limitY,
+				borderL, borderR, DRAW_SPRITES );
+		}
 		// Right border.
 		subdivide(nextX, nextY, limitX, limitY,
 			borderR, VDP::TICKS_PER_LINE, DRAW_BORDER );

@@ -48,12 +48,13 @@ public:
 	void updateNameBase(int addr, const EmuTime &time);
 	void updatePatternBase(int addr, const EmuTime &time);
 	void updateColourBase(int addr, const EmuTime &time);
-	//void updateVRAM(int addr, byte data, const EmuTime &time);
+	//void updateVRAM(int address, const EmuTime &time);
+	//void updateWindow(const EmuTime &time);
 
 protected:
 	void finishFrame();
-	void updateVRAMCache(int addr, byte data) {
-		(this->*dirtyChecker)(addr, data);
+	void updateVRAMCache(int addr) {
+		(this->*dirtyChecker)(addr);
 	}
 	void drawBorder(int fromX, int fromY, int limitX, int limitY);
 	void drawDisplay(
@@ -69,8 +70,7 @@ protected:
 
 private:
 
-	typedef void (SDLGLRenderer::*DirtyChecker)
-		(int addr, byte data);
+	typedef void (SDLGLRenderer::*DirtyChecker)(int addr);
 
 	friend class SDLGLRendererFactory;
 
@@ -121,26 +121,26 @@ private:
 	  * Used to implement updatePalette.
 	  */
 	void setPalette(int index, int grb);
-	
+
 	/** Dirty checking that does nothing (but is a valid method).
 	  */
-	void checkDirtyNull(int addr, byte data);
+	void checkDirtyNull(int addr);
 
 	/** Dirty checking for MSX1 text modes.
 	  */
-	void checkDirtyMSX1Text(int addr, byte data);
+	void checkDirtyMSX1Text(int addr);
 
 	/** Dirty checking for MSX1 graphic modes.
 	  */
-	void checkDirtyMSX1Graphic(int addr, byte data);
+	void checkDirtyMSX1Graphic(int addr);
 
 	/** Dirty checking for Text2 display mode.
 	  */
-	void checkDirtyText2(int addr, byte data);
+	void checkDirtyText2(int addr);
 
 	/** Dirty checking for bitmap modes.
 	  */
-	void checkDirtyBitmap(int addr, byte data);
+	void checkDirtyBitmap(int addr);
 
 	/** Set all dirty / clean.
 	  */

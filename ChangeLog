@@ -7,6 +7,17 @@ $Id$
 
 2003-05-24 Maarten ter Huurne <maarten@treewalker.org>
 	* I/O to extended VRAM now goes to limbo, instead of main VRAM.
+	* Changed VDPVRAM::Window to VRAMWindow.
+	  There is not much added value to a public inner class in C++...
+	* Changed VDPVRAM::VRAMObserver to VRAMObserver, in its own file.
+	  Own file reduces the risk of cyclic header dependencies.
+	* Renderer gets VRAM updates through VRAMObserver.
+	  This is a preparation for later optimisations.
+	* Make sure no sprite checking is done in spriteless display modes.
+	* In a spriteless mode, or when sprites are disabled, the entire sprite
+	  plane is skipped. This is more efficient than the previous checks for
+	  a "no sprites" situation, because it occurs earlier in the rendering
+	  process.
 
 2003-05-24 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* commands can now be on multiple lines in the console.

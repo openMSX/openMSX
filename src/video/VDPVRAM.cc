@@ -1,9 +1,18 @@
 // $Id$
 
-#include <fstream>
 #include "VDPVRAM.hh"
 #include "SpriteChecker.hh"
 #include "CommandController.hh"
+#include "EmuTime.hh"
+
+
+// class VRAMWindow:
+
+VRAMWindow::VRAMWindow() {
+	observer = NULL;
+	combiMask = 0;	// doesn't matter but makes valgrind happy
+	baseAddr = -1;
+}
 
 
 // class VDPVRAM:
@@ -32,9 +41,15 @@ VDPVRAM::VDPVRAM(VDP *vdp, int size)
 	nameTable.setData(data);
 	colourTable.setData(data);
 	patternTable.setData(data);
-	bitmapWindow.setData(data);
+	bitmapVisibleWindow.setData(data);
+	bitmapCacheWindow.setData(data);
 	spriteAttribTable.setData(data);
 	spritePatternTable.setData(data);
+
+	// Whole VRAM is cachable.
+	// Because this window has no observer, any EmuTime can be passed.
+	// TODO: Move this to cache registration.
+	bitmapCacheWindow.setMask(0x1FFFF, -1 << 17, EmuTime());
 
 	#ifdef DEBUG
 	CommandController::instance()->registerCommand(&dumpVRAMCmd, "vramdump");
@@ -46,7 +61,7 @@ VDPVRAM::~VDPVRAM()
 	#ifdef DEBUG
 	CommandController::instance()->unregisterCommand(&dumpVRAMCmd, "vramdump");
 	#endif
-	
+
 	delete[] data;
 }
 
@@ -69,17 +84,19 @@ void VDPVRAM::updateSpritesEnabled(bool enabled, const EmuTime &time) {
 	spriteChecker->updateSpritesEnabled(enabled, time);
 }
 
-// class Window:
+void VDPVRAM::setRenderer(Renderer *renderer, const EmuTime &time) {
+	this->renderer = renderer;
 
-VDPVRAM::Window::Window() {
-	observer = NULL;
-	combiMask = 0;	// doesn't matter but makes valgrind happy
-	baseAddr = -1;
+	// Set up bitmapVisibleWindow to full VRAM.
+	// TODO: Have VDP/Renderer set the actual range.
+	bitmapVisibleWindow.setMask(0x1FFFF, -1 << 17, time);
+	// TODO: If it is a good idea to send an initial sync,
+	//       then call setObserver before setMask.
+	bitmapVisibleWindow.setObserver(renderer);
 }
 
-
-
 #ifdef DEBUG
+#include <fstream>
 
 // class DumpVRAMCmd
 

@@ -55,7 +55,8 @@ public:
 	void updateNameBase(int addr, const EmuTime &time);
 	void updatePatternBase(int addr, const EmuTime &time);
 	void updateColourBase(int addr, const EmuTime &time);
-	void updateVRAM(int addr, byte data, const EmuTime &time);
+	void updateVRAM(int address, const EmuTime &time);
+	void updateWindow(const EmuTime &time);
 
 private:
 

@@ -98,10 +98,10 @@ VDP::VDP(Device *config, const EmuTime &time)
 		// no renderer section
 		rendererName = std::string("SDLHi");
 	}
-	
+
 	// Create renderer.
 	renderer = RendererFactory::createRenderer(this);
-	vram->setRenderer(renderer);
+	vram->setRenderer(renderer, time);
 
 	// Register console commands.
 	CommandController::instance()->registerCommand(&vdpRegsCmd, "vdpregs");
@@ -191,7 +191,7 @@ void VDP::resetMasks(const EmuTime &time)
 	updateSpritePatternBase(time);
 	// TODO: It is not clear to me yet how bitmapWindow should be used.
 	//       Currently it always spans 128K of VRAM.
-	vram->bitmapWindow.setMask(~(-1 << 17), -1 << 17, time);
+	//vram->bitmapWindow.setMask(~(-1 << 17), -1 << 17, time);
 }
 
 void VDP::reset(const EmuTime &time)
@@ -406,7 +406,7 @@ void VDP::frameStart(const EmuTime &time)
 		delete renderer;
 		renderer = RendererFactory::switchRenderer(this);
 		renderer->reset(time);
-		vram->setRenderer(renderer);
+		vram->setRenderer(renderer, time);
 	}
 
 	// Toggle E/O.
@@ -926,6 +926,10 @@ void VDP::updateSpriteAttributeBase(const EmuTime &time)
 
 void VDP::updateSpritePatternBase(const EmuTime &time)
 {
+	if (displayMode.getSpriteMode() == 0) {
+		vram->spritePatternTable.disable(time);
+		return;
+	}
 	int base = ((controlRegs[6] << 11) | ~(-1 << 11)) & vramMask;
 	if (displayMode.isPlanar()) base = ((base << 16) | (base >> 1)) & 0x1FFFF;
 	vram->spritePatternTable.setMask(base, -1 << 11, time);
@@ -953,10 +957,8 @@ void VDP::updateDisplayMode(DisplayMode newMode, const EmuTime &time)
 
 	updateColourBase(time);
 	updatePatternBase(time);
-	if (planarChange) {
-		updateSpritePatternBase(time);
-	}
 	if (planarChange || spriteModeChange) {
+		updateSpritePatternBase(time);
 		updateSpriteAttributeBase(time);
 	}
 
