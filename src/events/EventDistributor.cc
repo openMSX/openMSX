@@ -39,7 +39,14 @@ EventDistributor *EventDistributor::instance()
 	return oneInstance;
 }
 
-void EventDistributor::run()
+void EventDistributor::wait()
+{
+	if (SDL_WaitEvent(NULL)) {
+		poll();
+	}
+}
+
+void EventDistributor::poll()
 {
 	SDL_Event event;
 	while (SDL_PollEvent(&event) == 1) {
@@ -47,7 +54,7 @@ void EventDistributor::run()
 		if (event.type == SDL_QUIT) {
 			quit();
 		} else {
-			handleInEmu(event);
+			handle(event);
 		}
 	}
 }
@@ -57,7 +64,7 @@ void EventDistributor::quit()
 	Scheduler::instance()->stopScheduling();
 }
 
-void EventDistributor::handleInEmu(SDL_Event &event)
+void EventDistributor::handle(SDL_Event &event)
 {
 	multimap<int, EventListener*>::iterator it;
 	bool cont = true;

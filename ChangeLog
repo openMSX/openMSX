@@ -1,5 +1,8 @@
 $Id$
 
+2003-10-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Don't continuously redraw screen while paused
+
 2003-10-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Removed "-config" cmdline option / .xml cmdline file-type:
 	   were long time ago replaced by -machine / -ext / -setting

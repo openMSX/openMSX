@@ -22,14 +22,13 @@ class EventListener;
 class EventDistributor : private SettingListener
 {
 public:
-	virtual ~EventDistributor();
 	static EventDistributor* instance();
 
-	/** This is the main loop. It waits for events.
-	  * It does not return until openMSX is quit.
-	  * This method runs in the main thread.
+	/** Poll / wait for an event and handle it.
+	  * These methods should be called from the main thread.
 	  */
-	virtual void run();
+	void poll();
+	void wait();
 
 	/**
 	 * Use this method to (un)register a given class to receive
@@ -50,12 +49,12 @@ public:
 
 private:
 	EventDistributor();
+	virtual ~EventDistributor();
 
-	/** Passes an event to the emulation thread.
-	  */
-	void handleInEmu(SDL_Event &event);
+	void handle(SDL_Event &event);
 
-	void update(const SettingLeafNode *setting);
+	// SettingListener
+	virtual void update(const SettingLeafNode *setting);
 
 	multimap <int, EventListener*> lowMap;
 	multimap <int, EventListener*> highMap;

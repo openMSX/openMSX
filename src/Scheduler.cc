@@ -136,13 +136,14 @@ const EmuTime Scheduler::scheduleEmulation()
 {
 	EventDistributor *eventDistributor = EventDistributor::instance();
 	while (emulationRunning) {
+		emulateStep();
 		if (paused) {
-			SDL_Delay(20); // 50 fps
 			assert(renderer != NULL);
 			renderer->putStoredImage();
+			eventDistributor->wait();
+		} else {
+			eventDistributor->poll();
 		}
-		emulateStep();
-		eventDistributor->run();
 	}
 	return cpu->getTargetTime();
 }
