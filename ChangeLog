@@ -9,6 +9,14 @@ $Id$
 	  "set videosystem gfx9000", you will see the test pattern (SDLHi/Lo).
 	  There are some bugs left, but I had to commit to keep track of the
 	  many changes. I'll try to fix the bugs as soon as I can.
+	* Do not save "power" and "pause" settings.
+	  Fixes starting from Catapult.
+	* Withhold blocked events from other NATIVE listeners as well.
+	  Fixes "set console off".
+	* Delay reInit when power is turned off.
+	  Fixes "set power off" in R800 mode.
+	* Initialise lineContent in SDLRasterizer's constructor.
+	  Fixes asserts when switching to SDLHi when paused.
 
 2004-09-18 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Rewrote saving of settings code:
