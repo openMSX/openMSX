@@ -3,6 +3,7 @@ $Id$
 2002-12-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Autodetect BASIC ROM cartridges:
 	   code mostly taken from windows port
+	* Don't abort when "romdb.xml" is missing, just print a warning.
 
 2002-12-29 Maarten ter Huurne <maarten@treewalker.org>
 	* The VDPVRAM::VRAMObserver interface is put to use for the first time,

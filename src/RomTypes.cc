@@ -173,21 +173,26 @@ MapperType RomTypes::searchDataBase(byte* data, int size)
 
 	if (!init) {
 		init = true;
-		std::string dbLocation(File::findName("romdb.xml", CONFIG));
-		XML::Document doc(dbLocation);
-		std::list<XML::Element*>::iterator it1 = doc.root->children.begin();
-		for ( ; it1 != doc.root->children.end(); it1++) {
-			const std::string romType((*it1)->getElementPcdata("romtype"));
-			std::list<XML::Element*>::iterator it2 = (*it1)->children.begin();
-			for ( ; it2 != (*it1)->children.end(); it2++) {
-				if ((*it2)->name == "md5") {
-					if (romDB.find((*it2)->pcdata) == romDB.end()) {
-						romDB[(*it2)->pcdata] = romType;
-					} else {
-						PRT_INFO("Warning duplicate romdb entry " << (*it2)->pcdata);
+		try {
+			std::string dbLocation(File::findName("romdb.xml", CONFIG));
+			XML::Document doc(dbLocation);
+			std::list<XML::Element*>::iterator it1 = doc.root->children.begin();
+			for ( ; it1 != doc.root->children.end(); it1++) {
+				const std::string romType((*it1)->getElementPcdata("romtype"));
+				std::list<XML::Element*>::iterator it2 = (*it1)->children.begin();
+				for ( ; it2 != (*it1)->children.end(); it2++) {
+					if ((*it2)->name == "md5") {
+						if (romDB.find((*it2)->pcdata) == romDB.end()) {
+							romDB[(*it2)->pcdata] = romType;
+						} else {
+							PRT_INFO("Warning duplicate romdb entry " << (*it2)->pcdata);
+						}
 					}
 				}
 			}
+		} catch (MSXException &e) {
+			PRT_INFO("Warning couldn't open romdb.xml.\n"
+			         "Romtype detection might fail because of this.");
 		}
 	}
 	
