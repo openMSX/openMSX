@@ -44,7 +44,7 @@ libSound_la_SOURCES = \
 	MC6850.cc MC6850.hh \
 	MSXFmPac.cc MSXFmPac.hh \
 	MSXMusic.cc MSXMusic.hh \
-	YM2413Core.hh \
+	YM2413Core.cc YM2413Core.hh \
 	YM2413.cc YM2413.hh \
 	YM2413_2.cc YM2413_2.hh \
 	MSXTurboRPCM.cc MSXTurboRPCM.hh \
