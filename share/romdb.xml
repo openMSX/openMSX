@@ -92,8 +92,14 @@
     <company>Zemina</company>
     <remark></remark>
   </rom>
-
-
+  <rom>
+     <title>Konami's Synthesizer (Sample Version)</title>
+     <romtype>SYNTHESIZER</romtype>
+     <sha1>f25c416869372ac07abefad131fc732dfbe33a45</sha1>
+     <year>1986</year>
+     <company>Konami</company>
+     <remark>This is a demonstration version of Konami's Synthesizer</remark>
+  </rom>
 
 <!-- THE NEW PART CONVERTED FROM JIROU KANEDA'S DB, MSX1 PART -->
 
