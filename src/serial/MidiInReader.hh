@@ -41,7 +41,7 @@ private:
 	virtual void run() throw();
 
 	// Schedulable
-	virtual void executeUntilEmuTime(const EmuTime& time, int userData);
+	virtual void executeUntil(const EmuTime& time, int userData) throw();
 	virtual const string& schedName() const;
 
 	Thread thread;

@@ -340,7 +340,7 @@ void WD2793::tryToReadSector(void)
 }
 
 
-void WD2793::executeUntilEmuTime(const EmuTime &time, int state)
+void WD2793::executeUntil(const EmuTime& time, int state) throw()
 {
 	switch ((FSMState)state) {
 		case FSM_SEEK:

@@ -225,7 +225,7 @@ private:
 	void resetStatus(byte flags);
 	void changeStatusMask(byte newMask);
 
-	void callback(byte flag);
+	void callback(byte flag) throw();
 
 	int adr;
 	int output[2];

@@ -333,7 +333,7 @@ void I8251::send(byte value, const EmuTime& time)
 	}
 }
 
-void I8251::executeUntilEmuTime(const EmuTime &time, int userData)
+void I8251::executeUntil(const EmuTime &time, int userData) throw()
 {
 	switch ((SyncPointType)userData) {
 	case RECV:

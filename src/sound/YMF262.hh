@@ -147,7 +147,7 @@ class YMF262 : public SoundDevice, public TimerCallback
 	private:
 		void writeRegForce(int r, byte v, const EmuTime &time);
 		void init_tables(void);
-		void callback(byte flag);
+		void callback(byte flag) throw();
 		void setStatus(byte flag);
 		void resetStatus(byte flag);
 		void changeStatusMask(byte flag);

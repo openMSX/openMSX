@@ -217,7 +217,7 @@ void VDP::reset(const EmuTime &time)
 	resetMasks(time);
 }
 
-void VDP::executeUntilEmuTime(const EmuTime &time, int userData)
+void VDP::executeUntil(const EmuTime &time, int userData) throw()
 {
 	/*
 	PRT_DEBUG("Executing VDP at time " << time

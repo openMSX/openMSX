@@ -39,7 +39,7 @@ class Scheduler
 
 		/**
 		 * Register a syncPoint. When the emulation reaches "timestamp",
-		 * the executeUntilEmuTime() method of "device" gets called.
+		 * the executeUntil() method of "device" gets called.
 		 * SyncPoints are ordered: smaller EmuTime -> scheduled
 		 * earlier.
 		 * The supplied EmuTime may not be smaller than the current CPU
@@ -49,7 +49,7 @@ class Scheduler
 		 * A device may register several syncPoints.
 		 * Optionally a "userData" parameter can be passed, this
 		 * parameter is not used by the Scheduler but it is passed to
-		 * the executeUntilEmuTime() method of "device". This is useful
+		 * the executeUntil() method of "device". This is useful
 		 * if you want to distinguish between several syncPoint types.
 		 * If you do not supply "userData" it is assumed to be zero.
 		 */
@@ -64,7 +64,7 @@ class Scheduler
 		 * removed.
 		 * Removing a syncPoint is a relatively expensive operation,
 		 * if possible don't remove the syncPoint but ignore it in
-		 * your executeUntilEmuTime() method.
+		 * your executeUntil() method.
 		 */
 		void removeSyncPoint(Schedulable* device, int userdata = 0);
 

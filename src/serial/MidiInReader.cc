@@ -104,7 +104,7 @@ void MidiInReader::signal(const EmuTime &time)
 }
 
 // Schedulable
-void MidiInReader::executeUntilEmuTime(const EmuTime &time, int userData)
+void MidiInReader::executeUntil(const EmuTime& time, int userData) throw()
 {
 	if (connector) {
 		signal(time);

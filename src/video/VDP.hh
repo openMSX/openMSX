@@ -90,7 +90,7 @@ public:
 	// interaction with CPU
 	virtual byte readIO(byte port, const EmuTime &time);
 	virtual void writeIO(byte port, byte value, const EmuTime &time);
-	virtual void executeUntilEmuTime(const EmuTime &time, int userData);
+	virtual void executeUntil(const EmuTime &time, int userData) throw();
 
 	/** Is this an MSX1 VDP?
 	  * @return True if this is an MSX1 VDP (TMS99X8A or TMS9929A),

@@ -9,17 +9,17 @@
 
 namespace openmsx {
 
-class SDLEventInserter : public Schedulable
+class SDLEventInserter : private Schedulable
 {
-	public:
-		SDLEventInserter(SDL_Event &event, const EmuTime &time);
-		virtual void executeUntilEmuTime(const EmuTime &time, int userData);
-		
-	protected:
-		virtual ~SDLEventInserter();
+public:
+	SDLEventInserter(SDL_Event &event, const EmuTime &time);
+	virtual void executeUntil(const EmuTime &time, int userData) throw();
+	
+protected:
+	virtual ~SDLEventInserter();
 
-	private:
-		SDL_Event event;
+private:
+	SDL_Event event;
 };
 
 } // namespace openmsx

@@ -50,7 +50,7 @@ void ClockPin::setPeriodicState(const EmuDuration& total,
 	
 	if (listener) {
 		if (signalEdge) {
-			executeUntilEmuTime(time, 0);
+			executeUntil(time, 0);
 		}
 		listener->signal(*this, time);
 	}
@@ -131,7 +131,7 @@ void ClockPin::schedule(const EmuTime& time)
 	scheduler->setSyncPoint(time, this);
 }
 
-void ClockPin::executeUntilEmuTime(const EmuTime& time, int userdata)
+void ClockPin::executeUntil(const EmuTime& time, int userdata) throw()
 {
 	assert(signalEdge && periodic);
 	listener->signalPosEdge(*this, time);

@@ -142,7 +142,7 @@ void CliCommunicator::execute(const string& command)
 	Scheduler::instance()->setSyncPoint(Scheduler::ASAP, this);
 }
 
-void CliCommunicator::executeUntilEmuTime(const EmuTime& time, int userData)
+void CliCommunicator::executeUntil(const EmuTime& time, int userData) throw()
 {
 	CommandController* controller = CommandController::instance();
 	lock.down();

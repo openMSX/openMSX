@@ -406,7 +406,7 @@ YMF262Channel::YMF262Channel()
 }
 
 
-void YMF262::callback(byte flag)
+void YMF262::callback(byte flag) throw()
 {
 	setStatus(flag);
 }

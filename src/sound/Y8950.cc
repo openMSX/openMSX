@@ -1124,7 +1124,7 @@ byte Y8950::readStatus()
 	return tmp | 0x06;	// bit 1 and 2 are always 1
 }
 
-void Y8950::callback(byte flag)
+void Y8950::callback(byte flag) throw()
 {
 	setStatus(flag);
 }

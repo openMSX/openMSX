@@ -115,7 +115,7 @@ void RS232Tester::signal(const EmuTime &time)
 }
 
 // Schedulable
-void RS232Tester::executeUntilEmuTime(const EmuTime &time, int userData)
+void RS232Tester::executeUntil(const EmuTime &time, int userData) throw()
 {
 	if (connector) {
 		signal(time);

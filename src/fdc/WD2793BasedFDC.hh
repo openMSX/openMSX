@@ -12,15 +12,15 @@ namespace openmsx {
 
 class WD2793BasedFDC : public MSXFDC
 {
-	public:
-		WD2793BasedFDC(Device *config, const EmuTime &time);
-		virtual ~WD2793BasedFDC() = 0;
-		
-		virtual void reset(const EmuTime &time);
-		
-	protected:
-		DriveMultiplexer multiplexer;
-		WD2793 controller;
+public:
+	virtual void reset(const EmuTime& time);
+	
+protected:
+	WD2793BasedFDC(Device *config, const EmuTime& time);
+	virtual ~WD2793BasedFDC();
+	
+	DriveMultiplexer multiplexer;
+	WD2793 controller;
 };
 
 } // namespace openmsx

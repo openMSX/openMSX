@@ -71,7 +71,7 @@ const string &RealTime::schedName() const
 	return name;
 }
 
-void RealTime::executeUntilEmuTime(const EmuTime &curEmu, int userData)
+void RealTime::executeUntil(const EmuTime& curEmu, int userData) throw()
 {
 	internalSync(curEmu);
 }

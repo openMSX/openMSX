@@ -9,52 +9,52 @@
 
 namespace openmsx {
 
-class RealTime : public Schedulable, private SettingListener
+class RealTime : private Schedulable, private SettingListener
 {
-	public:
-		virtual ~RealTime();
-		static RealTime *instance();
+public:
+	static RealTime* instance();
 
-		/** Does the user want to pause the emulator?
-		  * @return true iff the pause setting is on.
-		  */
-		static bool isPaused() {
-			return instance()->pauseSetting.getValue();
-		}
+	/** Does the user want to pause the emulator?
+	  * @return true iff the pause setting is on.
+	  */
+	static bool isPaused() {
+		return instance()->pauseSetting.getValue();
+	}
 
-		virtual void executeUntilEmuTime(const EmuTime &time, int userData);
-		virtual const string &schedName() const;
+	/**
+	 * Convert EmuTime to RealTime and vice versa
+	 */
+	float getRealDuration(const EmuTime& time1, const EmuTime& time2);
+	EmuDuration getEmuDuration(float realDur);
 
-		/**
-		 * Convert EmuTime to RealTime and vice versa
-		 */
-		float getRealDuration(const EmuTime &time1, const EmuTime &time2);
-		EmuDuration getEmuDuration(float realDur);
+	/**
+	 * Synchronize EmuTime with RealTime, normally this is done
+	 * automatically, but some devices have additional information
+	 * and can indicate 'good' moments to sync, eg: VDP can call
+	 * this method at the end of each frame.
+	 */
+	float sync(const EmuTime& time);
 
-		/**
-		 * Synchronize EmuTime with RealTime, normally this is done
-		 * automatically, but some devices have additional information
-		 * and can indicate 'good' moments to sync, eg: VDP can call
-		 * this method at the end of each frame.
-		 */
-		float sync(const EmuTime &time);
+protected:
+	RealTime(); 
+	virtual ~RealTime();
+	
+	virtual float doSync(const EmuTime& time) = 0;  
+	virtual void resync() = 0;
 
-	protected:
-		RealTime(); 
-		
-		virtual float doSync(const EmuTime &time) = 0;  
-		virtual void resync() = 0;
+	IntegerSetting speedSetting;
+	int maxCatchUpTime;	// max nb of ms overtime
+	int maxCatchUpFactor;	// max catch up speed factor (percentage)
 
-		IntegerSetting speedSetting;
-		int maxCatchUpTime;	// max nb of ms overtime
-		int maxCatchUpFactor;	// max catch up speed factor (percentage)
+private:
+	virtual void executeUntil(const EmuTime& time, int userData) throw();
+	virtual const string& schedName() const;
 
-	private:
-		float internalSync(const EmuTime &time);
-		void update(const SettingLeafNode *setting);
+	float internalSync(const EmuTime& time);
+	void update(const SettingLeafNode* setting);
 
-		BooleanSetting pauseSetting;
-		BooleanSetting throttleSetting;
+	BooleanSetting pauseSetting;
+	BooleanSetting throttleSetting;
 };
 
 } // namespace openmsx

@@ -7,6 +7,41 @@
 
 namespace openmsx {
 
+// Relative volume between ADPCM part and FM part, 
+// value experimentally found by Manuel Bilderbeek
+const int ADPCM_VOLUME = 356;
+
+// Bitmask for register 0x07
+static const int R07_RESET        = 0x01;
+//static const int R07            = 0x02;.      // not used
+//static const int R07            = 0x04;.      // not used
+const int R07_SP_OFF       = 0x08;
+const int R07_REPEAT       = 0x10;
+const int R07_MEMORY_DATA  = 0x20;
+const int R07_REC          = 0x40;
+const int R07_START        = 0x80;
+
+//Bitmask for register 0x08
+const int R08_ROM          = 0x01;
+const int R08_64K          = 0x02;
+const int R08_DA_AD        = 0x04;
+const int R08_SAMPL        = 0x08;
+//const int R08            = 0x10;.      // not used
+//const int R08            = 0x20;.      // not used
+const int R08_NOTE_SET     = 0x40;
+const int R08_CSM          = 0x80;
+
+const int DMAX = 0x6000;
+const int DMIN = 0x7F;
+const int DDEF = 0x7F;
+
+const int DECODE_MAX = 32767;
+const int DECODE_MIN = -32768;
+
+const int GETA_BITS  = 14;
+const unsigned int MAX_STEP   = 1<<(16+GETA_BITS);
+
+
 //**************************************************//
 //                                                  //
 //  Helper functions                                //
@@ -93,7 +128,7 @@ void Y8950Adpcm::schedule(const EmuTime &time)
 	}
 }
 
-void Y8950Adpcm::executeUntilEmuTime(const EmuTime &time, int userData)
+void Y8950Adpcm::executeUntil(const EmuTime& time, int userData) throw()
 {
 	y8950->setStatus(Y8950::STATUS_EOS);
 	if (reg7 & R07_REPEAT) {

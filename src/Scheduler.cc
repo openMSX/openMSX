@@ -100,7 +100,7 @@ void Scheduler::scheduleDevices(const EmuTime &limit)
 		int userData = sp.getUserData();
 		PRT_DEBUG ("Sched: Scheduling_2 " << device->schedName() <<
 			" " << userData << " till " << time);
-		device->executeUntilEmuTime(time, userData);
+		device->executeUntil(time, userData);
 	}
 }
 
@@ -128,7 +128,7 @@ inline void Scheduler::emulateStep()
 		int userData = sp.getUserData();
 		PRT_DEBUG ("Sched: Scheduling " << device->schedName() <<
 			" " << userData << " till " << time);
-		device->executeUntilEmuTime(time, userData);
+		device->executeUntil(time, userData);
 	}
 }
 
