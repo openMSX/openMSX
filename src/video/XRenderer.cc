@@ -131,6 +131,10 @@ void XRenderer::putImage(const EmuTime &time, bool store) {
 void XRenderer::putStoredImage() {
 }
 
+int XRenderer::putPowerOffImage() {
+	return 0;
+}
+
 void XRenderer::updateTransparency(bool enabled, const EmuTime &time) {
 }
 

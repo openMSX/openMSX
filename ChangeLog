@@ -1,6 +1,9 @@
 $Id$
 
-2003-10-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2003-11-03 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented 'snow effect' for GLRenderer (try set power off)
+
+2003-11-02 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented "power" setting:
 	   display is still wrong in power off mode
 

@@ -81,6 +81,13 @@ void SDLRenderer<Pixel, zoom>::finishFrame(bool store)
 }
 
 template <class Pixel, Renderer::Zoom zoom>
+int SDLRenderer<Pixel, zoom>::putPowerOffImage()
+{
+	putStoredImage();
+	return 0;	// not dynamic
+}
+
+template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::putStoredImage()
 {
 	// Copy stored image to screen.

@@ -43,6 +43,7 @@ public:
 	void frameStart(const EmuTime &time);
 	void putImage(const EmuTime &time, bool store);
 	void putStoredImage();
+	int putPowerOffImage();
 	void updateTransparency(bool enabled, const EmuTime &time);
 	void updateForegroundColour(int colour, const EmuTime &time);
 	void updateBackgroundColour(int colour, const EmuTime &time);

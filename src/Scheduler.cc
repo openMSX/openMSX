@@ -150,7 +150,16 @@ const EmuTime Scheduler::scheduleEmulation()
 	EventDistributor *eventDistributor = EventDistributor::instance();
 	while (emulationRunning) {
 		emulateStep();
-		if (paused || !powerSetting.getValue()) {
+		if (!powerSetting.getValue()) {
+			assert(renderer != NULL);
+			int fps = renderer->putPowerOffImage();
+			if (fps == 0) {
+				eventDistributor->wait();
+			} else {
+				SDL_Delay(1000 / fps);
+				eventDistributor->poll();
+			}
+		} else if (paused) {
 			assert(renderer != NULL);
 			renderer->putStoredImage();
 			eventDistributor->wait();

@@ -220,6 +220,31 @@ void SDLGLRenderer::finishFrame(bool store)
 	SDL_GL_SwapBuffers();
 }
 
+int SDLGLRenderer::putPowerOffImage()
+{
+	// draw noise texture.
+	float x = (float)rand() / RAND_MAX;
+	float y = (float)rand() / RAND_MAX;
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, noiseTextureId);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f + x, 2.0f + y); glVertex2i(   0, HEIGHT - 512);
+	glTexCoord2f(4.0f + x, 2.0f + y); glVertex2i(1024, HEIGHT - 512);
+	glTexCoord2f(4.0f + x, 0.0f + y); glVertex2i(1024, HEIGHT);
+	glTexCoord2f(0.0f + x, 0.0f + y); glVertex2i(   0, HEIGHT);
+	glEnd();
+	glDisable(GL_TEXTURE_2D);
+	
+	// Render console if needed.
+	console->drawConsole();
+	if (debugger) debugger->drawConsole();
+
+	// Update screen.
+	SDL_GL_SwapBuffers();
+	return 10;	// 10 fps
+}
+
 void SDLGLRenderer::putStoredImage()
 {
 	// Copy stored image to screen.
@@ -448,6 +473,18 @@ SDLGLRenderer::SDLGLRenderer(
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	prevStored = false;
+	
+	// create noise texture.
+	byte buf[128 * 128];
+	for (int i = 0; i < 128 * 128; ++i) {
+		buf[i] = (byte)rand();
+	}
+	glGenTextures(1, &noiseTextureId);
+	glBindTexture(GL_TEXTURE_2D, noiseTextureId);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE8, 128, 128, 0,
+	             GL_LUMINANCE, GL_UNSIGNED_BYTE, buf);
 
 	// Create bitmap display cache.
 	bitmapTextures = vdp->isMSX1VDP() ? NULL : new LineTexture[4 * 256];

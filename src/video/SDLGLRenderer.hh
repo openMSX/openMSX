@@ -57,6 +57,7 @@ public:
 protected:
 	void finishFrame(bool store);
 	void putStoredImage();
+	int  putPowerOffImage();
 	void updateVRAMCache(int address);
 	void drawBorder(int fromX, int fromY, int limitX, int limitY);
 	void drawDisplay(
@@ -208,6 +209,7 @@ private:
 	  * Used for effects and for putStoredImage.
 	  */
 	GLuint storedImageTextureId;
+	GLuint noiseTextureId;
 
 	/** Was the previous frame image stored?
 	  */

@@ -87,6 +87,7 @@ public:
 	  * Images can be stored by requesting the putImage method to do so.
 	  */
 	virtual void putStoredImage() = 0;
+	virtual int putPowerOffImage() = 0;
 
 	/** Informs the renderer of a VDP transparency enable/disable change.
 	  * @param enabled The new transparency state.
