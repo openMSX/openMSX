@@ -10,14 +10,16 @@ inline void _CPU_::executeInstruction(byte opcode)
 	#endif
 	M1Cycle();
 	(this->*opcode_main[opcode])();	// currentTime can be raised extra
+	
 	#ifdef CPU_DEBUG
+	if (cpudebug) {
 		printf("%04x : instruction ", start_pc);
 		Dasm(&debugmemory[start_pc], to_print_string, start_pc );
 		printf("%s\n", to_print_string );
 		printf("      A=%02x F=%02x BC=%04x DE=%04x HL=%04x\n", 
 		              R.AF.B.h, R.AF.B.l, R.BC.w, R.DE.w, R.HL.w);
+	}
 	#endif
-	return;
 }
 
 
@@ -4682,9 +4684,13 @@ void _CPU_::execute()
 		} else {
 			// normal instructions
 			#ifdef CPU_DEBUG
+			if (cpudebug) {
 				EmuTime before(currentTime);
 				executeInstruction(RDOP(R.PC.w++));
 				PRT_DEBUG("CPU: Took "<<currentTime.subtract(before)/24<<"T-States");
+			} else {
+				executeInstruction(RDOP(R.PC.w++));
+			}
 			#else
 				executeInstruction(RDOP(R.PC.w++));
 			#endif

@@ -5,6 +5,7 @@
 
 #include "openmsx.hh"
 #include "SoundDevice.hh"
+#include "MSXMotherBoard.hh"
 
 //forward declarations
 class EmuTime;
@@ -313,6 +314,7 @@ class Y8950 : public SoundDevice
 		byte* memory[2];	// [0] RAM, [1] ROM
 
 		byte status;		// STATUS Register
+		MSXMotherBoard::IRQHelper irq;
 		bool play_start;
 		int start_addr;
 		int stop_addr;

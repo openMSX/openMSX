@@ -20,6 +20,11 @@
 #include "CPU.hh"
 #include "EmuTime.hh"
 
+#ifdef CPU_DEBUG
+#include "ConsoleSource/ConsoleCommand.hh"
+#endif
+
+
 // forward declarations
 class Z80;
 class CPUInterface;
@@ -49,10 +54,18 @@ class Z80 : public CPU {
 		static const opcode_fn opcode_fd[256];
 		static const opcode_fn opcode_main[256];
 		
-		#ifdef CPU_DEBUG
+	#ifdef CPU_DEBUG
+	public:
 			byte debugmemory[65536];
 			char to_print_string[300];
-		#endif
+			static bool cpudebug;
+
+			class DebugCmd : public ConsoleCommand {
+				virtual void execute(char *commandLine);
+				virtual void help(char *commandLine);
+			};
+			DebugCmd debugCmd;
+	#endif
 };
 
 #endif // __Z80_H__

@@ -20,6 +20,7 @@
 #ifdef CPU_DEBUG
 #include <stdio.h>
 #include "Z80Dasm.h"
+#include "ConsoleSource/Console.hh"
 #endif
 
 
@@ -28,6 +29,10 @@ Z80::Z80(CPUInterface *interf, int waitCycl, const EmuTime &time) : CPU(interf)
 	makeTables();
 	waitCycles = waitCycl;
 	reset(time);
+
+	#ifdef CPU_DEBUG
+	Console::instance()->registerCommand(debugCmd, "cpudebug");
+	#endif
 }
 Z80::~Z80()
 {
@@ -67,4 +72,15 @@ inline int Z80::haltStates() { return 4 + waitCycles; }	// HALT + M1
 
 #include "CPUCore.n2"
 
+
+#ifdef CPU_DEBUG
+void Z80::DebugCmd::execute(char* commandLine)
+{
+	Z80::cpudebug = !Z80::cpudebug;
+}
+void Z80::DebugCmd::help(char* commandLine)
+{
+}
+bool Z80::cpudebug = false;
+#endif
 

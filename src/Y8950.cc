@@ -19,6 +19,7 @@
 #include "Y8950.hh"
 #include "Mixer.hh"
 
+
 int Y8950::dB2LinTab[(2*DB_MUTE)*2];
 int Y8950::Slot::fullsintable[PG_WIDTH];
 int Y8950::Slot::dphaseARTable[16][16];
@@ -693,6 +694,7 @@ bool Y8950::update_stage()
 			} else {
 				play_start = false;
 				status |= STATUS_EOS;
+				irq.set();
 			}
 		} else {
 			reg[0x0F] = wave[play_addr>>1];
@@ -807,7 +809,8 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 	// update the output buffer before changing the register
 	Mixer::instance()->updateStream(time);
 
-	if (rg<0x20) {
+	switch (rg&0xe0) {
+	case 0x00: {
 		switch (rg) {
 		case 0x01: // TEST
 			// TODO
@@ -851,15 +854,11 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 
 		case 0x04: // FLAG CONTROL 
 			if (data & R04_IRQ_RESET) {
-				status &= 0x07;	//TODO
+				status &= 0x07;	//TODO check
+				irq.reset();
 			} else {
 				reg[0x04] = data;
 			}
-			break;
-
-		case 0x05: // (KEYBOARD IN)
-			// TODO
-			// read-only
 			break;
 
 		case 0x06: // (KEYBOARD OUT) 
@@ -915,6 +914,7 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 				}
 			}
 			status |= STATUS_BUF_RDY;
+			irq.set();
 			break;
 
 		case 0x10: // DELTA-N (L) 
@@ -949,22 +949,11 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 		case 0x1A: // PCM-DATA
 			reg[0x1A] = data;
 			break;
-
-		case 0x00: // NOT USED 
-		case 0x13: // NOT USED 
-		case 0x14: // NOT USED 
-		case 0x1B: // NOT USED 
-		case 0x1C: // NOT USED 
-		case 0x1D: // NOT USED 
-		case 0x1E: // NOT USED 
-		case 0x1F: // NOT USED 
-		default:
-			// do nothing
-			break;
 		}
-	} else if ((0x20<=rg)&&(rg<0x40)) {
-		int s = stbl[(rg-0x20)];
-		if (s>=0) {
+		break;
+	}
+	case 0x20: {
+		if (int s = stbl[rg&0x1f] >= 0) {
 			slot[s]->patch.AM = (data>>7)&1;
 			slot[s]->patch.PM = (data>>6)&1;
 			slot[s]->patch.EG = (data>>5)&1;
@@ -973,67 +962,106 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 			slot[s]->UPDATE_ALL();
 		}
 		reg[rg] = data;
-	} else if ((0x40<=rg)&&(rg<0x60)) {
-		int s = stbl[(rg-0x40)];
-		if (s>=0) {
+		break;
+	}
+	case 0x40: {
+		if (int s = stbl[rg&0x1f] >= 0) {
 			slot[s]->patch.KL = (data>>6)&3;
 			slot[s]->patch.TL = (data)&63;
 			slot[s]->UPDATE_ALL();
 		}
 		reg[rg] = data;
-	} else if ((0x60<=rg)&&(rg<0x80)) {
-		int s = stbl[(rg-0x60)];
-		if (s>=0) {
+		break;
+	} 
+	case 0x60: {
+		if (int s = stbl[rg&0x1f] >= 0) {
 			slot[s]->patch.AR = (data>>4)&15;
 			slot[s]->patch.DR = (data)&15;
 			slot[s]->UPDATE_EG();
 		}
 		reg[rg] = data;
-	} else if ((0x80<=rg)&&(rg<0xA0)) {
-		int s = stbl[(rg-0x80)];
-		if (s>=0) {
+		break;
+	} 
+	case 0x80: {
+		if (int s = stbl[rg&0x1f] >= 0) {
 			slot[s]->patch.SL = (data>>4)&15;
 			slot[s]->patch.RR = (data)&15;
 			slot[s]->UPDATE_EG();
 		}
 		reg[rg] = data;
-	} else if ((0xA0<=rg)&&(rg<0xA9)) {
-		int c = rg-0xA0;
-		setFnumber(c, data + ((reg[rg+0x10]&3)<<8));
-		ch[c].car.UPDATE_ALL();
-		ch[c].mod.UPDATE_ALL();
-		reg[rg] = data;
-	} else if ((0xB0<=rg)&&(rg<0xB9)) {
-		int c = rg-0xB0;
-		setFnumber(c, ((data&3)<<8) + reg[rg-0x10]);
-		setBlock(c, (data>>2)&7);
-		if (((reg[rg]&0x20)==0)&&(data&0x20)) 
-			keyOn(c); 
-		else if((data&0x20)==0) 
-			keyOff(c);
-		ch[c].mod.UPDATE_ALL();
-		ch[c].car.UPDATE_ALL();
-		reg[rg] = data;
-	} else if ((0xC0<=rg)&&(rg<0xC9)) {
+		break;
+	} 
+	case 0xa0: {
+		if (rg==0xbd) {
+			rythm_mode = data & 32;
+			am_mode = (data>>7)&1;
+			pm_mode = (data>>6)&1;
+			reg[0xbd] = data;
+			break;
+		}
+		if ((rg&0xf) > 8) {
+			// 0xa9-0xaf 0xb9-0xbf
+			break;
+		}
+		if (!(rg&0x10)) {
+			// 0xa0-0xa8
+			int c = rg-0xa0;
+			setFnumber(c, data + ((reg[rg+0x10]&3)<<8));
+			ch[c].car.UPDATE_ALL();
+			ch[c].mod.UPDATE_ALL();
+			reg[rg] = data;
+		} else {
+			// 0xb0-0xb8
+			int c = rg-0xb0;
+			setFnumber(c, ((data&3)<<8) + reg[rg-0x10]);
+			setBlock(c, (data>>2)&7);
+			if (((reg[rg]&0x20)==0)&&(data&0x20)) 
+				keyOn(c); 
+			else if((data&0x20)==0) 
+				keyOff(c);
+			ch[c].mod.UPDATE_ALL();
+			ch[c].car.UPDATE_ALL();
+			reg[rg] = data;
+		}
+		break;
+	}
+	case 0xc0: {
+		if (rg > 0xc8)
+			break;
 		int c = rg-0xC0;
 		slot[c*2]->patch.FB = (data>>1)&7;
 		ch[c].alg = data&1;
 		reg[rg] = data;
-	} else if (rg==0xbd) {
-		rythm_mode = data & 32;
-		am_mode = (data>>7)&1;
-		pm_mode = (data>>6)&1;
-		reg[0xbd] = data;
 	}
+	}
+	//TODO only for registers that influence sound
 	checkMute();
 }
 
 byte Y8950::readReg(byte rg)
 {
-	return reg[rg];
+	switch (rg) {
+		case 0x05: // (KEYBOARD IN)
+			// TODO
+			break;
+			
+		case 0x0f: // ADPCM-DATA
+			// TODO check
+			return reg[rg];
+			
+		case 0x19: // I/O DATA
+			// TODO
+			break;
+			
+		case 0x1a: // PCM-DATA
+			// TODO
+			break;
+	}
+	return 255;
 }
 
 byte Y8950::readStatus()
 {
 	return status;
 }
+
