@@ -5,6 +5,7 @@
 #include "FileContext.hh"
 #include "SettingsConfig.hh"
 #include "CommandController.hh"
+#include "GlobalSettings.hh"
 
 namespace openmsx {
 
@@ -18,6 +19,13 @@ SettingsConfig::SettingsConfig()
 
 SettingsConfig::~SettingsConfig()
 {
+	if (GlobalSettings::instance().getAutoSaveSetting().getValue()) {
+		try {
+			saveSetting();
+		} catch (FileException& e) {
+			// we've tried, can't help if it fails
+		}
+	}
 	CommandController::instance().
 		unregisterCommand(&saveSettingsCommand, "save_settings");
 }

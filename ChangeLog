@@ -1,5 +1,8 @@
 $Id$
 
+2004-09-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Added "save_settings_at_exit" setting
+
 2004-09-20 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Initialize the msx sound devices even if there is no openMSX sound:
 	  - solves UMR (and possibly crashes) in case openMSX is started with

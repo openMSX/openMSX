@@ -19,12 +19,14 @@ public:
 
 	BooleanSetting& getPauseSetting();
 	BooleanSetting& getPowerSetting();
+	BooleanSetting& getAutoSaveSetting();
 
 private:
 	GlobalSettings();
 	
 	BooleanSetting pauseSetting;
 	BooleanSetting powerSetting;
+	BooleanSetting autoSaveSetting;
 };
 
 } // namespace openmsx

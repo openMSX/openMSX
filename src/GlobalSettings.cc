@@ -7,6 +7,9 @@ namespace openmsx {
 GlobalSettings::GlobalSettings()
 	: pauseSetting("pause", "pauses the emulation", false, DONT_SAVE_SETTING)
 	, powerSetting("power", "turn power on/off", false, DONT_SAVE_SETTING)
+	, autoSaveSetting("save_settings_at_exit",
+	                  "automatically save settings when openMSX exits",
+	                  false)
 {
 }
 
@@ -24,6 +27,11 @@ BooleanSetting& GlobalSettings::getPauseSetting()
 BooleanSetting& GlobalSettings::getPowerSetting()
 {
 	return powerSetting;
+}
+
+BooleanSetting& GlobalSettings::getAutoSaveSetting()
+{
+	return autoSaveSetting;
 }
 
 } // namespace openmsx
