@@ -2,7 +2,6 @@
 
 #include "MSXTapePatch.hh"
 #include "CommandController.hh"
-//#include "SettingsConfig.hh"
 #include "GlobalSettings.hh"
 #include "xmlx.hh"
 #include "File.hh"
@@ -32,7 +31,6 @@ const string& MSXCasCLI::optionHelp() const
 
 void MSXCasCLI::parseFileType(const string& filename)
 {
-	//XMLElement& config = SettingsConfig::instance().getCreateChild("media");
 	XMLElement& config = GlobalSettings::instance().getMediaConfig();
 	XMLElement& casElem = config.getCreateChild("cas");
 	casElem.setData(filename);
@@ -64,8 +62,6 @@ static const byte TapeHeader[8] = { 0x1F,0xA6,0xDE,0xBA,0xCC,0x13,0x7D,0x74 };
 
 MSXTapePatch::MSXTapePatch()
 {
-	//XMLElement& config = SettingsConfig::instance().getCreateChild("media");
-	//config.setFileContext(auto_ptr<FileContext>(new UserFileContext()));
 	XMLElement& config = GlobalSettings::instance().getMediaConfig();
 	casElem = &config.getCreateChild("cas");
 	const string filename = casElem->getData();

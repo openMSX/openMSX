@@ -1,7 +1,6 @@
 // $Id$
 
 #include "DiskImageCLI.hh"
-//#include "SettingsConfig.hh"
 #include "GlobalSettings.hh"
 #include "xmlx.hh"
 #include "FileContext.hh"
@@ -34,7 +33,6 @@ const string& DiskImageCLI::optionHelp() const
 
 void DiskImageCLI::parseFileType(const string& filename)
 {
-	//XMLElement& config = SettingsConfig::instance().getCreateChild("media");
 	XMLElement& config = GlobalSettings::instance().getMediaConfig();
 	XMLElement& diskElem = config.getCreateChild(string("disk") + driveLetter);
 	diskElem.setData(filename);

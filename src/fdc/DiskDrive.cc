@@ -2,7 +2,6 @@
 
 #include "DiskDrive.hh"
 #include "CommandController.hh"
-//#include "SettingsConfig.hh"
 #include "GlobalSettings.hh"
 #include "DummyDisk.hh"
 #include "XSADiskImage.hh"
@@ -149,8 +148,6 @@ RealDrive::RealDrive(const EmuTime& time)
 		throw FatalError("Too many disk drives.");
 	}
 	
-	//XMLElement& config = SettingsConfig::instance().getCreateChild("media");
-	//config.setFileContext(auto_ptr<FileContext>(new UserFileContext()));
 	XMLElement& config = GlobalSettings::instance().getMediaConfig();
 	diskElem = &config.getCreateChild(name);
 	const string filename = diskElem->getData();

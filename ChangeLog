@@ -1,5 +1,9 @@
 $Id$
 
+2004-09-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Removed the MSXConfig::loadConfig method that was resposible for the
+	  media settings bug. It's no longer used now.
+
 2004-09-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Removed settings.xml from CVS
 	* media settings (diska, diskb, cassette) were wrongly saved:

@@ -11,10 +11,6 @@ class FileContext;
 
 class MSXConfig : public XMLElement
 {
-public:
-	static void loadConfig(XMLElement& root, const FileContext& context,
-	                       auto_ptr<XMLElement> elem);
-
 protected:
 	MSXConfig(const string& name);
 	static void handleDoc(XMLElement& root, const XMLDocument& doc,

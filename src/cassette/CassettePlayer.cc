@@ -3,7 +3,6 @@
 #include <cstdlib>
 #include "CassettePlayer.hh"
 #include "CommandController.hh"
-//#include "SettingsConfig.hh"
 #include "GlobalSettings.hh"
 #include "xmlx.hh"
 #include "File.hh"
@@ -39,7 +38,6 @@ const string& MSXCassettePlayerCLI::optionHelp() const
 
 void MSXCassettePlayerCLI::parseFileType(const string &filename)
 {
-	//XMLElement& config = SettingsConfig::instance().getCreateChild("media");
 	XMLElement& config = GlobalSettings::instance().getMediaConfig();
 	XMLElement& playerElem = config.getCreateChild("cassetteplayer");
 	playerElem.setData(filename);
@@ -55,8 +53,6 @@ const string& MSXCassettePlayerCLI::fileTypeHelp() const
 CassettePlayer::CassettePlayer()
 	: motor(false), forcePlay(false)
 {
-	//XMLElement& config = SettingsConfig::instance().getCreateChild("media");
-	//config.setFileContext(auto_ptr<FileContext>(new UserFileContext()));
 	XMLElement& config = GlobalSettings::instance().getMediaConfig();
 	playerElem = &config.getCreateChild("cassetteplayer");
 	const string filename = playerElem->getData();
