@@ -2,7 +2,6 @@
 
 /*
 TODO:
-- Separate planar / non-planar routines.
 - Put VRAM in a separate class?
 - Run more measurements on real MSX to find out how horizontal
   scanning interrupt really works.
@@ -57,6 +56,7 @@ inline VDP::SpritePattern VDP::doublePattern(VDP::SpritePattern a)
 	return a;
 }
 
+// TODO Separate planar / non-planar routines.
 inline VDP::SpritePattern VDP::calculatePattern(int patternNr, int y)
 {
 	// Optimise getSpriteSize? No, GCC is smart enough!
