@@ -27,7 +27,7 @@ byte MSXS1985::readIO(byte port, const EmuTime &time)
 	byte result;
 	switch (port) {
 		case 0x40:
-			result = ~ID;
+			result = (byte)~ID;
 			break;
 		case 0x42:
 			result = ram[address];
