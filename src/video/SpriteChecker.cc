@@ -83,7 +83,7 @@ inline SpriteChecker::SpritePattern SpriteChecker::calculatePatternNP(
 inline int SpriteChecker::checkSprites1(
 	int line, SpriteChecker::SpriteInfo *visibleSprites)
 {
-	if (!vdp->spritesEnabled()) return 0;
+	if (!vdp->spritesEnabled() || !vdp->isDisplayEnabled()) return 0;
 
 	// Calculate display line.
 	// This is the line sprites are checked at; the line they are displayed
@@ -178,7 +178,7 @@ inline int SpriteChecker::checkSprites1(
 inline int SpriteChecker::checkSprites2(
 	int line, SpriteChecker::SpriteInfo *visibleSprites)
 {
-	if (!vdp->spritesEnabled()) return 0;
+	if (!vdp->spritesEnabled() || !vdp->isDisplayEnabled()) return 0;
 
 	// Calculate display line.
 	// This is the line sprites are checked at; the line they are displayed

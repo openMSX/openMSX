@@ -3,6 +3,8 @@ $Id$
 2004-02-25 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Also do tab-completion for build-in TCL-commands and user defined
 	  TCL procs
+	* Fixed sprite collision bug:
+	   sprites cannot collide when isDisplayEnabled() is false
 
 2004-02-25 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented "vramdump" command as a TCL script
