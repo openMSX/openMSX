@@ -80,6 +80,11 @@ int DriveMultiplexer::indexPulseCount(const EmuTime &begin,
 	return drive[selected]->indexPulseCount(begin, end);
 }
 
+EmuTime DriveMultiplexer::getTimeTillSector(byte sector, const EmuTime& time)
+{
+	return drive[selected]->getTimeTillSector(sector, time);
+}
+
 void DriveMultiplexer::setHeadLoaded(bool status, const EmuTime &time)
 {
 	drive[selected]->setHeadLoaded(status, time);

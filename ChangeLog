@@ -3,6 +3,8 @@ $Id$
 2005-01-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Lookup original filename inside zip/gz for filetype detection:
 	   this fixes [ 1072797 ] Detect extensions if i use a zipped file too
+	* Implemented rotational delay for WD2793:
+	   fixes [ 905031 ] Graphic problem in Peach up 
 
 2005-01-10 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed gfx9000 border color

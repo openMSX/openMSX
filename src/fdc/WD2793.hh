@@ -61,6 +61,7 @@ private:
 		FSM_SEEK,
 		FSM_TYPE2_WAIT_LOAD,
 		FSM_TYPE2_LOADED,
+		FSM_TYPE2_ROTATED,
 		FSM_TYPE3_WAIT_LOAD,
 		FSM_TYPE3_LOADED,
 	} fsmState;
@@ -76,7 +77,8 @@ private:
 	
 	void startType2Cmd(const EmuTime& time);
 	void type2WaitLoad(const EmuTime& time);
-	void type2Loaded();
+	void type2Loaded(const EmuTime& time);
+	void type2Rotated();
 	
 	void startType3Cmd(const EmuTime& time);
 	void type3WaitLoad(const EmuTime& time);

@@ -70,6 +70,16 @@ public:
 	virtual int indexPulseCount(const EmuTime& begin,
 	                            const EmuTime& end) = 0;
 
+	/** Return the time when the indicated sector will be rotated under
+	 * the drive head.
+	 * TODO what when the requested sector is not present? For the moment
+	 * returns the current time.
+	 * @param sector The requested sector number
+	 * @param time The current time
+	 * @return Time when the requested sector is under the drive head.
+	 */
+	virtual EmuTime getTimeTillSector(byte sector, const EmuTime& time) = 0;
+	
 	/** Set head loaded status.
 	 * @param status false = not loaded,
 	 *               true  = loaded.
@@ -122,7 +132,8 @@ public:
 	virtual void setMotor(bool status, const EmuTime& time);
 	virtual bool indexPulse(const EmuTime& time);
 	virtual int indexPulseCount(const EmuTime &begin,
-				    const EmuTime &end);
+	                            const EmuTime &end);
+	virtual EmuTime getTimeTillSector(byte sector, const EmuTime& time);
 	virtual void setHeadLoaded(bool status, const EmuTime& time);
 	virtual bool headLoaded(const EmuTime& time);
 	virtual void read (byte sector, byte* buf,
@@ -161,6 +172,7 @@ public:
 	virtual bool indexPulse(const EmuTime& time);
 	virtual int indexPulseCount(const EmuTime& begin,
 	                            const EmuTime& end);
+	virtual EmuTime getTimeTillSector(byte sector, const EmuTime& time);
 	virtual void setHeadLoaded(bool status, const EmuTime& time);
 	virtual bool headLoaded(const EmuTime& time);
 	virtual bool diskChanged();

@@ -80,6 +80,11 @@ int DummyDrive::indexPulseCount(const EmuTime& /*begin*/,
 	return 0;
 }
 
+EmuTime DummyDrive::getTimeTillSector(byte sector, const EmuTime& time)
+{
+	return time;
+}
+
 void DummyDrive::setHeadLoaded(bool /*status*/, const EmuTime& /*time*/)
 {
 	// ignore
@@ -247,6 +252,28 @@ int RealDrive::indexPulseCount(const EmuTime& begin,
 	int t1 = motorTimer.before(begin) ? motorTimer.getTicksTill(begin) : 0;
 	int t2 = motorTimer.before(end)   ? motorTimer.getTicksTill(end)   : 0;
 	return (t2 / TICKS_PER_ROTATION) - (t1 / TICKS_PER_ROTATION);
+}
+
+EmuTime RealDrive::getTimeTillSector(byte sector, const EmuTime& time)
+{
+	if (!motorStatus && disk->ready()) { // TODO is this correct?
+		return time;
+	}
+	// TODO this really belongs in the Disk class
+	int sectorAngle = ((sector - 1) * (TICKS_PER_ROTATION / 9)) %
+	                  TICKS_PER_ROTATION;
+
+	int angle = motorTimer.getTicksTill(time) % TICKS_PER_ROTATION;
+	int delta = sectorAngle - angle;
+	if (delta < 0) delta += TICKS_PER_ROTATION;
+	assert((0 <= delta) && (delta < TICKS_PER_ROTATION));
+	//std::cout << "DEBUG a1: " << angle
+	//          << " a2: " << sectorAngle
+	//          << " delta: " << delta << std::endl;
+	
+	Clock<TICKS_PER_ROTATION * ROTATIONS_PER_SECOND> tmp(time);
+	tmp += delta;
+	return tmp.getTime();
 }
 
 void RealDrive::setHeadLoaded(bool status, const EmuTime& time)

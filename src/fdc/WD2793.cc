@@ -398,7 +398,13 @@ void WD2793::executeUntil(const EmuTime& time, int /*userData*/)
 		case FSM_TYPE2_LOADED:
 			if ((commandReg & 0xC0) == 0x80)  {
 				// Type II command
-				type2Loaded();
+				type2Loaded(time);
+			}
+			break;
+		case FSM_TYPE2_ROTATED:
+			if ((commandReg & 0xC0) == 0x80)  {
+				// Type II command
+				type2Rotated();
 			}
 			break;
 		case FSM_TYPE3_WAIT_LOAD:
@@ -551,7 +557,7 @@ void WD2793::type2WaitLoad(const EmuTime& time)
 	schedule(FSM_TYPE2_LOADED, next.getTime());
 }
 
-void WD2793::type2Loaded()
+void WD2793::type2Loaded(const EmuTime& time)
 {
 	if (((commandReg & 0xE0) == 0xA0) && (drive->writeProtected())) {
 		// write command and write protected
@@ -559,20 +565,26 @@ void WD2793::type2Loaded()
 		statusReg |= WRITE_PROTECTED;
 		endCmd();
 	} else {
-		switch (commandReg & 0xF0) {
-			case 0x80: //read sector
-			case 0x90: //read sector (multi)
-				tryToReadSector();
-				break;
+		EmuTime next = drive->getTimeTillSector(sectorReg, time);
+		schedule(FSM_TYPE2_ROTATED, next);
+	}
+}
 
-			case 0xA0: // write sector
-			case 0xB0: // write sector (multi)
-				dataCurrent = 0;
-				dataAvailable = 512;	// TODO should come from sector header
-				DRQ = true;	// data ready to be written
-				transferring = true;
-				break;
-		}
+void WD2793::type2Rotated()
+{
+	switch (commandReg & 0xF0) {
+		case 0x80: //read sector
+		case 0x90: //read sector (multi)
+			tryToReadSector();
+			break;
+
+		case 0xA0: // write sector
+		case 0xB0: // write sector (multi)
+			dataCurrent = 0;
+			dataAvailable = 512;	// TODO should come from sector header
+			DRQ = true;	// data ready to be written
+			transferring = true;
+			break;
 	}
 }
 

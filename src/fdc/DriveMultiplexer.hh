@@ -38,7 +38,8 @@ public:
 	virtual void setMotor(bool status, const EmuTime &time);
 	virtual bool indexPulse(const EmuTime &time);
 	virtual int indexPulseCount(const EmuTime &begin,
-				    const EmuTime &end);
+	                            const EmuTime &end);
+	virtual EmuTime getTimeTillSector(byte sector, const EmuTime& time);
 	virtual void setHeadLoaded(bool status, const EmuTime &time);
 	virtual bool headLoaded(const EmuTime &time);
 	virtual void read (byte sector, byte* buf,
