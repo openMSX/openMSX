@@ -91,7 +91,9 @@ BINARY_FULL:=$(BINARY_PATH)/openmsx
 LOG_PATH:=$(BUILD_PATH)/log
 
 # Default target; make sure this is always the first target in this Makefile.
-all: config | $(BINARY_FULL)
+all: config $(BINARY_FULL)
+# GNU Make 3.80 supports "|" in dependency list to force an order:
+# all: config | $(BINARY_FULL)
 
 config:
 	@echo "Build configuration:"
