@@ -104,7 +104,7 @@ void MSXRomCLIPost::execute()
 		romfile = arg;
 		mapper = "auto";
 	}
-	string sramfile = FileOperations::getFilename(romfile) + ".SRAM";
+	string sramfile = FileOperations::getFilename(romfile);
 
 	XMLElement device = XMLElement("device");
 	device.addAttribute("id", "MSXRom" + StringOp::toString(ps) +

@@ -1,9 +1,15 @@
 $Id$
 
+2004-04-27 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed Koei mapper: sram is not visible in 0x6000-0x7FFF
+	* Fixed RealTime: still sync music for high frameskips, but properly
+	    handle syncpoints
+	* Fixed SRAM saving: filename had a double extension (file.SRAM.SRAM)
+	
 2004-04-26 Eric Boon <e.boon4@chello.nl>
 	* Add Debuggables to V9990
 
-2004-04-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2004-04-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented Koei-8 and Koei-32 mapper types:
 	   based on BlueMSX v1.4.0
 	* "openmsx_info fps" now return 0 in when "renderer none" is active
