@@ -10,7 +10,7 @@
 #include "Command.hh"
 #include "Settings.hh"
 
-using std::map;
+using std::multimap;
 using std::queue;
 using std::pair;
 
