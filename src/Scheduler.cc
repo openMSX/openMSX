@@ -3,12 +3,9 @@
 #include "MSXDevice.hh"
 #include "Scheduler.hh"
 #include "MSXMotherBoard.hh"
-#include "MSXZ80.hh"
+#include "MSXCPU.hh"
 #include <assert.h>
 
-
-MSXZ80 *Scheduler::nowRunning; //temporary hack for Z80: DO NOT USE
-// Read timescheduler.txt for a more detailed explication of the ideas behind the scheduler class
 
 Scheduler::Scheduler(void) : currentTime()
 {
@@ -66,8 +63,7 @@ void Scheduler::scheduleEmulation()
 	//1. Set the target T-State of the cpu to the first SP in the list.
 	// and let the CPU execute until the target T-state.
 		PRT_DEBUG ("Scheduling CPU\n");
-		nowRunning=MSXMotherBoard::CPU;
-		MSXMotherBoard::CPU->executeUntilEmuTime(time);
+		MSXCPU::instance()->executeUntilEmuTime(time);
 	// Time is now updated
 		currentTime=time;
 	//3. Get the device from the first SP in the list and let it reach its T-state.

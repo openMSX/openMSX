@@ -62,7 +62,7 @@
     <parameter name="frequency">PAL</parameter>
   </device>
   <device id="cpu">
-    <type>Z80</type>
+    <type>CPU</type>
   </device>
   <device id="Turbo-R timer">
     <type>E6Timer</type>

@@ -16,17 +16,18 @@ openmsx_SOURCES=openmsx.cc \
 	MSXRom16KB.hh MSXRom16KB.cc \
 	MSXSimple64KB.hh MSXSimple64KB.cc \
 	MSXTMS9928a.hh MSXTMS9928a.cc \
+	MSXCPUDevice.hh MSXCPU.hh MSXCPU.cc \
 	MSXZ80.hh MSXZ80.cc \
+	Z80.cc Z80.hh Z80DAA.h Z80Codes.h opc__Z80.h \
 	devicefactory.hh devicefactory.cc \
 	Scheduler.hh Scheduler.cc \
 	Inputs.hh Inputs.cc \
 	Leds.hh Leds.cc \
-	Z80.cc Z80.hh Z80DAA.h Z80Codes.h opc__Z80.h \
 	MSXE6Timer.hh MSXE6Timer.cc \
 	DummyDevice.hh DummyDevice.cc \
 	SoundDevice.hh \
 	MSXPSG.hh MSXPSG.cc AY8910.hh AY8910.cc \
-	JoystickPorts.hh JoystickPorts.cc JoystickInterface.hh \
+	JoystickPorts.hh JoystickPorts.cc JoystickDevice.hh \
 	DummyJoystick.hh DummyJoystick.cc
 	
 

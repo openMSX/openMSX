@@ -7,7 +7,7 @@
 #include "MSXPPI.hh"
 #include "MSXTMS9928a.hh"
 #include "MSXE6Timer.hh"
-#include "MSXZ80.hh"
+#include "MSXCPU.hh"
 #include "MSXPSG.hh"
 #include <assert.h>
 
@@ -18,25 +18,25 @@ MSXDevice *deviceFactory::create(MSXConfig::Device *conf) {
 		device = MSXMotherBoard::instance();
 	}
 	if ( conf->getType().compare("Rom16KB") == 0 ){
-		device=new MSXRom16KB();
+		device = new MSXRom16KB();
 	}
 	if ( conf->getType().compare("Simple64KB") == 0 ){ 
-		device=new MSXSimple64KB();
+		device = new MSXSimple64KB();
 	}
 	if ( conf->getType().compare("PPI") == 0 ){ 
 		device = MSXPPI::instance();
 	}
 	if ( conf->getType().compare("TMS9928a") == 0 ){ 
-		device=new MSXTMS9928a();
+		device = new MSXTMS9928a();
 	}
 	if ( conf->getType().compare("E6Timer") == 0 ){ 
-		device=new MSXE6Timer();
+		device = new MSXE6Timer();
 	}
-	if ( conf->getType().compare("Z80") == 0 ){ 
-		device=new MSXZ80();
+	if ( conf->getType().compare("CPU") == 0 ){ 
+		device = MSXCPU::instance();
 	}
 	if ( conf->getType().compare("PSG") == 0 ){ 
-		device=new MSXPSG();
+		device = new MSXPSG();
 	}
 
 	assert (device != 0);

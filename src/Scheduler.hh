@@ -4,6 +4,7 @@
 #define __SCHEDULER_HH__
 
 #include "emutime.hh"
+#include "MSXDevice.hh"
 #include <set>
 
 class MSXZ80;
@@ -38,8 +39,6 @@ class Scheduler
 		void insertStamp(Emutime &timestamp, MSXDevice &activedevice);
 		void scheduleEmulation();
 		void stopEmulation();
-
-		static MSXZ80 *nowRunning; //temporary hack for Z80: DO NOT USE
 };
 
 #endif

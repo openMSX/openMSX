@@ -32,14 +32,6 @@ class MSXMotherBoard : public MSXDevice
 		// fe. yanking a cartridge out of the msx
 		void removeDevice(MSXDevice *device);
 
-		void setActiveCPU(MSXZ80 *device);
-		
-		// old comment:
-		//    Once working some devices should be able to generate IRQ's
-		//    fe. an RS232 recievies data and wants to pass this in the 
-		//    RS232 of the openMSX. This kind of IRQ is external to the 
-		//    emulate MSX and is now emulated by the schedulling algorithm
-		//    in Scheduler: void raiseInterupt();
 		void raiseIRQ();
 		void lowerIRQ();
 		bool IRQstatus();
@@ -79,6 +71,6 @@ class MSXMotherBoard : public MSXDevice
 
 		int IRQLine;
 
-		static MSXMotherBoard *volatile oneInstance;
+		static MSXMotherBoard *oneInstance;
 };
-#endif //__MSXMOTHERBOARD_H__
+#endif //__MSXMOTHERBOARD_HH__
