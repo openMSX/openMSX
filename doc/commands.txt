@@ -226,7 +226,12 @@ accuracy
 blur
 ----
 
-  TODO
+  Sets the amount of horizontal blur effect.
+  Note: not all renderers support this.
+
+  usage:
+    set blur          shows the current setting
+    set blur <value>  change the value
 
 
 cmdtiming
@@ -247,6 +252,31 @@ console
     set console down  brings the console down
     
 
+console_background
+------------------
+
+  Change the console background image. Most image formats (.png, .jpeg,
+  .gif, ...) are supported. Some renderers (openGL) can use an alpha
+  channel, this channel is only present in .png images.
+
+  usage:
+    set console_background          shows the current setting
+    set console_background <image>  sets a new background
+
+  
+console_font
+------------------
+
+  Change the console font. Most image formats (.png, .jpeg, .gif, ...)
+  are supported. The image must contain a 16x16 matrix with the characters
+  in ASCII order. Some renderers (openGL) require an alpha channel to have
+  transparency in the font, this channel is only present in .png images.
+
+  usage:
+    set console_font          shows the current setting
+    set console_font <image>  sets a new font
+
+  
 deinterlace
 -----------
 
@@ -270,6 +300,18 @@ fullscreen
     set fullscreen off  switch to normal mode
 
 
+limitsprites
+------------
+
+  Limit number of sprites per line. Turn on for realism (default), turn off to
+  reduce sprite flashing. Note that some games make use of this limitation.
+
+  usage:
+    set limitsprites
+    set limitsprites on   limit number of sprites per line
+    set limitsprites off  no limit on number of sprites per line
+
+  
 mute
 ----
 
@@ -295,7 +337,12 @@ pause
 scanline
 --------
 
-  TODO
+  Sets the amount of scanline effect.
+  Note: not all renderers support this.
+
+  usage:
+    set scanline          shows the current setting
+    set scanline <value>  change the value
 
 
 speed
