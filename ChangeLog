@@ -1,5 +1,8 @@
 $Id$
 
+2002-05-18 Bas Wijnen <b.wijnen@student.rug.nl>
+	* Added files for Xlib renderer. Mostly unimplemented.
+
 2002-05-15 Maarten ter Huurne <mth@stack.nl>
 	* SDLGLRenderer uses textures.
 

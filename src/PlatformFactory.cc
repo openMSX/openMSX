@@ -7,6 +7,7 @@
 // Platform dependent includes:
 #include "SDLHiRenderer.hh"
 #include "SDLGLRenderer.hh"
+#include "XRenderer.hh"
 
 Renderer *PlatformFactory::createRenderer(
 	const std::string &name, VDP *vdp,
@@ -18,6 +19,14 @@ Renderer *PlatformFactory::createRenderer(
 	}
 	else*/ if (name == "SDLHi") {
 		return createSDLHiRenderer(vdp, fullScreen, time);
+	}
+	else if (name == "Xlib") {
+		try {
+			return new XRenderer (vdp, fullScreen, time);
+		}
+		catch (MSXException &) {
+			return NULL;
+		}
 	}
 #ifdef __SDLGLRENDERER_AVAILABLE__
 	else if (name == "SDLGL") {
