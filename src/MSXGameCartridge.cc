@@ -7,6 +7,7 @@
 #include <fstream>
 #include "SCC.hh"
 #include "DACSound.hh"
+#include "MSXCPU.hh"
 
 #include "config.h"
 
@@ -210,11 +211,23 @@ byte MSXGameCartridge::readMem(word address, const EmuTime &time)
 			return cartridgeSCC->readMemInterface(address & 0xFF, time);
 		}
 	}
-	return internalMemoryBank[(address>>13)][address&0x1fff];
+	return internalMemoryBank[address>>13][address&0x1fff];
+}
+
+byte* MSXGameCartridge::getReadCacheLine(word start, word length)
+{
+	if (length <= 0x2000) {
+		return &internalMemoryBank[start>>13][start&0x1fff];
+	} else {
+		return NULL;
+	}
 }
 
 void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 {
+	//TODO optimize this
+	MSXCPU::instance()->invalidateCache(0x4000, 0x8000);	// 0x4000 - 0xc000
+	
 	byte regio;
   
 	switch (mapperType) {

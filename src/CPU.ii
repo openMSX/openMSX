@@ -1,0 +1,31 @@
+inline byte CPU::readMem(word address, const EmuTime &time)
+{
+	int line = address >> 8;
+	if (readCacheLine[line] == (byte*) -1)
+		readCacheLine[line] = interface->getReadCacheLine(address & 0xff00, 0x100);
+	if (readCacheLine[line] != NULL) {
+		//hit++;
+		//PRT_DEBUG("read cache hit "<<address<<" "<<hit);
+		return readCacheLine[line][address & 0x00ff];
+	} else {
+		//miss++;
+		//PRT_DEBUG("read cache miss "<<address<<" "<<miss);
+		return interface->readMem(address, time);
+	}
+}
+
+inline void CPU::writeMem(word address, byte value, const EmuTime &time)
+{
+	int line = address >> 8;
+	if (writeCacheLine[line] == (byte*) -1)
+		writeCacheLine[line] = interface->getWriteCacheLine(address & 0xff00, 0x100);
+	if (writeCacheLine[line] != NULL) {
+		//hit++;
+		//PRT_DEBUG("read cache hit "<<address<<" "<<hit);
+		writeCacheLine[line][address & 0x00ff] = value;
+	} else {
+		//miss++;
+		//PRT_DEBUG("write cache miss "<<address<<" "<<miss);
+		interface->writeMem(address, value, time);
+	}
+}

@@ -28,6 +28,7 @@ class MSXGameCartridge : public MSXMemDevice, public MSXRom
 
 		byte readMem(word address, const EmuTime &time);
 		void writeMem(word address, byte value, const EmuTime &time);
+		byte* getReadCacheLine(word start, word length);
 
 	private:
 		int romSize;
