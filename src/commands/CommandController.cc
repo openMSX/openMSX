@@ -28,10 +28,12 @@ CommandController::~CommandController()
 {
 	unregisterCommand(&InfoCommand::instance(), "info");
 	unregisterCommand(&helpCmd, "help");
+	assert(commands.empty());
 }
 
 CommandController *CommandController::instance()
 {
+	// TODO mem leak
 	static CommandController* oneInstance = NULL;
 	if (oneInstance == NULL) {
 		oneInstance = new CommandController();
@@ -43,21 +45,16 @@ CommandController *CommandController::instance()
 void CommandController::registerCommand(Command* command,
                                         const string& str)
 {
-	commands.insert(pair<string, Command*>(str, command));
+	assert(commands.find(str) == commands.end());
+	commands[str] = command;
 }
 
 void CommandController::unregisterCommand(Command* command,
                                           const string& str)
 {
-	pair<CommandMap::iterator, CommandMap::iterator> bounds =
-		commands.equal_range(str);
-	for (CommandMap::iterator it = bounds.first;
-	     it != bounds.second; ++it) {
-		if (it->second == command) {
-			commands.erase(it);
-			break;
-		}
-	}
+	assert(commands.find(str) != commands.end());
+	assert(commands.find(str)->second == command);
+	commands.erase(str);
 }
 
 
@@ -208,15 +205,11 @@ string CommandController::executeCommand(const string &cmd)
 			continue;
 		}
 
-		pair<CommandMap::iterator, CommandMap::iterator> bounds =
-			commands.equal_range(tokens.front());
-		if (bounds.first == bounds.second) {
+		CommandMap::iterator it = commands.find(tokens.front());
+		if (it == commands.end()) {
 			throw CommandException(tokens.front() + ": unknown command");
 		}
-		for (CommandMap::iterator it = bounds.first;
-		     it != bounds.second; ++it) {
-			result += it->second->execute(tokens);
-		}
+		result += it->second->execute(tokens);
 	}
 	return result;
 }
@@ -427,17 +420,12 @@ string CommandController::HelpCmd::execute(const vector<string> &tokens)
 		}
 		break;
 	default: {
-		pair<CommandMap::iterator, CommandMap::iterator> bounds =
-			cc->commands.equal_range(tokens[1]);
-		if (bounds.first == bounds.second) {
+		CommandMap::iterator it = cc->commands.find(tokens[1]);
+		if (it == cc->commands.end()) {
 			throw CommandException(tokens[1] + ": unknown command");
 		}
-		for (CommandMap::iterator it = bounds.first;
-		     it != bounds.second; ++it) {
-			vector<string> tokens2(tokens);
-			tokens2.erase(tokens2.begin());
-			result += it->second->help(tokens2);
-		}
+		vector<string> tokens2(++tokens.begin(), tokens.end());
+		result += it->second->help(tokens2);
 		break;
 	}
 	}

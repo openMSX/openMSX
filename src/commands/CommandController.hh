@@ -11,10 +11,9 @@
 #include "Command.hh"
 
 using std::string;
-using std::multimap;
+using std::map;
 using std::set;
 using std::vector;
-
 
 namespace openmsx {
 
@@ -68,12 +67,7 @@ private:
 	void tabCompletion(vector<string> &tokens);
 	static bool completeString2(string& str, set<string>& set);
 
-	struct ltstr {
-		bool operator()(const string &s1, const string &s2) const {
-			return s1 < s2;
-		}
-	};
-	typedef multimap<const string, Command*, ltstr> CommandMap;
+	typedef map<string, Command*> CommandMap;
 	CommandMap commands;
 
 	// Commands
