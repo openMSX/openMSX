@@ -4,13 +4,13 @@
 <msxconfig>
   <primary slot="any">
     <secondary slot="any">
-      <SCCPlusCart id="Konami SCC+ Cartridge with expanded RAM">
+      <SCCplus id="Konami SCC+ Cartridge with expanded RAM">
         <mem base="0x4000" size="0x8000"/>
         <subtype>SD-Snatcher</subtype>
         <sound>
           <volume>13000</volume>
         </sound>
-      </SCCPlusCart>
+      </SCCplus>
     </secondary>  
   </primary>
 </msxconfig>

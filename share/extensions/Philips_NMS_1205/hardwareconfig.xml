@@ -11,10 +11,10 @@
     <sampleram>32</sampleram>
   </MSX-AUDIO>
 
-  <MusicModuleMidi id="Philips NMS 1205 Music Module MSX-Audio-Midi">
+  <MusicModuleMIDI id="Philips NMS 1205 Music Module MSX-Audio-MIDI">
     <io base="0x00" num="2" type="O"/>
     <io base="0x04" num="2" type="I"/>
-  </MusicModuleMidi>
+  </MusicModuleMIDI>
 
   <primary slot="any">
     <secondary slot="any">

@@ -11,13 +11,13 @@
     <sampleram>32</sampleram>
   </MSX-AUDIO>
 
-  <slot primary="any">
-    <slot secondary="any">
+  <primary slot="any">
+    <secondary slot="any">
       <ROM id="Panasonic FS-CA1 MSX-Audio ROM">
         <mem base="0x0000" size="0x10000"/>
         <rom>
           <sha1>930eae7057af1652abae794072b296a59decd61b</sha1>
-          <filename>roms/fs-ca1.rom</filenamo>
+          <filename>roms/fs-ca1.rom</filename>
           <mappertype>MSX-AUDIO</mappertype>
         </rom>
       </ROM>

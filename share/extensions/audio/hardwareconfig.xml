@@ -10,8 +10,8 @@
     </sound>
     <sampleram>256</sampleram>
   </MSX-AUDIO>
-  <MusicModuleMidi id="Generic MSX-Audio-Midi">
+  <MusicModuleMIDI id="Generic MSX-Audio-MIDI">
     <io base="0x00" num="2" type="O"/>
     <io base="0x04" num="2" type="I"/>
-  </MusicModuleMidi>
+  </MusicModuleMIDI>
 </msxconfig>
