@@ -46,7 +46,7 @@
 
 #include <fstream>
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 
 
 class MD5
