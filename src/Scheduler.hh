@@ -3,11 +3,12 @@
 #ifndef __SCHEDULER_HH__
 #define __SCHEDULER_HH__
 
-#include "EmuTime.hh"
-#include "HotKey.hh"
 #include <SDL/SDL.h>
 #include <set>
 #include <string>
+#include "EmuTime.hh"
+#include "HotKey.hh"
+#include "Mutex.hh"
 
 /**
  * Every class that wants to get scheduled at some point must inherit from
@@ -137,7 +138,7 @@ class Scheduler : private EventListener, private HotKeyListener
 		bool runningScheduler;
 		bool exitScheduler;
 		bool paused;
-		SDL_mutex *pauseMutex;
+		Mutex pauseMutex;
 };
 
 #endif

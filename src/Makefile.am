@@ -50,6 +50,7 @@ openmsx_SOURCES=openmsx.cc \
 	Scheduler.hh Scheduler.cc \
 	EventDistributor.hh EventDistributor.cc \
 	Thread.hh Thread.cc \
+	Mutex.hh Mutex.cc \
 	HotKey.hh HotKey.cc \
 	Keyboard.hh Keyboard.cc \
 	Leds.hh Leds.cc \

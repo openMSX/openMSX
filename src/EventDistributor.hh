@@ -7,6 +7,7 @@
 #include <map>
 #include <queue>
 #include "Thread.hh"
+#include "Mutex.hh"
 
 
 class EventListener
@@ -79,9 +80,9 @@ class EventDistributor : public EventListener, public Runnable
 		std::multimap <int, EventListener*> asyncMap;
 		std::multimap <int, EventListener*> syncMap;
 		std::queue <SDL_Event> queue;
-		SDL_mutex *asyncMutex;	// to lock variable asyncMap
-		SDL_mutex *syncMutex;	// to lock variable syncMap
-		SDL_mutex *queueMutex;	// to lock variable queue
+		Mutex asyncMutex;	// to lock variable asyncMap
+		Mutex syncMutex;	// to lock variable syncMap
+		Mutex queueMutex;	// to lock variable queue
 };
 
 #endif

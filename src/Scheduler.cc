@@ -25,7 +25,6 @@ const std::string Schedulable::defaultName = "no name";
 
 Scheduler::Scheduler()
 {
-	pauseMutex = SDL_CreateMutex();
 	paused = false;
 	noSound = false;
 	runningScheduler = true;
@@ -37,7 +36,6 @@ Scheduler::Scheduler()
 
 Scheduler::~Scheduler()
 {
-	SDL_DestroyMutex(pauseMutex);
 }
 
 Scheduler* Scheduler::instance()
@@ -140,8 +138,8 @@ void Scheduler::scheduleEmulation()
 			}
 		}
 
-		SDL_mutexP(pauseMutex); // grab and release mutex, if unpaused this will
-		SDL_mutexV(pauseMutex); //  succeed else we sleep till unpaused
+		pauseMutex.grab();	// grab and release mutex, if unpaused this will
+		pauseMutex.release();	//  succeed else we sleep till unpaused
 	}
 
 }
@@ -153,13 +151,13 @@ void Scheduler::unpause()
 		runningScheduler = true;
 		Mixer::instance()->pause(noSound);
 		PRT_DEBUG("Unpaused");
-		SDL_mutexV(pauseMutex);	// release mutex
+		pauseMutex.release();
 	}
 }
 void Scheduler::pause()
 {
 	if (!paused) {
-		SDL_mutexP(pauseMutex);	// grab mutex
+		pauseMutex.grab();
 		paused = true;
 		runningScheduler = false;
 		Mixer::instance()->pause(true);

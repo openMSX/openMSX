@@ -5,6 +5,7 @@
 
 #include <SDL/SDL.h>
 #include "EventDistributor.hh"
+#include "Mutex.hh"
 
 class HotKeyListener
 {
@@ -41,7 +42,7 @@ class HotKey : public EventListener
 
 		int nbListeners;
 		std::multimap <SDLKey, HotKeyListener*> map;
-		SDL_mutex *mapMutex;	// to lock variable map
+		Mutex mapMutex;	// to lock variable map
 };
 
 #endif
