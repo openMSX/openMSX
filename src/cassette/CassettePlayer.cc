@@ -24,10 +24,10 @@ MSXCassettePlayerCLI::MSXCassettePlayerCLI(CommandLineParser& cmdLineParser)
 	cmdLineParser.registerFileClass("cassetteimage", this);
 }
 
-bool MSXCassettePlayerCLI::parseOption(const string &option,
-                                       list<string> &cmdLine)
+bool MSXCassettePlayerCLI::parseOption(const string& option,
+                                       list<string>& cmdLine)
 {
-	parseFileType(getArgument(option, cmdLine));
+	parseFileType(getArgument(option, cmdLine), cmdLine);
 	return true;
 }
 const string& MSXCassettePlayerCLI::optionHelp() const
@@ -37,7 +37,8 @@ const string& MSXCassettePlayerCLI::optionHelp() const
 	return text;
 }
 
-void MSXCassettePlayerCLI::parseFileType(const string &filename)
+void MSXCassettePlayerCLI::parseFileType(const string& filename,
+                                         list<string>& /*cmdLine*/)
 {
 	XMLElement& config = GlobalSettings::instance().getMediaConfig();
 	XMLElement& playerElem = config.getCreateChild("cassetteplayer");

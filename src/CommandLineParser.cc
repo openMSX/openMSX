@@ -34,7 +34,7 @@ namespace openmsx {
 
 // class CLIOption
 
-const string CLIOption::getArgument(const string& option, list<string>& cmdLine)
+string CLIOption::getArgument(const string& option, list<string>& cmdLine) const
 {
 	if (cmdLine.empty()) {
 		throw FatalError("Missing argument for option \"" + option + "\"");
@@ -42,6 +42,11 @@ const string CLIOption::getArgument(const string& option, list<string>& cmdLine)
 	string argument = cmdLine.front();
 	cmdLine.pop_front();
 	return argument;
+}
+
+string CLIOption::peekArgument(const list<string>& cmdLine) const
+{
+	return cmdLine.empty() ? "" : cmdLine.front();
 }
 
 
@@ -148,11 +153,12 @@ bool CommandLineParser::parseOption(const string& arg, list<string>& cmdLine, by
 	return false; // unknown
 }
 
-bool CommandLineParser::parseFileName(const string& arg, list<string>& /*cmdLine*/)
+bool CommandLineParser::parseFileName(const string& arg, list<string>& cmdLine)
 {
 	string::size_type begin = arg.find_last_of('.');
 	if (begin != string::npos) {
 		// there is an extension
+		// TODO <filename>,<mappertype> is deprecated
 		string::size_type end = arg.find_last_of(',');
 		string extension;
 		if ((end == string::npos) || (end <= begin)) {
@@ -171,7 +177,7 @@ bool CommandLineParser::parseFileName(const string& arg, list<string>& /*cmdLine
 		FileTypeMap::const_iterator it2 = fileTypeMap.find(extension);
 		if (it2 != fileTypeMap.end()) {
 			// parse filetype
-			it2->second->parseFileType(arg);
+			it2->second->parseFileType(arg, cmdLine);
 			return true; // file processed
 		}
 	}

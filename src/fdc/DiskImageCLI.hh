@@ -14,7 +14,8 @@ public:
 	virtual bool parseOption(const std::string& option,
 	                         std::list<std::string>& cmdLine);
 	virtual const std::string& optionHelp() const;
-	virtual void parseFileType(const std::string& filename);
+	virtual void parseFileType(const std::string& filename,
+	                           std::list<std::string>& cmdLine);
 	virtual const std::string& fileTypeHelp() const;
 
 private:

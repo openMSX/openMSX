@@ -31,15 +31,17 @@ public:
 	virtual const std::string& optionHelp() const = 0;
 
 protected:
-	const std::string getArgument(const std::string& option,
-	                         std::list<std::string>& cmdLine);
+	std::string getArgument(const std::string& option,
+	                              std::list<std::string>& cmdLine) const;
+	std::string peekArgument(const std::list<std::string>& cmdLine) const;
 };
 
 class CLIFileType
 {
 public:
 	virtual ~CLIFileType() {}
-	virtual void parseFileType(const std::string& filename) = 0;
+	virtual void parseFileType(const std::string& filename, 
+	                           std::list<std::string>& cmdLine) = 0;
 	virtual const std::string& fileTypeHelp() const = 0;
 };
 

@@ -7,6 +7,8 @@
 #include "HardwareConfig.hh"
 #include "FileOperations.hh"
 #include "FileContext.hh"
+#include "RomInfo.hh"
+#include "CliCommOutput.hh"
 
 using std::auto_ptr;
 using std::list;
@@ -17,6 +19,8 @@ namespace openmsx {
 MSXRomCLI::MSXRomCLI(CommandLineParser& cmdLineParser)
 	: cartridgeNr(0)
 {
+	cmdLineParser.registerOption("-ips", &ipsOption);
+	cmdLineParser.registerOption("-romtype", &romTypeOption);
 	cmdLineParser.registerOption("-cart", this);
 	cmdLineParser.registerOption("-carta", this);
 	cmdLineParser.registerOption("-cartb", this);
@@ -36,7 +40,7 @@ bool MSXRomCLI::parseOption(const string& option, list<string>& cmdLine)
 	} else {
 		slotname = "any";
 	}
-	parse(arg, slotname);
+	parse(arg, slotname, cmdLine);
 	return true;
 }
 
@@ -46,9 +50,9 @@ const string& MSXRomCLI::optionHelp() const
 	return text;
 }
 
-void MSXRomCLI::parseFileType(const string& arg)
+void MSXRomCLI::parseFileType(const string& arg, list<string>& cmdLine)
 {
-	parse(arg, "any");
+	parse(arg, "any", cmdLine);
 }
 
 const string& MSXRomCLI::fileTypeHelp() const
@@ -58,37 +62,40 @@ const string& MSXRomCLI::fileTypeHelp() const
 }
 
 
-void MSXRomCLI::parse(const string& arg, const string& slotname)
+void MSXRomCLI::parse(const string& arg, const string& slotname,
+                      list<string>& cmdLine)
 {
-	bool hasips=false;
 	string ipsfile;
-	string romfile;
 	string mapper;
+	string romfile = arg;
 
-	int firstpos = arg.find_first_of(',');
-	int lastpos = arg.find_last_of(',');
-//	cout << "firstpos:" << firstpos <<endl;
-//	cout << "lastpos:" << lastpos <<endl;
-	if (firstpos != -1 ) {
-		romfile = arg.substr(0, firstpos);
-		if (firstpos != lastpos) {
-			ipsfile = arg.substr(lastpos + 1);
-			hasips = true;
+	// backwards compatibility code: <romfile>,<mapper>
+	// will be removed in future versions
+	string::size_type pos = arg.find_last_of(',');
+	if (pos != string::npos) {
+		string tmp = arg.substr(pos + 1);
+		if (RomInfo::nameToRomType(tmp) != UNKNOWN) {
+			romfile = arg.substr(0, pos);
+			mapper = tmp;
+			CliCommOutput::instance().printWarning(
+				"'<romfile>,<romtype>' format is deprecated, "
+				"instead use the -romtype option.");
 		}
-		if (firstpos == lastpos){
-			mapper = arg.substr(lastpos + 1);
-		} else if (firstpos == (lastpos-1)){ // a ',,' found
-			mapper = "auto";
-		} else {
-			mapper = arg.substr(firstpos + 1, lastpos - firstpos -1);
-		}
-	} else {
-		romfile = arg;
-		mapper = "auto";
 	}
-//	cout << "mapper:" << mapper<<endl;
-//	cout << "romfile:" << romfile <<endl;
-//	cout << "ispfile:" << ipsfile<<endl;
+
+	// parse extra options  -ips  and  -romtype
+	while (true) {
+		string extra = peekArgument(cmdLine);
+		if (extra == "-ips") {
+			cmdLine.pop_front();
+			ipsfile = getArgument("-ips", cmdLine);
+		} else if (extra == "-romtype") {
+			cmdLine.pop_front();
+			mapper = getArgument("-romtype", cmdLine);
+		} else {
+			break;
+		}
+	}
 
 	string sramfile = FileOperations::getFilename(romfile);
 
@@ -105,7 +112,7 @@ void MSXRomCLI::parse(const string& arg, const string& slotname)
 	auto_ptr<XMLElement> rom(new XMLElement("rom"));
 	rom->addChild(auto_ptr<XMLElement>(
 		new XMLElement("filename", romfile)));
-	if ( hasips ) {
+	if (!ipsfile.empty()) {
 		auto_ptr<XMLElement> ips(new XMLElement("ips"));
 		ips->addChild(auto_ptr<XMLElement>(
 			new XMLElement("filename", ipsfile)));
@@ -117,7 +124,8 @@ void MSXRomCLI::parse(const string& arg, const string& slotname)
 		new XMLElement("volume", "9000")));
 	device->addChild(sound);
 	device->addChild(auto_ptr<XMLElement>(
-		new XMLElement("mappertype", mapper)));
+		new XMLElement("mappertype",
+		               mapper.empty() ? "auto" : mapper)));
 	device->addChild(auto_ptr<XMLElement>(
 		new XMLElement("sramname", sramfile + ".SRAM")));
 	device->setFileContext(auto_ptr<FileContext>(
@@ -126,6 +134,31 @@ void MSXRomCLI::parse(const string& arg, const string& slotname)
 	secondary->addChild(device);
 	primary->addChild(secondary);
 	HardwareConfig::instance().getChild("devices").addChild(primary);
+}
+
+
+bool MSXRomCLI::IpsOption::parseOption(const string& option,
+                                       list<string>& cmdLine)
+{
+	throw FatalError("-ips options should immediately follow a ROM.");
+}
+
+const string& MSXRomCLI::IpsOption::optionHelp() const
+{
+	static const string text("Apply the given IPS patch to the ROM in front.");
+	return text;
+}
+
+bool MSXRomCLI::RomTypeOption::parseOption(const string& option,
+                                       list<string>& cmdLine)
+{
+	throw FatalError("-romtype options should immediately follow a ROM.");
+}
+
+const string& MSXRomCLI::RomTypeOption::optionHelp() const
+{
+	static const string text("Specify the rom type for the ROM in front.");
+	return text;
 }
 
 } // namespace openmsx

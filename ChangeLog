@@ -1,5 +1,19 @@
 $Id$
 
+2005-01-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Changed command line parsing of IPS files and rom type:
+	  - There are two new options "-ips" and "-romtype" these must
+	    immediatly follow a ROM option. Examples:
+	      openmsx -carta USAS.ROM -ips USAS.IPS -romtype konami
+	      openmsx USAS.ROM -romtype konami -ips USAS.IPS
+	      openmsx -cart USAS.ROM -romtype konami
+	      openmsx USAS.ROM -ips USAS.IPS
+	  - The old format <romfile>,<mappertype> is still supported but is
+	    deprecated, it will be removed in future versions. The temporary
+	    format <romfile>,<mappertype>,<ipsfile> is already removed. It
+	    gives parsing problems in case of filenames that contain ','
+	    itself.
+
 2005-01-04 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed initialisation of clock in autofire circuit.
 
