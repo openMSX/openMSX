@@ -315,7 +315,10 @@ else
   endif
 endif
 export CXX:=$(OPENMSX_CXX)
-
+# Check if ccache usage was requested
+ifeq ($(USE_CCACHE),true)
+	CXX:=ccache $(CXX)
+endif
 # Use precompiled headers?
 # TODO: Autodetect this: USE_PRECOMPH == compiler_is_g++ && g++_version >= 3.4
 #       In new approach, Make >= 3.80 is needed for precompiled header rules.
@@ -517,6 +520,9 @@ ifeq ($(USE_SYMLINK),true)
 	fi
   endif
 endif
+	@#andete: next 2 lines work fine, but might be made more secure
+	@#echo "  Removing CVS directories from .../share"
+	@#find $(INSTALL_SHARE_DIR) -name CVS | xargs rm -rf
 	@echo "  Setting permissions..."
 	@chmod -R a+rX $(OPENMSX_INSTALL)
 	@echo "Installation complete... have fun!"
@@ -536,6 +542,9 @@ dist: $(DETECTSYS_SCRIPT)
 	@cp -pr --parents $(DIST_FULL) $(DIST_PATH)
 	@cp -p --parents $(HEADERS_FULL) $(DIST_PATH)
 	@cp -p --parents $(SOURCES_FULL) $(DIST_PATH)
+	@#andete: next 2 lines work fine, but might be made more secure
+	@#echo "  Removing CVS directories from $(DIST_PATH)"
+	@#find $(DIST_PATH) -name CVS | xargs rm -rf
 	@echo "Creating tarball..."
 	@cd $(DIST_BASE) ; GZIP=--best tar zcf $(PACKAGE_FULL).tar.gz $(PACKAGE_FULL)
 
