@@ -50,8 +50,7 @@ private:
 	virtual bool signalEvent(const Event& event) throw();
 	void tabCompletion();
 	void commandExecute();
-	void scrollUp(unsigned noflines);
-	void scrollDown(unsigned noflines);
+	void scroll(int delta);
 	void prevCommand();
 	void nextCommand();
 	void clearCommand();
@@ -85,7 +84,7 @@ private:
 	list<string>::iterator commandScrollBack;
 	/** Saves Current Command to enable command recall. */
 	string currentLine;
-	unsigned consoleScrollBack;
+	int consoleScrollBack;
 	unsigned cursorLocationX;
 	unsigned cursorLocationY;
 	/** Position within the current command. */

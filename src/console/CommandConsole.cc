@@ -1,6 +1,5 @@
 // $Id$
 
-#include <fstream>
 #include "CommandConsole.hh"
 #include "CommandController.hh"
 #include "EventDistributor.hh"
@@ -14,9 +13,15 @@
 #include "Config.hh"
 #include "InputEvents.hh"
 #include "InputEventGenerator.hh"
+#include <algorithm>
+#include <fstream>
+
+using std::min;
+using std::max;
 
 using std::ofstream;
 using std::ifstream;
+
 
 namespace openmsx {
 
@@ -187,16 +192,16 @@ bool CommandConsole::signalEvent(const Event& event) throw()
 	Keys::KeyCode key = static_cast<const KeyEvent&>(event).getKeyCode();
 	switch (key) {
 		case (Keys::K_PAGEUP | Keys::KM_SHIFT):
-			scrollUp(getRows()==1 ? 1 : getRows()-1);
+			scroll(min(static_cast<int>(getRows()) - 1, 1));
 			break;
 		case Keys::K_PAGEUP:
-			scrollUp(1);
+			scroll(1);
 			break;
 		case (Keys::K_PAGEDOWN | Keys::KM_SHIFT):
-			scrollDown(getRows()==1 ? 1 : getRows()-1);
+			scroll(-min(static_cast<int>(getRows()) - 1, 1));
 			break;
 		case Keys::K_PAGEDOWN:
-			scrollDown(1);
+			scroll(-1);
 			break;
 		case Keys::K_UP:
 			prevCommand();
@@ -424,20 +429,12 @@ void CommandConsole::tabCompletion()
 	splitLines();
 }
 
-void CommandConsole::scrollUp(unsigned noflines)
+void CommandConsole::scroll(int delta)
 {
-	while (consoleScrollBack < lines.size() && noflines > 0) {
-		consoleScrollBack++;
-		noflines--;
-	}
-}
-
-void CommandConsole::scrollDown(unsigned noflines)
-{
-	while (consoleScrollBack > 0 && noflines > 0) {
-		consoleScrollBack--;
-		noflines--;
-	}
+	consoleScrollBack = min(
+		max(consoleScrollBack + delta, 0),
+		static_cast<int>(lines.size())
+		);
 }
 
 void CommandConsole::prevCommand()
