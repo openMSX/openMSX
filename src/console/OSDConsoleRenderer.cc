@@ -10,6 +10,7 @@
 #include "Timer.hh"
 #include "DummyFont.hh"
 #include "FileContext.hh"
+#include "CliCommOutput.hh"
 #include <algorithm>
 #include <SDL.h>
 
@@ -89,7 +90,11 @@ void OSDConsoleRenderer::initConsole()
 	backgroundSetting.reset(new FilenameSetting(
 		"consolebackground", "console background file",
 		"skins/ConsoleBackground.png"));
-	backgroundSetting->setChecker(this);
+	try {
+		backgroundSetting->setChecker(this);
+	} catch (MSXException& e) {
+		CliCommOutput::instance().printWarning(e.getMessage());
+	}
 }
 
 void OSDConsoleRenderer::adjustColRow()
@@ -216,9 +221,10 @@ void OSDConsoleRenderer::check(SettingImpl<FilenameSetting::Policy>& setting,
 {
 	assert(dynamic_cast<FilenameSetting*>(&setting));
 	
-	string filename = static_cast<FilenameSetting&>(setting).
-		getFileContext().resolve(value);
-	if        (&setting == backgroundSetting.get()) {
+	string filename = value.empty() ? value :
+		static_cast<FilenameSetting&>(setting).
+			getFileContext().resolve(value);
+	if (&setting == backgroundSetting.get()) {
 		loadBackground(filename);
 	} else if (&setting == fontSetting.get()) {
 		loadFont(filename);

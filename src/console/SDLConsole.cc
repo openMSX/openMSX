@@ -116,7 +116,7 @@ bool SDLConsole::loadBackground(const string& filename)
 		backgroundImage.reset(new SDLImage(outputScreen, filename,
 			destRect.w, destRect.h, CONSOLE_ALPHA));
 		backgroundName = filename;
-	} catch (MSXException &e) {
+	} catch (MSXException& e) {
 		return false;
 	}
 	return true;
