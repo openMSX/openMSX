@@ -71,8 +71,14 @@ bool RealTime::timeLeft(unsigned us, const EmuTime& time)
 
 void RealTime::sync(const EmuTime& time, bool allowSleep)
 {
-	scheduler.removeSyncPoint(this);
+	if (allowSleep) {
+		scheduler.removeSyncPoint(this);
+	}
 	internalSync(time, allowSleep);
+	if (allowSleep) {
+		scheduler.setSyncPoint(time + getEmuDuration(SYNC_INTERVAL),
+		                       this);
+	}
 }
 
 void RealTime::internalSync(const EmuTime& time, bool allowSleep)
@@ -106,14 +112,12 @@ void RealTime::internalSync(const EmuTime& time, bool allowSleep)
 	}
 
 	emuTime = time;
-	
-	// Schedule again in future
-	scheduler.setSyncPoint(time + getEmuDuration(SYNC_INTERVAL), this);
 }
 
 void RealTime::executeUntil(const EmuTime& time, int userData) throw()
 {
 	internalSync(time, true);
+	scheduler.setSyncPoint(time + getEmuDuration(SYNC_INTERVAL), this);
 }
 
 const string &RealTime::schedName() const
