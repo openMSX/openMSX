@@ -34,7 +34,7 @@ class MSXMemoryMapper : public MSXMemDevice, public MSXIODevice
 		void resetIO();
 	
 	private:
-		word getAdr(word address);
+		inline word getAdr(word address);
 
 		byte *buffer;
 		int blocks;

@@ -19,13 +19,31 @@ class LoadFile
 {
 	public:
 		/**
-		 * Load a file of given size and allocates memory for it, 
-		 * the pointer memorybank will point to this memory block.
-		 * The filename is the "filename" parameter in config file.
-		 * The first "skip_headerbytes" bytes of the file are ignored.
+		 * Load a file into memory.
+		 * A memory block is automatically allocated (don't forget to
+		 * free it later) the pointer memoryBank will point to this 
+		 * memory block. 
+		 * The filename is specified in the config file
+		 * Optionally a "skip_headerbytes" parameter can be specified in
+		 * the config file, in that case the first n bytes of the file
+		 * are ignored.
+		 * The filesize must be passed as a function parameter.
 		 */
 		void loadFile(byte** memoryBank, int fileSize);
-		int  loadFile(byte** memoryBank);
+		
+		/**
+		 * Load a file into memory.
+		 * A memory block is automatically allocated (don't forget to
+		 * free it later) the pointer memoryBank will point to this 
+		 * memory block. 
+		 * The filename is specified in the config file
+		 * Optionally a "skip_headerbytes" parameter can be specified in
+		 * the config file, in that case the first n bytes of the file
+		 * are ignored.
+		 * This function will autodetect the filesize. The filesize is
+		 * also returned.
+		 */
+		int loadFile(byte** memoryBank);
 
 	protected:
 		/**

@@ -118,74 +118,85 @@ void MSXGameCartridge::reset(const EmuTime &time)
 int MSXGameCartridge::retriefMapperType()
 {
 	try {
-		return deviceConfig->getParameterAsInt("mappertype");
-	} catch (MSXConfig::Exception e) {
-		//  GameCartridges do their bankswitching by using the Z80
-		//  instruction ld(nn),a in the middle of program code. The
-		//  adress nn depends upon the GameCartridge mappertype used.
-		//  To guess which mapper it is, we will look how much writes
-		//  with this instruction to the mapper-registers-addresses
-		//  occure.
-
-		// if smaller then 32kB it must be a simple rom so we return 128
-	
-		if (romSize <= 0x10000) {
-			if (romSize == 0x8000) {
-				//TODO: Autodetermine for KonamiSynthesiser
-				// works for now since most 32 KB cartridges don't
-				// write to themselves
-				return 64;
-			} else {
-				return 128;
-			}
+		if (deviceConfig->getParameterAsBool("automappertype")) {
+			return guessMapperType();
 		} else {
-			unsigned int typeGuess[]={0,0,0,0,0,0};
-			for (int i=0; i<romSize-2; i++) {
-				if (memoryBank[i] == 0x32) {
-					int value = memoryBank[i+1]+(memoryBank[i+2]<<8);
-					switch (value) {
-					case 0x5000:
-					case 0x9000:
-					case 0xB000:
-						typeGuess[2]++;
-						break;
-					case 0x4000:
-					case 0x8000:
-					case 0xA000:
-						typeGuess[3]++;
-						break;
-					case 0x6800:
-					case 0x7800:
-						typeGuess[4]++;
-						break;
-					case 0x6000:
-						typeGuess[3]++;
-						typeGuess[4]++;
-						typeGuess[5]++;
-						break;
-					case 0x7000:
-						typeGuess[2]++;
-						typeGuess[4]++;
-						typeGuess[5]++;
-						break;
-					case 0x77FF:
-						typeGuess[5]++;
-					}
-				}
-			}
-			// in case of doubt we go for type 0
-			typeGuess[0]++;
-			// in case of even type 5 and 4 we would prefer 5 
-			// but we would still prefer 0 above 4 or 5 so no increment
-			if (typeGuess[4]) typeGuess[4]--; // -1 -> max_int
-			int type = 0;
-			for (int i=0; i<6; i++) {
-				if (typeGuess[i]>typeGuess[type]) 
-					type = i;
-			}
-			PRT_DEBUG("I Guess this is a nr " << type << " GameCartridge mapper type.")
+			int type = deviceConfig->getParameterAsInt("mappertype");
+			PRT_DEBUG("Using mapper type " << type);
 			return type;
 		}
+	} catch (MSXConfig::Exception e) {
+		// missing parameter
+		return guessMapperType();
+	}
+}
+
+int MSXGameCartridge::guessMapperType()
+{
+	//  GameCartridges do their bankswitching by using the Z80
+	//  instruction ld(nn),a in the middle of program code. The
+	//  adress nn depends upon the GameCartridge mappertype used.
+	//  To guess which mapper it is, we will look how much writes
+	//  with this instruction to the mapper-registers-addresses
+	//  occure.
+
+	if (romSize <= 0x10000) {
+		if (romSize == 0x8000) {
+			//TODO: Autodetermine for KonamiSynthesiser
+			// works for now since most 32 KB cartridges don't
+			// write to themselves
+			return 64;
+		} else {
+			// if != 32kB it must be a simple rom so we return 128
+			return 128;
+		}
+	} else {
+		unsigned int typeGuess[]={0,0,0,0,0,0};
+		for (int i=0; i<romSize-2; i++) {
+			if (memoryBank[i] == 0x32) {
+				int value = memoryBank[i+1]+(memoryBank[i+2]<<8);
+				switch (value) {
+				case 0x5000:
+				case 0x9000:
+				case 0xB000:
+					typeGuess[2]++;
+					break;
+				case 0x4000:
+				case 0x8000:
+				case 0xA000:
+					typeGuess[3]++;
+					break;
+				case 0x6800:
+				case 0x7800:
+					typeGuess[4]++;
+					break;
+				case 0x6000:
+					typeGuess[3]++;
+					typeGuess[4]++;
+					typeGuess[5]++;
+					break;
+				case 0x7000:
+					typeGuess[2]++;
+					typeGuess[4]++;
+					typeGuess[5]++;
+					break;
+				case 0x77FF:
+					typeGuess[5]++;
+				}
+			}
+		}
+		// in case of doubt we go for type 0
+		typeGuess[0]++;
+		// in case of even type 5 and 4 we would prefer 5 
+		// but we would still prefer 0 above 4 or 5 so no increment
+		if (typeGuess[4]) typeGuess[4]--; // -1 -> max_int
+		int type = 0;
+		for (int i=0; i<6; i++) {
+			if (typeGuess[i]>typeGuess[type]) 
+				type = i;
+		}
+		PRT_DEBUG("I Guess this is a nr " << type << " GameCartridge mapper type.")
+		return type;
 	}
 }
 

@@ -35,6 +35,7 @@ class MSXGameCartridge : public MSXMemDevice, public MSXRom
 		bool enabledSCC;
 
 		int retriefMapperType();
+		int guessMapperType();
 		SCC* cartridgeSCC;
 		DACSound* dac;
 };
