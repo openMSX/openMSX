@@ -11,6 +11,7 @@
 #include <cassert>
 #include "Command.hh"
 #include "DisplayMode.hh"
+#include "Debuggable.hh"
 
 namespace openmsx {
 
@@ -286,7 +287,7 @@ private:
   * VDPVRAM does not apply planar remapping to addresses, this is the
   * responsibility of the caller.
   */
-class VDPVRAM {
+class VDPVRAM : private Debuggable {
 public:
 
 	VRAMWindow cmdReadWindow;
@@ -300,7 +301,7 @@ public:
 	VRAMWindow spritePatternTable;
 
 	VDPVRAM(VDP *vdp, int size);
-	~VDPVRAM();
+	virtual ~VDPVRAM();
 
 	/** Update VRAM state to specified moment in time.
 	  * @param time Moment in emulated time to update VRAM to.
@@ -431,7 +432,12 @@ public:
 	}
 
 private:
-
+	// Debuggable
+	virtual unsigned getSize() const;
+	virtual const string& getDescription() const;
+	virtual byte read(unsigned address);
+	virtual void write(unsigned address, byte value);
+	 
 	/** VDP this VRAM belongs to.
 	  */
 	VDP *vdp;
@@ -469,6 +475,7 @@ private:
 		VDPVRAM *vram;
 	} dumpVRAMCmd;
 	friend class DumpVRAMCmd;
+
 };
 
 } // namespace openmsx

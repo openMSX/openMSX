@@ -4,6 +4,7 @@
 #include "SpriteChecker.hh"
 #include "CommandController.hh"
 #include "EmuTime.hh"
+#include "Debugger.hh"
 
 #include <fstream>
 using std::ofstream;
@@ -56,10 +57,12 @@ VDPVRAM::VDPVRAM(VDP *vdp, int size)
 	bitmapCacheWindow.setMask(0x1FFFF, -1 << 17, EmuTime::zero);
 
 	CommandController::instance().registerCommand(&dumpVRAMCmd, "vramdump");
+	Debugger::instance().registerDebuggable("vram", *this);
 }
 
 VDPVRAM::~VDPVRAM()
 {
+	Debugger::instance().unregisterDebuggable("vram", *this);
 	CommandController::instance().unregisterCommand(&dumpVRAMCmd, "vramdump");
 
 	delete[] data;
@@ -95,6 +98,29 @@ void VDPVRAM::setRenderer(Renderer *renderer, const EmuTime &time) {
 	// TODO: If it is a good idea to send an initial sync,
 	//       then call setObserver before setMask.
 	bitmapVisibleWindow.setObserver(renderer);
+}
+
+// Debuggable
+
+unsigned VDPVRAM::getSize() const
+{
+	return 0x20000;	// 128KB
+}
+
+const string& VDPVRAM::getDescription() const
+{
+	static const string desc = "Video RAM.";
+	return desc;
+}
+
+byte VDPVRAM::read(unsigned address)
+{
+	return data[address];
+}
+
+void VDPVRAM::write(unsigned address, byte value)
+{
+	data[address] = value;
 }
 
 
