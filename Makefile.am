@@ -1,7 +1,9 @@
+# $id:$
+
 SUBDIRS = src doc
 
-bin_PROGRAMS=openmsx
-openmsx_SOURCES=openmsx.cc openmsx.1 system.h aclocal.m4
+#bin_PROGRAMS=openmsx
+#openmsx_SOURCES=openmsx.cc openmsx.1 system.h aclocal.m4
 
 #  uncomment the following if openmsx requires the math library
 #openmsx_LDADD=-lm
