@@ -1,5 +1,8 @@
 $Id$
 
+2002-09-08 Maarten ter Huurne <mth@stack.nl>
+	* Updated C-BIOS to version 0.07.
+
 2002-09-08 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Enabled pixel accurate rendering in SDLHiRenderer:
 	   - for some reason the NOTONLYSNESCANDOTHIS part in Unknown Reality

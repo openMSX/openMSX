@@ -5,6 +5,8 @@
 Start
         code
         org     $4000
+        nop
+
 
         align
         org     $7fff

@@ -1,4 +1,4 @@
-; MSX Compatible BIOS ver 0.06 project "build castles in the air"
+; MSX Compatible BIOS ver 0.07 project "build castles in the air"
 ; copyright(c) 2002 boukichi
 ;
 ; [date]
@@ -23,9 +23,12 @@
 ;            fixed syntax for zmac (a Z80 assembler of UNIX) 
 ;	     and other assembler.
 ;            fixed RDPRIM function.
+; 2002/09/08 added WRSLT function.
+;            added keyboard routines.
+;            added joystick code to GTSTCK & GTTRIG. 
 
 
-;        title "MSX COMPATIBLE BIOS for emulators ver 0.06 by BouKiCHi"
+;        title "MSX COMPATIBLE BIOS for emulators ver 0.07 by BouKiCHi"
 
 ;---------------------------------------------------
 ; define I/O and Hook
@@ -98,6 +101,7 @@ KEYBUF   equ $FBF0
 
 PUTPNT   equ $F3F8 ; pointer of keybuffer address
 GETPNT   equ $F3FA ; pointer of keybuffer address
+LIMPNT   equ $FC17 ; pointer of keybuffer address
 
 BOTTOM   equ $FC58
 SCRMOD   equ $FCAF
@@ -115,6 +119,7 @@ LINWRK   equ $FC18 ; text buffer of 40 cols.
 
 ;------------------------
 ;for sound_mode
+
 SMOD_TSTSND equ $FAFE ; [byte] store flag of sound test..
 SMOD_REQNUM equ $F305 ; [byte] store request number.
 SMOD_OLDKEY equ $F306 ; [byte] store oldkey.
@@ -135,7 +140,7 @@ SP_REGS  equ $E002
 ; Jump Table
 ;---------------------
 
-; start
+;start
 Start 
         code
 ;0000h CHKRAM
@@ -155,7 +160,7 @@ synchr
         nop
         ret
 
-;000Ch RDSLT   read memory in any slot. 
+;000Ch RDSLT   read memory from any slot. 
         org     $000c
         jp      rdslt
         ret
@@ -163,9 +168,9 @@ chrgtb
         org     $0010
         nop
         ret
-wrslt
+;0014h WRSLT  write memory to any slot.
         org     $0014
-        nop
+        jp      wrslt
         ret
 outdo
         org     $0018
@@ -185,6 +190,10 @@ dcompr  org     $0020
 ;0024h ENA_SLT Change of Slot
 slot_set org	  $0024
 	jp	slt_set
+
+;0028h MATH-PACK
+        org      $0028
+        ret
 
 ;002D version ID and other.
 romid
@@ -285,6 +294,11 @@ grpprt
         org     $009c
         jp      ch_sns
 
+;009Fh CHGET .. Get data from keyboard buffer.
+        org     $009f
+        jp      ch_get
+
+
 ;00D5h GTSTCK .. Get Joystick position status
         org       $00d5
         jp      in_joy
@@ -338,6 +352,10 @@ rstplt  org       $0149
 
 getplt  org       $014d
         ret
+
+;0156h KILBUF Clear buffer of keyboard.
+        org       $0156
+        jp        kilbuf
 
 beep    org       $017d
         ret
@@ -790,8 +808,20 @@ init_ram
         ld   hl,OLDKEY
         ld   (hl),a
         ld   de,OLDKEY+1
-        ld   bc,22
+        ld   bc,21
         ldir
+
+
+        ld   a,$00 
+        ld   hl,KEYBUF
+        ld   (hl),a
+        ld   de,KEYBUF+1
+        ld   bc,39
+        ldir
+
+        ld   hl,KEYBUF
+        ld   (PUTPNT),hl
+        ld   (GETPNT),hl
 
         ld   hl,$8000
         ld   (BOTTOM),hl  ; ?????
@@ -1241,7 +1271,6 @@ cl_jp  equ rdprim+(m_cl_jp-m_rdprim)
 ; 000Ch RDSLT
 ; in ..  A = slotID , HL = Address
 rdslt
-        
         push hl
         push af
 
@@ -1282,6 +1311,40 @@ rdsft_lp
         rlca
         djnz rdsft_lp
         ret
+
+; 0014h WRSLT
+; in ..  A = slotID , HL = Address
+wrslt
+        push hl
+        push af
+
+        ld   a,h
+        rlca
+        rlca
+        and  a,$03 ; address upper 2bit
+
+        ld   l,a  ; L=shift number
+        ld   b,a
+
+        ld   a,$03
+        call rdsft
+        cpl
+        ld   e,a ; E= MASK
+        ld   a,l ; A=shift#
+        ld   b,a ; B=shift#
+        pop  af
+        and  a,$03
+        call rdsft
+        ld   b,a ; B=shifted slot
+        in   a,(PSL_STAT)
+        ld   d,a  ; D=old psl
+        and  a,e
+        or   a,b  ; changed slot
+        pop  hl
+
+        call wrprim
+        ret
+
 
 ;-------------------------------------
 ; 001Ch CALSLT(conditional function)
@@ -1674,10 +1737,72 @@ disscr
 ;--------------------------------
 ;009Ch  CHSNS
 ch_sns
-        ld a,$00
+        push hl
+        ld  hl,(GETPNT)
+        ld  de,(PUTPNT)
+        call wordcomp
+        jr   z,no_chr
+        ld  a,(hl)
         and a
+        pop hl
         ret
-        
+no_chr
+        xor a,a
+        and a
+        pop hl
+        ret
+
+;009Fh  CHGET
+ch_get
+        ld a,$00
+        push hl
+        push de
+loop_chget
+        ld   hl,(GETPNT)
+        ld   de,(PUTPNT)
+        call wordcomp
+        jr   nz,get_ch
+        ei
+        halt
+        jr   loop_chget
+get_ch
+        ld   hl,(PUTPNT)
+        ld   bc,(GETPNT)
+        ld   a,(bc)
+        and  a
+        ld   bc,39
+        ld   hl,(GETPNT)
+        inc  hl
+        ld   de,(GETPNT)
+        push af
+        ldir
+        ld   de,(PUTPNT)
+        dec  de
+        ld   (PUTPNT),de
+        pop  af
+        pop  de
+        pop  hl
+        ret
+
+;0156h KILBUF clear buffer of keyboard.
+kilbuf
+        push de
+        push bc
+        push af
+        ld   hl,KEYBUF
+        ld   (PUTPNT),hl
+
+        ld   a,$FF
+        ld   hl,OLDKEY
+        ld   (hl),a
+        ld   de,OLDKEY+1
+        ld   bc,21
+        ldir
+        pop  af
+        pop  bc
+        pop  de
+        ret
+
 ;--------------------------------
 ;0090h GICINIT initialize sound ic
 sound_init
@@ -1754,8 +1879,8 @@ in_keyboard
 ;00D5h GTSTCK
 ; a = InID...
 in_joy
-        cp a,$00
-        jr nz,joy_end
+        cp   a,$00
+        jr   nz,joy_stc1
         ld   a,$08
         call in_keyboard
         rrca
@@ -1765,17 +1890,54 @@ in_joy
         cpl
         and  a,$0f ; 0000RDUL
        
-        ld   hl,joypos_tbl
+        ld   hl,joypos_kbd_tbl
         ld   b,0
         ld   c,a
         add  hl,bc
         ld   a,(hl)
         ret
+joy_stc1
+;PSG reg 15h
+;0J001111
+;PSG reg 14h
+;00BARLDU
+        ld  e,0
+        dec a
+        jr  z,sel_stc1
+        ld  a,$40
+        ld  e,a
+sel_stc1
+        ld  a,$0F
+        call sound_stat
+        and a,$BF
+        or  a,e
+        ld  e,a
+        ld  a,$0F
+        call sound_out
+        ld a,$0e
+        call sound_stat
+        cpl
+        and  a,$0f ; 0000RLDU
+        
+
+        ld   hl,joypos_joy_tbl
+        ld   b,0
+        ld   c,a
+        add  hl,bc
+        ld   a,(hl)
+        ret
+
 joy_end
         ld a,$00
         ret
 
-joypos_tbl
+joypos_joy_tbl
+        ;    0   1   2   3   4   5   6   7
+        db $00,$01,$05,$00,$07,$08,$06,$00
+        ;    8   9   A   B   C   D   E   F
+        db $03,$02,$04,$00,$00,$00,$00,$00
+
+joypos_kbd_tbl
         ;    0   1   2   3   4   5   6   7
         db $00,$07,$01,$08,$05,$06,$00,$00
         ;    8   9   A   B   C   D   E   F
@@ -1786,20 +1948,57 @@ joypos_tbl
 ;00D8h GTTRIG
 in_trig
         cp a,$00
-        jr z,space_mode
-        xor a
-        ret
-space_mode
+        jr z,kbd_spc
+        dec a
+        jr  joy_trig
+kbd_spc
         ld   a,$08
         call in_keyboard
         and  a,$01
-        jr   z,trig_sp
-        xor  a
-        jr   trig_end
-trig_sp
+        jr   z,spc_on
+        jr   spc_off
+spc_on
         ld   a,$FF
-trig_end
         ret
+spc_off
+        xor  a
+        ret
+
+joy_trig
+        push de
+        ld   e,$00
+        ld   b,a
+        and  a,$01
+        jr   z,sel_trig1
+        ld   e,$40
+sel_trig1
+        ld   a,$0F
+        call sound_stat
+        and  a,$BF
+        or   a,e
+        ld   e,a
+        ld   a,$0F
+        call sound_out
+
+        ld   a,b
+        ld   b,$10
+        and  a,$02
+        jr   z,istrg_a
+        ld   b,$20
+istrg_a
+        ld   a,$0e
+        call sound_stat
+        pop  de
+        and  a,b
+        jr   z,trig_on
+        jr   trig_off
+trig_on
+        ld   a,$FF
+        ret
+trig_off
+        xor  a
+        ret
+
 
 ;--------------------------------
 slot_clear
@@ -1888,6 +2087,7 @@ oldkey_lp
         ret
 
 ;--------------------------------
+; input form keyboard to buffer.
 key_in
         in  a,(GIO_REGS)
         and a,$F0
@@ -1902,9 +2102,49 @@ key_in_lp
         inc hl
         inc c
         djnz key_in_lp
+        call key_chk
         ret
 
 ;--------------------------------
+key_chk
+        ld  ix,NEWKEY
+        ld  de,OLDKEY
+        ld  hl,scode_tbl
+        ld  b,$0b
+key_chk_lp
+        ld  a,(de)
+        cpl
+        and a,(ix)
+        ld  c,$08
+key_bit_lp
+        rrca
+        jr  c,push_pnt
+        inc hl
+        dec c
+        jr  nz,key_bit_lp
+        inc ix
+        inc de
+        djnz key_chk_lp
+        ret
+push_pnt
+        push hl
+        push de
+        push bc
+        ld   c,(hl)
+        ld   de,LIMPNT
+        ld   hl,(PUTPNT)
+        call wordcomp
+        jr   nc,pnt_flow
+        ld   a,c
+        ld   (hl),a
+        inc  hl
+        ld   (PUTPNT),hl
+pnt_flow
+        pop  bc
+        pop  de
+        pop  hl
+        ret
+
 key_int
         ld  hl,NEWKEY
         ld  bc,$0006
@@ -1929,7 +2169,7 @@ stack_error
 
 str_proginfo
 ;           0123456789012345678901234567890123456789 
-        db "MSX COMPATIBLE BIOS ver 0.06",$00
+        db "MSX COMPATIBLE BIOS ver 0.07",$00
         db "Copyright (C) 2002 BouKiCHi",$00
         db $00
 
@@ -1985,6 +2225,20 @@ hex_tbl
         db "0123456789ABCDEF",$00
 reg_tbl
         db "PC: IY: IX: HL: DE: BC: AF: ",$00
+
+scode_tbl
+        db "01234567"       ;00
+        db "89-^\@[;"       ;01
+        db ":],./_ab"       ;02
+        db "cdefghij"       ;03
+        db "klmnopqr"       ;04
+        db "stuvwxyz"       ;05
+        db $00,$00,$00,$00,$00,$00,$00,$00 ;06
+        db $00,$00,$1B,$09,$00,$08,$00,$0D ;07
+        db $00,$00,$00,$00,$1D,$1E,$1F,$1C ;08
+        db $00,$00,$00,$00,$00,$00,$00,$00 ;09
+        db $00,$00,$00,$00,$00,$00,$00,$00 ;0a
+
 
 ;--------------------------
 ; the routines of sound test. 
@@ -2312,6 +2566,7 @@ sum_table
             ;CSUM,PTR_GAMENAME,LIST_MUSIC  ,INIT ,PLAY
             ;------------------------------------------
         dw  $0d0f,name_goonies,list_mus_gns,$B590,$B641
+        dw  $a453,name_twinscc,$0000       ,$0000,$0000
         dw  $b49f,name_zanac  ,$0000       ,$0000,$0000
         dw  $9ae8,name_kungfu ,$0000       ,$0000,$0000
         dw  $008f,name_g1942  ,$0000       ,$0000,$0000
@@ -2319,6 +2574,8 @@ sum_table
         dw  $0000,name_unknown,$0000       ,$0000,$0000 ; NULL
 name_goonies
         db "GOONIES",$0,$FF
+name_twinscc
+        db "TWINBEE(SCC)",$0,$FF
 name_zanac
         db "ZANAC",$0,$0
 name_kungfu
