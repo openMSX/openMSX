@@ -31,9 +31,13 @@ RealTime::RealTime()
 	}
 	
 	scheduler = Scheduler::instance();
+	// Synchronize counters as soon as emulation actually starts.
+	resyncFlag = true;
+	scheduler->setSyncPoint(Scheduler::ASAP, this);
+	// Safeguard against uninitialised values.
+	// Should not be necessary because resync will occur first.
 	EmuTime zero;
 	reset(zero);
-	scheduler->setSyncPoint(emuRef + SYNC_INTERVAL, this);
 }
 
 RealTime::~RealTime()
@@ -65,12 +69,23 @@ float RealTime::sync(const EmuTime &time)
 	return emuFactor;
 }
 
+void RealTime::resync()
+{
+	resyncFlag = true;
+}
+
 void RealTime::internalSync(const EmuTime &curEmu)
 {
 	if (!throttleSetting.getValue()) {
 		// no throttling
 		reset(curEmu);
 		return;
+	}
+	
+	// Resynchronize EmuTime and real time?
+	if (resyncFlag) {
+		reset(curEmu);
+		resyncFlag = false;
 	}
 	
 	unsigned int curReal = SDL_GetTicks();
@@ -162,12 +177,12 @@ RealTime::PauseSetting::PauseSetting()
 {
 }
 
-bool RealTime::PauseSetting::checkUpdate(bool newValue, const EmuTime &time)
+bool RealTime::PauseSetting::checkUpdate(bool newValue)
 {
 	if (newValue) {
 		Scheduler::instance()->pause();
 	} else {
-		RealTime::instance()->reset(time);
+		RealTime::instance()->resync();
 		Scheduler::instance()->unpause();
 	}
 	return true;
@@ -180,8 +195,8 @@ RealTime::SpeedSetting::SpeedSetting()
 {
 }
 
-bool RealTime::SpeedSetting::checkUpdate(int newValue, const EmuTime &time)
+bool RealTime::SpeedSetting::checkUpdate(int newValue)
 {
-	RealTime::instance()->reset(time);
+	RealTime::instance()->resync();
 	return true;
 }

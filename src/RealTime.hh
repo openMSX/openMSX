@@ -41,28 +41,32 @@ class RealTime : public Schedulable
 		float sync(const EmuTime &time);
 
 		/**
+		 * Resynchronize EmuTime with RealTime.
+		 * Resets internal counters at the next sync.
+		 */
+		void resync();
+
+	private:
+		RealTime(); 
+		void internalSync(const EmuTime &time);
+		
+		/**
 		 * Reset internal counters.
 		 */
 		void reset(const EmuTime &time);
 		
-	private:
-		RealTime(); 
-		void internalSync(const EmuTime &time);
-
 		class PauseSetting : public BooleanSetting
 		{
 			public:
 				PauseSetting();
-				virtual bool checkUpdate(bool newValue,
-				                         const EmuTime &time);
+				virtual bool checkUpdate(bool newValue);
 		} pauseSetting;
 		
 		class SpeedSetting : public IntegerSetting
 		{
 			public:
 				SpeedSetting();
-				virtual bool checkUpdate(int newValue,
-				                         const EmuTime &time);
+				virtual bool checkUpdate(int newValue);
 		} speedSetting;
 
 		BooleanSetting throttleSetting;
@@ -71,17 +75,25 @@ class RealTime : public Schedulable
 		int maxCatchUpTime;	// max nb of ms overtime
 		int maxCatchUpFactor;	// max catch up speed factor (percentage)
 
-		// tune exponential average (0 < alpha < 1)
-		//  alpha small -> past is more important
-		//        big   -> present is more important
-		static const float alpha = 0.2;	// TODO make tuneable???
-	
+		/** tune exponential average (0 < alpha < 1)
+		  *  alpha small -> past is more important
+		  *        big   -> present is more important
+		  */
+		static const float alpha = 0.2;	// TODO: make tuneable???
+
 		EmuTimeFreq<1000> emuRef, emuOrigin;	// in ms (rounding err!!)
 		unsigned int realRef, realOrigin;	// !! Overflow in 49 days
 		int catchUpTime;  // number of milliseconds overtime.
 		float emuFactor;
 		float totalFactor;
 		float sleepAdjust;
+		
+		/** Resynchronize EmuTime with real time when internalSync is
+		  * next called?
+		  * This decoupling makes it possible to trigger a resync without
+		  * knowing the current EmuTime.
+		  */
+		bool resyncFlag;
 
 		Scheduler *scheduler;
 };
