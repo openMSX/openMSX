@@ -378,6 +378,12 @@ public:
 			&& ((controlRegs[8] & 0x02) == 0x00);
 	}
 
+	/** Gets the number of VDP clockticks (21MHz) per frame.
+	  */
+	inline int getTicksPerFrame() {
+		return palTiming ? TICKS_PER_LINE * 313 : TICKS_PER_LINE * 262;
+	}
+
 	/** Is the given timestamp inside the current frame?
 	  * Mainly useful for debugging, because relevant timestamps should
 	  * always be inside the current frame.
@@ -456,12 +462,6 @@ private:
 		  */
 		HOR_ADJUST,
 	};
-
-	/** Gets the number of VDP clockticks (21MHz) per frame.
-	  */
-	inline int getTicksPerFrame() {
-		return palTiming ? TICKS_PER_LINE * 313 : TICKS_PER_LINE * 262;
-	}
 
 	/** Gets the number of display lines per screen.
 	  * @return 192 or 212.
