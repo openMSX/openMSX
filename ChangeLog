@@ -1,5 +1,8 @@
 $Id$
 
+2003-08-02 Herman Oudejans <hn.oudejans@quicknet.nl>
+	* fixed compile errors when using gcc version 2.95
+
 2003-07-31 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemeted a RS232 tester pluggable:
 	   - writes to file "rs232-output"

@@ -57,7 +57,7 @@ class MSXMidi : public MSXIODevice, public MidiInConnector
 		private:
 			MSXMidi& midi;
 		} cntr0;
-
+		friend class Counter0;
 		// counter 2 clock pin
 		class Counter2 : public ClockPinListener {
 		public:
@@ -70,9 +70,9 @@ class MSXMidi : public MSXIODevice, public MidiInConnector
 		private:
 			MSXMidi& midi;
 		} cntr2;
-		
+		friend class Counter2;
 		I8254 i8254;
-		
+
 		// I8251Interface
 		class I8251Interf : public I8251Interface {
 		public:
@@ -91,7 +91,7 @@ class MSXMidi : public MSXIODevice, public MidiInConnector
 		private:
 			MSXMidi& midi;
 		} interf;
-		
+		friend class I8251Interf;
 		I8251 i8251;
 		MidiOutConnector outConnector;
 };

@@ -1,5 +1,6 @@
 // $Id$
 
+#include <cstdio>
 #include <memory.h>
 #include "config.h"
 #include "sha1.hh"

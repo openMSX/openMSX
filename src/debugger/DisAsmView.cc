@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <algorithm>
+#include <cstdio>
 #include "DasmTables.hh"
 #include "DisAsmView.hh"
 

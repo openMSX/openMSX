@@ -2,6 +2,7 @@
 
 #include "DebugView.hh"
 #include <iostream>
+#include <cstdio>
 
 DebugView::DebugView (int rows_, int columns_, bool border_):
 			rows(rows_),columns(columns_),border(border_)
