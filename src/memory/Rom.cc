@@ -2,6 +2,7 @@
 
 #include <string>
 #include <sstream>
+#include <string.h>
 #include "xmlx.hh"
 #include "Rom.hh"
 #include "RomInfo.hh"
@@ -43,39 +44,30 @@ Rom::Rom(const string& name_, const string& description_,
 
 void Rom::readIPS(const XMLElement& config, const string& filename)
 {
-	// open file
 	try {
-		file.reset(new File(config.getFileContext().resolve(filename)));
-	} catch (FileException& e) {
-		throw FatalError("Error reading IPS: " + filename);
-	}
+		File ipsFile(config.getFileContext().resolve(filename));
 
-	byte buf[5];
-	file->read(buf,5u);
-	if ( strncmp((const char*)buf,"PATCH",5) != 0 ) {
-		throw FatalError("Not a valid IPS: " + filename);
-	}
-	try{
-	  	byte* writable_rom = const_cast<byte*>(rom);
-		file->read(buf,3u);
-		while ( strncmp((const char*)buf,"EOF",3) != 0 ) {
-		  	int offset=256*256*buf[0]+256*buf[1]+buf[2];
-			cout << "offset:" << offset <<endl;
-			file->read(buf,2u);
-			int length=256*buf[0]+buf[1];
-			cout << "length:" << length <<endl;
-			if (length == 0){
+		byte buf[5];
+		ipsFile.read(buf, 5);
+		if (memcmp(buf, "PATCH", 5) != 0) {
+			throw FatalError("Not a valid IPS: " + filename);
+		}
+		byte* writableRom = const_cast<byte*>(rom);
+		ipsFile.read(buf, 3);
+		while (memcmp(buf, "EOF", 3) != 0) {
+		  	int offset = 256*256*buf[0] + 256*buf[1] + buf[2];
+			ipsFile.read(buf, 2);
+			int length = 256*buf[0] + buf[1];
+			if (length == 0) {
 				// RLE encoded
-				file->read(buf,3u);
-				length=256*buf[0]+buf[1];
-				cout << "RLE length:" << length <<endl;
-				cout << "RLE byte:" << (int)buf[2] <<endl;
-				memset(writable_rom+offset,buf[2],length);
+				ipsFile.read(buf, 3);
+				length = 256*buf[0] + buf[1];
+				memset(writableRom + offset, buf[2], length);
 			} else {
-				//Patch bytes
-				file->read(writable_rom+offset,length);
+				// Patch bytes
+				ipsFile.read(writableRom + offset, length);
 			}
-			file->read(buf,3u);
+			ipsFile.read(buf, 3);
 		}
 	} catch (FileException& e) {
 		throw FatalError("Error reading IPS: " + filename);
@@ -85,7 +77,6 @@ void Rom::readIPS(const XMLElement& config, const string& filename)
 
 void Rom::init(const XMLElement& config)
 {
-  	cout << config.dump() <<endl;
 	XMLElement::Children sums;
 	config.getChildren("sha1", sums);
 	const XMLElement* filenameElem = config.findChild("filename");

@@ -1,5 +1,8 @@
 $Id$
 
+2004-12-04 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed (+ cleanup) IPS patch code
+
 2004-12-04 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Made a quickfix for romloading in windows. Using another character
 	  for ips-patch separator would be highly recommended. ':' is used 
