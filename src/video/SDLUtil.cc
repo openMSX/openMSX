@@ -7,6 +7,7 @@
 #include "HardwareConfig.hh"
 #include "InitException.hh"
 #include "RenderSettings.hh"
+#include "BooleanSetting.hh"
 #include "openmsx.hh"
 #include <SDL.h>
 

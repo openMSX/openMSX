@@ -1,5 +1,10 @@
 $Id$
 
+2005-01-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Various small cleanups:
+	   mostly use auto_ptr to break #include dependencies (for non time
+	   crititical classes)
+
 2005-01-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Lookup original filename inside zip/gz for filetype detection:
 	   this fixes [ 1072797 ] Detect extensions if i use a zipped file too

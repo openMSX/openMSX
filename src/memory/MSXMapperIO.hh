@@ -3,10 +3,10 @@
 #ifndef __MSXMAPPERIO_HH__
 #define __MSXMAPPERIO_HH__
 
-#include <set>
-#include <memory>
 #include "openmsx.hh"
 #include "MSXDevice.hh"
+#include <set>
+#include <memory>
 
 namespace openmsx {
 

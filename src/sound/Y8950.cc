@@ -6,10 +6,13 @@
   * heavily rewritten to fit openMSX structure
   */
 
-#include <cmath>
 #include "Y8950.hh"
+#include "Y8950Adpcm.hh"
+#include "Y8950KeyboardConnector.hh"
+#include "DACSound16S.hh"
 #include "Debugger.hh"
 #include "Scheduler.hh"
+#include <cmath>
 
 using std::string;
 
@@ -420,9 +423,11 @@ void Y8950::Channel::keyOff()
 
 Y8950::Y8950(const string& name_, const XMLElement& config, int sampleRam,
              const EmuTime& time)
-	: timer1(this), timer2(this), adpcm(*this, name_, sampleRam), connector(),
-	  dac13(name_ + " DAC", "MSX-AUDIO 13-bit DAC", config, time),
-          name(name_)
+	: timer1(this), timer2(this)
+	, adpcm(new Y8950Adpcm(*this, name_, sampleRam))
+	, connector(new Y8950KeyboardConnector())
+	, dac13(new DACSound16S(name_ + " DAC", "MSX-AUDIO 13-bit DAC", config, time))
+	, name(name_)
 {
 	makePmTable();
 	makeAmTable();
@@ -466,7 +471,7 @@ const string& Y8950::getDescription() const
 
 void Y8950::setSampleRate(int sampleRate)
 {
-	adpcm.setSampleRate(sampleRate);
+	adpcm->setSampleRate(sampleRate);
 	Y8950::Slot::makeDphaseTable(sampleRate);
 	Y8950::Slot::makeDphaseARTable(sampleRate);
 	Y8950::Slot::makeDphaseDRTable(sampleRate);
@@ -506,7 +511,7 @@ void Y8950::reset(const EmuTime &time)
 	statusMask = 0;
 	irq.reset();
 	
-	adpcm.reset(time);
+	adpcm->reset(time);
 	setMute(true);	// muted
 }
 
@@ -794,7 +799,7 @@ int Y8950::calcSample(int channelMask)
 		}
 	}
 	
-	mix += adpcm.calcSample();
+	mix += adpcm->calcSample();
 
 	return (mix*maxVolume) >> DB2LIN_AMP_BITS;
 }
@@ -823,7 +828,7 @@ bool Y8950::checkMuteHelper()
 		if (ch[8].car.eg_mode != FINISH) return false;
 	}
 	
-	return adpcm.muted();
+	return adpcm->muted();
 }
 
 void Y8950::updateBuffer(int length, int* buffer)
@@ -925,7 +930,7 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime& time)
 			break;
 
 		case 0x06: // (KEYBOARD OUT) 
-			connector.write(data, time);
+			connector->write(data, time);
 			reg[rg] = data;
 			break;
 		
@@ -943,7 +948,7 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime& time)
 		case 0x12: // ENVELOP CONTROL
 		case 0x1A: // PCM-DATA
 			reg[rg] = data;
-			adpcm.writeReg(rg, data, time);
+			adpcm->writeReg(rg, data, time);
 			break;
 		
 		case 0x15: // DAC-DATA  (bit9-2)
@@ -951,7 +956,7 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime& time)
 			if (reg[0x08] & 0x04) {
 				short value = (((short)reg[0x15] << 8) | 
 				                       reg[0x16]) >> reg[0x17];
-				dac13.writeDAC(value, time);
+				dac13->writeDAC(value, time);
 			}
 			break;
 		case 0x16: //           (bit1-0)
@@ -1106,14 +1111,14 @@ byte Y8950::readReg(byte rg, const EmuTime &time)
 	byte result;
 	switch (rg) {
 		case 0x05: // (KEYBOARD IN)
-			result = connector.read(time);
+			result = connector->read(time);
 			break;
 		
 		case 0x0f: // ADPCM-DATA
 		case 0x13: //  ???
 		case 0x14: //  ???
 		case 0x1a: // PCM-DATA
-			result = adpcm.readReg(rg);
+			result = adpcm->readReg(rg);
 			break;
 		
 		case 0x19: // I/O DATA   TODO

@@ -3,6 +3,7 @@
 #include "OSDConsoleRenderer.hh"
 #include "Console.hh"
 #include "IntegerSetting.hh"
+#include "BooleanSetting.hh"
 #include "GlobalSettings.hh"
 #include "Display.hh"
 #include "EventDistributor.hh"

@@ -3,7 +3,6 @@
 #ifndef __ROMMAJUTSUSHI_HH__
 #define __ROMMAJUTSUSHI_HH__
 
-#include <memory>
 #include "Rom8kBBlocks.hh"
 
 namespace openmsx {

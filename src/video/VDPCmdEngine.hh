@@ -6,12 +6,13 @@
 #include "openmsx.hh"
 #include "VDP.hh"
 #include "DisplayMode.hh"
-#include "BooleanSetting.hh"
 #include "SettingListener.hh"
+#include <memory>
 
 namespace openmsx {
 
 class VDPVRAM;
+class BooleanSetting;
 
 /** VDP command engine by Alex Wulms.
   * Implements command execution unit of V9938/58.
@@ -426,7 +427,7 @@ private:
 
 	/** Only call reportVdpCommand() when this setting is turned on
 	  */
-	BooleanSetting cmdTraceSetting;
+	const std::auto_ptr<BooleanSetting> cmdTraceSetting;
 };
 
 } // namespace openmsx

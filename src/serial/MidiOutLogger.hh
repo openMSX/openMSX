@@ -4,10 +4,12 @@
 #define __MIDIOUTLOGGER_HH__
 
 #include "MidiOutDevice.hh"
-#include "FilenameSetting.hh"
 #include <fstream>
+#include <memory>
 
 namespace openmsx {
+
+class FilenameSetting;
 
 class MidiOutLogger : public MidiOutDevice
 {
@@ -25,7 +27,7 @@ public:
 	virtual void recvByte(byte value, const EmuTime& time);
 
 private:
-	FilenameSetting logFilenameSetting;
+	const std::auto_ptr<FilenameSetting> logFilenameSetting;
 	std::ofstream file;
 };
 

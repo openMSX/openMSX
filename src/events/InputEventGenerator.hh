@@ -3,12 +3,13 @@
 #ifndef __INPUTEVENTGENERATOR_HH__
 #define __INPUTEVENTGENERATOR_HH__
 
-#include <SDL.h>
-#include "BooleanSetting.hh"
 #include "SettingListener.hh"
+#include <SDL.h>
+#include <memory>
 
 namespace openmsx {
 
+class BooleanSetting;
 class EventDistributor;
 
 class InputEventGenerator : private SettingListener
@@ -44,7 +45,7 @@ private:
 	// SettingListener
 	virtual void update(const Setting* setting);
 
-	BooleanSetting grabInput;
+	std::auto_ptr<BooleanSetting> grabInput;
 	bool keyRepeat;
 
 	EventDistributor& distributor;

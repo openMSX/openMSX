@@ -5,25 +5,22 @@
 
 #include "Disk.hh"
 
-
 namespace openmsx {
 
 class SectorBasedDisk : public Disk
 {
 public: 
-	virtual ~SectorBasedDisk() = 0;
-
 	virtual void initWriteTrack(byte track, byte side);
 	virtual void writeTrackData(byte data);
 	virtual void initReadTrack(byte track, byte side);
 	virtual byte readTrackData();
-
 	virtual bool ready();
 
 protected:
 	static const int SECTOR_SIZE = 512;
 
 	SectorBasedDisk();
+	virtual ~SectorBasedDisk();
 	virtual void detectGeometry();
 	
 	int nbSectors;

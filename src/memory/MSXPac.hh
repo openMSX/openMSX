@@ -4,9 +4,11 @@
 #define __MSXPAC_HH__
 
 #include "MSXDevice.hh"
-#include "SRAM.hh"
+#include <memory>
 
 namespace openmsx {
+
+class SRAM;
 
 class MSXPac : public MSXDevice
 {
@@ -23,9 +25,9 @@ public:
 private:
 	void checkSramEnable();
 	
-	bool sramEnabled;
+	const std::auto_ptr<SRAM> sram;
 	byte r1ffe, r1fff;
-	SRAM sram;
+	bool sramEnabled;
 };
 
 } // namespace openmsx

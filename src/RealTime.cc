@@ -9,6 +9,8 @@
 #include "Timer.hh"
 #include "EventDistributor.hh"
 #include "GlobalSettings.hh"
+#include "IntegerSetting.hh"
+#include "BooleanSetting.hh"
 
 using std::string;
 

@@ -4,9 +4,11 @@
 #define __ROMGAMEMASTER2_HH__
 
 #include "Rom4kBBlocks.hh"
-#include "SRAM.hh"
+#include <memory>
 
 namespace openmsx {
+
+class SRAM;
 
 class RomGameMaster2 : public Rom4kBBlocks
 {
@@ -20,7 +22,7 @@ public:
 	virtual byte* getWriteCacheLine(word address) const;
 
 private:
-	SRAM sram;
+	const std::auto_ptr<SRAM> sram;
 	bool sramEnabled;
 };
 

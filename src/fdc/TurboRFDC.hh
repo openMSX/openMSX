@@ -4,9 +4,11 @@
 #define __TURBORFDC_HH__
 
 #include "MSXFDC.hh"
-#include "TC8566AF.hh"
+#include <memory>
 
 namespace openmsx {
+
+class TC8566AF;
 
 class TurboRFDC : public MSXFDC
 {
@@ -22,9 +24,9 @@ public:
 	virtual byte* getWriteCacheLine(word address) const;
 
 private:
-	byte blockMask;
+	const std::auto_ptr<TC8566AF> controller;
 	const byte* memory;
-	TC8566AF controller;
+	byte blockMask;
 };
 
 } // namespace openmsx

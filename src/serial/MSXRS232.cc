@@ -1,9 +1,11 @@
 // $Id$
 
-#include <cassert>
 #include "MSXRS232.hh"
-#include "xmlx.hh"
+#include "I8254.hh"
 #include "Ram.hh"
+#include "Rom.hh"
+#include "xmlx.hh"
+#include <cassert>
 
 namespace openmsx {
 
@@ -16,10 +18,10 @@ MSXRS232::MSXRS232(const XMLElement& config, const EmuTime& time)
 	, rxrdyIRQlatch(false)
 	, rxrdyIRQenabled(false)
 	, cntr0(*this), cntr1(*this)
-	, i8254(&cntr0, &cntr1, NULL, time)
+	, i8254(new I8254(&cntr0, &cntr1, NULL, time))
 	, interf(*this)
-	, i8251(&interf, time)
-	, rom(MSXDevice::getName() + " ROM", "rom", config)
+	, i8251(new I8251(&interf, time))
+	, rom(new Rom(MSXDevice::getName() + " ROM", "rom", config))
 {
 	if (config.getChildDataAsBool("ram", false)) {
 		ram.reset(new Ram(MSXDevice::getName() + " RAM", "RS232 RAM", RAM_SIZE));
@@ -27,9 +29,9 @@ MSXRS232::MSXRS232(const XMLElement& config, const EmuTime& time)
 	
 	EmuDuration total(1.0 / 1.8432e6); // 1.8432MHz
 	EmuDuration hi   (1.0 / 3.6864e6); //   half clock period
-	i8254.getClockPin(0).setPeriodicState(total, hi, time);
-	i8254.getClockPin(1).setPeriodicState(total, hi, time);
-	i8254.getClockPin(2).setPeriodicState(total, hi, time);
+	i8254->getClockPin(0).setPeriodicState(total, hi, time);
+	i8254->getClockPin(1).setPeriodicState(total, hi, time);
+	i8254->getClockPin(2).setPeriodicState(total, hi, time);
 
 	reset(time);
 }
@@ -55,7 +57,7 @@ byte MSXRS232::readMem(word address, const EmuTime& /*time*/)
 	if (ram.get() && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
 		return (*ram)[addr - RAM_OFFSET];
 	} else if ((0x4000 <= address) && (address < 0x8000)) {
-		return rom[addr];
+		return (*rom)[addr];
 	} else {
 		return 0xFF;
 	}
@@ -67,7 +69,7 @@ const byte* MSXRS232::getReadCacheLine(word start) const
 	if (ram.get() && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
 		return &(*ram)[addr - RAM_OFFSET];
 	} else if ((0x4000 <= start) && (start < 0x8000)) {
-		return &rom[addr];
+		return &(*rom)[addr];
 	} else {
 		return unmappedRead;
 	}
@@ -99,7 +101,7 @@ byte MSXRS232::readIO(byte port, const EmuTime& time)
 	switch (port) {
 		case 0: // UART data register
 		case 1: // UART status register
-			result = i8251.readIO(port, time);
+			result = i8251->readIO(port, time);
 			break;
 		case 2: // Status sense port
 			result = readStatus(time);
@@ -111,7 +113,7 @@ byte MSXRS232::readIO(byte port, const EmuTime& time)
 		case 5: // counter 1 data port
 		case 6: // counter 2 data port
 		case 7: // timer command register
-			result = i8254.readIO(port - 4, time);
+			result = i8254->readIO(port - 4, time);
 			break;
 		default:
 			assert(false);
@@ -128,7 +130,7 @@ byte MSXRS232::peekIO(byte port, const EmuTime& time) const
 	switch (port) {
 		case 0: // UART data register
 		case 1: // UART status register
-			result = i8251.peekIO(port, time);
+			result = i8251->peekIO(port, time);
 			break;
 		case 2: // Status sense port
 			result = 0; // TODO not implemented
@@ -140,7 +142,7 @@ byte MSXRS232::peekIO(byte port, const EmuTime& time) const
 		case 5: // counter 1 data port
 		case 6: // counter 2 data port
 		case 7: // timer command register
-			result = i8254.peekIO(port - 4, time);
+			result = i8254->peekIO(port - 4, time);
 			break;
 		default:
 			assert(false);
@@ -156,7 +158,7 @@ void MSXRS232::writeIO(byte port, byte value, const EmuTime& time)
 	switch (port & 0x07) {
 		case 0: // UART data register
 		case 1: // UART command register
-			i8251.writeIO(port, value, time);
+			i8251->writeIO(port, value, time);
 			break;
 		case 2: // interrupt mask register
 			setIRQMask(value);
@@ -167,7 +169,7 @@ void MSXRS232::writeIO(byte port, byte value, const EmuTime& time)
 		case 5: // counter 1 data port
 		case 6: // counter 2 data port
 		case 7: // timer command register
-			i8254.writeIO(port - 4, value, time);
+			i8254->writeIO(port - 4, value, time);
 			break;
 	}
 }
@@ -178,7 +180,7 @@ byte MSXRS232::readStatus(const EmuTime& time)
 	if (!interf.getCTS(time)) {
 		result |= 0x80;
 	}
-	if (i8254.getOutputPin(2).getState(time)) {
+	if (i8254->getOutputPin(2).getState(time)) {
 		result |= 0x40;
 	}
 	return result;
@@ -289,7 +291,7 @@ MSXRS232::Counter0::~Counter0()
 
 void MSXRS232::Counter0::signal(ClockPin& pin, const EmuTime& time)
 {
-	ClockPin& clk = rs232.i8251.getClockPin();
+	ClockPin& clk = rs232.i8251->getClockPin();
 	if (pin.isPeriodic()) {
 		clk.setPeriodicState(pin.getTotalDuration(),
 		                     pin.getHighDuration(), time);
@@ -317,7 +319,7 @@ MSXRS232::Counter1::~Counter1()
 
 void MSXRS232::Counter1::signal(ClockPin& pin, const EmuTime& time)
 {
-	ClockPin& clk = rs232.i8251.getClockPin();
+	ClockPin& clk = rs232.i8251->getClockPin();
 	if (pin.isPeriodic()) {
 		clk.setPeriodicState(pin.getTotalDuration(),
 		                     pin.getHighDuration(), time);
@@ -337,32 +339,32 @@ void MSXRS232::Counter1::signalPosEdge(ClockPin& /*pin*/,
 
 bool MSXRS232::ready()
 {
-	return i8251.isRecvReady();
+	return i8251->isRecvReady();
 }
 
 bool MSXRS232::acceptsData()
 {
-	return i8251.isRecvEnabled();
+	return i8251->isRecvEnabled();
 }
 
 void MSXRS232::setDataBits(DataBits bits)
 {
-	i8251.setDataBits(bits);
+	i8251->setDataBits(bits);
 }
 
 void MSXRS232::setStopBits(StopBits bits)
 {
-	i8251.setStopBits(bits);
+	i8251->setStopBits(bits);
 }
 
 void MSXRS232::setParityBit(bool enable, ParityBit parity)
 {
-	i8251.setParityBit(enable, parity);
+	i8251->setParityBit(enable, parity);
 }
 
 void MSXRS232::recvByte(byte value, const EmuTime& time)
 {
-	i8251.recvByte(value, time);
+	i8251->recvByte(value, time);
 }
 
 } // namespace openmsx

@@ -5,17 +5,18 @@
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "File.hh"
+#include "FilenameSetting.hh"
 
 using std::string;
 
 namespace openmsx {
 
 PrinterPortLogger::PrinterPortLogger()
-	: logFilenameSetting("printerlogfilename",
-		"filename of the file where the printer output is logged to",
-		"printer.log")
+	: prevStrobe(true)
 {
-	prevStrobe = true;
+	logFilenameSetting.reset(new FilenameSetting("printerlogfilename",
+		"filename of the file where the printer output is logged to",
+		"printer.log"));
 }
 
 PrinterPortLogger::~PrinterPortLogger()
@@ -48,7 +49,7 @@ void PrinterPortLogger::writeData(byte data, const EmuTime& /*time*/)
 void PrinterPortLogger::plugHelper(Connector* /*connector*/, const EmuTime& /*time*/)
 {
 	try {
-		file.reset(new File(logFilenameSetting.getValue(), TRUNCATE));
+		file.reset(new File(logFilenameSetting->getValue(), TRUNCATE));
 	} catch (FileException& e) {
 		throw PlugException("Couldn't plug printer logger: " +
 		                    e.getMessage());

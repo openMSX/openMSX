@@ -4,9 +4,10 @@
 #define __ROMHYDLIDE2_HH__
 
 #include "RomAscii16kB.hh"
-#include "SRAM.hh"
 
 namespace openmsx {
+
+class SRAM;
 
 class RomHydlide2 : public RomAscii16kB
 {
@@ -22,7 +23,7 @@ public:
 	virtual byte* getWriteCacheLine(word address) const;
 
 private:
-	SRAM sram;
+	const std::auto_ptr<SRAM> sram;
 	byte sramEnabled;
 };
 

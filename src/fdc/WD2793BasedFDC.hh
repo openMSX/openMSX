@@ -4,10 +4,12 @@
 #define __WD2793BASEDFDC_HH__
 
 #include "MSXFDC.hh"
-#include "DriveMultiplexer.hh"
-#include "WD2793.hh"
+#include <memory>
 
 namespace openmsx {
+
+class DriveMultiplexer;
+class WD2793;
 
 class WD2793BasedFDC : public MSXFDC
 {
@@ -18,8 +20,8 @@ protected:
 	WD2793BasedFDC(const XMLElement& config, const EmuTime& time);
 	virtual ~WD2793BasedFDC();
 	
-	DriveMultiplexer multiplexer;
-	WD2793 controller;
+	const std::auto_ptr<DriveMultiplexer> multiplexer;
+	const std::auto_ptr<WD2793> controller;
 };
 
 } // namespace openmsx

@@ -4,6 +4,7 @@
 #include "RenderSettings.hh"
 #include "Display.hh"
 #include "GlobalSettings.hh"
+#include "BooleanSetting.hh"
 #include <cassert>
 
 namespace openmsx {

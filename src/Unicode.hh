@@ -4,8 +4,6 @@
 #define __UNICODE_HH__
 
 #include <string>
-#include <sstream>
-#include <strings.h>
 
 namespace openmsx {
 

@@ -7,10 +7,12 @@
 
 #include "openmsx.hh"
 #include "SoundDevice.hh"
-#include "Rom.hh"
 #include "Debuggable.hh"
+#include <memory>
 
 namespace openmsx {
+
+class Rom;
 
 class YMF278Slot
 {
@@ -152,7 +154,7 @@ private:
 	int pcm_l, pcm_r;
 
 	const std::string name;
-	Rom rom;
+	const std::auto_ptr<Rom> rom;
 	byte* ram;
 	unsigned endRom;
 	unsigned endRam;

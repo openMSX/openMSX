@@ -3,19 +3,20 @@
 #include "RS232Tester.hh"
 #include "RS232Connector.hh"
 #include "Scheduler.hh"
+#include "FilenameSetting.hh"
 
 using std::string;
 
 namespace openmsx {
 
 RS232Tester::RS232Tester()
-	: thread(this), lock(1),
-	  rs232InputFilenameSetting("rs232-inputfilename",
+	: thread(this), lock(1)
+	, rs232InputFilenameSetting(new FilenameSetting("rs232-inputfilename",
 	        "filename of the file where the RS232 input is read from",
-	        "rs232-input"),
-	  rs232OutputFilenameSetting("rs232-outputfilename",
+	        "rs232-input"))
+	, rs232OutputFilenameSetting(new FilenameSetting("rs232-outputfilename",
 	        "filename of the file where the RS232 output is written to",
-	        "rs232-output")
+	        "rs232-output"))
 {
 }
 
@@ -28,14 +29,14 @@ RS232Tester::~RS232Tester()
 void RS232Tester::plugHelper(Connector* connector_, const EmuTime& /*time*/)
 {
 	// output
-	outFile.open(rs232OutputFilenameSetting.getValue().c_str());
+	outFile.open(rs232OutputFilenameSetting->getValue().c_str());
 	if (outFile.fail()) {
 		outFile.clear();
 		throw PlugException("Error opening output file");
 	}
 
 	// input
-	inFile = fopen(rs232InputFilenameSetting.getValue().c_str(), "rb");
+	inFile = fopen(rs232InputFilenameSetting->getValue().c_str(), "rb");
 	if (!inFile) {
 		throw PlugException("Error opening input file");
 	}

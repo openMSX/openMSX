@@ -3,13 +3,13 @@
 #ifndef __MSXPRINTERPORTLOGGER_HH__
 #define __MSXPRINTERPORTLOGGER_HH__
 
-#include <memory>
 #include "PrinterPortDevice.hh"
-#include "FilenameSetting.hh"
+#include <memory>
 
 namespace openmsx {
 
 class File;
+class FilenameSetting;
 
 class PrinterPortLogger : public PrinterPortDevice
 {
@@ -32,8 +32,7 @@ private:
 	byte toPrint;
 	bool prevStrobe;
 	std::auto_ptr<File> file;
-
-	FilenameSetting logFilenameSetting;
+	std::auto_ptr<FilenameSetting> logFilenameSetting;
 };
 
 } // namespace openmsx

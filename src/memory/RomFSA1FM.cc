@@ -38,13 +38,15 @@
 #include "MSXCPU.hh"
 #include "CPU.hh"
 #include "Rom.hh"
+#include "SRAM.hh"
+#include "FirmwareSwitch.hh"
 
 namespace openmsx {
 
 // common sram //
 
 FSA1FMRam::FSA1FMRam(const XMLElement& config)
-	: sram(config.getId() + " SRAM", 0x2000, config)
+	: sram(new SRAM(config.getId() + " SRAM", 0x2000, config))
 {
 }
 
@@ -55,7 +57,7 @@ FSA1FMRam::~FSA1FMRam()
 byte* FSA1FMRam::getSRAM(const XMLElement& config)
 {
 	static FSA1FMRam oneInstance(config);
-	return &oneInstance.sram[0];
+	return &(*oneInstance.sram)[0];
 }
 
 
@@ -64,6 +66,7 @@ byte* FSA1FMRam::getSRAM(const XMLElement& config)
 RomFSA1FM1::RomFSA1FM1(const XMLElement& config, const EmuTime& time,
                        std::auto_ptr<Rom> rom)
 	: MSXRom(config, time, rom)
+	, firmwareSwitch(new FirmwareSwitch())
 {
 	sram = FSA1FMRam::getSRAM(config);
 	reset(time);
@@ -89,7 +92,7 @@ byte RomFSA1FM1::readMem(word address, const EmuTime& /*time*/)
 		case 4:
 			return sram[address & 0x1FFF];
 		case 6:
-			return firmwareSwitch.getStatus() ? 0xFB : 0xFF;
+			return firmwareSwitch->getStatus() ? 0xFB : 0xFF;
 		default:
 			return 0xFF;
 		}

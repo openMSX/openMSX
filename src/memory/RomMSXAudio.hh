@@ -4,9 +4,10 @@
 #define __ROMMSXAUDIO_HH__
 
 #include "MSXRom.hh"
-#include "Ram.hh"
 
 namespace openmsx {
+
+class Ram;
 
 class RomMSXAudio : public MSXRom
 {
@@ -22,8 +23,8 @@ public:
 	virtual byte* getWriteCacheLine(word address) const;
 
 protected:
+	const std::auto_ptr<Ram> ram;
 	byte bankSelect;
-	Ram ram;
 };
 
 } // namespace openmsx

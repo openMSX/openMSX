@@ -12,6 +12,8 @@
 #include "CliCommOutput.hh"
 #include "EventDistributor.hh"
 #include "LedEvent.hh"
+#include "CommandException.hh"
+#include "xmlx.hh"
 
 using std::string;
 using std::vector;

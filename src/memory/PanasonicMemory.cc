@@ -3,6 +3,7 @@
 #include "PanasonicMemory.hh"
 #include "MSXCPU.hh"
 #include "Ram.hh"
+#include "Rom.hh"
 #include "HardwareConfig.hh"
 
 namespace openmsx {
@@ -13,9 +14,9 @@ static XMLElement& getRomConfig()
 }
 
 PanasonicMemory::PanasonicMemory()
-	: rom("PanasonicRom", "Turbo-R main ROM", getRomConfig()),
-	  ram(NULL), dram(false),
-	  msxcpu(MSXCPU::instance())
+	: rom(new Rom("PanasonicRom", "Turbo-R main ROM", getRomConfig()))
+	, ram(NULL), dram(false)
+	, msxcpu(MSXCPU::instance())
 {
 }
 
@@ -47,10 +48,10 @@ const byte* PanasonicMemory::getRomBlock(unsigned block)
 		return ram + ramOffset + offset;
 	} else {
 		unsigned offset = block * 0x2000;
-		if (offset >= rom.getSize()) {
-			offset &= rom.getSize() - 1;
+		if (offset >= rom->getSize()) {
+			offset &= rom->getSize() - 1;
 		}
-		return &rom[offset];
+		return &(*rom)[offset];
 	}
 }
 

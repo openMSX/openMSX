@@ -6,13 +6,13 @@
 #ifndef __MSXSCCPLUSCART_HH__
 #define __MSXSCCPLUSCART_HH__
 
-#include <memory>
 #include "MSXDevice.hh"
-#include "Ram.hh"
+#include <memory>
 
 namespace openmsx {
 
 class SCC;
+class Ram;
 
 class MSXSCCPlusCart : public MSXDevice
 {
@@ -31,10 +31,10 @@ private:
 	void setModeRegister(byte value);
 	void checkEnable();
 	
+	const std::auto_ptr<Ram> ram;
 	std::auto_ptr<SCC> scc;
 	byte modeRegister;
 	enum SCCEnable {EN_NONE, EN_SCC, EN_SCCPLUS} enable;
-	Ram ram;
 	bool isRamSegment[4];
 	bool isMapped[4];
 	byte* internalMemoryBank[4];	// 4 blocks of 8kB starting at #4000

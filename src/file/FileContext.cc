@@ -1,12 +1,15 @@
 // $Id$
 
-#include <cassert>
 #include "FileContext.hh"
 #include "FileOperations.hh"
 #include "FileException.hh"
 #include "GlobalSettings.hh"
 #include "Interpreter.hh"
 #include "CliCommOutput.hh"
+#include "CommandException.hh"
+#include "StringSetting.hh"
+#include "openmsx.hh"
+#include <cassert>
 
 using std::string;
 using std::vector;

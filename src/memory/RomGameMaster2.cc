@@ -40,13 +40,14 @@
 
 #include "RomGameMaster2.hh"
 #include "Rom.hh"
+#include "SRAM.hh"
 
 namespace openmsx {
 
 RomGameMaster2::RomGameMaster2(const XMLElement& config, const EmuTime& time,
                                std::auto_ptr<Rom> rom)
 	: Rom4kBBlocks(config, time, rom)
-	, sram(getName() + " SRAM", 0x2000, config)
+	, sram(new SRAM(getName() + " SRAM", 0x2000, config))
 {
 	reset(time);
 }
@@ -80,8 +81,8 @@ void RomGameMaster2::writeMem(word address, byte value, const EmuTime& /*time*/)
 			if (value & 0x10) {
 				// switch SRAM
 				word offset = (value & 0x20) ? 0x1000: 0x0000;
-				setBank(region,     &sram[offset]);
-				setBank(region + 1, &sram[offset]);
+				setBank(region,     &(*sram)[offset]);
+				setBank(region + 1, &(*sram)[offset]);
 			} else {
 				// switch ROM
 				setRom(region,     2 * (value & 0x0F));

@@ -3,13 +3,14 @@
 #include "MSXMusic.hh"
 #include "YM2413.hh"
 #include "YM2413_2.hh"
+#include "Rom.hh"
 #include "xmlx.hh"
 
 namespace openmsx {
 
 MSXMusic::MSXMusic(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time)
-	, rom(getName() + " ROM", "rom", config)
+	, rom(new Rom(getName() + " ROM", "rom", config))
 {
 	if (config.getChildDataAsBool("alternative", false)) {
 		ym2413.reset(new YM2413(getName(), config, time));
@@ -56,12 +57,12 @@ void MSXMusic::writeDataPort(byte value, const EmuTime& time)
 
 byte MSXMusic::readMem(word address, const EmuTime& /*time*/)
 {
-	return rom[address & 0x3FFF];
+	return *getReadCacheLine(address);
 }
 
 const byte* MSXMusic::getReadCacheLine(word start) const
 {
-	return &rom[start & 0x3FFF];
+	return &(*rom)[start & 0x3FFF];
 }
 
 } // namespace openmsx

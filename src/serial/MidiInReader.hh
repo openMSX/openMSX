@@ -8,11 +8,13 @@
 #include "Thread.hh"
 #include "Schedulable.hh"
 #include "Semaphore.hh"
-#include "FilenameSetting.hh"
 #include <cstdio>
 #include <deque>
+#include <memory>
 
 namespace openmsx {
+
+class FilenameSetting;
 
 class MidiInReader : public MidiInDevice, private Runnable, private Schedulable
 {
@@ -42,7 +44,7 @@ private:
 	std::deque<byte> queue;
 	Semaphore lock; // to protect queue
 
-	FilenameSetting readFilenameSetting;
+	const std::auto_ptr<FilenameSetting> readFilenameSetting;
 };
 
 } // namespace openmsx

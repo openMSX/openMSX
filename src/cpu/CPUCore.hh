@@ -3,12 +3,11 @@
 #ifndef _CPUCORE_HH_
 #define _CPUCORE_HH_
 
-#include <string>
 #include "openmsx.hh"
-#include "BooleanSetting.hh"
-#include "IntegerSetting.hh"
 #include "SettingListener.hh"
 #include "CPU.hh"
+#include <string>
+#include <memory>
 
 namespace openmsx {
 
@@ -16,6 +15,8 @@ class MSXCPUInterface;
 class Scheduler;
 class MSXMotherBoard;
 class EmuTime;
+class BooleanSetting;
+class IntegerSetting;
 
 typedef signed char offset;
 
@@ -126,8 +127,8 @@ private:
 	MSXMotherBoard* motherboard;
 	
 	// dynamic freq
-	BooleanSetting freqLocked;
-	IntegerSetting freqValue;
+	std::auto_ptr<BooleanSetting> freqLocked;
+	std::auto_ptr<IntegerSetting> freqValue;
 	unsigned freq;
 	
 	const BooleanSetting& traceSetting;

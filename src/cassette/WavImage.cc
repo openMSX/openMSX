@@ -3,6 +3,7 @@
 #include "MSXException.hh"
 #include "WavImage.hh"
 #include "File.hh"
+#include <SDL.h>
 
 using std::string;
 

@@ -3,7 +3,8 @@
 #ifndef __CONDVAR_HH__
 #define __CONDVAR_HH__
 
-#include <SDL.h>
+struct SDL_cond;
+struct SDL_mutex;
 
 namespace openmsx {
 

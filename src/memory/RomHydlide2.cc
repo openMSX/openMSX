@@ -16,13 +16,14 @@
 #include "RomHydlide2.hh"
 #include "MSXCPU.hh"
 #include "Rom.hh"
+#include "SRAM.hh"
 
 namespace openmsx {
 
 RomHydlide2::RomHydlide2(const XMLElement& config, const EmuTime& time,
                          std::auto_ptr<Rom> rom)
 	: RomAscii16kB(config, time, rom)
-	, sram(getName() + " SRAM", 0x0800, config)
+	, sram(new SRAM(getName() + " SRAM", 0x0800, config))
 {
 	reset(time);
 }
@@ -40,7 +41,7 @@ void RomHydlide2::reset(const EmuTime& time)
 byte RomHydlide2::readMem(word address, const EmuTime& time)
 {
 	if ((1 << (address >> 14)) & sramEnabled) {
-		return sram[address & 0x07FF];
+		return (*sram)[address & 0x07FF];
 	} else {
 		return RomAscii16kB::readMem(address, time);
 	}
@@ -49,7 +50,7 @@ byte RomHydlide2::readMem(word address, const EmuTime& time)
 const byte* RomHydlide2::getReadCacheLine(word address) const
 {
 	if ((1 << (address >> 14)) & sramEnabled) {
-		return &sram[address & 0x07FF];
+		return &(*sram)[address & 0x07FF];
 	} else {
 		return RomAscii16kB::getReadCacheLine(address);
 	}
@@ -72,7 +73,7 @@ void RomHydlide2::writeMem(word address, byte value, const EmuTime& /*time*/)
 	} else {
 		// write sram
 		if ((1 << (address >> 14)) & sramEnabled & 0x04) {
-			sram[address & 0x07FF] = value;
+			(*sram)[address & 0x07FF] = value;
 		}
 	}
 }
@@ -80,7 +81,7 @@ void RomHydlide2::writeMem(word address, byte value, const EmuTime& /*time*/)
 byte* RomHydlide2::getWriteCacheLine(word address) const
 {
 	if ((1 << (address >> 14)) & sramEnabled & 0x04) {
-		return const_cast<byte*>(&sram[address & 0x07FF]);
+		return const_cast<byte*>(&(*sram)[address & 0x07FF]);
 	} else {
 		return RomAscii16kB::getWriteCacheLine(address);
 	}

@@ -3,17 +3,17 @@
 #ifndef __MSXRS232_HH__
 #define __MSXRS232_HH__
 
-#include <memory>
 #include "MSXDevice.hh"
-#include "Rom.hh"
 #include "I8251.hh"
-#include "I8254.hh"
 #include "IRQHelper.hh"
 #include "RS232Connector.hh"
+#include <memory>
 
 namespace openmsx {
 
+class I8254;
 class Ram;
+class Rom;
 class ClockPin;
 
 class MSXRS232 : public MSXDevice, public RS232Connector
@@ -75,7 +75,7 @@ private:
 		MSXRS232& rs232;
 	} cntr1;
 	
-	I8254 i8254;
+	const std::auto_ptr<I8254> i8254;
 
 	// I8251Interface
 	class I8251Interf : public I8251Interface {
@@ -96,8 +96,8 @@ private:
 		MSXRS232& rs232;
 	} interf;
 	
-	I8251 i8251;
-	Rom rom;
+	const std::auto_ptr<I8251> i8251;
+	const std::auto_ptr<Rom> rom;
 	std::auto_ptr<Ram> ram;
 };
 

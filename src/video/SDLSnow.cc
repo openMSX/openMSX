@@ -2,6 +2,7 @@
 
 #include "SDLSnow.hh"
 #include "Display.hh"
+#include <SDL.h>
 
 using std::string;
 

@@ -4,9 +4,10 @@
 #define __ROMNATIONAL_HH__
 
 #include "Rom16kBBlocks.hh"
-#include "SRAM.hh"
 
 namespace openmsx {
+
+class SRAM;
 
 class RomNational : public Rom16kBBlocks
 {
@@ -22,10 +23,10 @@ public:
 	virtual byte* getWriteCacheLine(word address) const;
 
 private:
+	const std::auto_ptr<SRAM> sram;
+	int sramAddr;
 	byte control;
 	byte bankSelect[4];
-	SRAM sram;
-	int sramAddr;
 };
 
 } // namespace openmsx

@@ -5,10 +5,10 @@
 
 #include <memory>
 #include "MSXDevice.hh"
-#include "SRAM.hh"
 
 namespace openmsx {
 
+class SRAM;
 class RP5C01;
 
 class MSXRTC : public MSXDevice
@@ -23,8 +23,8 @@ public:
 	virtual void writeIO(byte port, byte value, const EmuTime& time);
 
 private:
+	std::auto_ptr<SRAM> sram;
 	std::auto_ptr<RP5C01> rp5c01;
-	SRAM sram;
 	nibble registerLatch;
 };
 

@@ -1,9 +1,10 @@
 // $Id$
 
-#include <cmath>
 #include "YMF278.hh"
+#include "Rom.hh"
 #include "Debugger.hh"
 #include "Scheduler.hh"
+#include <cmath>
 
 using std::string;
 
@@ -755,12 +756,12 @@ YMF278::YMF278(const string& name_, int ramSize, const XMLElement& config,
                const EmuTime& time)
 	: debugRegisters(*this), debugMemory(*this)
 	, name(name_)
-	, rom(getName() + " ROM", "rom", config)
+	, rom(new Rom(getName() + " ROM", "rom", config))
 {
 	memadr = 0;	// avoid UMR
 	setSampleRate(44100);	// make valgrind happy
 
-	endRom = rom.getSize();
+	endRom = rom->getSize();
 	ramSize *= 1024;	// in kb
 	ram = new byte[ramSize];
 	endRam = endRom + ramSize;
@@ -833,7 +834,7 @@ void YMF278::setVolume(int newVolume)
 byte YMF278::readMem(unsigned address) const
 {
 	if (address < endRom) {
-		return rom[address];
+		return (*rom)[address];
 	} else if (address < endRam) {
 		return ram[address - endRom];
 	} else {

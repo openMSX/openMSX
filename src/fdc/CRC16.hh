@@ -13,40 +13,40 @@ namespace openmsx {
  */
 class CRC16 
 {
-	private:
-		word crc;
-		static const word CRC16Table[256];
+public:
+	/** Create CRC16 with an optional initial value
+	 */
+	CRC16(word initialCRC = 0xFFFF)
+	{
+		crc = initialCRC;
+	}
+	
+	/** Update CRC with one byte
+	 */
+	void update(byte value)
+	{
+		crc = (crc << 8) ^ CRC16Table[(crc >> 8) ^ value];
+	}
 
-	public:
-		/** Create CRC16 with an optional initial value
-		 */
-		CRC16(word initialCRC = 0xFFFF)
-		{
-			crc = initialCRC;
+	/** Update CRC with a buffer of bytes
+	 */
+	void update(byte* values, int num)
+	{
+		while (num--) {
+			update(*values++);
 		}
-		
-		/** Update CRC with one byte
-		 */
-		void update(byte value)
-		{
-			crc = (crc << 8) ^ CRC16Table[(crc >> 8) ^ value];
-		}
+	}
 
-		/** Update CRC with a buffer of bytes
-		 */
-		void update(byte* values, int num)
-		{
-			while (num--) {
-				update(*values++);
-			}
-		}
+	/** Get current CRC value
+	 */
+	word getValue()
+	{
+		return crc;
+	}
 
-		/** Get current CRC value
-		 */
-		word getValue()
-		{
-			return crc;
-		}
+private:
+	word crc;
+	static const word CRC16Table[256];
 };
 
 } // namespace openmsx

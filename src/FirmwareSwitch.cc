@@ -1,19 +1,20 @@
 // $Id$
 
 #include "FirmwareSwitch.hh"
+#include "BooleanSetting.hh"
 
 namespace openmsx {
 
 FirmwareSwitch::FirmwareSwitch()
-	: setting("firmwareswitch",
+	: setting(new BooleanSetting("firmwareswitch",
 	          "This setting controls the firmware switch",
-	          false)
+	          false))
 {
 }
 
 bool FirmwareSwitch::getStatus() const
 {
-	return setting.getValue();
+	return setting->getValue();
 }
 
 } // namespace openmsx

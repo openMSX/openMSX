@@ -3,13 +3,13 @@
 #ifndef __WAVAUDIOINPUT_HH__
 #define __WAVAUDIOINPUT_HH__
 
-#include <SDL.h>
 #include "AudioInputDevice.hh"
-#include "FilenameSetting.hh"
 #include "SettingListener.hh"
 #include "EmuTime.hh"
 
 namespace openmsx {
+
+class FilenameSetting;
 
 class WavAudioInput : public AudioInputDevice, private SettingListener
 {
@@ -30,12 +30,12 @@ private:
 	void update(const Setting* setting);
 
 	int length;
-	Uint8* buffer;
+	byte* buffer;
 	int freq;
 	EmuTime reference;
 	bool plugged;
 
-	FilenameSetting audioInputFilenameSetting;
+	const std::auto_ptr<FilenameSetting> audioInputFilenameSetting;
 };
 
 } // namespace openmsx

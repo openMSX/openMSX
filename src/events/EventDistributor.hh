@@ -3,17 +3,18 @@
 #ifndef __EVENTDISTRIBUTOR_HH__
 #define __EVENTDISTRIBUTOR_HH__
 
-#include <map>
-#include <vector>
-#include <deque>
 #include "Event.hh"
 #include "EmuTime.hh"
 #include "Schedulable.hh"
-#include "FloatSetting.hh"
+#include <map>
+#include <vector>
+#include <deque>
+#include <memory>
 
 namespace openmsx {
 
 class EventListener;
+class FloatSetting;
 
 class EventDistributor : private Schedulable
 {
@@ -88,7 +89,7 @@ private:
 
 	EmuTime prevEmu;
 	unsigned long long prevReal;
-	//FloatSetting delaySetting;
+	//std::auto_ptr<FloatSetting> delaySetting;
 };
 
 } // namespace openmsx

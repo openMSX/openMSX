@@ -5,15 +5,17 @@
  */
 
 #include "TurboRFDC.hh"
+#include "TC8566AF.hh"
+#include "Rom.hh"
 #include "MSXCPU.hh"
 
 namespace openmsx {
 
 TurboRFDC::TurboRFDC(const XMLElement& config, const EmuTime& time)
 	: MSXFDC(config, time)
-	, controller(reinterpret_cast<DiskDrive**>(drives), time)
+	, controller(new TC8566AF(reinterpret_cast<DiskDrive**>(drives), time))
 {
-	blockMask = (rom.getSize() / 0x4000) - 1;
+	blockMask = (rom->getSize() / 0x4000) - 1;
 	reset(time);
 }
 
@@ -23,8 +25,8 @@ TurboRFDC::~TurboRFDC()
 
 void TurboRFDC::reset(const EmuTime& time)
 {
-	memory = &rom[0];
-	controller.reset(time);
+	memory = &(*rom)[0];
+	controller->reset(time);
 }
 
 byte TurboRFDC::readMem(word address, const EmuTime& time)
@@ -39,16 +41,16 @@ byte TurboRFDC::readMem(word address, const EmuTime& time)
 			// bit 5	FDCHG2	Disk Change detect on drive 2
 			// active low
 			result = 0x33;
-			if (controller.diskChanged(0)) result &= ~0x10;
-			if (controller.diskChanged(1)) result &= ~0x20;
+			if (controller->diskChanged(0)) result &= ~0x10;
+			if (controller->diskChanged(1)) result &= ~0x20;
 			break;
 		case 0x3FF4:
 		case 0x3FFA:
-			result = controller.readReg(4, time);
+			result = controller->readReg(4, time);
 			break;
 		case 0x3FF5:
 		case 0x3FFB:
-			result = controller.readReg(5, time);
+			result = controller->readReg(5, time);
 			break;
 		default:
 			result = 0xFF;
@@ -79,7 +81,7 @@ void TurboRFDC::writeMem(word address, byte value, const EmuTime& time)
 	//PRT_DEBUG("TurboRFDC: write 0x" << hex << (int)address << " 0x" << (int)value << dec);
 	if ((address == 0x6000) || (address == 0x7FF0) || (address == 0x7FFE)) {
 		MSXCPU::instance().invalidateMemCache(0x4000, 0x4000);
-		memory = &rom[0x4000 * (value & blockMask)];
+		memory = &(*rom)[0x4000 * (value & blockMask)];
 		return;
 	} else {
 		switch (address & 0x3FFF) {
@@ -93,19 +95,19 @@ void TurboRFDC::writeMem(word address, byte value, const EmuTime& time)
 			// bit 5	Motor Select Drive B
 			// Bit 6	Motor Select Drive C
 			// Bit 7	Motor Select Drive D
-			controller.writeReg(2, value, time);
+			controller->writeReg(2, value, time);
 			break;
 		case 0x3FF3:
 		case 0x3FF9:
-			controller.writeReg(3, value, time);
+			controller->writeReg(3, value, time);
 			break;
 		case 0x3FF4:
 		case 0x3FFA:
-			controller.writeReg(4, value, time);
+			controller->writeReg(4, value, time);
 			break;
 		case 0x3FF5:
 		case 0x3FFB:	// FDC data port
-			controller.writeReg(5, value, time);
+			controller->writeReg(5, value, time);
 			break;
 		}
 	}

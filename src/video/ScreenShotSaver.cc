@@ -15,6 +15,7 @@
 #include "FileException.hh"
 #include "CommandException.hh"
 #include "ReadDir.hh"
+#include <SDL.h>
 
 using std::string;
 

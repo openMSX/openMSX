@@ -3,8 +3,8 @@
 #ifndef __MSXMEMORYMAPPER_HH__
 #define __MSXMEMORYMAPPER_HH__
 
-#include <memory>
 #include "MSXDevice.hh"
+#include <memory>
 
 namespace openmsx {
 

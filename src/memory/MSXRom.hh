@@ -3,13 +3,14 @@
 #ifndef __MSXRom_HH__
 #define __MSXRom_HH__
 
+#include "MSXDevice.hh"
 #include <string>
 #include <memory>
-#include "MSXDevice.hh"
 
 namespace openmsx {
 
 class Rom;
+class MSXCPU;
 
 class MSXRom : public MSXDevice
 {

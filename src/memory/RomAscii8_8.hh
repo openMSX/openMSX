@@ -4,9 +4,10 @@
 #define __ROMASCII8_8_HH__
 
 #include "Rom8kBBlocks.hh"
-#include "SRAM.hh"
 
 namespace openmsx {
+
+class SRAM;
 
 class RomAscii8_8 : public Rom8kBBlocks
 {
@@ -21,7 +22,7 @@ public:
 	virtual byte* getWriteCacheLine(word address) const;
 
 private:
-	SRAM sram;
+	const std::auto_ptr<SRAM> sram;
 	byte sramEnabled;
 	byte sramBlock[8];
 	byte sramEnableBit;

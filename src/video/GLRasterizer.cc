@@ -20,6 +20,7 @@ TODO:
 #include "Renderer.hh"
 #include "RenderSettings.hh"
 #include "FloatSetting.hh"
+#include "IntegerSetting.hh"
 #include <cmath>
 
 using std::string;

@@ -3,10 +3,10 @@
 #ifndef __ROMINFO_HH__
 #define __ROMINFO_HH__
 
+#include "RomTypes.hh"
 #include <string>
 #include <memory>
 #include <set>
-#include "RomTypes.hh"
 
 namespace openmsx {
 

@@ -4,9 +4,11 @@
 #define __MSXFMPAC_HH__
 
 #include "MSXMusic.hh"
-#include "SRAM.hh"
+#include <memory>
 
 namespace openmsx {
+
+class SRAM;
 
 class MSXFmPac : public MSXMusic
 {
@@ -24,11 +26,11 @@ public:
 private:
 	void checkSramEnable();
 	
-	bool sramEnabled;
+	const std::auto_ptr<SRAM> sram;
 	byte enable;
 	byte bank;
 	byte r1ffe, r1fff;
-	SRAM sram;
+	bool sramEnabled;
 };
 
 } // namespace openmsx

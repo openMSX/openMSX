@@ -10,6 +10,7 @@ TODO:
 #include "Display.hh"
 #include "VideoSystem.hh"
 #include "RenderSettings.hh"
+#include "IntegerSetting.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 #include "SpriteChecker.hh"

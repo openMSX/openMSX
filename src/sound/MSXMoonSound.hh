@@ -3,8 +3,8 @@
 #ifndef __MSXMOONSOUND_HH__
 #define __MSXMOONSOUND_HH__
 
-#include <memory>
 #include "MSXDevice.hh"
+#include <memory>
 
 namespace openmsx {
 

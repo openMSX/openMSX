@@ -8,14 +8,9 @@
 
 namespace openmsx {
 
-class OSDConsoleRenderer;
-
-class Console: public EventListener
+class Console : public EventListener
 {
 public:
-	Console();
-	virtual ~Console();
-
 	void setColumns(unsigned columns);
 	unsigned getColumns() const;
 
@@ -27,6 +22,10 @@ public:
 	virtual void getCursorPosition(unsigned& xPosition, unsigned& yPosition) const = 0;
 	virtual void setCursorPosition(unsigned xPosition, unsigned yPosition) = 0;
 	virtual void setConsoleDimensions(unsigned columns, unsigned rows) = 0;
+
+protected:
+	Console();
+	virtual ~Console();
 
 private:
 	unsigned columns;

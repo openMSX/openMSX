@@ -8,7 +8,8 @@
 #include "GlobalSettings.hh"
 #include "CliCommOutput.hh"
 #include "xmlx.hh"
-#include <memory.h>
+#include "BooleanSetting.hh"
+#include <memory>
 
 using std::auto_ptr;
 using std::string;

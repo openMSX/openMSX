@@ -10,6 +10,7 @@
 #include "Event.hh"
 #include "EventDistributor.hh"
 #include "BooleanSetting.hh"
+#include "IntegerSetting.hh"
 #include "Dasm.hh"
 #include "CPUCore.hh"
 #include "Z80.hh"
@@ -28,32 +29,32 @@ template <class T> CPUCore<T>::CPUCore(
 	, IRQStatus(0)
 	, interface(NULL)
 	, scheduler(Scheduler::instance())
-	, freqLocked(name + "_freq_locked",
+	, freqLocked(new BooleanSetting(name + "_freq_locked",
 	             "real (locked) or custom (unlocked) " + name + " frequency",
-	             true)
-	, freqValue(name + "_freq",
+	             true))
+	, freqValue(new IntegerSetting(name + "_freq",
 	            "custom " + name + " frequency (only valid when unlocked)",
-	            T::CLOCK_FREQ, 1000000, 100000000)
+	            T::CLOCK_FREQ, 1000000, 100000000))
 	, freq(T::CLOCK_FREQ)
 	, traceSetting(traceSetting_)
 {
-	if (freqLocked.getValue()) {
+	if (freqLocked->getValue()) {
 		// locked
 		T::clock.setFreq(T::CLOCK_FREQ);
 	} else {
 		// unlocked
-		T::clock.setFreq(freqValue.getValue());
+		T::clock.setFreq(freqValue->getValue());
 	}
 
-	freqLocked.addListener(this);
-	freqValue.addListener(this);
+	freqLocked->addListener(this);
+	freqValue->addListener(this);
 	reset(time);
 }
 
 template <class T> CPUCore<T>::~CPUCore()
 {
-	freqValue.removeListener(this);
-	freqLocked.removeListener(this);
+	freqValue->removeListener(this);
+	freqLocked->removeListener(this);
 }
 
 template <class T> void CPUCore<T>::setMotherboard(MSXMotherBoard* motherboard_)
@@ -210,17 +211,17 @@ template <class T> void CPUCore<T>::doBreak()
 
 template <class T> void CPUCore<T>::update(const Setting* setting)
 {
-	if (setting == &freqLocked) {
-		if (freqLocked.getValue()) {
+	if (setting == freqLocked.get()) {
+		if (freqLocked->getValue()) {
 			// locked
 			T::clock.setFreq(freq);
 		} else {
 			// unlocked
-			T::clock.setFreq(freqValue.getValue());
+			T::clock.setFreq(freqValue->getValue());
 		}
-	} else if (setting == &freqValue) {
-		if (!freqLocked.getValue()) {
-			T::clock.setFreq(freqValue.getValue());
+	} else if (setting == freqValue.get()) {
+		if (!freqLocked->getValue()) {
+			T::clock.setFreq(freqValue->getValue());
 		}
 	} else {
 		assert(false);
@@ -230,7 +231,7 @@ template <class T> void CPUCore<T>::update(const Setting* setting)
 template <class T> void CPUCore<T>::setFreq(unsigned freq_)
 {
 	freq = freq_;
-	if (freqLocked.getValue()) {
+	if (freqLocked->getValue()) {
 		// locked
 		T::clock.setFreq(freq);
 	}

@@ -3,7 +3,6 @@
 #ifndef __ROMPANASONIC_HH__
 #define __ROMPANASONIC_HH__
 
-#include <memory>
 #include "Rom8kBBlocks.hh"
 
 namespace openmsx {

@@ -3,6 +3,7 @@
 #include "PhilipsFDC.hh"
 #include "CPU.hh"
 #include "DriveMultiplexer.hh"
+#include "WD2793.hh"
 #include "xmlx.hh"
 
 namespace openmsx {
@@ -30,19 +31,19 @@ byte PhilipsFDC::readMem(word address, const EmuTime& time)
 	byte value;
 	switch (address & 0x3FFF) {
 	case 0x3FF8:
-		value = controller.getStatusReg(time);
+		value = controller->getStatusReg(time);
 		break;
 	case 0x3FF9:
-		value = brokenFDCread ? 255 : controller.getTrackReg(time);
+		value = brokenFDCread ? 255 : controller->getTrackReg(time);
 		//TODO: check if such broken interfaces indeed return 255 or something else
 		// example of such machines : Sony 700 series
 		break;
 	case 0x3FFA:
-		value = brokenFDCread ? 255 : controller.getSectorReg(time);
+		value = brokenFDCread ? 255 : controller->getSectorReg(time);
 		//TODO: check if such broken interfaces indeed return 255 or something else
 		break;
 	case 0x3FFB:
-		value = controller.getDataReg(time);
+		value = controller->getDataReg(time);
 		break;
 	case 0x3FFC:
 		//bit 0 = side select
@@ -65,8 +66,8 @@ byte PhilipsFDC::readMem(word address, const EmuTime& time)
 		// bit 7: !dtrq
 		//TODO check other bits !!
 		value = 0xC0;
-		if (controller.getIRQ(time)) value &= ~0x40;
-		if (controller.getDTRQ(time)) value &= ~0x80;
+		if (controller->getIRQ(time)) value &= ~0x40;
+		if (controller->getDTRQ(time)) value &= ~0x80;
 		break;
 
 	default:
@@ -100,22 +101,22 @@ void PhilipsFDC::writeMem(word address, byte value, const EmuTime& time)
 	//PRT_DEBUG("PhilipsFDC write 0x" << hex << (int)address << " 0x" << (int)value << dec);
 	switch (address & 0x3FFF) {
 	case 0x3FF8:
-		controller.setCommandReg(value, time);
+		controller->setCommandReg(value, time);
 		break;
 	case 0x3FF9:
-		controller.setTrackReg(value, time);
+		controller->setTrackReg(value, time);
 		break;
 	case 0x3FFA:
-		controller.setSectorReg(value, time);
+		controller->setSectorReg(value, time);
 		break;
 	case 0x3FFB:
-		controller.setDataReg(value, time);
+		controller->setDataReg(value, time);
 		break;
 	case 0x3FFC:
 		//bit 0 = side select
 		//TODO check other bits !!
 		sideReg = value;
-		multiplexer.setSide(value & 1);
+		multiplexer->setSide(value & 1);
 		break;
 	case 0x3FFD:
 		//bit 1,0 -> drive number  (00 or 10: drive A, 01: drive B, 11: nothing)
@@ -136,8 +137,8 @@ void PhilipsFDC::writeMem(word address, byte value, const EmuTime& time)
 			default:
 				drive = DriveMultiplexer::NO_DRIVE;
 		}
-		multiplexer.selectDrive(drive, time);
-		multiplexer.setMotor((value & 128), time);
+		multiplexer->selectDrive(drive, time);
+		multiplexer->setMotor((value & 128), time);
 		break;
 	}
 }

@@ -4,14 +4,14 @@
 #define __MSXREALTIME_HH__
 
 #include "Schedulable.hh"
-#include "IntegerSetting.hh"
-#include "BooleanSetting.hh"
 #include "SettingListener.hh"
 #include "EmuTime.hh"
 
 namespace openmsx {
 
 class Scheduler;
+class IntegerSetting;
+class BooleanSetting;
 
 class RealTime : private Schedulable, private SettingListener
 {

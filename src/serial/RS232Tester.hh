@@ -3,17 +3,19 @@
 #ifndef __RS232TESTER_HH__
 #define __RS232TESTER_HH__
 
-#include <fstream>
-#include <cstdio>
-#include <deque>
 #include "openmsx.hh"
 #include "RS232Device.hh"
 #include "Thread.hh"
 #include "Schedulable.hh"
 #include "Semaphore.hh"
-#include "FilenameSetting.hh"
+#include <fstream>
+#include <cstdio>
+#include <deque>
+#include <memory>
 
 namespace openmsx {
+
+class FilenameSetting;
 
 class RS232Tester : public RS232Device, private Runnable, private Schedulable
 {
@@ -48,8 +50,8 @@ private:
 
 	std::ofstream outFile;
 
-	FilenameSetting rs232InputFilenameSetting;
-	FilenameSetting rs232OutputFilenameSetting;
+	const std::auto_ptr<FilenameSetting> rs232InputFilenameSetting;
+	const std::auto_ptr<FilenameSetting> rs232OutputFilenameSetting;
 };
 
 } // namespace openmsx

@@ -4,7 +4,8 @@
 #define __SDLSNOW_HH__
 
 #include "Layer.hh"
-#include <SDL.h>
+
+struct SDL_Surface;
 
 namespace openmsx {
 

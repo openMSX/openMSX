@@ -5,6 +5,7 @@
 
 #include "MSXSCCPlusCart.hh"
 #include "SCC.hh"
+#include "Ram.hh"
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
@@ -18,7 +19,7 @@ namespace openmsx {
 
 MSXSCCPlusCart::MSXSCCPlusCart(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time)
-	, ram(getName() + " RAM", "SCC+ RAM", 0x20000)
+	, ram(new Ram(getName() + " RAM", "SCC+ RAM", 0x20000))
 {
 	const XMLElement* fileElem = config.findChild("filename");
 	if (fileElem) {
@@ -27,7 +28,7 @@ MSXSCCPlusCart::MSXSCCPlusCart(const XMLElement& config, const EmuTime& time)
 		try {
 			File file(config.getFileContext().resolve(filename));
 			int romSize = file.getSize();
-			file.read(&ram[0], romSize);
+			file.read(&(*ram)[0], romSize);
 		} catch (FileException& e) {
 			throw FatalError("Error reading file: " + filename);
 		}
@@ -201,7 +202,7 @@ void MSXSCCPlusCart::setMapper(int regio, byte value)
 		block = unmappedRead;
 		isMapped[regio] = false;
 	} else {
-		block = &ram[0x2000 * value];
+		block = &(*ram)[0x2000 * value];
 		isMapped[regio] = true;
 	}
 	

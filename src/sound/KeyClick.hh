@@ -3,11 +3,13 @@
 #ifndef __KEYCLICK_HH__
 #define __KEYCLICK_HH__
 
-#include "DACSound8U.hh"
+#include <memory>
 
 namespace openmsx {
 
+class XMLElement;
 class EmuTime;
+class DACSound8U;
 
 class KeyClick
 {
@@ -19,7 +21,7 @@ public:
 	void setClick(bool status, const EmuTime& time);
 
 private:
-	DACSound8U dac;
+	const std::auto_ptr<DACSound8U> dac;
 	bool status;
 };
 

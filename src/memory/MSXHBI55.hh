@@ -3,12 +3,13 @@
 #ifndef __MSXHBI55_HH__
 #define __MSXHBI55_HH__
 
-#include <memory>
 #include "MSXDevice.hh"
 #include "I8255.hh"
-#include "SRAM.hh"
+#include <memory>
 
 namespace openmsx {
+
+class SRAM;
 
 class MSXHBI55 : public MSXDevice, public I8255Interface
 {
@@ -23,7 +24,7 @@ public:
 	virtual void writeIO(byte port, byte value, const EmuTime& time);
 
 private:
-	std::auto_ptr<I8255> i8255;
+	const std::auto_ptr<I8255> i8255;
 
 // I8255Interface
 public:
@@ -43,7 +44,7 @@ public:
 private:
 	byte readSRAM(word address) const;
 
-	SRAM sram;
+	const std::auto_ptr<SRAM> sram;
 	word readAddress;
 	word writeAddress;
 	byte addressLatch;

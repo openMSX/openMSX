@@ -4,8 +4,9 @@
 #define __SCREENSHOTSAVER_HH__
 
 #include <string>
-#include <SDL.h>
 #include "openmsx.hh"
+
+struct SDL_Surface;
 
 namespace openmsx {
 

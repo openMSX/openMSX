@@ -4,13 +4,14 @@
 #include "DummyIDEDevice.hh"
 #include "MSXCPU.hh"
 #include "IDEDeviceFactory.hh"
+#include "Rom.hh"
 #include "xmlx.hh"
 
 namespace openmsx {
 
 SunriseIDE::SunriseIDE(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time)
-	, rom(getName() + " ROM", "rom", config)
+	, rom(new Rom(getName() + " ROM", "rom", config))
 {
 	const XMLElement* masterElem = config.findChild("master");
 	const XMLElement* slaveElem  = config.findChild("slave");
@@ -125,11 +126,11 @@ void SunriseIDE::writeControl(byte value)
 	}
 
 	byte bank = reverse(value & 0xF8);
-	if (bank >= (rom.getSize() / 0x4000)) {
-		bank &= ((rom.getSize() / 0x4000) - 1);
+	if (bank >= (rom->getSize() / 0x4000)) {
+		bank &= ((rom->getSize() / 0x4000) - 1);
 	}
-	if (internalBank != &rom[0x4000 * bank]) {
-		internalBank = &rom[0x4000 * bank];
+	if (internalBank != &(*rom)[0x4000 * bank]) {
+		internalBank = &(*rom)[0x4000 * bank];
 		MSXCPU::instance().invalidateMemCache(0x4000, 0x4000);
 	}
 }

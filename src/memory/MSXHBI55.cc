@@ -32,18 +32,19 @@
  * http://cvs.sourceforge.net/viewcvs.py/bluemsx/blueMSX/Src/Memory/romMapperSonyHBI55.c
  */
 
-#include <cassert>
 #include "MSXHBI55.hh"
+#include "SRAM.hh"
+#include <cassert>
 
 namespace openmsx {
 
 // MSXDevice
 
 MSXHBI55::MSXHBI55(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time),
-	  sram(getName() + " SRAM", 0x1000, config)
+	: MSXDevice(config, time)
+	, i8255(new I8255(*this, time))
+	, sram(new SRAM(getName() + " SRAM", 0x1000, config))
 {
-	i8255.reset(new I8255(*this, time));
 
 	reset(time);
 }
@@ -169,7 +170,7 @@ void MSXHBI55::writeB(byte value, const EmuTime& /*time*/)
 			writeAddress = address;
 			break;
 		case 2:
-			sram[writeAddress] = writeLatch;
+			(*sram)[writeAddress] = writeLatch;
 			break;
 		case 3:
 			readAddress = address;
@@ -202,13 +203,13 @@ void MSXHBI55::writeC1(nibble value, const EmuTime& /*time*/)
 {
 	writeLatch = (writeLatch & 0x0F) | (value << 4);
 	if (mode == 1) {
-		sram[writeAddress] = writeLatch;
+		(*sram)[writeAddress] = writeLatch;
 	}
 }
 
 byte MSXHBI55::readSRAM(word address) const
 {
-	return address ? sram[address] : 0x53;
+	return address ? (*sram)[address] : 0x53;
 }
 
 } // namespace openmsx

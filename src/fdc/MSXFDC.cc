@@ -1,6 +1,7 @@
 // $Id$
 
 #include "MSXFDC.hh"
+#include "Rom.hh"
 #include "DiskDrive.hh"
 #include "xmlx.hh"
 #include "StringOp.hh"
@@ -9,7 +10,7 @@ namespace openmsx {
 
 MSXFDC::MSXFDC(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time)
-	, rom(getName() + " ROM", "rom", config) 
+	, rom(new Rom(getName() + " ROM", "rom", config))
 {
 	int numDrives = config.getChildDataAsInt("drives", 1);
 	if ((0 >= numDrives) || (numDrives >= 4)) {
@@ -38,12 +39,12 @@ void MSXFDC::powerDown(const EmuTime& time)
 
 byte MSXFDC::readMem(word address, const EmuTime& /*time*/)
 {
-	return rom[address & 0x3FFF];
+	return *getReadCacheLine(address);
 }
 
 const byte* MSXFDC::getReadCacheLine(word start) const
 {
-	return &rom[start & 0x3FFF];
+	return &(*rom)[start & 0x3FFF];
 }
 
 } // namespace openmsx

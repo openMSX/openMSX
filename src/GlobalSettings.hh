@@ -3,14 +3,14 @@
 #ifndef __GLOBALSETTINGS_HH__
 #define __GLOBALSETTINGS_HH__
 
-#include "IntegerSetting.hh"
-#include "BooleanSetting.hh"
-#include "StringSetting.hh"
-#include <memory.h>
+#include <memory>
 
 namespace openmsx {
 
 class XMLElement;
+class IntegerSetting;
+class BooleanSetting;
+class StringSetting;
 
 /**
  * This class contains settings that are used by several other class
@@ -28,19 +28,19 @@ public:
 	BooleanSetting& getPowerSetting();
 	BooleanSetting& getAutoSaveSetting();
 	BooleanSetting& getConsoleSetting();
-	StringSetting& getUserDirSetting();
+	StringSetting&  getUserDirSetting();
 	XMLElement& getMediaConfig();
 
 private:
 	GlobalSettings();
 	
-	IntegerSetting speedSetting;
-	BooleanSetting throttleSetting;
-	BooleanSetting pauseSetting;
-	BooleanSetting powerSetting;
-	BooleanSetting autoSaveSetting;
-	BooleanSetting consoleSetting;
-	StringSetting userDirSetting;
+	std::auto_ptr<IntegerSetting> speedSetting;
+	std::auto_ptr<BooleanSetting> throttleSetting;
+	std::auto_ptr<BooleanSetting> pauseSetting;
+	std::auto_ptr<BooleanSetting> powerSetting;
+	std::auto_ptr<BooleanSetting> autoSaveSetting;
+	std::auto_ptr<BooleanSetting> consoleSetting;
+	std::auto_ptr<StringSetting>  userDirSetting;
 	std::auto_ptr<XMLElement> mediaConfig;
 };
 

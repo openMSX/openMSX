@@ -7,6 +7,7 @@
 #include "Timer.hh"
 #include "RealTime.hh"
 #include "Scheduler.hh"
+#include "FloatSetting.hh"
 
 using std::pair;
 using std::string;
@@ -15,8 +16,9 @@ using std::vector;
 namespace openmsx {
 
 EventDistributor::EventDistributor()
-	//: delaySetting("inputdelay", "EXPERIMENTAL: delay input to avoid keyskips",
-	//               0.03, 0.0, 10.0)
+	//: delaySetting(new FloatSetting("inputdelay",
+	//               "EXPERIMENTAL: delay input to avoid keyskips",
+	//               0.03, 0.0, 10.0))
 {
 	prevReal = Timer::getTime();
 }
@@ -130,7 +132,7 @@ void EventDistributor::sync(const EmuTime& emuTime)
 
 	double factor = emuDuration.toDouble() / realDuration;
 	//EmuDuration extraDelay =
-	//	RealTime::instance().getEmuDuration(delaySetting.getValue());
+	//	RealTime::instance().getEmuDuration(delaySetting->getValue());
 	EmuDuration extraDelay =
 		RealTime::instance().getEmuDuration(0.03);
 	EmuTime time = prevEmu + extraDelay;

@@ -4,9 +4,11 @@
 #define __DSKDISKIMAGE__HH__
 
 #include "SectorBasedDisk.hh"
-#include "File.hh"
+#include <memory>
 
 namespace openmsx {
+
+class File;
 
 class DSKDiskImage : public SectorBasedDisk
 {
@@ -23,7 +25,7 @@ public:
 	virtual bool doubleSided();
 
 private:
-	File file;
+	std::auto_ptr<File> file;
 };
 
 } // namespace openmsx

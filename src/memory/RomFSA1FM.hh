@@ -5,10 +5,11 @@
 
 #include "MSXRom.hh"
 #include "Rom8kBBlocks.hh"
-#include "SRAM.hh"
-#include "FirmwareSwitch.hh"
 
 namespace openmsx {
+
+class SRAM;
+class FirmwareSwitch;
 
 class FSA1FMRam
 {
@@ -19,7 +20,7 @@ private:
 	FSA1FMRam(const XMLElement& config);
 	~FSA1FMRam();
 
-	SRAM sram;
+	const std::auto_ptr<SRAM> sram;
 };
 
 class RomFSA1FM1 : public MSXRom
@@ -38,7 +39,7 @@ public:
 
 private:
 	byte* sram;	// 8kb (shared) sram
-	FirmwareSwitch firmwareSwitch;
+	const std::auto_ptr<FirmwareSwitch> firmwareSwitch;
 };
 
 class RomFSA1FM2 : public Rom8kBBlocks

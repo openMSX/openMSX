@@ -3,6 +3,7 @@
 #include "MidiInReader.hh"
 #include "MidiInConnector.hh"
 #include "Scheduler.hh"
+#include "FilenameSetting.hh"
 #include <cstring>
 #include <cerrno>
 
@@ -12,9 +13,9 @@ namespace openmsx {
 
 MidiInReader::MidiInReader()
 	: thread(this), lock(1)
-	, readFilenameSetting("midi-in-readfilename",
+	, readFilenameSetting(new FilenameSetting("midi-in-readfilename",
 		"filename of the file where the MIDI input is read from",
-		"/dev/midi")
+		"/dev/midi"))
 {
 }
 
@@ -26,7 +27,7 @@ MidiInReader::~MidiInReader()
 // Pluggable
 void MidiInReader::plugHelper(Connector* connector_, const EmuTime& /*time*/)
 {
-	file = fopen(readFilenameSetting.getValue().c_str(), "rb");
+	file = fopen(readFilenameSetting->getValue().c_str(), "rb");
 	if (!file) {
 		throw PlugException("Failed to open input: "
 			+ string(strerror(errno)));

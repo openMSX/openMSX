@@ -3,13 +3,13 @@
 #ifndef __SunriseIDE_HH__
 #define __SunriseIDE_HH__
 
-#include <memory>
 #include "MSXDevice.hh"
-#include "Rom.hh"
+#include <memory>
 
 namespace openmsx {
 
 class IDEDevice;
+class Rom;
 
 class SunriseIDE : public MSXDevice
 {
@@ -35,7 +35,7 @@ private:
 	void writeData(word value, const EmuTime& time);
 	void writeReg(nibble reg, byte value, const EmuTime& time);
 
-	Rom rom;
+	const std::auto_ptr<Rom> rom;
 	const byte* internalBank;
 	bool ideRegsEnabled;
 	bool softReset;

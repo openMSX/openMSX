@@ -3,7 +3,6 @@
 #ifndef __ROMSYNTHESIZER_HH__
 #define __ROMSYNTHESIZER_HH__
 
-#include <memory>
 #include "Rom16kBBlocks.hh"
 
 namespace openmsx {

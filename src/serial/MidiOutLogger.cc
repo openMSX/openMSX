@@ -1,15 +1,16 @@
 // $Id$
 
 #include "MidiOutLogger.hh"
+#include "FilenameSetting.hh"
 
 using std::string;
 
 namespace openmsx {
 
 MidiOutLogger::MidiOutLogger()
-	: logFilenameSetting("midi-out-logfilename",
+	: logFilenameSetting(new FilenameSetting("midi-out-logfilename",
 		"filename of the file where the MIDI output is logged to",
-		"/dev/midi")
+		"/dev/midi"))
 {
 }
 
@@ -20,7 +21,7 @@ MidiOutLogger::~MidiOutLogger()
 void MidiOutLogger::plugHelper(Connector* /*connector*/,
                                const EmuTime& /*time*/)
 {
-	file.open(logFilenameSetting.getValue().c_str());
+	file.open(logFilenameSetting->getValue().c_str());
 	if (file.fail()) {
 		file.clear();
 		throw PlugException("Error opening log file");

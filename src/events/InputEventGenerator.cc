@@ -5,23 +5,24 @@
 #include "InputEventGenerator.hh"
 #include "EventDistributor.hh"
 #include "InputEvents.hh"
+#include "BooleanSetting.hh"
 
 namespace openmsx {
 
 InputEventGenerator::InputEventGenerator()
-	: grabInput("grabinput",
+	: grabInput(new BooleanSetting("grabinput",
 		"This setting controls if openmsx takes over mouse and keyboard input",
-		false),
-	  keyRepeat(false),
-	  distributor(EventDistributor::instance())
+		false))
+	, keyRepeat(false)
+	, distributor(EventDistributor::instance())
 {
-	grabInput.addListener(this);
+	grabInput->addListener(this);
 	reinit();
 }
 
 InputEventGenerator::~InputEventGenerator()
 {
-	grabInput.removeListener(this);
+	grabInput->removeListener(this);
 }
 
 InputEventGenerator& InputEventGenerator::instance()
@@ -173,8 +174,8 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 
 void InputEventGenerator::update(const Setting* setting)
 {
-	assert(setting == &grabInput);
-	SDL_WM_GrabInput(grabInput.getValue() ? SDL_GRAB_ON : SDL_GRAB_OFF);
+	assert(setting == grabInput.get());
+	SDL_WM_GrabInput(grabInput->getValue() ? SDL_GRAB_ON : SDL_GRAB_OFF);
 }
 
 } // namespace openmsx

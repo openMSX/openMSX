@@ -5,7 +5,6 @@
 
 #include "Rom8kBBlocks.hh"
 
-
 namespace openmsx {
 
 class RomPageNN : public Rom8kBBlocks

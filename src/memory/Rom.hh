@@ -3,10 +3,10 @@
 #ifndef __MSXROMDEVICE_HH__
 #define __MSXROMDEVICE_HH__
 
-#include <memory>
-#include <cassert>
 #include "openmsx.hh"
 #include "Debuggable.hh"
+#include <memory>
+#include <cassert>
 
 namespace openmsx {
 

@@ -3,13 +3,14 @@
 #include "RomNational.hh"
 #include "CPU.hh"
 #include "Rom.hh"
+#include "SRAM.hh"
 
 namespace openmsx {
 
 RomNational::RomNational(const XMLElement& config, const EmuTime& time,
                          std::auto_ptr<Rom> rom)
 	: Rom16kBBlocks(config, time, rom)
-	, sram(getName() + " SRAM", 0x1000, config)
+	, sram(new SRAM(getName() + " SRAM", 0x1000, config))
 {
 	reset(time);
 }
@@ -38,7 +39,7 @@ byte RomNational::readMem(word address, const EmuTime& time)
 	}
 	if ((control & 0x02) && ((address & 0x3FFF) == 0x3FFD)) {
 		// SRAM read
-		return sram[sramAddr++ & 0x0FFF];
+		return (*sram)[sramAddr++ & 0x0FFF];
 	}
 	return Rom16kBBlocks::readMem(address, time);
 }
@@ -82,7 +83,7 @@ void RomNational::writeMem(word address, byte value, const EmuTime& /*time*/)
 			// SRAM address bits 7-0
 			sramAddr = (sramAddr & 0xFFFF00) | value;
 		} else if (address == 0x3FFD) {
-			sram[sramAddr++ & 0x0FFF] = value;
+			(*sram)[sramAddr++ & 0x0FFF] = value;
 		}
 	}
 }

@@ -5,11 +5,11 @@
 
 #include <string>
 #include <memory>
-#include "Pluggable.hh"
 
 namespace openmsx {
 
 class EmuTime;
+class Pluggable;
 
 /**
  * Represents something you can plug devices into.
@@ -21,20 +21,9 @@ class Connector
 {
 public:
 	/**
-	 * Creates a new Connector.
-	 * @param name Name that identifies this connector.
-	 * @param dummy Dummy Pluggable whose class matches this Connector.
-	 */
-	Connector(const std::string& name, std::auto_ptr<Pluggable> dummy);
-
-	virtual ~Connector();
-
-	/**
 	 * Name that identifies this connector.
 	 */
-	const std::string& getName() const {
-		return name;
-	}
+	const std::string& getName() const;
 	
 	/**
 	 * Get a description for this connector
@@ -67,6 +56,15 @@ public:
 	virtual Pluggable& getPlugged() const = 0;
 
 protected:
+	/**
+	 * Creates a new Connector.
+	 * @param name Name that identifies this connector.
+	 * @param dummy Dummy Pluggable whose class matches this Connector.
+	 */
+	Connector(const std::string& name, std::auto_ptr<Pluggable> dummy);
+
+	virtual ~Connector();
+
 	Pluggable* plugged;
 
 private:

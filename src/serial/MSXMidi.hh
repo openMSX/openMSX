@@ -5,14 +5,14 @@
 
 #include "MSXDevice.hh"
 #include "I8251.hh"
-#include "I8254.hh"
 #include "IRQHelper.hh"
 #include "MidiInConnector.hh"
-#include "MidiOutConnector.hh"
 
 namespace openmsx {
 
 class ClockPin;
+class I8254;
+class MidiOutConnector;
 
 class MSXMidi: public MSXDevice, public MidiInConnector
 {
@@ -73,7 +73,7 @@ private:
 		MSXMidi& midi;
 	} cntr2;
 	
-	I8254 i8254;
+	const std::auto_ptr<I8254> i8254;
 
 	// I8251Interface
 	class I8251Interf : public I8251Interface {
@@ -94,8 +94,8 @@ private:
 		MSXMidi& midi;
 	} interf;
 	
-	I8251 i8251;
-	MidiOutConnector outConnector;
+	const std::auto_ptr<I8251> i8251;
+	const std::auto_ptr<MidiOutConnector> outConnector;
 };
 
 } // namespace openmsx

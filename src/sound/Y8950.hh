@@ -7,12 +7,14 @@
 #include "SoundDevice.hh"
 #include "IRQHelper.hh"
 #include "EmuTimer.hh"
-#include "Y8950Adpcm.hh"
-#include "Y8950KeyboardConnector.hh"
-#include "DACSound16S.hh"
 #include "Debuggable.hh"
+#include <memory>
 
 namespace openmsx {
+
+class Y8950Adpcm;
+class Y8950KeyboardConnector;
+class DACSound16S;
 
 class Y8950 : private SoundDevice, private EmuTimerCallback, private Debuggable
 {
@@ -335,14 +337,14 @@ private:
 	EmuTimer< 3125, STATUS_T2> timer2;
 
 	// ADPCM
-	Y8950Adpcm adpcm;
+	const std::auto_ptr<Y8950Adpcm> adpcm;
 	friend class Y8950Adpcm;
 
 	/** Keyboard connector. */
-	Y8950KeyboardConnector connector;
+	const std::auto_ptr<Y8950KeyboardConnector> connector;
 
 	/** 13-bit (exponential) DAC. */
-	DACSound16S dac13;
+	const std::auto_ptr<DACSound16S> dac13;
 
 	const std::string name;
 };

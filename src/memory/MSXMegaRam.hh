@@ -3,8 +3,8 @@
 #ifndef __MEGARAM_HH__
 #define __MEGARAM_HH__
 
-#include <memory>
 #include "MSXDevice.hh"
+#include <memory>
 
 namespace openmsx {
 

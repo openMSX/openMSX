@@ -3,23 +3,29 @@
 #include "GlobalSettings.hh"
 #include "xmlx.hh"
 #include "FileContext.hh"
+#include "IntegerSetting.hh"
+#include "BooleanSetting.hh"
+#include "StringSetting.hh"
 
 namespace openmsx {
 
 GlobalSettings::GlobalSettings()
-	: speedSetting("speed",
-	       "controls the emulation speed: higher is faster, 100 is normal",
-	       100, 1, 1000000)
-	, throttleSetting("throttle", "controls speed throttling", true)
-	, pauseSetting("pause", "pauses the emulation", false, Setting::DONT_SAVE)
-	, powerSetting("power", "turn power on/off", false, Setting::DONT_SAVE)
-	, autoSaveSetting("save_settings_on_exit",
-	                  "automatically save settings when openMSX exits",
-	                  true)
-	, consoleSetting("console", "turns console display on/off", false,
-	                 Setting::DONT_SAVE)
-	, userDirSetting("user_directories", "list of user directories", "")
 {
+	speedSetting.reset(new IntegerSetting("speed",
+	       "controls the emulation speed: higher is faster, 100 is normal",
+	       100, 1, 1000000));
+	throttleSetting.reset(new BooleanSetting("throttle",
+	       "controls speed throttling", true));
+	pauseSetting.reset(new BooleanSetting("pause", "pauses the emulation",
+	       false, Setting::DONT_SAVE));
+	powerSetting.reset(new BooleanSetting("power", "turn power on/off",
+	        false, Setting::DONT_SAVE));
+	autoSaveSetting.reset(new BooleanSetting("save_settings_on_exit",
+	        "automatically save settings when openMSX exits", true));
+	consoleSetting.reset(new BooleanSetting("console",
+	        "turns console display on/off", false, Setting::DONT_SAVE));
+	userDirSetting.reset(new StringSetting("user_directories",
+	        "list of user directories", ""));
 }
 
 GlobalSettings& GlobalSettings::instance()
@@ -30,37 +36,37 @@ GlobalSettings& GlobalSettings::instance()
 
 IntegerSetting& GlobalSettings::getSpeedSetting()
 {
-	return speedSetting;
+	return *speedSetting.get();
 }
 
 BooleanSetting& GlobalSettings::getThrottleSetting()
 {
-	return throttleSetting;
+	return *throttleSetting.get();
 }
 
 BooleanSetting& GlobalSettings::getPauseSetting()
 {
-	return pauseSetting;
+	return *pauseSetting.get();
 }
 
 BooleanSetting& GlobalSettings::getPowerSetting()
 {
-	return powerSetting;
+	return *powerSetting.get();
 }
 
 BooleanSetting& GlobalSettings::getAutoSaveSetting()
 {
-	return autoSaveSetting;
+	return *autoSaveSetting.get();
 }
 
 BooleanSetting& GlobalSettings::getConsoleSetting()
 {
-	return consoleSetting;
+	return *consoleSetting.get();
 }
 
 StringSetting& GlobalSettings::getUserDirSetting()
 {
-	return userDirSetting;
+	return *userDirSetting.get();
 }
 
 XMLElement& GlobalSettings::getMediaConfig()

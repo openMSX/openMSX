@@ -43,6 +43,7 @@ TODO:
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 #include "VDPSettings.hh"
+#include "BooleanSetting.hh"
 
 using std::min;
 using std::max;
@@ -324,7 +325,8 @@ void VDPCmdEngine::createEngines(int cmd) {
 
 VDPCmdEngine::VDPCmdEngine(VDP* vdp_)
 	: vdp(vdp_)
-	, cmdTraceSetting("vdpcmdtrace", "VDP command tracing on/off", false)
+	, cmdTraceSetting(new BooleanSetting("vdpcmdtrace",
+	                         "VDP command tracing on/off", false))
 {
 	vram = vdp->getVRAM();
 
@@ -538,7 +540,7 @@ void VDPCmdEngine::executeCommand(const EmuTime& time)
 		return;
 	}
 
-	if (cmdTraceSetting.getValue()) {
+	if (cmdTraceSetting->getValue()) {
 		reportVdpCommand();
 	}
 

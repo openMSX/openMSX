@@ -2,7 +2,9 @@
 
 #include "WavAudioInput.hh"
 #include "MSXException.hh"
+#include "FilenameSetting.hh"
 #include "CliCommOutput.hh"
+#include <SDL.h>
 
 using std::string;
 
@@ -11,17 +13,17 @@ namespace openmsx {
 WavAudioInput::WavAudioInput()
 	: length(0), buffer(0), freq(44100)
 	, plugged(false)
-	, audioInputFilenameSetting("audio-inputfilename",
+	, audioInputFilenameSetting(new FilenameSetting("audio-inputfilename",
 		"filename of the file where the sampler reads data from",
-		"audio-input.wav")
+		"audio-input.wav"))
 {
-	audioInputFilenameSetting.addListener(this);
+	audioInputFilenameSetting->addListener(this);
 }
 
 
 WavAudioInput::~WavAudioInput()
 {
-	audioInputFilenameSetting.removeListener(this);
+	audioInputFilenameSetting->removeListener(this);
 	freeWave();
 }
 
@@ -32,7 +34,8 @@ void WavAudioInput::loadWave()
 	SDL_AudioSpec wavSpec;
 	Uint8 *wavBuf;
 	Uint32 wavLen;
-	if (SDL_LoadWAV(audioInputFilenameSetting.getValueString().c_str(), &wavSpec, &wavBuf, &wavLen) == NULL) {
+	if (SDL_LoadWAV(audioInputFilenameSetting->getValueString().c_str(),
+	                &wavSpec, &wavBuf, &wavLen) == NULL) {
 		throw MSXException(string("WavAudioInput error: ") + SDL_GetError());
 	}
 
@@ -103,7 +106,7 @@ void WavAudioInput::unplugHelper(const EmuTime& /*time*/)
 
 void WavAudioInput::update(const Setting* setting)
 {
-	assert (setting == &audioInputFilenameSetting);
+	assert (setting == audioInputFilenameSetting.get());
 	if (plugged) {
 		try {
 			loadWave();

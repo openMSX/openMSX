@@ -3,8 +3,8 @@
 #ifndef __MSXSIMPLE64KB_HH__
 #define __MSXSIMPLE64KB_HH__
 
-#include <memory>
 #include "MSXDevice.hh"
+#include <memory>
 
 namespace openmsx {
 

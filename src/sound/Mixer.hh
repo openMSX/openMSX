@@ -3,10 +3,6 @@
 #ifndef __MIXER_HH__
 #define __MIXER_HH__
 
-#ifdef DEBUG
-//#define DEBUG_MIXER
-#endif
-
 #include <SDL.h>
 #include <vector>
 #include <map>
