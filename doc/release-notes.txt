@@ -8,8 +8,8 @@ This new release brings you the following improvements:
   to use their code in openMSX.
   Improvements and bug fixes were done by Arjan Bakker and our team.
 - New MSX devices:
-  * MegaRAM
-  * PAC (Panasonic SW-M001)
+  * MegaRAM
+  * PAC (Panasonic SW-M001)
   * Support for 8kB ROMs
 - New feature: grab input (try "set grabinput on").
   When enabled, the native mouse cursor cannot escape from the openMSX
@@ -24,10 +24,10 @@ This new release brings you the following improvements:
   It is fast, but very inaccurate.
 - Volume of sound devices can be adjusted at run time.
 - Various console updates:
-  * Commands can be on multiple lines.
-  * Search in command history.
-  * Command history is saved.
-  * Support in SDLHi/Lo for console font PNG images in indexed mode.
+  * Commands can be on multiple lines.
+  * Search in command history.
+  * Command history is saved.
+  * Support in SDLHi/Lo for console font PNG images in indexed mode.
     Previously, only images in RGB mode were supported.
   * Console remains usable when openMSX is paused.
 - Several machine configurations added (thanks to Albert Beevendorp).
@@ -37,7 +37,8 @@ This new release brings you the following improvements:
 
 Read the "ChangeLog" inside the archive for a detailed list of changes.
 In "doc/openMSX-HOWTO.txt" you can find a lot of useful information on
-openMSX, make sure you read this if you haven't used openMSX before.
+openMSX, make sure you read this if you haven't used openMSX before, but
+also to learn more about how to deal with the new and changed features.
 
 Known issues / caveats:
 - In its current alpha state, openMSX is usable for power users, but its
@@ -50,7 +51,8 @@ Known issues / caveats:
   machine descriptions, ROM database entries etc.
 - This openMSX release is only tested on Linux.
   Reikan maintains a Win32 port, which follows openMSX CVS closely, but is
-  not the same. You can find it at http://www.ranpub.com/openMSX4Win32/
+  not yet built from the exact same code base. You can find its binaries and
+  source patches at http://www.ranpub.com/openMSX4Win32/
   Running on BSD, Mac OS X, BeOS etc (wherever SDL runs) should be possible,
   but will probably not work out-of-the-box. If you are compiling on such a
   platform, please share your experiences (see below for contact info),
