@@ -133,8 +133,8 @@ void OSDConsoleRenderer::initConsoleSize()
 	if (!placementInitDone) // first time here ?
 		{	
 			std::string placementString;
-			consoleLines = (config->hasParameter("height") ? config->getParameterAsInt("height") : 0);
-			consoleColumns = (config->hasParameter("width") ? config->getParameterAsInt("width") : 0);
+			consoleLines = (config->hasParameter("rows") ? config->getParameterAsInt("rows") : 0);
+			consoleColumns = (config->hasParameter("columns") ? config->getParameterAsInt("columns") : 0);
 			// check if lines and columns of the console are valid
 			if ((consoleLines<1) || (consoleLines > (screen->h / font->getHeight())))
 				consoleLines=((screen->h / font->getHeight())*6)/15;
@@ -152,7 +152,7 @@ void OSDConsoleRenderer::initConsoleSize()
 		}	
 		Console::instance()->setConsoleColumns(consoleColumns);
 			
-		consoleLinesSetting = new IntegerSetting("consolelines","number of lines in the console",consoleLines,1,screen->h / font->getHeight());
+		consoleLinesSetting = new IntegerSetting("consolerows","number of rows in the console",consoleLines,1,screen->h / font->getHeight());
 		consoleColumnsSetting = new IntegerSetting("consolecolumns","number of columns in the console",consoleColumns,32,(screen->w - CHAR_BORDER) / font->getWidth());
 		consolePlacementSetting = new EnumSetting<OSDConsoleRenderer::Placement>(
 			"consoleplacement", "position of the console within the emulator", consolePlacement, placeMap);

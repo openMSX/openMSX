@@ -259,15 +259,6 @@ consolefont
     set consolefont          shows the current setting
     set consolefont <image>  sets a new font
     
-consolelines
---------------
-
-  Change the height of the console measured by the number of lines.
-
-  usage:
-    set consolelines               shows the current setting
-    set consolelines <value>       set the specified width
-
 consoleplacement
 ----------------
 
@@ -279,6 +270,15 @@ consoleplacement
 
   <place> can be topleft, top, topright, left, center, right, bottemleft,
   bottom and bottomright.
+
+consolerows
+--------------
+
+  Change the height of the console measured by the number of rows.
+
+  usage:
+    set consolerows               	shows the current setting
+    set consolerows <value>    set the specified width
 
 deinterlace
 -----------
