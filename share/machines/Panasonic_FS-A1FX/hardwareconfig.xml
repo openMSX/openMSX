@@ -3,6 +3,14 @@
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
 
+  <info>
+    <manufacturer>Panasonic</manufacturer>
+    <code>FS-A1FX</code>
+    <release_year>?</release_year>
+    <description></description>
+    <type>MSX2+</type>
+  </info>
+
   <config id="ExternalSlots">
     <parameter name="slota">1-0</parameter>
     <parameter name="slotb">2-0</parameter>

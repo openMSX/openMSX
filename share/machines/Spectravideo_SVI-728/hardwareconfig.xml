@@ -3,6 +3,14 @@
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
 
+  <info>
+    <manufacturer>Spectravideo</manufacturer>
+    <code>SVI-728</code>
+    <release_year>?</release_year>
+    <description></description>
+    <type>MSX</type>
+  </info>
+
   <config id="ExternalSlots">
     <parameter name="slota">2-0</parameter>
     <parameter name="slotb">3-0</parameter>

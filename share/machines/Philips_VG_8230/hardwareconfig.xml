@@ -3,7 +3,15 @@
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
 
-<config id="ExternalSlots">
+  <info>
+    <manufacturer>Philips</manufacturer>
+    <code>VG 8230</code>
+    <release_year></release_year>
+    <description></description>
+    <type>MSX2</type>
+  </info>
+
+  <config id="ExternalSlots">
     <parameter name="slota">1-0</parameter>
     <parameter name="slotb">2-0</parameter>
   </config>
