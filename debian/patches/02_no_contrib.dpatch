@@ -22,19 +22,16 @@ esac
 exit 0
 
 @DPATCH@
-diff -ur openmsx-0.5.0.orig/build/main.mk openmsx-0.5.0/build/main.mk
---- openmsx-0.5.0.orig/build/main.mk	2005-01-06 19:53:35.000000000 +0000
-+++ openmsx-0.5.0/build/main.mk	2005-01-06 20:06:24.000000000 +0000
-@@ -490,11 +490,6 @@
- 	@echo "  Data files..."
- 	@mkdir -p $(INSTALL_SHARE_DIR)
- 	@cp -rf share/* $(INSTALL_SHARE_DIR)/
+diff -ur openmsx-0.5.1.orig/build/main.mk openmsx-0.5.1/build/main.mk
+--- openmsx-0.5.1.orig/build/main.mk	2005-03-05 13:57:22.000000000 +0000
++++ openmsx-0.5.1/build/main.mk	2005-03-05 13:59:50.000000000 +0000
+@@ -503,9 +503,6 @@
+ 	@mkdir -p $(INSTALL_DOC_DIR)/manual
+ 	@cp -f $(addprefix doc/manual/,*.html *.css *.png) \
+ 		$(INSTALL_DOC_DIR)/manual
 -	@echo "  C-BIOS..."
--	@mkdir -p $(INSTALL_SHARE_DIR)/Contrib/cbios
--	@cp -f Contrib/README.cbios $(INSTALL_SHARE_DIR)/Contrib
--	@cp -f $(addprefix Contrib/cbios/,*.BIN *.txt *.rom) \
--		$(INSTALL_SHARE_DIR)/Contrib/cbios
- 	@echo "  Documentation..."
- 	@mkdir -p $(INSTALL_DOC_DIR)
- 	@cp -f README GPL AUTHORS $(INSTALL_DOC_DIR)
-
+-	@cp -f Contrib/README.cbios $(INSTALL_DOC_DIR)/cbios.txt
+-	@cp -rf Contrib/cbios/C-BIOS_* $(INSTALL_SHARE_DIR)/machines/
+ ifeq ($(USE_SYMLINK),true)
+ 	@echo "  Creating symlinks..."
+ 	@ln -nsf National_CF-1200 $(INSTALL_SHARE_DIR)/machines/msx1

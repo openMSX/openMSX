@@ -1,3 +1,9 @@
+openmsx (0.5.1-1) unstable; urgency=low
+
+  * new upstream release
+
+ -- Joost Yervante Damad <joost@lumatec.be>  Sat,  5 Mar 2005 14:54:30 +0100
+
 openmsx (0.5.0-10) unstable; urgency=low
 
   * close ITP (Closes: #221086)

@@ -2,6 +2,8 @@
 ##  by Joost Yervante Damad <joost@lumatec.be>
 ##
 ## DP: change the default machine to the external C-BIOS
+##
+## 2005/03/05: Patch no longer needed due to upstream fixed
 
 if [ $# -ne 1 ]; then
     echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
