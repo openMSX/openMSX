@@ -24,7 +24,7 @@ openmsx_SOURCES=openmsx.cc \
 	E6Timer.hh E6Timer.cc
 
 # libxml++ and SDL
-openmsx_LDADD= -lxml++ -lSDL
+openmsx_LDADD= -lxml++ -lSDL -lpthread
 
 # we want ALL warnings
 AM_CXXFLAGS = -Wall -DDEBUG -g -DLSB_FIRST

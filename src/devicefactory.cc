@@ -40,8 +40,12 @@ MSXDevice *deviceFactory::create(MSXConfig::Device *conf) {
 		device=new E6Timer();
 	};
 
-	assert (device != 0);
-	device->setConfigDevice(conf);
+	//assert (device != 0);
+	if (device == 0) {
+		PRT_DEBUG("device == 0  in devicefactory"); // TODO check
+	} else {
+		device->setConfigDevice(conf);
+	}
 	return device;
 }
 
