@@ -20,6 +20,9 @@ class Device;
 
 class MSXConfig
 {
+// Let GCC-3.2.3 be quiet...
+friend class dontGenerateWarningOnOlderCompilers;
+
 public:
 	/**
 	 * load a config file's content, and add it to
