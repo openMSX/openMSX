@@ -158,7 +158,8 @@ private:
 	  * depending on passed drawType.
 	  */
 	inline void draw(
-		int startX, int startY, int endX, int endY, DrawType drawType );
+		int startX, int startY, int endX, int endY, DrawType drawType,
+		bool atEnd);
 
 	/** Subdivide an area specified by two scan positions into a series of
 	  * rectangles.

@@ -19,7 +19,7 @@ namespace openmsx {
 static const int LINE_TOP_BORDER = 3 + 13;
 
 inline void PixelRenderer::draw(
-	int startX, int startY, int endX, int endY, DrawType drawType )
+	int startX, int startY, int endX, int endY, DrawType drawType, bool atEnd)
 {
 	switch(drawType) {
 	case DRAW_BORDER:
@@ -41,9 +41,11 @@ inline void PixelRenderer::draw(
 			} else {
 				displayY = (displayY & 7) | (textModeCounter * 8);
 			}
-			int low  = max(0, (startY - zero)) / 8;
-			int high = max(0, (endY   - zero)) / 8;
-			textModeCounter += (high - low);
+			if (atEnd && (drawType == DRAW_DISPLAY)) {
+				int low  = max(0, (startY - zero)) / 8;
+				int high = max(0, (endY   - zero)) / 8;
+				textModeCounter += (high - low);
+			}
 		}
 		
 		displayY &= 255; // Page wrap.
@@ -79,15 +81,10 @@ inline void PixelRenderer::subdivide(
 {
 	// Partial first line.
 	if (startX > clipL) {
+		bool atEnd = (startY != endY) || (endX > clipR);
 		if (startX < clipR) {
-			draw(
-				startX, startY,
-				( startY == endY && endX < clipR
-				? endX
-				: clipR
-				), startY + 1,
-				drawType
-				);
+			draw(startX, startY, (atEnd ? clipR : endX),
+			     startY + 1, drawType, atEnd);
 		}
 		if (startY == endY) return;
 		startY++;
@@ -101,13 +98,13 @@ inline void PixelRenderer::subdivide(
 	}
 	// Full middle lines.
 	if (startY < endY) {
-		draw(clipL, startY, clipR, endY, drawType);
+		draw(clipL, startY, clipR, endY, drawType, true);
 	}
 	// Actually draw last line if necessary.
 	// The point of keeping top-to-bottom draw order is that it increases
 	// the locality of memory references, which generally improves cache
 	// hit rates.
-	if (drawLast) draw(clipL, endY, endX, endY + 1, drawType);
+	if (drawLast) draw(clipL, endY, endX, endY + 1, drawType, false);
 }
 
 PixelRenderer::PixelRenderer(RendererFactory::RendererID id, VDP *vdp)
