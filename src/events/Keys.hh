@@ -169,6 +169,7 @@ class Keys {
 		};
 		
 		static Keys::KeyCode getCode(const string &name);
+		static Keys::KeyCode getCode(const SDLKey &key);
 		static const string &getName(const KeyCode keyCode);
 
 	private:

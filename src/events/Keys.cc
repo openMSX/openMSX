@@ -11,6 +11,11 @@ Keys::KeyCode Keys::getCode(const string &name)
 	return keymap[name];
 }
 
+Keys::KeyCode Keys::getCode(const SDLKey &key)
+{
+	return (Keys::KeyCode) key;
+}
+
 const string &Keys::getName(const KeyCode keyCode)
 {
 	static const string unknown("unknown");
