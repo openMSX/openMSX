@@ -6,6 +6,10 @@
 #include "openmsx.hh"
 #include "SoundDevice.hh"
 
+// forward declarations
+class EmuTime;
+
+
 class YM2413 : public SoundDevice
 {
 	class Patch {
@@ -88,11 +92,11 @@ class YM2413 : public SoundDevice
 	};
 
 	public:
-		YM2413(short volume);
+		YM2413(short volume, const EmuTime &time);
 		virtual ~YM2413();
 
-		void reset();
-		void writeReg(byte reg, byte value);
+		void reset(const EmuTime &time);
+		void writeReg(byte reg, byte value, const EmuTime &time);
 
 		void setInternalVolume(short maxVolume);
 		void setSampleRate(int sampleRate);

@@ -13,7 +13,7 @@ MSXYM2413::MSXYM2413(MSXConfig::Device *config, const EmuTime &time)
 	MSXMotherBoard::instance()->register_IO_Out(0x7c, this);
 	MSXMotherBoard::instance()->register_IO_Out(0x7d, this);
 	short volume = (short)deviceConfig->getParameterAsInt("volume");
-	ym2413 = new YM2413(volume);
+	ym2413 = new YM2413(volume, time);
 	reset(time);
 }
 
@@ -25,7 +25,7 @@ MSXYM2413::~MSXYM2413()
 
 void MSXYM2413::reset(const EmuTime &time)
 {
-	ym2413->reset();
+	ym2413->reset(time);
 	registerLatch = 0; // TODO check
 	enable = 0; 	// TODO check
 }
@@ -53,5 +53,5 @@ void MSXYM2413::writeRegisterPort(byte value, const EmuTime &time)
 void MSXYM2413::writeDataPort(byte value, const EmuTime &time)
 {
 	Mixer::instance()->updateStream(time);
-	ym2413->writeReg(registerLatch, value);
+	ym2413->writeReg(registerLatch, value, time);
 }

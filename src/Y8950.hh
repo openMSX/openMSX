@@ -7,6 +7,9 @@
 #include "openmsx.hh"
 #include "SoundDevice.hh"
 
+//forward declarations
+class EmuTime;
+
 
 class Y8950 : public SoundDevice
 {
@@ -136,7 +139,7 @@ class Y8950 : public SoundDevice
 		virtual ~Y8950();
 
 		void reset();
-		void writeReg(byte reg, byte data);
+		void writeReg(byte reg, byte data, const EmuTime &time);
 		byte readReg(byte reg);
 		byte readStatus();
 

@@ -50,7 +50,7 @@ void MSXAudio::writeIO(byte port, byte value, const EmuTime &time)
 		registerLatch = value;
 		break;
 	case 0xc1:
-		y8950->writeReg(registerLatch, value);
+		y8950->writeReg(registerLatch, value, time);
 		break;
 	default:
 		assert(false);

@@ -608,7 +608,7 @@ void YM2413::Channel::reset()
 
 
 // Constructor
-YM2413::YM2413(short volume)
+YM2413::YM2413(short volume, const EmuTime &time)
 {
 	for (int i=0; i<19*2; i++) {
 		patch[i] = new Patch();
@@ -627,7 +627,7 @@ YM2413::YM2413(short volume)
 	makeSinTable();
 	makeDefaultPatch();
 
-	reset();
+	reset(time);
 	reset_patch();
 
 	setVolume(volume);
@@ -658,7 +658,7 @@ YM2413::~YM2413()
 }
 
 // Reset whole of OPLL except patch datas
-void YM2413::reset()
+void YM2413::reset(const EmuTime &time)
 {
 	output[0] = 0;
 	output[1] = 0;
@@ -676,7 +676,7 @@ void YM2413::reset()
 		setPatch(i,0);
 	}
 	for (int i=0; i<0x40; i++)
-		writeReg(i, 0);
+		writeReg(i, 0, time);	// optimization: pass time only once
 	setInternalMute(true);	// set muted
 }
 
@@ -999,9 +999,12 @@ int* YM2413::updateBuffer(int length)
 //                                                  //
 //**************************************************//
 
-void YM2413::writeReg(byte regis, byte data)
+void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 {
 	int j, v, cha;
+
+	 // update the output buffer before changing the register
+	 Mixer::instance()->updateStream(time);
 
 	assert (regis < 0x40);
 	switch (regis) {

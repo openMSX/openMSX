@@ -721,7 +721,7 @@ int* Y8950::updateBuffer(int length)
 //                                                  //
 //**************************************************//
 
-void Y8950::writeReg(byte rg, byte data)
+void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 {
 	int stbl[32] = {
 		 0, 2, 4, 1, 3, 5,-1,-1,
@@ -729,6 +729,10 @@ void Y8950::writeReg(byte rg, byte data)
 		12,14,16,13,15,17,-1,-1,
 		-1,-1,-1,-1,-1,-1,-1,-1
 	};
+
+	//TODO only for registers that influence sound
+	 // update the output buffer before changing the register
+	 Mixer::instance()->updateStream(time);
 
 	if ((0x07<=rg)&&(rg<=0x12)) {
 		//adpcm->writeReg(rg, data);
