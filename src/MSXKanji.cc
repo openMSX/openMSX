@@ -1,4 +1,6 @@
 
+#include "config.h"
+
 #include <fstream>
 #include <iostream>
 #include <assert.h>
@@ -22,8 +24,11 @@ void MSXKanji::init()
 	buffer = new byte[ROM_SIZE];
 	if (buffer==NULL)
 		PRT_ERROR("Couldn't allocate Kanji buffer");
-	//std::ifstream<byte> file("KANJI.ROM");
+#ifdef HAVE_FSTREAM_TEMPL
+	std::ifstream<byte> file("KANJI.ROM");
+#else
 	std::ifstream file("KANJI.ROM");
+#endif
 	file.read(buffer, ROM_SIZE);
 	if (file.fail())
 		PRT_ERROR("Couldn't read from KANJI.ROM");
