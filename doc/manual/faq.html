@@ -127,7 +127,7 @@ With the EXE, your openMSX experience is only about 3 clicks away. The ZIP file 
 The real GFX9000 has an external video connector to which you can connect a second monitor. Because of limits of the SDL library we used to create openMSX, we cannot have more than one window for openMSX, so we cannot emulate a second monitor. To see the GFX9000 in action, you need to switch the videosource setting, which equals to a so-called SCART-switch in the real world: <code>set videosource GFX9000</code>. If you started openMSX without GFX9000 extension, this videosource is not available. To get your normal MSX screen back, you should type <code>set videosource MSX</code>. If you want to toggle with a hot key between them, it might be useful to bind a key for it. E.g.: <code>bind F6 cycle videosource</code>. <code>cycle</code> is a TCL command that cycles through the options of the setting in the parameter. 
 </p>
 
-<p>Note that GFX9000 emulation does not work with the SDLGL renderer yet.</p>
+<p>Note that GFX9000 emulation does not work with the SDLGL renderer yet and that it's incomplete, slow and buggy anyways...</p>
 
 <h2><a id="leds">10. Great, those new OSD LEDs! How do I get rid of them?</a></h2>
 
