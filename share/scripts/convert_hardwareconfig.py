@@ -372,6 +372,7 @@ def convertDevice(node):
 	
 	# Convert parameters.
 	slotted = []
+	drives = 0
 	for child in list(node.childNodes):
 		if child.nodeType == node.ELEMENT_NODE:
 			if child.nodeName == 'type':
@@ -386,6 +387,9 @@ def convertDevice(node):
 					newName = None
 				elif newName == 'slotted':
 					slotted.append(parseSlotted(child))
+					newName = None
+				elif newName is not None and newName.startswith('drivename'):
+					drives += 1
 					newName = None
 				if newName is None:
 					print '    remove parameter "' + child.nodeName + '"'
@@ -405,6 +409,14 @@ def convertDevice(node):
 
 	# Note: must happen here because fdc_type can rename node.
 	node = renameElement(node, deviceType)
+
+	# Insert <drives> tag to replace "drivename" parameters.
+	if drives != 0:
+		print '    inserting drive tag'
+		drivesNode = node.ownerDocument.createElement('drives')
+		numNode = node.ownerDocument.createTextNode(str(drives))
+		drivesNode.appendChild(numNode)
+		node.appendChild(drivesNode)
 
 	# Bundle generic ROM parameters in <rom> tag.
 	if deviceType != 'DebugDevice':
