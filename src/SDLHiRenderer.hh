@@ -38,7 +38,7 @@ public:
 
 	// Renderer interface:
 
-	//void frameStart(const EmuTime &time);
+	void frameStart(const EmuTime &time);
 	//void putImage(const EmuTime &time);
 	void setFullScreen(bool);
 	void updateTransparency(bool enabled, const EmuTime &time);
@@ -120,6 +120,11 @@ private:
 	/** DirtyCheckers for each display mode.
 	  */
 	static DirtyChecker modeToDirtyChecker[];
+
+	/** Line to render at top of display.
+	  * After all, our screen is 240 lines while display is 262 or 313.
+	  */
+	int lineRenderTop;
 
 	/** SDL colours corresponding to each VDP palette entry.
 	  * palFg has entry 0 set to the current background colour,

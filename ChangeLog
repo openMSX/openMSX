@@ -1,5 +1,8 @@
 $Id$
 
+2002-10-29 Maarten ter Huurne <mth@stack.nl>
+	* Minor cleanups in PixelRenderer and SDLHiRenderer.
+
 2002-10-27 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented mapper type "NATIONAL":
 	   completely untested, will have to wait till this weekend

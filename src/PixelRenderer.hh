@@ -120,11 +120,6 @@ protected:
 	  */
 	SpriteChecker *spriteChecker;
 
-	/** Line to render at top of display.
-	  * After all, our screen is 240 lines while display is 262 or 313.
-	  */
-	int lineRenderTop;
-
 private:
 	/** Indicates whether the area to be drawn is border or display. */
 	enum DrawType { DRAW_BORDER, DRAW_DISPLAY };
@@ -170,10 +165,6 @@ private:
 	  * Expressed in number of lines above lineRenderTop.
 	  */
 	int nextY;
-
-	/** Absolute line number of first bottom erase line.
-	  */
-	int lineBottomErase;
 
 	/** Frame skip command
 	  */

@@ -156,18 +156,6 @@ void PixelRenderer::updateDisplayEnabled(bool enabled, const EmuTime &time)
 
 void PixelRenderer::frameStart(const EmuTime &time)
 {
-	//cerr << "timing: " << (vdp->isPalTiming() ? "PAL" : "NTSC") << "\n";
-
-	// Calculate line to render at top of screen.
-	// Make sure the display area is centered.
-	// 240 - 212 = 28 lines available for top/bottom border; 14 each.
-	// NTSC: display at [32..244),
-	// PAL:  display at [59..271).
-	// TODO: Use screen lines instead.
-	lineRenderTop = vdp->isPalTiming() ? 59 - 14 : 32 - 14;
-
-	// Calculate important moments in frame rendering.
-	lineBottomErase = vdp->isPalTiming() ? 313 - 3 : 262 - 3;
 	nextX = 0;
 	nextY = 0;
 

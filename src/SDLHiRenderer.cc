@@ -336,6 +336,20 @@ template <class Pixel> SDLHiRenderer<Pixel>::~SDLHiRenderer()
 	SDL_FreeSurface(bitmapDisplayCache);
 }
 
+template <class Pixel> void SDLHiRenderer<Pixel>::frameStart(
+	const EmuTime &time)
+{
+	// Call superclass implementation.
+	PixelRenderer::frameStart(time);
+
+	// Calculate line to render at top of screen.
+	// Make sure the display area is centered.
+	// 240 - 212 = 28 lines available for top/bottom border; 14 each.
+	// NTSC: display at [32..244),
+	// PAL:  display at [59..271).
+	lineRenderTop = vdp->isPalTiming() ? 59 - 14 : 32 - 14;
+}
+
 template <class Pixel> void SDLHiRenderer<Pixel>::setFullScreen(
 	bool fullScreen)
 {
