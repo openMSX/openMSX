@@ -61,7 +61,7 @@ public:
 		);
 
 protected:
-	// SettingListener interface:   TODO remove??
+	// SettingListener interface:
 	virtual void update(const Setting* setting);
 
 private:
