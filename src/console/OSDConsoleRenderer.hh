@@ -89,7 +89,6 @@ class OSDConsoleRenderer : public ConsoleRenderer
 	private:
 		void adjustColRow();
 
-		std::map<std::string, Placement> placeMap;
 		static int wantedColumns;
 		static int wantedRows;
 		int currentMaxX;

@@ -71,21 +71,21 @@ OSDConsoleRenderer::OSDConsoleRenderer()
 	try {
 		Config *config = MSXConfig::instance()->getConfigById("Console");
 		context = config->getContext();
-		
+
 		try {
 			if (!initiated && config->hasParameter("font")) {
 				fontName = config->getParameter("font");
 				fontName = context->resolve(fontName);
 			}
 		} catch (FileException &e) {}
-		
+
 		try {
 			if (!initiated && config->hasParameter("background")) {
 				backgroundName = config->getParameter("background");
 				backgroundName = context->resolve(backgroundName);
 			}
 		} catch (FileException &e) {}
-	
+
 		initiated = true;
 		font = new DummyFont();
 	} catch (MSXException &e) {
@@ -130,8 +130,9 @@ void OSDConsoleRenderer::setFontName(const std::string &name)
 void OSDConsoleRenderer::initConsoleSize()
 {
 	static bool placementInitDone = false;
-	
+
 	// define all possible positions
+	std::map<const std::string, Placement> placeMap;
 	placeMap["topleft"]     = CP_TOPLEFT;
 	placeMap["top"]         = CP_TOP;
 	placeMap["topright"]    = CP_TOPRIGHT;
@@ -141,7 +142,7 @@ void OSDConsoleRenderer::initConsoleSize()
 	placeMap["bottomleft"]  = CP_BOTTOMLEFT;
 	placeMap["bottom"]      = CP_BOTTOM;
 	placeMap["bottomright"] = CP_BOTTOMRIGHT;
-	
+
 	Config *config = MSXConfig::instance()->getConfigById("Console");
 
 	if (!placementInitDone) {
@@ -169,16 +170,21 @@ void OSDConsoleRenderer::initConsoleSize()
 		}
 	}
 	adjustColRow();
-	
+
 	Console::instance()->setConsoleColumns(consoleColumns);
 
-	consoleColumnsSetting = new IntegerSetting("consolecolumns",
-	        "number of columns in the console", wantedColumns, 32, 999);
-	consoleRowsSetting = new IntegerSetting("consolerows",
-	        "number of rows in the console", wantedRows, 1, 99);
+	consoleColumnsSetting = new IntegerSetting(
+		"consolecolumns", "number of columns in the console",
+		wantedColumns, 32, 999
+		);
+	consoleRowsSetting = new IntegerSetting(
+		"consolerows", "number of rows in the console",
+		wantedRows, 1, 99
+		);
 	consolePlacementSetting = new EnumSetting<OSDConsoleRenderer::Placement>(
-                "consoleplacement", "position of the console within the emulator",
-	        consolePlacement, placeMap);
+		"consoleplacement", "position of the console within the emulator",
+		consolePlacement, placeMap
+		);
 }
 
 void OSDConsoleRenderer::adjustColRow()
