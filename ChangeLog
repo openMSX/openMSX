@@ -1,5 +1,11 @@
 $Id$
 
+2002-04-08 David Heremans <david.heremans@gnu-linux.net>
+	* Added support for Hydlide2 type to MSXGameCartridge.
+	* Added generic support for SRAM to MSXGameCartridge.
+	* Enhanced CommandLineParser to support SRAM filenames
+	  for games.
+
 2002-04-08 Maarten ter Huurne <mth@stack.nl>
 	* Took character scanline conversion out of SDLHiRenderer as well,
 	  its new home is a class called CharacterConverter.

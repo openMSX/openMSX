@@ -236,6 +236,9 @@
      <parameter name="readromfile">false</parameter>
      <parameter name="filename">NEMESIS2.ROM</parameter>
     <parameter name="volume">13000</parameter>
+    <parameter name="loadsram">true</parameter>
+    <parameter name="savesram">true</parameter>
+    <parameter name="sramname">GAME.SRAM</parameter>
   </device>
 -->
   <device id="Penguin Adventure Cartridge">
@@ -251,6 +254,9 @@
       <page>2</page>
     </slotted>
     <parameter name="filename">PENGUIN.ROM</parameter>
+    <parameter name="loadsram">true</parameter>
+    <parameter name="savesram">true</parameter>
+    <parameter name="sramname">GAME.SRAM</parameter>
   </device>
 <!--
   <device id="KonamiSynthesizer">
@@ -268,6 +274,9 @@
     <parameter name="filename">Synthesizer.rom</parameter>
     <parameter name="mappertype">64</parameter>
     <parameter name="volume">13000</parameter>
+    <parameter name="loadsram">true</parameter>
+    <parameter name="savesram">true</parameter>
+    <parameter name="sramname">GAME.SRAM</parameter>
   </device>
 --> 
   <device id="FM PAC">
@@ -352,6 +361,9 @@
     <parameter name="volume">11500</parameter>
     <parameter name="automappertype">false</parameter>
     <parameter name="mappertype">2</parameter>
+    <parameter name="loadsram">true</parameter>
+    <parameter name="savesram">true</parameter>
+    <parameter name="sramname">GAME.SRAM</parameter>
   </device>
 
 </msxconfig>

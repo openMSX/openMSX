@@ -227,6 +227,9 @@ void CommandLineParser::configureCartridge(char* filename)
   } else {
      s << "true</parameter>";
   };
+  s << "<parameter name=\"loadsram\">true</parameter>";
+  s << "<parameter name=\"savesram\">true</parameter>";
+  s << "<parameter name=\"sramname\">"<<sfile<<".SRAM</parameter>";
   s << " </device>";
   s << "</msxconfig>";
   PRT_INFO(s.str());

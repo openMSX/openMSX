@@ -7,6 +7,9 @@
 #include "CPU.hh"
 #include <map>
 
+
+const byte MSXGameCartridge::adr2pag[];
+
 MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXMemDevice(config, time), MSXRom(config, time)
 {
@@ -35,6 +38,28 @@ MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &tim
 	
 	mapperType = retrieveMapperType();
 
+	// only if needed reserve memory for SRAM
+	regioSRAM=0;
+	maskSRAM = (mapperType == 16) ? 0x07FF : 0x1FFF ;
+	if (mapperType&16) {
+		enabledSRAM= true;
+		memorySRAM = new byte[0x2000];
+	} else {
+		try {
+			if (deviceConfig->getParameterAsBool("loadsram")) {
+				std::string filename = deviceConfig->getParameter("sramname");
+				IFILETYPE* file = FileOpener::openFileRO(filename);
+				file->read(memorySRAM, 0x2000);
+				file->close();
+				delete file;
+			}
+		} catch (MSXException &e) {
+			// do nothing
+		}
+		enabledSRAM= false;
+		memorySRAM = NULL;
+	}
+
 	// only instantiate SCC if needed
 	if (mapperType==2) {
 		short volume = (short)config->getParameterAsInt("volume");
@@ -61,6 +86,14 @@ MSXGameCartridge::~MSXGameCartridge()
 		delete dac;
 	if (cartridgeSCC)
 		delete cartridgeSCC;
+	if ((mapperType&16) && deviceConfig->getParameterAsBool("savesram")) {
+		std::string filename = deviceConfig->getParameter("sramname");
+		IOFILETYPE* file = FileOpener::openFileTruncate(filename);
+		file->write(memorySRAM, 0x2000);
+		file->close();
+		delete file;
+	}
+	delete [] memorySRAM; 
 }
 
 void MSXGameCartridge::reset(const EmuTime &time)
@@ -72,13 +105,16 @@ void MSXGameCartridge::reset(const EmuTime &time)
 	if (dac) {
 		dac->reset(time);
 	}
+	// After a reset SRAM is not selected in all known cartrdiges
+	regioSRAM=0;
+
 	if (mapperType < 128 ) {
 		// TODO: mirror if number of 8kB blocks not fully filled ?
 		setBank(0, 0);			// unused
 		setBank(1, 0);			// unused
 		setBank(2, memoryBank);		// 0x4000 - 0x5fff
 		setBank(3, memoryBank+0x2000);	// 0x6000 - 0x7fff
-		if (mapperType == 5) {
+		if (mapperType == 16 || mapperType == 5) {
 			setBank(4, memoryBank);	// 0x8000 - 0x9fff
 			setBank(5, memoryBank+0x2000);	// 0xa000 - 0xbfff
 		} else {
@@ -169,6 +205,20 @@ int MSXGameCartridge::retrieveMapperType()
 
 			mappertype["6"]=6;
 			mappertype["GAMEMASTER2"]=6;
+
+			//Not implemented yet
+			mappertype["7"]=7;
+			mappertype["RTYPE"]=7;
+			
+			//Cartridges with sram
+			mappertype["16"]=16;
+			mappertype["HYDLIDE2"]=16;
+
+			mappertype["17"]=17;
+			mappertype["GAMEMASTER2"]=17;
+			mappertype["RC755"]=17;
+
+			// Done
 
 			mappertype["64"]=64;
 			mappertype["KONAMIDAC"]=64;
@@ -276,8 +326,9 @@ byte MSXGameCartridge::readMem(word address, const EmuTime &time)
 
 byte* MSXGameCartridge::getReadCacheLine(word start)
 {
-	if (enabledSCC && 0x9800<=start && start<0xA000) {
-		// don't cache SCC
+	if ( (enabledSRAM && adr2pag[start>>13]&regioSRAM)
+	    || (enabledSCC && 0x9800<=start && start<0xA000)) {
+		// don't cache SRAM and SCC
 		return NULL;
 	} else {
 		// assumes CACHE_LINE_SIZE <= 0x2000
@@ -390,8 +441,44 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		break;
 	case 6:
 		//--==**>> GameMaster2+SRAM cartridge <<**==--
-		//// GameMaster2 mayi become an independend MSXDevice
+		//// GameMaster2 may become an independend MSXDevice
 		assert(false);
+		break;
+	case 16:
+		//--==**>> HYDLIDE2 cartridges <<**==--
+		// this type is is almost completely a ASCII16 cartrdige
+		// However, it has 2kB of SRAM (and 128 kB ROM)
+		// Use value 0x10 to select the SRAM.
+		// SRAM in page 1 => read-only
+		// SRAM in page 2 => read-write
+		// The 2Kb SRAM (0x800 bytes) are mirrored in the 16 kB block
+		//
+		// The address to change banks (from ASCII16):
+		//  first  16kb: 0x6000 - 0x67FF (0x6000 used)
+		//  second 16kb: 0x7000 - 0x77FF (0x7000 and 0x77FF used)
+
+		if (address<0x6000 || address>=0x7800 || (address&0x800)){
+			//Normal ASCII16 would return but maybe 
+			//we are writting to the SRAM?
+			if (adr2pag[address>>13]&regioSRAM&0x0C){ 
+				for (word adr=address & maskSRAM;adr<0x2000;adr+=0x800)
+					memorySRAM[adr]=value;
+			}
+		} else {
+			region = ((address>>11)&2)+2;
+			if (value == 0x10){
+				// SRAM block
+				setBank(region,   memorySRAM);
+				setBank(region+1, memorySRAM);
+				regioSRAM|=(region==2?0x03:0x0c);
+			} else {
+				// Normal 16 kB ROM page
+				value = (2*value)&mapperMask;
+				setBank(region,   memoryBank+(value<<13));
+				setBank(region+1, memoryBank+(value<<13)+0x2000);
+				regioSRAM&=(region==2?0xFD:0xF4);
+			}
+		};
 		break;
 	case 64:
 		//--==**>> <<**==--
