@@ -2,6 +2,7 @@ $Id$
 
 2005-02-01 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* documented icon related settings
+	* Fixed 13-bit MSX-AUDIO DAC
 
 2005-02-01 David Heremans <david.heremans@gnu-linux.net>
 	* An extra set of LED images.
@@ -22,7 +23,7 @@ $Id$
 	* When a new settings is created and a TCL variable with the same name
 	  is alreday defined, then take this value as initial setting value:
 	   fixes icon stuff defined in init.tcl when openmsx is started with
-	   renderer none (-control mode)
+	   enderer none (-control mode)
 	* Only use one .filecache file for all rom pools:
 	   this file is put in the (writable) user directory
 

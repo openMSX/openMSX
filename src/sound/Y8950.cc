@@ -954,9 +954,11 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime& time)
 		case 0x15: // DAC-DATA  (bit9-2)
 			reg[rg] = data;
 			if (reg[0x08] & 0x04) {
-				short value = (((short)reg[0x15] << 8) | 
-				                       reg[0x16]) >> reg[0x17];
-				dac13->writeDAC(value, time);
+				int tmp = ((signed char)reg[0x15]) * 256 + reg[0x16];
+				tmp = (tmp * 4) >> (7 - reg[0x17]);
+				if (tmp > 32767) tmp = 32767;
+				else if (tmp < -32768) tmp = -32768;
+				dac13->writeDAC(tmp, time);
 			}
 			break;
 		case 0x16: //           (bit1-0)
