@@ -1,5 +1,10 @@
 $Id$
 
+2004-10-08 Maarten ter Huurne <maarten@treewalker.org>
+	* Fixed crash if openMSX exits without starting emulation.
+	* Ignore old-format settings.xml at startup instead of aborting.
+	* Fixed help option if no settings.xml exists.
+
 2004-10-07 Manuel Bilderbeek <manuel@msxnet.org>
 	* Renamed save_settings_at_exit to save_settings_on_exit
 	* Renamed FrontSwitch to FirmwareSwitch everywhere in the code
