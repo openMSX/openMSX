@@ -7,9 +7,6 @@
 #include <memory>
 #include "RomTypes.hh"
 
-using std::string;
-using std::auto_ptr;
-
 namespace openmsx {
 
 class Rom;
@@ -18,19 +15,19 @@ class XMLElement;
 class RomInfo
 {
 public:
-	RomInfo(const string& nid, const string& nyear,
-		const string& ncompany, const string& nremark,
+	RomInfo(const std::string& nid, const std::string& nyear,
+		const std::string& ncompany, const std::string& nremark,
 		const MapperType& nmapperType);
 	~RomInfo();
 
-	const string& getTitle()          const { return title; }
-	const string& getYear()           const { return year; }
-	const string& getCompany()        const { return company; }
-	const string& getRemark()         const { return remark; }
+	const std::string& getTitle()     const { return title; }
+	const std::string& getYear()      const { return year; }
+	const std::string& getCompany()   const { return company; }
+	const std::string& getRemark()    const { return remark; }
 	const MapperType& getMapperType() const { return mapperType; }
 
-	static auto_ptr<RomInfo> fetchRomInfo(const Rom& rom);
-	static MapperType nameToMapperType(const string& name);
+	static std::auto_ptr<RomInfo> fetchRomInfo(const Rom& rom);
+	static MapperType nameToMapperType(const std::string& name);
 	void print();
 
 private:
@@ -39,12 +36,12 @@ private:
 	  * @return The information found in the database,
 	  * 	or NULL if the given ROM is not in the database.
 	  */
-	static auto_ptr<RomInfo> searchRomDB(const Rom& rom);
+	static std::auto_ptr<RomInfo> searchRomDB(const Rom& rom);
 
-	string title;
-	string year;
-	string company;
-	string remark;
+	std::string title;
+	std::string year;
+	std::string company;
+	std::string remark;
 	MapperType mapperType;
 };
 

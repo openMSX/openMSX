@@ -5,6 +5,7 @@
 #include "RomInfo.hh"
 #include "RomPageNN.hh"
 #include "RomPlain.hh"
+#include "RomDRAM.hh"
 #include "RomGeneric8kB.hh"
 #include "RomGeneric16kB.hh"
 #include "RomKonami4.hh"
@@ -30,6 +31,8 @@
 #include "RomFSA1FM.hh"
 #include "Rom.hh"
 #include "xmlx.hh"
+
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -165,6 +168,8 @@ auto_ptr<MSXDevice> RomFactory::create(const XMLElement& config,
 			return auto_ptr<MSXDevice>(new RomPageNN(config, time, rom, type & 0xF));
 		case PLAIN:
 			return auto_ptr<MSXDevice>(new RomPlain(config, time, rom));
+		case DRAM:
+			return auto_ptr<MSXDevice>(new RomDRAM(config, time, rom));
 		case GENERIC_8KB:
 			return auto_ptr<MSXDevice>(new RomGeneric8kB(config, time, rom));
 		case GENERIC_16KB:

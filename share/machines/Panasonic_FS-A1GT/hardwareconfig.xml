@@ -33,6 +33,7 @@
       <secondary slot="0">
         <ROM id="MSX BIOS with BASIC ROM">
           <mem base="0x0000" size="0x8000"/>
+          <mappertype>DRAM</mappertype>
           <rom>
             <firstblock>40</firstblock>
             <lastblock>43</lastblock>
@@ -83,6 +84,7 @@
       <secondary slot="1">
         <ROM id="MSX Sub ROM">
           <mem base="0x0000" size="0x4000"/>
+          <mappertype>DRAM</mappertype>
           <rom>
             <firstblock>56</firstblock>
             <lastblock>57</lastblock>
@@ -90,6 +92,7 @@
         </ROM>
         <ROM id="MSX Kanji Driver with BASIC">
           <mem base="0x4000" size="0x8000"/>
+          <mappertype>DRAM</mappertype>
           <rom>
             <firstblock>58</firstblock>
             <lastblock>61</lastblock>

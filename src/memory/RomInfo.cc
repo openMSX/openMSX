@@ -84,6 +84,7 @@ MapperType RomInfo::nameToMapperType(const string& name)
 		
 		mappertype["64kB"]        = PLAIN;
 		mappertype["PLAIN"]       = PLAIN;
+		mappertype["DRAM"]        = DRAM;
 		
 		// SRAM
 		mappertype["HYDLIDE2"]    = HYDLIDE2;

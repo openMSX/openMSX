@@ -13,7 +13,7 @@ SRC_HDR:= \
 	MSXRom \
 	Rom4kBBlocks Rom8kBBlocks Rom16kBBlocks \
 	RomPlain RomPageNN RomGeneric8kB RomGeneric16kB \
-	RomKonami4 RomKonami5 \
+	RomDRAM RomKonami4 RomKonami5 \
 	RomAscii8kB RomAscii8_8 RomAscii16kB \
 	RomHydlide2 RomRType RomCrossBlaim RomHarryFox \
 	RomGameMaster2 RomMajutsushi RomSynthesizer \

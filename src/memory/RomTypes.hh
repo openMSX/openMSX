@@ -24,6 +24,7 @@ enum MapperType {
 	PLAIN        = 15,
 	FSA1FM1      = 16,
 	FSA1FM2      = 17,
+	DRAM         = 18,
 
 	PAGE0        = 32 + 1,
 	PAGE1        = 32 + 2,

@@ -3,15 +3,11 @@
 #ifndef __MSXROMDEVICE_HH__
 #define __MSXROMDEVICE_HH__
 
-#include <vector>
 #include <memory>
 #include <cassert>
 #include "RomInfo.hh"
 #include "openmsx.hh"
 #include "Debuggable.hh"
-
-using std::vector;
-using std::auto_ptr;
 
 namespace openmsx {
 
@@ -60,8 +56,8 @@ private:
 	unsigned size;
 	const byte* rom;
 
-	auto_ptr<File> file;
-	auto_ptr<RomInfo> info;
+	std::auto_ptr<File> file;
+	std::auto_ptr<RomInfo> info;
 
 	mutable string sha1sum;
 };

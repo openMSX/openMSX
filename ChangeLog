@@ -1,5 +1,8 @@
 $Id$
 
+2004-12-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed TurboR DRAM support, TRCAS works now
+
 2004-12-12 Manuel Bilderbeek <manuel@msxnet.org>
 	* Removed the annoying [alpha] notice. It's clear enough we're alpha... 
 	  :)
