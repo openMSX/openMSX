@@ -175,6 +175,7 @@ class RealDrive : public DiskDrive, public Command
 		void ejectDisk();
 
 		string name;
+		string diskName;
 };
 
 

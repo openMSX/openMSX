@@ -129,6 +129,7 @@ RealDrive::RealDrive(const string &driveName, const EmuTime &time)
 	headLoadTime = time;
 	
 	name = driveName;
+	diskName = "";
 	disk = NULL;
 	
 	MSXConfig *conf = MSXConfig::instance();
@@ -257,19 +258,30 @@ void RealDrive::insertDisk(FileContext &context,
 	}
 	delete disk;
 	disk = tmp;
+	diskName = diskImage;
 }
 
 void RealDrive::ejectDisk()
 {
 	PRT_DEBUG("Ejecting disk");
 	delete disk;
+	diskName = "";
 	disk = new DummyDisk();
 }
 
 void RealDrive::execute(const vector<string> &tokens)
 {
+	if (tokens.size() == 1)
+	{
+		if (diskName.length()>0)
+			print ("Current disk: " + diskName);
+		else
+			print ("There is currently no disk inserted");
+	}
+	else
 	if (tokens.size() != 2)
 		throw CommandException("Syntax error");
+	else
 	if (tokens[1] == "eject") {
 		ejectDisk();
 	} else {

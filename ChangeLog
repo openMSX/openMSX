@@ -1,5 +1,9 @@
 $Id$
 
+2003-09-06 Manuel Bilderbeek <manuel@msxnet.org>
+	* diska/diskb/etc without argument shows the currently inserted disk
+	  now
+
 2003-09-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* VDPCmdEngine: corrcet behaviour when registers are changed while cmd
 	   is executing. There seem to be a few glitched left though.
