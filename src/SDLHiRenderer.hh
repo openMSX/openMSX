@@ -198,9 +198,9 @@ private:
 	  */
 	int lineDisplay;
 
-	/** Absolute line number of first bottom border line.
+	/** Absolute line number of first bottom erase line.
 	  */
-	int lineBottomBorder;
+	int lineBottomErase;
 
 	/** Line to render at top of display.
 	  * After all, our screen is 240 lines while display is 262 or 313.

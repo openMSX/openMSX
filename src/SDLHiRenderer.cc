@@ -63,6 +63,11 @@ TODO:
 static const int WIDTH = 640;
 static const int HEIGHT = 480;
 
+/** Line number where top border starts.
+  * This is independent of PAL/NTSC timing or number of lines per screen.
+  */
+static const int LINE_TOP_BORDER = 3 + 13;
+
 /** Fill a boolean array with a single value.
   * Optimised for byte-sized booleans,
   * but correct for every size.
@@ -79,14 +84,8 @@ inline static void fillBool(bool *ptr, bool value, int nr)
 template <class Pixel> inline void SDLHiRenderer<Pixel>::renderUntil(
 	int limit)
 {
-	/*
-	if (nextLine != limit) {
-		cout << "render display lines ["
-			<< (nextLine - lineDisplay) << ".."
-			<< (limit - lineDisplay)
-			<< ") in mode " << vdp->getDisplayMode() << "\n";
-	}
-	*/
+	// TODO: Once displayPhase handles page wraps internally,
+	//       this "while" can become an "if".
 	while (nextLine < limit) {
 		(this->*phaseHandler)(limit);
 	}
@@ -388,13 +387,8 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateDisplayEnabled(
 	bool enabled, const EmuTime &time)
 {
 	sync(time);
-
-	// When display is re-enabled, consider every pixel dirty.
-	// TODO: Is there a way to avoid this?
-	if (enabled) {
-		dirtyForeground = true;
-		setDirty(true);
-	}
+	phaseHandler = ( enabled
+		? &SDLHiRenderer::displayPhase : &SDLHiRenderer::blankPhase );
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::updateDisplayMode(
@@ -443,7 +437,16 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateSpritePatternBase(
 template <class Pixel> void SDLHiRenderer<Pixel>::updateVRAM(
 	int addr, byte data, const EmuTime &time)
 {
-	sync(time);
+	// TODO: Is it possible to get rid of this method?
+	//       One method call is a considerable overhead since VRAM
+	//       changes occur pretty often.
+	//       For example, register dirty checker at caller.
+
+	// If display is disabled, VRAM changes will not affect the
+	// renderer output, therefore sync is not necessary.
+	// TODO: Changes in invisible pages do not require sync either.
+	if (vdp->isDisplayEnabled()) sync(time);
+
 	(this->*dirtyChecker)(addr, data, time);
 }
 
@@ -791,6 +794,9 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderBogus(
 template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 	int absLine)
 {
+	// TODO: Can there be sprites before line 0 on overscan?
+	if (absLine < lineDisplay) return;
+
 	// Determine sprites visible on this line.
 	VDP::SpriteInfo *visibleSprites;
 	int visibleIndex =
@@ -902,66 +908,59 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 template <class Pixel> void SDLHiRenderer<Pixel>::blankPhase(
 	int limit)
 {
-	// Check for end of phase.
-	if (nextLine < lineBottomBorder && limit > lineDisplay
-	&& vdp->isDisplayEnabled()) {
-		// Display ends blank phase.
-		phaseHandler = &SDLHiRenderer::displayPhase;
-		limit = lineDisplay;
+	// TODO: Only redraw if necessary.
+	SDL_Rect rect;
+	rect.x = 0;
+	rect.y = nextLine - lineRenderTop;
+	rect.w = WIDTH;
+	rect.h = limit - nextLine;
+
+	// Clip to area actually displayed.
+	// TODO: Does SDL_FillRect clip as well?
+	if (rect.y < 0) {
+		rect.h += rect.y;
+		rect.y = 0;
+	}
+	else if (rect.y + rect.h > HEIGHT) {
+		rect.h = HEIGHT - rect.y;
 	}
 
-	// Render lines up to limit.
-	if (nextLine < limit) {
-		// TODO: Only redraw if necessary.
-		SDL_Rect rect;
-		rect.x = 0;
-		rect.y = nextLine - lineRenderTop;
-		rect.w = WIDTH;
-		rect.h = limit - nextLine;
-
-		// Clip to area actually displayed.
-		if (rect.y < 0) {
-			rect.h += rect.y;
-			rect.y = 0;
-		}
-		else if (rect.y + rect.h > HEIGHT) {
-			rect.h = HEIGHT - rect.y;
-		}
-
-		if (rect.h > 0) {
-			rect.y *= 2;
-			rect.h *= 2;
-			// SCREEN6 has separate even/odd pixels in the border.
-			// TODO: Implement the case that even_colour != odd_colour.
-			Pixel bgColour = palBg[
-				( vdp->getDisplayMode() == 0x10
-				? vdp->getBackgroundColour() & 3
-				: vdp->getBackgroundColour()
-				)];
-			// Note: return code ignored.
-			SDL_FillRect(screen, &rect, bgColour);
-		}
-		nextLine = limit;
+	// Draw lines in background colour.
+	if (rect.h > 0) {
+		rect.y *= 2;
+		rect.h *= 2;
+		// SCREEN6 has separate even/odd pixels in the border.
+		// TODO: Implement the case that even_colour != odd_colour.
+		Pixel bgColour = palBg[
+			( vdp->getDisplayMode() == 0x10
+			? vdp->getBackgroundColour() & 3
+			: vdp->getBackgroundColour()
+			)];
+		// Note: return code ignored.
+		SDL_FillRect(screen, &rect, bgColour);
 	}
+
+	// We're up-to-date now.
+	nextLine = limit;
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	int limit)
 {
-	// Check for end of phase.
-	// TODO: Check whether overscan works with this implementation.
-	if (!vdp->isDisplayEnabled()) {
-		// Forced blanking ends display phase.
-		phaseHandler = &SDLHiRenderer::blankPhase;
+	//cerr << "displayPhase from " << nextLine << " until " << limit << "\n";
+
+	int numLines = limit - nextLine;
+	// Check for bottom erase; even on overscan this suspends display.
+	if (limit > lineBottomErase) {
+		numLines = lineBottomErase - nextLine;
+	}
+	if (nextLine + numLines > lineRenderTop + HEIGHT) {
+		numLines = lineRenderTop + HEIGHT - nextLine;
+	}
+	if (numLines <= 0) {
+		nextLine = limit;
 		return;
 	}
-	if (limit > lineBottomBorder) {
-		// Bottom border ends display phase.
-		phaseHandler = &SDLHiRenderer::blankPhase;
-		limit = lineBottomBorder;
-	}
-	int numLines = limit - nextLine;
-	if (numLines <= 0) return;
 
 	// Perform vertical scroll.
 	int scrolledLine =
@@ -1054,7 +1053,8 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 		// Display will be wrong, but this is not really critical.
 		return;
 	}
-	for (int line = nextLine; line < limit; line++) {
+	int line = nextLine;
+	for (int n = numLines; n--; line++) {
 		drawSprites(line);
 	}
 	// Unlock surface.
@@ -1081,6 +1081,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	dest.w = WIDTH - dest.x;
 	SDL_FillRect(screen, &dest, bgColour);
 
+	//cerr << "nextLine was " << nextLine << ", becomes " << limit << "\n";
 	nextLine = limit;
 }
 
@@ -1093,11 +1094,9 @@ template <class Pixel> void SDLHiRenderer<Pixel>::frameStart()
 	// PAL:  display at [59..271).
 	lineRenderTop = vdp->isPalTiming() ? 59 - 14 : 32 - 14;
 
-	// Calculate start and end line of display.
-	// TODO: Implement overscan: don't calculate end in advance,
-	//       but recalculate it every line.
+	// Calculate important moments in frame rendering.
 	lineDisplay = vdp->getDisplayStart() / VDP::TICKS_PER_LINE;
-	lineBottomBorder = lineDisplay + vdp->getNumberOfLines();
+	lineBottomErase = vdp->isPalTiming() ? 313 - 3 : 262 - 3;
 	nextLine = lineRenderTop;
 
 	// Screen is up-to-date, so nothing is dirty.
@@ -1115,7 +1114,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::putImage(
 
 	// Render console if needed
 	Console::instance()->drawConsole();
-	
+
 	// Update screen.
 	// Note: return value ignored.
 	SDL_Flip(screen);

@@ -341,6 +341,7 @@ VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
 	}
 
 	// Init scheduling.
+	vScanSyncTime = 0;
 	hScanSyncTime = 0;
 	frameStart(time);
 
@@ -401,6 +402,7 @@ void VDP::resetInit(const EmuTime &time)
 	memcpy(palette, V9938_PALETTE, 16 * sizeof(word));
 
 	// TODO: Real VDP probably resets timing as well.
+	isDisplayArea = false;
 }
 
 void VDP::reset(const EmuTime &time)
@@ -442,12 +444,28 @@ void VDP::executeUntilEmuTime(const EmuTime &time, int userData)
 		frameStart(time);
 		break;
 	}
+	case DISPLAY_START:
+		// Display area starts here, unless we're doing overscan and it
+		// was already active.
+		if (!isDisplayArea) {
+			if (controlRegs[1] & 0x40) {
+				renderer->updateDisplayEnabled(true, time);
+			}
+			isDisplayArea = true;
+		}
+		break;
 	case VSCAN:
 		// Update sprite buffer.
 		// TODO: This is a patch to cover up an inaccuracy.
 		//       Most programs change sprite attributes on VSCAN int.
 		//       The right way to do it is sync on VRAM writes.
 		updateSprites(time);
+
+		// VSCAN is the end of display.
+		if (isDisplayEnabled()) {
+			renderer->updateDisplayEnabled(false, time);
+		}
+		isDisplayArea = false;
 
 		// Vertical scanning occurs.
 		statusReg0 |= 0x80;
@@ -458,14 +476,7 @@ void VDP::executeUntilEmuTime(const EmuTime &time, int userData)
 		// TODO: If it is correct, implement it in scheduleHScan instead:
 		//       it is faster not the schedule HSCAN in the first place
 		//       than to ignore a sync.
-		/*
-		int ticksThisFrame = getTicksThisFrame(time);
-		int displayEnd =
-			displayStart + getNumberOfLines() * TICKS_PER_LINE;
-		bool vr = ticksThisFrame < displayStart
-			|| ticksThisFrame >= displayEnd;
-		if (vr) break;
-		*/
+		//if (!isDisplayArea) break;
 
 		// Horizontal scanning occurs.
 		if (controlRegs[0] & 0x10) irqHorizontal.set();
@@ -475,6 +486,39 @@ void VDP::executeUntilEmuTime(const EmuTime &time, int userData)
 		assert(false);
 	}
 
+}
+
+void VDP::scheduleVScan(const EmuTime &time)
+{
+	/*
+	cerr << "scheduleVScan @ " << (getTicksThisFrame(time) / TICKS_PER_LINE) << "\n";
+	if (vScanSyncTime < frameStartTime) {
+		cerr << "old VSCAN was previous frame\n";
+	} else {
+		cerr << "old VSCAN was " << (frameStartTime.getTicksTill(vScanSyncTime) / TICKS_PER_LINE) << "\n";
+	}
+	*/
+
+	// Remove pending VSCAN sync point, if any.
+	if (vScanSyncTime > time) {
+		Scheduler::instance()->removeSyncPoint(this, VSCAN);
+		//cerr << "removing predicted VSCAN sync point\n";
+	}
+
+	// Calculate moment in time display end occurs.
+	vScanSyncTime = frameStartTime + (displayStart +
+			( controlRegs[9] & 0x80
+			? 212 * TICKS_PER_LINE
+			: 192 * TICKS_PER_LINE
+			)
+		);
+	//cerr << "new VSCAN is " << (frameStartTime.getTicksTill(vScanSyncTime) / TICKS_PER_LINE) << "\n";
+
+	// Register new VSCAN sync point.
+	if (vScanSyncTime > time) {
+		Scheduler::instance()->setSyncPoint(vScanSyncTime, this, VSCAN);
+		//cerr << "inserting new VSCAN sync point\n";
+	}
 }
 
 void VDP::scheduleHScan(const EmuTime &time)
@@ -503,7 +547,7 @@ void VDP::scheduleHScan(const EmuTime &time)
 // TODO: inline?
 void VDP::frameStart(const EmuTime &time)
 {
-	//cout << "VDP::frameStart @ " << time << "\n";
+	//cerr << "VDP::frameStart @ " << time << "\n";
 
 	// Toggle E/O.
 	// Actually this should occur half a line earlier,
@@ -529,17 +573,10 @@ void VDP::frameStart(const EmuTime &time)
 		  : (3 + 13 + 26) * TICKS_PER_LINE
 		  )
 		);
-	//cout << "VDP::frameStart PASS 1\n";
-	scheduleHScan(time);
-	//cout << "VDP::frameStart PASS 2\n";
 	Scheduler::instance()->setSyncPoint(
-		frameStartTime + (displayStart +
-			( controlRegs[9] & 0x80
-			? 212 * TICKS_PER_LINE
-			: 192 * TICKS_PER_LINE
-			)
-		), this, VSCAN);
-	//cout << "VDP::frameStart PASS 3\n";
+		frameStartTime + displayStart, this, DISPLAY_START);
+	scheduleHScan(time);
+	scheduleVScan(time);
 	Scheduler::instance()->setSyncPoint(
 		frameStartTime + getTicksPerFrame(),
 		this, VSYNC);
@@ -556,7 +593,7 @@ void VDP::frameStart(const EmuTime &time)
 void VDP::updateSprites1(int limit)
 {
 	// TODO: Replace by display / blank check.
-	if (limit > 212) limit = 212;
+	if (limit > 256) limit = 256;
 	for ( ; spriteLine < limit; spriteLine++) {
 		spriteCount[spriteLine] =
 			checkSprites1(spriteLine, spriteBuffer[spriteLine]);
@@ -566,7 +603,7 @@ void VDP::updateSprites1(int limit)
 void VDP::updateSprites2(int limit)
 {
 	// TODO: Replace by display / blank check.
-	if (limit > 212) limit = 212;
+	if (limit > 256) limit = 256;
 	for ( ; spriteLine < limit; spriteLine++) {
 		spriteCount[spriteLine] =
 			checkSprites2(spriteLine, spriteBuffer[spriteLine]);
@@ -797,7 +834,10 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 			updateDisplayMode(controlRegs[0], val, time);
 		}
 		if (change & 0x40) {
-			renderer->updateDisplayEnabled(!isDisplayEnabled(), time);
+			bool newDisplayEnabled = isDisplayArea && (val & 0x40);
+			if (newDisplayEnabled != isDisplayEnabled()) {
+				renderer->updateDisplayEnabled(newDisplayEnabled, time);
+			}
 		}
 		break;
 	case 2: {
@@ -893,6 +933,11 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		if (change & 0x20) { // IE0
 			if (!(val & 0x20)) irqVertical.reset();
 		}
+		break;
+	case 9:
+		// If number of display lines (192/212) changes,
+		// end of display changes as well.
+		if (change & 0x80) scheduleVScan(time);
 		break;
 	case 19:
 	case 23:

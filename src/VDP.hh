@@ -266,10 +266,12 @@ public:
 	}
 
 	/** Is the display enabled?
-	  * @return True if enabled, False if blanked.
+	  * Both the regular border and forced blanking by clearing
+	  * the display enable bit are considered disabled display.
+	  * @return true iff enabled.
 	  */
 	inline bool isDisplayEnabled() {
-		return (controlRegs[1] & 0x40);
+		return isDisplayArea && (controlRegs[1] & 0x40);
 	}
 
 	/** Get name table mask.
@@ -370,6 +372,8 @@ public:
 	}
 
 	/** Gets the number of display lines per screen.
+	  * Note: accurate renderer rely on updateDisplayEnabled instead,
+	  * so they can handle overscan.
 	  * @return 192 or 212.
 	  */
 	inline int getNumberOfLines() {
@@ -423,6 +427,9 @@ private:
 		/** Vertical sync: the transition from one frame to the next.
 		  */
 		VSYNC,
+		/** Start of display.
+		  */
+		DISPLAY_START,
 		/** Vertical scanning: end of display.
 		  */
 		VSCAN,
@@ -539,6 +546,13 @@ private:
 	  */
 	void frameStart(const EmuTime &time);
 
+	/** Schedules a VSCAN sync point.
+	  * Also removes a pending VSCAN sync, if any.
+	  * @param time The moment in emulated time this call takes place.
+	  *   Note: time is not the VSCAN sync time!
+	  */
+	void scheduleVScan(const EmuTime &time);
+
 	/** Schedules a HSCAN sync point.
 	  * Also removes a pending HSCAN sync, if any.
 	  * @param time The moment in emulated time this call takes place.
@@ -599,6 +613,10 @@ private:
 	  */
 	MSXMotherBoard::IRQHelper irqHorizontal;
 
+	/** Is the current scan position inside the display area?
+	  */
+	bool isDisplayArea;
+
 	/** VDP ticks between start of frame and start of display.
 	  */
 	int displayStart;
@@ -607,6 +625,10 @@ private:
 	  * scan match occurs.
 	  */
 	int horizontalScanOffset;
+
+	/** Time of last set VSCAN sync point.
+	  */
+	EmuTime vScanSyncTime;
 
 	/** Time of last set HSCAN sync point.
 	  */
@@ -718,14 +740,14 @@ private:
 	/** Buffer containing the sprites that are visible on each
 	  * display line.
 	  */
-	SpriteInfo spriteBuffer[212][32];
+	SpriteInfo spriteBuffer[256][32];
 
 	/** Buffer containing the number of sprites that are visible
 	  * on each display line.
 	  * In other words, spriteCount[i] is the number of sprites
 	  * in spriteBuffer[i].
 	  */
-	int spriteCount[212];
+	int spriteCount[256];
 
 	/** First byte written through port #99, or -1 for none.
 	  */
