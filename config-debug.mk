@@ -5,3 +5,6 @@
 
 # Debug flags.
 CXXFLAGS+=-O0 -g -DDEBUG
+
+# Strip executable?
+OPENMSX_STRIP:=false

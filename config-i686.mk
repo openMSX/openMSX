@@ -6,5 +6,5 @@
 # Optimisation flags.
 CXXFLAGS+=-O3 -mcpu=pentiumpro -march=pentiumpro -ffast-math -funroll-loops
 
-# Strip executable.
-LDFLAGS+=--strip-all
+# Strip executable?
+OPENMSX_STRIP:=true

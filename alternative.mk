@@ -12,6 +12,8 @@
 # Default build flavour: probably the best for most users.
 OPENMSX_FLAVOUR?=i686
 
+BUILD_PATH:=derived/$(OPENMSX_FLAVOUR)
+
 # Load flavour specific settings.
 CXXFLAGS:=
 LDFLAGS:=
@@ -22,11 +24,35 @@ CXXFLAGS+=-pipe
 # Stricter warning and error reporting.
 CXXFLAGS+=-Wall
 
+# Flags for profiling.
+OPENMSX_PROFILE?=false
+ifneq ($(OPENMSX_PROFILE),true)
+  ifneq ($(OPENMSX_PROFILE),false)
+    $(error Value of OPENMSX_PROFILE ("$(OPENMSX_PROFILE)") should be "true" or "false")
+  endif
+endif
+ifeq ($(OPENMSX_PROFILE),true)
+  CXXFLAGS+=-pg
+  BUILD_PATH:=$(BUILD_PATH)-profile
+endif
+
+# Strip binary?
+OPENMSX_STRIP?=false
+ifneq ($(OPENMSX_STRIP),true)
+  ifneq ($(OPENMSX_STRIP),false)
+    $(error Value of OPENMSX_STRIP ("$(OPENMSX_STRIP)") should be "true" or "false")
+  endif
+endif
+ifeq ($(OPENMSX_PROFILE),true)
+  OPENMSX_STRIP:=false
+endif
+ifeq ($(OPENMSX_STRIP),true)
+  LDFLAGS+=--strip-all
+endif
+
 LIBS_EXTERNAL:=stdc++ xml2 SDL SDL_image GL
 # TODO: Find the right place for this.
 INCLUDE_EXTERNAL:=/usr/include/libxml2
-
-BUILD_PATH:=derived/$(OPENMSX_FLAVOUR)
 
 # Logical targets which require dependency files.
 DEPEND_TARGETS:=all run
@@ -61,12 +87,14 @@ OBJECTS_FULL:=$(addsuffix .o,$(addprefix $(OBJECTS_PATH)/,$(SOURCES)))
 BINARY_PATH:=$(BUILD_PATH)/bin
 BINARY_FULL:=$(BINARY_PATH)/openmsx
 
+LOG_PATH:=$(BUILD_PATH)/log
+
 # Default target; make sure this is always the first target in this Makefile.
 all: $(BINARY_FULL)
 
 # Include dependency files.
 ifeq ($(filter $(NODEPEND_TARGETS),$(MAKECMDGOALS)),)
--include $(DEPEND_FULL)
+  -include $(DEPEND_FULL)
 endif
 
 # Clean up entire build tree.
@@ -90,9 +118,19 @@ $(DEPEND_FULL):
 $(BINARY_FULL): $(OBJECTS_FULL)
 	@echo "Linking $(patsubst $(BINARY_PATH)/%,%,$@)..."
 	@mkdir -p $(@D)
-	@gcc -o $@ $(LINK_FLAGS) $(LIBS_FLAGS) $^
+	@gcc -o $@ $(CXXFLAGS) $(LINK_FLAGS) $(LIBS_FLAGS) $^
 
 # Run executable.
 run: all
+ifeq ($(OPENMSX_PROFILE),true)
+	@echo "Profiling $(notdir $(BINARY_FULL))..."
+	@cd $(dir $(BINARY_FULL)) ; ./$(notdir $(BINARY_FULL))
+	@mkdir -p $(LOG_PATH)
+	@echo "Creating report..."
+	@gprof $(BINARY_FULL) $(dir $(BINARY_FULL))gmon.out \
+		> $(LOG_PATH)/profile.txt
+	@echo "Report written: $(LOG_PATH)/profile.txt"
+else
 	@echo "Running $(notdir $(BINARY_FULL))..."
 	@$(BINARY_FULL)
+endif
