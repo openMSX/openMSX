@@ -70,7 +70,7 @@ byte TurboRFDC::readMem(word address, const EmuTime &time)
 	} else {
 		result = 0xFF;
 	}
-	PRT_DEBUG("TurboRFDC: read 0x" << std::hex << (int)address << " 0x" << (int)result << std::dec);
+	//PRT_DEBUG("TurboRFDC: read 0x" << std::hex << (int)address << " 0x" << (int)result << std::dec);
 	return result;
 }
 
@@ -87,7 +87,7 @@ const byte* TurboRFDC::getReadCacheLine(word start) const
 
 void TurboRFDC::writeMem(word address, byte value, const EmuTime &time)  
 {
-	PRT_DEBUG("TurboRFDC: write 0x" << std::hex << (int)address << " 0x" << (int)value << std::dec);
+	//PRT_DEBUG("TurboRFDC: write 0x" << std::hex << (int)address << " 0x" << (int)value << std::dec);
 	if ((address == 0x6000) || (address == 0x7FF0) || (address == 0x7FFE)) {
 		MSXCPU::instance()->invalidateCache(0x4000, 0x4000/CPU::CACHE_LINE_SIZE);
 		memory = rom.getBlock(0x4000 * (value & 0x03));

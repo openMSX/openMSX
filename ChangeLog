@@ -1,5 +1,11 @@
 $Id$
 
+2003-01-09 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed CPU on big endian machines
+	* TurboR PCM update:
+	   - It now works in Seed of Dragon, although the frequency seems
+	     wrong. The game also hangs when you start to play.
+
 2003-01-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed CPU HALT instruction
 	* Semi-fixed CPU/Scheduler interaction:

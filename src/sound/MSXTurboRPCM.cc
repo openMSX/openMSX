@@ -28,13 +28,15 @@ void MSXTurboRPCM::reset(const EmuTime &time)
 
 byte MSXTurboRPCM::readIO(byte port, const EmuTime &time)
 {
+	byte result;
 	switch (port & 0x01) {
 	case 0:
 		// bit 0-1  15.75kHz counter
 		// bit 2-7  not used
-		return reference.getTicksTill(time) & 0x03;
+		result = reference.getTicksTill(time) & 0x03;
+		break;
 	case 1:
-		// bit 0   BUFF  0->D/A
+		// bit 0   BUFF  0->D/A    TODO check this bit
 		//               1->A/D
 		// bit 1   MUTE  mute ALL sound  0->muted
 		// bit 2   FILT  filter  0->standard signal
@@ -46,16 +48,19 @@ byte MSXTurboRPCM::readIO(byte port, const EmuTime &time)
 		// bit 5-6       not used
 		// bit 7   COMP  comparator result 0->greater
 		//                                 1->smaller
-
-		return (getComp() ? 0x80 : 0x00) | (status & 0x1F);
+		result = (getComp() ? 0x80 : 0x00) | (status & 0x1F);
+		break;
 	default: // unreachable, avoid warning
 		assert(false);
-		return 0;
+		result = 0;
 	}
+	//PRT_DEBUG("PCM: read " << std::hex << (int)port << " " << (int)result << std::dec);
+	return result;
 }
 
 void MSXTurboRPCM::writeIO(byte port, byte value, const EmuTime &time)
 {
+	//PRT_DEBUG("PCM: write " << std::hex << (int)port << " " << (int)value << std::dec);
 	switch (port & 0x01) {
 	case 0:
 		// While playing: sample value
@@ -63,10 +68,7 @@ void MSXTurboRPCM::writeIO(byte port, byte value, const EmuTime &time)
 		// Resets counter
 		reference = time;
 		DValue = value;
-
-		if ((status & 0x01) == 0) {
-			dac->writeDAC(DValue, time);
-		}
+		dac->writeDAC(value, time);
 		break;
 
 	case 1:
