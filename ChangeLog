@@ -1,5 +1,12 @@
 $Id$
 
+2002-10-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Some IDE fixes:
+	    Harddisk works now! Following is still hardcoded:
+	      master: harddisk, size 1GB filename "hd.dsk"
+	      slave : not connected
+	    I'll change this in the next couple of days
+
 2002-10-16 Joost Yervante Damad <joost@lumatec.be>
 	* removed compile-time disables for now
 
