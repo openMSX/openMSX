@@ -70,13 +70,17 @@ MSXTapePatch::MSXTapePatch()
 
 	CommandController::instance()->registerCommand(this, "cas");
 
-	try {
-		Config *config =
-			MSXConfig::instance()->getConfigById("cas");
+	MSXConfig *conf = MSXConfig::instance();
+	if (conf->hasConfigWithId("cas")) {
+		Config *config = conf->getConfigById("cas");
 		const std::string &filename = config->getParameter("filename");
-		insertTape(config->getContext(), filename);
-	} catch (MSXException& e) {
-		PRT_DEBUG("Incorrect tape insertion!");
+		try {
+			insertTape(config->getContext(), filename);
+		} catch (MSXException& e) {
+			PRT_ERROR("Couldn't load tape image: " << filename);
+		}
+	} else {
+		// no image specified
 	}
 }
 

@@ -2,6 +2,7 @@ $Id$
 
 2003-06-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Print error msg when user gives wrong diskimage on the cmd line
+	*  same for cas and wav images
 
 2003-06-06 Maarten ter Huurne <maarten@treewalker.org>
 	* Added FloatSetting class.

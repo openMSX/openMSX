@@ -52,13 +52,17 @@ const std::string& MSXCassettePlayerCLI::fileTypeHelp() const
 CassettePlayer::CassettePlayer()
 	: audioLength(0), audioBuffer(0), motor(false)
 {
-	try {
-		Config *config =
-			MSXConfig::instance()->getConfigById("cassetteplayer");
+	MSXConfig *conf = MSXConfig::instance();
+	if (conf->hasConfigWithId("cassetteplayer")) {
+		Config *config = conf->getConfigById("cassetteplayer");
 		const std::string &filename = config->getParameter("filename");
-		insertTape(config->getContext(), filename);
-	} catch (MSXException& e) {
-		PRT_DEBUG("Incorrect tape insertion!");
+		try {
+			insertTape(config->getContext(), filename);
+		} catch (MSXException& e) {
+			PRT_ERROR("Couldn't load tape image: " << filename);
+		}
+	} else {
+		// no cassette image specified
 	}
 	PluggingController::instance()->registerPluggable(this);
 	CommandController::instance()->registerCommand(this, "cassetteplayer");
