@@ -261,10 +261,6 @@ void CommandController::completeFileName(std::vector<std::string> &tokens)
 	std::string& filename = tokens[tokens.size()-1];
 	filename = FileOperations::expandTilde(filename);
 	std::string basename = FileOperations::getBaseName(filename);
-	std::string base;
-	if (!basename.empty()) {
-		base = basename + '/';
-	}
 	std::list<std::string> paths;
 	if (!filename.empty() && (filename[0] == '/')) {
 		// absolute path
@@ -284,9 +280,9 @@ void CommandController::completeFileName(std::vector<std::string> &tokens)
 		if (dirp != NULL) {
 			while (dirent* de = readdir(dirp)) {
 				struct stat st;
-				std::string name = dirname + '/' + de->d_name;
+				std::string name = dirname + de->d_name;
 				if (!(stat(name.c_str(), &st))) {
-					std::string nm = base + de->d_name;
+					std::string nm = basename + de->d_name;
 					if (S_ISDIR(st.st_mode)) {
 						nm += "/";
 					}

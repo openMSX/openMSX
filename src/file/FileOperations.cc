@@ -59,6 +59,6 @@ std::string FileOperations::getBaseName(const std::string &path)
 		std::string empty;
 		return empty;
 	} else {
-		return path.substr(0, pos);
+		return path.substr(0, pos + 1);
 	}
 }

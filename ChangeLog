@@ -1,5 +1,8 @@
 $Id$
 
+2003-04-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fix tabcompletion for absolute paths
+
 2003-04-28 David Heremans <david.heremans@gnu-linux.net>
 	* Fixed make install to /opt/openMSX and create extra link for
 	  binary in /usr/local/bin

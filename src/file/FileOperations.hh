@@ -34,7 +34,9 @@ class FileOperations
 		/**
 		 * Returns the directory portion of a path.
 		 * @param path The pathname
-		 * @result The directory portion
+		 * @result The directory portion. This includes the ending '/'.
+		 *         If path doesn't has a directory portion the result
+		 *         is an empty string.
 		 */
 		static std::string getBaseName(const std::string &path);
 };
