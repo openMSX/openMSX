@@ -61,16 +61,16 @@ private:
 		V9990& parent;
 	} v9990RegDebug;
 
-	class V9990PortDebug : public Debuggable {
+	class V9990VRAMDebug : public Debuggable {
 	public:
-		V9990PortDebug(V9990& parent);
+		V9990VRAMDebug(V9990& parent);
 		virtual unsigned getSize() const;
 		virtual const string& getDescription() const;
 		virtual byte read(unsigned address);
 		virtual void write(unsigned address, byte value);
 	private:
 		V9990& parent;
-	} v9990PortDebug;
+	} v9990VRAMDebug;
 
 	/** The I/O Ports
 	  */  
@@ -92,8 +92,6 @@ private:
 		RESERVED_2,
 		RESERVED_3
 	};
-
-	byte ports[16];
 	
 	/** VDP Registers
 	  */
@@ -109,6 +107,7 @@ private:
 		/* ... */
 	};
 	byte regs[0x40];
+	byte regSelect;
 
 	inline unsigned getVRAMAddr(RegId base) const;
 	inline void setVRAMAddr(RegId base, unsigned addr);

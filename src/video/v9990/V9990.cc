@@ -25,7 +25,7 @@ V9990::V9990(Config* config, const EmuTime& time)
 	: MSXDevice(config, time),
 	  MSXIODevice(config, time),
 	  v9990RegDebug(*this),
-	  v9990PortDebug(*this),
+	  v9990VRAMDebug(*this),
 	  pendingIRQs(0)
 {
 	PRT_DEBUG("[" << time << "] V9990::Create");
@@ -41,7 +41,7 @@ V9990::V9990(Config* config, const EmuTime& time)
 	}
 	
 	Debugger::instance().registerDebuggable("v9990-regs", v9990RegDebug);
-	Debugger::instance().registerDebuggable("v9990-ports", v9990PortDebug);
+	Debugger::instance().registerDebuggable("v9990-vram", v9990VRAMDebug);
 
 	reset(time);
 }
@@ -50,7 +50,7 @@ V9990::~V9990()
 {
 	PRT_DEBUG("[--now--] V9990::Destroy");
 
-	Debugger::instance().unregisterDebuggable("v9990-ports", v9990PortDebug);
+	Debugger::instance().unregisterDebuggable("v9990-vram", v9990VRAMDebug);
 	Debugger::instance().unregisterDebuggable("v9990-regs", v9990RegDebug);
 	
 	delete[] vram;
@@ -60,16 +60,12 @@ void V9990::reset(const EmuTime& time)
 {
 	PRT_DEBUG("[" << time << "] V9990::reset");
 
-	static const byte INITIAL_PORT_VALUES[16] = {
-		0x00, 0x9F, 0xC0, 0xFF, 0xFF, 0x00, 0x03, 0xFF,
-		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
-	memcpy(ports, INITIAL_PORT_VALUES, 16);
-
 	// Reset IRQs
 	writeIO(INTERRUPT_FLAG, 0xFF, time);
 	
-	// Clear registers
+	// Clear registers / ports
 	memset(regs, 0, sizeof(regs));
+	regSelect = 0xFF; // TODO check value for power-on and reset
 	
 	// Palette remains unchanged after reset
 }
@@ -136,13 +132,17 @@ byte V9990::readIO(byte port, const EmuTime& time)
 			}
 			break;
 		}
+		case COMMAND_DATA:
+			// TODO
+			result = 0xC0;
+			break;
+
 		case REGISTER_DATA: {
 			// read register
-			byte regSelect = ports[REGISTER_SELECT];
 			result = readRegister(regSelect & 0x3F, time);
 			if (!(regSelect & 0x40)) {
-				ports[REGISTER_SELECT] =
-				    regSelect & 0xC0 | ((regSelect + 1) & 0x3F);
+				regSelect =   regSelect      & 0xC0 |
+				            ((regSelect + 1) & 0x3F);
 			}
 			break;
 		}
@@ -150,10 +150,9 @@ byte V9990::readIO(byte port, const EmuTime& time)
 			result = pendingIRQs;
 			break;
 		    
-		case COMMAND_DATA:
 		case STATUS:
 			// TODO
-			result = ports[port];
+			result = 0x00;
 			break;
 		
 		case KANJI_ROM_1:
@@ -178,7 +177,6 @@ byte V9990::readIO(byte port, const EmuTime& time)
 
 	return result;
 }
-
 
 void V9990::writeIO(byte port, byte val, const EmuTime &time)
 {
@@ -219,18 +217,21 @@ void V9990::writeIO(byte port, byte val, const EmuTime &time)
 			}
 			break;
 		}
+		case COMMAND_DATA:
+			// TODO
+			break;
+
 		case REGISTER_DATA: {
 			// write register
-			byte regSelect = ports[REGISTER_SELECT];
 			writeRegister(regSelect & 0x3F, val, time);
 			if (!(regSelect & 0x80)) {
-				ports[REGISTER_SELECT] =
-				    regSelect & 0xC0 | ((regSelect + 1) & 0x3F);
+				regSelect =   regSelect      & 0xC0 |
+				            ((regSelect + 1) & 0x3F);
 			}
 			break;
 		}
 		case REGISTER_SELECT:
-			ports[port] = val;
+			regSelect = val;
 			break;
 
 		case STATUS:
@@ -244,22 +245,23 @@ void V9990::writeIO(byte port, byte val, const EmuTime &time)
 			}
 			break;
 		
+		case SYSTEM_CONTROL:
+			// TODO
+			break;
+		
 		case KANJI_ROM_0:
 		case KANJI_ROM_1:
 		case KANJI_ROM_2:
 		case KANJI_ROM_3:
-			// not used in Gfx9000
-			ports[port] = val;
+			// not used in Gfx9000, ignore
 			break;
 			
-		case COMMAND_DATA:
-		case SYSTEM_CONTROL:
 		default:
-			// TODO
-			ports[port] = val;
+			// ignore
 			break;
 	}
 }
+
 
 byte V9990::readRegister(byte reg, const EmuTime& time)
 {
@@ -305,6 +307,7 @@ void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
 	}
 }
 
+
 byte V9990::readVRAM(unsigned addr, const EmuTime& time)
 {
 	// TODO sync(time)
@@ -323,6 +326,16 @@ void V9990::writeVRAM(unsigned addr, byte value, const EmuTime& time)
 	// TODO sync(time)
 	vram[addr] = value;
 }
+
+
+void V9990::raiseIRQ(IRQType irqType)
+{
+	pendingIRQs |= irqType;
+	if (pendingIRQs & regs[INT_ENABLE]) {
+		irq.set();
+	}
+}
+
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  * Private classes
@@ -357,41 +370,34 @@ void V9990::V9990RegDebug::write(unsigned address, byte value)
 	parent.writeRegister(address, value, time);
 }
 
-// V9990PortDebug
+// V9990VRAMDebug
 
-V9990::V9990PortDebug::V9990PortDebug(V9990& parent_)
+V9990::V9990VRAMDebug::V9990VRAMDebug(V9990& parent_)
 	: parent(parent_)
 {
 }
 
-unsigned V9990::V9990PortDebug::getSize() const
+unsigned V9990::V9990VRAMDebug::getSize() const
 {
-	return 16;
+	return VRAM_SIZE;
 }
 
-const string& V9990::V9990PortDebug::getDescription() const
+const string& V9990::V9990VRAMDebug::getDescription() const
 {
-	static const string desc = "V9990 I/O ports.";
+	static const string desc = "V9990 VRAM.";
 	return desc;
 }
 
-byte V9990::V9990PortDebug::read(unsigned address)
-{
-	return parent.ports[address];
-}
-
-void V9990::V9990PortDebug::write(unsigned address, byte value)
+byte V9990::V9990VRAMDebug::read(unsigned address)
 {
 	const EmuTime& time = Scheduler::instance().getCurrentTime();
-	parent.writeIO(address, value, time);
+	return parent.readVRAM(address, time);
 }
 
-void V9990::raiseIRQ(IRQType irqType)
+void V9990::V9990VRAMDebug::write(unsigned address, byte value)
 {
-	pendingIRQs |= irqType;
-	if (pendingIRQs & regs[INT_ENABLE]) {
-		irq.set();
-	}
+	const EmuTime& time = Scheduler::instance().getCurrentTime();
+	parent.writeVRAM(address, value, time);
 }
 
 } // namespace openmsx
