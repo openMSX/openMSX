@@ -13,6 +13,7 @@
 #include <map>
 #include <iostream>
 #include <cassert>
+#include <iostream>
 
 using std::cout;
 using std::endl;
@@ -58,7 +59,6 @@ CliComm& CliComm::instance()
 void CliComm::startInput(CommandLineParser::ControlType type, const string& arguments)
 {
 	xmlOutput = true;
-
 #ifdef _WIN32
 	if (type == CommandLineParser::IO_PIPE) {
 		OSVERSIONINFO info;
@@ -66,9 +66,12 @@ void CliComm::startInput(CommandLineParser::ControlType type, const string& argu
 		GetVersionExA(&info);
 		if (info.dwPlatformId == VER_PLATFORM_WIN32_NT) {
 			connections.push_back(new PipeConnection(arguments));
-		} else {
+		} else if (type == CommandLineParser::IO_STD) {
 			connections.push_back(new StdioConnection());
 		}
+	}
+	else {
+		connections.push_back(new StdioConnection());	
 	}
 #else
 	type = type;            // avoid warning

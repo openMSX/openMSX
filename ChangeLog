@@ -1,5 +1,9 @@
 $Id$
 
+2005-03-25 Herman Oudejans <hn.oudejans@quicknet.nl>
+	* fixed -control stdio on windows. With this option, the 
+	  StdioConnection was not created.
+
 2005-03-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Split CliComm in CliComm and CliServer:
 	   - fixed assert on startup (CliComm must be instantiated in main
