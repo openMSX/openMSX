@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
+<msxconfig>
+
+  <config id="ExternalSlots">
+    <parameter name="slota">1-0</parameter>
+    <parameter name="slotb">2-0</parameter>
+  </config>
+
+  <config id="MotherBoard">
+    <parameter name="0" class="subslotted">false</parameter>
+    <parameter name="1" class="subslotted">false</parameter>
+    <parameter name="2" class="subslotted">false</parameter>
+    <parameter name="3" class="subslotted">false</parameter>
+  </config>
+
+  <device id="Main RAM">
+    <type>RAM</type>
+    <slotted> <ps>0</ps> <ss>0</ss> <page>3</page> </slotted>
+    <parameter name="slow_drain_on_reset">false</parameter>
+  </device>
+
+  <device id="MSX BIOS with BASIC ROM">
+    <type>Rom</type>
+    <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
+    <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
+    <parameter name="filename">cf-1200_basic-bios1.rom</parameter>
+  </device>
+
+  <device id="ppi">
+    <type>PPI</type>
+    <parameter name="volume">16000</parameter>
+    <parameter name="key_ghosting">true</parameter>
+  </device>
+
+  <device id="VDP">
+    <type>VDP</type>
+    <parameter name="version">TMS99X8A</parameter>
+  </device>
+
+  <device id="psg">
+    <type>PSG</type>
+    <parameter name="volume">21000</parameter>
+  </device>
+
+  <device id="cpu">
+    <type>CPU</type>
+  </device>
+
+  <device id="Printer Port">
+    <type>PrinterPort</type>
+  </device>
+
+</msxconfig>

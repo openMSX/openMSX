@@ -82,7 +82,7 @@
     <parameter name="drivename1">diska</parameter>
   </device>
 
-  <device id="FS-A1GT">
+  <device id="FS-A1ST">
     <type>Rom</type>
     <slotted> <ps>3</ps> <ss>3</ss> <page>0</page> </slotted>
     <slotted> <ps>3</ps> <ss>3</ss> <page>1</page> </slotted>
@@ -90,7 +90,7 @@
     <slotted> <ps>3</ps> <ss>3</ss> <page>3</page> </slotted>
     <parameter name="filename">fs-a1st_firmware.rom</parameter>
     <parameter name="mappertype">PANASONIC</parameter>
-    <parameter name="sramsize">16</parameter>
+    <parameter name="Sramsize">16</parameter>
     <parameter name="loadsram">true</parameter>
     <parameter name="savesram">true</parameter>
     <parameter name="sramname">fs-a1st.sram</parameter>
