@@ -1,6 +1,9 @@
 $Id$
 
 2005-03-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed minor(?) rounding error in SCC
+
+2005-03-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Split CliComm class in CliComm and CliConnection:
 	   helps to keep the c-macros defined in windows.h more local
 	* Only accept connections from local host:

@@ -314,8 +314,8 @@ void SCC::writeWave(byte channel, byte address, byte value)
 	if (!readOnly[channel]) {
 		byte pos = address & 0x1F;
 		wave[channel][pos] = value;
-		int tmp = ((signed_byte)value * volume[channel]) / 16;
-		volAdjustedWave[channel][pos] = (tmp * masterVolume) / 256;
+		volAdjustedWave[channel][pos] =
+		    (static_cast<signed char>(value) * volume[channel]) / 16;
 		if ((currentChipMode != SCC_plusmode) && (channel == 3)) {
 			// copy waveform 4 -> waveform 5
 			wave[4][pos] = wave[3][pos];
@@ -354,8 +354,8 @@ void SCC::setFreqVol(byte address, byte value)
 		byte channel = address - 0x0A;
 		volume[channel] = value & 0xF;
 		for (int i = 0; i < 32; ++i) {
-			int tmp = ((signed_byte)wave[channel][i] * volume[channel]) / 16;
-			volAdjustedWave[channel][i] = (tmp * masterVolume) / 256;
+			volAdjustedWave[channel][i] =
+			    (wave[channel][i] * volume[channel]) / 16;
 		}
 		checkMute();
 	} else {
@@ -435,7 +435,7 @@ void SCC::updateBuffer(int length, int* buffer)
 					      [(count[i] >> GETA_BITS) & 0x1F];
 				}
 			}
-			*buffer++ = mixed;
+			*buffer++ = (masterVolume * mixed) / 256;
 		}
 	} else {
 		// Rotation mode
@@ -458,7 +458,7 @@ void SCC::updateBuffer(int length, int* buffer)
 					mixed += volAdjustedWave[i][pos & 0x1F];
 				}
 			}
-			*buffer++ = mixed;
+			*buffer++ = (masterVolume * mixed) / 256;
 		}
 	}
 }

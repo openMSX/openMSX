@@ -61,8 +61,8 @@ private:
 	unsigned realstep;
 	unsigned scctime;
 
-	char wave[5][32];
-	int volAdjustedWave[5][32];
+	signed char wave[5][32];
+	signed char volAdjustedWave[5][32];
 	unsigned incr[5];
 	unsigned count[5];
 	unsigned freq[5];
