@@ -5,21 +5,19 @@
 #include "Console.hh"
 #include "File.hh"
 
-int OSDConsoleRenderer::consoleColumns;
-int OSDConsoleRenderer::consoleLines;
-int OSDConsoleRenderer::wantedConsoleRows;
-int OSDConsoleRenderer::wantedConsoleColumns;
+int OSDConsoleRenderer::wantedColumns;
+int OSDConsoleRenderer::wantedRows;
 std::string OSDConsoleRenderer::fontName;
 std::string OSDConsoleRenderer::backgroundName;
-
 OSDConsoleRenderer::Placement OSDConsoleRenderer::consolePlacement;
+
 
 // class BackgroundSetting
 
 BackgroundSetting::BackgroundSetting(OSDConsoleRenderer *console_,
-					const std::string &filename)
+                                     const std::string &filename)
 	: FilenameSetting("consolebackground", "console background file",
-		filename),
+	                  filename),
 	  console(console_)
 {
 	setValueString(filename);
@@ -31,7 +29,7 @@ bool BackgroundSetting::checkUpdate(const std::string &newValue)
 	try {
 		UserFileContext context;
 		result = console->loadBackground(context.resolve(newValue));
-		console->setBackgroundName (context.resolve(newValue));
+		console->setBackgroundName(context.resolve(newValue));
 	} catch (FileException &e) {
 		// file not found
 		result = false;
@@ -39,10 +37,11 @@ bool BackgroundSetting::checkUpdate(const std::string &newValue)
 	return result;
 }
 
+
 // class FontSetting
 
 FontSetting::FontSetting(OSDConsoleRenderer *console_,
-				const std::string &filename)
+                         const std::string &filename)
 	: FilenameSetting("consolefont", "console font file", filename),
 	  console(console_)
 {
@@ -68,34 +67,27 @@ bool FontSetting::checkUpdate(const std::string &newValue)
 
 OSDConsoleRenderer::OSDConsoleRenderer()
 {
-	static bool initiated=false;
+	static bool initiated = false;
 	try {
 		Config *config = MSXConfig::instance()->getConfigById("Console");
 		context = config->getContext();
 		
-		try
-		{			
-			if (!initiated){
-				if (config->hasParameter("font")) {
-					fontName = config->getParameter("font");
-					fontName = context->resolve(fontName);
-				}
+		try {
+			if (!initiated && config->hasParameter("font")) {
+				fontName = config->getParameter("font");
+				fontName = context->resolve(fontName);
 			}
-		}catch(FileException &e) {}
+		} catch (FileException &e) {}
 		
-		try
-		{
-			if (!initiated){
-				if (config->hasParameter("background")) {
-					backgroundName = config->getParameter("background");
-					backgroundName = context->resolve(backgroundName);
-				}
+		try {
+			if (!initiated && config->hasParameter("background")) {
+				backgroundName = config->getParameter("background");
+				backgroundName = context->resolve(backgroundName);
 			}
-		}catch(FileException &e) {}
+		} catch (FileException &e) {}
 	
-		initiated = true;	
+		initiated = true;
 		font = new DummyFont();
-				
 	} catch (MSXException &e) {
 		// no Console section
 		context = new SystemFileContext();	// TODO memory leak
@@ -109,9 +101,9 @@ OSDConsoleRenderer::OSDConsoleRenderer()
 	int cursorY;
 	Console::instance()->getCursorPosition(&lastCursorPosition, &cursorY);
 	
-	consolePlacementSetting=NULL;
-	consoleLinesSetting=NULL;
-	consoleColumnsSetting=NULL;
+	consolePlacementSetting = NULL;
+	consoleRowsSetting = NULL;
+	consoleColumnsSetting = NULL;
 }
 
 OSDConsoleRenderer::~OSDConsoleRenderer()
@@ -120,118 +112,107 @@ OSDConsoleRenderer::~OSDConsoleRenderer()
 		Console::instance()->unregisterConsole(this);
 	}
 	delete font;
-	if (consolePlacementSetting) delete consolePlacementSetting;
- 	if (consoleLinesSetting) delete consoleLinesSetting;
-	if (consoleColumnsSetting) delete consoleColumnsSetting;
+	delete consolePlacementSetting;
+ 	delete consoleRowsSetting;
+	delete consoleColumnsSetting;
 }
 
-void OSDConsoleRenderer::setBackgroundName (std::string name)
+void OSDConsoleRenderer::setBackgroundName(const std::string &name)
 {
 	backgroundName = name;
 }
 
-void OSDConsoleRenderer::setFontName (std::string name)
+void OSDConsoleRenderer::setFontName(const std::string &name)
 {
 	fontName = name;
 }
 
 void OSDConsoleRenderer::initConsoleSize()
 {
-	static bool placementInitDone=false;
+	static bool placementInitDone = false;
 	
 	// define all possible positions
-	placeMap["topleft"]		= CP_TOPLEFT;
-	placeMap["top"]			= CP_TOP;
-	placeMap["topright"]	= CP_TOPRIGHT;
-	placeMap["left"] 		= CP_LEFT;
-	placeMap["center"] 		= CP_CENTER;
-	placeMap["right"] 		= CP_RIGHT;
-	placeMap["bottomleft"] 	= CP_BOTTOMLEFT;
-	placeMap["bottom"] 		= CP_BOTTOM;
-	placeMap["bottomright"]	= CP_BOTTOMRIGHT;
-	
-	SDL_Surface *screen = SDL_GetVideoSurface();
+	placeMap["topleft"]     = CP_TOPLEFT;
+	placeMap["top"]         = CP_TOP;
+	placeMap["topright"]    = CP_TOPRIGHT;
+	placeMap["left"]        = CP_LEFT;
+	placeMap["center"]      = CP_CENTER;
+	placeMap["right"]       = CP_RIGHT;
+	placeMap["bottomleft"]  = CP_BOTTOMLEFT;
+	placeMap["bottom"]      = CP_BOTTOM;
+	placeMap["bottomright"] = CP_BOTTOMRIGHT;
 	
 	Config *config = MSXConfig::instance()->getConfigById("Console");
-	
-	if (!placementInitDone) // first time here ?
-		{	
-			std::string placementString;
-			consoleLines = (config->hasParameter("rows") ? config->getParameterAsInt("rows") : 0);
-			consoleColumns = (config->hasParameter("columns") ? config->getParameterAsInt("columns") : 0);
-			// check if lines and columns of the console are valid
-			if ((consoleLines<1) || (consoleLines > (screen->h / font->getHeight())))
-				consoleLines=((screen->h / font->getHeight())*6)/15;
-			if ((consoleColumns<32) || (consoleColumns > ((screen->w - CHAR_BORDER) / font->getWidth())))
-				consoleColumns=((screen->w / font->getWidth())*30)/32; 
-			placementString = (config->hasParameter("placement") ? config->getParameter("placement") : "bottom");
-			
-			wantedConsoleColumns = consoleColumns;
-			wantedConsoleRows = consoleLines;
-			
-			std::map<std::string, Placement>::const_iterator it;
-			it = placeMap.find(placementString);
-			if (it != placeMap.end()) 
-				consolePlacement=it->second;
-			else
-				consolePlacement=CP_BOTTOM; //not found, default
-			placementInitDone=true;
-		}	
-		Console::instance()->setConsoleColumns(consoleColumns);
-			
-		consoleLinesSetting = new IntegerSetting("consolerows","number of rows in the console",consoleLines,1,screen->h / font->getHeight());
-		consoleColumnsSetting = new IntegerSetting("consolecolumns","number of columns in the console",consoleColumns,32,(screen->w - CHAR_BORDER) / font->getWidth());
-		consolePlacementSetting = new EnumSetting<OSDConsoleRenderer::Placement>(
-			"consoleplacement", "position of the console within the emulator", consolePlacement, placeMap);
-		if (wantedConsoleColumns != consoleColumns){
-		consoleColumnsSetting->setValueInt(wantedConsoleColumns);	
+
+	if (!placementInitDone) {
+		// first time here ?
+		placementInitDone = true;
+
+		SDL_Surface *screen = SDL_GetVideoSurface();
+		wantedColumns = config->hasParameter("columns") ?
+		                config->getParameterAsInt("columns") :
+		                (((screen->w - CHAR_BORDER) / font->getWidth()) * 30) / 32;
+		wantedRows = config->hasParameter("rows") ?
+		             config->getParameterAsInt("rows") :
+		             ((screen->h / font->getHeight()) * 6) / 15;
+
+		std::string placementString;
+		placementString = config->hasParameter("placement") ?
+		                  config->getParameter("placement") :
+		                  "bottom";
+		std::map<std::string, Placement>::const_iterator it;
+		it = placeMap.find(placementString);
+		if (it != placeMap.end()) {
+			consolePlacement = it->second;
+		} else {
+			consolePlacement = CP_BOTTOM; //not found, default
 		}
-		if (wantedConsoleRows != consoleLines){
-		consoleLinesSetting->setValueInt(wantedConsoleRows);
-		}		
-		currentMaxX = (screen->w - CHAR_BORDER) / font->getWidth();
-		currentMaxY = screen->h / font->getHeight();
+	}
+	adjustColRow();
+	
+	Console::instance()->setConsoleColumns(consoleColumns);
+
+	consoleColumnsSetting = new IntegerSetting("consolecolumns",
+	        "number of columns in the console", wantedColumns, 32, 999);
+	consoleRowsSetting = new IntegerSetting("consolerows",
+	        "number of rows in the console", wantedRows, 1, 99);
+	consolePlacementSetting = new EnumSetting<OSDConsoleRenderer::Placement>(
+                "consoleplacement", "position of the console within the emulator",
+	        consolePlacement, placeMap);
 }
 
+void OSDConsoleRenderer::adjustColRow()
+{
+	SDL_Surface *screen = SDL_GetVideoSurface();
 
+	if (wantedColumns > ((screen->w - CHAR_BORDER) / font->getWidth())) {
+		consoleColumns = (screen->w - CHAR_BORDER) / font->getWidth();
+	} else {
+		consoleColumns = wantedColumns;
+	}
+	if (wantedRows > (screen->h / font->getHeight())) {
+		consoleRows = screen->h / font->getHeight();
+	} else {
+		consoleRows = wantedRows;
+	}
+}
 
 void OSDConsoleRenderer::updateConsoleRect(SDL_Rect & rect)
 {
 	SDL_Surface *screen = SDL_GetVideoSurface();
-	int tempMaxX = (screen->w - CHAR_BORDER) / font->getWidth();
-	int tempMaxY = screen->h / font->getHeight();
 	
-	// if the range isn't changed (x or y) AND the value is
-	// it must be set by the user
-	if ((consoleLines != consoleLinesSetting->getValue()) &&
-		(tempMaxX == currentMaxX)){
-		wantedConsoleRows = consoleLinesSetting->getValue();	
-		}
-	if ((consoleColumns != consoleColumnsSetting->getValue()) &&
-		(tempMaxY == currentMaxY)){
-		wantedConsoleColumns = consoleColumnsSetting->getValue();	
-		}	
+	// TODO use setting listener in the future
+	wantedRows = consoleRowsSetting->getValue();
+	wantedColumns = consoleColumnsSetting->getValue();
+	adjustColRow();
 
-	int oldConsoleLines = consoleLines;
-	int oldConsoleColumns = consoleColumns;
-		
-	consoleLinesSetting->setRange(1,screen->h / font->getHeight());
-	consoleLines = consoleLinesSetting->getValue();
-	rect.h = font->getHeight() * consoleLines;
-		
-	consoleColumnsSetting->setRange(32,(screen->w - CHAR_BORDER) / font->getWidth());
-	consoleColumns= consoleColumnsSetting->getValue();
+	rect.h = font->getHeight() * consoleRows;
 	rect.w = (font->getWidth() * consoleColumns) + CHAR_BORDER;
+	Console::instance()->setConsoleColumns(consoleColumns);
 	
-	if ((consoleLines != oldConsoleLines) || 
-		(consoleColumns != oldConsoleColumns)){	
-		Console::instance()->setConsoleColumns(consoleColumns);
-	}
-	
-	consolePlacement=consolePlacementSetting->getValue();
-	
-	switch(consolePlacement)
-		{
+	// TODO use setting listener in the future
+	consolePlacement = consolePlacementSetting->getValue();
+	switch (consolePlacement) {
 		case CP_TOPLEFT:
 		case CP_LEFT:
 		case CP_BOTTOMLEFT:
@@ -240,18 +221,16 @@ void OSDConsoleRenderer::updateConsoleRect(SDL_Rect & rect)
 		case CP_TOPRIGHT:
 		case CP_RIGHT:
 		case CP_BOTTOMRIGHT:
-			rect.x = (screen->w - rect.w) ;
+			rect.x = (screen->w - rect.w);
 			break;
 		case CP_TOP:
 		case CP_CENTER:
 		case CP_BOTTOM:
 		default:
-			rect.x = (screen->w - rect.w) /2;
+			rect.x = (screen->w - rect.w) / 2;
 			break;
-		}
-		
-		switch(consolePlacement)
-		{
+	}
+	switch (consolePlacement) {
 		case CP_TOPLEFT:
 		case CP_TOP:
 		case CP_TOPRIGHT:
@@ -260,13 +239,13 @@ void OSDConsoleRenderer::updateConsoleRect(SDL_Rect & rect)
 		case CP_LEFT:
 		case CP_CENTER:
 		case CP_RIGHT:
-			rect.y = (screen->h - rect.h) /2;
+			rect.y = (screen->h - rect.h) / 2;
 			break;
 		case CP_BOTTOMLEFT:
 		case CP_BOTTOM:
 		case CP_BOTTOMRIGHT:
 		default:
-			rect.y = (screen->h - rect.h) ;
+			rect.y = (screen->h - rect.h);
 			break;
-		}
+	}
 }

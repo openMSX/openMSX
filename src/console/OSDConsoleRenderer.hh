@@ -22,11 +22,10 @@ class BackgroundSetting : public FilenameSetting
 {
 	public:
 		BackgroundSetting(OSDConsoleRenderer *console,
-			const std::string &filename);
+		                  const std::string &filename);
 
 	protected:
 		virtual bool checkUpdate(const std::string &newValue);
-
 
 	private:
 		OSDConsoleRenderer* console;
@@ -36,7 +35,7 @@ class FontSetting : public FilenameSetting
 {
 	public:
 		FontSetting(OSDConsoleRenderer *console,
-			const std::string &filename);
+		            const std::string &filename);
 
 	protected:
 		virtual bool checkUpdate(const std::string &newValue);
@@ -54,12 +53,14 @@ class OSDConsoleRenderer : public ConsoleRenderer
 		virtual bool loadFont(const std::string &filename) = 0;
 		virtual void drawConsole() = 0;
 		
-		enum Placement {CP_TOPLEFT,CP_TOP,CP_TOPRIGHT,
-						CP_LEFT,CP_CENTER,CP_RIGHT,
-						CP_BOTTOMLEFT,CP_BOTTOM,CP_BOTTOMRIGHT};
-		void setBackgroundName (std::string name);
-		void setFontName (std::string name);
-						
+		enum Placement {
+			CP_TOPLEFT,    CP_TOP,    CP_TOPRIGHT,
+			CP_LEFT,       CP_CENTER, CP_RIGHT,
+			CP_BOTTOMLEFT, CP_BOTTOM, CP_BOTTOMRIGHT
+		};
+		void setBackgroundName(const std::string &name);
+		void setFontName(const std::string &name);
+		
 	protected:
 		/** How transparent is the console? (0=invisible, 255=opaque)
 		  * Note that when using a background image on the GLConsole,
@@ -71,23 +72,26 @@ class OSDConsoleRenderer : public ConsoleRenderer
 		static const int CONSOLE_ALPHA = 180;
 		static const int BLINK_RATE = 500;
 		static const int CHAR_BORDER = 4;
-		static int consoleLines;
-		static int consoleColumns;
+		int consoleRows;
+		int consoleColumns;
 		static Placement consolePlacement;
 		static std::string fontName;
 		static std::string backgroundName;
 		EnumSetting<Placement> *consolePlacementSetting;
-		IntegerSetting* consoleLinesSetting;
+		IntegerSetting* consoleRowsSetting;
 		IntegerSetting* consoleColumnsSetting;
 		class Font *font;
 		FileContext* context;
 		bool blink;
 		unsigned lastBlinkTime;
 		int lastCursorPosition;
+
 	private:
-		std::map<std::string, Placement> placeMap;		
-		static int wantedConsoleColumns;
-		static int wantedConsoleRows;
+		void adjustColRow();
+
+		std::map<std::string, Placement> placeMap;
+		static int wantedColumns;
+		static int wantedRows;
 		int currentMaxX;
 		int currentMaxY;
 };

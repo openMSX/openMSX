@@ -169,6 +169,9 @@ void Console::updateConsole()
 
 void Console::setConsoleColumns(int columns)
 {
+	if (consoleColumns == columns) {
+		return;
+	}
 	consoleColumns = columns;
 	CircularBuffer<std::string,LINESHISTORY> linesbackup;
 	CircularBuffer<bool, LINESHISTORY> flowbackup;
@@ -225,14 +228,14 @@ bool Console::signalEvent(SDL_Event &event)
 			cursorLocation.x = PROMPT.length();
 			break;
 		case Keys::K_LEFT:
-			combineLines(lines,lineOverflows);
+			combineLines(lines, lineOverflows);
 			if ((unsigned)cursorPosition > PROMPT.length()) {
 				cursorPosition--;
 			}
 			splitLines();
 			break;
 		case Keys::K_RIGHT:
-			combineLines(lines,lineOverflows);
+			combineLines(lines, lineOverflows);
 			if ((unsigned)cursorPosition < editLine.length()) {
 				cursorPosition++;
 			}
@@ -250,8 +253,8 @@ bool Console::signalEvent(SDL_Event &event)
 			break;
 		case Keys::K_A:
 			if (modifier & (KMOD_LCTRL | KMOD_RCTRL)) {
-				combineLines(lines,lineOverflows);
-				cursorPosition=PROMPT.length();
+				combineLines(lines, lineOverflows);
+				cursorPosition = PROMPT.length();
 				splitLines();
 			} else {
 				normalKey((char)event.key.keysym.unicode);	
@@ -266,8 +269,8 @@ bool Console::signalEvent(SDL_Event &event)
 			break;
 		case Keys::K_E:
 			if (modifier & (KMOD_LCTRL | KMOD_RCTRL)) {
-				combineLines(lines,lineOverflows);
-				cursorPosition=editLine.length();
+				combineLines(lines, lineOverflows);
+				cursorPosition = editLine.length();
 				splitLines();
 			} else {
 				normalKey((char)event.key.keysym.unicode);
