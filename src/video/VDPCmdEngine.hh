@@ -21,7 +21,7 @@ public:
 	VDPCmdEngine(VDP *vdp);
 
 	/** Destructor
-	  */ 
+	  */
 	~VDPCmdEngine();
 
 	/** Reinitialise Renderer state.
@@ -221,7 +221,7 @@ private:
 		EmuTimeFreq<VDP::TICKS_PER_SECOND> currentTime;
 		int opsCount;
 	};
-
+	friend class VDPCmd;
 
 	/** Abort
 	  */
@@ -232,6 +232,7 @@ private:
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
 	};
+	friend class AbortCmd;
 
 	/** Point
 	  */
@@ -242,6 +243,7 @@ private:
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
 	};
+	friend class PointCmd;
 
 	/** Pset
 	  */
@@ -252,6 +254,7 @@ private:
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
 	};
+	friend class PsetCmd;
 
 	/** Search a dot.
 	  */
@@ -261,12 +264,13 @@ private:
 			: VDPCmd(engine, vram) {}
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
-		
+
 		int SX, SY;
 		int TX, MX;
 		int ANX;
 		byte CL;
 	};
+	friend class SrchCmd;
 
 	/** Draw a line.
 	  */
@@ -276,7 +280,7 @@ private:
 			: VDPCmd(engine, vram) {}
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
-	
+
 		int DX, DY;
 		int NX, NY;
 		int TX, TY;
@@ -284,6 +288,7 @@ private:
 		byte CL;
 		LogOp LO;
 	};
+	friend class LineCmd;
 
 	/** Logical move VDP -> VRAM.
 	  */
@@ -293,7 +298,7 @@ private:
 			: VDPCmd(engine, vram) {}
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
-	
+
 		int DX, DY;
 		int TX, TY;
 		int NX, NY;
@@ -301,6 +306,7 @@ private:
 		byte CL;
 		LogOp LO;
 	};
+	friend class LmmvCmd;
 
 	/** Logical move VRAM -> VRAM.
 	  */
@@ -310,7 +316,7 @@ private:
 			: VDPCmd(engine, vram) {}
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
-	
+
 		int SX, SY;
 		int DX, DY;
 		int TX, TY;
@@ -318,6 +324,7 @@ private:
 		int ASX, ADX, ANX;
 		LogOp LO;
 	};
+	friend class LmmmCmd;
 
 	/** Logical move VRAM -> CPU.
 	  */
@@ -327,13 +334,14 @@ private:
 			: VDPCmd(engine, vram) {}
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
-	
+
 		int SX, SY;
 		int DY, NX;
 		int NY, MX;
 		int TX, TY;
 		int ASX, ANX;
 	};
+	friend class LmcmCmd;
 
 	/** Logical move CPU -> VRAM.
 	  */
@@ -343,7 +351,7 @@ private:
 			: VDPCmd(engine, vram) {}
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
-		
+
 		int DX, DY;
 		int NX, NY;
 		int TX, TY;
@@ -351,6 +359,7 @@ private:
 		int ADX, ANX;
 		LogOp LO;
 	};
+	friend class LmmcCmd;
 
 	/** High-speed move VDP -> VRAM.
 	  */
@@ -360,13 +369,14 @@ private:
 			: VDPCmd(engine, vram) {}
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
-	
+
 		int DX, DY;
 		int NX, NY;
 		int TX, TY;
 		int ADX, ANX;
 		byte CL;
 	};
+	friend class HmmvCmd;
 
 	/** High-speed move VRAM -> VRAM.
 	  */
@@ -376,13 +386,14 @@ private:
 			: VDPCmd(engine, vram) {}
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
-	
+
 		int SX, SY;
 		int DX, DY;
 		int TX, TY;
 		int NX, NY;
 		int ASX, ADX, ANX;
 	};
+	friend class HmmmCmd;
 
 	/** High-speed move VRAM -> VRAM (Y direction only).
 	  */
@@ -392,13 +403,14 @@ private:
 			: VDPCmd(engine, vram) {}
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
-	
+
 		int SY;
 		int NY;
 		int DX, DY;
 		int TX, TY;
 		int ADX;
 	};
+	friend class YmmmCmd;
 
 	/** High-speed move CPU -> VRAM.
 	  */
@@ -408,13 +420,14 @@ private:
 			: VDPCmd(engine, vram) {}
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
-		
+
 		int DX, DY;
 		int NX, NY;
 		int TX, TY;
 		int MX;
 		int ADX, ANX;
 	};
+	friend class HmmcCmd;
 
 };
 
