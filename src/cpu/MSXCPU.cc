@@ -13,7 +13,6 @@ MSXCPU::MSXCPU(Device *config, const EmuTime &time)
 	: MSXDevice(config, time)
 {
 	PRT_DEBUG("Creating an MSXCPU object");
-	oneInstance = this;
 	z80 = new Z80(MSXCPUInterface::instance(), time);
 	r800 = new R800(MSXCPUInterface::instance(), time);
 	activeCPU = z80;	// setActiveCPU(CPU_Z80);
@@ -29,14 +28,15 @@ MSXCPU::~MSXCPU()
 
 MSXCPU* MSXCPU::instance()
 {
+	// MSXCPU is a MSXDevice and is automatically deleted
+	static MSXCPU* oneInstance = NULL;
 	if (oneInstance == NULL) {
 		Device* config = MSXConfig::instance()->getDeviceById("cpu");
 		EmuTime zero;
-		new MSXCPU(config, zero);
+		oneInstance = new MSXCPU(config, zero);
 	}
 	return oneInstance;
 }
-MSXCPU* MSXCPU::oneInstance = NULL;
 
 
 void MSXCPU::reset(const EmuTime &time)

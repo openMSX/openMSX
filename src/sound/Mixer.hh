@@ -73,8 +73,6 @@ class Mixer
 		static void audioCallbackHelper(void *userdata, Uint8 *stream, int len);
 		void audioCallback(short* stream);
 		
-		static Mixer *oneInstance;
-
 		bool init;
 
 		SDL_AudioSpec audioSpec;

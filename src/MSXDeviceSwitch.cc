@@ -40,13 +40,10 @@ MSXDeviceSwitch::~MSXDeviceSwitch()
 
 MSXDeviceSwitch* MSXDeviceSwitch::instance()
 {
-	if (oneInstance == NULL) {
-		EmuTime dummy;
-		oneInstance = new MSXDeviceSwitch(NULL, dummy);
-	}
-	return oneInstance;
+	static MSXDeviceSwitch oneInstance(NULL, EmuTime());
+	
+	return &oneInstance;
 }
-MSXDeviceSwitch* MSXDeviceSwitch::oneInstance = NULL;
 
 
 void MSXDeviceSwitch::registerDevice(byte id, MSXSwitchedDevice* device)

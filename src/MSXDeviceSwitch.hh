@@ -83,7 +83,6 @@ class MSXDeviceSwitch : public MSXIODevice
 	private:
 		MSXDeviceSwitch(Device *config, const EmuTime &time);
 		
-		static MSXDeviceSwitch* oneInstance;
 		byte selected;
 		MSXSwitchedDevice* devices[256];
 };

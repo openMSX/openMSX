@@ -54,16 +54,18 @@ Mixer::Mixer()
 
 Mixer::~Mixer()
 {
-	delete[] mixBuffer;
+	if (init) {
+		delete[] mixBuffer;
+		SDL_CloseAudio();
+	}
 }
 
 Mixer* Mixer::instance(void)
 {
-	if (oneInstance == NULL)
-		oneInstance = new Mixer();
-	return oneInstance;
+	static Mixer oneInstance;
+	
+	return &oneInstance;
 }
-Mixer *Mixer::oneInstance = NULL;
 
 
 int Mixer::registerSound(SoundDevice *device, ChannelMode mode)
@@ -101,7 +103,7 @@ void Mixer::audioCallbackHelper (void *userdata, Uint8 *strm, int len)
 {
 	// userdata and len are ignored
 	short *stream = (short*)strm;
-	oneInstance->audioCallback(stream);
+	instance()->audioCallback(stream);
 }
 
 void Mixer::audioCallback(short* stream)

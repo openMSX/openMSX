@@ -69,8 +69,6 @@ class MSXCPU : public MSXDevice
 		const EmuTime &getTargetTime() const;
 		friend class Scheduler;
 
-		static MSXCPU *oneInstance;
-
 		Z80 *z80;
 		R800 *r800;
 	
