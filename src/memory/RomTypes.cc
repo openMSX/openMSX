@@ -178,13 +178,6 @@ MapperType RomTypes::guessMapperType(const byte* data, int size)
 
 MapperType RomTypes::searchDataBase(const byte* data, int size)
 {
-	/*
-	static std::map<const std::string, std::string, caseltstr> romDB;
-	static std::map<const std::string, std::string, caseltstr> romid;
-	static std::map<const std::string, std::string, caseltstr> romyear;
-	static std::map<const std::string, std::string, caseltstr> romcompany;
-	static std::map<const std::string, std::string, caseltstr> romremark;
-	*/
 	static std::map<std::string, RomInfo*> romDB;
 	static bool init = false;
 
