@@ -46,9 +46,7 @@ IDEHD::IDEHD(Config *config, const EmuTime &time)
 	buffer = new byte[512 * 256];
 
 	const std::string &filename = config->getParameter("filename");
-	//TODO DEBUG this
-	//file = new File(config->getContext()->resolveCreate(filename), CREATE);
-	file = new File(config->getContext()->resolveCreate(filename));
+	file = new File(config->getContext()->resolveCreate(filename), CREATE);
 	
 	int size = config->getParameterAsInt("size");	// in MB
 	totalSectors = size * (1024 * 1024 / 512);
