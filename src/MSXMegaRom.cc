@@ -16,7 +16,7 @@ MSXMegaRom::MSXMegaRom(MSXConfig::Device *config) : MSXDevice(config)
 MSXMegaRom::~MSXMegaRom()
 {
 	PRT_DEBUG("Destructing an MSXMegaRom object");
-	delete [] memoryBank;
+	delete[] memoryBank;
 }
 
 void MSXMegaRom::init()
@@ -35,12 +35,16 @@ void MSXMegaRom::init()
 	// TODO: mirror if number of 8kB blocks not fully filled ?
 	
 	// set internalMemoryBank
-	internalMemoryBank[0]=memoryBank;
-	internalMemoryBank[1]=memoryBank+0x2000;
-	internalMemoryBank[2]=memoryBank+0x4000;
-	internalMemoryBank[3]=memoryBank+0x6000;
+	internalMemoryBank[0]=0;		// unused
+	internalMemoryBank[1]=0;		// unused
+	internalMemoryBank[2]=memoryBank;	// 0x4000 - 0x5fff
+	internalMemoryBank[3]=memoryBank+0x2000;// 0x6000 - 0x7fff
+	internalMemoryBank[4]=memoryBank+0x4000;// 0x8000 - 0x9fff
+	internalMemoryBank[5]=memoryBank+0x6000;// 0xa000 - 0xbfff
+	internalMemoryBank[6]=0;		// unused
+	internalMemoryBank[7]=0;		// unused
 
-	mapperType=retriefMapperType();
+	mapperType = retriefMapperType();
 
 	registerSlots();
 }
@@ -59,9 +63,9 @@ int MSXMegaRom::retriefMapperType()
 	//
 	//  To gues which mapper it is, we will look how much writes with this 
 	//  instruction to the mapper-registers-addresses occure.
-	for (int i=0;i<romSize-2;i++) {
+	for (int i=0; i<romSize-2; i++) {
 		if (memoryBank[i] == 0x32) {
-			int value=memoryBank[i+1]+(memoryBank[i+2]<<8);
+			int value = memoryBank[i+1]+(memoryBank[i+2]<<8);
 			switch (value){
 			case 0x5000:
 			case 0x9000:
@@ -99,7 +103,8 @@ int MSXMegaRom::retriefMapperType()
 	if (typeGuess[4]) typeGuess[4]--; // decrement of zero is max_int :-)
 	int type = 0;
 	for (int i=0; i<6; i++) {
-		if (typeGuess[i]>typeGuess[type]) type=i;
+		if (typeGuess[i]>typeGuess[type]) 
+			type = i;
 	}
 	PRT_DEBUG("I Guess this is a nr. " << type << " megarom mapper type.")
 	return type;
@@ -107,132 +112,133 @@ int MSXMegaRom::retriefMapperType()
 
 byte MSXMegaRom::readMem(word address, EmuTime &time)
 {
-  return internalMemoryBank[(address>>13)-2][address & 0x1fff];
+	return internalMemoryBank[(address>>13)][address&0x1fff];
 }
 
 void MSXMegaRom::writeMem(word address, byte value, EmuTime &time)
 {
-  byte regio;
+	byte regio;
   
-  // Enable/disable SCC
-  // TODO: make this only working for empty cartridge or correct mapperType
-  // when done you could simply return from this case
-  if (address == 0x9000){
-    enabledSCC=(value==0x3F)?true:false;
-    //TODO: (un)register as sound device :-)
-  }
+	// Enable/disable SCC
+	// TODO: make this only working for empty cartridge or correct mapperType
+	// when done you could simply return from this case
+	if (address == 0x9000) {
+		enabledSCC = (value==0x3F) ? true : false;
+		//TODO: (un)register as sound device :-)
+		//      or just mute sound device
+	}
 
-  // Write to SCC register
-  if ( enabledSCC && ((address & 0xFF00) == 0X9800)){
-    //cartridgeSCC((addr&0x7F),value); //TODO check if bit 7 as influence 
-    return;
-  }
+	// Write to SCC register
+	if (enabledSCC && ((address&0xFF00) == 0X9800)) {
+		//cartridgeSCC((addr&0x7F),value); //TODO check if bit 7 as influence 
+		return;
+	}
 
-  // If no cartridge or no mapper return
-  if (memoryBank == 0)  return;
-
-
-  switch (mapperType){
-    case 0: //   --==>> Generic 8kB cartridges <<==--
-      if ((address < 0x4000) || (address >0xBFFF)) return;
-      if ((address & 0xe000) == 0x8000 ) { // 0x8000..0x9FFF is used as SCC switch
-	enabledSCC=((value&0x3F)==0x3F)?true:false;
-      }
-      /* change internal mapper*/
-      value&=mapperMask;
-      regio=(address>>13)-2;
-      internalMemoryBank[regio]=memoryBank+(value<<13);
-      internalMapper[regio]=value;
-      break;
-    case 1: //   --==**>> Generic 16kB cartridges (MSXDOS2, Hole in one special) <<**==--
-      if ((address < 0x4000) || (address >0xBFFF)) return;
-      regio=(address & 0x8000 ) >>14;
-      value&=(value<<1)&mapperMask;
-      internalMemoryBank[regio]=memoryBank+(value<<13);
-      internalMemoryBank[regio+1]=internalMemoryBank[regio]+0x2000; //TODO check if fMSX is right?
-      internalMapper[regio]=value;
-      break;
-    case 2: //   --==**>> KONAMI5 8kB cartridges <<**==--
-      /* this type is used by Konami cartridges that do have an SCC and some others
-      * example of catrridges: Nemesis 2, Nemesis 3, King's Valley 2, Space Manbow
-      * Solid Snake, Quarth, Ashguine 1, Animal, Arkanoid 2, ...
-      */
+	switch (mapperType) {
+	case 0: 
+		//--==>> Generic 8kB cartridges <<==--
+		if ((address<0x4000) || (address>0xBFFF))
+			return;
+		if ((address&0xe000) == 0x8000 ) {
+			// 0x8000..0x9FFF is used as SCC switch
+			enabledSCC=((value&0x3F)==0x3F)?true:false;
+		}
+		// change internal mapper
+		value &= mapperMask;
+		regio = (address>>13);	// 0-7
+		internalMemoryBank[regio] = memoryBank+(value<<13);
+		break;
+	case 1: 
+		//--==**>> Generic 16kB cartridges (MSXDOS2, Hole in one special) <<**==--
+		if ((address<0x4000) || (address>0xBFFF))
+			return;
+		regio = (address&0xc000)>>13;	// 0, 2, 4, 6
+		value &= (2*value)&mapperMask;
+		internalMemoryBank[regio]   = memoryBank+(value<<13);
+		internalMemoryBank[regio+1] = memoryBank+(value<<13)+0x2000;
+		break;
+	case 2: 
+		//--==**>> KONAMI5 8kB cartridges <<**==--
+		// this type is used by Konami cartridges that do have an SCC and some others
+		// example of catrridges: Nemesis 2, Nemesis 3, King's Valley 2, Space Manbow
+		// Solid Snake, Quarth, Ashguine 1, Animal, Arkanoid 2, ...
+		// 
+		// The address to change banks:
+		//  bank 1: 0x5000 - 0x57FF (0x5000 used)
+		//  bank 2: 0x7000 - 0x77FF (0x7000 used)
+		//  bank 3: 0x9000 - 0x97FF (0x9000 used)
+		//  bank 4: 0xB000 - 0xB7FF (0xB000 used)
       
-      /* The address to change banks:
-       bank 1: 0x5000 - 0x57FF (0x5000 used)
-       bank 2: 0x7000 - 0x77FF (0x7000 used)
-       bank 3: 0x9000 - 0x97FF (0x9000 used)
-       bank 4: 0xB000 - 0xB7FF (0xB000 used)
-      */
-      if ((address < 0x5000) || (address >0xB000) || ((address & 0x1800)!=0x1000)) return;
-      // Enable/disable SCC
-      if ((address & 0xF800) == 0x9000 )  { // 0x9000-0x97ff is used as SCC switch
-	enabledSCC=((value&0x3F)==0x3F)?true:false;
-      }
-      /* change internal mapper*/
-      regio=(address-0x5000)>>13;
-      value&=mapperMask;
-      internalMemoryBank[regio]=memoryBank+(value<<13);
-      internalMapper[regio]=value;
-      break;
-    case 3: //   --==**>> KONAMI4 8kB cartridges <<**==--
-      /* this type is used by Konami cartridges that do not have an SCC and some others
-      * example of catrridges: Nemesis, Penguin Adventure, Usas, Metal Gear, Shalom, 
-      * The Maze of Galious, Aleste 1, 1942,Heaven, Mystery World, ...
-      */
+		if ((address<0x5000) || (address>0xB000) || ((address&0x1800)!=0x1000))
+			return;
+		// Enable/disable SCC
+		if ((address&0xF800) == 0x9000 )  {
+			// 0x9000-0x97ff is used as SCC switch
+			enabledSCC = ((value&0x3F)==0x3F) ? true : false;
+		}
+		// change internal mapper
+		regio = (address-0x1000)>>13;
+		value &= mapperMask;
+		internalMemoryBank[regio] = memoryBank+(value<<13);
+		break;
+	case 3: 
+		//--==**>> KONAMI4 8kB cartridges <<**==--
+		// this type is used by Konami cartridges that do not have an SCC and some others
+		// example of catrridges: Nemesis, Penguin Adventure, Usas, Metal Gear, Shalom, 
+		// The Maze of Galious, Aleste 1, 1942,Heaven, Mystery World, ...
+		//
+		// page at 4000 is fixed, other banks are switched
+		// by writting at 0x6000,0x8000 and 0xA000
+		 
+		if ((address<0x6000) || (address>0xa000) || (address&0x1FFF))
+			return;
+		regio = (address>>13);
+		value &= mapperMask;
+		internalMemoryBank[regio] = memoryBank+(value<<13);
+		break;
+	case 4: 
+		//--==**>> ASCII 8kB cartridges <<**==--
+		// this type is used in many japanese-only cartridges.
+		// example of cartridges: Valis(Fantasm Soldier), Dragon Slayer, Outrun, Ashguine 2, ...
+		//
+		// The address to change banks:
+		//  bank 1: 0x6000 - 0x67FF (0x5000 used)
+		//  bank 2: 0x6800 - 0x6FFF (0x7000 used)
+		//  bank 3: 0x7000 - 0x77FF (0x9000 used)
+		//  bank 4: 0x7800 - 0x7FFF (0xB000 used)
       
-      /* page at 4000 is fixed, other banks are switched
-         by writting at 0x6000,0x8000 and 0xA000 */
-      if ((address < 0x6000) || (address >0xa000) || (address & 0x1FFF)) return;
-      regio=(address>>13)-2;
-      value&=mapperMask;
-      internalMemoryBank[regio]=memoryBank+(value<<13);
-      internalMapper[regio]=value;
-      break;
-    case 4: //   --==**>> ASCII 8kB cartridges <<**==--
-      /* this type is used in many japanese-only cartridges.
-      * example of cartridges: Valis(Fantasm Soldier), Dragon Slayer, Outrun, Ashguine 2, ...
-      */
+		if ((address<0x6000) || (address>0x7fff))
+			return;
+		regio = ((address>>11)&3)+2;
+		value &= mapperMask;
+		internalMemoryBank[regio] = memoryBank+(value<<13);
+		break;
+	case 5:
+		//--==**>> ASCII 16kB cartridges <<**==--
+		// this type is used in a few cartridges.
+		// example of cartridges: Xevious, Fantasy Zone 2, Return of Ishitar, Androgynus, ...
+		//
+		// Gallforce is a special case after a reset the second 16kb has to start with 
+		// the first 16kb after a reset
+		//
+		// The address to change banks:
+		//  first  16kb: 0x6000 - 0x67FF (0x6000 used)
+		//  second 16kb: 0x7000 - 0x77FF (0x7000 and 0x77FF used)
       
-      /* The address to change banks:
-       bank 1: 0x6000 - 0x67FF (0x5000 used)
-       bank 2: 0x6800 - 0x6FFF (0x7000 used)
-       bank 3: 0x7000 - 0x77FF (0x9000 used)
-       bank 4: 0x7800 - 0x7FFF (0xB000 used)
-      */
-      if ((address < 0x6000) || (address >0x7fff)) return;
-      regio=(address>>11)&3;
-      value&=mapperMask;
-      internalMemoryBank[regio]=memoryBank+(value<<13);
-      internalMapper[regio]=value;
-      break;
-    case 5: //   --==**>> ASCII 16kB cartridges <<**==--
-      /* this type is used in a few cartridges.
-      * example of cartridges: Xevious, Fantasy Zone 2, Return of Ishitar, Androgynus, ...
-      *
-      * Gallforce is a special case after a reset the second 16kb has to start with 
-      * the first 16kb after a reset
-      *
-      */
-      
-      /* The address to change banks:
-       first  16kb: 0x6000 - 0x67FF (0x6000 used)
-       second 16kb: 0x7000 - 0x77FF (0x7000 and 0x77FF used)
-      */
-      if ((address < 0x6000) || (address >0x77ff) || (address&0x800)) return;
-      regio=(address>>11)&2;
-      value&=(value<<1)&mapperMask;
-      internalMemoryBank[regio]=memoryBank+(value<<13);
-      internalMemoryBank[regio+1]=internalMemoryBank[regio]+0x2000;
-      internalMapper[regio]=value;
-      break;
-    case 6: //   --==**>> GameMaster2+SRAM cartridge <<**==--
-      PRT_DEBUG("GameMaster2 must become an independend MSXDevice");
-      assert(1);
-      break;
-    default:
-      PRT_DEBUG("Unknow mapper type for megarom cartridge!!!");
-      assert(1);
-  }
-
+		if ((address<0x6000) || (address>0x77ff) || (address&0x800))
+			return;
+		regio = ((address>>11)&2)+2;
+		value &= (2*value)&mapperMask;
+		internalMemoryBank[regio]   = memoryBank+(value<<13);
+		internalMemoryBank[regio+1] = memoryBank+(value<<13)+0x2000;
+		break;
+	case 6: 
+		//--==**>> GameMaster2+SRAM cartridge <<**==--
+		//// GameMaster2 must become an independend MSXDevice
+		assert(false);
+		break;
+	default:
+		//// Unknow mapper type for megarom cartridge!!!
+		assert(false);
+	}
 }

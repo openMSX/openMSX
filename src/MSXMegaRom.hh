@@ -29,8 +29,7 @@ class MSXMegaRom : public MSXDevice
 		byte* memoryBank;
 		int mapperType;
 		byte mapperMask;
-		byte internalMapper[4];
-      		byte *internalMemoryBank[4]; // 4 blocks of 8kB starting at #4000
+		byte *internalMemoryBank[8]; // 4 blocks of 8kB starting at #4000
 		bool enabledSCC;
 
 		int retriefMapperType();
