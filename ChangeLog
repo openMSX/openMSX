@@ -7,6 +7,11 @@ $Id$
 	* Stop logging sound when frequency setting is changed. 
 	  Alternative: ignore frequency change when logging sound.
 
+2005-03-13 Herman Oudejans <hn.oudejans@quicknet.nl>
+	* Fixed win32 compile errors
+	  ToDo: * 2 warnings
+	  		* better integration of wsock32 in the buildsystem
+
 2005-03-12 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added basic code to record openMSX sound to wav file. It is not used
 	  yet, but one can test it by uncommenting 2 lines.

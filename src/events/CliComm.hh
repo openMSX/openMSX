@@ -3,6 +3,13 @@
 #ifndef CLICOMM_HH
 #define CLICOMM_HH
 
+#ifdef	_WIN32
+	typedef void* HANDLE;
+	typedef unsigned int SOCKET; // dirty but it works
+#else
+	typedef int SOCKET
+#endif
+
 #include "Thread.hh"
 #include "Schedulable.hh"
 #include "Semaphore.hh"
@@ -126,7 +133,7 @@ private:
 
 	class SocketConnection : public Connection, private Runnable {
 	public:
-		SocketConnection(int sd);
+		SocketConnection(SOCKET sd);
 		~SocketConnection();
 		virtual void output(const std::string& message);
 		virtual void close();

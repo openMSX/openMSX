@@ -1,9 +1,9 @@
 // $Id$
 
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#endif
+//#ifdef _WIN32
+//#define WIN32_LEAN_AND_MEAN
+//#include <windows.h>
+//#endif
 
 #include "CliComm.hh"
 #include "CommandController.hh"
@@ -352,7 +352,7 @@ CliComm::PipeConnection::~PipeConnection()
 
 void CliComm::PipeConnection::run()
 {
-	while (pipeHandle != -1) {
+	while (pipeHandle != INVALID_HANDLE_VALUE) {
 		char buf[BUF_SIZE];
 		unsigned long bytesRead;
 		if (!ReadFile(pipeHandle, buf, BUF_SIZE, &bytesRead, NULL)) {
@@ -365,7 +365,7 @@ void CliComm::PipeConnection::run()
 
 void CliComm::PipeConnection::output(const std::string& message)
 {
-	if (pipeHandle != -1) {
+	if (pipeHandle != INVALID_HANDLE_VALUE) {
 		cout << message << std::flush;
 	}
 }
@@ -373,7 +373,7 @@ void CliComm::PipeConnection::output(const std::string& message)
 void CliComm::PipeConnection::close()
 {
 	CloseHandle(pipeHandle);
-	pipeHandle = -1;
+	pipeHandle = INVALID_HANDLE_VALUE;
 }
 #endif // _WIN32
 
