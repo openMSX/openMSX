@@ -42,6 +42,7 @@ openmsx_SOURCES=\
 	Renderer.hh Renderer.cc \
 	SDLHiRenderer.hh SDLHiRenderer.cc \
 	SDLGLRenderer.hh SDLGLRenderer.cc \
+	BitmapConverter.hh BitmapConverter.cc \
 	PlatformFactory.hh PlatformFactory.cc \
 	devicefactory.hh devicefactory.cc \
 	Scheduler.hh Scheduler.cc \

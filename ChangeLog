@@ -1,5 +1,11 @@
 $Id$
 
+2002-04-07 Maarten ter Huurne <mth@stack.nl>
+	* Took bitmap scanline conversion out of SDLHiRenderer and put it in
+	  a separate class called BitmapConverter.
+	  It is necessary to reduce the size of SDLHiRenderer, because its
+	  source had become too large to manage (over 1250 lines).
+
 2002-04-06 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* small update to doc/developersFAQ.txt
 

@@ -70,6 +70,12 @@ public:
 		return cmdRead(address);
 	}
 
+	/** TODO: Get rid of it, currently makes Renderers compile.
+	  */
+	inline const byte *getVRAMArea(int start, int end) {
+		return data + start;
+	}
+
 	/** Read a byte from VRAM.
 	  */
 	inline byte read(int address, const EmuTime &time) {

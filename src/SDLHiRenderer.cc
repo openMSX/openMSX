@@ -90,7 +90,7 @@ template <class Pixel> inline void SDLHiRenderer<Pixel>::renderUntil(
 	int limit)
 {
 	if (nextLine < limit) {
-		(this->*phaseHandler)(limit);
+		(this->*phaseHandler)(nextLine, limit);
 		nextLine = limit ;
 	}
 }
@@ -121,15 +121,6 @@ template <class Pixel> inline Pixel *SDLHiRenderer<Pixel>::getLinePtr(
 		+ line * displayCache->pitch );
 }
 
-template <class Pixel> inline Pixel SDLHiRenderer<Pixel>::graphic7Colour(
-	byte index)
-{
-	return V9938_COLOURS
-			[(index & 0x1C) >> 2]
-			[(index & 0xE0) >> 5]
-			[((index & 0x03) << 1) | ((index & 0x02) >> 1)];
-}
-
 // TODO: Cache this?
 template <class Pixel> inline Pixel SDLHiRenderer<Pixel>::getBorderColour()
 {
@@ -138,13 +129,69 @@ template <class Pixel> inline Pixel SDLHiRenderer<Pixel>::getBorderColour()
 	//       Keep doing that or make VDP handle SCREEN8 differently?
 	return
 		( vdp->getDisplayMode() == 0x1C
-		? graphic7Colour(
-			vdp->getBackgroundColour() | (vdp->getForegroundColour() << 4))
+		? PALETTE256[
+			vdp->getBackgroundColour() | (vdp->getForegroundColour() << 4)]
 		: palBg[ vdp->getDisplayMode() == 0x10
 		       ? vdp->getBackgroundColour() & 3
 		       : vdp->getBackgroundColour()
 		       ]
 		);
+}
+
+template <class Pixel> inline void SDLHiRenderer<Pixel>::renderBitmapLines(
+	int line, int number)
+{
+	int mode = vdp->getDisplayMode();
+	// Which bits in the name mask determine the page?
+	int pageMask = 0x200 | vdp->getEvenOddMask();
+	do {
+		// TODO: Optimise addr and line; too many connversions right now.
+		int vramLine = (vdp->getNameMask() >> 7) & (pageMask | line);
+		if (lineValidInMode[vramLine] != mode) {
+			int addr = (vramLine << 7) & vdp->getNameMask();
+			const byte *vramPtr = vram->getVRAMArea(addr, addr + 128);
+			bitmapConverter.convertLine(
+				getLinePtr(bitmapDisplayCache, vramLine), vramPtr );
+			lineValidInMode[vramLine] = mode;
+		}
+		line = (line + 1) & 0xFF;
+	} while (--number);
+}
+
+template <class Pixel> inline void SDLHiRenderer<Pixel>::renderPlanarBitmapLines(
+	int line, int number)
+{
+	int mode = vdp->getDisplayMode();
+	// Which bits in the name mask determine the page?
+	int pageMask = vdp->getEvenOddMask();
+	do {
+		// TODO: Optimise addr and line; too many connversions right now.
+		int vramLine = (vdp->getNameMask() >> 7) & (pageMask | line);
+		if ( lineValidInMode[vramLine] != mode
+		|| lineValidInMode[vramLine | 512] != mode ) {
+			int addr0 = (vramLine << 7) & vdp->getNameMask();
+			int addr1 = addr0 | 0x10000;
+			const byte *vramPtr0 = vram->getVRAMArea(addr0, addr0 + 128);
+			const byte *vramPtr1 = vram->getVRAMArea(addr1, addr1 + 128);
+			bitmapConverter.convertLinePlanar(
+				getLinePtr(bitmapDisplayCache, vramLine),
+				vramPtr0, vramPtr1 );
+			lineValidInMode[vramLine] =
+				lineValidInMode[vramLine | 512] = mode;
+		}
+		line = (line + 1) & 0xFF;
+	} while (--number);
+}
+
+template <class Pixel> inline void SDLHiRenderer<Pixel>::renderCharacterLines(
+	int line, int number)
+{
+	do {
+		// Render this line.
+		(this->*renderMethod)
+			(getLinePtr(charDisplayCache, line), line);
+		line = (line + 1) & 0xFF;
+	} while (--number);
 }
 
 // TODO: Verify on real MSX2 what non-documented modes do.
@@ -233,6 +280,7 @@ template <class Pixel> SDLHiRenderer<Pixel>::DirtyChecker
 template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 	VDP *vdp, SDL_Surface *screen, bool fullScreen, const EmuTime &time)
 	: Renderer(fullScreen)
+	, bitmapConverter(palFg, PALETTE256)
 {
 	console = new SDLConsole(screen);
 
@@ -247,6 +295,7 @@ template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 	phaseHandler = &SDLHiRenderer::blankPhase;
 	renderMethod = modeToRenderMethod[vdp->getDisplayMode()];
 	dirtyChecker = modeToDirtyChecker[vdp->getDisplayMode()];
+	bitmapConverter.setDisplayMode(vdp->getDisplayMode());
 	palSprites = palBg;
 	setDirty(true);
 	dirtyForeground = dirtyBackground = true;
@@ -306,6 +355,13 @@ template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 						);
 				}
 			}
+		}
+		// Precalculate Graphic 7 bitmap palette.
+		for (int i = 0; i < 256; i++) {
+			PALETTE256[i] = V9938_COLOURS
+				[(i & 0x1C) >> 2]
+				[(i & 0xE0) >> 5]
+				[((i & 0x03) << 1) | ((i & 0x02) >> 1)];
 		}
 		// Precalculate Graphic 7 sprite palette.
 		for (int i = 0; i < 16; i++) {
@@ -456,6 +512,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateDisplayMode(
 	sync(time);
 	renderMethod = modeToRenderMethod[mode];
 	dirtyChecker = modeToDirtyChecker[mode];
+	bitmapConverter.setDisplayMode(mode);
 	palSprites = (mode == 0x1C ? palGraphic7Sprites : palBg);
 	setDirty(true);
 }
@@ -801,9 +858,9 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderGraphic7(
 	int addr = (line << 7) & vdp->getNameMask();
 	do {
 		pixelPtr[0] = pixelPtr[1] =
-			graphic7Colour(vram->getVRAM(addr));
+			PALETTE256[vram->getVRAM(addr)];
 		pixelPtr[2] = pixelPtr[3] =
-			graphic7Colour(vram->getVRAM(0x10000 | addr));
+			PALETTE256[vram->getVRAM(0x10000 | addr)];
 		pixelPtr += 4;
 	} while (++addr & 127);
 }
@@ -993,14 +1050,14 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::blankPhase(
-	int limit)
+	int line, int limit)
 {
 	// TODO: Only redraw if necessary.
 	SDL_Rect rect;
 	rect.x = 0;
-	rect.y = (nextLine - lineRenderTop) * 2;
+	rect.y = (line - lineRenderTop) * 2;
 	rect.w = WIDTH;
-	rect.h = (limit - nextLine) * 2;
+	rect.h = (limit - line) * 2;
 
 	// Clip to area actually displayed.
 	// TODO: Does SDL_FillRect clip as well?
@@ -1020,14 +1077,10 @@ template <class Pixel> void SDLHiRenderer<Pixel>::blankPhase(
 	}
 }
 
-// TODO: Instead of modifying nextLine field, pass it as a parameter.
-//       After all, so is limit.
-//       Having nextLine as a parameter would make it easier to put this
-//       method in a separate class.
 template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
-	int limit)
+	int fromLine, int limit)
 {
-	//cerr << "displayPhase from " << nextLine << " until " << limit << "\n";
+	//cerr << "displayPhase from " << fromLine << " until " << limit << "\n";
 
 	// Check for bottom erase; even on overscan this suspends display.
 	if (limit > lineBottomErase) {
@@ -1036,19 +1089,15 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	if (limit > lineRenderTop + HEIGHT / 2) {
 		limit = lineRenderTop + HEIGHT / 2;
 	}
-	if (nextLine >= limit) return;
+	if (fromLine >= limit) return;
 
 	// Perform vertical scroll.
 	int scrolledLine =
-		(nextLine - vdp->getLineZero() + vdp->getVerticalScroll()) & 0xFF;
+		(fromLine - vdp->getLineZero() + vdp->getVerticalScroll()) & 0xFF;
 
 	// Character mode or bitmap mode?
 	SDL_Surface *displayCache =
 		vdp->isBitmapMode() ? bitmapDisplayCache : charDisplayCache;
-
-	// Which bits in the name mask determine the page?
-	int pageMask =
-		(vdp->isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
 
 	// Lock surface, because we will access pixels directly.
 	if (SDL_MUSTLOCK(displayCache) && SDL_LockSurface(displayCache) < 0) {
@@ -1058,30 +1107,11 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	// Render background lines.
 	// TODO: Complete separation of character and bitmap modes.
 	if (vdp->isBitmapMode()) {
-		int line = scrolledLine;
-		int n = limit - nextLine;
-		bool planar = vdp->isPlanar();
-		do {
-			int vramLine = (vdp->getNameMask() >> 7) & (pageMask | line);
-			if ( (lineValidInMode[vramLine] != vdp->getDisplayMode())
-			|| (planar && (lineValidInMode[vramLine | 512] != vdp->getDisplayMode())) ) {
-				(this->*renderMethod)
-					(getLinePtr(displayCache, vramLine), vramLine);
-				lineValidInMode[vramLine] = vdp->getDisplayMode();
-				if (planar) {
-					lineValidInMode[vramLine | 512] = vdp->getDisplayMode();
-				}
-			}
-			line = (line + 1) & 0xFF;
-		} while (--n);
+		int n = limit - fromLine;
+		if (vdp->isPlanar()) renderPlanarBitmapLines(scrolledLine, n);
+		else renderBitmapLines(scrolledLine, n);
 	} else {
-		int line = scrolledLine;
-		int n = limit - nextLine;
-		do {
-			(this->*renderMethod)
-				(getLinePtr(displayCache, line), line);
-			line = (line + 1) & 0xFF;
-		} while (--n);
+		renderCharacterLines(scrolledLine, limit - fromLine);
 	}
 	// Unlock surface.
 	if (SDL_MUSTLOCK(displayCache)) SDL_UnlockSurface(displayCache);
@@ -1094,17 +1124,18 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	source.h = 1;
 	SDL_Rect dest;
 	dest.x = getLeftBorder();
-	dest.y = (nextLine - lineRenderTop) * 2;
+	dest.y = (fromLine - lineRenderTop) * 2;
 	int line = scrolledLine;
 	int pageMaskEven, pageMaskOdd;
 	if (vdp->isInterlaced() && vdp->isEvenOddEnabled()) {
 		pageMaskEven = vdp->isPlanar() ? 0x000 : 0x200;
 		pageMaskOdd  = vdp->isPlanar() ? 0x100 : 0x300;
 	} else {
-		pageMaskEven = pageMaskOdd = pageMask;
+		pageMaskEven = pageMaskOdd =
+			(vdp->isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
 	}
 	// TODO: Optimise.
-	for (int n = limit - nextLine; n--; ) {
+	for (int n = limit - fromLine; n--; ) {
 		source.y =
 			( vdp->isBitmapMode()
 			? (vdp->getNameMask() >> 7) & (pageMaskEven | line)
@@ -1136,7 +1167,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 		// Display will be wrong, but this is not really critical.
 		return;
 	}
-	for (int line = nextLine; line < limit; line++) {
+	for (int line = fromLine; line < limit; line++) {
 		drawSprites(line);
 	}
 	// Unlock surface.
@@ -1148,9 +1179,9 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	// TODO: Does the extended border clip sprites as well?
 	Pixel bgColour = getBorderColour();
 	dest.x = 0;
-	dest.y = (nextLine - lineRenderTop) * 2;
+	dest.y = (fromLine - lineRenderTop) * 2;
 	dest.w = getLeftBorder();
-	dest.h = (limit - nextLine) * 2;
+	dest.h = (limit - fromLine) * 2;
 	// Note: SDL clipping is relied upon because interlace can push rect
 	//       one line out of the screen.
 	SDL_FillRect(screen, &dest, bgColour);
@@ -1163,8 +1194,6 @@ template <class Pixel> void SDLHiRenderer<Pixel>::frameStart(
 	const EmuTime &time)
 {
 	//cerr << "timing: " << (vdp->isPalTiming() ? "PAL" : "NTSC") << "\n";
-
-	frameStartTime = time;
 
 	// Calculate line to render at top of screen.
 	// Make sure the display area is centered.

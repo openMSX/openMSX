@@ -6,6 +6,7 @@
 #include <SDL/SDL.h>
 #include "openmsx.hh"
 #include "Renderer.hh"
+#include "BitmapConverter.hh"
 
 class VDP;
 class VDPVRAM;
@@ -58,12 +59,16 @@ public:
 
 private:
 	typedef void (SDLHiRenderer::*RenderMethod)(Pixel *pixelPtr, int line);
-	typedef void (SDLHiRenderer::*PhaseHandler)(int limit);
+	typedef void (SDLHiRenderer::*PhaseHandler)(int line, int limit);
 	typedef void (SDLHiRenderer::*DirtyChecker)
 		(int addr, byte data, const EmuTime &time);
 
 	inline void sync(const EmuTime &time);
 	inline void renderUntil(int limit);
+
+	inline void renderBitmapLines(int line, int number);
+	inline void renderPlanarBitmapLines(int line, int number);
+	inline void renderCharacterLines(int line, int number);
 
 	/** Get width of the left border in pixels.
 	  * This is equal to the X coordinate of the display area.
@@ -107,13 +112,13 @@ private:
 	  * Used for borders and during blanking.
 	  * @param limit Render lines [currentLine..limit).
 	  */
-	void blankPhase(int limit);
+	void blankPhase(int line, int limit);
 
 	/** Render pixels according to VRAM.
 	  * Used for the display part of scanning.
 	  * @param limit Render lines [currentLine..limit).
 	  */
-	void displayPhase(int limit);
+	void displayPhase(int line, int limit);
 
 	/** Dirty checking that does nothing (but is a valid method).
 	  */
@@ -139,11 +144,11 @@ private:
 	  */
 	void setDirty(bool);
 
-	/** RenderMethods for each screen mode.
+	/** RenderMethods for each display mode.
 	  */
 	static RenderMethod modeToRenderMethod[];
 
-	/** DirtyCheckers for each screen mode.
+	/** DirtyCheckers for each display mode.
 	  */
 	static DirtyChecker modeToDirtyChecker[];
 
@@ -177,6 +182,11 @@ private:
 	  */
 	Pixel V9938_COLOURS[8][8][8];
 
+	/** SDL colours corresponding to the 256 colour palette of Graphic7.
+	  * Used by BitmapConverter.
+	  */
+	Pixel PALETTE256[256];
+
 	/** Rendering method for the current display mode.
 	  */
 	RenderMethod renderMethod;
@@ -188,10 +198,6 @@ private:
 	/** Dirty checker: update dirty tables on VRAM write.
 	  */
 	DirtyChecker dirtyChecker;
-
-	/** Moment in emulated time the current frame started.
-	  */
-	EmuTime frameStartTime;
 
 	/** Number of the next line to render.
 	  * Absolute line number: [0..262) for NTSC, [0..313) for PAL.
@@ -248,6 +254,9 @@ private:
 	  */
 	bool dirtyBackground;
 
+	/** VRAM to pixels converter for bitmap display modes.
+	  */
+	BitmapConverter<Pixel> bitmapConverter;
 
 	SDLConsole* console;
 };
