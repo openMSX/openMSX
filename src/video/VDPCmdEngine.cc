@@ -101,7 +101,7 @@ VDPCmdEngine::VDPCmdEngine(VDP *vdp_)
 	SX = SY = DX = DY = NX = NY = 0;
 	COL = ARG = CMD = 0;
 	LOG = OP_IMP;
-	timingValue = vdpTiming = 0;
+	brokenTiming = false;
 	statusChangeTime = EmuTime::infinity;
 
 	VDPSettings::instance()->getCmdTiming()->addListener(this);
@@ -131,22 +131,9 @@ void VDPCmdEngine::reset(const EmuTime &time)
 	updateDisplayMode(vdp->getDisplayMode(), time);
 }
 
-void VDPCmdEngine::updateTiming(int timing, const EmuTime &time)
-{
-	vdpTiming = timing;
-	if (timingValue != 4) {
-		sync(time);
-		timingValue = timing;
-	}
-}
-
 void VDPCmdEngine::update(const SettingLeafNode *setting)
 {
-	if (static_cast<const EnumSetting<bool>*>(setting)->getValue()) {
-		timingValue = 4;
-	} else {
-		timingValue = vdpTiming;
-	}
+	brokenTiming = static_cast<const EnumSetting<bool>*>(setting)->getValue();
 }
 
 void VDPCmdEngine::setCmdReg(byte index, byte value, const EmuTime &time)
@@ -269,7 +256,7 @@ void VDPCmdEngine::executeCommand(const EmuTime &time)
 	cmd->start(time);
 
 	// finish command now if instantaneous command timing is active
-	if (timingValue == 4) {
+	if (brokenTiming) {
 		cmd->execute(time);
 	}
 }
@@ -626,7 +613,7 @@ void VDPCmdEngine::SrchCmd::execute(const EmuTime &time)
 	byte CL = engine->COL & MASK[engine->scrMode];
 	char TX = (engine->ARG & DIX) ? -1 : 1;
 	bool AEQ = (engine->ARG & EQ) != 0; // TODO: Do we look for "==" or "!="?
-	int delta = SRCH_TIMING[engine->timingValue];
+	int delta = SRCH_TIMING[engine->getTiming()];
 
 #define pre_srch \
 		pre_loop \
@@ -685,7 +672,7 @@ void VDPCmdEngine::LineCmd::execute(const EmuTime &time)
 	byte CL = engine->COL & MASK[engine->scrMode];
 	char TX = (engine->ARG & DIX) ? -1 : 1;
 	char TY = (engine->ARG & DIY) ? -1 : 1;
-	int delta = LINE_TIMING[engine->timingValue];
+	int delta = LINE_TIMING[engine->getTiming()];
 
 #define post_linexmaj(MX) \
 		currentTime += delta; \
@@ -755,7 +742,7 @@ VDPCmdEngine::BlockCmd::BlockCmd(VDPCmdEngine *engine, VDPVRAM *vram,
 void VDPCmdEngine::BlockCmd::calcFinishTime(word NX, word NY)
 {
 	if (engine->CMD) {
-		int ticks = ((NX * (NY - 1)) + ANX) * timing[engine->timingValue]; 
+		int ticks = ((NX * (NY - 1)) + ANX) * timing[engine->getTiming()]; 
 		engine->statusChangeTime = currentTime + ticks;
 	}
 }
@@ -790,7 +777,7 @@ void VDPCmdEngine::LmmvCmd::execute(const EmuTime &time)
 	char TY = (engine->ARG & DIY) ? -1 : 1;
 	ANX = clipNX_1(ADX, ANX);
 	byte CL = engine->COL & MASK[engine->scrMode];
-	int delta = LMMV_TIMING[engine->timingValue];
+	int delta = LMMV_TIMING[engine->getTiming()];
 
 	switch (engine->scrMode) {
 	case 0: pre_loop
@@ -843,7 +830,7 @@ void VDPCmdEngine::LmmmCmd::execute(const EmuTime &time)
 	char TX = (engine->ARG & DIX) ? -1 : 1;
 	char TY = (engine->ARG & DIY) ? -1 : 1;
 	ANX = clipNX_2(ASX, ADX, ANX);
-	int delta = LMMM_TIMING[engine->timingValue];
+	int delta = LMMM_TIMING[engine->getTiming()];
 
 	switch (engine->scrMode) {
 	case 0: pre_loop
@@ -903,7 +890,7 @@ void VDPCmdEngine::LmcmCmd::execute(const EmuTime &time)
 		// with the timing.
 		// Note: Correct timing would require currentTime to be set
 		//       to the moment transfer becomes true.
-		//currentTime += LMMV_TIMING[engine->timingValue];
+		//currentTime += LMMV_TIMING[engine->getTiming()];
 		engine->transfer = false;
 		ASX += TX; --ANX;
 		if (ANX == 0) {
@@ -956,7 +943,7 @@ void VDPCmdEngine::LmmcCmd::execute(const EmuTime &time)
 		// with the timing.
 		// Note: Correct timing would require currentTime to be set
 		//       to the moment transfer becomes true.
-		//currentTime += LMMV_TIMING[engine->timingValue];
+		//currentTime += LMMV_TIMING[engine->getTiming()];
 		engine->transfer = false;
 
 		ADX += TX; --ANX;
@@ -1000,7 +987,7 @@ void VDPCmdEngine::HmmvCmd::execute(const EmuTime &time)
 	char TX = (engine->ARG & DIX) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
 	char TY = (engine->ARG & DIY) ? -1 : 1;
 	ANX = clipNX_1(ADX, ANX << ppbs, ppbs);
-	int delta = HMMV_TIMING[engine->timingValue];
+	int delta = HMMV_TIMING[engine->getTiming()];
 
 	switch (engine->scrMode) {
 	case 0:
@@ -1058,7 +1045,7 @@ void VDPCmdEngine::HmmmCmd::execute(const EmuTime &time)
 	char TX = (engine->ARG & DIX) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
 	char TY = (engine->ARG & DIY) ? -1 : 1;
 	ANX = clipNX_2(ASX, ADX, ANX << ppbs, ppbs);
-	int delta = HMMM_TIMING[engine->timingValue];
+	int delta = HMMM_TIMING[engine->getTiming()];
 
 	switch (engine->scrMode) {
 	case 0:
@@ -1126,7 +1113,7 @@ void VDPCmdEngine::YmmmCmd::execute(const EmuTime &time)
 	char TX = (engine->ARG & DIX) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
 	char TY = (engine->ARG & DIY) ? -1 : 1;
 	ANX = clipNX_1(ADX, 512, PPBS[engine->scrMode]);
-	int delta = YMMM_TIMING[engine->timingValue];
+	int delta = YMMM_TIMING[engine->getTiming()];
 
 	switch (engine->scrMode) {
 	case 0:
@@ -1204,7 +1191,7 @@ void VDPCmdEngine::HmmcCmd::execute(const EmuTime &time)
 		// with the timing.
 		// Note: Correct timing would require currentTime to be set
 		//       to the moment transfer becomes true.
-		//currentTime += HMMV_TIMING[engine->timingValue];
+		//currentTime += HMMV_TIMING[engine->getTiming()];
 		engine->transfer = false;
 
 		ADX += TX; --ANX;

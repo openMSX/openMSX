@@ -31,12 +31,6 @@ public:
 	  */
 	void reset(const EmuTime &time);
 
-	/** Change the timing of command execution.
-	  * @param timing The new active timing
-	  * @param time The moment in emulated time to sync to.
-	  */
-	void updateTiming(int timing, const EmuTime &time);
-
 	/** Synchronises the command engine with the VDP.
 	  * Ideally this would be a private method, but the current
 	  * design doesn't allow that.
@@ -114,7 +108,12 @@ private:
 	/** Finshed executing graphical operation.
 	  */
 	void commandDone(const EmuTime& time);
-	
+
+	/** Get the current command timing, depends on vdp settings (sprites, display).
+	  */
+	inline int getTiming() {
+		return brokenTiming ? 0 : vdp->getAccessTiming(); 
+	}
 
 	/** VDP command registers.
 	  */
@@ -150,10 +149,9 @@ private:
 	  */
 	int scrMode;
 
-	/** Active timing, depends on screen/status being on/off.
+	/** Real command timing or instantaneous (broken) timing
 	  */
-	int timingValue;
-	int vdpTiming;
+	bool brokenTiming;
 
 	class VDPCmd;
 	VDPCmd* commands[16];

@@ -1,5 +1,12 @@
 $Id$
 
+2003-10-18 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed VDP command timing:
+	   - the updateTiming() method did a sync() with the old register
+	     values (correct). But also updated the timimng variable with the
+	     old register values (wrong).
+	   - fixes "Coding Melpots" part in "Metal Limit" 
+
 2003-10-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Added "incr" and "decr" console commands
 
