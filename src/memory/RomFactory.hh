@@ -14,10 +14,6 @@ class RomFactory
 {
 	public:
 		static MSXRom* create(Device* config, const EmuTime &time);
-
-	private:
-		static MapperType retrieveMapperType(Device *config,
-		                              const EmuTime &time);
 };
 
 #endif

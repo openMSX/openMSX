@@ -1,5 +1,9 @@
 $Id$
 
+2003-03-22 Manuel Bilderbeek <manuel@msxnet.org>
+	* Refactored ROM mappertype retrieval/ROM Info (WIP, to enable readout
+	  of ROM info in the console.)
+
 2003-03-16 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented timeout for reading mouse:
 	   - this fixes the '"plug joyporta mouse" in settings.xml' bug

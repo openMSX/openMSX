@@ -19,7 +19,8 @@ libMemory_la_SOURCES = \
 	MSXMemoryMapper.cc MSXMemoryMapper.hh \
 	MSXRam.cc MSXRam.hh \
 	MSXRomCLI.cc MSXRomCLI.hh \
-	RomTypes.cc RomTypes.hh \
+	RomInfo.cc RomInfo.hh \
+	RomTypes.hh \
 	MSXRom.cc MSXRom.hh \
 	Rom4kBBlocks.cc Rom4kBBlocks.hh \
 	Rom8kBBlocks.cc Rom8kBBlocks.hh \

@@ -29,6 +29,9 @@ class Rom
 		int getSize() const {
 			return size;
 		}
+		const File* getFile() const {
+			return file;
+		}
 
 	private:
 		void read(Device *config, 

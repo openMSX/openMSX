@@ -4,6 +4,7 @@
 #include "RomFactory.hh"
 #include "MSXConfig.hh"
 #include "RomTypes.hh"
+#include "RomInfo.hh"
 #include "RomPageNN.hh"
 #include "RomPlain.hh"
 #include "RomGeneric8kB.hh"
@@ -32,7 +33,7 @@ MSXRomCLI msxRomCLI;
 
 MSXRom* RomFactory::create(Device* config, const EmuTime &time)
 {
-	MapperType type = retrieveMapperType(config, time);
+	MapperType type = RomInfo::retrieveMapperType(config, time);
 	switch (type) {
 		case PAGE0:
 		case PAGE1:
@@ -94,30 +95,3 @@ MSXRom* RomFactory::create(Device* config, const EmuTime &time)
 	}
 }
 
-MapperType RomFactory::retrieveMapperType(Device *config, const EmuTime &time)
-{
-	std::string type;
-	if (config->hasParameter("mappertype")) {
-		type = config->getParameter("mappertype");
-	} else {
-		// no type specified, perform auto detection
-		type = "auto";
-	}
-	MapperType mapperType;
-	if (type == "auto") {
-		Rom rom(config, time);
-		// automatically detect type, first look in database
-		mapperType = RomTypes::searchDataBase(rom.getBlock(),
-		                                      rom.getSize());
-		if (mapperType == UNKNOWN) {
-			// not in database, try to guess
-			mapperType = RomTypes::guessMapperType(rom.getBlock(),
-			                                       rom.getSize());
-		}
-	} else {
-		// explicitly specified type
-		mapperType = RomTypes::nameToMapperType(type);
-	}
-	PRT_DEBUG("MapperType: " << mapperType);
-	return mapperType;
-}

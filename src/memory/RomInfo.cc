@@ -1,7 +1,7 @@
 // $Id$
 
 #include <map>
-#include "RomTypes.hh"
+#include "RomInfo.hh"
 #include "md5.hh"
 #include "libxmlx/xmlx.hh"
 #include "FileContext.hh"
@@ -14,7 +14,15 @@ struct caseltstr {
 	}
 };
 
-MapperType RomTypes::nameToMapperType(const std::string &name)
+RomInfo::RomInfo(const std::string &nid, const std::string &nyear, const std::string &ncompany, const std::string &nremark, const MapperType &nmapperType) {
+	id=nid;
+	year=nyear;
+	company=ncompany;
+	remark=nremark;
+	mapperType=nmapperType;
+}
+
+MapperType RomInfo::nameToMapperType(const std::string &name)
 {
 	static std::map<std::string, MapperType, caseltstr> mappertype;
 	static bool init = false;
@@ -97,7 +105,7 @@ MapperType RomTypes::nameToMapperType(const std::string &name)
 }
 
 
-MapperType RomTypes::guessMapperType(const byte* data, int size)
+MapperType RomInfo::guessMapperType(const byte* data, int size)
 {
 	if (size <= 0x10000) {
 		if (size == 0x10000) {
@@ -176,7 +184,7 @@ MapperType RomTypes::guessMapperType(const byte* data, int size)
 	}
 }
 
-MapperType RomTypes::searchDataBase(const byte* data, int size)
+RomInfo RomInfo::fetchRomInfo(const Rom &rom)
 {
 	static std::map<std::string, RomInfo*> romDB;
 	static bool init = false;
@@ -189,12 +197,7 @@ MapperType RomTypes::searchDataBase(const byte* data, int size)
 			XML::Document doc(file.getLocalName().c_str());
 			std::list<XML::Element*>::iterator it1 = doc.root->children.begin();
 			for ( ; it1 != doc.root->children.end(); it1++) {
-				RomInfo* romInfo = new RomInfo();
-				romInfo->romType=(*it1)->getElementPcdata("romtype");
-				romInfo->id=(*it1)->getAttribute("id");
-				romInfo->year=(*it1)->getElementPcdata("year");
-				romInfo->company=(*it1)->getElementPcdata("company");
-				romInfo->remark=(*it1)->getElementPcdata("remark");
+				RomInfo* romInfo = new RomInfo((*it1)->getAttribute("id"),(*it1)->getElementPcdata("year"), (*it1)->getElementPcdata("company"), (*it1)->getElementPcdata("remark"), nameToMapperType((*it1)->getElementPcdata("romtype")));
 				std::list<XML::Element*>::iterator it2 = (*it1)->children.begin();
 				for ( ; it2 != (*it1)->children.end(); it2++) {
 					if ((*it2)->name == "md5") {
@@ -213,24 +216,46 @@ MapperType RomTypes::searchDataBase(const byte* data, int size)
 	}
 	
 	MD5 md5;
-	md5.update(data, size);
+	md5.update(rom.getBlock(), rom.getSize());
 	md5.finalize();
 	std::string digest(md5.hex_digest());
 	
 	if (romDB.find(digest) != romDB.end()) {
-		std::string year(romDB[digest]->year);
+		std::string year(romDB[digest]->getYear());
 		if (year.length()==0) year="(info not available)";
-		std::string company(romDB[digest]->company);
+		std::string company(romDB[digest]->getCompany());
 		if (company.length()==0) company="(info not available)";
 		PRT_INFO("Found this ROM in the database:\n"
-				"  Title (id):  " << romDB[digest]->id << "\n"
+				"  Title (id):  " << romDB[digest]->getId() << "\n"
 				"  Year:        " << year << "\n"
 				"  Company:     " << company << "\n"
-				"  Remark:      " << romDB[digest]->remark << "\n"
-				"  Mapper type: " << romDB[digest]->romType);
-		return nameToMapperType(romDB[digest]->romType);
+				"  Remark:      " << romDB[digest]->getRemark() << "\n"
+				"  Mapper type: " << romDB[digest]->getMapperType());
+		return (*romDB[digest]);
 	} else {
-		// Rom is not in database
-		return UNKNOWN;
+		// Rom is not in database, try to guess
+		return RomInfo(rom.getFile()->getURL(),"","","Guessed mappertype",guessMapperType(rom.getBlock(), rom.getSize()));
 	}
+}
+
+MapperType RomInfo::retrieveMapperType(Device *config, const EmuTime &time)
+{
+	std::string type;
+	if (config->hasParameter("mappertype")) {
+		type = config->getParameter("mappertype");
+	} else {
+		// no type specified, perform auto detection
+		type = "auto";
+	}
+	MapperType mapperType;
+	if (type == "auto") {
+		Rom rom(config, time);
+		// automatically detect type, first look in database
+		mapperType=fetchRomInfo(rom).getMapperType();
+	} else {
+		// explicitly specified type
+		mapperType = nameToMapperType(type);
+	}
+	PRT_DEBUG("MapperType: " << mapperType);
+	return mapperType;
 }

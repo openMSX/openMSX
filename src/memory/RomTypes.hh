@@ -3,10 +3,6 @@
 #ifndef __ROMTYPES_HH__
 #define __ROMTYPES_HH__
 
-#include "openmsx.hh"
-#include "MSXException.hh"
-
-
 enum MapperType {
 	GENERIC_8KB  = 0,
 	GENERIC_16KB = 1,
@@ -50,24 +46,5 @@ enum MapperType {
 
 	UNKNOWN      = 128
 };
-
-class RomTypes
-{
-	public:
-		static MapperType nameToMapperType(const std::string &name);
-		static MapperType guessMapperType(const byte* data, int size);
-		static MapperType searchDataBase (const byte* data, int size);
-
-	private:
-		class RomInfo {
-			public:
-				std::string id;
-				std::string year;
-				std::string company;
-				std::string remark;
-				std::string romType;
-		};
-};
-
 
 #endif
