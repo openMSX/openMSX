@@ -10,6 +10,11 @@ OPENMSX_VERSION=0.3.3[CVS]
 dnl Change default prefix.
 AC_PREFIX_DEFAULT(/opt/openMSX)
 
+dnl Put datadir in config.h.
+dnl This location will be compiled into the executable, because there doesn't
+dnl seem to be an easy and reliable way to detect this at run time.
+AC_DEFINE_DIR(DATADIR, datadir, [Directory containing platform independent data files.])
+
 dnl create a config.h file (Automake will add -DHAVE_CONFIG_H)
 AM_CONFIG_HEADER(src/config.h)
 
