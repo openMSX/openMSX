@@ -25,7 +25,7 @@ class WavAudioInput : public AudioInputDevice, private SettingListener
 
 	private:
 		void freeWave();
-		void loadWave();
+		void loadWave() throw(MSXException);
 		void update(const SettingLeafNode *setting);
 		
 		int length;

@@ -25,9 +25,11 @@ WavAudioInput::~WavAudioInput()
 	if (buffer) {
 		freeWave();
 	}
+	audioInputFilenameSetting.removeListener(this);
 }
 
 void WavAudioInput::loadWave()
+	throw(MSXException)
 {
 	SDL_AudioSpec wavSpec;
 	Uint8* wavBuf;
