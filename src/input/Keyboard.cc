@@ -78,15 +78,22 @@ Keyboard::Keyboard(bool keyG)
 	memset(keyMatrix,     255, sizeof(keyMatrix));
 	memset(cmdKeyMatrix,  255, sizeof(cmdKeyMatrix));
 	memset(userKeyMatrix, 255, sizeof(userKeyMatrix));
-	
+
 	const XMLElement* config = SettingsConfig::instance().findChild("KeyMap");
 	if (config) {
 		string filename = config->getData();
 		loadKeymapfile(config->getFileContext().resolve(filename));
 	}
 
-	EventDistributor::instance().registerEventListener(KEY_DOWN_EVENT, *this);
-	EventDistributor::instance().registerEventListener(KEY_UP_EVENT,   *this);
+	EventDistributor & distributor(EventDistributor::instance());
+	distributor.registerEventListener(KEY_DOWN_EVENT,   *this);
+	distributor.registerEventListener(KEY_UP_EVENT,     *this);
+	distributor.registerEventListener(CONSOLE_ON_EVENT, *this);
+	// We do not listen for CONSOLE_OFF_EVENTS because rescanning the
+	// keyboard can have unwanted side effects
+
+	// We may do something with focus-change events later, but SDL does
+	// not send them
 
 	CommandController::instance().registerCommand(&keyMatrixUpCmd,   "keymatrixup");
 	CommandController::instance().registerCommand(&keyMatrixDownCmd, "keymatrixdown");
@@ -95,12 +102,15 @@ Keyboard::Keyboard(bool keyG)
 
 Keyboard::~Keyboard()
 {
+
 	CommandController::instance().unregisterCommand(&keyTypeCmd,       "type");
 	CommandController::instance().unregisterCommand(&keyMatrixDownCmd, "keymatrixdown");
 	CommandController::instance().unregisterCommand(&keyMatrixUpCmd,   "keymatrixup");
 
-	EventDistributor::instance().unregisterEventListener(KEY_UP_EVENT,   *this);
-	EventDistributor::instance().unregisterEventListener(KEY_DOWN_EVENT, *this);
+	EventDistributor & distributor(EventDistributor::instance());
+	distributor.unregisterEventListener(KEY_UP_EVENT,   *this);
+	distributor.unregisterEventListener(KEY_DOWN_EVENT, *this);
+	distributor.unregisterEventListener(CONSOLE_ON_EVENT, *this);
 }
 
 
@@ -118,26 +128,42 @@ const byte* Keyboard::getKeys()
 	return keyMatrix;
 }
 
+void Keyboard::allUp()
+{
+	for (unsigned int i=0 ; i<NR_KEYROWS ; ++i) 
+		userKeyMatrix[i]=0xFF;
+}
 
 bool Keyboard::signalEvent(const Event& event)
 {
-	assert(dynamic_cast<const KeyEvent*>(&event));
-	Keys::KeyCode key = (Keys::KeyCode)((int)((KeyEvent&)event).getKeyCode() &
+	switch (event.getType()) {
+	case CONSOLE_ON_EVENT: 
+		allUp();
+		break;
+	case CONSOLE_OFF_EVENT: 
+		// We do not rescan the keyboard since this may lead to an
+		// unwanted pressing of <return> in MSX after typing "set console
+		// off" in the console.
+		break;
+	default: // must be keyEvent 
+		assert(dynamic_cast<const KeyEvent*>(&event));
+		Keys::KeyCode key = (Keys::KeyCode)((int)((KeyEvent&)event).getKeyCode() &
 	                                    (int)Keys::K_MASK);
-	if (key < MAX_KEYSYM) {
-		switch (event.getType()) {
-		case KEY_DOWN_EVENT: {
-			// Key pressed: reset bit in keyMatrix
-			userKeyMatrix[keyTab[key][0]] &= ~keyTab[key][1];
-			break;
-		}
-		case KEY_UP_EVENT: {
-			// Key released: set bit in keyMatrix
-			userKeyMatrix[keyTab[key][0]] |= keyTab[key][1];
-			break;
-		}
-		default:
-			assert(false);
+		if (key < MAX_KEYSYM) {
+			switch (event.getType()) {
+			case KEY_DOWN_EVENT: {
+				// Key pressed: reset bit in keyMatrix
+				userKeyMatrix[keyTab[key][0]] &= ~keyTab[key][1];
+				break;
+			}
+			case KEY_UP_EVENT: {
+				// Key released: set bit in keyMatrix
+				userKeyMatrix[keyTab[key][0]] |= keyTab[key][1];
+				break;
+			}
+			default:
+				assert(false);
+			}
 		}
 	}
 	keysChanged = true;	// do ghosting at next getKeys()

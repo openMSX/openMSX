@@ -30,8 +30,11 @@ static Keys::KeyCode getConfigKeyCode(const string& keyname,
 
 KeyJoystick::KeyJoystick()
 {
-	EventDistributor::instance().registerEventListener(KEY_DOWN_EVENT, *this);
-	EventDistributor::instance().registerEventListener(KEY_UP_EVENT  , *this);
+	EventDistributor & distributor(EventDistributor::instance());
+	distributor.registerEventListener(KEY_DOWN_EVENT,   *this);
+	distributor.registerEventListener(KEY_UP_EVENT,     *this);
+	distributor.registerEventListener(CONSOLE_ON_EVENT, *this);
+	// We do not listen for CONSOLE_OFF_EVENTS because rescanning the
 
 	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	         JOY_BUTTONA | JOY_BUTTONB;
@@ -60,8 +63,10 @@ KeyJoystick::KeyJoystick()
 
 KeyJoystick::~KeyJoystick()
 {
-	EventDistributor::instance().unregisterEventListener(KEY_DOWN_EVENT, *this);
-	EventDistributor::instance().unregisterEventListener(KEY_UP_EVENT  , *this);
+	EventDistributor & distributor(EventDistributor::instance());
+	distributor.unregisterEventListener(KEY_UP_EVENT,   *this);
+	distributor.unregisterEventListener(KEY_DOWN_EVENT, *this);
+	distributor.unregisterEventListener(CONSOLE_ON_EVENT, *this);
 }
 
 // Pluggable
@@ -77,6 +82,12 @@ const string& KeyJoystick::getDescription() const
 		"Key-Joystick, use your keyboard to emulate an MSX joystick. "
 		"See manual for information on how to configure this.");
 	return desc;
+}
+
+void KeyJoystick::allUp()
+{
+	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
+	         JOY_BUTTONA | JOY_BUTTONB;
 }
 
 void KeyJoystick::plugHelper(Connector* /*connector*/, const EmuTime& /*time*/)
@@ -103,28 +114,34 @@ void KeyJoystick::write(byte /*value*/, const EmuTime& /*time*/)
 // EventListener
 bool KeyJoystick::signalEvent(const Event& event)
 {
-	assert(dynamic_cast<const KeyEvent*>(&event));
-	Keys::KeyCode key = (Keys::KeyCode)((int)((KeyEvent&)event).getKeyCode() &
-		                            (int)Keys::K_MASK);
 	switch (event.getType()) {
-	case KEY_DOWN_EVENT:
-		if      (key == upKey)      status &= ~JOY_UP;
-		else if (key == downKey)    status &= ~JOY_DOWN;
-		else if (key == leftKey)    status &= ~JOY_LEFT;
-		else if (key == rightKey)   status &= ~JOY_RIGHT;
-		else if (key == buttonAKey) status &= ~JOY_BUTTONA;
-		else if (key == buttonBKey) status &= ~JOY_BUTTONB;
+	case CONSOLE_ON_EVENT: 
+		allUp();
 		break;
-	case KEY_UP_EVENT:
-		if      (key == upKey)      status |= JOY_UP;
-		else if (key == downKey)    status |= JOY_DOWN;
-		else if (key == leftKey)    status |= JOY_LEFT;
-		else if (key == rightKey)   status |= JOY_RIGHT;
-		else if (key == buttonAKey) status |= JOY_BUTTONA;
-		else if (key == buttonBKey) status |= JOY_BUTTONB;
-		break;
-	default:
-		assert(false);
+	default: // must be keyEvent 
+		assert(dynamic_cast<const KeyEvent*>(&event));
+		Keys::KeyCode key = (Keys::KeyCode)((int)((KeyEvent&)event).getKeyCode() &
+																				(int)Keys::K_MASK);
+		switch (event.getType()) {
+		case KEY_DOWN_EVENT:
+			if      (key == upKey)      status &= ~JOY_UP;
+			else if (key == downKey)    status &= ~JOY_DOWN;
+			else if (key == leftKey)    status &= ~JOY_LEFT;
+			else if (key == rightKey)   status &= ~JOY_RIGHT;
+			else if (key == buttonAKey) status &= ~JOY_BUTTONA;
+			else if (key == buttonBKey) status &= ~JOY_BUTTONB;
+			break;
+		case KEY_UP_EVENT:
+			if      (key == upKey)      status |= JOY_UP;
+			else if (key == downKey)    status |= JOY_DOWN;
+			else if (key == leftKey)    status |= JOY_LEFT;
+			else if (key == rightKey)   status |= JOY_RIGHT;
+			else if (key == buttonAKey) status |= JOY_BUTTONA;
+			else if (key == buttonBKey) status |= JOY_BUTTONB;
+			break;
+		default:
+			assert(false);
+		}
 	}
 	return true;
 }

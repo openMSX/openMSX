@@ -27,6 +27,7 @@ public:
 
 	// EventListener
 	virtual bool signalEvent(const Event& event);
+	void allUp();
 
 private:
 	byte status;
