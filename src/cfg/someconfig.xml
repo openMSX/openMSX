@@ -345,8 +345,8 @@
   </config>
 
   <config id="Console">
-    <parameter name="font">ConsoleFont.bmp</parameter>
-    <parameter name="background">ConsoleBackground.bmp</parameter>
+    <parameter name="font">ConsoleFont.png</parameter>
+    <parameter name="background">ConsoleBackground.png</parameter>
   </config>
 
 </msxconfig>
