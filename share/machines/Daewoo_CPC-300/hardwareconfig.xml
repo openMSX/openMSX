@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<!-- $Id$ -->
+<!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
+<msxconfig>
+
+  <config id="ExternalSlots">
+    <parameter name="slota">1-0</parameter>
+    <parameter name="slotb">3-0</parameter>
+  </config>
+
+  <config id="MotherBoard">
+    <parameter name="0" class="subslotted">true</parameter>
+    <parameter name="1" class="subslotted">false</parameter>
+    <parameter name="2" class="subslotted">false</parameter>
+    <parameter name="3" class="subslotted">false</parameter>
+  </config>
+
+  <config id="MapperType">
+    <parameter name="type">Philips</parameter>
+  </config>
+  
+  <device id="Main RAM">
+    <type>MemoryMapper</type>
+    <slotted> <ps>0</ps> <ss>2</ss> <page>0</page> </slotted>
+    <slotted> <ps>0</ps> <ss>2</ss> <page>1</page> </slotted>
+    <slotted> <ps>0</ps> <ss>2</ss> <page>2</page> </slotted>
+    <slotted> <ps>0</ps> <ss>2</ss> <page>3</page> </slotted>
+    <parameter name="slow_drain_on_reset">false</parameter>
+    <parameter name="size">128</parameter>
+  </device>
+
+  <device id="MSX BIOS with BASIC ROM">
+    <type>Rom</type>
+    <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
+    <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
+    <parameter name="filename">roms/cpc-300_basic-bios2.rom</parameter>
+  </device>
+
+  <device id="MSX Sub ROM">
+    <type>Rom</type>
+    <slotted> <ps>0</ps> <ss>3</ss> <page>0</page> </slotted>
+    <slotted> <ps>0</ps> <ss>3</ss> <page>1</page> </slotted>
+    <parameter name="filename">roms/cpc-300_msx2sub.rom</parameter>
+  </device>
+
+  <device id="MSX Hangul Driver">
+    <type>Rom</type>
+    <slotted> <ps>0</ps> <ss>1</ss> <page>1</page> </slotted>
+    <slotted> <ps>0</ps> <ss>1</ss> <page>2</page> </slotted>
+    <parameter name="filename">roms/cpc-300_hangul.rom</parameter>
+  </device>
+
+  <device id="S1985">
+    <type>S1985</type>
+  </device>
+
+  <device id="ppi">
+    <type>PPI</type>
+    <parameter name="volume">16000</parameter>
+    <parameter name="key_ghosting">true</parameter>
+  </device>
+
+  <device id="VDP">
+    <type>VDP</type>
+    <parameter name="version">V9938</parameter>
+    <parameter name="vram">128</parameter>
+  </device>
+
+  <device id="PSG">
+    <type>PSG</type>
+    <parameter name="volume">21000</parameter>
+  </device>
+
+  <device id="Real time clock">
+    <type>RTC</type>
+    <parameter name="mode">EmuTime</parameter>
+    <parameter name="sramname">cpc-300.cmos</parameter>
+  </device>
+
+  <device id="cpu">
+    <type>CPU</type>
+  </device>
+
+  <device id="Printer Port">
+    <type>PrinterPort</type>
+  </device>
+
+  <config id="CassettePort">
+  </config>
+
+</msxconfig>
