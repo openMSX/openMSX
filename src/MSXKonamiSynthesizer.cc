@@ -1,6 +1,6 @@
 // $Id$
 
-#include "MSXKonamiSynthesizer.hh" 
+#include "MSXKonamiSynthesizer.hh"
 #include "MSXMotherBoard.hh"
 #include <string>
 #include <iostream>
@@ -8,7 +8,7 @@
 
 #include "config.h"
 
-MSXKonamiSynthesizer::MSXKonamiSynthesizer(MSXConfig::Device *config) : MSXDevice(config)
+MSXKonamiSynthesizer::MSXKonamiSynthesizer(MSXConfig::Device *config) : MSXRom(config)
 {
 	PRT_DEBUG("Creating an MSXKonamiSynthesizer object");
 }

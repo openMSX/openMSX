@@ -23,6 +23,7 @@
 #include <string>
 #include <SDL/SDL.h>
 #include <SDL/SDL_thread.h>
+
 #include "MSXDevice.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXSimple64KB.hh"

@@ -131,25 +131,3 @@ void MSXDevice::registerSlots()
 		MSXMotherBoard::instance()->registerSlottedDevice(this,ps,ss,page);
 	}
 }
-
-void MSXDevice::loadFile(byte** memoryBank, int fileSize)
-{
-	// TODO load from "ROM-directory"
-	if (!(*memoryBank = new byte[fileSize]))
-		PRT_ERROR("Couldn't allocate enough memory");
-	std::string filename = deviceConfig->getParameter("filename");
-	int offset = deviceConfig->getParameterAsInt("skip_headerbytes");
-	PRT_DEBUG("Loading file " << filename << " ...");
-#ifdef HAVE_FSTREAM_TEMPL
-	std::ifstream<byte> file(filename.c_str());
-#else
-	std::ifstream file(filename.c_str());
-#endif
-	file.seekg(offset);
-	file.read(*memoryBank, fileSize);
-	if (file.fail())
-		PRT_ERROR("Error reading " << filename);
-	file.close();
-}
-
-

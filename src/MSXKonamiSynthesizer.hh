@@ -3,11 +3,11 @@
 #ifndef __MSXKonamiSynthesizer_HH__
 #define __MSXKonamiSynthesizer_HH__
 
-#include "MSXDevice.hh"
+#include "MSXRom.hh"
 #include "DACSound.hh"
 #include "EmuTime.hh"
 
-class MSXKonamiSynthesizer : public MSXDevice
+class MSXKonamiSynthesizer : public MSXRom
 {
 	public:
 		/**

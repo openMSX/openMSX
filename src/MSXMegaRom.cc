@@ -8,7 +8,7 @@
 
 #include "config.h"
 
-MSXMegaRom::MSXMegaRom(MSXConfig::Device *config) : MSXDevice(config)
+MSXMegaRom::MSXMegaRom(MSXConfig::Device *config) : MSXRom(config)
 {
 	PRT_DEBUG("Creating an MSXMegaRom object");
 }

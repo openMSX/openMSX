@@ -7,7 +7,7 @@
 
 #include "config.h"
 
-MSXRom16KB::MSXRom16KB(MSXConfig::Device *config) : MSXDevice(config)
+MSXRom16KB::MSXRom16KB(MSXConfig::Device *config) : MSXRom(config)
 {
 	PRT_DEBUG("Creating an MSXRom16KB object");
 }

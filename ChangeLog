@@ -1,5 +1,9 @@
 $Id$
 
+2001-12-04 Joost Yervante Damad <j.damad@qahwah.net>
+	* added MSXRom subclass and LoadFile mixin, as first step
+	  towards ROM patching support
+
 2001-12-04 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* correct use of register 0x7ff6 for MSX-MUSIC
 

@@ -3,10 +3,10 @@
 #ifndef __MSXROM16KB_HH__
 #define __MSXROM16KB_HH__
 
-#include "MSXDevice.hh"
+#include "MSXRom.hh"
 #include "EmuTime.hh"
 
-class MSXRom16KB : public MSXDevice
+class MSXRom16KB : public MSXRom
 {
 	public:
 		/**

@@ -3,12 +3,12 @@
 #ifndef __MSXMUSIC_HH__
 #define __MSXMUSIC_HH__
 
-#include "MSXDevice.hh"
+#include "MSXRom.hh"
 #include "EmuTime.hh"
 #include "YM2413.hh"
 
 
-class MSXMusic : public MSXDevice
+class MSXMusic : public MSXRom
 {
 	public:
 		/**
