@@ -155,6 +155,7 @@ private:
 		SoundlogCommand(Mixer& outer);
 		virtual std::string execute(const std::vector<std::string>& tokens);
 		virtual std::string help(const std::vector<std::string>& tokens) const;
+		virtual void tabCompletion(std::vector<std::string>& tokens) const;
 	private:
 		std::string stopSoundLogging(const std::vector<std::string>& tokens);
 		std::string startSoundLogging(const std::vector<std::string>& tokens);

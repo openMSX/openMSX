@@ -610,6 +610,17 @@ string Mixer::SoundlogCommand::help(const vector<string>& /*tokens*/) const
 	       "soundlog toggle            Toggle logging state\n";
 }
 
+void Mixer::SoundlogCommand::tabCompletion(vector<string>& tokens) const
+{
+	if (tokens.size()==2) {
+		set<string> cmds;
+		cmds.insert("start");
+		cmds.insert("stop");
+		cmds.insert("toggle");
+		CommandController::completeString(tokens, cmds);
+	}
+}
+
 void Mixer::startSoundLogging(const string& filename)
 {
 	/* TODO on the recorder:

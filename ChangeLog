@@ -2,6 +2,8 @@ $Id$
 
 2005-03-13 Manuel Bilderbeek <manuel@msxnet.org>
 	* Implemented soundlog toggle command.
+	* Implemented tabCompletion for soundlog command and partially for 
+	  after command
 
 2005-03-12 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added basic code to record openMSX sound to wav file. It is not used

@@ -12,6 +12,7 @@
 using std::ostringstream;
 using std::string;
 using std::vector;
+using std::set;
 
 namespace openmsx {
 
@@ -175,9 +176,19 @@ string AfterCommand::help(const vector<string>& /*tokens*/) const
 	       "after cancel <id>               cancel the postponed command with given id\n";
 }
 
-void AfterCommand::tabCompletion(vector<string>& /*tokens*/) const
+void AfterCommand::tabCompletion(vector<string>& tokens) const
 {
-	// TODO
+	if (tokens.size()==2) {
+		set<string> cmds;
+		cmds.insert("time");
+		cmds.insert("idle");
+		cmds.insert("frame");
+		cmds.insert("break");
+		cmds.insert("info");
+		cmds.insert("cancel");
+		CommandController::completeString(tokens, cmds);
+	}
+	// TODO : make more complete
 }
 
 
