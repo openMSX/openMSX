@@ -16,7 +16,7 @@ class FileContext;
 class WavImage : public CassetteImage
 {
 	public:
-		WavImage(FileContext *context, const string &fileName);
+		WavImage(FileContext &context, const string &fileName);
 		virtual ~WavImage();
 
 		virtual short getSampleAt(const EmuTime &time);

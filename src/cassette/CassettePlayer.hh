@@ -31,7 +31,7 @@ class CassettePlayer : public CassetteDevice, private Command, public SoundDevic
 		CassettePlayer();
 		virtual ~CassettePlayer();
 		
-		void insertTape(FileContext *context,
+		void insertTape(FileContext &context,
 		                const string &filename);
 		void removeTape();
 		

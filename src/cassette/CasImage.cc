@@ -29,10 +29,10 @@ const byte BASIC[10] = { 0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3 };
 
 
 
-CasImage::CasImage(FileContext *context, const string &fileName)
+CasImage::CasImage(FileContext &context, const string &fileName)
 {
 	try {
-		File file(context->resolve(fileName));
+		File file(context.resolve(fileName));
 		size = file.getSize();
 		buf = file.mmap();
 		pos = 0;

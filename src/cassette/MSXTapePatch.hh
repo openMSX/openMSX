@@ -34,7 +34,7 @@ class MSXTapePatch : public MSXRomPatchInterface, private Command
 	private:
 		File* file;
 
-		void insertTape(FileContext *context,
+		void insertTape(FileContext &context,
 		                const string &filename);
 		void ejectTape();
 

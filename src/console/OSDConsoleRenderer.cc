@@ -64,7 +64,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(Console * console_)
 	tempconfig[0] = ::toupper(tempconfig[0]);
 	try {
 		Config *config = MSXConfig::instance()->getConfigById(tempconfig);
-		context = config->getContext();
+		context = config->getContext().clone();
 		if (initsDone.find(tempconfig)==initsDone.end()){
 			initsDone.insert(tempconfig);
 			initiated = false;
@@ -89,7 +89,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(Console * console_)
 
 	} catch (ConfigException &e) {
 		// no Console section
-		context = new SystemFileContext();	// TODO memory leak
+		context = new SystemFileContext();
 	}
 	initiated = true;
 	font = new DummyFont();
@@ -115,6 +115,7 @@ OSDConsoleRenderer::~OSDConsoleRenderer()
 	delete consolePlacementSetting;
  	delete consoleRowsSetting;
 	delete consoleColumnsSetting;
+	delete context;
 }
 
 void OSDConsoleRenderer::setBackgroundName(const string &name)

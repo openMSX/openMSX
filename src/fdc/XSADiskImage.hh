@@ -19,7 +19,7 @@ class FileContext;
 class XSADiskImage : public SectorBasedDisk
 {
 	public:
-		XSADiskImage(FileContext *context,
+		XSADiskImage(FileContext &context,
 		        const string &fileName);
 		virtual ~XSADiskImage();
 		

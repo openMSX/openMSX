@@ -46,13 +46,13 @@ class Config
 			static uint64 stringToUint64(const string &str);
 		};
 
-		Config(XML::Element *element, FileContext* context);
+		Config(XML::Element *element, FileContext& context);
 		virtual ~Config();
 
 		const string &getType() const;
 		const string &getId() const;
 
-		FileContext* getContext() const;
+		FileContext& getContext() const;
 
 		bool hasParameter(const string &name) const;
 		const string &getParameter(const string &name) const;
@@ -100,7 +100,7 @@ class Device: virtual public Config
 			int page;
 		};
 
-		Device(XML::Element *element, FileContext *context);
+		Device(XML::Element *element, FileContext &context);
 		virtual ~Device();
 
 		list <Slotted*> slotted;
@@ -114,11 +114,11 @@ class MSXConfig
 		 * load a config file's content, and add it to
 		 *  the config data [can be called multiple times]
 		 */
-		void loadHardware(FileContext *context,
+		void loadHardware(FileContext &context,
 		                  const string &filename);
-		void loadSetting(FileContext *context,
+		void loadSetting(FileContext &context,
 		                 const string &filename);
-		void loadStream(FileContext *context,
+		void loadStream(FileContext &context,
 		                const ostringstream &stream);
 
 		/**
@@ -150,7 +150,7 @@ class MSXConfig
 	private:
 		MSXConfig();
 
-		void handleDoc(XML::Document* doc, FileContext *context);
+		void handleDoc(XML::Document* doc, FileContext &context);
 
 		list<XML::Document*> docs;
 		list<Config*> configs;

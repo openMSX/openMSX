@@ -15,14 +15,14 @@ extern "C" long long atoll(const char *nptr);
 
 // class Config
 
-Config::Config(XML::Element *element_, FileContext* context_)
-	: element(element_), context(context_)
+Config::Config(XML::Element *element_, FileContext& context_)
+	: element(element_), context(context_.clone())
 {
 }
 
 Config::~Config()
 {
-//	delete context;
+	delete context;
 }
 
 const string &Config::getType() const
@@ -35,9 +35,9 @@ const string &Config::getId() const
 	return element->getAttribute("id");
 }
 
-FileContext* Config::getContext() const
+FileContext& Config::getContext() const
 {
-	return context;
+	return *context;
 }
 
 XML::Element* Config::getParameterElement(const string &name) const
@@ -160,7 +160,7 @@ const uint64 Config::Parameter::getAsUint64() const
 
 // class Device
 
-Device::Device(XML::Element *element_, FileContext *context_)
+Device::Device(XML::Element *element_, FileContext &context_)
 	: Config(element_, context_)
 {
 	// TODO: create slotted-eds ???
@@ -246,11 +246,10 @@ MSXConfig* MSXConfig::instance()
 	return &oneInstance;
 }
 
-void MSXConfig::loadHardware(FileContext *context,
+void MSXConfig::loadHardware(FileContext &context,
                              const string &filename)
 {
-	File file(context->resolve(filename));
-	delete context;
+	File file(context.resolve(filename));
 	XML::Document *doc = new XML::Document(file.getLocalName());
 
 	// get url
@@ -272,29 +271,27 @@ void MSXConfig::loadHardware(FileContext *context,
 	// TODO get user name
 	string userName;
 	
-	FileContext *context2 =
-		new ConfigFileContext(url + '/', hwDesc, userName);
+	ConfigFileContext context2(url + '/', hwDesc, userName);
 	handleDoc(doc, context2);
 }
 
-void MSXConfig::loadSetting(FileContext *context,
+void MSXConfig::loadSetting(FileContext &context,
                             const string &filename)
 {
-	File file(context->resolve(filename));
-	delete context;
+	File file(context.resolve(filename));
 	XML::Document *doc = new XML::Document(file.getLocalName());
-	FileContext *context2 = new SettingFileContext(file.getURL());
+	SettingFileContext context2(file.getURL());
 	handleDoc(doc, context2);
 }
 
-void MSXConfig::loadStream(FileContext *context,
+void MSXConfig::loadStream(FileContext &context,
                            const ostringstream &stream)
 {
 	XML::Document* doc = new XML::Document(stream);
 	handleDoc(doc, context);
 }
 
-void MSXConfig::handleDoc(XML::Document* doc, FileContext *context)
+void MSXConfig::handleDoc(XML::Document* doc, FileContext &context)
 {
 	docs.push_back(doc);
 	// TODO update/append Devices/Configs

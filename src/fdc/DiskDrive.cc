@@ -227,7 +227,7 @@ bool RealDrive::headLoaded(const EmuTime &time)
 	       (headLoadTime.getTicksTill(time) > 10);
 }
 
-void RealDrive::insertDisk(FileContext *context,
+void RealDrive::insertDisk(FileContext &context,
                            const string &diskImage)
 {
 	Disk* tmp;
@@ -272,7 +272,7 @@ void RealDrive::execute(const vector<string> &tokens)
 	} else {
 		try {
 			UserFileContext context;
-			insertDisk(&context, tokens[1]);
+			insertDisk(context, tokens[1]);
 		} catch (FileException &e) {
 			throw CommandException(e.getMessage());
 		}

@@ -17,6 +17,10 @@ const string systemdir("/opt/openMSX/");
 
 // class FileContext
 
+FileContext::FileContext()
+{
+}
+
 FileContext::~FileContext()
 {
 }
@@ -75,6 +79,10 @@ const string FileContext::resolveSave(const string &filename)
 	return savePath + filename;
 }
 
+FileContext::FileContext(const FileContext& rhs)
+	: paths(rhs.paths), savePath(rhs.savePath)
+{
+}
 
 
 // class ConfigFileContext
@@ -103,6 +111,16 @@ const vector<string> &ConfigFileContext::getPaths()
 	return paths;
 }
 
+ConfigFileContext* ConfigFileContext::clone() const
+{
+	return new ConfigFileContext(*this);
+}
+
+ConfigFileContext::ConfigFileContext(const ConfigFileContext& rhs)
+	: FileContext(rhs)
+{
+}
+
 
 // class SystemFileContext
 
@@ -115,6 +133,16 @@ SystemFileContext::SystemFileContext()
 const vector<string> &SystemFileContext::getPaths()
 {
 	return paths;
+}
+
+SystemFileContext* SystemFileContext::clone() const
+{
+	return new SystemFileContext(*this);
+}
+
+SystemFileContext::SystemFileContext(const SystemFileContext& rhs)
+	: FileContext(rhs)
+{
 }
 
 
@@ -140,6 +168,16 @@ SettingFileContext::SettingFileContext(const string &url)
 const vector<string> &SettingFileContext::getPaths()
 {
 	return paths;
+}
+
+SettingFileContext* SettingFileContext::clone() const
+{
+	return new SettingFileContext(*this);
+}
+
+SettingFileContext::SettingFileContext(const SettingFileContext& rhs)
+	: FileContext(rhs)
+{
 }
 
 
@@ -182,4 +220,14 @@ const vector<string> &UserFileContext::getPaths()
 		paths.push_back("./");
 	}
 	return paths;
+}
+
+UserFileContext* UserFileContext::clone() const
+{
+	return new UserFileContext(*this);
+}
+
+UserFileContext::UserFileContext(const UserFileContext& rhs)
+	: FileContext(rhs), alreadyInit(rhs.alreadyInit)
+{
 }

@@ -43,7 +43,7 @@ void Rom::read(Device* config,
                const string &filename, const EmuTime &time)
 {
 	// open file
-	file = new File(config->getContext()->resolve(filename));
+	file = new File(config->getContext().resolve(filename));
 	
 	// get filesize
 	int fileSize;

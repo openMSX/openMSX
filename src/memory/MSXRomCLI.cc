@@ -101,7 +101,7 @@ void MSXRomCLIPost::execute(MSXConfig *config)
 	s << "</device>";
 	s << "</msxconfig>";
 	PRT_DEBUG("DEBUG " << file);
-	UserFileContext *context = new UserFileContext("roms/" + file);
+	UserFileContext context("roms/" + file);
 	config->loadStream(context, s);
 	delete this;
 }

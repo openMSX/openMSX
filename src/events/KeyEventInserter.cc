@@ -69,7 +69,8 @@ void KeyEventInserterCLI::parseOption(const string &option,
 	s << "</msxconfig>";
 	
 	MSXConfig *config = MSXConfig::instance();
-	config->loadStream(new UserFileContext(), s);
+	UserFileContext context;
+	config->loadStream(context, s);
 }
 const string& KeyEventInserterCLI::optionHelp() const
 {

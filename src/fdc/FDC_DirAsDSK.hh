@@ -31,7 +31,7 @@ struct ReverseCluster {
 class FDC_DirAsDSK : public SectorBasedDisk
 {
 	public: 
-		FDC_DirAsDSK(FileContext *context,
+		FDC_DirAsDSK(FileContext &context,
 		        const string &fileName);
 		virtual ~FDC_DirAsDSK();
 		virtual void read(byte track, byte sector,

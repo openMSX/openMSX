@@ -17,7 +17,7 @@ class FileContext;
 class CasImage : public CassetteImage
 {
 	public:
-		CasImage(FileContext *context, const string &fileName);
+		CasImage(FileContext &context, const string &fileName);
 		virtual ~CasImage();
 
 		virtual short getSampleAt(const EmuTime &time);

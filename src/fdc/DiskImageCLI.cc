@@ -39,7 +39,8 @@ void DiskImageCLI::parseFileType(const string &filename_)
 	s << "</msxconfig>";
 	
 	MSXConfig *config = MSXConfig::instance();
-	config->loadStream(new UserFileContext(), s);
+	UserFileContext context;
+	config->loadStream(context, s);
 	driveLetter++;
 }
 const string& DiskImageCLI::fileTypeHelp() const

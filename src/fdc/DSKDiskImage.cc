@@ -4,8 +4,8 @@
 #include "FileContext.hh"
 
 
-DSKDiskImage::DSKDiskImage(FileContext *context, const string &fileName)
-	: file(context->resolve(fileName))
+DSKDiskImage::DSKDiskImage(FileContext &context, const string &fileName)
+	: file(context.resolve(fileName))
 {
 	nbSectors = file.getSize() / SECTOR_SIZE;
 }

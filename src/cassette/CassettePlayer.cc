@@ -47,7 +47,8 @@ void MSXCassettePlayerCLI::parseFileType(const string &filename_)
 	s << "</msxconfig>";
 
 	MSXConfig *config = MSXConfig::instance();
-	config->loadStream(new UserFileContext(), s);
+	UserFileContext context;
+	config->loadStream(context, s);
 }
 const string& MSXCassettePlayerCLI::fileTypeHelp() const
 {
@@ -91,7 +92,7 @@ CassettePlayer::~CassettePlayer()
 	removeTape();	// free memory
 }
 
-void CassettePlayer::insertTape(FileContext *context,
+void CassettePlayer::insertTape(FileContext &context,
                                 const string &filename)
 {
 	CassetteImage *tmp;
@@ -196,7 +197,7 @@ void CassettePlayer::execute(const vector<string> &tokens)
 		try {
 			print("Changing tape");
 			UserFileContext context;
-			insertTape(&context, tokens[1]);
+			insertTape(context, tokens[1]);
 		} catch (MSXException &e) {
 			throw CommandException(e.getMessage());
 		}

@@ -39,7 +39,8 @@ void CliExtension::parseOption(const string &option,
 		extensions.find(extension);
 	if (it != extensions.end()) {
 		MSXConfig *config = MSXConfig::instance();
-		config->loadHardware(new SystemFileContext(), it->second);
+		SystemFileContext context;
+		config->loadHardware(context, it->second);
 	} else {
 		PRT_ERROR("Extension \"" << extension << "\" not found!");
 	}

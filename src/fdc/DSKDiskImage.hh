@@ -12,7 +12,7 @@ class FileContext;
 class DSKDiskImage : public SectorBasedDisk
 {
 	public: 
-		DSKDiskImage(FileContext *context,
+		DSKDiskImage(FileContext &context,
 		        const string &fileName);
 		virtual ~DSKDiskImage();
 

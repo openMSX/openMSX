@@ -40,7 +40,8 @@ void MSXCasCLI::parseFileType(const string &filename_)
 	s << "</msxconfig>";
 
 	MSXConfig *config = MSXConfig::instance();
-	config->loadStream(new UserFileContext(), s);
+	UserFileContext context;
+	config->loadStream(context, s);
 }
 const string& MSXCasCLI::fileTypeHelp() const
 {
@@ -122,13 +123,13 @@ void MSXTapePatch::patch(CPU::CPURegs& R)
 	}
 }
 
-void MSXTapePatch::insertTape(FileContext *context,
+void MSXTapePatch::insertTape(FileContext &context,
                               const string &filename)
 {
 	ejectTape();
 	PRT_DEBUG("Loading file " << filename << " as tape ...");
 	try {
-		file = new File(context->resolve(filename));
+		file = new File(context.resolve(filename));
 	} catch (FileException &e) {
 		PRT_DEBUG("Loading file failed");
 		file = NULL;
@@ -415,7 +416,7 @@ void MSXTapePatch::execute(const vector<string> &tokens)
 	} else {
 		print("Changing tape");
 		UserFileContext context;
-		insertTape(&context, tokens[1]);
+		insertTape(context, tokens[1]);
 	}
 }
 

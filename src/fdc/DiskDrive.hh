@@ -168,7 +168,7 @@ class RealDrive : public DiskDrive, public Command
 		virtual void execute(const vector<string> &tokens);
 		virtual void help   (const vector<string> &tokens) const;
 		virtual void tabCompletion(vector<string> &tokens) const;
-		void insertDisk(FileContext *context,
+		void insertDisk(FileContext &context,
 		                const string &disk);
 		void ejectDisk();
 

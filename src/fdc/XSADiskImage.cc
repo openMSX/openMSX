@@ -10,9 +10,9 @@ const int XSADiskImage::cpdext[TBLSIZE] = {
 };
 
 
-XSADiskImage::XSADiskImage(FileContext *context, const string &fileName)
+XSADiskImage::XSADiskImage(FileContext &context, const string &fileName)
 {
-	File file(context->resolve(fileName));
+	File file(context.resolve(fileName));
 	if (!isXSAImage(file)) {
 		throw MSXException("Not an XSA image");
 	}

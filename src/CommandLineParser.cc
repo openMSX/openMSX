@@ -164,8 +164,8 @@ void CommandLineParser::parse(int argc, char **argv)
 	MSXConfig *config = MSXConfig::instance();
 	try {
 		if (!settingOption.parsed) {
-			config->loadSetting(new SystemFileContext(),
-			                    "share/settings.xml");
+			SystemFileContext context;
+			config->loadSetting(context, "share/settings.xml");
 		}
 	} catch (MSXException &e) {
 		// settings.xml not found
@@ -187,7 +187,8 @@ void CommandLineParser::parse(int argc, char **argv)
 			// no DefaultMachine section
 		}
 		try {
-			config->loadHardware(new SystemFileContext(),
+			SystemFileContext context;
+			config->loadHardware(context,
 				MACHINE_PATH + machine + "/hardwareconfig.xml");
 		} catch (FileException &e) {
 			bool found = false;
@@ -381,7 +382,8 @@ const string& CommandLineParser::ConfigFile::optionHelp() const
 void CommandLineParser::ConfigFile::parseFileType(const string &filename)
 {
 	MSXConfig *config = MSXConfig::instance();
-	config->loadHardware(new UserFileContext(), filename);
+	UserFileContext context;
+	config->loadHardware(context, filename);
 
 	CommandLineParser::instance()->haveConfig = true;
 }
@@ -398,7 +400,8 @@ void CommandLineParser::MachineOption::parseOption(const string &option,
 {
 	MSXConfig *config = MSXConfig::instance();
 	string machine(getArgument(option, cmdLine));
-	config->loadHardware(new SystemFileContext(),
+	SystemFileContext context;
+	config->loadHardware(context,
 		MACHINE_PATH + machine + "/hardwareconfig.xml");
 	PRT_INFO("Using specified machine: " << machine);
 	CommandLineParser::instance()->haveConfig = true;
@@ -419,7 +422,8 @@ void CommandLineParser::SettingOption::parseOption(const string &option,
 	}
 	parsed = true;
 	MSXConfig *config = MSXConfig::instance();
-	config->loadSetting(new UserFileContext(), getArgument(option, cmdLine));
+	UserFileContext context;
+	config->loadSetting(context, getArgument(option, cmdLine));
 }
 const string& CommandLineParser::SettingOption::optionHelp() const
 {

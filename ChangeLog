@@ -1,5 +1,12 @@
 $Id$
 
+2003-08-09 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed FileContext owner ship semantics (fixes memory leak):
+	   - the class that creates a FileContext object should also destroy it
+	   - when a class needs a FileContext parameter for a longer time than
+	     the duration of the method call, it should make a copy of the
+	     FileContext object
+
 2003-08-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* CPU cleanup / speedup:
 	* FDC cleanups:

@@ -17,7 +17,7 @@ SRAM::SRAM(int size_, Config *config_, const char *header_)
 	PRT_DEBUG("SRAM: read " << filename);
 	try {
 		bool headerOk = true;
-		File file(config->getContext()->resolveSave(filename),
+		File file(config->getContext().resolveSave(filename),
 			  LOAD_PERSISTENT);
 		if (header) {
 			int length = strlen(header);
@@ -44,7 +44,7 @@ SRAM::~SRAM()
 	const string &filename = config->getParameter("sramname");
 	PRT_DEBUG("SRAM: save " << filename);
 	try {
-		File file(config->getContext()->resolveSave(filename),
+		File file(config->getContext().resolveSave(filename),
 			  SAVE_PERSISTENT);
 		if (header) {
 			int length = strlen(header);

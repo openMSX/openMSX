@@ -6,10 +6,10 @@
 #include "EmuTime.hh"
 
 
-WavImage::WavImage(FileContext *context, const string &fileName)
+WavImage::WavImage(FileContext &context, const string &fileName)
 	: length(0), buffer(0), freq(44100)
 {
-	File file(context->resolve(fileName));
+	File file(context.resolve(fileName));
 	const char* name = file.getLocalName().c_str();
 	
 	SDL_AudioSpec wavSpec;

@@ -156,8 +156,10 @@ string FDC_DirAsDSK::makeSimpleMSXFileName(const string& fullfilename)
 }
 
 
-FDC_DirAsDSK::FDC_DirAsDSK(FileContext *context, const string &fileName)
+FDC_DirAsDSK::FDC_DirAsDSK(FileContext &context, const string &fileName)
 {
+	// TODO reolve fileName in given context
+	
 	// Here we create the fake diskimages based upon the files that can be
 	// found in the 'fileName' directory
 	PRT_INFO("Creating FDC_DirAsDSK object");

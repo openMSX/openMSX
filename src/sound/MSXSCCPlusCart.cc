@@ -22,7 +22,7 @@ MSXSCCPlusCart::MSXSCCPlusCart(Device *config, const EmuTime &time)
 		const string &filename =
 			deviceConfig->getParameter("filename");
 		try {
-			File file(config->getContext()->resolve(filename));
+			File file(config->getContext().resolve(filename));
 			int romSize = file.getSize();
 			file.read(memoryBank, romSize);
 		} catch (FileException &e) {
