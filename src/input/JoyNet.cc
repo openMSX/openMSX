@@ -4,7 +4,6 @@
 #ifdef	HAVE_SYS_SOCKET_H
 
 #include "JoyNet.hh"
-#include "PluggingController.hh"
 #include "MSXConfig.hh"
 
 

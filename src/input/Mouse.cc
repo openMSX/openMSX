@@ -1,8 +1,8 @@
 // $Id$
 
 #include "Mouse.hh"
-#include "PluggingController.hh"
 #include "EventDistributor.hh"
+
 
 namespace openmsx {
 

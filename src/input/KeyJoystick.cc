@@ -3,7 +3,6 @@
 #include <cassert>
 #include <iostream>
 #include "KeyJoystick.hh"
-#include "PluggingController.hh"
 #include "EventDistributor.hh"
 #include "Keys.hh"
 #include "MSXConfig.hh"
