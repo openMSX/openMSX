@@ -200,7 +200,7 @@ void CliComm::ServerSocket::mainLoop()
 	sockaddr_in server_address;
 	memset((char*)&server_address, 0, sizeof(server_address));
 	server_address.sin_family = AF_INET;
-	server_address.sin_addr.s_addr = htonl(INADDR_ANY);
+	server_address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 	server_address.sin_port = htons(9938); // TODO port number
 	if (bind(listenSock, (sockaddr*)&server_address,
 	         sizeof(server_address)) == SOCKET_ERROR) {
