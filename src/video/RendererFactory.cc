@@ -115,16 +115,16 @@ Renderer *SDLHiRendererFactory::create(VDP *vdp)
 
 	// Try default bpp.
 	SDL_Surface *screen = SDL_SetVideoMode(WIDTH, HEIGHT, 0, flags);
-
-	// If no screen or unsupported screen,
-	// try supported bpp in order of preference.
+	// Can we handle this bbp?
 	int bytepp = (screen ? screen->format->BytesPerPixel : 0);
 	if (bytepp != 1 && bytepp != 2 && bytepp != 4) {
-		if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 15, flags);
-		if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 16, flags);
-		if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 32, flags);
-		if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 8, flags);
+		screen = NULL;
 	}
+	// Try supported bpp in order of preference.
+	if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 15, flags);
+	if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 16, flags);
+	if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 32, flags);
+	if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 8, flags);
 
 	if (!screen) {
 		printf("FAILED to open any screen!");
@@ -163,16 +163,16 @@ Renderer *SDLLoRendererFactory::create(VDP *vdp)
 
 	// Try default bpp.
 	SDL_Surface *screen = SDL_SetVideoMode(WIDTH, HEIGHT, 0, flags);
-
-	// If no screen or unsupported screen,
-	// try supported bpp in order of preference.
+	// Can we handle this bbp?
 	int bytepp = (screen ? screen->format->BytesPerPixel : 0);
 	if (bytepp != 1 && bytepp != 2 && bytepp != 4) {
-		if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 15, flags);
-		if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 16, flags);
-		if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 32, flags);
-		if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 8, flags);
+		screen = NULL;
 	}
+	// Try supported bpp in order of preference.
+	if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 15, flags);
+	if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 16, flags);
+	if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 32, flags);
+	if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 8, flags);
 
 	if (!screen) {
 		printf("FAILED to open any screen!");
@@ -219,16 +219,11 @@ Renderer *SDLGLRendererFactory::create(VDP *vdp)
 
 	// Try default bpp.
 	SDL_Surface *screen = SDL_SetVideoMode(WIDTH, HEIGHT, 0, flags);
-
-	// If no screen or unsupported screen,
-	// try supported bpp in order of preference.
-	int bytepp = (screen ? screen->format->BytesPerPixel : 0);
-	if (bytepp != 1 && bytepp != 2 && bytepp != 4) {
-		if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 15, flags);
-		if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 16, flags);
-		if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 32, flags);
-		if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 8, flags);
-	}
+	// Try supported bpp in order of preference.
+	if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 15, flags);
+	if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 16, flags);
+	if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 32, flags);
+	if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 8, flags);
 
 	if (!screen) {
 		printf("FAILED to open any screen!");
