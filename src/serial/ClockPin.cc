@@ -71,20 +71,14 @@ bool ClockPin::isPeriodic() const
 
 const EmuDuration& ClockPin::getTotalDuration() const 
 {
-	if (periodic) {
-		return totalDur;
-	} else {
-		assert(false);
-	}
+	assert(periodic);
+	return totalDur;
 }
 
 const EmuDuration& ClockPin::getHighDuration() const
 {
-	if (periodic) {
-		return  hiDur;
-	} else {
-		assert(false);
-	}
+	assert(periodic);
+	return hiDur;
 }
 
 int ClockPin::getTicksBetween(const EmuTime& begin, const EmuTime& end) const
@@ -94,8 +88,8 @@ int ClockPin::getTicksBetween(const EmuTime& begin, const EmuTime& end) const
 		return 0;
 	}
 	if (totalDur > EmuDuration::zero) {
-		int a = (begin < referenceTime) ? 
-		        0 : 
+		int a = (begin < referenceTime) ?
+		        0 :
 		        (begin - referenceTime) / totalDur;
 		int b = (end   - referenceTime) / totalDur;
 		return b - a;

@@ -247,6 +247,7 @@ void PixelRenderer::renderUntil(const EmuTime &time)
 	}
 	default:
 		assert(false);
+		limitX = limitY = 0; // avoid warning
 	}
 
 	// Stop here if there is nothing to render.

@@ -39,6 +39,7 @@ byte I8254::readIO(byte port, const EmuTime &time)
 			return 255;	//TODO check value
 		default:
 			assert(false);
+			return 255;
 	}
 }
 

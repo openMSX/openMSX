@@ -13,8 +13,14 @@ class DebugInterface
 	public:
 		DebugInterface();
 		virtual ~DebugInterface();
-		virtual std::string getRegisterName (word regNr){assert (false);};
-		virtual word getRegisterNumber (std::string regName){assert (false);};
+		virtual std::string getRegisterName (word regNr) {
+			assert(false);
+			return "";
+		}
+		virtual word getRegisterNumber (std::string regName){
+			assert(false);
+			return 0;
+		}
 		virtual dword getDataSize ()=0;
 		virtual byte readDebugData (dword address)=0;
 		virtual std::string getDeviceName ()=0;
