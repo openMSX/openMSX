@@ -7,7 +7,7 @@
 #include "CPU.hh"
 #include "libxmlx/xmlx.hh"
 #include "CartridgeSlotManager.hh"
-#include "File.hh"
+#include "SRAM.hh"
 
 // TODO fix PANASONIC
 // TODO NATIONAL seems to work, but needs some more testing
@@ -117,32 +117,18 @@ MSXRom::MSXRom(MSXConfig::Device *config, const EmuTime &time)
 {
 	retrieveMapperType();
 
-	// only if needed reserve memory for SRAM
+	// only instantiate SRAM if needed
 	if (mapperType & HAS_SRAM) {
 		switch (mapperType) {
-		case NATIONAL:
-			sizeSRAM = 0x1000;
-			break;
-		default:
-			sizeSRAM = 0x2000;
-			break;
-		}
-		memorySRAM = new byte[sizeSRAM];
-		memset(memorySRAM, 255, sizeSRAM);
-		if (deviceConfig->hasParameter("loadsram")) {
-			if (deviceConfig->getParameterAsBool("loadsram")) {
-				std::string filename = deviceConfig->getParameter("sramname");
-				PRT_DEBUG("MSXRom: read SRAM " << filename);
-				try {
-					File file(filename, STATE);
-					file.read(memorySRAM, sizeSRAM);
-				} catch (FileException &e) {
-					PRT_INFO("Couldn't load SRAM " << filename);
-				}
-			}
+			case NATIONAL:
+				sram = new SRAM(0x1000, config);
+				break;
+			default:
+				sram = new SRAM(0x2000, config);
+				break;
 		}
 	} else {
-		memorySRAM = NULL;
+		sram = NULL;
 	}
 
 	// only instantiate SCC if needed
@@ -198,13 +184,7 @@ MSXRom::~MSXRom()
 {
 	delete dac;
 	delete cartridgeSCC;
-	if ((mapperType & HAS_SRAM) && deviceConfig->getParameterAsBool("savesram")) {
-		std::string filename = deviceConfig->getParameter("sramname");
-		PRT_DEBUG("MSXRom: save SRAM " << filename);
-		File file(filename, STATE, TRUNCATE);
-		file.write(memorySRAM, sizeSRAM);
-	}
-	delete[] memorySRAM;
+	delete sram;
 	delete[] unmapped;
 }
 
@@ -354,7 +334,7 @@ byte MSXRom::readMem(word address, const EmuTime &time)
 		}
 		if ((control & 0x02) && ((address & 0x3FFF) == 0x3FFD)) {
 			// SRAM read
-			return memorySRAM[sramAddr++ & (sizeSRAM - 1)];
+			return sram->read(sramAddr++ & 0x0FFF);
 		}
 		break;
 	
@@ -532,8 +512,8 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 			byte region = ((address >> 12) & 1) + 1;
 			if (value == 0x10) {
 				// SRAM block
-				setBank8kB(2 * region,     memorySRAM);
-				setBank8kB(2 * region + 1, memorySRAM);
+				setBank8kB(2 * region,     sram->getBlock());
+				setBank8kB(2 * region + 1, sram->getBlock());
 				regioSRAM |= (region==1 ?  0x0C :  0x30);
 			} else {
 				// Normal 16 kB ROM page
@@ -542,9 +522,11 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 			}
 		} else {
 			// Writting to SRAM?
-			if ((1 << (address>>13)) & regioSRAM & 0x0C) { 
-				for (word adr=address&0x7FF; adr<0x2000; adr+=0x800)
-					memorySRAM[adr] = value;
+			if ((1 << (address>>13)) & regioSRAM & 0x0C) {
+				// TODO use real mirroring instead
+				for (word adr = address & 0x7FF; adr < 0x2000; adr += 0x800) {
+					sram->write(adr, value);
+				}
 			}
 		}
 		break;
@@ -566,7 +548,7 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 			byte region = ((address >> 11) & 3) + 2;
 			byte SRAMEnableBit = romSize / 8192;
 			if (value & SRAMEnableBit) {
-				setBank8kB(region, memorySRAM);
+				setBank8kB(region, sram->getBlock());
 				regioSRAM |=  (1 << region);
 			} else {
 				setROM8kB(region, value);
@@ -576,7 +558,7 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 			// Writting to SRAM?
 			if ((1 << (address>>13)) & regioSRAM & 0x30) { 
 				// 0x8000 - 0xBFFF
-				memorySRAM[address & (sizeSRAM - 1)] = value;
+				sram->write(address & 0x1FFF, value);
 			}
 		}
 		break;
@@ -595,11 +577,11 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 					// switch sram in page
 					regioSRAM |=  (1 << region);
 					if (value & 0x20) {
-						setBank4kB(2*region,   memorySRAM+0x1000);
-						setBank4kB(2*region+1, memorySRAM+0x1000);
+						setBank4kB(2*region,   sram->getBlock(0x1000));
+						setBank4kB(2*region+1, sram->getBlock(0x1000));
 					} else {
-						setBank4kB(2*region,   memorySRAM+0x0000);
-						setBank4kB(2*region+1, memorySRAM+0x0000);
+						setBank4kB(2*region,   sram->getBlock(0x0000));
+						setBank4kB(2*region+1, sram->getBlock(0x0000));
 					}
 				} else {
 					// switch normal memory
@@ -704,7 +686,7 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 				// SRAM address bits 7-0
 				sramAddr = (sramAddr & 0xFFFF00) | value;
 			} else if (address == 0x3FFD) {
-				memorySRAM[sramAddr++ & (sizeSRAM - 1)] = value;
+				sram->write(sramAddr++ & 0x0FFF, value);
 			}
 		}
 		break;

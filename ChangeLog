@@ -1,5 +1,11 @@
 $Id$
 
+2002-12-04 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* added SRAM class:
+	   This is just a small helper class that offers loading and
+	   saving of a byte-array. For the moment only MSXRom and MSXFmPac
+	   use it. 
+   
 2002-12-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* added CRC16 routine, can be used by FDC / FDCBackends
 	* fixed TC8566AF: completely forgot to send step/side/motor

@@ -15,6 +15,7 @@
 // forward declarations
 class SCC;
 class DACSound;
+class SRAM;
 
 
 class MSXRomCLI : public CLIOption, public CLIFileType
@@ -85,8 +86,7 @@ class MSXRom : public MSXMemDevice, public MSXRomDevice
 		byte *internalMemoryBank[16];	// 16 blocks of 4kB
 		byte *unmapped;
 		
-		byte *memorySRAM;
-		int sizeSRAM;
+		SRAM *sram;
 		byte regioSRAM;	//bit n=1 => SRAM in [n*0x2000, (n+1)*0x2000)
 
 		SCC* cartridgeSCC;

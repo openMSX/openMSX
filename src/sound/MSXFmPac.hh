@@ -12,6 +12,8 @@
 #include "MSXRomDevice.hh"
 #include "CommandLineParser.hh"
 
+class SRAM;
+
 
 class MSXFmPacCLI : public CLIOption, public CLIPostConfig
 {
@@ -49,7 +51,7 @@ class MSXFmPac : public MSXYM2413, public MSXMemDevice, public MSXRomDevice
 		bool sramEnabled;
 		byte bank;
 		byte r5ffe, r5fff;
-		byte* sramBank;
+		SRAM* sram;
 };
 
 #endif
