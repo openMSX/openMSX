@@ -6,7 +6,7 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "IntegerSetting.hh"
-#include "BooleanSetting.hh"
+#include "GlobalSettings.hh"
 #include "Display.hh"
 #include "EventDistributor.hh"
 #include "InputEventGenerator.hh"
@@ -62,13 +62,11 @@ bool FontSetting::checkFile(const string& filename)
 
 // class OSDConsoleRenderer
 
-BooleanSetting OSDConsoleRenderer::consoleSetting(
-	"console", "turns console display on/off", false, DONT_SAVE_SETTING);
-
 OSDConsoleRenderer::OSDConsoleRenderer(Console& console_)
 	: console(console_)
 	, eventDistributor(EventDistributor::instance())
 	, inputEventGenerator(InputEventGenerator::instance())
+	, consoleSetting(GlobalSettings::instance().getConsoleSetting())
 {
 	font.reset(new DummyFont());
 	blink = false;

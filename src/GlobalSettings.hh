@@ -26,6 +26,7 @@ public:
 	BooleanSetting& getPauseSetting();
 	BooleanSetting& getPowerSetting();
 	BooleanSetting& getAutoSaveSetting();
+	BooleanSetting& getConsoleSetting();
 	StringSetting& getUserDirSetting();
 	XMLElement& getMediaConfig();
 
@@ -35,6 +36,7 @@ private:
 	BooleanSetting pauseSetting;
 	BooleanSetting powerSetting;
 	BooleanSetting autoSaveSetting;
+	BooleanSetting consoleSetting;
 	StringSetting userDirSetting;
 	auto_ptr<XMLElement> mediaConfig;
 };

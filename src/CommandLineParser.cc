@@ -20,7 +20,7 @@
 #include "MSXTapePatch.hh"
 #include "DiskImageCLI.hh"
 #include "ConfigException.hh"
-#include "StringSetting.hh"
+#include "SettingsManager.hh"
 
 namespace openmsx {
 
@@ -51,6 +51,7 @@ CommandLineParser::CommandLineParser()
 	, hardwareConfig(HardwareConfig::instance())
 	, settingsConfig(SettingsConfig::instance())
 	, output(CliCommOutput::instance())
+	, settingsManager(SettingsManager::instance()) // lifetime management
 	, helpOption(*this)
 	, versionOption(*this)
 	, controlOption(*this)

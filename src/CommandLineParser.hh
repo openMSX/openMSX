@@ -30,6 +30,7 @@ class CliExtension;
 class MSXCassettePlayerCLI;
 class MSXCasCLI;
 class DiskImageCLI;
+class SettingsManager;
 
 class CLIOption
 {
@@ -97,6 +98,7 @@ private:
 	HardwareConfig& hardwareConfig;
 	SettingsConfig& settingsConfig;
 	CliCommOutput& output;
+	SettingsManager& settingsManager;
 
 	class HelpOption : public CLIOption {
 	public:

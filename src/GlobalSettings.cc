@@ -12,6 +12,8 @@ GlobalSettings::GlobalSettings()
 	, autoSaveSetting("save_settings_at_exit",
 	                  "automatically save settings when openMSX exits",
 	                  false)
+	, consoleSetting("console", "turns console display on/off", false,
+	                 DONT_SAVE_SETTING)
 	, userDirSetting("user_directories", "list of user directories", "")
 {
 }
@@ -35,6 +37,11 @@ BooleanSetting& GlobalSettings::getPowerSetting()
 BooleanSetting& GlobalSettings::getAutoSaveSetting()
 {
 	return autoSaveSetting;
+}
+
+BooleanSetting& GlobalSettings::getConsoleSetting()
+{
+	return consoleSetting;
 }
 
 StringSetting& GlobalSettings::getUserDirSetting()

@@ -1,5 +1,9 @@
 $Id$
 
+2004-10-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed(?) crash on exit in FreeBSD:
+	   - was order of destruction of global objects problem
+
 2004-10-06 Manuel Bilderbeek <manuel@msxnet.org>
 	* Renamed frontswitch to firmwareswitch
 

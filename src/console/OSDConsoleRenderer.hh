@@ -13,7 +13,6 @@
 #include "Console.hh"
 #include "NonInheritable.hh"
 #include "SettingListener.hh"
-#include "BooleanSetting.hh"
 
 using std::auto_ptr;
 using std::string;
@@ -25,6 +24,7 @@ class IntegerSetting;
 class Font;
 class InputEventGenerator;
 class EventDistributor;
+class BooleanSetting;
 
 NON_INHERITABLE_PRE(BackgroundSetting)
 class BackgroundSetting : public FilenameSettingBase,
@@ -96,8 +96,6 @@ protected:
 	Console& console;
 
 private:
-	static BooleanSetting consoleSetting;
-
 	void adjustColRow();
 	void update(const SettingLeafNode* setting);
 	void setActive(bool active);
@@ -105,6 +103,7 @@ private:
 	bool active;
 	EventDistributor& eventDistributor;
 	InputEventGenerator& inputEventGenerator;
+	BooleanSetting& consoleSetting;
 };
 
 } // namespace openmsx
