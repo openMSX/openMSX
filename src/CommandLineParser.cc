@@ -214,8 +214,8 @@ void CommandLineParser::configureCartridge(char* filename)
 	std::ostringstream s;
 	s << "<?xml version=\"1.0\"?>";
 	s << "<msxconfig>";
-	s << "<device id=\"GameCartridge"<< (int)cartridgeNr <<"\">";
-	s << "<type>GameCartridge</type>";
+	s << "<device id=\"MSXRom"<< (int)cartridgeNr <<"\">";
+	s << "<type>Rom</type>";
 	s << "<slotted><ps>"<<(int)(1+cartridgeNr)<<"</ps><ss>0</ss><page>0</page></slotted>";
 	s << "<slotted><ps>"<<(int)(1+cartridgeNr)<<"</ps><ss>0</ss><page>1</page></slotted>";
 	s << "<slotted><ps>"<<(int)(1+cartridgeNr)<<"</ps><ss>0</ss><page>2</page></slotted>";

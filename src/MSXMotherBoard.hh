@@ -4,7 +4,7 @@
 #define __MSXMOTHERBOARD_HH__
 
 #include <fstream>
-#include <vector>
+#include <list>
 #include "MSXConfig.hh"
 #include "ConsoleSource/Command.hh"
 #include "cpu/MSXCPUInterface.hh"
@@ -15,7 +15,7 @@ class MSXDevice;
 class EmuTime;
 
 
-class MSXMotherBoard : public MSXCPUInterface, private Schedulable
+class MSXMotherBoard : public MSXCPUInterface, public Schedulable
 {
 	public:
 		/**
@@ -39,7 +39,7 @@ class MSXMotherBoard : public MSXCPUInterface, private Schedulable
 		 * To remove a device completely from configuration
 		 * fe. yanking a cartridge out of the msx
 		 *
-		 * TODO this method is unimplemented!!
+		 * TODO this method not yet used!!
 		 */
 		void removeDevice(MSXDevice *device);
 
@@ -86,7 +86,7 @@ class MSXMotherBoard : public MSXCPUInterface, private Schedulable
 		};
 		ResetCmd resetCmd;
 
-		std::vector<MSXDevice*> availableDevices;
+		std::list<MSXDevice*> availableDevices;
 		static MSXMotherBoard *oneInstance;
 };
 #endif //__MSXMOTHERBOARD_HH__

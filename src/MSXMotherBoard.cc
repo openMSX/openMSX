@@ -37,10 +37,16 @@ void MSXMotherBoard::addDevice(MSXDevice *device)
 	availableDevices.push_back(device);
 }
 
+void MSXMotherBoard::removeDevice(MSXDevice *device)
+{
+	availableDevices.remove(device);
+}
+
+
 void MSXMotherBoard::resetMSX(const EmuTime &time)
 {
 	setPrimarySlots(0);
-	std::vector<MSXDevice*>::iterator i;
+	std::list<MSXDevice*>::iterator i;
 	for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
 		(*i)->reset(time);
 	}
@@ -56,7 +62,7 @@ void MSXMotherBoard::startMSX()
 
 void MSXMotherBoard::destroyMSX()
 {
-	std::vector<MSXDevice*>::iterator i;
+	std::list<MSXDevice*>::iterator i;
 	for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
 		delete (*i);
 	}
@@ -64,7 +70,7 @@ void MSXMotherBoard::destroyMSX()
 
 void MSXMotherBoard::saveStateMSX(std::ofstream &savestream)
 {
-	std::vector<MSXDevice*>::iterator i;
+	std::list<MSXDevice*>::iterator i;
 	for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
 		(*i)->saveState(savestream);
 	}
