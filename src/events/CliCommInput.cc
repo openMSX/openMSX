@@ -37,15 +37,23 @@ CliCommInput::~CliCommInput()
 void CliCommInput::cb_start_element(ParseState* user_data,
                      const xmlChar* name, const xmlChar** attrs)
 {
+	if (user_data->unknownLevel) {
+		++(user_data->unknownLevel);
+		return;
+	}
 	switch (user_data->state) {
 		case START:
 			if (strcmp((const char*)name, "openmsx-control") == 0) {
 				user_data->state = TAG_OPENMSX;
+			} else {
+				++(user_data->unknownLevel);
 			}
 			break;
 		case TAG_OPENMSX:
 			if (strcmp((const char*)name, "command") == 0) {
 				user_data->state = TAG_COMMAND;
+			} else {
+				++(user_data->unknownLevel);
 			}
 			break;
 		default:
@@ -56,6 +64,10 @@ void CliCommInput::cb_start_element(ParseState* user_data,
 
 void CliCommInput::cb_end_element(ParseState* user_data, const xmlChar* name)
 {
+	if (user_data->unknownLevel) {
+		--(user_data->unknownLevel);
+		return;
+	}
 	switch (user_data->state) {
 		case TAG_OPENMSX:
 			user_data->state = START;
@@ -105,6 +117,7 @@ void CliCommInput::run() throw()
 	}
 #endif
 	user_data.state = START;
+	user_data.unknownLevel = 0;
 	user_data.object = this;
 	memset(&sax_handler, 0, sizeof(sax_handler));
 	sax_handler.startElement = (startElementSAXFunc)cb_start_element;

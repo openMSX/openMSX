@@ -42,6 +42,7 @@ private:
 	struct ParseState {
 		ParseState();
 		State state;
+		unsigned unknownLevel;
 		string content;
 		CliCommInput* object;
 	};
