@@ -1,5 +1,10 @@
 $Id$
 
+2004-10-14 Maarten ter Huurne <maarten@treewalker.org>
+	* Added default key binding: ALT-Enter for full screen.
+	  Windows users are familiar with this hotkey.
+	* Fixed bug: search for TCL again on every "make probe".
+
 2004-10-13 Maarten ter Huurne <maarten@treewalker.org>
 	* Disabled "I/O ports" debuggable:
 	  - it reads I/O ports with side effects, which can trigger assertions
