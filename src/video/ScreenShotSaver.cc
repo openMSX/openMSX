@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <png.h>
 #include "ScreenShotSaver.hh"
+#include "CliCommOutput.hh"
 
 using std::ostringstream;
 using std::max;
@@ -93,6 +94,7 @@ namespace openmsx {
 ScreenShotSaver::ScreenShotSaver(SDL_Surface* surface, const string& filename)
 	throw (CommandException)
 {
+	// TODO: save screenshots in specific directory, like HOMEDIR/screenshots
 	// Create the array of pointers to image data
 	png_bytep* row_pointers = (png_bytep*)malloc(sizeof(png_bytep)*surface->h);
 
@@ -130,6 +132,11 @@ ScreenShotSaver::ScreenShotSaver(SDL_Surface* surface, const string& filename)
 	if (result < 0) {
 		throw CommandException("Failed to write " + filename);
 	}
+	else {
+		CliCommOutput::instance().printInfo("Screen saved to " + filename);
+		// TODO: report whole path to user
+	}
+
 }
 
 ScreenShotSaver::ScreenShotSaver(unsigned width, unsigned height,
