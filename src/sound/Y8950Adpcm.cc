@@ -170,6 +170,10 @@ byte Y8950Adpcm::readReg(byte rg)
 			//memPntr += 2; TODO ??
 			return tmp;
 		}
+		case 0x13: // TODO check
+			return output & 0xff;
+		case 0x14: // TODO check
+			return output / 256;
 	}
 	return 255;
 }
