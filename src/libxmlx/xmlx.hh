@@ -1,3 +1,4 @@
+// $Id$
 //
 // libxmlx - A simple C++ interface for libxml
 //
@@ -51,8 +52,9 @@ private:
 class Attribute
 {
 public:
-	Attribute(const std::string &name, const std::string &value);
-	
+	Attribute(xmlNodePtr node);
+	~Attribute();
+
 	std::string name;
 	std::string value;
 
@@ -65,8 +67,8 @@ private:
 class Element
 {
 public:
-	Element(const std::string &name);
-	Element(const std::string &name, const std::string &pcdata);
+	Element(xmlNodePtr node);
+	~Element();
 
 	std::string name;
 	std::string pcdata;
@@ -92,9 +94,6 @@ private:
 	Document(const Document &foo);            // block usage
 	Document &operator=(const Document &foo); // block usage
 
-	void libxml_to_tree();
-
-	xmlDocPtr doc;
 	std::string filename;
 };
 
