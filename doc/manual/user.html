@@ -41,7 +41,8 @@
 					<li><a class="internal" href="#importantsettings">3.3.1. Some Simple But Important Settings </a></li>
 					<li><a class="internal" href="#renderers">3.3.2. Renderers</a></li>
 					<li><a class="internal" href="#accuracy">3.3.3. Renderer Accuracy</a></li>
-					<li><a class="internal" href="#setsound">3.3.4. Sound Settings</a></li>
+					<li><a class="internal" href="#scalers">3.3.4. Scalers</a></li>
+					<li><a class="internal" href="#setsound">3.3.5. Sound Settings</a></li>
 				</ol>
 			</li>
 			<li><a class="internal" href="#plug">3.4. Plug</a></li>
@@ -373,7 +374,25 @@ accurate setting. This will break a lot of software that uses raster effects.
 </p>
 
 
-<h4><a id="setsound">3.3.4. Sound Settings</a></h4>
+<h4><a id="scalers">3.3.4. Scalers</a></h4>
+
+<p>
+Most MSX screen modes are only 256&times;212 pixels big. However, the SDLHi renderer uses a 640&times;480 screen mode to display the MSX screen. In those low reslution MSX screen modes many of the pixels in the high resolution PC screen are not used very well: they are simply multiplications of the original image: every MSX pixel is represented by four pixels in the SDLHi renderer. This is a form of scaling. In stead of just multiplying the pixels by four, we could also use the extra pixels to make the MSX image look sharper. There exist several algorithms that try to do this. Some of them are implemented in openMSX.
+</p>
+
+<p>
+If you don't appreciate the `smart' scaling, you can just leave the <code>scaler</code>setting to the default value: simple. This is the simple multiplication by four as is explained above. However, if you'd like to try the other scalers, here is some information about them:
+</p>
+<ul>
+<li><a class="external" href="http://elektron.its.tudelft.nl/~dalikifa/">2xsai</a>: this is the 2xSaI scaler. It does a pretty good job: it tries to find intermediate colours to make the image smoother. However, when using white fonts on a black background, you can get some nasty gray lines around them.</li>
+<li><a class="external" href="http://scale2x.sf.net/">scale2x</a>: Scale2x is a simple algorithm that only uses the original colours, so it will not give any blur</li>
+<li><a class="external" href="http://www.hiend3d.com/hq2x.html">hq2x</a>: a very complex algorithm, somewhat similar to 2xSaI, with the difference that takes edges into account. Gives a very good result most of the time, but is also very CPU intensive. Only use it on very fast computers</li>
+</ul>
+<p>
+A small demonstration of the algorithms can be found on the openMSX web site.
+</p>
+
+<h4><a id="setsound">3.3.5. Sound Settings</a></h4>
 
 <p>
 For all sound devices that are available in the MSX you are emulating, there are two settings available: the volume setting and the mode setting. The latter is only available for mono sound devices; you can use it to set the channel mode to left, right or mono (both channels). Example: <code>set psg_mode left</code> or <code>set cassetteplayer_volume 0</code>.
@@ -621,7 +640,7 @@ On Windows, real MIDI devices are separate pluggables.
 <h2><a id="debugdevice">7. Debug Device</a></h2>
 
 <p>
-This document describes how the debug device, built in openMSX, can be used to
+This chapter describes how the debug device, built in openMSX, can be used to
 the advantage of an MSX programmer. This device is an artificial MSX device that is connected to an MSX I/O port. It can be used to send debug messages to the host operating system.
 </p>
 
