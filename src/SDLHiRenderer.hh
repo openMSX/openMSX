@@ -6,6 +6,7 @@
 #include <SDL/SDL.h>
 #include "openmsx.hh"
 #include "Renderer.hh"
+#include "CharacterConverter.hh"
 #include "BitmapConverter.hh"
 
 class VDP;
@@ -58,7 +59,6 @@ public:
 	void updateVRAM(int addr, byte data, const EmuTime &time);
 
 private:
-	typedef void (SDLHiRenderer::*RenderMethod)(Pixel *pixelPtr, int line);
 	typedef void (SDLHiRenderer::*PhaseHandler)(int line, int limit);
 	typedef void (SDLHiRenderer::*DirtyChecker)
 		(int addr, byte data, const EmuTime &time);
@@ -95,19 +95,6 @@ private:
 	  */
 	inline Pixel getBorderColour();
 
-	void renderText1(Pixel *pixelPtr, int line);
-	void renderText1Q(Pixel *pixelPtr, int line);
-	void renderText2(Pixel *pixelPtr, int line);
-	void renderGraphic1(Pixel *pixelPtr, int line);
-	void renderGraphic2(Pixel *pixelPtr, int line);
-	void renderGraphic4(Pixel *pixelPtr, int line);
-	void renderGraphic5(Pixel *pixelPtr, int line);
-	void renderGraphic6(Pixel *pixelPtr, int line);
-	void renderGraphic7(Pixel *pixelPtr, int line);
-	void renderMulti(Pixel *pixelPtr, int line);
-	void renderMultiQ(Pixel *pixelPtr, int line);
-	void renderBogus(Pixel *pixelPtr, int line);
-
 	/** Render in background colour.
 	  * Used for borders and during blanking.
 	  * @param limit Render lines [currentLine..limit).
@@ -143,10 +130,6 @@ private:
 	/** Set all dirty / clean.
 	  */
 	void setDirty(bool);
-
-	/** RenderMethods for each display mode.
-	  */
-	static RenderMethod modeToRenderMethod[];
 
 	/** DirtyCheckers for each display mode.
 	  */
@@ -186,10 +169,6 @@ private:
 	  * Used by BitmapConverter.
 	  */
 	Pixel PALETTE256[256];
-
-	/** Rendering method for the current display mode.
-	  */
-	RenderMethod renderMethod;
 
 	/** Phase handler: current drawing mode (off, blank, display).
 	  */
@@ -253,6 +232,10 @@ private:
 	/** Did background colour change since last screen update?
 	  */
 	bool dirtyBackground;
+
+	/** VRAM to pixels converter for character display modes.
+	  */
+	CharacterConverter<Pixel> characterConverter;
 
 	/** VRAM to pixels converter for bitmap display modes.
 	  */

@@ -135,12 +135,21 @@ public:
 		return (displayMode & 0x17) == 0x01;
 	}
 
+	/** Is the specified mode a bitmap mode?
+	  * Graphic4 and higher are bitmap modes.
+	  * @param mode The display mode to test.
+	  * @return True iff the current mode is a bitmap mode.
+	  */
+	inline bool isBitmapMode(int mode) {
+		return (mode & 0x10) || (mode & 0x0C) == 0x0C;
+	}
+
 	/** Is the current mode a bitmap mode?
 	  * Graphic4 and higher are bitmap modes.
 	  * @return True iff the current mode is a bitmap mode.
 	  */
 	inline bool isBitmapMode() {
-		return (displayMode & 0x10) || ((displayMode & 0x0C) == 0x0C);
+		return isBitmapMode(displayMode);
 	}
 
 	/** Is VRAM "planar" in the current display mode?
