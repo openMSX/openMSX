@@ -6,6 +6,7 @@
 #include "openmsx.hh"
 
 #include <string>
+#include <unistd.h>
 
 class File
 {
