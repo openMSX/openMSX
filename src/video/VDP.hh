@@ -10,6 +10,7 @@
 #include "EmuTime.hh"
 #include "Command.hh"
 #include "DisplayMode.hh"
+#include "Debuggable.hh"
 
 #include <string>
 
@@ -47,7 +48,7 @@ class SpriteChecker;
   * A note about timing: the start of a frame or line is defined as
   * the starting time of the corresponding sync (vsync, hsync).
   */
-class VDP : public MSXIODevice, public Schedulable
+class VDP : public MSXIODevice, private Schedulable, private Debuggable
 {
 public:
 	/** VDP version: the VDP model being emulated.
@@ -403,6 +404,12 @@ public:
 	}
 
 private:
+	// Debuggable
+	virtual unsigned getSize() const;
+	virtual const string& getDescription() const;
+	virtual byte read(unsigned address);
+	virtual void write(unsigned address, byte value);
+	
 	class VDPRegsCmd : public Command {
 	public:
 		VDPRegsCmd(VDP *vdp);

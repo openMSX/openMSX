@@ -1,5 +1,8 @@
 $Id$
 
+2003-12-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* made vdp registers debuggable
+
 2003-11-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* made memory (64kb currently visible memory) debuggable
 	* made IO ports debuggable

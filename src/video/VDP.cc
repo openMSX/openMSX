@@ -19,6 +19,8 @@ TODO:
   falls outside of the rendered screen area.
 */
 
+#include <iomanip>
+#include <cassert>
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 #include "VDPCmdEngine.hh"
@@ -30,8 +32,8 @@ TODO:
 #include "Device.hh"
 #include "RenderSettings.hh"
 #include "RendererFactory.hh"
-#include <iomanip>
-#include <cassert>
+#include "Debugger.hh"
+#include "MSXCPU.hh"
 
 
 namespace openmsx {
@@ -113,6 +115,8 @@ VDP::VDP(Device* config, const EmuTime& time)
 	CommandController::instance().registerCommand(&vdpRegsCmd, "vdpregs");
 	CommandController::instance().registerCommand(&paletteCmd, "palette");
 
+	Debugger::instance().registerDebuggable("vdp-regs", *this);
+
 	// Initialise time stamps.
 	// This will be done again by frameStart, but these have to be
 	// initialised before reset() is called.
@@ -132,7 +136,8 @@ VDP::VDP(Device* config, const EmuTime& time)
 
 VDP::~VDP()
 {
-	PRT_DEBUG("Destroying a VDP object");
+	Debugger::instance().unregisterDebuggable("vdp-regs", *this);
+
 	CommandController::instance().unregisterCommand(&vdpRegsCmd,  "vdpregs");
 	CommandController::instance().unregisterCommand(&paletteCmd,  "palette");
 	delete cmdEngine;
@@ -1004,6 +1009,36 @@ void VDP::updateDisplayMode(DisplayMode newMode, const EmuTime &time)
 	// TODO: Why didn't I implement this yet?
 	//       It's one line of code and overhead is not huge either.
 }
+
+// Debuggable
+unsigned VDP::getSize() const
+{
+	return 0x40;
+}
+
+const string& VDP::getDescription() const
+{
+	static const string desc = "VDP registers.";
+	return desc;
+}
+
+byte VDP::read(unsigned address)
+{
+	if (address < 0x20) {
+		return controlRegs[address];
+	} else if (address < 0x2F) {
+		return cmdEngine->peekCmdReg(address - 0x20);
+	} else {
+		return 0;
+	}
+}
+
+void VDP::write(unsigned address, byte value)
+{
+	const EmuTime& time = MSXCPU::instance().getCurrentTime();
+	changeRegister(address, value, time);
+}
+
 
 // VDPRegsCmd inner class:
 

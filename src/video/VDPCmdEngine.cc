@@ -201,6 +201,31 @@ void VDPCmdEngine::setCmdReg(byte index, byte value, const EmuTime &time)
 	}
 }
 
+byte VDPCmdEngine::peekCmdReg(byte index)
+{
+	switch (index) {
+		case 0x00: return SX & 0xFF;
+		case 0x01: return SX >> 8;
+		case 0x02: return SY & 0xFF;
+		case 0x03: return SY >> 8;
+
+		case 0x04: return DX & 0xFF;
+		case 0x05: return DX >> 8;
+		case 0x06: return DY & 0xFF;
+		case 0x07: return DY >> 8;
+
+		case 0x08: return NX & 0xFF;
+		case 0x09: return NX >> 8;
+		case 0x0A: return NY & 0xFF;
+		case 0x0B: return NY >> 8;
+
+		case 0x0C: return COL;
+		case 0x0D: return ARG;
+		case 0x0E: return (CMD << 4) | LOG; 
+		default: assert(false); return 0;
+	}
+}
+
 void VDPCmdEngine::updateDisplayMode(DisplayMode mode, const EmuTime &time)
 {
 	int newScrMode;
