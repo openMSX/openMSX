@@ -394,11 +394,18 @@ void YMF278::writeRegOPL4(byte reg, byte data, const EmuTime &time)
 			slot.step = (unsigned)(step * freqbase);
 			break;
 		}
-		case 2:
+		case 2: {
 			slot.FN = (slot.FN & 0x07F) | ((data & 0x07) << 7);
 			slot.PRVB = ((data & 0x04) >> 3);
 			slot.OCT =  ((data & 0xF0) >> 4);
+			int oct = slot.OCT;
+			if (oct & 8) {
+				oct |= -8;
+			}
+			int step = (slot.FN | 1024) << (oct + 5);
+			slot.step = (unsigned)(step * freqbase);
 			break;
+		}
 		case 3:
 			slot.TL = data >> 1;
 			slot.LD = data & 0x1;
