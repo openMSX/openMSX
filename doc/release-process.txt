@@ -10,7 +10,7 @@ Preparing for a release
 
 - Tell all developers to commit only fixes.
 - Verify the documentation is up-to-date.
-  Currently most documentation is in "doc/openMSX-HOWTO.txt".
+  Currently most documentation is in "doc/manual".
 - Write release notes in "doc/release-notes.txt".
 - Add the change list to "doc/release-history.txt".
 
@@ -59,7 +59,7 @@ is made, which will become the release.
 To move the release tag, use the following CVS command:
   cvs tag -r <revision> -F RELEASE_1_2_3 <file>
 Maybe in the future release candidates will be made public as well, in that
-because they deserve a separate tag ("RELEASE_1_2_3_RC1").
+case they deserve a separate tag ("RELEASE_1_2_3_RC1").
 
 Make the release public
 -----------------------
@@ -86,4 +86,6 @@ Announce:
 Finally:
 - Put "Released openmsx-1.2.3." entry in the ChangeLog in CVS.
 - Change version number in configure.ac in CVS:
-    OPENMSX_VERSION=0.3.2[CVS]
+    OPENMSX_VERSION=1.2.3[CVS]
+- On the openMSX home page, update the lists "features of current release"
+  and "features in development".
