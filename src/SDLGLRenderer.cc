@@ -227,7 +227,7 @@ inline void SDLGLRenderer::setDisplayMode(DisplayMode mode)
 	}
 	lineWidth = mode.getLineWidth();
 	palSprites =
-		mode.getBase() == DisplayMode::GRAPHIC7 ? palGraphic7Sprites : palBg;
+		mode.getByte() == DisplayMode::GRAPHIC7 ? palGraphic7Sprites : palBg;
 }
 
 void SDLGLRenderer::finishFrame()

@@ -500,10 +500,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateDisplayMode(
 		characterConverter.setDisplayMode(mode);
 	}
 	palSprites =
-		( mode.getBase() == DisplayMode::GRAPHIC7
-		? palGraphic7Sprites
-		: palBg
-		);
+		mode.getByte() == DisplayMode::GRAPHIC7 ? palGraphic7Sprites : palBg;
 	setDirty(true);
 }
 
