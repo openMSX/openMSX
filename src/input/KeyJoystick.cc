@@ -37,14 +37,6 @@ KeyJoystick::KeyJoystick()
 	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	         JOY_BUTTONA | JOY_BUTTONB;
 
-	// built in defaults: no working key joystick
-	upKey      = Keys::K_NONE;
-	rightKey   = Keys::K_NONE;
-	downKey    = Keys::K_NONE;
-	leftKey    = Keys::K_NONE;
-	buttonAKey = Keys::K_NONE;
-	buttonBKey = Keys::K_NONE;
-
 	XMLElement& config =
 		SettingsConfig::instance().getCreateChild("KeyJoystick");
 	upKey      = getConfigKeyCode("upkey",      "UP",    config);

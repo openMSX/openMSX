@@ -41,7 +41,7 @@ bind / unbind
     bind PAGEDOWN "set speed 50"
     unbind F9
     bind F9 "set throttle off"
-    bind F9,up "set throttle on"
+    bind F9,release "set throttle on"
 
 
 cas

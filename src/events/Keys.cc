@@ -246,8 +246,8 @@ void Keys::initialize()
 	keymap["META"]		= KM_META;
 	
 	// Direction modifiers
-	keymap["DOWN"]		= KD_DOWN;
-	keymap["UP"]		= KD_UP;
+	keymap["PRESS"]		= KD_DOWN;
+	keymap["RELEASE"]	= KD_UP;
 }
 
 } // namespace openmsx
