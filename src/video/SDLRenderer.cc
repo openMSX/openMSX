@@ -11,7 +11,6 @@ TODO:
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 #include "RenderSettings.hh"
-#include "RealTime.hh"
 #include "CommandConsole.hh"
 #include "DebugConsole.hh"
 #include "SDLConsole.hh"
@@ -146,7 +145,7 @@ void SDLRenderer<Pixel, zoom>::takeScreenShot(const string& filename)
 		if (SDL_MUSTLOCK(screen)) {
 			SDL_UnlockSurface(screen);
 		}
-	} catch (CommandException &e) {
+	} catch (CommandException& e) {
 		// TODO make a SDLSurfaceLocker class to get rid of this code duplication
 		if (SDL_MUSTLOCK(screen)) {
 			SDL_UnlockSurface(screen);
@@ -271,10 +270,10 @@ void SDLRenderer<Pixel, zoom>::drawEffects()
 }
 
 template <class Pixel, Renderer::Zoom zoom>
-inline Pixel *SDLRenderer<Pixel, zoom>::getLinePtr(
-	SDL_Surface *displayCache, int line)
+inline Pixel* SDLRenderer<Pixel, zoom>::getLinePtr(
+	SDL_Surface* displayCache, int line)
 {
-	return (Pixel *)( (byte *)displayCache->pixels
+	return (Pixel*)( (byte*)displayCache->pixels
 		+ line * displayCache->pitch );
 }
 
@@ -302,7 +301,7 @@ inline void SDLRenderer<Pixel, zoom>::renderBitmapLine(
 	byte mode, int vramLine)
 {
 	if (lineValidInMode[vramLine] != mode) {
-		const byte *vramPtr =
+		const byte* vramPtr =
 			vram->bitmapCacheWindow.readArea(vramLine << 7);
 		bitmapConverter.convertLine(
 			getLinePtr(bitmapDisplayCache, vramLine), vramPtr );
@@ -346,9 +345,9 @@ inline void SDLRenderer<Pixel, zoom>::renderPlanarBitmapLine(
 	|| lineValidInMode[vramLine | 512] != mode ) {
 		int addr0 = vramLine << 7;
 		int addr1 = addr0 | 0x10000;
-		const byte *vramPtr0 =
+		const byte* vramPtr0 =
 			vram->bitmapCacheWindow.readArea(addr0);
-		const byte *vramPtr1 =
+		const byte* vramPtr1 =
 			vram->bitmapCacheWindow.readArea(addr1);
 		bitmapConverter.convertLinePlanar(
 			getLinePtr(bitmapDisplayCache, vramLine),
@@ -410,7 +409,7 @@ inline void SDLRenderer<Pixel, zoom>::renderCharacterLines(
 
 template <class Pixel, Renderer::Zoom zoom>
 SDLRenderer<Pixel, zoom>::SDLRenderer(
-	RendererFactory::RendererID id, VDP *vdp, SDL_Surface *screen)
+	RendererFactory::RendererID id, VDP* vdp, SDL_Surface* screen)
 	: PixelRenderer(id, vdp)
 	, characterConverter(vdp, palFg, palBg,
 		Blender<Pixel>::createFromFormat(screen->format) )
@@ -497,7 +496,7 @@ void SDLRenderer<Pixel, zoom>::precalcPalette(float gamma)
 	if (vdp->isMSX1VDP()) {
 		// Fixed palette.
 		for (int i = 0; i < 16; i++) {
-			const byte *rgb = TMS99X8A_PALETTE[i];
+			const byte* rgb = TMS99X8A_PALETTE[i];
 			palFg[i] = palBg[i] = SDL_MapRGB(
 				screen->format,
 				(int)(::pow((float)rgb[0] / 255.0, gamma) * 255),
@@ -554,7 +553,7 @@ void SDLRenderer<Pixel, zoom>::precalcPalette(float gamma)
 }
 
 template <class Pixel, Renderer::Zoom zoom>
-void SDLRenderer<Pixel, zoom>::reset(const EmuTime &time)
+void SDLRenderer<Pixel, zoom>::reset(const EmuTime& time)
 {
 	PixelRenderer::reset(time);
 
@@ -597,14 +596,13 @@ bool SDLRenderer<Pixel, zoom>::checkSettings()
 	// Try to toggle full screen.
 	SDL_WM_ToggleFullScreen(screen);
 	fullScreenState =
-		((((volatile SDL_Surface *)screen)->flags & SDL_FULLSCREEN) != 0);
+		((((volatile SDL_Surface*)screen)->flags & SDL_FULLSCREEN) != 0);
 	return fullScreenState == fullScreenTarget;
 #endif
 }
 
 template <class Pixel, Renderer::Zoom zoom>
-void SDLRenderer<Pixel, zoom>::frameStart(
-	const EmuTime &time)
+void SDLRenderer<Pixel, zoom>::frameStart(const EmuTime& time)
 {
 	// Call superclass implementation.
 	PixelRenderer::frameStart(time);
@@ -649,7 +647,7 @@ void SDLRenderer<Pixel, zoom>::setDisplayMode(DisplayMode mode)
 
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::updateTransparency(
-	bool enabled, const EmuTime &time)
+	bool enabled, const EmuTime& time)
 {
 	sync(time);
 	spriteConverter.setTransparency(enabled);
@@ -664,14 +662,14 @@ void SDLRenderer<Pixel, zoom>::updateTransparency(
 
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::updateForegroundColour(
-	int colour, const EmuTime &time)
+	int colour, const EmuTime& time)
 {
 	sync(time);
 }
 
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::updateBackgroundColour(
-	int colour, const EmuTime &time)
+	int colour, const EmuTime& time)
 {
 	sync(time);
 	if (vdp->getTransparency()) {
@@ -686,21 +684,21 @@ void SDLRenderer<Pixel, zoom>::updateBackgroundColour(
 
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::updateBlinkForegroundColour(
-	int colour, const EmuTime &time)
+	int colour, const EmuTime& time)
 {
 	sync(time);
 }
 
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::updateBlinkBackgroundColour(
-	int colour, const EmuTime &time)
+	int colour, const EmuTime& time)
 {
 	sync(time);
 }
 
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::updateBlinkState(
-	bool enabled, const EmuTime &time)
+	bool enabled, const EmuTime& time)
 {
 	// TODO: When the sync call is enabled, the screen flashes on
 	//       every call to this method.
@@ -711,7 +709,7 @@ void SDLRenderer<Pixel, zoom>::updateBlinkState(
 
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::updatePalette(
-	int index, int grb, const EmuTime &time)
+	int index, int grb, const EmuTime& time)
 {
 	sync(time);
 	setPalette(index, grb);
@@ -739,21 +737,21 @@ void SDLRenderer<Pixel, zoom>::setPalette(
 
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::updateVerticalScroll(
-	int scroll, const EmuTime &time)
+	int scroll, const EmuTime& time)
 {
 	sync(time);
 }
 
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::updateHorizontalAdjust(
-	int adjust, const EmuTime &time)
+	int adjust, const EmuTime& time)
 {
 	sync(time);
 }
 
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::updateDisplayMode(
-	DisplayMode mode, const EmuTime &time)
+	DisplayMode mode, const EmuTime& time)
 {
 	sync(time);
 	setDisplayMode(mode);
@@ -761,21 +759,21 @@ void SDLRenderer<Pixel, zoom>::updateDisplayMode(
 
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::updateNameBase(
-	int addr, const EmuTime &time)
+	int addr, const EmuTime& time)
 {
 	sync(time);
 }
 
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::updatePatternBase(
-	int addr, const EmuTime &time)
+	int addr, const EmuTime& time)
 {
 	sync(time);
 }
 
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::updateColourBase(
-	int addr, const EmuTime &time)
+	int addr, const EmuTime& time)
 {
 	sync(time);
 }
@@ -1025,8 +1023,8 @@ void SDLRenderer<Pixel, zoom>::drawSprites(
 	int spriteMode = vdp->getDisplayMode().getSpriteMode();
 	int displayLimitX = displayX + displayWidth;
 	int limitY = fromY + displayHeight;
-	Pixel *pixelPtr = (Pixel *)(
-		(byte *)workScreen->pixels
+	Pixel* pixelPtr = (Pixel*)(
+		(byte*)workScreen->pixels
 		+ screenY * workScreen->pitch
 		+ translateX(vdp->getLeftSprites(), vdp->getDisplayMode().getLineWidth() == 512)
 			* sizeof(Pixel)
@@ -1038,7 +1036,7 @@ void SDLRenderer<Pixel, zoom>::drawSprites(
 			spriteConverter.drawMode2(y, displayX, displayLimitX, pixelPtr);
 		}
 
-		pixelPtr = (Pixel *)(((byte *)pixelPtr) + workScreen->pitch);
+		pixelPtr = (Pixel*)(((byte*)pixelPtr) + workScreen->pitch);
 	}
 
 	// Unlock surface.
