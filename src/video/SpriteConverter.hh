@@ -191,7 +191,6 @@ public:
 					for (i++ ; i < visibleIndex; i++) {
 						sip = &visibleSprites[i];
 						if (!(sip->colourAttrib & 0x40)) break;
-						int shift = pixelDone - sip->x;
 						if ((0 <= shift && shift < maxSize)
 						&& ((sip->pattern << shift) & 0x80000000)) {
 							colour |= sip->colourAttrib & 0x0F;
