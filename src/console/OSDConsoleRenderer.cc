@@ -84,7 +84,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(Console& console_)
 			initiated = false;
 		}
 		try {
-			const XMLElement* fontElem = config->getChild("font");
+			const XMLElement* fontElem = config->findChild("font");
 			if (!initiated && fontElem) {
 				string fontName = fontElem->getData();
 				fontName = context.resolve(fontName);
@@ -95,7 +95,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(Console& console_)
 		}
 
 		try {
-			const XMLElement* backgroundElem = config->getChild("background");
+			const XMLElement* backgroundElem = config->findChild("background");
 			if (!initiated && backgroundElem) {
 				string backgroundName = backgroundElem->getData();
 				backgroundName = context.resolve(backgroundName);

@@ -22,7 +22,7 @@ public:
 	virtual byte* getWriteCacheLine(word start) const;
 
 private:
-	Rom rom;
+	Rom bunsetsuRom;
 	Rom jisyoRom;
 	int jisyoAddress;
 };

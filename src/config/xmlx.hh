@@ -48,7 +48,8 @@ public:
 	typedef vector<XMLElement*> Children;
 	const Children& getChildren() const { return children; }
 	void getChildren(const string& name, Children& result) const;
-	const XMLElement* getChild(const string& name) const;
+	const XMLElement* findChild(const string& name) const;
+	const XMLElement& getChild(const string& name) const;
 	
 	const string& getChildData(const string& name) const;
 	string getChildData(const string& name,
@@ -61,6 +62,8 @@ public:
 	typedef map<string, string> Attributes;
 	const Attributes& getAttributes() const { return attributes; }
 	const string& getAttribute(const string& attName) const;
+	const string getAttribute(const string& attName,
+	                          const string defaultValue) const;
 	
 	void setFileContext(auto_ptr<FileContext> context);
 	FileContext& getFileContext() const;

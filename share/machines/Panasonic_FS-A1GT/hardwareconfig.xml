@@ -31,8 +31,10 @@
     <slotted> <ps>3</ps> <ss>3</ss> <page>1</page> </slotted>
     <slotted> <ps>3</ps> <ss>3</ss> <page>2</page> </slotted>
     <slotted> <ps>3</ps> <ss>3</ss> <page>3</page> </slotted>
-    <filename>roms/fs-a1gt_firmware.rom</filename>
-    <mappertype>PANASONIC</mappertype>
+    <rom>
+      <filename>roms/fs-a1gt_firmware.rom</filename>
+      <mappertype>PANASONIC</mappertype>
+    </rom>
     <sramsize>32</sramsize>
     <sram-mirrored>false</sram-mirrored>
     <sramname>fs-a1gt.sram</sramname>
@@ -42,16 +44,20 @@
     <type>ROM</type>
     <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
     <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
-    <firstblock>40</firstblock>
-    <lastblock>43</lastblock>
+    <rom>
+      <firstblock>40</firstblock>
+      <lastblock>43</lastblock>
+    </rom>
   </device>
   
   <device id="MSX Music">
     <type>MSX-MUSIC</type>
     <slotted> <ps>0</ps> <ss>2</ss> <page>1</page> </slotted>
     <io base="0x7C" num="2" type="O"/>
-    <firstblock>62</firstblock>
-    <lastblock>63</lastblock>
+    <rom>
+      <firstblock>62</firstblock>
+      <lastblock>63</lastblock>
+    </rom>
     <volume>9000</volume>   
     <mode>mono</mode>
   </device>
@@ -59,8 +65,10 @@
   <device id="MSX Opening ROM">
     <type>ROM</type>
     <slotted> <ps>0</ps> <ss>3</ss> <page>1</page> </slotted>
-    <firstblock>36</firstblock>
-    <lastblock>37</lastblock>
+    <rom>
+      <firstblock>36</firstblock>
+      <lastblock>37</lastblock>
+    </rom>
   </device>
 
   <device id="Main RAM">
@@ -76,24 +84,30 @@
   <device id="MSX Sub ROM">
     <type>ROM</type>
     <slotted> <ps>3</ps> <ss>1</ss> <page>0</page> </slotted>
-    <firstblock>56</firstblock>
-    <lastblock>57</lastblock>
+    <rom>
+      <firstblock>56</firstblock>
+      <lastblock>57</lastblock>
+    </rom>
   </device>
 
   <device id="MSX Kanji Driver with BASIC">
     <type>ROM</type>
     <slotted> <ps>3</ps> <ss>1</ss> <page>1</page> </slotted>
     <slotted> <ps>3</ps> <ss>1</ss> <page>2</page> </slotted>
-    <firstblock>58</firstblock>
-    <lastblock>61</lastblock>
+    <rom>
+      <firstblock>58</firstblock>
+      <lastblock>61</lastblock>
+    </rom>
   </device>
   
   <device id="Memory Mapped FDC">
     <type>FDC</type>
     <slotted> <ps>3</ps> <ss>2</ss> <page>1</page> </slotted>
     <slotted> <ps>3</ps> <ss>2</ss> <page>2</page> </slotted>
-    <firstblock>48</firstblock>
-    <lastblock>55</lastblock>
+    <rom>
+      <firstblock>48</firstblock>
+      <lastblock>55</lastblock>
+    </rom>
     <fdc_type>TC8566AF</fdc_type>
     <drivename1>diska</drivename1>
   </device>
@@ -101,7 +115,9 @@
   <device id="Kanji ROM">
     <type>Kanji</type>
     <io base="0xD8" num="4"/>
-    <filename>roms/fs-a1gt_kanjifont.rom</filename>
+    <rom>
+      <filename>roms/fs-a1gt_kanjifont.rom</filename>
+    </rom>
   </device>
 
   <device id="S1990">

@@ -16,10 +16,7 @@ MSXIODevice::MSXIODevice(const XMLElement& config, const EmuTime& time)
 	     it != ios.end(); ++it) {
 		unsigned base = StringOp::stringToInt((*it)->getAttribute("base"));
 		unsigned num  = StringOp::stringToInt((*it)->getAttribute("num"));
-		string   type = (*it)->getAttribute("type");
-		if (type.empty()) {
-			type = "IO";
-		}
+		string   type = (*it)->getAttribute("type", "IO");
 		if (((base + num) > 256) || (num == 0) ||
 		    ((type != "I") && (type != "O") && (type != "IO"))) {
 			throw FatalError("Invalid IO port specification");

@@ -14,7 +14,7 @@ MSXFDC::MSXFDC(const XMLElement& config, const EmuTime& time)
 	//                0123456789
 	for (int i = 0; i < 4; i++) {
 		drivename[9] = '1' + i;
-		const XMLElement* driveElem = config.getChild(drivename);
+		const XMLElement* driveElem = config.findChild(drivename);
 		if (driveElem) {
 			drives[i] = new DoubleSidedDrive(
 			                     driveElem->getData(), time);

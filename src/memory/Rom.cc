@@ -17,15 +17,38 @@
 #include "sha1.hh"
 #include "CliCommOutput.hh"
 #include "FilePool.hh"
+#include "ConfigException.hh"
 
 namespace openmsx {
 
-Rom::Rom(const string& name_, const string& description_, const XMLElement& config)
+Rom::Rom(const string& name_, const string& description_,
+         const XMLElement& config)
 	: name(name_), description(description_)
+{
+	init(config.getChild("rom"));
+}
+
+Rom::Rom(const string& name_, const string& description_,
+         const XMLElement& config, const string& id)
+	: name(name_), description(description_)
+{
+	XMLElement::Children romConfigs;
+	config.getChildren("rom", romConfigs);
+	for (XMLElement::Children::const_iterator it = romConfigs.begin();
+	     it != romConfigs.end(); ++it) {
+		if ((*it)->getAttribute("id") == id) {
+			init(**it);
+			return;
+		}
+	}
+	throw ConfigException("ROM tag \"" + id + "\" missing.");
+}
+
+void Rom::init(const XMLElement& config)
 {
 	XMLElement::Children sums;
 	config.getChildren("sha1", sums);
-	const XMLElement* filenameElem = config.getChild("filename");
+	const XMLElement* filenameElem = config.findChild("filename");
 	if (!sums.empty() || filenameElem) {
 		// file specified with SHA1 or filename
 		string filename;
@@ -48,7 +71,7 @@ Rom::Rom(const string& name_, const string& description_, const XMLElement& conf
 		}
 		read(config, filename);
 
-	} else if (config.getChild("firstblock")) {
+	} else if (config.findChild("firstblock")) {
 		// part of the TurboR main ROM
 		int first = config.getChildDataAsInt("firstblock");
 		int last  = config.getChildDataAsInt("lastblock");
@@ -62,16 +85,20 @@ Rom::Rom(const string& name_, const string& description_, const XMLElement& conf
 		size = 0;
 	}
 
-	init(config);
+	info = RomInfo::fetchRomInfo(*this, config);
+
+	// TODO fix this, this is a hack that depends heavily on MSXRomCLI.cc
+	if (!info->getTitle().empty() && (name.substr(0, 6) == "MSXRom")) {
+		char ps = name[6];
+		char ss = name[8];
+		name = info->getTitle() + " in slot " + ps + '-' + ss;
+	}
+
+	if (size) {
+		Debugger::instance().registerDebuggable(name, *this);
+	}
 }
 
-Rom::Rom(const string& name_, const string& description_, const XMLElement& config,
-         const string& filename)
-	: name(name_), description(description_)
-{
-	read(config, filename);	// TODO config
-	init(config);
-}
 
 void Rom::read(const XMLElement& config, const string& filename)
 {
@@ -170,22 +197,6 @@ void Rom::patch(const XMLElement& config)
 			throw FatalError(out.str());
 		}
 		tmp[addr] = val;
-	}
-}
-
-void Rom::init(const XMLElement& config)
-{
-	info = RomInfo::fetchRomInfo(*this, config);
-
-	// TODO fix this, this is a hack that depends heavily on MSXRomCLI.cc
-	if (!info->getTitle().empty() && (name.substr(0, 6) == "MSXRom")) {
-		char ps = name[6];
-		char ss = name[8];
-		name = info->getTitle() + " in slot " + ps + '-' + ss;
-	}
-
-	if (size) {
-		Debugger::instance().registerDebuggable(name, *this);
 	}
 }
 

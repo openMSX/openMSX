@@ -15,8 +15,8 @@ SunriseIDE::SunriseIDE(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time),
 	  rom(getName() + " ROM", "rom", config)
 {
-	const XMLElement* masterElem = config.getChild("master");
-	const XMLElement* slaveElem  = config.getChild("slave");
+	const XMLElement* masterElem = config.findChild("master");
+	const XMLElement* slaveElem  = config.findChild("slave");
 	device[0].reset(masterElem 
 	          ? IDEDeviceFactory::create(masterElem->getData(), time)
 	          : new DummyIDEDevice());

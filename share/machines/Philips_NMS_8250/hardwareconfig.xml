@@ -33,13 +33,17 @@
     <type>ROM</type>
     <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
     <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
-    <filename>roms/nms8250_basic-bios2.rom</filename>
+    <rom>
+      <filename>roms/nms8250_basic-bios2.rom</filename>
+    </rom>
   </device>
 
   <device id="MSX Sub ROM">
     <type>ROM</type>
     <slotted> <ps>3</ps> <ss>0</ss> <page>0</page> </slotted>
-    <filename>roms/nms8250_msx2sub.rom</filename>
+    <rom>
+      <filename>roms/nms8250_msx2sub.rom</filename>
+    </rom>
   </device>
 
   <device id="Memory Mapped FDC">
@@ -48,7 +52,9 @@
     <slotted> <ps>3</ps> <ss>3</ss> <page>2</page> </slotted>
     <broken_fdc_read>false</broken_fdc_read> 
     <fdc_type>WD2793</fdc_type>
-    <filename>roms/nms8250_disk.rom</filename>
+    <rom>
+      <filename>roms/nms8250_disk.rom</filename>
+    </rom>
     <drivename1>diska</drivename1>
   </device>
 

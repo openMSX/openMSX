@@ -23,9 +23,10 @@ class File;
 class Rom : public Debuggable
 {
 public:
-	Rom(const string& name, const string& description, const XMLElement& config);
-	Rom(const string& name, const string& description, const XMLElement& config,
-	    const string& filename);
+	Rom(const string& name, const string& description,
+	    const XMLElement& config);
+	Rom(const string& name, const string& description,
+	    const XMLElement& config, const string& id);
 	virtual ~Rom();
 
 	const byte& operator[](unsigned address) const {
@@ -50,8 +51,8 @@ public:
 	virtual void write(unsigned address, byte value);
 
 private:
-	void read(const XMLElement& config, const string& filename);
 	void init(const XMLElement& config);
+	void read(const XMLElement& config, const string& filename);
 	bool checkSHA1(const XMLElement& config);
 	void patch(const XMLElement& config);
 	

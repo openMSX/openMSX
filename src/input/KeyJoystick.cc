@@ -15,7 +15,7 @@ static Keys::KeyCode getConfigKeyCode(const string& keyname,
                                       const XMLElement& config)
 {
 	Keys::KeyCode testKey = Keys::K_NONE;
-	const XMLElement* keyElem = config.getChild(keyname);
+	const XMLElement* keyElem = config.findChild(keyname);
 	if (keyElem) {
 		string key = keyElem->getData();
 		testKey = Keys::getCode(key);

@@ -41,7 +41,7 @@ void CartridgeSlotManager::readConfig()
 	string slotName("slota");
 	for (int slot = 0; slot < 16; slot++) {
 		slotName[4] = 'a' + slot;
-		const XMLElement* slotElem = config->getChild(slotName);
+		const XMLElement* slotElem = config->findChild(slotName);
 		if (slotElem) {
 			string slotValue = slotElem->getData();
 			int ps = slotValue[0] - '0';

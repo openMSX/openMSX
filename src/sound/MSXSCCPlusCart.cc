@@ -18,7 +18,7 @@ MSXSCCPlusCart::MSXSCCPlusCart(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time),
 	  ram(getName() + " RAM", "SCC+ RAM", 0x20000)
 {
-	const XMLElement* fileElem = config.getChild("filename");
+	const XMLElement* fileElem = config.findChild("filename");
 	if (fileElem) {
 		// read the rom file
 		const string& filename = fileElem->getData();

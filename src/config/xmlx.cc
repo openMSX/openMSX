@@ -3,12 +3,10 @@
 #include <cassert>
 #include "StringOp.hh"
 #include "FileContext.hh"
+#include "ConfigException.hh"
 #include "xmlx.hh"
 
 namespace openmsx {
-
-static const string EMPTY;
-
 
 // class XMLException
 
@@ -115,7 +113,7 @@ void XMLElement::getChildren(const string& name, Children& result) const
 	}
 }
 
-const XMLElement* XMLElement::getChild(const string& name) const
+const XMLElement* XMLElement::findChild(const string& name) const
 {
 	for (Children::const_iterator it = children.begin();
 	     it != children.end(); ++it) {
@@ -126,39 +124,54 @@ const XMLElement* XMLElement::getChild(const string& name) const
 	return NULL;
 }
 
+const XMLElement& XMLElement::getChild(const string& name) const
+{
+	const XMLElement* elem = findChild(name);
+	if (!elem) {
+		throw ConfigException("Missing tag \"" + name + "\".");
+	}
+	return *elem;
+}
+
 const string& XMLElement::getChildData(const string& name) const
 {
-	const XMLElement* child = getChild(name);
-	return child ? child->getData() : EMPTY;
+	const XMLElement& child = getChild(name);
+	return child.getData();
 }
 
 string XMLElement::getChildData(const string& name,
                                 const string& defaultValue) const
 {
-	const XMLElement* child = getChild(name);
+	const XMLElement* child = findChild(name);
 	return child ? child->getData() : defaultValue;
 }
 
 bool XMLElement::getChildDataAsBool(const string& name, bool defaultValue) const
 {
-	const XMLElement* child = getChild(name);
+	const XMLElement* child = findChild(name);
 	return child ? StringOp::stringToBool(child->getData()) : defaultValue;
 }
 
 int XMLElement::getChildDataAsInt(const string& name, int defaultValue) const
 {
-	const XMLElement* child = getChild(name);
+	const XMLElement* child = findChild(name);
 	return child ? StringOp::stringToInt(child->getData()) : defaultValue;
 }
 
 const string& XMLElement::getAttribute(const string& attName) const
 {
 	Attributes::const_iterator it = attributes.find(attName);
-	if (it != attributes.end()) {
-		return it->second;
-	} else {
-		return EMPTY;
+	if (it == attributes.end()) {
+		throw ConfigException("Missing attribute \"" + attName + "\".");
 	}
+	return it->second;
+}
+
+const string XMLElement::getAttribute(const string& attName,
+	                              const string defaultValue) const
+{
+	Attributes::const_iterator it = attributes.find(attName);
+	return (it == attributes.end()) ? defaultValue : it->second;
 }
 
 void XMLElement::setFileContext(auto_ptr<FileContext> context_)

@@ -8,9 +8,8 @@ namespace openmsx {
 
 MSXBunsetsu::MSXBunsetsu(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time),
-	  rom(getName() + "_1", "rom", config),
-	  jisyoRom(getName() + "_2", "rom", config,
-	           config.getChildData("jisyofilename"))
+	  bunsetsuRom(getName() + "_1", "rom", config, "bunsetsu"),
+	  jisyoRom   (getName() + "_2", "rom", config, "jisyo")
 {
 	reset(time);
 }
@@ -31,7 +30,7 @@ byte MSXBunsetsu::readMem(word address, const EmuTime& /*time*/)
 		result = jisyoRom[jisyoAddress];
 		jisyoAddress = (jisyoAddress + 1) & 0x1FFFF;
 	} else if ((0x4000 <= address) && (address < 0xC000)) {
-		result = rom[address - 0x4000];
+		result = bunsetsuRom[address - 0x4000];
 	} else {
 		result = 0xFF;
 	}
@@ -60,7 +59,7 @@ const byte* MSXBunsetsu::getReadCacheLine(word start) const
 	    (0xBFFF & CPU::CACHE_LINE_HIGH)) {
 		return NULL;
 	} else {
-		return &rom[start - 0x4000];
+		return &bunsetsuRom[start - 0x4000];
 	}
 }
 

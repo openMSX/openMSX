@@ -227,11 +227,11 @@ auto_ptr<RomInfo> RomInfo::searchRomDB(const Rom& rom)
 			for (XMLElement::Children::const_iterator it1 = children.begin();
 			     it1 != children.end(); ++it1) {
 				// TODO there can be multiple title tags
-				string title   = (*it1)->getChildData("title");
-				string year    = (*it1)->getChildData("year");
-				string company = (*it1)->getChildData("company");
-				string remark  = (*it1)->getChildData("remark");
-				string romtype = (*it1)->getChildData("romtype");
+				string title   = (*it1)->getChildData("title", "");
+				string year    = (*it1)->getChildData("year", "");
+				string company = (*it1)->getChildData("company", "");
+				string remark  = (*it1)->getChildData("remark", "");
+				string romtype = (*it1)->getChildData("romtype", "");
 				
 				RomInfo* romInfo = new RomInfo(title, year,
 				   company, remark, nameToMapperType(romtype));
