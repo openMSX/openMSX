@@ -14,7 +14,8 @@ SRC_HDR:= \
 HDR_ONLY:= \
 	SettingImpl \
 	SettingListener \
-	EnumSetting
+	EnumSetting \
+	SettingPolicy
 
 include build/node-end.mk
 
