@@ -470,7 +470,7 @@ void V9990BitmapConverter<Pixel, zoom>::drawCursor(
 	unsigned x = vram->readVRAM(attrAddr + 4) + (attr & 3) * 256;
 	
 	// TODO EOR colors
-	Pixel color = palette64[vdp->getPaletteOffset() + (attr >> 6)];
+	Pixel color = palette64[(vdp->getPaletteOffset() << 2) + (attr >> 6)];
 	for (int i = 0; i < 32; ++i) {
 		if (pattern & 0x80000000) {
 			buffer[(x + i) & 1023] = color;

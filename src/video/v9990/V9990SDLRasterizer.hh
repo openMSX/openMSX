@@ -6,6 +6,7 @@
 #include "V9990Rasterizer.hh"
 #include "V9990BitmapConverter.hh"
 #include "V9990P1Converter.hh"
+#include "V9990P2Converter.hh"
 #include "Renderer.hh"
 
 namespace openmsx {
@@ -122,6 +123,10 @@ private:
 	  */
 	V9990P1Converter<Pixel, zoom> p1Converter;
 	
+	/** P2 Converter
+	  */
+	V9990P2Converter<Pixel, zoom> p2Converter;
+	
 	/** Deinterlace setting
 	  */
 	BooleanSetting* deinterlaceSetting;
@@ -137,6 +142,11 @@ private:
 	/** Draw P1 mode.
 	  */ 
 	void drawP1Mode(int fromX, int fromY, int displayX, int displayY,
+	                int displayWidth, int displayHeight);
+
+	/** Draw P2 mode.
+	  */ 
+	void drawP2Mode(int fromX, int fromY, int displayX, int displayY,
 	                int displayWidth, int displayHeight);
 
 	/** Draw Bx mode.

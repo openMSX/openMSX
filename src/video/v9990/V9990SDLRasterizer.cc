@@ -24,6 +24,7 @@ V9990SDLRasterizer<Pixel, zoom>::V9990SDLRasterizer(
 	, bitmapConverter(vdp, *screen->format,
 	                  palette64, palette256, palette32768)
 	, p1Converter(vdp, *screen->format, palette64)
+	, p2Converter(vdp, *screen->format, palette64)
 	, deinterlaceSetting(RenderSettings::instance().getDeinterlace())
 {
 	PRT_DEBUG("V9990SDLRasterizer::V9990SDLRasterizer");
@@ -269,7 +270,8 @@ void V9990SDLRasterizer<Pixel, zoom>::drawDisplay(
 					   displayWidth, displayHeight);
 		} else if (displayMode == P2) {
 			// TODO
-			std::cout << "V9990: P2 mode not yet implemented" << std::endl;
+			drawP2Mode(fromX, fromY, displayX, displayY,
+					   displayWidth, displayHeight);
 		} else {
 			drawBxMode(fromX, fromY, displayX, displayY,
 			           displayWidth, displayHeight);
@@ -289,6 +291,24 @@ void V9990SDLRasterizer<Pixel, zoom>::drawP1Mode(
 			translateX<zoom>(fromX) * sizeof(Pixel));
 	while (displayHeight--) {
 		p1Converter.convertLine(pixelPtr, displayX, displayWidth,
+				                     displayY);
+		displayY++;
+		pixelPtr += workScreen->w;
+	}
+}
+
+template <class Pixel, Renderer::Zoom zoom>
+void V9990SDLRasterizer<Pixel, zoom>::drawP2Mode(
+	int fromX, int fromY, int displayX, int displayY,
+	int displayWidth, int displayHeight)
+{
+	SDL_Surface* workScreen = getWorkScreen();
+	Pixel* pixelPtr = (Pixel*)(
+			(byte*)workScreen->pixels +
+			fromY * workScreen->pitch +
+			translateX<zoom>(fromX) * sizeof(Pixel));
+	while (displayHeight--) {
+		p2Converter.convertLine(pixelPtr, displayX, displayWidth,
 				                     displayY);
 		displayY++;
 		pixelPtr += workScreen->w;

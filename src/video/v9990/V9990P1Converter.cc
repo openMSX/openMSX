@@ -106,10 +106,16 @@ Pixel V9990P1Converter<Pixel, zoom>::raster(int xA, int yA,
 		int xB, int yB,
 		unsigned int nameTableB, unsigned int patternTableB)
 {
-	byte    p = getPixel(xA, yA, nameTableA, patternTableA);
-	if (!p) p = getPixel(xB, yB, nameTableB, patternTableB);
-	if (!p) return vdp->getBackDropColor();
-	return palette64[(vdp->getPaletteOffset() & 0x30) + p];
+	byte offset = vdp->getPaletteOffset();
+	
+	byte p = getPixel(xA, yA, nameTableA, patternTableA) +
+	         ((offset & 0x03) << 4);
+	if (!(p & 0x0F)) {
+		p = getPixel(xB, yB, nameTableB, patternTableB) +
+			((offset & 0x0C) << 2);
+	}
+	if (!(p & 0x0F)) { return vdp->getBackDropColor(); }
+	return palette64[p];
 }
 
 template <class Pixel, Renderer::Zoom zoom>

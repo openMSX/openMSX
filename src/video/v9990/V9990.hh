@@ -84,7 +84,7 @@ public:
 	  * @return palette offset 
 	  */
 	inline byte getPaletteOffset() const {
-		return (regs[PALETTE_CONTROL] & 0x0F) << 2;
+		return (regs[PALETTE_CONTROL] & 0x0F);
 	}
 	
 	/** Get the number of elapsed UC ticks in this frame.
