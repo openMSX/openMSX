@@ -69,9 +69,9 @@ private:
 
 	inline void sync(const EmuTime &time);
 
-	inline void renderBitmapLines(int line, const EmuTime &until);
-	inline void renderPlanarBitmapLines(int line, const EmuTime &until);
-	inline void renderCharacterLines(int line, const EmuTime &until);
+	inline void renderBitmapLines(byte line, const EmuTime &until);
+	inline void renderPlanarBitmapLines(byte line, const EmuTime &until);
+	inline void renderCharacterLines(byte line, const EmuTime &until);
 
 	/** Get width of the left border in pixels.
 	  * This is equal to the X coordinate of the display area.

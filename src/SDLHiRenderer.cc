@@ -100,7 +100,7 @@ template <class Pixel> inline Pixel SDLHiRenderer<Pixel>::getBorderColour()
 }
 
 template <class Pixel> inline void SDLHiRenderer<Pixel>::renderBitmapLines(
-	int line, const EmuTime &until)
+	byte line, const EmuTime &until)
 {
 	int mode = vdp->getDisplayMode();
 	// Which bits in the name mask determine the page?
@@ -122,7 +122,7 @@ template <class Pixel> inline void SDLHiRenderer<Pixel>::renderBitmapLines(
 }
 
 template <class Pixel> inline void SDLHiRenderer<Pixel>::renderPlanarBitmapLines(
-	int line, const EmuTime &until)
+	byte line, const EmuTime &until)
 {
 	int mode = vdp->getDisplayMode();
 	// Which bits in the name mask determine the page?
@@ -150,7 +150,7 @@ template <class Pixel> inline void SDLHiRenderer<Pixel>::renderPlanarBitmapLines
 }
 
 template <class Pixel> inline void SDLHiRenderer<Pixel>::renderCharacterLines(
-	int line, const EmuTime &until)
+	byte line, const EmuTime &until)
 {
 	do {
 		// Render this line.
@@ -538,7 +538,15 @@ template <class Pixel> void SDLHiRenderer<Pixel>::checkDirtyText2(
 	if ((addr | ~(-1 << 11)) == vdp->getPatternMask()) {
 		dirtyPattern[(addr / 8) & ~(-1 << 8)] = anyDirtyPattern = true;
 	}
-	// TODO: Implement dirty check on colour table (used for blinking).
+	int colourBase = vdp->getColourMask() & (-1 << 9);
+	i = addr - colourBase;
+	if ((0 <= i) && (i < 2160/8)) {
+		dirtyName[i*8+0] = dirtyName[i*8+1] =
+		dirtyName[i*8+2] = dirtyName[i*8+3] =
+		dirtyName[i*8+4] = dirtyName[i*8+5] =
+		dirtyName[i*8+6] = dirtyName[i*8+7] =
+		anyDirtyName = true;
+	}
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::checkDirtyBitmap(
@@ -683,17 +691,8 @@ template <class Pixel> void SDLHiRenderer<Pixel>::blankPhase(
 	rect.w = WIDTH;
 	rect.h = (limit - line) * 2;
 
-	// Clip to area actually displayed.
-	// TODO: Does SDL_FillRect clip as well?
-	if (rect.y < 0) {
-		rect.h += rect.y;
-		rect.y = 0;
-	}
-	else if (rect.y + rect.h > HEIGHT) {
-		rect.h = HEIGHT - rect.y;
-	}
-
 	// Draw lines in background colour.
+	// SDL takes care of clipping
 	if (rect.h > 0) {
 		Pixel bgColour = getBorderColour();
 		// Note: return code ignored.
@@ -716,7 +715,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	if (fromLine >= limit) return;
 
 	// Perform vertical scroll.
-	int scrolledLine =
+	byte scrolledLine =
 		(fromLine - vdp->getLineZero() + vdp->getVerticalScroll()) & 0xFF;
 
 	// Character mode or bitmap mode?
