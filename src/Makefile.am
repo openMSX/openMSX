@@ -3,7 +3,7 @@
 # we want most warnings
 
 # FIXME: -lSDL_image shouldn't be needed
-AM_CXXFLAGS_BASE = -Wall -pipe `test -f .debug && echo "-DDEBUG"` -I$(srcdir)/cpu -I$(srcdir)/sound -I$(srcdir)/config -I$(srcdir)/fdc -I$(srcdir)/file -I$(srcdir)/ide -I$(srcdir)/thread -I$(srcdir)/ConsoleSource -I$(srcdir)/cassette -I$(srcdir)/events -I$(srcdir)/memory @XML_CFLAGS@ @SDL_CFLAGS@
+AM_CXXFLAGS_BASE = -Wall -pipe `test -f .debug && echo "-DDEBUG"` -I$(srcdir)/cpu -I$(srcdir)/sound -I$(srcdir)/config -I$(srcdir)/fdc -I$(srcdir)/file -I$(srcdir)/ide -I$(srcdir)/thread -I$(srcdir)/ConsoleSource -I$(srcdir)/cassette -I$(srcdir)/events -I$(srcdir)/memory -I$(srcdir)/video @XML_CFLAGS@ @SDL_CFLAGS@
 if PROFILE
 AM_CXXFLAGS = $(AM_CXXFLAGS_BASE) -pg
 else
@@ -18,7 +18,7 @@ endif
 # AM_CXXFLAGS = -Wall -W -DDEBUG -g3 -pipe
 
 SUBDIRS = cfg libxmlx ConsoleSource cpu sound config \
-          fdc file ide thread cassette events memory
+          fdc file ide thread cassette events memory video
 
 #bin_PROGRAMS=openmsx cfgtest
 bin_PROGRAMS=openmsx
@@ -32,22 +32,6 @@ openmsx_SOURCES=\
 	MSXIODevice.hh MSXIODevice.cc MSXMemDevice.hh MSXMemDevice.cc \
 	MSXMotherBoard.hh MSXMotherBoard.cc \
 	MSXPPI.hh MSXPPI.cc I8255.hh I8255.cc \
-	DisplayMode.hh \
-	VDP.hh VDP.cc \
-	VDPCmdEngine.hh VDPCmdEngine.cc \
-	VDPVRAM.hh VDPVRAM.cc \
-	VDPSettings.hh VDPSettings.cc \
-	SpriteChecker.hh SpriteChecker.cc \
-	RenderSettings.hh RenderSettings.cc \
-	Renderer.hh Renderer.cc \
-	RendererFactory.hh RendererFactory.cc \
-	PixelRenderer.hh PixelRenderer.cc \
-	SDLRenderer.hh SDLRenderer.cc \
-	SDLGLRenderer.hh SDLGLRenderer.cc \
-	XRenderer.hh XRenderer.cc \
-	BitmapConverter.hh BitmapConverter.cc \
-	CharacterConverter.hh CharacterConverter.cc \
-	SpriteConverter.hh \
 	PlatformFactory.hh PlatformFactory.cc \
 	DeviceFactory.hh DeviceFactory.cc \
 	Scheduler.hh Scheduler.cc Schedulable.hh Schedulable.cc \
@@ -106,6 +90,7 @@ openmsx_LDADD = \
 	cassette/libCassette.la \
 	events/libEvents.la \
 	memory/libMemory.la \
+	video/libVideo.la \
 	@XML_LIBS@ \
 	-lSDL_image @SDL_LIBS@
 

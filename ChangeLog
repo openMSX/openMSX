@@ -1,5 +1,10 @@
 $Id$
 
+2003-04-10 Maarten ter Huurne <maarten@treewalker.org>
+	* Moved the VDP and rendering code into new "video" directory.
+	  Thanks to Manuel for suggesting how to solve symbol dependencies.
+	  But I still don't like recursive Make...
+
 2003-04-09 Maarten ter Huurne <maarten@treewalker.org>
 	* Merged SDLLoRenderer and SDLHiRenderer into SDLRenderer.
 	  Template expansion replaces duplicated code.
