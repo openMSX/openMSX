@@ -10,6 +10,11 @@
 #include "EmuTime.hh"
 #include "PluggingController.hh"
 #include "Mixer.hh"
+#include "MSXConfig.hh"
+#include "DeviceFactory.hh"
+#include "CommandController.hh"
+#include "KeyEventInserter.hh"
+#include "MSXCPUInterface.hh"
 
 
 namespace openmsx {
@@ -56,6 +61,25 @@ void MSXMotherBoard::resetMSX()
 
 void MSXMotherBoard::run()
 {
+	// Initialise devices.
+	MSXConfig* config = MSXConfig::instance();
+	config->initDeviceIterator();
+	Device* d;
+	while ((d = config->getNextDevice()) != 0) {
+		PRT_DEBUG("Instantiating: " << d->getType());
+		MSXDevice *device = DeviceFactory::create(d, EmuTime::zero);
+		addDevice(device);
+	}
+	// Register all postponed slots.
+	MSXCPUInterface::instance()->registerPostSlots();
+
+	// First execute auto commands.
+	CommandController::instance()->autoCommands();
+
+	// Schedule key insertions.
+	// TODO move this somewhere else
+	KeyEventInserter keyEvents(EmuTime::zero);
+
 	// Initialize.
 	MSXCPUInterface::instance()->reset();
 	Leds::instance()->setLed(Leds::POWER_ON);
@@ -69,8 +93,8 @@ void MSXMotherBoard::run()
 	Mixer::instance()->shutDown();
 
 	// Destroy emulated MSX machine.
-	list<MSXDevice*>::iterator i;
-	for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
+	for (list<MSXDevice*>::iterator i = availableDevices.begin();
+	     i != availableDevices.end(); ++i) {
 		(*i)->powerDown(time);
 		delete (*i);
 	}

@@ -6,18 +6,15 @@
  *  Copyright (C) 2001 David Heremans
  */
 
-#include "config.h"
-#include "MSXConfig.hh"
+#include <iostream>
 #include <SDL/SDL.h>
+#include "config.h"
 #include "MSXMotherBoard.hh"
-#include "DeviceFactory.hh"
-#include "EmuTime.hh"
 #include "CommandLineParser.hh"
 #include "Icon.hh"
-#include "CommandController.hh"
-#include "KeyEventInserter.hh"
-#include "MSXCPUInterface.hh"
 
+using std::cerr;
+using std::endl;
 
 namespace openmsx {
 
@@ -48,31 +45,13 @@ int main(int argc, char **argv)
 {
 	int err = 0;
 	try {
-		CommandLineParser::instance()->parse(argc, argv);
 		initializeSDL();
-
-		// Initialise devices.
-		MSXConfig* config = MSXConfig::instance();
-		config->initDeviceIterator();
-		Device* d;
-		while ((d = config->getNextDevice()) != 0) {
-			PRT_DEBUG("Instantiating: " << d->getType());
-			MSXDevice *device = DeviceFactory::create(d, EmuTime::zero);
-			MSXMotherBoard::instance()->addDevice(device);
+		CommandLineParser::ParseStatus parseStatus =
+			CommandLineParser::instance()->parse(argc, argv);
+		if (parseStatus == CommandLineParser::OK) {
+			// Start emulation thread.
+			MSXMotherBoard::instance()->run();
 		}
-		// Register all postponed slots.
-		MSXCPUInterface::instance()->registerPostSlots();
-
-		// First execute auto commands.
-		CommandController::instance()->autoCommands();
-
-		// Schedule key insertions.
-		// TODO move this somewhere else
-		KeyEventInserter keyEvents(EmuTime::zero);
-
-		// Start emulation thread.
-		MSXMotherBoard::instance()->run();
-
 	} catch (FatalError& e) {
 		cerr << "Fatal error: " << e.getMessage() << endl;
 		err = 1;

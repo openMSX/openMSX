@@ -57,14 +57,14 @@ struct OptionData
 class CommandLineParser
 {
 	public:
+		enum ParseStatus { OK, EXIT };
+		
 		static CommandLineParser* instance();
 		
 		void registerOption(const string &str, CLIOption* cliOption, byte prio = 7, byte length = 2);
 		void registerFileClass(const string &str, CLIFileType* cliFileType);
 		void registerPostConfig(CLIPostConfig *post);
-		void parse(int argc, char **argv);
-		bool parseFileName(const string &arg,list<string> &cmdLine);
-		bool parseOption(const string &arg,list<string> &cmdLine, byte prio);
+		ParseStatus parse(int argc, char **argv);
 
 	//private: // should be private, but gcc-2.95.x complains
 		struct caseltstr {
@@ -75,13 +75,18 @@ class CommandLineParser
 		map<string, OptionData> optionMap;
 		map<string, CLIFileType*, caseltstr> fileTypeMap;
 		map<string, CLIFileType*, caseltstr> fileClassMap;
+	
 	private:
+		bool parseFileName(const string &arg,list<string> &cmdLine);
+		bool parseOption(const string &arg,list<string> &cmdLine, byte prio);
+
 		CommandLineParser();
 		void postRegisterFileTypes();
 		vector<CLIPostConfig*> postConfigs;
 		bool haveConfig;
 		bool haveSettings;
 		bool issuedHelp;
+		ParseStatus parseStatus;
 
 		class HelpOption : public CLIOption {
 		public:

@@ -152,9 +152,10 @@ void CommandLineParser::registerPostConfig(CLIPostConfig *post)
 	postConfigs.push_back(post);
 }
 
-void CommandLineParser::parse(int argc, char **argv)
+CommandLineParser::ParseStatus CommandLineParser::parse(int argc, char **argv)
 {
 	MSXConfig *config = MSXConfig::instance();
+	parseStatus = OK;
 	
 	CliExtension extension; // for -ext option
 	
@@ -246,6 +247,7 @@ void CommandLineParser::parse(int argc, char **argv)
 	     it != postConfigs.end(); it++) {
 		(*it)->execute(config);
 	}
+	return parseStatus;
 }
 
 
@@ -362,7 +364,8 @@ bool CommandLineParser::HelpOption::parseOption(const string &option,
 	}
 	printItemMap(extMap);
 	
-	exit(0);
+	parser->parseStatus = EXIT;
+	return true;
 }
 
 const string& CommandLineParser::HelpOption::optionHelp() const
@@ -374,8 +377,11 @@ const string& CommandLineParser::HelpOption::optionHelp() const
 bool CommandLineParser::VersionOption::parseOption(const string &option,
 		list<string> &cmdLine)
 {
+	CommandLineParser* parser = CommandLineParser::instance();
+	parser->issuedHelp = true;
 	cout << "openMSX " VERSION " -- built on "__DATE__ << endl;
-	exit(0);
+	parser->parseStatus = EXIT;
+	return true;
 }
 
 const string& CommandLineParser::VersionOption::optionHelp() const
