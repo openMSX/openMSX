@@ -9,10 +9,10 @@
   </config>
 
   <config id="MotherBoard">
-    <parameter name="0" class="subslotted">true</parameter>
-    <parameter name="1" class="subslotted">false</parameter>
-    <parameter name="2" class="subslotted">false</parameter>
-    <parameter name="3" class="subslotted">true</parameter>
+    <slot num="0" expanded="true"/>
+    <slot num="1" expanded="false"/>
+    <slot num="2" expanded="false"/>
+    <slot num="3" expanded="true"/>
   </config>
 
   <config id="RenShaTurbo">

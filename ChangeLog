@@ -1,5 +1,11 @@
 $Id$
 
+2004-06-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* More config file changes:
+	   - removed <parameter class=".."> constructs
+	   - removed support for <parameter name="foo">, config files are
+	     incompatible anyway
+
 2004-05-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Better names for ROM debuggables. Still include the (unique) device
 	  id to avoid assertion when the same ROM is inserted twice.

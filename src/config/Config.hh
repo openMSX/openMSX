@@ -3,18 +3,11 @@
 #ifndef __CONFIG_HH__
 #define __CONFIG_HH__
 
-#include <string>
-#include <map>
-#include "ConfigException.hh"
 #include "xmlx.hh"
-
-using std::string;
-using std::multimap;
 
 namespace openmsx {
 
 class FileContext;
-class XMLElement;
 
 class Config : public XMLElement
 {
@@ -35,12 +28,7 @@ public:
 	int getParameterAsInt(const string& name) const;
 	int getParameterAsInt(const string& name, int defaultValue) const;
 
-	typedef multimap<string, string> Parameters;
-	void getParametersWithClass(const string& clasz, Parameters& result) const;
-
 private:
-	const XMLElement* getParameterElement(const string& name) const;
-
 	FileContext* context;
 };
 

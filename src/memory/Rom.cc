@@ -120,14 +120,15 @@ void Rom::patch(const Config& config)
 {
 	// for each patchcode parameter, construct apropriate patch
 	// object and register it at MSXCPUInterface
-	Config::Parameters parameters;
-	config.getParametersWithClass("patchcode", parameters);
-	for (Config::Parameters::const_iterator it = parameters.begin();
-	     it != parameters.end(); ++it) {
+	Config::Children patchCodes;
+	config.getChildren("patchcode", patchCodes);
+	for (Config::Children::const_iterator it = patchCodes.begin();
+	     it != patchCodes.end(); ++it) {
 		MSXRomPatchInterface* patchInterface;
-		if (it->second == "MSXDiskRomPatch") {
+		string name = (*it)->getData();
+		if (name == "MSXDiskRomPatch") {
 			patchInterface = new MSXDiskRomPatch();
-		} else if (it->second == "MSXTapePatch") {
+		} else if (name == "MSXTapePatch") {
 			patchInterface = new MSXTapePatch();
 		} else {
 			throw FatalError("Unknown patch interface");
@@ -138,20 +139,18 @@ void Rom::patch(const Config& config)
 	
 	// also patch the file if needed:
 	byte* tmp = const_cast<byte*>(rom);
-	Config::Parameters parameters2;
-	config.getParametersWithClass("patch", parameters2);
-	for (Config::Parameters::const_iterator i = parameters2.begin();
-	     i != parameters2.end(); ++i) {
-		unsigned int romOffset = strtol(i->first.c_str(), 0, 0);
-		int value  = StringOp::stringToInt(i->second);
-		if (romOffset >= size) {
+	Config::Children patches;
+	config.getChildren("patch", patches);
+	for (Config::Children::const_iterator it = patches.begin();
+	     it != patches.end(); ++it) {
+		unsigned addr = StringOp::stringToInt((*it)->getAttribute("addr"));
+		unsigned val  = StringOp::stringToInt((*it)->getAttribute("val"));
+		if (addr >= size) {
 			ostringstream out;
-			out << "Illegal ROM patch-offset: 0x" << hex << romOffset;
+			out << "Illegal ROM patch-offset: 0x" << hex << addr;
 			throw FatalError(out.str());
-		} else {
-			PRT_DEBUG("Patching ROM[" << i->first << "]=" << i->second);
-			tmp[romOffset] = value; // tmp = rom, but rom is read only
 		}
+		tmp[addr] = val;
 	}
 }
 

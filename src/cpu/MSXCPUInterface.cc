@@ -66,16 +66,16 @@ MSXCPUInterface::MSXCPUInterface()
 	}
 
 	Config* config = hardwareConfig.getConfigById("MotherBoard");
-	Config::Parameters subslotted_list;
-	config->getParametersWithClass("subslotted", subslotted_list);
-	for (Config::Parameters::const_iterator it = subslotted_list.begin();
-	     it != subslotted_list.end(); ++it) {
-		bool hasSubs = false;
-		if (it->second == "true") {
-			hasSubs = true;
+	Config::Children slots;
+	config->getChildren("slot", slots);
+	for (Config::Children::const_iterator it = slots.begin();
+	     it != slots.end(); ++it) {
+		unsigned num = StringOp::stringToInt((*it)->getAttribute("num"));
+		bool expanded = StringOp::stringToBool((*it)->getAttribute("expanded"));
+		if (num >= 4) {
+			throw FatalError("Invalid slot specification");
 		}
-		int counter = atoi(it->first.c_str());
-		isSubSlotted[counter] = hasSubs;
+		isSubSlotted[num] = expanded;
 	}
 
 	// Note: SlotState is initialised at reset
