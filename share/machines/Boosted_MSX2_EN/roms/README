@@ -1,4 +1,4 @@
-This subdirectry should contain the following ROMs:
+This subdirectory should contain the following ROMs:
 - nms8250_disk.rom, nms8250_basic-bios2.rom, nms8250_msx2sub.rom: same as
   needed for the Philips NMS 8250 config
 - fmpac.rom: same as needed for the FM-PAC extension
