@@ -5,47 +5,54 @@
 
 
 RomPlain::RomPlain(Device* config, const EmuTime &time, Rom *rom)
-	: MSXDevice(config, time), Rom16kBBlocks(config, time, rom)
+	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
 	switch (rom->getSize()) {
-		case 0x4000:	// 16kB
-			for (int i = 0; i < 4; i++) {
+		case 0x2000:	//  8kB
+			for (int i = 0; i < 8; i++) {
 				setRom(i, 0);
+			}
+		case 0x4000:	// 16kB
+			for (int i = 0; i < 8; i++) {
+				setRom(i, i & 1);
 			}
 			break;
 		case 0x8000:	// 32kB
 			if (guessLocation() & 0x4000) {
-				setRom(0, 0);
-				setRom(1, 0);
-				setRom(2, 1);
-				setRom(3, 1);
+				for (int i = 0; i < 4; i++) {
+					setRom(i, i & 1);
+				}
+				for (int i = 4; i < 8; i++) {
+					setRom(i, 2 + (i & 1));
+				}
 			} else {
-				setRom(0, 0);
-				setRom(1, 1);
-				setRom(2, 0);
-				setRom(3, 1);
+				for (int i = 0; i < 8; i++) {
+					setRom(i, i & 3);
+				}
 			}
 			break;
 		case 0xC000:	// 48kB
 			if (guessLocation() & 0x4000) {
 				setRom(0, 0);
-				setRom(1, 0);
-				setRom(2, 1);
-				setRom(3, 2);
-			} else {
-				setRom(0, 0);
 				setRom(1, 1);
-				setRom(2, 2);
-				setRom(3, 2);
+				for (int i = 0; i < 6; i++) {
+					setRom(i + 2, i);
+				}
+			} else {
+				for (int i = 0; i < 6; i++) {
+					setRom(i, i);
+				}
+				setRom(6, 4);
+				setRom(7, 5);
 			}
 			break;
 		case 0x10000:	// 64kB
-			for (int i = 0; i < 4; i++) {
+			for (int i = 0; i < 8; i++) {
 				setRom(i, i);
 			}
 			break;
 		default:
-			PRT_ERROR("Romsize must be exactly 16, 32, 48 or 64kB "
+			PRT_ERROR("Romsize must be exactly 8, 16, 32, 48 or 64kB "
 			          "for mappertype PLAIN");
 	}
 }

@@ -3,10 +3,10 @@
 #ifndef __ROMPLAIN_HH__
 #define __ROMPLAIN_HH__
 
-#include "Rom16kBBlocks.hh"
+#include "Rom8kBBlocks.hh"
 
 
-class RomPlain : public Rom16kBBlocks
+class RomPlain : public Rom8kBBlocks
 {
 	public:
 		RomPlain(Device* config, const EmuTime &time, Rom *rom);
