@@ -7,6 +7,7 @@
 #include <algorithm>
 #include "EventDistributor.hh"
 #include "Schedulable.hh"
+#include "Renderer.hh" // TODO: Temporary?
 
 
 const EmuTime Scheduler::ASAP;
@@ -16,6 +17,7 @@ Scheduler::Scheduler()
 	paused = false;
 	emulationRunning = true;
 	cpu = MSXCPU::instance();
+	renderer = NULL;
 }
 
 Scheduler::~Scheduler()
@@ -94,7 +96,9 @@ const EmuTime Scheduler::scheduleEmulation()
 	EventDistributor *eventDistributor = EventDistributor::instance();
 	while (emulationRunning) {
 		if (paused) {
-			SDL_WaitEvent(NULL);
+			SDL_Delay(20); // 50 fps
+			assert(renderer != NULL);
+			renderer->putStoredImage();
 		} else {
 			emulateStep();
 		}

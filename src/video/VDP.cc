@@ -28,6 +28,8 @@ TODO:
 #include "MSXConfig.hh"
 #include "RenderSettings.hh"
 #include "RendererFactory.hh"
+#include "RealTime.hh" // TODO: Temporary?
+#include "Scheduler.hh" // TODO: Temporary?
 #include <string>
 #include <iomanip>
 #include <cassert>
@@ -102,6 +104,7 @@ VDP::VDP(Device *config, const EmuTime &time)
 	// Create renderer.
 	renderer = RendererFactory::createRenderer(this);
 	vram->setRenderer(renderer, time);
+	Scheduler::instance()->setRenderer(renderer);
 
 	// Register console commands.
 	CommandController::instance()->registerCommand(&vdpRegsCmd, "vdpregs");
@@ -228,10 +231,13 @@ void VDP::executeUntilEmuTime(const EmuTime &time, int userData)
 	// Handle the various sync types.
 	switch (userData) {
 	case VSYNC: {
+		bool paused = RealTime::isPaused();
 		// This frame is finished.
-		renderer->putImage(time);
+		renderer->putImage(time, paused);
 		// Begin next frame.
 		frameStart(time);
+		// Now that frame is finished, it is OK to pause.
+		if (paused) Scheduler::instance()->pause();
 		break;
 	}
 	case DISPLAY_START:
@@ -407,6 +413,7 @@ void VDP::frameStart(const EmuTime &time)
 		renderer = RendererFactory::switchRenderer(this);
 		renderer->reset(time);
 		vram->setRenderer(renderer, time);
+		Scheduler::instance()->setRenderer(renderer);
 	}
 
 	// Toggle E/O.

@@ -12,9 +12,16 @@
 class RealTime : public Schedulable
 {
 	public:
-		virtual ~RealTime(); 
+		virtual ~RealTime();
 		static RealTime *instance();
-		
+
+		/** Does the user want to pause the emulator?
+		  * @return true iff the pause setting is on.
+		  */
+		static bool isPaused() {
+			return instance()->pauseSetting.getValue();
+		}
+
 		virtual void executeUntilEmuTime(const EmuTime &time, int userData);
 		virtual const std::string &schedName() const;
 
@@ -59,7 +66,7 @@ class RealTime : public Schedulable
 				virtual bool checkUpdate(bool newValue);
 		} pauseSetting;
 		friend class PauseSetting;
-		
+
 		BooleanSetting throttleSetting;
 };
 

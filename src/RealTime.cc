@@ -110,7 +110,9 @@ RealTime::PauseSetting::PauseSetting()
 bool RealTime::PauseSetting::checkUpdate(bool newValue)
 {
 	if (newValue) {
-		Scheduler::instance()->pause();
+		// VDP has taken over this role.
+		// TODO: Should it stay that way?
+		//Scheduler::instance()->pause();
 	} else {
 		RealTime::instance()->resync();
 		Scheduler::instance()->unpause();

@@ -76,8 +76,15 @@ public:
 
 	/** Puts the generated image on the screen.
 	  * @param time The moment in emulated time the frame is finished.
+	  * @param store Store the image for plotting it again later,
+	  * 	using the putStoredImage method.
 	  */
-	virtual void putImage(const EmuTime &time) = 0;
+	virtual void putImage(const EmuTime &time, bool store) = 0;
+
+	/** Puts the stored image on the screen.
+	  * Images can be stored by requesting the putImage method to do so.
+	  */
+	virtual void putStoredImage() = 0;
 
 	/** Informs the renderer of a VDP transparency enable/disable change.
 	  * @param enabled The new transparency state.

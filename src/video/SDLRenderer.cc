@@ -59,8 +59,31 @@ inline int SDLRenderer<Pixel, zoom>::translateX(int absoluteX)
 }
 
 template <class Pixel, Renderer::Zoom zoom>
-void SDLRenderer<Pixel, zoom>::finishFrame()
+void SDLRenderer<Pixel, zoom>::finishFrame(bool store)
 {
+	if (store) {
+		// Update screen.
+		SDL_UpdateRect(screen, 0, 0, 0, 0);
+		// Copy entire screen to stored image.
+		SDL_BlitSurface(screen, NULL, storedImage, NULL);
+	}
+
+	// Render console if needed.
+	console->drawConsole();
+
+	// Update screen.
+	SDL_UpdateRect(screen, 0, 0, 0, 0);
+}
+
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::putStoredImage()
+{
+	// Copy stored image to screen.
+	SDL_BlitSurface(storedImage, NULL, screen, NULL);
+
+	// TODO: The code below is a modified copy-paste of finishFrame.
+	//       Refactor it to remove code duplication.
+
 	// Render console if needed.
 	console->drawConsole();
 
@@ -219,6 +242,17 @@ SDLRenderer<Pixel, zoom>::SDLRenderer(
 {
 	this->screen = screen;
 	console = new SDLConsole(screen);
+
+	// Allocate screen which will later contain the stored image.
+	storedImage = SDL_CreateRGBSurface(
+		SDL_SWSURFACE,
+		WIDTH, HEIGHT,
+		screen->format->BitsPerPixel,
+		screen->format->Rmask,
+		screen->format->Gmask,
+		screen->format->Bmask,
+		screen->format->Amask
+		);
 
 	// Create display caches.
 	charDisplayCache = SDL_CreateRGBSurface(

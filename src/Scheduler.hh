@@ -8,6 +8,7 @@
 
 class MSXCPU;
 class Schedulable;
+class Renderer;
 
 
 class Scheduler
@@ -96,6 +97,13 @@ class Scheduler
 			return emulationRunning;
 		}
 
+		/** Set renderer to call when emulation is paused.
+		  * TODO: Function will be moved to OSD later.
+		  */
+		void setRenderer(Renderer *renderer) {
+			this->renderer = renderer;
+		}
+
 		static const EmuTime ASAP;
 
 	private:
@@ -116,6 +124,7 @@ class Scheduler
 
 		bool paused;
 		MSXCPU *cpu;
+		Renderer *renderer;
 
 };
 

@@ -1,5 +1,10 @@
 $Id$
 
+2003-05-31 Maarten ter Huurne <maarten@treewalker.org>
+	* When pausing, store last frame and keep plotting it during pause.
+	  Also keep redrawing the console, so it is usable during pause.
+	  Current implementation is a bit of a hack, but it works.
+
 2003-05-31 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* VDPCmdEngine cleanups
 
@@ -7,10 +12,10 @@ $Id$
 	* Changed console save file into ascii. When loading the history,
 	  empty lines are ignored.
 	* Removed error when unable to load consolehistory
-	* Only two identical commando's directly after eachothers are now 
+	* Only two identical commando's directly after eachothers are now
 	  removed if removedoubles is active to improve performance.
 	* Remove settings for consolehistory load & save. Default are now:
-	  - Always load and save. 
+	  - Always load and save.
 	  - Filename is now fixed as 'history.txt'
 
 2003-05-30 Wouter Vermaelen <wouter.vermaelen@pi.be>

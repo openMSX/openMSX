@@ -199,26 +199,68 @@ inline static int translateX(int absoluteX)
 	return screenX < 0 ? 0 : screenX;
 }
 
-void SDLGLRenderer::finishFrame()
+void SDLGLRenderer::finishFrame(bool store)
 {
 	// Determine which effects to apply.
 	int blurSetting = settings->getHorizontalBlur()->getValue();
-	bool horizontalBlur = blurSetting != 0;
 	int scanlineAlpha = (settings->getScanlineAlpha()->getValue() * 255) / 100;
 	// TODO: Turn off scanlines when deinterlacing.
+
+	// Store current frame as a texture.
+	if (store || blurSetting != 0 || scanlineAlpha != 0) {
+		glBindTexture(GL_TEXTURE_2D, storedImageTextureId);
+		glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, 1024, 512, 0);
+	}
+
+	drawEffects(blurSetting, scanlineAlpha);
+
+	// Render console if needed.
+	console->drawConsole();
+
+	// Update screen.
+	SDL_GL_SwapBuffers();
+}
+
+void SDLGLRenderer::putStoredImage()
+{
+	// Draw stored image.
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, storedImageTextureId);
+	// Note: Without blending enabled, this method is rather efficient.
+	GLDrawBlur(0, 0, 1.0);
+	glDisable(GL_TEXTURE_2D);
+
+	// TODO: The code below is a modified copy-paste of finishFrame.
+	//       Refactor it to remove code duplication.
+
+	// Determine which effects to apply.
+	int blurSetting = settings->getHorizontalBlur()->getValue();
+	int scanlineAlpha = (settings->getScanlineAlpha()->getValue() * 255) / 100;
+	// TODO: Turn off scanlines when deinterlacing.
+
+	drawEffects(blurSetting, scanlineAlpha);
+
+	// Render console if needed.
+	console->drawConsole();
+
+	// Update screen.
+	SDL_GL_SwapBuffers();
+}
+
+void SDLGLRenderer::drawEffects(int blurSetting, int scanlineAlpha)
+{
+	bool horizontalBlur = blurSetting != 0;
 	bool scanlines = scanlineAlpha != 0;
 
 	// Blur effect.
 	if (horizontalBlur || scanlines) {
-		// Store current frame as a texture.
-		glBindTexture(GL_TEXTURE_2D, blurTextureId);
-		glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, 1024, 512, 0);
 		// Settings for blur rendering.
 		float blurFactor = blurSetting / 200.0;
 		if (!scanlines) blurFactor *= 0.5;
 		glEnable(GL_TEXTURE_2D);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBindTexture(GL_TEXTURE_2D, storedImageTextureId);
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 		if (horizontalBlur) {
 			// Draw stored frame with 1-pixel offsets to create a
@@ -254,13 +296,6 @@ void SDLGLRenderer::finishFrame()
 		glEnd();
 	}
 	glDisable(GL_BLEND);
-
-	// Render console if needed.
-	console->drawConsole();
-
-	// Update screen.
-	SDL_GL_SwapBuffers();
-
 }
 
 inline SDLGLRenderer::Pixel *SDLGLRenderer::getLinePtr(
@@ -434,9 +469,9 @@ SDLGLRenderer::SDLGLRenderer(
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	}
-	// Blur:
-	glGenTextures(1, &blurTextureId);
-	glBindTexture(GL_TEXTURE_2D, blurTextureId);
+	// Stored image:
+	glGenTextures(1, &storedImageTextureId);
+	glBindTexture(GL_TEXTURE_2D, storedImageTextureId);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 

@@ -15,7 +15,7 @@
 #include "DirtyChecker.hh"
 #include "DisplayMode.hh"
 
-class GLConsole;
+class OSDConsoleRenderer;
 
 
 /** Hi-res (640x480) renderer on SDL.
@@ -53,7 +53,8 @@ public:
 	//void updateWindow(bool enabled, const EmuTime &time);
 
 protected:
-	void finishFrame();
+	void finishFrame(bool store);
+	void putStoredImage();
 	void updateVRAMCache(int address);
 	void drawBorder(int fromX, int fromY, int limitX, int limitY);
 	void drawDisplay(
@@ -123,6 +124,16 @@ private:
 	  */
 	void setPalette(int index, int grb);
 
+	/** Apply effects such as scanline or blur to the current image.
+	  * For blur, the image in the texture identified by storedImageTextureId
+	  * is used to blur over the current image.
+	  * @param blurSetting Amount of horizontal blur to apply,
+	  * 	0 <= blurSetting <= 100.
+	  * @param scanlineAlpha Alpha value for scanlines,
+	  * 	0 <= scanlineAlpha <= 255, 0 = transparent, 255 = opaque.
+	  */
+	void drawEffects(int blurSetting, int scanlineAlpha);
+
 	/** RGB colours corresponding to each VDP palette entry.
 	  * palFg has entry 0 set to the current background colour,
 	  * palBg has entry 0 set to black.
@@ -178,9 +189,9 @@ private:
 	GLuint spriteTextureIds[313];
 
 	/** ID of texture that stores rendered frame.
-	  * Used for blur effect.
+	  * Used for effects and for putStoredImage.
 	  */
-	GLuint blurTextureId;
+	GLuint storedImageTextureId;
 
 	/** Display mode the line is valid in.
 	  * 0xFF means invalid in every mode.
@@ -221,7 +232,7 @@ private:
 	  */
 	SpriteConverter<Pixel, Renderer::ZOOM_REAL> spriteConverter;
 
-	GLConsole* console;
+	OSDConsoleRenderer *console;
 
 };
 

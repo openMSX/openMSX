@@ -11,7 +11,7 @@
 #include "SpriteConverter.hh"
 #include "DisplayMode.hh"
 
-class SDLConsole;
+class OSDConsoleRenderer;
 
 
 /** Renderer on SDL surface.
@@ -45,7 +45,8 @@ public:
 	//void updateWindow(bool enabled, const EmuTime &time);
 
 protected:
-	void finishFrame();
+	void finishFrame(bool store);
+	void putStoredImage();
 	void updateVRAMCache(int addr);
 	void drawBorder(int fromX, int fromY, int limitX, int limitY);
 	void drawDisplay(
@@ -162,6 +163,10 @@ private:
 	  */
 	SDL_Surface *screen;
 
+	/** The stored image, see putImage and putStoredImage.
+	  */
+	SDL_Surface *storedImage;
+
 	/** Cache for rendered VRAM in character modes.
 	  * Cache line (N + scroll) corresponds to display line N.
 	  * It holds a single page of 256 lines.
@@ -192,7 +197,7 @@ private:
 	  */
 	SpriteConverter<Pixel, zoom> spriteConverter;
 
-	SDLConsole* console;
+	OSDConsoleRenderer *console;
 };
 
 #endif //__SDLRENDERER_HH__

@@ -25,7 +25,7 @@ public:
 	// Renderer interface:
 
 	void frameStart(const EmuTime &time);
-	void putImage(const EmuTime &time);
+	void putImage(const EmuTime &time, bool store);
 	void updateDisplayEnabled(bool enabled, const EmuTime &time);
 	void updateHorizontalScrollLow(byte scroll, const EmuTime &time);
 	void updateHorizontalScrollHigh(byte scroll, const EmuTime &time);
@@ -62,8 +62,10 @@ protected:
 	virtual void reset(const EmuTime &time);
 
 	/** Let underlying graphics system finish rendering this frame.
+	  * @param store Store the image for plotting it again later,
+	  * 	using the putStoredImage method.
 	  */
-	virtual void finishFrame() = 0;
+	virtual void finishFrame(bool store) = 0;
 
 	/** Render a rectangle of border pixels on the host screen.
 	  * The units are absolute lines (Y) and VDP clockticks (X).
