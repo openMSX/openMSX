@@ -80,6 +80,11 @@ unsigned File::getPos() throw(FileException)
 	return file->getPos();
 }
 
+void File::truncate(unsigned size) throw(FileException)
+{
+	return file->truncate(size);
+}
+
 const string File::getURL() const throw(FileException)
 {
 	return file->getURL();

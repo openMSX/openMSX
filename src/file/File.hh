@@ -90,6 +90,12 @@ public:
 	unsigned getPos() throw(FileException);
 
 	/**
+	 * Truncate file size. Enlarging file size always works, but
+	 * making file smaller doesn't work on some platforms (windows)
+	 */
+	void truncate(unsigned size) throw(FileException);
+
+	/**
 	 * Returns the URL of this file object.
 	 */
 	const string getURL() const throw(FileException);

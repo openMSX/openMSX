@@ -15,6 +15,9 @@ $Id$
 	     singletons (before some were never destructed)
 	   - instance() method now returns a reference instead of a pointer
 	   - I'll post a more detailed explanation to openmsx-devel soon 
+	* Fixed hd image file creation:
+	   - automatically create or enlarge hd-image when the specified file
+	     doesn't exist or is too small
 
 2003-11-16 Reikan <openMSX4Win32@ranpub.com>
 	* Fixed "hollible slow down when open console in fullscreen on SDLHi"

@@ -53,11 +53,18 @@ IDEHD::IDEHD(Config* config, const EmuTime& time)
 	const string& filename = config->getParameter("filename");
 	file = new File(config->getContext().resolveCreate(filename), CREATE);
 	
-	int size = config->getParameterAsInt("size");	// in MB
-	totalSectors = size * (1024 * 1024 / 512);
+	unsigned wantedSize = config->getParameterAsInt("size");	// in MB
+	wantedSize *= 1024 * 1024;
+	unsigned fileSize = file->getSize();
+	if (wantedSize > fileSize) {
+		// for safety only enlarge file
+		file->truncate(wantedSize);
+	}
+	
+	totalSectors = wantedSize / 512;
 	word heads = 16;
 	word sectors = 32;
-	word cylinders = (size * 1024 * 1024) / (heads  * sectors * 512);
+	word cylinders = totalSectors / (heads * sectors);
 	identifyBlock[0x02] = cylinders & 0xFF;
 	identifyBlock[0x03] = cylinders / 0x100;
 	identifyBlock[0x06] = heads & 0xFF;
