@@ -12,3 +12,5 @@ openmsx
 stamp-h.in
 .libs
 *.rpo
+config.h.in
+config.h.in.in

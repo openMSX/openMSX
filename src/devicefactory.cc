@@ -15,6 +15,7 @@
 #include "MSXRTC.hh"
 #include "MSXRealTime.hh"
 #include "MSXMegaRom.hh"
+#include "MSXPostLoad.hh"
 
 
 MSXDevice *deviceFactory::create(MSXConfig::Device *conf) {
@@ -60,8 +61,10 @@ MSXDevice *deviceFactory::create(MSXConfig::Device *conf) {
 	} else
 	if (conf->getType()=="MegaRom") {
 		device = new MSXMegaRom();
+	} else
+	if (conf->getType()=="PostLoad") {
+		device = new MSXPostLoad();
 	}
-
 	if (device == NULL)
 		PRT_ERROR("Unknown device specified in configuration");
 	device->setConfigDevice(conf);
