@@ -6,6 +6,7 @@
 #include "PluggingController.hh"
 #include "Connector.hh"
 #include "Pluggable.hh"
+#include "PluggableFactory.hh"
 #include "openmsx.hh"
 
 
@@ -13,6 +14,8 @@ namespace openmsx {
 
 PluggingController::PluggingController()
 {
+	PluggableFactory::createAll(this);
+
 	CommandController::instance()->registerCommand(&plugCmd,   "plug");
 	CommandController::instance()->registerCommand(&unplugCmd, "unplug");
 }
