@@ -6,7 +6,7 @@
 #include "MSXIODevice.hh"
 #include "EmuTime.hh"
 
-class DACSound;
+class DACSound8U;
 
 
 class MSXTurboRPCM : public MSXIODevice
@@ -28,6 +28,7 @@ class MSXTurboRPCM : public MSXIODevice
 		byte DValue;
 		byte status;
 		byte hold;
-		DACSound* dac;
+		DACSound8U* dac;
 };
+
 #endif

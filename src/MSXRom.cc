@@ -2,7 +2,7 @@
 
 #include "MSXRom.hh"
 #include "SCC.hh"
-#include "DACSound.hh"
+#include "DACSound8U.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
 #include "libxmlx/xmlx.hh"
@@ -143,7 +143,7 @@ MSXRom::MSXRom(Device *config, const EmuTime &time)
 	// only instantiate DACSound if needed
 	if (mapperType & HAS_DAC) {
 		short volume = (short)config->getParameterAsInt("volume");
-		dac = new DACSound(volume, time);
+		dac = new DACSound8U(volume, time);
 	} else {
 		dac = NULL;
 	}

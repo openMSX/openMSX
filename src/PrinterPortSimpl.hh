@@ -4,7 +4,8 @@
 #define __PRINTERPORTSIMPLE_HH__
 
 #include "PrinterPortDevice.hh"
-class DACSound;
+
+class DACSound8U;
 
 
 class PrinterPortSimpl : public PrinterPortDevice
@@ -24,7 +25,8 @@ class PrinterPortSimpl : public PrinterPortDevice
 		virtual void unplug(const EmuTime &time);
 		
 	private:
-		DACSound* dac;
+		DACSound8U* dac;
 };
+
 #endif
 

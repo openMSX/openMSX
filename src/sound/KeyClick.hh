@@ -6,7 +6,7 @@
 #include "openmsx.hh"
 
 // forward declaration
-class DACSound;
+class DACSound8U;
 class EmuTime;
 
 
@@ -20,7 +20,7 @@ class KeyClick
 		void setClick(bool status, const EmuTime &time);
 
 	private:
-		DACSound* dac;
+		DACSound8U* dac;
 		bool status;
 };
 #endif

@@ -17,7 +17,8 @@ libSound_la_SOURCES = \
 	SoundDevice.cc SoundDevice.hh \
 	MSXPSG.cc MSXPSG.hh \
 	AY8910.cc AY8910.hh \
-	DACSound.cc DACSound.hh \
+	DACSound16S.cc DACSound16S.hh \
+	DACSound8U.cc DACSound8U.hh \
 	KeyClick.hh KeyClick.cc \
 	SCC.cc SCC.hh \
 	MSXSCCPlusCart.cc MSXSCCPlusCart.hh \

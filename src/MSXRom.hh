@@ -14,7 +14,7 @@
 
 // forward declarations
 class SCC;
-class DACSound;
+class DACSound8U;
 class SRAM;
 
 
@@ -93,7 +93,7 @@ class MSXRom : public MSXMemDevice
 
 		SCC* cartridgeSCC;
 		bool enabledSCC;
-		DACSound* dac;
+		DACSound8U* dac;
 
 		byte control;
 		int bankSelect[8];

@@ -1,12 +1,12 @@
 // $Id$
 
 #include "KeyClick.hh"
-#include "DACSound.hh"
+#include "DACSound8U.hh"
 
 
 KeyClick::KeyClick(short volume, const EmuTime &time)
 {
-	dac = new DACSound(volume, time);
+	dac = new DACSound8U(volume, time);
 	status = false;
 }
 

@@ -2,9 +2,8 @@
 
 #include <cassert>
 #include "PrinterPortSimpl.hh"
-#include "DACSound.hh"
+#include "DACSound8U.hh"
 #include "PluggingController.hh"
-#include "sound/DACSound.hh"
 
 
 PrinterPortSimpl::PrinterPortSimpl()
@@ -37,7 +36,7 @@ void PrinterPortSimpl::writeData(byte data, const EmuTime &time)
 void PrinterPortSimpl::plug(const EmuTime &time)
 {
 	short volume = 12000;	// TODO read from config 
-	dac = new DACSound(volume, time);
+	dac = new DACSound8U(volume, time);
 }
 
 void PrinterPortSimpl::unplug(const EmuTime &time)

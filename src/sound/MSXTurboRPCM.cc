@@ -1,14 +1,14 @@
 // $Id$
 
 #include "MSXTurboRPCM.hh"
-#include "DACSound.hh"
+#include "DACSound8U.hh"
 
 
 MSXTurboRPCM::MSXTurboRPCM(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	short volume = (short)deviceConfig->getParameterAsInt("volume");
-	dac = new DACSound(volume, time);
+	dac = new DACSound8U(volume, time);
 
 	reset(time);
 }
