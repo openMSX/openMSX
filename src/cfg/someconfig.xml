@@ -279,6 +279,7 @@
     </slotted>
     <parameter name="filename">FMPAC.ROM</parameter>
     <parameter name="volume">20000</parameter>
+    <parameter name="mode">left</parameter>
     <parameter name="load">true</parameter>
     <parameter name="save">true</parameter>
     <parameter name="sramname">FMPAC.PAC</parameter>
@@ -298,6 +299,7 @@
   <device id="MSX-Audio">
     <type>Audio</type>
     <parameter name="volume">20000</parameter>
+    <parameter name="mode">right</parameter>
   </device>
 -->    
   <device id="cpu">

@@ -13,7 +13,21 @@ MSXYM2413::MSXYM2413(MSXConfig::Device *config, const EmuTime &time)
 	MSXMotherBoard::instance()->register_IO_Out(0x7c, this);
 	MSXMotherBoard::instance()->register_IO_Out(0x7d, this);
 	short volume = (short)deviceConfig->getParameterAsInt("volume");
-	ym2413 = new YM2413(volume, time);
+	Mixer::ChannelMode mode = Mixer::MONO;
+	try {
+	  std::string stereomode = config->getParameter("mode");
+	  PRT_DEBUG("mode is " << stereomode);
+	   if (strcmp(stereomode.c_str(), "left")==0) {
+	     mode=Mixer::MONO_LEFT;
+	   };
+	   if (strcmp(stereomode.c_str(), "right")==0) {
+	     mode=Mixer::MONO_RIGHT;
+	   };
+	} catch (MSXException& e) {
+	  PRT_ERROR("Exception: " << e.desc);
+	}
+	PRT_DEBUG("mode is " << mode);
+	ym2413 = new YM2413(volume, time, mode);
 	reset(time);
 }
 

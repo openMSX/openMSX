@@ -595,7 +595,11 @@ void YM2413::Channel::reset()
 
 
 // Constructor
-YM2413::YM2413(short volume, const EmuTime &time)
+//YM2413::YM2413(short volume, const EmuTime &time)
+//{
+//	YM2413(volume,time,Mixer::MONO);
+//}
+YM2413::YM2413(short volume, const EmuTime &time, const Mixer::ChannelMode mode=Mixer::MONO)
 {
 	for (int i=0; i<19*2; i++) {
 		patch[i] = new Patch();
@@ -618,7 +622,7 @@ YM2413::YM2413(short volume, const EmuTime &time)
 	reset_patch();
 
 	setVolume(volume);
-	int bufSize = Mixer::instance()->registerSound(this);
+	int bufSize = Mixer::instance()->registerSound(this,mode);
 	buffer = new int[bufSize];
 }
 

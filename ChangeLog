@@ -7,6 +7,11 @@ $Id$
 	   irq.set() instruction must also set a synchronization point.
 	   TODO: check this for VDP, Y8950 and document this
 
+2002-02-13 David Heremans <david.heremans@gnu-linux.net>
+	* MSX MUSIC/MSX AUDIO Stereo now possible:
+	  The xml has an extra parameter allowing the Y8950 and YM2413 
+	  to be activated in mono, left or right channel mode
+
 2002-02-12 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Fixed FM-modulation error in both Y8950 as YM2413
 

@@ -5,6 +5,7 @@
 
 #include "openmsx.hh"
 #include "SoundDevice.hh"
+#include "Mixer.hh"
 
 // forward declarations
 class EmuTime;
@@ -87,7 +88,8 @@ class YM2413 : public SoundDevice
 	};
 
 	public:
-		YM2413(short volume, const EmuTime &time);
+		YM2413(short volume, const EmuTime &time, const Mixer::ChannelMode mode=Mixer::MONO);
+		//YM2413(short volume, const EmuTime &time);
 		virtual ~YM2413();
 
 		void reset(const EmuTime &time);

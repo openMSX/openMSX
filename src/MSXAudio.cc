@@ -2,6 +2,7 @@
 
 #include "MSXAudio.hh"
 #include "MSXMotherBoard.hh"
+#include "Mixer.hh"
 #include "Y8950.hh"
 
 MSXAudio::MSXAudio(MSXConfig::Device *config, const EmuTime &time)
@@ -14,7 +15,19 @@ MSXAudio::MSXAudio(MSXConfig::Device *config, const EmuTime &time)
 	MSXMotherBoard::instance()->register_IO_In (0xc0, this);
 	MSXMotherBoard::instance()->register_IO_In (0xc1, this);
 	short volume = (short)deviceConfig->getParameterAsInt("volume");
-	y8950 = new Y8950(volume, time);
+	Mixer::ChannelMode mode = Mixer::MONO;
+	try {
+	  std::string stereomode = config->getParameter("mode");
+	   if (strcmp(stereomode.c_str(), "left")==0) {
+	     mode=Mixer::MONO_LEFT;
+	   };
+	   if (strcmp(stereomode.c_str(), "right")==0) {
+	     mode=Mixer::MONO_RIGHT;
+	   };
+	} catch (MSXException& e) {
+	  PRT_ERROR("Exception: " << e.desc);
+	}
+	y8950 = new Y8950(volume, time, mode);
 	reset(time);
 }
 

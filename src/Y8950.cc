@@ -404,7 +404,7 @@ void Y8950::Channel::reset()
 }
 
 
-Y8950::Y8950(short volume, const EmuTime &time)
+Y8950::Y8950(short volume, const EmuTime &time, Mixer::ChannelMode mode=Mixer::MONO)
 {
 	makePmTable();
 	makeAmTable();
@@ -430,7 +430,7 @@ Y8950::Y8950(short volume, const EmuTime &time)
 	reset(time);
 
 	setVolume(volume);
-	int bufSize = Mixer::instance()->registerSound(this);
+	int bufSize = Mixer::instance()->registerSound(this,mode);
 	buffer = new int[bufSize];
 }
 

@@ -6,6 +6,7 @@
 #include "openmsx.hh"
 #include "SoundDevice.hh"
 #include "MSXMotherBoard.hh"
+#include "Mixer.hh"
 
 //forward declarations
 class EmuTime;
@@ -128,7 +129,7 @@ class Y8950 : public SoundDevice
 	};
 
 	public:
-		Y8950(short volume, const EmuTime &time);
+		Y8950(short volume, const EmuTime &timeconst, Mixer::ChannelMode mode=Mixer::MONO);
 		virtual ~Y8950();
 
 		void reset(const EmuTime &time);
