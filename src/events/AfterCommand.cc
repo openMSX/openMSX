@@ -138,8 +138,8 @@ string AfterCommand::afterInfo(const vector<string>& /*tokens*/)
 		ostringstream str;
 		str << cmd->getId() << ": ";
 		str << cmd->getType() << ' ';
-		if (dynamic_cast<const AfterTimeCmd*>(cmd)) {
-			const AfterTimeCmd* cmd2 = static_cast<const AfterTimeCmd*>(cmd);
+		if (dynamic_cast<const AfterTimedCmd*>(cmd)) {
+			const AfterTimedCmd* cmd2 = static_cast<const AfterTimedCmd*>(cmd);
 			str.precision(3);
 			str << std::fixed << std::showpoint << cmd2->getTime() << ' ';
 		}
@@ -187,8 +187,8 @@ bool AfterCommand::signalEvent(const Event& event)
 	} else {
 		for (AfterCmdMap::const_iterator it = afterCmds.begin();
 		     it != afterCmds.end(); ++it) {
-			if (dynamic_cast<AfterTimeCmd*>(it->second)) {
-				static_cast<AfterTimeCmd*>(it->second)->reschedule();
+			if (dynamic_cast<AfterIdleCmd*>(it->second)) {
+				static_cast<AfterIdleCmd*>(it->second)->reschedule();
 			}
 		}
 	}

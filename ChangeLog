@@ -9,7 +9,8 @@ $Id$
 	   - AUDIO subsystem was never initialized. Apparently this isn't
 	     needed for Linux / Windows. But some platforms probably do need
 	     it.
-	
+	* Fixed "after time" and "after idle" console commands
+
 2004-08-17 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Made tiny optimization in DynamicClock, however this gave a speedup
 	  of about 1.5% because this class is _heavily_ used in the CPU code:
