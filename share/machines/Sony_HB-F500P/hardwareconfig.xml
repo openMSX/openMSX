@@ -52,7 +52,6 @@
 
       <secondary slot="0">
         <RAM id="Main RAM 1">
-          <slow_drain_on_reset>false</slow_drain_on_reset>
           <mem base="0x8000" size="0x8000"/>
         </RAM>
         <ROM id="MSX BIOS with BASIC ROM">
@@ -85,7 +84,6 @@
 
       <secondary slot="2">
         <RAM id="Main RAM 2">
-          <slow_drain_on_reset>false</slow_drain_on_reset>
           <mem base="0x0000" size="0x8000"/>
         </RAM>
       </secondary>

@@ -32,7 +32,6 @@
     <primary slot="3">
       <RAM id="Main RAM">
         <mem base="0x0000" size="0x10000"/>
-        <slow_drain_on_reset>false</slow_drain_on_reset>
       </RAM>
     </primary>
 

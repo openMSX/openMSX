@@ -61,7 +61,6 @@
 
     <primary slot="2">
       <RAM id="Main RAM">
-        <slow_drain_on_reset>false</slow_drain_on_reset>
         <mem base="0xC000" size="0x4000"/>
       </RAM>
     </primary>

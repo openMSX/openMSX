@@ -43,7 +43,6 @@
 
     <primary slot="0">
       <RAM id="Main RAM">
-        <slow_drain_on_reset>false</slow_drain_on_reset>
         <mem base="0x8000" size="0x8000"/>
       </RAM>
       <ROM id="MSX BIOS with BASIC ROM">

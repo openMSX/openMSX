@@ -44,7 +44,6 @@
       <secondary slot="2">
         <MemoryMapper id="Main RAM">
           <mem base="0x0000" size="0x10000"/>
-          <slow_drain_on_reset>false</slow_drain_on_reset>
           <size>2048</size>
         </MemoryMapper>
       </secondary>
@@ -156,7 +155,7 @@
         </SCCplus>
       </secondary>
 
-      <secondary slot="1" external="true"/>
+      <secondary external="true" slot="1"/>
 
       <secondary slot="2">
         <MegaRam id="MegaRam">
@@ -166,7 +165,7 @@
         </MegaRam>
       </secondary>
 
-      <secondary slot="3" external="true"/>
+      <secondary external="true" slot="3"/>
 
     </primary>
 

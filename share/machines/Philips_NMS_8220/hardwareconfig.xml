@@ -80,7 +80,6 @@
 
       <secondary slot="2">
         <MemoryMapper id="Main RAM">
-          <slow_drain_on_reset>false</slow_drain_on_reset>
           <size>64</size>
           <mem base="0x0000" size="0x10000"/>
         </MemoryMapper>

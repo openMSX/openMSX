@@ -25,7 +25,7 @@
       <filename>roms/fs-a1st_firmware.rom</filename>
     </rom>
   </PanasonicRom>
-                              
+
   <devices>
 
     <Kanji id="Kanji ROM">
@@ -150,7 +150,6 @@
 
       <secondary slot="0">
         <PanasonicRAM id="Main RAM">
-          <slow_drain_on_reset>false</slow_drain_on_reset>
           <size>256</size>
           <mem base="0x0000" size="0x10000"/>
         </PanasonicRAM>
