@@ -467,7 +467,9 @@ template <class T> void CPUCore<T>::executeSlow()
 		slowInstructions = 2;
 	} else {
 		R.IFF1 = R.nextIFF1;
+		cpuTracePre();
 		executeFast();
+		cpuTracePost();
 	}
 }
 
@@ -482,9 +484,7 @@ template <class T> void CPUCore<T>::execute()
 		// at least one instruction
 		continued = false;
 		scheduler.schedule(T::clock.getTime());
-		cpuTracePre();
 		executeSlow();
-		cpuTracePost();
 		--slowInstructions;
 		if (step) {
 			step = false;
@@ -513,16 +513,16 @@ template <class T> void CPUCore<T>::execute()
 				doBreak2();
 				return;
 			} else {
-				cpuTracePre();
 				if (slowInstructions == 0) {
 					scheduler.schedule(T::clock.getTime());
+					cpuTracePre();
 					executeFast();
+					cpuTracePost();
 				} else {
 					slowInstructions--;
 					scheduler.schedule(T::clock.getTime());
 					executeSlow();
 				}
-				cpuTracePost();
 			}
 		}
 	}
