@@ -9,6 +9,10 @@ MSXIODevice::MSXIODevice(Device *config, const EmuTime &time)
 	// TODO registerIO();
 }
 
+MSXIODevice::~MSXIODevice()
+{
+}
+
 byte MSXIODevice::readIO(byte port, const EmuTime &time)
 {
 	PRT_DEBUG("MSXIODevice::readIO (0x" << hex << (int)port << dec

@@ -10,10 +10,8 @@
 class MSXIODevice : virtual public MSXDevice
 {
 	public:
-		/**
-		 * Constructor
-		 */
 		MSXIODevice(Device *config, const EmuTime &time);
+		virtual ~MSXIODevice() = 0;
 		
 		/**
 		 * Read a byte from an IO port at a certain time from this device.

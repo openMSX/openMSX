@@ -10,7 +10,7 @@ class Rom8kBBlocks : public MSXRom
 {
 	public:
 		Rom8kBBlocks(Device* config, const EmuTime &time, Rom *rom);
-		virtual ~Rom8kBBlocks();
+		virtual ~Rom8kBBlocks() = 0;
 
 		virtual byte readMem(word address, const EmuTime &time);
 		virtual const byte* getReadCacheLine(word start) const;

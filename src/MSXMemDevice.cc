@@ -15,6 +15,11 @@ MSXMemDevice::MSXMemDevice(Device *config, const EmuTime &time)
 	registerSlots();
 }
 
+MSXMemDevice::~MSXMemDevice()
+{
+	// TODO unregister
+}
+
 void MSXMemDevice::init()
 {
 	static bool alreadyInit = false;

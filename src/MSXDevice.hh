@@ -21,10 +21,7 @@ using namespace std;
 class MSXDevice
 {
 	public:
-		/**
-		 * Destructor
-		 */
-		virtual ~MSXDevice();
+		virtual ~MSXDevice() = 0;
 
 		/**
 		 * This method is called on reset.

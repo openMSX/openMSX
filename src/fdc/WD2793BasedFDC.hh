@@ -12,7 +12,7 @@ class WD2793BasedFDC : public MSXFDC
 {
 	public:
 		WD2793BasedFDC(Device *config, const EmuTime &time);
-		virtual ~WD2793BasedFDC();
+		virtual ~WD2793BasedFDC() = 0;
 		
 		virtual void reset(const EmuTime &time);
 		

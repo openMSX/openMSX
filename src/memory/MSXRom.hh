@@ -12,7 +12,7 @@ class MSXRom : public MSXMemDevice
 {
 	public:
 		MSXRom(Device *config, const EmuTime &time, Rom *rom);
-		virtual ~MSXRom();
+		virtual ~MSXRom() = 0;
 
 		virtual void writeMem(word address, byte value,
 		                      const EmuTime &time);

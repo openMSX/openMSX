@@ -10,6 +10,8 @@
 class MidiOutDevice : public Pluggable, public SerialDataInterface
 {
 	public:
+		virtual ~MidiOutDevice() = 0;
+	
 		// Pluggable (part)
 		virtual const string& getClass() const;
 

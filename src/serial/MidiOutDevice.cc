@@ -3,6 +3,10 @@
 #include "MidiOutDevice.hh"
 
 
+MidiOutDevice::~MidiOutDevice()
+{
+}
+
 const string& MidiOutDevice::getClass() const
 {
 	static const string className("midi out");

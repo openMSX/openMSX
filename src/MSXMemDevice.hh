@@ -9,10 +9,8 @@
 class MSXMemDevice : virtual public MSXDevice
 {
 	public:
-		/**
-		 * Constructor
-		 */
 		MSXMemDevice(Device *config, const EmuTime &time);
+		virtual ~MSXMemDevice() = 0;
 		
 		/**
 		 * Read a byte from a location at a certain time from this
