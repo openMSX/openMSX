@@ -8,7 +8,7 @@ openmsx_SOURCES=openmsx.cc \
 	emutime.hh emutime.cc \
 	msxexception.hh \
 	MSXDevice.hh MSXDevice.cc \
-	MSXMotherBoard.hh MSXMotherBoard.cc linkedlist.hh \
+	MSXMotherBoard.hh MSXMotherBoard.cc \
 	MSXPPI.hh MSXPPI.cc \
 	MSXRom16KB.hh MSXRom16KB.cc \
 	MSXSimple64KB.hh MSXSimple64KB.cc \
@@ -16,7 +16,8 @@ openmsx_SOURCES=openmsx.cc \
 	devicefactory.hh devicefactory.cc \
 	Scheduler.hh Scheduler.cc \
 	Inputs.hh Inputs.cc \
-	Z80.cc Z80.hh Z80DAA.h Z80Codes.h opc__Z80.h
+	Z80.cc Z80.hh Z80DAA.h Z80Codes.h opc__Z80.h \
+	sortedlist.hh sortedlist.cc
 
 # libxml++ and SDL
 openmsx_LDADD= -lxml++ -lSDL

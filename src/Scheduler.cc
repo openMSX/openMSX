@@ -4,7 +4,7 @@
 #include "Scheduler.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXZ80.hh"
-#include "assert.h"
+#include <assert.h>
 
 
 MSXZ80 *Scheduler::nowRunning; //temporary hack for Z80: DO NOT USE
@@ -12,67 +12,35 @@ MSXZ80 *Scheduler::nowRunning; //temporary hack for Z80: DO NOT USE
 
 Scheduler::Scheduler(void) : currentTime()
 {
-	Start=End=Current=0;
 }
 
 Scheduler::~Scheduler(void)
 {
-	while (Start != 0){ 
-		tmp=Start;
-		Start=Start->next;
-		delete tmp;
-	}
+	//while (!scheduleList.empty()) {
+	//	removeFirstStamp();
+	//}
 }
 
-Emutime &Scheduler::getFirstStamp()
+const Emutime &Scheduler::getFirstStamp()
 {
-	assert (Start != 0);
-	return Start->tstamp;
+	return scheduleList.getFirst().getTime();
 }
 
 void Scheduler::removeFirstStamp()
 {
-	assert (Start != 0);
-	tmp=Start;
-	Start=Start->next;
-	delete tmp;
+	scheduleList.removeFirst();
 }
 
 
-Emutime &Scheduler::getCurrentTime()
+const Emutime &Scheduler::getCurrentTime()
 {
 	return currentTime;
 }
 
-void Scheduler::insertStamp(Emutime &timestamp, MSXDevice *activedevice) 
+void Scheduler::insertStamp(Emutime &timestamp, MSXDevice &activedevice) 
 {
 	assert (timestamp >= getCurrentTime());
-	tmp=new SchedulerNode(timestamp,activedevice);
-	// If there is no list
-	if (Start == NULL){
-		Start=tmp;
-		End=tmp;
-		return;
-	}
-	// Insert before start if smaller or equal
-	if (timestamp <= Start->tstamp){
-		tmp->next=Start;
-		Start=tmp;
-		return;
-	}
-	//Insert after end if greater or equal
-	if (timestamp >= End->tstamp){
-		End->next=tmp;
-		End=tmp;
-		return;
-	}
-	// You only get here if start<tmp<end
-	Current=Start;
-	while ( (timestamp > Current->next->tstamp ) && (Current->next != End) ){
-		Current=Current->next;
-	}
-	tmp->next=Current->next;
-	Current->next=tmp;
+	scheduleList.insert (SchedulerNode (timestamp, activedevice));
 }
 
 //void Scheduler::setLaterSP(UINT64 latertimestamp,MSXDevice *activedevice)
@@ -97,16 +65,19 @@ int Scheduler::getIRQ()
 }
 void Scheduler::scheduleEmulation()
 {
-	keepRunning=1;
+	keepRunning=true;
 	while(keepRunning){
+		const SchedulerNode &firstNode = scheduleList.getFirst();
+		const Emutime &time = firstNode.getTime();
+		MSXDevice device = firstNode.getDevice();
 	//1. Set the target T-State of the cpu to the first SP in the list.
 	// and let the CPU execute until the target T-state.
 		nowRunning=MSXMotherBoard::CPU;
-		MSXMotherBoard::CPU->executeUntilEmuTime(Start->tstamp);
+		MSXMotherBoard::CPU->executeUntilEmuTime(time);
 	// Time is now updated
-		currentTime=Start->tstamp;
+		currentTime=time;
 	//3. Get the device from the first SP in the list and let it reach its T-state.
-		Start->device->executeUntilEmuTime(Start->tstamp);
+		device.executeUntilEmuTime(time);
 	//4. Remove the first element from the list
 		removeFirstStamp();
 	// TODO: loop if there are other devices with the same timestamp
@@ -115,6 +86,6 @@ void Scheduler::scheduleEmulation()
 
 void Scheduler::stopEmulation()
 {
-	keepRunning=0;
+	keepRunning=false;
 }
 

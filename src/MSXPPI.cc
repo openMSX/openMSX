@@ -3,6 +3,7 @@
 #include "Inputs.hh"
 #include "MSXPPI.hh"
 #include <SDL/SDL.h>
+#include "assert.h"
 
 //#include "string.h"
 //#include "stdlib.h"
@@ -67,50 +68,52 @@ byte MSXPPI::readIO(byte port, Emutime &time)
 		return MSXKeyMatrix[port_aa & 15];
 		break;
 	case 0xAA:
-        return port_aa;
+		return port_aa;
 		break;
 	case 0xAB:
-        //TODO: test what a real MSX returns
-        // normally after a the MSX is started 
-        // you don't tough this register, but hey
-        // we go for the perfect emulation :-)
-        return port_ab;
+		//TODO: test what a real MSX returns
+		// normally after a the MSX is started 
+		// you don't tough this register, but hey
+		// we go for the perfect emulation :-)
+		return port_ab;
 		break;
-  }
+	default:
+		assert (false); // code should never be reached
+	}
 }
 
 void MSXPPI::writeIO(byte port, byte value, Emutime &time)
 {
   switch( port ){
 	case 0xA8:
-	  if ( value != MSXMotherBoard::instance()->A8_Register){
-	    //TODO: do slotswitching if needed
-	    MSXMotherBoard::instance()->set_A8_Register(value);
-	  }
-	  break;
+		if ( value != MSXMotherBoard::instance()->A8_Register) {
+			//TODO: do slotswitching if needed
+			MSXMotherBoard::instance()->set_A8_Register(value);
+		}
+		break;
 	case 0xA9:
-        //BOGUS read-only register
+		//BOGUS read-only register
 		break;
 	case 0xAA:
-        port_aa=value;
-        //TODO use these bits
-		//4    CASON  Cassette motor relay        (0=On, 1=Off)
-		//5    CASW   Cassette audio out          (Pulse)
-		//6    CAPS   CAPS-LOCK lamp              (0=On, 1=Off)
-		//7    SOUND  Keyboard klick bit          (Pulse)
-
+		port_aa=value;
+		//TODO use these bits
+		//  4    CASON  Cassette motor relay        (0=On, 1=Off)
+		//  5    CASW   Cassette audio out          (Pulse)
+		//  6    CAPS   CAPS-LOCK lamp              (0=On, 1=Off)
+		//  7    SOUND  Keyboard klick bit          (Pulse)
 		break;
 	case 0xAB:
-	//Theoretically these registers can be used as input or output 
-	//ports. However, in the MSX, PPI Port A and C are always used as output, 
-	//and PPI Port B as input. The BIOS initializes it like that by writing 
-	//82h to Port ABh on startup. Afterwards it makes no sense to change this 
-	//setting, and thus we simply discard any write :-)
-	//
-	// see 8255.pdf for more detail
-
+		//Theoretically these registers can be used as input or output 
+		//ports. However, in the MSX, PPI Port A and C are always used as output, 
+		//and PPI Port B as input. The BIOS initializes it like that by writing 
+		//82h to Port ABh on startup. Afterwards it makes no sense to change this 
+		//setting, and thus we simply discard any write :-)
+		//
+		// see 8255.pdf for more detail
 		break;
-  }
+	default:
+		assert (false); // code should never be reached
+	}
 }
 
 /** SetColor() ***********************************************/

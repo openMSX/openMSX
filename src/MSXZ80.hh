@@ -38,8 +38,8 @@ friend void Z80_WRMEM(word A,byte V);
 		// executes the current command
 		// returns the number of used T-states
 		// int executeTStates(void);
-		void setTargetTStates(Emutime &time);
-		void executeUntilEmuTime(Emutime &time);
+		void setTargetTStates(const Emutime &time);
+		void executeUntilEmuTime(const Emutime &time);
 
 
         private:

@@ -51,11 +51,11 @@ public:
 	Emutime &operator --(int unused) { _emutime-=_scale ; return *this; }
 	
 	// comparison operators
-	bool operator ==(const Emutime &foo) { return _emutime == foo._emutime; }
-	bool operator < (const Emutime &foo) { return _emutime <  foo._emutime; }
-	bool operator <=(const Emutime &foo) { return _emutime <= foo._emutime; }
-	bool operator > (const Emutime &foo) { return _emutime >  foo._emutime; }
-	bool operator >=(const Emutime &foo) { return _emutime >= foo._emutime; }
+	bool operator ==(const Emutime &foo) const { return _emutime == foo._emutime; }
+	bool operator < (const Emutime &foo) const { return _emutime <  foo._emutime; }
+	bool operator <=(const Emutime &foo) const { return _emutime <= foo._emutime; }
+	bool operator > (const Emutime &foo) const { return _emutime >  foo._emutime; }
+	bool operator >=(const Emutime &foo) const { return _emutime >= foo._emutime; }
 
 
 private:

@@ -2,45 +2,38 @@
 
 #ifndef __SCHEDULER_HH__
 #define __SCHEDULER_HH__
-// in MSXDevice.h : typedef unsigned long int UINT64;
 
 #include "emutime.hh"
+#include "sortedlist.hh"
 
 class MSXZ80;
 
 class SchedulerNode
 {
-	public: 
-		SchedulerNode *next;
-		MSXDevice *device;
-		Emutime tstamp;
-
-		SchedulerNode(Emutime &time, MSXDevice *dev) : tstamp(time)
-		{
-			device=dev;
-			next=0;
-		};
+	public:
+		SchedulerNode (const Emutime &time, MSXDevice &dev) : timeStamp(time), device(dev) {}
+		const Emutime &getTime() const { return timeStamp; }
+		MSXDevice &getDevice() const { return device; }
+		bool operator< (const SchedulerNode &n) const { return getTime() < n.getTime(); }
+	private: 
+		const Emutime timeStamp;	// copy of original timestamp
+		MSXDevice &device;		// alias
 };
 
 class Scheduler
 {
 	private:
-		SchedulerNode *Start;
-		SchedulerNode *End;
-		SchedulerNode *Current;
-		SchedulerNode *tmp;
+		SortedList<SchedulerNode> scheduleList;
 		Emutime currentTime;
-		int schedulerFreq;
 		int stateIRQline;
-		int keepRunning;
+		bool keepRunning;
 	public:
 		Scheduler(void);
 		~Scheduler(void);
-		Emutime &getCurrentTime();
-		Emutime &getFirstStamp();
+		const Emutime &getCurrentTime();
+		const Emutime &getFirstStamp();
 		void removeFirstStamp();
-		int getTimeMultiplier(int nativeFreq);
-		void insertStamp(Emutime &timestamp, MSXDevice *activedevice);
+		void insertStamp(Emutime &timestamp, MSXDevice &activedevice);
 		//void setLaterSP(Emutime &latertimestamp, MSXDevice *activedevice);
 		void raiseIRQ();
 		void lowerIRQ();

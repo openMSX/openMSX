@@ -36,9 +36,9 @@ class MSXDevice
 		virtual void writeMem(word address, byte value, Emutime &time);
 		virtual byte readIO(byte port, Emutime &time);
 		virtual void writeIO(byte port, byte value, Emutime &time);
-		virtual void executeUntilEmuTime(Emutime &time);
-		virtual int executeTStates(int TStates);
-		virtual int getUsedTStates(void);
+		virtual void executeUntilEmuTime(const Emutime &time);
+		//virtual int executeTStates(int TStates);
+		//virtual int getUsedTStates(void);
 		//
 		// mainlife cycle of an MSXDevice
 		virtual void init();

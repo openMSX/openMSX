@@ -5,10 +5,10 @@
 
 #include "MSXDevice.hh"
 #include "Scheduler.hh"
-#include "linkedlist.hh"
 #include "fstream.h"
 #include "iostream.h"
 #include "emutime.hh"
+#include <stl.h>
 
 class MSXZ80;
 class MSXPPI;
@@ -21,7 +21,7 @@ class MSXMotherBoard : public MSXDevice
 		MSXDevice* IO_In[256];
 		MSXDevice* IO_Out[256];
 		MSXDevice* emptydevice;
-		MSXDevList* availableDevices;
+		vector<MSXDevice*> *availableDevices;
 		
 		MSXDevice* SlotLayout[4][4][4];
 		byte A8_Register;
@@ -82,6 +82,6 @@ class MSXMotherBoard : public MSXDevice
 		void writeIO(byte port, byte value, Emutime &time);
 		void set_A8_Register(byte value);
 
-		friend class MSXPPI;
+		friend class MSXPPI;	// A8
 };
 #endif //__MSXMOTHERBOARD_H__

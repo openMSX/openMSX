@@ -29,13 +29,13 @@ MSXZ80::~MSXZ80(void)
 	cout << "destructing an MSXZ80 object";
 };
 
-void MSXZ80::setTargetTStates(Emutime &time)
+void MSXZ80::setTargetTStates(const Emutime &time)
 {
 	assert (time >= currentCPUTime);
         targetCPUTime = time;
 };
 
-void MSXZ80::executeUntilEmuTime(Emutime &time)
+void MSXZ80::executeUntilEmuTime(const Emutime &time)
 {
 	setTargetTStates(time);
 	while (currentCPUTime < targetCPUTime) {

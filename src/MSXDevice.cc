@@ -44,7 +44,7 @@ void MSXDevice::writeIO(byte port, byte value, Emutime &time)
 {
 	return;
 }
-void MSXDevice::executeUntilEmuTime(Emutime &time)
+void MSXDevice::executeUntilEmuTime(const Emutime &time)
 {
     return;
 }

@@ -1,6 +1,5 @@
 // $Id$
 
-#include "linkedlist.hh"
 #include "MSXMotherBoard.hh"
 
 MSXZ80 *MSXMotherBoard::CPU;
@@ -8,7 +7,7 @@ MSXZ80 *MSXMotherBoard::CPU;
 MSXMotherBoard::MSXMotherBoard()
 {
 cout << "Creating an MSXMotherBoard object \n";
-  availableDevices=new MSXDevList();
+  availableDevices=new vector<MSXDevice*>();
   emptydevice=new MSXDevice();
   for (int i=0;i<256;i++){
 	IO_In[i]=emptydevice;
@@ -21,8 +20,8 @@ cout << "Creating an MSXMotherBoard object \n";
 
 MSXMotherBoard::~MSXMotherBoard()
 {
-cout << "Detructing an MSXMotherBoard object \n";
-delete availableDevices;
+	cout << "Detructing an MSXMotherBoard object \n";
+	delete availableDevices;
 }
 
 MSXMotherBoard *volatile MSXMotherBoard::oneInstance;
@@ -36,23 +35,17 @@ MSXMotherBoard *MSXMotherBoard::instance()
 
 void MSXMotherBoard::register_IO_In(byte port,MSXDevice *device)
 {
-	if (IO_In[port] == emptydevice){
-	  IO_In[port]=device;
-	} else {
-	  cerr << "Second device trying to register taken IO_In-port";
-	}
+	assert (IO_In[port]==emptydevice);
+	IO_In[port]=device;
 }
 void MSXMotherBoard::register_IO_Out(byte port,MSXDevice *device)
 {
-  if ( IO_Out[port] == emptydevice){
-    IO_Out[port]=device;
-  } else {
-    cerr << "Second device trying to register taken IO_Out-port";
-  }
+	assert (IO_Out[port]==emptydevice);
+	IO_Out[port]=device;
 }
 void MSXMotherBoard::addDevice(MSXDevice *device)
 {
-   availableDevices->append(device);
+	availableDevices->push_back(device);
 }
 void MSXMotherBoard::setActiveCPU(MSXZ80 *device)
 {
@@ -70,18 +63,17 @@ void MSXMotherBoard::registerSlottedDevice(MSXDevice *device,int PrimSl,int SecS
 
 void MSXMotherBoard::ResetMSX()
 {
-	availableDevices->fromStart();
-	do {
-		availableDevices->device->reset();
-	} while ( availableDevices->toNext() );
+	vector<MSXDevice*>::iterator i;
+	for (i = availableDevices->begin(); i != availableDevices->end(); i++) {
+		(*i)->reset();
+	}
 }
 void MSXMotherBoard::InitMSX()
 {
-	availableDevices->fromStart();
-	do {
-		availableDevices->device->init();
-	} while ( availableDevices->toNext() );
-
+	vector<MSXDevice*>::iterator i;
+	for (i = availableDevices->begin(); i != availableDevices->end(); i++) {
+		(*i)->init();
+	}
 }
 void MSXMotherBoard::StartMSX()
 {
@@ -94,10 +86,10 @@ void MSXMotherBoard::StartMSX()
 }
 void MSXMotherBoard::SaveStateMSX(ofstream &savestream)
 {
-	availableDevices->fromStart();
-	do {
-//TODO:		availableDevices->device->saveState(savestream);
-	} while ( availableDevices->toNext() );
+	vector<MSXDevice*>::iterator i;
+	for (i = availableDevices->begin(); i != availableDevices->end(); i++) {
+	//TODO	(*i)->saveState(savestream);
+	}
 }
 
 byte MSXMotherBoard::readMem(word address, Emutime &time)
