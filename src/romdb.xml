@@ -2121,7 +2121,7 @@
     <remark></remark>
   </rom>
   <rom id="Hydlide 2">
-    <romtype>ASCII16-2</romtype>
+    <romtype>HYDLIDE2</romtype>
     <md5>35e314e2976d37fafe2d5be15c9c3611</md5>
     <crc32>d8055f5f</crc32>
     <year>1986</year>
