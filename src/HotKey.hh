@@ -42,24 +42,25 @@ class HotKey : private EventListener
 		void unregisterHotKeyCommand(SDLKey key, const std::string &command);
 
 	private:
+		class HotKeyCmd : public HotKeyListener
+		{
+			public:
+				HotKeyCmd(const std::string &cmd);
+				virtual ~HotKeyCmd();
+				const std::string &getCommand();
+				virtual void signalHotKey(SDLKey key);
+			private:
+				std::string command;
+		};
+		
 		// EventListener
 		virtual void signalEvent(SDL_Event &event);
 
 		HotKey();
 		static HotKey *oneInstance;
 
-		int nbListeners;
 		std::multimap <SDLKey, HotKeyListener*> map;
-
-	class HotKeyCmd : public HotKeyListener
-	{
-		public:
-			HotKeyCmd(const std::string &cmd);
-			virtual ~HotKeyCmd();
-			virtual void signalHotKey(SDLKey key);
-		private:
-			std::string command;
-	};
+		std::multimap <SDLKey, HotKeyCmd*> cmdMap;
 };
 
 #endif

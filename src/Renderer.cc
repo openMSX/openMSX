@@ -77,6 +77,7 @@ Renderer::Renderer(bool fullScreen) :
 
 Renderer::~Renderer()
 {
+	HotKey::instance()->unregisterHotKeyCommand(SDLK_PRINT, "fullscreen");
 	CommandController::instance()->unregisterCommand("fullscreen");
 }
 

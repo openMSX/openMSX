@@ -38,6 +38,8 @@ RealTime::~RealTime()
 {
 	PRT_DEBUG("Destroying a RealTime object");
 	
+	HotKey::instance()->unregisterHotKeyCommand(SDLK_PAUSE, "pause");
+	HotKey::instance()->unregisterHotKeyCommand(SDLK_F9, "throttle");
 	CommandController::instance()->unregisterCommand("pause");
 	CommandController::instance()->unregisterCommand("throttle");
 	CommandController::instance()->unregisterCommand("speed");

@@ -50,6 +50,7 @@ SDLConsole::SDLConsole(SDL_Surface *screen) :
 
 SDLConsole::~SDLConsole()
 {
+	HotKey::instance()->unregisterHotKeyCommand(SDLK_F10, "console");
 	CommandController::instance()->unregisterCommand("console");
 	EventDistributor::instance()->unregisterEventListener(SDL_KEYDOWN, this);
 	ConsoleManager::instance()->unregisterConsole(this);

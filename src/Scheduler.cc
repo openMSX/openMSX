@@ -31,6 +31,8 @@ Scheduler::Scheduler()
 
 Scheduler::~Scheduler()
 {
+	HotKey::instance()->unregisterHotKeyCommand(SDLK_F12, "quit");
+	HotKey::instance()->unregisterHotKeyCommand(SDLK_F11, "mute");
 	CommandController::instance()->unregisterCommand("quit");
 	CommandController::instance()->unregisterCommand("mute");
 	EventDistributor::instance()->unregisterEventListener(SDL_QUIT, this);
