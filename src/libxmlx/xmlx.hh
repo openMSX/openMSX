@@ -24,8 +24,8 @@
 //
 
 // libxml
-#include <tree.h>
-#include <parser.h>
+#include <libxml/tree.h>
+#include <libxml/parser.h>
 
 // libstdc++
 #include <string>
