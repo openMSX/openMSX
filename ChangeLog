@@ -1,5 +1,10 @@
 $Id$
 
+2004-07-14 Maarten ter Huurne <maarten@treewalker.org>
+	* Fixed MoonSound bug:
+	   When DL=0 go immediately to sustain phase.
+	   Fixes 'timpani' instrument for example.
+
 2004-07-13 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed nullpointer dereference when ABORT command is executed
 	  in "cmdtiming broken" mode.

@@ -260,7 +260,11 @@ void YMF278::advance()
 					op.env_vol += (~op.env_vol * eg_inc[select + ((eg_cnt >> shift) & 7)]) >> 3;
 					if (op.env_vol <= MIN_ATT_INDEX) {
 						op.env_vol = MIN_ATT_INDEX;
-						op.state = EG_DEC;
+						if (op.DL) {
+							op.state = EG_DEC;
+						} else {
+							op.state = EG_SUS;
+						}
 					}
 				}
 				break;
