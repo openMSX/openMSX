@@ -1043,6 +1043,9 @@ void VDPCmdEngine::HmmcCmd::execute(const EmuTime &time)
 				cmdReg(REG_NYH) = (NY >> 8) & 0x03;
 				cmdReg(REG_DYL) = DY & 0xFF;
 				cmdReg(REG_DYH) = (DY >> 8) & 0x03;
+			} else {
+				ADX = DX;
+				ANX = NX;
 			}
 		}
 	}

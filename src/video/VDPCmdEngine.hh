@@ -69,7 +69,7 @@ public:
 	  */
 	inline byte getStatus(const EmuTime &time) {
 		byte cmd = (cmdReg[REG_CMD] & 0xF0) >> 4;
-		if (cmd && commands[cmd]->willStatusChange(time)) {
+		if (commands[cmd]->willStatusChange(time)) {
 			sync(time);
 		}
 		return status;
