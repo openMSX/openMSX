@@ -628,7 +628,7 @@ template <class Pixel> void SDLLoRenderer<Pixel>::drawSprites(
 	int screenLine, int leftBorder, int minX, int maxX)
 {
 	// TODO: Pass absLine as a parameter instead of converting back.
-	int absLine = screenLine / 2 + lineRenderTop;
+	int absLine = screenLine + lineRenderTop;
 
 	// Determine sprites visible on this line.
 	SpriteChecker::SpriteInfo *visibleSprites;

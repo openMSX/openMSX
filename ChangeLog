@@ -1,5 +1,8 @@
 $Id$
 
+2002-10-23 Maarten ter Huurne <mth@stack.nl>
+	* Fixed bug in sprite drawing of SDLLo.
+
 2002-10-22 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Rewrite of "CommandLineParser":
 	   - CLI options and CLI file types must be registered now, this allows
