@@ -61,7 +61,7 @@ class YM2413 : public YM2413Core, private SoundDevice, private Debuggable
 		inline static int wave2_4pi(int e);
 		inline static int wave2_8pi(int e);
 		inline static int EG2DB(int d);
-		inline static unsigned int SL2EG(unsigned int d);
+		inline static int SL2EG(int d);
 	
 		Patch* patch;  
 		bool type;		// 0 : modulator 1 : carrier 
@@ -128,7 +128,7 @@ public:
 	virtual void updateBuffer(int length, int* buffer);
 
 private:
-	inline int calcSample(int channelMask);
+	inline int calcSample();
 
 	void checkMute();
 	bool checkMuteHelper();
@@ -161,8 +161,8 @@ private:
 	inline void update_ampm();
 
 	inline static int TL2EG(int d);
-	inline static unsigned int DB_POS(unsigned int x);
-	inline static unsigned int DB_NEG(unsigned int x);
+	inline static unsigned int DB_POS(double x);
+	inline static unsigned int DB_NEG(double x);
 	inline static int HIGHBITS(int c, int b);
 	inline static int LOWBITS(int c, int b);
 	inline static int EXPAND_BITS(int x, int s, int d);
@@ -189,7 +189,7 @@ private:
 
 	// Dynamic range (Accuracy of sin table)
 	static const int DB_BITS = 8;
-	static const double DB_STEP = (48.0/(1<<DB_BITS));
+	static const double DB_STEP = (48.0 / (1 << DB_BITS));
 	static const int DB_MUTE = (1<<DB_BITS);
 
 	// Dynamic range of envelope
@@ -306,7 +306,7 @@ private:
 	static unsigned int dphaseDRTable[16][16];
 
 	// KSL + TL Table
-	static int tllTable[16][8][1<<TL_BITS][4];
+	static unsigned int tllTable[16][8][1<<TL_BITS][4];
 	static int rksTable[2][8][2];
 
 	// Phase incr table for PG 
