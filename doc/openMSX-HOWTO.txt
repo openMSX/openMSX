@@ -1,9 +1,11 @@
-DRAFT: September 8 2002, version 0.3
-Written by Jorrith Schaap & Manuel Bilderbeek & the openMSX developers
-
 OpenMSX compile, install, config and run HOWTO
 ==============================================
 or: get everything out of openMSX in 11 simple steps! ;-)
+
+First note this:
+- Authors: Jorrith Schaap & Manuel Bilderbeek & the openMSX developers
+- We do not claim this HOWTO is complete or even correct! We just hope it helps
+  you enjoy openMSX more.
 
 This HOWTO is about openMSX, the open source MSX emulator that tries to achieve
 perfect emulation by using a novel emulation model. The homepage of openMSX can
@@ -125,6 +127,12 @@ libxml2 - GNOME XML library
 libxml2-dev - Development files for the GNOME XML library
 g++ - The GNU C++ compiler. (2.95.3 or 3.2 is recommended for now)
 
+The package uses the GNU Automake utilities. Thus, you also need:
+automake - A tool for generating GNU Standards-compliant Makefiles.
+autoconf - automatic configure script builder
+libtool - Generic library support script
+m4 - a macro processing language
+
 And, for some optional features of openMSX, you need openGL support, runtime and
 development; i.e. you'll need packages like xlibmesa-dev and xlibmesa3 (see
 below in section 8). This can depend on your graphics hardware.
@@ -145,12 +153,7 @@ the sources:
 
 sh autogen.sh
 
-This will generate the appropriate configure and make stuff. Note, that for this
-to work, you need the GNU Automake system packages:
-automake - A tool for generating GNU Standards-compliant Makefiles.
-autoconf - automatic configure script builder
-libtool - Generic library support script
-m4 - a macro processing language
+This will generate the appropriate configure and make stuff. 
 
 If you get the following line:
 
@@ -174,9 +177,11 @@ If you have a Pentium II or higher machine, instead configure it like this:
 This will let openMSX compile with optimizations for your system's CPU.
 
 You will see loads of checks for available stuff and so on... Just ignore it,
-except if it exits with any errors. This probably means you will have to install
-more packages, the error message will tell you what is broken. If the problem is
-with openMSX, please file a detailed bug report on our SourceForge site.
+except if it exits with any errors. This probably means you will have to
+install more packages, the error message will tell you what is broken. If the
+problem is with openMSX, please file a detailed bug report on our SourceForge
+site. If possible, attach the config.log file that is made as part of the
+configure step to the bugreport, in case there is a ./configure error.
 
 After the (successful) configure step, it's time to compile
 everything. Type
@@ -606,7 +611,7 @@ developers so they can fix them. For users who can follow instructions but do
 not have C++ knowledge, Linux is the only sure choice for now.
 
 Note: as an alternative for the copyrighted MSX ROMs, you can also use the
-CBIOS, a home made MSX compatible BIOS, by Boukichi. There is a config file for
+CBIOS, a home made MSX compatible BIOS, by BouKiChi. There is a config file for
 it in the src/cfg directory. With this BIOS you can only run an increasing
 number of MSX1 ROM files. The files needed for the CBIOS itself are in the
 Contrib/cbios directory. You may want to copy them to the directory where you
