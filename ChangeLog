@@ -1,5 +1,11 @@
 $Id$
 
+2001-11-16 Maarten ter Huurne <mth@stack.nl>
+	* Split off SDLRenderer from MSXTMS9928a.
+	  This makes it easier to support different renderers
+	  (320x240, 640x480, 8/16/32bpp).
+	  In the near future SDLRenderer will get its own file.
+
 2001-11-16 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* cleanup EventDistributor/HotKey
 
