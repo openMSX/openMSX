@@ -88,7 +88,7 @@ const string CompressedFileAdapter::getLocalName()
 			if (!GetTempPathA(MAX_PATH, tmppath)) {
 				throw FileException("Coundn't get temp file path");
 			}
-			tmpDir = tmppath + "\\openmsx";
+			tmpDir = string(tmppath) + "\\openmsx";
 #else
 			ostringstream os;
 			os << "/tmp/openmsx." << getpid();
