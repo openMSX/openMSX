@@ -16,7 +16,7 @@
      <max_ints>221</max_ints>
   </RenShaTurbo>
 
-  <MapperType>Philips</MapperType>
+  <MapperReadBackBits>largest</MapperReadBackBits>
   
   <CassettePort/>
  

@@ -11,7 +11,7 @@
     <type>MSX2</type>
   </info>
 
-  <MapperType>Philips</MapperType>
+  <MapperReadBackBits>largest</MapperReadBackBits>
   
   <CassettePort/>
 

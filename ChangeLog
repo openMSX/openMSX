@@ -9,6 +9,7 @@ $Id$
 	* <PanasonicRom> tag needs an id attribute to give a warning in case
 	  the SHA1 doesn't match
 	* default binding for pause key must be "toggle pause" iso just "pause"
+	* renamed <MapperType> tag to <MapperReadBackBits>
 
 2004-10-03 Maarten ter Huurne <maarten@treewalker.org>
 	* Updated configuration converter.

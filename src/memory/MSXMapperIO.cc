@@ -13,10 +13,10 @@ MSXMapperIO::MSXMapperIO(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time)
 {
 	string type = HardwareConfig::instance().
-		getChildData("MapperType", "Philips");
-	if (type == "TurboR") {
+		getChildData("MapperReadBackBits", "largest");
+	if (type == "5") {
 		mapperMask.reset(new MSXMapperIOTurboR());
-	} else if (type == "Philips") {
+	} else if (type == "largest") {
 		mapperMask.reset(new MSXMapperIOPhilips());
 	} else {
 		throw FatalError("Unknown mapper type: \"" + type + "\".");

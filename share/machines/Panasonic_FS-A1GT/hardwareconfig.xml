@@ -16,7 +16,7 @@
     <max_ints>221</max_ints>
   </RenShaTurbo>
 
-  <MapperType>TurboR</MapperType>
+  <MapperReadBackBits>5</MapperReadBackBits>
 
   <PanasonicRom id="Firmware ROM">
     <rom>
