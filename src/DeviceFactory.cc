@@ -150,7 +150,7 @@ MSXDevice *DeviceFactory::create(Config* conf, const EmuTime& time)
 		cpuInterface.register_IO_Out(0x7D, music);
 		return music;
 	}
-	if (type == "FM-PAC") {
+	if (type == "FM-PAC") { // TODO change to FMPAC when XML format changes
 		MSXFmPac *fmpac = new MSXFmPac(conf, time);
 		cpuInterface.register_IO_Out(0x7C, fmpac);
 		cpuInterface.register_IO_Out(0x7D, fmpac);

@@ -7,7 +7,7 @@ following features:
 - 2 disk drives
 - V9958 VDP
 - SCC+ in slot 2-0
-- FM-PAC (slot 3-1)
+- FMPAC (slot 3-1)
 - MSX Audio
 - Moonsound with 640kB sample RAM
 - 512kB MegaRAM in slot 2-2
@@ -15,7 +15,7 @@ following features:
 This configuration needs the following ROMs in the roms subdir:
 - nms8250_disk.rom, nms8250_basic-bios2.rom, nms8250_msx2sub.rom: same as
   needed for the Philips NMS 8250 config
-- fmpac.rom: same as needed for the FM-PAC extension
+- fmpac.rom: same as needed for the FMPAC extension
 - yrw801.rom: same as needed for the Moonsound extension
 
 You can make this configuration the default by changing the DefaultMachine in
