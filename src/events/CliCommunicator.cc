@@ -113,7 +113,7 @@ void CliCommunicator::cb_text(ParseState* user_data, const xmlChar* chars, int l
 	}
 }
 
-void CliCommunicator::run()
+void CliCommunicator::run() throw()
 {
 	user_data.state = START;
 	memset(&sax_handler, 0, sizeof(sax_handler));

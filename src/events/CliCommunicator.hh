@@ -32,7 +32,7 @@ private:
 	void execute(const string& command);
 	virtual void executeUntilEmuTime(const EmuTime& time, int userData);
 	virtual const string& schedName() const;
-	virtual void run();
+	virtual void run() throw();
 	
 	deque<string> cmds;
 	Semaphore lock;

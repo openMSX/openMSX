@@ -143,7 +143,7 @@ JoyNet::ConnectionListener::~ConnectionListener()
 {
 }
 
-void JoyNet::ConnectionListener::run()
+void JoyNet::ConnectionListener::run() throw()
 {
 	int listenfd;
 	int connectfd;

@@ -65,14 +65,14 @@ private:
 	//Sub class for listener thread
 	class ConnectionListener: public Runnable
 	{
-		public:
-			ConnectionListener(int listenport,byte* linestatus);
-			virtual ~ConnectionListener();
-			virtual void run();
-		private:
-			int port;
-			byte* statuspointer;
-			Thread thread;
+	public:
+		ConnectionListener(int listenport,byte* linestatus);
+		virtual ~ConnectionListener();
+		virtual void run() throw();
+	private:
+		int port;
+		byte* statuspointer;
+		Thread thread;
 	};
 
 	byte status;

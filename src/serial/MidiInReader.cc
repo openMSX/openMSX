@@ -66,7 +66,7 @@ const string& MidiInReader::getDescription() const
 
 
 // Runnable
-void MidiInReader::run()
+void MidiInReader::run() throw()
 {
 	byte buf;
 	while (true) {
