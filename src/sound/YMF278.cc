@@ -309,8 +309,8 @@ int* YMF278::updateBuffer(int length)
 			int delta = sl.stepptr & 0xFFFF;
 			short sample = (sample1 * (0x10000 - delta) + sample2 * delta) >> 16;
 			int vol = sl.TL + (sl.env_vol >> 2);
-			int volLeft  = vol + pan_left [sl.pan] + vl;
-			int volRight = vol + pan_right[sl.pan] + vr;
+			int volLeft  = vol + pan_left [(int)sl.pan] + vl;
+			int volRight = vol + pan_right[(int)sl.pan] + vr;
 			left  += (sample * volume[volLeft] ) >> 16;
 			right += (sample * volume[volRight]) >> 16;
 
