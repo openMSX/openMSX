@@ -4,10 +4,17 @@ Code out of cvs doesn't contain
 Makefile.in's and configure, soo
 you need to run
 
-aclocal
 autoconf
 automake
 
 to initialize your tree.
 
-Joost
+recommended .cvsrc:
+
+diff -u
+history -e -z LT -a
+status -v
+cvs -z3
+checkout -A
+log -N
+update -d -P
