@@ -73,10 +73,10 @@ unsigned int Y8950::rate_adjust(double x, int rate)
 // Table for AR to LogCurve. 
 void Y8950::Slot::makeAdjustTable()
 {
-	AR_ADJUST_TABLE[0] = 1<<EG_BITS;
-	for (int i=1; i < (1<<EG_BITS); i++)
-		AR_ADJUST_TABLE[i] = (int)((double)(1<<EG_BITS)-1
-		                     -(1<<EG_BITS)*log(i)/log(1<<EG_BITS)) >> 1;
+	AR_ADJUST_TABLE[0] = 1 << EG_BITS;
+	for (int i = 1; i < (1 << EG_BITS); i++)
+		AR_ADJUST_TABLE[i] = (int)((double)(1 << EG_BITS) - 1 -
+		         (1 << EG_BITS) * ::log(i) / ::log(1 << EG_BITS)) >> 1;
 }
 
 // Table for dB(0 -- (1<<DB_BITS)) to Liner(0 -- DB2LIN_AMP_WIDTH) 

@@ -5,28 +5,30 @@
 
 #include <string>
 
-// forward declarations
 class EmuTime;
+class Connector;
 
+using namespace std;
 
-class Pluggable {
+class Pluggable
+{
 public:
 	/**
 	 * A pluggable has a name
 	 */
-	virtual const std::string &getName() const;
+	virtual const string &getName() const;
 
 	/**
 	 * A pluggable belongs to a certain class. A pluggable only fits in
 	 * connectors of the same class.
 	 */
-	virtual const std::string &getClass() const = 0;
+	virtual const string &getClass() const = 0;
 
 	/**
-	 * This method is called just before this pluggable is inserted in a
+	 * This method is called when this pluggable is inserted in a
 	 * connector. The default implementation does nothing.
 	 */
-	virtual void plug(const EmuTime &time) {}
+	virtual void plug(Connector* connector, const EmuTime &time) {}
 
 	/**
 	 * This method is called when this pluggable is removed from a 

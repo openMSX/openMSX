@@ -10,8 +10,8 @@ Connector::Connector()
 
 void Connector::plug(Pluggable *device, const EmuTime &time)
 {
-	device->plug(time);
 	pluggable = device;
+	device->plug(this, time);
 }
 
 void Connector::unplug(const EmuTime &time)

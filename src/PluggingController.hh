@@ -5,21 +5,15 @@
 
 #include "Command.hh"
 
-//forward declarations
 class Connector;
 class Pluggable;
 
+using namespace std;
 
-class PluggingController {
+class PluggingController
+{
 public:
-	/**
-	 * Destructor
-	 */
 	~PluggingController();
-
-	/**
-	 * This class is a singleton
-	 */
 	static PluggingController* instance();
 	
 	/**
@@ -42,26 +36,25 @@ public:
 private:
 	PluggingController();
 
-	std::vector<Connector*> connectors;
-	std::vector<Pluggable*> pluggables;
+	vector<Connector*> connectors;
+	vector<Pluggable*> pluggables;
 
 	// Commands
 	class PlugCmd : public Command {
 	public:
-		virtual void execute(const std::vector<std::string> &tokens);
-		virtual void help   (const std::vector<std::string> &tokens) const;
-		virtual void tabCompletion(std::vector<std::string> &tokens) const;
-	};
+		virtual void execute(const vector<string> &tokens);
+		virtual void help   (const vector<string> &tokens) const;
+		virtual void tabCompletion(vector<string> &tokens) const;
+	} plugCmd;
 	friend class PlugCmd;
-	PlugCmd plugCmd;
+
 	class UnplugCmd : public Command {
 	public:
-		virtual void execute(const std::vector<std::string> &tokens);
-		virtual void help   (const std::vector<std::string> &tokens) const;
-		virtual void tabCompletion(std::vector<std::string> &tokens) const;
-	};
+		virtual void execute(const vector<string> &tokens);
+		virtual void help   (const vector<string> &tokens) const;
+		virtual void tabCompletion(vector<string> &tokens) const;
+	} unplugCmd;
 	friend class UnplugCmd;
-	UnplugCmd unplugCmd;
 };
 
 #endif //__PLUGGING_CONTROLLER__

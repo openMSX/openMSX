@@ -37,10 +37,11 @@ void PluggingController::registerConnector(Connector *connector)
 
 void PluggingController::unregisterConnector(Connector *connector)
 {
-	std::vector<Connector*>::iterator i;
-	for (i=connectors.begin(); i!=connectors.end(); i++) {
-		if (*i == connector) {
-			connectors.erase(i);
+	for (vector<Connector*>::iterator it = connectors.begin();
+	     it != connectors.end();
+	     ++it) {
+		if ((*it) == connector) {
+			connectors.erase(it);
 			return;
 		}
 	}
@@ -54,10 +55,11 @@ void PluggingController::registerPluggable(Pluggable *pluggable)
 
 void PluggingController::unregisterPluggable(Pluggable *pluggable)
 {
-	std::vector<Pluggable*>::iterator i;
-	for (i=pluggables.begin(); i!=pluggables.end(); i++) {
-		if (*i == pluggable) {
-			pluggables.erase(i);
+	for (vector<Pluggable*>::iterator it = pluggables.begin();
+	     it != pluggables.end();
+	     ++it) {
+		if ((*it) == pluggable) {
+			pluggables.erase(it);
 			return;
 		}
 	}
@@ -66,66 +68,69 @@ void PluggingController::unregisterPluggable(Pluggable *pluggable)
 // === Commands ===
 //  plug command
 
-void PluggingController::PlugCmd::execute(
-	const std::vector<std::string> &tokens )
+void PluggingController::PlugCmd::execute(const vector<string> &tokens)
 {
 	const EmuTime &time = MSXCPU::instance()->getCurrentTime();
 	PluggingController* controller = PluggingController::instance();
 	switch (tokens.size()) {
 		case 1: {
-			std::vector<Connector*>::iterator i;
-			for (i =  controller->connectors.begin();
-			     i != controller->connectors.end();
-			     i++) {
-				print((*i)->getName() + ": " +
-				      (*i)->getPlug()->getName());
+			for (vector<Connector*>::const_iterator it =
+			                       controller->connectors.begin();
+			     it != controller->connectors.end();
+			     ++it) {
+				print((*it)->getName() + ": " +
+				      (*it)->getPlug()->getName());
 			}
 			break;
 		}
 		case 2: {
-			Connector* connector = NULL;
-			std::vector<Connector*>::iterator i;
-			for (i =  controller->connectors.begin();
-			     i != controller->connectors.end();
-			     i++) {
-				if ((*i)->getName() == tokens[1]) {
-					connector = *i;
+			const Connector* connector = NULL;
+			for (vector<Connector*>::const_iterator it = 
+			                       controller->connectors.begin();
+			     it != controller->connectors.end();
+			     ++it) {
+				if ((*it)->getName() == tokens[1]) {
+					connector = *it;
 					break;
 				}
 			}
-			if (connector == NULL)
+			if (connector == NULL) {
 				throw CommandException("No such connector");
+			}
 			print(connector->getName() + ": " +
 			      connector->getPlug()->getName());
 			break;
 		}
 		case 3: {
 			Connector* connector = NULL;
-			std::vector<Connector*>::iterator i;
-			for (i =  controller->connectors.begin();
-			     i != controller->connectors.end();
-			     i++) {
-				if ((*i)->getName() == tokens[1]) {
-					connector = *i;
+			for (vector<Connector*>::iterator it =
+				               controller->connectors.begin();
+			     it != controller->connectors.end();
+			     ++it) {
+				if ((*it)->getName() == tokens[1]) {
+					connector = *it;
 					break;
 				}
 			}
-			if (connector == NULL)
+			if (connector == NULL) {
 				throw CommandException("No such connector");
+			}
 			Pluggable* pluggable = NULL;
-			std::vector<Pluggable*>::iterator j;
-			for (j =  controller->pluggables.begin();
-			     j != controller->pluggables.end();
-			     j++) {
-				if ((*j)->getName() == tokens[2]) {
-					pluggable = *j;
+			for (vector<Pluggable*>::iterator it =
+				               controller->pluggables.begin();
+			     it != controller->pluggables.end();
+			     ++it) {
+				if ((*it)->getName() == tokens[2]) {
+					pluggable = *it;
 					break;
 				}
 			}
-			if (pluggable == NULL)
+			if (pluggable == NULL) {
 				throw CommandException("No such pluggable");
-			if (connector->getClass() != pluggable->getClass())
+			}
+			if (connector->getClass() != pluggable->getClass()) {
 				throw CommandException("Doesn't fit");
+			}
 			connector->unplug(time);
 			connector->plug(pluggable, time);
 			break;
@@ -135,29 +140,33 @@ void PluggingController::PlugCmd::execute(
 	}
 }
 
-void PluggingController::PlugCmd::help(const std::vector<std::string> &tokens) const
+void PluggingController::PlugCmd::help(const vector<string> &tokens) const
 {
 	print("Plugs a plug into a connector");
 	print(" plug [connector] [plug]");
 }
 
-void PluggingController::PlugCmd::tabCompletion(std::vector<std::string> &tokens) const
+void PluggingController::PlugCmd::tabCompletion(vector<string> &tokens) const
 {
 	PluggingController* controller = PluggingController::instance();
 	if (tokens.size() == 2) {
 		// complete connector
-		std::set<std::string> connectors;
-		std::vector<Connector*>::iterator i;
-		for (i=controller->connectors.begin(); i!=controller->connectors.end(); i++) {
-			connectors.insert((*i)->getName());
+		set<string> connectors;
+		for (vector<Connector*>::const_iterator it =
+			               controller->connectors.begin();
+		     it != controller->connectors.end();
+		     ++it) {
+			connectors.insert((*it)->getName());
 		}
 		CommandController::completeString(tokens, connectors);
 	} else if (tokens.size() == 3) {
 		// complete pluggable
-		std::set<std::string> pluggables;
-		std::vector<Pluggable*>::iterator i;
-		for (i=controller->pluggables.begin(); i!=controller->pluggables.end(); i++) {
-			pluggables.insert((*i)->getName());
+		set<string> pluggables;
+		for (vector<Pluggable*>::const_iterator it =
+		                       controller->pluggables.begin();
+		     it != controller->pluggables.end();
+		     ++it) {
+			pluggables.insert((*it)->getName());
 		}
 		CommandController::completeString(tokens, pluggables);
 	}
@@ -166,18 +175,18 @@ void PluggingController::PlugCmd::tabCompletion(std::vector<std::string> &tokens
 
 //  unplug command
 
-void PluggingController::UnplugCmd::execute(
-	const std::vector<std::string> &tokens )
+void PluggingController::UnplugCmd::execute(const vector<string> &tokens)
 {
 	if (tokens.size() != 2) {
 		throw CommandException("Syntax error");
 	}
 	PluggingController* controller = PluggingController::instance();
 	Connector* connector = NULL;
-	std::vector<Connector*>::iterator i;
-	for (i=controller->connectors.begin(); i!=controller->connectors.end(); i++) {
-		if ((*i)->getName() == tokens[1]) {
-			connector = *i;
+	for (vector<Connector*>::iterator it = controller->connectors.begin();
+	     it != controller->connectors.end();
+	     ++it) {
+		if ((*it)->getName() == tokens[1]) {
+			connector = *it;
 			break;
 		}
 	}
@@ -188,21 +197,23 @@ void PluggingController::UnplugCmd::execute(
 	connector->unplug(time);
 }
 
-void PluggingController::UnplugCmd::help(const std::vector<std::string> &tokens) const
+void PluggingController::UnplugCmd::help(const vector<string> &tokens) const
 {
 	print("Unplugs a plug from a connector");
 	print(" unplug [connector]");
 }
 
-void PluggingController::UnplugCmd::tabCompletion(std::vector<std::string> &tokens) const
+void PluggingController::UnplugCmd::tabCompletion(vector<string> &tokens) const
 {
 	PluggingController* controller = PluggingController::instance();
 	if (tokens.size() == 2) {
 		// complete connector
-		std::set<std::string> connectors;
-		std::vector<Connector*>::iterator i;
-		for (i=controller->connectors.begin(); i!=controller->connectors.end(); i++) {
-			connectors.insert((*i)->getName());
+		set<string> connectors;
+		for (vector<Connector*>::const_iterator it =
+		                       controller->connectors.begin();
+		     it != controller->connectors.end();
+		     ++it) {
+			connectors.insert((*it)->getName());
 		}
 		CommandController::completeString(tokens, connectors);
 	}

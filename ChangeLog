@@ -1,5 +1,8 @@
 $Id$
 
+2003-07-12 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* A Pluggable is now told in which Connector it is plugged
+
 2003-07-08 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* debugdevice now works with stdout, stderr and normal files
 

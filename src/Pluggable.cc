@@ -3,8 +3,8 @@
 #include "Pluggable.hh"
 
 
-const std::string &Pluggable::getName() const
+const string &Pluggable::getName() const
 {
-	static const std::string name("--empty--");
+	static const string name("--empty--");
 	return name;
 }
