@@ -85,13 +85,22 @@ bool GLConsole::loadBackground(const string &filename)
 bool GLConsole::loadTexture(const string &filename, GLuint &texture,
 		int &width, int &height, GLfloat *texCoord)
 {
-	File file(filename);
-	SDL_Surface* image1 = IMG_Load(file.getLocalName().c_str());
-	if (image1 == NULL) {
+	SDL_Surface *image1;
+	try {
+		File file(filename);
+		image1 = IMG_Load(file.getLocalName().c_str());
+		if (image1 == NULL) {
+			PRT_INFO("File \"" << file.getURL() << "\" is not a valid image");
+			return false;
+		}
+	} catch (FileException &e) {
+		PRT_INFO(
+			"Could not open file \"" << filename << "\": " << e.getMessage()
+			);
 		return false;
 	}
 	SDL_SetAlpha(image1, 0, 0);
-	
+
 	width  = image1->w;
 	height = image1->h;
 	int w2 = powerOfTwo(width);
@@ -111,7 +120,7 @@ bool GLConsole::loadTexture(const string &filename, GLuint &texture,
 	if (image2 == NULL) {
 		return false;
 	}
-	
+
 	SDL_Rect area;
 	area.x = 0;
 	area.y = 0;
