@@ -21,9 +21,10 @@ bool Console::ConsoleSetting::checkUpdate(bool newValue)
 {
 	console->updateConsole();
 	if (newValue) {
-		SDL_EnableKeyRepeat (SDL_DEFAULT_REPEAT_DELAY,SDL_DEFAULT_REPEAT_INTERVAL);
+		SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,
+		                    SDL_DEFAULT_REPEAT_INTERVAL);
 	} else {
-		SDL_EnableKeyRepeat (0,0);
+		SDL_EnableKeyRepeat(0,0);
 	}
 	return true;
 }
@@ -49,7 +50,7 @@ Console::Console()
 	if (config->hasParameter("removedoubles")){
 		removeDoubles = config->getParameterAsBool("removedoubles");
 	} else {
-		removeDoubles = false;
+		removeDoubles = true;
 	}
 	loadHistory();
 }
@@ -173,7 +174,7 @@ void Console::setConsoleColumns(int columns)
 		return;
 	}
 	consoleColumns = columns;
-	CircularBuffer<std::string,LINESHISTORY> linesbackup;
+	CircularBuffer<std::string, LINESHISTORY> linesbackup;
 	CircularBuffer<bool, LINESHISTORY> flowbackup;
 	
 	while (lines.size() > 0) {
@@ -242,12 +243,12 @@ bool Console::signalEvent(SDL_Event &event)
 			splitLines();
 			break;
 		case Keys::K_HOME:
-			combineLines(lines,lineOverflows);
+			combineLines(lines, lineOverflows);
 			cursorPosition = PROMPT.length();
 			splitLines();
 			break;
 		case Keys::K_END:
-			combineLines(lines,lineOverflows);
+			combineLines(lines, lineOverflows);
 			cursorPosition = editLine.length();
 			splitLines();
 			break;
@@ -349,7 +350,7 @@ void Console::print(const std::string &text)
 			lineOverflows[0] = true; 
 		} else {
 			newLineConsole(text.substr(start, end-start));
-			lineOverflows[0]=false;
+			lineOverflows[0] = false;
 			end++; // skip newline
 		}
 	} while (end < (int)text.length());
@@ -368,11 +369,17 @@ void Console::newLineConsole(const std::string &line)
 
 void Console::putCommandHistory(const std::string &command)
 {
-	if (!removeDoubles || history.empty() || (history.back()!=command)) {
-		history.push_back(command);
-		if (history.size()>maxHistory) {
-			history.pop_front();
-		}
+	// TODO don't store PROMPT as part of history
+	if (command == PROMPT) {
+		return;
+	}
+	if (removeDoubles && !history.empty() && (history.back() == command)) {
+		return;
+	}
+
+	history.push_back(command);
+	if (history.size() > maxHistory) {
+		history.pop_front();
 	}
 }
 
@@ -443,8 +450,8 @@ void Console::prevCommand()
 	}
 	if (match) {
 		commandScrollBack = tempScrollBack;
-		editLine=*commandScrollBack;
-		cursorPosition=editLine.length();
+		editLine = *commandScrollBack;
+		cursorPosition = editLine.length();
 	}
 	splitLines();
 }

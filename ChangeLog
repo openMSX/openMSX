@@ -4,6 +4,7 @@ $Id$
 	* Print error msg when user gives wrong diskimage on the cmd line
 	*  same for cas and wav images
 	* Fix core dump while writing to read-only disk images
+	* Don't put empty lines in console history
 
 2003-06-06 Maarten ter Huurne <maarten@treewalker.org>
 	* Added FloatSetting class.
