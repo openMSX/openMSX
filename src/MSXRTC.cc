@@ -13,7 +13,7 @@ MSXRTC::MSXRTC(Device *config, const EmuTime &time)
 	try {
 		if (deviceConfig->getParameterAsBool("load")) {
 			const std::string &filename = deviceConfig->getParameter("filename");
-			const std::string &context = deviceConfig->getContext();
+			const FileContext &context = deviceConfig->getContext();
 			File file(context, filename);
 			byte buffer[4 * 13];
 			file.read(buffer, 4 * 13);
@@ -31,7 +31,7 @@ MSXRTC::~MSXRTC()
 {
 	if (deviceConfig->getParameterAsBool("save")) {
 		const std::string &filename = deviceConfig->getParameter("filename");
-		const std::string &context = deviceConfig->getContext();
+		const FileContext &context = deviceConfig->getContext();
 		File file(context, filename, TRUNCATE);
 		file.write(rp5c01->getRegs(), 4 * 13);
 	}

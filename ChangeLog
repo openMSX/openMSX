@@ -1,5 +1,21 @@
 $Id$
 
+2003-01-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented home-directory-substitution for local files:
+	   When a filename starts with "~", this character is replaced by
+	   the content of the environment variable HOME. I'm not sure
+	   this will work for non-UNIX OS'es.
+	* Implemented system-directories:
+	   - The files romdb.xml, msxconfig.xml and settings.xml are searched
+	     in the "system directories". For the moment these are (in this
+	     order)
+	        ~/.openMSX/
+	        ~/openMSX/
+	        /usr/local/etc/openMSX/
+	        /etc/openMSX/
+	     But we need to discuss about this list. Note that "." is not in
+	     the list.
+
 2003-01-27 David Heremans <david.heremans@gnu-linux.net>
 	* Increased usefulness of error message in DeviceFactory
 

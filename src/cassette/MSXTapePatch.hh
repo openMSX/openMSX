@@ -8,6 +8,7 @@
 #include "CommandLineParser.hh"
 
 class File;
+class FileContext;
 
 
 class MSXCasCLI : public CLIOption, public CLIFileType
@@ -33,7 +34,7 @@ class MSXTapePatch : public MSXRomPatchInterface, private Command
 	private:
 		File* file;
 
-		void insertTape(const std::string &context,
+		void insertTape(const FileContext &context,
 		                const std::string &filename);
 		void ejectTape();
 

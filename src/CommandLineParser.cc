@@ -95,12 +95,14 @@ void CommandLineParser::parse(int argc, char **argv)
 	// load default settings file in case the user didn't specify one
 	MSXConfig *config = MSXConfig::instance();
 	if (!settingOption.parsed) {
-		config->loadFile("", "settings.xml");
+		config->loadFile(FileContext::getSystemContext(),
+		                 "settings.xml");
 	}
 	
 	// load default config file in case the user didn't specify one
 	if (!haveConfig) {
-		config->loadFile("", "msxconfig.xml");
+		config->loadFile(FileContext::getSystemContext(),
+		                 "msxconfig.xml");
 	}
 
 	// read existing cartridge slots from config
@@ -168,7 +170,7 @@ const std::string& CommandLineParser::ConfigFile::optionHelp() const
 void CommandLineParser::ConfigFile::parseFileType(const std::string &filename)
 {
 	MSXConfig *config = MSXConfig::instance();
-	config->loadFile("", filename);
+	config->loadFile(FileContext::getSystemContext(), filename);
 
 	CommandLineParser::instance()->haveConfig = true;
 }
@@ -188,7 +190,7 @@ void CommandLineParser::SettingOption::parseOption(const std::string &option,
 	}
 	parsed = true;
 	MSXConfig *config = MSXConfig::instance();
-	config->loadFile("", cmdLine.front());
+	config->loadFile(FileContext::getSystemContext(), cmdLine.front());
 	cmdLine.pop_front();
 }
 const std::string& CommandLineParser::SettingOption::optionHelp() const
@@ -203,7 +205,7 @@ void CommandLineParser::MSX1Option::parseOption(const std::string &option,
                                                 std::list<std::string> &cmdLine)
 {
 	MSXConfig *config = MSXConfig::instance();
-	config->loadFile("", "msx1.xml");
+	config->loadFile(FileContext::getSystemContext(), "msx1.xml");
 
 	CommandLineParser::instance()->haveConfig = true;
 }
@@ -218,7 +220,7 @@ void CommandLineParser::MSX2Option::parseOption(const std::string &option,
                                                 std::list<std::string> &cmdLine)
 {
 	MSXConfig *config = MSXConfig::instance();
-	config->loadFile("", "msx2.xml");
+	config->loadFile(FileContext::getSystemContext(), "msx2.xml");
 
 	CommandLineParser::instance()->haveConfig = true;
 }
@@ -233,7 +235,7 @@ void CommandLineParser::MSX2POption::parseOption(const std::string &option,
                                                 std::list<std::string> &cmdLine)
 {
 	MSXConfig *config = MSXConfig::instance();
-	config->loadFile("", "msx2plus.xml");
+	config->loadFile(FileContext::getSystemContext(), "msx2plus.xml");
 
 	CommandLineParser::instance()->haveConfig = true;
 }
@@ -248,7 +250,7 @@ void CommandLineParser::MSXTurboROption::parseOption(const std::string &option,
                                                 std::list<std::string> &cmdLine)
 {
 	MSXConfig *config = MSXConfig::instance();
-	config->loadFile("", "turbor.xml");
+	config->loadFile(FileContext::getSystemContext(), "turbor.xml");
 
 	CommandLineParser::instance()->haveConfig = true;
 }

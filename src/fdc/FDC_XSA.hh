@@ -17,7 +17,7 @@
 class FDC_XSA : public FDCBackEnd
 {
 	public:
-		FDC_XSA(const std::string &context,
+		FDC_XSA(const FileContext &context,
 		        const std::string &fileName);
 		virtual ~FDC_XSA();
 		virtual void read(byte track, byte sector,

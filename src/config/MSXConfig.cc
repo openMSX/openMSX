@@ -34,7 +34,7 @@ const std::string &Config::getId() const
 	return element->getAttribute("id");
 }
 
-const std::string &Config::getContext() const
+const FileContext& Config::getContext() const
 {
 	return context;
 }
@@ -260,7 +260,7 @@ MSXConfig* MSXConfig::instance()
 	return &oneInstance;
 }
 
-void MSXConfig::loadFile(const std::string &context,
+void MSXConfig::loadFile(const FileContext &context,
                          const std::string &filename)
 {
 	File file(context, filename);

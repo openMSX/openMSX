@@ -173,7 +173,7 @@ MapperType RomTypes::searchDataBase(const byte* data, int size)
 	if (!init) {
 		init = true;
 		try {
-			File file("", "romdb.xml");	// TODO to config
+			File file(FileContext::getSystemContext(), "romdb.xml");
 			XML::Document doc(file.getLocalName().c_str());
 			std::list<XML::Element*>::iterator it1 = doc.root->children.begin();
 			for ( ; it1 != doc.root->children.end(); it1++) {

@@ -8,6 +8,10 @@
 LocalFile::LocalFile(const std::string &filename_, int options)
 	: filename(filename_)
 {
+	if (filename[0] == '~') {
+		filename = std::string(getenv("HOME")) + filename.substr(1);
+	}
+	PRT_DEBUG("LocalFile: " << filename);
 	const char* name = filename.c_str(); 
 	if (options & TRUNCATE) {
 		// open file read/write truncated

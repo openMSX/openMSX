@@ -28,7 +28,7 @@ void KeyEventInserterCLI::parseOption(const std::string &option,
 	s << "<parameter name=\"keys\">";
 	try {
 		// first try and treat arg as a file
-		File file("", arg);
+		File file(FileContext::getUserContext(), arg);
 		byte buffer[2];
 		try {
 			file.read(buffer, 1);

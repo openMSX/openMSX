@@ -154,7 +154,7 @@ void SDLConsole::alpha(unsigned char alpha)
 void SDLConsole::background(Config *config, int x, int y)
 {
 	const std::string &backgroundFile = config->getParameter("background");
-	const std::string &context = config->getContext();
+	const FileContext &context = config->getContext();
 	File file(context, backgroundFile);
 	
 	SDL_Surface *temp;

@@ -78,7 +78,7 @@ MSXTapePatch::MSXTapePatch()
 		Config *config =
 			MSXConfig::instance()->getConfigById("cas");
 		const std::string &filename = config->getParameter("filename");
-		const std::string &context = config->getContext();
+		const FileContext &context = config->getContext();
 		insertTape(context, filename);
 	} catch (MSXException& e) {
 		PRT_DEBUG("Incorrect tape insertion!");
@@ -121,7 +121,7 @@ void MSXTapePatch::patch(CPU::CPURegs& R)
 	}
 }
 
-void MSXTapePatch::insertTape(const std::string &context,
+void MSXTapePatch::insertTape(const FileContext &context,
                               const std::string &filename)
 {
 	ejectTape();
@@ -408,7 +408,7 @@ void MSXTapePatch::execute(const std::vector<std::string> &tokens,
 		ejectTape();
 	} else {
 		print("Changing tape");
-		insertTape("", tokens[1]);
+		insertTape(FileContext::getUserContext(), tokens[1]);
 	}
 }
 

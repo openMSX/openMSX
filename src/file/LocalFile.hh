@@ -23,7 +23,7 @@ class LocalFile : public FileBase
 		virtual const std::string& getLocalName();
 
 	private:
-		const std::string filename;
+		std::string filename;
 		FILE* file;
 };
 

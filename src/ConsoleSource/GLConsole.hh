@@ -18,6 +18,7 @@
 
 // forward declaration
 class GLFont;
+class FileContext;
 
 
 class GLConsole : public SDLInteractiveConsole
@@ -30,7 +31,7 @@ class GLConsole : public SDLInteractiveConsole
 
 	private:
 		int powerOfTwo(int a);
-		GLuint loadTexture(const std::string &context,
+		GLuint loadTexture(const FileContext &context,
 		                   const std::string &filename,
 		                   int &width, int &height, GLfloat *texCoord);
 

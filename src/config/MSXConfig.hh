@@ -9,6 +9,7 @@
 #include "EmuTime.hh"	// for uint64
 #include "MSXException.hh"
 #include "libxmlx/xmlx.hh"
+#include "File.hh"
 
 
 class ConfigException: public MSXException
@@ -51,7 +52,7 @@ class Config
 		const std::string &getType() const;
 		const std::string &getId() const;
 
-		const std::string &getContext() const;
+		const FileContext& getContext() const;
 
 		bool hasParameter(const std::string &name) const;
 		const std::string &getParameter(const std::string &name) const;
@@ -74,7 +75,7 @@ class Config
 		XML::Element* getParameterElement(const std::string &name) const;
 		
 		XML::Element* element;
-		const std::string context;
+		const FileContext context;
 };
 
 class Device: virtual public Config
@@ -113,7 +114,7 @@ class MSXConfig
 		 * load a config file's content, and add it to
 		 *  the config data [can be called multiple times]
 		 */
-		void loadFile(const std::string &context,
+		void loadFile(const FileContext &context,
 		              const std::string &filename);
 		void loadStream(const std::string &context,
 		                const std::ostringstream &stream);

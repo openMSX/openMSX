@@ -15,7 +15,7 @@ SRAM::SRAM(int size_, Config *config_, const char *header_)
 	
 	if (config->getParameterAsBool("loadsram")) {
 		const std::string &filename = config->getParameter("sramname");
-		const std::string &context = config->getContext();
+		const FileContext &context = config->getContext();
 		PRT_DEBUG("SRAM: read " << filename);
 		try {
 			bool headerOk = true;
@@ -42,7 +42,7 @@ SRAM::~SRAM()
 {
 	if (config->getParameterAsBool("savesram")) {
 		const std::string &filename = config->getParameter("sramname");
-		const std::string &context = config->getContext();
+		const FileContext &context = config->getContext();
 		PRT_DEBUG("SRAM: save " << filename);
 		try {
 			File file(context, filename, TRUNCATE);

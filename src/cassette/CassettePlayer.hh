@@ -9,6 +9,8 @@
 #include "Command.hh"
 #include "CommandLineParser.hh"
 
+class FileContext;
+
 
 class MSXCassettePlayerCLI : public CLIOption, public CLIFileType
 {
@@ -28,7 +30,7 @@ class CassettePlayer : public CassetteDevice, private Command
 		CassettePlayer();
 		virtual ~CassettePlayer();
 		
-		void insertTape(const std::string &context,
+		void insertTape(const FileContext &context,
 		                const std::string &filename);
 		void removeTape();
 		

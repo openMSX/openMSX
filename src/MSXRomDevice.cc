@@ -31,7 +31,7 @@ void MSXRomDevice::read(Device* config,
                         const std::string &filename, const EmuTime &time)
 {
 	// open file
-	const std::string &context = config->getContext();
+	const FileContext &context = config->getContext();
 	file = new File(context, filename);
 	
 	// get filesize

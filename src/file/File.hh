@@ -21,6 +21,20 @@ class FileException : public MSXException {
 		FileException(const std::string &desc) : MSXException(desc) {}
 };
 
+
+class FileContext
+{
+	public:
+		FileContext(const std::string &path);
+		static const FileContext& getSystemContext();
+		static const FileContext& getUserContext();
+		
+	private:
+		FileContext(bool isSystem);
+		std::list<std::string> paths;
+		friend class File;
+};
+
 class File
 {
 	public:
@@ -32,9 +46,9 @@ class File
 		 * @param options Mode to open the file in:
 		 *   OR'ed combination of FileOption flags.
 		 */
-		File(const std::string &context, const std::string &url,
+		File(const FileContext &context, const std::string &url,
 		     int options = NORMAL);
-
+		
 		/**
 		 * Destroy file object.
 		 */
@@ -98,6 +112,8 @@ class File
 		const std::string& getLocalName();
 
 	private:
+		void open(const std::string &url, int options);
+		
 		FileBase *file;
 };
 

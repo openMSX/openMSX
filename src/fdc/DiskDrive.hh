@@ -8,6 +8,7 @@
 #include "Command.hh"
 
 class FDCBackEnd;
+class FileContext;
 
 
 /**
@@ -168,7 +169,7 @@ class RealDrive : public DiskDrive, public Command
 		                     const EmuTime &time);
 		virtual void help   (const std::vector<std::string> &tokens) const;
 		virtual void tabCompletion(std::vector<std::string> &tokens) const;
-		void insertDisk(const std::string &context,
+		void insertDisk(const FileContext &context,
 		                const std::string &disk);
 		void ejectDisk();
 
