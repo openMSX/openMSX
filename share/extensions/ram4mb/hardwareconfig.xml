@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
+<msxconfig>
+  <device id="4MB External RAM">
+    <type>MemoryMapper</type>
+    <slotted><ps>-1</ps><ss>-1</ss><page>0</page></slotted>
+    <slotted><ps>-1</ps><ss>-1</ss><page>1</page></slotted>
+    <slotted><ps>-1</ps><ss>-1</ss><page>2</page></slotted>
+    <slotted><ps>-1</ps><ss>-1</ss><page>3</page></slotted>
+    <parameter name="slow_drain_on_reset">false</parameter>
+    <parameter name="size">4096</parameter>
+  </device>
+</msxconfig>
