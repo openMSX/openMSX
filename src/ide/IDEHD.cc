@@ -46,7 +46,7 @@ IDEHD::IDEHD(Config *config, const EmuTime &time)
 {
 	buffer = new byte[512 * 256];
 
-	const std::string &filename = config->getParameter("filename");
+	const string &filename = config->getParameter("filename");
 	file = new File(config->getContext()->resolveCreate(filename), CREATE);
 	
 	int size = config->getParameterAsInt("size");	// in MB

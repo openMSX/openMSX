@@ -13,7 +13,7 @@ SRAM::SRAM(int size_, Config *config_, const char *header_)
 	sram = new byte[size];
 	memset(sram, 0xFF, size);
 	
-	const std::string &filename = config->getParameter("sramname");
+	const string &filename = config->getParameter("sramname");
 	PRT_DEBUG("SRAM: read " << filename);
 	try {
 		bool headerOk = true;
@@ -41,7 +41,7 @@ SRAM::SRAM(int size_, Config *config_, const char *header_)
 
 SRAM::~SRAM()
 {
-	const std::string &filename = config->getParameter("sramname");
+	const string &filename = config->getParameter("sramname");
 	PRT_DEBUG("SRAM: save " << filename);
 	try {
 		File file(config->getContext()->resolveSave(filename),

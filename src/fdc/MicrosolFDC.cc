@@ -40,13 +40,13 @@ byte MicrosolFDC::readIO(byte port, const EmuTime &time)
 		value = 255;
 		break;
 	}
-	PRT_DEBUG("MicrosolFDC: read 0x" << std::hex << (int)port << " 0x" << (int)value << std::dec);
+	PRT_DEBUG("MicrosolFDC: read 0x" << hex << (int)port << " 0x" << (int)value << dec);
 	return value;
 }
 
 void MicrosolFDC::writeIO(byte port, byte value, const EmuTime &time)
 {
-	PRT_DEBUG("MicrosolFDC: write 0x" << std::hex << (int)port << " 0x" << (int)value << std::dec);
+	PRT_DEBUG("MicrosolFDC: write 0x" << hex << (int)port << " 0x" << (int)value << dec);
 	switch (port & 0x07) {
 	case 0:
 		controller.setCommandReg(value, time);

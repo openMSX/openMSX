@@ -16,7 +16,7 @@ class FDC_DSK : public FDCBackEnd
 {
 	public: 
 		FDC_DSK(FileContext *context,
-		        const std::string &fileName);
+		        const string &fileName);
 		virtual ~FDC_DSK();
 		virtual void read(byte track, byte sector,
 		                  byte side, int size, byte* buf);

@@ -4,7 +4,6 @@
 #define __FILEOPENER_HH__
 
 #include <string>
-#include <list>
 #include "openmsx.hh"
 #include "MSXException.hh"
 
@@ -21,7 +20,7 @@ enum OpenMode {
 
 class FileException : public MSXException {
 	public:
-		FileException(const std::string &mes) : MSXException(mes) {}
+		FileException(const string &mes) : MSXException(mes) {}
 };
 
 
@@ -34,7 +33,7 @@ class File
 		 *   that will be represented by this file object.
 		 * @param mode Mode to open the file in:
 		 */
-		File(const std::string &url, OpenMode mode = NORMAL);
+		File(const string &url, OpenMode mode = NORMAL);
 		
 		/**
 		 * Destroy file object.
@@ -93,7 +92,7 @@ class File
 		/**
 		 * Returns the URL of this file object.
 		 */
-		const std::string getURL() const;
+		const string getURL() const;
 
 		/**
 		 * Get a local filename for this object. Useful if this object
@@ -101,7 +100,7 @@ class File
 		 * @result Filename of a local file that is identical to the
 		 *         file that this object refers to.
 		 */
-		const std::string getLocalName() const;
+		const string getLocalName() const;
 
 		/**
 		 * Check if this file is readonly

@@ -113,13 +113,13 @@ class MSXCPUInterface : public CPUInterface
 		  * @return a multi-line string describing which slot holds which
 		  *     device.
 		  */
-		std::string getSlotMap();
+		string getSlotMap();
 
 		/** Gets a string representation of the currently selected slots.
 		  * @return a multi-line string describing which slot are currently
 		  *     selected.
 		  */
-		std::string getSlotSelection();
+		string getSlotSelection();
 		struct SlotSelection
 		{
 			byte primary [4];
@@ -138,17 +138,17 @@ class MSXCPUInterface : public CPUInterface
 			MSXMemDevice* device;
 			int pages;
 		};
-		std::list<RegPostSlot> regPostSlots;
+		vector<RegPostSlot> regPostSlots;
 		void registerSlot(MSXMemDevice *device,
 		                  int primSl, int secSL, int page);
 		
 		class SlotMapCmd : public Command {
-			virtual void execute(const std::vector<std::string> &tokens);
-			virtual void help(const std::vector<std::string> &tokens) const;
+			virtual void execute(const vector<string> &tokens);
+			virtual void help(const vector<string> &tokens) const;
 		};
 		class SlotSelectCmd : public Command {
-			virtual void execute(const std::vector<std::string> &tokens);
-			virtual void help(const std::vector<std::string> &tokens) const;
+			virtual void execute(const vector<string> &tokens);
+			virtual void help(const vector<string> &tokens) const;
 		};
 
 		/** Updated visibleDevices for a given page and clears the cache
@@ -161,7 +161,7 @@ class MSXCPUInterface : public CPUInterface
 
 		/** Used by getSlotMap to print the contents of a single slot.
 		  */
-		void printSlotMapPages(std::ostream &, MSXMemDevice *[]);
+		void printSlotMapPages(ostream &, MSXMemDevice *[]);
 		
 		// Commands
 		SlotMapCmd slotMapCmd;

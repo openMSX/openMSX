@@ -6,7 +6,7 @@
 #include <cassert>
 
 
-VolumeSetting::VolumeSetting(const std::string &name, int initialValue,
+VolumeSetting::VolumeSetting(const string &name, int initialValue,
                              SoundDevice *device_)
 	: device(device_),
 	  volumeSetting(name + "_volume", "the volume of this sound chip",

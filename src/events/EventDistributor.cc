@@ -57,37 +57,37 @@ void EventDistributor::quit()
 
 void EventDistributor::handleInEmu(SDL_Event &event)
 {
-	std::multimap<int, EventListener*>::iterator it;
+	multimap<int, EventListener*>::iterator it;
 	bool cont = true;
 	for (it = highMap.lower_bound(event.type);
-		(it != highMap.end()) && (it->first == event.type);
-		it++
-	) {
+	     (it != highMap.end()) && (it->first == event.type);
+	     ++it) {
 		cont &= it->second->signalEvent(event);
 	}
 	if (!cont) return;
 	for (it = lowMap.lower_bound(event.type);
-		(it != lowMap.end()) && (it->first == event.type);
-		it++
-	) {
+	     (it != lowMap.end()) && (it->first == event.type);
+	     ++it) {
 		it->second->signalEvent(event);
 	}
 }
 
-void EventDistributor::registerEventListener(int type, EventListener *listener, int priority)
+void EventDistributor::registerEventListener(
+	int type, EventListener *listener, int priority)
 {
-	std::multimap <int, EventListener*> &map = (priority == 0) ? highMap : lowMap;
-	map.insert(std::pair<int, EventListener*>(type, listener));
+	multimap <int, EventListener*> &map = (priority == 0) ? highMap : lowMap;
+	map.insert(pair<int, EventListener*>(type, listener));
 }
 
-void EventDistributor::unregisterEventListener(int type, EventListener *listener, int priority)
+void EventDistributor::unregisterEventListener(
+	int type, EventListener *listener, int priority)
 {
-	std::multimap <int, EventListener*> &map = (priority == 0) ? highMap : lowMap;
+	multimap <int, EventListener*> &map = (priority == 0) ? highMap : lowMap;
 
-	std::multimap<int, EventListener*>::iterator it;
+	multimap<int, EventListener*>::iterator it;
 	for (it = map.lower_bound(type);
 	     (it != map.end()) && (it->first == type);
-	     it++) {
+	     ++it) {
 		if (it->second == listener) {
 			map.erase(it);
 			break;
@@ -95,14 +95,12 @@ void EventDistributor::unregisterEventListener(int type, EventListener *listener
 	}
 }
 
-void EventDistributor::QuitCommand::execute(
-	const std::vector<std::string> &tokens )
+void EventDistributor::QuitCommand::execute(const vector<string> &tokens)
 {
 	EventDistributor::instance()->quit();
 }
 
-void EventDistributor::QuitCommand::help(
-	const std::vector<std::string> &tokens) const
+void EventDistributor::QuitCommand::help(const vector<string> &tokens) const
 {
 	print("Use this command to stop the emulator");
 }

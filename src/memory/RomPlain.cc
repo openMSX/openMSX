@@ -102,12 +102,14 @@ word RomPlain::guessLocation()
 	}
 
 	int lowest = 4;
-	std::list<Device::Slotted*>::const_iterator i;
-	for (i =  deviceConfig->slotted.begin(); 
+	for (list<Device::Slotted*>::const_iterator i =
+	         deviceConfig->slotted.begin();
 	     i != deviceConfig->slotted.end();
-	     i++) {
+	     ++i) {
 		int page = (*i)->getPage();
-		if (page < lowest) lowest = page;
+		if (page < lowest) {
+			lowest = page;
+		}
 	}
 	return (lowest * 0x4000) & 0xFFFF;
 }

@@ -8,8 +8,6 @@
 #include "CassetteImage.hh"
 #include "openmsx.hh"
 
-using std::string;
-
 class FileContext;
 
 

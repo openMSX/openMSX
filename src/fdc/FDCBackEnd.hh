@@ -9,22 +9,22 @@
 
 class NoSuchSectorException : public MSXException {
 	public:
-		NoSuchSectorException(const std::string &desc)
+		NoSuchSectorException(const string &desc)
 			: MSXException(desc) {}
 };
 class DiskIOErrorException  : public MSXException {
 	public:
-		DiskIOErrorException(const std::string &desc)
+		DiskIOErrorException(const string &desc)
 			: MSXException(desc) {}
 };
 class DriveEmptyException  : public MSXException {
 	public:
-		DriveEmptyException(const std::string &desc)
+		DriveEmptyException(const string &desc)
 			: MSXException(desc) {}
 };
 class WriteProtectedException  : public MSXException {
 	public:
-		WriteProtectedException(const std::string &desc)
+		WriteProtectedException(const string &desc)
 			: MSXException(desc) {}
 };
 

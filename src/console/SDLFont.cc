@@ -93,8 +93,7 @@ void SDLFont::setSurface(SDL_Surface* surface)
 	drawSurface = surface;
 }
 
-void SDLFont::drawText(const std::string &string,
-		int x, int y)
+void SDLFont::drawText(const string &string, int x, int y)
 {
 	// see how many characters can fit on the screen
 	if ((drawSurface->w <= x) || (drawSurface->h <= y)) {

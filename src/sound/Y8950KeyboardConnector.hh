@@ -28,8 +28,8 @@ class Y8950KeyboardConnector : public Connector
 		byte read(const EmuTime &time);
 
 		// Connector
-		virtual const std::string &getName() const;
-		virtual const std::string &getClass() const;
+		virtual const string &getName() const;
+		virtual const string &getClass() const;
 		virtual void plug(Pluggable *dev, const EmuTime &time);
 		virtual void unplug(const EmuTime &time);
 

@@ -3,7 +3,7 @@
 #include "DACSound8U.hh"
 
 
-DACSound8U::DACSound8U(const std::string &name, short maxVolume,
+DACSound8U::DACSound8U(const string &name, short maxVolume,
                        const EmuTime &time)
 	: DACSound16S(name, maxVolume, time)
 {

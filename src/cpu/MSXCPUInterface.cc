@@ -45,9 +45,9 @@ MSXCPUInterface::MSXCPUInterface()
 
 	Config* config = MSXConfig::instance()->
 		getConfigById("MotherBoard");
-	std::list<Device::Parameter*>* subslotted_list;
+	list<Device::Parameter*>* subslotted_list;
 	subslotted_list = config->getParametersWithClass("subslotted");
-	std::list<Device::Parameter*>::const_iterator it;
+	list<Device::Parameter*>::const_iterator it;
 	for (it = subslotted_list->begin(); it != subslotted_list->end(); it++) {
 		bool hasSubs = false;
 		if ((*it)->value == "true") {
@@ -77,11 +77,11 @@ void MSXCPUInterface::register_IO_In(byte port, MSXIODevice *device)
 {
 	if (IO_In[port] == DummyDevice::instance()) {
 		PRT_DEBUG(device->getName() << " registers In-port "
-		          << std::hex << (int)port << std::dec);
+		          << hex << (int)port << dec);
 		IO_In[port] = device;
 	} else {
 		PRT_ERROR(device->getName() << " trying to register taken In-port "
-		          << std::hex << (int)port << std::dec);
+		          << hex << (int)port << dec);
 	}
 }
 
@@ -89,11 +89,11 @@ void MSXCPUInterface::register_IO_Out(byte port, MSXIODevice *device)
 {
 	if (IO_Out[port] == DummyDevice::instance()) {
 		PRT_DEBUG(device->getName() << " registers Out-port "
-		          << std::hex << (int)port << std::dec);
+		          << hex << (int)port << dec);
 		IO_Out[port] = device;
 	} else {
 		PRT_ERROR(device->getName() << " trying to register taken Out-port "
-		          << std::hex << (int)port << std::dec);
+		          << hex << (int)port << dec);
 	}
 }
 
@@ -101,7 +101,7 @@ void MSXCPUInterface::registerSlot(MSXMemDevice *device,
                                    int primSl, int secSl, int page)
 {
 	if (!isSubSlotted[primSl] && secSl != 0) {
-		std::ostringstream s;
+		ostringstream s;
 		s << "slot " << primSl << "." << secSl
 			<< " does not exist, because slot is not expanded";
 		throw MSXException(s.str());
@@ -132,8 +132,9 @@ void MSXCPUInterface::registerSlottedDevice(MSXMemDevice* device, int pages)
 
 void MSXCPUInterface::registerPostSlots()
 {
-	std::list<RegPostSlot>::iterator it;
-	for (it = regPostSlots.begin(); it != regPostSlots.end(); it++) {
+	for (vector<RegPostSlot>::const_iterator it = regPostSlots.begin();
+	     it != regPostSlots.end();
+	     ++it) {
 		int ps, ss;
 		CartridgeSlotManager::instance()->getSlot(ps, ss);
 		registerSlottedDevice(it->device, ps, ss, it->pages);
@@ -252,9 +253,9 @@ byte MSXCPUInterface::peekMemBySlot(unsigned int address, int slot, int subslot,
 	}
 }
 
-std::string MSXCPUInterface::getSlotMap()
+string MSXCPUInterface::getSlotMap()
 {
-	std::ostringstream out;
+	ostringstream out;
 	for (int prim = 0; prim < 4; prim++) {
 		if (isSubSlotted[prim]) {
 			for (int sec = 0; sec < 4; sec++) {
@@ -269,8 +270,7 @@ std::string MSXCPUInterface::getSlotMap()
 	return out.str();
 }
 
-void MSXCPUInterface::printSlotMapPages(
-	std::ostream &out, MSXMemDevice *devices[])
+void MSXCPUInterface::printSlotMapPages(ostream &out, MSXMemDevice *devices[])
 {
 	for (int page = 0; page < 4; page++) {
 		char hexStr[5];
@@ -283,9 +283,9 @@ void MSXCPUInterface::printSlotMapPages(
 	}
 }
 
-std::string MSXCPUInterface::getSlotSelection()
+string MSXCPUInterface::getSlotSelection()
 {
-	std::ostringstream out;
+	ostringstream out;
 	for (int page = 0; page < 4; page++) {
 		char pageStr[5];
 #ifndef __WIN32__
@@ -311,30 +311,29 @@ MSXCPUInterface::SlotSelection * MSXCPUInterface::getCurrentSlots()
 	MSXCPUInterface::SlotSelection * slots = new SlotSelection;
 	for (int page = 0; page < 4; page++) {
 		slots->primary[page] = primarySlotState[page];
-		slots->secondary[page] = (subSlotRegister[slots->primary[page]] >> (page * 2)) & 3;
+		slots->secondary[page] = (subSlotRegister[slots->primary[page]] >>
+		                         (page * 2)) & 3;
 		slots->isSubSlotted[page]=isSubSlotted[slots->primary[page]];
 	}
 	return slots;
 }
 
-void MSXCPUInterface::SlotMapCmd::execute(
-	const std::vector<std::string> &tokens )
+void MSXCPUInterface::SlotMapCmd::execute(const vector<string> &tokens)
 {
 	print(MSXCPUInterface::instance()->getSlotMap());
 }
-void MSXCPUInterface::SlotMapCmd::help(
-	const std::vector<std::string> &tokens ) const
+
+void MSXCPUInterface::SlotMapCmd::help(const vector<string> &tokens) const
 {
 	print("Prints which slots contain which devices.");
 }
 
-void MSXCPUInterface::SlotSelectCmd::execute(
-	const std::vector<std::string> &tokens )
+void MSXCPUInterface::SlotSelectCmd::execute(const vector<string> &tokens)
 {
 	print(MSXCPUInterface::instance()->getSlotSelection());
 }
-void MSXCPUInterface::SlotSelectCmd::help(
-	const std::vector<std::string> &tokens ) const
+
+void MSXCPUInterface::SlotSelectCmd::help(const vector<string> &tokens) const
 {
 	print("Prints which slots are currently selected.");
 }

@@ -27,9 +27,9 @@ KeyJoystick::~KeyJoystick()
 }
 
 // Pluggable
-const std::string &KeyJoystick::getName() const
+const string &KeyJoystick::getName() const
 {
-	static std::string name("keyjoystick");
+	static string name("keyjoystick");
 	return name;
 }
 

@@ -130,7 +130,7 @@ void FloatSetting::setRange(const float minValue, const float maxValue)
 	type = string(rangeStr);
 	/* The following C++ style code doesn't work on GCC 2.95:
 	ostringstream out;
-	out << std::setprecision(2) << std::fixed << std::showpoint
+	out << setprecision(2) << fixed << showpoint
 		<< minValue << " - " << maxValue;
 	type = out.str();
 	*/
@@ -146,7 +146,7 @@ string FloatSetting::getValueString() const
 	return string(rangeStr);
 	/* The following C++ style code doesn't work on GCC 2.95:
 	ostringstream out;
-	out << std::setprecision(2) << std::fixed << std::showpoint
+	out << setprecision(2) << fixed << showpoint
 		<< value;
 	return out.str();
 	*/

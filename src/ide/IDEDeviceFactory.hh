@@ -8,11 +8,13 @@
 class IDEDevice;
 class EmuTime;
 
+using namespace std;
+
 
 class IDEDeviceFactory
 {
 	public:
-		static IDEDevice* create(const std::string &name,
+		static IDEDevice* create(const string &name,
 		                         const EmuTime &time);
 };
 

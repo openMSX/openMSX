@@ -15,11 +15,11 @@ class MSXCasCLI : public CLIOption, public CLIFileType
 {
 	public:
 		MSXCasCLI();
-		virtual void parseOption(const std::string &option,
-				std::list<std::string> &cmdLine);
-		virtual const std::string& optionHelp() const;
-		virtual void parseFileType(const std::string &filename);
-		virtual const std::string& fileTypeHelp() const;
+		virtual void parseOption(const string &option,
+				list<string> &cmdLine);
+		virtual const string& optionHelp() const;
+		virtual void parseFileType(const string &filename);
+		virtual const string& fileTypeHelp() const;
 };
 
 
@@ -35,7 +35,7 @@ class MSXTapePatch : public MSXRomPatchInterface, private Command
 		File* file;
 
 		void insertTape(FileContext *context,
-		                const std::string &filename);
+		                const string &filename);
 		void ejectTape();
 
 		// 0x00E1 Tape input ON
@@ -60,9 +60,9 @@ class MSXTapePatch : public MSXRomPatchInterface, private Command
 		void STMOTR(CPU::CPURegs& R);
 
 		// Tape Command
-		virtual void execute(const std::vector<std::string> &tokens);
-		virtual void help   (const std::vector<std::string> &tokens) const;
-		virtual void tabCompletion(std::vector<std::string> &tokens) const;
+		virtual void execute(const vector<string> &tokens);
+		virtual void help   (const vector<string> &tokens) const;
+		virtual void tabCompletion(vector<string> &tokens) const;
 };
 
 #endif // __MSXTapePatch_HH__

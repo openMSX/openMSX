@@ -13,7 +13,7 @@ MSXAudio::MSXAudio(Device *config, const EmuTime &time)
 	
 	// left / right / mono
 	Mixer::ChannelMode mode = Mixer::MONO;
-	const std::string &stereomode = config->getParameter("mode");
+	const string &stereomode = config->getParameter("mode");
 	if (stereomode == "left") {
 		mode=Mixer::MONO_LEFT;
 	} else if (stereomode == "right") {
@@ -62,13 +62,13 @@ byte MSXAudio::readIO(byte port, const EmuTime &time)
 		assert(false);
 		result = 0;
 	}
-	//PRT_DEBUG("Audio: read "<<std::hex<<(int)port<<" "<<(int)result<<std::dec);
+	//PRT_DEBUG("Audio: read "<<hex<<(int)port<<" "<<(int)result<<dec);
 	return result;
 }
 
 void MSXAudio::writeIO(byte port, byte value, const EmuTime &time)
 {
-	//PRT_DEBUG("Audio: write "<<std::hex<<(int)port<<" "<<(int)value<<std::dec);
+	//PRT_DEBUG("Audio: write "<<hex<<(int)port<<" "<<(int)value<<dec);
 	switch (port & 0x01) {
 	case 0:
 		registerLatch = value;

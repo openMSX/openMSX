@@ -13,7 +13,7 @@ MSXMusic_2::MSXMusic_2(Device *config, const EmuTime &time)
 	short volume = (short)deviceConfig->getParameterAsInt("volume");
 	Mixer::ChannelMode mode = Mixer::MONO;
 	if (config->hasParameter("mode")) {
-		const std::string &stereoMode = config->getParameter("mode");
+		const string &stereoMode = config->getParameter("mode");
 		PRT_DEBUG("mode is " << stereoMode);
 		if (stereoMode == "left") mode = Mixer::MONO_LEFT;
 		if (stereoMode == "right") mode = Mixer::MONO_RIGHT;

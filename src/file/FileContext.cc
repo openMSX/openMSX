@@ -10,8 +10,8 @@
 #include "File.hh"
 
 
-const std::string homedir("~/.openMSX/");
-const std::string systemdir("/opt/openMSX/");
+const string homedir("~/.openMSX/");
+const string systemdir("/opt/openMSX/");
 
 
 
@@ -21,39 +21,39 @@ FileContext::~FileContext()
 {
 }
 
-const std::string FileContext::resolve(const std::string &filename)
+const string FileContext::resolve(const string &filename)
 {
 	return resolve(getPaths(), filename);
 }
 
-const std::string FileContext::resolveCreate(const std::string &filename)
+const string FileContext::resolveCreate(const string &filename)
 {
 	try {
 		return resolve(getPaths(), filename);
 	} catch (FileException &e) {
-		std::string path = getPaths().front();
+		string path = getPaths().front();
 		FileOperations::mkdirp(path);
 		return path + filename;
 	}
 }
 
-const std::string FileContext::resolve(const std::list<std::string> &pathList,
-                                       const std::string &filename)
+const string FileContext::resolve(const vector<string> &pathList,
+                                       const string &filename)
 {
 	// TODO handle url-protocols better
 	
 	PRT_DEBUG("Context: "<<filename);
-	if ((filename.find("://") != std::string::npos) ||
+	if ((filename.find("://") != string::npos) ||
 	    (filename[0] == '/')) {
 		// protocol specified or absolute path, don't resolve
 		return filename;
 	}
 	
-	std::list<std::string>::const_iterator it;
+	vector<string>::const_iterator it;
 	for (it = pathList.begin(); it != pathList.end(); it++) {
-		std::string name = FileOperations::expandTilde(*it + filename);
+		string name = FileOperations::expandTilde(*it + filename);
 		unsigned pos = name.find("://");
-		if (pos != std::string::npos) {
+		if (pos != string::npos) {
 			name = name.substr(pos + 3);
 		}
 		struct stat buf;
@@ -68,7 +68,7 @@ const std::string FileContext::resolve(const std::list<std::string> &pathList,
 	throw FileException(filename + " not found in this context");
 }
 
-const std::string FileContext::resolveSave(const std::string &filename)
+const string FileContext::resolveSave(const string &filename)
 {
 	assert(!savePath.empty());
 	FileOperations::mkdirp(savePath);
@@ -79,15 +79,15 @@ const std::string FileContext::resolveSave(const std::string &filename)
 
 // class ConfigFileContext
 
-std::map<std::string, int> ConfigFileContext::nonames;
+map<string, int> ConfigFileContext::nonames;
 
-ConfigFileContext::ConfigFileContext(const std::string &path,
-                                     const std::string &hwDescr,
-                                     const std::string &userName_)
+ConfigFileContext::ConfigFileContext(const string &path,
+                                     const string &hwDescr,
+                                     const string &userName_)
 {
 	paths.push_back(path);
 
-	std::string userName(userName_);
+	string userName(userName_);
 	if (userName == "") {
 		int num = ++nonames[hwDescr];
 		char buf[20];
@@ -98,7 +98,7 @@ ConfigFileContext::ConfigFileContext(const std::string &path,
 	                       '/' + userName + '/';
 }
 
-const std::list<std::string> &ConfigFileContext::getPaths()
+const vector<string> &ConfigFileContext::getPaths()
 {
 	return paths;
 }
@@ -112,7 +112,7 @@ SystemFileContext::SystemFileContext()
 	paths.push_back(systemdir);	// system directory
 }
 
-const std::list<std::string> &SystemFileContext::getPaths()
+const vector<string> &SystemFileContext::getPaths()
 {
 	return paths;
 }
@@ -120,24 +120,24 @@ const std::list<std::string> &SystemFileContext::getPaths()
 
 // class SettingFileContext
 
-SettingFileContext::SettingFileContext(const std::string &url)
+SettingFileContext::SettingFileContext(const string &url)
 {
-	std::string path = FileOperations::getBaseName(url);
+	string path = FileOperations::getBaseName(url);
 	paths.push_back(path);
 	PRT_DEBUG("SettingFileContext: "<<path);
 
-	std::string home(FileOperations::expandTilde(homedir));
+	string home(FileOperations::expandTilde(homedir));
 	
 	unsigned pos1 = path.find(home);
-	if (pos1 != std::string::npos) {
+	if (pos1 != string::npos) {
 		unsigned len1 = home.length();
-		std::string path1 = path.replace(pos1, len1, systemdir);
+		string path1 = path.replace(pos1, len1, systemdir);
 		paths.push_back(path1);
 		PRT_DEBUG("SettingFileContext: "<<path1);
 	}
 }
 
-const std::list<std::string> &SettingFileContext::getPaths()
+const vector<string> &SettingFileContext::getPaths()
 {
 	return paths;
 }
@@ -150,26 +150,26 @@ UserFileContext::UserFileContext()
 {
 }
 
-UserFileContext::UserFileContext(const std::string &savePath_)
+UserFileContext::UserFileContext(const string &savePath_)
 	: alreadyInit(false)
 {
-	savePath = std::string(homedir + "persistent/") + savePath_ + '/';
+	savePath = string(homedir + "persistent/") + savePath_ + '/';
 }
 
-const std::list<std::string> &UserFileContext::getPaths()
+const vector<string> &UserFileContext::getPaths()
 {
 	if (!alreadyInit) {
 		alreadyInit = true;
 		try {
 			Config *config = MSXConfig::instance()->
 				getConfigById("UserDirectories");
-			std::list<Device::Parameter*>* pathList;
+			list<Device::Parameter*>* pathList;
 			pathList = config->getParametersWithClass("");
-			std::list<Device::Parameter*>::const_iterator it;
+			list<Device::Parameter*>::const_iterator it;
 			for (it = pathList->begin();
 			     it != pathList->end();
 			     it++) {
-				std::string path = (*it)->value;
+				string path = (*it)->value;
 				if (path[path.length() - 1] != '/') {
 					path += '/';
 				}

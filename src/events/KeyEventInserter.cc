@@ -15,12 +15,12 @@ KeyEventInserterCLI::KeyEventInserterCLI()
 	CommandLineParser::instance()->registerOption("-keyins", this);
 }
 
-void KeyEventInserterCLI::parseOption(const std::string &option,
-                         std::list<std::string> &cmdLine)
+void KeyEventInserterCLI::parseOption(const string &option,
+                         list<string> &cmdLine)
 {
-	std::string arg = getArgument(option, cmdLine);
+	string arg = getArgument(option, cmdLine);
 
-	std::ostringstream s;
+	ostringstream s;
 	s << "<msxconfig>";
 	s << "<config id=\"KeyEventInserter\">";
 	s << "<type>KeyEventInserter</type>";
@@ -33,7 +33,7 @@ void KeyEventInserterCLI::parseOption(const std::string &option,
 		try {
 			file.read(buffer, 1);
 			buffer[1] = '\0';
-			std::string temp((char*)buffer);
+			string temp((char*)buffer);
 			if (buffer[0] == '\n') {
 				s << "&#x0D;";
 			} else {
@@ -44,8 +44,8 @@ void KeyEventInserterCLI::parseOption(const std::string &option,
 		}
 	} catch (FileException &e) {
 		// if that fails, treat it as a string
-		for (std::string::const_iterator i = arg.begin(); i != arg.end(); i++) {
-			std::string::const_iterator j = i;
+		for (string::const_iterator i = arg.begin(); i != arg.end(); i++) {
+			string::const_iterator j = i;
 			j++;
 			bool cr = false;
 			if  (j != arg.end()) {
@@ -59,7 +59,7 @@ void KeyEventInserterCLI::parseOption(const std::string &option,
 				char buffer2[2];
 				buffer2[1] = '\0';
 				buffer2[0] = (*i);
-				std::string str2(buffer2);
+				string str2(buffer2);
 				s << XML::Escape(str2);
 			}
 		}
@@ -71,9 +71,9 @@ void KeyEventInserterCLI::parseOption(const std::string &option,
 	MSXConfig *config = MSXConfig::instance();
 	config->loadStream(new UserFileContext(), s);
 }
-const std::string& KeyEventInserterCLI::optionHelp() const
+const string& KeyEventInserterCLI::optionHelp() const
 {
-	static const std::string text("Execute content in argument as keyinserts");
+	static const string text("Execute content in argument as keyinserts");
 	return text;
 }
 
@@ -89,12 +89,12 @@ KeyEventInserter::KeyEventInserter(const EmuTime &time)
 	}
 }
 
-void KeyEventInserter::enter(const std::string &str, const EmuTime &time_)
+void KeyEventInserter::enter(const string &str, const EmuTime &time_)
 {
 	SDL_Event event;
 	EmuTimeFreq<5> time(time_);
-	time += 10*5; // wait for bootlogo
-	for (unsigned i=0; i<str.length(); i++) {
+	time += 10 * 5; // wait for bootlogo
+	for (unsigned i = 0; i < str.length(); ++i) {
 		const SDLKey* events;
 
 		events = keymap[(unsigned char)str[i]];
@@ -102,7 +102,7 @@ void KeyEventInserter::enter(const std::string &str, const EmuTime &time_)
 		while (*events != (SDLKey)0) {
 			event.key.keysym.sym = *events;
 			new SDLEventInserter(event, time);
-			events++;
+			++events;
 		}
 		++time;
 
@@ -111,7 +111,7 @@ void KeyEventInserter::enter(const std::string &str, const EmuTime &time_)
 		while (*events != (SDLKey)0) {
 			event.key.keysym.sym = *events;
 			new SDLEventInserter(event, time);
-			events++;
+			++events;
 		}
 		++time;
 	}

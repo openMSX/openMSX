@@ -116,20 +116,20 @@ bool MSXCPU::waitR800(const EmuTime &time)
 	}
 }
 
-bool MSXCPU::getRegisters (std::map < std::string, word> & regMap)
+bool MSXCPU::getRegisters(map<string, word>& regMap)
 {
-	regMap["2AF"] = activeCPU->R.AF.w;
-	regMap["2BC"] = activeCPU->R.BC.w;
-	regMap["2DE"] = activeCPU->R.DE.w;
-	regMap["2HL"] = activeCPU->R.HL.w;
+	regMap["2AF"]  = activeCPU->R.AF.w;
+	regMap["2BC"]  = activeCPU->R.BC.w;
+	regMap["2DE"]  = activeCPU->R.DE.w;
+	regMap["2HL"]  = activeCPU->R.HL.w;
 	regMap["2AF'"] = activeCPU->R.AF2.w;
 	regMap["2BC'"] = activeCPU->R.BC2.w;
 	regMap["2DE'"] = activeCPU->R.DE2.w;
 	regMap["2HL'"] = activeCPU->R.HL2.w;
-	regMap["2IX"] = activeCPU->R.IX.w;
-	regMap["2IY"] = activeCPU->R.IY.w;
-	regMap["2PC"] = activeCPU->R.PC.w;
-	regMap["2SP"] = activeCPU->R.SP.w;
-	regMap["2IR"] = activeCPU->R.I*256+activeCPU->R.R;
+	regMap["2IX"]  = activeCPU->R.IX.w;
+	regMap["2IY"]  = activeCPU->R.IY.w;
+	regMap["2PC"]  = activeCPU->R.PC.w;
+	regMap["2SP"]  = activeCPU->R.SP.w;
+	regMap["2IR"]  = activeCPU->R.I * 256 + activeCPU->R.R;
 	return true;
 }

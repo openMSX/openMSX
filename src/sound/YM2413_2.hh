@@ -80,7 +80,7 @@ class Channel
 class YM2413_2 : public SoundDevice
 {
 	public:
-		YM2413_2(const std::string &name, short volume, const EmuTime &time,
+		YM2413_2(const string &name, short volume, const EmuTime &time,
 		         const Mixer::ChannelMode mode);
 		virtual ~YM2413_2();
 		

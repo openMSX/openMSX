@@ -10,7 +10,7 @@ DummyFont::DummyFont()
 	charHeight = 8;
 }
 
-void DummyFont::drawText(const std::string &string, int x, int y)
+void DummyFont::drawText(const string &string, int x, int y)
 {
 	// do nothing
 }

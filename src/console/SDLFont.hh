@@ -16,8 +16,7 @@ class SDLFont : public Font
 		virtual ~SDLFont();
 
 		void setSurface(SDL_Surface *surface);
-		virtual void drawText(const std::string &string,
-			int x, int y);
+		virtual void drawText(const string &string, int x, int y);
 
 	private:
 		SDL_Surface *fontSurface;

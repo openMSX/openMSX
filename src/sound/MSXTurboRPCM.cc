@@ -55,13 +55,13 @@ byte MSXTurboRPCM::readIO(byte port, const EmuTime &time)
 		assert(false);
 		result = 0;
 	}
-	//PRT_DEBUG("PCM: read " << std::hex << (int)port << " " << (int)result << std::dec);
+	//PRT_DEBUG("PCM: read " << hex << (int)port << " " << (int)result << dec);
 	return result;
 }
 
 void MSXTurboRPCM::writeIO(byte port, byte value, const EmuTime &time)
 {
-	//PRT_DEBUG("PCM: write " << std::hex << (int)port << " " << (int)value << std::dec);
+	//PRT_DEBUG("PCM: write " << hex << (int)port << " " << (int)value << dec);
 	switch (port & 0x01) {
 	case 0:
 		// While playing: sample value

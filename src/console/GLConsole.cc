@@ -51,7 +51,7 @@ int GLConsole::powerOfTwo(int a)
 	return res;
 }
 
-bool GLConsole::loadFont(const std::string &filename)
+bool GLConsole::loadFont(const string &filename)
 {
 	if (filename.empty()) {
 		return false;
@@ -68,7 +68,7 @@ bool GLConsole::loadFont(const std::string &filename)
 	}
 }
 
-bool GLConsole::loadBackground(const std::string &filename)
+bool GLConsole::loadBackground(const string &filename)
 {
 	if (filename.empty()) {
 		return false;
@@ -78,7 +78,7 @@ bool GLConsole::loadBackground(const std::string &filename)
 		dummyWidth, dummyHeight, backTexCoord);
 }
 
-bool GLConsole::loadTexture(const std::string &filename, GLuint &texture,
+bool GLConsole::loadTexture(const string &filename, GLuint &texture,
 		int &width, int &height, GLfloat *texCoord)
 {
 	File file(filename);
@@ -217,7 +217,7 @@ void GLConsole::drawConsole()
 	if (console->getScrollBack() == 0) {
 		if (blink) {
 			// Print cursor if there is enough room
-			font->drawText(std::string("_"),
+			font->drawText(string("_"),
 				CHAR_BORDER + cursorX * font->getWidth(),
 				consoleHeight - (font->getHeight()* (cursorY+1)));
 

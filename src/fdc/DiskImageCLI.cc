@@ -15,22 +15,22 @@ DiskImageCLI::DiskImageCLI()
 	driveLetter = 'a';
 }
 
-void DiskImageCLI::parseOption(const std::string &option,
-                         std::list<std::string> &cmdLine)
+void DiskImageCLI::parseOption(const string &option,
+                         list<string> &cmdLine)
 {
 	driveLetter = option[5];	// -disk_
 	parseFileType(getArgument(option, cmdLine));
 }
-const std::string& DiskImageCLI::optionHelp() const
+const string& DiskImageCLI::optionHelp() const
 {
-	static const std::string text("Insert the disk image specified in argument");
+	static const string text("Insert the disk image specified in argument");
 	return text;
 }
 
-void DiskImageCLI::parseFileType(const std::string &filename_)
+void DiskImageCLI::parseFileType(const string &filename_)
 {
-	std::string filename(filename_); XML::Escape(filename);
-	std::ostringstream s;
+	string filename(filename_); XML::Escape(filename);
+	ostringstream s;
 	s << "<?xml version=\"1.0\"?>";
 	s << "<msxconfig>";
 	s << "<config id=\"disk" << driveLetter << "\">";
@@ -42,8 +42,8 @@ void DiskImageCLI::parseFileType(const std::string &filename_)
 	config->loadStream(new UserFileContext(), s);
 	driveLetter++;
 }
-const std::string& DiskImageCLI::fileTypeHelp() const
+const string& DiskImageCLI::fileTypeHelp() const
 {
-	static const std::string text("Disk image");
+	static const string text("Disk image");
 	return text;
 }

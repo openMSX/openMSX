@@ -19,7 +19,7 @@ MSXSCCPlusCart::MSXSCCPlusCart(Device *config, const EmuTime &time)
 
 	if (deviceConfig->hasParameter("filename")) {
 		// read the rom file
-		const std::string &filename =
+		const string &filename =
 			deviceConfig->getParameter("filename");
 		try {
 			File file(config->getContext()->resolve(filename));
@@ -30,7 +30,7 @@ MSXSCCPlusCart::MSXSCCPlusCart(Device *config, const EmuTime &time)
 		}
 	}
 	if (deviceConfig->hasParameter("subtype")) {
-		const std::string &subtype
+		const string &subtype
 			= deviceConfig->getParameter("subtype");
 		if (subtype == "Snatcher") {
 			mapperMask = 0x0F;
@@ -94,7 +94,7 @@ byte MSXSCCPlusCart::readMem(word address, const EmuTime &time)
 		// outside memory range
 		result = 0xFF;
 	}
-	//PRT_DEBUG("SCC+ read "<< std::hex << (int)address << " " << (int)result << std::dec);
+	//PRT_DEBUG("SCC+ read "<< hex << (int)address << " " << (int)result << dec);
 	return result;
 }
 
@@ -117,7 +117,7 @@ const byte* MSXSCCPlusCart::getReadCacheLine(word start) const
 
 void MSXSCCPlusCart::writeMem(word address, byte value, const EmuTime &time)
 {
-	//PRT_DEBUG("SCC+ write "<< std::hex << address << " " << (int)value << std::dec);
+	//PRT_DEBUG("SCC+ write "<< hex << address << " " << (int)value << dec);
 	
 	if ((address < 0x4000) || (0xC000 <= address)) {
 		// outside memory range

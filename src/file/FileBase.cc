@@ -3,6 +3,12 @@
 #include "FileBase.hh"
 #include <cassert>
 
+
+FileBase::FileBase()
+	: mmem(NULL)
+{
+}
+
 FileBase::~FileBase()
 {
 	// Make sure the user first munmapped before destroying

@@ -11,7 +11,7 @@ class SoundDevice;
 class VolumeSetting : private SettingListener
 {
 	public:
-		VolumeSetting(const std::string &name, int initialValue,
+		VolumeSetting(const string &name, int initialValue,
 		              SoundDevice *device);
 		virtual ~VolumeSetting();
 

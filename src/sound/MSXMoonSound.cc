@@ -75,13 +75,13 @@ byte MSXMoonSound::readIO(byte port, const EmuTime &time)
 			result = 255;
 		}
 	}
-	//PRT_DEBUG("MoonSound: read "<<std::hex<<(int)port<<" "<<(int)result<<std::dec);
+	//PRT_DEBUG("MoonSound: read "<<hex<<(int)port<<" "<<(int)result<<dec);
 	return result;
 }
 
 void MSXMoonSound::writeIO(byte port, byte value, const EmuTime &time)
 {
-	//PRT_DEBUG("MoonSound: write "<<std::hex<<(int)port<<" "<<(int)value<<std::dec);
+	//PRT_DEBUG("MoonSound: write "<<hex<<(int)port<<" "<<(int)value<<dec);
 	if (port < 0xC0) {
 		// WAVE part  0x7E-0x7F
 		switch (port & 0x01) {

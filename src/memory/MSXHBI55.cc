@@ -46,13 +46,13 @@ byte MSXHBI55::readIO(byte port, const EmuTime &time)
 		assert(false);
 		result = 0;
 	}
-	PRT_DEBUG("HBI-55 read "<<std::hex<<(int)port<<" "<<(int)result<<std::dec);
+	PRT_DEBUG("HBI-55 read "<<hex<<(int)port<<" "<<(int)result<<dec);
 	return result;
 }
 
 void MSXHBI55::writeIO(byte port, byte value, const EmuTime &time)
 {
-	PRT_DEBUG("HBI-55 write "<<std::hex<<(int)port<<" "<<(int)value<<std::dec);
+	PRT_DEBUG("HBI-55 write "<<hex<<(int)port<<" "<<(int)value<<dec);
 	switch (port & 0x03) {
 	case 0:
 		i8255->writePortA(value, time);

@@ -10,8 +10,7 @@ class DummyFont : public Font
 {
 	public:
 		DummyFont();
-		virtual void drawText(const std::string &string,
-		                      int x, int y);
+		virtual void drawText(const string &string, int x, int y);
 };
 
 #endif

@@ -16,7 +16,7 @@ MSXRom::MSXRom(Device *config, const EmuTime &time, Rom *rom)
 	init();
 	this->rom = rom;
 
-	std::ostringstream tmpname;
+	ostringstream tmpname;
 	if (rom->getSize() == 0) {
 		tmpname << "Empty ROM (with SCC)"; // valid assumption??
 	} else if (rom->getInfo().getTitle().empty()) {
@@ -61,7 +61,7 @@ byte *MSXRom::getWriteCacheLine(word address) const
 	return unmappedWrite;
 }
 
-const std::string &MSXRom::getName() const
+const string &MSXRom::getName() const
 {
 	return romName;
 }

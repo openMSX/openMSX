@@ -6,7 +6,7 @@
 #include "FileOperations.hh"
 
 
-LocalFile::LocalFile(const std::string &filename_, OpenMode mode)
+LocalFile::LocalFile(const string &filename_, OpenMode mode)
 	: filename(FileOperations::expandTilde(filename_)),
 	  readOnly(false)
 {
@@ -14,7 +14,7 @@ LocalFile::LocalFile(const std::string &filename_, OpenMode mode)
 
 	if (mode == SAVE_PERSISTENT) {
 		unsigned pos = filename.find_last_of('/');
-		if (pos != std::string::npos) {
+		if (pos != string::npos) {
 			FileOperations::mkdirp(filename.substr(0, pos));
 		}
 	}
@@ -116,13 +116,13 @@ int LocalFile::getPos()
 	return (int)ftell(file);
 }
 
-const std::string LocalFile::getURL() const
+const string LocalFile::getURL() const
 {
-	static const std::string prefix("file://");
+	static const string prefix("file://");
 	return prefix + filename;
 }
 
-const std::string LocalFile::getLocalName() const
+const string LocalFile::getLocalName() const
 {
 	return filename;
 }

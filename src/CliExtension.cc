@@ -19,8 +19,8 @@ CliExtension::CliExtension()
 		registerOption(string("-ext"), this);
 
 	SystemFileContext context;
-	const list<string> &paths = context.getPaths();
-	list<string>::const_iterator it;
+	const vector<string> &paths = context.getPaths();
+	vector<string>::const_iterator it;
 	for (it = paths.begin(); it != paths.end(); it++) {
 		string path = FileOperations::expandTilde(*it);
 		createExtensions(path + "share/extensions/");

@@ -459,9 +459,9 @@ private:
 #ifdef DEBUG
 	class DumpVRAMCmd : public Command {
 	public:
-		DumpVRAMCmd(VDPVRAM *vram_) : vram(vram_) {}
-		virtual void execute(const std::vector<std::string> &tokens);
-		virtual void help(const std::vector<std::string> &tokens) const;
+		DumpVRAMCmd(VDPVRAM *vram_);
+		virtual void execute(const vector<string> &tokens);
+		virtual void help(const vector<string> &tokens) const;
 	private:
 		VDPVRAM *vram;
 	} dumpVRAMCmd;

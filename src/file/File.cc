@@ -5,11 +5,11 @@
 #include "LocalFile.hh"
 
 
-File::File(const std::string &url, OpenMode mode)
+File::File(const string &url, OpenMode mode)
 {
-	std::string protocol, name;
+	string protocol, name;
 	unsigned int pos = url.find("://");
-	if (pos == std::string::npos) {
+	if (pos == string::npos) {
 		// no explicit protocol, take "file"
 		protocol = "file";
 		name = url;
@@ -67,12 +67,12 @@ int File::getPos()
 	return file->getPos();
 }
 
-const std::string File::getURL() const
+const string File::getURL() const
 {
 	return file->getURL();
 }
 
-const std::string File::getLocalName() const
+const string File::getLocalName() const
 {
 	return file->getLocalName();
 }

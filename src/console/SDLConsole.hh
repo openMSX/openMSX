@@ -6,18 +6,19 @@
 #include "OSDConsoleRenderer.hh"
 
 	typedef struct tColorRGBA {
-	Uint8 r;
-	Uint8 g;
-	Uint8 b;
-	Uint8 a;
+		Uint8 r;
+		Uint8 g;
+		Uint8 b;
+		Uint8 a;
 	} tColorRGBA;
 
 	typedef struct tColorY {
-	Uint8 y;
+		Uint8 y;
 	} tColorY;
 
 class SDL_Surface;
 class Console;
+
 
 class SDLConsole : public OSDConsoleRenderer
 {
@@ -25,8 +26,8 @@ class SDLConsole : public OSDConsoleRenderer
 		SDLConsole(Console * console_, SDL_Surface *screen);
 		virtual ~SDLConsole();
 
-		virtual bool loadFont(const std::string &filename);
-		virtual bool loadBackground(const std::string &filename);
+		virtual bool loadFont(const string &filename);
+		virtual bool loadBackground(const string &filename);
 		virtual void drawConsole();
 		virtual void updateConsole();
 		

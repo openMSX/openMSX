@@ -35,15 +35,15 @@ CommandController *CommandController::instance()
 
 
 void CommandController::registerCommand(Command *command, 
-                                        const std::string &str)
+                                        const string &str)
 {
-	commands.insert(std::pair<std::string, Command*>(str, command));
+	commands.insert(pair<string, Command*>(str, command));
 }
 
 void CommandController::unregisterCommand(Command *command,
-                                          const std::string &str)
+                                          const string &str)
 {
-	std::multimap<std::string, Command*>::iterator it;
+	multimap<string, Command*>::iterator it;
 	for (it = commands.lower_bound(str);
 	     (it != commands.end()) && (it->first == str);
 	     it++) {
@@ -55,18 +55,18 @@ void CommandController::unregisterCommand(Command *command,
 }
 
 
-void CommandController::tokenize(const std::string &str,
-                                 std::vector<std::string> &tokens,
-                                 const std::string &delimiters)
+void CommandController::tokenize(const string &str,
+                                 vector<string> &tokens,
+                                 const string &delimiters)
 {
 	enum ParseState {Alpha, BackSlash, Quote, Space};
 	ParseState state = Space;
-	tokens.push_back(std::string());
+	tokens.push_back(string());
 	for (unsigned i=0; i<str.length(); i++) {
 		char chr = str[i];
 		switch (state) {
 			case Space:
-				if (delimiters.find(chr) != std::string::npos) {
+				if (delimiters.find(chr) != string::npos) {
 					// nothing
 				} else {
 					if (chr == '\\') {
@@ -80,9 +80,9 @@ void CommandController::tokenize(const std::string &str,
 				}
 				break;
 			case Alpha:
-				if (delimiters.find(chr) != std::string::npos) {
+				if (delimiters.find(chr) != string::npos) {
 					// token done, start new token
-					tokens.push_back(std::string());
+					tokens.push_back(string());
 					state = Space;
 				} else if (chr == '\\') {
 					state = BackSlash;
@@ -109,15 +109,15 @@ void CommandController::tokenize(const std::string &str,
 		tokens.erase(tokens.begin());
 }
 
-void CommandController::executeCommand(const std::string &cmd)
+void CommandController::executeCommand(const string &cmd)
 {
-	std::vector<std::string> tokens;
+	vector<string> tokens;
 	tokenize(cmd, tokens);
 	if (tokens[tokens.size()-1] == "")
 		tokens.resize(tokens.size()-1);
 	if (tokens.empty())
 		return;
-	std::multimap<const std::string, Command*, ltstr>::const_iterator it;
+	multimap<const string, Command*, ltstr>::const_iterator it;
 	it = commands.lower_bound(tokens[0]);
 	if (it == commands.end() || it->first != tokens[0]) {
 		throw CommandException("Unknown command");
@@ -132,9 +132,9 @@ void CommandController::autoCommands()
 {
 	try {
 		Config *config = MSXConfig::instance()->getConfigById("AutoCommands");
-		std::list<Device::Parameter*>* commandList;
+		list<Device::Parameter*>* commandList;
 		commandList = config->getParametersWithClass("");
-		std::list<Device::Parameter*>::const_iterator i;
+		list<Device::Parameter*>::const_iterator i;
 		for (i = commandList->begin(); i != commandList->end(); i++) {
 			try {
 				executeCommand((*i)->value);
@@ -149,22 +149,22 @@ void CommandController::autoCommands()
 }
 
 
-void CommandController::tabCompletion(std::string &command)
+void CommandController::tabCompletion(string &command)
 {
 	// split command string in tokens
-	std::vector<std::string> tokens;
+	vector<string> tokens;
 	tokenize(command, tokens);
 	
 	// complete last token
 	tabCompletion(tokens);
 	
 	// rebuild command string from tokens
-	command = std::string("");
-	std::vector<std::string>::const_iterator it;
+	command = string("");
+	vector<string>::const_iterator it;
 	for (it=tokens.begin(); it!=tokens.end(); it++) {
 		if (it != tokens.begin())
 			command += ' ';
-		if (it->find(' ') == std::string::npos) {
+		if (it->find(' ') == string::npos) {
 			command += *it;
 		} else {
 			command += '"';
@@ -174,7 +174,7 @@ void CommandController::tabCompletion(std::string &command)
 	}
 }
 
-void CommandController::tabCompletion(std::vector<std::string> &tokens)
+void CommandController::tabCompletion(vector<string> &tokens)
 {
 	if (tokens.empty()) {
 		// nothing typed yet
@@ -182,14 +182,14 @@ void CommandController::tabCompletion(std::vector<std::string> &tokens)
 	}
 	if (tokens.size()==1) {
 		// build a list of all command strings
-		std::set<std::string> cmds;
-		std::multimap<const std::string, Command*, ltstr>::const_iterator it;
+		set<string> cmds;
+		multimap<const string, Command*, ltstr>::const_iterator it;
 		for (it = commands.begin(); it != commands.end(); it++) {
 			cmds.insert(it->first);
 		}
 		completeString(tokens, cmds);
 	} else {
-		std::multimap<const std::string, Command*, ltstr>::const_iterator it;
+		multimap<const string, Command*, ltstr>::const_iterator it;
 		it = commands.find(tokens[0]);	// just take one
 		if (it != commands.end()) {
 			it->second->tabCompletion(tokens);
@@ -197,50 +197,49 @@ void CommandController::tabCompletion(std::vector<std::string> &tokens)
 	}
 }
 
-bool CommandController::completeString2(std::string &string,
-                                        std::set<std::string> &set)
+bool CommandController::completeString2(string &str, set<string>& st)
 {
-	std::set<std::string>::iterator it = set.begin();
-	while (it != set.end()) {
-		if (string == (*it).substr(0, string.size())) {
-			it++;
+	set<string>::iterator it = st.begin();
+	while (it != st.end()) {
+		if (str == (*it).substr(0, str.size())) {
+			++it;
 		} else {
-			std::set<std::string>::iterator it2 = it;
-			it++;
-			set.erase(it2);
+			set<string>::iterator it2 = it;
+			++it;
+			st.erase(it2);
 		}
 	}
-	if (set.empty()) {
+	if (st.empty()) {
 		// no matching commands
 		return false;
 	}
-	if (set.size()==1) {
+	if (st.size() == 1) {
 		// only one match
-		string = *(set.begin());
+		str = *(st.begin());
 		return true;
 	}
 	bool expanded = false;
 	while (true) {
-		it = set.begin();
-		if (string == *it) {
+		it = st.begin();
+		if (str == *it) {
 			// match is as long as first word
 			goto out;	// TODO rewrite this
 		}
 		// expand with one char and check all strings 
-		std::string string2 = string + (*it)[string.size()];
-		for (;  it != set.end(); it++) {
+		string string2 = str + (*it)[str.size()];
+		for (;  it != st.end(); it++) {
 			if (string2 != (*it).substr(0, string2.size())) {
 				goto out;	// TODO rewrite this
 			}
 		}
 		// no conflict found
-		string = string2;
+		str = string2;
 		expanded = true;
 	}
 	out:
 	if (!expanded) {
 		// print all possibilities
-		for (it = set.begin(); it != set.end(); it++) {
+		for (it = st.begin(); it != st.end(); ++it) {
 			// TODO print more on one line
 			CommandConsole::instance()->printFast(*it);
 		}
@@ -249,19 +248,19 @@ bool CommandController::completeString2(std::string &string,
 	}
 	return false;
 }
-void CommandController::completeString(std::vector<std::string> &tokens,
-                                       std::set<std::string> &set)
+void CommandController::completeString(vector<string> &tokens,
+                                       set<string>& st)
 {
-	if (completeString2(tokens[tokens.size()-1], set))
-		tokens.push_back(std::string());
+	if (completeString2(tokens[tokens.size()-1], st))
+		tokens.push_back(string());
 }
 
-void CommandController::completeFileName(std::vector<std::string> &tokens)
+void CommandController::completeFileName(vector<string> &tokens)
 {
-	std::string& filename = tokens[tokens.size()-1];
+	string& filename = tokens[tokens.size()-1];
 	filename = FileOperations::expandTilde(filename);
-	std::string basename = FileOperations::getBaseName(filename);
-	std::list<std::string> paths;
+	string basename = FileOperations::getBaseName(filename);
+	vector<string> paths;
 	if (!filename.empty() && (filename[0] == '/')) {
 		// absolute path
 		paths.push_back("/");
@@ -271,18 +270,18 @@ void CommandController::completeFileName(std::vector<std::string> &tokens)
 		paths = context.getPaths();
 	}
 	
-	std::set<std::string> filenames;
-	for (std::list<std::string>::const_iterator it = paths.begin();
+	set<string> filenames;
+	for (vector<string>::const_iterator it = paths.begin();
 	     it != paths.end();
-	     it++) {
-		std::string dirname = *it + basename;
+	     ++it) {
+		string dirname = *it + basename;
 		DIR* dirp = opendir(dirname.c_str());
 		if (dirp != NULL) {
 			while (dirent* de = readdir(dirp)) {
 				struct stat st;
-				std::string name = dirname + de->d_name;
+				string name = dirname + de->d_name;
 				if (!(stat(name.c_str(), &st))) {
-					std::string nm = basename + de->d_name;
+					string nm = basename + de->d_name;
 					if (S_ISDIR(st.st_mode)) {
 						nm += "/";
 					}
@@ -295,32 +294,32 @@ void CommandController::completeFileName(std::vector<std::string> &tokens)
 	bool t = completeString2(filename, filenames);
 	if (t && filename[filename.size()-1] != '/') {
 		// completed filename, start new token
-		tokens.push_back(std::string());
+		tokens.push_back(string());
 	}
 }
 
 // Help Command
 
-void CommandController::HelpCmd::execute(const std::vector<std::string> &tokens)
+void CommandController::HelpCmd::execute(const vector<string> &tokens)
 {
 	CommandController *cc = CommandController::instance();
 	switch (tokens.size()) {
 		case 1: {
 			print("Use 'help [command]' to get help for a specific command");
 			print("The following commands exist:");
-			std::multimap<const std::string, Command*, ltstr>::const_iterator it;
+			multimap<const string, Command*, ltstr>::const_iterator it;
 			for (it=cc->commands.begin(); it!=cc->commands.end(); it++) {
 				print(it->first);
 			}
 			break;
 		}
 		default: {
-			std::multimap<const std::string, Command*, ltstr>::const_iterator it;
+			multimap<const string, Command*, ltstr>::const_iterator it;
 			it = cc->commands.lower_bound(tokens[1]);
 			if (it == cc->commands.end() || it->first != tokens[1])
 				throw CommandException("Unknown command");
 			while (it != cc->commands.end() && it->first == tokens[1]) {
-				std::vector<std::string> tokens2(tokens);
+				vector<string> tokens2(tokens);
 				tokens2.erase(tokens2.begin());
 				it->second->help(tokens2);
 				it++;
@@ -329,13 +328,13 @@ void CommandController::HelpCmd::execute(const std::vector<std::string> &tokens)
 		}
 	}
 }
-void CommandController::HelpCmd::help(const std::vector<std::string> &tokens) const
+void CommandController::HelpCmd::help(const vector<string> &tokens) const
 {
 	print("prints help information for commands");
 }
-void CommandController::HelpCmd::tabCompletion(std::vector<std::string> &tokens) const
+void CommandController::HelpCmd::tabCompletion(vector<string> &tokens) const
 {
-	std::string front = tokens.front();
+	string front = tokens.front();
 	tokens.erase(tokens.begin());
 	CommandController::instance()->tabCompletion(tokens);
 	tokens.insert(tokens.begin(), front);

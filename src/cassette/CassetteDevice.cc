@@ -3,8 +3,8 @@
 #include "CassetteDevice.hh"
 
 
-const std::string &CassetteDevice::getClass() const
+const string &CassetteDevice::getClass() const
 {
-	static const std::string className("Cassette Port");
+	static const string className("Cassette Port");
 	return className;
 }

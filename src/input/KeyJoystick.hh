@@ -5,7 +5,6 @@
 
 #include "JoystickDevice.hh"
 #include "EventListener.hh"
-#include "MSXException.hh"
 #include <SDL/SDL.h>
 
 
@@ -16,7 +15,7 @@ class KeyJoystick : public JoystickDevice, EventListener
 		virtual ~KeyJoystick();
 
 		// Pluggable
-		virtual const std::string &getName() const;
+		virtual const string &getName() const;
 		virtual void plug(Connector* connector, const EmuTime& time);
 		virtual void unplug(const EmuTime& time);
 

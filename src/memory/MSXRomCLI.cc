@@ -16,10 +16,10 @@ MSXRomCLI::MSXRomCLI()
 	CommandLineParser::instance()->registerFileType("romimages", this);
 }
 
-void MSXRomCLI::parseOption(const std::string &option,
-                         std::list<std::string> &cmdLine)
+void MSXRomCLI::parseOption(const string &option,
+                         list<string> &cmdLine)
 {
-	std::string arg = getArgument(option, cmdLine);
+	string arg = getArgument(option, cmdLine);
 	if (option.length() == 6) {
 		int slot = option[5] - 'a';
 		CartridgeSlotManager::instance()->reserveSlot(slot);
@@ -28,12 +28,12 @@ void MSXRomCLI::parseOption(const std::string &option,
 		CommandLineParser::instance()->registerPostConfig(new MSXRomPostNoName(arg));
 	}
 }
-const std::string& MSXRomCLI::optionHelp() const
+const string& MSXRomCLI::optionHelp() const
 {
-	static const std::string text("Insert the ROM file (cartridge) specified in argument");
+	static const string text("Insert the ROM file (cartridge) specified in argument");
 	return text;
 }
-MSXRomPostName::MSXRomPostName(int slot_, const std::string &arg_)
+MSXRomPostName::MSXRomPostName(int slot_, const string &arg_)
 	: MSXRomCLIPost(arg_), slot(slot_)
 {
 }
@@ -43,16 +43,16 @@ void MSXRomPostName::execute(MSXConfig *config)
 	MSXRomCLIPost::execute(config);
 }
 
-void MSXRomCLI::parseFileType(const std::string &arg)
+void MSXRomCLI::parseFileType(const string &arg)
 {
 	CommandLineParser::instance()->registerPostConfig(new MSXRomPostNoName(arg));
 }
-const std::string& MSXRomCLI::fileTypeHelp() const
+const string& MSXRomCLI::fileTypeHelp() const
 {
-	static const std::string text("ROM image of a cartridge");
+	static const string text("ROM image of a cartridge");
 	return text;
 }
-MSXRomPostNoName::MSXRomPostNoName(const std::string &arg_)
+MSXRomPostNoName::MSXRomPostNoName(const string &arg_)
 	: MSXRomCLIPost(arg_)
 {
 }
@@ -62,13 +62,13 @@ void MSXRomPostNoName::execute(MSXConfig *config)
 	MSXRomCLIPost::execute(config);
 }
 
-MSXRomCLIPost::MSXRomCLIPost(const std::string &arg_)
+MSXRomCLIPost::MSXRomCLIPost(const string &arg_)
 	: arg(arg_)
 {
 }
 void MSXRomCLIPost::execute(MSXConfig *config)
 {
-	std::string filename, mapper;
+	string filename, mapper;
 	int pos = arg.find_last_of(',');
 	int pos2 = arg.find_last_of('.');
 	if ((pos != -1) && (pos > pos2)) {
@@ -78,11 +78,11 @@ void MSXRomCLIPost::execute(MSXConfig *config)
 		filename = arg;
 		mapper = "auto";
 	}
-	std::string file = FileOperations::getFilename(filename);
+	string file = FileOperations::getFilename(filename);
 
 	XML::Escape(filename);
 	XML::Escape(file);
-	std::ostringstream s;
+	ostringstream s;
 	s << "<?xml version=\"1.0\"?>";
 	s << "<msxconfig>";
 	s << "<device id=\"MSXRom"<<ps<<"-"<<ss<<"\">";

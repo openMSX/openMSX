@@ -3,19 +3,19 @@
 #include "Keys.hh"
 
 
-Keys::KeyCode Keys::getCode(const std::string &name)
+Keys::KeyCode Keys::getCode(const string &name)
 {
 	initialize();
 	return keymap[name];
 }
 
-const std::string &Keys::getName(const KeyCode keyCode)
+const string &Keys::getName(const KeyCode keyCode)
 {
-	static const std::string unknown("unknown");
+	static const string unknown("unknown");
 
 	initialize();
-	std::map<const std::string, KeyCode, ltstrcase>::const_iterator it;
-	for (it = keymap.begin(); it != keymap.end(); it++) {
+	map<string, KeyCode, ltstrcase>::const_iterator it;
+	for (it = keymap.begin(); it != keymap.end(); ++it) {
 		if (it->second == keyCode)
 			return it->first;
 	}
@@ -176,13 +176,13 @@ void Keys::initialize()
 	keymap["POWER"]		= K_POWER;	// Power Macintosh power key
 	keymap["EURO"]		= K_EURO;	// Some european keyboards
 	
-	std::map<const std::string, KeyCode, ltstrcase> tmp(keymap);
-	std::map<const std::string, KeyCode, ltstrcase>::const_iterator it;
+	map<string, KeyCode, ltstrcase> tmp(keymap);
+	map<string, KeyCode, ltstrcase>::const_iterator it;
 	for (it = tmp.begin(); it != tmp.end(); it++) {
 		keymap[it->first + ",up"] = (KeyCode)(it->second | KD_UP);
 	}
 }
 
-std::map<const std::string, Keys::KeyCode, Keys::ltstrcase> Keys::keymap;
+map<string, Keys::KeyCode, Keys::ltstrcase> Keys::keymap;
 
 

@@ -14,9 +14,9 @@ class KeyEventInserterCLI : public CLIOption
 {
 	public:
 		KeyEventInserterCLI();
-		virtual void parseOption(const std::string &option,
-		                         std::list<std::string> &cmdLine);
-		virtual const std::string& optionHelp() const;
+		virtual void parseOption(const string &option,
+		                         list<string> &cmdLine);
+		virtual const string& optionHelp() const;
 };
 
 
@@ -24,7 +24,7 @@ class KeyEventInserter
 {
 	public:
 		KeyEventInserter(const EmuTime &time);
-		void enter(const std::string &str, const EmuTime &time);
+		void enter(const string &str, const EmuTime &time);
 
 	private:
 		static const SDLKey keymap[256][4];

@@ -9,12 +9,9 @@
 #include "CommandLineParser.hh"
 #include "SoundDevice.hh"
 
-using std::string;
-using std::vector;
-using std::list;
-
 class FileContext;
 class CassetteImage;
+
 
 class MSXCassettePlayerCLI : public CLIOption, public CLIFileType
 {

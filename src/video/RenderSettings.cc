@@ -8,7 +8,7 @@ RenderSettings::RenderSettings()
 {
 	Config *config = MSXConfig::instance()->getConfigById("renderer");
 
-	std::map<const std::string, Accuracy> accMap;
+	map<const string, Accuracy> accMap;
 	accMap["screen"] = ACC_SCREEN;
 	accMap["line"]   = ACC_LINE;
 	accMap["pixel"]  = ACC_PIXEL;
@@ -41,7 +41,7 @@ RenderSettings::RenderSettings()
 
 	renderer = RendererFactory::createRendererSetting();
 	// Get user-preferred renderer from config.
-	std::string rendererName = config->getType();
+	string rendererName = config->getType();
 	try {
 		renderer->setValueString(rendererName);
 	} catch (CommandException &e) {

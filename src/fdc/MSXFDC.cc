@@ -12,8 +12,8 @@ MSXFDC::MSXFDC(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXMemDevice(config, time),
 	  rom(config, time) 
 {
-	std::string drivename("drivename1");
-	//                     0123456789
+	string drivename("drivename1");
+	//                0123456789
 	for (int i = 0; i < 4; i++) {
 		drivename[9] = '1' + i;
 		if (config->hasParameter(drivename)) {

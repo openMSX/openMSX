@@ -10,7 +10,7 @@
 class FileBase
 {
 	public:
-		FileBase() : mmem(NULL) {}
+		FileBase();
 		virtual ~FileBase();
 		virtual void read (byte* buffer, int num) = 0;
 		virtual void write(const byte* buffer, int num) = 0;
@@ -19,8 +19,8 @@ class FileBase
 		virtual int getSize() = 0;
 		virtual void seek(int pos) = 0;
 		virtual int getPos() = 0;
-		virtual const std::string getURL() const = 0;
-		virtual const std::string getLocalName() const = 0;
+		virtual const string getURL() const = 0;
+		virtual const string getLocalName() const = 0;
 		virtual bool isReadOnly() const = 0;
 
 	protected:

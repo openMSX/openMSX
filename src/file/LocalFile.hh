@@ -12,7 +12,7 @@
 class LocalFile : public FileBase
 {
 	public:
-		LocalFile(const std::string &filename, OpenMode mode);
+		LocalFile(const string &filename, OpenMode mode);
 		virtual ~LocalFile();
 		virtual void read (byte* buffer, int num);
 		virtual void write(const byte* buffer, int num);
@@ -21,12 +21,12 @@ class LocalFile : public FileBase
 		virtual int getSize();
 		virtual void seek(int pos);
 		virtual int getPos();
-		virtual const std::string getURL() const;
-		virtual const std::string getLocalName() const;
+		virtual const string getURL() const;
+		virtual const string getLocalName() const;
 		virtual bool isReadOnly() const;
 
 	private:
-		std::string filename;
+		string filename;
 		FILE* file;
 		bool readOnly;
 };

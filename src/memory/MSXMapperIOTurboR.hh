@@ -9,7 +9,7 @@
 class MSXMapperIOTurboR : public MSXMapperIOPhilips
 {
 	public:
-		virtual byte calcMask(std::list<int> &mapperSizes);
+		virtual byte calcMask(list<int> &mapperSizes);
 };
 
 #endif //__MSXMAPPERIOTURBOR_HH__

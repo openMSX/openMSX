@@ -9,7 +9,7 @@
 class MSXMapperIOPhilips : public MapperMask
 {
 	public:
-		virtual byte calcMask(std::list<int> &mapperSizes);
+		virtual byte calcMask(list<int> &mapperSizes);
 
 	private:
 		int log2RoundedUp(int num);

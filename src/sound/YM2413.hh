@@ -117,7 +117,7 @@ class YM2413 : public SoundDevice
 	};
 
 	public:
-		YM2413(const std::string &name, short volume, const EmuTime &time,
+		YM2413(const string &name, short volume, const EmuTime &time,
 		       Mixer::ChannelMode mode=Mixer::MONO);
 		virtual ~YM2413();
 

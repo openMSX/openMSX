@@ -33,7 +33,7 @@ class CassetteDevice : public Pluggable
 		virtual int getWriteSampleRate() = 0;
 
 		// Pluggable
-		virtual const std::string &getClass() const;
+		virtual const string &getClass() const;
 };
 
 #endif

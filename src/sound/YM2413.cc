@@ -504,7 +504,7 @@ void YM2413::Channel::keyOff()
 //***********************************************************//
 
 // Constructor
-YM2413::YM2413(const std::string &name, short volume, const EmuTime &time,
+YM2413::YM2413(const string &name, short volume, const EmuTime &time,
                Mixer::ChannelMode mode)
 	: rythm_mode(false)
 {

@@ -221,8 +221,8 @@ void WD2793::setDataReg(byte value, const EmuTime &time)
 		}
 	} else if ((commandReg & 0xF0) == 0xF0) {
 		// WRITE TRACK
-		//PRT_DEBUG("WD2793 WRITE TRACK value "<<std::hex<<
-		//          (int)value<<std::dec);
+		//PRT_DEBUG("WD2793 WRITE TRACK value "<<hex<<
+		//          (int)value<<dec);
 		//DRQ related timing
 		DRQ = false;
 		DRQTime = time;

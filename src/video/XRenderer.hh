@@ -90,8 +90,8 @@ private:
 		operator SDLKey () { return (*keymap)[sym]; }
 	private:
 		KeySym sym;
-		static std::map <KeySym, SDLKey> *makemap ();
-		static std::map <KeySym, SDLKey> *keymap;
+		static map<KeySym, SDLKey> *makemap();
+		static map<KeySym, SDLKey> *keymap;
 	};
 };
 

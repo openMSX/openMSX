@@ -5,6 +5,8 @@
 
 #include <string>
 
+using namespace std;
+
 
 class FileOperations
 {
@@ -14,7 +16,7 @@ class FileOperations
 		 * @parm path Pathname, with or without '~' character
 		 * @result The expanded pathname
 		 */
-		static std::string expandTilde(const std::string &path);
+		static string expandTilde(const string &path);
 
 		/**
 		 * Acts like the unix command "mkdir -p". Creates the
@@ -22,14 +24,14 @@ class FileOperations
 		 * @param path The path of the directory to create
 		 * @return True iff successful 
 		 */
-		static bool mkdirp(const std::string &path);
+		static bool mkdirp(const string &path);
 
 		/**
 		 * Returns the file portion of a path name.
 		 * @param path The pathname
 		 * @result The file portion
 		 */
-		static std::string getFilename(const std::string &path);
+		static string getFilename(const string &path);
 
 		/**
 		 * Returns the directory portion of a path.
@@ -38,7 +40,7 @@ class FileOperations
 		 *         If path doesn't has a directory portion the result
 		 *         is an empty string.
 		 */
-		static std::string getBaseName(const std::string &path);
+		static string getBaseName(const string &path);
 };
 
 #endif

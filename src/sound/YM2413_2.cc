@@ -1346,7 +1346,7 @@ void YM2413_2::reset(const EmuTime &time)
 }
 
 
-YM2413_2::YM2413_2(const std::string &name, short volume, const EmuTime &time,
+YM2413_2::YM2413_2(const string &name, short volume, const EmuTime &time,
                    const Mixer::ChannelMode mode)
 {
 	eg_cnt = eg_timer = 0;

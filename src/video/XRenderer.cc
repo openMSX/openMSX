@@ -192,10 +192,12 @@ static const struct {KeySym x; SDLKey sdl;} _keymap[] = {
 {'u', SDLK_u}, {'v', SDLK_v}, {'w', SDLK_w}, {'x', SDLK_x}, {'y', SDLK_y},
 {'z', SDLK_z}, {XK_F12, SDLK_F12}, {0,} };
 
-std::map <KeySym, SDLKey> *XRenderer::convert::makemap () {
-	std::map <KeySym, SDLKey> *retval = new std::map <KeySym, SDLKey> ();
-	for (int i = 0; _keymap[i].x; ++i) (*retval)[_keymap[i].x] = _keymap[i].sdl;
+map<KeySym, SDLKey> *XRenderer::convert::makemap() {
+	map<KeySym, SDLKey> *retval = new map<KeySym, SDLKey>();
+	for (int i = 0; _keymap[i].x; ++i) {
+		(*retval)[_keymap[i].x] = _keymap[i].sdl;
+	}
 	return retval;
 }
 
-std::map <KeySym, SDLKey> *XRenderer::convert::keymap = XRenderer::convert::makemap ();
+map<KeySym, SDLKey> *XRenderer::convert::keymap = XRenderer::convert::makemap();

@@ -50,7 +50,7 @@ public:
 
 	/** Gets the name of the associated renderer.
 	  */
-	//virtual const std::string getName() = 0;
+	//virtual const string getName() = 0;
 
 	/** Is the associated Renderer available?
 	  * Availability may depend on the presence of libraries, the graphics
@@ -138,7 +138,7 @@ public:
 	  */
 	SDLHiRendererFactory() { }
 
-	const std::string getName() {
+	const string getName() {
 		return "SDLHi";
 	}
 
@@ -158,7 +158,7 @@ public:
 	  */
 	SDLLoRendererFactory() { }
 
-	const std::string getName() {
+	const string getName() {
 		return "SDLLo";
 	}
 
@@ -180,7 +180,7 @@ public:
 	  */
 	SDLGLRendererFactory() { }
 
-	const std::string getName() {
+	const string getName() {
 		return "SDLGL";
 	}
 
@@ -202,7 +202,7 @@ public:
 	  */
 	XRendererFactory() { }
 
-	const std::string getName() {
+	const string getName() {
 		return "Xlib";
 	}
 

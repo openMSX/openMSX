@@ -11,7 +11,7 @@
 
 MSXDevice* FDCFactory::create(Device *config, const EmuTime &time)
 {
-	const std::string &type = config->getParameter("type");
+	const string &type = config->getParameter("type");
 	if (type == "WD2793") {
 		return new PhilipsFDC(config, time);
 	}

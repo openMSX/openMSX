@@ -17,11 +17,11 @@ class MSXRom : public MSXMemDevice
 		virtual void writeMem(word address, byte value,
 		                      const EmuTime &time);
 		virtual byte *getWriteCacheLine(word address) const;
-		virtual const std::string &getName() const;
+		virtual const string &getName() const;
 
 	protected:
 		Rom* rom;
-		std::string romName;
+		string romName;
 		static class MSXCPU *cpu;
 
 	private:

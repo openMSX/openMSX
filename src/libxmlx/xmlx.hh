@@ -38,6 +38,8 @@
 #include <stdexcept>
 #include <sstream>
 
+using namespace std;
+
 /// libxmlx namespace
 /**
  * all libxmlx classes are contained within the XML:: namespace.
@@ -57,10 +59,10 @@ namespace XML
  * Exception used by the libxmlx code to signal errors back to
  * users of the library
  */
-class Exception: public std::runtime_error
+class Exception: public runtime_error
 {
 public:
-	Exception(const std::string &msg);
+	Exception(const string &msg);
 	Exception(const Exception &foo);
 	Exception &operator=(const Exception &foo);
 
@@ -87,9 +89,9 @@ public:
 	~Attribute();
 
 	/// name of the attribute
-	std::string name;
+	string name;
 	/// value of the attribute
-	std::string value;
+	string value;
 
 	void dump(int recursion=0);
 
@@ -117,16 +119,16 @@ public:
 	~Element();
 
 	/// name of the element
-	std::string name;
+	string name;
 
 	/// content of the element
-	std::string pcdata;
+	string pcdata;
 	
 	/// contained elements
-	std::list<Element*> children;
+	list<Element*> children;
 
 	/// attributes of this element
-	std::list<Attribute*> attributes;
+	list<Attribute*> attributes;
 
 	void dump(int recursion=0);
 	
@@ -134,19 +136,19 @@ public:
 	 * get attribute's value from attribute with name 'attName' from
 	 * attributelist
 	 */
-	const std::string &getAttribute(const std::string &attName);
+	const string &getAttribute(const string &attName);
 
 	/**
 	 * get pcdata from element from children with name 'childName'
 	 */
-	const std::string &getElementPcdata(const std::string &childName);
+	const string &getElementPcdata(const string &childName);
 
 	/**
 	 * get attribute with name 'attName' from element from children
 	 * with name 'childName'
 	 */
-	const std::string &getElementAttribute(const std::string &childName,
-	                                       const std::string &attName);
+	const string &getElementAttribute(const string &childName,
+	                                       const string &attName);
 
 private:
 	/// construct attribute from libxml xmlNodePtr node
@@ -164,9 +166,9 @@ class Document
 {
 public:
 	/// create from filename
-	Document(const std::string &filename);
+	Document(const string &filename);
 	/// create from stringstream
-	Document(const std::ostringstream &stream);
+	Document(const ostringstream &stream);
 	~Document();
 
 	/// root XML element of the document
@@ -187,7 +189,7 @@ private:
 	Document &operator=(const Document &foo); // block usage
 	
 	/// filename used when constructed from filename
-	std::string filename;
+	string filename;
 
 	void handleDoc(xmlDocPtr doc);
 };
@@ -198,10 +200,10 @@ private:
  * returns const reference to changed self
  * for easy chaining in streams
  * sample:
- * //std::string stest("hello & world");
- * //std::cout << XML::Escape(stest) << std::endl;
+ * //string stest("hello & world");
+ * //cout << XML::Escape(stest) << endl;
  */
-const std::string &Escape(std::string &str);
+const string &Escape(string &str);
 
 }; // end namespace XML
 

@@ -19,8 +19,8 @@ inline bool _CPU_::READ_PORT(word port, byte &result, ResumeFunc f)
 		memptr.w = port + 1;
 		currentTime += IO_DELAY1;
 		assert (currentTime < targetTime);
-		//PRT_DEBUG("CPU: In 0x" << std::hex << (int)port <<
-		//          std::dec << " at " << currentTime);
+		//PRT_DEBUG("CPU: In 0x" << hex << (int)port <<
+		//          dec << " at " << currentTime);
 		result = interface->readIO(port, currentTime);
 		currentTime += IO_DELAY2;
 		return true;
@@ -37,8 +37,8 @@ inline bool _CPU_::WRITE_PORT(word port, byte value, ResumeFunc f)
 		memptr.w = port + 1;
 		currentTime += IO_DELAY1;
 		assert (currentTime < targetTime);
-		//PRT_DEBUG("CPU: Out 0x" << std::hex << (int)port <<
-		//          std::dec << " at " << currentTime);
+		//PRT_DEBUG("CPU: Out 0x" << hex << (int)port <<
+		//          dec << " at " << currentTime);
 		interface->writeIO(port, value, currentTime);
 		currentTime += IO_DELAY2;
 		return true;
@@ -230,16 +230,16 @@ inline void _CPU_::executeFast() {
 	#ifdef CPU_DEBUG
 	if (traceSetting->getValue()) {
 		Dasm(&debugmemory[start_pc], to_print_string, start_pc);
-		PRT_DEBUG(std::setfill('0') << std::hex <<
-			  std::setw(4) << start_pc <<
+		PRT_DEBUG(setfill('0') << hex <<
+			  setw(4) << start_pc <<
 			  " : " << to_print_string <<
-			  " AF=" << std::setw(4) << R.AF.w <<
-			  " BC=" << std::setw(4) << R.BC.w <<
-			  " DE=" << std::setw(4) << R.DE.w <<
-			  " HL=" << std::setw(4) << R.HL.w <<
-			  " IX=" << std::setw(4) << R.IX.w <<
-			  " IY=" << std::setw(4) << R.IY.w <<
-			  " SP=" << std::setw(4) << R.SP.w << std::dec);
+			  " AF=" << setw(4) << R.AF.w <<
+			  " BC=" << setw(4) << R.BC.w <<
+			  " DE=" << setw(4) << R.DE.w <<
+			  " HL=" << setw(4) << R.HL.w <<
+			  " IX=" << setw(4) << R.IX.w <<
+			  " IY=" << setw(4) << R.IY.w <<
+			  " SP=" << setw(4) << R.SP.w << dec);
 		//PRT_DEBUG("CPU: Took " << before.getTicksTill(currentTime) << "T-States");
 	}
 	#endif

@@ -56,7 +56,7 @@ GLFont::~GLFont()
 }
 
 
-void GLFont::drawText(const std::string &string, int x, int y)
+void GLFont::drawText(const string &string, int x, int y)
 {
 	glBindTexture(GL_TEXTURE_2D, fontTexture);
 	glTranslated(x, y, 0);

@@ -10,11 +10,11 @@ class MSXRomCLI : public CLIOption, public CLIFileType
 {
 	public:
 		MSXRomCLI();
-		virtual void parseOption(const std::string &option,
-			std::list<std::string> &cmdLine);
-		virtual const std::string& optionHelp() const;
-		virtual void parseFileType(const std::string &filename);
-		virtual const std::string& fileTypeHelp() const;
+		virtual void parseOption(const string &option,
+			list<string> &cmdLine);
+		virtual const string& optionHelp() const;
+		virtual void parseFileType(const string &filename);
+		virtual const string& fileTypeHelp() const;
 	
 	private:
 		int cartridgeNr;
@@ -23,17 +23,17 @@ class MSXRomCLI : public CLIOption, public CLIFileType
 class MSXRomCLIPost : public CLIPostConfig
 {
 	public:
-		MSXRomCLIPost(const std::string &arg);
+		MSXRomCLIPost(const string &arg);
 		virtual ~MSXRomCLIPost() {}
 		virtual void execute(MSXConfig *config);
 	protected:
 		int ps, ss;
-		const std::string arg;
+		const string arg;
 };
 class MSXRomPostName : public MSXRomCLIPost
 {
 	public:
-		MSXRomPostName(int slot, const std::string &arg);
+		MSXRomPostName(int slot, const string &arg);
 		virtual ~MSXRomPostName() {}
 		virtual void execute(MSXConfig *config);
 	private:
@@ -42,7 +42,7 @@ class MSXRomPostName : public MSXRomCLIPost
 class MSXRomPostNoName : public MSXRomCLIPost
 {
 	public:
-		MSXRomPostNoName(const std::string &arg);
+		MSXRomPostNoName(const string &arg);
 		virtual ~MSXRomPostNoName() {}
 		virtual void execute(MSXConfig *config);
 };

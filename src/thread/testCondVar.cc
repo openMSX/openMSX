@@ -12,7 +12,7 @@ class R1 : public Runnable
 		{
 			for (int i=0; i<5; i++) {
 				v1.wait();
-				std::cout << "a\n";
+				cout << "a\n";
 			}
 		}
 };
@@ -24,7 +24,7 @@ class R2 : public Runnable
 		{
 			sleep(1);
 			for (int i=0; i<5; i++) {
-				std::cout << "b\n";
+				cout << "b\n";
 				v1.signal();
 				sleep(1);
 			}

@@ -144,7 +144,7 @@ void SDLConsole::drawCursor()
 		}
 		if (blink) {
 			// Print cursor if there is enough room
-			font->drawText(std::string("_"),
+			font->drawText(string("_"),
 				      CHAR_BORDER + cursorX * font->getWidth(),
 				      consoleSurface->h - (font->getHeight() * (cursorY+1)));
 		} else {
@@ -178,7 +178,7 @@ void SDLConsole::drawCursor()
 		blink=true; // force cursor
 		lastBlinkTime=SDL_GetTicks() + BLINK_RATE; // maximum time
 		lastCursorPosition=cursorX;
-		font->drawText(std::string("_"),
+		font->drawText(string("_"),
 			CHAR_BORDER + cursorX * font->getWidth(),
 			consoleSurface->h - (font->getHeight()*(cursorY+1)));
 	}
@@ -198,7 +198,7 @@ void SDLConsole::alpha(unsigned char newAlpha)
 }
 
 // Adds background image to the console
-bool SDLConsole::loadBackground(const std::string &filename)
+bool SDLConsole::loadBackground(const string &filename)
 {
 	SDL_Surface *pictureSurface = NULL;
 	if (filename.empty()) {
@@ -238,7 +238,7 @@ bool SDLConsole::loadBackground(const std::string &filename)
 	return true;
 }
 
-bool SDLConsole::loadFont(const std::string &filename)
+bool SDLConsole::loadFont(const string &filename)
 {
 	if (filename.empty()) {
 		return false;

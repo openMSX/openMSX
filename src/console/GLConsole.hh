@@ -22,14 +22,14 @@ class GLConsole : public OSDConsoleRenderer
 		GLConsole(Console * console_);
 		virtual ~GLConsole();
 
-		virtual bool loadFont(const std::string &filename);
-		virtual bool loadBackground(const std::string &filename);
+		virtual bool loadFont(const string &filename);
+		virtual bool loadBackground(const string &filename);
 		virtual void drawConsole();
 		virtual void updateConsole();
 
 	private:
 		int powerOfTwo(int a);
-		bool loadTexture(const std::string &filename, GLuint &texture,
+		bool loadTexture(const string &filename, GLuint &texture,
 				int &width, int &height, GLfloat *texCoord);
 
 		GLuint backgroundTexture;

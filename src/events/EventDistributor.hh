@@ -51,10 +51,10 @@ class EventDistributor : private SettingListener
 
 		void update(const SettingLeafNode *setting);
 
-		std::multimap <int, EventListener*> lowMap;
-		std::multimap <int, EventListener*> highMap;
-		std::queue <std::pair<SDL_Event, EventListener*> > lowQueue;
-		std::queue <std::pair<SDL_Event, EventListener*> > highQueue;
+		multimap <int, EventListener*> lowMap;
+		multimap <int, EventListener*> highMap;
+		queue <pair<SDL_Event, EventListener*> > lowQueue;
+		queue <pair<SDL_Event, EventListener*> > highQueue;
 		BooleanSetting grabInput;
 
 		/** Quit openMSX.
@@ -64,8 +64,8 @@ class EventDistributor : private SettingListener
 
 		class QuitCommand : public Command {
 		public:
-			virtual void execute(const std::vector<std::string> &tokens);
-			virtual void help(const std::vector<std::string> &tokens) const;
+			virtual void execute(const vector<string> &tokens);
+			virtual void help(const vector<string> &tokens) const;
 		} quitCommand;
 		friend class QuitCommand;
 };

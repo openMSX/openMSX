@@ -11,7 +11,7 @@
 class MapperMask
 {
 	public:
-		virtual byte calcMask(std::list<int> &mapperSizes) = 0;
+		virtual byte calcMask(list<int> &mapperSizes) = 0;
 };
 
 class MSXMapperIO : public MSXIODevice
@@ -41,7 +41,7 @@ class MSXMapperIO : public MSXIODevice
 		MSXMapperIO();
 		
 		MapperMask* mapperMask;
-		std::list<int> mapperSizes;
+		list<int> mapperSizes;
 		byte mask;
 		byte page[4];
 };

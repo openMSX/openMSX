@@ -102,7 +102,7 @@ class CPUInterface {
 
 	private:
 		bool prevNMIStat;
-		std::list<MSXRomPatchInterface*> romPatchInterfaceList;
+		list<MSXRomPatchInterface*> romPatchInterfaceList;
 };
 
 #endif

@@ -12,11 +12,11 @@ int main(int argc, char** argv)
 
 	if (argc < 2)
 	{
-		std::cout << "Usage: " << argv[0] << " <file>" << std::endl;
+		cout << "Usage: " << argv[0] << " <file>" << endl;
 		exit(1);
 	}
 		
-	std::string filename(argv[1]);
+	string filename(argv[1]);
 
 	XML::Document doc(filename);
 

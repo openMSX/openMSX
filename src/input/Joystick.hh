@@ -11,7 +11,7 @@
 
 class JoystickException : public MSXException {
 	public:
-		JoystickException(const std::string &desc) : MSXException(desc) {}
+		JoystickException(const string &desc) : MSXException(desc) {}
 };
 
 class Joystick : public JoystickDevice, EventListener
@@ -21,7 +21,7 @@ class Joystick : public JoystickDevice, EventListener
 		virtual ~Joystick();
 
 		//Pluggable
-		virtual const std::string &getName() const;
+		virtual const string &getName() const;
 		virtual void plug(Connector* connector, const EmuTime& time);
 		virtual void unplug(const EmuTime& time);
 
@@ -35,7 +35,7 @@ class Joystick : public JoystickDevice, EventListener
 	private:
 		static const int THRESHOLD = 32768/10;
 
-		std::string name;
+		string name;
 
 		int joyNum;
 		SDL_Joystick *joystick;

@@ -5,11 +5,13 @@
 
 #include <string>
 
+using namespace std;
+
 
 class Font
 {
 	public:
-		virtual void drawText(const std::string &string,
+		virtual void drawText(const string &string,
 		                      int x, int y) = 0;
 		int getHeight() const;
 		int getWidth() const;

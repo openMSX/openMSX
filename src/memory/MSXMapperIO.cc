@@ -11,7 +11,7 @@
 MSXMapperIO::MSXMapperIO(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
-	std::string type = config->getParameter("type");
+	string type = config->getParameter("type");
 	if (type == "TurboR") {
 		mapperMask = new MSXMapperIOTurboR();
 	} else if (type == "Philips") {
@@ -63,7 +63,7 @@ void MSXMapperIO::registerMapper(int blocks)
 
 void MSXMapperIO::unregisterMapper(int blocks)
 {
-	std::list<int>::iterator i;
+	list<int>::iterator i;
 	for (i=mapperSizes.begin(); i!=mapperSizes.end(); i++) {
 		if (*i == blocks) {
 			mapperSizes.erase(i);

@@ -23,9 +23,9 @@ void Console::unregisterConsole(ConsoleRenderer *console)
 
 void Console::updateConsole()
 {
-	for (std::list<ConsoleRenderer*>::iterator it = renderers.begin();
+	for (list<ConsoleRenderer*>::iterator it = renderers.begin();
 	     it != renderers.end();
-	     it++) {
+	     ++it) {
 		(*it)->updateConsole();
 	}
 }

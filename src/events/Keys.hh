@@ -7,6 +7,8 @@
 #include <map>
 #include <string>
 
+using namespace std;
+
 
 class Keys {
 	public:
@@ -163,18 +165,18 @@ class Keys {
 			KD_UP		= 0x10000,	// key release
 		};
 		
-		static Keys::KeyCode getCode(const std::string &name);
-		static const std::string &getName(const KeyCode keyCode);
+		static Keys::KeyCode getCode(const string &name);
+		static const string &getName(const KeyCode keyCode);
 
 	private:
 		static void initialize();
 	
 		struct ltstrcase {
-			bool operator()(const std::string &s1, const std::string &s2) const {
+			bool operator()(const string &s1, const string &s2) const {
 				return strcasecmp(s1.c_str(), s2.c_str()) < 0;
 			}
 		};
-		static std::map<const std::string, KeyCode, ltstrcase> keymap;
+		static map<string, KeyCode, ltstrcase> keymap;
 };
 
 #endif

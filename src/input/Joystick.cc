@@ -20,7 +20,7 @@ Joystick::Joystick(int joyNum_)
 		throw JoystickException("No such joystick number");
 	}
 
-	name = std::string("joystick")+(char)('1'+joyNum);
+	name = string("joystick") + (char)('1' + joyNum);
 
 	PRT_DEBUG("Opening joystick " << SDL_JoystickName(joyNum));
 	joystick = SDL_JoystickOpen(joyNum);
@@ -44,7 +44,7 @@ Joystick::~Joystick()
 }
 
 //Pluggable
-const std::string &Joystick::getName() const
+const string &Joystick::getName() const
 {
 	return name;
 }

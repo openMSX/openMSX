@@ -10,7 +10,7 @@
 
 class CommandException : public MSXException {
 	public:
-		CommandException(const std::string &desc_)
+		CommandException(const string &desc_)
 			: MSXException(desc_) {}
 };
 
@@ -21,11 +21,11 @@ class Command
 		  * @param tokens Tokenized command line;
 		  * 	tokens[0] is the command itself.
 		  */
-		virtual void execute(const std::vector<std::string> &tokens) = 0;
+		virtual void execute(const vector<string> &tokens) = 0;
 
 		/** Print help for this command.
 		  */
-		virtual void help(const std::vector<std::string> &tokens) const = 0;
+		virtual void help(const vector<string> &tokens) const = 0;
 
 		/** Attempt tab completion for this command.
 		  * Default implementation does nothing.
@@ -33,12 +33,12 @@ class Command
 		  * 	tokens[0] is the command itself.
 		  * 	The last token is incomplete, this method tries to complete it.
 		  */
-		virtual void tabCompletion(std::vector<std::string> &tokens) const {}
+		virtual void tabCompletion(vector<string> &tokens) const {}
 
 	protected:
 		/** Convenience method to print a message to the console.
 		  */
-		void print(const std::string &message) const;
+		void print(const string &message) const;
 };
 
 #endif //_COMMAND_HH__

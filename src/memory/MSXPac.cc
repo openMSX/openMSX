@@ -43,7 +43,7 @@ byte MSXPac::readMem(word address, const EmuTime &time)
 	} else {
 		result = 0xFF;
 	}
-	//PRT_DEBUG("PAC read "<<std::hex<<(int)address<<" "<<(int)result<<std::dec);
+	//PRT_DEBUG("PAC read "<<hex<<(int)address<<" "<<(int)result<<dec);
 	return result;
 }
 
@@ -65,7 +65,7 @@ const byte* MSXPac::getReadCacheLine(word address) const
 
 void MSXPac::writeMem(word address, byte value, const EmuTime &time)
 {
-	//PRT_DEBUG("PAC write "<<std::hex<<(int)address<<" "<<(int)value<<std::dec);
+	//PRT_DEBUG("PAC write "<<hex<<(int)address<<" "<<(int)value<<dec);
 	address &= 0x3FFF;
 	switch (address) {
 		case 0x1FFE:

@@ -5,13 +5,15 @@
 
 
 // unused bits read always "1"
-byte MSXMapperIOPhilips::calcMask(std::list<int> &mapperSizes)
+byte MSXMapperIOPhilips::calcMask(list<int> &mapperSizes)
 {
 	int largest = 1;
-	std::list<int>::iterator i;
-	for (i=mapperSizes.begin(); i!=mapperSizes.end(); i++) {
-		if (*i > largest)
+	for (list<int>::const_iterator i = mapperSizes.begin();
+	     i != mapperSizes.end();
+	     ++i) {
+		if (*i > largest) {
 			largest = *i;
+		}
 	}
 	int bits = log2RoundedUp(largest);
 	return (256 - (1 << bits)) & 255;

@@ -5,12 +5,12 @@
 #include "IDEHD.hh"
 
 
-IDEDevice* IDEDeviceFactory::create(const std::string &name,
+IDEDevice* IDEDeviceFactory::create(const string &name,
                                     const EmuTime &time)
 {
 	Config *config = MSXConfig::instance()->
 		getConfigById(name);
-	const std::string type = config->getType();
+	const string type = config->getType();
 
 	if (type == "IDEHD") {
 		return new IDEHD(config, time);

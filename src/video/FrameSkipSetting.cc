@@ -13,19 +13,19 @@ FrameSkipSetting::FrameSkipSetting()
 	type = "0 - 100 / auto";
 }
 
-std::string FrameSkipSetting::getValueString() const
+string FrameSkipSetting::getValueString() const
 {
 	if (value.isAutoFrameSkip()) {
 		return "auto";
 	} else {
-		std::ostringstream out;
+		ostringstream out;
 		out << value.getFrameSkip();
 		return out.str();
 	}
 }
 
 void FrameSkipSetting::setValueString(
-	const std::string &valueString)
+	const string &valueString)
 {
 	if (valueString == "auto") {
 		value = FrameSkip(true, value.getFrameSkip());

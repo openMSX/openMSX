@@ -58,15 +58,15 @@ void CassettePortInterface::unplug(const EmuTime &time)
 	plug(dummy, time);
 }
 
-const std::string &CassettePortInterface::getName() const
+const string &CassettePortInterface::getName() const
 {
-	static const std::string name("cassetteport");
+	static const string name("cassetteport");
 	return name;
 }
 
-const std::string &CassettePortInterface::getClass() const
+const string &CassettePortInterface::getClass() const
 {
-	static const std::string className("Cassette Port");
+	static const string className("Cassette Port");
 	return className;
 }
 
@@ -144,7 +144,8 @@ bool CassettePort::cassetteIn(const EmuTime &time)
 
 void CassettePort::flushOutput(const EmuTime &time)
 {
-	int sampleRate = ((CassetteDevice*)pluggable)->getWriteSampleRate();	// can be changed since prev flush
+	// can be changed since prev flush
+	int sampleRate = ((CassetteDevice*)pluggable)->getWriteSampleRate();
 	if (sampleRate == 0) {
 		// 99% of the time
 		//PRT_DEBUG("Cas: must not generate wave");

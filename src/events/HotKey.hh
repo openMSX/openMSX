@@ -39,19 +39,19 @@ class HotKey : private EventListener
 		 * When the given hotkey is pressed the given command is
 		 * automatically executed.
 		 */
-		void   registerHotKeyCommand(Keys::KeyCode key, const std::string &command);
-		void unregisterHotKeyCommand(Keys::KeyCode key, const std::string &command);
+		void   registerHotKeyCommand(Keys::KeyCode key, const string &command);
+		void unregisterHotKeyCommand(Keys::KeyCode key, const string &command);
 
 	private:
 		class HotKeyCmd : public HotKeyListener
 		{
 			public:
-				HotKeyCmd(const std::string &cmd);
+				HotKeyCmd(const string &cmd);
 				virtual ~HotKeyCmd();
-				const std::string &getCommand();
+				const string &getCommand();
 				virtual void signalHotKey(Keys::KeyCode key);
 			private:
-				std::string command;
+				string command;
 		};
 		
 		// EventListener
@@ -59,21 +59,21 @@ class HotKey : private EventListener
 
 		HotKey();
 
-		std::multimap <Keys::KeyCode, HotKeyListener*> map;
-		std::multimap <Keys::KeyCode, HotKeyCmd*> cmdMap;
+		multimap <Keys::KeyCode, HotKeyListener*> map;
+		multimap <Keys::KeyCode, HotKeyCmd*> cmdMap;
 
 		class BindCmd : public Command {
 			public:
-				virtual void execute(const std::vector<std::string> &tokens);
-				virtual void help(const std::vector<std::string> &tokens) const;
+				virtual void execute(const vector<string> &tokens);
+				virtual void help(const vector<string> &tokens) const;
 		};
 		friend class BindCmd;
 		BindCmd bindCmd;
 
 		class UnbindCmd : public Command {
 			public:
-				virtual void execute(const std::vector<std::string> &tokens);
-				virtual void help(const std::vector<std::string> &tokens) const;
+				virtual void execute(const vector<string> &tokens);
+				virtual void help(const vector<string> &tokens) const;
 		};
 		friend class UnbindCmd;
 		UnbindCmd unbindCmd;

@@ -102,13 +102,18 @@ void VDPVRAM::setRenderer(Renderer *renderer, const EmuTime &time) {
 
 // class DumpVRAMCmd
 
-void VDPVRAM::DumpVRAMCmd::execute(const std::vector<std::string> &tokens)
+VDPVRAM::DumpVRAMCmd::DumpVRAMCmd(VDPVRAM *vram_)
+	: vram(vram_)
 {
-	std::ofstream outfile("vramdump", std::ofstream::binary);
+}
+
+void VDPVRAM::DumpVRAMCmd::execute(const vector<string> &tokens)
+{
+	ofstream outfile("vramdump", ofstream::binary);
 	outfile.write((char*)vram->data, vram->size);
 }
 
-void VDPVRAM::DumpVRAMCmd::help(const std::vector<std::string> &tokens) const
+void VDPVRAM::DumpVRAMCmd::help(const vector<string> &tokens) const
 {
 	print("[DEBUG] Dump vram content to file \"vramdump\"");
 }

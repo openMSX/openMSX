@@ -66,8 +66,8 @@ class FrameSkipSetting : public Setting<FrameSkip>
 {
 public:
 	FrameSkipSetting();
-	std::string getValueString() const;
-	void setValueString(const std::string &valueString);
+	string getValueString() const;
+	void setValueString(const string &valueString);
 	void setValue(const FrameSkip &newValue);
 };
 

@@ -142,7 +142,7 @@ void OSDConsoleRenderer::initConsoleSize()
 	static bool placementInitDone = false;
 
 	// define all possible positions
-	std::map<const string, Placement> placeMap;
+	map<const string, Placement> placeMap;
 	placeMap["topleft"]     = CP_TOPLEFT;
 	placeMap["top"]         = CP_TOP;
 	placeMap["topright"]    = CP_TOPRIGHT;
@@ -171,7 +171,7 @@ void OSDConsoleRenderer::initConsoleSize()
 		placementString = config->hasParameter("placement") ?
 		                  config->getParameter("placement") :
 		                  "bottom";
-		std::map<string, Placement>::const_iterator it;
+		map<string, Placement>::const_iterator it;
 		it = placeMap.find(placementString);
 		if (it != placeMap.end()) {
 			consolePlacement = it->second;

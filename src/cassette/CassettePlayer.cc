@@ -30,14 +30,15 @@ void MSXCassettePlayerCLI::parseOption(const string &option,
 }
 const string& MSXCassettePlayerCLI::optionHelp() const
 {
-	static const string text("Put raw tape image specified in argument in virtual cassetteplayer");
+	static const string text(
+	  "Put raw tape image specified in argument in virtual cassetteplayer");
 	return text;
 }
 
 void MSXCassettePlayerCLI::parseFileType(const string &filename_)
 {
 	string filename(filename_); XML::Escape(filename);
-	std::ostringstream s;
+	ostringstream s;
 	s << "<?xml version=\"1.0\"?>";
 	s << "<msxconfig>";
 	s << " <config id=\"cassetteplayer\">";

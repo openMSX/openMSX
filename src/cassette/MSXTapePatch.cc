@@ -15,21 +15,23 @@ MSXCasCLI::MSXCasCLI()
 	CommandLineParser::instance()->registerFileType("cassetteimages", this);
 }
 
-void MSXCasCLI::parseOption(const std::string &option,
-                            std::list<std::string> &cmdLine)
+void MSXCasCLI::parseOption(const string &option,
+                            list<string> &cmdLine)
 {
 	parseFileType(getArgument(option, cmdLine));
 }
-const std::string& MSXCasCLI::optionHelp() const
+const string& MSXCasCLI::optionHelp() const
 {
-	static const std::string text("Put tape image in CAS format specified in argument in virtual cassette player");
+	static const string text(
+		"Put tape image in CAS format specified in argument "
+		"in virtual cassette player");
 	return text;
 }
 
-void MSXCasCLI::parseFileType(const std::string &filename_)
+void MSXCasCLI::parseFileType(const string &filename_)
 {
-	std::string filename(filename_); XML::Escape(filename);
-	std::ostringstream s;
+	string filename(filename_); XML::Escape(filename);
+	ostringstream s;
 	s << "<?xml version=\"1.0\"?>";
 	s << "<msxconfig>";
 	s << " <config id=\"cas\">";
@@ -40,9 +42,9 @@ void MSXCasCLI::parseFileType(const std::string &filename_)
 	MSXConfig *config = MSXConfig::instance();
 	config->loadStream(new UserFileContext(), s);
 }
-const std::string& MSXCasCLI::fileTypeHelp() const
+const string& MSXCasCLI::fileTypeHelp() const
 {
-	static const std::string text("Tape image in fMSX CAS format");
+	static const string text("Tape image in fMSX CAS format");
 	return text;
 }
 
@@ -73,7 +75,7 @@ MSXTapePatch::MSXTapePatch()
 	MSXConfig *conf = MSXConfig::instance();
 	if (conf->hasConfigWithId("cas")) {
 		Config *config = conf->getConfigById("cas");
-		const std::string &filename = config->getParameter("filename");
+		const string &filename = config->getParameter("filename");
 		try {
 			insertTape(config->getContext(), filename);
 		} catch (MSXException& e) {
@@ -121,7 +123,7 @@ void MSXTapePatch::patch(CPU::CPURegs& R)
 }
 
 void MSXTapePatch::insertTape(FileContext *context,
-                              const std::string &filename)
+                              const string &filename)
 {
 	ejectTape();
 	PRT_DEBUG("Loading file " << filename << " as tape ...");
@@ -397,7 +399,7 @@ void MSXTapePatch::STMOTR(CPU::CPURegs& R)
 }
 
 
-void MSXTapePatch::execute(const std::vector<std::string> &tokens)
+void MSXTapePatch::execute(const vector<string> &tokens)
 {
 	if (tokens.size() != 2) {
 		throw CommandException("Syntax error");
@@ -417,13 +419,13 @@ void MSXTapePatch::execute(const std::vector<std::string> &tokens)
 	}
 }
 
-void MSXTapePatch::help(const std::vector<std::string> &tokens) const
+void MSXTapePatch::help(const vector<string> &tokens) const
 {
 	print("tape eject      : remove tape from virtual player");
 	print("tape <filename> : change the tape file");
 }
 
-void MSXTapePatch::tabCompletion(std::vector<std::string> &tokens) const
+void MSXTapePatch::tabCompletion(vector<string> &tokens) const
 {
 	if (tokens.size()==2)
 		CommandController::completeFileName(tokens);

@@ -56,7 +56,7 @@ class MSXCPU : public MSXDevice, public DebugInterface
 		 * Send wait states to R800
 		 */
 		bool waitR800(const EmuTime &time);
-		bool getRegisters (std::map < std::string, word> & regMap);
+		bool getRegisters(map<string, word>& regMap);
 
 private:
 		MSXCPU(Device *config, const EmuTime &time);

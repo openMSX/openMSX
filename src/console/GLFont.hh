@@ -6,7 +6,6 @@
 #include "GLUtil.hh"
 #ifdef __OPENGL_AVAILABLE__
 
-#include <string>
 #include "Font.hh"
 
 
@@ -16,7 +15,7 @@ class GLFont : public Font
 		GLFont(GLuint texture, int width, int height, GLfloat *texCoord);
 		virtual ~GLFont();
 
-		virtual void drawText(const std::string &string, int x, int y);
+		virtual void drawText(const string &string, int x, int y);
 
 	private:
 		GLuint fontTexture;
