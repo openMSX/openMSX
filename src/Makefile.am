@@ -42,7 +42,7 @@ openmsx_SOURCES=\
 	BitmapConverter.hh BitmapConverter.cc \
 	CharacterConverter.hh CharacterConverter.cc \
 	PlatformFactory.hh PlatformFactory.cc \
-	devicefactory.hh devicefactory.cc \
+	DeviceFactory.hh DeviceFactory.cc \
 	Scheduler.hh Scheduler.cc Schedulable.hh Schedulable.cc \
 	EventDistributor.hh EventDistributor.cc EventListener.hh \
 	HotKey.hh HotKey.cc \

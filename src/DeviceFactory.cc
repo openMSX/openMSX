@@ -3,7 +3,7 @@
 #include "config.h"
 
 #include "MSXConfig.hh"
-#include "devicefactory.hh"
+#include "DeviceFactory.hh"
 #include "MSXSimple64KB.hh"
 #include "MSXPPI.hh"
 #include "VDP.hh"
@@ -25,7 +25,7 @@
 #include "MSXFDC.hh"
 
 
-MSXDevice *deviceFactory::create(MSXConfig::Device *conf, const EmuTime &time) {
+MSXDevice *DeviceFactory::create(MSXConfig::Device *conf, const EmuTime &time) {
 	MSXDevice *device = NULL;
 	if (conf->getType()=="CPU") {
 		device = MSXCPU::instance();

@@ -10,26 +10,27 @@
 
 #include "config.h"
 #include "MSXConfig.hh"
-#include <string>
+//#include <string>
 #include <SDL/SDL.h>
 #include "Thread.hh"
 #include "MSXMotherBoard.hh"
-#include "devicefactory.hh"
+#include "DeviceFactory.hh"
 #include "EventDistributor.hh"
 #include "EmuTime.hh"
 #include "CommandLineParser.hh"
 #include "icon.nn"
-#include "ConsoleSource/CommandController.hh"
+#include "CommandController.hh"
 #include "KeyEventInserter.hh"
 
 // test stuff joost
 #include "MSXFilePath.hh"
 
+
 void initializeSDL()
 {
 	Uint32 sdl_initval = SDL_INIT_VIDEO | SDL_INIT_EVENTTHREAD;
 	if (DEBUGVAL) sdl_initval |= SDL_INIT_NOPARACHUTE; // dump copre on segfault
-	if (SDL_Init(sdl_initval)<0)
+	if (SDL_Init(sdl_initval) < 0)
 		PRT_ERROR("Couldn't init SDL: " << SDL_GetError());
 	atexit(SDL_Quit);
 	SDL_WM_SetCaption("openMSX " VERSION " [alpha]", 0);
@@ -63,7 +64,7 @@ int main (int argc, char **argv)
 			//std::cout << "<device>" << std::endl;
 			//d->dump();
 			//std::cout << "</device>" << std::endl << std::endl;
-			MSXDevice *device = deviceFactory::create(d, zero);
+			MSXDevice *device = DeviceFactory::create(d, zero);
 			MSXMotherBoard::instance()->addDevice(device);
 			PRT_DEBUG ("Instantiated: " << d->getType());
 		}
@@ -101,6 +102,6 @@ int main (int argc, char **argv)
 	catch (MSXException& e) {
 		PRT_ERROR("Uncaught exception: " << e.desc);
 	}
-	exit (0);
+	exit(0);
 }
 
