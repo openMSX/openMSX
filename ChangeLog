@@ -1,5 +1,9 @@
 $Id$
 
+2001-06-23 Joost Yervante Damad <j.damad@qahwah.net>
+
+	* finished readonly MSXConfig interface
+
 2001-06-22 Joost Yervante Damad <j.damad@qahwah.net>
 
 	* added MSXException exception base class.
