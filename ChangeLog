@@ -1,8 +1,13 @@
 $Id$
 
+2004-03-17 Maarten ter Huurne <maarten@treewalker.org>
+	* Do not copy captured GL frame back the the frame buffer
+	  if the same image is still there.
+	  Thanks to Herman for finding this problem.
+
 2004-03-17 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed debugger assertion:
-	   - scheduler did not notice the CPU stoped early because of
+	   - scheduler did not notice the CPU stopped early because of
 	     breakpoint
 	   - the whole CPU <-> Scheduler interaction is a bit of a mess, need
 	     to clean this up someday
@@ -31,12 +36,12 @@ $Id$
 	* Another config refactoring:
 	   - split MSXConfig in hardware and settings part
 	   - merge Config and Device class
-	* Use ugle macro iso template in NonInheritable class:
+	* Use ugly macro iso template in NonInheritable class:
 	   - hopefully this works on all compilers, if not (or if it's
 	     too ugly) we can just remove this class
 	* Compilation fixes for icc
 	* Extended CPU debuggable:
-	   - IM can now be read at possition 26
+	   - IM can now be read at position 26
 	   - IFF1 and IFF2 can be read as bit 0 and 1 on position 27
 	* Made SCC debuggable
 

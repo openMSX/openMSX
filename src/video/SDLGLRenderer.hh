@@ -220,6 +220,10 @@ private:
 	  */
 	bool prevStored;
 
+	/** Is the frame buffer dirty?
+	  */
+	bool frameDirty;
+
 	/** Previous value of gamma setting.
 	  */
 	float prevGamma;

@@ -208,7 +208,8 @@ void SDLGLRenderer::finishFrame()
 	glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, 1024, 512, 0);
 	prevStored = true;
 
-	drawRest();
+	// Avoid repainting the buffer by putImage.
+	frameDirty = false;
 
 	EventDistributor::instance().distributeEvent(finishFrameEvent);
 }
@@ -250,14 +251,17 @@ int SDLGLRenderer::putPowerOffImage()
 
 void SDLGLRenderer::putImage()
 {
-	// Copy stored image to screen.
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, storedImageTextureId);
-	// Note: Without blending enabled, this method is rather efficient.
-	GLDrawBlur(0, 0, 1.0);
-	glDisable(GL_TEXTURE_2D);
+	if (frameDirty) {
+		// Copy stored image to screen.
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, storedImageTextureId);
+		// Note: Without blending enabled, this method is rather efficient.
+		GLDrawBlur(0, 0, 1.0);
+		glDisable(GL_TEXTURE_2D);
+	}
 
 	drawRest();
+	frameDirty = true; // drawRest made it dirty...
 }
 
 void SDLGLRenderer::takeScreenShot(const string& filename)
@@ -447,6 +451,7 @@ SDLGLRenderer::SDLGLRenderer(
 	glClear(GL_COLOR_BUFFER_BIT);
 	glDrawBuffer(GL_BACK);
 	glClear(GL_COLOR_BUFFER_BIT);
+	frameDirty = false;
 
 	// Init OpenGL settings.
 	glViewport(0, 0, WIDTH, HEIGHT);
