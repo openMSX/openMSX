@@ -32,11 +32,13 @@ void MidiInReader::plugHelper(Connector *connector_, const EmuTime &time)
 			+ string(strerror(errno)) );
 	}
 
-	MidiInConnector* connector = static_cast<MidiInConnector*>(connector_);
-	connector->setDataBits(SerialDataInterface::DATA_8);	// 8 data bits
-	connector->setStopBits(SerialDataInterface::STOP_1);	// 1 stop bit
-	connector->setParityBit(false, SerialDataInterface::EVEN); // no parity
+	MidiInConnector* midiConnector = static_cast<MidiInConnector*>(connector_);
+	midiConnector->setDataBits(SerialDataInterface::DATA_8);	// 8 data bits
+	midiConnector->setStopBits(SerialDataInterface::STOP_1);	// 1 stop bit
+	midiConnector->setParityBit(false, SerialDataInterface::EVEN); // no parity
 
+	connector = connector_; // base class will do this in a moment,
+	                        // but thread already needs it
 	thread.start();
 }
 

@@ -63,7 +63,6 @@ protected:
 
 	virtual void unplugHelper(const EmuTime& time) = 0;
 
-private:
 	Connector* connector;
 };
 

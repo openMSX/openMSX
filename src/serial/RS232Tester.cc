@@ -24,7 +24,7 @@ RS232Tester::~RS232Tester()
 }
 
 // Pluggable
-void RS232Tester::plugHelper(Connector *connector_, const EmuTime &time)
+void RS232Tester::plugHelper(Connector* connector_, const EmuTime& time)
 	throw(PlugException)
 {
 	// output
@@ -40,15 +40,17 @@ void RS232Tester::plugHelper(Connector *connector_, const EmuTime &time)
 		throw PlugException("Error opening input file");
 	}
 
-	RS232Connector* connector = static_cast<RS232Connector*>(connector_);
-	connector->setDataBits(SerialDataInterface::DATA_8);	// 8 data bits
-	connector->setStopBits(SerialDataInterface::STOP_1);	// 1 stop bit
-	connector->setParityBit(false, SerialDataInterface::EVEN); // no parity
+	RS232Connector* rs232Connector = static_cast<RS232Connector*>(connector_);
+	rs232Connector->setDataBits(SerialDataInterface::DATA_8);	// 8 data bits
+	rs232Connector->setStopBits(SerialDataInterface::STOP_1);	// 1 stop bit
+	rs232Connector->setParityBit(false, SerialDataInterface::EVEN); // no parity
 
+	connector = connector_; // base class will do this in a moment,
+	                        // but thread already needs it
 	thread.start();
 }
 
-void RS232Tester::unplugHelper(const EmuTime &time)
+void RS232Tester::unplugHelper(const EmuTime& time)
 {
 	// output
 	outFile.close();
@@ -94,7 +96,7 @@ void RS232Tester::run()
 }
 
 // input
-void RS232Tester::signal(const EmuTime &time)
+void RS232Tester::signal(const EmuTime& time)
 {
 	RS232Connector* connector = static_cast<RS232Connector*>(getConnector());
 	if (!connector->acceptsData()) {
@@ -116,7 +118,7 @@ void RS232Tester::signal(const EmuTime &time)
 }
 
 // Schedulable
-void RS232Tester::executeUntil(const EmuTime &time, int userData) throw()
+void RS232Tester::executeUntil(const EmuTime& time, int userData) throw()
 {
 	if (getConnector()) {
 		signal(time);
@@ -134,7 +136,7 @@ const string& RS232Tester::schedName() const
 
 
 // output
-void RS232Tester::recvByte(byte value, const EmuTime &time)
+void RS232Tester::recvByte(byte value, const EmuTime& time)
 {
 	outFile.put(value);
 	outFile.flush();

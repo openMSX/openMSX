@@ -45,7 +45,7 @@ MidiInNative::~MidiInNative()
 }
 
 // Pluggable
-void MidiInNative::plugHelper(Connector *connector_, const EmuTime &time)
+void MidiInNative::plugHelper(Connector* connector_, const EmuTime& time)
 	throw(PlugException)
 {
 	devidx = w32_midiInOpen(name.c_str(), thrdid);
@@ -53,15 +53,17 @@ void MidiInNative::plugHelper(Connector *connector_, const EmuTime &time)
 		throw PlugException("Failed to open " + name);
 	}
 
-	MidiInConnector* connector = static_cast<MidiInConnector*>(connector_);
-	connector->setDataBits(SerialDataInterface::DATA_8);	// 8 data bits
-	connector->setStopBits(SerialDataInterface::STOP_1);	// 1 stop bit
-	connector->setParityBit(false, SerialDataInterface::EVEN); // no parity
+	MidiInConnector* midiConnector = static_cast<MidiInConnector*>(connector_);
+	midiConnector->setDataBits(SerialDataInterface::DATA_8);	// 8 data bits
+	midiConnector->setStopBits(SerialDataInterface::STOP_1);	// 1 stop bit
+	midiConnector->setParityBit(false, SerialDataInterface::EVEN); // no parity
 
+	connector = connector_; // base class will do this in a moment,
+	                        // but thread already needs it
 	thread.start();
 }
 
-void MidiInNative::unplugHelper(const EmuTime &time)
+void MidiInNative::unplugHelper(const EmuTime& time)
 {
 	lock.down();
 	thread.stop();
@@ -147,7 +149,7 @@ void MidiInNative::run()
 }
 
 // MidiInDevice
-void MidiInNative::signal(const EmuTime &time)
+void MidiInNative::signal(const EmuTime& time)
 {
 	MidiInConnector* connector = static_cast<MidiInConnector*>(getConnector());
 	if (!connector->acceptsData()) {
@@ -169,7 +171,7 @@ void MidiInNative::signal(const EmuTime &time)
 }
 
 // Schedulable
-void MidiInNative::executeUntil(const EmuTime &time, int userData) throw()
+void MidiInNative::executeUntil(const EmuTime& time, int userData) throw()
 {
 	if (getConnector()) {
 		signal(time);
