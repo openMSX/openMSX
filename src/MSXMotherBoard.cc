@@ -15,7 +15,6 @@ MSXZ80 *MSXMotherBoard::CPU;
 MSXMotherBoard::MSXMotherBoard()
 {
 	PRT_DEBUG("Creating an MSXMotherBoard object");
-	availableDevices = new vector<MSXDevice*>();
 	for (int i=0; i<256; i++) {
 		IO_In[i]  = DummyDevice::instance();
 		IO_Out[i] = DummyDevice::instance();
@@ -36,7 +35,6 @@ MSXMotherBoard::MSXMotherBoard()
 MSXMotherBoard::~MSXMotherBoard()
 {
 	PRT_DEBUG("Detructing an MSXMotherBoard object");
-	delete availableDevices;
 }
 
 MSXMotherBoard *volatile MSXMotherBoard::oneInstance;
@@ -70,7 +68,7 @@ void MSXMotherBoard::register_IO_Out(byte port,MSXDevice *device)
 }
 void MSXMotherBoard::addDevice(MSXDevice *device)
 {
-	availableDevices->push_back(device);
+	availableDevices.push_back(device);
 }
 void MSXMotherBoard::setActiveCPU(MSXZ80 *device)
 {
@@ -89,7 +87,7 @@ void MSXMotherBoard::registerSlottedDevice(MSXDevice *device,int PrimSl,int SecS
 void MSXMotherBoard::ResetMSX()
 {
 	vector<MSXDevice*>::iterator i;
-	for (i = availableDevices->begin(); i != availableDevices->end(); i++) {
+	for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
 		(*i)->reset();
 	}
 }
@@ -112,13 +110,13 @@ void MSXMotherBoard::InitMSX()
 		cout << " value: " << (*i)->value;
 		cout << " class: " << (*i)->clasz << endl;
 	}
-//	availableDevices->fromStart();
+//	availableDevices.fromStart();
 //	do {
-//		availableDevices->device->init();
-//	} while ( availableDevices->toNext() );
+//		availableDevices.device->init();
+//	} while ( availableDevices.toNext() );
 
 	vector<MSXDevice*>::iterator i;
-	for (i = availableDevices->begin(); i != availableDevices->end(); i++) {
+	for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
 		(*i)->init();
 	}
 }
@@ -140,7 +138,7 @@ void MSXMotherBoard::StartMSX()
 	visibleDevices[2]=SlotLayout[0][0][2];
 	visibleDevices[3]=SlotLayout[0][0][3];
 	vector<MSXDevice*>::iterator i;
-	for (i = availableDevices->begin(); i != availableDevices->end(); i++) {
+	for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
 		(*i)->start();
 	}
 	Leds::instance()->setLed(POWER_ON);
@@ -149,7 +147,7 @@ void MSXMotherBoard::StartMSX()
 void MSXMotherBoard::SaveStateMSX(ofstream &savestream)
 {
 	vector<MSXDevice*>::iterator i;
-	for (i = availableDevices->begin(); i != availableDevices->end(); i++) {
+	for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
 	//TODO	(*i)->saveState(savestream);
 	}
 }

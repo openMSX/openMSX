@@ -5,10 +5,9 @@
 
 #include "MSXDevice.hh"
 #include "Scheduler.hh"
-#include "fstream.h"
-#include "iostream.h"
+#include <fstream>
+#include <vector>
 #include "emutime.hh"
-#include <stl.h>
 
 class MSXZ80;
 class MSXPPI;
@@ -50,7 +49,7 @@ class MSXMotherBoard : public MSXDevice
 		void StopMSX();
 		void StartMSX();
 		void RestoreMSX();
-		void SaveStateMSX(ofstream &savestream);
+		void SaveStateMSX(std::ofstream &savestream);
 
 		// This will be used by CPU to read data from "visual" devices
 		byte readMem(word address, Emutime &time);
@@ -71,7 +70,7 @@ class MSXMotherBoard : public MSXDevice
 
 		MSXDevice* IO_In[256];
 		MSXDevice* IO_Out[256];
-		vector<MSXDevice*> *availableDevices;
+		vector<MSXDevice*> availableDevices;
 		
 		MSXDevice* SlotLayout[4][4][4];
 		byte A8_Register;
