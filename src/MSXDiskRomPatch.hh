@@ -8,8 +8,10 @@
 #include "config.h"
 #include "CPU.hh"
 #include "FileOpener.hh"
+#include "ConsoleCommand.hh"
 
-class MSXDiskRomPatch: public MSXRomPatchInterface
+
+class MSXDiskRomPatch: public MSXRomPatchInterface, private ConsoleCommand
 {
 	class NoSuchSectorException : public MSXException {
 		public:
@@ -80,6 +82,11 @@ class MSXDiskRomPatch: public MSXRomPatchInterface
 		MSXDiskRomPatch::DiskImage* disk[LAST_DRIVE];
 
 		static const int SECTOR_SIZE = 512;
+
+
+		// Disk Command
+		virtual void execute(char *commandLine);
+		virtual void help(char *commandLine);
 };
 
 #endif // __MSXDISKROMPATCH_HH__

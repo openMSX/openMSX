@@ -3,6 +3,9 @@ $Id$
 2002-02-06 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Console cleanups
 	* ConsoleCommand inner classes for Scheduler, MSXMotherBoard
+	* Implemented "disk" command (similar as "tape" command):
+	    works only for drive a:
+	                   720kb disks
 
 2002-02-05 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Implemented "reset" console command.

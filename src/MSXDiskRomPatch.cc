@@ -6,6 +6,7 @@
 #include "CPU.hh"
 #include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
+#include "Console.hh"
 
 
 const int MSXDiskRomPatch::A_PHYDIO = 0x4010;
@@ -106,7 +107,7 @@ MSXDiskRomPatch::MSXDiskRomPatch()
 			MSXConfig::Config *config = MSXConfig::Backend::instance()->getConfigById(name);
 			filename = config->getParameter("filename");
 			defaultsize = config->getParameter("defaultsize");
-			disk[i] = new DiskImage(filename,defaultsize);
+			disk[i] = new DiskImage(filename, defaultsize);
 		} catch (MSXException& e) {
 			PRT_DEBUG("MSXException "<< e.desc);
 			PRT_INFO("Problems opening disk for drive "<<name[0xE] );
@@ -116,6 +117,8 @@ MSXDiskRomPatch::MSXDiskRomPatch()
 		// next drive letter
 		name[0xE]++;
 	}
+
+	Console::instance()->registerCommand(*this, "disk");
 }
 
 MSXDiskRomPatch::~MSXDiskRomPatch()
@@ -490,4 +493,30 @@ void MSXDiskRomPatch::DRVOFF(CPU::CPURegs& regs) const
 	PRT_DEBUG("void MSXDiskRomPatch::DRVOFF() const [does nothing]");
 
 	// do nothing
+}
+
+
+void MSXDiskRomPatch::execute(char *string)
+{
+	// TODO only works for drive A: with 720Kb disks
+	
+	if (0 == strcmp(string,"disk eject")) {
+		Console::instance()->printOnConsole("Disk ejected");
+		delete disk[0];
+		disk[0] = NULL;
+	} else {
+		char diskfile[250];
+		/* Get the tapefile out of the string */
+		if (EOF != sscanf(string, "disk %s", diskfile)) {
+			Console::instance()->printOnConsole("Changing disk");
+			delete disk[0];
+			disk[0] = new DiskImage(std::string(diskfile), std::string("720"));
+		}
+	}
+}
+
+void MSXDiskRomPatch::help(char *string)
+{
+	Console::instance()->printOnConsole("disk eject      : remove disk from virtual drive");
+	Console::instance()->printOnConsole("disk <filename> : change the disk file");
 }
