@@ -7,6 +7,7 @@
 #include "InfoTopic.hh"
 #include "BooleanSetting.hh"
 #include "SettingListener.hh"
+#include "CPUCore.hh"
 #include "Z80.hh"
 #include "R800.hh"
 
@@ -36,6 +37,9 @@ public:
 	 */
 	const EmuTime& getCurrentTimeUnsafe() const;
 	
+	/**
+	 * Switch between Z80 / R800
+	 */
 	void setActiveCPU(CPUType cpu);
 	
 	/**
@@ -95,14 +99,15 @@ public:
 	 */
 	void setZ80Freq(unsigned freq);
 	
+	void setInterface(MSXCPUInterface* interf);
+
 	// Debuggable
 	virtual unsigned getSize() const;
 	virtual const string& getDescription() const;
 	virtual byte read(unsigned address);
 	virtual void write(unsigned address, byte value);
 
-	void setInterface(MSXCPUInterface* interf);
-
+	// Breakpoint stuff
 	string doStep();
 	string doContinue();
 	string doBreak();
@@ -126,8 +131,8 @@ private:
 	void update(const SettingLeafNode* setting);
 
 	BooleanSetting traceSetting;
-	Z80 z80;
-	R800 r800;
+	CPUCore<Z80TYPE> z80;
+	CPUCore<R800TYPE> r800;
 
 	CPU* activeCPU;
 

@@ -1,73 +1,500 @@
 // $Id$
 
-/****************************************************************************/
-/*** During the proof of concept openMSX used                              **/
-/*** Z80Em, the Portable Z80 emulator                                      **/
-/*** of Marcel de Kogel ( (C)1996,1997 )                                   **/
-/***                                                                       **/
-/*** Now this code is completely rewritten by Wouter Vermaelen for openMSX **/
-/*** with inter-instruction timings, C++ enabling,EmuTime support etc etc  **/
-/*** and bears no resemblance anymore with Z80Em                           **/
-/***                                                                       **/
-/****************************************************************************/
-
 #include "Z80.hh"
+#include "CPUCore.hh"
 
 namespace openmsx {
 
-#include "Z80Tables.nn"
+typedef CPUCore<Z80TYPE> C;
 
-Z80::Z80(const EmuTime& time, const BooleanSetting& traceSetting)
-	: CPU("z80", CLOCK_FREQ, traceSetting)
-{
-	reset(time);
-}
+template<> const C::FuncPtr C::opcode_dd_cb[256] = {
+ &C::rlc_xix_b  ,&C::rlc_xix_c  ,&C::rlc_xix_d  ,&C::rlc_xix_e  ,
+ &C::rlc_xix_h  ,&C::rlc_xix_l  ,&C::rlc_xix    ,&C::rlc_xix_a  ,
+ &C::rrc_xix_b  ,&C::rrc_xix_c  ,&C::rrc_xix_d  ,&C::rrc_xix_e  ,
+ &C::rrc_xix_h  ,&C::rrc_xix_l  ,&C::rrc_xix    ,&C::rrc_xix_a  ,
+ &C::rl_xix_b   ,&C::rl_xix_c   ,&C::rl_xix_d   ,&C::rl_xix_e   ,
+ &C::rl_xix_h   ,&C::rl_xix_l   ,&C::rl_xix     ,&C::rl_xix_a   ,
+ &C::rr_xix_b   ,&C::rr_xix_c   ,&C::rr_xix_d   ,&C::rr_xix_e   ,
+ &C::rr_xix_h   ,&C::rr_xix_l   ,&C::rr_xix     ,&C::rr_xix_a   ,
+ &C::sla_xix_b  ,&C::sla_xix_c  ,&C::sla_xix_d  ,&C::sla_xix_e  ,
+ &C::sla_xix_h  ,&C::sla_xix_l  ,&C::sla_xix    ,&C::sla_xix_a  ,
+ &C::sra_xix_b  ,&C::sra_xix_c  ,&C::sra_xix_d  ,&C::sra_xix_e  ,
+ &C::sra_xix_h  ,&C::sra_xix_l  ,&C::sra_xix    ,&C::sra_xix_a  ,
+ &C::sll_xix_b  ,&C::sll_xix_c  ,&C::sll_xix_d  ,&C::sll_xix_e  ,
+ &C::sll_xix_h  ,&C::sll_xix_l  ,&C::sll_xix    ,&C::sll_xix_a  ,
+ &C::srl_xix_b  ,&C::srl_xix_c  ,&C::srl_xix_d  ,&C::srl_xix_e  ,
+ &C::srl_xix_h  ,&C::srl_xix_l  ,&C::srl_xix    ,&C::srl_xix_a  ,
+ 
+ &C::bit_0_xix  ,&C::bit_0_xix  ,&C::bit_0_xix  ,&C::bit_0_xix  ,
+ &C::bit_0_xix  ,&C::bit_0_xix  ,&C::bit_0_xix  ,&C::bit_0_xix  ,
+ &C::bit_1_xix  ,&C::bit_1_xix  ,&C::bit_1_xix  ,&C::bit_1_xix  ,
+ &C::bit_1_xix  ,&C::bit_1_xix  ,&C::bit_1_xix  ,&C::bit_1_xix  ,
+ &C::bit_2_xix  ,&C::bit_2_xix  ,&C::bit_2_xix  ,&C::bit_2_xix  ,
+ &C::bit_2_xix  ,&C::bit_2_xix  ,&C::bit_2_xix  ,&C::bit_2_xix  ,
+ &C::bit_3_xix  ,&C::bit_3_xix  ,&C::bit_3_xix  ,&C::bit_3_xix  ,
+ &C::bit_3_xix  ,&C::bit_3_xix  ,&C::bit_3_xix  ,&C::bit_3_xix  ,
+ &C::bit_4_xix  ,&C::bit_4_xix  ,&C::bit_4_xix  ,&C::bit_4_xix  ,
+ &C::bit_4_xix  ,&C::bit_4_xix  ,&C::bit_4_xix  ,&C::bit_4_xix  ,
+ &C::bit_5_xix  ,&C::bit_5_xix  ,&C::bit_5_xix  ,&C::bit_5_xix  ,
+ &C::bit_5_xix  ,&C::bit_5_xix  ,&C::bit_5_xix  ,&C::bit_5_xix  ,
+ &C::bit_6_xix  ,&C::bit_6_xix  ,&C::bit_6_xix  ,&C::bit_6_xix  ,
+ &C::bit_6_xix  ,&C::bit_6_xix  ,&C::bit_6_xix  ,&C::bit_6_xix  ,
+ &C::bit_7_xix  ,&C::bit_7_xix  ,&C::bit_7_xix  ,&C::bit_7_xix  ,
+ &C::bit_7_xix  ,&C::bit_7_xix  ,&C::bit_7_xix  ,&C::bit_7_xix  ,
 
-Z80::~Z80()
-{
-}
+ &C::res_0_xix_b,&C::res_0_xix_c,&C::res_0_xix_d,&C::res_0_xix_e,
+ &C::res_0_xix_h,&C::res_0_xix_l,&C::res_0_xix  ,&C::res_0_xix_a,
+ &C::res_1_xix_b,&C::res_1_xix_c,&C::res_1_xix_d,&C::res_1_xix_e,
+ &C::res_1_xix_h,&C::res_1_xix_l,&C::res_1_xix  ,&C::res_1_xix_a,
+ &C::res_2_xix_b,&C::res_2_xix_c,&C::res_2_xix_d,&C::res_2_xix_e,
+ &C::res_2_xix_h,&C::res_2_xix_l,&C::res_2_xix  ,&C::res_2_xix_a,
+ &C::res_3_xix_b,&C::res_3_xix_c,&C::res_3_xix_d,&C::res_3_xix_e,
+ &C::res_3_xix_h,&C::res_3_xix_l,&C::res_3_xix  ,&C::res_3_xix_a,
+ &C::res_4_xix_b,&C::res_4_xix_c,&C::res_4_xix_d,&C::res_4_xix_e,
+ &C::res_4_xix_h,&C::res_4_xix_l,&C::res_4_xix  ,&C::res_4_xix_a,
+ &C::res_5_xix_b,&C::res_5_xix_c,&C::res_5_xix_d,&C::res_5_xix_e,
+ &C::res_5_xix_h,&C::res_5_xix_l,&C::res_5_xix  ,&C::res_5_xix_a,
+ &C::res_6_xix_b,&C::res_6_xix_c,&C::res_6_xix_d,&C::res_6_xix_e,
+ &C::res_6_xix_h,&C::res_6_xix_l,&C::res_6_xix  ,&C::res_6_xix_a,
+ &C::res_7_xix_b,&C::res_7_xix_c,&C::res_7_xix_d,&C::res_7_xix_e,
+ &C::res_7_xix_h,&C::res_7_xix_l,&C::res_7_xix  ,&C::res_7_xix_a,
+ 
+ &C::set_0_xix_b,&C::set_0_xix_c,&C::set_0_xix_d,&C::set_0_xix_e,
+ &C::set_0_xix_h,&C::set_0_xix_l,&C::set_0_xix  ,&C::set_0_xix_a,
+ &C::set_1_xix_b,&C::set_1_xix_c,&C::set_1_xix_d,&C::set_1_xix_e,
+ &C::set_1_xix_h,&C::set_1_xix_l,&C::set_1_xix  ,&C::set_1_xix_a,
+ &C::set_2_xix_b,&C::set_2_xix_c,&C::set_2_xix_d,&C::set_2_xix_e,
+ &C::set_2_xix_h,&C::set_2_xix_l,&C::set_2_xix  ,&C::set_2_xix_a,
+ &C::set_3_xix_b,&C::set_3_xix_c,&C::set_3_xix_d,&C::set_3_xix_e,
+ &C::set_3_xix_h,&C::set_3_xix_l,&C::set_3_xix  ,&C::set_3_xix_a,
+ &C::set_4_xix_b,&C::set_4_xix_c,&C::set_4_xix_d,&C::set_4_xix_e,
+ &C::set_4_xix_h,&C::set_4_xix_l,&C::set_4_xix  ,&C::set_4_xix_a,
+ &C::set_5_xix_b,&C::set_5_xix_c,&C::set_5_xix_d,&C::set_5_xix_e,
+ &C::set_5_xix_h,&C::set_5_xix_l,&C::set_5_xix  ,&C::set_5_xix_a,
+ &C::set_6_xix_b,&C::set_6_xix_c,&C::set_6_xix_d,&C::set_6_xix_e,
+ &C::set_6_xix_h,&C::set_6_xix_l,&C::set_6_xix  ,&C::set_6_xix_a,
+ &C::set_7_xix_b,&C::set_7_xix_c,&C::set_7_xix_d,&C::set_7_xix_e,
+ &C::set_7_xix_h,&C::set_7_xix_l,&C::set_7_xix  ,&C::set_7_xix_a,
+};
 
-inline void Z80::M1_DELAY()       { clock += 1 + WAIT_CYCLES; }
-inline void Z80::ADD_16_8_DELAY() { clock += 5; }
-inline void Z80::OP_16_16_DELAY() { clock += 7; }
-inline void Z80::INC_16_DELAY()   { clock += 2; }
-inline void Z80::BLOCK_DELAY()    { clock += 5; }
-inline void Z80::RLD_DELAY()      { clock += 4; }
-inline void Z80::EX_SP_HL_DELAY() { clock += 2; }
-inline void Z80::LDI_DELAY()      { clock += 2; }
-inline void Z80::DD_CB_DELAY()    { clock += 2; }
-inline void Z80::PARALLEL_DELAY() { clock += 2; }
-inline void Z80::NMI_DELAY()      { clock += 11; }
-inline void Z80::IM0_DELAY()      { clock += 2; }
-inline void Z80::IM1_DELAY()      { clock += 2; }
-inline void Z80::IM2_DELAY()      { clock += 19; }
-inline void Z80::PUSH_DELAY()     { clock += 1; }
-inline void Z80::INC_DELAY()      { clock += 1; }
-inline void Z80::SMALL_DELAY()    { clock += 1; }  // TODO more detailed?
-inline int Z80::haltStates() { return 4 + WAIT_CYCLES; } // HALT + M1
+template<> const C::FuncPtr C::opcode_fd_cb[256] = {
+ &C::rlc_xiy_b  ,&C::rlc_xiy_c  ,&C::rlc_xiy_d  ,&C::rlc_xiy_e  ,
+ &C::rlc_xiy_h  ,&C::rlc_xiy_l  ,&C::rlc_xiy    ,&C::rlc_xiy_a  ,
+ &C::rrc_xiy_b  ,&C::rrc_xiy_c  ,&C::rrc_xiy_d  ,&C::rrc_xiy_e  ,
+ &C::rrc_xiy_h  ,&C::rrc_xiy_l  ,&C::rrc_xiy    ,&C::rrc_xiy_a  ,
+ &C::rl_xiy_b   ,&C::rl_xiy_c   ,&C::rl_xiy_d   ,&C::rl_xiy_e   ,
+ &C::rl_xiy_h   ,&C::rl_xiy_l   ,&C::rl_xiy     ,&C::rl_xiy_a   ,
+ &C::rr_xiy_b   ,&C::rr_xiy_c   ,&C::rr_xiy_d   ,&C::rr_xiy_e   ,
+ &C::rr_xiy_h   ,&C::rr_xiy_l   ,&C::rr_xiy     ,&C::rr_xiy_a   ,
+ &C::sla_xiy_b  ,&C::sla_xiy_c  ,&C::sla_xiy_d  ,&C::sla_xiy_e  ,
+ &C::sla_xiy_h  ,&C::sla_xiy_l  ,&C::sla_xiy    ,&C::sla_xiy_a  ,
+ &C::sra_xiy_b  ,&C::sra_xiy_c  ,&C::sra_xiy_d  ,&C::sra_xiy_e  ,
+ &C::sra_xiy_h  ,&C::sra_xiy_l  ,&C::sra_xiy    ,&C::sra_xiy_a  ,
+ &C::sll_xiy_b  ,&C::sll_xiy_c  ,&C::sll_xiy_d  ,&C::sll_xiy_e  ,
+ &C::sll_xiy_h  ,&C::sll_xiy_l  ,&C::sll_xiy    ,&C::sll_xiy_a  ,
+ &C::srl_xiy_b  ,&C::srl_xiy_c  ,&C::srl_xiy_d  ,&C::srl_xiy_e  ,
+ &C::srl_xiy_h  ,&C::srl_xiy_l  ,&C::srl_xiy    ,&C::srl_xiy_a  ,
+ 
+ &C::bit_0_xiy  ,&C::bit_0_xiy  ,&C::bit_0_xiy  ,&C::bit_0_xiy  ,
+ &C::bit_0_xiy  ,&C::bit_0_xiy  ,&C::bit_0_xiy  ,&C::bit_0_xiy  ,
+ &C::bit_1_xiy  ,&C::bit_1_xiy  ,&C::bit_1_xiy  ,&C::bit_1_xiy  ,
+ &C::bit_1_xiy  ,&C::bit_1_xiy  ,&C::bit_1_xiy  ,&C::bit_1_xiy  ,
+ &C::bit_2_xiy  ,&C::bit_2_xiy  ,&C::bit_2_xiy  ,&C::bit_2_xiy  ,
+ &C::bit_2_xiy  ,&C::bit_2_xiy  ,&C::bit_2_xiy  ,&C::bit_2_xiy  ,
+ &C::bit_3_xiy  ,&C::bit_3_xiy  ,&C::bit_3_xiy  ,&C::bit_3_xiy  ,
+ &C::bit_3_xiy  ,&C::bit_3_xiy  ,&C::bit_3_xiy  ,&C::bit_3_xiy  ,
+ &C::bit_4_xiy  ,&C::bit_4_xiy  ,&C::bit_4_xiy  ,&C::bit_4_xiy  ,
+ &C::bit_4_xiy  ,&C::bit_4_xiy  ,&C::bit_4_xiy  ,&C::bit_4_xiy  ,
+ &C::bit_5_xiy  ,&C::bit_5_xiy  ,&C::bit_5_xiy  ,&C::bit_5_xiy  ,
+ &C::bit_5_xiy  ,&C::bit_5_xiy  ,&C::bit_5_xiy  ,&C::bit_5_xiy  ,
+ &C::bit_6_xiy  ,&C::bit_6_xiy  ,&C::bit_6_xiy  ,&C::bit_6_xiy  ,
+ &C::bit_6_xiy  ,&C::bit_6_xiy  ,&C::bit_6_xiy  ,&C::bit_6_xiy  ,
+ &C::bit_7_xiy  ,&C::bit_7_xiy  ,&C::bit_7_xiy  ,&C::bit_7_xiy  ,
+ &C::bit_7_xiy  ,&C::bit_7_xiy  ,&C::bit_7_xiy  ,&C::bit_7_xiy  ,
 
-inline byte Z80::RDMEM_OPCODE(word address)
-{
-	return RDMEM_common(address);
-}
+ &C::res_0_xiy_b,&C::res_0_xiy_c,&C::res_0_xiy_d,&C::res_0_xiy_e,
+ &C::res_0_xiy_h,&C::res_0_xiy_l,&C::res_0_xiy  ,&C::res_0_xiy_a,
+ &C::res_1_xiy_b,&C::res_1_xiy_c,&C::res_1_xiy_d,&C::res_1_xiy_e,
+ &C::res_1_xiy_h,&C::res_1_xiy_l,&C::res_1_xiy  ,&C::res_1_xiy_a,
+ &C::res_2_xiy_b,&C::res_2_xiy_c,&C::res_2_xiy_d,&C::res_2_xiy_e,
+ &C::res_2_xiy_h,&C::res_2_xiy_l,&C::res_2_xiy  ,&C::res_2_xiy_a,
+ &C::res_3_xiy_b,&C::res_3_xiy_c,&C::res_3_xiy_d,&C::res_3_xiy_e,
+ &C::res_3_xiy_h,&C::res_3_xiy_l,&C::res_3_xiy  ,&C::res_3_xiy_a,
+ &C::res_4_xiy_b,&C::res_4_xiy_c,&C::res_4_xiy_d,&C::res_4_xiy_e,
+ &C::res_4_xiy_h,&C::res_4_xiy_l,&C::res_4_xiy  ,&C::res_4_xiy_a,
+ &C::res_5_xiy_b,&C::res_5_xiy_c,&C::res_5_xiy_d,&C::res_5_xiy_e,
+ &C::res_5_xiy_h,&C::res_5_xiy_l,&C::res_5_xiy  ,&C::res_5_xiy_a,
+ &C::res_6_xiy_b,&C::res_6_xiy_c,&C::res_6_xiy_d,&C::res_6_xiy_e,
+ &C::res_6_xiy_h,&C::res_6_xiy_l,&C::res_6_xiy  ,&C::res_6_xiy_a,
+ &C::res_7_xiy_b,&C::res_7_xiy_c,&C::res_7_xiy_d,&C::res_7_xiy_e,
+ &C::res_7_xiy_h,&C::res_7_xiy_l,&C::res_7_xiy  ,&C::res_7_xiy_a,
+ 
+ &C::set_0_xiy_b,&C::set_0_xiy_c,&C::set_0_xiy_d,&C::set_0_xiy_e,
+ &C::set_0_xiy_h,&C::set_0_xiy_l,&C::set_0_xiy  ,&C::set_0_xiy_a,
+ &C::set_1_xiy_b,&C::set_1_xiy_c,&C::set_1_xiy_d,&C::set_1_xiy_e,
+ &C::set_1_xiy_h,&C::set_1_xiy_l,&C::set_1_xiy  ,&C::set_1_xiy_a,
+ &C::set_2_xiy_b,&C::set_2_xiy_c,&C::set_2_xiy_d,&C::set_2_xiy_e,
+ &C::set_2_xiy_h,&C::set_2_xiy_l,&C::set_2_xiy  ,&C::set_2_xiy_a,
+ &C::set_3_xiy_b,&C::set_3_xiy_c,&C::set_3_xiy_d,&C::set_3_xiy_e,
+ &C::set_3_xiy_h,&C::set_3_xiy_l,&C::set_3_xiy  ,&C::set_3_xiy_a,
+ &C::set_4_xiy_b,&C::set_4_xiy_c,&C::set_4_xiy_d,&C::set_4_xiy_e,
+ &C::set_4_xiy_h,&C::set_4_xiy_l,&C::set_4_xiy  ,&C::set_4_xiy_a,
+ &C::set_5_xiy_b,&C::set_5_xiy_c,&C::set_5_xiy_d,&C::set_5_xiy_e,
+ &C::set_5_xiy_h,&C::set_5_xiy_l,&C::set_5_xiy  ,&C::set_5_xiy_a,
+ &C::set_6_xiy_b,&C::set_6_xiy_c,&C::set_6_xiy_d,&C::set_6_xiy_e,
+ &C::set_6_xiy_h,&C::set_6_xiy_l,&C::set_6_xiy  ,&C::set_6_xiy_a,
+ &C::set_7_xiy_b,&C::set_7_xiy_c,&C::set_7_xiy_d,&C::set_7_xiy_e,
+ &C::set_7_xiy_h,&C::set_7_xiy_l,&C::set_7_xiy  ,&C::set_7_xiy_a,
+};
 
-inline byte Z80::RDMEM(word address)
-{
-	return RDMEM_common(address);
-}
+template<> const C::FuncPtr C::opcode_cb[256] = {
+ &C::rlc_b   ,&C::rlc_c   ,&C::rlc_d     ,&C::rlc_e  ,
+ &C::rlc_h   ,&C::rlc_l   ,&C::rlc_xhl   ,&C::rlc_a  ,
+ &C::rrc_b   ,&C::rrc_c   ,&C::rrc_d     ,&C::rrc_e  ,
+ &C::rrc_h   ,&C::rrc_l   ,&C::rrc_xhl   ,&C::rrc_a  ,
+ &C::rl_b    ,&C::rl_c    ,&C::rl_d      ,&C::rl_e   ,
+ &C::rl_h    ,&C::rl_l    ,&C::rl_xhl    ,&C::rl_a   ,
+ &C::rr_b    ,&C::rr_c    ,&C::rr_d      ,&C::rr_e   ,
+ &C::rr_h    ,&C::rr_l    ,&C::rr_xhl    ,&C::rr_a   ,
+ &C::sla_b   ,&C::sla_c   ,&C::sla_d     ,&C::sla_e  ,
+ &C::sla_h   ,&C::sla_l   ,&C::sla_xhl   ,&C::sla_a  ,
+ &C::sra_b   ,&C::sra_c   ,&C::sra_d     ,&C::sra_e  ,
+ &C::sra_h   ,&C::sra_l   ,&C::sra_xhl   ,&C::sra_a  ,
+ &C::sll_b   ,&C::sll_c   ,&C::sll_d     ,&C::sll_e  ,
+ &C::sll_h   ,&C::sll_l   ,&C::sll_xhl   ,&C::sll_a  ,
+ &C::srl_b   ,&C::srl_c   ,&C::srl_d     ,&C::srl_e  ,
+ &C::srl_h   ,&C::srl_l   ,&C::srl_xhl   ,&C::srl_a  ,
+ 
+ &C::bit_0_b ,&C::bit_0_c ,&C::bit_0_d   ,&C::bit_0_e,
+ &C::bit_0_h ,&C::bit_0_l ,&C::bit_0_xhl ,&C::bit_0_a,
+ &C::bit_1_b ,&C::bit_1_c ,&C::bit_1_d   ,&C::bit_1_e,
+ &C::bit_1_h ,&C::bit_1_l ,&C::bit_1_xhl ,&C::bit_1_a,
+ &C::bit_2_b ,&C::bit_2_c ,&C::bit_2_d   ,&C::bit_2_e,
+ &C::bit_2_h ,&C::bit_2_l ,&C::bit_2_xhl ,&C::bit_2_a,
+ &C::bit_3_b ,&C::bit_3_c ,&C::bit_3_d   ,&C::bit_3_e,
+ &C::bit_3_h ,&C::bit_3_l ,&C::bit_3_xhl ,&C::bit_3_a,
+ &C::bit_4_b ,&C::bit_4_c ,&C::bit_4_d   ,&C::bit_4_e,
+ &C::bit_4_h ,&C::bit_4_l ,&C::bit_4_xhl ,&C::bit_4_a,
+ &C::bit_5_b ,&C::bit_5_c ,&C::bit_5_d   ,&C::bit_5_e,
+ &C::bit_5_h ,&C::bit_5_l ,&C::bit_5_xhl ,&C::bit_5_a,
+ &C::bit_6_b ,&C::bit_6_c ,&C::bit_6_d   ,&C::bit_6_e,
+ &C::bit_6_h ,&C::bit_6_l ,&C::bit_6_xhl ,&C::bit_6_a,
+ &C::bit_7_b ,&C::bit_7_c ,&C::bit_7_d   ,&C::bit_7_e,
+ &C::bit_7_h ,&C::bit_7_l ,&C::bit_7_xhl ,&C::bit_7_a,
+ 
+ &C::res_0_b ,&C::res_0_c ,&C::res_0_d   ,&C::res_0_e,
+ &C::res_0_h ,&C::res_0_l ,&C::res_0_xhl ,&C::res_0_a,
+ &C::res_1_b ,&C::res_1_c ,&C::res_1_d   ,&C::res_1_e,
+ &C::res_1_h ,&C::res_1_l ,&C::res_1_xhl ,&C::res_1_a,
+ &C::res_2_b ,&C::res_2_c ,&C::res_2_d   ,&C::res_2_e,
+ &C::res_2_h ,&C::res_2_l ,&C::res_2_xhl ,&C::res_2_a,
+ &C::res_3_b ,&C::res_3_c ,&C::res_3_d   ,&C::res_3_e,
+ &C::res_3_h ,&C::res_3_l ,&C::res_3_xhl ,&C::res_3_a,
+ &C::res_4_b ,&C::res_4_c ,&C::res_4_d   ,&C::res_4_e,
+ &C::res_4_h ,&C::res_4_l ,&C::res_4_xhl ,&C::res_4_a,
+ &C::res_5_b ,&C::res_5_c ,&C::res_5_d   ,&C::res_5_e,
+ &C::res_5_h ,&C::res_5_l ,&C::res_5_xhl ,&C::res_5_a,
+ &C::res_6_b ,&C::res_6_c ,&C::res_6_d   ,&C::res_6_e,
+ &C::res_6_h ,&C::res_6_l ,&C::res_6_xhl ,&C::res_6_a,
+ &C::res_7_b ,&C::res_7_c ,&C::res_7_d   ,&C::res_7_e,
+ &C::res_7_h ,&C::res_7_l ,&C::res_7_xhl ,&C::res_7_a,
+ 
+ &C::set_0_b ,&C::set_0_c ,&C::set_0_d   ,&C::set_0_e,
+ &C::set_0_h ,&C::set_0_l ,&C::set_0_xhl ,&C::set_0_a,
+ &C::set_1_b ,&C::set_1_c ,&C::set_1_d   ,&C::set_1_e,
+ &C::set_1_h ,&C::set_1_l ,&C::set_1_xhl ,&C::set_1_a,
+ &C::set_2_b ,&C::set_2_c ,&C::set_2_d   ,&C::set_2_e,
+ &C::set_2_h ,&C::set_2_l ,&C::set_2_xhl ,&C::set_2_a,
+ &C::set_3_b ,&C::set_3_c ,&C::set_3_d   ,&C::set_3_e,
+ &C::set_3_h ,&C::set_3_l ,&C::set_3_xhl ,&C::set_3_a,
+ &C::set_4_b ,&C::set_4_c ,&C::set_4_d   ,&C::set_4_e,
+ &C::set_4_h ,&C::set_4_l ,&C::set_4_xhl ,&C::set_4_a,
+ &C::set_5_b ,&C::set_5_c ,&C::set_5_d   ,&C::set_5_e,
+ &C::set_5_h ,&C::set_5_l ,&C::set_5_xhl ,&C::set_5_a,
+ &C::set_6_b ,&C::set_6_c ,&C::set_6_d   ,&C::set_6_e,
+ &C::set_6_h ,&C::set_6_l ,&C::set_6_xhl ,&C::set_6_a,
+ &C::set_7_b ,&C::set_7_c ,&C::set_7_d   ,&C::set_7_e,
+ &C::set_7_h ,&C::set_7_l ,&C::set_7_xhl ,&C::set_7_a
+};
 
-inline void Z80::WRMEM(word address, byte value)
-{
-	WRMEM_common(address, value);
-}
+template<> const C::FuncPtr C::opcode_ed[256] = {
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ 
+ &C::in_b_c,&C::out_c_b,&C::sbc_hl_bc,&C::ld_xword_bc,
+ &C::neg   ,&C::retn   ,&C::im_0     ,&C::ld_i_a     ,
+ &C::in_c_c,&C::out_c_c,&C::adc_hl_bc,&C::ld_bc_xword,
+ &C::neg   ,&C::reti   ,&C::im_0     ,&C::ld_r_a     ,
+ &C::in_d_c,&C::out_c_d,&C::sbc_hl_de,&C::ld_xword_de,
+ &C::neg   ,&C::retn   ,&C::im_1     ,&C::ld_a_i     ,
+ &C::in_e_c,&C::out_c_e,&C::adc_hl_de,&C::ld_de_xword,
+ &C::neg   ,&C::retn   ,&C::im_2     ,&C::ld_a_r     ,
+ &C::in_h_c,&C::out_c_h,&C::sbc_hl_hl,&C::ld_xword_hl,
+ &C::neg   ,&C::retn   ,&C::im_0     ,&C::rrd        ,
+ &C::in_l_c,&C::out_c_l,&C::adc_hl_hl,&C::ld_hl_xword,
+ &C::neg   ,&C::retn   ,&C::im_0     ,&C::rld        ,
+ &C::in_0_c,&C::out_c_0,&C::sbc_hl_sp,&C::ld_xword_sp,
+ &C::neg   ,&C::retn   ,&C::im_1     ,&C::nop        ,
+ &C::in_a_c,&C::out_c_a,&C::adc_hl_sp,&C::ld_sp_xword,
+ &C::neg   ,&C::retn   ,&C::im_2     ,&C::nop        ,
+ 
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::ldi   ,&C::cpi    ,&C::ini      ,&C::outi       ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::ldd   ,&C::cpd    ,&C::ind      ,&C::outd       ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::ldir  ,&C::cpir   ,&C::inir     ,&C::otir       ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::lddr  ,&C::cpdr   ,&C::indr     ,&C::otdr       ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ 
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop        ,
+ &C::nop   ,&C::nop    ,&C::nop      ,&C::nop
+};
 
-inline void Z80::R800Refresh()
-{
-	// nothing
-}
+template<> const C::FuncPtr C::opcode_dd[256] = {
+  &C::nop       ,&C::ld_bc_word,&C::ld_xbc_a   ,&C::inc_bc    ,
+  &C::inc_b     ,&C::dec_b     ,&C::ld_b_byte  ,&C::rlca      ,
+  &C::ex_af_af  ,&C::add_ix_bc ,&C::ld_a_xbc   ,&C::dec_bc    ,
+  &C::inc_c     ,&C::dec_c     ,&C::ld_c_byte  ,&C::rrca      ,
+  &C::djnz      ,&C::ld_de_word,&C::ld_xde_a   ,&C::inc_de    ,
+  &C::inc_d     ,&C::dec_d     ,&C::ld_d_byte  ,&C::rla       ,
+  &C::jr        ,&C::add_ix_de ,&C::ld_a_xde   ,&C::dec_de    ,
+  &C::inc_e     ,&C::dec_e     ,&C::ld_e_byte  ,&C::rra       ,
+  &C::jr_nz     ,&C::ld_ix_word,&C::ld_xword_ix,&C::inc_ix    ,
+  &C::inc_ixh   ,&C::dec_ixh   ,&C::ld_ixh_byte,&C::daa       ,
+  &C::jr_z      ,&C::add_ix_ix ,&C::ld_ix_xword,&C::dec_ix    ,
+  &C::inc_ixl   ,&C::dec_ixl   ,&C::ld_ixl_byte,&C::cpl       ,
+  &C::jr_nc     ,&C::ld_sp_word,&C::ld_xbyte_a ,&C::inc_sp    ,
+  &C::inc_xix   ,&C::dec_xix   ,&C::ld_xix_byte,&C::scf       ,
+  &C::jr_c      ,&C::add_ix_sp ,&C::ld_a_xbyte ,&C::dec_sp    ,
+  &C::inc_a     ,&C::dec_a     ,&C::ld_a_byte  ,&C::ccf       ,
+ 
+  &C::ld_b_b    ,&C::ld_b_c    ,&C::ld_b_d     ,&C::ld_b_e    ,
+  &C::ld_b_ixh  ,&C::ld_b_ixl  ,&C::ld_b_xix   ,&C::ld_b_a    ,
+  &C::ld_c_b    ,&C::ld_c_c    ,&C::ld_c_d     ,&C::ld_c_e    ,
+  &C::ld_c_ixh  ,&C::ld_c_ixl  ,&C::ld_c_xix   ,&C::ld_c_a    ,
+  &C::ld_d_b    ,&C::ld_d_c    ,&C::ld_d_d     ,&C::ld_d_e    ,
+  &C::ld_d_ixh  ,&C::ld_d_ixl  ,&C::ld_d_xix   ,&C::ld_d_a    ,
+  &C::ld_e_b    ,&C::ld_e_c    ,&C::ld_e_d     ,&C::ld_e_e    ,
+  &C::ld_e_ixh  ,&C::ld_e_ixl  ,&C::ld_e_xix   ,&C::ld_e_a    ,
+  &C::ld_ixh_b  ,&C::ld_ixh_c  ,&C::ld_ixh_d   ,&C::ld_ixh_e  ,
+  &C::ld_ixh_ixh,&C::ld_ixh_ixl,&C::ld_h_xix   ,&C::ld_ixh_a  ,
+  &C::ld_ixl_b  ,&C::ld_ixl_c  ,&C::ld_ixl_d   ,&C::ld_ixl_e  ,
+  &C::ld_ixl_ixh,&C::ld_ixl_ixl,&C::ld_l_xix   ,&C::ld_ixl_a  ,
+  &C::ld_xix_b  ,&C::ld_xix_c  ,&C::ld_xix_d   ,&C::ld_xix_e  ,
+  &C::ld_xix_h  ,&C::ld_xix_l  ,&C::halt       ,&C::ld_xix_a  ,
+  &C::ld_a_b    ,&C::ld_a_c    ,&C::ld_a_d     ,&C::ld_a_e    ,
+  &C::ld_a_ixh  ,&C::ld_a_ixl  ,&C::ld_a_xix   ,&C::ld_a_a    ,
+  
+  &C::add_a_b   ,&C::add_a_c   ,&C::add_a_d    ,&C::add_a_e   ,
+  &C::add_a_ixh ,&C::add_a_ixl ,&C::add_a_xix  ,&C::add_a_a   ,
+  &C::adc_a_b   ,&C::adc_a_c   ,&C::adc_a_d    ,&C::adc_a_e   ,
+  &C::adc_a_ixh ,&C::adc_a_ixl ,&C::adc_a_xix  ,&C::adc_a_a   ,
+  &C::sub_b     ,&C::sub_c     ,&C::sub_d      ,&C::sub_e     ,
+  &C::sub_ixh   ,&C::sub_ixl   ,&C::sub_xix    ,&C::sub_a     ,
+  &C::sbc_a_b   ,&C::sbc_a_c   ,&C::sbc_a_d    ,&C::sbc_a_e   ,
+  &C::sbc_a_ixh ,&C::sbc_a_ixl ,&C::sbc_a_xix  ,&C::sbc_a_a   ,
+  &C::and_b     ,&C::and_c     ,&C::and_d      ,&C::and_e     ,
+  &C::and_ixh   ,&C::and_ixl   ,&C::and_xix    ,&C::and_a     ,
+  &C::xor_b     ,&C::xor_c     ,&C::xor_d      ,&C::xor_e     ,
+  &C::xor_ixh   ,&C::xor_ixl   ,&C::xor_xix    ,&C::xor_a     ,
+  &C::or_b      ,&C::or_c      ,&C::or_d       ,&C::or_e      ,
+  &C::or_ixh    ,&C::or_ixl    ,&C::or_xix     ,&C::or_a      ,
+  &C::cp_b      ,&C::cp_c      ,&C::cp_d       ,&C::cp_e      ,
+  &C::cp_ixh    ,&C::cp_ixl    ,&C::cp_xix     ,&C::cp_a      ,
+  
+  &C::ret_nz    ,&C::pop_bc    ,&C::jp_nz      ,&C::jp        ,
+  &C::call_nz   ,&C::push_bc   ,&C::add_a_byte ,&C::rst_00    ,
+  &C::ret_z     ,&C::ret       ,&C::jp_z       ,&C::dd_cb     ,
+  &C::call_z    ,&C::call      ,&C::adc_a_byte ,&C::rst_08    ,
+  &C::ret_nc    ,&C::pop_de    ,&C::jp_nc      ,&C::out_byte_a,
+  &C::call_nc   ,&C::push_de   ,&C::sub_byte   ,&C::rst_10    ,
+  &C::ret_c     ,&C::exx       ,&C::jp_c       ,&C::in_a_byte ,
+  &C::call_c    ,&C::dd2       ,&C::sbc_a_byte ,&C::rst_18    ,
+  &C::ret_po    ,&C::pop_ix    ,&C::jp_po      ,&C::ex_xsp_ix ,
+  &C::call_po   ,&C::push_ix   ,&C::and_byte   ,&C::rst_20    ,
+  &C::ret_pe    ,&C::jp_ix     ,&C::jp_pe      ,&C::ex_de_hl  ,
+  &C::call_pe   ,&C::ed        ,&C::xor_byte   ,&C::rst_28    ,
+  &C::ret_p     ,&C::pop_af    ,&C::jp_p       ,&C::di        ,
+  &C::call_p    ,&C::push_af   ,&C::or_byte    ,&C::rst_30    ,
+  &C::ret_m     ,&C::ld_sp_ix  ,&C::jp_m       ,&C::ei        ,
+  &C::call_m    ,&C::fd2       ,&C::cp_byte    ,&C::rst_38  
+};
+
+template<> const C::FuncPtr C::opcode_fd[256] = {
+  &C::nop       ,&C::ld_bc_word,&C::ld_xbc_a   ,&C::inc_bc    ,
+  &C::inc_b     ,&C::dec_b     ,&C::ld_b_byte  ,&C::rlca      ,
+  &C::ex_af_af  ,&C::add_iy_bc ,&C::ld_a_xbc   ,&C::dec_bc    ,
+  &C::inc_c     ,&C::dec_c     ,&C::ld_c_byte  ,&C::rrca      ,
+  &C::djnz      ,&C::ld_de_word,&C::ld_xde_a   ,&C::inc_de    ,
+  &C::inc_d     ,&C::dec_d     ,&C::ld_d_byte  ,&C::rla       ,
+  &C::jr        ,&C::add_iy_de ,&C::ld_a_xde   ,&C::dec_de    ,
+  &C::inc_e     ,&C::dec_e     ,&C::ld_e_byte  ,&C::rra       ,
+  &C::jr_nz     ,&C::ld_iy_word,&C::ld_xword_iy,&C::inc_iy    ,
+  &C::inc_iyh   ,&C::dec_iyh   ,&C::ld_iyh_byte,&C::daa       ,
+  &C::jr_z      ,&C::add_iy_iy ,&C::ld_iy_xword,&C::dec_iy    ,
+  &C::inc_iyl   ,&C::dec_iyl   ,&C::ld_iyl_byte,&C::cpl       ,
+  &C::jr_nc     ,&C::ld_sp_word,&C::ld_xbyte_a ,&C::inc_sp    ,
+  &C::inc_xiy   ,&C::dec_xiy   ,&C::ld_xiy_byte,&C::scf       ,
+  &C::jr_c      ,&C::add_iy_sp ,&C::ld_a_xbyte ,&C::dec_sp    ,
+  &C::inc_a     ,&C::dec_a     ,&C::ld_a_byte  ,&C::ccf       ,
+ 
+  &C::ld_b_b    ,&C::ld_b_c    ,&C::ld_b_d     ,&C::ld_b_e    ,
+  &C::ld_b_iyh  ,&C::ld_b_iyl  ,&C::ld_b_xiy   ,&C::ld_b_a    ,
+  &C::ld_c_b    ,&C::ld_c_c    ,&C::ld_c_d     ,&C::ld_c_e    ,
+  &C::ld_c_iyh  ,&C::ld_c_iyl  ,&C::ld_c_xiy   ,&C::ld_c_a    ,
+  &C::ld_d_b    ,&C::ld_d_c    ,&C::ld_d_d     ,&C::ld_d_e    ,
+  &C::ld_d_iyh  ,&C::ld_d_iyl  ,&C::ld_d_xiy   ,&C::ld_d_a    ,
+  &C::ld_e_b    ,&C::ld_e_c    ,&C::ld_e_d     ,&C::ld_e_e    ,
+  &C::ld_e_iyh  ,&C::ld_e_iyl  ,&C::ld_e_xiy   ,&C::ld_e_a    ,
+  &C::ld_iyh_b  ,&C::ld_iyh_c  ,&C::ld_iyh_d   ,&C::ld_iyh_e  ,
+  &C::ld_iyh_iyh,&C::ld_iyh_iyl,&C::ld_h_xiy   ,&C::ld_iyh_a  ,
+  &C::ld_iyl_b  ,&C::ld_iyl_c  ,&C::ld_iyl_d   ,&C::ld_iyl_e  ,
+  &C::ld_iyl_iyh,&C::ld_iyl_iyl,&C::ld_l_xiy   ,&C::ld_iyl_a  ,
+  &C::ld_xiy_b  ,&C::ld_xiy_c  ,&C::ld_xiy_d   ,&C::ld_xiy_e  ,
+  &C::ld_xiy_h,  &C::ld_xiy_l,  &C::halt       ,&C::ld_xiy_a  ,
+  &C::ld_a_b    ,&C::ld_a_c    ,&C::ld_a_d     ,&C::ld_a_e    ,
+  &C::ld_a_iyh  ,&C::ld_a_iyl  ,&C::ld_a_xiy   ,&C::ld_a_a    ,
+  
+  &C::add_a_b   ,&C::add_a_c   ,&C::add_a_d    ,&C::add_a_e   ,
+  &C::add_a_iyh ,&C::add_a_iyl ,&C::add_a_xiy  ,&C::add_a_a   ,
+  &C::adc_a_b   ,&C::adc_a_c   ,&C::adc_a_d    ,&C::adc_a_e   ,
+  &C::adc_a_iyh ,&C::adc_a_iyl ,&C::adc_a_xiy  ,&C::adc_a_a   ,
+  &C::sub_b     ,&C::sub_c     ,&C::sub_d      ,&C::sub_e     ,
+  &C::sub_iyh   ,&C::sub_iyl   ,&C::sub_xiy    ,&C::sub_a     ,
+  &C::sbc_a_b   ,&C::sbc_a_c   ,&C::sbc_a_d    ,&C::sbc_a_e   ,
+  &C::sbc_a_iyh ,&C::sbc_a_iyl ,&C::sbc_a_xiy  ,&C::sbc_a_a   ,
+  &C::and_b     ,&C::and_c     ,&C::and_d      ,&C::and_e     ,
+  &C::and_iyh   ,&C::and_iyl   ,&C::and_xiy    ,&C::and_a     ,
+  &C::xor_b     ,&C::xor_c     ,&C::xor_d      ,&C::xor_e     ,
+  &C::xor_iyh   ,&C::xor_iyl   ,&C::xor_xiy    ,&C::xor_a     ,
+  &C::or_b      ,&C::or_c      ,&C::or_d       ,&C::or_e      ,
+  &C::or_iyh    ,&C::or_iyl    ,&C::or_xiy     ,&C::or_a      ,
+  &C::cp_b      ,&C::cp_c      ,&C::cp_d       ,&C::cp_e      ,
+  &C::cp_iyh    ,&C::cp_iyl    ,&C::cp_xiy     ,&C::cp_a      ,
+
+  &C::ret_nz    ,&C::pop_bc    ,&C::jp_nz      ,&C::jp        ,
+  &C::call_nz   ,&C::push_bc   ,&C::add_a_byte ,&C::rst_00    ,
+  &C::ret_z     ,&C::ret       ,&C::jp_z       ,&C::fd_cb     ,
+  &C::call_z    ,&C::call      ,&C::adc_a_byte ,&C::rst_08    ,
+  &C::ret_nc    ,&C::pop_de    ,&C::jp_nc      ,&C::out_byte_a,
+  &C::call_nc   ,&C::push_de   ,&C::sub_byte   ,&C::rst_10    ,
+  &C::ret_c     ,&C::exx       ,&C::jp_c       ,&C::in_a_byte ,
+  &C::call_c    ,&C::dd2       ,&C::sbc_a_byte ,&C::rst_18    ,
+  &C::ret_po    ,&C::pop_iy    ,&C::jp_po      ,&C::ex_xsp_iy ,
+  &C::call_po   ,&C::push_iy   ,&C::and_byte   ,&C::rst_20    ,
+  &C::ret_pe    ,&C::jp_iy     ,&C::jp_pe      ,&C::ex_de_hl  ,
+  &C::call_pe   ,&C::ed        ,&C::xor_byte   ,&C::rst_28    ,
+  &C::ret_p     ,&C::pop_af    ,&C::jp_p       ,&C::di        ,
+  &C::call_p    ,&C::push_af   ,&C::or_byte    ,&C::rst_30    ,
+  &C::ret_m     ,&C::ld_sp_iy  ,&C::jp_m       ,&C::ei        ,
+  &C::call_m    ,&C::fd2       ,&C::cp_byte    ,&C::rst_38  
+};
+
+template<> const C::FuncPtr C::opcode_main[256] = {
+ &C::nop     ,&C::ld_bc_word,&C::ld_xbc_a   ,&C::inc_bc    ,
+ &C::inc_b   ,&C::dec_b     ,&C::ld_b_byte  ,&C::rlca      ,
+ &C::ex_af_af,&C::add_hl_bc ,&C::ld_a_xbc   ,&C::dec_bc    ,
+ &C::inc_c   ,&C::dec_c     ,&C::ld_c_byte  ,&C::rrca      ,
+ &C::djnz    ,&C::ld_de_word,&C::ld_xde_a   ,&C::inc_de    ,
+ &C::inc_d   ,&C::dec_d     ,&C::ld_d_byte  ,&C::rla       ,
+ &C::jr      ,&C::add_hl_de ,&C::ld_a_xde   ,&C::dec_de    ,
+ &C::inc_e   ,&C::dec_e     ,&C::ld_e_byte  ,&C::rra       ,
+ &C::jr_nz   ,&C::ld_hl_word,&C::ld_xword_hl,&C::inc_hl    ,
+ &C::inc_h   ,&C::dec_h     ,&C::ld_h_byte  ,&C::daa       ,
+ &C::jr_z    ,&C::add_hl_hl ,&C::ld_hl_xword,&C::dec_hl    ,
+ &C::inc_l   ,&C::dec_l     ,&C::ld_l_byte  ,&C::cpl       ,
+ &C::jr_nc   ,&C::ld_sp_word,&C::ld_xbyte_a ,&C::inc_sp    ,
+ &C::inc_xhl ,&C::dec_xhl   ,&C::ld_xhl_byte,&C::scf       ,
+ &C::jr_c    ,&C::add_hl_sp ,&C::ld_a_xbyte ,&C::dec_sp    ,
+ &C::inc_a   ,&C::dec_a     ,&C::ld_a_byte  ,&C::ccf       ,
+ 
+ &C::ld_b_b  ,&C::ld_b_c    ,&C::ld_b_d     ,&C::ld_b_e    ,
+ &C::ld_b_h  ,&C::ld_b_l    ,&C::ld_b_xhl   ,&C::ld_b_a    ,
+ &C::ld_c_b  ,&C::ld_c_c    ,&C::ld_c_d     ,&C::ld_c_e    ,
+ &C::ld_c_h  ,&C::ld_c_l    ,&C::ld_c_xhl   ,&C::ld_c_a    ,
+ &C::ld_d_b  ,&C::ld_d_c    ,&C::ld_d_d     ,&C::ld_d_e    ,
+ &C::ld_d_h  ,&C::ld_d_l    ,&C::ld_d_xhl   ,&C::ld_d_a    ,
+ &C::ld_e_b  ,&C::ld_e_c    ,&C::ld_e_d     ,&C::ld_e_e    ,
+ &C::ld_e_h  ,&C::ld_e_l    ,&C::ld_e_xhl   ,&C::ld_e_a    ,
+ &C::ld_h_b  ,&C::ld_h_c    ,&C::ld_h_d     ,&C::ld_h_e    ,
+ &C::ld_h_h  ,&C::ld_h_l    ,&C::ld_h_xhl   ,&C::ld_h_a    ,
+ &C::ld_l_b  ,&C::ld_l_c    ,&C::ld_l_d     ,&C::ld_l_e    ,
+ &C::ld_l_h  ,&C::ld_l_l    ,&C::ld_l_xhl   ,&C::ld_l_a    ,
+ &C::ld_xhl_b,&C::ld_xhl_c  ,&C::ld_xhl_d   ,&C::ld_xhl_e  ,
+ &C::ld_xhl_h,&C::ld_xhl_l  ,&C::halt       ,&C::ld_xhl_a  ,
+ &C::ld_a_b  ,&C::ld_a_c    ,&C::ld_a_d     ,&C::ld_a_e    ,
+ &C::ld_a_h  ,&C::ld_a_l    ,&C::ld_a_xhl   ,&C::ld_a_a    ,
+ 
+ &C::add_a_b ,&C::add_a_c   ,&C::add_a_d    ,&C::add_a_e   ,
+ &C::add_a_h ,&C::add_a_l   ,&C::add_a_xhl  ,&C::add_a_a   ,
+ &C::adc_a_b ,&C::adc_a_c   ,&C::adc_a_d    ,&C::adc_a_e   ,
+ &C::adc_a_h ,&C::adc_a_l   ,&C::adc_a_xhl  ,&C::adc_a_a   ,
+ &C::sub_b   ,&C::sub_c     ,&C::sub_d      ,&C::sub_e     ,
+ &C::sub_h   ,&C::sub_l     ,&C::sub_xhl    ,&C::sub_a     ,
+ &C::sbc_a_b ,&C::sbc_a_c   ,&C::sbc_a_d    ,&C::sbc_a_e   ,
+ &C::sbc_a_h ,&C::sbc_a_l   ,&C::sbc_a_xhl  ,&C::sbc_a_a   ,
+ &C::and_b   ,&C::and_c     ,&C::and_d      ,&C::and_e     ,
+ &C::and_h   ,&C::and_l     ,&C::and_xhl    ,&C::and_a     ,
+ &C::xor_b   ,&C::xor_c     ,&C::xor_d      ,&C::xor_e     ,
+ &C::xor_h   ,&C::xor_l     ,&C::xor_xhl    ,&C::xor_a     ,
+ &C::or_b    ,&C::or_c      ,&C::or_d       ,&C::or_e      ,
+ &C::or_h    ,&C::or_l      ,&C::or_xhl     ,&C::or_a      ,
+ &C::cp_b    ,&C::cp_c      ,&C::cp_d       ,&C::cp_e      ,
+ &C::cp_h    ,&C::cp_l      ,&C::cp_xhl     ,&C::cp_a      ,
+ 
+ &C::ret_nz  ,&C::pop_bc    ,&C::jp_nz      ,&C::jp        ,
+ &C::call_nz ,&C::push_bc   ,&C::add_a_byte ,&C::rst_00    ,
+ &C::ret_z   ,&C::ret       ,&C::jp_z       ,&C::cb        ,
+ &C::call_z  ,&C::call      ,&C::adc_a_byte ,&C::rst_08    ,
+ &C::ret_nc  ,&C::pop_de    ,&C::jp_nc      ,&C::out_byte_a,
+ &C::call_nc ,&C::push_de   ,&C::sub_byte   ,&C::rst_10    ,
+ &C::ret_c   ,&C::exx       ,&C::jp_c       ,&C::in_a_byte ,
+ &C::call_c  ,&C::dd        ,&C::sbc_a_byte ,&C::rst_18    ,
+ &C::ret_po  ,&C::pop_hl    ,&C::jp_po      ,&C::ex_xsp_hl ,
+ &C::call_po ,&C::push_hl   ,&C::and_byte   ,&C::rst_20    ,
+ &C::ret_pe  ,&C::jp_hl     ,&C::jp_pe      ,&C::ex_de_hl  ,
+ &C::call_pe ,&C::ed        ,&C::xor_byte   ,&C::rst_28    ,
+ &C::ret_p   ,&C::pop_af    ,&C::jp_p       ,&C::di        ,
+ &C::call_p  ,&C::push_af   ,&C::or_byte    ,&C::rst_30    ,
+ &C::ret_m   ,&C::ld_sp_hl  ,&C::jp_m       ,&C::ei        ,
+ &C::call_m  ,&C::fd        ,&C::cp_byte    ,&C::rst_38  
+};
 
 } // namespace openmsx
-
-#define _CPU_ Z80
-#include "CPUCore.n2"
-

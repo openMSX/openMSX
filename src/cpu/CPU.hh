@@ -1,40 +1,46 @@
 // $Id$
 
-#ifndef __CPU_HH__
-#define __CPU_HH__
+#ifndef _CPU_HH_
+#define _CPU_HH_
 
 #include <set>
-#include <string>
-#include <memory>
 #include "build-info.hh"
 #include "openmsx.hh"
-#include "EmuTime.hh"
-#include "CPUTables.hh"
-#include "BooleanSetting.hh"
-#include "IntegerSetting.hh"
-#include "SettingListener.hh"
-
-using std::multiset;
-using std::string;
-using std::auto_ptr;
 
 namespace openmsx {
 
-class BooleanSetting;
-class MSXCPUInterface;
-class Scheduler;
-class MSXMotherBoard;
-
-typedef signed char offset;
+class EmuTime;
 
 template <bool bigEndian> struct z80regpair_8bit;
 template <> struct z80regpair_8bit<false> { byte l, h; };
 template <> struct z80regpair_8bit<true>  { byte h, l; };
 
-class CPU : public CPUTables, private SettingListener
+/**
+ *
+ */
+class CPU
 {
-friend class MSXCPU;
 public:
+	// cache constants
+	static const int CACHE_LINE_BITS = 8;	// 256 bytes
+	static const int CACHE_LINE_SIZE = 1 << CACHE_LINE_BITS;
+	static const int CACHE_LINE_NUM  = 0x10000 / CACHE_LINE_SIZE;
+	static const int CACHE_LINE_LOW  = CACHE_LINE_SIZE - 1;
+	static const int CACHE_LINE_HIGH = 0xFFFF - CACHE_LINE_LOW;
+	
+	// flag positions
+	static const byte S_FLAG = 0x80;
+	static const byte Z_FLAG = 0x40;
+	static const byte Y_FLAG = 0x20;
+	static const byte H_FLAG = 0x10;
+	static const byte X_FLAG = 0x08;
+	static const byte V_FLAG = 0x04;
+	static const byte P_FLAG = V_FLAG;
+	static const byte N_FLAG = 0x02;
+	static const byte C_FLAG = 0x01;
+	
+	typedef std::multiset<word> BreakPoints;
+	
 	typedef union {
 		z80regpair_8bit<OPENMSX_BIGENDIAN> B;
 		word w;
@@ -51,165 +57,95 @@ public:
 		void ei() { IFF1 = nextIFF1 = IFF2 = true; }
 		void di() { IFF1 = nextIFF1 = IFF2 = false; }
 	};
-
-	virtual ~CPU();
 	
-	void setMotherboard(MSXMotherBoard* motherboard);
-	void setInterface(MSXCPUInterface* interf);
-
-	/**
-	 * Reset the CPU.
-	 */
-	void reset(const EmuTime& time);
-
 	/**
 	 * TODO
 	 */
 	virtual void execute() = 0;
-
+	
 	/**
 	 * TODO
 	 */
-	void exitCPULoop();
-
+	virtual void exitCPULoop() = 0;
+	
 	/**
 	 * Sets the CPU its current time.
 	 * This is used to 'warp' a CPU when you switch between Z80/R800.
 	 */
-	void advance(const EmuTime& time);
+	virtual void advance(const EmuTime& time) = 0;
 
 	/**
 	 * Returns the CPU its current time.
 	 */
-	const EmuTime& getCurrentTime() const;
+	virtual const EmuTime& getCurrentTime() const = 0;
 
 	/**
 	 * Wait 
 	 */
-	void wait(const EmuTime& time);
-
-	/**
-	 * Read a byte from memory. If possible the byte is read from
-	 * cache, otherwise the readMem() method of MSXCPUInterface is used.
-	 */
-	byte readMem(word address);
-
-	/**
-	 * Write a byte from memory. If possible the byte is written to
-	 * cache, otherwise the writeMem() method of MSXCPUInterface is used.
-	 */
-	void writeMem(word address, byte value);
-
+	virtual void wait(const EmuTime& time) = 0;
+	
 	/**
 	 * Invalidate the CPU its cache for the interval
 	 * [start, start+num*CACHE_LINE_SIZE).
 	 */
-	void invalidateCache(word start, int num);
+	virtual void invalidateCache(word start, int num) = 0;
 
 	/**
-	 * Raises the maskable interrupt count.
-	 * Devices should call MSXCPU::raiseIRQ instead, or use the IRQHelper class.
+	 *
 	 */
-	void raiseIRQ();
+	virtual CPURegs& getRegisters() = 0;
 
 	/**
-	 * Lowers the maskable interrupt count.
-	 * Devices should call MSXCPU::lowerIRQ instead, or use the IRQHelper class.
+	 *
 	 */
-	void lowerIRQ();
+	virtual void doStep() = 0;
+	
+	/**
+	 *
+	 */
+	virtual void doContinue() = 0;
+	
+	/**
+	 *
+	 */
+	virtual void doBreak() = 0;
 
 	/**
-	 * Raises the non-maskable interrupt count.
-	 * Devices should call MSXCPU::raiseNMI instead, or use the IRQHelper class.
+	 *
 	 */
-	void raiseNMI();
+	void insertBreakPoint(word address);
 
 	/**
-	 * Lowers the non-maskable interrupt count.
-	 * Devices should call MSXCPU::lowerNMI instead, or use the IRQHelper class.
+	 *
 	 */
-	void lowerNMI();
-
-	// cache constants
-	static const int CACHE_LINE_BITS = 8;	// 256 bytes
-	static const int CACHE_LINE_SIZE = 1 << CACHE_LINE_BITS;
-	static const int CACHE_LINE_NUM  = 0x10000 / CACHE_LINE_SIZE;
-	static const int CACHE_LINE_LOW  = CACHE_LINE_SIZE - 1;
-	static const int CACHE_LINE_HIGH = 0xffff - CACHE_LINE_LOW;
+	void removeBreakPoint(word address);
 
 	/**
-	 * Change the clock freq.
+	 *
 	 */
-	void setFreq(unsigned freq);
+	const BreakPoints& getBreakPoints() const;
 	
 protected:
-	CPU(const string& name, int defaultFreq,
-	    const BooleanSetting& traceSetting);
-
-	/**
-	  * Execute further than strictly requested by
-	  * caller of executeUntilTarget() or wait(). Typically used to
-	  * be able to emulate complete instruction (part of it passed
-	  * the target time border).
-	  */
-	/*void extendTarget(const EmuTime& time);*/
-
-	/**
-	 * Set to true when there was a rising edge on the NMI line
-	 * (rising = non-active -> active).
-	 * Set to false when the CPU jumps to the NMI handler address.
-	 */
-	bool nmiEdge;
-
-	// state machine variables
-	CPURegs R;
-	int slowInstructions;
-	int NMIStatus;
-	int IRQStatus;
-	bool exitLoop;
-
-	z80regpair memptr;
-	offset ofst;
-
-	MSXCPUInterface* interface;
-	DynamicClock clock;
-
-	// memory cache
-	const byte* readCacheLine[CACHE_LINE_NUM];
-	byte* writeCacheLine[CACHE_LINE_NUM];
-	bool readCacheTried [CACHE_LINE_NUM];
-	bool writeCacheTried[CACHE_LINE_NUM];
-
-	// debugger
-	void doBreak2();
-	void doStep();
-	void doContinue();
-	void doBreak();
-
-	// TODO document why static 
-	static multiset<word> breakPoints;
+	CPU();
+	
+	// flag-register tables, initialized at run-time
+	static byte ZSTable[256];
+	static byte ZSXYTable[256];
+	static byte ZSPXYTable[256];
+	static byte ZSPTable[256];
+	static word DAATable[0x800];
+	
+	// TODO why exactly are these static?
+	// debug variables
+	static BreakPoints breakPoints;
 	static bool breaked;
 	static bool continued;
 	static bool step;
-	
-	Scheduler& scheduler;
 
-public:
-	byte debugmemory[65536];
-
-private:
-	virtual void update(const SettingLeafNode* setting);
-	
-	// dynamic freq
-	BooleanSetting freqLocked;
-	IntegerSetting freqValue;
-	unsigned freq;
-	
-	MSXMotherBoard* motherboard;
-
-protected:
-	const BooleanSetting& traceSetting;
+	// CPU tracing
+	static word start_pc;
 };
 
 } // namespace openmsx
-#endif //__CPU_HH__
+
+#endif // _CPU_HH_

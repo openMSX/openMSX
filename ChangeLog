@@ -1,5 +1,9 @@
 $Id$
 
+2004-11-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Major CPU cleanup:
+	   replaced macro hack with c++ templates
+
 2004-11-27 Manuel Bilderbeek <manuel@msxnet.org>
 	* Implemented a fallback for the detectGeometry function in Disk for
 	  sectorbased disk images. Fixes booting of SVI-738 CP/M disk, which

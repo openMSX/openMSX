@@ -12,10 +12,6 @@
 #include "Debuggable.hh"
 #include "MSXDevice.hh"
 
-using std::set;
-using std::vector;
-using std::auto_ptr;
-
 namespace openmsx {
 
 class MSXDevice;
@@ -156,22 +152,6 @@ public:
 		return 255;
 	}
 
-	/**
-	 * Called when ED FE occurs. Can be used
-	 * to emulated disk access etc.
-	 */
-	void patch(CPU::CPURegs& regs);
-
-	/**
-	 * Called when RETI accurs
-	 */
-	inline void reti(CPU::CPURegs& /*regs*/) { }
-	
-	/**
-	 * Called when RETN occurs
-	 */
-	inline void retn(CPU::CPURegs& /*regs*/) { }
-
 	/*
 	 * Should only be used by PPI
 	 *  TODO: make private / friend
@@ -199,7 +179,7 @@ public:
 protected:
 	virtual ~MSXCPUInterface();
 	
-	friend class auto_ptr<MSXCPUInterface>;
+	friend class std::auto_ptr<MSXCPUInterface>;
 
 private:
 	void registerSlot(MSXDevice* device,
@@ -241,8 +221,8 @@ private:
 	class SlotMapCmd : public SimpleCommand {
 	public:
 		SlotMapCmd(MSXCPUInterface& parent);
-		virtual string execute(const vector<string>& tokens);
-		virtual string help(const vector<string>& tokens) const;
+		virtual string execute(const std::vector<string>& tokens);
+		virtual string help(const std::vector<string>& tokens) const;
 	private:
 		MSXCPUInterface& parent;
 	} slotMapCmd;
@@ -250,8 +230,8 @@ private:
 	class SlotSelectCmd : public SimpleCommand {
 	public:
 		SlotSelectCmd(MSXCPUInterface& parent);
-		virtual string execute(const vector<string>& tokens);
-		virtual string help(const vector<string>& tokens) const;
+		virtual string execute(const std::vector<string>& tokens);
+		virtual string help(const std::vector<string>& tokens) const;
 	private:
 		MSXCPUInterface& parent;
 	} slotSelectCmd;
@@ -259,8 +239,8 @@ private:
 	class IOMapCmd : public SimpleCommand {
 	public:
 		IOMapCmd(MSXCPUInterface& parent);
-		virtual string execute(const vector<string>& tokens);
-		virtual string help(const vector<string>& tokens) const;
+		virtual string execute(const std::vector<string>& tokens);
+		virtual string help(const std::vector<string>& tokens) const;
 	private:
 		MSXCPUInterface& parent;
 	} ioMapCmd;
@@ -275,15 +255,15 @@ private:
 	void updateVisible(int page);
 	void setSubSlot(byte primSlot, byte value);
 
-	void printSlotMapPages(ostream&, const MSXDevice* const*) const;
+	void printSlotMapPages(std::ostream&, const MSXDevice* const*) const;
 	string getSlotMap() const;
 	string getIOMap() const;
 	string getSlotSelection() const;
 
 	MSXDevice* IO_In [256];
 	MSXDevice* IO_Out[256];
-	set<byte> multiIn;
-	set<byte> multiOut;
+	std::set<byte> multiIn;
+	std::set<byte> multiOut;
 
 	MSXDevice* slotLayout[4][4][4];
 	byte subSlotRegister[4];
@@ -315,7 +295,7 @@ public:
 private:
 	MSXDevice* getDelayDevice(MSXDevice& device);
 	
-	auto_ptr<VDPIODelay> delayDevice;
+	std::auto_ptr<VDPIODelay> delayDevice;
 };
 
 } // namespace openmsx

@@ -15,8 +15,8 @@ namespace openmsx {
 
 MSXCPU::MSXCPU()
 	: traceSetting("cputrace", "CPU tracing on/off", false)
-	, z80 (EmuTime::zero, traceSetting)
-	, r800(EmuTime::zero, traceSetting)
+	, z80 ("z80",  traceSetting, EmuTime::zero)
+	, r800("r800", traceSetting, EmuTime::zero)
 	, timeInfo(*this)
 	, infoCmd(InfoCommand::instance())
 	, debugger(Debugger::instance())
@@ -179,23 +179,23 @@ const string& MSXCPU::getDescription() const
 
 byte MSXCPU::read(unsigned address)
 {
-	CPU::CPURegs* regs = &activeCPU->R; 
+	const CPU::CPURegs& regs = activeCPU->getRegisters(); 
 	const CPU::z80regpair* registers[] = {
-		&regs->AF,  &regs->BC,  &regs->DE,  &regs->HL, 
-		&regs->AF2, &regs->BC2, &regs->DE2, &regs->HL2, 
-		&regs->IX,  &regs->IY,  &regs->PC,  &regs->SP
+		&regs.AF,  &regs.BC,  &regs.DE,  &regs.HL, 
+		&regs.AF2, &regs.BC2, &regs.DE2, &regs.HL2, 
+		&regs.IX,  &regs.IY,  &regs.PC,  &regs.SP
 	};
 
 	assert(address < getSize());
 	switch (address) {
 	case 24:
-		return regs->I;
+		return regs.I;
 	case 25:
-		return regs->R;
+		return regs.R;
 	case 26:
-		return regs->IM;
+		return regs.IM;
 	case 27:
-		return regs->IFF1 + 2 * regs->IFF2;
+		return regs.IFF1 + 2 * regs.IFF2;
 	default:
 		if (address & 1) {
 			return registers[address / 2]->B.l;
@@ -207,29 +207,29 @@ byte MSXCPU::read(unsigned address)
 
 void MSXCPU::write(unsigned address, byte value)
 {
-	CPU::CPURegs* regs = &activeCPU->R; 
+	CPU::CPURegs& regs = activeCPU->getRegisters(); 
 	CPU::z80regpair* registers[] = {
-		&regs->AF,  &regs->BC,  &regs->DE,  &regs->HL, 
-		&regs->AF2, &regs->BC2, &regs->DE2, &regs->HL2, 
-		&regs->IX,  &regs->IY,  &regs->PC,  &regs->SP
+		&regs.AF,  &regs.BC,  &regs.DE,  &regs.HL, 
+		&regs.AF2, &regs.BC2, &regs.DE2, &regs.HL2, 
+		&regs.IX,  &regs.IY,  &regs.PC,  &regs.SP
 	};
 
 	assert(address < getSize());
 	switch (address) {
 	case 24:
-		regs->I = value;
+		regs.I = value;
 		break;
 	case 25:
-		regs->R = value;
+		regs.R = value;
 		break;
 	case 26:
 		if (value < 3) {
-			regs->IM = value;
+			regs.IM = value;
 		}
 		break;
 	case 27:
-		regs->IFF1 = value & 0x01;
-		regs->IFF2 = value & 0x02;
+		regs.IFF1 = value & 0x01;
+		regs.IFF2 = value & 0x02;
 		break;
 	default:
 		if (address & 1) {
@@ -264,26 +264,22 @@ string MSXCPU::doBreak()
 
 string MSXCPU::setBreakPoint(word addr)
 {
-	activeCPU->breakPoints.insert(addr);
-	exitCPULoop();
+	activeCPU->insertBreakPoint(addr);
 	return "";
 }
 
 string MSXCPU::removeBreakPoint(word addr)
 {
-	multiset<word>::iterator it = activeCPU->breakPoints.find(addr);
-	if (it != activeCPU->breakPoints.end()) {
-		activeCPU->breakPoints.erase(it);
-	}
-	exitCPULoop();
+	activeCPU->removeBreakPoint(addr);
 	return "";
 }
 
 string MSXCPU::listBreakPoints() const
 {
+	const CPU::BreakPoints& breakPoints = activeCPU->getBreakPoints();
 	ostringstream os;
-	for (multiset<word>::const_iterator it = activeCPU->breakPoints.begin();
-	     it != activeCPU->breakPoints.end(); ++it) {
+	for (CPU::BreakPoints::const_iterator it = breakPoints.begin();
+	     it != breakPoints.end(); ++it) {
 		os << hex << *it << '\n';
 	}
 	return os.str();

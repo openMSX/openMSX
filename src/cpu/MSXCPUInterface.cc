@@ -248,11 +248,6 @@ void MSXCPUInterface::unregisterMemDevice(MSXDevice& device,
 	}
 }
 
-void MSXCPUInterface::patch(CPU::CPURegs& regs)
-{
-	// TODO no longer used, remove completely?
-}
-
 void MSXCPUInterface::updateVisible(int page)
 {
 	MSXDevice *newDevice = slotLayout [primarySlotState[page]]

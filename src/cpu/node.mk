@@ -3,18 +3,12 @@
 include build/node-start.mk
 
 SRC_HDR:= \
-	CPU \
+	CPU CPUCore Dasm \
 	Z80 R800 \
-	CPUTables \
-	Dasm \
 	MSXCPUInterface MSXCPU \
 	MSXMultiIODevice \
 	IRQHelper \
-	VDPIODelay
-
-DIST:= \
-	CPUCore.n1 CPUCore.n2 \
-	R800Tables.nn Z80Tables.nn
+	VDPIODelay \
 
 include build/node-end.mk
 
