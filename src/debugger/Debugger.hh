@@ -35,7 +35,7 @@ private:
 	class DebugCmd : public Command {
 	public:
 		DebugCmd(Debugger& parent);
-		virtual string execute(const vector<string>& tokens)
+		virtual void execute(const vector<string>& tokens, CommandResult& result)
 			throw(CommandException);
 		virtual string help(const vector<string>& tokens) const
 			throw();
@@ -43,11 +43,13 @@ private:
 			throw();
 
 	private:
-		string list();
-		string desc(const vector<string>& tokens);
-		string size(const vector<string>& tokens);
-		string read(const vector<string>& tokens);
-		string write(const vector<string>& tokens);
+		void list(CommandResult& result);
+		void desc(const vector<string>& tokens, CommandResult& result);
+		void size(const vector<string>& tokens, CommandResult& result);
+		void read(const vector<string>& tokens, CommandResult& result);
+		void readBlock(const vector<string>& tokens, CommandResult& result);
+		void write(const vector<string>& tokens, CommandResult& result);
+		void writeBlock(const vector<string>& tokens, CommandResult& result);
 		
 		Debugger& parent;
 	} debugCmd;

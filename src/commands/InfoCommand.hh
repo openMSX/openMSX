@@ -11,7 +11,7 @@ using std::map;
 
 namespace openmsx {
 
-class InfoCommand : public Command
+class InfoCommand : public SimpleCommand
 {
 public:
 	static InfoCommand& instance();

@@ -431,7 +431,7 @@ private:
 		VDP& parent;
 	} vdpStatusRegDebug;
 	
-	class VDPRegsCmd : public Command {
+	class VDPRegsCmd : public SimpleCommand {
 	public:
 		VDPRegsCmd(VDP& vdp);
 		virtual string execute(const vector<string> &tokens) throw();
@@ -440,7 +440,7 @@ private:
 		VDP& vdp;
 	} vdpRegsCmd;
 
-	class PaletteCmd : public Command {
+	class PaletteCmd : public SimpleCommand {
 	public:
 		PaletteCmd(VDP& vdp);
 		virtual string execute(const vector<string> &tokens) throw();
@@ -449,7 +449,7 @@ private:
 		VDP& vdp;
 	} paletteCmd;
 	
-	class ScreenShotCmd : public Command {
+	class ScreenShotCmd : public SimpleCommand {
 	public:
 		ScreenShotCmd(VDP& vdp);
 		virtual string execute(const vector<string> &tokens)

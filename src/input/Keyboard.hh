@@ -42,7 +42,7 @@ private:
 	void loadKeymapfile(const string& filename);
 	string processCmd(const vector<string>& tokens, bool up);
 
-	class KeyMatrixUpCmd : public Command {
+	class KeyMatrixUpCmd : public SimpleCommand {
 	public:
 		KeyMatrixUpCmd(Keyboard& parent);
 		virtual string execute(const vector<string> &tokens)
@@ -53,7 +53,7 @@ private:
 		Keyboard& parent;
 	} keyMatrixUpCmd;
 
-	class KeyMatrixDownCmd : public Command {
+	class KeyMatrixDownCmd : public SimpleCommand {
 	public:
 		KeyMatrixDownCmd(Keyboard& parent);
 		virtual string execute(const vector<string> &tokens)

@@ -6,6 +6,7 @@
 #include "Debuggable.hh"
 #include "Debugger.hh"
 #include "MSXCPU.hh"
+#include "CommandResult.hh"
 
 using std::ostringstream;
 
@@ -75,39 +76,66 @@ Debugger::DebugCmd::DebugCmd(Debugger& parent_)
 {
 }
 
-string Debugger::DebugCmd::execute(const vector<string>& tokens)
+void Debugger::DebugCmd::execute(const vector<string>& tokens, CommandResult& result)
 	throw(CommandException)
 {
 	if (tokens.size() < 2) {
 		throw CommandException("Missing argument");
 	}
 	if (tokens[1] == "read") {
-		return read(tokens);
+		read(tokens, result);
+		return;
+	} else if (tokens[1] == "read_block") {
+		readBlock(tokens, result);
+		return;
 	} else if (tokens[1] == "write") {
-		return write(tokens);
+		write(tokens, result);
+		return;
+	} else if (tokens[1] == "write_block") {
+		writeBlock(tokens, result);
+		return;
 	} else if (tokens[1] == "size") {
-		return size(tokens);
+		size(tokens, result);
+		return;
 	} else if (tokens[1] == "desc") {
-		return desc(tokens);
+		desc(tokens, result);
+		return;
 	} else if (tokens[1] == "list") {
-		return list();
+		list(result);
+		return;
 	} else if (tokens[1] == "step") {
-		return parent.cpu->doStep();
+		parent.cpu->doStep();
+		return;
 	} else if (tokens[1] == "cont") {
-		return parent.cpu->doContinue();
+		parent.cpu->doContinue();
+		return;
 	} else if (tokens[1] == "break") {
-		return parent.cpu->doBreak();
+		parent.cpu->doBreak();
+		return;
 	} else if (tokens[1] == "set_bp") {
-		return parent.cpu->setBreakPoint(tokens);
+		parent.cpu->setBreakPoint(tokens);
+		return;
 	} else if (tokens[1] == "remove_bp") {
-		return parent.cpu->removeBreakPoint(tokens);
+		parent.cpu->removeBreakPoint(tokens);
+		return;
 	} else if (tokens[1] == "list_bp") {
-		return parent.cpu->listBreakPoints();
+		result.setString(parent.cpu->listBreakPoints());
+		return;
 	}
 	throw SyntaxError();
 }
 
-string Debugger::DebugCmd::list()
+static unsigned getValue(const string& str, unsigned max, const char* err)
+{
+	char* endPtr;
+	unsigned result = strtoul(str.c_str(), &endPtr, 0);
+	if ((*endPtr != '\0') || (result >= max)) {
+		throw CommandException(err);
+	}
+	return result;
+}
+
+void Debugger::DebugCmd::list(CommandResult& cmdResult)
 {
 	string result;
 	for (map<string, Debuggable*>::const_iterator it =
@@ -115,67 +143,84 @@ string Debugger::DebugCmd::list()
 	     it != parent.debuggables.end(); ++it) {
 		result += it->first + '\n';
 	}
-	return result;
+	cmdResult.setString(result);
 }
 
-string Debugger::DebugCmd::desc(const vector<string>& tokens)
+void Debugger::DebugCmd::desc(const vector<string>& tokens, CommandResult& result)
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
 	Debuggable* device = parent.getDebuggable(tokens[2]);
-	return device->getDescription();
+	result.setString(device->getDescription());
 }
 
-string Debugger::DebugCmd::size(const vector<string>& tokens)
+void Debugger::DebugCmd::size(const vector<string>& tokens, CommandResult& result)
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
 	Debuggable* device = parent.getDebuggable(tokens[2]);
-
-	ostringstream os;
-	os << device->getSize();
-	return os.str();
+	result.setInt(device->getSize());
 }
 
-string Debugger::DebugCmd::read(const vector<string>& tokens)
+void Debugger::DebugCmd::read(const vector<string>& tokens, CommandResult& result)
 {
 	if (tokens.size() != 4) {
 		throw SyntaxError();
 	}
 	Debuggable* device = parent.getDebuggable(tokens[2]);
-	
-	char* endPtr;
-	unsigned addr = strtol(tokens[3].c_str(), &endPtr, 0);
-	if ((*endPtr != '\0') || (addr >= device->getSize())) {
-		throw CommandException("Invalid address");
-	}
-	
-	ostringstream os;
-	os << (int)device->read(addr);
-	return os.str();
+	unsigned addr = getValue(tokens[3], device->getSize(), "Invalid address");
+	result.setInt(device->read(addr));
 }
 
-string Debugger::DebugCmd::write(const vector<string>& tokens)
+void Debugger::DebugCmd::readBlock(const vector<string>& tokens, CommandResult& cmdResult)
 {
 	if (tokens.size() != 5) {
 		throw SyntaxError();
 	}
 	Debuggable* device = parent.getDebuggable(tokens[2]);
-	
-	char* endPtr;
-	unsigned addr = strtol(tokens[3].c_str(), &endPtr, 0);
-	if ((*endPtr != '\0') || (addr >= device->getSize())) {
-		throw CommandException("Invalid address");
+	unsigned size = device->getSize();
+	unsigned addr = getValue(tokens[3], size, "Invalid address");
+	unsigned num = getValue(tokens[4], size - addr + 1, "Invalid size");
+
+	byte* buf = new byte[num];
+	for (unsigned i = 0; i < num; ++i) {
+		buf[i] = device->read(addr + i);
 	}
-	unsigned value = strtol(tokens[4].c_str(), &endPtr, 0);
-	if ((*endPtr != '\0') || (value >= 256)) {
-		throw CommandException("Invalid value");
+	cmdResult.setBinary(buf, num);
+	delete[] buf;
+}
+
+void Debugger::DebugCmd::write(const vector<string>& tokens, CommandResult& result)
+{
+	if (tokens.size() != 5) {
+		throw SyntaxError();
 	}
+	Debuggable* device = parent.getDebuggable(tokens[2]);
+	unsigned addr = getValue(tokens[3], device->getSize(), "Invalid address");
+	unsigned value = getValue(tokens[4], 256, "Invalid value");
 	
 	device->write(addr, value);
-	return string();
+}
+
+void Debugger::DebugCmd::writeBlock(const vector<string>& tokens, CommandResult& result)
+{
+	if (tokens.size() != 5) {
+		throw SyntaxError();
+	}
+	Debuggable* device = parent.getDebuggable(tokens[2]);
+	unsigned size = device->getSize();
+	unsigned addr = getValue(tokens[3], size, "Invalid address");
+	const string& values = tokens[4];
+	unsigned num = values.size();
+	if ((num + addr) > size) {
+		throw CommandException("Invalid size");
+	}
+	
+	for (unsigned i = 0; i < num; ++i) {
+		device->write(addr + i, static_cast<byte>(values[i]));
+	}
 }
 
 string Debugger::DebugCmd::help(const vector<string>& tokens) const

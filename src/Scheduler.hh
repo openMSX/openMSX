@@ -174,7 +174,7 @@ private:
 	EventDistributor& eventDistributor;
 	InputEventGenerator& eventGenerator;
 
-	class QuitCommand : public Command {
+	class QuitCommand : public SimpleCommand {
 	public:
 		QuitCommand(Scheduler& parent);
 		virtual string execute(const vector<string>& tokens) throw();
@@ -184,7 +184,7 @@ private:
 	} quitCommand;
 	friend class QuitCommand;
 
-	class ResetCmd : public Command {
+	class ResetCmd : public SimpleCommand {
 	public:
 		ResetCmd(Scheduler& parent);
 		virtual string execute(const vector<string>& tokens) throw();

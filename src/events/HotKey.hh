@@ -68,7 +68,7 @@ private:
 		const string command;
 	};
 
-	class BindCmd : public Command {
+	class BindCmd : public SimpleCommand {
 	public:
 		BindCmd(HotKey& parent);
 		virtual string execute(const vector<string>& tokens)
@@ -80,7 +80,7 @@ private:
 	} bindCmd;
 	friend class BindCmd;
 
-	class UnbindCmd : public Command {
+	class UnbindCmd : public SimpleCommand {
 	public:
 		UnbindCmd(HotKey& parent);
 		virtual string execute(const vector<string>& tokens)

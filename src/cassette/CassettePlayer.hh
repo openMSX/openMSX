@@ -30,7 +30,7 @@ public:
 
 
 class CassettePlayer : public CassetteDevice, public SoundDevice,
-	private Command
+	private SimpleCommand
 {
 public:
 	CassettePlayer();

@@ -25,7 +25,7 @@ class MSXCasCLI : public CLIOption, public CLIFileType
 };
 
 
-class MSXTapePatch : public MSXRomPatchInterface, private Command
+class MSXTapePatch : public MSXRomPatchInterface, private SimpleCommand
 {
 	public:
 		MSXTapePatch();

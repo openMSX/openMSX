@@ -80,7 +80,7 @@ private:
 		SettingsManager* manager;
 	} settingCompleter;
 
-	class ToggleCommand : public Command {
+	class ToggleCommand : public SimpleCommand {
 	public:
 		ToggleCommand(SettingsManager* manager);
 		virtual string execute(const vector<string>& tokens)

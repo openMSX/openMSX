@@ -24,13 +24,15 @@ endif
 
 noinst_LTLIBRARIES = libCommands.la
 libCommands_la_SOURCES = \
-	Command.hh \
+	Command.hh Command.cc \
 	CommandException.cc CommandException.hh \
 	CommandController.cc CommandController.hh \
 	InfoCommand.cc InfoCommand.hh \
 	InfoTopic.hh \
 	TCLInterp.cc TCLInterp.hh \
-	Interpreter.cc Interpreter.hh
+	Interpreter.cc Interpreter.hh \
+	CommandResult.hh \
+	TCLCommandResult.cc TCLCommandResult.hh 
 
 nodebug: resetdebug all
 debug: setdebug all

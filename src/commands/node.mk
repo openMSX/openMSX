@@ -5,13 +5,15 @@ include build/node-start.mk
 SRC_HDR:= \
 	CommandException \
 	CommandController \
+	Command \
 	InfoCommand \
 	TCLInterp \
-	Interpreter
+	Interpreter \
+	TCLCommandResult
 
 HDR_ONLY:= \
-	Command \
-	InfoTopic
+	InfoTopic \
+	CommandResult
 
 include build/node-end.mk
 

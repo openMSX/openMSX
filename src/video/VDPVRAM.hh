@@ -462,7 +462,7 @@ private:
 	  */
 	EmuTimeFreq<VDP::TICKS_PER_SECOND> currentTime;
 
-	class DumpVRAMCmd : public Command {
+	class DumpVRAMCmd : public SimpleCommand {
 	public:
 		DumpVRAMCmd(VDPVRAM *vram_);
 		virtual string execute(const vector<string> &tokens)

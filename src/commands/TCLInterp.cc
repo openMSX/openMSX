@@ -1,7 +1,9 @@
 // $Id$
 
+#include "openmsx.hh"
 #include "TCLInterp.hh"
 #include "CommandConsole.hh"
+#include "TCLCommandResult.hh"
 
 namespace openmsx {
 
@@ -58,15 +60,14 @@ int TCLInterp::commandProc(ClientData clientData, Tcl_Interp* interp,
 	for (int i = 0; i < objc; ++i) {
 		tokens.push_back(Tcl_GetString(objv[i]));
 	}
-	string result;
-	bool success = true;
+	TCLCommandResult result(Tcl_GetObjResult(interp));
 	try {
-		result = command.execute(tokens);
+		command.execute(tokens, result);
+		return TCL_OK;
 	} catch (CommandException& e) {
-		result = e.getMessage();
+		result.setString(e.getMessage());
+		return TCL_ERROR;
 	}
-	Tcl_SetResult(interp, const_cast<char*>(result.c_str()), TCL_VOLATILE);
-	return success ? TCL_OK : TCL_ERROR;
 }
 
 bool TCLInterp::isComplete(const string& command) const

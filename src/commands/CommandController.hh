@@ -98,7 +98,7 @@ private:
 	CompleterMap commandCompleters;
 
 	// Commands
-	class HelpCmd : public Command {
+	class HelpCmd : public SimpleCommand {
 	public:
 		HelpCmd(CommandController& parent);
 		virtual string execute(const vector<string>& tokens)

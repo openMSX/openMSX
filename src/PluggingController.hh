@@ -58,7 +58,7 @@ private:
 	vector<Pluggable *> pluggables;
 
 	// Commands
-	class PlugCmd : public Command {
+	class PlugCmd : public SimpleCommand {
 	public:
 		PlugCmd(PluggingController& parent);
 		virtual string execute(const vector<string> &tokens)
@@ -72,7 +72,7 @@ private:
 	} plugCmd;
 	friend class PlugCmd;
 
-	class UnplugCmd : public Command {
+	class UnplugCmd : public SimpleCommand {
 	public:
 		UnplugCmd(PluggingController& parent);
 		virtual string execute(const vector<string> &tokens)

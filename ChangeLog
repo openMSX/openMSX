@@ -1,5 +1,11 @@
 $Id$
 
+2004-02-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* TCL command speedups:
+	   - avoid "int -> string -> int" conversions on command results
+	* 2 new debug commands:
+	   - read_block, write_block (WIP)
+
 2004-02-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Made abstract Interpreter class:
 	   - TCLinterpreter is (the only) subclass

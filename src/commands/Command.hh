@@ -6,12 +6,13 @@
 #include <string>
 #include <vector>
 #include "CommandException.hh"
-#include "MSXException.hh"
 
 using std::string;
 using std::vector;
 
 namespace openmsx {
+
+class CommandResult;
 
 class CommandCompleter
 {
@@ -30,13 +31,11 @@ public:
 class Command : public CommandCompleter
 {
 public:
-	virtual ~Command() {}
-
 	/** Execute this command.
 	  * @param tokens Tokenized command line;
 	  * 	tokens[0] is the command itself.
 	  */
-	virtual string execute(const vector<string>& tokens)
+	virtual void execute(const vector<string>& tokens, CommandResult& result)
 		throw (CommandException) = 0;
 
 	/** Print help for this command.
@@ -52,6 +51,21 @@ public:
 	  */
 	virtual void tabCompletion(vector<string>& tokens) const
 		throw() {}
+};
+
+/**
+ * Simplified Command class for commands that just need to
+ * return a (small) string
+ */
+class SimpleCommand : public Command
+{
+public:
+	virtual string execute(const vector<string>& tokens)
+		throw (CommandException) = 0;
+	
+	virtual void execute(const vector<string>& tokens,
+	                     CommandResult& result)
+		throw (CommandException);
 };
 
 } // namespace openmsx

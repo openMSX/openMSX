@@ -173,7 +173,7 @@ private:
 		MSXCPUInterface& parent;
 	} ioDebug;
 
-	class SlotMapCmd : public Command {
+	class SlotMapCmd : public SimpleCommand {
 	public:
 		SlotMapCmd(MSXCPUInterface& parent);
 		virtual string execute(const vector<string> &tokens)
@@ -184,7 +184,7 @@ private:
 		MSXCPUInterface& parent;
 	} slotMapCmd;
 
-	class SlotSelectCmd : public Command {
+	class SlotSelectCmd : public SimpleCommand {
 	public:
 		SlotSelectCmd(MSXCPUInterface& parent);
 		virtual string execute(const vector<string> &tokens)

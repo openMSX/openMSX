@@ -12,7 +12,7 @@ using std::map;
 
 namespace openmsx {
 
-class AfterCommand : public Command, private EventListener
+class AfterCommand : public SimpleCommand, private EventListener
 {
 public:
 	AfterCommand();

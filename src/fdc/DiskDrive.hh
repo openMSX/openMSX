@@ -140,7 +140,7 @@ public:
  * This class implements a real drive, this is the parent class for both
  * sigle and double sided drives. Common methods are implemented here;
  */
-class RealDrive : public DiskDrive, public Command
+class RealDrive : public DiskDrive, public SimpleCommand
 {
 public:
 	RealDrive(const string &drivename, const EmuTime &time);
