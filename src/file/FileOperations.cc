@@ -128,12 +128,22 @@ const string& FileOperations::getUserDir()
 	static string userDir;
 	if (userDir.empty()) {
 #if	defined(__WIN32__)
-		char p[MAX_PATH + 1];
-		int res = SHGetSpecialFolderPathA(0, p, CSIDL_PERSONAL, 1);
-		if (res != TRUE) {
-			PRT_ERROR("Cannot get user directory.");
+		HMODULE sh32dll;
+		FARPROC funcp;
+		if ((sh32dll=LoadLibraryA("SHELL32.DLL"))!=NULL && (funcp=GetProcAddress(sh32dll,"SHGetSpecialFolderPathA"))!=NULL) {
+			char p[MAX_PATH + 1];
+			int res = ((BOOL (*)(HWND,LPSTR,int,BOOL))funcp)(0, p, CSIDL_PERSONAL, 1);
+			if (res != TRUE) {
+				PRT_ERROR("Cannot get user directory.");
+			}
+			userDir = getConventionalPath(p);
+		} else {
+			userDir = getSystemDir();
+			userDir.erase(userDir.length() - 1, 1);
 		}
-		userDir = getConventionalPath(p);
+		if (sh32dll!=NULL) {
+			FreeLibrary(sh32dll);
+		}
 #else
 		userDir = getenv("HOME");
 #endif
