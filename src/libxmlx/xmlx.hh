@@ -86,6 +86,9 @@ public:
 
 	void dump(int recursion=0);
 
+	const std::string &getAttribute(const std::string &name);
+	const std::string &getElementPcdata(const std::string &name);
+
 private:
 	Element();                              // block usage
 	Element(const Element &foo);            // block usage

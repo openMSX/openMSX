@@ -49,7 +49,9 @@ static void s_dump(xmlNodePtr node, int recursion=0)
 	}
 }
 #endif
-		
+
+static std::string empty("");
+
 Exception::Exception(const std::string &msg)
 :runtime_error(msg)
 {
@@ -169,6 +171,24 @@ void Element::dump(int recursion=0)
 	{
 		(*i)->dump(recursion+1);
 	}
+}
+
+const std::string &Element::getAttribute(const std::string &name)
+{
+	for (std::list<Attribute*>::iterator i = attributes.begin(); i != attributes.end(); i++)
+	{
+		if ((*i)->name == name) return (*i)->value;
+	}
+	return empty;
+}
+
+const std::string &Element::getElementPcdata(const std::string &name)
+{
+	for (std::list<Element*>::iterator i = children.begin(); i != children.end(); i++)
+	{
+		if ((*i)->name == name) return (*i)->pcdata;
+	}
+	return empty;
 }
 
 }; // end namespace XML

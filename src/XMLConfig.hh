@@ -17,11 +17,24 @@ public:
 
 	virtual const std::string &getType();
 	virtual const std::string &getId();
+	virtual const std::string &getDesc();
+	virtual const std::string &getRem();
+
+	virtual bool hasParameter(const std::string &name);
+	virtual const std::string &getParameter(const std::string &name);
+	virtual const bool getParameterAsBool(const std::string &name);
+	virtual const int getParameterAsInt(const std::string &name);
+	virtual const uint64 getParameterAsUint64(const std::string &name);
+	virtual std::list<Parameter*>* getParametersWithClass(const std::string &clasz);
 
 private:
 	Config(); // block usage
+	Config(const Config &foo);            // block usage
+	Config &operator=(const Config &foo); // block usage
 
 	XML::Element* element;
+
+	XML::Element* getParameterElement(const std::string &name);
 };
 
 class Device: public Config, public MSXConfig::Device
@@ -32,6 +45,8 @@ public:
 
 private:
 	Device(); // block usage
+	Device(const Device &foo);            // block usage
+	Device &operator=(const Device &foo); // block usage
 };
 
 class Backend: public MSXConfig::Backend
@@ -52,6 +67,10 @@ protected:
 	Backend();
 
 private:
+	Backend(const Backend &foo);            // block usage
+	Backend &operator=(const Backend &foo); // block usage
+
+
 	std::list<XML::Document*> docs;
 	std::list<Config*> configs;
 	std::list<Device*> devices;

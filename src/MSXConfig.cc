@@ -38,22 +38,37 @@ Config::Parameter::~Parameter()
 {
 }
 
-const bool Config::Parameter::getAsBool() const
+bool Config::Parameter::stringToBool(const std::string &str)
 {
-	std::string low = value;
+	std::string low = str;
 	std::transform (low.begin(), low.end(), low.begin(), tolower);
 	return (low == "true" || low == "yes");
 }
 
-const int Config::Parameter::getAsInt() const
+int Config::Parameter::stringToInt(const std::string &str)
 {
 	// strtol also understands hex
-	return strtol(value.c_str(),0,0);
+	return strtol(str.c_str(),0,0);
+}
+
+uint64 Config::Parameter::stringToUint64(const std::string &str)
+{
+	return atoll(str.c_str());
+}
+
+const bool Config::Parameter::getAsBool() const
+{
+	return stringToBool(value);
+}
+
+const int Config::Parameter::getAsInt() const
+{
+	return stringToInt(value);
 }
 
 const uint64 Config::Parameter::getAsUint64() const
 {
-	return atoll(value.c_str());
+	return stringToUint64(value);
 }
 
 Device::Device()
@@ -126,6 +141,15 @@ Backend* Backend::createBackend(const std::string &name)
 		return new XMLConfig::Backend();
 	}
 	return 0;
+}
+
+void Config::getParametersWithClassClean(std::list<Parameter*>* list)
+{
+	for (std::list<Parameter*>::iterator i = list->begin(); i != list->end(); i++)
+	{
+		delete (*i);
+	}
+	delete list;
 }
 
 }; // end namespace MSXConfig

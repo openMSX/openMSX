@@ -47,6 +47,10 @@ public:
 		const std::string name;
 		const std::string value;
 		const std::string clasz;
+
+		static bool stringToBool(const std::string &str);
+		static int stringToInt(const std::string &str);
+		static uint64 stringToUint64(const std::string &str);
 	};
 
 	Config();
@@ -55,6 +59,26 @@ public:
 	virtual bool isDevice();
 	virtual const std::string &getType()=0;
 	virtual const std::string &getId()=0;
+	virtual const std::string &getDesc()=0;
+	virtual const std::string &getRem()=0;
+
+	virtual bool hasParameter(const std::string &name)=0;
+	virtual const std::string &getParameter(const std::string &name)=0;
+	virtual const bool getParameterAsBool(const std::string &name)=0;
+	virtual const int getParameterAsInt(const std::string &name)=0;
+	virtual const uint64 getParameterAsUint64(const std::string &name)=0;
+
+	/**
+	 * This returns a freshly allocated list with freshly allocated
+	 * Parameter objects. The caller has to clean this all up with
+	 * getParametersWithClassClean
+	 */
+	virtual std::list<Parameter*>* getParametersWithClass(const std::string &clasz)=0;
+	/**
+	 * cleanup function for getParametersWithClass
+	 */
+	static void getParametersWithClassClean(std::list<Parameter*>* list);
+
 };
 
 class Device: public Config
