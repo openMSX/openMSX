@@ -138,7 +138,7 @@ class YMF262 : public SoundDevice, public TimerCallback
 		
 		virtual void setInternalVolume(short volume);
 		virtual void setSampleRate(int sampleRate);
-		virtual int* YMF262::updateBuffer(int length);
+		virtual int* updateBuffer(int length);
 
 	private:
 		void writeRegForce(int r, byte v, const EmuTime &time);
