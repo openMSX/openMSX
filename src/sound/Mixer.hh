@@ -127,8 +127,8 @@ private:
 	IntegerSetting masterVolume;
 	BooleanSetting& pauseSetting;
 
-	int prevLeft, prevOutLeft;
-	int prevRight, prevOutRight;
+	int prevLeft, outLeft;
+	int prevRight, outRight;
 #ifdef DEBUG_MIXER
 	int nbClipped;
 #endif

@@ -29,8 +29,8 @@ Mixer::Mixer()
 	  pauseSetting(Scheduler::instance().getPauseSetting()),
 	  soundDeviceInfo(*this)
 {
-	prevLeft = prevOutLeft = 0;
-	prevRight = prevOutRight = 0;
+	prevLeft = outLeft = 0;
+	prevRight = outRight = 0;
 #ifdef DEBUG_MIXER
 	nbClipped = 0;
 #endif
@@ -236,41 +236,32 @@ void Mixer::updtStrm(int samples)
 			right += buffers[buf++][2*j+1];
 		}
 		
-		// 1st order IIR filter
-		//   y(n) = a0 * x(n) + a1 * x(n-1) + b1 * y(n-1)
-		// high-pass filter:
-		//   a0 =  (1 + x) / 2      x = exp(-2 * pi * f / fsamp)
-		//   a1 = -(1 + x) / 2      f = cut-off freq
-		//   b1 =   x               fsamp = sample freq
-		// take x = 1022/1024
+		// DC removal filter
+		//   y(n) = x(n) - x(n-1) + R * y(n-1) 
+		//   R = 1 - (pi*2 * cut-off-frequency / samplerate)
+		// take R = 1022/1024
 		//   44100Hz --> cutt-off freq = 14Hz
 		//   22050Hz                     7Hz
-		int tmp;
-		tmp = 1023 * left;
-		left = (tmp - prevLeft + 1022 * prevOutLeft) >> 10;
-		prevLeft = tmp;
-		prevOutLeft = left;
-
-		tmp = 1023 * right;
-		right = (tmp - prevRight + 1022 * prevOutRight) >> 10;
-		prevRight = tmp;
-		prevOutRight = right;
- 
+		outLeft   =  left -  prevLeft + ((1022 *  outLeft) >> 10);
+		prevLeft  =  left;
+		outRight  = right - prevRight + ((1022 * outRight) >> 10);
+		prevRight = right;
+		
 		// clip
 		#ifdef DEBUG_MIXER
-		if ((left  > 32767) || (left  < -32768) ||
-		    (right > 32767) || (right < -32768)) {
+		if ((outleft  > 32767) || (outleft  < -32768) ||
+		    (outright > 32767) || (outright < -32768)) {
 			nbClipped++;
 			PRT_DEBUG("Mixer: clipped " << nbClipped);
 		}
 		#endif
-		if      (left  > 32767)  left  =  32767;
-		else if (left  < -32768) left  = -32768;
-		if      (right > 32767)  right =  32767;
-		else if (right < -32768) right = -32768;
+		if      (outLeft  > 32767)  outLeft  =  32767;
+		else if (outLeft  < -32768) outLeft  = -32768;
+		if      (outRight > 32767)  outRight =  32767;
+		else if (outRight < -32768) outRight = -32768;
 
-		mixBuffer[offset++] = (short)left;
-		mixBuffer[offset++] = (short)right;
+		mixBuffer[offset++] = (short)outLeft;
+		mixBuffer[offset++] = (short)outRight;
 	}
 	samplesLeft -= samples;
 }
