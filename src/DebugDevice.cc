@@ -1,7 +1,6 @@
 // $Id$
 
 #include <iostream>
-#include <iterator>
 #include <iomanip>
 #include "EmuTime.hh"
 #include "DebugDevice.hh"
@@ -9,10 +8,6 @@
 #include "FilenameSetting.hh"
 #include "xmlx.hh"
 
-using std::setfill;
-using std::setw;
-using std::flush;
-using std::cerr;
 using std::string;
 
 namespace openmsx {
@@ -30,17 +25,12 @@ DebugDevice::DebugDevice(const XMLElement& config, const EmuTime& time)
 
 DebugDevice::~DebugDevice()
 {
-	string name(fileNameSetting->getValueString());
-	if ((name != "stderr") && (name != "stdout")) {
-		debugOut.close();
-	}
 }
 
 void DebugDevice::writeIO(byte port, byte value, const EmuTime& time)
 {
-	string currentName(fileNameSetting->getValueString());
+	string currentName = fileNameSetting->getValueString();
 	if (currentName != fileNameString) {
-		closeOutput(fileNameString);
 		fileNameString = currentName;
 		openOutput(fileNameString);
 	}
@@ -149,7 +139,7 @@ void DebugDevice::displayByte(byte value, DisplayType type)
 				}
 				mask >>= 1;
 			}
-			(*outputstrm) << "b " << flush;
+			(*outputstrm) << "b " << std::flush;
 			break;
 		}
 		case DEC:
@@ -165,6 +155,7 @@ void DebugDevice::displayByte(byte value, DisplayType type)
 
 void DebugDevice::openOutput(const string& name)
 {
+	debugOut.close();
 	if (name == "stdout") {
 		outputstrm = &std::cout;
 	} else if (name == "stderr") { 
@@ -173,13 +164,6 @@ void DebugDevice::openOutput(const string& name)
 		string realName = FileOperations::expandTilde(name);
 		debugOut.open(realName.c_str(), std::ios::app);
 		outputstrm = &debugOut;
-	}
-}
-
-void DebugDevice::closeOutput(const string& name)
-{
-	if ((name != "stdout") && (name != "stderr")) {
-		debugOut.close();
 	}
 }
 

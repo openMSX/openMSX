@@ -19,18 +19,17 @@ public:
 	virtual ~DebugDevice();
 	
 	virtual void writeIO(byte port, byte value, const EmuTime& time);
-	void openOutput(const std::string& name);
-	void closeOutput(const std::string& name);
-	
-	enum DisplayType {HEX, BIN, DEC, ASC};
-	enum DebugMode {OFF, SINGLEBYTE, MULTIBYTE, ASCII};
 
 private:
+	enum DisplayType {HEX, BIN, DEC, ASC};
+	enum DebugMode {OFF, SINGLEBYTE, MULTIBYTE, ASCII};
+	
 	void outputSingleByte(byte value, const EmuTime& time);
 	void outputMultiByte(byte value);
 	void displayByte(byte value, DisplayType type);
+	void openOutput(const std::string& name);
 	
-	enum DebugMode mode;
+	DebugMode mode;
 	byte modeParameter;
 	std::auto_ptr<FilenameSetting> fileNameSetting;
 	std::ostream* outputstrm;
