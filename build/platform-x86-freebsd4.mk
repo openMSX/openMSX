@@ -14,11 +14,21 @@ OPENMSX_CXX?=g++33
 # File name extension of executables.
 EXEEXT:=
 
-LINK_FLAGS+=-L/usr/X11R6/lib
+CXXFLAGS+=-D_REENTRANT -D_THREAD_SAFE \
+	`if [ -d /usr/X11R6/include ]; then echo '-I/usr/X11R6/include'; fi` \
+	`if [ -d /usr/local/include ]; then echo '-I/usr/local/include'; fi` 
+
+LINK_FLAGS+=-pthread \
+	`if [ -d /usr/X11R6/lib ]; then echo '-L/usr/X11R6/lib'; fi` \
+	`if [ -d /usr/local/lib ]; then echo '-L/usr/local/lib'; fi` 
 
 
 # Probe Overrides
 # ===============
+
+MMAP_PREHEADER:=<sys/types.h>
+SYS_MMAN_PREHEADER:=<sys/types.h>
+SYS_SOCKET_PREHEADER:=<sys/types.h>
 
 SDL_CFLAGS:=`sdl11-config --cflags 2>> $(LOG)`
 

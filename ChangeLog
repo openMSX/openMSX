@@ -1,5 +1,9 @@
 $Id$
 
+2004-04-28 Maarten ter Huurne <maarten@treewalker.org>
+	* Integrated probe fixes from Reikan.
+	  Probe should work on FreeBSD and Win32 now.
+
 2004-04-28 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented VRAM reading/writing for V9990
 

@@ -97,7 +97,8 @@ PNG_RESULT:=`libpng-config --version`
 SDL_LDFLAGS:=`sdl-config --libs 2>> $(LOG)`
 SDL_RESULT:=`sdl-config --version`
 
-SDL_IMAGE_LDFLAGS:=-lSDL_image
+# Note: "=" instead of ":=", so overriden value of SDL_LDFLAGS will be used.
+SDL_IMAGE_LDFLAGS="$(SDL_LDFLAGS) -lSDL_image"
 SDL_IMAGE_RESULT:=yes
 
 TCL_LDFLAGS:=$(TCL_LDFLAGS)
@@ -156,9 +157,14 @@ init:
 # Probe for function:
 # Try to include the necessary header and get the function address.
 $(CHECK_FUNCS): init
-	@echo "#include $($@_HEADER)" > $(OUTDIR)/$@.cc
-	@echo "void (*f)() = reinterpret_cast<void (*)()>($($@_FUNC));" >> $(OUTDIR)/$@.cc
-	@if $(COMPILE) -c $(OUTDIR)/$@.cc -o $(OUTDIR)/$@.o 2>> $(LOG); \
+	@echo > $(OUTDIR)/$@.cc
+	@if [ -n "$($@_PREHEADER)" ]; then echo "#include $($@_PREHEADER)"; fi \
+		>> $(OUTDIR)/$@.cc
+	@echo "#include $($@_HEADER)" >> $(OUTDIR)/$@.cc
+	@echo "void (*f)() = reinterpret_cast<void (*)()>($($@_FUNC));" \
+		>> $(OUTDIR)/$@.cc
+	@if $(COMPILE) $(CXXFLAGS) -c $(OUTDIR)/$@.cc -o $(OUTDIR)/$@.o \
+		2>> $(LOG); \
 	then echo "Found function: $@" >> $(LOG); \
 	     echo "#define HAVE_$@ 1" >> $(OUTHEADER); \
 	     echo "HAVE_$@:=true" >> $(OUTMAKE); \
@@ -171,8 +177,11 @@ $(CHECK_FUNCS): init
 # Probe for header:
 # Try to include the header.
 $(CHECK_HEADERS): init
-	@echo "#include $($(@:%_H=%)_HEADER)" > $(OUTDIR)/$@.cc
-	@if FLAGS=$($(@:%_H=%_CFLAGS)) && $(COMPILE) $$FLAGS \
+	@echo > $(OUTDIR)/$@.cc
+	@if [ -n "$($(@:%_H=%)_PREHEADER)" ]; then \
+		echo "#include $($(@:%_H=%)_PREHEADER)"; fi >> $(OUTDIR)/$@.cc
+	@echo "#include $($(@:%_H=%)_HEADER)" >> $(OUTDIR)/$@.cc
+	@if FLAGS=$($(@:%_H=%_CFLAGS)) && $(COMPILE) $(CXXFLAGS) $$FLAGS \
 		-c $(OUTDIR)/$@.cc -o $(OUTDIR)/$@.o 2>> $(LOG); \
 	then echo "Found header: $(@:%_H=%)" >> $(LOG); \
 	     echo "#define HAVE_$@ 1" >> $(OUTHEADER); \
@@ -187,8 +196,8 @@ $(CHECK_HEADERS): init
 # Try to link dummy program to the library.
 $(CHECK_LIBS): init
 	@echo "int main(char **argv, int argc) { return 0; }" > $(OUTDIR)/$@.cc
-	@if FLAGS=$($@_LDFLAGS) && $(COMPILE) $$FLAGS \
-		$(OUTDIR)/$@.cc -o $(OUTDIR)/$@.exe 2>> $(LOG); \
+	@if FLAGS=$($@_LDFLAGS) && $(COMPILE) $(CXXFLAGS) \
+		$(OUTDIR)/$@.cc -o $(OUTDIR)/$@.exe $(LINK_FLAGS) $$FLAGS 2>> $(LOG); \
 	then echo "Found library: $@" >> $(LOG); \
 	     echo "#define HAVE_$@_LIB 1" >> $(OUTHEADER); \
 	     echo "HAVE_$@_LIB:=$($@_RESULT)" >> $(OUTMAKE); \
