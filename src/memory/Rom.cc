@@ -23,15 +23,15 @@ namespace openmsx {
 Rom::Rom(const string& name_, const string& description_, Config* config)
 	: name(name_), description(description_)
 {
-	// TODO use SHA1 to fetch file from ROM pool
-	
 	string filename;
 	XMLElement::Children sums;
 	config->getChildren("sha1", sums);
 	for (XMLElement::Children::const_iterator it = sums.begin();
 	     it != sums.end(); ++it) {
-		filename = FilePool::instance().getFile((*it)->getData());
+		const string& sha1 = (*it)->getData();
+		filename = FilePool::instance().getFile(sha1);
 		if (!filename.empty()) {
+			sha1sum = sha1;
 			break;
 		}
 	}
