@@ -42,7 +42,6 @@
 #include "YMF262.hh"
 #include "openmsx.hh"
 #include "Mixer.hh"
-#include "IRQHelper.hh"
 #include <cmath>
 
 
