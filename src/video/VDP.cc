@@ -36,6 +36,7 @@ TODO:
 #include <cassert>
 
 using std::setw;
+using std::setfill;
 using std::string;
 using std::vector;
 
@@ -1136,9 +1137,9 @@ string VDP::VDPRegsCmd::execute(const vector<string>& /*tokens*/)
 		for (int col = 0; col < 4; col++) {
 			int reg = col * 8 + row;
 			int value = vdp.controlRegs[reg];
-			out << std::dec << std::setw(2) << reg;
+			out << std::dec << std::setw(2) << std::setfill(' ')<< reg;
 			out << " : ";
-			out << std::hex << std::setw(2) << value;
+			out << std::hex << "0x" << std::setw(2) << std::setfill('0') << value;
 			out << "   ";
 		}
 		out << "\n";
