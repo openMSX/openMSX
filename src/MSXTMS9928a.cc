@@ -56,6 +56,8 @@
 ** and finally import all mode functions one by one
 */
 
+#include <string>
+
 //#include "driver.h"
 //#include "vidhrdw/generic.h"
 #include "MSXDevice.hh"

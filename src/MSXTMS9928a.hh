@@ -3,8 +3,8 @@
 #ifndef __MSXTMS9928A_HH__
 #define __MSXTMS9928A_HH__
 
-#include <iostream.h>
-#include <fstream.h>
+//#include <iostream>
+//#include <fstream>
 #include <SDL/SDL.h>
 #include "MSXDevice.hh"
 #include "Scheduler.hh"
