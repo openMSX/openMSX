@@ -282,6 +282,7 @@ void Y8950::Slot::reset()
 	block = 0;
 	pgout = 0;
 	egout = 0;
+	slotStatus = false;
 	patch.reset();
 	updateAll();
 }
