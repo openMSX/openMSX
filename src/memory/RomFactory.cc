@@ -25,6 +25,8 @@
 #include "RomSynthesizer.hh"
 #include "RomGameMaster2.hh"
 #include "RomHalnote.hh"
+#include "RomKorean80in1.hh"
+#include "RomKorean126in1.hh"
 #include "Rom.hh"
 
 
@@ -108,6 +110,10 @@ MSXRom* RomFactory::create(Device* config, const EmuTime &time)
 			return new RomSynthesizer(config, time, rom);
 		case HALNOTE:
 			return new RomHalnote(config, time, rom);
+		case KOREAN80IN1:
+			return new RomKorean80in1(config, time, rom);
+		case KOREAN126IN1:
+			return new RomKorean126in1(config, time, rom);
 		default:
 			PRT_ERROR("Unknown mapper type");
 			return NULL;

@@ -15,6 +15,8 @@ enum MapperType {
 	MSX_AUDIO    = 8,
 	HARRY_FOX    = 9,
 	HALNOTE      = 10,
+	KOREAN80IN1  = 11,
+	KOREAN126IN1 = 12,
 	PLAIN        = 15,
 
 	PAGE0        = 16 + 1,

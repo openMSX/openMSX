@@ -64,6 +64,10 @@ MapperType RomInfo::nameToMapperType(const std::string &name)
 		mappertype["HARRYFOX"]    = HARRY_FOX;
 		
 		mappertype["HALNOTE"]     = HALNOTE;
+		
+		mappertype["KOREAN80IN1"] = KOREAN80IN1;
+		
+		mappertype["KOREAN126IN1"]= KOREAN126IN1;
 
 		mappertype["64kB"]        = PLAIN;
 		mappertype["PLAIN"]       = PLAIN;
