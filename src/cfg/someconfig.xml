@@ -334,16 +334,6 @@
     <type>CassettePort</type>
   </config>
 
-  <device id="Simple DAC via PrinterPort">
-    <type>Simple</type>
-    <parameter name="volume">20000</parameter>
-  </device>
-
-  <device id="Simple Printer Logger">
-    <type>PrinterLogger</type>
-    <parameter name="filename">printer.log</parameter>
-  </device>
-
   <device id="Empty SCC Cartridge">
     <type>GameCartridge</type>
     <slotted>

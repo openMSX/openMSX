@@ -24,8 +24,6 @@
 #include "MSXSCCPlusCart.hh"
 #include "MSXARCdebug.hh"
 #include "MSXFDC.hh"
-//#include "MSXPrinter.hh"
-//#include "MSXPostLoad.hh"
 
 
 MSXDevice *deviceFactory::create(MSXConfig::Device *conf, const EmuTime &time) {
@@ -96,10 +94,6 @@ MSXDevice *deviceFactory::create(MSXConfig::Device *conf, const EmuTime &time) {
 	if (conf->getType()=="FDC") {
 		device = new MSXFDC(conf, time);
 	}
-//	} else
-//	if (conf->getType()=="PostLoad") {
-//		device = new MSXPostLoad(conf, time);
-//	}
 	if (device == NULL)
 		PRT_ERROR("Unknown device specified in configuration");
 	return device;

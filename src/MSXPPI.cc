@@ -104,12 +104,7 @@ void MSXPPI::writeA(byte value, const EmuTime &time) {
 }
 
 byte MSXPPI::readB(const EmuTime &time) {
-	const byte* src = keyboard->getKeys(); //reading the keyboard events into the matrix
-	byte* dst = MSXKeyMatrix;
-	for (int i=0; i<Keyboard::NR_KEYROWS; i++) {
-		*dst++ = *src++;
-	}
-	return MSXKeyMatrix[selectedRow];
+	return keyboard->getKeys()[selectedRow];
 }
 void MSXPPI::writeB(byte value, const EmuTime &time) {
 	// probably nothing happens on a real MSX
