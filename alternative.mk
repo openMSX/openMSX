@@ -9,6 +9,26 @@
 # "Recursive Make Considered Harmful".
 # http://www.tip.net.au/~millerp/rmch/recu-make-cons-harm.html
 
+
+# Logical Targets
+# ===============
+
+# Logical targets which require dependency files.
+DEPEND_TARGETS:=all run
+# Logical targets which do not require dependency files.
+NODEPEND_TARGETS:=clean config
+# Mark all logical targets as such.
+.PHONY: $(DEPEND_TARGETS) $(NODEPEND_TARGETS)
+
+
+# Flavours
+# ========
+
+# Function to check a boolean variable has value "true" or "false".
+# Usage: $(call BOOLCHECK,VARIABLE_NAME)
+BOOLCHECK=$(if $(filter-out true false,$($(1))), \
+	$(error Value of $(1) ("$($(1))") should be "true" or "false") )
+
 # Default build flavour: probably the best for most users.
 OPENMSX_FLAVOUR?=i686
 
@@ -26,25 +46,18 @@ CXX:=$(OPENMSX_CXX)
 
 # Use precompiled headers?
 # TODO: Autodetect this: USE_PRECOMPH == compiler_is_g++ && g++_version >= 3.4
+#       In new approach, Make >= 3.80 is needed for precompiled header rules.
 USE_PRECOMPH?=false
+$(call BOOLCHECK,USE_PRECOMPH)
 # Problem: When using precompiled headers, the generated dependency files
 #          only contain dependencies 1 level deep.
 #          If generated without compiling as well, it depends on every
 #          include there is.
 # So one-shot compilation works great, but incremental compilation does not.
 
-# Generic compilation flags.
-CXXFLAGS+=-pipe
-# Stricter warning and error reporting.
-CXXFLAGS+=-Wall
-
 # Flags for profiling.
 OPENMSX_PROFILE?=false
-ifneq ($(OPENMSX_PROFILE),true)
-  ifneq ($(OPENMSX_PROFILE),false)
-    $(error Value of OPENMSX_PROFILE ("$(OPENMSX_PROFILE)") should be "true" or "false")
-  endif
-endif
+$(call BOOLCHECK,OPENMSX_PROFILE)
 ifeq ($(OPENMSX_PROFILE),true)
   CXXFLAGS+=-pg
   BUILD_PATH:=$(BUILD_PATH)-profile
@@ -52,24 +65,18 @@ endif
 
 # Strip binary?
 OPENMSX_STRIP?=false
-ifneq ($(OPENMSX_STRIP),true)
-  ifneq ($(OPENMSX_STRIP),false)
-    $(error Value of OPENMSX_STRIP ("$(OPENMSX_STRIP)") should be "true" or "false")
-  endif
-endif
+$(call BOOLCHECK,OPENMSX_STRIP)
 ifeq ($(OPENMSX_PROFILE),true)
+  # Profiling does not work with stripped binaries, so override.
   OPENMSX_STRIP:=false
 endif
 ifeq ($(OPENMSX_STRIP),true)
   LDFLAGS+=--strip-all
 endif
 
-# Logical targets which require dependency files.
-DEPEND_TARGETS:=all run
-# Logical targets which do not require dependency files.
-NODEPEND_TARGETS:=clean
-# Mark all logical targets as such.
-.PHONY: $(DEPEND_TARGETS) $(NODEPEND_TARGETS)
+
+# Filesets
+# ========
 
 SOURCES_PATH:=src
 # TODO: Use node.mk system for building sources list.
@@ -98,6 +105,15 @@ LIBS_PLAIN:=stdc++ SDL_image GL
 # Libraries that have a lib-config script.
 LIBS_CONFIG:=xml2 sdl
 
+
+# Compile and Link Flags
+# ======================
+
+# Generic compilation flags.
+CXXFLAGS+=-pipe
+# Stricter warning and error reporting.
+CXXFLAGS+=-Wall
+
 # Determine include flags.
 INCLUDE_INTERNAL:=$(filter-out %/CVS,$(shell find $(SOURCES_PATH) -type d))
 INCLUDE_FLAGS:=$(addprefix -I,$(INCLUDE_INTERNAL))
@@ -113,20 +129,13 @@ ifeq ($(OPENMSX_FLAVOUR),gcc34)
 LINK_FLAGS:=-L/opt/gcc-cvs/lib $(LINK_FLAGS)
 endif
 
-# Precompiled headers.
-PRECOMPH_PATH:=$(BUILD_PATH)/hdr
-PRECOMPH_COMB:=$(PRECOMPH_PATH)/all.h
-PRECOMPH_FILE:=$(PRECOMPH_COMB).gch
-ifeq ($(USE_PRECOMPH),true)
-PRECOMPH_FLAGS:=-include $(PRECOMPH_COMB)
-else
-PRECOMPH_FLAGS:=
-endif
+
+# Build Rules
+# ===========
 
 # Default target; make sure this is always the first target in this Makefile.
+MAKECMDGOALS?=all
 all: config $(BINARY_FULL)
-# GNU Make 3.80 supports "|" in dependency list to force an order:
-# all: config | $(BINARY_FULL)
 
 config:
 	@echo "Build configuration:"
@@ -135,11 +144,11 @@ config:
 	@echo "  Subset:  $(if $(OPENMSX_SUBSET),$(OPENMSX_SUBSET),full build)"
 
 # Include dependency files.
-ifeq ($(filter $(NODEPEND_TARGETS),$(MAKECMDGOALS)),)
+ifneq ($(filter $(DEPEND_TARGETS),$(MAKECMDGOALS)),)
   -include $(DEPEND_FULL)
 endif
 
-# Clean up entire build tree.
+# Clean up build tree of current flavour.
 clean:
 	@echo "Cleaning up..."
 	@rm -rf $(BUILD_PATH)
@@ -185,9 +194,19 @@ else
 	@$(BINARY_FULL)
 endif
 
+
+# Precompiled Headers
+# ===================
+
 ifeq ($(USE_PRECOMPH),true)
-$(OBJECTS_FULL): $(PRECOMPH_FILE)
-endif
+
+# Precompiled headers.
+PRECOMPH_PATH:=$(BUILD_PATH)/hdr
+PRECOMPH_COMB:=$(PRECOMPH_PATH)/all.h
+PRECOMPH_FILE:=$(PRECOMPH_COMB).gch
+PRECOMPH_FLAGS:=-include $(PRECOMPH_COMB)
+
+$(OBJECTS_FULL): | $(PRECOMPH_FILE)
 
 $(PRECOMPH_COMB): $(HEADERS_FULL)
 	@echo "Generating combined header..."
@@ -195,8 +214,11 @@ $(PRECOMPH_COMB): $(HEADERS_FULL)
 	@for header in $(HEADERS); do echo "#include \"$$header\""; done > $@
 
 .DELETE_ON_ERROR: $(PRECOMPH_FILE)
-.SECONDARY: $(PRECOMPH_FILE)
 $(PRECOMPH_FILE): $(PRECOMPH_COMB)
 	@echo "Precompiling headers..."
 	@$(CXX) $(CXXFLAGS) $(INCLUDE_FLAGS) $<
 
+else
+# USE_PRECOMPH == false
+PRECOMPH_FLAGS:=
+endif
