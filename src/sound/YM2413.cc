@@ -491,9 +491,10 @@ void YM2413::setBlock(int c, int block)
 // Change Rhythm Mode
 void YM2413::setRythmMode(int data)
 {
-	if (rythm_mode == (data&32)>>5 ) return;
-	rythm_mode = (data&32)>>5;
-	if (data&32) {
+	bool newMode = (data & 32) != 0;
+	if (rythm_mode == newMode) return;
+	rythm_mode = newMode;
+	if (newMode) {
 		// OFF->ON
 		ch[6].patch_number = 16;
 		ch[7].patch_number = 17;
