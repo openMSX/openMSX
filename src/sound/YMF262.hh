@@ -1,7 +1,6 @@
 // $Id$
 
 /*
- *
  * File: ymf262.c - software implementation of YMF262
  *                  FM sound generator type OPL3
  *
@@ -70,7 +69,7 @@ public:
 	unsigned Cnt;	// frequency counter
 	unsigned Incr;	// frequency counter step
 	byte FB;	// feedback shift value
-	int *connect;	// slot output pointer
+	int* connect;	// slot output pointer
 	int op1_out[2];	// slot1 output for feedback
 	byte CON;	// connection (algorithm) type
 
@@ -129,7 +128,7 @@ public:
 	byte extended;	// set to 1 if this channel forms up a 4op channel with another channel(only used by first of pair of channels, ie 0,1,2 and 9,10,11) 
 };
 
-class YMF262 : public SoundDevice, private TimerCallback
+class YMF262 : private SoundDevice, private TimerCallback, private Debuggable
 {
 public:
 	YMF262(short volume, const EmuTime& time);
@@ -140,6 +139,7 @@ public:
 	byte readReg(int reg);
 	byte readStatus();
 	
+private:
 	// SoundDevice
 	virtual const string& getName() const;
 	virtual const string& getDescription() const;
@@ -147,7 +147,12 @@ public:
 	virtual void setSampleRate(int sampleRate);
 	virtual int* updateBuffer(int length) throw();
 
-private:
+	// Debuggable
+	virtual unsigned getSize() const;
+	//virtual const string& getDescription() const;  // also in SoundDevice!!
+	virtual byte read(unsigned address);
+	virtual void write(unsigned address, byte value);
+	
 	void callback(byte flag) throw();
 
 	void writeRegForce(int r, byte v, const EmuTime& time);

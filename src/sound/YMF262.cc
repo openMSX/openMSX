@@ -39,10 +39,12 @@
  * - YMF262 does not support CSM mode
  */
 
+#include <cmath>
 #include "YMF262.hh"
 #include "openmsx.hh"
 #include "Mixer.hh"
-#include <cmath>
+#include "Debugger.hh"
+#include "Scheduler.hh"
 
 
 namespace openmsx {
@@ -1215,7 +1217,7 @@ byte YMF262::readReg(int r)
 	return reg[r];
 }
 
-void YMF262::writeReg(int r, byte v, const EmuTime &time)
+void YMF262::writeReg(int r, byte v, const EmuTime& time)
 {
 	if (!OPL3_mode && (r != 0x105)) {
 		// in OPL2 mode the only accessible in set #2 is register 0x05 
@@ -1224,7 +1226,7 @@ void YMF262::writeReg(int r, byte v, const EmuTime &time)
 	writeRegForce(r, v, time);
 	checkMute();
 }
-void YMF262::writeRegForce(int r, byte v, const EmuTime &time)
+void YMF262::writeRegForce(int r, byte v, const EmuTime& time)
 {
 	reg[r] = v;
 
@@ -1765,7 +1767,7 @@ void YMF262::writeRegForce(int r, byte v, const EmuTime &time)
 }
 
 
-void YMF262::reset(const EmuTime &time)
+void YMF262::reset(const EmuTime& time)
 {
 	eg_timer = 0;
 	eg_cnt   = 0;
@@ -1817,10 +1819,13 @@ YMF262::YMF262(short volume, const EmuTime& time)
 	                                               volume, Mixer::STEREO);
 	buffer = new int[2 * bufSize];
 	reset(time);
+
+	Debugger::instance().registerDebuggable(getName(), *this);
 }
 
 YMF262::~YMF262()
 {
+	Debugger::instance().unregisterDebuggable(getName(), *this);
 	Mixer::instance().unregisterSound(this);
 	delete[] buffer;
 }
@@ -1972,6 +1977,24 @@ int* YMF262::updateBuffer(int length) throw()
 void YMF262::setInternalVolume(short newVolume)
 {
 	maxVolume = newVolume;
+}
+
+
+// Debuggable
+unsigned YMF262::getSize() const
+{
+	return 0x200;
+}
+
+byte YMF262::read(unsigned address)
+{
+	return readReg(address);
+}
+
+void YMF262::write(unsigned address, byte value)
+{
+	writeRegForce(address, value, Scheduler::instance().getCurrentTime());
+	checkMute();
 }
 
 } // namespace openmsx

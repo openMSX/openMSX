@@ -1,8 +1,9 @@
 // $Id$
 
-#include "YMF278.hh"
 #include <cmath>
-
+#include "YMF278.hh"
+#include "Debugger.hh"
+#include "Scheduler.hh"
 
 namespace openmsx {
 
@@ -508,13 +509,17 @@ void YMF278::keyOnHelper(YMF278Slot& slot)
 	slot.sample2 = getSample(slot);
 }
 
-void YMF278::writeRegOPL4(byte reg, byte data, const EmuTime &time)
+void YMF278::writeRegOPL4(byte reg, byte data, const EmuTime& time)
 {
 	if (BUSY_Time < time) {
 		BUSY_Time = time;
 	}
 	BUSY_Time += 88;	// 88 cycles before next access
-	
+	writeReg(reg, data, time);
+}
+
+void YMF278::writeReg(byte reg, byte data, const EmuTime& time)
+{
 	// Handle slot registers specifically
 	if (reg >= 0x08 && reg <= 0xF7) {
 		int snum = (reg - 8) % 24;
@@ -691,13 +696,17 @@ void YMF278::writeRegOPL4(byte reg, byte data, const EmuTime &time)
 	regs[reg] = data;
 }
 
-byte YMF278::readRegOPL4(byte reg, const EmuTime &time)
+byte YMF278::readRegOPL4(byte reg, const EmuTime& time)
 {
 	if (BUSY_Time < time) {
 		BUSY_Time = time;
 	}
 	BUSY_Time += 88;	// 88 cycles before next access
-	
+	return readReg(reg, time);
+}
+
+byte YMF278::readReg(byte reg, const EmuTime& time)
+{
 	byte result;
 	switch(reg) {
 		case 2: // 3 upper bits are device ID
@@ -717,7 +726,7 @@ byte YMF278::readRegOPL4(byte reg, const EmuTime &time)
 	return result;
 }
 
-byte YMF278::readStatus(const EmuTime &time)
+byte YMF278::readStatus(const EmuTime& time)
 {
 	byte result = 0;
 	if (time < BUSY_Time) {
@@ -729,9 +738,9 @@ byte YMF278::readStatus(const EmuTime &time)
 	return result;
 }
 
-YMF278::YMF278(short volume, int ramSize, Device *config,
+YMF278::YMF278(short volume, int ramSize, Device* config,
                const EmuTime& time)
-	: rom(config, time)
+	: debugRegisters(*this), debugMemory(*this), rom(config, time)
 {
 	memadr = 0;	// avoid UMR
 	endRom = rom.getSize();
@@ -743,10 +752,15 @@ YMF278::YMF278(short volume, int ramSize, Device *config,
 	                                               volume, Mixer::STEREO);
 	buffer = new int[2 * bufSize];
 	reset(time);
+
+	Debugger::instance().registerDebuggable(getName() + "_regs", debugRegisters);
+	Debugger::instance().registerDebuggable(getName() + "_mem", debugMemory);
 }
 
 YMF278::~YMF278()
 {
+	Debugger::instance().unregisterDebuggable(getName() + "_mem", debugMemory);
+	Debugger::instance().unregisterDebuggable(getName() + "_regs", debugRegisters);
 	Mixer::instance().unregisterSound(this);
 	delete[] buffer;
 	delete[] ram;
@@ -764,7 +778,7 @@ const string& YMF278::getDescription() const
 	return desc;
 }
 
-void YMF278::reset(const EmuTime &time)
+void YMF278::reset(const EmuTime& time)
 {
 	eg_timer = 0;
 	eg_cnt   = 0;
@@ -821,6 +835,65 @@ void YMF278::writeMem(unsigned address, byte value)
 		// can't write to unmapped memory
 	}
 }
+
+
+// class DebugRegisters
+
+YMF278::DebugRegisters::DebugRegisters(YMF278& parent_)
+	: parent(parent_)
+{
+}
+
+unsigned YMF278::DebugRegisters::getSize() const
+{
+	return 0x100;
+}
+
+const string& YMF278::DebugRegisters::getDescription() const
+{
+	static const string desc = "OPL4 registers";
+	return desc;
+}
+
+byte YMF278::DebugRegisters::read(unsigned address)
+{
+	return parent.readReg(address, Scheduler::instance().getCurrentTime());
+}
+
+void YMF278::DebugRegisters::write(unsigned address, byte value)
+{
+	parent.writeReg(address, value, Scheduler::instance().getCurrentTime());
+}
+
+
+// class DebugMemory
+
+YMF278::DebugMemory::DebugMemory(YMF278& parent_)
+	: parent(parent_)
+{
+}
+
+unsigned YMF278::DebugMemory::getSize() const
+{
+	return 0x400000; // 4MB
+}
+
+const string& YMF278::DebugMemory::getDescription() const
+{
+	static const string desc = "OPL4 memory (includes both ROM and RAM)";
+	return desc;
+}
+
+byte YMF278::DebugMemory::read(unsigned address)
+{
+	return parent.readMem(address);
+}
+
+void YMF278::DebugMemory::write(unsigned address, byte value)
+{
+	parent.writeMem(address, value);
+}
+
 
 } // namespace openmsx
 

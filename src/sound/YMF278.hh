@@ -9,11 +9,11 @@
 #include "SoundDevice.hh"
 #include "Mixer.hh"
 #include "Rom.hh"
+#include "Debuggable.hh"
 
 namespace openmsx {
 
 class MSXConfig;
-
 
 class YMF278Slot
 {
@@ -67,7 +67,7 @@ public:
 	int lfo_max;
 };
 
-class YMF278 : public SoundDevice
+class YMF278 : private SoundDevice
 {
 public:
 	YMF278(short volume, int ramSize, Device* config,
@@ -78,6 +78,7 @@ public:
 	byte readRegOPL4(byte reg, const EmuTime& time);
 	byte readStatus(const EmuTime& time);
 	
+private:
 	// SoundDevice
 	virtual const string& getName() const;
 	virtual const string& getDescription() const;
@@ -85,7 +86,30 @@ public:
 	virtual void setInternalVolume(short newVolume);
 	virtual int* updateBuffer(int length) throw();
 
-private:
+	class DebugRegisters : public Debuggable {
+	public:
+		DebugRegisters(YMF278& parent);
+		virtual unsigned getSize() const;
+		virtual const string& getDescription() const;
+		virtual byte read(unsigned address);
+		virtual void write(unsigned address, byte value);
+	private:
+		YMF278& parent;
+	} debugRegisters;
+
+	class DebugMemory : public Debuggable {
+	public:
+		DebugMemory(YMF278& parent);
+		virtual unsigned getSize() const;
+		virtual const string& getDescription() const;
+		virtual byte read(unsigned address);
+		virtual void write(unsigned address, byte value);
+	private:
+		YMF278& parent;
+	} debugMemory;
+	
+	void writeReg(byte reg, byte data, const EmuTime& time);
+	byte readReg(byte reg, const EmuTime& time);
 	byte readMem(unsigned address);
 	void writeMem(unsigned address, byte value);
 	short getSample(YMF278Slot& op);
