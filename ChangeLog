@@ -1,5 +1,8 @@
 $Id$
 
+2005-01-24 Manuel Bilderbeek <manuel@msxnet.org>
+	* Made a separate extension for MegaRAM Disk
+
 2005-01-24 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed Clock<> constructor:
 	    rounding is not needed(?) it's even wrong
