@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!-- $Id$ -->
+<!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
+<msxconfig>
+  <device id="Konami SCC+ Cartridge with expanded RAM">
+    <type>SCCPlusCart</type>
+    <slotted> <ps>-1</ps> <ss>-1</ss> <page>1</page> </slotted>
+    <slotted> <ps>-1</ps> <ss>-1</ss> <page>2</page> </slotted>
+    <parameter name="subtype">Snatcher</parameter>
+    <parameter name="volume">13000</parameter>
+  </device>
+</msxconfig>
+
