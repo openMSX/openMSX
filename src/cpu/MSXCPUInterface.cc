@@ -399,33 +399,26 @@ string MSXCPUInterface::getIOMap() const
 		const MSXDevice* deviceIn  = IO_In [port];
 		const MSXDevice* deviceOut = IO_Out[port];
 
-		// Skip empty regions.
-		if (deviceIn == &dummyDevice && deviceOut == &dummyDevice) {
-			++port;
-			continue;
-		}
-
 		// Scan over equal region.
 		int endPort = port + 1; // exclusive
 		while (endPort < 256
 		    && IO_In [endPort] == deviceIn
 		    && IO_Out[endPort] == deviceOut) ++endPort;
 
-		if (deviceIn == &dummyDevice) {
-			// Out only
-			assert(deviceOut != &dummyDevice);
-			ioMapHelper(result, "  O", port, endPort, deviceOut);
-		} else if (deviceOut == &dummyDevice) {
-			// In only
-			ioMapHelper(result, "I  ", port, endPort, deviceIn);
-		} else if (deviceIn == deviceOut) {
-			// In/Out same device
-			ioMapHelper(result, "I/O", port, endPort, deviceIn);
+		// Print device(s), except empty regions.
+		if (deviceIn == deviceOut) {
+			if (deviceIn != &dummyDevice) {
+				ioMapHelper(result, "I/O", port, endPort, deviceIn);
+			}
 		} else {
-			// In and Out different devices
-			ioMapHelper(result, "I  ", port, endPort, deviceIn);
-			ioMapHelper(result, "  O", port, endPort, deviceOut);
+			if (deviceIn != &dummyDevice) {
+				ioMapHelper(result, "I  ", port, endPort, deviceIn);
+			}
+			if (deviceOut != &dummyDevice) {
+				ioMapHelper(result, "  O", port, endPort, deviceOut);
+			}
 		}
+
 		port = endPort;
 	}
 	return result.str();
