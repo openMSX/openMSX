@@ -18,30 +18,27 @@
 
 class MSXDiskRomPatch: public MSXRomPatchInterface
 {
+	class NoSuchSectorException : public MSXException {};
+	class DiskIOErrorException  : public MSXException {};
+	class DiskImage
+	{
+		public:
+			DiskImage(std::string filename);
+			~DiskImage();
+
+			void readSector(byte* to, int sector);
+			void writeSector(const byte* from, int sector);
+
+		private:
+			int nbSectors;
+			IOFILETYPE *file;
+	};
+
 	public:
 		MSXDiskRomPatch();
 		virtual ~MSXDiskRomPatch();
 
 		virtual void patch() const;
-
-	class File
-	{
-		public:
-			File(std::string filename);
-			~File();
-
-			std::string filename;
-			int size;
-
-			void seek(int location);
-			void read(byte* to, int count);
-			void write(const byte* from, int count);
-			bool bad();
-
-		private:
-			IOFILETYPE *file;
-
-	};
 
 	private:
 
@@ -77,19 +74,12 @@ class MSXDiskRomPatch: public MSXRomPatchInterface
 		// drive letters
 		static const int A = 0;
 		static const int B = 1;
-		static const int LastDrive = B+1;
+		static const int LAST_DRIVE = B+1;
 
 		// files for drives
-		MSXDiskRomPatch::File* disk[MSXDiskRomPatch::LastDrive];
+		MSXDiskRomPatch::DiskImage* disk[LAST_DRIVE];
 
-		// disk geometry
-		struct geometry_info
-		{
-			int sectors;
-		};
-
-		static struct geometry_info geometry[8];
-		static const int sector_size;
+		static const int SECTOR_SIZE = 512;
 };
 
 #endif // __MSXDISKROMPATCH_HH__

@@ -1,6 +1,11 @@
 $Id$
 
 2002-01-07 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* DiskRomPatch cleanup: I wanted to fix the PHYDIO routine, but it
+	  was already correct (the result in the B register). Maybe it is
+	  now more obviously correct?
+
+2002-01-07 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Z80: fixed HALT instruction (rounding error)
 	* more #include cleanups
 	* getCPURegs() interface cleanup
