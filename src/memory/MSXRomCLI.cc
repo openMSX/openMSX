@@ -109,12 +109,14 @@ void MSXRomCLIPost::execute()
 	device->addChild(createSlotted(ps, ss, 1));
 	device->addChild(createSlotted(ps, ss, 2));
 	device->addChild(createSlotted(ps, ss, 3));
-	device->addChild(auto_ptr<XMLElement>(
+	auto_ptr<XMLElement> rom(new XMLElement("rom"));
+	rom->addChild(auto_ptr<XMLElement>(
 		new XMLElement("filename", romfile)));
+	rom->addChild(auto_ptr<XMLElement>(
+		new XMLElement("mappertype", mapper)));
+	device->addChild(rom);
 	device->addChild(auto_ptr<XMLElement>(
 		new XMLElement("volume", "9000")));
-	device->addChild(auto_ptr<XMLElement>(
-		new XMLElement("mappertype", mapper)));
 	device->addChild(auto_ptr<XMLElement>(
 		new XMLElement("sramname", sramfile + ".SRAM")));
 

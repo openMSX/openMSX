@@ -24,6 +24,7 @@ DummyDevice& DummyDevice::instance()
 	static XMLElement deviceElem("Dummy");
 	if (!init) {
 		init = true;
+		deviceElem.addAttribute("id", "empty");
 		deviceElem.addChild(auto_ptr<XMLElement>(new XMLElement("type", "empty")));
 		deviceElem.setFileContext(auto_ptr<FileContext>(new SystemFileContext()));
 	}

@@ -64,6 +64,8 @@ public:
 	const string& getAttribute(const string& attName) const;
 	const string getAttribute(const string& attName,
 	                          const string defaultValue) const;
+
+	const string& getId() const;
 	
 	void setFileContext(auto_ptr<FileContext> context);
 	FileContext& getFileContext() const;

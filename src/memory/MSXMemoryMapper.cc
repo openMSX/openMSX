@@ -51,6 +51,7 @@ void MSXMemoryMapper::createMapperIO(const EmuTime& time)
 		assert(!mapperIO && !config);
 
 		config = new XMLElement("MapperIO");
+		config->addAttribute("id", "MapperIO");
 		config->addChild(
 			auto_ptr<XMLElement>(new XMLElement("type", "MapperIO")));
 		config->setFileContext(auto_ptr<FileContext>(new SystemFileContext()));

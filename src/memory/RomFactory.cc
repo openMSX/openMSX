@@ -36,7 +36,7 @@ namespace openmsx {
 auto_ptr<MSXDevice> RomFactory::create(const XMLElement& config,
                                        const EmuTime& time)
 {
-	auto_ptr<Rom> rom(new Rom(config.getAttribute("id"), "rom", config));
+	auto_ptr<Rom> rom(new Rom(config.getId(), "rom", config));
 
 	MapperType type = rom->getInfo().getMapperType();
 	switch (type) {

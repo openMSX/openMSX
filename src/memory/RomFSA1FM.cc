@@ -45,7 +45,7 @@ namespace openmsx {
 // common sram //
 
 FSA1FMRam::FSA1FMRam(const XMLElement& config)
-	: sram(config.getAttribute("id") + " SRAM", 0x2000, config)
+	: sram(config.getId() + " SRAM", 0x2000, config)
 {
 }
 

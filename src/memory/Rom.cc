@@ -36,7 +36,7 @@ Rom::Rom(const string& name_, const string& description_,
 	config.getChildren("rom", romConfigs);
 	for (XMLElement::Children::const_iterator it = romConfigs.begin();
 	     it != romConfigs.end(); ++it) {
-		if ((*it)->getAttribute("id") == id) {
+		if ((*it)->getId() == id) {
 			init(**it);
 			return;
 		}
@@ -67,7 +67,7 @@ void Rom::init(const XMLElement& config)
 		}
 		if (filename.empty()) {
 			throw FatalError("Couldn't find ROM file for \"" +
-			                 config.getAttribute("id") + "\".");
+			                 config.getId() + "\".");
 		}
 		read(config, filename);
 
@@ -137,7 +137,7 @@ void Rom::read(const XMLElement& config, const string& filename)
 	// verify SHA1
 	if (!checkSHA1(config)) {
 		CliCommOutput::instance().printWarning(
-			"SHA1 sum for '" + config.getAttribute("id") +
+			"SHA1 sum for '" + config.getId() +
 			"' does not match with sum of '" + filename +
 			"'.");
 	}

@@ -174,6 +174,19 @@ const string XMLElement::getAttribute(const string& attName,
 	return (it == attributes.end()) ? defaultValue : it->second;
 }
 
+const string& XMLElement::getId() const
+{
+	const XMLElement* elem = this;
+	while (elem) {
+		Attributes::const_iterator it = elem->attributes.find("id");
+		if (it != elem->attributes.end()) {
+			return it->second;
+		}
+		elem = elem->getParent();
+	}
+	throw ConfigException("Missing attribute \"id\".");
+}
+
 void XMLElement::setFileContext(auto_ptr<FileContext> context_)
 {
 	context = context_;

@@ -26,7 +26,7 @@ void MSXDevice::reInit(const EmuTime& time)
 
 const string& MSXDevice::getName() const
 {
-	return deviceConfig.getAttribute("id");
+	return deviceConfig.getId();
 }
 
 } // namespace openmsx
