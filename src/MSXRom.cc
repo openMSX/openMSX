@@ -151,8 +151,8 @@ MSXRom::MSXRom(Device *config, const EmuTime &time)
 	}
 
 	// to emulate non-present memory
-	unmapped = new byte[0x4000];
-	memset(unmapped, 255, 0x4000);
+	unmapped = new byte[0x8000];
+	memset(unmapped, 255, 0x8000);
 	
 	reset(time);
 }
@@ -284,7 +284,12 @@ void MSXRom::reset(const EmuTime &time)
 			setROM16kB(region, 0);
 		}
 		break;
-	
+
+	case MSX_AUDIO:
+		setROM32kB(0, 0);
+		setBank32kB(1, unmapped);
+		break;
+
 	default:
 		setBank16kB(0, unmapped);
 		setROM16kB (1, (mapperType == R_TYPE) ? 0x17 : 0);
@@ -746,6 +751,13 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 		}
 		break;
 
+	case MSX_AUDIO:
+		// Panasonic MSX-AUDIO
+		if (address == 0x7FFE) {
+			setROM32kB(0, value & 1);
+		}
+		break;
+
 	default:
 		// Unknown mapper type
 		assert(false);
@@ -773,6 +785,19 @@ void MSXRom::setBank16kB(int region, byte* adr)
 	internalMemoryBank[4 * region + 3] = adr + 0x3000;
 	MSXCPU::instance()->invalidateCache(region * 0x4000,
 	                                    0x4000 / CPU::CACHE_LINE_SIZE);
+}
+void MSXRom::setBank32kB(int region, byte* adr)
+{
+	internalMemoryBank[8 * region + 0] = adr + 0x0000;
+	internalMemoryBank[8 * region + 1] = adr + 0x1000;
+	internalMemoryBank[8 * region + 2] = adr + 0x2000;
+	internalMemoryBank[8 * region + 3] = adr + 0x3000;
+	internalMemoryBank[8 * region + 4] = adr + 0x4000;
+	internalMemoryBank[8 * region + 5] = adr + 0x5000;
+	internalMemoryBank[8 * region + 6] = adr + 0x6000;
+	internalMemoryBank[8 * region + 7] = adr + 0x7000;
+	MSXCPU::instance()->invalidateCache(region * 0x8000,
+	                                    0x8000 / CPU::CACHE_LINE_SIZE);
 }
 
 void MSXRom::setROM4kB(int region, int block)
@@ -803,5 +828,15 @@ void MSXRom::setROM16kB(int region, int block)
 		setBank16kB(region, const_cast<byte*>(rom.getBlock(block << 14)));
 	} else {
 		setBank16kB(region, unmapped);
+	}
+}
+void MSXRom::setROM32kB(int region, int block)
+{
+	int nrBlocks = rom.getSize() >> 15;
+	if (nrBlocks != 0) {
+		block = (block < nrBlocks) ? block : block & (nrBlocks - 1);
+		setBank32kB(region, const_cast<byte*>(rom.getBlock(block << 15)));
+	} else {
+		setBank32kB(region, unmapped);
 	}
 }

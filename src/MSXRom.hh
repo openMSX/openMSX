@@ -79,9 +79,11 @@ class MSXRom : public MSXMemDevice
 		inline void setBank4kB (int region, byte* adr);
 		inline void setBank8kB (int region, byte* adr);
 		inline void setBank16kB(int region, byte* adr);
+		inline void setBank32kB(int region, byte* adr);
 		inline void setROM4kB  (int region, int block);
 		inline void setROM8kB  (int region, int block);
 		inline void setROM16kB (int region, int block);
+		inline void setROM32kB (int region, int block);
 	
 		MapperType mapperType;
 		byte *internalMemoryBank[16];	// 16 blocks of 4kB

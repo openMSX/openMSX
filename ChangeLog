@@ -1,6 +1,9 @@
 $Id$
 
 2003-02-02 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented Panasonic MSX-Audio mapper type (untested)
+
+2003-02-02 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Compiled with some extra warnings enabled and fixed the
 	  resulting warnings
 	* Renamed MSXRomDevice to Rom (it isn't a device anymore)
