@@ -139,7 +139,10 @@ Pixel V9990P1Converter<Pixel, zoom>::raster(int xA, int yA,
 	}
 	
 	// Backdrop color
-	if (!(p & 0x0F)) { return vdp->getBackDropColor(); }
+	if (!(p & 0x0F)) {
+		p = vdp->getBackDropColor();
+	}
+
 	return palette64[p];
 }
 
