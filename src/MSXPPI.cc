@@ -12,14 +12,14 @@ MSXPPI *volatile MSXPPI::oneInstance;
 
 MSXPPI::MSXPPI()
 {
-	cout << "Creating an MSXPPI object \n";
+	PRT_DEBUG("Creating an MSXPPI object \n");
 	keyboardGhosting = true;
 	i8255 = new I8255(*this);
 }
 
 MSXPPI::~MSXPPI()
 {
-	cout << "Destroying an MSXPPI object \n";
+	PRT_DEBUG("Destroying an MSXPPI object \n");
 }
 
 MSXDevice* MSXPPI::instance(void)
@@ -119,20 +119,20 @@ void MSXPPI::writeB(byte value) {
 	// probably nothing happens on a real MSX
 }
 
-byte MSXPPI::readC1() {
+nibble MSXPPI::readC1() {
 	return 15;	// TODO check this
 }
-byte MSXPPI::readC0() {
+nibble MSXPPI::readC0() {
 	return 15;	// TODO check this
 }
-void MSXPPI::writeC1(byte value) {
+void MSXPPI::writeC1(nibble value) {
 	//TODO use these bits
 	//  4    CASON  Cassette motor relay        (0=On, 1=Off)
 	//  5    CASW   Cassette audio out          (Pulse)
 	//  6    CAPS   CAPS-LOCK lamp              (0=On, 1=Off)
 	//  7    SOUND  Keyboard klick bit          (Pulse)
 }
-void MSXPPI::writeC0(byte value) {
+void MSXPPI::writeC0(nibble value) {
 	selectedRow = value;
 }
 

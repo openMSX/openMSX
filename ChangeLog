@@ -1,5 +1,8 @@
 $Id$
 
+2001-09-05 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* print debug information only if compiled for debugging
+
 2001-09-03 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* In class Scheduler, use "set" instead of "list" or "sortedlist"
 	* Split MSXPPI in a MSX depended part and a reuseable 8255 part

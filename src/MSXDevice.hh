@@ -8,13 +8,7 @@
 #include <string.h>
 #include "msxconfig.hh"
 #include "emutime.hh"
-
-//using namespace std ;
-//using std::ofstream ;
-//using std::ifstream ;
-
-typedef unsigned char byte;	// 8 bit
-typedef unsigned short word;	// 16 bit 
+#include "openmsx.hh"
 
 //class MSXConfig.Device;
 // is redefinition class MSXConfig { class Device;};
@@ -49,12 +43,12 @@ class MSXDevice
 		virtual void saveState(ofstream &writestream);
 		virtual void restoreState(string &devicestring, ifstream &readstream);
 		
-		virtual void setParameter(string &param, string &value);
+		/*virtual void setParameter(string &param, string &value);
 		virtual const string &getParameter(string &param);
 		virtual int getNrParameters();
 		virtual const string &getParameterTxt(int nr);
 		virtual const string &getParamShortHelp(int nr);
-		virtual const string &getParamLongHelp(int nr);
+		virtual const string &getParamLongHelp(int nr);*/
 	protected:
 		MSXConfig::Device *deviceConfig;
 		//These are used for save/restoreState see note over

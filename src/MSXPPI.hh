@@ -53,12 +53,12 @@ class MSXPPI : public MSXDevice, I8255Interface
 	public:
 		byte readA();
 		byte readB();
-		byte readC0();
-		byte readC1();
+		nibble readC0();
+		nibble readC1();
 		void writeA(byte value);
 		void writeB(byte value);
-		void writeC0(byte value);
-		void writeC1(byte value);
+		void writeC0(nibble value);
+		void writeC1(nibble value);
 	
 	private:
 		void keyGhosting();

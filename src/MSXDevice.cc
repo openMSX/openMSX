@@ -2,23 +2,20 @@
 // 
 #include "MSXDevice.hh"
 #include "iostream.h"
-//using namespace std;
 
 MSXDevice::MSXDevice(void)
 {
-//TODO: something usefull here ??
-	cout << "instantiating an MSXDevice object\n";
+	PRT_DEBUG("instantiating an MSXDevice object\n");
 };
 
 MSXDevice::~MSXDevice(void)
 {
-//TODO: something usefull here ??
-	cout << "destructing an MSXDevice object";
+	PRT_DEBUG("destructing an MSXDevice object");
 };
 MSXDevice* MSXDevice::instantiate(void) 
 {
-	cout << "Something is wrong here\nNobody should be calling MSXDevice::instantiate()";
-	return new MSXDevice();
+	PRT_ERROR("Something is wrong here\nNobody should be calling MSXDevice::instantiate()");
+	//return new MSXDevice();
 };
 
 void MSXDevice::setConfigDevice(MSXConfig::Device *config)
@@ -67,7 +64,8 @@ void MSXDevice::init()
 }
 void MSXDevice::start()
 {
-	return;
+	// default implementation same as reset
+	reset();
 }
 void MSXDevice::stop()
 {
@@ -87,6 +85,7 @@ void MSXDevice::restoreState(string &devicestring, ifstream &readstream)
 	return;
 }
 
+/*
 void MSXDevice::setParameter(string &param, string &valuelist)
 {
 	return;
@@ -111,6 +110,7 @@ const string &MSXDevice::getParamLongHelp(int nr)
 {
 	// TODO
 }
+*/
 
 //protected:
 //These are used for save/restoreState see note over

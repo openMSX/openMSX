@@ -6,21 +6,21 @@ MSXZ80 *MSXMotherBoard::CPU;
 
 MSXMotherBoard::MSXMotherBoard()
 {
-cout << "Creating an MSXMotherBoard object \n";
-  availableDevices=new vector<MSXDevice*>();
-  emptydevice=new MSXDevice();
-  for (int i=0;i<256;i++){
-	IO_In[i]=emptydevice;
-	IO_Out[i]=emptydevice;
-  }
-  for (int i=0;i<4;i++){
-	isSubSlotted[i]=false;
-}
+	PRT_DEBUG("Creating an MSXMotherBoard object \n");
+	availableDevices = new vector<MSXDevice*>();
+	emptydevice = new MSXDevice();
+	for (int i=0; i<256; i++) {
+		IO_In[i]  = emptydevice;
+		IO_Out[i] = emptydevice;
+	}
+	for (int i=0; i<4; i++) {
+		isSubSlotted[i] = false;
+	}
 }
 
 MSXMotherBoard::~MSXMotherBoard()
 {
-	cout << "Detructing an MSXMotherBoard object \n";
+	PRT_DEBUG("Detructing an MSXMotherBoard object \n");
 	delete availableDevices;
 }
 
@@ -53,12 +53,12 @@ void MSXMotherBoard::setActiveCPU(MSXZ80 *device)
 }
 void MSXMotherBoard::registerSlottedDevice(MSXDevice *device,int PrimSl,int SecSL,int Page)
 {
-	 cout<<"Registering device at "<<PrimSl<<" "<<SecSL<<" "<<Page<<"\n";
+	 PRT_DEBUG("Registering device at "<<PrimSl<<" "<<SecSL<<" "<<Page<<"\n");
 	 SlotLayout[PrimSl][SecSL][Page]=device;
 }
 //void MSXMotherBoard::raiseInterupt()
 //{
-//	cout<<"Interrupt raised\n";
+//	PRT_DEBUG("Interrupt raised\n");
 //}
 
 void MSXMotherBoard::ResetMSX()

@@ -1,0 +1,22 @@
+#ifndef __OPENMSX_HH__
+#define __OPENMSX_HH__
+
+typedef unsigned char nibble;	// 4 bit
+typedef unsigned char byte;	// 8 bit
+typedef unsigned short word;	// 16 bit 
+
+#ifdef DEBUG
+#define PRT_DEBUG(mes) {cout << mes; }
+#else
+#define PRT_DEBUG(mes) {}
+#endif
+
+#define PRT_INFO(mes) {cout << mes; }
+#define PRT_ERROR(mes) {cout << mes; exit(1); }
+
+#ifndef DEBUG
+#define NDEBUG		// for assert.h
+#endif
+
+#endif //__OPENMSX_HH__
+

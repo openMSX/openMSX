@@ -10,7 +10,7 @@
 #ifndef __I8255_HH__
 #define __I8255_HH__
 
-#include "MSXDevice.hh"		// for typedef byte, TODO split in seperate file
+#include "openmsx.hh"
 
 
 class I8255Interface
@@ -18,12 +18,12 @@ class I8255Interface
 	public:
 		virtual byte readA()=0;
 		virtual byte readB()=0;
-		virtual byte readC0()=0;
-		virtual byte readC1()=0;
+		virtual nibble readC0()=0;
+		virtual nibble readC1()=0;
 		virtual void writeA(byte value)=0;
 		virtual void writeB(byte value)=0;
-		virtual void writeC0(byte value)=0;
-		virtual void writeC1(byte value)=0;
+		virtual void writeC0(nibble value)=0;
+		virtual void writeC1(nibble value)=0;
 };
 
 class I8255

@@ -10,13 +10,13 @@
 
 MSXRom16KB::MSXRom16KB()
 {
-	cout << "Creating an MSXRom16KB object \n";
+	PRT_DEBUG("Creating an MSXRom16KB object \n");
 }
 
 MSXRom16KB::~MSXRom16KB()
 {
 	delete [] memoryBank; // C++ can handle null-pointers
-	cout << "Destructing an MSXRom16KB object \n";
+	PRT_DEBUG("Destructing an MSXRom16KB object \n");
 }
 
 void MSXRom16KB::init()
@@ -28,24 +28,23 @@ void MSXRom16KB::init()
 	int ss;
 	int page;
 	memoryBank=new byte[16384];
-	if (memoryBank == NULL){
-		cout << "Couldn't create 16KB rom bank !!!!!!";
-		//TODO: stop openMSX !!!!
+	if (memoryBank == NULL) {
+		PRT_ERROR("Couldn't create 16KB rom bank !!!!!!");
 	} else {
 		//Read the rom file
 		memset(memoryBank,0,16384); // TODO: Possible default of C++ look-up
 		filename=deviceConfig->getParameter("romfile").c_str();
 		nrbytes=deviceConfig->getParameter("skip_headerbytes").c_str();
 		file = fopen(filename,"r");
-		if (file){
+		if (file) {
+			PRT_DEBUG("reading " << filename << "\n");
 			fseek(file,atol(nrbytes),SEEK_SET);
 			fread(memoryBank,16384,1,file);
-			cout << "reading " << filename << "\n";
 		} else {
-		cout << "Error reading " << filename << "\n";
+			PRT_ERROR("Error reading " << filename << "\n");
 		}
-		for (list<MSXConfig::Device::Slotted*>::const_iterator i=deviceConfig->slotted.begin(); i != deviceConfig->slotted.end(); i++)
-		{
+		list<MSXConfig::Device::Slotted*>::const_iterator i;
+		for (i=deviceConfig->slotted.begin(); i!=deviceConfig->slotted.end(); i++) {
 			// Registering device in slot structure
 			ps=(*i)->getPS();
 			ss=(*i)->getSS();

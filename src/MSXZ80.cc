@@ -14,8 +14,7 @@ MSXDevice *MSXZ80::Motherb; // place for static is reserved here!!
 
 MSXZ80::MSXZ80(void) : currentCPUTime(3579545, 0), targetCPUTime(3579545, 0)
 {
-//TODO: something usefull here ??
-	cout << "instantiating an MSXZ80 object";
+	PRT_DEBUG("instantiating an MSXZ80 object");
 }
 void MSXZ80::init(void)
 {
@@ -25,8 +24,7 @@ void MSXZ80::init(void)
 
 MSXZ80::~MSXZ80(void)
 {
-//TODO: something usefull here ??
-	cout << "destructing an MSXZ80 object";
+	PRT_DEBUG("destructing an MSXZ80 object");
 };
 
 void MSXZ80::setTargetTStates(const Emutime &time)
