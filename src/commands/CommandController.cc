@@ -318,10 +318,7 @@ void CommandController::tabCompletion(vector<string> &tokens)
 	if (tokens.size() == 1) {
 		// build a list of all command strings
 		set<string> cmds;
-		for (CompleterMap::const_iterator it = commandCompleters.begin();
-		     it != commandCompleters.end(); it++) {
-			cmds.insert(it->first);
-		}
+		interpreter.getCommandNames(cmds);
 		completeString(tokens, cmds);
 	} else {
 		CompleterMap::const_iterator it = commandCompleters.find(tokens.front());

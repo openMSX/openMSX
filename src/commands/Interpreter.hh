@@ -3,7 +3,12 @@
 #ifndef __INTERPRETER_HH__
 #define __INTERPRETER_HH__
 
-#include <Command.hh>
+#include <set>
+#include <string>
+#include "Command.hh"
+
+using std::set;
+using std::string;
 
 namespace openmsx {
 
@@ -17,6 +22,7 @@ public:
 	virtual void init(const char* programName) = 0;
 	virtual void registerCommand(const string& name, Command& command) = 0;
 	virtual void unregisterCommand(const string& name, Command& command) = 0;
+	virtual void getCommandNames(set<string>& result) = 0;
 	virtual bool isComplete(const string& command) const = 0;
 	virtual string execute(const string& command) throw(CommandException) = 0;
 	virtual string executeFile(const string& filename) throw(CommandException) = 0;

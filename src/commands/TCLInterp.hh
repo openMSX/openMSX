@@ -25,6 +25,7 @@ public:
 	virtual void init(const char* programName);
 	virtual void registerCommand(const string& name, Command& command);
 	virtual void unregisterCommand(const string& name, Command& command);
+	virtual void getCommandNames(set<string>& result);
 	virtual bool isComplete(const string& command) const;
 	virtual string execute(const string& command) throw(CommandException);
 	virtual string executeFile(const string& filename) throw(CommandException);

@@ -70,6 +70,25 @@ int TCLInterp::commandProc(ClientData clientData, Tcl_Interp* interp,
 	}
 }
 
+// Returns
+//   - build-in TCL commands
+//   - openmsx commands
+//   - user-defined procs
+void TCLInterp::getCommandNames(set<string>& result)
+{
+	string list = execute("info commands");
+	
+	int argc;
+	const char** argv;
+	if (Tcl_SplitList(interp, list.c_str(), &argc, &argv) != TCL_OK) {
+		return;
+	}
+	for (int i = 0; i < argc; ++i) {
+		result.insert(argv[i]);
+	}
+	Tcl_Free((char*)argv);
+}
+
 bool TCLInterp::isComplete(const string& command) const
 {
 	return Tcl_CommandComplete(command.c_str());
