@@ -104,6 +104,7 @@
   </device>
   <device id="Real time clock">
     <type>RTC</type>
+    <parameter name="mode">EmuTime</parameter>
   </device>
   <device id="Real time synchronizer">
     <type>RealTime</type>
