@@ -1,5 +1,11 @@
 $Id$
 
+2003-08-12 David Heremans <david.heremans@gnu-linux.net>
+	* Small enhancement in  FDC_DirAsDSK:
+	   Alowed writing of the boot sector. The altered boot sector is
+	   stored as a hidden file and is used when creating an FDC_DirAsDSK
+	   instance
+
 2003-08-13 Maarten ter Huurne <maarten@treewalker.org>
 	* Reikan released C-BIOS 0.17; I updated it in Contrib.
 
