@@ -144,7 +144,6 @@ YMF278Slot::YMF278Slot()
 	reset();
 }
 
-
 void YMF278Slot::reset()
 {
 	wave = FN = OCT = PRVB = LD = TL = pan = lfo = vib = AM = 0;
@@ -187,22 +186,20 @@ int YMF278Slot::compute_rate(int val)
 	return res;
 }
 
-
 int YMF278Slot::compute_vib()
 {
-	return (((lfo_step << 8) / lfo_max) * vib_depth[vib]) >> 24;
+	return (((lfo_step << 8) / lfo_max) * vib_depth[(int)vib]) >> 24;
 }
 
 
 int YMF278Slot::compute_am()
 {
 	if (lfo_active && AM) {
-		return (((lfo_step << 8) / lfo_max) * am_depth[AM]) >> 12;
+		return (((lfo_step << 8) / lfo_max) * am_depth[(int)AM]) >> 12;
 	} else {
 		return 0;
 	}
 }
-
 
 void YMF278Slot::set_lfo(int newlfo)
 {
@@ -210,7 +207,7 @@ void YMF278Slot::set_lfo(int newlfo)
 	lfo_cnt  = (((lfo_cnt  << 8) / lfo_max) * newlfo) >> 8;
 
 	lfo = newlfo;
-	lfo_max = lfo_period[lfo];
+	lfo_max = lfo_period[(int)lfo];
 }
 
 
@@ -220,7 +217,7 @@ void YMF278::advance()
 	while (eg_timer >= EG_TIMER_OVERFLOW) {
 		eg_timer -= EG_TIMER_OVERFLOW;
 		eg_cnt++;
-
+		
 		for (int i = 0; i < 24; i++) {
 			YMF278Slot &op = slots[i];
 			
@@ -265,7 +262,7 @@ void YMF278::advance()
 				if (!(eg_cnt & ((1 << shift) -1))) {
 					byte select = eg_rate_select[rate];
 					op.env_vol += eg_inc[select + ((eg_cnt >> shift) & 7)];
-
+					
 					if (((unsigned)op.env_vol > dl_tab[6]) && op.PRVB) {
 						op.state = EG_REV;
 					} else {
@@ -285,7 +282,7 @@ void YMF278::advance()
 				if (!(eg_cnt & ((1 << shift) -1))) {
 					byte select = eg_rate_select[rate];
 					op.env_vol += eg_inc[select + ((eg_cnt >> shift) & 7)];
-
+					
 					if (((unsigned)op.env_vol > dl_tab[6]) && op.PRVB) {
 						op.state = EG_REV;
 					} else {
@@ -307,7 +304,7 @@ void YMF278::advance()
 				if (!(eg_cnt & ((1 << shift) -1))) {
 					byte select = eg_rate_select[rate];
 					op.env_vol += eg_inc[select + ((eg_cnt >> shift) & 7)];
-
+					
 					if (((unsigned)op.env_vol > dl_tab[6]) && op.PRVB) {
 						op.state = EG_REV;
 					} else {
@@ -330,7 +327,7 @@ void YMF278::advance()
 				if (!(eg_cnt & ((1 << shift) - 1))) {
 					byte select = eg_rate_select[rate];
 					op.env_vol += eg_inc[select + ((eg_cnt >> shift) & 7)];
-
+					
 					if (op.env_vol >= MAX_ATT_INDEX) {
 						op.env_vol = MAX_ATT_INDEX;
 						op.active = false;
@@ -349,7 +346,7 @@ void YMF278::advance()
 				if (!(eg_cnt & ((1 << shift) - 1))) {
 					byte select = eg_rate_select[rate];
 					op.env_vol += eg_inc[select + ((eg_cnt >> shift) & 7)];
-
+					
 					if (op.env_vol >= MAX_ATT_INDEX) {
 						op.env_vol = MAX_ATT_INDEX;
 						op.active = false;
@@ -374,12 +371,12 @@ short YMF278::getSample(YMF278Slot &op)
 {
 	short sample;
 	switch (op.bits) {
-	case 0x00: {
+	case 0: {
 		// 8 bit
 		sample = readMem(op.startaddr + op.pos) << 8;
 		break;
 	}
-	case 0x40: {
+	case 1: {
 		// 12 bit
 		int addr = op.startaddr + ((op.pos / 2) * 3);
 		if (op.pos & 1) {
@@ -391,7 +388,7 @@ short YMF278::getSample(YMF278Slot &op)
 		}
 		break;
 	}
-	case 0x80: {
+	case 2: {
 		// 16 bit
 		int addr = op.startaddr + (op.pos * 2);
 		sample = (readMem(addr + 0) << 8) |
@@ -501,7 +498,7 @@ void YMF278::writeRegOPL4(byte reg, byte data, const EmuTime &time)
 			for (int i = 0; i < 12; i++) {
 				buf[i] = readMem(base + i);
 			}
-			slot.bits = (buf[0] & 0xC0);
+			slot.bits = (buf[0] & 0xC0) >> 6;
 			slot.set_lfo((buf[7] >> 3) & 7);
 			slot.vib  = buf[7] & 7;
 			slot.AR   = buf[8] >> 4;
@@ -551,7 +548,7 @@ void YMF278::writeRegOPL4(byte reg, byte data, const EmuTime &time)
 				// LFO reset
 				slot.lfo_active = false;
 				slot.lfo_cnt = 0;
-				slot.lfo_max = lfo_period[slot.vib];
+				slot.lfo_max = lfo_period[(int)slot.vib];
 				slot.lfo_step = 0;
 			} else {
 				// LFO activate
