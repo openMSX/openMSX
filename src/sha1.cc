@@ -122,10 +122,10 @@ void SHA1::finalize()
 		finalcount[i] = (unsigned char)((m_count[(i >= 4 ? 0 : 1)]
 			>> ((3 - (i & 3)) * 8)) & 255); // Endian independent
 	}
-	update((unsigned char*)"\200", 1);
+	update((const unsigned char*)"\200", 1);
 
 	while ((m_count[0] & 504) != 448) {
-		update((unsigned char *)"\0", 1);
+		update((const unsigned char *)"\0", 1);
 	}
 
 	update(finalcount, 8); // Cause a SHA1Transform()
