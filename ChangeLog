@@ -1,5 +1,10 @@
 $Id$
 
+2004-10-16 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Improved TC8566AF timing:
+	   - based on code from BlueMSX written by Daniel Vik
+	   - fixes corrupt gfx in "Swiss Demo" and "Gazzel"
+
 2004-10-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed coredump on missing arguments on the command line:
 	   e.g. "openmsx -diska" 

@@ -8,6 +8,7 @@
 #define __TC8566AF_HH__
 
 #include "openmsx.hh"
+#include "EmuTime.hh"
 
 namespace openmsx {
 
@@ -167,6 +168,8 @@ class TC8566AF
 		word SectorPtr;
 		byte Sector[512];
 		word SectorByteCount;
+
+		Clock<1000000> delayTime;
 };
 
 } // namespace openmsx

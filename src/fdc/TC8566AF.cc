@@ -153,6 +153,9 @@ byte TC8566AF::readReg(int reg, const EmuTime& time)
 	byte result = 0xFF;
 	switch (reg) {
 	case 4: // Main Status Register
+		if (delayTime.before(time)) {
+			RequestForMaster = 1;
+		}
 		result = (RequestForMaster << 7) |
 		         (dataInputOutput  << 6) |
 		         (NonDMAMode       << 5) |
@@ -167,6 +170,9 @@ byte TC8566AF::readReg(int reg, const EmuTime& time)
 		switch (Phase) {
 		case PHASE_DATATRANSFER:
 			result = readDataTransferPhase(time);
+			RequestForMaster = 0;
+			delayTime.advance(time);
+			delayTime += 15;
 			break;
 		case PHASE_RESULT:
 			result = readDataResultPhase(time);
@@ -291,6 +297,9 @@ void TC8566AF::writeReg(int reg, byte data, const EmuTime& time)
 
 		case PHASE_DATATRANSFER:
 			writeDataTransferPhase(data, time);
+			RequestForMaster = 0;
+			delayTime.advance(time);
+			delayTime += 15;
 			break;
 
 		case PHASE_RESULT:
