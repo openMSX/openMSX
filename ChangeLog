@@ -1,5 +1,11 @@
 $Id$
 
+2005-04-04 David Heremans <david.heremans@gnu-linux.net>
+	* Actually trying to get the format routines from the original
+	  msxtar into openMSX. The idea is that this new class will perform
+	  the real work, and the File/DiskImageManipulator will invoke msxtar
+	  as needed
+
 2005-04-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed / cleaned up FileManipulator and RamDSK code:
 	  still TODO:

@@ -23,6 +23,7 @@ SRC_HDR:= \
 	FDC_DirAsDSK \
 	EmptyDiskPatch \
 	RamDSKDiskImage \
+	MSXtar \
 	FileManipulator
 
 include build/node-end.mk

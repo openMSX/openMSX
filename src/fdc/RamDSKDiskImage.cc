@@ -1,6 +1,7 @@
 // $Id$
 
 #include "RamDSKDiskImage.hh"
+#include "MSXtar.hh"
 #include <string.h>
 
 namespace openmsx {
@@ -10,7 +11,10 @@ RamDSKDiskImage::RamDSKDiskImage(unsigned size)
 	nbSectors = size / SECTOR_SIZE;
 	diskdata = new byte[size];
 
-	// TODO format disk
+	// TODO format disk, this should be done by the MSXtar class
+	// but I have some trouble with the classes for now :-(
+	//MSXtar workhorse((SectorBasedDisk)this);
+	//workhorse.format();
 }
 
 RamDSKDiskImage::~RamDSKDiskImage()
