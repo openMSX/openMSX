@@ -8,6 +8,7 @@ $Id$
 	  instead they are called explicitly by the VDP.
 	* Removed EmuTime parameter from VDP subsystem constructors.
 	* Rearranged VDP constructor to remove overlap with reset method.
+	* Fixed uses of display mode which could not yet handle the YJK bits.
 
 2003-03-29 Manuel Bilderbeek <manuel@msxnet.org>
 	* Moved other configs from src/cfg to share/machines

@@ -2,8 +2,6 @@
 
 /*
 TODO:
-- Scanline emulation.
-- Use 8x8 textures in character mode.
 - Use GL display lists for geometry speedup.
 - Implement sprite pixels in Graphic 5.
 - Is it possible to combine dirtyPattern and dirtyColour into a single
@@ -221,14 +219,16 @@ inline static int translateX(int absoluteX)
 
 inline void SDLGLRenderer::setDisplayMode(int mode)
 {
-	dirtyChecker = modeToDirtyChecker[mode & 0x1F];
+	int baseMode = mode & 0x1F;
+	dirtyChecker = modeToDirtyChecker[baseMode];
 	if (vdp->isBitmapMode(mode)) {
 		bitmapConverter.setDisplayMode(mode);
 	} else {
 		characterConverter.setDisplayMode(mode);
 	}
-	lineWidth = (mode == 0x09 || mode == 0x10 || mode == 0x14 ? 512 : 256);
-	palSprites = (mode == 0x1C ? palGraphic7Sprites : palBg);
+	lineWidth =
+		(baseMode == 0x09 || baseMode == 0x10 || baseMode == 0x14 ? 512 : 256);
+	palSprites = (baseMode == 0x1C ? palGraphic7Sprites : palBg);
 }
 
 void SDLGLRenderer::finishFrame()
@@ -307,11 +307,12 @@ inline SDLGLRenderer::Pixel SDLGLRenderer::getBorderColour()
 	// TODO: Used knowledge of V9938 to merge two 4-bit colours
 	//       into a single 8 bit colour for SCREEN8.
 	//       Keep doing that or make VDP handle SCREEN8 differently?
+	int baseMode = vdp->getDisplayMode() & 0x1F;
 	return
-		( vdp->getDisplayMode() == 0x1C
+		( baseMode == 0x1C
 		? PALETTE256[
 			vdp->getBackgroundColour() | (vdp->getForegroundColour() << 4) ]
-		: palBg[ vdp->getDisplayMode() == 0x10
+		: palBg[ baseMode == 0x10
 		       ? vdp->getBackgroundColour() & 3
 		       : vdp->getBackgroundColour()
 		       ]
@@ -669,7 +670,7 @@ void SDLGLRenderer::updateBlinkState(
 	//       I don't know why exactly, but it's probably related to
 	//       being called at frame start.
 	//sync(time);
-	if (vdp->getDisplayMode() == 0x09) {
+	if ((vdp->getDisplayMode() & 0x1F) == 0x09) {
 		// Text2 with blinking text.
 		// Consider all characters dirty.
 		// TODO: Only mark characters in blink colour dirty.

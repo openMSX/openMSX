@@ -91,10 +91,10 @@ template <class Pixel> inline Pixel SDLHiRenderer<Pixel>::getBorderColour()
 	//       into a single 8 bit colour for SCREEN8.
 	//       Keep doing that or make VDP handle SCREEN8 differently?
 	return
-		( vdp->getDisplayMode() == 0x1C
+		( (vdp->getDisplayMode() & 0x1F) == 0x1C
 		? PALETTE256[
 			vdp->getBackgroundColour() | (vdp->getForegroundColour() << 4)]
-		: palBg[ vdp->getDisplayMode() == 0x10
+		: palBg[ (vdp->getDisplayMode() & 0x1F) == 0x10
 		       ? vdp->getBackgroundColour() & 3
 		       : vdp->getBackgroundColour()
 		       ]
@@ -334,11 +334,12 @@ template <class Pixel> void SDLHiRenderer<Pixel>::reset(const EmuTime &time)
 	PixelRenderer::reset(time);
 	
 	// Init renderer state.
-	dirtyChecker = modeToDirtyChecker[vdp->getDisplayMode()];
+	int mode = vdp->getDisplayMode();
+	dirtyChecker = modeToDirtyChecker[mode & 0x1F];
 	if (vdp->isBitmapMode()) {
-		bitmapConverter.setDisplayMode(vdp->getDisplayMode());
+		bitmapConverter.setDisplayMode(mode);
 	} else {
-		characterConverter.setDisplayMode(vdp->getDisplayMode());
+		characterConverter.setDisplayMode(mode);
 	}
 	
 	palSprites = palBg;
@@ -438,7 +439,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateBlinkState(
 	//       I don't know why exactly, but it's probably related to
 	//       being called at frame start.
 	//sync(time);
-	if (vdp->getDisplayMode() == 0x09) {
+	if ((vdp->getDisplayMode() & 0x1F) == 0x09) {
 		// Text2 with blinking text.
 		// Consider all characters dirty.
 		// TODO: Only mark characters in blink colour dirty.
@@ -498,7 +499,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateDisplayMode(
 	} else {
 		characterConverter.setDisplayMode(mode);
 	}
-	palSprites = (mode == 0x1C ? palGraphic7Sprites : palBg);
+	palSprites = (mode & 0x1F) == 0x1C ? palGraphic7Sprites : palBg;
 	setDirty(true);
 }
 
