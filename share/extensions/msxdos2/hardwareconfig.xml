@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
+<msxconfig>
+
+  <device id="MSXDOS2">
+    <type>Rom</type>
+    <slotted> <ps>-1</ps> <ss>-1</ss> <page>1</page> </slotted>
+    <slotted> <ps>-1</ps> <ss>-1</ss> <page>2</page> </slotted>
+    <parameter name="filename">msxdos22.rom</parameter>
+    <parameter name="automappertype">false</parameter>
+    <parameter name="mappertype">1</parameter>
+  </device>
+
+</msxconfig>
+
