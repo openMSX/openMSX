@@ -139,38 +139,40 @@ void SimpleScaler<Pixel>::scaleBlank(
 					// Precalc normal colour.
 					"movd	%2, %%mm0;"
 					"punpckldq	%%mm0, %%mm0;"
-					"movq	%%mm0, %%mm1;"
-					"movq	%%mm0, %%mm2;"
-					"movq	%%mm1, %%mm3;"
 
 					"xorl	%%eax, %%eax;"
 				"0:"
 					// Store.
 					"movntq	%%mm0,   (%0,%%eax);"
-					"movntq	%%mm1,  8(%0,%%eax);"
-					"movntq	%%mm2, 16(%0,%%eax);"
-					"movntq	%%mm3, 24(%0,%%eax);"
+					"movntq	%%mm0,  8(%0,%%eax);"
+					"movntq	%%mm0, 16(%0,%%eax);"
+					"movntq	%%mm0, 24(%0,%%eax);"
+					"movntq	%%mm0, 32(%0,%%eax);"
+					"movntq	%%mm0, 40(%0,%%eax);"
+					"movntq	%%mm0, 48(%0,%%eax);"
+					"movntq	%%mm0, 56(%0,%%eax);"
 					// Increment.
-					"addl	$32, %%eax;"
+					"addl	$64, %%eax;"
 					"cmpl	%4, %%eax;"
 					"jl	0b;"
 
 					// Precalc darkened colour.
-					"movd	%3, %%mm4;"
-					"punpckldq	%%mm4, %%mm4;"
-					"movq	%%mm4, %%mm5;"
-					"movq	%%mm4, %%mm6;"
-					"movq	%%mm5, %%mm7;"
+					"movd	%3, %%mm1;"
+					"punpckldq	%%mm1, %%mm1;"
 
 					"xorl	%%eax, %%eax;"
 				"1:"
 					// Store.
-					"movntq	%%mm4,   (%1,%%eax);"
-					"movntq	%%mm5,  8(%1,%%eax);"
-					"movntq	%%mm6, 16(%1,%%eax);"
-					"movntq	%%mm7, 24(%1,%%eax);"
+					"movntq	%%mm1,   (%1,%%eax);"
+					"movntq	%%mm1,  8(%1,%%eax);"
+					"movntq	%%mm1, 16(%1,%%eax);"
+					"movntq	%%mm1, 24(%1,%%eax);"
+					"movntq	%%mm1, 32(%1,%%eax);"
+					"movntq	%%mm1, 40(%1,%%eax);"
+					"movntq	%%mm1, 48(%1,%%eax);"
+					"movntq	%%mm1, 56(%1,%%eax);"
 					// Increment.
-					"addl	$32, %%eax;"
+					"addl	$64, %%eax;"
 					"cmpl	%4, %%eax;"
 					"jl	1b;"
 
@@ -180,7 +182,7 @@ void SimpleScaler<Pixel>::scaleBlank(
 					, "rm" (col32) // 2
 					, "rm" (scan32) // 3
 					, "r" (dst->w * sizeof(Pixel)) // 4: bytes per line
-					: "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
+					: "mm0", "mm1"
 					, "eax"
 					);
 			}
@@ -233,52 +235,81 @@ void SimpleScaler<Pixel>::scale256(
 			 TODO: Implement.
 		} else*/ if (ASM_X86 && cpu.hasMMXEXT() && sizeof(Pixel) == 4) {
 			asm (
-				// Precalc: mm6 = darkenFactor, mm7 = 0.
-				"movd	%0, %%mm6;"
-				"pxor	%%mm7, %%mm7;"
-				"punpcklwd	%%mm6, %%mm6;"
-				"punpckldq	%%mm6, %%mm6;"
-		
 				// Upper line: scale, no scanline.
 				// Note: Two separate loops is faster, probably because of
 				//       linear memory access.
 				"xorl	%%eax, %%eax;"
 			"0:"
 				// Load.
-				"movq	(%3,%%eax,4), %%mm0;"
+				"movq	  (%3,%%eax,4), %%mm0;"
+				"movq	 8(%3,%%eax,4), %%mm2;"
+				"movq	16(%3,%%eax,4), %%mm4;"
+				"movq	24(%3,%%eax,4), %%mm6;"
 				"movq	%%mm0, %%mm1;"
-				//"prefetchnta	128(%3,%%eax,4);"
+				"movq	%%mm2, %%mm3;"
+				"movq	%%mm4, %%mm5;"
+				"movq	%%mm6, %%mm7;"
 				// Scale.
 				"punpckldq %%mm0, %%mm0;"
 				"punpckhdq %%mm1, %%mm1;"
+				"punpckldq %%mm2, %%mm2;"
+				"punpckhdq %%mm3, %%mm3;"
+				"punpckldq %%mm4, %%mm4;"
+				"punpckhdq %%mm5, %%mm5;"
+				"punpckldq %%mm6, %%mm6;"
+				"punpckhdq %%mm7, %%mm7;"
 				// Store.
-				"movntq	%%mm0,  (%1,%%eax,8);"
-				"movntq	%%mm1, 8(%1,%%eax,8);"
+				"movntq	%%mm0,   (%1,%%eax,8);"
+				"movntq	%%mm1,  8(%1,%%eax,8);"
+				"movntq	%%mm2, 16(%1,%%eax,8);"
+				"movntq	%%mm3, 24(%1,%%eax,8);"
+				"movntq	%%mm4, 32(%1,%%eax,8);"
+				"movntq	%%mm5, 40(%1,%%eax,8);"
+				"movntq	%%mm6, 48(%1,%%eax,8);"
+				"movntq	%%mm7, 56(%1,%%eax,8);"
 				// Increment.
-				"addl	$2, %%eax;"
+				"addl	$8, %%eax;"
 				"cmpl	%4, %%eax;"
 				"jl	0b;"
 		
 				// Lower line: scale and scanline.
+				// Precalc: mm6 = darkenFactor, mm7 = 0.
+				"movd	%0, %%mm6;"
+				"pxor	%%mm7, %%mm7;"
+				"punpcklwd	%%mm6, %%mm6;"
+				"punpckldq	%%mm6, %%mm6;"
+		
 				"xorl	%%eax, %%eax;"
 			"1:"
 				// Load.
-				"movq	(%3,%%eax,4), %%mm0;"
+				"movq	 (%3,%%eax,4), %%mm0;"
+				"movq	8(%3,%%eax,4), %%mm2;"
 				"movq	%%mm0, %%mm1;"
+				"movq	%%mm2, %%mm3;"
 				// Darken and scale.
 				"punpcklbw %%mm7, %%mm0;"
 				"punpckhbw %%mm7, %%mm1;"
 				"pmullw	%%mm6, %%mm0;"
 				"pmullw	%%mm6, %%mm1;"
+				"punpcklbw %%mm7, %%mm2;"
+				"punpckhbw %%mm7, %%mm3;"
 				"psrlw	$8, %%mm0;"
 				"psrlw	$8, %%mm1;"
+				"pmullw	%%mm6, %%mm2;"
+				"pmullw	%%mm6, %%mm3;"
 				"packuswb %%mm0, %%mm0;"
 				"packuswb %%mm1, %%mm1;"
+				"psrlw	$8, %%mm2;"
+				"psrlw	$8, %%mm3;"
+				"movntq	%%mm0,   (%2,%%eax,8);"
+				"movntq	%%mm1,  8(%2,%%eax,8);"
+				"packuswb %%mm2, %%mm2;"
+				"packuswb %%mm3, %%mm3;"
 				// Store.
-				"movntq	%%mm0,  (%2,%%eax,8);"
-				"movntq	%%mm1, 8(%2,%%eax,8);"
+				"movntq	%%mm2, 16(%2,%%eax,8);"
+				"movntq	%%mm3, 24(%2,%%eax,8);"
 				// Increment.
-				"addl	$2, %%eax;"
+				"addl	$4, %%eax;"
 				"cmpl	%4, %%eax;"
 				"jl	1b;"
 		
@@ -288,7 +319,8 @@ void SimpleScaler<Pixel>::scale256(
 				, "r" (dstLower) // 2
 				, "r" (srcLine) // 3
 				, "r" (width) // 4
-				: "mm0", "mm1", "mm6", "mm7"
+				: "mm0", "mm1", "mm2", "mm3"
+				, "mm4", "mm5", "mm6", "mm7"
 				, "eax"
 				);
 		// TODO: Test code, remove once we're satisfied all supported
@@ -354,29 +386,35 @@ void SimpleScaler<Pixel>::scale512(
 				"pxor	%%mm7, %%mm7;"
 				"punpcklwd	%%mm6, %%mm6;"
 				"punpckldq	%%mm6, %%mm6;"
-				"movq	%%mm6, %%mm4;"
-				"movq	%%mm7, %%mm5;"
 				
 				// Copy with darken.
 				"xorl	%%eax, %%eax;"
 			"0:"
 				// Load.
-				"movq	(%2,%%eax,4), %%mm0;"
+				"movq	 (%2,%%eax,4), %%mm0;"
+				"movq	8(%2,%%eax,4), %%mm2;"
 				"movq	%%mm0, %%mm1;"
+				"movq	%%mm2, %%mm3;"
 				// Darken and scale.
 				"punpcklbw %%mm7, %%mm0;"
 				"punpckhbw %%mm7, %%mm1;"
 				"pmullw	%%mm6, %%mm0;"
 				"pmullw	%%mm6, %%mm1;"
+				"punpcklbw %%mm7, %%mm2;"
+				"punpckhbw %%mm7, %%mm3;"
 				"psrlw	$8, %%mm0;"
 				"psrlw	$8, %%mm1;"
+				"pmullw	%%mm6, %%mm2;"
+				"pmullw	%%mm6, %%mm3;"
 				"packuswb %%mm1, %%mm0;"
-				//"packuswb %%mm1, %%mm1;"
+				"psrlw	$8, %%mm2;"
+				"psrlw	$8, %%mm3;"
+				"packuswb %%mm3, %%mm2;"
 				// Store.
 				"movntq	%%mm0,  (%1,%%eax,4);"
-				//"movntq	%%mm1, 8(%1,%%eax,8);"
+				"movntq	%%mm2, 8(%1,%%eax,4);"
 				// Increment.
-				"addl	$2, %%eax;"
+				"addl	$4, %%eax;"
 				"cmpl	%3, %%eax;"
 				"jl	0b;"
 				

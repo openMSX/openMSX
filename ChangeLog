@@ -1,7 +1,14 @@
 $Id$
 
-2004-08-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2004-08-25 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Don't copy HostCPU
+	* Improved MMX code. I measured between 1% and 2% speedup:
+	   - a block of memory reads followed by a block of memory writes is
+	     faster than interleaved read and writes. Probably because write
+	     combining works better this way (larger bursts on the bus).
+	     Loop unrolling made this grouping possible.
+	   - Rearranging instructions (especially mul instrcutions) also gave
+	     a nice speedup. This was also possible because of loop unrolling.
 
 2004-08-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Changed blur scaler for 16bpp:

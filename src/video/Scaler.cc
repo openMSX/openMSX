@@ -55,13 +55,21 @@ void Scaler<Pixel>::copyLine(
 			"movq	 8(%0,%%eax), %%mm1;"
 			"movq	16(%0,%%eax), %%mm2;"
 			"movq	24(%0,%%eax), %%mm3;"
+			"movq	32(%0,%%eax), %%mm4;"
+			"movq	40(%0,%%eax), %%mm5;"
+			"movq	48(%0,%%eax), %%mm6;"
+			"movq	56(%0,%%eax), %%mm7;"
 			// Store.
 			"movntq	%%mm0,   (%1,%%eax);"
 			"movntq	%%mm1,  8(%1,%%eax);"
 			"movntq	%%mm2, 16(%1,%%eax);"
 			"movntq	%%mm3, 24(%1,%%eax);"
+			"movntq	%%mm4, 32(%1,%%eax);"
+			"movntq	%%mm5, 40(%1,%%eax);"
+			"movntq	%%mm6, 48(%1,%%eax);"
+			"movntq	%%mm7, 56(%1,%%eax);"
 			// Increment.
-			"addl	$32, %%eax;"
+			"addl	$64, %%eax;"
 			"cmpl	%2, %%eax;"
 			"jl	0b;"
 			"emms;"
@@ -70,7 +78,9 @@ void Scaler<Pixel>::copyLine(
 			: "r" (srcLine) // 0
 			, "r" (dstLine) // 1
 			, "r" (nBytes) // 2
-			: "eax", "mm0", "mm1", "mm2", "mm3"
+			: "eax"
+			, "mm0", "mm1", "mm2", "mm3"
+			, "mm4", "mm5", "mm6", "mm7"
 			);
 	} else {
 		memcpy(dstLine, srcLine, nBytes);
@@ -91,16 +101,34 @@ void Scaler<Pixel>::scaleLine(
 			"xorl	%%eax, %%eax;"
 		"0:"
 			// Load.
-			"movq	(%0,%%eax,4), %%mm0;"
+			"movq	  (%0,%%eax,4), %%mm0;"
+			"movq	 8(%0,%%eax,4), %%mm2;"
+			"movq	16(%0,%%eax,4), %%mm4;"
+			"movq	24(%0,%%eax,4), %%mm6;"
 			"movq	%%mm0, %%mm1;"
+			"movq	%%mm2, %%mm3;"
+			"movq	%%mm4, %%mm5;"
+			"movq	%%mm6, %%mm7;"
 			// Scale.
 			"punpckldq %%mm0, %%mm0;"
 			"punpckhdq %%mm1, %%mm1;"
+			"punpckhdq %%mm2, %%mm2;"
+			"punpckhdq %%mm3, %%mm3;"
+			"punpckhdq %%mm4, %%mm4;"
+			"punpckhdq %%mm5, %%mm5;"
+			"punpckhdq %%mm6, %%mm6;"
+			"punpckhdq %%mm7, %%mm7;"
 			// Store.
-			"movntq	%%mm0,  (%1,%%eax,8);"
-			"movntq	%%mm1, 8(%1,%%eax,8);"
+			"movntq	%%mm0,   (%1,%%eax,8);"
+			"movntq	%%mm1,  8(%1,%%eax,8);"
+			"movntq	%%mm2, 16(%1,%%eax,8);"
+			"movntq	%%mm3, 24(%1,%%eax,8);"
+			"movntq	%%mm4, 32(%1,%%eax,8);"
+			"movntq	%%mm5, 40(%1,%%eax,8);"
+			"movntq	%%mm6, 48(%1,%%eax,8);"
+			"movntq	%%mm7, 56(%1,%%eax,8);"
 			// Increment.
-			"addl	$2, %%eax;"
+			"addl	$8, %%eax;"
 			"cmpl	%2, %%eax;"
 			"jl	0b;"
 			"emms;"
@@ -109,8 +137,9 @@ void Scaler<Pixel>::scaleLine(
 			: "r" (srcLine) // 0
 			, "r" (dstLine) // 1
 			, "r" (width) // 2
-			: "mm0", "mm1"
-			, "eax"
+			: "eax"
+			, "mm0", "mm1", "mm2", "mm3"
+			, "mm4", "mm5", "mm6", "mm7"
 			);
 	} else {
 		for (int x = 0; x < width; x++) {
@@ -141,19 +170,20 @@ void Scaler<Pixel>::scaleBlank(
 				// Precalc colour.
 				"movd	%1, %%mm0;"
 				"punpckldq	%%mm0, %%mm0;"
-				"movq	%%mm0, %%mm1;"
-				"movq	%%mm0, %%mm2;"
-				"movq	%%mm1, %%mm3;"
 				
 				"xorl	%%eax, %%eax;"
 			"0:"
 				// Store.
 				"movntq	%%mm0,   (%0,%%eax);"
-				"movntq	%%mm1,  8(%0,%%eax);"
-				"movntq	%%mm2, 16(%0,%%eax);"
-				"movntq	%%mm3, 24(%0,%%eax);"
+				"movntq	%%mm0,  8(%0,%%eax);"
+				"movntq	%%mm0, 16(%0,%%eax);"
+				"movntq	%%mm0, 24(%0,%%eax);"
+				"movntq	%%mm0, 32(%0,%%eax);"
+				"movntq	%%mm0, 40(%0,%%eax);"
+				"movntq	%%mm0, 48(%0,%%eax);"
+				"movntq	%%mm0, 56(%0,%%eax);"
 				// Increment.
-				"addl	$32, %%eax;"
+				"addl	$64, %%eax;"
 				"cmpl	%2, %%eax;"
 				"jl	0b;"
 		
@@ -161,7 +191,7 @@ void Scaler<Pixel>::scaleBlank(
 				: "r" (dstLine) // 0
 				, "rm" (col32) // 1
 				, "r" (dst->w * sizeof(Pixel)) // 2: bytes per line
-				: "eax", "mm0", "mm1", "mm2", "mm3"
+				: "eax", "mm0"
 				);
 		}
 		asm volatile ("emms");
