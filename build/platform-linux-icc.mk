@@ -5,4 +5,4 @@
 # Default compiler.
 OPENMSX_CXX?=icc
 
-include build/platform-x86-linux.mk
+include build/platform-linux.mk
