@@ -447,7 +447,7 @@ inline void _CPU_::WR_X_X() {
 	}
 }
 inline void _CPU_::WR_XIX() {
-	if (RDMEM(R.PC.w, (byte)ofst, &_CPU_::WR_XIX)) {
+	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::WR_XIX)) {
 		R.PC.w++; x.w = R.IX.w + ofst; ADD_16_8_DELAY(); WR_X_X();
 	}
 }
@@ -461,7 +461,7 @@ void _CPU_::ld_xix_l() { dummy = R.HL.B.l; WR_XIX(); }
 
 // LD (IY+e),r
 inline void _CPU_::WR_XIY() {
-	if (RDMEM(R.PC.w, (byte)ofst, &_CPU_::WR_XIY)) {
+	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::WR_XIY)) {
 		R.PC.w++; x.w = R.IY.w + ofst; ADD_16_8_DELAY(); WR_X_X();
 	}
 }
@@ -480,7 +480,7 @@ void _CPU_::ld_xix_byte1() {
 	}
 }
 void _CPU_::ld_xix_byte() {
-	if (RDMEM(R.PC.w, (byte)ofst, &_CPU_::ld_xix_byte)) {
+	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::ld_xix_byte)) {
 		R.PC.w++; x.w = R.IX.w + ofst; ld_xix_byte1();
 	}
 }
@@ -492,7 +492,7 @@ void _CPU_::ld_xiy_byte1() {
 	}
 }
 void _CPU_::ld_xiy_byte() {
-	if (RDMEM(R.PC.w, (byte)ofst, &_CPU_::ld_xiy_byte)) {
+	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::ld_xiy_byte)) {
 		R.PC.w++; x.w = R.IY.w + ofst; ld_xiy_byte1();
 	}
 }
@@ -546,14 +546,14 @@ void _CPU_::ld_a_xhl() { x.w = R.HL.w; RD_A_X(); }
 
 // LD A,(IX+e)
 void _CPU_::ld_a_xix() {   
-	if (RDMEM(R.PC.w, (byte)ofst, &_CPU_::ld_a_xix)) {
+	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::ld_a_xix)) {
 		R.PC.w++; x.w = R.IX.w + ofst; RD_A_X();
 	}
 }
 
 // LD A,(IY+e)
 void _CPU_::ld_a_xiy() {   
-	if (RDMEM(R.PC.w, (byte)ofst, &_CPU_::ld_a_xiy)) {
+	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::ld_a_xiy)) {
 		R.PC.w++; x.w = R.IY.w + ofst; RD_A_X();
 	}
 }
@@ -606,7 +606,7 @@ inline void _CPU_::RD_R_X() {
 	}
 }
 inline void _CPU_::RD_R_XIX() {   
-	if (RDMEM(R.PC.w, (byte)ofst, &_CPU_::RD_R_XIX)) {
+	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::RD_R_XIX)) {
 		R.PC.w++; x.w = R.IX.w + ofst; RD_R_X();
 	}
 }
@@ -619,7 +619,7 @@ void _CPU_::ld_l_xix()   { p = &R.HL.B.l; RD_R_XIX(); }
 
 // LD r,(IY+e)
 inline void _CPU_::RD_R_XIY() {   
-	if (RDMEM(R.PC.w, (byte)ofst, &_CPU_::RD_R_XIY)) {
+	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::RD_R_XIY)) {
 		R.PC.w++; x.w = R.IY.w + ofst; RD_R_X();
 	}
 }
@@ -710,12 +710,12 @@ inline void _CPU_::adc_a_x() {
 }
 void _CPU_::adc_a_xhl() { x.w = R.HL.w; adc_a_x(); }
 void _CPU_::adc_a_xix() {
-	if (RDMEM(R.PC.w, (byte)ofst, &_CPU_::adc_a_xix)) {
+	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::adc_a_xix)) {
 		R.PC.w++; x.w = R.IX.w + ofst; ADD_16_8_DELAY(); adc_a_x();
 	}
 }
 void _CPU_::adc_a_xiy() {
-	if (RDMEM(R.PC.w, (byte)ofst, &_CPU_::adc_a_xiy)) {
+	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::adc_a_xiy)) {
 		R.PC.w++; x.w = R.IY.w + ofst; ADD_16_8_DELAY(); adc_a_x();
 	}
 }
@@ -754,12 +754,12 @@ inline void _CPU_::add_a_x() {
 }
 void _CPU_::add_a_xhl() { x.w = R.HL.w; add_a_x(); }
 void _CPU_::add_a_xix() {
-	if (RDMEM(R.PC.w, (byte)ofst, &_CPU_::add_a_xix)) {
+	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::add_a_xix)) {
 		R.PC.w++; x.w = R.IX.w + ofst; ADD_16_8_DELAY(); add_a_x();
 	}
 }
 void _CPU_::add_a_xiy() {
-	if (RDMEM(R.PC.w, (byte)ofst, &_CPU_::add_a_xiy)) {
+	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::add_a_xiy)) {
 		R.PC.w++; x.w = R.IY.w + ofst; ADD_16_8_DELAY(); add_a_x();
 	}
 }
@@ -794,12 +794,12 @@ inline void _CPU_::and_x() {
 }
 void _CPU_::and_xhl() { x.w = R.HL.w; and_x(); }
 void _CPU_::and_xix() {
-	if (RDMEM(R.PC.w, (byte)ofst, &_CPU_::and_xix)) {
+	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::and_xix)) {
 		R.PC.w++; x.w = R.IX.w + ofst; ADD_16_8_DELAY(); and_x();
 	}
 }
 void _CPU_::and_xiy() {
-	if (RDMEM(R.PC.w, (byte)ofst, &_CPU_::and_xiy)) {
+	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::and_xiy)) {
 		R.PC.w++; x.w = R.IY.w + ofst; ADD_16_8_DELAY(); and_x();
 	}
 }
@@ -839,12 +839,12 @@ inline void _CPU_::cp_x() {
 }
 void _CPU_::cp_xhl() { x.w = R.HL.w; cp_x(); }
 void _CPU_::cp_xix() {
-	if (RDMEM(R.PC.w, (byte)ofst, &_CPU_::cp_xix)) {
+	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::cp_xix)) {
 		R.PC.w++; x.w = R.IX.w + ofst; ADD_16_8_DELAY(); cp_x();
 	}
 }
 void _CPU_::cp_xiy() {
-	if (RDMEM(R.PC.w, (byte)ofst, &_CPU_::cp_xiy)) {
+	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::cp_xiy)) {
 		R.PC.w++; x.w = R.IY.w + ofst; ADD_16_8_DELAY(); cp_x();
 	}
 }
@@ -879,12 +879,12 @@ inline void _CPU_::or_x() {
 }
 void _CPU_::or_xhl() { x.w = R.HL.w; or_x(); }
 void _CPU_::or_xix() {
-	if (RDMEM(R.PC.w, (byte)ofst, &_CPU_::or_xix)) {
+	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::or_xix)) {
 		R.PC.w++; x.w = R.IX.w + ofst; ADD_16_8_DELAY(); or_x();
 	}
 }
 void _CPU_::or_xiy() {
-	if (RDMEM(R.PC.w, (byte)ofst, &_CPU_::or_xiy)) {
+	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::or_xiy)) {
 		R.PC.w++; x.w = R.IY.w + ofst; ADD_16_8_DELAY(); or_x();
 	}
 }
@@ -924,12 +924,12 @@ inline void _CPU_::sbc_a_x() {
 }
 void _CPU_::sbc_a_xhl() { x.w = R.HL.w; sbc_a_x(); }
 void _CPU_::sbc_a_xix() {
-	if (RDMEM(R.PC.w, (byte)ofst, &_CPU_::sbc_a_xix)) {
+	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::sbc_a_xix)) {
 		R.PC.w++; x.w = R.IX.w + ofst; ADD_16_8_DELAY(); sbc_a_x();
 	}
 }
 void _CPU_::sbc_a_xiy() {
-	if (RDMEM(R.PC.w, (byte)ofst, &_CPU_::sbc_a_xiy)) {
+	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::sbc_a_xiy)) {
 		R.PC.w++; x.w = R.IY.w + ofst; ADD_16_8_DELAY(); sbc_a_x();
 	}
 }
@@ -969,12 +969,12 @@ inline void _CPU_::sub_x() {
 }
 void _CPU_::sub_xhl() { x.w = R.HL.w; sub_x(); }
 void _CPU_::sub_xix() {
-	if (RDMEM(R.PC.w, (byte)ofst, &_CPU_::sub_xix)) {
+	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::sub_xix)) {
 		R.PC.w++; x.w = R.IX.w + ofst; ADD_16_8_DELAY(); sub_x();
 	}
 }
 void _CPU_::sub_xiy() {
-	if (RDMEM(R.PC.w, (byte)ofst, &_CPU_::sub_xiy)) {
+	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::sub_xiy)) {
 		R.PC.w++; x.w = R.IY.w + ofst; ADD_16_8_DELAY(); sub_x();
 	}
 }
@@ -1010,12 +1010,12 @@ inline void _CPU_::xor_x() {
 }
 void _CPU_::xor_xhl() { x.w = R.HL.w; xor_x(); }
 void _CPU_::xor_xix() {
-	if (RDMEM(R.PC.w, (byte)ofst, &_CPU_::xor_xix)) {
+	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::xor_xix)) {
 		R.PC.w++; x.w = R.IX.w + ofst; ADD_16_8_DELAY(); xor_x();
 	}
 }
 void _CPU_::xor_xiy() {
-	if (RDMEM(R.PC.w, (byte)ofst, &_CPU_::xor_xiy)) {
+	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::xor_xiy)) {
 		R.PC.w++; x.w = R.IY.w + ofst; ADD_16_8_DELAY(); xor_x();
 	}
 }
@@ -1053,12 +1053,12 @@ inline void _CPU_::DEC_X1() {
 }
 void _CPU_::dec_xhl() { x.w = R.HL.w; DEC_X(); }
 void _CPU_::dec_xix() {
-	if (RDMEM(R.PC.w, (byte)ofst, &_CPU_::dec_xix)) {
+	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::dec_xix)) {
 		R.PC.w++; x.w = R.IX.w + ofst; ADD_16_8_DELAY(); DEC_X();
 	}
 }
 void _CPU_::dec_xiy() {
-	if (RDMEM(R.PC.w, (byte)ofst, &_CPU_::dec_xiy)) {
+	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::dec_xiy)) {
 		R.PC.w++; x.w = R.IY.w + ofst; ADD_16_8_DELAY(); DEC_X();
 	}
 }
@@ -1094,12 +1094,12 @@ inline void _CPU_::INC_X1() {
 }
 void _CPU_::inc_xhl() { x.w = R.HL.w; INC_X(); }
 void _CPU_::inc_xix() {
-	if (RDMEM(R.PC.w, (byte)ofst, &_CPU_::inc_xix)) {
+	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::inc_xix)) {
 		R.PC.w++; x.w = R.IX.w + ofst; ADD_16_8_DELAY(); INC_X();
 	}
 }
 void _CPU_::inc_xiy() {
-	if (RDMEM(R.PC.w, (byte)ofst, &_CPU_::inc_xiy)) {
+	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::inc_xiy)) {
 		R.PC.w++; x.w = R.IY.w + ofst; ADD_16_8_DELAY(); INC_X();
 	}
 }
@@ -2276,7 +2276,7 @@ void _CPU_::jp_z()  { if (Z())  JP(); else SKIP_TWO(); }
 
 // JR e
 inline void _CPU_::JR() {
-	if (RDMEM(R.PC.w, (byte)ofst, &_CPU_::JR)) {
+	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::JR)) {
 		R.PC.w++;
 		R.PC.w += ofst;
 		ADD_16_8_DELAY();
@@ -2650,7 +2650,7 @@ void _CPU_::dd_cb1() {
 	}
 }
 void _CPU_::dd_cb() {
-	if (RDMEM(R.PC.w, (byte)ofst, &_CPU_::dd_cb)) {
+	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::dd_cb)) {
 		R.PC.w++; dd_cb1();
 	}
 }
@@ -2663,7 +2663,7 @@ void _CPU_::fd_cb1() {
 	}
 }
 void _CPU_::fd_cb() {
-	if (RDMEM(R.PC.w, (byte)ofst, &_CPU_::fd_cb)) {
+	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::fd_cb)) {
 		R.PC.w++; fd_cb1();
 	}
 }
