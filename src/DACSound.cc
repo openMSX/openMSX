@@ -30,7 +30,7 @@ void DACSound::init()
 	setVolume(Mixer::MAX_VOLUME);
 	reset();
 	int bufSize = Mixer::instance()->registerSound(this);
-	buf = new short[bufSize];
+	buf = new int[bufSize];
 	lastChanged=Emutime(CLOCK,0);
 }
 
@@ -102,9 +102,9 @@ void DACSound::setSampleRate (int sampleRate)
 }
 
 
-short* DACSound::updateBuffer(int length)
+int* DACSound::updateBuffer(int length)
 {
-  short* buffer = buf;
+  int* buffer = buf;
   int nrsamples;
   short sample;
   while (length >0 ){
