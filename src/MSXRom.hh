@@ -92,8 +92,9 @@ class MSXRom : public MSXMemDevice, public MSXRomDevice
 		bool enabledSCC;
 		DACSound* dac;
 
-		byte panasonicCtrl;
-		int panasonicBank[8];
+		byte control;
+		int bankSelect[8];
+		int sramAddr;
 };
 
 #endif

@@ -17,6 +17,7 @@ enum MapperType {
 	R_TYPE       = 6,
 	CROSS_BLAIM  = 7,
 	PANASONIC    = 8,
+	NATIONAL     = 9,
 	PLAIN        = 15,
 
 	HAS_SRAM     = 16,

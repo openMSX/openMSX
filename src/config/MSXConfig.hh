@@ -115,9 +115,6 @@ public:
 
 	virtual bool isDevice();
 	bool  isSlotted();
-	int   getPage(); // of first slotted [backward compat]
-	int   getPS(); // of first slotted [backward compat]
-	int   getSS(); // of first slotted [backward compat]
 
 	std::list <Slotted*> slotted;
 

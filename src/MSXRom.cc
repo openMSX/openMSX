@@ -9,6 +9,8 @@
 #include "CartridgeSlotManager.hh"
 #include "File.hh"
 
+//TODO check / fix / cleanup  PANSONIC and NATIONAL
+
 
 MSXRomCLI msxRomCLI;
 
@@ -204,7 +206,8 @@ void MSXRom::reset(const EmuTime &time)
 	// After a reset SRAM is not selected in all known cartrdiges
 	regioSRAM = 0;
 
-	if (mapperType == PLAIN) {
+	switch (mapperType) {
+	case PLAIN:
 		// this is a simple gamerom less or equal then 64 kB
 		switch (romSize >> 14) { // blocks of 16kB
 			case 0:	//  8kB
@@ -253,13 +256,25 @@ void MSXRom::reset(const EmuTime &time)
 				// not possible
 				assert(false);
 		}
-	} else if (mapperType == PANASONIC) {
-		panasonicCtrl = 0;
+		break;
+
+	case PANASONIC:
+		control = 0;
 		for (int region = 0; region < 8; region++) {
-			panasonicBank[region] = region;
+			bankSelect[region] = region;
 			setROM8kB(region, region);
 		}
-	} else {
+		break;
+	
+	case NATIONAL:
+		control = 0;
+		for (int region = 0; region < 4; region++) {
+			bankSelect[region] = region;
+			setROM16kB(region, region);
+		}
+		break;
+	
+	default:
 		setBank16kB(0, unmapped);
 		setROM16kB (1, (mapperType == R_TYPE) ? 0x17 : 0);
 		setROM16kB (2, (mapperType == HYDLIDE2 || mapperType == ASCII_16KB) ? 0 : 1);
@@ -294,26 +309,45 @@ byte MSXRom::readMem(word address, const EmuTime &time)
 	if (enabledSCC && (0x9800 <= address) && (address < 0xA000)) {
 		return cartridgeSCC->readMemInterface(address&0xff, time);
 	}
-	if (mapperType == PANASONIC) {
-		if ((panasonicCtrl & 0x04) && (0x7FF0 <= address) && (address < 0x7FF7)) {
+	switch (mapperType) {
+	case PANASONIC:
+		if ((control & 0x04) && (0x7FF0 <= address) && (address < 0x7FF7)) {
 			// read mapper state (lower 8 bit)
-			return panasonicBank[address & 7] & 0xFF;
+			return bankSelect[address & 7] & 0xFF;
 		}
-		if ((panasonicCtrl & 0x10) && (address == 0x7FF8)) {
+		if ((control & 0x10) && (address == 0x7FF8)) {
 			// read mapper state (9th bit)
 			byte res = 0;
 			for (int i = 7; i >= 0; i--) {
-				if (panasonicBank[i] & 0x100) {
+				if (bankSelect[i] & 0x100) {
 					res++;
 				}
 				res <<= 1;
 			}
 			return res;
 		}
-		if ((panasonicCtrl & 0x08) && (address == 0x7FF9)) {
+		if ((control & 0x08) && (address == 0x7FF9)) {
 			// read control byte
-			return panasonicCtrl;
+			return control;
 		}
+		break;
+	
+	case NATIONAL:
+		if ((control & 0x04) && ((address & 0x7FF9) == 0x7FF0)) {
+			// TODO check mirrored
+			// 7FF0 7FF2 7FF4 7FF6   bank select read back
+			int bank = (address & 6) / 2;
+			return bankSelect[bank];
+		}
+		if ((control & 0x02) && ((address & 0x3FFF) == 0x3FFD)) {
+			// SRAM read
+			return memorySRAM[sramAddr++ & 0x0FFF];
+		}
+		break;
+
+	default:
+		// do nothing
+		break;
 	}
 	return internalMemoryBank[address>>12][address&0x0fff];
 }
@@ -324,9 +358,26 @@ byte* MSXRom::getReadCacheLine(word start)
 		// don't cache SCC
 		return NULL;
 	}
-	if ((mapperType == PANASONIC) && ((0x7FF0 & CPU::CACHE_LINE_HIGH) == start)) {
-		return NULL;
+	
+	switch (mapperType) {
+	case PANASONIC:
+		if ((0x7FF0 & CPU::CACHE_LINE_HIGH) == start) {
+			// TODO check mirrored 
+			return NULL;
+		}
+		break;
+	
+	case NATIONAL:
+		if ((0x3FF0 & CPU::CACHE_LINE_HIGH) == (start & 0x3FFF)) {
+			return NULL;
+		}
+		break;
+
+	default:
+		// do nothing
+		break;
 	}
+	
 	if (CPU::CACHE_LINE_SIZE <= 0x1000) {
 		return &internalMemoryBank[start>>12][start&0x0FFF];
 	} else {
@@ -574,27 +625,60 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 		if ((0x6000 <= address) && (address < 0x7FF0)) {
 			// set mapper state (lower 8 bits)
 			int region = (address & 0x1C00) >> 10;
-			int bank = panasonicBank[region];
+			int bank = bankSelect[region];
 			bank = (bank & ~0xFF) | value;
-			panasonicBank[region] = bank;
+			bankSelect[region] = bank;
 			setROM8kB(region, bank);
-		}
-		if (address == 0x7FF8) {
+		} else if (address == 0x7FF8) {
 			// set mapper state (9th bit)
 			for (int region = 0; region < 8; region++) {
 				if (value & 1) {
-					panasonicBank[region] |= 0x100;
-					setROM8kB(region, panasonicBank[region]);
+					bankSelect[region] |= 0x100;
+					setROM8kB(region, bankSelect[region]);
 				} else {
-					panasonicBank[region] &= ~0x100;
-					setROM8kB(region, panasonicBank[region]);
+					bankSelect[region] &= ~0x100;
+					setROM8kB(region, bankSelect[region]);
 				}
 				value >>= 1;
 			}
-		}
-		if (address == 0x7FF9) {
+		} else if (address == 0x7FF9) {
 			// write control byte
-			panasonicCtrl = value;
+			control = value;
+		}
+		break;
+
+	case NATIONAL:
+		// National 16KB mapper (for example used in FS-4600F)
+		// TODO bank switch address mirrored?
+		if (address == 0x6000) {
+			bankSelect[0] = value;
+			setROM16kB(0, value);
+		} else if (address == 0x6400) {
+			bankSelect[1] = value;
+			setROM16kB(1, value);
+		} else if (address == 0x7000) {
+			bankSelect[2] = value;
+			setROM16kB(2, value);
+		} else if (address == 0x7400) {
+			bankSelect[3] = value;
+			setROM16kB(3, value);
+		} else if (address == 0x7FF9) {
+			// write control byte
+			control = value;
+		} else if (control & 0x02) {
+			address &= 0x3FFF;
+			if (address == 0x3FFA) {
+				// SRAM address bits 23-16
+				sramAddr = (sramAddr & 0x00FFFF) | value << 16;
+			} else if (address == 0x3FFB) {
+				// SRAM address bits 15-8
+				sramAddr = (sramAddr & 0xFF00FF) | value << 8;
+			} else if (address == 0x3FFC) {
+				// SRAM address bits 7-0
+				sramAddr = (sramAddr & 0xFFFF00) | value;
+			} else if (address == 0x3FFD) {
+				memorySRAM[sramAddr++ & 0x0FFF] = value;
+			}
 		}
 		break;
 
