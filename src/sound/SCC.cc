@@ -91,7 +91,7 @@ SCC::SCC(const string& name_, const XMLElement& config, const EmuTime& time,
 	}
 	
 	reset(time);
-	Debugger::instance().registerDebuggable(name, sccDebuggable);
+	Debugger::instance().registerDebuggable(name + " SCC", sccDebuggable);
 }
 
 SCC::~SCC()
