@@ -43,9 +43,11 @@ cassetteplayer
   format. Don't forget to connect the cassetteplayer to the cassetteport.
 
   usage:
-    cassetteplayer <tapeimage>  insert tapeimage in virtual cassette player
-    cassetteplayer eject        remove tape from virtual cassette player
-    cassetteplayer rewind       rewind the current tape
+    cassetteplayer <tapeimage>    insert tapeimage in virtual cassette player
+    cassetteplayer eject          remove tape from virtual cassette player
+    cassetteplayer rewind         rewind the current tape
+    cassetteplayer force_play     play even when motor signal is not active 
+    cassetteplayer no_force_play  motor signal controls playing (default)
 
     
 diska / diskb

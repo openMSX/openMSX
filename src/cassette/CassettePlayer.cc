@@ -56,7 +56,7 @@ const string& MSXCassettePlayerCLI::fileTypeHelp() const
 
 
 CassettePlayer::CassettePlayer()
-	: cassette(NULL), motor(false)
+	: cassette(NULL), motor(false), forcePlay(false)
 {
 	removeTape();
 	
@@ -121,7 +121,7 @@ void CassettePlayer::rewind()
 
 void CassettePlayer::updatePosition(const EmuTime &time)
 {
-	if (motor) {
+	if (motor || forcePlay) {
 		tapeTime += (time - prevTime);
 		playTapeTime = tapeTime;
 	}
@@ -136,7 +136,7 @@ void CassettePlayer::setMotor(bool status, const EmuTime &time)
 
 short CassettePlayer::getSample(const EmuTime &time)
 {
-	if (motor) {
+	if (motor || forcePlay) {
 		return cassette->getSampleAt(time);
 	} else {
 		return 0;
@@ -179,6 +179,10 @@ void CassettePlayer::execute(const vector<string> &tokens)
 	} else if (tokens[1] == "rewind") {
 		print("Tape rewinded");
 		rewind();
+	} else if (tokens[1] == "force_play") {
+		forcePlay = true;
+	} else if (tokens[1] == "no_force_play") {
+		forcePlay = false;
 	} else {
 		try {
 			print("Changing tape");
@@ -216,7 +220,7 @@ void CassettePlayer::setSampleRate(int sampleRate)
 
 int* CassettePlayer::updateBuffer(int length)
 {
-	if (!motor) {
+	if (!motor && !forcePlay) {
 		return NULL;
 	}
 	int *buf = buffer;

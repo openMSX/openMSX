@@ -58,7 +58,7 @@ class CassettePlayer : public CassetteDevice, private Command, public SoundDevic
 		short getSample(const EmuTime &time);
 
 		CassetteImage *cassette;
-		bool motor;
+		bool motor, forcePlay;
 		EmuTime tapeTime;
 		EmuTime prevTime;
 
