@@ -11,7 +11,6 @@
 #include "SpriteConverter.hh"
 #include "DisplayMode.hh"
 
-class VDP;
 class SDLConsole;
 
 

@@ -230,11 +230,8 @@ template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS)
 	, spriteConverter(vdp->getSpriteChecker())
 {
-	console = new SDLConsole(screen);
-
-	this->vdp = vdp;
 	this->screen = screen;
-	vram = vdp->getVRAM();
+	console = new SDLConsole(screen);
 
 	// Create display caches.
 	charDisplayCache = SDL_CreateRGBSurface(
