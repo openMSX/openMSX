@@ -62,8 +62,6 @@ private:
 	unsigned realstep;
 	unsigned scctime;
 
-	byte scc_banked;
-	byte deformationRegister;
 	char wave[5][32];
 	int volAdjustedWave[5][32];
 	unsigned incr[5];

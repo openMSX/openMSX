@@ -96,9 +96,9 @@ MapperType RomInfo::nameToMapperType(const string& name)
 		mappertype["HYDLIDE2"]    = HYDLIDE2;
 		mappertype["ASCII16-2"]   = HYDLIDE2;
 
-		// TODO: proper support for ASCII 8kB with a certain
-		// amount of SRAM (8 - 32kB)
 		mappertype["ASCII8-8"]    = ASCII8_8; 
+		mappertype["KOEI-8"]      = KOEI_8; 
+		mappertype["KOEI-32"]     = KOEI_32; 
 
 		mappertype["GAMEMASTER2"] = GAME_MASTER2;
 		mappertype["RC755"]       = GAME_MASTER2;

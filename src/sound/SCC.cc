@@ -76,7 +76,7 @@
 
 namespace openmsx {
 
-SCC::SCC(const string& name_, short volume, const EmuTime &time,
+SCC::SCC(const string& name_, short volume, const EmuTime& time,
          ChipMode mode)
 	: sccDebuggable(*this), currentChipMode(mode), name(name_)
 {
@@ -86,8 +86,8 @@ SCC::SCC(const string& name_, short volume, const EmuTime &time,
 	buffer = new int[bufSize];
 
 	// clear wave forms
-	for (int i = 0; i < 5; i++) {
-		for (int j = 0; j < 32; j++) {
+	for (unsigned i = 0; i < 5; ++i) {
+		for (unsigned j = 0; j < 32; ++j) {
 			wave[i][j] = 0;
 		}
 	}
@@ -110,20 +110,20 @@ const string& SCC::getName() const
 
 const string& SCC::getDescription() const
 {
-	static string desc_scc ("Konami SCC");
-	static string desc_sccp("Konami SCC+");
+	static const string desc_scc ("Konami SCC");
+	static const string desc_sccp("Konami SCC+");
 	return (currentChipMode == SCC_Real) ? desc_scc
 	                                     : desc_sccp;
 }
 
-void SCC::reset(const EmuTime &time)
+void SCC::reset(const EmuTime& time)
 {
 	if (currentChipMode != SCC_Real) {
 		setChipMode(SCC_Compatible);
 	}
 
-	for (int i = 0; i < 5; i++) {
-		for (int j = 0; j < 32; j++) {
+	for (unsigned i = 0; i < 5; ++i) {
+		for (unsigned j = 0; j < 32; ++j) {
 			// don't clear wave forms
 			volAdjustedWave[i][j] = 0;
 		}
@@ -161,7 +161,7 @@ void SCC::setChipMode(ChipMode newMode)
 	currentChipMode = newMode;
 }
 
-byte SCC::readMemInterface(byte address, const EmuTime &time)
+byte SCC::readMemInterface(byte address, const EmuTime& time)
 {
 	byte result;
 	switch (currentChipMode) {
@@ -224,15 +224,15 @@ byte SCC::readMemInterface(byte address, const EmuTime &time)
 	return result;
 }
 
-byte SCC::readWave(byte channel, byte address, const EmuTime &time)
+byte SCC::readWave(byte channel, byte address, const EmuTime& time)
 {
 	if (!rotate[channel]) {
 		return wave[channel][address & 0x1F];
 	} else {
-		int ticks = deformTime.getTicksTill(time);
-		int f = ((channel == 3) && (currentChipMode != SCC_plusmode)) ?
+		unsigned ticks = deformTime.getTicksTill(time);
+		unsigned f = ((channel == 3) && (currentChipMode != SCC_plusmode)) ?
 			freq[4] : freq[channel];
-		int shift = ticks / (f + 1);
+		unsigned shift = ticks / (f + 1);
 		return wave[channel][(address + shift) & 0x1F];
 	}
 }
@@ -258,7 +258,7 @@ byte SCC::getFreqVol(byte address)
 	}
 }
 
-void SCC::writeMemInterface(byte address, byte value, const EmuTime &time)
+void SCC::writeMemInterface(byte address, byte value, const EmuTime& time)
 {
 	Mixer::instance().updateStream(time);
 
@@ -356,7 +356,7 @@ void SCC::setFreqVol(byte address, byte value)
 		// change volume
 		byte channel = address - 0x0A;
 		volume[channel] = value & 0xF;
-		for (int i = 0; i < 32; i++) {
+		for (int i = 0; i < 32; ++i) {
 			int tmp = ((signed_byte)wave[channel][i] * volume[channel]) / 16;
 			volAdjustedWave[channel][i] = (tmp * masterVolume) / 256;
 		}
@@ -368,7 +368,7 @@ void SCC::setFreqVol(byte address, byte value)
 	}
 }
 
-void SCC::setDeformReg(byte value, const EmuTime &time)
+void SCC::setDeformReg(byte value, const EmuTime& time)
 {
 	if (value == deformValue) {
 		return;
@@ -381,34 +381,34 @@ void SCC::setDeformReg(byte value, const EmuTime &time)
 	}
 	switch (value & 0xC0) {
 		case 0x00:
-			for (int i = 0; i < 5; i++) {
+			for (unsigned i = 0; i < 5; ++i) {
 				rotate[i] = false;
 				readOnly[i] = false;
 				offset[i] = 0;
 			}
 			break;
 		case 0x40:
-			for (int i = 0; i < 5; i++) {
+			for (unsigned i = 0; i < 5; ++i) {
 				rotate[i] = true;
 				readOnly[i] = true;
 			}
 			break;
 		case 0x80:
-			for (int i = 0; i < 3; i++) {
+			for (unsigned i = 0; i < 3; ++i) {
 				rotate[i] = false;
 				readOnly[i] = false;
 			}
-			for (int i = 3; i < 5; i++) {
+			for (unsigned i = 3; i < 5; ++i) {
 				rotate[i] = true;
 				readOnly[i] = true;
 			}
 			break;
 		case 0xC0:
-			for (int i = 0; i < 3; i++) {
+			for (unsigned i = 0; i < 3; ++i) {
 				rotate[i] = true;
 				readOnly[i] = true;
 			}
-			for (int i = 3; i < 5; i++) {
+			for (unsigned i = 3; i < 5; ++i) {
 				rotate[i] = false;
 				readOnly[i] = true;
 			}
@@ -426,7 +426,7 @@ int *SCC::updateBuffer(int length) throw()
 		return NULL;
 	}
 
-	int *buf = buffer;
+	int* buf = buffer;
 	if ((deformValue & 0xC0) == 0x00) {
 		// No rotation stuff, this is almost always true. So it makes
 		// sense to have a special optimized routine for this case
@@ -436,7 +436,7 @@ int *SCC::updateBuffer(int length) throw()
 			scctime %= SCC_STEP;
 			int mixed = 0;
 			byte enable = ch_enable;
-			for (int i = 0; i < 5; i++, enable >>= 1) {
+			for (int i = 0; i < 5; ++i, enable >>= 1) {
 				count[i] += incr[i] * advance;
 				if (enable & 1) {
 					mixed += volAdjustedWave[i]
@@ -454,7 +454,7 @@ int *SCC::updateBuffer(int length) throw()
 			scctime %= SCC_STEP;
 			int mixed = 0;
 			byte enable = ch_enable;
-			for (int i = 0; i < 5; i++, enable >>= 1) {
+			for (int i = 0; i < 5; ++i, enable >>= 1) {
 				count[i] += incr[i] * advance;
 				int overflows = count[i] >> (GETA_BITS + 5);
 				count[i] &= ((1 << (GETA_BITS + 5)) -1);
@@ -477,14 +477,14 @@ void SCC::checkMute()
 	// SCC is muted unless an enabled channel with non-zero volume exists.
 	bool mute = true;
 	byte enable = ch_enable & 0x1F;
-	byte *volumePtr = volume;
+	byte* volumePtr = volume;
 	while (enable) {
 		if ((enable & 1) && *volumePtr) {
 			mute = false;
 			break;
 		}
 		enable >>= 1;
-		volumePtr++;
+		++volumePtr;
 	}
 	setInternalMute(mute);
 }

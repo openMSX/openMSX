@@ -1,0 +1,80 @@
+// $Id$
+
+// Koei mapper type with 8 or 32kB SRAM (very similar to ASCII8-8)
+//
+// based on code from BlueMSX v1.4.0
+// 
+// The address to change banks:
+//  bank 1: 0x6000 - 0x67ff (0x6000 used)
+//  bank 2: 0x6800 - 0x6fff (0x6800 used)
+//  bank 3: 0x7000 - 0x77ff (0x7000 used)
+//  bank 4: 0x7800 - 0x7fff (0x7800 used)
+//
+//  To select SRAM set any of the higher bits (for ASCII8-8 only one bit can be
+//  used). The SRAM can only be written to in complete memory range (0x4000 -
+//  0xBFFF) (for ASCII8-8 only 0x8000 - 0xBFFF).
+
+#include "RomKoei.hh"
+
+namespace openmsx {
+
+RomKoei::RomKoei(Config* config, const EmuTime& time, Rom* rom, SramSize sramSize)
+	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom),
+	  sram(0x2000 * (int)sramSize, config)
+{
+	reset(time);
+}
+
+RomKoei::~RomKoei()
+{
+}
+
+void RomKoei::reset(const EmuTime& time)
+{
+	setBank(0, unmappedRead);
+	setBank(1, unmappedRead);
+	for (int i = 2; i < 6; i++) {
+		setRom(i, 0);
+	}
+	setBank(6, unmappedRead);
+	setBank(7, unmappedRead);
+
+	sramEnabled = 0;
+}
+
+void RomKoei::writeMem(word address, byte value, const EmuTime& time)
+{
+	if ((0x6000 <= address) && (address < 0x8000)) {
+		// bank switching
+		byte region = ((address >> 11) & 3) + 2;
+		byte sramEnableBit = rom->getSize() / 0x2000;
+		if (value >= sramEnableBit) {
+			byte sramBlock = value & ((sram.getSize() / 0x2000) - 1);
+			setBank(region, sram.getBlock(sramBlock * 0x2000));
+			sramEnabled |= (1 << region);
+		} else {
+			setRom(region, value);
+			sramEnabled &= ~(1 << region);
+		}
+	}
+	
+	if ((1 << (address >> 13)) & sramEnabled) {
+		// write to SRAM
+		sram.write(address & 0x1FFF, value);
+	}
+}
+
+byte* RomKoei::getWriteCacheLine(word address) const
+{
+	if ((0x6000 <= address) && (address < 0x8000)) {
+		// bank switching
+		return NULL;
+	} else if ((1 << (address >> 13)) & sramEnabled) {
+		// write to SRAM
+		return sram.getBlock(address & 0x1FFF);
+	} else {
+		return unmappedWrite;
+	}
+}
+
+} // namespace openmsx

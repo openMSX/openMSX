@@ -13,6 +13,7 @@
 #include "RomKonami5.hh"
 #include "RomAscii8kB.hh"
 #include "RomAscii8_8.hh"
+#include "RomKoei.hh"
 #include "RomAscii16kB.hh"
 #include "RomHydlide2.hh"
 #include "RomRType.hh"
@@ -83,6 +84,10 @@ MSXRom *RomFactory::create(Config* config, const EmuTime& time)
 			return new RomHarryFox(config, time, rom);
 		case ASCII8_8:
 			return new RomAscii8_8(config, time, rom);
+		case KOEI_8:
+			return new RomKoei(config, time, rom, RomKoei::SRAM8);
+		case KOEI_32:
+			return new RomKoei(config, time, rom, RomKoei::SRAM32);
 		case HYDLIDE2:
 			return new RomHydlide2(config, time, rom);
 		case GAME_MASTER2:

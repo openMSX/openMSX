@@ -47,6 +47,8 @@ enum MapperType {
 	GAME_MASTER2 = 64 + 2,
 	PANASONIC    = 64 + 3,
 	NATIONAL     = 64 + 4,
+	KOEI_8       = 64 + 5,
+	KOEI_32      = 64 + 6,
 
 	HAS_DAC      = 128,
 	MAJUTSUSHI   = 128 + 0,
