@@ -155,6 +155,9 @@ RealDrive::RealDrive(const string& driveName, const EmuTime& time)
 		// nothing specified
 		ejectDisk();
 	}
+	if (CommandController::instance().hasCommand(name)) {
+		throw FatalError("Duplicated drive name: " + name);
+	}
 	CommandController::instance().registerCommand(this, name);
 }
 

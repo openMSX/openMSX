@@ -1,5 +1,8 @@
 $Id$
 
+2004-05-17 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Print an error for duplicate drive names (iso assert)
+
 2004-05-15 Manuel Bilderbeek <manuel@msxnet.org>
 	* implemented scrolling in console by a whole page, using 
 	  SHIFT+PAGEUP and SHIFT+PAGEDOWN
