@@ -1,11 +1,17 @@
 # Default key bindings
-bind print "screenshot"
-bind pause "toggle pause"
-bind ctrl+pause "quit"
-bind F9 "toggle throttle"
-bind F10 "toggle console"
-bind F11 "toggle mute"
-bind F12 "toggle fullscreen"
+proc bind_helper {key command} {
+	# only bind when not already bound
+	if {[bind $key] == ""} {
+		bind $key $command
+	}
+}
+bind_helper print "screenshot"
+bind_helper pause "toggle pause"
+bind_helper ctrl+pause "quit"
+bind_helper F9 "toggle throttle"
+bind_helper F10 "toggle console"
+bind_helper F11 "toggle mute"
+bind_helper F12 "toggle fullscreen"
 
 # Backwards compatibility commands
 proc decr { var { num 1 } } {

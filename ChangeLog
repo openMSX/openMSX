@@ -1,5 +1,9 @@
 $Id$
 
+2004-02-07 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Changed default init.tcl to only bind unbounded keys:
+	   should solve the "toggle + toggle = nop" problem
+
 2004-02-04 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Handle unknown tags in control protocol more gracefully
 	* Same for parser in Contrib/openmsx-control.cc
