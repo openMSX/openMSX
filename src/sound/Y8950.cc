@@ -513,19 +513,18 @@ void Y8950::setRythmMode(int data)
 		rythm_mode = newMode;
 		if (!rythm_mode) {
 			// ON->OFF
-			// TODO also slotStatus?
-			if(!(reg[0xb6]&0x20) && !(data&0x10))
-				ch[6].mod.eg_mode = FINISH; // BD1
-			if(!(reg[0xb6]&0x20) && !(data&0x10))
-				ch[6].car.eg_mode = FINISH; // BD2
-			if(!(reg[0xb7]&0x20) && !(data&0x08))
-				ch[7].mod.eg_mode = FINISH; // HH
-			if(!(reg[0xb7]&0x20) && !(data&0x04))
-				ch[7].car.eg_mode = FINISH; // SD
-			if(!(reg[0xb8]&0x20) && !(data&0x02))
-				ch[8].mod.eg_mode = FINISH; // TOM
-			if(!(reg[0xb8]&0x20) && !(data&0x01))
-				ch[8].car.eg_mode = FINISH; // CYM
+			ch[6].mod.eg_mode = FINISH; // BD1
+			ch[6].mod.slotStatus = false;
+			ch[6].car.eg_mode = FINISH; // BD2
+			ch[6].car.slotStatus = false;
+			ch[7].mod.eg_mode = FINISH; // HH
+			ch[7].mod.slotStatus = false;
+			ch[7].car.eg_mode = FINISH; // SD
+			ch[7].car.slotStatus = false;
+			ch[8].mod.eg_mode = FINISH; // TOM
+			ch[8].mod.slotStatus = false;
+			ch[8].car.eg_mode = FINISH; // CYM
+			ch[8].car.slotStatus = false;
 		}
 	}
 }
