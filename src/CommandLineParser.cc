@@ -75,6 +75,7 @@ void CommandLineParser::postRegisterFileTypes()
 			for (j = extensions->begin(); j != extensions->end(); j++) {
 				fileTypeMap[(*j)->value] = i->second;
 			}
+			config->getParametersWithClassClean(extensions);
 		}
 	} catch (ConfigException &e) {
 		map<string,string> fileExtMap;

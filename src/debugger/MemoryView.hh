@@ -20,7 +20,9 @@ struct DebugSlot
 class MemoryView: public DebugView
 {
 	public:
-		MemoryView (int rows, int columns, bool border);
+		MemoryView(int rows, int columns, bool border);
+		virtual ~MemoryView();
+		
 		void setAddressDisplay (bool mode); 
 		void setNumericBase (int base_);
 		void setAddress (int address_);
@@ -31,6 +33,7 @@ class MemoryView: public DebugView
 		virtual void fill ()=0;
 		void notifyController ();
 		byte readMemory (dword address_);
+		
 		static const int SLOTVRAM = 4;
 		static const int SLOTDIRECT = 5;
 	private:

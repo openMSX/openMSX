@@ -201,10 +201,10 @@ const vector<string> &UserFileContext::getPaths()
 		try {
 			Config *config = MSXConfig::instance()->
 				getConfigById("UserDirectories");
-			list<Device::Parameter*>* pathList;
-			pathList = config->getParametersWithClass("");
-			list<Device::Parameter*>::const_iterator it;
-			for (it = pathList->begin();
+			list<Device::Parameter*>* pathList =
+				config->getParametersWithClass("");
+			for (list<Device::Parameter*>::const_iterator it =
+			     pathList->begin();
 			     it != pathList->end();
 			     it++) {
 				string path = (*it)->value;
@@ -214,6 +214,7 @@ const vector<string> &UserFileContext::getPaths()
 				path = FileOperations::expandTilde(path);
 				paths.push_back(path);
 			}
+			config->getParametersWithClassClean(pathList);
 		} catch (ConfigException &e) {
 			// no UserDirectories specified
 		}

@@ -68,11 +68,14 @@ int main(int argc, char **argv)
 		CommandController::instance()->autoCommands();
 
 		// Schedule key insertions.
-		new KeyEventInserter(zero);
+		// TODO move this somewhere else
+		KeyEventInserter* keyEvents = new KeyEventInserter(zero);
 
 		// Start emulation thread.
 		PRT_DEBUG("Starting MSX");
 		MSXMotherBoard::instance()->run();
+
+		delete keyEvents;
 
 		// Clean up.
 		SDL_Quit();

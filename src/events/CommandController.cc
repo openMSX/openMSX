@@ -143,6 +143,7 @@ void CommandController::autoCommands()
 				         "   " << e.getMessage());
 			}
 		}
+		config->getParametersWithClassClean(commandList);
 	} catch (ConfigException &e) {
 		// no auto commands defined
 	}
