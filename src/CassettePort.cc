@@ -31,7 +31,7 @@ CassettePortInterface *CassettePortFactory::oneInstance = NULL;
 CassettePortInterface::CassettePortInterface(const EmuTime &time)
 {
 	dummy = new DummyCassetteDevice();
-	unplug(time);
+	device = dummy;	//unplug(time);
 }
 
 CassettePortInterface::~CassettePortInterface()
