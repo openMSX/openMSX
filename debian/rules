@@ -15,8 +15,6 @@
 DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 
-PKG_INSTALL_BASE=/usr/share/openmsx
-
 CFLAGS = -Wall -g
 
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
@@ -66,7 +64,7 @@ install: build
 	dh_installdirs
 
 	# Add here commands to install the package into debian/openmsx.
-	$(MAKE) install OPENMSX_INSTALL=$(CURDIR)/debian/openmsx/usr/share/openmsx INSTALL_BASE=$(PKG_INSTALL_BASE) INSTALL_ROOT=$(CURDIR)/debian/openmsx
+	$(MAKE) debianinstall PREFIX=$(CURDIR)/debian/openmsx/usr
 
 
 # Build architecture-independent files here.
