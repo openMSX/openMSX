@@ -32,6 +32,8 @@ This new release brings you the following improvements:
   * alias/unalias: put long commands under a named alias
   * incr and decr: increase or decrease integer settings
     (useful when bound to a key, see "bind" command)
+- "Enum settings" are now case insensitive, i.e. you can use SDLHi, sdlhi, or
+  SdLhI now, if you mean the SDLHi renderer.
 - Added a 'boosted' MSX2 configuration: a fantasy machine with lots of
   internal hardware. More of these will be added in future releases.
   The current configuration is still experimental; feedback is welcome.
