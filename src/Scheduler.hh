@@ -117,8 +117,6 @@ class Scheduler : private EventListener
 		std::vector<SynchronizationPoint> syncPoints;
 		Mutex schedMutex;
 	
-		EmuTime targetTime;
-	
 		bool noSound;
 		bool needBlock;
 		bool exitScheduler;

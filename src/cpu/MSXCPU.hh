@@ -66,6 +66,7 @@ class MSXCPU : public MSXDevice
 		// only for Scheduler
 		void executeUntilTarget(const EmuTime &time);
 		void setTargetTime(const EmuTime &time);
+		const EmuTime &getTargetTime() const;
 		friend class Scheduler;
 
 		static MSXCPU *oneInstance;

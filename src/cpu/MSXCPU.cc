@@ -66,6 +66,7 @@ void MSXCPU::setActiveCPU(CPUType cpu)
 	if (newCPU != activeCPU) {
 		const EmuTime &currentTime = activeCPU->getCurrentTime();
 		const EmuTime &targetTime  = activeCPU->getTargetTime();
+		activeCPU->setTargetTime(currentTime);	// stop current CPU
 		newCPU->setCurrentTime(currentTime);
 		newCPU->setTargetTime(targetTime);
 		newCPU->invalidateCache(0x0000, 0x10000/CPU::CACHE_LINE_SIZE);
@@ -81,6 +82,11 @@ void MSXCPU::executeUntilTarget(const EmuTime &time)
 void MSXCPU::setTargetTime(const EmuTime &time)
 {
 	activeCPU->setTargetTime(time);
+}
+
+const EmuTime &MSXCPU::getTargetTime() const
+{
+	return activeCPU->getTargetTime();
 }
 
 const EmuTime &MSXCPU::getCurrentTime() const

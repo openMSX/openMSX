@@ -50,6 +50,7 @@ void Scheduler::setSyncPoint(const EmuTime &timeStamp, Schedulable* device, int 
 {
 	schedMutex.grab();
 	
+	const EmuTime &targetTime = cpu->getTargetTime();
 	EmuTime time = (timeStamp == ASAP) ? targetTime : timeStamp;
 	
 	if (device) { 
@@ -58,7 +59,6 @@ void Scheduler::setSyncPoint(const EmuTime &timeStamp, Schedulable* device, int 
 	}
 
 	if (time < targetTime) {
-		targetTime = time;
 		cpu->setTargetTime(time);
 	}
 	syncPoints.push_back(SynchronizationPoint (time, device, userData));
@@ -107,7 +107,6 @@ const EmuTime Scheduler::scheduleEmulation()
 			if (!paused) {
 				PRT_DEBUG ("Sched: Scheduling CPU till infinity");
 				const EmuTime infinity = EmuTime(EmuTime::INFTY);
-				targetTime = infinity; // TODO
 				cpu->executeUntilTarget(infinity);
 			} else {
 				needBlock = true;
@@ -115,13 +114,12 @@ const EmuTime Scheduler::scheduleEmulation()
 		} else {
 			const SynchronizationPoint sp = *(syncPoints.begin());
 			const EmuTime &time = sp.getTime();
-			if (targetTime < time) {
+			if (cpu->getTargetTime() < time) {
 				schedMutex.release();
 				// first bring CPU till SP 
 				//  (this may set earlier SP)
 				if (!paused) {
 					PRT_DEBUG ("Sched: Scheduling CPU till " << time);
-					targetTime = time;
 					cpu->executeUntilTarget(time);
 				} else {
 					needBlock = true;
@@ -142,7 +140,7 @@ const EmuTime Scheduler::scheduleEmulation()
 			pauseCond.wait();
 		}
 	}
-	return targetTime;
+	return cpu->getTargetTime();
 }
 
 void Scheduler::unpause()
