@@ -11,13 +11,23 @@ Scaler::Scaler()
 {
 }
 
-void Scaler::disposeScalers(vector<Scaler*>& scalers)
+// Force template instantiation.
+template Scaler* Scaler::createScaler<byte>(ScalerID id, Blender<byte> blender);
+template Scaler* Scaler::createScaler<word>(ScalerID id, Blender<word> blender);
+template Scaler* Scaler::createScaler<unsigned int>(ScalerID id, Blender<unsigned int> blender);
+
+template <class Pixel>
+Scaler* Scaler::createScaler(ScalerID id, Blender<Pixel> blender)
 {
-	for (vector<Scaler*>::iterator it = scalers.begin();
-	    it != scalers.end(); ++it) {
-		delete *it;
+	switch(id) {
+	case SIMPLE:
+		return new SimpleScaler();
+	case SAI2X:
+		return new SaI2xScaler<Pixel>(blender);
+	default:
+		assert(false);
+		return NULL;
 	}
-	scalers.clear();
 }
 
 // === SimpleScaler ========================================================

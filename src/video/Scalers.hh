@@ -26,16 +26,14 @@ public:
 		SAI2X,
 	};
 
-	/** Returns an array containing an instance of every Scaler subclass,
-	  * indexed by ScaledID.
+	/** Instantiates a Scaler.
+	  * @param id Identifies the scaler algorithm.
+	  * @param blender Pixel blender that can be used by the scaler algorithm
+	  *   to interpolate pixels.
+	  * @return A Scaler object, owned by the caller.
 	  */
 	template <class Pixel>
-	static void createScalers(Blender<Pixel> blender,
-	                          vector<Scaler*>& scalers);
-
-	/** Disposes of the scalers created by the createScalers method.
-	  */
-	static void disposeScalers(vector<Scaler*>& scalers);
+	static Scaler* createScaler(ScalerID id, Blender<Pixel> blender);
 
 	/** Scales the given line.
 	  * Pixels at even X coordinates are read and written in a 2x2 square
@@ -91,14 +89,6 @@ public:
 protected:
 	Blender<Pixel> blender;
 };
-
-
-template <class Pixel>
-void Scaler::createScalers(Blender<Pixel> blender, vector<Scaler*>& scalers)
-{
-	scalers.push_back(new SimpleScaler());
-	scalers.push_back(new SaI2xScaler<Pixel>(blender));
-}
 
 } // namespace openmsx
 

@@ -170,7 +170,8 @@ private:
 	};
 	LineContent lineContent[HEIGHT];
 
-	vector<Scaler*> scalers;
+	Scaler* currScaler;
+	Scaler::ScalerID currScalerID;
 
 	/** SDL colours corresponding to each VDP palette entry.
 	  * palFg has entry 0 set to the current background colour,

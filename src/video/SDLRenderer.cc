@@ -135,8 +135,6 @@ void SDLRenderer<Pixel, zoom>::drawEffects()
 	// All of the current postprocessing steps require hi-res.
 	if (LINE_ZOOM != 2) return;
 
-	Scaler::ScalerID scalerID =
-		RenderSettings::instance().getScaler()->getValue();
 	int scanlineAlpha = (settings.getScanlineAlpha()->getValue() * 255) / 100;
 
 	// Lock surface, because we will access pixels directly.
@@ -147,7 +145,17 @@ void SDLRenderer<Pixel, zoom>::drawEffects()
 
 	// Apply scaler.
 	if (LINE_ZOOM == 2) {
-		Scaler* scaler = scalers[scalerID];
+		// New scaler algorithm selected?
+		Scaler::ScalerID scalerID = settings.getScaler()->getValue();
+		if (currScalerID != scalerID) {
+			if (currScaler) delete currScaler;
+			currScaler = Scaler::createScaler<Pixel>(
+				scalerID,
+				Blender<Pixel>::createFromFormat(screen->format)
+				);
+			currScalerID = scalerID;
+		}
+
 		for (unsigned y = 0; y < HEIGHT; y += 2) {
 			//fprintf(stderr, "post processing line %d: %d\n", y, lineContent[y]);
 			switch (lineContent[y]) {
@@ -155,10 +163,10 @@ void SDLRenderer<Pixel, zoom>::drawEffects()
 			case LINE_DONTTOUCH:
 				break;
 			case LINE_256:
-				scaler->scaleLine256(screen, y);
+				currScaler->scaleLine256(screen, y);
 				break;
 			case LINE_512:
-				scaler->scaleLine512(screen, y);
+				currScaler->scaleLine512(screen, y);
 				break;
 			default:
 				assert(false);
@@ -382,8 +390,8 @@ SDLRenderer<Pixel, zoom>::SDLRenderer(
 		Blender<Pixel>::createFromFormat(screen->format) )
 {
 	this->screen = screen;
-	Scaler::createScalers<Pixel>(
-		Blender<Pixel>::createFromFormat(screen->format), scalers);
+	currScalerID = (Scaler::ScalerID)-1; // not a valid scaler
+	currScaler = NULL;
 
 	console = new SDLConsole(CommandConsole::instance(), screen);
 	debugger = NULL;
@@ -440,7 +448,7 @@ SDLRenderer<Pixel, zoom>::~SDLRenderer()
 {
 	delete console;
 	if (debugger) delete debugger;
-	Scaler::disposeScalers(scalers);
+	if (currScaler) delete currScaler;
 	SDL_FreeSurface(charDisplayCache);
 	SDL_FreeSurface(bitmapDisplayCache);
 	SDL_FreeSurface(storedImage);
