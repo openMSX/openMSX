@@ -1,5 +1,10 @@
 $Id$
 
+2002-07-31 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Made "check-db":
+	   a primitive tool to compare a romtype database against the build-in 
+	   rom autodetection algorithm
+
 2002-07-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* cleanups
 	* Support for "ROM database"

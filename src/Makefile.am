@@ -65,6 +65,7 @@ openmsx_SOURCES=\
 	MSXRTC.hh MSXRTC.cc RP5C01.hh RP5C01.cc \
 	RealTime.hh RealTime.cc \
 	MSXRom.hh MSXRom.cc \
+	RomTypes.hh RomTypes.cc \
 	MSXRomDevice.cc MSXRomDevice.hh \
 	MSXRomPatchInterface.hh \
 	FileOpener.cc FileOpener.hh \
