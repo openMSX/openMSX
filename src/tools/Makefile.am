@@ -15,7 +15,8 @@ endif
 
 # SUBDIRS = 
 
-bin_PROGRAMS=\
+#bin_PROGRAMS=\
+noinst_PROGRAMS=\
 	bin2c
 #	check-db
 

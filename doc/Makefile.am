@@ -1,7 +1,7 @@
 # $Id$
 #  install the man pages
 man_MANS=openmsx.1
-data_DATA = \
+pkgdata_DATA = \
 	commands.txt \
 	developersFAQ.txt \
 	openmsx.tex \
@@ -9,6 +9,6 @@ data_DATA = \
 	vram-addressing.txt \
 	openMSX-HOWTO.txt 
 
-EXTRA_DIST = $(man_MANS) $(data_DATA)
+EXTRA_DIST = $(man_MANS) $(pkgdata_DATA)
 
 MAINTAINERCLEANFILES = Makefile.in

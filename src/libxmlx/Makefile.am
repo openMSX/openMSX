@@ -13,7 +13,8 @@ AM_CXXFLAGS = -Wall -g3 -pipe -I$(srcdir)/.. @XML_CFLAGS@
 #LIBS=@XML_LIBS@
 #libxmlx_la_LIBADD=@XML_LIBS@
 
-bin_PROGRAMS  = xmlxdump
+#bin_PROGRAMS  = xmlxdump
+noinst_PROGRAMS  = xmlxdump
 xmlxdump_SOURCES = xmlxdump.cc
 xmlxdump_LDADD   = libxmlx.la @XML_LIBS@
 
