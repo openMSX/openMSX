@@ -358,7 +358,8 @@ void VDP::scheduleDisplayStart(const EmuTime& time)
 		( isDisplayArea // overscan?
 		? 3 + 13 // sync + top erase
 		: lineZero
-		) * TICKS_PER_LINE;
+		) * TICKS_PER_LINE
+		+ 100 + 102; // VR flips at start of left border
 	displayStartSyncTime = frameStartTime + displayStart;
 	//cerr << "new DISPLAY_START is " << (displayStart / TICKS_PER_LINE) << "\n";
 
@@ -412,7 +413,7 @@ void VDP::scheduleHScan(const EmuTime& time)
 	}
 
 	// Calculate moment in time line match occurs.
-	horizontalScanOffset = displayStart
+	horizontalScanOffset = displayStart - (100 + 102)
 		+ ((controlRegs[19] - controlRegs[23]) & 0xFF) * TICKS_PER_LINE
 		+ getRightBorder();
 	// Display line counter continues into the next frame.
