@@ -9,6 +9,7 @@ $Id$
 	     save them to that file
 	* fixed quoting in tab-completion:
 	    the chars [ ] $ must be quoted in TCL
+	* use xmlFree() iso free() to release memory from libxml
 
 2004-09-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Removed the MSXConfig::loadConfig method that was resposible for the

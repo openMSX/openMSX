@@ -370,7 +370,7 @@ string XMLElement::XMLEscape(const string& str)
 	string result = (const char*)buffer;
 	// buffer is allocated in C code, soo we free it the C-way:
 	if (buffer != NULL) {
-		free(buffer);
+		xmlFree(buffer);
 	}
 	return result;
 }
