@@ -134,7 +134,7 @@ void CPU::extendTarget(const EmuTime& time)
 }
 
 
-void CPU::doBreak()
+void CPU::doBreak2()
 {
 	assert(!breaked);
 	breaked = true;
@@ -159,6 +159,13 @@ void CPU::doContinue()
 	if (breaked) {
 		breaked = false;
 		scheduler->decreasePauseCounter();
+	}
+}
+
+void CPU::doBreak()
+{
+	if (!breaked) {
+		step = true;
 	}
 }
 

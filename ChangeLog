@@ -1,5 +1,8 @@
 $Id$
 
+2003-12-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* implemented "debug break"
+
 2003-12-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* remove VDP sync points on reset
 

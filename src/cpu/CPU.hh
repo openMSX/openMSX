@@ -167,9 +167,10 @@ protected:
 	bool writeCacheTried[CACHE_LINE_NUM];
 
 	// debugger
-	void doBreak();
+	void doBreak2();
 	void doStep();
 	void doContinue();
+	void doBreak();
 	
 	static multiset<word> breakPoints;
 	static bool breaked;

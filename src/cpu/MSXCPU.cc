@@ -252,6 +252,12 @@ string MSXCPU::doContinue()
 	return "";
 }
 
+string MSXCPU::doBreak()
+{
+	activeCPU->doBreak();
+	return "";
+}
+
 string MSXCPU::setBreakPoint(const vector<string>& tokens)
 {
 	activeCPU->breakPoints.insert(getAddress(tokens[2]));

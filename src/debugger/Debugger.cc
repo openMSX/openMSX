@@ -95,6 +95,8 @@ string Debugger::DebugCmd::execute(const vector<string>& tokens)
 		return parent.cpu->doStep();
 	} else if (tokens[1] == "cont") {
 		return parent.cpu->doContinue();
+	} else if (tokens[1] == "break") {
+		return parent.cpu->doBreak();
 	} else if (tokens[1] == "set_bp") {
 		return parent.cpu->setBreakPoint(tokens);
 	} else if (tokens[1] == "remove_bp") {
@@ -189,7 +191,8 @@ string Debugger::DebugCmd::help(const vector<string>& tokens) const
 		"debug remove_bp <addr>           remove a certain breapoint\n"
 		"debug list_bp                    list the active breakpoints\n"
 		"debug cont                       continue execution aftre break\n"
-		"debug step                       execute one instruction\n";
+		"debug step                       execute one instruction\n"
+		"debug break                      break CPU at current position\n";
 	return helpText;
 }
 
@@ -206,6 +209,7 @@ void Debugger::DebugCmd::tabCompletion(vector<string>& tokens) const
 			cmds.insert("write");
 			cmds.insert("step");
 			cmds.insert("cont");
+			cmds.insert("break");
 			cmds.insert("set_bp");
 			cmds.insert("remove_bp");
 			cmds.insert("list_bp");

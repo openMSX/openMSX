@@ -249,7 +249,7 @@ void _CPU_::executeCore() {
 	
 	if (step) {
 		targetTime = currentTime;
-		doBreak();
+		doBreak2();
 		step = false;
 		return;
 	}
@@ -269,7 +269,7 @@ void _CPU_::executeCore() {
 		while (currentTime < targetTime) {
 			if (breakPoints.find(R.PC.w) != breakPoints.end()) {
 				targetTime = currentTime;
-				doBreak();
+				doBreak2();
 			} else {
 				if (slowInstructions == 0) {
 					executeFast();

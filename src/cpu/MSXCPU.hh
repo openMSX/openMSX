@@ -81,6 +81,7 @@ public:
 
 	string doStep();
 	string doContinue();
+	string doBreak();
 	string setBreakPoint(const vector<string>& tokens);
 	string removeBreakPoint(const vector<string>& tokens);
 	string listBreakPoints() const;
