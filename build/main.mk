@@ -487,7 +487,7 @@ install: all
 	@echo "  C-BIOS..."
 	@mkdir -p $(OPENMSX_INSTALL)/Contrib/cbios
 	@cp -f Contrib/README.cbios $(OPENMSX_INSTALL)/Contrib
-	@cp -f $(addprefix Contrib/cbios/,*.BIN *.txt) \
+	@cp -f $(addprefix Contrib/cbios/,*.BIN *.txt *.rom) \
 		$(OPENMSX_INSTALL)/Contrib/cbios
 	@echo "  Documentation..."
 	@mkdir -p $(OPENMSX_INSTALL)/doc
