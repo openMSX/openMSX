@@ -238,7 +238,7 @@ void CassettePlayer::setSampleRate(int sampleRate)
 	delta = EmuDuration(1.0 / sampleRate);
 }
 
-int *CassettePlayer::updateBuffer(int length)
+int *CassettePlayer::updateBuffer(int length) throw()
 {
 	if (!motor && !forcePlay) {
 		return NULL;

@@ -83,7 +83,7 @@ public:
 	virtual const string& getDescription() const;
 	virtual void setSampleRate(int sampleRate);
 	virtual void setInternalVolume(short newVolume);
-	virtual int* updateBuffer(int length);
+	virtual int* updateBuffer(int length) throw();
 
 private:
 	byte readMem(unsigned address);

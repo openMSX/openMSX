@@ -298,7 +298,7 @@ void AY8910::setSampleRate (int sampleRate)
 }
 
 
-int* AY8910::updateBuffer(int length)
+int* AY8910::updateBuffer(int length) throw()
 {
 	// The 8910 has three outputs, each output is the mix of one of the three
 	// tone generators and of the (single) noise generator. The two are mixed

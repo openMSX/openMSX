@@ -418,7 +418,7 @@ bool YMF278::anyActive()
 	return false;
 }
 
-int* YMF278::updateBuffer(int length)
+int* YMF278::updateBuffer(int length) throw()
 {
 	if (isInternalMuted()) {
 		return NULL;

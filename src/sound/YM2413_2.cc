@@ -1387,7 +1387,7 @@ const string& YM2413_2::getDescription() const
 	return desc;
 }
 
-int* YM2413_2::updateBuffer(int length)
+int* YM2413_2::updateBuffer(int length) throw()
 {
 	if (isInternalMuted()) {
 		return NULL;

@@ -94,7 +94,7 @@ public:
 	virtual const string& getName() const;
 	virtual const string& getDescription() const;
 	virtual void setInternalVolume(short newVolume);
-	virtual int* updateBuffer(int length);
+	virtual int* updateBuffer(int length) throw();
 	virtual void setSampleRate(int sampleRate);
 
 private:

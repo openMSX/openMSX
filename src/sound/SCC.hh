@@ -29,7 +29,7 @@ public:
 	virtual const string& getDescription() const;
 	virtual void setSampleRate(int sampleRate);
 	virtual void setInternalVolume(short maxVolume);
-	virtual int* updateBuffer(int length);
+	virtual int* updateBuffer(int length) throw();
 
 private:
 	inline void checkMute();

@@ -93,7 +93,7 @@ inline int DACSound16S::getSample(const EmuTime &time)
 	return lastValue;
 }
 
-int* DACSound16S::updateBuffer(int length)
+int* DACSound16S::updateBuffer(int length) throw()
 {
 	if (isInternalMuted()) {
 		return NULL;

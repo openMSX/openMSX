@@ -181,7 +181,7 @@ public:
 	virtual const string& getDescription() const;
 	virtual void setInternalVolume(short maxVolume);
 	virtual void setSampleRate(int sampleRate);
-	virtual int* updateBuffer(int length);
+	virtual int* updateBuffer(int length) throw();
 
 private:
 	// Definition of envelope mode

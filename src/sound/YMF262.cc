@@ -1867,7 +1867,7 @@ bool YMF262::checkMuteHelper()
 	return true;
 }
 
-int* YMF262::updateBuffer(int length)
+int* YMF262::updateBuffer(int length) throw()
 {
 	if (isInternalMuted()) {
 		return NULL;
