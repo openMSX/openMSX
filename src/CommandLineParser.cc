@@ -5,6 +5,7 @@
 #include <sstream>
 #include <iostream>
 #include <cstdio>
+#include "ReadDir.hh"
 #include "CommandLineParser.hh"
 #include "HardwareConfig.hh"
 #include "SettingsConfig.hh"
@@ -202,13 +203,11 @@ void CommandLineParser::parse(int argc, char** argv)
 			postRegisterFileTypes();
 			break;
 		case 5: {
-			machineSetting.reset(new StringSetting("machine",
-				"default machine (takes effect next time openMSX is started)",
-				"cbios-msx2"));
+			createMachineSetting();
 	
 			if (!issuedHelp && !haveConfig) {
 				// load default config file in case the user didn't specify one
-				const string& machine = machineSetting->getValue();
+				const string& machine = machineSetting->getValueString();
 				output.printInfo("Using default machine: " + machine);
 				loadMachine(machine);
 				haveConfig = true;
@@ -278,6 +277,43 @@ void CommandLineParser::loadMachine(const string& machine)
 		throw FatalError("Error in \"" + machine + "\" machine (" +
 		                 e.getMessage() + ").");
 	}
+}
+
+static int select(const string& basepath, const struct dirent* d)
+{ 
+	// entry must be a directory and must contain the file "hardwareconfig.xml"
+	string name = basepath + '/' + d->d_name;
+	return FileOperations::isDirectory(name) &&
+	       FileOperations::isRegularFile(name + "/hardwareconfig.xml");
+} 
+
+static void searchMachines(const string& basepath, EnumSetting<int>::Map& machines)
+{ 
+	static int unique = 1;
+	ReadDir dir(basepath);
+	while (dirent* d = dir.getEntry()) {
+		if (select(basepath, d)) {
+			machines[d->d_name] = unique++; // dummy value
+		}
+	}
+}
+
+void CommandLineParser::createMachineSetting()
+{
+	EnumSetting<int>::Map machines;
+	
+	SystemFileContext context;
+	const vector<string>& paths = context.getPaths();
+	for (vector<string>::const_iterator it = paths.begin();
+	     it != paths.end(); ++it) {
+		searchMachines(*it + "machines", machines);
+	}
+	
+	machines["cbios-msx2"] = 0; // default machine
+	
+	machineSetting.reset(new EnumSetting<int>("machine",
+		"default machine (takes effect next time openMSX is started)",
+		0, machines));
 }
 
 // Control option

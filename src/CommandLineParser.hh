@@ -11,6 +11,7 @@
 #include <memory>
 #include "openmsx.hh"
 #include "StringOp.hh"
+#include "EnumSetting.hh"
 
 using std::string;
 using std::list;
@@ -29,7 +30,6 @@ class CliExtension;
 class MSXCassettePlayerCLI;
 class MSXCasCLI;
 class DiskImageCLI;
-class StringSetting;
 
 class CLIOption
 {
@@ -80,6 +80,7 @@ private:
 	bool parseOption(const string& arg,list<string>& cmdLine, byte prio);
 	void postRegisterFileTypes();
 	void loadMachine(const string& machine);
+	void createMachineSetting();
 
 	map<string, OptionData> optionMap;
 	typedef map<string, CLIFileType*, StringOp::caseless> FileTypeMap;
@@ -170,7 +171,7 @@ private:
 	const auto_ptr<MSXCassettePlayerCLI> cassettePlayerCLI;
 	const auto_ptr<MSXCasCLI> casCLI;
 	const auto_ptr<DiskImageCLI> diskImageCLI;
-	auto_ptr<StringSetting> machineSetting;
+	auto_ptr<EnumSetting<int> > machineSetting;
 };
 
 } // namespace openmsx
