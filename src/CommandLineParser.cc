@@ -5,7 +5,6 @@
 #include <sstream>
 #include <iostream>
 #include <cstdio>
-#include <set>
 #include "CommandLineParser.hh"
 #include "libxmlx/xmlx.hh"
 #include "MSXConfig.hh"
@@ -13,6 +12,7 @@
 #include "CartridgeSlotManager.hh"
 #include "CliExtension.hh"
 #include "File.hh"
+#include "FileContext.hh"
 #include "FileOperations.hh"
 #include "CliCommOutput.hh"
 

@@ -4,19 +4,19 @@
 #define __MSXCONFIG_HH__
 
 #include <string>
-#include <list>
+#include <vector>
 #include "ConfigException.hh"
+#include "FileException.hh"
 #include "libxmlx/xmlx.hh"
-#include "FileContext.hh"
-#include "File.hh"
 
 using std::string;
-using std::list;
+using std::vector;
 
 namespace openmsx {
 
 class Config;
 class Device;
+class FileContext;
 
 class MSXConfig
 {
@@ -42,11 +42,8 @@ public:
 	bool hasConfigWithId(const string& id);
 	Device* getDeviceById(const string& id) throw(ConfigException);
 
-	/**
-	 * get a device
-	 */
-	void initDeviceIterator();
-	Device* getNextDevice();
+	typedef vector<Device*> Devices;
+	const Devices& getDevices() const { return devices; }
 
 private:
 	MSXConfig();
@@ -55,11 +52,11 @@ private:
 	void handleDoc(XML::Document* doc, FileContext& context)
 		throw(ConfigException);
 
-	list<XML::Document*> docs;
-	list<Config*> configs;
-	list<Device*> devices;
-
-	list<Device*>::const_iterator device_iterator;
+	typedef vector<XML::Document*> Docs;
+	Docs docs;
+	typedef vector<Config*> Configs;
+	Configs configs;
+	Devices devices;
 
 	// Let GCC-3.2.3 be quiet...
 	friend class dontGenerateWarningOnOlderCompilers;

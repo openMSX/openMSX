@@ -4,7 +4,7 @@
 #include "CartridgeSlotManager.hh"
 #include "MSXConfig.hh"
 #include "FileOperations.hh"
-
+#include "FileContext.hh"
 
 namespace openmsx {
 

@@ -7,7 +7,7 @@
 #include "Config.hh"
 #include "libxmlx/xmlx.hh"
 #include "File.hh"
-
+#include "FileContext.hh"
 
 namespace openmsx {
 

@@ -4,6 +4,8 @@
 #include "MSXConfig.hh"
 #include "Config.hh"
 #include "Device.hh"
+#include "FileContext.hh"
+#include "File.hh"
 
 namespace openmsx {
 
@@ -13,17 +15,17 @@ MSXConfig::MSXConfig()
 
 MSXConfig::~MSXConfig()
 {
-	list<XML::Document*>::iterator doc;
-	for (doc = docs.begin(); doc != docs.end(); doc++) {
-		delete (*doc);
+	for (Docs::const_iterator it = docs.begin();
+	     it != docs.end(); ++it) {
+		delete *it;
 	}
-	list<Config*>::iterator i;
-	for (i = configs.begin(); i != configs.end(); i++) {
-		delete (*i);
+	for (Configs::const_iterator it = configs.begin();
+	     it != configs.end(); ++it) {
+		delete *it;
 	}
-	list<Device*>::iterator j;
-	for (j = devices.begin(); j != devices.end(); j++) {
-		delete (*j);
+	for (Devices::const_iterator it = devices.begin();
+	     it != devices.end(); ++it) {
+		delete *it;
 	}
 }
 
@@ -33,8 +35,8 @@ MSXConfig& MSXConfig::instance()
 	return oneInstance;
 }
 
-void MSXConfig::loadHardware(FileContext &context,
-                             const string &filename)
+void MSXConfig::loadHardware(FileContext& context,
+                             const string& filename)
 	throw(FileException, ConfigException)
 {
 	File file(context.resolve(filename));
@@ -63,8 +65,8 @@ void MSXConfig::loadHardware(FileContext &context,
 	handleDoc(doc, context2);
 }
 
-void MSXConfig::loadSetting(FileContext &context,
-                            const string &filename)
+void MSXConfig::loadSetting(FileContext& context,
+                            const string& filename)
 	throw(FileException, ConfigException)
 {
 	File file(context.resolve(filename));
@@ -73,15 +75,15 @@ void MSXConfig::loadSetting(FileContext &context,
 	handleDoc(doc, context2);
 }
 
-void MSXConfig::loadStream(FileContext &context,
-                           const ostringstream &stream)
+void MSXConfig::loadStream(FileContext& context,
+                           const ostringstream& stream)
 	throw(ConfigException)
 {
 	XML::Document* doc = new XML::Document(stream);
 	handleDoc(doc, context);
 }
 
-void MSXConfig::handleDoc(XML::Document* doc, FileContext &context)
+void MSXConfig::handleDoc(XML::Document* doc, FileContext& context)
 	throw(ConfigException)
 {
 	docs.push_back(doc);
@@ -108,12 +110,12 @@ void MSXConfig::handleDoc(XML::Document* doc, FileContext &context)
 	}
 }
 
-bool MSXConfig::hasConfigWithId(const string &id)
+bool MSXConfig::hasConfigWithId(const string& id)
 {
 	return findConfigById(id);
 }
 
-Config* MSXConfig::getConfigById(const string &id)
+Config* MSXConfig::getConfigById(const string& id)
 	throw(ConfigException)
 {
 	Config* result = findConfigById(id);
@@ -124,51 +126,33 @@ Config* MSXConfig::getConfigById(const string &id)
 	return result;
 }
 
-Config* MSXConfig::findConfigById(const string &id)
+Config* MSXConfig::findConfigById(const string& id)
 {
-	for (list<Config*>::const_iterator i = configs.begin();
-	     i != configs.end();
-	     ++i) {
-		if ((*i)->getId() == id) {
-			return (*i);
+	for (Configs::const_iterator it = configs.begin();
+	     it != configs.end(); ++it) {
+		if ((*it)->getId() == id) {
+			return *it;
 		}
 	}
-	for (list<Device*>::const_iterator i = devices.begin();
-	     i != devices.end();
-	     ++i) {
-		if ((*i)->getId() == id) {
-			return (*i);
+	for (Devices::const_iterator it = devices.begin();
+	     it != devices.end(); ++it) {
+		if ((*it)->getId() == id) {
+			return *it;
 		}
 	}
 	return NULL;
 }
 
-Device* MSXConfig::getDeviceById(const string &id)
+Device* MSXConfig::getDeviceById(const string& id)
 	throw(ConfigException)
 {
-	for (list<Device*>::const_iterator i = devices.begin();
-	     i != devices.end();
-	     ++i) {
-		if ((*i)->getId() == id) {
-			return (*i);
+	for (Devices::const_iterator it = devices.begin();
+	     it != devices.end(); ++it) {
+		if ((*it)->getId() == id) {
+			return *it;
 		}
 	}
 	throw ConfigException("<device> with id:" + id + " not found");
-}
-
-void MSXConfig::initDeviceIterator()
-{
-	device_iterator = devices.begin();
-}
-
-Device* MSXConfig::getNextDevice()
-{
-	if (device_iterator != devices.end()) {
-		Device* t= (*device_iterator);
-		++device_iterator;
-		return t;
-	}
-	return 0;
 }
 
 } // namespace openmsx

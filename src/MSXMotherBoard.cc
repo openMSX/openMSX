@@ -77,12 +77,11 @@ void MSXMotherBoard::reInitMSX()
 void MSXMotherBoard::run(bool powerOn)
 {
 	// Initialise devices.
-	MSXConfig& config = MSXConfig::instance();
-	config.initDeviceIterator();
-	Device* d;
-	while ((d = config.getNextDevice()) != 0) {
-		PRT_DEBUG("Instantiating: " << d->getType());
-		MSXDevice* device = DeviceFactory::create(d, EmuTime::zero);
+	const MSXConfig::Devices& devices = MSXConfig::instance().getDevices();
+	for (MSXConfig::Devices::const_iterator it = devices.begin();
+	     it != devices.end(); ++it) {
+		PRT_DEBUG("Instantiating: " << (*it)->getType());
+		MSXDevice* device = DeviceFactory::create(*it, EmuTime::zero);
 		if (device) {
 			addDevice(device);
 		}

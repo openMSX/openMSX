@@ -1,18 +1,19 @@
 // $Id$
 
+#include <cstdlib>
 #include "CassettePlayer.hh"
 #include "CommandController.hh"
 #include "MSXConfig.hh"
 #include "Config.hh"
 #include "libxmlx/xmlx.hh"
 #include "File.hh"
+#include "FileContext.hh"
 #include "CassetteImage.hh"
 #include "WavImage.hh"
 #include "CasImage.hh"
 #include "DummyCassetteImage.hh"
 #include "Mixer.hh"
 #include "RealTime.hh"
-#include <cstdlib>
 
 
 namespace openmsx {

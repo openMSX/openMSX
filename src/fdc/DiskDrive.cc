@@ -9,6 +9,7 @@
 #include "DSKDiskImage.hh"
 #include "FDC_DirAsDSK.hh"
 #include "Leds.hh"
+#include "FileContext.hh"
 
 namespace openmsx {
 

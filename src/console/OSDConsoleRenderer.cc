@@ -5,6 +5,7 @@
 #include "Config.hh"
 #include "CommandConsole.hh"
 #include "File.hh"
+#include "FileContext.hh"
 #include "IntegerSetting.hh"
 #include <algorithm>
 #include <SDL/SDL.h>

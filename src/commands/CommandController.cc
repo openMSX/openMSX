@@ -9,6 +9,8 @@
 #include "CommandController.hh"
 #include "CommandConsole.hh"
 #include "FileOperations.hh"
+#include "FileContext.hh"
+#include "File.hh"
 #include "MSXConfig.hh"
 #include "Config.hh"
 #include "openmsx.hh"
