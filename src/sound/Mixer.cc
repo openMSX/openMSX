@@ -88,13 +88,15 @@ Mixer::Mixer()
 	openSound();
 	muteHelper();
 
-        CommandController::instance().registerCommand(&soundlogCommand, "soundlog");
-	wavfp=0;
+	CommandController::instance().registerCommand(&soundlogCommand, "soundlog");
+	wavfp = NULL;
 }
 
 Mixer::~Mixer()
 {
-	if (wavfp) endSoundLogging();
+	CommandController::instance().unregisterCommand(&soundlogCommand, "soundlog");
+
+	endSoundLogging();
 	closeSound();
 	
 	throttleSetting.removeListener(this);
@@ -105,9 +107,6 @@ Mixer::~Mixer()
 	masterVolume->removeListener(this);
 	muteSetting->removeListener(this);
 	infoCommand.unregisterTopic("sounddevice", &soundDeviceInfo);
-	
-        CommandController::instance().unregisterCommand(&soundlogCommand, "soundlog");
-	
 }
 
 Mixer& Mixer::instance()
@@ -435,16 +434,13 @@ void Mixer::updtStrm2(unsigned samples)
 
 		mixBuffer[2 * writePtr + 0] = (short)outLeft;
 		mixBuffer[2 * writePtr + 1] = (short)outRight;
+		if (wavfp) {
+			// TODO check write error
+			fwrite(&mixBuffer[2 * writePtr], 4, 1, wavfp);
+			nofWavBytes += 4;
+		}
 		if (++writePtr == bufferSize) {
 			writePtr = 0;
-		}
-		if (wavfp) {
-			uint16 outleftwav(outLeft);
-			uint16 outrightwav(outRight);
-		
-			fwrite(&outleftwav, 2, 1, wavfp);
-			fwrite(&outrightwav, 2, 1, wavfp);
-			nofWavBytes+=4;
 		}
 	}
 }
@@ -530,6 +526,7 @@ string Mixer::SoundlogCommand::getFileName()
 	os << (max_num + 1) << ".wav";
 	return os.str();
 }
+
 Mixer::SoundlogCommand::SoundlogCommand(Mixer& outer_)
 	: outer(outer_)
 {
@@ -564,40 +561,33 @@ string Mixer::SoundlogCommand::startSoundLogging(const vector<string>& tokens)
 		throw SyntaxError();
 	}
 	
-	if (outer.wavfp==0) {
+	if (!outer.wavfp) {
 		outer.startSoundLogging(filename);
 		CliComm::instance().printInfo("Started logging sound to " + filename);
 		return filename;
-	}
-	else {
+	} else {
 		return "Already logging!";
 	}
 }
 
 string Mixer::SoundlogCommand::stopSoundLogging(const vector<string>& tokens)
 {
-	if (tokens.size()!=2) throw SyntaxError();
-	if (outer.wavfp!=0) {
+	if (tokens.size() != 2) throw SyntaxError();
+	if (outer.wavfp) {
 		outer.endSoundLogging();
 		return "SoundLogging stopped.";
-	}
-	else {
+	} else {
 		return "Sound logging was not enabled, are you trying to fool me?";
 	}
 }
 	
 string Mixer::SoundlogCommand::toggleSoundLogging(const vector<string>& tokens)
 {
-	if (tokens.size()!=2) throw SyntaxError();
-	if (outer.wavfp==0) {
-		string filename = getFileName();
-		outer.startSoundLogging(filename);
-		CliComm::instance().printInfo("Started logging sound to " + filename);
-		return filename;
-	} 
-	else {
-		outer.endSoundLogging();
-		return "SoundLogging stopped.";
+	if (tokens.size() != 2) throw SyntaxError();
+	if (!outer.wavfp) {
+		return startSoundLogging(tokens);
+	} else {
+		return stopSoundLogging(tokens);
 	}
 }
 
@@ -612,7 +602,7 @@ string Mixer::SoundlogCommand::help(const vector<string>& /*tokens*/) const
 
 void Mixer::SoundlogCommand::tabCompletion(vector<string>& tokens) const
 {
-	if (tokens.size()==2) {
+	if (tokens.size() == 2) {
 		set<string> cmds;
 		cmds.insert("start");
 		cmds.insert("stop");
@@ -629,51 +619,54 @@ void Mixer::startSoundLogging(const string& filename)
 	 * - error handling, fwrite or fopen may fail miserably
 	 */
 
-	if (wavfp==0) {
-		const char* filenamec=filename.c_str();
-		wavfp=fopen(filenamec, "w");
-		nofWavBytes=0;
-
-		// write wav header:
-		const char* riffstr="RIFF";
-		const char* wavestr="WAVE";
-		const char* datastr="data";
-		const char* fmtstr="fmt ";
-		fwrite(riffstr, 1, 4, wavfp);
-		fwrite(&nofWavBytes, 4, 1, wavfp);
-		fwrite(wavestr, 1, 4, wavfp);
-		fwrite(fmtstr, 1, 4, wavfp);
-		uint32 size=16;
-		uint16 nBitsPerSample=16;
-		fwrite(&size, 4, 1, wavfp);
-		uint16 wFormatTag=1;
-		fwrite(&wFormatTag, 2, 1, wavfp);
-		uint16 nChannels=2;
-		fwrite(&nChannels, 2, 1, wavfp);
-		uint32 nSamplesPerSec=(uint32)frequencySetting->getValue();
-		fwrite(&nSamplesPerSec, 4, 1, wavfp);
-		uint32 nAvgBytesPerSec = 2*nSamplesPerSec*nBitsPerSample/8;
-		fwrite(&nAvgBytesPerSec, 4, 1, wavfp);
-		uint16 wBlockAlign = 2*nBitsPerSample/8;
-		fwrite(&wBlockAlign, 2, 1, wavfp);
-		fwrite(&nBitsPerSample, 2, 1, wavfp);
-		fwrite(datastr, 1, 4, wavfp);
-		fwrite(&nofWavBytes, 4, 1, wavfp);
+	assert(!wavfp); // 
+	
+	wavfp = fopen(filename.c_str(), "wb");
+	if (!wavfp) {
+		// TODO
 	}
+	nofWavBytes = 0;
+
+	// write wav header:
+	const char* riffstr="RIFF";
+	const char* wavestr="WAVE";
+	const char* datastr="data";
+	const char* fmtstr="fmt ";
+	fwrite(riffstr, 1, 4, wavfp);
+	fwrite(&nofWavBytes, 4, 1, wavfp);
+	fwrite(wavestr, 1, 4, wavfp);
+	fwrite(fmtstr, 1, 4, wavfp);
+	uint32 size=16;
+	uint16 nBitsPerSample=16;
+	fwrite(&size, 4, 1, wavfp);
+	uint16 wFormatTag=1;
+	fwrite(&wFormatTag, 2, 1, wavfp);
+	uint16 nChannels=2;
+	fwrite(&nChannels, 2, 1, wavfp);
+	uint32 nSamplesPerSec=(uint32)frequencySetting->getValue();
+	fwrite(&nSamplesPerSec, 4, 1, wavfp);
+	uint32 nAvgBytesPerSec = 2*nSamplesPerSec*nBitsPerSample/8;
+	fwrite(&nAvgBytesPerSec, 4, 1, wavfp);
+	uint16 wBlockAlign = 2*nBitsPerSample/8;
+	fwrite(&wBlockAlign, 2, 1, wavfp);
+	fwrite(&nBitsPerSample, 2, 1, wavfp);
+	fwrite(datastr, 1, 4, wavfp);
+	fwrite(&nofWavBytes, 4, 1, wavfp);
 }
 
 void Mixer::endSoundLogging()
 {
-	if (wavfp!=0) {
-		uint32 totalsize=nofWavBytes+44;
+	if (wavfp) {
+		// TODO error handling
+		uint32 totalsize = nofWavBytes + 44;
 		fseek(wavfp, 4, SEEK_SET);
 		fwrite(&totalsize, 4, 1, wavfp);
 		fseek(wavfp, 40, SEEK_SET);
 		fwrite(&nofWavBytes, 4, 1, wavfp);
 
 		fclose(wavfp);
+		wavfp = NULL;
 	}
-	wavfp=0;
 }
 
 // end stuff for soundlogging
