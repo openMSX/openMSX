@@ -127,9 +127,9 @@ void VDPCmdEngine::reset(const EmuTime &time)
 	
 void VDPCmdEngine::updateTiming(int timing, const EmuTime &time)
 {
+	vdpTiming = timing;
 	if (timingValue != 4) {
 		sync(time);
-		vdpTiming = timing;
 		timingValue = timing;
 		commands[CMD]->updateTiming();
 	}
