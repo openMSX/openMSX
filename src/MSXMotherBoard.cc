@@ -7,14 +7,12 @@
 #include "MSXMotherBoard.hh"
 #include "DummyDevice.hh"
 #include "Leds.hh"
-#include "MSXCPU.hh"
 
 
 MSXMotherBoard::MSXMotherBoard()
 {
 	PRT_DEBUG("Creating an MSXMotherBoard object");
-	config = MSXConfig::instance()->getConfigById("MotherBoard");
-	oneInstance = this;	////
+	
 	for (int i=0; i<256; i++) {
 		IO_In[i]  = DummyDevice::instance();
 		IO_Out[i] = DummyDevice::instance();
@@ -30,25 +28,24 @@ MSXMotherBoard::MSXMotherBoard()
 		}
 	}
 	
-	// Make sure that the MotherBoard is correctly 'init'ed.
-	std::list<const MSXConfig::Device::Parameter*> subslotted_list = config->getParametersWithClass("subslotted");
-	for (std::list<const MSXConfig::Device::Parameter*>::const_iterator i=subslotted_list.begin(); i != subslotted_list.end(); i++) {
+	config = MSXConfig::instance()->getConfigById("MotherBoard");
+	std::list<const MSXConfig::Device::Parameter*> subslotted_list;
+	subslotted_list = config->getParametersWithClass("subslotted");
+	std::list<const MSXConfig::Device::Parameter*>::const_iterator i;
+	for (i=subslotted_list.begin(); i != subslotted_list.end(); i++) {
 		bool hasSubs=false;
-		if ((*i)->value.compare("true") == 0) {
+		if ((*i)->value == "true") {
 			hasSubs=true;
 		}
 		int counter=atoi((*i)->name.c_str());
 		isSubSlotted[counter]=hasSubs;
-     
-		std::cout << "Parameter, name: " << (*i)->name;
-		std::cout << " value: " << (*i)->value;
-		std::cout << " class: " << (*i)->clasz << std::endl;
+		PRT_DEBUG("Slot: " << counter << " expanded: " << hasSubs);
 	}
 }
 
 MSXMotherBoard::~MSXMotherBoard()
 {
-	PRT_DEBUG("Detructing an MSXMotherBoard object");
+	PRT_DEBUG("Destructing an MSXMotherBoard object");
 }
 
 MSXMotherBoard *MSXMotherBoard::instance()
@@ -115,6 +112,7 @@ void MSXMotherBoard::StartMSX()
 	Leds::instance()->setLed(Leds::POWER_ON);
 	Scheduler::instance()->scheduleEmulation();
 }
+
 void MSXMotherBoard::DestroyMSX()
 {
 	std::vector<MSXDevice*>::iterator i;
@@ -185,13 +183,13 @@ void MSXMotherBoard::writeMem(word address, byte value, const EmuTime &time)
 byte MSXMotherBoard::readIO(word prt, const EmuTime &time)
 {
 	byte port = (byte)prt;
-	return IO_In[port]->readIO((byte)port, time);
+	return IO_In[port]->readIO(port, time);
 }
 
 void MSXMotherBoard::writeIO(word prt, byte value, const EmuTime &time)
 {
 	byte port = (byte)prt;
-	IO_Out[port]->writeIO((byte)port, value, time);
+	IO_Out[port]->writeIO(port, value, time);
 }
 
 
