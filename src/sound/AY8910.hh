@@ -11,6 +11,7 @@
 
 #include "openmsx.hh"
 #include "SoundDevice.hh"
+#include "Debuggable.hh"
 
 namespace openmsx {
 
@@ -26,7 +27,7 @@ public:
 	virtual void writeB(byte value, const EmuTime& time) = 0;
 };
 
-class AY8910 : public SoundDevice
+class AY8910 : private SoundDevice, private Debuggable
 {
 public:
 	AY8910(AY8910Interface& interf, short volume, const EmuTime& time);
@@ -36,6 +37,7 @@ public:
 	void writeRegister(byte reg, byte value, const EmuTime& time);
 	void reset(const EmuTime& time);
 
+private:
 	// SoundDevice
 	virtual const string& getName() const;
 	virtual const string& getDescription() const;
@@ -43,7 +45,12 @@ public:
 	virtual void setSampleRate(int sampleRate);
 	virtual int* updateBuffer(int length) throw();
 
-private:
+	// Debuggable
+	virtual unsigned getSize() const;
+	//virtual const string& getDescription() const;  // also in SoundDevice!!
+	virtual byte read(unsigned address);
+	virtual void write(unsigned address, byte value);
+
 	void wrtReg(byte reg, byte value, const EmuTime& time);
 	void checkMute();
 

@@ -14,7 +14,8 @@
 #include <cassert>
 #include "AY8910.hh"
 #include "Mixer.hh"
-
+#include "Debugger.hh"
+#include "Scheduler.hh"
 
 namespace openmsx {
 
@@ -30,18 +31,20 @@ enum Register {
 };
 
 
-AY8910::AY8910(AY8910Interface &interf, short volume, const EmuTime &time)
+AY8910::AY8910(AY8910Interface& interf, short volume, const EmuTime& time)
 	: semiMuted(false), interface(interf)
 {
 	int bufSize = Mixer::instance().registerSound(this,
-	                                               volume, Mixer::MONO);
+	                                              volume, Mixer::MONO);
 	buffer = new int[bufSize];
 	reset(time);
+	Debugger::instance().registerDebuggable(getName(), *this);
 }
 
 
 AY8910::~AY8910()
 {
+	Debugger::instance().unregisterDebuggable(getName(), *this);
 	Mixer::instance().unregisterSound(this);
 	delete[] buffer;
 }
@@ -58,7 +61,7 @@ const string& AY8910::getDescription() const
 	return desc;
 }
 
-void AY8910::reset(const EmuTime &time)
+void AY8910::reset(const EmuTime& time)
 {
 	oldEnable = 0;
 	random = 1;
@@ -76,9 +79,9 @@ void AY8910::reset(const EmuTime &time)
 }
 
 
-byte AY8910::readRegister(byte reg, const EmuTime &time)
+byte AY8910::readRegister(byte reg, const EmuTime& time)
 {
-	assert (reg<=15);
+	assert (reg <= 15);
 	
 	switch (reg) {
 	case AY_PORTA:
@@ -96,10 +99,10 @@ byte AY8910::readRegister(byte reg, const EmuTime &time)
 }
 
 
-void AY8910::writeRegister(byte reg, byte value, const EmuTime &time)
+void AY8910::writeRegister(byte reg, byte value, const EmuTime& time)
 {
-	assert (reg<=15);
-	if ((reg<AY_PORTA) && (reg==AY_ESHAPE || regs[reg]!=value)) {
+	assert (reg <= 15);
+	if ((reg < AY_PORTA) && (reg == AY_ESHAPE || regs[reg] != value)) {
 		// update the output buffer before changing the register
 		Mixer::instance().updateStream(time);
 	}
@@ -107,7 +110,7 @@ void AY8910::writeRegister(byte reg, byte value, const EmuTime &time)
 	wrtReg(reg, value, time);
 	Mixer::instance().unlock();
 }
-void AY8910::wrtReg(byte reg, byte value, const EmuTime &time)
+void AY8910::wrtReg(byte reg, byte value, const EmuTime& time)
 {
 	int old;
 	regs[reg] = value;
@@ -124,7 +127,7 @@ void AY8910::wrtReg(byte reg, byte value, const EmuTime &time)
 	// in the YM2203 data sheets. However, this does NOT apply to the Envelope
 	// period. In that case, period = 0 is half as period = 1.
 	case AY_ACOARSE:
-		regs[AY_ACOARSE] &= 0x0f;
+		regs[AY_ACOARSE] &= 0x0F;
 	case AY_AFINE:
 		old = periodA;
 		periodA = (regs[AY_AFINE] + 256 * regs[AY_ACOARSE]) * updateStep;
@@ -133,7 +136,7 @@ void AY8910::wrtReg(byte reg, byte value, const EmuTime &time)
 		if (countA <= 0) countA = 1;
 		break;
 	case AY_BCOARSE:
-		regs[AY_BCOARSE] &= 0x0f;
+		regs[AY_BCOARSE] &= 0x0F;
 	case AY_BFINE:
 		old = periodB;
 		periodB = (regs[AY_BFINE] + 256 * regs[AY_BCOARSE]) * updateStep;
@@ -142,7 +145,7 @@ void AY8910::wrtReg(byte reg, byte value, const EmuTime &time)
 		if (countB <= 0) countB = 1;
 		break;
 	case AY_CCOARSE:
-		regs[AY_CCOARSE] &= 0x0f;
+		regs[AY_CCOARSE] &= 0x0F;
 	case AY_CFINE:
 		old = periodC;
 		periodC = (regs[AY_CFINE] + 256 * regs[AY_CCOARSE]) * updateStep;
@@ -151,7 +154,7 @@ void AY8910::wrtReg(byte reg, byte value, const EmuTime &time)
 		if (countC <= 0) countC = 1;
 		break;
 	case AY_NOISEPER:
-		regs[AY_NOISEPER] &= 0x1f;
+		regs[AY_NOISEPER] &= 0x1F;
 		old = periodN;
 		periodN = regs[AY_NOISEPER] * updateStep;
 		if (periodN == 0) periodN = updateStep;
@@ -159,21 +162,21 @@ void AY8910::wrtReg(byte reg, byte value, const EmuTime &time)
 		if (countN <= 0) countN = 1;
 		break;
 	case AY_AVOL:
-		regs[AY_AVOL] &= 0x1f;
+		regs[AY_AVOL] &= 0x1F;
 		envelopeA = regs[AY_AVOL] & 0x10;
 		volA = envelopeA ? volE : volTable[regs[AY_AVOL]];
 		validLength = 0;
 		checkMute();
 		break;
 	case AY_BVOL:
-		regs[AY_BVOL] &= 0x1f;
+		regs[AY_BVOL] &= 0x1F;
 		envelopeB = regs[AY_BVOL] & 0x10;
 		volB = envelopeB ? volE : volTable[regs[AY_BVOL]];
 		validLength = 0;
 		checkMute();
 		break;
 	case AY_CVOL:
-		regs[AY_CVOL] &= 0x1f;
+		regs[AY_CVOL] &= 0x1F;
 		envelopeC = regs[AY_CVOL] & 0x10;
 		volC = envelopeC ? volE : volTable[regs[AY_CVOL]];
 		validLength = 0;
@@ -182,7 +185,7 @@ void AY8910::wrtReg(byte reg, byte value, const EmuTime &time)
 	case AY_EFINE:
 	case AY_ECOARSE:
 		old = periodE;
-		periodE = ((regs[AY_EFINE] + 256 * regs[AY_ECOARSE])) * (2*updateStep);
+		periodE = ((regs[AY_EFINE] + 256 * regs[AY_ECOARSE])) * (2 * updateStep);
 		if (periodE == 0) periodE = updateStep;
 		countE += periodE - old;
 		if (countE <= 0) countE = 1;
@@ -201,8 +204,8 @@ void AY8910::wrtReg(byte reg, byte value, const EmuTime &time)
 		 *   1 1 1 0  /\/\ 
 		 *   1 1 1 1  /___ 
 		 */
-		regs[AY_ESHAPE] &= 0x0f;
-		attack = (regs[AY_ESHAPE] & 0x04) ? 0x0f : 0x00;
+		regs[AY_ESHAPE] &= 0x0F;
+		attack = (regs[AY_ESHAPE] & 0x04) ? 0x0F : 0x00;
 		if ((regs[AY_ESHAPE] & 0x08) == 0) {
 			// if Continue = 0, map the shape to the equivalent one which has Continue = 1
 			hold = true;
@@ -212,7 +215,7 @@ void AY8910::wrtReg(byte reg, byte value, const EmuTime &time)
 			alternate = regs[AY_ESHAPE] & 0x02;
 		}
 		countE = periodE;
-		countEnv = 0x0f;
+		countEnv = 0x0F;
 		holding = false;
 		volE = volTable[countEnv ^ attack];
 		if (envelopeA) { volA = volE;  validLength = 0; }
@@ -277,7 +280,7 @@ void AY8910::setInternalVolume(short newVolume)
 	// calculate the volume->voltage conversion table
 	// The AY-3-8910 has 16 levels, in a logarithmic scale (3dB per step)
 	double out = newVolume;		// avoid clipping
-	for (int i=15; i>0; i--) {
+	for (int i = 15; i > 0; --i) {
 		volTable[i] = (unsigned int)(out + 0.5);	// round to nearest
 		out *= 0.707945784384;			// 1/(10^(3/20)) = 1/(3dB)
 	}
@@ -328,7 +331,7 @@ int* AY8910::updateBuffer(int length) throw()
 	//PRT_DEBUG("AY8910: calc buffer");
 	
 	if (regs[AY_ENABLE] & 0x01) {	// disabled
-		if (countA <= length*FP_UNIT) countA += length*FP_UNIT;
+		if (countA <= length * FP_UNIT) countA += length * FP_UNIT;
 		outputA = 1;
 	} else if (regs[AY_AVOL] == 0) {
 		// note that I do count += length, NOT count = length + 1. You might think
@@ -512,6 +515,25 @@ int* AY8910::updateBuffer(int length) throw()
 		length--;
 	}
 	return buffer;
+}
+
+
+// Debuggable
+
+unsigned AY8910::getSize() const
+{
+	return 0x10;
+}
+
+byte AY8910::read(unsigned address)
+{
+	return readRegister(address, Scheduler::instance().getCurrentTime());
+}
+
+void AY8910::write(unsigned address, byte value)
+{
+	return writeRegister(address, value,
+	                     Scheduler::instance().getCurrentTime());
 }
 
 } // namespace openmsx
