@@ -56,7 +56,15 @@ inline static GLRasterizer::Pixel GLMapRGB(int r, int g, int b)
 
 inline static void GLSetColour(GLRasterizer::Pixel colour)
 {
-	glColor3ub(colour & 0xFF, (colour >> 8) & 0xFF, (colour >> 16) & 0xFF);
+	if (OPENMSX_BIGENDIAN) {
+		glColor3ub(
+			(colour >> 24) & 0xFF, (colour >> 16) & 0xFF, (colour >> 8) & 0xFF
+			);
+	} else {
+		glColor3ub(
+			colour & 0xFF, (colour >> 8) & 0xFF, (colour >> 16) & 0xFF
+			);
+	}
 }
 
 inline static void GLSetTexEnvCol(GLRasterizer::Pixel colour) {
@@ -251,7 +259,7 @@ GLRasterizer::GLRasterizer(VDP* vdp)
 
 	GLint size;
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size);
-	printf("Max texture size: %d\n", size);
+	//printf("Max texture size: %d\n", size);
 	glTexImage2D(
 		GL_PROXY_TEXTURE_2D,
 		0,
@@ -270,7 +278,7 @@ GLRasterizer::GLRasterizer(VDP* vdp)
 		GL_TEXTURE_WIDTH,
 		&size
 		);
-	printf("512*1 texture fits: %d (512 if OK, 0 if failed)\n", size);
+	//printf("512*1 texture fits: %d (512 if OK, 0 if failed)\n", size);
 
 	// Clear graphics buffers.
 	glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -505,7 +513,7 @@ void GLRasterizer::precalcColourIndex0(DisplayMode mode, bool transparency) {
 	if (mode.getByte() == DisplayMode::GRAPHIC7) {
 		transparency = false;
 	}
-	
+
 	int bgColour = 0;
 	if (transparency) {
 		bgColour = vdp->getBackgroundColour();
@@ -516,7 +524,7 @@ void GLRasterizer::precalcColourIndex0(DisplayMode mode, bool transparency) {
 		}
 	}
 	palFg[0] = palBg[bgColour];
-	
+
 	// Any line containing pixels of colour 0 must be repainted.
 	// We don't know which lines contain such pixels,
 	// so we have to repaint them all.
