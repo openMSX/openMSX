@@ -534,12 +534,12 @@ renderer
 renshaturbo
 -----------
 
-  Determine the speed of the built-in autofire on some Japanese MSX models (including the Turbo R machines)
+  Sets the speed of the built-in autofire on some Japanese MSX models (including
+  the Turbo R machines)
 
   usage:
-    renshaturbo +  increase speed with one step
-    renshaturbo -  decrease speed with one step
-    renshaturbo N  set speed to value N, from 0 to 100 (0 means off)
+    set renshaturbo        shows the current renshaturbo value
+    set renshaturbo <num>  set speed to value <num>, from 0 to 100 (0 means off)
 
 rs232-inputfilename
 -------------------
