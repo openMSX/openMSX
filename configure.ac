@@ -95,7 +95,7 @@ AC_CHECK_HEADERS(sys/socket.h, [
 AC_CHECK_HEADERS(linux/rtc.h, [
   openmsx_have_linux_rtc_h=yes
 ],[
-  openmsx_have_linu_rtc_h=no
+  openmsx_have_linux_rtc_h=no
 ]
 )
 
