@@ -8,12 +8,6 @@
 #include "CPU.hh"
 #include "EmuTime.hh"
 
-#undef  _CPU_
-#define _CPU_ R800
-#undef  ResumeFunc
-#define ResumeFunc R800_ResumeFunc
-#undef  CLOCK_FREQ
-#define CLOCK_FREQ 7159090
 
 namespace openmsx {
 
@@ -37,6 +31,7 @@ class R800 : public CPU {
 		static const int MEM_DELAY1 = 0;
 		static const int MEM_DELAY2 = 1;
 
+		static const int CLOCK_FREQ = 7159090;
 		EmuTimeFreq<CLOCK_FREQ> currentTime;
 
 		// opcode function pointers

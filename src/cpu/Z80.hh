@@ -15,12 +15,6 @@
 #include "CPU.hh"
 #include "EmuTime.hh"
 
-#undef  _CPU_
-#define _CPU_ Z80
-#undef  ResumeFunc
-#define ResumeFunc Z80_ResumeFunc
-#undef  CLOCK_FREQ
-#define CLOCK_FREQ 3579545
 
 namespace openmsx {
 
@@ -38,13 +32,14 @@ class Z80 : public CPU {
 
 	private:
 		#include "CPUCore.n1"
-		
+
 		static const int IO_DELAY1 = 1;
 		static const int IO_DELAY2 = 3;
 		static const int MEM_DELAY1 = 1;
 		static const int MEM_DELAY2 = 2;
 		static const int WAIT_CYCLES = 1;
-		
+
+		static const int CLOCK_FREQ = 3579545;
 		EmuTimeFreq<CLOCK_FREQ> currentTime;
 
 		// opcode function pointers
