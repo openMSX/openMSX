@@ -39,6 +39,11 @@ bool Console::unRegisterCommand(ConsoleInterface *registeredObject,char *command
   assert(false);
 }
 
+void Console::printOnConsole(std::string text)
+{
+  CON_Out(ConsoleStruct,text.c_str());
+}
+
 
 	// SDL dependend stuff
 	// TODO: make SDL independend if possible
@@ -57,7 +62,13 @@ void Console::hookUpConsole(SDL_Surface *Screen)
        //now that ConsoleStruct exists we can register listener
        // otherwise there is nothing to deliver the events to.
        // and the hotkey could enable a non existing console
+       
+       /*
+       If register as synclistener it is automaticcally also registered as asynclistener and while
+       therefore get double events delivered !!
        EventDistributor::instance()->registerSyncListener(SDL_KEYDOWN, oneInstance);
+       */
+       EventDistributor::instance()->registerAsyncListener(SDL_KEYDOWN, oneInstance);
        HotKey::instance()->registerAsyncHotKey(SDLK_F10, oneInstance);
        }
 

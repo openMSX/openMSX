@@ -34,6 +34,7 @@ Scheduler::Scheduler()
 	HotKey::instance()->registerAsyncHotKey(SDLK_F12, this);
 	HotKey::instance()->registerAsyncHotKey(SDLK_F11, this);
 	Console::instance()->registerCommand(this, "quit");
+	Console::instance()->registerCommand(this, "pause");
 }
 
 Scheduler::~Scheduler()
@@ -191,12 +192,23 @@ void Scheduler::signalHotKey(SDLKey key) {
 
 void Scheduler::ConsoleCallback(char *string)
 {
-  // only quit is registered :-)
+  if (0 == strncmp(string,"quit",4)){
+    Console::instance()->printOnConsole("Quit command temporarly disabled");
+  } else {
+    Console::instance()->printOnConsole("Pause command temporarly disabled");
+  }
+  /* only quit is registered :-)
   stopScheduling();
   unpause();
+  */
 }
 
 void Scheduler::ConsoleHelp(char *string)
 {
-  //nothing for the moment
+  //no for the moment
+  if (0 == strncmp(string,"quit",4)){
+    Console::instance()->printOnConsole("Use this command to stop the emulator");
+  } else {
+    Console::instance()->printOnConsole("Unexpected behaviour");
+  }
 }

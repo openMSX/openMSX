@@ -3,6 +3,7 @@
 #ifndef __CONSOLE_HH__
 #define __CONSOLE_HH__
 #include <SDL/SDL.h>
+#include <string>
 #include "ConsoleSource/CON_console.hh"
 #include "ConsoleSource/CON_consolecommands.hh"
 #include "openmsx.hh"
@@ -21,7 +22,7 @@ class Console : private EventListener , private HotKeyListener
 		// the bool returns indicate failure or succes.
 		bool registerCommand(ConsoleInterface *registeredObject,char *command);
 		bool unRegisterCommand(ConsoleInterface *registeredObject,char *command);
-
+		void printOnConsole(std::string text);
 		// SDL dependend stuff
 		// TODO: make SDL independend if possible
 

@@ -76,33 +76,34 @@ void CON_TabCompletion(ConsoleInformation *console)
 	int		*location = &console->StringLocation;
 	char		*CommandLine = console->ConsoleLines[0];
 	CommandInfo	*CurrentCommand;
-
-
+	CommandInfo	*MatchingCommand;
+	int		commandlength;
+	
+	// need to check only up until the first space otherwise 
+	// the user is typing options, which will need an extra routine :-)
+	// if there is a space then the command must be already completed
+	for (int i=0;strlen(CommandLine)<=i;i++){
+		if (CommandLine[i] == ' ') return;
+		}
+	
 	/* Find all the commands that match */
 	CurrentCommand = Commands;
 	while(CurrentCommand)
 	{
-		if(0 == strncmp(CommandLine, CurrentCommand->CommandWord, strlen(CommandLine)))
-		Matches++;
+		if(0 == strncmp(CommandLine, CurrentCommand->CommandWord, strlen(CommandLine))){
+		  MatchingCommand=CurrentCommand;
+		  Matches++;
+		}
 		CurrentCommand = CurrentCommand->NextCommand;
 	}
 	
-	/* if we got one match, find it again and execute it */
+	/* if we got one match, we select it */
 	if(Matches == 1)
 	{
-		CurrentCommand = Commands;
-		while(CurrentCommand)
-		{
-			if(0 == strncmp(CommandLine, CurrentCommand->CommandWord, strlen(CommandLine)))
-			{
-				strcpy(CommandLine, CurrentCommand->CommandWord);
-				CommandLine[strlen(CurrentCommand->CommandWord)] = ' ';
-				*location = strlen(CurrentCommand->CommandWord)+1;
-				CON_UpdateConsole(console);
-				break;
-			}
-			CurrentCommand = CurrentCommand->NextCommand;
-		}
+		strcpy(CommandLine, MatchingCommand->CommandWord);
+		CommandLine[strlen(MatchingCommand->CommandWord)] = ' ';
+		*location = strlen(MatchingCommand->CommandWord)+1;
+		CON_UpdateConsole(console);
 	}
 	else if(Matches > 1)/* multiple matches so print them out to the user */
 	{
@@ -117,7 +118,7 @@ void CON_TabCompletion(ConsoleInformation *console)
 		}
 	}
 	else if(Matches == 0)
-		CON_Out(console, "Bad Command");
+		CON_Out(console, "No matching command found!");
 }
 
 
