@@ -70,7 +70,7 @@ JoystickPorts::JoystickPorts(const EmuTime &time)
 	ports[0] = new JoystickPort("joyporta", time);
 	ports[1] = new JoystickPort("joyportb", time);
 
-	mouse = new Mouse();
+	mouse = new Mouse(time);
 	joynet = new JoyNet();
 	int i=0;
 	try {

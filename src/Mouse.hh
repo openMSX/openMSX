@@ -5,12 +5,13 @@
 
 #include "JoystickDevice.hh"
 #include "EventListener.hh"
+#include "EmuTime.hh"
 
 
 class Mouse : public JoystickDevice, EventListener
 {
 	public:
-		Mouse();
+		Mouse(const EmuTime &time);
 		virtual ~Mouse();
 		
 		//Pluggable
@@ -35,5 +36,6 @@ class Mouse : public JoystickDevice, EventListener
 		int faze;
 		int xrel, yrel;
 		int curxrel, curyrel;
+		EmuTimeFreq<1000> lastTime;	// ms
 };
 #endif

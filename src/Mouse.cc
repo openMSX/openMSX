@@ -5,10 +5,8 @@
 #include "EventDistributor.hh"
 
 
-//TODO implement timeout
-
-
-Mouse::Mouse()
+Mouse::Mouse(const EmuTime &time)
+	: lastTime(time)
 {
 	status = JOY_BUTTONA | JOY_BUTTONB;
 	faze = FAZE_YLOW;
@@ -42,6 +40,13 @@ const std::string &Mouse::getName() const
 //JoystickDevice
 byte Mouse::read(const EmuTime &time)
 {
+	const int TIMEOUT = 10;	// TODO find a good value
+	
+	int delta = lastTime.getTicksTill(time);
+	lastTime = time;
+	if (delta >= TIMEOUT) {
+		faze = FAZE_YLOW;
+	}
 	switch (faze) {
 		case FAZE_XHIGH:
 			return (((xrel / SCALE) >> 4) & 0x0f) | status;

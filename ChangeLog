@@ -1,6 +1,12 @@
 $Id$
 
 2003-03-16 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented timeout for reading mouse:
+	   - this fixes the '"plug joyporta mouse" in settings.xml' bug
+	   - current timeout is 1/100s, I've no idea of the timeout
+	     value of a real MSX mouse
+
+2003-03-16 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Various minor optimizations / cleanups, mostly better cache for
           unmapped memory regions
 
