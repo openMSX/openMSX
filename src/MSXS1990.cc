@@ -13,7 +13,8 @@ MSXS1990::MSXS1990(MSXConfig::Device *config, const EmuTime &time)
 	MSXCPUInterface::instance()->register_IO_Out(0xE4,this);
 	MSXCPUInterface::instance()->register_IO_Out(0xE5,this);
 	reset(time);
-	frontSwitch = 0;	// doesn't change on reset
+	//frontSwitch = 0;	// doesn't change on reset
+	frontSwitch = 64;	// doesn't change on reset
 }
 
 MSXS1990::~MSXS1990()

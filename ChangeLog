@@ -1,5 +1,9 @@
 $Id$
 
+2002-11-18 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Mapped TurboR keys to left and right windows key:
+	   I haven't checked this, so possible I swapped left and right
+
 2002-11-17 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* a few WD2793 updates (David please review):
 	   MicrosolFDC partly works now: in BASIC the commands files load save

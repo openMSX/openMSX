@@ -29,7 +29,7 @@ class Keyboard : public EventListener
 		//EventListener
 		virtual bool signalEvent(SDL_Event &event);
 		
-		static const int NR_KEYROWS = 11;
+		static const int NR_KEYROWS = 12;
 
 	private:
 		void doKeyGhosting();

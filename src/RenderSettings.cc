@@ -2,8 +2,6 @@
 
 #include "RenderSettings.hh"
 
-// Force template instantiation
-template class EnumSetting<RenderSettings::Accuracy>;
 
 RenderSettings::RenderSettings()
 {
