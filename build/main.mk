@@ -456,17 +456,19 @@ install: all
 	@cp $(addprefix doc/,$(INSTALL_DOCS)) $(INSTALL_BASE)/doc
 	@mkdir -p $(INSTALL_BASE)/doc/manual
 	@cp $(addprefix doc/manual/,*.html *.css) $(INSTALL_BASE)/doc/manual
+ifeq ($(USE_SYMLINK),true)
 	@echo "  Creating symlinks..."
 	@ln -sf National_CF-1200 $(INSTALL_BASE)/share/machines/msx1
 	@ln -sf Philips_NMS_8250 $(INSTALL_BASE)/share/machines/msx2
 	@ln -sf Panasonic_FS-A1FX $(INSTALL_BASE)/share/machines/msx2plus
 	@ln -sf Panasonic_FS-A1GT $(INSTALL_BASE)/share/machines/turbor
-	@if [ `id -u` -eq 0 ]; \
+	@if [ -d /usr/local/bin -a -w /usr/local/bin ]; \
 		then ln -sf $(INSTALL_BASE)/bin/$(BINARY_FILE) /usr/local/bin/openmsx; \
-		else if test -d ~/bin; \
+		else if [ -d ~/bin ]; \
 			then ln -sf $(INSTALL_BASE)/bin/$(BINARY_FILE) ~/bin/openmsx; \
 			fi; \
 		fi
+endif
 	@echo "  Setting permissions..."
 	@chmod -R a+rX $(INSTALL_BASE)
 	@echo "Installation complete... have fun!"
