@@ -11,6 +11,9 @@ $Id$
 	              button-B               left alt
 	   - TODO mapping should become configurable
 	   - TODO you should be able to configure more than one keyjoystick
+	* Implemented V9958 CMD bit:
+	   I don't know any program that actually uses this, so it is 
+	   not yet tested
 
 2003-04-04 David Heremans <david.heremans@gnu-linux.net>
 	* Getting everything in /opt/openmsx installed, no links yet

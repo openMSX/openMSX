@@ -296,6 +296,13 @@ public:
 			&& ((controlRegs[8] & 0x02) == 0x00);
 	}
 
+	/** Are commands possible in non Graphic modes? (V9958 only)
+	  * @return True iff CMD bit set.
+	  */
+	inline bool getCmdBit() {
+		return controlRegs[25] & 0x40;
+	}
+
 	/** Gets the number of VDP clockticks (21MHz) per frame.
 	  */
 	inline int getTicksPerFrame() {

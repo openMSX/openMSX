@@ -779,7 +779,8 @@ void VDPCmdEngine::reportVdpCommand()
 
 void VDPCmdEngine::executeCommand(const EmuTime &time)
 {
-	// V9938 ops only work in SCREENs 5-8.
+	// V9938 ops only work in SCREEN 5-8.
+	// V9958 ops work in non SCREEN 5-8 when CMD bit is set
 	if (scrMode < 0) return;
 
 	currentTime = time;
@@ -979,7 +980,12 @@ void VDPCmdEngine::updateDisplayMode(DisplayMode mode, const EmuTime &time)
 		scrMode = 3;
 		break;
 	default:
-		scrMode = -1; // no commands
+		if (vdp->getCmdBit()) {
+			scrMode = 3;	// like GRAPHIC7
+					// TODO timing might be different
+		} else {
+			scrMode = -1;	// no commands
+		}
 		break;
 	}
 }
