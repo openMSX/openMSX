@@ -10,6 +10,13 @@ MSXF4Device::MSXF4Device(MSXConfig::Device *config, const EmuTime &time)
 	MSXCPUInterface::instance()->register_IO_In (0xF4,this);
 	MSXCPUInterface::instance()->register_IO_Out(0xF4,this);
 	reset(time);
+
+	if (config->hasParameter("inverted") &&
+	    config->getParameterAsBool("inverted")) {
+		inverted = true;
+	} else {
+		inverted = false;
+	}
 }
 
 MSXF4Device::~MSXF4Device()
@@ -23,7 +30,11 @@ void MSXF4Device::reset(const EmuTime &time)
 
 byte MSXF4Device::readIO(byte port, const EmuTime &time)
 {
-	return status;
+	if (inverted) {
+		return status ^ 0xFF;
+	} else {
+		return status;
+	}
 }
 
 void MSXF4Device::writeIO(byte port, byte value, const EmuTime &time)
