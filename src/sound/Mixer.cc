@@ -1,6 +1,7 @@
 // $Id$
 
 #include <cassert>
+#include <algorithm>
 #include "Mixer.hh"
 #include "MSXCPU.hh"
 #include "RealTime.hh"
@@ -11,7 +12,7 @@
 Mixer::Mixer()
 	: muteCount(0)
 {
-#ifdef DEBUG
+#ifdef DEBUG_MIXER
 	nbClipped = 0;
 #endif
 	// default values
@@ -91,11 +92,18 @@ void Mixer::unregisterSound(SoundDevice *device)
 	// Note: this code assumes the given device was registered exactly once!
 	
 	lock();
-	for (int mode = 0; mode < NB_MODES; mode++)
-		devices[mode].remove(device);
-	buffers.pop_back();	// remove one entry
-	if (buffers.size() == 0)
+	for (int mode = 0; mode < NB_MODES; mode++) {
+		std::vector<SoundDevice*>::iterator it;
+		it = std::find(devices[mode].begin(), devices[mode].end(), device);
+		if (it != devices[mode].end()) {
+			std::swap(*it, devices[mode].back());
+			devices[mode].pop_back();
+			buffers.pop_back();
+		}
+	}
+	if (buffers.size() == 0) {
 		SDL_PauseAudio(1);	// pause when last dev unregisters
+	}
 	unlock();
 }
 
@@ -147,34 +155,39 @@ void Mixer::updtStrm(int samples)
 	int unmuted = 0;
 	for (int mode = 0; mode < NB_MODES; mode++) {
 		modeOffset[mode] = unmuted;
-		std::list<SoundDevice*>::iterator i;
+		std::vector<SoundDevice*>::iterator i;
 		for (i = devices[mode].begin(); i != devices[mode].end(); i++) {
 			int *buf = (*i)->updateBuffer(samples);
-			if (buf != NULL)
+			if (buf != NULL) {
 				buffers[unmuted++] = buf;
+			}
 		}
 	}
 	for (int j=0; j<samples; j++) {
 		int buf = 0;
 		int both = 0;
-		while (buf < modeOffset[MONO+1])
+		while (buf < modeOffset[MONO+1]) {
 			both  += buffers[buf++][j];
+		}
 		int left = both;
-		while (buf < modeOffset[MONO_LEFT+1])
+		while (buf < modeOffset[MONO_LEFT+1]) {
 			left  += buffers[buf++][j];
+		}
 		int right = both;
-		while (buf < modeOffset[MONO_RIGHT+1])
+		while (buf < modeOffset[MONO_RIGHT+1]) {
 			right += buffers[buf++][j];
+		}
 		while (buf < unmuted) {
 			left  += buffers[buf]  [2*j+0];
 			right += buffers[buf++][2*j+1];
 		}
 		
 		// clip
-		#ifdef DEBUG
-		if (left>32767 || left<-32768 || right>32767 || right<-32768) {
+		#ifdef DEBUG_MIXER
+		if ((left  > 32767) || (left  < -32768) ||
+		    (right > 32767) || (right < -32768)) {
 			nbClipped++;
-			PRT_DEBUG("Mixer: clipped "<<nbClipped);
+			PRT_DEBUG("Mixer: clipped " << nbClipped);
 		}
 		#endif
 		if      (left  > 32767)  left  =  32767;

@@ -3,8 +3,11 @@
 #ifndef __MIXER_HH__
 #define __MIXER_HH__
 
+#ifdef DEBUG
+//#define DEBUG_MIXER
+#endif
+
 #include <SDL/SDL.h>
-#include <list>
 #include <vector>
 #include "EmuTime.hh"
 #include "Settings.hh"
@@ -79,7 +82,7 @@ class Mixer
 		int muteCount;
 
 		SDL_AudioSpec audioSpec;
-		std::list<SoundDevice*> devices[NB_MODES];
+		std::vector<SoundDevice*> devices[NB_MODES];
 		std::vector<int*> buffers;
 		
 		short* mixBuffer;
@@ -98,7 +101,7 @@ class Mixer
 				                         const EmuTime &time);
 		} muteSetting;
 
-#ifdef DEBUG
+#ifdef DEBUG_MIXER
 		int nbClipped;
 #endif
 };
