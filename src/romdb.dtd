@@ -1,5 +1,5 @@
 <!ELEMENT romdb (rom)+>
-<!ELEMENT rom (md5,romtype)>
+<!ELEMENT rom (md5+,romtype)>
 <!ATTLIST rom
               id CDATA #IMPLIED>
 <!ELEMENT md5 (#PCDATA)>

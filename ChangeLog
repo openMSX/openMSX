@@ -1,5 +1,8 @@
 $Id$
 
+2002-08-04 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Allow multiple "md5" tags per "rom" tag
+
 2002-08-03 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* wrote doc/commands.txt
 	* cleanups, small fixes in RomTypes and MSXRom

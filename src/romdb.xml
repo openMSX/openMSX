@@ -41,7 +41,7 @@
   </rom>
   <rom id="War of the Dead">
     <md5>ae08cb529c454ee7477ac61662e02858</md5>
-<!--<md5>41f4c112671b666220137f721e1460aa</md5>-->
+    <md5>41f4c112671b666220137f721e1460aa</md5>
     <romtype>8kB</romtype>
   </rom>
   <rom id="Xevious">

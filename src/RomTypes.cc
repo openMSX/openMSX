@@ -148,11 +148,14 @@ MapperType RomTypes::searchDataBase(byte* data, int size)
 	if (!init) {
 		init = true;
 		XML::Document doc("romdb.xml");
-		std::list<XML::Element*>::iterator it = doc.root->children.begin();
-		for ( ; it != doc.root->children.end(); it++) {
-			const std::string md5((*it)->getElementPcdata("md5"));
-			const std::string romtype((*it)->getElementPcdata("romtype"));
-			romDB[md5] = romtype;
+		std::list<XML::Element*>::iterator it1 = doc.root->children.begin();
+		for ( ; it1 != doc.root->children.end(); it1++) {
+			const std::string romType((*it1)->getElementPcdata("romtype"));
+			std::list<XML::Element*>::iterator it2 = (*it1)->children.begin();
+			for ( ; it2 != (*it1)->children.end(); it2++) {
+				if ((*it2)->name == "md5")
+					romDB[(*it2)->pcdata] = romType;
+			}
 		}
 	}
 	
