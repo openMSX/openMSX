@@ -1,5 +1,8 @@
 $Id$
 
+2002-02-23 Maarten ter Huurne <mth@stack.nl>
+	* Fixed Graphic7 border colour.
+
 2002-02-22 Maarten ter Huurne <mth@stack.nl>
 	* Implemented VDP overscan.
 	  Can use some more cleanup, but it works.

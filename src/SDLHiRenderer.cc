@@ -2,7 +2,6 @@
 
 /*
 TODO:
-- What is the correct border colour in Graphic 7?
 - Implement sprite colour in Graphic 7.
 - Implement sprite pixels in Graphic 5.
 - Is it possible to combine dirtyPattern and dirtyColour into a single
@@ -115,6 +114,32 @@ template <class Pixel> inline Pixel *SDLHiRenderer<Pixel>::getLinePtr(
 {
 	return (Pixel *)( (byte *)displayCache->pixels
 		+ line * displayCache->pitch );
+}
+
+template <class Pixel> inline Pixel SDLHiRenderer<Pixel>::graphic7Colour(
+	byte index)
+{
+	return V9938_COLOURS
+			[(index & 0x1C) >> 2]
+			[(index & 0xE0) >> 5]
+			[((index & 0x03) << 1) | ((index & 0x02) >> 1)];
+}
+
+// TODO: Cache this?
+template <class Pixel> inline Pixel SDLHiRenderer<Pixel>::getBorderColour()
+{
+	// TODO: Used knowledge of V9938 to merge two 4-bit colours
+	//       into a single 8 bit colour for SCREEN8.
+	//       Keep doing that or make VDP handle SCREEN8 differently?
+	return
+		( vdp->getDisplayMode() == 0x1C
+		? graphic7Colour(
+			vdp->getBackgroundColour() | (vdp->getForegroundColour() << 4))
+		: palBg[ vdp->getDisplayMode() == 0x10
+		       ? vdp->getBackgroundColour() & 3
+		       : vdp->getBackgroundColour()
+		       ]
+		);
 }
 
 // TODO: Verify on real MSX2 what non-documented modes do.
@@ -711,16 +736,10 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderGraphic7(
 {
 	int addr = line << 7;
 	do {
-		byte rgb = vdp->getVRAM(addr);
-		pixelPtr[0] = pixelPtr[1] = V9938_COLOURS
-			[(rgb & 0x1C) >> 2]
-			[(rgb & 0xE0) >> 5]
-			[((rgb & 0x03) << 1) | ((rgb & 0x02) >> 1)];
-		rgb = vdp->getVRAM(0x10000 | addr);
-		pixelPtr[2] = pixelPtr[3] = V9938_COLOURS
-			[(rgb & 0x1C) >> 2]
-			[(rgb & 0xE0) >> 5]
-			[((rgb & 0x03) << 1) | ((rgb & 0x02) >> 1)];
+		pixelPtr[0] = pixelPtr[1] =
+			graphic7Colour(vdp->getVRAM(addr));
+		pixelPtr[2] = pixelPtr[3] =
+			graphic7Colour(vdp->getVRAM(0x10000 | addr));
 		pixelPtr += 4;
 	} while (++addr & 127);
 }
@@ -933,14 +952,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::blankPhase(
 	if (rect.h > 0) {
 		rect.y *= 2;
 		rect.h *= 2;
-		// SCREEN6 has separate even/odd pixels in the border.
-		// TODO: Implement the case that even_colour != odd_colour.
-		Pixel bgColour = palBg[
-			( vdp->getDisplayMode() == 0x10
-			? vdp->getBackgroundColour() & 3
-			: vdp->getBackgroundColour()
-			)];
-
+		Pixel bgColour = getBorderColour();
 		// Note: return code ignored.
 		SDL_FillRect(screen, &rect, bgColour);
 	}
@@ -1070,13 +1082,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	// this is implemented using overdraw.
 	// TODO: Does the extended border clip sprites as well?
 
-	// SCREEN6 has separate even/odd pixels in the border.
-	// TODO: Implement the case that even_colour != odd_colour.
-	Pixel bgColour = palBg[
-		( vdp->getDisplayMode() == 0x10
-		? vdp->getBackgroundColour() & 3
-		: vdp->getBackgroundColour()
-		)];
+	Pixel bgColour = getBorderColour();
 	dest.x = 0;
 	dest.y = (nextLine - lineRenderTop) * 2;
 	dest.w = getLeftBorder();
