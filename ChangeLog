@@ -1,5 +1,14 @@
 $Id$
 
+2001-06-19 Joost Yervante Damad <j.damad@qahwah.net>
+
+	* added autoconf support for libxml
+	* added some $Id$ magic tags
+
+2001-06-18 Joost Yervante Damad <j.damad@qahwah.net>
+
+	* Emutime tweaks as per Wouter and David
+
 2001-06-16 Joost Yervante Damad <j.damad@qahwah.net>
 
 	* added autoconf support for libxml++
