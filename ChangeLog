@@ -1,5 +1,10 @@
 $Id$
 
+2003-09-03 Maarten ter Huurne <maarten@treewalker.org>
+	* Fixed bug: when CPU has to force extra device scheduling, it should
+	  schedule all devices until the I/O time, not just the devices until
+	  the schedule limit timestamp.
+
 2003-08-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* more VDPCmdEngine optimizations
 	* fix VDPCmdEngine register status at end of cmd, should now also be
@@ -27,7 +32,7 @@ $Id$
 	     least it doesn't crash anymore
 
 2003-08-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
-	* Improved tabcompleteion for plug command:
+	* Improved tabcompletion for plug command:
 	   - only complete pluggables that will fit in the selected connector
 	* Made it easier to switch between MSX-MUSIC cores:
 	   - use the parameter "alternative" in the device config section
@@ -36,6 +41,14 @@ $Id$
 	* Made the keys of the key joystick configurable.
 	  TODO: make it possible to have more than one key joystick.
 	* Already some cleanups to make it robust against bad configs.
+
+2003-08-23 Maarten ter Huurne <maarten@treewalker.org>
+	* Rearranged joystick code:
+	  - Separated JoystickPort class into its own files and put them in the
+	    "input" directory.
+	  - Moved JoystickDevice, DummyJoystick and JoyNet to "input" directory.
+	  - Split and removed JoystickPorts class: the I/O was moved to MSXPSG,
+	    the instantiation was moved to the new PluggableFactory class.
 
 2003-08-20 David Heremans <david.heremans@gnu-linux.net>
 	* Rewrote code to be more sector based instead of cluster based:
