@@ -1,5 +1,8 @@
 $Id$
 
+2003-03-01 Maarten ter Huurne <maarten@treewalker.org>
+	* Updated C-BIOS to version 0.15.
+
 2003-03-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Converted "throttle" console command into a setting
 	* Converted "pause" console command into a setting

@@ -1,97 +1,91 @@
-; MSX Compatible BIOS ver 0.13 project "Be myself"
-; copyright(c) 2002 BouKiCHi
+; C-BIOS ver 0.15 Next One Step.
+; copyright(c) 2002-2003 BouKiCHi
 ;
 ; [date]
-; 2002/08/07 start...
-; 2002/08/09 my birthday!! & playable game!
-; 2002/08/13 added font,print infomation
-;            key_in routine
-; 2002/08/15 improved cartridge recognition.
-; 2002/08/19 added DCOMPR(0020h) function.
-;            a decrease wait sec.
-; 2002/08/20 added a $fcc2-$fcc4 table initializer.(playable zanac) 
-;            added a in_joy and in_trig function.
-;            divided half. use "set.bat" to rename and merge 32kbyte.
-; 2002/08/21 change project name.
-; 2002/08/24 added 0072h INITGRP(Screen2) routine,005Fh CHGMOD routine.
-;            0090h sound_init function.
-; 2002/08/26 added set initial value to GRP???,MLT???
-;            rewrited function the recognition of memory. 
-;            added routine of the call H.STKE. 
-;            fixed many routines.
-; 2002/08/27 added sound test mode.
-;            fixed syntax for zmac (a Z80 assembler of UNIX) 
-;	     and other assembler.
-;            fixed RDPRIM function.
-; 2002/09/08 added WRSLT function.
-;            added keyboard routines.
-;            added joystick code to GTSTCK & GTTRIG. 
-; 2002/09/10 fixed memory initializing routine.
-;            added function of memory maintenance. 
-; 2002/09/11 added print_error routine.
-;            fixed ROM search routine and usage of EXPTBL.
-; 2002/09/12 added clear memory from RG8SAV to RG23SA
-;            fixed return from ENASLT with DI.
-; 2002/09/16 added system font of second half
+; 2002/08/07 start development.
+; 2002/08/09 it's my birthday,this version was playable games.
+; 2002/08/13 added fonts and key input routine,displayed infomation.
+;
+; 2002/08/15 improved cartridge knowledge.
+; 2002/08/19 added DCOMPR function and adjusted wait.
+; 2002/08/20 added initilize table of $fcc2-$fcc4
+;            added in_joy and in_trig
+;            filesize reduced from 32KB to 16KB.
+;	     set.bat can be restoring for only 32kb readable emulators. 
+; 2002/08/21 name of this project was changed.
+; 2002/08/24 added INITGRP,CHGMOD and sound_init.
+; 2002/08/26 added initialize value of GRP??? and MLT???.
+;            re-adjust memory ack function.
+;            added calling H.STKE function.
+;            re-adjust routines.
+; 2002/08/27 added sound mode.
+;            syntax adjust for other assemblers.
+;            fixed RDPRIM.
+; 2002/09/08 fixed WRSLT.
+;            added keyboard routine.
+;            added GTSTCK and GTTRIG.
+; 2002/09/10 improved clearing memory routine.
+;            added memory saving trap.
+; 2002/09/11 added print_error function.
+;            added ROM searching and fixed usage of EXPTBL.
+; 2002/09/12 initilize from RG8SAV to RG23
+;            ENASLT returns state of disable interrupt.
+; 2002/09/16 added half of system font.
 ; 2002/09/18 added CHPUT routine.
-;            rewritten function curs2de,de2curs.
-; 2002/09/19 fixed keyboard stroke speed.
-;	     added scroll routine.
-;            fixed init_grp 
-; 2002/09/22 fixed init_sc5
-; 2002/09/23 routine of disk was added.
-; 2002/09/25   ENASLT was rewrtten.
-;            init_sc7 was added.
-; 2002/09/26 the keyboard routines were fixed.
-; 2002/10/02 init_sc5 was improved.
-; 
+;            rewrite curs2de and de2curs routine again.
+; 2002/09/19 improved stroke speed of keyboard input.
+;	     added scroll routines.
+;	     fixed init_grp.
+; 2002/09/22 fixed init_sc5.
+; 2002/09/23 added disk routine.
+; 2002/09/25 rewrite ENASLT.
+;            added init_sc7.
+; 2002/09/26 fixed keyboard routine.
+; 2002/10/02 improved init_sc5.
 
-;        title "MSX COMPATIBLE BIOS for emulators ver 0.13 by BouKiCHi"
+;        title "C-BIOS ver 0.15 by BouKiCHi"
 
 ;---------------------------------------------------
-; define I/O and Hook
-;
+; I/Oとフックの定義
 
-PRN_STAT        equ $90        ; Printer Status
-VDP_RP          equ $98        ; VDP Read Port
-VDP_STAT        equ $99        ; VDP Status & Latch Reset
+PRN_STAT        equ $90        ; プリンタのステータス
+VDP_RP          equ $98        ; VDPポート読み出し
+VDP_STAT        equ $99        ; VDPステータス、ラッチリセット。
+PSL_STAT        equ $A8        ; スロットステータス
+KBD_STAT        equ $A9        ; キーボードステータス
+GIO_REGS        equ $AA        ; 総合IOレジスタ
+PPI_REGS        equ $AB        ; PPIレジスタ
 
-PSL_STAT        equ $A8        ; Slot status
-KBD_STAT        equ $A9        ; Keyboard status
-GIO_REGS        equ $AA        ; General IO register
-PPI_REGS        equ $AB        ; PPI register
-
-PSG_REGS        equ $A0        ; PSG register number
-PSG_DATA        equ $A1        ; PSG data
-PSG_STAT        equ $A2        ; PSG status
+PSG_REGS        equ $A0        ; PSGレジスタ番号
+PSG_DATA        equ $A1        ; PSGデータ
+PSG_STAT        equ $A2        ; PSGステータス
 
 
-MAP_REG1        equ $FC        ; RAM Mapper 0000h-3FFFh
-MAP_REG2        equ $FD        ; RAM Mapper 4000h-7FFFh
-MAP_REG3        equ $FE        ; RAM Mapper 8000h-BFFFh
-MAP_REG4        equ $FF        ; RAM Mapper C000h-FFFFh
+MAP_REG1        equ $FC        ; RAMマッパー 0000h-3FFFh
+MAP_REG2        equ $FD        ; RAMマッパー 4000h-7FFFh
+MAP_REG3        equ $FE        ; RAMマッパー 8000h-BFFFh
+MAP_REG4        equ $FF        ; RAMマッパー C000h-FFFFh
 
-VDP_DATA        equ $98        ; VDP data store
-VDP_ADDR        equ $99        ; VDP address
-VDP_PALT        equ $9A        ; VDP palette latch
-VDP_REGS        equ $9B        ; VDP register access
+VDP_DATA        equ $98        ; VDPデータ書き込み
+VDP_ADDR        equ $99        ; VDPアドレス
+VDP_PALT        equ $9A        ; VDPパレットラッチ
+VDP_REGS        equ $9B        ; VDPレジスタアクセス
 
-H_KEYI          equ $FD9A      ; keyboard interrupt hook
-H_TIMI          equ $FD9F      ; timer interrupt hook
-H_NMI           equ $FDD6      ; non maskable interrupt hook
-H_STKE          equ $FEDA      ; Stack error.
+H_KEYI          equ $FD9A      ; キーボード割り込みフック
+H_TIMI          equ $FD9F      ; タイマー割り込みフック
+H_NMI           equ $FDD6      ; NMIフック
+H_STKE          equ $FEDA      ; スタックエラーフック
 
 STKTOP          equ $F674
 
-EXP_TBL         equ $FCC1      ; second slot infomation table
-SLT_TBL         equ $FCC5      ; table of primary slot
+EXP_TBL         equ $FCC1      ; スロット情報テーブル
+SLT_TBL         equ $FCC5      ; スロット情報
 
-EXBRSA          equ $FAF8      ; position of SUB-ROM.
-
-SSL_REGS        equ $FFFF      ; register of second slot.
+EXBRSA          equ $FAF8      ; サブロム位置
+SSL_REGS        equ $FFFF      ; 拡張スロット選択レジスタ
 
 ;----------------------------------------------
-; WORK MEMORY TABLE
+; ワークエリア
 GRPNAM          equ $F3C7      ; Screen2 Name
 GRPCOL          equ $F3C9      ; Screen2 Color
 GRPCGP          equ $F3CB      ; Screen2 CG pattern
@@ -135,14 +129,14 @@ OLDKEY          equ $FBDA
 NEWKEY          equ $FBE5
 KEYBUF          equ $FBF0
 
-PUTPNT          equ $F3F8      ; pointer of keybuffer address
-GETPNT          equ $F3FA      ; pointer of keybuffer address
-LIMPNT          equ $FC17      ; pointer of keybuffer address
+PUTPNT          equ $F3F8      ; キーバッファへのポインタ
+GETPNT          equ $F3FA      ; キーバッファへのポインタ
+LIMPNT          equ $FC17      ; キーバッファへのポインタ
 
 BOTTOM          equ $FC48
 HIMEM           equ $FC4A
 
-JIFFY           equ $FC9E      ; timer counter.
+JIFFY           equ $FC9E      ; タイマーカウンタ
 SCRMOD          equ $FCAF
 
 
@@ -150,41 +144,41 @@ FORCLR          equ $F3E9
 BAKCLR          equ $F3EA
 BDRCLR          equ $F3EB
 
-PSG_DBG         equ $F3EC      ; this is test flag for debug..
+PSG_DBG         equ $F3EC      ; デバッグ用フラグ
 
-CSRY            equ $F3DC      ; cursor position(Y axis)
-CSRX            equ $F3DD      ; cursor position(X axis)
+CSRY            equ $F3DC      ; カーソール位置(Y座標)
+CSRX            equ $F3DD      ; カーソール位置(X座標)
 
 LINL40          equ $F3AE
 LINL32          equ $F3AF
-LINLEN          equ $F3B0      ; Line length.
-CRTCNT          equ $F3B1      ; screen rows
+LINLEN          equ $F3B0      ; 行数.
+CRTCNT          equ $F3B1      ; 画面の桁数
 
-LINWRK          equ $FC18      ; text buffer of 40 cols.
+LINWRK          equ $FC18      ; 40桁分のバッファ
 
-ESCCNT          equ $FCA7      ; ESC counter.
+ESCCNT          equ $FCA7      ; ESC用カウンタ.
 
 ;------------------------
-;for sound_mode
+;サウンドモード用
 
-SMOD_TSTSND     equ $FAFE   ; [byte] store flag of sound test..
-SMOD_REQNUM     equ $F305   ; [byte] store request number.
-SMOD_OLDKEY     equ $F306   ; [byte] store oldkey.
-SMOD_ROMSUM     equ $F307   ; [word] store checksum.
-SMOD_MUSLST     equ $F309   ; [word] store address of music list.
-SMOD_INIT       equ $F30B   ; [word] store address of initialization.
-SMOD_PLAY       equ $F30D   ; [word] store address of play routine.
+SMOD_TSTSND     equ $FAFE   ; [byte] サウンドテスト用フラグ
+SMOD_REQNUM     equ $F305   ; [byte] リクエストナンバー
+SMOD_OLDKEY     equ $F306   ; [byte] 前回キー入力
+SMOD_ROMSUM     equ $F307   ; [word] チェックサム
+SMOD_MUSLST     equ $F309   ; [word] 曲リストのアドレス
+SMOD_INIT       equ $F30B   ; [word] 初期化ルーチンのアドレス
+SMOD_PLAY       equ $F30D   ; [word] 再生ルーチンのアドレス(秒間60回呼び出し）
 
 ;-----------------
-; memory for the debug-subroutine
+; デバッグルーチン用メモリ
 ;-----------------
 
-DISPADDR        equ $E010   ; memory of dumping address.
+DISPADDR        equ $E010   ; ダンプアドレス用メモリ
 LASTSTAC        equ $E000
 SP_REGS         equ $E002 
 
 ;---------------------
-; Jump Table
+; ジャンプテーブル
 ;---------------------
 
 ;start
@@ -196,21 +190,22 @@ chkram
         di
         jp      soft_reset
 
-;pointer of font.
+;フォントへのポインタ
+
         org     $0004
-        dw      MSXFont
+        dw      B_Font
 
         org     $0006
 
-rdvdpa  db      VDP_DATA ; port of Read  VDP
-wrvdpa  db      VDP_DATA ; port of Write VDP
+rdvdpa  db      VDP_DATA ; VDP読み出しポート
+wrvdpa  db      VDP_DATA ; VDP書き込みポート
 
 ;0008h SYNCHR
 synchr
         org     $0008
         ret
 
-;000Ch RDSLT   read memory from any slot. 
+;000Ch RDSLT	任意スロットからのメモリ読み込み
 
         org     $000c
         jp      rdslt
@@ -219,25 +214,25 @@ chrgtb
         org     $0010
         ret
 
-;0014h WRSLT  write memory to any slot.
+;0014h WRSLT	任意スロットへのメモリ書き込み
         org     $0014
         jp      wrslt
         ret
 ;0018h OUTDO
         org     $0018
         jp      ch_put
-;001Ch CALSLT Interslot call routine.
+;001Ch CALSLT	インタースロットコールルーチン
 calslt
         org     $001c
         jp      cal_slt
         ret
 
-;0020h DCOMPR compare HL,DE
+;0020h DCOMPR	HLとDEの比較
 dcompr  org     $0020
         jp      wordcomp
         ret
 
-;0024h ENA_SLT Change of Slot
+;0024h ENASLT	スロットの変更
 
         org     $0024
         jp      enaslt
@@ -246,34 +241,34 @@ dcompr  org     $0020
         org     $0028
         ret
 
-;002D version ID and other.
+;002D バージョンID等
 romid
         org     $002d
-; MSX version ID
+; version ID
         db      0 ; 0 .. msx1 ,1 .. msx2
         db      0 ; ??
         db      0 ; ??
 
-;0030h CALLF Interslot Call routine(RST 30h version)
+;0030h CALLF	インタースロット呼び出し(RST30h版)
         org     $0030
         jp      call_lf
 
-;0038h INT_38 interrupt routine (RST38,VBlank,Timer...) 
+;0038h INT_38	割り込みルーチン(RST38,VBlank,Timer...) 
         org     $0038
         jp      int_start
 
-;0038h INITIO Initialize I/O
+;0038h INITIO	I/Oの初期化
         org     $003b
         ret
 
-;0041h DISSCR Disable Screen 
+;0041h DISSCR	スクリーンを表示させない。
         org     $0041
         jp      disscr
-;0044h ENASCR Enable Screen
+;0044h ENASCR	スクリーンを表示させる。
         org     $0044
         jp      enascr
 ;---------------
-;vdp_routine
+;VDPルーチン
 ;---------------
 ;0047h WRTVDP
         org 	$0047
@@ -290,7 +285,7 @@ romid
         org     $0050
         jp      vdp_setrd
 
-;0053h SETWRT  .. Set adress for the write VRAM.  
+;0053h SETWRT  .. VRAM書き込みアドレスの設定  
         org     $0053
         jp      vdp_setwrt
 
@@ -301,7 +296,7 @@ romid
         org     $005C
         jp      vdp_data_rep ; Memory -> VRAM
 
-;005Fh Change VDP screen mode.
+;005Fh VDPスクリーンモードの変更
        org      $005f
        jp       chgmod
                 
@@ -310,16 +305,16 @@ romid
        jp       chgclr
         
 
-;0066h INT_NMI .. Non Maskable Interrupt.
+;0066h INT_NMI .. NMI割り込み
         org     $0066
         jp      nmi_int
 
-;0069h CLRSPR  .. Clear all sprites
+;0069h CLRSPR  .. スプライトを消去。
 
         org     $0069
         ret
 
-;0072h INITGRP initialize screen to graphics mode.
+;0072h INITGRP	VDPをグラフィックモードに初期化。
 
         org     $0072
         jp      init_grp
@@ -328,11 +323,11 @@ romid
         org     $007E
         jp      set_grp
 
-;0085h DOLINE Line
+;0085h DOLINE	ライン描画
 doline
         org     $0085
         ret
-;0089h GRPPRT basic?
+;0089h GRPPRT	basic?
 grpprt
         org     $0089
         ret
@@ -340,7 +335,7 @@ grpprt
         org     $008a
         ret
 ;
-;0090h GICINI initialize sound ic
+;0090h GICINI	音源ICの初期化
         org     $0090
         jp      sound_init
         org     $0093
@@ -348,41 +343,41 @@ grpprt
         org     $0096
         jp      sound_stat
 
-;009Ch CHSNS  .. check KeyBuffer
+;009Ch CHSNS  .. キーバッファのチェック
 
         org     $009c
         jp      ch_sns
 
-;009Fh CHGET .. Get data from keyboard buffer.
+;009Fh CHGET .. キーバッファからデータを得る
 
         org     $009f
         jp      ch_get
 
-;00A2h  CHPUT .. Put charactor data to display.
+;00A2h  CHPUT .. ディスプレイのキャラクタを出力する。
 
         org     $00a2
         jp      ch_put
 
-;00C6h  POSIT .. Cursor moves.
+;00C6h  POSIT .. カーソル移動。
 	org     $00c6
 	jp	curxy
 
-;00D5h GTSTCK .. Get Joystick position status
+;00D5h GTSTCK .. ジョイスティック情報を得る。
 
         org     $00d5
         jp      in_joy
 
-;00D8h GTTRIG .. Get trigger status
+;00D8h GTTRIG .. トリガー情報を得る。
 
         org     $00d8
         jp      in_trig
 
-;012Dh WRTVDP .. Write VDP register.. 
+;012Dh WRTVDP .. VDPレジスタの値を変更する
 
         org     $012d
         ret
 
-;0131h VDPSTA .. Read VDP status.. 
+;0131h VDPSTA .. VDPステータスを読み出す
 ;vdpsta
         org     $0131
         ret
@@ -392,23 +387,24 @@ grpprt
         org     $0135
         ret
 
-;0138h RDSLTREG Read register of primary slot
+;0138h RDSLTREG プライマリスロットの情報を読み出す
 ;g_slotreg
         org     $0138
         jp      get_slotreg
 
-;013Bh WRSLTREG Write register of primary slot
+;013Bh WRSLTREG プライマリスロットに情報を書き込む。
 ;s_slotreg
         org     $013B
         jp      set_slotreg
-;013Eh RDVDP Read VDP status.
+
+;013Eh RDVDP	VDPステータスの読み出し
         org     $013E
         jp      vdp_stat_in
 
 ;setpag  org    $013d
 ;        ret
 
-;0141h SNSMAT check key mathrics
+;0141h SNSMAT	キーマトリクスを得る
 ;snsmat
         org     $0141
         jp      in_keyboard
@@ -431,11 +427,11 @@ grpprt
         org     $014d
         ret
 
-;0156h KILBUF Clear buffer of keyboard.
+;0156h KILBUF	キーボードバッファをクリアする
         org     $0156
         jp      kilbuf
 
-;0159h CALBAS call basic interpreter
+;0159h CALBAS	ベーシックインタプリタを呼び出す。
         org     $0159
         jp      call_basic_intr
 
@@ -468,12 +464,12 @@ grpprt
         ret
 
 ; -------------------
-; start up (reset) code
+; スタートアップコード（リセット時に呼び出される）
 ; -------------------
 
         org     $0200
 soft_reset
-;for debug...
+;デバッグ用
 ;        ex     (sp),hl
 ;        ld     (LASTSTAC),hl
 ;
@@ -483,13 +479,13 @@ soft_reset
 ;
 ;        ld     hl,$f300
 
-; initialize other interface.
+; インターフェースを初期化する。
         ld      a,$82
         out     (PPI_REGS),a
         ld      a,$50
         out     (GIO_REGS),a
 
-;memory bank initialize.
+;メモリバンクを初期化する。
 
         xor     a,a
 ;        out    (MAP_REG1),a
@@ -500,11 +496,11 @@ soft_reset
         inc     a
         out     (MAP_REG4),a
 
-; memory check and select slot to the memory.
-; C = Primary,B = secondary.
+;メモリチェック、選択スロットをメモリに書き込む。
+; C = プライマリ,B = セカンダリ。
 
         ld      bc,$0303
-chk_wrt_ram               ; check RAM on page3.
+chk_wrt_ram               ; ページ３のRAMをチェックする。
         in      a,(PSL_STAT)
         and     a,$3F
         ld      e,a
@@ -551,14 +547,14 @@ ram_ok
         add     hl,bc
 
         ld      a,e
-        ld      (hl),a ; expanding slot.
+        ld      (hl),a		;拡張スロット
 
         and     a,$0C
 
         in      a,(PSL_STAT)
         and     a,$03
         or      a,$80
-        ld      (EXP_TBL),a   ; location of MAIN-ROM.
+        ld      (EXP_TBL),a	;MAIN-ROMの位置
         and     a,$80
         ld      (EXP_TBL+1),a
         ld      (EXP_TBL+2),a
@@ -568,12 +564,12 @@ ram_ok
 
 
 ;----------------------
-;start UserInterface ...
+;ユーザーインターフェース
 ;----------------------
 
 
         ld      hl,$f300
-        ld      sp,hl        ; set stack -> $f300
+        ld      sp,hl        ; スタックを$f300に。
 
         call    init_ram
 
@@ -596,7 +592,7 @@ ram_ok
         call    start_cartprog
 
 ;----------------------
-;Start Cartridge
+;カートリッジを実行する
 ;----------------------
 
 start_game
@@ -614,20 +610,20 @@ dont_chgscr
         ld      a,($4000)
         cp      a,'A'
         jr      nz,p3_run
-        ld	hl,($4002)	; Cartridge Start Address
+        ld	hl,($4002)	; カートリッジ開始アドレス。
         jr      prg_jumper
 p3_run
-        ld      hl,($8002)      ; Cartridge Start Address
+        ld      hl,($8002)      ; カートリッジ開始アドレス。
 prg_jumper
-        jp	(hl)		; Running ...
+        jp	(hl)		; 実行...
 
 
 ;-------------------------------
-; display infomation 
+; 情報表示
 ;-------------------------------
 disp_info
 
-; if press shift key then goto debug_mode
+; シフトキーが押されていればdebug_modeへ。
 ;
         ld      a,$06
         call    in_keyboard
@@ -635,9 +631,9 @@ disp_info
         jp      z,debug_mode
 
 
-; display program infomation
+; プログラム情報の表示
 
-        ld      hl,str_proginfo   ; HL = string address
+        ld      hl,str_proginfo   ; HL = 文字列アドレス
         call    prn_text
 
         
@@ -656,7 +652,7 @@ disp_info
 
 ;----------------------------
 start_cartprog
-; if can see cartridge then run the program in slot.
+; スロット上にカートリッジが存在したなら、そのスロットのプログラムを実行する。
         ld      hl,str_thanks
         call    prn_text
 
@@ -685,7 +681,7 @@ start_cartprog
         and     a,$03
         call    vout_hex8
 
-;for debug & check motion.
+;デバッグと動作チェック
 
         call    check_sum
 
@@ -693,7 +689,7 @@ start_cartprog
         or      a,a
         jr      z,stst_skip
 
-;for sound-mode.
+;サウンドモード用
 ;        ld      hl,str_canstst
 ;        call    prn_text
 
@@ -701,7 +697,7 @@ stst_skip
         ld      b,120      ; 2sec wait (1 = 1/60sec)
         call    wait_key07 ; wait routine
 
-;for sound-mode.
+;サウンドモード用
 ;        bit     7,a
 ;        call    z,sound_mode
 
@@ -712,7 +708,7 @@ stst_skip
         bit     1,a
         jr      nz,skip_msg
 
-; check press ctrl key, display secret infomation.
+; コントロールキーで隠しメッセージ表示。
 
         ld      hl,str_secretmsg
         call    prn_text
@@ -732,9 +728,9 @@ skip_msg
         ret
 
 ; ------
-; BIOS Debug routines
+; BIOSデバッグルーチン
 ; ------
-; HL ... address of NEWKEY .
+; HL ... NEWKEYのアドレス .
 ; 
 sh_keyboard
         call    init_vdp
@@ -782,7 +778,7 @@ sh_debug
         ld      (LASTSTAC),hl
 
 debug_mode
-        ; implant return code into hook. 
+        ; リターンコードをフックに埋め込む。
         ld      a,$C9
         ld      (H_KEYI),a
         ld      (H_TIMI),a
@@ -794,7 +790,7 @@ debug_mode
         ld      a,1
         ld      (CSRY),a
 
-        ld      hl,$4000 ; this address is start of Page1  
+        ld      hl,$4000	; ページ1から表示する。
         ld      (DISPADDR),hl 
 
         ld      ix,(LASTSTAC)
@@ -812,7 +808,7 @@ loop_dump
 
 
 ;-----------------
-; dump_program sub-routines.
+; ダンプ用ルーチン
 ;-----------------
 
 disp_dump
@@ -847,7 +843,7 @@ d16_lp
         ret
 
 ;-------------------------
-; Wait of KeyloopRoutine
+; キーループ用ウェイト
 dump_keywait
 
         ld      e,$02
@@ -941,11 +937,11 @@ on_start
 
 
 ;--------------------
-;initialize VDP routine
+;VDPルーチンの初期化
 ;--------------------
 
 init_vdp
-        in      a,(VDP_STAT) ; reset Latch 
+        in      a,(VDP_STAT)	; ラッチの初期化
 
         ld      bc,$0000  ; R#0
         call    wrt_vdp
@@ -980,9 +976,9 @@ init_vdp
         ld      bc,$F507  ; R#7
         call    wrt_vdp
 
-        in      a,(VDP_STAT) ; reset Latch
+        in      a,(VDP_STAT)	;　ラッチの初期化
 
-        ld      hl,MSXFont
+        ld      hl,B_Font
 
         ld      de,$800
         ld      bc,$1000
@@ -992,7 +988,7 @@ init_vdp
         ret
 
 ;------------------------
-; Clear Text
+; 画面表示されているテキストをクリアする。
 clr_text40
         xor     a,a
         ld      bc,$0800
@@ -1004,11 +1000,11 @@ clr_text40
         ret
 
 ;------------------------
-; initialize RAM
+; RAMの初期化
 
 init_ram
         
-; workarea initialize.
+; ワークエリア初期化。
 
         ld      a,$00
         ld      hl,$F380
@@ -1017,7 +1013,7 @@ init_ram
         ld      bc,$C7D
 	ldir
 
-; implant return code into hook. 
+;リターンコード埋め込み
         ld      a,$C9 ; ret code
         ld      hl,H_KEYI
         ld      (hl),a
@@ -1025,7 +1021,7 @@ init_ram
         ld      bc,$024D
         ldir
 
-;Clear key matrix...
+;キーマトリクスの初期化。
         ld      a,$FF 
         ld      hl,OLDKEY
         ld      (hl),a
@@ -1033,7 +1029,7 @@ init_ram
         ld      bc,21
         ldir
 
-;Clear keybuf...
+;キーバッファの初期化。
         ld      a,$00 
         ld      hl,KEYBUF
         ld      (hl),a
@@ -1048,32 +1044,33 @@ init_ram
         ld      bc,15
         ldir
 
-;Set address to pointer.
+;アドレスポインタを設定。
         ld      hl,KEYBUF
         ld      (PUTPNT),hl
         ld      (GETPNT),hl
 
         ld      hl,$8000
-        ld      (BOTTOM),hl  ; page 1 and 2 are ROM. 3 and 4 are RAM.  
+        ld      (BOTTOM),hl  ; ページ1,2はROM。ページ3,4はRAM.  
 
         ld      hl,$F380
-        ld      (HIMEM),hl   ;  the address of work rom >= HIMEM.
+        ld      (HIMEM),hl   ;  使用可能メモリの上限
 
-        ld      (STKTOP),hl   ;  the address of BASIC stack.
+        ld      (STKTOP),hl  ;  BASICスタックの位置
 
         ld      hl,disk_intr
         ld      a,$C3
         ld      (H_STKE),a
         ld      (H_STKE+1),hl
 
-;Forward RDPRIM routine to RAM.
+;RDPRIMをRAMに転送する.
+
         ld      hl,m_rdprim
         ld      de,$F380
 
         ld      bc,m_prim_end-m_rdprim
         ldir
 
-; screen 1 initial address.
+; screen 1用テーブルの初期化。
         ld      hl,$1800
         ld      (T32NAM),hl
         ld      hl,$2000
@@ -1085,7 +1082,7 @@ init_ram
         ld      hl,$3800
         ld      (T32PAT),hl
 
-; screen 2 initial address.
+; screen 2 テーブルの初期化
         ld      hl,$1800
         ld      (GRPNAM),hl
         ld      hl,$2000
@@ -1097,7 +1094,7 @@ init_ram
         ld      hl,$3800
         ld      (GRPPAT),hl
 
-; other settings.
+; その他の設定。
         ld      a,37
         ld      (LINLEN),a
         ld      a,29
@@ -1123,7 +1120,7 @@ init_ram
         ret
 
 ;----------------------
-;Check SUB-ROM position.
+;サブロム位置の検出
 chksubpos
         ld      b,$03
         ld      hl,$0000
@@ -1156,7 +1153,7 @@ chked_d
 
 ;------------------------
 ;
-;display register
+;レジスタの表示
 ;
 dbg_reg
         push    ix
@@ -1173,7 +1170,7 @@ dbg_reg
         ld      a,14
         ld      (CSRY),a
 
-dbg_loop  ; loop until pop all stack.
+dbg_loop
         pop     ix
         call    prn_hex
 
@@ -1188,7 +1185,7 @@ dbg_loop  ; loop until pop all stack.
         jp      nz,dbg_loop
         pop     ix
         push    ix
-        jp      prn_hex ; Print PC
+        jp      prn_hex ; レジスタPCの表示
 
 
 ;------------------------
@@ -1231,10 +1228,10 @@ reg_lp
 
 ;------------------------
 vout_hex16
-; display word scale hex number.
+;16bit幅の16進数表示。
 ;IX = number
 ;dest = BC,HL,AF
-        ; RegB upper 4bit
+        ; RegB上位4bit
         ld      hl,hex_tbl
         push    ix
         pop     bc
@@ -1253,7 +1250,7 @@ vout_hex16
         call    ch_put
 
 
-        ; RegB lower 4bit
+        ; RegB下位4bit
         ld      hl,hex_tbl
         push    ix
         pop     bc
@@ -1267,7 +1264,7 @@ vout_hex16
         ld      a,(hl)
         call    ch_put
 
-        ; RegC upper 4bit
+        ; RegC上位4bit
         ld      hl,hex_tbl
         push    ix
         pop     bc
@@ -1285,7 +1282,7 @@ vout_hex16
         ld      a,(hl)
         call    ch_put
 
-        ; RegC lower 4bit
+        ; RegC 下位 4bit
         ld      hl,hex_tbl
         push    ix
         pop     bc
@@ -1303,12 +1300,12 @@ vout_hex16
 
 ;------------------------
 vout_hex8
-; display byte scale hex number.
-;A = number
+;8bit幅の16進数表示。
+;A = 数値
 ;dest = BC,HL,AF
-        push    af ; this stack is use to lower 4bits.
+        push    af ; このスタックは下位4bitのために使う。
 
-        ; RegA upper 4bit
+        ; RegA 上位 4bit
 
         ld      hl,hex_tbl
         rlca
@@ -1325,7 +1322,7 @@ vout_hex8
 
         pop     af
 
-        ; RegA lower 4bit
+        ; RegA 下位 4bit
         ld      hl,hex_tbl
 
         and     a,$0F
@@ -1346,21 +1343,19 @@ vout_hyphen
 
 
 ;------------------------
-; wait routine.
-;CAUTION!!
-; set always EI.
-; B = counter of loop
+; ウェイトルーチン
+;注意、このルーチン呼び出しの際は常にEIであること。
+; B = ループ回数
 wait_b
         halt
         djnz    wait_b
         ret
 
 ;------------------------
-; wait routine.
-;CAUTION!!
-; set always EI.
-; in .... B = counter of loop.
-; out ... A = 7th key mathrics.
+; ウェイトルーチン
+;注意、このルーチン呼び出しの際は常にEIであること。
+; in .... B = ループ回数
+; out ... A = キーマトリクスの７番目。
 ; dest .. RegC
 wait_key07
         ld      c,$ff
@@ -1375,7 +1370,7 @@ wk07_lp
 
 ;------------------------
 ;prn_text
-; HL = string
+; HL = 文字列
 
 prn_text
 prn_str_disp
@@ -1484,9 +1479,9 @@ page_set0
 
 
 ;-------------------------------------
-;convert cursor to RegDE
+;カーソルをRegDEに変換する。
 ;-------------------------------------
-;out.. DE = VRAM address.
+;out.. DE = VRAMアドレス
 curs2de
         push    af
         push    bc
@@ -1522,7 +1517,7 @@ c2d_add_skip2
 
 
 ;-----------------------------------
-; RegDE to Cursor (CSRX,CSRY)
+; RegDEからカーソル位置へ (CSRX,CSRY)
 de2curs
         push    af
         push    bc
@@ -1595,10 +1590,10 @@ cl_jp   equ     rdprim+(m_cl_jp-m_rdprim)
 
 
 ;---------------------------
-; sub-routine
+; サブルーチン
 ;---------------------------
 ; 000Ch RDSLT
-; in ..  A = slotID , HL = Address
+; in ..  A = スロットID , HL = アドレス
 rdslt
         push    hl
         push    af
@@ -1606,25 +1601,25 @@ rdslt
         ld      a,h
         rlca
         rlca
-        and     a,$03 ; address upper 2bit
+        and     a,$03 ; アドレス上位2bit
 
-        ld      l,a  ; L=shift number
+        ld      l,a   ; L=シフトナンバー
         ld      b,a
 
         ld      a,$03
         call    rdsft
         cpl
-        ld      e,a ; E= MASK
-        ld      a,l ; A=shift#
-        ld      b,a ; B=shift#
+        ld      e,a ; E= マスク
+        ld      a,l ; A=シフトナンバー
+        ld      b,a ; B=シフトナンバー
         pop     af
         and     a,$03
         call    rdsft
-        ld      b,a ; B=shifted slot
+        ld      b,a ; B=シフトしたスロット番号
         in      a,(PSL_STAT)
-        ld      d,a  ; D=old psl
+        ld      d,a  ; D=前のプライマリスロット
         and     a,e
-        or      a,b  ; changed slot
+        or      a,b  ; スロットを変更する
         pop     hl
 
         call    rdprim
@@ -1642,7 +1637,7 @@ rdsft_lp
         ret
 
 ; 0014h WRSLT
-; in ..  A = slotID , HL = Address
+; in ..  A = スロットID , HL = アドレス
 wrslt
         push    hl
         push    af
@@ -1650,25 +1645,25 @@ wrslt
         ld      a,h
         rlca
         rlca
-        and     a,$03      ; address upper 2bit
+        and     a,$03      ; アドレス上位 2bit
 
-        ld      l,a        ; L=shift number
+        ld      l,a        ; L=シフト番号
         ld      b,a
 
         ld      a,$03
         call    rdsft
         cpl
-        ld      e,a        ; E= MASK
-        ld      a,l        ; A=shift#
-        ld      b,a        ; B=shift#
+        ld      e,a        ; E=マスク
+        ld      a,l        ; A=シフトナンバー
+        ld      b,a        ; B=シフトナンバー
         pop     af
         and     a,$03
         call    rdsft
-        ld      b,a        ; B=shifted slot
+        ld      b,a        ; B=シフトされたスロット
         in      a,(PSL_STAT)
-        ld      d,a        ; D=old psl
+        ld      d,a        ; D=前のプライマリスロット
         and     a,e
-        or      a,b        ; changed slot
+        or      a,b        ; スロットを変更する
         pop     hl
 
         call    wrprim
@@ -1676,14 +1671,14 @@ wrslt
 
 
 ;-------------------------------------
-; 001Ch CALSLT(conditional function)
-; in .. IYh(SlotNumber),(IX)
+; 001Ch CALSLT(暫定的な関数)
+; in .. IYh(スロット番号),(IX)
 cal_slt
         jp      (ix)
 
 ;--------------------------------
-; 0020h DCOMPR
-; in .. hl,de= number
+; 0020h DCOMPR　16ビット比較
+; in .. hl,de= 数値
 wordcomp
         ld      a,h
         cp      a,d
@@ -1695,12 +1690,12 @@ wordcomp
 
 ;--------------------------------
 ; 0024h ENASLT
-; in .. hl=Address,a=slotnumber
+; in .. hl=アドレス,a=スロット番号
 ; A = FxxxEESS
-; RegA detail 
-; F = Flag of Extended slot.
-; E = Extended slot#
-; S = slot#
+; RegA 詳細
+; F = 拡張スロットのフラグ
+; E = 拡張スロット番号
+; S = スロット番号
 ; Dest. AF,BC,DE,DI
 
 enaslt
@@ -1726,7 +1721,7 @@ psl_dup_lp
 	rlca
 	and	a,$03
 
-	ld      h,a	; H = addess upper 2bit
+	ld      h,a	; H = アドレス上位 2bit
 
 	ld      b,a
 
@@ -1737,7 +1732,7 @@ page_msk_lp
 	dec	b
         jp      p,page_msk_lp
 
-	ld	e,a	; E = 00 00 11 00(Page mask)
+	ld	e,a	; E = 00 00 11 00(ページマスク)
 	cpl
 	ld	c,a	; C = 11 11 00 11(AND MASK)
 
@@ -1780,7 +1775,7 @@ ssl_dup_lp
 	ld	a,(SSL_REGS)
 	cpl
 	and	a,c
-	or	a,b    ; A = xx xx SS xx ( x = old value )
+	or	a,b    ; A = xx xx SS xx ( x = 前の値 )
 	ld	c,a
 	ld	(SSL_REGS),a
 
@@ -1820,7 +1815,7 @@ chg_psl
 ;--------------------------------
 ; 0030h CALLLF
 call_lf
-        pop     hl ; Address of SlotInfo
+        pop     hl ; スロット情報のアドレス
         ld      a,(hl)
         inc     hl
         ld      e,(hl)
@@ -1852,7 +1847,7 @@ vdp_setrd
 
 ;--------------------------------
 ; 0053h SETWRT
-; set VRAM Address
+; VRAMアドレスの設定
 vdp_setwrt
 
         di
@@ -1867,7 +1862,7 @@ vdp_setwrt
 
 ;--------------------------------
 ;0056h fill VRAM
-;HL = VRAM address, BC = length , A = data
+;HL = VRAM アドレス, BC = 長さ , A = データ
 vdp_fillmem
         push    af
         call    vdp_setwrt
@@ -1886,7 +1881,7 @@ lp_u001
 ;--------------------------------
 wrt_vdp 
 ; 0047h WRTVDP
-;in:B = VDP Data , C = Reg#
+;in:B = VDP データ , C = レジスタ番号
 ; dest af,b 
         push    hl
         di
@@ -1925,7 +1920,7 @@ rg8_sav
 
 
 ;--------------------------------
-;004Ah Read VRAM
+;004Ah VRAM読み出し
 rd_vrm
         call    vdp_setrd
         ex      (sp),ix
@@ -1935,7 +1930,7 @@ rd_vrm
 
 
 ;--------------------------------
-;004Dh Write VRAM
+;004Dh VRAM書き込み
 wrt_vrm
         push    af
         call    vdp_setwrt
@@ -1988,12 +1983,12 @@ lp_vd_rep
         jr      nz,lp_vd_rep
         ret
 ;------------------------------
-;Initialize VDP to screen 5.
+;screen 5の初期化.
 init_sc5
         ld      a,$05
         ld      (SCRMOD),a
 
-        in      a,(VDP_STAT)	; reset Latch
+        in      a,(VDP_STAT)	; ラッチリセット
 
         call    chgclr
 
@@ -2004,7 +1999,7 @@ init_sc5
         ld      b,a             ; B = R#0 data
         ld      c,0
 
-        call    wrt_vdp		; write VDP R#0
+        call    wrt_vdp		; VDP R#0
 
 
         ld      a,(RG0SAV+1)
@@ -2013,7 +2008,7 @@ init_sc5
         ld      b,a             ; B = R#1 data
         inc     c
 
-        call    wrt_vdp         ; write VDP R#1
+        call    wrt_vdp         ; VDP R#1
 
         ld      hl,$0000
         ld      (NAMBAS),hl
@@ -2025,89 +2020,89 @@ init_sc5
 
         ld      b,$1F           ; B = data
         ld      c,2
-        call    wrt_vdp         ; write VDP R#2
+        call    wrt_vdp         ; VDP R#2
 
         ld      a,(RG0SAV+3)
         ld      b,a             ; B = data
         ld      c,3
-        call    wrt_vdp         ; write VDP R#3
+        call    wrt_vdp         ; VDP R#3
 
         ld      a,(RG0SAV+4)
         ld      b,a             ; B = data
         ld      c,4
-        call    wrt_vdp         ; write VDP R#4
+        call    wrt_vdp         ; VDP R#4
 
         ld      b,$ef           ; B = data
         ld      c,5
-        call    wrt_vdp         ; write VDP R#5
+        call    wrt_vdp         ; VDP R#5
 
         ld      b,$0f           ; B = data
         inc     c
-        call    wrt_vdp         ; write VDP R#6
+        call    wrt_vdp         ; VDP R#6
 
 
 
         ld      b,$08           ; B = data
         ld      c,8
-        call    wrt_vdp         ; write VDP R#8
+        call    wrt_vdp         ; VDP R#8
 
         ld      b,$80           ; B = data
         ld      c,9
-        call    wrt_vdp         ; write VDP R#9
+        call    wrt_vdp         ; VDP R#9
 
 
         ld      b,0             ; B = data
         ld      c,10
-        call    wrt_vdp         ; write VDP R#10
+        call    wrt_vdp         ; VDP R#10
         ld      b,0             ; B = data
         inc     c
-        call    wrt_vdp         ; write VDP R#11
+        call    wrt_vdp         ; VDP R#11
         ld      b,0             ; B = data
         inc     c
-        call    wrt_vdp         ; write VDP R#12
+        call    wrt_vdp         ; VDP R#12
         ld      b,0             ; B = data
         inc     c
-        call    wrt_vdp         ; write VDP R#13
+        call    wrt_vdp         ; VDP R#13
         ld      b,1             ; B = data
         inc     c
-        call    wrt_vdp         ; write VDP R#14
+        call    wrt_vdp         ; VDP R#14
         ld      b,0             ; B = data
         inc     c
-        call    wrt_vdp         ; write VDP R#15
+        call    wrt_vdp         ; VDP R#15
         ld      b,$0F           ; B = data
         inc     c
-        call    wrt_vdp         ; write VDP R#16
+        call    wrt_vdp         ; VDP R#16
         ld      b,$2C           ; B = data
         inc     c
-        call    wrt_vdp         ; write VDP R#17
+        call    wrt_vdp         ; VDP R#17
         ld      b,$00           ; B = data
         inc     c
-        call    wrt_vdp         ; write VDP R#18
+        call    wrt_vdp         ; VDP R#18
         ld      b,$00           ; B = data
         inc     c
-        call    wrt_vdp         ; write VDP R#19
+        call    wrt_vdp         ; VDP R#19
         ld      b,$00           ; B = data
         inc     c
-        call    wrt_vdp         ; write VDP R#20
+        call    wrt_vdp         ; VDP R#20
 
         ld      b,$3B           ; B = data
         inc     c
-        call    wrt_vdp         ; write VDP R#21
+        call    wrt_vdp         ; VDP R#21
         ld      b,$05           ; B = data
         inc     c
-        call    wrt_vdp         ; write VDP R#22
+        call    wrt_vdp         ; VDP R#22
 
 
         call    enascr
         ret
 
 ;------------------------------
-;Initialize VDP to screen 7.
+;VDPをスクリーン7で初期化する。
 init_sc7
         ld      a,$07
         ld      (SCRMOD),a
 
-        in      a,(VDP_STAT)	; reset Latch
+        in      a,(VDP_STAT)	; ラッチのリセット
 
         call    chgclr
 
@@ -2118,7 +2113,7 @@ init_sc7
         ld      b,a             ; B = R#0 data
         ld      c,0
 
-        call    wrt_vdp		; write VDP R#0
+        call    wrt_vdp		; VDP R#0
 
 
         ld      a,(RG0SAV+1)
@@ -2127,7 +2122,7 @@ init_sc7
         ld      b,a             ; B = R#1 data
         inc     c
 
-        call    wrt_vdp         ; write VDP R#1
+        call    wrt_vdp         ; VDP R#1
 
         ld      hl,$0000
         ld      (NAMBAS),hl
@@ -2242,7 +2237,7 @@ ig_loop
         call    enascr
         ret
 
-; HL = Address of table
+; HL = テーブルアドレス
 ; B  = DATA , C = VDP R#
 ; DE = VDPDATA
 set_grp
@@ -2267,7 +2262,7 @@ shift_tbl
         db      $06,$0A,$05,$09,$05
 
 ;
-;HL = Table Address
+;HL = テーブルアドレス
 ;
 adr_sft
         push    hl
@@ -2284,8 +2279,8 @@ sft_lp
         add     hl,hl
         adc     a,a
         djnz    sft_lp
-        ld      h,a    ; H = shifted higher bit of HL
-        pop     af     ; A = make up the deficit data.
+        ld      h,a    ; H = シフトしたHLの上位。
+        pop     af
 
         or      a,h
         ld      b,a
@@ -2298,7 +2293,7 @@ sft_lp
         ret
 
 ;----------------------------------
-;005Fh CHGMOD   Change Screen mode
+;005Fh CHGMOD   画面モードの変更
 chgmod
         or      a,a
         jp      z,init_text  ; screen 0
@@ -2450,7 +2445,7 @@ tcol_lp
         ret
 
 ;0062h CHGCLR
-;in = none
+;in = 無し
 chgclr
         ld      a,(SCRMOD)
         dec     a
@@ -2572,7 +2567,7 @@ get_ch
         ret
 ;-----------------------------------
 ;00A2h  CHPUT
-;in ... A = charactor code.
+;in ... A = キャラクタコード
 ch_put
         push    de
         push    af
@@ -2605,7 +2600,7 @@ ctrl_cr
         pop     de
 	ret
 
-; 0Ah LF  line feed
+; 0Ah LF  ラインフィード
 ctrl_lf
         ld      a,(CRTCNT)
         ld      e,a
@@ -2618,7 +2613,7 @@ ctrl_lf
         pop     de
 	ret
 lf_scroll
-	; scroll routine
+	; スクロールルーチン
         push    hl
         push    bc
         ld      hl,(NAMBAS)
@@ -2720,7 +2715,7 @@ set_curs
 
 
 ;-----------------------
-;00C6h	Cursor set to point.
+;00C6h	カーソルを設定する
 ;in ... RegH = X, RegL = Y
 curxy
         ld      a,h
@@ -2734,7 +2729,7 @@ curxy
 
 
 ;--------------------------------------
-;0156h KILBUF clear buffer of keyboard.
+;0156h  KILBUF	キーバッファをクリア。
 kilbuf
         push    de
         push    bc
@@ -2755,7 +2750,7 @@ kilbuf
 
 
 ;--------------------------------
-;0090h GICINIT initialize sound ic
+;0090h GICINIT	音源IC初期化
 sound_init
         ld      e,$00
         ld      a,$08
@@ -2782,7 +2777,7 @@ sound_out
         ei
         pop     af
 
-; for SOUND-MODE
+;サウンドモード用
 ;        push  af
 ;        push  de
 ;        ld    d,a
@@ -2818,7 +2813,7 @@ vdp_stat_in
 
 ;--------------------------------
 ;0141h SNSMAT
-; in a = Keyboard row number.
+; in a = キーボードマトリクス行数
 ;dest AF,C,EI
 
 in_keyboard
@@ -2992,7 +2987,7 @@ trig_off
 ;------------------
 
 int_start
-; for debug...
+;デバッグ用
 ;        push    hl
 ;        ld  hl,$3232
 ;        ex (sp),hl
@@ -3023,7 +3018,7 @@ int_start
 
         
         ei
-        ld      (STATFL),a ; save status
+        ld      (STATFL),a ; ステータス保存
 
         xor     a,a
         ld      (CLIKFL),a
@@ -3051,7 +3046,7 @@ int_end
         ret
 
 ;--------------------------------
-; 0066h NMI Interrupt
+; 0066h NMI割り込み
 nmi_int
         call    H_NMI
         retn
@@ -3070,7 +3065,7 @@ oldkey_lp
         ret
 
 ;--------------------------------
-; input form keyboard to buffer.
+; キーボード入力をバッファに取り込む
 key_in
         in      a,(GIO_REGS)
         and     a,$F0
@@ -3089,8 +3084,8 @@ key_in_lp
         ret
 
 ;--------------------------------
-; key code check routine
-; call from interrupt
+; キーコードチェックルーチン
+; 割り込みから呼び出される。
 ;
 key_chk
         ld      ix,OLDKEY
@@ -3125,7 +3120,9 @@ push_pnt
         push    bc
         ld      a,(hl)
         and     a,a
-        ; if RegA was no charater then don't be stock.
+
+        ; RegAが表示可能キャラクタでなければストックしない。
+
         jr      z,pnt_flow
         ld      c,a
         ld      de,LIMPNT
@@ -3182,14 +3179,14 @@ stack_error
         jp      print_error
 
 ;------------------------------------
-;call basic.
+;ベーシック呼び出し
 call_basic_intr
         ld      de,str_no_basic_intr
         jp      print_error
 
 ;------------------------------------
-;display error.
-;in DE=address of message.
+;エラー表示
+;in DE=メッセージのアドレス。
 
 print_error
         in      a,(VDP_STAT) ; reset Latch 
@@ -3207,7 +3204,7 @@ lp_clearmem
         or      a,c
         jr      nz,lp_clearmem
 
-        ld      hl,MSXFont
+        ld      hl,B_Font
         ld      bc,$1000
 lp_fontset
         ld      a,(hl)
@@ -3246,7 +3243,7 @@ lp_strprn
 
 
 ;------------------------------------
-;the disk routines
+;ディスクルーチン
 ;------------------------------------
 
 DISKIO  equ     $4010
@@ -3265,7 +3262,7 @@ disk_intr
         jp      c,disk_error
         ld      hl,($C00B)
 
-        ; byte of sector / 0x20(file structure)
+        ; セクターサイズ / 0x20(ファイル構造体)
 
         ld      b,5        
 shift_adr
@@ -3356,13 +3353,13 @@ disk_error
 
 
 ;---------------------------------
-;system messages
+;システムメッセージ
 ;---------------------------------
 
 str_proginfo
 ;                0123456789012345678901234567890123456789 
-        db      "MSX COMPATIBLE BIOS ver 0.13",$0d,$0a
-        db      "Copyright (C) 2002 BouKiCHi",$0d,$0a
+        db      "C-BIOS ver 0.15",$0d,$0a
+        db      "Copyright (C) 2002-2003 BouKiCHi",$0d,$0a
         db      $00
 
 str_thanks
@@ -3380,7 +3377,7 @@ str_isgame
         db      " game:",$00
 
 ;-------------------------------------
-;error messages
+;エラーメッセージ
 str_error_prompt
 ;
         db      "ERROR:",$00
@@ -3464,7 +3461,7 @@ hex_tbl
 reg_tbl
         db      "PC: IY: IX: HL: DE: BC: AF: ",$00
 
-; scancode table
+;スキャンコードテーブル
 scode_tbl
         db      "01234567"       ;00
         db      "89-^\@[;"       ;01
@@ -3496,7 +3493,7 @@ vdp_bios
         db      $f5,$87,$00,$40
 
 ;--------------------------
-; the routines of sound test. 
+;サウンドモード
 ;--------------------------
 
         org     $2000
@@ -3514,9 +3511,9 @@ sound_mode
         and     $03             ; A=CART ROM slot
 
         ld      hl,$8000
-        call    enaslt         ; duplicate page1 to page2
+        call    enaslt         ; ページ1から2を複製
 
-        ; takeover the hook.
+        ; hookを乗っ取る。
 
         ld      a,$C9
         ld      (H_KEYI),a
@@ -3524,7 +3521,7 @@ sound_mode
 
         call    clr_text40
 
-        ; display zero.
+        ; ゼロを表示
 
         xor     a,a
         ld      de,$0000
@@ -3547,7 +3544,7 @@ pdsp_lp
         ld      (SMOD_OLDKEY),a
 
 ;-----------------------------
-; sound routine main loop
+; サウンドモードメインループ
 snd_loop
         halt
         ld      hl,(SMOD_PLAY)
@@ -3585,10 +3582,10 @@ snd_set
         jr      snd_loop
 
 ;---------------------------
-; check range of request number.
+; リクエストナンバーの範囲を調べる。
 chk_snd_rng
 ; dest AF,HL,B
-; check music list.
+; 曲リストを調べる。
 
         ld      b,a
         ld      hl,(SMOD_MUSLST)
@@ -3610,7 +3607,7 @@ m_rng_ng
 
 ;----------------------
 chk_mus_lst
-; check music list.
+; 曲リストを調べる。
 
         ld      hl,(SMOD_MUSLST)
         ld      a,h
@@ -3774,7 +3771,7 @@ csum_nc
 
         pop     hl
         ld      (SMOD_ROMSUM),hl
-        ld      bc,$000A     ; size of one structure.
+        ld      bc,$000A     ; 一つの構造体のサイズ
 
         ld      ix,sum_table
 cs_nam_loop
@@ -3855,7 +3852,7 @@ name_unknown
         db      "UNKNOWN",$0,$0
 
 list_mus_gns
-        ; list length
+        ; リストのサイズ
 
         db      $1c
         dw      $009B,gns_theme   
@@ -3952,13 +3949,16 @@ gns_se18
 
 
 ;------------
-;new type hook routine.(for debug)
-        org     $3232
+;デバッグ用フックルーチン。
+
+       org     $3232
 debug_test
         ret
 
-        include "font_fh.z80"
-        include "font_sh.z80"
+	include "b_font.z80"
+
+;       include "font_fh.z80"
+;       include "font_sh.z80"
 
         align
         org     $3FFF

@@ -1,5 +1,5 @@
-as80 -z -x3 msxb_sub
-as80 -z -x3 msxb_sh
-as80 -lmsx.syn -z -x3 msxb
-copy /b msxb.bin+msxb_sh.bin cbios.rom
-copy msxb_sub.bin cbios_sub.rom
+as80 -z -x3 cb_sub
+as80 -z -x3 cb_sh
+as80 -lcb.syn -z -x3 cb_main
+copy /b cb_main.bin+cb_sh.bin cbios.rom
+copy cb_sub.bin cbios_sub.rom
