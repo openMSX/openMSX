@@ -44,6 +44,7 @@ install-data-hook:
 ##Creating a link for the binary in /usr/local/bin
 ##TODO: Make this configurable !!
 	ln -sf $(prefix)/bin/openmsx /usr/local/bin/openmsx
+	chmod -R a+rX $(prefix)
 
 ## a simple cp -R isn't portable so we should use this long winded thing below
 ## but I need to check if `find` is portabel. code below isn't tested !!!
