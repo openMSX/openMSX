@@ -49,6 +49,15 @@ class OSDConsoleRenderer : public ConsoleRenderer
 		virtual void drawConsole() = 0;
 
 	protected:
+		/** How transparent is the console? (0=invisible, 255=opaque)
+		  * Note that when using a background image on the GLConsole,
+		  * that image's alpha channel is used instead.
+		  */
+		static const int CONSOLE_ALPHA = 180;
+
+		static const int BLINK_RATE = 500;
+		static const int CHAR_BORDER = 4;
+
 		std::string fontName;
 		std::string backgroundName;
 		FileContext* context;

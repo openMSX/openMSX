@@ -33,9 +33,6 @@ class GLConsole : public OSDConsoleRenderer
 		bool loadTexture(const std::string &filename, GLuint &texture,
 		                 int &width, int &height, GLfloat *texCoord);
 
-		static const int BLINK_RATE = 500;
-		static const int CHAR_BORDER = 4;
-
 		class Font *font;
 		GLuint backgroundTexture;
 		BackgroundSetting* backgroundSetting;

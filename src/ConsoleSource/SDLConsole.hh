@@ -20,6 +20,51 @@ class SDLConsole : public OSDConsoleRenderer
 		virtual void updateConsole();
 
 	private:
+		/** This is the font for the console.
+		  */
+		class Font *font;
+
+		/** Surface of the console.
+		  */
+		SDL_Surface *consoleSurface;
+
+		/** This is the screen to draw the console to.
+		  */
+		SDL_Surface *outputScreen;
+
+		/** Background image for the console.
+		  */
+		SDL_Surface *backgroundImage;
+
+		/** Dirty rectangle to draw over behind the users background.
+		  */
+		SDL_Surface *inputBackground;
+
+		/** The top-left x coordinate of the console on the display screen.
+		  */
+		int dispX;
+
+		/** The top-left y coordinate of the console on the display screen.
+		  */
+		int dispY;
+
+		/** The consoles alpha level.
+		  */
+		unsigned char consoleAlpha;
+
+		/** Is the cursor currently blinking
+		  */
+		bool blink;
+
+		/** Last time the consoles cursor blinked 
+		  */
+		Uint32 lastBlinkTime;
+	
+		BackgroundSetting* backgroundSetting;
+		FontSetting *fontSetting;
+
+		class Console* console;
+		
 		void alpha(unsigned char alpha);
 		void loadBackground();
 		void position(int x, int y);
@@ -27,44 +72,6 @@ class SDLConsole : public OSDConsoleRenderer
 		void reloadBackground();
 		void drawCursor();
 
-		static const int BLINK_RATE = 500;
-		static const int CHAR_BORDER = 4;
-
-		// This is the font for the console.
-		class Font *font;
-
-		// Surface of the console.
-		SDL_Surface *consoleSurface;
-
-		// This is the screen to draw the console to.
-		SDL_Surface *outputScreen;
-
-		// Background image for the console.
-		SDL_Surface *backgroundImage;
-
-		// Dirty rectangle to draw over behind the users background.
-		SDL_Surface *inputBackground;
-
-		// The top-left x coordinate of the console on the display screen.
-		int dispX;
-
-		// The top-left y coordinate of the console on the display screen.
-		int dispY;
-
-		// The consoles alpha level.
-		unsigned char consoleAlpha;
-
-		// Is the cursor currently blinking
-		bool blink;
-
-		// Last time the consoles cursor blinked 
-		Uint32 lastBlinkTime;
-	
-		// 
-		BackgroundSetting* backgroundSetting;
-		FontSetting *fontSetting;
-
-		class Console* console;
 };
 
 #endif

@@ -149,10 +149,8 @@ void GLConsole::drawConsole()
 	glPushAttrib(GL_ENABLE_BIT);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
-	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 	SDL_Surface *screen = SDL_GetVideoSurface();
 	glViewport(0, 0, screen->w, screen->h);
@@ -165,21 +163,27 @@ void GLConsole::drawConsole()
 	glLoadIdentity();
 
 	glTranslated(dispX, dispY, 0);
-	// draw the background image if there is one
+	// Draw the background image if there is one, otherwise a solid rectangle.
 	if (backgroundTexture) {
+		glEnable(GL_TEXTURE_2D);
+		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 		glBindTexture(GL_TEXTURE_2D, backgroundTexture);
-		glBegin(GL_QUADS);
-		glTexCoord2f(backTexCoord[0], backTexCoord[1]);
-		glVertex2i(0, 0);
-		glTexCoord2f(backTexCoord[0], backTexCoord[3]);
-		glVertex2i(0, consoleHeight);
-		glTexCoord2f(backTexCoord[2], backTexCoord[3]);
-		glVertex2i(consoleWidth, consoleHeight);
-		glTexCoord2f(backTexCoord[2], backTexCoord[1]);
-		glVertex2i(consoleWidth, 0);
-		glEnd();
+	} else {
+		glDisable(GL_TEXTURE_2D);
+		glColor4ub(0, 0, 0, CONSOLE_ALPHA);
 	}
+	glBegin(GL_QUADS);
+	glTexCoord2f(backTexCoord[0], backTexCoord[1]);
+	glVertex2i(0, 0);
+	glTexCoord2f(backTexCoord[0], backTexCoord[3]);
+	glVertex2i(0, consoleHeight);
+	glTexCoord2f(backTexCoord[2], backTexCoord[3]);
+	glVertex2i(consoleWidth, consoleHeight);
+	glTexCoord2f(backTexCoord[2], backTexCoord[1]);
+	glVertex2i(consoleWidth, 0);
+	glEnd();
 
+	glEnable(GL_TEXTURE_2D);
 	int screenlines = consoleHeight / font->getHeight();
 	for (int loop = 0; loop < screenlines; loop++) {
 		int num = loop + console->getScrollBack();

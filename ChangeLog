@@ -1,5 +1,9 @@
 $Id$
 
+2003-04-27 Maarten ter Huurne <maarten@treewalker.org>
+	* Added a console background to SDLGL when no image is used.
+	* Minor cleanups to console classes.
+
 2003-04-25 David Heremans <david.heremans@gnu-linux.net>
 	* Allowed JoyNet to accept a new connection if
 	  previous connection is closed.
@@ -11,7 +15,7 @@ $Id$
 	* Implemented horizontal scroll high and multi page in SDLGL.
 	  This implementation is based on Wouter's horizontal scroll patch.
 	* Implemented horizontal scroll high and multi page in SDLHi/Lo.
-	Note that some horzintal scroll features are still missing:
+	Note that some horizontal scroll features are still missing:
 	* Multi page scrolling in combination with deinterlace.
 	* Scrolling in character modes.
 	However, the current state should be enough to run most games and demos.

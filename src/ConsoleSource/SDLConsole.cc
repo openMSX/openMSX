@@ -1,7 +1,7 @@
 // $Id$
 
 /*  Written By: Garrett Banuk <mongoose@mongeese.org>
- *  Addapted to C++ and openMSX needs by David Heremans
+ *  Adapted to C++ and openMSX needs by David Heremans
  *  This is free, just be sure to give me credit when using it
  *  in any of your programs.
  */
@@ -34,7 +34,6 @@ SDLConsole::SDLConsole(SDL_Surface *screen)
 	consoleSurface  = NULL;
 	inputBackground = NULL;
 	font = new DummyFont();
-	consoleAlpha = SDL_ALPHA_OPAQUE;
 	
 	fontSetting = new FontSetting(this, fontName);
 	
@@ -47,7 +46,7 @@ SDLConsole::SDLConsole(SDL_Surface *screen)
 	
 	backgroundSetting = new BackgroundSetting(this, backgroundName);
 	
-	alpha(180);
+	alpha(CONSOLE_ALPHA);
 }
 
 SDLConsole::~SDLConsole()
@@ -154,12 +153,12 @@ void SDLConsole::drawCursor()
 	}
 }
 
-// Sets the alpha level of the console, 0 turns off alpha blending
+// Sets the alpha level of the console, 255 turns off alpha blending
 void SDLConsole::alpha(unsigned char newAlpha)
 {
 	// store alpha as state!
 	consoleAlpha = newAlpha;
-	if (consoleAlpha == 0) {
+	if (consoleAlpha == 255) {
 		SDL_SetAlpha(consoleSurface, 0,            consoleAlpha);
 	} else {
 		SDL_SetAlpha(consoleSurface, SDL_SRCALPHA, consoleAlpha);
