@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <memory> // for auto_ptr
+#include "config.h"
 #include "Keys.hh"
 #include "RealTime.hh"
 #include "MSXCPU.hh"
@@ -11,10 +12,6 @@
 #include "Scheduler.hh"
 #include "RealTimeSDL.hh"
 #include "RealTimeRTC.hh"
-
-#ifndef	NO_LINUX_RTC
-#define HAVE_RTC	// TODO check this in configure
-#endif
 
 using std::auto_ptr;
 
@@ -62,7 +59,7 @@ RealTime& RealTime::instance()
 {
 	static auto_ptr<RealTime> oneInstance;
 	if (!oneInstance.get()) {
-#ifdef HAVE_RTC
+#ifdef HAVE_LINUX_RTC_H
 		oneInstance.reset(RealTimeRTC::create());
 #endif
 		if (!oneInstance.get()) {

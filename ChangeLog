@@ -7,6 +7,8 @@ $Id$
 	* fixed bug in wait() method of CPU (order of statements problem):
 	   fixes the reset on turbor crash
 	* "cassetteplayer" doesn't crash anymore on non-existing filenames
+	* use HAVE_LINUX_RTC_H instead of NO_LINUX_RTC, makes it easier to
+	  port to non-linux platforms
 
 2003-12-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Made memory in (sub)slots debuggable

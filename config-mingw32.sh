@@ -1,7 +1,7 @@
 #!/bin/sh
 
-CXXFLAGS='-mthreads -mms-bitfields -Os -mpreferred-stack-boundary=4 -mcpu=pentium3 -march=pentium-mmx -mmmx -fno-force-mem -fno-force-addr -fstrength-reduce -fexpensive-optimizations -fschedule-insns2 -fomit-frame-pointer -fno-default-inline -D__GTHREAD_HIDE_WIN32API -mconsole -DNO_LINUX_RTC -DFS_CASEINSENSE'
-CFLAGS='-mthreads -mms-bitfields -Os -mpreferred-stack-boundary=4 -mcpu=pentium3 -march=pentium-mmx -mmmx -fno-force-mem -fno-force-addr -fstrength-reduce -fexpensive-optimizations -fschedule-insns2 -fomit-frame-pointer -mconsole -DNO_LINUX_RTC -DFS_CASEINSENSE'
+CXXFLAGS='-mthreads -mms-bitfields -Os -mpreferred-stack-boundary=4 -mcpu=pentium3 -march=pentium-mmx -mmmx -fno-force-mem -fno-force-addr -fstrength-reduce -fexpensive-optimizations -fschedule-insns2 -fomit-frame-pointer -fno-default-inline -D__GTHREAD_HIDE_WIN32API -mconsole -DFS_CASEINSENSE'
+CFLAGS='-mthreads -mms-bitfields -Os -mpreferred-stack-boundary=4 -mcpu=pentium3 -march=pentium-mmx -mmmx -fno-force-mem -fno-force-addr -fstrength-reduce -fexpensive-optimizations -fschedule-insns2 -fomit-frame-pointer -mconsole -DFS_CASEINSENSE'
 
 if test -d /mingw/include; then
 	CXXFLAGS="${CXXFLAGS} -I/mingw/include"
