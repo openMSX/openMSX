@@ -3,7 +3,7 @@
 include build/node-start.mk
 
 SRC_HDR:= \
-	CPUInterface CPU \
+	CPU \
 	Z80 R800 \
 	CPUTables \
 	Dasm \

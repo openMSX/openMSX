@@ -2,7 +2,7 @@
 
 #include <sstream>
 #include "CPU.hh"
-#include "CPUInterface.hh"
+#include "MSXCPUInterface.hh"
 #include "Scheduler.hh"
 #include "MSXMotherBoard.hh"
 #include "CliCommOutput.hh"
@@ -56,7 +56,7 @@ void CPU::setMotherboard(MSXMotherBoard* motherboard_)
 	motherboard = motherboard_;
 }
 
-void CPU::setInterface(CPUInterface* interf)
+void CPU::setInterface(MSXCPUInterface* interf)
 {
 	interface = interf;
 }

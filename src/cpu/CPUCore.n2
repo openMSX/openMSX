@@ -3,7 +3,7 @@
 #include <iomanip>
 #include <cassert>
 #include "Scheduler.hh"
-#include "CPUInterface.hh"
+#include "MSXCPUInterface.hh"
 
 #ifdef CPU_DEBUG
 #include "Dasm.hh"

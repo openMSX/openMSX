@@ -11,6 +11,12 @@ $Id$
 	     it.
 	* Fixed "after time" and "after idle" console commands
 	* CPU cleanup: removed historical cruft
+	* Merged CPUInterface and MSXCPUInterface classes:
+	   - get rid of virtual method calls, and (possibly) inline them
+	   - code was written like this to be able to use the same CPU code
+	     also for the CPU in the MidiSaurus cartridge. If we still want
+	     to implement this, we should templatize the CPU class with on
+	     the CPUInterface instead.
 
 2004-08-17 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Made tiny optimization in DynamicClock, however this gave a speedup

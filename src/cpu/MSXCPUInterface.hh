@@ -4,16 +4,21 @@
 #define __MSXCPUINTERFACE_HH__
 
 #include <set>
+#include <vector>
 #include <memory>
-#include "CPUInterface.hh"
+#include "openmsx.hh"
+#include "CPU.hh"
 #include "Command.hh"
 #include "Debuggable.hh"
+#include "MSXDevice.hh"
 
 using std::set;
+using std::vector;
 using std::auto_ptr;
 
 namespace openmsx {
 
+class MSXRomPatchInterface;
 class MSXDevice;
 class VDPIODelay;
 class DummyDevice;
@@ -24,7 +29,7 @@ class Scheduler;
 class Debugger;
 class CliCommOutput;
 
-class MSXCPUInterface : public CPUInterface
+class MSXCPUInterface
 {
 public:
 	static MSXCPUInterface& instance();
@@ -33,7 +38,6 @@ public:
 	 * Devices can register their In ports. This is normally done
 	 * in their constructor. Once device are registered, their
 	 * readIO() method can get called.
-	 * TODO: implement automatic registration for MSXDevice
 	 */
 	virtual void register_IO_In(byte port, MSXDevice* device);
 	virtual void unregister_IO_In(byte port, MSXDevice* device);
@@ -42,7 +46,6 @@ public:
 	 * Devices can register their Out ports. This is normally done
 	 * in their constructor. Once device are registered, their
 	 * writeIO() method can get called.
-	 * TODO: implement automatic registration for MSXDevice
 	 */
 	virtual void register_IO_Out(byte port, MSXDevice* device);
 	virtual void unregister_IO_Out(byte port, MSXDevice* device);
@@ -57,49 +60,142 @@ public:
 	                       int primSl, int secSL, int pages);
 	void unregisterMemDevice(MSXDevice& device,
 	                         int primSl, int secSL, int pages);
-
-	// TODO implement unregister methods
 	
 	/**
 	 * Reset (the slot state)
 	 */
 	void reset();
 
-	// CPUInterface //
-
 	/**
 	 * This reads a byte from the currently selected device
 	 */
-	virtual byte readMem(word address, const EmuTime& time);
+	inline byte readMem(word address, const EmuTime& time) {
+		if ((address != 0xFFFF) || !isSubSlotted[primarySlotState[3]]) {
+			return visibleDevices[address >> 14]->readMem(address, time);
+		} else {
+			return 0xFF ^ subSlotRegister[primarySlotState[3]];
+		}
+	}
 
 	/**
 	 * This writes a byte to the currently selected device
 	 */
-	virtual void writeMem(word address, byte value, const EmuTime& time);
+	inline void writeMem(word address, byte value, const EmuTime& time) {
+		if ((address != 0xFFFF) || !isSubSlotted[primarySlotState[3]]) {
+			visibleDevices[address>>14]->writeMem(address, value, time);
+		} else {
+			setSubSlot(primarySlotState[3], value);
+		}
+	}
 
 	/**
 	 * This read a byte from the given IO-port
 	 * @see MSXDevice::readIO()
 	 */
-	virtual byte readIO(word port, const EmuTime& time);
+	inline byte readIO(word prt, const EmuTime& time) {
+		byte port = (byte)prt;
+		return IO_In[port]->readIO(port, time);
+	}
 
 	/**
 	 * This writes a byte to the given IO-port
 	 * @see MSXDevice::writeIO()
 	 */
-	virtual void writeIO(word port, byte value, const EmuTime& time);
+	inline void writeIO(word prt, byte value, const EmuTime& time) {
+		byte port = (byte)prt;
+		IO_Out[port]->writeIO(port, value, time);
+	}
 
 	/**
-	 * Gets read cache
-	 * @see MSXDevice::getReadCacheLine()
+	 * Test that the memory in the interval [start, start+CACHE_LINE_SIZE)
+	 * is cacheable for reading. If it is, a pointer to a buffer
+	 * containing this interval must be returned. If not, a null
+	 * pointer must be returned.
+	 * Cacheable for reading means the data may be read directly
+	 * from the buffer, thus bypassing the readMem() method, and
+	 * thus also ignoring EmuTime.
+	 * The default implementation always returns a null pointer.
+	 * An interval will never cross a 16KB border.
+	 * An interval will never contain the address 0xffff.
 	 */
-	virtual const byte* getReadCacheLine(word start) const;
+	inline const byte* getReadCacheLine(word start) const {
+		if ((start == 0x10000 - CPU::CACHE_LINE_SIZE) && // contains 0xffff
+		    (isSubSlotted[primarySlotState[3]])) {
+			return NULL;
+		} else {
+			return visibleDevices[start >> 14]->getReadCacheLine(start);
+		}
+	}
 	
 	/**
-	 * Gets write cache
-	 * @see MSXDevice::getWriteCacheLine()
+	 * Test that the memory in the interval [start, start+CACHE_LINE_SIZE)
+	 * is cacheable for writing. If it is, a pointer to a buffer
+	 * containing this interval must be returned. If not, a null
+	 * pointer must be returned.
+	 * Cacheable for writing means the data may be written directly
+	 * to the buffer, thus bypassing the writeMem() method, and
+	 * thus also ignoring EmuTime.
+	 * The default implementation always returns a null pointer.
+	 * An interval will never cross a 16KB border.
+	 * An interval will never contain the address 0xffff.
 	 */
-	virtual byte* getWriteCacheLine(word start) const;
+	inline byte* getWriteCacheLine(word start) const {
+		if ((start == 0x10000 - CPU::CACHE_LINE_SIZE) && // contains 0xffff
+		    (isSubSlotted[primarySlotState[3]])) {
+			return NULL;
+		} else {
+			return visibleDevices[start >> 14]->getWriteCacheLine(start);
+		}
+	}
+
+	/**
+	 * CPU uses this method to read 'extra' data from the databus
+	 * used in interrupt routines. In MSX this returns always 255.
+	 */
+	inline byte dataBus() {
+		return 255;
+	}
+	
+	/**
+	 * Returns true when NMI line is active.
+	 * On MSX this line is never active.
+	 */
+	inline bool NMIStatus() {
+		return false;
+	}
+
+	/**
+	 * Returns true when there was a rising edge on the NMI line
+	 * (rising = non-active -> active)
+	 */
+	inline bool NMIEdge() {
+		bool newNMIStat = NMIStatus();
+		bool result = newNMIStat && !prevNMIStat;
+		prevNMIStat = newNMIStat;
+		return result;
+	}
+
+	/**
+	 * Called when ED FE occurs. Can be used
+	 * to emulated disk access etc.
+	 */
+	void patch(CPU::CPURegs& regs);
+
+	/**
+	 * (Un)register a MSXRomPatchInterface
+	 */
+	void   registerInterface(MSXRomPatchInterface* i);
+	void unregisterInterface(MSXRomPatchInterface* i);
+
+	/**
+	 * Called when RETI accurs
+	 */
+	inline void reti(CPU::CPURegs& /*regs*/) { }
+	
+	/**
+	 * Called when RETN occurs
+	 */
+	inline void retn(CPU::CPURegs& /*regs*/) { }
 
 	/*
 	 * Should only be used by PPI
@@ -128,6 +224,7 @@ public:
 protected:
 	MSXCPUInterface();
 	virtual ~MSXCPUInterface();
+	
 	friend class auto_ptr<MSXCPUInterface>;
 
 private:
@@ -198,7 +295,10 @@ private:
 	string getSlotMap() const;
 	string getSlotSelection() const;
 	
-	
+	bool prevNMIStat;
+	typedef vector<MSXRomPatchInterface*> RomPatches;
+	RomPatches romPatches;
+
 	MSXDevice* IO_In [256];
 	MSXDevice* IO_Out[256];
 	set<byte> multiIn;

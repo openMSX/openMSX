@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <memory> // for auto_ptr
 #include <sstream>
+#include <algorithm>
 #include "MSXCPUInterface.hh"
 #include "DummyDevice.hh"
 #include "CommandController.hh"
@@ -13,6 +14,7 @@
 #include "Debugger.hh"
 #include "CliCommOutput.hh"
 #include "MSXMultiIODevice.hh"
+#include "MSXRomPatchInterface.hh"
 
 using std::auto_ptr;
 using std::ostringstream;
@@ -63,6 +65,7 @@ MSXCPUInterface::MSXCPUInterface()
 	for (int page = 0; page < 4; ++page) {
 		visibleDevices[page] = 0;
 	}
+	prevNMIStat = NMIStatus();
 
 	// Note: SlotState is initialised at reset
 
@@ -238,6 +241,27 @@ void MSXCPUInterface::unregisterMemDevice(MSXDevice& device,
 	}
 }
 
+void MSXCPUInterface::patch(CPU::CPURegs& regs)
+{
+	// walk all interfaces, it's up to the interface
+	// to decide to do anything
+	for (RomPatches::const_iterator it = romPatches.begin();
+	     it != romPatches.end(); ++it) {
+		(*it)->patch(regs);
+	}
+}
+
+void MSXCPUInterface::registerInterface(MSXRomPatchInterface* i)
+{
+	romPatches.push_back(i);
+}
+
+void MSXCPUInterface::unregisterInterface(MSXRomPatchInterface* i)
+{
+	romPatches.erase(std::remove(romPatches.begin(), romPatches.end(), i),
+	                 romPatches.end());
+}
+
 void MSXCPUInterface::updateVisible(int page)
 {
 	MSXDevice *newDevice = slotLayout [primarySlotState[page]]
@@ -282,53 +306,6 @@ void MSXCPUInterface::setSubSlot(byte primSlot, byte value)
 			updateVisible(page);
 		}
 	}
-}
-
-
-byte MSXCPUInterface::readMem(word address, const EmuTime& time)
-{
-	if ((address == 0xFFFF) && isSubSlotted[primarySlotState[3]]) {
-		return 0xFF ^ subSlotRegister[primarySlotState[3]];
-	} else {
-		return visibleDevices[address >> 14]->readMem(address, time);
-	}
-}
-
-void MSXCPUInterface::writeMem(word address, byte value, const EmuTime& time)
-{
-	if ((address == 0xFFFF) && isSubSlotted[primarySlotState[3]]) {
-		setSubSlot(primarySlotState[3], value);
-	} else {
-		visibleDevices[address>>14]->writeMem(address, value, time);
-	}
-}
-
-byte MSXCPUInterface::readIO(word prt, const EmuTime& time)
-{
-	byte port = (byte)prt;
-	return IO_In[port]->readIO(port, time);
-}
-
-void MSXCPUInterface::writeIO(word prt, byte value, const EmuTime& time)
-{
-	byte port = (byte)prt;
-	IO_Out[port]->writeIO(port, value, time);
-}
-
-const byte* MSXCPUInterface::getReadCacheLine(word start) const
-{
-	if ((start == 0x10000 - CPU::CACHE_LINE_SIZE) && // contains 0xffff
-	    (isSubSlotted[primarySlotState[3]]))
-		return NULL;
-	return visibleDevices[start >> 14]->getReadCacheLine(start);
-}
-
-byte* MSXCPUInterface::getWriteCacheLine(word start) const
-{
-	if ((start == 0x10000 - CPU::CACHE_LINE_SIZE) && // contains 0xffff
-	    (isSubSlotted[primarySlotState[3]]))
-		return NULL;
-	return visibleDevices[start >> 14]->getWriteCacheLine(start);
 }
 
 byte MSXCPUInterface::peekMem(word address) const
