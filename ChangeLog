@@ -1,5 +1,11 @@
 $Id$
 
+2004-09-24 Maarten ter Huurne <maarten@treewalker.org>
+	* Fixed assert in Mixer on unmute if initial state was muted.
+	* Load settings file specified with "-setting" from UserContext,
+	  but load the files it refers to using SystemContext.
+	  Fixes console look when openMSX is started with "-setting" option.
+
 2004-09-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Take default settings value when saved value is no longer valid
 	* Integrated blur scaler and simple scaler:
