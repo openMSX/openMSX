@@ -14,6 +14,7 @@
 #include "MSXMapperIO.hh"
 #include "MSXRTC.hh"
 #include "MSXRealTime.hh"
+#include "MSXMegaRom.hh"
 
 
 MSXDevice *deviceFactory::create(MSXConfig::Device *conf) {
@@ -56,6 +57,9 @@ MSXDevice *deviceFactory::create(MSXConfig::Device *conf) {
 	} else
 	if (conf->getType()=="RealTime") {
 		device = MSXRealTime::instance();
+	} else
+	if (conf->getType()=="MegaRom") {
+		device = new MSXMegaRom();
 	}
 
 	if (device == NULL)

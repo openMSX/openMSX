@@ -37,7 +37,8 @@ openmsx_SOURCES=openmsx.cc \
 	MSXMapperIOTurboR.hh MSXMapperIOTurboR.cc \
 	MSXMapperIOPhilips.hh MSXMapperIOPhilips.cc \
 	MSXRTC.hh MSXRTC.cc RP5C01.hh RP5C01.cc \
-	MSXRealTime.hh MSXRealTime.cc
+	MSXRealTime.hh MSXRealTime.cc \
+	MSXMegaRom.hh MSXMegaRom.cc
 
 
 # libxml++ and SDL

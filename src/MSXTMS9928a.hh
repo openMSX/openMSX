@@ -76,7 +76,9 @@ class MSXTMS9928a : public MSXDevice
           int vramsize, model;
           /* emulation settings */
           int LimitSprites; /* max 4 sprites on a row, like original TMS9918A */
-          /* dirty tables */
+          /* all or nothing dirty David Heremans */
+	  bool stateChanged;
+          /* dirty tables from Sean Young restcode*/
           byte anyDirtyColour, anyDirtyName, anyDirtyPattern;
           byte *DirtyColour, *DirtyName, *DirtyPattern;
         } tms;
@@ -89,6 +91,7 @@ class MSXTMS9928a : public MSXDevice
         void plot_pixel(struct osd_bitmap *bitmap,int x,int y,int pen);
         struct osd_bitmap* alloc_bitmap(int width,int height,int depth);
         void _TMS9928A_change_register (byte reg, byte val);
+	void _TMS9928A_set_dirty (char);
 
 	void fullScreenRefresh();
 	void full_border_fil();

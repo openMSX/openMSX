@@ -62,6 +62,13 @@
 ** 08/10/2001
 ** Started converting the all in one approach as a atrter
 ** Did correct blanking, mode0 renderer and some other stuff
+**
+** 09/10/2001
+** Got all modes working + sprites
+** 
+** 11/10/2001
+** Enable 'dirty' methodes of Sean again + own extra dirty flag
+** as a side effect this means trhat the sprites aren't cleared for the moment :-)
 ** 
 */
 
@@ -145,7 +152,6 @@ static unsigned char TMS9928A_palette[16*3] =
 **
 **static void _TMS9928A_sprites (struct osd_bitmap*);
 **static void _TMS9928A_change_register (int, UINT8);
-**static void _TMS9928A_set_dirty (char);
 **
 */
 
@@ -157,14 +163,13 @@ void MSXTMS9928a::mode0(struct osd_bitmap* bmp){
 
   name = 0;
   for (y=0;y<24;y++) {
-    for (x=0;x<32;x++) {
+    for (x=0;x<32;x++,name++) {
       charcode = tms.vMem[tms.nametbl+name];
-      /*
+      
       if ( !(tms.DirtyName[name] || tms.DirtyPattern[charcode] ||
 	    tms.DirtyColour[charcode/64]) )
 	continue;
-      */
-      name++; // got the ++  out of previous line
+      
       patternptr = tms.vMem + tms.pattern + charcode*8;
       colour = tms.vMem[tms.colour+charcode/8];
       fg = XPal[colour / 16];
@@ -181,13 +186,14 @@ void MSXTMS9928a::mode0(struct osd_bitmap* bmp){
       }
     }
   }
-  // _TMS9928A_set_dirty (0);
+  _TMS9928A_set_dirty (0);
 };
 
 void MSXTMS9928a::mode1(struct osd_bitmap* bmp){
   int pattern,x,y,yy,xx,name,charcode;
   byte fg,bg,*patternptr;
 
+  // Not needed since full screen refresh not executed now
   //if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
   //  return;
 
@@ -195,32 +201,24 @@ void MSXTMS9928a::mode1(struct osd_bitmap* bmp){
   bg = XPal[tms.Regs[7] & 15];
 
   /* colours at sides must be reset */
-  /*if (tms.anyDirtyColour) {
-    rt.min_y = 0; rt.max_y = 191;
-    rt.min_x = 0; rt.max_x = 7;
-    fillbitmap (bmp, bg, &rt);
-    rt.min_y = 0; rt.max_y = 191;
-    rt.min_x = 248; rt.max_x = 255;
-    fillbitmap (bmp, bg, &rt);
-  } */
-
-  for (y=0;y<192;y++){
-    for (x=0;x<8;x++){
-	  plot_pixel (bmp, x, y,bg);
-	  plot_pixel (bmp, 255-x, y,bg);
+  if (tms.anyDirtyColour) {
+    for (y=0;y<192;y++){
+      for (x=0;x<8;x++){
+	plot_pixel (bmp, x, y,bg);
+	plot_pixel (bmp, 255-x, y,bg);
+      }
     }
   }
 
 
   name = 0;
   for (y=0;y<24;y++) {
-    for (x=0;x<40;x++) {
+    for (x=0;x<40;x++,name++) {
       charcode = tms.vMem[tms.nametbl+name];
-      /*if ( !(tms.DirtyName[name] || tms.DirtyPattern[charcode]) &&
+      if ( !(tms.DirtyName[name] || tms.DirtyPattern[charcode]) &&
 	  !tms.anyDirtyColour)
 	continue;
-       */
-      name++; // got the ++  out of previous line
+      
       patternptr = tms.vMem + tms.pattern + (charcode*8);
       for (yy=0;yy<8;yy++) {
 	pattern = *patternptr++;
@@ -232,7 +230,7 @@ void MSXTMS9928a::mode1(struct osd_bitmap* bmp){
       }
     }
   }
-  //_TMS9928A_set_dirty (0);
+  _TMS9928A_set_dirty (0);
 };
 
 void MSXTMS9928a::mode2(struct osd_bitmap* bmp){
@@ -240,21 +238,20 @@ void MSXTMS9928a::mode2(struct osd_bitmap* bmp){
   byte fg,bg;
   byte *colourptr,*patternptr;
 
+  // Not needed since full screen refresh not executed now
   //if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
   //  return;
 
   name = 0;
   for (y=0;y<24;y++) {
-    for (x=0;x<32;x++) {
+    for (x=0;x<32;x++,name++) {
       charcode = tms.vMem[tms.nametbl+name]+(y/8)*256;
       colour = (charcode&tms.colourmask);
       pattern = (charcode&tms.patternmask);
-      /*
-	 if ( !(tms.DirtyName[name] || tms.DirtyPattern[pattern] ||
+      if ( !(tms.DirtyName[name] || tms.DirtyPattern[pattern] ||
 	    tms.DirtyColour[colour]) )
-	    continue;
-       */
-      name++; // got the ++  out of previous line
+	continue;
+      
       patternptr = tms.vMem+tms.pattern+colour*8;
       colourptr = tms.vMem+tms.colour+pattern*8;
       for (yy=0;yy<8;yy++) {
@@ -272,47 +269,37 @@ void MSXTMS9928a::mode2(struct osd_bitmap* bmp){
       }
     }
   }
-  //_TMS9928A_set_dirty (0);
+  _TMS9928A_set_dirty (0);
 };
 
 void MSXTMS9928a::mode12(struct osd_bitmap* bmp){
   int pattern,x,y,yy,xx,name,charcode;
   byte fg,bg,*patternptr;
 
+  // Not needed since full screen refresh not executed now
   //if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
   //  return;
 
   fg = XPal[tms.Regs[7] / 16];
   bg = XPal[tms.Regs[7] & 15];
 
-    /* colours at sides must be reset */
-  /*
+  /* colours at sides must be reset */
   if (tms.anyDirtyColour) {
-    rt.min_y = 0; rt.max_y = 191;
-    rt.min_x = 0; rt.max_x = 7;
-    fillbitmap (bmp, bg, &rt);
-    rt.min_y = 0; rt.max_y = 191;
-    rt.min_x = 248; rt.max_x = 255;
-    fillbitmap (bmp, bg, &rt);
-  }
-  */
-  for (y=0;y<192;y++){
-    for (x=0;x<8;x++){
-	  plot_pixel (bmp, x, y,bg);
-	  plot_pixel (bmp, 255-x, y,bg);
+    for (y=0;y<192;y++){
+      for (x=0;x<8;x++){
+	plot_pixel (bmp, x, y,bg);
+	plot_pixel (bmp, 255-x, y,bg);
+      }
     }
   }
 
   name = 0;
   for (y=0;y<24;y++) {
-    for (x=0;x<40;x++) {
+    for (x=0;x<40;x++,name++) {
       charcode = (tms.vMem[tms.nametbl+name]+(y/8)*256)&tms.patternmask;
-      /*
-	if ( !(tms.DirtyName[name++] || tms.DirtyPattern[charcode]) &&
+      if ( !(tms.DirtyName[name] || tms.DirtyPattern[charcode]) &&
 	  !tms.anyDirtyColour)
 	continue;
-      */
-      name++; // got the ++  out of previous line
       patternptr = tms.vMem + tms.pattern + (charcode*8);
       for (yy=0;yy<8;yy++) {
 	pattern = *patternptr++;
@@ -324,26 +311,24 @@ void MSXTMS9928a::mode12(struct osd_bitmap* bmp){
       }
     }
   }
-  //_TMS9928A_set_dirty (0);
+  _TMS9928A_set_dirty (0);
 };
 
 void MSXTMS9928a::mode3(struct osd_bitmap* bmp){
   int x,y,yy,yyy,name,charcode;
   byte fg,bg,*patternptr;
 
+  // Not needed since full screen refresh not executed now
   //if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
   //  return;
 
   name = 0;
   for (y=0;y<24;y++) {
-    for (x=0;x<32;x++) {
+    for (x=0;x<32;x++,name++) {
       charcode = tms.vMem[tms.nametbl+name];
-      /*
-	 if ( !(tms.DirtyName[name] || tms.DirtyPattern[charcode]) &&
-	 tms.anyDirtyColour)
-	 continue;
-       */
-      name++; // got the ++  out of previous line
+      if ( !(tms.DirtyName[name] || tms.DirtyPattern[charcode]) &&
+	  tms.anyDirtyColour)
+	continue;
       patternptr = tms.vMem+tms.pattern+charcode*8+(y&3)*2;
       for (yy=0;yy<2;yy++) {
 	fg = XPal[(*patternptr / 16)];
@@ -363,13 +348,14 @@ void MSXTMS9928a::mode3(struct osd_bitmap* bmp){
       }
     }
   }
-  //_TMS9928A_set_dirty (0);
+  _TMS9928A_set_dirty (0);
 };
 
 void MSXTMS9928a::modebogus(struct osd_bitmap* bmp){
   byte fg,bg;
   int x,y,n,xx;
 
+  // Not needed since full screen refresh not executed now
   //if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
   //  return;
 
@@ -386,26 +372,24 @@ void MSXTMS9928a::modebogus(struct osd_bitmap* bmp){
     n=8; while (n--) plot_pixel (bmp, xx++, y, bg);
   }
 
-  //_TMS9928A_set_dirty (0);
+  _TMS9928A_set_dirty (0);
 };
 
 void MSXTMS9928a::mode23(struct osd_bitmap* bmp){
   int x,y,yy,yyy,name,charcode;
   byte fg,bg,*patternptr;
 
+  // Not needed since full screen refresh not executed now
   //if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
   //  return;
 
   name = 0;
   for (y=0;y<24;y++) {
-    for (x=0;x<32;x++) {
+    for (x=0;x<32;x++,name++) {
       charcode = tms.vMem[tms.nametbl+name];
-      /*
-	 if ( !(tms.DirtyName[name++] || tms.DirtyPattern[charcode]) &&
-	 tms.anyDirtyColour)
-	 continue;
-       */
-      name++; // got the ++  out of previous line
+      if ( !(tms.DirtyName[name] || tms.DirtyPattern[charcode]) &&
+	  tms.anyDirtyColour)
+	continue;
       patternptr = tms.vMem + tms.pattern +
 	((charcode+(y&3)*2+(y/8)*256)&tms.patternmask)*8;
       for (yy=0;yy<2;yy++) {
@@ -426,7 +410,7 @@ void MSXTMS9928a::mode23(struct osd_bitmap* bmp){
       }
     }
   }
-  //_TMS9928A_set_dirty (0);
+  _TMS9928A_set_dirty (0);
 };
 
 /*
@@ -626,7 +610,7 @@ void MSXTMS9928a::reset ()
 	tms.mode = tms.BackColour = 0;
 	tms.Change = 1;
 	tms.FirstByte = -1;
-	//_TMS9928A_set_dirty (1);
+	_TMS9928A_set_dirty (1);
 };
 
 //int TMS9928A_start (int model, unsigned int vram) 
@@ -752,8 +736,11 @@ void MSXTMS9928a::executeUntilEmuTime(const Emutime &time)
 	PRT_DEBUG("Executing TMS9928a");
 
 	//TODO:: Change from full screen refresh to emutime based!!
-	fullScreenRefresh();
-	PutImage();
+	if (tms.stateChanged){
+	  fullScreenRefresh();
+	  PutImage();
+	  tms.stateChanged=false;
+	  };
 	
 	//Next SP/interrupt in Pal mode here
 	currentTime = time;
@@ -781,13 +768,13 @@ void MSXTMS9928a::executeUntilEmuTime(const Emutime &time)
 /*
 ** Set all dirty / clean
 *
-static void _TMS9928A_set_dirty (char dirty) {
+*/
+void MSXTMS9928a::_TMS9928A_set_dirty (char dirty) {
     tms.anyDirtyColour = tms.anyDirtyName = tms.anyDirtyPattern = dirty;
     memset (tms.DirtyName, dirty, MAX_DIRTY_NAME);
     memset (tms.DirtyColour, dirty, MAX_DIRTY_COLOUR);
     memset (tms.DirtyPattern, dirty, MAX_DIRTY_PATTERN);
 };
-*/
 
 /*
 ** The I/O functions.
@@ -804,6 +791,8 @@ void MSXTMS9928a::writeIO(byte port, byte value, Emutime &time)
 	tms.vMem[tms.Addr] = value;
 	tms.Change = 1;
 	/* dirty optimization */
+	tms.stateChanged=true;
+
 	if ( (tms.Addr >= tms.nametbl) &&
 	    (tms.Addr < (tms.nametbl + MAX_DIRTY_NAME) ) ) {
 	  tms.DirtyName[tms.Addr - tms.nametbl] = 1;
@@ -832,6 +821,7 @@ void MSXTMS9928a::writeIO(byte port, byte value, Emutime &time)
 	if (value & 0x80) {
 	  /* register write */
 	  _TMS9928A_change_register ((int)(value & 7), tms.FirstByte);
+	  tms.stateChanged=true;
 	} else {
 	  /* set read/write address */
 	  tms.Addr = ((word)value << 8 | tms.FirstByte) & (tms.vramsize - 1);
@@ -918,7 +908,7 @@ void MSXTMS9928a::_TMS9928A_change_register (byte reg, byte val) {
             tms.mode = TMS_MODE;
             //PRT_DEBUG ("TMS9928A: now in mode " << tms.mode );
             //PRT_DEBUG (sprintf("TMS9928A: %s\n", modes[tms.mode]));
-            //_TMS9928A_set_dirty (1);
+            _TMS9928A_set_dirty (1);
         }
         break;
     case 1:
@@ -930,7 +920,7 @@ void MSXTMS9928a::_TMS9928A_change_register (byte reg, byte val) {
         mode = TMS_MODE;
         if (tms.mode != mode) {
             tms.mode = mode;
-            //_TMS9928A_set_dirty (1);
+            _TMS9928A_set_dirty (1);
             printf("TMS9928A: %s\n", modes[tms.mode]);
             //PRT_DEBUG (sprintf("TMS9928A: %s\n", modes[tms.mode]));
         }
