@@ -5,7 +5,6 @@
 
 #include <string>
 #include <memory>
-#include <SDL.h>
 #include "EnumSetting.hh"
 #include "components.hh"
 #include "probed_defs.hh" // for HAVE_X11 (should be component instead?)
@@ -13,10 +12,10 @@
 using std::string;
 using std::auto_ptr;
 
+
 namespace openmsx {
 
 class Renderer;
-class EmuTime;
 class VDP;
 
 /** Interface for renderer factories.
@@ -48,134 +47,7 @@ public:
 	  */
 	static auto_ptr<RendererSetting> createRendererSetting(
 		const string& defaultRenderer);
-
-	/** Gets the name of the associated renderer.
-	  */
-	//virtual const string getName() = 0;
-
-	/** Is the associated Renderer available?
-	  * Availability may depend on the presence of libraries, the graphics
-	  * hardware or the graphics system that is currently running.
-	  * This method should return the same value every time it is called.
-	  */
-	virtual bool isAvailable() = 0;
-
-	/** Instantiate the associated Renderer.
-	  * @param vdp VDP whose state will be rendered.
-	  * @return A newly created Renderer, or NULL if creation failed.
-	  *   TODO: Throwing an exception would be cleaner.
-	  */
-	virtual Renderer* create(VDP* vdp) = 0;
-
-private:
-	/** Get the factory selected by the current renderer setting.
-	  * @return The RendererFactory that can create the renderer.
-	  */
-	static auto_ptr<RendererFactory> getCurrent();
 };
-
-/** RendererFactory for DummyRenderer.
-  */
-class DummyRendererFactory: public RendererFactory
-{
-public:
-
-	/** TODO: Convert to singleton?
-	  */
-	DummyRendererFactory() { }
-
-	const string getName() {
-		return "Dummy";
-	}
-
-	virtual bool isAvailable();
-
-	virtual Renderer* create(VDP* vdp);
-};
-
-/** RendererFactory for SDLHiRenderer.
-  */
-class SDLHiRendererFactory: public RendererFactory
-{
-public:
-
-	/** TODO: Convert to singleton?
-	  */
-	SDLHiRendererFactory() { }
-
-	const string getName() {
-		return "SDLHi";
-	}
-
-	virtual bool isAvailable();
-
-	virtual Renderer* create(VDP* vdp);
-};
-
-/** RendererFactory for SDLLoRenderer.
-  */
-class SDLLoRendererFactory: public RendererFactory
-{
-public:
-
-	/** TODO: Convert to singleton?
-	  */
-	SDLLoRendererFactory() { }
-
-	const string getName() {
-		return "SDLLo";
-	}
-
-	virtual bool isAvailable();
-
-	virtual Renderer* create(VDP* vdp);
-};
-
-#ifdef COMPONENT_GL
-
-/** RendererFactory for SDLGLRenderer.
-  */
-class SDLGLRendererFactory: public RendererFactory
-{
-public:
-
-	/** TODO: Convert to singleton?
-	  */
-	SDLGLRendererFactory() { }
-
-	const string getName() {
-		return "SDLGL";
-	}
-
-	virtual bool isAvailable();
-
-	virtual Renderer* create(VDP* vdp);
-};
-
-#endif // COMPONENT_GL
-
-#ifdef HAVE_X11
-
-/** RendererFactory for XRenderer.
-  */
-class XRendererFactory: public RendererFactory
-{
-public:
-
-	/** TODO: Convert to singleton?
-	  */
-	XRendererFactory() { }
-
-	const string getName() {
-		return "Xlib";
-	}
-
-	virtual bool isAvailable();
-
-	virtual Renderer* create(VDP* vdp);
-};
-
-#endif // HAVE_X11
 
 } // namespace openmsx
 

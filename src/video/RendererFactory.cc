@@ -1,18 +1,9 @@
 // $Id$
 
-#include <SDL.h>
 #include "RendererFactory.hh"
-#include "openmsx.hh"
 #include "RenderSettings.hh"
 #include "CliCommOutput.hh"
 #include "CommandLineParser.hh"
-#include "Icon.hh"
-#include "InputEventGenerator.hh"
-#include "Version.hh"
-#include "HardwareConfig.hh"
-#include "Display.hh"
-#include "CommandConsole.hh"
-#include "SDLUtil.hh"
 
 // Video systems:
 #include "DummyVideoSystem.hh"
@@ -25,32 +16,36 @@
 
 namespace openmsx {
 
-auto_ptr<RendererFactory> RendererFactory::getCurrent()
-{
-	switch (RenderSettings::instance().getRenderer()->getValue()) {
-	case DUMMY:
-		return auto_ptr<RendererFactory>(new DummyRendererFactory());
-	case SDLHI:
-		return auto_ptr<RendererFactory>(new SDLHiRendererFactory());
-	case SDLLO:
-		return auto_ptr<RendererFactory>(new SDLLoRendererFactory());
-#ifdef COMPONENT_GL
-	case SDLGL:
-		return auto_ptr<RendererFactory>(new SDLGLRendererFactory());
-#endif
-#ifdef HAVE_X11
-	case XLIB:
-		return auto_ptr<RendererFactory>(new XRendererFactory());
-#endif
-	default:
-		throw MSXException("Unknown renderer");
-	}
-}
-
 Renderer* RendererFactory::createRenderer(VDP* vdp)
 {
-	auto_ptr<RendererFactory> factory = getCurrent();
-	return factory->create(vdp);
+	switch (RenderSettings::instance().getRenderer()->getValue()) {
+	case DUMMY: {
+		DummyVideoSystem* videoSystem = new DummyVideoSystem();
+		return videoSystem->renderer;
+	}
+	case SDLHI: {
+		SDLVideoSystem* videoSystem = new SDLVideoSystem(vdp, SDLHI);
+		return videoSystem->renderer;
+	}
+	case SDLLO: {
+		SDLVideoSystem* videoSystem = new SDLVideoSystem(vdp, SDLLO);
+		return videoSystem->renderer;
+	}
+#ifdef COMPONENT_GL
+	case SDLGL: {
+		SDLGLVideoSystem* videoSystem = new SDLGLVideoSystem(vdp);
+		return videoSystem->renderer;
+	}
+#endif
+#ifdef HAVE_X11
+	case XLIB: {
+		return new XRenderer(XLIB, vdp);
+	}
+#endif
+	default:
+		assert(false);
+		return 0;
+	}
 }
 
 auto_ptr<RendererFactory::RendererSetting> RendererFactory::createRendererSetting(
@@ -68,8 +63,7 @@ auto_ptr<RendererFactory::RendererSetting> RendererFactory::createRendererSettin
 	// XRenderer is not ready for users.
 	// rendererMap["Xlib" ] = XLIB;
 #endif
-	RendererMap::const_iterator it =
-	       rendererMap.find(defaultRenderer);
+	RendererMap::const_iterator it = rendererMap.find(defaultRenderer);
 	RendererID defaultValue;
 	if (it != rendererMap.end()) {
 		defaultValue = it->second;
@@ -87,77 +81,6 @@ auto_ptr<RendererFactory::RendererSetting> RendererFactory::createRendererSettin
 		"renderer", "rendering back-end used to display the MSX screen",
 		initialValue, defaultValue, rendererMap));
 }
-
-// Dummy ===================================================================
-
-bool DummyRendererFactory::isAvailable()
-{
-	return true;
-}
-
-Renderer* DummyRendererFactory::create(VDP* /*vdp*/)
-{
-	DummyVideoSystem* videoSystem = new DummyVideoSystem();
-	return videoSystem->renderer;
-}
-
-// SDLHi ===================================================================
-
-bool SDLHiRendererFactory::isAvailable()
-{
-	return true; // TODO: Actually query.
-}
-
-Renderer* SDLHiRendererFactory::create(VDP* vdp)
-{
-	SDLVideoSystem* videoSystem = new SDLVideoSystem(vdp, SDLHI);
-	return videoSystem->renderer;
-}
-
-// SDLLo ===================================================================
-
-bool SDLLoRendererFactory::isAvailable()
-{
-	return true; // TODO: Actually query.
-}
-
-Renderer* SDLLoRendererFactory::create(VDP* vdp)
-{
-	SDLVideoSystem* videoSystem = new SDLVideoSystem(vdp, SDLLO);
-	return videoSystem->renderer;
-}
-
-// SDLGL ===================================================================
-
-#ifdef COMPONENT_GL
-
-bool SDLGLRendererFactory::isAvailable()
-{
-	return true; // TODO: Actually query.
-}
-
-Renderer* SDLGLRendererFactory::create(VDP* vdp)
-{
-	SDLGLVideoSystem* videoSystem = new SDLGLVideoSystem(vdp);
-	return videoSystem->renderer;
-}
-
-#endif // COMPONENT_GL
-
-
-#ifdef HAVE_X11
-// Xlib ====================================================================
-
-bool XRendererFactory::isAvailable()
-{
-	return true; // TODO: Actually query.
-}
-
-Renderer* XRendererFactory::create(VDP* vdp)
-{
-	return new XRenderer(XLIB, vdp);
-}
-#endif
 
 } // namespace openmsx
 
