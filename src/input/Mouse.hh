@@ -13,7 +13,7 @@ namespace openmsx {
 class Mouse : public JoystickDevice, EventListener
 {
 	public:
-		Mouse(const EmuTime &time);
+		Mouse();
 		virtual ~Mouse();
 
 		//Pluggable

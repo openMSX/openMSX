@@ -15,8 +15,7 @@ const int FAZE_YLOW  = 3;
 const int STROBE = 0x04;
 
 
-Mouse::Mouse(const EmuTime &time)
-	: lastTime(time)
+Mouse::Mouse()
 {
 	status = JOY_BUTTONA | JOY_BUTTONB;
 	faze = FAZE_YLOW;
@@ -26,14 +25,10 @@ Mouse::Mouse(const EmuTime &time)
 	EventDistributor::instance()->registerEventListener(SDL_MOUSEMOTION,     this);
 	EventDistributor::instance()->registerEventListener(SDL_MOUSEBUTTONDOWN, this);
 	EventDistributor::instance()->registerEventListener(SDL_MOUSEBUTTONUP,   this);
-
-	PluggingController::instance()->registerPluggable(this);
 }
 
 Mouse::~Mouse()
 {
-	PluggingController::instance()->unregisterPluggable(this);
-
 	EventDistributor::instance()->unregisterEventListener(SDL_MOUSEMOTION,     this);
 	EventDistributor::instance()->unregisterEventListener(SDL_MOUSEBUTTONDOWN, this);
 	EventDistributor::instance()->unregisterEventListener(SDL_MOUSEBUTTONUP,   this);
@@ -148,7 +143,7 @@ void Mouse::write(byte value, const EmuTime &time)
 		if (delta >= TIMEOUT) {
 			faze = FAZE_YLOW;
 		}
-		
+
 		switch (faze) {
 			case FAZE_XHIGH:
 				if ((value & STROBE) == 0) faze = FAZE_XLOW;
