@@ -1,5 +1,9 @@
 $Id$
 
+2003-01-16 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed MSXF4Device:
+	   FS-A1FX (re)boots correctly now
+
 2003-01-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Removed possibility to use other than XML config files
 
