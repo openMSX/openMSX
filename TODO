@@ -6,20 +6,24 @@
  - cassette support 
  - printer support (//)
  - [virtual] floppy support
- - joystick support
- - mouse support
+ - joystick support [Wouter: implemented but not tested,
+                             also no way to plug a joystick in]
+ - mouse support    [Wouter: see joystick]
  - trackball support
+ - LED status visualization
 
 * devices: [MSXDevice]
  - SCC [David]
  - DAC [David]
  - Floppy Controller
  - Music Module Devices
- - RS232 (Modem)
+ - RS232 (Modem) [Wouter: hardware is 8254 connected to 8251
+                          8254 is emulated (untested)]
  - // (Printer Port)
  - Moon Sound Devices
  - FM-PAC Devices
  - FM-PAK Devices
+ - V9938, V9958
 
 * config:
  - xmlconfig save support
