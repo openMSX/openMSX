@@ -27,7 +27,7 @@ MSXRealTime *MSXRealTime::oneInstance = NULL;
 void MSXRealTime::reset()
 {
 	realRef = SDL_GetTicks();
-	realOrigin = SDL_GetTicks();
+	realOrigin = realRef;
 	emuOrigin(0);
 	emuRef(0);
 	factor = 1;
@@ -74,7 +74,7 @@ void MSXRealTime::executeUntilEmuTime(const Emutime &curEmu)
 	PRT_DEBUG("RT: Estimated speed factor (real/emu): " << factor);
 	
 	// adjust short period references
-	realRef = SDL_GetTicks();
+	realRef = curReal+sleep;	//SDL_GetTicks();
 	emuRef = curEmu;
 
 	// schedule again in future

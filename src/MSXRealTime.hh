@@ -21,7 +21,7 @@ class MSXRealTime : public MSXDevice
 
 	private:
 		static const int SYNCINTERVAL    = 50;	// sync every 50ms
-		static const int MAX_CATCHUPTIME = 2500;	// max nb of ms overtime
+		static const int MAX_CATCHUPTIME = 2000;	// max nb of ms overtime
 		static const int MIN_REALTIME    = 40;	// min duration of interval
 	
 		MSXRealTime(); 
@@ -31,6 +31,10 @@ class MSXRealTime : public MSXDevice
 		unsigned int realRef, realOrigin;	// !! Overflow in 49 days
 		int catchUpTime;  // number of milliseconds overtime.
 		float factor;
+		
+		// tune exponential average (0 < ALPHA < 1)
+		//  ALPHA small -> past is more important
+		//        BIG   -> present is more important
 		static const float ALPHA = 0.5;
 };
 #endif
