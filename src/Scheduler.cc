@@ -7,7 +7,6 @@
 #include "ConsoleSource/CommandController.hh"
 #include "Mixer.hh"
 #include <cassert>
-#include <SDL/SDL.h>
 #include <algorithm>
 #include "EventDistributor.hh"
 #include "Schedulable.hh"
@@ -172,7 +171,7 @@ bool Scheduler::isPaused()
 	return paused;
 }
 
-// Note: this runs in a different thread
+
 void Scheduler::signalEvent(SDL_Event &event) {
 	if (event.type == SDL_QUIT) {
 		stopScheduling();

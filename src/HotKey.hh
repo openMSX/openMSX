@@ -31,15 +31,15 @@ class HotKey : private EventListener
 		 * events are only passed for specific keys.
 		 * See EventDistributor::registerListener for more details
 		 */
-		void registerHotKey(SDLKey key, HotKeyListener *listener);
-		//void unregisterHotKey(HotKeyListener *listener);
+		void   registerHotKey(SDLKey key, HotKeyListener *listener);
+		void unregisterHotKey(SDLKey key, HotKeyListener *listener);
 
 		/**
 		 * When the given hotkey is pressed the given command is
 		 * automatically executed.
 		 */
-		void registerHotKeyCommand(SDLKey key, const std::string &command);
-		//void unregisterHotKeyCommand(const std::string &command);
+		void   registerHotKeyCommand(SDLKey key, const std::string &command);
+		void unregisterHotKeyCommand(SDLKey key, const std::string &command);
 
 	private:
 		// EventListener

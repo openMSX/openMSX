@@ -2,7 +2,7 @@
 
 # we want most warnings
 
-AM_CXXFLAGS_BASE = -Wall -pipe `test -f .debug && echo "-DDEBUG"` -I$(srcdir)/cpu -I$(srcdir)/sound -I$(srcdir)/config -I$(srcdir)/fdc @XML_CFLAGS@ @SDL_CFLAGS@
+AM_CXXFLAGS_BASE = -Wall -pipe `test -f .debug && echo "-DDEBUG"` -I$(srcdir)/cpu -I$(srcdir)/sound -I$(srcdir)/config -I$(srcdir)/fdc -I$(srcdir)/thread @XML_CFLAGS@ @SDL_CFLAGS@
 if PROFILE
 AM_CXXFLAGS = $(AM_CXXFLAGS_BASE) -pg
 else
@@ -16,7 +16,7 @@ endif
 # or perhaps sometimes even more:
 # AM_CXXFLAGS = -Wall -W -DDEBUG -g3 -pipe
 
-SUBDIRS = cfg libxmlx ConsoleSource cpu sound config tools fdc
+SUBDIRS = cfg libxmlx ConsoleSource cpu sound config tools fdc thread
 
 #bin_PROGRAMS=openmsx cfgtest
 bin_PROGRAMS=openmsx
@@ -49,9 +49,6 @@ openmsx_SOURCES=\
 	devicefactory.hh devicefactory.cc \
 	Scheduler.hh Scheduler.cc Schedulable.hh Schedulable.cc \
 	EventDistributor.hh EventDistributor.cc EventListener.hh \
-	Thread.hh Thread.cc \
-	Mutex.hh Mutex.cc \
-	CondVar.hh CondVar.cc \
 	HotKey.hh HotKey.cc \
 	Keyboard.hh Keyboard.cc \
 	Leds.hh Leds.cc \
@@ -101,6 +98,7 @@ openmsx_LDADD = \
 	cpu/libCPU.la \
 	sound/libSound.la \
 	fdc/libFdc.la \
+	thread/libThread.la \
 	@XML_LIBS@ \
 	@SDL_LIBS@
 

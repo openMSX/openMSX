@@ -2,6 +2,7 @@
 
 #include "Thread.hh"
 
+
 Thread::Thread(Runnable *runnable)
 {
 	this->runnable = runnable;
