@@ -331,6 +331,16 @@
 
   </config>
 
+  <config id="Debugger">
+    <type>Debugger</type>
+    <parameter name="font">skins/ConsoleFontRave.png</parameter>
+    <parameter name="background">skins/ConsoleBackground2.png</parameter>
+    <parameter name="columns">100</parameter>
+    <parameter name="rows">20</parameter>
+    <parameter name="placement">top</parameter>
+  </config>
+ 
+
 <!-- For an IDE config, check out the share/extensions/ide dir -->
   <device id="Sunrise IDE">
     <type>SunriseIDE</type>

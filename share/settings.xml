@@ -52,6 +52,15 @@
     <parameter name="removedoubles">true</parameter>
   </config>
 
+  <config id="Debugger">
+    <type>Debugger</type>
+    <parameter name="font">skins/ConsoleFontRave.png</parameter>
+    <parameter name="background">skins/ConsoleBackground2.png</parameter>
+    <parameter name="columns">100</parameter>
+    <parameter name="rows">20</parameter>
+    <parameter name="placement">top</parameter>
+  </config>	
+
  <!-- Commands that should be executed automatically after boot -->
   <config id="AutoCommands">
     <parameter>bind print toggle fullscreen</parameter>
