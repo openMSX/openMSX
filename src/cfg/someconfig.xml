@@ -57,6 +57,32 @@
     <parameter name="filename">MSX.ROM</parameter>
     <parameter name="skip_headerbytes">16384</parameter>
   </device>
+
+    <device id="diskrom">
+    <type>Rom16KB</type>
+    <slotted>
+      <ps>3</ps>
+      <ss>1</ss>
+      <page>1</page>
+    </slotted>
+    <parameter name="filename">DISK.ROM</parameter>
+    <parameter name="skip_headerbytes">0</parameter>
+    <parameter name="0x0010" class="patch">0xED</parameter>
+    <parameter name="0x0011" class="patch">0xFE</parameter>
+    <parameter name="0x0012" class="patch">0xC9</parameter>
+    <parameter name="0x0013" class="patch">0xED</parameter>
+    <parameter name="0x0014" class="patch">0xFE</parameter>
+    <parameter name="0x0015" class="patch">0xC9</parameter>
+    <parameter name="0x0016" class="patch">0xED</parameter>
+    <parameter name="0x0017" class="patch">0xFE</parameter>
+    <parameter name="0x0018" class="patch">0xC9</parameter>
+    <parameter name="0x001C" class="patch">0xED</parameter>
+    <parameter name="0x001D" class="patch">0xFE</parameter>
+    <parameter name="0x001E" class="patch">0xC9</parameter>
+    <parameter name="0x001F" class="patch">0xED</parameter>
+    <parameter name="0x0020" class="patch">0xFE</parameter>
+    <parameter name="0x0021" class="patch">0xC9</parameter>
+  </device>
   
   <device id="ppi">
     <type>PPI</type>

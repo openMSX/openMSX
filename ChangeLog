@@ -1,5 +1,8 @@
 $Id$
 
+2001-12-08 Joost Yervante Damad <j.damad@qahwah.net>
+	* Loadfile now handles patching of files
+
 2001-12-08 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* added several missing reset() calls
 

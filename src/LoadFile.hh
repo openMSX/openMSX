@@ -2,8 +2,8 @@
 //
 // LoadFile mixin
 
-#ifndef __LOADFILE__HH__
-#define __LOADFILE__HH__
+#ifndef __LOADFILE_HH__
+#define __LOADFILE_HH__
 
 #include "config.h"
 #include "openmsx.hh"
@@ -21,8 +21,30 @@ class LoadFile
 		void loadFile(byte** memoryBank, int fileSize);
 
 	protected:
+		/**
+		 * pure virtual function used to access the device's
+		 * config object.
+		 */
 		virtual MSXConfig::Device* getDeviceConfig() = 0;
+
+		/**
+		 * Objects of this class can only be constructed by
+		 * inherited classes.
+		 */
+		LoadFile() {}
+
+	private:
+		/** block usage */
+		LoadFile(const LoadFile &foo);
+		/** block usage */
+		LoadFile &operator=(const LoadFile &foo);
+
+		/**
+		 * patch a file after it has being loaded in the memory bank
+		 * if configured in configfile
+		 */
+		void patchFile(byte* memoryBank, int size);
 };
 
 
-#endif // __LOADFILE__HH__
+#endif // __LOADFILE_HH__

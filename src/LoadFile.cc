@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <list>
 
 #include "LoadFile.hh"
 
@@ -26,4 +27,31 @@ void LoadFile::loadFile(byte** memoryBank, int fileSize)
 	if (file.fail())
 		PRT_ERROR("Error reading " << filename);
 	file.close();
+	// also patch the file if needed:
+	patchFile(*memoryBank, fileSize);
+}
+
+void LoadFile::patchFile(byte* memoryBank, int size)
+{
+	/*
+	 * example:
+	 * <parameter name="0x0010" class="patch">0xED</parameter>
+	 */
+	std::list<const MSXConfig::Config::Parameter*> parameters =
+		getDeviceConfig()->getParametersWithClass("patch");
+	std::list<const MSXConfig::Config::Parameter*>::const_iterator i=parameters.begin();
+	for ( /**/ ; i!=parameters.end(); i++)
+	{
+		int offset = strtol((*i)->name.c_str(),0,0);
+		int value  = (*i)->getAsInt();
+		if (offset >= size)
+		{
+			PRT_DEBUG("Ignoring illegal ROM patch-offset: " << offset);
+		}
+		else
+		{
+			PRT_DEBUG("Patching ROM[" << (*i)->name << "]=" << (*i)->value);
+			memoryBank[offset] = value;
+		}
+	}
 }

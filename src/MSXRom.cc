@@ -5,7 +5,7 @@
 
 MSXRom::~MSXRom()
 {
-    PRT_DEBUG("Deleting a MSXRom memoryBank");
+	PRT_DEBUG("Deleting a MSXRom memoryBank");
 	delete [] memoryBank;
 }
 

@@ -8,7 +8,7 @@
 // you need libxml++ 0.13 and libxml2 > 2.0.0
 #include <xml++.h>
 
-// for atoi()
+// for strtol() and atoll()
 #include <cstdlib>
 
 // for tolower
@@ -198,11 +198,11 @@ MSXConfig::Device::Device(XMLNode *deviceNode):Config(deviceNode)
 				XMLHelper<MSXConfig::XMLParseException> xh_slotted_child(*slotted_children_i);
 				xh_slotted_child.checkContentNode();
 				if (xh_slotted_child.justCheckName("ps")) // ps - <!ELEMENT ps (#PCDATA)>
-					ps = atoi(xh_slotted_child.getContent().c_str());
+					ps = strtol(xh_slotted_child.getContent().c_str(),0,0);
 				else if (xh_slotted_child.justCheckName("ss")) // ss - <!ELEMENT ss (#PCDATA)>
-					ss = atoi(xh_slotted_child.getContent().c_str());
+					ss = strtol(xh_slotted_child.getContent().c_str(),0,0);
 				else if (xh_slotted_child.justCheckName("page")) // page - <!ELEMENT page (#PCDATA)>
-					page =  atoi(xh_slotted_child.getContent().c_str());
+					page =  strtol(xh_slotted_child.getContent().c_str(),0,0);
 				slotted_children_i++;
 			}
 			slotted.push_back(new Slotted(ps,ss,page));
@@ -377,7 +377,7 @@ const bool MSXConfig::Config::Parameter::getAsBool() const
 
 const int MSXConfig::Config::Parameter::getAsInt() const
 {
-	return atoi(value.c_str());
+	return strtol(value.c_str(),0,0);
 }
 
 const uint64 MSXConfig::Config::Parameter::getAsUint64() const

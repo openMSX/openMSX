@@ -11,19 +11,24 @@
 
 class MSXRom: virtual public MSXDevice, public LoadFile
 {
-    public:
+	public:
 
-        /**
-         * delete memory bank
-         */
-        virtual ~MSXRom();
+		/**
+		 * delete memory bank
+		 */
+		virtual ~MSXRom();
 
-        /**
-         * Return the MSXConfig object
-         */
-        MSXConfig::Device* getDeviceConfig();
+	protected:
+		/**
+		 * Return the MSXConfig object
+		 */
+		MSXConfig::Device* getDeviceConfig();
 
-        byte* memoryBank;
+		/**
+		 * Byte region used by inherited classes
+		 * to store the ROM's memory bank.
+		 */
+		byte* memoryBank;
 };
 
 #endif // __MSXROM_HH__
