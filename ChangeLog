@@ -8,6 +8,10 @@ $Id$
 	   - Mixer now depends on Scheduler (for mute when paused) instead of
 	     the other way around
 
+2003-11-14 Maarten ter Huurne <maarten@treewalker.org>
+	* Performance fixes for SDLHi.
+	  Thanks to Reikan for finding a solution to the slowness.
+
 2003-11-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* HotKey is no longer a singleton:
 	   - not required anymore since everything is done by bind cmds
