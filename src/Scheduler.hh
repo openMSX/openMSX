@@ -107,7 +107,6 @@ class Scheduler : private EventListener
 
 	private:
 		Scheduler();
-		void reschedule();
 
 		// EventListener
 		void signalEvent(SDL_Event &event);
@@ -120,10 +119,6 @@ class Scheduler : private EventListener
 		Mutex schedMutex;
 		
 		bool noSound;
-
-		/** The scheduler is considered running unless it is paused
-		  * or exited.
-		  */
 		bool needBlock;
 		bool exitScheduler;
 		bool paused;

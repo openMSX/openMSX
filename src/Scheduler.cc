@@ -93,17 +93,10 @@ bool Scheduler::removeSyncPoint(Schedulable* device, int userData)
 void Scheduler::stopScheduling()
 {
 	exitScheduler = true;
-	reschedule();
+	setSyncPoint(ASAP, cpu);	// arbitrarily choose MSXCPU.
 	unpause();
 }
 
-void Scheduler::reschedule()
-{
-	// TODO
-	// Reschedule ASAP. We must give a device, choose MSXCPU.
-	EmuTime zero;
-	setSyncPoint(zero, cpu);
-}
 
 void Scheduler::scheduleEmulation()
 {

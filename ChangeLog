@@ -3,6 +3,7 @@ $Id$
 2002-06-20 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Moved thread related code to its own subdirectory
 	* Added unregisterHotKey() and unregisterHotKeyCommand() methods
+	* Enabled "renderer" command
 
 2002-06-19 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Console commands and HotKeys are now executed by the main thread:

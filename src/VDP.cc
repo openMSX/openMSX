@@ -371,10 +371,9 @@ void VDP::frameStart(const EmuTime &time)
 
 	if (switchRenderer) {
 		switchRenderer = false;
-		std::cout << "VDP: switching renderer to " << rendererName << "\n";
+		PRT_DEBUG("VDP: switching renderer to " << rendererName);
 		bool fullScreen = renderer->isFullScreen();
 		delete renderer;
-		std::cout << "VDP: delete successful\n";
 		// TODO: Handle invalid names more gracefully.
 		renderer = PlatformFactory::createRenderer(
 			rendererName, this, fullScreen, time);
@@ -853,14 +852,8 @@ void VDP::RendererCmd::execute(const std::vector<std::string> &tokens)
 			break;
 		case 2:
 			// Switch renderer.
-			ConsoleManager::instance()->print(
-				"Renderer switching is currently disabled.");
-			/*
-			TODO: Find out why SDL_SetVideoMode hangs when switching
-			      to SDLGL from SDLHi.
 			vdp->rendererName = tokens[1];
 			vdp->switchRenderer = true;
-			*/
 			break;
 		default:
 			throw CommandException("Too many parameters.");
