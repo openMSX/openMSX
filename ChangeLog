@@ -1,5 +1,11 @@
 $Id$
 
+2005-02-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added locking to EventDistributor:
+	   There was a race in EventDistributor (long time already).
+	   Today I got a crash because of this race (irreproducible),
+	   so apparently it's hard to trigger. I hope it's fixed now.
+
 2005-02-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed sprites in P1 mode:
 	   - Erik did all the hard work, I just had to fix one line ;-)

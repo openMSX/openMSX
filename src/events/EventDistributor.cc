@@ -16,7 +16,8 @@ using std::vector;
 namespace openmsx {
 
 EventDistributor::EventDistributor()
-	: delaySetting(new FloatSetting("inputdelay",
+	: sem(1)
+	, delaySetting(new FloatSetting("inputdelay",
 	               "EXPERIMENTAL: delay input to avoid keyskips",
 	               0.03, 0.0, 10.0))
 {
@@ -25,6 +26,8 @@ EventDistributor::EventDistributor()
 
 EventDistributor::~EventDistributor()
 {
+	ScopedLock lock(sem);
+
 	for (vector<EventTime>::iterator it = toBeScheduledEvents.begin();
 	     it != toBeScheduledEvents.end(); ++it) {
 		delete it->event;
@@ -60,6 +63,8 @@ EventDistributor::ListenerMap& EventDistributor::getListeners(
 void EventDistributor::registerEventListener(
 	EventType type, EventListener& listener, ListenerType listenerType)
 {
+	ScopedLock lock(sem);
+
 	ListenerMap& map = getListeners(listenerType);
 	map.insert(ListenerMap::value_type(type, &listener));
 }
@@ -67,6 +72,8 @@ void EventDistributor::registerEventListener(
 void EventDistributor::unregisterEventListener(
 	EventType type, EventListener& listener, ListenerType listenerType)
 {
+	ScopedLock lock(sem);
+
 	ListenerMap& map = getListeners(listenerType);
 	pair<ListenerMap::iterator, ListenerMap::iterator> bounds =
 		map.equal_range(type);
@@ -81,9 +88,9 @@ void EventDistributor::unregisterEventListener(
 
 void EventDistributor::distributeEvent(Event* event)
 {
+	ScopedLock lock(sem);
+
 	assert(event);
-	// TODO: Use semaphores to guard access to the maps.
-	//       This is needed because this method can be called from any thread.
 
 	// Deliver event to NATIVE listeners.
 	// TODO: Implement a real solution against modifying data structure while
@@ -95,7 +102,9 @@ void EventDistributor::distributeEvent(Event* event)
 		nativeListeners.equal_range(event->getType());
 	for (ListenerMap::iterator it = bounds.first;
 	     it != bounds.second; ++it) {
+		sem.up();
 		cont &= it->second->signalEvent(*event);
+		sem.down();
 		if (!cont) break;
 	}
 	if (!cont) {
@@ -126,6 +135,8 @@ void EventDistributor::distributeEvent(Event* event)
 
 void EventDistributor::sync(const EmuTime& emuTime)
 {
+	ScopedLock lock(sem);
+
 	unsigned long long curRealTime = Timer::getTime();
 	unsigned long long realDuration = curRealTime - prevReal;
 	EmuDuration emuDuration = emuTime - prevEmu;
@@ -155,6 +166,8 @@ void EventDistributor::sync(const EmuTime& emuTime)
 
 void EventDistributor::executeUntil(const EmuTime& /*time*/, int userData)
 {
+	ScopedLock lock(sem);
+
 	ListenerMap& listeners = getListeners(static_cast<ListenerType>(userData));
 	Event* event = scheduledEvents.front();
 	scheduledEvents.pop_front();
@@ -162,7 +175,9 @@ void EventDistributor::executeUntil(const EmuTime& /*time*/, int userData)
 		listeners.equal_range(event->getType());
 	for (ListenerMap::iterator it = bounds.first;
 	     it != bounds.second; ++it) {
+		sem.up();
 		it->second->signalEvent(*event);
+		sem.down();
 	}
 	delete event;
 }

@@ -6,6 +6,7 @@
 #include "Event.hh"
 #include "EmuTime.hh"
 #include "Schedulable.hh"
+#include "Semaphore.hh"
 #include <map>
 #include <vector>
 #include <deque>
@@ -50,8 +51,8 @@ public:
 	 * @param listener Listener that will be notified when an event arrives.
 	 * @param listenerType The way this event should be delivered.
 	 */
-	void   registerEventListener(EventType type, EventListener& listener,
-	                             ListenerType listenerType = EMU);
+	void registerEventListener(EventType type, EventListener& listener,
+	                           ListenerType listenerType = EMU);
 	/**
 	 * Unregisters a previously registered event listener.
 	 * @param type The type of the events the listener should no longer receive.
@@ -86,6 +87,7 @@ private:
 	};
 	std::vector<EventTime> toBeScheduledEvents;
 	std::deque<Event*> scheduledEvents;
+	Semaphore sem;
 
 	EmuTime prevEmu;
 	unsigned long long prevReal;
