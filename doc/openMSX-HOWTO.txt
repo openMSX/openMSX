@@ -553,7 +553,7 @@ computer.
 
 You can set the renderer in the config file. Look for <config id="renderer">.
 You can also specify there whether the emulator should switch to full screen
-when started.
+when started. You can also switch renderer from the Console (see below).
 
 Console
 
@@ -565,12 +565,7 @@ change disk images, plug in joysticks or mice, switch renderers and to define
 key bindings. You can specify a background image and the font in the config file
 (<config id="Console">). The png files need an alpha channel (transparency
 information) though.
-With openMSX builds later than 2002-09-08, you can also set the graphical
-emulation accuracy. Try `help accuracy' in the Console. Setting accuracy to
-`pixel' enables very accurate graphics rendering (the Scope part in Unknown
-Reality will almost work perfectly), but may cause slowdowns, since this is not
-optimised yet.
-
+``
 AutoCommands and KeyEventInserter
 
 In the config file section AutoCommands, you can specify some console commands
@@ -578,6 +573,52 @@ that should be executed automatically. See the someconfig.xml file for some
 examples. The KeyEventInserter section can be used to have something typed into
 the MSX after it booted. Again, see the someconfig.xml file. Examine this file
 to learn what you can configure more.
+
+Renderer accuracy
+
+In the Console you can specify the accuracy of the rendering. There are
+currently only two options: `line' and `pixel'. The latter is still very
+unoptimised (and thus slow), but it will enable you to run the Unknown Reality
+real time oscilloscope almost flawlessly! Just type "accuracy pixel" in the
+console.
+
+Running tape games
+
+openMSX supports WAV files for tape emulation! Just configure your MSX with a
+cassetteport:
+     <config id="CassettePort">
+     </config>
+Then type in the console:
+     plug cassetteport cassetteplayer
+     tape <file>.wav
+And then in MSX Basic, type:
+     run"cas:"
+(or another command to load the program on 'tape'.)
+You can also use the so-called CAS files. In the Console, type:
+     tape <tapeimage>
+and
+     tape eject
+to remove the tape from the virtual cassette player.
+
+Other Console commands
+
+You can reset your MSX with the Console command `reset'. 
+If the MSX goes too fast or too slow, adjust the emulation speed with the
+`speed' command, which has the speed percentage as paramter. So, typing `speed
+120', will let the emulated MSX run at 120% of normal MSX speed.
+To connect a mouse, you can also use the `plug' command:
+    plug joyporta mouse
+will connect a mouse to joystick port A.
+If you want openMSX to emulate the blinking interlace effect as can be seen on a
+real MSX, try "deinterlace off"... I recommend to turn it on though, the
+blinking is quite irregular on most systems and thus a pain for the eyes.
+You can also change disks at run time of course. Just type
+    diska <diskimage>
+in the Console to put the specified disk image in drive A.
+Again, the full list of Console commands can be found in doc/commands.txt and
+when typing `help' in the Console itself. You can also type `help <command>' to
+get some help about a specific Console command.
+
 
 9. Reporting bugs and giving feedback
    ----------------------------------
