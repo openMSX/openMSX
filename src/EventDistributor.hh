@@ -21,7 +21,7 @@ class EventListener
 		virtual void signalEvent(SDL_Event &event) = 0;
 };
 
-class EventDistributor : public EventListener, public Runnable
+class EventDistributor : public Runnable
 {
 	public:
 		virtual ~EventDistributor();
@@ -29,7 +29,6 @@ class EventDistributor : public EventListener, public Runnable
 
 		void run();
 
-		
 		/**
 		 * Use this method to register a given class to synchronously
 		 * receive certain SDL_Event's. When such an event is received
@@ -68,18 +67,13 @@ class EventDistributor : public EventListener, public Runnable
 		 */
 		void registerAsyncListener(int type, EventListener *listener);
 
-
-
-		// EventListener
-		void signalEvent(SDL_Event &event);
-
 	private:
 		EventDistributor();
 		static EventDistributor *oneInstance;
 
 		std::multimap <int, EventListener*> asyncMap;
 		std::multimap <int, EventListener*> syncMap;
-		std::queue <SDL_Event> queue;
+		std::queue <std::pair<SDL_Event, EventListener*> > queue;
 		Mutex asyncMutex;	// to lock variable asyncMap
 		Mutex syncMutex;	// to lock variable syncMap
 		Mutex queueMutex;	// to lock variable queue
