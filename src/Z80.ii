@@ -50,13 +50,13 @@ inline byte Z80::Z80_RDMEM(word address) {
 #ifdef Z80DEBUG
 	currentTime += 1;
 	//debugmemory[address] = interface->readMem(address, currentTime);
-	debugmemory[address] = readMem(address, currentTime);
+	debugmemory[address] = readMem(address);
 	currentTime += 2;
 	return debugmemory[address];
 #else
 	currentTime += 1;
 	//byte result = interface->readMem(address, currentTime);
-	byte result = readMem(address, currentTime);
+	byte result = readMem(address);
 	currentTime += 2;
 	return result;
 #endif
@@ -67,7 +67,7 @@ inline byte Z80::Z80_RDMEM(word address) {
 inline void Z80::Z80_WRMEM(word address, byte value) {
 	currentTime += 1;
 	//interface->writeMem(address, value, currentTime);
-	writeMem(address, value, currentTime);
+	writeMem(address, value);
 	currentTime += 2;
 	// No debugmemory[A] here otherwise self-modifying code could
 	// alter the executing code before the disassembled opcode

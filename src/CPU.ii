@@ -1,4 +1,4 @@
-inline byte CPU::readMem(word address, const EmuTime &time)
+inline byte CPU::readMem(word address)
 {
 	int line = address >> CACHE_LINE_BITS;
 	if (readCacheLine[line] == (byte*) -1)
@@ -6,11 +6,11 @@ inline byte CPU::readMem(word address, const EmuTime &time)
 	if (readCacheLine[line] != NULL) {
 		return readCacheLine[line][address&CACHE_LINE_LOW];
 	} else {
-		return interface->readMem(address, time);
+		return interface->readMem(address, getCurrentTime());
 	}
 }
 
-inline void CPU::writeMem(word address, byte value, const EmuTime &time)
+inline void CPU::writeMem(word address, byte value)
 {
 	int line = address >> CACHE_LINE_BITS;
 	if (writeCacheLine[line] == (byte*) -1)
@@ -18,6 +18,6 @@ inline void CPU::writeMem(word address, byte value, const EmuTime &time)
 	if (writeCacheLine[line] != NULL) {
 		writeCacheLine[line][address&CACHE_LINE_LOW] = value;
 	} else {
-		interface->writeMem(address, value, time);
+		interface->writeMem(address, value, getCurrentTime());
 	}
 }
