@@ -1,9 +1,6 @@
 // $Id$
 
 #include <cassert>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
 #include "FileContext.hh"
 #include "FileOperations.hh"
 #include "SettingsConfig.hh"
@@ -63,10 +60,8 @@ const string FileContext::resolve(const vector<string>& pathList,
 		if (pos != string::npos) {
 			name = name.substr(pos + 3);
 		}
-		struct stat buf;
 		PRT_DEBUG("Context: try " << name);
-		if (!stat(FileOperations::getNativePath(name).c_str(), &buf)) {
-			// found
+		if (FileOperations::exists(name)) {
 			return name;
 		}
 	}
