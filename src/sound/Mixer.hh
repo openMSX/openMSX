@@ -89,6 +89,8 @@ private:
 	static void audioCallbackHelper(void* userdata, Uint8* stream, int len);
 	void audioCallback(short* stream);
 	void muteHelper(int muteCount);
+	
+	void updateMasterVolume(int masterVolume);
 
 	// SettingListener
 	virtual void update(const SettingLeafNode* setting) throw();
@@ -100,6 +102,7 @@ private:
 
 	struct SoundDeviceInfo {
 		ChannelMode mode;
+		int normalVolume;
 		IntegerSetting* volumeSetting;
 		EnumSetting<ChannelMode> *modeSetting;
 	};
@@ -121,6 +124,7 @@ private:
 	InfoCommand& infoCommand;
 
 	BooleanSetting muteSetting;
+	IntegerSetting masterVolume;
 	BooleanSetting& pauseSetting;
 
 	int prevLeft, prevOutLeft;

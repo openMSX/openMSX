@@ -22,6 +22,7 @@ Mixer::Mixer()
 	  output(CliCommOutput::instance()),
 	  infoCommand(InfoCommand::instance()),
 	  muteSetting("mute", "(un)mute the emulation sound", false),
+	  masterVolume("master_volume", "master volume", 75, 0, 100),
 	  pauseSetting(Scheduler::instance().getPauseSetting()),
 	  soundDeviceInfo(*this)
 {
@@ -65,12 +66,14 @@ Mixer::Mixer()
 	}
 	infoCommand.registerTopic("sounddevice", &soundDeviceInfo);
 	muteSetting.addListener(this);
+	masterVolume.addListener(this);
 	pauseSetting.addListener(this);
 }
 
 Mixer::~Mixer()
 {
 	pauseSetting.removeListener(this);
+	masterVolume.removeListener(this);
 	muteSetting.removeListener(this);
 	infoCommand.unregisterTopic("sounddevice", &soundDeviceInfo);
 	if (init) {
@@ -95,7 +98,7 @@ int Mixer::registerSound(SoundDevice* device, short volume, ChannelMode mode)
 	const string& name = device->getName();
 	SoundDeviceInfo info;
 	info.volumeSetting = new IntegerSetting(name + "_volume",
-			"the volume of this sound chip", volume, 0, 32767);
+			"the volume of this sound chip", 75, 0, 100);
 
 	EnumSetting<ChannelMode>::Map modeMap;
 	// once we're stereo, stay stereo. Once mono, stay mono.
@@ -112,6 +115,7 @@ int Mixer::registerSound(SoundDevice* device, short volume, ChannelMode mode)
 		"the channel mode of this sound chip", mode, modeMap);
 	
 	info.mode = mode;
+	info.normalVolume = (volume * 100 * 100) / (75 * 75);
 	info.modeSetting->addListener(this);
 	info.volumeSetting->addListener(this);
 	infos[device] = info;
@@ -123,7 +127,8 @@ int Mixer::registerSound(SoundDevice* device, short volume, ChannelMode mode)
 	buffers.push_back(NULL);	// make room for one more
 	devices[mode].push_back(device);
 	device->setSampleRate(audioSpec.freq);
-	device->setVolume(volume);
+	device->setVolume((info.normalVolume * info.volumeSetting->getValue() *
+	                   masterVolume.getValue()) / (100 * 100));
 	unlock();
 
 	return audioSpec.samples;
@@ -318,33 +323,46 @@ void Mixer::update(const SettingLeafNode *setting) throw()
 		} else {
 			unmute();
 		}
-	} else {
-		const EnumSetting<ChannelMode>* s = dynamic_cast <const EnumSetting<ChannelMode>* >(setting);
-		if (s!=NULL) {
-			map<SoundDevice*, SoundDeviceInfo>::iterator it = infos.begin();
-			while (it != infos.end() && it->second.modeSetting != setting) ++it;
-			assert (it!=infos.end());
-			// it->first is the SoundDevice we need
-			SoundDeviceInfo &info = it->second;
-			lock();
-			ChannelMode oldmode = info.mode;
-			info.mode = info.modeSetting->getValue();
-			vector<SoundDevice*> &dev = devices[oldmode];
-			dev.erase(remove(dev.begin(), dev.end(), it->first), dev.end());
-			devices[info.mode].push_back(it->first);
-			unlock();
-		} else {
-			const IntegerSetting* t = dynamic_cast <const IntegerSetting*>(setting);
-			if (t != NULL) {
-				map<SoundDevice*, SoundDeviceInfo>::iterator it = infos.begin();
-				while (it != infos.end() && it->second.volumeSetting != setting) ++it;
-				assert (it!=infos.end());
-				// it->first is the SoundDevice we need
-				it->first->setVolume(it->second.volumeSetting->getValue()); 
-			} else {
-				assert(false);
-			}
+	} else if (setting == &masterVolume) {
+		updateMasterVolume(masterVolume.getValue());
+	} else if (dynamic_cast<const EnumSetting<ChannelMode>* >(setting)) {
+		map<SoundDevice*, SoundDeviceInfo>::iterator it = infos.begin();
+		while (it != infos.end() && it->second.modeSetting != setting) {
+			++it;
 		}
+		assert(it != infos.end());
+		SoundDeviceInfo &info = it->second;
+		lock();
+		ChannelMode oldmode = info.mode;
+		info.mode = info.modeSetting->getValue();
+		vector<SoundDevice*> &dev = devices[oldmode];
+		dev.erase(remove(dev.begin(), dev.end(), it->first), dev.end());
+		devices[info.mode].push_back(it->first);
+		unlock();
+	} else if (dynamic_cast<const IntegerSetting*>(setting)) {
+		map<SoundDevice*, SoundDeviceInfo>::iterator it = infos.begin();
+		while (it != infos.end() && it->second.volumeSetting != setting) {
+			++it;
+		}
+		assert(it != infos.end());
+		const SoundDeviceInfo& info = it->second;
+		it->first->setVolume(
+		     (masterVolume.getValue() * info.volumeSetting->getValue() *
+		      info.normalVolume) / (100 * 100));
+	} else {
+		assert(false);
+	}
+}
+
+// 0 <= mastervolume <= 100
+void Mixer::updateMasterVolume(int masterVolume)
+{
+	for (map<SoundDevice*, SoundDeviceInfo>::const_iterator it = infos.begin();
+	     it != infos.end(); ++it) {
+		const SoundDeviceInfo& info = it->second;
+		it->first->setVolume(
+		     (info.normalVolume * info.volumeSetting->getValue() *
+		      masterVolume) / (100 * 100));
 	}
 }
 

@@ -1,5 +1,9 @@
 $Id$
 
+2004-02-18 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented master volume setting (range 0..100). Changed volume
+	  setting of other devices to 0..100 as well.
+
 2004-02-17 Maarten ter Huurne <maarten@treewalker.org>
 	* VDPCmdEngine refactoring: replaced macros by templates and switch
 	  statements by virtual method calls. (committed by Wouter)
