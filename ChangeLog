@@ -1,6 +1,10 @@
 $Id$
 
-2003-06-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2003-06-08 Maarten ter Huurne <maarten@treewalker.org>
+	* In the command engine, only act on display mode switches if a
+	  different command engine mode is entered.
+
+2003-06-07 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Print error msg when user gives wrong diskimage on the cmd line
 	*  same for cas and wav images
 	* Fix core dump while writing to read-only disk images
@@ -146,7 +150,7 @@ $Id$
 2003-05-21 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Double commands in the console commandhistory can no
 	  longer occur.
-	* Made 'remove doubles' and history size configurable  
+	* Made 'remove doubles' and history size configurable
 
 2003-05-20 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented run-time tuneable volume for sound devices
