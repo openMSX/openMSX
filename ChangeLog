@@ -3,6 +3,12 @@ $Id$
 2004-01-04 Reikan <openMSX4Win32@ranpub.com>
 	* Fix SDL_Video subsystem initialization.
 	  This fix boot up unstability.
+	* Renamed win32 native midi.
+	  out:
+	    midi  -> midi-out
+	    midi* -> midi-out-*
+	  in:
+	    midi* -> midi-in-*
 
 2004-01-04 Manuel Bilderbeek <manuel@msxnet.org>
 	* Implemented "info scaler"

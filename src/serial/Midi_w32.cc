@@ -140,7 +140,7 @@ int w32_midiOutInit()
 	}
 	vfnt_midiout[0].devid = MIDI_MAPPER;
 	w32_midiDevNameConv(vfnt_midiout[0].devname, cap.szPname);
-	strncpy(vfnt_midiout[0].vfname, "midi", MAXPATHLEN + 1);
+	strncpy(vfnt_midiout[0].vfname, "midi-out", MAXPATHLEN + 1);
 	vfnt_midiout_num ++;
 
 	for (unsigned i = 0; i < num; ++i) {
@@ -149,7 +149,7 @@ int w32_midiOutInit()
 		}
 		vfnt_midiout[i + 1].devid = i;
 		w32_midiDevNameConv(vfnt_midiout[i + 1].devname, cap.szPname);
-		snprintf(vfnt_midiout[i + 1].vfname, MAXPATHLEN + 1, "midi%u", i);
+		snprintf(vfnt_midiout[i + 1].vfname, MAXPATHLEN + 1, "midi-out-%u", i);
 		vfnt_midiout_num++;
 	}
 	return 0;
@@ -352,7 +352,7 @@ int w32_midiInInit()
 		}
 		vfnt_midiin[i].devid = i;
 		w32_midiDevNameConv(vfnt_midiin[i].devname, cap.szPname);
-		snprintf(vfnt_midiin[i].vfname, MAXPATHLEN + 1, "midi%u", i);
+		snprintf(vfnt_midiin[i].vfname, MAXPATHLEN + 1, "midi-in-%u", i);
 		vfnt_midiin_num++;
 	}
 	return 0;
