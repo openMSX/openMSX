@@ -72,9 +72,10 @@ AC_CHECK_HEADERS(png.h, break)
 AC_CHECK_LIB(png, png_create_read_struct, LIBS="$LIBS -lpng")
 
 dnl libtcl
-AC_CHECK_HEADERS(tcl.h tcl8.4/tcl.h , break)
+AC_CHECK_HEADERS(tcl.h tcl8.4/tcl.h tcl8.3/tcl.h , break)
 AC_CHECK_LIB(tcl8.4, Tcl_CreateInterp, LIBS="$LIBS -ltcl8.4")
 AC_CHECK_LIB(tcl84, Tcl_CreateInterp, LIBS="$LIBS -ltcl84")
+AC_CHECK_LIB(tcl8.3, Tcl_CreateInterp, LIBS="$LIBS -ltcl8.3")
 
 dnl check if fstream can be used as template
 AC_CXX_FSTREAM_TEMPL

@@ -3,7 +3,15 @@
 #ifndef __TCLINTERP_HH__
 #define __TCLINTERP_HH__
 
+#include "config.h"
+#if	defined(HAVE_TCL_H)
 #include <tcl.h>
+#elif	defined(HAVE_TCL8_4_TCL_H)
+#include <tcl8.4/tcl.h>
+#elif	defined(HAVE_TCL8_3_TCL_H)
+#include <tcl8.3/tcl.h>
+#endif
+
 #include <SettingNode.hh>
 #include <Command.hh>
 
