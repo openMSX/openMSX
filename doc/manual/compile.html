@@ -75,11 +75,10 @@ However, since the emulation is already pretty good,
 it would be nice if non-insiders would be able to play with it, too.
 For those people, we have written this guide.
 It explains how you can get the emulator running on your system,
-i.e. how to get the sources and compile them.
+i.e. how to get the sources and compile them. Note that some software distributions may have packaged openMSX and will enable you to install it directly using package management tools. We refer to the documentation of the tools of the distribution you are using to install openMSX. If you use such a package, you can skip the largest part of this manual and start reading at chapter <a class="internal" href="#next">5. Next Steps</a>.
 </p>
 
 <p>
-This guide describes how you can get the openMSX sources and compile them.
 The level of support for compilation depends on the operating system:
 </p>
 <dl>
@@ -91,9 +90,9 @@ Most openMSX developers run some form of Linux, so this is the platform on which
 <dd>
 Windows is also a supported platform for openMSX. Most Windows users will just download the binary release. But if you want to follow the latest developments or like to play with the code a bit, it is possible to compile openMSX on Windows yourself. For this you need MSYS and a variety of libraries.
 </dd>
-<dt>FreeBSD</dt>
+<dt>FreeBSD/NetBSD/OpenBSD</dt>
 <dd>
-openMSX was compiled successfully on FreeBSD 4 and 5. FreeBSD is not a platform we support officially, but whenever a user finds compilation problems on FreeBSD, we fix them, so usually FreeBSD compilation should work.
+openMSX was compiled successfully on FreeBSD 4 and 5. FreeBSD is not a platform we support officially, but whenever a user finds compilation problems on FreeBSD, we fix them, so usually FreeBSD compilation should work. NetBSD build support is also integrated and should work as well. OpenBSD build support is not integrated yet, but will probably work if a config from the other BSD's is adjusted a bit.
 </dd>
 <dt>Mac OS X</dt>
 <dd>
@@ -216,7 +215,7 @@ Also there may be changes that are not documented yet.
 A snapshot is created from a recent CVS checkout,
 in a <code>tar.gz</code> archive.
 A snapshot is therefore quite similar to a CVS checkout,
-but it doesn't require you to install and use CVS. It may lag a couple of days from the latest CVS sources.
+but it doesn't require you to install and use CVS. It may lag a couple of days from the latest CVS sources. Moreover, SF.net staff recently turned off cron jobs, which means the snapshots are now updated on a very irregular basis.
 </dd>
 
 </dl>
