@@ -98,6 +98,7 @@ VDPCmdEngine::VDPCmdEngine(VDP *vdp_)
 	COL = ARG = CMD = 0;
 	LOG = OP_IMP;
 	timingValue = vdpTiming = 0;
+	statusChangeTime = EmuTime::infinity;
 
 	VDPSettings::instance()->getCmdTiming()->addListener(this);
 }
@@ -492,6 +493,7 @@ void VDPCmdEngine::commandDone(const EmuTime& time)
 {
 	status &= 0xFE;
 	CMD = 0;
+	statusChangeTime = EmuTime::infinity;
 	vram->cmdReadWindow.disable(time);
 	vram->cmdWriteWindow.disable(time);
 }
@@ -553,12 +555,6 @@ void VDPCmdEngine::AbortCmd::execute(const EmuTime &time)
 {
 }
 
-bool VDPCmdEngine::AbortCmd::willStatusChange(const EmuTime &time)
-{
-	assert(!(engine->status & 1));
-	return false;
-}
-
 // POINT
 
 VDPCmdEngine::PointCmd::PointCmd(VDPCmdEngine *engine, VDPVRAM *vram)
@@ -578,12 +574,6 @@ void VDPCmdEngine::PointCmd::start(const EmuTime &time)
 
 void VDPCmdEngine::PointCmd::execute(const EmuTime &time)
 {
-}
-
-bool VDPCmdEngine::PointCmd::willStatusChange(const EmuTime &time)
-{
-	assert(!(engine->status & 1));
-	return false;
 }
 
 
@@ -609,12 +599,6 @@ void VDPCmdEngine::PsetCmd::execute(const EmuTime &time)
 {
 }
 
-bool VDPCmdEngine::PsetCmd::willStatusChange(const EmuTime &time)
-{
-	assert(!(engine->status & 1));
-	return false;
-}
-
 
 // SRCH
 
@@ -633,6 +617,7 @@ void VDPCmdEngine::SrchCmd::start(const EmuTime &time)
 	CL = engine->COL & MASK[engine->scrMode];
 	ASX = engine->SX;
 	ANX = (engine->ARG & EQ) != 0; // TODO: Do we look for "==" or "!="?
+	engine->statusChangeTime = EmuTime::zero; // we can find it any moment
 }
 
 void VDPCmdEngine::SrchCmd::execute(const EmuTime &time)
@@ -671,11 +656,6 @@ void VDPCmdEngine::SrchCmd::execute(const EmuTime &time)
 	}
 }
 
-bool VDPCmdEngine::SrchCmd::willStatusChange(const EmuTime &time)
-{
-	return true;	// we can find it any moment
-}
-
 
 // LINE
 
@@ -700,6 +680,7 @@ void VDPCmdEngine::LineCmd::start(const EmuTime &time)
 	ASX = ((NX - 1) >> 1);
 	ADX = engine->DX;
 	ANX = 0;
+	engine->statusChangeTime = EmuTime::zero; // TODO can still be optimized
 }
 
 void VDPCmdEngine::LineCmd::execute(const EmuTime &time)
@@ -762,12 +743,6 @@ void VDPCmdEngine::LineCmd::execute(const EmuTime &time)
 	}
 }
 
-bool VDPCmdEngine::LineCmd::willStatusChange(const EmuTime &time)
-{
-	// TODO can still be optimized
-	return true;
-}
-
 
 // BlockCmd
 
@@ -777,15 +752,10 @@ VDPCmdEngine::BlockCmd::BlockCmd(VDPCmdEngine *engine, VDPVRAM *vram,
 {
 }
 
-bool VDPCmdEngine::BlockCmd::willStatusChange(const EmuTime &time)
-{
-	return finishTime <= time;
-}
-
 void VDPCmdEngine::BlockCmd::calcFinishTime()
 {
 	int ticks = ((NX * (NY - 1)) + ANX) * timing[engine->timingValue]; 
-	finishTime = currentTime + ticks; 
+	engine->statusChangeTime = currentTime + ticks; 
 }
 
 void VDPCmdEngine::BlockCmd::updateTiming()

@@ -57,7 +57,7 @@ public:
 	  * Bit 0 (CE) is set when a command is in progress.
 	  */
 	inline byte getStatus(const EmuTime &time) {
-		if (CMD && commands[CMD]->willStatusChange(time)) {
+		if (time >= statusChangeTime) {
 			sync(time);
 		}
 		return status;
@@ -154,7 +154,13 @@ private:
 	class VDPCmd;
 	VDPCmd* commands[16];
 
-
+	/** Lower bound for the time when the status register will change, IOW 
+	  * the status register will not change before this time.
+	  * Can also be EmuTime::zero -> status can change any moment
+	  * or EmuTime::infinity -> this command doesn't change the status
+	  */
+	EmuTime statusChangeTime;
+	
 	/** This is an abstract base class the VDP commands
 	  */
 	class VDPCmd {
@@ -169,12 +175,6 @@ private:
 		/** Perform a given V9938 graphical operation.
 		  */
 		virtual void execute(const EmuTime &time) = 0;
-
-		/** Will this command change the status register before the
-		  * specified time? It is allowed to return true if you're not
-		  * sure the status register will change.
-		  */
-		virtual bool willStatusChange(const EmuTime &time) = 0;
 
 		/** Inform command of timing change
 		  */ 
@@ -258,7 +258,6 @@ private:
 		AbortCmd(VDPCmdEngine *engine, VDPVRAM *vram);
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
-		virtual bool willStatusChange(const EmuTime &time);
 	};
 	friend class AbortCmd;
 
@@ -269,7 +268,6 @@ private:
 		PointCmd(VDPCmdEngine *engine, VDPVRAM *vram);
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
-		virtual bool willStatusChange(const EmuTime &time);
 	};
 	friend class PointCmd;
 
@@ -280,7 +278,6 @@ private:
 		PsetCmd(VDPCmdEngine *engine, VDPVRAM *vram);
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
-		virtual bool willStatusChange(const EmuTime &time);
 	};
 	friend class PsetCmd;
 
@@ -291,7 +288,6 @@ private:
 		SrchCmd(VDPCmdEngine *engine, VDPVRAM *vram);
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
-		virtual bool willStatusChange(const EmuTime &time);
 	};
 	friend class SrchCmd;
 
@@ -302,7 +298,6 @@ private:
 		LineCmd(VDPCmdEngine *engine, VDPVRAM *vram);
 		virtual void start(const EmuTime &time);
 		virtual void execute(const EmuTime &time);
-		virtual bool willStatusChange(const EmuTime &time);
 	};
 	friend class LineCmd;
 	
@@ -311,7 +306,6 @@ private:
 	class BlockCmd : public VDPCmd {
 	public:
 		BlockCmd(VDPCmdEngine *engine, VDPVRAM *vram, const int* timing);
-		virtual bool willStatusChange(const EmuTime &time);
 		virtual void updateTiming();
 	protected:
 		void calcFinishTime();
