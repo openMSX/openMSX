@@ -3,7 +3,6 @@
 #include "Inputs.hh"
 #include "MSXPPI.hh"
 #include "Leds.hh"
-#include <SDL/SDL.h>
 #include <assert.h>
 
 

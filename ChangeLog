@@ -1,5 +1,10 @@
 $Id$
 
+2001-09-22 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* made sperate thread for event handler
+	  other classes can ask EventDistributor to receive specific events
+	* adapted Inputs for new event model
+
 2001-09-23 Joost Yervante Damad <j.damad@qahwah.net>
 	*  various small fixes
 	* started working on making the code work with gcc-3.0

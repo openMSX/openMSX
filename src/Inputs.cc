@@ -1,9 +1,12 @@
 
 #include "Inputs.hh"
+#include "EventDistributor.hh"
 
 
 Inputs::Inputs()
 {
+	EventDistributor::instance()->registerListener(SDL_KEYDOWN, this);
+	EventDistributor::instance()->registerListener(SDL_KEYUP,   this);
 }
 
 Inputs::~Inputs()
@@ -20,77 +23,30 @@ Inputs* Inputs::instance(void)
 Inputs *Inputs::oneInstance = NULL;
 
 
-
-/** getKeys() ************************************************/
-/** Check for keyboard events, parse them, and modify MSX   **/
-/** keyboard matrix.                                        **/
-/*************************************************************/
 const byte* Inputs::getKeys()
 {
-	SDL_Event event;
-	// static byte Control=0;
-
-	/* Check for keypresses/keyreleases */
-	while (SDL_PollEvent(&event)) {
-		int key=event.key.keysym.sym;
-		//if(event.type==SDL_QUIT) ExitNow=1;
-		if (event.type==SDL_KEYDOWN) {
-//	   		switch(key) {
-//#ifdef DEBUG
-//			case SDLK_F9:
-//				CPU.Trace=!CPU.Trace;
-//				break;
-//#endif
-//			case SDLK_F6:
-//				if (Control) AutoFire=!AutoFire;
-//				break;
-//			case SDLK_F10:
-//			case SDLK_F11:
-//				if(Control) {
-//					I=(key==SDLK_F11)? 1:0;
-//					if (Disks[I][0]) {
-//						CurDisk[I]=(CurDisk[I]+1)%MAXDISKS;
-//						if (!Disks[I][CurDisk[I]]) CurDisk[I]=0;
-//						ChangeDisk(I,Disks[I][CurDisk[I]]);
-//					}
-//				}
-//				break;
-//			case SDLK_F12:
-//				ExitNow=1;
-//				break;
-//			case SDLK_UP:    JoyState|=0x01;break;
-//			case SDLK_DOWN:  JoyState|=0x02;break;
-//			case SDLK_LEFT:  JoyState|=0x04;break;
-//			case SDLK_RIGHT: JoyState|=0x08;break;
-//			case SDLK_LALT:  JoyState|=0x10;break;
-//			case SDLK_LCTRL:
-//				if (key==SDLK_LCTRL) JoyState|=0x20;
-//				Control=1;
-//				break;
-//			}
-			/* Key pressed: reset bit in KeyMap */
-			if (key<0x150)
-				keyMatrix[Keys[key][0]]&=~Keys[key][1];
-		}
-		if (event.type==SDL_KEYUP) {
-			/* Special keys released... */
-//			switch(key) {
-//			case SDLK_UP:    JoyState&=0xFE;break;
-//			case SDLK_DOWN:  JoyState&=0xFD;break;
-//			case SDLK_LEFT:  JoyState&=0xFB;break;
-//			case SDLK_RIGHT: JoyState&=0xF7;break;
-//			case SDLK_LALT:  JoyState&=0xEF;break;
-//			case SDLK_LCTRL:
-//				if (key==SDLK_LCTRL) JoyState&=0xDF;
-//				Control=0;
-//				break;
-//			}
-			/* Key released: set bit in KeyMap */
-			if (key<0x150) 
-				keyMatrix[Keys[key][0]]|=Keys[key][1];
-		}
-	}
 	return keyMatrix;
+}
+
+void Inputs::signalEvent(SDL_Event &event)
+{
+	int key;
+	switch (event.type) {
+	case SDL_KEYDOWN:
+		// Key pressed: reset bit in keyMatrix
+		key=event.key.keysym.sym;
+		if (key<0x150)
+			keyMatrix[Keys[key][0]]&=~Keys[key][1];
+		break;
+	case SDL_KEYUP:
+		// Key released: set bit in keyMatrix
+		key=event.key.keysym.sym;
+		if (key<0x150) 
+			keyMatrix[Keys[key][0]]|=Keys[key][1];
+		break;
+	default:
+		assert(false);
+	}
 }
 
 

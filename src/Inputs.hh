@@ -4,16 +4,17 @@
 #define __INPUTS_HH__
 
 #include "openmsx.hh"
-#include <SDL/SDL.h>
+#include "EventDistributor.hh"
 
 #define NR_KEYROWS 11
 
-class Inputs 
+class Inputs : public EventListener 
 {
 	public:
-		~Inputs(); 
+		virtual ~Inputs(); 
 		static Inputs *instance();
 		const byte* getKeys();
+		void signalEvent(SDL_Event &event);
 	
 	private:
 		Inputs(); // private constructor -> can only construct self

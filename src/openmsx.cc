@@ -20,14 +20,24 @@
 #include <stdlib.h>
 #include <string>
 #include <SDL/SDL.h>
+#include <SDL/SDL_thread.h>
 #include "MSXDevice.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXZ80.hh"
 #include "MSXSimple64KB.hh"
 #include "MSXRom16KB.hh"
 #include "devicefactory.hh"
+#include "EventDistributor.hh"
 
 //David Heremans
+
+
+int eventDistributorStarter(void* parm)
+{
+	EventDistributor::instance()->run();
+	return 0;	// doesn't return
+}
+
 
 int main (int argc, char **argv)
 {
@@ -54,7 +64,7 @@ int main (int argc, char **argv)
 	// Here comes the Real Stuff(tm) :-)
 	// (Actualy David's test stuff)
 	
-	//Werkt SDL ?
+	// Initialize SDL
 	if (SDL_Init(SDL_INIT_VIDEO)<0) {
 		PRT_ERROR("Couldn't init SDL: " << SDL_GetError());
 	}
@@ -76,11 +86,15 @@ int main (int argc, char **argv)
 	PRT_DEBUG ("Initing MSX");
 	moederbord->InitMSX();
 	
+	// Start a new thread for event handling
+	SDL_CreateThread(eventDistributorStarter, 0);
+
 	PRT_DEBUG ("starting MSX");
 	moederbord->StartMSX();
 
 	exit (0);
 }
+
 
 /*
 static void
