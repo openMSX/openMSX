@@ -8,6 +8,10 @@ $Id$
 	* If the moderegister of the debugdevice is written to and bit 6
 	  of that same register is set, newlines will not be output.
 
+2003-10-04 Maarten ter Huurne <maarten@treewalker.org>
+	* Split off SettingsManager to separate source files.
+	* Split off SettingNode and other namespace classes to separate sources.
+
 2003-10-03 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Remove buffering from the debugdevice.
 
