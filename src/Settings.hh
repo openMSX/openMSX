@@ -28,19 +28,18 @@ Identifying source:
 class Setting
 {
 public:
-
 	/** Get the name of this setting.
 	  */
-	const std::string &getName() { return name; }
+	const std::string &getName() const { return name; }
 
 	/** Get a description of this setting that can be presented to the user.
 	  */
-	const std::string &getDescription() { return description; }
+	const std::string &getDescription() const { return description; }
 
 	/** Get the current value of this setting in a string format that can be
 	  * presented to the user.
 	  */
-	virtual std::string getValueString() = 0;
+	virtual std::string getValueString() const = 0;
 
 	/** Change the value of this setting by parsing the given string.
 	  * @param valueString The new value for this setting, in string format.
@@ -50,10 +49,13 @@ public:
 
 	/** Get a string describing the value type to the user.
 	  */
-	const std::string &getTypeString() { return type; }
+	const std::string &getTypeString() const { return type; }
+
+	/** Complete a partly typed value
+	  */ 
+	virtual void tabCompletion(std::vector<std::string> &tokens) const {}
 
 protected:
-
 	/** Create a new Setting.
 	  */
 	Setting(const std::string &name, const std::string &description);
@@ -68,7 +70,6 @@ protected:
 	std::string type;
 
 private:
-
 	/** The name of this setting.
 	  */
 	std::string name;
@@ -84,7 +85,6 @@ private:
 class BooleanSetting : public Setting
 {
 public:
-
 	/** Create a new BooleanSetting.
 	  */
 	BooleanSetting(
@@ -93,16 +93,14 @@ public:
 
 	/** Get the current value of this setting.
 	  */
-	bool getValue() { return value; }
+	bool getValue() const { return value; }
 
 	// Implementation of Setting interface:
-	std::string getValueString();
-	void setValueString(const std::string &valueString);
-
-protected:
+	virtual std::string getValueString() const;
+	virtual void setValueString(const std::string &valueString);
+	virtual void tabCompletion(std::vector<std::string> &tokens) const;
 
 private:
-
 	bool value;
 };
 
@@ -112,7 +110,6 @@ private:
 class IntegerSetting: public Setting
 {
 public:
-
 	/** Create a new IntegerSetting.
 	  */
 	IntegerSetting(
@@ -121,16 +118,13 @@ public:
 
 	/** Get the current value of this setting.
 	  */
-	int getValue() { return value; }
+	int getValue() const { return value; }
 
 	// Implementation of Setting interface:
-	std::string getValueString();
-	void setValueString(const std::string &valueString);
-
-protected:
+	virtual std::string getValueString() const;
+	virtual void setValueString(const std::string &valueString);
 
 private:
-
 	int value;
 	int minValue;
 	int maxValue;
@@ -143,7 +137,6 @@ template <class T>
 class EnumSetting : public Setting
 {
 public:
-
 	/** Create a new EnumSetting.
 	  */
 	EnumSetting(
@@ -153,13 +146,12 @@ public:
 
 	/** Get the current value of this setting.
 	  */
-	T getValue() { return value; }
+	T getValue() const { return value; }
 
 	// Implementation of Setting interface:
-	std::string getValueString();
-	void setValueString(const std::string &valueString);
-
-protected:
+	virtual std::string getValueString() const;
+	virtual void setValueString(const std::string &valueString);
+	virtual void tabCompletion(std::vector<std::string> &tokens) const;
 
 private:
 	T value;
@@ -180,16 +172,15 @@ public:
 	/** Get singleton instance.
 	  */
 	static SettingsManager *instance() {
-		static SettingsManager *instance = NULL;
-		if (!instance) instance = new SettingsManager();
-		return instance;
+		static SettingsManager oneInstance;
+		return &oneInstance;
 	}
 
 	/** Get a setting by specifying its name.
 	  * @return The Setting with the given name,
 	  *   or NULL if there is no such Setting.
 	  */
-	Setting *getByName(const std::string &name) {
+	Setting *getByName(const std::string &name) const {
 		std::map<std::string, Setting *>::const_iterator it =
 			settingsMap.find(name);
 		return it == settingsMap.end() ? NULL : it->second;
@@ -203,17 +194,16 @@ public:
 	}
 
 private:
-
 	SettingsManager();
 
 	class SetCommand : public Command {
-		public:
-			SetCommand(SettingsManager *manager);
-			virtual void execute(const std::vector<std::string> &tokens);
-			virtual void help   (const std::vector<std::string> &tokens);
-			virtual void tabCompletion(std::vector<std::string> &tokens);
-		private:
-			SettingsManager *manager;
+	public:
+		SetCommand(SettingsManager *manager);
+		virtual void execute(const std::vector<std::string> &tokens);
+		virtual void help   (const std::vector<std::string> &tokens);
+		virtual void tabCompletion(std::vector<std::string> &tokens);
+	private:
+		SettingsManager *manager;
 	};
 	friend class SetCommand;
 	SetCommand setCommand;

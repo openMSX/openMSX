@@ -37,7 +37,7 @@ BooleanSetting::BooleanSetting(
 	type = "on - off";
 }
 
-std::string BooleanSetting::getValueString()
+std::string BooleanSetting::getValueString() const
 {
 	if (value) {
 		return std::string("on");
@@ -59,6 +59,14 @@ void BooleanSetting::setValueString(const std::string &valueString)
 	// TODO: Inform listeners.
 }
 
+void BooleanSetting::tabCompletion(std::vector<std::string> &tokens) const
+{
+	std::list<std::string> values;
+	values.push_back("on");
+	values.push_back("off");
+	CommandController::completeString(tokens, values);
+}
+
 
 // IntegerSetting implementation:
 
@@ -76,7 +84,7 @@ IntegerSetting::IntegerSetting(
 	type = out.str();
 }
 
-std::string IntegerSetting::getValueString()
+std::string IntegerSetting::getValueString() const
 {
 	std::ostringstream out;
 	out << value;
@@ -124,7 +132,7 @@ EnumSetting<T>::EnumSetting(
 }
 
 template <class T>
-std::string EnumSetting<T>::getValueString()
+std::string EnumSetting<T>::getValueString() const
 {
 	MapIterator it = map.begin();
 	while (it != map.end()) {
@@ -149,6 +157,15 @@ void EnumSetting<T>::setValueString(const std::string &valueString)
 	}
 }
 
+template <class T>
+void EnumSetting<T>::tabCompletion(std::vector<std::string> &tokens) const
+{
+	std::list<std::string> values;
+	for (MapIterator it = map.begin(); it != map.end(); it++) {
+		values.push_back(it->first);
+	}
+	CommandController::completeString(tokens, values);
+}
 
 // SettingsManager implementation:
 
@@ -203,7 +220,7 @@ void SettingsManager::SetCommand::execute(
 }
 
 void SettingsManager::SetCommand::help(
-	const std::vector<std::string> &tokens )
+	const std::vector<std::string> &tokens)
 {
 	print("set            : list all settings");
 	print("set name       : information on setting");
@@ -213,14 +230,26 @@ void SettingsManager::SetCommand::help(
 void SettingsManager::SetCommand::tabCompletion(
 	std::vector<std::string> &tokens)
 {
-	if (tokens.size() == 2) {
-		// complete setting name
-		std::list<std::string> settings;
-		std::map<std::string, Setting *>::const_iterator it
-			= manager->settingsMap.begin();
-		for (; it != manager->settingsMap.end(); it++) {
-			settings.push_back(it->first);
+	switch (tokens.size()) {
+		case 2: {
+			// complete setting name
+			std::list<std::string> settings;
+			std::map<std::string, Setting *>::const_iterator it
+				= manager->settingsMap.begin();
+			for (; it != manager->settingsMap.end(); it++) {
+				settings.push_back(it->first);
+			}
+			CommandController::completeString(tokens, settings);
+			break;
 		}
-		CommandController::completeString(tokens, settings);
+		case 3: {
+			// complete setting value
+			std::map<std::string, Setting*>::iterator it =
+				manager->settingsMap.find(tokens[1]);
+			if (it != manager->settingsMap.end()) {
+				it->second->tabCompletion(tokens);
+			}
+			break;
+		}
 	}
 }

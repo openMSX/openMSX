@@ -1,5 +1,9 @@
 $Id$
 
+2002-12-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Tabcompletion for setting values:
+	   example:  set accuracy p<tab>
+
 2002-12-22 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Updated RealTime class:
 	   - this should improve the cases where emulation is too slow,
