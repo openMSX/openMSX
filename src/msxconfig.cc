@@ -62,7 +62,6 @@ MSXConfig::Device::~Device()
 	}
 }
 
-// TODO !!! content nodes work slightly different then I thought
 MSXConfig::Device::Device(XMLNode *deviceNodeP):deviceNode(deviceNodeP),page(0),ps(0),ss(0),slotted(false)
 {
 	char buffer[200];
