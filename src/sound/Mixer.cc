@@ -7,8 +7,6 @@
 #include "RealTime.hh"
 #include "SoundDevice.hh"
 #include "MSXConfig.hh"
-#include "VolumeSetting.hh"
-
 
 namespace openmsx {
 
@@ -84,9 +82,26 @@ int Mixer::registerSound(const string &name, SoundDevice *device,
 		return 512;	// return a save value
 	}
 	SoundDeviceInfo info;
-	info.volumeSetting = new VolumeSetting(name, volume, device);
+	info.volumeSetting = new IntegerSetting(name + "_volume", 
+			"the volume of this sound chip", volume, 0, 32767);
+
+	map<string, ChannelMode> modeMap;
+	// once we're stereo, stay stereo. Once mono, stay mono.
+	// we could also choose not to offer any modeSetting in case we have
+	// a stereo mode initially. You can't query the mode then, though.
+	if (mode == STEREO) {
+		modeMap["stereo"] = STEREO;
+	} else {
+		modeMap["mono"] = MONO;
+		modeMap["left"] = MONO_LEFT;
+		modeMap["right"] = MONO_RIGHT;
+	}
+	info.modeSetting = new EnumSetting<ChannelMode>(name + "_mode", "the channel mode of this sound chip", mode, modeMap); 
 	info.mode = mode;
 	infos[device] = info;
+
+	info.modeSetting->addListener(this);
+	info.volumeSetting->addListener(this);
 	
 	lock();
 	if (buffers.size() == 0) {
@@ -116,7 +131,10 @@ void Mixer::unregisterSound(SoundDevice *device)
 	vector<SoundDevice*> &dev = devices[mode];
 	dev.erase(remove(dev.begin(), dev.end(), device), dev.end());
 	buffers.pop_back();
+	it->second.volumeSetting->removeListener(this);
 	delete it->second.volumeSetting;
+	it->second.modeSetting->removeListener(this);
+	delete it->second.modeSetting;
 	
 	if (buffers.size() == 0) {
 		SDL_PauseAudio(1);	// pause when last dev unregisters
@@ -255,11 +273,37 @@ void Mixer::muteHelper(int muteCount)
 
 void Mixer::update(const SettingLeafNode *setting)
 {
-	assert(setting == &muteSetting);
-	if (muteSetting.getValue()) {
-		mute();
+	if (setting == &muteSetting) {
+		if (muteSetting.getValue()) {
+			mute();
+		} else {
+			unmute();
+		}
 	} else {
-		unmute();
+		const EnumSetting<ChannelMode>* s = dynamic_cast <const EnumSetting<ChannelMode>* >(setting);
+		if (s!=NULL) {
+			map<SoundDevice*, SoundDeviceInfo>::iterator it = infos.begin();
+			while (it != infos.end() && it->second.modeSetting != setting) ++it;
+			assert (it!=infos.end());
+			// it->first is the SoundDevice we need
+			SoundDeviceInfo &info = it->second;
+			lock();
+			ChannelMode oldmode = info.mode;
+			info.mode = info.modeSetting->getValue();
+			vector<SoundDevice*> &dev = devices[oldmode];
+			dev.erase(remove(dev.begin(), dev.end(), it->first), dev.end());
+			devices[info.mode].push_back(it->first);
+			unlock();
+		} else {
+			const IntegerSetting* t = dynamic_cast <const IntegerSetting* >(setting);
+			if (t!=NULL) {
+				map<SoundDevice*, SoundDeviceInfo>::iterator it = infos.begin();
+				while (it != infos.end() && it->second.volumeSetting != setting) ++it;
+				assert (it!=infos.end());
+				// it->first is the SoundDevice we need
+				it->first->setVolume(it->second.volumeSetting->getValue()); 
+			} else assert(false);
+		}
 	}
 }
 

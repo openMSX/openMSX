@@ -88,7 +88,8 @@ class Mixer : private SettingListener
 		int muteCount;
 
 		struct SoundDeviceInfo {
-			VolumeSetting* volumeSetting;
+			IntegerSetting* volumeSetting;
+			EnumSetting<ChannelMode> *modeSetting;
 			ChannelMode mode;
 		};
 		map<SoundDevice*, SoundDeviceInfo> infos;

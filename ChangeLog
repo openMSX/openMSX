@@ -1,5 +1,11 @@
 $Id$
 
+2003-09-14 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added run time configurable stereo settings. You can now set the
+	  channel mode of each (mono) sound device to mono, left or right from
+	  the console, using the set [sounddevice]_mode settings.
+	* Integrated VolumeSetting into Mixer class.
+
 2003-09-14 Reikan <openMSX4Win32@ranpub.com>
 	* Fixed SystemContext error in FileOperations.cc.
 	  This affects only on Win32.

@@ -3,7 +3,6 @@
 SRC_HDR:= \
 	Mixer \
 	SoundDevice \
-	VolumeSetting \
 	MSXPSG AY8910 \
 	DACSound16S DACSound8U \
 	KeyClick \

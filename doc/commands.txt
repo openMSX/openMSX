@@ -527,6 +527,22 @@ throttle
     set throttle off  turn throttle mode off
     
 
+[soundchip]_mode
+------------------
+
+  Sets the channel mode for individual soundchips. Note that chips which are in
+  stereo mode cannot be set to another mode and chips that are not in stereo
+  mode, can of course never be set to stereo mode.
+
+  usage:
+    set [soundchip]_mode        shows the current setting
+    set [soundchip]_mode <mode> set new mode
+
+  examples:
+    set psg_mode
+    set psg_mode left
+    set "FM PAC_mode" mono
+    
 [soundchip]_volume
 ------------------
 
