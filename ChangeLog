@@ -1,5 +1,8 @@
 $Id$
 
+2002-06-02 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* MSXGameCartridge cleanup
+
 2002-05-28 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Fixed PAINTER.ROM:
 	   mappertype autodetection doesn't work, start with

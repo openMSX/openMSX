@@ -36,19 +36,24 @@ class MSXGameCartridge : public MSXMemDevice, public MSXRom
 		byte readMem(word address, const EmuTime &time);
 		void writeMem(word address, byte value, const EmuTime &time);
 		byte* getReadCacheLine(word start);
-		static const byte adr2pag[]={128,128,1,2,4,8,128,128};
 
 	private:
 		void retrieveMapperType();
 		int guessMapperType();
-		void setBank8kB(int regio, byte* value);
-		void setBank4kB(int regio, byte* value);
+		
+		inline void setBank4kB (int regio, byte* adr);
+		inline void setBank8kB (int regio, byte* adr);
+		inline void setBank16kB(int regio, byte* adr);
+		inline void setROM4kB (int region, int block);
+		inline void setROM8kB (int region, int block);
+		inline void setROM16kB(int region, int block);
 		
 		int romSize;
 		int mapperType;
-		byte mapperMask;
 		byte *internalMemoryBank[16]; // 16 blocks of 4kB
 		byte *unmapped;
+		
+		static const byte adr2pag[] = {128,128,1,2,4,8,128,128};
 		bool enabledSRAM;
 		byte *memorySRAM; // SRAM area of Hydlide2/Xanadu/Royal Blood/Gamemaster2
 		byte SRAMEnableBit;
@@ -61,4 +66,5 @@ class MSXGameCartridge : public MSXMemDevice, public MSXRom
 #endif
 		DACSound* dac;
 };
+
 #endif

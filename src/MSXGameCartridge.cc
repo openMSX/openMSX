@@ -18,11 +18,11 @@ MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &tim
 		try {
 			romSize = deviceConfig->getParameterAsInt("filesize");
 			if (romSize == 0) {
-				// filesize zero is specifiying to autodetermine size
+				// filesize zero is specifying to autodetermine size
 				throw MSXConfig::Exception("auto detect");
 			}
 			loadFile(&memoryBank, romSize);
-		} catch(MSXConfig::Exception& e) {
+		} catch (MSXConfig::Exception& e) {
 			// filesize was not specified or 0
 			romSize = loadFile(&memoryBank);
 		}
@@ -30,12 +30,6 @@ MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &tim
 		// TODO why isn't exception thrown beyond constructor
 		PRT_ERROR(e.desc);
 	}
-	
-	// Calculate mapperMask
-	int nrblocks = romSize>>13;	//number of 8kB pages
-	for (mapperMask=1; mapperMask<nrblocks; mapperMask<<=1);
-	mapperMask--;
-	
 	retrieveMapperType();
 
 	// only if needed reserve memory for SRAM
@@ -47,7 +41,7 @@ MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &tim
 		try {
 			if (deviceConfig->getParameterAsBool("loadsram")) {
 				std::string filename = deviceConfig->getParameter("sramname");
-				PRT_INFO("Trying to read "<<filename<<" as SRAM of the cartrdige");
+				PRT_DEBUG("Trying to read "<<filename<<" as SRAM of the cartrdige");
 				IFILETYPE* file = FileOpener::openFileRO(filename);
 				file->read((char*)memorySRAM, 0x2000);
 				file->close();
@@ -79,7 +73,9 @@ MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &tim
 		dac = NULL;
 	}
 
-	unmapped = NULL;
+	unmapped = new byte[0x4000];
+	memset(unmapped, 255, 0x4000);
+	
 	reset(time);
 }
 
@@ -119,64 +115,44 @@ void MSXGameCartridge::reset(const EmuTime &time)
 	regioSRAM=0;
 
 	if (mapperType < 128 ) {
-		if (unmapped == NULL) {
-			unmapped = new byte[0x1000];
-			memset(unmapped, 255, 0x1000);
-		}
-		// TODO: mirror if number of 8kB blocks not fully filled ?
-		setBank8kB(2, memoryBank);			// 0x4000 - 0x5fff
-		setBank8kB(3, memoryBank+0x2000);		// 0x6000 - 0x7fff
-		if (mapperType == 16 || mapperType == 5) {
-			setBank8kB(4, memoryBank+0x0000);	// 0x8000 - 0x9fff
-			setBank8kB(5, memoryBank+0x2000);	// 0xa000 - 0xbfff
-		} else {
-			setBank8kB(4, memoryBank+0x4000);	// 0x8000 - 0x9fff
-			setBank8kB(5, memoryBank+0x6000);	// 0xa000 - 0xbfff
-		}
-		setBank4kB(0,  unmapped);	// 0x0000 - 0x3fff
-		setBank4kB(1,  unmapped);
-		setBank4kB(2,  unmapped);
-		setBank4kB(3,  unmapped);
-		setBank4kB(12, unmapped);	// 0xc000 - 0xffff
-		setBank4kB(13, unmapped);
-		setBank4kB(14, unmapped);
-		setBank4kB(15, unmapped);
+		setBank16kB(0, unmapped);
+		setROM16kB (1, 0);
+		setROM16kB (2, (mapperType == 16 || mapperType == 5) ? 0 : 1);
+		setBank16kB(3, unmapped);
 	} else {
-		// this is a simple gamerom less then 64 kB
-		byte* ptr;
+		// this is a simple gamerom less or equal then 64 kB
 		switch (romSize >> 14) { // blocks of 16kB
-		case 0:	// An 8 kB game ????
-			for (int i=0; i<8; i++) {
-				setBank8kB(i, memoryBank);
-			}
-			break;
-		case 1:	// 16kB
-			for (int i=0; i<8; i+=2) {
-				setBank8kB(i,   memoryBank+0x0000);
-				setBank8kB(i+1, memoryBank+0x2000);
-			}
-			break;
-		case 2:	// 32kB
-			setBank8kB(0, memoryBank+0x0000);	// 0x0000 - 0x1fff
-			setBank8kB(1, memoryBank+0x2000);	// 0x2000 - 0x3fff
-			setBank8kB(2, memoryBank+0x0000);	// 0x4000 - 0x5fff
-			setBank8kB(3, memoryBank+0x2000);	// 0x6000 - 0x7fff
-			setBank8kB(4, memoryBank+0x4000);	// 0x8000 - 0x9fff
-			setBank8kB(5, memoryBank+0x6000);	// 0xa000 - 0xbfff
-			setBank8kB(6, memoryBank+0x4000);	// 0xc000 - 0xdfff
-			setBank8kB(7, memoryBank+0x6000);	// 0xe000 - 0xffff
-			break;
-		case 3:	// 48kB, is this possible?
-		case 4:	// 64kB
-			ptr = memoryBank;
-			for (int i=0; i<8; i++) {
-				setBank8kB(i, ptr);
-				ptr += 0x2000;
-			}
-			break;
-		default:
-			// not possible
-			assert (false);
+			case 0:	//  8kB
+				for (int i=0; i<8; i++)
+					setROM8kB(i, 0);
+				break;
+			case 1:	// 16kB
+				setROM16kB(0, 0);
+				setROM16kB(1, 0);
+				setROM16kB(2, 0);
+				setROM16kB(3, 0);
+				break;
+			case 2:	// 32kB
+				setROM16kB(0, 0);
+				setROM16kB(1, 0);
+				setROM16kB(2, 1);
+				setROM16kB(3, 1);
+				break;
+			case 3:	// 48kB   TODO is this possible
+				setROM16kB(0, 0);
+				setROM16kB(1, 1);
+				setROM16kB(2, 2);
+				setROM16kB(3, 2);	// TODO check this
+				break;
+			case 4:	// 64kB
+				setROM16kB(0, 0);
+				setROM16kB(1, 1);
+				setROM16kB(2, 2);
+				setROM16kB(3, 3);
+				break;
+			default:
+				// not possible
+				assert(false);
 		}
 	}
 }
@@ -356,61 +332,51 @@ byte MSXGameCartridge::readMem(word address, const EmuTime &time)
 		return cartridgeSCC->readMemInterface(address & 0xFF, time);
 	}
 #endif
-	PRT_DEBUG(std::hex << "GameCartridge read [" << address << "] := " << (int)internalMemoryBank[address>>12][address&0x0fff] << std::dec );
 	return internalMemoryBank[address>>12][address&0x0fff];
 }
 
 byte* MSXGameCartridge::getReadCacheLine(word start)
 {
+	// TODO comment contradicts code, can SRAM be cached or not?
 	// extra check for SRAM: (enabledSRAM && adr2pag[start>>13]&regioSRAM)
 	// not needed since SRAM may be cached.
-#ifndef DONT_WANT_SCC
-	if ( (enabledSRAM && adr2pag[start>>13]&regioSRAM)
-	    || (enabledSCC && 0x9800<=start && start<0xA000)) {
-		// don't cache SRAM and SCC
-		PRT_DEBUG("No caching for " << std::hex << start << std::dec);
+	if (enabledSRAM && adr2pag[start>>13]&regioSRAM) {
+		// don't cache SRAM
 		return NULL;
-	} else {
-#endif
-		PRT_DEBUG("Caching for " << std::hex << start << std::dec);
-		if (CPU::CACHE_LINE_SIZE <= 0x1000) {
-			return &internalMemoryBank[start>>12][start&0x0fff];
-		} else {
-			return NULL;
-		}
+	} 
 #ifndef DONT_WANT_SCC
+	if (enabledSCC && 0x9800<=start && start<0xA000) {
+		// don't cache SCC
+		return NULL;
 	}
 #endif
+	if (CPU::CACHE_LINE_SIZE <= 0x1000) {
+		return &internalMemoryBank[start>>12][start&0x0fff];
+	} else {
+		return NULL;
+	}
 }
 
 void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 {
-	/*
-	cerr << std::hex << "GameCart[" << address << "] := "
-		<< (int)value << std::dec << "\n";
-	*/
 	switch (mapperType) {
-	byte region;
 	case 0:
-		//--==>> Generic 8kB cartridges <<==--
-		// Unlike fMSX, our generic 8kB mapper does not have an SCC.
-		// After all, such hardware does not exist in reality.
-		// If you want an SCC, use the Konami5 mapper type.
-
-		if (address<0x4000 || address>=0xC000) return;
-		// change internal mapper
-		value &= mapperMask;
-		setBank8kB(address>>13, memoryBank+(value<<13));
+		//--==**>> Generic 8kB cartridges <<**==--
+		if (0x4000<=address && address<0xC000) {
+			setROM8kB(address>>13, value);
+		}
 		break;
+		
 	case 1:
-		//--==**>> Generic 16kB cartridges (MSXDOS2, Hole in one special) <<**==--
-		if (address<0x4000 || address>=0xC000)
-			return;
-		region = (address&0xC000)>>13;	// 0, 2, 4, 6
-		value = (2*value)&mapperMask;
-		setBank8kB(region,   memoryBank+(value<<13));
-		setBank8kB(region+1, memoryBank+(value<<13)+0x2000);
+		//--==**>> Generic 16kB cartridges <<**==--
+		// examples: MSXDOS2, Hole in one special
+		
+		if (0x4000<=address && address<0xC000) {
+			byte region = (address&0xC000)>>14;	// 0..3
+			setROM16kB(region, value);
+		}
 		break;
+	
 	case 2:
 		//--==**>> KONAMI5 8kB cartridges <<**==--
 		// this type is used by Konami cartridges that do have an SCC and some others
@@ -423,26 +389,25 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		//  bank 3: 0x9000 - 0x97FF (0x9000 used)
 		//  bank 4: 0xB000 - 0xB7FF (0xB000 used)
 
-		if (address<0x5000 || address>=0xC000) return;
+		if (address<0x5000 || address>=0xC000) break;
 #ifndef DONT_WANT_SCC
 		// Write to SCC?
 		if (enabledSCC && 0x9800<=address && address<0xA000) {
-			cartridgeSCC->writeMemInterface(address & 0xFF, value , time);
-			PRT_DEBUG("GameCartridge: writeMemInterface (" << address <<","<<(int)value<<")"<<time );
+			cartridgeSCC->writeMemInterface(address & 0xFF, value, time);
 			// No page selection in this memory range.
-			return;
+			break;
 		}
 		// SCC enable/disable?
 		if ((address & 0xF800) == 0x9000) {
-			enabledSCC = ((value&0x3F)==0x3F);
+			enabledSCC = ((value & 0x3F) == 0x3F);
 			MSXCPU::instance()->invalidateCache(0x9800, 0x0800/CPU::CACHE_LINE_SIZE);
 		}
 #endif
 		// Page selection?
-		if ((address & 0x1800) != 0x1000) return;
-		value &= mapperMask;
-		setBank8kB(address>>13, memoryBank+(value<<13));
+		if ((address & 0x1800) == 0x1000)
+			setROM8kB(address>>13, value);
 		break;
+	
 	case 3:
 		//--==**>> KONAMI4 8kB cartridges <<**==--
 		// this type is used by Konami cartridges that do not have an SCC and some others
@@ -450,28 +415,29 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		// The Maze of Galious, Aleste 1, 1942,Heaven, Mystery World, ...
 		//
 		// page at 4000 is fixed, other banks are switched
-		// by writting at 0x6000,0x8000 and 0xA000
+		// by writting at 0x6000,0x8000 and 0xa000
 
-		if (address&0x1FFF || address<0x6000 || address>=0xC000) return;
-		value &= mapperMask;
-		setBank8kB(address>>13, memoryBank+(value<<13));
+		if (address==0x6000 || address==0x8000 || address==0xa000)
+			setROM8kB(address>>13, value);
 		break;
+		
 	case 4:
 		//--==**>> ASCII 8kB cartridges <<**==--
 		// this type is used in many japanese-only cartridges.
-		// example of cartridges: Valis(Fantasm Soldier), Dragon Slayer, Outrun, Ashguine 2, ...
-		//
+		// example of cartridges: Valis(Fantasm Soldier), Dragon Slayer, Outrun, 
+		//                        Ashguine 2, ...
 		// The address to change banks:
 		//  bank 1: 0x6000 - 0x67FF (0x5000 used)
 		//  bank 2: 0x6800 - 0x6FFF (0x7000 used)
 		//  bank 3: 0x7000 - 0x77FF (0x9000 used)
 		//  bank 4: 0x7800 - 0x7FFF (0xB000 used)
 
-		if (address<0x6000 || address>=0x8000) return;
-		region = ((address>>11)&3)+2;
-		value &= mapperMask;
-		setBank8kB(region, memoryBank+(value<<13));
+		if (0x6000<=address && address<0x8000) {
+			byte region = ((address>>11)&3)+2;
+			setROM8kB(region, value);
+		}
 		break;
+		
 	case 5:
 		//--==**>> ASCII 16kB cartridges <<**==--
 		// this type is used in a few cartridges.
@@ -482,12 +448,12 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		//  first  16kb: 0x6000 - 0x67FF (0x6000 used)
 		//  second 16kb: 0x7000 - 0x77FF (0x7000 and 0x77FF used)
 		
-		if (address<0x6000 || address>=0x7800 || (address&0x800)) return;
-		region = ((address>>11)&2)+2;
-		value = (2*value)&mapperMask;
-		setBank8kB(region,   memoryBank+(value<<13));
-		setBank8kB(region+1, memoryBank+(value<<13)+0x2000);
+		if (0x6000<=address && address<0x7800 && !(address&0x800)) {
+			byte region = ((address>>12)&1)+1;
+			setROM16kB(region, value);
+		}
 		break;
+		
 	case 16:
 		//--==**>> HYDLIDE2 cartridges <<**==--
 		// this type is is almost completely a ASCII16 cartrdige
@@ -501,29 +467,27 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		//  first  16kb: 0x6000 - 0x67FF (0x6000 used)
 		//  second 16kb: 0x7000 - 0x77FF (0x7000 and 0x77FF used)
 
-		if (address<0x6000 || address>=0x7800 || (address&0x800)){
-			//Normal ASCII16 would return but maybe 
-			//we are writting to the SRAM?
-			if (adr2pag[address>>13]&regioSRAM&0x0C){ 
-				for (word adr=address&0x7ff; adr<0x2000; adr+=0x800)
-					memorySRAM[adr]=value;
-			}
-		} else {
-			region = ((address>>11)&2)+2;
-			if (value == 0x10){
+		if (0x6000<=address && address<0x7800 && !(address&0x800)) {
+			byte region = ((address>>11)&2)+2;
+			if (value == 0x10) {
 				// SRAM block
 				setBank8kB(region,   memorySRAM);
 				setBank8kB(region+1, memorySRAM);
-				regioSRAM|=(region==2?0x03:0x0c);
+				regioSRAM |= (region==2 ? 0x03 : 0x0c);
 			} else {
 				// Normal 16 kB ROM page
-				value = (2*value)&mapperMask;
-				setBank8kB(region,   memoryBank+(value<<13));
-				setBank8kB(region+1, memoryBank+(value<<13)+0x2000);
-				regioSRAM&=(region==2?0xFD:0xF4);
+				setROM16kB(2*region, value);
+				regioSRAM &= (region==2 ? 0xFD : 0xF4);	// TODO 0xfc 0xf3 ??
 			}
-		};
+		} else {
+			// Writting to SRAM?
+			if (adr2pag[address>>13] & regioSRAM & 0x0C) { 
+				for (word adr=address&0x7ff; adr<0x2000; adr+=0x800)
+					memorySRAM[adr] = value;
+			}
+		}
 		break;
+		
 	case 17:
 	case 18:
 		//--==**>> ASCII 8kB cartridges with 8kB SRAM<<**==--
@@ -535,56 +499,41 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		//  bank 3: 0x7000 - 0x77FF (0x9000 used)
 		//  bank 4: 0x7800 - 0x7FFF (0xB000 used)
 
-		if (address<0x6000 || address>=0x8000){
-			//Normal ASCII8 would return but maybe 
-			//we are writting to the SRAM?
-			PRT_DEBUG(std::hex << "regioSRAM "<< (int)regioSRAM << std::dec << std::hex << "adr2pag[address>>13] "<< (int)adr2pag[address>>13] << std::dec );
-			if (adr2pag[address>>13]&regioSRAM&0x0C){ 
-				memorySRAM[address & 0x1fff]=value;
-				PRT_DEBUG(std::hex << "SRAM write  [" << address << "] := " << (int)value << std::dec );
-			}
-		} else {
-			region = ((address>>11)&3)+2;
-			PRT_DEBUG(std::hex << "write  GameCart[" << address << "] := " << (int)value << std::dec);
-			if (value & SRAMEnableBit){
+		if (0x6000<=address && address<0x8000) {
+			byte region = ((address>>11)&3)+2;
+			if (value & SRAMEnableBit) {
 				//bit 7 for Royal Blood
 				//bit 5 for Xanadu
 				setBank8kB(region, memorySRAM);
-				regioSRAM|=adr2pag[region];
-				PRT_DEBUG("SRAM mapped in (region "<<(int)region<<"): regioSRAM="<<(int)regioSRAM<<"\n");
+				regioSRAM |=  adr2pag[region];
 			} else {
-				value &= mapperMask;
-				setBank8kB(region, memoryBank+(value<<13));
-				regioSRAM&=(~adr2pag[region]);
+				setROM8kB(region, value);
+				regioSRAM &= ~adr2pag[region];
 			}
-		};
+		} else {
+			// Writting to SRAM?
+			if (adr2pag[address>>13] & regioSRAM & 0x0C) { 
+				memorySRAM[address & 0x1fff] = value;
+			}
+		}
 		break;
+		
 	case 19:
 		// Konami Game Master 2, 8KB cartridge with 8KB sram
-		if (address<0x6000 || address>=0xC000) {
-			PRT_DEBUG ("GM2 Discarded write: out of range:"<<std::hex<<address<<", val="<<(int)value<<std::dec<<std::endl);
-			return;
-		}
+		if (address<0x6000 || address>=0xC000) break;
 		if (address >= 0xB000) {
 			// SRAM write
-			if (!(regioSRAM & 8)) {	// not in writable page
-				PRT_DEBUG ("GM2 Discarded write of "<<std::hex<<(int)value<<" to "<<address<<": SRAM not in correct page, regioSRAM="<<(int)regioSRAM<<std::dec<<std::endl);
-				return; 
-			}
-//			PRT_DEBUG (std::hex<<"GM2 SRAM write to addr "<<address<<", val "<<(int)value<<std::dec<<std::endl);
+			if (!(regioSRAM & 8)) break;	// not in writable page
 			memorySRAM[address & 0xFFF + 0x1000 * !!(pageSRAM & (1<<5))] = value;
 			break;
 		}
-		if (address & 0x1000) {
-			PRT_DEBUG ("Discarded mapping: illegal address "<<std::hex<<address<<", val="<<value<<std::dec<<std::endl);
-			return;
-		}
+		if (address & 0x1000) break;
 		if (value & (1 << 4)) {
 			// switch sram in page
 			regioSRAM |= 1 << ((address >> 13) - 2);
 			int page = value & (1 << 5);
 			if (page) {
-				pageSRAM |= 1 << (address >> 13);
+				pageSRAM |=  (1 << (address >> 13));
 				setBank4kB((address>>12)&0xe,     memorySRAM + 0x1000);
 				setBank4kB(((address>>12)&0xe)+1, memorySRAM + 0x1000);
 			} else {
@@ -592,40 +541,67 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 				setBank4kB((address>>12)&0xe,     memorySRAM);
 				setBank4kB(((address>>12)&0xe)+1, memorySRAM);
 			}
-//			PRT_DEBUG (std::hex<<"GM2 Switched SRAM page="<<page<<", value="<<(int)value<<", addr="<<address<<std::dec<<std::endl);
 		} else {
 			// switch normal memory
 			regioSRAM &= ~(1 << ((address >> 13) - 2));
-			value &= mapperMask;
-			setBank8kB(address>>13, memoryBank+(value<<13));
-//			PRT_DEBUG (std::hex<<"GM2 Switched bank="<<(address>>13)<<", value="<<(int)value<<", addr="<<address<<std::dec<<std::endl);
+			setROM8kB(address>>13, value);
 		}
 		break;
+		
 	case 64:
 		//--==**>> <<**==--
 		// Konami Synthezier cartridge
 		// Should be only for 0x4000, but since this isn't confirmed on a real
 		// cratridge we will simply use every write.
 		dac->writeDAC(value,time);
-		// fall through:
+		break;
+		
 	case 128:
 		//--==**>> Simple romcartridge <= 64 KB <<**==--
 		// No extra writable hardware
 		break;
+		
 	default:
-		//// Unknow mapper type for GameCartridge cartridge!!!
+		// Unknow mapper type
 		assert(false);
 	}
 }
 
-void MSXGameCartridge::setBank8kB(int region, byte* value)
+void MSXGameCartridge::setBank4kB(int region, byte* adr)
 {
-	setBank4kB(region*2,   value);
-	setBank4kB(region*2+1, value + 0x1000);
+	internalMemoryBank[region] = adr;
+	MSXCPU::instance()->invalidateCache(region*0x1000, 0x1000/CPU::CACHE_LINE_SIZE);
+}
+void MSXGameCartridge::setBank8kB(int region, byte* adr)
+{
+	internalMemoryBank[2*region+0] = adr+0x0000;
+	internalMemoryBank[2*region+1] = adr+0x1000;
+	MSXCPU::instance()->invalidateCache(region*0x2000, 0x2000/CPU::CACHE_LINE_SIZE);
+}
+void MSXGameCartridge::setBank16kB(int region, byte* adr)
+{
+	internalMemoryBank[4*region+0] = adr+0x0000;
+	internalMemoryBank[4*region+1] = adr+0x1000;
+	internalMemoryBank[4*region+2] = adr+0x2000;
+	internalMemoryBank[4*region+3] = adr+0x3000;
+	MSXCPU::instance()->invalidateCache(region*0x4000, 0x4000/CPU::CACHE_LINE_SIZE);
 }
 
-void MSXGameCartridge::setBank4kB(int region, byte* value)
+void MSXGameCartridge::setROM4kB(int region, int block)
 {
-	internalMemoryBank[region] = value;
-	MSXCPU::instance()->invalidateCache(region*0x1000, 0x1000/CPU::CACHE_LINE_SIZE);
+	int nrBlocks = romSize >> 12;
+	block = (block < nrBlocks) ? block : block & (nrBlocks - 1);
+	setBank4kB(region, memoryBank + (block<<12));
+}
+void MSXGameCartridge::setROM8kB(int region, int block)
+{
+	int nrBlocks = romSize >> 13;
+	block = (block < nrBlocks) ? block : block & (nrBlocks - 1);
+	setBank8kB(region, memoryBank + (block<<13));
+}
+void MSXGameCartridge::setROM16kB(int region, int block)
+{
+	int nrBlocks = romSize >> 14;
+	block = (block < nrBlocks) ? block : block & (nrBlocks - 1);
+	setBank16kB(region, memoryBank + (block<<14));
 }
