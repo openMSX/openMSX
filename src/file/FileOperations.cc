@@ -10,6 +10,7 @@
 #include <algorithm>
 #define	MAXPATHLEN	MAX_PATH
 #define	mode_t	unsigned short int
+#define setenv(name,value,overwrite) SetEnvironmentVariableA (name,value)
 #endif
 #include <cerrno>
 #include <cstdlib>
