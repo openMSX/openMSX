@@ -9,8 +9,8 @@ namespace openmsx {
 
 // class Config
 
-Config::Config(const XMLElement& element_, const FileContext& context_)
-	: element(element_), context(context_.clone())
+Config::Config(const XMLElement& element, const FileContext& context_)
+	: XMLElement(element), context(context_.clone())
 {
 }
 
@@ -21,17 +21,12 @@ Config::~Config()
 
 const string& Config::getType() const
 {
-	return element.getElementPcdata("type");
+	return getChildData("type");
 }
 
 const string& Config::getId() const
 {
-	return element.getAttribute("id");
-}
-
-const XMLElement& Config::getXMLElement() const
-{
-	return element;
+	return getAttribute("id");
 }
 
 FileContext& Config::getContext() const
@@ -40,15 +35,19 @@ FileContext& Config::getContext() const
 	return *context;
 }
 
-XMLElement* Config::getParameterElement(const string& name) const
+const XMLElement* Config::getParameterElement(const string& name) const
 {
-	const XMLElement::Children& children = element.getChildren();
-	for (XMLElement::Children::const_iterator it = children.begin();
-	     it != children.end(); ++it) {
-		if ((*it)->getName() == "parameter") {
-			if ((*it)->getAttribute("name") == name) {
-				return *it;
-			}
+	const XMLElement* param = getChild(name);
+	if (param) {
+		return param;
+	}
+
+	XMLElement::Children params;
+	getChildren("parameter", params);
+	for (XMLElement::Children::const_iterator it = params.begin();
+	     it != params.end(); ++it) {
+		if ((*it)->getAttribute("name") == name) {
+			return *it;
 		}
 	}
 	return NULL;
@@ -62,18 +61,18 @@ bool Config::hasParameter(const string& name) const
 
 const string& Config::getParameter(const string& name) const
 {
-	XMLElement* p = getParameterElement(name);
+	const XMLElement* p = getParameterElement(name);
 	if (!p) {
 		throw ConfigException("Missing parameter: " + name);
 	}
-	return p->getPcData();
+	return p->getData();
 }
 
 const string Config::getParameter(const string& name, const string& defaultValue) const
 // don't return reference!
 {
-	XMLElement* p = getParameterElement(name);
-	return p ? p->getPcData() : defaultValue;
+	const XMLElement* p = getParameterElement(name);
+	return p ? p->getData() : defaultValue;
 }
 
 bool Config::getParameterAsBool(const string& name) const
@@ -83,8 +82,8 @@ bool Config::getParameterAsBool(const string& name) const
 
 bool Config::getParameterAsBool(const string& name, bool defaultValue) const
 {
-	XMLElement* p = getParameterElement(name);
-	return p ? StringOp::stringToBool(p->getPcData()) : defaultValue;
+	const XMLElement* p = getParameterElement(name);
+	return p ? StringOp::stringToBool(p->getData()) : defaultValue;
 }
 
 int Config::getParameterAsInt(const string& name) const
@@ -94,20 +93,20 @@ int Config::getParameterAsInt(const string& name) const
 
 int Config::getParameterAsInt(const string& name, int defaultValue) const
 {
-	XMLElement* p = getParameterElement(name);
-	return p ? StringOp::stringToInt(p->getPcData()) : defaultValue;
+	const XMLElement* p = getParameterElement(name);
+	return p ? StringOp::stringToInt(p->getData()) : defaultValue;
 }
 
-void Config::getParametersWithClass(const string& clasz, Parameters& result)
+void Config::getParametersWithClass(const string& clasz, Parameters& result) const
 {
-	const XMLElement::Children& children = element.getChildren();
+	const XMLElement::Children& children = getChildren();
 	for (XMLElement::Children::const_iterator it = children.begin();
 	     it != children.end(); ++it) {
 		if ((*it)->getName() == "parameter") {
 			if ((*it)->getAttribute("class") == clasz) {
 				result.insert(Parameters::value_type(
 					(*it)->getAttribute("name"),
-					(*it)->getPcData()));
+					(*it)->getData()));
 			}
 		}
 	}

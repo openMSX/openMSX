@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-static string EMPTY("");
+static string EMPTY;
 
 
 // class XMLException
@@ -27,8 +27,8 @@ XMLElement::XMLElement(xmlNodePtr node)
 	init(node);
 }
 
-XMLElement::XMLElement(const string& name_, const string& pcdata_)
-	: name(name_), pcdata(pcdata_)
+XMLElement::XMLElement(const string& name_, const string& data_)
+	: name(name_), data(data_)
 {
 }
 
@@ -38,7 +38,7 @@ void XMLElement::init(xmlNodePtr node)
 	for (xmlNodePtr x = node->children; x != NULL ; x = x->next) {
 		switch (x->type) {
 		case XML_TEXT_NODE:
-			pcdata += (const char*)x->content;
+			data += (const char*)x->content;
 			break;
 		case XML_ELEMENT_NODE:
 			children.push_back(new XMLElement(x));
@@ -83,6 +83,33 @@ void XMLElement::addAttribute(const string& name, const string& value)
 	attributes[name] = value;
 }
 
+void XMLElement::getChildren(const string& name, Children& result) const
+{
+	for (Children::const_iterator it = children.begin();
+	     it != children.end(); ++it) {
+		if ((*it)->getName() == name) {
+			result.push_back(*it);
+		}
+	}
+}
+
+const XMLElement* XMLElement::getChild(const string& name) const
+{
+	for (Children::const_iterator it = children.begin();
+	     it != children.end(); ++it) {
+		if ((*it)->getName() == name) {
+			return *it;
+		}
+	}
+	return NULL;
+}
+
+const string& XMLElement::getChildData(const string& name) const
+{
+	const XMLElement* child = getChild(name);
+	return child ? child->getData() : EMPTY;
+}
+
 const string& XMLElement::getAttribute(const string& attName) const
 {
 	Attributes::const_iterator it = attributes.find(attName);
@@ -91,17 +118,6 @@ const string& XMLElement::getAttribute(const string& attName) const
 	} else {
 		return EMPTY;
 	}
-}
-
-const string& XMLElement::getElementPcdata(const string& childName) const
-{
-	for (Children::const_iterator it = children.begin();
-	     it != children.end(); ++it) {
-		if ((*it)->name == childName) {
-			return (*it)->pcdata;
-		}
-	}
-	return EMPTY;
 }
 
 XMLElement::XMLElement(const XMLElement& element)
@@ -116,7 +132,7 @@ const XMLElement& XMLElement::operator=(const XMLElement& element)
 		return *this;
 	}
 	name = element.name;
-	pcdata = element.pcdata;
+	data = element.data;
 	attributes = element.attributes;
 	for (Children::const_iterator it = children.begin();
 	     it != children.end(); ++it) {

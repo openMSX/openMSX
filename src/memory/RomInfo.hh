@@ -30,7 +30,7 @@ public:
 	const MapperType& getMapperType() const { return mapperType; }
 
 	static auto_ptr<RomInfo> fetchRomInfo(
-		const Rom* rom, const Config& deviceConfig);
+		const Rom& rom, const Config& deviceConfig);
 	static MapperType nameToMapperType(const string& name);
 	void print();
 
@@ -40,8 +40,8 @@ private:
 	  * @return The information found in the database,
 	  * 	or NULL if the given ROM is not in the database.
 	  */
-	static auto_ptr<RomInfo> searchRomDB(const Rom* rom);
-	static MapperType guessMapperType(const Rom* rom);
+	static auto_ptr<RomInfo> searchRomDB(const Rom& rom);
+	static MapperType guessMapperType(const Rom& rom);
 
 	string title;
 	string year;

@@ -12,7 +12,7 @@ namespace openmsx {
 
 MSXDevice* FDCFactory::create(Config* config, const EmuTime& time)
 {
-	const string& type = config->getParameter("type");
+	const string& type = config->getParameter("fdc_type");
 	if (type == "WD2793") {
 		return new PhilipsFDC(config, time);
 	}

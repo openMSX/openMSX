@@ -106,18 +106,16 @@ word RomPlain::guessLocation()
 	}
 
 	int lowest = 4;
-	const XMLElement::Children& children =
-		deviceConfig->getXMLElement().getChildren();
+	const XMLElement::Children& children = deviceConfig->getChildren();
 	for (XMLElement::Children::const_iterator it = children.begin();
 	     it != children.end(); ++it) {
 		if ((*it)->getName() == "slotted") {
-			const XMLElement::Children& slot_children = (*it)->getChildren();
+			XMLElement::Children slot_children;
+			(*it)->getChildren("page", slot_children);
 			for (XMLElement::Children::const_iterator it2 = slot_children.begin();
 			     it2 != slot_children.end(); ++it2) {
-				if ((*it2)->getName() == "page") {
-					int page = StringOp::stringToInt((*it2)->getPcData());
-					lowest = min(lowest, page);
-				}
+				int page = StringOp::stringToInt((*it2)->getData());
+				lowest = min(lowest, page);
 			}
 		}
 	}

@@ -76,8 +76,7 @@ void MSXMemDevice::registerSlots()
 	int ss = 0;
 	int pages = 0;
 	
-	const XMLElement::Children& children =
-		deviceConfig->getXMLElement().getChildren();
+	const XMLElement::Children& children = deviceConfig->getChildren();
 	for (XMLElement::Children::const_iterator it = children.begin();
 	     it != children.end(); ++it) {
 		if ((*it)->getName() == "slotted") {
@@ -88,11 +87,11 @@ void MSXMemDevice::registerSlots()
 			for (XMLElement::Children::const_iterator it2 = slot_children.begin();
 			     it2 != slot_children.end(); ++it2) {
 				if ((*it2)->getName() == "ps") {
-					ps2 = StringOp::stringToInt((*it2)->getPcData());
+					ps2 = StringOp::stringToInt((*it2)->getData());
 				} else if ((*it2)->getName() == "ss") {
-					ss2 = StringOp::stringToInt((*it2)->getPcData());
+					ss2 = StringOp::stringToInt((*it2)->getData());
 				} else if ((*it2)->getName() == "page") {
-					page = StringOp::stringToInt((*it2)->getPcData());
+					page = StringOp::stringToInt((*it2)->getData());
 				}
 			}
 			if ((pages != 0) && ((ps != ps2) || (ss != ss2))) {

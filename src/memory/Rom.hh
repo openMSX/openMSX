@@ -39,7 +39,8 @@ public:
 	}
 
 	const string& getName() const;
-
+	const string& getSHA1Sum() const;
+	
 	// Debuggable
 	virtual unsigned getSize() const;
 	virtual const string& getDescription() const;
@@ -49,6 +50,8 @@ public:
 private:
 	void read(Config* config, const string& filename);
 	void init(const Config& config);
+	bool checkSHA1(const Config& config);
+	void patch(const Config& config);
 	
 	string name;
 	const string description;
@@ -58,6 +61,8 @@ private:
 	File* file;
 	vector<MSXRomPatchInterface*> romPatchInterfaces;
 	auto_ptr<RomInfo> info;
+
+	mutable string sha1sum;
 };
 
 } // namespace openmsx

@@ -14,12 +14,15 @@
 #include "PanasonicMemory.hh"
 #include "StringOp.hh"
 #include "Debugger.hh"
+#include "sha1.hh"
+#include "CliCommOutput.hh"
 
 namespace openmsx {
 
 Rom::Rom(const string& name_, const string& description_, Config* config)
 	: name(name_), description(description_)
 {
+	// TODO use SHA1 to fetch file from ROM pool
 	if (config->hasParameter("filename")) {
 		string filename = config->getParameter("filename");
 		read(config, filename);
@@ -69,12 +72,10 @@ void Rom::read(Config* config, const string& filename)
 	if (config && config->hasParameter("skip_headerbytes")) {
 		offset = config->getParameterAsInt("skip_headerbytes");
 	}
-
-	// some checks 
-	size = fileSize - offset;
-	if (size <= 0) {
+	if (fileSize <= offset) {
 		throw FatalError("Offset greater than filesize");
 	}
+	size = fileSize - offset;
 	
 	// read file
 	byte* tmp = 0;	// avoid warning
@@ -85,13 +86,42 @@ void Rom::read(Config* config, const string& filename)
 		throw FatalError("Error reading ROM image: " + filename);
 	}
 
-	if (!config) {
-		return;
+	// verify SHA1
+	if (config && !checkSHA1(*config)) {
+		CliCommOutput::instance().printWarning(
+			"SHA1 sum for '" + config->getId() +
+			"' does not match with sum of '" + filename +
+			"'.");
 	}
+	
+	if (config) {
+		patch(*config);
+	}
+}
+
+bool Rom::checkSHA1(const Config& config)
+{
+	const string& sha1sum = getSHA1Sum();
+	XMLElement::Children sums;
+	config.getChildren("sha1", sums);
+	if (sums.empty()) {
+		return true;
+	}
+	for (XMLElement::Children::const_iterator it = sums.begin();
+	     it != sums.end(); ++it) {
+		if ((*it)->getData() == sha1sum) {
+			return true;
+		}
+	}
+	return false;
+}
+
+void Rom::patch(const Config& config)
+{
 	// for each patchcode parameter, construct apropriate patch
 	// object and register it at MSXCPUInterface
 	Config::Parameters parameters;
-	config->getParametersWithClass("patchcode", parameters);
+	config.getParametersWithClass("patchcode", parameters);
 	for (Config::Parameters::const_iterator it = parameters.begin();
 	     it != parameters.end(); ++it) {
 		MSXRomPatchInterface* patchInterface;
@@ -107,8 +137,9 @@ void Rom::read(Config* config, const string& filename)
 	}
 	
 	// also patch the file if needed:
+	byte* tmp = const_cast<byte*>(rom);
 	Config::Parameters parameters2;
-	config->getParametersWithClass("patch", parameters2);
+	config.getParametersWithClass("patch", parameters2);
 	for (Config::Parameters::const_iterator i = parameters2.begin();
 	     i != parameters2.end(); ++i) {
 		unsigned int romOffset = strtol(i->first.c_str(), 0, 0);
@@ -126,7 +157,7 @@ void Rom::read(Config* config, const string& filename)
 
 void Rom::init(const Config& config)
 {
-	info = RomInfo::fetchRomInfo(this, config);
+	info = RomInfo::fetchRomInfo(*this, config);
 	
 	if (!info->getTitle().empty()) {
 		name += " (" + info->getTitle() + ')';
@@ -180,6 +211,17 @@ void Rom::write(unsigned address, byte value)
 const string& Rom::getName() const
 {
 	return name;
+}
+
+const string& Rom::getSHA1Sum() const
+{
+	if (sha1sum.empty()) {
+		SHA1 sha1;
+		sha1.update(rom, size);
+		sha1.finalize();
+		sha1sum = sha1.hex_digest();
+	}
+	return sha1sum;
 }
 
 } // namespace openmsx

@@ -16,20 +16,19 @@ namespace openmsx {
 class FileContext;
 class XMLElement;
 
-class Config
+class Config : public XMLElement
 {
 public:
 	Config(const XMLElement& element, const FileContext& context);
-	virtual ~Config();
+	~Config();
 
 	const string& getType() const;
 	const string& getId() const;
 
-	const XMLElement& getXMLElement() const;
 	FileContext& getContext() const;
 
 	bool hasParameter(const string& name) const;
-	const string &getParameter(const string& name) const;
+	const string& getParameter(const string& name) const;
 	const string getParameter(const string& name, const string& defaultValue) const;
 	bool getParameterAsBool(const string& name) const;
 	bool getParameterAsBool(const string& name, bool defaultValue) const;
@@ -37,12 +36,11 @@ public:
 	int getParameterAsInt(const string& name, int defaultValue) const;
 
 	typedef multimap<string, string> Parameters;
-	void getParametersWithClass(const string& clasz, Parameters& result);
+	void getParametersWithClass(const string& clasz, Parameters& result) const;
 
 private:
-	XMLElement* getParameterElement(const string& name) const;
+	const XMLElement* getParameterElement(const string& name) const;
 
-	XMLElement element;
 	FileContext* context;
 };
 

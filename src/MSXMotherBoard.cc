@@ -79,7 +79,7 @@ void MSXMotherBoard::run(bool powerOn)
 		HardwareConfig::instance().getConfigs();
 	for (HardwareConfig::Configs::const_iterator it = configs.begin();
 	     it != configs.end(); ++it) {
-		if ((*it)->getXMLElement().getName() != "device") {
+		if ((*it)->getName() != "device") {
 			continue;
 		}
 		PRT_DEBUG("Instantiating: " << (*it)->getType());

@@ -4,7 +4,6 @@
 #include <string>
 #include "RomInfo.hh"
 #include "Rom.hh"
-#include "sha1.hh"
 #include "xmlx.hh"
 #include "FileContext.hh"
 #include "File.hh"
@@ -130,13 +129,13 @@ MapperType RomInfo::nameToMapperType(const string& name)
 	return it->second;
 }
 
-MapperType RomInfo::guessMapperType(const Rom* rom)
+MapperType RomInfo::guessMapperType(const Rom& rom)
 {
-	int size = rom->getSize();
+	int size = rom.getSize();
 	if (size == 0) {
 		return PLAIN;
 	}
-	const byte* data = &(*rom)[0];
+	const byte* data = &rom[0];
 	
 	if (size <= 0x10000) {
 		if (size == 0x10000) {
@@ -218,11 +217,10 @@ MapperType RomInfo::guessMapperType(const Rom* rom)
 	}
 }
 
-auto_ptr<RomInfo> RomInfo::searchRomDB(const Rom* rom)
+auto_ptr<RomInfo> RomInfo::searchRomDB(const Rom& rom)
 {
 	// TODO: Turn ROM DB into a separate class.
 	static map<string, RomInfo*> romDBSHA1;
-	static map<string, RomInfo*> romDBMD5;
 	static bool init = false;
 
 	if (!init) {
@@ -236,11 +234,11 @@ auto_ptr<RomInfo> RomInfo::searchRomDB(const Rom* rom)
 			for (XMLElement::Children::const_iterator it1 = children.begin();
 			     it1 != children.end(); ++it1) {
 				// TODO there can be multiple title tags
-				string title   = (*it1)->getElementPcdata("title");
-				string year    = (*it1)->getElementPcdata("year");
-				string company = (*it1)->getElementPcdata("company");
-				string remark  = (*it1)->getElementPcdata("remark");
-				string romtype = (*it1)->getElementPcdata("romtype");
+				string title   = (*it1)->getChildData("title");
+				string year    = (*it1)->getChildData("year");
+				string company = (*it1)->getChildData("company");
+				string remark  = (*it1)->getChildData("remark");
+				string romtype = (*it1)->getChildData("romtype");
 				
 				RomInfo* romInfo = new RomInfo(title, year,
 				   company, remark, nameToMapperType(romtype));
@@ -248,7 +246,7 @@ auto_ptr<RomInfo> RomInfo::searchRomDB(const Rom* rom)
 				for (XMLElement::Children::const_iterator it2 = sub_children.begin();
 				     it2 != sub_children.end(); ++it2) {
 					if ((*it2)->getName() == "sha1") {
-						string sha1 = (*it2)->getPcData();
+						string sha1 = (*it2)->getData();
 						if (romDBSHA1.find(sha1) ==
 						    romDBSHA1.end()) {
 							romDBSHA1[sha1] = romInfo;
@@ -266,26 +264,23 @@ auto_ptr<RomInfo> RomInfo::searchRomDB(const Rom* rom)
 		}
 	}
 	
-	int size = rom->getSize();
+	int size = rom.getSize();
 	if (size == 0) {
 		return auto_ptr<RomInfo>(new RomInfo("", "", "", "Empty ROM", UNKNOWN));
 	}
 
-	SHA1 sha1;
-	sha1.update(&(*rom)[0], size);
-	sha1.finalize();
-	string digestSHA1(sha1.hex_digest());
-	if (romDBSHA1.find(digestSHA1) != romDBSHA1.end()) {
-		romDBSHA1[digestSHA1]->print();
+	const string& sha1sum = rom.getSHA1Sum();
+	if (romDBSHA1.find(sha1sum) != romDBSHA1.end()) {
+		romDBSHA1[sha1sum]->print();
 		// Return a copy of the DB entry.
-		return auto_ptr<RomInfo>(new RomInfo(*romDBSHA1[digestSHA1]));
+		return auto_ptr<RomInfo>(new RomInfo(*romDBSHA1[sha1sum]));
 	}
 
 	// no match found
 	return auto_ptr<RomInfo>(NULL);
 }
 
-auto_ptr<RomInfo> RomInfo::fetchRomInfo(const Rom* rom, const Config& deviceConfig)
+auto_ptr<RomInfo> RomInfo::fetchRomInfo(const Rom& rom, const Config& deviceConfig)
 {
 	// Look for the ROM in the ROM DB.
 	auto_ptr<RomInfo> info(searchRomDB(rom));

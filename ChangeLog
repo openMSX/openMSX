@@ -3,6 +3,16 @@ $Id$
 2004-05-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Better names for ROM debuggables. Still include the (unique) device
 	  id to avoid assertion when the same ROM is inserted twice.
+	* Added optional "sha1" parameter to rom devices. For the moment only
+	  used to print a warning when given sha1sum doesn't match with real
+	  sha1sum.
+	* First step to new xml format:
+	     <parameter name="foo">bar</parameter>
+	  can now be written as
+	     <foo>bar</foo>
+	  the first format is still supported, but will be removed soon. In
+	  the FDC device the parameter "type" is renamed to "fdc_type" becuase
+	  of a name conflict with the device type.
 
 2004-05-30 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added channel mode 'off' to mute individual sound devices

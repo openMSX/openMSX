@@ -41,7 +41,6 @@ private:
 	uint64 m_count;
 	byte m_buffer[64];
 	byte m_digest[20];
-
 };
 
 } // namespace openmsx
