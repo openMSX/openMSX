@@ -113,7 +113,7 @@ void XMLElement::getChildren(const string& name, Children& result) const
 	}
 }
 
-const XMLElement* XMLElement::findChild(const string& name) const
+XMLElement* XMLElement::findChild(const string& name)
 {
 	for (Children::const_iterator it = children.begin();
 	     it != children.end(); ++it) {
@@ -124,13 +124,23 @@ const XMLElement* XMLElement::findChild(const string& name) const
 	return NULL;
 }
 
-const XMLElement& XMLElement::getChild(const string& name) const
+const XMLElement* XMLElement::findChild(const string& name) const
 {
-	const XMLElement* elem = findChild(name);
+	return const_cast<XMLElement*>(this)->findChild(name);
+}
+
+XMLElement& XMLElement::getChild(const string& name)
+{
+	XMLElement* elem = findChild(name);
 	if (!elem) {
 		throw ConfigException("Missing tag \"" + name + "\".");
 	}
 	return *elem;
+}
+
+const XMLElement& XMLElement::getChild(const string& name) const
+{
+	return const_cast<XMLElement*>(this)->getChild(name);
 }
 
 const string& XMLElement::getChildData(const string& name) const
@@ -216,6 +226,37 @@ const XMLElement& XMLElement::operator=(const XMLElement& element)
 		addChild(auto_ptr<XMLElement>(new XMLElement(**it)));
 	}
 	return *this;
+}
+
+string XMLElement::dump() const
+{
+	string result;
+	dump(result, 0);
+	return result;
+}
+
+void XMLElement::dump(string& result, unsigned indentNum) const
+{
+	string indent(indentNum, ' ');
+	result += indent + '<' + getName();
+	for (Attributes::const_iterator it = attributes.begin();
+	     it != attributes.end(); ++it) {
+		result += ' ' + it->first + "=\"" + it->second + '"';
+	}
+	if (children.empty()) {
+		if (data.empty()) {
+			result += "/>\n";
+		} else {
+			result += '>' + data + "</" + getName() + ">\n";
+		}
+	} else {
+		result += ">\n";
+		for (Children::const_iterator it = children.begin();
+		     it != children.end(); ++it) {
+			(*it)->dump(result, indentNum + 2);
+		}
+		result += indent + "</" + getName() + ">\n";
+	}
 }
 
 

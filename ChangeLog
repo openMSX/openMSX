@@ -1,6 +1,12 @@
 $Id$
 
-2004-06-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2004-06-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* hardwareconfig.xml format change:
+	    replaced   <device><type>foo</type>..</device>
+	               <device><type>bar</type>..</device>
+	    with       <devices> <foo>..</foo> <bar>..</bar> </devices>
+
+2004-06-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* FDC config format changed:
 	    indicate number of connected disk drives iso drivenames
 

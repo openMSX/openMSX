@@ -54,8 +54,6 @@ MSXDeviceSwitch& MSXDeviceSwitch::instance()
 	if (!init) {
 		init = true;
 		config.addAttribute("id", "DeviceSwitch");
-		config.addChild(
-			auto_ptr<XMLElement>(new XMLElement("type", "DeviceSwitch")));
 		config.setFileContext(auto_ptr<FileContext>(new SystemFileContext()));
 	}
 	static MSXDeviceSwitch oneInstance(config, EmuTime::zero);

@@ -101,10 +101,9 @@ void MSXRomCLIPost::execute()
 	}
 	string sramfile = FileOperations::getFilename(romfile);
 
-	auto_ptr<XMLElement> device(new XMLElement("device"));
+	auto_ptr<XMLElement> device(new XMLElement("ROM"));
 	device->addAttribute("id", "MSXRom" + StringOp::toString(ps) +
-			               "-" + StringOp::toString(ss));
-	device->addChild(auto_ptr<XMLElement>(new XMLElement("type", "ROM")));
+	                               "-" + StringOp::toString(ss));
 	device->addChild(createSlotted(ps, ss, 0));
 	device->addChild(createSlotted(ps, ss, 1));
 	device->addChild(createSlotted(ps, ss, 2));
@@ -119,9 +118,9 @@ void MSXRomCLIPost::execute()
 		new XMLElement("volume", "9000")));
 	device->addChild(auto_ptr<XMLElement>(
 		new XMLElement("sramname", sramfile + ".SRAM")));
-
-	UserFileContext context("roms/" + sramfile);
-	HardwareConfig::instance().loadConfig(context, device);
+	device->setFileContext(auto_ptr<FileContext>(
+		new UserFileContext("roms/" + sramfile)));
+	HardwareConfig::instance().getChild("devices").addChild(device);
 	delete this;
 }
 

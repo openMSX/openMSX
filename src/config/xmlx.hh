@@ -35,6 +35,8 @@ public:
 	XMLElement(const string& name, const string& data = "");
 	XMLElement(const XMLElement& element);
 	~XMLElement();
+	
+	const XMLElement& operator=(const XMLElement& element);
 
 	XMLElement* getParent();
 	const XMLElement* getParent() const;
@@ -49,7 +51,9 @@ public:
 	const Children& getChildren() const { return children; }
 	void getChildren(const string& name, Children& result) const;
 	const XMLElement* findChild(const string& name) const;
+	XMLElement* findChild(const string& name);
 	const XMLElement& getChild(const string& name) const;
+	XMLElement& getChild(const string& name);
 	
 	const string& getChildData(const string& name) const;
 	string getChildData(const string& name,
@@ -69,8 +73,8 @@ public:
 	
 	void setFileContext(auto_ptr<FileContext> context);
 	FileContext& getFileContext() const;
-	
-	const XMLElement& operator=(const XMLElement& element);
+
+	string dump() const;
 
 protected:
 	XMLElement();
@@ -78,6 +82,8 @@ protected:
 	void init(xmlNodePtr node);
 	
 private:
+	void dump(string& result, unsigned indentNum) const;
+	
 	string name;
 	string data;
 	Children children;

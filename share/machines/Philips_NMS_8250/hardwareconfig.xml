@@ -19,78 +19,72 @@
   
   <CassettePort/>
 
-  <device id="Main RAM">
-    <type>MemoryMapper</type>
-    <slotted> <ps>3</ps> <ss>2</ss> <page>0</page> </slotted>
-    <slotted> <ps>3</ps> <ss>2</ss> <page>1</page> </slotted>
-    <slotted> <ps>3</ps> <ss>2</ss> <page>2</page> </slotted>
-    <slotted> <ps>3</ps> <ss>2</ss> <page>3</page> </slotted>
-    <slow_drain_on_reset>false</slow_drain_on_reset>
-    <size>128</size>
-  </device>
+  <devices>
 
-  <device id="MSX BIOS with BASIC ROM">
-    <type>ROM</type>
-    <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
-    <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
-    <rom>
-      <filename>roms/nms8250_basic-bios2.rom</filename>
-    </rom>
-  </device>
+    <MemoryMapper id="Main RAM">
+      <slotted> <ps>3</ps> <ss>2</ss> <page>0</page> </slotted>
+      <slotted> <ps>3</ps> <ss>2</ss> <page>1</page> </slotted>
+      <slotted> <ps>3</ps> <ss>2</ss> <page>2</page> </slotted>
+      <slotted> <ps>3</ps> <ss>2</ss> <page>3</page> </slotted>
+      <slow_drain_on_reset>false</slow_drain_on_reset>
+      <size>128</size>
+    </MemoryMapper>
 
-  <device id="MSX Sub ROM">
-    <type>ROM</type>
-    <slotted> <ps>3</ps> <ss>0</ss> <page>0</page> </slotted>
-    <rom>
-      <filename>roms/nms8250_msx2sub.rom</filename>
-    </rom>
-  </device>
+    <ROM id="MSX BIOS with BASIC ROM">
+      <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
+      <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
+      <rom>
+        <filename>roms/nms8250_basic-bios2.rom</filename>
+      </rom>
+    </ROM>
 
-  <device id="Memory Mapped FDC">
-    <type>FDC</type>
-    <slotted> <ps>3</ps> <ss>3</ss> <page>1</page> </slotted>
-    <slotted> <ps>3</ps> <ss>3</ss> <page>2</page> </slotted>
-    <broken_fdc_read>false</broken_fdc_read> 
-    <fdc_type>WD2793</fdc_type>
-    <rom>
-      <filename>roms/nms8250_disk.rom</filename>
-    </rom>
-    <drives>1</drives>
-  </device>
+    <ROM id="MSX Sub ROM">
+      <slotted> <ps>3</ps> <ss>0</ss> <page>0</page> </slotted>
+      <rom>
+        <filename>roms/nms8250_msx2sub.rom</filename>
+      </rom>
+    </ROM>
 
-  <device id="ppi">
-    <type>PPI</type>
-    <io base="0xA8" num="4"/>
-    <volume>16000</volume>
-    <key_ghosting>true</key_ghosting>
-  </device>
+    <FDC id="Memory Mapped FDC">
+      <slotted> <ps>3</ps> <ss>3</ss> <page>1</page> </slotted>
+      <slotted> <ps>3</ps> <ss>3</ss> <page>2</page> </slotted>
+      <broken_fdc_read>false</broken_fdc_read> 
+      <fdc_type>WD2793</fdc_type>
+      <rom>
+        <filename>roms/nms8250_disk.rom</filename>
+      </rom>
+      <drives>1</drives>
+    </FDC>
 
-  <device id="VDP">
-    <type>VDP</type>
-    <io base="0x98" num="4" type="O"/>
-    <io base="0x98" num="2" type="I"/>
-    <version>V9938</version>
-    <vram>128</vram>
-  </device>
+    <PPI id="ppi">
+      <io base="0xA8" num="4"/>
+      <volume>16000</volume>
+      <key_ghosting>true</key_ghosting>
+    </PPI>
 
-  <device id="PSG">
-    <type>PSG</type>
-    <io base="0xA0" num="2" type="O"/>
-    <io base="0xA2" num="1" type="I"/>
-    <volume>21000</volume>
-  </device>
+    <VDP id="VDP">
+      <io base="0x98" num="4" type="O"/>
+      <io base="0x98" num="2" type="I"/>
+      <version>V9938</version>
+      <vram>128</vram>
+    </VDP>
 
-  <device id="Real time clock">
-    <type>RTC</type>
-    <io base="0xB4" num="2" type="O"/>
-    <io base="0xB5" num="1" type="I"/>
-    
-    <sramname>nms8250.cmos</sramname>
-  </device>
+    <PSG id="PSG">
+      <io base="0xA0" num="2" type="O"/>
+      <io base="0xA2" num="1" type="I"/>
+      <volume>21000</volume>
+    </PSG>
 
-  <device id="Printer Port">
-    <type>PrinterPort</type>
-    <io base="0x90" num="2"/>
-  </device>
+    <RTC id="Real time clock">
+      <io base="0xB4" num="2" type="O"/>
+      <io base="0xB5" num="1" type="I"/>
+      <sramname>nms8250.cmos</sramname>
+    </RTC>
+
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="2"/>
+    </PrinterPort>
+
+  </devices>
 
 </msxconfig>

@@ -22,173 +22,155 @@
 
   <MapperType>TurboR</MapperType>
   
-  <!-- this must come before other internal roms -->
-  <device id="Firmware">
-    <type>ROM</type>
-    <slotted> <ps>3</ps> <ss>3</ss> <page>0</page> </slotted>
-    <slotted> <ps>3</ps> <ss>3</ss> <page>1</page> </slotted>
-    <slotted> <ps>3</ps> <ss>3</ss> <page>2</page> </slotted>
-    <slotted> <ps>3</ps> <ss>3</ss> <page>3</page> </slotted>
-    <rom>
-      <filename>roms/fs-a1gt_firmware.rom</filename>
-      <mappertype>PANASONIC</mappertype>
-    </rom>
-    <sramsize>32</sramsize>
-    <sram-mirrored>false</sram-mirrored>
-    <sramname>fs-a1gt.sram</sramname>
-  </device>
+  <devices>
 
-  <device id="MSX BIOS with BASIC ROM">
-    <type>ROM</type>
-    <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
-    <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
-    <rom>
-      <firstblock>40</firstblock>
-      <lastblock>43</lastblock>
-    </rom>
-  </device>
-  
-  <device id="MSX Music">
-    <type>MSX-MUSIC</type>
-    <slotted> <ps>0</ps> <ss>2</ss> <page>1</page> </slotted>
-    <io base="0x7C" num="2" type="O"/>
-    <rom>
-      <firstblock>62</firstblock>
-      <lastblock>63</lastblock>
-    </rom>
-    <volume>9000</volume>   
-    <mode>mono</mode>
-  </device>
-  
-  <device id="MSX Opening ROM">
-    <type>ROM</type>
-    <slotted> <ps>0</ps> <ss>3</ss> <page>1</page> </slotted>
-    <rom>
-      <firstblock>36</firstblock>
-      <lastblock>37</lastblock>
-    </rom>
-  </device>
+    <!-- this must come before other internal roms -->
+    <ROM id="Firmware">
+      <slotted> <ps>3</ps> <ss>3</ss> <page>0</page> </slotted>
+      <slotted> <ps>3</ps> <ss>3</ss> <page>1</page> </slotted>
+      <slotted> <ps>3</ps> <ss>3</ss> <page>2</page> </slotted>
+      <slotted> <ps>3</ps> <ss>3</ss> <page>3</page> </slotted>
+      <rom>
+        <filename>roms/fs-a1gt_firmware.rom</filename>
+        <mappertype>PANASONIC</mappertype>
+      </rom>
+      <sramsize>32</sramsize>
+      <sram-mirrored>false</sram-mirrored>
+      <sramname>fs-a1gt.sram</sramname>
+    </ROM>
 
-  <device id="Main RAM">
-    <type>PanasonicRAM</type>
-    <slotted> <ps>3</ps> <ss>0</ss> <page>0</page> </slotted>
-    <slotted> <ps>3</ps> <ss>0</ss> <page>1</page> </slotted>
-    <slotted> <ps>3</ps> <ss>0</ss> <page>2</page> </slotted>
-    <slotted> <ps>3</ps> <ss>0</ss> <page>3</page> </slotted>
-    <slow_drain_on_reset>false</slow_drain_on_reset>
-    <size>512</size>
-  </device>
-
-  <device id="MSX Sub ROM">
-    <type>ROM</type>
-    <slotted> <ps>3</ps> <ss>1</ss> <page>0</page> </slotted>
-    <rom>
-      <firstblock>56</firstblock>
-      <lastblock>57</lastblock>
-    </rom>
-  </device>
-
-  <device id="MSX Kanji Driver with BASIC">
-    <type>ROM</type>
-    <slotted> <ps>3</ps> <ss>1</ss> <page>1</page> </slotted>
-    <slotted> <ps>3</ps> <ss>1</ss> <page>2</page> </slotted>
-    <rom>
-      <firstblock>58</firstblock>
-      <lastblock>61</lastblock>
-    </rom>
-  </device>
-  
-  <device id="Memory Mapped FDC">
-    <type>FDC</type>
-    <slotted> <ps>3</ps> <ss>2</ss> <page>1</page> </slotted>
-    <slotted> <ps>3</ps> <ss>2</ss> <page>2</page> </slotted>
-    <rom>
-      <firstblock>48</firstblock>
-      <lastblock>55</lastblock>
-    </rom>
-    <fdc_type>TC8566AF</fdc_type>
-    <drives>1</drives>
-  </device>
-
-  <device id="Kanji ROM">
-    <type>Kanji</type>
-    <io base="0xD8" num="4"/>
-    <rom>
-      <filename>roms/fs-a1gt_kanjifont.rom</filename>
-    </rom>
-  </device>
-
-  <device id="S1990">
-    <type>S1990</type>
-    <io base="0xE4" num="2"/>
-  </device>
-
-  <device id="ppi">
-    <type>PPI</type>
-    <io base="0xA8" num="4"/>
-    <volume>16000</volume>
-    <key_ghosting>true</key_ghosting>
-  </device>
-
-  <device id="VDP">
-    <type>VDP</type>
-    <io base="0x98" num="4" type="O"/>
-    <io base="0x98" num="2" type="I"/>
-    <version>V9958</version>
-    <vram>128</vram>
-  </device>
-
-  <device id="psg">
-    <type>PSG</type>
-    <io base="0xA0" num="2" type="O"/>
-    <io base="0xA2" num="1" type="I"/>
-    <volume>21000</volume>
-    <keyboardlayout>JIS</keyboardlayout>
-  </device>
-
-  <device id="Real time clock">
-    <type>RTC</type>
-    <io base="0xB4" num="2" type="O"/>
-    <io base="0xB5" num="1" type="I"/>
+    <ROM id="MSX BIOS with BASIC ROM">
+      <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
+      <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
+      <rom>
+        <firstblock>40</firstblock>
+        <lastblock>43</lastblock>
+      </rom>
+    </ROM>
     
-    <sramname>fs-a1gt.cmos</sramname>
-  </device>
+    <MSX-MUSIC id="MSX Music">
+      <slotted> <ps>0</ps> <ss>2</ss> <page>1</page> </slotted>
+      <io base="0x7C" num="2" type="O"/>
+      <rom>
+        <firstblock>62</firstblock>
+        <lastblock>63</lastblock>
+      </rom>
+      <volume>9000</volume>   
+      <mode>mono</mode>
+    </MSX-MUSIC>
+    
+    <ROM id="MSX Opening ROM">
+      <slotted> <ps>0</ps> <ss>3</ss> <page>1</page> </slotted>
+      <rom>
+        <firstblock>36</firstblock>
+        <lastblock>37</lastblock>
+      </rom>
+    </ROM>
 
-  <device id="Printer Port">
-    <type>PrinterPort</type>
-    <io base="0x90" num="2"/>
-  </device>
-  
-  <device id="Turbo-R timer">
-    <type>E6Timer</type>
-    <io base="0xE6" num="2"/>
-  </device>
-  
-  <device id="F4Device">
-    <type>F4Device</type>
-    <io base="0xF4" num="1"/>
-    <inverted>false</inverted>
-  </device>
+    <PanasonicRAM id="Main RAM">
+      <slotted> <ps>3</ps> <ss>0</ss> <page>0</page> </slotted>
+      <slotted> <ps>3</ps> <ss>0</ss> <page>1</page> </slotted>
+      <slotted> <ps>3</ps> <ss>0</ss> <page>2</page> </slotted>
+      <slotted> <ps>3</ps> <ss>0</ss> <page>3</page> </slotted>
+      <slow_drain_on_reset>false</slow_drain_on_reset>
+      <size>512</size>
+    </PanasonicRAM>
 
-  <device id="TurboRLeds">
-    <type>TurboRLeds</type>
-    <io base="0xA7" num="1" type="O"/>
-  </device>
+    <ROM id="MSX Sub ROM">
+      <slotted> <ps>3</ps> <ss>1</ss> <page>0</page> </slotted>
+      <rom>
+        <firstblock>56</firstblock>
+        <lastblock>57</lastblock>
+      </rom>
+    </ROM>
 
-  <device id="TurboRPause">
-    <type>TurboRPause</type>
-    <io base="0xA7" num="1" type="I"/>
-  </device>
+    <ROM id="MSX Kanji Driver with BASIC">
+      <slotted> <ps>3</ps> <ss>1</ss> <page>1</page> </slotted>
+      <slotted> <ps>3</ps> <ss>1</ss> <page>2</page> </slotted>
+      <rom>
+        <firstblock>58</firstblock>
+        <lastblock>61</lastblock>
+      </rom>
+    </ROM>
+    
+    <FDC id="Memory Mapped FDC">
+      <slotted> <ps>3</ps> <ss>2</ss> <page>1</page> </slotted>
+      <slotted> <ps>3</ps> <ss>2</ss> <page>2</page> </slotted>
+      <rom>
+        <firstblock>48</firstblock>
+        <lastblock>55</lastblock>
+      </rom>
+      <fdc_type>TC8566AF</fdc_type>
+      <drives>1</drives>
+    </FDC>
 
-  <device id="PCM">
-    <type>TurboRPCM</type>
-    <io base="0xA4" num="2"/>
-    <volume>21000</volume>
-  </device>
+    <Kanji id="Kanji ROM">
+      <io base="0xD8" num="4"/>
+      <rom>
+        <filename>roms/fs-a1gt_kanjifont.rom</filename>
+      </rom>
+    </Kanji>
 
-  <device id="MSX-Midi">
-    <type>MSX-MIDI</type>
-    <io base="0xE8" num="8"/>
-  </device>
+    <S1990 id="S1990">
+      <io base="0xE4" num="2"/>
+    </S1990>
+
+    <PPI id="ppi">
+      <io base="0xA8" num="4"/>
+      <volume>16000</volume>
+      <key_ghosting>true</key_ghosting>
+    </PPI>
+
+    <VDP id="VDP">
+      <io base="0x98" num="4" type="O"/>
+      <io base="0x98" num="2" type="I"/>
+      <version>V9958</version>
+      <vram>128</vram>
+    </VDP>
+
+    <PSG id="psg">
+      <io base="0xA0" num="2" type="O"/>
+      <io base="0xA2" num="1" type="I"/>
+      <volume>21000</volume>
+      <keyboardlayout>JIS</keyboardlayout>
+    </PSG>
+
+    <RTC id="Real time clock">
+      <io base="0xB4" num="2" type="O"/>
+      <io base="0xB5" num="1" type="I"/>
+      <sramname>fs-a1gt.cmos</sramname>
+    </RTC>
+
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="2"/>
+    </PrinterPort>
+    
+    <E6Timer id="Turbo-R timer">
+      <io base="0xE6" num="2"/>
+    </E6Timer>
+    
+    <F4Device id="F4Device">
+      <io base="0xF4" num="1"/>
+      <inverted>false</inverted>
+    </F4Device>
+
+    <TurboRLeds id="TurboRLeds">
+      <io base="0xA7" num="1" type="O"/>
+    </TurboRLeds>
+
+    <TurboRPause id="TurboRPause">
+      <io base="0xA7" num="1" type="I"/>
+    </TurboRPause>
+
+    <TurboRPCM id="PCM">
+      <io base="0xA4" num="2"/>
+      <volume>21000</volume>
+    </TurboRPCM>
+
+    <MSX-MIDI id="MSX-Midi">
+      <io base="0xE8" num="8"/>
+    </MSX-MIDI>
+
+  </devices>
 
 </msxconfig>

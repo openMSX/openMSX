@@ -58,7 +58,7 @@ static void createDeviceSwitch()
 
 auto_ptr<MSXDevice> DeviceFactory::create(const XMLElement& conf, const EmuTime& time)
 {
-	const string type = conf.getChildData("type");
+	const string& type = conf.getName();
 	if (type == "PPI") {
 		return auto_ptr<MSXDevice>(new MSXPPI(conf, time));
 	}
@@ -102,7 +102,7 @@ auto_ptr<MSXDevice> DeviceFactory::create(const XMLElement& conf, const EmuTime&
 	if (type == "MSX-AUDIO") {
 		return auto_ptr<MSXDevice>(new MSXAudio(conf, time));
 	}
-	if (type == "Music Module MIDI") {
+	if (type == "MusicModuleMIDI") {
 		return auto_ptr<MSXDevice>(new MC6850(conf, time));
 	}
 	if (type == "MoonSound") {
@@ -129,7 +129,7 @@ auto_ptr<MSXDevice> DeviceFactory::create(const XMLElement& conf, const EmuTime&
 	if (type == "PrinterPort") {
 		return auto_ptr<MSXDevice>(new MSXPrinterPort(conf, time));
 	}
-	if (type == "SCC+") { // Note: it's actually called SCC-II
+	if (type == "SCCplus") { // Note: it's actually called SCC-II
 		return auto_ptr<MSXDevice>(new MSXSCCPlusCart(conf, time));
 	}
 	if (type == "FDC") {

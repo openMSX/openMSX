@@ -69,15 +69,11 @@ void MSXMotherBoard::run(bool powerOn)
 {
 	// Initialise devices.
 	const XMLElement::Children& configs =
-		HardwareConfig::instance().getChildren();
+		HardwareConfig::instance().getChild("devices").getChildren();
 	for (XMLElement::Children::const_iterator it = configs.begin();
 	     it != configs.end(); ++it) {
-		if ((*it)->getName() != "device") {
-			continue;
-		}
-		PRT_DEBUG("Instantiating: " << (*it)->getChildData("type"));
-		auto_ptr<MSXDevice> device(DeviceFactory::create(**it, EmuTime::zero));
-		addDevice(device);
+		PRT_DEBUG("Instantiating: " << (*it)->getName());
+		addDevice(DeviceFactory::create(**it, EmuTime::zero));
 	}
 	// Register all postponed slots.
 	MSXCPUInterface::instance().registerPostSlots();
