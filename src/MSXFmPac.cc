@@ -1,9 +1,9 @@
 // $Id$
 
 #include "MSXFmPac.hh"
+#include "MSXMotherBoard.hh"
 
 //TODO save and restore SRAM 
-//TODO check use of enable
 
 
 MSXFmPac::MSXFmPac(MSXConfig::Device *config) : MSXMusic(config)
@@ -20,7 +20,10 @@ MSXFmPac::~MSXFmPac()
 
 void MSXFmPac::init()
 {
-	MSXMusic::init();
+	MSXDevice::init();
+	MSXMotherBoard::instance()->register_IO_Out(0x7c, this);
+	MSXMotherBoard::instance()->register_IO_Out(0x7d, this);
+	ym2413 = new YM2413();
 	loadFile(&romBank, 0x10000);
 	reset();
 	registerSlots();
@@ -30,7 +33,6 @@ void MSXFmPac::reset()
 {
 	MSXMusic::reset();
 	sramEnabled = false;
-	enable = 1;	// TODO check this
 	bank = 0;	// TODO check this
 }
 
@@ -40,17 +42,13 @@ byte MSXFmPac::readMem(word address, EmuTime &time)
 	case 0x7ff4:
 		// read from YM2413 register port
 		return 0xff;
-		break;
 	case 0x7ff5:
 		// read from YM2413 data port
 		return 0xff;
-		break;
 	case 0x7ff6:
 		return enable;
-		break;
 	case 0x7ff7:
 		return bank;
-		break;
 	default:
 		if (sramEnabled && (address < 0x5ffe)) {
 			return sramBank[address-0x4000];
@@ -72,11 +70,11 @@ void MSXFmPac::writeMem(word address, byte value, EmuTime &time)
 		checkSramEnable();
 		break;
 	case 0x7ff4:
-		if (enable&1)
+		if (enable&1)	// TODO check this
 			writeRegisterPort(value, time);
 		break;
 	case 0x7ff5:
-		if (enable&1)
+		if (enable&1)	// TODO check this
 			writeDataPort(value, time);
 		break;
 	case 0x7ff6:

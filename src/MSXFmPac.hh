@@ -23,15 +23,13 @@ class MSXFmPac : public MSXMusic
 		void reset();
 		byte readMem(word address, EmuTime &time);
 		void writeMem(word address, byte value, EmuTime &time);  
-		
+	
 	private:
 		void checkSramEnable();
 	
 		bool sramEnabled;
-		byte enable;
 		byte bank;
 		byte r5ffe, r5fff;
-		byte* romBank;
 		byte* sramBank;
 };
 #endif

@@ -2,6 +2,7 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
+  
   <device id="MotherBoard">
     <type>MotherBoard</type>
     <parameter name="0" class="subslotted">false</parameter>
@@ -9,6 +10,7 @@
     <parameter name="2" class="subslotted">false</parameter>
     <parameter name="3" class="subslotted">true</parameter>
   </device>
+  
   <device id="myram1">
     <type>Simple64KB</type>
     <slotted>
@@ -33,6 +35,7 @@
     </slotted>
     <parameter name="slow_drain_on_reset">true</parameter>
   </device>
+  
   <device id="biosrom">
     <type>Rom16KB</type>
     <slotted>
@@ -43,6 +46,7 @@
     <parameter name="filename">MSX.ROM</parameter>
     <parameter name="skip_headerbytes">0</parameter>
   </device>
+  
   <device id="basicrom">
     <type>Rom16KB</type>
     <slotted>
@@ -53,31 +57,37 @@
     <parameter name="filename">MSX.ROM</parameter>
     <parameter name="skip_headerbytes">16384</parameter>
   </device>
+  
   <device id="ppi">
     <type>PPI</type>
     <parameter name="foo_bug">no</parameter>
   </device>
+  
   <device id="msx1vdp">
     <type>TMS9928a</type>
     <parameter name="frequency">PAL</parameter>
     <parameter name="fullscreen">0</parameter>
   </device>
+  
   <device id="Turbo-R timer">
     <type>E6Timer</type>
   </device>
+  
   <device id="psg">
     <type>PSG</type>
   </device>
+  
   <device id="Kanji ROM">
     <type>Kanji</type>
     <parameter name="filename">KANJI.ROM</parameter>
     <parameter name="skip_headerbytes">0</parameter>
   </device>
+
   <device id="Mapper IO">
     <type>MapperIO</type>
     <parameter name="type">Philips</parameter>
   </device>
-  <!--
+<!--
   <device id="mymapper1">
     <type>MemoryMapper</type>
     <slotted>
@@ -103,14 +113,16 @@
     <parameter name="slow_drain_on_reset">false</parameter>
     <parameter name="size">512</parameter>
   </device>
-  -->
+-->
   <device id="Real time clock">
     <type>RTC</type>
     <parameter name="mode">EmuTime</parameter>
   </device>
+  
   <device id="Real time synchronizer">
     <type>RealTime</type>
   </device>
+  
   <device id="Penguin Adventure Cartridge">
     <type>MegaRom</type>
     <slotted>
@@ -127,6 +139,7 @@
     <parameter name="filesize">131072</parameter>
     <parameter name="skip_headerbytes">0</parameter>
   </device>
+  
   <device id="FM PAC">
     <type>FM-PAC</type>
     <slotted>
@@ -137,6 +150,18 @@
     <parameter name="filename">FMPAC.ROM</parameter>
     <parameter name="skip_headerbytes">0</parameter>
   </device>
+<!--
+  <device id="MSX Music">
+    <type>Music</type>
+    <slotted>
+      <ps>2</ps>
+      <ss>0</ss>
+      <page>1</page>
+    </slotted>
+    <parameter name="filename">MUSIC.ROM</parameter>
+    <parameter name="skip_headerbytes">0</parameter>
+  </device>
+-->
   <config id="Foobar">
     <type>Test thingy</type>
     <parameter name="fred">vom.jupiter</parameter>
@@ -148,9 +173,11 @@
       Hello, mars.
     </rem>
   </config>
+  
   <device id="cpu">
     <type>CPU</type>
   </device>
+  
 </msxconfig>
 
 
