@@ -27,7 +27,8 @@ cas
 ---
 
   Insert a tapeimage in a virtual cassette player. The image must be in .cas
-  format.
+  format. You only get this command if you have a MSXTapePatch installed in the
+  configuration file of your machine, see exampleconfigs.xml
 
   usage:
     cas <tapeimage>  insert tapeimage in virtual cassette player
