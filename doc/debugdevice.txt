@@ -16,8 +16,9 @@ the machine that is used. If, for example, the device has to be used on the
 Philips NMS 8250, the following lines can be added to the hardwareconfig.xml
 file in the share/machines/Philips_NMS_8250 directory.
 
-<device id="DebugDevice"> <type>DebugDevice</type> <parameter>
-filename="~/debugout.txt"></parameter> </device>
+<device id="DebugDevice"> <type>DebugDevice</type> 
+  <parameter> filename="~/debugout.txt"></parameter>
+</device>
 
 The third line, <parameter> ..., is optional and can contain any filename you
 like.
