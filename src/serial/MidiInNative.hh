@@ -36,8 +36,8 @@ public:
 	// Pluggable
 	virtual void plugHelper(Connector* connector, const EmuTime& time);
 	virtual void unplugHelper(const EmuTime& time);
-	virtual const string& getName() const;
-	virtual const string& getDescription() const;
+	virtual const std::string& getName() const;
+	virtual const std::string& getDescription() const;
 
 	// MidiInDevice
 	virtual void signal(const EmuTime& time);
@@ -48,7 +48,7 @@ private:
 
 	// Schedulable
 	virtual void executeUntil(const EmuTime& time, int userData);
-	virtual const string& schedName() const;
+	virtual const std::string& schedName() const;
 
 	void procShortMsg(long unsigned int param);
 	void procLongMsg(LPMIDIHDR p);
@@ -58,8 +58,8 @@ private:
 	unsigned int thrdid;
 	std::deque<byte> queue;
 	Semaphore lock; // to protect queue
-	string name;
-	string desc;
+	std::string name;
+	std::string desc;
 };
 
 } // namespace openmsx

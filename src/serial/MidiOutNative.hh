@@ -21,16 +21,16 @@ public:
 	// Pluggable
 	virtual void plugHelper(Connector* connector, const EmuTime& time);
 	virtual void unplugHelper(const EmuTime& time);
-	virtual const string& getName() const;
-	virtual const string& getDescription() const;
+	virtual const std::string& getName() const;
+	virtual const std::string& getDescription() const;
 
 	// SerialDataInterface (part)
 	virtual void recvByte(byte value, const EmuTime& time);
 
 private:
 	unsigned devidx;
-	string name;
-	string desc;
+	std::string name;
+	std::string desc;
 };
 
 } // namespace openmsx

@@ -6,6 +6,8 @@
 #include "MidiOutNative.hh"
 #include "PluggingController.hh"
 
+using std::string;
+
 namespace openmsx {
 
 void MidiOutNative::registerAll(PluggingController* controller)

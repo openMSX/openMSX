@@ -17,6 +17,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+using std::string;
+
 namespace openmsx {
 
 void MidiInNative::registerAll(PluggingController* controller)
