@@ -193,9 +193,7 @@ MapperType RomTypes::searchDataBase(const byte* data, int size)
 				romInfo->romType=(*it1)->getElementPcdata("romtype");
 				romInfo->id=(*it1)->getAttribute("id");
 				romInfo->year=(*it1)->getElementPcdata("year");
-				if (romInfo->year.length()==0) romInfo->year="(info not available)";
 				romInfo->company=(*it1)->getElementPcdata("company");
-				if (romInfo->company.length()==0) romInfo->company="(info not available)";
 				romInfo->remark=(*it1)->getElementPcdata("remark");
 				std::list<XML::Element*>::iterator it2 = (*it1)->children.begin();
 				for ( ; it2 != (*it1)->children.end(); it2++) {
@@ -220,10 +218,14 @@ MapperType RomTypes::searchDataBase(const byte* data, int size)
 	std::string digest(md5.hex_digest());
 	
 	if (romDB.find(digest) != romDB.end()) {
+		std::string year(romDB[digest]->year);
+		if (year.length()==0) year="(info not available)";
+		std::string company(romDB[digest]->company);
+		if (company.length()==0) company="(info not available)";
 		PRT_INFO("Found this ROM in the database:\n"
 				"  Title (id):  " << romDB[digest]->id << "\n"
-				"  Year:        " << romDB[digest]->year << "\n"
-				"  Company:     " << romDB[digest]->company << "\n"
+				"  Year:        " << year << "\n"
+				"  Company:     " << company << "\n"
 				"  Remark:      " << romDB[digest]->remark << "\n"
 				"  Mapper type: " << romDB[digest]->romType);
 		return nameToMapperType(romDB[digest]->romType);
