@@ -129,6 +129,16 @@ keymatrixup / keymatrixdown
     keymatrixdown 6 0x01
 
 
+load_settings
+-------------
+
+  Load settings from a given file. The settings file must not be complete,
+  settings that are not mentioned in the given file are left untouched.
+
+  usage:
+    load_settings <filename>  Load settings from the given file
+
+
 openmsx_info
 ------------
 

@@ -6,6 +6,7 @@
 #include <string>
 #include <map>
 #include "EventListener.hh"
+#include "XMLElementListener.hh"
 #include "Keys.hh"
 #include "Command.hh"
 
@@ -13,7 +14,7 @@ namespace openmsx {
 
 class XMLElement;
 
-class HotKey : private EventListener
+class HotKey : private EventListener, private XMLElementListener
 {
 public:
 	HotKey();
@@ -21,11 +22,17 @@ public:
 
 private:
 	void initBindings();
-	void   registerHotKeyCommand(Keys::KeyCode key, const std::string& command);
+	void registerHotKeyCommand(const std::string& key,
+	                           const std::string& command);
+	void registerHotKeyCommand(const XMLElement& elem);
 	void unregisterHotKeyCommand(Keys::KeyCode key);
 
 	// EventListener
 	virtual bool signalEvent(const Event& event);
+
+	// XMLElementListener
+	virtual void childAdded(const XMLElement& parent,
+	                        const XMLElement& child);
 	
 	class HotKeyCmd {
 	public:

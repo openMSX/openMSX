@@ -51,7 +51,13 @@ void XMLElement::addChild(auto_ptr<XMLElement> child)
 	assert(child.get());
 	assert(!child->getParent());
 	child->parent = this;
-	children.push_back(child.release());
+	XMLElement* child2 = child.release();
+	children.push_back(child2);
+	
+	for (Listeners::const_iterator it = listeners.begin();
+	     it != listeners.end(); ++it) {
+		(*it)->childAdded(*this, *child2);
+	}
 }
 
 auto_ptr<XMLElement> XMLElement::removeChild(const XMLElement& child)

@@ -28,43 +28,37 @@ HotKey::HotKey()
 
 	CommandController::instance().registerCommand(&bindCmd,   "bind");
 	CommandController::instance().registerCommand(&unbindCmd, "unbind");
+
+	bindingsElement.addListener(*this);
 }
 
 void HotKey::initBindings()
 {
-	XMLElement::Children children(bindingsElement.getChildren()); // copy
-	if (!children.empty()) {
+	if (bindingsElement.getChildren().empty()) {
+		// no (or empty) bindings section, use defaults
+		registerHotKeyCommand("PRINT",      "screenshot");
+		registerHotKeyCommand("PAUSE",      "toggle pause");
+		registerHotKeyCommand("F9",         "toggle throttle");
+		registerHotKeyCommand("F10",        "toggle console");
+		registerHotKeyCommand("F11",        "toggle mute");
+		registerHotKeyCommand("F12",        "toggle fullscreen");
+		registerHotKeyCommand("RETURN+ALT", "toggle fullscreen");
+		registerHotKeyCommand("F4+ALT",     "quit");
+		registerHotKeyCommand("PAUSE+CTRL", "quit");
+	} else {
 		// there is a bindings section, use those bindings
+		const XMLElement::Children& children = bindingsElement.getChildren();
 		for (XMLElement::Children::const_iterator it = children.begin();
 		     it != children.end(); ++it) {
-			Keys::KeyCode key =
-				Keys::getCode((*it)->getAttribute("key", ""));
-			if (key != Keys::K_NONE) {
-				registerHotKeyCommand(key, (*it)->getData());
-			}
+			registerHotKeyCommand(**it);
 		}
-	} else {
-		// no (or empty) bindings section, use defaults
-		registerHotKeyCommand(Keys::K_PRINT, "screenshot");
-		registerHotKeyCommand(Keys::K_PAUSE, "toggle pause");
-		registerHotKeyCommand(Keys::K_F9,    "toggle throttle");
-		registerHotKeyCommand(Keys::K_F10,   "toggle console");
-		registerHotKeyCommand(Keys::K_F11,   "toggle mute");
-		registerHotKeyCommand(Keys::K_F12,   "toggle fullscreen");
-		registerHotKeyCommand(
-		    static_cast<Keys::KeyCode>(Keys::K_RETURN | Keys::KM_ALT),
-		    "toggle fullscreen");
-		registerHotKeyCommand(
-		    static_cast<Keys::KeyCode>(Keys::K_F4     | Keys::KM_ALT),
-		    "quit");
-		registerHotKeyCommand(
-		    static_cast<Keys::KeyCode>(Keys::K_PAUSE  | Keys::KM_CTRL),
-		    "quit");
 	}
 }
 
 HotKey::~HotKey()
 {
+	bindingsElement.removeListener(*this);
+	
 	CommandController::instance().unregisterCommand(&bindCmd,   "bind");
 	CommandController::instance().unregisterCommand(&unbindCmd, "unbind");
 
@@ -79,17 +73,27 @@ HotKey::~HotKey()
 		KEY_DOWN_EVENT, *this, EventDistributor::NATIVE);
 }
 
-void HotKey::registerHotKeyCommand(Keys::KeyCode key, const string& command)
+void HotKey::registerHotKeyCommand(const string& key, const string& command)
 {
+	XMLElement& elem = bindingsElement.getCreateChildWithAttribute(
+		"bind", "key", key);
+	elem.setData(command);
+	registerHotKeyCommand(elem);
+}
+
+void HotKey::registerHotKeyCommand(const XMLElement& elem)
+{
+	Keys::KeyCode key = Keys::getCode(elem.getAttribute("key", ""));
+	if (key == Keys::K_NONE) {
+		return;
+	}
 	CommandMap::iterator it = cmdMap.find(key);
 	if (it != cmdMap.end()) {
-		unregisterHotKeyCommand(key);
+		delete it->second;
 	}
-	XMLElement& elem = bindingsElement.getCreateChildWithAttribute(
-		"bind", "key", Keys::getName(key));
-	elem.setData(command);
 	cmdMap[key] = new HotKeyCmd(elem);
 }
+
 
 void HotKey::unregisterHotKeyCommand(Keys::KeyCode key)
 {
@@ -99,6 +103,16 @@ void HotKey::unregisterHotKeyCommand(Keys::KeyCode key)
 		delete it->second;
 		cmdMap.erase(it);
 	}
+}
+
+void HotKey::childAdded(const XMLElement& parent,
+                        const XMLElement& child)
+{
+	assert(&parent == &bindingsElement);
+	if (child.getName() != "bind") {
+		return;
+	}
+	registerHotKeyCommand(child);
 }
 
 bool HotKey::signalEvent(const Event& event)
@@ -188,7 +202,7 @@ string HotKey::BindCmd::execute(const vector<string>& tokens)
 			if (i != 2) command += ' ';
 			command += tokens[i];
 		}
-		parent.registerHotKeyCommand(key, command);
+		parent.registerHotKeyCommand(tokens[1], command);
 		break;
 	}
 	}

@@ -5,6 +5,9 @@ $Id$
 	    preparartion to fix the 'order of construction of settings'
 	    problem (e.g. inputdelay)
 	* Reenabled "inputdelay" setting
+	* Implemented "load_settings" command:
+	    only the settings / keybindings / keyjoystick that are mentioned
+	    in the new settings file are changed, the rest stays unchanged
 
 2005-01-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Various small cleanups:

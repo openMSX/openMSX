@@ -35,6 +35,17 @@ private:
 	private:
 		SettingsConfig& parent;
 	} saveSettingsCommand;
+
+	// LoadSettings command
+	class LoadSettingsCommand : public SimpleCommand {
+	public:
+		LoadSettingsCommand(SettingsConfig& parent);
+		virtual std::string execute(const std::vector<std::string>& tokens);
+		virtual std::string help   (const std::vector<std::string>& tokens) const;
+		virtual void tabCompletion(std::vector<std::string>& tokens) const;
+	private:
+		SettingsConfig& parent;
+	} loadSettingsCommand;
 };
 
 } // namespace openmsx

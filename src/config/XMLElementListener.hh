@@ -10,7 +10,9 @@ class XMLElement;
 class XMLElementListener
 {
 public:
-	virtual void updateData(const XMLElement& element) = 0;
+	virtual void updateData(const XMLElement& element) {}
+	virtual void childAdded(const XMLElement& parent,
+	                        const XMLElement& child) {}
 };
 
 } // namespace openmsx

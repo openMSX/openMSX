@@ -21,10 +21,13 @@ SettingsConfig::SettingsConfig()
 	: XMLElement("settings")
 	, autoSaveSetting(0)
 	, saveSettingsCommand(*this)
+	, loadSettingsCommand(*this)
 {
 	setFileContext(auto_ptr<FileContext>(new SystemFileContext()));
 	CommandController::instance().
 		registerCommand(&saveSettingsCommand, "save_settings");
+	CommandController::instance().
+		registerCommand(&loadSettingsCommand, "load_settings");
 }
 
 SettingsConfig::~SettingsConfig()
@@ -37,6 +40,8 @@ SettingsConfig::~SettingsConfig()
 				"Auto-saving of settings failed: " + e.getMessage() );
 		}
 	}
+	CommandController::instance().
+		unregisterCommand(&loadSettingsCommand, "load_settings");
 	CommandController::instance().
 		unregisterCommand(&saveSettingsCommand, "save_settings");
 }
@@ -81,6 +86,7 @@ void SettingsConfig::saveSetting(const string& filename)
 
 
 // class SaveSettingsCommand
+
 SettingsConfig::SaveSettingsCommand::SaveSettingsCommand(
 	SettingsConfig& parent_)
 	: parent(parent_)
@@ -95,11 +101,9 @@ string SettingsConfig::SaveSettingsCommand::execute(
 			case 1:
 				parent.saveSetting();
 				break;
-			
 			case 2:
 				parent.saveSetting(tokens[1]);
 				break;
-				
 			default:
 				throw SyntaxError();
 		}
@@ -116,6 +120,40 @@ string SettingsConfig::SaveSettingsCommand::help(
 }
 
 void SettingsConfig::SaveSettingsCommand::tabCompletion(
+	vector<string>& tokens) const
+{
+	if (tokens.size() == 2) {
+		CommandController::completeFileName(tokens);
+	}
+}
+
+
+// class LoadSettingsCommand
+
+SettingsConfig::LoadSettingsCommand::LoadSettingsCommand(
+	SettingsConfig& parent_)
+	: parent(parent_)
+{
+}
+
+string SettingsConfig::LoadSettingsCommand::execute(
+	const vector<string>& tokens)
+{
+	if (tokens.size() != 2) {
+		throw SyntaxError();
+	}
+	SystemFileContext context;
+	parent.loadSetting(context, tokens[1]);
+	return "";
+}
+
+string SettingsConfig::LoadSettingsCommand::help(
+	const vector<string>& tokens) const
+{
+	return "Load settings from given file.";
+}
+
+void SettingsConfig::LoadSettingsCommand::tabCompletion(
 	vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {

@@ -29,6 +29,7 @@ static Keys::KeyCode getConfigKeyCode(const string& keyname,
 }
 
 KeyJoystick::KeyJoystick()
+	: keyJoyConfig(SettingsConfig::instance().getCreateChild("KeyJoystick"))
 {
 	EventDistributor & distributor(EventDistributor::instance());
 	distributor.registerEventListener(KEY_DOWN_EVENT,   *this);
@@ -39,23 +40,30 @@ KeyJoystick::KeyJoystick()
 	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	         JOY_BUTTONA | JOY_BUTTONB;
 
-	XMLElement& config =
-		SettingsConfig::instance().getCreateChild("KeyJoystick");
-	upKey      = getConfigKeyCode("upkey",      "UP",    config);
-	rightKey   = getConfigKeyCode("rightkey",   "RIGHT", config);
-	downKey    = getConfigKeyCode("downkey",    "DOWN",  config);
-	leftKey    = getConfigKeyCode("leftkey",    "LEFT",  config);
-	buttonAKey = getConfigKeyCode("buttonakey", "SPACE", config);
-	buttonBKey = getConfigKeyCode("buttonbkey", "M",     config);
+	readKeys();
+	keyJoyConfig.addListener(*this);
 }
 
 KeyJoystick::~KeyJoystick()
 {
+	keyJoyConfig.removeListener(*this);
+
 	EventDistributor & distributor(EventDistributor::instance());
 	distributor.unregisterEventListener(KEY_UP_EVENT,   *this);
 	distributor.unregisterEventListener(KEY_DOWN_EVENT, *this);
 	distributor.unregisterEventListener(CONSOLE_ON_EVENT, *this);
 }
+
+void KeyJoystick::readKeys()
+{
+	upKey      = getConfigKeyCode("upkey",      "UP",    keyJoyConfig);
+	rightKey   = getConfigKeyCode("rightkey",   "RIGHT", keyJoyConfig);
+	downKey    = getConfigKeyCode("downkey",    "DOWN",  keyJoyConfig);
+	leftKey    = getConfigKeyCode("leftkey",    "LEFT",  keyJoyConfig);
+	buttonAKey = getConfigKeyCode("buttonakey", "SPACE", keyJoyConfig);
+	buttonBKey = getConfigKeyCode("buttonbkey", "M",     keyJoyConfig);
+}
+
 
 // Pluggable
 const string& KeyJoystick::getName() const
@@ -109,7 +117,7 @@ bool KeyJoystick::signalEvent(const Event& event)
 	default: // must be keyEvent 
 		assert(dynamic_cast<const KeyEvent*>(&event));
 		Keys::KeyCode key = (Keys::KeyCode)((int)((KeyEvent&)event).getKeyCode() &
-																				(int)Keys::K_MASK);
+		                                    (int)Keys::K_MASK);
 		switch (event.getType()) {
 		case KEY_DOWN_EVENT:
 			if      (key == upKey)      status &= ~JOY_UP;
@@ -132,6 +140,18 @@ bool KeyJoystick::signalEvent(const Event& event)
 		}
 	}
 	return true;
+}
+
+// XMLElementListener
+void KeyJoystick::updateData(const XMLElement& element)
+{
+	readKeys();
+}
+
+void KeyJoystick::childAdded(const XMLElement& parent,
+                             const XMLElement& child)
+{
+	readKeys();
 }
 
 } // namespace openmsx
