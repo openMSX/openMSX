@@ -172,6 +172,8 @@ COMPONENTS_HEADER:=$(CONFIG_PATH)/components.hh
 # Configuration
 # =============
 
+include $(MAKE_PATH)/custom.mk
+
 include $(MAKE_PATH)/version.mk
 PACKAGE_FULL:=$(PACKAGE_NAME)-$(PACKAGE_VERSION)
 CHANGELOG_REVISION:=\
