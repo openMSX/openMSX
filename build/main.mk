@@ -88,26 +88,21 @@ ifneq ($(origin OPENMSX_PLATFORM),environment)
 
 DETECTSYS_PATH:=$(BUILD_BASE)/detectsys
 DETECTSYS_MAKE:=$(DETECTSYS_PATH)/detectsys.mk
-DETECTSYS_SCRIPT:=$(DETECTSYS_PATH)/detectsys
-DETECTSYS_AC:=$(MAKE_PATH)/detectsys.ac
-DETECTSYS_INPUT:=$(MAKE_PATH)/detectsys.mk.in
+DETECTSYS_SCRIPT:=$(MAKE_PATH)/detectsys.sh
 
 -include $(DETECTSYS_MAKE)
 
-$(DETECTSYS_MAKE): $(DETECTSYS_SCRIPT) $(DETECTSYS_INPUT)
+$(DETECTSYS_MAKE): $(DETECTSYS_SCRIPT)
 	@echo "Autodetecting native system:"
-	@cp $(DETECTSYS_INPUT) $(@D)
-	@cd $(@D) ; sh $(notdir $(DETECTSYS_SCRIPT)) #| $(INDENT)
-
-# Note: This step needs autoconf, but by shipping DETECTSYS_SCRIPT in source
-#       releases, we avoid this step being triggered.
-$(DETECTSYS_SCRIPT): $(DETECTSYS_AC)
-	@echo "Creating system autodetect script..."
 	@mkdir -p $(@D)
-	@cp $? $(@D)
-	@cd $(@D) ; autoconf $(<F) > $(@F)
+	@$< > $@
 
 endif # OPENMSX_PLATFORM
+
+# TODO: Hack to create OPENMSX_PLATFORM from detectsys.mk.
+ifneq ($(origin OPENMSX_TARGET_OS),undefined)
+OPENMSX_PLATFORM:=$(OPENMSX_TARGET_CPU)-$(OPENMSX_TARGET_OS)
+endif
 
 # Ignore rest of Makefile if autodetection was not performed yet.
 # Note that the include above will force a reload of the Makefile.
@@ -198,8 +193,8 @@ BINARY_FULL:=$(BINARY_PATH)/$(BINARY_FILE)
 LOG_PATH:=$(BUILD_PATH)/log
 
 CONFIG_PATH:=$(BUILD_PATH)/config
-CONFIG_HEADER:=$(CONFIG_PATH)/src/config.h
-CONFIG_SCRIPT:=configure
+CONFIG_HEADER:=$(CONFIG_PATH)/config.h
+CONFIG_SCRIPT:=$(BUILD_BASE)/autotools/configure
 
 
 # Compiler and Flags
@@ -303,12 +298,13 @@ config:
 	@echo "  Subset:   $(if $(OPENMSX_SUBSET),$(OPENMSX_SUBSET)*,full build)"
 
 # Configuration header created by "configure" script.
+# TODO: Cleaner way to calculate path to script?
 $(CONFIG_HEADER): $(CONFIG_SCRIPT)
 	@echo "Checking configuration:"
-	@mkdir -p $(CONFIG_PATH)
-	@CONFIG_DIR=$$PWD ; cd $(CONFIG_PATH) ; \
-		CPPFLAGS="$(LIB_FLAGS)" LDFLAGS="$(LINK_FLAGS)" \
-		$$CONFIG_DIR/$(CONFIG_SCRIPT) $(OPENMSX_CONFIG) #| $(INDENT)
+	@mkdir -p $(@D)
+	@rm -f $(@D)/config.cache
+	@cd $(@D) ; CPPFLAGS="$(LIB_FLAGS)" LDFLAGS="$(LINK_FLAGS)" \
+		../../autotools/$(<F)
 
 # Include dependency files.
 ifneq ($(filter $(DEPEND_TARGETS),$(MAKECMDGOALS)),)
@@ -425,7 +421,7 @@ install: all
 # Packaging
 # =========
 
-VERSION:=$(shell sed -ne "s/OPENMSX_VERSION=//p" configure.ac)
+VERSION:=$(shell sed -ne "s/AC_INIT(.*, *\(.*\))/\1/p" $(MAKE_PATH)/configure.ac)
 PACKAGE_NAME:=openmsx
 PACKAGE_FULL:=$(PACKAGE_NAME)-$(VERSION)
 
