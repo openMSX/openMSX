@@ -41,6 +41,10 @@ public:
 	  */
 	byte getCmdData(const EmuTime& time);
 
+	/** cmd engine ready for transfer (bit 7 in status reg)
+	  */
+	bool getTransfer() const { return transfer; }
+
 private:
 	class V9990Bpp2 {
 	public:

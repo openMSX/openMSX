@@ -1,5 +1,14 @@
 $Id$
 
+2004-12-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* a few V9990 fixes:
+	   - unimplemented cmds should still finish
+	   - implemented CE and TR status bits
+	   - YUV, YJK conversion formula's were wrong
+	        U and V are 6 bit signed and resulting R G B values must be
+	        clipped to 0 .. 31
+	     autumn.g9b (YUV image) still looks wrong though
+
 2004-12-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Cleanup/optimize V9990BitmapConvertor
 	* Store V9990 palette as GRB iso RGB:

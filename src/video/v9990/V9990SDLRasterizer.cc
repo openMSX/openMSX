@@ -201,7 +201,7 @@ void V9990SDLRasterizer<Pixel, zoom>::drawBorder(
 template <class Pixel, Renderer::Zoom zoom>
 void V9990SDLRasterizer<Pixel, zoom>::drawDisplay(
 	int fromX, int fromY,
-	int displayX, int displayY, int displayWidth, int displayHeight )
+	int displayX, int displayY, int displayWidth, int displayHeight)
 {
 	PRT_DEBUG("V9990SDLRasterizer::drawDisplay(" << std::dec <<
 	          fromX << "," << fromY << "," <<

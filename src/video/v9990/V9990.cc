@@ -122,6 +122,7 @@ void V9990::reset(const EmuTime& time)
 	
 	// Clear registers / ports
 	memset(regs, 0, sizeof(regs));
+	status = 0;
 	regSelect = 0xFF; // TODO check value for power-on and reset
 	calcDisplayMode();
 
@@ -192,8 +193,10 @@ byte V9990::readIO(byte port, const EmuTime& time)
 			break;
 		    
 		case STATUS:
-			// TODO
-			result = 0x00;
+			result = status & 0x7F;
+			if (cmdEngine->getTransfer()) {
+				result |= 0x80;
+			}
 			break;
 		
 		case KANJI_ROM_1:

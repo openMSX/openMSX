@@ -5,6 +5,10 @@
 #include "GLUtil.hh"
 #include <string.h>
 #include <cassert>
+#include <algorithm>
+
+using std::min;
+using std::max;
 
 namespace openmsx {
 
@@ -71,11 +75,13 @@ void V9990BitmapConverter<Pixel, zoom>::rasterBYUV(
 		}
 		int v = data[0] & 0x07 + ((data[1] & 0x07) << 3);
 		int u = data[2] & 0x07 + ((data[3] & 0x07) << 3);
+		if (v & 32) v -= 64; 
+		if (u & 32) u -= 64; 
 		for (int i = 0; i < 4; ++i) {
 			int y = (data[i] & 0xF8) >> 3;
-			int r = y + u;
-			int g = (5 * y - 2 * u - v) / 4;
-			int b = y + v;
+			int r = max(0, min(31, y + u));
+			int g = max(0, min(31, (5 * y - 2 * u - v) / 4));
+			int b = max(0, min(31, y + v));
 			*pixelPtr++ = palette32768[(g << 10) + (r << 5) + b];
 		}
 	}
@@ -93,11 +99,13 @@ void V9990BitmapConverter<Pixel, zoom>::rasterBYUVP(
 		}
 		int v = data[0] & 0x07 + ((data[1] & 0x07) << 3);
 		int u = data[2] & 0x07 + ((data[3] & 0x07) << 3);
+		if (v & 32) v -= 64; 
+		if (u & 32) u -= 64; 
 		for (int i = 0; i < 4; ++i) {
 			int y = (data[i] & 0xF8) >> 3;
-			int r = y + u;
-			int g = (5 * y - 2 * u - v) / 4;
-			int b = y + v;
+			int r = max(0, min(31, y + u));
+			int g = max(0, min(31, (5 * y - 2 * u - v) / 4));
+			int b = max(0, min(31, y + v));
 			*pixelPtr++ = palette32768[(g << 10) + (r << 5) + b];
 		}
 	}
@@ -114,11 +122,13 @@ void V9990BitmapConverter<Pixel, zoom>::rasterBYJK(
 		}
 		int k = data[0] & 0x07 + ((data[1] & 0x07) << 3);
 		int j = data[2] & 0x07 + ((data[3] & 0x07) << 3);
+		if (k & 32) k -= 64; 
+		if (j & 32) j -= 64; 
 		for (int i = 0; i < 4; ++i) {
 			int y = (data[i] & 0xF8) >> 3;
-			int r = y + j;
-			int g = y + k;
-			int b = (5 * y - 2 * j - k) / 4;
+			int r = max(0, min(31, y + j));
+			int g = max(0, min(31, y + k));
+			int b = max(0, min(31, (5 * y - 2 * j - k) / 4));
 			*pixelPtr++ = palette32768[(g << 10) + (r << 5) + b];
 		}
 	}
@@ -136,11 +146,13 @@ void V9990BitmapConverter<Pixel, zoom>::rasterBYJKP(
 		}
 		int k = data[0] & 0x07 + ((data[1] & 0x07) << 3);
 		int j = data[2] & 0x07 + ((data[3] & 0x07) << 3);
+		if (k & 32) k -= 64; 
+		if (j & 32) j -= 64; 
 		for (int i = 0; i < 4; ++i) {
 			int y = (data[i] & 0xF8) >> 3;
-			int r = y + j;
-			int g = y + k;
-			int b = (5 * y - 2 * j - k) / 4;
+			int r = max(0, min(31, y + j));
+			int g = max(0, min(31, y + k));
+			int b = max(0, min(31, (5 * y - 2 * j - k) / 4));
 			*pixelPtr++ = palette32768[(g << 10) + (r << 5) + b];
 		}
 	}

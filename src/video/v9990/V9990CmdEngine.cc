@@ -128,7 +128,7 @@ V9990CmdEngine::V9990CmdEngine(V9990 *vdp_)
 		new V9990CmdEngine::CmdSTOP(this, vdp->getVRAM());
 
 	commands[0][0]  = NULL;
-	for(int mode = 0; mode < (BP2+1); mode++) {
+	for (int mode = 0; mode < (BP2+1); mode++) {
 		commands[0][mode] = stopCmd;
 	}
 
@@ -149,7 +149,7 @@ V9990CmdEngine::V9990CmdEngine(V9990 *vdp_)
 	createEngines<CmdADVN> (0x0F);
 
 	transfer = false;
-	currentCommand = (V9990Cmd *)NULL;
+	currentCommand = NULL;
 }
 
 V9990CmdEngine::~V9990CmdEngine()
@@ -165,8 +165,7 @@ V9990CmdEngine::~V9990CmdEngine()
 
 void V9990CmdEngine::reset(const EmuTime& time)
 {
-	currentCommand = (V9990Cmd *) NULL;
-
+	currentCommand = NULL;
 	transfer = false;
 }
 
@@ -226,16 +225,16 @@ void V9990CmdEngine::setCmdReg(byte reg, byte value, const EmuTime& time)
 	case 19: // Font color - BG high
 		break;
 	case 20: // CMD
-		{
-			int cmd = (value >> 4) & 0x0F;
-			if(currentCommand) {
-				// Do Something to stop the running command
-			}
-			vdp->cmdStart();
-			currentCommand = commands[cmd][vdp->getColorMode()];
-			if(currentCommand) currentCommand->start(time);
-			break;
+	{
+		int cmd = (value >> 4) & 0x0F;
+		if (currentCommand) {
+			// Do Something to stop the running command
 		}
+		vdp->cmdStart();
+		currentCommand = commands[cmd][vdp->getColorMode()];
+		if (currentCommand) currentCommand->start(time);
+		break;
+	}
 	default: /* nada */
 		;
 	}
@@ -306,39 +305,34 @@ template <class Mode>
 void V9990CmdEngine::CmdLMMC<Mode>::start(const EmuTime& time)
 {
 	PRT_DEBUG("LMMC: DX=" << std::dec << engine->DX <<
-		         " DY=" << std::dec << engine->DY <<
-		         " NX=" << std::dec << engine->NX <<
-		         " NY=" << std::dec << engine->NY <<
-				 " ARG="<< std::hex << (int)engine->ARG <<
-				 " Bpp="<< std::hex << Mode::PIXELS_PER_BYTE);
+	          " DY=" << std::dec << engine->DY <<
+	          " NX=" << std::dec << engine->NX <<
+	          " NY=" << std::dec << engine->NY <<
+	          " ARG="<< std::hex << (int)engine->ARG <<
+	          " Bpp="<< std::hex << Mode::PIXELS_PER_BYTE);
 
 	engine->address = Mode::addressOf(engine->DX,
 	                                  engine->DY,
-									  engine->vdp->getImageWidth());
+	                                  engine->vdp->getImageWidth());
 	engine->ANX = engine->NX;
 	engine->ANY = engine->NY;
-	if(Mode::PIXELS_PER_BYTE != 0) {
-		/* <= 8bpp */
-		
-	}
+	engine->transfer = false;
 }
 
 void V9990CmdEngine::CmdLMMC<V9990CmdEngine::V9990Bpp16>::execute(const EmuTime& time)
 {
-	byte value = 0;
-	int  dx    = (engine->ARG & 0x04)? -1: 1;
-	int  dy    = (engine->ARG & 0x08)? -1: 1;
-
-	if(engine->transfer) {
+	if (engine->transfer) {
 		engine->transfer = false;
 		int width = engine->vdp->getImageWidth();
 
-		value = vram->readVRAM(engine->address);
+		byte value = vram->readVRAM(engine->address);
 		value = engine->logOp(engine->data, value);
 		vram->writeVRAM(engine->address, value);
 		if(! (++(engine->address) & 0x01)) {
+			int dx = (engine->ARG & 0x04) ? -1 : 1;
 			engine->DX += dx;
-			if(! (--(engine->ANX))) {
+			if (!(--(engine->ANX))) {
+				int dy = (engine->ARG & 0x08) ? -1 : 1;
 				engine->DX -= (engine->NX * dx);
 				engine->DY += dy;
 				if(! (--(engine->ANY))) {
@@ -357,23 +351,19 @@ void V9990CmdEngine::CmdLMMC<V9990CmdEngine::V9990Bpp16>::execute(const EmuTime&
 template <class Mode>
 void V9990CmdEngine::CmdLMMC<Mode>::execute(const EmuTime& time)
 {
-	byte value = 0;
-	int  dx    = (engine->ARG & 0x04)? -1: 1;
-	int  dy    = (engine->ARG & 0x08)? -1: 1;
-
-	if(engine->transfer) {
-		int width = engine->vdp->getImageWidth()/Mode::PIXELS_PER_BYTE;
+	if (engine->transfer) {
+		int width = engine->vdp->getImageWidth() / Mode::PIXELS_PER_BYTE;
 		byte data = engine->data;
-		for(int i = 0; (engine->ANY > 0) && 
-		               (i < Mode::PIXELS_PER_BYTE); i++) {
-			value = (byte)(Mode::point(vram,
-			                            engine->DX, engine->DY, width));
+		for (int i = 0; (engine->ANY > 0) && (i < Mode::PIXELS_PER_BYTE); ++i) {
+			byte value = Mode::point(vram, engine->DX, engine->DY, width);
 			value = engine->logOp((data >> (8 - Mode::BITS_PER_PIXEL)),
-			                      value,
-								  Mode::MASK);
+			                      value, Mode::MASK);
 			Mode::pset(vram, engine->DX, engine->DY, width, value);
+			
+			int dx = (engine->ARG & 0x04) ? -1 : 1;
 			engine->DX += dx;
 			if(!--(engine->ANX)) {
+				int dy = (engine->ARG & 0x08) ? -1 : 1;
 				engine->DX -= (engine->NX * dx);
 				engine->DY += dy;
 				if(!--(engine->ANY)) {
@@ -395,12 +385,12 @@ V9990CmdEngine::CmdLMMV<Mode>::CmdLMMV(V9990CmdEngine* engine,
                                        V9990VRAM*      vram)
 	: V9990Cmd(engine, vram)
 {
-	
 }
 
 template <class Mode>
 void V9990CmdEngine::CmdLMMV<Mode>::start(const EmuTime& time)
 {
+	engine->cmdReady(); // TODO dummy implementation
 }
 
 template <class Mode>
@@ -416,12 +406,12 @@ V9990CmdEngine::CmdLMCM<Mode>::CmdLMCM(V9990CmdEngine* engine,
                                        V9990VRAM*      vram)
 	: V9990Cmd(engine, vram)
 {
-	
 }
 
 template <class Mode>
 void V9990CmdEngine::CmdLMCM<Mode>::start(const EmuTime& time)
 {
+	engine->cmdReady(); // TODO dummy implementation
 }
 
 template <class Mode>
@@ -437,12 +427,12 @@ V9990CmdEngine::CmdLMMM<Mode>::CmdLMMM(V9990CmdEngine* engine,
                                        V9990VRAM*      vram)
 	: V9990Cmd(engine, vram)
 {
-	
 }
 
 template <class Mode>
 void V9990CmdEngine::CmdLMMM<Mode>::start(const EmuTime& time)
 {
+	engine->cmdReady(); // TODO dummy implementation
 }
 
 template <class Mode>
@@ -458,12 +448,12 @@ V9990CmdEngine::CmdCMMC<Mode>::CmdCMMC(V9990CmdEngine* engine,
                                        V9990VRAM*      vram)
 	: V9990Cmd(engine, vram)
 {
-	
 }
 
 template <class Mode>
 void V9990CmdEngine::CmdCMMC<Mode>::start(const EmuTime& time)
 {
+	engine->cmdReady(); // TODO dummy implementation
 }
 
 template <class Mode>
@@ -479,12 +469,12 @@ V9990CmdEngine::CmdCMMK<Mode>::CmdCMMK(V9990CmdEngine* engine,
                                        V9990VRAM*      vram)
 	: V9990Cmd(engine, vram)
 {
-	
 }
 
 template <class Mode>
 void V9990CmdEngine::CmdCMMK<Mode>::start(const EmuTime& time)
 {
+	engine->cmdReady(); // TODO dummy implementation
 }
 
 template <class Mode>
@@ -500,12 +490,12 @@ V9990CmdEngine::CmdCMMM<Mode>::CmdCMMM(V9990CmdEngine* engine,
                                        V9990VRAM*      vram)
 	: V9990Cmd(engine, vram)
 {
-	
 }
 
 template <class Mode>
 void V9990CmdEngine::CmdCMMM<Mode>::start(const EmuTime& time)
 {
+	engine->cmdReady(); // TODO dummy implementation
 }
 
 template <class Mode>
@@ -521,12 +511,12 @@ V9990CmdEngine::CmdBMXL<Mode>::CmdBMXL(V9990CmdEngine* engine,
                                        V9990VRAM*      vram)
 	: V9990Cmd(engine, vram)
 {
-	
 }
 
 template <class Mode>
 void V9990CmdEngine::CmdBMXL<Mode>::start(const EmuTime& time)
 {
+	engine->cmdReady(); // TODO dummy implementation
 }
 
 template <class Mode>
@@ -542,12 +532,12 @@ V9990CmdEngine::CmdBMLX<Mode>::CmdBMLX(V9990CmdEngine* engine,
                                        V9990VRAM*      vram)
 	: V9990Cmd(engine, vram)
 {
-	
 }
 
 template <class Mode>
 void V9990CmdEngine::CmdBMLX<Mode>::start(const EmuTime& time)
 {
+	engine->cmdReady(); // TODO dummy implementation
 }
 
 template <class Mode>
@@ -563,12 +553,12 @@ V9990CmdEngine::CmdBMLL<Mode>::CmdBMLL(V9990CmdEngine* engine,
                                        V9990VRAM*      vram)
 	: V9990Cmd(engine, vram)
 {
-	
 }
 
 template <class Mode>
 void V9990CmdEngine::CmdBMLL<Mode>::start(const EmuTime& time)
 {
+	engine->cmdReady(); // TODO dummy implementation
 }
 
 template <class Mode>
@@ -584,12 +574,12 @@ V9990CmdEngine::CmdLINE<Mode>::CmdLINE(V9990CmdEngine* engine,
                                        V9990VRAM*      vram)
 	: V9990Cmd(engine, vram)
 {
-	
 }
 
 template <class Mode>
 void V9990CmdEngine::CmdLINE<Mode>::start(const EmuTime& time)
 {
+	engine->cmdReady(); // TODO dummy implementation
 }
 
 template <class Mode>
@@ -605,12 +595,12 @@ V9990CmdEngine::CmdSRCH<Mode>::CmdSRCH(V9990CmdEngine* engine,
                                        V9990VRAM*      vram)
 	: V9990Cmd(engine, vram)
 {
-	
 }
 
 template <class Mode>
 void V9990CmdEngine::CmdSRCH<Mode>::start(const EmuTime& time)
 {
+	engine->cmdReady(); // TODO dummy implementation
 }
 
 template <class Mode>
@@ -626,12 +616,12 @@ V9990CmdEngine::CmdPOINT<Mode>::CmdPOINT(V9990CmdEngine* engine,
                                        V9990VRAM*      vram)
 	: V9990Cmd(engine, vram)
 {
-	
 }
 
 template <class Mode>
 void V9990CmdEngine::CmdPOINT<Mode>::start(const EmuTime& time)
 {
+	engine->cmdReady(); // TODO dummy implementation
 }
 
 template <class Mode>
@@ -647,12 +637,12 @@ V9990CmdEngine::CmdPSET<Mode>::CmdPSET(V9990CmdEngine* engine,
                                        V9990VRAM*      vram)
 	: V9990Cmd(engine, vram)
 {
-	
 }
 
 template <class Mode>
 void V9990CmdEngine::CmdPSET<Mode>::start(const EmuTime& time)
 {
+	engine->cmdReady(); // TODO dummy implementation
 }
 
 template <class Mode>
@@ -668,12 +658,12 @@ V9990CmdEngine::CmdADVN<Mode>::CmdADVN(V9990CmdEngine* engine,
                                        V9990VRAM*      vram)
 	: V9990Cmd(engine, vram)
 {
-	
 }
 
 template <class Mode>
 void V9990CmdEngine::CmdADVN<Mode>::start(const EmuTime& time)
 {
+	engine->cmdReady(); // TODO dummy implementation
 }
 
 template <class Mode>
@@ -686,7 +676,7 @@ void V9990CmdEngine::CmdADVN<Mode>::execute(const EmuTime& time)
 
 void V9990CmdEngine::setCmdData(byte value, const EmuTime& time)
 {
-	if(transfer && currentCommand) {
+	if (transfer && currentCommand) {
 		currentCommand->execute(time);
 	}
 	data = value;
@@ -698,7 +688,7 @@ byte V9990CmdEngine::getCmdData(const EmuTime& time)
 	byte value = 0xFF;
 
 	//sync(time);
-	if(transfer) {
+	if (transfer) {
 		value = data;
 		transfer = false;
 	}

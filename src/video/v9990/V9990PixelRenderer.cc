@@ -122,7 +122,7 @@ void V9990PixelRenderer::draw(int fromX, int fromY, int toX, int toY,
 	case DRAW_DISPLAY:
 		rasterizer->drawDisplay(fromX, fromY,
 		                        displayX, displayY,
-								displayWidth, displayHeight);
+		                        displayWidth, displayHeight);
 		break;
 	default:
 		assert(false);
@@ -130,13 +130,13 @@ void V9990PixelRenderer::draw(int fromX, int fromY, int toX, int toY,
 }
 
 void V9990PixelRenderer::render(int fromX, int fromY, int toX, int toY,
-			               int clipL, int clipT, int clipR, int clipB,
-				           DrawType drawType)
+                                int clipL, int clipT, int clipR, int clipB,
+                                DrawType drawType)
 {
 	PRT_DEBUG("V9990PixelRenderer::render(" <<
-			  fromX << "," << fromY << "," << toX << "," << toY << ", " <<
-			  clipL << "," << clipT << "," << clipR << "," << clipB << ", " <<
-			  ((drawType == DRAW_BORDER)? "BORDER": "DISPLAY") << ")");
+		  fromX << "," << fromY << "," << toX << "," << toY << ", " <<
+		  clipL << "," << clipT << "," << clipR << "," << clipB << ", " <<
+		  ((drawType == DRAW_BORDER)? "BORDER": "DISPLAY") << ")");
 	
 	// clip top & bottom 
 	if(clipT > fromY) {
