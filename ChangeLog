@@ -1,5 +1,8 @@
 $Id$
 
+2003-04-04 David Heremans <david.heremans@gnu-linux.net>
+	* Getting everything in /opt/openmsx installed, no links yet
+
 2003-04-04 Maarten ter Huurne <maarten@treewalker.org>
 	* Introduced SpriteConverter, a utility class for the Renderers to use,
 	  similar to BitmapConverter and CharacterConverter.

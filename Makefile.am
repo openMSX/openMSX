@@ -22,3 +22,27 @@ EXTRA_DIST=openmsx.lsm.in GPL TODO config-i686.sh autogen.sh share
 #  following and add `chk' to the EXTRA_DIST list
 #TESTS=chk
 
+install-data-hook:
+	cp -rv $(srcdir)/share $(prefix)/ 
+##needs find trick because otherwise find tries to descent into rm'ed dir
+	find $(srcdir)/share -name CVS -type d -exec rm -rf $(prefix)/{} \;
+
+## a simple cp -R isn't portable so we should use this long winded thing below
+## but I need to check if `find` is portabel. code below isn't tested !!!
+##
+##for i in `find share -type d -print` ; do \
+##	  echo i is $$i ; \
+#### Compute the install directory at runtime
+##	  d=`echo $$i | sed -e s,/[^/]*$$,,`; \
+##	  echo d is $$d ; \
+#### Make the install directory
+##	  $(mkinstalldirs) $(DESTDIR)/$$d; \
+#### Find the files
+#### "p" is the variable that names the actual file we will install
+##	  for p in `find $$i -type f -print` ; do \
+##	    echo $$p; \
+####	    p=$$f; \
+#### actually install the file
+##	    $(INSTALL_DATA) $$p $(DESTDIR)/$$f; \
+##	  done; \
+##	done
