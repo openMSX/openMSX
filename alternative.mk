@@ -124,6 +124,16 @@ $(call BOOLCHECK,USE_SYMLINK)
 include flavour-$(OPENMSX_FLAVOUR).mk
 
 
+# Profiling
+# =========
+
+OPENMSX_PROFILE?=false
+$(call BOOLCHECK,OPENMSX_PROFILE)
+ifeq ($(OPENMSX_PROFILE),true)
+  CXXFLAGS+=-pg
+endif
+
+
 # Filesets
 # ========
 
@@ -158,6 +168,9 @@ $$(foreach dir,$$(sort $$(SUBDIRS)),$$(eval $$(call PROCESS_SUBDIR,$$(dir))))
 endef
 
 BUILD_PATH:=$(BUILD_BASE)/$(OPENMSX_PLATFORM)-$(OPENMSX_FLAVOUR)
+ifeq ($(OPENMSX_PROFILE),true)
+  BUILD_PATH:=$(BUILD_PATH)-profile
+endif
 
 SOURCES_PATH:=src
 
@@ -214,14 +227,6 @@ $(call BOOLCHECK,USE_PRECOMPH)
 #          If generated without compiling as well, it depends on every
 #          include there is.
 # So one-shot compilation works great, but incremental compilation does not.
-
-# Flags for profiling.
-OPENMSX_PROFILE?=false
-$(call BOOLCHECK,OPENMSX_PROFILE)
-ifeq ($(OPENMSX_PROFILE),true)
-  CXXFLAGS+=-pg
-  BUILD_PATH:=$(BUILD_PATH)-profile
-endif
 
 # Strip binary?
 OPENMSX_STRIP?=false
