@@ -1,5 +1,8 @@
 $Id$
 
+2004-08-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed Uncaught exception on "openmsx -v"
+
 2004-08-28 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed bug when palette index 0 is written and transparency is enabled.
 	  This bug was visible as gray rectangles in the Gazzel intro.

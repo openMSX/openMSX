@@ -51,9 +51,9 @@ static int main(int argc, char **argv)
 		initializeSDL();
 		CommandLineParser& parser = CommandLineParser::instance();
 		parser.parse(argc, argv);
-		CartridgeSlotManager::instance().readConfig();
 		CommandLineParser::ParseStatus parseStatus = parser.getParseStatus();
 		if (parseStatus != CommandLineParser::EXIT) {
+			CartridgeSlotManager::instance().readConfig();
 			auto_ptr<CliCommInput> cliCommInput;
 			if (parseStatus == CommandLineParser::CONTROL) {
 				CommandLineParser::ControlType type;
