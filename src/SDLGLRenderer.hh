@@ -74,7 +74,7 @@ private:
 	typedef void (SDLGLRenderer::*PhaseHandler)
 		(int line, int limit);
 	typedef void (SDLGLRenderer::*DirtyChecker)
-		(int addr, byte data, const EmuTime &time);
+		(int addr, byte data);
 
 	/** Update renderer state to specified moment in time.
 	  * @param time Moment in emulated time to update to.
@@ -139,19 +139,19 @@ private:
 
 	/** Dirty checking that does nothing (but is a valid method).
 	  */
-	void checkDirtyNull(int addr, byte data, const EmuTime &time);
+	void checkDirtyNull(int addr, byte data);
 
 	/** Dirty checking for MSX1 display modes.
 	  */
-	void checkDirtyMSX1(int addr, byte data, const EmuTime &time);
+	void checkDirtyMSX1(int addr, byte data);
 
 	/** Dirty checking for Text2 display mode.
 	  */
-	void checkDirtyText2(int addr, byte data, const EmuTime &time);
+	void checkDirtyText2(int addr, byte data);
 
 	/** Dirty checking for bitmap modes.
 	  */
-	void checkDirtyBitmap(int addr, byte data, const EmuTime &time);
+	void checkDirtyBitmap(int addr, byte data);
 
 	/** Draw sprites on this line over the background.
 	  */

@@ -488,18 +488,18 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateVRAM(
 	//       visible is display mode dependant.
 	if (vdp->isDisplayEnabled()) renderUntil(time);
 
-	(this->*dirtyChecker)(addr, data, time);
+	(this->*dirtyChecker)(addr, data);
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::checkDirtyNull(
-	int addr, byte data, const EmuTime &time)
+	int addr, byte data)
 {
 	// Do nothing: this is a bogus mode whose display doesn't depend
 	// on VRAM contents.
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::checkDirtyMSX1(
-	int addr, byte data, const EmuTime &time)
+	int addr, byte data)
 {
 	if ((addr | ~(-1 << 10)) == vdp->getNameMask()) {
 		dirtyName[addr & ~(-1 << 10)] = anyDirtyName = true;
@@ -513,9 +513,8 @@ template <class Pixel> void SDLHiRenderer<Pixel>::checkDirtyMSX1(
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::checkDirtyText2(
-	int addr, byte data, const EmuTime &time)
+	int addr, byte data)
 {
-	sync(time);
 	int nameBase = vdp->getNameMask() & (-1 << 12);
 	int i = addr - nameBase;
 	if ((0 <= i) && (i < 2160)) {
@@ -536,9 +535,8 @@ template <class Pixel> void SDLHiRenderer<Pixel>::checkDirtyText2(
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::checkDirtyBitmap(
-	int addr, byte data, const EmuTime &time)
+	int addr, byte data)
 {
-	sync(time);
 	lineValidInMode[addr >> 7] = 0xFF;
 }
 

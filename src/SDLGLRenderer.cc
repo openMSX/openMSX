@@ -504,20 +504,20 @@ void SDLGLRenderer::updateVRAM(
 	// TODO: Changes in invisible pages do not require sync either.
 	//       Maybe this is a task for the dirty checker, because what is
 	//       visible is display mode dependant.
-	if (vdp->isDisplayEnabled()) sync(time);
+	if (vdp->isDisplayEnabled()) renderUntil(time);
 
-	(this->*dirtyChecker)(addr, data, time);
+	(this->*dirtyChecker)(addr, data);
 }
 
 void SDLGLRenderer::checkDirtyNull(
-	int addr, byte data, const EmuTime &time)
+	int addr, byte data)
 {
 	// Do nothing: this is a bogus mode whose display doesn't depend
 	// on VRAM contents.
 }
 
 void SDLGLRenderer::checkDirtyMSX1(
-	int addr, byte data, const EmuTime &time)
+	int addr, byte data)
 {
 	if ((addr | ~(-1 << 10)) == vdp->getNameMask()) {
 		dirtyName[addr & ~(-1 << 10)] = anyDirtyName = true;
@@ -531,9 +531,8 @@ void SDLGLRenderer::checkDirtyMSX1(
 }
 
 void SDLGLRenderer::checkDirtyText2(
-	int addr, byte data, const EmuTime &time)
+	int addr, byte data)
 {
-	sync(time);
 	int nameBase = vdp->getNameMask() & (-1 << 12);
 	int i = addr - nameBase;
 	if ((0 <= i) && (i < 2160)) {
@@ -546,9 +545,8 @@ void SDLGLRenderer::checkDirtyText2(
 }
 
 void SDLGLRenderer::checkDirtyBitmap(
-	int addr, byte data, const EmuTime &time)
+	int addr, byte data)
 {
-	sync(time);
 	lineValidInMode[addr >> 7] = 0xFF;
 }
 
