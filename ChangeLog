@@ -3,7 +3,8 @@ $Id$
 2005-01-15 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Refactored XMLElement related classes:
 	    preparartion to fix the 'order of construction of settings'
-	    problem (e.g. input_delay)
+	    problem (e.g. inputdelay)
+	* Reenabled "inputdelay" setting
 
 2005-01-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Various small cleanups:

@@ -1,6 +1,7 @@
 // $Id$
 
 #include "XMLElement.hh"
+#include "XMLElementListener.hh"
 #include "StringOp.hh"
 #include "FileContext.hh"
 #include "ConfigException.hh"
@@ -32,6 +33,7 @@ XMLElement::~XMLElement()
 	     it != children.end(); ++it) {
 		delete *it;
 	}
+	assert(listeners.empty());
 }
 
 XMLElement* XMLElement::getParent()
@@ -91,6 +93,10 @@ void XMLElement::setData(const string& data_)
 {
 	//assert(children.empty()); // no mixed-content elements
 	data = data_;
+	for (Listeners::const_iterator it = listeners.begin();
+	     it != listeners.end(); ++it) {
+		(*it)->updateData(*this);
+	}
 }
 
 void XMLElement::getChildren(const string& name, Children& result) const
@@ -338,6 +344,17 @@ bool XMLElement::isShallowEqual(const XMLElement& other) const
 {
 	return (getName()       == other.getName()) &&
 	       (getAttributes() == other.getAttributes());
+}
+
+void XMLElement::addListener(XMLElementListener& listener)
+{
+	listeners.push_back(&listener);
+}
+
+void XMLElement::removeListener(XMLElementListener& listener)
+{
+	assert(count(listeners.begin(), listeners.end(), &listener) == 1);
+	listeners.erase(find(listeners.begin(), listeners.end(), &listener));
 }
 
 string XMLElement::XMLEscape(const string& str)

@@ -16,9 +16,9 @@ using std::vector;
 namespace openmsx {
 
 EventDistributor::EventDistributor()
-	//: delaySetting(new FloatSetting("inputdelay",
-	//               "EXPERIMENTAL: delay input to avoid keyskips",
-	//               0.03, 0.0, 10.0))
+	: delaySetting(new FloatSetting("inputdelay",
+	               "EXPERIMENTAL: delay input to avoid keyskips",
+	               0.03, 0.0, 10.0))
 {
 	prevReal = Timer::getTime();
 }
@@ -131,10 +131,8 @@ void EventDistributor::sync(const EmuTime& emuTime)
 	EmuDuration emuDuration = emuTime - prevEmu;
 
 	double factor = emuDuration.toDouble() / realDuration;
-	//EmuDuration extraDelay =
-	//	RealTime::instance().getEmuDuration(delaySetting->getValue());
 	EmuDuration extraDelay =
-		RealTime::instance().getEmuDuration(0.03);
+		RealTime::instance().getEmuDuration(delaySetting->getValue());
 	EmuTime time = prevEmu + extraDelay;
 	for (vector<EventTime>::const_iterator it = toBeScheduledEvents.begin();
 	     it != toBeScheduledEvents.end(); ++it) {

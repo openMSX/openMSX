@@ -582,7 +582,22 @@ grabinput
     set grabinput on   turn input grabbing mode on
     set grabinput off  turn input grabbing mode off
 
-    
+
+inputdelay
+----------
+
+  [ Only Change this if you understand what this setting does]
+
+  Input events for the MSX machine are delayed by this amount. Increase this
+  value when the MSX machine misses keyboard presses when you type very fast.
+  Decrease this value to reduce the latency between pressing a key on the host
+  machine and seeing it being typed in the MSX machine.
+  
+  Note: the default value (3/100s) should almost always be ok, this small delay
+        is practically not noticable and still allows the MSX machine to get
+        accurate timing on the input events.
+
+
 limitsprites
 ------------
 

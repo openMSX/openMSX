@@ -16,6 +16,7 @@ Setting::Setting(const string& name_, const string& description_)
 
 Setting::~Setting()
 {
+	assert(listeners.empty());
 }
 
 void Setting::notify() const
