@@ -96,7 +96,7 @@ debug
   external debugger.
 
   usage:
-    debug list                       returns a list of all debugables
+    debug list                       returns a list of all debuggables
     debug desc <name>                returns a description of this debuggable
     debug size <name>                returns the size of this debuggable
     debug read <name> <addr>         read a byte from a debuggable
