@@ -2,6 +2,7 @@
 
 /*
 TODO:
+- Separate planar / non-planar routines.
 - Put VRAM in a separate class?
 - Run more measurements on real MSX to find out how horizontal
   scanning interrupt really works.
@@ -42,12 +43,23 @@ TODO:
 #include <string>
 #include <cassert>
 
+
 // Inlined methods first, to make sure they are actually inlined:
 
-// TODO: Separate planar / non-planar routines.
+inline VDP::SpritePattern VDP::doublePattern(VDP::SpritePattern a)
+{
+	// bit-pattern "abcd...." gets expanded to "aabbccdd"
+	a =   a                  | (a>>16);
+	a = ((a<< 8)&0x00ffff00) | (a&0xff0000ff);
+	a = ((a<< 4)&0x0ff00ff0) | (a&0xf00ff00f);
+	a = ((a<< 2)&0x3c3c3c3c) | (a&0xc3c3c3c3);
+	a = ((a<< 1)&0x66666666) | (a&0x99999999);
+	return a;
+}
+
 inline VDP::SpritePattern VDP::calculatePattern(int patternNr, int y)
 {
-	// TODO: Optimise getSpriteSize?
+	// Optimise getSpriteSize? No, GCC is smart enough!
 	if (getSpriteMag()) y /= 2;
 	SpritePattern pattern = getVRAMReordered(
 		spritePatternBase + patternNr * 8 + y) << 24;
@@ -1074,17 +1086,6 @@ void VDP::updateDisplayMode(byte reg0, byte reg1, const EmuTime &time)
 		// TODO: Why didn't I implement this yet?
 		//       It's one line of code and overhead is not huge either.
 	}
-}
-
-VDP::SpritePattern VDP::doublePattern(VDP::SpritePattern a)
-{
-	// bit-pattern "abcd" gets expanded to "aabbccdd"
-	a =   a                  | (a>>16);
-	a = ((a<< 8)&0x00ffff00) | (a&0xff0000ff);
-	a = ((a<< 4)&0x0ff00ff0) | (a&0xf00ff00f);
-	a = ((a<< 2)&0x3c3c3c3c) | (a&0xc3c3c3c3);
-	a = ((a<< 1)&0x66666666) | (a&0x99999999);
-	return a;
 }
 
 VDP::PaletteCmd::PaletteCmd(VDP *vdp)

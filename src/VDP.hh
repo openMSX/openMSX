@@ -488,7 +488,7 @@ private:
 
 	/** Doubles a sprite pattern.
 	  */
-	static SpritePattern doublePattern(SpritePattern pattern);
+	inline SpritePattern doublePattern(SpritePattern pattern);
 
 	/** Gets the sprite size in pixels (8/16).
 	  */
