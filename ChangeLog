@@ -1,5 +1,9 @@
 $Id$
 
+2002-01-06 Joost Yervante Damad <j.damad@qahwah.net>
+	* small fixes
+	* XMLConfig skeleton
+
 2002-01-06 Maarten ter Huurne <mth@stack.nl>
 	* Text mode extra-wide border now drawn at once (SDLHi).
 

@@ -115,8 +115,6 @@ public:
 
 protected:
 	virtual ~Backend();
-
-private:
 	// only I create instances of me
 	Backend();
 

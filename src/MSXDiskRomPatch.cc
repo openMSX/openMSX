@@ -359,9 +359,11 @@ void MSXDiskRomPatch::GETDPB() const
 		return;
 	}
 
+#ifdef DEBUG
 	// media descriptor?
 	byte media_descriptor1 = regs.BC.B.h;
 	byte media_descriptor2 = regs.BC.B.l;
+#endif
 
 	int DPB_base_address = regs.HL.w;
 
