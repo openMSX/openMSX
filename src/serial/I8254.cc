@@ -118,6 +118,8 @@ I8254::Counter& I8254::getCounter(byte cntr)
 I8254::Counter::Counter(ClockPinListener* listener, const EmuTime &time)
 	: output(listener)
 {
+	gate = true;
+	counter = 0;
 	reset(time);
 }
 
