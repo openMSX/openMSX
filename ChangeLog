@@ -1,5 +1,8 @@
 $Id$
 
+2001-12-19 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* Removed more indirections from YM2413
+
 2001-12-18 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* fixed CassettePort: 
 	  exceptions don't work if you compile with -fno-rtti, removed it

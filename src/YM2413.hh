@@ -86,7 +86,7 @@ class YM2413 : public SoundDevice
 
 			int patch_number;
 			bool key_status;
-			Slot *mod, *car;
+			Slot mod, car;
 	};
 
 	public:
