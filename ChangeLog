@@ -4,6 +4,7 @@ $Id$
 	* saving_settings didn't work when file didn't exist yet
 	* updated all machine configurations to new file format:
 	   thanks to mth for writing the convertor script!
+	* test release openmsx-0.5.0-test1
 
 2004-10-04 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Don't use exceptions to report unconnected drive in ready() method:
