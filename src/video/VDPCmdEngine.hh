@@ -122,7 +122,7 @@ private:
 	word SX, SY, DX, DY, NX, NY;
 	byte COL, ARG, CMD;
 	LogOp LOG;
-	
+
 	/** The command engine status (part of S#2).
 	  * Bit 7 (TR) is set when the command engine is ready for
 	  * a pixel transfer.
@@ -176,10 +176,6 @@ private:
 		  */
 		virtual void execute(const EmuTime &time) = 0;
 
-		/** Inform command of timing change
-		  */ 
-		virtual void updateTiming();
-
 	protected:
 		/** Calculate addr of a pixel in VRAM.
 		  */
@@ -231,23 +227,16 @@ private:
 
 		/** Clipping methods
 		  */
-		inline void clipNX_SX();
-		inline void clipNX_DX  (int ppbs = 0);
-		inline void clipNX_SXDX(int ppbs = 0);
-		inline void clipNY_SY();
-		inline void clipNY_DY();
-		inline void clipNY_SYDY();
+		inline word clipNX_1(word DX, word NX, byte ppbs = 0);
+		inline word clipNX_2(word SX, word DX, word NX, byte ppbs = 0);
+		inline word clipNY_1(word DY, word NY);
+		inline word clipNY_2(word SY, word DY, word NY);
 
 		VDPCmdEngine *engine;
 		VDPVRAM *vram;
 		EmuTimeFreq<VDP::TICKS_PER_SECOND> currentTime;
 		int opsCount;
-
-		word NX, NY;
-		word TX, TY;
 		word ASX, ADX, ANX;
-		byte CL;
-		LogOp LO;
 	};
 	friend class VDPCmd;
 
@@ -306,12 +295,10 @@ private:
 	class BlockCmd : public VDPCmd {
 	public:
 		BlockCmd(VDPCmdEngine *engine, VDPVRAM *vram, const int* timing);
-		virtual void updateTiming();
 	protected:
-		void calcFinishTime();
+		void calcFinishTime(word NX, word NY);
 
 		const int* timing;
-		EmuTime finishTime;
 	};
 	friend class BlockCmd;
 

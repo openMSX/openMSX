@@ -1,5 +1,9 @@
 $Id$
 
+2003-09-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* VDPCmdEngine: corrcet behaviour when registers are changed while cmd
+	   is executing. There seem to be a few glitched left though.
+
 2003-09-03 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed bug: when CPU has to force extra device scheduling, it should
 	  schedule all devices until the I/O time, not just the devices until
