@@ -22,14 +22,15 @@ MSX software.
 This HOWTO is mainly written by Manuel Bilderbeek, an openMSX developer who does
 mainly beta testing and other mainly non-coding stuff and Jorrith Schaap,
 someone who just wants to play around with the emulator and came with the idea
-of this document.
+for this document.
 
 The latest version of this HOWTO can be found in the CVS directory of openMSX.
 Try this link:
 http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/openmsx/openMSX/doc/openMSX-HOWTO.txt?rev=HEAD&content-type=text/vnd.viewcvs-markup
 
 Now, let's start with the HOWTO. Here's what to do if you want to start using
-openMSX...
+openMSX... Note that Windows users may want to jump directly to section 6 (and
+maybe they also want to read section 5.3).
 
 1. Get the source code
    -------------------
@@ -117,6 +118,8 @@ perform commits and updates.
 2. Compiling
    ---------
 
+2.1 Getting the right software packages installed
+
 Before compiling, you need to have certain libraries installed. On my system
 (which is a Debian testing one), they are called:
 
@@ -155,11 +158,13 @@ Probably you even need some more, which I don't know by heart. They should all
 be needed as dependencies for the SDL and XML packages, though. And it should be
 checked by the configure scripts anyway.
 
+5.2 Compilation itself
+
 If you are very experienced in compiling stuff in Linux, you can skip the rest
 of this chapter and go to chapter 3. Others, please skip the next sentence.
 Quick building instructions: the usual ./autogen.sh; ./configure (or
 ./config-686.sh for Pentium Pro); make for the CVS sources and just ./configure;
-make for the tar.gz released version; note that there is no make install yet.
+make for the tar.gz released version; make install to install.
 
 After you installed at least the above mentioned packages, go to your openMSX
 source tree again. Then, run the following command, in case you used CVS to get
@@ -168,13 +173,6 @@ the sources:
 ./autogen.sh
 
 This will generate the appropriate configure and make stuff.
-
-If you get the following line:
-
-configure.in: 147: required file `./ltmain.sh' not found
-
-don't worry. This is just a warning you get if you run autogen.sh for the first
-time. Run it again to fix this.
 
 Now it's time for the tools to probe the system configuration.
 Just type the following command:
@@ -190,9 +188,9 @@ This will let openMSX compile with optimisations for your system's CPU.
 You will see loads of checks for available stuff and so on... Just ignore it,
 except if it exits with any errors. This probably means you will have to
 install more packages, the error message will tell you what is broken. If the
-problem is with openMSX, please file a detailed bug report on our SourceForge
-site. If possible, attach the config.log file that is made as part of the
-configure step to the bug report, in case there is a ./configure error.
+problem is with openMSX, please give feedback, see chapter 9. If possible,
+attach the config.log file that is made as part of the configure step to the
+bug report, in case there is a ./configure error.
 
 After the (successful) configure step, it's time to compile
 everything. Type
@@ -228,61 +226,26 @@ First, get the needed roms for the emulator. You need the following roms:
 - and, optional, the 64kB FMPAC.ROM, if you would like to use the FM PAC.
 
 Suppose you have the following files:
-msx2.zip
-msx2ext.zip (rename to nms8250-sub.rom)
-disk.zip (rename to nms8250-disk.rom - this rom
+msx2.zip (rename the extracted file to nms8250_basic-bios2.rom)
+msx2ext.zip (rename extracted file to nms8250-sub.rom)
+disk.zip (rename the extraced file to nms8250-disk.rom - this rom
 image may be patched though, I'm not sure if it works)
 fmpac.zip
 
-The rom in msx2.zip (like MSX2.ROM) contains both the BIOS and the basic. To be
-able to use this with openMSX, we either have to split the roms, or we can
-modify the default config file we are going to use for the test a bit.
-
-The first option: splitting. This requires some extra UNIX commands to get the
-right ROM files for our default config file. The advantage is that we don't need
-to modify the latter. The other option is explained below, but please keep on
-reading.
-
-Here's a way to do the splitting:
-
-dd if=MSX2.ROM of=nms8250-bios.rom ibs=16384 count=1
-dd if=MSX2.ROM of=nms8250-basic.rom ibs=16384 count=1 skip=1
-
-The resulting ROM files should be exactly 16384 bytes in size. If not, they will
-probably cause the emulated MSX to hang. Try to find a better MSX2.ROM.
-
 Now that you have all roms, you can place them into the
-share/machines/Philips_NMS_8250/ directory for
-now. You noticed I let you rename the ROMs. This is because one of the
-configuration files (which configs openMSX to emulate a Philips NMS-8250),
-included in the openMSX distribution, assumes those names for the ROM files. In
-other words: we are going to emulate a Philips NMS 8250.
-
-If you don't want to split a BIOS+BASIC ROM file as is explained above, you can
-also use this combined file. For this, you will need to edit the default
-configuration file we are going to use, though. You will need to change the
-following in share/machines/Philips_NMS_8250/hardwareconfig.xml. Look for the
-line <device id="biosrom"> and the piece of XML just below that, which is
-starting with <device id="basicrom">. Delete these two pieces of XML if you want
-to use a combined ROM (e.g. MSX2.ROM):
-  <device id="MSX BIOS with BASIC ROM">
-    <type>Rom</type>
-    <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
-    <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
-    <parameter name="filename">MSX2.ROM</parameter>
-  </device>
-This will tell openMSX to use the first 16kB of the specified file as BIOS ROM
-in page 0 and the second 16kB as BASIC ROM file in page 1.
-Since we didn't change the other default filenames for the ROMs, copy your
-renamed ROM files (as described at above) and your 32kB BASIC+BIOS file (e.g.
-MSX2.ROM) to the directory share/machines/Philips_NMS_8250/ for now.
+share/machines/Philips_NMS_8250/ directory for now. You noticed I let you
+rename the ROMs. This is because one of the configuration files (which configs
+openMSX to emulate a Philips NMS 8250), included in the openMSX distribution,
+assumes those names for the ROM files. In other words: we are going to emulate
+a Philips NMS 8250.
 
 You can also get the ROMs from your real MSX of course. I'm not going to explain
 how to do that in this HOWTO though.
 
-Later, you may want to emulate a specific MSX. openMSX provides some premade
-configuration files for that, but we can not distribute the ROM files for them.
-You need to dump them from your own machine or find another way to get them.
+Later, you may want to emulate the real 8250 (i.e., using the real ROMs of the
+8250) or another specific MSX. openMSX provides a lot premade configuration
+files for that, but we can not distribute the ROM files for them.  You need to
+dump them from your own machine or find another way to get them.
 
 4. Starting the emulator for the first time
    ----------------------------------------
@@ -311,8 +274,10 @@ how one uses openMSX. We'll make it easier below.
 
 If you want to use real MSX ROMs, go back to step 3.
 
-5. Installing
-   ----------
+5. Installing and setting things up
+   --------------------------------
+
+5.1 Installing
 
 To install openMSX, run the following command:
 
@@ -339,26 +304,30 @@ This just compresses the binary, but keeps it still executable.
 For this you need the gzip package. But probably you have that already.
 See also man gzexe.
 
-The rest of this chapter discusses setting up a ".openMSX" configuration
+5.2 Setting up the .openMSX directory
+
+This section discusses setting up a ".openMSX" configuration
 directory in your home directory. This is not strictly necessary, but it allows
 you to customize the openMSX settings and add new MSX machines and hardware
 extensions to run in openMSX. Manuel Bilderbeek will tell you how he did it.
 
 I created a directory with the name .openMSX in my home dir. There, I created
 the subdirectory share/. This is one of the directories that openMSX looks in,
-to find the (default) settings.xml and romdb.xml (a ROM database to identify
-ROM mapper types). So, .openMSX/ contains settings and other user specific
-openMSX files. It also contains the machine configurations, in the subdirectory
-share/machines/. The name of this subdirectory is important: openMSX searches
-here for those machine configurations. In this share/machines/ directory, all
-machines have their own subdirectory. I created my personal MSX configuration
-(see below) in the directory mymsx/ under /share/machines/.  Note that hardware
-configurations should have the name 'hardwareconfig.xml' in these machine
-directories. Also the ROM files needed for those machines should be put in
-their own directories. In my case, this share/machines/ directory is just a
-symlink to the share/machines directory of the openMSX CVS tree. Of course, for
-the machines to work, they need to have the ROM files specified in the
-hardwareconfig.xml files.
+to find the (default) settings.xml (see 5.3) and romdb.xml (a ROM database to
+identify ROM mapper types). 
+So, .openMSX/ contains settings and other user specific openMSX files. It also
+contains the machine configurations, in the subdirectory share/machines/. The
+name of this subdirectory is important: openMSX searches here for those machine
+configurations. In this share/machines/ directory, all machines have their own
+subdirectory. I created my personal MSX configuration (see below) in the
+directory mymsx/ under /share/machines/.  
+Note that hardware configurations should have the name 'hardwareconfig.xml' in
+these machine directories. Also the ROM files needed for those machines should
+be put in their own directories.
+In my case, this share/machines/ directory is just a symlink to the
+share/machines directory of the openMSX CVS tree. Of course, for the machines
+to work, they need to have the ROM files specified in the hardwareconfig.xml
+files.
 
 In ~/.openMSX also some decorations like ConsoleBackgrounds (in the
 subdirectory share/skins, see below) and other related files should be stored.
@@ -457,45 +426,6 @@ Note that the config syntax is still subject to changes, so XML files from one
 release may not be compatible with those of other releases. If you want to be
 really safe, keep a separate binary + configs per release/CVS date.
 
-Now, if you have done something similar as above, you can finish this by
-creating a small shell script in your ~/bin/ directory, that makes it easier to
-run openMSX. I have one like this, named "openmsx":
-
----------------------BEGIN SHELL SCRIPT---------------------
-#!/bin/bash
-
-BINARY=/home/manuel/cvs/openmsx/openMSX/src/openmsx
-VERSION=`$BINARY -h | head -n 1 | cut -d" " -f 2`
-BINARYDATE=`stat --format=%z $BINARY | cut -d" " -f 1`
-BUILD=$BINARYDATE-i686
-DEFAULT_OPTIONS=
-
-echo "Executing openMSX version 0.2.1 alpha $BUILD"
-
-$BINARY $DEFAULT_OPTIONS "$@"
----------------------END SHELL SCRIPT---------------------
-
-The variable BINARY contains the location of the openmsx binary that I built
-from the CVS tree. You can modify this for your own situation of course. The
-line below gets the file time of that binary, so that the script can show this
-build date. The last line executes the binary, using some default options that
-are defined in DEFAULT_OPTIONS. At the moment, this string is empty. The i686
-means that I used the ./config-i686 way to configure, see section 2.
-
-Note that you don't need this script at all. You can also simply create a
-symlink in a directory where your shell searches for programs to the openMSX
-binary.
-
-As as I said above, I'm using a manually configured MSX machine, that is
-described in ~/.openMSX/share/machines/mymsx/hardwareconfig.xml. So, I
-configured in settings.xml that mymsx is the default machine to emulate. The
-default settings.xml also contains a UserDirectories section. In this section
-you can specify directories in which openMSX should look for to find files that
-you mention on the command line or in the Console (see below). If you have some
-big directory with a lot of disk images, e.g., you can add a line with that
-path to this section, so that you don't have to specify the whole path anymore.
-Use this to make things just a little more comfortable.
-
 If you want to emulate another machine that the one you specified as default
 machine, use the -machine commandline option. Example:
 openmsx -machine mymsx
@@ -505,6 +435,28 @@ will start openMSX with the configuration specified in
 Make sure that starting openMSX by just typing 'openmsx' in your shell works
 now, with your default machine configuration. For now, I'm assuming that you are
 emulating the Philips NMS 8250.
+
+5.3 The settings.xml file
+
+As as I said above, I'm using a manually configured MSX machine, that is
+described in ~/.openMSX/share/machines/mymsx/hardwareconfig.xml. So, I
+configured in settings.xml that mymsx is the default machine to emulate. 
+
+The default settings.xml also contains a UserDirectories section. In this
+section you can specify directories in which openMSX should look for to find
+files that you mention on the command line or in the Console (see below). If
+you have some big directory with a lot of disk images, e.g., you can add a line
+with that path to this section, so that you don't have to specify the whole
+path anymore. 
+Use this to make things just a little more comfortable.  
+
+You can also register more file extensions in the settings.xml file. See the
+"FileTypes" section of the file.
+
+There are more settings you can make using this file. Just look at the file
+after you have a little more experience with openMSX and the comments in it
+will tell you what everything means.
+
 
 This concludes this section.
 
@@ -521,10 +473,11 @@ openmsx galious.rom
 
 and the emulated NMS 8250 (as it still is, now) will run the game. (Of course,
 in this case, the file galious.rom should be in the current directory or in one
-of the UserDirectories you specified in the settings.xml.)
+of the UserDirectories you specified in the settings.xml, see below.)
 
-If things go terribly wrong, openMSX may have failed to detect that the
-specified file was a ROM file. You can then indicate this by typing:
+If things go terribly wrong, openMSX may not have the .rom extension registered
+as a ROM image (it does have that by default, though, but this is just an
+example). You can then indicate this by typing:
 
 openmsx -cart galious.rom
 
@@ -532,7 +485,7 @@ To run a disk image, you can type:
 
 openmsx relax.dsk
 
-for example. Or, if the auto detection of the file fails:
+for example. Or, if you haven't registered the .dsk extension for disk images:
 
 openmsx -diska relax.dsk
 
@@ -543,21 +496,23 @@ A completer command line options help can be seen by typing:
 openmsx -help
 
 The default key mapping is:
-F12	- Quit
-F11	- Mute audio
-F10	- Console (see section 8)
-F9	- Throttle (maximum speed)
-F8	- MSX STOP key
-F7	- MSX SELECT key
-L-ALT	- MSX GRAPH key
-R-CTRL	- MSX CODE key
-Pause	- Pause the emulator
-PrtScr	- Toggle full screen
+F12		- Quit
+F11		- Mute audio
+F10		- Console (see section 8)
+F9		- Throttle (maximum speed)
+F8		- MSX STOP key
+F7		- MSX SELECT key
+L-ALT		- MSX GRAPH key
+R-CTRL		- MSX CODE key
+L-Windows	- MSX iee (`no') key
+R-WIndows	- MSX hai ('yes') key
+Pause		- Pause the emulator
+PrtScr		- Toggle full screen
 
-Some of those, you can tweak in the settings.xml file.
+Some of those, you can change in the settings.xml file.
 
-7. Adding MSX devices to your config file
-   --------------------------------------
+7. Adding MSX devices to your (custom) config file
+   -----------------------------------------------
 
 OK, a standard NMS-8250 is a bit dull. Let's add some devices.
 
@@ -567,6 +522,8 @@ MSX) or you can modify the hardware configuration file (which is analogous to
 open the MSX and build in the device). As it is in the real world, the former is
 the easiest thing and the latter the more complicated thing. So, let's start
 with the former.
+
+7.1 Using extensions
 
 If you have setup an FM PAC hardwareconfig.xml file in
 ~/.openMSX/share/extensions/fmpac e.g., you can use `-ext fmpac' to use an
@@ -578,6 +535,8 @@ share/extensions directory, you will find more extensions. E.g. using `-ext
 mbstereo' gives you the Moonblaster stereo effect: FM PAC on one channel and MSX
 Audio on the other. Try them out, if you like.
 
+7.2 Modifying the internals of the MSX
+
 Now, let's talk about modifying the internals of your emulated MSX... This is a
 bit more advanced, you may skip the rest of this section and read it later, it
 won't spoil the fun.
@@ -585,7 +544,7 @@ won't spoil the fun.
 You can modify an MSX machine (e.g. to add devices) by editing the XML config
 file. So, let's make a copy of machines/Philips_NMS_8250/hardwareconfig.xml and
 put it in ~/.openMSX/share/machines/mymsx/ under the name of hardwareconfig.xml.
-It's the config we are going to play with.
+It's the config we are going to play with; our custom MSX.
 
 There is a special config file in the source tree that isn't usable by itself,
 but contains XML fragments of some possible devices currently implemented in
@@ -644,7 +603,7 @@ If you understand the basics of XML, you should be able to compose most of your 
 8. Using the emulator (more advanced)
    ----------------------------------
 
-Renderers
+8.1 Renderers
 
 At the moment, there are three working renderers. A renderer is a part of the
 emulator that generates the graphical part of the emulation: the MSX 'screen'.
@@ -661,12 +620,12 @@ done by the graphics hardware, the CPU load can vary a lot. Also, you need to
 have the GLX module loaded in your X server and also accelerated graphics (DRI).
 You can verify this by typing 'glxinfo' on the command line. Direct rendering
 should be enabled to benefit from this renderer. GL also makes some effects
-easier: when using the SDLGL renderer, there is a blur setting and a scanline
-setting (see Console), to imitate a TV screen. This does not work properly with
-all graphics cards, though. It should work with NVidia cards, at least. Note
-that the GL renderer is only available when the openGL development files (gl.h
-is one of them) were installed on the computer at compile time. This will be
-checked by the configure script.
+easier: when using the SDLGL renderer, there is a blur, glow (afterglow!) and
+scanline setting (see Console), to imitate a TV screen. This does not work
+properly with all graphics cards, though. It should work with NVidia cards, at
+least. Note that the GL renderer is only available when the openGL development
+files (gl.h is one of them) were installed on the computer at compile time.
+This will be checked by the configure script.
 
 The third working renderer is called SDLLo. This renderer uses a window of only
 320 by 200 pixels, which means that part of the MSX screen will be omitted. An
@@ -678,7 +637,7 @@ id="renderer">.  You can also specify there whether the emulator should switch
 to full screen when started. You can also switch renderer from the Console (see
 below).
 
-Console
+8.2 Console
 
 When the emulator is running, you can get the "Console" by pressing F10 when
 the focus is on the emulator window. This will give you a command line in the
@@ -688,23 +647,27 @@ change disk images, plug in joysticks or mice, make settings and to define
 key bindings. You can specify a background image and the font in the config
 file (<config id="Console">). The png files need an alpha channel (transparency
 information) though.
+
 An interesting console command is 'set'. You can use it to change the various
 settings. E.g., you can use it to set the renderer that is to be used. And the
-blur and scanline setting of the GL renderer can be tweaked with it. Settings
-that have only two possible values can also be toggled with the toggle command
-(an example is the default key binding of Print Screen to 'toggle fullscreen',
-see also below). A complete list of settings should be in the file commands.txt
-in the doc directory.
+blur, glow and scanline setting of the GL renderer can be tweaked with it.
+Settings that have only two possible values can also be toggled with the toggle
+command (an example is the default key binding of Print Screen to 'toggle
+fullscreen', see also below). A complete list of settings should be in the file
+commands.txt in the doc directory.
 
-Renderer accuracy
+8.3 Renderer accuracy
 
 Another example of the settings that you can specify in the Console is the
-accuracy of the rendering. There are currently only two options: `line' and
-`pixel'. The latter is still very unoptimised (and thus slow), but it will
-enable you to run the Unknown Reality real time oscilloscope almost flawlessly!
-Just type "set accuracy pixel" in the console.
+accuracy of the rendering. There are three options: `screen', `line' and
+`pixel'. The latter is the slowest, but most accurate setting (it also shows
+that the timing in openMSX is not perfect yet): it will enable you to run the
+Unknown Reality real time oscilloscope almost flawlessly!  Just type "set
+accuracy pixel" in the console. You can use the default `line' accuracy for
+almost every other piece of software. `screen' is the fastest, but least
+accurate setting. This will break a lot of software that uses raster effects.
 
-AutoCommands and KeyEventInserter
+8.4 AutoCommands and KeyEventInserter
 
 In the config file section AutoCommands, you can specify some console commands
 that should be executed automatically. See the settings.xml or
@@ -716,39 +679,47 @@ correctly with my Radeon drivers.  The KeyEventInserter section can be used to
 have something typed into the MSX after it booted. Again, see the
 exampleconfigs.xml file. Examine this file to learn what you can configure more.
 
-Running tape games
+8.5 Running tape games
 
 openMSX supports WAV files for tape emulation! Just configure your MSX with a
-cassette port:
+cassette port (or use a premade MSX that already has it):
      <config id="CassettePort">
      </config>
 Then type in the console:
      plug cassetteport cassetteplayer
-     tape <file>.wav
+     cassetteplayer <file>.wav
 And then in MSX Basic, type:
      run"cas:"
 (or another command to load the program on 'tape'.)
 You can also use the so-called CAS files. In the Console, type:
-     tape <tapeimage>
+     cas <tapeimage>
 and
-     tape eject
-to remove the tape from the virtual cassette player.
+     cas eject
+to remove the tape from the virtual cassette player. This only works with a
+patched BIOS ROM, though. You can find an example of the patch in
+exampleconfigs.xml.
 
-Other Console commands
+8.6 Other Console commands
 
 You can reset your MSX with the Console command `reset'.
+
 If the MSX goes too fast or too slow, adjust the emulation speed with the
 `speed' setting, which has the speed percentage as parameter. So, typing `set
 speed 120', will let the emulated MSX run at 120% of normal MSX speed.
+
 To connect a mouse, you can also use the `plug' command:
     plug joyporta mouse
 will connect a mouse to joystick port A.
+
 If you want openMSX to emulate the blinking interlace effect as can be seen on a
 real MSX, try "deinterlace off"... I recommend to turn it on though, the
-blinking is quite irregular on most systems and thus a pain for the eyes.
+blinking is quite irregular on most systems and thus a pain for the eyes
+(unless you combine it with the `glow' setting in SDLGL).
+
 You can also change disks at run time of course. Just type
     diska <diskimage>
 in the Console to put the specified disk image in drive A.
+
 Again, the full list of Console commands can be found in doc/commands.txt and
 when typing `help' in the Console itself. You can also type `help <command>' to
 get some help about a specific Console command.
@@ -762,15 +733,18 @@ welcome!
 
 If you encounter problems, you have several options:
 
-1) go to our IRC channel: #openMSX on irc.freenode.net and ask
-2) send an e-mail to the openMSX developer's mailing list:
+1) if you're a regular user and want to discuss openMSX and possible problems,
+   join our mailinglist openmsx-user@lists.sourceforge.net, see openmsx.sf.net
+   -> Project Summary -> Lists 
+2) go to our IRC channel: #openMSX on irc.freenode.net and ask
+3) send an e-mail to the openMSX developer's mailing list:
    openmsx-devel@lists.sourceforge.net. See the project page on SourceForge.
-3) go visit the SourceForge page of openMSX:
+4) go visit the SourceForge page of openMSX:
    http://sourceforge.net/projects/openmsx/ 
    Then click on "Tracker". This will show you four trackers (at the moment).
    Use the bug tracker to look for bugs and post new ones. You can use the
-   Support Request tracker to submit support requests. Feature requests can also
-   be submitted in the Feature Requests tracker.
+   Support Request tracker to submit support requests. Feature requests can be
+   submitted in the Feature Requests tracker.
 
 For experienced users: if you get a crash, try to provide a gdb backtrace
 (don't use strip on the openMSX executable then!).
@@ -781,25 +755,64 @@ bug or request.
 10. Some notes
     ----------
 
-Note: the current official openMSX was only tested on Linux.
-If you have some C++ knowledge, please try and compile it on other systems.
-Recently, a Windows port was created by Reikan. It is not mainstream yet, but
-we hope it will be, soon. On the openMSX web site you can find a link to this
-port.
-If you try to port openMSX to another OS, you will probably encounter some
-problem; please report them to the openMSX developers so they can fix them.
+10.1 Porting
 
-Note: as already mentioned, there is an alternative for the copyrighted MSX
-ROMs: you can also use the C-BIOS, a home made MSX compatible BIOS, by BouKiChi.
-There are config files for it in the share/machines directory. With this BIOS
-you can only run an increasing number of ROM files. The files needed for the
-C-BIOS itself are in the Contrib/cbios directory. However, you can also just use
-the machine "cbios-msx1" or "cbios-msx2" to use C-BIOS.
+The normal openMSX release is only tested on Linux.
+Reikan maintains a Win32 port, which follows openMSX CVS closely, but is not
+the same. You can find it at http://www.ranpub.com/openMSX4Win32/. Of course
+that release is also tested and should work quite similarly to the Linux
+release.
+Running on BSD, Mac OS X, BeOS etc (wherever SDL runs) should be possible,
+but will probably not work out-of-the-box. If you are compiling on such a
+platform, please share your experiences (see below for contact info),
+so we can make openMSX more portable.
 
-Note: to use a real disk, just specify "/dev/fd0" as a disk image. This is of
+10.2 C-BIOS
+
+As already mentioned, there is an alternative for the copyrighted MSX ROMs: you
+can also use the C-BIOS, a home made MSX compatible BIOS, by BouKiChi.  There
+are config files for it in the share/machines directory. With this BIOS you can
+only run an increasing number of ROM files. The files needed for the C-BIOS
+itself are in the Contrib/cbios directory. However, you can also just use the
+machine "cbios-msx1" or "cbios-msx2" to use C-BIOS.
+
+10.3 Real disks (Linux)
+
+To use a real disk, just specify "/dev/fd0" as a disk image. This is of
 course a Linux (Unix, actually) specific feature, but for now it is usable. It
 may be a bit slow though, with the FDC emulation enabled. It should be just as
 slow as a real disk drive, however!
+
+10.4 Performance
+
+CPU and graphics performance varies a lot, depending on the openMSX settings
+and the MSX hardware and software you're emulating.
+Some things run fine on a 200MHz machine, others are slow on a 2GHz machine.
+Some performance tips:
+* Make sure there are no CPU consuming background processes running.
+* Generally, MSX1 emulation is fastest and turbo R emulation is slowest.
+* SDLGL renderer needs hardware acceleration to run at a decent speed.
+  Disabling scanlines and blur (set to 0) helps on older graphics cards.
+  Our experience is that performance is better if you use SDLGL in stead of
+  SDLHi, on systems with a very fast and complete openGL implementation (like
+  nVidia card/drivers, e.g.)
+* Use 16-bit colour mode instead of 32-bit (platform setting is used).
+* Use line accuracy (default) instead of pixel accuracy.
+* Turn on frame skip ("set frameskip auto") in the console.
+* Use low-res SDLLo renderer (75% less pixels to fill).
+
+10.5 Timing using the Real Time Clock (Linux)
+
+If you find the openMSX timing bad (i.e. too irregular), you may want to enable
+RealTimeClock (RTC) based timing. Most systems don't let you use this though.
+You will have to have read permission to /dev/rtc on your system (which maybe a
+symlink to /dev/misc/rtc or something else). After arranging this, you will
+also need to type the following as root:
+ echo 1024 > /proc/sys/dev/rtc/max-user-freq
+or add it to your system startup scripts.
+
+openMSX will try to use RTC timing by default, but if that fails, it prints a
+warning and falls back to less accurate SDL timing.
 
 11. Have fun!
     ---------
