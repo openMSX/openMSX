@@ -6,19 +6,23 @@ h1 {
 	border-bottom: 2px groove #60C090;
 }
 h2 {
-	background-color: #A0FFC0;
+	background-color: #90FFC0;
 	padding-left: 4pt;
 }
 h3 {
-	background-color: #D0FFE0;
+	background-color: #C8FFE0;
+	padding-left: 4pt;
+}
+h4 {
+	background-color: #E8FFF0;
 	padding-left: 4pt;
 }
 a.internal, a.external:visited {
-	color: #206020;
+	color: #184830;
 }
 a.external:link {
-	color: #20B040;
+	color: #30A860;
 }
 a.external:active {
-	color: #40FF80;
+	color: #40F080;
 }
