@@ -15,6 +15,9 @@ namespace openmsx {
 class AfterCommand : public Command, private EventListener
 {
 public:
+	class AfterCmd;
+	typedef map<string, AfterCmd*> AfterCmdMap;
+
 	AfterCommand();
 	virtual ~AfterCommand();
 	
@@ -26,32 +29,65 @@ public:
 		throw();
 
 private:
-	enum AfterType { TIME, IDLE };
-	
 	string afterTime(const vector<string>& tokens);
 	string afterIdle(const vector<string>& tokens);
+	string afterFrame(const vector<string>& tokens);
 	string afterInfo(const vector<string>& tokens);
 	string afterCancel(const vector<string>& tokens);
-	string afterNew(const vector<string>& tokens, AfterType type);
 
 	// EventListener
 	virtual bool signalEvent(const Event& event) throw();
+
 	
-	struct AfterCmd : public Schedulable {
-		AfterCmd(AfterCommand& parent);
+	class AfterCmd {
+	public:
 		virtual ~AfterCmd();
-		unsigned id;
-		AfterType type;
-		float time;
+		const string& getCommand() const;
+		const string& getId() const;
+		virtual const string& getType() const = 0;
+		void execute() throw();
+	protected:
+		AfterCmd(const string& command);
+	private:
 		string command;
+		string id;
+		static unsigned lastAfterId;
+	};
+
+	class AfterTimedCmd : public AfterCmd, private Schedulable {
+	public:
+		virtual ~AfterTimedCmd();
+		float getTime() const;
+		void reschedule();
+	protected:
+		AfterTimedCmd(const string& command, float time);
 	private:
 		virtual void executeUntil(const EmuTime& time, int userData)
 			throw();
 		virtual const string& schedName() const;
-		AfterCommand& parent;
+		
+		float time;
 	};
-	map<unsigned, AfterCmd*> afterCmds;
-	unsigned lastAfterId;
+
+	class AfterFrameCmd : public AfterCmd {
+	public:
+		AfterFrameCmd(const string& command);
+		virtual const string& getType() const;
+	};
+
+	class AfterTimeCmd : public AfterTimedCmd {
+	public:
+		AfterTimeCmd(const string& command, float time);
+		virtual const string& getType() const;
+	};
+	
+	class AfterIdleCmd : public AfterTimedCmd {
+	public:
+		AfterIdleCmd(const string& command, float time);
+		virtual const string& getType() const;
+	};
+	
+	static AfterCmdMap afterCmds;
 };
 
 } // namespace openmsx

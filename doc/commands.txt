@@ -14,6 +14,7 @@ after
   usage:
     after time <seconds> <command>  execute a command after some time
     after idle <seconds> <command>  execute a command after some time being idle
+    after frame <command>           execute a command after a new frame is drawn
     after info                      list all postponed commands
     after cancel <id>               cancel the postponed command with given id
 

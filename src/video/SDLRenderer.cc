@@ -15,6 +15,7 @@ TODO:
 #include "SDLConsole.hh"
 #include "Scaler.hh"
 #include "ScreenShotSaver.hh"
+#include "EventDistributor.hh"
 #include "util.hh"
 #include <algorithm>
 #include <cmath>
@@ -79,7 +80,7 @@ throw()
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::finishFrame()
 {
-	// Nothing to do.
+	EventDistributor::instance().distributeEvent(finishFrameEvent);
 }
 
 // random routine, less random than libc rand(), but a lot faster

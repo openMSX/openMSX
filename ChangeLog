@@ -1,5 +1,10 @@
 $Id$
 
+2004-02-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented "after frame" command:
+	   - now it's possible to write a multi_screenshot TCL script (i've
+	     already made such a script)
+
 2004-02-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Made CommandConsole SDL independent
 

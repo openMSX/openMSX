@@ -16,6 +16,7 @@ enum EventType
 	JOY_BUTTON_UP_EVENT,
 	JOY_BUTTON_DOWN_EVENT,
 	QUIT_EVENT,
+	FINISH_FRAME_EVENT,
 };
 
 class Event

@@ -25,6 +25,7 @@ TODO:
 #include "GLConsole.hh"
 #include "ScreenShotSaver.hh"
 #include "util.hh"
+#include "EventDistributor.hh"
 #include <cmath>
 #include <cassert>
 
@@ -208,6 +209,8 @@ void SDLGLRenderer::finishFrame()
 	prevStored = true;
 
 	drawRest();
+
+	EventDistributor::instance().distributeEvent(finishFrameEvent);
 }
 
 void SDLGLRenderer::drawRest()

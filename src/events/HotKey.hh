@@ -33,7 +33,7 @@ public:
 	virtual ~HotKey();
 
 	/**
-	 * This is just an extra filter for SDL_KEYDOWN events, now
+	 * This is just an extra filter for KEY_DOWN events, now
 	 * events are only passed for specific keys.
 	 * See EventDistributor::registerListener for more details
 	 */
