@@ -8,7 +8,7 @@
 //TODO  1Hz 16Hz output not implemented (not connected on MSX)
 
 
-RP5C01::RP5C01()
+RP5C01::RP5C01() : reference(FREQ)	// runs at 16384Hz
 {
 	//TODO load saved state
 	
@@ -30,12 +30,13 @@ RP5C01::~RP5C01()
 
 void RP5C01::reset()
 {
-	writePort(MODE_REG, MODE_TIMERENABLE);
-	writePort(TEST_REG,  0);
-	writePort(RESET_REG, 0);
+	reference(0);
+	writePort(MODE_REG, MODE_TIMERENABLE, reference);
+	writePort(TEST_REG,  0, reference);
+	writePort(RESET_REG, 0, reference);
 }
 
-nibble RP5C01::readPort(nibble port)
+nibble RP5C01::readPort(nibble port, const Emutime &time)
 {
 	assert (port<=0x0f);
 	switch (port) {
@@ -48,22 +49,22 @@ nibble RP5C01::readPort(nibble port)
 	default:
 		int block = modeReg & MODE_BLOKSELECT;
 		if (block==TIME_BLOCK)
-			updateTimeRegs();
+			updateTimeRegs(time);
 		nibble tmp = reg[block][port];
 		return tmp & mask[block][port];
 	}
 }
 
-void RP5C01::writePort(nibble port, nibble value)
+void RP5C01::writePort(nibble port, nibble value, const Emutime &time)
 {
 	assert (port<=0x0f);
 	switch (port) {
 	case MODE_REG:
-		updateTimeRegs();
+		updateTimeRegs(time);
 		modeReg = value;
 		break;
 	case TEST_REG:
-		updateTimeRegs();
+		updateTimeRegs(time);
 		testReg = value;
 		break;
 	case RESET_REG:
@@ -76,7 +77,7 @@ void RP5C01::writePort(nibble port, nibble value)
 	default:
 		int block = modeReg & MODE_BLOKSELECT;
 		if (block==TIME_BLOCK)
-			updateTimeRegs();
+			updateTimeRegs(time);
 		reg[block][port] = value & mask[block][port];
 		if (block==TIME_BLOCK)
 			regs2Time();
@@ -96,6 +97,7 @@ void RP5C01::initializeTime()
 {
 	time_t t = time(NULL);
 	struct tm *tm = localtime(&t);
+	fraction = 0;			// fractions of a second
 	seconds  = tm->tm_sec;		// 0-59
 	minutes  = tm->tm_min;		// 0-59
 	hours    = tm->tm_hour;		// 0-23
@@ -105,9 +107,6 @@ void RP5C01::initializeTime()
 	years    = tm->tm_year - 80;	// 0-99  0=1980
 	leapYear = tm->tm_year % 4;	// 0-3   0=leap year
 	time2Regs();
-
-	reference = SDL_GetTicks();
-	fraction = 0;	// fractions of a second
 }
 
 void RP5C01::regs2Time()
@@ -151,22 +150,19 @@ void RP5C01::time2Regs()
 	reg[ALARM_BLOCK][11] =  leapYear;
 }
 
-void RP5C01::updateTimeRegs()
+void RP5C01::updateTimeRegs(const Emutime &time)
 {
-	// elapsed is in ms, on the real hardware it is in (1/16384)s
-	Uint32 now = SDL_GetTicks();	// current time in microseconds
-	Uint32 elapsed = (modeReg & MODE_TIMERENABLE) ? (now - reference) : 0;
-	reference = now;
+	uint64 elapsed = (modeReg & MODE_TIMERENABLE) ? (reference.getTicksTill(time)) : 0;
+	reference = time;
 
 	// in test mode increase sec/min/.. at a rate of 16384Hz
-	//  rounding errors!!
-	int testSeconds = (testReg & TEST_SECONDS) ? (int)(elapsed*16.384) : 0;
-	int testMinutes = (testReg & TEST_MINUTES) ? (int)(elapsed*16.384) : 0;
-	int testHours   = (testReg & TEST_HOURS  ) ? (int)(elapsed*16.384) : 0;
-	int testDays    = (testReg & TEST_DAYS   ) ? (int)(elapsed*16.384) : 0;
+	uint64 testSeconds = (testReg & TEST_SECONDS) ? elapsed : 0;
+	uint64 testMinutes = (testReg & TEST_MINUTES) ? elapsed : 0;
+	uint64 testHours   = (testReg & TEST_HOURS  ) ? elapsed : 0;
+	uint64 testDays    = (testReg & TEST_DAYS   ) ? elapsed : 0;
 	
 	fraction += elapsed;
-	seconds  += fraction/1000 + testSeconds; fraction %= 1000;	// elapsed is in ms
+	seconds  += fraction/FREQ + testSeconds; fraction %= FREQ;
 	minutes  += seconds/60    + testMinutes; seconds  %= 60;
 	hours    += minutes/60    + testHours;   minutes  %= 60;
 	int carryDays = hours/24  + testDays; 

@@ -22,7 +22,7 @@ class Joystick : public JoystickDevice, EventListener
 		void signalEvent(SDL_Event &event);
 
 	private:
-		static const int JOY_UP      = 0x01; //TODO these values are probably wrong
+		static const int JOY_UP      = 0x01;
 		static const int JOY_DOWN    = 0x02;
 		static const int JOY_LEFT    = 0x04;
 		static const int JOY_RIGHT   = 0x08;
