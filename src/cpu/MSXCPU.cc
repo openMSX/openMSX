@@ -77,17 +77,12 @@ void MSXCPU::executeUntilTarget(const EmuTime &time)
 	activeCPU->executeUntilTarget(time);
 }
 
-
 void MSXCPU::setTargetTime(const EmuTime &time)
 {
 	activeCPU->setTargetTime(time);
 }
-const EmuTime &MSXCPU::getTargetTime()
-{
-	return activeCPU->getTargetTime();
-}
 
-const EmuTime &MSXCPU::getCurrentTime()
+const EmuTime &MSXCPU::getCurrentTime() const
 {
 	return activeCPU->getCurrentTime();
 }

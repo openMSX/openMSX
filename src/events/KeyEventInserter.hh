@@ -13,7 +13,7 @@ class KeyEventInserterCLI : public CLIOption
 	public:
 		KeyEventInserterCLI();
 		virtual void parseOption(const std::string &option,
-				std::list<std::string> &cmdLine);
+		                         std::list<std::string> &cmdLine);
 		virtual const std::string& optionHelp();
 };
 

@@ -76,11 +76,6 @@ class CPU
 		void setTargetTime(const EmuTime &time);
 
 		/**
-		 * Returns the previously set target time
-		 */
-		const EmuTime &getTargetTime() const;
-
-		/**
 		 * Read a byte from memory. If possible the byte is read from
 		 * cache, otherwise the readMem() method of CPUInterface is used.
 		 */

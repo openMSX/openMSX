@@ -35,10 +35,6 @@ void CPU::setTargetTime(const EmuTime &time)
 {
 	targetTime = time;
 }
-const EmuTime &CPU::getTargetTime() const
-{
-	return targetTime;
-}
 
 void CPU::invalidateCache(word start, int num)
 {

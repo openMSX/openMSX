@@ -29,7 +29,7 @@ class MSXCPU : public MSXDevice
 	
 		virtual void reset(const EmuTime &time);
 		
-		const EmuTime &getCurrentTime();
+		const EmuTime &getCurrentTime() const;
 		void setActiveCPU(CPUType cpu);
 		
 		/**
@@ -66,7 +66,6 @@ class MSXCPU : public MSXDevice
 		// only for Scheduler
 		void executeUntilTarget(const EmuTime &time);
 		void setTargetTime(const EmuTime &time);
-		const EmuTime &getTargetTime();
 		friend class Scheduler;
 
 		static MSXCPU *oneInstance;
