@@ -58,8 +58,17 @@ public:
 	void updateVRAM(int addr, byte data, const EmuTime &time);
 
 private:
+	/** Render a rectangle on the host screen.
+	  * The units are absolute lines (Y) and VDP clockticks (X),
+	  * which span a screen larger than the area on which pixels are shown.
+	  * @param fromX X coordinate of render start (inclusive).
+	  * @param fromY Y coordinate of render start (inclusive).
+	  * @param limitX X coordinate of render end (exclusive).
+	  * @param limitY Y coordinate of render end (exclusive).
+	  */
 	typedef void (SDLLoRenderer::*PhaseHandler)
 		(int fromX, int fromY, int limitX, int limitY);
+
 	typedef void (SDLLoRenderer::*DirtyChecker)
 		(int addr, byte data);
 
@@ -107,23 +116,13 @@ private:
 
 	/** Render in background colour.
 	  * Used for borders and during blanking.
-	  * Coordinates are in absolute lines (Y) and VDP clockticks (X),
-	  * which span a screen larger than the area on which pixels are shown.
-	  * @param fromX X coordinate of render start (inclusive).
-	  * @param fromY Y coordinate of render start (inclusive).
-	  * @param limitX X coordinate of render end (exclusive).
-	  * @param limitY Y coordinate of render end (exclusive).
+	  * Conforms to the PhaseHandler interface.
 	  */
 	void blankPhase(int fromX, int fromY, int limitX, int limitY);
 
 	/** Render pixels according to VRAM.
 	  * Used for the display part of scanning.
-	  * Coordinates are in absolute lines (Y) and VDP clockticks (X),
-	  * which span a screen larger than the area on which pixels are shown.
-	  * @param fromX X coordinate of render start (inclusive).
-	  * @param fromY Y coordinate of render start (inclusive).
-	  * @param limitX X coordinate of render end (exclusive).
-	  * @param limitY Y coordinate of render end (exclusive).
+	  * Conforms to the PhaseHandler interface.
 	  */
 	void displayPhase(int fromX, int fromY, int limitX, int limitY);
 
