@@ -3,18 +3,19 @@
 #ifndef __SDLGLRENDERER_HH__
 #define __SDLGLRENDERER_HH__
 
+// Only compile on systems that have OpenGL headers.
 #include "config.h"
+#if (defined(HAVE_GL_GL_H) || defined(HAVE_GL_H))
+#define __SDLGLRENDERER_AVAILABLE__
 
 #include "openmsx.hh"
 #include "Renderer.hh"
 #include <SDL/SDL.h>
 
 #ifdef HAVE_GL_GL_H
- #include <GL/gl.h>
-#else
- #ifdef HAVE_GL_H
-  #include <gl.h>
- #endif
+#include <GL/gl.h>
+#else // HAVE_GL_H
+#include <gl.h>
 #endif
 
 class VDP;
@@ -256,5 +257,6 @@ private:
 
 };
 
-#endif //__SDLGLRENDERER_HH__
+#endif // OpenGL header check.
+#endif // __SDLGLRENDERER_HH__
 

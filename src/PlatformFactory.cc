@@ -25,9 +25,11 @@ Renderer *PlatformFactory::createRenderer(VDP *vdp, const EmuTime &time)
 	else*/ if (renderType == "SDLHi") {
 		renderer = createSDLHiRenderer(vdp, fullScreen, time);
 	}
+#ifdef __SDLGLRENDERER_AVAILABLE__
 	else if (renderType == "SDLGL") {
 		renderer = createSDLGLRenderer(vdp, fullScreen, time);
 	}
+#endif
 	else {
 		PRT_ERROR("Unknown renderer \"" << renderType << "\"");
 		return 0; // unreachable

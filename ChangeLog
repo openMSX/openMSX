@@ -3,6 +3,8 @@ $Id$
 2002-03-16 Maarten ter Huurne <mth@stack.nl>
 	* Implemented blanking in SDLGLRenderer.
 	* Implemented side borders in SDLGLRenderer.
+	* Implemented sprites in SDLGLRenderer.
+	* Only compile SDLGLRenderer if OpenGL was detected.
 
 2002-03-15 Maarten ter Huurne <mth@stack.nl>
 	* Improved line rounding in renderer sync.

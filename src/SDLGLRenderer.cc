@@ -55,6 +55,8 @@ TODO:
 */
 
 #include "SDLGLRenderer.hh"
+#ifdef __SDLGLRENDERER_AVAILABLE__
+
 #include "VDP.hh"
 #include "RealTime.hh"
 //#include "ConsoleSource/SDLConsole.hh"
@@ -417,20 +419,6 @@ void SDLGLRenderer::updatePalette(
 		// Transparent pixels have background colour.
 		palFg[0] = palBg[vdp->getBackgroundColour()];
 	}
-
-	// Create pixel map of palette.
-	GLuint components[4][16];
-	for (int i = 0; i < 16; i++) {
-		Pixel pixel = palFg[i];
-		for (int j = 0; j < 4; j++) {
-			components[j][i] = pixel & 0xFF000000;
-			pixel <<= 8;
-		}
-	}
-	glPixelMapuiv(GL_PIXEL_MAP_I_TO_R, 16, components[3]);
-	glPixelMapuiv(GL_PIXEL_MAP_I_TO_G, 16, components[2]);
-	glPixelMapuiv(GL_PIXEL_MAP_I_TO_B, 16, components[1]);
-	glPixelMapuiv(GL_PIXEL_MAP_I_TO_A, 16, components[0]);
 
 	// Any line containing pixels of this colour must be repainted.
 	// We don't know which lines contain which colours,
@@ -924,10 +912,8 @@ void SDLGLRenderer::drawSprites(
 	// Lines without any sprites are very common in most programs.
 	if (visibleIndex == 0) return;
 
-	// TODO: Calculate pointers incrementally outside this method.
-	Pixel *pixelPtr0 = (Pixel *)( (byte *)screen->pixels
-		+ screenLine * screen->pitch + getLeftBorder() * sizeof(Pixel));
-	Pixel *pixelPtr1 = (Pixel *)(((byte *)pixelPtr0) + screen->pitch);
+	int leftBorder = getLeftBorder();
+	glPixelZoom(2.0, 2.0);
 
 	if (vdp->getDisplayMode() < 8) {
 		// Sprite mode 1: render directly to screen using overdraw.
@@ -950,22 +936,23 @@ void SDLGLRenderer::drawSprites(
 				pattern &= -1 << (32 - (256 - x));
 			}
 			// Convert pattern to pixels.
-			Pixel *p0 = &pixelPtr0[x * 2];
-			Pixel *p1 = &pixelPtr1[x * 2];
+			Pixel buffer[32];
+			Pixel *p = buffer;
 			while (pattern) {
 				// Draw pixel if sprite has a dot.
-				if (pattern & 0x80000000) {
-					p0[0] = p0[1] = p1[0] = p1[1] = colour;
-				}
+				*p++ = pattern & 0x80000000 ? colour : 0;
 				// Advancing behaviour.
 				pattern <<= 1;
-				p0 += 2;
-				p1 += 2;
 			}
+			int n = p - buffer;
+			if (n) GLBlitLine(buffer, n, leftBorder + x * 2, screenLine);
 		}
 	} else {
 		// Sprite mode 2: single pass left-to-right render.
 
+		// Buffer to render sprite pixel to; start with all transparent.
+		Pixel buffer[256];
+		memset(buffer, 0, sizeof(buffer));
 		// Determine width of sprites.
 		VDP::SpritePattern combined = 0;
 		for (int i = 0; i < visibleIndex; i++) {
@@ -1014,12 +1001,10 @@ void SDLGLRenderer::drawSprites(
 			}
 			// Plot it.
 			if (colour != 0xFF) {
-				int i = pixelDone * 2;
-				pixelPtr0[i] = pixelPtr0[i + 1] =
-				pixelPtr1[i] = pixelPtr1[i + 1] =
-					palSprites[colour];
+				buffer[pixelDone] = palSprites[colour];
 			}
 		}
+		GLBlitLine(buffer, 256, leftBorder, screenLine);
 	}
 }
 
@@ -1055,6 +1040,9 @@ void SDLGLRenderer::displayPhase(
 		limit = lineRenderTop + HEIGHT / 2;
 	}
 	if (nextLine >= limit) return;
+
+	// No blending.
+	glDisable(GL_BLEND);
 
 	// Perform vertical scroll.
 	int scrolledLine =
@@ -1153,12 +1141,13 @@ void SDLGLRenderer::displayPhase(
 	}
 	*/
 
-	/*
 	// Render sprites.
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GEQUAL, 0.5f);
 	for (int line = nextLine; line < limit; line++) {
-		//drawSprites(line);
+		drawSprites(line);
 	}
-	*/
+	glDisable(GL_ALPHA_TEST);
 
 	// Borders are drawn after the display area:
 	// V9958 can extend the left border over the display area,
@@ -1260,3 +1249,4 @@ Renderer *createSDLGLRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)
 	return new SDLGLRenderer(vdp, screen, fullScreen, time);
 }
 
+#endif // __SDLGLRENDERER_AVAILABLE__
