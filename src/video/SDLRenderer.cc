@@ -294,6 +294,7 @@ template <class Pixel, Renderer::Zoom zoom>
 SDLRenderer<Pixel, zoom>::~SDLRenderer()
 {
 	delete console;
+	delete debugger;
 	SDL_FreeSurface(charDisplayCache);
 	SDL_FreeSurface(bitmapDisplayCache);
 }

@@ -18,7 +18,6 @@ class DebugInterface
 		virtual dword getDataSize ()=0;
 		virtual byte readDebugData (dword address)=0;
 		virtual std::string getDeviceName ()=0;
-		virtual bool getRegisters (std::map < std::string, word> & regMap)=0; //obsolete
 		void registerDevice ();
 };
 

@@ -1,5 +1,6 @@
 // $Id$
 
+#include <algorithm>
 #include "OSDConsoleRenderer.hh"
 #include "MSXConfig.hh"
 #include "CommandConsole.hh"
@@ -57,11 +58,17 @@ bool FontSetting::checkFile(const string &filename)
 OSDConsoleRenderer::OSDConsoleRenderer(Console * console_)
 {
 	console = console_;
-	static bool initiated = false;
+	bool initiated = true;
+	static set<string> initsDone;
+	string tempconfig = console->getId();
+	tempconfig[0] = ::toupper (tempconfig[0]);
 	try {
-		Config *config = MSXConfig::instance()->getConfigById("Console");
+		Config *config = MSXConfig::instance()->getConfigById(tempconfig);
 		context = config->getContext();
-
+		if (initsDone.find(tempconfig)==initsDone.end()){
+			initsDone.insert(tempconfig);
+			initiated = false;
+		}
 		try {
 			if (!initiated && config->hasParameter("font")) {
 				fontName = config->getParameter("font");
@@ -76,13 +83,12 @@ OSDConsoleRenderer::OSDConsoleRenderer(Console * console_)
 			}
 		} catch (FileException &e) {}
 
-		initiated = true;
-		font = new DummyFont();
 	} catch (MSXException &e) {
 		// no Console section
 		context = new SystemFileContext();	// TODO memory leak
 	}
-
+	initiated = true;
+	font = new DummyFont();
 	if (!fontName.empty()) {
 		console->registerConsole(this);
 	}
@@ -119,8 +125,8 @@ void OSDConsoleRenderer::setFontName(const string &name)
 
 void OSDConsoleRenderer::initConsoleSize()
 {
-	static bool placementInitDone = false;
-
+	static set<string> initsDone;
+	
 	// define all possible positions
 	map<string, Placement> placeMap;
 	placeMap["topleft"]     = CP_TOPLEFT;
@@ -133,12 +139,12 @@ void OSDConsoleRenderer::initConsoleSize()
 	placeMap["bottom"]      = CP_BOTTOM;
 	placeMap["bottomright"] = CP_BOTTOMRIGHT;
 
-	Config *config = MSXConfig::instance()->getConfigById("Console");
-
-	if (!placementInitDone) {
-		// first time here ?
-		placementInitDone = true;
-
+	string tempconfig = console->getId();
+	tempconfig[0]=::toupper(tempconfig[0]);
+	Config *config = MSXConfig::instance()->getConfigById(tempconfig);
+	// check if this console is allready initiated
+	if (initsDone.find(tempconfig)==initsDone.end()){
+		initsDone.insert(tempconfig);
 		SDL_Surface *screen = SDL_GetVideoSurface();
 		wantedColumns = config->hasParameter("columns") ?
 		                config->getParameterAsInt("columns") :
@@ -146,7 +152,6 @@ void OSDConsoleRenderer::initConsoleSize()
 		wantedRows = config->hasParameter("rows") ?
 		             config->getParameterAsInt("rows") :
 		             ((screen->h / font->getHeight()) * 6) / 15;
-
 		string placementString;
 		placementString = config->hasParameter("placement") ?
 		                  config->getParameter("placement") :
@@ -160,20 +165,18 @@ void OSDConsoleRenderer::initConsoleSize()
 		}
 	}
 	adjustColRow();
-
 	console->setConsoleDimensions(consoleColumns, consoleRows);
-
-	std::string temp = console->getId();
+	string tempname = console->getId();
 	consoleColumnsSetting = new IntegerSetting(
-		temp + "columns", "number of columns in the console",
+		tempname + "columns", "number of columns in the console",
 		wantedColumns, 32, 999
 		);
 	consoleRowsSetting = new IntegerSetting(
-		temp + "rows", "number of rows in the console",
+		tempname + "rows", "number of rows in the console",
 		wantedRows, 1, 99
 		);
 	consolePlacementSetting = new EnumSetting<OSDConsoleRenderer::Placement>(
-		temp + "placement", "position of the console within the emulator",
+		tempname + "placement", "position of the console within the emulator",
 		consolePlacement, placeMap
 		);
 }
@@ -181,7 +184,6 @@ void OSDConsoleRenderer::initConsoleSize()
 void OSDConsoleRenderer::adjustColRow()
 {
 	SDL_Surface *screen = SDL_GetVideoSurface();
-
 	if (wantedColumns > ((screen->w - CHAR_BORDER) / font->getWidth())) {
 		consoleColumns = (screen->w - CHAR_BORDER) / font->getWidth();
 	} else {

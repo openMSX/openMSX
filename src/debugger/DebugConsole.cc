@@ -16,13 +16,6 @@ DebugConsole* DebugConsole::instance()
 DebugConsole::DebugConsole()
 	: debuggerSetting("debugger", "turns the debugger on or off", false)
 {
-	SettingLeafNode * consoleSetting = SettingsManager::instance()->getByName("console");
-	consoleSetting->addListener(this);
-
-	CommandConsole::instance()->registerDebugger();
-
-//	debuggerSetting.addListener(this);
-
 	for (int i = 0; i < 20; i++) {
 		lines.push_back(" ");
 	}
@@ -38,18 +31,10 @@ DebugConsole::~DebugConsole()
 			delete it->second;
 		}
 	}
-	SettingLeafNode * consoleSetting = SettingsManager::instance()->getByName("console");
-	consoleSetting->removeListener(this);
-	
-//	debuggerSetting.removeListener(this);
 }
 
 void DebugConsole::update(const SettingLeafNode *setting)
 {
-	BooleanSetting * consoleSetting = (BooleanSetting *)setting;
-	if (consoleSetting->getValue()){
-		debuggerSetting.setValue(false);
-	}
 }
 
 bool DebugConsole::signalEvent(SDL_Event &event)

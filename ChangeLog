@@ -1,5 +1,10 @@
 $Id$
 
+2003-07-27 Herman Oudejans <hn.oudejans@quicknet.nl>
+	* decoupled de console and debugger again. It caused some unforseen
+	  site-effects.
+	* Added settings for the debugger in settings.xml
+
 2003-07-26 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Re-enabled the debuggerconsole.
 	* made sure the console is turned off when de debugger is called.
