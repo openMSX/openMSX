@@ -36,7 +36,7 @@ CPU::CPU(const string& name, int defaultFreq)
 	             true)
 	, freqValue(name + "_freq",
 	            "custom " + name + " frequency (only valid when unlocked)",
-	            defaultFreq, 1, 100000000)
+	            defaultFreq, 1000000, 100000000)
 	, freq(defaultFreq)
 {
 	clock.setFreq(defaultFreq);

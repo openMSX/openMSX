@@ -256,6 +256,7 @@ public:
 	  * @param freq New frequency in Hertz.
 	  */
 	void setFreq(unsigned freq) {
+		assert((MAIN_FREQ / freq) < (1 << 25));
 		step = MAIN_FREQ / freq;
 	}
 
@@ -277,6 +278,10 @@ public:
 	/** Advance this clock by the given number of ticks.
 	  */
 	void operator+=(unsigned n) {
+		#ifdef DEBUG 
+		// we don't even want this overhead in development versions
+		assert(((uint64)n * step) < (1ull << 32));
+		#endif
 		lastTick.time += n * step;
 	}
 
@@ -287,7 +292,8 @@ private:
 
 	/** Length of a this clock's ticks, expressed in master clock ticks.
 	  */
-	uint64 step;
+	unsigned step; // changed uint64 -> unsigned for performance reasons
+	               // this is _heavily_ used in the CPU code
 };
 
 } // namespace openmsx
