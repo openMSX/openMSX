@@ -154,12 +154,10 @@ protected:
 	int slowInstructions;
 	int IRQStatus;
 
-	z80regpair x, y;
+	z80regpair x;
 	z80regpair memptr;
-	byte bit;
 	byte dummy;
 	offset ofst;
-	byte* p;
 
 	CPUInterface* interface;
 	EmuTime targetTime;
