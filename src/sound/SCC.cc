@@ -101,7 +101,7 @@ void SCC::writeMemInterface(byte address, byte value, const EmuTime &time)
 		//Don't know why but japanese doesn't change wave when noise is enabled ??
 		//if (!rotate[ch]) {
 		wave[ch][address&0x1f]            = value;
-		volAdjustedWave[ch][address&0x1f] = ((signed)value*volume[ch]*masterVolume)/2048;
+		volAdjustedWave[ch][address&0x1f] = ((signed_byte)value*volume[ch]*masterVolume)/2048;
 		if ((currentChipMode != SCC_plusmode) && (ch==3)) {
 			// copy waveform 4 -> waveform 5
 			wave[4][address&0x1f]            = wave[ch][address&0x1f];
@@ -191,7 +191,7 @@ void SCC::setFreqVol(byte value, byte address)
 		byte channel = address-0x0a;
 		volume[channel] = value&0xf;
 		for (int i=0; i<32; i++)
-			volAdjustedWave[channel][i] = ((signed)(wave[channel][i])*volume[channel]*masterVolume)/2048;
+			volAdjustedWave[channel][i] = ((signed_byte)(wave[channel][i])*volume[channel]*masterVolume)/2048;
 		checkMute();
 	} else {
 		// change enable-bits

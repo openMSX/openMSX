@@ -3,10 +3,12 @@
 #ifndef __OPENMSX_HH__
 #define __OPENMSX_HH__
 
-typedef unsigned char nibble;	// 4 bit
-typedef unsigned char byte;	// 8 bit
+typedef unsigned char nibble;	//  4 bit
+typedef unsigned char byte;	//  8 bit
 typedef unsigned short word;	// 16 bit 
 typedef unsigned long long uint64; // this is not portable to 64bit platforms? -> TODO check
+typedef char  signed_byte;	//  8 bit signed
+typedef short signed_word;	// 16 bit signed
 
 #ifdef DEBUG
 #define PRT_DEBUG(mes) {std::cout << mes << "\n"; }

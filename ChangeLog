@@ -1,5 +1,8 @@
 $Id$
 
+2002-03-15 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* Fixed SCC distortion (was unsigned->signed conversion bug)
+
 2002-03-14 Maarten ter Huurne <mth@stack.nl>
 	* Fixed ASCII16K MegaROM mapper.
 	  Eggerland 2 works now, but is still autodetected incorrectly.
