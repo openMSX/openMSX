@@ -3,8 +3,6 @@
 /* TODO:
 - Verify the dirty checks, especially those of mode3 and mode23,
   which were different before.
-- Is it guaranteed that sizeof(bool) == 1? (needed for memset)
-- Implement collision detection.
 - Apply line-based scheduling.
 - Sprite attribute readout probably happens one line in advance.
   This matters when line-based scheduling is operational.
@@ -152,6 +150,21 @@ static unsigned char TMS9928A_palette[16 * 3] =
 	204, 204, 204,
 	255, 255, 255
 };
+
+// TODO: Read this information from config.h.
+#define SIZEOF_BOOL 1
+/** Fill a boolean array with a single value.
+  * Optimised for byte-sized booleans,
+  * but correct for every size.
+  */
+inline static void fillBool(bool *ptr, bool value, int nr)
+{
+#if SIZEOF_BOOL == 1
+	memset(ptr, value, nr);
+#else
+	for (int i = nr; i--; ) *ptr++ = value;
+#endif
+}
 
 // RENDERERS for line-based scanline conversion
 
@@ -609,7 +622,7 @@ void MSXTMS9928a::fullScreenRefresh()
 	RenderMethod renderMethod = modeToRenderMethod[tms.mode];
 	for (int y = 0; y < 192; y++, line++, currBorderColoursPtr++) {
 		if ((y & 7) == 0) {
-			memset(nextDirty, false, 32);
+			fillBool(nextDirty, false, 32);
 			nextAnyDirty = false;
 		}
 		Pixel *linePtr = &linePtrs[line][displayX];
@@ -629,7 +642,7 @@ void MSXTMS9928a::fullScreenRefresh()
 				nextAnyDirtyName = true;
 			}
 			else {
-				memset(dirtyName + (y / 8) * 32, false, 32);
+				fillBool(dirtyName + (y / 8) * 32, false, 32);
 			}
 		}
 		// Borders are drawn after the display area:
@@ -654,8 +667,8 @@ void MSXTMS9928a::fullScreenRefresh()
 	// TODO: Verify interaction between dirty flags and blanking.
 	anyDirtyName = nextAnyDirtyName;
 	anyDirtyColour = anyDirtyPattern = false;
-	memset(dirtyColour, false, sizeof(dirtyColour));
-	memset(dirtyPattern, false, sizeof(dirtyPattern));
+	fillBool(dirtyColour, false, sizeof(dirtyColour));
+	fillBool(dirtyPattern, false, sizeof(dirtyPattern));
 }
 
 void MSXTMS9928a::putImage(void)
@@ -831,9 +844,9 @@ void MSXTMS9928a::executeUntilEmuTime(const Emutime &time)
 void MSXTMS9928a::setDirty(bool dirty)
 {
 	anyDirtyColour = anyDirtyPattern = anyDirtyName = dirty;
-	memset(dirtyName, dirty, sizeof(dirtyName));
-	memset(dirtyColour, dirty, sizeof(dirtyColour));
-	memset(dirtyPattern, dirty, sizeof(dirtyPattern));
+	fillBool(dirtyName, dirty, sizeof(dirtyName));
+	fillBool(dirtyColour, dirty, sizeof(dirtyColour));
+	fillBool(dirtyPattern, dirty, sizeof(dirtyPattern));
 }
 
 // The I/O functions.
@@ -986,7 +999,7 @@ void MSXTMS9928a::_TMS9928A_change_register(byte reg, byte val)
 	case 2:
 		tms.nametbl = (val * 1024) & (tms.vramsize - 1);
 		anyDirtyName = true;
-		memset(dirtyName, true, sizeof(dirtyName));
+		fillBool(dirtyName, true, sizeof(dirtyName));
 		break;
 	case 3:
 		if (tms.Regs[0] & 2) {
@@ -997,7 +1010,7 @@ void MSXTMS9928a::_TMS9928A_change_register(byte reg, byte val)
 			tms.colour = (val * 64) & (tms.vramsize - 1);
 		}
 		anyDirtyColour = true;
-		memset(dirtyColour, true, sizeof(dirtyColour));
+		fillBool(dirtyColour, true, sizeof(dirtyColour));
 		break;
 	case 4:
 		if (tms.Regs[0] & 2) {
@@ -1008,7 +1021,7 @@ void MSXTMS9928a::_TMS9928A_change_register(byte reg, byte val)
 			tms.pattern = (val * 2048) & (tms.vramsize - 1);
 		}
 		anyDirtyPattern = true;
-		memset(dirtyPattern, true, sizeof(dirtyPattern));
+		fillBool(dirtyPattern, true, sizeof(dirtyPattern));
 		break;
 	case 5:
 		tms.spriteattribute = (val * 128) & (tms.vramsize - 1);
@@ -1022,7 +1035,7 @@ void MSXTMS9928a::_TMS9928A_change_register(byte reg, byte val)
 		// so we have to repaint them all.
 		// TODO: Maybe this can be optimised for some screen modes.
 		anyDirtyColour = true;
-		memset(dirtyColour, true, sizeof(dirtyColour));
+		fillBool(dirtyColour, true, sizeof(dirtyColour));
 		break;
 	}
 }
