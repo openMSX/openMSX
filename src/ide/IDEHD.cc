@@ -62,6 +62,8 @@ IDEHD::IDEHD(Config *config, const EmuTime &time)
 	identifyBlock[0x07] = heads / 0x100;
 	identifyBlock[0x0C] = sectors & 0xFF;
 	identifyBlock[0x0D] = sectors / 0x100;
+
+	transferRead = transferWrite = false;
 }
 
 IDEHD::~IDEHD()
@@ -81,8 +83,8 @@ void IDEHD::reset(const EmuTime &time)
 	devHeadReg = 0x00;
 	statusReg = 0x50;	// DRDY DSC
 	featureReg = 0x00;
-	transferRead = false;
-	transferWrite = false;
+	setTransferRead(false);
+	setTransferWrite(false);
 }
 
 byte IDEHD::readReg(nibble reg, const EmuTime &time)
@@ -188,7 +190,7 @@ word IDEHD::readData(const EmuTime &time)
 	word result = *(transferPntr++);
 	if (--transferCount == 0) {
 		// everything read
-		transferRead = false;
+		setTransferRead(false);
 		statusReg &= ~0x08;	// DRQ
 		PRT_DEBUG("IDEHD: read sector done");
 	}
@@ -209,7 +211,7 @@ void IDEHD::writeData(word value, const EmuTime &time)
 			file->write(buffer, 512);
 		} catch (FileException &e) {
 			setError(0x44);
-			transferWrite = false;
+			setTransferWrite(false);
 		}
 		PRT_DEBUG("IDEHD: written sector " << transferSectorNumber);
 		transferSectorNumber++;
@@ -217,7 +219,7 @@ void IDEHD::writeData(word value, const EmuTime &time)
 	}
 	if (transferCount == 0) {
 		// everything written
-		transferWrite = false;
+		setTransferWrite(false);
 		statusReg &= ~0x08;	// DRQ
 	}
 }
@@ -228,8 +230,8 @@ void IDEHD::setError(byte error)
 	errorReg = error;
 	statusReg |= 0x01;	// ERR
 	statusReg &= ~0x08;	// DRQ
-	transferWrite = false;
-	transferRead  = false;
+	setTransferWrite(false);
+	setTransferRead(false);
 }
 
 unsigned IDEHD::getSectorNumber() const
@@ -246,7 +248,8 @@ unsigned IDEHD::getNumSectors() const
 void IDEHD::executeCommand(byte cmd)
 {
 	statusReg &= ~0x09;	// reset DRQ ERR
-	transferRead = transferWrite = false;
+	setTransferRead(false);
+	setTransferWrite(false);
 	switch (cmd) {
 	case 0xEF: // Set Feature
 		if (featureReg != 0x03) {
@@ -258,7 +261,7 @@ void IDEHD::executeCommand(byte cmd)
 	case 0xEC: // ATA Identify Device
 		transferCount = 512/2;
 		transferPntr = (word*)(&identifyBlock);
-		transferRead = true;
+		setTransferRead(true);
 		statusReg |= 0x08;	// DRQ
 		break;
 
@@ -277,7 +280,7 @@ void IDEHD::executeCommand(byte cmd)
 		transferSectorNumber = sectorNumber;
 		transferCount = 512/2 * numSectors;
 		transferPntr = (word*)buffer;
-		transferWrite = true;
+		setTransferWrite(true);
 		statusReg |= 0x08;	// DRQ
 		break;
 	}
@@ -298,12 +301,40 @@ void IDEHD::executeCommand(byte cmd)
 		}
 		transferCount = 512/2 * numSectors;
 		transferPntr = (word*)buffer;
-		transferRead = true;
+		setTransferRead(true);
 		statusReg |= 0x08;	// DRQ
 		break;
 	}
 	default: // all others
 		setError(0x04);
+	}
+}
+
+void IDEHD::setTransferRead(bool status)
+{
+	if (status != transferRead) {
+		transferRead = status;
+		if (!transferWrite) {
+			if (transferRead) {
+			// LED ON
+			} else {
+			// LED OFF
+			}
+		}
+	}
+}
+
+void IDEHD::setTransferWrite(bool status)
+{
+	if (status != transferWrite) {
+		transferWrite = status;
+		if (!transferRead) {
+			if (transferWrite) {
+			// LED ON
+			} else {
+			// LED OFF
+			}
+		}
 	}
 }
 

@@ -30,6 +30,8 @@ class IDEHD : public IDEDevice
 		unsigned getSectorNumber() const;
 		unsigned getNumSectors() const;
 		void executeCommand(byte cmd);
+		void setTransferRead(bool status);
+		void setTransferWrite(bool status);
 
 		byte errorReg;
 		byte sectorCountReg;
