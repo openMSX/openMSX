@@ -139,13 +139,13 @@ public:
 		//assert(time >= currentTime);
 
 		// TODO: Pass index instead of address?
-		if ( nameTable.isInside(address)
+		if (true || nameTable.isInside(address)
 		|| colourTable.isInside(address)
 		|| patternTable.isInside(address) ) {
 			renderer->updateVRAM(address, value, time);
 		}
 		//bitmapWindow.notify(address, time);
-		if (spriteAttribTable.isInside(address)
+		if (true || spriteAttribTable.isInside(address)
 		|| spritePatternTable.isInside(address)) {
 			spriteChecker->updateVRAM(address, time);
 		}

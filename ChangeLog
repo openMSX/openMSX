@@ -3,6 +3,8 @@ $Id$
 2002-10-03 Maarten ter Huurne <mth@stack.nl>
 	* Fixed bug in VDP: name table base was not adjusted for planar modes.
 	  This caused wrong rendering in SCREEN7/8.
+	* Disabled "inside window" check for now.
+	  Parts of the code are not ready yet to use the VRAM windows properly.
 
 2002-10-02 Maarten ter Huurne <mth@stack.nl>
 	* Updated C-BIOS to version 0.13.
