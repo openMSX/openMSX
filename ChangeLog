@@ -1,6 +1,10 @@
 $Id$
 
-2005-03-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2005-03-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Tiny SDLGL improvement:
+	   - use glRect() to draw rectangles with a single color iso GL_QUADS
+
+2005-03-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed MSX-AUDIO sample RAM detection:
 	   UR always detected 256kb
 	   AR always detected   0kb  both are fixed now

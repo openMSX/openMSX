@@ -57,13 +57,13 @@ inline static GLRasterizer::Pixel GLMapRGB(int r, int g, int b)
 inline static void GLSetColour(GLRasterizer::Pixel colour)
 {
 	if (OPENMSX_BIGENDIAN) {
-		glColor3ub(
-			(colour >> 24) & 0xFF, (colour >> 16) & 0xFF, (colour >> 8) & 0xFF
-			);
+		glColor3ub((colour >> 24) & 0xFF,
+		           (colour >> 16) & 0xFF,
+		           (colour >>  8) & 0xFF);
 	} else {
-		glColor3ub(
-			colour & 0xFF, (colour >> 8) & 0xFF, (colour >> 16) & 0xFF
-			);
+		glColor3ub((colour >>  0) & 0xFF,
+		           (colour >>  8) & 0xFF,
+		           (colour >> 16) & 0xFF);
 	}
 }
 
@@ -77,56 +77,46 @@ inline static void GLSetTexEnvCol(GLRasterizer::Pixel colour) {
 	glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, colourVec);
 }
 
-inline static void GLFillBlock(
-	int x1, int y1, int x2, int y2,
-	GLRasterizer::Pixel colour
-) {
+inline static void GLFillBlock(int x1, int y1, int x2, int y2,
+                               GLRasterizer::Pixel colour)
+{
 	GLSetColour(colour);
-	glBegin(GL_QUADS);
-	glVertex2i(x1, y2); // Bottom Left
-	glVertex2i(x2, y2); // Bottom Right
-	glVertex2i(x2, y1 ); // Top Right
-	glVertex2i(x1, y1 ); // Top Left
-	glEnd();
+	glRecti(x1, y1, x2, y2);
 }
 
-inline static void GLBindMonoBlock(GLuint textureId, const byte *pixels)
+inline static void GLBindMonoBlock(GLuint textureId, const byte* pixels)
 {
 	glBindTexture(GL_TEXTURE_2D, textureId);
-	glTexImage2D(
-		GL_TEXTURE_2D,
-		0, // level
-		GL_LUMINANCE8,
-		8, // width
-		8, // height
-		0, // border
-		GL_LUMINANCE,
-		GL_UNSIGNED_BYTE,
-		pixels
-		);
+	glTexImage2D(GL_TEXTURE_2D,
+	             0, // level
+	             GL_LUMINANCE8,
+	             8, // width
+	             8, // height
+	             0, // border
+	             GL_LUMINANCE,
+	             GL_UNSIGNED_BYTE,
+	             pixels);
 }
 
 inline static void GLBindColourBlock(
 	GLuint textureId, const GLRasterizer::Pixel *pixels)
 {
 	glBindTexture(GL_TEXTURE_2D, textureId);
-	glTexImage2D(
-		GL_TEXTURE_2D,
-		0, // level
-		GL_RGBA,
-		8, // width
-		8, // height
-		0, // border
-		GL_RGBA,
-		GL_UNSIGNED_BYTE,
-		pixels
-		);
+	glTexImage2D(GL_TEXTURE_2D,
+	             0, // level
+	             GL_RGBA,
+	             8, // width
+	             8, // height
+	             0, // border
+	             GL_RGBA,
+	             GL_UNSIGNED_BYTE,
+	             pixels);
 }
 
 inline static void GLDrawMonoBlock(
 	GLuint textureId, int x, int y, int width, int zoom,
-	GLRasterizer::Pixel bg, int verticalScroll
-) {
+	GLRasterizer::Pixel bg, int verticalScroll)
+{
 	glBindTexture(GL_TEXTURE_2D, textureId);
 	GLSetColour(bg);
 	glBegin(GL_QUADS);
@@ -183,8 +173,7 @@ inline GLRasterizer::Pixel GLRasterizer::getBorderColour()
 	return (mode == DisplayMode::GRAPHIC7 ? PALETTE256 : palBg)[bgColour];
 }
 
-inline void GLRasterizer::renderBitmapLine(
-	byte mode, int vramLine)
+inline void GLRasterizer::renderBitmapLine(byte mode, int vramLine)
 {
 	if (lineValidInMode[vramLine] != mode) {
 		const byte *vramPtr =
@@ -195,8 +184,7 @@ inline void GLRasterizer::renderBitmapLine(
 	}
 }
 
-inline void GLRasterizer::renderBitmapLines(
-	byte line, int count)
+inline void GLRasterizer::renderBitmapLines(byte line, int count)
 {
 	byte mode = vdp->getDisplayMode().getByte();
 	// Which bits in the name mask determine the page?
@@ -213,17 +201,14 @@ inline void GLRasterizer::renderBitmapLines(
 	}
 }
 
-inline void GLRasterizer::renderPlanarBitmapLine(
-	byte mode, int vramLine)
+inline void GLRasterizer::renderPlanarBitmapLine(byte mode, int vramLine)
 {
-	if ( lineValidInMode[vramLine] != mode
-	|| lineValidInMode[vramLine | 512] != mode ) {
+	if ((lineValidInMode[vramLine      ] != mode) ||
+	    (lineValidInMode[vramLine | 512] != mode)) {
 		int addr0 = vramLine << 7;
 		int addr1 = addr0 | 0x10000;
-		const byte *vramPtr0 =
-			vram->bitmapCacheWindow.readArea(addr0);
-		const byte *vramPtr1 =
-			vram->bitmapCacheWindow.readArea(addr1);
+		const byte* vramPtr0 = vram->bitmapCacheWindow.readArea(addr0);
+		const byte* vramPtr1 = vram->bitmapCacheWindow.readArea(addr1);
 		bitmapConverter.convertLinePlanar(lineBuffer, vramPtr0, vramPtr1);
 		bitmapTextures[vramLine].update(lineBuffer, lineWidth);
 		lineValidInMode[vramLine] =
@@ -231,8 +216,7 @@ inline void GLRasterizer::renderPlanarBitmapLine(
 	}
 }
 
-inline void GLRasterizer::renderPlanarBitmapLines(
-	byte line, int count)
+inline void GLRasterizer::renderPlanarBitmapLines(byte line, int count)
 {
 	byte mode = vdp->getDisplayMode().getByte();
 	// Which bits in the name mask determine the page?
@@ -260,24 +244,20 @@ GLRasterizer::GLRasterizer(VDP* vdp)
 	GLint size;
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size);
 	//printf("Max texture size: %d\n", size);
-	glTexImage2D(
-		GL_PROXY_TEXTURE_2D,
-		0,
-		GL_RGBA,
-		512,
-		1,
-		0,
-		GL_RGBA,
-		GL_UNSIGNED_BYTE,
-		NULL
-		);
+	glTexImage2D(GL_PROXY_TEXTURE_2D,
+	             0,
+	             GL_RGBA,
+	             512,
+	             1,
+	             0,
+	             GL_RGBA,
+	             GL_UNSIGNED_BYTE,
+	             NULL);
 	size = -1;
-	glGetTexLevelParameteriv(
-		GL_PROXY_TEXTURE_2D,
-		0,
-		GL_TEXTURE_WIDTH,
-		&size
-		);
+	glGetTexLevelParameteriv(GL_PROXY_TEXTURE_2D,
+	                         0,
+	                         GL_TEXTURE_WIDTH,
+	                         &size);
 	//printf("512*1 texture fits: %d (512 if OK, 0 if failed)\n", size);
 
 	// Clear graphics buffers.
@@ -404,9 +384,8 @@ void GLRasterizer::setDisplayMode(DisplayMode mode)
 	lineWidth = mode.getLineWidth();
 	precalcColourIndex0(mode, vdp->getTransparency());
 	spriteConverter.setDisplayMode(mode);
-	spriteConverter.setPalette(
-		mode.getByte() == DisplayMode::GRAPHIC7 ? palGraphic7Sprites : palBg
-		);
+	spriteConverter.setPalette(mode.getByte() == DisplayMode::GRAPHIC7 ?
+	                           palGraphic7Sprites : palBg);
 }
 
 void GLRasterizer::setPalette(
@@ -464,8 +443,7 @@ void GLRasterizer::precalcPalette(double gamma)
 			palFg[i] = palBg[i] = GLMapRGB(
 				(int)(::pow((double)rgb[0] / 255.0, gamma) * 255),
 				(int)(::pow((double)rgb[1] / 255.0, gamma) * 255),
-				(int)(::pow((double)rgb[2] / 255.0, gamma) * 255)
-				);
+				(int)(::pow((double)rgb[2] / 255.0, gamma) * 255));
 		}
 	} else {
 		// Precalculate palette for V9938 colours.
@@ -475,8 +453,7 @@ void GLRasterizer::precalcPalette(double gamma)
 					V9938_COLOURS[r][g][b] = GLMapRGB(
 						(int)(::pow((double)r / 7.0, gamma) * 255),
 						(int)(::pow((double)g / 7.0, gamma) * 255),
-						(int)(::pow((double)b / 7.0, gamma) * 255)
-						);
+						(int)(::pow((double)b / 7.0, gamma) * 255));
 				}
 			}
 		}
@@ -487,8 +464,7 @@ void GLRasterizer::precalcPalette(double gamma)
 					V9958_COLOURS[(r<<10) + (g<<5) + b] = GLMapRGB(
 						(int)(::pow((double)r / 31.0, gamma) * 255),
 						(int)(::pow((double)g / 31.0, gamma) * 255),
-						(int)(::pow((double)b / 31.0, gamma) * 255)
-						);
+						(int)(::pow((double)b / 31.0, gamma) * 255));
 				}
 			}
 		}
@@ -601,11 +577,9 @@ const string& GLRasterizer::getName()
 
 void GLRasterizer::drawBorder(int fromX, int fromY, int limitX, int limitY)
 {
-	GLFillBlock(
-		translateX(fromX), (fromY - lineRenderTop) * 2,
-		translateX(limitX), (limitY - lineRenderTop) * 2,
-		getBorderColour()
-		);
+	GLFillBlock(translateX(fromX), (fromY - lineRenderTop) * 2,
+	            translateX(limitX), (limitY - lineRenderTop) * 2,
+	            getBorderColour());
 }
 
 void GLRasterizer::renderText1(
@@ -620,10 +594,8 @@ void GLRasterizer::renderText1(
 
 	// Render complete characters and cut off the invisible part.
 	int screenHeight = 2 * count;
-	glScissor(
-		leftBackground + minX, HEIGHT - screenLine - screenHeight,
-		maxX - minX, screenHeight
-		);
+	glScissor(leftBackground + minX, HEIGHT - screenLine - screenHeight,
+	          maxX - minX, screenHeight);
 	glEnable(GL_SCISSOR_TEST);
 
 	int begCol = minX / 12;
@@ -648,11 +620,9 @@ void GLRasterizer::renderText1(
 				GLBindMonoBlock(textureId, charPixels);
 			}
 			// Plot current character.
-			GLDrawMonoBlock(
-				textureId,
-				leftBackground + col * 12, screenLine, 6, 2,
-				bg, verticalScroll
-				);
+			GLDrawMonoBlock(textureId,
+			                leftBackground + col * 12, screenLine,
+			                6, 2, bg, verticalScroll);
 		}
 		screenLine += 16;
 	}
@@ -660,18 +630,16 @@ void GLRasterizer::renderText1(
 }
 
 void GLRasterizer::renderText2(
-	int vramLine, int screenLine, int count, int minX, int maxX
-) {
+	int vramLine, int screenLine, int count, int minX, int maxX)
+{
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
 
 	int leftBackground = translateX(vdp->getLeftBackground());
 
 	// Render complete characters and cut off the invisible part.
 	int screenHeight = 2 * count;
-	glScissor(
-		leftBackground + minX, HEIGHT - screenLine - screenHeight,
-		maxX - minX, screenHeight
-		);
+	glScissor(leftBackground + minX, HEIGHT - screenLine - screenHeight,
+	          maxX - minX, screenHeight);
 	glEnable(GL_SCISSOR_TEST);
 
 	Pixel plainFg = palFg[vdp->getForegroundColour()];
@@ -705,8 +673,7 @@ void GLRasterizer::renderText2(
 				byte charPixels[8 * 8];
 				characterConverter.convertMonoBlock(
 					charPixels,
-					vram->patternTable.readArea((-1 << 11) | (charcode * 8))
-					);
+					vram->patternTable.readArea((-1 << 11) | (charcode * 8)));
 				GLBindMonoBlock(textureId, charPixels);
 			}
 			// Plot current character.
@@ -717,11 +684,11 @@ void GLRasterizer::renderText2(
 				GLSetTexEnvCol(blink ? blinkFg : plainFg);
 				prevBlink = blink;
 			}
-			GLDrawMonoBlock(
-				textureId,
-				leftBackground + col * 6, screenLine, 6, 1,
-				blink ? blinkBg : plainBg, verticalScroll
-				);
+			GLDrawMonoBlock(textureId,
+			                leftBackground + col * 6, screenLine,
+			                6, 1,
+			                blink ? blinkBg : plainBg,
+			                verticalScroll);
 		}
 		screenLine += 16;
 	}
@@ -735,12 +702,10 @@ void GLRasterizer::renderGraphic1(
 
 	// Render complete characters and cut off the invisible part.
 	int screenHeight = 2 * count;
-	glScissor(
-		translateX(vdp->getLeftBackground()) + minX, // x
-		HEIGHT - screenLine - screenHeight, // y
-		maxX - minX, // w
-		screenHeight // h
-		);
+	glScissor(translateX(vdp->getLeftBackground()) + minX, // x
+	          HEIGHT - screenLine - screenHeight,          // y
+	          maxX - minX,   // w
+	          screenHeight); // h
 	glEnable(GL_SCISSOR_TEST);
 
 	int col = minX / 16;
@@ -755,8 +720,8 @@ void GLRasterizer::renderGraphic1(
 }
 
 void GLRasterizer::renderGraphic1Row(
-	int row, int screenLine, int col, int endCol
-) {
+	int row, int screenLine, int col, int endCol)
+{
 	int nameStart = row * 32 + col;
 	int nameEnd = row * 32 + endCol;
 	int x = translateX(vdp->getLeftBackground()) + col * 16;
@@ -769,36 +734,29 @@ void GLRasterizer::renderGraphic1Row(
 			byte charPixels[8 * 8];
 			characterConverter.convertMonoBlock(
 				charPixels,
-				vram->patternTable.readArea((-1 << 11) | (charNr * 8))
-				);
+				vram->patternTable.readArea((-1 << 11) | (charNr * 8)));
 			GLBindMonoBlock(textureId, charPixels);
 		}
 		int colour = vram->colourTable.readNP((-1 << 6) | (charNr / 8));
 		Pixel fg = palFg[colour >> 4];
 		Pixel bg = palFg[colour & 0x0F];
 		GLSetTexEnvCol(fg);
-		GLDrawMonoBlock(
-			textureId,
-			x, screenLine, 8, 2,
-			bg, 0
-			);
+		GLDrawMonoBlock(textureId, x, screenLine, 8, 2, bg, 0);
 		x += 16;
 	}
 }
 
 void GLRasterizer::renderGraphic2(
-	int vramLine, int screenLine, int count, int minX, int maxX
-) {
+	int vramLine, int screenLine, int count, int minX, int maxX)
+{
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
 	// Render complete characters and cut off the invisible part.
 	int screenHeight = 2 * count;
-	glScissor(
-		translateX(vdp->getLeftBackground()) + minX, // x
-		HEIGHT - screenLine - screenHeight, // y
-		maxX - minX, // w
-		screenHeight // h
-		);
+	glScissor(translateX(vdp->getLeftBackground()) + minX, // x
+	          HEIGHT - screenLine - screenHeight,          // y
+	          maxX - minX,   // w
+	          screenHeight); // h
 	glEnable(GL_SCISSOR_TEST);
 
 	int col = minX / 16;
@@ -813,8 +771,8 @@ void GLRasterizer::renderGraphic2(
 }
 
 void GLRasterizer::renderGraphic2Row(
-	int row, int screenLine, int col, int endCol
-) {
+	int row, int screenLine, int col, int endCol)
+{
 	int nameStart = row * 32 + col;
 	int nameEnd = row * 32 + endCol;
 	int quarter = nameStart & ~0xFF;
@@ -860,8 +818,7 @@ void GLRasterizer::renderGraphic2Row(
 			characterConverter.convertColourBlock(
 				charPixels,
 				vram->patternTable.readArea(index),
-				vram->colourTable.readArea(index)
-				);
+				vram->colourTable.readArea(index));
 			GLBindColourBlock(textureId, charPixels);
 		}
 		GLDrawColourBlock(textureId, x, screenLine);
@@ -870,18 +827,16 @@ void GLRasterizer::renderGraphic2Row(
 }
 
 void GLRasterizer::renderMultiColour(
-	int vramLine, int screenLine, int count, int minX, int maxX
-) {
+	int vramLine, int screenLine, int count, int minX, int maxX)
+{
 	int leftBackground = translateX(vdp->getLeftBackground());
 
 	// Render complete characters and cut off the invisible part.
 	int screenHeight = 2 * count;
-	glScissor(
-		leftBackground + minX, // x
-		HEIGHT - screenLine - screenHeight, // y
-		maxX - minX, // w
-		screenHeight // h
-		);
+	glScissor(leftBackground + minX,              // x
+	          HEIGHT - screenLine - screenHeight, // y
+	          maxX - minX,   // w
+	          screenHeight); // h
 	glEnable(GL_SCISSOR_TEST);
 
 	int colStart = minX / 16;
@@ -897,16 +852,12 @@ void GLRasterizer::renderMultiColour(
 			int colour = vram->patternTable.readNP(
 				(-1 << 11) | (charcode * 8) | (row & 7) );
 			int x = leftBackground + col * 16;
-			GLFillBlock(
-				x, screenLine,
-				x + 8, screenLine + 8,
-				palFg[colour >> 4]
-				);
-			GLFillBlock(
-				x + 8, screenLine,
-				x + 16, screenLine + 8,
-				palFg[colour & 0x0F]
-				);
+			GLFillBlock(x, screenLine,
+			            x + 8, screenLine + 8,
+			            palFg[colour >> 4]);
+			GLFillBlock(x + 8, screenLine,
+			            x + 16, screenLine + 8,
+			            palFg[colour & 0x0F]);
 		}
 		screenLine += 8;
 	}
@@ -917,23 +868,21 @@ void GLRasterizer::renderMultiColour(
 void GLRasterizer::drawDisplay(
 	int fromX, int fromY,
 	int displayX, int displayY,
-	int displayWidth, int displayHeight
-) {
+	int displayWidth, int displayHeight)
+{
 	int screenX = translateX(fromX);
 	int screenY = (fromY - lineRenderTop) * 2;
-	if (!(RenderSettings::instance().getDeinterlace()->getValue())
-	&& vdp->isInterlaced()
-	&& vdp->getEvenOdd()) {
+	if (!(RenderSettings::instance().getDeinterlace()->getValue()) &&
+	    vdp->isInterlaced() && vdp->getEvenOdd()) {
 		// Display odd field half a line lower.
 		screenY++;
 	}
 	int screenLimitY = screenY + displayHeight * 2;
 
 	DisplayMode mode = vdp->getDisplayMode();
-	int hScroll =
-		  mode.isTextMode()
-		? 0
-		: 16 * (vdp->getHorizontalScrollHigh() & 0x1F);
+	int hScroll = mode.isTextMode()
+	            ? 0
+	            : 16 * (vdp->getHorizontalScrollHigh() & 0x1F);
 
 	// Page border is display X coordinate where to stop drawing current page.
 	// This is either the multi page split point, or the right edge of the
@@ -987,19 +936,16 @@ void GLRasterizer::drawDisplay(
 				& (pageMaskOdd  | displayY);
 			if (deinterlaced) {
 				bitmapTextures[vramLine[0]].draw(
-					displayX + hScroll, screenX, y + 0, displayWidth, 1
-					);
+					displayX + hScroll, screenX, y + 0, displayWidth, 1);
 				bitmapTextures[vramLine[1]].draw(
-					displayX + hScroll, screenX, y + 1, displayWidth, 1
-					);
+					displayX + hScroll, screenX, y + 1, displayWidth, 1);
 			} else {
 				int firstPageWidth = pageBorder - displayX;
 				if (firstPageWidth > 0) {
 					bitmapTextures[vramLine[scrollPage1]].draw(
 						displayX + hScroll,
 						screenX, y,
-						firstPageWidth, 2
-						);
+						firstPageWidth, 2);
 				} else {
 					firstPageWidth = 0;
 				}
@@ -1007,8 +953,7 @@ void GLRasterizer::drawDisplay(
 					bitmapTextures[vramLine[scrollPage2]].draw(
 						displayX + firstPageWidth + hScroll,
 						screenX + firstPageWidth, y,
-						displayWidth - firstPageWidth, 2
-						);
+						displayWidth - firstPageWidth, 2);
 				}
 			}
 			displayY = (displayY + 1) & 255;
@@ -1016,38 +961,28 @@ void GLRasterizer::drawDisplay(
 	} else {
 		switch (mode.getByte()) {
 		case DisplayMode::TEXT1:
-			renderText1(
-				displayY, screenY, displayHeight,
-				displayX, displayX + displayWidth
-				);
+			renderText1(displayY, screenY, displayHeight,
+			            displayX, displayX + displayWidth);
 			break;
 		case DisplayMode::TEXT2:
-			renderText2(
-				displayY, screenY, displayHeight,
-				displayX, displayX + displayWidth
-				);
+			renderText2(displayY, screenY, displayHeight,
+			            displayX, displayX + displayWidth);
 			break;
 		case DisplayMode::GRAPHIC1:
 			// TODO: Implement horizontal scroll high.
-			renderGraphic1(
-				displayY, screenY, displayHeight,
-				displayX, displayX + displayWidth
-				);
+			renderGraphic1(displayY, screenY, displayHeight,
+			               displayX, displayX + displayWidth);
 			break;
 		case DisplayMode::GRAPHIC2:
 		case DisplayMode::GRAPHIC3:
 			// TODO: Implement horizontal scroll high.
-			renderGraphic2(
-				displayY, screenY, displayHeight,
-				displayX, displayX + displayWidth
-				);
+			renderGraphic2(displayY, screenY, displayHeight,
+			               displayX, displayX + displayWidth);
 			break;
 		case DisplayMode::MULTICOLOUR:
 			glDisable(GL_TEXTURE_2D);
-			renderMultiColour(
-				displayY, screenY, displayHeight,
-				displayX, displayX + displayWidth
-				);
+			renderMultiColour(displayY, screenY, displayHeight,
+			                  displayX, displayX + displayWidth);
 			break;
 		default:
 			// TEXT1Q / MULTIQ / BOGUS
@@ -1057,7 +992,7 @@ void GLRasterizer::drawDisplay(
 				characterConverter.convertLine(lineBuffer, displayY);
 				charTexture.update(lineBuffer, lineWidth);
 				charTexture.draw(displayX + hScroll, screenX,
-						 y, displayWidth, 2);
+				                 y, displayWidth, 2);
 				displayY++; // is a byte, so wraps at 256
 			}
 			break;
@@ -1069,8 +1004,8 @@ void GLRasterizer::drawDisplay(
 void GLRasterizer::drawSprites(
 	int /*fromX*/, int fromY,
 	int displayX, int /*displayY*/,
-	int displayWidth, int displayHeight
-) {
+	int displayWidth, int displayHeight)
+{
 	glEnable(GL_TEXTURE_2D);
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 	glEnable(GL_BLEND);
@@ -1079,9 +1014,8 @@ void GLRasterizer::drawSprites(
 	int screenX = translateX(vdp->getLeftSprites()) + displayX * 2;
 	// TODO: Code duplicated from drawDisplay.
 	int screenY = (fromY - lineRenderTop) * 2;
-	if (!(RenderSettings::instance().getDeinterlace()->getValue())
-	&& vdp->isInterlaced()
-	&& vdp->getEvenOdd()) {
+	if (!(RenderSettings::instance().getDeinterlace()->getValue()) &&
+	    vdp->isInterlaced() && vdp->getEvenOdd()) {
 		// Display odd field half a line lower.
 		screenY++;
 	}
@@ -1094,7 +1028,6 @@ void GLRasterizer::drawSprites(
 		(mode == DisplayMode::GRAPHIC5 || mode == DisplayMode::GRAPHIC6)
 		? 2 : 1;
 	for (int y = fromY; y < limitY; y++) {
-
 		// Buffer to render sprite pixels to; start with all transparent.
 		memset(lineBuffer, 0, pixelZoom * 256 * sizeof(Pixel));
 
