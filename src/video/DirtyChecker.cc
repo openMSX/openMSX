@@ -18,7 +18,7 @@ DirtyChecker<unit>::DirtyChecker(int size, const char *name) {
 
 template <int unit>
 DirtyChecker<unit>::~DirtyChecker() {
-	delete validFlags;
+	delete[] validFlags;
 }
 
 template <int unit>
