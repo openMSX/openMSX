@@ -1,6 +1,10 @@
 $Id$
 
 2003-06-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Added new YM2413 core:
+	   use with the new (temporally) device "Music_2"
+
+2003-06-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented 'fallback' mechanism for files in settings.xml
 
 2003-06-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
