@@ -1,5 +1,11 @@
 $Id$
 
+2002-03-07 David Heremans <david.heremans@gnu-linux.net>
+	* New internal structure of CommandlineParser is working
+	  This will make it possible to have extra parameters for
+	  cartridges,disks, or in a more global context.
+	* Small fix to MSXGameCartridge
+
 2002-03-06 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* split console commands in tokens
 
