@@ -45,7 +45,7 @@ byte MSXKanji12::peekIO(byte port, const EmuTime& /*time*/) const
 	byte result;
 	switch (port & 0x0F) {
 		case 0:
-			result = ~ID;
+			result = static_cast<byte>(~ID);
 			break;
 		case 1:
 			result = 0x08;	// TODO what is this
