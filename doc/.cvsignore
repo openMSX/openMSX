@@ -5,8 +5,4 @@ config.status
 stamp-h
 Makefile
 Makefile.in
-openmsx.lsm
-openmsx.spec
 .deps
-openmsx
-configure

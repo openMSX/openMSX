@@ -1,0 +1,11 @@
+Code out of cvs doesn't contain
+Makefile.in's and configure, soo
+you need to run
+
+aclocal
+autoconf
+automake
+
+to initialize your tree.
+
+Joost
