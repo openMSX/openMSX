@@ -1,5 +1,7 @@
 # $Id$
 
+include build/node-start.mk
+
 SRC_HDR:= \
 	SunriseIDE \
 	DummyIDEDevice \
@@ -9,5 +11,5 @@ SRC_HDR:= \
 HDR_ONLY:= \
 	IDEDevice
 
-$(eval $(PROCESS_NODE))
+include build/node-end.mk
 

@@ -1,5 +1,7 @@
 # $Id$
 
+include build/node-start.mk
+
 SRC_HDR:= \
 	CPUInterface CPU \
 	Z80 R800 \
@@ -14,5 +16,5 @@ DIST:= \
 	CPUCore.n1 CPUCore.n2 \
 	R800Tables.nn Z80Tables.nn
 
-$(eval $(PROCESS_NODE))
+include build/node-end.mk
 

@@ -1,5 +1,7 @@
 # $Id$
 
+include build/node-start.mk
+
 SRC_HDR:= \
 	Keyboard \
 	JoystickPort \
@@ -10,5 +12,5 @@ SRC_HDR:= \
 	Mouse \
 	JoyNet
 
-$(eval $(PROCESS_NODE))
+include build/node-end.mk
 

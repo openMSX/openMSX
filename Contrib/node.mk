@@ -1,9 +1,11 @@
 # $Id$
 
+include build/node-start.mk
+
 DIST:= \
 	README \
 	README.cbios cbios \
 	README.openmsx-control openmsx-control.cc
 
-$(eval $(PROCESS_NODE))
+include build/node-end.mk
 

@@ -1,5 +1,7 @@
 # $Id$
 
+include build/node-start.mk
+
 SRC_HDR:= \
 	EventDistributor \
 	HotKey \
@@ -14,5 +16,5 @@ HDR_ONLY:= \
 	Event \
 	InputEvents
 
-$(eval $(PROCESS_NODE))
+include build/node-end.mk
 

@@ -1,5 +1,7 @@
 # $Id$
 
+include build/node-start.mk
+
 SRC_HDR:= \
 	CommandException \
 	CommandController \
@@ -10,5 +12,5 @@ HDR_ONLY:= \
 	Command \
 	InfoTopic
 
-$(eval $(PROCESS_NODE))
+include build/node-end.mk
 

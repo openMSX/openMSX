@@ -1,5 +1,7 @@
 # $Id$
 
+include build/node-start.mk
+
 SRC_HDR:= \
 	CassetteDevice \
 	CassettePlayer \
@@ -13,5 +15,5 @@ SRC_HDR:= \
 HDR_ONLY:= \
 	CassetteImage
 
-$(eval $(PROCESS_NODE))
+include build/node-end.mk
 

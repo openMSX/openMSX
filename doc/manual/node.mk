@@ -1,10 +1,12 @@
 # $Id$
 
+include build/node-start.mk
+
 DIST:= \
 	*.html *.css
 
 # Backwards compatibility for auto* system:
 DIST+=Makefile.am
 
-$(eval $(PROCESS_NODE))
+include build/node-end.mk
 

@@ -1,5 +1,7 @@
 # $Id$
 
+include build/node-start.mk
+
 SRC_HDR:= \
 	FDCFactory \
 	MSXFDC \
@@ -21,5 +23,5 @@ SRC_HDR:= \
 	CRC16 \
 	FDC_DirAsDSK
 
-$(eval $(PROCESS_NODE))
+include build/node-end.mk
 

@@ -1,5 +1,7 @@
 # $Id$
 
+include build/node-start.mk
+
 SUBDIRS:= \
 	src \
 	m4 \
@@ -20,5 +22,5 @@ DIST+= \
 	Makefile.am \
 	acinclude.m4 aclocal.m4
 
-$(eval $(PROCESS_NODE))
+include build/node-end.mk
 

@@ -1,5 +1,7 @@
 # $Id$
 
+include build/node-start.mk
+
 SRC_HDR:= \
 	I8251 I8254 \
 	ClockPin \
@@ -12,5 +14,5 @@ SRC_HDR:= \
 HDR_ONLY:= \
 	SerialDataInterface
 
-$(eval $(PROCESS_NODE))
+include build/node-end.mk
 

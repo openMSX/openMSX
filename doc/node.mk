@@ -1,5 +1,7 @@
 # $Id$
 
+include build/node-start.mk
+
 SUBDIRS:=manual
 
 DIST:= \
@@ -14,5 +16,5 @@ DIST:= \
 # Backwards compatibility for auto* system:
 DIST+=Makefile.am
 
-$(eval $(PROCESS_NODE))
+include build/node-end.mk
 

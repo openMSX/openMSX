@@ -1,5 +1,7 @@
 # $Id$
 
+include build/node-start.mk
+
 SRC_HDR:= \
 	MSXMapperIO MSXMapperIOPhilips MSXMapperIOTurboR \
 	MSXMemoryMapper \
@@ -27,5 +29,5 @@ SRC_HDR:= \
 HDR_ONLY:= \
 	RomTypes
 
-$(eval $(PROCESS_NODE))
+include build/node-end.mk
 

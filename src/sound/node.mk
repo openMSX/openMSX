@@ -1,5 +1,7 @@
 # $Id$
 
+include build/node-start.mk
+
 SRC_HDR:= \
 	Mixer \
 	SoundDevice \
@@ -17,5 +19,5 @@ SRC_HDR:= \
 	YMF262 YMF278 MSXMoonSound \
 	AudioInputConnector AudioInputDevice DummyAudioInputDevice WavAudioInput
 
-$(eval $(PROCESS_NODE))
+include build/node-end.mk
 

@@ -1,5 +1,7 @@
 # $Id$
 
+include build/node-start.mk
+
 SRC_HDR:= \
 	Console CommandConsole \
 	ConsoleRenderer OSDConsoleRenderer \
@@ -7,5 +9,5 @@ SRC_HDR:= \
 	SDLConsole SDLFont \
 	GLConsole GLFont
 
-$(eval $(PROCESS_NODE))
+include build/node-end.mk
 

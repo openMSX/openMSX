@@ -1,5 +1,7 @@
 # $Id$
 
+include build/node-start.mk
+
 SRC_HDR:= \
 	VDP VDPCmdEngine VDPVRAM SpriteChecker \
 	DirtyChecker \
@@ -22,5 +24,5 @@ HDR_ONLY:= \
 	Blender \
 	GLUtil
 
-$(eval $(PROCESS_NODE))
+include build/node-end.mk
 

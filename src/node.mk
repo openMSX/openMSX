@@ -1,5 +1,7 @@
 # $Id$
 
+include build/node-start.mk
+
 SUBDIRS:= \
 	cassette commands config console cpu debugger events fdc file ide \
 	input libxmlx memory serial settings sound thread video
@@ -50,5 +52,5 @@ HDR_ONLY:= \
 DIST:= \
 	Doxyfile config.h.in
 
-$(eval $(PROCESS_NODE))
+include build/node-end.mk
 

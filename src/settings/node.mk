@@ -1,5 +1,7 @@
 # $Id$
 
+include build/node-start.mk
+
 SRC_HDR:= \
 	SettingNode SettingsManager \
 	IntegerSetting FloatSetting \
@@ -10,5 +12,5 @@ HDR_ONLY:= \
 	Setting SettingListener \
 	EnumSetting
 
-$(eval $(PROCESS_NODE))
+include build/node-end.mk
 
