@@ -1,11 +1,8 @@
 dnl $Id$
 dnl Process this file with autoconf to produce a configure script.
 
-
 AC_INIT()
-
 AC_CANONICAL_SYSTEM
-
 
 dnl In just before do output, do some reflection for our local use...
 case "$target_os" in
@@ -21,13 +18,6 @@ case "$target_cpu" in
 esac
 AC_SUBST(OPENMSX_TARGET_OS)
 AC_SUBST(OPENMSX_TARGET_CPU)
-
-
-dnl For when call configure later, save build, host, target...
-AC_SUBST(build)
-AC_SUBST(host)
-AC_SUBST(target)
-
 
 dnl Do final output.
 AC_OUTPUT(detectsys.mk)
