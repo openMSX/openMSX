@@ -7,6 +7,7 @@
 #include "RealTime.hh"
 #include "CommandController.hh"
 #include "RenderSettings.hh"
+#include <stdio.h>
 
 /*
 TODO:
