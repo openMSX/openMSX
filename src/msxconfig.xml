@@ -67,4 +67,7 @@
   <device id="Turbo-R timer">
     <type>E6Timer</type>
   </device>
+  <device id="psg">
+    <type>PSG</type>
+  </device>
 </msxconfig>

@@ -8,6 +8,7 @@
 #include "MSXTMS9928a.hh"
 #include "MSXE6Timer.hh"
 #include "MSXZ80.hh"
+#include "MSXPSG.hh"
 #include <assert.h>
 
 MSXDevice *deviceFactory::create(MSXConfig::Device *conf) {
@@ -33,6 +34,9 @@ MSXDevice *deviceFactory::create(MSXConfig::Device *conf) {
 	}
 	if ( conf->getType().compare("Z80") == 0 ){ 
 		device=new MSXZ80();
+	}
+	if ( conf->getType().compare("PSG") == 0 ){ 
+		device=new MSXPSG();
 	}
 
 	assert (device != 0);
