@@ -2,6 +2,9 @@
 
 include build/node-start.mk
 
+SUBDIRS:= \
+	v9990
+
 SRC_HDR:= \
 	VDP VDPCmdEngine VDPVRAM SpriteChecker \
 	DirtyChecker \

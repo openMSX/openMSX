@@ -39,7 +39,7 @@
 #include "MSXPac.hh"
 #include "MSXHBI55.hh"
 #include "DebugDevice.hh"
-
+#include "V9990.hh"
 
 namespace openmsx {
 
@@ -293,6 +293,18 @@ MSXDevice *DeviceFactory::create(Config* conf, const EmuTime& time)
 		cpuInterface.register_IO_Out(0x2F, debugDevice);
 		return debugDevice;
 	}
+
+	if (type == "V9990") {
+		V9990 *gfx9000 = new V9990(conf, time);
+ 
+		for (byte port = 0x60; port < 0x70; port++) {
+			cpuInterface.register_IO_In (port, gfx9000);
+			cpuInterface.register_IO_Out(port, gfx9000);
+		}
+		return gfx9000;
+	}
+ 
+
 	throw FatalError("Unknown device \"" + type + "\" specified in configuration");
 }
 

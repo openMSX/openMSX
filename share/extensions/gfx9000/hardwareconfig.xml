@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<!-- $Id$ -->
+<!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
+<msxconfig>
+  <device id="gfx9000">
+    <type>V9990</type>
+  </device>
+</msxconfig>
+
