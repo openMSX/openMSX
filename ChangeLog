@@ -1,5 +1,17 @@
 $Id$
 
+2001-11-25 Maarten ter Huurne <mth@stack.nl>
+	* Render on demand:
+	  New Renderer can render as many lines as requested.
+	  Many lines at once has lower overhead, but if necessary it
+	  can still render one line at a time.
+	  This code can be converted to pixel-precision rendering that
+	  has decent performance.
+	* All change tracking (dirty flags etc) is moved to Renderer.
+	* Interface between VDP and Renderer is much cleaner now.
+	  (no more public fields)
+	* Got rid of "tms" struct.
+
 2001-11-20 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* added basic support for CassettePort
 	   - CassettePort has no filters yet
@@ -56,7 +68,7 @@ $Id$
 	    --> large CPU speedup
 
 2001-11-14 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
-	* an MSXDevice is now associated with an MSXConfig object as soon as 
+	* an MSXDevice is now associated with an MSXConfig object as soon as
 	  it is instantiated. Before this change it was possible that a
 	  MSXDevice (mostly singletons) was used before it could access its
 	  parameters.
@@ -243,7 +255,7 @@ $Id$
 	* "static const int -> enum" cleanup
 	* Reworked EventDistributor, it is now possible to deliver events
 	  synchronously and asynchronously. This makes the EventDistributor
-	  more complex, but it eliminates locking problems in synchronous 
+	  more complex, but it eliminates locking problems in synchronous
 	  ( = almost all) client code.
 
 2001-10-02 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>

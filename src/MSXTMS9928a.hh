@@ -15,6 +15,15 @@
 
 class Renderer;
 
+/** TMS9928a implementation: MSX1 Video Display Processor (VDP).
+  * TODO: When communicating with the Renderer, when to use pull
+  *   (getX on MSXTMS9928a) methods and when push (setX on Renderer)?
+  *   Currently SDLLoRenderer implementation dictates this, but that
+  *   is hardly design.
+  *   One option would be to use all-pull for values and use update
+  *   methods without parameters to send update events. However, even
+  *   if getX is inline, parameter passing is probably faster still.
+  */
 class MSXTMS9928a : public MSXDevice, HotKeyListener
 {
 public:
@@ -46,56 +55,43 @@ public:
 	  */
 	void signalHotKey(SDLKey key);
 
+	/** Read a byte from the VRAM.
+	  * @param addr The address to read.
+	  *   Do bounds checking is done, so make sure it is a legal address.
+	  */
+	inline byte getVRAM(int addr) {
+		return vramData[addr];
+	}
 	/** Gets the current foreground colour [0..15].
 	  */
-	inline int getForegroundColour()
-	{
+	inline int getForegroundColour() {
 		return controlRegs[7] >> 4;
 	}
 	/** Gets the current background colour [0..15].
 	  */
-	inline int getBackgroundColour()
-	{
+	inline int getBackgroundColour() {
 		return controlRegs[7] & 0x0F;
 	}
 	/** Gets the sprite size in pixels (8/16).
 	  */
-	inline int getSpriteSize()
-	{
+	inline int getSpriteSize() {
 		return ((controlRegs[1] & 2) << 2) + 8;
 	}
 	/** Gets the sprite magnification (0 = normal, 1 = double).
 	  */
-	inline int getSpriteMag()
-	{
+	inline int getSpriteMag() {
 		return controlRegs[1] & 1;
 	}
 	/** Is the display enabled? (false means blanked)
 	  */
-	inline bool displayEnabled()
-	{
+	inline bool displayEnabled() {
 		return (controlRegs[1] & 0x40);
 	}
 	/** Are sprites enabled?
 	  */
-	inline bool spritesEnabled()
-	{
+	inline bool spritesEnabled() {
 		return !(controlRegs[1] & 0x10);
 	}
-
-	// Exposed for Renderer:
-	// TODO: Reduce this to a minimum.
-	// TODO: Is it possible to give just Renderer access to this?
-	//       "Friend" declaration didn't work, but maybe something does.
-	struct {
-		/* TMS9928A internal settings */
-		int Addr,FirstByte,BackColour,mode;
-		int colour,pattern,nametbl,spriteattribute,spritepattern;
-		int colourmask,patternmask;
-		/* memory */
-		byte *vMem;
-		int vramsize, model;
-	} tms;
 
 	/** Check sprite collision and number of sprites per line.
 	  * Separated from display code to make MSX behaviour consistent
@@ -110,25 +106,52 @@ public:
 	  */
 	int checkSprites(int line, int *visibleSprites);
 
-	/** Dirty tables indicate which character blocks must be repainted.
-	  * The anyDirty variables are true when there is at least one
-	  * element in the dirty table that is true.
+	/** Calculates a sprite pattern.
+	  * @param patternNr Number of the sprite pattern [0..255].
+	  *   For 16x16 sprites, patternNr should be a multiple of 4.
+	  * @param y The line number within the sprite: 0 <= y < size.
+	  * @return A bit field of the sprite pattern.
+	  *   Bit 31 is the first bit of the sprite.
+	  *   Unused bits are zero.
+	  * TODO: Cache patterns? That's probably what the real VDP does.
+	  *   Besides, that way pattern calculation is done only once.
 	  */
-	bool anyDirtyColour, dirtyColour[256 * 3];
-	bool anyDirtyPattern, dirtyPattern[256 * 3];
-	bool anyDirtyName, dirtyName[40 * 24];
+	inline int calculatePattern(int patternNr, int y) {
+		// TODO: Optimise getSpriteSize?
+		if (getSpriteMag()) y /= 2;
+		int pattern = spritePatternBasePtr[patternNr * 8 + y] << 24;
+		if (getSpriteSize() == 16) {
+			pattern |= spritePatternBasePtr[patternNr * 8 + y + 16] << 16;
+		}
+		if (getSpriteMag()) return doublePattern(pattern);
+		else return pattern;
+	}
 
 private:
-	/** Set all dirty / clean.
+	/** Doubles a sprite pattern.
 	  */
-	void setDirty(bool);
-	byte TMS9928A_vram_r();
-	void _TMS9928A_change_register(byte reg, byte val);
+	static int doublePattern(int pattern);
+
+	/** Byte is read from VRAM by the CPU.
+	  */
+	byte vramRead();
+	/** VDP control register has changed, work out the consequences.
+	  */
+	void changeRegister(byte reg, byte val, Emutime &time);
+	/** Display mode may have changed.
+	  * If it has, update displayMode's value and inform the Renderer.
+	  */
+	void updateDisplayMode(Emutime &time);
 
 	/** Renderer that converts this VDP's state into an image.
 	  */
 	Renderer *renderer;
-	Emutime currentTime;
+	/** Render full screen or windowed?
+	  * @see Renderer::setFullScreen
+	  * This setting is part of this class because it should remain
+	  * consistent when switching renderers at run time.
+	  */
+	bool fullScreen;
 	/** Limit number of sprites per display line?
 	  * Option only affects display, not MSX state.
 	  * In other words: when false there is no limit to the number of
@@ -136,16 +159,37 @@ private:
 	  * is still effective.
 	  */
 	bool limitSprites;
-	/** VRAM or VDP regs changed since last frame?
-	  * TODO: Adapt this for line-based emulation.
+	/** TMS model: TMS9928 or TMS9928a.
+	  * TODO: Change type into an enum.
 	  */
-	bool stateChanged;
+	int model;
+	/** Emulation time of the VDP.
+	  * In other words, the time of the last update.
+	  */
+	Emutime currentTime;
 	/** Control registers.
 	  */
 	byte controlRegs[8];
 	/** Status register.
 	  */
 	byte statusReg;
+	/** Pointer to VRAM data block.
+	  */
+	byte *vramData;
+	/** VRAM mask: bit mask that indicates which address bits are
+	  * present in the VRAM.
+	  * Equal to VRAM size minus one because VRAM size is a power of two.
+	  */
+	int vramMask;
+	/** Pointer to VRAM at base address of sprite attribute table.
+	  */
+	byte *spriteAttributeBasePtr;
+	/** Pointer to VRAM at base address of sprite pattern table.
+	  */
+	byte *spritePatternBasePtr;
+	/** First byte written through port #99, or -1 for none.
+	  */
+	int firstByte;
 	/** VRAM is read as soon as VRAM pointer changes.
 	  * TODO: Is this actually what happens?
 	  *   On TMS9928 the VRAM interface is to only access method.
@@ -153,6 +197,13 @@ private:
 	  *   I wonder if they are consistent with this implementation.
 	  */
 	byte readAhead;
+	/** Current dispay mode: M2..M0 combined.
+	  */
+	int displayMode;
+	/** VRAM read/write access pointer.
+	  * Not a C pointer, but an address.
+	  */
+	int vramPointer;
 
 };
 

@@ -4,11 +4,16 @@
 Low-res (320x240) renderer on SDL.
 
 TODO:
+- Move to double buffering.
+  Current screen line cache performs double buffering,
+  but when it is changed to a display line buffer it can no longer
+  serve that function.
+- Verify interaction between dirty flags and blanking.
 - Verify the dirty checks, especially those of mode3 and mode23,
   which were different before.
 - Further optimise the background render routines.
   For example incremental computation of the name pointers (both
-  VRAM and dirty) and don't do a name table lookup if it's not dirty.
+  VRAM and dirty).
 
 Idea:
 For bitmap modes, cache VRAM lines rather than screen lines.
@@ -45,62 +50,44 @@ template <class Pixel> SDLLoRenderer<Pixel>::RenderMethod
 		&SDLLoRenderer::modebogus
 	};
 
-// TODO: Belongs in MSXTMS9928a because it is render independant.
-inline static int calculatePattern(
-	byte *patternPtr, int y, int size, int mag)
-{
-	// Calculate pattern.
-	if (mag) y /= 2;
-	int pattern = patternPtr[y] << 24;
-	if (size == 16) {
-		pattern |= patternPtr[y + 16] << 16;
-	}
-	if (mag) {
-		// Double every dot.
-		int doublePattern = 0;
-		for (int i = 16; i--; ) {
-			doublePattern <<= 2;
-			if (pattern & 0x80000000) {
-				doublePattern |= 3;
-			}
-			pattern <<= 1;
-		}
-		return doublePattern;
-	}
-	else {
-		return pattern;
-	}
-}
-
 template <class Pixel> SDLLoRenderer<Pixel>::SDLLoRenderer<Pixel>(
 	MSXTMS9928a *vdp, SDL_Surface *screen)
 {
 	this->vdp = vdp;
 	this->screen = screen;
 
-	// Create canvas.
-	canvas = SDL_CreateRGBSurface(
+	// Init cached VDP state.
+	displayMode = 0;
+	nameBase = 0;
+	patternBase = 0;
+	colourBase = 0;
+	spriteAttributeBase = 0;
+	spritePatternBase = 0;
+	patternMask = -1;
+	colourMask = -1;
+
+	// Init dirty admin.
+	setDirty(true);
+
+	// Init render state.
+	currPhase = &SDLLoRenderer::offPhase;
+	currLine = 0;
+
+	// Create display cache.
+	displayCache = SDL_CreateRGBSurface(
 		SDL_HWSURFACE,
-		screen->w,
-		screen->h,
+		256,
+		192,
 		screen->format->BitsPerPixel,
 		screen->format->Rmask,
 		screen->format->Gmask,
 		screen->format->Bmask,
 		screen->format->Amask
 		);
-
-	// Clear bitmap.
-	// Note: SDL docs say created surface is "empty",
-	//       but that does not guarantee zero pixel values.
-	memset(canvas->pixels, 0, canvas->pitch * canvas->h);
-	// All pixels are filled with zero bytes, so borders as well.
-	memset(currBorderColours, 0, sizeof(currBorderColours));
-
 	// Init line pointers array.
-	for (int line = 0; line < HEIGHT; line++) {
+	for (int line = 0; line < 192; line++) {
 		linePtrs[line] = (Pixel *)
-			((byte *)canvas->pixels + line * canvas->pitch);
+			((byte *)displayCache->pixels + line * displayCache->pitch);
 	}
 
 	// Hide mouse cursor
@@ -108,40 +95,132 @@ template <class Pixel> SDLLoRenderer<Pixel>::SDLLoRenderer<Pixel>(
 
 	// Reset the palette
 	for (int i = 0; i < 16; i++) {
-		XPal[i] = SDL_MapRGB(screen->format,
+		XPalFg[i] = XPalBg[i] = SDL_MapRGB(
+			screen->format,
 			MSXTMS9928a::TMS9928A_PALETTE[i * 3 + 0],
 			MSXTMS9928a::TMS9928A_PALETTE[i * 3 + 1],
-			MSXTMS9928a::TMS9928A_PALETTE[i * 3 + 2]);
+			MSXTMS9928a::TMS9928A_PALETTE[i * 3 + 2]
+			);
 	}
 
 }
 
 template <class Pixel> SDLLoRenderer<Pixel>::~SDLLoRenderer()
 {
+	// TODO: SDL_Free and such.
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::toggleFullScreen()
+template <class Pixel> void SDLLoRenderer<Pixel>::setFullScreen(
+	bool fullScreen)
 {
-	SDL_WM_ToggleFullScreen(screen);
+	if (((screen->flags & SDL_FULLSCREEN) != 0) != fullScreen) {
+		SDL_WM_ToggleFullScreen(screen);
+	}
+}
+
+template <class Pixel> void SDLLoRenderer<Pixel>::updateBackgroundColour(
+	int colour, Emutime &time)
+{
+	XPalFg[0] = XPalBg[colour];
+	// Any line containing transparent pixels must be repainted.
+	// We don't know which lines contain transparent pixels,
+	// so we have to repaint them all.
+	anyDirtyColour = true;
+	fillBool(dirtyColour, true, sizeof(dirtyColour));
+}
+
+template <class Pixel> void SDLLoRenderer<Pixel>::updateDisplayMode(
+	int mode, Emutime &time)
+{
+	displayMode = mode;
+	setDirty(true);
+}
+
+template <class Pixel> void SDLLoRenderer<Pixel>::updateNameBase(
+	int addr, Emutime &time)
+{
+	nameBase = addr;
+	anyDirtyName = true;
+	fillBool(dirtyName, true, sizeof(dirtyName));
+}
+
+template <class Pixel> void SDLLoRenderer<Pixel>::updatePatternBase(
+	int addr, int mask, Emutime &time)
+{
+	patternBase = addr;
+	patternMask = mask;
+	anyDirtyPattern = true;
+	fillBool(dirtyPattern, true, sizeof(dirtyPattern));
+}
+
+template <class Pixel> void SDLLoRenderer<Pixel>::updateColourBase(
+	int addr, int mask, Emutime &time)
+{
+	colourBase = addr;
+	colourMask = mask;
+	anyDirtyColour = true;
+	fillBool(dirtyColour, true, sizeof(dirtyColour));
+}
+
+template <class Pixel> void SDLLoRenderer<Pixel>::updateSpriteAttributeBase(
+	int addr, Emutime &time)
+{
+	spriteAttributeBase = addr;
+}
+
+template <class Pixel> void SDLLoRenderer<Pixel>::updateSpritePatternBase(
+	int addr, Emutime &time)
+{
+	spritePatternBase = addr;
+}
+
+template <class Pixel> void SDLLoRenderer<Pixel>::updateVRAM(
+	int addr, byte data, Emutime &time)
+{
+	int i = addr - nameBase;
+	if ((i >= 0) && (i < (int)sizeof(dirtyName))) {
+		dirtyName[i] = anyDirtyName = true;
+	}
+
+	i = (addr - colourBase) >> 3;
+	if ((i >= 0) && (i < (int)sizeof(dirtyColour))) {
+		dirtyColour[i] = anyDirtyColour = true;
+
+	}
+
+	i = (addr - patternBase) >> 3;
+	if ((i >= 0) && (i < (int)sizeof(dirtyPattern))) {
+		dirtyPattern[i] = anyDirtyPattern = true;
+	}
+
+}
+
+template <class Pixel> void SDLLoRenderer<Pixel>::setDirty(
+	bool dirty)
+{
+	anyDirtyColour = anyDirtyPattern = anyDirtyName = dirty;
+	fillBool(dirtyName, dirty, sizeof(dirtyName));
+	fillBool(dirtyColour, dirty, sizeof(dirtyColour));
+	fillBool(dirtyPattern, dirty, sizeof(dirtyPattern));
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::mode0(
-	Pixel *pixelPtr, int line)
+	int line)
 {
-	Pixel backDropColour = XPal[vdp->getBackgroundColour()];
+	Pixel *pixelPtr = linePtrs[line];
 	int name = (line / 8) * 32;
 	for (int x = 0; x < 256; x += 8) {
-		int charcode = vdp->tms.vMem[vdp->tms.nametbl + name];
+		int charcode = vdp->getVRAM(nameBase + name);
 		// TODO: is dirtyColour[charcode / 64] correct?
 		//   It should be "charcode / 8" probably.
-		if (vdp->dirtyName[name] || vdp->dirtyPattern[charcode]
-		|| vdp->dirtyColour[charcode / 64]) {
+		if (dirtyName[name] || dirtyPattern[charcode]
+		|| dirtyColour[charcode / 64]) {
 
-			int colour = vdp->tms.vMem[vdp->tms.colour + charcode / 8];
-			Pixel fg = colour >> 4;   fg = (fg ? XPal[fg] : backDropColour);
-			Pixel bg = colour & 0x0F; bg = (bg ? XPal[bg] : backDropColour);
+			int colour = vdp->getVRAM(colourBase + charcode / 8);
+			Pixel fg = XPalFg[colour >> 4];
+			Pixel bg = XPalFg[colour & 0x0F];
 
-			int pattern = vdp->tms.vMem[vdp->tms.pattern + charcode * 8 + (line & 0x07)];
+			int pattern = vdp->getVRAM(patternBase + charcode * 8 + (line & 7));
 			// TODO: Compare performance of this loop vs unrolling.
 			for (int i = 8; i--; ) {
 				*pixelPtr++ = ((pattern & 0x80) ? fg : bg);
@@ -156,25 +235,26 @@ template <class Pixel> void SDLLoRenderer<Pixel>::mode0(
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::mode1(
-	Pixel *pixelPtr, int line)
+	int line)
 {
 	// Not needed since full screen refresh not executed now
-	//if ( !(vdp->anyDirtyColour || vdp->anyDirtyName || vdp->anyDirtyPattern) )
+	//if ( !(anyDirtyColour || anyDirtyName || anyDirtyPattern) )
 	//  return;
-	if (!vdp->anyDirtyColour) return;
+	if (!anyDirtyColour) return;
 
-	Pixel fg = XPal[vdp->getForegroundColour()];
-	Pixel bg = XPal[vdp->getBackgroundColour()];
+	Pixel *pixelPtr = linePtrs[line];
+	Pixel fg = XPalFg[vdp->getForegroundColour()];
+	Pixel bg = XPalBg[vdp->getBackgroundColour()];
 
-	int name = (line / 8) * 40;
 	int x = 0;
 	// Extended left border.
 	for (; x < 8; x++) *pixelPtr++ = bg;
 	// Actual display.
+	int name = (line / 8) * 40;
 	while (x < 248) {
-		int charcode = vdp->tms.vMem[vdp->tms.nametbl + name];
-		if (vdp->dirtyName[name] || vdp->dirtyPattern[charcode]) {
-			int pattern = vdp->tms.vMem[vdp->tms.pattern + charcode * 8 + (line & 7)];
+		int charcode = vdp->getVRAM(nameBase + name);
+		if (dirtyName[name] || dirtyPattern[charcode]) {
+			int pattern = vdp->getVRAM(patternBase + charcode * 8 + (line & 7));
 			for (int i = 6; i--; ) {
 				*pixelPtr++ = ((pattern & 0x80) ? fg : bg);
 				pattern <<= 1;
@@ -191,26 +271,28 @@ template <class Pixel> void SDLLoRenderer<Pixel>::mode1(
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::mode2(
-	Pixel *pixelPtr, int line)
+	int line)
 {
 	// Not needed since full screen refresh not executed now
-	//if ( !(vdp->anyDirtyColour || vdp->anyDirtyName || vdp->anyDirtyPattern) )
+	//if ( !(anyDirtyColour || anyDirtyName || anyDirtyPattern) )
 	//  return;
 
-	Pixel backDropColour = XPal[vdp->getBackgroundColour()];
+	// TODO: Something seems wrong about name, quarter and dirty.
+	Pixel *pixelPtr = linePtrs[line];
 	int name = (line / 8) * 32;
+	int quarter = (line / 64) * 256;
 	for (int x = 0; x < 256; x += 8) {
-		int charcode = vdp->tms.vMem[vdp->tms.nametbl+name] + (line / 64) * 256;
-		int colourNr = (charcode & vdp->tms.colourmask);
-		int patternNr = (charcode & vdp->tms.patternmask);
-		if (vdp->dirtyName[name] || vdp->dirtyPattern[patternNr]
-		|| vdp->dirtyColour[colourNr]) {
+		int charCode = vdp->getVRAM(nameBase + name) + quarter;
+		int colourNr = (charCode & colourMask);
+		int patternNr = (charCode & patternMask);
+		if (dirtyName[name] || dirtyPattern[patternNr]
+		|| dirtyColour[colourNr]) {
 			// TODO: pattern uses colourNr and colour uses patterNr...
 			//      I don't get it.
-			int pattern = vdp->tms.vMem[vdp->tms.pattern + colourNr * 8 + (line & 7)];
-			int colour = vdp->tms.vMem[vdp->tms.colour + patternNr * 8 + (line & 7)];
-			Pixel fg = colour >> 4;   fg = (fg ? XPal[fg] : backDropColour);
-			Pixel bg = colour & 0x0F; bg = (bg ? XPal[bg] : backDropColour);
+			int pattern = vdp->getVRAM(patternBase + colourNr * 8 + (line & 7));
+			int colour = vdp->getVRAM(colourBase + patternNr * 8 + (line & 7));
+			Pixel fg = XPalFg[colour >> 4];
+			Pixel bg = XPalFg[colour & 0x0F];
 			for (int i = 8; i--; ) {
 				*pixelPtr++ = ((pattern & 0x80) ? fg : bg);
 				pattern <<= 1;
@@ -224,25 +306,26 @@ template <class Pixel> void SDLLoRenderer<Pixel>::mode2(
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::mode12(
-	Pixel *pixelPtr, int line)
+	int line)
 {
 	// Not needed since full screen refresh not executed now
-	//if ( !(vdp->anyDirtyColour || vdp->anyDirtyName || vdp->anyDirtyPattern) )
+	//if ( !(anyDirtyColour || anyDirtyName || anyDirtyPattern) )
 	//  return;
-	if (!vdp->anyDirtyColour) return;
+	if (!anyDirtyColour) return;
 
-	Pixel fg = XPal[vdp->getForegroundColour()];
-	Pixel bg = XPal[vdp->getBackgroundColour()];
+	Pixel *pixelPtr = linePtrs[line];
+	Pixel fg = XPalFg[vdp->getForegroundColour()];
+	Pixel bg = XPalBg[vdp->getBackgroundColour()];
 
-	int name = (line / 8) * 32;
 	int x = 0;
 	// Extended left border.
 	for ( ; x < 8; x++) *pixelPtr++ = bg;
 	// Actual display.
+	int name = (line / 8) * 32;
 	while (x < 248) {
-		int charcode = (vdp->tms.vMem[vdp->tms.nametbl + name] + (line / 64) * 256) & vdp->tms.patternmask;
-		if (vdp->dirtyName[name] || vdp->dirtyPattern[charcode]) {
-			int pattern = vdp->tms.vMem[vdp->tms.pattern + charcode * 8];
+		int charcode = (vdp->getVRAM(nameBase + name) + (line / 64) * 256) & patternMask;
+		if (dirtyName[name] || dirtyPattern[charcode]) {
+			int pattern = vdp->getVRAM(patternBase + charcode * 8);
 			for (int i = 6; i--; ) {
 				*pixelPtr++ = ((pattern & 0x80) ? fg : bg);
 				pattern <<= 1;
@@ -259,21 +342,21 @@ template <class Pixel> void SDLLoRenderer<Pixel>::mode12(
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::mode3(
-	Pixel *pixelPtr, int line)
+	int line)
 {
 	// Not needed since full screen refresh not executed now
-	//if ( !(vdp->anyDirtyColour || vdp->anyDirtyName || vdp->anyDirtyPattern) )
+	//if ( !(anyDirtyColour || anyDirtyName || anyDirtyPattern) )
 	//  return;
-	if (!vdp->anyDirtyColour) return;
+	if (!anyDirtyColour) return;
 
-	Pixel backDropColour = XPal[vdp->getBackgroundColour()];
+	Pixel *pixelPtr = linePtrs[line];
 	int name = (line / 8) * 32;
 	for (int x = 0; x < 256; x += 8) {
-		int charcode = vdp->tms.vMem[vdp->tms.nametbl + name];
-		if (vdp->dirtyName[name] || vdp->dirtyPattern[charcode]) {
-			int colour = vdp->tms.vMem[vdp->tms.pattern + charcode * 8 + ((line / 4) & 7)];
-			Pixel fg = colour >> 4;   fg = (fg ? XPal[fg] : backDropColour);
-			Pixel bg = colour & 0x0F; bg = (bg ? XPal[bg] : backDropColour);
+		int charcode = vdp->getVRAM(nameBase + name);
+		if (dirtyName[name] || dirtyPattern[charcode]) {
+			int colour = vdp->getVRAM(patternBase + charcode * 8 + ((line / 4) & 7));
+			Pixel fg = XPalFg[colour >> 4];
+			Pixel bg = XPalFg[colour & 0x0F];
 			int n;
 			for (n = 4; n--; ) *pixelPtr++ = fg;
 			for (n = 4; n--; ) *pixelPtr++ = bg;
@@ -286,14 +369,15 @@ template <class Pixel> void SDLLoRenderer<Pixel>::mode3(
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::modebogus(
-	Pixel *pixelPtr, int line)
+	int line)
 {
 	// Not needed since full screen refresh not executed now
-	//if ( !(vdp->anyDirtyColour || vdp->anyDirtyName || vdp->anyDirtyPattern) )
+	//if ( !(anyDirtyColour || anyDirtyName || anyDirtyPattern) )
 	//  return;
 
-	Pixel fg = XPal[vdp->getForegroundColour()];
-	Pixel bg = XPal[vdp->getBackgroundColour()];
+	Pixel *pixelPtr = linePtrs[line];
+	Pixel fg = XPalFg[vdp->getForegroundColour()];
+	Pixel bg = XPalBg[vdp->getBackgroundColour()];
 	int x = 0;
 	for (; x < 8; x++) *pixelPtr++ = bg;
 	for (; x < 248; x += 6) {
@@ -305,22 +389,23 @@ template <class Pixel> void SDLLoRenderer<Pixel>::modebogus(
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::mode23(
-	Pixel *pixelPtr, int line)
+	int line)
 {
 	// Not needed since full screen refresh not executed now
-	//if ( !(vdp->anyDirtyColour || vdp->anyDirtyName || vdp->anyDirtyPattern) )
+	//if ( !(anyDirtyColour || anyDirtyName || anyDirtyPattern) )
 	//  return;
-	if (!vdp->anyDirtyColour) return;
+	if (!anyDirtyColour) return;
 
-	Pixel backDropColour = XPal[vdp->getBackgroundColour()];
+	Pixel *pixelPtr = linePtrs[line];
 	int name = (line / 8) * 32;
+	int quarter = (line / 64) * 256;
 	for (int x = 0; x < 256; x += 8) {
-		int charcode = vdp->tms.vMem[vdp->tms.nametbl + name];
-		if (vdp->dirtyName[name] || vdp->dirtyPattern[charcode]) {
-			int colour = vdp->tms.vMem[vdp->tms.pattern + ((charcode + ((line / 4) & 7) +
-				(line / 64) * 256) & vdp->tms.patternmask) * 8];
-			Pixel fg = colour >> 4;   fg = (fg ? XPal[fg] : backDropColour);
-			Pixel bg = colour & 0x0F; bg = (bg ? XPal[bg] : backDropColour);
+		int charCode = vdp->getVRAM(nameBase + name);
+		if (dirtyName[name] || dirtyPattern[charCode]) {
+			int colour = vdp->getVRAM(patternBase +
+				((charCode + ((line / 4) & 7) + quarter) & patternMask) * 8);
+			Pixel fg = XPalFg[colour >> 4];
+			Pixel bg = XPalFg[colour & 0x0F];
 			int n;
 			for (n = 4; n--; ) *pixelPtr++ = fg;
 			for (n = 4; n--; ) *pixelPtr++ = bg;
@@ -332,20 +417,8 @@ template <class Pixel> void SDLLoRenderer<Pixel>::mode23(
 	}
 }
 
-/** TODO: Is blanking really a mode?
-  */
-template <class Pixel> void SDLLoRenderer<Pixel>::modeblank(
-	Pixel *pixelPtr, int line)
-{
-	// Screen blanked so all background colour.
-	Pixel colour = XPal[vdp->getBackgroundColour()];
-	for (int x = 0; x < 256; x++) {
-		*pixelPtr++ = colour;
-	}
-}
-
 template <class Pixel> bool SDLLoRenderer<Pixel>::drawSprites(
-	Pixel *pixelPtr, int line, bool *dirty)
+	int line)
 {
 	int size = vdp->getSpriteSize();
 
@@ -353,27 +426,34 @@ template <class Pixel> bool SDLLoRenderer<Pixel>::drawSprites(
 	int visibleSprites[32];
 	int visibleIndex = vdp->checkSprites(line, visibleSprites);
 
-	bool ret = false;
+	Pixel *pixelPtr = linePtrs[line];
+	bool *dirty = dirtyName + (line / 8) * 32;
+	bool ret = false; // TODO: Get rid of return value.
 	while (visibleIndex--) {
 		// Get sprite info.
-		byte *attributePtr = vdp->tms.vMem + vdp->tms.spriteattribute +
-			visibleSprites[visibleIndex] * 4;
-		int y = *attributePtr++;
+		// TODO: Integrate this with visibleSprites somehow,
+		//   because of performance and abstraction and
+		//   caching of sprite data for time-decoupling.
+		int attributeIndex =
+			spriteAttributeBase + visibleSprites[visibleIndex] * 4;
+		int y = vdp->getVRAM(attributeIndex++);
 		y = (y > 208 ? y - 255 : y + 1);
-		int x = *attributePtr++;
-		byte *patternPtr = vdp->tms.vMem + vdp->tms.spritepattern +
-			((size == 16) ? *attributePtr & 0xFC : *attributePtr) * 8;
-		Pixel colour = *++attributePtr;
+		int x = vdp->getVRAM(attributeIndex++);
+		int patternNr = (
+			  size == 16
+			? vdp->getVRAM(attributeIndex) & 0xFC
+			: vdp->getVRAM(attributeIndex)
+			);
+		Pixel colour = vdp->getVRAM(++attributeIndex);
 		if (colour & 0x80) x -= 32;
 		colour &= 0x0F;
 		if (colour == 0) {
 			// Don't draw transparent sprites.
 			continue;
 		}
-		colour = XPal[colour];
+		colour = XPalBg[colour];
 
-		int pattern = calculatePattern(
-			patternPtr, line - y, size, vdp->getSpriteMag());
+		int pattern = vdp->calculatePattern(patternNr, line - y);
 
 		// Skip any dots that end up in the left border.
 		if (x < 0) {
@@ -384,7 +464,7 @@ template <class Pixel> bool SDLLoRenderer<Pixel>::drawSprites(
 		// of 32 8x8 chars.
 		bool *dirtyPtr = dirty + (x / 8);
 		if (pattern) {
-			vdp->anyDirtyName = true;
+			anyDirtyName = true;
 			ret = true;
 		}
 		// Convert pattern to pixels.
@@ -411,124 +491,180 @@ template <class Pixel> bool SDLLoRenderer<Pixel>::drawSprites(
 	return ret;
 }
 
-// Note: currently not used.
-template <class Pixel> inline void SDLLoRenderer<Pixel>::drawEmptyLine(
-	Pixel *linePtr, Pixel colour)
+/*
+NTSC phase diagram
+
+line:  phase:           handler:
+   0   bottom erase     offPhase
+   3   sync             offPhase
+   6   top erase        offPhase
+  19   top border       blankPhase
+  45   display          displayPhase
+ 237   bottom border    blankPhase
+ 262   end of screen
+*/
+static const int LINE_TOP_BORDER = 19;
+static const int LINE_DISPLAY = 45;
+static const int LINE_BOTTOM_BORDER = 237;
+static const int LINE_END_OF_SCREEN = 262;
+/*
+Lines rendered are [21..261).
+*/
+static const int LINE_RENDER_TOP = 21;
+
+template <class Pixel> void SDLLoRenderer<Pixel>::offPhase(
+	int limit)
 {
-	for (int i = WIDTH; i--; ) {
-		*linePtr++ = colour;
+	if (limit > LINE_TOP_BORDER) {
+		// Top border ends off phase.
+		currPhase = &SDLLoRenderer::blankPhase;
+		limit = LINE_TOP_BORDER;
 	}
+	// No rendering, only catch up.
+	if (currLine < limit) currLine = limit;
 }
 
-template <class Pixel> inline void SDLLoRenderer<Pixel>::drawBorders(
-	Pixel *linePtr, Pixel colour, int displayStart, int displayStop)
+template <class Pixel> void SDLLoRenderer<Pixel>::blankPhase(
+	int limit)
 {
-	for (int i = displayStart; i--; ) {
-		*linePtr++ = colour;
+	if ((currLine < LINE_BOTTOM_BORDER) && (limit > LINE_DISPLAY)
+	&& vdp->displayEnabled()) {
+		// Display ends blank phase.
+		currPhase = &SDLLoRenderer::displayPhase;
+		limit = LINE_DISPLAY;
 	}
-	linePtr += displayStop - displayStart;
-	for (int i = WIDTH - displayStop; i--; ) {
-		*linePtr++ = colour;
+	else if (limit == LINE_END_OF_SCREEN) {
+		// End of screen ends blank phase.
+		currPhase = &SDLLoRenderer::offPhase;
 	}
-}
-
-template <class Pixel> void SDLLoRenderer<Pixel>::fullScreenRefresh()
-{
-	Pixel borderColour = XPal[vdp->getBackgroundColour()];
-	int displayX = (WIDTH - 256) / 2;
-	int displayY = (HEIGHT - 192) / 2;
-	int line = 0;
-	Pixel *currBorderColoursPtr = currBorderColours;
-	SDL_Rect rect;
-	rect.x = 0;
-	rect.w = WIDTH;
-	rect.h = 1;
-
-	// Top border.
-	for (; line < displayY; line++, currBorderColoursPtr++) {
-		if (*currBorderColoursPtr != borderColour) {
-			rect.y = line;
-			// Note: return code ignored.
-			SDL_FillRect(canvas, &rect, borderColour);
-			//drawEmptyLine(linePtrs[line], borderColour);
-			*currBorderColoursPtr = borderColour;
+	// Render lines up to limit.
+	if (currLine < limit) {
+		// TODO: Only redraw if necessary.
+		SDL_Rect rect;
+		rect.x = 0;
+		rect.y = currLine - LINE_RENDER_TOP;
+		rect.w = WIDTH;
+		rect.h = limit - currLine;
+		// Clip to area actually displayed.
+		if (rect.y < 0) {
+			rect.h += rect.y;
+			rect.y = 0;
 		}
+		else if (rect.y + rect.h > HEIGHT) {
+			rect.h = HEIGHT - rect.y;
+		}
+		if (rect.h > 0) {
+			// Note: return code ignored.
+			SDL_FillRect(screen, &rect, XPalBg[vdp->getBackgroundColour()]);
+		}
+		currLine = limit;
 	}
+}
 
-	// Characters that contain sprites should be drawn again next frame.
-	bool nextDirty[32];
-	bool nextAnyDirty = false; // dirty pixel in current character row?
-	bool nextAnyDirtyName = false; // dirty pixel anywhere in frame?
+template <class Pixel> void SDLLoRenderer<Pixel>::displayPhase(
+	int limit)
+{
+	if (!vdp->displayEnabled()) {
+		// Forced blanking ends display phase.
+		currPhase = &SDLLoRenderer::blankPhase;
+		return;
+	}
+	if (limit > LINE_BOTTOM_BORDER) {
+		// Bottom border ends display phase.
+		currPhase = &SDLLoRenderer::blankPhase;
+		limit = LINE_BOTTOM_BORDER;
+	}
+	if (currLine >= limit) return;
 
 	// Lock surface, because we will access pixels directly.
-	if (SDL_MUSTLOCK(canvas) && SDL_LockSurface(canvas)<0) return;//ExitNow=1;
+	if (SDL_MUSTLOCK(displayCache) && SDL_LockSurface(displayCache) < 0) {
+		// Display will be wrong, but this is not really critical.
+		return;
+	}
 
-	// Display area.
-	RenderMethod renderMethod = modeToRenderMethod[vdp->tms.mode];
-	for (int y = 0; y < 192; y++, line++, currBorderColoursPtr++) {
-		if ((y & 7) == 0) {
-			fillBool(nextDirty, false, 32);
-			nextAnyDirty = false;
-		}
-		Pixel *linePtr = &linePtrs[line][displayX];
-		if (vdp->displayEnabled()) {
-			(this->*renderMethod)(linePtr, y);
-			if (vdp->spritesEnabled()) {
-				nextAnyDirty |= drawSprites(linePtr, y, nextDirty);
-			}
-		}
-		else {
-			modeblank(linePtr, y);
-		}
+	// Render background lines.
+	RenderMethod renderMethod = modeToRenderMethod[displayMode];
+	for (int line = currLine; line < limit; line++) {
+		int y = line - LINE_DISPLAY;
+		(this->*renderMethod)(y);
+		// TODO: Depends on the fact that the number of lines
+		//   rendered is a multiple of 8.
+		// TODO: Support 40 column modes properly.
 		if ((y & 7) == 7) {
-			if (nextAnyDirty) {
-				memcpy(vdp->dirtyName + (y / 8) * 32, nextDirty, 32 * sizeof(bool));
-				nextAnyDirtyName = true;
-			}
-			else {
-				fillBool(vdp->dirtyName + (y / 8) * 32, false, 32);
-			}
+			fillBool(dirtyName + (y / 8) * 32, false, 32);
 		}
-		// Borders are drawn after the display area:
-		// V9958 can extend the left border over the display area,
-		// this is implemented using overdraw.
-		// TODO: Does the extended border clip sprites as well?
-		if (*currBorderColoursPtr != borderColour) {
-			drawBorders(linePtrs[line], borderColour,
-				displayX, WIDTH - displayX);
-			*currBorderColoursPtr = borderColour;
+	}
+
+	// Render sprites.
+	bool nextAnyDirtyName = false;
+	// TODO: Draw sprites only in modes that actually have sprites.
+	if (vdp->spritesEnabled()) {
+		for (int line = currLine; line < limit; line++) {
+			nextAnyDirtyName |= drawSprites(line - LINE_DISPLAY);
 		}
 	}
 
 	// Unlock surface.
-	if (SDL_MUSTLOCK(canvas)) SDL_UnlockSurface(canvas);
+	if (SDL_MUSTLOCK(displayCache)) SDL_UnlockSurface(displayCache);
 
-	// Bottom border.
-	for (; line < HEIGHT; line++, currBorderColoursPtr++) {
-		if (*currBorderColoursPtr != borderColour) {
-			rect.y = line;
-			// Note: return code ignored.
-			SDL_FillRect(canvas, &rect, borderColour);
-			//drawEmptyLine(linePtrs[line], borderColour);
-			*currBorderColoursPtr = borderColour;
-		}
+	// Where does the display start? (equal to width of left border)
+	int displayX = (WIDTH - 256) / 2;
+
+	// Copy background + sprites image.
+	SDL_Rect source;
+	source.x = 0;
+	source.y = currLine - LINE_DISPLAY;
+	source.w = 256;
+	source.h = limit - currLine;
+	SDL_Rect dest;
+	dest.x = displayX;
+	dest.y = currLine - LINE_RENDER_TOP;
+	dest.w = source.w;
+	dest.h = source.h;
+	// TODO: Can we safely use SDL_LowerBlit?
+	// Note: return value is ignored.
+	SDL_BlitSurface(displayCache, &source, screen, &dest);
+
+	// Borders are drawn after the display area:
+	// V9958 can extend the left border over the display area,
+	// this is implemented using overdraw.
+	// TODO: Does the extended border clip sprites as well?
+	Pixel bgColour = XPalBg[vdp->getBackgroundColour()];
+	dest.x = 0;
+	dest.w = displayX;
+	SDL_FillRect(screen, &dest, bgColour);
+	dest.x = WIDTH - displayX;
+	dest.w = displayX;
+	SDL_FillRect(screen, &dest, bgColour);
+
+	// TODO: This is only correct for full-screen refreshes.
+	anyDirtyName = nextAnyDirtyName;
+	anyDirtyColour = anyDirtyPattern = false;
+	fillBool(dirtyColour, false, sizeof(dirtyColour));
+	fillBool(dirtyPattern, false, sizeof(dirtyPattern));
+
+	currLine = limit;
+}
+
+template <class Pixel> void SDLLoRenderer<Pixel>::renderUntil(
+	int limit)
+{
+	while (currLine < limit) {
+		(this->*currPhase)(limit);
 	}
-
-	// TODO: Verify interaction between dirty flags and blanking.
-	vdp->anyDirtyName = nextAnyDirtyName;
-	vdp->anyDirtyColour = vdp->anyDirtyPattern = false;
-	fillBool(vdp->dirtyColour, false, sizeof(vdp->dirtyColour));
-	fillBool(vdp->dirtyPattern, false, sizeof(vdp->dirtyPattern));
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::putImage()
 {
-	// Copy image.
-	// Note: return value is ignored.
-	SDL_BlitSurface(canvas, NULL, screen, NULL);
+	// Render changes from this last frame.
+	// TODO: Support PAL.
+	renderUntil(262);
+	currLine = 0;
 
 	// Update screen.
+	// TODO: Move to double buffering?
 	SDL_UpdateRect(screen, 0, 0, 0, 0);
+
 }
 
 Renderer *createSDLLoRenderer(MSXTMS9928a *vdp, bool fullScreen)

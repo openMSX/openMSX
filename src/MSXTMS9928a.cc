@@ -17,17 +17,10 @@ http://www.msxnet.org/tech/tms9918a.txt
 
 
 TODO:
-- Verify the dirty checks, especially those of mode3 and mode23,
-  which were different before.
 - Apply line-based scheduling.
 - Sprite attribute readout probably happens one line in advance.
   This matters when line-based scheduling is operational.
 - Get rid of hardcoded port 0x98 and 0x99.
-
-Idea:
-For bitmap modes, cache VRAM lines rather than screen lines.
-Better performance when doing raster tricks or double buffering.
-Probably also easier to implement when using line buffers.
 */
 
 
@@ -35,15 +28,13 @@ Probably also easier to implement when using line buffers.
 #include "MSXMotherBoard.hh"
 #include "SDLLoRenderer.hh"
 #include "MSXTMS9928a.hh"
-#include "config.h"
 
 #include <string>
 #include <cassert>
 
 
+// TODO: Change into enum or get rid of it.
 #define TMS99x8A 1
-#define TMS_MODE ( (tms.model == TMS99x8A ? (controlRegs[0] & 2) : 0) | \
-	((controlRegs[1] & 0x10)>>4) | ((controlRegs[1] & 8)>>1))
 
 /*
 	New palette (R. Nabet).
@@ -93,44 +84,18 @@ const byte MSXTMS9928a::TMS9928A_PALETTE[16 * 3] =
 	255, 255, 255
 };
 
-/** Fill a boolean array with a single value.
-  * Optimised for byte-sized booleans,
-  * but correct for every size.
-  */
-// TODO: Routine is duplicated in SDLLoRenderer.
-inline static void fillBool(bool *ptr, bool value, int nr)
+int MSXTMS9928a::doublePattern(int pattern)
 {
-#if SIZEOF_BOOL == 1
-	memset(ptr, value, nr);
-#else
-	for (int i = nr; i--; ) *ptr++ = value;
-#endif
-}
-
-// TODO: Routine is duplicated in SDLLoRenderer.
-// TODO: Make this a member and get rid of size and mag params.
-inline static int calculatePattern(byte *patternPtr, int y, int size, int mag)
-{
-	if (mag) y /= 2;
-	int pattern = patternPtr[y] << 24;
-	if (size == 16) {
-		pattern |= patternPtr[y + 16] << 16;
-	}
-	if (mag) {
-		// Double every dot.
-		int doublePattern = 0;
-		for (int i = 16; i--; ) {
-			doublePattern <<= 2;
-			if (pattern & 0x80000000) {
-				doublePattern |= 3;
-			}
-			pattern <<= 1;
+	// Double every dot.
+	int ret = 0;
+	for (int i = 16; i--; ) {
+		ret <<= 2;
+		if (pattern & 0x80000000) {
+			ret |= 3;
 		}
-		return doublePattern;
+		pattern <<= 1;
 	}
-	else {
-		return pattern;
-	}
+	return ret;
 }
 
 int MSXTMS9928a::checkSprites(int line, int *visibleSprites)
@@ -140,7 +105,7 @@ int MSXTMS9928a::checkSprites(int line, int *visibleSprites)
 	int size = getSpriteSize();
 	int magSize = size * (getSpriteMag() + 1);
 	int minStart = line - magSize;
-	byte *attributePtr = tms.vMem + tms.spriteattribute;
+	byte *attributePtr = spriteAttributeBasePtr;
 	for (sprite = 0; sprite < 32; sprite++, attributePtr += 4) {
 		int y = *attributePtr;
 		if (y == 208) break;
@@ -185,30 +150,26 @@ int MSXTMS9928a::checkSprites(int line, int *visibleSprites)
 	If any collision is found, method returns at once.
 	*/
 	for (int i = (visibleIndex < 4 ? visibleIndex : 4); --i >= 1; ) {
-		byte *attributePtr = tms.vMem + tms.spriteattribute +
-			visibleSprites[i] * 4;
+		byte *attributePtr = spriteAttributeBasePtr + visibleSprites[i] * 4;
 		int y_i = *attributePtr++;
 		int x_i = *attributePtr++;
-		byte *patternPtr_i = tms.vMem + tms.spritepattern +
-			((size == 16) ? *attributePtr & 0xFC : *attributePtr) * 8;
+		int patternIndex_i =
+			((size == 16) ? *attributePtr & 0xFC : *attributePtr);
 		if ((*++attributePtr) & 0x80) x_i -= 32;
 
 		for (int j = i; --j >= 0; ) {
-			attributePtr = tms.vMem + tms.spriteattribute +
-				visibleSprites[j] * 4;
+			attributePtr = spriteAttributeBasePtr + visibleSprites[j] * 4;
 			int y_j = *attributePtr++;
 			int x_j = *attributePtr++;
-			byte *patternPtr_j = tms.vMem + tms.spritepattern +
-				((size == 16) ? *attributePtr & 0xFC : *attributePtr) * 8;
+			int patternIndex_j =
+				((size == 16) ? *attributePtr & 0xFC : *attributePtr);
 			if ((*++attributePtr) & 0x80) x_j -= 32;
 
 			// Do sprite i and sprite j collide?
 			int dist = x_j - x_i;
 			if ((-magSize < dist) && (dist < magSize)) {
-				int pattern_i = calculatePattern(
-					patternPtr_i, line - y_i, size, getSpriteMag());
-				int pattern_j = calculatePattern(
-					patternPtr_j, line - y_j, size, getSpriteMag());
+				int pattern_i = calculatePattern(patternIndex_i, line - y_i);
+				int pattern_j = calculatePattern(patternIndex_j, line - y_j);
 				if (dist < 0) {
 					pattern_i >>= -dist;
 				}
@@ -237,7 +198,7 @@ MSXTMS9928a::~MSXTMS9928a()
 {
 	PRT_DEBUG("Destroying an MSXTMS9928a object");
 	delete(renderer);
-	delete(tms.vMem);
+	delete[](vramData);
 }
 
 // The init, start, reset and shutdown functions
@@ -248,16 +209,14 @@ void MSXTMS9928a::reset()
 
 	for (int i = 0; i < 8; i++) controlRegs[i] = 0;
 	statusReg = 0;
-	tms.nametbl = tms.pattern = tms.colour = 0;
-	tms.spritepattern = tms.spriteattribute = 0;
-	tms.colourmask = tms.patternmask = 0;
-	tms.Addr = 0;
+	vramPointer = 0;
 	readAhead = 0;
-	//tms.INT = 0;
-	tms.mode = tms.BackColour = 0;
-	tms.FirstByte = -1;
-	setDirty(true);
-	stateChanged = true;
+	firstByte = -1;
+
+	spriteAttributeBasePtr = vramData;
+	spritePatternBasePtr = vramData;
+
+	// TODO: Reset the renderer.
 }
 
 void MSXTMS9928a::init()
@@ -266,23 +225,27 @@ void MSXTMS9928a::init()
 
 	limitSprites = true; // TODO: Read from config.
 
-	tms.model = 1;	//tms9928a
+	model = TMS99x8A;
 
 	// Video RAM
-	tms.vramsize = 0x4000;
-	tms.vMem = new byte[tms.vramsize];
+	int vramSize = 0x4000;
+	vramMask = vramSize - 1;
+	vramData = new byte[vramSize];
 	// TODO: Use exception instead?
-	if (!tms.vMem) return ;//1;
-	memset(tms.vMem, 0, tms.vramsize);
+	if (!vramData) return ;//1;
+	memset(vramData, 0, vramSize);
 
 	reset();
 
-	printf("fullscreen = [%s]\n", deviceConfig->getParameter("fullscreen").c_str());
-	bool fullScreen = atoi(deviceConfig->getParameter("fullscreen").c_str());
+	// TODO: Move Renderer creation outside of this class.
+	//   A setRenderer method would be used to provide a renderer.
+	//   It should be possible to switch the Renderer at run time,
+	//   probably on user request.
+	fullScreen = atoi(deviceConfig->getParameter("fullscreen").c_str());
 	renderer = createSDLLoRenderer(this, fullScreen);
 
 	// Register hotkey for fullscreen togling
-	HotKey::instance()->registerAsyncHotKey(SDLK_PRINT,this);
+	HotKey::instance()->registerAsyncHotKey(SDLK_PRINT, this);
 
 	MSXMotherBoard::instance()->register_IO_In((byte)0x98, this);
 	MSXMotherBoard::instance()->register_IO_In((byte)0x99, this);
@@ -294,8 +257,9 @@ void MSXTMS9928a::init()
 
 void MSXTMS9928a::signalHotKey(SDLKey key)
 {
-	// We don't care which key, since we only registered one.
-	renderer->toggleFullScreen();
+	// Only key currently registered is full screen toggle.
+	fullScreen = !fullScreen;
+	renderer->setFullScreen(fullScreen);
 }
 
 void MSXTMS9928a::start()
@@ -313,17 +277,23 @@ But is it guaranteed that the set sync points are actually the only
 times a sync is done?
 It seems to me that status reg reads can also be a reason for syncing.
 If not currently, then certainly in the future.
+
+TODO:
+Currently two things are done:
+- status register bookkeeping
+- force render
+The status registers will probably be calculated on demand in the
+future, instead of being kept current all the time. For registers
+like HR it will save the scheduler a lot of effort if they are
+calculated on demand.
+So only the rendering remains. Then it's probably better to schedule
+the renderer directly, instead of through the VDP.
 */
 void MSXTMS9928a::executeUntilEmuTime(const Emutime &time)
 {
 	PRT_DEBUG("Executing TMS9928a at time " << time);
 
-	//TODO: Change from full screen refresh to emutime based!!
-	if (stateChanged) {
-		renderer->fullScreenRefresh();
-		renderer->putImage();
-		stateChanged = false;
-	}
+	renderer->putImage();
 
 	//Next SP/interrupt in Pal mode here
 	currentTime = time;
@@ -336,65 +306,39 @@ void MSXTMS9928a::executeUntilEmuTime(const Emutime &time)
 	}
 }
 
-void MSXTMS9928a::setDirty(bool dirty)
-{
-	anyDirtyColour = anyDirtyPattern = anyDirtyName = dirty;
-	fillBool(dirtyName, dirty, sizeof(dirtyName));
-	fillBool(dirtyColour, dirty, sizeof(dirtyColour));
-	fillBool(dirtyPattern, dirty, sizeof(dirtyPattern));
-}
-
 // The I/O functions.
 
 void MSXTMS9928a::writeIO(byte port, byte value, Emutime &time)
 {
 	switch (port){
 	case 0x98: {
-		if (tms.vMem[tms.Addr] != value) {
-			tms.vMem[tms.Addr] = value;
-			/* dirty optimization */
-			stateChanged = true;
-
-			if ( (tms.Addr >= tms.nametbl)
-			&& (tms.Addr < (tms.nametbl + (int)sizeof(dirtyName)) ) ) {
-				dirtyName[tms.Addr - tms.nametbl] = anyDirtyName = true;
-			}
-
-			int i;
-			i = (tms.Addr - tms.colour) >> 3;
-			if ( (i >= 0) && (i < (int)sizeof(dirtyColour)) ) {
-				dirtyColour[i] = anyDirtyColour = true;
-
-			}
-
-			i = (tms.Addr - tms.pattern) >> 3;
-			if ( (i >= 0) && (i < (int)sizeof(dirtyPattern)) ) {
-				dirtyPattern[i] = anyDirtyPattern = true;
-			}
+		if (vramData[vramPointer] != value) {
+			vramData[vramPointer] = value;
+			renderer->updateVRAM(vramPointer, value, time);
 		}
-		tms.Addr = (tms.Addr + 1) & (tms.vramsize - 1);
+		vramPointer = (vramPointer + 1) & vramMask;
 		readAhead = value;
-		tms.FirstByte = -1;
+		firstByte = -1;
 		break;
 	}
 	case 0x99:
-		if (tms.FirstByte >= 0) {
+		if (firstByte != -1) {
 			if (value & 0x80) {
 				// Register write.
-				_TMS9928A_change_register ((int)(value & 7), tms.FirstByte);
+				changeRegister((int)(value & 7), firstByte, time);
 			}
 			else {
 				// Set read/write address.
-				tms.Addr = ((word)value << 8 | tms.FirstByte) & (tms.vramsize - 1);
+				vramPointer = ((word)value << 8 | firstByte) & vramMask;
 				if ( !(value & 0x40) ) {
 					// Read ahead.
-					TMS9928A_vram_r();
+					vramRead();
 				}
 			}
-			tms.FirstByte = -1;
+			firstByte = -1;
 		}
 		else {
-			tms.FirstByte = value;
+			firstByte = value;
 		}
 		break;
 	default:
@@ -402,12 +346,12 @@ void MSXTMS9928a::writeIO(byte port, byte value, Emutime &time)
 	}
 }
 
-byte MSXTMS9928a::TMS9928A_vram_r()
+byte MSXTMS9928a::vramRead()
 {
 	byte ret = readAhead;
-	readAhead = tms.vMem[tms.Addr];
-	tms.Addr = (tms.Addr + 1) & (tms.vramsize - 1);
-	tms.FirstByte = -1;
+	readAhead = vramData[vramPointer];
+	vramPointer = (vramPointer + 1) & vramMask;
+	firstByte = -1;
 	return ret;
 }
 
@@ -415,12 +359,12 @@ byte MSXTMS9928a::readIO(byte port, Emutime &time)
 {
 	switch (port) {
 	case 0x98:
-		return TMS9928A_vram_r();
+		return vramRead();
 	case 0x99: {
 		byte ret = statusReg;
 		// TODO: Used to be 0x5f, but that is contradicted by TMS9918.pdf
 		statusReg &= 0x1f;
-		tms.FirstByte = -1;
+		firstByte = -1;
 		resetInterrupt();
 		return ret;
 	}
@@ -429,103 +373,112 @@ byte MSXTMS9928a::readIO(byte port, Emutime &time)
 	}
 }
 
-void MSXTMS9928a::_TMS9928A_change_register(byte reg, byte val)
+void MSXTMS9928a::changeRegister(byte reg, byte val, Emutime &time)
 {
-	static const byte Mask[8] =
+	static const byte REG_MASKS[8] =
 		{ 0x03, 0xfb, 0x0f, 0xff, 0x07, 0x7f, 0x07, 0xff };
-	static const char *modes[] = {
-		"Mode 0 (GRAPHIC 1)", "Mode 1 (TEXT 1)", "Mode 2 (GRAPHIC 2)",
-		"Mode 1+2 (TEXT 1 variation)", "Mode 3 (MULTICOLOR)",
-		"Mode 1+3 (BOGUS)", "Mode 2+3 (MULTICOLOR variation)",
-		"Mode 1+2+3 (BOGUS)" };
 
-	val &= Mask[reg];
+	val &= REG_MASKS[reg];
 	byte oldval = controlRegs[reg];
 	if (oldval == val) return;
 	controlRegs[reg] = val;
-	stateChanged = true;
 
 	PRT_DEBUG("TMS9928A: Reg " << (int)reg << " = " << (int)val);
-	PRT_DEBUG ("TMS9928A: now in mode " << tms.mode );
-	// Next lines causes crashes
-	//PRT_DEBUG (sprintf("TMS9928A: %s\n", modes[tms.mode]));
 	switch (reg) {
 	case 0:
-		if ( (val ^ oldval) & 2) {
-			// re-calculate masks and pattern generator & colour
+		if ((val ^ oldval) & 2) {
+			// Re-calculate masks and pattern generator & colour.
 			if (val & 2) {
-				tms.colour = ((controlRegs[3] & 0x80) * 64) & (tms.vramsize - 1);
-				tms.colourmask = (controlRegs[3] & 0x7f) * 8 | 7;
-				tms.pattern = ((controlRegs[4] & 4) * 2048) & (tms.vramsize - 1);
-				tms.patternmask = (controlRegs[4] & 3) * 256 |
-					(tms.colourmask & 255);
+				int colourMask = (controlRegs[3] & 0x7f) * 8 | 7;
+				renderer->updateColourBase(
+					((controlRegs[3] & 0x80) * 64) & vramMask,
+					colourMask,
+					time
+					);
+				renderer->updatePatternBase(
+					((controlRegs[4] & 4) * 2048) & vramMask,
+					(controlRegs[4] & 3) * 256 | (colourMask & 255),
+					time
+					);
 			}
 			else {
-				tms.colour = (controlRegs[3] * 64) & (tms.vramsize - 1);
-				tms.pattern = (controlRegs[4] * 2048) & (tms.vramsize - 1);
+				renderer->updateColourBase(
+					(controlRegs[3] * 64) & vramMask, -1, time);
+				renderer->updatePatternBase(
+					(controlRegs[4] * 2048) & vramMask, -1, time);
 			}
-			tms.mode = TMS_MODE;
-			//PRT_DEBUG ("TMS9928A: now in mode " << tms.mode );
-			//PRT_DEBUG (sprintf("TMS9928A: %s\n", modes[tms.mode]));
-			setDirty(true);
+			updateDisplayMode(time);
 		}
 		break;
-	case 1: {
+	case 1:
 		// check for changes in the INT line
 		if ((val & 0x20) && (statusReg & 0x80)) {
 			/* Set the interrupt line !! */
 			setInterrupt();
 		}
-		int mode = TMS_MODE;
-		if (tms.mode != mode) {
-			tms.mode = mode;
-			setDirty(true);
-			printf("TMS9928A: %s\n", modes[tms.mode]);
-			//PRT_DEBUG (sprintf("TMS9928A: %s\n", modes[tms.mode]));
-		}
+		updateDisplayMode(time);
 		break;
-	}
 	case 2:
-		tms.nametbl = (val * 1024) & (tms.vramsize - 1);
-		anyDirtyName = true;
-		fillBool(dirtyName, true, sizeof(dirtyName));
+		renderer->updateNameBase((val * 1024) & vramMask, time);
 		break;
 	case 3:
 		if (controlRegs[0] & 2) {
-			tms.colour = ((val & 0x80) * 64) & (tms.vramsize - 1);
-			tms.colourmask = (val & 0x7f) * 8 | 7;
+			renderer->updateColourBase(
+				((val & 0x80) * 64) & vramMask,
+				(val & 0x7f) * 8 | 7,
+				time
+				);
 		}
 		else {
-			tms.colour = (val * 64) & (tms.vramsize - 1);
+			renderer->updateColourBase((val * 64) & vramMask, -1, time);
 		}
-		anyDirtyColour = true;
-		fillBool(dirtyColour, true, sizeof(dirtyColour));
 		break;
 	case 4:
 		if (controlRegs[0] & 2) {
-			tms.pattern = ((val & 4) * 2048) & (tms.vramsize - 1);
-			tms.patternmask = (val & 3) * 256 | 255;
+			renderer->updatePatternBase(
+				((val & 4) * 2048) & vramMask,
+				(val & 3) * 256 | 255,
+				time
+				);
 		}
 		else {
-			tms.pattern = (val * 2048) & (tms.vramsize - 1);
+			renderer->updatePatternBase((val * 2048) & vramMask, -1, time);
 		}
-		anyDirtyPattern = true;
-		fillBool(dirtyPattern, true, sizeof(dirtyPattern));
 		break;
-	case 5:
-		tms.spriteattribute = (val * 128) & (tms.vramsize - 1);
+	case 5: {
+		int addr = (val * 128) & vramMask;
+		spriteAttributeBasePtr = vramData + addr;
+		renderer->updateSpriteAttributeBase(addr, time);
 		break;
-	case 6:
-		tms.spritepattern = (val * 2048) & (tms.vramsize - 1);
+	}
+	case 6: {
+		int addr = (val * 2048) & vramMask;
+		spritePatternBasePtr = vramData + addr;
+		renderer->updateSpritePatternBase(addr, time);
 		break;
+	}
 	case 7:
-		// Any line containing transparent pixels must be repainted.
-		// We don't know which lines contain transparent pixels,
-		// so we have to repaint them all.
-		// TODO: Maybe this can be optimised for some screen modes.
-		anyDirtyColour = true;
-		fillBool(dirtyColour, true, sizeof(dirtyColour));
+		renderer->updateBackgroundColour(val & 0x0F, time);
 		break;
+	}
+}
+
+void MSXTMS9928a::updateDisplayMode(Emutime &time)
+{
+	static const char *MODE_STRINGS[] = {
+		"Mode 0 (GRAPHIC 1)", "Mode 1 (TEXT 1)", "Mode 2 (GRAPHIC 2)",
+		"Mode 1+2 (TEXT 1 variation)", "Mode 3 (MULTICOLOR)",
+		"Mode 1+3 (BOGUS)", "Mode 2+3 (MULTICOLOR variation)",
+		"Mode 1+2+3 (BOGUS)" };
+
+	int newMode =
+		  (model == TMS99x8A ? (controlRegs[0] & 2) : 0)
+		| ((controlRegs[1] & 0x10) >> 4)
+		| ((controlRegs[1] & 0x08) >> 1);
+	if (newMode != displayMode) {
+		displayMode = newMode;
+		renderer->updateDisplayMode(newMode, time);
+		printf("TMS9928A: mode %s\n", MODE_STRINGS[newMode]);
 	}
 }
 
