@@ -7,14 +7,14 @@
 #include "MSXException.hh"
 
 namespace openmsx {
-
+	
 int dummyClose(ClientData instanceData, Tcl_Interp *interp)
 {
-	return EINVAL;
+	return 0;
 }
 int dummyInput(ClientData instanceData, char *buf, int bufSize, int *errorCodePtr)
 {
-	return EINVAL;
+	return 0;
 }
 void dummyWatch(ClientData instanceData, int mask)
 {
@@ -23,6 +23,18 @@ int dummyGetHandle(ClientData instanceData, int direction, ClientData *handlePtr
 {
 	return TCL_ERROR;
 }
+Tcl_ChannelType TCLInterp::channelType = {
+	"openMSX console",	// Type name
+	NULL,			// Always non-blocking
+	dummyClose,		// Close proc
+	dummyInput,		// Input proc
+	TCLInterp::outputProc,	// Output proc
+	NULL,			// Seek proc
+	NULL,			// Set option proc
+	NULL,			// Get option proc
+	dummyWatch,		// Watch for events on console
+	dummyGetHandle,		// Get a handle from the device
+};
 
 void TCLInterp::init(const char* programName)
 {
@@ -34,29 +46,18 @@ TCLInterp::TCLInterp()
 	interp = Tcl_CreateInterp();
 	Tcl_Preserve(interp);
 	
-	if (Tcl_Init(interp) != TCL_OK) {
-		cout << "Tcl_Init: " << interp->result << endl;
-	}
-
-	static Tcl_ChannelType channelType;
-	channelType.typeName = "openMSX console";
-	channelType.version = TCL_CHANNEL_VERSION_2;
-	channelType.closeProc = dummyClose;
-	channelType.inputProc = dummyInput;
-	channelType.outputProc = outputProc; // output handler
-	channelType.seekProc = NULL;
-	channelType.setOptionProc = NULL;
-	channelType.getOptionProc = NULL;
-	channelType.watchProc = dummyWatch;
-	channelType.getHandleProc = dummyGetHandle;
-	channelType.close2Proc = NULL;
-	channelType.blockModeProc = NULL; 
-	channelType.flushProc = NULL;
-	channelType.handlerProc = NULL;     
-	channelType.wideSeekProc = NULL;
+	// TODO need to investigate this: doesn't work on windows
+	//if (Tcl_Init(interp) != TCL_OK) {
+	//	cout << "Tcl_Init: " << interp->result << endl;
+	//}
 
 	Tcl_Channel channel = Tcl_CreateChannel(&channelType,
-		"openMSX console", this, TCL_WRITABLE);
+		"openMSX console", NULL, TCL_WRITABLE);
+	if (channel != NULL) {
+		Tcl_SetChannelOption(interp, channel, "-translation", "binary");
+		Tcl_SetChannelOption(interp, channel, "-buffering", "line");
+		Tcl_SetChannelOption(interp, channel, "-encoding", "binary");
+	}
 	Tcl_SetStdChannel(channel, TCL_STDOUT);
 }
 

@@ -38,6 +38,7 @@ private:
 	
 	void cleanup();
 
+	static Tcl_ChannelType channelType;
 	Tcl_Interp* interp;
 };
 
