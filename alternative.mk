@@ -89,18 +89,52 @@ include flavour-$(OPENMSX_FLAVOUR).mk
 # Filesets
 # ========
 
+define PROCESS_SUBDIR
+# Push current directory on directory stack.
+DIRSTACK:=$$(CURDIR) $$(DIRSTACK)
+CURDIR:=$(CURDIR)/$(1)
+# Initialise node vars with empty value.
+SUBDIRS:=
+SRC_HDR:=
+SRC_ONLY:=
+HDR_ONLY:=
+# Include node Makefile.
+include $$(CURDIR)/node.mk
+# Pop current directory off directory stack.
+CURDIR:=$$(firstword $$(DIRSTACK))
+DIRSTACK:=$$(wordlist 2,$$(words $$(DIRSTACK)),$$(DIRSTACK))
+endef
+
+define PROCESS_NODE
+# Process this node.
+SOURCES_FULL+=$$(addprefix $$(CURDIR)/,$$(addsuffix .cc,$(SRC_HDR)))
+SOURCES_FULL+=$$(addprefix $$(CURDIR)/,$$(SRC_ONLY))
+HEADERS_FULL+=$$(addprefix $$(CURDIR)/,$$(addsuffix .hh,$(SRC_HDR)))
+HEADERS_FULL+=$$(addprefix $$(CURDIR)/,$$(HDR_ONLY))
+# Process subnodes.
+$$(foreach dir,$$(SUBDIRS),$$(eval $$(call PROCESS_SUBDIR,$$(dir))))
+endef
+
 BUILD_BASE:=derived
 BUILD_PATH:=$(BUILD_BASE)/$(OPENMSX_PLATFORM)-$(OPENMSX_FLAVOUR)
 
 SOURCES_PATH:=src
-# TODO: Use node.mk system for building sources list.
-SOURCES_FULL:=$(sort $(shell find $(SOURCES_PATH)/$(OPENMSX_SUBSET) -name "*.cc"))
-SOURCES_FULL:=$(filter-out $(SOURCES_PATH)/debugger/Debugger.cc,$(SOURCES_FULL))
-SOURCES_FULL:=$(filter-out $(SOURCES_PATH)/thread/testCondVar.cc,$(SOURCES_FULL))
-SOURCES_FULL:=$(filter-out $(SOURCES_PATH)/libxmlx/xmlxdump.cc,$(SOURCES_FULL))
-SOURCES:=$(SOURCES_FULL:$(SOURCES_PATH)/%.cc=%)
 
-HEADERS_FULL:=$(sort $(shell find $(SOURCES_PATH)/$(OPENMSX_SUBSET) -name "*.hh"))
+# Force evaluation upon assignment.
+SOURCES_FULL:=
+HEADERS_FULL:=
+# Include root node.
+CURDIR:=$(SOURCES_PATH)
+include $(CURDIR)/node.mk
+# Sanity check: only .cc files are allowed in sources list,
+# because we don't have any way to build other sources.
+NON_CC_SOURCES:=$(filter-out %.cc,$(SOURCES_FULL))
+ifneq ($(NON_CC_SOURCES),)
+$(error The following sources files do not have a .cc extension: \
+$(NON_CC_SOURCES))
+endif
+
+SOURCES:=$(SOURCES_FULL:$(SOURCES_PATH)/%.cc=%)
 HEADERS:=$(HEADERS_FULL:$(SOURCES_PATH)/%=%)
 
 DEPEND_PATH:=$(BUILD_PATH)/dep
