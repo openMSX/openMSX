@@ -1,6 +1,13 @@
 $Id$
 
 2004-03-11 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented "type" command:
+	   - replaces KeyEventInserter
+	   - TODO  documentation
+	           correct ascii->keymatrix table
+	           better name for command?
+
+2004-03-11 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* More config cleanups:
 	   - don't build and parse xml in memory anymore, directly build
 	     correct datastructure

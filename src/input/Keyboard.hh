@@ -5,8 +5,10 @@
 
 #include <string>
 #include "openmsx.hh"
+#include "EmuTime.hh"
 #include "EventListener.hh"
 #include "Command.hh"
+#include "Schedulable.hh"
 
 using std::string;
 
@@ -41,6 +43,7 @@ private:
 	void parseKeymapfile(const byte* buf, unsigned size);
 	void loadKeymapfile(const string& filename);
 	string processCmd(const vector<string>& tokens, bool up);
+	void pressAscii(char asciiCode, bool up);
 
 	class KeyMatrixUpCmd : public SimpleCommand {
 	public:
@@ -64,14 +67,42 @@ private:
 		Keyboard& parent;
 	} keyMatrixDownCmd;
 
+	class KeyInserter : public SimpleCommand, private Schedulable
+	{
+	public:
+		KeyInserter(Keyboard& parent);
+		virtual ~KeyInserter();
+
+	private:
+		void type(const string& str);
+
+		// Command
+		virtual string execute(const vector<string>& tokens)
+			throw (CommandException);
+		virtual string help(const vector<string>& tokens) const
+			throw(CommandException);
+
+		// Schedulable
+		virtual void executeUntil(const EmuTime& time, int userData)
+			throw();
+		virtual const string& schedName() const;
+
+		Keyboard& parent;
+		bool down;
+		string text;
+	} keyTypeCmd;
+
 	byte cmdKeyMatrix[NR_KEYROWS];
 	byte userKeyMatrix[NR_KEYROWS];
 	byte keyMatrix[NR_KEYROWS];
 	bool keyGhosting;
 	bool keysChanged;
 	static const int MAX_KEYSYM = 0x150;
-	static byte Keys[MAX_KEYSYM][2];
+	static byte keyTab[MAX_KEYSYM][2];
+	static short asciiTab[256][2];
 };
 
 } // namespace openmsx
+
 #endif
+

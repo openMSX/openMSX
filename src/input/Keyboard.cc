@@ -13,6 +13,7 @@
 #include "CommandController.hh"
 #include "Keys.hh"
 #include "InputEvents.hh"
+#include "Scheduler.hh"
 
 namespace openmsx {
 
@@ -51,8 +52,8 @@ void Keyboard::parseKeymapfile(const byte* buf, unsigned size)
 		int rdnum = sscanf(line.c_str(), "%i=%i,%i", &vkey, &row, &bit);
 		if ( rdnum == 3 && 0 <= vkey && vkey < MAX_KEYSYM
 		&& 0 <= row && row < 12 && 0 <= bit && bit < 256 ) {
-			Keys[vkey][0] = row;
-			Keys[vkey][1] = bit;
+			keyTab[vkey][0] = row;
+			keyTab[vkey][1] = bit;
 		}
 	}
 }
@@ -70,7 +71,7 @@ void Keyboard::loadKeymapfile(const string& filename)
 }
 
 Keyboard::Keyboard(bool keyG)
-	: keyMatrixUpCmd(*this), keyMatrixDownCmd(*this)
+	: keyMatrixUpCmd(*this), keyMatrixDownCmd(*this), keyTypeCmd(*this)
 {
 	keyGhosting = keyG;
 	keysChanged = false;
@@ -90,10 +91,12 @@ Keyboard::Keyboard(bool keyG)
 
 	CommandController::instance().registerCommand(&keyMatrixUpCmd,   "keymatrixup");
 	CommandController::instance().registerCommand(&keyMatrixDownCmd, "keymatrixdown");
+	CommandController::instance().registerCommand(&keyTypeCmd,       "type");
 }
 
 Keyboard::~Keyboard()
 {
+	CommandController::instance().unregisterCommand(&keyTypeCmd,       "type");
 	CommandController::instance().unregisterCommand(&keyMatrixDownCmd, "keymatrixdown");
 	CommandController::instance().unregisterCommand(&keyMatrixUpCmd,   "keymatrixup");
 
@@ -126,12 +129,12 @@ bool Keyboard::signalEvent(const Event& event) throw()
 		switch (event.getType()) {
 		case KEY_DOWN_EVENT: {
 			// Key pressed: reset bit in keyMatrix
-			userKeyMatrix[Keys[key][0]] &= ~Keys[key][1];
+			userKeyMatrix[keyTab[key][0]] &= ~keyTab[key][1];
 			break;
 		}
 		case KEY_UP_EVENT: {
 			// Key released: set bit in keyMatrix
-			userKeyMatrix[Keys[key][0]] |= Keys[key][1];
+			userKeyMatrix[keyTab[key][0]] |= keyTab[key][1];
 			break;
 		}
 		default:
@@ -198,6 +201,20 @@ string Keyboard::processCmd(const vector<string>& tokens, bool up)
 	return "";
 }
 
+void Keyboard::pressAscii(char asciiCode, bool up)
+{
+	for (int i = 0; i < 2; i++) {
+		byte row  = asciiTab[(unsigned)asciiCode][i] >> 8;
+		byte mask = asciiTab[(unsigned)asciiCode][i] & 0xFF;
+		if (up) {
+			cmdKeyMatrix[row] |=  mask;
+		} else {
+			cmdKeyMatrix[row] &= ~mask;
+		}
+	}
+	keysChanged = true;
+}
+
 
 // class KeyMatrixUpCmd
 
@@ -215,7 +232,7 @@ string Keyboard::KeyMatrixUpCmd::execute(const vector<string> &tokens)
 string Keyboard::KeyMatrixUpCmd::help(const vector<string> &tokens) const
 	throw()
 {
-	static const string helpText= 
+	static const string helpText = 
 		"keymatrixup <row> <bitmask>  release a key in the keyboardmatrix\n";
 	return helpText;
 }
@@ -240,6 +257,68 @@ string Keyboard::KeyMatrixDownCmd::help(const vector<string> &tokens) const
 	static const string helpText= 
 		"keymatrixdown <row> <bitmask>  press a key in the keyboardmatrix\n";
 	return helpText;
+}
+
+
+// class KeyInserter
+
+Keyboard::KeyInserter::KeyInserter(Keyboard& parent_)
+	: parent(parent_), down(true)
+{
+}
+
+Keyboard::KeyInserter::~KeyInserter()
+{
+}
+
+string Keyboard::KeyInserter::execute(const vector<string>& tokens)
+	throw (CommandException)
+{
+	if (tokens.size() != 2) {
+		throw SyntaxError();
+	}
+	type(tokens[1]);
+	return "";
+}
+
+string Keyboard::KeyInserter::help(const vector<string>& tokens) const
+	throw(CommandException)
+{
+	// TODO
+	static const string helpText = "TODO";
+	return helpText;
+}
+
+void Keyboard::KeyInserter::type(const string& str)
+{
+	Scheduler& scheduler = Scheduler::instance();
+	if (text.empty()) {
+		scheduler.setSyncPoint(scheduler.getCurrentTime(), this);
+	}
+	text += str;
+}
+
+void Keyboard::KeyInserter::executeUntil(const EmuTime& time, int userData)
+	throw()
+{
+	assert(!text.empty());
+	if (down) {
+		parent.pressAscii(text[0], false);
+	} else {
+		parent.pressAscii(text[0], true);
+		text = text.substr(1);
+	}
+	down = !down;
+	EmuTimeFreq<15> nextTime(time);
+	if (!text.empty()) {
+		Scheduler::instance().setSyncPoint(nextTime + 1, this);
+	}
+}
+
+const string& Keyboard::KeyInserter::schedName() const
+{
+	static const string schedName = "KeyInserter";
+	return schedName;
 }
 
 
@@ -274,7 +353,7 @@ string Keyboard::KeyMatrixDownCmd::help(const vector<string> &tokens) const
 //  11   |     |     |     |     | 'NO'|     |'YES'|     |
 //       +-----+-----+-----+-----+-----+-----+-----+-----+
 
-byte Keyboard::Keys[MAX_KEYSYM][2] = {
+byte Keyboard::keyTab[MAX_KEYSYM][2] = {
 /* 0000 */
   {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},
   {7,0x20},{7,0x08},{0,0x00},{0,0x00},{0,0x00},{7,0x80},{0,0x00},{0,0x00},
@@ -340,5 +419,54 @@ byte Keyboard::Keys[MAX_KEYSYM][2] = {
   {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00}
 };
 
-} // namespace openmsx
+short Keyboard::asciiTab[256][2] =
+{
+	// TODO fill in missing keys, fix wrong ones
+	// 0x00
+	{},      {},      {}, {}, {},      {}, {}, {},
+	{0x720}, {0x708}, {}, {}, {}, {0x780}, {}, {},
+	// 0x10
+	{}, {}, {}, {}, {},      {}, {}, {},
+	{}, {}, {}, {}, {0x704}, {}, {}, {},
+	// 0x20
+	{0x801},          {0x601, /*K_1*/}, {0x601, /*K_QUOTE*/}, {0x601, /*K_3*/},
+	{0x601, /*K_4*/}, {0x601, /*K_5*/}, {0x601, /*K_7*/},     {/*K_QUOTE*/},
+	{0x601, /*K_9*/}, {0x601, /*K_0*/}, {0x601, /*K_8*/},     {0x601, /*K_EQUALS*/},
+	{0x204},          {0x104},          {0x108},              {0x210},
+	// 0x30
+	{0x001}, {0x002}, {0x004}, {0x008}, {0x010}, {0x020}, {0x040}, {0x080},
+	{0x101}, {0x102}, {0x201}, {/*K_SEMICOLON*/},
+	{0x601, /*K_COMMA*/}, {/*K_EQUALS*/}, {0x601, /*K_PERIOD*/}, {0x601, /*K_SLASH*/},
+	// 0x40
+	{0x120},        {0x601, 0x240}, {0x601, 0x280}, {0x601, 0x301},
+	{0x601, 0x302}, {0x601, 0x304}, {0x601, 0x308}, {0x601, 0x310},
+	{0x601, 0x320}, {0x601, 0x340}, {0x601, 0x380}, {0x601, 0x401},
+	{0x601, 0x402}, {0x601, 0x404}, {0x601, 0x408}, {0x601, 0x410},
+	// 0x050
+	{0x601, 0x420}, {0x601, 0x440}, {0x601, 0x480}, {0x601, 0x501},
+	{0x601, 0x502}, {0x601, 0x504}, {0x601, 0x508}, {0x601, 0x510},
+	{0x601, 0x520}, {0x601, 0x540}, {0x601, 0x580}, {0x140},
+	{0x110},        {0x202},        {0x108},        {0x104},
+	// 0x60
+	{/*K_BACKQUOTE*/}, {0x240}, {0x280}, {0x301},
+	{0x302},           {0x304}, {0x308}, {0x310},
+	{0x320},           {0x340}, {0x380}, {0x401},
+	{0x302},           {0x404}, {0x408}, {0x410},
+	// 0x70
+	{0x420}, {0x440}, {0x480}, {0x501},
+	{0x502}, {0x504}, {0x508}, {0x510},
+	{0x520}, {0x540}, {0x580}, {0x601, /*K_LEFTBRACKET*/},
+	{0x601, /*K_BACKSLASH*/}, {0x601, /*K_RIGHTBRACKET*/},
+	{0x601, /*K_BACKQUOTE*/}, {0x808},
+	// 0x80 - 0xff
+	{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+	{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+	{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+	{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+	{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+	{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+	{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+	{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+};
 
+} // namespace openmsx

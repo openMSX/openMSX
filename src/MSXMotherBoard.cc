@@ -12,8 +12,6 @@
 #include "MSXConfig.hh"
 #include "Device.hh"
 #include "DeviceFactory.hh"
-#include "KeyEventInserter.hh"
-
 
 namespace openmsx {
 
@@ -91,9 +89,6 @@ void MSXMotherBoard::run(bool powerOn)
 
 	// First execute auto commands.
 	CommandController::instance().autoCommands();
-
-	// TODO move this somewhere else
-	KeyEventInserter keyEvents();
 
 	// Initialize.
 	MSXCPUInterface::instance().reset();

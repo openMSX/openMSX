@@ -7,7 +7,7 @@ SRC_HDR:= \
 	HotKey \
 	AfterCommand \
 	Keys \
-	KeyEventInserter SDLEventInserter \
+	SDLEventInserter \
 	CliCommInput CliCommOutput \
 	InputEventGenerator
 

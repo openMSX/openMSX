@@ -29,7 +29,6 @@ libEvents_la_SOURCES = \
 	EventListener.hh Event.hh \
 	HotKey.cc HotKey.hh \
 	AfterCommand.cc AfterCommand.hh \
-	KeyEventInserter.cc KeyEventInserter.hh \
 	Keys.cc Keys.hh \
 	SDLEventInserter.cc SDLEventInserter.hh \
 	CliCommOutput.cc CliCommOutput.hh \
