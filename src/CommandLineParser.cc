@@ -72,12 +72,11 @@ void CommandLineParser::parse(int argc, char **argv)
 		if (begin != -1) {
 			// there is an extension
 			int end = arg.find_last_of(',');
-			int len = end - begin - 1;
 			std::string extension;
-			if (len > 0) {
-				extension = arg.substr(begin + 1, len);
-			} else {
+			if ((end == -1) || (end <= begin)) {
 				extension = arg.substr(begin + 1);
+			} else {
+				extension = arg.substr(begin + 1, end - begin - 1);
 			}
 			std::map<std::string, CLIFileType*>::const_iterator it;
 			it = fileTypeMap.find(extension);

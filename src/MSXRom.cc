@@ -80,7 +80,8 @@ void MSXRomCLIPost::execute(MSXConfig::Backend *config)
 {
 	std::string filename, mapper;
 	int pos = arg.find_last_of(',');
-	if (pos != -1) {
+	int pos2 = arg.find_last_of('.');
+	if ((pos != -1) && (pos > pos2)) {
 		filename = arg.substr(0, pos);
 		mapper = arg.substr(pos + 1);
 	} else {
