@@ -485,9 +485,9 @@ configured in settings.xml that mymsx is the default machine to emulate. The
 default settings.xml also contains a UserDirectories section. In this section
 you can specify directories in which openMSX should look for to find files that
 you mention on the command line or in the Console (see below). If you have some
-big directory with a lot of disk images, e.g., you can add a line with that path
-to this section, so that you don't have to specify the whole path anymore. Use
-this to make things just a little more comfortable.
+big directory with a lot of disk images, e.g., you can add a line with that
+path to this section, so that you don't have to specify the whole path anymore.
+Use this to make things just a little more comfortable.
 
 If you want to emulate another machine that the one you specified as default
 machine, use the -machine commandline option. Example:
@@ -561,9 +561,10 @@ under the name of hardwareconfig.xml. It's the config we are going to play with.
 There is a special config file in the source tree that isn't usable by itself,
 but contains XML fragments of some possible devices currently implemented in
 openMSX. This file is called "exampleconfigs.xml" and is currently located in
-src/cfg. It is very convenient to copy and paste parts of it to your own
-mymsx/hardwareconfig.xml. Of course, you can also use fragments from other
-existing configurations that can be found in share/machines or share/extensions.
+the same directory as this file, doc/. It is very convenient to copy and paste
+parts of it to your own mymsx/hardwareconfig.xml. Of course, you can also use
+fragments from other existing configurations that can be found in
+share/machines or share/extensions.
 
 To add an FM PAC to the 8250, just copy this part from the exampleconfigs.xml to
 some place in your mymsx/hardwareconfig.xml file (between the <msxconfig> and
@@ -630,7 +631,7 @@ The default renderer is called SDLHi. This one uses a window of 640 by 480
 pixels to be able to display all the screen lines, even when interlacing is used
 on the MSX. This renderer is not using any hardware acceleration and has a
 steady CPU time consumption. The CPU load can be quite high though. It is about
-50% on my Athlon XP 1600+.
+50% on my Athlon XP 1600+, when emulating a 3.5MHz MSX.
 
 A very good alternative for the Hi renderer is called SDLGL. This renderer uses
 openGL instructions to optimise the rendering. Because part of the rendering is
@@ -657,20 +658,21 @@ below).
 
 Console
 
-When the emulator is running, you can get the "Console" by pressing F10 when the
-focus is on the emulator window. This will give you a command line in the
+When the emulator is running, you can get the "Console" by pressing F10 when
+the focus is on the emulator window. This will give you a command line in the
 openMSX window. Typing 'help' gives a list of commands. They are described in
 the file doc/commands.txt in the source tree. The console is mostly used to
-change disk images, plug in joysticks or mice, switch renderers and to define
-key bindings. You can specify a background image and the font in the config file
-(<config id="Console">). The png files need an alpha channel (transparency
+change disk images, plug in joysticks or mice, make settings and to define
+key bindings. You can specify a background image and the font in the config
+file (<config id="Console">). The png files need an alpha channel (transparency
 information) though.
-Another interesting console command is 'set'. You can use it to change the
-various settings. E.g., the blur and scanline setting of the GL renderer can be
-tweaked with it. Settings that have only two possible values can also be toggled
-with the toggle command (an example is the default key binding of Print Screen
-to 'toggle fullscreen', see also below). A complete list of settings should be
-in the file commands.txt in the doc directory.
+An interesting console command is 'set'. You can use it to change the various
+settings. E.g., you can use it to set the renderer that is to be used. And the
+blur and scanline setting of the GL renderer can be tweaked with it. Settings
+that have only two possible values can also be toggled with the toggle command
+(an example is the default key binding of Print Screen to 'toggle fullscreen',
+see also below). A complete list of settings should be in the file commands.txt
+in the doc directory.
 
 Renderer accuracy
 
@@ -757,9 +759,9 @@ bug or request.
 
 Note: the current official openMSX was only tested on Linux.  
 If you have some C++ knowledge, please try and compile it on other systems.
-Recently, a Windows port was created by a Japanese user. It is not mainstream
-yet, but we hope it will be, soon. On the openMSX web site you can find a link
-to this port.
+Recently, a Windows port was created by Reikan. It is not mainstream yet, but
+we hope it will be, soon. On the openMSX web site you can find a link to this
+port.
 If you try to port openMSX to another OS, you will probably encounter some
 problem; please report them to the openMSX developers so they can fix them.
 

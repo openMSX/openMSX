@@ -106,20 +106,7 @@ quit
 ----
 
   Quits the emulator.
-  
 
-renderer
---------
-
-  Switch to a different VDP renderer.
-
-  usage:
-    renderer <renderer>  switch to the specified renderer
-
-  examples:
-    renderer SDLHi
-    renderer SDLGL
-    
 
 reset
 -----
@@ -200,8 +187,8 @@ accuracy
     - line accurate: This is the recommended mode. Most tricks are 
                      rendered correctly.
     - pixel accuracte: This is the slowest but also most accuracte mode.
-                       In this mode even the 'Unknown Reality scoop part'
-                       is renderer correctly.
+                       In this mode even the 'Unknown Reality scope part'
+                       is rendered correctly.
   Note: not all renderers support all render modes
 
   usage:
@@ -346,7 +333,19 @@ pause
     set pause      shows the current setting
     set pause on   pauses emulation
     set pause off  unpauses emualtion
-  
+
+
+renderer
+--------
+
+  Switch to a different VDP renderer.
+
+  usage:
+    set renderer        shows the current setting
+    set renderer SDLHi  switch to the SDLHi renderer
+    set renderer SDLLo  switch to the SDLLo renderer
+    set renderer SDLGL  switch to the SDLGL renderer
+    
 
 scanline
 --------
