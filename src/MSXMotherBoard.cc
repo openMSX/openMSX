@@ -85,7 +85,6 @@ void MSXMotherBoard::run(bool powerOn)
 {
 	// Initialise devices.
 	//PRT_DEBUG(HardwareConfig::instance().getChild("devices").dump());
-	cout << HardwareConfig::instance().dump() << endl;
 	createDevices(HardwareConfig::instance().getChild("devices"));
 	
 	// First execute auto commands.
