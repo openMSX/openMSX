@@ -1,6 +1,14 @@
 $Id$
 
-2003-03-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2003-03-25 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed VDP Command Engine bug:
+	   - on every sync() the engine processed at least one 'pixel',
+	     when you poll the VDP very fast (R800) the time between
+	     two syncs is less than one pixel. This screws up the
+	     bookkeeping.
+	   - Fixes MSXView startup problem, Relax demo, ...
+
+2003-03-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Another directory structure change:
 	   moved machines/     -> share/machines/
 	         extensions/   -> share/extensions/

@@ -55,38 +55,46 @@ static const int LMMM_TIMING[8]={ 129, 197, 129, 132 };
 // that are re-used. We define the loop structures that are
 // re-used here so that they have to be entered only once.
 #define pre_loop \
-	while ((cnt-=delta) > 0) {
+	while (opsCount >= delta) { \
+		opsCount -= delta;
 
 // Loop over DX, DY.
 #define post__x_y(MX) \
-		if (!--ANX || ((ADX+=TX)&MX)) \
-			if (!(--NY&1023) || (DY+=TY)==-1) \
+		if (!--ANX || ((ADX+=TX)&MX)) { \
+			if (!(--NY&1023) || (DY+=TY)==-1) { \
+				finished = true; \
 				break; \
-			else { \
+			} else { \
 				ADX=DX; \
 				ANX=NX; \
 			} \
+		} \
 	}
 
 // Loop over DX, SY, DY.
 #define post__xyy(MX) \
-		if ((ADX+=TX)&MX) \
-			if (!(--NY&1023) || (SY+=TY)==-1 || (DY+=TY)==-1) \
+		if ((ADX+=TX)&MX) { \
+			if (!(--NY&1023) || (SY+=TY)==-1 || (DY+=TY)==-1) { \
+				finished = true; \
 				break; \
-			else \
+			} else { \
 				ADX=DX; \
+			} \
+		} \
 	}
 
 // Loop over SX, DX, SY, DY.
 #define post_xxyy(MX) \
-		if (!--ANX || ((ASX+=TX)&MX) || ((ADX+=TX)&MX)) \
-			if (!(--NY&1023) || (SY+=TY)==-1 || (DY+=TY)==-1) \
+		if (!--ANX || ((ASX+=TX)&MX) || ((ADX+=TX)&MX)) { \
+			if (!(--NY&1023) || (SY+=TY)==-1 || (DY+=TY)==-1) { \
+				finished = true; \
 				break; \
-			else { \
+			} else { \
 				ASX=SX; \
 				ADX=DX; \
 				ANX=NX; \
 			} \
+		} \
 	}
 
 // Inline methods first, to make sure they are actually inlined.
@@ -247,7 +255,7 @@ void VDPCmdEngine::srchEngine()
 	byte CL=MMC.CL;
 
 	int delta = getVdpTimingValue(SRCH_TIMING);
-	int cnt = opsCount;
+	bool finished = false;
 
 #define pre_srch \
 		pre_loop \
@@ -255,10 +263,12 @@ void VDPCmdEngine::srchEngine()
 #define post_srch(MX) \
 			==CL) ^ANX) { \
 		status|=0x10; /* Border detected */ \
+		finished = true; \
 		break; \
 		} \
 		if ((SX+=TX) & MX) { \
 		status&=0xEF; /* Border not detected */ \
+		finished = true; \
 		break; \
 		} \
 	}
@@ -274,13 +284,12 @@ void VDPCmdEngine::srchEngine()
 			break;
 	}
 
-	if ((opsCount=cnt)>0) {
+	if (finished) {
 		// Command execution done.
 		commandDone();
 		// Update SX in VDP registers.
 		borderX = 0xFE00 | SX;
-	}
-	else {
+	} else {
 		MMC.SX=SX;
 	}
 }
@@ -299,27 +308,31 @@ void VDPCmdEngine::lineEngine()
 	LogOp LO=MMC.LO;
 
 	int delta = getVdpTimingValue(LINE_TIMING);
-	int cnt = opsCount;
+	bool finished = false;
 
 #define post_linexmaj(MX) \
-	DX+=TX; \
-	if ((ASX-=NY)<0) { \
-		ASX+=NX; \
-		DY+=TY; \
-	} \
-	ASX&=1023; /* Mask to 10 bits range */ \
-	if (ADX++==NX || (DX&MX)) \
-		break; \
+		DX+=TX; \
+		if ((ASX-=NY)<0) { \
+			ASX+=NX; \
+			DY+=TY; \
+		} \
+		ASX&=1023; /* Mask to 10 bits range */ \
+		if (ADX++==NX || (DX&MX)) { \
+			finished = true; \
+			break; \
+		} \
 	}
 #define post_lineymaj(MX) \
-	DY+=TY; \
-	if ((ASX-=NY)<0) { \
-		ASX+=NX; \
-		DX+=TX; \
-	} \
-	ASX&=1023; /* Mask to 10 bits range */ \
-	if (ADX++==NX || (DX&MX)) \
-		break; \
+		DY+=TY; \
+		if ((ASX-=NY)<0) { \
+			ASX+=NX; \
+			DX+=TX; \
+		} \
+		ASX&=1023; /* Mask to 10 bits range */ \
+		if (ADX++==NX || (DX&MX)) { \
+			finished = true; \
+			break; \
+		} \
 	}
 
 	if ((cmdReg[REG_ARG]&0x01)==0) {
@@ -334,8 +347,7 @@ void VDPCmdEngine::lineEngine()
 		case 3: pre_loop pset8(DX, DY, CL, LO); post_linexmaj(256)
 				break;
 		}
-	}
-	else {
+	} else {
 		// Y-Axis is major direction.
 		switch (scrMode) {
 		case 0: pre_loop pset5(DX, DY, CL, LO); post_lineymaj(256)
@@ -349,13 +361,12 @@ void VDPCmdEngine::lineEngine()
 		}
 	}
 
-	if ((opsCount=cnt)>0) {
+	if (finished) {
 		// Command execution done.
 		commandDone();
 		cmdReg[REG_DYL]=DY & 0xFF;
 		cmdReg[REG_DYH]=(DY>>8) & 0x03;
-	}
-	else {
+	} else {
 		MMC.DX=DX;
 		MMC.DY=DY;
 		MMC.ASX=ASX;
@@ -377,7 +388,7 @@ void VDPCmdEngine::lmmvEngine()
 	LogOp LO=MMC.LO;
 
 	int delta = getVdpTimingValue(LMMV_TIMING);
-	int cnt = opsCount;
+	bool finished = false;
 
 	switch (scrMode) {
 	case 0: pre_loop pset5(ADX, DY, CL, LO); post__x_y(256)
@@ -390,7 +401,7 @@ void VDPCmdEngine::lmmvEngine()
 			break;
 	}
 
-	if ((opsCount=cnt)>0) {
+	if (finished) {
 		// Command execution done.
 		commandDone();
 		if (!NY) DY+=TY;
@@ -398,8 +409,7 @@ void VDPCmdEngine::lmmvEngine()
 		cmdReg[REG_DYH]=(DY>>8) & 0x03;
 		cmdReg[REG_NYL]=NY & 0xFF;
 		cmdReg[REG_NYH]=(NY>>8) & 0x03;
-	}
-	else {
+	} else {
 		MMC.DY=DY;
 		MMC.NY=NY;
 		MMC.ANX=ANX;
@@ -423,7 +433,7 @@ void VDPCmdEngine::lmmmEngine()
 	LogOp LO=MMC.LO;
 
 	int delta = getVdpTimingValue(LMMM_TIMING);
-	int cnt = opsCount;
+	bool finished = false;
 
 	switch (scrMode) {
 	case 0: pre_loop pset5(ADX, DY, point5(ASX, SY), LO); post_xxyy(256)
@@ -436,22 +446,20 @@ void VDPCmdEngine::lmmmEngine()
 			break;
 	}
 
-	if ((opsCount=cnt)>0) {
+	if (finished) {
 		// Command execution done.
 		commandDone();
 		if (!NY) {
 			SY+=TY;
 			DY+=TY;
-		}
-		else if (SY==-1) DY+=TY;
+		} else if (SY==-1) DY+=TY;
 		cmdReg[REG_NYL]=NY & 0xFF;
 		cmdReg[REG_NYH]=(NY>>8) & 0x03;
 		cmdReg[REG_SYL]=SY & 0xFF;
 		cmdReg[REG_SYH]=(SY>>8) & 0x03;
 		cmdReg[REG_DYL]=DY & 0xFF;
 		cmdReg[REG_DYH]=(DY>>8) & 0x03;
-	}
-	else {
+	} else {
 		MMC.SY=SY;
 		MMC.DY=DY;
 		MMC.NY=NY;
@@ -478,8 +486,7 @@ void VDPCmdEngine::lmcmEngine()
 				cmdReg[REG_NYH]=(MMC.NY>>8) & 0x03;
 				cmdReg[REG_SYL]=MMC.SY & 0xFF;
 				cmdReg[REG_SYH]=(MMC.SY>>8) & 0x03;
-			}
-			else {
+			} else {
 				MMC.ASX=MMC.SX;
 				MMC.ANX=MMC.NX;
 			}
@@ -505,8 +512,7 @@ void VDPCmdEngine::lmmcEngine()
 				cmdReg[REG_NYH]=(MMC.NY>>8) & 0x03;
 				cmdReg[REG_DYL]=MMC.DY & 0xFF;
 				cmdReg[REG_DYH]=(MMC.DY>>8) & 0x03;
-			}
-			else {
+			} else {
 				MMC.ADX=MMC.DX;
 				MMC.ANX=MMC.NX;
 			}
@@ -527,7 +533,7 @@ void VDPCmdEngine::hmmvEngine()
 	byte CL=MMC.CL;
 
 	int delta = getVdpTimingValue(HMMV_TIMING);
-	int cnt = opsCount;
+	bool finished = false;
 
 	switch (scrMode) {
 	case 0:
@@ -552,7 +558,7 @@ void VDPCmdEngine::hmmvEngine()
 		break;
 	}
 
-	if ((opsCount=cnt)>0) {
+	if (finished) {
 		// Command execution done.
 		commandDone();
 		if (!NY) DY+=TY;
@@ -560,8 +566,7 @@ void VDPCmdEngine::hmmvEngine()
 		cmdReg[REG_NYH]=(NY>>8) & 0x03;
 		cmdReg[REG_DYL]=DY & 0xFF;
 		cmdReg[REG_DYH]=(DY>>8) & 0x03;
-	}
-	else {
+	} else {
 		MMC.DY=DY;
 		MMC.NY=NY;
 		MMC.ANX=ANX;
@@ -584,7 +589,7 @@ void VDPCmdEngine::hmmmEngine()
 	int ANX=MMC.ANX;
 
 	int delta = getVdpTimingValue(HMMM_TIMING);
-	int cnt = opsCount;
+	bool finished = false;
 
 	switch (scrMode) {
 	case 0:
@@ -621,14 +626,13 @@ void VDPCmdEngine::hmmmEngine()
 		break;
 	}
 
-	if ((opsCount=cnt)>0) {
+	if (finished) {
 		// Command execution done.
 		commandDone();
 		if (!NY) {
 			SY+=TY;
 			DY+=TY;
-		}
-		else if (SY==-1) {
+		} else if (SY==-1) {
 			DY+=TY;
 		}
 		cmdReg[REG_NYL]=NY & 0xFF;
@@ -637,8 +641,7 @@ void VDPCmdEngine::hmmmEngine()
 		cmdReg[REG_SYH]=(SY>>8) & 0x03;
 		cmdReg[REG_DYL]=DY & 0xFF;
 		cmdReg[REG_DYH]=(DY>>8) & 0x03;
-	}
-	else {
+	} else {
 		MMC.SY=SY;
 		MMC.DY=DY;
 		MMC.NY=NY;
@@ -659,7 +662,7 @@ void VDPCmdEngine::ymmmEngine()
 	int ADX=MMC.ADX;
 
 	int delta = getVdpTimingValue(YMMM_TIMING);
-	int cnt = opsCount;
+	bool finished = false;
 
 	switch (scrMode) {
 	case 0:
@@ -696,14 +699,13 @@ void VDPCmdEngine::ymmmEngine()
 		break;
 	}
 
-	if ((opsCount=cnt)>0) {
+	if (finished) {
 		// Command execution done.
 		commandDone();
 		if (!NY) {
 			SY+=TY;
 			DY+=TY;
-		}
-		else if (SY==-1) {
+		} else if (SY==-1) {
 			DY+=TY;
 		}
 		cmdReg[REG_NYL]=NY & 0xFF;
@@ -712,8 +714,7 @@ void VDPCmdEngine::ymmmEngine()
 		cmdReg[REG_SYH]=(SY>>8) & 0x03;
 		cmdReg[REG_DYL]=DY & 0xFF;
 		cmdReg[REG_DYH]=(DY>>8) & 0x03;
-	}
-	else {
+	} else {
 		MMC.SY=SY;
 		MMC.DY=DY;
 		MMC.NY=NY;
@@ -739,8 +740,7 @@ void VDPCmdEngine::hmmcEngine()
 				cmdReg[REG_NYH]=(MMC.NY>>8) & 0x03;
 				cmdReg[REG_DYL]=MMC.DY & 0xFF;
 				cmdReg[REG_DYH]=(MMC.DY>>8) & 0x03;
-			}
-			else {
+			} else {
 				MMC.ADX=MMC.DX;
 				MMC.ANX=MMC.NX;
 			}
@@ -897,8 +897,7 @@ void VDPCmdEngine::executeCommand()
 	if ((MMC.CM & 0x0C) == 0x0C) {
 		MMC.TX = cmdReg[REG_ARG]&0x04? -PPB[scrMode]:PPB[scrMode];
 		MMC.NX = ((cmdReg[REG_NXL]+((int)cmdReg[REG_NXH]<<8)) & 1023)/PPB[scrMode];
-	}
-	else {
+	} else {
 		MMC.TX = cmdReg[REG_ARG]&0x04? -1:1;
 		MMC.NX = (cmdReg[REG_NXL]+((int)cmdReg[REG_NXH]<<8)) & 1023;
 	}
@@ -907,8 +906,7 @@ void VDPCmdEngine::executeCommand()
 	if (MMC.CM == CM_LINE) {
 		MMC.ASX=((MMC.NX-1)>>1);
 		MMC.ADX=0;
-	}
-	else {
+	} else {
 		MMC.ASX = MMC.SX;
 		MMC.ADX = MMC.DX;
 	}
