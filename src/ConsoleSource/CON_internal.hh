@@ -1,3 +1,5 @@
+// $Id$
+
 #ifndef __CON_INTERNAL_HH__
 #define __CON_INTERNAL_HH__
 

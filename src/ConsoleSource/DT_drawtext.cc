@@ -1,3 +1,5 @@
+// $Id$
+
 /*  DT_drawtext.c
  *  Written By: Garrett Banuk <mongoose@mongeese.org>
  *  This is free, just be sure to give me credit when using it

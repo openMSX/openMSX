@@ -1,3 +1,5 @@
+// $Id$
+
 #ifndef __DRAWTEXT_HH__
 #define __DRAWTEXT_HH__
 

@@ -1,3 +1,5 @@
+// $Id$
+
 /*  CON_console.c
  *  Written By: Garrett Banuk <mongoose@mongeese.org>
  *  Addapted to C++ and openMSX needs by David Heremans

@@ -1,3 +1,5 @@
+// $Id$
+
 #ifndef __CON_CONSOLE_HH__
 #define __CON_CONSOLE_HH__
 

@@ -1,3 +1,5 @@
+// $Id$
+
 #ifndef __CON_CONSOLECOMMANDS_HH__
 #define __CON_CONSOLECOMMANDS_HH__
 
