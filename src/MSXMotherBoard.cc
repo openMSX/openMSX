@@ -9,6 +9,9 @@
 #include "MSXDevice.hh"
 #include "MSXIODevice.hh"
 #include "MSXMemDevice.hh"
+#include "MSXException.hh"
+
+#include <sstream>
 
 MSXMotherBoard::MSXMotherBoard()
 {
@@ -90,8 +93,12 @@ void MSXMotherBoard::addDevice(MSXDevice *device)
 
 void MSXMotherBoard::registerSlottedDevice(MSXMemDevice *device, int primSl, int secSl, int page)
 {
-	if (!isSubSlotted[primSl])
-		secSl = 0;
+	if (!isSubSlotted[primSl] && secSl != 0) {
+		std::ostringstream s;
+		s << "slot " << primSl << "-" << secSl
+			<< " does not exist, because slot is not expanded";
+		throw MSXException(s.str());
+	}
 	if (SlotLayout[primSl][secSl][page] == DummyDevice::instance()) {
 		PRT_DEBUG(device->getName() << " registers at "<<primSl<<" "<<secSl<<" "<<page);
 		SlotLayout[primSl][secSl][page] = device;
