@@ -52,9 +52,11 @@ AM_PATH_XML2
 dnl CXXFLAGS="$CXXFLAGS $XML_CFLAGS"
 dnl LIBS="$XML_LIBS $LIBS"
 
-dnl openGL
-AC_CHECK_HEADERS(gl.h GL/gl.h, break)
-AC_CHECK_LIB(GL, glViewport)
+if test "$enable_GLRENDERER" = "yes"; then
+  dnl openGL
+  AC_CHECK_HEADERS(gl.h GL/gl.h, break)
+  AC_CHECK_LIB(GL, glViewport)
+fi
 
 dnl SDL_image
 AC_CHECK_HEADERS(SDL_image.h SDL/SDL_image.h , break)
