@@ -8,6 +8,7 @@
 #include "VDP.hh"
 #include "VDPCmdEngine.hh"
 #include <cassert>
+#include "Command.hh"
 
 class SpriteChecker;
       
@@ -454,6 +455,18 @@ private:
 	  */
 	EmuTimeFreq<VDP::TICKS_PER_SECOND> currentTime;
 
+#ifdef DEBUG
+	class DumpVRAMCmd : public Command {
+	public:
+		DumpVRAMCmd(VDPVRAM* vram_) : vram(vram_) {}
+		virtual void execute(const std::vector<std::string> &tokens,
+		                     const EmuTime &time);
+		virtual void help(const std::vector<std::string> &tokens) const;
+	private:
+		VDPVRAM* vram;
+	} dumpVRAMCmd;
+	friend class DumpVRAMCmd;
+#endif
 };
 
 #endif //__VDPVRAM_HH__

@@ -181,6 +181,12 @@ vdpregs
   [ mainly useful for debugging purposes ]
 
 
+vramdump
+--------
+
+  [ only available when compiled with DEBUG option ]
+  
+
 
 SETTINGS
 ========

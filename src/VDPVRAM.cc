@@ -1,11 +1,18 @@
 // $Id$
 
+#include <fstream>
 #include "VDPVRAM.hh"
 #include "SpriteChecker.hh"
+#include "CommandController.hh"
+
 
 // class VDPVRAM:
 
-VDPVRAM::VDPVRAM(VDP *vdp, int size) {
+VDPVRAM::VDPVRAM(VDP *vdp, int size)
+#ifdef DEBUG
+	: dumpVRAMCmd(this)
+#endif
+{
 	this->vdp = vdp;
 	this->size = size;
 
@@ -29,9 +36,17 @@ VDPVRAM::VDPVRAM(VDP *vdp, int size) {
 	spriteAttribTable.setData(data);
 	spritePatternTable.setData(data);
 
+	#ifdef DEBUG
+	CommandController::instance()->registerCommand(&dumpVRAMCmd, "vramdump");
+	#endif
 }
 
-VDPVRAM::~VDPVRAM() {
+VDPVRAM::~VDPVRAM()
+{
+	#ifdef DEBUG
+	CommandController::instance()->unregisterCommand(&dumpVRAMCmd, "vramdump");
+	#endif
+	
 	delete[] data;
 }
 
@@ -62,3 +77,22 @@ VDPVRAM::Window::Window() {
 	baseAddr = -1;
 }
 
+
+
+#ifdef DEBUG
+
+// class DumpVRAMCmd
+
+void VDPVRAM::DumpVRAMCmd::execute(const std::vector<std::string> &tokens,
+                                   const EmuTime &time)
+{
+	std::ofstream outfile("vramdump", std::ofstream::binary);
+	outfile.write((char*)vram->data, vram->size);
+}
+
+void VDPVRAM::DumpVRAMCmd::help(const std::vector<std::string> &tokens) const
+{
+	print("[DEBUG] Dump vram content to file \"vramdump\"");
+}
+
+#endif

@@ -1,5 +1,9 @@
 $Id$
 
+2003-03-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented "vramdump" console command, only available when
+	  compiled with DEBUG
+
 2003-03-10 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Reworked MSXRom:
 	   - made a (small) subclass for every mapper type:

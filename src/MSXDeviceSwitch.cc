@@ -31,10 +31,12 @@ MSXDeviceSwitch::MSXDeviceSwitch(Device *config, const EmuTime &time)
 
 MSXDeviceSwitch::~MSXDeviceSwitch()
 {
+/*
 	for (int i = 0; i < 256; i++) {
 		// all devices must be unregistered
 		assert(devices[i] == NULL);
 	}
+*/
 }
 
 

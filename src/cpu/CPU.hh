@@ -196,8 +196,7 @@ class CPU
 			virtual void help(const std::vector<std::string> &tokens) const;
 		private:
 			CPU* cpu;
-		};
-		DebugCmd debugCmd;
+		} debugCmd;
 	#endif
 };
 #endif //__CPU_HH__

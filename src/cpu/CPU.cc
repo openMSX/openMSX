@@ -124,5 +124,6 @@ void CPU::DebugCmd::execute(const std::vector<std::string> &tokens,
 }
 void CPU::DebugCmd::help(const std::vector<std::string> &tokens) const
 {
+	print("[DEBUG] Toggle CPU debugging");
 }
 #endif
