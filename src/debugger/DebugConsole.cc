@@ -5,6 +5,7 @@
 #include "DebugConsole.hh"
 #include "CommandConsole.hh"
 #include "DumpView.hh"
+#include "MSXConfig.hh"
 
 namespace openmsx {
 
@@ -15,6 +16,9 @@ DebugConsole::ViewStruct::~ViewStruct()
 
 DebugConsole* DebugConsole::instance()
 {
+	cout << "1" << endl;
+	if (!MSXConfig::instance()->hasConfigWithId("Debugger")) return NULL;
+	cout << "2" << endl;
 	static DebugConsole oneInstance;
 	return &oneInstance;
 }

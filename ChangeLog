@@ -1,5 +1,10 @@
 $Id$
 
+2003-09-21 Herman Oudejans <hn.oudejans@quicknet.nl>
+	* Made the debugger optional. If the settings.xml doesn't contain
+          a debugger section, it's turned off. In this case the debuggersettings
+	  in the console won't appear either.
+
 2003-09-21 Maarten ter Huurne <maarten@treewalker.org>
 	* Workaround for bug in shutdown sequence:
 	  MSXCPU::getCurrentTime is needed by audio callback,

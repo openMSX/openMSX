@@ -241,7 +241,7 @@ void SDLGLRenderer::finishFrame(bool store)
 
 	// Render consoles if needed.
 	console->drawConsole();
-	debugger->drawConsole();
+	if (debugger)debugger->drawConsole();
 
 	// Update screen.
 	SDL_GL_SwapBuffers();
@@ -268,7 +268,7 @@ void SDLGLRenderer::putStoredImage()
 
 	// Render console if needed.
 	console->drawConsole();
-	debugger->drawConsole();
+	if (debugger) debugger->drawConsole();
 
 	// Update screen.
 	SDL_GL_SwapBuffers();
@@ -437,8 +437,11 @@ SDLGLRenderer::SDLGLRenderer(
 {
 	this->screen = screen;
 	console = new GLConsole(CommandConsole::instance());
-	debugger = new GLConsole(DebugConsole::instance());
-
+	debugger = NULL;
+	Console * debuggerconsole = DebugConsole::instance();
+	if (debuggerconsole){ 
+		debugger = new GLConsole(debuggerconsole);
+	}
 	GLint size;
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size);
 	printf("Max texture size: %d\n", size);
@@ -536,7 +539,7 @@ SDLGLRenderer::~SDLGLRenderer()
 	vram->colourTable.setObserver(NULL);
 
 	delete console;
-	delete debugger;
+	if (debugger) delete debugger;
 	// TODO: Free textures.
 }
 
