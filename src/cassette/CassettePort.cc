@@ -7,6 +7,7 @@
 #include "PluggingController.hh"
 #include "MSXConfig.hh"
 
+using std::auto_ptr;
 
 namespace openmsx {
 

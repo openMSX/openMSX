@@ -16,6 +16,7 @@
 #define HAVE_RTC	// TODO check this in configure
 #endif
 
+using std::auto_ptr;
 
 namespace openmsx {
 

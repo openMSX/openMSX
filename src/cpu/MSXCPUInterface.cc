@@ -1,7 +1,7 @@
 // $Id$
 
 #include <cstdio>
-
+#include <memory> // for auto_ptr
 #include "MSXCPUInterface.hh"
 #include "DummyDevice.hh"
 #include "CommandController.hh"
@@ -11,6 +11,7 @@
 #include "CartridgeSlotManager.hh"
 #include "VDPIODelay.hh"
 
+using std::auto_ptr;
 
 namespace openmsx {
 
