@@ -207,7 +207,7 @@ static int Abs (unsigned char a)
 /****************************************************************************/
 /* Disassemble first opcode in buffer and return number of bytes it takes   */
 /****************************************************************************/
-static int Z80_Dasm (unsigned char *buffer,char *dest,unsigned PC)
+static int Dasm (unsigned char *buffer,char *dest,unsigned PC)
 {
  char *S;
  char *r;
@@ -330,7 +330,7 @@ int main (int argc,char *argv[])
  for (i=1;i<17 && i<argc;++i) buffer[i-1]=strtoul(argv[i],NULL,16);
  for (i=0;i<16;++i) printf ("%02X ",buffer[i]);
  printf ("\n");
- i=Z80_Dasm (buffer,dest,0);
+ i=Dasm (buffer,dest,0);
  printf ("%s  - %d bytes\n",dest,i);
  return 0;
 }
