@@ -1,6 +1,13 @@
 $Id$
 
-2003-03-31 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2003-04-06 Manuel Bilderbeek <manuel@msxnet.org>
+	* Clean up in RomInfo stuff for empty ROMs. Note that I'm now assuming
+	  that an empty ROM is always an empty SCC. Is this a valid
+	  assumption? The problem is that `forced' ROM types (as with an empty
+	  SCC) are not put in the ROMInfo. So I can't check if it is really
+	  an SCC...
+
+2003-04-05 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Added Korean80-in-1 mapper type
 	* Added Korean90-in-1 mapper type
 	* Added Korean126-in-1 mapper type

@@ -1,6 +1,7 @@
 // $Id$
 
 #include "MSXRom.hh"
+#include "RomTypes.hh"
 #include "MSXCPU.hh"
 #include "File.hh"
 
@@ -15,7 +16,11 @@ MSXRom::MSXRom(Device* config, const EmuTime &time, Rom *rom)
 	this->rom = rom;
 
 	std::ostringstream tmpname;
-	if (rom->getInfo().getId().length()==0)
+	if (rom->getSize() == 0)
+	{
+		tmpname << "Empty ROM (with SCC)"; // valid assumption??
+	}
+	else if (rom->getInfo().getId().length()==0)
 	{
 		tmpname << "Unknown ROM: " << rom->getFile()->getURL();
 	}

@@ -16,7 +16,7 @@ Rom::Rom(Device* config, const EmuTime &time)
 	if (config->hasParameter("filename")) {
 		std::string filename = config->getParameter("filename");
 		read(config, filename, time);
-	} else {
+	} else { // Assumption: this only happens for an empty SCC
 		size = 0;
 		file = NULL;
 	}

@@ -224,7 +224,7 @@ RomInfo* RomInfo::searchDataBaseOrGuess(const Rom &rom)
 	
 	int size = rom.getSize();
 	if (size == 0) {
-		return new RomInfo("empty rom", "", "", "", UNKNOWN);
+		return new RomInfo("", "", "", "Empty ROM", UNKNOWN);
 	}
 	
 	MD5 md5;
