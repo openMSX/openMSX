@@ -29,8 +29,8 @@ public:
 	 *       
 	 */
 	void registerConnector(Connector *connector);
-        void unregisterConnector(Connector *connector);
-	
+	void unregisterConnector(Connector *connector);
+
 	/**
 	 * Pluggables can be (un)registered
 	 * Note: it is not an error when you try to unregister a Pluggable
