@@ -2,7 +2,7 @@
 
 # we want most warnings
 
-AM_CXXFLAGS_BASE = -Wall -pipe `test -f .debug && echo "-DDEBUG"` -fhuge-objects
+AM_CXXFLAGS_BASE = -Wall -pipe `test -f .debug && echo "-DDEBUG"` -fhuge-objects -Icpu
 if PROFILE
 AM_CXXFLAGS = $(AM_CXXFLAGS_BASE) -pg
 else
@@ -16,7 +16,7 @@ endif
 # or perhaps sometimes even more:
 # AM_CXXFLAGS = -Wall -W -DDEBUG -g3 -pipe
 
-SUBDIRS = cfg libxmlx ConsoleSource
+SUBDIRS = cfg libxmlx ConsoleSource cpu
 
 #bin_PROGRAMS=openmsx cfgtest
 bin_PROGRAMS=openmsx
@@ -30,7 +30,6 @@ openmsx_SOURCES=openmsx.cc icon.nn \
 	MSXDevice.hh MSXDevice.cc \
 	MSXIODevice.hh MSXIODevice.cc MSXMemDevice.hh MSXMemDevice.cc \
 	MSXMotherBoard.hh MSXMotherBoard.cc \
-	MSXCPUInterface.hh MSXCPUInterface.cc \
 	MSXPPI.hh MSXPPI.cc I8255.hh I8255.cc \
 	KeyClick.hh KeyClick.cc \
 	CassettePort.hh CassettePort.cc \
@@ -43,10 +42,6 @@ openmsx_SOURCES=openmsx.cc icon.nn \
 	Renderer.hh Renderer.cc \
 	SDLLoRenderer.hh SDLLoRenderer.cc \
 	SDLHiRenderer.hh SDLHiRenderer.cc \
-	MSXCPU.hh MSXCPU.cc \
-	CPU.hh CPU.cc CPU.ii CPUInterface.hh CPUInterface.cc \
-	CPUCore.n1 CPUCore.n2 CPUTables.nn \
-	Z80.cc Z80.hh Z80Tables.nn Z80Dasm.h \
 	PlatformFactory.hh PlatformFactory.cc \
 	devicefactory.hh devicefactory.cc \
 	Scheduler.hh Scheduler.cc \
@@ -89,7 +84,7 @@ openmsx_SOURCES=openmsx.cc icon.nn \
 
 #	MSXPrinter.cc MSXPrinter.hh \
 
-openmsx_LDADD = libxmlx/libxmlx.la ConsoleSource/libSDL_console.la
+openmsx_LDADD = libxmlx/libxmlx.la ConsoleSource/libSDL_console.la cpu/libCPU.la
 
 #cfgtest_SOURCES = MSXConfig.hh MSXConfig.cc \
 #	cfgtest.cc EmuTime.hh \

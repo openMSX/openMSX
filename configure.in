@@ -70,4 +70,4 @@ AC_CXX_FSTREAM_TEMPL
 AM_CONDITIONAL(PROFILE, test "$enable_profile" = yes)
 AM_CONDITIONAL(RELEASE, test "$enable_release" = yes)
 
-AC_OUTPUT(Makefile openmsx.lsm openmsx.spec doc/Makefile src/Makefile m4/Makefile src/cfg/Makefile src/libxmlx/Makefile src/ConsoleSource/Makefile)
+AC_OUTPUT(Makefile openmsx.lsm openmsx.spec doc/Makefile src/Makefile m4/Makefile src/cfg/Makefile src/libxmlx/Makefile src/ConsoleSource/Makefile src/cpu/Makefile)

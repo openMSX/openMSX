@@ -1,5 +1,8 @@
 $Id$
 
+2002-02-18 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* moved CPU related files to subdirectory
+
 2002-02-17 Joost Yervante Damad <j.damad@qahwah.net>
 	* added atoll support for platforms that don't have
 	  that function [code taken from newlib, a libc for
