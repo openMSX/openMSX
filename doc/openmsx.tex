@@ -1,5 +1,8 @@
 
-%TODO: translate in english
+%TODO:
+% translate in english
+% restructure chapters
+% corrections/additions
 
 
 \documentclass[11pt, a4paper]{report}
@@ -12,52 +15,145 @@
 
 \chapter{Analysis}
 
-\section{Wanneer moet een device geemuleerd worden}
+A MSX computer has several components: a CPU, audio and video devices and
+many others. All these devices need to be emulated.
 
+\section{When does a device need to be emulated}
+
+In a real machine all devices work in parallel all the time. Of cource an
+emulator can only emulate one device at a time. This creates some problems:
+
+First problem, some devices need to emulated \textit{constantly}, e.g.
 \begin{itemize}
-\item op 'regelmatige' tijdstippen, nodig voor vb:
-	\begin{itemize}
-	\item beeldopbouw VDP (voorspelbaar)
-	\item soundbuffers voor geluidchips (voorspelbaar)
-	\item externe interrupts (onvoorspelbaar, zie verder)
-	\end{itemize}
-\item wanneer er communicatie (zie verder) is met dit device:
+%%
+\item beeldopbouw VDP
+\item soundbuffers voor geluidchips
+\end{itemize}
+We can approximate this by emulating those devices very regularly.
 
-telkens wanneer 2 (of meerdere) devices met elkaar communiceren moeten deze
-'even ver in de tijd' geemuleerd zijn. 
+Second problem, devices can communicate with each other. When two emulated
+devices wants to communicate we must make sure these devices have advanced
+equally far in time. Example:
 
-vb: CPU verandert dmv IO opdracten de palet instellingen van de VDP op het 
+%%
+CPU verandert dmv IO opdracten de palet instellingen van de VDP op het 
 tijdstip t, dan moet de VDP zijn beeldopbouw doen tot aan tijdstip t, dan
 pas wordt de IO opdracht uitgevoerd. Dus de volgende keer dat VDP 
 beeldopbouw doet zal het nieuwe palet gebruikt worden
-\end{itemize}
+
+So we need some sort of synchronization mechanism.
 
 
-\section{Communicatie in MSX}
+\section{Communication in MSX}
 
-\subsection{Voorspelbare communicatie}
+In a MSX communication happens only between the CPU and another device, never
+between two non-CPUs. All communication is initiated by the CPU, except for
+interupts.
 
-Alle devives die interrupts kunnen genereren, vb:
+Communication happens at a specific moment in time but is not instantaneous.
+
+Communication can be either predictable or unpredictable:
 \begin{itemize}
-\item VDP weet 'als al mijn instellingen blijven zoals ze nu zijn dan ga ik op 
+\item Predictable communication: Most interupts are predictable, example:
+
+%%
+VDP weet 'als al mijn instellingen blijven zoals ze nu zijn dan ga ik op 
 tijdstip t een VBLANK interrupt genereren'
+
+\item Unpredicatble communication, examples:
+	\begin{itemize}
+	%%
+	\item CPU voert een IO instructie uit
+	\item CPU voert een instructie uit die leest of schrijft in geheugen (!)
+	\item een externe interrupt (vb afkomstig van RS232)
+	\end{itemize}
 \end{itemize}
 
-   
-\subsection{Onvoorspelbare communicatie}
+Note that \emph{most} unpredictable communication is initiated by the CPU, this is
+important for some optimizations (see next chapters).
 
+
+
+\chapter{Design}
+
+\section{Communication}
+
+\subsection{Initiated by the CPU}
+
+The CPU can read or write to a memory location or to an I/O port. The
+communication happens at a specific moment in time and might take a (short) time
+to complete. So besides to obvious parameters (adres/port, value) and return
+values (byte read), we also need to pass and return a timestamp.
+
+
+\subsection{Interupts}
+
+All interupts must be planned beforehand (synchronization points, see next
+section). This is easy for predictable interupts, but impossible for
+unpredictable interupts. 
+
+%%
+Ik zie hier twee mogelijke oplossingen:
+\label{unpredic-irq}
+\begin{enumerate}
+\item Polling.
+Bij deze oplossing zetten we zelf de SP om de bv 50 HZ T-states.
+Blijven we bij het voorbeeld van de rs232 dan betekend dat er om de 0.02 seconden 
+gevraagd gaat worden of er een byte klaar staat. Als dit het geval is dan kan de 
+ge-emuleerde rs232 zijn volgende SP plaatsten binnen bv 100 T-States en deze tijd 
+langzaam laten toenemen als blijkt dat er geen byte meer ontvangen is.
+
+Methode heeft het voordeel dat je zelf een vorm van snelheid begrenzing kunt
+inbouwen door een apparaat steeds maar een lage hoeveelheid interrupts te laten
+genereren. Tevens zou op deze manier het mogelijk eenvoudiger zijn om bv een
+rs232 connectie te faken aan de hand van een file met een 'opgenomen' connectie.
+Bij beide methodes moet het device er voor zorgen dat het er rekening mee houd
+dat een geregistreerd SP wel eens tijdens een DI zou kunnen vallen en dat daarom
+een gesette interrupt niet noodzakelijker wijze word afgehandeld. Dit wil
+zeggen, er kunnen bv drie SP geregistreerd worden die elk een setInterrupt()
+uitvoeren maar dat slechts na de derde setInterrupt de CPU deze pas afhandeld!.
+
+\item Converting van Guest OS interrupts naar MSX interrupts
+Het zou ook mogelijk zijn om als het guest OS een interrupt krijgt dat deze kan 
+ingelast worden in de datastructuur met de SP, aangezien deze al in staat is om 
+SP's tussen te lassen in de bestaande structuur zou dit geen probleem zijn.
+\end{enumerate}
+
+
+
+
+\section{Synchronization}
+
+\section{Time-active and time-passive devices}
+
+\subsection*{Time-active devices}
+This are devices that can request to be emulated at a future moment in time,
+such a moment is called a \emph{synchronization point}. The reasons for such a request
+are:
 \begin{itemize}
-\item CPU voert een IO instructie uit
-\item CPU voert een instructie uit die leest of schrijft in geheugen (!)
-\item een externe interrupt (vb afkomstig van RS232)
+\item Some devices need to be emulated regularly, e.g.:
+	\begin{itemize}
+	%%
+	\item VDP moet regelmatig zorgen voor beeldopbouw 
+	\item soundchips moeten regelmatig nieuwe samples klaarzetten
+	\end{itemize}
+\item Some devices can raise an IRQ, these IRQ must be announced beforehand
+with a synchronization point. This is easy for predictable IRQ's, but must be
+estimated for unpreditable IRQ's (see section \ref{unpredic-irq}).
+\end{itemize}
+
+\subsection*{Time-passive devices}
+These devices can be emulated at the moment the CPU tries to communicate with
+it. Example: 
+\begin{itemize}
+\item Keyboard
+\item RAM/ROM
 \end{itemize}
 
 
-\section{Hoe syncroniseren}
+\section{Scheduler algorithm}
 
-Eerst komt een algoritme waarin geen rekening wordt gehouden met onvoorspelbare
-extrene interrupts, daarna proberen we die erbij te knutselen.
-
+%%
 1e regel: geen enkel device mag in uitvoering 'voorliggen' op de CPU.
   Dit omdat praktisch alle onvoorspelbare communicate (IO en memory) uitgaat
   van de CPU. Als een device op een bepaald moment voorligt op de CPU en als 
@@ -89,62 +185,7 @@ de CPU tot op dat punt te brengen.
 \end{itemize}
        
 
-\section{Wat zijn synchronisatie punten van een device}
-
-Dit zijn tijdstippen 
-\begin{itemize}
-\item waarop er met dit device iets moet gebeuren, vb:
-	\begin{itemize}
-	\item beeldopbouw van de VDP gebeurt 50/60 keer per seconde,
-	onafhankelijk van de toestand van de VDP (interrupts on/off,
-	schermopbouw on/off)
-	\end{itemize}
-\item of wanneer het device iets te melden heeft, dit kan volgens mij enkel
-door interrupts
-\end{itemize}
-    
-
-\section{Synchronisatie met externe (onvoorspelbare) interrupts}
-	
-Zie verder voor onder de titel 'Toevoegingen door David'
-
-
-
-
-\chapter{Design}
-
-Als het systeem geimplementeerd wordt zoals hierboven beschreven is zal het 
-waarschijnlijk verschrikkelijk traag zijn. 
-
-vb: Elke keer dat het geheugen aangesproken wordt zou hiermee gesynchroniseerd
-    moeten worden.
-
-Daarom gaan we nu het model wat uitbreiden met de bedoeling te optimiseren 
-voor snelheid.
-
-
-\section{Tijdspassief en tijdsactief (idee overgenomen van Davy)}
-
-\subsection{Tijdsactief}
-
-Zelfs indien met een bepaald device op geen enkele manier gecommuniceerd wordt,
-moeten sommige devices toch 'uitgevoerd' (=geemuleerd) worden, vb:
-\begin{itemize}
-\item VDP moet regelmatig zorgen voor beeldopbouw 
-\item soundchips moeten regelmatig nieuwe samples klaarzetten 
-\item alle devices die interrupts kunnen genereren
-\end{itemize}
-
-\subsection{Tijdspassief}
-
-Voor deze devices is het voldoende om ze pas te emuleren op het moment dat er
-effectief mee gecommuniceerd wordt. vb:
-\begin{itemize}
-\item RAM/ROM
-\item DiskROM		%FIXME: meer uitleg hier
-\end{itemize}
-Het hele principe van synchronisatie punten is enkel nodig voor tijdsactieve 
-devices
+%%%%%%%%
 
 
 \section{Implementatie Synchronisatie punten (SP)}
@@ -164,13 +205,7 @@ Mogelijke implementatie: %FIXME: move this to next chapter
 \begin{itemize}
 \item tijdstippen worden voorgesteld door het aantal T-states vanaf het opstarten 
 van de MSX. Alle SP hebben dus een absolute tijdsaanduiding. Probleem: wat 
-met rollover? Ofwel
-	\begin{itemize}
-	\item 64-bit teller, bij 100MHz rollover 1 keer om de 5000 jaar
-	\item 32-bit teller met iets intelligentere vergelijkingen, als meer dan $2^31$ 
-	hoger dan betekend dit 'vroeger' ipv 'later'. Nadeel bij 100Mhz kan je
-	maar 20 seconden in de toekomst schedulen
-	\end{itemize}
+met rollover? (64 bit -> 5000 year)
 \item Elk device registreerd zijn SP bij de scheduler, die zal de SP dan in een 
 globale datastructuur plaatsen
 \item SP wissen is niet echt nodig op voorwaarde dat devices slim genoeg zijn om
@@ -184,45 +219,6 @@ lijst wel voldoende zijn (anders een of andere boom)
 
 
 
-%TODO (Zie toevoegingen David)
-%=============================
-%
-%Communicatie met meerder devices tegelijk, vb
-% -memory mappers (IO 0xfc .. 0xff)  
-% -devices die slot negeren, dus enkel kijken naar adres 
-%
-%
-%Toevoegingen door David
-%=======================
-%De tekst tot hiertoe was geschreven door Wouter, hier komen enkele van mijn
-%bedenkingen en aanvullingen.
-
-
-\section{Synchronisatie met externe (onvoorspelbare) interrupts}
-
-Ik zie hier twee mogelijke oplossingen:
-\begin{enumerate}
-\item Polling.
-Bij deze oplossing zetten we zelf de SP om de bv 50 HZ T-states.
-Blijven we bij het voorbeeld van de rs232 dan betekend dat er om de 0.02 seconden 
-gevraagd gaat worden of er een byte klaar staat. Als dit het geval is dan kan de 
-ge-emuleerde rs232 zijn volgende SP plaatsten binnen bv 100 T-States en deze tijd 
-langzaam laten toenemen als blijkt dat er geen byte meer ontvangen is
-\item Converting van Guest OS interrupts naar MSX interrupts
-Het zou ook mogelijk zijn om als het guest OS een interrupt krijgt dat deze kan 
-ingelast worden in de datastructuur met de SP, aangezien deze al in staat is om 
-SP's tussen te lassen in de bestaande structuur zou dit geen probleem zijn.
-\end{enumerate}
-
-Methode heeft het voordeel dat je zelf een vorm van snelheid begrenzing kunt
-inbouwen door een apparaat steeds maar een lage hoeveelheid interrupts te laten
-genereren. Tevens zou op deze manier het mogelijk eenvoudiger zijn om bv een
-rs232 connectie te faken aan de hand van een file met een 'opgenomen' connectie.
-Bij beide methodes moet het device er voor zorgen dat het er rekening mee houd
-dat een geregistreerd SP wel eens tijdens een DI zou kunnen vallen en dat daarom
-een gesette interrupt niet noodzakelijker wijze word afgehandeld. Dit wil
-zeggen, er kunnen bv drie SP geregistreerd worden die elk een setInterrupt()
-uitvoeren maar dat slechts na de derde setInterrupt de CPU deze pas afhandeld!.
 
 
 \section{Communicatie met meerder devices tegelijk, 
@@ -281,6 +277,11 @@ wordt aangeroepen
 
 
 \chapter{Implementation}
+
+\section{Timetracking}
+
+...Emutime...
+
 
 \section{The implementation of the scheduler in openMSX}
 
