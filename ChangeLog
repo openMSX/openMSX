@@ -1,6 +1,9 @@
 $Id$
 
-2004-06-04 David Heremans <david.heremans@gnu-linux.net>
+2004-09-15 Maarten ter Huurne <maarten@treewalker.org>
+	* Added new type of event listener (DETACHED).
+
+2004-09-15 David Heremans <david.heremans@gnu-linux.net>
 	* Added the joystick protection of 'Tetris Special Edition II'
 
 2004-09-14 Maarten ter Huurne <maarten@treewalker.org>
