@@ -32,7 +32,7 @@ void FDCBackEnd::initReadTrack(byte phystrack, byte track, byte side)
 	PRT_DEBUG("FDCBackEnd::initReadTrack [unimplemented]");
 }
 
-byte FDCBackEnd::readTrackData(byte data)
+byte FDCBackEnd::readTrackData()
 {
 	PRT_DEBUG("FDCBackEnd::readTrackData [unimplemented]");
 	return 0xF4;

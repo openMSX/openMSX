@@ -9,12 +9,14 @@ FDC_DSK::FDC_DSK(const std::string &fileName)
 	file = new File(fileName, DISK);
 	nbSectors = file->size() / SECTOR_SIZE;
 	writeTrackBuf = new byte[SECTOR_SIZE];
+	readTrackDataBuf = new byte[RAWTRACK_SIZE];
 }
 
 FDC_DSK::~FDC_DSK()
 {
 	delete file;
 	delete[] writeTrackBuf;
+	delete[] readTrackDataBuf;
 }
 
 void FDC_DSK::read(byte phystrack, byte track, byte sector, byte side,
@@ -91,6 +93,35 @@ void FDC_DSK::writeTrackData(byte data)
 		writeTrackBuf[writeTrackBufCur++]=data;
 		writeTrackBufCur&=511;
 	}
+}
+
+void FDC_DSK::initReadTrack(byte phystrack, byte track, byte side){
+	readTrackDataCount=0;
+	/* init following data structure
+	122 bytes track header aka pre-gap
+	9 * 628 bytes sectordata (sector header, data en closure gap)
+	1080 bytes end-of-track gap
+	*/
+	byte* tmppoint;
+	tmppoint=readTrackDataBuf;
+	for (int i=0 ; i<122 ; i++ ) *(tmppoint++)=0 ; //TODO look up value of this first pre-gap
+	for (byte j=0 ; j<9 ; j++){
+		*(tmppoint++)=(byte)(j+1);
+		//TODO build correct header and read sector +place gap
+	};
+	for (int i=0 ; i<1080 ; i++ ) *(tmppoint++)=0 ; //TODO look up value of this end-of-track gap
+
+
+
+}
+
+byte FDC_DSK::readTrackData()
+{
+	if (readTrackDataCount == RAWTRACK_SIZE){
+		// end of command in any case
+		return readTrackDataBuf[RAWTRACK_SIZE];
+	} else
+	return readTrackDataBuf[readTrackDataCount++];
 }
 
 bool FDC_DSK::ready()

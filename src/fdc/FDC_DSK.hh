@@ -7,6 +7,7 @@
 #include "File.hh"
 
 const int SECTOR_SIZE = 512;
+const int RAWTRACK_SIZE = 6850;
 
 class FDC_DSK : public FDCBackEnd
 {
@@ -20,9 +21,14 @@ class FDC_DSK : public FDCBackEnd
 
 		virtual void initWriteTrack(byte phystrack, byte track, byte side);
 		virtual void writeTrackData(byte data);
+
+		virtual void initReadTrack(byte phystrack, byte track, byte side);
+		virtual byte readTrackData();
+
 		virtual bool ready();
 		virtual bool writeProtected();
 		virtual bool doubleSided();
+
 
 	protected:
 		virtual void readBootSector();
@@ -38,6 +44,8 @@ class FDC_DSK : public FDCBackEnd
 		byte writeTrack_side;
 		byte writeTrack_sector;
 		int writeTrack_CRCcount;
+		byte* readTrackDataBuf;
+		int readTrackDataCount;
 		int tmpdebugcounter;
 };
 

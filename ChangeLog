@@ -1,5 +1,8 @@
 $Id$
 
+2002-11-27 David Heremans <david.heremans@gnu-linux.net>
+	* Working towards raw track read
+
 2002-11-18 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* FDC rewrite, introduced DiskDrive and DriveMultiplexer classes:
 	   - this is a relatively large rewrite, so I may have broken
