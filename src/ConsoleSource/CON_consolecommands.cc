@@ -39,8 +39,8 @@ void CON_CommandHelp(ConsoleInformation *console)
 	{
 		if(0 == strcmp(Command, CurrentCommand->CommandWord))
 		{
-				CurrentCommand->tocall->ConsoleHelp(BackStrings);
-				return;
+			CurrentCommand->tocall->help(BackStrings);
+			return;
 		}
 		CurrentCommand = CurrentCommand->NextCommand;
 	}
@@ -66,8 +66,8 @@ void CON_CommandExecute(ConsoleInformation *console)
 	{
 		if(0 == strcmp(Command, CurrentCommand->CommandWord))
 		{
-				CurrentCommand->tocall->ConsoleCallback(BackStrings);
-				return;
+			CurrentCommand->tocall->execute(BackStrings);
+			return;
 		}
 		CurrentCommand = CurrentCommand->NextCommand;
 	}
@@ -79,7 +79,7 @@ void CON_CommandExecute(ConsoleInformation *console)
  * arguments passed to the command. Second parameter is the command to execute
  * on.
  */
-void CON_AddCommand(ConsoleInterface *callableObject, const char *CommandWord)
+void CON_AddCommand(ConsoleCommand *callableObject, const char *CommandWord)
 {
 	CommandInfo	**CurrentCommand = &Commands;
 

@@ -33,8 +33,8 @@ Scheduler::Scheduler()
 	EventDistributor::instance()->registerAsyncListener(SDL_QUIT, this);
 	HotKey::instance()->registerAsyncHotKey(SDLK_F12, this);
 	HotKey::instance()->registerAsyncHotKey(SDLK_F11, this);
-	Console::instance()->registerCommand(this, "quit");
-	Console::instance()->registerCommand(this, "pause");
+	Console::instance()->registerCommand(quitCmd, "quit");
+	Console::instance()->registerCommand(pauseCmd, "pause");
 }
 
 Scheduler::~Scheduler()
@@ -97,6 +97,7 @@ void Scheduler::stopScheduling()
 	// We must give a device, we choose MSXCPU.
 	EmuTime now = MSXCPU::instance()->getCurrentTime();
 	setSyncPoint(now, MSXCPU::instance());
+	unpause();
 }
 
 void Scheduler::scheduleEmulation()
@@ -181,7 +182,6 @@ void Scheduler::signalEvent(SDL_Event &event) {
 void Scheduler::signalHotKey(SDLKey key) {
 	if (key == SDLK_F12) {
 		stopScheduling();
-		unpause();
 	} else if (key == SDLK_F11) {
 		noSound = !noSound;
 		Mixer::instance()->pause(noSound||paused);
@@ -190,28 +190,25 @@ void Scheduler::signalHotKey(SDLKey key) {
 	}
 }
 
-void Scheduler::ConsoleCallback(char *string)
+
+void Scheduler::QuitCmd::execute(char *string)
 {
-  if (0 == strncmp(string,"quit",4)){
-    //Console::instance()->printOnConsole("Quit command temporarly disabled");
-    stopScheduling();
-    unpause();
-  } else {
-    //Console::instance()->printOnConsole("Pause command temporarly disabled");
-    if (!paused) {
-      pause();
-    } else {
-      unpause();
-    }
-  }
+	Scheduler::instance()->stopScheduling();
+}
+void Scheduler::QuitCmd::help(char *string)
+{
+	Console::instance()->printOnConsole("Use this command to stop the emulator");
 }
 
-void Scheduler::ConsoleHelp(char *string)
+void Scheduler::PauseCmd::execute(char *string)
 {
-  //no for the moment
-  if (0 == strncmp(string,"quit",4)){
-    Console::instance()->printOnConsole("Use this command to stop the emulator");
-  } else {
-    Console::instance()->printOnConsole("Use this command to pause/unpause the emulator");
-  }
+	if (!Scheduler::instance()->paused) {
+		Scheduler::instance()->pause();
+	} else {
+		Scheduler::instance()->unpause();
+	}
+}
+void Scheduler::PauseCmd::help(char *string)
+{
+	Console::instance()->printOnConsole("Use this command to pause/unpause the emulator");
 }

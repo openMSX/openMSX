@@ -25,7 +25,7 @@ MSXTapePatch::MSXTapePatch()
 	std::string filename;
 	file = NULL;
 
-	Console::instance()->registerCommand(this, "tape");
+	Console::instance()->registerCommand(*this, "tape");
 
 	try {
 		MSXConfig::Config *config =
@@ -355,25 +355,24 @@ void MSXTapePatch::STMOTR(CPU::CPURegs& R) const
 	R.AF.B.l &= ~CPU::C_FLAG;
 }
 
-void MSXTapePatch::ConsoleCallback(char *string)
+
+void MSXTapePatch::execute(char *string)
 {
-  if (0 == strcmp(string,"tape eject")){
-    Console::instance()->printOnConsole("Tape ejected");
-    ejectTape();
-  } else {
-    char tapefile[250];
-    /* Get the tapefile out of the string */
-    if (EOF != sscanf(string, "tape %s", tapefile)) {
-      Console::instance()->printOnConsole("Changing tape");
-      insertTape(std::string(tapefile));
-    }
-  }
+	if (0 == strcmp(string,"tape eject")) {
+		Console::instance()->printOnConsole("Tape ejected");
+		ejectTape();
+	} else {
+		char tapefile[250];
+		/* Get the tapefile out of the string */
+		if (EOF != sscanf(string, "tape %s", tapefile)) {
+			Console::instance()->printOnConsole("Changing tape");
+			insertTape(std::string(tapefile));
+		}
+	}
 }
 
-void MSXTapePatch::ConsoleHelp(char *string)
+void MSXTapePatch::help(char *string)
 {
-  //no for the moment
-  //if (0 == strncmp(string,"tape",4))
-  Console::instance()->printOnConsole("tape eject      : remove tape from virtual player");
-  Console::instance()->printOnConsole("tape <filename> : change the tape file");
+	Console::instance()->printOnConsole("tape eject      : remove tape from virtual player");
+	Console::instance()->printOnConsole("tape <filename> : change the tape file");
 }

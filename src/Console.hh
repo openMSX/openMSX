@@ -10,7 +10,7 @@
 #include "EventDistributor.hh"
 #include "HotKey.hh"
 
-class ConsoleInterface;
+class ConsoleCommand;
 
 class Console : private EventListener , private HotKeyListener
 {
@@ -19,9 +19,8 @@ class Console : private EventListener , private HotKeyListener
 		static Console* instance();
 
 		// objects that want to accept commands from the console use
-		// the bool returns indicate failure or succes.
-		bool registerCommand(ConsoleInterface *registeredObject,char *command);
-		bool unRegisterCommand(ConsoleInterface *registeredObject,char *command);
+		void registerCommand(ConsoleCommand &registeredObject, char *command);
+		void unRegisterCommand(ConsoleCommand &registeredObject, char *command);
 		void printOnConsole(std::string text);
 		// SDL dependend stuff
 		// TODO: make SDL independend if possible

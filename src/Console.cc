@@ -2,7 +2,7 @@
 
 #include "openmsx.hh"
 #include "Console.hh"
-#include "ConsoleInterface.hh"
+#include "ConsoleCommand.hh"
 #include <cassert>
 
 Console *Console::oneInstance;
@@ -27,15 +27,14 @@ Console *Console::instance()
 	return oneInstance;
 }
 
-bool Console::registerCommand(ConsoleInterface *registeredObject, char *command)
+void Console::registerCommand(ConsoleCommand &registeredObject, char *command)
 {
-	CON_AddCommand(registeredObject, command);
-	return true;
+	CON_AddCommand(&registeredObject, command);
 }
 
-bool Console::unRegisterCommand(ConsoleInterface *registeredObject, char *command)
+void Console::unRegisterCommand(ConsoleCommand &registeredObject, char *command)
 {
-	assert(false);
+	assert(false);	// unimplemented
 }
 
 void Console::printOnConsole(std::string text)

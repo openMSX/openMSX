@@ -51,9 +51,9 @@ MSXMotherBoard::MSXMotherBoard()
 	config->getParametersWithClassClean(subslotted_list);
 
 	// Register console commands.
-	Console::instance()->registerCommand(this, "slotmap");
-	Console::instance()->registerCommand(this, "slotselect");
-	Console::instance()->registerCommand(this, "reset");
+	Console::instance()->registerCommand(slotMapCmd, "slotmap");
+	Console::instance()->registerCommand(slotSelectCmd, "slotselect");
+	Console::instance()->registerCommand(resetCmd, "reset");
 }
 
 MSXMotherBoard::~MSXMotherBoard()
@@ -307,32 +307,31 @@ std::string MSXMotherBoard::getSlotSelection()
 	return out.str();
 }
 
-void MSXMotherBoard::ConsoleCallback(char *commandLine)
+
+void MSXMotherBoard::ResetCmd::execute(char* commandLine)
 {
-	if (strncmp(commandLine, "slotmap", 7) == 0) {
-		Console::instance()->printOnConsole(getSlotMap());
-	} else if (strncmp(commandLine, "slotselect", 10) == 0) {
-		Console::instance()->printOnConsole(getSlotSelection());
-	} else if (strncmp(commandLine, "reset", 5) == 0) {
-		resetMSX(MSXCPU::instance()->getCurrentTime());
-	} else {
-		assert(false);
-	}
+	MSXMotherBoard::instance()->resetMSX(MSXCPU::instance()->getCurrentTime());
+}
+void MSXMotherBoard::ResetCmd::help(char *commandLine)
+{
+	Console::instance()->printOnConsole("Resets the MSX.");
 }
 
-void MSXMotherBoard::ConsoleHelp(char *commandLine)
+void MSXMotherBoard::SlotMapCmd::execute(char* commandLine)
 {
-	if (strncmp(commandLine, "slotmap", 7) == 0) {
-		Console::instance()->printOnConsole(
-			"Prints which slots contain which devices.");
-	} else if (strncmp(commandLine, "slotselect", 10) == 0) {
-		Console::instance()->printOnConsole(
-			"Prints which slots are currently selected.");
-	} else if (strncmp(commandLine, "reset", 5) == 0) {
-		Console::instance()->printOnConsole(
-			"Resets the MSX.");
-	} else {
-		assert(false);
-	}
+	Console::instance()->printOnConsole(MSXMotherBoard::instance()->getSlotMap());
+}
+void MSXMotherBoard::SlotMapCmd::help(char *commandLine)
+{
+	Console::instance()->printOnConsole("Prints which slots contain which devices.");
+}
+
+void MSXMotherBoard::SlotSelectCmd::execute(char* commandLine)
+{
+	Console::instance()->printOnConsole(MSXMotherBoard::instance()->getSlotSelection());
+}
+void MSXMotherBoard::SlotSelectCmd::help(char *commandLine)
+{
+	Console::instance()->printOnConsole("Prints which slots are currently selected.");
 }
 

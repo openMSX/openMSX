@@ -7,12 +7,12 @@
 #include <string>
 #include "openmsx.hh"
 #include "MSXRomPatchInterface.hh"
-#include "ConsoleInterface.hh"
+#include "ConsoleCommand.hh"
 #include "config.h"
 #include "CPU.hh"
 #include "FileOpener.hh"
 
-class MSXTapePatch: public MSXRomPatchInterface, private ConsoleInterface
+class MSXTapePatch: public MSXRomPatchInterface, private ConsoleCommand
 {
 	public:
 		MSXTapePatch();
@@ -49,10 +49,9 @@ class MSXTapePatch: public MSXRomPatchInterface, private ConsoleInterface
 		// 0x00F3 Turn motor ON/OFF
 		void STMOTR(CPU::CPURegs& R) const;
 
-		// from the ConsoleInterface
-		void ConsoleCallback(char *string);
-		void ConsoleHelp(char *string);
-
+		// Tape Command
+		virtual void execute(char *commandLine);
+		virtual void help(char *commandLine);
 };
 
 #endif // __MSXTapePatch_HH__

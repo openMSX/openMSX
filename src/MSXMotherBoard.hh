@@ -7,7 +7,7 @@
 #include <vector>
 #include "CPUInterface.hh"
 #include "MSXConfig.hh"
-#include "ConsoleInterface.hh"
+#include "ConsoleCommand.hh"
 
 // forward declarations
 class MSXDevice;
@@ -16,7 +16,7 @@ class MSXMemDevice;
 class EmuTime;
 
 
-class MSXMotherBoard : public CPUInterface, private ConsoleInterface
+class MSXMotherBoard : public CPUInterface
 {
 	public:
 
@@ -75,6 +75,19 @@ class MSXMotherBoard : public CPUInterface, private ConsoleInterface
 
 		}; // end of IRQHelper
 
+		class ResetCmd : public ConsoleCommand {
+			virtual void execute(char *commandLine);
+			virtual void help(char *commandLine);
+		};
+		class SlotMapCmd : public ConsoleCommand {
+			virtual void execute(char *commandLine);
+			virtual void help(char *commandLine);
+		};
+		class SlotSelectCmd : public ConsoleCommand {
+			virtual void execute(char *commandLine);
+			virtual void help(char *commandLine);
+		};
+	
 		/**
 		 * Destructor
 		 */
@@ -223,16 +236,17 @@ class MSXMotherBoard : public CPUInterface, private ConsoleInterface
 
 		/*
 		 * Should only be used by PPI
-		 *  TODO: make friend
+		 *  TODO: make private / friend
 		 */
 		void setPrimarySlots(byte value);
 
 	private:
 		MSXMotherBoard();
 
-		// ConsoleInterface:
-		virtual void ConsoleCallback(char *commandLine);
-		virtual void ConsoleHelp(char *commandLine);
+		// ConsoleCommands
+		ResetCmd resetCmd;
+		SlotMapCmd slotMapCmd;
+		SlotSelectCmd slotSelectCmd;
 
 		/** Used by getSlotMap to print the contents of a single slot.
 		  */
