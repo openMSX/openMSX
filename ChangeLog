@@ -8,6 +8,10 @@ $Id$
 	   - settings.xml fileformat has changed again. All settings are now
 	     saved in a uniform way.
 	   - Code is a lot simpler now
+	* Default rom pools:
+	   added
+	     <user>/share/systemroms  and  <system>/share/systemroms
+	   as default rom pool locations. The use can still add more pools.
 
 2004-09-18 Maarten ter Huurne <maarten@treewalker.org>
 	* Cleaned up layer system:

@@ -5,6 +5,7 @@
 #include "sha1.hh"
 #include "SettingsConfig.hh"
 #include "File.hh"
+#include "FileContext.hh"
 #include "FileOperations.hh"
 #include "FilePool.hh"
 #include "ReadDir.hh"
@@ -30,6 +31,13 @@ FilePool::FilePool()
 			string dir = FileOperations::expandTilde((*it)->getData());
 			readSha1sums(dir, database[dir]);
 		}
+	}
+	SystemFileContext context;
+	const vector<string>& paths = context.getPaths();
+	for (vector<string>::const_iterator it = paths.begin();
+	     it != paths.end(); ++it) {
+		string dir = *it + "/systemroms";
+		readSha1sums(dir, database[dir]);
 	}
 }
 
