@@ -145,8 +145,8 @@
   </device>
   
   <device id="F4Device">
-    <parameter name="inverted">false</parameter>
     <type>F4Device</type>
+    <parameter name="inverted">false</parameter>
   </device>
 
   <device id="TurboRLeds">

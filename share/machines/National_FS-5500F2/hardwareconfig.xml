@@ -60,7 +60,7 @@
     <slotted> <ps>3</ps> <ss>3</ss> <page>1</page> </slotted>
     <slotted> <ps>3</ps> <ss>3</ss> <page>2</page> </slotted>
     <parameter name="filename">fs-5500_disk.rom</parameter>
-    <parameter name="type">National</parameter>
+    <parameter name="type">MB8877A</parameter>
     <parameter name="brokenFDCread">false</parameter>
     <parameter name="drivename1">diska</parameter>
     <parameter name="drivename2">diskb</parameter>

@@ -78,7 +78,7 @@
     <slotted> <ps>3</ps> <ss>2</ss> <page>1</page> </slotted>
     <slotted> <ps>3</ps> <ss>2</ss> <page>2</page> </slotted>
     <parameter name="filename">fs-a1st_msxdos23.rom</parameter>
-    <parameter name="type">Panasonic</parameter>
+    <parameter name="type">TC8566AF</parameter>
     <parameter name="drivename1">diska</parameter>
   </device>
 
@@ -146,6 +146,7 @@
   
   <device id="F4Device">
     <type>F4Device</type>
+    <parameter name="inverted">false</parameter>
   </device>
 
   <device id="TurboRLeds">
