@@ -1,5 +1,8 @@
 $Id$
 
+2004-07-04 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed exception-safety problem in CassettePort constructor
+
 2004-07-04 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added simple DC filter for Wave cassette images (subtract average)
 	  .wav files from MicroWAVer should work now. Please test this some

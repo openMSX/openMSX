@@ -89,17 +89,15 @@ void DummyCassettePort::flushOutput(const EmuTime& /*time*/)
 CassettePort::CassettePort()
 	: CassettePortInterface()
 {
+	cassettePlayer.reset(new CassettePlayer());
 	buffer = new short[BUFSIZE];
 	PluggingController::instance().registerConnector(this);
-
-	cassettePlayer.reset(new CassettePlayer());
 	PluggingController::instance().registerPluggable(cassettePlayer.get());
 }
 
 CassettePort::~CassettePort()
 {
 	PluggingController::instance().unregisterPluggable(cassettePlayer.get());
-	
 	PluggingController::instance().unregisterConnector(this);
 	delete[] buffer;
 }
