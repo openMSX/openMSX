@@ -1,5 +1,12 @@
 $Id$
 
+2004-10-19 Joost Damad <joost@lumatec.be>
+	* sync with debian/
+	* updated manpage and control file
+	* support for using ccache to possibly speed up build
+	* support for cleaning up CVS/ dirs for "install" and "dist"; still
+	  commented out
+
 2004-10-18 Eric Boon <e.boon4@chello.nl>
 	* GFX900 emulation
 		- Bx modes & belonging palettes
