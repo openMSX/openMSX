@@ -16,8 +16,12 @@ TODO:
 #include "DebugConsole.hh"
 #include "SDLConsole.hh"
 #include "util.hh"
+#include <algorithm>
 #include <cmath>
 #include <cassert>
+
+using std::max;
+using std::min;
 
 
 namespace openmsx {
@@ -429,7 +433,6 @@ void SDLRenderer<Pixel, zoom>::frameStart(
 	// NTSC: display at [32..244),
 	// PAL:  display at [59..271).
 	lineRenderTop = vdp->isPalTiming() ? 59 - 14 : 32 - 14;
-	lineRenderBottom = lineRenderTop + HEIGHT / LINE_ZOOM;
 
 	float gamma = settings->getGamma()->getValue();
 	// (gamma != prevGamma) gives compiler warnings
@@ -619,35 +622,38 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 	}
 
 	// Clip to screen area.
-	if (fromY < lineRenderTop) {
-		displayHeight -= lineRenderTop - fromY;
+	int screenLimitY = min(
+		fromY + displayHeight - lineRenderTop,
+		HEIGHT / LINE_ZOOM
+		);
+	int screenY = fromY - lineRenderTop;
+	if (screenY < 0) {
+		displayY -= screenY;
 		fromY = lineRenderTop;
+		screenY = 0;
 	}
-	if (fromY + displayHeight > lineRenderBottom) {
-		displayHeight = lineRenderBottom - fromY;
-	}
+	displayHeight = screenLimitY - screenY;
 	if (displayHeight <= 0) return;
+	screenY *= LINE_ZOOM;
+	screenLimitY *= LINE_ZOOM;
 
-	int screenY = (fromY - lineRenderTop) * LINE_ZOOM;
 	if (!(settings->getDeinterlace()->getValue())
-	&& vdp->isInterlaced()
-	&& vdp->getEvenOdd()
+	&& vdp->isInterlaced() && vdp->getEvenOdd()
 	&& zoom != Renderer::ZOOM_256) {
 		// Display odd field half a line lower.
 		screenY++;
 	}
-	int screenLimitY = screenY + displayHeight * LINE_ZOOM;
 
 	int leftBackground = translateX(vdp->getLeftBackground());
 	// TODO: Find out why this causes 1-pixel jitter:
 	//dest.x = translateX(fromX);
 
 	DisplayMode mode = vdp->getDisplayMode();
-	int hScroll = 
+	int hScroll =
 		  mode.isTextMode()
 		? 0
 		: 8 * LINE_ZOOM * (vdp->getHorizontalScrollHigh() & 0x1F);
-	
+
 	// Page border is display X coordinate where to stop drawing current page.
 	// This is either the multi page split point, or the right edge of the
 	// rectangle to draw, whichever comes first.
@@ -689,7 +695,7 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 			pageMaskEven = pageMaskOdd =
 				(mode.isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
 		}
-		
+
 		// Copy from cache to screen.
 		SDL_Rect source, dest;
 		for (int y = screenY; y < screenLimitY; y += LINE_ZOOM) {
@@ -698,7 +704,7 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 				& (pageMaskEven | displayY);
 			vramLine[1] = (vram->nameTable.getMask() >> 7)
 				& (pageMaskOdd  | displayY);
-			
+
 			// TODO: Can we safely use SDL_LowerBlit?
 			if (deinterlaced) {
 				// TODO: Allow horizontal scroll during deinterlace.
@@ -785,14 +791,20 @@ void SDLRenderer<Pixel, zoom>::drawSprites(
 ) {
 	// Clip to screen area.
 	// TODO: Code duplicated from drawDisplay.
-	if (fromY < lineRenderTop) {
-		displayHeight -= lineRenderTop - fromY;
+	int screenLimitY = min(
+		fromY + displayHeight - lineRenderTop,
+		HEIGHT / LINE_ZOOM
+		);
+	int screenY = fromY - lineRenderTop;
+	if (screenY < 0) {
+		displayY -= screenY;
 		fromY = lineRenderTop;
+		screenY = 0;
 	}
-	if (fromY + displayHeight > lineRenderBottom) {
-		displayHeight = lineRenderBottom - fromY;
-	}
+	displayHeight = screenLimitY - screenY;
 	if (displayHeight <= 0) return;
+	screenY *= LINE_ZOOM;
+	screenLimitY *= LINE_ZOOM;
 
 	// Render sprites.
 	// Lock surface, because we will access pixels directly.
@@ -808,10 +820,8 @@ void SDLRenderer<Pixel, zoom>::drawSprites(
 	}
 
 	// TODO: Code duplicated from drawDisplay.
-	int screenY = (fromY - lineRenderTop) * LINE_ZOOM;
 	if (!(settings->getDeinterlace()->getValue())
-	&& vdp->isInterlaced()
-	&& vdp->getEvenOdd()
+	&& vdp->isInterlaced() && vdp->getEvenOdd()
 	&& zoom != Renderer::ZOOM_256) {
 		// Display odd field half a line lower.
 		screenY++;
