@@ -150,8 +150,10 @@ void SDLConsole::drawCursor()
 			rect.y = consoleSurface->h - font->getHeight();
 			rect.w = font->getWidth();
 			rect.h = font->getHeight();
-			SDL_FillRect(consoleSurface, &rect,
-			     SDL_MapRGBA(consoleSurface->format, 0, 0, 0, consoleAlpha));
+			SDL_FillRect(fontLayer, &rect,
+			     SDL_MapRGBA(fontLayer->format, 0, 0, 0, consoleAlpha));
+
+			
 			if (backgroundImage) {
 				// draw the background image if applicable
 				SDL_Rect rect2;
