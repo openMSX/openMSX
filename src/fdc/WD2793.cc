@@ -192,7 +192,12 @@ void WD2793::setDataReg(byte value, const EmuTime &time)
 				drive->write(sectorReg, dataBuffer,
 				             onDiskTrack, onDiskSector,
 					     onDiskSide, onDiskSize);
-				assert(onDiskTrack == trackReg);
+				if (onDiskTrack != trackReg) {
+					// TODO we should wait for 6 index holes
+					statusReg |= RECORD_NOT_FOUND;
+					endCmd();
+					return;
+				}
 				assert(onDiskSize == 512);
 				// If we wait too long we should also write a
 				// partialy filled sector ofcourse and set the
@@ -310,7 +315,12 @@ void WD2793::tryToReadSector(void)
 	try {
 		drive->read(sectorReg, dataBuffer,
 		            onDiskTrack, onDiskSector, onDiskSide, onDiskSize);
-		assert(onDiskTrack == trackReg);
+		if (onDiskTrack != trackReg) {
+			// TODO we should wait for 6 index holes
+			statusReg |= RECORD_NOT_FOUND;
+			endCmd();
+			return;
+		}
 		assert(onDiskSize == 512);
 		dataCurrent = 0;
 		dataAvailable = onDiskSize;
