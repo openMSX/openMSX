@@ -19,8 +19,6 @@
 
 class Emutime
 {
-friend Emutime &operator +(const uint64 &foo, Emutime &bar);
-friend Emutime &operator -(const uint64 &foo, Emutime &bar);
 public:
 	// ordinary ctor/dtor
 	// uint64 -> Emutime conversion operator
@@ -29,8 +27,8 @@ public:
 	// if inheritance from Emutime is needed, change to virtual, but please don't!
 
 	// copy & assignment operator
-	Emutime(const Emutime &foo):_emutime(foo._emutime) {}
-	Emutime &operator =(const Emutime &foo) { _emutime=foo._emutime; }
+	Emutime(const Emutime &foo):_emutime(foo._emutime),_scale(foo._scale) {}
+	Emutime &operator =(const Emutime &foo) { _emutime=foo._emutime; return *this; } // scale is const, soo can't assign
 
 	// conversion operator 
 	// [note: conversion operators have an implicit return type]
@@ -39,33 +37,22 @@ public:
 	// since uint64 is a typedef does this work? Aparantly.
 
 	// basicaly needed operators
-	Emutime &operator +(const uint64 &foo) { _emutime+=foo*_scale ; return *this; }
 	Emutime &operator +=(const uint64 &foo) { _emutime+=foo*_scale ; return *this; }
-	Emutime &operator +(const Emutime &foo) { _emutime+=foo._emutime ; return *this; }
 	Emutime &operator +=(const Emutime &foo) { _emutime+=foo._emutime ; return *this; }
-	Emutime &operator -(const uint64 &foo) { _emutime-=foo*_scale ; return *this; }
 	Emutime &operator -=(const uint64 &foo) { _emutime-=foo*_scale ; return *this; }
-	Emutime &operator -(const Emutime &foo) { _emutime-=foo._emutime ; return *this; }
 	Emutime &operator -=(const Emutime &foo) { _emutime-=foo._emutime ; return *this; }
 	Emutime &operator ++() { _emutime+=_scale ; return *this; } // prefix
 	Emutime &operator --() { _emutime-=_scale ; return *this; }
 	Emutime &operator ++(int unused) { _emutime+=_scale ; return *this; } // postfix
 	Emutime &operator --(int unused) { _emutime-=_scale ; return *this; }
+	Emutime distance(const Emutime &foo) { return Emutime((_emutime-foo._emutime)<0?(foo._emutime-_emutime):(_emutime-foo._emutime)); }
 private:
 	uint64 _emutime;
 	static const uint64 _scalefactor=28000000;
 	const int _scale;
+	// private, to make sure they're NOT used ;-)
+	Emutime operator +(const uint64 &foo) { return Emutime(_emutime+foo*_scale); }
+	Emutime operator +(const Emutime &foo) { return Emutime(_emutime+foo._emutime); }
 };
-
-inline Emutime &operator +(const uint64 &foo, Emutime &bar)
-{
-	return (bar+=foo);
-}
-
-inline Emutime &operator -(const uint64 &foo, Emutime &bar)
-{
-	bar._emutime=foo-bar._emutime;
-	return bar;
-}
 
 #endif
