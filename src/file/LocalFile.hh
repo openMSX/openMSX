@@ -25,7 +25,9 @@ class LocalFile : public FileBase
 		virtual unsigned getSize();
 		virtual void seek(unsigned pos);
 		virtual unsigned getPos();
+#ifdef HAVE_FTRUNCATE
 		virtual void truncate(unsigned size);
+#endif
 		virtual const string getURL() const;
 		virtual const string getLocalName();
 		virtual bool isReadOnly() const;

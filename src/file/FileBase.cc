@@ -1,8 +1,10 @@
 // $Id$
 
-#include "FileBase.hh"
 #include <cassert>
+#include <algorithm>
+#include "FileBase.hh"
 
+using std::min;
 
 namespace openmsx {
 
@@ -36,6 +38,22 @@ void FileBase::munmap()
 		}
 		delete[] mmem;
 		mmem = NULL;
+	}
+}
+
+ void FileBase::truncate(unsigned size)
+{
+	int grow = size - getSize();
+	if (grow < 0) {
+		PRT_DEBUG("Default truncate() can't shrink file!");
+		return;
+	}
+	const int BUF_SIZE = 4096;
+	byte buf[BUF_SIZE];
+	memset(buf, 0, BUF_SIZE);
+	while (grow > 0) {
+		write(buf, min(BUF_SIZE, grow));
+		grow -= BUF_SIZE;
 	}
 }
 

@@ -124,17 +124,15 @@ unsigned LocalFile::getPos()
 	return (unsigned)ftell(file);
 }
 
+#ifdef HAVE_FTRUNCATE
 void LocalFile::truncate(unsigned size)
 {
-#ifdef HAVE_FTRUNCATE
 	int fd = fileno(file);
 	if (ftruncate(fd, size)) {
 		throw FileException("Error truncating file");
 	}
-#else
-	// TODO
-#endif
 }
+#endif
 
 const string LocalFile::getURL() const
 {
