@@ -1,5 +1,15 @@
 $Id$
 
+2005-04-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed / cleaned up FileManipulator and RamDSK code:
+	  still TODO:
+	   - proposal: rename FileManipulator to DiskImageManipulator?
+	   - proposal: change "diska ramdsk" command to "diska -ramdisk [<name>]"
+	        (note: ramdsk vs ramdisk (or just ram?))
+	   - keep ramdisk contents when disk is ejected/reinserted
+	   - automatically format ramdisk on first insert
+	* Simplified all SectorsBasedDisk subclasses
+
 2005-04-04 David Heremans <david.heremans@gnu-linux.net>
 	* Filemanipulator: tab completion.
 

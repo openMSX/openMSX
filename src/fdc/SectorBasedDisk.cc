@@ -16,15 +16,34 @@ SectorBasedDisk::~SectorBasedDisk()
 }
 
 void SectorBasedDisk::read(byte track, byte sector, byte side,
-                           unsigned /*size*/, byte* buf)
+                           unsigned size, byte* buf)
 {
+	assert(size == SECTOR_SIZE);
+	unsigned logicalSector = physToLog(track, side, sector);
+	if (logicalSector >= nbSectors) {
+		throw NoSuchSectorException("No such sector");
+	}
 	try {
-		unsigned logicalSector = physToLog(track, side, sector);
-		if (logicalSector >= nbSectors) {
-			throw NoSuchSectorException("No such sector");
-		}
 		patch->copyBlock(logicalSector * SECTOR_SIZE, buf, SECTOR_SIZE);
 	} catch (MSXException& e) {
+		throw DiskIOErrorException("Disk I/O error");
+	}
+}
+
+void SectorBasedDisk::write(byte track, byte sector, byte side, 
+                            unsigned size, const byte* buf)
+{
+	assert(size == SECTOR_SIZE);
+	if (writeProtected()) {
+		throw WriteProtectedException("");
+	}
+	unsigned logicalSector = physToLog(track, side, sector);
+	if (logicalSector >= nbSectors) {
+		throw NoSuchSectorException("No such sector");
+	}
+	try {
+		writeLogicalSector(logicalSector, buf);
+	} catch (MSXException &e) {
 		throw DiskIOErrorException("Disk I/O error");
 	}
 }

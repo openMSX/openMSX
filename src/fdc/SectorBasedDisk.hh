@@ -15,7 +15,10 @@ class SectorBasedDisk : public Disk
 public: 
 	static const unsigned SECTOR_SIZE = 512;
 
-	void read(byte track, byte sector, byte side, unsigned size, byte* buf);
+	virtual void read(byte track, byte sector, byte side,
+	                  unsigned size, byte* buf);
+	virtual void write(byte track, byte sector, byte side,
+	                   unsigned size, const byte* buf);
 	virtual void initWriteTrack(byte track, byte side);
 	virtual void writeTrackData(byte data);
 	virtual void initReadTrack(byte track, byte side);
@@ -23,8 +26,9 @@ public:
 	virtual bool ready();
 	virtual bool doubleSided();
 
-	virtual void applyPatch(const std::string& patchFile);
 	virtual void readLogicalSector(unsigned sector, byte* buf) = 0;
+	virtual void writeLogicalSector(unsigned sector, const byte* buf) = 0;
+	virtual void applyPatch(const std::string& patchFile);
 	unsigned getNbSectors() const;
 
 protected:

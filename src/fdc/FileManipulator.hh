@@ -5,8 +5,6 @@
 
 #include "Command.hh"
 #include <map>
-#include <vector>
-#include "SectorBasedDisk.hh"
 
 namespace openmsx {
 
@@ -16,19 +14,19 @@ class FileManipulator : public SimpleCommand
 {
 public: 
 	static FileManipulator& instance();
-	void registerDrive(DiskDrive* drive, const std::string& ImageName);
-	void unregisterDrive(DiskDrive* drive, const std::string& ImageName);
+	void registerDrive(DiskDrive& drive, const std::string& imageName);
+	void unregisterDrive(DiskDrive& drive, const std::string& imageName);
 
 private:
 	FileManipulator();
 	~FileManipulator();
 
-	std::map<const std::string, DiskDrive*> diskimages;
-
 	// Command interface
 	virtual std::string execute(const std::vector<std::string>& tokens);
 	virtual std::string help   (const std::vector<std::string>& tokens) const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+	
+	std::map<const std::string, DiskDrive*> diskimages;
 };
 
 } // namespace openmsx

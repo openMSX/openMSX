@@ -4,24 +4,21 @@
 #define RAMDSKDISKIMAGE_HH
 
 #include "SectorBasedDisk.hh"
-#include <memory>
 
 namespace openmsx {
 
 class RamDSKDiskImage : public SectorBasedDisk
 {
 public: 
-	RamDSKDiskImage();
-	RamDSKDiskImage(const int size);
+	RamDSKDiskImage(unsigned size = 720 * 1024);
 	virtual ~RamDSKDiskImage();
 
-	virtual void write(byte track, byte sector,
-	                   byte side, unsigned size, const byte* buf);
 	virtual bool writeProtected();
-	virtual void read(byte track, byte sector, byte side, unsigned size, byte* buf);
 
 private:
 	virtual void readLogicalSector(unsigned sector, byte* buf);
+	virtual void writeLogicalSector(unsigned sector, const byte* buf);
+
 	byte* diskdata;
 };
 

@@ -22,8 +22,6 @@ public:
 	XSADiskImage(const std::string& fileName);
 	virtual ~XSADiskImage();
 	
-	virtual void write(byte track, byte sector,
-	                   byte side, unsigned size, const byte* buf);
 	virtual bool writeProtected();
 
 private:
@@ -32,6 +30,7 @@ private:
 	static const int MAXHUFCNT = 127;
 
 	virtual void readLogicalSector(unsigned sector, byte* buf);
+	virtual void writeLogicalSector(unsigned sector, const byte* buf);
 
 	bool isXSAImage(File& file);
 	inline byte charin();

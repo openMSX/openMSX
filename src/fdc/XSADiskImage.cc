@@ -48,8 +48,7 @@ void XSADiskImage::readLogicalSector(unsigned sector, byte* buf)
 	memcpy(buf, outbuf + sector * SECTOR_SIZE, SECTOR_SIZE);
 }
 
-void XSADiskImage::write(byte /*track*/, byte /*sector*/,
-                         byte /*side*/, unsigned /*size*/, const byte* /*buf*/)
+void XSADiskImage::writeLogicalSector(unsigned /*sector*/, const byte* /*buf*/)
 {
 	throw WriteProtectedException("Write protected");
 }

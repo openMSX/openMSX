@@ -24,22 +24,10 @@ void DSKDiskImage::readLogicalSector(unsigned sector, byte* buf)
 	file->read(buf, SECTOR_SIZE);
 }
 
-void DSKDiskImage::write(byte track, byte sector, byte side, 
-                         unsigned /*size*/, const byte* buf)
+void DSKDiskImage::writeLogicalSector(unsigned sector, const byte* buf)
 {
-	if (writeProtected()) {
-		throw WriteProtectedException("");
-	}
-	try {
-		unsigned logicalSector = physToLog(track, side, sector);
-		if (logicalSector >= nbSectors) {
-			throw NoSuchSectorException("No such sector");
-		}
-		file->seek(logicalSector * SECTOR_SIZE);
-		file->write(buf, SECTOR_SIZE);
-	} catch (FileException &e) {
-		throw DiskIOErrorException("Disk I/O error");
-	}
+	file->seek(sector * SECTOR_SIZE);
+	file->write(buf, SECTOR_SIZE);
 }
 
 bool DSKDiskImage::writeProtected()

@@ -556,15 +556,10 @@ void FDC_DirAsDSK::updateFileInDisk(const int dirindex)
 
 }
 
-void FDC_DirAsDSK::write(byte track, byte sector, byte side, 
-                    unsigned /*size*/, const byte* buf)
+void FDC_DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 {
-	unsigned logicalSector = physToLog(track, side, sector);
-	if (logicalSector > nbSectors) {
-		throw NoSuchSectorException("No such sector");
-	}
-	PRT_DEBUG("Writing sector : " << logicalSector );
-	if (logicalSector == 0) {
+	PRT_DEBUG("Writing sector : " << sector);
+	if (sector == 0) {
 		//copy buffer into our fake bootsector and safe into file
 		PRT_DEBUG("Reading boot sector");
 		memcpy(BootBlock, buf, SECTOR_SIZE);
@@ -579,7 +574,7 @@ void FDC_DirAsDSK::write(byte track, byte sector, byte side,
 			CliComm::instance().printWarning(
 				"Couldn't create bootsector file " + filename);
 		}
-	} else if (logicalSector < (1 + 2 * SECTORS_PER_FAT)) {
+	} else if (sector < (1 + 2 * SECTORS_PER_FAT)) {
 		//copy to correct sector from FAT
 		//make sure we write changed sectors to the cache file later on
 		saveCachedSectors=true;
@@ -590,9 +585,9 @@ void FDC_DirAsDSK::write(byte track, byte sector, byte side,
 		//Since the two FATs should be identical after "normal" usage,
 		//we simply ignore writes (for now, later we could cache them
 		//perhaps)
-		if (logicalSector < (1 + SECTORS_PER_FAT)) {
-			logicalSector = (logicalSector - 1) % SECTORS_PER_FAT;
-			memcpy(FAT + logicalSector * SECTOR_SIZE, buf, SECTOR_SIZE);
+		if (sector < (1 + SECTORS_PER_FAT)) {
+			sector = (sector - 1) % SECTORS_PER_FAT;
+			memcpy(FAT + sector * SECTOR_SIZE, buf, SECTOR_SIZE);
 		}
 		PRT_DEBUG("FAT[0] :"<< std::hex << (int)FAT[0] );
 		PRT_DEBUG("FAT[1] :"<< (int)FAT[1] );
@@ -600,7 +595,7 @@ void FDC_DirAsDSK::write(byte track, byte sector, byte side,
 		PRT_DEBUG("buf[0] :"<< std::hex << (int)buf[0] );
 		PRT_DEBUG("buf[1] :"<< (int)buf[1] );
 		PRT_DEBUG("buf[2] :"<< (int)buf[2] << std::dec );
-	} else if (logicalSector < 14) {
+	} else if (sector < 14) {
 		//make sure we write changed sectors to the cache file later on
 		saveCachedSectors=true;
 		//create correct DIR sector 
@@ -611,8 +606,8 @@ void FDC_DirAsDSK::write(byte track, byte sector, byte side,
 		 Ofcourse some diskcaching programs en disk optimizers can abandon this behaviour 
 		 and in such case the logic used here goes haywire!!
 		*/
-		logicalSector -= (1 + 2 * SECTORS_PER_FAT);
-		int dirCount = logicalSector * 16;
+		sector -= (1 + 2 * SECTORS_PER_FAT);
+		int dirCount = sector * 16;
 		for (int i = 0; i < 16; i++) {
 			//TODO check if changed and take apropriate actions if needed
 			if (memcmp( mapdir[dirCount].msxinfo.filename , buf, 32 ) != 0) {
@@ -681,17 +676,17 @@ void FDC_DirAsDSK::write(byte track, byte sector, byte side,
 		//make sure we write cached sectors to a file later on
 		saveCachedSectors=true;
 
-		if ( cachedSectors[logicalSector] == NULL ) { // is this test actually valid C++ ??
-			PRT_DEBUG("cachedSectors["<<logicalSector<<"] == NULL");
+		if ( cachedSectors[sector] == NULL ) { // is this test actually valid C++ ??
+			PRT_DEBUG("cachedSectors["<<sector<<"] == NULL");
 			byte *tmp;
 			tmp=(byte*)malloc(SECTOR_SIZE);
 			if (tmp == NULL){
 			  throw WriteProtectedException( "Malloc failure for FDC_DirAsDSK");
 			}
-			cachedSectors[logicalSector]=tmp;
+			cachedSectors[sector]=tmp;
 		}
-		memcpy( cachedSectors[logicalSector] ,buf, SECTOR_SIZE);
-		sectormap[logicalSector].dirEntryNr = CACHEDSECTOR ;
+		memcpy( cachedSectors[sector] ,buf, SECTOR_SIZE);
+		sectormap[sector].dirEntryNr = CACHEDSECTOR ;
 	  //
 	  //   for now simply ignore writes
 	  //

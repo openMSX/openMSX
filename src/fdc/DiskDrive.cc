@@ -160,7 +160,7 @@ RealDrive::RealDrive(const EmuTime& time)
 		if (!drivesInUse[i]) {
 			name = string("disk") + static_cast<char>('a' + i);
 			drivesInUse[i] = true;
-			FileManipulator::instance().registerDrive(this,name);
+			FileManipulator::instance().registerDrive(*this, name);
 			break;
 		}
 	}
@@ -176,7 +176,6 @@ RealDrive::RealDrive(const EmuTime& time)
 		try {
 			FileContext& context = diskConfig.getFileContext();
 			string diskImage = filename;
-
 			if (filename != "ramdsk") {
 				diskImage = context.resolve(filename);
 			}
@@ -209,7 +208,7 @@ RealDrive::~RealDrive()
 {
 	int driveNum = name[4] - 'a';
 	drivesInUse[driveNum] = false;
-	FileManipulator::instance().unregisterDrive(this,name);
+	FileManipulator::instance().unregisterDrive(*this, name);
 	CommandController::instance().unregisterCommand(this, name);
 }
 
@@ -316,9 +315,8 @@ bool RealDrive::headLoaded(const EmuTime& time)
 void RealDrive::insertDisk(const string& diskImage, const vector<string>& patches)
 {
 	ejectDisk();
-	if ( diskImage == "ramdsk" ) {
+	if (diskImage == "ramdsk") {
 		PRT_DEBUG("Trying a RamDSK diskimage...");
-		CliComm::instance().printInfo("RamDSk diskimage");
 		disk.reset(new RamDSKDiskImage());
 	} else
 	try {
@@ -356,7 +354,7 @@ void RealDrive::ejectDisk()
 	disk.reset(new DummyDisk());
 }
 
-Disk& RealDrive::getDisk()
+Disk& RealDrive::getDisk() const
 {
 	return *disk.get();
 }
@@ -369,13 +367,13 @@ string RealDrive::execute(const vector<string>& tokens)
 		if (!diskName.empty()) {
 			result += "Current disk: " + diskName + '\n';
 		} else {
-			result += "There is currently no disk inserted in drive with name \"" +
-			          name + "\"" + '\n';
+			result += "There is currently no disk inserted in drive with name \""
+			       + name + "\"" + '\n';
 		}
 	} else if (tokens[1] == "ramdsk") {
 		vector<string> nopatchfiles;
-		insertDisk(tokens[1],nopatchfiles);
-		result += "Current disk is now RAM-image" + '\n';
+		insertDisk(tokens[1], nopatchfiles);
+		result += "Current disk is now RAM-image\n";
 		diskChangedFlag = true;
 	} else if (tokens[1] == "eject") {
 		ejectDisk();
@@ -407,8 +405,9 @@ string RealDrive::help(const vector<string>& /*tokens*/) const
 
 void RealDrive::tabCompletion(vector<string>& tokens) const
 {
-	if (tokens.size() >= 2)
+	if (tokens.size() >= 2) {
 		CommandController::completeFileName(tokens);
+	}
 }
 
 bool RealDrive::diskChanged()

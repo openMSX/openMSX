@@ -16,12 +16,11 @@ public:
 	DSKDiskImage(const std::string& fileName);
 	virtual ~DSKDiskImage();
 
-	virtual void write(byte track, byte sector,
-	                   byte side, unsigned size, const byte* buf);
 	virtual bool writeProtected();
 
 private:
 	virtual void readLogicalSector(unsigned sector, byte* buf);
+	virtual void writeLogicalSector(unsigned sector, const byte* buf);
 
 	std::auto_ptr<File> file;
 };
