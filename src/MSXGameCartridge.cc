@@ -251,7 +251,10 @@ int MSXGameCartridge::guessMapperType()
 		// in case of even type 5 and 4 we would prefer 5
 		// but we would still prefer 0 above 4 or 5
 		if ((type==5) && (typeGuess[0] == typeGuess[5] ) ){type=0;};
-		PRT_DEBUG("I Guess this is a nr " << type << " GameCartridge mapper type.")
+	for (int i=0; i<6; i++) {
+	PRT_DEBUG("MSXGameCartridge: typeGuess["<<i<<"]="<<typeGuess[i]);
+	}
+		PRT_DEBUG("MSXGameCartridge: I Guess this is a nr " << type << " GameCartridge mapper type.")
 		return type;
 	}
 }

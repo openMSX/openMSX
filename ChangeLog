@@ -1,5 +1,8 @@
 $Id$
 
+2002-04-04 David Heremans <david.heremans@gnu-linux.net>
+	* Added more debug info to MSXGameCartrdige.
+
 2002-03-28 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Moved ADPCM part of Y8950 to its own file
 	* Fixed ADPCM bug: 
