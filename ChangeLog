@@ -1,5 +1,9 @@
 $Id$
 
+2003-05-23 Herman Oudejans <hn.oudejans@quicknet.nl>
+	* Fixed an error when processing the commandline and one
+	  device exists twice in the configurationfile(s).
+
 2003-05-21 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Double commands in the console commandhistory can no
 	  longer occur.

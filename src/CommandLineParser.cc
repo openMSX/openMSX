@@ -10,7 +10,7 @@
 #include "MSXConfig.hh"
 #include "CartridgeSlotManager.hh"
 #include "CliExtension.hh"
-
+#include "File.hh"
 
 const char* const MACHINE_PATH = "share/machines/";
 
@@ -187,9 +187,10 @@ void CommandLineParser::parse(int argc, char **argv)
 			// no DefaultMachine section
 		}
 		try{		
+		std::cout << "Selected: " << MACHINE_PATH + machine << std::endl;
 		config->loadFile(new SystemFileContext(),
 		        MACHINE_PATH + machine + "/hardwareconfig.xml");
-		} catch (MSXException &e) {
+		} catch (FileException &e) {
 		bool found=false;
 		std::list<std::string>::const_iterator it;
 		for (it = fileCmdLine.begin();it !=	fileCmdLine.end();it ++){
