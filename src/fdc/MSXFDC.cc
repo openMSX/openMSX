@@ -18,18 +18,15 @@ MSXFDC::MSXFDC(const XMLElement& config, const EmuTime& time)
 	}
 	int i = 0;
 	for ( ; i < numDrives; ++i) {
-		drives[i] = new DoubleSidedDrive(time);
+		drives[i].reset(new DoubleSidedDrive(time));
 	}
 	for ( ; i < 4; ++i) {
-		drives[i] = new DummyDrive();
+		drives[i].reset(new DummyDrive());
 	}
 }
 
 MSXFDC::~MSXFDC()
 {
-	for (int i = 0; i < 4; ++i) {
-		delete drives[i];
-	}
 }
 
 byte MSXFDC::readMem(word address, const EmuTime& /*time*/)

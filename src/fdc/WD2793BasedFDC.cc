@@ -6,7 +6,8 @@ namespace openmsx {
 
 WD2793BasedFDC::WD2793BasedFDC(const XMLElement& config, const EmuTime& time)
 	: MSXFDC(config, time)
-	, multiplexer(drives), controller(&multiplexer, time)
+	, multiplexer(reinterpret_cast<DiskDrive**>(drives))
+	, controller(&multiplexer, time)
 {
 }
 

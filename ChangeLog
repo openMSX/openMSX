@@ -1,5 +1,8 @@
 $Id$
 
+2004-08-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed assertion on  "openmsx ok.dsk wrong.dsk"
+
 2004-08-19 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed XML configuration stuff for IDE
 

@@ -3,8 +3,11 @@
 #ifndef __MSXFDC_HH__
 #define __MSXFDC_HH__
 
+#include <memory>
 #include "MSXDevice.hh"
 #include "Rom.hh"
+
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -21,7 +24,7 @@ protected:
 	virtual ~MSXFDC();
 
 	Rom rom;
-	DiskDrive* drives[4];
+	auto_ptr<DiskDrive> drives[4];
 };
 
 } // namespace openmsx
