@@ -112,7 +112,7 @@
  <!-- Keymap definition file -->
   <config id="KeyMap">
    <!--
-    <parameter name="filename">keymap.default</parameter>
+    <parameter name="filename">keymaps/keymap.default</parameter>
    -->
   </config>
 
