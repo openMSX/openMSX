@@ -112,7 +112,7 @@ bool CommandLineParser::parseOption(const string &arg,list<string> &cmdLine, byt
 	it1 = optionMap.find(arg);
 	if (it1 != optionMap.end()) {
 		// parse option
-		if (it1->second.prio <= priority){
+		if (it1->second.prio <= priority) {
 			return it1->second.option->parseOption(arg, cmdLine);
 		}
 	}
@@ -240,7 +240,8 @@ void CommandLineParser::parse(int argc, char **argv)
 		}
 	}
 	if (!cmdLine.empty()) {
-		PRT_ERROR("Error parsing command line: " << cmdLine.front());
+		PRT_ERROR("Error parsing command line: " << cmdLine.front() << "\n" <<
+		          "Use \"openmsx -h\" to see a list of available options");
 	}
 	MSXConfig *config = MSXConfig::instance();
 	// read existing cartridge slots from config

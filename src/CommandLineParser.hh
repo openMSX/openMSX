@@ -26,12 +26,12 @@ class CLIOption
 {
 	public:
 		virtual bool parseOption(const string &option,
-			list<string> &cmdLine) = 0;
+		                         list<string> &cmdLine) = 0;
 		virtual const string& optionHelp() const = 0;
 	
 	protected:
 		const string getArgument(const string &option,
-			list<string> &cmdLine);
+		                         list<string> &cmdLine);
 };
 
 class CLIFileType
