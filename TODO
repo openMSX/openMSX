@@ -11,7 +11,9 @@
  - RS232 (Modem) [Wouter: hardware is 8254 connected to 8251
                           8254 is emulated (untested)]
  - Moonsound Devices
- - V9958
+ - V9958 (multi page scrolling in combination with deinterlace, scrolling in
+   character modes)
+ - V9948 (if necessary)
 
 * config:
  - xmlconfig save support
@@ -46,11 +48,10 @@
    essential.
 
 * build
- - auto* improvement
- - C++ standard compliancy (gcc-3.0 e.g.)
+ - auto* improvement, if still necessary
+ - C++ standard compliancy (gcc-3.x e.g.)
 
 * general
- - switch the threads
  - I/O port configuration
  - session management? (save state of frontswitches and inserted disk or
    cassette images at exit for a specific machine; also speed setting and
