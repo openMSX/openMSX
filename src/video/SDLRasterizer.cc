@@ -180,6 +180,11 @@ SDLRasterizer<Pixel, zoom>::SDLRasterizer(
 	// Allocate work surface.
 	initWorkScreens(true);
 
+	// Initialise lineContent.
+	for (unsigned y = 0; y < HEIGHT / LINE_ZOOM; y++) {
+		lineContent[y] = LINE_BLANK;
+	}
+
 	// Create display caches.
 	charDisplayCache = SDL_CreateRGBSurface(
 		SDL_SWSURFACE,
