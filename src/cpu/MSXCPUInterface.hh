@@ -88,6 +88,19 @@ class MSXCPUInterface : public CPUInterface
 		 */
 		void setPrimarySlots(byte value);
 
+		
+		/** Gets a string representation of the slot map of the emulated MSX.
+		  * @return a multi-line string describing which slot holds which
+		  *     device.
+		  */
+		std::string getSlotMap();
+
+		/** Gets a string representation of the currently selected slots.
+		  * @return a multi-line string describing which slot are currently
+		  *     selected.
+		  */
+		std::string getSlotSelection();
+
 	private:
 		MSXCPUInterface();
 		
@@ -112,19 +125,6 @@ class MSXCPUInterface : public CPUInterface
 		  */
 		void printSlotMapPages(std::ostream &, MSXMemDevice *[]);
 		
-		/** Gets a string representation of the slot map of the emulated MSX.
-		  * @return a multi-line string describing which slot holds which
-		  *     device.
-		  */
-		std::string getSlotMap();
-
-		/** Gets a string representation of the currently selected slots.
-		  * @return a multi-line string describing which slot are currently
-		  *     selected.
-		  */
-		std::string getSlotSelection();
-
-
 		// Commands
 		SlotMapCmd slotMapCmd;
 		SlotSelectCmd slotSelectCmd;
