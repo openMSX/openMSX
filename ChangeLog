@@ -1,5 +1,9 @@
 $Id$
 
+2001-10-17 Joost Yervante Damad <j.damad@qahwah.net>
+	* added src/cfg dir for storing config file templates
+	* started in KeyEventInserter
+
 2001-10-17 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* made improvements to MSXRealtime
 	* small fixes to MemoryMapper, E6Timer
