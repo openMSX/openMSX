@@ -1,5 +1,9 @@
 $Id$
 
+2003-08-28 Manuel Bilderbeek <manuel@msxnet.org>
+	* the file to which the PrinterLogger logs is now configurable with
+	  the setting "printerlogfilename"
+
 2003-08-27 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* small VDPCmdEngine optimizations
 

@@ -4,6 +4,7 @@
 #define __MSXPRINTERPORTLOGGER_HH__
 
 #include "PrinterPortDevice.hh"
+#include "Settings.hh"
 
 namespace openmsx {
 
@@ -30,6 +31,8 @@ class PrinterPortLogger : public PrinterPortDevice
 		byte toPrint;
 		bool prevStrobe;
 		File* file;
+
+		StringSetting logFilenameSetting;
 };
 
 } // namespace openmsx

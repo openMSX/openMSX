@@ -416,6 +416,15 @@ pause
     set pause off  unpauses emualtion
 
 
+printerlogfilename
+------------------
+
+  Sets the file(name) to which the printerlogger logs
+  
+  usage:
+    set printerlogfilename                   shows the current setting
+    set printerlogfilename myprinterlog.txt  log to myprinterlog.txt
+
 renderer
 --------
 

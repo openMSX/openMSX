@@ -10,6 +10,9 @@
 namespace openmsx {
 
 PrinterPortLogger::PrinterPortLogger()
+	: logFilenameSetting("printerlogfilename",
+		"filename of the file where the printer output is logged to",
+		"printer.log")
 {
 	file = NULL;
 	prevStrobe = true;
@@ -47,8 +50,7 @@ void PrinterPortLogger::writeData(byte data, const EmuTime &time)
 
 void PrinterPortLogger::plug(Connector* connector, const EmuTime& time)
 {
-	const string filename("printer.log");	// TODO read from config
-	file = new File(filename, TRUNCATE);
+	file = new File(logFilenameSetting.getValue(), TRUNCATE);
 }
 
 void PrinterPortLogger::unplug(const EmuTime &time)
