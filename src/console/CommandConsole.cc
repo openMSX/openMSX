@@ -400,12 +400,15 @@ void CommandConsole::putPrompt()
 
 void CommandConsole::tabCompletion()
 {
+	unsigned pl = PROMPT.length();
+
 	resetScrollBack();
 	combineLines(lines, lineOverflows);
-	string string(editLine.substr(PROMPT.length()));
-	CommandController::instance()->tabCompletion(string);
-	editLine = PROMPT + string;
-	cursorPosition = editLine.length();
+	string front(editLine.substr(pl, cursorPosition - pl));
+	string back(editLine.substr(cursorPosition));
+	CommandController::instance()->tabCompletion(front);
+	cursorPosition = pl + front.length();
+	editLine = PROMPT + front + back;
 	currentLine = editLine;
 	splitLines();
 }

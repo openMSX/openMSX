@@ -4,6 +4,7 @@ $Id$
 	* The ';' character can now be used in the console to put 2 commands
 	  on 1 line. This is usefull to bind 2 commands to 1 key and have a
 	  deterministic order of executions between those commands.
+	* tab-completion now works when cursor is not in last position
 
 2003-09-14 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added run time configurable stereo settings. You can now set the
