@@ -28,7 +28,7 @@ namespace openmsx {
 
 #define EOF_FAT 0xFFF /* signals EOF in FAT */
 #define NODIRENTRY    4000
-#define CACHEDCLUSTER 4001
+#define CACHEDSECTOR  4001
 
 //Bootblock taken from a philips  nms8250 formatted disk
 const string FDC_DirAsDSK::BootBlockFileName = ".sector.boot";
@@ -236,9 +236,9 @@ FDC_DirAsDSK::FDC_DirAsDSK(FileContext &context, const string &fileName)
 	FAT[2] = 0xFF;
 	PRT_DEBUG("FAT located at : "<<(int)FAT );
 	
-	//clear the clustermap so that they all point to 'clean' sectors
-	for (int i = 0; i < MAX_CLUSTER; i++) {
-		clustermap[i].dirEntryNr=NODIRENTRY;
+	//clear the sectormap so that they all point to 'clean' sectors
+	for (int i = 0; i < 1440 ; i++) {
+		sectormap[i].dirEntryNr=NODIRENTRY;
 	};
 
 	//read directory and fill the fake disk
@@ -352,6 +352,7 @@ void FDC_DirAsDSK::read(int logicalSector, int size, byte* buf)
 		// to avoid multiple checks will probably be slower then this 
 		for (int i = 0; i < 112; i++) {
 			if ( ! mapdir[i].filename.empty()) {
+				//PRT_DEBUG("Running checkAlterFileInDisk : " << i );
 				checkAlterFileInDisk(i);
 			}
 		};
@@ -378,25 +379,20 @@ void FDC_DirAsDSK::read(int logicalSector, int size, byte* buf)
 		PRT_DEBUG("Reading mapped sector : " << logicalSector );
 		// else get map from sector to file and read correct block
 		// folowing same numbering as FAT eg. first data block is cluster 2
-		int cluster = (int)((logicalSector - 14) / 2) + 2; 
-		PRT_DEBUG("Reading cluster " << cluster );
-		if (clustermap[cluster].dirEntryNr == NODIRENTRY ) {
+		//int cluster = (int)((logicalSector - 14) / 2) + 2; 
+		//PRT_DEBUG("Reading cluster " << cluster );
+		if (sectormap[logicalSector].dirEntryNr == NODIRENTRY ) {
 			//return an 'empty' sector
 			// 0xE5 is the value used on the Philips VG8250
 			memset(buf, 0xE5, SECTOR_SIZE  );
-		} else if (clustermap[cluster].dirEntryNr == CACHEDCLUSTER ) {
+		} else if (sectormap[logicalSector].dirEntryNr == CACHEDSECTOR ) {
 			PRT_DEBUG ("reading  cachedSectors["<<logicalSector<<"]" );
 			PRT_DEBUG ("cachedSectors["<<logicalSector<<"] :" <<(int) cachedSectors[logicalSector] );
-			if ( cachedSectors[logicalSector] != NULL ){
 			memcpy(buf, cachedSectors[logicalSector] , SECTOR_SIZE);
-			} else {
-			//return an 'empty' sector
-			memset(buf, 0xE5, SECTOR_SIZE  );
-			}
 		} else {
 			// open file and read data
-			int offset = clustermap[cluster].fileOffset + (logicalSector & 1) * SECTOR_SIZE;
-			string tmp = mapdir[clustermap[cluster].dirEntryNr].filename;
+			int offset = sectormap[logicalSector].fileOffset;
+			string tmp = mapdir[sectormap[logicalSector].dirEntryNr].filename;
 			PRT_DEBUG("  Reading from file " << tmp );
 			PRT_DEBUG("  Reading with offset " << offset );
 			checkAlterFileInDisk(tmp);
@@ -435,7 +431,9 @@ void FDC_DirAsDSK::checkAlterFileInDisk(const int dirindex)
 	int fsize;
 	// compute time/date stamps
 	struct stat fst;
-	memcpy(&fst, 0, sizeof(struct stat));
+	memset(&fst, 0, sizeof(struct stat));
+	
+	PRT_DEBUG("trying to stat : " << mapdir[dirindex].filename );
 	stat(mapdir[dirindex].filename.c_str(), &fst);
 	fsize = fst.st_size;
 
@@ -476,10 +474,19 @@ void FDC_DirAsDSK::updateFileInDisk(const int dirindex)
 	int size = fsize;
 	int prevcl = 0; 
 	while (size && (curcl <= MAX_CLUSTER)) {
-		clustermap[curcl].dirEntryNr = dirindex;
-		clustermap[curcl].fileOffset = fsize - size;
+		int logicalSector= 14 + 2*( curcl - 2 );
 
-		size -= (size > (SECTOR_SIZE * 2) ? (SECTOR_SIZE * 2) : size);
+		sectormap[logicalSector].dirEntryNr = dirindex;
+		sectormap[logicalSector].fileOffset = fsize - size;
+		size -= (size > SECTOR_SIZE  ? SECTOR_SIZE  : size);
+
+		if (size){
+			//fill next sector if there is data left
+			sectormap[++logicalSector].dirEntryNr = dirindex;
+			sectormap[logicalSector].fileOffset = fsize - size;
+			size -= (size > SECTOR_SIZE  ? SECTOR_SIZE : size);
+		}
+
 		if (prevcl) {
 			WriteFAT(prevcl, curcl);
 		}
@@ -503,16 +510,21 @@ void FDC_DirAsDSK::updateFileInDisk(const int dirindex)
 
 		//clear remains of FAT if needed
 		if (followFATClusters) {
+			int logicalSector;
 			while((curcl <= MAX_CLUSTER) && (curcl != EOF_FAT )) {
 				prevcl=curcl;
 				curcl=ReadFAT(curcl);
 				WriteFAT(prevcl, 0);
-				clustermap[prevcl].dirEntryNr = NODIRENTRY;
-				clustermap[prevcl].fileOffset = 0;
+				logicalSector= 14 + 2*( prevcl - 2 );
+				sectormap[logicalSector].dirEntryNr = NODIRENTRY;
+				sectormap[logicalSector++].fileOffset = 0;
+				sectormap[logicalSector].dirEntryNr = NODIRENTRY;
+				sectormap[logicalSector].fileOffset = 0;
 			}
 			WriteFAT(prevcl, 0);
-			clustermap[prevcl].dirEntryNr = NODIRENTRY;
-			clustermap[prevcl].fileOffset = 0;
+			logicalSector= 14 + 2*( prevcl - 2 );
+			sectormap[logicalSector].dirEntryNr = NODIRENTRY;
+			sectormap[logicalSector].fileOffset = 0;
 		}
 	} else {
 		//TODO: don't we need a EOF_FAT in this case as well ?
@@ -558,9 +570,25 @@ void FDC_DirAsDSK::write(byte track, byte sector, byte side,
 		int dirCount = logicalSector * 16;
 		for (int i = 0; i < 16; i++) {
 			//TODO check if changed and take apropriate actions if needed
-			//for now simply blindly take over info
-			memcpy( &(mapdir[dirCount++].msxinfo), buf, 32);
+			if (memcmp( (mapdir[dirCount].msxinfo.filename), buf, 32 ) != 0) {
+				PRT_DEBUG("dir entry for "<<mapdir[dirCount].filename <<" has changed");
+				//mapdir[dirCount].msxinfo.filename[0] == 0xE5 if already deleted....
 
+				if ( buf[0] == 0xE5 ) {
+					PRT_DEBUG("dir entry for "<<mapdir[dirCount].filename <<" has been deleted");
+					//TODO: What now, really remove entry
+					//and clean sectors or keep around in
+					//case of an undelete ?? Later seems
+					//more real though, but is it safe
+					//enough for host OS files when writing
+					//sectors?
+				} 
+				//for now simply blindly take over info
+				memcpy( &(mapdir[dirCount].msxinfo), buf, 32);
+			} else {
+				PRT_DEBUG("dir entry for "<<mapdir[dirCount].filename <<" not changed");
+			}
+			dirCount++;
 			buf += 32;
 		}
 		PRT_INFO("writing to DIR not yet fully implemented !!!!");
@@ -577,10 +605,17 @@ void FDC_DirAsDSK::write(byte track, byte sector, byte side,
 			cachedSectors[logicalSector]=tmp;
 		}
 		memcpy( cachedSectors[logicalSector] ,buf, SECTOR_SIZE);
+		sectormap[logicalSector].dirEntryNr = CACHEDSECTOR ;
+		/*
+
+
+		Code no longer needed just in comment while not commited
+
 		int cluster = (int)((logicalSector - 14) / 2) + 2; 
 		// read the second sector from the cluster into cache now if needed
-		if ( ( clustermap[cluster].dirEntryNr != NODIRENTRY ) &&
-		     ( clustermap[cluster].dirEntryNr != CACHEDCLUSTER ) ){
+
+		if ( ( sectormap[logicalSector].dirEntryNr != NODIRENTRY ) &&
+		     ( sectormap[logicalSector].dirEntryNr != CACHEDCLUSTER ) ){
 			logicalSector ^= 1 ;
 			PRT_DEBUG("Reading extra sector("<<logicalSector<<") from cluster "<<cluster);
 			// we can be sure that this sector isn't yet cached :-)
@@ -607,6 +642,7 @@ void FDC_DirAsDSK::write(byte track, byte sector, byte side,
 			}
 		}
 		clustermap[cluster].dirEntryNr = CACHEDCLUSTER ;
+		*/
 	  //
 	  //   for now simply ignore writes
 	  //

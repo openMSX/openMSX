@@ -30,7 +30,7 @@ struct MappedDirEntry {
 	string filename;
 };
 
-struct ReverseCluster {
+struct ReverseSector {
 	int dirEntryNr;
 	long fileOffset;
 };
@@ -72,7 +72,7 @@ class FDC_DirAsDSK : public SectorBasedDisk
 		word ReadFAT(word clnr);
 		void WriteFAT(word clnr, word val);
 		MappedDirEntry mapdir[112];	// max nr of entries in root directory: 7 sectors, each 16 entries
-		ReverseCluster clustermap[MAX_CLUSTER];
+		ReverseSector sectormap[1440];
 		byte FAT[SECTOR_SIZE * SECTORS_PER_FAT];
 
 		static const byte DefaultBootBlock[];

@@ -1,5 +1,10 @@
 $Id$
 
+2003-08-20 David Heremans <david.heremans@gnu-linux.net>
+	* Rewrote code to be more sector based instead of cluster based:
+	   This also simplified the code, also made first steps towards
+	   more correct dir-entry handling.
+
 2003-08-20 Reikan <openMSX4Win32@ranpub.com>
 	* Added Keymap-change and KeyLayoutBit.
 
