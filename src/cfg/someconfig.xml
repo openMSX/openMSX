@@ -13,7 +13,7 @@
   
   <config id="rompath">
     <type>rompath</type>
-    <parameter name="seperator">/</parameter>
+    <parameter name="separator">/</parameter>
     <parameter name="1" class="path">ROMS</parameter>
     <parameter name="2" class="path">TAPES</parameter>
   </config>

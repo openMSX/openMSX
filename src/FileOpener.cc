@@ -15,23 +15,23 @@
  */
 std::string FileOpener::findFileName(std::string filename)
 {
-	//TODO:Find out how in C++ to get the directory seperator
+	//TODO:Find out how in C++ to get the directory separator
 	// On Un*x like machines it is '/'
 	// On M$ machines it is '\'
-	// on Mac machines it is '::' if I'm not mistaken
+	// on Mac machines it is ':'
 	try
 	{
 	  MSXConfig::Config *config = MSXConfig::instance()->getConfigById("rompath");
 
-	  std::string seperator =  config->getParameter("seperator");
-	  if (strstr(filename.c_str(),seperator.c_str())==0){
+	  std::string separator =  config->getParameter("separator");
+	  if (strstr(filename.c_str(),separator.c_str())==0){
 	    std::list<const MSXConfig::Device::Parameter*> path_list;
 	    path_list = config->getParametersWithClass("path");
 	    std::list<const MSXConfig::Device::Parameter*>::const_iterator i;
 	    bool notFound=true;
 	    for (i=path_list.begin(); (i != path_list.end()) && notFound ; i++) {
 	      std::string path =(*i)->value;
-	      std::string testfilename=path + seperator + filename;
+	      std::string testfilename=path + separator + filename;
 	      PRT_DEBUG("Should be testing for: " << testfilename << " as file ");
 	      IFILETYPE *file=new IFILETYPE(testfilename.c_str());
 	      if (!file->fail()){
