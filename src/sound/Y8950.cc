@@ -735,7 +735,6 @@ void Y8950::checkMute()
 }
 bool Y8950::checkMuteHelper()
 {
-	//TODO maybe also check volume -> more often mute ??
 	for (int i=0; i<6; i++) {
 		if (ch[i].car.eg_mode!=FINISH) return false;
 	}

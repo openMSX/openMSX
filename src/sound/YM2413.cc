@@ -554,7 +554,7 @@ void YM2413::Slot::reset()
 	output[0] = 0;
 	output[1] = 0;
 	feedback = 0;
-	eg_mode = SETTLE;
+	eg_mode = FINISH;	// SETTLE
 	eg_phase = EG_DP_WIDTH;
 	eg_dphase = 0;
 	rks = 0;
@@ -803,11 +803,9 @@ void YM2413::Slot::calc_envelope()
 		}
 		break;
 	case FINISH:
-		egout = (1<<EG_BITS) - 1;
-		break ;
 	default:
 		egout = (1<<EG_BITS) - 1;
-		break;
+		break ;
 	}
 	if (patch->AM) 
 		egout = EG2DB(egout+tll) + *(plfo_am);
@@ -940,7 +938,6 @@ void YM2413::checkMute()
 }
 bool YM2413::checkMuteHelper()
 {
-	//TODO maybe also check volume -> more often mute ??
 	for (int i=0; i<6; i++) {
 		if (ch[i].car.eg_mode!=FINISH) return false;
 	}

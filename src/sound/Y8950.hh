@@ -154,7 +154,7 @@ class Y8950 : public SoundDevice
 
 	protected:
 		// Definition of envelope mode 
-		enum { SETTLE,ATTACK,DECAY,SUSHOLD,SUSTINE,RELEASE,FINISH };
+		enum { ATTACK,DECAY,SUSHOLD,SUSTINE,RELEASE,FINISH };
 		// Dynamic range 
 		static const double DB_STEP = 0.1875;
 		static const int DB_BITS = 9;

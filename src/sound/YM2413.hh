@@ -292,7 +292,7 @@ class YM2413 : public SoundDevice
 		static Patch default_patch[(16+3)*2];
 
 		// Definition of envelope mode 
-		enum { SETTLE,ATTACK,DECAY,SUSHOLD,SUSTINE,RELEASE,FINISH };
+		enum { ATTACK,DECAY,SUSHOLD,SUSTINE,RELEASE,FINISH };
 
 		// Phase incr table for Attack 
 		static int dphaseARTable[16][16];
