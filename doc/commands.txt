@@ -16,8 +16,8 @@ bind / unbind
     unbind <key> <command>  undo a specfic binding
   
   examples:
-    bind PAGEUP "speed 100"
-    bind PAGEDOWN "speed 50"
+    bind PAGEUP "set speed 100"
+    bind PAGEDOWN "set speed 50"
     unbind F9
     bind F9 "throttle off"
     bind F9,up "throttle on"
@@ -84,17 +84,6 @@ frameskip
   usage:
     frameskip           shows the current setting
     frameskip <number>  sets the number of frame skips
-
-
-fullscreen
-----------
-
-  Switch to / back from fullscreen mode.
-
-  usage:
-    fullscreen on   switch to fullscreen mode
-    fullscreen off  switch to normal mode
-    fullscreen      toggles fullscreen mode
 
 
 help
@@ -220,17 +209,6 @@ slotselect
   [ mainly usefull for debugging purposes ]
 
 
-speed
------
-
-  Sets the emulation speed relative to the speed of a real MSX. Speed 100 means
-  as fast as a real MSX.
-
-  usage:
-    speed <num>  set new emulation speed
-    speed        shows current emulation speed
-
-
 throttle
 --------
 
@@ -244,6 +222,12 @@ throttle
     throttle      toggle throttle mode
     
 
+toggle
+------
+
+  TODO
+
+  
 vdpregs
 -------
 
@@ -302,7 +286,28 @@ deinterlace
     set deinterlace off  turns deinterlacing off
 
 
+fullscreen
+----------
+
+  Switch to / back from fullscreen mode.
+
+  usage:
+    set fullscreen on   switch to fullscreen mode
+    set fullscreen off  switch to normal mode
+  
+
 scanline
 --------
 
   TODO
+
+
+speed
+-----
+
+  Sets the emulation speed relative to the speed of a real MSX. Speed 100 means
+  as fast as a real MSX.
+
+  usage:
+    set speed <num>  set new emulation speed
+    set speed        shows current emulation speed

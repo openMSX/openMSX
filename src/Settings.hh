@@ -45,7 +45,8 @@ public:
 	  * @param valueString The new value for this setting, in string format.
 	  * @throw CommandException If the valueString is invalid.
 	  */
-	virtual void setValueString(const std::string &valueString) = 0;
+	virtual void setValueString(const std::string &valueString,
+	                            const EmuTime &time) = 0;
 
 	/** Get a string describing the value type to the user.
 	  */
@@ -92,11 +93,12 @@ public:
 	/** Set the current value of this setting.
 	  * @param value The new value.
 	  */
-	void setValue(bool value);
+	void setValue(bool value, const EmuTime &time);
 
 	// Implementation of Setting interface:
 	virtual std::string getValueString() const;
-	virtual void setValueString(const std::string &valueString);
+	virtual void setValueString(const std::string &valueString,
+	                            const EmuTime &time);
 	virtual void tabCompletion(std::vector<std::string> &tokens) const;
 
 protected:
@@ -106,7 +108,9 @@ protected:
 	 *                 contains the old value
 	 * @return Only when the result is true the new value is assigned
 	 */
-	virtual bool checkUpdate(bool newValue) { return true; }
+	virtual bool checkUpdate(bool newValue, const EmuTime &time) {
+		return true;
+	}
 
 	bool value;
 };
@@ -127,7 +131,8 @@ public:
 
 	// Implementation of Setting interface:
 	virtual std::string getValueString() const;
-	virtual void setValueString(const std::string &valueString);
+	virtual void setValueString(const std::string &valueString,
+	                            const EmuTime &time);
 
 protected:
 	/**
@@ -136,7 +141,9 @@ protected:
 	 *                 contains the old value
 	 * @return Only when the result is true the new value is assigned
 	 */
-	virtual bool checkUpdate(int newValue) { return true; }
+	virtual bool checkUpdate(int newValue, const EmuTime &time) {
+		return true;
+	}
 
 	int value;
 	int minValue;
@@ -161,7 +168,8 @@ public:
 
 	// Implementation of Setting interface:
 	virtual std::string getValueString() const;
-	virtual void setValueString(const std::string &valueString);
+	virtual void setValueString(const std::string &valueString,
+	                            const EmuTime &time);
 	virtual void tabCompletion(std::vector<std::string> &tokens) const;
 
 protected:
@@ -171,7 +179,9 @@ protected:
 	 *                 contains the old value
 	 * @return Only when the result is true the new value is assigned
 	 */
-	virtual bool checkUpdate(T newValue) { return true; }
+	virtual bool checkUpdate(T newValue, const EmuTime &time) {
+		return true;
+	}
 
 	T value;
 	typedef typename
@@ -190,7 +200,8 @@ public:
 
 	// Implementation of Setting interface:
 	virtual std::string getValueString() const;
-	virtual void setValueString(const std::string &valueString);
+	virtual void setValueString(const std::string &valueString,
+	                            const EmuTime &time);
 
 protected:
 	/**
@@ -199,7 +210,10 @@ protected:
 	 *                 contains the old value
 	 * @return Only when the result is true the new value is assigned
 	 */
-	virtual bool checkUpdate(const std::string &newValue) { return true; }
+	virtual bool checkUpdate(const std::string &newValue,
+	                         const EmuTime &time) {
+		return true;
+	}
 
 	std::string value;
 };
@@ -214,7 +228,8 @@ class FilenameSetting : public StringSetting
 {
 public:
 	FilenameSetting(const std::string &name,
-	                const std::string &description);
+	                const std::string &description,
+	                const std::string &initialValue);
 
 	// Implementation of Setting interface:
 	virtual void tabCompletion(std::vector<std::string> &tokens) const;

@@ -14,13 +14,16 @@
 
 BackgroundSetting::BackgroundSetting(SDLInteractiveConsole *console_,
                                      const std::string &filename)
-	: FilenameSetting("console_background", "console background file"),
+	: FilenameSetting("console_background", "console background file",
+	                  filename),
 	  console(console_)
 {
-	setValueString(filename);
+	EmuTime dummy;
+	setValueString(filename, dummy);
 }
 
-bool BackgroundSetting::checkUpdate(const std::string &newValue)
+bool BackgroundSetting::checkUpdate(const std::string &newValue,
+                                    const EmuTime &time)
 {
 	bool result;
 	try {
@@ -37,13 +40,14 @@ bool BackgroundSetting::checkUpdate(const std::string &newValue)
 
 FontSetting::FontSetting(SDLInteractiveConsole *console_,
                          const std::string &filename)
-	: FilenameSetting("console_font", "console font file"),
+	: FilenameSetting("console_font", "console font file", filename),
 	  console(console_)
 {
-	setValueString(filename);
+	EmuTime dummy;
+	setValueString(filename, dummy);
 }
 
-bool FontSetting::checkUpdate(const std::string &newValue)
+bool FontSetting::checkUpdate(const std::string &newValue, const EmuTime &time)
 {
 	bool result;
 	try {

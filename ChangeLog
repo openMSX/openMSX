@@ -1,5 +1,8 @@
 $Id$
 
+2003-02-27 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Converted "speed" console command into a setting
+
 2003-02-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented free slot selection:
 	   - this is only a temporary solution, it will very likely change

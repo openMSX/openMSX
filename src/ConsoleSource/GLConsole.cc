@@ -18,8 +18,8 @@
 
 GLConsole::GLConsole()
 {
+	font = NULL;
 	if (fontName.empty()) {
-		font = NULL;
 		return;
 	}
 	
@@ -32,7 +32,6 @@ GLConsole::GLConsole()
 	consoleHeight = (screen->h / 15) * 6;
 	
 	// load font
-	font = NULL;
 	fontSetting = new FontSetting(this, fontName);
 
 	// load background

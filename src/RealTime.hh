@@ -6,8 +6,8 @@
 #include "Schedulable.hh"
 #include "EmuTime.hh"
 #include "Command.hh"
+#include "Settings.hh"
 
-// forward declarations
 class MSXCPU;
 class Scheduler;
 
@@ -45,6 +45,14 @@ class RealTime : public Schedulable
 		void reset(const EmuTime &time);
 		
 	private:
+		class SpeedSetting : public IntegerSetting
+		{
+			public:
+				SpeedSetting();
+				virtual bool checkUpdate(int newValue,
+				                         const EmuTime &time);
+		} speedSetting;
+	
 		RealTime(); 
 		void internalSync(const EmuTime &time);
 
@@ -64,7 +72,6 @@ class RealTime : public Schedulable
 		float totalFactor;
 		float sleepAdjust;
 
-		int speed;	// higher means slower (256 = 100%)
 		bool throttle;
 		bool paused;
 		Scheduler *scheduler;
@@ -86,14 +93,6 @@ class RealTime : public Schedulable
 		};
 		friend class ThrottleCmd;
 		ThrottleCmd throttleCmd;
-		
-		class SpeedCmd : public Command {
-			public:
-				virtual void execute(const std::vector<std::string> &tokens,
-				                     const EmuTime &time);
-				virtual void help(const std::vector<std::string> &tokens) const;
-		};
-		friend class SpeedCmd;
-		SpeedCmd speedCmd;
 };
+
 #endif

@@ -30,7 +30,6 @@ RealTime::RealTime()
 	}
 	
 	scheduler = Scheduler::instance();
-	speed = 256;
 	paused = false;
 	throttle = true;
 	EmuTime zero;
@@ -39,14 +38,12 @@ RealTime::RealTime()
 	
 	CommandController::instance()->registerCommand(&pauseCmd, "pause");
 	CommandController::instance()->registerCommand(&throttleCmd, "throttle");
-	CommandController::instance()->registerCommand(&speedCmd, "speed");
 }
 
 RealTime::~RealTime()
 {
 	CommandController::instance()->unregisterCommand(&pauseCmd, "pause");
 	CommandController::instance()->unregisterCommand(&throttleCmd, "throttle");
-	CommandController::instance()->unregisterCommand(&speedCmd, "speed");
 }
 
 RealTime *RealTime::instance()
@@ -88,6 +85,7 @@ void RealTime::internalSync(const EmuTime &curEmu)
 	
 	// Short period values, inaccurate but we need them to estimate our current speed
 	int realPassed = curReal - realRef;
+	int speed = 25600 / speedSetting.getValue();
 	int emuPassed = (int)((speed * emuRef.getTicksTill(curEmu)) >> 8);
 
 	PRT_DEBUG("RT: Short emu: " << emuPassed << "ms  Short real: " << realPassed << "ms");
@@ -228,36 +226,16 @@ void RealTime::ThrottleCmd::help(const std::vector<std::string> &tokens) const
 	print(" throttle off: run emulation on maximum speed");
 }
 
-void RealTime::SpeedCmd::execute(const std::vector<std::string> &tokens,
-                                 const EmuTime &time)
+
+RealTime::SpeedSetting::SpeedSetting()
+	: IntegerSetting("speed",
+	       "controls the emulation speed: higher is faster, 100 is normal",
+	       100, 1, 1000000)
 {
-	RealTime *rt = RealTime::instance();
-	switch (tokens.size()) {
-	case 1: {
-		char message[100];
-		sprintf(message, "Current speed: %d", 25600/rt->speed);
-		print(std::string(message));
-		break;
-	}
-	case 2: {
-		int tmp = strtol(tokens[1].c_str(), NULL, 0);
-		if (tmp > 0) {
-			rt->speed = 25600 / tmp;
-			rt->reset(time);
-		} else {
-			throw CommandException("Illegal argument");
-		}
-		break;
-	}
-	default:
-		throw CommandException("Syntax error");
-	}
-}
-void RealTime::SpeedCmd::help(const std::vector<std::string> &tokens) const
-{
-	print("This command controls the emulation speed");
-	print("A higher value means faster emualtion, normal speed is 100.");
-	print(" speed:     : shows current speed");
-	print(" speed <num>: sets new speed");
 }
 
+bool RealTime::SpeedSetting::checkUpdate(int newValue, const EmuTime &time)
+{
+	RealTime::instance()->reset(time);
+	return true;
+}

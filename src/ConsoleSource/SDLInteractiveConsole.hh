@@ -19,7 +19,8 @@ class BackgroundSetting : public FilenameSetting
 		                  const std::string &filename);
 
 	protected:
-		virtual bool checkUpdate(const std::string &newValue);
+		virtual bool checkUpdate(const std::string &newValue,
+		                         const EmuTime &time);
 
 	private:
 		SDLInteractiveConsole* console;
@@ -32,7 +33,8 @@ class FontSetting : public FilenameSetting
 		            const std::string &filename);
 
 	protected:
-		virtual bool checkUpdate(const std::string &newValue);
+		virtual bool checkUpdate(const std::string &newValue,
+		                         const EmuTime &time);
 
 	private:
 		SDLInteractiveConsole* console;

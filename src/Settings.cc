@@ -47,14 +47,15 @@ std::string BooleanSetting::getValueString() const
 	}
 }
 
-void BooleanSetting::setValue(bool newValue)
+void BooleanSetting::setValue(bool newValue, const EmuTime &time)
 {
-	if (checkUpdate(newValue)) {
+	if (checkUpdate(newValue, time)) {
 		value = newValue;
 	}
 }
 
-void BooleanSetting::setValueString(const std::string &valueString)
+void BooleanSetting::setValueString(const std::string &valueString,
+                                    const EmuTime &time)
 {
 	bool newValue;
 	if (valueString == "on") {
@@ -65,7 +66,7 @@ void BooleanSetting::setValueString(const std::string &valueString)
 		throw CommandException(
 			"Not a valid boolean: \"" + valueString + "\"");
 	}
-	setValue(newValue);
+	setValue(newValue, time);
 }
 
 void BooleanSetting::tabCompletion(std::vector<std::string> &tokens) const
@@ -97,7 +98,8 @@ std::string IntegerSetting::getValueString() const
 	return out.str();
 }
 
-void IntegerSetting::setValueString(const std::string &valueString)
+void IntegerSetting::setValueString(const std::string &valueString,
+                                    const EmuTime &time)
 {
 	char *endPtr;
 	long newValue = strtol(valueString.c_str(), &endPtr, 0);
@@ -111,7 +113,7 @@ void IntegerSetting::setValueString(const std::string &valueString)
 	} else if (newValue > maxValue) {
 		newValue = maxValue;
 	}
-	if (checkUpdate((int)newValue)) {
+	if (checkUpdate((int)newValue, time)) {
 		value = (int)newValue;
 	}
 }
@@ -150,11 +152,12 @@ std::string EnumSetting<T>::getValueString() const
 }
 
 template <class T>
-void EnumSetting<T>::setValueString(const std::string &valueString)
+void EnumSetting<T>::setValueString(const std::string &valueString,
+                                    const EmuTime &time)
 {
 	MapIterator it = map.find(valueString);
 	if (it != map.end()) {
-		if (checkUpdate(it->second)) {
+		if (checkUpdate(it->second, time)) {
 			value = it->second;
 		}
 	} else {
@@ -188,9 +191,10 @@ std::string StringSetting::getValueString() const
 	return value;
 }
 
-void StringSetting::setValueString(const std::string &newValue)
+void StringSetting::setValueString(const std::string &newValue,
+                                   const EmuTime &time)
 {
-	if (checkUpdate(newValue)) {
+	if (checkUpdate(newValue, time)) {
 		value = newValue;
 	}
 }
@@ -199,8 +203,9 @@ void StringSetting::setValueString(const std::string &newValue)
 // FilenameSetting implementation
 
 FilenameSetting::FilenameSetting(const std::string &name,
-                                 const std::string &description)
-	: StringSetting(name, description, "")
+                                 const std::string &description,
+                                 const std::string &initialValue)
+	: StringSetting(name, description, initialValue)
 {
 }
 
@@ -270,7 +275,7 @@ void SettingsManager::SetCommand::execute(
 	} else {
 		// Change.
 		const std::string &valueString = tokens[2];
-		setting->setValueString(valueString);
+		setting->setValueString(valueString, time);
 	}
 
 }
@@ -351,7 +356,7 @@ void SettingsManager::ToggleCommand::execute(
 	BooleanSetting *boolSetting = (BooleanSetting *)setting;
 
 	// Actual toggle.
-	boolSetting->setValue(!boolSetting->getValue());
+	boolSetting->setValue(!boolSetting->getValue(), time);
 
 }
 

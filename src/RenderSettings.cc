@@ -32,7 +32,6 @@ RenderSettings::RenderSettings()
 	scanlineAlpha = new IntegerSetting(
 		"scanline", "amount of scanline effect: 0 = none, 100 = full",
 		20, 0, 100);
-	
 }
 
 RenderSettings::~RenderSettings()
