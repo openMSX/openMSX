@@ -29,7 +29,7 @@ class GLConsole : public OSDConsoleRenderer
 	private:
 		int powerOfTwo(int a);
 		bool loadTexture(const std::string &filename, GLuint &texture,
-		                 int &width, int &height, GLfloat *texCoord);
+				int &width, int &height, GLfloat *texCoord);
 
 		GLuint backgroundTexture;
 		BackgroundSetting* backgroundSetting;

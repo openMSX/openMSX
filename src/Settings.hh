@@ -100,7 +100,7 @@ protected:
 	/**
 	 * Called just before this setting is assigned a new value
 	 * @param newValue The new value, the variable value still
-	 *                 contains the old value
+	 * contains the old value
 	 * @return Only when the result is true the new value is assigned
 	 */
 	virtual bool checkUpdate(int newValue) {
@@ -142,7 +142,7 @@ protected:
 	/**
 	 * Called just before this setting is assigned a new value
 	 * @param newValue The new value, the variable value still
-	 *                 contains the old value
+	 * contains the old value
 	 * @return Only when the result is true the new value is assigned
 	 */
 	virtual bool checkUpdate(T newValue) {
@@ -151,7 +151,7 @@ protected:
 
 	T value;
 	typedef typename
-	        std::map<std::string, T>::const_iterator MapIterator;
+		std::map<std::string, T>::const_iterator MapIterator;
 	const std::map<std::string, T> map;
 };
 
@@ -176,7 +176,7 @@ class StringSetting : public Setting
 {
 public:
 	StringSetting(const std::string &name, const std::string &description,
-	              const std::string &initialValue);
+		const std::string &initialValue);
 
 	// Implementation of Setting interface:
 	virtual std::string getValueString() const;
@@ -206,8 +206,8 @@ class FilenameSetting : public StringSetting
 {
 public:
 	FilenameSetting(const std::string &name,
-	                const std::string &description,
-	                const std::string &initialValue);
+		const std::string &description,
+		const std::string &initialValue);
 
 	// Implementation of Setting interface:
 	virtual void tabCompletion(std::vector<std::string> &tokens) const;

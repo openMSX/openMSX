@@ -12,9 +12,9 @@ OSDConsoleRenderer::Placement OSDConsoleRenderer::consolePlacement;
 // class BackgroundSetting
 
 BackgroundSetting::BackgroundSetting(OSDConsoleRenderer *console_,
-                                     const std::string &filename)
+					const std::string &filename)
 	: FilenameSetting("consolebackground", "console background file",
-	                  filename),
+		filename),
 	  console(console_)
 {
 	setValueString(filename);
@@ -36,7 +36,7 @@ bool BackgroundSetting::checkUpdate(const std::string &newValue)
 // class FontSetting
 
 FontSetting::FontSetting(OSDConsoleRenderer *console_,
-                         const std::string &filename)
+				const std::string &filename)
 	: FilenameSetting("consolefont", "console font file", filename),
 	  console(console_)
 {

@@ -1,5 +1,9 @@
 $Id$
 
+2003-05-18 Herman Oudejans <hn.oudejans@quicknet.nl>
+	* Converted a lot of spaces into tabs.
+	* Changed int into bool for zoomSurface().
+
 2003-05-18 Maarten ter Huurne <maarten@treewalker.org>
 	* Removed "ConsoleSource" directory and moved its code elsewhere:
 	  - actual console code moved to new directory "console"

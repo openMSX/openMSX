@@ -18,7 +18,7 @@ const char* const MACHINE_PATH = "share/machines/";
 // class CLIOption
 
 const std::string CLIOption::getArgument(const std::string &option,
-                                         std::list<std::string> &cmdLine)
+	std::list<std::string> &cmdLine)
 {
 	if (cmdLine.empty()) {
 		PRT_ERROR("Missing argument for option \"" << option <<"\"");
@@ -41,26 +41,26 @@ CommandLineParser::CommandLineParser()
 {
 	haveConfig = false;
 
-	registerOption("-config",  &configFile);
-	registerFileType(".xml",    &configFile);
-	registerOption("-machine", &machineOption);
-	registerOption("-setting", &settingOption);
+	registerOption("-config",	&configFile);
+	registerFileType(".xml",	&configFile);
+	registerOption("-machine",	&machineOption);
+	registerOption("-setting",	&settingOption);
 }
 
 void CommandLineParser::registerOption(const std::string &str,
-                                       CLIOption* cliOption)
+		CLIOption* cliOption)
 {
 	optionMap[str] = cliOption;
 }
 
 void CommandLineParser::registerFileType(const std::string &str,
-                                         CLIFileType* cliFileType)
+		CLIFileType* cliFileType)
 {
 	if (str[0] == '.'){ // a real extention
 		fileTypeMap[str.substr(1)] = cliFileType;
 	}
 	else{ // or a file class
-		fileClassMap[str] = cliFileType;	
+		fileClassMap[str] = cliFileType;
 	}
 }
 
@@ -204,7 +204,7 @@ void CommandLineParser::parse(int argc, char **argv)
 	}
 
 	postRegisterFileTypes();
-	registerOption("-h",       &helpOption); // AFTER registering filetypes
+	registerOption("-h", &helpOption); // AFTER registering filetypes
 	
 	// now that the configs are loaded, try filenames
 	while (!fileCmdLine.empty()) {
@@ -233,7 +233,7 @@ void CommandLineParser::parse(int argc, char **argv)
 
 // Help option
 void CommandLineParser::HelpOption::parseOption(const std::string &option,
-                                                std::list<std::string> &cmdLine)
+		std::list<std::string> &cmdLine)
 {
 	CommandLineParser* parser = CommandLineParser::instance();
 	
@@ -358,7 +358,7 @@ std::string CommandLineParser::HelpOption::formatHelptext(std::string helpText,u
 
 // Config file type
 void CommandLineParser::ConfigFile::parseOption(const std::string &option,
-                                                std::list<std::string> &cmdLine)
+		std::list<std::string> &cmdLine)
 {
 	parseFileType(getArgument(option, cmdLine));
 }
@@ -383,11 +383,11 @@ const std::string& CommandLineParser::ConfigFile::fileTypeHelp() const
 
 // Machine option
 void CommandLineParser::MachineOption::parseOption(const std::string &option,
-                                               std::list<std::string> &cmdLine)
+		std::list<std::string> &cmdLine)
 {
 	MSXConfig *config = MSXConfig::instance();
 	config->loadFile(new SystemFileContext(),
-	                 MACHINE_PATH + getArgument(option, cmdLine) +
+		MACHINE_PATH + getArgument(option, cmdLine) +
 			 "/hardwareconfig.xml");
 	CommandLineParser::instance()->haveConfig = true;
 }
@@ -400,7 +400,7 @@ const std::string& CommandLineParser::MachineOption::optionHelp() const
 
 // Setting Option
 void CommandLineParser::SettingOption::parseOption(const std::string &option,
-                                                   std::list<std::string> &cmdLine)
+		std::list<std::string> &cmdLine)
 {
 	if (parsed) {
 		PRT_ERROR("Only one setting option allowed");

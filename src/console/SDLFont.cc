@@ -43,7 +43,7 @@ SDLFont::SDLFont(File* file)
 	byte g = ((byte*)fontSurface->pixels)[1];
 	byte b = ((byte*)fontSurface->pixels)[2];
 	SDL_SetColorKey(fontSurface, SDL_SRCCOLORKEY | SDL_RLEACCEL, 
-	                SDL_MapRGB(fontSurface->format, r, g, b));
+		SDL_MapRGB(fontSurface->format, r, g, b));
 }
 
 SDLFont::~SDLFont()
@@ -57,7 +57,7 @@ void SDLFont::setSurface(SDL_Surface* surface)
 }
 
 void SDLFont::drawText(const std::string &string,
-                       int x, int y)
+		int x, int y)
 {
 	// see how many characters can fit on the screen
 	if ((drawSurface->w <= x) || (drawSurface->h <= y)) {

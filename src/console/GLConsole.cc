@@ -74,11 +74,11 @@ bool GLConsole::loadBackground(const std::string &filename)
 	}
 	int dummyWidth, dummyHeight;
 	return loadTexture(filename, backgroundTexture,
-	                   dummyWidth, dummyHeight, backTexCoord);
+		dummyWidth, dummyHeight, backTexCoord);
 }
 
 bool GLConsole::loadTexture(const std::string &filename, GLuint &texture,
-                            int &width, int &height, GLfloat *texCoord)
+		int &width, int &height, GLfloat *texCoord)
 {
 	File file(filename);
 	SDL_Surface* image1 = IMG_Load(file.getLocalName().c_str());
@@ -214,8 +214,8 @@ void GLConsole::drawConsole()
 		if (blink) {
 			// Print cursor if there is enough room
 			font->drawText(std::string("_"),
-			      CHAR_BORDER + cursorLocation * font->getWidth(),
-			      consoleHeight - font->getHeight());
+				CHAR_BORDER + cursorLocation * font->getWidth(),
+				consoleHeight - font->getHeight());
 
 		}
 	}

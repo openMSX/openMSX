@@ -114,8 +114,8 @@ std::list<Config::Parameter*>* Config::getParametersWithClass(const std::string 
 // class Parameter
 
 Config::Parameter::Parameter(const std::string &name_,
-                             const std::string &value_,
-			     const std::string &clasz_)
+	const std::string &value_,
+	const std::string &clasz_)
 	: name(name_), value(value_), clasz(clasz_)
 {
 }
@@ -246,7 +246,7 @@ MSXConfig* MSXConfig::instance()
 }
 
 void MSXConfig::loadFile(FileContext *context,
-                         const std::string &filename)
+		const std::string &filename)
 {
 	File file(context->resolve(filename));
 	delete context;
@@ -386,4 +386,3 @@ void Config::getParametersWithClassClean(std::list<Parameter*>* list)
 	}
 	delete list;
 }
-

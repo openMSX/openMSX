@@ -207,8 +207,8 @@ void StringSetting::setValueString(const std::string &newValue)
 // FilenameSetting implementation
 
 FilenameSetting::FilenameSetting(const std::string &name,
-                                 const std::string &description,
-                                 const std::string &initialValue)
+	const std::string &description,
+	const std::string &initialValue)
 	: StringSetting(name, description, initialValue)
 {
 }

@@ -22,11 +22,11 @@ class BackgroundSetting : public FilenameSetting
 {
 	public:
 		BackgroundSetting(OSDConsoleRenderer *console,
-		                  const std::string &filename);
+			const std::string &filename);
 
 	protected:
 		virtual bool checkUpdate(const std::string &newValue);
-		                         
+
 
 	private:
 		OSDConsoleRenderer* console;
@@ -36,7 +36,7 @@ class FontSetting : public FilenameSetting
 {
 	public:
 		FontSetting(OSDConsoleRenderer *console,
-		            const std::string &filename);
+			const std::string &filename);
 
 	protected:
 		virtual bool checkUpdate(const std::string &newValue);

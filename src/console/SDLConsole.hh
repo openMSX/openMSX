@@ -5,16 +5,16 @@
 
 #include "OSDConsoleRenderer.hh"
 
-    typedef struct tColorRGBA {
+	typedef struct tColorRGBA {
 	Uint8 r;
 	Uint8 g;
 	Uint8 b;
 	Uint8 a;
-    } tColorRGBA;
+	} tColorRGBA;
 
-    typedef struct tColorY {
+	typedef struct tColorY {
 	Uint8 y;
-    } tColorY;
+	} tColorY;
 
 class SDL_Surface;
 
@@ -78,7 +78,7 @@ class SDLConsole : public OSDConsoleRenderer
 		void drawCursor();
 		void updateConsole2();
 		void updateConsoleRect();
-		int zoomSurface(SDL_Surface * src, SDL_Surface * dst, int smooth);
+		int zoomSurface(SDL_Surface * src, SDL_Surface * dst, bool smooth);
 };
 
 #endif

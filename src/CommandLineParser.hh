@@ -18,12 +18,12 @@ class CLIOption
 {
 	public:
 		virtual void parseOption(const std::string &option,
-		                         std::list<std::string> &cmdLine) = 0;
+			std::list<std::string> &cmdLine) = 0;
 		virtual const std::string& optionHelp() const = 0;
 	
 	protected:
 		const std::string getArgument(const std::string &option,
-		                              std::list<std::string> &cmdLine);
+			std::list<std::string> &cmdLine);
 };
 
 class CLIFileType
