@@ -188,6 +188,7 @@ void OpenMSXComm::cb_start_element(OpenMSXComm* comm, const xmlChar* name,
 			}
 			break;
 		default:
+			++(comm->unknownLevel);
 			break;
 	}
 	comm->content.clear();

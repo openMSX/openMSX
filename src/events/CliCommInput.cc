@@ -57,6 +57,7 @@ void CliCommInput::cb_start_element(ParseState* user_data,
 			}
 			break;
 		default:
+			++(user_data->unknownLevel);
 			break;
 	}
 	user_data->content = ""; // clear() doesn't compile on gcc-2.95
