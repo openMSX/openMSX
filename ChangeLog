@@ -1,5 +1,8 @@
 $Id$
 
+2002-03-04 Joost Yervante Damad <andete@worldcity.nl>
+	* added auto* support for openGL
+
 2002-03-03 Maarten ter Huurne <mth@stack.nl>
 	* Made sure unused bits in GRB palette value are zero.
 
