@@ -5,7 +5,7 @@
 #include "CommandController.hh"
 #include "EventDistributor.hh"
 #include "Keys.hh"
-#include "MSXConfig.hh"
+#include "File.hh"
 
 // class ConsoleSetting
 
@@ -50,10 +50,19 @@ Console::Console()
 	else{
 		removeDoubles = false;
 	}
+	if ((config->hasParameter("loadhistory")) &&
+		(config->getParameterAsBool("loadhistory"))){
+		loadHistory(config);
+	}
 }
 
 Console::~Console()
 {
+	Config *config = MSXConfig::instance()->getConfigById("Console");
+	if ((config->hasParameter("savehistory")) &&
+		(config->getParameterAsBool("savehistory"))){
+		saveHistory(config);
+	}
 	EventDistributor::instance()->unregisterEventListener(SDL_KEYDOWN, this);
 	EventDistributor::instance()->unregisterEventListener(SDL_KEYUP,   this);
 }
@@ -72,6 +81,57 @@ void Console::registerConsole(ConsoleRenderer *console)
 void Console::unregisterConsole(ConsoleRenderer *console)
 {
 	renderers.remove(console);
+}
+
+void Console::saveHistory(Config * config)
+{
+
+	const std::string &filename = config->getParameter("historyname");
+	PRT_DEBUG("consolehistory: save " << filename);
+	UserFileContext context ("history/");
+	uint64 size;
+	try {
+		File file(context.resolveSave(filename),
+				  SAVE_PERSISTENT);
+		size=history.size();
+		file.write((byte *)&size,sizeof(size));
+		std::list<std::string>::iterator it;
+		for (it=history.begin();it!=history.end();it++){
+			size=it->length();
+			file.write((byte*)&size,sizeof(size));
+			file.write((byte*)it->c_str(),size);
+		}	
+	} catch (FileException &e) {
+		std::cout << "error saving consolehistory: " << filename << "\n";
+	}
+
+}
+
+void Console::loadHistory(Config * config)
+{
+
+	const std::string &filename = config->getParameter("historyname");
+	PRT_DEBUG("consolehistory: load " << filename);
+	UserFileContext context ("history/");
+	char * command;
+	uint64 historysize;
+	uint64 commandsize;
+	try {
+		File file(context.resolveSave(filename),
+				  LOAD_PERSISTENT);
+		file.read((byte*)&historysize,sizeof(historysize));
+		for (unsigned i=0;i<historysize;i++){
+			file.read((byte*)&commandsize,sizeof(commandsize));
+			command=new char[commandsize+1];
+			file.read((byte*)command,commandsize);
+			command[commandsize]=0;
+			putCommandHistory(command);
+			delete []command;
+		}	
+	} catch (FileException &e) {
+		std::cout << "error loading consolehistory: " << filename << "\n";
+	}	
+
 }
 
 void Console::setCursorPosition(const int xPosition,const int yPosition)

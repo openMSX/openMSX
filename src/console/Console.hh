@@ -8,6 +8,7 @@
 #include "EventListener.hh"
 #include "CircularBuffer.hh"
 #include "Settings.hh"
+#include "MSXConfig.hh"
 
 struct CursorXY{
 	unsigned x;
@@ -69,6 +70,8 @@ class Console : private EventListener
 							CircularBuffer<bool,LINESHISTORY> & overflows,
 							bool fromTop = false);
 		void splitLines();
+		void loadHistory(Config * config);
+		void saveHistory(Config * config);
 		
 		class ConsoleSetting : public BooleanSetting
 		{
