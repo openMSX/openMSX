@@ -526,10 +526,10 @@ bool CommandLineParser::MachineOption::parseOption(const string &option,
 	if (parent.haveConfig) {
 		throw FatalError("Only one machine option allowed");
 	}
+	string machine(getArgument(option, cmdLine));
 	if (parent.issuedHelp) {
 		return true;
 	}
-	string machine(getArgument(option, cmdLine));
 	parent.output.printInfo("Using specified machine: " + machine);
 	parent.loadMachine(machine);
 	parent.haveConfig = true;

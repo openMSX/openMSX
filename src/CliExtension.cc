@@ -20,9 +20,14 @@ bool CliExtension::parseOption(const string &option,
                                list<string> &cmdLine)
 {
 	string extension = getArgument(option, cmdLine);
-	XMLElement& devices = HardwareConfig::instance().getChild("devices");
+	XMLElement* devices = HardwareConfig::instance().findChild("devices");
+	if (!devices) {
+		// TODO refactor command line parser
+		//  this happens when -h or -v was given (no machine loaded)
+		return true;
+	}
 	try {
-		HardwareConfig::loadHardware(devices, "extensions", extension);
+		HardwareConfig::loadHardware(*devices, "extensions", extension);
 	} catch (FileException& e) {
 		throw FatalError("Extension \"" + extension + "\" not found (" +
 		                 e.getMessage() + ").");

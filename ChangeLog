@@ -9,6 +9,12 @@ $Id$
 	   - this fixes the "Catapult always uses SDLHi" problem
 	* Also recognize zip files with extension ".ZIP" (uppercase)
 	* Fixed reading 1st FAT sector in detectGeometry() routine
+	* Fixes in Command Line Parser:
+	   - stuff like
+	        openmsx -h -machine turbor     and
+	        openmsx -v -ext scc
+	     works now
+	   - code is not very clear, should be rewritten after release
 
 2004-10-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed coredump on missing arguments on the command line:
