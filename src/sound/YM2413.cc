@@ -103,7 +103,7 @@ void YM2413::makeAdjustTable()
 	AR_ADJUST_TABLE[0] = (1 << EG_BITS) - 1;
 	for (int i = 1; i < (1 << EG_BITS); ++i) {
 		AR_ADJUST_TABLE[i] = (unsigned short)((double)(1 << EG_BITS) - 1 -
-		                     ((1 << EG_BITS)-1) * ::log(i) / ::log(127));
+		                     ((1 << EG_BITS) - 1) * ::log(i) / ::log(127));
 	}
 }
 
@@ -442,11 +442,12 @@ void YM2413::Slot::slotOn2()
 // Slot key off
 void YM2413::Slot::slotOff()
 {
-	if (eg_mode == ATTACK)
+	if (eg_mode == ATTACK) {
 		eg_phase = EXPAND_BITS(
 			AR_ADJUST_TABLE[HIGHBITS(
 				eg_phase, EG_DP_BITS - EG_BITS)],
 			EG_BITS, EG_DP_BITS);
+	}
 	eg_mode = RELEASE;
 	updateEG();
 }
@@ -624,7 +625,7 @@ void YM2413::reset(const EmuTime &time)
 		ch[i].reset();
 	}
 	for (int i = 0; i < 0x40; i++) {
-		writeReg(i, 0, time);	// optimization: pass time only once
+		writeReg(i, 0, time);
 	}
 	setMute(true);	// set muted
 }
@@ -784,16 +785,15 @@ void YM2413::Slot::calc_envelope(int lfo_am)
 	};
 
 	unsigned out;
-	switch(eg_mode) {
+	switch (eg_mode) {
 	case ATTACK:
+		out = AR_ADJUST_TABLE[HIGHBITS(eg_phase, EG_DP_BITS - EG_BITS)];
 		eg_phase += eg_dphase;
 		if ((EG_DP_WIDTH & eg_phase) || (patch->AR == 15)) {
 			out = 0;
 			eg_phase = 0;
 			eg_mode = DECAY;
 			updateEG();
-		} else {
-			out = AR_ADJUST_TABLE[HIGHBITS(eg_phase, EG_DP_BITS - EG_BITS)];
 		}
 		break;
 	case DECAY:
@@ -811,7 +811,7 @@ void YM2413::Slot::calc_envelope(int lfo_am)
 		break;
 	case SUSHOLD:
 		out = HIGHBITS(eg_phase, EG_DP_BITS - EG_BITS);
-		if (!patch->EG) {
+		if (patch->EG == 0) {
 			eg_mode = SUSTINE;
 			updateEG();
 		}
@@ -948,9 +948,10 @@ inline int YM2413::calcSample()
 	}
 
 	int channelMask = 0;
-	for (int i = 9; --i; /* */) {
-		channelMask <<= 1;
-		if (ch[i].car.eg_mode != FINISH) channelMask |= 1;
+	for (int i = 0; i < 9; ++i) {
+		if (ch[i].car.eg_mode != FINISH) {
+			channelMask |= (1 << i);
+		}
 	}
 
 	int mix = 0;
@@ -1016,7 +1017,6 @@ void YM2413::updateBuffer(int length, int* buffer)
 	while (length--) {
 		*(buffer++) = calcSample();
 	}
-
 	checkMute();
 }
 
