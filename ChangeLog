@@ -1,5 +1,8 @@
 $Id$
 
+2002-02-25 Maarten ter Huurne <mth@stack.nl>
+	* Implemented even/odd and interlace display.
+
 2002-02-24 Maarten ter Huurne <mth@stack.nl>
 	* Fixed port C read bug in PPI.
 	  Now keyboard works in SBB promo and CAPS is off at boot time.

@@ -620,7 +620,10 @@ void VDP::frameStart(const EmuTime &time)
 	// TODO: verticalAdjust probably influences display start, which is
 	//       "fixed" once it occured, no need to fix verticalAdjust,
 	//       maybe even having this variable is not necessary.
+	// TODO: Interlace is effectuated in border height, according to
+	//       the data book. Exactly when is the fixation point?
 	palTiming = controlRegs[9] & 0x02;
+	interlaced = controlRegs[9] & 0x04;
 	verticalAdjust = (controlRegs[18] >> 4) ^ 0x07;
 	spriteLine = 0;
 

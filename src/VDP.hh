@@ -389,10 +389,35 @@ public:
 	}
 
 	/** Is PAL timing active?
+	  * This setting is fixed at start of frame.
 	  * @return True if PAL timing, false if NTSC timing.
 	  */
 	inline bool isPalTiming() {
 		return palTiming;
+	}
+
+	/** Get interlace status.
+	  * Interlace means the odd fields are displayed half a line lower
+	  * than the even fields. Together with even/odd page alternation
+	  * this can be used to create an interlaced display.
+	  * This setting is fixed at start of frame.
+	  * @return True iff this field should be displayed half a line lower.
+	  */
+	inline bool isInterlaced() {
+		return interlaced && (statusReg2 & 2);
+	}
+
+	/** Expresses the state of even/odd page interchange in a mask
+	  * on the line number. If even/off interchange is active, for some
+	  * frames lines 256..511 (page 1) are replaced by 0..255 (page 0)
+	  * and 768..1023 (page 3, if appicable) by 512..767 (page 2).
+	  * Together with the interlace setting this can be used to create
+	  * an interlaced display.
+	  * @return Line number mask that expressed even/odd state.
+	  */
+	inline int getEvenOddMask() {
+		// TODO: Verify which page is displayed on even fields.
+		return ((~controlRegs[9] & 4) << 6) | ((statusReg2 & 2) << 7);
 	}
 
 	/** Gets the number of VDP clock ticks (21MHz) elapsed between
@@ -667,6 +692,11 @@ private:
 	  * @see isPalTiming.
 	  */
 	bool palTiming;
+
+	/** Is interlace active?
+	  * @see isInterlaced.
+	  */
+	bool interlaced;
 
 	/** Absolute line number of display line zero.
 	  * @see getLineZero

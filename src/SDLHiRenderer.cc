@@ -867,7 +867,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 	int displayLine = (absLine - vdp->getLineZero()) & 255;
 
 	// Check whether this line is inside the host screen.
-	int screenLine = (absLine - lineRenderTop) * 2;
+	int screenLine = (absLine - lineRenderTop) * 2 + vdp->isInterlaced();
 	if (screenLine >= HEIGHT) return;
 
 	// Determine sprites visible on this line.
@@ -983,9 +983,9 @@ template <class Pixel> void SDLHiRenderer<Pixel>::blankPhase(
 	// TODO: Only redraw if necessary.
 	SDL_Rect rect;
 	rect.x = 0;
-	rect.y = nextLine - lineRenderTop;
+	rect.y = (nextLine - lineRenderTop) * 2 + vdp->isInterlaced();
 	rect.w = WIDTH;
-	rect.h = limit - nextLine;
+	rect.h = (limit - nextLine) * 2;
 
 	// Clip to area actually displayed.
 	// TODO: Does SDL_FillRect clip as well?
@@ -999,8 +999,6 @@ template <class Pixel> void SDLHiRenderer<Pixel>::blankPhase(
 
 	// Draw lines in background colour.
 	if (rect.h > 0) {
-		rect.y *= 2;
-		rect.h *= 2;
 		Pixel bgColour = getBorderColour();
 		// Note: return code ignored.
 		SDL_FillRect(screen, &rect, bgColour);
@@ -1020,8 +1018,8 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	if (limit > lineBottomErase) {
 		limit = lineBottomErase;
 	}
-	if (limit > lineRenderTop + HEIGHT) {
-		limit = lineRenderTop + HEIGHT;
+	if (limit > lineRenderTop + HEIGHT / 2) {
+		limit = lineRenderTop + HEIGHT / 2;
 	}
 	if (nextLine >= limit) return;
 
@@ -1034,7 +1032,8 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 		vdp->isBitmapMode() ? bitmapDisplayCache : charDisplayCache;
 
 	// Which bits in the name mask determine the page?
-	int pageMask = vdp->isPlanar() ? 0x100 : 0x300;
+	int pageMask = (vdp->isPlanar() ? 0x100 : 0x300)
+		& vdp->getEvenOddMask();
 
 	// Lock surface, because we will access pixels directly.
 	if (SDL_MUSTLOCK(displayCache) && SDL_LockSurface(displayCache) < 0) {
@@ -1080,7 +1079,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	source.h = 1;
 	SDL_Rect dest;
 	dest.x = getLeftBorder();
-	dest.y = (nextLine - lineRenderTop) * 2;
+	dest.y = (nextLine - lineRenderTop) * 2 + vdp->isInterlaced();
 	int line = scrolledLine;
 	// TODO: Optimise.
 	for (int n = limit - nextLine; n--; ) {
@@ -1093,6 +1092,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 		// Note: return value is ignored.
 		SDL_BlitSurface(displayCache, &source, screen, &dest);
 		dest.y++;
+		if (dest.y == HEIGHT) break; // possible in interlace
 		SDL_BlitSurface(displayCache, &source, screen, &dest);
 		dest.y++;
 		line = (line + 1) & 0xFF;
@@ -1122,9 +1122,11 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	// TODO: Does the extended border clip sprites as well?
 	Pixel bgColour = getBorderColour();
 	dest.x = 0;
-	dest.y = (nextLine - lineRenderTop) * 2;
+	dest.y = (nextLine - lineRenderTop) * 2 + vdp->isInterlaced();
 	dest.w = getLeftBorder();
 	dest.h = (limit - nextLine) * 2;
+	// Note: SDL clipping is relied upon because interlace can push rect
+	//       one line out of the screen.
 	SDL_FillRect(screen, &dest, bgColour);
 	dest.x = dest.w + getDisplayWidth();
 	dest.w = WIDTH - dest.x;
@@ -1140,6 +1142,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::frameStart()
 	// 240 - 212 = 28 lines available for top/bottom border; 14 each.
 	// NTSC: display at [32..244),
 	// PAL:  display at [59..271).
+	// TODO: Use screen lines instead.
 	lineRenderTop = vdp->isPalTiming() ? 59 - 14 : 32 - 14;
 
 	// Calculate important moments in frame rendering.
