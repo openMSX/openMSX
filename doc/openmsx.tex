@@ -12,6 +12,7 @@
 
 \begin{document}
 \maketitle
+\tableofcontents
 
 \chapter{Analysis}
 
@@ -46,6 +47,8 @@ So we need some sort of synchronization mechanism.
 
 \section{Communication in MSX}
 
+\subsection{General communication}
+
 In a MSX communication happens only between the CPU and another device, never
 between two non-CPUs. All communication is initiated by the CPU, except for
 interupts.
@@ -73,6 +76,22 @@ Note that \emph{most} unpredictable communication is initiated by the CPU, this 
 important for some optimizations (see next chapters).
 
 
+\subsection{Communication with multiple devices at once}
+
+Important example: memory mappers (IO 0xfc \ldots 0xff).
+
+Writing is not a problem, reading is since the result is not defined in the MSX
+standard. But some programs expect a certain behaviour\ldots
+
+
+\subsection {Non-standard behaviour}
+
+A device its memory is addressed by slot and address signals. Normally a devices
+should check both these signals. Some devices (e.g.: ????) ignore slot-select
+and respond whenever they see their own address.
+
+
+
 
 \chapter{Design}
 
@@ -88,9 +107,16 @@ values (byte read), we also need to pass and return a timestamp.
 
 \subsection{Interupts}
 
-All interupts must be planned beforehand (synchronization points, see next
+\subsubsection{General}
+
+All interupts must be planned beforehand (by synchronization points, see next
 section). This is easy for predictable interupts, but impossible for
 unpredictable interupts. 
+
+When a device raises an interupt it must pass control to the emulated CPU before
+it can further advance in time.
+
+\subsubsection{Unpredictable interupts}
 
 %%
 Ik zie hier twee mogelijke oplossingen:
@@ -119,6 +145,33 @@ ingelast worden in de datastructuur met de SP, aangezien deze al in staat is om
 SP's tussen te lassen in de bestaande structuur zou dit geen probleem zijn.
 \end{enumerate}
 
+
+\subsection{Communication with multiple devices at once}
+
+Most important example: memory mappers (IO 0xfc \ldots 0xff)
+
+%%
+Voor dit soort zaken zou ik de voorkeur geven aan het master-slave principe
+In het geval van memmorymappers heb ik dit als volgt reeds geprogrammeert:
+\begin{itemize}
+\item De classe MSXMemMapDriver(=master) registreerd zich bij het MSXMotherboard voor de 
+poorten OxFC .. 0xFF.
+\item De Driver houd per slot/sublsot bij wat de mappergrootte is. Tijdens de initfase
+vervangt de MapperDriver alle verwijzingen naar hem in de slotstructuur door verwijzingen 
+naar verschillende MemMapSlaves.
+\item Bij OUT activiteit zal de driver de gepaste slaves vertellen dat ze nu data moeten 
+lezen/schrijven op andere plaatsen in mapper van hun main-/sub-slot combinatie.
+\item Bij IN activiteit is het de mapper die de waarden kent en de juiste value aan de
+CPU terug geeft. Op deze manier is het simpel om de pull-up van de Turbo-R te
+emuleren, of de conflicten van het lezen van meerdere mappers in de driver te 
+implementeren.
+\end{itemize}
+
+%%
+Dit idee ga ik waarschijnlijk ook gebruiken bij de CPU, op die manier heb je een 
+CPU-master en twee CPU-slaves bij de turbo R. De master zal zich dan ook registreren 
+bij het MotherBoard om zo op de CPU-switch poort- van de Turbo-R te kunnen luisteren 
+en de juiste taakdelegatie te kunnen doen.
 
 
 
@@ -153,126 +206,45 @@ it. Example:
 
 \section{Scheduler algorithm}
 
+A few rules:
+\begin{enumerate}
+\item %% 
+geen enkel device mag in uitvoering 'voorliggen' op de CPU.
+Dit omdat praktisch alle onvoorspelbare communicate (IO en memory) uitgaat
+van de CPU. Als een device op een bepaald moment voorligt op de CPU en als 
+nadien de CPU tijdens zijn 'inhaalbeweging' communiceerd met dat device, ...
+ja dan klopt er iets niet.
+
+\item %%
+elk device moet zijn eerstvolgende synchronisatie punt 
+aan de scheduler melden.
+\end{enumerate}
+
+Now the algorithm:
+\begin{enumerate}
 %%
-1e regel: geen enkel device mag in uitvoering 'voorliggen' op de CPU.
-  Dit omdat praktisch alle onvoorspelbare communicate (IO en memory) uitgaat
-  van de CPU. Als een device op een bepaald moment voorligt op de CPU en als 
-  nadien de CPU tijdens zijn 'inhaalbeweging' communiceerd met dat device, ...
-  ja dan klopt er iets niet.
-
-2e regel: elk device moet zijn eerstvolgende synchronisatie punt (zie verder)
-  aan de scheduler melden. Hoe dat dit gemeld moet worden; ofdat het enkel het
-  eerst volgende is of eventueel ook andere; of wat er gebeurt als een device
-  helemaal geen syncronisatie punten nodig heeft (vb RAM) zijn allemaal 
-  implementatie details en hebben hier geen belang. Het enige wat telt is het
-  eerstvolgende punt voor elk device.
-
-\begin{itemize}
 \item De scheduler neemt het vroegste synchronisatie punt, en \textit{probeert}
 de CPU tot op dat punt te brengen.
 \item Als dit lukt
-	\begin{itemize}
-	\item dan wordt ook het device dat dit synchronisatie punt had gezet tot
+	\begin{enumerate}
+	%%
+	\item \label{alg:ok} 
+	dan wordt ook het device dat dit synchronisatie punt had gezet tot
 	hier gebracht (dit lukt altijd)
-	\item als het niet lukt dan probeerde de CPU een IO of een memory instructie
-	uit te voeren. In dit geval wordt eerst het device waarmee gecommuniceerd
+	\item \label{alg:nok}
+	als het niet lukt (CPU heeft een IO of een memory instructie
+	uitgevoerd). Dan wordt eerst het device waarmee gecommuniceerd
 	werd bijgebracht (nu niet volledig tot aan synchronisatie punt, maar tot
 	waar de CPU gekomen was) en dan wordt pas de IO of memory opdracht 
 	uitgevoerd. Het zou kunnen dat het device een (nieuw, vroeger) 
 	synchronisatie punt heeft gezet, dus het algoritme begint weer van 
 	vanvoor.
-	\end{itemize}
-\end{itemize}
-       
+	\end{enumerate}
+\end{enumerate}
 
-%%%%%%%%
+Note a device may not register a new SP that comes in time before the CPU's
+current time. (Step \ref{alg:ok}, \ref{alg:nok})
 
-
-\section{Implementatie Synchronisatie punten (SP)}
-
-Eisen:
-\begin{itemize}
-\item SP moeten gezet kunnen worden op willekerige toekomstige tijdstippen 
-(evident)
-\item SP kunnen vervallen, vb er was een interrupt geplanned, maar de interrupts
-van dit device werden uitgezet voordat de interrupt echt optrad
-\item Het eerstvolgende SP moet relatief snel kunnen terug gevonden worden
-\item 1 device kan meerder SP zetten, dus een SP bijzetten voor een ander al is
-bereikt
-\end{itemize}
-
-Mogelijke implementatie: %FIXME: move this to next chapter
-\begin{itemize}
-\item tijdstippen worden voorgesteld door het aantal T-states vanaf het opstarten 
-van de MSX. Alle SP hebben dus een absolute tijdsaanduiding. Probleem: wat 
-met rollover? (64 bit -> 5000 year)
-\item Elk device registreerd zijn SP bij de scheduler, die zal de SP dan in een 
-globale datastructuur plaatsen
-\item SP wissen is niet echt nodig op voorwaarde dat devices slim genoeg zijn om
-'vervallen' SP te negeren of toch geen onnodige interrupts te genereren. In
-dit geval moeten de devices eens dat kun SP geregistreerd is er zich niets 
-meer van aantrekken. Meerdere SP voor 1 device is dan ook vrij simpel 
-\item Om eerstvolgende SP snel te kunnen vinden, houden we alle SP gesorteerd bij.
-Omdat het aantal simultaan actieve SP vrij beperkt is zal een gesorteerde
-lijst wel voldoende zijn (anders een of andere boom)
-\end{itemize}
-
-
-
-
-
-\section{Communicatie met meerder devices tegelijk, 
-vb memory mappers (IO 0xfc .. 0xff)}
-
-Voor dit soort zaken zou ik de voorkeur geven aan het master-slave principe
-In het geval van memmorymappers heb ik dit als volgt reeds geprogrammeert:
-\begin{itemize}
-\item De classe MSXMemMapDriver(=master) registreerd zich bij het MSXMotherboard voor de 
-poorten OxFC .. 0xFF.
-\item De Driver houd per slot/sublsot bij wat de mappergrootte is. Tijdens de initfase
-vervangt de MapperDriver alle verwijzingen naar hem in de slotstructuur door verwijzingen 
-naar verschillende MemMapSlaves.
-\item Bij OUT activiteit zal de driver de gepaste slaves vertellen dat ze nu data moeten 
-lezen/schrijven op andere plaatsen in mapper van hun main-/sub-slot combinatie.
-\item Bij IN activiteit is het de mapper die de waarden kent en de juiste value aan de
-CPU terug geeft. Op deze manier is het simpel om de pull-up van de Turbo-R te
-emuleren, of de conflicten van het lezen van meerdere mappers in de driver te 
-implementeren.
-\end{itemize}
-
-Dit idee ga ik waarschijnlijk ook gebruiken bij de CPU, op die manier heb je een 
-CPU-master en twee CPU-slaves bij de turbo R. De master zal zich dan ook registreren 
-bij het MotherBoard om zo op de CPU-switch poort- van de Turbo-R te kunnen luisteren 
-en de juiste taakdelegatie te kunnen doen.
-
-
-\section {devices die slot negeren, dus enkel kijken naar adres}
-
-Hier krijg je verschillen van ROM vs RAM speed te  zien, ok eventueel pull-up/ pull-down
-is hier van belang. Hier ben ik nog niet volledig uit. Het simpelst is in ieder geval in
-een begin stadium om deze rom dan zichtbaar te stellen in alle main/sub-sloten van de MSX
-waar op dat moment niets aanwezig is. Als het enkel bij een probleem van access tijden
-blijft is dit het simpelst, de rom/ram catridge die et snelst antwoord komt dan in de
-plaats van eventuele aanwezige rom/ram blokken, pull-ip/down toestanden tussen roms
-onderling zijn op te lossen met een AND/OR functie over de bestaande roms te laten gaan,
-als er ook RAM aanwezig is zou dit dynamisch moeten gebeuren en dan gaan we een serieuze
-performance hit kunnen krijgen :\
-
-
-\section{Nog enkele opmerkingen}
-
-Hier nog enkele extracten uit een mail van Wouter, ze zijn verwerkt in zijn tekst maar
-ik had ze graag nog eens expliciet aangehaald.
-
-A device isn't allowed to call the raise(lower)IRQ twice in a row...
-Misschien voor fouten te vermijden in de klasse MSXDevice 2 methods voorzien
-\begin{itemize}
-\item setInterrupt()
-\item resetInterrupt()
-\end{itemize}
-Deze methodes houden zelf een interrupt status voor dit device bij (mogen dus 
-meerder keren aangeroepen worden) en zorgen dat [raise|lower]IRQ maar 1 keer 
-wordt aangeroepen
 
 
 
