@@ -60,7 +60,19 @@ void CommandLineParser::addOption(CLIoption id,std::string cliOption,bool usesPa
 void CommandLineParser::showHelp()
 {
     PRT_INFO("OpenMSX command line options");
-    PRT_INFO("============================\n");
+    PRT_INFO("============================\n\n");
+    PRT_INFO("Normal usage of openMSX\n");
+    PRT_INFO(" ./open [extra options] [[specifier] <filename>[,<extra mode>]]\n");
+    PRT_INFO("specifier: normally the files are recognized by their extension ");
+    PRT_INFO("           however it is possible to explicite state the files  ");
+    PRT_INFO("           nature by using one of the folowing specifiers:      ");
+    PRT_INFO("           -config,-disk,-diska,-diskb,-tape,-cart,-carta,-cartb");
+    PRT_INFO("extra mode: * for diskimages                                    ");
+    PRT_INFO("                ro : open read-only                             ");
+    PRT_INFO("            * for cartridges you can specify it types           ");
+    PRT_INFO("                8kB,16kB,SCC,KONAMI5,KONAMI4,ASCII8,ASCII16     ");
+    PRT_INFO("                GAMEMASTER2,KONAMIDAC                           ");
+    PRT_INFO("\nHere is the list of extra options: ");
     std::map<CLIoption,CommandLineParser::CommandLineOption*>::iterator it;
     for (it= optionList.begin(); it != optionList.end(); it++ ){
         PRT_INFO ( (*it).second->option <<"  \t: " << (*it).second->helpLine );
@@ -102,7 +114,7 @@ int CommandLineParser::checkFileType(char* parameter,int &i, char **argv)
   if ( 0 == strcasecmp(parameter,"-diska"))  { fileType=2; driveLetter='A'; };
   if ( 0 == strcasecmp(parameter,"-diskb"))  { fileType=2; driveLetter='B'; };
   if ( 0 == strcasecmp(parameter,"-tape"))   { fileType=3; };
-  if ( 0 == strcasecmp(parameter,"-cart"))   { fileType=4;  };
+  if ( 0 == strcasecmp(parameter,"-cart"))   { fileType=4; };
   if ( 0 == strcasecmp(parameter,"-carta"))  { fileType=4; cartridgeNr=0; };
   if ( 0 == strcasecmp(parameter,"-cartb"))  { fileType=4; cartridgeNr=1; };
   return fileType;

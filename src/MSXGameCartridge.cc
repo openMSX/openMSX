@@ -187,7 +187,11 @@ int MSXGameCartridge::guessMapperType()
 	//  occure.
 
 	if (romSize <= 0x10000) {
-		if (romSize == 0x8000) {
+		if (romSize == 0x10000) {
+			// There are some programs convert from tape to 64kB rom cartridge
+			// these 'fake'roms are from the ASCII16 type
+			return 5;
+		} else if (romSize == 0x8000) {
 			//TODO: Autodetermine for KonamiSynthesiser
 			// works for now since most 32 KB cartridges don't
 			// write to themselves
@@ -231,16 +235,17 @@ int MSXGameCartridge::guessMapperType()
 				}
 			}
 		}
-		// in case of doubt we go for type 0
-		typeGuess[0]++;
-		// in case of even type 5 and 4 we would prefer 5
-		// but we would still prefer 0 above 4 or 5 so no increment
 		if (typeGuess[4]) typeGuess[4]--; // -1 -> max_int
 		int type = 0;
 		for (int i=0; i<6; i++) {
-			if (typeGuess[i]>typeGuess[type])
-				type = i;
-		}
+			if ( (typeGuess[i]) && (typeGuess[i]>=typeGuess[type])){
+			  type = i;
+			}
+		};
+		// in case of doubt we go for type 0
+		// in case of even type 5 and 4 we would prefer 5
+		// but we would still prefer 0 above 4 or 5
+		if ((type==5) && (typeGuess[0] == typeGuess[5] ) ){type=0;};
 		PRT_DEBUG("I Guess this is a nr " << type << " GameCartridge mapper type.")
 		return type;
 	}
