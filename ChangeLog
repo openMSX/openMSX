@@ -1,5 +1,12 @@
 $Id$
 
+2004-08-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Added new 'blur' scaler:
+	   - this scaler implements the same blur effects as the SDLGL
+	     renderer already does (but then in software)
+	   - only tested with 32bpp, can someone please test 16bpp?
+	   - can still be heavily optimized using MMX assembly
+
 2004-08-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Extended Scale2x scaler for hi-res modes (screen 6 and 7)
 
