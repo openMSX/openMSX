@@ -82,17 +82,16 @@ void FDC_DirAsDSK::WriteFAT(word clnr, word val)
 }
 
 // check if a filename is used in the emulated MSX disk
-bool FDC_DirAsDSK::checkMSXFileExists(const string& fullfilename)
+bool FDC_DirAsDSK::checkMSXFileExists(const string& msxfilename)
 {
 	//TODO: complete this
-	unsigned pos = fullfilename.find_last_of('/');
+	unsigned pos = msxfilename.find_last_of('/');
 	string tmp;
 	if (pos != string::npos) {
-		tmp = fullfilename.substr(pos+1);
+		tmp = msxfilename.substr(pos+1);
 	} else {
-		tmp = fullfilename;
+		tmp = msxfilename;
 	}
-	tmp = makeSimpleMSXFileName(tmp);
 
 	for (int i = 0; i < 112; i++) {
 		if (strncmp((const char*)(mapdir[i].msxinfo.filename),
@@ -132,19 +131,21 @@ string FDC_DirAsDSK::makeSimpleMSXFileName(const string& fullfilename)
 	} else {
 		tmp = fullfilename;
 	}
-
+	PRT_DEBUG("filename before transform " << tmp);
 	transform(tmp.begin(), tmp.end(), tmp.begin(), toMSXChr);
+	PRT_DEBUG("filename after transform " << tmp);
 
 	string file, ext;
-	pos = fullfilename.find_last_of('.');
+	pos = tmp.find_last_of('.');
 	if (pos != string::npos) {
 		file = tmp.substr(0, pos);
 		ext  = tmp.substr(pos + 1);
 	} else {
 		file = tmp;
-		//ext = "";
+		ext = "";
 	}
 
+	PRT_DEBUG("adding correct amount of spaces");
 	file += "        ";
 	ext  += "   ";
 	file = file.substr(0, 8);
@@ -292,8 +293,9 @@ void FDC_DirAsDSK::updateFileInDSK(const string& fullfilename)
 	    
 	if (!checkFileUsedInDSK(fullfilename)) {
 		// add file to fakedisk
+		PRT_DEBUG("Going to addFileToDSK");
 		addFileToDSK(fullfilename);
-	} else {
+	//} else {
 		//really update file (dir entry + fat) 
 	}
 }
@@ -305,6 +307,7 @@ void FDC_DirAsDSK::addFileToDSK(const string& fullfilename)
 	while (mapdir[dirindex].filename.length() && (dirindex < 112)) {
 	     dirindex++;
 	}
+	PRT_DEBUG("Adding on dirindex " << dirindex);
 	if (dirindex == 112) {
 		PRT_INFO( "Couldn't add " << fullfilename << ": root dir full");
 		return;
@@ -312,6 +315,7 @@ void FDC_DirAsDSK::addFileToDSK(const string& fullfilename)
 
 	// create correct MSX filename
 	string MSXfilename = makeSimpleMSXFileName(fullfilename);
+	PRT_DEBUG("Using MSX filename " << MSXfilename );
 	if (checkMSXFileExists(MSXfilename)) {
 		//TODO: actually should increase vfat abrev if possible!!
 		PRT_INFO("Couldn't add " << fullfilename << ": MSX name "
@@ -320,12 +324,12 @@ void FDC_DirAsDSK::addFileToDSK(const string& fullfilename)
 	}
 	
 	//set correct info in mapdir
-	memcpy(&mapdir[dirindex].filename, MSXfilename.c_str(), 11);
+	memcpy(&(mapdir[dirindex].filename), MSXfilename.c_str(), 11);
 	
 	//open file
 	int fsize;
-	FILE* file = fopen(fullfilename.c_str(), "r");
-	if (!file) {
+	//FILE* file = fopen(fullfilename.c_str(), "r");
+	//if (!file) {
 		//if open file fails (read permissions perhaps) then still enter
 		//in MSX disk with zero info
 		
@@ -334,13 +338,13 @@ void FDC_DirAsDSK::addFileToDSK(const string& fullfilename)
 		//if so the code should be entered here.
 		
 		fsize = 0;	// TODO BUG nothing is done with fsize
-		return;
-	}
-	fclose(file);
+		//return;
+	//}
+	//fclose(file);
 	
 	// compute time/date stamps
 	struct stat fst;
-
+	bzero(&fst,sizeof(strtuct stat));
 	stat(fullfilename.c_str(), &fst);
 	struct tm mtim = *localtime(&(fst.st_mtime));
 	int t = (mtim.tm_sec >> 1) + (mtim.tm_min << 5) +
@@ -356,6 +360,7 @@ void FDC_DirAsDSK::addFileToDSK(const string& fullfilename)
 	while ((curcl <= MAX_CLUSTER) && ReadFAT(curcl)) {
 		curcl++;
 	}
+	PRT_DEBUG("Starting at cluster " << curcl );
 	setsh(mapdir[dirindex].msxinfo.startcluster, curcl);
 
 	int size = fsize;
@@ -372,6 +377,7 @@ void FDC_DirAsDSK::addFileToDSK(const string& fullfilename)
 		do {
 			curcl++;
 		} while((curcl <= MAX_CLUSTER) && ReadFAT(curcl));
+		PRT_DEBUG("Continuing at cluster " << curcl );
 	}
 	if ((size == 0) && (curcl <= MAX_CLUSTER)) {
 		WriteFAT(prevcl,EOF_FAT);

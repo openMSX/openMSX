@@ -52,7 +52,7 @@ class FDC_DirAsDSK : public SectorBasedDisk
 
 		void updateFileInDSK(const string& fullfilename);
 		bool checkFileUsedInDSK(const string& fullfilename);
-		bool checkMSXFileExists(const string& fullfilename);
+		bool checkMSXFileExists(const string& msxfilename);
 		string makeSimpleMSXFileName(const string& fullfilename);
 		void addFileToDSK(const string& fullfilename);
 		//int findFirstAvailableCluster();

@@ -233,14 +233,24 @@ void RealDrive::insertDisk(FileContext *context,
 	Disk* tmp;
 	try {
 		// first try XSA
+		PRT_DEBUG("Trying an XSA diskimage...");
 		tmp = new XSADiskImage(context, diskImage);
+		PRT_DEBUG("Succeeded");
 	} catch (MSXException &e) {
 		try {
-			// then try normal DSK
-			tmp = new DSKDiskImage(context, diskImage);
-		} catch (MSXException &e) {
+			//First try the fake disk, because a DSK will always
+			//succeed if diskImage can be resolved 
+			//It is simply stat'ed, so even a directory name
+			//can be resolved and will be accepted as dsk name
+			PRT_DEBUG("Trying a DirAsDSK approach...");
 			// try to create fake DSK from a dir on host OS
 			tmp = new FDC_DirAsDSK(context, diskImage);
+			PRT_DEBUG("Succeeded");
+		} catch (MSXException &e) {
+			// then try normal DSK
+			PRT_DEBUG("Trying a DSK diskimage...");
+			tmp = new DSKDiskImage(context, diskImage);
+			PRT_DEBUG("Succeeded");
 		}
 	}
 	delete disk;
