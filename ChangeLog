@@ -1,6 +1,10 @@
 $Id$
 
 2002-06-20 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Enabled console background
+	* Console font and background filename are read from config file
+
+2002-06-20 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Moved thread related code to its own subdirectory
 	* Added unregisterHotKey() and unregisterHotKeyCommand() methods
 	* Enabled "renderer" command

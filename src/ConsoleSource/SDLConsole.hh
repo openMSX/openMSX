@@ -24,7 +24,7 @@ class SDLConsole : public InteractiveConsole, private EventListener
 		void signalEvent(SDL_Event &event);
 
 		void alpha(unsigned char alpha);
-		void background(const char *image, int x, int y);
+		void background(const std::string &image, int x, int y);
 		void position(int x, int y);
 		void resize(SDL_Rect rect);
 		void reloadBackground();

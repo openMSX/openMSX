@@ -7,7 +7,6 @@
  */
 
 #include <cassert>
-//#include "openmsx.hh"
 #include "SDLConsole.hh"
 #include "CommandController.hh"
 #include "HotKey.hh"
@@ -15,6 +14,7 @@
 #include "FileOpener.hh"
 #include "SDLFont.hh"
 #include "EventDistributor.hh"
+#include "MSXConfig.hh"
 
 
 SDLConsole::SDLConsole(SDL_Surface *screen) :
@@ -29,18 +29,26 @@ SDLConsole::SDLConsole(SDL_Surface *screen) :
 	consoleSurface  = NULL;
 	inputBackground = NULL;
 	consoleAlpha = SDL_ALPHA_OPAQUE;
-	// TODO read filename from config
-	font = new SDLFont(FileOpener::findFileName("ConsoleFont.bmp"));
-
+	
+	MSXConfig::Config *config = MSXConfig::Backend::instance()->getConfigById("Console");
+	std::string fontName = config->getParameter("font");
+	font = new SDLFont(FileOpener::findFileName(fontName));
+	
 	SDL_Rect rect;
 	rect.x = 20;
 	rect.y = 288;
 	rect.w = 600;
 	rect.h = 192;
 	resize(rect);
-
 	alpha(180);
 	SDL_EnableUNICODE(1);
+
+	try {
+		std::string backgroundName = config->getParameter("background");
+		background(FileOpener::findFileName(backgroundName), 0, 0);
+	} catch(MSXException &e) {
+		// no background or missing file
+	}
 
 	ConsoleManager::instance()->registerConsole(this);
 	EventDistributor::instance()->registerEventListener(SDL_KEYDOWN, this);
@@ -278,19 +286,15 @@ void SDLConsole::alpha(unsigned char alpha)
 
 // Adds  background image to the console
 //  x and y are based on console x and y
-void SDLConsole::background(const char *image, int x, int y)
+void SDLConsole::background(const std::string &image, int x, int y)
 {
-	SDL_Surface *temp = NULL;
-	if (image) 
-		temp = SDL_LoadBMP(image);
-	if (backgroundImage) {
+	SDL_Surface *temp;
+	if (!(temp = SDL_LoadBMP(image.c_str())))
+		return;
+	if (backgroundImage)
 		SDL_FreeSurface(backgroundImage);
-		backgroundImage = NULL;
-	}
-	if (temp) {
-		backgroundImage = SDL_DisplayFormat(temp);
-		SDL_FreeSurface(temp);
-	}
+	backgroundImage = SDL_DisplayFormat(temp);
+	SDL_FreeSurface(temp);
 	backX = x;
 	backY = y;
 	reloadBackground();

@@ -99,5 +99,11 @@
     <parameter name="samples">512</parameter>
   </config>
 
+  <config id="Console">
+    <type>Console</type>
+    <parameter name="font">ConsoleFont.bmp</parameter>
+    <parameter name="background">ConsoleBackground.bmp</parameter>
+  </config>
+
 </msxconfig>
 
