@@ -92,7 +92,7 @@ CassettePlayer::~CassettePlayer()
 }
 
 void CassettePlayer::insertTape(FileContext &context,
-                                const string &filename)
+                                const string &filename) throw(MSXException)
 {
 	CassetteImage *tmp;
 	try {

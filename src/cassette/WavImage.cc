@@ -9,6 +9,7 @@
 namespace openmsx {
 
 WavImage::WavImage(FileContext &context, const string &fileName)
+	throw(MSXException)
 	: length(0), buffer(0), freq(44100)
 {
 	File file(context.resolve(fileName));

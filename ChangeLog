@@ -6,6 +6,7 @@ $Id$
 	  scalers increases or some scalers use large lookup tables.
 	* fixed bug in wait() method of CPU (order of statements problem):
 	   fixes the reset on turbor crash
+	* "cassetteplayer" doesn't crash anymore on non-existing filenames
 
 2003-12-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Made memory in (sub)slots debuggable

@@ -5,6 +5,7 @@
 
 #include <SDL/SDL.h>
 #include <string>
+#include "MSXException.hh"
 #include "CassetteImage.hh"
 #include "openmsx.hh"
 
@@ -17,16 +18,17 @@ class FileContext;
 
 class WavImage : public CassetteImage
 {
-	public:
-		WavImage(FileContext &context, const string &fileName);
-		virtual ~WavImage();
+public:
+	WavImage(FileContext &context, const string &fileName)
+		throw(MSXException);
+	virtual ~WavImage();
 
-		virtual short getSampleAt(const EmuTime &time);
+	virtual short getSampleAt(const EmuTime &time);
 
-	private:
-		int length;
-		Uint8* buffer;
-		int freq;
+private:
+	int length;
+	Uint8* buffer;
+	int freq;
 };
 
 } // namespace openmsx

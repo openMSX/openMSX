@@ -34,18 +34,15 @@ const byte BASIC[10] = { 0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3 };
 
 
 CasImage::CasImage(FileContext &context, const string &fileName)
+	throw(FileException)
 {
-	try {
-		File file(context.resolve(fileName));
-		size = file.getSize();
-		buf = file.mmap();
-		pos = 0;
-		baudRate = 2400;
-		convert();
-		file.munmap();
-	} catch (FileException &e) {
-		throw FatalError("Error reading CAS image: " + fileName);
-	}
+	File file(context.resolve(fileName));
+	size = file.getSize();
+	buf = file.mmap();
+	pos = 0;
+	baudRate = 2400;
+	convert();
+	file.munmap();
 }
 
 CasImage::~CasImage()

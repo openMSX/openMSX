@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <string>
+#include "FileException.hh"
 #include "CassetteImage.hh"
 #include "openmsx.hh"
 
@@ -18,24 +19,25 @@ class FileContext;
 
 class CasImage : public CassetteImage
 {
-	public:
-		CasImage(FileContext &context, const string &fileName);
-		virtual ~CasImage();
+public:
+	CasImage(FileContext &context, const string &fileName)
+		throw(FileException);
+	virtual ~CasImage();
 
-		virtual short getSampleAt(const EmuTime &time);
+	virtual short getSampleAt(const EmuTime &time);
 
-	private:
-		void writePulse(int f);
-		void writeHeader(int s);
-		void writeSilence(int s);
-		void writeByte(byte b);
-		bool writeData();
-		void convert();
-	
-		unsigned pos, size;
-		byte* buf;
-		int baudRate;
-		vector<char> output;
+private:
+	void writePulse(int f);
+	void writeHeader(int s);
+	void writeSilence(int s);
+	void writeByte(byte b);
+	bool writeData();
+	void convert();
+
+	unsigned pos, size;
+	byte* buf;
+	int baudRate;
+	vector<char> output;
 };
 
 } // namespace openmsx

@@ -8,6 +8,7 @@
 #include "Command.hh"
 #include "CommandLineParser.hh"
 #include "SoundDevice.hh"
+#include "MSXException.hh"
 
 namespace openmsx {
 
@@ -34,7 +35,8 @@ public:
 	CassettePlayer();
 	virtual ~CassettePlayer();
 
-	void insertTape(FileContext &context, const string &filename);
+	void insertTape(FileContext &context, const string &filename)
+		throw(MSXException);
 	void removeTape();
 
 	// CassetteDevice
