@@ -46,7 +46,7 @@ void Keyboard::parseKeymapfile(const byte* buf, unsigned size)
 			}
 		}
 		unsigned vkey, row, bit;
-		int rdnum = sscanf(line.c_str(), "%i=%i,%i", &vkey, &row, &bit);
+		int rdnum = sscanf(line.c_str(), "%u=%u,%u", &vkey, &row, &bit);
 		if ((rdnum == 3) && (vkey < 0x150) && (row < 12) && (bit < 256)) {
 			Keys[vkey][0] = row;
 			Keys[vkey][1] = bit;
