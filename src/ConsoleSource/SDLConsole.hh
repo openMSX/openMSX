@@ -71,7 +71,7 @@ class SDLConsole : public OSDConsoleRenderer
 		void resize(SDL_Rect rect);
 		void reloadBackground();
 		void drawCursor();
-
+		void updateConsole2();
 };
 
 #endif

@@ -72,7 +72,11 @@ void SDLConsole::updateConsole()
 	if (!console->isVisible()) {
 		return;
 	}
-	
+	updateConsole2();
+}
+
+void SDLConsole::updateConsole2()
+{
 	SDL_FillRect(consoleSurface, NULL, 
 	             SDL_MapRGBA(consoleSurface->format, 0, 0, 0, consoleAlpha));
 
@@ -163,7 +167,7 @@ void SDLConsole::alpha(unsigned char newAlpha)
 	} else {
 		SDL_SetAlpha(consoleSurface, SDL_SRCALPHA, consoleAlpha);
 	}
-	updateConsole();
+	updateConsole2();
 }
 
 // Adds background image to the console
