@@ -132,7 +132,6 @@ public:
 
 protected:
 	/** Create a new CPU.
-	  * @param interf Interface between this CPU and the bus.
 	  */
 	CPU();
 
@@ -148,7 +147,7 @@ protected:
 	  * the target time border).
 	  */
 	void extendTarget(const EmuTime& time);
-	
+
 	// state machine variables
 	CPURegs R;
 	int slowInstructions;
