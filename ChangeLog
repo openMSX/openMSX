@@ -5,6 +5,7 @@ $Id$
 	   - FS-4600F internal software seems to work, but I'm not certain
 	     the 1st and 2nd menu option work as they should. Can someone
 	     verify this?
+	* Fixed National FDC
 
 2002-11-10 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* fixed PhilipsFDC: IDEFDISK doesn't coredump anymore

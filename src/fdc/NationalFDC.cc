@@ -45,27 +45,27 @@ byte NationalFDC::readMem(word address, const EmuTime &time)
 		break;
 	case 0x3FBC:
 		// Drive control IRQ and DRQ lines are not connected to Z80 interrupt request
-		// bit 7: !intrq
+		// bit 7: intrq
 		// bit 6: !dtrq
-		value = 0xC0;
-		if (controller->getIRQ(time))  value &= ~0x80;
+		value = 0x40;
+		if (controller->getIRQ(time))  value |= 0x80;
 		if (controller->getDTRQ(time)) value &= ~0x40;
 		break;
 	default:
 		if (address < 0x8000) {
 			// ROM only visible in 0x0000-0x7FFF
-			value = NationalFDC::readMem(address, time);
+			value = MSXFDC::readMem(address, time);
 		}
 		break;
 	}
-	//PRT_DEBUG("NationalFDC::readMem(0x" << std::hex << (int)address << std::dec << ").");
+	//PRT_DEBUG("NationalFDC read 0x" << std::hex << (int)address << " 0x" << (int)value << std::dec);
 	return value;
 }
 
 
 void NationalFDC::writeMem(word address, byte value, const EmuTime &time)
 {
-	//PRT_DEBUG("NationalFDC::writeMem(0x" << std::hex << (int)address << std::dec << ", value "<<(int)value<<").");
+	//PRT_DEBUG("NationalFDC write 0x" << std::hex << (int)address << " 0x" << (int)value << std::dec);
 	switch (address & 0x3FFF) {
 	case 0x3FB8:
 		controller->setCommandReg(value, time);
@@ -80,18 +80,19 @@ void NationalFDC::writeMem(word address, byte value, const EmuTime &time)
 		controller->setDataReg(value, time);
 		break;
 	case 0x3FBC:
-		//bit 1,0 -> drive number  (00 or 10: drive A, 01: drive B, 11: nothing)
-		//bit 2   -> side select
-		//bit 3   -> motor on
+		//bit 0 -> select drive 0
+		//bit 1 -> select drive 1
+		//bit 2 -> side select
+		//bit 3 -> motor on
 		byte drivenr;
 		switch (value & 3) {
-			case 0:
-			case 2:
+			case 1:
 				drivenr = 0;
 				break;
-			case 1:
+			case 2:
 				drivenr = 1;
 				break;
+			case 0:
 			case 3:
 			default:
 				drivenr = 255; //no drive selected
