@@ -62,9 +62,7 @@ protected:
 	void updateVRAMCache(int addr, byte data) {
 		(this->*dirtyChecker)(addr, data);
 	}
-	void drawArea(int fromX, int fromY, int limitX, int limitY) {
-		(this->*phaseHandler)(fromX, fromY, limitX, limitY);
-	}
+	void drawArea(int fromX, int fromY, int limitX, int limitY);
 
 private:
 	/** Render a rectangle on the host screen.
@@ -85,8 +83,7 @@ private:
 	inline void renderPlanarBitmapLines(byte line, int count);
 	inline void renderCharacterLines(byte line, int count);
 
-	/** Get width of the left border in pixels.
-	  * This is equal to the X coordinate of the display area.
+	/** Get width of the left border on the host screen in pixels.
 	  */
 	inline int getLeftBorder();
 

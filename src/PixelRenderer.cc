@@ -12,14 +12,13 @@ TODO:
 - Move full screen handling here? (from Renderer)
 - Is it possible to do some for of dirty checking here?
   And is it a good idea?
+- What happens to nextX and nextY on accuracy changes?
 */
 
 /** Line number where top border starts.
   * This is independent of PAL/NTSC timing or number of lines per screen.
   */
 static const int LINE_TOP_BORDER = 3 + 13;
-
-const int WIDTH = 640; // TODO: Remove.
 
 inline void PixelRenderer::renderUntil(const EmuTime &time)
 {
@@ -28,53 +27,41 @@ inline void PixelRenderer::renderUntil(const EmuTime &time)
 	switch (accuracy) {
 	case ACC_PIXEL: {
 		int limitX = limitTicks % VDP::TICKS_PER_LINE;
-		//limitX = (limitX - 100 - (VDP::TICKS_PER_LINE - 100) / 2 + WIDTH) / 2;
-		// TODO: Apply these transformations in the phaseHandler instead.
-		limitX = (limitX - 100 / 2 - 102) / 2;
-		if (limitX < 0) {
-			limitX = 0;
-		} else if (limitX > WIDTH) {
-			limitX = WIDTH;
-		}
-
 		int limitY = limitTicks / VDP::TICKS_PER_LINE;
-		// TODO: Because of rounding errors, this might not always be true.
-		//assert(limitY <= (vdp->isPalTiming() ? 313 : 262));
-		int totalLines = vdp->isPalTiming() ? 313 : 262;
-		if (limitY > totalLines) {
-			limitX = WIDTH;
-			limitY = totalLines;
-		}
+		// Note: Rounding errors might push limitTicks beyond
+		//       #lines * TICKS_PER_LINE, but never more than a line beyond.
+		// TODO: Get rid of rounding errors altogether.
+		assert(limitY <= (vdp->isPalTiming() ? 313 : 262));
 
-		// Split in rectangles:
-
-		// Finish any partial top line.
-		if (0 < nextX && nextX < WIDTH) {
-			drawArea(nextX, nextY, WIDTH, nextY + 1);
+		// Split in rectangles.
+		if (limitY == nextY) {
+			// All on a single line.
+			drawArea(nextX, nextY, limitX, nextY + 1);
+		} else {
+			// Finish partial top line.
+			drawArea(nextX, nextY, VDP::TICKS_PER_LINE, nextY + 1);
 			nextY++;
-		}
-		// Draw full-width middle part (multiple lines).
-		if (limitY > nextY) {
-			// middle
-			drawArea(0, nextY, WIDTH, limitY);
-		}
-		// Start any partial bottom line.
-		if (0 < limitX && limitX < WIDTH) {
-			drawArea(0, limitY, limitX, limitY + 1);
+			// Draw full-width middle part (multiple lines).
+			if (limitY != nextY) {
+				drawArea(0, nextY, VDP::TICKS_PER_LINE, limitY);
+				nextY = limitY;
+			}
+			// Start partial bottom line.
+			drawArea(0, nextY, limitX, nextY + 1);
 		}
 
 		nextX = limitX;
-		nextY = limitY;
 		break;
 	}
 	case ACC_LINE: {
+		// TODO: Find a better sampling point than start-of-line.
 		int limitY = limitTicks / VDP::TICKS_PER_LINE;
-		// TODO: Because of rounding errors, this might not always be true.
-		//assert(limitY <= (vdp->isPalTiming() ? 313 : 262));
-		int totalLines = vdp->isPalTiming() ? 313 : 262;
-		if (limitY > totalLines) limitY = totalLines;
-		if (nextY < limitY) {
-			drawArea(0, nextY, WIDTH, limitY);
+		// Note: Rounding errors might push limitTicks beyond
+		//       #lines * TICKS_PER_LINE, but never more than a line beyond.
+		// TODO: Get rid of rounding errors altogether.
+		assert(limitY <= (vdp->isPalTiming() ? 313 : 262));
+		if (limitY != nextY) {
+			drawArea(0, nextY, VDP::TICKS_PER_LINE, limitY);
 			nextY = limitY ;
 		}
 		break;

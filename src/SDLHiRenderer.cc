@@ -34,6 +34,16 @@ static const int HEIGHT = 480;
   */
 static const int LINE_TOP_BORDER = 3 + 13;
 
+/** VDP ticks between start of line and start of left border.
+  */
+static const int TICKS_LEFT_BORDER = 100 + 102;
+
+/** The middle of the visible (display + borders) part of a line,
+  * expressed in VDP ticks since the start of the line.
+  */
+static const int TICKS_VISIBLE_MIDDLE =
+	TICKS_LEFT_BORDER + (VDP::TICKS_PER_LINE - TICKS_LEFT_BORDER - 27) / 2;
+
 /** Fill a boolean array with a single value.
   * Optimised for byte-sized booleans,
   * but correct for every size.
@@ -47,13 +57,35 @@ inline static void fillBool(bool *ptr, bool value, int nr)
 #endif
 }
 
-template <class Pixel> inline void SDLHiRenderer<Pixel>::finishFrame()
+/** Translate from absolute VDP coordinates to screen coordinates:
+  * Note: In reality, there are only 569.5 visible pixels on a line.
+  *       Because it looks better, the borders are extended to 640.
+  */
+inline static int translateX(int absoluteX)
+{
+	if (absoluteX == VDP::TICKS_PER_LINE) return WIDTH;
+	int screenX = (absoluteX - TICKS_VISIBLE_MIDDLE) / 2 + WIDTH / 2;
+	return screenX < 0 ? 0 : screenX;
+}
+
+template <class Pixel> void SDLHiRenderer<Pixel>::finishFrame()
 {
 	// Render console if needed
 	console->drawConsole();
 
 	// Update screen.
 	SDL_UpdateRect(screen, 0, 0, 0, 0);
+}
+
+template <class Pixel> void SDLHiRenderer<Pixel>::drawArea(
+	int fromX, int fromY, int limitX, int limitY)
+{
+	(this->*phaseHandler)(
+		translateX(fromX),
+		fromY,
+		translateX(limitX),
+		limitY
+		);
 }
 
 template <class Pixel> inline int SDLHiRenderer<Pixel>::getLeftBorder()

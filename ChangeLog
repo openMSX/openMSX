@@ -1,5 +1,9 @@
 $Id$
 
+2002-10-13 Maarten ter Huurne <mth@stack.nl>
+	* Moved absolute X coordinate to screen X coordinate translation from
+	  PixelRenderer to SDLHiRenderer.
+
 2002-10-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented Sunrise IDE interface:
 	   only interface, no IDE devices yet
