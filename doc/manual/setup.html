@@ -52,7 +52,7 @@
 The latest version of the openMSX manual can be found on the openMSX home page:
 </p>
 <p>
-<a class="external" href="http://openmsx.sf.net/manual/">http://openmsx.sf.net/manual/</a>
+<a class="external" href="http://openmsx.sourceforge.net/manual/">http://openmsx.sourceforge.net/manual/</a>
 </p>
 <p>
 You can also use this URL to get up-to-date versions of the hyperlinks
@@ -64,7 +64,7 @@ if you printed out this manual.
 This guide is about openMSX, the open source MSX emulator that tries to achieve
 near-perfect emulation by using a novel emulation model.
 You can find more information about openMSX on the
-<a class="external" href="http://openmsx.sf.net/">openMSX home page</a>.
+<a class="external" href="http://openmsx.sourceforge.net/">openMSX home page</a>.
 You can also download the emulator itself from there.
 </p>
 
@@ -377,14 +377,14 @@ will tell you what everything means.
 Previous versions of openMSX also had an <code>AutoCommands</code>
 section in the <code>settings.xml</code> file. This has been replaced
 by an <code>init.tcl</code> file, since the commands are now processed
-by the embedded TCL scripting language. This file can be placed in
+by the embedded Tcl scripting language. This file can be placed in
 exactly the same directories as the <code>settings.xml</code> file.
 Anyway, use <code>init.tcl</code> to specify commands that should be
 executed at openMSX start up. By using the <code>set</code> command you can modify the runtime settings
 of openMSX.
 By using the <code>bind</code> command you can create custom key bindings.
-Note that you can put any TCL command there, so,
-you can also use it to specify aliases, for example.
+Note that you can put any Tcl command there,
+so you can also use it to specify aliases, for example.
 </p>
 
 <h2><a id="hardwareedit">5. Writing Machine Descriptions</a></h2>
