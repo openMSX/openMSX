@@ -153,7 +153,7 @@ void VDP::resetInit(const EmuTime &time)
 	paletteLatch = -1;
 	blinkState = false;
 	blinkCount = 0;
-	horizontalAdjust = 0;
+	horizontalAdjust = 7;
 	verticalAdjust = 0;
 
 	// Init status registers.
