@@ -102,6 +102,7 @@ private:
 	class HelpOption : public CLIOption {
 	public:
 		HelpOption(CommandLineParser& parent);
+		virtual ~HelpOption();
 		virtual bool parseOption(const string& option,
 			list<string>& cmdLine);
 		virtual const string& optionHelp() const;
@@ -113,6 +114,7 @@ private:
 	class VersionOption : public CLIOption {
 	public:
 		VersionOption(CommandLineParser& parent);
+		virtual ~VersionOption();
 		virtual bool parseOption(const string& option,
 			list<string>& cmdLine);
 		virtual const string& optionHelp() const;
@@ -124,6 +126,7 @@ private:
 	class ControlOption : public CLIOption {
 	public:
 		ControlOption(CommandLineParser& parent);
+		virtual ~ControlOption();
 		virtual bool parseOption(const string& option,
 			list<string>& cmdLine);
 		virtual const string& optionHelp() const;
@@ -131,10 +134,11 @@ private:
 		CommandLineParser& parent;
 	} controlOption;
 	friend class ConfigOption;
-		
+
 	class MachineOption : public CLIOption {
 	public:
 		MachineOption(CommandLineParser& parent);
+		virtual ~MachineOption();
 		virtual bool parseOption(const string& option,
 			list<string>& cmdLine);
 		virtual const string& optionHelp() const;
@@ -142,10 +146,11 @@ private:
 		CommandLineParser& parent;
 	} machineOption;
 	friend class MachineOption;
-	
+
 	class SettingOption : public CLIOption {
 	public:
 		SettingOption(CommandLineParser& parent);
+		virtual ~SettingOption();
 		virtual bool parseOption(const string& option,
 			list<string>& cmdLine);
 		virtual const string& optionHelp() const;

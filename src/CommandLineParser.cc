@@ -16,6 +16,7 @@
 #include "FileOperations.hh"
 #include "CliCommOutput.hh"
 
+
 namespace openmsx {
 
 const char* const MACHINE_PATH = "share/machines/";
@@ -59,9 +60,9 @@ CommandLineParser::CommandLineParser()
 
 	registerOption("-machine", &machineOption, 3);
 	registerOption("-setting", &settingOption, 2);
-	registerOption("-h",       &helpOption, 1, 1); 
-	registerOption("-v",       &versionOption, 1, 1); 
-	registerOption("-control", &controlOption, 1, 1); 
+	registerOption("-h",       &helpOption, 1, 1);
+	registerOption("-v",       &versionOption, 1, 1);
+	registerOption("-control", &controlOption, 1, 1);
 }
 
 void CommandLineParser::registerOption(const string &str, CLIOption* cliOption, byte prio, byte length)
@@ -254,7 +255,7 @@ void CommandLineParser::parse(int argc, char **argv)
 	}
 	// read existing cartridge slots from config
 	slotManager.readConfig();
-	
+
 	// execute all postponed options
 	for (vector<CLIPostConfig*>::iterator it = postConfigs.begin();
 	     it != postConfigs.end(); it++) {
@@ -268,10 +269,15 @@ CommandLineParser::ParseStatus CommandLineParser::getParseStatus() const
 	return parseStatus;
 }
 
+
 // Control option
 
 CommandLineParser::ControlOption::ControlOption(CommandLineParser& parent_)
 	: parent(parent_)
+{
+}
+
+CommandLineParser::ControlOption::~ControlOption()
 {
 }
 
@@ -359,6 +365,10 @@ CommandLineParser::HelpOption::HelpOption(CommandLineParser& parent_)
 {
 }
 
+CommandLineParser::HelpOption::~HelpOption()
+{
+}
+
 bool CommandLineParser::HelpOption::parseOption(const string &option,
 		list<string> &cmdLine)
 {
@@ -373,7 +383,7 @@ bool CommandLineParser::HelpOption::parseOption(const string &option,
 	cout << "  an argument is either an option or a filename" << endl;
 	cout << endl;
 	cout << "  this is the list of supported options:" << endl;
-	
+
 	map<string, set<string> > optionMap;
 	for (map<string, OptionData>::const_iterator it = parent.optionMap.begin();
 	     it != parent.optionMap.end(); ++it) {
@@ -409,6 +419,10 @@ CommandLineParser::VersionOption::VersionOption(CommandLineParser& parent_)
 {
 }
 
+CommandLineParser::VersionOption::~VersionOption()
+{
+}
+
 bool CommandLineParser::VersionOption::parseOption(const string &option,
 		list<string> &cmdLine)
 {
@@ -426,8 +440,13 @@ const string& CommandLineParser::VersionOption::optionHelp() const
 
 
 // Machine option
+
 CommandLineParser::MachineOption::MachineOption(CommandLineParser& parent_)
 	: parent(parent_)
+{
+}
+
+CommandLineParser::MachineOption::~MachineOption()
 {
 }
 
@@ -463,8 +482,13 @@ const string& CommandLineParser::MachineOption::optionHelp() const
 
 
 // Setting Option
-	CommandLineParser::SettingOption::SettingOption(CommandLineParser& parent_)
+
+CommandLineParser::SettingOption::SettingOption(CommandLineParser& parent_)
 	: parent(parent_)
+{
+}
+
+CommandLineParser::SettingOption::~SettingOption()
 {
 }
 
