@@ -7,9 +7,10 @@
  - LED status visualization
 
 * devices: [MSXDevice]
- - V9958 (multi page scrolling in combination with deinterlace, scrolling in
-   character modes)
- - V9948 (if necessary)
+ - V9958 (scrolling in character modes)
+ - V9948 (if necessary, on our Daewoo CPC-400S model, at least screen 9 seems
+   to work with V9938 already; however, we don't have a real Korean machine to
+   really check this)
 
 * config:
  - new settings XML and support saving of settings
@@ -36,3 +37,4 @@
  - session management? (save state of frontswitches and inserted disk or
    cassette images at exit for a specific machine; also speed setting and
    things plugged into connector)
+ - fix hardcoded path in FileOperations.hh to enable proper packaging
