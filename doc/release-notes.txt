@@ -1,53 +1,55 @@
-Release Notes for openMSX 0.5.1 (2005-03-xx)
+Release Notes for openMSX 0.5.1 (2005-03-05)
 ============================================
 
-This release includes a complete redesign of the ROM database XML file. The
-file will be extended to a generic software database dump, with a central MySQL
-database as source. This database will be shared between the blueMSX and
-openMSX project. Other emulator authors are welcome to participate as well, of
-course.
+This release includes a redesign of the ROM database XML file. This new format
+is supported by both blueMSX and openMSX; other emulators are welcome to adopt
+it as well. The old "romdb.xml" file is still supported, but will disappear in
+the future. The new "softwaredb.xml" file is generated from a central SQL
+database, using information from the old blueMSX and openMSX ROM databases. The
+new database design is prepared to support disks in addition to ROMs.
 
-Another new thing is that this release is the first which supports Sunrise
-GFX9000 to a usable extent. We have been working on this for quite some time
-already, but in this release you can see the first usable results. Do note that
-the emulation is still far from complete, fast or bug free. But we thought you
-might appreciate it already in its current shape.
+Another major new feature is emulation of the Sunrise GFX9000. We have been
+working on this for quite some time already, but in this release you can see the
+first usable results. Do note that the emulation is still far from complete,
+fast or bug free. But we thought you might appreciate it already in its current
+shape. To use it, start openMSX with the "gfx9000" extension selected. You can
+switch between the MSX VDP and the GFX9000 picture with the "videosource"
+setting. Note that right now, only the SDLHi and SDLLo renderers are able to
+render the GFX9000 picture.
 
-Other big noticable changes are firstly the addition of the OSD LEDs. This way
-you can see what's going on with the LEDs in full screen and without Catapult
-as well. Secondly, the sound quality has improved a lot for certain devices,
-including PCM, because of a new mixer implementation. Lastly, there is now
-support for IPS patches: patch disk and ROM images without modifying the image
-file!
+Also new are the OSD (on-screen display) LEDs. Catapult users have had LEDs for
+some time, but now if you use openMSX from the console or full screen you can
+also see the status of the LEDs. OSD LEDs are configurable via TCL scripts.
 
 New or improved emulator features:
-- Debugging: enabled 'cputrace' setting for normal builds as well.
+- A new mixer implementation improves the sound quality of PCM and PSG samples
+  a lot.
+- The "samples" and "frequency" settings can now be changed at run time.
 - Various speed ups, especially for low end machines due to better frame skip.
-- 'samples' and 'frequency' setting can now be switched at run time.
-- OSD LEDs are configurable via TCL scripts.
+- You can now use IPS patches to modify disk and ROM images as openMSX loads
+  them into memory, without changing the images files.
 - Extensions inside ZIP files are now used to guess the right file type.
-- New 'escape_grab' command: escapes from 'grabinput' once.
-- You can now use IPS patches to modify disk and ROM images without changing the
-  images.
-- New ROM database, shared with blueMSX.
+- Many improvements for Mac OS X, including bug fixes and more Mac-like key
+  bindings. When upgrading from openMSX 0.5.0, you can remove your
+  ~/.openMSX/share/settings.xml to get new the key bindings.
+- New "escape_grab" command: escapes from "grabinput" once.
+- Debugging: enabled "cputrace" setting for normal builds as well.
 
 MSX device support:
-- Added usable GFX9000 support; use the 'videosource' setting to switch.
-- Drastical improvement of sound quality due to new mixer implementation.
-- Fixes in Tetris II Special Edition dongle.
+- Fixed turboR DRAM support. Programs that use this, like TRCAS, work now.
+- Fixed booting of SVI-738 CP/M disks.
 - Timing improvements of the WD2793 FDC. Fixes a few games that rely on it.
 - The 13 bit MSX-AUDIO DAC actually works now (used in modplayer).
-- Fixed booting of SVI-738 CP/M disks.
-- Fixed turboR DRAM support. Programs that use this, like TRCAS, work now.
 - Added MegaRAM Disk, thanks to Adriano da Cunha.
 - Improved Sony HBI-55, thanks to Daniel Vik.
-- Added MSX-AUDIO 2 extension. This is an Y8910 on alternative I/O ports.
+- Fixes in Tetris II Special Edition dongle.
 - Added separate machine configuration for Philips VG 8020/20.
+- Added MSX-AUDIO 2 extension. This is an Y8910 on alternative I/O ports.
+- Added FM Stereo PAK extension.
 
 Build system, packaging, documentation:
-- We now provide Debian packages, shortly after release, as well.
-- Build support for OpenBSD and NetBSD.
-- Many fixes for Mac OS X.
+- We now provide Debian packages, shortly after the source release.
+- Added build support for OpenBSD and NetBSD.
 - Updated C-BIOS to 0.20.
 
 And of course the usual various bug fixes.
@@ -63,8 +65,8 @@ Known issues / caveats:
   without backwards compatibility. This happened between 0.4.0 and 0.5.0, for
   example. Keep this in mind if you create machine descriptions, ROM database
   entries etc.
-- openMSX is confirmed to run on Linux, Win32, Mac OS X, OpenBSD, NetBSD and 
-  FreeBSD 4 and 5, on x86, x86-64 and PPC.
+- openMSX is confirmed to run on the following operating systems: Linux, Win32,
+  Mac OS X, FreeBSD, OpenBSD and NetBSD; on x86, x86-64 and PPC CPUs.
   Running on other operating systems (wherever SDL runs) or CPUs should be
   possible, but will require some modifications to the build system. If you are
   compiling on a new platform, please share your experiences (see below for
@@ -85,7 +87,7 @@ Project page on SourceForge:
 Contact options:
 - Send a message to the openmsx-user mailing list.
   Go to the SourceForge project page and look under "Lists".
-- Use the Forums on the project page.
+- Use the new forum on www.openmsx.org.
 - Talk to us on #openmsx on irc.freenode.net.
 
 Have fun with your emulated MSX!
