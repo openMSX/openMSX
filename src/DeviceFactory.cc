@@ -102,7 +102,7 @@ MSXDevice *DeviceFactory::create(Config* conf, const EmuTime& time)
 	if (type == "MSX-AUDIO") {
 		return new MSXAudio(conf, time);
 	}
-	if (type == "MSX-AUDIO MIDI") {
+	if (type == "Music Module MIDI") {
 		return new MC6850(conf, time);
 	}
 	if (type == "MoonSound") {

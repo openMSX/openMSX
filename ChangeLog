@@ -1,5 +1,8 @@
 $Id$
 
+2004-06-07 Manuel Bilderbeek <manuel@msxnet.org>
+	* Rerenamed "MSX-AUDIO MIDI" to "Music Module MIDI"
+
 2004-06-06 Manuel Bilderbeek <manuel@msxnet.org>
 	* Moved mode setting of the RTC to settings.xml
 	  (converter still needs to be updated)

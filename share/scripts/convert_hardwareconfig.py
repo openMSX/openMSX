@@ -41,7 +41,7 @@ ioAddresses = {
 	'MSX-MUSIC': [ (0x7C, 2, 'O') ],
 	'FMPAC': [ (0x7C, 2, 'O') ],
 	'MSX-AUDIO': [ (0xC0, 2, 'IO') ],
-	'MSX-AUDIO MIDI': [ (0x00, 2, 'O'), (0x04, 2, 'I') ],
+	'Music Module MIDI': [ (0x00, 2, 'O'), (0x04, 2, 'I') ],
 	'MoonSound': [ (0x7E, 2, 'IO'), (0xC4, 4, 'IO') ],
 	'MSX-MIDI': [ (0xE8, 8, 'IO') ],
 	'TurboRPCM': [ (0xA4, 2, 'IO') ],
@@ -159,7 +159,8 @@ def convertDevice(node):
 		'PanasonicRam': 'PanasonicRAM',
 		'Music': 'MSX-MUSIC',
 		'Audio': 'MSX-AUDIO',
-		'Audio-Midi': 'MSX-AUDIO MIDI',
+		'Audio-Midi': 'Music Module MIDI',
+		'MSX-AUDIO MIDI': 'Music Module MIDI',
 		'SCCPlusCart': 'SCC+',
 		'MSX-Midi': 'MSX-MIDI',
 		}.get(deviceType, deviceType)
