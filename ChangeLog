@@ -1,11 +1,20 @@
 $Id$
 
+2004-04-12 Maarten ter Huurne <maarten@treewalker.org>
+	* Changed BIGENDIAN implementation: determined by looking at CPU,
+	  instead of running a test program. (preparation for cross compiles)
+	* New version format:
+	  "openMSX x.y.z" for releases
+	  "openMSX x.y.z-devN" for development builds, N = ChangeLog revision
+	* Pass information from build system to sources using C++ types such
+	  as bool and std::string, instead of macros.
+	You should re-run "autogen.sh" after updating.
+
 2004-04-10 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Don't allow one Pluggable to be plugged in two Connectors at once
 	* Also send update event when media is ejected (diska eject)
 	* Experimental:
 	    delay input events (currently by a fixed time) to avoid key misses
-	    
 
 2004-04-09 Maarten ter Huurne <maarten@treewalker.org>
 	* Added support for compilation on FreeBSD 5.
