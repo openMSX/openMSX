@@ -405,6 +405,7 @@ void CommandController::completeFileName(vector<string> &tokens)
 {
 	string& filename = tokens[tokens.size() - 1];
 	filename = FileOperations::expandTilde(filename);
+	filename = FileOperations::expandCurrentDirFromDrive(filename);
 	string basename = FileOperations::getBaseName(filename);
 	vector<string> paths;
 	if (FileOperations::isAbsolutePath(filename)) {

@@ -6,6 +6,7 @@
 #include <windows.h>
 #include <shlobj.h>
 #include <io.h>
+#include <direct.h>
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
@@ -310,6 +311,28 @@ string FileOperations::getSystemDataDir()
 #endif
 	setenv(NAME, newValue.c_str(), 0);
 	return newValue;
+}
+
+string FileOperations::expandCurrentDirFromDrive (const string& path)
+{			
+	string result = path;
+#ifdef __WIN32__
+	if (((path.size() == 2) && (path[1]==':')) ||
+		((path.size() >=3) && (path[1]==':') && (path[2] != '/'))){
+		// get current directory for this drive
+		unsigned char drive = tolower(path[0]);
+		if (('a' <= drive) && (drive <='z')){
+			char buffer [MAX_PATH + 1];
+			if (_getdcwd(drive - 'a' +1, buffer, MAX_PATH) != NULL){
+				result = buffer;
+				result = getConventionalPath(result);
+				result.append("/");
+				result.append(path.substr(2));
+			}
+		}
+	}
+#endif
+	return result;
 }
 
 } // namespace openmsx

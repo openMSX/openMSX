@@ -47,14 +47,14 @@ const string FileContext::resolve(const vector<string>& pathList,
                                   const string& filename)
 {
 	// TODO handle url-protocols better
-
 	PRT_DEBUG("Context: " << filename);
-	if ((filename.find("://") != string::npos) ||
-	    FileOperations::isAbsolutePath(filename)) {
+	string filepath = FileOperations::expandCurrentDirFromDrive(filename);
+	if ((filepath.find("://") != string::npos) ||
+	    FileOperations::isAbsolutePath(filepath)) {
 		// protocol specified or absolute path, don't resolve
-		return filename;
+		return filepath;
 	}
-
+	
 	for (vector<string>::const_iterator it = pathList.begin();
 	     it != pathList.end();
 	     ++it) {

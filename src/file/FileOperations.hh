@@ -96,6 +96,13 @@ public:
 	 * Win32: use "same directory as .exe" + "/share".
 	 */
 	static string getSystemDataDir();
+	
+	/**
+	* Get the current directory of the specified drive
+	* Linux: just return an empty string
+	*/
+	static string expandCurrentDirFromDrive (const string& path);
+		
 };
 
 } // namespace openmsx

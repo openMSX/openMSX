@@ -1,5 +1,9 @@
 $Id$
 
+2004-05-01 Herman Oudejans <hn.oudejans@quicknet.nl>
+	* fixed [926293] Win32: specifying driveletter without path 
+	   doesn't work.
+
 2004-04-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Use 64-bit type to store realtime:
 	   32-bit microsecond counter overflows after about 70 minutes.
