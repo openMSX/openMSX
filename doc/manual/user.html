@@ -69,7 +69,9 @@
 
 	</li>
 
-	<li><a class="internal" href="#contact">6. Contact Info</a></li>
+	<li><a class="internal" href="#midi">6. MIDI</a></li>
+
+	<li><a class="internal" href="#contact">7. Contact Info</a></li>
 </ol>
 
 
@@ -143,7 +145,7 @@ only the big picture.
 
 <dl>
 
-<dt>2003-08-02: Maarten ter Huurne and Manuel Bilderbeek</dt>
+<dt>2003-09-25: Maarten ter Huurne and Manuel Bilderbeek</dt>
 <dd>
 Split the User's Manual off from the openMSX HOWTO.
 Converted to XHTML.
@@ -180,7 +182,7 @@ To use a specific MSX machine that is present on your system (i.e. your openMSX 
 
 <h3><a id="extensions">2.2. Extensions</a></h3>
 
-<p> 
+<p>
 Extensions are simply MSX cartridges (extensions to the MSX system) that you can plug into the emulated MSX. In the next paragraph we explain this using an example.
 </p>
 
@@ -211,26 +213,32 @@ Often used other command line options will be discussed later in this manual. Fo
 <h3><a id="console">3.1. Console Introduction</a></h3>
 
 <p>
-When the emulator is running, you can get the "Console" by pressing F10 (with default key mapping) when
-the focus is on the emulator window. This will give you a command line in the
-openMSX window. Typing <code>help</code> gives a list of commands. If you type <code>help [command]</code> you will get help for the specified command. The commands are described in
-the file <code>doc/commands.txt</code> in the source tree. The console is mostly used to
-change disk images, plug in joysticks or mice, make settings and to change key bindings. 
+openMSX has a built-in command interface called the <em>console</em>,
+which allows you to control various aspects of openMSX while it is running.
+You can access the console by pressing F10
+(with default key mapping) when the focus is on the emulator window.
+This will give you a command line in the openMSX window.
 </p>
 
 <p>
-Again, the full list of Console commands can be found in <code>doc/commands.txt</code> and
-when typing <code>help</code> in the Console itself. You can also type <code>help &lt;command&gt;</code> to
-get some help about a specific Console command.
+Typing <code>help</code> gives a list of commands.
+If you type <code>help [command]</code> you will get help
+for the specified command.
+This manual describes a few important commands;
+a full list can be found in the file <code>doc/commands.txt</code>.
+The console is mostly used to change disk images, plug in joysticks or mice,
+change settings and to change key bindings.
 </p>
 
 <p>
 One very practical feature of the console command line is that you can use "completion" features. Just try typing half a command and then press the TAB key; openMSX will then try to finish the word you were typing or show the possibilities in case of ambiguities. You can use it also for file names, connectors, pluggables and settings.
 </p>
 
+<!--
 <p class="todo">
 Add the complete list of commands from commands.txt somewhere.
 </p>
+-->
 
 <h3><a id="importantconsole">3.2. Some Simple Console Commands</a></h3>
 
@@ -242,15 +250,17 @@ You can reset your MSX with the Console command <code>reset</code> and quit open
 
 <p>
 An interesting console command is <code>set</code>. You can use it to change the various
-settings. E.g., you can use it to set the renderer that is to be used. If you use it without parameters, you will get a list of settings. If you issue set with only the setting (like <code>set renderer</code>, you will get the current value of that setting. 
+settings. E.g., you can use it to set the renderer that is to be used. If you use it without parameters, you will get a list of settings. If you issue set with only the setting (like <code>set renderer</code>, you will get the current value of that setting.
 Settings that have only two possible values can also be toggled with the <code>toggle</code>
 command (an example is the default key binding of Print Screen to <code>toggle
 fullscreen</code>, see also below). A complete list of settings should also be in the file
 <code>commands.txt</code> in the doc directory. Note that using the "tab completion" feature can help you a lot in getting an idea of what settings are possible, as it will only complete possible options. Just try that.
 </p>
+<!--
 <p class="todo">
 Add the complete list of settings in commands.txt somewhere.<br/>
 </p>
+-->
 
 
 <h4><a id="importantsettings">3.3.1. Some Simple But Important Settings</a></h4>
@@ -295,17 +305,34 @@ steady CPU time consumption. The CPU load can be quite high though. It is about
 </p>
 
 <p>
-A very good alternative for the Hi renderer is called SDLGL. This renderer uses
-openGL instructions to optimise the rendering. Because part of the rendering is
-done by the graphics hardware, the CPU load can vary a lot. Also, you need to
-have the GLX module loaded in your X server and also accelerated graphics (DRI).
-You can verify this by typing <code>glxinfo</code> on the command line. Direct rendering
-should be enabled to benefit from this renderer. GL also makes some effects
-easier: when using the SDLGL renderer, there is a <code>blur</code>, <code>glow</code> (afterglow!) and
-<code>scanline</code> setting, to imitate a TV screen. This does not work
-properly with all graphics cards, though. It should work with nVidia cards, at
-least. Note that the GL renderer is only available when the openGL development
-files (<code>gl.h</code> is one of them) were installed on the computer at compile time.
+A very good alternative for the SDLHi renderer is called SDLGL.
+This renderer uses the OpenGL graphics library to optimize the rendering.
+Because part of the rendering is done by the graphics hardware,
+the CPU load can vary a lot.
+The SDLGL renderer is only useful if you have a hardware accelerated
+OpenGL library; a software GL implementation will be very slow.
+</p>
+
+<p>
+When using the SDLGL renderer, openMSX can do some special effects on the
+emulated MSX screen, such as <code>blur</code>, <code>glow</code> (afterglow!)
+and <code>scanline</code>, to imitate a TV screen.
+Each of these effects has an associated setting, where you can control its
+level: how much blur should be applied to the picture, how dark should the
+scanlines be etc.
+</p>
+
+<p>
+On Linux, you need to have the GLX module loaded in your X server and
+also accelerated graphics (DRI).
+You can verify this by typing <code>glxinfo</code> on the command line.
+SDLGL runs fine on nVidia GeForce cards using nVidia's binary graphics driver
+for Linux.
+If you install the right drivers for hardware acceleration, ATI Radeon cards
+work fine as well.
+If you compiled openMSX from source, the GL renderer is only available
+when the OpenGL development files (<code>gl.h</code> is one of them)
+were installed on the computer at compile time.
 This will be checked by the <code>configure</code> script.
 </p>
 
@@ -320,7 +347,7 @@ extremely slow computer.
 <p>
 You can set the renderer in the <code>settings.xml</code> file. Look for <code>&lt;config
 id="renderer"&gt;</code>.  You can also specify there whether the emulator should switch
-to full screen when started. You can also switch renderer from the <a class="internal" href="#console">console</a>.
+to full screen when started. You can also switch renderer from the console.
 </p>
 
 <h4><a id="accuracy">3.3.3. Renderer Accuracy</a></h4>
@@ -328,7 +355,7 @@ to full screen when started. You can also switch renderer from the <a class="int
 <p>
 Another example of the settings that you can specify in the Console is the
 accuracy of the rendering. There are three options: <code>screen</code>, <code>line</code> and
-<code>pixel</code>'. The latter is the slowest, but most accurate setting (it also shows
+<code>pixel</code>. The latter is the slowest, but most accurate setting (it also shows
 that the timing in openMSX is not perfect yet): it will enable you to run the
 Unknown Reality real time oscilloscope almost flawlessly!  Just type <code>set
 accuracy pixel</code> in the console. You can use the default <code>line</code> accuracy for
@@ -353,9 +380,11 @@ The console command <code>plug</code> can be used to plug the so called pluggabl
 Note that using the "tab completion" feature can help you a lot in getting an idea of what plug commands are possible, as it will only complete possible connectors and their possible pluggables. Also just try this.
 </p>
 
+<!--
 <p class="todo">
 Add the complete list of pluggables here.
 </p>
+-->
 
 <h2><a id="media">4. Running Media</a></h2>
 
@@ -412,7 +441,7 @@ You can also change disks at run time of course. Just type
     diska &lt;diskimage&gt;
 </div>
 <p>
-in the <a class="internal" href="#console">Console</a> to put the specified disk image in drive A. To eject the disk from drive A, use:
+in the console to put the specified disk image in drive A. To eject the disk from drive A, use:
 </p>
 <div class="commandline">
     diska eject
@@ -463,7 +492,7 @@ And then in MSX Basic, type:
 </p>
 
 <p>
-You can also use the so-called CAS files. In the <a class="internal" href="#console">Console</a>, type:
+You can also use the so-called CAS files. In the console, type:
 </p>
 <div class="commandline">
      cas &lt;tapeimage&gt;.cas
@@ -505,16 +534,16 @@ The default key mapping is as follows:
 <table>
   <tr> <td>F12</td> <td>Quit openMSX</td> </tr>
   <tr> <td>F11</td> <td>Mute audio</td> </tr>
-  <tr> <td>F10</td> <td><a class="internal" href="#console">Console</a></td> </tr>
+  <tr> <td>F10</td> <td>Toggle console display</td> </tr>
   <tr> <td>F9</td> <td>Full Throttle (maximum speed)</td> </tr>
   <tr> <td>F8</td> <td>MSX STOP key</td> </tr>
   <tr> <td>F7</td> <td>MSX SELECT key</td> </tr>
   <tr> <td>L-ALT</td> <td>MSX GRAPH key</td> </tr>
   <tr> <td>R-CTRL</td> <td>MSX CODE key</td> </tr>
-  <tr> <td>L-Windows</td> <td>MSX iee (`no') key</td> </tr>
-  <tr> <td>R-Windows</td> <td>MSX hai (`yes') key</td> </tr>
+  <tr> <td>L-Windows</td> <td>MSX iee ('no') key</td> </tr>
+  <tr> <td>R-Windows</td> <td>MSX hai ('yes') key</td> </tr>
   <tr> <td>Pause</td> <td>Pause emulation</td> </tr>
-  <tr> <td>PrtScr</td> <td>Toggle Full Screen</td> </tr>
+  <tr> <td>PrtScr</td> <td>Toggle full screen mode</td> </tr>
 </table>
 <!--
 <p class="todo">
@@ -548,12 +577,31 @@ To connect a mouse, you can also use the <code>plug</code> command:
 will connect a mouse to joystick port A. If you want the joystick emulation feature that some mice (like the Philips SBC-3810 and the Sony MOS-1) have, keep the left mouse key pressed when plugging it in, just as on a real MSX.
 </p>
 
-<p class="todo">
-Also add output devices and tell them about how to use MIDI.
+<h2><a id="midi">6. MIDI</a></h2>
+
+<p>
+openMSX supports the MSX-MIDI interface of the MSX turbo R GT.
+To use this feature, start openMSX with the machine
+<code>Panasonic_FS-A1GT</code> and plug in a MIDI device on the console.
+For example:
+</p>
+<div class="commandline">
+    plug msx-midi-out midi-out-logger
+</div>
+<p>
+This logs all MIDI commands to a file.
+Because there is no timing information logged, this is not very useful yet.
 </p>
 
+<p>
+It's more interesting to connect MSX-MIDI to an actual PC MIDI device,
+such as a MIDI out port or the internal synthesizer of your sound card.
+On Linux, you can use the <code>midi-out-logger</code> and set a MIDI
+device node, for example <code>/dev/midi</code>, as its output file.
+On Windows, real MIDI devices are separate pluggables.
+</p>
 
-<h2><a id="contact">6. Contact Info</a></h2>
+<h2><a id="contact">7. Contact Info</a></h2>
 
 <p>
 Since openMSX is still in heavy development, feedback and bug reports are very
