@@ -5,15 +5,13 @@
 
 namespace openmsx {
 
-// forward declaration
 class MSXDevice;
 class EmuTime;
 
 
-class DeviceFactory
-{
-	public:
-		static MSXDevice *create(Device *conf, const EmuTime &time);
+class DeviceFactory {
+public:
+	static MSXDevice *create(Device *conf, const EmuTime &time);
 };
 
 } // namespace openmsx
