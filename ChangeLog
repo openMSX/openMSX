@@ -1,5 +1,23 @@
 $Id$
 
+2004-08-24 Maarten ter Huurne <maarten@treewalker.org>
+	* Moved screenshot code from VDP to Display.
+	* Added extended-MMX versions of non-scanline scaling in 256-wide modes
+	  and both scanline and non-scanline scaling in 512-wide modes.
+	  Still only 32bpp.
+	* Sound device cleanups:
+	  - Removed "user mute" which was unused.
+	  - Renamed "internal mute" to just "mute".
+	  - Mixer checks isMuted() instead of updateBuffer returning NULL.
+	  - Make sure reset() is called before registerSound().
+	    Right now this doesn't really matter, but it is needed once we allow
+	    runtime insertion of extensions.
+	* Refactored PSG:
+	  - Code in C++ style and easier to read.
+	  - Slight improvements in accuracy, probably inaudible though.
+	  - Some optimisations, but not enough profiling done yet to see whether
+	    they really matter.
+
 2004-08-22 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* 'set consolebackground ""' now removes the background image
 	* Don't use MSX pause LED for openMSX pause status, instead send a
@@ -66,7 +84,7 @@ $Id$
 	  the border colour is not influenced by the state change.
 	  This allows the scaler to draw border lines more efficiently.
 	* New feature in build system: version executables.
-	  See VERSION_EXEC in build/custon.mk (off by default).
+	  See VERSION_EXEC in build/custom.mk (off by default).
 
 2004-08-03 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed ROMBAS mapper for 8K ROMs.
