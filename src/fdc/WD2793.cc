@@ -237,20 +237,14 @@ void WD2793::setCommandReg(byte value,const EmuTime &time)
 	case 0x80: //read sector
 	case 0x90: //read sector (multi)
 		PRT_DEBUG("FDC command: read sector");
-		assert(!mflag);
+		//assert(!mflag);
+		// no assert here !!!!
+		// The mflag influences the way the command ends and is handled in the 
+		// getDataReg method (were the assert should be if needed)
 		INTRQ = false;
 		DRQ = false;
 		statusReg &= 0x01;	// reset lost data,record not found & status bits 5 & 6
-		dataCurrent = 0;
-		dataAvailable = 512;	// TODO should come from sector header
-		try {
-			getBackEnd(current_drive)->
-				read(current_track, trackReg, sectorReg,
-				     current_side, 512, dataBuffer);
-			DRQ = true;	// data ready to be read
-		} catch (MSXException &e) {
-			DRQ = true;	// TODO data not ready (read error)
-		}
+		tryToReadSector();
 		commandEnd += 1000000;	// TODO hack
 		break;
 
@@ -303,8 +297,23 @@ void WD2793::setCommandReg(byte value,const EmuTime &time)
 		// an imediate indexmark. Also the DTR line is "faked" now
 		motorStartTime[current_drive] = time;
 		DRQTime[current_drive] = time;
-		//dataAvailable = 1;	// to get correct getDTRQ return value
 		break;
+	}
+}
+
+void WD2793::tryToReadSector(void)
+{
+	dataCurrent = 0;
+	dataAvailable = 512;	// TODO should come from sector header
+	try {
+		getBackEnd(current_drive)->
+			read(current_track, trackReg, sectorReg,
+			     current_side, 512, dataBuffer);
+		// TODO  backend should make sure that combination of trackReg, sectorReg etc
+		// is valid in case of multitrack read !!! and throw error !!! 
+		DRQ = true;	// data ready to be read
+	} catch (MSXException &e) {
+		DRQ = false;	// TODO data not ready (read error)
 	}
 }
 
@@ -469,11 +478,17 @@ byte WD2793::getDataReg(const EmuTime &time)
 		dataCurrent++;
 		dataAvailable--;
 		if (dataAvailable == 0) {
-			statusReg &= ~0x83;	// reset status on Busy and DRQ and Busy
-			DRQ = false;
-			if (!mflag) INTRQ = true;
-			PRT_DEBUG("FDC: Now we terminate the read sector command or skip to next sector if multi set");
-			// TODO implement multi sector read
+			if (!mflag){
+				statusReg &= ~0x83;	// reset status on Busy and DRQ and Busy
+				DRQ = false;
+				INTRQ = true;
+				PRT_DEBUG("FDC: Now we terminate the read sector command or skip to next sector if multi set");
+			} else {
+			// TODO ceck in tech data (or on real machine) if implementation multi sector read is
+			// correct, since this is programmed by hart.
+				sectorReg++;
+				tryToReadSector();
+			}
 		}
 	}
 	return dataReg;

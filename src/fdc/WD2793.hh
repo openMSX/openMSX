@@ -89,6 +89,8 @@ class WD2793 : public FDC
 		byte dataBuffer[1024];	// max sector size possible
 		int dataCurrent;	// which byte in dataBuffer is next to be read/write
 		int dataAvailable;	// how many bytes left in sector
+
+		void tryToReadSector(void);
 };
 
 #endif

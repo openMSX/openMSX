@@ -1,5 +1,11 @@
 $Id$
 
+2002-11-18 David Heremans <david.heremans@gnu-linux.net>
+	* a small WD2793 update:
+	   quick implementation of multi sector read
+	   not tested and DSK backend needs to be changed
+	   for correct behaviour!
+	
 2002-11-18 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Mapped TurboR keys to left and right windows key:
 	   I haven't checked this, so possible I swapped left and right
