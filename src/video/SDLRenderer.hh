@@ -52,7 +52,7 @@ public:
 	//void updateWindow(bool enabled, const EmuTime &time);
 
 protected:
-	void finishFrame(bool store);
+	void finishFrame();
 	void putStoredImage();
 	int putPowerOffImage();
 	void updateVRAMCache(int address);

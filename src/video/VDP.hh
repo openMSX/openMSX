@@ -464,11 +464,6 @@ private:
 		/** Vertical sync: the transition from one frame to the next.
 		  */
 		VSYNC,
-		/** Start of a new frame.
-		  * Usually this is done in the VSYNC handler, except when emulation
-		  * is paused, in which case frame start is delayed until unpause.
-		  */
-		FRAME_START,
 		/** Start of display.
 		  */
 		DISPLAY_START,

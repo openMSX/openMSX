@@ -154,13 +154,15 @@ void PixelRenderer::frameStart(const EmuTime &time)
 	}
 }
 
-void PixelRenderer::putImage(const EmuTime &time, bool store)
+void PixelRenderer::putImage(const EmuTime &time)
 {
 	// Render changes from this last frame.
 	sync(time, true);
 
 	// Let underlying graphics system finish rendering this frame.
-	if (curFrameSkip == 0) finishFrame(store);
+	if (curFrameSkip == 0) {
+		finishFrame();
+	}
 
 	// The screen will be locked for a while, so now is a good time
 	// to perform real time sync.

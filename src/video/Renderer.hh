@@ -78,7 +78,7 @@ public:
 	  * @param store Store the image for plotting it again later,
 	  * 	using the putStoredImage method.
 	  */
-	virtual void putImage(const EmuTime &time, bool store) = 0;
+	virtual void putImage(const EmuTime &time) = 0;
 
 	/** Puts the stored image on the screen.
 	  * Images can be stored by requesting the putImage method to do so.

@@ -200,7 +200,6 @@ void VDP::resetMasks(const EmuTime &time)
 void VDP::reset(const EmuTime &time)
 {
 	Scheduler::instance().removeSyncPoint(this, VSYNC);
-	Scheduler::instance().removeSyncPoint(this, FRAME_START);
 	Scheduler::instance().removeSyncPoint(this, DISPLAY_START);
 	Scheduler::instance().removeSyncPoint(this, VSCAN);
 	Scheduler::instance().removeSyncPoint(this, HSCAN);
@@ -251,24 +250,11 @@ void VDP::executeUntil(const EmuTime &time, int userData) throw()
 
 	// Handle the various sync types.
 	switch (userData) {
-	case VSYNC: {
-		bool paused = Scheduler::instance().getPauseSetting().getValue();
+	case VSYNC:
 		// This frame is finished.
-		renderer->putImage(time, paused);
-		if (paused) {
-			// Now that frame is finished, it is OK to pause.
-			Scheduler::instance().pause();
-			// Start a new frame on unpause.
-			Scheduler::instance().setSyncPoint(time, this, FRAME_START);
-			break;
-		}
-		// Fall through into FRAME_START...
-	}
-	case FRAME_START: {
-		// Begin next frame.
+		renderer->putImage(time);
 		frameStart(time);
 		break;
-	}
 	case DISPLAY_START:
 		// Display area starts here, unless we're doing overscan and it
 		// was already active.

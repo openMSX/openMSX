@@ -231,9 +231,7 @@ void Scheduler::update(const SettingLeafNode* setting) throw()
 {
 	if (setting == &pauseSetting) {
 		if (pauseSetting.getValue()) {
-			// VDP has taken over this role.
-			// TODO: Should it stay that way?
-			// pause();
+			pause();
 		} else {
 			unpause();
 		}

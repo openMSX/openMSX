@@ -125,7 +125,7 @@ bool XRenderer::checkSettings() {
 void XRenderer::frameStart(const EmuTime &time) {
 }
 
-void XRenderer::putImage(const EmuTime &time, bool store) {
+void XRenderer::putImage(const EmuTime &time) {
 }
 
 void XRenderer::putStoredImage() {

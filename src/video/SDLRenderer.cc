@@ -67,7 +67,7 @@ inline int SDLRenderer<Pixel, zoom>::translateX(int absoluteX, bool narrow)
 }
 
 template <class Pixel, Renderer::Zoom zoom>
-void SDLRenderer<Pixel, zoom>::finishFrame(bool store)
+void SDLRenderer<Pixel, zoom>::finishFrame()
 {
 	drawEffects();
 
@@ -130,7 +130,7 @@ void SDLRenderer<Pixel, zoom>::putStoredImage()
 {
 	// Previous image will be restored from workScreen.
 	// Usual end-of-frame behaviour.
-	finishFrame(false);
+	finishFrame();
 }
 
 template <class Pixel, Renderer::Zoom zoom>

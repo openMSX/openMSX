@@ -176,7 +176,7 @@ inline static int translateX(int absoluteX)
 	return screenX < 0 ? 0 : screenX;
 }
 
-void SDLGLRenderer::finishFrame(bool store)
+void SDLGLRenderer::finishFrame()
 {
 	// Glow effect.
 	// Must be applied before storedImage is updated.
@@ -204,11 +204,9 @@ void SDLGLRenderer::finishFrame(bool store)
 	// TODO: Turn off scanlines when deinterlacing.
 
 	// Store current frame as a texture.
-	if (store || glowSetting != 0 || blurSetting != 0 || scanlineAlpha != 0) {
-		glBindTexture(GL_TEXTURE_2D, storedImageTextureId);
-		glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, 1024, 512, 0);
-		prevStored = true;
-	}
+	glBindTexture(GL_TEXTURE_2D, storedImageTextureId);
+	glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, 1024, 512, 0);
+	prevStored = true;
 
 	drawEffects(blurSetting, scanlineAlpha);
 

@@ -41,7 +41,7 @@ bool DummyRenderer::checkSettings() {
 void DummyRenderer::frameStart(const EmuTime &time) {
 }
 
-void DummyRenderer::putImage(const EmuTime &time, bool store) {
+void DummyRenderer::putImage(const EmuTime &time) {
 }
 
 void DummyRenderer::putStoredImage() {

@@ -41,7 +41,7 @@ public:
 	void reset(const EmuTime &time) {} // TODO
 	bool checkSettings();
 	void frameStart(const EmuTime &time);
-	void putImage(const EmuTime &time, bool store);
+	void putImage(const EmuTime &time);
 	void putStoredImage();
 	int putPowerOffImage();
 	void updateTransparency(bool enabled, const EmuTime &time);
