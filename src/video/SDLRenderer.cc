@@ -66,42 +66,12 @@ inline int SDLRenderer<Pixel, zoom>::translateX(int absoluteX)
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::finishFrame(bool store)
 {
-	// Apply postprocessing.
-	// TODO: Postprocess after store, so the user can try out postprocessing
-	//       options during pause and see the result applied immediately.
-	if (LINE_ZOOM == 2) {
-		// Lock surface, because we will access pixels directly.
-		if (SDL_MUSTLOCK(screen) && SDL_LockSurface(screen) < 0) {
-			// Display will be wrong, but this is not really critical.
-			return;
-		}
-		Scaler *scaler = scalers[
-			RenderSettings::instance()->getScaler()->getValue()
-			];
-		for (unsigned y = 0; y < HEIGHT; y += 2) {
-			//fprintf(stderr, "post processing line %d: %d\n", y, processLines[y]);
-			switch (processLines[y]) {
-			case PROC_NONE:
-				break;
-			case PROC_COPY:
-				scalers[Scaler::SIMPLE]->scaleLine(screen, y);
-				break;
-			case PROC_SCALE:
-				scaler->scaleLine(screen, y);
-				break;
-			default:
-				assert(false);
-				break;
-			}
-		}
-		// Unlock surface.
-		if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
-	}
-
 	if (store) {
 		// Copy entire screen to stored image.
 		SDL_BlitSurface(screen, NULL, storedImage, NULL);
 	}
+
+	drawEffects();
 
 	// Render consoles if needed.
 	console->drawConsole();
@@ -155,16 +125,42 @@ void SDLRenderer<Pixel, zoom>::putStoredImage()
 {
 	// Copy stored image to screen.
 	SDL_BlitSurface(storedImage, NULL, screen, NULL);
+	// Usual end-of-frame behaviour.
+	finishFrame(false);
+}
 
-	// TODO: The code below is a modified copy-paste of finishFrame.
-	//       Refactor it to remove code duplication.
-
-	// Render console if needed.
-	console->drawConsole();
-	if (debugger) debugger->drawConsole();
-
-	// Update screen.
-	SDL_Flip(screen);
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::drawEffects()
+{
+	// Apply postprocessing.
+	if (LINE_ZOOM == 2) {
+		// Lock surface, because we will access pixels directly.
+		if (SDL_MUSTLOCK(screen) && SDL_LockSurface(screen) < 0) {
+			// Display will be wrong, but this is not really critical.
+			return;
+		}
+		Scaler *scaler = scalers[
+			RenderSettings::instance()->getScaler()->getValue()
+			];
+		for (unsigned y = 0; y < HEIGHT; y += 2) {
+			//fprintf(stderr, "post processing line %d: %d\n", y, processLines[y]);
+			switch (processLines[y]) {
+			case PROC_NONE:
+				break;
+			case PROC_COPY:
+				scalers[Scaler::SIMPLE]->scaleLine(screen, y);
+				break;
+			case PROC_SCALE:
+				scaler->scaleLine(screen, y);
+				break;
+			default:
+				assert(false);
+				break;
+			}
+		}
+		// Unlock surface.
+		if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
+	}
 }
 
 template <class Pixel, Renderer::Zoom zoom>

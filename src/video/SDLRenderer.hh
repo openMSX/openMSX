@@ -139,6 +139,10 @@ private:
 	  */
 	void setPalette(int index, int grb);
 
+	/** Apply effects to the image in workScreen.
+	  */
+	void drawEffects();
+
 	/** Line to render at top of display.
 	  * After all, our screen is 240 lines while display is 262 or 313.
 	  */
