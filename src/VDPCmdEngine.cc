@@ -11,6 +11,11 @@ TODO:
   Since it is not accessed by the renderer, it is possible allocate
   it here.
   But maybe it makes more sense to have all RAM managed by the VDP?
+- Currently all VRAM access is done at the start time of a series of
+  updates: currentTime is not increased until the very end of the sync
+  method. It should ofcourse be updated after every read and write.
+  An acceptable approximation would be an update after every pixel/byte
+  operation.
 */
 
 #include "VDPCmdEngine.hh"
