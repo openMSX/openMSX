@@ -4,7 +4,6 @@
 #include "MSXTapePatch.hh"
 #include "MSXConfig.hh"
 #include "CPU.hh"
-#include "MSXCPU.hh"
 #include "ConsoleSource/ConsoleManager.hh"
 #include "ConsoleSource/CommandController.hh"
 
@@ -13,25 +12,14 @@ const byte MSXTapePatch::TapeHeader[];
 
 MSXTapePatch::MSXTapePatch()
 {
-	// TODO: move consts towards class
-	addr_list.push_back(0x00E1);
-	addr_list.push_back(0x00E4);
-	addr_list.push_back(0x00E7);
-	addr_list.push_back(0x00EA);
-	addr_list.push_back(0x00ED);
-	addr_list.push_back(0x00F0);
-	addr_list.push_back(0x00F3);
-
-	std::string name("tapepatch");
-	std::string filename;
 	file = NULL;
 
 	CommandController::instance()->registerCommand(*this, "tape");
 
 	try {
 		MSXConfig::Config *config =
-			MSXConfig::Backend::instance()->getConfigById(name);
-		filename = config->getParameter("filename");
+			MSXConfig::Backend::instance()->getConfigById("tapepatch");
+		std::string filename = config->getParameter("filename");
 		insertTape(filename);
 	} catch (MSXException& e) {
 		PRT_DEBUG("No correct tape insertion!");
@@ -44,13 +32,8 @@ MSXTapePatch::~MSXTapePatch()
 	delete file;
 }
 
-void MSXTapePatch::patch() const
+void MSXTapePatch::patch(CPU::CPURegs& R) const
 {
-	PRT_DEBUG("void MSXTapePatch::patch() const");
-	
-	// TODO: get CPU[PC] of patch instruction
-	CPU::CPURegs& R = MSXCPU::instance()->getCPURegs();
-
 	switch (R.PC.w-2) {
 		case 0x00E1:
 			TAPION(R);
@@ -74,12 +57,8 @@ void MSXTapePatch::patch() const
 			STMOTR(R);
 			break;
 		default:
-			//assert(false);
-			//if this assert is active then
-			//it will be active if this patchcode
-			//is registered as first
-			//patchcodeobject
-			PRT_DEBUG("Tape patch (R.PC.w-2)"<<(R.PC.w-2));
+			// patch not for MSXTapePatch
+			break;
 	}
 }
 
@@ -159,7 +138,7 @@ void MSXTapePatch::TAPION(CPU::CPURegs& R) const
 			return;
 		} else if (!memcmp(buffer,TapeHeader,8)) {
 			PRT_DEBUG("TAPION : OK");
-			R.nextIFF1=R.IFF1=R.IFF2=false;
+			R.di();
 			R.AF.B.l &= ~CPU::C_FLAG;
 			return;
 		} 
@@ -229,7 +208,7 @@ void MSXTapePatch::TAPIOF(CPU::CPURegs& R) const
 	 */
 	PRT_DEBUG("TAPIOF");
 	R.AF.B.l &= ~CPU::C_FLAG;
-	R.nextIFF1 = R.IFF1 = R.IFF2 = true;	// ei
+	R.ei();
 }
 
 void MSXTapePatch::TAPOON(CPU::CPURegs& R) const
@@ -286,7 +265,7 @@ void MSXTapePatch::TAPOON(CPU::CPURegs& R) const
 		if (!file->fail()) { 
 			file->write((char*)TapeHeader,8);
 			R.AF.B.l &= ~CPU::C_FLAG;
-			R.nextIFF1 = R.IFF1 = R.IFF2 = false;	// di
+			R.di();
 		}   
 	}
 }
@@ -339,7 +318,7 @@ void MSXTapePatch::TAPOOF(CPU::CPURegs& R) const
 	 */
 	PRT_DEBUG("TAPOOF");
 	R.AF.B.l &= ~CPU::C_FLAG;
-	R.nextIFF1 = R.IFF1 = R.IFF2 = true;	// ei
+	R.ei();
 }
 
 void MSXTapePatch::STMOTR(CPU::CPURegs& R) const

@@ -28,12 +28,16 @@ class CPU
 		   word w;
 		} z80regpair;
 
-		struct CPURegs {
+		class CPURegs {
+		public:
 			z80regpair AF,  BC,  DE,  HL, IX, IY, PC, SP;
 			z80regpair AF2, BC2, DE2, HL2;
 			bool nextIFF1, IFF1, IFF2, HALT;
 			byte IM, I;
 			byte R, R2;	// refresh = R&127 | R2&128
+
+			void ei() { IFF1 = nextIFF1 = IFF2 = true; }
+			void di() { IFF1 = nextIFF1 = IFF2 = false; }
 		};
 
 		/**
@@ -73,13 +77,6 @@ class CPU
 		 * Returns the previously set target time
 		 */
 		const EmuTime &getTargetTime();
-
-		/**
-		 * Get the current CPU registers.
-		 * This method return a non-const alias, this means it can
-		 * also be used to change the CPU registers.
-		 */
-		CPURegs& getCPURegs();
 
 		/**
 		 * Read a byte from memory. If possible the byte is read from 

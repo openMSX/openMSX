@@ -3,8 +3,9 @@
 #ifndef __CPUINTERFACE_HH__
 #define __CPUINTERFACE_HH__
 
-#include "openmsx.hh"
 #include <list>
+#include "openmsx.hh"
+#include "CPU.hh"
 
 // forward declaration
 class MSXRomPatchInterface;
@@ -37,7 +38,7 @@ class CPUInterface {
 		 * Called when ED FE occurs. Can be used
 		 * to emulated disk access etc.
 		 */
-		void patch();
+		void patch(CPU::CPURegs& regs);
 
 		/**
 		 * Register a MSXRomPatchInterface
@@ -47,12 +48,12 @@ class CPUInterface {
 		/**
 		 * Called when RETI accurs
 		 */
-		virtual void reti();
+		virtual void reti(CPU::CPURegs& regs);
 		
 		/**
 		 * Called when RETN occurs
 		 */
-		virtual void retn();
+		virtual void retn(CPU::CPURegs& regs);
 
 		/*
 		 * Destructor

@@ -29,11 +29,6 @@ const EmuTime &CPU::getTargetTime()
 	return targetTime;
 }
 
-CPU::CPURegs &CPU::getCPURegs()
-{
-	return R;
-}
-
 void CPU::invalidateCache(word start, int num)
 {
 	//PRT_DEBUG("cache: invalidate "<<start<<" "<<num*CACHE_LINE_SIZE);

@@ -2250,13 +2250,13 @@ void _CPU_::ret_z()  { SMALL_DELAY(); if (Z())  RET(); }
 
 void _CPU_::reti() { // same as retn
 	R.IFF1 = R.nextIFF1 = R.IFF2;
-	interface->reti();
+	interface->reti(R);
 	RET();
 	slowInstructions = 2;
 }
 void _CPU_::retn() {
 	R.IFF1 = R.nextIFF1 = R.IFF2;
-	interface->retn();
+	interface->retn(R);
 	RET(); 
 	slowInstructions = 2;
 }
@@ -4593,7 +4593,7 @@ void _CPU_::xor_byte(){ XOR(RDMEM_OPCODE()); }
 
 void _CPU_::patch()
 {
-	interface->patch();
+	interface->patch(R);
 }
 
 void _CPU_::dd_cb() {

@@ -24,25 +24,26 @@ class MSXDiskRomPatch: public MSXRomPatchInterface, private Command
 		public:
 			DiskIOErrorException(const std::string &desc) : MSXException(desc) {}
 	};
+	
 	public:
-	class DiskImage
-	{
-		public:
-			DiskImage(std::string filename,std::string defaultSize);
-			~DiskImage();
+		class DiskImage
+		{
+			public:
+				DiskImage(std::string filename,std::string defaultSize);
+				~DiskImage();
 
-			void readSector(byte* to, int sector);
-			void writeSector(const byte* from, int sector);
+				void readSector(byte* to, int sector);
+				void writeSector(const byte* from, int sector);
 
-		private:
-			int nbSectors;
-			IOFILETYPE *file;
-	};
+			private:
+				int nbSectors;
+				IOFILETYPE *file;
+		};
 
 		MSXDiskRomPatch();
 		virtual ~MSXDiskRomPatch();
 
-		virtual void patch() const;
+		virtual void patch(CPU::CPURegs& regs) const;
 
 	private:
 

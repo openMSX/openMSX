@@ -94,11 +94,6 @@ void MSXCPU::executeUntilEmuTime(const EmuTime &time, int userData)
 {
 }
 
-CPU::CPURegs& MSXCPU::getCPURegs()
-{
-	return activeCPU->getCPURegs();
-}
-
 void MSXCPU::invalidateCache(word start, int num)
 {
 	activeCPU->invalidateCache(start, num);

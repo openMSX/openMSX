@@ -19,10 +19,10 @@ class MSXTapePatch: public MSXRomPatchInterface, private Command
 		MSXTapePatch();
 		virtual ~MSXTapePatch();
 
-		virtual void patch() const;
+		virtual void patch(CPU::CPURegs& regs) const;
 
 	private:
-		// TApeHeader used to be fMSX compatible
+		// TapeHeader used to be fMSX compatible
 		static const byte TapeHeader[] = { 0x1F,0xA6,0xDE,0xBA,0xCC,0x13,0x7D,0x74 };
 		IOFILETYPE* file;
 

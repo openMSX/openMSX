@@ -75,7 +75,7 @@ openmsx_SOURCES=\
 	KeyEventInserter.cc KeyEventInserter.hh \
 	SDLEventInserter.cc SDLEventInserter.hh \
 	MSXRomDevice.cc MSXRomDevice.hh \
-	MSXRomPatchInterface.hh MSXRomPatchInterface.cc \
+	MSXRomPatchInterface.hh \
 	MSXTapePatch.cc MSXTapePatch.hh \
 	FileOpener.cc FileOpener.hh \
 	FileManager.cc FileManager.hh \

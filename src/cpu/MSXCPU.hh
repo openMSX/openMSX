@@ -35,13 +35,6 @@ class MSXCPU : public MSXDevice, public Schedulable
 		void setActiveCPU(CPUType cpu);
 		
 		/**
-		 * Get the current CPU registers.
-		 * This method return a non-const alias, this means it can
-		 * also be used to change the CPU registers.
-		 */
-		CPU::CPURegs& getCPURegs();
-
-		/**
 		 * Invalidate the CPU its cache for the interval 
 		 * [start, start+num*CACHE_LINE_SIZE)
 		 * For example MSXMemoryMapper and MSXGameCartrigde need to call this

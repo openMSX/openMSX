@@ -1,6 +1,9 @@
 $Id$
 
 2002-06-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Simplified MSXRomPatchInterface
+
+2002-06-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Scheduler fixes
 	* Removed MSX16KB device:
 	   MSXGameCartridge can do everything what MSX16KB could
