@@ -81,7 +81,7 @@ VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
 	}
 	vramSize *= 1024;
 	vramMask = vramSize - 1;
-	vram = new VDPVRAM(vramSize);
+	vram = new VDPVRAM(this, vramSize);
 
 	// Put VDP into reset state, but do not call Renderer methods.
 	resetInit(time);
@@ -452,6 +452,7 @@ void VDP::frameStart(const EmuTime &time)
 
 void VDP::writeIO(byte port, byte value, const EmuTime &time)
 {
+	assert(isInsideFrame(time));
 	switch (port){
 	case 0x98: {
 		int addr = ((controlRegs[14] << 14) | vramPointer) & vramMask;
@@ -540,6 +541,7 @@ byte VDP::vramRead(const EmuTime &time)
 
 byte VDP::readIO(byte port, const EmuTime &time)
 {
+	assert(isInsideFrame(time));
 	assert(port == 0x98 || port == 0x99);
 	if (port == 0x98) {
 		return vramRead(time);

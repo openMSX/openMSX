@@ -136,7 +136,7 @@ public:
 		virtual void updateWindow(const EmuTime &time) = 0;
 	};
 
-	VDPVRAM(int size);
+	VDPVRAM(VDP *vdp, int size);
 	~VDPVRAM();
 
 	/** Update VRAM state to specified moment in time.
@@ -144,6 +144,7 @@ public:
 	  * TODO: Replace this method by Window::sync().
 	  */
 	inline void sync(const EmuTime &time) {
+		assert(vdp->isInsideFrame(time));
 		cmdEngine->sync(time);
 	}
 
@@ -155,9 +156,9 @@ public:
 	  */
 	inline void cmdWrite(int address, byte value, const EmuTime &time) {
 		// Rewriting history is not allowed.
-		// TODO: Because of rounding errors, this can occur.
-		//       Can this be solved?
-		//assert(time >= currentTime);
+		assert(time >= currentTime);
+
+		assert(vdp->isInsideFrame(time));
 
 		// TODO: Pass index instead of address?
 		if (true || nameTable.isInside(address)
@@ -179,6 +180,8 @@ public:
 	  * @param time The moment in emulated time this write occurs.
 	  */
 	inline void cpuWrite(int address, byte value, const EmuTime &time) {
+		assert(time >= currentTime);
+		assert(vdp->isInsideFrame(time));
 		if (cmdReadWindow.isInside(address)
 		|| cmdWriteWindow.isInside(address)) {
 			cmdEngine->sync(time);
@@ -192,7 +195,9 @@ public:
 	  */
 	inline byte cpuRead(int address, const EmuTime &time) {
 		// VRAM should never get ahead of CPU.
-		//assert(time >= currentTime);
+		assert(time >= currentTime);
+
+		assert(vdp->isInsideFrame(time));
 
 		if (cmdWriteWindow.isInside(address)) {
 			cmdEngine->sync(time);
@@ -425,6 +430,10 @@ public:
 	Window spritePatternTable;
 
 private:
+
+	/** VDP this VRAM belongs to.
+	  */
+	VDP *vdp;
 
 	/** Pointer to VRAM data block.
 	  */

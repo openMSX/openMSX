@@ -37,7 +37,7 @@ public:
 	  */
 	VDPCmdEngine(VDP *vdp, const EmuTime &time);
 
-	/** Reset 
+	/** Reset
 	  * @param time The moment in time the reset occurs.
 	  */
 	void reset(const EmuTime &time);
@@ -48,6 +48,7 @@ public:
 	  * @param time The moment in emulated time to sync to.
 	  */
 	inline void sync(const EmuTime &time) {
+		assert(time >= currentTime);
 		if (time > currentTime) {
 			opsCount += currentTime.getTicksTill(time);
 			currentTime = time;

@@ -5,7 +5,8 @@
 
 // class VDPVRAM:
 
-VDPVRAM::VDPVRAM(int size) {
+VDPVRAM::VDPVRAM(VDP *vdp, int size) {
+	this->vdp = vdp;
 	this->size = size;
 
 	// TODO: If this stays, initialise from constructor param.
@@ -41,12 +42,14 @@ void VDPVRAM::updateDisplayMode(int mode, const EmuTime &time) {
 }
 
 void VDPVRAM::updateDisplayEnabled(bool enabled, const EmuTime &time) {
+	assert(vdp->isInsideFrame(time));
 	renderer->updateDisplayEnabled(enabled, time);
 	cmdEngine->sync(time);
 	spriteChecker->updateDisplayEnabled(enabled, time);
 }
 
 void VDPVRAM::updateSpritesEnabled(bool enabled, const EmuTime &time) {
+	assert(vdp->isInsideFrame(time));
 	cmdEngine->sync(time);
 	spriteChecker->updateSpritesEnabled(enabled, time);
 }

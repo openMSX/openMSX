@@ -281,15 +281,6 @@ public:
 		return verticalAdjust;
 	}
 
-	/** Gets the number of display lines per screen.
-	  * Note: accurate renderer rely on updateDisplayEnabled instead,
-	  * so they can handle overscan.
-	  * @return 192 or 212.
-	  */
-	inline int getNumberOfLines() {
-		return (controlRegs[9] & 0x80 ? 212 : 192);
-	}
-
 	/** Get the absolute line number of display line zero.
 	  * Usually this is equal to the height of the top border,
 	  * but not so during overscan.
@@ -371,7 +362,9 @@ public:
 		return ((controlRegs[1] & 2) << 2) + 8;
 	}
 
-	/** Gets the sprite magnification (0 = normal, 1 = double).
+	/** Gets the sprite magnification.
+	  * @return Magnification: 0 = normal, 1 = double.
+	  * TODO: Returning 1 and 2 may be more logical.
 	  */
 	inline int getSpriteMag() {
 		return controlRegs[1] & 1;
@@ -386,6 +379,20 @@ public:
 			&& ((controlRegs[8] & 0x02) == 0x00);
 	}
 
+	/** Is the given timestamp inside the current frame?
+	  * Mainly useful for debugging, because relevant timestamps should
+	  * always be inside the current frame.
+	  * The end time of a frame is still considered inside,
+	  * to support the case when the given timestamp is exclusive itself:
+	  * a typically "limit" variable.
+	  * @param time Timestamp to check.
+	  * @return True iff the timestamp is inside the current frame.
+	  */
+	inline bool isInsideFrame(const EmuTime &time) {
+		return time >= frameStartTime &&
+			getTicksThisFrame(time) <= getTicksPerFrame();
+	}
+
 private:
 	class VDPRegsCmd : public Command {
 	public:
@@ -396,7 +403,7 @@ private:
 		VDP *vdp;
 	};
 	friend class VDPRegsCmd;
-	
+
 	class PaletteCmd : public Command {
 	public:
 		PaletteCmd(VDP *vdp);
@@ -451,7 +458,14 @@ private:
 	/** Gets the number of VDP clockticks (21MHz) per frame.
 	  */
 	inline int getTicksPerFrame() {
-		return (palTiming ? TICKS_PER_LINE * 313 : TICKS_PER_LINE * 262);
+		return palTiming ? TICKS_PER_LINE * 313 : TICKS_PER_LINE * 262;
+	}
+
+	/** Gets the number of display lines per screen.
+	  * @return 192 or 212.
+	  */
+	inline int getNumberOfLines() {
+		return controlRegs[9] & 0x80 ? 212 : 192;
 	}
 
 	/** Gets the value of the horizontal retrace status bit.
