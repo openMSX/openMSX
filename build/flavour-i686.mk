@@ -5,7 +5,7 @@
 
 # Optimisation flags.
 CXXFLAGS+=-O3 -DNDEBUG \
-	-mcpu=pentiumpro -march=pentiumpro -ffast-math -funroll-loops
+	-march=i686 -ffast-math -funroll-loops
 
 # Strip executable?
 OPENMSX_STRIP:=true
