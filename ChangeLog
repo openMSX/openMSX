@@ -1,5 +1,8 @@
 $Id$
 
+2004-01-04 Manuel Bilderbeek <manuel@msxnet.org>
+	* Implemented "info scaler"
+
 2004-01-03 Maarten ter Huurne <maarten@treewalker.org>
 	* Separated Scalers.hh/cc into Scaler, SimpleScaler and SaI2xScaler.
 

@@ -10,6 +10,7 @@ namespace openmsx {
 
 RenderSettings::RenderSettings()
 	: rendererInfo(*this),
+	  scalerInfo(*this),
 	  msxConfig(MSXConfig::instance()),
 	  infoCommand(InfoCommand::instance())
 {
@@ -60,10 +61,12 @@ RenderSettings::RenderSettings()
 		20, 0, 100);
 
 	infoCommand.registerTopic("renderer", &rendererInfo);
+	infoCommand.registerTopic("scaler", &scalerInfo);
 }
 
 RenderSettings::~RenderSettings()
 {
+	infoCommand.unregisterTopic("scaler", &scalerInfo);
 	infoCommand.unregisterTopic("renderer", &rendererInfo);
 
 	delete accuracy;
@@ -105,4 +108,29 @@ string RenderSettings::RendererInfo::help(const vector<string> &tokens) const
 	return "Shows a list of available renderers.\n";
 }
 
+// Scaler info
+
+RenderSettings::ScalerInfo::ScalerInfo(RenderSettings& parent_)
+	: parent(parent_)
+{
+}
+
+string RenderSettings::ScalerInfo::execute(const vector<string> &tokens) const
+	throw()
+{
+	string result;
+	set<string> scalers;
+	parent.getScaler()->getPossibleValues(scalers);
+	for (set<string>::const_iterator it = scalers.begin();
+	     it != scalers.end(); ++it) {
+		result += *it + '\n';
+	}
+	return result;
+}
+
+string RenderSettings::ScalerInfo::help(const vector<string> &tokens) const
+	throw()
+{
+	return "Shows a list of available scalers.\n";
+}
 } // namespace openmsx

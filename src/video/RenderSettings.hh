@@ -88,6 +88,17 @@ private:
 		RenderSettings& parent;
 	} rendererInfo;
 
+	class ScalerInfo : public InfoTopic {
+	public:
+		ScalerInfo(RenderSettings& parent);
+		virtual string execute(const vector<string> &tokens) const
+			throw();
+		virtual string help   (const vector<string> &tokens) const
+			throw();
+	private:
+		RenderSettings& parent;
+	} scalerInfo;
+
 	MSXConfig& msxConfig;
 	InfoCommand& infoCommand;
 };
