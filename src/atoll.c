@@ -138,7 +138,7 @@ function (const char *nptr,char **endptr,int base)
   save = s;
 
   cutoff = UTYPE_MAX / (unsigned long int) base;
-  cutlim = (uint) (UTYPE_MAX % (unsigned long int) base);
+  cutlim = (unsigned int) (UTYPE_MAX % (unsigned long int) base);
 
   overflow = 0;
   i = 0;

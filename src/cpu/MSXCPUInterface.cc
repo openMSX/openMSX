@@ -214,7 +214,11 @@ void MSXCPUInterface::printSlotMapPages(
 {
 	for (int page = 0; page < 4; page++) {
 		char hexStr[5];
+#ifndef __WIN32__
 		snprintf(hexStr, sizeof(hexStr), "%04X", page * 0x4000);
+#else
+		sprintf(hexStr, "%04X", page * 0x4000);
+#endif
 		out << hexStr << ": " << devices[page]->getName() << "\n";
 	}
 }
@@ -224,7 +228,11 @@ std::string MSXCPUInterface::getSlotSelection()
 	std::ostringstream out;
 	for (int page = 0; page < 4; page++) {
 		char pageStr[5];
+#ifndef __WIN32__
 		snprintf(pageStr, sizeof(pageStr), "%04X", page * 0x4000);
+#else
+		sprintf(pageStr, "%04X", page * 0x4000);
+#endif
 		out << pageStr << ": ";
 
 		int prim = PrimarySlotState[page];

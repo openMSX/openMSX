@@ -1,5 +1,12 @@
 $Id$
 
+2002-02-27 Joost Yervante Damad <andete@worldcity.nl>
+	* simplified auto* setup for crosscompiling
+	* added atoll.c code for platforms that don't support that function
+	* crosscompiling now works, xmlxdump.exe works, openmsx.exe
+	  doesn't work yet
+	* for instructions, see README.WIN32
+
 2002-02-25 Maarten ter Huurne <mth@stack.nl>
 	* Implemented even/odd and interlace display.
 

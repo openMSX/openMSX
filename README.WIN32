@@ -1,0 +1,42 @@
+$Id$
+
+Crosscompiling with mingw32 mini howto:
+
+mingw32
+-------
+make sure mingw32 crosstools are installed:
+mingw32 - Minimalist GNU win32 (cross) compiler
+mingw32-runtime - Minimalist GNU win32 (cross) compiler runtime
+
+dlltool
+-------
+make sure dlltool is in your path, if not, copy it
+or make a symlink somewhere.
+
+
+cross-win32 libs and includes
+-----------------------------
+enter the openMSX dir and cvs co cross-win32
+
+clean
+-----
+make clean
+
+build
+-----
+make -f Makefile.cross
+
+move
+----
+
+copy the binary [openmsx.exe or xmlxdump.exe] to a windows
+machine.
+copy iconv.dll libxml2.dll SDL.dll also there.
+copy a .xml config file.
+
+run
+---
+
+start from a dosprompt, or drag an xml file on it.
+
+

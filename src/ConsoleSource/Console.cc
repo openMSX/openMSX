@@ -71,6 +71,7 @@ void Console::print(std::string text)
 
 void Console::out(const char *str, ...)
 {
+#ifndef __WIN32__
 	va_list marker;
 	char temp[256];
 
@@ -85,6 +86,7 @@ void Console::out(const char *str, ...)
 		updateConsole();
 	}
 	PRT_DEBUG(temp);
+#endif
 }
 
 

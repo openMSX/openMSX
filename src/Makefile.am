@@ -2,7 +2,7 @@
 
 # we want most warnings
 
-AM_CXXFLAGS_BASE = -Wall -pipe `test -f .debug && echo "-DDEBUG"` -fhuge-objects -Icpu
+AM_CXXFLAGS_BASE = -Wall -pipe `test -f .debug && echo "-DDEBUG"` -fhuge-objects -Icpu @XML_CFLAGS@ @SDL_CFLAGS@
 if PROFILE
 AM_CXXFLAGS = $(AM_CXXFLAGS_BASE) -pg
 else
@@ -81,12 +81,13 @@ openmsx_SOURCES=openmsx.cc icon.nn \
 	MSXSimple.cc MSXSimple.hh \
 	MSXPrinterLogger.cc MSXPrinterLogger.hh \
 	CommandLineParser.cc CommandLineParser.hh \
-	MSXDiskRomPatch.cc MSXDiskRomPatch.hh
+	MSXDiskRomPatch.cc MSXDiskRomPatch.hh \
+	atoll.c
 
 #	MSXPrinter.cc MSXPrinter.hh \
 #	SDLLoRenderer.hh SDLLoRenderer.cc \
 
-openmsx_LDADD = libxmlx/libxmlx.la ConsoleSource/libSDL_console.la cpu/libCPU.la
+openmsx_LDADD = libxmlx/libxmlx.la ConsoleSource/libSDL_console.la cpu/libCPU.la @XML_LIBS@ @SDL_LIBS@
 
 #cfgtest_SOURCES = MSXConfig.hh MSXConfig.cc \
 #	cfgtest.cc EmuTime.hh \
