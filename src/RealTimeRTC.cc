@@ -95,6 +95,7 @@ float RealTimeRTC::doSync(const EmuTime &time)
 	assert(sleep >= 0);
 
 	int realTime = nonBlockReadRTC();
+	sleep -= realTime;
 	float factor = ((float)(realTime + prevOverslept)) /
 	               ((float)(normalizedEmuTicks));
 	
