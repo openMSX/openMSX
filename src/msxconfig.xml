@@ -101,4 +101,7 @@
     <parameter name="slow_drain_on_reset">false</parameter>
     <parameter name="size">512</parameter>
   </device>
+  <device id="Real time clock">
+    <type>RTC</type>
+  </device>
 </msxconfig>

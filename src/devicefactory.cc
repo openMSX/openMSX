@@ -12,6 +12,7 @@
 #include "MSXKanji.hh"
 #include "MSXMemoryMapper.hh"
 #include "MSXMapperIO.hh"
+#include "MSXRTC.hh"
 
 
 MSXDevice *deviceFactory::create(MSXConfig::Device *conf) {
@@ -48,6 +49,9 @@ MSXDevice *deviceFactory::create(MSXConfig::Device *conf) {
 	} else
 	if (conf->getType()=="MapperIO") {
 		device = MSXMapperIO::instance();
+	} else
+	if (conf->getType()=="RTC") {
+		device = new MSXRTC();
 	}
 
 	if (device == NULL)

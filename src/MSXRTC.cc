@@ -6,11 +6,13 @@
 
 MSXRTC::MSXRTC()
 {
+	PRT_DEBUG("Creating an MSXRTC object");
 	rp5c01 = new RP5C01();
 }
 
 MSXRTC::~MSXRTC()
 {
+	PRT_DEBUG("Detructing an MSXRTC object");
 	delete rp5c01;
 }
 
@@ -24,6 +26,7 @@ void MSXRTC::init()
 
 void MSXRTC::reset()
 {
+	MSXDevice::reset();
 	rp5c01->reset();
 }
 
