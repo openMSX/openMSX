@@ -1124,6 +1124,8 @@ byte Y8950::readReg(byte rg, const EmuTime &time)
 			break;
 		
 		case 0x19: // I/O DATA   TODO
+			result = 0;
+			break;
 		default:
 			result = 255;
 	}
