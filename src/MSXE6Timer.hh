@@ -15,12 +15,11 @@
 #include "MSXMotherBoard.hh"
 #include "emutime.hh"
 
-class E6Timer : public MSXDevice
+class MSXE6Timer : public MSXDevice
 {
 	public:
-		E6Timer();
-		~E6Timer();
-		//static MSXDevice* instantiate(void);
+		MSXE6Timer();
+		~MSXE6Timer();
 		
 		void init();
 		void reset();

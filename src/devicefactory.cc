@@ -6,7 +6,7 @@
 #include "MSXRom16KB.hh"
 #include "MSXPPI.hh"
 #include "MSXTMS9928a.hh"
-#include "E6Timer.hh"
+#include "MSXE6Timer.hh"
 
 MSXDevice *deviceFactory::create(MSXConfig::Device *conf) {
 	MSXDevice *device = 0;
@@ -35,9 +35,9 @@ MSXDevice *deviceFactory::create(MSXConfig::Device *conf) {
 		device=new MSXTMS9928a();
 	};
 
-	if ( conf->getType().compare("E6Timer") == 0 ){ 
+	if ( conf->getType().compare("MSXE6Timer") == 0 ){ 
 		// if 0 then strings are equal
-		device=new E6Timer();
+		device=new MSXE6Timer();
 	};
 
 	//assert (device != 0);
