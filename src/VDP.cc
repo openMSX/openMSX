@@ -823,16 +823,44 @@ void VDP::updateColourBase(const EmuTime &time)
 	int base = vramMask &
 		((controlRegs[10] << 14) | (controlRegs[3] << 6) | ~(-1 << 6));
 	renderer->updateColourBase(base, time);
-	// TODO: Actual number of index bits is lower than 17.
-	vram->colourTable.setMask(base, -1 << 17, time);
+	switch (displayMode & 0x1F) {
+	case 0x11: // Text 2.
+		vram->colourTable.setMask(base, -1 << 9, time);
+		break;
+	case 0x00: // Graphic 1.
+		vram->colourTable.setMask(base, -1 << 6, time);
+		break;
+	case 0x04: // Graphic 2.
+	case 0x08: // Graphic 3.
+		vram->colourTable.setMask(base, -1 << 13, time);
+		break;
+	default:
+		// Other display modes do not use a colour table.
+		vram->colourTable.disable(time);
+	}
 }
 
 void VDP::updatePatternBase(const EmuTime &time)
 {
 	int base = vramMask & ((controlRegs[4] << 11) | ~(-1 << 11));
 	renderer->updatePatternBase(base, time);
-	// TODO: Actual number of index bits is lower than 17.
-	vram->patternTable.setMask(base, -1 << 17, time);
+	switch (displayMode & 0x1F) {
+	case 0x01: // Text 1.
+	case 0x05: // Text 1 Q.
+	case 0x09: // Text 2.
+	case 0x00: // Graphic 1.
+	case 0x02: // Multicolour.
+	case 0x06: // Multicolour Q.
+		vram->patternTable.setMask(base, -1 << 11, time);
+		break;
+	case 0x04: // Graphic 2.
+	case 0x08: // Graphic 3.
+		vram->patternTable.setMask(base, -1 << 13, time);
+		break;
+	default:
+		// Other display modes do not use a pattern table.
+		vram->patternTable.disable(time);
+	}
 }
 
 void VDP::updateSpriteAttributeBase(const EmuTime &time)
