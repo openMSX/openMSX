@@ -6,6 +6,7 @@
 #include "openmsx.hh"
 #include "VDP.hh"
 #include "DisplayMode.hh"
+#include "Settings.hh"
 
 namespace openmsx {
 
@@ -14,7 +15,7 @@ class VDPVRAM;
 /** VDP command engine by Alex Wulms.
   * Implements command execution unit of V9938/58.
   */
-class VDPCmdEngine
+class VDPCmdEngine : private SettingListener
 {
 public:
 	/** Constructor.
@@ -23,7 +24,7 @@ public:
 
 	/** Destructor
 	  */
-	~VDPCmdEngine();
+	virtual ~VDPCmdEngine();
 
 	/** Reinitialise Renderer state.
 	  * @param time The moment in time the reset occurs.
@@ -102,6 +103,8 @@ private:
 		OP_TIMP = 0x8, OP_TAND = 0x9, OP_TOR  = 0xA, OP_TXOR = 0xB,
 		OP_TNOT = 0xC, OP_D    = 0xD, OP_E    = 0xE, OP_F    = 0xF,
 	};
+
+	virtual void update(const SettingLeafNode *setting);
 	
 	void executeCommand(const EmuTime &time);
 	
@@ -141,6 +144,7 @@ private:
 	/** Active timing, depends on screen/status being on/off.
 	  */  
 	int timingValue;
+	int vdpTiming;
 
 	class VDPCmd;
 	VDPCmd* commands[16];
@@ -224,12 +228,6 @@ private:
 		  */
 		void commandDone();
 
-		/** Get timing value for a certain VDP command.
-		  * @param timingValues Pointer to a table containing the timing
-		  *   values for the VDP command in question.
-		  */
-		int getVdpTimingValue(const int *timingValues);
-		
 		/** Clipping methods
 		  */
 		inline void clipNX_SX();

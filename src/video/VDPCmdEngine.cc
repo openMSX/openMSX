@@ -60,13 +60,13 @@ const int  PPL[4]  = { 256, 512, 512, 256 };
 
 //               Sprites:    On   On   Off  Off
 //               Screen:     Off  On   Off  On
-const int SRCH_TIMING[4] = {  92, 125,  92,  92 };
-const int LINE_TIMING[4] = { 120, 147, 120, 132 };
-const int HMMV_TIMING[4] = {  49,  65,  49,  62 };
-const int LMMV_TIMING[4] = {  98, 137,  98, 124 };
-const int YMMM_TIMING[4] = {  65, 125,  65,  68 };
-const int HMMM_TIMING[4] = {  92, 136,  92,  97 };
-const int LMMM_TIMING[4] = { 129, 197, 129, 132 };
+const int SRCH_TIMING[5] = {  92, 125,  92,  92, 0 };
+const int LINE_TIMING[5] = { 120, 147, 120, 132, 0 };
+const int HMMV_TIMING[5] = {  49,  65,  49,  62, 0 };
+const int LMMV_TIMING[5] = {  98, 137,  98, 124, 0 };
+const int YMMM_TIMING[5] = {  65, 125,  65,  68, 0 };
+const int HMMM_TIMING[5] = {  92, 136,  92,  97, 0 };
+const int LMMM_TIMING[5] = { 129, 197, 129, 132, 0 };
 
 
 
@@ -96,10 +96,15 @@ VDPCmdEngine::VDPCmdEngine(VDP *vdp_)
 	SX = SY = DX = DY = NX = NY = 0;
 	COL = ARG = CMD = 0;
 	LOG = OP_IMP;
+	timingValue = vdpTiming = 0;
+
+	VDPSettings::instance()->getCmdTiming()->addListener(this);
 }
 
 VDPCmdEngine::~VDPCmdEngine()
 {
+	VDPSettings::instance()->getCmdTiming()->removeListener(this);
+	
 	// skip 0, 1, 2
 	for (int i = 3; i < 16; i++) {
 		delete commands[i];
@@ -122,11 +127,22 @@ void VDPCmdEngine::reset(const EmuTime &time)
 	
 void VDPCmdEngine::updateTiming(int timing, const EmuTime &time)
 {
-	sync(time);
-	timingValue = timing;
-	commands[CMD]->updateTiming();
+	if (timingValue != 4) {
+		sync(time);
+		vdpTiming = timing;
+		timingValue = timing;
+		commands[CMD]->updateTiming();
+	}
 }
 
+void VDPCmdEngine::update(const SettingLeafNode *setting)
+{
+	if (static_cast<const EnumSetting<bool>*>(setting)->getValue()) {
+		timingValue = 4;
+	} else {
+		timingValue = vdpTiming;
+	}
+}
 
 void VDPCmdEngine::setCmdReg(byte index, byte value, const EmuTime &time)
 {
@@ -244,7 +260,7 @@ void VDPCmdEngine::executeCommand(const EmuTime &time)
 	cmd->start(time);
 
 	// finish command now if instantaneous command timing is active
-	if (VDPSettings::instance()->getCmdTiming()->getValue()) {
+	if (timingValue == 4) {
 		cmd->execute(time);
 	}
 }
@@ -463,13 +479,6 @@ inline void VDPCmdEngine::VDPCmd::pset(int dx, int dy, byte cl, LogOp op)
 	}
 }
 
-int VDPCmdEngine::VDPCmd::getVdpTimingValue(const int *timingValues)
-{
-	return VDPSettings::instance()->getCmdTiming()->getValue()
-	       ? 0
-	       : timingValues[engine->timingValue];
-}
-
 void VDPCmdEngine::VDPCmd::commandDone()
 {
 	engine->status &= 0xFE;
@@ -619,7 +628,7 @@ void VDPCmdEngine::SrchCmd::execute(const EmuTime &time)
 {
 	opsCount += currentTime.getTicksTill(time);
 	currentTime = time;
-	int delta = getVdpTimingValue(SRCH_TIMING);
+	int delta = SRCH_TIMING[engine->timingValue];
 
 #define pre_srch \
 		pre_loop \
@@ -685,7 +694,7 @@ void VDPCmdEngine::LineCmd::execute(const EmuTime &time)
 {
 	opsCount += currentTime.getTicksTill(time);
 	currentTime = time;
-	int delta = getVdpTimingValue(LINE_TIMING);
+	int delta = LINE_TIMING[engine->timingValue];
 
 #define post_linexmaj(MX) \
 		DX += TX; \
@@ -763,7 +772,7 @@ bool VDPCmdEngine::BlockCmd::willStatusChange(const EmuTime &time)
 
 void VDPCmdEngine::BlockCmd::calcFinishTime()
 {
-	int ticks = ((NX * (NY - 1)) + ANX) * getVdpTimingValue(timing); 
+	int ticks = ((NX * (NY - 1)) + ANX) * timing[engine->timingValue]; 
 	finishTime = currentTime + ticks; 
 }
 
@@ -805,7 +814,7 @@ void VDPCmdEngine::LmmvCmd::execute(const EmuTime &time)
 {
 	opsCount += currentTime.getTicksTill(time);
 	currentTime = time;
-	int delta = getVdpTimingValue(LMMV_TIMING);
+	int delta = LMMV_TIMING[engine->timingValue];
 
 	switch (engine->scrMode) {
 	case 0: pre_loop
@@ -861,7 +870,7 @@ void VDPCmdEngine::LmmmCmd::execute(const EmuTime &time)
 {
 	opsCount += currentTime.getTicksTill(time);
 	currentTime = time;
-	int delta = getVdpTimingValue(LMMM_TIMING);
+	int delta = LMMM_TIMING[engine->timingValue];
 
 	switch (engine->scrMode) {
 	case 0: pre_loop
@@ -916,7 +925,7 @@ void VDPCmdEngine::LmcmCmd::execute(const EmuTime &time)
 	currentTime = time;
 	if ((engine->status & 0x80) != 0x80) {
 		engine->COL = point(ASX, engine->SY);
-		opsCount -= getVdpTimingValue(LMMV_TIMING);
+		opsCount -= LMMV_TIMING[engine->timingValue];
 		engine->status |= 0x80;
 		ASX += TX; --ANX;
 		if (ANX == 0) {
@@ -966,7 +975,7 @@ void VDPCmdEngine::LmmcCmd::execute(const EmuTime &time)
 	if ((engine->status & 0x80) != 0x80) {
 		byte col = engine->COL & MASK[engine->scrMode];
 		pset(ADX, engine->DY, col, LO);
-		opsCount -= getVdpTimingValue(LMMV_TIMING);
+		opsCount -= LMMV_TIMING[engine->timingValue];
 		engine->status |= 0x80;
 
 		ADX += TX; --ANX;
@@ -1017,7 +1026,7 @@ void VDPCmdEngine::HmmvCmd::execute(const EmuTime &time)
 {
 	opsCount += currentTime.getTicksTill(time);
 	currentTime = time;
-	int delta = getVdpTimingValue(HMMV_TIMING);
+	int delta = HMMV_TIMING[engine->timingValue];
 
 	switch (engine->scrMode) {
 	case 0:
@@ -1080,7 +1089,7 @@ void VDPCmdEngine::HmmmCmd::execute(const EmuTime &time)
 {
 	opsCount += currentTime.getTicksTill(time);
 	currentTime = time;
-	int delta = getVdpTimingValue(HMMM_TIMING);
+	int delta = HMMM_TIMING[engine->timingValue];
 
 	switch (engine->scrMode) {
 	case 0:
@@ -1154,7 +1163,7 @@ void VDPCmdEngine::YmmmCmd::execute(const EmuTime &time)
 {
 	opsCount += currentTime.getTicksTill(time);
 	currentTime = time;
-	int delta = getVdpTimingValue(YMMM_TIMING);
+	int delta = YMMM_TIMING[engine->timingValue];
 
 	switch (engine->scrMode) {
 	case 0:
@@ -1229,7 +1238,7 @@ void VDPCmdEngine::HmmcCmd::execute(const EmuTime &time)
 	currentTime = time;
 	if ((engine->status & 0x80) != 0x80) {
 		vram->cmdWrite(vramAddr(ADX, engine->DY), engine->COL, currentTime);
-		opsCount -= getVdpTimingValue(HMMV_TIMING);
+		opsCount -= HMMV_TIMING[engine->timingValue];
 		engine->status |= 0x80;
 
 		ADX += TX; --ANX;
