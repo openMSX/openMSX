@@ -9,25 +9,21 @@
 
 namespace openmsx {
 
-class JoystickPort : public Connector
-{
-	public:
-		JoystickPort(const string &name, const EmuTime &time);
-		virtual ~JoystickPort();
+class JoystickPort : public Connector {
+public:
+	JoystickPort(const string &name);
+	virtual ~JoystickPort();
 
-		virtual const string &getName() const;
-		virtual const string &getClass() const;
-		virtual void plug(Pluggable *device, const EmuTime &time);
-		virtual void unplug(const EmuTime &time);
+	// Connector
+	virtual const string &getClass() const;
+	virtual void plug(Pluggable *device, const EmuTime &time)
+		throw(PlugException);
 
-		byte read(const EmuTime &time);
-		void write(byte value, const EmuTime &time);
+	byte read(const EmuTime &time);
+	void write(byte value, const EmuTime &time);
 
-	private:
-		class DummyJoystick* dummy;
-		string name;
-
-		byte lastValue;
+private:
+	byte lastValue;
 };
 
 } // namespace openmsx

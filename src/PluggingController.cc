@@ -82,7 +82,7 @@ void PluggingController::PlugCmd::execute(const vector<string> &tokens)
 			     it != controller->connectors.end();
 			     ++it) {
 				print((*it)->getName() + ": " +
-				      (*it)->getPlug()->getName());
+				      (*it)->getPlugged()->getName());
 			}
 			break;
 		}
@@ -92,7 +92,7 @@ void PluggingController::PlugCmd::execute(const vector<string> &tokens)
 				throw CommandException("No such connector");
 			}
 			print(connector->getName() + ": " +
-			      connector->getPlug()->getName());
+			      connector->getPlugged()->getName());
 			break;
 		}
 		case 3: {
@@ -108,7 +108,11 @@ void PluggingController::PlugCmd::execute(const vector<string> &tokens)
 				throw CommandException("Doesn't fit");
 			}
 			connector->unplug(time);
-			connector->plug(pluggable, time);
+			try {
+				connector->plug(pluggable, time);
+			} catch (PlugException &e) {
+				throw CommandException("Plug failed: " + e.getMessage());
+			}
 			break;
 		}
 	default:

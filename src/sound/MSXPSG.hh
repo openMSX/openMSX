@@ -18,7 +18,6 @@ class MSXPSG : public MSXIODevice, public AY8910Interface
 		MSXPSG(Device *config, const EmuTime &time);
 		virtual ~MSXPSG();
 
-		virtual void powerOff(const EmuTime &time);
 		virtual void reset(const EmuTime &time);
 		virtual byte readIO(byte port, const EmuTime &time);
 		virtual void writeIO(byte port, byte value, const EmuTime &time);

@@ -10,32 +10,32 @@
 
 namespace openmsx {
 
-MSXPrinterPort::MSXPrinterPort(Device *config, const EmuTime &time)
-	: MSXDevice(config, time), MSXIODevice(config, time)
-{
-	dummy = new DummyPrinterPortDevice();
-	PluggingController::instance()->registerConnector(this);
-	unplug(time);	// TODO plug device as specified in config file
+const string connectorName("printerport");
 
+MSXPrinterPort::MSXPrinterPort(Device *config, const EmuTime &time)
+	: MSXDevice(config, time)
+	, MSXIODevice(config, time)
+	, Connector(connectorName, new DummyPrinterPortDevice())
+{
 	data = 255;	// != 0;
 	strobe = false;	// != true;
 	reset(time);
 
 	logger = new PrinterPortLogger();
 	simple = new PrinterPortSimpl();
+
+	PluggingController::instance()->registerConnector(this);
 }
 
 MSXPrinterPort::~MSXPrinterPort()
 {
 	PluggingController::instance()->unregisterConnector(this);
-	delete dummy;
 	delete logger;
 	delete simple;
 }
 
 void MSXPrinterPort::powerOff(const EmuTime &time)
 {
-	unplug(time);
 }
 
 void MSXPrinterPort::reset(const EmuTime &time)
@@ -80,12 +80,6 @@ void MSXPrinterPort::writeData(byte newData, const EmuTime &time)
 	}
 }
 
-const string &MSXPrinterPort::getName() const
-{
-	static const string name("printerport");
-	return name;
-}
-
 const string &MSXPrinterPort::getClass() const
 {
 	static const string className("Printer Port");
@@ -93,16 +87,11 @@ const string &MSXPrinterPort::getClass() const
 }
 
 void MSXPrinterPort::plug(Pluggable *dev, const EmuTime &time)
+	throw(PlugException)
 {
 	Connector::plug(dev, time);
 	((PrinterPortDevice*)pluggable)->writeData(data, time);
 	((PrinterPortDevice*)pluggable)->setStrobe(strobe, time);
-}
-
-void MSXPrinterPort::unplug(const EmuTime &time)
-{
-	Connector::unplug(time);
-	plug(dummy, time);
 }
 
 

@@ -12,58 +12,33 @@ namespace openmsx {
 
 // CassettePortFactory //
 
-CassettePortInterface *CassettePortFactory::instance(const EmuTime &time)
+CassettePortInterface *CassettePortFactory::instance()
 {
-	static CassettePortInterface* oneInstance = NULL;
+	static CassettePortInterface *oneInstance = NULL;
 	if (oneInstance == NULL) {
-		try {
-			MSXConfig::instance()->getConfigById("CassettePort");
-			// there is a CassettePort in config
-			oneInstance = new CassettePort(time);
-		} catch (ConfigException& e) {
-			// there is no CassettePort in config
-			oneInstance = new DummyCassettePort(time);
-		}
+		oneInstance =
+			( MSXConfig::instance()->hasConfigWithId("CassettePort")
+			? static_cast<CassettePortInterface *>(new CassettePort())
+			: static_cast<CassettePortInterface *>(new DummyCassettePort())
+			);
 	}
 	return oneInstance;
 }
 
 
-
 // CassettePortInterface //
 
-CassettePortInterface::CassettePortInterface(const EmuTime &time)
-{
-	dummy = new DummyCassetteDevice();
-	pluggable = dummy;	//unplug(time);
-}
+const string connectorName("cassetteport");
 
-CassettePortInterface::~CassettePortInterface()
+CassettePortInterface::CassettePortInterface()
+	: Connector(connectorName, new DummyCassetteDevice())
 {
-	delete dummy;
-}
-
-void CassettePortInterface::powerOff(const EmuTime &time)
-{
-	unplug(time);
-}
-
-void CassettePortInterface::plug(Pluggable *dev, const EmuTime &time)
-{
-	Connector::plug(dev, time);
 }
 
 void CassettePortInterface::unplug(const EmuTime &time)
 {
 	flushOutput(time);
 	Connector::unplug(time);
-	plug(dummy, time);
-}
-
-const string &CassettePortInterface::getName() const
-{
-	static const string name("cassetteport");
-	return name;
 }
 
 const string &CassettePortInterface::getClass() const
@@ -75,7 +50,8 @@ const string &CassettePortInterface::getClass() const
 
 // DummyCassettePort //
 
-DummyCassettePort::DummyCassettePort(const EmuTime &time) : CassettePortInterface(time)
+DummyCassettePort::DummyCassettePort()
+	: CassettePortInterface()
 {
 }
 
@@ -99,18 +75,18 @@ void DummyCassettePort::flushOutput(const EmuTime &time)
 
 // CassettePort //
 
-CassettePort::CassettePort(const EmuTime &time) : CassettePortInterface(time)
+CassettePort::CassettePort()
+	: CassettePortInterface()
 {
 	buffer = new short[BUFSIZE];
-	PluggingController::instance()->registerConnector(this);
-
 	player = new CassettePlayer();
+	PluggingController::instance()->registerConnector(this);
 }
 
 CassettePort::~CassettePort()
 {
-	delete player;
 	PluggingController::instance()->unregisterConnector(this);
+	delete player;
 	delete[] buffer;
 }
 
@@ -138,7 +114,7 @@ bool CassettePort::cassetteIn(const EmuTime &time)
 	// All analog filtering is ignored for now
 	//   only important component is DC-removal
 	//   we just assume sample has no DC component
-	short sample = ((CassetteDevice*)pluggable)->readSample(time);	// read 1 sample  
+	short sample = ((CassetteDevice*)pluggable)->readSample(time);	// read 1 sample
 	bool result = (sample >= 0); // comparator
 	//PRT_DEBUG("CassettePort:: read " << result);
 	return result;
@@ -157,7 +133,7 @@ void CassettePort::flushOutput(const EmuTime &time)
 	int samples = (int)((time - prevTime).toFloat() * sampleRate);
 	prevTime = time;
 	//PRT_DEBUG("Cas: generate " << samples << " samples");
-	
+
 	// dumb implementation, good enough for now
 	((CassetteDevice*)pluggable)->writeWave(&nextSample, 1);
 	samples--;

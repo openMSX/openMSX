@@ -23,7 +23,7 @@ MSXPPI::MSXPPI(Device *config, const EmuTime &time)
 	i8255 = new I8255(*this, time);
 	click = new KeyClick(volume, time);
 	cpuInterface = MSXCPUInterface::instance();
-	cassettePort = CassettePortFactory::instance(time);
+	cassettePort = CassettePortFactory::instance();
 	leds = Leds::instance();
 
 	reset(time);
@@ -35,11 +35,6 @@ MSXPPI::~MSXPPI()
 	delete keyboard;
 	delete i8255;
 	delete click;
-}
-
-void MSXPPI::powerOff(const EmuTime &time)
-{
-	cassettePort->powerOff(time);
 }
 
 void MSXPPI::reset(const EmuTime &time)

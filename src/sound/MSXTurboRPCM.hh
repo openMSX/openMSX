@@ -12,28 +12,24 @@ namespace openmsx {
 class DACSound8U;
 
 
-class MSXTurboRPCM : public MSXIODevice, private AudioInputConnector
-{
-	public:
-		MSXTurboRPCM(Device *config, const EmuTime &time);
-		virtual ~MSXTurboRPCM(); 
-		
-		virtual void reset(const EmuTime &time);
-		virtual byte readIO(byte port, const EmuTime &time);
-		virtual void writeIO(byte port, byte value, const EmuTime &time);
+class MSXTurboRPCM : public MSXIODevice, private AudioInputConnector {
+public:
+	MSXTurboRPCM(Device *config, const EmuTime &time);
+	virtual ~MSXTurboRPCM();
 
-	private:
-		byte getSample(const EmuTime &time);
-		bool getComp(const EmuTime &time);
-		
-		// AudioInputConnector
-		virtual const string &getName() const;
+	virtual void reset(const EmuTime &time);
+	virtual byte readIO(byte port, const EmuTime &time);
+	virtual void writeIO(byte port, byte value, const EmuTime &time);
 
-		EmuTimeFreq<15750> reference;
-		byte DValue;
-		byte status;
-		byte hold;
-		DACSound8U* dac;
+private:
+	byte getSample(const EmuTime &time);
+	bool getComp(const EmuTime &time);
+
+	EmuTimeFreq<15750> reference;
+	byte DValue;
+	byte status;
+	byte hold;
+	DACSound8U* dac;
 };
 
 } // namespace openmsx

@@ -12,7 +12,7 @@ MSXAudio::MSXAudio(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	short volume = (short)deviceConfig->getParameterAsInt("volume");
-	
+
 	// left / right / mono
 	Mixer::ChannelMode mode = Mixer::MONO;
 	const string &stereomode = config->getParameter("mode");
@@ -21,7 +21,7 @@ MSXAudio::MSXAudio(Device *config, const EmuTime &time)
 	} else if (stereomode == "right") {
 		mode=Mixer::MONO_RIGHT;
 	}
-	
+
 	// SampleRAM size
 	int ramSize;	// size in kb
 	if (config->hasParameter("sampleram")) {
@@ -29,7 +29,7 @@ MSXAudio::MSXAudio(Device *config, const EmuTime &time)
 	} else {
 		ramSize = 256;
 	}
-	
+
 	y8950 = new Y8950(config->getId(), volume, ramSize * 1024, time, mode);
 	reset(time);
 }
@@ -37,11 +37,6 @@ MSXAudio::MSXAudio(Device *config, const EmuTime &time)
 MSXAudio::~MSXAudio()
 {
 	delete y8950;
-}
-
-void MSXAudio::powerOff(const EmuTime &time)
-{
-	y8950->powerOff(time);
 }
 
 void MSXAudio::reset(const EmuTime &time)

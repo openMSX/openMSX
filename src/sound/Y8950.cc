@@ -417,8 +417,8 @@ void Y8950::Channel::keyOff()
 
 Y8950::Y8950(const string &name, short volume, int sampleRam,
              const EmuTime &time, Mixer::ChannelMode mode)
-	: timer1(this), timer2(this), adpcm(this, sampleRam), connector(time),
-	  dac13(name + "_DAC", volume, time)
+	: timer1(this), timer2(this), adpcm(this, sampleRam), connector()
+	, dac13(name + "_DAC", volume, time)
 {
 	makePmTable();
 	makeAmTable();
@@ -437,7 +437,7 @@ Y8950::Y8950(const string &name, short volume, int sampleRam,
 		ch[i].car.plfo_am = &lfo_am;
 		ch[i].car.plfo_pm = &lfo_pm;
 	}
-	
+
 	reset(time);
 
 	int bufSize = Mixer::instance()->registerSound(name, this, volume, mode);
@@ -448,11 +448,6 @@ Y8950::~Y8950()
 {
 	Mixer::instance()->unregisterSound(this);
 	delete[] buffer;
-}
-
-void Y8950::powerOff(const EmuTime &time)
-{
-	connector.powerOff(time);
 }
 
 void Y8950::setSampleRate(int sampleRate)
@@ -466,10 +461,10 @@ void Y8950::setSampleRate(int sampleRate)
 	am_dphase = rate_adjust(AM_SPEED * AM_DP_WIDTH / (CLK_FREQ/72), sampleRate);
 }
 
-// Reset whole of opl except patch datas. 
+// Reset whole of opl except patch datas.
 void Y8950::reset(const EmuTime &time)
 {
-	for (int i=0; i<9; i++) 
+	for (int i=0; i<9; i++)
 		ch[i].reset();
 	output[0] = 0;
 	output[1] = 0;

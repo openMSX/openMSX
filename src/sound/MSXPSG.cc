@@ -16,11 +16,11 @@ MSXPSG::MSXPSG(Device *config, const EmuTime &time)
 	keyLayoutBit = deviceConfig->getParameterAsBool("keylayoutbit", false);
 	short volume = (short)deviceConfig->getParameterAsInt("volume");
 	ay8910 = new AY8910(*this, volume, time);
-	cassette = CassettePortFactory::instance(time);
+	cassette = CassettePortFactory::instance();
 
 	selectedPort = 0;
-	ports[0] = new JoystickPort("joyporta", time);
-	ports[1] = new JoystickPort("joyportb", time);
+	ports[0] = new JoystickPort("joyporta");
+	ports[1] = new JoystickPort("joyportb");
 
 	reset(time);
 }
@@ -30,12 +30,6 @@ MSXPSG::~MSXPSG()
 	delete ay8910;
 	delete ports[0];
 	delete ports[1];
-}
-
-void MSXPSG::powerOff(const EmuTime &time)
-{
-	ports[0]->unplug(time);
-	ports[1]->unplug(time);
 }
 
 void MSXPSG::reset(const EmuTime &time)

@@ -1,33 +1,33 @@
 // $Id$
 
 #include "Connector.hh"
-#include "Pluggable.hh"
 
 
 namespace openmsx {
 
-Connector::Connector()
+Connector::Connector(const string &name, Pluggable *dummy)
+	: name(name)
+	, dummy(dummy)
 {
-	pluggable = NULL;
+	pluggable = dummy;
+}
+
+Connector::~Connector()
+{
+	delete dummy;
 }
 
 void Connector::plug(Pluggable *device, const EmuTime &time)
+	throw(PlugException)
 {
-	pluggable = device;
 	device->plug(this, time);
+	pluggable = device; // not executed if plug fails
 }
 
 void Connector::unplug(const EmuTime &time)
 {
-	if (pluggable) {
-		pluggable->unplug(time);
-	}
-	//pluggable = DUMMY_DEVICE;
-}
-
-Pluggable* Connector::getPlug() const
-{
-	return pluggable;
+	pluggable->unplug(time);
+	pluggable = dummy;
 }
 
 } // namespace openmsx

@@ -7,28 +7,23 @@
 
 namespace openmsx {
 
-class DummyAudioInputDevice;
 class WavAudioInput;
 
 
-class AudioInputConnector : public Connector
-{
-	public:
-		AudioInputConnector();
-		virtual ~AudioInputConnector();
-	
-		// Connector
-		virtual const string &getClass() const;
-		virtual void plug(Pluggable *dev, const EmuTime &time);
-		virtual void unplug(const EmuTime &time);
-		
-		short readSample(const EmuTime &time);
+class AudioInputConnector : public Connector {
+public:
+	AudioInputConnector(const string &name);
+	virtual ~AudioInputConnector();
 
-	private:
-		DummyAudioInputDevice* dummy;
-		WavAudioInput* wavInput;
+	// Connector
+	virtual const string &getClass() const;
+
+	short readSample(const EmuTime &time);
+
+private:
+	WavAudioInput *wavInput;
 };
 
 } // namespace openmsx
 
-#endif
+#endif // __AUDIOINPUTCONNECTOR_HH__

@@ -8,25 +8,16 @@
 
 namespace openmsx {
 
-JoystickPort::JoystickPort(const string &nm, const EmuTime &time)
-	: name(nm)
+JoystickPort::JoystickPort(const string &name)
+	: Connector(name, new DummyJoystick())
 {
-	dummy = new DummyJoystick();
 	lastValue = 255;	// != 0
 	PluggingController::instance()->registerConnector(this);
-
-	unplug(time);
 }
 
 JoystickPort::~JoystickPort()
 {
 	PluggingController::instance()->unregisterConnector(this);
-	delete dummy;
-}
-
-const string &JoystickPort::getName() const
-{
-	return name;
 }
 
 const string &JoystickPort::getClass() const
@@ -36,15 +27,10 @@ const string &JoystickPort::getClass() const
 }
 
 void JoystickPort::plug(Pluggable *device, const EmuTime &time)
+	throw(PlugException)
 {
 	Connector::plug(device, time);
 	((JoystickDevice*)pluggable)->write(lastValue, time);
-}
-
-void JoystickPort::unplug(const EmuTime &time)
-{
-	Connector::unplug(time);
-	plug(dummy, time);
 }
 
 byte JoystickPort::read(const EmuTime &time)

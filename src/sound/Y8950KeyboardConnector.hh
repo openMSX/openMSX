@@ -9,8 +9,8 @@
 
 namespace openmsx {
 
-class DummyY8950KeyboardDevice : public Y8950KeyboardDevice
-{
+class DummyY8950KeyboardDevice : public Y8950KeyboardDevice {
+public:
 	virtual void write(byte data, const EmuTime &time);
 	virtual byte read(const EmuTime &time);
 
@@ -18,27 +18,21 @@ class DummyY8950KeyboardDevice : public Y8950KeyboardDevice
 	virtual void unplug(const EmuTime& time);
 };
 
+class Y8950KeyboardConnector : public Connector {
+public:
+	Y8950KeyboardConnector();
+	virtual ~Y8950KeyboardConnector();
 
-class Y8950KeyboardConnector : public Connector
-{
-	public:
-		Y8950KeyboardConnector(const EmuTime &time);
-		virtual ~Y8950KeyboardConnector();
+	void write(byte data, const EmuTime &time);
+	byte read(const EmuTime &time);
 
-		void powerOff(const EmuTime &time);
-		void write(byte data, const EmuTime &time);
-		byte read(const EmuTime &time);
+	// Connector
+	virtual const string &getClass() const;
+	virtual void plug(Pluggable *dev, const EmuTime &time)
+		throw(PlugException);
 
-		// Connector
-		virtual const string &getName() const;
-		virtual const string &getClass() const;
-		virtual void plug(Pluggable *dev, const EmuTime &time);
-		virtual void unplug(const EmuTime &time);
-
-	private:
-		DummyY8950KeyboardDevice dummy;
-		
-		byte data;
+private:
+	byte data;
 };
 
 } // namespace openmsx

@@ -8,17 +8,17 @@
 namespace openmsx {
 
 MSXRS232::MSXRS232(Device *config, const EmuTime &time)
-	: MSXDevice(config, time),
-	  MSXIODevice(config, time),
-	  MSXMemDevice(config, time),
-	  RS232Connector("msx-rs232", time),
-	  rxrdyIRQlatch(false),
-	  rxrdyIRQenabled(false),
-	  cntr0(*this), cntr1(*this),
-	  i8254(&cntr0, &cntr1, NULL, time),
-	  interf(*this),
-	  i8251(&interf, time),
-	  rom(config, time)
+	: MSXDevice(config, time)
+	, MSXIODevice(config, time)
+	, MSXMemDevice(config, time)
+	, RS232Connector("msx-rs232")
+	, rxrdyIRQlatch(false)
+	, rxrdyIRQenabled(false)
+	, cntr0(*this), cntr1(*this)
+	, i8254(&cntr0, &cntr1, NULL, time)
+	, interf(*this)
+	, i8251(&interf, time)
+	, rom(config, time)
 {
 	EmuDuration total(1.0 / 1.8432e6); // 1.8432MHz
 	EmuDuration hi   (1.0 / 3.6864e6); //   half clock period
@@ -29,10 +29,6 @@ MSXRS232::MSXRS232(Device *config, const EmuTime &time)
 }
 
 MSXRS232::~MSXRS232()
-{
-}
-
-void MSXRS232::powerOff(const EmuTime &time)
 {
 }
 

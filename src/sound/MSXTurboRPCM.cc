@@ -7,8 +7,11 @@
 
 namespace openmsx {
 
+const string connectorName("pcminput");
+
 MSXTurboRPCM::MSXTurboRPCM(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
+	, AudioInputConnector(connectorName)
 {
 	short volume = (short)deviceConfig->getParameterAsInt("volume");
 	dac = new DACSound8U("PCM", volume, time);
@@ -117,11 +120,5 @@ bool MSXTurboRPCM::getComp(const EmuTime& time)
 	return sample >= DValue;
 }
 
-
-const string& MSXTurboRPCM::getName() const
-{
-	static const string name("pcminput");
-	return name;
-}
 
 } // namespace openmsx

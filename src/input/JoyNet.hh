@@ -17,7 +17,7 @@
 namespace openmsx {
 
 /*
- * Standard JoyNet cable for MSX (to link two or more MSX computers) 
+ * Standard JoyNet cable for MSX (to link two or more MSX computers)
  * =================================================================
  * Notice that if you want to link two MSX computers with standard
  * JoyNet cables, you will need two cables.
@@ -31,7 +31,7 @@ namespace openmsx {
  *             | | |     | | |   |
  *             3 7 6     1 2 8   9
  *
- * MSX(DB9 /f)Alternative JoyNet cable for MSX (to link only two MSX computers) 
+ * MSX(DB9 /f)Alternative JoyNet cable for MSX (to link only two MSX computers)
  * =============================================================================
  *
  * If you want to build an alternative cable to link always just two MSX
@@ -46,47 +46,46 @@ namespace openmsx {
  * 9 --------------- 9
  */
 
-class JoyNet : public JoystickDevice
-{
-	public:
-		JoyNet();
-		virtual ~JoyNet();
+class JoyNet : public JoystickDevice {
+public:
+	JoyNet();
+	virtual ~JoyNet();
 
-		//Pluggable
-		virtual const string &getName() const;
-		virtual void plug(Connector* connector, const EmuTime& time) throw();
-		virtual void unplug(const EmuTime& time);
+	//Pluggable
+	virtual const string &getName() const;
+	virtual void plug(Connector* connector, const EmuTime& time) throw();
+	virtual void unplug(const EmuTime& time);
 
-		//JoystickDevice
-		virtual byte read(const EmuTime &time);
-		virtual void write(byte value, const EmuTime &time);
+	//JoystickDevice
+	virtual byte read(const EmuTime &time);
+	virtual void write(byte value, const EmuTime &time);
 
-	private:
-		//Sub class for listener thread
-		class ConnectionListener: public Runnable
-		{
-			public:
-				ConnectionListener(int listenport,byte* linestatus);
-				virtual ~ConnectionListener();
-				virtual void run();
-			private:
-				int port;
-				byte* statuspointer;
-				Thread thread;
-		};
+private:
+	//Sub class for listener thread
+	class ConnectionListener: public Runnable
+	{
+		public:
+			ConnectionListener(int listenport,byte* linestatus);
+			virtual ~ConnectionListener();
+			virtual void run();
+		private:
+			int port;
+			byte* statuspointer;
+			Thread thread;
+	};
 
-		byte status;
-		//For IP connection
-		string hostname;
-		int portname;
+	byte status;
+	//For IP connection
+	string hostname;
+	int portname;
 
-		int sockfd;
-		struct sockaddr_in servaddr;
+	int sockfd;
+	struct sockaddr_in servaddr;
 
-		void setupConnections();
-		void setupWriter();
-		void sendByte(byte value);
-		ConnectionListener* listener;
+	void setupConnections();
+	void setupWriter();
+	void sendByte(byte value);
+	ConnectionListener* listener;
 };
 
 } // namespace openmsx
