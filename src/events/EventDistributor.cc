@@ -84,12 +84,17 @@ void EventDistributor::distributeEvent(Event* event)
 	//       This is needed because this method can be called from any thread.
 
 	// Deliver event to NATIVE listeners.
+	// TODO: Implement a real solution against modifying data structure while
+	//       iterating through it.
+	//       For example, assign NULL first and then iterate again after
+	//       delivering events to remove the NULL values.
 	bool cont = true;
 	pair<ListenerMap::iterator, ListenerMap::iterator> bounds =
 		nativeListeners.equal_range(event->getType());
 	for (ListenerMap::iterator it = bounds.first;
 	     it != bounds.second; ++it) {
 		cont &= it->second->signalEvent(*event);
+		if (!cont) break;
 	}
 	if (!cont) {
 		// Block event from other listeners.
