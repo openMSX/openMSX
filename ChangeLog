@@ -1,5 +1,8 @@
 $Id$
 
+2003-07-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* On turbor use big 4mb rom also for MSX-MUSIC ROM and DISK ROM
+
 2003-06-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed cassette player bug:
 	   - float was not accurate enough, use 64-bit fixed point

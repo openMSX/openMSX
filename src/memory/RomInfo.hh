@@ -24,7 +24,7 @@ class RomInfo
 		const MapperType &getMapperType() const { return mapperType; }
 
 		static RomInfo *fetchRomInfo(
-		        const Rom &rom, const Device &deviceConfig);
+		        const Rom *rom, const Device &deviceConfig);
 		static MapperType nameToMapperType(const std::string &name);
 		void print();
 
@@ -34,8 +34,8 @@ class RomInfo
 		  * @return The information found in the database,
 		  * 	or NULL if the given ROM is not in the database.
 		  */
-		static RomInfo *searchRomDB(const Rom &rom);
-		static MapperType guessMapperType(const byte* data, int size);
+		static RomInfo *searchRomDB(const Rom *rom);
+		static MapperType guessMapperType(const Rom *rom);
 		
 		std::string title;
 		std::string year;

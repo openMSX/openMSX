@@ -19,70 +19,8 @@
     <type>MapperIO</type>
     <parameter name="type">TurboR</parameter>
   </device>
-
-  <device id="MSX BIOS ROM">
-    <type>PanasonicRom</type>
-    <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
-    <parameter name="block">40</parameter>
-  </device>
   
-  <device id="MSX BASIC ROM">
-    <type>PanasonicRom</type>
-    <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
-    <parameter name="block">42</parameter>
-  </device>
-
-  <device id="MSX Music">
-    <type>Music</type>
-    <slotted> <ps>0</ps> <ss>2</ss> <page>1</page> </slotted>
-    <parameter name="filename">roms/fs-a1gt_fmbasic.rom</parameter>
-    <parameter name="volume">9000</parameter>   
-    <parameter name="mode">mono</parameter>
-  </device>
-  
-  <device id="MSX Opening ROM">
-    <type>PanasonicRom</type>
-    <slotted> <ps>0</ps> <ss>3</ss> <page>1</page> </slotted>
-    <parameter name="block">36</parameter>
-  </device>
-
-  <device id="Main RAM">
-    <type>PanasonicRam</type>
-    <slotted> <ps>3</ps> <ss>0</ss> <page>0</page> </slotted>
-    <slotted> <ps>3</ps> <ss>0</ss> <page>1</page> </slotted>
-    <slotted> <ps>3</ps> <ss>0</ss> <page>2</page> </slotted>
-    <slotted> <ps>3</ps> <ss>0</ss> <page>3</page> </slotted>
-    <parameter name="slow_drain_on_reset">false</parameter>
-    <parameter name="size">512</parameter>
-  </device>
-
-  <device id="MSX Sub ROM">
-    <type>PanasonicRom</type>
-    <slotted> <ps>3</ps> <ss>1</ss> <page>0</page> </slotted>
-    <parameter name="block">56</parameter>
-  </device>
-
-  <device id="MSX Kanji Driver with BASIC 1">
-    <type>PanasonicRom</type>
-    <slotted> <ps>3</ps> <ss>1</ss> <page>1</page> </slotted>
-    <parameter name="block">58</parameter>
-  </device>
-  
-  <device id="MSX Kanji Driver with BASIC 2">
-    <type>PanasonicRom</type>
-    <slotted> <ps>3</ps> <ss>1</ss> <page>2</page> </slotted>
-    <parameter name="block">60</parameter>
-  </device>
-
-  <device id="Memory Mapped FDC">
-    <type>FDC</type>
-    <slotted> <ps>3</ps> <ss>2</ss> <page>1</page> </slotted>
-    <slotted> <ps>3</ps> <ss>2</ss> <page>2</page> </slotted>
-    <parameter name="filename">roms/fs-a1gt_msxdos23.rom</parameter>
-    <parameter name="type">TC8566AF</parameter>
-    <parameter name="drivename1">diska</parameter>
-  </device>
-
+  <!-- this must come before other internal roms -->
   <device id="Firmware">
     <type>Rom</type>
     <slotted> <ps>3</ps> <ss>3</ss> <page>0</page> </slotted>
@@ -96,6 +34,65 @@
     <parameter name="sramname">fs-a1gt.sram</parameter>
   </device>
 
+  <device id="MSX BIOS/BASIC ROM">
+    <type>Rom</type>
+    <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
+    <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
+    <parameter name="firstblock">40</parameter>
+    <parameter name="lastblock">43</parameter>
+  </device>
+  
+  <device id="MSX Music">
+    <type>Music</type>
+    <slotted> <ps>0</ps> <ss>2</ss> <page>1</page> </slotted>
+    <parameter name="firstblock">62</parameter>
+    <parameter name="lastblock">63</parameter>
+    <parameter name="volume">9000</parameter>   
+    <parameter name="mode">mono</parameter>
+  </device>
+  
+  <device id="MSX Opening ROM">
+    <type>Rom</type>
+    <slotted> <ps>0</ps> <ss>3</ss> <page>1</page> </slotted>
+    <parameter name="firstblock">36</parameter>
+    <parameter name="lastblock">37</parameter>
+  </device>
+
+  <device id="Main RAM">
+    <type>PanasonicRam</type>
+    <slotted> <ps>3</ps> <ss>0</ss> <page>0</page> </slotted>
+    <slotted> <ps>3</ps> <ss>0</ss> <page>1</page> </slotted>
+    <slotted> <ps>3</ps> <ss>0</ss> <page>2</page> </slotted>
+    <slotted> <ps>3</ps> <ss>0</ss> <page>3</page> </slotted>
+    <parameter name="slow_drain_on_reset">false</parameter>
+    <parameter name="size">512</parameter>
+  </device>
+
+  <device id="MSX Sub ROM">
+    <type>Rom</type>
+    <slotted> <ps>3</ps> <ss>1</ss> <page>0</page> </slotted>
+    <parameter name="firstblock">56</parameter>
+    <parameter name="lastblock">57</parameter>
+  </device>
+
+  <device id="MSX Kanji Driver with BASIC">
+    <type>Rom</type>
+    <slotted> <ps>3</ps> <ss>1</ss> <page>1</page> </slotted>
+    <slotted> <ps>3</ps> <ss>1</ss> <page>2</page> </slotted>
+    <parameter name="firstblock">58</parameter>
+    <parameter name="lastblock">61</parameter>
+  </device>
+  
+  <device id="Memory Mapped FDC">
+    <type>FDC</type>
+    <slotted> <ps>3</ps> <ss>2</ss> <page>1</page> </slotted>
+    <slotted> <ps>3</ps> <ss>2</ss> <page>2</page> </slotted>
+    <parameter name="firstblock">48</parameter>
+    <parameter name="lastblock">55</parameter>
+    <parameter name="type">TC8566AF</parameter>
+    <parameter name="drivename1">diska</parameter>
+  </device>
+
   <device id="Kanji ROM">
     <type>Kanji</type>
     <parameter name="filename">roms/fs-a1gt_kanjifont.rom</parameter>
@@ -104,7 +101,6 @@
   <device id="S1990">
     <type>S1990</type>
   </device>
-
 
   <device id="ppi">
     <type>PPI</type>

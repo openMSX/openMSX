@@ -6,7 +6,7 @@
 
 
 PanasonicMemory::PanasonicMemory()
-	: dram(false)
+	: rom(NULL), ram(NULL), dram(false)
 {
 }
 
@@ -37,11 +37,13 @@ const byte* PanasonicMemory::getRomBlock(int block)
 	if (dram &&
 	    (((0x28 <= block) && (block < 0x2C)) ||
 	     ((0x38 <= block) && (block < 0x3C)))) {
+		assert(ram);
 		int offset = (block & 0x03) * 0x2000;
 		int ramOffset = (block < 0x30) ? ramSize - 0x10000 :
 		                                 ramSize - 0x08000;
 		return ram + ramOffset + offset;
 	} else {
+		assert(rom);
 		int offset = block * 0x2000;
 		if (offset >= romSize) {
 			offset &= romSize - 1;
@@ -52,6 +54,7 @@ const byte* PanasonicMemory::getRomBlock(int block)
 
 byte* PanasonicMemory::getRamBlock(int block)
 {
+	assert(ram);
 	int offset = block * 0x2000;
 	if (offset >= ramSize) {
 		offset &= ramSize - 1;

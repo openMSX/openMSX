@@ -121,8 +121,14 @@ MapperType RomInfo::nameToMapperType(const string &name)
 	return it->second;
 }
 
-MapperType RomInfo::guessMapperType(const byte* data, int size)
+MapperType RomInfo::guessMapperType(const Rom *rom)
 {
+	int size = rom->getSize();
+	if (size == 0) {
+		return PLAIN;
+	}
+	const byte* data = rom->getBlock();
+	
 	if (size <= 0x10000) {
 		if (size == 0x10000) {
 			// There are some programs convert from tape to
@@ -203,7 +209,7 @@ MapperType RomInfo::guessMapperType(const byte* data, int size)
 	}
 }
 
-RomInfo *RomInfo::searchRomDB(const Rom &rom)
+RomInfo *RomInfo::searchRomDB(const Rom *rom)
 {
 	// TODO: Turn ROM DB into a separate class.
 	static map<string, RomInfo*> romDBSHA1;
@@ -254,14 +260,14 @@ RomInfo *RomInfo::searchRomDB(const Rom &rom)
 		}
 	}
 	
-	int size = rom.getSize();
+	int size = rom->getSize();
 	if (size == 0) {
 		return new RomInfo("", "", "", "Empty ROM", UNKNOWN);
 	}
 
 	// first try SHA1
 	SHA1 sha1;
-	sha1.update(rom.getBlock(), size);
+	sha1.update(rom->getBlock(), size);
 	sha1.finalize();
 	string digestSHA1(sha1.hex_digest());
 	if (romDBSHA1.find(digestSHA1) != romDBSHA1.end()) {
@@ -272,7 +278,7 @@ RomInfo *RomInfo::searchRomDB(const Rom &rom)
 
 	// then try MD5 (obsolete)
 	MD5 md5;
-	md5.update(rom.getBlock(), size);
+	md5.update(rom->getBlock(), size);
 	md5.finalize();
 	string digestMD5(md5.hex_digest());
 	if (romDBMD5.find(digestMD5) != romDBMD5.end()) {
@@ -287,7 +293,7 @@ RomInfo *RomInfo::searchRomDB(const Rom &rom)
 	return NULL;
 }
 
-RomInfo *RomInfo::fetchRomInfo(const Rom &rom, const Device &deviceConfig)
+RomInfo *RomInfo::fetchRomInfo(const Rom *rom, const Device &deviceConfig)
 {
 	// Look for the ROM in the ROM DB.
 	RomInfo *info = searchRomDB(rom);
@@ -309,8 +315,7 @@ RomInfo *RomInfo::fetchRomInfo(const Rom &rom, const Device &deviceConfig)
 	if (typestr == "auto") {
 		// Guess mapper type, if it was not in DB.
 		if (info->mapperType == UNKNOWN) {
-			info->mapperType = guessMapperType(rom.getBlock(),
-			                                   rom.getSize());
+			info->mapperType = guessMapperType(rom);
 		}
 	} else {
 		// Use mapper type from config, even if this overrides DB.

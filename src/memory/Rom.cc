@@ -9,6 +9,7 @@
 #include "MSXCPUInterface.hh"
 #include "MSXRomPatchInterface.hh"
 #include "File.hh"
+#include "PanasonicMemory.hh"
 
 
 Rom::Rom(Device* config, const EmuTime &time)
@@ -16,18 +17,26 @@ Rom::Rom(Device* config, const EmuTime &time)
 	if (config->hasParameter("filename")) {
 		std::string filename = config->getParameter("filename");
 		read(config, filename, time);
+	} else if (config->hasParameter("firstblock")) {
+		int first = config->getParameterAsInt("firstblock");
+		int last  = config->getParameterAsInt("lastblock");
+		size = (last - first + 1) * 0x2000;
+		rom = PanasonicMemory::instance()->getRomBlock(first);
+		file = NULL;
+		assert(last >= first);
+		assert(rom);
 	} else { // Assumption: this only happens for an empty SCC
 		size = 0;
 		file = NULL;
 	}
-	info = RomInfo::fetchRomInfo(*this, *config);
+	info = RomInfo::fetchRomInfo(this, *config);
 }
 
 Rom::Rom(Device* config, const std::string &filename,
                            const EmuTime &time)
 {
 	read(config, filename, time);	// TODO config
-	info = RomInfo::fetchRomInfo(*this, *config);
+	info = RomInfo::fetchRomInfo(this, *config);
 }
 
 void Rom::read(Device* config,
@@ -58,9 +67,10 @@ void Rom::read(Device* config,
 	}
 	
 	// read file
+	byte *tmp = 0;	// avoid warning
 	try {
-		byte *tmp = file->mmap();
-		rom = tmp + offset;
+		byte *tmp = file->mmap() + offset;
+		rom = tmp;
 	} catch (FileException &e) {
 		PRT_ERROR("Error reading ROM image: " << filename);
 	}
@@ -95,10 +105,10 @@ void Rom::read(Device* config,
 		unsigned int romOffset = strtol((*i)->name.c_str(), 0, 0);
 		int value  = (*i)->getAsInt();
 		if (romOffset >= size) {
-			PRT_DEBUG("Ignoring illegal ROM patch-offset: " << romOffset);
+			PRT_INFO("Ignoring illegal ROM patch-offset: " << romOffset);
 		} else {
 			PRT_DEBUG("Patching ROM[" << (*i)->name << "]=" << (*i)->value);
-			rom[romOffset] = value;
+			tmp[romOffset] = value; // tmp = rom, but rom is read only
 		}
 	}
 	config->getParametersWithClassClean(parameters2);

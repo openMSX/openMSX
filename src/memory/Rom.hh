@@ -16,7 +16,7 @@ class Rom
 	public:
 		Rom(Device *config, const EmuTime &time);
 		Rom(Device *config, const std::string &filename,
-		             const EmuTime &time);
+		    const EmuTime &time);
 		virtual ~Rom();
 
 		byte read(unsigned int address) const {
@@ -41,7 +41,7 @@ class Rom
 		void read(Device *config, 
 		          const std::string &filename, const EmuTime &time);
 		
-		byte* rom;
+		const byte* rom;
 		unsigned int size;
 		File* file;
 		std::list<MSXRomPatchInterface*> romPatchInterfaces;
