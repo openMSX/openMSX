@@ -53,7 +53,8 @@ libVideo_la_SOURCES = \
 	HQ2xScaler.hh HQ2xScaler.cc \
 	Deinterlacer.hh Deinterlacer.cc \
 	GLUtil.hh GLUtil.cc \
-	ScreenShotSaver.hh ScreenShotSaver.cc
+	ScreenShotSaver.hh ScreenShotSaver.cc \
+	VideoEvents.hh
 
 libVideo_la_LIBADD =
 
