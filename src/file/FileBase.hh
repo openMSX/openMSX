@@ -27,7 +27,7 @@ class FileBase
 		virtual unsigned getSize() = 0;
 		virtual void seek(unsigned pos) = 0;
 		virtual unsigned getPos() = 0;
-		virtual void truncate(unsigned size) = 0;
+		virtual void truncate(unsigned size);
 		
 		virtual const string getURL() const = 0;
 		virtual const string getLocalName() = 0;
