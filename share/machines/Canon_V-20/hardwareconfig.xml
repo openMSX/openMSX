@@ -29,28 +29,6 @@
     <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
     <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
     <parameter name="filename">roms/v-20_basic-bios1.rom</parameter>
-        <parameter name="0x00E1" class="patch">0xED</parameter>
-    <parameter name="0x00E2" class="patch">0xFE</parameter>
-    <parameter name="0x00E3" class="patch">0xC9</parameter>
-    <parameter name="0x00E4" class="patch">0xED</parameter>
-    <parameter name="0x00E5" class="patch">0xFE</parameter>
-    <parameter name="0x00E6" class="patch">0xC9</parameter>
-    <parameter name="0x00E7" class="patch">0xED</parameter>
-    <parameter name="0x00E8" class="patch">0xFE</parameter>
-    <parameter name="0x00E9" class="patch">0xC9</parameter>
-    <parameter name="0x00EA" class="patch">0xED</parameter>
-    <parameter name="0x00EB" class="patch">0xFE</parameter>
-    <parameter name="0x00EC" class="patch">0xC9</parameter>
-    <parameter name="0x00ED" class="patch">0xED</parameter>
-    <parameter name="0x00EE" class="patch">0xFE</parameter>
-    <parameter name="0x00EF" class="patch">0xC9</parameter>
-    <parameter name="0x00F0" class="patch">0xED</parameter>
-    <parameter name="0x00F1" class="patch">0xFE</parameter>
-    <parameter name="0x00F2" class="patch">0xC9</parameter>
-    <parameter name="0x00F3" class="patch">0xED</parameter>
-    <parameter name="0x00F4" class="patch">0xFE</parameter>
-    <parameter name="0x00F5" class="patch">0xC9</parameter>
-    <parameter name="" class="patchcode">MSXTapePatch</parameter>
   </device>
 
   <device id="ppi">
