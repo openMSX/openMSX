@@ -1,5 +1,10 @@
 $Id$
 
+2003-05-10 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Replaced old YM2413 code by new one. Volume still needs some tuning:
+	   - relative volume between music and drum channels
+	   - relative volume between YM2413 and other sound chips
+
 2003-05-09 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Added resizing and moving to the console.
 	* Extended the console editing keys.
