@@ -29,7 +29,6 @@ ConfigFileContext::ConfigFileContext(const std::string &path)
 SystemFileContext::SystemFileContext()
 {
 	paths.push_back("~/.openMSX/");
-	paths.push_back("~/openMSX/");
 	paths.push_back("/usr/local/etc/openMSX/");
 	paths.push_back("/etc/openMSX/");
 }

@@ -4,6 +4,7 @@
 #define __MSXRTC_HH__
 
 #include "MSXIODevice.hh"
+#include "SRAM.hh"
 
 // forward declaration
 class RP5C01;
@@ -12,14 +13,7 @@ class RP5C01;
 class MSXRTC : public MSXIODevice
 {
 	public:
-		/**
-		 * Constructor
-		 */
 		MSXRTC(Device *config, const EmuTime &time);
-
-		/**
-		 * Destructor
-		 */
 		virtual ~MSXRTC(); 
 
 		virtual void reset(const EmuTime &time);
@@ -28,6 +22,7 @@ class MSXRTC : public MSXIODevice
 
 	private:
 		RP5C01 *rp5c01;
+		SRAM sram;
 		nibble registerLatch;
 };
 #endif

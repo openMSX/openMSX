@@ -234,9 +234,9 @@
   <device id="Real time clock">
     <type>RTC</type>
     <parameter name="mode">EmuTime</parameter>
-    <parameter name="load">true</parameter>
-    <parameter name="save">true</parameter>
-    <parameter name="filename">RTC.SAVE</parameter>
+    <parameter name="loadsram">true</parameter>
+    <parameter name="savesram">true</parameter>
+    <parameter name="sramname">RTC.SAVE</parameter>
   </device>
 
 <!-- This is a settings-type of configuration. See settings.xml -->

@@ -17,15 +17,12 @@
 class RP5C01
 {
 	public:
-		RP5C01(bool emuMode, const EmuTime &time);
 		RP5C01(bool emuMode, unsigned char* data, const EmuTime &time);
 		~RP5C01(); 
 		
 		void reset(const EmuTime &time);
 		nibble readPort(nibble port, const EmuTime &time);
 		void writePort(nibble port, nibble value, const EmuTime &time);
-		
-		unsigned char* getRegs();
 		
 	private:
 		void initializeTime();
@@ -58,8 +55,7 @@ class RP5C01
 		static const int daysInMonths[12]; 
 
 		nibble modeReg, testReg, resetReg;
-		nibble reg[4][13];
-		static const nibble mask[4][13];
+		byte* reg;
 
 		bool emuTimeBased;
 		EmuTimeFreq<FREQ> reference;

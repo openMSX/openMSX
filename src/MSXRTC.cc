@@ -7,32 +7,15 @@
 
 
 MSXRTC::MSXRTC(Device *config, const EmuTime &time)
-	: MSXDevice(config, time), MSXIODevice(config, time)
+	: MSXDevice(config, time), MSXIODevice(config, time), sram(4 * 13, config) 
 {
 	bool emuTimeBased = deviceConfig->getParameter("mode") != "RealTime";
-	try {
-		if (deviceConfig->getParameterAsBool("load")) {
-			const std::string &filename = deviceConfig->getParameter("filename");
-			File file(deviceConfig->getContext(), filename);
-			byte buffer[4 * 13];
-			file.read(buffer, 4 * 13);
-			rp5c01 = new RP5C01(emuTimeBased, buffer, time);	// use data from buffer
-		} else {
-			throw FileException("dummy");	// use default values
-		}
-	} catch (FileException &e) {
-		rp5c01 = new RP5C01(emuTimeBased, time);	// use default values
-	}
-	reset(time);
+	
+	rp5c01 = new RP5C01(emuTimeBased, sram.getBlock(), time);
 }
 
 MSXRTC::~MSXRTC()
 {
-	if (deviceConfig->getParameterAsBool("save")) {
-		const std::string &filename = deviceConfig->getParameter("filename");
-		File file(deviceConfig->getContext(), filename, TRUNCATE);
-		file.write(rp5c01->getRegs(), 4 * 13);
-	}
 	delete rp5c01;
 }
 

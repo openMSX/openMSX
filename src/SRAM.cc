@@ -13,7 +13,8 @@ SRAM::SRAM(int size_, Config *config_, const char *header_)
 	sram = new byte[size];
 	memset(sram, 0xFF, size);
 	
-	if (config->getParameterAsBool("loadsram")) {
+	if (!config->hasParameter("loadsram") ||
+	     config->getParameterAsBool("loadsram")) {
 		const std::string &filename = config->getParameter("sramname");
 		PRT_DEBUG("SRAM: read " << filename);
 		try {
@@ -30,6 +31,8 @@ SRAM::SRAM(int size_, Config *config_, const char *header_)
 			}
 			if (headerOk) {
 				file.read(sram, size);
+			} else {
+				PRT_INFO("Warning correct SRAM file: " << filename);
 			}
 		} catch (FileException &e) {
 			PRT_INFO("Couldn't load SRAM " << filename);
@@ -39,7 +42,8 @@ SRAM::SRAM(int size_, Config *config_, const char *header_)
 
 SRAM::~SRAM()
 {
-	if (config->getParameterAsBool("savesram")) {
+	if (!config->hasParameter("savesram") ||
+	     config->getParameterAsBool("savesram")) {
 		const std::string &filename = config->getParameter("sramname");
 		PRT_DEBUG("SRAM: save " << filename);
 		try {

@@ -1116,7 +1116,7 @@ byte Y8950::readReg(byte rg, const EmuTime &time)
 		default:
 			result = 255;
 	}
-	PRT_DEBUG("Y8950 read " << (int)rg<<" "<<(int)result);
+	//PRT_DEBUG("Y8950 read " << (int)rg<<" "<<(int)result);
 	return result;
 }
 

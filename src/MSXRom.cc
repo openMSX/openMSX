@@ -782,7 +782,6 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 		}
 		address &= 0x3FFF;
 		if ((bankSelect[0] == 0) && (address >= 0x3000)) {
-			PRT_DEBUG("MSXAUDIO: write 0x"<<std::hex<<(int)address<<std::dec);
 			ram[address - 0x3000] = value;
 		}
 		break;

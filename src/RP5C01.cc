@@ -5,24 +5,22 @@
 #include <time.h>
 #include <string>
 
-//TODO  ALARM is not implemented (not connected on MSX)
+//TODO  ALARM is not implemented        (not connected on MSX)
 //TODO  1Hz 16Hz output not implemented (not connected on MSX)
 
 
-RP5C01::RP5C01(bool emuMode, const EmuTime &time) 
+// 0-bits are ignored on writing and return 0 on reading
+static const nibble mask[4][13] = {
+	{ 0xf, 0x7, 0xf, 0x7, 0xf, 0x3, 0x7, 0xf, 0x3, 0xf, 0x1, 0xf, 0xf},
+	{ 0x0, 0x0, 0xf, 0x7, 0xf, 0x3, 0x7, 0xf, 0x3, 0x0, 0x1, 0x3, 0x0},
+	{ 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf},
+	{ 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf}
+};
+
+
+RP5C01::RP5C01(bool emuMode, byte* data, const EmuTime &time)
+	: reg(data), emuTimeBased(emuMode), reference(time)
 {
-	reference = time;
-	emuTimeBased = emuMode;
-	memset (reg, 0, sizeof(reg));
-	reg[ALARM_BLOCK][10] = 1;	// set 24hour mode
-	initializeTime();
-	reset(time);
-}
-RP5C01::RP5C01(bool emuMode, unsigned char* data, const EmuTime &time) 
-{
-	reference = time;
-	emuTimeBased = emuMode;
-	memcpy(reg, data, sizeof(reg));
 	initializeTime();
 	reset(time);
 }
@@ -53,7 +51,7 @@ nibble RP5C01::readPort(nibble port, const EmuTime &time)
 			int block = modeReg & MODE_BLOKSELECT;
 			if (block == TIME_BLOCK)
 				updateTimeRegs(time);
-			nibble tmp = reg[block][port];
+			nibble tmp = reg[block * 13 + port];
 			return tmp & mask[block][port];
 	}
 }
@@ -81,20 +79,11 @@ void RP5C01::writePort(nibble port, nibble value, const EmuTime &time)
 			int block = modeReg & MODE_BLOKSELECT;
 			if (block == TIME_BLOCK)
 				updateTimeRegs(time);
-			reg[block][port] = value & mask[block][port];
+			reg[block * 13 + port] = value & mask[block][port];
 			if (block == TIME_BLOCK)
 				regs2Time();
 	}
 }
-
-// 0-bits are ignored on writing and return 0 on reading
-const nibble RP5C01::mask[4][13] = {
-	{ 0xf, 0x7, 0xf, 0x7, 0xf, 0x3, 0x7, 0xf, 0x3, 0xf, 0x1, 0xf, 0xf},
-	{ 0x0, 0x0, 0xf, 0x7, 0xf, 0x3, 0x7, 0xf, 0x3, 0x0, 0x1, 0x3, 0x0},
-	{ 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf},
-	{ 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf}
-};
-
 
 void RP5C01::initializeTime()
 {
@@ -114,16 +103,16 @@ void RP5C01::initializeTime()
 
 void RP5C01::regs2Time()
 {
-	seconds  = reg[TIME_BLOCK][ 0] + 10 * reg[TIME_BLOCK][ 1];
-	minutes  = reg[TIME_BLOCK][ 2] + 10 * reg[TIME_BLOCK][ 3];
-	hours    = reg[TIME_BLOCK][ 4] + 10 * reg[TIME_BLOCK][ 5];
-	dayWeek  = reg[TIME_BLOCK][ 6];
-	days     = reg[TIME_BLOCK][ 7] + 10 * reg[TIME_BLOCK][ 8] - 1;	// 1-31 -> 0-30
-	months   = reg[TIME_BLOCK][ 9] + 10 * reg[TIME_BLOCK][10] - 1;	// 1-12 -> 0-11
-	years    = reg[TIME_BLOCK][11] + 10 * reg[TIME_BLOCK][12];
-	leapYear = reg[ALARM_BLOCK][11];
+	seconds  = reg[TIME_BLOCK * 13 + 0] + 10 * reg[TIME_BLOCK * 13 + 1];
+	minutes  = reg[TIME_BLOCK * 13 + 2] + 10 * reg[TIME_BLOCK * 13 + 3];
+	hours    = reg[TIME_BLOCK * 13 + 4] + 10 * reg[TIME_BLOCK * 13 + 5];
+	dayWeek  = reg[TIME_BLOCK * 13 + 6];
+	days     = reg[TIME_BLOCK * 13 + 7] + 10 * reg[TIME_BLOCK * 13 + 8] - 1;
+	months   = reg[TIME_BLOCK * 13 + 9] + 10 * reg[TIME_BLOCK * 13 +10] - 1;
+	years    = reg[TIME_BLOCK * 13 +11] + 10 * reg[TIME_BLOCK * 13 +12];
+	leapYear = reg[ALARM_BLOCK * 13 +11];
 
-	if (!reg[ALARM_BLOCK][10]) {
+	if (!reg[ALARM_BLOCK * 13 + 10]) {
 		// 12 hours mode
 		if (hours >= 20) hours = (hours - 20) + 12;
 	}
@@ -132,25 +121,25 @@ void RP5C01::regs2Time()
 void RP5C01::time2Regs()
 {
 	int hours_ = hours;
-	if (!reg[ALARM_BLOCK][10]) {
+	if (!reg[ALARM_BLOCK * 13 + 10]) {
 		// 12 hours mode
 		if (hours >= 12) hours_ = (hours - 12) + 20;
 	}
 	
-	reg[TIME_BLOCK][ 0]  =  seconds   % 10;
-	reg[TIME_BLOCK][ 1]  =  seconds   / 10;
-	reg[TIME_BLOCK][ 2]  =  minutes   % 10;
-	reg[TIME_BLOCK][ 3]  =  minutes   / 10;
-	reg[TIME_BLOCK][ 4]  =  hours_    % 10;
-	reg[TIME_BLOCK][ 5]  =  hours_    / 10;
-	reg[TIME_BLOCK][ 6]  =  dayWeek;
-	reg[TIME_BLOCK][ 7]  = (days+1)   % 10;	// 0-30 -> 1-31
-	reg[TIME_BLOCK][ 8]  = (days+1)   / 10;	// 0-11 -> 1-12
-	reg[TIME_BLOCK][ 9]  = (months+1) % 10;
-	reg[TIME_BLOCK][10]  = (months+1) / 10;
-	reg[TIME_BLOCK][11]  =  years     % 10;
-	reg[TIME_BLOCK][12]  =  years     / 10;
-	reg[ALARM_BLOCK][11] =  leapYear;
+	reg[TIME_BLOCK  * 13 +  0] =  seconds   % 10;
+	reg[TIME_BLOCK  * 13 +  1] =  seconds   / 10;
+	reg[TIME_BLOCK  * 13 +  2] =  minutes   % 10;
+	reg[TIME_BLOCK  * 13 +  3] =  minutes   / 10;
+	reg[TIME_BLOCK  * 13 +  4] =  hours_    % 10;
+	reg[TIME_BLOCK  * 13 +  5] =  hours_    / 10;
+	reg[TIME_BLOCK  * 13 +  6] =  dayWeek;
+	reg[TIME_BLOCK  * 13 +  7] = (days+1)   % 10;	// 0-30 -> 1-31
+	reg[TIME_BLOCK  * 13 +  8] = (days+1)   / 10;	// 0-11 -> 1-12
+	reg[TIME_BLOCK  * 13 +  9] = (months+1) % 10;
+	reg[TIME_BLOCK  * 13 + 10] = (months+1) / 10;
+	reg[TIME_BLOCK  * 13 + 11] =  years     % 10;
+	reg[TIME_BLOCK  * 13 + 12] =  years     / 10;
+	reg[ALARM_BLOCK * 13 + 11] =  leapYear;
 }
 
 static int daysInMonth(int month, int leapYear) 
@@ -204,11 +193,6 @@ void RP5C01::updateTimeRegs(const EmuTime &time)
 void RP5C01::resetAlarm()
 {
 	for (int i = 2; i <= 8; i++) {
-		reg[ALARM_BLOCK][i] = 0;
+		reg[ALARM_BLOCK * 13 + i] = 0;
 	}
-}
-
-unsigned char* RP5C01::getRegs()
-{
-	return reinterpret_cast <unsigned char*>(reg);
 }
