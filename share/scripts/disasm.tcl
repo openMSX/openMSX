@@ -57,9 +57,9 @@ proc step_in {} {
 proc step_over {} {
 	set address [getPC]
 	set l [debug disasm $address]
-	if [string match "call*" [lindex $l 0]] {
-		run_to [expr $address + [llength $l] - 1]
-	} elseif [string match "rst*" [lindex $l 0]] {
+	if {[string match "call*" [lindex $l 0]] ||
+	    [string match "rst*"  [lindex $l 0]] ||
+	    [string match "halt*" [lindex $l 0]]} {
 		run_to [expr $address + [llength $l] - 1]
 	} else {
 		debug step
