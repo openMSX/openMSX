@@ -1,5 +1,9 @@
 $Id$
 
+2004-11-29 Eric Boon <e.boon4@chello.nl>
+	* Fixed broken build for non-GL systems
+	* Improved V9990 Command engine a bit
+
 2004-11-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Major CPU cleanup:
 	   replaced macro hack with c++ templates
