@@ -6,7 +6,7 @@
 #include "MSXDevice.hh"
 #include "emutime.hh"
 #include "AY8910.hh"
-
+#include "JoystickPorts.hh"
 
 class MSXPSG : public MSXDevice, AY8910Interface
 {
@@ -29,5 +29,8 @@ class MSXPSG : public MSXDevice, AY8910Interface
 		byte readB();
 		void writeA(byte value);
 		void writeB(byte value);
+
+	private:
+		JoystickPorts *joyPorts;
 };
 #endif

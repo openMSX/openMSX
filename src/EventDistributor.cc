@@ -42,8 +42,10 @@ void EventDistributor::run()
 		PRT_DEBUG("SDL event received");
 		SDL_mutexP(asyncMutex);
 		std::multimap<int, EventListener*>::iterator it;
-		for (it = asyncMap.find(event.type); it!=asyncMap.end(); it++) {
-			((*it).second)->signalEvent(event);
+		for (it = asyncMap.lower_bound(event.type);
+		     (it != asyncMap.end()) && (it->first == event.type);
+		     it++) {
+			it->second->signalEvent(event);
 		}
 		SDL_mutexV(asyncMutex);
 	}
@@ -88,8 +90,10 @@ void EventDistributor::pollSyncEvents()
 		SDL_mutexV(queueMutex);	//temporary release queue mutex
 		SDL_mutexP(syncMutex);
 		std::multimap<int, EventListener*>::iterator it;
-		for (it = syncMap.find(event.type); it!=syncMap.end(); it++) {
-			((*it).second)->signalEvent(event);
+		for (it = syncMap.lower_bound(event.type);
+		     (it != syncMap.end()) && (it->first == event.type);
+		     it++) {
+			it->second->signalEvent(event);
 		}
 		SDL_mutexV(syncMutex);
 		SDL_mutexP(queueMutex);	//retake queue mutex

@@ -28,7 +28,7 @@ class Mouse : public JoystickDevice, EventListener
 		static const int FAZE_XLOW  = 1;
 		static const int FAZE_YHIGH = 2;
 		static const int FAZE_YLOW  = 3;
-		static const int STROBE = 0x04;	//TODO check this, probably wrong
+		static const int STROBE = 0x04;
 
 		byte status;
 		int faze;

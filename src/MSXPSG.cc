@@ -11,12 +11,14 @@ MSXPSG::MSXPSG()
 {
 	PRT_DEBUG("Creating an MSXPSG object");
 	ay8910 = new AY8910(*this);
+	joyPorts = JoystickPorts::instance();
 }
 
 MSXPSG::~MSXPSG()
 {
 	PRT_DEBUG("Destroying an MSXPSG object");
 	delete ay8910;
+	//delete joyPorts;	// is singleton
 }
 
 void MSXPSG::init()
@@ -61,7 +63,7 @@ void MSXPSG::writeIO(byte port, byte value, Emutime &time)
 // AY8910Interface
 byte MSXPSG::readA()
 {
-	byte joystick = JoystickPorts::instance()->read();
+	byte joystick = joyPorts->read();
 	byte keyLayout = 0;		//TODO
 	byte cassetteInput = 0;		//TODO
 	return joystick | (keyLayout<<6) | (cassetteInput<<7);
@@ -82,7 +84,7 @@ void MSXPSG::writeA(byte value)
 
 void MSXPSG::writeB(byte value)
 {
-	JoystickPorts::instance()->write(value);
+	joyPorts->write(value);
 	
 	Leds::LEDCommand kana = (value&0x80) ? Leds::KANA_OFF : Leds::KANA_ON;
 	Leds::instance()->setLed(kana);
