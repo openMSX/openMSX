@@ -16,8 +16,8 @@ class Z80;
 typedef void (Z80::*Z80_ResumeFunc)();
 
 
-/// Emulation of the Z80 CPU.
-/** Based on Z80Em: Portable Z80 emulator
+/** Emulation of the Z80 CPU.
+  * Based on Z80Em: Portable Z80 emulator
   * written by Marcel de Kogel 1996, 1997.
   * Heavily rewritten to fit openMSX structure.
   */
