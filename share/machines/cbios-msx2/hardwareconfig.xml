@@ -3,81 +3,91 @@
   SYSTEM 'msxconfig.dtd'>
 <msxconfig>
 
-  <config id="ExternalSlots">
-    <slota>1-0</slota>
-    <slotb>2-0</slotb>
-  </config>
+  <info>
+    <manufacturer>BouKiChi/Reikan</manufacturer>
+    <code>C-BIOS MSX2</code>
+    <release_year>2003</release_year>
+    <description>A fake MSX2 machine for C-BIOS</description>
+    <type>MSX2</type>
+  </info>
 
-  <config id="MotherBoard">
-    <slot expanded="false" num="0"/>
-    <slot expanded="false" num="1"/>
-    <slot expanded="false" num="2"/>
-    <slot expanded="true" num="3"/>
-  </config>
-
-  <config id="MapperType">
-    <type>Philips</type>
-  </config>
-
-  <device id="Main RAM">
-    <type>MemoryMapper</type>
-    <slow_drain_on_reset>false</slow_drain_on_reset>
-    <size>512</size>
-    <slotted> <ps>3</ps> <ss>2</ss> <page>0</page> </slotted>
-    <slotted> <ps>3</ps> <ss>2</ss> <page>1</page> </slotted>
-    <slotted> <ps>3</ps> <ss>2</ss> <page>2</page> </slotted>
-    <slotted> <ps>3</ps> <ss>2</ss> <page>3</page> </slotted>
-    <slow_drain_on_reset>false</slow_drain_on_reset>
-  </device>
-
-  <device id="C-BIOS main">
-    <type>ROM</type>
-    <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
-    <filename>../../../Contrib/cbios/CB_MAIN.BIN</filename>
-  </device>
-
-  <device id="C-BIOS second half">
-    <type>ROM</type>
-    <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
-    <filename>../../../Contrib/cbios/CB_SH.BIN</filename>
-  </device>
-
-  <device id="C-BIOS subrom">
-    <type>ROM</type>
-    <slotted> <ps>3</ps> <ss>0</ss> <page>0</page> </slotted>
-    <filename>../../../Contrib/cbios/CB_SUB.BIN</filename>
-  </device>
-
-  <device id="ppi">
-    <type>PPI</type>
-    <volume>16000</volume>
-    <key_ghosting>true</key_ghosting>
-  <io base="0xa8" num="4"/></device>
-
-  <device id="VDP">
-    <type>VDP</type>
-    <version>V9938</version>
-    <vram>128</vram>
-  <io base="0x98" num="4" type="O"/><io base="0x98" num="2" type="I"/></device>
-
-  <device id="Real time clock">
-    <type>RTC</type>
-    
-    <sramname>cbios-msx2.cmos</sramname>
-  <io base="0xb4" num="2" type="O"/><io base="0xb5" num="1" type="I"/></device>
-
-  <device id="PSG">
-    <type>PSG</type>
-    <volume>21000</volume>
-  <io base="0xa0" num="2" type="O"/><io base="0xa2" num="1" type="I"/></device>
-
+  <MapperType>Philips</MapperType>
   
+  <CassettePort/>
 
-  <device id="Printer Port">
-    <type>PrinterPort</type>
-  <io base="0x90" num="2"/></device>
+  <devices>
+    <primary slot="0">
+      <ROM id="C-BIOS main">
+        <mem base="0x0000" size="0x4000"/>
+        <rom>
+          <filename>../../../Contrib/cbios/CB_MAIN.BIN</filename>
+        </rom>
+      </ROM>
+      <ROM id="C-BIOS second half">
+        <mem base="0x4000" size="0x4000"/>
+        <rom>
+          <filename>../../../Contrib/cbios/CB_SH.BIN</filename>
+        </rom>
+      </ROM>
+    </primary>
+    
+    <primary slot="1" external="true"/>
 
-  <config id="CassettePort">
-  </config>
+    <primary slot="2" external="true"/>
+
+    <primary slot="3">
+      <secondary slot="0">
+        <ROM id="C-BIOS Sub ROM">
+          <mem base="0x0000" size="0x4000"/>
+          <rom>
+            <filename>../../../Contrib/cbios/CB_SUB.BIN</filename>
+          </rom>
+        </ROM>
+      </secondary>
+
+      <secondary slot="2">
+        <MemoryMapper id="Main RAM">
+          <mem base="0x0000" size="0x10000"/>
+          <slow_drain_on_reset>false</slow_drain_on_reset>
+          <size>512</size>
+        </MemoryMapper>
+      </secondary>
+
+    </primary>
+
+    <PPI id="ppi">
+      <io base="0xA8" num="4"/>
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <key_ghosting>true</key_ghosting>
+    </PPI>
+
+    <VDP id="VDP">
+      <io base="0x98" num="4" type="O"/>
+      <io base="0x98" num="2" type="I"/>
+      <version>V9938</version>
+      <vram>128</vram>
+    </VDP>
+
+    <PSG id="PSG">
+      <io base="0xA0" num="2" type="O"/>
+      <io base="0xA2" num="1" type="I"/>
+      <sound>
+        <volume>21000</volume>
+      </sound>
+    </PSG>
+
+    <RTC id="Real time clock">
+      <io base="0xB4" num="2" type="O"/>
+      <io base="0xB5" num="1" type="I"/>
+      <sramname>cbios-msx2.cmos</sramname>
+    </RTC>
+
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="2"/>
+    </PrinterPort>
+
+  </devices>
 
 </msxconfig>
