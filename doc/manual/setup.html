@@ -64,7 +64,7 @@ The latest version of the openMSX manual can be found on the openMSX home page:
 <a class="external" href="http://openmsx.sourceforge.net/manual/">http://openmsx.sourceforge.net/manual/</a>
 </p>
 <p>
-You can also use this URL to get up-to-date versions of the hyperlinks
+You can also use this URL to get up-to-date versions of the hyper links
 if you printed out this manual.
 </p>
 
@@ -445,35 +445,47 @@ fragments from other existing configurations that can be found in
 
 <p>
 To add an FMPAC to the 8250, just copy this part from the <code>exampleconfigs.xml</code> to
-some place in your <code>mymsx/hardwareconfig.xml</code> file (between the <code>&lt;msxconfig&gt;</code> and
-<code>&lt;/msxconfig&gt;</code> tags!):
+some place in your <code>mymsx/hardwareconfig.xml</code> file (between the <code>&lt;devices&gt;</code> and
+<code>&lt;/devices&gt;</code> tags!):
 </p>
 
 <pre>
-  &lt;device id="FMPAC"&gt;
-    &lt;type&gt;FM-PAC&lt;/type&gt;
-    &lt;slotted&gt; &lt;ps&gt;2&lt;/ps&gt; &lt;ss&gt;0&lt;/ss&gt; &lt;page&gt;1&lt;/page&gt; &lt;/slotted&gt;
-    &lt;parameter name="filename"&gt;roms/fmpac.rom&lt;/parameter&gt;
-    &lt;parameter name="volume"&gt;9000&lt;/parameter&gt;
-    &lt;parameter name="mode"&gt;left&lt;/parameter&gt;
-    &lt;parameter name="sramname"&gt;fmpac.pac&lt;/parameter&gt;
-  &lt;/device&gt;
+    &lt;primary slot="2"&gt;
+      &lt;secondary slot="0"&gt;
+        &lt;FMPAC id="PanaSoft SW-M004 FMPAC"&gt;
+          &lt;io base="0x7C" num="2" type="O"/&gt;
+          &lt;mem base="0x4000" size="0x4000"/&gt;
+          &lt;sound&gt;
+            &lt;volume&gt;13000&lt;/volume&gt;
+            &lt;mode&gt;left&lt;/mode&gt;
+          &lt;/sound&gt;
+          &lt;rom&gt;
+            &lt;sha1&gt;9d789166e3caf28e4742fe933d962e99618c633d&lt;/sha1&gt;
+            &lt;filename&gt;roms/fmpac.rom&lt;/filename&gt;
+          &lt;/rom&gt;
+          &lt;sramname&gt;fmpac.pac&lt;/sramname&gt;
+        &lt;/FMPAC&gt;
+      &lt;/secondary&gt;
+    &lt;/primary&gt;
 </pre>
 
 <p>
-Don't forget to add the <code>fmpac.rom</code> file to the roms directory of your machine.
+Don't forget to add the <code>fmpac.rom</code> file to the roms directory of
+your machine, or add the file with the mentioned sha1sum to one of your ROM
+pools.
 </p>
 
 <p>
-You can make some settings, too. The number in the <code>&lt;ps&gt;</code> tag indicates the
-primary slot of the MSX you're going to emulate. In this case the second
-cartridge slot of the NMS-8250 is used. <code>&lt;ss&gt;</code> means sub slot. Our NMS-8250
-doesn't have an expanded slot in slot 2, so we have to specify 0 here. (The
-MotherBoard config part at the top of the config file says what slots are
+You can of course do some things differently, if you like.
+The number in <code>slot</code> attribute of the <code>&lt;primary&gt;</code> tag indicates the
+primary slot of the emulated MSX you're editing. In this case the second
+cartridge slot of the NMS-8250 is used. <code>&lt;secondary&gt;</code> means sub slot. Our NMS-8250
+doesn't have an expanded slot in slot 2, so we have to specify 0 here. (If a <code>&lt;primary&gt;</code>
+tag has the attribute <code>external="true"</code>, this means that the slot is
 expanded; a normal 8250 has slot 3 expanded.)
-The parameter filename can be adjusted to the name of your (64kB!) FMPAC ROM
+As explained above, the parameter filename can be adjusted to the name of your (64kB!) FMPAC ROM
 file (note: if the file is not 64kB (65536 bytes) in size, it won't work).
-"mode" says to what channel the FMPAC's sound will be routed by
+"mode" defines to what channel the FMPAC's sound will be routed by
 default.
 "sramname" specifies the file name for file in which the SRAM contents will be
 saved to or loaded from. The saved files are compatible with the files that are
@@ -486,20 +498,29 @@ the FMPAC commander with <code>CALL FMPAC</code> in the emulated MSX!
 </p>
 
 <p>
-In a similar fashion, you can also add an MSX-Audio device (<code>&lt;device
-id="MSX-Audio"&gt;</code>, note that some programs also need the MSX-Audio-Midi device to
+In a similar fashion, you can also add an MSX-Audio device
+(<code>&lt;MSX-AUDIO&gt;</code>, note that some programs also need the
+<code>MusicModuleMIDI</code> device to
 detect the Music Module; this device is at the moment not fully implemented
-though), an empty SCC cartridge (<code>&lt;device id="Empty SCC Cartridge"&gt;</code>), etc. Just
-browse the <code>exampleconfigs.xml</code> file or the extensions and see what you can find.
-Remember that you can not put two devices in the same (sub)slot! You may need to
-add a slot expander, by simply setting a slot's subslotted parameter to "true"
-in the MotherBoard config tag at the top of the file. On the other hand, not all
-devices need a slot. An example is the MSX-Audio device.
+though), an empty SCC cartridge (<code>&lt;SCC&gt;</code>), etc. Just
+browse the <code>exampleconfigs.xml</code> file, the Boosted_MSX2_EN
+configuration file or the extensions and see what you can find.
+</p>
+
+<p>
+Devices that contain ROM or RAM will have to be put inside a slot of the MSX,
+using the <code>&lt;primary&gt;</code> and <code>&lt;secondary&gt;</code> tags
+as is demonstrated with the above mentioned FMPAC example. Other devices don't
+need this. 
+Remember that you can not put two devices that have a ROM in the same (sub)slot!
+Just use a new free subslot if you need to add such a device and all your
+primary slots are full. Devices that do not need a slot, like the MSX-Audio
+device, you can add as many as you like.
 </p>
 
 <p>
 Another thing you may want to change: the amount of RAM of the MSX: change the
-"size" parameter in the "Main RAM" device config.
+"size" parameter in the <code>&lt;MemoryMapper&gt;</code> device config.
 </p>
 
 <p>
@@ -554,11 +575,10 @@ If openMSX runs slow, you can try the following measures:
 <ul>
 <li>
 Make sure there are no CPU or I/O heavy background processes is running.
-Downloads, distributed calculation efforts, search indexers etc may grab
+Downloads, P2P software, distributed calculation efforts, search indexers etc may grab
 the CPU from time to time, leaving less time for openMSX to do its job.
 Even if they only do so only once in a while, it may be enough to cause
-emulation to stutter. Some peer-to-peer programs are good examples of
-this.
+emulation to stutter. 
 </li>
 <li>
 Use 16-bit colour mode instead of 32-bit.
@@ -566,7 +586,9 @@ openMSX uses your platform's default setting.
 </li>
 <li>
 Use line accuracy (default) instead of pixel accuracy.
-Pixel accuracy can be slow in worst-case situations, while it is only really needed for a couple of demos (Unknown Reality, Verti).
+Pixel accuracy can be slow in worst-case situations, while it is only really
+needed for a couple of demos (Unknown Reality, Verti). Pixel accuracy is
+default, though, since it enables the most accurate emulation.
 </li>
 <li>
 Increase the number of frames that may be skipped ("set maxframeskip 10", for example).
@@ -576,7 +598,8 @@ Use the low-res SDLLo renderer (75% less pixels to fill). For most
 games (and any MSX1 software) it works perfectly, especially when using full screen.
 </li>
 <li>
-Use a lower sound mixing frequency, for example 22050Hz instead of 44100Hz.
+Use a lower sound mixing frequency, for example 22050Hz instead of 44100Hz. Use
+the <code>frequency</code> setting for this.
 </li>
 <li>
 Use less sound channels, for example use MSX-MUSIC (maximum 9 channels)
