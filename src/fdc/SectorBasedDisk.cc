@@ -122,4 +122,31 @@ bool SectorBasedDisk::ready()
 	return true;
 }
 
+void SectorBasedDisk::detectGeometry()
+{
+	// the following are just heuristics...
+	
+	if (nbSectors == 1440) {
+		// explicitly check for 720kb filesize
+		 
+		// "trojka.dsk" is 720kb, but has bootsector and FAT media ID
+		// for a single sided disk. From an emulator point of view it
+		// must be accessed as a double sided disk.
+		 
+		// "SDSNAT2.DSK" has invalid media ID in both FAT and
+		// bootsector, other data in the bootsector is invalid as well.
+		// Altough the first byte of the bootsector is 0xE9 to indicate
+		// valid bootsector data. The only way to detect the format is
+		// to look at the diskimage filesize.
+		
+		sectorsPerTrack = 9;
+		nbSides = 2;
+
+	} else {
+		// Don't check for "360kb -> single sided disk". The MSXMania
+		// disks are double sided disk but are truncated at 360kb.
+		Disk::detectGeometry();
+	}
+}
+
 } // namespace openmsx

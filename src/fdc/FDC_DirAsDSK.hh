@@ -45,11 +45,6 @@ public:
 	virtual bool writeProtected();
 	virtual bool doubleSided();
 
-
-protected:
-	virtual void readBootSector();
-	int nbSectors;
-
 private:
 	static const int MAX_CLUSTER = 720;
 	static const int SECTORS_PER_FAT = 3;

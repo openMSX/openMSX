@@ -48,21 +48,6 @@ void DSKDiskImage::write(byte track, byte sector, byte side,
 	}
 }
 
-void DSKDiskImage::readBootSector()
-{
-	// These are just heuristics, so they are not perfect. We may need
-	// a way to overrule this (or use a more descriptive disk format).
-	if (nbSectors >= 1440) {
-		sectorsPerTrack = 9;
-		nbSides = 2;
-	} else if (nbSectors == 720) {
-		sectorsPerTrack = 9;
-		nbSides = 1;
-	} else {
-		Disk::readBootSector();
-	}
-}
-
 bool DSKDiskImage::writeProtected()
 {
 	return file.isReadOnly();

@@ -61,20 +61,6 @@ void XSADiskImage::write(byte /*track*/, byte /*sector*/,
 	throw WriteProtectedException("Write protected");
 }
 
-void XSADiskImage::readBootSector()
-{
-	if (nbSectors == 1440) {
-		sectorsPerTrack = 9;
-		nbSides = 2;
-	} else if (nbSectors == 720) {
-		sectorsPerTrack = 9;
-		nbSides = 1;
-	} else {
-		Disk::readBootSector();
-	}
-}
-
-
 // Get the next character from the input buffer
 byte XSADiskImage::charin()
 {
@@ -86,7 +72,6 @@ void XSADiskImage::charout(byte ch)
 {
 	*(outbufpos++) = ch;
 }
-
 
 // check fileheader
 void XSADiskImage::chkheader()

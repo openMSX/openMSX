@@ -1,5 +1,8 @@
 $Id$
 
+2004-10-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Improved disk geometry detection heuristics
+
 2004-09-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Removed the MSXConfig::loadConfig method that was resposible for the
 	  media settings bug. It's no longer used now.

@@ -62,7 +62,7 @@ protected:
 	int physToLog(byte track, byte side, byte sector);
 	void logToPhys(int log, byte &track, byte &side, byte &sector);
 
-	virtual void readBootSector();
+	virtual void detectGeometry();
 
 	int sectorsPerTrack;
 	int nbSides;

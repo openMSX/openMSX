@@ -711,19 +711,6 @@ void FDC_DirAsDSK::write(byte track, byte sector, byte side,
 
 }
 
-void FDC_DirAsDSK::readBootSector()
-{
-	// We can fake regular DS or SS disks
-	if (nbSectors == 1440) {
-		sectorsPerTrack = 9;
-		nbSides = 2;
-	} else if (nbSectors == 720) {
-		sectorsPerTrack = 9;
-		nbSides = 1;
-	}
-}
-
-
 bool FDC_DirAsDSK::writeProtected()
 {
 	return false ; // for the moment we don't allow writing to this directory

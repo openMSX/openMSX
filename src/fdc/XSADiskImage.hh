@@ -30,10 +30,6 @@ public:
 	virtual bool writeProtected();
 	virtual bool doubleSided();
 
-protected:
-	virtual void readBootSector();
-	int nbSectors;
-
 private:
 	static const int MAXSTRLEN = 254;
 	static const int TBLSIZE = 16;

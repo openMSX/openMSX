@@ -22,10 +22,6 @@ public:
 	virtual bool writeProtected();
 	virtual bool doubleSided();
 
-protected:
-	virtual void readBootSector();
-	int nbSectors;
-
 private:
 	File file;
 };
