@@ -253,7 +253,7 @@ void VDPCmdEngine::executeCommand(const EmuTime &time)
 		return;
 	}
 
-	reportVdpCommand();
+	//reportVdpCommand();
 
 	// start command
 	status |= 0x01;
@@ -742,8 +742,10 @@ VDPCmdEngine::BlockCmd::BlockCmd(VDPCmdEngine *engine, VDPVRAM *vram,
 
 void VDPCmdEngine::BlockCmd::calcFinishTime(word NX, word NY)
 {
-	int ticks = ((NX * (NY - 1)) + ANX) * timing[engine->timingValue]; 
-	engine->statusChangeTime = currentTime + ticks; 
+	if (engine->CMD) {
+		int ticks = ((NX * (NY - 1)) + ANX) * timing[engine->timingValue]; 
+		engine->statusChangeTime = currentTime + ticks; 
+	}
 }
 
 
@@ -760,8 +762,12 @@ void VDPCmdEngine::LmmvCmd::start(const EmuTime &time)
 	currentTime = time;
 	vram->cmdReadWindow.disable(currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
+	engine->NY &= 1023;
+	word NX = clipNX_1(engine->DX, engine->NX);
+	word NY = clipNY_1(engine->DY, engine->NY);
 	ADX = engine->DX;
-	ANX = engine->NX;
+	ANX = NX;
+	calcFinishTime(NX, NY);
 }
 
 void VDPCmdEngine::LmmvCmd::execute(const EmuTime &time)
@@ -773,7 +779,6 @@ void VDPCmdEngine::LmmvCmd::execute(const EmuTime &time)
 	char TY = (engine->ARG & DIY) ? -1 : 1;
 	ANX = clipNX_1(ADX, ANX);
 	byte CL = engine->COL & MASK[engine->scrMode];
-	calcFinishTime(NX, NY);
 	
 	opsCount += currentTime.getTicksTill(time);
 	currentTime = time;
@@ -797,6 +802,7 @@ void VDPCmdEngine::LmmvCmd::execute(const EmuTime &time)
 		post__x_y()
 		break;
 	}
+	calcFinishTime(NX, NY);
 }
 
 
@@ -813,9 +819,13 @@ void VDPCmdEngine::LmmmCmd::start(const EmuTime &time)
 	currentTime = time;
 	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
+	engine->NY &= 1023;
+	word NX = clipNX_2(engine->SX, engine->DX, engine->NX);
+	word NY = clipNY_2(engine->SY, engine->DY, engine->NY);
 	ASX = engine->SX;
 	ADX = engine->DX;
-	ANX = engine->NX;
+	ANX = NX;
+	calcFinishTime(NX, NY);
 }
 
 void VDPCmdEngine::LmmmCmd::execute(const EmuTime &time)
@@ -826,7 +836,6 @@ void VDPCmdEngine::LmmmCmd::execute(const EmuTime &time)
 	char TX = (engine->ARG & DIX) ? -1 : 1;
 	char TY = (engine->ARG & DIY) ? -1 : 1;
 	ANX = clipNX_2(ASX, ADX, ANX);
-	calcFinishTime(NX, NY);
 
 	opsCount += currentTime.getTicksTill(time);
 	currentTime = time;
@@ -850,6 +859,7 @@ void VDPCmdEngine::LmmmCmd::execute(const EmuTime &time)
 		post_xxyy()
 		break;
 	}
+	calcFinishTime(NX, NY);
 }
 
 
@@ -866,8 +876,12 @@ void VDPCmdEngine::LmcmCmd::start(const EmuTime &time)
 	currentTime = time;
 	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 	vram->cmdWriteWindow.disable(currentTime);
+	engine->NY &= 1023;
+	word NX = clipNX_1(engine->SX, engine->NX);
+	word NY = clipNY_1(engine->SY, engine->NY);
 	ASX = engine->SX;
-	ANX = engine->NX;
+	ANX = NX;
+	calcFinishTime(NX, NY);
 }
 
 void VDPCmdEngine::LmcmCmd::execute(const EmuTime &time)
@@ -878,7 +892,6 @@ void VDPCmdEngine::LmcmCmd::execute(const EmuTime &time)
 	char TX = (engine->ARG & DIX) ? -1 : 1;
 	char TY = (engine->ARG & DIY) ? -1 : 1;
 	ANX = clipNX_1(ASX, ANX);
-	calcFinishTime(NX, NY);
 	
 	opsCount += currentTime.getTicksTill(time);
 	currentTime = time;
@@ -897,6 +910,7 @@ void VDPCmdEngine::LmcmCmd::execute(const EmuTime &time)
 	} else {
 		// TODO do we need to adjust opsCount?
 	}
+	calcFinishTime(NX, NY);
 }
 
 
@@ -913,8 +927,12 @@ void VDPCmdEngine::LmmcCmd::start(const EmuTime &time)
 	currentTime = time;
 	vram->cmdReadWindow.disable(currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
+	engine->NY &= 1023;
+	word NX = clipNX_1(engine->DX, engine->NX);
+	word NY = clipNY_1(engine->DY, engine->NY);
 	ADX = engine->DX;
-	ANX = engine->NX;
+	ANX = NX;
+	calcFinishTime(NX, NY);
 }
 
 void VDPCmdEngine::LmmcCmd::execute(const EmuTime &time)
@@ -925,7 +943,6 @@ void VDPCmdEngine::LmmcCmd::execute(const EmuTime &time)
 	char TX = (engine->ARG & DIX) ? -1 : 1;
 	char TY = (engine->ARG & DIY) ? -1 : 1;
 	ANX = clipNX_1(ADX, ANX);
-	calcFinishTime(NX, NY);
 	
 	opsCount += currentTime.getTicksTill(time);
 	currentTime = time;
@@ -946,6 +963,7 @@ void VDPCmdEngine::LmmcCmd::execute(const EmuTime &time)
 	} else {
 		// TODO do we need to adjust opsCount?
 	}
+	calcFinishTime(NX, NY);
 }
 
 
@@ -962,8 +980,12 @@ void VDPCmdEngine::HmmvCmd::start(const EmuTime &time)
 	currentTime = time;
 	vram->cmdReadWindow.disable(currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
+	engine->NY &= 1023;
+	word NX = clipNX_1(engine->DX, engine->NX, PPBS[engine->scrMode]);
+	word NY = clipNY_1(engine->DY, engine->NY);
 	ADX = engine->DX;
-	ANX = engine->NX >> PPBS[engine->scrMode];
+	ANX = NX;
+	calcFinishTime(NX, NY);
 }
 
 void VDPCmdEngine::HmmvCmd::execute(const EmuTime &time)
@@ -975,7 +997,6 @@ void VDPCmdEngine::HmmvCmd::execute(const EmuTime &time)
 	char TX = (engine->ARG & DIX) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
 	char TY = (engine->ARG & DIY) ? -1 : 1;
 	ANX = clipNX_1(ADX, ANX << ppbs, ppbs);
-	calcFinishTime(NX, NY);
 	
 	opsCount += currentTime.getTicksTill(time);
 	currentTime = time;
@@ -1003,6 +1024,7 @@ void VDPCmdEngine::HmmvCmd::execute(const EmuTime &time)
 		post__x_y()
 		break;
 	}
+	calcFinishTime(NX, NY);
 }
 
 
@@ -1019,9 +1041,13 @@ void VDPCmdEngine::HmmmCmd::start(const EmuTime &time)
 	currentTime = time;
 	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
+	engine->NY &= 1023;
+	word NX = clipNX_2(engine->SX, engine->DX, engine->NX, PPBS[engine->scrMode]);
+	word NY = clipNY_2(engine->SY, engine->DY, engine->NY);
 	ASX = engine->SX;
 	ADX = engine->DX;
-	ANX = engine->NX >> PPBS[engine->scrMode];
+	ANX = NX;
+	calcFinishTime(NX, NY);
 }
 
 void VDPCmdEngine::HmmmCmd::execute(const EmuTime &time)
@@ -1033,7 +1059,6 @@ void VDPCmdEngine::HmmmCmd::execute(const EmuTime &time)
 	char TX = (engine->ARG & DIX) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
 	char TY = (engine->ARG & DIY) ? -1 : 1;
 	ANX = clipNX_2(ASX, ADX, ANX << ppbs, ppbs);
-	calcFinishTime(NX, NY);
 
 	opsCount += currentTime.getTicksTill(time);
 	currentTime = time;
@@ -1073,6 +1098,7 @@ void VDPCmdEngine::HmmmCmd::execute(const EmuTime &time)
 		post_xxyy()
 		break;
 	}
+	calcFinishTime(NX, NY);
 }
 
 
@@ -1089,7 +1115,12 @@ void VDPCmdEngine::YmmmCmd::start(const EmuTime &time)
 	currentTime = time;
 	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
+	engine->NY &= 1023;
+	word NX = clipNX_1(engine->DX, 512, PPBS[engine->scrMode]); // large enough so that it gets clipped
+	word NY = clipNY_2(engine->SY, engine->DY, engine->NY);
 	ADX = engine->DX;
+	ANX = NX;
+	calcFinishTime(NX, NY);
 }
 
 void VDPCmdEngine::YmmmCmd::execute(const EmuTime &time)
@@ -1100,7 +1131,6 @@ void VDPCmdEngine::YmmmCmd::execute(const EmuTime &time)
 	char TX = (engine->ARG & DIX) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
 	char TY = (engine->ARG & DIY) ? -1 : 1;
 	ANX = clipNX_1(ADX, 512, PPBS[engine->scrMode]);
-	calcFinishTime(NX, NY);
 
 	opsCount += currentTime.getTicksTill(time);
 	currentTime = time;
@@ -1140,6 +1170,7 @@ void VDPCmdEngine::YmmmCmd::execute(const EmuTime &time)
 		post_xxyy()
 		break;
 	}
+	calcFinishTime(NX, NY);
 }
 
 
@@ -1156,8 +1187,12 @@ void VDPCmdEngine::HmmcCmd::start(const EmuTime &time)
 	currentTime = time;
 	vram->cmdReadWindow.disable(currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
+	engine->NY &= 1023;
+	word NX = clipNX_1(engine->DX, engine->NX, PPBS[engine->scrMode]);
+	word NY = clipNY_1(engine->DY, engine->NY);
 	ADX = engine->DX;
-	ANX = engine->NX >> PPBS[engine->scrMode];
+	ANX = NX;
+	calcFinishTime(NX, NY);
 }
 
 void VDPCmdEngine::HmmcCmd::execute(const EmuTime &time)
@@ -1169,7 +1204,6 @@ void VDPCmdEngine::HmmcCmd::execute(const EmuTime &time)
 	char TX = (engine->ARG & DIX) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
 	char TY = (engine->ARG & DIY) ? -1 : 1;
 	ANX = clipNX_1(ADX, ANX << ppbs, ppbs);
-	calcFinishTime(NX, NY);
 	
 	opsCount += currentTime.getTicksTill(time);
 	currentTime = time;
@@ -1189,6 +1223,7 @@ void VDPCmdEngine::HmmcCmd::execute(const EmuTime &time)
 	} else {
 		// TODO do we need to adjust opsCount?
 	}
+	calcFinishTime(NX, NY);
 }
 
 } // namespace openmsx
