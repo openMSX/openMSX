@@ -403,30 +403,32 @@ void MSXTapePatch::STMOTR(CPU::CPURegs& R)
 }
 
 
-void MSXTapePatch::execute(const vector<string> &tokens)
+string MSXTapePatch::execute(const vector<string> &tokens)
 {
+	string result;
 	if (tokens.size() != 2) {
 		throw CommandException("Syntax error");
 	}
 	if (tokens[1]=="eject") {
-		print("Tape ejected");
+		result += "Tape ejected\n";
 		ejectTape();
 	} else if (tokens[1] == "rewind") {
-		print("Tape rewinded");
+		result += "Tape rewinded\n";
 		if (file) {
 			file->seek(0);
 		}
 	} else {
-		print("Changing tape");
+		result += "Changing tape\n";
 		UserFileContext context;
 		insertTape(context, tokens[1]);
 	}
+	return result;
 }
 
-void MSXTapePatch::help(const vector<string> &tokens) const
+string MSXTapePatch::help(const vector<string> &tokens) const
 {
-	print("tape eject      : remove tape from virtual player");
-	print("tape <filename> : change the tape file");
+	return "tape eject      : remove tape from virtual player\n"
+	       "tape <filename> : change the tape file\n";
 }
 
 void MSXTapePatch::tabCompletion(vector<string> &tokens) const

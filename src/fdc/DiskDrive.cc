@@ -269,20 +269,19 @@ void RealDrive::ejectDisk()
 	disk = new DummyDisk();
 }
 
-void RealDrive::execute(const vector<string> &tokens)
+string RealDrive::execute(const vector<string> &tokens)
 {
-	if (tokens.size() == 1)
-	{
-		if (diskName.length()>0)
-			print ("Current disk: " + diskName);
-		else
-			print ("There is currently no disk inserted in drive with name \"" + name + "\"");
-	}
-	else
-	if (tokens.size() != 2)
+	string result;
+	if (tokens.size() == 1) {
+		if (!diskName.empty()) {
+			result += "Current disk: " + diskName + '\n';
+		} else {
+			result += "There is currently no disk inserted in drive with name \"" +
+			          name + "\"" + '\n';
+		}
+	} else if (tokens.size() != 2) {
 		throw CommandException("Syntax error");
-	else
-	if (tokens[1] == "eject") {
+	} else if (tokens[1] == "eject") {
 		ejectDisk();
 	} else {
 		try {
@@ -292,12 +291,13 @@ void RealDrive::execute(const vector<string> &tokens)
 			throw CommandException(e.getMessage());
 		}
 	}
+	return result;
 }
 
-void RealDrive::help(const vector<string> &tokens) const
+string RealDrive::help(const vector<string> &tokens) const
 {
-	print(name + " eject      : remove disk from virtual drive");
-	print(name + " <filename> : change the disk file");
+	return name + " eject      : remove disk from virtual drive\n" +
+	       name + " <filename> : change the disk file\n";
 }
 
 void RealDrive::tabCompletion(vector<string> &tokens) const

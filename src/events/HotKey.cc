@@ -113,14 +113,16 @@ const string &HotKey::HotKeyCmd::getCommand()
 void HotKey::HotKeyCmd::signalHotKey(Keys::KeyCode key)
 {
 	try {
+		// ignore return value
 		CommandController::instance()->executeCommand(command);
 	} catch (CommandException &e) {
 		PRT_INFO("Error executing hot key command: " << e.getMessage());
 	}
 }
 
-void HotKey::BindCmd::execute(const vector<string> &tokens)
+string HotKey::BindCmd::execute(const vector<string> &tokens)
 {
+	string result;
 	HotKey *hk = HotKey::instance();
 	switch (tokens.size()) {
 	case 0:
@@ -129,8 +131,8 @@ void HotKey::BindCmd::execute(const vector<string> &tokens)
 		// show all bounded keys
 		multimap<Keys::KeyCode, HotKeyCmd*>::iterator it;
 		for (it = hk->cmdMap.begin(); it != hk->cmdMap.end(); it++) {
-			print(Keys::getName(it->first) + ":  " +
-			      it->second->getCommand());
+			result += Keys::getName(it->first) + ":  " +
+			      it->second->getCommand() + '\n';
 		}
 		break;
 	}
@@ -144,8 +146,8 @@ void HotKey::BindCmd::execute(const vector<string> &tokens)
 		for (it = hk->cmdMap.lower_bound(key);
 				(it != hk->cmdMap.end()) && (it->first == key);
 				it++) {
-			print(Keys::getName(it->first) + ":  " +
-			      it->second->getCommand());
+			result += Keys::getName(it->first) + ":  " +
+			      it->second->getCommand() + '\n';
 		}
 		break;
 	}
@@ -164,16 +166,18 @@ void HotKey::BindCmd::execute(const vector<string> &tokens)
 		break;
 	}
 	}
+	return result;
 }
-void HotKey::BindCmd::help(const vector<string> &tokens) const
+string HotKey::BindCmd::help(const vector<string> &tokens) const
 {
-	print("bind             : show all bounded keys");
-	print("bind <key>       : show all bindings for this key");
-	print("bind <key> <cmd> : bind key to command");
+	return "bind             : show all bounded keys\n"
+	       "bind <key>       : show all bindings for this key\n"
+	       "bind <key> <cmd> : bind key to command\n";
 }
 
-void HotKey::UnbindCmd::execute(const vector<string> &tokens)
+string HotKey::UnbindCmd::execute(const vector<string> &tokens)
 {
+	string result;
 	HotKey *hk = HotKey::instance();
 	switch (tokens.size()) {
 	case 2: {
@@ -205,11 +209,12 @@ void HotKey::UnbindCmd::execute(const vector<string> &tokens)
 	default:
 		throw CommandException("Syntax error");
 	}
+	return result;
 }
-void HotKey::UnbindCmd::help(const vector<string> &tokens) const
+string HotKey::UnbindCmd::help(const vector<string> &tokens) const
 {
-	print("unbind <key>       : unbind all for this key");
-	print("unbind <key> <cmd> : unbind a specific command");
+	return "unbind <key>       : unbind all for this key\n"
+	       "unbind <key> <cmd> : unbind a specific command\n";
 }
 
 } // namespace openmsx

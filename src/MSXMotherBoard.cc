@@ -84,13 +84,14 @@ void MSXMotherBoard::run()
 }
 
 
-void MSXMotherBoard::ResetCmd::execute(const vector<string> &tokens)
+string MSXMotherBoard::ResetCmd::execute(const vector<string> &tokens)
 {
 	MSXMotherBoard::instance()->resetMSX();
+	return "";
 }
-void MSXMotherBoard::ResetCmd::help(const vector<string> &tokens) const
+string MSXMotherBoard::ResetCmd::help(const vector<string> &tokens) const
 {
-	print("Resets the MSX.");
+	return "Resets the MSX.\n";
 }
 
 } // namespace openmsx

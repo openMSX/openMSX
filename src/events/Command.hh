@@ -26,11 +26,11 @@ class Command
 		  * @param tokens Tokenized command line;
 		  * 	tokens[0] is the command itself.
 		  */
-		virtual void execute(const vector<string> &tokens) = 0;
+		virtual string execute(const vector<string> &tokens) = 0;
 
 		/** Print help for this command.
 		  */
-		virtual void help(const vector<string> &tokens) const = 0;
+		virtual string help(const vector<string> &tokens) const = 0;
 
 		/** Attempt tab completion for this command.
 		  * Default implementation does nothing.
@@ -39,11 +39,6 @@ class Command
 		  * 	The last token is incomplete, this method tries to complete it.
 		  */
 		virtual void tabCompletion(vector<string> &tokens) const {}
-
-	protected:
-		/** Convenience method to print a message to the console.
-		  */
-		void print(const string &message) const;
 };
 
 } // namespace openmsx

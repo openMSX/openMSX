@@ -89,8 +89,9 @@ void PluggingController::unregisterPluggable(Pluggable *pluggable)
 // === Commands ===
 //  plug command
 
-void PluggingController::PlugCmd::execute(const vector<string> &tokens)
+string PluggingController::PlugCmd::execute(const vector<string> &tokens)
 {
+	string result;
 	const EmuTime &time = MSXCPU::instance()->getCurrentTime();
 	PluggingController *controller = PluggingController::instance();
 	switch (tokens.size()) {
@@ -99,8 +100,8 @@ void PluggingController::PlugCmd::execute(const vector<string> &tokens)
 			                       controller->connectors.begin();
 			     it != controller->connectors.end();
 			     ++it) {
-				print((*it)->getName() + ": " +
-				      (*it)->getPlugged()->getName());
+				result += ((*it)->getName() + ": " +
+				           (*it)->getPlugged()->getName()) + '\n';
 			}
 			break;
 		}
@@ -109,8 +110,8 @@ void PluggingController::PlugCmd::execute(const vector<string> &tokens)
 			if (connector == NULL) {
 				throw CommandException("plug: " + tokens[1] + ": no such connector");
 			}
-			print(connector->getName() + ": " +
-			      connector->getPlugged()->getName());
+			result += (connector->getName() + ": " +
+			           connector->getPlugged()->getName()) + '\n';
 			break;
 		}
 		case 3: {
@@ -136,12 +137,13 @@ void PluggingController::PlugCmd::execute(const vector<string> &tokens)
 	default:
 		throw CommandException("plug: syntax error");
 	}
+	return result;
 }
 
-void PluggingController::PlugCmd::help(const vector<string> &tokens) const
+string PluggingController::PlugCmd::help(const vector<string> &tokens) const
 {
-	print("Plugs a plug into a connector");
-	print(" plug [connector] [plug]");
+	return "Plugs a plug into a connector\n"
+	       " plug [connector] [plug]\n";
 }
 
 void PluggingController::PlugCmd::tabCompletion(vector<string> &tokens) const
@@ -178,7 +180,7 @@ void PluggingController::PlugCmd::tabCompletion(vector<string> &tokens) const
 
 //  unplug command
 
-void PluggingController::UnplugCmd::execute(const vector<string> &tokens)
+string PluggingController::UnplugCmd::execute(const vector<string> &tokens)
 {
 	if (tokens.size() != 2) {
 		throw CommandException("Syntax error");
@@ -190,12 +192,13 @@ void PluggingController::UnplugCmd::execute(const vector<string> &tokens)
 	}
 	const EmuTime &time = MSXCPU::instance()->getCurrentTime();
 	connector->unplug(time);
+	return "";
 }
 
-void PluggingController::UnplugCmd::help(const vector<string> &tokens) const
+string PluggingController::UnplugCmd::help(const vector<string> &tokens) const
 {
-	print("Unplugs a plug from a connector");
-	print(" unplug [connector]");
+	return "Unplugs a plug from a connector\n"
+	       " unplug [connector]\n";
 }
 
 void PluggingController::UnplugCmd::tabCompletion(vector<string> &tokens) const

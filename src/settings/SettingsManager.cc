@@ -31,9 +31,10 @@ SettingsManager::SetCommand::SetCommand(SettingsManager *manager_)
 {
 }
 
-void SettingsManager::SetCommand::execute(
+string SettingsManager::SetCommand::execute(
 	const vector<string> &tokens )
 {
+	string result;
 	int nrTokens = tokens.size();
 	if (nrTokens == 0 || nrTokens > 3) {
 		throw CommandException("set: wrong number of parameters");
@@ -44,9 +45,9 @@ void SettingsManager::SetCommand::execute(
 		map<string, SettingNode *>::const_iterator it =
 			manager->settingsMap.begin();
 		for (; it != manager->settingsMap.end(); ++it) {
-			print(it->first);
+			result += it->first + '\n';
 		}
-		return;
+		return result;
 	}
 
 	// Get setting object.
@@ -62,25 +63,25 @@ void SettingsManager::SetCommand::execute(
 
 	if (nrTokens == 2) {
 		// Info.
-		print(setting->getDescription());
-		print("current value   : " + setting->getValueString());
+		result += setting->getDescription() + '\n';
+		result += "current value   : " + setting->getValueString() + '\n';
 		if (!setting->getTypeString().empty()) {
-			print("possible values : " + setting->getTypeString());
+			result += "possible values : " + setting->getTypeString() + '\n';
 		}
 	} else {
 		// Change.
 		const string &valueString = tokens[2];
 		setting->setValueString(valueString);
 	}
-
+	return result;
 }
 
-void SettingsManager::SetCommand::help(
+string SettingsManager::SetCommand::help(
 	const vector<string> &tokens) const
 {
-	print("set            : list all settings");
-	print("set name       : information on setting");
-	print("set name value : change setting's value");
+	return "set            : list all settings\n"
+	       "set name       : information on setting\n"
+	       "set name value : change setting's value\n";
 }
 
 void SettingsManager::SetCommand::tabCompletion(
@@ -117,9 +118,10 @@ SettingsManager::ToggleCommand::ToggleCommand(SettingsManager *manager_)
 {
 }
 
-void SettingsManager::ToggleCommand::execute(
+string SettingsManager::ToggleCommand::execute(
 	const vector<string> &tokens )
 {
+	string result;
 	int nrTokens = tokens.size();
 	if (nrTokens == 0 || nrTokens > 2) {
 		throw CommandException("toggle: wrong number of parameters");
@@ -131,10 +133,10 @@ void SettingsManager::ToggleCommand::execute(
 			manager->settingsMap.begin();
 		for (; it != manager->settingsMap.end(); ++it) {
 			if (dynamic_cast<BooleanSetting*>(it->second)) {
-				print(it->first);
+				result += it->first + '\n';
 			}
 		}
-		return;
+		return result;
 	}
 
 	// get setting object
@@ -151,14 +153,14 @@ void SettingsManager::ToggleCommand::execute(
 	}
 	// actual toggle
 	boolSetting->setValue(!boolSetting->getValue());
-
+	return result;
 }
 
-void SettingsManager::ToggleCommand::help(
+string SettingsManager::ToggleCommand::help(
 	const vector<string> &tokens) const
 {
-	print("toggle      : list all boolean settings");
-	print("toggle name : toggles a boolean setting");
+	return "toggle      : list all boolean settings\n"
+	       "toggle name : toggles a boolean setting\n";
 }
 
 void SettingsManager::ToggleCommand::tabCompletion(

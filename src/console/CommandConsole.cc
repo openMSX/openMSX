@@ -371,8 +371,11 @@ void CommandConsole::commandExecute()
 	putCommandHistory(editLine);
 	splitLines();
 	try {
-		CommandController::instance()->
+		string result = CommandController::instance()->
 			executeCommand(editLine.substr(PROMPT.length()));
+		if (!result.empty()) {
+			print(result);
+		}
 	} catch (CommandException &e) {
 		print(e.getMessage());
 	}

@@ -179,16 +179,17 @@ void CassettePlayer::unplug(const EmuTime& time)
 }
 
 
-void CassettePlayer::execute(const vector<string> &tokens)
+string CassettePlayer::execute(const vector<string> &tokens)
 {
+	string result;
 	if (tokens.size() != 2) {
 		throw CommandException("Syntax error");
 	}
 	if (tokens[1] == "eject") {
-		print("Tape ejected");
+		result += "Tape ejected\n";
 		removeTape();
 	} else if (tokens[1] == "rewind") {
-		print("Tape rewinded");
+		result += "Tape rewinded\n";
 		rewind();
 	} else if (tokens[1] == "force_play") {
 		forcePlay = true;
@@ -196,19 +197,20 @@ void CassettePlayer::execute(const vector<string> &tokens)
 		forcePlay = false;
 	} else {
 		try {
-			print("Changing tape");
+			result += "Changing tape\n";
 			UserFileContext context;
 			insertTape(context, tokens[1]);
 		} catch (MSXException &e) {
 			throw CommandException(e.getMessage());
 		}
 	}
+	return result;
 }
 
-void CassettePlayer::help(const vector<string> &tokens) const
+string CassettePlayer::help(const vector<string> &tokens) const
 {
-	print("cassetteplayer eject      : remove tape from virtual player");
-	print("cassetteplayer <filename> : change the tape file");
+	return "cassetteplayer eject      : remove tape from virtual player\n"
+	       "cassetteplayer <filename> : change the tape file\n";
 }
 
 void CassettePlayer::tabCompletion(vector<string> &tokens) const

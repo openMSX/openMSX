@@ -461,8 +461,8 @@ private:
 	class DumpVRAMCmd : public Command {
 	public:
 		DumpVRAMCmd(VDPVRAM *vram_);
-		virtual void execute(const vector<string> &tokens);
-		virtual void help(const vector<string> &tokens) const;
+		virtual string execute(const vector<string> &tokens);
+		virtual string help(const vector<string> &tokens) const;
 	private:
 		VDPVRAM *vram;
 	} dumpVRAMCmd;

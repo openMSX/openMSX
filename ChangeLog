@@ -2,6 +2,9 @@ $Id$
 
 2003-10-10 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Turn LEDs off when openmsx quits
+	* Refactored Commands interface:
+	   - commands should now return a string instead of calling the
+	     print() method to display stuff in the console.
 
 2003-10-09 David Heremans <david.heremans@gnu-linux.net>
 	* integrated renshaturbo from Alex into openMSX:

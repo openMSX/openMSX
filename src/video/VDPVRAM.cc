@@ -105,15 +105,16 @@ VDPVRAM::DumpVRAMCmd::DumpVRAMCmd(VDPVRAM *vram_)
 {
 }
 
-void VDPVRAM::DumpVRAMCmd::execute(const vector<string> &tokens)
+string VDPVRAM::DumpVRAMCmd::execute(const vector<string> &tokens)
 {
 	ofstream outfile("vramdump", ofstream::binary);
 	outfile.write((char*)vram->data, vram->size);
+	return "";
 }
 
-void VDPVRAM::DumpVRAMCmd::help(const vector<string> &tokens) const
+string VDPVRAM::DumpVRAMCmd::help(const vector<string> &tokens) const
 {
-	print("Dump vram content to file \"vramdump\"");
+	return "Dump vram content to file \"vramdump\"\n";
 }
 
 } // namespace openmsx

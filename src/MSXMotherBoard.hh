@@ -57,10 +57,9 @@ class MSXMotherBoard
 		MSXMotherBoard();
 
 		class ResetCmd : public Command {
-			virtual void execute(const vector<string> &tokens);
-			virtual void help(const vector<string> &tokens) const;
-		};
-		ResetCmd resetCmd;
+			virtual string execute(const vector<string> &tokens);
+			virtual string help(const vector<string> &tokens) const;
+		} resetCmd;
 
 		list<MSXDevice*> availableDevices;
 };

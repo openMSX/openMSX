@@ -1003,7 +1003,7 @@ VDP::VDPRegsCmd::VDPRegsCmd(VDP *vdp)
 	this->vdp = vdp;
 }
 
-void VDP::VDPRegsCmd::execute(const vector<string> &tokens)
+string VDP::VDPRegsCmd::execute(const vector<string> &tokens)
 {
 	// Print palette in 4x4 table.
 	ostringstream out;
@@ -1018,12 +1018,12 @@ void VDP::VDPRegsCmd::execute(const vector<string> &tokens)
 		}
 		out << "\n";
 	}
-	print(out.str());
+	return out.str();
 }
 
-void VDP::VDPRegsCmd::help(const vector<string> &tokens) const
+string VDP::VDPRegsCmd::help(const vector<string> &tokens) const
 {
-	print("Prints the current state of the VDP registers.");
+	return "Prints the current state of the VDP registers.\n";
 }
 
 // PaletteCmd inner class:
@@ -1033,7 +1033,7 @@ VDP::PaletteCmd::PaletteCmd(VDP *vdp)
 	this->vdp = vdp;
 }
 
-void VDP::PaletteCmd::execute(const vector<string> &tokens)
+string VDP::PaletteCmd::execute(const vector<string> &tokens)
 {
 	// Print palette in 4x4 table.
 	ostringstream out;
@@ -1047,12 +1047,12 @@ void VDP::PaletteCmd::execute(const vector<string> &tokens)
 		}
 		out << "\n";
 	}
-	print(out.str());
+	return out.str();
 }
 
-void VDP::PaletteCmd::help(const vector<string> &tokens) const
+string VDP::PaletteCmd::help(const vector<string> &tokens) const
 {
-	print("Prints the current VDP palette (i:rgb).");
+	return "Prints the current VDP palette (i:rgb).\n";
 }
 
 } // namespace openmsx

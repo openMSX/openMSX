@@ -184,11 +184,12 @@ string CommandController::join(const vector<string>& tokens, char delimiter)
 }
 
 
-void CommandController::executeCommand(const string &cmd)
+string CommandController::executeCommand(const string &cmd)
 {
 	vector<string> subcmds;
 	split(cmd, subcmds, ';');
 
+	string result;
 	for (vector<string>::const_iterator it = subcmds.begin();
 	     it != subcmds.end();
 	     ++it) {
@@ -207,10 +208,11 @@ void CommandController::executeCommand(const string &cmd)
 			throw CommandException(*it + ": unknown command");
 		}
 		while (it2 != commands.end() && it2->first == tokens.front()) {
-			it2->second->execute(tokens);
+			result += it2->second->execute(tokens);
 			++it2;
 		}
 	}
+	return result;
 }
 
 void CommandController::autoCommands()
@@ -346,8 +348,7 @@ bool CommandController::completeString2(string &str, set<string>& st)
 			// TODO print more on one line
 			CommandConsole::instance()->printFast(*it);
 		}
-		CommandConsole::instance()->printFast("");	// dummy 
-		CommandConsole::instance()->printFlush();	// dummy 
+		CommandConsole::instance()->printFlush();
 	}
 	return false;
 }
@@ -404,37 +405,41 @@ void CommandController::completeFileName(vector<string> &tokens)
 
 // Help Command
 
-void CommandController::HelpCmd::execute(const vector<string> &tokens)
+string CommandController::HelpCmd::execute(const vector<string> &tokens)
 {
+	string result;
 	CommandController *cc = CommandController::instance();
 	switch (tokens.size()) {
 		case 1: {
-			print("Use 'help [command]' to get help for a specific command");
-			print("The following commands exist:");
+			result += "Use 'help [command]' to get help for a specific command\n";
+			result += "The following commands exist:\n";
 			multimap<const string, Command*, ltstr>::const_iterator it;
 			for (it=cc->commands.begin(); it!=cc->commands.end(); it++) {
-				print(it->first);
+				result += it->first;
+				result += '\n';
 			}
 			break;
 		}
 		default: {
 			multimap<const string, Command*, ltstr>::const_iterator it;
 			it = cc->commands.lower_bound(tokens[1]);
-			if (it == cc->commands.end() || it->first != tokens[1])
+			if (it == cc->commands.end() || it->first != tokens[1]) {
 				throw CommandException(tokens[1] + ": unknown command");
+			}
 			while (it != cc->commands.end() && it->first == tokens[1]) {
 				vector<string> tokens2(tokens);
 				tokens2.erase(tokens2.begin());
-				it->second->help(tokens2);
+				result += it->second->help(tokens2);
 				it++;
 			}
 			break;
 		}
 	}
+	return result;
 }
-void CommandController::HelpCmd::help(const vector<string> &tokens) const
+string CommandController::HelpCmd::help(const vector<string> &tokens) const
 {
-	print("prints help information for commands");
+	return "prints help information for commands\n";
 }
 void CommandController::HelpCmd::tabCompletion(vector<string> &tokens) const
 {

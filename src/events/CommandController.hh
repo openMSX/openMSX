@@ -20,7 +20,6 @@ namespace openmsx {
 class CommandController
 {
 	public:
-		virtual ~CommandController();
 		static CommandController* instance();
 
 		/**
@@ -39,7 +38,7 @@ class CommandController
 		/**
 		 * Execute a given command
 		 */
-		void executeCommand(const string &command);
+		string executeCommand(const string &command);
 
 		/**
 		 * Complete a given command
@@ -55,6 +54,7 @@ class CommandController
 
 	private:
 		CommandController();
+		~CommandController();
 		
 		void split(const string& str, vector<string>& tokens,
                            char delimiter);
@@ -77,8 +77,8 @@ class CommandController
 		// Commands
 		class HelpCmd : public Command {
 		public:
-			virtual void execute(const vector<string> &tokens);
-			virtual void help(const vector<string> &tokens) const;
+			virtual string execute(const vector<string> &tokens);
+			virtual string help(const vector<string> &tokens) const;
 			virtual void tabCompletion(vector<string> &tokens) const;
 		};
 		friend class HelpCmd;

@@ -62,8 +62,8 @@ private:
 	class SetCommand : public Command {
 	public:
 		SetCommand(SettingsManager *manager);
-		virtual void execute(const vector<string> &tokens);
-		virtual void help   (const vector<string> &tokens) const;
+		virtual string execute(const vector<string> &tokens);
+		virtual string help   (const vector<string> &tokens) const;
 		virtual void tabCompletion(vector<string> &tokens) const;
 	private:
 		SettingsManager *manager;
@@ -74,8 +74,8 @@ private:
 	class ToggleCommand : public Command {
 	public:
 		ToggleCommand(SettingsManager *manager);
-		virtual void execute(const vector<string> &tokens);
-		virtual void help   (const vector<string> &tokens) const;
+		virtual string execute(const vector<string> &tokens);
+		virtual string help   (const vector<string> &tokens) const;
 		virtual void tabCompletion(vector<string> &tokens) const;
 	private:
 		SettingsManager *manager;

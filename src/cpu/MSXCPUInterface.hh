@@ -146,12 +146,12 @@ class MSXCPUInterface : public CPUInterface
 		                  int primSl, int secSL, int page);
 		
 		class SlotMapCmd : public Command {
-			virtual void execute(const vector<string> &tokens);
-			virtual void help(const vector<string> &tokens) const;
+			virtual string execute(const vector<string> &tokens);
+			virtual string help(const vector<string> &tokens) const;
 		};
 		class SlotSelectCmd : public Command {
-			virtual void execute(const vector<string> &tokens);
-			virtual void help(const vector<string> &tokens) const;
+			virtual string execute(const vector<string> &tokens);
+			virtual string help(const vector<string> &tokens) const;
 		};
 
 		/** Updated visibleDevices for a given page and clears the cache

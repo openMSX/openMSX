@@ -97,14 +97,15 @@ void EventDistributor::unregisterEventListener(
 	}
 }
 
-void EventDistributor::QuitCommand::execute(const vector<string> &tokens)
+string EventDistributor::QuitCommand::execute(const vector<string> &tokens)
 {
 	EventDistributor::instance()->quit();
+	return "";
 }
 
-void EventDistributor::QuitCommand::help(const vector<string> &tokens) const
+string EventDistributor::QuitCommand::help(const vector<string> &tokens) const
 {
-	print("Use this command to stop the emulator");
+	return "Use this command to stop the emulator\n";
 }
 
 void EventDistributor::update(const SettingLeafNode *setting)

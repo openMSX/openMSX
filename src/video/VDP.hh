@@ -404,8 +404,8 @@ private:
 	class VDPRegsCmd : public Command {
 	public:
 		VDPRegsCmd(VDP *vdp);
-		virtual void execute(const vector<string> &tokens);
-		virtual void help(const vector<string> &tokens) const;
+		virtual string execute(const vector<string> &tokens);
+		virtual string help(const vector<string> &tokens) const;
 	private:
 		VDP *vdp;
 	};
@@ -414,8 +414,8 @@ private:
 	class PaletteCmd : public Command {
 	public:
 		PaletteCmd(VDP *vdp);
-		virtual void execute(const vector<string> &tokens);
-		virtual void help(const vector<string> &tokens) const;
+		virtual string execute(const vector<string> &tokens);
+		virtual string help(const vector<string> &tokens) const;
 	private:
 		VDP *vdp;
 	};
