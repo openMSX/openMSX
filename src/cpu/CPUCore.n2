@@ -19,7 +19,7 @@ inline void _CPU_::READ_PORT(word port, byte &result)
 	memptr.w = port + 1;
 	currentTime += IO_DELAY1;
 	if (currentTime >= targetTime) {
-		scheduler->scheduleDevices(currentTime);
+		extendTarget(currentTime);
 	}
 	//PRT_DEBUG("CPU: In 0x" << hex << (int)port <<
 	//          dec << " at " << currentTime);
@@ -32,7 +32,7 @@ inline void _CPU_::WRITE_PORT(word port, byte value)
 	memptr.w = port + 1;
 	currentTime += IO_DELAY1;
 	if (currentTime >= targetTime) {
-		scheduler->scheduleDevices(currentTime);
+		extendTarget(currentTime);
 	}
 	//PRT_DEBUG("CPU: Out 0x" << hex << (int)port <<
 	//          dec << " at " << currentTime);
@@ -75,7 +75,7 @@ void _CPU_::RDMEMslow(word address, byte &result)
 	// uncacheable
 	currentTime += MEM_DELAY1;
 	if (currentTime >= targetTime) {
-		scheduler->scheduleDevices(currentTime);
+		extendTarget(currentTime);
 	}
 	result = interface->readMem(address, currentTime);
 	#ifdef CPU_DEBUG
@@ -114,7 +114,7 @@ void _CPU_::WRMEMslow(word address, byte value)
 	// uncacheable
 	currentTime += MEM_DELAY1;
 	if (currentTime >= targetTime) {
-		scheduler->scheduleDevices(currentTime);
+		extendTarget(currentTime);
 	}
 	interface->writeMem(address, value, currentTime);
 	currentTime += MEM_DELAY2;
@@ -2201,7 +2201,7 @@ void _CPU_::out_byte_a() {
 
 
 // block CP
-inline void _CPU_::BLOCK_CP() {
+inline void _CPU_::BLOCK_CP(bool increase, bool repeat) {
 	byte val;
 	RDMEM(R.HL.w, val);
 	BLOCK_DELAY();
@@ -2221,21 +2221,21 @@ inline void _CPU_::BLOCK_CP() {
 	}
 }
 void _CPU_::cpd() {
-	repeat = false; increase = false; BLOCK_CP();
+	BLOCK_CP(false, false);
 }
 void _CPU_::cpi() {
-	repeat = false; increase = true;  BLOCK_CP();
+	BLOCK_CP(true, false);
 }
 void _CPU_::cpdr() {
-	repeat = true;  increase = false; BLOCK_CP();
+	BLOCK_CP(false, true);
 }
 void _CPU_::cpir() {
-	repeat = true;  increase = true;  BLOCK_CP();
+	BLOCK_CP(true, true);
 }
 
 
 // block LD
-inline void _CPU_::BLOCK_LD() {
+inline void _CPU_::BLOCK_LD(bool increase, bool repeat) {
 	RDMEM(R.HL.w, dummy);
 	WRMEM(R.DE.w, dummy);
 	LDI_DELAY();
@@ -2248,21 +2248,21 @@ inline void _CPU_::BLOCK_LD() {
 	if (repeat && R.BC.w) { BLOCK_DELAY(); R.PC.w -= 2; }
 }
 void _CPU_::ldd() {
-	repeat = false; increase = false; BLOCK_LD();
+	BLOCK_LD(false, false);
 }
 void _CPU_::ldi() {
-	repeat = false; increase = true;  BLOCK_LD();
+	BLOCK_LD(true, false);
 }
 void _CPU_::lddr() {
-	repeat = true;  increase = false; BLOCK_LD();
+	BLOCK_LD(false, true);
 }
 void _CPU_::ldir() {
-	repeat = true;  increase = true;  BLOCK_LD();
+	BLOCK_LD(true, true);
 }
 
 
 // block IN
-inline void _CPU_::BLOCK_IN() {
+inline void _CPU_::BLOCK_IN(bool increase, bool repeat) {
 	SMALL_DELAY();
 	READ_PORT(R.BC.w, dummy);
 	R.BC.B.h--;
@@ -2280,21 +2280,21 @@ inline void _CPU_::BLOCK_IN() {
 	if (repeat && R.BC.B.h) { BLOCK_DELAY(); R.PC.w -= 2; }
 }
 void _CPU_::ind() {
-	repeat = false; increase = false; BLOCK_IN();
+	BLOCK_IN(false, false);
 }
 void _CPU_::ini() {
-	repeat = false; increase = true;  BLOCK_IN();
+	BLOCK_IN(true, false);
 }
 void _CPU_::indr() {
-	repeat = true;  increase = false; BLOCK_IN();
+	BLOCK_IN(false, true);
 }
 void _CPU_::inir() {
-	repeat = true;  increase = true;  BLOCK_IN();
+	BLOCK_IN(true, true);
 }
 
 
 // block OUT
-inline void _CPU_::BLOCK_OUT() {
+inline void _CPU_::BLOCK_OUT(bool increase, bool repeat) {
 	SMALL_DELAY();
 	RDMEM(R.HL.w, dummy);
 	if (increase) R.HL.w++; else R.HL.w--; 
@@ -2312,16 +2312,16 @@ inline void _CPU_::BLOCK_OUT() {
 	if (repeat && R.BC.B.h) { BLOCK_DELAY(); R.PC.w -= 2; }
 }
 void _CPU_::outd() {
-	repeat = false; increase = false; BLOCK_OUT();
+	BLOCK_OUT(false, false);
 }
 void _CPU_::outi() {
-	repeat = false; increase = true;  BLOCK_OUT();
+	BLOCK_OUT(true, false);
 }
 void _CPU_::otdr() {
-	repeat = true;  increase = false; BLOCK_OUT();
+	BLOCK_OUT(false, true);
 }
 void _CPU_::otir() {
-	repeat = true;  increase = true;  BLOCK_OUT();
+	BLOCK_OUT(true, true);
 }
 
 

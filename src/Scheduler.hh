@@ -70,28 +70,17 @@ public:
 	 */
 	void removeSyncPoint(Schedulable* device, int userdata = 0);
 
-
-	void scheduleDevices(const EmuTime& limit);
-	
 	/**
-	 * This starts the schedule loop, should only be used by main
-	 * the program.
-	 * @result The moment in time the scheduler stopped.
+	 * Schedule till a certain moment in time.
+	 * It's alllowed to call this method recursivly.
 	 */
-	const EmuTime scheduleEmulation();
+	void schedule(const EmuTime& limit);
 
 	/**
 	 * This stops the schedule loop, should only be used by the
 	 * quit program routine.
 	 */
 	void stopScheduling();
-
-	/** Should the emulation continue running?
-	  * @return True iff emulation should continue.
-	  */
-	bool isEmulationRunning() {
-		return emulationRunning;
-	}
 
 	/** Set renderer to call when emulation is paused.
 	  * TODO: Function will be moved to OSD later.
@@ -114,10 +103,6 @@ public:
 private:
 	Scheduler();
 	virtual ~Scheduler();
-
-	/** Runs a single emulation step.
-	  */
-	inline void emulateStep();
 
 	// SettingListener
 	virtual void update(const SettingLeafNode* setting);

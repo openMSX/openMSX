@@ -1,6 +1,12 @@
 $Id$
 
 2003-11-05 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Refactored Scheduler:
+	   - there is now only one scheduler loop anymore
+	   - fixes the 'still schedule a bit even though emulation is pauzed'
+	     bug
+
+2003-11-05 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented 'alias' and 'unalias' commands
 
 2003-11-03 Maarten ter Huurne <maarten@treewalker.org>

@@ -101,7 +101,7 @@ void MSXMotherBoard::run(bool powerOn)
 	if (powerOn) {
 		Scheduler::instance()->powerOn();
 	}
-	EmuTime time(Scheduler::instance()->scheduleEmulation());
+	Scheduler::instance()->schedule(EmuTime::infinity);
 	Scheduler::instance()->powerOff();
 
 	// Shut down mixing because it depends on MSXCPU,

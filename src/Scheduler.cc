@@ -93,8 +93,9 @@ void Scheduler::stopScheduling()
 	unpause();
 }
 
-void Scheduler::scheduleDevices(const EmuTime &limit)
+void Scheduler::schedule(const EmuTime& limit)
 {
+	EventDistributor *eventDistributor = EventDistributor::instance();
 	while (emulationRunning) {
 		sem.down();
 		assert(!syncPoints.empty());	// class RealTime always has one
@@ -104,54 +105,28 @@ void Scheduler::scheduleDevices(const EmuTime &limit)
 			sem.up();
 			return;
 		}
-		// emulate the device
-		pop_heap(syncPoints.begin(), syncPoints.end());
-		syncPoints.pop_back();
-		sem.up();
-		Schedulable* device = sp.getDevice();
-		assert(device);
-		int userData = sp.getUserData();
-		PRT_DEBUG ("Sched: Scheduling_2 " << device->schedName() <<
-			" " << userData << " till " << time);
-		device->executeUntil(time, userData);
-	}
-}
-
-inline void Scheduler::emulateStep()
-{
-	sem.down();
-	assert(!syncPoints.empty());	// class RealTime always has one
-	const SynchronizationPoint sp = syncPoints.front();
-	const EmuTime &time = sp.getTime();
-	if (cpu->getTargetTime() < time) {
-		sem.up();
-		if (!paused && powerSetting.getValue()) {
-			// first bring CPU till SP
-			//  (this may set earlier SP)
-			PRT_DEBUG ("Sched: Scheduling CPU till " << time);
-			cpu->executeUntilTarget(time);
+		if (cpu->getTargetTime() < time) {
+			sem.up();
+			if (!paused && powerSetting.getValue()) {
+				// first bring CPU till SP
+				//  (this may set earlier SP)
+				PRT_DEBUG ("Sched: Scheduling CPU till " << time);
+				cpu->executeUntilTarget(time);
+			}
+		} else {
+			// if CPU has reached SP, emulate the device
+			pop_heap(syncPoints.begin(), syncPoints.end());
+			syncPoints.pop_back();
+			sem.up();
+			Schedulable* device = sp.getDevice();
+			assert(device);
+			int userData = sp.getUserData();
+			PRT_DEBUG ("Sched: Scheduling " << device->schedName()
+			           << " " << userData << " till " << time);
+			device->executeUntil(time, userData);
 		}
-	} else {
-		// if CPU has reached SP, emulate the device
-		pop_heap(syncPoints.begin(), syncPoints.end());
-		syncPoints.pop_back();
-		sem.up();
-		Schedulable* device = sp.getDevice();
-		assert(device);
-		int userData = sp.getUserData();
-		PRT_DEBUG ("Sched: Scheduling " << device->schedName() <<
-			" " << userData << " till " << time);
-		device->executeUntil(time, userData);
-	}
-}
-
-const EmuTime Scheduler::scheduleEmulation()
-{
-	EventDistributor *eventDistributor = EventDistributor::instance();
-	while (emulationRunning) {
-		emulateStep();
 		if (!powerSetting.getValue()) {
-			assert(renderer != NULL);
+			assert(renderer);
 			int fps = renderer->putPowerOffImage();
 			if (fps == 0) {
 				eventDistributor->wait();
@@ -160,14 +135,13 @@ const EmuTime Scheduler::scheduleEmulation()
 				eventDistributor->poll();
 			}
 		} else if (paused) {
-			assert(renderer != NULL);
+			assert(renderer);
 			renderer->putStoredImage();
 			eventDistributor->wait();
 		} else {
 			eventDistributor->poll();
 		}
 	}
-	return cpu->getTargetTime();
 }
 
 void Scheduler::unpause()

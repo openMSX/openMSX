@@ -1307,25 +1307,25 @@ void out_c_0();
 
 void out_byte_a();
 
-inline void BLOCK_CP();
+inline void BLOCK_CP(bool increase, bool repeat);
 void cpd();
 void cpi();
 void cpdr();
 void cpir();
 
-inline void BLOCK_LD();
+inline void BLOCK_LD(bool increase, bool repeat);
 void ldd();
 void ldi();
 void lddr();
 void ldir();
 
-inline void BLOCK_IN();
+inline void BLOCK_IN(bool increase, bool repeat);
 void ind();
 void ini();
 void indr();
 void inir();
 
-inline void BLOCK_OUT();
+inline void BLOCK_OUT(bool increase, bool repeat);
 void outd();
 void outi();
 void otdr();

@@ -106,13 +106,20 @@ void CPU::lowerIRQ()
 	//PRT_DEBUG("CPU: lower IRQ " << IRQStatus);
 }
 
-void CPU::wait(const EmuTime &time)
+void CPU::wait(const EmuTime& time)
 {
 	assert(time >= getCurrentTime());
 	if (getTargetTime() <= time) {
-		scheduler->scheduleDevices(time);
+		extendTarget(time);
 	}
 	setCurrentTime(time);
+}
+
+void CPU::extendTarget(const EmuTime& time)
+{
+	assert(getTargetTime() <= time);
+	scheduler->schedule(time);
+	setTargetTime(time);
 }
 
 } // namespace openmsx
