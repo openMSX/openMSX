@@ -10,9 +10,23 @@
 class Keyboard : public EventListener 
 {
 	public:
+		/**
+		 * Constructs a new Keyboard object.
+		 * @param keyGhosting turn keyGhosting on/off
+		 */
 		Keyboard(bool keyGhosting);
+
+		/**
+		 * Destructor
+		 */
 		virtual ~Keyboard(); 
+
+		/**
+		 * Returns a pointer to the current KeyBoard matrix
+		 */
 		const byte* getKeys();
+		
+		//EventListener
 		void signalEvent(SDL_Event &event);
 		
 		static const int NR_KEYROWS = 11;
@@ -24,6 +38,6 @@ class Keyboard : public EventListener
 		byte keyMatrix2[NR_KEYROWS];
 		bool keyGhosting;
 		bool keysChanged;
-		static byte Keys[336][2];
+		static const byte Keys[336][2];
 };
 #endif

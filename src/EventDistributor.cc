@@ -12,9 +12,6 @@ EventDistributor::EventDistributor()
 	asyncMutex = SDL_CreateMutex();
 	syncMutex  = SDL_CreateMutex();
 	queueMutex = SDL_CreateMutex();
-//#ifndef NO_SDL_QUIT_EVENT
-	registerAsyncListener(SDL_QUIT, this);
-//#endif
 }
 
 EventDistributor::~EventDistributor()
@@ -34,7 +31,11 @@ EventDistributor *EventDistributor::instance()
 EventDistributor *EventDistributor::oneInstance = NULL;
 
 
-// note: this method runs in a different thread!!
+/**
+ * This is the main-loop, it waits for events and delivers them to asynchronous
+ * listeners.
+ * Note: this method runs in a different thread!!
+ */
 void EventDistributor::run()
 {
 	SDL_Event event;
@@ -70,11 +71,7 @@ void EventDistributor::registerSyncListener (int type, EventListener *listener)
 // note: this method runs in a different thread!!
 void EventDistributor::signalEvent(SDL_Event &event)
 {
-	// TODO handling of SDL_QUIT should be done in a different class
-	if (event.type == SDL_QUIT) {
-		Scheduler::instance()->stopScheduling();
-	}
-	// all (other) events are later handled synchronously, now just queue them
+	// requeue events, they are handled later
 	SDL_mutexP(queueMutex);
 	queue.push(event);
 	SDL_mutexV(queueMutex);

@@ -8,7 +8,7 @@ Keyboard::Keyboard(bool keyG)
 {
 	keyGhosting = keyG;
 	for (int i=0; i<NR_KEYROWS; i++) {
-		keyMatrix[i]  = 255;
+		keyMatrix [i] = 255;
 		keyMatrix2[i] = 255;
 	}
 	EventDistributor::instance()->registerSyncListener(SDL_KEYDOWN, this);
@@ -94,7 +94,7 @@ void Keyboard::doKeyGhosting()
 
 
 /** Keyboard bindings ****************************************/
-byte Keyboard::Keys[336][2] =
+const byte Keyboard::Keys[336][2] =
 {
 /* 0000 */
   {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},

@@ -1,4 +1,4 @@
-// $Id: 
+// $Id: HotKey.cc,v 
 
 #include "openmsx.hh"
 #include "HotKey.hh"
@@ -25,11 +25,11 @@ HotKey* HotKey::instance()
 HotKey* HotKey::oneInstance = NULL;
 
 
-void HotKey::registerAsyncHotKey(SDLKey key, EventListener *listener)
+void HotKey::registerAsyncHotKey(SDLKey key, HotKeyListener *listener)
 {
 	PRT_DEBUG("HotKey registration for key " << ((int)key));
 	SDL_mutexP(mapMutex);
-	map.insert(std::pair<SDLKey, EventListener*>(key, listener));
+	map.insert(std::pair<SDLKey, HotKeyListener*>(key, listener));
 	SDL_mutexV(mapMutex);
 	if (nbListeners == 0)
 		EventDistributor::instance()->registerAsyncListener(SDL_KEYDOWN, this);
@@ -41,13 +41,14 @@ void HotKey::registerAsyncHotKey(SDLKey key, EventListener *listener)
 //  note: runs in different thread
 void HotKey::signalEvent(SDL_Event &event)
 {
-	PRT_DEBUG("HotKey event " << ((int)event.key.keysym.sym));
+	SDLKey key = event.key.keysym.sym;
+	PRT_DEBUG("HotKey event " << ((int)key));
 	SDL_mutexP(mapMutex);
-	std::multimap<SDLKey, EventListener*>::iterator it;
-	for (it = map.lower_bound(event.key.keysym.sym);
-	     (it != map.end()) && (it->first == event.key.keysym.sym);
+	std::multimap<SDLKey, HotKeyListener*>::iterator it;
+	for (it = map.lower_bound(key);
+	     (it != map.end()) && (it->first == key);
 	     it++) {
-		it->second->signalEvent(event);
+		it->second->signalHotKey(key);
 	}
 	SDL_mutexV(mapMutex);
 }

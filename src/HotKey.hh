@@ -6,6 +6,18 @@
 #include <SDL/SDL.h>
 #include "EventDistributor.hh"
 
+class HotKeyListener
+{
+	 public:
+		 /**
+		  * This method gets called when the key you are interested in
+		  * is pressed.
+		  * Note: HotKeys are deliverd in a different thread!!
+		  */
+		 virtual void signalHotKey(SDLKey key) = 0;
+}; 
+
+
 class HotKey : public EventListener
 {
 	public:
@@ -17,7 +29,7 @@ class HotKey : public EventListener
 		 * events are only passed for specific keys.
 		 * See EventDistributor::registerAsyncListener for more details
 		 */
-		void registerAsyncHotKey(SDLKey key, EventListener *listener);
+		void registerAsyncHotKey(SDLKey key, HotKeyListener *listener);
 
 
 		// EventListener
@@ -28,7 +40,7 @@ class HotKey : public EventListener
 		static HotKey *oneInstance;
 
 		int nbListeners;
-		std::multimap <SDLKey, EventListener*> map;
+		std::multimap <SDLKey, HotKeyListener*> map;
 		SDL_mutex *mapMutex;	// to lock variable map
 };
 

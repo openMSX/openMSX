@@ -13,6 +13,7 @@ DummyDevice::DummyDevice()
 DummyDevice::~DummyDevice()
 {
 	PRT_DEBUG ("Destroying dummy device");
+	delete deviceName;
 }
 
 DummyDevice* DummyDevice::instance()

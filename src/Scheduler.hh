@@ -4,7 +4,7 @@
 #define __SCHEDULER_HH__
 
 #include "emutime.hh"
-#include "EventDistributor.hh"
+#include "HotKey.hh"
 #include <SDL/SDL.h>
 #include <set>
 #include <string>
@@ -32,7 +32,7 @@ class SynchronizationPoint
 		Schedulable &device;		// alias
 };
 
-class Scheduler : public EventListener
+class Scheduler : public EventListener, public HotKeyListener
 {
 	public:
 		virtual ~Scheduler();
@@ -42,6 +42,8 @@ class Scheduler : public EventListener
 		void stopScheduling();
 		// EventListener
 		void signalEvent(SDL_Event &event);
+		// HotKeyListener
+		void signalHotKey(SDLKey key);
 		
 	private:
 		Scheduler();

@@ -6,6 +6,7 @@
 #include "HotKey.hh"
 #include "Mixer.hh"
 #include <cassert>
+#include <SDL/SDL.h>
 
 
 // Schedulable 
@@ -24,6 +25,7 @@ Scheduler::Scheduler()
 	pauseMutex = SDL_CreateMutex();
 	paused = false;
 	runningScheduler = true;
+	EventDistributor::instance()->registerAsyncListener(SDL_QUIT, this);
 	HotKey::instance()->registerAsyncHotKey(SDLK_PAUSE, this);
 	HotKey::instance()->registerAsyncHotKey(SDLK_F12, this);
 }
@@ -120,22 +122,32 @@ const Emutime Scheduler::infinity = Emutime(1, Emutime::INFINITY);
 
 // Note: this runs in a different thread
 void Scheduler::signalEvent(SDL_Event &event) {
-  if (event.key.keysym.sym==SDLK_PAUSE){
-  	// PAUZE key pressed
-	if (paused) {
-		// unpause
-		paused = false;
-		SDL_mutexV(pauseMutex);	// release mutex;
-		Mixer::instance()->pause(false);
-		PRT_DEBUG("Unpaused");
+	if (event.type == SDL_QUIT) {
+		stopScheduling();
 	} else {
-		// pause
-		paused = true;
-		SDL_mutexP(pauseMutex);	// grab mutex
-		Mixer::instance()->pause(true);
-		PRT_DEBUG("Paused");
+		assert(false);
 	}
-  } else
-    // F12 pressed
-    stopScheduling();
+}
+
+// Note: this runs in a different thread
+void Scheduler::signalHotKey(SDLKey key) {
+	if (key == SDLK_PAUSE) {
+		if (paused) {
+			// unpause
+			paused = false;
+			SDL_mutexV(pauseMutex);	// release mutex;
+			Mixer::instance()->pause(false);
+			PRT_DEBUG("Unpaused");
+		} else {
+			// pause
+			paused = true;
+			SDL_mutexP(pauseMutex);	// grab mutex
+			Mixer::instance()->pause(true);
+			PRT_DEBUG("Paused");
+		}
+	} else if (key == SDLK_F12) {
+		stopScheduling();
+	} else {
+		assert(false);
+	}
 }

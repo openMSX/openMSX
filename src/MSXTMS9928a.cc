@@ -786,9 +786,9 @@ void MSXTMS9928a::init(void)
 	return ;//0;
 }
 
-void MSXTMS9928a::signalEvent(SDL_Event &event)
+void MSXTMS9928a::signalHotKey(SDLKey key)
 {
-	// We don't care which event, since we only registered on hotkey.
+	// We don't care which key, since we only registered one.
 	SDL_WM_ToggleFullScreen(screen);
 }
 

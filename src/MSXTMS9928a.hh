@@ -27,7 +27,7 @@ typedef unsigned int Pixel;
 #error DEPTH must be 8, 15, 16 or 32 bits per pixel.
 #endif
 
-class MSXTMS9928a : public MSXDevice, EventListener
+class MSXTMS9928a : public MSXDevice, HotKeyListener
 {
 public:
 	/**
@@ -55,7 +55,7 @@ public:
 	// void restoreState(char *devicestring,ifstream readstream);
 
 	// handle "toggle fullscreen"-hotkey requests
-	void signalEvent(SDL_Event &event);
+	void signalHotKey(SDLKey key);
 private:
 	typedef void (MSXTMS9928a::*RenderMethod)(Pixel *pixelPtr, int line);
 	static RenderMethod modeToRenderMethod[];
