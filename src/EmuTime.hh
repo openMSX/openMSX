@@ -158,7 +158,7 @@ public:
 	/** Create a new clock, which starts ticking at the given time.
 	  */
 	explicit Clock(const EmuTime& e)
-		: lastTick(e.time - e.time % (MAIN_FREQ / freq)) { }
+		: lastTick(e) { }
 
 	/** Gets the time at which the last clock tick occurred.
 	  */

@@ -1,5 +1,9 @@
 $Id$
 
+2005-01-24 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed Clock<> constructor:
+	    rounding is not needed(?) it's even wrong
+
 2005-01-22 Eric Boon <e.boon4@chello.nl>
 	* First steps towards V9990 P2 mode
 	* Some P1 fixes
