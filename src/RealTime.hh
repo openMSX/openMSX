@@ -51,5 +51,7 @@ class RealTime : public Schedulable, public HotKeyListener
 		float factor;
 
 		bool paused;
+
+		static const int SCHEDULE_SELF = 1;	// != 0
 };
 #endif

@@ -88,7 +88,7 @@ class Scheduler : public EventListener, public HotKeyListener, public Schedulabl
 		 * if possible don't remove the syncPoint but ignore it in
 		 * your executeUntilEmuTime() method.
 		 */
-		bool Scheduler::removeSyncPoints(Schedulable* device, int userdata = 0);
+		bool Scheduler::removeSyncPoint(Schedulable* device, int userdata = 0);
 		
 		/**
 		 * This starts the schedule loop, should only be used by main

@@ -22,7 +22,7 @@ RealTime::RealTime()
 	paused = false;
 	
 	HotKey::instance()->registerAsyncHotKey(SDLK_PAUSE, this);
-	Scheduler::instance()->setSyncPoint(emuRef+syncInterval, this);
+	Scheduler::instance()->setSyncPoint(emuRef+syncInterval, this, SCHEDULE_SELF);
 }
 
 RealTime::~RealTime()
@@ -84,7 +84,9 @@ void RealTime::executeUntilEmuTime(const EmuTime &curEmu, int userData)
 	emuRef = curEmu;
 
 	// schedule again in future
-	Scheduler::instance()->setSyncPoint(emuRef+syncInterval, this);
+	if (userData!=SCHEDULE_SELF)
+		Scheduler::instance()->removeSyncPoint(this, SCHEDULE_SELF);
+	Scheduler::instance()->setSyncPoint(emuRef+syncInterval, this, SCHEDULE_SELF);
 }
 
 float RealTime::getRealDuration(const EmuTime time1, const EmuTime time2)

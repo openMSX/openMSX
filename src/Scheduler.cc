@@ -61,7 +61,7 @@ void Scheduler::setSyncPoint(const EmuTime &time, Schedulable* device, int userD
 	push_heap(syncPoints.begin(), syncPoints.end());
 }
 
-bool Scheduler::removeSyncPoints(Schedulable* device, int userData = 0)
+bool Scheduler::removeSyncPoint(Schedulable* device, int userData = 0)
 {
 	std::vector<SynchronizationPoint>::iterator i;
 	for (i=syncPoints.begin(); i!=syncPoints.end(); i++) {
