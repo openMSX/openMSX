@@ -121,25 +121,6 @@ public:
 		return data + start;
 	}
 
-	/** Reads an area of VRAM.
-	  * @param start Start address (inclusive) of the area to read.
-	  * @param end End address (exclusive) of the area to read.
-	  * @param time Moment in emulated time the area's contents should
-	  *   be updated to.
-	  * @return A pointer to the specified area.
-	  * TODO: Return expiry time for the area's contents.
-	  */
-	inline const byte *readArea(int start, int end, const EmuTime &time) {
-		assert(0 <= start && start < size);
-		assert(0 <= end && end <= size);
-		assert(start <= end);
-		if (time < currentTime
-		&& windows[COMMAND_WRITE].overlaps(start, end)) {
-			cmdEngine->sync(time);
-		}
-		return data + start;
-	}
-
 	/** Used by the VDP to signal display mode changes.
 	  * VDPVRAM will inform the Renderer, command engine and the sprite
 	  * checker of this change.

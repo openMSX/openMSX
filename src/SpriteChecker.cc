@@ -1,5 +1,16 @@
 // $Id$
 
+/*
+TODO:
+- Speed up checkSpritesN by administrating which lines contain which
+  sprites in a bit vector.
+  This avoids cycling through all 32 possible sprites on every line.
+  Keeping administration up-to-date is not that hard and happens
+  at a low frequency (typically once per frame).
+- Verify model for 5th sprite number calculation.
+  For example, does it have the right value in text mode?
+*/
+
 #include "SpriteChecker.hh"
 #include "VDPVRAM.hh"
 #include <cassert>

@@ -1,5 +1,8 @@
 $Id$
 
+2002-04-28 Maarten ter Huurne <mth@stack.nl>
+	* Some VDP cleanups.
+
 2002-04-28 Joost Yervante Damad <andete@worldcity.nl>
 	* FilePath stuff for future FileManager
 
@@ -9,7 +12,7 @@ $Id$
 2002-04-28 Maarten ter Huurne <mth@stack.nl>
 	* Removed re-entering of SpriteChecker::sync and Renderer::sync.
 	  Display enable/disable changes now go through VDPVRAM.
-	  Various others cleanups.
+	  Various other cleanups.
 	  Most sprite glitches are fixed now.
 
 2002-04-28 Bas Wijnen <b.wijnen@student.rug.nl>

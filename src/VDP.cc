@@ -2,7 +2,6 @@
 
 /*
 TODO:
-- Put VRAM in a separate class?
 - Run more measurements on real MSX to find out how horizontal
   scanning interrupt really works.
   Finish model and implement it.
@@ -13,22 +12,7 @@ TODO:
   * read FH
   * read FH
   Current implementation would return FH=0 both times.
-- Verify for which lines sprite checking occurs.
-  It should happen for all display lines.
-  Pitfalls:
-  * on overscan, there are many more display lines
-  * make sure that renderer behaviour does not affect the outcome
-    so: independent of *which* lines are requested and *when* they are
 - Check how Z80 should treat interrupts occurring during DI.
-- Sprite attribute readout probably happens one line in advance.
-  This matters when line-based scheduling is operational.
-- Speed up checkSpritesN by administrating which lines contain which
-  sprites in a bit vector.
-  This avoids cycling through all 32 possible sprites on every line.
-  Keeping administration up-to-date is not that hard and happens
-  at a low frequency (typically once per frame).
-- Verify model for 5th sprite number calculation.
-  For example, does it have the right value in text mode?
 - Get rid of hardcoded port 0x98..0x9B.
 */
 
@@ -216,14 +200,8 @@ void VDP::executeUntilEmuTime(const EmuTime &time, int userData)
 	// Handle the various sync types.
 	switch (userData) {
 	case VSYNC: {
-		// Sync with command engine.
-		// TODO: This wouldn't be necessary if command engine is synced
-		//       on VRAM reads.
-		cmdEngine->sync(time);
-
 		// This frame is finished.
 		renderer->putImage(time);
-
 		// Begin next frame.
 		frameStart(time);
 		break;

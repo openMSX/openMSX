@@ -114,8 +114,7 @@ template <class Pixel> inline void SDLHiRenderer<Pixel>::renderBitmapLines(
 		int vramLine = (vdp->getNameMask() >> 7) & (pageMask | line);
 		if (lineValidInMode[vramLine] != mode) {
 			int addr = (vramLine << 7) & vdp->getNameMask();
-			const byte *vramPtr = vram->readArea(
-				addr, addr + 128, currentTime);
+			const byte *vramPtr = vram->readArea(addr, addr + 128);
 			bitmapConverter.convertLine(
 				getLinePtr(bitmapDisplayCache, vramLine), vramPtr );
 			lineValidInMode[vramLine] = mode;
@@ -138,10 +137,8 @@ template <class Pixel> inline void SDLHiRenderer<Pixel>::renderPlanarBitmapLines
 		|| lineValidInMode[vramLine | 512] != mode ) {
 			int addr0 = (vramLine << 7) & vdp->getNameMask();
 			int addr1 = addr0 | 0x10000;
-			const byte *vramPtr0 = vram->readArea(
-				addr0, addr0 + 128, currentTime);
-			const byte *vramPtr1 = vram->readArea(
-				addr1, addr1 + 128, currentTime);
+			const byte *vramPtr0 = vram->readArea(addr0, addr0 + 128);
+			const byte *vramPtr1 = vram->readArea(addr1, addr1 + 128);
 			bitmapConverter.convertLinePlanar(
 				getLinePtr(bitmapDisplayCache, vramLine),
 				vramPtr0, vramPtr1 );
@@ -836,8 +833,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::putImage(
 	// Render changes from this last frame.
 	if (time < currentTime) {
 		std::cout << "Rendered into next frame's time: "
-			<< "frame end = " << time
-			<< ", renderer time = " << currentTime
+			<< (currentTime - time)
 			<< "\n";
 	}
 	sync(time);
