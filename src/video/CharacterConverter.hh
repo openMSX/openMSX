@@ -3,14 +3,15 @@
 #ifndef __CHARACTERCONVERTER_HH__
 #define __CHARACTERCONVERTER_HH__
 
-class VDP;
-class VDPVRAM;
-
 #include "openmsx.hh"
 #include "Renderer.hh"
 #include "DisplayMode.hh"
 #include "Blender.hh"
 #include <cassert>
+
+class VDP;
+class VDPVRAM;
+
 
 /** Utility class for converting VRAM contents to host pixels.
   */
