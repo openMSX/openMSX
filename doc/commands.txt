@@ -77,6 +77,12 @@ debug
     debug step                          execute one instruction
     debug read_block <name> <addr> <size>     read a whole block at once
     debug write_block <name> <addr> <values>  write a whole block at once 
+    debug disasm [<addr>]               disassemble instructions at PC or given
+                                        address
+
+  Note: in the share/scripts directory you'll find some TCL scripts that
+        offer convenience wrapper around this command. For example:
+           showmem, disasm, cpuregs, save_debuggable
     
 
 diska / diskb

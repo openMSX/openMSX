@@ -4,7 +4,6 @@
 #include "CPU.hh"
 #include "InfoCommand.hh"
 #include "Debugger.hh"
-#include "CommandArgument.hh"
 #include "BooleanSetting.hh"
 #include "CPUCore.hh"
 #include "Z80.hh"
@@ -267,6 +266,12 @@ string MSXCPU::doBreak()
 {
 	activeCPU->doBreak();
 	return "";
+}
+
+void MSXCPU::disasmCommand(const vector<CommandArgument>& tokens,
+                           CommandArgument& result) const
+{
+	activeCPU->disasmCommand(tokens, result);
 }
 
 string MSXCPU::setBreakPoint(word addr)

@@ -2,6 +2,7 @@
 
 #include "Dasm.hh"
 #include "DasmTables.hh"
+#include "MSXCPUInterface.hh"
 #include <cstdio>
 
 namespace openmsx {
@@ -16,94 +17,101 @@ static int abs(unsigned char a)
 	return (a & 128) ? (256 - a) : a;
 }
 
-int dasm(const byte* buffer, unsigned pc, std::string& dest)
+int dasm(const MSXCPUInterface& interf, word pc, byte* buf, std::string& dest)
 {
 	const char* s;
-	char buf[10];
+	char tmp[10];
 	int i = 0;
-	char offset = 0;
 	const char* r = 0;
 
-	switch (buffer[i]) {
+	buf[0] = interf.peekMem(pc);
+	switch (buf[0]) {
 		case 0xCB:
-			i++;
-			s = mnemonic_cb[buffer[i++]];
+			buf[1] = interf.peekMem(pc + 1);
+			s = mnemonic_cb[buf[1]];
+			i = 2;
 			break;
 		case 0xED:
-			i++;
-			s = mnemonic_ed[buffer[i++]];
+			buf[1] = interf.peekMem(pc + 1);
+			s = mnemonic_ed[buf[1]];
+			i = 2;
 			break;
 		case 0xDD:
-			i++;
 			r = "ix";
-			switch (buffer[i]) {
-				case 0xcb:
-					i++;
-					offset = buffer[i++];
-					s = mnemonic_xx_cb[buffer[i++]];
-					break;
-				default:
-					s = mnemonic_xx[buffer[i++]];
-					break;
+			buf[1] = interf.peekMem(pc + 1);
+			if (buf[1] != 0xcb) {
+				s = mnemonic_xx[buf[1]];
+				i = 2;
+			} else {
+				buf[2] = interf.peekMem(pc + 2);
+				buf[3] = interf.peekMem(pc + 3);
+				s = mnemonic_xx_cb[buf[3]];
+				i = 4;
 			}
 			break;
 		case 0xFD:
-			i++;
 			r = "iy";
-			switch (buffer[i]) {
-				case 0xcb:
-					i++;
-					offset = buffer[i++];
-					s = mnemonic_xx_cb[buffer[i++]];
-					break;
-				default:
-					s = mnemonic_xx[buffer[i++]];
-					break;
+			buf[1] = interf.peekMem(pc + 1);
+			if (buf[1] != 0xcb) {
+				s = mnemonic_xx[buf[1]];
+				i = 2;
+			} else {
+				buf[2] = interf.peekMem(pc + 2);
+				buf[3] = interf.peekMem(pc + 3);
+				s = mnemonic_xx_cb[buf[3]];
+				i = 4;
 			}
 			break;
 		default:
-			s = mnemonic_main[buffer[i++]];
-			break;
+			s = mnemonic_main[buf[0]];
+			i = 1;
 	}
 	
 	for (int j = 0; s[j]; ++j) {
 		switch (s[j]) {
 		case 'B':
-			sprintf(buf, "#%02x", buffer[i++]);
-			dest += buf;
+			buf[i] = interf.peekMem(pc + i);
+			sprintf(tmp, "#%02x", buf[i]);
+			i += 1;
+			dest += tmp;
 			break;
 		case 'R':
-			sprintf(buf, "#%04x", (pc + 2 + (signed char)buffer[i++]) & 0xFFFF);
-			dest += buf;
+			buf[i] = interf.peekMem(pc + i);
+			sprintf(tmp, "#%04x", (pc + 2 + (signed char)buf[i]) & 0xFFFF);
+			i += 1;
+			dest += tmp;
 			break;
 		case 'W':
-			sprintf(buf, "#%04x", buffer[i] + buffer[i + 1] * 256);
+			buf[i + 0] = interf.peekMem(pc + i + 0);
+			buf[i + 1] = interf.peekMem(pc + i + 1);
+			sprintf(tmp, "#%04x", buf[i] + buf[i + 1] * 256);
 			i += 2;
-			dest += buf;
+			dest += tmp;
 			break;
 		case 'X':
-			sprintf(buf, "(%s%c#%02x)", r, sign(buffer[i]), abs(buffer[i]));
-			i++;
-			dest += buf;
+			buf[i] = interf.peekMem(pc + i);
+			sprintf(tmp, "(%s%c#%02x)", r, sign(buf[i]), abs(buf[i]));
+			i += 1;
+			dest += tmp;
 			break;
 		case 'Y':
-			sprintf(buf, "(%s%c#%02x)", r, sign(offset), abs(offset));
-			dest += buf;
+			sprintf(tmp, "(%s%c#%02x)", r, sign(buf[2]), abs(buf[2]));
+			dest += tmp;
 			break;
 		case 'I':
 			dest += r;
 			break;
 		case '!':
-			sprintf(buf, "db     #ED,#%02x", buffer[1]);
-			dest = buf;
+			sprintf(tmp, "db     #ED,#%02x", buf[1]);
+			dest = tmp;
 			return 2;
 		case '@':
-			sprintf(buf, "db     #%02x", buffer[0]);
-			dest = buf;
+			sprintf(tmp, "db     #%02x", buf[0]);
+			dest = tmp;
 			return 1;
 		case '#':
-			sprintf(buf, "db     #%02x,#CB,#%02x", buffer[0], buffer[2]);
-			dest = buf;
+			sprintf(tmp, "db     #%02x,#CB,#%02x", buf[0], buf[2]);
+			dest = tmp;
 			return 2;
 		case ' ': {
 			dest.resize(7, ' ');

@@ -4,6 +4,8 @@
 #define CPU_HH
 
 #include "openmsx.hh"
+#include "CommandArgument.hh"
+#include <vector>
 #include <set>
 
 namespace openmsx {
@@ -75,12 +77,12 @@ public:
 	 * TODO
 	 */
 	virtual void execute() = 0;
-	
+
 	/**
 	 * TODO
 	 */
 	virtual void exitCPULoop() = 0;
-	
+
 	/**
 	 * Sets the CPU its current time.
 	 * This is used to 'warp' a CPU when you switch between Z80/R800.
@@ -96,7 +98,7 @@ public:
 	 * Wait 
 	 */
 	virtual void wait(const EmuTime& time) = 0;
-	
+
 	/**
 	 * Invalidate the CPU its cache for the interval
 	 * [start, start+num*CACHE_LINE_SIZE).
@@ -104,40 +106,38 @@ public:
 	virtual void invalidateMemCache(word start, unsigned num) = 0;
 
 	/**
-	 *
 	 */
 	virtual CPURegs& getRegisters() = 0;
 
 	/**
-	 *
 	 */
 	virtual void doStep() = 0;
-	
+
 	/**
-	 *
+	 */
+	virtual void disasmCommand(const std::vector<CommandArgument>& tokens,
+	                           CommandArgument& result) const = 0;
+
+	/**
 	 */
 	virtual void doContinue() = 0;
-	
+
 	/**
-	 *
 	 */
 	virtual void doBreak() = 0;
 
 	/**
-	 *
 	 */
 	void insertBreakPoint(word address);
 
 	/**
-	 *
 	 */
 	void removeBreakPoint(word address);
 
 	/**
-	 *
 	 */
 	const BreakPoints& getBreakPoints() const;
-	
+
 protected:
 	CPU();
 	virtual ~CPU() {}

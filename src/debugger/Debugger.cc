@@ -119,6 +119,9 @@ void Debugger::DebugCmd::execute(const vector<CommandArgument>& tokens,
 		parent.cpu->doStep();
 	} else if (subCmd == "cont") {
 		parent.cpu->doContinue();
+		return;
+	} else if (subCmd == "disasm") {
+		parent.cpu->disasmCommand(tokens, result);
 	} else if (subCmd == "break") {
 		parent.cpu->doBreak();
 	} else if (subCmd == "set_bp") {
@@ -253,7 +256,8 @@ string Debugger::DebugCmd::help(const vector<string>& /*tokens*/) const
 		"debug list_bp                             list the active breakpoints\n"
 		"debug cont                                continue execution aftre break\n"
 		"debug step                                execute one instruction\n"
-		"debug break                               break CPU at current position\n";
+		"debug break                               break CPU at current position\n"
+		"debug disasm <addr>                       disassemble instruction\n";
 	return helpText;
 }
 
@@ -271,6 +275,7 @@ void Debugger::DebugCmd::tabCompletion(vector<string>& tokens) const
 			cmds.insert("write_block");
 			cmds.insert("step");
 			cmds.insert("cont");
+			cmds.insert("disasm");
 			cmds.insert("break");
 			cmds.insert("set_bp");
 			cmds.insert("remove_bp");

@@ -192,6 +192,32 @@ template <class T> void CPUCore<T>::doStep()
 	}
 }
 
+static inline char toHex(byte x)
+{
+	return (x < 10) ? (x + '0') : (x - 10 + 'A');
+}
+static void toHex(byte x, char* buf)
+{
+	buf[0] = toHex(x / 16);
+	buf[1] = toHex(x & 15);
+}
+
+template <class T> void CPUCore<T>::disasmCommand(
+	const std::vector<CommandArgument>& tokens,
+	CommandArgument& result) const
+{
+	word address = (tokens.size() < 3) ? R.PC : tokens[2].getInt();
+	byte outBuf[4];
+	std::string dasmOutput;
+	int len = dasm(*interface, address, outBuf, dasmOutput);
+	result.addListElement(dasmOutput);
+	char tmp[3]; tmp[2] = 0;
+	for (int i = 0; i < len; ++i) {
+		toHex(outBuf[i], tmp);
+		result.addListElement(tmp);
+	}
+}
+
 template <class T> void CPUCore<T>::doContinue()
 {
 	if (breaked) {
@@ -264,7 +290,6 @@ template <class T> inline byte CPUCore<T>::RDMEM_common(word address)
 		// cached, fast path
 		T::clock += (T::MEM_DELAY1 + T::MEM_DELAY2);
 		byte result = readCacheLine[line][address&CACHE_LINE_LOW];
-		debugmemory[address] = result;
 		return result;
 	} else {
 		return RDMEMslow(address);	// not inlined
@@ -282,7 +307,6 @@ template <class T> byte CPUCore<T>::RDMEMslow(word address)
 			// cached ok
 			T::clock += (T::MEM_DELAY1 + T::MEM_DELAY2);
 			byte result = readCacheLine[line][address&CACHE_LINE_LOW];
-			debugmemory[address] = result;
 			return result;
 		}
 	}
@@ -290,7 +314,6 @@ template <class T> byte CPUCore<T>::RDMEMslow(word address)
 	T::clock += T::MEM_DELAY1;
 	scheduler.schedule(T::clock.getTime());
 	byte result = interface->readMem(address, T::clock.getTime());
-	debugmemory[address] = result;
 	T::clock += T::MEM_DELAY2;
 	return result;
 }
@@ -419,8 +442,9 @@ template <class T> inline void CPUCore<T>::cpuTracePre()
 template <class T> inline void CPUCore<T>::cpuTracePost()
 {
 	if (traceSetting.getValue()) {
+		byte opbuf[4];
 		string dasmOutput;
-		dasm(&debugmemory[start_pc], start_pc, dasmOutput);
+		dasm(*interface, start_pc, opbuf, dasmOutput);
 		std::cout << std::setfill('0') << std::hex << std::setw(4) << start_pc
 		     << " : " << dasmOutput
 		     << " AF=" << std::setw(4) << R.AF

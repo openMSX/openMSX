@@ -49,6 +49,9 @@ public:
 	virtual void doContinue();
 	virtual void doBreak();
 
+	virtual void disasmCommand(const std::vector<CommandArgument>& tokens,
+                                   CommandArgument& result) const;
+
 	/**
 	 * Read a byte from memory. If possible the byte is read from
 	 * cache, otherwise the readMem() method of MSXCPUInterface is used.
@@ -121,8 +124,6 @@ private:
 	bool readCacheTried [CACHE_LINE_NUM];
 	bool writeCacheTried[CACHE_LINE_NUM];
 
-	byte debugmemory[65536];
-	
 	Scheduler& scheduler;
 	MSXMotherBoard* motherboard;
 	

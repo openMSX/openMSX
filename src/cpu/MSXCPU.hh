@@ -99,6 +99,9 @@ public:
 	virtual byte read(unsigned address);
 	virtual void write(unsigned address, byte value);
 
+	void disasmCommand(const std::vector<CommandArgument>& tokens,
+                           CommandArgument& result) const;
+
 	// Breakpoint stuff
 	std::string doStep();
 	std::string doContinue();

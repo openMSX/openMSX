@@ -1,7 +1,10 @@
 $Id$
 
-2005-03-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2005-03-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed crash on missing argument for 'debug set_bp/remove_bp'
+	* Implemented "debug disasm" command:
+	   with this command Boukichi's 4 debugger commands (offered as a
+	   patch on openmsx-0.5.1) can be implemented as simple TCL scripts
 
 2005-03-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Tiny SDLGL improvement:
