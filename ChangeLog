@@ -1,5 +1,8 @@
 $Id$
 
+2002-07-09 David Heremans <david.heremans@gnu-linux.net>
+	* Improved portbased interface to MSXFDC
+
 2002-07-08 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Enabled console in SDLLoRenderer
 

@@ -22,10 +22,12 @@ class FDC2793 : public FDC
 	void setDataReg(byte value,const EmuTime &time);
     byte getSideSelect(const EmuTime &time);
     byte getDriveSelect(const EmuTime &time);
+    byte getMotor(const EmuTime &time);
     byte getIRQ(const EmuTime &time);
     byte getDTRQ(const EmuTime &time);
     void setSideSelect(byte value,const EmuTime &time);
     void setDriveSelect(byte value,const EmuTime &time);
+    void setMotor(byte value,const EmuTime &time);
 
 	FDC2793(MSXConfig::Device *config);
   private:
@@ -48,9 +50,8 @@ class FDC2793 : public FDC
 	byte trackReg;
 	byte dataReg;
 
-	byte driveReg; //bestaat niet in de FDC zelf maar als externe logica
 	byte current_drive;
-	byte motor_drive[2];
+	byte motor_drive[4]; //Brazilian based machines support up to 4 drives per FDC
 
 	byte current_track;
 	byte current_sector;

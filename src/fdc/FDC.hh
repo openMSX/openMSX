@@ -18,6 +18,7 @@ class FDC
     virtual byte getDataReg(const EmuTime &time);
     virtual byte getSideSelect(const EmuTime &time);
     virtual byte getDriveSelect(const EmuTime &time);
+    virtual byte getMotor(const EmuTime &time);
     virtual byte getIRQ(const EmuTime &time);
     virtual byte getDTRQ(const EmuTime &time);
     virtual void setCommandReg(byte value,const EmuTime &time);
@@ -26,6 +27,7 @@ class FDC
     virtual void setDataReg(byte value,const EmuTime &time);
     virtual void setSideSelect(byte value,const EmuTime &time);
     virtual void setDriveSelect(byte value,const EmuTime &time);
+    virtual void setMotor(byte value,const EmuTime &time);
 
     FDC(MSXConfig::Device *config);
 };

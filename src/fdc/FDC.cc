@@ -64,6 +64,16 @@ byte FDC::getDriveSelect(const EmuTime &time)
   PRT_DEBUG("Direct FDC object method call!");
 }
 
+void FDC::setMotor(byte value,const EmuTime &time)
+{
+  PRT_DEBUG("Direct FDC object method call!");
+}
+
+byte FDC::getMotor(const EmuTime &time)
+{
+  PRT_DEBUG("Direct FDC object method call!");
+}
+
 byte FDC::getStatusReg(const EmuTime &time)
 {
   PRT_DEBUG("Direct FDC object method call!");

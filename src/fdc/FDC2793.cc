@@ -38,7 +38,6 @@ void FDC2793::reset()
   stepSpeed=0;
   directionIn=true;
 
-  driveReg=0;
   current_drive=0;
   motor_drive[0]=0;
   motor_drive[1]=0;
@@ -59,7 +58,6 @@ void FDC2793::reset()
 
 void FDC2793::setDriveSelect(byte value,const EmuTime &time)
 {
-  driveReg=value;
   switch (value & 3){
   case 0:
   case 2:
@@ -72,18 +70,30 @@ void FDC2793::setDriveSelect(byte value,const EmuTime &time)
   current_drive=255; //no drive selected
   };
 
+  //PRT_DEBUG("motor is "<<(int)motor_drive<<" drive "<<(int)current_drive);
+}
+
+void FDC2793::setMotor(byte value,const EmuTime &time)
+{
   if (current_drive != 255 ){
-  	if (motor_drive[current_drive] != value&128){
+  	if (motor_drive[current_drive] != value){
 	  //if already in current state this is skipped
 	  motorStartTime[current_drive]=time;
 	}
-	motor_drive[current_drive]=value&128;
+	motor_drive[current_drive]=value;
   };
-  //PRT_DEBUG("motor is "<<(int)motor_drive<<" drive "<<(int)current_drive);
 }
+
+//actually not used, maybe for GUI ?
 byte FDC2793::getDriveSelect(const EmuTime &time)
 {
-  return driveReg;
+  return current_drive;
+}
+
+//actually not used ,maybe for GUI ?
+byte FDC2793::getMotor(const EmuTime &time)
+{
+  return (current_drive<4)?motor_drive[current_drive]:0;
 }
 
 byte FDC2793::getDTRQ(const EmuTime &time)

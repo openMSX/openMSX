@@ -124,7 +124,7 @@ byte MSXFDC::readMem(word address, const EmuTime &time)
 	      //bit 1,0 -> drive number  (00 or 10: drive A, 01: drive B, 11: nothing)
 	      //bit 7 -> motor on
 	      //TODO check other bits !!
-	      value = controller->getDriveSelect(time);
+	      value = driveReg; //controller->getDriveSelect(time);
 	      break;
 	    case 0x3FFE:
 	      //not used
@@ -172,22 +172,51 @@ void MSXFDC::writeIO(byte port, byte value, const EmuTime &time)
 		controller->setDataReg(value, time);
 	    break;
 	  case 0xD4:
-	  	// From the source of brMSX all I could find out was 
-		// bit 4 is used for side select
-		// bit 0 influences the led settings
+		// From Ricardo Bittencourt
+		// bit 0:  drive select A
+		// bit 1:  drive select B
+		// bit 2:  drive select C
+		// bit 3:  drive select D
+		// bit 4:  side select
+		// bit 5:  turn on motor
+		// bit 6:  enable waitstates
+		// bit 7:  density: 0=single 1=double
+		// 
+		// When you enable a drive select bit, the led on the
+		// disk-drive turns on. Since this was used as user feedback,
+		// in things such as "replace disk 1 when the led turns off"
+		// we need to connect this to the OSD later on.
+
 		driveD4=value;
-		if (value&16){
-		  controller->setSideSelect(1, time);
-		} else {
-		  controller->setSideSelect(0, time);
+		//Set correct drive
+		byte drivenr;
+		switch (value & 15){
+		  case 1:
+		    drivenr=0;
+		    break;
+		  case 2:
+		    drivenr=1;
+		    break;
+		  case 4:
+		    drivenr=2;
+		    break;
+		  case 8:
+		    drivenr=3;
+		    break;
+		  default:
+		    // No drive selected or two drives at same time
+		    // The motor is enabled for all drives at the same time, so
+		    // in a real machine you must take care to do not select more
+		    // than one drive at the same time (you could get data
+		    // collision).
+		    drivenr=255; //no drive selected
 		};
-		// Since these two bits are all that I know of right now I will
-		// assume diska and map the led stuff into motor on/off states
-	  	if (value&1){
-		  controller->setDriveSelect(128, time);
-		} else {
-		  controller->setDriveSelect(0, time);
-		}
+		controller->setDriveSelect(drivenr, time);
+
+		controller->setSideSelect( value&16?1:0 , time);
+
+		controller->setMotor( value&32?1:0 , time);
+
 	    break;
 	};
 }
@@ -211,13 +240,27 @@ void MSXFDC::writeMem(word address, byte value, const EmuTime &time)
 	case 0x3FFC:
 		//bit 0 = side select
 		//TODO check other bits !!
-		controller->setSideSelect(value, time);
+		controller->setSideSelect(value&1, time);
 		break;
 	case 0x3FFD:
 		//bit 1,0 -> drive number  (00 or 10: drive A, 01: drive B, 11: nothing)
 		//bit 7 -> motor on
 		//TODO check other bits !!
-		controller->setDriveSelect(value, time);
+		driveReg=value;
+		byte drivenr;
+		switch (value & 3){
+		  case 0:
+		  case 2:
+		    drivenr=0;
+		    break;
+		  case 1:
+		    drivenr=1;
+		    break;
+		  case 3:
+		    drivenr=255; //no drive selected
+		};
+		controller->setDriveSelect(drivenr, time);
+		controller->setMotor(value&128?1:0 , time); // set motor for current drive
 		break;
 	}
 }

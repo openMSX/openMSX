@@ -44,5 +44,6 @@ class MSXFDC : public MSXRom, public MSXIODevice
 		byte* emptyRom;
 		byte interface;
 		byte driveD4;
+		byte driveReg;
 };
 #endif
