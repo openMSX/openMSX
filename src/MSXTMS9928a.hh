@@ -16,21 +16,10 @@ class Renderer;
 
 
 /** TMS9928a implementation: MSX1 Video Display Processor (VDP).
-  * TODO: When communicating with the Renderer, when to use pull
-  *   (getX on MSXTMS9928a) methods and when push (setX on Renderer)?
-  *   Currently SDLLoRenderer implementation dictates this, but that
-  *   is hardly design.
-  *   One option would be to use all-pull for values and use update
-  *   methods without parameters to send update events. However, even
-  *   if getX is inline, parameter passing is probably faster still.
-  *
-  * Decided to go for the pull model. Reading from another class through
-  * inlined methods should be about equally fast as reading private
-  * fields. The advantage is that there is no duplication of state
-  * in the renderer.
-  * The question remains whether the update methods pass the new value
-  * as a parameter or not. Maybe it's faster to read them, but it
-  * also takes time to pass them.
+  * Communicates with the Renderer through a pull variant of the
+  * Observer pattern: a VDP object fires events when its state changes,
+  * the Renderer can retrieve the new state if necessary by calling
+  * methods on the VDP object.
   */
 class MSXTMS9928a : public MSXIODevice, HotKeyListener
 {
@@ -77,6 +66,7 @@ public:
 	/** Read a byte from the VRAM.
 	  * @param addr The address to read.
 	  *   No bounds checking is done, so make sure it is a legal address.
+	  * @return The VRAM contents at the specified address.
 	  */
 	inline byte getVRAM(int addr) {
 		//fprintf(stderr, "read VRAM @ %04X\n", addr);
@@ -98,7 +88,7 @@ public:
 	}
 
 	/** Is the display enabled?
-	  * @return true if enabled, false if blanked.
+	  * @return True if enabled, False if blanked.
 	  */
 	inline bool isDisplayEnabled() {
 		return (controlRegs[1] & 0x40);
@@ -145,38 +135,20 @@ public:
 		return spritePatternBase;
 	}
 
-	/** Check sprite collision and number of sprites per line.
+	/** Get sprites for a display line.
 	  * Separated from display code to make MSX behaviour consistent
 	  * no matter how displaying is handled.
-	  * @param line The line number for which sprites should be checked.
-	  * @param visibleSprites Pointer to a 32-entry int array in which
-	  *   the numbers of the sprites to be displayed are returned.
+	  * @param line The line number for which sprites should be returned.
+	  * @param visibleSprites Output parameter in which the pointer to
+	  *   a SpriteInfo array containing the sprites to be displayed is
+	  *   returned.
+	  *   The array's contents are valid until the next time the VDP
+	  *   is scheduled.
 	  * @return The number of sprites stored in the visibleSprites array.
-	  * TODO: Because this routine *must* be called by the renderer
-	  *   for collision detection and 5th sprite detection to work,
-	  *   sprite checking is still not 100% render independant.
 	  */
-	int checkSprites(int line, SpriteInfo *visibleSprites);
-
-	/** Calculates a sprite pattern.
-	  * @param patternNr Number of the sprite pattern [0..255].
-	  *   For 16x16 sprites, patternNr should be a multiple of 4.
-	  * @param y The line number within the sprite: 0 <= y < size.
-	  * @return A bit field of the sprite pattern.
-	  *   Bit 31 is the first bit of the sprite.
-	  *   Unused bits are zero.
-	  * TODO: Cache patterns? That's probably what the real VDP does.
-	  *   Besides, that way pattern calculation is done only once.
-	  */
-	inline int calculatePattern(int patternNr, int y) {
-		// TODO: Optimise getSpriteSize?
-		if (getSpriteMag()) y /= 2;
-		int pattern = spritePatternBasePtr[patternNr * 8 + y] << 24;
-		if (getSpriteSize() == 16) {
-			pattern |= spritePatternBasePtr[patternNr * 8 + y + 16] << 16;
-		}
-		if (getSpriteMag()) return doublePattern(pattern);
-		else return pattern;
+	inline int getSprites(int line, SpriteInfo *&visibleSprites) {
+		visibleSprites = spriteBuffer[line];
+		return spriteCount[line];
 	}
 
 private:
@@ -197,13 +169,45 @@ private:
 	}
 
 	/** Are sprites enabled?
+	  * TODO: For V9938, check bit 1 of reg 8 as well.
 	  * @return True iff blanking is off and the current mode supports
 	  *   sprites.
-	  * TODO: For V9938, check bit 1 of reg 8 as well.
 	  */
 	inline bool spritesEnabled() {
 		return (controlRegs[1] & 0x50) == 0x40;
 	}
+
+	/** Calculates a sprite pattern.
+	  * @param patternNr Number of the sprite pattern [0..255].
+	  *   For 16x16 sprites, patternNr should be a multiple of 4.
+	  * @param y The line number within the sprite: 0 <= y < size.
+	  * @return A bit field of the sprite pattern.
+	  *   Bit 31 is the leftmost bit of the sprite.
+	  *   Unused bits are zero.
+	  */
+	inline int calculatePattern(int patternNr, int y) {
+		// TODO: Optimise getSpriteSize?
+		if (getSpriteMag()) y /= 2;
+		int pattern = spritePatternBasePtr[patternNr * 8 + y] << 24;
+		if (getSpriteSize() == 16) {
+			pattern |= spritePatternBasePtr[patternNr * 8 + y + 16] << 16;
+		}
+		if (getSpriteMag()) return doublePattern(pattern);
+		else return pattern;
+	}
+
+	/** Check sprite collision and number of sprites per line.
+	  * Separated from display code to make MSX behaviour consistent
+	  * no matter how displaying is handled.
+	  * TODO: Because this routine *must* be called by the renderer
+	  *   for collision detection and 5th sprite detection to work,
+	  *   sprite checking is still not 100% render independant.
+	  * @param line The line number for which sprites should be checked.
+	  * @param visibleSprites Pointer to a 32-entry SpriteInfo array
+	  *   in which the sprites to be displayed are returned.
+	  * @return The number of sprites stored in the visibleSprites array.
+	  */
+	int checkSprites(int line, SpriteInfo *visibleSprites);
 
 	/** Byte is read from VRAM by the CPU.
 	  */
@@ -245,7 +249,7 @@ private:
 	  * In other words, the time of the last update.
 	  */
 	EmuTimeFreq<3579545> currentTime;
-	
+
 	/** Control registers.
 	  */
 	byte controlRegs[8];
@@ -293,6 +297,18 @@ private:
 	  * TODO: Keep this? Is it secure (out-of-bounds)?
 	  */
 	byte *spritePatternBasePtr;
+
+	/** Buffer containing the sprites that are visible on each
+	  * display line.
+	  */
+	SpriteInfo spriteBuffer[192][32];
+
+	/** Buffer containing the number of sprites that are visible
+	  * on each display line.
+	  * In other words, spriteCount[i] is the number of sprites
+	  * in spriteBuffer[i].
+	  */
+	int spriteCount[192];
 
 	/** First byte written through port #99, or -1 for none.
 	  */

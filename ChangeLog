@@ -1,5 +1,14 @@
 $Id$
 
+2001-12-08 Maarten ter Huurne <mth@stack.nl>
+	* Improved Doxygen comments in MSXTMS9928a and Renderer.
+	* Small optimisations in sprite rendering.
+	* Renamed XPal to Pal: it hasn't been X for quite some time.
+	* Introduced sprite buffering: VDP stores sprite info for one
+	  frame, so Renderer can retrieve it on demand. This removes
+	  the need for the Renderer to call checkSprites, making the
+	  VDP behaviour completely independant of the Renderer used.
+
 2001-12-08 Joost Yervante Damad <j.damad@qahwah.net>
 	* Loadfile now handles patching of files
 

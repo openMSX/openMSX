@@ -79,10 +79,10 @@ private:
 	MSXTMS9928a *vdp;
 
 	/** SDL colours corresponding to each VDP palette entry.
-	  * XPalFg has entry 0 set to the current background colour,
-	  * XPalBg has entry 0 set to black.
+	  * PalFg has entry 0 set to the current background colour,
+	  * PalBg has entry 0 set to black.
 	  */
-	Pixel XPalFg[16], XPalBg[16];
+	Pixel PalFg[16], PalBg[16];
 
 	/** Rendering method for the current display mode.
 	  */

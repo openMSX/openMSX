@@ -121,8 +121,6 @@ int MSXTMS9928a::checkSprites(int line, MSXTMS9928a::SpriteInfo *visibleSprites)
 				if (limitSprites) break;
 			}
 			else {
-				//visibleSprites[visibleIndex++] = sprite;
-				// TODO: Optimise.
 				SpriteInfo *sip = &visibleSprites[visibleIndex++];
 				int patternIndex = ((size == 16)
 					? attributePtr[2] & 0xFC : attributePtr[2]);
@@ -159,15 +157,15 @@ int MSXTMS9928a::checkSprites(int line, MSXTMS9928a::SpriteInfo *visibleSprites)
 	*/
 	for (int i = (visibleIndex < 4 ? visibleIndex : 4); --i >= 1; ) {
 		int x_i = visibleSprites[i].x;
+		int pattern_i = visibleSprites[i].pattern;
 		for (int j = i; --j >= 0; ) {
 			// Do sprite i and sprite j collide?
 			int x_j = visibleSprites[j].x;
 			int dist = x_j - x_i;
 			if ((-magSize < dist) && (dist < magSize)) {
-				int pattern_i = visibleSprites[i].pattern;
 				int pattern_j = visibleSprites[j].pattern;
 				if (dist < 0) {
-					pattern_i >>= -dist;
+					pattern_j <<= -dist;
 				}
 				else if (dist > 0) {
 					pattern_j >>= dist;
@@ -219,9 +217,8 @@ MSXTMS9928a::MSXTMS9928a(MSXConfig::Device *config, const EmuTime &time)
 	MSXMotherBoard::instance()->register_IO_Out((byte)0x98, this);
 	MSXMotherBoard::instance()->register_IO_Out((byte)0x99, this);
 
-	//First interrupt in Pal mode here
+	// First interrupt in Pal mode here
 	Scheduler::instance()->setSyncPoint(currentTime+71285, *this); // PAL
-	renderer->putImage();
 }
 
 MSXTMS9928a::~MSXTMS9928a()
@@ -285,14 +282,22 @@ void MSXTMS9928a::executeUntilEmuTime(const EmuTime &time)
 {
 	PRT_DEBUG("Executing TMS9928a at time " << time);
 
+	// Update sprite buffer.
+	for (int line = 0; line < 192; line++) {
+		spriteCount[line] = checkSprites(line, spriteBuffer[line]);
+	}
+
+	// This frame is finished.
+	// TODO: Actually, a frame ends on vsync, while interrupt
+	//   occurs at bottom border start.
 	renderer->putImage();
 
-	//Next SP/interrupt in Pal mode here
+	// Next SP/interrupt in Pal mode here.
 	currentTime = time;
 	Scheduler::instance()->setSyncPoint(currentTime+71258, *this); //71285 for PAL, 59404 for NTSC
-	// Since this is the vertical refresh
+	// Since this is the vertical refresh.
 	statusReg |= 0x80;
-	// Set interrupt if bits enable it
+	// Set interrupt if bits enable it.
 	if (controlRegs[1] & 0x20) {
 		setInterrupt();
 	}

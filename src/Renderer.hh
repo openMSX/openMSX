@@ -53,28 +53,32 @@ public:
 	virtual void updateNameBase(const EmuTime &time) = NULL;
 
 	/** Informs the renderer of a pattern table base address change.
+	  * @param time The moment in emulated time this change occurs.
 	  */
 	virtual void updatePatternBase(const EmuTime &time) = NULL;
 
 	/** Informs the renderer of a colour table base address change.
+	  * @param time The moment in emulated time this change occurs.
 	  */
 	virtual void updateColourBase(const EmuTime &time) = NULL;
 
 	/** Informs the renderer of a sprite attribute table base address change.
+	  * @param time The moment in emulated time this change occurs.
 	  */
 	virtual void updateSpriteAttributeBase(const EmuTime &time) = NULL;
 
 	/** Informs the renderer of a sprite pattern table base address change.
+	  * @param time The moment in emulated time this change occurs.
 	  */
 	virtual void updateSpritePatternBase(const EmuTime &time) = NULL;
 
 	/** Informs the renderer of a change in VRAM contents.
-	  * @param addr The address that is changed.
-	  * @param data The new value.
-	  * @param time The moment in emulated time this change occurs.
 	  * TODO: Maybe this is a performance problem, if so think of a
 	  *   smarter way to update (for example, subscribe to VRAM
 	  *   address regions).
+	  * @param addr The address that is changed.
+	  * @param data The new value.
+	  * @param time The moment in emulated time this change occurs.
 	  */
 	virtual void updateVRAM(int addr, byte data, const EmuTime &time) = NULL;
 
