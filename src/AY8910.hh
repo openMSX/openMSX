@@ -39,7 +39,7 @@ class AY8910 : public SoundDevice
 		void reset();
 		void setVolume(short newVolume);
 		void setSampleRate(int sampleRate);
-		short* updateBuffer(int length);
+		int* updateBuffer(int length);
 		
 	private:
 		void wrtReg(byte reg, byte value);
@@ -80,7 +80,7 @@ class AY8910 : public SoundDevice
 		unsigned int volTable[16];
 		byte oldEnable;
 		
-		short* buffer;
+		int* buffer;
 		
 		AY8910Interface &interface;
 };
