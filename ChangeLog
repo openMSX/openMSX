@@ -4,6 +4,10 @@ $Id$
 	* Introduced Blender class and use it from Character/BitmapConverter.
 	* Implemented narrow SCREEN6 sprite pixels in SDLGL.
 	* Implemented blended SCREEN6 sprite pixels in SDLLo.
+	* Refactored ROM related classes to get device ID from hardwareconfig.xml
+	  into RomInfo.
+	  In the process all mapper type code has been centralized in RomInfo.
+	  All of this just to get "slot 3.3: Firmware" in the slotmap ;)
 
 2003-04-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fix tabcompletion for absolute paths

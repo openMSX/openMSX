@@ -1,12 +1,14 @@
 // $Id$
 
 #include <map>
+#include <string>
 #include "RomInfo.hh"
 #include "Rom.hh"
 #include "md5.hh"
 #include "libxmlx/xmlx.hh"
 #include "FileContext.hh"
 #include "File.hh"
+#include "MSXConfig.hh"
 
 
 struct caseltstr {
@@ -15,14 +17,19 @@ struct caseltstr {
 	}
 };
 
-RomInfo::RomInfo(const std::string &nid, const std::string &nyear, const std::string &ncompany, const std::string &nremark, const MapperType &nmapperType) {
-	id=nid;
-	year=nyear;
-	company=ncompany;
-	remark=nremark;
-	mapperType=nmapperType;
+RomInfo::RomInfo(
+	const std::string &nid, const std::string &nyear,
+	const std::string &ncompany, const std::string &nremark,
+	const MapperType &nmapperType
+) {
+	id = nid;
+	year = nyear;
+	company = ncompany;
+	remark = nremark;
+	mapperType = nmapperType;
 }
 
+// TODO: Turn MapperType into a class and move naming there.
 MapperType RomInfo::nameToMapperType(const std::string &name)
 {
 	static std::map<std::string, MapperType, caseltstr> mappertype;
@@ -111,7 +118,6 @@ MapperType RomInfo::nameToMapperType(const std::string &name)
 	return it->second;
 }
 
-
 MapperType RomInfo::guessMapperType(const byte* data, int size)
 {
 	if (size <= 0x10000) {
@@ -191,8 +197,9 @@ MapperType RomInfo::guessMapperType(const byte* data, int size)
 	}
 }
 
-RomInfo* RomInfo::searchDataBaseOrGuess(const Rom &rom)
+RomInfo *RomInfo::searchRomDB(const Rom &rom)
 {
+	// TODO: Turn ROM DB into a separate class.
 	static std::map<std::string, RomInfo*> romDB;
 	static bool init = false;
 
@@ -211,13 +218,13 @@ RomInfo* RomInfo::searchDataBaseOrGuess(const Rom &rom)
 						if (romDB.find((*it2)->pcdata) == romDB.end()) {
 							romDB[(*it2)->pcdata] = romInfo;
 						} else {
-							PRT_INFO("Warning duplicate romdb entry " << (*it2)->pcdata);
+							PRT_INFO("Warning: duplicate romdb entry " << (*it2)->pcdata);
 						}
 					}
 				}
 			}
 		} catch (MSXException &e) {
-			PRT_INFO("Warning couldn't open romdb.xml.\n"
+			PRT_INFO("Warning: couldn't open romdb.xml.\n"
 			         "Romtype detection might fail because of this.");
 		}
 	}
@@ -233,16 +240,44 @@ RomInfo* RomInfo::searchDataBaseOrGuess(const Rom &rom)
 	std::string digest(md5.hex_digest());
 	
 	if (romDB.find(digest) != romDB.end()) {
+		romDB[digest]->print();
+		// Return a copy of the DB entry.
 		return new RomInfo(*romDB[digest]);
-	} else {
-		// Rom is not in database, try to guess
-		return new RomInfo("","","","Guessed mappertype",guessMapperType(rom.getBlock(), rom.getSize()));
 	}
+	return NULL;
 }
 
-RomInfo* RomInfo::fetchRomInfo(const Rom &rom)
+RomInfo *RomInfo::fetchRomInfo(const Rom &rom, const Device &deviceConfig)
 {
-	return searchDataBaseOrGuess(rom);
+	// Look for the ROM in the ROM DB.
+	RomInfo *info = searchRomDB(rom);
+	if (!info) {
+		info = new RomInfo(
+			deviceConfig.getId(), "", "", "", UNKNOWN
+			);
+	}
+	
+	// Get specified mapper type from the config.
+	// Note: config may specify "auto" as well.
+	std::string typestr;
+	if (deviceConfig.hasParameter("mappertype")) {
+		typestr = deviceConfig.getParameter("mappertype");
+	} else {
+		typestr = "auto";
+	}
+	
+	if (typestr == "auto") {
+		// Guess mapper type, if it was not in DB.
+		if (info->mapperType == UNKNOWN) {
+			info->mapperType = guessMapperType(rom.getBlock(), rom.getSize());
+		}
+	} else {
+		// Use mapper type from config, even if this overrides DB.
+		info->mapperType = nameToMapperType(typestr);
+	}
+	PRT_DEBUG("MapperType: " << info->mapperType);
+
+	return info;
 }
 
 void RomInfo::print()

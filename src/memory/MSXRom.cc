@@ -4,31 +4,30 @@
 #include "RomTypes.hh"
 #include "MSXCPU.hh"
 #include "File.hh"
+#include <sstream>
 
 
-MSXCPU* MSXRom::cpu;
+MSXCPU *MSXRom::cpu;
 
 
-MSXRom::MSXRom(Device* config, const EmuTime &time, Rom *rom)
+MSXRom::MSXRom(Device *config, const EmuTime &time, Rom *rom)
 	: MSXMemDevice(config, time), MSXDevice(config, time)
 {
 	init();
 	this->rom = rom;
 
 	std::ostringstream tmpname;
-	if (rom->getSize() == 0)
-	{
+	if (rom->getSize() == 0) {
 		tmpname << "Empty ROM (with SCC)"; // valid assumption??
-	}
-	else if (rom->getInfo().getId().length()==0)
-	{
+	} else if (rom->getInfo().getId().length() == 0) {
 		tmpname << "Unknown ROM: " << rom->getFile()->getURL();
+	} else {
+		tmpname << rom->getInfo().getId();
+		if (rom->getInfo().getCompany().length() != 0) {
+			tmpname << ", " << rom->getInfo().getCompany()
+				<< " " << rom->getInfo().getYear();
+		}
 	}
-	else
-	{
-		tmpname << rom->getInfo().getId() << ", " << rom->getInfo().getCompany() << " " << rom->getInfo().getYear();
-	}
-
 	romName = tmpname.str(); 
 }
 
@@ -54,7 +53,7 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 	// nothing
 }
 
-byte* MSXRom::getWriteCacheLine(word address) const
+byte *MSXRom::getWriteCacheLine(word address) const
 {
 	return unmappedWrite;
 }

@@ -5,23 +5,24 @@
 
 #include "MSXMemDevice.hh"
 #include "Rom.hh"
+#include <string>
 
 
 class MSXRom : public MSXMemDevice
 {
 	public:
-		MSXRom(Device* config, const EmuTime &time, Rom *rom);
+		MSXRom(Device *config, const EmuTime &time, Rom *rom);
 		virtual ~MSXRom();
 
 		virtual void writeMem(word address, byte value,
 		                      const EmuTime &time);
-		virtual byte* getWriteCacheLine(word address) const;
+		virtual byte *getWriteCacheLine(word address) const;
 		virtual const std::string &getName() const;
 
 	protected:
 		Rom* rom;
 		std::string romName;
-		static class MSXCPU* cpu;
+		static class MSXCPU *cpu;
 
 	private:
 		void init();

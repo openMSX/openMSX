@@ -34,28 +34,11 @@
 MSXRomCLI msxRomCLI;
 
 
-MSXRom* RomFactory::create(Device* config, const EmuTime &time)
+MSXRom *RomFactory::create(Device *config, const EmuTime &time)
 {
-	Rom* rom = new Rom(config, time);
+	Rom *rom = new Rom(config, time);
 
-	std::string typestr;
-	MapperType type;
-	
-	if (config->hasParameter("mappertype")) {
-		typestr=config->getParameter("mappertype");
-	} else {
-		typestr = "auto";
-	}
-
-	if (typestr=="auto") {
-		type = rom->getInfo().getMapperType();
-	} else {
-		type = RomInfo::nameToMapperType(typestr);
-	}
-	PRT_DEBUG("MapperType: " << type);
-
-	if (rom->getInfo().getId().length()!=0) rom->getInfo().print();
-	
+	MapperType type = rom->getInfo().getMapperType();
 	switch (type) {
 		case PAGE0:
 		case PAGE1:

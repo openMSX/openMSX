@@ -13,7 +13,7 @@ class Device;
 class RomFactory
 {
 	public:
-		static MSXRom* create(Device* config, const EmuTime &time);
+		static MSXRom *create(Device *config, const EmuTime &time);
 };
 
 #endif
