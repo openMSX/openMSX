@@ -29,8 +29,8 @@ libCassette_la_SOURCES = \
 	MSXTapePatch.cc MSXTapePatch.hh \
 	CassetteImage.hh \
 	DummyCassetteImage.cc DummyCassetteImage.hh \
-	CasImage.cc CasImage.cc \
-	WavImage.cc WavImage.cc
+	CasImage.cc CasImage.hh \
+	WavImage.cc WavImage.hh
 
 nodebug: resetdebug all
 debug: setdebug all
