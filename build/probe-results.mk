@@ -8,13 +8,14 @@
 ifeq ($(PROBE_MAKE),)
 $(error Missing parameter: PROBE_MAKE)
 endif
-# - COMPONENTS_MAKE: Makefile with component definitions
-ifeq ($(COMPONENTS_MAKE),)
-$(error Missing parameter: COMPONENTS_MAKE)
+# - MAKE_PATH: Directory containing global Makefiles
+ifeq ($(MAKE_PATH),)
+$(error Missing parameter: MAKE_PATH)
 endif
 
 include $(PROBE_MAKE)
-include $(COMPONENTS_MAKE)
+include $(MAKE_PATH)/components.mk
+include $(MAKE_PATH)/custom.mk
 
 # Usage: $(call FOUND,LIB_NAME)
 FOUND=$(if $(HAVE_$(1)_LIB),$(HAVE_$(1)_LIB),no)
@@ -48,6 +49,10 @@ all:
 	@echo "Components overview:"
 	@echo "  Emulation core:  $(call YESNO,$(COMPONENT_CORE))"
 	@echo "  SDLGL renderer:  $(call YESNO,$(COMPONENT_GL))"
+	@echo ""
+	@echo "Customisable options:"
+	@echo "  Install to:      $(INSTALL_BASE)"
+	@echo "  (you can edit these in build/custom.mk)"
 	@echo ""
 ifeq ($(COMPONENTS_ALL),true)
 	@echo "All required and optional components can be built."
