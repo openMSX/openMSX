@@ -125,7 +125,7 @@ inline void Scheduler::emulateStep()
 	const EmuTime &time = sp.getTime();
 	if (cpu->getTargetTime() < time) {
 		sem.up();
-		if (!paused) {
+		if (!paused && powerSetting.getValue()) {
 			// first bring CPU till SP
 			//  (this may set earlier SP)
 			PRT_DEBUG ("Sched: Scheduling CPU till " << time);
