@@ -133,7 +133,7 @@ auto_ptr<RomInfo> RomInfo::searchRomDB(const Rom& rom)
 		try {
 			SystemFileContext context;
 			File file(context.resolve("romdb.xml"));
-			XMLDocument doc(file.getLocalName().c_str(), "romdb.dtd");
+			XMLDocument doc(file.getLocalName(), "romdb.dtd");
 			
 			const XMLElement::Children& children = doc.getChildren();
 			for (XMLElement::Children::const_iterator it1 = children.begin();
@@ -164,7 +164,11 @@ auto_ptr<RomInfo> RomInfo::searchRomDB(const Rom& rom)
 			}
 		} catch (FileException& e) {
 			CliCommOutput::instance().printWarning(
-				"Warning: couldn't open romdb.xml.\n"
+				"Couldn't open romdb.xml.\n"
+				"Romtype detection might fail because of this.");
+		} catch (XMLException& e) {
+			CliCommOutput::instance().printWarning(
+				"Could not parse ROM DB: " + e.getMessage() + "\n"
 				"Romtype detection might fail because of this.");
 		}
 	}

@@ -1,10 +1,14 @@
 // $Id$
 
-#include <cassert>
-#include "xmlx.hh"
+#include "HardwareConfig.hh"
 #include "File.hh"
 #include "FileContext.hh"
-#include "HardwareConfig.hh"
+#include "xmlx.hh"
+#include <cassert>
+#include <memory.h>
+
+using std::auto_ptr;
+
 
 namespace openmsx {
 
@@ -36,7 +40,13 @@ void HardwareConfig::loadHardware(XMLElement& root, const string& path,
 			path + '/' + hwName + "/hardwareconfig.xml");
 	}
 	File file(filename);
-	XMLDocument doc(file.getLocalName(), "msxconfig2.dtd");
+	auto_ptr<XMLDocument> doc;
+	try {
+		doc.reset(new XMLDocument(file.getLocalName(), "msxconfig2.dtd"));
+	} catch (XMLException& e) {
+		throw FatalError(
+			"Loading of hardware configuration failed: " + e.getMessage() );
+	}
 
 	// get url
 	string url(file.getURL());
@@ -49,7 +59,7 @@ void HardwareConfig::loadHardware(XMLElement& root, const string& path,
 	string userName;
 	
 	ConfigFileContext context2(url + '/', hwName, userName);
-	handleDoc(root, doc, context2);
+	handleDoc(root, *doc, context2);
 }
 
 } // namespace openmsx
