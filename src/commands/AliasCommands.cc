@@ -98,9 +98,14 @@ string AliasCommands::AliasCmd::execute(const vector<string> &tokens)
 		}
 	default: {
 		assert(tokens.size() >= 3);
-		string definition = tokens[2];
-		for (unsigned i = 3; i < tokens.size(); ++i) {
-			definition += ' ' + tokens[i];
+		string definition;
+		for (unsigned i = 2; i < tokens.size(); ++i) {
+			if (i != 2) definition += ' ';
+			string token = tokens[i];
+			if (token.find_first_of(" ") != string::npos) {
+				token = "\"" + token + "\"";
+			}
+			definition += token;
 		}
 		map<string, Alias*>::const_iterator it =
 			parent.aliasses.find(tokens[1]);
