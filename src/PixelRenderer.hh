@@ -23,6 +23,7 @@ public:
 
 	void frameStart(const EmuTime &time);
 	void putImage(const EmuTime &time);
+	void updateDisplayEnabled(bool enabled, const EmuTime &time);
 	/*
 	void setFullScreen(bool);
 	void updateTransparency(bool enabled, const EmuTime &time);
@@ -34,12 +35,10 @@ public:
 	void updatePalette(int index, int grb, const EmuTime &time);
 	void updateVerticalScroll(int scroll, const EmuTime &time);
 	void updateHorizontalAdjust(int adjust, const EmuTime &time);
-	void updateDisplayEnabled(bool enabled, const EmuTime &time);
 	void updateDisplayMode(int mode, const EmuTime &time);
 	void updateNameBase(int addr, const EmuTime &time);
 	void updatePatternBase(int addr, const EmuTime &time);
 	void updateColourBase(int addr, const EmuTime &time);
-	void updateVRAM(int addr, byte data, const EmuTime &time);
 	*/
 
 	void updateVRAM(int addr, byte data, const EmuTime &time) {
@@ -71,9 +70,23 @@ protected:
 	  */
 	virtual void finishFrame() = 0;
 
-	/** TODO: Temporary way to access PhaseHandler.
+	/** Render a rectangle of border pixels on the host screen.
+	  * The units are absolute lines (Y) and VDP clockticks (X).
+	  * @param fromX X coordinate of render start (inclusive).
+	  * @param fromY Y coordinate of render start (inclusive).
+	  * @param limitX X coordinate of render end (exclusive).
+	  * @param limitY Y coordinate of render end (exclusive).
 	  */
-	virtual void drawArea(int fromX, int fromY, int limitX, int limitY) = 0;
+	virtual void drawBorder(int fromX, int fromY, int limitX, int limitY) = 0;
+
+	/** Render a rectangle of display pixels on the host screen.
+	  * The units are absolute lines (Y) and VDP clockticks (X).
+	  * @param fromX X coordinate of render start (inclusive).
+	  * @param fromY Y coordinate of render start (inclusive).
+	  * @param limitX X coordinate of render end (exclusive).
+	  * @param limitY Y coordinate of render end (exclusive).
+	  */
+	virtual void drawDisplay(int fromX, int fromY, int limitX, int limitY) = 0;
 
 	/** Notifies the VRAM cache of a VRAM write.
 	  */
@@ -105,6 +118,26 @@ protected:
 	int lineRenderTop;
 
 private:
+	/** Indicates whether the area to be drawn is border or display. */
+	enum DrawType { DRAW_BORDER, DRAW_DISPLAY };
+
+	/** Call the right draw method in the subclass,
+	  * depending on passed drawType.
+	  */
+	inline void draw(
+		int startX, int startY, int endX, int endY, DrawType drawType );
+
+	/** Subdivide an area specified by two scan positions into a series of
+	  * rectangles.
+	  * Clips the rectangles to { (x,y) | clipL <= x < clipR }.
+	  * @param drawType
+	  *   If DRAW_BORDER, draw rectangles using drawBorder;
+	  *   if DRAW_DISPLAY, draw rectangles using drawDisplay.
+	  */
+	inline void subdivide(
+		int startX, int startY, int endX, int endY,
+		int clipL, int clipR, DrawType drawType );
+
 	/** Render lines until specified moment in time.
 	  * Unlike sync(), this method does not sync with VDPVRAM.
 	  * The VRAM should be to be up to date and remain unchanged
@@ -112,6 +145,12 @@ private:
 	  * @param time Moment in emulated time to render lines until.
 	  */
 	inline void renderUntil(const EmuTime &time);
+
+	/** Is display enabled?
+	  * Enabled means the current line is in the display area and
+	  * forced blanking is off.
+	  */
+	bool displayEnabled;
 
 	/** Number of the next position within a line to render.
 	  * Expressed in "small pixels" (Text2, Graphics 5/6) from the

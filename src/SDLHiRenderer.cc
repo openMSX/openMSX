@@ -3,12 +3,6 @@
 /*
 TODO:
 - Implement blinking (of page mask) in bitmap modes.
-- Idea: make an abstract superclass for line-based Renderers, this
-  class would know when to sync etc, but not be SDL dependent.
-  Since most of the abstraction is done using <Pixel>, most code
-  is SDL independent already.
-  Is this still relevant after CharacterConverter/BitmapConverter
-  split-off?
 - Implement sprite pixels in Graphic 5.
 - Move dirty checking to VDPVRAM.
 - Spot references to EmuTime: if implemented correctly this class should
@@ -75,17 +69,6 @@ template <class Pixel> void SDLHiRenderer<Pixel>::finishFrame()
 
 	// Update screen.
 	SDL_UpdateRect(screen, 0, 0, 0, 0);
-}
-
-template <class Pixel> void SDLHiRenderer<Pixel>::drawArea(
-	int fromX, int fromY, int limitX, int limitY)
-{
-	(this->*phaseHandler)(
-		translateX(fromX),
-		fromY,
-		translateX(limitX),
-		limitY
-		);
 }
 
 template <class Pixel> inline int SDLHiRenderer<Pixel>::getLeftBorder()
@@ -263,7 +246,6 @@ template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 	//       Keeping render position should be good enough.
 
 	// Init renderer state.
-	phaseHandler = &SDLHiRenderer::blankPhase;
 	dirtyChecker = modeToDirtyChecker[vdp->getDisplayMode()];
 	if (vdp->isBitmapMode()) {
 		bitmapConverter.setDisplayMode(vdp->getDisplayMode());
@@ -470,14 +452,6 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateHorizontalAdjust(
 	int adjust, const EmuTime &time)
 {
 	sync(time);
-}
-
-template <class Pixel> void SDLHiRenderer<Pixel>::updateDisplayEnabled(
-	bool enabled, const EmuTime &time)
-{
-	sync(time);
-	phaseHandler = ( enabled
-		? &SDLHiRenderer::displayPhase : &SDLHiRenderer::blankPhase );
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::updateDisplayMode(
@@ -700,17 +674,13 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 	}
 }
 
-template <class Pixel> void SDLHiRenderer<Pixel>::blankPhase(
+template <class Pixel> void SDLHiRenderer<Pixel>::drawBorder(
 	int fromX, int fromY, int limitX, int limitY)
 {
-	if (fromX == limitX) return;
-	assert(fromX < limitX);
-	//PRT_DEBUG("BlankPhase: ("<<fromX<<","<<fromY<<")-("<<limitX-1<<","<<limitY<<")");
-
 	// TODO: Only redraw if necessary.
 	SDL_Rect rect;
-	rect.x = fromX;
-	rect.w = limitX - fromX;
+	rect.x = translateX(fromX);
+	rect.w = translateX(limitX) - rect.x;
 	rect.y = (fromY - lineRenderTop) * 2;
 	rect.h = (limitY - fromY) * 2;
 
@@ -718,12 +688,16 @@ template <class Pixel> void SDLHiRenderer<Pixel>::blankPhase(
 	SDL_FillRect(screen, &rect, getBorderColour());
 }
 
-template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
+// TODO: Clean up this routine.
+template <class Pixel> void SDLHiRenderer<Pixel>::drawDisplay(
 	int fromX, int fromY, int limitX, int limitY)
 {
+	fromX = translateX(fromX);
+	limitX = translateX(limitX);
+
 	if (fromX == limitX) return;
 	assert(fromX < limitX);
-	//PRT_DEBUG("DisplayPhase: ("<<fromX<<","<<fromY<<")-("<<limitX-1<<","<<limitY<<")");
+	//PRT_DEBUG("drawDisplaye: ("<<fromX<<","<<fromY<<")-("<<limitX-1<<","<<limitY<<")");
 
 	int n = limitY - fromY;
 	int minY = (fromY - lineRenderTop) * 2;
@@ -732,124 +706,95 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	}
 	int maxY = minY + 2 * n;
 
-	// V9958 can extend the left border over the display area,
-	// The extended border clips sprites as well.
 	int leftBorder = getLeftBorder();
-	int left = leftBorder;
-	// if (vdp->maskedBorder()) left += 2 * 8;
-	if (fromX < left) {
-		SDL_Rect dest;
-		dest.x = fromX;
-		dest.w = left - fromX;
-		dest.y = minY;
-		dest.h = n * 2;
-		// Note: SDL clipping is relied upon because interlace can push rect
-		//       one line out of the screen.
-		SDL_FillRect(screen, &dest, getBorderColour());
-		fromX = left;
-		if (fromX >= limitX) return;
-	}
 
 	// Render background lines
 	int minX = fromX - leftBorder;
 	assert(0 <= minX);
-	if (minX < 512) {
-		int maxX = limitX - leftBorder;
-		if (maxX > 512) maxX = 512;
+	assert(minX < 512);
+	int maxX = limitX - leftBorder;
+	if (maxX > 512) maxX = 512;
 
-		// Calculate display line (wraps at 256).
-		byte line = fromY - vdp->getLineZero();
-		if (!vdp->isTextMode()) {
-			line += vdp->getVerticalScroll();
-		}
+	// Calculate display line (wraps at 256).
+	byte line = fromY - vdp->getLineZero();
+	if (!vdp->isTextMode()) {
+		line += vdp->getVerticalScroll();
+	}
 
-		// Copy background image.
-		SDL_Rect source, dest;
-		source.x = minX;
-		source.w = maxX - minX;
-		source.h = 1;
-		dest.x = fromX;
+	// Copy background image.
+	SDL_Rect source, dest;
+	source.x = minX;
+	source.w = maxX - minX;
+	source.h = 1;
+	dest.x = fromX;
 
-		if (vdp->isBitmapMode()) {
-			if (vdp->isPlanar()) {
-				renderPlanarBitmapLines(line, n);
-			} else {
-				renderBitmapLines(line, n);
-			}
-
-			int pageMaskEven, pageMaskOdd;
-			if (deinterlace && vdp->isInterlaced() && vdp->isEvenOddEnabled()) {
-				pageMaskEven = vdp->isPlanar() ? 0x000 : 0x200;
-				pageMaskOdd  = vdp->isPlanar() ? 0x100 : 0x300;
-			} else {
-				pageMaskEven = pageMaskOdd =
-					(vdp->isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
-			}
-			// Bring bitmap cache up to date.
-			for (dest.y = minY; dest.y < maxY; ) {
-				source.y = (vram->nameTable.getMask() >> 7)
-					& (pageMaskEven | line);
-				// TODO: Can we safely use SDL_LowerBlit?
-				// Note: return value is ignored.
-				SDL_BlitSurface(bitmapDisplayCache, &source, screen, &dest);
-				dest.y++;
-				source.y = (vram->nameTable.getMask() >> 7)
-					& (pageMaskOdd | line);
-				SDL_BlitSurface(bitmapDisplayCache, &source, screen, &dest);
-				dest.y++;
-				line++;	// wraps at 256
-			}
+	if (vdp->isBitmapMode()) {
+		if (vdp->isPlanar()) {
+			renderPlanarBitmapLines(line, n);
 		} else {
-			renderCharacterLines(line, n);
-
-			for (dest.y = minY; dest.y < maxY; ) {
-				assert(!vdp->isMSX1VDP() || line < 192);
-				source.y = line;
-				// TODO: Can we safely use SDL_LowerBlit?
-				// Note: return value is ignored.
-				/*
-				printf("plotting character cache line %d to screen line %d\n",
-					source.y, dest.y);
-				*/
-				SDL_BlitSurface(charDisplayCache, &source, screen, &dest);
-				dest.y++;
-				SDL_BlitSurface(charDisplayCache, &source, screen, &dest);
-				dest.y++;
-				line++;	// wraps at 256
-			}
+			renderBitmapLines(line, n);
 		}
 
-		// Render sprites.
-		// Lock surface, because we will access pixels directly.
-		// TODO: Locking the surface directly after a blit is
-		//   probably not the smartest thing to do performance-wise.
-		//   Since sprite data will buffered, why not plot them
-		//   just before page flip?
-		//   Will only work if *all* data required is buffered, including
-		//   for example RGB colour (on V9938 palette may change).
-		if (SDL_MUSTLOCK(screen) && SDL_LockSurface(screen) < 0) {
-			// Display will be wrong, but this is not really critical.
-			return;
+		int pageMaskEven, pageMaskOdd;
+		if (deinterlace && vdp->isInterlaced() && vdp->isEvenOddEnabled()) {
+			pageMaskEven = vdp->isPlanar() ? 0x000 : 0x200;
+			pageMaskOdd  = vdp->isPlanar() ? 0x100 : 0x300;
+		} else {
+			pageMaskEven = pageMaskOdd =
+				(vdp->isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
 		}
-		for (int y = minY; y < maxY; y += 2) {
-			drawSprites(y, leftBorder, minX, maxX);
+		// Bring bitmap cache up to date.
+		for (dest.y = minY; dest.y < maxY; ) {
+			source.y = (vram->nameTable.getMask() >> 7)
+				& (pageMaskEven | line);
+			// TODO: Can we safely use SDL_LowerBlit?
+			// Note: return value is ignored.
+			SDL_BlitSurface(bitmapDisplayCache, &source, screen, &dest);
+			dest.y++;
+			source.y = (vram->nameTable.getMask() >> 7)
+				& (pageMaskOdd | line);
+			SDL_BlitSurface(bitmapDisplayCache, &source, screen, &dest);
+			dest.y++;
+			line++;	// wraps at 256
 		}
-		// Unlock surface.
-		if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
+	} else {
+		renderCharacterLines(line, n);
+
+		for (dest.y = minY; dest.y < maxY; ) {
+			assert(!vdp->isMSX1VDP() || line < 192);
+			source.y = line;
+			// TODO: Can we safely use SDL_LowerBlit?
+			// Note: return value is ignored.
+			/*
+			printf("plotting character cache line %d to screen line %d\n",
+				source.y, dest.y);
+			*/
+			SDL_BlitSurface(charDisplayCache, &source, screen, &dest);
+			dest.y++;
+			SDL_BlitSurface(charDisplayCache, &source, screen, &dest);
+			dest.y++;
+			line++;	// wraps at 256
+		}
 	}
 
-	// Right border
-	int right = leftBorder + getDisplayWidth();
-	if (right < limitX) {
-		SDL_Rect dest;
-		dest.x = right;
-		dest.w = limitX - right;
-		dest.y = minY;
-		dest.h = n * 2;
-		// Note: SDL clipping is relied upon because interlace can push rect
-		//       one line out of the screen.
-		SDL_FillRect(screen, &dest, getBorderColour());
+	// Render sprites.
+	// Lock surface, because we will access pixels directly.
+	// TODO: Locking the surface directly after a blit is
+	//   probably not the smartest thing to do performance-wise.
+	//   Since sprite data will buffered, why not plot them
+	//   just before page flip?
+	//   Will only work if *all* data required is buffered, including
+	//   for example RGB colour (on V9938 palette may change).
+	if (SDL_MUSTLOCK(screen) && SDL_LockSurface(screen) < 0) {
+		// Display will be wrong, but this is not really critical.
+		return;
 	}
+	for (int y = minY; y < maxY; y += 2) {
+		drawSprites(y, leftBorder, minX, maxX);
+	}
+	// Unlock surface.
+	if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
+
 }
 
 Renderer *createSDLHiRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)

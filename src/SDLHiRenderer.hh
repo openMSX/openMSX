@@ -50,7 +50,7 @@ public:
 	void updatePalette(int index, int grb, const EmuTime &time);
 	void updateVerticalScroll(int scroll, const EmuTime &time);
 	void updateHorizontalAdjust(int adjust, const EmuTime &time);
-	void updateDisplayEnabled(bool enabled, const EmuTime &time);
+	//void updateDisplayEnabled(bool enabled, const EmuTime &time);
 	void updateDisplayMode(int mode, const EmuTime &time);
 	void updateNameBase(int addr, const EmuTime &time);
 	void updatePatternBase(int addr, const EmuTime &time);
@@ -62,20 +62,10 @@ protected:
 	void updateVRAMCache(int addr, byte data) {
 		(this->*dirtyChecker)(addr, data);
 	}
-	void drawArea(int fromX, int fromY, int limitX, int limitY);
+	void drawBorder(int fromX, int fromY, int limitX, int limitY);
+	void drawDisplay(int fromX, int fromY, int limitX, int limitY);
 
 private:
-	/** Render a rectangle on the host screen.
-	  * The units are absolute lines (Y) and VDP clockticks (X),
-	  * which span a screen larger than the area on which pixels are shown.
-	  * @param fromX X coordinate of render start (inclusive).
-	  * @param fromY Y coordinate of render start (inclusive).
-	  * @param limitX X coordinate of render end (exclusive).
-	  * @param limitY Y coordinate of render end (exclusive).
-	  */
-	typedef void (SDLHiRenderer::*PhaseHandler)
-		(int fromX, int fromY, int limitX, int limitY);
-
 	typedef void (SDLHiRenderer::*DirtyChecker)
 		(int addr, byte data);
 
@@ -107,18 +97,6 @@ private:
 	  */
 	inline Pixel getBorderColour();
 
-	/** Render in background colour.
-	  * Used for borders and during blanking.
-	  * Conforms to the PhaseHandler interface.
-	  */
-	void blankPhase(int fromX, int fromY, int limitX, int limitY);
-
-	/** Render pixels according to VRAM.
-	  * Used for the display part of scanning.
-	  * Conforms to the PhaseHandler interface.
-	  */
-	void displayPhase(int fromX, int fromY, int limitX, int limitY);
-
 	/** Dirty checking that does nothing (but is a valid method).
 	  */
 	void checkDirtyNull(int addr, byte data);
@@ -146,10 +124,6 @@ private:
 	/** DirtyCheckers for each display mode.
 	  */
 	static DirtyChecker modeToDirtyChecker[];
-
-	/** Phase handler: current drawing mode (off, blank, display).
-	  */
-	PhaseHandler phaseHandler;
 
 	/** SDL colours corresponding to each VDP palette entry.
 	  * palFg has entry 0 set to the current background colour,

@@ -13,7 +13,6 @@ TODO:
 - Move full screen handling here? (from Renderer)
 - Is it possible to do some for of dirty checking here?
   And is it a good idea?
-- What happens to nextX and nextY on accuracy changes?
 */
 
 /** Line number where top border starts.
@@ -21,63 +20,112 @@ TODO:
   */
 static const int LINE_TOP_BORDER = 3 + 13;
 
+inline void PixelRenderer::draw(
+	int startX, int startY, int endX, int endY, DrawType drawType )
+{
+	switch(drawType) {
+	case DRAW_BORDER:
+		drawBorder(startX, startY, endX, endY);
+		break;
+	case DRAW_DISPLAY:
+		drawDisplay(startX, startY, endX, endY);
+		break;
+	default:
+		assert(false);
+	}
+}
+
+inline void PixelRenderer::subdivide(
+	int startX, int startY, int endX, int endY, int clipL, int clipR,
+	DrawType drawType )
+{
+	// Partial first line.
+	if (startX > clipL) {
+		if (startX < clipR) {
+			draw(
+				startX, startY,
+				( startY == endY && endX < clipR
+				? endX
+				: clipR
+				), startY + 1,
+				drawType
+				);
+		}
+		if (startY == endY) return;
+		startY++;
+	}
+	// Partial last line.
+	bool drawLast = false;
+	if (endX >= clipR) {
+		endY++;
+	} else if (endX > clipL) {
+		drawLast = true;
+	}
+	// Full middle lines.
+	if (startY < endY) {
+		draw(clipL, startY, clipR, endY, drawType);
+	}
+	// Actually draw last line if necessary.
+	// The point of keeping top-to-bottom draw order is that it increases
+	// the locality of memory references, which generally improves cache
+	// hit rates.
+	if (drawLast) draw(clipL, endY, endX, endY + 1, drawType);
+}
+
 inline void PixelRenderer::renderUntil(const EmuTime &time)
 {
-	if (curFrameSkip) {
-		return;
-	}
+	if (curFrameSkip != 0) return;
+
+	// Calculate start of display in ticks since start of line.
+	int displayL = 100 + 102 + 56
+		+ (vdp->getHorizontalAdjust() - 7) * 4
+		+ (vdp->isTextMode() ? 28 : 0);
 
 	int limitTicks = vdp->getTicksThisFrame(time);
-
+	int limitX, limitY;
 	switch (accuracy) {
 	case ACC_PIXEL: {
-		int limitX = limitTicks % VDP::TICKS_PER_LINE;
-		int limitY = limitTicks / VDP::TICKS_PER_LINE;
-		// Note: Rounding errors might push limitTicks beyond
-		//       #lines * TICKS_PER_LINE, but never more than a line beyond.
-		// TODO: Get rid of rounding errors altogether.
-		assert(limitY <= (vdp->isPalTiming() ? 313 : 262));
-
-		// Split in rectangles.
-		if (limitY == nextY) {
-			// All on a single line.
-			drawArea(nextX, nextY, limitX, nextY + 1);
-		} else {
-			// Finish partial top line.
-			drawArea(nextX, nextY, VDP::TICKS_PER_LINE, nextY + 1);
-			nextY++;
-			// Draw full-width middle part (multiple lines).
-			if (limitY != nextY) {
-				drawArea(0, nextY, VDP::TICKS_PER_LINE, limitY);
-				nextY = limitY;
-			}
-			// Start partial bottom line.
-			drawArea(0, nextY, limitX, nextY + 1);
-		}
-
-		nextX = limitX;
+		limitX = limitTicks % VDP::TICKS_PER_LINE;
+		limitY = limitTicks / VDP::TICKS_PER_LINE;
 		break;
 	}
 	case ACC_LINE: {
-		// TODO: Find a better sampling point than start-of-line.
-		int limitY = limitTicks / VDP::TICKS_PER_LINE;
-		// Note: Rounding errors might push limitTicks beyond
-		//       #lines * TICKS_PER_LINE, but never more than a line beyond.
-		// TODO: Get rid of rounding errors altogether.
-		assert(limitY <= (vdp->isPalTiming() ? 313 : 262));
-		if (limitY != nextY) {
-			drawArea(0, nextY, VDP::TICKS_PER_LINE, limitY);
-			nextY = limitY ;
-		}
+		limitX = 0;
+		limitY = (limitTicks + VDP::TICKS_PER_LINE - displayL)
+			/ VDP::TICKS_PER_LINE;
+		if (limitY == nextY) return;
 		break;
 	}
 	case ACC_SCREEN: {
-		// TODO
-		break;
+		// TODO: Implement.
+		return;
 	}
 	default:
 		assert(false);
 	}
+
+	// Note: Rounding errors might push limitTicks beyond
+	//       #lines * TICKS_PER_LINE, but never more than a line beyond.
+	// TODO: Get rid of rounding errors altogether.
+	assert(limitY <= (vdp->isPalTiming() ? 313 : 262));
+
+	if (displayEnabled) {
+		// Calculate end of display in ticks since start of line.
+		int displayR = displayL + (vdp->isTextMode() ? 960 : 1024);
+
+		subdivide(nextX, nextY, limitX, limitY,
+			0, displayL, DRAW_BORDER );
+		subdivide(nextX, nextY, limitX, limitY,
+			displayL, displayR, DRAW_DISPLAY );
+		subdivide(nextX, nextY, limitX, limitY,
+			displayR, VDP::TICKS_PER_LINE, DRAW_BORDER );
+	} else {
+		subdivide(nextX, nextY, limitX, limitY,
+			0, VDP::TICKS_PER_LINE, DRAW_BORDER );
+	}
+
+	nextX = limitX;
+	nextY = limitY;
 }
 
 PixelRenderer::PixelRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)
@@ -86,21 +134,28 @@ PixelRenderer::PixelRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)
 	this->vdp = vdp;
 	vram = vdp->getVRAM();
 	spriteChecker = vdp->getSpriteChecker();
-	
+
 	frameSkip = curFrameSkip = 0;
 	CommandController::instance()->registerCommand(frameSkipCmd, "frameskip");
-	
+
 	// TODO: Store current time.
 	//       Does the renderer actually have to keep time?
 	//       Keeping render position should be good enough.
 
 	// Now we're ready to start rendering the first frame.
+	displayEnabled = false;
 	frameStart(time);
 }
 
 PixelRenderer::~PixelRenderer()
 {
 	CommandController::instance()->unregisterCommand("frameskip");
+}
+
+void PixelRenderer::updateDisplayEnabled(bool enabled, const EmuTime &time)
+{
+	sync(time);
+	displayEnabled = enabled;
 }
 
 void PixelRenderer::frameStart(const EmuTime &time)

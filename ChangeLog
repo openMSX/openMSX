@@ -1,5 +1,12 @@
 $Id$
 
+2002-10-20 Maarten ter Huurne <mth@stack.nl>
+	* Moved subdivision of area-to-be-rendered from SDLHiRenderer to
+	  PixelRenderer. Also changed subdivision approach: before, displayPhase
+	  would draw display area and the borders; while the new drawDisplay only
+	  draws the display area and all the border colour drawing is done by
+	  drawBorder.
+
 2002-10-19 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented frameskip command:
 	   TODO "frameskip auto", skip frames depending on CPU speed
