@@ -7,15 +7,6 @@
 #include "VDPVRAM.hh"
 #include "SpriteChecker.hh"
 #include "RealTime.hh"
-#include "RenderSettings.hh"
-
-/*
-TODO:
-- Move accuracy handling here. (from Renderer).
-- Move full screen handling here? (from Renderer)
-- Is it possible to do some for of dirty checking here?
-  And is it a good idea?
-*/
 
 /** Line number where top border starts.
   * This is independent of PAL/NTSC timing or number of lines per screen.
@@ -129,12 +120,14 @@ void PixelRenderer::reset(const EmuTime &time)
 
 void PixelRenderer::updateDisplayEnabled(bool enabled, const EmuTime &time)
 {
-	sync(time);
+	sync(time, true);
 	displayEnabled = enabled;
 }
 
 void PixelRenderer::frameStart(const EmuTime &time)
 {
+	accuracy = settings->getAccuracy()->getValue();
+
 	nextX = 0;
 	nextY = 0;
 
@@ -146,7 +139,7 @@ void PixelRenderer::frameStart(const EmuTime &time)
 void PixelRenderer::putImage(const EmuTime &time)
 {
 	// Render changes from this last frame.
-	sync(time);
+	sync(time, true);
 
 	// Let underlying graphics system finish rendering this frame.
 	if (curFrameSkip == 0) finishFrame();
@@ -210,7 +203,10 @@ void PixelRenderer::updateVRAM(int offset, const EmuTime &time) {
 	// If display is disabled, VRAM changes will not affect the
 	// renderer output, therefore sync is not necessary.
 	// TODO: Have bitmapVisibleWindow disabled in this case.
-	if (vdp->isDisplayEnabled()) renderUntil(time);
+	if (vdp->isDisplayEnabled()
+	&& accuracy != RenderSettings::ACC_SCREEN) {
+		renderUntil(time);
+	}
 	// TODO: Because range is entire VRAM, offset == address.
 	updateVRAMCache(offset);
 }
@@ -230,13 +226,14 @@ void PixelRenderer::renderUntil(const EmuTime &time)
 	int limitTicks = vdp->getTicksThisFrame(time);
 	assert(limitTicks <= vdp->getTicksPerFrame());
 	int limitX, limitY;
-	switch (settings->getAccuracy()->getValue()) {
+	switch (accuracy) {
 	case RenderSettings::ACC_PIXEL: {
 		limitX = limitTicks % VDP::TICKS_PER_LINE;
 		limitY = limitTicks / VDP::TICKS_PER_LINE;
 		break;
 	}
-	case RenderSettings::ACC_LINE: {
+	case RenderSettings::ACC_LINE:
+	case RenderSettings::ACC_SCREEN: {
 		// Note: I'm not sure the rounding point is optimal.
 		//       It used to be based on the left margin, but that doesn't work
 		//       because the margin can change which leads to a line being
@@ -245,10 +242,6 @@ void PixelRenderer::renderUntil(const EmuTime &time)
 		limitY =
 			(limitTicks + VDP::TICKS_PER_LINE - 400) / VDP::TICKS_PER_LINE;
 		break;
-	}
-	case RenderSettings::ACC_SCREEN: {
-		// TODO: Implement.
-		return;
 	}
 	default:
 		assert(false);

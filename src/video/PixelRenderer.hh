@@ -8,6 +8,7 @@
 #include "VDPVRAM.hh"
 #include "CircularBuffer.hh"
 #include "Settings.hh"
+#include "RenderSettings.hh"
 #include "DisplayMode.hh"
 
 class VDP;
@@ -110,8 +111,10 @@ protected:
 
 	/** Update renderer state to specified moment in time.
 	  * @param time Moment in emulated time to update to.
+	  * @param force When screen accuracy is used,
+	  * 	rendering is only performed if this parameter is true.
 	  */
-	void sync(const EmuTime &time) {
+	void sync(const EmuTime &time, bool force = false) {
 		// Synchronisation is done in two phases:
 		// 1. update VRAM
 		// 2. update other subsystems
@@ -123,8 +126,10 @@ protected:
 		// the past.
 		// TODO: I wonder if it's possible to enforce this synchronisation
 		//       scheme at a higher level. Probably. But how...
-		vram->sync(time);
-		renderUntil(time);
+		if (force || accuracy != RenderSettings::ACC_SCREEN) {
+			vram->sync(time);
+			renderUntil(time);
+		}
 	}
 
 	/** The VDP of which the video output is being rendered.
@@ -167,6 +172,10 @@ private:
 	  * @param time Moment in emulated time to render lines until.
 	  */
 	void renderUntil(const EmuTime &time);
+
+	/** Accuracy setting for current frame.
+	  */
+	RenderSettings::Accuracy accuracy;
 
 	/** Is display enabled?
 	  * Enabled means the current line is in the display area and
