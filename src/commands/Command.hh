@@ -18,17 +18,17 @@ class Command
 {
 public:
 	virtual ~Command() {}
-	
+
 	/** Execute this command.
 	  * @param tokens Tokenized command line;
 	  * 	tokens[0] is the command itself.
 	  */
-	virtual string execute(const vector<string> &tokens)
+	virtual string execute(const vector<string>& tokens)
 		throw (CommandException) = 0;
 
 	/** Print help for this command.
 	  */
-	virtual string help(const vector<string> &tokens) const 
+	virtual string help(const vector<string>& tokens) const
 		throw(CommandException) = 0;
 
 	/** Attempt tab completion for this command.
@@ -37,7 +37,7 @@ public:
 	  * 	tokens[0] is the command itself.
 	  * 	The last token is incomplete, this method tries to complete it.
 	  */
-	virtual void tabCompletion(vector<string> &tokens) const
+	virtual void tabCompletion(vector<string>& tokens) const
 		throw() {}
 };
 

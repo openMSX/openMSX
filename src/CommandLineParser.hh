@@ -17,11 +17,13 @@ using std::map;
 using std::vector;
 using std::set;
 
+
 namespace openmsx {
 
 class MSXConfig;
 class CliCommOutput;
 class CartridgeSlotManager;
+
 
 class CLIOption
 {
@@ -53,7 +55,7 @@ public:
 
 struct OptionData
 {
-	CLIOption * option;
+	CLIOption* option;
 	byte prio;
 	byte length; // length in parameters
 };
@@ -62,9 +64,9 @@ class CommandLineParser
 {
 public:
 	enum ParseStatus { UNPARSED, RUN, CONTROL, EXIT };
-	
+
 	static CommandLineParser& instance();
-	
+
 	void registerOption(const string& str, CLIOption* cliOption, byte prio = 7, byte length = 2);
 	void registerFileClass(const string& str, CLIFileType* cliFileType);
 	void registerPostConfig(CLIPostConfig* post);
@@ -155,4 +157,4 @@ private:
 
 } // namespace openmsx
 
-#endif
+#endif // __COMMANDLINEPARSER_HH__

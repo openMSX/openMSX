@@ -7,6 +7,7 @@
 
 using std::string;
 
+
 namespace openmsx {
 
 class MSXException
@@ -15,15 +16,14 @@ public:
 	MSXException(const string& message_)
 		: message(message_) { }
 	virtual ~MSXException() { }
-	
+
 	const string& getMessage() const {
 		return message;
 	}
-	
+
 private:
 	const string message;
 };
-
 
 class FatalError
 {
@@ -42,4 +42,4 @@ private:
 
 } // namespace openmsx
 
-#endif
+#endif // __MSXEXCEPTION_HH__

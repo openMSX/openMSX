@@ -10,6 +10,7 @@
 #include "SoundDevice.hh"
 #include "MSXException.hh"
 
+
 namespace openmsx {
 
 class FileContext;
@@ -20,10 +21,10 @@ class MSXCassettePlayerCLI : public CLIOption, public CLIFileType
 {
 public:
 	MSXCassettePlayerCLI();
-	virtual bool parseOption(const string &option,
-			list<string> &cmdLine);
+	virtual bool parseOption(const string& option,
+			list<string>& cmdLine);
 	virtual const string& optionHelp() const;
-	virtual void parseFileType(const string &filename);
+	virtual void parseFileType(const string& filename);
 	virtual const string& fileTypeHelp() const;
 };
 
@@ -35,22 +36,22 @@ public:
 	CassettePlayer();
 	virtual ~CassettePlayer();
 
-	void insertTape(FileContext &context, const string &filename)
+	void insertTape(FileContext& context, const string& filename)
 		throw(MSXException);
 	void removeTape();
 
 	// CassetteDevice
-	virtual void setMotor(bool status, const EmuTime &time);
-	virtual short readSample(const EmuTime &time);
-	virtual void writeWave(short *buf, int length);
+	virtual void setMotor(bool status, const EmuTime& time);
+	virtual short readSample(const EmuTime& time);
+	virtual void writeWave(short* buf, int length);
 	virtual int getWriteSampleRate();
 
 	// Pluggable + SoundDevice
 	virtual const string& getName() const;
 	virtual const string& getDescription() const;
-	
+
 	// Pluggable
-	virtual void plug(Connector *connector, const EmuTime &time) throw();
+	virtual void plug(Connector* connector, const EmuTime& time) throw();
 	virtual void unplug(const EmuTime &time);
 
 	// SoundDevice
@@ -60,22 +61,22 @@ public:
 
 private:
 	void rewind();
-	void updatePosition(const EmuTime &time);
-	short getSample(const EmuTime &time);
+	void updatePosition(const EmuTime& time);
+	short getSample(const EmuTime& time);
 
-	CassetteImage *cassette;
+	CassetteImage* cassette;
 	bool motor, forcePlay;
 	EmuTime tapeTime;
 	EmuTime prevTime;
 
 	// Tape Command
-	virtual string execute(const vector<string> &tokens)
+	virtual string execute(const vector<string>& tokens)
 		throw (CommandException);
-	virtual string help   (const vector<string> &tokens) const throw();
-	virtual void tabCompletion(vector<string> &tokens) const throw();
+	virtual string help   (const vector<string>& tokens) const throw();
+	virtual void tabCompletion(vector<string>& tokens) const throw();
 
 	// SoundDevice
-	int *buffer;
+	int* buffer;
 	short volume;
 	EmuDuration delta;
 	EmuTime playTapeTime;
@@ -83,4 +84,4 @@ private:
 
 } // namespace openmsx
 
-#endif
+#endif // __CASSETTEPLAYER_HH__
