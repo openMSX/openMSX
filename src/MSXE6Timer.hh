@@ -31,4 +31,4 @@ class MSXE6Timer : public MSXDevice
 		Emutime reference;
 };
 
-#endif //__MSXDEVICE_H__
+#endif //__E6TIMER_HH__

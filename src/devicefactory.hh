@@ -8,8 +8,7 @@
 
 class deviceFactory
 {
-public:
-	//static MSXDevice *create(const string &type);
-	static MSXDevice *create(MSXConfig::Device *conf);
+	public:
+		static MSXDevice *create(MSXConfig::Device *conf);
 };
 #endif

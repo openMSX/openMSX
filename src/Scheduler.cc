@@ -25,8 +25,7 @@ Scheduler* Scheduler::instance()
 	}
 	return oneInstance;
 }
-
-Scheduler *Scheduler::oneInstance;
+Scheduler *Scheduler::oneInstance = NULL;
 
 const SchedulerNode &Scheduler::getFirstNode()
 {

@@ -16,8 +16,8 @@ DummyJoystick* DummyJoystick::instance()
 	}
 	return oneInstance;
 }
-
 DummyJoystick* DummyJoystick::oneInstance = 0;
+
 
 byte DummyJoystick::read()
 {
@@ -27,6 +27,5 @@ byte DummyJoystick::read()
 void DummyJoystick::write(byte value)
 {
 	// do nothing
-	return;
 }
 

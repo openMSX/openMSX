@@ -10,14 +10,15 @@
 
 class Inputs 
 {
-	private:
-		Inputs(); // private constructor -> can only construct self
-		static Inputs *volatile oneInstance; 
-		byte keyMatrix[NR_KEYROWS];
-		static byte Keys[336][2];
 	public:
 		~Inputs(); 
 		static Inputs *instance();
 		const byte* getKeys();
+	
+	private:
+		Inputs(); // private constructor -> can only construct self
+		static Inputs *oneInstance; 
+		byte keyMatrix[NR_KEYROWS];
+		static byte Keys[336][2];
 };
 #endif

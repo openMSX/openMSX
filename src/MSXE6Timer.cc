@@ -5,11 +5,11 @@
 
 MSXE6Timer::MSXE6Timer()
 {
-};
+}
 
 MSXE6Timer::~MSXE6Timer()
 {
-};
+}
  
 void MSXE6Timer::init()
 {
@@ -17,13 +17,13 @@ void MSXE6Timer::init()
 	MSXMotherBoard::instance()->register_IO_In (0xE6,this);
 	MSXMotherBoard::instance()->register_IO_In (0xE7,this);
 	MSXMotherBoard::instance()->register_IO_Out(0xE6,this);
-};
+}
 
 void MSXE6Timer::reset()
 {
 	MSXDevice::reset();
 	reference = Emutime(255681, 0);	// 1/14 * 3.58MHz
-};
+}
 
 byte MSXE6Timer::readIO(byte port, Emutime &time)
 {
@@ -36,11 +36,11 @@ byte MSXE6Timer::readIO(byte port, Emutime &time)
 	default:
 		assert (false);
 	}
-};
+}
 
 void MSXE6Timer::writeIO(byte port, byte value, Emutime &time)
 {
 	assert (port == 0xE6);
 	reference = time;	// freq does not change
-};
+}
 

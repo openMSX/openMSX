@@ -85,5 +85,4 @@ void MSXPSG::writeB(byte value)
 	
 	int kana = (value&0x80) ? KANA_OFF : KANA_ON;
 	Leds::instance()->setLed(kana);
-
 }

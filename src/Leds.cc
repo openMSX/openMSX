@@ -1,12 +1,17 @@
 
 #include <iostream>
 #include <assert.h>
-
 #include "Leds.hh"
 #include "openmsx.hh"
 
 
-Leds* Leds::oneInstance = NULL;
+Leds::Leds()
+{
+}
+
+Leds::~Leds()
+{
+}
 
 Leds* Leds::instance()
 {
@@ -14,15 +19,9 @@ Leds* Leds::instance()
 		oneInstance = new Leds();
 	}
 	return oneInstance;
-};
+}
+Leds* Leds::oneInstance = NULL;
 
-Leds::Leds()
-{
-};
-
-Leds::~Leds()
-{
-};
 
 void Leds::setLed(int led)
 {
@@ -66,4 +65,4 @@ void Leds::setLed(int led)
 	default:
 		assert (false);
 	}
-};
+}

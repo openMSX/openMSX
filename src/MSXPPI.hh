@@ -60,7 +60,7 @@ class MSXPPI : public MSXDevice, I8255Interface
 		void writeIO(byte port, byte value, Emutime &time);
 	private:
 		MSXPPI(); 
-		static MSXPPI *volatile oneInstance;
+		static MSXPPI *oneInstance;
 		I8255 *i8255;
 	
 	// I8255Interface
@@ -80,7 +80,5 @@ class MSXPPI : public MSXDevice, I8255Interface
 
 		byte MSXKeyMatrix[NR_KEYROWS];
 		int selectedRow;
-
-	friend class Inputs;
 };
 #endif

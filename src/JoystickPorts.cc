@@ -22,7 +22,6 @@ JoystickPorts* JoystickPorts::instance()
 	}
 	return oneInstance;
 }
-
 JoystickPorts* JoystickPorts::oneInstance = 0;
  
 

@@ -9,8 +9,6 @@
 
 // MSXDevice
 
-MSXPPI *volatile MSXPPI::oneInstance;
-
 MSXPPI::MSXPPI()
 {
 	PRT_DEBUG("Creating an MSXPPI object");
@@ -30,6 +28,8 @@ MSXDevice* MSXPPI::instance(void)
 	}
 	return oneInstance;
 }
+MSXPPI *MSXPPI::oneInstance = NULL;
+
 
 void MSXPPI::init()
 {

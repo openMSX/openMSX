@@ -3,14 +3,12 @@
 #ifndef __MSXMOTHERBOARD_HH__
 #define __MSXMOTHERBOARD_HH__
 
-#include "MSXDevice.hh"
-#include "Scheduler.hh"
 #include <fstream>
 #include <vector>
+#include "MSXDevice.hh"
+#include "Scheduler.hh"
 #include "emutime.hh"
 
-class MSXZ80;
-class MSXPPI;
 
 class MSXMotherBoard : public MSXDevice
 {	
@@ -48,15 +46,9 @@ class MSXMotherBoard : public MSXDevice
 		void writeMem(word address, byte value, Emutime &time);
 		byte readIO(byte port, Emutime &time);
 		void writeIO(byte port, byte value, Emutime &time);
+
 		void set_A8_Register(byte value);
 
-		MSXDevice* visibleDevices[4]; // TODO: must be private but for test purposes, must be adjusted when #A8,subslot or mapper is changed
-		static MSXZ80 *CPU; // for scheduler, this is the main running CPU
-		byte PrimarySlotState[4];
-		byte SecondarySlotState[4];
-		
-		friend class MSXPPI;	// A8
-	
 	private:
 		MSXMotherBoard();
 
@@ -65,10 +57,13 @@ class MSXMotherBoard : public MSXDevice
 		std::vector<MSXDevice*> availableDevices;
 		
 		MSXDevice* SlotLayout[4][4][4];
-		byte A8_Register;
 		byte SubSlot_Register[4];
+		byte A8_Register;
+		byte PrimarySlotState[4];
+		byte SecondarySlotState[4];
 		bool isSubSlotted[4];
-
+		MSXDevice* visibleDevices[4]; 
+		
 		int IRQLine;
 
 		static MSXMotherBoard *oneInstance;

@@ -4,24 +4,22 @@
 #include "MSXDevice.hh"
 #include "MSXMotherBoard.hh"
 
-const std::string MSXDevice::defaultName = "no name";
 
 MSXDevice::MSXDevice()
 {
 	PRT_DEBUG("instantiating an MSXDevice object");
-	isIRQset = false;
-};
+}
 
 MSXDevice::~MSXDevice()
 {
 	PRT_DEBUG("destructing an MSXDevice object");
-};
+}
 
 void MSXDevice::setConfigDevice(MSXConfig::Device *config)
 {
 	deviceConfig=config;
 	deviceName=&config->getId();
-};
+}
 
 // interaction with CPU
 byte MSXDevice::readMem(word address, Emutime &time)
@@ -63,6 +61,7 @@ void MSXDevice::stop()
 void MSXDevice::reset()
 {
 	PRT_DEBUG ("Resetting " << getName());
+	isIRQset = false;
 }
 
 //
@@ -85,6 +84,8 @@ const std::string &MSXDevice::getName()
 		return defaultName;
 	}
 }
+const std::string MSXDevice::defaultName = "no name";
+
 
 //These are used for save/restoreState see note over
 //savefile-structure

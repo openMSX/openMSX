@@ -13,7 +13,6 @@ class DummyDevice : public MSXDevice
 	public:
 		~DummyDevice();
 		static DummyDevice *instance();
-		//static MSXDevice* instantiate();
 		void setConfigDevice(MSXConfig::Device *config);
 		void init();
 		void start();
@@ -26,5 +25,5 @@ class DummyDevice : public MSXDevice
 		static DummyDevice *oneInstance;
 };
 
-#endif //__DUMMYDEVICE_H__
+#endif //__DUMMYDEVICE_HH__
 

@@ -1,6 +1,6 @@
 
-#ifndef __JOYSTICKINTERFACE_HH__
-#define __JOYSTICKINTERFACE_HH__
+#ifndef __JOYSTICKDEVICE_HH__
+#define __JOYSTICKDEVICE_HH__
 
 #include "openmsx.hh"
 

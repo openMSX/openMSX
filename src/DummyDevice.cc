@@ -21,11 +21,10 @@ DummyDevice* DummyDevice::instance()
 	}
 	return oneInstance;
 }
+DummyDevice *DummyDevice::oneInstance = NULL;
 
-//static MSXDevice* DummyDevice::instantiate()
-//{
-//	assert(false);
-//};
+
+// Block usage of the following methods
 
 void DummyDevice::setConfigDevice(MSXConfig::Device *config)
 {
@@ -62,5 +61,4 @@ void DummyDevice::restoreState(std::string &devicestring, std::ifstream &readstr
 	assert(false);
 }
 
-DummyDevice *DummyDevice::oneInstance;
 

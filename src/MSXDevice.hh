@@ -49,9 +49,10 @@ class MSXDevice
 		void setInterrupt();
 		void resetInterrupt();
 		bool isIRQset;
+
 	private:
 		static const std::string defaultName;
 };
 
-#endif //__MSXDEVICE_H__
+#endif //__MSXDEVICE_HH__
 

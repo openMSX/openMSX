@@ -173,7 +173,6 @@ void I8255::writeControlPort(byte value) {
 	if (value & SET_MODE) {
 		// set new control mode
 		control = value;
-		// TODO check this behavior, see tech docs
 		outputPortA(latchPortA);
 		outputPortB(latchPortB);
 		outputPortC(latchPortC);
@@ -188,6 +187,8 @@ void I8255::writeControlPort(byte value) {
 			latchPortC &= ~bitmask;
 		}
 		outputPortC(latchPortC);
+		// check for special (re)set commands
+		// not releant for mode 0
 		switch (control & MODE_A) {
 		case MODEA_0:
 			// do nothing

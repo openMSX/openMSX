@@ -4,6 +4,7 @@
 
 #include "JoystickDevice.hh"
 
+
 class DummyJoystick : public JoystickDevice
 {
 	public:

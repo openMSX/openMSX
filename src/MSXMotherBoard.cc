@@ -27,7 +27,6 @@ MSXMotherBoard::MSXMotherBoard()
 			}
 		}
 	}
-	IRQLine = 0;
 }
 
 MSXMotherBoard::~MSXMotherBoard()
@@ -44,24 +43,24 @@ MSXMotherBoard *MSXMotherBoard::instance()
 MSXMotherBoard *MSXMotherBoard::oneInstance = NULL;
 
 
-void MSXMotherBoard::register_IO_In(byte port,MSXDevice *device)
+void MSXMotherBoard::register_IO_In(byte port, MSXDevice *device)
 {
 	if (IO_In[port] == DummyDevice::instance()) {
 		PRT_DEBUG (device->getName() << " registers In-port " << (int)port);
 		IO_In[port] = device;
 	} else {
-		PRT_DEBUG (device->getName() << " trying to register taken In-port " 
+		PRT_ERROR (device->getName() << " trying to register taken In-port " 
 		                        << (int)port);
 	}
 }
 
-void MSXMotherBoard::register_IO_Out(byte port,MSXDevice *device)
+void MSXMotherBoard::register_IO_Out(byte port, MSXDevice *device)
 {
 	if ( IO_Out[port] == DummyDevice::instance()) {
 		PRT_DEBUG (device->getName() << " registers Out-port " << (int)port);
 		IO_Out[port] = device;
 	} else {
-		PRT_DEBUG (device->getName() << " trying to register taken Out-port "
+		PRT_ERROR (device->getName() << " trying to register taken Out-port "
 		                        << (int)port);
 	}
 }
@@ -71,14 +70,16 @@ void MSXMotherBoard::addDevice(MSXDevice *device)
 	availableDevices.push_back(device);
 }
 
-void MSXMotherBoard::registerSlottedDevice(MSXDevice *device,int PrimSl,int SecSL,int Page)
+void MSXMotherBoard::registerSlottedDevice(MSXDevice *device, int primSl, int secSL, int page)
 {
-	 PRT_DEBUG("Registering device at "<<PrimSl<<" "<<SecSL<<" "<<Page);
-	 SlotLayout[PrimSl][SecSL][Page]=device;
+	 PRT_DEBUG(device->getName() << "registers at "<<primSl<<" "<<secSL<<" "<<page);
+	 SlotLayout[primSl][secSL][page]=device;
 }
 
 void MSXMotherBoard::ResetMSX()
 {
+	IRQLine = 0;
+	set_A8_Register(0);
 	vector<MSXDevice*>::iterator i;
 	for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
 		(*i)->reset();
@@ -87,23 +88,20 @@ void MSXMotherBoard::ResetMSX()
 
 void MSXMotherBoard::InitMSX()
 {
-    bool hasSubs;
-    int counter;
 	// Make sure that the MotherBoard is correctly 'init'ed.
 	list<const MSXConfig::Device::Parameter*> subslotted_list = deviceConfig->getParametersWithClass("subslotted");
 	for (list<const MSXConfig::Device::Parameter*>::const_iterator i=subslotted_list.begin(); i != subslotted_list.end(); i++) {
-		hasSubs=false;
+		bool hasSubs=false;
 		if ((*i)->value.compare("true") == 0) {
 			hasSubs=true;
 		}
-		counter=atoi((*i)->name.c_str());
+		int counter=atoi((*i)->name.c_str());
 		isSubSlotted[counter]=hasSubs;
      
 		cout << "Parameter, name: " << (*i)->name;
 		cout << " value: " << (*i)->value;
 		cout << " class: " << (*i)->clasz << endl;
 	}
-
 	vector<MSXDevice*>::iterator i;
 	for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
 		(*i)->init();
@@ -112,11 +110,8 @@ void MSXMotherBoard::InitMSX()
 
 void MSXMotherBoard::StartMSX()
 {
-	//TODO this should be done by the PPI
-	visibleDevices[0]=SlotLayout[0][0][0];
-	visibleDevices[1]=SlotLayout[0][0][1];
-	visibleDevices[2]=SlotLayout[0][0][2];
-	visibleDevices[3]=SlotLayout[0][0][3];
+	IRQLine = 0;
+	set_A8_Register(0);
 	vector<MSXDevice*>::iterator i;
 	for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
 		(*i)->start();
@@ -124,46 +119,40 @@ void MSXMotherBoard::StartMSX()
 	Leds::instance()->setLed(POWER_ON);
 	Scheduler::instance()->scheduleEmulation();
 }
+
 void MSXMotherBoard::SaveStateMSX(ofstream &savestream)
 {
 	vector<MSXDevice*>::iterator i;
 	for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
-	//TODO	(*i)->saveState(savestream);
+		(*i)->saveState(savestream);
 	}
 }
 
 
 byte MSXMotherBoard::readMem(word address, Emutime &time)
 {
-	int CurrentSSRegister;
-	if (address == 0xFFFF){
-		CurrentSSRegister=(A8_Register>>6)&3;
-		if (isSubSlotted[CurrentSSRegister]){	
+	if (address == 0xFFFF) {
+		int CurrentSSRegister = (A8_Register>>6)&3;
+		if (isSubSlotted[CurrentSSRegister]) {
 			return 255^SubSlot_Register[CurrentSSRegister];
-			}
 		}
-		//visibleDevices[address>>14]->readMem(address,TStates);
+	}
 	return visibleDevices[address>>14]->readMem(address, time);
-	
 }
 
 void MSXMotherBoard::writeMem(word address, byte value, Emutime &time)
 {
-	int CurrentSSRegister;
-	if (address == 0xFFFF){
-		// TODO: write to correct subslotregister
-		CurrentSSRegister=(A8_Register>>6)&3;
-		if (isSubSlotted[CurrentSSRegister]){	
-			SubSlot_Register[CurrentSSRegister]=value;
-			//TODO :do actual switching
-			for (int i=0;i<4;i++,value>>=2){
-				if (CurrentSSRegister ==  PrimarySlotState[i]){
-					SecondarySlotState[i]=value&3;
+	if (address == 0xFFFF) {
+		int CurrentSSRegister = (A8_Register>>6)&3;
+		if (isSubSlotted[CurrentSSRegister]) {
+			SubSlot_Register[CurrentSSRegister] = value;
+			for (int i=0; i<4; i++, value>>=2) {
+				if (CurrentSSRegister == PrimarySlotState[i]) {
+					SecondarySlotState[i] = value&3;
 					// Change the visible devices
-					visibleDevices[i]= SlotLayout 
-						[PrimarySlotState[i]]
-						[SecondarySlotState[i]]
-						[i];
+					visibleDevices[i]= SlotLayout [PrimarySlotState[i]]
+					                              [SecondarySlotState[i]]
+					                              [i];
 				}
 			}
 			return;
@@ -175,15 +164,15 @@ void MSXMotherBoard::writeMem(word address, byte value, Emutime &time)
 
 void MSXMotherBoard::set_A8_Register(byte value)
 {
-	A8_Register=value;
-	for (int J=0; J<4; J++, value>>=2) {
+	A8_Register = value;
+	for (int j=0; j<=3; j++, value>>=2) {
 		// Change the slot structure
-		PrimarySlotState[J]=value&3;
-		SecondarySlotState[J]=3&(SubSlot_Register[value&3]>>(J*2));
+		PrimarySlotState[j] = value&3;
+		SecondarySlotState[j] = 3&(SubSlot_Register[value&3]>>(j*2));
 		// Change the visible devices
-		visibleDevices[J] = SlotLayout [PrimarySlotState[J]]
-		                               [SecondarySlotState[J]]
-		                               [J];
+		visibleDevices[j] = SlotLayout [PrimarySlotState[j]]
+		                               [SecondarySlotState[j]]
+		                               [j];
 	}
 }
 
