@@ -74,13 +74,24 @@ void Console::unregisterConsole(ConsoleRenderer *console)
 	renderers.remove(console);
 }
 
-int Console::setCursorPosition(int position)
+void Console::setCursorPosition(const int xPosition,const int yPosition)
 {
-	cursorPosition = position;
-	if ((unsigned)position > lines[0].length())
-		cursorPosition = lines[0].length();
-	if ((unsigned)position < PROMPT.length()) cursorPosition = (signed)PROMPT.length();
-	return cursorPosition;
+	cursorLocation.x = xPosition;
+	if ((unsigned)xPosition > lines[0].length())
+		cursorLocation.x = lines[0].length();
+	if ((unsigned)xPosition < PROMPT.length()) cursorLocation.x = (signed)PROMPT.length();
+	cursorLocation.y = yPosition;
+}
+
+void Console::getCursorPosition(int * xPosition, int * yPosition)
+{
+	*xPosition = cursorLocation.x;
+	*yPosition = cursorLocation.y;
+} 
+
+void Console::setCursorPosition(struct CursorXY pos)
+{
+	setCursorPosition(pos.x,pos.y);
 }
 
 int Console::getScrollBack()
@@ -107,7 +118,6 @@ void Console::updateConsole()
 		(*it)->updateConsole();
 	}
 }
-
 
 bool Console::signalEvent(SDL_Event &event)
 {
@@ -142,23 +152,33 @@ bool Console::signalEvent(SDL_Event &event)
 			break;
 		case Keys::K_RETURN:
 			commandExecute();
-			cursorPosition = PROMPT.length();
+			cursorLocation.x = PROMPT.length();
 			break;
 		case Keys::K_LEFT:
-			if (cursorPosition > PROMPT.length()) cursorPosition--;
+			combineLines();
+			if ((unsigned)cursorPosition > PROMPT.length()) cursorPosition--;
+			splitLines();
 			break;
 		case Keys::K_RIGHT:
-			if (cursorPosition < lines[0].length()) cursorPosition++;
+			combineLines();
+			if ((unsigned)cursorPosition < editLine.length()) cursorPosition++;
+			splitLines();
 			break;
 		case Keys::K_HOME:
+			combineLines();
 			cursorPosition = PROMPT.length();
+			splitLines();
 			break;
 		case Keys::K_END:
-			cursorPosition = lines[0].length();
+			combineLines();
+			cursorPosition = editLine.length();
+			splitLines();
 			break;
 		case Keys::K_A:
 			if (modifier & (KMOD_LCTRL | KMOD_RCTRL)){
+				combineLines();
 				cursorPosition=PROMPT.length();
+				splitLines();
 			}
 			else{
 				normalKey((char)event.key.keysym.unicode);	
@@ -174,7 +194,9 @@ bool Console::signalEvent(SDL_Event &event)
 			break;			
 		case Keys::K_E:
 			if (modifier & (KMOD_LCTRL | KMOD_RCTRL)){	
-				cursorPosition=lines[0].length();
+				combineLines();
+				cursorPosition=editLine.length();
+				splitLines();
 			}
 			else{
 				normalKey((char)event.key.keysym.unicode);
@@ -188,6 +210,34 @@ bool Console::signalEvent(SDL_Event &event)
 	return false;	// don't pass event to MSX-Keyboard
 }
 
+void Console::combineLines()
+{
+	editLine="";
+	for (int i=commandLines-1;i>=0;i--){
+		editLine += lines[i];
+	}
+	int temp = commandLines-1 - cursorLocation.y;
+	cursorPosition = (consoleColumns * temp)+cursorLocation.x;
+}
+
+void Console::splitLines(){
+	int numberOfLines= 1 + (int)(editLine.length() / consoleColumns);
+	int oldCommandLines = commandLines;
+	for (int i=1;i<=numberOfLines;i++){
+		if (i>oldCommandLines) 
+			newLineConsole(editLine.substr(consoleColumns * (i-1),consoleColumns));
+		else
+			lines[oldCommandLines-i] = editLine.substr(consoleColumns * (i-1),consoleColumns);			
+	}
+	for (int i=numberOfLines;(oldCommandLines-i)>0;i++){
+		lines.removeFront(); // remove extra lines
+	}
+	commandLines=numberOfLines;
+	cursorLocation.x = cursorPosition % consoleColumns;
+	int temp = (int)(cursorPosition / consoleColumns);
+	cursorLocation.y = numberOfLines -1 - temp;
+}
+
 void Console::print(const std::string &text)
 {
 	int end = 0;
@@ -195,8 +245,14 @@ void Console::print(const std::string &text)
 		int start = end;
 		end = text.find('\n', start);
 		if (end == -1) end = text.length();
+		if ((end-start) > (consoleColumns-2)){
+			end = start + consoleColumns-1;
+			newLineConsole(text.substr(start, end-start));
+		}
+		else{		
 		newLineConsole(text.substr(start, end-start));
 		end++; // skip newline
+		}
 	} while (end < (int)text.length());
 	updateConsole();
 }
@@ -226,10 +282,13 @@ void Console::putCommandHistory(const std::string &command)
 
 void Console::commandExecute()
 {
-	putCommandHistory(lines[0]);
+	resetScrollBack();
+	combineLines();
+	putCommandHistory(editLine);
+	splitLines();
 	try {
 		CommandController::instance()->
-			executeCommand(lines[0].substr(PROMPT.length()));
+			executeCommand(editLine.substr(PROMPT.length()));
 	} catch (CommandException &e) {
 		print(e.getMessage());
 	}
@@ -242,17 +301,21 @@ void Console::putPrompt()
 	consoleScrollBack = 0;
 	commandScrollBack = history.end();
 	currentLine=PROMPT;
-	cursorPosition=PROMPT.length();
+	cursorLocation.x=PROMPT.length();
+	cursorLocation.y = 0;
+	commandLines=1;
 }
 
 void Console::tabCompletion()
 {
 	resetScrollBack();
-	std::string string(lines[0].substr(PROMPT.length()));
+	combineLines();
+	std::string string(editLine.substr(PROMPT.length()));
 	CommandController::instance()->tabCompletion(string);
-	lines[0] = PROMPT + string;
-	cursorPosition=lines[0].length();
-	currentLine=lines[0];
+	editLine = PROMPT + string;
+	cursorPosition=editLine.length();
+	currentLine=editLine;
+	splitLines();
 }
 
 void Console::scrollUp()
@@ -273,6 +336,7 @@ void Console::prevCommand()
 	bool match=false;
 	resetScrollBack();
 	if (history.empty()) return; // no elements
+	combineLines();	
 	while ((tempScrollBack != history.begin()) && (!match)){
 		tempScrollBack--;
 		match = ((tempScrollBack->length() >= currentLine.length()) &&
@@ -280,9 +344,10 @@ void Console::prevCommand()
 	}
 	if (match){
 		commandScrollBack = tempScrollBack;
-		lines[0]=*commandScrollBack;
-		cursorPosition=lines[0].length();		
+		editLine=*commandScrollBack;
+		cursorPosition=editLine.length();		
 	}
+	splitLines();
 }
 
 void Console::nextCommand()
@@ -291,6 +356,7 @@ void Console::nextCommand()
 	std::list<std::string>::iterator tempScrollBack = commandScrollBack;
 	bool match=false;
 	resetScrollBack();
+	combineLines();
 	while ((++tempScrollBack != history.end()) && (!match)){
 		match = ((tempScrollBack->length() >= currentLine.length()) &&
 				(tempScrollBack->substr(0,currentLine.length())==currentLine));
@@ -298,62 +364,68 @@ void Console::nextCommand()
 	if (match){
 		--tempScrollBack; // one time to many
 		commandScrollBack = tempScrollBack;
-		lines[0]=*commandScrollBack;
-		cursorPosition=lines[0].length();		
+		editLine=*commandScrollBack;
+		cursorPosition=editLine.length();		
 	}
 	else {
 		commandScrollBack=history.end();
-		lines[0] = currentLine;
+		editLine = currentLine;
 	}
-	cursorPosition=lines[0].length();
+	cursorPosition=editLine.length();
+	splitLines();
 }
 
 void Console::clearCommand()
 {
-	lines[0] = currentLine = PROMPT;
+	resetScrollBack();
+	combineLines();
+	editLine = currentLine = PROMPT;
 	cursorPosition=PROMPT.length();
+	splitLines();
 }
 
 void Console::backspace()
 {
 	resetScrollBack();
-	if (cursorPosition > PROMPT.length())
+	combineLines();
+	if ((unsigned)cursorPosition > PROMPT.length())
 	{
 		std::string temp;
-		temp=lines[0].substr(cursorPosition);
-		lines[0].erase(cursorPosition-1);
-		lines[0] += temp;
+		temp=editLine.substr(cursorPosition);
+		editLine.erase(cursorPosition-1);
+		editLine += temp;
 		cursorPosition--;
-		currentLine=lines[0];
+		currentLine=editLine;
 	}
+	splitLines();
 }
 
 void Console::delete_key()
 {
 	resetScrollBack();
-	if (lines[0].length() >cursorPosition)
+	combineLines();
+	if (editLine.length() > (unsigned)cursorPosition)
 	{
 		std::string temp;
-		temp=lines[0].substr(cursorPosition+1);
-		lines[0].erase(cursorPosition);
-		lines[0] += temp;
-		currentLine=lines[0];
+		temp=editLine.substr(cursorPosition+1);
+		editLine.erase(cursorPosition);
+		editLine += temp;
+		currentLine=editLine;
 	}
+	splitLines();
 }
 
 void Console::normalKey(char chr)
 {
 	if (!chr) return;
 	resetScrollBack();
+	combineLines();
 	std::string temp="";
 	temp+=chr;
-
-	if (lines[0].length() < (unsigned)(consoleColumns-1)){ // ignore extra characters
-		lines[0].insert(cursorPosition,temp);
-		cursorPosition++;
-		currentLine=lines[0];
-	}
-		
+	editLine.insert(cursorPosition,temp);
+	cursorPosition++;
+	currentLine=editLine;
+	splitLines();
 }
 
 void Console::resetScrollBack(){

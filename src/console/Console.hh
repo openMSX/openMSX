@@ -9,6 +9,11 @@
 #include "CircularBuffer.hh"
 #include "Settings.hh"
 
+struct CursorXY{
+	unsigned x;
+	unsigned y;	
+};
+
 class ConsoleRenderer;
 
 
@@ -33,8 +38,9 @@ class Console : private EventListener
 		int getScrollBack();
 		const std::string& getLine(int line);
 		bool isVisible();
-		int getCursorPosition(){return cursorPosition;};
-		int setCursorPosition(int position);
+		void getCursorPosition(int * xPosition, int * yPosition);
+		void setCursorPosition(const int xPosition,const int yPosition);
+		void setCursorPosition(struct CursorXY pos);
 		void setConsoleColumns(int columns){consoleColumns=columns;};
 
 	private:
@@ -58,6 +64,9 @@ class Console : private EventListener
 		void putPrompt();
 		void updateConsole();
 		void resetScrollBack();
+		void combineLines();
+		void splitLines();
+		
 		class ConsoleSetting : public BooleanSetting
 		{
 			public:
@@ -72,6 +81,7 @@ class Console : private EventListener
 		unsigned int maxHistory;
 		std::list<ConsoleRenderer*> renderers;
 		CircularBuffer<std::string, 100> lines;
+		std::string editLine;
 // 		Are double commands allowed ?
 		bool removeDoubles;
 //		CircularBuffer<std::string, 25> history;
@@ -80,9 +90,10 @@ class Console : private EventListener
 		// saves Current Command to enable command recall
 		std::string currentLine;
 		int consoleScrollBack;
-//		int commandScrollBack;
-		unsigned int cursorPosition;
+		struct CursorXY cursorLocation; // full cursorcoordinates
+		int cursorPosition; // position within the current command
 		int consoleColumns;
+		int commandLines; // number of lines in the CURRENT command
 };
 
 #endif

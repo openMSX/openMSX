@@ -93,7 +93,9 @@ OSDConsoleRenderer::OSDConsoleRenderer()
 	}
 	blink = false;
 	lastBlinkTime = 0;
-	lastCursorPosition=Console::instance()->getCursorPosition();
+	int lastCursorPosition;
+	int cursorY;
+	Console::instance()->getCursorPosition(&lastCursorPosition, &cursorY);
 	
 	consolePlacementSetting=NULL;
 	consoleLinesSetting=NULL;

@@ -130,7 +130,9 @@ void SDLConsole::drawConsole()
 // Draws the command line the user is typing in to the screen
 void SDLConsole::drawCursor()
 {
-	int cursorLocation = console->getCursorPosition();
+	int cursorX;
+	int cursorY;
+	console->getCursorPosition(&cursorX, &cursorY);
 	// Check if the blink period is over
 	if (SDL_GetTicks() > lastBlinkTime){
 		lastBlinkTime = SDL_GetTicks() + BLINK_RATE;
@@ -141,13 +143,13 @@ void SDLConsole::drawCursor()
 		if (blink) {
 			// Print cursor if there is enough room
 			font->drawText(std::string("_"),
-				      CHAR_BORDER + cursorLocation * font->getWidth(),
-				      consoleSurface->h - font->getHeight());
+				      CHAR_BORDER + cursorX * font->getWidth(),
+				      consoleSurface->h - (font->getHeight() * (cursorY+1)));
 		} else {
 			// Remove cursor
 			SDL_Rect rect;
-			rect.x = cursorLocation * font->getWidth() + CHAR_BORDER;
-			rect.y = consoleSurface->h - font->getHeight();
+			rect.x = cursorX * font->getWidth() + CHAR_BORDER;
+			rect.y = consoleSurface->h - (font->getHeight() * (cursorY+1));
 			rect.w = font->getWidth();
 			rect.h = font->getHeight();
 			SDL_FillRect(fontLayer, &rect,
@@ -157,26 +159,26 @@ void SDLConsole::drawCursor()
 			if (backgroundImage) {
 				// draw the background image if applicable
 				SDL_Rect rect2;
-				rect2.x = cursorLocation * font->getWidth() + CHAR_BORDER;
+				rect2.x = cursorX * font->getWidth() + CHAR_BORDER;
 				rect.x = rect2.x;
-				rect2.y = consoleSurface->h - font->getHeight();
+				rect2.y = consoleSurface->h - (font->getHeight() * (cursorY+1));
 				rect.y = rect2.y;
 				rect2.w = rect.w = font->getWidth();
 				rect2.h = rect.h = font->getHeight();
 				SDL_BlitSurface(backgroundImage, &rect, consoleSurface, &rect2);
 			}
-			font->drawText(console->getLine(0).substr(cursorLocation,cursorLocation),
-				CHAR_BORDER + cursorLocation * font->getWidth(),
-				consoleSurface->h - font->getHeight());
+			font->drawText(console->getLine(cursorY).substr(cursorX,cursorX),
+				CHAR_BORDER + cursorX * font->getWidth(),
+				consoleSurface->h - (font->getHeight()*(cursorY+1)));
 		}
 	}
-	if (cursorLocation != lastCursorPosition){
+	if (cursorX != lastCursorPosition){
 		blink=true; // force cursor
 		lastBlinkTime=SDL_GetTicks() + BLINK_RATE; // maximum time
-		lastCursorPosition=cursorLocation;
+		lastCursorPosition=cursorX;
 		font->drawText(std::string("_"),
-			CHAR_BORDER + cursorLocation * font->getWidth(),
-			consoleSurface->h - font->getHeight());
+			CHAR_BORDER + cursorX * font->getWidth(),
+			consoleSurface->h - (font->getHeight()*(cursorY+1)));
 	}
 }
 

@@ -1,5 +1,8 @@
 $Id$
 
+2003-05-24 Herman Oudejans <hn.oudejans@quicknet.nl>
+	* commands can now be on multiple lines in the console.
+
 2003-05-23 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Fixed an error when processing the commandline and one
 	  device exists twice in the configurationfile(s).
