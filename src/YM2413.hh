@@ -115,6 +115,7 @@ class YM2413 : public SoundDevice
 		static void makeDphaseARTable(int sampleRate);
 		static void makeDphaseDRTable(int sampleRate);
 		static void makeRksTable();
+		static void makeDB2LinTable();
 		static void makeDefaultPatch();
 		static void getDefaultPatch(int num, Patch *patch);
 		static void dump2patch(const byte *dump, Patch *patch);
@@ -186,7 +187,7 @@ class YM2413 : public SoundDevice
 		static const int SL_MUTE = (1<<SL_BITS);
 
 		// Bits for liner value 
-		static const int DB2LIN_AMP_BITS = 15; /////
+		static const int DB2LIN_AMP_BITS = 11;
 		static const int SLOT_AMP_BITS = DB2LIN_AMP_BITS;
 
 		// Bits for envelope phase incremental counter 
@@ -223,6 +224,7 @@ class YM2413 : public SoundDevice
 		static const int SLOT_CYM = 17;
 		
 		int* buffer;
+		short maxVolume;
 
 		int output[2];
 

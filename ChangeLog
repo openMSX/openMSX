@@ -1,5 +1,8 @@
 $Id$
 
+2002-02-12 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* Fixed FM-modulation error in both Y8950 as YM2413
+
 2002-02-11 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Fixed some bugs in Y8950:
 	   it is usable now, both OPL part as ADPCM part

@@ -83,18 +83,16 @@ short YM2413::dB2LinTab[(2*DB_MUTE)*2];
 
 
 
-//***************************************************//
-//                                                   //
-//                  Create tables                    //
-//                                                   //
-//***************************************************//
-
 YM2413::Patch::Patch()
 {
 	TL = FB = EG = ML = AR = DR = SL = RR = KR = KL = AM = PM = WF = 0;
 }
 
-
+//***************************************************//
+//                                                   //
+//                  Create tables                    //
+//                                                   //
+//***************************************************//
 
 // Table for AR to LogCurve.
 void YM2413::makeAdjustTable()
@@ -105,11 +103,11 @@ void YM2413::makeAdjustTable()
 }
 
 // Table for dB(0 -- (1<<DB_BITS)) to Liner(0 -- DB2LIN_AMP_WIDTH)
-void YM2413::setInternalVolume(short maxVolume)
+void YM2413::makeDB2LinTable()
 {
-	for(int i=0; i<2*DB_MUTE; i++) {
+	for (int i=0; i<2*DB_MUTE; i++) {
 		dB2LinTab[i] = (i<DB_MUTE) ? 
-		        (int)((double)maxVolume*pow(10,-(double)i*DB_STEP/20)) :
+		        (int)((double)((1<<DB2LIN_AMP_BITS)-1)*pow(10,-(double)i*DB_STEP/20)) :
 		        0;
 		dB2LinTab[i+2*DB_MUTE] = -dB2LinTab[i] ;
 	}
@@ -613,6 +611,7 @@ YM2413::YM2413(short volume, const EmuTime &time)
 	makeTllTable();
 	makeRksTable();
 	makeSinTable();
+	makeDB2LinTable();
 	makeDefaultPatch();
 
 	reset(time);
@@ -928,7 +927,7 @@ inline int YM2413::calcSample(int channelMask)
 			mix += cp->car.calc_slot_car(cp->mod.calc_slot_mod());
 	}
 
-	return mix;
+	return (maxVolume*mix)>>DB2LIN_AMP_BITS;
 }
 
 void YM2413::checkMute()
@@ -976,6 +975,11 @@ int* YM2413::updateBuffer(int length)
 
 	checkMute();
 	return buffer;
+}
+
+void YM2413::setInternalVolume(short newVolume)
+{
+	maxVolume = newVolume;
 }
 
 

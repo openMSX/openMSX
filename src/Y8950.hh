@@ -29,7 +29,7 @@ class Y8950 : public SoundDevice
 			static void makeTllTable();
 			static void makeAdjustTable();
 			static void makeRksTable();
-			static void makeDB2LinTable(short volume);
+			static void makeDB2LinTable();
 			static void makeDphaseARTable(int sampleRate);
 			static void makeDphaseDRTable(int sampleRate);
 			static void makeDphaseTable(int sampleRate);
@@ -101,9 +101,6 @@ class Y8950 : public SoundDevice
 			static const double TL_STEP = 0.75;
 			static const int TL_BITS = 6;
 			static const int TL_MUTE = 1<<TL_BITS;
-			// Bits for liner value 
-			static const int DB2LIN_AMP_BITS = 15; //// was 11
-			static const int SLOT_AMP_BITS = DB2LIN_AMP_BITS;
 			
 			// WaveTable for each envelope amp 
 			static unsigned int fullsintable[PG_WIDTH];
@@ -228,6 +225,9 @@ class Y8950 : public SoundDevice
 		static const double AM_SPEED = 3.7;
 		static const double AM_DEPTH = 1.0;
 		static const double AM_DEPTH2 = 4.8;
+		// Bits for liner value 
+		static const int DB2LIN_AMP_BITS = 11;
+		static const int SLOT_AMP_BITS = DB2LIN_AMP_BITS;
 
 		static const int SLOT_BD1 = 12;
 		static const int SLOT_BD2 = 13;
@@ -257,6 +257,7 @@ class Y8950 : public SoundDevice
 		unsigned int whitenoise;
 
 		int* buffer;
+		short maxVolume;
 
 
 		// adpcm

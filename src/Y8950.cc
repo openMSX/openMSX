@@ -74,17 +74,12 @@ void Y8950::Slot::makeAdjustTable()
 		AR_ADJUST_TABLE[i] = (unsigned int)((double)(1<<EG_BITS)-1-(1<<EG_BITS)*log(i)/log(1<<EG_BITS)) >> 1; 
 }
 
-void Y8950::setInternalVolume(short maxVolume)
-{
-	Slot::makeDB2LinTable(maxVolume);
-}
 // Table for dB(0 -- (1<<DB_BITS)) to Liner(0 -- DB2LIN_AMP_WIDTH) 
-void Y8950::Slot::makeDB2LinTable(short maxVolume)
+void Y8950::Slot::makeDB2LinTable()
 {
 	for (int i=0; i < 2*DB_MUTE; i++) {
 		dB2LinTab[i] = (i<DB_MUTE) ?
-			(int)((double)maxVolume*pow(10,-(double)i*DB_STEP/20)) :
-			//(int)((double)((1<<DB2LIN_AMP_BITS)-1)*pow(10,-(double)i*DB_STEP/20)) :
+			(int)((double)((1<<DB2LIN_AMP_BITS)-1)*pow(10,-(double)i*DB_STEP/20)) :
 			0;
 		dB2LinTab[i + 2*DB_MUTE] = -dB2LinTab[i];
 	}
@@ -414,6 +409,7 @@ Y8950::Y8950(short volume, const EmuTime &time)
 	makePmTable();
 	makeAmTable();
 	Y8950::Slot::makeAdjustTable();
+	Y8950::Slot::makeDB2LinTable();
 	Y8950::Slot::makeTllTable();
 	Y8950::Slot::makeRksTable();
 	Y8950::Slot::makeSinTable();
@@ -653,8 +649,7 @@ int Y8950::calcSample()
 	update_noise();      
 
 	int inst = 0;
-	for (int i=0; i<6; i++)
-	{
+	for (int i=0; i<6; i++) {
 		if ((!mask[i])&&(ch[i].car.eg_mode!=FINISH)) {
 			if (ch[i].alg)
 				inst += ch[i].car.calc_slot_car(lfo_pm, lfo_am, 0) + ch[i].mod.calc_slot_mod(lfo_pm, lfo_am);
@@ -672,7 +667,8 @@ int Y8950::calcSample()
 			}
 		}
 	}
-	return  inst + calcAdpcm();
+	inst += calcAdpcm();
+	return (inst*maxVolume)>>DB2LIN_AMP_BITS;
 }
 
 
@@ -726,8 +722,8 @@ int Y8950::calcAdpcm()
 			val = reg[0x0f]>>4;
 		update_output(val);
 	}
-	// TODO make volume sensitive
-	return ((adpcmOutput[0] + adpcmOutput[1]) * reg[0x12]) >> 9; // was >> 13
+	// TODO adjust relative volume
+	return ((adpcmOutput[0] + adpcmOutput[1]) * reg[0x12]) >> 13;
 }
 
 
@@ -782,6 +778,11 @@ int* Y8950::updateBuffer(int length)
 
 	checkMute();
 	return buffer;
+}
+
+void Y8950::setInternalVolume(short newVolume)
+{
+	maxVolume = newVolume;
 }
 
 //**************************************************//
