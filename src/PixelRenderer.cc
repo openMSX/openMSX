@@ -118,7 +118,8 @@ inline void PixelRenderer::renderUntil(const EmuTime &time)
 
 		// Calculate start and end of display in ticks since start of line.
 		int displayL = getDisplayLeft();
-		int displayR = displayL + (vdp->isTextMode() ? 960 : 1024);
+		int displayR = displayL +
+			(vdp->getDisplayMode().isTextMode() ? 960 : 1024);
 
 		// Left border.
 		subdivide(nextX, nextY, limitX, limitY,

@@ -8,6 +8,7 @@ class VDPVRAM;
 
 #include "openmsx.hh"
 #include "Renderer.hh"
+#include "DisplayMode.hh"
 #include <cassert>
 
 /** Utility class for converting VRAM contents to host pixels.
@@ -126,16 +127,16 @@ public:
 	}
 
 	/** Select the display mode to use for scanline conversion.
-	  * @param mode The new display mode: M5..M1.
+	  * @param mode The new display mode.
 	  * TODO: Should this be inlined? It's not used that frequently.
 	  */
-	inline void setDisplayMode(int mode)
+	inline void setDisplayMode(DisplayMode mode)
 	{
-		assert((mode & 0x1F) < 0x0C);
-		renderMethod = modeToRenderMethod[mode & 0x1F];
+		assert(mode.getBase() < 0x0C);
+		renderMethod = modeToRenderMethod[mode.getBase()];
 	}
 
-	void setBlendMask(int blendMask);
+	void setBlendMask(Pixel blendMask);
 
 private:
 	inline Pixel blend(Pixel col1, Pixel col2);
@@ -178,7 +179,7 @@ private:
 	bool anyDirtyName, dirtyName[1 << 12];
 	bool dirtyForeground, dirtyBackground;
 
-	int blendMask;
+	Pixel blendMask;
 };
 
 #endif // __CHARACTERCONVERTER_HH__

@@ -13,6 +13,7 @@
 #include "PixelRenderer.hh"
 #include "CharacterConverter.hh"
 #include "BitmapConverter.hh"
+#include "DisplayMode.hh"
 
 #ifdef HAVE_GL_GL_H
 #include <GL/gl.h>
@@ -52,7 +53,7 @@ public:
 	void updateVerticalScroll(int scroll, const EmuTime &time);
 	void updateHorizontalAdjust(int adjust, const EmuTime &time);
 	//void updateDisplayEnabled(bool enabled, const EmuTime &time);
-	void updateDisplayMode(int mode, const EmuTime &time);
+	void updateDisplayMode(DisplayMode mode, const EmuTime &time);
 	void updateNameBase(int addr, const EmuTime &time);
 	void updatePatternBase(int addr, const EmuTime &time);
 	void updateColourBase(int addr, const EmuTime &time);
@@ -91,9 +92,9 @@ private:
 	inline void renderGraphic2Row(int row, int screenLine);
 
 	/** Precalc several values that depend on the display mode.
-	  * @param mode The new display mode: M5..M1.
+	  * @param mode The new display mode.
 	  */
-	inline void setDisplayMode(int mode);
+	inline void setDisplayMode(DisplayMode mode);
 
 	/** Get a pointer to the start of a VRAM line in the cache.
 	  * @param displayCache The display cache to use.

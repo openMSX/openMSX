@@ -217,18 +217,17 @@ inline static int translateX(int absoluteX)
 	return screenX < 0 ? 0 : screenX;
 }
 
-inline void SDLGLRenderer::setDisplayMode(int mode)
+inline void SDLGLRenderer::setDisplayMode(DisplayMode mode)
 {
-	int baseMode = mode & 0x1F;
-	dirtyChecker = modeToDirtyChecker[baseMode];
-	if (vdp->isBitmapMode(mode)) {
+	dirtyChecker = modeToDirtyChecker[mode.getBase()];
+	if (mode.isBitmapMode()) {
 		bitmapConverter.setDisplayMode(mode);
 	} else {
 		characterConverter.setDisplayMode(mode);
 	}
-	lineWidth =
-		(baseMode == 0x09 || baseMode == 0x10 || baseMode == 0x14 ? 512 : 256);
-	palSprites = (baseMode == 0x1C ? palGraphic7Sprites : palBg);
+	lineWidth = mode.getLineWidth();
+	palSprites =
+		mode.getBase() == DisplayMode::GRAPHIC7 ? palGraphic7Sprites : palBg;
 }
 
 void SDLGLRenderer::finishFrame()
@@ -307,12 +306,12 @@ inline SDLGLRenderer::Pixel SDLGLRenderer::getBorderColour()
 	// TODO: Used knowledge of V9938 to merge two 4-bit colours
 	//       into a single 8 bit colour for SCREEN8.
 	//       Keep doing that or make VDP handle SCREEN8 differently?
-	int baseMode = vdp->getDisplayMode() & 0x1F;
+	int baseMode = vdp->getDisplayMode().getBase();
 	return
-		( baseMode == 0x1C
+		( baseMode == DisplayMode::GRAPHIC7
 		? PALETTE256[
 			vdp->getBackgroundColour() | (vdp->getForegroundColour() << 4) ]
-		: palBg[ baseMode == 0x10
+		: palBg[ baseMode == DisplayMode::GRAPHIC5
 		       ? vdp->getBackgroundColour() & 3
 		       : vdp->getBackgroundColour()
 		       ]
@@ -322,7 +321,7 @@ inline SDLGLRenderer::Pixel SDLGLRenderer::getBorderColour()
 inline void SDLGLRenderer::renderBitmapLines(
 	byte line, int count)
 {
-	int mode = vdp->getDisplayMode();
+	byte mode = vdp->getDisplayMode().getByte();
 	// Which bits in the name mask determine the page?
 	int pageMask = 0x200 | vdp->getEvenOddMask();
 	while (count--) {
@@ -341,7 +340,7 @@ inline void SDLGLRenderer::renderBitmapLines(
 inline void SDLGLRenderer::renderPlanarBitmapLines(
 	byte line, int count)
 {
-	int mode = vdp->getDisplayMode();
+	byte mode = vdp->getDisplayMode().getByte();
 	// Which bits in the name mask determine the page?
 	int pageMask = vdp->getEvenOddMask();
 	while (count--) {
@@ -670,7 +669,7 @@ void SDLGLRenderer::updateBlinkState(
 	//       I don't know why exactly, but it's probably related to
 	//       being called at frame start.
 	//sync(time);
-	if ((vdp->getDisplayMode() & 0x1F) == 0x09) {
+	if (vdp->getDisplayMode().getBase() == DisplayMode::TEXT2) {
 		// Text2 with blinking text.
 		// Consider all characters dirty.
 		// TODO: Only mark characters in blink colour dirty.
@@ -721,7 +720,7 @@ void SDLGLRenderer::updateHorizontalAdjust(
 }
 
 void SDLGLRenderer::updateDisplayMode(
-	int mode, const EmuTime &time)
+	DisplayMode mode, const EmuTime &time)
 {
 	sync(time);
 	setDisplayMode(mode);
@@ -848,7 +847,7 @@ void SDLGLRenderer::drawSprites(int screenLine, int leftBorder, int minX, int ma
 	if (visibleIndex == 0) return;
 
 	// visibleIndex != 0 implies there are sprites in the current mode.
-	if (vdp->getSpriteMode() == 1) {
+	if (vdp->getDisplayMode().getSpriteMode() == 1) {
 		// Sprite mode 1: render directly to screen using overdraw.
 
 		// Buffer to render sprite pixel to; start with all transparent.
@@ -1095,15 +1094,16 @@ void SDLGLRenderer::drawDisplay(int fromX, int fromY, int limitX, int limitY)
 
 	// Perform vertical scroll (wraps at 256).
 	byte line = fromY - vdp->getLineZero();
-	if (!vdp->isTextMode()) {
+	if (!vdp->getDisplayMode().isTextMode()) {
 		line += vdp->getVerticalScroll();
 	}
 
 	// Render background lines.
 	// TODO: Complete separation of character and bitmap modes.
 	glEnable(GL_TEXTURE_2D);
-	if (vdp->isBitmapMode()) {
-		if (vdp->isPlanar()) {
+	DisplayMode mode = vdp->getDisplayMode();
+	if (mode.isBitmapMode()) {
+		if (mode.isPlanar()) {
 			renderPlanarBitmapLines(line, nrLines);
 		} else {
 			renderBitmapLines(line, nrLines);
@@ -1115,11 +1115,11 @@ void SDLGLRenderer::drawDisplay(int fromX, int fromY, int limitX, int limitY)
 				    vdp->isEvenOddEnabled();
 		int pageMaskEven, pageMaskOdd;
 		if (deinterlaced) {
-			pageMaskEven = vdp->isPlanar() ? 0x000 : 0x200;
-			pageMaskOdd  = vdp->isPlanar() ? 0x100 : 0x300;
+			pageMaskEven = mode.isPlanar() ? 0x000 : 0x200;
+			pageMaskOdd  = pageMaskEven | 0x100;
 		} else {
 			pageMaskEven = pageMaskOdd  =
-				(vdp->isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
+				(mode.isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
 		}
 		for (int y = minY; y < maxY; y += 2) {
 			if (deinterlaced) {
@@ -1134,13 +1134,13 @@ void SDLGLRenderer::drawDisplay(int fromX, int fromY, int limitX, int limitY)
 			line++;	// wraps at 256
 		}
 	} else {
-		switch (vdp->getDisplayMode()) {
-		case 1:
+		switch (mode.getByte()) {
+		case DisplayMode::TEXT1:
 			// TODO: Render only part of the line.
 			renderText1(line, minY, nrLines);
 			break;
-		case 4: // graphic2
-		case 8: // graphic4
+		case DisplayMode::GRAPHIC2:
+		case DisplayMode::GRAPHIC3:
 			// TODO: Render only part of the line.
 			renderGraphic2(line, minY, nrLines);
 			break;

@@ -962,20 +962,20 @@ void VDPCmdEngine::reset(const EmuTime &time)
 	updateDisplayMode(vdp->getDisplayMode(), time);
 }
 
-void VDPCmdEngine::updateDisplayMode(int mode, const EmuTime &time)
+void VDPCmdEngine::updateDisplayMode(DisplayMode mode, const EmuTime &time)
 {
 	sync(time);
-	switch (mode & 0x1F) {
-	case 0x0C: // SCREEN5
+	switch (mode.getBase()) {
+	case DisplayMode::GRAPHIC4:
 		scrMode = 0;
 		break;
-	case 0x10: // SCREEN6
+	case DisplayMode::GRAPHIC5:
 		scrMode = 1;
 		break;
-	case 0x14: // SCREEN7
+	case DisplayMode::GRAPHIC6:
 		scrMode = 2;
 		break;
-	case 0x1C: // SCREEN8
+	case DisplayMode::GRAPHIC7:
 		scrMode = 3;
 		break;
 	default:

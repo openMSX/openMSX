@@ -144,7 +144,7 @@ void VDP::resetInit(const EmuTime &time)
 		// Boots (and remains) in PAL mode, all other VDPs boot in NTSC.
 		controlRegs[9] |= 0x02;
 	}
-	displayMode = 0;
+	displayMode.reset();
 	vramPointer = 0;
 	readAhead = 0;
 	dataLatch = 0;
@@ -348,7 +348,7 @@ void VDP::scheduleHScan(const EmuTime &time)
 	// Calculate moment in time line match occurs.
 	horizontalScanOffset = displayStart
 		+ ((controlRegs[19] - controlRegs[23]) & 0xFF) * TICKS_PER_LINE
-		+ (isTextMode() ?
+		+ (displayMode.isTextMode() ?
 			TICKS_PER_LINE - 87 - 27 : TICKS_PER_LINE - 59 - 27);
 	// Display line counter continues into the next frame.
 	// Note that this implementation is not 100% accurate, since the
@@ -466,10 +466,12 @@ void VDP::writeIO(byte port, byte value, const EmuTime &time)
 		//fprintf(stderr, "VRAM[%05X]=%02X\n", addr, value);
 		// TODO: Check MXC bit (R#45, bit 6) for extension RAM access.
 		//       This bit is kept by the command engine.
-		if (isPlanar()) addr = ((addr << 16) | (addr >> 1)) & 0x1FFFF;
+		if (displayMode.isPlanar()) {
+			addr = ((addr << 16) | (addr >> 1)) & 0x1FFFF;
+		}
 		vram->cpuWrite(addr, value, time);
 		vramPointer = (vramPointer + 1) & 0x3FFF;
-		if (vramPointer == 0 && (displayMode & 0x18)) {
+		if (vramPointer == 0 && displayMode.isV9938Mode()) {
 			// In MSX2 video modes, pointer range is 128K.
 			controlRegs[14] = (controlRegs[14] + 1) & 0x07;
 		}
@@ -532,10 +534,12 @@ byte VDP::vramRead(const EmuTime &time)
 {
 	byte ret = readAhead;
 	int addr = (controlRegs[14] << 14) | vramPointer;
-	if (isPlanar()) addr = ((addr << 16) | (addr >> 1)) & 0x1FFFF;
+	if (displayMode.isPlanar()) {
+		addr = ((addr << 16) | (addr >> 1)) & 0x1FFFF;
+	}
 	readAhead = vram->cpuRead(addr, time);
 	vramPointer = (vramPointer + 1) & 0x3FFF;
-	if (vramPointer == 0 && (displayMode & 0x18)) {
+	if (vramPointer == 0 && displayMode.isV9938Mode()) {
 		// In MSX2 video mode, pointer range is 128K.
 		controlRegs[14] = (controlRegs[14] + 1) & 0x07;
 	}
@@ -584,7 +588,7 @@ byte VDP::readIO(byte port, const EmuTime &time)
 				// TODO: Precalc matchLength?
 				int afterMatch =
 					getTicksThisFrame(time) - horizontalScanOffset;
-				int matchLength = isTextMode()
+				int matchLength = displayMode.isTextMode()
 					? 87 + 27 + 100 + 102 : 59 + 27 + 100 + 102;
 				return statusReg1
 					| (0 <= afterMatch && afterMatch < matchLength);
@@ -674,9 +678,11 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 	// Perform additional tasks before new value becomes active.
 	switch (reg) {
 	case 0:
-		if (change & 0x0E) {
-			updateDisplayMode(val, controlRegs[1], controlRegs[25],
-			                  time);
+		if (change & DisplayMode::REG0_MASK) {
+			updateDisplayMode(
+				DisplayMode(val, controlRegs[1], controlRegs[25]),
+				time
+				);
 		}
 		break;
 	case 1:
@@ -685,9 +691,11 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 			spriteChecker->updateSpriteSizeMag(val, time);
 		}
 		// TODO: Reset vertical IRQ if IE0 is reset?
-		if (change & 0x18) {
-			updateDisplayMode(controlRegs[0], val, controlRegs[25],
-			                  time);
+		if (change & DisplayMode::REG1_MASK) {
+			updateDisplayMode(
+				DisplayMode(controlRegs[0], val, controlRegs[25]),
+				time
+				);
 		}
 		if (change & 0x40) {
 			bool newDisplayEnabled = isDisplayArea && (val & 0x40);
@@ -705,7 +713,11 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		// Since name table checking is currently disabled anyway, keeping the
 		// old code does not hurt.
 		// Eventually this line should be re-enabled.
-		//if (isPlanar()) base = ((base << 16) | (base >> 1)) & 0x1FFFF;
+		/*
+		if (displayMode.isPlanar()) {
+			base = ((base << 16) | (base >> 1)) & 0x1FFFF;
+		}
+		*/
 		renderer->updateNameBase(base, time);
 		// TODO: Actual number of index bits is lower than 17.
 		vram->nameTable.setMask(base, -1 << 17, time);
@@ -749,9 +761,11 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		renderer->updateVerticalScroll(val, time);
 		break;
 	case 25:
-		if (change & 0x18) {
-			updateDisplayMode(controlRegs[0], controlRegs[1], val,
-			                  time);
+		if (change & DisplayMode::REG25_MASK) {
+			updateDisplayMode(
+				DisplayMode(controlRegs[0], controlRegs[1], val),
+				time
+				);
 		}
 		if (change & 0x08) {
 			setHorAdjust(time);
@@ -834,7 +848,7 @@ void VDP::updateColourBase(const EmuTime &time)
 	int base = vramMask &
 		((controlRegs[10] << 14) | (controlRegs[3] << 6) | ~(-1 << 6));
 	renderer->updateColourBase(base, time);
-	switch (displayMode & 0x1F) {
+	switch (displayMode.getBase()) {
 	case 0x09: // Text 2.
 		// TODO: Enable this only if dual color is actually active.
 		vram->colourTable.setMask(base, -1 << 9, time);
@@ -856,7 +870,7 @@ void VDP::updatePatternBase(const EmuTime &time)
 {
 	int base = vramMask & ((controlRegs[4] << 11) | ~(-1 << 11));
 	renderer->updatePatternBase(base, time);
-	switch (displayMode & 0x1F) {
+	switch (displayMode.getBase()) {
 	case 0x01: // Text 1.
 	case 0x05: // Text 1 Q.
 	case 0x09: // Text 2.
@@ -877,7 +891,7 @@ void VDP::updatePatternBase(const EmuTime &time)
 
 void VDP::updateSpriteAttributeBase(const EmuTime &time)
 {
-	int mode = getSpriteMode();
+	int mode = displayMode.getSpriteMode();
 	if (mode == 0) {
 		vram->spriteAttribTable.disable(time);
 		return;
@@ -887,7 +901,7 @@ void VDP::updateSpriteAttributeBase(const EmuTime &time)
 	if (mode == 1) {
 		vram->spriteAttribTable.setMask(base, -1 << 7, time);
 	} else { // mode == 2
-		if (isPlanar()) {
+		if (displayMode.isPlanar()) {
 			vram->spriteAttribTable.setMask(
 				((base << 16) | (base >> 1)) & 0x1FFFF, 0x0FE00, time);
 		} else {
@@ -899,50 +913,44 @@ void VDP::updateSpriteAttributeBase(const EmuTime &time)
 void VDP::updateSpritePatternBase(const EmuTime &time)
 {
 	int base = ((controlRegs[6] << 11) | ~(-1 << 11)) & vramMask;
-	if (isPlanar()) base = ((base << 16) | (base >> 1)) & 0x1FFFF;
+	if (displayMode.isPlanar()) base = ((base << 16) | (base >> 1)) & 0x1FFFF;
 	vram->spritePatternTable.setMask(base, -1 << 11, time);
 }
 
-void VDP::updateDisplayMode(
-	byte reg0, byte reg1, byte reg25, const EmuTime &time )
+void VDP::updateDisplayMode(DisplayMode newMode, const EmuTime &time)
 {
-	int newMode =
-		  ((reg25 & 0x18) << 2)  // YAE YJK
-		| ((reg0  & 0x0E) << 1)  // M5..M3
-		| ((reg1  & 0x08) >> 2)  // M2
-		| ((reg1  & 0x10) >> 4); // M1
-	if (newMode != displayMode) {
-		//PRT_DEBUG("VDP: mode " << newMode);
+	//PRT_DEBUG("VDP: mode " << newMode);
 
-		// Synchronise subsystems.
-		vram->updateDisplayMode(newMode, time);
+	// Synchronise subsystems.
+	vram->updateDisplayMode(newMode, time);
 
-		// TODO: Is this a useful optimisation, or doesn't it help
-		//       in practice?
-		// What aspects have changed:
-		// Switched from planar to nonplanar or vice versa.
-		bool planarChange = isPlanar(newMode) != isPlanar();
-		// Sprite mode changed.
-		bool spriteModeChange = getSpriteMode(newMode) != getSpriteMode();
+	// TODO: Is this a useful optimisation, or doesn't it help
+	//       in practice?
+	// What aspects have changed:
+	// Switched from planar to nonplanar or vice versa.
+	bool planarChange =
+		newMode.isPlanar() != displayMode.isPlanar();
+	// Sprite mode changed.
+	bool spriteModeChange =
+		newMode.getSpriteMode() != displayMode.getSpriteMode();
 
-		// Commit the new display mode.
-		displayMode = newMode;
+	// Commit the new display mode.
+	displayMode = newMode;
 
-		updateColourBase(time);
-		updatePatternBase(time);
-		if (planarChange) {
-			updateSpritePatternBase(time);
-		}
-		if (planarChange || spriteModeChange) {
-			updateSpriteAttributeBase(time);
-		}
-
-		// To be extremely accurate, reschedule hscan when changing
-		// from/to text mode. Text mode has different border width,
-		// which affects the moment hscan occurs.
-		// TODO: Why didn't I implement this yet?
-		//       It's one line of code and overhead is not huge either.
+	updateColourBase(time);
+	updatePatternBase(time);
+	if (planarChange) {
+		updateSpritePatternBase(time);
 	}
+	if (planarChange || spriteModeChange) {
+		updateSpriteAttributeBase(time);
+	}
+
+	// To be extremely accurate, reschedule hscan when changing
+	// from/to text mode. Text mode has different border width,
+	// which affects the moment hscan occurs.
+	// TODO: Why didn't I implement this yet?
+	//       It's one line of code and overhead is not huge either.
 }
 
 // VDPRegsCmd inner class:

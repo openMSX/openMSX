@@ -8,6 +8,7 @@
 
 class EmuTime;
 class RenderSettings;
+class DisplayMode;
 
 
 /** Abstract base class for Renderers.
@@ -133,10 +134,10 @@ public:
 	virtual void updateDisplayEnabled(bool enabled, const EmuTime &time) = 0;
 
 	/** Informs the renderer of a VDP display mode change.
-	  * @param mode The new display mode: M5..M1.
+	  * @param mode The new display mode.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateDisplayMode(int mode, const EmuTime &time) = 0;
+	virtual void updateDisplayMode(DisplayMode mode, const EmuTime &time) = 0;
 
 	/** Informs the renderer of a name table base address change.
 	  * @param addr The new base address.

@@ -5,6 +5,7 @@
 
 #include "openmsx.hh"
 #include "Renderer.hh"
+#include "DisplayMode.hh"
 
 /** Utility class for converting VRAM contents to host pixels.
   */
@@ -56,27 +57,28 @@ public:
 	}
 
 	/** Select the display mode to use for scanline conversion.
-	  * @param mode The new display mode: M5..M1.
+	  * @param mode The new display mode.
 	  * TODO: Should this be inlined? It's not used that frequently.
 	  */
-	inline void setDisplayMode(int mode)
+	inline void setDisplayMode(DisplayMode mode)
 	{
-		switch (mode & 0x3F) {
-		case 0x0C:
+		// TODO: Support YJK on modes other than Graphic 6/7.
+		switch (mode.getByte() & ~DisplayMode::YAE) {
+		case DisplayMode::GRAPHIC4:
 			renderMethod = &BitmapConverter::renderGraphic4;
 			break;
-		case 0x10:
+		case DisplayMode::GRAPHIC5:
 			renderMethod = &BitmapConverter::renderGraphic5;
 			break;
-		case 0x14:
+		case DisplayMode::GRAPHIC6:
 			renderMethod = &BitmapConverter::renderGraphic6;
 			break;
-		case 0x1C:
+		case DisplayMode::GRAPHIC7:
 			renderMethod = &BitmapConverter::renderGraphic7;
 			break;
-		case 0x34:
-		case 0x3C:
-			if (mode & 0x40) {
+		case DisplayMode::GRAPHIC6 | DisplayMode::YJK:
+		case DisplayMode::GRAPHIC7 | DisplayMode::YJK:
+			if (mode.getByte() & DisplayMode::YAE) {
 				renderMethod = &BitmapConverter::renderYAE;
 			} else {
 				renderMethod = &BitmapConverter::renderYJK;
@@ -88,7 +90,7 @@ public:
 		}
 	}
 
-	void setBlendMask(int blendMask);
+	void setBlendMask(Pixel blendMask);
 	
 private:
 	inline Pixel blend(byte colour1, byte colour2);
@@ -119,7 +121,7 @@ private:
 	const Pixel *palette256;
 	const Pixel *palette32768;
 
-	int blendMask;
+	Pixel blendMask;
 };
 
 #endif // __BITMAPCONVERTER_HH__

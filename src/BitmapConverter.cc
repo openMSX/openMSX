@@ -23,7 +23,7 @@ BitmapConverter<Pixel, zoom>::BitmapConverter(
 }
 
 template <class Pixel, Renderer::Zoom zoom>
-void BitmapConverter<Pixel, zoom>::setBlendMask(int blendMask)
+void BitmapConverter<Pixel, zoom>::setBlendMask(Pixel blendMask)
 {
 	this->blendMask = blendMask;
 }

@@ -50,7 +50,7 @@ VDPVRAM::~VDPVRAM()
 	delete[] data;
 }
 
-void VDPVRAM::updateDisplayMode(int mode, const EmuTime &time) {
+void VDPVRAM::updateDisplayMode(DisplayMode mode, const EmuTime &time) {
 	renderer->updateDisplayMode(mode, time);
 	cmdEngine->updateDisplayMode(mode, time);
 	spriteChecker->updateDisplayMode(mode, time);

@@ -9,6 +9,7 @@
 #include "VDPCmdEngine.hh"
 #include <cassert>
 #include "Command.hh"
+#include "DisplayMode.hh"
 
 class SpriteChecker;
       
@@ -212,10 +213,10 @@ public:
 	  * VDPVRAM will inform the Renderer, command engine and the sprite
 	  * checker of this change.
 	  * TODO: Does this belong in VDPVRAM?
-	  * @param mode The new display mode: M5..M1.
+	  * @param mode The new display mode.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	void updateDisplayMode(int mode, const EmuTime &time);
+	void updateDisplayMode(DisplayMode mode, const EmuTime &time);
 
 	/** Used by the VDP to signal display enabled changes.
 	  * Both the regular border start/end and forced blanking by clearing

@@ -9,6 +9,7 @@
 #include "IRQHelper.hh"
 #include "EmuTime.hh"
 #include "Command.hh"
+#include "DisplayMode.hh"
 
 #include <string>
 
@@ -97,94 +98,11 @@ public:
 		return version == TMS99X8A || version == TMS9929A;
 	}
 
-	/** Get dispay mode: M5..M1 combined.
+	/** Get the display mode the VDP is in.
 	  * @return The current display mode.
 	  */
-	inline int getDisplayMode() {
+	inline DisplayMode getDisplayMode() {
 		return displayMode;
-	}
-
-	/** Is the given mode a text mode?
-	  * Text1 and Text2 are text modes.
-	  * @param mode Mode to test for text mode.
-	  * @return True iff the current mode is a bitmap mode.
-	  */
-	inline static bool isTextMode(int mode) {
-		// TODO: Is the display mode check OK? Profile undefined modes.
-		return (mode & 0x17) == 0x01;
-	}
-
-	/** Is the current mode a text mode?
-	  * Text1 and Text2 are text modes.
-	  * @return True iff the current mode is a bitmap mode.
-	  */
-	inline bool isTextMode() {
-		return isTextMode(displayMode);
-	}
-
-	/** Is the specified mode a bitmap mode?
-	  * Graphic4 and higher are bitmap modes.
-	  * @param mode The display mode to test.
-	  * @return True iff the current mode is a bitmap mode.
-	  */
-	inline bool isBitmapMode(int mode) {
-		return (mode & 0x10) || (mode & 0x0C) == 0x0C;
-	}
-
-	/** Is the current mode a bitmap mode?
-	  * Graphic4 and higher are bitmap modes.
-	  * @return True iff the current mode is a bitmap mode.
-	  */
-	inline bool isBitmapMode() {
-		return isBitmapMode(displayMode);
-	}
-
-	/** Is VRAM "planar" in the given display mode?
-	  * Graphic6 and 7 spread their bytes over two VRAM ICs,
-	  * such that the even bytes go to the first half of the address
-	  * space and the odd bytes to the second half.
-	  * @param mode display mode to test for planarity.
-	  * @return True iff the given display mode has planar VRAM.
-	  */
-	inline static bool isPlanar(int mode) {
-		// TODO: Is the display mode check OK? Profile undefined modes.
-		return (mode & 0x14) == 0x14;
-	}
-
-	/** Is VRAM "planar" in the current display mode?
-	  * Graphic6 and 7 spread their bytes over two VRAM ICs,
-	  * such that the even bytes go to the first half of the address
-	  * space and the odd bytes to the second half.
-	  * @return True iff the current display mode has planar VRAM.
-	  */
-	inline bool isPlanar() {
-		return isPlanar(displayMode);
-	}
-
-	/** Get the sprite mode of a given display mode.
-	  * @param mode Display mode to get sprite mode for.
-	  * @return The current sprite mode:
-	  * 	0 means no sprites,
-	  * 	1 means sprite mode 1 (MSX1 display modes),
-	  * 	2 means sprite mode 2 (MSX2 display modes).
-	  */
-	inline static int getSpriteMode(int mode) {
-		return
-			( isTextMode(mode)
-			? 0
-			: (mode & 0x18 == 0 ? 1 : 2)
-			);
-	}
-
-	/** Get the sprite mode of the current display mode.
-	  * @return The current sprite mode:
-	  * 	0 means no sprites,
-	  * 	1 means sprite mode 1 (MSX1 display modes),
-	  * 	2 means sprite mode 2 (MSX2 display modes).
-	  */
-	inline int getSpriteMode() {
-		// TODO: Precalc on mode changes.
-		return getSpriteMode(displayMode);
 	}
 
 	/** Get the VRAM object for this VDP.
@@ -483,7 +401,7 @@ private:
 	  */
 	inline bool getHR(int ticksThisFrame) {
 		// TODO: Use display adjust register (R#18).
-		return (isTextMode()
+		return (displayMode.isTextMode()
 			? (ticksThisFrame + (87 + 27)) % TICKS_PER_LINE
 			  < (TICKS_PER_LINE - 960)
 			: (ticksThisFrame + (59 + 27)) % TICKS_PER_LINE
@@ -561,11 +479,10 @@ private:
 	  */
 	void updateSpritePatternBase(const EmuTime &time);
 
-	/** Display mode may have changed.
-	  * If it has, update displayMode's value and inform the Renderer.
+	/** Display mode has changed.
+	  * Update displayMode's value and inform the Renderer.
 	  */
-	void updateDisplayMode(byte reg0, byte reg1, byte reg25,
-	                       const EmuTime &time);
+	void updateDisplayMode(DisplayMode newMode, const EmuTime &time);
 
 	/** Renderer that converts this VDP's state into an image.
 	  */
@@ -731,9 +648,9 @@ private:
 	  */
 	byte readAhead;
 
-	/** Current dispay mode: M5..M1 combined.
+	/** Current dispay mode.
 	  */
-	int displayMode;
+	DisplayMode displayMode;
 
 	/** VRAM read/write access pointer.
 	  * Contains the lower 14 bits of the current VRAM access address.

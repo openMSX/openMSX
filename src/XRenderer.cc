@@ -147,7 +147,7 @@ void XRenderer::updateHorizontalAdjust(int adjust, const EmuTime &time) {
 void XRenderer::updateDisplayEnabled(bool enabled, const EmuTime &time) {
 }
 
-void XRenderer::updateDisplayMode(int mode, const EmuTime &time) {
+void XRenderer::updateDisplayMode(DisplayMode mode, const EmuTime &time) {
 }
 
 void XRenderer::updateNameBase(int addr, const EmuTime &time) {

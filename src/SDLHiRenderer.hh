@@ -8,6 +8,7 @@
 #include "PixelRenderer.hh"
 #include "CharacterConverter.hh"
 #include "BitmapConverter.hh"
+#include "DisplayMode.hh"
 
 class VDP;
 class SDLConsole;
@@ -34,7 +35,7 @@ public:
 	void updateVerticalScroll(int scroll, const EmuTime &time);
 	void updateHorizontalAdjust(int adjust, const EmuTime &time);
 	//void updateDisplayEnabled(bool enabled, const EmuTime &time);
-	void updateDisplayMode(int mode, const EmuTime &time);
+	void updateDisplayMode(DisplayMode mode, const EmuTime &time);
 	void updateNameBase(int addr, const EmuTime &time);
 	void updatePatternBase(int addr, const EmuTime &time);
 	void updateColourBase(int addr, const EmuTime &time);

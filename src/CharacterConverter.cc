@@ -99,7 +99,7 @@ CharacterConverter<Pixel, zoom>::CharacterConverter(
 
 
 template <class Pixel, Renderer::Zoom zoom>
-void CharacterConverter<Pixel, zoom>::setBlendMask(int blendMask)
+void CharacterConverter<Pixel, zoom>::setBlendMask(Pixel blendMask)
 {
 	this->blendMask = blendMask;
 }

@@ -8,6 +8,7 @@
 #include "VDPVRAM.hh"
 #include "CircularBuffer.hh"
 #include "Settings.hh"
+#include "DisplayMode.hh"
 
 class VDP;
 class SpriteChecker;
@@ -36,7 +37,7 @@ public:
 	void updatePalette(int index, int grb, const EmuTime &time);
 	void updateVerticalScroll(int scroll, const EmuTime &time);
 	void updateHorizontalAdjust(int adjust, const EmuTime &time);
-	void updateDisplayMode(int mode, const EmuTime &time);
+	void updateDisplayMode(DisplayMode mode, const EmuTime &time);
 	void updateNameBase(int addr, const EmuTime &time);
 	void updatePatternBase(int addr, const EmuTime &time);
 	void updateColourBase(int addr, const EmuTime &time);
@@ -119,7 +120,7 @@ protected:
 	int getDisplayLeft() {
 		return 100 + 102 + 56
 			+ (vdp->getHorizontalAdjust() - 7) * 4
-			+ (vdp->isTextMode() ? 28 : 0);
+			+ (vdp->getDisplayMode().isTextMode() ? 28 : 0);
 	}
 
 	/** The VDP of which the video output is being rendered.

@@ -91,10 +91,10 @@ template <class Pixel> inline Pixel SDLHiRenderer<Pixel>::getBorderColour()
 	//       into a single 8 bit colour for SCREEN8.
 	//       Keep doing that or make VDP handle SCREEN8 differently?
 	return
-		( (vdp->getDisplayMode() & 0x1F) == 0x1C
+		( vdp->getDisplayMode().getBase() == DisplayMode::GRAPHIC7
 		? PALETTE256[
 			vdp->getBackgroundColour() | (vdp->getForegroundColour() << 4)]
-		: palBg[ (vdp->getDisplayMode() & 0x1F) == 0x10
+		: palBg[ vdp->getDisplayMode().getBase() == DisplayMode::GRAPHIC5
 		       ? vdp->getBackgroundColour() & 3
 		       : vdp->getBackgroundColour()
 		       ]
@@ -110,7 +110,7 @@ template <class Pixel> inline void SDLHiRenderer<Pixel>::renderBitmapLines(
 		return;
 	}
 
-	int mode = vdp->getDisplayMode();
+	byte mode = vdp->getDisplayMode().getByte();
 	// Which bits in the name mask determine the page?
 	int pageMask = 0x200 | vdp->getEvenOddMask();
 	while (count--) {
@@ -138,7 +138,7 @@ template <class Pixel> inline void SDLHiRenderer<Pixel>::renderPlanarBitmapLines
 		return;
 	}
 
-	int mode = vdp->getDisplayMode();
+	byte mode = vdp->getDisplayMode().getByte();
 	// Which bits in the name mask determine the page?
 	int pageMask = vdp->getEvenOddMask();
 	while (count--) {
@@ -334,9 +334,9 @@ template <class Pixel> void SDLHiRenderer<Pixel>::reset(const EmuTime &time)
 	PixelRenderer::reset(time);
 	
 	// Init renderer state.
-	int mode = vdp->getDisplayMode();
-	dirtyChecker = modeToDirtyChecker[mode & 0x1F];
-	if (vdp->isBitmapMode()) {
+	DisplayMode mode = vdp->getDisplayMode();
+	dirtyChecker = modeToDirtyChecker[mode.getBase()];
+	if (mode.isBitmapMode()) {
 		bitmapConverter.setDisplayMode(mode);
 	} else {
 		characterConverter.setDisplayMode(mode);
@@ -439,7 +439,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateBlinkState(
 	//       I don't know why exactly, but it's probably related to
 	//       being called at frame start.
 	//sync(time);
-	if ((vdp->getDisplayMode() & 0x1F) == 0x09) {
+	if (vdp->getDisplayMode().getBase() == DisplayMode::TEXT2) {
 		// Text2 with blinking text.
 		// Consider all characters dirty.
 		// TODO: Only mark characters in blink colour dirty.
@@ -490,16 +490,20 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateHorizontalAdjust(
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::updateDisplayMode(
-	int mode, const EmuTime &time)
+	DisplayMode mode, const EmuTime &time)
 {
 	sync(time);
-	dirtyChecker = modeToDirtyChecker[mode & 0x1F];
-	if (vdp->isBitmapMode(mode)) {
+	dirtyChecker = modeToDirtyChecker[mode.getBase()];
+	if (mode.isBitmapMode()) {
 		bitmapConverter.setDisplayMode(mode);
 	} else {
 		characterConverter.setDisplayMode(mode);
 	}
-	palSprites = (mode & 0x1F) == 0x1C ? palGraphic7Sprites : palBg;
+	palSprites =
+		( mode.getBase() == DisplayMode::GRAPHIC7
+		? palGraphic7Sprites
+		: palBg
+		);
 	setDirty(true);
 }
 
@@ -620,7 +624,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 	Pixel *pixelPtr1 = (Pixel *)(((byte *)pixelPtr0) + screen->pitch);
 
 	// visibleIndex != 0 implies there are sprites in the current mode.
-	if (vdp->getSpriteMode() == 1) {
+	if (vdp->getDisplayMode().getSpriteMode() == 1) {
 		// Sprite mode 1: render directly to screen using overdraw.
 		while (visibleIndex--) {
 			// Get sprite info.
@@ -756,7 +760,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawDisplay(
 
 	// Calculate display line (wraps at 256).
 	byte line = fromY - vdp->getLineZero();
-	if (!vdp->isTextMode()) {
+	if (!vdp->getDisplayMode().isTextMode()) {
 		line += vdp->getVerticalScroll();
 	}
 
@@ -767,22 +771,22 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawDisplay(
 	source.h = 1;
 	dest.x = fromX;
 
-	if (vdp->isBitmapMode()) {
-		if (vdp->isPlanar()) {
+	DisplayMode mode = vdp->getDisplayMode();
+	if (mode.isBitmapMode()) {
+		if (mode.isPlanar()) {
 			renderPlanarBitmapLines(line, nrLines);
 		} else {
 			renderBitmapLines(line, nrLines);
 		}
 
 		int pageMaskEven, pageMaskOdd;
-		if (settings->getDeinterlace()->getValue() &&
-		    vdp->isInterlaced() &&
-		    vdp->isEvenOddEnabled()) {
-			pageMaskEven = vdp->isPlanar() ? 0x000 : 0x200;
-			pageMaskOdd  = vdp->isPlanar() ? 0x100 : 0x300;
+		if (settings->getDeinterlace()->getValue()
+		&& vdp->isInterlaced() && vdp->isEvenOddEnabled()) {
+			pageMaskEven = mode.isPlanar() ? 0x000 : 0x200;
+			pageMaskOdd  = pageMaskEven | 0x100;
 		} else {
 			pageMaskEven = pageMaskOdd =
-				(vdp->isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
+				(mode.isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
 		}
 		// Bring bitmap cache up to date.
 		for (dest.y = displayY; dest.y < displayLimitY; ) {
