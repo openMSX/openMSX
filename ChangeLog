@@ -1,5 +1,12 @@
 $Id$
 
+2003-07-26 Herman Oudejans <hn.oudejans@quicknet.nl>
+	* Re-enabled the debuggerconsole.
+	* made sure the console is turned off when de debugger is called.
+	* added a disassembly view (still static).
+	* added the same settings for the debugger as there were for the 
+	  console (rows, columns, placement, font and background).
+
 2003-07-26 Maarten ter Huurne <maarten@treewalker.org>
 	* Refactored settings code.
 
