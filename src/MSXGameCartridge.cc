@@ -8,8 +8,6 @@
 #include <map>
 
 
-const byte MSXGameCartridge::adr2pag[];
-
 MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXMemDevice(config, time), MSXRom(config, time)
 {
@@ -34,8 +32,6 @@ MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &tim
 
 	// only if needed reserve memory for SRAM
 	if (mapperType & 16) {
-		regioSRAM=0;
-		enabledSRAM = true;
 		memorySRAM = new byte[0x2000];
 		memset(memorySRAM, 255, 0x2000);
 		try {
@@ -51,7 +47,6 @@ MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &tim
 			// do nothing
 		}
 	} else {
-		enabledSRAM= false;
 		memorySRAM = NULL;
 	}
 
@@ -73,6 +68,7 @@ MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &tim
 		dac = NULL;
 	}
 
+	// to emulate non-present memory
 	unmapped = new byte[0x4000];
 	memset(unmapped, 255, 0x4000);
 	
@@ -112,9 +108,9 @@ void MSXGameCartridge::reset(const EmuTime &time)
 		dac->reset(time);
 	}
 	// After a reset SRAM is not selected in all known cartrdiges
-	regioSRAM=0;
+	regioSRAM = 0;
 
-	if (mapperType < 128 ) {
+	if (mapperType < 128) {
 		setBank16kB(0, unmapped);
 		setROM16kB (1, 0);
 		setROM16kB (2, (mapperType == 16 || mapperType == 5) ? 0 : 1);
@@ -169,8 +165,6 @@ void MSXGameCartridge::retrieveMapperType()
 		if (deviceConfig->getParameterAsBool("automappertype")) {
 			mapperType = guessMapperType();
 		} else {
-			std::string  type = deviceConfig->getParameter("mappertype");
-
 			std::map<const std::string, int, ltstr> mappertype;
 
 			mappertype["0"]=0;
@@ -219,6 +213,7 @@ void MSXGameCartridge::retrieveMapperType()
 			mappertype["64kB"]=128;
 
 			//TODO: catch wrong options passed
+			std::string  type = deviceConfig->getParameter("mappertype");
 			mapperType = mappertype[type];
 		}
 	} catch (MSXConfig::Exception& e) {
@@ -226,11 +221,6 @@ void MSXGameCartridge::retrieveMapperType()
 		mapperType = guessMapperType();
 	}
 	
-	if (mapperType == 17) {
-		SRAMEnableBit = 0x20;
-	} else if (mapperType == 18) {
-		SRAMEnableBit=0x80;
-	}
 	PRT_DEBUG("mapperType: " << mapperType);
 }
 
@@ -259,9 +249,9 @@ int MSXGameCartridge::guessMapperType()
 		}
 	} else {
 		unsigned int typeGuess[] = {0,0,0,0,0,0,0};
-		for (int i=0; i<romSize-2; i++) {
+		for (int i=0; i<romSize-3; i++) {
 			if (memoryBank[i] == 0x32) {
-				int value = memoryBank[i+1]+(memoryBank[i+2]<<8);
+				word value = memoryBank[i+1]+(memoryBank[i+2]<<8);
 				switch (value) {
 				case 0x5000:
 				case 0x9000:
@@ -295,7 +285,7 @@ int MSXGameCartridge::guessMapperType()
 					typeGuess[5]++;
 					break;
 				default:
-					if (value > 0xB000 && value < 0xC000) typeGuess[6]++;
+					if (value>0xB000 && value<0xC000) typeGuess[6]++;
 				}
 			}
 		}
@@ -320,7 +310,7 @@ int MSXGameCartridge::guessMapperType()
 
 byte MSXGameCartridge::readMem(word address, const EmuTime &time)
 {
-	//TODO optimize this!!!
+	//TODO optimize this (Necessary? We have read cache now)
 	// One way to optimise would be to register an SCC supporting
 	// device only if mapperType is 2 and only in 8000..BFFF.
 	// That way, there is no SCC overhead in non-SCC pages.
@@ -328,8 +318,8 @@ byte MSXGameCartridge::readMem(word address, const EmuTime &time)
 	// it would be possible to insert an SCC supporting device
 	// only when the SCC is enabled.
 #ifndef DONT_WANT_SCC
-	if (enabledSCC && 0x9800 <= address && address < 0xA000) {
-		return cartridgeSCC->readMemInterface(address & 0xFF, time);
+	if (enabledSCC && 0x9800<=address && address<0xa000) {
+		return cartridgeSCC->readMemInterface(address&0xff, time);
 	}
 #endif
 	return internalMemoryBank[address>>12][address&0x0fff];
@@ -337,15 +327,8 @@ byte MSXGameCartridge::readMem(word address, const EmuTime &time)
 
 byte* MSXGameCartridge::getReadCacheLine(word start)
 {
-	// TODO comment contradicts code, can SRAM be cached or not?
-	// extra check for SRAM: (enabledSRAM && adr2pag[start>>13]&regioSRAM)
-	// not needed since SRAM may be cached.
-	if (enabledSRAM && adr2pag[start>>13]&regioSRAM) {
-		// don't cache SRAM
-		return NULL;
-	} 
 #ifndef DONT_WANT_SCC
-	if (enabledSCC && 0x9800<=start && start<0xA000) {
+	if (enabledSCC && 0x9800<=start && start<0xa000) {
 		// don't cache SCC
 		return NULL;
 	}
@@ -362,7 +345,7 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 	switch (mapperType) {
 	case 0:
 		//--==**>> Generic 8kB cartridges <<**==--
-		if (0x4000<=address && address<0xC000) {
+		if (0x4000<=address && address<0xc000) {
 			setROM8kB(address>>13, value);
 		}
 		break;
@@ -371,8 +354,8 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		//--==**>> Generic 16kB cartridges <<**==--
 		// examples: MSXDOS2, Hole in one special
 		
-		if (0x4000<=address && address<0xC000) {
-			byte region = (address&0xC000)>>14;	// 0..3
+		if (0x4000<=address && address<0xc000) {
+			byte region = (address&0xc000)>>14;	// 0..3
 			setROM16kB(region, value);
 		}
 		break;
@@ -389,17 +372,17 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		//  bank 3: 0x9000 - 0x97FF (0x9000 used)
 		//  bank 4: 0xB000 - 0xB7FF (0xB000 used)
 
-		if (address<0x5000 || address>=0xC000) break;
+		if (address<0x5000 || address>=0xc000) break;
 #ifndef DONT_WANT_SCC
 		// Write to SCC?
-		if (enabledSCC && 0x9800<=address && address<0xA000) {
-			cartridgeSCC->writeMemInterface(address & 0xFF, value, time);
+		if (enabledSCC && 0x9800<=address && address<0xa000) {
+			cartridgeSCC->writeMemInterface(address&0xff, value, time);
 			// No page selection in this memory range.
 			break;
 		}
 		// SCC enable/disable?
-		if ((address & 0xF800) == 0x9000) {
-			enabledSCC = ((value & 0x3F) == 0x3F);
+		if ((address & 0xf800) == 0x9000) {
+			enabledSCC = ((value & 0x3f) == 0x3f);
 			MSXCPU::instance()->invalidateCache(0x9800, 0x0800/CPU::CACHE_LINE_SIZE);
 		}
 #endif
@@ -427,10 +410,10 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		// example of cartridges: Valis(Fantasm Soldier), Dragon Slayer, Outrun, 
 		//                        Ashguine 2, ...
 		// The address to change banks:
-		//  bank 1: 0x6000 - 0x67FF (0x5000 used)
-		//  bank 2: 0x6800 - 0x6FFF (0x7000 used)
-		//  bank 3: 0x7000 - 0x77FF (0x9000 used)
-		//  bank 4: 0x7800 - 0x7FFF (0xB000 used)
+		//  bank 1: 0x6000 - 0x67FF 
+		//  bank 2: 0x6800 - 0x6FFF
+		//  bank 3: 0x7000 - 0x77FF
+		//  bank 4: 0x7800 - 0x7FFF
 
 		if (0x6000<=address && address<0x8000) {
 			byte region = ((address>>11)&3)+2;
@@ -468,20 +451,20 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		//  second 16kb: 0x7000 - 0x77FF (0x7000 and 0x77FF used)
 
 		if (0x6000<=address && address<0x7800 && !(address&0x800)) {
-			byte region = ((address>>11)&2)+2;
+			byte region = ((address>>12)&1)+1;
 			if (value == 0x10) {
 				// SRAM block
-				setBank8kB(region,   memorySRAM);
-				setBank8kB(region+1, memorySRAM);
-				regioSRAM |= (region==2 ? 0x03 : 0x0c);
+				setBank8kB(2*region,   memorySRAM);
+				setBank8kB(2*region+1, memorySRAM);
+				regioSRAM |= (region==1 ?  0x0c :  0x30);
 			} else {
 				// Normal 16 kB ROM page
-				setROM16kB(2*region, value);
-				regioSRAM &= (region==2 ? 0xFD : 0xF4);	// TODO 0xfc 0xf3 ??
+				setROM16kB(region, value);
+				regioSRAM &= (region==1 ? ~0x0c : ~0x30);
 			}
 		} else {
 			// Writting to SRAM?
-			if (adr2pag[address>>13] & regioSRAM & 0x0C) { 
+			if ((1 << (address>>13)) & regioSRAM & 0x0C) { 
 				for (word adr=address&0x7ff; adr<0x2000; adr+=0x800)
 					memorySRAM[adr] = value;
 			}
@@ -494,25 +477,29 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		// this type is used in Xanadu and Royal Blood
 		//
 		// The address to change banks:
-		//  bank 1: 0x6000 - 0x67FF (0x5000 used)
-		//  bank 2: 0x6800 - 0x6FFF (0x7000 used)
-		//  bank 3: 0x7000 - 0x77FF (0x9000 used)
-		//  bank 4: 0x7800 - 0x7FFF (0xB000 used)
+		//  bank 1: 0x6000 - 0x67FF (0x6000 used)
+		//  bank 2: 0x6800 - 0x6FFF (0x6800 used)
+		//  bank 3: 0x7000 - 0x77FF (0x7000 used)
+		//  bank 4: 0x7800 - 0x7FFF (0x7800 used)
+		//
+		//  To select SRAM set bit 5/7 of the bank.
+		//  The SRAM can only be written to if selected in bank 3 or 4.
 
 		if (0x6000<=address && address<0x8000) {
 			byte region = ((address>>11)&3)+2;
+			byte SRAMEnableBit = (mapperType==17) ? 0x20 : 0x80; 
 			if (value & SRAMEnableBit) {
 				//bit 7 for Royal Blood
 				//bit 5 for Xanadu
 				setBank8kB(region, memorySRAM);
-				regioSRAM |=  adr2pag[region];
+				regioSRAM |=  (1 << region);
 			} else {
 				setROM8kB(region, value);
-				regioSRAM &= ~adr2pag[region];
+				regioSRAM &= ~(1 << region);
 			}
 		} else {
 			// Writting to SRAM?
-			if (adr2pag[address>>13] & regioSRAM & 0x0C) { 
+			if ((1 << (address>>13)) & regioSRAM & 0x0C) { 
 				memorySRAM[address & 0x1fff] = value;
 			}
 		}
@@ -520,34 +507,33 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		
 	case 19:
 		// Konami Game Master 2, 8KB cartridge with 8KB sram
-		if (address<0x6000 || address>=0xC000) break;
-		if (address >= 0xB000) {
-			// SRAM write
-			if (!(regioSRAM & 8)) break;	// not in writable page
-			memorySRAM[address & 0xFFF + 0x1000 * !!(pageSRAM & (1<<5))] = value;
-			break;
-		}
-		if (address & 0x1000) break;
-		if (value & (1 << 4)) {
-			// switch sram in page
-			regioSRAM |= 1 << ((address >> 13) - 2);
-			int page = value & (1 << 5);
-			if (page) {
-				pageSRAM |=  (1 << (address >> 13));
-				setBank4kB((address>>12)&0xe,     memorySRAM + 0x1000);
-				setBank4kB(((address>>12)&0xe)+1, memorySRAM + 0x1000);
-			} else {
-				pageSRAM &= ~(1 << (address >> 13));
-				setBank4kB((address>>12)&0xe,     memorySRAM);
-				setBank4kB(((address>>12)&0xe)+1, memorySRAM);
+		if (0x6000<=address && address<0xC000) {
+			if (address >= 0xB000) {
+				// SRAM write
+				if (regioSRAM & 0x20)	// 0xa000 - 0xbfff
+					internalMemoryBank[0xb][address&0x0fff] = value;
 			}
-		} else {
-			// switch normal memory
-			regioSRAM &= ~(1 << ((address >> 13) - 2));
-			setROM8kB(address>>13, value);
+			if (!(address & 0x1000)) {
+				byte region = address>>13;	// 0..7
+				if (value & 0x10) {
+					// switch sram in page
+					regioSRAM |=  (1 << region);
+					if (value & 0x20) {
+						setBank4kB(2*region,   memorySRAM+0x1000);
+						setBank4kB(2*region+1, memorySRAM+0x1000);
+					} else {
+						setBank4kB(2*region,   memorySRAM+0x0000);
+						setBank4kB(2*region+1, memorySRAM+0x0000);
+					}
+				} else {
+					// switch normal memory
+					regioSRAM &= ~(1 << region);
+					setROM8kB(region, value);
+				}
+			}
 		}
 		break;
-		
+	
 	case 64:
 		//--==**>> <<**==--
 		// Konami Synthezier cartridge
