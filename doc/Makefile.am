@@ -1,6 +1,11 @@
 # $Id$
+
+SUBDIRS = manual
+
 #  install the man pages
-man_MANS=openmsx.1
+man_MANS = \
+	openmsx.1
+
 pkgdata_DATA = \
 	commands.txt \
 	developersFAQ.txt \

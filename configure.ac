@@ -85,9 +85,10 @@ AC_CHECK_FUNCS(strtoll atoll)
 
 AC_OUTPUT(Makefile
 openmsx.lsm 
-openmsx.spec 
-doc/Makefile 
-src/Makefile 
+openmsx.spec
+doc/Makefile
+doc/manual/Makefile
+src/Makefile
 m4/Makefile
 src/libxmlx/Makefile
 src/console/Makefile
