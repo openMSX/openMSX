@@ -1,5 +1,9 @@
 $Id$
 
+2004-04-15 Maarten ter Huurne <maarten@treewalker.org>
+	* Build system discovers TCL compile and link flags
+	  using "tcl-search.sh" instead of autoconf.
+
 2004-04-12 Maarten ter Huurne <maarten@treewalker.org>
 	* Changed BIGENDIAN implementation: determined by looking at CPU,
 	  instead of running a test program. (preparation for cross compiles)

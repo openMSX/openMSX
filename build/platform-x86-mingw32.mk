@@ -15,8 +15,8 @@ OPENMSX_CXX?=g++
 EXEEXT:=.exe
 
 # Libraries that do not have a lib-config script.
-#LIBS_PLAIN:=stdc++ SDL_image png z tcl84 winmm
-LIBS_PLAIN:=stdc++ SDL_image png z tcl84 winmm opengl32
+#LIBS_PLAIN:=stdc++ SDL_image png z winmm
+LIBS_PLAIN:=stdc++ SDL_image png z winmm opengl32
 # Libraries that have a lib-config script.
 LIBS_CONFIG:=xml2 sdl
 

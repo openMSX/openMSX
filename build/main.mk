@@ -95,7 +95,7 @@ DETECTSYS_SCRIPT:=$(MAKE_PATH)/detectsys.sh
 $(DETECTSYS_MAKE): $(DETECTSYS_SCRIPT)
 	@echo "Autodetecting native system:"
 	@mkdir -p $(@D)
-	@$< > $@
+	@sh $< > $@
 
 endif # OPENMSX_PLATFORM
 
@@ -201,6 +201,29 @@ OLD_CONFIG_HEADER:=$(CONFIG_PATH)/oldconfig.h
 VERSION_HEADER:=$(CONFIG_PATH)/Version.ii
 
 
+# Configuration
+# =============
+
+OPENMSX_INSTALL?=/opt/openMSX
+
+PACKAGE_NAME:=openmsx
+PACKAGE_VERSION:=0.3.4
+PACKAGE_FULL:=$(PACKAGE_NAME)-$(PACKAGE_VERSION)
+
+RELEASE_FLAG:=false
+
+CHANGELOG_REVISION:=\
+	$(shell sed -ne "s/\$$Id: ChangeLog,v \([^ ]*\).*/\1/p" ChangeLog)
+
+include $(MAKE_PATH)/info2code.mk
+
+# TCL.
+-include $(CONFIG_PATH)/config-tcl.mk
+$(CONFIG_PATH)/config-tcl.mk: $(MAKE_PATH)/tcl-search.sh
+	@mkdir -p $(@D)
+	@sh $< > $@
+
+
 # Compiler and Flags
 # ==================
 
@@ -275,10 +298,10 @@ endif
 INCLUDE_INTERNAL:=$(filter-out %/CVS,$(shell find $(SOURCES_PATH) -type d))
 INCLUDE_INTERNAL+=$(CONFIG_PATH)
 INCLUDE_EXTERNAL:= # TODO: Define these here or platform-*.mk?
-INCLUDE_EXTERNAL+=/usr/include/tcl8.4 /usr/local/include/tcl8.4 #hack
 INCLUDE_EXTERNAL+=/usr/X11R6/include
 LIB_FLAGS:=$(addprefix -I,$(INCLUDE_EXTERNAL))
 LIB_FLAGS+=$(foreach lib,$(LIBS_CONFIG),$(shell $(lib)-config --cflags))
+LIB_FLAGS+=$(TCL_CXXFLAGS)
 COMPILE_FLAGS:=$(addprefix -I,$(INCLUDE_INTERNAL)) $(LIB_FLAGS)
 
 # Determine link flags.
@@ -286,23 +309,7 @@ LINK_FLAGS_PREFIX:=-Wl,
 LINK_FLAGS+=$(addprefix $(LINK_FLAGS_PREFIX),$(LDFLAGS))
 LINK_FLAGS+=$(addprefix -l,$(LIBS_PLAIN))
 LINK_FLAGS+=$(foreach lib,$(LIBS_CONFIG),$(shell $(lib)-config --libs))
-
-
-# Configuration
-# =============
-
-OPENMSX_INSTALL?=/opt/openMSX
-
-PACKAGE_NAME:=openmsx
-PACKAGE_VERSION:=0.3.4
-PACKAGE_FULL:=$(PACKAGE_NAME)-$(PACKAGE_VERSION)
-
-RELEASE_FLAG:=false
-
-CHANGELOG_REVISION:=\
-	$(shell sed -ne "s/\$$Id: ChangeLog,v \([^ ]*\).*/\1/p" ChangeLog)
-
-include $(MAKE_PATH)/info2code.mk
+LINK_FLAGS+=$(TCL_LDFLAGS)
 
 
 # Build Rules

@@ -3,14 +3,8 @@
 #ifndef __TCLINTERP_HH__
 #define __TCLINTERP_HH__
 
-#include "config.h"
-#if	defined(HAVE_TCL_H)
+#include "Interpreter.hh"
 #include <tcl.h>
-#elif	defined(HAVE_TCL8_4_TCL_H)
-#include <tcl8.4/tcl.h>
-#endif
-
-#include <Interpreter.hh>
 
 namespace openmsx {
 

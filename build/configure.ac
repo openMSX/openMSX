@@ -63,9 +63,6 @@ dnl libxml2
 dnl TODO: verify version is 2.
 AC_CHECK_HEADER(libxml/xmlversion.h,, [AC_MSG_ERROR('libxml2 was not found!')])
 
-dnl libtcl
-AC_CHECK_HEADERS(tcl.h tcl8.4/tcl.h, break, [AC_MSG_ERROR('Tcl8.x was not found!')])
-
 dnl With/Without X11
 AC_PATH_X
 AC_PATH_XTRA

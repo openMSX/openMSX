@@ -1,13 +1,7 @@
 // $Id$
 
-#include "config.h"
-#if defined(HAVE_TCL_H)
-#include <tcl.h>
-#elif defined(HAVE_TCL8_4_TCL_H)
-#include <tcl8.4/tcl.h>
-#endif
-
 #include "TCLCommandResult.hh"
+#include <tcl.h>
 
 namespace openmsx {
 
