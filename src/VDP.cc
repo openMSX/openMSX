@@ -13,11 +13,12 @@ TODO:
   * read FH
   * read FH
   Current implementation would return FH=0 both times.
-- Keep blank / display knowledge in VDP instead of renderer:
-  * VDP has all the info required to calculate it
-  * VDP has to know it for sprite checking in overscan
-  * command engine wants to know as well
-- Implement vertical display adjust.
+- Verify for which lines sprite checking occurs.
+  It should happen for all display lines.
+  Pitfalls:
+  * on overscan, there are many more display lines
+  * make sure that renderer behaviour does not affect the outcome
+    so: independent of *which* lines are requested and *when* they are
 - Check how Z80 should treat interrupts occurring during DI.
 - Sprite attribute readout probably happens one line in advance.
   This matters when line-based scheduling is operational.
@@ -30,9 +31,6 @@ TODO:
   For example, does it have the right value in text mode?
 - Get rid of hardcoded port 0x98..0x9B.
 - Implement overscan.
-  What is the maximum number of lines? (during overscan)
-  Currently fixed to 212, but those tables should be expanded.
-  (grep for 212 in *.cc AND *.hh)
 */
 
 #include "MSXMotherBoard.hh"
@@ -341,6 +339,7 @@ VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
 	}
 
 	// Init scheduling.
+	displayStartSyncTime = 0;
 	vScanSyncTime = 0;
 	hScanSyncTime = 0;
 	frameStart(time);
@@ -458,6 +457,9 @@ void VDP::executeUntilEmuTime(const EmuTime &time, int userData)
 		// Update sprite buffer.
 		// TODO: This is a patch to cover up an inaccuracy.
 		//       Most programs change sprite attributes on VSCAN int.
+		//       If a Renderer calls getSprites, the sprite buffer is
+		//       updated as well, but the VDP should not rely on Renderer
+		//       behaviour.
 		//       The right way to do it is sync on VRAM writes.
 		updateSprites(time);
 
@@ -472,12 +474,6 @@ void VDP::executeUntilEmuTime(const EmuTime &time, int userData)
 		if (controlRegs[1] & 0x20) irqVertical.set();
 		break;
 	case HSCAN: {
-		// TODO: This implements Marat's guess, what does real V9938 do?
-		// TODO: If it is correct, implement it in scheduleHScan instead:
-		//       it is faster not the schedule HSCAN in the first place
-		//       than to ignore a sync.
-		//if (!isDisplayArea) break;
-
 		// Horizontal scanning occurs.
 		if (controlRegs[0] & 0x10) irqHorizontal.set();
 		break;
@@ -486,6 +482,43 @@ void VDP::executeUntilEmuTime(const EmuTime &time, int userData)
 		assert(false);
 	}
 
+}
+
+// TODO: This approach assumes that an overscan-like approach can be used
+//       skip display start, so that the border is rendered instead.
+//       This makes sense, but it has not been tested on real MSX yet.
+void VDP::scheduleDisplayStart(const EmuTime &time)
+{
+	// Remove pending DISPLAY_START sync point, if any.
+	if (displayStartSyncTime > time) {
+		Scheduler::instance()->removeSyncPoint(this, DISPLAY_START);
+		//cerr << "removing predicted DISPLAY_START sync point\n";
+	}
+
+	// Calculate when (lines and time) display starts.
+	lineZero =
+		( palTiming
+		? (controlRegs[9] & 0x80 ? 3 + 13 + 36 : 3 + 13 + 46)
+		: (controlRegs[9] & 0x80 ? 3 + 13 +  9 : 3 + 13 + 19)
+		) + verticalAdjust;
+	displayStart =
+		( isDisplayArea // overscan?
+		? 3 + 13 // sync + top erase
+		: lineZero * TICKS_PER_LINE
+		);
+	displayStartSyncTime = frameStartTime + displayStart;
+	//cerr << "new DISPLAY_START is " << (displayStart / TICKS_PER_LINE) << "\n";
+
+	// Register new DISPLAY_START sync point.
+	if (displayStartSyncTime > time) {
+		Scheduler::instance()->setSyncPoint(
+			displayStartSyncTime, this, DISPLAY_START);
+		//cerr << "inserting new DISPLAY_START sync point\n";
+	}
+
+	// HSCAN and VSCAN are relative to display start.
+	scheduleHScan(time);
+	scheduleVScan(time);
 }
 
 void VDP::scheduleVScan(const EmuTime &time)
@@ -534,9 +567,32 @@ void VDP::scheduleHScan(const EmuTime &time)
 		+ ((controlRegs[19] - controlRegs[23]) & 0xFF) * TICKS_PER_LINE
 		+ (isTextMode() ?
 			TICKS_PER_LINE - 87 - 27 : TICKS_PER_LINE - 59 - 27);
+	// Display line counter continues into the next frame.
+	// Note that this implementation is not 100% accurate, since the
+	// number of ticks of the *previous* frame should be subtracted.
+	// By switching from NTSC to PAL it may even be possible to get two
+	// HSCANs in a single frame without modifying any other setting.
+	// Fortunately, no known program relies on this.
+	int ticksPerFrame = getTicksPerFrame();
+	if (horizontalScanOffset >= ticksPerFrame) {
+		horizontalScanOffset -= ticksPerFrame;
+		// Display line counter is reset at the start of the top border.
+		// Any HSCAN that has a higher line number never occurs.
+		if (horizontalScanOffset >= LINE_COUNT_RESET_TICKS) {
+			// This is one way to say "never".
+			horizontalScanOffset = -1000 * TICKS_PER_LINE;
+		}
+	}
 
 	// Register new HSCAN sync point if interrupt is enabled.
-	if (controlRegs[0] & 0x10) {
+	if ((controlRegs[0] & 0x10) && horizontalScanOffset >= 0) {
+		// No line interrupt will occur after bottom erase.
+		// NOT TRUE: "after next top border start" is correct.
+		// Note that line interrupt can occur in the next frame.
+		/*
+		EmuTime bottomEraseTime =
+			frameStartTime + getTicksPerFrame() - 3 * TICKS_PER_LINE;
+		*/
 		hScanSyncTime = frameStartTime + horizontalScanOffset;
 		if (hScanSyncTime > time) {
 			Scheduler::instance()->setSyncPoint(hScanSyncTime, this, HSCAN);
@@ -545,6 +601,11 @@ void VDP::scheduleHScan(const EmuTime &time)
 }
 
 // TODO: inline?
+// TODO: Is it possible to get rid of this routine and its sync point?
+//       VSYNC, HSYNC and DISPLAY_START could be scheduled for the next
+//       frame when their callback occurs.
+//       But I'm not sure how to handle the PAL/NTSC setting (which also
+//       influences the frequency at which E/O toggles).
 void VDP::frameStart(const EmuTime &time)
 {
 	//cerr << "VDP::frameStart @ " << time << "\n";
@@ -556,30 +617,20 @@ void VDP::frameStart(const EmuTime &time)
 
 	// Settings which are fixed at start of frame.
 	// Not sure this is how real MSX does it, but close enough for now.
+	// TODO: verticalAdjust probably influences display start, which is
+	//       "fixed" once it occured, no need to fix verticalAdjust,
+	//       maybe even having this variable is not necessary.
 	palTiming = controlRegs[9] & 0x02;
 	verticalAdjust = (controlRegs[18] >> 4) ^ 0x07;
-
 	spriteLine = 0;
+
+	// Schedule next VSYNC.
 	frameStartTime = time;
-	// TODO: Use display adjust register (R#18).
-	displayStart =
-		( palTiming
-		? ( controlRegs[9] & 0x80
-		  ? (3 + 13 + 43) * TICKS_PER_LINE
-		  : (3 + 13 + 53) * TICKS_PER_LINE
-		  )
-		: ( controlRegs[9] & 0x80
-		  ? (3 + 13 + 16) * TICKS_PER_LINE
-		  : (3 + 13 + 26) * TICKS_PER_LINE
-		  )
-		);
 	Scheduler::instance()->setSyncPoint(
-		frameStartTime + displayStart, this, DISPLAY_START);
-	scheduleHScan(time);
-	scheduleVScan(time);
-	Scheduler::instance()->setSyncPoint(
-		frameStartTime + getTicksPerFrame(),
-		this, VSYNC);
+		frameStartTime + getTicksPerFrame(), this, VSYNC);
+	// Schedule DISPLAY_START, VSCAN and HSCAN.
+	scheduleDisplayStart(time);
+
 	/*
 	cout << "--> frameStart = " << frameStartTime
 		<< ", frameEnd = " << (frameStartTime + getTicksPerFrame())
@@ -764,6 +815,7 @@ byte VDP::readIO(byte port, const EmuTime &time)
 
 			// TODO: Once VDP keeps display/blanking state, keeping
 			//       VR is probably part of that, so use it.
+			//       --> Is isDisplayArea actually !VR?
 			int displayEnd =
 				displayStart + getNumberOfLines() * TICKS_PER_LINE;
 			bool vr = ticksThisFrame < displayStart - TICKS_PER_LINE
@@ -935,9 +987,24 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		}
 		break;
 	case 9:
-		// If number of display lines (192/212) changes,
-		// end of display changes as well.
-		if (change & 0x80) scheduleVScan(time);
+		if (change & 0x80) {
+			/*
+			cerr << "changed to " << (val & 0x80 ? 212 : 192) << " lines"
+				<< " at line " << (getTicksThisFrame(time) / TICKS_PER_LINE) << "\n";
+			*/
+			// Display lines (192/212) determines display start and end.
+			// TODO: Find out exactly when display start is fixed.
+			//       If it is fixed at VSYNC that would simplify things,
+			//       but I think it's more likely the current
+			//       implementation is accurate.
+			if (time < displayStartSyncTime) {
+				// Display start is not fixed yet.
+				scheduleDisplayStart(time);
+			} else {
+				// Display start is fixed, but display end is not.
+				scheduleVScan(time);
+			}
+		}
 		break;
 	case 19:
 	case 23:
@@ -960,6 +1027,8 @@ void VDP::updateDisplayMode(byte reg0, byte reg1, const EmuTime &time)
 		// To be extremely accurate, reschedule hscan when changing
 		// from/to text mode. Text mode has different border width,
 		// which affects the moment hscan occurs.
+		// TODO: Why didn't I implement this yet?
+		//       It's one line of code and overhead is not huge either.
 	}
 }
 

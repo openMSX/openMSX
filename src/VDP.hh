@@ -380,10 +380,12 @@ public:
 		return (controlRegs[9] & 0x80 ? 212 : 192);
 	}
 
-	/** Get VDP ticks between start of frame and start of display.
+	/** Get the absolute line number of display line zero.
+	  * Usually this is equal to the height of the top border,
+	  * but not so during overscan.
 	  */
-	inline int getDisplayStart() {
-		return displayStart;
+	inline int getLineZero() {
+		return lineZero;
 	}
 
 	/** Is PAL timing active?
@@ -420,6 +422,18 @@ private:
 	private:
 		VDP *vdp;
 	};
+
+	/** Time at which the internal VDP display line counter is reset,
+	  * expressed in ticks after vsync.
+	  * I would expect the counter to reset at line 16, but measurements
+	  * on NMS8250 show it is one line earlier. I'm not sure whether the
+	  * actual counter reset happens on line 15 or whether the VDP
+	  * timing may be one line off for some reason.
+	  * TODO: This is just an assumption, more measurements on real MSX
+	  *       are necessary to verify there is really such a thing and
+	  *       if so, that the value is accurate.
+	  */
+	static const int LINE_COUNT_RESET_TICKS = 15 * TICKS_PER_LINE;
 
 	/** Types of VDP sync points that can be scheduled.
 	  */
@@ -546,6 +560,15 @@ private:
 	  */
 	void frameStart(const EmuTime &time);
 
+	/** Schedules a DISPLAY_START sync point.
+	  * Also removes a pending DISPLAY_START sync, if any.
+	  * Since HSCAN and VSCAN are relative to display start,
+	  * their schedule methods are called by this method.
+	  * @param time The moment in emulated time this call takes place.
+	  *   Note: time is not the DISPLAY_START sync time!
+	  */
+	void scheduleDisplayStart(const EmuTime &time);
+
 	/** Schedules a VSCAN sync point.
 	  * Also removes a pending VSCAN sync, if any.
 	  * @param time The moment in emulated time this call takes place.
@@ -626,6 +649,10 @@ private:
 	  */
 	int horizontalScanOffset;
 
+	/** Time of last set DISPLAY_START sync point.
+	  */
+	EmuTime displayStartSyncTime;
+
 	/** Time of last set VSCAN sync point.
 	  */
 	EmuTime vScanSyncTime;
@@ -640,6 +667,11 @@ private:
 	  * @see isPalTiming.
 	  */
 	bool palTiming;
+
+	/** Absolute line number of display line zero.
+	  * @see getLineZero
+	  */
+	int lineZero;
 
 	/** Vertical display adjust.
 	  * This value is updated at the start of every frame.

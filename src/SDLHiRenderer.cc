@@ -794,21 +794,25 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderBogus(
 template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 	int absLine)
 {
-	// TODO: Can there be sprites before line 0 on overscan?
-	if (absLine < lineDisplay) return;
+	// Calculate display line.
+	// Negative line numbers (possible on overscan) wrap around.
+	int displayLine = (absLine - vdp->getLineZero()) & 255;
+
+	// Check whether this line is inside the host screen.
+	int screenLine = (absLine - lineRenderTop) * 2;
+	if (screenLine >= HEIGHT) return;
 
 	// Determine sprites visible on this line.
 	VDP::SpriteInfo *visibleSprites;
 	int visibleIndex =
-		vdp->getSprites(absLine - lineDisplay, visibleSprites);
+		vdp->getSprites(displayLine, visibleSprites);
 	// Optimisation: return at once if no sprites on this line.
 	// Lines without any sprites are very common in most programs.
 	if (visibleIndex == 0) return;
 
 	// TODO: Calculate pointers incrementally outside this method.
 	Pixel *pixelPtr0 = (Pixel *)( (byte *)screen->pixels
-		+ ((absLine - lineRenderTop) * 2) * screen->pitch
-		+ getLeftBorder() * sizeof(Pixel));
+		+ screenLine * screen->pitch + getLeftBorder() * sizeof(Pixel));
 	Pixel *pixelPtr1 = (Pixel *)(((byte *)pixelPtr0) + screen->pitch);
 
 	if (vdp->getDisplayMode() < 8) {
@@ -936,6 +940,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::blankPhase(
 			? vdp->getBackgroundColour() & 3
 			: vdp->getBackgroundColour()
 			)];
+
 		// Note: return code ignored.
 		SDL_FillRect(screen, &rect, bgColour);
 	}
@@ -963,8 +968,8 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	}
 
 	// Perform vertical scroll.
-	int scrolledLine =
-		(nextLine - lineDisplay + vdp->getVerticalScroll()) & 0xFF;
+	int scrolledLine = ( nextLine
+		- vdp->getLineZero() + vdp->getVerticalScroll() ) & 0xFF;
 	if (scrolledLine + numLines >= 256) {
 		// If page wraps around, render it in two steps.
 		// TODO: If wrap amount is lower (R#2 as mask in bitmap modes),
@@ -1087,6 +1092,8 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 
 template <class Pixel> void SDLHiRenderer<Pixel>::frameStart()
 {
+	//cerr << "timing: " << (vdp->isPalTiming() ? "PAL" : "NTSC") << "\n";
+
 	// Calculate line to render at top of screen.
 	// Make sure the display area is centered.
 	// 240 - 212 = 28 lines available for top/bottom border; 14 each.
@@ -1095,7 +1102,6 @@ template <class Pixel> void SDLHiRenderer<Pixel>::frameStart()
 	lineRenderTop = vdp->isPalTiming() ? 59 - 14 : 32 - 14;
 
 	// Calculate important moments in frame rendering.
-	lineDisplay = vdp->getDisplayStart() / VDP::TICKS_PER_LINE;
 	lineBottomErase = vdp->isPalTiming() ? 313 - 3 : 262 - 3;
 	nextLine = lineRenderTop;
 

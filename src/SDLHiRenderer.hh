@@ -194,10 +194,6 @@ private:
 	  */
 	byte lineValidInMode[256 * 4];
 
-	/** Absolute line number of first display line.
-	  */
-	int lineDisplay;
-
 	/** Absolute line number of first bottom erase line.
 	  */
 	int lineBottomErase;

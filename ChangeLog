@@ -1,5 +1,9 @@
 $Id$
 
+2002-02-22 Maarten ter Huurne <mth@stack.nl>
+	* Implemented VDP overscan.
+	  Can use some more cleanup, but it works.
+
 2002-02-19 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* PrinterPortDevice now receives EmuTime:
 	   this is necessary for devices like Simple
