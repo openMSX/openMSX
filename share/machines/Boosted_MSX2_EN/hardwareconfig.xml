@@ -7,7 +7,7 @@
     <manufacturer>openMSX Team</manufacturer>
     <code>Boosted MSX2 EN</code>
     <release_year>2004</release_year>
-    <description>A super-charged Philips NNMS8250</description>
+    <description>A super-charged Philips NMS 8250</description>
     <type>MSX2</type>
   </info>
 
@@ -122,10 +122,10 @@
     </sound>
     <sampleram>256</sampleram>
   </MSX-AUDIO>
-  <MusicModuleMidi id="Generic MSX-Audio-Midi">
+  <MusicModuleMIDI id="Generic MSX-Audio-MIDI">
     <io base="0x00" num="2" type="O"/>
     <io base="0x04" num="2" type="I"/>
-  </MusicModuleMidi>
+  </MusicModuleMIDI>
 
   <MoonSound id="Sunrise MoonSound">
     <io base="0x7e" num="2"/>
