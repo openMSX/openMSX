@@ -3,6 +3,8 @@
 #include "V9990BitmapConverter.hh"
 #include "V9990VRAM.hh"
 #include "GLUtil.hh"
+#include <cstdarg>
+
 
 namespace openmsx {
 
@@ -253,9 +255,9 @@ Pixel V9990BitmapConverter<Pixel, zoom>::blendPixels(Pixel *source,
 
 	va_list list;
 	va_start(list, nrPixels);
-	
+
 	while(nrPixels--) {
-		weight =va_arg(list, unsigned int);
+		weight = va_arg(list, unsigned int);
 		r += red  (*source) * weight;
 		g += green(*source) * weight;
 		b += blue (*source) * weight;
@@ -266,10 +268,10 @@ Pixel V9990BitmapConverter<Pixel, zoom>::blendPixels(Pixel *source,
 	r /= total;
 	g /= total;
 	b /= total;
-	
+
 	return (Pixel)(((r << format.Rshift) & format.Rmask) |
 	               ((g << format.Gshift) & format.Gmask) |
-				   ((b << format.Bshift) & format.Bmask));
+	               ((b << format.Bshift) & format.Bmask));
 }
 
 
