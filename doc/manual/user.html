@@ -43,10 +43,6 @@
 	<li><a class="internal" href="#media">4. Running Media</a>
 		<ol class="toc">
 			<li><a class="internal" href="#roms">4.1. Running ROM Software</a></li>
-				<ol class="toc">
-					<li><a class="internal" href="#regularroms">4.1. Running unmodified ROM software</a></li>
-					<li><a class="internal" href="#patchingroms">4.1.2 Running on-the-fly patched ROM software</a></li>
-				</ol>
 			<li><a class="internal" href="#disks">4.2. Running Disk Software</a>
 				<ol class="toc">
 					<li><a class="internal" href="#diskimages">4.2.1. Using Disk Images</a></li>
@@ -358,8 +354,6 @@ With this information, you can run most of the existing MSX software.
 
 <h3><a id="roms">4.1. Running ROM software</a></h3>
 
-<h4><a id="regularroms">4.1.1 Running unmodified ROM software</a></h4>
-
 <p>
 Suppose you want to run the ROM file <code>galious.rom</code>. Then you simply type:
 </p>
@@ -384,13 +378,13 @@ Or, maybe openMSX didn't have the ROM in the ROM database and failed auto detect
 <p>
 Note that in practice you won't need this, since most ROM images are in the database or auto detected if they are not. Also note that the ROM type names may change in future versions of openMSX, as they did from openMSX 0.5.1. The <code>-romtype</code> option should follow the ROM it applies to immediately on the command line.
 </p>
-<h4><a id="patchingroms">4.1.2 Running on-the-fly patched ROM software</a></h4>
+
 <p>
 If wanted, openMSX can apply IPS patches to ROM software before running it. This way you do not need to alter any files. To apply an IPS patch you have to provide the IPS filename like this:
 </p>
 <div class="commandline">openmsx -cart galious.rom -ips galiouspatch.ips</div>
 <p>
-As with the <code>-romtype</code> option, <code>-ips</code> applies to the ROM file that is mentioned just before it on the command line.
+As with the <code>-romtype</code> option, the <code>-ips</code> option on the command line must follow the ROM file it applies to directly. You can also use multiple <code>-ips</code> options if you want to apply multiple patches.
 </p>
 
 <h3><a id="disks">4.2. Running Disk Software</a></h3>
@@ -423,6 +417,23 @@ in the console to put the specified disk image in drive A. To eject the disk fro
 Disk images in XSA format are also supported, use them as regular disk images, but do note that they are read only. The same counts for (g)zipped disk images. Note that in zipped disk images the first file that is packed into the zip file will be used as disk image.
 </p>
 
+<p>
+If wanted, openMSX can also apply IPS patches to disk software before running it. This way you do not need to alter any files. To apply an IPS patch you have to provide the IPS filename like this:
+</p>
+<div class="commandline">openmsx SDSNAT1C.DSK -ips sdsnat1-eng.ips</div>
+<p>
+The <code>-ips</code> option must follow directly the disk image on the command line it applies to. You can also use multiple <code>-ips</code> options if you want to apply multiple patches.
+</p>
+
+<p>
+You can also apply the patches when changing disks at run time. Just type something like
+</p>
+<div class="commandline">
+    diska SDSNAT1C.DSK sdsnat1-eng.ips sd-cheat.ips
+</div>
+<p>
+in the console to put the specified disk image SDSNAT1C.DSK in drive A, with both IPS patches applied.
+</p>
 
 <h4><a id="dirasdisk">4.2.2. Using Directories as Disks</a></h4>
 
