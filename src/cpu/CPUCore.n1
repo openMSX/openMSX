@@ -1,5 +1,9 @@
 // $Id$
 
+#ifdef CPU_DEBUG
+static word start_pc;
+static EmuTime before;
+#endif
 
 inline void M1_DELAY();
 inline void IOPORT_DELAY1();

@@ -4,11 +4,6 @@ inline void _CPU_::M1Cycle() { R.R++; M1_DELAY(); }
 
 inline void _CPU_::executeInstruction(byte opcode)
 {
-	#ifdef CPU_DEBUG
-		word start_pc = R.PC.w-1;
-		EmuTime before(currentTime);
-	#endif
-	
 	M1Cycle();
 	(this->*opcode_main[opcode])();	// currentTime can be raised extra
 	
@@ -4704,8 +4699,18 @@ void _CPU_::execute()
 				executeInstruction(RDOP(R.PC.w++));
 			}
 		} else {
+			#ifdef CPU_DEBUG
+				start_pc = R.PC.w;
+				before = currentTime;
+			#endif
+	
 			// fast normal instructions
 			executeInstruction(RDOP(R.PC.w++));
 		}
 	}
 }
+
+#ifdef CPU_DEBUG
+word _CPU_::start_pc;
+EmuTime _CPU_::before;
+#endif

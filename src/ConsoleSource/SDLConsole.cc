@@ -259,7 +259,7 @@ void SDLConsole::drawCursor()
 			return;
 		if (blink) {
 			// Print cursor if there is enough room
-			if (cursorLocation < (unsigned)CHARS_PER_LINE) {
+			if (cursorLocation < CHARS_PER_LINE) {
 				if (outputScreen->flags & SDL_OPENGLBLIT) {
 					Uint32 *pix = (Uint32 *) (font->fontSurface->pixels);
 					SDL_SetColorKey(font->fontSurface, SDL_SRCCOLORKEY, *pix);
