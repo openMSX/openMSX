@@ -23,11 +23,14 @@ AC_PROG_CXX
 dnl Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS(unistd.h)
+AC_CHECK_HEADERS(string.h)
+AC_CHECK_HEADERS(strings.h)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 
 dnl Checks for library functions.
-AC_REPLACE_FUNCS(atoll)
+AC_CHECK_FUNC(strtoll)
+AC_CHECK_FUNC(atoll)
 
 dnl libtool
 AC_PROG_LIBTOOL
