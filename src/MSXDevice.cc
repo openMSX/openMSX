@@ -43,7 +43,8 @@ void MSXDevice::writeIO(byte port, byte value, Emutime &time)
 }
 void MSXDevice::executeUntilEmuTime(const Emutime &time)
 {
-    return;
+	PRT_DEBUG ("Empty executeUntilEmuTime function");
+	return;
 }
 
 //int MSXDevice::executeTStates(int TStates)

@@ -155,11 +155,11 @@ static unsigned char TMS9928A_palette[16*3] =
 MSXTMS9928a::MSXTMS9928a() : currentTime(3579545, 0)
 {
 	PRT_DEBUG ("Creating an MSXTMS9928a object");
-}
+};
 MSXTMS9928a::~MSXTMS9928a()
 {
 	PRT_DEBUG ("Destroying an MSXTMS9928a object");
-}
+};
 
 /*
 ** The init, start, reset and shutdown functions
@@ -178,7 +178,7 @@ void MSXTMS9928a::reset ()
 	tms.Change = 1;
 	tms.FirstByte = -1;
 	//_TMS9928A_set_dirty (1);
-}
+};
 
 //int TMS9928A_start (int model, unsigned int vram) 
 void MSXTMS9928a::init(void)
@@ -291,7 +291,7 @@ void MSXTMS9928a::init(void)
 	for (byte i=0; i<190 ;i++) 
 		plot_pixel(bitmapscreen ,i,i,XPal[4]);
     return ;//0;
-}
+};
 
 void MSXTMS9928a::start()
 {
@@ -299,17 +299,18 @@ void MSXTMS9928a::start()
 	//First interrupt in Pal mode here
 	Scheduler::instance()->insertStamp(currentTime+71285, *this);
 	PutImage();
-}
+};
 
-void MSXTMS9928a::executeUntilEmuTime(Emutime &time)
+void MSXTMS9928a::executeUntilEmuTime(const Emutime &time)
 {
+	PRT_DEBUG("Executing TMS9928a");
 	//Next interrupt in Pal mode here
 	Scheduler::instance()->insertStamp(currentTime+71285, *this);
 
 	//TODO:: Call full screen refresh
 	//TODO:: Set interrupt if bits enable it
 	PutImage();
-}
+};
 
 /*
 ~MSXTMS9928a()
@@ -320,7 +321,7 @@ void MSXTMS9928a::executeUntilEmuTime(Emutime &time)
     free (tms.DirtyName); tms.DirtyName = NULL;
     free (tms.DirtyPattern); tms.DirtyPattern = NULL;
     osd_free_bitmap (tms.tmpbmp); tms.tmpbmp = NULL;
-}
+};
 */
 
 /*
@@ -331,7 +332,7 @@ static void _TMS9928A_set_dirty (char dirty) {
     memset (tms.DirtyName, dirty, MAX_DIRTY_NAME);
     memset (tms.DirtyColour, dirty, MAX_DIRTY_COLOUR);
     memset (tms.DirtyPattern, dirty, MAX_DIRTY_PATTERN);
-}
+};
 */
 
 /*
@@ -391,7 +392,7 @@ void MSXTMS9928a::writeIO(byte port, byte value, Emutime &time)
       }
       break;
   }
-}
+};
 
 byte MSXTMS9928a::TMS9928A_vram_r()
 {
@@ -402,7 +403,7 @@ byte MSXTMS9928a::TMS9928A_vram_r()
       tms.Addr = (tms.Addr + 1) & (tms.vramsize - 1);
       tms.FirstByte = -1;
       return b;
-}
+};
 
 byte MSXTMS9928a::readIO(byte port, Emutime &time)
 {
@@ -423,7 +424,7 @@ byte MSXTMS9928a::readIO(byte port, Emutime &time)
 	default:
 		assert(false);
 	}
-}
+};
 
 
 void MSXTMS9928a::_TMS9928A_change_register (byte reg, byte val) {
@@ -516,7 +517,7 @@ void MSXTMS9928a::_TMS9928A_change_register (byte reg, byte val) {
         break;
     }
     */
-}
+};
 
 /*
 ** Interface functions
@@ -524,11 +525,11 @@ void MSXTMS9928a::_TMS9928A_change_register (byte reg, byte val) {
 
 //void TMS9928A_int_callback (void (*callback)(int)) {
 //    tms.INTCallback = callback;
-//}
+//};
 
 //void TMS9928A_set_spriteslimit (int limit) {
 //    tms.LimitSprites = limit;
-//}
+//};
 
 /*
 ** Updates the screen (the dMem memory area).
@@ -572,7 +573,7 @@ void TMS9928A_refresh (struct osd_bitmap *bmp, int full_refresh) {
     tms.oldStatusReg = tms.StatusReg;
     tms.Change = 0;
 	return;
-}
+};
 
 */
 
@@ -600,7 +601,7 @@ int TMS9928A_interrupt () {
     }
 
     return b;
-}
+};
 */
 
 
@@ -611,7 +612,7 @@ int TMS9928A_interrupt () {
 void MSXTMS9928a::plot_pixel(struct osd_bitmap *bitmap,int x,int y,int pen)
 {
 	bitmap->line[y][x]=pen;
-}
+};
 
 
 /** PutImage() ***********************************************/
@@ -646,7 +647,7 @@ void MSXTMS9928a::PutImage(void)
 
   /* Set timer frequency */
 //  SyncFreq=PALVideo? 50:60;
-}
+};
 
 
 /* code taken over from / inspired by mame/mess */
@@ -716,4 +717,4 @@ struct osd_bitmap *MSXTMS9928a::alloc_bitmap(int width,int height,int depth)
 	}
 
 	return bitmap;
-}
+};

@@ -17,6 +17,7 @@ MSXZ80::MSXZ80(void) : currentCPUTime(3579545, 0), targetCPUTime(3579545, 0)
 }
 void MSXZ80::init(void)
 {
+	MSXDevice::init();
 	currentCPUTime(0);
 	Z80_Running=1;
 	InitTables();

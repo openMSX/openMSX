@@ -55,13 +55,6 @@ int main (int argc, char **argv)
 	// (Actualy David's test stuff)
 	
 
-
-	//MSXMotherBoard* MSX;
-	MSXMotherBoard* moederbord;
-	MSXDevice* device;
-	//MSXDevice* processor;
-	MSXZ80* processor;
-
 	//Werkt SDL ?
 	if (SDL_Init(SDL_INIT_VIDEO)<0) {
 		PRT_ERROR("Couldn't init SDL: " << SDL_GetError());
@@ -69,14 +62,12 @@ int main (int argc, char **argv)
 	atexit(SDL_Quit);
 
 	// Een moederbord als eerste
-	moederbord=MSXMotherBoard::instance();
+	MSXMotherBoard *moederbord = MSXMotherBoard::instance();
 	// en dan nu al de devices die volgens de xml nodig zijn
 	list<MSXConfig::Device*>::const_iterator j=MSXConfig::instance()->deviceList.begin();
 	for (; j != MSXConfig::instance()->deviceList.end(); j++) {
 		(*j)->dump();
-		//TODO 
-		//device=deviceFactory::create( (*j)->getType() );
-		device=deviceFactory::create( (*j) );
+		MSXDevice *device = deviceFactory::create( (*j) );
 		if (device != 0){
 			moederbord->addDevice(device);
 		PRT_DEBUG ("---------------------------\nfactory:" << (*j)->getType());

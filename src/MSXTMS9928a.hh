@@ -26,39 +26,26 @@ struct osd_bitmap
 class MSXTMS9928a : public MSXDevice
 {
 	public:
-		//destructor and 
+		//constructor and destructor
 		MSXTMS9928a(void);
 		~MSXTMS9928a(void);
-		//
-		//instantiate method used in DeviceFactory
-		//Must be overwritten in derived classes !!!!
-		//void setConfigDevice(MSXConfig::Device *config);
 		
 		// interaction with CPU
 		byte readIO(byte port, Emutime &time);
 		void writeIO(byte port,byte value, Emutime &time);
-		void executeUntilEmuTime(Emutime &time);
-		// int executeTStates(int TStates);
-		// int getUsedTStates(void);
-		//
+		void executeUntilEmuTime(const Emutime &time);
+		
 		// mainlife cycle of an MSXDevice
 		void init();
 		void start();
 		//void stop();
 		void reset();
-		//
+		
 		// void saveState(ofstream writestream);
 		// void restoreState(char *devicestring,ifstream readstream);
-	//protected:
-		//MSXConfig::Device *deviceConfig;
-		//These are used for save/restoreState see note over
-		//savefile-structure
-		// To ease the burden of keeping IRQ state
-		//bool isIRQset;
-		//void setInterrupt();
-        //void resetInterrupt();
-    private:
-	Emutime currentTime;
+	
+	private:
+		Emutime currentTime;
 
 	SDL_Surface *screen;
         struct {
