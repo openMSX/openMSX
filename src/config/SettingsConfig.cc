@@ -19,7 +19,6 @@ namespace openmsx {
 
 SettingsConfig::SettingsConfig()
 	: XMLElement("settings")
-	, autoSaveSetting(0)
 	, saveSettingsCommand(*this)
 	, loadSettingsCommand(*this)
 {
@@ -32,7 +31,7 @@ SettingsConfig::SettingsConfig()
 
 SettingsConfig::~SettingsConfig()
 {
-	if (autoSaveSetting && autoSaveSetting->getValue()) {
+	if (mustSaveSettings) {
 		try {
 			saveSetting();
 		} catch (FileException& e) {
@@ -54,25 +53,17 @@ SettingsConfig& SettingsConfig::instance()
 
 void SettingsConfig::loadSetting(FileContext& context, const string& filename)
 {
-	saveName = context.resolveCreate(filename);
-	auto_ptr<File> file;
 	try {
-		file.reset(new File(context.resolve(filename)));
-	} catch (FileException& e) {
-		autoSaveSetting = &GlobalSettings::instance().getAutoSaveSetting();
-		throw;
-	}
-	try {
+		saveName = context.resolveCreate(filename);
+		File file(context.resolve(filename));
 		auto_ptr<XMLElement> doc(XMLLoader::loadXML(
-			file->getLocalName(), "settings.dtd"));
+			file.getLocalName(), "settings.dtd"));
 		merge(*doc);
 	} catch (XMLException& e) {
 		CliCommOutput::instance().printWarning(
 			"Loading of settings failed: " + e.getMessage() + "\n"
 			"Reverting to default settings.");
 	}
-	// This setting must be retrieved earlier than the destructor.
-	autoSaveSetting = &GlobalSettings::instance().getAutoSaveSetting();
 }
 
 void SettingsConfig::saveSetting(const string& filename)
@@ -82,6 +73,11 @@ void SettingsConfig::saveSetting(const string& filename)
 	string data = "<!DOCTYPE settings SYSTEM 'settings.dtd'>\n" +
 	              dump();
 	file.write((const byte*)data.c_str(), data.size());
+}
+
+void SettingsConfig::setSaveSettings(bool save)
+{
+	mustSaveSettings = save;
 }
 
 

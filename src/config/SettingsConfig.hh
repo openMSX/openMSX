@@ -8,8 +8,6 @@
 
 namespace openmsx {
 
-class BooleanSetting;
-
 class SettingsConfig : public XMLElement
 {
 public:
@@ -17,13 +15,14 @@ public:
 
 	void loadSetting(FileContext& context, const std::string& filename);
 	void saveSetting(const std::string& filename = "");
+	void setSaveSettings(bool save);
 
 private:
 	SettingsConfig();
 	~SettingsConfig();
 
 	std::string saveName;
-	BooleanSetting* autoSaveSetting;
+	bool mustSaveSettings;
 
 	// SaveSettings command
 	class SaveSettingsCommand : public SimpleCommand {

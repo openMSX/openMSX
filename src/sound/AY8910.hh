@@ -101,6 +101,7 @@ private:
 
 	class Amplitude {
 	public:
+		Amplitude();
 		inline unsigned int getVolume(byte chan);
 		inline void setChannelVolume(byte chan, byte value);
 		inline void setEnvelopeVolume(byte volume);

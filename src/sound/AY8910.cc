@@ -185,6 +185,13 @@ inline void AY8910::NoiseGenerator::advance(int duration)
 
 // Amplitude:
 
+AY8910::Amplitude::Amplitude()
+{
+	vol[0] = vol[1] = vol[2] = 0;
+	envChan[0] = envChan[1] = envChan[2] = false;
+	envVolume = 0;
+}
+
 inline unsigned int AY8910::Amplitude::getVolume(byte chan)
 {
 	return vol[chan];

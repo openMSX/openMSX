@@ -6,6 +6,7 @@
 #include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
 #include "StringSetting.hh"
+#include "SettingsConfig.hh"
 
 namespace openmsx {
 
@@ -26,6 +27,11 @@ GlobalSettings::GlobalSettings()
 	        "turns console display on/off", false, Setting::DONT_SAVE));
 	userDirSetting.reset(new StringSetting("user_directories",
 	        "list of user directories", ""));
+}
+
+GlobalSettings::~GlobalSettings()
+{
+	SettingsConfig::instance().setSaveSettings(autoSaveSetting->getValue());
 }
 
 GlobalSettings& GlobalSettings::instance()

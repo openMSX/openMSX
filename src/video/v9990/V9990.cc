@@ -123,14 +123,14 @@ void V9990::reset(const EmuTime& time)
 	Scheduler::instance().removeSyncPoint(this, V9990_VSYNC);
 	Scheduler::instance().removeSyncPoint(this, V9990_HSCAN);
 
-	// Reset IRQs
-	writeIO(INTERRUPT_FLAG, 0xFF, time);
-	
 	// Clear registers / ports
 	memset(regs, 0, sizeof(regs));
 	status = 0;
 	regSelect = 0xFF; // TODO check value for power-on and reset
 	calcDisplayMode();
+	
+	// Reset IRQs
+	writeIO(INTERRUPT_FLAG, 0xFF, time);
 
 	palTiming = false;
 	// Reset sub-systems
@@ -686,7 +686,7 @@ void V9990::scheduleHscan(const EmuTime& time)
 		// every line
 		offset = ticks - (ticks % V9990DisplayTiming::UC_TICKS_PER_LINE);
 	} else {
-		offset =  (regs[INTERRUPT_1] + 256 * (regs[INTERRUPT_2] & 3)) *
+		offset = (regs[INTERRUPT_1] + 256 * (regs[INTERRUPT_2] & 3)) *
 		       V9990DisplayTiming::UC_TICKS_PER_LINE;
 	}
 	int mult = (status & 0x04) ? 3 : 2; // MCLK / XTAL1

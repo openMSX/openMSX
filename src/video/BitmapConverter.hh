@@ -122,9 +122,9 @@ private:
 	  */
 	RenderMethod renderMethod;
 
-	const Pixel *palette16;
-	const Pixel *palette256;
-	const Pixel *palette32768;
+	const Pixel* palette16;
+	const Pixel* palette256;
+	const Pixel* palette32768;
 
 	Blender<Pixel> blender;
 };
