@@ -1,16 +1,16 @@
 // $Id$
 
-// MD5.CC - source code for the C++/object oriented translation and 
+// MD5.CC - source code for the C++/object oriented translation and
 //          modification of MD5.
 
-// Translation and modification (c) 1995 by Mordechai T. Abzug 
+// Translation and modification (c) 1995 by Mordechai T. Abzug
 
-// This translation/ modification is provided "as is," without express or 
+// This translation/ modification is provided "as is," without express or
 // implied warranty of any kind.
 
-// The translator/ modifier does not claim (1) that MD5 will do what you think 
-// it does; (2) that this translation/ modification is accurate; or (3) that 
-// this software is "merchantible."  (Language for this disclaimer partially 
+// The translator/ modifier does not claim (1) that MD5 will do what you think
+// it does; (2) that this translation/ modification is accurate; or (3) that
+// this software is "merchantible."  (Language for this disclaimer partially
 // copied from the disclaimer below).
 
 /* based on:
@@ -51,10 +51,16 @@
 
 class MD5
 {
+	private:
+		// first, some types:
+		typedef unsigned       int uint4; // assumes integer is 4 words long
+		typedef unsigned short int uint2; // assumes short integer is 2 words long
+		typedef unsigned      char uint1; // assumes char is 1 word long
+
 	public:
 		// methods for controlled operation:
 		MD5           ();  // simple initializer
-		void  update  (unsigned char *input, unsigned int input_length);
+		void  update  (uint1 *input, unsigned int input_length);
 		void  update  (std::istream& stream);
 		void  update  (FILE *file);
 		void  update  (std::ifstream& stream);
@@ -73,11 +79,6 @@ class MD5
 		friend std::ostream& operator<< (std::ostream&, MD5 context);
 
 	private:
-		// first, some types:
-		typedef unsigned       int uint4; // assumes integer is 4 words long
-		typedef unsigned short int uint2; // assumes short integer is 2 words long
-		typedef unsigned      char uint1; // assumes char is 1 word long
-
 		// next, the private data:
 		uint4 state[4];
 		uint4 count[2];		// number of *bits*, mod 2^64
@@ -87,8 +88,8 @@ class MD5
 
 		// last, the private methods, mostly static:
 		void init     ();		// called by all constructors
-		void transform(uint1 *buffer);	// does the real update work.  Note 
-		                                // that length is implied to be 64.
+		void transform(uint1 buffer[64]); // does the real update work.  Note
+		                                  // that length is implied to be 64.
 
 		static void encode(uint1 *dest, uint4 *src, uint4 length);
 		static void decode(uint4 *dest, uint1 *src, uint4 length);

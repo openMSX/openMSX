@@ -1,5 +1,8 @@
 $Id$
 
+2003-01-03 Maarten ter Huurne <maarten@treewalker.org>
+	* Fixed Doxygen warnings.
+
 2003-01-02 Maarten ter Huurne <maarten@treewalker.org>
 	* Moved I/O port registration out of VDP and into DeviceFactory.
 	  Eventually, all I/O port registration should move to the machine

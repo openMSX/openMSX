@@ -23,6 +23,11 @@ public:
 	  *   This is kept as a pointer, so any changes to the palette
 	  *   are immediately picked up by convertLine.
 	  *   Used for display mode Graphic7.
+	  * @param palette32768 Pointer to 32768-entries array that specifies
+	  *   VDP colour index to host pixel mapping.
+	  *   This is kept as a pointer, so any changes to the palette
+	  *   are immediately picked up by convertLine.
+	  *   Used when YJK filter is active.
 	  */
 	BitmapConverter(const Pixel *palette16, const Pixel *palette256,
 	                const Pixel *palette32768);
@@ -33,9 +38,9 @@ public:
 	  * @param vramPtr Pointer to VRAM contents.
 	  */
 	inline void convertLine(
-		Pixel *linePtr, const byte *vramPtr0)
+		Pixel *linePtr, const byte *vramPtr)
 	{
-		(this->*renderMethod)(linePtr, vramPtr0, 0);
+		(this->*renderMethod)(linePtr, vramPtr, 0);
 	}
 
 	/** Convert a line of V9938 VRAM to 512 host pixels.

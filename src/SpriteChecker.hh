@@ -229,24 +229,24 @@ public:
 	  * @return The position of the rightmost 1-bit in the pattern.
 	  *   Positions are numbered from left to right.
 	  */
-	static inline int patternWidth(SpritePattern a) {
+	static inline int patternWidth(SpritePattern pattern) {
 		// following code is functionally equivalent with
 		//     int width = 0;
-		//     while(a) { width++; a<<=1; }
+		//     while(pattern) { width++; pattern<<=1; }
 		//     return width;
 
 		int width;
-		if (a & 0xffff) { width  = 16; a &= 0xffff; }
-		else            { width  =  0; a >>= 16;    }
-		if (a & 0x00ff) { width +=  8; a &= 0x00ff; }
-		else            {              a >>=  8;    }
-		if (a & 0x000f) { width +=  4; a &= 0x000f; }
-		else            {              a >>=  4;    }
-		if (a & 0x0003) { width +=  2; a &= 0x0003; }
-		else            {              a >>=  2;    }
+		if (pattern & 0xffff) { width  = 16; pattern &= 0xffff; }
+		else                  { width  =  0; pattern >>= 16;    }
+		if (pattern & 0x00ff) { width +=  8; pattern &= 0x00ff; }
+		else                  {              pattern >>=  8;    }
+		if (pattern & 0x000f) { width +=  4; pattern &= 0x000f; }
+		else                  {              pattern >>=  4;    }
+		if (pattern & 0x0003) { width +=  2; pattern &= 0x0003; }
+		else                  {              pattern >>=  2;    }
 		//if (a & 0x0001) { width +=  2;              } // slower !!!
-		if (a & 0x0001) { width +=  1 + (a & 1);    }
-		else            { width += (a >> 1);        }
+		if (pattern & 0x0001) { width +=  1 + (pattern & 1);    }
+		else                  { width += (pattern >> 1);        }
 		return width;
 	}
 
@@ -272,6 +272,7 @@ private:
 	void updateSprites2(int limit);
 
 	/** Doubles a sprite pattern.
+	  * @param pattern The pattern to double.
 	  */
 	inline SpritePattern doublePattern(SpritePattern pattern);
 

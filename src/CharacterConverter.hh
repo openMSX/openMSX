@@ -17,6 +17,7 @@ class CharacterConverter
 {
 public:
 	/** Create a new bitmap scanline converter.
+	  * @param vdp The VDP of which the VRAM will be converted.
 	  * @param palFg Pointer to 16-entries array that specifies
 	  *   VDP foreground colour index to host pixel mapping.
 	  *   This is kept as a pointer, so any changes to the palette
@@ -31,7 +32,7 @@ public:
 	/** Convert a line of V9938 VRAM to 512 host pixels.
 	  * Call this method in non-planar display modes (Graphic4 and Graphic5).
 	  * @param linePtr Pointer to array where host pixels will be written to.
-	  * @param namePtr Pointer to name table in VRAM.
+	  * @param line Display line number [0..255].
 	  */
 	inline void convertLine(Pixel *linePtr, int line)
 	{
@@ -138,7 +139,7 @@ public:
 
 private:
 	inline Pixel blend(Pixel col1, Pixel col2);
-	
+
 	typedef void (CharacterConverter::*RenderMethod)
 		(Pixel *pixelPtr, int line);
 

@@ -59,7 +59,7 @@ public:
 
 	void frameStart(const EmuTime &time);
 	//void putImage(const EmuTime &time);
-	void setFullScreen(bool);
+	void setFullScreen(bool enabled);
 	void updateTransparency(bool enabled, const EmuTime &time);
 	void updateForegroundColour(int colour, const EmuTime &time);
 	void updateBackgroundColour(int colour, const EmuTime &time);

@@ -122,7 +122,7 @@ public:
 	class VRAMObserver {
 	public:
 		/** Informs the observer of a change in VRAM contents.
-		  * @param addr The address that will change.
+		  * @param address The address that will change.
 		  * @param time The moment in emulated time this change occurs.
 		  */
 		virtual void updateVRAM(int address, const EmuTime &time) = 0;
@@ -191,6 +191,7 @@ public:
 
 	/** Read a byte from VRAM though the CPU interface.
 	  * @param address The address to read.
+	  * @param time The moment in emulated time this read occurs.
 	  * @return The VRAM contents at the specified address.
 	  */
 	inline byte cpuRead(int address, const EmuTime &time) {

@@ -88,7 +88,7 @@ public:
 
 	/** Writes to a command register.
 	  * @param index The register [0..14] to write to.
-	  * @param index The new value for the specified register.
+	  * @param value The new value for the specified register.
 	  * @param time The moment in emulated time this write occurs.
 	  */
 	inline void setCmdReg(byte index, byte value, const EmuTime &time) {

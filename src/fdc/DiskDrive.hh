@@ -17,28 +17,29 @@ class DiskDrive
 {
 	public:
 		virtual ~DiskDrive();
-	
-		/** Is drive ready
+
+		/** Is drive ready?
 		 */
 		virtual bool ready() = 0;
 
-		/** Is disk write protected
+		/** Is disk write protected?
 		 */
 		virtual bool writeProtected() = 0;
 
-		/** Is disk double sided
+		/** Is disk double sided?
 		 */
 		virtual bool doubleSided() = 0;
-		
-		/** Side select
-		 * @param side false = side 0
-		 *             true  = side 1
+
+		/** Side select.
+		 * @param side false = side 0,
+		 *             true  = side 1.
 		 */
 		virtual void setSide(bool side) = 0;
 
 		/** Step head
-		 * @param direction false = out
-		 *                  true  = in
+		 * @param direction false = out,
+		 *                  true  = in.
+		 * @param time The moment in emulated time this action takes place.
 		 */
 		virtual void step(bool direction, const EmuTime &time) = 0;
 
@@ -47,27 +48,33 @@ class DiskDrive
 		virtual bool track00(const EmuTime &time) = 0;
 
 		/** Set motor on/off
-		 * @param status false = off
-		 *               true  = on
+		 * @param status false = off,
+		 *               true  = on.
+		 * @param time The moment in emulated time this action takes place.
 		 */
 		virtual void setMotor(bool status, const EmuTime &time) = 0;
 
-		/** Index pulse at this moment
+		/** Gets the state of the index pulse.
+		 * @param time The moment in emulated time to get the pulse state for.
 		 */
 		virtual bool indexPulse(const EmuTime &time) = 0;
 
-		/** How many index pulses between these two time stamps
+		/** Count the number index pulses in an interval.
+		 * @param begin Begin time of interval.
+		 * @param end End time of interval.
+		 * @return The number of index pulses between "begin" and "end".
 		 */
 		virtual int indexPulseCount(const EmuTime &begin,
 		                            const EmuTime &end) = 0;
 
-		/** Set head loaded status
-		 * @param status false = not loaded
-		 *               true  = loaded
+		/** Set head loaded status.
+		 * @param status false = not loaded,
+		 *               true  = loaded.
+		 * @param time The moment in emulated time this action takes place.
 		 */
 		virtual void setHeadLoaded(bool status, const EmuTime &time) = 0;
 
-		/** Is head loaded
+		/** Is head loaded?
 		 */
 		virtual bool headLoaded(const EmuTime &time) = 0;
 
@@ -88,7 +95,7 @@ class DiskDrive
 
 
 /**
- * This class implements a not connected disk drive
+ * This class implements a not connected disk drive.
  */
 class DummyDrive : public DiskDrive
 {
@@ -168,7 +175,7 @@ class RealDrive : public DiskDrive, public Command
 
 
 /**
- * This class implements a sigle sided drive
+ * This class implements a sigle sided drive.
  */
 class SingleSidedDrive : public RealDrive
 {
@@ -192,7 +199,7 @@ class SingleSidedDrive : public RealDrive
 
 
 /**
- * This class implements a double sided drive
+ * This class implements a double sided drive.
  */
 class DoubleSidedDrive : public RealDrive
 {

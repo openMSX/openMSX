@@ -84,16 +84,16 @@ class CPU
 		const EmuTime &getTargetTime();
 
 		/**
-		 * Read a byte from memory. If possible the byte is read from 
+		 * Read a byte from memory. If possible the byte is read from
 		 * cache, otherwise the readMem() method of CPUInterface is used.
 		 */
-		byte CPU::readMem(word address);
-		
+		byte readMem(word address);
+
 		/**
-		 * Write a byte from memory. If possible the byte is written to 
+		 * Write a byte from memory. If possible the byte is written to
 		 * cache, otherwise the writeMem() method of CPUInterface is used.
 		 */
-		void CPU::writeMem(word address, byte value);
+		void writeMem(word address, byte value);
 
 		/**
 		 * Invalidate the CPU its cache for the interval 
