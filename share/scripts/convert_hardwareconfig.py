@@ -404,25 +404,37 @@ def convertDevice(node, checksums):
 		node.appendChild(drivesNode)
 
 	# Bundle generic ROM parameters in <rom> tag.
+	def convertFileName(fileNameParam):
+		romParams = extractElements(node, [ fileNameParam ])
+		if romParams == []:
+			return None
+		assert len(romParams) == 1
+		paramNode = romParams[0]
+		print '    grouping rom parameters'
+		romNode = doc.createElement('rom')
+		romNode.appendChild(paramNode)
+		if paramNode.tagName != 'filename':
+			paramNode = renameElement(paramNode, 'filename')
+		fileName = getText(paramNode)
+		fileName = fileName[fileName.rfind('/') + 1 : ]
+		checksum = checksums.get(fileName)
+		if checksum is None:
+			print '    NOTE: no sha1 found for "%s"' % fileName
+		else:
+			print '    inserting sha1 for "%s"' % fileName
+			checksumNode = doc.createElement('sha1')
+			checksumNode.appendChild(doc.createTextNode(checksum))
+			romNode.appendChild(checksumNode)
+		return romNode
 	if deviceType != 'DebugDevice':
-		romParams = extractElements(node, ['filename'])
-		if romParams != []:
-			print '    grouping rom parameters'
-			romNode = doc.createElement('rom')
-			for param in romParams:
-				romNode.appendChild(param)
-				if param.tagName == 'filename':
-					fileName = getText(param)
-					fileName = fileName[fileName.rfind('/') + 1 : ]
-					checksum = checksums.get(fileName)
-					if checksum is None:
-						print '    NOTE: no sha1 found for "%s"' % fileName
-					else:
-						print '    inserting sha1 for "%s"' % fileName
-						checksumNode = doc.createElement('sha1')
-						checksumNode.appendChild(doc.createTextNode(checksum))
-						romNode.appendChild(checksumNode)
+		romNode = convertFileName('filename')
+		if romNode is not None:
 			node.appendChild(romNode)
+		romNode2 = convertFileName('jisyofilename')
+		if romNode2 is not None:
+			romNode.setAttribute('id', 'bunsetsu')
+			romNode2.setAttribute('id', 'jisyo')
+			node.appendChild(romNode2)
 
 	# Bundle generic sound parameters in <sound> tag.
 	soundParams = extractElements(node, ['mode', 'volume'])
