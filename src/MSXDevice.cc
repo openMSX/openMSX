@@ -1,7 +1,6 @@
 // $Id$
 
 #include "MSXDevice.hh"
-#include "MSXMotherBoard.hh"
 
 
 MSXDevice::MSXDevice(MSXConfig::Device *config, const EmuTime &time)
