@@ -18,11 +18,12 @@ public:
 	IconLayer(SDL_Surface* screen);
 	virtual ~IconLayer();
 
+	// Layer interface:
 	virtual void paint();
 	virtual const string& getName();
 
 private:
-	// EventListener
+	// EventListener interface:
 	virtual bool signalEvent(const Event& event);
 
 	SDL_Surface* outputScreen;
