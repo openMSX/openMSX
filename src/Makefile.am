@@ -60,8 +60,6 @@ openmsx_SOURCES=\
 	MSXRTC.hh MSXRTC.cc RP5C01.hh RP5C01.cc \
 	RealTime.hh RealTime.cc \
 	CartridgeSlotManager.hh CartridgeSlotManager.cc \
-	Rom.hh Rom.cc \
-	SRAM.hh SRAM.cc \
 	MSXDeviceSwitch.hh MSXDeviceSwitch.cc \
 	MSXMatsushita.hh MSXMatsushita.cc \
 	FrontSwitch.hh FrontSwitch.cc \

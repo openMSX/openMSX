@@ -1,6 +1,6 @@
 # $Id$
 
-AM_CXXFLAGS_BASE = -Wall -pipe `test -f $(srcdir)/../.debug && echo "-DDEBUG"` -I$(srcdir)/.. -I$(srcdir)/../cpu -I$(srcdir)/../config -I$(srcdir)/../thread -I$(srcdir)/../file -I$(srcdir)/../events -I$(srcdir)/../ConsoleSource -I$(srcdir)/../sound @XML_CFLAGS@ @SDL_CFLAGS@
+AM_CXXFLAGS_BASE = -Wall -pipe `test -f $(srcdir)/../.debug && echo "-DDEBUG"` -I$(srcdir)/.. -I$(srcdir)/../cpu -I$(srcdir)/../config -I$(srcdir)/../thread -I$(srcdir)/../file -I$(srcdir)/../events -I$(srcdir)/../ConsoleSource -I$(srcdir)/../sound -I$(srcdir)/../cassette @XML_CFLAGS@ @SDL_CFLAGS@
 if PROFILE
 AM_CXXFLAGS = $(AM_CXXFLAGS_BASE) -pg
 else
@@ -19,6 +19,8 @@ libMemory_la_SOURCES = \
 	MSXMemoryMapper.cc MSXMemoryMapper.hh \
 	MSXRam.cc MSXRam.hh \
 	MSXRomCLI.cc MSXRomCLI.hh \
+	SRAM.hh SRAM.cc \
+	Rom.cc Rom.hh \
 	RomInfo.cc RomInfo.hh \
 	RomTypes.hh \
 	MSXRom.cc MSXRom.hh \
@@ -52,6 +54,9 @@ libMemory_la_SOURCES = \
 	PanasonicMemory.cc PanasonicMemory.hh \
 	PanasonicRam.cc PanasonicRam.hh \
 	PanasonicRom.cc PanasonicRom.hh
+
+libMemory_la_LIBADD = \
+	../cassette/libCassette.la
 
 nodebug: resetdebug all
 debug: setdebug all
