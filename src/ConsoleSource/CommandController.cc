@@ -10,7 +10,7 @@
 #include "openmsx.hh"
 #include "MSXConfig.hh"
 #include "CommandController.hh"
-#include "ConsoleManager.hh"
+#include "Console.hh"
 
 
 CommandController::CommandController()
@@ -244,9 +244,9 @@ bool CommandController::completeString2(std::string &string,
 		// print all possibilities
 		for (it = list.begin(); it != list.end(); it++) {
 			// TODO print more on one line
-			ConsoleManager::instance()->print(*it);
+			Console::instance()->print(*it);
 		}
-		ConsoleManager::instance()->print("");	// dummy 
+		Console::instance()->print("");	// dummy 
 	}
 	return false;
 }

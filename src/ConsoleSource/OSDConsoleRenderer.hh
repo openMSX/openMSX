@@ -1,20 +1,19 @@
 // $Id$
 
-#ifndef __SDLINTERACTIVECONSOLE_HH__
-#define __SDLINTERACTIVECONSOLE_HH__
+#ifndef __OSDCONSOLERENDERER_HH__
+#define __OSDCONSOLERENDERER_HH__
 
-#include "EventListener.hh"
-#include "InteractiveConsole.hh"
+#include "ConsoleRenderer.hh"
 #include "Settings.hh"
 
-class SDLInteractiveConsole;
+class OSDConsoleRenderer;
 class FileContext;
 
 
 class BackgroundSetting : public FilenameSetting
 {
 	public:
-		BackgroundSetting(SDLInteractiveConsole *console,
+		BackgroundSetting(OSDConsoleRenderer *console,
 		                  const std::string &filename);
 
 	protected:
@@ -22,13 +21,13 @@ class BackgroundSetting : public FilenameSetting
 		                         const EmuTime &time);
 
 	private:
-		SDLInteractiveConsole* console;
+		OSDConsoleRenderer* console;
 };
 
 class FontSetting : public FilenameSetting
 {
 	public:
-		FontSetting(SDLInteractiveConsole *console,
+		FontSetting(OSDConsoleRenderer *console,
 		            const std::string &filename);
 
 	protected:
@@ -36,26 +35,23 @@ class FontSetting : public FilenameSetting
 		                         const EmuTime &time);
 
 	private:
-		SDLInteractiveConsole* console;
+		OSDConsoleRenderer* console;
 };
 
 
-class SDLInteractiveConsole : public InteractiveConsole, private EventListener
+class OSDConsoleRenderer : public ConsoleRenderer
 {
 	public:
-		SDLInteractiveConsole();
-		virtual ~SDLInteractiveConsole();
+		OSDConsoleRenderer();
+		virtual ~OSDConsoleRenderer();
 		virtual bool loadBackground(const std::string &filename) = 0;
 		virtual bool loadFont(const std::string &filename) = 0;
+		virtual void drawConsole() = 0;
 
 	protected:
 		std::string fontName;
 		std::string backgroundName;
 		FileContext* context;
-		BooleanSetting consoleSetting;
-
-	private:
-		virtual bool signalEvent(SDL_Event &event, const EmuTime &time);
 };
 
 #endif

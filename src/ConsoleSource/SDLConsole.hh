@@ -3,27 +3,23 @@
 #ifndef __SDLCONSOLE_HH__
 #define __SDLCONSOLE_HH__
 
-#include "SDLInteractiveConsole.hh"
+#include "OSDConsoleRenderer.hh"
 
-// forward declaration
-class Font;
 class SDL_Surface;
-class Config;
 
 
-class SDLConsole : public SDLInteractiveConsole
+class SDLConsole : public OSDConsoleRenderer
 {
 	public:
 		SDLConsole(SDL_Surface *screen);
 		virtual ~SDLConsole();
 
-		virtual void drawConsole();
 		virtual bool loadFont(const std::string &filename);
 		virtual bool loadBackground(const std::string &filename);
-
-	private:
+		virtual void drawConsole();
 		virtual void updateConsole();
 
+	private:
 		void alpha(unsigned char alpha);
 		void loadBackground();
 		void position(int x, int y);
@@ -35,7 +31,7 @@ class SDLConsole : public SDLInteractiveConsole
 		static const int CHAR_BORDER = 4;
 
 		// This is the font for the console.
-		Font *font;
+		class Font *font;
 
 		// Surface of the console.
 		SDL_Surface *consoleSurface;
@@ -67,6 +63,8 @@ class SDLConsole : public SDLInteractiveConsole
 		// 
 		BackgroundSetting* backgroundSetting;
 		FontSetting *fontSetting;
+
+		class Console* console;
 };
 
 #endif

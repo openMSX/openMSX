@@ -19,10 +19,13 @@
 #include "SDLFont.hh"
 #include "MSXConfig.hh"
 #include "File.hh"
+#include "Console.hh"
 
 
 SDLConsole::SDLConsole(SDL_Surface *screen)
 {
+	console = Console::instance();
+	
 	blink = false;
 	lastBlinkTime = 0;
 	
@@ -67,6 +70,10 @@ SDLConsole::~SDLConsole()
 // Updates the console buffer
 void SDLConsole::updateConsole()
 {
+	if (!console->isVisible()) {
+		return;
+	}
+	
 	SDL_FillRect(consoleSurface, NULL, 
 	             SDL_MapRGBA(consoleSurface->format, 0, 0, 0, consoleAlpha));
 
@@ -81,18 +88,17 @@ void SDLConsole::updateConsole()
 	}
 
 	int screenlines = consoleSurface->h / font->getHeight();
-	for (int loop=0; loop<screenlines; loop++) {
-		int num = loop+consoleScrollBack;
-		if (num < lines.size())
-			font->drawText(lines[num], CHAR_BORDER,
-			       consoleSurface->h - (1+loop)*font->getHeight());
+	for (int loop = 0; loop < screenlines; loop++) {
+		int num = loop + console->getScrollBack();
+		font->drawText(console->getLine(num), CHAR_BORDER,
+		       consoleSurface->h - (1+loop)*font->getHeight());
 	}
 }
 
 // Draws the console buffer to the screen
 void SDLConsole::drawConsole()
 {
-	if (!consoleSetting.getValue()) {
+	if (!console->isVisible()) {
 		return;
 	}
 	
@@ -108,7 +114,6 @@ void SDLConsole::drawConsole()
 }
 
 
-
 // Draws the command line the user is typing in to the screen
 void SDLConsole::drawCursor()
 {
@@ -116,9 +121,10 @@ void SDLConsole::drawCursor()
 	if (SDL_GetTicks() > lastBlinkTime) {
 		lastBlinkTime = SDL_GetTicks() + BLINK_RATE;
 		blink = !blink;
-		if (consoleScrollBack > 0)
+		if (console->getScrollBack() != 0) {
 			return;
-		int cursorLocation = lines[0].length();
+		}
+		int cursorLocation = console->getLine(0).length();
 		if (blink) {
 			// Print cursor if there is enough room
 			font->drawText(std::string("_"),
@@ -225,7 +231,6 @@ void SDLConsole::resize(SDL_Rect rect)
 	SDL_FillRect(consoleSurface, NULL, 
 	             SDL_MapRGBA(consoleSurface->format, 0, 0, 0, consoleAlpha));
 	
-	consoleScrollBack = 0;	// dependent on previous size
 	position(rect.x, rect.y);
 	reloadBackground();
 }

@@ -14,21 +14,19 @@
 #include <gl.h>
 #endif
 
-#include "SDLInteractiveConsole.hh"
-
-class Font;
-class FileContext;
+#include "OSDConsoleRenderer.hh"
 
 
-class GLConsole : public SDLInteractiveConsole
+class GLConsole : public OSDConsoleRenderer
 {
 	public:
 		GLConsole();
 		virtual ~GLConsole();
 
-		virtual void drawConsole();
 		virtual bool loadFont(const std::string &filename);
 		virtual bool loadBackground(const std::string &filename);
+		virtual void drawConsole();
+		virtual void updateConsole();
 
 	private:
 		int powerOfTwo(int a);
@@ -38,7 +36,7 @@ class GLConsole : public SDLInteractiveConsole
 		static const int BLINK_RATE = 500;
 		static const int CHAR_BORDER = 4;
 
-		Font *font;
+		class Font *font;
 		GLuint backgroundTexture;
 		BackgroundSetting* backgroundSetting;
 		FontSetting* fontSetting;
@@ -48,7 +46,8 @@ class GLConsole : public SDLInteractiveConsole
 		int dispX;
 		int dispY;
 		bool blink;
-		Uint32 lastBlinkTime;
+		unsigned lastBlinkTime;
+		class Console* console;
 };
 
 #endif	// OpenGL header check.

@@ -15,10 +15,12 @@
 #include "DummyFont.hh"
 #include "GLFont.hh"
 #include "File.hh"
+#include "Console.hh"
 
 
 GLConsole::GLConsole()
 {
+	console = Console::instance();
 	SDL_Surface *screen = SDL_GetVideoSurface();
 	blink = false;
 	lastBlinkTime = 0;
@@ -133,10 +135,14 @@ bool GLConsole::loadTexture(const std::string &filename, GLuint &texture,
 	return true;
 }
 
+void GLConsole::updateConsole()
+{
+}
+
 // Draws the console buffer to the screen
 void GLConsole::drawConsole()
 {
-	if (!consoleSetting.getValue()) {
+	if (!console->isVisible()) {
 		return;
 	}
 
@@ -175,14 +181,12 @@ void GLConsole::drawConsole()
 	}
 
 	int screenlines = consoleHeight / font->getHeight();
-	for (int loop=0; loop<screenlines; loop++) {
-		int num = loop+consoleScrollBack;
-		if (num < lines.size()) {
-			glPushMatrix();
-			font->drawText(lines[num], CHAR_BORDER,
-			               consoleHeight - (1+loop)*font->getHeight());
-			glPopMatrix();
-		}
+	for (int loop = 0; loop < screenlines; loop++) {
+		int num = loop + console->getScrollBack();
+		glPushMatrix();
+		font->drawText(console->getLine(num), CHAR_BORDER,
+		               consoleHeight - (1 + loop) * font->getHeight());
+		glPopMatrix();
 	}
 	
 	// Check if the blink period is over
@@ -190,10 +194,10 @@ void GLConsole::drawConsole()
 		lastBlinkTime = SDL_GetTicks() + BLINK_RATE;
 		blink = !blink;
 	}
-	if (consoleScrollBack == 0) {
+	if (console->getScrollBack() == 0) {
 		if (blink) {
 			// Print cursor if there is enough room
-			int cursorLocation = lines[0].length();
+			int cursorLocation = console->getLine(0).length();
 			font->drawText(std::string("_"), 
 			      CHAR_BORDER + cursorLocation * font->getWidth(),
 			      consoleHeight - font->getHeight());

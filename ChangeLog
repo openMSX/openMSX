@@ -1,5 +1,11 @@
 $Id$
 
+2003-04-05 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Reworked consoles:
+	   - splitted console in "core console" and "console renderer",
+	     the main advantage is that command history is preserved
+	     while switching renderers
+
 2003-04-12 Maarten ter Huurne <maarten@treewalker.org>
 	* Created util.hh: currently only contains fillBool, which used to be
 	  duplicated in SDLRenderer and SDLGLRenderer.

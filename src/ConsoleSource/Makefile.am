@@ -13,10 +13,9 @@ endif
 
 noinst_LTLIBRARIES        = libSDL_console.la
 libSDL_console_la_SOURCES = \
-	ConsoleManager.cc ConsoleManager.hh \
 	Console.cc Console.hh \
-	InteractiveConsole.cc InteractiveConsole.hh \
-	SDLInteractiveConsole.cc SDLInteractiveConsole.hh \
+	ConsoleRenderer.cc ConsoleRenderer.hh \
+	OSDConsoleRenderer.cc OSDConsoleRenderer.hh \
 	CircularBuffer.cc CircularBuffer.hh \
 	SDLConsole.cc SDLConsole.hh \
 	GLConsole.cc GLConsole.hh \

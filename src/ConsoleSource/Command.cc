@@ -1,11 +1,11 @@
 // $Id$
 
 #include "Command.hh"
-#include "ConsoleManager.hh"
+#include "Console.hh"
 
 
 void Command::print(const std::string &message) const
 {
-	ConsoleManager::instance()->print(message);
+	Console::instance()->print(message);
 }
 
