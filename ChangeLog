@@ -1,5 +1,10 @@
 $Id$
 
+2004-12-01 David Heremans <david.heremans@gnu-linux.net>
+	* Preparations for integrated IPS patcher
+	* Replaced the test OSD leds with something more fancy that shows the
+	  alpha channel of the png better
+
 2004-12-01 Maarten ter Huurne <maarten@treewalker.org>
 	* Moved coverage and z-index from LayerInfo into Layer.
 	  This also fixes an undefined memory read when Display is destructed.

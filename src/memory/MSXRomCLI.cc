@@ -58,15 +58,26 @@ const string& MSXRomCLI::fileTypeHelp() const
 
 void MSXRomCLI::parse(const string& arg, const string& slotname)
 {
+	bool hasips=false;
+	string ipsfile;
 	string romfile;
 	string mapper;
-	int pos = arg.find_last_of(',');
-	int pos2 = arg.find_last_of('.');
-	if ((pos != -1) && (pos > pos2)) {
+
+	int pos = arg.find_last_of(':');
+	if (pos != -1 ) {
 		romfile = arg.substr(0, pos);
-		mapper = arg.substr(pos + 1);
+		ipsfile = arg.substr(pos + 1);
+		hasips = true;
 	} else {
 		romfile = arg;
+	}
+
+	pos = romfile.find_last_of(',');
+	int pos2 = romfile.find_last_of('.');
+	if ((pos != -1) && (pos > pos2)) {
+		mapper = romfile.substr(pos + 1);
+		romfile = romfile.substr(0, pos);
+	} else {
 		mapper = "auto";
 	}
 	string sramfile = FileOperations::getFilename(romfile);
@@ -95,6 +106,15 @@ void MSXRomCLI::parse(const string& arg, const string& slotname)
 		new XMLElement("sramname", sramfile + ".SRAM")));
 	device->setFileContext(auto_ptr<FileContext>(
 		new UserFileContext("roms/" + sramfile)));
+
+	if ( hasips ) {
+		auto_ptr<XMLElement> ips(new XMLElement("ips"));
+		string sipsfile = FileOperations::getFilename(ipsfile);
+		ips->addChild(auto_ptr<XMLElement>(
+			new XMLElement("filename", sipsfile)));
+		device->addChild(ips);
+	};
+
 	secondary->addChild(device);
 	primary->addChild(secondary);
 	HardwareConfig::instance().getChild("devices").addChild(primary);
