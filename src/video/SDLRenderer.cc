@@ -298,6 +298,8 @@ SDLRenderer<Pixel, zoom>::~SDLRenderer()
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::precalcPalette(float gamma)
 {
+	prevGamma = gamma;
+
 	// It's gamma correction, so apply in reverse.
 	gamma = 1.0 / gamma;
 
@@ -422,8 +424,7 @@ void SDLRenderer<Pixel, zoom>::frameStart(
 
 	float gamma = settings->getGamma()->getValue();
 	// (gamma != prevGamma) gives compiler warnings
-	if ((gamma > prevGamma) || (gamma < prevGamma)) { 
-		prevGamma = gamma;
+	if ((gamma > prevGamma) || (gamma < prevGamma)) {
 		precalcPalette(gamma);
 		resetPalette();
 	}
