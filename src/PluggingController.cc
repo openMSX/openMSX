@@ -25,10 +25,8 @@ PluggingController::~PluggingController()
 
 PluggingController* PluggingController::instance()
 {
-	static PluggingController* oneInstance = NULL;
-	if (oneInstance == NULL)
-		oneInstance = new PluggingController();
-	return oneInstance;
+	static PluggingController oneInstance;
+	return &oneInstance;
 }
 
 
@@ -86,16 +84,7 @@ void PluggingController::PlugCmd::execute(const vector<string> &tokens)
 			break;
 		}
 		case 2: {
-			const Connector* connector = NULL;
-			for (vector<Connector*>::const_iterator it = 
-			                       controller->connectors.begin();
-			     it != controller->connectors.end();
-			     ++it) {
-				if ((*it)->getName() == tokens[1]) {
-					connector = *it;
-					break;
-				}
-			}
+			Connector* connector = controller->getConnector(tokens[1]);
 			if (connector == NULL) {
 				throw CommandException("No such connector");
 			}
@@ -104,29 +93,11 @@ void PluggingController::PlugCmd::execute(const vector<string> &tokens)
 			break;
 		}
 		case 3: {
-			Connector* connector = NULL;
-			for (vector<Connector*>::iterator it =
-				               controller->connectors.begin();
-			     it != controller->connectors.end();
-			     ++it) {
-				if ((*it)->getName() == tokens[1]) {
-					connector = *it;
-					break;
-				}
-			}
+			Connector* connector = controller->getConnector(tokens[1]);
 			if (connector == NULL) {
 				throw CommandException("No such connector");
 			}
-			Pluggable* pluggable = NULL;
-			for (vector<Pluggable*>::iterator it =
-				               controller->pluggables.begin();
-			     it != controller->pluggables.end();
-			     ++it) {
-				if ((*it)->getName() == tokens[2]) {
-					pluggable = *it;
-					break;
-				}
-			}
+			Pluggable* pluggable = controller->getPluggable(tokens[2]);
 			if (pluggable == NULL) {
 				throw CommandException("No such pluggable");
 			}
@@ -164,11 +135,16 @@ void PluggingController::PlugCmd::tabCompletion(vector<string> &tokens) const
 	} else if (tokens.size() == 3) {
 		// complete pluggable
 		set<string> pluggables;
+		Connector* connector = controller->getConnector(tokens[1]);
+		string className = connector ? connector->getClass() : "";
 		for (vector<Pluggable*>::const_iterator it =
-		                       controller->pluggables.begin();
+			 controller->pluggables.begin();
 		     it != controller->pluggables.end();
 		     ++it) {
-			pluggables.insert((*it)->getName());
+			Pluggable* pluggable = *it;
+			if (pluggable->getClass() == className) {
+				pluggables.insert(pluggable->getName());
+			}
 		}
 		CommandController::completeString(tokens, pluggables);
 	}
@@ -183,15 +159,7 @@ void PluggingController::UnplugCmd::execute(const vector<string> &tokens)
 		throw CommandException("Syntax error");
 	}
 	PluggingController* controller = PluggingController::instance();
-	Connector* connector = NULL;
-	for (vector<Connector*>::iterator it = controller->connectors.begin();
-	     it != controller->connectors.end();
-	     ++it) {
-		if ((*it)->getName() == tokens[1]) {
-			connector = *it;
-			break;
-		}
-	}
+	Connector* connector = controller->getConnector(tokens[1]);
 	if (connector == NULL) {
 		throw CommandException("No such connector");
 	}
@@ -219,6 +187,30 @@ void PluggingController::UnplugCmd::tabCompletion(vector<string> &tokens) const
 		}
 		CommandController::completeString(tokens, connectors);
 	}
+}
+
+Connector* PluggingController::getConnector(const string& name)
+{
+	for (vector<Connector*>::const_iterator it = connectors.begin();
+	     it != connectors.end();
+	     ++it) {
+		if ((*it)->getName() == name) {
+			return *it;
+		}
+	}
+	return NULL;
+}
+
+Pluggable* PluggingController::getPluggable(const string& name)
+{
+	for (vector<Pluggable*>::const_iterator it = pluggables.begin();
+	     it != pluggables.end();
+	     ++it) {
+		if ((*it)->getName() == name) {
+			return *it;
+		}
+	}
+	return NULL;
 }
 
 } // namespace openmsx

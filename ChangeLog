@@ -1,5 +1,9 @@
 $Id$
 
+2003-08-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Improved tabcompleteion for plug command:
+	   - only complete pluggables that will fit in the selected connector
+
 2003-08-23 Manuel Bilderbeek <manuel@msxnet.org>
 	* Made the keys of the key joystick configurable.
 	  TODO: make it possible to have more than one key joystick.

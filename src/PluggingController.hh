@@ -39,6 +39,9 @@ public:
 private:
 	PluggingController();
 
+	Connector* getConnector(const string& name);
+	Pluggable* getPluggable(const string& name);
+
 	vector<Connector*> connectors;
 	vector<Pluggable*> pluggables;
 
