@@ -19,7 +19,6 @@ class MSXCPU : public MSXDevice
 		
 		void init();
 		void reset();
-		//void IRQ(bool irq);
 		void setTargetTime(const Emutime &time);
 		void executeUntilTarget(const Emutime &time);
 		

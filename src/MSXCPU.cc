@@ -61,11 +61,6 @@ void MSXCPU::setActiveCPU(int cpu)
 	activeCPU = newCPU;
 }
 
-//void MSXCPU::IRQ(bool irq)
-//{
-//	activeCPU->IRQ(irq);
-//}
-
 void MSXCPU::executeUntilTarget(const Emutime &time)
 {
 	setTargetTime(time);

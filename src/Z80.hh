@@ -54,13 +54,20 @@ class Z80 {
 		void init();
 		void reset();
 
-		int Z80_SingleInstruction();  /* Execute one single CPU instruction    */
-		void Z80_SetWaitStates (int n);    /* Set number of memory wait states.     */
-                                   /* This only affects opcode fetching, so */
-                                   /* wait state adjustment is still        */
-                                   /* necessary in Z80_RDMEM, Z80_RDOP_ARG, */
-                                   /* Z80_RDSTACK and Z80_WRSTACK           */
-		//void Z80_Interrupt(int j);
+		/**
+		 * Execute one single CPU instruction
+		 *  return the T-States of that instruction
+		 */
+		int Z80_SingleInstruction();
+		
+		/**
+		 * Set number of memory wait states.
+		 * This only affects opcode fetching, so
+		 * wait state adjustment is still
+		 * necessary in Z80_RDMEM, Z80_RDOP_ARG,
+		 * Z80_RDSTACK and Z80_WRSTACK           
+		 */
+		void Z80_SetWaitStates (int n);
 
 
 /****************************************************************************/
@@ -146,10 +153,6 @@ typedef struct {
 	unsigned IM, I, R, R2;
 	int ICount;       // T-state count
 } CPU_Regs;
-
-#define Z80_IGNORE_INT  -1   /* Ignore interrupt                            */
-#define Z80_NMI_INT     -2   /* Execute NMI                                 */
-#define Z80_NORM_INT    -3   /* Execute NMI                                 */
 
 	private:
 		#include "Z80Core.hh"

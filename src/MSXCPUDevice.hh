@@ -12,7 +12,6 @@ class MSXCPUDevice
 		virtual ~MSXCPUDevice();
 		virtual void init() = 0;
 		virtual void reset() = 0;
-		//virtual void IRQ(bool irq) = 0;
 		virtual void executeUntilTarget() = 0;
 		virtual Emutime &getCurrentTime();
 		virtual void setCurrentTime(Emutime &time);

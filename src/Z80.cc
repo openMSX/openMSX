@@ -13,9 +13,9 @@
 
 #include <stdio.h>
 #include <iostream>
+#include <assert.h>
 #include "Z80Dasm.h"
 #include "Z80.hh"
-#include "MSXMotherBoard.hh" //
 
 #include "opc__Z80.h"
 
@@ -81,7 +81,7 @@ void Z80::reset()
 /****************************************************************************/
 int Z80::Z80_SingleInstruction() 
 {
-	byte opcode;
+	byte opcode = 0;	// prevent warning
 	if (interface->NMIStatus()) {
 		R.HALT = false; 
 		R.IFF1 = R.nextIFF1 = false;
@@ -104,6 +104,7 @@ int Z80::Z80_SingleInstruction()
 		case 0:
 			// Interrupt mode 0.
 			// TODO current implementation only works for 1-byte instructions
+			//      ok for MSX 
 			opcode = interface->dataBus();
 			break;
 		default:
@@ -119,7 +120,7 @@ int Z80::Z80_SingleInstruction()
 		word start_pc = R.PC.W.l;
 	#endif
 	++R.R;
-	R.ICount = cycles_main[opcode];	// instead of R.Icount=0
+	R.ICount = cycles_main[opcode];
 	(this->*opcode_main[opcode])();;	// R.ICount can be raised extra
 	//  TODO: still need to adapt all other code to change the CurrentCPUTime 
 	#ifdef DEBUG
@@ -542,10 +543,7 @@ void Z80::exx() {
 }
 
 void Z80::halt() {
-	--R.PC.W.l;
 	R.HALT = true;
-	if (R.ICount>0) R.ICount=0;
-	//TODO: Set CurrentCPUTime to targetCPUTime
 }
 
 void Z80::im_0() { R.IM = 0; }
