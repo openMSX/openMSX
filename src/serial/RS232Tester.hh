@@ -24,40 +24,40 @@ class RS232Connector;
 
 class RS232Tester : public RS232Device, private Runnable, private Schedulable
 {
-	public:
-		RS232Tester();
-		virtual ~RS232Tester();
-		
-		// Pluggable
-		virtual void plug(Connector* connector, const EmuTime& time)
-			throw(PlugException);
-		virtual void unplug(const EmuTime& time);
-		virtual const string &getName() const;
+public:
+	RS232Tester();
+	virtual ~RS232Tester();
 
-		// input
-		virtual void signal(const EmuTime& time);
+	// Pluggable
+	virtual void plug(Connector* connector, const EmuTime& time)
+		throw(PlugException);
+	virtual void unplug(const EmuTime& time);
+	virtual const string &getName() const;
 
-		// output
-		virtual void recvByte(byte value, const EmuTime& time);
+	// input
+	virtual void signal(const EmuTime& time);
 
-	private:
-		// Runnable
-		virtual void run();
+	// output
+	virtual void recvByte(byte value, const EmuTime& time);
 
-		// Schedulable
-		virtual void executeUntilEmuTime(const EmuTime& time, int userData);
-		virtual const string& schedName() const;
+private:
+	// Runnable
+	virtual void run();
 
-		Thread thread;
-		FILE* inFile;
-		RS232Connector* connector;
-		list<byte> queue;
-		Semaphore lock; // to protect queue
+	// Schedulable
+	virtual void executeUntilEmuTime(const EmuTime& time, int userData);
+	virtual const string& schedName() const;
 
-		ofstream outFile;
+	Thread thread;
+	FILE *inFile;
+	RS232Connector *connector;
+	list<byte> queue;
+	Semaphore lock; // to protect queue
 
-		FilenameSetting rs232InputFilenameSetting;
-		StringSetting rs232OutputFilenameSetting;
+	ofstream outFile;
+
+	FilenameSetting rs232InputFilenameSetting;
+	StringSetting rs232OutputFilenameSetting;
 };
 
 } // namespace openmsx

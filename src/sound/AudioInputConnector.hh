@@ -5,10 +5,8 @@
 
 #include "Connector.hh"
 
+
 namespace openmsx {
-
-class WavAudioInput;
-
 
 class AudioInputConnector : public Connector {
 public:
@@ -19,9 +17,6 @@ public:
 	virtual const string &getClass() const;
 
 	short readSample(const EmuTime &time);
-
-private:
-	WavAudioInput *wavInput;
 };
 
 } // namespace openmsx

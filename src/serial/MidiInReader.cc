@@ -1,7 +1,6 @@
 // $Id$
 
 #include "MidiInReader.hh"
-#include "PluggingController.hh"
 #include "MidiInConnector.hh"
 #include "Scheduler.hh"
 #include <cstring>
@@ -11,22 +10,20 @@
 namespace openmsx {
 
 MidiInReader::MidiInReader()
-	: thread(this), connector(NULL), lock(1),
-	readFilenameSetting("midi-in-readfilename",
-	"filename of the file where the MIDI input is read from",
-	"/dev/midi")
+	: thread(this), connector(NULL), lock(1)
+	, readFilenameSetting("midi-in-readfilename",
+		"filename of the file where the MIDI input is read from",
+		"/dev/midi")
 {
-	PluggingController::instance()->registerPluggable(this);
 }
 
 MidiInReader::~MidiInReader()
 {
 	Scheduler::instance()->removeSyncPoint(this);
-	PluggingController::instance()->unregisterPluggable(this);
 }
 
 // Pluggable
-void MidiInReader::plug(Connector* connector_, const EmuTime& time)
+void MidiInReader::plug(Connector *connector_, const EmuTime &time)
 	throw(PlugException)
 {
 	file = fopen(readFilenameSetting.getValue().c_str(), "rb");
@@ -35,7 +32,7 @@ void MidiInReader::plug(Connector* connector_, const EmuTime& time)
 			+ string(strerror(errno)) );
 	}
 
-	connector = (MidiInConnector*)connector_;
+	connector = (MidiInConnector *)connector_;
 	connector->setDataBits(SerialDataInterface::DATA_8);	// 8 data bits
 	connector->setStopBits(SerialDataInterface::STOP_1);	// 1 stop bit
 	connector->setParityBit(false, SerialDataInterface::EVEN); // no parity
@@ -43,7 +40,7 @@ void MidiInReader::plug(Connector* connector_, const EmuTime& time)
 	thread.start();
 }
 
-void MidiInReader::unplug(const EmuTime& time)
+void MidiInReader::unplug(const EmuTime &time)
 {
 	lock.down();
 	thread.stop();
@@ -76,7 +73,7 @@ void MidiInReader::run()
 }
 
 // MidiInDevice
-void MidiInReader::signal(const EmuTime& time)
+void MidiInReader::signal(const EmuTime &time)
 {
 	if (!connector->acceptsData()) {
 		queue.clear();
@@ -97,7 +94,7 @@ void MidiInReader::signal(const EmuTime& time)
 }
 
 // Schedulable
-void MidiInReader::executeUntilEmuTime(const EmuTime& time, int userData)
+void MidiInReader::executeUntilEmuTime(const EmuTime &time, int userData)
 {
 	if (connector) {
 		signal(time);
@@ -108,7 +105,7 @@ void MidiInReader::executeUntilEmuTime(const EmuTime& time, int userData)
 	}
 }
 
-const string& MidiInReader::schedName() const
+const string &MidiInReader::schedName() const
 {
 	return getName();
 }

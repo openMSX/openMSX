@@ -9,7 +9,6 @@
 namespace openmsx {
 
 class CassetteDevice;
-class CassettePlayer;
 
 
 class CassettePortInterface : public Connector {
@@ -69,8 +68,6 @@ private:
 	short nextSample;
 	EmuTime prevTime;
 	short *buffer;
-
-	CassettePlayer* player;
 };
 
 class DummyCassettePort : public CassettePortInterface {

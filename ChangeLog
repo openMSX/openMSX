@@ -4,6 +4,9 @@ $Id$
 	* Workaround for bug in shutdown sequence:
 	  MSXCPU::getCurrentTime is needed by audio callback,
 	  but MSXCPU got destroyed before audio was stopped.
+	* Finished Pluggable rewrite:
+	  - all Pluggable instantiation moved to PluggableFactory
+	  - all Pluggable destruction moved to PluggableController
 
 2003-09-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* tab-completion improvements:

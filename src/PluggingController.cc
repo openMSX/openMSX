@@ -24,14 +24,31 @@ PluggingController::~PluggingController()
 {
 	CommandController::instance()->unregisterCommand(&plugCmd,   "plug");
 	CommandController::instance()->unregisterCommand(&unplugCmd, "unplug");
+
+#ifndef NDEBUG
+	// This is similar to an assert: it should never print anything,
+	// but if it does, it helps to catch an error.
+	for (vector<Connector *>::const_iterator it = connectors.begin();
+		it != connectors.end(); ++it
+	) {
+		fprintf(stderr,
+			"ERROR: Connector still plugged at shutdown: %s\n",
+			(*it)->getName().c_str()
+			);
+	}
+#endif
+	for (vector<Pluggable *>::iterator it = pluggables.begin();
+		it != pluggables.end(); ++it
+	) {
+		delete (*it);
+	}
 }
 
-PluggingController* PluggingController::instance()
+PluggingController *PluggingController::instance()
 {
 	static PluggingController oneInstance;
 	return &oneInstance;
 }
-
 
 void PluggingController::registerConnector(Connector *connector)
 {
@@ -40,7 +57,7 @@ void PluggingController::registerConnector(Connector *connector)
 
 void PluggingController::unregisterConnector(Connector *connector)
 {
-	for (vector<Connector*>::iterator it = connectors.begin();
+	for (vector<Connector *>::iterator it = connectors.begin();
 	     it != connectors.end();
 	     ++it) {
 		if ((*it) == connector) {
@@ -58,7 +75,7 @@ void PluggingController::registerPluggable(Pluggable *pluggable)
 
 void PluggingController::unregisterPluggable(Pluggable *pluggable)
 {
-	for (vector<Pluggable*>::iterator it = pluggables.begin();
+	for (vector<Pluggable *>::iterator it = pluggables.begin();
 	     it != pluggables.end();
 	     ++it) {
 		if ((*it) == pluggable) {
@@ -74,10 +91,10 @@ void PluggingController::unregisterPluggable(Pluggable *pluggable)
 void PluggingController::PlugCmd::execute(const vector<string> &tokens)
 {
 	const EmuTime &time = MSXCPU::instance()->getCurrentTime();
-	PluggingController* controller = PluggingController::instance();
+	PluggingController *controller = PluggingController::instance();
 	switch (tokens.size()) {
 		case 1: {
-			for (vector<Connector*>::const_iterator it =
+			for (vector<Connector *>::const_iterator it =
 			                       controller->connectors.begin();
 			     it != controller->connectors.end();
 			     ++it) {
@@ -87,7 +104,7 @@ void PluggingController::PlugCmd::execute(const vector<string> &tokens)
 			break;
 		}
 		case 2: {
-			Connector* connector = controller->getConnector(tokens[1]);
+			Connector *connector = controller->getConnector(tokens[1]);
 			if (connector == NULL) {
 				throw CommandException("No such connector");
 			}
@@ -96,11 +113,11 @@ void PluggingController::PlugCmd::execute(const vector<string> &tokens)
 			break;
 		}
 		case 3: {
-			Connector* connector = controller->getConnector(tokens[1]);
+			Connector *connector = controller->getConnector(tokens[1]);
 			if (connector == NULL) {
 				throw CommandException("No such connector");
 			}
-			Pluggable* pluggable = controller->getPluggable(tokens[2]);
+			Pluggable *pluggable = controller->getPluggable(tokens[2]);
 			if (pluggable == NULL) {
 				throw CommandException("No such pluggable");
 			}
@@ -128,7 +145,7 @@ void PluggingController::PlugCmd::help(const vector<string> &tokens) const
 
 void PluggingController::PlugCmd::tabCompletion(vector<string> &tokens) const
 {
-	PluggingController* controller = PluggingController::instance();
+	PluggingController *controller = PluggingController::instance();
 	if (tokens.size() == 2) {
 		// complete connector
 		set<string> connectors;
@@ -165,8 +182,8 @@ void PluggingController::UnplugCmd::execute(const vector<string> &tokens)
 	if (tokens.size() != 2) {
 		throw CommandException("Syntax error");
 	}
-	PluggingController* controller = PluggingController::instance();
-	Connector* connector = controller->getConnector(tokens[1]);
+	PluggingController *controller = PluggingController::instance();
+	Connector *connector = controller->getConnector(tokens[1]);
 	if (connector == NULL) {
 		throw CommandException("No such connector");
 	}
@@ -182,11 +199,11 @@ void PluggingController::UnplugCmd::help(const vector<string> &tokens) const
 
 void PluggingController::UnplugCmd::tabCompletion(vector<string> &tokens) const
 {
-	PluggingController* controller = PluggingController::instance();
+	PluggingController *controller = PluggingController::instance();
 	if (tokens.size() == 2) {
 		// complete connector
 		set<string> connectors;
-		for (vector<Connector*>::const_iterator it =
+		for (vector<Connector *>::const_iterator it =
 		                       controller->connectors.begin();
 		     it != controller->connectors.end();
 		     ++it) {
@@ -196,9 +213,9 @@ void PluggingController::UnplugCmd::tabCompletion(vector<string> &tokens) const
 	}
 }
 
-Connector* PluggingController::getConnector(const string& name)
+Connector *PluggingController::getConnector(const string& name)
 {
-	for (vector<Connector*>::const_iterator it = connectors.begin();
+	for (vector<Connector *>::const_iterator it = connectors.begin();
 	     it != connectors.end();
 	     ++it) {
 		if ((*it)->getName() == name) {
@@ -208,9 +225,9 @@ Connector* PluggingController::getConnector(const string& name)
 	return NULL;
 }
 
-Pluggable* PluggingController::getPluggable(const string& name)
+Pluggable *PluggingController::getPluggable(const string& name)
 {
-	for (vector<Pluggable*>::const_iterator it = pluggables.begin();
+	for (vector<Pluggable *>::const_iterator it = pluggables.begin();
 	     it != pluggables.end();
 	     ++it) {
 		if ((*it)->getName() == name) {

@@ -1,7 +1,7 @@
 // $Id$
 
 #include "MidiOutLogger.hh"
-#include "PluggingController.hh"
+
 
 namespace openmsx {
 
@@ -10,15 +10,13 @@ MidiOutLogger::MidiOutLogger()
 		"filename of the file where the MIDI output is logged to",
 		"/dev/midi")
 {
-	PluggingController::instance()->registerPluggable(this);
 }
 
 MidiOutLogger::~MidiOutLogger()
 {
-	PluggingController::instance()->unregisterPluggable(this);
 }
 
-void MidiOutLogger::plug(Connector* connector, const EmuTime& time)
+void MidiOutLogger::plug(Connector *connector, const EmuTime &time)
 	throw(PlugException)
 {
 	file.open(logFilenameSetting.getValue().c_str());
@@ -38,7 +36,7 @@ const string& MidiOutLogger::getName() const
 	return name;
 }
 
-void MidiOutLogger::recvByte(byte value, const EmuTime& time)
+void MidiOutLogger::recvByte(byte value, const EmuTime &time)
 {
 	file.put(value);
 	file.flush();

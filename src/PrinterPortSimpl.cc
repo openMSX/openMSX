@@ -1,9 +1,7 @@
 // $Id$
 
-#include <cassert>
 #include "PrinterPortSimpl.hh"
 #include "DACSound8U.hh"
-#include "PluggingController.hh"
 
 
 namespace openmsx {
@@ -11,12 +9,10 @@ namespace openmsx {
 PrinterPortSimpl::PrinterPortSimpl()
 {
 	dac = NULL;
-	PluggingController::instance()->registerPluggable(this);
 }
 
 PrinterPortSimpl::~PrinterPortSimpl()
 {
-	PluggingController::instance()->unregisterPluggable(this);
 	delete dac;	// unplug();
 }
 
@@ -35,7 +31,7 @@ void PrinterPortSimpl::writeData(byte data, const EmuTime &time)
 	dac->writeDAC(data,time);
 }
 
-void PrinterPortSimpl::plug(Connector* connector, const EmuTime& time)
+void PrinterPortSimpl::plug(Connector *connector, const EmuTime &time)
 	throw()
 {
 	short volume = 12000;	// TODO read from config

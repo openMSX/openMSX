@@ -1,7 +1,6 @@
 // $Id$
 
 #include "PrinterPortLogger.hh"
-#include "PluggingController.hh"
 #include "FileContext.hh"
 #include "File.hh"
 #include <cassert>
@@ -16,12 +15,10 @@ PrinterPortLogger::PrinterPortLogger()
 {
 	file = NULL;
 	prevStrobe = true;
-	PluggingController::instance()->registerPluggable(this);
 }
 
 PrinterPortLogger::~PrinterPortLogger()
 {
-	PluggingController::instance()->unregisterPluggable(this);
 	delete file;
 }
 

@@ -22,34 +22,34 @@ class MidiInConnector;
 
 class MidiInReader : public MidiInDevice, private Runnable, private Schedulable
 {
-	public:
-		MidiInReader();
-		virtual ~MidiInReader();
+public:
+	MidiInReader();
+	virtual ~MidiInReader();
 
-		// Pluggable
-		virtual void plug(Connector* connector, const EmuTime& time)
-			throw(PlugException);
-		virtual void unplug(const EmuTime& time);
-		virtual const string &getName() const;
+	// Pluggable
+	virtual void plug(Connector *connector, const EmuTime &time)
+		throw(PlugException);
+	virtual void unplug(const EmuTime &time);
+	virtual const string &getName() const;
 
-		// MidiInDevice
-		virtual void signal(const EmuTime& time);
+	// MidiInDevice
+	virtual void signal(const EmuTime &time);
 
-	private:
-		// Runnable
-		virtual void run();
+private:
+	// Runnable
+	virtual void run();
 
-		// Schedulable
-		virtual void executeUntilEmuTime(const EmuTime& time, int userData);
-		virtual const string& schedName() const;
+	// Schedulable
+	virtual void executeUntilEmuTime(const EmuTime &time, int userData);
+	virtual const string &schedName() const;
 
-		Thread thread;
-		FILE* file;
-		MidiInConnector* connector;
-		list<byte> queue;
-		Semaphore lock; // to protect queue
+	Thread thread;
+	FILE *file;
+	MidiInConnector *connector;
+	list<byte> queue;
+	Semaphore lock; // to protect queue
 
-		StringSetting readFilenameSetting;
+	StringSetting readFilenameSetting;
 
 };
 

@@ -13,37 +13,46 @@ namespace openmsx {
 class Connector;
 class Pluggable;
 
+
+/**
+ * Central administration of Connectors and Pluggables.
+ */
 class PluggingController
 {
 public:
-	~PluggingController();
-	static PluggingController* instance();
-	
+	static PluggingController *instance();
+
 	/**
 	 * Connectors can be (un)registered
 	 * Note: it is not an error when you try to unregister a Connector
 	 *       that was not registered before, in this case nothing happens
-	 *       
+	 *
 	 */
 	void registerConnector(Connector *connector);
 	void unregisterConnector(Connector *connector);
 
 	/**
-	 * Pluggables can be (un)registered
-	 * Note: it is not an error when you try to unregister a Pluggable
-	 *       that was not registered before, in this case nothing happens
+	 * Add a Pluggable to the registry.
+	 * PluggingController has ownership of all registered Pluggables.
 	 */
 	void registerPluggable(Pluggable *pluggable);
+
+	/**
+	 * Removes a Pluggable from the registry.
+	 * If you attempt to unregister a Pluggable that is not in the registry,
+	 * nothing happens.
+	 */
 	void unregisterPluggable(Pluggable *pluggable);
 
 private:
 	PluggingController();
+	~PluggingController();
 
-	Connector* getConnector(const string& name);
-	Pluggable* getPluggable(const string& name);
+	Connector *getConnector(const string &name);
+	Pluggable *getPluggable(const string &name);
 
-	vector<Connector*> connectors;
-	vector<Pluggable*> pluggables;
+	vector<Connector *> connectors;
+	vector<Pluggable *> pluggables;
 
 	// Commands
 	class PlugCmd : public Command {

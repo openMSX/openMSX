@@ -8,22 +8,16 @@
 
 namespace openmsx {
 
-class MidiInReader;
-
-
 class MidiInConnector : public Connector, public SerialDataInterface {
 public:
 	MidiInConnector(const string &name);
 	virtual ~MidiInConnector();
 
 	// Connector
-	virtual const string& getClass() const;
+	virtual const string &getClass() const;
 
 	virtual bool ready() = 0;
 	virtual bool acceptsData() = 0;
-
-private:
-	MidiInReader* reader;
 };
 
 } // namespace openmsx

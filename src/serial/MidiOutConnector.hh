@@ -6,10 +6,8 @@
 #include "Connector.hh"
 #include "SerialDataInterface.hh"
 
+
 namespace openmsx {
-
-class MidiOutLogger;
-
 
 class MidiOutConnector : public Connector, public SerialDataInterface {
 public:
@@ -23,10 +21,7 @@ public:
 	virtual void setDataBits(DataBits bits);
 	virtual void setStopBits(StopBits bits);
 	virtual void setParityBit(bool enable, ParityBit parity);
-	virtual void recvByte(byte value, const EmuTime& time);
-
-private:
-	MidiOutLogger *logger;
+	virtual void recvByte(byte value, const EmuTime &time);
 };
 
 } // namespace openmsx

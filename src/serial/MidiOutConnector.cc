@@ -3,7 +3,6 @@
 #include "MidiOutConnector.hh"
 #include "MidiOutDevice.hh"
 #include "DummyMidiOutDevice.hh"
-#include "MidiOutLogger.hh"
 #include "PluggingController.hh"
 
 
@@ -12,14 +11,12 @@ namespace openmsx {
 MidiOutConnector::MidiOutConnector(const string &name)
 	: Connector(name, new DummyMidiOutDevice())
 {
-	logger = new MidiOutLogger();
 	PluggingController::instance()->registerConnector(this);
 }
 
 MidiOutConnector::~MidiOutConnector()
 {
 	PluggingController::instance()->unregisterConnector(this);
-	delete logger;
 }
 
 const string& MidiOutConnector::getClass() const

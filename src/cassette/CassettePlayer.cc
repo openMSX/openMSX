@@ -1,7 +1,6 @@
 // $Id$
 
 #include "CassettePlayer.hh"
-#include "PluggingController.hh"
 #include "CommandController.hh"
 #include "MSXConfig.hh"
 #include "libxmlx/xmlx.hh"
@@ -77,7 +76,6 @@ CassettePlayer::CassettePlayer()
 	} else {
 		// no cassette image specified
 	}
-	PluggingController::instance()->registerPluggable(this);
 	CommandController::instance()->registerCommand(this, "cassetteplayer");
 
 	int bufSize = Mixer::instance()->registerSound("cassetteplayer", this,
@@ -91,7 +89,6 @@ CassettePlayer::~CassettePlayer()
 	delete[] buffer;
 
 	CommandController::instance()->unregisterCommand(this, "cassetteplayer");
-	PluggingController::instance()->unregisterPluggable(this);
 	delete cassette;
 }
 
@@ -232,7 +229,7 @@ void CassettePlayer::setSampleRate(int sampleRate)
 	delta = EmuDuration(1.0 / sampleRate);
 }
 
-int* CassettePlayer::updateBuffer(int length)
+int *CassettePlayer::updateBuffer(int length)
 {
 	if (!motor && !forcePlay) {
 		return NULL;

@@ -4,7 +4,6 @@
 #include "CassetteDevice.hh"
 #include "DummyCassetteDevice.hh"
 #include "PluggingController.hh"
-#include "CassettePlayer.hh"
 #include "MSXConfig.hh"
 
 
@@ -77,14 +76,12 @@ CassettePort::CassettePort()
 	: CassettePortInterface()
 {
 	buffer = new short[BUFSIZE];
-	player = new CassettePlayer();
 	PluggingController::instance()->registerConnector(this);
 }
 
 CassettePort::~CassettePort()
 {
 	PluggingController::instance()->unregisterConnector(this);
-	delete player;
 	delete[] buffer;
 }
 

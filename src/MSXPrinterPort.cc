@@ -3,8 +3,6 @@
 #include "MSXPrinterPort.hh"
 #include "PrinterPortDevice.hh"
 #include "PluggingController.hh"
-#include "PrinterPortSimpl.hh"
-#include "PrinterPortLogger.hh"
 #include <cassert>
 
 
@@ -19,17 +17,12 @@ MSXPrinterPort::MSXPrinterPort(Device *config, const EmuTime &time)
 	strobe = false;	// != true;
 	reset(time);
 
-	logger = new PrinterPortLogger();
-	simple = new PrinterPortSimpl();
-
 	PluggingController::instance()->registerConnector(this);
 }
 
 MSXPrinterPort::~MSXPrinterPort()
 {
 	PluggingController::instance()->unregisterConnector(this);
-	delete logger;
-	delete simple;
 }
 
 void MSXPrinterPort::reset(const EmuTime &time)
@@ -84,8 +77,8 @@ void MSXPrinterPort::plug(Pluggable *dev, const EmuTime &time)
 	throw(PlugException)
 {
 	Connector::plug(dev, time);
-	((PrinterPortDevice*)pluggable)->writeData(data, time);
-	((PrinterPortDevice*)pluggable)->setStrobe(strobe, time);
+	((PrinterPortDevice *)pluggable)->writeData(data, time);
+	((PrinterPortDevice *)pluggable)->setStrobe(strobe, time);
 }
 
 
@@ -106,7 +99,7 @@ void DummyPrinterPortDevice::writeData(byte data, const EmuTime &time)
 	// ignore data
 }
 
-void DummyPrinterPortDevice::plug(Connector* connector, const EmuTime& time)
+void DummyPrinterPortDevice::plug(Connector *connector, const EmuTime &time)
 	throw ()
 {
 }

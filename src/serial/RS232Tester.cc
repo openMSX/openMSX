@@ -1,7 +1,6 @@
 // $Id$
 
 #include "RS232Tester.hh"
-#include "PluggingController.hh"
 #include "RS232Connector.hh"
 #include "Scheduler.hh"
 
@@ -9,7 +8,7 @@
 namespace openmsx {
 
 RS232Tester::RS232Tester()
-	: thread(this), connector(NULL), lock(1), 
+	: thread(this), connector(NULL), lock(1),
 		rs232InputFilenameSetting("rs232-inputfilename",
                 "filename of the file where the RS232 input is read from",
                 "rs232-input"),
@@ -17,17 +16,15 @@ RS232Tester::RS232Tester()
                 "filename of the file where the RS232 output is written to",
                 "rs232-output")
 {
-	PluggingController::instance()->registerPluggable(this);
 }
 
 RS232Tester::~RS232Tester()
 {
 	Scheduler::instance()->removeSyncPoint(this);
-	PluggingController::instance()->unregisterPluggable(this);
 }
 
 // Pluggable
-void RS232Tester::plug(Connector* connector_, const EmuTime& time)
+void RS232Tester::plug(Connector *connector_, const EmuTime &time)
 	throw(PlugException)
 {
 	// output
@@ -42,7 +39,7 @@ void RS232Tester::plug(Connector* connector_, const EmuTime& time)
 		throw PlugException("Error opening input file");
 	}
 
-	connector = (RS232Connector*)connector_;
+	connector = (RS232Connector *)connector_;
 	connector->setDataBits(SerialDataInterface::DATA_8);	// 8 data bits
 	connector->setStopBits(SerialDataInterface::STOP_1);	// 1 stop bit
 	connector->setParityBit(false, SerialDataInterface::EVEN); // no parity
@@ -50,7 +47,7 @@ void RS232Tester::plug(Connector* connector_, const EmuTime& time)
 	thread.start();
 }
 
-void RS232Tester::unplug(const EmuTime& time)
+void RS232Tester::unplug(const EmuTime &time)
 {
 	// output
 	outFile.close();
@@ -87,7 +84,7 @@ void RS232Tester::run()
 }
 
 // input
-void RS232Tester::signal(const EmuTime& time)
+void RS232Tester::signal(const EmuTime &time)
 {
 	if (!connector->acceptsData()) {
 		queue.clear();
@@ -108,7 +105,7 @@ void RS232Tester::signal(const EmuTime& time)
 }
 
 // Schedulable
-void RS232Tester::executeUntilEmuTime(const EmuTime& time, int userData)
+void RS232Tester::executeUntilEmuTime(const EmuTime &time, int userData)
 {
 	if (connector) {
 		signal(time);
@@ -126,7 +123,7 @@ const string& RS232Tester::schedName() const
 
 
 // output
-void RS232Tester::recvByte(byte value, const EmuTime& time)
+void RS232Tester::recvByte(byte value, const EmuTime &time)
 {
 	outFile.put(value);
 	outFile.flush();

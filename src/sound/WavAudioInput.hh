@@ -13,28 +13,29 @@ namespace openmsx {
 
 class WavAudioInput : public AudioInputDevice, private SettingListener
 {
-	public:
-		WavAudioInput();
-		virtual ~WavAudioInput();
+public:
+	WavAudioInput();
+	virtual ~WavAudioInput();
 
-		// AudioInputDevice
-		virtual const string& getName() const;
-		virtual void plug(Connector* connector, const EmuTime &time) throw(PlugException);
-		virtual void unplug(const EmuTime &time);
-		virtual short readSample(const EmuTime &time);
+	// AudioInputDevice
+	virtual const string &getName() const;
+	virtual void plug(Connector *connector, const EmuTime &time)
+		throw(PlugException);
+	virtual void unplug(const EmuTime &time);
+	virtual short readSample(const EmuTime &time);
 
-	private:
-		void freeWave();
-		void loadWave() throw(MSXException);
-		void update(const SettingLeafNode *setting);
-		
-		int length;
-		Uint8* buffer;
-		int freq;
-		EmuTime reference;
-		bool plugged;
+private:
+	void freeWave();
+	void loadWave() throw(MSXException);
+	void update(const SettingLeafNode *setting);
 
-		FilenameSetting audioInputFilenameSetting;
+	int length;
+	Uint8 *buffer;
+	int freq;
+	EmuTime reference;
+	bool plugged;
+
+	FilenameSetting audioInputFilenameSetting;
 };
 
 } // namespace openmsx

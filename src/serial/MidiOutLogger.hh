@@ -9,27 +9,28 @@
 
 using std::ofstream;
 
+
 namespace openmsx {
 
 class MidiOutLogger : public MidiOutDevice
 {
-	public:
-		MidiOutLogger();
-		virtual ~MidiOutLogger();
+public:
+	MidiOutLogger();
+	virtual ~MidiOutLogger();
 
-		// Pluggable
-		virtual void plug(Connector* connector, const EmuTime& time)
-			throw(PlugException);
-		virtual void unplug(const EmuTime& time);
-		virtual const string &getName() const;
+	// Pluggable
+	virtual void plug(Connector *connector, const EmuTime &time)
+		throw(PlugException);
+	virtual void unplug(const EmuTime &time);
+	virtual const string &getName() const;
 
-		// SerialDataInterface (part)
-		virtual void recvByte(byte value, const EmuTime& time);
-	
-	private:
-		ofstream file;
+	// SerialDataInterface (part)
+	virtual void recvByte(byte value, const EmuTime& time);
 
-		StringSetting logFilenameSetting;
+private:
+	ofstream file;
+
+	StringSetting logFilenameSetting;
 };
 
 } // namespace openmsx

@@ -8,9 +8,6 @@
 
 namespace openmsx {
 
-class RS232Tester;
-
-
 class RS232Connector : public Connector, public SerialDataInterface {
 public:
 	RS232Connector(const string &name);
@@ -26,9 +23,6 @@ public:
 	virtual void recvByte(byte value, const EmuTime& time) = 0;
 	virtual bool ready() = 0;
 	virtual bool acceptsData() = 0;
-
-private:
-	RS232Tester *tester;
 };
 
 } // namespace openmsx
