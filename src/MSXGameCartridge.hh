@@ -41,6 +41,7 @@ class MSXGameCartridge : public MSXMemDevice, public MSXRom
 		bool enabledSCC;
 		bool enabledSRAM;
 		byte *memorySRAM; // SRAM area of Hydlide2/Xanadu/Royal Blood/Gamemaster2
+		byte SRAMEnableBit;
 		word maskSRAM;
 		byte regioSRAM; //bit 0 if SRAM in 0x4000-0x5FFF,1 for 0x6000-0x7FFF,...
 

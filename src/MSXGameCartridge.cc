@@ -36,6 +36,7 @@ MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &tim
 	for (mapperMask=1; mapperMask<nrblocks; mapperMask<<=1);
 	mapperMask--;
 	
+	SRAMEnableBit=0;
 	mapperType = retrieveMapperType();
 	PRT_INFO("mapperType: "<<mapperType);
 
@@ -221,13 +222,16 @@ int MSXGameCartridge::retrieveMapperType()
 			mappertype["HYDLIDE2"]=16;
 
 			mappertype["17"]=17;
-			mappertype["ASCII8SRAM"]=17;
 			mappertype["XANADU"]=17;
-			mappertype["ROYALBLOOD"]=17;
+			mappertype["ASCII8SRAM"]=17;
 
 			mappertype["18"]=18;
-			mappertype["GAMEMASTER2"]=18;
-			mappertype["RC755"]=18;
+			mappertype["ASCII8SRAM2"]=18;
+			mappertype["ROYALBLOOD"]=18;
+
+			mappertype["19"]=19;
+			mappertype["GAMEMASTER2"]=19;
+			mappertype["RC755"]=19;
 
 			// Done
 
@@ -235,7 +239,13 @@ int MSXGameCartridge::retrieveMapperType()
 			mappertype["KONAMIDAC"]=64;
 
 			//TODO: catch wrong options passed
-			return mappertype[type.c_str()];
+			int selecttype= mappertype[type.c_str()];
+			if (selecttype==17){
+				SRAMEnableBit=0x20;
+			} else if (selecttype==18){
+				SRAMEnableBit=0x80;
+			};
+			return selecttype;
 		}
 	} catch (MSXConfig::Exception& e) {
 		// missing parameter
@@ -333,17 +343,22 @@ byte MSXGameCartridge::readMem(word address, const EmuTime &time)
 	if (enabledSCC && 0x9800 <= address && address < 0xA000) {
 		return cartridgeSCC->readMemInterface(address & 0xFF, time);
 	}
+	PRT_DEBUG(std::hex << "GameCartridge read [" << address << "] := " << (int)internalMemoryBank[address>>13][address&0x1fff] << std::dec );
 	return internalMemoryBank[address>>13][address&0x1fff];
 }
 
 byte* MSXGameCartridge::getReadCacheLine(word start)
 {
+	// extra check for SRAM: (enabledSRAM && adr2pag[start>>13]&regioSRAM)
+	// not needed since SRAM may be cached.
 	if ( (enabledSRAM && adr2pag[start>>13]&regioSRAM)
 	    || (enabledSCC && 0x9800<=start && start<0xA000)) {
 		// don't cache SRAM and SCC
+		PRT_DEBUG("No caching for " << std::hex << start << std::dec);
 		return NULL;
 	} else {
 		// assumes CACHE_LINE_SIZE <= 0x2000
+		PRT_DEBUG("Caching for " << std::hex << start << std::dec);
 		return &internalMemoryBank[start>>13][start&0x1fff];
 	}
 }
@@ -493,6 +508,7 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		};
 		break;
 	case 17:
+	case 18:
 		//--==**>> ASCII 8kB cartridges with 8kB SRAM<<**==--
 		// this type is used in Xanadu and Royal Blood
 		//
@@ -505,20 +521,24 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		if (address<0x6000 || address>=0x8000){
 			//Normal ASCII8 would return but maybe 
 			//we are writting to the SRAM?
+			PRT_DEBUG(std::hex << "regioSRAM "<< (int)regioSRAM << std::dec << std::hex << "adr2pag[address>>13] "<< (int)adr2pag[address>>13] << std::dec );
 			if (adr2pag[address>>13]&regioSRAM&0x0C){ 
 				memorySRAM[address & maskSRAM]=value;
+				PRT_DEBUG(std::hex << "SRAM write  [" << address << "] := " << (int)value << std::dec );
 			}
 		} else {
 			region = ((address>>11)&3)+2;
-			if (value&0xA0){
+			PRT_DEBUG(std::hex << "write  GameCart[" << address << "] := " << (int)value << std::dec);
+			if (value & SRAMEnableBit){
 				//bit 7 for Royal Blood
 				//bit 5 for Xanadu
 				setBank(region, memorySRAM);
-				regioSRAM|=adr2pag[address>>13];
+				regioSRAM|=adr2pag[region];
+				PRT_DEBUG("SRAM mapped in (region "<<(int)region<<"): regioSRAM="<<(int)regioSRAM<<"\n");
 			} else {
 				value &= mapperMask;
 				setBank(region, memoryBank+(value<<13));
-				regioSRAM&=(!adr2pag[address>>13]);
+				regioSRAM&=(!adr2pag[region]);
 			}
 		};
 		break;
