@@ -209,7 +209,7 @@ private:
 
 	/** counters
 	  */
-	word ANX, ANY;
+	word ASX, ADX, ANX, ANY;
 	
 	/** Create the engines for a given command.
 	  * For each bitdepth, a separate engine is created.

@@ -7,6 +7,11 @@
 
 namespace openmsx {
 
+static const byte DIY = 0x08;
+static const byte DIX = 0x04;
+static const byte NEQ = 0x02;
+static const byte MAJ = 0x01;
+
 // 2 bpp --------------------------------------------------------------
 inline uint V9990CmdEngine::V9990Bpp2::addressOf(int x, int y, int imageWidth)
 {
@@ -234,7 +239,7 @@ void V9990CmdEngine::setCmdReg(byte reg, byte value, const EmuTime& time)
 		NY = (NY & 0x00FF) | ((value & 0x0F) << 8);
 		break;
 	case 12: // ARG
-		ARG = value &0x0F;
+		ARG = value & 0x0F;
 		break;
 	case 13: // LOGOP
 		LOG = value & 0x1F;
@@ -367,10 +372,10 @@ void V9990CmdEngine::CmdLMMC<V9990CmdEngine::V9990Bpp16>::execute(const EmuTime&
 		value = engine->logOp(engine->data, value, mask);
 		vram->writeVRAM(engine->dstAddress, value);
 		if(! (++(engine->dstAddress) & 0x01)) {
-			int dx = (engine->ARG & 0x04) ? -1 : 1;
+			int dx = (engine->ARG & DIX) ? -1 : 1;
 			engine->DX += dx;
 			if (!(--(engine->ANX))) {
-				int dy = (engine->ARG & 0x08) ? -1 : 1;
+				int dy = (engine->ARG & DIY) ? -1 : 1;
 				engine->DX -= (engine->NX * dx);
 				engine->DY += dy;
 				if(! (--(engine->ANY))) {
@@ -400,10 +405,10 @@ void V9990CmdEngine::CmdLMMC<Mode>::execute(const EmuTime& time)
 			                      value, mask);
 			Mode::pset(vram, engine->DX, engine->DY, width, value);
 			
-			int dx = (engine->ARG & 0x04) ? -1 : 1;
+			int dx = (engine->ARG & DIX) ? -1 : 1;
 			engine->DX += dx;
 			if (!--(engine->ANX)) {
-				int dy = (engine->ARG & 0x08) ? -1 : 1;
+				int dy = (engine->ARG & DIY) ? -1 : 1;
 				engine->DX -= (engine->NX * dx);
 				engine->DY += dy;
 				if (!--(engine->ANY)) {
@@ -457,8 +462,8 @@ void V9990CmdEngine::CmdLMMV<Mode>::execute(const EmuTime& time)
 		int ppb = Mode::PIXELS_PER_BYTE; 
 		width /= ppb;
 	}
-	int dx = (engine->ARG & 0x04) ? -1 : 1;
-	int dy = (engine->ARG & 0x08) ? -1 : 1;
+	int dx = (engine->ARG & DIX) ? -1 : 1;
+	int dy = (engine->ARG & DIY) ? -1 : 1;
 	while (true) {
 		word value = Mode::point(vram, engine->DX, engine->DY, width);
 		byte mask = Mode::shiftDown(engine->WM, engine->DX);
@@ -544,8 +549,8 @@ void V9990CmdEngine::CmdLMMM<Mode>::execute(const EmuTime& time)
 		int ppb = Mode::PIXELS_PER_BYTE; 
 		width /= ppb;
 	}
-	int dx = (engine->ARG & 0x04) ? -1 : 1;
-	int dy = (engine->ARG & 0x08) ? -1 : 1;
+	int dx = (engine->ARG & DIX) ? -1 : 1;
+	int dy = (engine->ARG & DIY) ? -1 : 1;
 	while (true) {
 		word src  = Mode::point(vram, engine->SX, engine->SY, width);
 		word dest = Mode::point(vram, engine->DX, engine->DY, width);
@@ -659,8 +664,8 @@ void V9990CmdEngine::CmdCMMM<Mode>::execute(const EmuTime& time)
 		int ppb = Mode::PIXELS_PER_BYTE; 
 		width /= ppb;
 	}
-	int dx = (engine->ARG & 0x04) ? -1 : 1;
-	int dy = (engine->ARG & 0x08) ? -1 : 1;
+	int dx = (engine->ARG & DIX) ? -1 : 1;
+	int dy = (engine->ARG & DIY) ? -1 : 1;
 	while (true) {
 		if (!engine->bitsLeft) {
 			engine->data = vram->readVRAM(engine->srcAddress++);
@@ -729,8 +734,8 @@ void V9990CmdEngine::CmdBMXL<Mode>::start(const EmuTime& time)
 void V9990CmdEngine::CmdBMXL<V9990CmdEngine::V9990Bpp16>::execute(const EmuTime& time)
 {
 	int width = engine->vdp->getImageWidth();
-	int dx = (engine->ARG & 0x04) ? -1 : 1;
-	int dy = (engine->ARG & 0x08) ? -1 : 1;
+	int dx = (engine->ARG & DIX) ? -1 : 1;
+	int dy = (engine->ARG & DIY) ? -1 : 1;
 
 	while (true) {
 		byte value = vram->readVRAM(engine->dstAddress);
@@ -762,8 +767,8 @@ template <class Mode>
 void V9990CmdEngine::CmdBMXL<Mode>::execute(const EmuTime& time)
 {
 	int width = engine->vdp->getImageWidth() / Mode::PIXELS_PER_BYTE;
-	int dx = (engine->ARG & 0x04) ? -1 : 1;
-	int dy = (engine->ARG & 0x08) ? -1 : 1;
+	int dx = (engine->ARG & DIX) ? -1 : 1;
+	int dy = (engine->ARG & DIY) ? -1 : 1;
 
 	while (true) {
 		byte data = vram->readVRAM(engine->srcAddress++);
@@ -833,8 +838,8 @@ void V9990CmdEngine::CmdBMLX<Mode>::execute(const EmuTime& time)
 		int ppb = Mode::PIXELS_PER_BYTE; 
 		width /= ppb;
 	}
-	int dx = (engine->ARG & 0x04) ? -1 : 1;
-	int dy = (engine->ARG & 0x08) ? -1 : 1;
+	int dx = (engine->ARG & DIX) ? -1 : 1;
+	int dy = (engine->ARG & DIY) ? -1 : 1;
 
 	word tmp = 0;
 	engine->bitsLeft = 16;
@@ -903,13 +908,84 @@ V9990CmdEngine::CmdLINE<Mode>::CmdLINE(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdLINE<Mode>::start(const EmuTime& time)
 {
-	std::cout << "V9990: LINE not yet implemented" << std::endl;
-	engine->cmdReady(); // TODO dummy implementation
+	PRT_DEBUG("LINE: DX=" << std::dec << engine->DX <<
+	          " DY=" << std::dec << engine->DY <<
+	          " MJ=" << std::dec << engine->NX <<
+	          " MI=" << std::dec << engine->NY <<
+	          " ARG="<< std::hex << (int)engine->ARG <<
+	          " LOG="<< std::hex << (int)engine->LOG <<
+	          " WM=" << std::hex << engine->WM <<
+	          " FC=" << std::hex << engine->fgCol <<
+	          " Bpp="<< std::hex << Mode::PIXELS_PER_BYTE);
+
+	engine->ASX = (engine->NX - 1) / 2;
+	engine->ADX = engine->DX;
+	engine->ANX = 0;
+	
+	// TODO should be done by sync
+	execute(time);
 }
 
 template <class Mode>
 void V9990CmdEngine::CmdLINE<Mode>::execute(const EmuTime& time)
 {
+	int width = engine->vdp->getImageWidth();
+	if (Mode::PIXELS_PER_BYTE) {
+		// hack to avoid "warning: division by zero"
+		int ppb = Mode::PIXELS_PER_BYTE; 
+		width /= ppb;
+	}
+
+	int TX = (engine->ARG & DIX) ? -1 : 1;
+	int TY = (engine->ARG & DIY) ? -1 : 1;
+	//int delta = LINE_TIMING[engine->getTiming()];
+
+	if ((engine->ARG & MAJ) == 0) {
+		// X-Axis is major direction.
+		//while (clock.before(time)) {
+		while (true) {
+			word value = Mode::point(vram, engine->ADX, engine->DY, width);
+			byte mask = Mode::shiftDown(engine->WM, engine->DX);
+			value = engine->logOp(Mode::shiftDown(engine->fgCol, engine->DX),
+			                      value, mask);
+			Mode::pset(vram, engine->ADX, engine->DY, width, value);
+			//clock += delta;
+			
+			engine->ADX += TX;
+			if (engine->ASX < engine->NY) {
+				engine->ASX += engine->NX;
+				engine->DY += TY;
+			}
+			engine->ASX -= engine->NY;
+			//engine->ASX &= 1023; // mask to 10 bits range
+			if (engine->ANX++ == engine->NX || (engine->ADX & width)) {
+				engine->cmdReady();
+				break;
+			}
+		}
+	} else {
+		// Y-Axis is major direction.
+		//while (clock.before(time)) {
+		while (true) {
+			word value = Mode::point(vram, engine->ADX, engine->DY, width);
+			byte mask = Mode::shiftDown(engine->WM, engine->DX);
+			value = engine->logOp(Mode::shiftDown(engine->fgCol, engine->DX),
+			                      value, mask);
+			Mode::pset(vram, engine->ADX, engine->DY, width, value);
+			//clock += delta;
+			engine->DY += TY;
+			if (engine->ASX < engine->NY) {
+				engine->ASX += engine->NX;
+				engine->ADX += TX;
+			}
+			engine->ASX -= engine->NY;
+			//engine->ASX &= 1023; // mask to 10 bits range
+			if (engine->ANX++ == engine->NX || (engine->ADX & width)) {
+				engine->cmdReady();
+				break;
+			}
+		}
+	}
 }
 
 // ====================================================================
