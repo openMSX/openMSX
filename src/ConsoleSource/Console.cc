@@ -142,8 +142,9 @@ void Console::commandHelp()
 	}
 }
 
-void Console::commandExecute(const char* backStrings)
+void Console::commandExecute(const std::string cmd)
 {
+	const char *backStrings = cmd.c_str();
 	// Get the command out of the string
 	char command[CHARS_PER_LINE];
 	if (EOF == sscanf(backStrings, "%s", command))
@@ -168,7 +169,7 @@ void Console::autoCommands()
 		commandList = config->getParametersWithClass("");
 		std::list<MSXConfig::Device::Parameter*>::const_iterator i;
 		for (i = commandList->begin(); i != commandList->end(); i++) {
-			commandExecute((*i)->value.c_str());
+			commandExecute((*i)->value);
 		}
 	} catch (MSXConfig::Exception &e) {
 		// no auto commands defined

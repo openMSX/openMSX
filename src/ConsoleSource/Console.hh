@@ -37,11 +37,15 @@ class Console
 		 */
 		void autoCommands();
 		
+		/**
+		 * Execute a given command
+		 */
+		void commandExecute(const std::string backstrings);
+		
 	protected:
 		Console();
 		void tabCompletion();
 		void newLineCommand();
-		void commandExecute(const char *backstrings);
 		void listCommands();
 		void commandHelp();
 		void out(const char *str, ...);

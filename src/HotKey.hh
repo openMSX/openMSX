@@ -4,6 +4,7 @@
 #define __HOTKEY_HH__
 
 #include <SDL/SDL.h>
+#include <string>
 #include "EventDistributor.hh"
 #include "Mutex.hh"
 
@@ -19,7 +20,7 @@ class HotKeyListener
 }; 
 
 
-class HotKey : public EventListener
+class HotKey : private EventListener
 {
 	public:
 		virtual ~HotKey();
@@ -32,17 +33,32 @@ class HotKey : public EventListener
 		 */
 		void registerAsyncHotKey(SDLKey key, HotKeyListener *listener);
 
-
-		// EventListener
-		void signalEvent(SDL_Event &event);
+		/**
+		 * When the given hotkey is pressed the given command is
+		 * automatically executed.
+		 */
+		void registerHotKeyCommand(SDLKey key, std::string command);
 
 	private:
+		// EventListener
+		virtual void signalEvent(SDL_Event &event);
+
 		HotKey();
 		static HotKey *oneInstance;
 
 		int nbListeners;
 		std::multimap <SDLKey, HotKeyListener*> map;
 		Mutex mapMutex;	// to lock variable map
+
+	class HotKeyCmd : public HotKeyListener
+	{
+		public:
+			HotKeyCmd(std::string cmd);
+			virtual ~HotKeyCmd();
+			virtual void signalHotKey(SDLKey key);
+		private:
+			std::string command;
+	};
 };
 
 #endif

@@ -2,6 +2,7 @@
 
 #include "openmsx.hh"
 #include "HotKey.hh"
+#include "ConsoleSource/Console.hh"
 
 
 HotKey::HotKey()
@@ -34,6 +35,12 @@ void HotKey::registerAsyncHotKey(SDLKey key, HotKeyListener *listener)
 	nbListeners++;
 }
 
+void HotKey::registerHotKeyCommand(SDLKey key, std::string command)
+{
+	PRT_DEBUG("HotKey command registration for key " << ((int)key));
+	HotKeyCmd *cmd = new HotKeyCmd(command);
+	registerAsyncHotKey(key, cmd);
+}
 
 // EventListener
 //  note: runs in different thread
@@ -49,4 +56,17 @@ void HotKey::signalEvent(SDL_Event &event)
 		it->second->signalHotKey(key);
 	}
 	mapMutex.release();
+}
+
+
+HotKey::HotKeyCmd::HotKeyCmd(std::string cmd)
+{
+	command = cmd;
+}
+HotKey::HotKeyCmd::~HotKeyCmd()
+{
+}
+void HotKey::HotKeyCmd::signalHotKey(SDLKey key)
+{
+	Console::instance()->commandExecute(command);
 }

@@ -762,7 +762,7 @@ byte VDP::readIO(byte port, const EmuTime &time)
 
 void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 {
-	PRT_DEBUG("VDP[" << (int)reg << "] = " << std::hex << (int)val << std::dec);
+	//PRT_DEBUG("VDP[" << (int)reg << "] = " << std::hex << (int)val << std::dec);
 
 	if (reg>=47) {
 		// ignore non-existing registers
