@@ -8,8 +8,9 @@
 #include "Renderer.hh"
 #include "CharacterConverter.hh"
 #include "BitmapConverter.hh"
+#include "EmuTime.hh"
+#include "VDP.hh"
 
-class VDP;
 class VDPVRAM;
 class SDLConsole;
 
@@ -59,19 +60,17 @@ public:
 	void updateVRAM(int addr, byte data, const EmuTime &time);
 
 private:
+	// TODO: Now that "until" is here, "limit" becomes obsolete.
 	typedef void (SDLHiRenderer::*PhaseHandler)
-		(int line, int limit, const EmuTime &time);
+		(int line, int limit, const EmuTime &until);
 	typedef void (SDLHiRenderer::*DirtyChecker)
 		(int addr, byte data, const EmuTime &time);
 
 	inline void sync(const EmuTime &time);
 
-	inline void renderBitmapLines(
-		int line, int number, const EmuTime &time);
-	inline void renderPlanarBitmapLines(
-		int line, int number, const EmuTime &time);
-	inline void renderCharacterLines(
-		int line, int number, const EmuTime &time);
+	inline void renderBitmapLines(int line, const EmuTime &until);
+	inline void renderPlanarBitmapLines(int line, const EmuTime &until);
+	inline void renderCharacterLines(int line, const EmuTime &until);
 
 	/** Get width of the left border in pixels.
 	  * This is equal to the X coordinate of the display area.
@@ -102,13 +101,13 @@ private:
 	  * Used for borders and during blanking.
 	  * @param limit Render lines [currentLine..limit).
 	  */
-	void blankPhase(int line, int limit, const EmuTime &time);
+	void blankPhase(int line, int limit, const EmuTime &until);
 
 	/** Render pixels according to VRAM.
 	  * Used for the display part of scanning.
 	  * @param limit Render lines [currentLine..limit).
 	  */
-	void displayPhase(int line, int limit, const EmuTime &time);
+	void displayPhase(int line, int limit, const EmuTime &until);
 
 	/** Dirty checking that does nothing (but is a valid method).
 	  */
@@ -145,6 +144,10 @@ private:
 	/** The VRAM whose contents are used for rendering.
 	  */
 	VDPVRAM *vram;
+
+	/** Current time: the moment up until when the rendering is emulated.
+	  */
+	EmuTimeFreq<VDP::TICKS_PER_SECOND> currentTime;
 
 	/** SDL colours corresponding to each VDP palette entry.
 	  * palFg has entry 0 set to the current background colour,

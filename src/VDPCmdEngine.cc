@@ -43,6 +43,8 @@ static const int REG_ARG = 0x0D; // VDP R#45: argument
 static const int REG_CMD = 0x0E; // VDP R#46: command
 
 static const byte CM_ABRT  = 0x0;
+// TODO: What do commands 1, 2 and 3 do?
+//       Invalid according to data book, but that's no answer.
 static const byte CM_POINT = 0x4;
 static const byte CM_PSET  = 0x5;
 static const byte CM_SRCH  = 0x6;
@@ -310,8 +312,7 @@ void VDPCmdEngine::srchEngine()
 
 	if ((opsCount=cnt)>0) {
 		// Command execution done.
-		status&=0xFE;
-		currEngine=&VDPCmdEngine::dummyEngine;
+		commandDone();
 		// Update SX in VDP registers.
 		borderX = 0xFE00 | SX;
 	}
@@ -386,8 +387,7 @@ void VDPCmdEngine::lineEngine()
 
 	if ((opsCount=cnt)>0) {
 		// Command execution done.
-		status&=0xFE;
-		currEngine=&VDPCmdEngine::dummyEngine;
+		commandDone();
 		cmdReg[REG_DYL]=DY & 0xFF;
 		cmdReg[REG_DYH]=(DY>>8) & 0x03;
 	}
@@ -428,10 +428,8 @@ void VDPCmdEngine::lmmvEngine()
 
 	if ((opsCount=cnt)>0) {
 		// Command execution done.
-		status&=0xFE;
-		currEngine=&VDPCmdEngine::dummyEngine;
-		if (!NY)
-		DY+=TY;
+		commandDone();
+		if (!NY) DY+=TY;
 		cmdReg[REG_DYL]=DY & 0xFF;
 		cmdReg[REG_DYH]=(DY>>8) & 0x03;
 		cmdReg[REG_NYL]=NY & 0xFF;
@@ -476,15 +474,12 @@ void VDPCmdEngine::lmmmEngine()
 
 	if ((opsCount=cnt)>0) {
 		// Command execution done.
-		status&=0xFE;
-		currEngine=&VDPCmdEngine::dummyEngine;
+		commandDone();
 		if (!NY) {
-		SY+=TY;
-		DY+=TY;
-		}
-		else
-		if (SY==-1)
+			SY+=TY;
 			DY+=TY;
+		}
+		else if (SY==-1) DY+=TY;
 		cmdReg[REG_NYL]=NY & 0xFF;
 		cmdReg[REG_NYH]=(NY>>8) & 0x03;
 		cmdReg[REG_SYL]=SY & 0xFF;
@@ -512,10 +507,9 @@ void VDPCmdEngine::lmcmEngine()
 
 		if (!--MMC.ANX || ((MMC.ASX+=MMC.TX)&MMC.MX)) {
 			if (!(--MMC.NY & 1023) || (MMC.SY+=MMC.TY)==-1) {
-				status&=0xFE;
-				currEngine=&VDPCmdEngine::dummyEngine;
-				if (!MMC.NY)
-				MMC.DY+=MMC.TY;
+				// Command execution done.
+				commandDone();
+				if (!MMC.NY) MMC.DY+=MMC.TY;
 				cmdReg[REG_NYL]=MMC.NY & 0xFF;
 				cmdReg[REG_NYH]=(MMC.NY>>8) & 0x03;
 				cmdReg[REG_SYL]=MMC.SY & 0xFF;
@@ -538,20 +532,20 @@ void VDPCmdEngine::lmmcEngine()
 		opsCount-=getVdpTimingValue(LMMV_TIMING);
 		status|=0x80;
 
-		if (!--MMC.ANX || ((MMC.ADX+=MMC.TX)&MMC.MX))
-		if (!(--MMC.NY&1023) || (MMC.DY+=MMC.TY)==-1) {
-			status&=0xFE;
-			currEngine=&VDPCmdEngine::dummyEngine;
-			if (!MMC.NY)
-			MMC.DY+=MMC.TY;
-			cmdReg[REG_NYL]=MMC.NY & 0xFF;
-			cmdReg[REG_NYH]=(MMC.NY>>8) & 0x03;
-			cmdReg[REG_DYL]=MMC.DY & 0xFF;
-			cmdReg[REG_DYH]=(MMC.DY>>8) & 0x03;
-		}
-		else {
-			MMC.ADX=MMC.DX;
-			MMC.ANX=MMC.NX;
+		if (!--MMC.ANX || ((MMC.ADX+=MMC.TX)&MMC.MX)) {
+			if (!(--MMC.NY&1023) || (MMC.DY+=MMC.TY)==-1) {
+				// Command execution done.
+				commandDone();
+				if (!MMC.NY) MMC.DY+=MMC.TY;
+				cmdReg[REG_NYL]=MMC.NY & 0xFF;
+				cmdReg[REG_NYH]=(MMC.NY>>8) & 0x03;
+				cmdReg[REG_DYL]=MMC.DY & 0xFF;
+				cmdReg[REG_DYH]=(MMC.DY>>8) & 0x03;
+			}
+			else {
+				MMC.ADX=MMC.DX;
+				MMC.ANX=MMC.NX;
+			}
 		}
 	}
 }
@@ -595,11 +589,9 @@ void VDPCmdEngine::hmmvEngine()
 	}
 
 	if ((opsCount=cnt)>0) {
-		/* Command execution done */
-		status&=0xFE;
-		currEngine=&VDPCmdEngine::dummyEngine;
-		if (!NY)
-		DY+=TY;
+		// Command execution done.
+		commandDone();
+		if (!NY) DY+=TY;
 		cmdReg[REG_NYL]=NY & 0xFF;
 		cmdReg[REG_NYH]=(NY>>8) & 0x03;
 		cmdReg[REG_DYL]=DY & 0xFF;
@@ -666,9 +658,8 @@ void VDPCmdEngine::hmmmEngine()
 	}
 
 	if ((opsCount=cnt)>0) {
-		/* Command execution done */
-		status&=0xFE;
-		currEngine=&VDPCmdEngine::dummyEngine;
+		// Command execution done.
+		commandDone();
 		if (!NY) {
 			SY+=TY;
 			DY+=TY;
@@ -742,9 +733,8 @@ void VDPCmdEngine::ymmmEngine()
 	}
 
 	if ((opsCount=cnt)>0) {
-		/* Command execution done */
-		status&=0xFE;
-		currEngine=&VDPCmdEngine::dummyEngine;
+		// Command execution done.
+		commandDone();
 		if (!NY) {
 			SY+=TY;
 			DY+=TY;
@@ -778,8 +768,8 @@ void VDPCmdEngine::hmmcEngine()
 
 		if (!--MMC.ANX || ((MMC.ADX+=MMC.TX)&MMC.MX)) {
 			if (!(--MMC.NY&1023) || (MMC.DY+=MMC.TY)==-1) {
-				status&=0xFE;
-				currEngine=&VDPCmdEngine::dummyEngine;
+				// Command execution done.
+				commandDone();
 				if (!MMC.NY) MMC.DY+=MMC.TY;
 				cmdReg[REG_NYL]=MMC.NY & 0xFF;
 				cmdReg[REG_NYH]=(MMC.NY>>8) & 0x03;
@@ -840,22 +830,21 @@ void VDPCmdEngine::executeCommand()
 
 	//reportVdpCommand();
 
+	// TODO: Currently VRAM window is either disabled or 128K.
+	//       Smaller windows would improve performance.
 	switch(cmdReg[REG_CMD] >> 4) {
 	case CM_ABRT:
-		status&=0xFE;
-		currEngine=&VDPCmdEngine::dummyEngine;
+		commandDone();
 		return;
 	case CM_POINT:
-		status&=0xFE;
-		currEngine=&VDPCmdEngine::dummyEngine;
+		commandDone();
 		cmdReg[REG_COL] = point(
 			cmdReg[REG_SXL]+((int)cmdReg[REG_SXH]<<8),
 			cmdReg[REG_SYL]+((int)cmdReg[REG_SYH]<<8)
 			);
 		return;
 	case CM_PSET:
-		status&=0xFE;
-		currEngine=&VDPCmdEngine::dummyEngine;
+		commandDone();
 		pset(
 			cmdReg[REG_DXL]+((int)cmdReg[REG_DXH]<<8),
 			cmdReg[REG_DYL]+((int)cmdReg[REG_DYH]<<8),
@@ -865,33 +854,53 @@ void VDPCmdEngine::executeCommand()
 		return;
 	case CM_SRCH:
 		currEngine=&VDPCmdEngine::srchEngine;
+		vram->getWindow(VDPVRAM::COMMAND_READ).setRange(0, 0x20000);
+		vram->getWindow(VDPVRAM::COMMAND_WRITE).disable();
 		break;
 	case CM_LINE:
 		currEngine=&VDPCmdEngine::lineEngine;
+		vram->getWindow(VDPVRAM::COMMAND_READ).disable();
+		vram->getWindow(VDPVRAM::COMMAND_WRITE).setRange(0, 0x20000);
 		break;
 	case CM_LMMV:
 		currEngine=&VDPCmdEngine::lmmvEngine;
+		vram->getWindow(VDPVRAM::COMMAND_READ).disable();
+		vram->getWindow(VDPVRAM::COMMAND_WRITE).setRange(0, 0x20000);
 		break;
 	case CM_LMMM:
 		currEngine=&VDPCmdEngine::lmmmEngine;
+		vram->getWindow(VDPVRAM::COMMAND_READ).setRange(0, 0x20000);
+		vram->getWindow(VDPVRAM::COMMAND_WRITE).setRange(0, 0x20000);
 		break;
 	case CM_LMCM:
 		currEngine=&VDPCmdEngine::lmcmEngine;
+		vram->getWindow(VDPVRAM::COMMAND_READ).setRange(0, 0x20000);
+		vram->getWindow(VDPVRAM::COMMAND_WRITE).disable();
 		break;
 	case CM_LMMC:
 		currEngine=&VDPCmdEngine::lmmcEngine;
+		vram->getWindow(VDPVRAM::COMMAND_READ).disable();
+		vram->getWindow(VDPVRAM::COMMAND_WRITE).setRange(0, 0x20000);
 		break;
 	case CM_HMMV:
 		currEngine=&VDPCmdEngine::hmmvEngine;
+		vram->getWindow(VDPVRAM::COMMAND_READ).disable();
+		vram->getWindow(VDPVRAM::COMMAND_WRITE).setRange(0, 0x20000);
 		break;
 	case CM_HMMM:
 		currEngine=&VDPCmdEngine::hmmmEngine;
+		vram->getWindow(VDPVRAM::COMMAND_READ).setRange(0, 0x20000);
+		vram->getWindow(VDPVRAM::COMMAND_WRITE).setRange(0, 0x20000);
 		break;
 	case CM_YMMM:
 		currEngine=&VDPCmdEngine::ymmmEngine;
+		vram->getWindow(VDPVRAM::COMMAND_READ).setRange(0, 0x20000);
+		vram->getWindow(VDPVRAM::COMMAND_WRITE).setRange(0, 0x20000);
 		break;
 	case CM_HMMC:
 		currEngine=&VDPCmdEngine::hmmcEngine;
+		vram->getWindow(VDPVRAM::COMMAND_READ).disable();
+		vram->getWindow(VDPVRAM::COMMAND_WRITE).setRange(0, 0x20000);
 		break;
 	default:
 		printf("V9938: Unrecognized opcode %02Xh\n", cmdReg[REG_CMD]);
@@ -948,12 +957,21 @@ void VDPCmdEngine::executeCommand()
 	return;
 }
 
+void VDPCmdEngine::commandDone()
+{
+	status &= 0xFE;
+	currEngine = &VDPCmdEngine::dummyEngine;
+	vram->getWindow(VDPVRAM::COMMAND_READ).disable();
+	vram->getWindow(VDPVRAM::COMMAND_WRITE).disable();
+}
+
 // Added routines for openMSX:
 
 VDPCmdEngine::VDPCmdEngine(VDP *vdp, const EmuTime &time)
+	: currentTime(time)
 {
 	this->vdp = vdp;
-	currentTime = time;
+	//currentTime = time;
 	vram = vdp->getVRAM();
 
 	opsCount = 1;

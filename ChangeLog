@@ -1,5 +1,8 @@
 $Id$
 
+2002-04-16 Maarten ter Huurne <mth@stack.nl>
+	* More VDPVRAM and related cleanups.
+
 2002-04-15 David Heremans <david.heremans@gnu-linux.net>
 	* Enhancements to the developpers FAQ
 

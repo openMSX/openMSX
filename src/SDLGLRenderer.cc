@@ -58,6 +58,7 @@ TODO:
 #ifdef __SDLGLRENDERER_AVAILABLE__
 
 #include "VDP.hh"
+#include "VDPVRAM.hh"
 #include "RealTime.hh"
 //#include "ConsoleSource/SDLConsole.hh"
 #include <math.h>

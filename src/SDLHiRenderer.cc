@@ -48,12 +48,18 @@ inline static void fillBool(bool *ptr, bool value, int nr)
 template <class Pixel> inline void SDLHiRenderer<Pixel>::sync(
 	const EmuTime &time)
 {
-	// TODO: This is still line based.
-	int limit = (vdp->getTicksThisFrame(time) + VDP::TICKS_PER_LINE - 400)
-		/ VDP::TICKS_PER_LINE;
-	if (nextLine < limit) {
-		(this->*phaseHandler)(nextLine, limit, time);
-		nextLine = limit ;
+	if (time > currentTime) {
+		//currentTime = time;
+		// TODO: This is still line based.
+		//       First move is to replace nextLine by currentTime.
+		int limit =
+			(vdp->getTicksThisFrame(time) + VDP::TICKS_PER_LINE - 400)
+			/ VDP::TICKS_PER_LINE;
+		assert(limit <= (vdp->isPalTiming() ? 313 : 262));
+		if (nextLine < limit) {
+			(this->*phaseHandler)(nextLine, limit, time);
+			nextLine = limit ;
+		}
 	}
 }
 
@@ -93,9 +99,8 @@ template <class Pixel> inline Pixel SDLHiRenderer<Pixel>::getBorderColour()
 }
 
 template <class Pixel> inline void SDLHiRenderer<Pixel>::renderBitmapLines(
-	int line, int number, const EmuTime &time)
+	int line, const EmuTime &until)
 {
-	EmuTimeFreq<VDP::TICKS_PER_SECOND> now(time);
 	int mode = vdp->getDisplayMode();
 	// Which bits in the name mask determine the page?
 	int pageMask = 0x200 | vdp->getEvenOddMask();
@@ -104,20 +109,20 @@ template <class Pixel> inline void SDLHiRenderer<Pixel>::renderBitmapLines(
 		int vramLine = (vdp->getNameMask() >> 7) & (pageMask | line);
 		if (lineValidInMode[vramLine] != mode) {
 			int addr = (vramLine << 7) & vdp->getNameMask();
-			const byte *vramPtr = vram->readArea(addr, addr + 128, now);
+			const byte *vramPtr = vram->readArea(
+				addr, addr + 128, currentTime);
 			bitmapConverter.convertLine(
 				getLinePtr(bitmapDisplayCache, vramLine), vramPtr );
 			lineValidInMode[vramLine] = mode;
 		}
 		line = (line + 1) & 0xFF;
-		now += VDP::TICKS_PER_LINE;
-	} while (--number);
+		currentTime += VDP::TICKS_PER_LINE;
+	} while (currentTime < until);
 }
 
 template <class Pixel> inline void SDLHiRenderer<Pixel>::renderPlanarBitmapLines(
-	int line, int number, const EmuTime &time)
+	int line, const EmuTime &until)
 {
-	EmuTimeFreq<VDP::TICKS_PER_SECOND> now(time);
 	int mode = vdp->getDisplayMode();
 	// Which bits in the name mask determine the page?
 	int pageMask = vdp->getEvenOddMask();
@@ -128,8 +133,10 @@ template <class Pixel> inline void SDLHiRenderer<Pixel>::renderPlanarBitmapLines
 		|| lineValidInMode[vramLine | 512] != mode ) {
 			int addr0 = (vramLine << 7) & vdp->getNameMask();
 			int addr1 = addr0 | 0x10000;
-			const byte *vramPtr0 = vram->readArea(addr0, addr0 + 128, now);
-			const byte *vramPtr1 = vram->readArea(addr1, addr1 + 128, now);
+			const byte *vramPtr0 = vram->readArea(
+				addr0, addr0 + 128, currentTime);
+			const byte *vramPtr1 = vram->readArea(
+				addr1, addr1 + 128, currentTime);
 			bitmapConverter.convertLinePlanar(
 				getLinePtr(bitmapDisplayCache, vramLine),
 				vramPtr0, vramPtr1 );
@@ -137,19 +144,20 @@ template <class Pixel> inline void SDLHiRenderer<Pixel>::renderPlanarBitmapLines
 				lineValidInMode[vramLine | 512] = mode;
 		}
 		line = (line + 1) & 0xFF;
-		now += VDP::TICKS_PER_LINE;
-	} while (--number);
+		currentTime += VDP::TICKS_PER_LINE;
+	} while (currentTime < until);
 }
 
 template <class Pixel> inline void SDLHiRenderer<Pixel>::renderCharacterLines(
-	int line, int number, const EmuTime &time)
+	int line, const EmuTime &until)
 {
 	do {
 		// Render this line.
 		characterConverter.convertLine(
 			getLinePtr(charDisplayCache, line), line);
 		line = (line + 1) & 0xFF;
-	} while (--number);
+		currentTime += VDP::TICKS_PER_LINE;
+	} while (currentTime < until);
 }
 
 template <class Pixel> SDLHiRenderer<Pixel>::DirtyChecker
@@ -196,6 +204,7 @@ template <class Pixel> SDLHiRenderer<Pixel>::DirtyChecker
 template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 	VDP *vdp, SDL_Surface *screen, bool fullScreen, const EmuTime &time)
 	: Renderer(fullScreen)
+	, currentTime(time)
 	, characterConverter(vdp, palFg, palBg)
 	, bitmapConverter(palFg, PALETTE256)
 {
@@ -665,8 +674,10 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::blankPhase(
-	int line, int limit, const EmuTime &time)
+	int line, int limit, const EmuTime &until)
 {
+	currentTime += (limit - line) * VDP::TICKS_PER_LINE;
+
 	// TODO: Only redraw if necessary.
 	SDL_Rect rect;
 	rect.x = 0;
@@ -693,7 +704,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::blankPhase(
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
-	int fromLine, int limit, const EmuTime &time)
+	int fromLine, int limit, const EmuTime &until)
 {
 	//cerr << "displayPhase from " << fromLine << " until " << limit << "\n";
 
@@ -722,11 +733,10 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	// Render background lines.
 	// TODO: Complete separation of character and bitmap modes.
 	if (vdp->isBitmapMode()) {
-		int n = limit - fromLine;
-		if (vdp->isPlanar()) renderPlanarBitmapLines(scrolledLine, n, time);
-		else renderBitmapLines(scrolledLine, n, time);
+		if (vdp->isPlanar()) renderPlanarBitmapLines(scrolledLine, until);
+		else renderBitmapLines(scrolledLine, until);
 	} else {
-		renderCharacterLines(scrolledLine, limit - fromLine, time);
+		renderCharacterLines(scrolledLine, until);
 	}
 	// Unlock surface.
 	if (SDL_MUSTLOCK(displayCache)) SDL_UnlockSurface(displayCache);
@@ -833,6 +843,12 @@ template <class Pixel> void SDLHiRenderer<Pixel>::putImage(
 	const EmuTime &time)
 {
 	// Render changes from this last frame.
+	if (time < currentTime) {
+		cout << "Rendered into next frame's time: "
+			<< "frame end = " << time
+			<< ", renderer time = " << currentTime
+			<< "\n";
+	}
 	sync(time);
 
 	// Render console if needed

@@ -5,8 +5,8 @@
 
 #include "openmsx.hh"
 #include "EmuTime.hh"
+#include "VDP.hh"
 
-class VDP;
 class VDPVRAM;
 
 /** VDP command engine by Alex Wulms.
@@ -18,6 +18,19 @@ public:
 	/** Constructor.
 	  */
 	VDPCmdEngine(VDP *vdp, const EmuTime &time);
+
+	/** Synchronises the command engine with the VDP.
+	  * Ideally this would be a private method, but the current
+	  * design doesn't allow that.
+	  * @param time The moment in emulated time to sync to.
+	  */
+	inline void sync(const EmuTime &time) {
+		if (time > currentTime) {
+			// TODO: Currently, commands are executed instantaneously.
+			currentTime = time;
+			(this->*currEngine)();
+		}
+	}
 
 	/** Gets the command engine status (part of S#2).
 	  * Bit 7 (TR) is set when the command engine is ready for
@@ -40,17 +53,6 @@ public:
 		status &= 0x7F;
 		// TODO: Find a way to use REG_COL from here.
 		return cmdReg[0x0C /*REG_COL*/];
-	}
-
-	/** Synchronises the command engine with the VDP.
-	  * Ideally this would be a private method, but the current
-	  * design doesn't allow that.
-	  * @param time The moment in emulated time to sync to.
-	  */
-	inline void sync(const EmuTime &time) {
-		// TODO: Currently, commands are executed instantaneously.
-		currentTime = time;
-		(this->*currEngine)();
 	}
 
 	/** Gets the X coordinate of a border detected by SRCH.
@@ -84,19 +86,6 @@ public:
 	  * @param time The moment in emulated time this change occurs.
 	  */
 	void updateDisplayMode(int mode, const EmuTime &time);
-
-	/** Informs the command engine of a change in VRAM contents.
-	  * TODO: Maybe this is a performance problem, if so think of a
-	  *   smarter way to update (for example, subscribe to VRAM
-	  *   address regions).
-	  * @param addr The address that will change.
-	  * @param time The moment in emulated time this change occurs.
-	  */
-	inline void updateVRAM(int addr, const EmuTime &time) {
-		// TODO: Sync until time if necessary.
-		//       VRAM update tracking is disabled at the moment
-		//       for performance reasons.
-	}
 
 private:
 
@@ -161,6 +150,10 @@ private:
 	/** Perform a given V9938 graphical operation.
 	  */
 	void executeCommand();
+
+	/** Finshed executing graphical operation.
+	  */
+	void commandDone();
 
 	/** Get timing value for a certain VDP command.
 	  * @param timingValues Pointer to a table containing the timing
@@ -272,7 +265,7 @@ private:
 
 	/** Current time: the moment up until when the engine is emulated.
 	  */
-	EmuTimeFreq<21477270> currentTime;
+	EmuTimeFreq<VDP::TICKS_PER_SECOND> currentTime;
 
 };
 

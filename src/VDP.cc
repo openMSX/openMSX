@@ -34,6 +34,7 @@ TODO:
 
 #include "MSXMotherBoard.hh"
 #include "VDP.hh"
+#include "VDPVRAM.hh"
 #include "VDPCmdEngine.hh"
 #include "PlatformFactory.hh"
 #include "ConsoleSource/ConsoleManager.hh"
@@ -44,6 +45,20 @@ TODO:
 
 
 // Inlined methods first, to make sure they are actually inlined:
+
+inline byte VDP::getVRAMReordered(int addr, const EmuTime &time)
+{
+	return vram->cpuRead(
+		isPlanar() ? ((addr << 16) | (addr >> 1)) & vramMask : addr,
+		time);
+}
+
+inline void VDP::setVRAMReordered(int addr, byte value, const EmuTime &time)
+{
+	vram->cpuWrite(
+		isPlanar() ? ((addr << 16) | (addr >> 1)) & vramMask : addr,
+		value, time);
+}
 
 inline VDP::SpritePattern VDP::doublePattern(VDP::SpritePattern a)
 {
@@ -726,8 +741,6 @@ void VDP::writeIO(byte port, byte value, const EmuTime &time)
 		//       This bit is kept by the command engine.
 
 		// TODO: Move all these sync tasks to VDPVRAM.
-		// First sync with the command engine, which can write VRAM.
-		cmdEngine->updateVRAM(addr, time);
 		// Then sync sprite checking, which only reads VRAM and
 		// is used by the Renderer.
 		updateSprites(time);

@@ -5,6 +5,7 @@
 
 #include "openmsx.hh"
 #include "Renderer.hh"
+#include "VDP.hh"
 #include "VDPCmdEngine.hh"
 #include <cassert>
 
@@ -19,12 +20,13 @@ public:
 	  */
 	enum WindowId {
 		COMMAND_READ,
+		COMMAND_WRITE,
 		RENDER_NAME,
 		RENDER_COLOUR,
 		RENDER_PATTERN,
 		RENDER_BITMAP,
 		SPRITES,
-		NUM_READ_WINDOWS
+		NUM_WINDOWS
 	};
 
 	VDPVRAM(int size);
@@ -34,23 +36,30 @@ public:
 	  * Synchronisation with reads by the command engine is skipped.
 	  */
 	inline void cmdWrite(int address, byte value, const EmuTime &time) {
-		if (true || readWindows[RENDER_NAME].isInside(address)
-		|| readWindows[RENDER_COLOUR].isInside(address)
-		|| readWindows[RENDER_PATTERN].isInside(address)
-		|| readWindows[RENDER_BITMAP].isInside(address)) {
+		// Rewriting history is not allowed.
+		//assert(time >= currentTime);
+
+		// Problem: infinite loop (renderer <-> cmdEngine)
+		// Workaround: only dirty check, no render update
+		// Solution: break the chain somehow
+		if (true || windows[RENDER_NAME].isInside(address)
+		|| windows[RENDER_COLOUR].isInside(address)
+		|| windows[RENDER_PATTERN].isInside(address)
+		|| windows[RENDER_BITMAP].isInside(address)) {
 			// TODO: Call separate routines for the different windows.
 			//       Otherwise renderer has to do the range checks again.
 			renderer->updateVRAM(address, value, time);
 		}
 		// TODO: Inform sprites checker.
 		data[address] = value;
+		currentTime = time;
 	}
 
 	/** Write a byte through the CPU interface.
 	  */
 	inline void cpuWrite(int address, byte value, const EmuTime &time) {
-		if (readWindows[COMMAND_READ].isInside(address)
-		|| writeWindow.isInside(address)) {
+		if (windows[COMMAND_READ].isInside(address)
+		|| windows[COMMAND_WRITE].isInside(address)) {
 			cmdEngine->sync(time);
 		}
 		cmdWrite(address, value, time);
@@ -64,18 +73,21 @@ public:
 		return data[address];
 	}
 
-	/** TODO: Get rid of it, currently makes Renderers compile.
+	/** Read a byte though the CPU interface.
 	  */
-	inline byte getVRAM(int address) {
+	inline byte cpuRead(int address, const EmuTime &time) {
+		// VRAM should never get ahead of CPU.
+		//assert(time >= currentTime);
+
+		if (windows[COMMAND_WRITE].isInside(address)) {
+			cmdEngine->sync(time);
+		}
 		return cmdRead(address);
 	}
 
-	/** Read a byte from VRAM.
+	/** TODO: Get rid of it, currently makes Renderers compile.
 	  */
-	inline byte read(int address, const EmuTime &time) {
-		if (writeWindow.isInside(address)) {
-			cmdEngine->sync(time);
-		}
+	inline byte getVRAM(int address) {
 		return cmdRead(address);
 	}
 
@@ -91,7 +103,8 @@ public:
 		assert(0 <= start && start < size);
 		assert(0 <= end && end <= size);
 		assert(start <= end);
-		if (writeWindow.overlaps(start, end)) {
+		if (time < currentTime
+		&& windows[COMMAND_WRITE].overlaps(start, end)) {
 			cmdEngine->sync(time);
 		}
 		return data + start;
@@ -173,8 +186,8 @@ public:
 		int end;
 	};
 
-	inline Window &getReadWindow(WindowId id) {
-		return readWindows[id];
+	inline Window &getWindow(WindowId id) {
+		return windows[id];
 	}
 
 private:
@@ -186,28 +199,18 @@ private:
 	  */
 	int size;
 
-	/** Windows through which various VDP subcomponents read the VRAM.
+	/** Windows through which various VDP subcomponents access the VRAM.
 	  */
-	Window readWindows[NUM_READ_WINDOWS];
-	/** Window through which the command engine writes the VRAM.
-	  */
-	Window writeWindow;
+	Window windows[NUM_WINDOWS];
 
 	Renderer *renderer;
 	VDPCmdEngine *cmdEngine;
 
-};
-
-// TODO: Nice abstraction, but virtual is a large overhead.
-class VRAMListener {
-public:
-
-	/** Informs the listener of a change in VRAM contents.
-	  * @param addr The address that will change.
-	  * @param data The new value.
-	  * @param time The moment in emulated time this change occurs.
+	/** Current time: the moment up until when the VRAM is updated.
+	  * TODO: Is this just for debugging or is it functional?
+	  *       Maybe it should stay in either case, possibly between IFDEFs.
 	  */
-	virtual void updateVRAM(int addr, byte data, const EmuTime &time) = 0;
+	EmuTimeFreq<VDP::TICKS_PER_SECOND> currentTime;
 
 };
 

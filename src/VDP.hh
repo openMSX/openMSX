@@ -6,7 +6,6 @@
 #include "openmsx.hh"
 #include "Schedulable.hh"
 #include "MSXIODevice.hh"
-#include "VDPVRAM.hh"
 #include "IRQHelper.hh"
 #include "IRQHelper.ii"
 #include "EmuTime.hh"
@@ -17,6 +16,7 @@
 
 class EmuTime;
 class VDPCmdEngine;
+class VDPVRAM;
 
 /** Unified implementation of MSX Video Display Processors (VDPs).
   * MSX1 VDP is Texas Instruments TMS9918A or TMS9928A.
@@ -471,11 +471,7 @@ private:
 	  *   No bounds checking is done, so make sure it is a legal address.
 	  * @return The VRAM contents at the specified address.
 	  */
-	inline byte getVRAMReordered(int addr, const EmuTime &time) {
-		return vram->read(
-			isPlanar() ? ((addr << 16) | (addr >> 1)) & vramMask : addr,
-			time);
-	}
+	inline byte getVRAMReordered(int addr, const EmuTime &time);
 
 	/** Write a byte to the VRAM.
 	  * Takes planar addressing into account if necessary.
@@ -483,11 +479,7 @@ private:
 	  * @param value The value to write.
 	  * @param time The moment in emulated time this write occurs.
 	  */
-	inline void setVRAMReordered(int addr, byte value, const EmuTime &time) {
-		vram->cpuWrite(
-			isPlanar() ? ((addr << 16) | (addr >> 1)) & vramMask : addr,
-			value, time);
-	}
+	inline void setVRAMReordered(int addr, byte value, const EmuTime &time);
 
 	/** Doubles a sprite pattern.
 	  */
