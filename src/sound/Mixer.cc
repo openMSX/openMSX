@@ -44,11 +44,11 @@ Mixer::~Mixer()
 
 Mixer* Mixer::instance(void)
 {
-	static Mixer* oneInstance = NULL;
 	if (oneInstance == NULL )
 		oneInstance = new Mixer();
 	return oneInstance;
 }
+Mixer *Mixer::oneInstance = NULL;
 
 
 int Mixer::registerSound(SoundDevice *device, ChannelMode mode)
