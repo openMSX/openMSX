@@ -834,7 +834,6 @@ void VDPCmdEngine::LmcmCmd::start(const EmuTime &time)
 	vram->cmdWriteWindow.disable(currentTime);
 	SX = engine->SX;
 	SY = engine->SY;
-	DY = engine->DY;
 	NX = engine->NX;
 	NY = engine->NY ? engine->NY : 1024;
 	TX = (engine->ARG & DIX) ? -1 : 1;
@@ -857,7 +856,6 @@ void VDPCmdEngine::LmcmCmd::execute(const EmuTime &time)
 			if (!(--NY) || (SY += TY) == -1) {
 				// Command execution done.
 				commandDone();
-				if (!NY) DY += TY;
 				engine->NY = NY;
 				engine->SY = SY;
 			} else {
@@ -865,6 +863,8 @@ void VDPCmdEngine::LmcmCmd::execute(const EmuTime &time)
 				ANX = NX;
 			}
 		}
+	} else {
+		// TODO do we need to adjust opsCount?
 	}
 }
 
