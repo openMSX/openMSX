@@ -88,7 +88,7 @@ void CliCommunicator::cb_start_element(ParseState* user_data,
 		default:
 			break;
 	}
-	user_data->content.clear();
+	user_data->content = ""; // clear() doesn't compile on gcc-2.95
 }
 
 void CliCommunicator::cb_end_element(ParseState* user_data, const xmlChar* name)
