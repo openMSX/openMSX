@@ -34,9 +34,25 @@
 #include <stdexcept>
 #include <sstream>
 
+/// libxmlx namespace
+/**
+ * all libxmlx classes are contained within the XML:: namespace.
+ *
+ * libxmlx - A simple C++ interface for libxml
+ *
+ *
+ * Copyright (C) 2001 Joost Yervante Damad
+ *
+ * Licence: GPL
+ *
+ */
 namespace XML
 {
 
+/**
+ * Exception used by the libxmlx code to signal errors back to
+ * users of the library
+ */
 class Exception: public std::runtime_error
 {
 public:
@@ -50,13 +66,22 @@ private:
 	//Exception &operator=(const Exception &foo); // block usage
 };
 
+/**
+ * An XML attribute, also known as a property.
+ * Example: <node attr="56">foo</node>
+ * here attr is an XML attribute, with name 'attr' and
+ * value '56'
+ */
 class Attribute
 {
 public:
+	/// construct attribute from libxml xmlAttrPtr node
 	Attribute(xmlAttrPtr node);
 	~Attribute();
 
+	/// name of the attribute
 	std::string name;
+	/// value of the attribute
 	std::string value;
 
 	void dump(int recursion=0);
@@ -67,28 +92,38 @@ private:
 	Attribute &operator=(const Attribute &foo); // block usage
 };
 
+/// An XML Element
+/**
+ * An XML Element.
+ * Example: <node attr="56" bar="qw">foo<node>
+ * here attr and bar are the elements' attributes,
+ * and 'foo' is it's pcdata
+ * Example2: <node><child1/><child2/></node>
+ * here child1 and child2 are the node's children
+ */
 class Element
 {
 public:
+	/// construct attribute from libxml xmlNodePtr node
 	Element(xmlNodePtr node);
 	~Element();
 
-	// name of element
+	/// name of the element
 	std::string name;
 
-	// content of element
+	/// content of the element
 	std::string pcdata;
 	
-	// contained elements
+	/// contained elements
 	std::list<Element*> children;
 
-	// attributes [AKA properties]
+	/// attributes of this element
 	std::list<Attribute*> attributes;
 
 	void dump(int recursion=0);
 	
 	/**
-	 * get attribute's value from attribute with name 'name' from 
+	 * get attribute's value from attribute with name 'name' from
 	 * attributelist
 	 */
 	const std::string &getAttribute(const std::string &name);
@@ -103,15 +138,21 @@ private:
 	Element(const Element &foo);            // block usage
 	Element &operator=(const Element &foo); // block usage
 };
-
+/// An XML Document
+/**
+ * The XML Document contains the pointer to the root-element
+ * of the XML tree.
+ */
 class Document
 {
 public:
+	/// create from filename
 	Document(const std::string &filename);
+	/// create from stringstream
 	Document(const std::ostringstream &stream);
 	~Document();
 
-	// root element of document
+	/// root XML element of the document
 	Element *root;
 
 	void dump();
@@ -119,6 +160,7 @@ public:
 	/**
 	 * convert back to libxml xmlDoc
 	 * for saving back to disk
+	 * !this interface should not be public!
 	 */
 	xmlDocPtr convertToXmlDoc();
 	
@@ -126,7 +168,8 @@ private:
 	Document();                               // block usage
 	Document(const Document &foo);            // block usage
 	Document &operator=(const Document &foo); // block usage
-
+	
+	/// filename used when constructed from filename
 	std::string filename;
 
 	void handleDoc(xmlDocPtr doc);

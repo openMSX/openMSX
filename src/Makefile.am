@@ -83,7 +83,8 @@ openmsx_LDADD = \
 	ConsoleSource/libSDL_console.la \
 	cpu/libCPU.la \
 	sound/libSound.la \
-	@XML_LIBS@ @SDL_LIBS@
+	@XML_LIBS@ \
+	@SDL_LIBS@
 
 #cfgtest_SOURCES = MSXConfig.hh MSXConfig.cc \
 #	cfgtest.cc EmuTime.hh \

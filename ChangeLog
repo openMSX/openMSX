@@ -1,5 +1,8 @@
 $Id$
 
+2002-03-01 Joost Yervante Damad <andete@worldcity.nl>
+	* cleanup & documentation for libxmlx
+
 2002-02-28 Maarten ter Huurne <mth@stack.nl>
 	* Fixed enlarged sprites. (David, you can fly your heli now! ;)
 
