@@ -179,8 +179,11 @@ private:
 	};
 	friend class FrameSkipCmd;
 	FrameSkipCmd frameSkipCmd;
+	bool autoFrameSkip;
 	int frameSkip;
 	int curFrameSkip;
+	int frameSkipToHigh;
+	int frameSkipToLow;
 };
 
 #endif //__PIXELRENDERER_HH__
