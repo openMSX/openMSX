@@ -92,7 +92,7 @@ def convertDoc(dom):
 		return True
 	if not isCVSId(dom.childNodes[0]):
 		print 'missing CVS id'
-		assert False, 'manually instead $Id$ or add that to converter'
+		assert False, 'manually insert $''Id''$ or add that to converter'
 	
 	def checkDocType(node):
 		if node.nodeType != dom.DOCUMENT_TYPE_NODE: return False
@@ -154,17 +154,10 @@ def convertDevice(node):
 	assert deviceType is not None
 	deviceType = {
 		'FM-PAC': 'FMPAC',
-		}.get(deviceType, deviceType)
-	
-	deviceType = {
 		'Rom': 'ROM',
-		}.get(deviceType, deviceType)
-	deviceType = {
-		'PanasonicRom': 'PanasonicROM',
-		}.get(deviceType, deviceType)
-	deviceType = {
 		'PanasonicRam': 'PanasonicRAM',
 		}.get(deviceType, deviceType)
+	
 	if deviceType == 'CPU':
 		print '    removing CPU device'
 		node.parentNode.removeChild(node)
