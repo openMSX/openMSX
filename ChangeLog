@@ -19,6 +19,8 @@ $Id$
 	   - fixes crash when renderer "none" was selected when gfx9000
 	     extension was plugged in
 	* Added scripts/cycle.tcl
+	* Added workaround for "renderer none bug":
+	   need to investigate this after further the release
 
 2004-10-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed coredump on missing arguments on the command line:
