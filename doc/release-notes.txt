@@ -1,29 +1,39 @@
-Release notes for openMSX 0.3.1 (2003-05-18)
+Release notes for openMSX 0.3.2 (2003-06-09)
 ============================================
 
-It's been a short time since 0.3.0, but we thought the following changes are
-important enough to release now:
-- Fixed compilation on GCC 3.3.
-- Fixed SDLGL renderer on XFree86 4.3.
-
-Regular development continued as well, so this release also contains
-the following improvements:
-- New feature: configurable file-extentions.
-- Improved layout of help text (try "openmsx -h").
-- Many improvements to the console, including:
-  * Extended the console editing keys (left, right, del, bs, home, end etc).
-  * Added key repeat.
-  * Reset the scrollback when any key other than page up/down is used.
-  * Added resizing and moving to the console.
-  * SDL console characters are no longer blended (improved readability).
-  * SDL backgroundimage can be scaled and can have any pixel format.
-  * Fixed colour of font on GLConsole overlayed on Text1 mode.
-- Emulation and event handling are now done in a single thread.
-  The previous multi-threaded solution was not very portable among platforms
-  or even different versions of the same platform.
-  As a bonus, the single thread model is simpler and more efficient.
-- Improved "make install".
-- Cleanups of the directory structure.
+This new release brings you the following improvements:
+- New feature: MoonSound support.
+  Original implementation taken from MAME, thanks to Jarek Burczynski
+  (FM code), R. Belmont and O. Galibert (wave code) for allowing us
+  to use their code in openMSX.
+  Improvements and bug fixes were done by Arjan Bakker and our team.
+- New MSX devices:
+  * MegaRAM
+  * PAC (Panasonic SW-M001)
+  * Support for 8kB ROMs
+- New feature: grab input (try "set grabinput on").
+  When enabled, the native mouse cursor cannot escape from the openMSX
+  window anymore; makes using the mouse a lot easier in windowed mode.
+- New timer using the Linux Real Time Clock (RTC), which is more accurate
+  than the SDL timer. SDL timer is still available as a fallback.
+  Instructions to configure your system for using the RTC are in the HOWTO.
+- New effect in the SDLGL renderer: afterglow (try "set glow N").
+- User-configurable gamma correction (try "set gamma X").
+  Also the default value is less bright than the previous hard-coded value.
+- Screen accuracy works now (try "set accuracy screen").
+  It is fast, but very inaccurate.
+- Volume of sound devices can be adjusted at run time.
+- Various console updates:
+  * Commands can be on multiple lines.
+  * Search in command history.
+  * Command history is saved.
+  * Support in SDLHi/Lo for console font PNG images in indexed mode.
+    Previously, only images in RGB mode were supported.
+  * Console remains usable when openMSX is paused.
+- Several machine configurations added (thanks to Albert Beevendorp).
+- Several extension configurations added.
+- Cache coherency problem in SDLGL renderer fixed.
+  This bug caused garbled graphics in for example Ark-a-Noah and Dr Archie.
 
 Read the "ChangeLog" inside the archive for a detailed list of changes.
 In "doc/openMSX-HOWTO.txt" you can find a lot of useful information on
@@ -36,8 +46,8 @@ Known issues / caveats:
   msx.org, openMSX scored highest on accuracy of all emulators tested.
   See the bug tracker on sourceforge.net for known bugs.
 - Until we reach version 1.0.0, file formats can change in an incompatible
-  way without backwards compatiblity. Keep this in mind if you create
-  machine descriptions, rom database entries etc.
+  way without backwards compatibility. Keep this in mind if you create
+  machine descriptions, ROM database entries etc.
 - This openMSX release is only tested on Linux.
   Reikan maintains a Win32 port, which follows openMSX CVS closely, but is
   not the same. You can find it at http://www.ranpub.com/openMSX4Win32/
@@ -63,7 +73,8 @@ openMSX Home Page:
 Project page on SourceForge:
   http://sourceforge.net/projects/openmsx/
 Contact options:
-- Send a message to the openmsx-devel mailing list.
+- Send a message to the openmsx-user mailing list.
+  Go to the SourceForge project page and look under "Lists".
 - Talk to us on #openmsx on irc.freenode.net.
 - Use the "Support" tab on the project page.
 
