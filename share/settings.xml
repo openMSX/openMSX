@@ -2,8 +2,8 @@
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
 
-<!-- 
-  This file contains the settings or user preferences. 
+<!--
+  This file contains the settings or user preferences.
 -->
 
  <!-- The machine that is loaded if no machine is specified -->
@@ -14,8 +14,8 @@
  <!-- renderer settings: determines how openMSX outputs graphics -->
   <config id="renderer">
     <type>SDLHi</type>
-  <!-- 
-    <type>SDLGL</type> 
+  <!--
+    <type>SDLGL</type>
   -->
     <parameter name="full_screen">false</parameter>
   </config>
@@ -36,7 +36,7 @@
     <parameter name="frequency">22050</parameter>
   <!-- Use more samples when FM sound quality is bad, e.g.
     <parameter name="samples">1024</parameter>
-   --> 
+   -->
     <parameter name="samples">512</parameter>
   </config>
 
@@ -52,7 +52,7 @@
     <parameter name="removedoubles">true</parameter>
   </config>
 
-<!-- The debugger console is disabled for now, since it is not really 
+<!-- The debugger console is disabled for now, since it is not really
      implemented yet...
   <config id="Debugger">
     <type>Debugger</type>
@@ -61,19 +61,20 @@
     <parameter name="columns">100</parameter>
     <parameter name="rows">20</parameter>
     <parameter name="placement">top</parameter>
-  </config>	
+  </config>
 -->
 
  <!-- Commands that should be executed automatically after boot -->
   <config id="AutoCommands">
     <parameter>bind print screenshot</parameter>
     <parameter>bind pause toggle pause</parameter>
+    <parameter>bind ctrl+pause quit</parameter>
     <parameter>bind F9 toggle throttle</parameter>
     <parameter>bind F10 toggle console</parameter>
     <parameter>bind F11 toggle mute</parameter>
     <parameter>bind F12 toggle fullscreen</parameter>
     <!--<parameter>set frontswitch off</parameter>
-        <parameter>set accuracy pixel</parameter> 
+        <parameter>set accuracy pixel</parameter>
         <parameter>set cassetteplayer_volume 0</parameter> -->
     <!--<parameter>bind F9    "set throttle off"</parameter>
         <parameter>bind F9,up "set throttle on"</parameter>-->

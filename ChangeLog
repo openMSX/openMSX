@@ -1,5 +1,8 @@
 $Id$
 
+2004-01-20 Maarten ter Huurne <maarten@treewalker.org>
+	* Bound quit to ctrl-break by default.
+
 2004-01-20 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented key modifiers for bind command:
 	   example:  bind CTRL+ALT+DELETE quit
