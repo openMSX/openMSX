@@ -32,6 +32,6 @@ updated.
    essential.
 
 * general
- - session management? (save state of frontswitches and inserted disk or
+ - session management? (save state of firmwareswitches and inserted disk or
    cassette images at exit for a specific machine; also speed setting and
    things plugged into connector)

@@ -521,17 +521,18 @@ frequency
     set frequency 44100  use 44.1kHz mixing frequency
 
 
-frontswitch
+firmwareswitch
 -----------
 
-  Some machines (e.g. TurboR) have a switch on the front that controls if the
-  machine should boot 'normally' or start the build in software. This setting
-  controls the position of that switch.
+  Some machines (e.g. TurboR) have a switch on the front (or on the back) that
+  controls if the machine should boot 'normally' or start the built in
+  software, also called firmware. This setting controls the position of that
+  switch.
 
   usage:
-    set frontswitch      shows the current setting
-    set frontswitch on   in this position the internal software is started
-    set frontswitch off  in this position the machine boots 'normally'
+    set firmwareswitch      shows the current setting
+    set firmwareswitch on   in this position the internal software is started
+    set firmwareswitch off  in this position the machine boots 'normally'
 
 
 fullscreen

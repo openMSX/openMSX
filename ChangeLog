@@ -1,5 +1,8 @@
 $Id$
 
+2004-10-06 Manuel Bilderbeek <manuel@msxnet.org>
+	* Renamed frontswitch to firmwareswitch
+
 2004-10-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Only allow existing machines to be selected with machine setting.
 	* Fall back to "cbios-msx2" when the selected machine no longer

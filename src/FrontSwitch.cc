@@ -2,11 +2,13 @@
 
 #include "FrontSwitch.hh"
 
+// TODO rename this class to FirmwareSwitch
+
 namespace openmsx {
 
 FrontSwitch::FrontSwitch()
-	: setting("frontswitch",
-	          "This setting controls the front switch",
+	: setting("firmwareswitch",
+	          "This setting controls the firmware switch",
 	          false)
 {
 }
