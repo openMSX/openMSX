@@ -495,8 +495,10 @@ void VDPCmdEngine::VDPCmd::commandDone()
 
 // Loop over SX, DX, SY, DY.
 #define post_xxyy(MX) \
-		if (!--ANX || ((ASX += TX) & MX) || ((ADX += TX) & MX)) { \
-			if (!(--NY) || (SY += TY) == -1 || (DY += TY) == -1) { \
+		ASX += TX; ADX += TX; --ANX; \
+		if (ANX == 0) { \
+			SY += TY; DY += TY; --NY; \
+			if (NY == 0) { \
 				finished = true; \
 				break; \
 			} else { \
@@ -784,11 +786,14 @@ void VDPCmdEngine::LmmmCmd::start(const EmuTime &time)
 	SY = engine->SY;
 	DX = engine->DX;
 	DY = engine->DY;
-	NX = engine->NX;
+	MX = PPL[engine->scrMode];
+	NX = engine->NX ? engine->NX : MX;
 	NY = engine->NY ? engine->NY : 1024;
 	TX = (engine->ARG & DIX) ? -1 : 1;
 	TY = (engine->ARG & DIY) ? -1 : 1;
 	LO = engine->LOG;
+	clipNX_SXDX();
+	clipNY_SYDY();
 	ASX = SX;
 	ADX = DX;
 	ANX = NX;
@@ -936,17 +941,19 @@ void VDPCmdEngine::HmmvCmd::start(const EmuTime &time)
 	currentTime = time;
 	vram->cmdReadWindow.disable(currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
-	DX = engine->DX;
+	int ppb = PPB[engine->scrMode];
+	DX = engine->DX / ppb;
 	DY = engine->DY;
-	MX = PPL[engine->scrMode];
-	NX = engine->NX ? engine->NX : MX;
+	MX = PPL[engine->scrMode] / ppb;
+	NX = engine->NX / ppb;
+	NX = NX ? NX : MX;
 	NY = engine->NY ? engine->NY : 1024;
 	TX = (engine->ARG & DIX) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
 	TY = (engine->ARG & DIY) ? -1 : 1;
 	CL = engine->COL;
 	clipNX_DX();
 	clipNY_DY();
-	NX /= PPB[engine->scrMode];
+	DX *= ppb;
 	ADX = DX;
 	ANX = NX;
 }
@@ -999,14 +1006,21 @@ void VDPCmdEngine::HmmmCmd::start(const EmuTime &time)
 	currentTime = time;
 	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
-	SX = engine->SX;
+	int ppb = PPB[engine->scrMode];
+	SX = engine->SX / ppb;
 	SY = engine->SY;
-	DX = engine->DX;
+	DX = engine->DX / ppb;
 	DY = engine->DY;
-	NX = engine->NX / PPB[engine->scrMode];
+	MX = PPL[engine->scrMode] / ppb;
+	NX = engine->NX / ppb;
+	NX = NX ? NX : MX;
 	NY = engine->NY ? engine->NY : 1024;
 	TX = (engine->ARG & DIX) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
 	TY = (engine->ARG & DIY) ? -1 : 1;
+	clipNX_SXDX();
+	clipNY_SYDY();
+	SX *= ppb;
+	DX *= ppb;
 	ASX = SX;
 	ADX = DX;
 	ANX = NX;
