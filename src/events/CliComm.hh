@@ -9,7 +9,6 @@
 #include "CommandLineParser.hh"
 #include "Command.hh"
 #include "EventListener.hh"
-#include "Socket.hh"
 #include <libxml/parser.h>
 #include <map>
 #include <deque>
@@ -127,14 +126,14 @@ private:
 
 	class SocketConnection : public Connection, private Runnable {
 	public:
-		SocketConnection(SOCKET sd);
+		SocketConnection(int sd);
 		~SocketConnection();
 		virtual void output(const std::string& message);
 		virtual void close();
 	private:
 		virtual void run();
 		Thread thread;
-		SOCKET sd;
+		int sd;
 	};
 
 	class ServerSocket : private Runnable {

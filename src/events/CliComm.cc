@@ -12,6 +12,7 @@
 #include "XMLElement.hh"
 #include "EventDistributor.hh"
 #include "LedEvent.hh"
+#include "Socket.hh"
 #include <map>
 #include <iostream>
 #include <cstdio>
