@@ -16,7 +16,8 @@ libConfig_la_SOURCES = \
 	MSXConfig.cc MSXConfig.hh \
 	Config.cc Config.hh \
 	Device.cc Device.hh \
-	ConfigException.hh
+	ConfigException.hh \
+	xmlx.cc xmlx.hh
 
 nodebug: resetdebug all
 debug: setdebug all
