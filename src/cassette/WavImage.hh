@@ -7,9 +7,11 @@
 #include <string>
 #include "MSXException.hh"
 #include "CassetteImage.hh"
+#include "EmuTime.hh"
 #include "openmsx.hh"
 
 using std::string;
+
 
 namespace openmsx {
 
@@ -24,7 +26,7 @@ public:
 private:
 	int length;
 	Uint8* buffer;
-	int freq;
+	DynamicClock clock;
 };
 
 } // namespace openmsx

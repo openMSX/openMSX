@@ -296,15 +296,11 @@ void Keyboard::KeyInserter::type(const string& str)
 void Keyboard::KeyInserter::executeUntil(const EmuTime& time, int /*userData*/)
 {
 	assert(!text.empty());
-	if (down) {
-		parent.pressAscii(text[0], false);
-	} else {
-		parent.pressAscii(text[0], true);
-		text = text.substr(1);
-	}
 	down = !down;
-	EmuTimeFreq<15> nextTime(time);
+	parent.pressAscii(text[0], down);
+	if (down) text = text.substr(1);
 	if (!text.empty()) {
+		Clock<15> nextTime(time);
 		Scheduler::instance().setSyncPoint(nextTime + 1, this);
 	}
 }

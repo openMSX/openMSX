@@ -319,7 +319,7 @@ public:
 	  */
 	inline void cmdWrite(unsigned address, byte value, const EmuTime& time) {
 		// Rewriting history is not allowed.
-		assert(time >= currentTime);
+		assert(time >= clock.getTime());
 
 		assert(vdp->isInsideFrame(time));
 
@@ -336,7 +336,7 @@ public:
 		spritePatternTable.notify(address, time);
 
 		data[address] = value;
-		currentTime = time;
+		clock.advance(time);
 
 		// Cache dirty marking should happen after the commit,
 		// otherwise the cache could be re-validated based on old state.
@@ -364,7 +364,7 @@ public:
 	  * @param time The moment in emulated time this write occurs.
 	  */
 	inline void cpuWrite(unsigned address, byte value, const EmuTime& time) {
-		assert(time >= currentTime);
+		assert(time >= clock.getTime());
 		assert(vdp->isInsideFrame(time));
 		if (cmdReadWindow.isInside(address)
 		|| cmdWriteWindow.isInside(address)) {
@@ -380,7 +380,7 @@ public:
 	  */
 	inline byte cpuRead(unsigned address, const EmuTime& time) {
 		// VRAM should never get ahead of CPU.
-		assert(time >= currentTime);
+		assert(time >= clock.getTime());
 
 		assert(vdp->isInsideFrame(time));
 
@@ -459,7 +459,7 @@ private:
 	  * TODO: Is this just for debugging or is it functional?
 	  *       Maybe it should stay in either case, possibly between IFDEFs.
 	  */
-	EmuTimeFreq<VDP::TICKS_PER_SECOND> currentTime;
+	Clock<VDP::TICKS_PER_SECOND> clock;
 };
 
 } // namespace openmsx

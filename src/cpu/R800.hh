@@ -36,7 +36,7 @@ private:
 	static const R800_ResumeFunc opcode_main[256];
 
 	int lastPage;
-	EmuTimeFreq<CLOCK_FREQ> lastRefreshTime;
+	Clock<CLOCK_FREQ> lastRefreshTime;
 };
 
 } // namespace openmsx

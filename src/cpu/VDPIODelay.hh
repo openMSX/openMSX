@@ -20,11 +20,12 @@ public:
 
 private:
 	static const XMLElement& getConfig();
-	const EmuTime& delay(const EmuTime& time);
+	void delay(const EmuTime& time);
 
 	MSXCPU& cpu;
 	MSXIODevice* device;
-	EmuTimeFreq<7159090> lastTime;
+	/** Remembers the time at which last VDP I/O action took place. */
+	Clock<7159090> lastTime;
 };
 
 } // namespace openmsx

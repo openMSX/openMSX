@@ -82,7 +82,7 @@ void MSXCPU::setActiveCPU(CPUType cpu)
 		const EmuTime &currentTime = activeCPU->getCurrentTime();
 		const EmuTime &targetTime  = activeCPU->getTargetTime();
 		activeCPU->setTargetTime(currentTime);	// stop current CPU
-		newCPU->setCurrentTime(currentTime);
+		newCPU->advance(currentTime);
 		newCPU->setTargetTime(targetTime);
 		newCPU->invalidateCache(0x0000, 0x10000/CPU::CACHE_LINE_SIZE);
 		activeCPU = newCPU;

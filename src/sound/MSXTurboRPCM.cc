@@ -21,7 +21,7 @@ MSXTurboRPCM::~MSXTurboRPCM()
 
 void MSXTurboRPCM::reset(const EmuTime& time)
 {
-	reference = time;
+	reference.advance(time);
 	status = 0;
 	dac->reset(time);
 }
@@ -66,7 +66,7 @@ void MSXTurboRPCM::writeIO(byte port, byte value, const EmuTime& time)
 		// While playing: sample value
 		//       recording: compare value
 		// Resets counter
-		reference = time;
+		reference.advance(time);
 		DValue = value;
 		if (status & 0x02) {
 			dac->writeDAC(DValue, time);

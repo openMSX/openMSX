@@ -45,8 +45,9 @@ void EmuTimer<freq, flag>::setStart(bool start, const EmuTime& time)
 template<int freq, byte flag>
 void EmuTimer<freq, flag>::schedule(const EmuTime& time)
 {
-	EmuTimeFreq<freq> now(time);
-	scheduler.setSyncPoint(now + count, this);
+	Clock<freq> now(time);
+	now += count;
+	scheduler.setSyncPoint(now.getTime(), this);
 }
 
 template<int freq, byte flag>

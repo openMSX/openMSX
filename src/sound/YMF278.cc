@@ -7,6 +7,13 @@
 
 namespace openmsx {
 
+const EmuDuration YMF278::REG_SELECT_DELAY = MasterClock::duration(88);
+const EmuDuration YMF278::REG_WRITE_DELAY = MasterClock::duration(88);
+const EmuDuration YMF278::MEM_READ_DELAY = MasterClock::duration(38);
+const EmuDuration YMF278::MEM_WRITE_DELAY = MasterClock::duration(28);
+// 10000 ticks is approx 300us; exact delay is unknown.
+const EmuDuration YMF278::LOAD_DELAY = MasterClock::duration(10000);
+
 const int EG_SH = 16;	// 16.16 fixed point (EG timing)
 const unsigned EG_TIMER_OVERFLOW = 1 << EG_SH;
 
@@ -511,10 +518,7 @@ void YMF278::keyOnHelper(YMF278Slot& slot)
 
 void YMF278::writeRegOPL4(byte reg, byte data, const EmuTime& time)
 {
-	if (BUSY_Time < time) {
-		BUSY_Time = time;
-	}
-	BUSY_Time += 88;	// 88 cycles before next access
+	busyTime = time + REG_WRITE_DELAY;
 	writeReg(reg, data, time);
 }
 
@@ -526,10 +530,8 @@ void YMF278::writeReg(byte reg, byte data, const EmuTime& time)
 		YMF278Slot& slot = slots[snum];
 		switch ((reg - 8) / 24) {
 		case 0: {
-			if (LD_Time < time) {
-				LD_Time = time;
-			}
-			LD_Time += 10000;	// approx 300us
+			loadTime = time + LOAD_DELAY;
+			
 			slot.wave = (slot.wave & 0x100) | data;
 			int base = (slot.wave < 384 || !wavetblhdr) ?
 			           (slot.wave * 12) :
@@ -675,7 +677,7 @@ void YMF278::writeReg(byte reg, byte data, const EmuTime& time)
 			break;
 
 		case 0x06:  // memory data
-			BUSY_Time += 28;	// 28 extra clock cycles
+			busyTime = time + MEM_WRITE_DELAY;
 			writeMem(memadr, data);
 			memadr = (memadr + 1) & 0xFFFFFF;
 			break;
@@ -698,14 +700,10 @@ void YMF278::writeReg(byte reg, byte data, const EmuTime& time)
 
 byte YMF278::readRegOPL4(byte reg, const EmuTime& time)
 {
-	if (BUSY_Time < time) {
-		BUSY_Time = time;
-	}
-	BUSY_Time += 88;	// 88 cycles before next access
 	return readReg(reg, time);
 }
 
-byte YMF278::readReg(byte reg, const EmuTime& /*time*/)
+byte YMF278::readReg(byte reg, const EmuTime& time)
 {
 	byte result;
 	switch(reg) {
@@ -714,7 +712,7 @@ byte YMF278::readReg(byte reg, const EmuTime& /*time*/)
 			break;
 			
 		case 6: // Memory Data Register
-			BUSY_Time += 38;	// 38 extra clock cycles
+			busyTime = time + MEM_READ_DELAY;
 			result = readMem(memadr);
 			memadr = (memadr + 1) & 0xFFFFFF;
 			break;
@@ -729,12 +727,8 @@ byte YMF278::readReg(byte reg, const EmuTime& /*time*/)
 byte YMF278::readStatus(const EmuTime& time)
 {
 	byte result = 0;
-	if (time < BUSY_Time) {
-		result |= 0x01;
-	}
-	if (time < LD_Time) {
-		result |= 0x02;
-	}
+	if (time < busyTime) result |= 0x01;
+	if (time < loadTime) result |= 0x02;
 	return result;
 }
 
@@ -789,8 +783,8 @@ void YMF278::reset(const EmuTime& time)
 	setInternalMute(true);
 	wavetblhdr = memmode = memadr = 0;
 	fm_l = fm_r = pcm_l = pcm_r = 0;
-	BUSY_Time = time;
-	LD_Time = time;
+	busyTime = time;
+	loadTime = time;
 }
 
 void YMF278::setSampleRate(int sampleRate)

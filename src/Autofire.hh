@@ -7,12 +7,12 @@
 #include "openmsx.hh"
 #include "IntegerSetting.hh"
 #include "SettingListener.hh"
+#include "EmuTime.hh"
 
 using std::string;
 
-namespace openmsx {
 
-class EmuTime;
+namespace openmsx {
 
 /**
  * Autofire is a device that is between two other devices and outside
@@ -57,8 +57,10 @@ private:
 	/** The currently selected speed. */
 	IntegerSetting speedSetting;
 
-	/** Derived from speed, min_ints and max_ints. */
-	unsigned freq;
+	/** Each tick of this clock, the signal changes.
+	  * Frequency is derived from speed, min_ints and max_ints.
+	  */
+	DynamicClock clock;
 };
 
 } // namespace openmsx

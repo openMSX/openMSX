@@ -127,7 +127,7 @@ VDP::VDP(const XMLElement& config, const EmuTime& time)
 	// This will be done again by frameStart, but these have to be
 	// initialised before reset() is called.
 	// TODO: Can this be simplified with a different design?
-	frameStartTime = time;
+	frameStartTime.advance(time);
 	displayStartSyncTime = time;
 	vScanSyncTime = time;
 	hScanSyncTime = time;
@@ -478,7 +478,7 @@ void VDP::frameStart(const EmuTime& time)
 	}
 
 	// Schedule next VSYNC.
-	frameStartTime = time;
+	frameStartTime.advance(time);
 	Scheduler::instance().setSyncPoint(
 		frameStartTime + getTicksPerFrame(), this, VSYNC);
 	// Schedule DISPLAY_START, VSCAN and HSCAN.

@@ -19,27 +19,27 @@ namespace openmsx {
 inline void _CPU_::READ_PORT(word port, byte &result)
 {
 	memptr.w = port + 1;
-	currentTime += IO_DELAY1;
-	if (currentTime >= targetTime) {
-		extendTarget(currentTime);
+	clock += IO_DELAY1;
+	if (!clock.before(targetTime)) {
+		extendTarget(clock.getTime());
 	}
 	//PRT_DEBUG("CPU: In 0x" << hex << (int)port <<
-	//          dec << " at " << currentTime);
-	result = interface->readIO(port, currentTime);
-	currentTime += IO_DELAY2;
+	//          dec << " at " << clock);
+	result = interface->readIO(port, clock.getTime());
+	clock += IO_DELAY2;
 }
 
 inline void _CPU_::WRITE_PORT(word port, byte value)
 {
 	memptr.w = port + 1;
-	currentTime += IO_DELAY1;
-	if (currentTime >= targetTime) {
-		extendTarget(currentTime);
+	clock += IO_DELAY1;
+	if (!clock.before(targetTime)) {
+		extendTarget(clock.getTime());
 	}
 	//PRT_DEBUG("CPU: Out 0x" << hex << (int)port <<
-	//          dec << " at " << currentTime);
-	interface->writeIO(port, value, currentTime);
-	currentTime += IO_DELAY2;
+	//          dec << " at " << clock);
+	interface->writeIO(port, value, clock.getTime());
+	clock += IO_DELAY2;
 }
 
 inline void _CPU_::RDMEM_common(word address, byte &result)
@@ -47,7 +47,7 @@ inline void _CPU_::RDMEM_common(word address, byte &result)
 	int line = address >> CACHE_LINE_BITS;
 	if (readCacheLine[line] != NULL) {
 		// cached, fast path
-		currentTime += (MEM_DELAY1 + MEM_DELAY2);
+		clock += (MEM_DELAY1 + MEM_DELAY2);
 		result = readCacheLine[line][address&CACHE_LINE_LOW];
 		#ifdef CPU_DEBUG
 		debugmemory[address] = result;
@@ -66,7 +66,7 @@ void _CPU_::RDMEMslow(word address, byte &result)
 		readCacheLine[line] = interface->getReadCacheLine(address&CACHE_LINE_HIGH);
 		if (readCacheLine[line] != NULL) {
 			// cached ok
-			currentTime += (MEM_DELAY1 + MEM_DELAY2);
+			clock += (MEM_DELAY1 + MEM_DELAY2);
 			result = readCacheLine[line][address&CACHE_LINE_LOW];
 			#ifdef CPU_DEBUG
 			debugmemory[address] = result;
@@ -75,15 +75,15 @@ void _CPU_::RDMEMslow(word address, byte &result)
 		}
 	}
 	// uncacheable
-	currentTime += MEM_DELAY1;
-	if (currentTime >= targetTime) {
-		extendTarget(currentTime);
+	clock += MEM_DELAY1;
+	if (!clock.before(targetTime)) {
+		extendTarget(clock.getTime());
 	}
-	result = interface->readMem(address, currentTime);
+	result = interface->readMem(address, clock.getTime());
 	#ifdef CPU_DEBUG
 	debugmemory[address] = result;
 	#endif
-	currentTime += MEM_DELAY2;
+	clock += MEM_DELAY2;
 }
 
 inline void _CPU_::WRMEM_common(word address, byte value)
@@ -91,7 +91,7 @@ inline void _CPU_::WRMEM_common(word address, byte value)
 	int line = address >> CACHE_LINE_BITS;
 	if (writeCacheLine[line] != NULL) {
 		// cached, fast path
-		currentTime += (MEM_DELAY1 + MEM_DELAY2);
+		clock += (MEM_DELAY1 + MEM_DELAY2);
 		writeCacheLine[line][address&CACHE_LINE_LOW] = value;
 		return;
 	}
@@ -108,18 +108,18 @@ void _CPU_::WRMEMslow(word address, byte value)
 			interface->getWriteCacheLine(address&CACHE_LINE_HIGH);
 		if (writeCacheLine[line] != NULL) {
 			// cached ok
-			currentTime += (MEM_DELAY1 + MEM_DELAY2);
+			clock += (MEM_DELAY1 + MEM_DELAY2);
 			writeCacheLine[line][address&CACHE_LINE_LOW] = value;
 			return;
 		}
 	}
 	// uncacheable
-	currentTime += MEM_DELAY1;
-	if (currentTime >= targetTime) {
-		extendTarget(currentTime);
+	clock += MEM_DELAY1;
+	if (!clock.before(targetTime)) {
+		extendTarget(clock.getTime());
 	}
-	interface->writeMem(address, value, currentTime);
-	currentTime += MEM_DELAY2;
+	interface->writeMem(address, value, clock.getTime());
+	clock += MEM_DELAY2;
 }
 
 
@@ -189,7 +189,7 @@ inline void _CPU_::executeInstruction() {
 inline void _CPU_::executeFast() {
 	#ifdef CPU_DEBUG
 	start_pc = R.PC.w;
-	before = currentTime;
+	before = clock;
 	#endif
 
 	R800Refresh();
@@ -209,7 +209,7 @@ inline void _CPU_::executeFast() {
 			  " IX=" << setw(4) << R.IX.w <<
 			  " IY=" << setw(4) << R.IY.w <<
 			  " SP=" << setw(4) << R.SP.w << dec);
-		//PRT_DEBUG("CPU: Took " << before.getTicksTill(currentTime) << "T-States");
+		//PRT_DEBUG("CPU: Took " << before.getTicksTill(clock) << "T-States");
 	}
 	#endif
 }
@@ -232,11 +232,11 @@ void _CPU_::executeSlow() {
 		}
 	} else if (R.HALT) {
 		// in halt mode
-		uint64 ticks = currentTime.getTicksTillUp(targetTime);
+		uint64 ticks = clock.getTicksTillUp(targetTime);
 		int hltStates = haltStates();
 		int halts = (ticks + hltStates - 1) / hltStates;	// rounded up
 		R.R += halts;
-		currentTime += halts * hltStates;
+		clock += halts * hltStates;
 	} else {
 		R.IFF1 = R.nextIFF1;
 		executeFast();
@@ -245,7 +245,7 @@ void _CPU_::executeSlow() {
 
 void _CPU_::executeCore() {
 	assert(!breaked);
-	if (currentTime >= targetTime) {
+	if (!clock.before(targetTime)) {
 		return;
 	}
 
@@ -256,7 +256,7 @@ void _CPU_::executeCore() {
 		executeSlow();
 		--slowInstructions;
 		if (step) {
-			targetTime = currentTime;
+			targetTime = clock.getTime();
 			doBreak2();
 			step = false;
 			return;
@@ -265,7 +265,7 @@ void _CPU_::executeCore() {
 
 	if (breakPoints.empty()) {
 		// fast path, no breakpoints
-		while (currentTime < targetTime) {
+		while (clock.before(targetTime)) {
 			if (slowInstructions == 0) {
 				executeFast();
 			} else {
@@ -274,9 +274,9 @@ void _CPU_::executeCore() {
 			}
 		}
 	} else {
-		while (currentTime < targetTime) {
+		while (clock.before(targetTime)) {
 			if (breakPoints.find(R.PC.w) != breakPoints.end()) {
-				targetTime = currentTime;
+				targetTime = clock.getTime();
 				doBreak2();
 			} else {
 				if (slowInstructions == 0) {
@@ -288,7 +288,7 @@ void _CPU_::executeCore() {
 			}
 		}
 	}
-	//PRT_DEBUG("CPU: stopped at " << currentTime);
+	//PRT_DEBUG("CPU: stopped at " << clock);
 }
 
 
@@ -2473,7 +2473,7 @@ void _CPU_::ld_r_a() {
 // MULUB A,r
 inline void _CPU_::MULUB(byte reg) {
 	// TODO check flags
-	currentTime += 12;
+	clock += 12;
 	R.HL.w = (word)R.AF.B.h * reg;
 	R.AF.B.l = (R.AF.B.l & (N_FLAG | H_FLAG)) |
 	           (R.HL.w ? 0 : Z_FLAG) |
@@ -2491,7 +2491,7 @@ void _CPU_::mulub_a_l()   { } // TODO
 // MULUW HL,ss
 inline void _CPU_::MULUW(word reg) {
 	// TODO check flags
-	currentTime += 34;
+	clock += 34;
 	unsigned long res = (unsigned long)R.HL.w * reg;
 	R.DE.w = res >> 16;
 	R.HL.w = res & 0xffff;
@@ -2583,7 +2583,7 @@ void _CPU_::patch() {
 
 #ifdef CPU_DEBUG
 word _CPU_::start_pc;
-EmuTimeFreq<_CPU_::CLOCK_FREQ> _CPU_::before;
+Clock<_CPU_::CLOCK_FREQ> _CPU_::before;
 #endif
 
 } // namespace openmsx

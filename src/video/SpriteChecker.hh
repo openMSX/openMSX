@@ -34,7 +34,7 @@ private:
 	}
 
 	inline void initFrame(const EmuTime& time) {
-		frameStartTime = time;
+		frameStartTime.advance(time);
 		currentLine = 0;
 		linesPerFrame = vdp->isPalTiming() ? 313 : 262;
 		// Debug: -1 means uninitialised.
@@ -380,10 +380,9 @@ private:
 
 	/** The emulation time when this frame was started (vsync).
 	  */
-	EmuTimeFreq<VDP::TICKS_PER_SECOND> frameStartTime;
+	Clock<VDP::TICKS_PER_SECOND> frameStartTime;
 
 	/** Sprites are checked up to and excluding this display line.
-	  * TODO: Keep this now that we have currentTime?
 	  */
 	int currentLine;
 

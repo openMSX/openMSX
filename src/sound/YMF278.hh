@@ -115,14 +115,33 @@ private:
 	bool anyActive();
 	void keyOnHelper(YMF278Slot& slot);
 
-	static const int MASTER_CLK = 33868800;
+	/** The master clock, running at 33MHz. */
+	typedef Clock<33868800> MasterClock;
+
+	/** Required delay between register select and register read/write.
+	  * TODO: Not used yet: register selection is done in MSXMoonSound class,
+	  *       but it should be moved here.
+	  */
+	static const EmuDuration REG_SELECT_DELAY;
+	/** Required delay after register write. */
+	static const EmuDuration REG_WRITE_DELAY;
+	/** Required delay after memory read. */
+	static const EmuDuration MEM_READ_DELAY;
+	/** Required delay after memory write (instead of register write delay). */
+	static const EmuDuration MEM_WRITE_DELAY;
+	/** Required delay after instrument load. */
+	static const EmuDuration LOAD_DELAY;
 
 	YMF278Slot slots[24];
 	
-	unsigned eg_cnt;	// global envelope generator counter
-	unsigned eg_timer;	// global envelope generator counter
-	unsigned eg_timer_add;		// step of eg_timer
-	unsigned eg_timer_overflow;	// envelope generator timer overlfows every 1 sample (on real chip)
+	/** Global envelope generator counter. */
+	unsigned eg_cnt;
+	/** Global envelope generator counter. */
+	unsigned eg_timer;
+	/** Step of eg_timer. */
+	unsigned eg_timer_add;
+	/** Envelope generator timer overlfows every 1 sample (on real chip). */
+	unsigned eg_timer_overflow;
 	
 	char wavetblhdr;
 	char memmode;
@@ -136,16 +155,19 @@ private:
 	unsigned endRom;
 	unsigned endRam;
 
-	// precalculated attenuation values with some marging for
-	// enveloppe and pan levels
+	/** Precalculated attenuation values with some marging for
+	  * enveloppe and pan levels.
+	  */
 	int volume[256 * 4];
 
 	double freqbase;
 
 	byte regs[256];
 
-	EmuTimeFreq<MASTER_CLK> LD_Time;
-	EmuTimeFreq<MASTER_CLK> BUSY_Time;
+	/** Time at which instrument loading is finished. */
+	EmuTime loadTime;
+	/** Time until which the YMF278 is busy. */
+	EmuTime busyTime;
 };
 
 } // namespace openmsx

@@ -130,12 +130,10 @@ bool DummyDrive::diskChanged()
 bitset<RealDrive::MAX_DRIVES> RealDrive::drivesInUse;
 
 RealDrive::RealDrive(const EmuTime& time)
+	: motorStatus(false), motorTimer(time)
+	, headLoadStatus(false), headLoadTimer(time)
 {
 	headPos = 0;
-	motorStatus = false;
-	motorTime = time;
-	headLoadStatus = false;
-	headLoadTime = time;
 	
 	diskName = "";
 	diskChangedFlag = false;
@@ -214,7 +212,7 @@ void RealDrive::setMotor(bool status, const EmuTime& time)
 {
 	if (motorStatus != status) {
 		motorStatus = status;
-		motorTime = time;
+		motorTimer.advance(time);
 		/* The following is a hack to emulate the drive LED behaviour.
 		 * This is in real life dependent on the FDC and should be
 		 * investigated in detail to implement it properly... TODO */
@@ -232,7 +230,7 @@ bool RealDrive::indexPulse(const EmuTime& time)
 	if (!motorStatus && disk->ready()) {
 		return false;
 	}
-	int angle = motorTime.getTicksTill(time) % TICKS_PER_ROTATION;
+	int angle = motorTimer.getTicksTill(time) % TICKS_PER_ROTATION;
 	return angle < INDEX_DURATION;
 }
 
@@ -242,8 +240,8 @@ int RealDrive::indexPulseCount(const EmuTime& begin,
 	if (!motorStatus && disk->ready()) {
 		return 0;
 	}
-	int t1 = (motorTime <= begin) ? motorTime.getTicksTill(begin) : 0;
-	int t2 = (motorTime <= end)   ? motorTime.getTicksTill(end)   : 0;
+	int t1 = motorTimer.before(begin) ? motorTimer.getTicksTill(begin) : 0;
+	int t2 = motorTimer.before(end)   ? motorTimer.getTicksTill(end)   : 0;
 	return (t2 / TICKS_PER_ROTATION) - (t1 / TICKS_PER_ROTATION);
 }
 
@@ -251,14 +249,14 @@ void RealDrive::setHeadLoaded(bool status, const EmuTime& time)
 {
 	if (headLoadStatus != status) {
 		headLoadStatus = status;
-		headLoadTime = time;
+		headLoadTimer.advance(time);
 	}
 }
 
 bool RealDrive::headLoaded(const EmuTime& time)
 {
 	return headLoadStatus && 
-	       (headLoadTime.getTicksTill(time) > 10);
+	       (headLoadTimer.getTicksTill(time) > 10);
 }
 
 void RealDrive::insertDisk(const string& diskImage)

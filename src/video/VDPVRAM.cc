@@ -19,7 +19,7 @@ VRAMWindow::VRAMWindow() {
 // class VDPVRAM:
 
 VDPVRAM::VDPVRAM(VDP *vdp, unsigned size, const EmuTime& time)
-	: currentTime(time)
+	: clock(time)
 {
 	this->vdp = vdp;
 	this->size = size;

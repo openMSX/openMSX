@@ -226,7 +226,7 @@ byte SCC::readWave(byte channel, byte address, const EmuTime& time)
 	if (!rotate[channel]) {
 		return wave[channel][address & 0x1F];
 	} else {
-		unsigned ticks = deformTime.getTicksTill(time);
+		unsigned ticks = deformTimer.getTicksTill(time);
 		unsigned f = ((channel == 3) && (currentChipMode != SCC_plusmode)) ?
 			freq[4] : freq[channel];
 		unsigned shift = ticks / (f + 1);
@@ -371,7 +371,7 @@ void SCC::setDeformReg(byte value, const EmuTime& time)
 		return;
 	}
 	deformValue = value;
-	deformTime = time;
+	deformTimer.advance(time);
 	
 	if (currentChipMode != SCC_Real) {
 		value &= ~0x80;

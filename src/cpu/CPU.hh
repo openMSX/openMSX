@@ -73,7 +73,7 @@ public:
 	 * Sets the CPU its current time.
 	 * This is used to 'warp' a CPU when you switch between Z80/R800.
 	 */
-	void setCurrentTime(const EmuTime& time);
+	void advance(const EmuTime& time);
 
 	/**
 	 * Returns the CPU its current time.
@@ -169,7 +169,7 @@ protected:
 
 	CPUInterface* interface;
 	EmuTime targetTime;
-	DynamicEmuTime currentTime;
+	DynamicClock clock;
 
 	// memory cache
 	const byte* readCacheLine[CACHE_LINE_NUM];

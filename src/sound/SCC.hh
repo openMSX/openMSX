@@ -70,7 +70,7 @@ private:
 	byte ch_enable;
 	
 	byte deformValue;
-	EmuTimeFreq<CLOCK_FREQ> deformTime;
+	Clock<CLOCK_FREQ> deformTimer;
 	bool rotate[5];
 	bool readOnly[5];
 	byte offset[5];

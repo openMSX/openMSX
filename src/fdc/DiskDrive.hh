@@ -171,9 +171,9 @@ protected:
 	auto_ptr<Disk> disk;
 	int headPos;
 	bool motorStatus;
-	EmuTimeFreq<TICKS_PER_ROTATION * ROTATIONS_PER_SECOND> motorTime;
+	Clock<TICKS_PER_ROTATION * ROTATIONS_PER_SECOND> motorTimer;
 	bool headLoadStatus;
-	EmuTimeFreq<1000> headLoadTime;	// ms
+	Clock<1000> headLoadTimer; // ms
 
 private:
 	// Command interface

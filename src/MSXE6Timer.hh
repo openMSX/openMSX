@@ -9,8 +9,8 @@
  * Writing to port 0xE7 has no effect.
  */
 
-#ifndef __E6TIMER_HH__
-#define __E6TIMER_HH__
+#ifndef __MSXE6TIMER_HH__
+#define __MSXE6TIMER_HH__
 
 #include "MSXIODevice.hh"
 #include "EmuTime.hh"
@@ -29,9 +29,9 @@ public:
 	virtual void writeIO(byte port, byte value, const EmuTime& time);
 
 private:
-	EmuTimeFreq<255681> reference;	// 1/14 * 3.58MHz
+	Clock<255681> reference; // 1/14 * 3.58MHz
 };
 
 } // namespace openmsx
 
-#endif //__E6TIMER_HH__
+#endif //__MSXE6TIMER_HH__

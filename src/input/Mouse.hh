@@ -35,7 +35,7 @@ private:
 	int faze;
 	int xrel, yrel;
 	int curxrel, curyrel;
-	EmuTimeFreq<1000> lastTime;	// ms
+	Clock<1000> lastTime; // ms
 	bool mouseMode;
 };
 

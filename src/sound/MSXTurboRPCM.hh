@@ -28,7 +28,7 @@ private:
 	byte getSample(const EmuTime& time);
 	bool getComp(const EmuTime& time);
 
-	EmuTimeFreq<15750> reference;
+	Clock<15750> reference;
 	byte DValue;
 	byte status;
 	byte hold;

@@ -53,7 +53,7 @@ void Mouse::plugHelper(Connector* /*connector*/, const EmuTime& time)
 	if (status & JOY_BUTTONA) {
 		// not pressed, mouse mode
 		mouseMode = true;
-		lastTime = time;
+		lastTime.advance(time);
 	} else {
 		// left mouse button pressed, joystick emulation mode
 		mouseMode = false;
@@ -145,7 +145,7 @@ void Mouse::write(byte value, const EmuTime& time)
 		
 		const int TIMEOUT = 1000;	// TODO find a good value
 		int delta = lastTime.getTicksTill(time);
-		lastTime = time;
+		lastTime.advance(time);
 		if (delta >= TIMEOUT) {
 			faze = FAZE_YLOW;
 		}

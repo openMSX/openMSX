@@ -1,5 +1,14 @@
 $Id$
 
+2004-06-26 Maarten ter Huurne <maarten@treewalker.org>
+	* Replaced EmuTimeFreq by Clock and DynamicEmuTime by DynamicClock:
+	  - Fixes accuracy bug where fractions of ticks were discarded,
+	    causing problems with high-frequency reads of low-frequency timers.
+	    Thanks to Daniel Vik for reporting this.
+	  - Reduced the number of operations, especially operators.
+	  - Added Doxygen comments for the changed classes.
+	* Improved MoonSound BUSY flag timing (not completely correct yet).
+
 2004-06-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* hardwareconfig.xml format change:
 	    replaced   <device><type>foo</type>..</device>
@@ -31,7 +40,7 @@ $Id$
 	* Config file format change:
 	   - put roms in new hierarchical <rom> tag
 	* settings.xml configuration file changes:
-	   - replaced  <config if="foo">..</config>
+	   - replaced  <config id="foo">..</config>
 	     with      <foo>..</foo>
 
 2004-06-18 Wouter Vermaelen <wouter.vermaelen@pi.be>
@@ -85,7 +94,7 @@ $Id$
 	  - SCCPlusCart -> SCC+
 	  The converter has been adjusted as well.
 	* Fixed a forgotten rename of Rom to ROM in the MSXRomCLI.
-	* Added specific extensions for the Konami Sound Catridges
+	* Added specific extensions for the Konami Sound Cartridges
 	  (Snatcher and SD-Snatcher)
 
 2004-06-04 David Heremans <david.heremans@gnu-linux.net>

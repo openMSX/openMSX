@@ -380,7 +380,7 @@ public:
 	  * @return True iff the timestamp is inside the current frame.
 	  */
 	inline bool isInsideFrame(const EmuTime &time) const {
-		return time >= frameStartTime &&
+		return time >= frameStartTime.getTime() &&
 			getTicksThisFrame(time) <= getTicksPerFrame();
 	}
 
@@ -640,7 +640,7 @@ private:
 
 	/** The emulation time when this frame was started (vsync).
 	  */
-	EmuTimeFreq<TICKS_PER_SECOND> frameStartTime;
+	Clock<TICKS_PER_SECOND> frameStartTime;
 
 	/** Manages vertical scanning interrupt request.
 	  */

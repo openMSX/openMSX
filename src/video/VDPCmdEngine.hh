@@ -114,8 +114,8 @@ public:
 		  * @param mask Read mask: bit positions that are 1 are read from
 		  *   VRAM before the write is performed.
 		  */
-		virtual void pset(
-			EmuTime& time, VDPVRAM* vram, int addr, byte colour, byte mask
+		virtual void pset(const EmuTime& time, VDPVRAM* vram,
+			int addr, byte colour, byte mask
 			) = 0;
 	};
 
@@ -131,7 +131,7 @@ private:
 		static const word PIXELS_PER_LINE = 256;
 		static inline int addressOf(int x, int y);
 		static inline byte point(VDPVRAM* vram, int x, int y);
-		static inline void pset(EmuTime& time, VDPVRAM* vram,
+		static inline void pset(const EmuTime& time, VDPVRAM* vram,
 			int x, int y, byte colour, LogOp* op);
 	};
 
@@ -145,7 +145,7 @@ private:
 		static const word PIXELS_PER_LINE = 512;
 		static inline int addressOf(int x, int y);
 		static inline byte point(VDPVRAM* vram, int x, int y);
-		static inline void pset(EmuTime& time, VDPVRAM* vram,
+		static inline void pset(const EmuTime& time, VDPVRAM* vram,
 			int x, int y, byte colour, LogOp* op);
 	};
 
@@ -159,7 +159,7 @@ private:
 		static const word PIXELS_PER_LINE = 512;
 		static inline int addressOf(int x, int y);
 		static inline byte point(VDPVRAM* vram, int x, int y);
-		static inline void pset(EmuTime& time, VDPVRAM* vram,
+		static inline void pset(const EmuTime& time, VDPVRAM* vram,
 			int x, int y, byte colour, LogOp* op);
 	};
 
@@ -173,7 +173,7 @@ private:
 		static const word PIXELS_PER_LINE = 256;
 		static inline int addressOf(int x, int y);
 		static inline byte point(VDPVRAM* vram, int x, int y);
-		static inline void pset(EmuTime& time, VDPVRAM* vram,
+		static inline void pset(const EmuTime& time, VDPVRAM* vram,
 			int x, int y, byte colour, LogOp* op);
 	};
 
@@ -209,7 +209,7 @@ private:
 		  * explicitly, but for now we use an average execution time per
 		  * cycle.
 		  */
-		EmuTimeFreq<VDP::TICKS_PER_SECOND> currentTime;
+		Clock<VDP::TICKS_PER_SECOND> clock;
 
 		word ASX, ADX, ANX;
 	};

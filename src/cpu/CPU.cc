@@ -37,7 +37,7 @@ CPU::CPU(const string& name, int defaultFreq)
 	            defaultFreq, 1, 100000000),
 	  freq(defaultFreq)
 {
-	currentTime.setFreq(defaultFreq);
+	clock.setFreq(defaultFreq);
 
 	freqLocked.addListener(this);
 	freqValue.addListener(this);
@@ -76,13 +76,13 @@ const EmuTime& CPU::getTargetTime() const
 	return targetTime;
 }
 
-void CPU::setCurrentTime(const EmuTime& time)
+void CPU::advance(const EmuTime& time)
 {
-	currentTime = time;
+	clock.advance(time);
 }
 const EmuTime& CPU::getCurrentTime() const
 {
-	return currentTime;
+	return clock.getTime();
 }
 
 
@@ -123,7 +123,7 @@ void CPU::reset(const EmuTime& time)
 	R.R2 = 0;
 	memptr.w = 0xFFFF;
 	invalidateCache(0x0000, 0x10000 / CPU::CACHE_LINE_SIZE);
-	setCurrentTime(time);
+	clock.reset(time);
 	
 	assert(IRQStatus == 0); // other devices must reset their IRQ source
 }
@@ -131,8 +131,9 @@ void CPU::reset(const EmuTime& time)
 void CPU::raiseIRQ()
 {
 	assert(IRQStatus >= 0);
-	if (IRQStatus == 0)
+	if (IRQStatus == 0) {
 		slowInstructions++;
+	}
 	IRQStatus++;
 	//PRT_DEBUG("CPU: raise IRQ " << IRQStatus);
 }
@@ -146,8 +147,8 @@ void CPU::lowerIRQ()
 void CPU::wait(const EmuTime& time)
 {
 	assert(time >= getCurrentTime());
-	setCurrentTime(time);
-	if (getTargetTime() <= time) {
+	advance(time);
+	if (time > getTargetTime()) {
 		extendTarget(time);
 	}
 }
@@ -166,8 +167,8 @@ void CPU::doBreak2()
 	breaked = true;
 
 	scheduler->increasePauseCounter();
-	scheduler->setCurrentTime(currentTime);
-	
+	scheduler->setCurrentTime(clock.getTime());
+
 	ostringstream os;
 	os << "0x" << hex << (int)R.PC.w;
 	CliCommOutput::instance().update(CliCommOutput::BREAK, "pc", os.str());
@@ -206,14 +207,14 @@ void CPU::update(const SettingLeafNode* setting)
 	if (setting == &freqLocked) {
 		if (freqLocked.getValue()) {
 			// locked
-			currentTime.setFreq(freq);
+			clock.setFreq(freq);
 		} else {
 			// unlocked
-			currentTime.setFreq(freqValue.getValue());
+			clock.setFreq(freqValue.getValue());
 		}
 	} else if (setting == &freqValue) {
 		if (!freqLocked.getValue()) {
-			currentTime.setFreq(freqValue.getValue());
+			clock.setFreq(freqValue.getValue());
 		}
 	} else {
 		assert(false);
@@ -225,7 +226,7 @@ void CPU::setFreq(unsigned freq_)
 	freq = freq_;
 	if (freqLocked.getValue()) {
 		// locked
-		currentTime.setFreq(freq);
+		clock.setFreq(freq);
 	}
 }
 

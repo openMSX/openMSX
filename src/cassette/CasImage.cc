@@ -52,12 +52,9 @@ CasImage::~CasImage()
 
 short CasImage::getSampleAt(const EmuTime& time)
 {
-	unsigned pos = time.getTicksAt(OUTPUT_FREQUENCY);
-	if (pos < output.size()) {
-		return output[pos] * 256;
-	} else {
-		return 0;
-	}
+	static const Clock<OUTPUT_FREQUENCY> zero;
+	unsigned pos = zero.getTicksTill(time);
+	return pos < output.size() ? output[pos] * 256 : 0;
 }
 
 

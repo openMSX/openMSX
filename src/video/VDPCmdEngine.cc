@@ -154,7 +154,7 @@ inline byte VDPCmdEngine::Graphic4Mode::point(VDPVRAM* vram, int x, int y)
 }
 
 inline void VDPCmdEngine::Graphic4Mode::pset(
-	EmuTime& time, VDPVRAM* vram, int x, int y, byte colour, LogOp* op )
+	const EmuTime& time, VDPVRAM* vram, int x, int y, byte colour, LogOp* op )
 {
 	byte sh = ((~x) & 1) << 2;
 	op->pset(time, vram, addressOf(x, y), colour << sh, ~(15 << sh));
@@ -174,7 +174,7 @@ inline byte VDPCmdEngine::Graphic5Mode::point(VDPVRAM* vram, int x, int y)
 }
 
 inline void VDPCmdEngine::Graphic5Mode::pset(
-	EmuTime& time, VDPVRAM* vram, int x, int y, byte colour, LogOp* op )
+	const EmuTime& time, VDPVRAM* vram, int x, int y, byte colour, LogOp* op )
 {
 	byte sh = ((~x) & 3) << 1;
 	op->pset(time, vram, addressOf(x, y), colour << sh, ~(3 << sh));
@@ -194,7 +194,7 @@ inline byte VDPCmdEngine::Graphic6Mode::point(VDPVRAM* vram, int x, int y)
 }
 
 inline void VDPCmdEngine::Graphic6Mode::pset(
-	EmuTime& time, VDPVRAM* vram, int x, int y, byte colour, LogOp* op )
+	const EmuTime& time, VDPVRAM* vram, int x, int y, byte colour, LogOp* op )
 {
 	byte sh = ((~x) & 1) << 2;
 	op->pset(time, vram, addressOf(x, y), colour << sh, ~(15 << sh));
@@ -213,7 +213,7 @@ inline byte VDPCmdEngine::Graphic7Mode::point(VDPVRAM* vram, int x, int y)
 }
 
 inline void VDPCmdEngine::Graphic7Mode::pset(
-	EmuTime& time, VDPVRAM* vram, int x, int y, byte colour, LogOp* op )
+	const EmuTime& time, VDPVRAM* vram, int x, int y, byte colour, LogOp* op )
 {
 	op->pset(time, vram, addressOf(x, y), colour, 0);
 }
@@ -225,7 +225,7 @@ typedef VDPCmdEngine::LogOp LogOp;
 class DummyOp: public LogOp {
 public:
 	virtual void pset(
-		EmuTime& /*time*/, VDPVRAM* /*vram*/, int /*addr*/,
+		const EmuTime& /*time*/, VDPVRAM* /*vram*/, int /*addr*/,
 		byte /*colour*/, byte /*mask*/)
 	{
 		// Undefined logical operations do nothing.
@@ -235,7 +235,7 @@ public:
 class ImpOp: public LogOp {
 public:
 	virtual void pset(
-		EmuTime& time, VDPVRAM* vram, int addr, byte colour, byte mask)
+		const EmuTime& time, VDPVRAM* vram, int addr, byte colour, byte mask)
 	{
 		vram->cmdWrite(addr,
 			(vram->cmdWriteWindow.readNP(addr) & mask) | colour,
@@ -246,7 +246,7 @@ public:
 class AndOp: public LogOp {
 public:
 	virtual void pset(
-		EmuTime& time, VDPVRAM* vram, int addr, byte colour, byte mask)
+		const EmuTime& time, VDPVRAM* vram, int addr, byte colour, byte mask)
 	{
 		vram->cmdWrite(addr,
 			vram->cmdWriteWindow.readNP(addr) & (colour | mask),
@@ -257,7 +257,8 @@ public:
 class OrOp: public LogOp {
 public:
 	virtual void pset(
-		EmuTime& time, VDPVRAM* vram, int addr, byte colour, byte /*mask*/)
+		const EmuTime& time, VDPVRAM* vram,
+		int addr, byte colour, byte /*mask*/)
 	{
 		vram->cmdWrite(addr,
 			vram->cmdWriteWindow.readNP(addr) | colour,
@@ -268,7 +269,8 @@ public:
 class XorOp: public LogOp {
 public:
 	virtual void pset(
-		EmuTime& time, VDPVRAM* vram, int addr, byte colour, byte /*mask*/)
+		const EmuTime& time, VDPVRAM* vram,
+		int addr, byte colour, byte /*mask*/)
 	{
 		vram->cmdWrite(addr,
 			vram->cmdWriteWindow.readNP(addr) ^ colour,
@@ -279,7 +281,7 @@ public:
 class NotOp: public LogOp {
 public:
 	virtual void pset(
-		EmuTime& time, VDPVRAM* vram, int addr, byte colour, byte mask)
+		const EmuTime& time, VDPVRAM* vram, int addr, byte colour, byte mask)
 	{
 		vram->cmdWrite(addr,
 			(vram->cmdWriteWindow.readNP(addr) & mask) | ~(colour | mask),
@@ -291,7 +293,7 @@ template <class Op>
 class TransparentOp: public Op {
 public:
 	virtual void pset(
-		EmuTime& time, VDPVRAM* vram, int addr, byte colour, byte mask)
+		const EmuTime& time, VDPVRAM* vram, int addr, byte colour, byte mask)
 	{
 		if (colour) Op::pset(time, vram, addr, colour, mask);
 	}
@@ -594,7 +596,7 @@ void VDPCmdEngine::VDPCmd::copyProgressFrom(VDPCmd* other)
 	this->ASX = other->ASX;
 	this->ADX = other->ADX;
 	this->ANX = other->ANX;
-	this->currentTime = other->currentTime;
+	this->clock.reset(other->clock.getTime());
 }
 
 // Many VDP commands are executed in some kind of loop but
@@ -604,13 +606,13 @@ void VDPCmdEngine::VDPCmd::copyProgressFrom(VDPCmd* other)
 
 // Loop over DX, DY.
 #define post__x_y() \
-		currentTime += delta; \
+		clock += delta; \
 		ADX += TX; \
 		if (--ANX == 0) { \
 			engine->DY += TY; --(engine->NY); \
 			ADX = engine->DX; ANX = NX; \
 			if (--NY == 0) { \
-				engine->commandDone(currentTime); \
+				engine->commandDone(clock.getTime()); \
 				break; \
 			} \
 		} \
@@ -618,13 +620,13 @@ void VDPCmdEngine::VDPCmd::copyProgressFrom(VDPCmd* other)
 
 // Loop over SX, DX, SY, DY.
 #define post_xxyy() \
-		currentTime += delta; \
+		clock += delta; \
 		ASX += TX; ADX += TX; \
 		if (--ANX == 0) { \
 			engine->SY += TY; engine->DY += TY; --(engine->NY); \
 			ASX = engine->SX; ADX = engine->DX; ANX = NX; \
 			if (--NY == 0) { \
-				engine->commandDone(currentTime); \
+				engine->commandDone(clock.getTime()); \
 				break; \
 			} \
 		} \
@@ -658,12 +660,12 @@ VDPCmdEngine::PointCmd<Mode>::PointCmd(VDPCmdEngine* engine, VDPVRAM* vram)
 template <class Mode>
 void VDPCmdEngine::PointCmd<Mode>::start(const EmuTime& time)
 {
-	currentTime = time;
-	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, currentTime);
-	vram->cmdWriteWindow.disable(currentTime);
+	clock.advance(time);
+	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
+	vram->cmdWriteWindow.disable(clock.getTime());
 
 	engine->COL = Mode::point(vram, engine->SX, engine->SY);
-	engine->commandDone(currentTime);
+	engine->commandDone(clock.getTime());
 }
 
 template <class Mode>
@@ -683,14 +685,14 @@ VDPCmdEngine::PsetCmd<Mode>::PsetCmd(VDPCmdEngine* engine, VDPVRAM* vram)
 template <class Mode>
 void VDPCmdEngine::PsetCmd<Mode>::start(const EmuTime& time)
 {
-	currentTime = time;
-	vram->cmdReadWindow.disable(currentTime);
-	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
+	clock.advance(time);
+	vram->cmdReadWindow.disable(clock.getTime());
+	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
 
 	byte col = engine->COL & Mode::COLOUR_MASK;
-	Mode::pset(currentTime, vram,
+	Mode::pset(clock.getTime(), vram,
 		engine->DX, engine->DY, col, engine->currentOperation);
-	engine->commandDone(currentTime);
+	engine->commandDone(clock.getTime());
 }
 
 template <class Mode>
@@ -710,9 +712,9 @@ VDPCmdEngine::SrchCmd<Mode>::SrchCmd(VDPCmdEngine* engine, VDPVRAM* vram)
 template <class Mode>
 void VDPCmdEngine::SrchCmd<Mode>::start(const EmuTime& time)
 {
-	currentTime = time;
-	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, currentTime);
-	vram->cmdWriteWindow.disable(currentTime);
+	clock.advance(time);
+	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
+	vram->cmdWriteWindow.disable(clock.getTime());
 	ASX = engine->SX;
 	engine->statusChangeTime = EmuTime::zero; // we can find it any moment
 }
@@ -725,18 +727,18 @@ void VDPCmdEngine::SrchCmd<Mode>::execute(const EmuTime& time)
 	bool AEQ = (engine->ARG & EQ) != 0; // TODO: Do we look for "==" or "!="?
 	int delta = SRCH_TIMING[engine->getTiming()];
 
-	while (currentTime < time) {
+	while (clock.before(time)) {
 		if ((Mode::point(vram, ASX, engine->SY) == CL) ^ AEQ) {
-			currentTime += delta;
+			clock += delta;
 			engine->status |= 0x10; // border detected
-			engine->commandDone(currentTime);
+			engine->commandDone(clock.getTime());
 			engine->borderX = 0xFE00 | ASX;
 			break;
 		}
-		currentTime += delta;
+		clock += delta;
 		if ((ASX += TX) & Mode::PIXELS_PER_LINE) {
 			engine->status &= 0xEF; // border not detected
-			engine->commandDone(currentTime);
+			engine->commandDone(clock.getTime());
 			engine->borderX = 0xFE00 | ASX;
 			break;
 		}
@@ -755,9 +757,9 @@ VDPCmdEngine::LineCmd<Mode>::LineCmd(VDPCmdEngine* engine, VDPVRAM* vram)
 template <class Mode>
 void VDPCmdEngine::LineCmd<Mode>::start(const EmuTime& time)
 {
-	currentTime = time;
-	vram->cmdReadWindow.disable(currentTime);
-	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
+	clock.advance(time);
+	vram->cmdReadWindow.disable(clock.getTime());
+	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
 	engine->NY &= 1023;
 	ASX = ((engine->NX - 1) >> 1);
 	ADX = engine->DX;
@@ -775,10 +777,10 @@ void VDPCmdEngine::LineCmd<Mode>::execute(const EmuTime& time)
 
 	if ((engine->ARG & MAJ) == 0) {
 		// X-Axis is major direction.
-		while (currentTime < time) {
-			Mode::pset(currentTime, vram,
+		while (clock.before(time)) {
+			Mode::pset(clock.getTime(), vram,
 				ADX, engine->DY, CL, engine->currentOperation);
-			currentTime += delta;
+			clock += delta;
 			ADX += TX;
 			if (ASX < engine->NY) {
 				ASX += engine->NX;
@@ -787,16 +789,16 @@ void VDPCmdEngine::LineCmd<Mode>::execute(const EmuTime& time)
 			ASX -= engine->NY;
 			ASX &= 1023; // mask to 10 bits range
 			if (ANX++ == engine->NX || (ADX & Mode::PIXELS_PER_LINE)) {
-				engine->commandDone(currentTime);
+				engine->commandDone(clock.getTime());
 				break;
 			}
 		}
 	} else {
 		// Y-Axis is major direction.
-		while (currentTime < time) {
-			Mode::pset(currentTime, vram,
+		while (clock.before(time)) {
+			Mode::pset(clock.getTime(), vram,
 				ADX, engine->DY, CL, engine->currentOperation);
-			currentTime += delta;
+			clock += delta;
 			engine->DY += TY;
 			if (ASX < engine->NY) {
 				ASX += engine->NX;
@@ -805,7 +807,7 @@ void VDPCmdEngine::LineCmd<Mode>::execute(const EmuTime& time)
 			ASX -= engine->NY;
 			ASX &= 1023; // mask to 10 bits range
 			if (ANX++ == engine->NX || (ADX & Mode::PIXELS_PER_LINE)) {
-				engine->commandDone(currentTime);
+				engine->commandDone(clock.getTime());
 				break;
 			}
 		}
@@ -825,7 +827,7 @@ void VDPCmdEngine::BlockCmd::calcFinishTime(word NX, word NY)
 {
 	if (engine->currentCommand) {
 		int ticks = ((NX * (NY - 1)) + ANX) * timing[engine->getTiming()];
-		engine->statusChangeTime = currentTime + ticks;
+		engine->statusChangeTime = clock + ticks;
 	}
 }
 
@@ -841,9 +843,9 @@ VDPCmdEngine::LmmvCmd<Mode>::LmmvCmd(VDPCmdEngine* engine, VDPVRAM* vram)
 template <class Mode>
 void VDPCmdEngine::LmmvCmd<Mode>::start(const EmuTime& time)
 {
-	currentTime = time;
-	vram->cmdReadWindow.disable(currentTime);
-	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
+	clock.advance(time);
+	vram->cmdReadWindow.disable(clock.getTime());
+	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
 	engine->NY &= 1023;
 	word NX = clipNX_1_pixel<Mode>(engine->DX, engine->NX, engine->ARG);
 	word NY = clipNY_1(engine->DY, engine->NY, engine->ARG);
@@ -864,8 +866,8 @@ void VDPCmdEngine::LmmvCmd<Mode>::execute(const EmuTime& time)
 	byte CL = engine->COL & Mode::COLOUR_MASK;
 	int delta = LMMV_TIMING[engine->getTiming()];
 
-	while (currentTime < time) {
-		Mode::pset(currentTime, vram,
+	while (clock.before(time)) {
+		Mode::pset(clock.getTime(), vram,
 			ADX, engine->DY, CL, engine->currentOperation);
 	post__x_y()
 
@@ -884,9 +886,9 @@ VDPCmdEngine::LmmmCmd<Mode>::LmmmCmd(VDPCmdEngine* engine, VDPVRAM* vram)
 template <class Mode>
 void VDPCmdEngine::LmmmCmd<Mode>::start(const EmuTime& time)
 {
-	currentTime = time;
-	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, currentTime);
-	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
+	clock.advance(time);
+	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
+	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
 	engine->NY &= 1023;
 	word NX = clipNX_2_pixel<Mode>(
 		engine->SX, engine->DX, engine->NX, engine->ARG );
@@ -909,8 +911,8 @@ void VDPCmdEngine::LmmmCmd<Mode>::execute(const EmuTime& time)
 	ANX = clipNX_2_pixel<Mode>(ASX, ADX, ANX, engine->ARG);
 	int delta = LMMM_TIMING[engine->getTiming()];
 
-	while (currentTime < time) {
-		Mode::pset(currentTime, vram,
+	while (clock.before(time)) {
+		Mode::pset(clock.getTime(), vram,
 			ADX, engine->DY, Mode::point(vram, ASX, engine->SY),
 			engine->currentOperation);
 	post_xxyy()
@@ -930,9 +932,9 @@ VDPCmdEngine::LmcmCmd<Mode>::LmcmCmd(VDPCmdEngine* engine, VDPVRAM* vram)
 template <class Mode>
 void VDPCmdEngine::LmcmCmd<Mode>::start(const EmuTime& time)
 {
-	currentTime = time;
-	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, currentTime);
-	vram->cmdWriteWindow.disable(currentTime);
+	clock.advance(time);
+	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
+	vram->cmdWriteWindow.disable(clock.getTime());
 	engine->NY &= 1023;
 	word NX = clipNX_1_pixel<Mode>(engine->SX, engine->NX, engine->ARG);
 	ASX = engine->SX;
@@ -983,9 +985,9 @@ VDPCmdEngine::LmmcCmd<Mode>::LmmcCmd(VDPCmdEngine* engine, VDPVRAM* vram)
 template <class Mode>
 void VDPCmdEngine::LmmcCmd<Mode>::start(const EmuTime& time)
 {
-	currentTime = time;
-	vram->cmdReadWindow.disable(currentTime);
-	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
+	clock.advance(time);
+	vram->cmdReadWindow.disable(clock.getTime());
+	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
 	engine->NY &= 1023;
 	word NX = clipNX_1_pixel<Mode>(engine->DX, engine->NX, engine->ARG);
 	ADX = engine->DX;
@@ -1008,8 +1010,8 @@ void VDPCmdEngine::LmmcCmd<Mode>::execute(const EmuTime& time)
 	if (engine->transfer) {
 		byte col = engine->COL & Mode::COLOUR_MASK;
 		// TODO: Write time is inaccurate.
-		currentTime = time;
-		Mode::pset(currentTime, vram,
+		clock.advance(time);
+		Mode::pset(clock.getTime(), vram,
 			ADX, engine->DY, col, engine->currentOperation);
 		// Execution is emulated as instantaneous, so don't bother
 		// with the timing.
@@ -1041,9 +1043,9 @@ VDPCmdEngine::HmmvCmd<Mode>::HmmvCmd(VDPCmdEngine* engine, VDPVRAM* vram)
 template <class Mode>
 void VDPCmdEngine::HmmvCmd<Mode>::start(const EmuTime& time)
 {
-	currentTime = time;
-	vram->cmdReadWindow.disable(currentTime);
-	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
+	clock.advance(time);
+	vram->cmdReadWindow.disable(clock.getTime());
+	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
 	engine->NY &= 1023;
 	word NX = clipNX_1_byte<Mode>(engine->DX, engine->NX, engine->ARG);
 	word NY = clipNY_1(engine->DY, engine->NY, engine->ARG);
@@ -1065,8 +1067,9 @@ void VDPCmdEngine::HmmvCmd<Mode>::execute(const EmuTime& time)
 		ADX, ANX << Mode::PIXELS_PER_BYTE_SHIFT, engine->ARG );
 	int delta = HMMV_TIMING[engine->getTiming()];
 
-	while (currentTime < time) {
-		vram->cmdWrite(Mode::addressOf(ADX, engine->DY), engine->COL, currentTime);
+	while (clock.before(time)) {
+		vram->cmdWrite(
+			Mode::addressOf(ADX, engine->DY), engine->COL, clock.getTime());
 	post__x_y()
 
 	calcFinishTime(NX, NY);
@@ -1084,9 +1087,9 @@ VDPCmdEngine::HmmmCmd<Mode>::HmmmCmd(VDPCmdEngine* engine, VDPVRAM* vram)
 template <class Mode>
 void VDPCmdEngine::HmmmCmd<Mode>::start(const EmuTime& time)
 {
-	currentTime = time;
-	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, currentTime);
-	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
+	clock.advance(time);
+	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
+	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
 	engine->NY &= 1023;
 	word NX = clipNX_2_byte<Mode>(
 		engine->SX, engine->DX, engine->NX, engine->ARG );
@@ -1111,11 +1114,11 @@ void VDPCmdEngine::HmmmCmd<Mode>::execute(const EmuTime& time)
 		ASX, ADX, ANX << Mode::PIXELS_PER_BYTE_SHIFT, engine->ARG );
 	int delta = HMMM_TIMING[engine->getTiming()];
 
-	while (currentTime < time) {
+	while (clock.before(time)) {
 		vram->cmdWrite(
 			Mode::addressOf(ADX, engine->DY),
 			vram->cmdReadWindow.readNP(Mode::addressOf(ASX, engine->SY)),
-			currentTime
+			clock.getTime()
 			);
 	post_xxyy()
 
@@ -1134,9 +1137,9 @@ VDPCmdEngine::YmmmCmd<Mode>::YmmmCmd(VDPCmdEngine* engine, VDPVRAM* vram)
 template <class Mode>
 void VDPCmdEngine::YmmmCmd<Mode>::start(const EmuTime& time)
 {
-	currentTime = time;
-	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, currentTime);
-	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
+	clock.advance(time);
+	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
+	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
 	engine->NY &= 1023;
 	word NX = clipNX_1_byte<Mode>(engine->DX, 512, engine->ARG);
 		// large enough so that it gets clipped
@@ -1159,11 +1162,11 @@ void VDPCmdEngine::YmmmCmd<Mode>::execute(const EmuTime& time)
 	ANX = clipNX_1_byte<Mode>(ADX, 512, engine->ARG);
 	int delta = YMMM_TIMING[engine->getTiming()];
 
-	while (currentTime < time) {
+	while (clock.before(time)) {
 		vram->cmdWrite(
 			Mode::addressOf(ADX, engine->DY),
 			vram->cmdReadWindow.readNP(Mode::addressOf(ADX, engine->SY)),
-			currentTime
+			clock.getTime()
 			);
 	post_xxyy()
 
@@ -1182,9 +1185,9 @@ VDPCmdEngine::HmmcCmd<Mode>::HmmcCmd(VDPCmdEngine* engine, VDPVRAM* vram)
 template <class Mode>
 void VDPCmdEngine::HmmcCmd<Mode>::start(const EmuTime& time)
 {
-	currentTime = time;
-	vram->cmdReadWindow.disable(currentTime);
-	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
+	clock.advance(time);
+	vram->cmdReadWindow.disable(clock.getTime());
+	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, clock.getTime());
 	engine->NY &= 1023;
 	word NX = clipNX_1_byte<Mode>(engine->DX, engine->NX, engine->ARG);
 	ADX = engine->DX;
@@ -1221,7 +1224,7 @@ void VDPCmdEngine::HmmcCmd<Mode>::execute(const EmuTime& time)
 			engine->DY += TY; --(engine->NY);
 			ADX = engine->DX; ANX = NX;
 			if (--NY == 0) {
-				engine->commandDone(currentTime);
+				engine->commandDone(clock.getTime());
 			}
 		}
 	}

@@ -29,27 +29,26 @@ VDPIODelay::VDPIODelay(MSXIODevice* device_, const EmuTime& time)
 
 byte VDPIODelay::readIO(byte port, const EmuTime& time)
 {
-	const EmuTime& time2 = delay(time);
-	return device->readIO(port, time2);
+	delay(time);
+	return device->readIO(port, lastTime.getTime());
 }
 
 void VDPIODelay::writeIO(byte port, byte value, const EmuTime& time)
 {
-	const EmuTime& time2 = delay(time);
-	device->writeIO(port, value, time2);
+	delay(time);
+	device->writeIO(port, value, lastTime.getTime());
 }
 
-const EmuTime& VDPIODelay::delay(const EmuTime& time)
+void VDPIODelay::delay(const EmuTime& time)
 {
 	if (cpu.isR800Active()) {
 		lastTime += 57;	// 8us
-		if (time < lastTime) {
-			cpu.wait(lastTime);
-			return lastTime;
+		if (time < lastTime.getTime()) {
+			cpu.wait(lastTime.getTime());
+			return;
 		}
 	}
-	lastTime = time;
-	return lastTime;
+	lastTime.advance(time);
 }
 
 } // namespace openmsx

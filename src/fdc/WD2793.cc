@@ -48,7 +48,7 @@ bool WD2793::getDTRQ(const EmuTime& time)
 	    (statusReg & BUSY)) {
 		// WRITE TRACK && status busy
 		if (writeTrack) {
-			int ticks = DRQTime.getTicksTill(time);
+			int ticks = DRQTimer.getTicksTill(time);
 			if (ticks >= 15) { // TODO found by trial and error
 				DRQ = true;
 			}
@@ -241,7 +241,7 @@ void WD2793::setDataReg(byte value, const EmuTime& time)
 		//          (int)value<<dec);
 		//DRQ related timing
 		DRQ = false;
-		DRQTime = time;
+		DRQTimer.advance(time);
 		
 		//indexmark related timing
 		int pulses = drive->indexPulseCount(commandStart, time);
@@ -463,9 +463,9 @@ void WD2793::step(const EmuTime& time)
 		endType1Cmd();
 	} else {
 		drive->step(directionIn, time);
-		EmuTimeFreq<1000> next(time);	// ms
+		Clock<1000> next(time);	// ms
 		next += timePerStep[commandReg & STEP_SPEED];
-		schedule(FSM_SEEK, next);
+		schedule(FSM_SEEK, next.getTime());
 	}
 }
 
@@ -504,9 +504,9 @@ void WD2793::startType2Cmd(const EmuTime& time)
 			drive->setHeadLoaded(true, time);
 
 			if (commandReg & E_FLAG) {
-				EmuTimeFreq<1000> next(time);	// ms
+				Clock<1000> next(time);	// ms
 				next += 30;	// when 1MHz clock
-				schedule(FSM_TYPE2_WAIT_LOAD, next);
+				schedule(FSM_TYPE2_WAIT_LOAD, next.getTime());
 			} else {
 				type2WaitLoad();
 			}
@@ -557,9 +557,9 @@ void WD2793::startType3Cmd(const EmuTime& time)
 			// WD2795/WD2797 would now set SSO output
 
 			if (commandReg & E_FLAG) {
-				EmuTimeFreq<1000> next(time);	// ms
+				Clock<1000> next(time);	// ms
 				next += 30;	// when 1MHz clock
-				schedule(FSM_TYPE3_WAIT_LOAD, next);
+				schedule(FSM_TYPE3_WAIT_LOAD, next.getTime());
 			} else {
 				type3WaitLoad(time);
 			}
@@ -619,7 +619,7 @@ void WD2793::writeTrackCmd(const EmuTime& time)
 
 		PRT_DEBUG("WD2793: initWriteTrack()");
 		drive->initWriteTrack(); 
-		DRQTime = time;
+		DRQTimer.advance(time);
 	}
 }
 

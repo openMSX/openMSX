@@ -2,12 +2,12 @@
 
 #include "WavImage.hh"
 #include "File.hh"
-#include "EmuTime.hh"
+
 
 namespace openmsx {
 
 WavImage::WavImage(const string& fileName)
-	: length(0), buffer(0), freq(44100)
+	: length(0), buffer(0)
 {
 	File file(fileName);
 	const char* name = file.getLocalName().c_str();
@@ -20,11 +20,11 @@ WavImage::WavImage(const string& fileName)
 		throw MSXException(msg);
 	}
 	
-	freq = wavSpec.freq;
+	clock.setFreq(wavSpec.freq);
 	SDL_AudioCVT audioCVT;
-	if (SDL_BuildAudioCVT(&audioCVT,
-		              wavSpec.format, wavSpec.channels, freq,
-			      AUDIO_S16,      1,                freq) == -1) {
+	if (SDL_BuildAudioCVT(
+			&audioCVT, wavSpec.format, wavSpec.channels, wavSpec.freq,
+			AUDIO_S16, 1, wavSpec.freq) == -1) {
 		SDL_FreeWAV(wavBuf);
 		throw MSXException("Couldn't build wav converter");
 	}
@@ -44,19 +44,13 @@ WavImage::WavImage(const string& fileName)
 
 WavImage::~WavImage()
 {
-	if (buffer) {
-		free(buffer);
-	}
+	free(buffer);
 }
 
 short WavImage::getSampleAt(const EmuTime& time)
 {
-	int pos = time.getTicksAt(freq);
-	if (pos < length) {
-		return ((short*)buffer)[pos];
-	} else {
-		return 0;
-	}
+	int pos = clock.getTicksTill(time);
+	return pos < length ? ((short*)buffer)[pos] : 0;
 }
 
 } // namespace openmsx
