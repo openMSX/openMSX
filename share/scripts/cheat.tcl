@@ -1,3 +1,4 @@
+package provide cheatfinder 0.5
 # Cheat finder version 0.5
 #
 # Welcome to the openMSX cheatfinder. Please visit
@@ -118,14 +119,16 @@ proc cheatfind { args } {
  
   #display the result 
   set num [llength $result]
+  set output ""
   if {$num == 0} {
-    puts "No results left"
-  } elseif {$num < $cheatfind_max} {
+    return "No results left"
+  } elseif {$num <= $cheatfind_max} {
     set sorted [lsort -integer -index 0 $result]
     foreach {addr old new} [join $sorted] {
-      puts "[format 0x%04X $addr] : $old -> $new"
+      append output "[format 0x%04X $addr] : $old -> $new \n"
     }
+    return $output
   } else {
-    puts "$num results found -> Maximum result to display set to $cheatfind_max "
+    return "$num results found -> Maximum result to display set to $cheatfind_max "
   }
 }
