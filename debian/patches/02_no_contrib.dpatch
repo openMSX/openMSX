@@ -22,19 +22,19 @@ esac
 exit 0
 
 @DPATCH@
-diff -ru openmsx-0.5.0.orig/build/main.mk openmsx-0.5.0/build/main.mk
---- openmsx-0.5.0.orig/build/main.mk
-+++ openmsx-0.5.0/build/main.mk
-@@ -490,11 +493,6 @@
-        @echo "  Data files..."
-        @mkdir -p $(INSTALL_SHARE_DIR)
-        @cp -rf share/* $(INSTALL_SHARE_DIR)/
--       @echo "  C-BIOS..."
--       @mkdir -p $(INSTALL_SHARE_DIR)/Contrib/cbios
--       @cp -f Contrib/README.cbios $(INSTALL_SHARE_DIR)/Contrib
--       @cp -f $(addprefix Contrib/cbios/,*.BIN *.txt *.rom) \
--               $(INSTALL_SHARE_DIR)/Contrib/cbios
-        @echo "  Documentation..."
-        @mkdir -p $(INSTALL_DOC_DIR)
-        @cp -f README GPL AUTHORS $(INSTALL_DOC_DIR)
+diff -ur openmsx-0.5.0.orig/build/main.mk openmsx-0.5.0/build/main.mk
+--- openmsx-0.5.0.orig/build/main.mk	2005-01-06 19:53:35.000000000 +0000
++++ openmsx-0.5.0/build/main.mk	2005-01-06 20:06:24.000000000 +0000
+@@ -490,11 +490,6 @@
+ 	@echo "  Data files..."
+ 	@mkdir -p $(INSTALL_SHARE_DIR)
+ 	@cp -rf share/* $(INSTALL_SHARE_DIR)/
+-	@echo "  C-BIOS..."
+-	@mkdir -p $(INSTALL_SHARE_DIR)/Contrib/cbios
+-	@cp -f Contrib/README.cbios $(INSTALL_SHARE_DIR)/Contrib
+-	@cp -f $(addprefix Contrib/cbios/,*.BIN *.txt *.rom) \
+-		$(INSTALL_SHARE_DIR)/Contrib/cbios
+ 	@echo "  Documentation..."
+ 	@mkdir -p $(INSTALL_DOC_DIR)
+ 	@cp -f README GPL AUTHORS $(INSTALL_DOC_DIR)
 

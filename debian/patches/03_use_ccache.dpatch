@@ -22,18 +22,20 @@ esac
 exit 0
 
 @DPATCH@
-diff -ru openmsx-0.5.0.orig/build/main.mk openmsx-0.5.0/build/main.mk
---- openmsx-0.5.0.orig/build/main.mk
-+++ openmsx-0.5.0/build/main.mk
-@@ -315,7 +315,10 @@
-   endif
+diff -ur openmsx-0.5.0.orig/build/main.mk openmsx-0.5.0.orig/build/main.mk
+--- openmsx-0.5.0.orig/build/main.mk	2005-01-06 19:53:35.000000000 +0000
++++ openmsx-0.5.0/build/main.mk	2005-01-06 20:18:10.000000000 +0000
+@@ -316,6 +316,12 @@
  endif
  export CXX:=$(OPENMSX_CXX)
--
+ 
 +# Check if ccache usage was requested
 +ifeq ($(USE_CCACHE),true)
-+       CXX:=ccache $(CXX)
++	CXX:=ccache $(CXX)
 +endif
++
++
  # Use precompiled headers?
  # TODO: Autodetect this: USE_PRECOMPH == compiler_is_g++ && g++_version >= 3.4
  #       In new approach, Make >= 3.80 is needed for precompiled header rules.
+

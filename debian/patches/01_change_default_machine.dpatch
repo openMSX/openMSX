@@ -22,16 +22,15 @@ esac
 exit 0
 
 @DPATCH@
-diff -ru openmsx-0.5.0.orig/src/CommandLineParser.cc openmsx-0.5.0/src/CommandLineParser.cc
---- openmsx-0.5.0.orig/src/CommandLineParser.cc
-+++ openmsx-0.5.0/src/CommandLineParser.cc
+diff -ur openmsx-0.5.0.orig/src/CommandLineParser.cc openmsx-0.5.0/src/CommandLineParser.cc
+--- openmsx-0.5.0.orig/src/CommandLineParser.cc	2005-01-06 20:12:59.000000000 +0000
++++ openmsx-0.5.0/src/CommandLineParser.cc	2005-01-06 20:05:06.000000000 +0000
 @@ -312,7 +312,7 @@
-                searchMachines(*it + "machines", machines);
-        }
-
--       machines["cbios-msx2"] = 0; // default machine
-+       machines["C-BIOS_MSX2"] = 0; // default machine
-
-        machineSetting.reset(new EnumSetting<int>("machine",
-                "default machine (takes effect next time openMSX is started)",
-
+ 		searchMachines(*it + "machines", machines);
+ 	}
+ 	
+-	machines["cbios-msx2"] = 0; // default machine
++	machines["C-BIOS_MSX2"] = 0; // default machine
+ 	
+ 	machineSetting.reset(new EnumSetting<int>("machine",
+ 		"default machine (takes effect next time openMSX is started)",
