@@ -46,7 +46,9 @@ void FDC_DSK::write(byte track, byte sector, byte side,
 
 void FDC_DSK::readBootSector()
 {
-	if (nbSectors == 1440) {
+	// These are just heuristics, so they are not perfect. We may need
+	// a way to overrule this (or use a more descriptive disk format).
+	if (nbSectors >= 1440) {
 		sectorsPerTrack = 9;
 		nbSides = 2;
 	} else if (nbSectors == 720) {
