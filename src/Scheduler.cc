@@ -9,6 +9,7 @@
 #include "CommandController.hh"
 #include "Leds.hh"
 #include "Renderer.hh" // TODO: Temporary?
+#include "MSXMotherBoard.hh"
 
 using std::swap;
 using std::make_heap;
@@ -21,30 +22,33 @@ namespace openmsx {
 const EmuTime Scheduler::ASAP;
 
 Scheduler::Scheduler()
-	: sem(1), depth(0), paused(false), powered(false),
+	: sem(1), depth(0), paused(false), powered(false), needReset(false),
+	  renderer(NULL), motherboard(NULL),
 	  pauseSetting("pause", "pauses the emulation", paused),
 	  powerSetting("power", "turn power on/off", powered),
 	  leds(Leds::instance()),
 	  cpu(MSXCPU::instance()),
 	  commandController(CommandController::instance()),
 	  eventDistributor(EventDistributor::instance()),
-	  quitCommand(*this)
+	  quitCommand(*this),
+	  resetCommand(*this)
 {
 	pauseCounter = 1; // power off
 	emulationRunning = true;
 	cpu.init(this);
-	renderer = NULL;
 
 	pauseSetting.addListener(this);
 	powerSetting.addListener(this);
 
 	commandController.registerCommand(&quitCommand, "quit");
+	commandController.registerCommand(&resetCommand, "reset");
 	eventDistributor.registerEventListener(SDL_QUIT, this);
 }
 
 Scheduler::~Scheduler()
 {
 	eventDistributor.unregisterEventListener(SDL_QUIT, this);
+	commandController.unregisterCommand(&resetCommand, "reset");
 	commandController.unregisterCommand(&quitCommand, "quit");
 
 	powerSetting.removeListener(this);
@@ -110,9 +114,13 @@ void Scheduler::stopScheduling()
 	setSyncPoint(ASAP, this);
 }
 
-void Scheduler::schedule(const EmuTime &limit)
+void Scheduler::schedule(const EmuTime& from, const EmuTime& limit)
 {
+	PRT_DEBUG("Schedule from " << from << " to " << limit);
+	assert(scheduleTime <= from);
+	scheduleTime = from;
 	++depth;
+
 	while (true) {
 		if (!emulationRunning) {
 			// only when not called resursivly it's safe to break
@@ -164,6 +172,11 @@ void Scheduler::schedule(const EmuTime &limit)
 				// Schedule CPU until first sync point.
 				// This may set earlier sync point.
 				PRT_DEBUG ("Sched: Scheduling CPU till " << time);
+				assert(depth == 1);
+				if (needReset) {
+					needReset = false;
+					motherboard->resetMSX();
+				}
 				cpu.executeUntilTarget(time);
 			} else {
 				scheduleDevice(sp, time);
@@ -273,17 +286,37 @@ Scheduler::QuitCommand::QuitCommand(Scheduler& parent_)
 {
 }
 
-string Scheduler::QuitCommand::execute(const vector<string> &tokens)
+string Scheduler::QuitCommand::execute(const vector<string>& tokens)
 	throw()
 {
 	parent.stopScheduling();
 	return "";
 }
 
-string Scheduler::QuitCommand::help(const vector<string> &tokens) const
+string Scheduler::QuitCommand::help(const vector<string>& tokens) const
 	throw()
 {
 	return "Use this command to stop the emulator\n";
+}
+
+
+// class ResetCmd
+
+Scheduler::ResetCmd::ResetCmd(Scheduler& parent_)
+	: parent(parent_)
+{
+}
+
+string Scheduler::ResetCmd::execute(const vector<string>& tokens)
+	throw()
+{
+	parent.needReset = true;
+	return "";
+}
+string Scheduler::ResetCmd::help(const vector<string>& tokens) const
+	throw()
+{
+	return "Resets the MSX.\n";
 }
 
 } // namespace openmsx

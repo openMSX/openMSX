@@ -127,6 +127,8 @@ VDP::VDP(Device* config, const EmuTime& time)
 	displayStartSyncTime = time;
 	vScanSyncTime = time;
 	hScanSyncTime = time;
+	
+	resetInit(time);
 
 	// Reset state.
 	reset(time);
@@ -216,13 +218,13 @@ void VDP::reset(const EmuTime &time)
 	Scheduler::instance().removeSyncPoint(this, SET_MODE);
 	Scheduler::instance().removeSyncPoint(this, SET_BLANK);
 
-	resetInit(time);
-	
 	// Reset subsystems.
+	cmdEngine->sync(time);
+	resetInit(time);
 	spriteChecker->reset(time);
 	cmdEngine->reset(time);
 	renderer->reset(time);
-
+	
 	// Tell the subsystems of the new mask values.
 	resetMasks(time);
 

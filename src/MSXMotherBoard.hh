@@ -26,6 +26,12 @@ public:
 	 */
 	void run(bool powerOn);
 
+	/**
+	 * This will reset all MSXDevices (the reset() method of
+	 * all registered MSXDevices is called)
+	 */
+	void resetMSX();
+
 private:
 	/**
 	 * All MSXDevices should be registered by the MotherBoard.
@@ -41,24 +47,10 @@ private:
 	 */
 	void removeDevice(MSXDevice* device);
 
-	/**
-	 * This will reset all MSXDevices (the reset() method of
-	 * all registered MSXDevices is called)
-	 */
-	void resetMSX();
 	void reInitMSX();
 
 	// SettingListener
 	virtual void update(const SettingLeafNode* setting) throw();
-
-	class ResetCmd : public Command {
-	public:
-		ResetCmd(MSXMotherBoard& parent);
-		virtual string execute(const vector<string>& tokens) throw();
-		virtual string help(const vector<string>& tokens) const throw();
-	private:
-		MSXMotherBoard& parent;
-	} resetCmd;
 
 	list<MSXDevice*> availableDevices;
 

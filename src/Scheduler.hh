@@ -21,7 +21,7 @@ class MSXCPU;
 class CommandController;
 class EventDistributor;
 class Renderer;
-
+class MSXMotherBoard;
 
 class Scheduler : private SettingListener, private EventListener, private Schedulable
 {
@@ -86,7 +86,7 @@ public:
 	 * Schedule till a certain moment in time.
 	 * It's alllowed to call this method recursivly.
 	 */
-	void schedule(const EmuTime& limit);
+	void schedule(const EmuTime& from, const EmuTime& limit);
 
 	/** Set renderer to call when emulation is paused.
 	  * TODO: Function will be moved to OSD later.
@@ -95,6 +95,10 @@ public:
 		this->renderer = renderer;
 	}
 
+	void setMotherBoard(MSXMotherBoard* motherboard) {
+		this->motherboard = motherboard;
+	}
+	
 	void powerOn();
 	void powerOff();
 
@@ -107,9 +111,6 @@ public:
 	BooleanSetting& getPowerSetting() {
 		return powerSetting;
 	}
-
-	// Should only be called by VDP
-	void pause();
 
 	static const EmuTime ASAP;
 
@@ -130,6 +131,7 @@ private:
 	// EventListener
 	virtual bool signalEvent(const SDL_Event& event) throw();
 
+	void pause();
 	void unpause();
 	void stopScheduling();
 
@@ -151,9 +153,11 @@ private:
 
 	bool paused;
 	bool powered;
+	bool needReset;
 	EmuTime scheduleTime;
 
 	Renderer* renderer;
+	MSXMotherBoard* motherboard;
 	BooleanSetting pauseSetting;
 	BooleanSetting powerSetting;
 	
@@ -171,6 +175,15 @@ private:
 		Scheduler& parent;
 	} quitCommand;
 	friend class QuitCommand;
+
+	class ResetCmd : public Command {
+	public:
+		ResetCmd(Scheduler& parent);
+		virtual string execute(const vector<string>& tokens) throw();
+		virtual string help(const vector<string>& tokens) const throw();
+	private:
+		Scheduler& parent;
+	} resetCommand;
 };
 
 } // namespace openmsx

@@ -18,10 +18,9 @@
 namespace openmsx {
 
 MSXMotherBoard::MSXMotherBoard()
-	: resetCmd(*this),
-	  powerSetting(Scheduler::instance().getPowerSetting())
+	: powerSetting(Scheduler::instance().getPowerSetting())
 {
-	CommandController::instance().registerCommand(&resetCmd, "reset");
+	Scheduler::instance().setMotherBoard(this);
 	powerSetting.addListener(this);
 	
 }
@@ -37,7 +36,7 @@ MSXMotherBoard::~MSXMotherBoard()
 	availableDevices.clear();
 
 	powerSetting.removeListener(this);
-	CommandController::instance().unregisterCommand(&resetCmd, "reset");
+	Scheduler::instance().setMotherBoard(NULL);
 }
 
 void MSXMotherBoard::addDevice(MSXDevice *device)
@@ -105,7 +104,7 @@ void MSXMotherBoard::run(bool powerOn)
 	if (powerOn) {
 		Scheduler::instance().powerOn();
 	}
-	Scheduler::instance().schedule(EmuTime::infinity);
+	Scheduler::instance().schedule(EmuTime::zero, EmuTime::infinity);
 	Scheduler::instance().powerOff();
 }
 
@@ -115,24 +114,6 @@ void MSXMotherBoard::update(const SettingLeafNode* setting) throw()
 	if (!powerSetting.getValue()) {
 		reInitMSX();
 	}
-}
-
-
-MSXMotherBoard::ResetCmd::ResetCmd(MSXMotherBoard& parent_)
-	: parent(parent_)
-{
-}
-
-string MSXMotherBoard::ResetCmd::execute(const vector<string> &tokens)
-	throw()
-{
-	parent.resetMSX();
-	return "";
-}
-string MSXMotherBoard::ResetCmd::help(const vector<string> &tokens) const
-	throw()
-{
-	return "Resets the MSX.\n";
 }
 
 } // namespace openmsx

@@ -120,7 +120,6 @@ VDPCmdEngine::~VDPCmdEngine()
 
 void VDPCmdEngine::reset(const EmuTime &time)
 {
-	sync(time);
 	status = 0;
 	borderX = 0;
 	scrMode = -1;
