@@ -4,6 +4,7 @@
 
 AM_CXXFLAGS_BASE = -Wall -pipe `test -f .debug && echo "-DDEBUG"` \
 	-I$(srcdir)/cassette \
+	-I$(srcdir)/commands \
 	-I$(srcdir)/config \
 	-I$(srcdir)/console \
 	-I$(srcdir)/cpu \
@@ -34,8 +35,8 @@ endif
 # AM_CXXFLAGS = -Wall -W -DDEBUG -g3 -pipe
 
 SUBDIRS = \
-	cassette config console cpu debugger events fdc file ide input \
-	libxmlx memory serial settings sound thread video
+	cassette commands config console cpu debugger events fdc file ide \
+	input libxmlx memory serial settings sound thread video
 
 #bin_PROGRAMS=openmsx cfgtest
 bin_PROGRAMS=openmsx
@@ -107,6 +108,7 @@ openmsx_LDADD = \
 	console/libConsole.la \
 	debugger/libDebugger.la \
 	events/libEvents.la \
+	commands/libCommands.la \
 	fdc/libFdc.la \
 	file/libFile.la \
 	ide/libIDE.la \

@@ -4,6 +4,7 @@ AM_CXXFLAGS_BASE = -Wall -pipe `test -f $(srcdir)/../.debug && echo "-DDEBUG"` \
 	-I$(srcdir)/.. \
 	-I$(srcdir)/../settings \
 	-I$(srcdir)/../cpu \
+	-I$(srcdir)/../commands \
 	-I$(srcdir)/../config \
 	-I$(srcdir)/../events \
 	-I$(srcdir)/../file \

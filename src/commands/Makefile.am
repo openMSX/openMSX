@@ -2,15 +2,15 @@
 
 AM_CXXFLAGS_BASE = -Wall -pipe `test -f $(srcdir)/../.debug && echo "-DDEBUG"` \
 	-I$(srcdir)/.. \
-	-I$(srcdir)/../commands \
 	-I$(srcdir)/../config \
 	-I$(srcdir)/../console \
 	-I$(srcdir)/../cpu \
 	-I$(srcdir)/../events \
 	-I$(srcdir)/../file \
-	-I$(srcdir)/../memory \
+	-I$(srcdir)/../input \
 	-I$(srcdir)/../settings \
 	-I$(srcdir)/../thread \
+	-I$(srcdir)/../video \
 	@XML_CFLAGS@ @SDL_CFLAGS@
 if PROFILE
 AM_CXXFLAGS = $(AM_CXXFLAGS_BASE) -pg
@@ -22,16 +22,10 @@ AM_CXXFLAGS = $(AM_CXXFLAGS_BASE) -g3
 endif
 endif
 
-noinst_LTLIBRARIES = libDebugger.la
-libDebugger_la_SOURCES = \
-	DebugView.cc DebugView.hh \
-	MemoryView.cc MemoryView.hh \
-	DumpView.cc DumpView.hh \
-	DisAsmView.cc DisAsmView.hh \
-	DebugConsole.cc DebugConsole.hh \
-	ViewControl.cc ViewControl.hh \
-	DebugInterface.cc DebugInterface.hh \
-	DasmTables.cc DasmTables.hh
+noinst_LTLIBRARIES = libCommands.la
+libCommands_la_SOURCES = \
+	Command.cc Command.hh \
+	CommandController.cc CommandController.hh
 
 nodebug: resetdebug all
 debug: setdebug all

@@ -5,8 +5,7 @@ SRC_HDR:= \
 	HotKey \
 	Keys \
 	KeyEventInserter SDLEventInserter \
-	Command CommandController \
-	CliCommunicator
+	CliCommunicator 
 
 HDR_ONLY:= \
 	EventListener.hh

@@ -128,6 +128,7 @@ doc/manual/Makefile
 m4/Makefile
 src/Makefile
 src/cassette/Makefile
+src/commands/Makefile
 src/config/Makefile
 src/console/Makefile
 src/cpu/Makefile

@@ -3,6 +3,7 @@
 AM_CXXFLAGS_BASE = -Wall -pipe `test -f $(srcdir)/../.debug && echo "-DDEBUG"` \
 	-I$(srcdir)/.. \
 	-I$(srcdir)/../config \
+	-I$(srcdir)/../commands \
 	-I$(srcdir)/../events \
 	-I$(srcdir)/../file \
 	-I$(srcdir)/../thread \

@@ -2,6 +2,7 @@
 
 AM_CXXFLAGS_BASE = -Wall -pipe `test -f $(srcdir)/../.debug && echo "-DDEBUG"` \
 	-I$(srcdir)/.. \
+	-I$(srcdir)/../commands \
 	-I$(srcdir)/../config \
 	-I$(srcdir)/../console \
 	-I$(srcdir)/../cpu \
@@ -29,8 +30,6 @@ libEvents_la_SOURCES = \
 	KeyEventInserter.cc KeyEventInserter.hh \
 	Keys.cc Keys.hh \
 	SDLEventInserter.cc SDLEventInserter.hh \
-	Command.cc Command.hh \
-	CommandController.cc CommandController.hh \
 	CliCommunicator.cc CliCommunicator.hh
 
 nodebug: resetdebug all

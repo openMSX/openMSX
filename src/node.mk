@@ -1,8 +1,8 @@
 # $Id$
 
 SUBDIRS:= \
-	cassette config console cpu debugger events fdc file ide input \
-	libxmlx memory serial settings sound thread video
+	cassette commands config console cpu debugger events fdc file ide \
+	input libxmlx memory serial settings sound thread video
 
 SRC_HDR:= \
 	Icon \
