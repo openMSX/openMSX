@@ -24,8 +24,6 @@ ViewControl::ViewControl(MemoryView* view_)
 //		slot.map[i] = mapper->getSelectedPage(i);
 	}
 	delete slots;
-	slot.vram = false;
-	slot.direct = false;
 }
 
 ViewControl::~ViewControl()
@@ -40,18 +38,25 @@ void ViewControl::setAddress(int address)
 	}
 }
 
+byte ViewControl::readByte(word address) const
+{
+	MSXCPUInterface& msxcpu = MSXCPUInterface::instance();
+	if (useGlobalSlot) {
+		return msxcpu.peekMem(memoryAddress);
+	} else {
+		byte page = address >> 14;
+		byte primSlot = slot.ps[page];
+		byte subSlot  = slot.ss[page];
+		unsigned addr = (primSlot << 18) + (subSlot << 16) + address;
+		return msxcpu.peekSlottedMem(addr);
+	}
+}
+
 int ViewControl::getAddress() const
 {
 	if (indirect) {
-		MSXCPUInterface& msxcpu = MSXCPUInterface::instance();
-		if (useGlobalSlot) {
-			return msxcpu.peekMem(memoryAddress) +
-			       msxcpu.peekMem(memoryAddress + 1) * 256;
-		}
-		if (!slot.vram) {
-			return msxcpu.peekMemBySlot(memoryAddress, slot.ps[memoryAddress>>14], slot.ss[memoryAddress>>14], slot.direct) +
-					msxcpu.peekMemBySlot(memoryAddress+1,slot.ps[(memoryAddress+1)>>14],slot.ss[(memoryAddress+1)>>14], slot.direct);
-		}
+		return readByte(memoryAddress) +
+		       readByte(memoryAddress + 1) * 256;
 	}
 	if (!currentDevice) {
 		return -1;

@@ -16,38 +16,33 @@ struct DebugSlot
 	int ps[4];
 	int ss[4];
 	bool subslotted[4];
-	bool vram; // due to change to a more global approach
-	bool direct; // mapper direct 
 };
 
 class MemoryView: public DebugView
 {
-	public:
-		MemoryView(unsigned rows, unsigned columns, bool border);
-		virtual ~MemoryView();
-		
-		void setAddressDisplay(bool mode); 
-		void setNumericBase(int base);
-		void setAddress(int address);
-		void setSlot(int page, int slot = 0, int subslot = 0, bool direct = false);
-		void update();
-		ViewControl* getViewControl();
-		virtual void scroll(enum ScrollDirection direction, unsigned lines) = 0;
-		virtual void fill() = 0;
-		void notifyController();
-		byte readMemory(dword address);
-		
-		static const int SLOTVRAM = 4;
-		static const int SLOTDIRECT = 5;
-		
-	protected:
-		bool useGlobalSlot;
-		DebugSlot slot;
-		ViewControl * viewControl;
-		dword address;
-		dword cursorAddress;
-		int numericBase;
-		bool displayAddress;
+public:
+	MemoryView(unsigned rows, unsigned columns, bool border);
+	virtual ~MemoryView();
+	
+	void setAddressDisplay(bool mode); 
+	void setNumericBase(int base);
+	void setAddress(int address);
+	void setSlot(int page, int slot = 0, int subslot = 0);
+	void update();
+	ViewControl* getViewControl();
+	virtual void scroll(enum ScrollDirection direction, unsigned lines) = 0;
+	virtual void fill() = 0;
+	void notifyController();
+	byte readMemory(dword address);
+	
+protected:
+	bool useGlobalSlot;
+	DebugSlot slot;
+	ViewControl * viewControl;
+	dword address;
+	dword cursorAddress;
+	int numericBase;
+	bool displayAddress;
 };
 
 } // namespace openmsx

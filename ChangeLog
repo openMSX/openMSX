@@ -1,5 +1,8 @@
 $Id$
 
+2003-12-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Made memory is (sub)slots debuggable
+
 2003-12-04 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed "Back to the Future" hang:
 	   romtype was wrongly detected, in romdb.xml the romtype was

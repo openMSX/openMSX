@@ -14,24 +14,25 @@ class Debuggable;
 
 class ViewControl
 {
-	public:
-		ViewControl(MemoryView* view);
-		~ViewControl();
+public:
+	ViewControl(MemoryView* view);
+	~ViewControl();
 
-		void setAddress(int address);
-		int getAddress() const;
+	void setAddress(int address);
+	int getAddress() const;
 
-	private:
-		bool linkToCriterium(Debuggable* device, const string& regName);
+private:
+	byte readByte(word address) const;
+	bool linkToCriterium(Debuggable* device, const string& regName);
 
-		Debuggable* currentDevice;
-		MemoryView* view;
-		word currentCriterium;
-		bool indirect;
-		bool useGlobalSlot;
-		dword memoryAddress;
-		ViewControl* linked;
-		struct DebugSlot slot;
+	Debuggable* currentDevice;
+	MemoryView* view;
+	word currentCriterium;
+	bool indirect;
+	bool useGlobalSlot;
+	dword memoryAddress;
+	ViewControl* linked;
+	struct DebugSlot slot;
 };
 
 } // namespace openmsx

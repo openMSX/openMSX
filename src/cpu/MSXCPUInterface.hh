@@ -108,19 +108,6 @@ public:
 	 */
 	void setPrimarySlots(byte value);
 
-	
-	/** Gets a string representation of the slot map of the emulated MSX.
-	  * @return a multi-line string describing which slot holds which
-	  *     device.
-	  */
-	string getSlotMap();
-
-	/** Gets a string representation of the currently selected slots.
-	  * @return a multi-line string describing which slot are currently
-	  *     selected.
-	  */
-	string getSlotSelection();
-	
 	struct SlotSelection {
 		byte primary [4];
 		byte secondary [4];
@@ -134,7 +121,9 @@ public:
 	 * @see MSXMemDevice::peekMem()
 	 */
 	byte peekMem(word address) const;
-	byte peekMemBySlot(unsigned int address, int slot, int subslot, bool direct);
+	byte peekSlottedMem(unsigned address) const;
+	void writeSlottedMem(unsigned address, byte value,
+	                     const EmuTime& time);
 
 protected:
 	MSXCPUInterface();
@@ -160,6 +149,17 @@ private:
 	private:
 		MSXCPUInterface& parent;
 	} memoryDebug;
+
+	class SlottedMemoryDebug : public Debuggable {
+	public:
+		SlottedMemoryDebug(MSXCPUInterface& parent);
+		virtual unsigned getSize() const;
+		virtual const string& getDescription() const;
+		virtual byte read(unsigned address);
+		virtual void write(unsigned address, byte value);
+	private:
+		MSXCPUInterface& parent;
+	} slottedMemoryDebug;
 
 	class IODebug : public Debuggable {
 	public:
@@ -201,10 +201,12 @@ private:
 	  * @param page page [0..3] to update visibleDevices for.
 	  */
 	void updateVisible(int page);
+	void setSubSlot(byte primSlot, byte value);
 
-	/** Used by getSlotMap to print the contents of a single slot.
-	  */
-	void printSlotMapPages(ostream &, MSXMemDevice *[]);
+	void printSlotMapPages(ostream&, const MSXMemDevice* const*) const;
+	string getSlotMap() const;
+	string getSlotSelection() const;
+	
 	
 	MSXIODevice* IO_In [256];
 	MSXIODevice* IO_Out[256];

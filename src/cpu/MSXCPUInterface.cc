@@ -33,6 +33,7 @@ MSXCPUInterface& MSXCPUInterface::instance()
 
 MSXCPUInterface::MSXCPUInterface()
 	: memoryDebug(*this),
+	  slottedMemoryDebug(*this),
 	  ioDebug(*this),
 	  slotMapCmd(*this),
 	  slotSelectCmd(*this),
@@ -44,21 +45,21 @@ MSXCPUInterface::MSXCPUInterface()
 	  debugger(Debugger::instance()),
 	  cliCommOutput(CliCommOutput::instance())
 {
-	for (int port = 0; port < 256; port++) {
+	for (int port = 0; port < 256; ++port) {
 		IO_In [port] = &dummyDevice;
 		IO_Out[port] = &dummyDevice;
 	}
-	for (int primSlot = 0; primSlot < 4; primSlot++) {
-		primarySlotState[primSlot]=0;
+	for (int primSlot = 0; primSlot < 4; ++primSlot) {
+		primarySlotState[primSlot] = 0;
 		isSubSlotted[primSlot] = false;
 		subSlotRegister[primSlot] = 0;
-		for (int secSlot = 0; secSlot < 4; secSlot++) {
-			for (int page = 0; page < 4; page++) {
+		for (int secSlot = 0; secSlot < 4; ++secSlot) {
+			for (int page = 0; page < 4; ++page) {
 				slotLayout[primSlot][secSlot][page] = &dummyDevice;
 			}
 		}
 	}
-	for (int page = 0; page < 4; page++) {
+	for (int page = 0; page < 4; ++page) {
 		visibleDevices[page] = 0;
 	}
 
@@ -83,6 +84,7 @@ MSXCPUInterface::MSXCPUInterface()
 	commandController.registerCommand(&slotSelectCmd, "slotselect");
 
 	debugger.registerDebuggable("memory", memoryDebug);
+	debugger.registerDebuggable("slotted-memory", slottedMemoryDebug);
 	debugger.registerDebuggable("io", ioDebug);
 
 	msxcpu.setInterface(this);
@@ -93,6 +95,7 @@ MSXCPUInterface::~MSXCPUInterface()
 	msxcpu.setInterface(NULL);
 
 	debugger.unregisterDebuggable("memory", memoryDebug);
+	debugger.unregisterDebuggable("slotted-memory", slottedMemoryDebug);
 	debugger.unregisterDebuggable("io", ioDebug);
 
 	commandController.unregisterCommand(&slotMapCmd,    "slotmap");
@@ -225,45 +228,45 @@ void MSXCPUInterface::reset()
 
 void MSXCPUInterface::setPrimarySlots(byte value)
 {
-	for (int page = 0; page < 4; page++, value >>= 2) {
+	for (int page = 0; page < 4; ++page, value >>= 2) {
 		// Change the slot structure
 		primarySlotState[page] = value & 3;
-		secondarySlotState[page] = (subSlotRegister[value&3] >>
-		                            (page*2)) & 3;
+		secondarySlotState[page] =
+			(subSlotRegister[value & 3] >> (page * 2)) & 3;
 		// Change the visible devices
 		updateVisible(page);
 	}
 }
 
-byte MSXCPUInterface::readMem(word address, const EmuTime &time)
+void MSXCPUInterface::setSubSlot(byte primSlot, byte value)
 {
-	if (address == 0xFFFF) {
-		int currentSSRegister = primarySlotState[3];
-		if (isSubSlotted[currentSSRegister]) {
-			return 255 ^ subSlotRegister[currentSSRegister];
+	subSlotRegister[primSlot] = value;
+	for (int page = 0; page < 4; ++page, value >>= 2) {
+		if (primSlot == primarySlotState[page]) {
+			secondarySlotState[page] = value & 3;
+			// Change the visible devices
+			updateVisible(page);
 		}
 	}
-	return visibleDevices[address>>14]->readMem(address, time);
+}
+
+
+byte MSXCPUInterface::readMem(word address, const EmuTime &time)
+{
+	if ((address == 0xFFFF) && isSubSlotted[primarySlotState[3]]) {
+		return 0xFF ^ subSlotRegister[primarySlotState[3]];
+	} else {
+		return visibleDevices[address >> 14]->readMem(address, time);
+	}
 }
 
 void MSXCPUInterface::writeMem(word address, byte value, const EmuTime &time)
 {
-	if (address == 0xFFFF) {
-		int currentSSRegister = primarySlotState[3];
-		if (isSubSlotted[currentSSRegister]) {
-			subSlotRegister[currentSSRegister] = value;
-			for (int page = 0; page < 4; page++, value >>= 2) {
-				if (currentSSRegister == primarySlotState[page]) {
-					secondarySlotState[page] = value & 3;
-					// Change the visible devices
-					updateVisible(page);
-				}
-			}
-			return;
-		}
+	if ((address == 0xFFFF) && isSubSlotted[primarySlotState[3]]) {
+		setSubSlot(primarySlotState[3], value);
+	} else {
+		visibleDevices[address>>14]->writeMem(address, value, time);
 	}
-	// address is not FFFF or it is but there is no subslotregister visible
-	visibleDevices[address>>14]->writeMem(address, value, time);
 }
 
 byte MSXCPUInterface::readIO(word prt, const EmuTime &time)
@@ -296,32 +299,54 @@ byte* MSXCPUInterface::getWriteCacheLine(word start) const
 
 byte MSXCPUInterface::peekMem(word address) const
 {
-	if (address == 0xFFFF) {
-		int currentSSRegister = primarySlotState[3];
-		if (isSubSlotted[currentSSRegister]) {
-			return 255 ^ subSlotRegister[currentSSRegister];
-		}
-	}
-	return visibleDevices[address >> 14]->peekMem(address);
-}
-
-byte MSXCPUInterface::peekMemBySlot(unsigned int address, int slot, int subslot, bool direct)
-{
-	if (direct) {
-		// TODO direct reading of the memorymapped
-		// requires adapting all MSXMemDevice classes.
-		return 0;
+	if ((address == 0xFFFF) && isSubSlotted[primarySlotState[3]]) {
+		return 0xFF ^ subSlotRegister[primarySlotState[3]];
 	} else {
-		return slotLayout[slot][subslot][(address & 0xffff) >> 14]->peekMem(address & 0xffff);
+		return visibleDevices[address >> 14]->peekMem(address);
 	}
 }
 
-string MSXCPUInterface::getSlotMap()
+byte MSXCPUInterface::peekSlottedMem(unsigned address) const
+{
+	byte primSlot = (address & 0xC0000) >> 18;
+	byte subSlot = (address & 0x30000) >> 16;
+	byte page = (address & 0x0C000) >> 14;
+	word offset = (address & 0xFFFF); // includes page
+	if (!isSubSlotted[primSlot]) {
+		subSlot = 0;
+	}
+
+	if ((offset == 0xFFFF) && isSubSlotted[primSlot]) {
+		return 0xFF ^ subSlotRegister[primSlot];
+	} else {
+		return slotLayout[primSlot][subSlot][page]->peekMem(offset);
+	}
+}
+
+void MSXCPUInterface::writeSlottedMem(unsigned address, byte value,
+                                      const EmuTime& time)
+{
+	byte primSlot = (address & 0xC0000) >> 18;
+	byte subSlot = (address & 0x30000) >> 16;
+	byte page = (address & 0x0C000) >> 14;
+	word offset = (address & 0xFFFF); // includes page
+	if (!isSubSlotted[primSlot]) {
+		subSlot = 0;
+	}
+
+	if ((offset == 0xFFFF) && isSubSlotted[primSlot]) {
+		setSubSlot(primSlot, value);
+	} else {
+		slotLayout[primSlot][subSlot][page]->writeMem(offset, value, time);
+	}
+}
+
+string MSXCPUInterface::getSlotMap() const
 {
 	ostringstream out;
-	for (int prim = 0; prim < 4; prim++) {
+	for (int prim = 0; prim < 4; ++prim) {
 		if (isSubSlotted[prim]) {
-			for (int sec = 0; sec < 4; sec++) {
+			for (int sec = 0; sec < 4; ++sec) {
 				out << "slot " << prim << "." << sec << ":\n";
 				printSlotMapPages(out, slotLayout[prim][sec]);
 			}
@@ -333,29 +358,22 @@ string MSXCPUInterface::getSlotMap()
 	return out.str();
 }
 
-void MSXCPUInterface::printSlotMapPages(ostream &out, MSXMemDevice *devices[])
+void MSXCPUInterface::printSlotMapPages(ostream &out,
+	const MSXMemDevice* const* devices) const
 {
-	for (int page = 0; page < 4; page++) {
+	for (int page = 0; page < 4; ++page) {
 		char hexStr[5];
-#ifndef __WIN32__
 		snprintf(hexStr, sizeof(hexStr), "%04X", page * 0x4000);
-#else
-		sprintf(hexStr, "%04X", page * 0x4000);
-#endif
 		out << hexStr << ": " << devices[page]->getName() << "\n";
 	}
 }
 
-string MSXCPUInterface::getSlotSelection()
+string MSXCPUInterface::getSlotSelection() const
 {
 	ostringstream out;
-	for (int page = 0; page < 4; page++) {
+	for (int page = 0; page < 4; ++page) {
 		char pageStr[5];
-#ifndef __WIN32__
 		snprintf(pageStr, sizeof(pageStr), "%04X", page * 0x4000);
-#else
-		sprintf(pageStr, "%04X", page * 0x4000);
-#endif
 		out << pageStr << ": ";
 
 		int prim = primarySlotState[page];
@@ -372,7 +390,7 @@ string MSXCPUInterface::getSlotSelection()
 MSXCPUInterface::SlotSelection* MSXCPUInterface::getCurrentSlots()
 {
 	MSXCPUInterface::SlotSelection * slots = new SlotSelection();
-	for (int page = 0; page < 4; page++) {
+	for (int page = 0; page < 4; ++page) {
 		slots->primary[page] = primarySlotState[page];
 		slots->secondary[page] = (subSlotRegister[slots->primary[page]] >>
 		                         (page * 2)) & 3;
@@ -413,6 +431,37 @@ void MSXCPUInterface::MemoryDebug::write(unsigned address, byte value)
 }
 
 
+// class SlottedMemoryDebug
+ 
+MSXCPUInterface::SlottedMemoryDebug::SlottedMemoryDebug(MSXCPUInterface& parent_)
+	: parent(parent_)
+{
+}
+
+unsigned MSXCPUInterface::SlottedMemoryDebug::getSize() const
+{
+	return 0x10000 * 4 * 4;
+}
+
+const string& MSXCPUInterface::SlottedMemoryDebug::getDescription() const
+{
+	static const string desc =
+		"The memory in slots and subslots.";
+	return desc;
+}
+
+byte MSXCPUInterface::SlottedMemoryDebug::read(unsigned address)
+{
+	return parent.peekSlottedMem(address);
+}
+
+void MSXCPUInterface::SlottedMemoryDebug::write(unsigned address, byte value)
+{
+	const EmuTime& time = parent.msxcpu.getCurrentTime();
+	return parent.writeSlottedMem(address, value, time);
+}
+
+
 // class IODebug
 
 MSXCPUInterface::IODebug::IODebug(MSXCPUInterface& parent_)
@@ -435,7 +484,7 @@ const string& MSXCPUInterface::IODebug::getDescription() const
 byte MSXCPUInterface::IODebug::read(unsigned address)
 {
 	const EmuTime& time = parent.msxcpu.getCurrentTime();
-	return parent.readIO((word)address, time);
+	return parent.readIO((word)address, time); // TODO make peekIO() method
 }
 
 void MSXCPUInterface::IODebug::write(unsigned address, byte value)

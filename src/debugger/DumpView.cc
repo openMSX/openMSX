@@ -27,16 +27,15 @@ void DumpView::fill()
 	lines.clear();
 	bool addresses = true;
 	int spaceleft = columns;
-	int space = (slot.direct || slot.vram ? 8 : 4); 
 	// is there enough space for the addresses ?
-	if (((space + 2) >= spaceleft) || (!displayAddress)) {
+	if ((6 >= spaceleft) || (!displayAddress)) {
 		addresses = false;
 	} else {
-		spaceleft -= space - 1;
+		spaceleft -= 3;
 	}
 	
 	// howmuch data can be displayed ?
-	space = displayAscii ? (numericSize * 3) + 1 : (numericSize * 2) + 1; 
+	int space = displayAscii ? (numericSize * 3) + 1 : (numericSize * 2) + 1; 
 	int num = spaceleft / space;
 	char hexbuffer[5];
 	for (unsigned i = 0; i < rows; ++i) {
