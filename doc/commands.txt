@@ -266,7 +266,7 @@ alias / unalias
   Create a new command that is an alias for another (group of) command(s).
 
   Note: This is not 100% compatible with the old alias command. Better use
-        the more powerfull TCL "proc" command.
+        the more powerful TCL "proc" command.
 
   usage:
     alias <name> <command>  define an alias
@@ -330,7 +330,7 @@ restoredefault
     restoredefault <setting>  Restores the default value for the given setting
 
   examples:
-    restoredefault psg_volume
+    restoredefault PSG_volume
 
 
 
@@ -574,8 +574,8 @@ midi-out-logfilename
   By default, it logs to /dev/midi when available.
   
   usage:
-    set midi-out-logfilename               shows the current setting
-    set midi-out-logilename mymidilog.dat  log to mymidilog.dat
+    set midi-out-logfilename                shows the current setting
+    set midi-out-logfilename mymidilog.dat  log to mymidilog.dat
 
 
 maxframeskip
@@ -722,8 +722,8 @@ throttle
     set [soundchip]_mode <mode> set new mode
 
   examples:
-    set psg_mode
-    set psg_mode left
+    set PSG_mode
+    set PSG_mode left
     set "FM PAC_mode" mono
 
 
@@ -737,8 +737,8 @@ throttle
     set [soundchip]_volume <num>  set new volume
 
   examples:
-    set psg_volume
-    set psg_volume 18000
+    set PSG_volume
+    set PSG_volume 18000
     set "FM PAC_volume" 15000
 
 
