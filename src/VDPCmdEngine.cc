@@ -225,7 +225,7 @@ inline void VDPCmdEngine::pset(
 
 int VDPCmdEngine::getVdpTimingValue(const int *timingValues)
 {
-	return timingValues[vdp->getAccessTiming()];
+	return NOTIME_EXECUTION ? 0 : timingValues[vdp->getAccessTiming()];
 }
 
 void VDPCmdEngine::dummyEngine()
