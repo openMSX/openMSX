@@ -542,10 +542,10 @@ YMF278::YMF278(short volume, int ramSize, Device *config,
 	ram = new byte[ramSize];
 	endRam = endRom + ramSize;
 	
-	reset(time);
 	int bufSize = Mixer::instance()->registerSound("MoonSoundWave", this,
 	                                               volume, Mixer::STEREO);
 	buffer = new int[2 * bufSize];
+	reset(time);
 }
 
 YMF278::~YMF278()
@@ -559,12 +559,12 @@ void YMF278::reset(const EmuTime &time)
 {
 	eg_timer = 0;
 	eg_cnt   = 0;
-	
-	for (int i = 0; i < 256; i++) {
-		writeRegOPL4(i, 0, time);
-	}
+
 	for (int i = 0; i < 24; i++) {
 		slots[i].reset();
+	}
+	for (int i = 0; i < 256; i++) {
+		writeRegOPL4(i, 0, time);
 	}
 	setInternalMute(true);
 	wavetblhdr = memmode = memadr = 0;
