@@ -46,7 +46,9 @@ IDEHD::IDEHD(Config *config, const EmuTime &time)
 	buffer = new byte[512 * 256];
 
 	const std::string &filename = config->getParameter("filename");
-	file = new File(config->getContext()->resolveCreate(filename), CREATE);
+	//TODO DEBUG this
+	//file = new File(config->getContext()->resolveCreate(filename), CREATE);
+	file = new File(config->getContext()->resolveCreate(filename));
 	
 	int size = config->getParameterAsInt("size");	// in MB
 	totalSectors = size * (1024 * 1024 / 512);
@@ -200,7 +202,7 @@ void IDEHD::writeData(word value, const EmuTime &time)
 	}
 	*(transferPntr++) = value;
 	transferCount--;
-	if ((transferCount & 511) == 0) {
+	if ((transferCount & 255) == 0) {
 		try {
 			file->seek(512 * transferSectorNumber);
 			file->write(buffer, 512);
