@@ -163,10 +163,16 @@ int CassettePlayer::getWriteSampleRate()
 }
 
 
-const string &CassettePlayer::getName() const
+const string& CassettePlayer::getName() const
 {
 	static const string name("cassetteplayer");
 	return name;
+}
+
+const string& CassettePlayer::getDescription() const
+{
+	static const string desc("Cassetteplayer, use to read .cas or .wav files.\n");
+	return desc;
 }
 
 void CassettePlayer::plug(Connector* connector, const EmuTime& time)

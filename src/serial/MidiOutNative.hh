@@ -15,21 +15,23 @@ class MidiOutNative : public MidiOutDevice
 public:
 	static void registerAll(PluggingController* controller);
 		
-	MidiOutNative(const string& name);
+	MidiOutNative(unsigned num);
 	virtual ~MidiOutNative();
 
 	// Pluggable
-	virtual void plug(Connector *connector, const EmuTime &time)
+	virtual void plug(Connector* connector, const EmuTime& time)
 		throw(PlugException);
-	virtual void unplug(const EmuTime &time);
-	virtual const string &getName() const;
+	virtual void unplug(const EmuTime& time);
+	virtual const string& getName() const;
+	virtual const string& getDescription() const;
 
 	// SerialDataInterface (part)
 	virtual void recvByte(byte value, const EmuTime& time);
 
 private:
 	unsigned devidx;
-	const string name;
+	string name;
+	string desc;
 };
 
 } // namespace openmsx

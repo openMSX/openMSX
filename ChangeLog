@@ -9,6 +9,8 @@ $Id$
 	* Added "info renderer"
 	* Fixed bug: SDL must be initialized before we parse the cmd line,
 	  because the "-control" option creates a new thread
+	* Added descriptions to pluggables:
+	    can be queried with "info pluggable <name>"
 
 2003-10-24 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added -v cli option to get version number of openMSX

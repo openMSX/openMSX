@@ -38,20 +38,21 @@ public:
 	virtual ~MidiInNative();
 
 	// Pluggable
-	virtual void plug(Connector *connector, const EmuTime &time)
+	virtual void plug(Connector *connector, const EmuTime& time)
 		throw(PlugException);
-	virtual void unplug(const EmuTime &time);
-	virtual const string &getName() const;
+	virtual void unplug(const EmuTime& time);
+	virtual const string& getName() const;
+	virtual const string& getDescription() const;
 
 	// MidiInDevice
-	virtual void signal(const EmuTime &time);
+	virtual void signal(const EmuTime& time);
 
 private:
 	// Runnable
 	virtual void run();
 
 	// Schedulable
-	virtual void executeUntilEmuTime(const EmuTime &time, int userData);
+	virtual void executeUntilEmuTime(const EmuTime& time, int userData);
 	virtual const string &schedName() const;
 
 	void procShortMsg(long unsigned int param);
@@ -60,10 +61,11 @@ private:
 	Thread thread;
 	unsigned int devidx;
 	unsigned int thrdid;
-	MidiInConnector *connector;
+	MidiInConnector* connector;
 	list<byte> queue;
 	Semaphore lock; // to protect queue
-	const string name;
+	string name;
+	string desc;
 };
 
 } // namespace openmsx

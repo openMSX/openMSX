@@ -35,10 +35,17 @@ JoyNet::~JoyNet()
 }
 
 //Pluggable
-const string &JoyNet::getName() const
+const string& JoyNet::getName() const
 {
 	static const string name("joynet");
 	return name;
+}
+
+const string& JoyNet::getDescription() const
+{
+	static const string desc(
+		"Experimental JoyNet pluggable....");
+	return desc;
 }
 
 void JoyNet::plug(Connector* connector, const EmuTime& time) throw()

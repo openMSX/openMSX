@@ -24,7 +24,8 @@ class Joystick : public JoystickDevice, EventListener
 		static void registerAll(PluggingController *controller);
 
 		//Pluggable
-		virtual const string &getName() const;
+		virtual const string& getName() const;
+		virtual const string& getDescription() const;
 		virtual void plug(Connector* connector, const EmuTime& time)
 			throw(PlugException);
 		virtual void unplug(const EmuTime& time);
@@ -43,6 +44,7 @@ class Joystick : public JoystickDevice, EventListener
 		static const int THRESHOLD = 32768/10;
 
 		string name;
+		string desc;
 
 		int joyNum;
 		SDL_Joystick *joystick;

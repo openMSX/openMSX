@@ -8,7 +8,12 @@ namespace openmsx {
 void DummyMidiOutDevice::recvByte(byte value, const EmuTime& time)
 {
 	// ignore
-	// PRT_DEBUG("Midi out " << hex << (int)value << dec);
+}
+
+const string& DummyMidiOutDevice::getDescription() const
+{
+	static const string EMPTY;
+	return EMPTY;
 }
 
 void DummyMidiOutDevice::plug(Connector* connector, const EmuTime& time)

@@ -30,20 +30,23 @@
 
 #ifdef __WIN32__
 
+#include <string>
+
 #define WIN32_LEAN_AND_MEAN
 #define _WIN32_IE 0x0400
 #include <windows.h>
 #include <mmsystem.h>
 #define MAXPATHLEN MAX_PATH
 
+using std::string;
 
 namespace openmsx {
 
 extern int	w32_midiOutInit();
 extern int	w32_midiOutClean();
 extern unsigned w32_midiOutGetVFNsNum();
-extern int	w32_midiOutGetVFN(char* vfn, unsigned nmb);
-extern int	w32_midiOutGetRDN(char* rdn, unsigned nmb);
+extern string	w32_midiOutGetVFN(unsigned nmb);
+extern string	w32_midiOutGetRDN(unsigned nmb);
 extern unsigned w32_midiOutOpen(const char* vfn);
 extern int	w32_midiOutClose(unsigned idx);
 extern int	w32_midiOutPut(unsigned char value, unsigned idx);
@@ -51,8 +54,8 @@ extern int	w32_midiOutPut(unsigned char value, unsigned idx);
 extern int	w32_midiInInit();
 extern int	w32_midiInClean();
 extern unsigned w32_midiInGetVFNsNum();
-extern int	w32_midiInGetVFN(char* vfn, unsigned nmb);
-extern int	w32_midiInGetRDN(char* rdn, unsigned nmb);
+extern string	w32_midiInGetVFN(unsigned nmb);
+extern string	w32_midiInGetRDN(unsigned nmb);
 extern unsigned w32_midiInOpen(const char* vfn, unsigned thrdid);
 extern int	w32_midiInClose(unsigned idx);
 

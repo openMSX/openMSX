@@ -9,6 +9,12 @@ DummyAudioInputDevice::DummyAudioInputDevice()
 {
 }
 
+const string& DummyAudioInputDevice::getDescription() const
+{
+	static const string EMPTY;
+	return EMPTY;
+}
+
 void DummyAudioInputDevice::plug(Connector* connector, const EmuTime &time)
 	throw()
 {

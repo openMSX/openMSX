@@ -13,6 +13,7 @@ class DummyAudioInputDevice : public AudioInputDevice
 	public:
 		DummyAudioInputDevice();
 
+		virtual const string& getDescription() const;
 		virtual void plug(Connector* connector, const EmuTime &time) throw();
 		virtual void unplug(const EmuTime &time);
 

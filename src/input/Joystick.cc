@@ -26,6 +26,7 @@ Joystick::Joystick(int joyNum_)
 	PRT_DEBUG("Creating a Joystick object for joystick " << joyNum);
 	assert(joyNum < SDL_NumJoysticks());
 	name = string("joystick") + (char)('1' + joyNum);
+	desc = string(SDL_JoystickName(joyNum));
 }
 
 Joystick::~Joystick()
@@ -36,6 +37,11 @@ Joystick::~Joystick()
 const string &Joystick::getName() const
 {
 	return name;
+}
+
+const string& Joystick::getDescription() const
+{
+	return desc;
 }
 
 void Joystick::plug(Connector *connector, const EmuTime &time)

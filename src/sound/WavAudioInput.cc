@@ -72,6 +72,14 @@ const string& WavAudioInput::getName() const
 	return name;
 }
 
+const string& WavAudioInput::getDescription() const
+{
+	static const string desc(
+		"Read .wav files. Can for eample be used as input for "
+		"samplers.");
+	return desc;
+}
+
 void WavAudioInput::plug(Connector *connector, const EmuTime &time)
 	throw(PlugException)
 {

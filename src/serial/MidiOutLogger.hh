@@ -19,10 +19,11 @@ public:
 	virtual ~MidiOutLogger();
 
 	// Pluggable
-	virtual void plug(Connector *connector, const EmuTime &time)
+	virtual void plug(Connector* connector, const EmuTime& time)
 		throw(PlugException);
-	virtual void unplug(const EmuTime &time);
-	virtual const string &getName() const;
+	virtual void unplug(const EmuTime& time);
+	virtual const string& getName() const;
+	virtual const string& getDescription() const;
 
 	// SerialDataInterface (part)
 	virtual void recvByte(byte value, const EmuTime& time);

@@ -27,30 +27,30 @@ public:
 	virtual ~MidiInReader();
 
 	// Pluggable
-	virtual void plug(Connector *connector, const EmuTime &time)
+	virtual void plug(Connector* connector, const EmuTime& time)
 		throw(PlugException);
-	virtual void unplug(const EmuTime &time);
-	virtual const string &getName() const;
+	virtual void unplug(const EmuTime& time);
+	virtual const string& getName() const;
+	virtual const string& getDescription() const;
 
 	// MidiInDevice
-	virtual void signal(const EmuTime &time);
+	virtual void signal(const EmuTime& time);
 
 private:
 	// Runnable
 	virtual void run();
 
 	// Schedulable
-	virtual void executeUntilEmuTime(const EmuTime &time, int userData);
-	virtual const string &schedName() const;
+	virtual void executeUntilEmuTime(const EmuTime& time, int userData);
+	virtual const string& schedName() const;
 
 	Thread thread;
-	FILE *file;
-	MidiInConnector *connector;
+	FILE* file;
+	MidiInConnector* connector;
 	list<byte> queue;
 	Semaphore lock; // to protect queue
 
 	StringSetting readFilenameSetting;
-
 };
 
 } // namespace openmsx

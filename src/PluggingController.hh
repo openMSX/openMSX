@@ -76,6 +76,7 @@ private:
 	public:
 		virtual string execute(const vector<string> &tokens) const;
 		virtual string help   (const vector<string> &tokens) const;
+		virtual void tabCompletion(vector<string> &tokens) const;
 	} pluggableInfo;
 	friend class PluggableInfo;
 

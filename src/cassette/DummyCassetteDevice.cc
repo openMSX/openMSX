@@ -28,6 +28,12 @@ int DummyCassetteDevice::getWriteSampleRate()
 	return 0;	// 0 means not interested
 }
 
+const string& DummyCassetteDevice::getDescription() const
+{
+	static const string EMPTY;
+	return EMPTY;
+}
+
 void DummyCassetteDevice::plug(Connector* connector, const EmuTime& time)
 	throw()
 {

@@ -99,6 +99,12 @@ void DummyPrinterPortDevice::writeData(byte data, const EmuTime &time)
 	// ignore data
 }
 
+const string& DummyPrinterPortDevice::getDescription() const
+{
+	static const string EMPTY;
+	return EMPTY;
+}
+
 void DummyPrinterPortDevice::plug(Connector *connector, const EmuTime &time)
 	throw ()
 {

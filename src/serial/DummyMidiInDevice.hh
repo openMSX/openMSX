@@ -12,6 +12,7 @@ class DummyMidiInDevice : public MidiInDevice
 {
 	public:
 		virtual void signal(const EmuTime& time);
+		virtual const string& getDescription() const;
 		virtual void plug(Connector* connector, const EmuTime& time) throw();
 		virtual void unplug(const EmuTime& time);
 };

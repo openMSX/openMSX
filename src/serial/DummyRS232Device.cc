@@ -10,6 +10,12 @@ void DummyRS232Device::signal(const EmuTime& time)
 	// ignore
 }
 
+const string& DummyRS232Device::getDescription() const
+{
+	static const string EMPTY;
+	return EMPTY;
+}
+
 void DummyRS232Device::plug(Connector* connector, const EmuTime& time)
 	throw()
 {

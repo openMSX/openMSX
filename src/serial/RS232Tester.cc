@@ -66,6 +66,16 @@ const string& RS232Tester::getName() const
 	return name;
 }
 
+const string& RS232Tester::getDescription() const
+{
+	static const string desc(
+		"RS232 tester pluggable. Read all data from file specified "
+		"with the 'rs-232-inputfilename' settings. Write all data "
+		"to the file specified with the 'rs232-outputfilename' "
+		"setting.");
+	return desc;
+}
+
 // Runnable
 void RS232Tester::run()
 {

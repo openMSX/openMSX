@@ -44,10 +44,16 @@ void PrinterPortSimpl::unplug(const EmuTime &time)
 	dac = NULL;
 }
 
-const string &PrinterPortSimpl::getName() const
+const string& PrinterPortSimpl::getName() const
 {
 	static const string name("simpl");
 	return name;
+}
+
+const string& PrinterPortSimpl::getDescription() const
+{
+	static const string desc("Play samples on your printerport.");
+	return desc;
 }
 
 } // namespace openmsx

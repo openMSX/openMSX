@@ -42,6 +42,12 @@ const string &Mouse::getName() const
 	return name;
 }
 
+const string& Mouse::getDescription() const
+{
+	static const string desc("MSX mouse");
+	return desc;
+}
+
 void Mouse::plug(Connector* connector, const EmuTime& time)
 	throw()
 {

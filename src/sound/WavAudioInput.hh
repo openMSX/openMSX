@@ -18,19 +18,20 @@ public:
 	virtual ~WavAudioInput();
 
 	// AudioInputDevice
-	virtual const string &getName() const;
-	virtual void plug(Connector *connector, const EmuTime &time)
+	virtual const string& getName() const;
+	virtual const string& getDescription() const;
+	virtual void plug(Connector* connector, const EmuTime& time)
 		throw(PlugException);
-	virtual void unplug(const EmuTime &time);
-	virtual short readSample(const EmuTime &time);
+	virtual void unplug(const EmuTime& time);
+	virtual short readSample(const EmuTime& time);
 
 private:
 	void freeWave();
 	void loadWave() throw(MSXException);
-	void update(const SettingLeafNode *setting);
+	void update(const SettingLeafNode* setting);
 
 	int length;
-	Uint8 *buffer;
+	Uint8* buffer;
 	int freq;
 	EmuTime reference;
 	bool plugged;

@@ -39,6 +39,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <sstream>
+#include <cassert>
 #include <windows.h>
 #include <mmsystem.h>
 
@@ -169,24 +170,16 @@ unsigned w32_midiOutGetVFNsNum()
 	return vfnt_midiout_num;
 }
 
-int w32_midiOutGetVFN(char *vfn, unsigned nmb)
+string w32_midiOutGetVFN(unsigned nmb)
 {
-	if (!vfnt_midiout_num || (nmb >= vfnt_midiout_num)) {
-		vfn[0] = '\0';
-		return 1;
-	}
-	strcpy(vfn, vfnt_midiout[nmb].vfname);
-	return 0;
+	assert(nmb < vfnt_midiout_num);
+	return vfnt_midiout[nmb].vfname;
 }
 
-int w32_midiOutGetRDN(char *rdn, unsigned nmb)
+string w32_midiOutGetRDN(unsigned nmb)
 {
-	if (!vfnt_midiout_num || (nmb >= vfnt_midiout_num)) {
-		rdn[0] = '\0';
-		return 1;
-	}
-	strcpy(rdn, vfnt_midiout[nmb].devname);
-	return 0;
+	assert(nmb < vfnt_midiout_num);
+	return vfnt_midiout[nmb].devname;
 }
 
 
@@ -378,26 +371,17 @@ unsigned w32_midiInGetVFNsNum()
 	return vfnt_midiin_num;
 }
 
-int w32_midiInGetVFN(char *vfn, unsigned nmb)
+string w32_midiInGetVFN(unsigned nmb)
 {
-	if (!vfnt_midiin_num || (nmb >= vfnt_midiin_num)) {
-		vfn[0] = '\0';
-		return 1;
-	}
-	strcpy(vfn, vfnt_midiin[nmb].vfname);
-	return 0;
+	assert(nmb < vfnt_midiin_num);
+	return vfnt_midiin[nmb].vfname;
 }
 
-int w32_midiInGetRDN(char *rdn, unsigned nmb)
+string w32_midiInGetRDN(unsigned nmb)
 {
-	if (!vfnt_midiin_num || (nmb >= vfnt_midiin_num)) {
-		rdn[0] = '\0';
-		return 1;
-	}
-	strcpy(rdn, vfnt_midiin[nmb].devname);
-	return 0;
+	assert(nmb < vfnt_midiin_num);
+	return vfnt_midiin[nmb].devname;
 }
-
 
 unsigned w32_midiInOpen(const char *vfn, unsigned thrdid)
 {

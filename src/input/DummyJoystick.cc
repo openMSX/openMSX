@@ -23,6 +23,12 @@ void DummyJoystick::write(byte value, const EmuTime &time)
 	// do nothing
 }
 
+const string& DummyJoystick::getDescription() const
+{
+	static const string EMPTY;
+	return EMPTY;
+}
+
 void DummyJoystick::plug(Connector* connector, const EmuTime& time)
 	throw()
 {

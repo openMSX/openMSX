@@ -252,20 +252,43 @@ Pluggable *PluggingController::getPluggable(const string& name)
 string PluggingController::PluggableInfo::execute(const vector<string> &tokens) const
 {
 	string result;
-	PluggingController *controller = PluggingController::instance();
-	for (vector<Pluggable*>::const_iterator it =
-	         controller->pluggables.begin();
-	     it != controller->pluggables.end(); ++it) {
-		result += (*it)->getName() + '\n';
+	PluggingController* controller = PluggingController::instance();
+	switch (tokens.size()) {
+	case 2:
+		for (vector<Pluggable*>::const_iterator it =
+			 controller->pluggables.begin();
+		     it != controller->pluggables.end(); ++it) {
+			result += (*it)->getName() + '\n';
+		}
+		break;
+	case 3:
+		result = controller->getPluggable(tokens[2])->getDescription();
+		break;
+	default:
+		throw CommandException("Too many parameters");
 	}
 	return result;
 }
 
 string PluggingController::PluggableInfo::help(const vector<string> &tokens) const
 {
-	return "Shows a list of available pluggables.\n";
+	return "Shows a list of available pluggables. "
+	       "Or show info on a specific pluggable.\n";
 }
 
+void PluggingController::PluggableInfo::tabCompletion(vector<string> &tokens) const
+{
+	if (tokens.size() == 3) {
+		PluggingController* controller = PluggingController::instance();
+		set<string> pluggables;
+		for (vector<Pluggable*>::const_iterator it =
+			 controller->pluggables.begin();
+		     it != controller->pluggables.end(); ++it) {
+			pluggables.insert((*it)->getName());
+		}
+		CommandController::completeString(tokens, pluggables);
+	}
+}
 
 // Connector info
 

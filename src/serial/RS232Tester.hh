@@ -32,7 +32,8 @@ public:
 	virtual void plug(Connector* connector, const EmuTime& time)
 		throw(PlugException);
 	virtual void unplug(const EmuTime& time);
-	virtual const string &getName() const;
+	virtual const string& getName() const;
+	virtual const string& getDescription() const;
 
 	// input
 	virtual void signal(const EmuTime& time);
@@ -49,8 +50,8 @@ private:
 	virtual const string& schedName() const;
 
 	Thread thread;
-	FILE *inFile;
-	RS232Connector *connector;
+	FILE* inFile;
+	RS232Connector* connector;
 	list<byte> queue;
 	Semaphore lock; // to protect queue
 

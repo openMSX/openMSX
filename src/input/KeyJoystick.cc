@@ -68,8 +68,16 @@ Keys::KeyCode KeyJoystick::getConfigKeyCode(const string &keyname,
 // Pluggable
 const string &KeyJoystick::getName() const
 {
-	static string name("keyjoystick");
+	static const string name("keyjoystick");
 	return name;
+}
+
+const string& KeyJoystick::getDescription() const
+{
+	static const string desc(
+		"Key-Joystick, use your keyboard to emulate an MSX joystick. "
+		"See manual for information on how to configure this.");
+	return desc;
 }
 
 void KeyJoystick::plug(Connector* connector, const EmuTime& time)

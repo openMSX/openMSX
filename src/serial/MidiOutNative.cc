@@ -13,18 +13,15 @@ void MidiOutNative::registerAll(PluggingController* controller)
 	w32_midiOutInit();
 	unsigned devnum = w32_midiOutGetVFNsNum();
 	for (unsigned i = 0; i < devnum; ++i) {
-		char buf[MAXPATHLEN + 1];
-		w32_midiOutGetVFN(buf, i);
-		if (buf[0] != '\0') {
-			controller->registerPluggable(new MidiOutNative(buf));
-		}
+		controller->registerPluggable(new MidiOutNative(num));
 	}
 }
 
 
-MidiOutNative::MidiOutNative(const string& name_)
-	: name(name_)
+MidiOutNative::MidiOutNative(unsigned num)
 {
+	name = w32_midiOutGetVFN(num);
+	desc = w32_midiOutGetRFN(num);
 }
 
 MidiOutNative::~MidiOutNative()
@@ -49,6 +46,11 @@ void MidiOutNative::unplug(const EmuTime &time)
 const string& MidiOutNative::getName() const
 {
 	return name;
+}
+
+const string& MidiOutNative::getDescription() const
+{
+	return desc;
 }
 
 void MidiOutNative::recvByte(byte value, const EmuTime &time)

@@ -26,18 +26,16 @@ void MidiInNative::registerAll(PluggingController* controller)
 	w32_midiInInit();
 	unsigned devnum = w32_midiInGetVFNsNum();
 	for (unsigned i = 0 ; i <devnum; ++i) {
-		char buf[MAXPATHLEN + 1];
-		w32_midiInGetVFN(buf, i);
-		if (buf[0] != '\0') {
-			controller->registerPluggable(new MidiInNative(buf));
-		}
+		controller->registerPluggable(new MidiInNative(i));
 	}
 }
 
 
-MidiInNative::MidiInNative(const string& name_)
-	: thread(this), connector(NULL), lock(1), name(name_)
+MidiInNative::MidiInNative(unsigned num)
+	: thread(this), connector(NULL), lock(1)
 {
+	name = w32_midiInGetVFN(num);
+	desc = w32_midiInGetRDN(num);
 }
 
 MidiInNative::~MidiInNative()
@@ -75,6 +73,11 @@ void MidiInNative::unplug(const EmuTime &time)
 const string& MidiInNative::getName() const
 {
 	return name;
+}
+
+const string& MidiInNative::getDescription() const
+{
+	return desc;
 }
 
 void MidiInNative::procLongMsg(LPMIDIHDR p)

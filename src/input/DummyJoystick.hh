@@ -15,6 +15,7 @@ class DummyJoystick : public JoystickDevice
 		virtual ~DummyJoystick();
 		virtual byte read(const EmuTime &time);
 		virtual void write(byte value, const EmuTime &time);
+		virtual const string& getDescription() const;
 		virtual void plug(Connector* connector, const EmuTime& time) throw();
 		virtual void unplug(const EmuTime& time);
 };

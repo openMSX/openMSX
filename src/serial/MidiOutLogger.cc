@@ -36,6 +36,15 @@ const string& MidiOutLogger::getName() const
 	return name;
 }
 
+const string& MidiOutLogger::getDescription() const
+{
+	static const string desc(
+		"Midi output logger. Log all data that gets sends to this "
+		"pluggable to a file. The filename is selected with the "
+		"'midi-out-logfilename' setting.");
+	return desc;
+}
+
 void MidiOutLogger::recvByte(byte value, const EmuTime &time)
 {
 	file.put(value);

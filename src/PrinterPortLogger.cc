@@ -58,10 +58,19 @@ void PrinterPortLogger::unplug(const EmuTime &time)
 	file = NULL;
 }
 
-const string &PrinterPortLogger::getName() const
+const string& PrinterPortLogger::getName() const
 {
 	static const string name("logger");
 	return name;
+}
+
+const string& PrinterPortLogger::getDescription() const
+{
+	static const string desc(
+		"Log everything that gets sends to the printer port to a "
+		"file. The filename can be selected with the "
+		"'printerlogfilename' setting.");
+	return desc;
 }
 
 } // namespace openmsx
