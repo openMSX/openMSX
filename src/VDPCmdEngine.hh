@@ -5,6 +5,9 @@
 
 #include "openmsx.hh"
 
+class EmuTime;
+class VDP;
+
 /** VDP command engine by Alex Wulms.
   * Implements command execution unit of V9938/58.
   */
@@ -13,7 +16,7 @@ class VDPCmdEngine
 public:
 	/** Constructor.
 	  */
-	VDPCmdEngine();
+	VDPCmdEngine(VDP *vdp, const EmuTime &time);
 
 	/** Use this function to transfer pixel(s) from CPU to VDP.
 	  */
@@ -31,6 +34,11 @@ public:
 	/** Perform a number of steps of the active operation.
 	  */
 	void loop();
+
+	/** Informs the command engine of a VDP display mode change.
+	  * @param time The moment in emulated time this change occurs.
+	  */
+	void updateDisplayMode(const EmuTime &time);
 
 private:
 
@@ -62,7 +70,7 @@ private:
 
 	/** Get a pixel on the screen.
 	  */
-	inline byte point(byte sm, int sx, int sy);
+	inline byte point(int sx, int sy);
 
 	/** Low level function to set a pixel on a screen.
 	  */
@@ -86,7 +94,7 @@ private:
 
 	/** Set a pixel on the screen.
 	  */
-	inline void pset(byte sm, int dx, int dy, byte cl, byte op);
+	inline void pset(int dx, int dy, byte cl, byte op);
 
 	/** Get timing value for a certain VDP command.
 	  * @param timingValues Pointer to a table containing the timing
@@ -158,8 +166,23 @@ private:
 		byte CM;
 	} MMC;
 
+	/** Operation timing.
+	  */
 	int opsCount;
+
+	/** Pointer to engine method that performs current command.
+	  */
 	EngineMethod currEngine;
+
+	/** The VDP this command engine is part of.
+	  */
+	VDP *vdp;
+
+	/** Current screen mode.
+	  * 0 -> SCREEN5, 1 -> SCREEN6, 2 -> SCREEN7, 3 -> SCREEN8,
+	  * -1 -> other.
+	  */
+	int scrMode;
 
 };
 

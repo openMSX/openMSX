@@ -1,14 +1,15 @@
 // $Id$
 
 #include "VDPCmdEngine.hh"
+#include "EmuTime.hh"
+#include "VDP.hh"
 
 #include <stdio.h>
 
 // Compile hacks, should be replaced by openMSX calls.
 
-byte ScrMode;
 byte *VRAM;
-byte VDP[64];
+byte controlReg[64];
 byte VDPStatus[16];
 
 // End of compile hacks.
@@ -131,9 +132,9 @@ inline byte VDPCmdEngine::point8(int sx, int sy)
 	return *VDP_VRMP8(sx, sy);
 }
 
-inline byte VDPCmdEngine::point(byte mode, int sx, int sy)
+inline byte VDPCmdEngine::point(int sx, int sy)
 {
-	switch (mode) {
+	switch (scrMode) {
 	case 0: return point5(sx, sy);
 	case 1: return point6(sx, sy);
 	case 2: return point7(sx, sy);
@@ -182,9 +183,9 @@ inline void VDPCmdEngine::pset8(int dx, int dy, byte cl, byte op)
 }
 
 inline void VDPCmdEngine::pset(
-	byte mode, int dx, int dy, byte cl, byte op)
+	int dx, int dy, byte cl, byte op)
 {
-	switch (mode) {
+	switch (scrMode) {
 	case 0: pset5(dx, dy, cl, op); break;
 	case 1: pset6(dx, dy, cl, op); break;
 	case 2: pset7(dx, dy, cl, op); break;
@@ -195,7 +196,7 @@ inline void VDPCmdEngine::pset(
 int VDPCmdEngine::getVdpTimingValue(const int *timingValues)
 {
 	return timingValues[
-		((VDP[1]>>6) & 1) | (VDP[8] & 2) | ((VDP[9]<<1) & 4) ];
+		((controlReg[1]>>6) & 1) | (controlReg[8] & 2) | ((controlReg[9]<<1) & 4) ];
 }
 
 void VDPCmdEngine::dummyEngine()
@@ -227,14 +228,14 @@ void VDPCmdEngine::srchEngine()
 		} \
 	}
 
-	switch (ScrMode) {
-	case 5: pre_srch point5(SX, SY) post_srch(256)
+	switch (scrMode) {
+	case 0: pre_srch point5(SX, SY) post_srch(256)
 			break;
-	case 6: pre_srch point6(SX, SY) post_srch(512)
+	case 1: pre_srch point6(SX, SY) post_srch(512)
 			break;
-	case 7: pre_srch point7(SX, SY) post_srch(512)
+	case 2: pre_srch point7(SX, SY) post_srch(512)
 			break;
-	case 8: pre_srch point8(SX, SY) post_srch(256)
+	case 3: pre_srch point8(SX, SY) post_srch(256)
 			break;
 	}
 
@@ -288,29 +289,29 @@ void VDPCmdEngine::lineEngine()
 		break; \
 	}
 
-	if ((VDP[45]&0x01)==0) {
+	if ((controlReg[45]&0x01)==0) {
 		/* X-Axis is major direction */
-		switch (ScrMode) {
-		case 5: pre_loop pset5(DX, DY, CL, LO); post_linexmaj(256)
+		switch (scrMode) {
+		case 0: pre_loop pset5(DX, DY, CL, LO); post_linexmaj(256)
 				break;
-		case 6: pre_loop pset6(DX, DY, CL, LO); post_linexmaj(512)
+		case 1: pre_loop pset6(DX, DY, CL, LO); post_linexmaj(512)
 				break;
-		case 7: pre_loop pset7(DX, DY, CL, LO); post_linexmaj(512)
+		case 2: pre_loop pset7(DX, DY, CL, LO); post_linexmaj(512)
 				break;
-		case 8: pre_loop pset8(DX, DY, CL, LO); post_linexmaj(256)
+		case 3: pre_loop pset8(DX, DY, CL, LO); post_linexmaj(256)
 				break;
 		}
 	}
 	else {
 		/* Y-Axis is major direction */
-		switch (ScrMode) {
-		case 5: pre_loop pset5(DX, DY, CL, LO); post_lineymaj(256)
+		switch (scrMode) {
+		case 0: pre_loop pset5(DX, DY, CL, LO); post_lineymaj(256)
 				break;
-		case 6: pre_loop pset6(DX, DY, CL, LO); post_lineymaj(512)
+		case 1: pre_loop pset6(DX, DY, CL, LO); post_lineymaj(512)
 				break;
-		case 7: pre_loop pset7(DX, DY, CL, LO); post_lineymaj(512)
+		case 2: pre_loop pset7(DX, DY, CL, LO); post_lineymaj(512)
 				break;
-		case 8: pre_loop pset8(DX, DY, CL, LO); post_lineymaj(256)
+		case 3: pre_loop pset8(DX, DY, CL, LO); post_lineymaj(256)
 				break;
 		}
 	}
@@ -319,8 +320,8 @@ void VDPCmdEngine::lineEngine()
 		/* Command execution done */
 		VDPStatus[2]&=0xFE;
 		currEngine=&VDPCmdEngine::dummyEngine;
-		VDP[38]=DY & 0xFF;
-		VDP[39]=(DY>>8) & 0x03;
+		controlReg[38]=DY & 0xFF;
+		controlReg[39]=(DY>>8) & 0x03;
 	}
 	else {
 		MMC.DX=DX;
@@ -346,14 +347,14 @@ void VDPCmdEngine::lmmvEngine()
 	int delta = getVdpTimingValue(LMMV_TIMING);
 	int cnt = opsCount;
 
-	switch (ScrMode) {
-	case 5: pre_loop pset5(ADX, DY, CL, LO); post__x_y(256)
+	switch (scrMode) {
+	case 0: pre_loop pset5(ADX, DY, CL, LO); post__x_y(256)
 			break;
-	case 6: pre_loop pset6(ADX, DY, CL, LO); post__x_y(512)
+	case 1: pre_loop pset6(ADX, DY, CL, LO); post__x_y(512)
 			break;
-	case 7: pre_loop pset7(ADX, DY, CL, LO); post__x_y(512)
+	case 2: pre_loop pset7(ADX, DY, CL, LO); post__x_y(512)
 			break;
-	case 8: pre_loop pset8(ADX, DY, CL, LO); post__x_y(256)
+	case 3: pre_loop pset8(ADX, DY, CL, LO); post__x_y(256)
 			break;
 	}
 
@@ -363,10 +364,10 @@ void VDPCmdEngine::lmmvEngine()
 		currEngine=&VDPCmdEngine::dummyEngine;
 		if (!NY)
 		DY+=TY;
-		VDP[38]=DY & 0xFF;
-		VDP[39]=(DY>>8) & 0x03;
-		VDP[42]=NY & 0xFF;
-		VDP[43]=(NY>>8) & 0x03;
+		controlReg[38]=DY & 0xFF;
+		controlReg[39]=(DY>>8) & 0x03;
+		controlReg[42]=NY & 0xFF;
+		controlReg[43]=(NY>>8) & 0x03;
 	}
 	else {
 		MMC.DY=DY;
@@ -394,14 +395,14 @@ void VDPCmdEngine::lmmmEngine()
 	int delta = getVdpTimingValue(LMMM_TIMING);
 	int cnt = opsCount;
 
-	switch (ScrMode) {
-	case 5: pre_loop pset5(ADX, DY, point5(ASX, SY), LO); post_xxyy(256)
+	switch (scrMode) {
+	case 0: pre_loop pset5(ADX, DY, point5(ASX, SY), LO); post_xxyy(256)
 			break;
-	case 6: pre_loop pset6(ADX, DY, point6(ASX, SY), LO); post_xxyy(512)
+	case 1: pre_loop pset6(ADX, DY, point6(ASX, SY), LO); post_xxyy(512)
 			break;
-	case 7: pre_loop pset7(ADX, DY, point7(ASX, SY), LO); post_xxyy(512)
+	case 2: pre_loop pset7(ADX, DY, point7(ASX, SY), LO); post_xxyy(512)
 			break;
-	case 8: pre_loop pset8(ADX, DY, point8(ASX, SY), LO); post_xxyy(256)
+	case 3: pre_loop pset8(ADX, DY, point8(ASX, SY), LO); post_xxyy(256)
 			break;
 	}
 
@@ -416,12 +417,12 @@ void VDPCmdEngine::lmmmEngine()
 		else
 		if (SY==-1)
 			DY+=TY;
-		VDP[42]=NY & 0xFF;
-		VDP[43]=(NY>>8) & 0x03;
-		VDP[34]=SY & 0xFF;
-		VDP[35]=(SY>>8) & 0x03;
-		VDP[38]=DY & 0xFF;
-		VDP[39]=(DY>>8) & 0x03;
+		controlReg[42]=NY & 0xFF;
+		controlReg[43]=(NY>>8) & 0x03;
+		controlReg[34]=SY & 0xFF;
+		controlReg[35]=(SY>>8) & 0x03;
+		controlReg[38]=DY & 0xFF;
+		controlReg[39]=(DY>>8) & 0x03;
 	}
 	else {
 		MMC.SY=SY;
@@ -437,7 +438,7 @@ void VDPCmdEngine::lmcmEngine()
 {
 	if ((VDPStatus[2]&0x80)!=0x80) {
 
-		VDPStatus[7]=VDP[44]=point(ScrMode-5, MMC.ASX, MMC.SY);
+		VDPStatus[7]=controlReg[44]=point(MMC.ASX, MMC.SY);
 		opsCount-=getVdpTimingValue(LMMV_TIMING);
 		VDPStatus[2]|=0x80;
 
@@ -447,10 +448,10 @@ void VDPCmdEngine::lmcmEngine()
 				currEngine=&VDPCmdEngine::dummyEngine;
 				if (!MMC.NY)
 				MMC.DY+=MMC.TY;
-				VDP[42]=MMC.NY & 0xFF;
-				VDP[43]=(MMC.NY>>8) & 0x03;
-				VDP[34]=MMC.SY & 0xFF;
-				VDP[35]=(MMC.SY>>8) & 0x03;
+				controlReg[42]=MMC.NY & 0xFF;
+				controlReg[43]=(MMC.NY>>8) & 0x03;
+				controlReg[34]=MMC.SY & 0xFF;
+				controlReg[35]=(MMC.SY>>8) & 0x03;
 			}
 			else {
 				MMC.ASX=MMC.SX;
@@ -463,10 +464,9 @@ void VDPCmdEngine::lmcmEngine()
 void VDPCmdEngine::lmmcEngine()
 {
 	if ((VDPStatus[2]&0x80)!=0x80) {
-		byte SM=ScrMode-5;
 
-		VDPStatus[7]=VDP[44]&=MASK[SM];
-		pset(SM, MMC.ADX, MMC.DY, VDP[44], MMC.LO);
+		VDPStatus[7]=controlReg[44]&=MASK[scrMode];
+		pset(MMC.ADX, MMC.DY, controlReg[44], MMC.LO);
 		opsCount-=getVdpTimingValue(LMMV_TIMING);
 		VDPStatus[2]|=0x80;
 
@@ -476,10 +476,10 @@ void VDPCmdEngine::lmmcEngine()
 			currEngine=&VDPCmdEngine::dummyEngine;
 			if (!MMC.NY)
 			MMC.DY+=MMC.TY;
-			VDP[42]=MMC.NY & 0xFF;
-			VDP[43]=(MMC.NY>>8) & 0x03;
-			VDP[38]=MMC.DY & 0xFF;
-			VDP[39]=(MMC.DY>>8) & 0x03;
+			controlReg[42]=MMC.NY & 0xFF;
+			controlReg[43]=(MMC.NY>>8) & 0x03;
+			controlReg[38]=MMC.DY & 0xFF;
+			controlReg[39]=(MMC.DY>>8) & 0x03;
 		}
 		else {
 			MMC.ADX=MMC.DX;
@@ -503,14 +503,14 @@ void VDPCmdEngine::hmmvEngine()
 	int delta = getVdpTimingValue(HMMV_TIMING);
 	int cnt = opsCount;
 
-	switch (ScrMode) {
-	case 5: pre_loop *VDP_VRMP5(ADX, DY) = CL; post__x_y(256)
+	switch (scrMode) {
+	case 0: pre_loop *VDP_VRMP5(ADX, DY) = CL; post__x_y(256)
 			break;
-	case 6: pre_loop *VDP_VRMP6(ADX, DY) = CL; post__x_y(512)
+	case 1: pre_loop *VDP_VRMP6(ADX, DY) = CL; post__x_y(512)
 			break;
-	case 7: pre_loop *VDP_VRMP7(ADX, DY) = CL; post__x_y(512)
+	case 2: pre_loop *VDP_VRMP7(ADX, DY) = CL; post__x_y(512)
 			break;
-	case 8: pre_loop *VDP_VRMP8(ADX, DY) = CL; post__x_y(256)
+	case 3: pre_loop *VDP_VRMP8(ADX, DY) = CL; post__x_y(256)
 			break;
 	}
 
@@ -520,10 +520,10 @@ void VDPCmdEngine::hmmvEngine()
 		currEngine=&VDPCmdEngine::dummyEngine;
 		if (!NY)
 		DY+=TY;
-		VDP[42]=NY & 0xFF;
-		VDP[43]=(NY>>8) & 0x03;
-		VDP[38]=DY & 0xFF;
-		VDP[39]=(DY>>8) & 0x03;
+		controlReg[42]=NY & 0xFF;
+		controlReg[43]=(NY>>8) & 0x03;
+		controlReg[38]=DY & 0xFF;
+		controlReg[39]=(DY>>8) & 0x03;
 	}
 	else {
 		MMC.DY=DY;
@@ -550,14 +550,14 @@ void VDPCmdEngine::hmmmEngine()
 	int delta = getVdpTimingValue(HMMM_TIMING);
 	int cnt = opsCount;
 
-	switch (ScrMode) {
-	case 5: pre_loop *VDP_VRMP5(ADX, DY) = *VDP_VRMP5(ASX, SY); post_xxyy(256)
+	switch (scrMode) {
+	case 0: pre_loop *VDP_VRMP5(ADX, DY) = *VDP_VRMP5(ASX, SY); post_xxyy(256)
 			break;
-	case 6: pre_loop *VDP_VRMP6(ADX, DY) = *VDP_VRMP6(ASX, SY); post_xxyy(512)
+	case 1: pre_loop *VDP_VRMP6(ADX, DY) = *VDP_VRMP6(ASX, SY); post_xxyy(512)
 			break;
-	case 7: pre_loop *VDP_VRMP7(ADX, DY) = *VDP_VRMP7(ASX, SY); post_xxyy(512)
+	case 2: pre_loop *VDP_VRMP7(ADX, DY) = *VDP_VRMP7(ASX, SY); post_xxyy(512)
 			break;
-	case 8: pre_loop *VDP_VRMP8(ADX, DY) = *VDP_VRMP8(ASX, SY); post_xxyy(256)
+	case 3: pre_loop *VDP_VRMP8(ADX, DY) = *VDP_VRMP8(ASX, SY); post_xxyy(256)
 			break;
 	}
 
@@ -572,12 +572,12 @@ void VDPCmdEngine::hmmmEngine()
 		else
 		if (SY==-1)
 			DY+=TY;
-		VDP[42]=NY & 0xFF;
-		VDP[43]=(NY>>8) & 0x03;
-		VDP[34]=SY & 0xFF;
-		VDP[35]=(SY>>8) & 0x03;
-		VDP[38]=DY & 0xFF;
-		VDP[39]=(DY>>8) & 0x03;
+		controlReg[42]=NY & 0xFF;
+		controlReg[43]=(NY>>8) & 0x03;
+		controlReg[34]=SY & 0xFF;
+		controlReg[35]=(SY>>8) & 0x03;
+		controlReg[38]=DY & 0xFF;
+		controlReg[39]=(DY>>8) & 0x03;
 	}
 	else {
 		MMC.SY=SY;
@@ -602,14 +602,14 @@ void VDPCmdEngine::ymmmEngine()
 	int delta = getVdpTimingValue(YMMM_TIMING);
 	int cnt = opsCount;
 
-	switch (ScrMode) {
-	case 5: pre_loop *VDP_VRMP5(ADX, DY) = *VDP_VRMP5(ADX, SY); post__xyy(256)
+	switch (scrMode) {
+	case 0: pre_loop *VDP_VRMP5(ADX, DY) = *VDP_VRMP5(ADX, SY); post__xyy(256)
 			break;
-	case 6: pre_loop *VDP_VRMP6(ADX, DY) = *VDP_VRMP6(ADX, SY); post__xyy(512)
+	case 1: pre_loop *VDP_VRMP6(ADX, DY) = *VDP_VRMP6(ADX, SY); post__xyy(512)
 			break;
-	case 7: pre_loop *VDP_VRMP7(ADX, DY) = *VDP_VRMP7(ADX, SY); post__xyy(512)
+	case 2: pre_loop *VDP_VRMP7(ADX, DY) = *VDP_VRMP7(ADX, SY); post__xyy(512)
 			break;
-	case 8: pre_loop *VDP_VRMP8(ADX, DY) = *VDP_VRMP8(ADX, SY); post__xyy(256)
+	case 3: pre_loop *VDP_VRMP8(ADX, DY) = *VDP_VRMP8(ADX, SY); post__xyy(256)
 			break;
 	}
 
@@ -623,12 +623,12 @@ void VDPCmdEngine::ymmmEngine()
 		}
 		else
 		if (SY==-1) DY+=TY;
-		VDP[42]=NY & 0xFF;
-		VDP[43]=(NY>>8) & 0x03;
-		VDP[34]=SY & 0xFF;
-		VDP[35]=(SY>>8) & 0x03;
-		VDP[38]=DY & 0xFF;
-		VDP[39]=(DY>>8) & 0x03;
+		controlReg[42]=NY & 0xFF;
+		controlReg[43]=(NY>>8) & 0x03;
+		controlReg[34]=SY & 0xFF;
+		controlReg[35]=(SY>>8) & 0x03;
+		controlReg[38]=DY & 0xFF;
+		controlReg[39]=(DY>>8) & 0x03;
 	}
 	else {
 		MMC.SY=SY;
@@ -642,7 +642,7 @@ void VDPCmdEngine::hmmcEngine()
 {
 	if ((VDPStatus[2]&0x80)!=0x80) {
 
-		*vramPtr(ScrMode-5, MMC.ADX, MMC.DY)=VDP[44];
+		*vramPtr(scrMode, MMC.ADX, MMC.DY)=controlReg[44];
 		opsCount-=getVdpTimingValue(HMMV_TIMING);
 		VDPStatus[2]|=0x80;
 
@@ -652,10 +652,10 @@ void VDPCmdEngine::hmmcEngine()
 				currEngine=&VDPCmdEngine::dummyEngine;
 				if (!MMC.NY)
 				MMC.DY+=MMC.TY;
-				VDP[42]=MMC.NY & 0xFF;
-				VDP[43]=(MMC.NY>>8) & 0x03;
-				VDP[38]=MMC.DY & 0xFF;
-				VDP[39]=(MMC.DY>>8) & 0x03;
+				controlReg[42]=MMC.NY & 0xFF;
+				controlReg[43]=(MMC.NY>>8) & 0x03;
+				controlReg[38]=MMC.DY & 0xFF;
+				controlReg[39]=(MMC.DY>>8) & 0x03;
 			}
 			else {
 				MMC.ADX=MMC.DX;
@@ -669,7 +669,7 @@ void VDPCmdEngine::write(byte value)
 {
 	VDPStatus[2]&=0x7F;
 
-	VDPStatus[7]=VDP[44]=value;
+	VDPStatus[7]=controlReg[44]=value;
 
 	if (opsCount>0) (this->*currEngine)();
 }
@@ -680,7 +680,7 @@ byte VDPCmdEngine::read()
 
 	if (opsCount>0) (this->*currEngine)();
 
-	return VDP[44];
+	return controlReg[44];
 }
 
 void VDPCmdEngine::reportVdpCommand(register byte op)
@@ -697,35 +697,33 @@ void VDPCmdEngine::reportVdpCommand(register byte op)
 	};
 
 	// Fetch arguments.
-	byte cl = VDP[44];
-	int sx = (VDP[32]+((int)VDP[33]<<8)) & 511;
-	int sy = (VDP[34]+((int)VDP[35]<<8)) & 1023;
-	int dx = (VDP[36]+((int)VDP[37]<<8)) & 511;
-	int dy = (VDP[38]+((int)VDP[39]<<8)) & 1023;
-	int nx = (VDP[40]+((int)VDP[41]<<8)) & 1023;
-	int ny = (VDP[42]+((int)VDP[43]<<8)) & 1023;
+	byte cl = controlReg[44];
+	int sx = (controlReg[32]+((int)controlReg[33]<<8)) & 511;
+	int sy = (controlReg[34]+((int)controlReg[35]<<8)) & 1023;
+	int dx = (controlReg[36]+((int)controlReg[37]<<8)) & 511;
+	int dy = (controlReg[38]+((int)controlReg[39]<<8)) & 1023;
+	int nx = (controlReg[40]+((int)controlReg[41]<<8)) & 1023;
+	int ny = (controlReg[42]+((int)controlReg[43]<<8)) & 1023;
 	byte cm = op >> 4;
 	byte lo = op & 0x0F;
 
 	printf("V9938: Opcode %02Xh %s-%s (%d,%d)->(%d,%d),%d [%d,%d]%s\n",
 		op, COMMANDS[cm], OPS[lo],
-		sx,sy, dx,dy, cl, VDP[45]&0x04? -nx:nx,
-		VDP[45]&0x08? -ny:ny,
-		VDP[45]&0x70? " on ExtVRAM":""
+		sx,sy, dx,dy, cl, controlReg[45]&0x04? -nx:nx,
+		controlReg[45]&0x08? -ny:ny,
+		controlReg[45]&0x70? " on ExtVRAM":""
 		);
 }
 
 void VDPCmdEngine::draw(byte op)
 {
 	// V9938 ops only work in SCREENs 5-8.
-	if (ScrMode<5) return;
-
-	int mode = ScrMode-5;	// Screen mode index [0..3].
+	if (scrMode < 0) return;
 
 	MMC.CM = op >> 4;
 	if ((MMC.CM & 0x0C) != 0x0C && MMC.CM != 0) {
 		// Dot operation: use only relevant bits of color.
-		VDPStatus[7]=(VDP[44]&=MASK[mode]);
+		VDPStatus[7]=(controlReg[44]&=MASK[scrMode]);
 	}
 
 	reportVdpCommand(op);
@@ -738,18 +736,20 @@ void VDPCmdEngine::draw(byte op)
 	case CM_POINT:
 		VDPStatus[2]&=0xFE;
 		currEngine=&VDPCmdEngine::dummyEngine;
-		VDPStatus[7]=VDP[44]=
-			point(mode, VDP[32]+((int)VDP[33]<<8),
-				VDP[34]+((int)VDP[35]<<8));
+		VDPStatus[7] = controlReg[44] = point(
+			controlReg[32]+((int)controlReg[33]<<8),
+			controlReg[34]+((int)controlReg[35]<<8)
+			);
 		return;
 	case CM_PSET:
 		VDPStatus[2]&=0xFE;
 		currEngine=&VDPCmdEngine::dummyEngine;
-		pset(mode,
-			VDP[36]+((int)VDP[37]<<8),
-			VDP[38]+((int)VDP[39]<<8),
-			VDP[44],
-			op&0x0F);
+		pset(
+			controlReg[36]+((int)controlReg[37]<<8),
+			controlReg[38]+((int)controlReg[39]<<8),
+			controlReg[44],
+			op&0x0F
+			);
 		return;
 	case CM_SRCH:
 		currEngine=&VDPCmdEngine::srchEngine;
@@ -791,24 +791,24 @@ void VDPCmdEngine::draw(byte op)
 	}
 
 	/* Fetch unconditional arguments */
-	MMC.SX = (VDP[32]+((int)VDP[33]<<8)) & 511;
-	MMC.SY = (VDP[34]+((int)VDP[35]<<8)) & 1023;
-	MMC.DX = (VDP[36]+((int)VDP[37]<<8)) & 511;
-	MMC.DY = (VDP[38]+((int)VDP[39]<<8)) & 1023;
-	MMC.NY = (VDP[42]+((int)VDP[43]<<8)) & 1023;
-	MMC.TY = VDP[45]&0x08? -1:1;
-	MMC.MX = PPL[mode];
-	MMC.CL = VDP[44];
+	MMC.SX = (controlReg[32]+((int)controlReg[33]<<8)) & 511;
+	MMC.SY = (controlReg[34]+((int)controlReg[35]<<8)) & 1023;
+	MMC.DX = (controlReg[36]+((int)controlReg[37]<<8)) & 511;
+	MMC.DY = (controlReg[38]+((int)controlReg[39]<<8)) & 1023;
+	MMC.NY = (controlReg[42]+((int)controlReg[43]<<8)) & 1023;
+	MMC.TY = controlReg[45]&0x08? -1:1;
+	MMC.MX = PPL[scrMode];
+	MMC.CL = controlReg[44];
 	MMC.LO = op & 0x0F;
 
 	/* Argument depends on byte or dot operation */
 	if ((MMC.CM & 0x0C) == 0x0C) {
-		MMC.TX = VDP[45]&0x04? -PPB[mode]:PPB[mode];
-		MMC.NX = ((VDP[40]+((int)VDP[41]<<8)) & 1023)/PPB[mode];
+		MMC.TX = controlReg[45]&0x04? -PPB[scrMode]:PPB[scrMode];
+		MMC.NX = ((controlReg[40]+((int)controlReg[41]<<8)) & 1023)/PPB[scrMode];
 	}
 	else {
-		MMC.TX = VDP[45]&0x04? -1:1;
-		MMC.NX = (VDP[40]+((int)VDP[41]<<8)) & 1023;
+		MMC.TX = controlReg[45]&0x04? -1:1;
+		MMC.NX = (controlReg[40]+((int)controlReg[41]<<8)) & 1023;
 	}
 
 	// X loop variables are treated specially for LINE command.
@@ -823,7 +823,7 @@ void VDPCmdEngine::draw(byte op)
 
 	// NX loop variable is treated specially for SRCH command.
 	MMC.ANX = (MMC.CM == CM_SRCH
-		? (VDP[45]&0x02)!=0 // TODO: Do we look for "==" or "!="?
+		? (controlReg[45]&0x02)!=0 // TODO: Do we look for "==" or "!="?
 		: MMC.NX
 		);
 
@@ -851,8 +851,36 @@ void VDPCmdEngine::loop()
 	}
 }
 
-VDPCmdEngine::VDPCmdEngine()
+// Added routines for openMSX:
+
+VDPCmdEngine::VDPCmdEngine(VDP *vdp, const EmuTime &time)
 {
+	this->vdp = vdp;
+	// TODO: Remember current time.
+
 	opsCount = 1;
 	currEngine = &VDPCmdEngine::dummyEngine;
+	updateDisplayMode(time);
 }
+
+void VDPCmdEngine::updateDisplayMode(const EmuTime &time)
+{
+	switch (vdp->getDisplayMode()) {
+	case 0x0C: // SCREEN5
+		scrMode = 0;
+		break;
+	case 0x10: // SCREEN6
+		scrMode = 1;
+		break;
+	case 0x14: // SCREEN7
+		scrMode = 2;
+		break;
+	case 0x1C: // SCREEN8
+		scrMode = 3;
+		break;
+	default:
+		scrMode = -1; // no commands
+		break;
+	}
+}
+
