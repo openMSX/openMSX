@@ -11,8 +11,10 @@ TODO:
 #include "openmsx.hh"
 #include "Renderer.hh"
 #include "SpriteChecker.hh"
+#include "DisplayMode.hh"
 #include "Blender.hh"
 #include <cassert>
+
 
 namespace openmsx {
 
@@ -32,7 +34,7 @@ public:
 	  * @param blender Blender to use for combining two narrow pixels
 	  *   into a single wide one. Only necessary for ZOOM_256.
 	  */
-	SpriteConverter(SpriteChecker *spriteChecker,
+	SpriteConverter(SpriteChecker* spriteChecker,
 		Blender<Pixel> blender = Blender<Pixel>::dummy() )
 		: blender(blender)
 	{
@@ -46,11 +48,11 @@ public:
 		this->transparency = enabled;
 	}
 
-	/** Draw 4-colour narrow-pixel sprites?
-	  * @param enabled The new value.
+	/** Notify SpriteConverter of a display mode change.
+	  * @param mode The new display mode.
 	  */
-	void setNarrow(bool enabled) {
-		this->narrow = enabled;
+	void setDisplayMode(DisplayMode mode) {
+		this->mode = mode;
 	}
 
 	/** Set palette to use for converting sprites.
@@ -58,7 +60,7 @@ public:
 	  * will be used while drawing.
 	  * @param palette 16-entry array containing the sprite palette.
 	  */
-	void setPalette(Pixel *palette) {
+	void setPalette(Pixel* palette) {
 		this->palette = palette;
 	}
 
@@ -70,10 +72,10 @@ public:
 	  * @param pixelPtr Pointer to memory to draw to.
 	  */
 	void drawMode1(
-		int absLine, int minX, int maxX, Pixel *pixelPtr
+		int absLine, int minX, int maxX, Pixel* pixelPtr
 	) {
 		// Determine sprites visible on this line.
-		SpriteChecker::SpriteInfo *visibleSprites;
+		SpriteChecker::SpriteInfo* visibleSprites;
 		int visibleIndex =
 			spriteChecker->getSprites(absLine, visibleSprites);
 		// Optimisation: return at once if no sprites on this line.
@@ -83,7 +85,7 @@ public:
 		// Render using overdraw.
 		while (visibleIndex--) {
 			// Get sprite info.
-			SpriteChecker::SpriteInfo *sip = &visibleSprites[visibleIndex];
+			SpriteChecker::SpriteInfo* sip = &visibleSprites[visibleIndex];
 			Pixel colIndex = sip->colourAttrib & 0x0F;
 			// Don't draw transparent sprites in sprite mode 1.
 			// TODO: Verify on real V9938 that sprite mode 1 indeed
@@ -102,7 +104,7 @@ public:
 				pattern &= -1 << (32 - (maxX - x));
 			}
 			// Convert pattern to pixels.
-			Pixel *p = &pixelPtr[x];
+			Pixel* p = &pixelPtr[x];
 			while (pattern) {
 				// Draw pixel if sprite has a dot.
 				if (pattern & 0x80000000) {
@@ -117,8 +119,8 @@ public:
 
 	/** Draw sprites in sprite mode 2.
 	  * Make sure the pixel pointers point to a large enough memory area:
-	  * 256 pixels for ZOOM_256 and ZOOM_REAL with wide pixels;
-	  * 512 pixels for ZOOM_REAL with narrow pixels.
+	  * 256 pixels for ZOOM_256 and ZOOM_REAL in 256-pixel wide modes;
+	  * 512 pixels for ZOOM_REAL in 512-pixel wide modes.
 	  * @param absLine Absolute line number.
 	  * 	Range is [0..262) for NTSC and [0..313) for PAL.
 	  * @param minX Minimum X coordinate to draw (inclusive).
@@ -126,10 +128,10 @@ public:
 	  * @param pixelPtr Pointer to memory to draw to.
 	  */
 	void drawMode2(
-		int absLine, int minX, int maxX, Pixel *pixelPtr
+		int absLine, int minX, int maxX, Pixel* pixelPtr
 	) {
 		// Determine sprites visible on this line.
-		SpriteChecker::SpriteInfo *visibleSprites;
+		SpriteChecker::SpriteInfo* visibleSprites;
 		int visibleIndex =
 			spriteChecker->getSprites(absLine, visibleSprites);
 		// Optimisation: return at once if no sprites on this line.
@@ -158,7 +160,7 @@ public:
 			// Calculate colour of pixel to be plotted.
 			byte colour = 0xFF;
 			for (int i = 0; i < visibleIndex; i++) {
-				SpriteChecker::SpriteInfo *sip = &visibleSprites[i];
+				SpriteChecker::SpriteInfo* sip = &visibleSprites[i];
 				int shift = pixelDone - sip->x;
 				if ((0 <= shift && shift < maxSize)
 				&& ((sip->pattern << shift) & 0x80000000)) {
@@ -179,7 +181,7 @@ public:
 			}
 			// Plot it.
 			if (colour != 0xFF) {
-				if (narrow) {
+				if (mode.getByte() == DisplayMode::GRAPHIC5) {
 					Pixel pixL = palette[colour >> 2];
 					Pixel pixR = palette[colour & 3];
 					if (zoom == Renderer::ZOOM_256) {
@@ -190,7 +192,15 @@ public:
 						pixelPtr[i + 1] = pixR;
 					}
 				} else {
-					pixelPtr[pixelDone] = palette[colour];
+					Pixel pix = palette[colour];
+					if (mode.getByte() == DisplayMode::GRAPHIC6
+					&& zoom == Renderer::ZOOM_REAL) {
+						int i = pixelDone * 2;
+						pixelPtr[i] = pix;
+						pixelPtr[i + 1] = pix;
+					} else {
+						pixelPtr[pixelDone] = palette[colour];
+					}
 				}
 			}
 		}
@@ -198,20 +208,19 @@ public:
 
 private:
 
-	SpriteChecker *spriteChecker;
+	SpriteChecker* spriteChecker;
 
 	/** VDP transparency setting (R#8, bit5).
 	  */
 	bool transparency;
 
-	/** Draw 4-colour narrow-pixel sprites?
-	  * Used in Graphic5 mode.
+	/** The current display mode.
 	  */
-	bool narrow;
-	
+	DisplayMode mode;
+
 	/** The current sprite palette.
 	  */
-	Pixel *palette;
+	Pixel* palette;
 
 	Blender<Pixel> blender;
 };

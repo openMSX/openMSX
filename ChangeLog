@@ -5,6 +5,7 @@ $Id$
 
 2003-12-23 Maarten ter Huurne <maarten@treewalker.org>
 	* Integrated Mac OS X patches from Jalu.
+	* Fixed rendering of sprites in SCREEN7.
 
 2003-12-22 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed reset problems (again):

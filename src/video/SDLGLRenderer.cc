@@ -666,8 +666,7 @@ void SDLGLRenderer::setDisplayMode(DisplayMode mode)
 		}
 	}
 	lineWidth = mode.getLineWidth();
-	// TODO: Check what happens to sprites in Graphic5 + YJK/YAE.
-	spriteConverter.setNarrow(mode.isSpriteNarrow());
+	spriteConverter.setDisplayMode(mode);
 	spriteConverter.setPalette(
 		mode.getByte() == DisplayMode::GRAPHIC7 ? palGraphic7Sprites : palBg
 		);
@@ -1289,7 +1288,10 @@ void SDLGLRenderer::drawSprites(
 	int spriteMode = vdp->getDisplayMode().getSpriteMode();
 	int displayLimitX = displayX + displayWidth;
 	int limitY = fromY + displayHeight;
-	int pixelZoom = vdp->getDisplayMode().isSpriteNarrow() ? 2 : 1;
+	byte mode = vdp->getDisplayMode().getByte();
+	int pixelZoom =
+		(mode == DisplayMode::GRAPHIC5 || mode == DisplayMode::GRAPHIC6)
+		? 2 : 1;
 	for (int y = fromY; y < limitY; y++) {
 
 		// Buffer to render sprite pixels to; start with all transparent.

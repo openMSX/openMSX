@@ -638,7 +638,7 @@ void SDLRenderer<Pixel, zoom>::setDisplayMode(DisplayMode mode)
 	} else {
 		characterConverter.setDisplayMode(mode);
 	}
-	spriteConverter.setNarrow(mode.isSpriteNarrow());
+	spriteConverter.setDisplayMode(mode);
 	spriteConverter.setPalette(
 		mode.getByte() == DisplayMode::GRAPHIC7 ? palGraphic7Sprites : palBg
 		);
