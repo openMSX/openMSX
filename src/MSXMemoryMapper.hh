@@ -36,14 +36,19 @@ class MSXMemoryMapper : public MSXMemDevice, public MSXIODevice
 		void resetIO();
 	
 	private:
-		inline word getAdr(word address);
+		/** Converts a Z80 address to a RAM address.
+		  * @param address Index in Z80 address space.
+		  * @return Index in RAM address space.
+		  */
+		inline int calcAddress(word address);
 
 		byte *buffer;
-		int blocks;
+		int size;
+		int sizeMask;
 		bool slowDrainOnReset;
 
 		static MSXMapperIO *device;
-		static byte pageNum[4];
+		static int pageAddr[4];
 };
 
 #endif //__MSXMEMORYMAPPER_HH__

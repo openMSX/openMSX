@@ -8,24 +8,37 @@
 #include "MSXCPU.hh"
 #include "CPU.hh"
 
+// Inlined methods first, to make sure they are actually inlined:
+
+inline int MSXMemoryMapper::calcAddress(word address)
+{
+	// TODO: Keep pageAddr per mapper and apply mask on reg write.
+	return (pageAddr[address>>14] & sizeMask) | (address & 0x3FFF);
+}
+
+// Constructor and destructor:
 
 MSXMemoryMapper::MSXMemoryMapper(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time)
 {
 	PRT_DEBUG("Creating an MSXMemoryMapper object");
-	
+
 	initIO();
-	
+
 	slowDrainOnReset = deviceConfig->getParameterAsBool("slow_drain_on_reset");
 	int kSize = deviceConfig->getParameterAsInt("size");
-	blocks = kSize/16;
-	int size = 16384*blocks;
+	if (kSize % 16 != 0) {
+		PRT_ERROR("Mapper size is not a multiple of 16K: " << kSize);
+	}
+	int blocks = kSize/16;
+	size = 16384 * blocks;
+	sizeMask = size - 1; // Both convenient and correct!
 	if (!(buffer = new byte[size]))
 		PRT_ERROR("Couldn't allocate memory for " << getName());
 	//Isn't completely true, but let's suppose that ram will
 	//always contain all zero if started
 	memset(buffer, 0, size);
-	 
+
 	device->registerMapper(blocks);
 }
 
@@ -41,34 +54,28 @@ void MSXMemoryMapper::reset(const EmuTime &time)
 	resetIO();
 	if (!slowDrainOnReset) {
 		PRT_DEBUG("Clearing ram of " << getName());
-		memset(buffer, 0, blocks*16384);
+		memset(buffer, 0, size);
 	}
 }
 
 byte MSXMemoryMapper::readMem(word address, const EmuTime &time)
 {
-	return buffer[getAdr(address)];
+	return buffer[calcAddress(address)];
 }
 
 void MSXMemoryMapper::writeMem(word address, byte value, const EmuTime &time)
 {
-	buffer[getAdr(address)] = value;
+	buffer[calcAddress(address)] = value;
 }
 
 byte* MSXMemoryMapper::getReadCacheLine(word start)
 {
-	return &buffer[getAdr(start)];
+	return &buffer[calcAddress(start)];
 }
 
 byte* MSXMemoryMapper::getWriteCacheLine(word start)
 {
-	return &buffer[getAdr(start)];
-}
-
-word MSXMemoryMapper::getAdr(word address)
-{
-	byte page = pageNum[address>>14] % blocks;
-	return ((page<<14) | (address&0x3fff));
+	return &buffer[calcAddress(start)];
 }
 
 
@@ -79,14 +86,16 @@ void MSXMemoryMapper::initIO()
 		// Create specified IO behaviour
 		MSXConfig::Config* config = MSXConfig::instance()->getConfigById("MapperIO");
 		std::string type = config->getParameter("type");
-		if (type == "TurboR")
+		if (type == "TurboR") {
 			device = new MSXMapperIOTurboR();
-		else if (type == "Philips")
+		} else if (type == "Philips") {
 			device = new MSXMapperIOPhilips();
-		else
+		} else {
 			PRT_ERROR("Unknown mapper type");
-		
-		// Register I/O ports FC..FF 
+		}
+
+		// Register I/O ports FC..FF
+		// TODO: Register MSXMapperIO instead?
 		MSXMotherBoard::instance()->register_IO_In (0xFC,this);
 		MSXMotherBoard::instance()->register_IO_In (0xFD,this);
 		MSXMotherBoard::instance()->register_IO_In (0xFE,this);
@@ -95,7 +104,7 @@ void MSXMemoryMapper::initIO()
 		MSXMotherBoard::instance()->register_IO_Out(0xFD,this);
 		MSXMotherBoard::instance()->register_IO_Out(0xFE,this);
 		MSXMotherBoard::instance()->register_IO_Out(0xFF,this);
-		
+
 		resetIO();
 	}
 }
@@ -105,24 +114,23 @@ void MSXMemoryMapper::resetIO()
 {
 	//TODO mapper is initialized like this by BIOS,
 	// but in what state is it after reset?
-	pageNum[0] = 3;
-	pageNum[1] = 2;
-	pageNum[2] = 1;
-	pageNum[3] = 0;
+	// Zeroed is most likely.
+	// To find out for real, insert an external memory mapper on an MSX1.
+	for (int i = 0; i < 4; i++) pageAddr[i] = 0;
 }
 
 byte MSXMemoryMapper::readIO(byte port, const EmuTime &time)
 {
 	assert(0xfc <= port);
-	return device->convert(pageNum[port-0xfc]);
+	return device->convert(pageAddr[port-0xfc] >> 14);
 }
 
 void MSXMemoryMapper::writeIO(byte port, byte value, const EmuTime &time)
 {
 	assert (0xfc <= port);
-	pageNum[port-0xfc] = value;
+	pageAddr[port-0xfc] = value << 14;
 	MSXCPU::instance()->invalidateCache(0x4000*(port-0xfc), 0x4000/CPU::CACHE_LINE_SIZE);
 }
 
-byte MSXMemoryMapper::pageNum[4];
+int MSXMemoryMapper::pageAddr[4];
 

@@ -1,5 +1,8 @@
 $Id$
 
+2002-01-09 Maarten ter Huurne <mth@stack.nl>
+	* Fixed MSXMemoryMapper so that it can handle over 64K of memory.
+
 2002-01-08 Maarten ter Huurne <mth@stack.nl>
 	* Red and green were swapped in Graphic7 rendering.
 	* Apply planar reorder also on CPU reading VRAM and sprite checking.
