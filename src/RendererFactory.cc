@@ -3,8 +3,7 @@
 #include "RendererFactory.hh"
 #include "openmsx.hh"
 #include "RenderSettings.hh"
-#include "SDLHiRenderer.hh"
-#include "SDLLoRenderer.hh"
+#include "SDLRenderer.hh"
 #include "SDLGLRenderer.hh"
 #include "XRenderer.hh"
 #include <SDL/SDL.h>
@@ -47,11 +46,11 @@ Renderer *SDLHiRendererFactory::create(VDP *vdp)
 
 	switch (screen->format->BytesPerPixel) {
 	case 1:
-		return new SDLHiRenderer<Uint8>(vdp, screen);
+		return new SDLRenderer<Uint8, Renderer::ZOOM_512>(vdp, screen);
 	case 2:
-		return new SDLHiRenderer<Uint16>(vdp, screen);
+		return new SDLRenderer<Uint16, Renderer::ZOOM_512>(vdp, screen);
 	case 4:
-		return new SDLHiRenderer<Uint32>(vdp, screen);
+		return new SDLRenderer<Uint32, Renderer::ZOOM_512>(vdp, screen);
 	default:
 		printf("FAILED to open supported screen!");
 		return NULL;
@@ -95,11 +94,11 @@ Renderer *SDLLoRendererFactory::create(VDP *vdp)
 
 	switch (screen->format->BytesPerPixel) {
 	case 1:
-		return new SDLLoRenderer<Uint8>(vdp, screen);
+		return new SDLRenderer<Uint8, Renderer::ZOOM_256>(vdp, screen);
 	case 2:
-		return new SDLLoRenderer<Uint16>(vdp, screen);
+		return new SDLRenderer<Uint16, Renderer::ZOOM_256>(vdp, screen);
 	case 4:
-		return new SDLLoRenderer<Uint32>(vdp, screen);
+		return new SDLRenderer<Uint32, Renderer::ZOOM_256>(vdp, screen);
 	default:
 		printf("FAILED to open supported screen!");
 		// TODO: Throw exception.

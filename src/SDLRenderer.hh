@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __SDLHIRENDERER_HH__
-#define __SDLHIRENDERER_HH__
+#ifndef __SDLRENDERER_HH__
+#define __SDLRENDERER_HH__
 
 #include <SDL/SDL.h>
 #include "openmsx.hh"
@@ -14,9 +14,10 @@
 class SDLConsole;
 
 
-/** Hi-res (640x480) renderer on SDL.
+/** Renderer on SDL surface.
   */
-template <class Pixel> class SDLHiRenderer : public PixelRenderer
+template <class Pixel, Renderer::Zoom zoom>
+class SDLRenderer : public PixelRenderer
 {
 public:
 
@@ -52,18 +53,37 @@ protected:
 
 private:
 
-	typedef void (SDLHiRenderer::*DirtyChecker)
+	typedef void (SDLRenderer::*DirtyChecker)
 		(int addr, byte data);
 
+	/** Horizontal dimensions of the screen.
+	  */
+	static const int WIDTH = (zoom == Renderer::ZOOM_256 ? 320 : 640);
+
+	/** Vertical dimensions of the screen.
+	  */
+	static const int HEIGHT = (zoom == Renderer::ZOOM_256 ? 240 : 480);
+ 
+	/** Number of host screen lines per VDP display line.
+	  */
+	static const int LINE_ZOOM = (zoom == Renderer::ZOOM_256 ? 1 : 2);
+	
+	friend class SDLLoRendererFactory;
 	friend class SDLHiRendererFactory;
 
-	/** Constructor, called by SDLHiRendererFactory.
+	/** Translate from absolute VDP coordinates to screen coordinates:
+	  * Note: In reality, there are only 569.5 visible pixels on a line.
+	  *       Because it looks better, the borders are extended to 640.
 	  */
-	SDLHiRenderer(VDP *vdp, SDL_Surface *screen);
+	inline static int translateX(int absoluteX);
+
+	/** Constructor, called by SDL(Hi/Lo)RendererFactory.
+	  */
+	SDLRenderer(VDP *vdp, SDL_Surface *screen);
 
 	/** Destructor.
 	  */
-	virtual ~SDLHiRenderer();
+	virtual ~SDLRenderer();
 
 	inline void renderBitmapLines(byte line, int count);
 	inline void renderPlanarBitmapLines(byte line, int count);
@@ -194,18 +214,18 @@ private:
 
 	/** VRAM to pixels converter for character display modes.
 	  */
-	CharacterConverter<Pixel, Renderer::ZOOM_512> characterConverter;
+	CharacterConverter<Pixel, zoom> characterConverter;
 
 	/** VRAM to pixels converter for bitmap display modes.
 	  */
-	BitmapConverter<Pixel, Renderer::ZOOM_512> bitmapConverter;
+	BitmapConverter<Pixel, zoom> bitmapConverter;
 
 	/** VRAM to pixels converter for sprites.
 	  */
-	SpriteConverter<Pixel, Renderer::ZOOM_512> spriteConverter;
+	SpriteConverter<Pixel, zoom> spriteConverter;
 
 	SDLConsole* console;
 };
 
-#endif //__SDLHIRENDERER_HH__
+#endif //__SDLRENDERER_HH__
 

@@ -9,10 +9,9 @@ TODO:
   not need EmuTime, since it uses absolute VDP coordinates instead.
 */
 
-#include "SDLLoRenderer.hh"
+#include "SDLRenderer.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
-#include "SpriteChecker.hh"
 #include "RealTime.hh"
 #include <math.h>
 #include "SDLConsole.hh"
@@ -21,17 +20,20 @@ TODO:
 
 
 // Force template instantiation:
-template class SDLLoRenderer<Uint8>;
-template class SDLLoRenderer<Uint16>;
-template class SDLLoRenderer<Uint32>;
+template class SDLRenderer<Uint8, Renderer::ZOOM_256>;
+template class SDLRenderer<Uint8, Renderer::ZOOM_512>;
+template class SDLRenderer<Uint16, Renderer::ZOOM_256>;
+template class SDLRenderer<Uint16, Renderer::ZOOM_512>;
+template class SDLRenderer<Uint32, Renderer::ZOOM_256>;
+template class SDLRenderer<Uint32, Renderer::ZOOM_512>;
 
 /** Dimensions of screen.
   */
-static const int WIDTH = 320;
-static const int HEIGHT = 240;
+static const int WIDTH = 640;
+static const int HEIGHT = 480;
 
 /** VDP ticks between start of line and start of left border.
- */
+  */
 static const int TICKS_LEFT_BORDER = 100 + 102;
 
 /** The middle of the visible (display + borders) part of a line,
@@ -55,20 +57,21 @@ inline static void fillBool(bool *ptr, bool value, int nr)
 #endif
 }
 
-/** Translate from absolute VDP coordinates to screen coordinates:
-  * Note: In reality, there are only 569.5 visible pixels on a line.
-  *       Because it looks better, the borders are extended to 640.
-  */
-inline static int translateX(int absoluteX)
+template <class Pixel, Renderer::Zoom zoom>
+inline int SDLRenderer<Pixel, zoom>::translateX(int absoluteX)
 {
 	if (absoluteX == VDP::TICKS_PER_LINE) return WIDTH;
 	// Note: The "& ~1" forces the ticks to a pixel (2-tick) boundary.
 	//       If this is not done, rounding errors will occur.
-	int screenX = (absoluteX - (TICKS_VISIBLE_MIDDLE & ~1)) / 4 + WIDTH / 2;
+	int screenX =
+		(absoluteX - (TICKS_VISIBLE_MIDDLE & ~1))
+		/ (zoom == Renderer::ZOOM_256 ? 4 : 2)
+		+ WIDTH / 2;
 	return screenX < 0 ? 0 : screenX;
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::finishFrame()
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::finishFrame()
 {
 	// Render console if needed.
 	console->drawConsole();
@@ -77,7 +80,8 @@ template <class Pixel> void SDLLoRenderer<Pixel>::finishFrame()
 	SDL_UpdateRect(screen, 0, 0, 0, 0);
 }
 
-template <class Pixel> inline Pixel *SDLLoRenderer<Pixel>::getLinePtr(
+template <class Pixel, Renderer::Zoom zoom>
+inline Pixel *SDLRenderer<Pixel, zoom>::getLinePtr(
 	SDL_Surface *displayCache, int line)
 {
 	return (Pixel *)( (byte *)displayCache->pixels
@@ -85,7 +89,8 @@ template <class Pixel> inline Pixel *SDLLoRenderer<Pixel>::getLinePtr(
 }
 
 // TODO: Cache this?
-template <class Pixel> inline Pixel SDLLoRenderer<Pixel>::getBorderColour()
+template <class Pixel, Renderer::Zoom zoom>
+inline Pixel SDLRenderer<Pixel, zoom>::getBorderColour()
 {
 	// TODO: Used knowledge of V9938 to merge two 4-bit colours
 	//       into a single 8 bit colour for SCREEN8.
@@ -101,7 +106,8 @@ template <class Pixel> inline Pixel SDLLoRenderer<Pixel>::getBorderColour()
 		);
 }
 
-template <class Pixel> inline void SDLLoRenderer<Pixel>::renderBitmapLines(
+template <class Pixel, Renderer::Zoom zoom>
+inline void SDLRenderer<Pixel, zoom>::renderBitmapLines(
 	byte line, int count)
 {
 	// Lock surface, because we will access pixels directly.
@@ -119,7 +125,7 @@ template <class Pixel> inline void SDLLoRenderer<Pixel>::renderBitmapLines(
 		if (lineValidInMode[vramLine] != mode) {
 			const byte *vramPtr = vram->bitmapWindow.readArea(vramLine << 7);
 			bitmapConverter.convertLine(
-				getLinePtr(bitmapDisplayCache, vramLine), vramPtr);
+				getLinePtr(bitmapDisplayCache, vramLine), vramPtr );
 			lineValidInMode[vramLine] = mode;
 		}
 		line++; // is a byte, so wraps at 256
@@ -129,7 +135,8 @@ template <class Pixel> inline void SDLLoRenderer<Pixel>::renderBitmapLines(
 	if (SDL_MUSTLOCK(bitmapDisplayCache)) SDL_UnlockSurface(bitmapDisplayCache);
 }
 
-template <class Pixel> inline void SDLLoRenderer<Pixel>::renderPlanarBitmapLines(
+template <class Pixel, Renderer::Zoom zoom>
+inline void SDLRenderer<Pixel, zoom>::renderPlanarBitmapLines(
 	byte line, int count)
 {
 	// Lock surface, because we will access pixels directly.
@@ -137,7 +144,7 @@ template <class Pixel> inline void SDLLoRenderer<Pixel>::renderPlanarBitmapLines
 		// Display will be wrong, but this is not really critical.
 		return;
 	}
-	
+
 	byte mode = vdp->getDisplayMode().getByte();
 	// Which bits in the name mask determine the page?
 	int pageMask = vdp->getEvenOddMask();
@@ -163,7 +170,8 @@ template <class Pixel> inline void SDLLoRenderer<Pixel>::renderPlanarBitmapLines
 	if (SDL_MUSTLOCK(bitmapDisplayCache)) SDL_UnlockSurface(bitmapDisplayCache);
 }
 
-template <class Pixel> inline void SDLLoRenderer<Pixel>::renderCharacterLines(
+template <class Pixel, Renderer::Zoom zoom>
+inline void SDLRenderer<Pixel, zoom>::renderCharacterLines(
 	byte line, int count)
 {
 	// Lock surface, because we will access pixels directly.
@@ -178,84 +186,82 @@ template <class Pixel> inline void SDLLoRenderer<Pixel>::renderCharacterLines(
 			getLinePtr(charDisplayCache, line), line);
 		line++; // is a byte, so wraps at 256
 	}
-
+	
 	// Unlock surface.
 	if (SDL_MUSTLOCK(charDisplayCache)) SDL_UnlockSurface(charDisplayCache);
 }
 
-template <class Pixel> typename SDLLoRenderer<Pixel>::DirtyChecker
+template <class Pixel, Renderer::Zoom zoom>
+typename SDLRenderer<Pixel, zoom>::DirtyChecker
 	// Use checkDirtyBitmap for every mode for which isBitmapMode is true.
-	SDLLoRenderer<Pixel>::modeToDirtyChecker[] = {
+	SDLRenderer<Pixel, zoom>::modeToDirtyChecker[] = {
 		// M5 M4 = 0 0  (MSX1 modes)
-		&SDLLoRenderer::checkDirtyMSX1, // Graphic 1
-		&SDLLoRenderer::checkDirtyMSX1, // Text 1
-		&SDLLoRenderer::checkDirtyMSX1, // Multicolour
-		&SDLLoRenderer::checkDirtyNull,
-		&SDLLoRenderer::checkDirtyMSX1, // Graphic 2
-		&SDLLoRenderer::checkDirtyMSX1, // Text 1 Q
-		&SDLLoRenderer::checkDirtyMSX1, // Multicolour Q
-		&SDLLoRenderer::checkDirtyNull,
+		&SDLRenderer::checkDirtyMSX1, // Graphic 1
+		&SDLRenderer::checkDirtyMSX1, // Text 1
+		&SDLRenderer::checkDirtyMSX1, // Multicolour
+		&SDLRenderer::checkDirtyNull,
+		&SDLRenderer::checkDirtyMSX1, // Graphic 2
+		&SDLRenderer::checkDirtyMSX1, // Text 1 Q
+		&SDLRenderer::checkDirtyMSX1, // Multicolour Q
+		&SDLRenderer::checkDirtyNull,
 		// M5 M4 = 0 1
-		&SDLLoRenderer::checkDirtyMSX1, // Graphic 3
-		&SDLLoRenderer::checkDirtyText2,
-		&SDLLoRenderer::checkDirtyNull,
-		&SDLLoRenderer::checkDirtyNull,
-		&SDLLoRenderer::checkDirtyBitmap, // Graphic 4
-		&SDLLoRenderer::checkDirtyBitmap,
-		&SDLLoRenderer::checkDirtyBitmap,
-		&SDLLoRenderer::checkDirtyBitmap,
+		&SDLRenderer::checkDirtyMSX1, // Graphic 3
+		&SDLRenderer::checkDirtyText2,
+		&SDLRenderer::checkDirtyNull,
+		&SDLRenderer::checkDirtyNull,
+		&SDLRenderer::checkDirtyBitmap, // Graphic 4
+		&SDLRenderer::checkDirtyBitmap,
+		&SDLRenderer::checkDirtyBitmap,
+		&SDLRenderer::checkDirtyBitmap,
 		// M5 M4 = 1 0
-		&SDLLoRenderer::checkDirtyBitmap, // Graphic 5
-		&SDLLoRenderer::checkDirtyBitmap,
-		&SDLLoRenderer::checkDirtyBitmap,
-		&SDLLoRenderer::checkDirtyBitmap,
-		&SDLLoRenderer::checkDirtyBitmap, // Graphic 6
-		&SDLLoRenderer::checkDirtyBitmap,
-		&SDLLoRenderer::checkDirtyBitmap,
-		&SDLLoRenderer::checkDirtyBitmap,
+		&SDLRenderer::checkDirtyBitmap, // Graphic 5
+		&SDLRenderer::checkDirtyBitmap,
+		&SDLRenderer::checkDirtyBitmap,
+		&SDLRenderer::checkDirtyBitmap,
+		&SDLRenderer::checkDirtyBitmap, // Graphic 6
+		&SDLRenderer::checkDirtyBitmap,
+		&SDLRenderer::checkDirtyBitmap,
+		&SDLRenderer::checkDirtyBitmap,
 		// M5 M4 = 1 1
-		&SDLLoRenderer::checkDirtyBitmap,
-		&SDLLoRenderer::checkDirtyBitmap,
-		&SDLLoRenderer::checkDirtyBitmap,
-		&SDLLoRenderer::checkDirtyBitmap,
-		&SDLLoRenderer::checkDirtyBitmap, // Graphic 7
-		&SDLLoRenderer::checkDirtyBitmap,
-		&SDLLoRenderer::checkDirtyBitmap,
-		&SDLLoRenderer::checkDirtyBitmap
+		&SDLRenderer::checkDirtyBitmap,
+		&SDLRenderer::checkDirtyBitmap,
+		&SDLRenderer::checkDirtyBitmap,
+		&SDLRenderer::checkDirtyBitmap,
+		&SDLRenderer::checkDirtyBitmap, // Graphic 7
+		&SDLRenderer::checkDirtyBitmap,
+		&SDLRenderer::checkDirtyBitmap,
+		&SDLRenderer::checkDirtyBitmap
 	};
 
-template <class Pixel> SDLLoRenderer<Pixel>::SDLLoRenderer<Pixel>(
+template <class Pixel, Renderer::Zoom zoom>
+SDLRenderer<Pixel, zoom>::SDLRenderer(
 	VDP *vdp, SDL_Surface *screen)
-	: PixelRenderer(vdp),
-	  characterConverter(vdp, palFg, palBg),
-	  bitmapConverter(palFg, PALETTE256, V9958_COLOURS)
+	: PixelRenderer(vdp)
+	, characterConverter(vdp, palFg, palBg)
+	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS)
+	, spriteConverter(vdp->getSpriteChecker())
 {
-	// Calculate blendMask:
-	//      0000BBBBGGGGRRRR 
-	//  --> 0001000100010000
-	const SDL_PixelFormat *format = screen->format;
-	int rBit = (format->Rmask << 1) & ~format->Rmask;
-	int gBit = (format->Gmask << 1) & ~format->Gmask;
-	int bBit = (format->Bmask << 1) & ~format->Bmask;
-	int blendMask = rBit | gBit | bBit;
-
-	characterConverter.setBlendMask(blendMask);
-	bitmapConverter.setBlendMask(blendMask);
-
+	this->screen = screen;
 	console = new SDLConsole(screen);
 
-	this->vdp = vdp;
-	this->screen = screen;
-	vram = vdp->getVRAM();
-	spriteChecker = vdp->getSpriteChecker();
-	// TODO: Store current time.
-	//       Does the renderer actually have to keep time?
-	//       Keeping render position should be good enough.
+	if (zoom == Renderer::ZOOM_256) {
+		// Calculate blendMask:
+		//      0000BBBBGGGGRRRR 
+		//  --> 0001000100010000
+		const SDL_PixelFormat *format = screen->format;
+		int rBit = (format->Rmask << 1) & ~format->Rmask;
+		int gBit = (format->Gmask << 1) & ~format->Gmask;
+		int bBit = (format->Bmask << 1) & ~format->Bmask;
+		int blendMask = rBit | gBit | bBit;
+
+		characterConverter.setBlendMask(blendMask);
+		bitmapConverter.setBlendMask(blendMask);
+	}
 
 	// Create display caches.
 	charDisplayCache = SDL_CreateRGBSurface(
 		SDL_HWSURFACE,
-		256,
+		zoom == Renderer::ZOOM_256 ? 256 : 512,
 		vdp->isMSX1VDP() ? 192 : 256,
 		screen->format->BitsPerPixel,
 		screen->format->Rmask,
@@ -267,7 +273,7 @@ template <class Pixel> SDLLoRenderer<Pixel>::SDLLoRenderer<Pixel>(
 		? NULL
 		: SDL_CreateRGBSurface(
 			SDL_HWSURFACE,
-			256,
+			zoom == Renderer::ZOOM_256 ? 256 : 512,
 			256 * 4,
 			screen->format->BitsPerPixel,
 			screen->format->Rmask,
@@ -302,7 +308,7 @@ template <class Pixel> SDLLoRenderer<Pixel>::SDLLoRenderer<Pixel>(
 						(int)(pow((float)r / 7.0, gamma) * 255),
 						(int)(pow((float)g / 7.0, gamma) * 255),
 						(int)(pow((float)b / 7.0, gamma) * 255)
-					);
+						);
 				}
 			}
 		}
@@ -336,17 +342,19 @@ template <class Pixel> SDLLoRenderer<Pixel>::SDLLoRenderer<Pixel>(
 
 }
 
-template <class Pixel> SDLLoRenderer<Pixel>::~SDLLoRenderer()
+template <class Pixel, Renderer::Zoom zoom>
+SDLRenderer<Pixel, zoom>::~SDLRenderer()
 {
 	delete console;
 	SDL_FreeSurface(charDisplayCache);
 	SDL_FreeSurface(bitmapDisplayCache);
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::reset(const EmuTime &time)
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::reset(const EmuTime &time)
 {
 	PixelRenderer::reset(time);
-
+	
 	// Init renderer state.
 	DisplayMode mode = vdp->getDisplayMode();
 	dirtyChecker = modeToDirtyChecker[mode.getBase()];
@@ -356,10 +364,11 @@ template <class Pixel> void SDLLoRenderer<Pixel>::reset(const EmuTime &time)
 		characterConverter.setDisplayMode(mode);
 	}
 
-	palSprites = palBg;
+	spriteConverter.setTransparency(vdp->getTransparency());
+	spriteConverter.setPalette(palBg);
+
 	setDirty(true);
 	dirtyForeground = dirtyBackground = true;
-
 	memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 
 	if (!vdp->isMSX1VDP()) {
@@ -370,7 +379,8 @@ template <class Pixel> void SDLLoRenderer<Pixel>::reset(const EmuTime &time)
 	}
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::frameStart(
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::frameStart(
 	const EmuTime &time)
 {
 	// Call superclass implementation.
@@ -384,7 +394,8 @@ template <class Pixel> void SDLLoRenderer<Pixel>::frameStart(
 	lineRenderTop = vdp->isPalTiming() ? 59 - 14 : 32 - 14;
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::setFullScreen(
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::setFullScreen(
 	bool fullScreen)
 {
 	Renderer::setFullScreen(fullScreen);
@@ -393,10 +404,13 @@ template <class Pixel> void SDLLoRenderer<Pixel>::setFullScreen(
 	}
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::updateTransparency(
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::updateTransparency(
 	bool enabled, const EmuTime &time)
 {
 	sync(time);
+	spriteConverter.setTransparency(enabled);
+	
 	// Set the right palette for pixels of colour 0.
 	palFg[0] = palBg[enabled ? vdp->getBackgroundColour() : 0];
 	// Any line containing pixels of colour 0 must be repainted.
@@ -407,14 +421,16 @@ template <class Pixel> void SDLLoRenderer<Pixel>::updateTransparency(
 	memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::updateForegroundColour(
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::updateForegroundColour(
 	int colour, const EmuTime &time)
 {
 	sync(time);
 	dirtyForeground = true;
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::updateBackgroundColour(
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::updateBackgroundColour(
 	int colour, const EmuTime &time)
 {
 	sync(time);
@@ -431,21 +447,24 @@ template <class Pixel> void SDLLoRenderer<Pixel>::updateBackgroundColour(
 	}
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::updateBlinkForegroundColour(
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::updateBlinkForegroundColour(
 	int colour, const EmuTime &time)
 {
 	sync(time);
 	dirtyForeground = true;
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::updateBlinkBackgroundColour(
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::updateBlinkBackgroundColour(
 	int colour, const EmuTime &time)
 {
 	sync(time);
 	dirtyBackground = true;
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::updateBlinkState(
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::updateBlinkState(
 	bool enabled, const EmuTime &time)
 {
 	// TODO: When the sync call is enabled, the screen flashes on
@@ -462,14 +481,16 @@ template <class Pixel> void SDLLoRenderer<Pixel>::updateBlinkState(
 	}
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::updatePalette(
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::updatePalette(
 	int index, int grb, const EmuTime &time)
 {
 	sync(time);
 	setPalette(index, grb);
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::setPalette(
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::setPalette(
 	int index, int grb)
 {
 	// Update SDL colours in palette.
@@ -491,19 +512,22 @@ template <class Pixel> void SDLLoRenderer<Pixel>::setPalette(
 	memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::updateVerticalScroll(
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::updateVerticalScroll(
 	int scroll, const EmuTime &time)
 {
 	sync(time);
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::updateHorizontalAdjust(
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::updateHorizontalAdjust(
 	int adjust, const EmuTime &time)
 {
 	sync(time);
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::updateDisplayMode(
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::updateDisplayMode(
 	DisplayMode mode, const EmuTime &time)
 {
 	sync(time);
@@ -513,12 +537,14 @@ template <class Pixel> void SDLLoRenderer<Pixel>::updateDisplayMode(
 	} else {
 		characterConverter.setDisplayMode(mode);
 	}
-	palSprites =
-		mode.getByte() == DisplayMode::GRAPHIC7 ? palGraphic7Sprites : palBg;
+	spriteConverter.setPalette(
+		mode.getByte() == DisplayMode::GRAPHIC7 ? palGraphic7Sprites : palBg
+		);
 	setDirty(true);
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::updateNameBase(
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::updateNameBase(
 	int addr, const EmuTime &time)
 {
 	sync(time);
@@ -526,7 +552,8 @@ template <class Pixel> void SDLLoRenderer<Pixel>::updateNameBase(
 	fillBool(dirtyName, true, sizeof(dirtyName) / sizeof(bool));
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::updatePatternBase(
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::updatePatternBase(
 	int addr, const EmuTime &time)
 {
 	sync(time);
@@ -534,7 +561,8 @@ template <class Pixel> void SDLLoRenderer<Pixel>::updatePatternBase(
 	fillBool(dirtyPattern, true, sizeof(dirtyPattern) / sizeof(bool));
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::updateColourBase(
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::updateColourBase(
 	int addr, const EmuTime &time)
 {
 	sync(time);
@@ -542,14 +570,16 @@ template <class Pixel> void SDLLoRenderer<Pixel>::updateColourBase(
 	fillBool(dirtyColour, true, sizeof(dirtyColour) / sizeof(bool));
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::checkDirtyNull(
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::checkDirtyNull(
 	int addr, byte data)
 {
 	// Do nothing: this is a bogus mode whose display doesn't depend
 	// on VRAM contents.
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::checkDirtyMSX1(
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::checkDirtyMSX1(
 	int addr, byte data)
 {
 	if (vram->nameTable.isInside(addr)) {
@@ -563,7 +593,8 @@ template <class Pixel> void SDLLoRenderer<Pixel>::checkDirtyMSX1(
 	}
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::checkDirtyText2(
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::checkDirtyText2(
 	int addr, byte data)
 {
 	if (vram->nameTable.isInside(addr)) {
@@ -595,13 +626,15 @@ template <class Pixel> void SDLLoRenderer<Pixel>::checkDirtyText2(
 	}
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::checkDirtyBitmap(
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::checkDirtyBitmap(
 	int addr, byte data)
 {
 	lineValidInMode[addr >> 7] = 0xFF;
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::setDirty(
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::setDirty(
 	bool dirty)
 {
 	anyDirtyColour = anyDirtyPattern = anyDirtyName = dirty;
@@ -610,7 +643,8 @@ template <class Pixel> void SDLLoRenderer<Pixel>::setDirty(
 	fillBool(dirtyPattern, dirty, sizeof(dirtyPattern) / sizeof(bool));
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::drawSprites(
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::drawSprites(
 	int screenLine, int leftBorder, int minX, int maxX)
 {
 	int spriteMode = vdp->getDisplayMode().getSpriteMode();
@@ -619,136 +653,61 @@ template <class Pixel> void SDLLoRenderer<Pixel>::drawSprites(
 	}
 
 	// TODO: Pass absLine as a parameter instead of converting back.
-	int absLine = screenLine + lineRenderTop;
+	int absLine = screenLine / LINE_ZOOM + lineRenderTop;
 
-	// Determine sprites visible on this line.
-	SpriteChecker::SpriteInfo *visibleSprites;
-	int visibleIndex =
-		spriteChecker->getSprites(absLine, visibleSprites);
-	// Optimisation: return at once if no sprites on this line.
-	// Lines without any sprites are very common in most programs.
-	if (visibleIndex == 0) return;
+	if (zoom != Renderer::ZOOM_256) {
+		// Sprites use 256 pixels per screen, while minX and maxX are 
+		// on a scale of 512 pixels per screen.
+		minX /= 2;
+		maxX /= 2;
+	}
 
-	// TODO: Calculate pointers incrementally outside this method.
 	Pixel *pixelPtr0 = (Pixel *)( (byte *)screen->pixels
 		+ screenLine * screen->pitch + leftBorder * sizeof(Pixel));
+	Pixel *pixelPtr1 = 
+		( LINE_ZOOM == 1
+		? NULL
+		: (Pixel *)(((byte *)pixelPtr0) + screen->pitch)
+		);
 
 	// visibleIndex != 0 implies there are sprites in the current mode.
 	if (spriteMode == 1) {
-		// Sprite mode 1: render directly to screen using overdraw.
-		while (visibleIndex--) {
-			// Get sprite info.
-			SpriteChecker::SpriteInfo *sip = &visibleSprites[visibleIndex];
-			Pixel colour = sip->colourAttrib & 0x0F;
-			// Don't draw transparent sprites in sprite mode 1.
-			// TODO: Verify on real V9938 that sprite mode 1 indeed
-			//       ignores the transparency bit.
-			if (colour == 0) continue;
-			colour = palSprites[colour];
-			SpriteChecker::SpritePattern pattern = sip->pattern;
-			int x = sip->x;
-			// Skip any dots that end up in the border.
-			if (x <= -32) {
-				continue;
-			} else if (x < 0) {
-				pattern <<= -x;
-				x = 0;
-			} else if (x > 256 - 32) {
-				pattern &= -1 << (32 - (256 - x));
-			}
-			// Convert pattern to pixels.
-			// Only clip left border, right side will be overdrawn shortly
-			if (minX <= x) {
-				Pixel *p0 = &pixelPtr0[x];
-				while (pattern) {
-					// Draw pixel if sprite has a dot.
-					if (pattern & 0x80000000) {
-						p0[0] = colour;
-					}
-					// Advancing behaviour.
-					pattern <<= 1;
-					p0 += 1;
-				}
-			}
-		}
+		spriteConverter.drawMode1(absLine, minX, maxX, pixelPtr0, pixelPtr1);
 	} else {
-		// Sprite mode 2: single pass left-to-right render.
-
-		// Determine width of sprites.
-		SpriteChecker::SpritePattern combined = 0;
-		for (int i = 0; i < visibleIndex; i++) {
-			combined |= visibleSprites[i].pattern;
-		}
-		int maxSize = SpriteChecker::patternWidth(combined);
-		// Left-to-right scan.
-		for (int pixelDone = minX; pixelDone < maxX; pixelDone++) {
-			// Skip pixels if possible.
-			int minStart = pixelDone - maxSize;
-			int leftMost = 0xFFFF;
-			for (int i = 0; i < visibleIndex; i++) {
-				int x = visibleSprites[i].x;
-				if (minStart < x && x < leftMost) leftMost = x;
-			}
-			if (leftMost > pixelDone) {
-				pixelDone = leftMost;
-				if (pixelDone >= 256) break;
-			}
-			// Calculate colour of pixel to be plotted.
-			byte colour = 0xFF;
-			for (int i = 0; i < visibleIndex; i++) {
-				SpriteChecker::SpriteInfo *sip = &visibleSprites[i];
-				int shift = pixelDone - sip->x;
-				if ((0 <= shift && shift < maxSize)
-				&& ((sip->pattern << shift) & 0x80000000)) {
-					byte c = sip->colourAttrib & 0x0F;
-					if (c == 0 && vdp->getTransparency()) continue;
-					colour = c;
-					// Merge in any following CC=1 sprites.
-					for (i++ ; i < visibleIndex; i++) {
-						sip = &visibleSprites[i];
-						if (!(sip->colourAttrib & 0x40)) break;
-						int shift = pixelDone - sip->x;
-						if ((0 <= shift && shift < maxSize)
-						&& ((sip->pattern << shift) & 0x80000000)) {
-							colour |= sip->colourAttrib & 0x0F;
-						}
-					}
-					break;
-				}
-			}
-			// Plot it.
-			if (colour != 0xFF) {
-				pixelPtr0[pixelDone] = palSprites[colour];
-			}
-		}
+		spriteConverter.drawMode2(absLine, minX, maxX, pixelPtr0, pixelPtr1);
 	}
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::drawBorder(
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::drawBorder(
 	int fromX, int fromY, int limitX, int limitY)
 {
 	// TODO: Only redraw if necessary.
 	SDL_Rect rect;
 	rect.x = translateX(fromX);
 	rect.w = translateX(limitX) - rect.x;
-	rect.y = fromY - lineRenderTop;
-	rect.h = limitY - fromY;
+	rect.y = (fromY - lineRenderTop) * LINE_ZOOM;
+	rect.h = (limitY - fromY) * LINE_ZOOM;
 
 	// Note: return code ignored.
 	SDL_FillRect(screen, &rect, getBorderColour());
 }
 
-
 // TODO: Clean up this routine.
-template <class Pixel> void SDLLoRenderer<Pixel>::drawDisplay(
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::drawDisplay(
 	int fromX, int fromY, int limitX, int limitY)
 {
+	// Number of VDP ticks per host screen pixel.
+	const int TICKS_PER_PIXEL = (zoom == Renderer::ZOOM_256 ? 4 : 2);
+
 	// Calculate which pixels within the display area should be plotted.
 	int displayLeftTicks = getDisplayLeft();
-	int displayX = (fromX - displayLeftTicks) / 4;
-	int displayWidth = (limitX - fromX) / 4;
+	int displayX = (fromX - displayLeftTicks) / TICKS_PER_PIXEL;
+	int displayWidth = (limitX - fromX) / TICKS_PER_PIXEL;
 	assert(0 <= displayX);
-	assert(displayX + displayWidth <= 256);
+	assert(displayX + displayWidth
+		<= (zoom == Renderer::ZOOM_256 ? 256 : 512) );
 
 	fromX = translateX(fromX);
 	limitX = translateX(limitX);
@@ -756,9 +715,16 @@ template <class Pixel> void SDLLoRenderer<Pixel>::drawDisplay(
 	assert(fromX < limitX);
 	//PRT_DEBUG("drawDisplay: ("<<fromX<<","<<fromY<<")-("<<limitX-1<<","<<limitY<<")");
 
-	int displayY = fromY - lineRenderTop;
+	int displayY = (fromY - lineRenderTop) * LINE_ZOOM;
 	int nrLines = limitY - fromY;
-	int displayLimitY = displayY + nrLines;
+	if (zoom != Renderer::ZOOM_256
+	&& !(settings->getDeinterlace()->getValue())
+	&& vdp->isInterlaced()
+	&& vdp->getEvenOdd()) {
+		// Display odd field half a line lower.
+		displayY++;
+	}
+	int displayLimitY = displayY + nrLines * LINE_ZOOM;
 
 	// Render background lines:
 
@@ -783,16 +749,31 @@ template <class Pixel> void SDLLoRenderer<Pixel>::drawDisplay(
 			renderBitmapLines(line, nrLines);
 		}
 
-		int pageMask = (mode.isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
-
+		int pageMaskEven, pageMaskOdd;
+		if ( zoom != Renderer::ZOOM_256
+		&& settings->getDeinterlace()->getValue()
+		&& vdp->isInterlaced()
+		&& vdp->isEvenOddEnabled()) {
+			pageMaskEven = mode.isPlanar() ? 0x000 : 0x200;
+			pageMaskOdd  = pageMaskEven | 0x100;
+		} else {
+			pageMaskEven = pageMaskOdd =
+				(mode.isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
+		}
 		// Bring bitmap cache up to date.
 		for (dest.y = displayY; dest.y < displayLimitY; ) {
 			source.y = (vram->nameTable.getMask() >> 7)
-				& (pageMask | line);
+				& (pageMaskEven | line);
 			// TODO: Can we safely use SDL_LowerBlit?
 			// Note: return value is ignored.
 			SDL_BlitSurface(bitmapDisplayCache, &source, screen, &dest);
 			dest.y++;
+			if (LINE_ZOOM == 2) {
+				source.y = (vram->nameTable.getMask() >> 7)
+					& (pageMaskOdd | line);
+				SDL_BlitSurface(bitmapDisplayCache, &source, screen, &dest);
+				dest.y++;
+			}
 			line++;	// wraps at 256
 		}
 	} else {
@@ -809,6 +790,10 @@ template <class Pixel> void SDLLoRenderer<Pixel>::drawDisplay(
 			*/
 			SDL_BlitSurface(charDisplayCache, &source, screen, &dest);
 			dest.y++;
+			if (LINE_ZOOM == 2) {
+				SDL_BlitSurface(charDisplayCache, &source, screen, &dest);
+				dest.y++;
+			}
 			line++;	// wraps at 256
 		}
 	}
@@ -826,7 +811,7 @@ template <class Pixel> void SDLLoRenderer<Pixel>::drawDisplay(
 		return;
 	}
 	int leftBorder = translateX(displayLeftTicks);
-	for (int y = displayY; y < displayLimitY; y++) {
+	for (int y = displayY; y < displayLimitY; y += LINE_ZOOM) {
 		drawSprites(y, leftBorder, displayX, displayX + displayWidth);
 	}
 	// Unlock surface.

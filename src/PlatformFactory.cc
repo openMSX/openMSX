@@ -7,10 +7,6 @@
 #include "RendererFactory.hh"
 
 // Platform dependent includes:
-#include "SDLLoRenderer.hh"
-#include "SDLHiRenderer.hh"
-#include "SDLGLRenderer.hh"
-#include "XRenderer.hh"
 
 Renderer *PlatformFactory::createRenderer(
 	const std::string &name, VDP *vdp)
