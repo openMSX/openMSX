@@ -2,6 +2,8 @@ $Id$
 
 2004-12-26 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Integrated Adriano's MegaRAM diskrom patch
+	* Fixed bug in reading from compressed files:
+	   zipped IPS files work now
 
 2004-12-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed crash on missing LED icon files

@@ -57,6 +57,7 @@ void CompressedFileAdapter::read(byte* buffer, unsigned num)
 {
 	fillBuffer();
 	memcpy(buffer, &buf[pos], num);
+	pos += num;
 }
 
 void CompressedFileAdapter::write(const byte* /*buffer*/, unsigned /*num*/)
