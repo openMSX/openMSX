@@ -8,6 +8,7 @@
 #include "Mouse.hh"
 #include "Joystick.hh"
 #include "JoyNet.hh"
+#include "KeyJoystick.hh"
 
 
 JoystickPort::JoystickPort(const std::string &nm, const EmuTime &time)
@@ -72,6 +73,7 @@ JoystickPorts::JoystickPorts(const EmuTime &time)
 
 	mouse = new Mouse(time);
 	joynet = new JoyNet();
+	keyJoystick = new KeyJoystick();
 	int i=0;
 	try {
 		for (; i<10; i++)
@@ -87,6 +89,7 @@ JoystickPorts::~JoystickPorts()
 	delete ports[0];
 	delete ports[1];
 	
+	delete keyJoystick;
 	delete mouse;
 	delete joynet;
 	for (int i=0; i<10; i++)

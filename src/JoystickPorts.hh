@@ -6,12 +6,6 @@
 #include "openmsx.hh"
 #include "Connector.hh"
 
-// forward declaration
-class DummyJoystick;
-class Mouse;
-class JoyNet;
-class Joystick;
-
 
 class JoystickPort : public Connector
 {
@@ -28,7 +22,7 @@ class JoystickPort : public Connector
 		void write(byte value, const EmuTime &time);
 
 	private:
-		DummyJoystick* dummy;
+		class DummyJoystick* dummy;
 		std::string name;
 
 		byte lastValue;
@@ -48,8 +42,9 @@ class JoystickPorts
 		int selectedPort;
 		JoystickPort* ports[2];
 
-		Mouse* mouse;
-		JoyNet* joynet;
-		Joystick* joystick[10];
+		class Mouse* mouse;
+		class JoyNet* joynet;
+		class KeyJoystick* keyJoystick;
+		class Joystick* joystick[10];
 };
 #endif

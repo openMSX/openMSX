@@ -38,25 +38,27 @@ const byte* Keyboard::getKeys()
 
 bool Keyboard::signalEvent(SDL_Event &event, const EmuTime &time)
 {
-	int key;
 	switch (event.type) {
-	case SDL_KEYDOWN:
+	case SDL_KEYDOWN: {
 		// Key pressed: reset bit in keyMatrix
-		key=event.key.keysym.sym;
-		if (key < 0x150)
+		int key = event.key.keysym.sym;
+		if (key < 0x150) {
 			keyMatrix[Keys[key][0]] &= ~Keys[key][1];
+		}
 		break;
-	case SDL_KEYUP:
+	}
+	case SDL_KEYUP: {
 		// Key released: set bit in keyMatrix
-		key=event.key.keysym.sym;
-		if (key < 0x150) 
+		int key = event.key.keysym.sym;
+		if (key < 0x150) {
 			keyMatrix[Keys[key][0]] |= Keys[key][1];
+		}
 		break;
+	}
 	default:
 		assert(false);
 	}
 	keysChanged = true;	// do ghosting at next getKeys()
-	
 	return true;
 }
 

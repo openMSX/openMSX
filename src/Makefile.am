@@ -65,6 +65,7 @@ openmsx_SOURCES=\
 	JoystickDevice.hh JoystickDevice.cc \
 	DummyJoystick.hh DummyJoystick.cc \
 	Joystick.hh Joystick.cc Mouse.hh Mouse.cc \
+	KeyJoystick.hh KeyJoystick.cc \
 	JoyNet.hh JoyNet.cc \
 	MSXPrinterPort.hh MSXPrinterPort.cc \
 	PrinterPortDevice.hh PrinterPortDevice.cc \
