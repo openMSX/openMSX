@@ -52,6 +52,7 @@ AM_PATH_XML2
 dnl CXXFLAGS="$CXXFLAGS $XML_CFLAGS"
 dnl LIBS="$XML_LIBS $LIBS"
 
+AC_ENABLE_GLRENDERER
 if test "$enable_GLRENDERER" = "yes"; then
   dnl openGL
   AC_CHECK_HEADERS(gl.h GL/gl.h, break)
