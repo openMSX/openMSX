@@ -15,16 +15,14 @@
 #include "Thread.hh"
 #include "Schedulable.hh"
 #include "Semaphore.hh"
-#include <SDL/SDL_thread.h>
+#include <SDL_thread.h>
 #include <windows.h>
 #include <mmsystem.h>
 
 using std::list;
 
-
 namespace openmsx {
 
-class MidiInConnector;
 class PluggingController;
 
 class MidiInNative : public MidiInDevice, private Runnable, private Schedulable
@@ -38,9 +36,9 @@ public:
 	virtual ~MidiInNative();
 
 	// Pluggable
-	virtual void plug(Connector *connector, const EmuTime& time)
+	virtual void plugHelper(Connector *connector, const EmuTime& time)
 		throw(PlugException);
-	virtual void unplug(const EmuTime& time);
+	virtual void unplugHelper(const EmuTime& time);
 	virtual const string& getName() const;
 	virtual const string& getDescription() const;
 
@@ -61,7 +59,6 @@ private:
 	Thread thread;
 	unsigned int devidx;
 	unsigned int thrdid;
-	MidiInConnector* connector;
 	list<byte> queue;
 	Semaphore lock; // to protect queue
 	string name;

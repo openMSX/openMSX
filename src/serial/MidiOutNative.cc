@@ -29,7 +29,7 @@ MidiOutNative::~MidiOutNative()
 	//w32_midiOutClean(); // TODO
 }
 
-void MidiOutNative::plug(Connector *connector, const EmuTime &time)
+void MidiOutNative::plugHelper(Connector *connector, const EmuTime &time)
 	throw(PlugException)
 {
 	devidx = w32_midiOutOpen(name.c_str());
@@ -38,7 +38,7 @@ void MidiOutNative::plug(Connector *connector, const EmuTime &time)
 	}
 }
 
-void MidiOutNative::unplug(const EmuTime &time)
+void MidiOutNative::unplugHelper(const EmuTime &time)
 {
 	w32_midiOutClose(devidx);
 }

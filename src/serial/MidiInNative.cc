@@ -32,7 +32,7 @@ void MidiInNative::registerAll(PluggingController* controller)
 
 
 MidiInNative::MidiInNative(unsigned num)
-	: thread(this), connector(NULL), lock(1)
+	: thread(this), lock(1)
 {
 	name = w32_midiInGetVFN(num);
 	desc = w32_midiInGetRDN(num);
@@ -45,7 +45,7 @@ MidiInNative::~MidiInNative()
 }
 
 // Pluggable
-void MidiInNative::plug(Connector *connector_, const EmuTime &time)
+void MidiInNative::plugHelper(Connector *connector_, const EmuTime &time)
 	throw(PlugException)
 {
 	devidx = w32_midiInOpen(name.c_str(), thrdid);
@@ -53,7 +53,7 @@ void MidiInNative::plug(Connector *connector_, const EmuTime &time)
 		throw PlugException("Failed to open " + name);
 	}
 
-	connector = (MidiInConnector *)connector_;
+	MidiInConnector* connector = static_cast<MidiInConnector*>(connector_);
 	connector->setDataBits(SerialDataInterface::DATA_8);	// 8 data bits
 	connector->setStopBits(SerialDataInterface::STOP_1);	// 1 stop bit
 	connector->setParityBit(false, SerialDataInterface::EVEN); // no parity
@@ -61,12 +61,11 @@ void MidiInNative::plug(Connector *connector_, const EmuTime &time)
 	thread.start();
 }
 
-void MidiInNative::unplug(const EmuTime &time)
+void MidiInNative::unplugHelper(const EmuTime &time)
 {
 	lock.down();
 	thread.stop();
 	lock.up();
-	connector = NULL;
 	w32_midiInClose(devidx);
 }
 
@@ -115,7 +114,7 @@ void MidiInNative::procShortMsg(DWORD param)
 // Runnable
 void MidiInNative::run()
 {
-	assert(connector);
+	assert(getConnector());
 	thrdid = SDL_ThreadID();
 
 	MSG msg;
@@ -150,6 +149,7 @@ void MidiInNative::run()
 // MidiInDevice
 void MidiInNative::signal(const EmuTime &time)
 {
+	MidiInConnector* connector = static_cast<MidiInConnector*>(getConnector());
 	if (!connector->acceptsData()) {
 		queue.clear();
 		return;
@@ -171,7 +171,7 @@ void MidiInNative::signal(const EmuTime &time)
 // Schedulable
 void MidiInNative::executeUntil(const EmuTime &time, int userData) throw()
 {
-	if (connector) {
+	if (getConnector()) {
 		signal(time);
 	} else {
 		lock.down();
