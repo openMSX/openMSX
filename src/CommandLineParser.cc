@@ -112,15 +112,24 @@ bool CommandLineParser::parseOption(const string &arg,list<string> &cmdLine)
 
 bool CommandLineParser::parseFileName(const string &arg, list<string>& cmdLine)
 {
-	int begin = arg.find_last_of('.');
-	if (begin != -1) {
+	unsigned begin = arg.find_last_of('.');
+	if (begin != string::npos) {
 		// there is an extension
-		int end = arg.find_last_of(',');
+		unsigned end = arg.find_last_of(',');
 		string extension;
-		if ((end == -1) || (end <= begin)) {
+		if ((end == string::npos) || (end <= begin)) {
 			extension = arg.substr(begin + 1);
 		} else {
 			extension = arg.substr(begin + 1, end - begin - 1);
+		}
+		if (extension == "gz" && (begin != 0)) {
+			PRT_DEBUG("DEBUG A " << (int)begin);
+			end = begin;
+			begin = arg.find_last_of('.', begin - 1);
+			PRT_DEBUG("DEBUG A " << (int)begin);
+			if (begin != string::npos) {
+				extension = arg.substr(begin + 1, end - begin - 1);
+			}
 		}
 		map<string, CLIFileType*>::const_iterator it2;
 		it2 = fileTypeMap.find(extension);
