@@ -48,6 +48,7 @@ LocalFile::LocalFile(const string &filename_, OpenMode mode)
 
 LocalFile::~LocalFile()
 {
+	munmap();
 	fclose(file);
 }
 

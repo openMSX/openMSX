@@ -4,6 +4,7 @@
 #include "FileBase.hh"
 #include "LocalFile.hh"
 #include "GZFileAdapter.hh"
+#include "ZipFileAdapter.hh"
 
 
 namespace openmsx {
@@ -28,9 +29,13 @@ File::File(const string &url, OpenMode mode)
 		PRT_ERROR("Unsupported protocol: " << protocol);
 	}
 
-	if (name.size() > 3 && name.rfind(".gz") == (name.size() - 3)) {
-		PRT_DEBUG("GZ 1");
+	if (((unsigned pos = name.rfind(".gz")) != string::npos) &&
+	    (pos == (name.size() - 3))) {
 		file = new GZFileAdapter(file);
+	} else
+	if (((unsigned pos = name.rfind(".zip")) != string::npos) &&
+	    (pos == (name.size() - 4))) {
+		file = new ZipFileAdapter(file);
 	}
 }
 

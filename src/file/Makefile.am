@@ -23,7 +23,9 @@ libFile_la_SOURCES = \
 	FileBase.cc FileBase.hh \
 	LocalFile.cc LocalFile.hh \
 	FileOperations.cc FileOperations.hh \
-	GZFileAdapter.cc GZFileAdapter.hh
+	CompressedFileAdapter.cc CompressedFileAdapter.hh \
+	GZFileAdapter.cc GZFileAdapter.hh \
+	ZipFileAdapter.cc ZipFileAdapter.hh
 
 nodebug: resetdebug all
 debug: setdebug all

@@ -13,10 +13,7 @@ FileBase::FileBase()
 
 FileBase::~FileBase()
 {
-	// Make sure the user first munmapped before destroying
-	// this object. We can't do it automatically because we
-	// can't use virtual functions in destructor.
-	assert(!mmem);
+	munmap();
 }
 
 byte* FileBase::mmap(bool writeBack)

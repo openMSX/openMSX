@@ -1,5 +1,9 @@
 $Id$
 
+2003-08-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Basic support for .zip files, for now always the first file in
+	  the .zip is taken
+
 2003-08-12 David Heremans <david.heremans@gnu-linux.net>
 	* Small enhancement in  FDC_DirAsDSK:
 	   Alowed writing of the boot sector. The altered boot sector is
