@@ -77,7 +77,7 @@ palette
 -------
 
   Shows the current VDP palette settings.
-  [ mainly usefull for debugging purposes ]
+  [ mainly useful for debugging purposes ]
   
 
 plug / unplug
@@ -150,14 +150,14 @@ slotmap
 -------
 
   Shows the slot mappings of the emulated MSX.
-  [ mainly usefull for debugging purposes ]
+  [ mainly useful for debugging purposes ]
 
 
 slotselect
 ----------
 
   Shows the currently selected slots.
-  [ mainly usefull for debugging purposes ]
+  [ mainly useful for debugging purposes ]
 
 
 toggle
@@ -178,9 +178,7 @@ vdpregs
 -------
 
   Shows the current VDP register settings.
-  [ mainly usefull for debugging purposes ]
-
-
+  [ mainly useful for debugging purposes ]
 
 
 
@@ -222,7 +220,7 @@ cmdtiming
 ---------
 
   Controls VDP command execution timing.
-  [ mainly usefull for debugging purposes ]
+  [ mainly useful for debugging purposes ]
   
 
 console
