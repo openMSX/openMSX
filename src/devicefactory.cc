@@ -9,6 +9,7 @@
 #include "MSXE6Timer.hh"
 #include "MSXCPU.hh"
 #include "MSXPSG.hh"
+#include "MSXMusic.hh"
 #include "MSXKanji.hh"
 #include "MSXMemoryMapper.hh"
 #include "MSXMapperIO.hh"
@@ -45,6 +46,9 @@ MSXDevice *deviceFactory::create(MSXConfig::Device *conf) {
 	} else
 	if (conf->getType()=="PSG") {
 		device = new MSXPSG();
+	} else
+	if (conf->getType()=="Music") {
+		device = new MSXMusic();
 	} else
 	if (conf->getType()=="Kanji") {
 		device = new MSXKanji();
