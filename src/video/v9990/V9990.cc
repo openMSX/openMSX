@@ -156,15 +156,14 @@ byte V9990::readIO(byte port, const EmuTime& time)
 		case PALETTE_DATA: {
 			byte& palPtr = regs[PALETTE_POINTER];
 			result = palette[palPtr];
-			// TODO Tests in BASIC indicate palPtr _is_ incremented.
-			//      However the palette fade routine in calculus
-			//      doesn't agree. Maybe this is timing related???
-			/*switch (palPtr & 3) {
+			if (!(regs[PALETTE_CONTROL] & 0x10)) {
+				switch (palPtr & 3) {
 				case 0:  palPtr += 1; break; // red
 				case 1:  palPtr += 1; break; // green
 				case 2:  palPtr += 2; break; // blue
 				default: palPtr -= 3; break; // checked on real V9990
-			}*/
+				}
+			}
 			break;
 		}
 		case COMMAND_DATA:
