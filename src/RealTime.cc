@@ -31,19 +31,12 @@ RealTime::RealTime()
 	speedSetting.addListener(this);
 	pauseSetting.addListener(this);
 	
-	// default values
-	maxCatchUpFactor = 105; // %
 	maxCatchUpTime = 2000;	// ms
+	maxCatchUpFactor = 105; // %
 	try {
 		Config *config = MSXConfig::instance()->getConfigById("RealTime");
-		if (config->hasParameter("max_catch_up_time")) {
-			maxCatchUpTime =
-				config->getParameterAsInt("max_catch_up_time");
-		}
-		if (config->hasParameter("max_catch_up_factor")) {
-			maxCatchUpFactor =
-				config->getParameterAsInt("max_catch_up_factor");
-		}
+		maxCatchUpTime = config->getParameterAsInt("max_catch_up_time", maxCatchUpTime);
+		maxCatchUpFactor = config->getParameterAsInt("max_catch_up_factor", maxCatchUpFactor);
 	} catch (ConfigException &e) {
 		// no Realtime section
 	}

@@ -15,12 +15,7 @@ DebugDevice::DebugDevice(Device *config, const EmuTime & time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	mode = OFF;
-	string outputFile;
-	if (config->hasParameter("filename")) {
-		outputFile = config->getParameter("filename");
-	} else {
-		outputFile = "stdout";
-	}
+	string outputFile = config->getParameter("filename", "stdout");
 	fileNameSetting = new FilenameSetting("debugoutput",
 		"name of the file the debugdevice outputs to", outputFile);
 	fileNameString = fileNameSetting->getValueString();

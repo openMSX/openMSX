@@ -9,8 +9,7 @@ namespace openmsx {
 MSXF4Device::MSXF4Device(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
-	inverted = config->hasParameter("inverted")
-		&& config->getParameterAsBool("inverted");
+	inverted = config->getParameterAsBool("inverted", false);
 	reset(time);
 }
 

@@ -18,7 +18,7 @@ MSXPPI::MSXPPI(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	short volume = (short)deviceConfig->getParameterAsInt("volume");
-	bool keyGhosting = deviceConfig->getParameterAsBool("key_ghosting");
+	bool keyGhosting = deviceConfig->getParameterAsBool("key_ghosting", true);
 	keyboard = new Keyboard(keyGhosting);
 	i8255 = new I8255(*this, time);
 	click = new KeyClick(volume, time);
