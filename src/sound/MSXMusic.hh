@@ -3,10 +3,6 @@
 #ifndef __MSXMUSIC_HH__
 #define __MSXMUSIC_HH__
 
-#ifndef VERSION
-#include "config.h"
-#endif
-
 #include "MSXIODevice.hh"
 #include "MSXMemDevice.hh"
 #include "Rom.hh"

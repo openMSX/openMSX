@@ -3,10 +3,6 @@
 #ifndef __YM2413_HH___
 #define __YM2413_HH__
 
-#ifndef VERSION
-#include "config.h"
-#endif
-
 #include "openmsx.hh"
 #include "SoundDevice.hh"
 #include "Mixer.hh"
@@ -193,7 +189,7 @@ class YM2413 : public SoundDevice
 		static const int EG_BITS = 7;
 		static const int EG_MUTE = (1<<EG_BITS);
 
-		// Dynamic range of total level 
+		// Dynamic range of total level
 		static const double TL_STEP = 0.75;
 		static const int TL_BITS = 6;
 		static const int TL_MUTE = (1<<TL_BITS);
@@ -203,11 +199,11 @@ class YM2413 : public SoundDevice
 		static const int SL_BITS = 4;
 		static const int SL_MUTE = (1<<SL_BITS);
 
-		// Bits for liner value 
+		// Bits for liner value
 		static const int DB2LIN_AMP_BITS = 11;
 		static const int SLOT_AMP_BITS = DB2LIN_AMP_BITS;
 
-		// Bits for envelope phase incremental counter 
+		// Bits for envelope phase incremental counter
 		static const int EG_DP_BITS = 22;
 		static const int EG_DP_WIDTH = (1<<EG_DP_BITS);
 
@@ -239,20 +235,20 @@ class YM2413 : public SoundDevice
 		int output[2];
 
 		// Register
-		byte reg[0x40]; 
+		byte reg[0x40];
 
-		// Rythm Mode 
+		// Rythm Mode
 		bool rythm_mode;
 
-		// Pitch Modulator 
+		// Pitch Modulator
 		unsigned int pm_phase;
 		int lfo_pm;
 
-		// Amp Modulator 
+		// Amp Modulator
 		unsigned int am_phase;
 		int lfo_am;
 
-		// Noise Generator 
+		// Noise Generator
 		int noise_seed;
 		int whitenoise;
 		int noiseA;
@@ -262,11 +258,11 @@ class YM2413 : public SoundDevice
 		unsigned int noiseA_dphase;
 		unsigned int noiseB_dphase;
 
-		// Channel & Slot 
+		// Channel & Slot
 		Channel ch[9];
 		Slot *slot[18];
 
-		// Empty voice data 
+		// Empty voice data
 		static Patch nullPatch;
 
 		// Voice Data
@@ -291,18 +287,18 @@ class YM2413 : public SoundDevice
 		static unsigned int pm_dphase;
 		static unsigned int am_dphase;
 
-		// Liner to Log curve conversion table (for Attack rate). 
+		// Liner to Log curve conversion table (for Attack rate).
 		static word AR_ADJUST_TABLE[1<<EG_BITS];
 
-		// Definition of envelope mode 
+		// Definition of envelope mode
 		enum { ATTACK,DECAY,SUSHOLD,SUSTINE,RELEASE,FINISH };
 
-		// Phase incr table for Attack 
+		// Phase incr table for Attack
 		static unsigned int dphaseARTable[16][16];
-		// Phase incr table for Decay and Release 
+		// Phase incr table for Decay and Release
 		static unsigned int dphaseDRTable[16][16];
 
-		// KSL + TL Table 
+		// KSL + TL Table
 		static int tllTable[16][8][1<<TL_BITS][4];
 		static int rksTable[2][8][2];
 

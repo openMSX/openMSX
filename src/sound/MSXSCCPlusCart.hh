@@ -3,10 +3,6 @@
 #ifndef __MSXSCCPLUSCART_HH__
 #define __MSXSCCPLUSCART_HH__
 
-#ifndef VERSION
-#include "config.h"
-#endif
-
 #include "MSXMemDevice.hh"
 
 // forward declaration
