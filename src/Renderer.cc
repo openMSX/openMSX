@@ -88,34 +88,3 @@ void Renderer::checkFullScreen()
 	if (fsUser != fullScreen) setFullScreen(fsUser);
 }
 
-
-// FullScreen command
-Renderer::FullScreenCmd::FullScreenCmd(Renderer *rend)
-{
-	renderer = rend;
-}
-
-void Renderer::FullScreenCmd::execute(const std::vector<std::string> &tokens,
-                                      const EmuTime &time)
-{
-	// Change the setting value. Later this change will be detected and
-	// the actual full screen toggle of the Renderer will take place.
-	BooleanSetting *setting = RenderSettings::instance()->getFullScreen();
-	switch (tokens.size()) {
-	case 1:
-		setting->setValue(!setting->getValue());
-		break;
-	case 2:
-		setting->setValueString(tokens[1]);
-		break;
-	default:
-		throw CommandException("Syntax error: too many parameters");
-	}
-}
-void Renderer::FullScreenCmd::help(const std::vector<std::string> &tokens) const
-{
-	print("This command turns full-screen display on/off");
-	print(" fullscreen:     toggle full-screen");
-	print(" fullscreen on:  switch to full-screen display");
-	print(" fullscreen off: switch to windowed display");
-}

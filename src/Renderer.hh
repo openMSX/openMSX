@@ -193,7 +193,8 @@ protected:
 	/** Render full screen or windowed?
 	  * This is a hint to the renderer, not all renderers will
 	  * support both modes.
-	  * A renderer that does should override this method.
+	  * A renderer that does should override this method
+	  * and call the superclass implementation.
 	  * TODO: This is a platform specific issue and should therefore
 	  *       not be in the Renderer interface.
 	  *       For example a Renderer on a PDA may not have a full screen
@@ -212,22 +213,15 @@ protected:
 private:
 
 	/** Render full screen or windowed?
-	  * TODO: Find a way to keep this setting consistent when switching
-	  *       renderers at run time.
+	  * This is separated from the full screen user preference in
+	  * RenderSettings: the setting is what the user want, this field
+	  * stores the current situation and the checkFullScreen method
+	  * synchronizes between them.
+	  * TODO:
+	  * This does not really belong here, see comments for checkFullScreen.
 	  */
 	bool fullScreen;
 
-	class FullScreenCmd : public Command {
-		public:
-			FullScreenCmd(Renderer *rend);
-			virtual void execute(const std::vector<std::string> &tokens,
-			                     const EmuTime &time);
-			virtual void help(const std::vector<std::string> &tokens) const;
-		private:
-			Renderer *renderer;
-	};
-	friend class FullScreenCmd;
-	FullScreenCmd fullScreenCmd;
 };
 
 #endif //__RENDERER_HH__
