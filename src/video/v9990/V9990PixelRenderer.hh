@@ -4,6 +4,7 @@
 #define __V9990PIXELRENDERER_HH__
 
 #include "V9990Renderer.hh"
+#include "V9990DisplayTiming.hh"
 #include "openmsx.hh"
 
 namespace openmsx {
