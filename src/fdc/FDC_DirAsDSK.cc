@@ -422,7 +422,7 @@ void FDC_DirAsDSK::read(int logicalSector, int size, byte* buf)
 			PRT_DEBUG("  Reading from file " << tmp );
 			PRT_DEBUG("  Reading with offset " << offset );
 			checkAlterFileInDisk(tmp);
-			FILE* file = fopen(tmp.c_str(), "r");
+			FILE* file = fopen(tmp.c_str(), "rb");
 			if (file) {
 				fseek(file,offset,SEEK_SET);
 				fread(buf, 1, SECTOR_SIZE, file);
