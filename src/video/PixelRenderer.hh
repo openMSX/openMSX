@@ -46,8 +46,8 @@ public:
 	void updatePatternBase(int addr, const EmuTime &time);
 	void updateColourBase(int addr, const EmuTime &time);
 	*/
-	void updateVRAM(int addr, const EmuTime &time);
-	void updateWindow(const EmuTime &time);
+	void updateVRAM(int offset, const EmuTime &time);
+	void updateWindow(bool enabled, const EmuTime &time);
 
 protected:
 	/** Constructor.
@@ -106,7 +106,7 @@ protected:
 
 	/** Notifies the VRAM cache of a VRAM write.
 	  */
-	virtual void updateVRAMCache(int addr) = 0;
+	virtual void updateVRAMCache(int address) = 0;
 
 	/** Update renderer state to specified moment in time.
 	  * @param time Moment in emulated time to update to.

@@ -150,12 +150,16 @@ public:
 	  *       display mode anyway.
 	  */
 	inline void setMask(int baseMask, int indexMask, const EmuTime &time) {
+		int newBaseAddr = baseMask & indexMask;
+		int newCombiMask = ~baseMask | indexMask;
+		if (this->baseMask == baseMask && baseAddr == newBaseAddr
+		&& combiMask == newCombiMask) return;
 		if (observer) {
-			observer->updateWindow(time);
+			observer->updateWindow(true, time);
 		}
 		this->baseMask = baseMask;
-		baseAddr = baseMask & indexMask;
-		combiMask = ~baseMask | indexMask;
+		baseAddr = newBaseAddr;
+		combiMask = newCombiMask;
 	}
 
 	/** Disable this window: no address will be considered inside.
@@ -163,7 +167,7 @@ public:
 	  */
 	inline void disable(const EmuTime &time) {
 		if (observer) {
-			observer->updateWindow(time);
+			observer->updateWindow(false, time);
 		}
 		baseAddr = -1;
 	}
@@ -215,6 +219,8 @@ public:
 	}
 
 	/** Test whether an address is inside this window.
+	  * "Inside" is defined as: there is at least one index in this window,
+	  * which is mapped to the given address.
 	  * TODO: Might be replaced by notify().
 	  * @param address The address to test.
 	  * @return true iff the address is inside this window.
@@ -230,22 +236,9 @@ public:
 	  */
 	inline void notify(int address, const EmuTime &time) {
 		if (observer && isInside(address)) {
-			observer->updateVRAM(address, time);
+			observer->updateVRAM(address - baseAddr, time);
 		}
 	}
-
-	/** Does this window overlap the specified range?
-	  * @param start Start address (inclusive) of range.
-	  * @param end End address (exclusive) of range.
-	  * @return truee iff range and window overlap.
-	  * TODO: Use a Window as parameter instead?
-	  * TODO: Which routine wants to use this method?
-	  */
-	/*
-	inline bool overlaps(int start, int end) {
-		return start < this->end && this->start < end;
-	}
-	*/
 
 private:
 	/** For access to setData.
@@ -336,13 +329,33 @@ public:
 			renderer->updateVRAM(address, value, time);
 		}
 		*/
+		// Subsystem synchronisation should happen before the commit,
+		// to be able to draw backlog using old state.
 		bitmapVisibleWindow.notify(address, time);
-		bitmapCacheWindow.notify(address, time);
 		spriteAttribTable.notify(address, time);
 		spritePatternTable.notify(address, time);
 
 		data[address] = value;
 		currentTime = time;
+
+		// Cache dirty marking should happen after the commit,
+		// otherwise the cache could be re-validated based on old state.
+		bitmapCacheWindow.notify(address, time);
+		nameTable.notify(address, time);
+		colourTable.notify(address, time);
+		patternTable.notify(address, time);
+
+		/* TODO:
+		There seems to be a significant difference between subsystem sync
+		and cache admin. One example is the code above, the other is
+		updateWindow, where subsystem sync is interested in windows that
+		were enabled before (new state doesn't matter), while cache admin
+		is interested in windows that become enabled (old state doesn't
+		matter).
+		Does this mean it makes sense to have separate VRAMWindow like
+		classes for each category?
+		Note: In the future, sprites may switch category, or fall in both.
+		*/
 	}
 
 	/** Write a byte to VRAM through the CPU interface.

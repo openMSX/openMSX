@@ -176,10 +176,10 @@ void XRenderer::updatePatternBase(int addr, const EmuTime &time) {
 void XRenderer::updateColourBase(int addr, const EmuTime &time) {
 }
 
-void XRenderer::updateVRAM(int addr, const EmuTime &time) {
+void XRenderer::updateVRAM(int offset, const EmuTime &time) {
 }
 
-void XRenderer::updateWindow(const EmuTime &time) {
+void XRenderer::updateWindow(bool enabled, const EmuTime &time) {
 }
 
 static const struct {KeySym x; SDLKey sdl;} _keymap[] = {

@@ -206,15 +206,16 @@ void PixelRenderer::updateMultiPage(
 	sync(time);
 }
 
-void PixelRenderer::updateVRAM(int addr, const EmuTime &time) {
+void PixelRenderer::updateVRAM(int offset, const EmuTime &time) {
 	// If display is disabled, VRAM changes will not affect the
 	// renderer output, therefore sync is not necessary.
 	// TODO: Have bitmapVisibleWindow disabled in this case.
 	if (vdp->isDisplayEnabled()) renderUntil(time);
-	updateVRAMCache(addr);
+	// TODO: Because range is entire VRAM, offset == address.
+	updateVRAMCache(offset);
 }
 
-void PixelRenderer::updateWindow(const EmuTime &time) {
+void PixelRenderer::updateWindow(bool enabled, const EmuTime &time) {
 	// The bitmapVisibleWindow has moved to a different area.
 	// This update is redundant: Renderer will be notified in another way
 	// as well (updateDisplayEnabled or updateNameBase, for example).

@@ -262,13 +262,11 @@ public:
 
 	// VRAMObserver implementation:
 
-	void updateVRAM(int address, const EmuTime &time) {
+	void updateVRAM(int offset, const EmuTime &time) {
 		checkUntil(time);
 	}
 
-	void updateWindow(const EmuTime &time) {
-		// TODO: Make VDPVRAM::Window do the VRAM sync and only perform
-		//       a checkUntil here?
+	void updateWindow(bool enabled, const EmuTime &time) {
 		sync(time);
 	}
 

@@ -11,18 +11,29 @@ class EmuTime;
 class VRAMObserver {
 public:
 	/** Informs the observer of a change in VRAM contents.
-	  * @param address The address that will change.
+	  * This update is sent just before the change,
+	  * so the subcomponent can update itself to the given time
+	  * based on the old contents.
+	  * @param offset Offset of byte that will change,
+	  * 	relative to window base address.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateVRAM(int address, const EmuTime &time) = 0;
+	virtual void updateVRAM(int offset, const EmuTime &time) = 0;
 
-	/** Informs the observer that the entire VRAM window changed.
+	/** Informs the observer that the entire VRAM window will change.
+	  * This update is sent just before the change,
+	  * so the subcomponent can update itself to the given time
+	  * based on the old contents.
 	  * This happens if the base/index masks are changed,
-	  * TODO: or if the window becomes disabled?
-	  * A typical observer will flush its cache.
+	  * or if the window becomes disabled.
+	  * TODO: Separate enable/disable from window move?
+	  * @param enabled Will the window be enabled after the change?
+	  * 	If the observer keeps a cache which is based on VRAM contents,
+	  * 	it is only necessary to flush the cache if the new window
+	  * 	is enabled, because no reads are allowed from disabled windows.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateWindow(const EmuTime &time) = 0;
+	virtual void updateWindow(bool enabled, const EmuTime &time) = 0;
 };
 
 #endif //__VRAMOBSERVER_HH__
