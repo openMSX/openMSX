@@ -8,13 +8,15 @@
 #include "MSXException.hh"
 #include <SDL/SDL.h>
 
+
 namespace openmsx {
 
 class PluggingController;
 
+
 /** Uses an SDL joystick to emulate an MSX joystick.
   */
-class Joystick : public JoystickDevice, EventListener
+class Joystick : public JoystickDevice, private EventListener
 {
 public:
 	/** Register all available SDL joysticks.
@@ -51,4 +53,5 @@ private:
 };
 
 } // namespace openmsx
-#endif
+
+#endif // __JOYSTICK_HH__

@@ -10,7 +10,7 @@
 
 namespace openmsx {
 
-class Mouse : public JoystickDevice, EventListener
+class Mouse : public JoystickDevice, private EventListener
 {
 public:
 	Mouse();
@@ -41,4 +41,5 @@ private:
 };
 
 } // namespace openmsx
-#endif
+
+#endif // __MOUSE_HH__

@@ -9,9 +9,10 @@
 #include "MSXConfig.hh"
 #include <SDL/SDL.h>
 
+
 namespace openmsx {
 
-class KeyJoystick : public JoystickDevice, EventListener
+class KeyJoystick : public JoystickDevice, private EventListener
 {
 public:
 	KeyJoystick();
@@ -45,4 +46,4 @@ private:
 
 } // namespace openmsx
 
-#endif
+#endif // __KEYJOYSTICK_HH__
