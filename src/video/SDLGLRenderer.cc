@@ -434,7 +434,7 @@ SDLGLRenderer::SDLGLRenderer(
 {
 	this->screen = screen;
 	console = new GLConsole(CommandConsole::instance());
-	debugger = new GLConsole(DebugConsole::instance());
+//	debugger = new GLConsole(DebugConsole::instance());
 
 	GLint size;
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size);

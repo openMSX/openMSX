@@ -245,7 +245,7 @@ SDLRenderer<Pixel, zoom>::SDLRenderer(
 {
 	this->screen = screen;
 	console = new SDLConsole(CommandConsole::instance(), screen);
-	debugger = new SDLConsole(DebugConsole::instance(), screen);
+//	debugger = new SDLConsole(DebugConsole::instance(), screen);
 	// Allocate screen which will later contain the stored image.
 	storedImage = SDL_CreateRGBSurface(
 		SDL_SWSURFACE,
