@@ -205,6 +205,7 @@ template <class T> void CPUCore<T>::doBreak()
 {
 	if (!breaked) {
 		step = true;
+		exitCPULoop();
 	}
 }
 
