@@ -9,24 +9,27 @@
 # "Recursive Make Considered Harmful".
 # http://www.tip.net.au/~millerp/rmch/recu-make-cons-harm.html
 
-# Used-adjustable values:
+# Default build flavour: probably the best for most users.
+OPENMSX_FLAVOUR?=i686
+
+# Load flavour specific settings.
+CXXFLAGS:=
+LDFLAGS:=
+include config-$(OPENMSX_FLAVOUR).mk
 
 # Generic compilation flags.
-CXXFLAGS:=-pipe
+CXXFLAGS+=-pipe
 # Stricter warning and error reporting.
 CXXFLAGS+=-Wall
-# Optimisation flags.
-CXXFLAGS+=-O3 -mcpu=pentiumpro -march=pentiumpro -ffast-math -funroll-loops
 
 LIBS_EXTERNAL:=stdc++ xml2 SDL SDL_image GL
+# TODO: Find the right place for this.
 INCLUDE_EXTERNAL:=/usr/include/libxml2
 
-BUILD_PATH:=derived
-
-# No user-servicable parts below:
+BUILD_PATH:=derived/$(OPENMSX_FLAVOUR)
 
 # Logical targets which require dependency files.
-DEPEND_TARGETS:=all
+DEPEND_TARGETS:=all run
 # Logical targets which do not require dependency files.
 NODEPEND_TARGETS:=clean
 # Mark all logical targets as such.
@@ -45,6 +48,9 @@ DEPEND_PATH:=$(BUILD_PATH)/dep
 DEPEND_FULL:=$(addsuffix .d,$(addprefix $(DEPEND_PATH)/,$(SOURCES)))
 
 LIBS_FLAGS:=$(addprefix -l,$(LIBS_EXTERNAL))
+
+LINK_FLAGS_PREFIX:=-Wl,
+LINK_FLAGS:=$(addprefix $(LINK_FLAGS_PREFIX),$(LDFLAGS))
 
 INCLUDE_INTERNAL:=$(filter-out %/CVS,$(shell find $(SOURCES_PATH) -type d))
 INCLUDE_FLAGS:=$(addprefix -I,$(INCLUDE_INTERNAL) $(INCLUDE_EXTERNAL))
@@ -84,4 +90,9 @@ $(DEPEND_FULL):
 $(BINARY_FULL): $(OBJECTS_FULL)
 	@echo "Linking $(patsubst $(BINARY_PATH)/%,%,$@)..."
 	@mkdir -p $(@D)
-	@gcc -o $@ $(LIBS_FLAGS) $^
+	@gcc -o $@ $(LINK_FLAGS) $(LIBS_FLAGS) $^
+
+# Run executable.
+run: all
+	@echo "Running $(notdir $(BINARY_FULL))..."
+	@$(BINARY_FULL)
