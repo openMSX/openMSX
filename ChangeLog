@@ -1,5 +1,10 @@
 $Id$
 
+2002-08-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented partial character rendering for SDLGLRenderer:
+	   - fixes top border while vertical scrolling in Space Manbow
+	   - fixes Psycho World
+
 2002-08-25 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Use SDL_image to load images (.png .bmp .jpg ...)
 	* Implemented GLConsole for SDLGLRenderer

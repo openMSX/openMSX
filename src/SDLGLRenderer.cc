@@ -909,8 +909,6 @@ void SDLGLRenderer::blankPhase(
 	glEnd();
 }
 
-// TODO: For now, only render full lines.
-//       Later partial lines will be supported.
 void SDLGLRenderer::renderText1(int vramLine, int screenLine, int count)
 {
 	Pixel fg = palFg[vdp->getForegroundColour()];
@@ -925,6 +923,11 @@ void SDLGLRenderer::renderText1(int vramLine, int screenLine, int count)
 		};
 	glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, fgColour);
 
+	// Render complete characters and cut off the invisible part
+	int screenHeight = 2 * count;
+	glScissor(0, HEIGHT - screenLine - screenHeight, WIDTH, screenHeight);
+	glEnable(GL_SCISSOR_TEST);
+	
 	int leftBorder = getLeftBorder();
 
 	int endRow = (vramLine + count + 7) / 8;
@@ -956,13 +959,17 @@ void SDLGLRenderer::renderText1(int vramLine, int screenLine, int count)
 		}
 		screenLine += 16;
 	}
+	glDisable(GL_SCISSOR_TEST);
 }
 
-// TODO: For now, only render full lines.
-//       Later partial lines will be supported.
 void SDLGLRenderer::renderGraphic2(int vramLine, int screenLine, int count)
 {
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	
+	// Render complete characters and cut off the invisible part
+	int screenHeight = 2 * count;
+	glScissor(0, HEIGHT - screenLine - screenHeight, WIDTH, screenHeight);
+	glEnable(GL_SCISSOR_TEST);
 
 	int endRow = (vramLine + count + 7) / 8;
 	screenLine -= (vramLine & 7) * 2;
@@ -970,6 +977,7 @@ void SDLGLRenderer::renderGraphic2(int vramLine, int screenLine, int count)
 		renderGraphic2Row(row & 31, screenLine);
 		screenLine += 16;
 	}
+	glDisable(GL_SCISSOR_TEST);
 }
 
 void SDLGLRenderer::renderGraphic2Row(int row, int screenLine)
