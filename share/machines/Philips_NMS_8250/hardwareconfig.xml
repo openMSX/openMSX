@@ -54,29 +54,35 @@
 
   <device id="ppi">
     <type>PPI</type>
+    <io base="0xA8" num="4"/>
     <volume>16000</volume>
     <key_ghosting>true</key_ghosting>
   </device>
 
   <device id="VDP">
     <type>VDP</type>
+    <io base="0x98" num="4"/>
     <version>V9938</version>
     <vram>128</vram>
   </device>
 
   <device id="PSG">
     <type>PSG</type>
+    <io base="0xA0" num="2" type="O"/>
+    <io base="0xA2" num="1" type="I"/>
     <volume>21000</volume>
   </device>
 
   <device id="Real time clock">
     <type>RTC</type>
+    <io base="0xB4" num="2"/>
     <mode>EmuTime</mode>
     <sramname>nms8250.cmos</sramname>
   </device>
 
   <device id="Printer Port">
     <type>PrinterPort</type>
+    <io base="0x90" num="2"/>
   </device>
 
   <config id="CassettePort">

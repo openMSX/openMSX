@@ -4,14 +4,24 @@
 #include <cassert>
 #include "EmuTime.hh"
 #include "MSXMultiIODevice.hh"
+#include "Config.hh"
+#include "FileContext.hh"
 
 using std::remove;
 
-
 namespace openmsx {
 
+Config* MSXMultiIODevice::getMultiConfig()
+{
+	XMLElement deviceElem("MultiIO");
+	SystemFileContext dummyContext;
+	static Config config(deviceElem, dummyContext);
+	return &config;
+}
+
 MSXMultiIODevice::MSXMultiIODevice()
-	: MSXDevice(NULL, EmuTime::zero), MSXIODevice(NULL, EmuTime::zero)
+	: MSXDevice(getMultiConfig(), EmuTime::zero),
+	  MSXIODevice(getMultiConfig(), EmuTime::zero)
 {
 }
 

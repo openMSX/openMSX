@@ -547,7 +547,7 @@ TurborCPUInterface::~TurborCPUInterface()
 	delete delayDevice;
 }
 
-void TurborCPUInterface::register_IO_In(byte port, MSXIODevice *device)
+void TurborCPUInterface::register_IO_In(byte port, MSXIODevice* device)
 {
 	if ((0x98 <= port) && (port <= 0x9B)) {
 		device = getDelayDevice(device);
@@ -555,7 +555,7 @@ void TurborCPUInterface::register_IO_In(byte port, MSXIODevice *device)
 	MSXCPUInterface::register_IO_In(port, device);
 }
 
-void TurborCPUInterface::register_IO_Out(byte port, MSXIODevice *device)
+void TurborCPUInterface::register_IO_Out(byte port, MSXIODevice* device)
 {
 	if ((0x98 <= port) && (port <= 0x9B)) {
 		device = getDelayDevice(device);
@@ -563,7 +563,7 @@ void TurborCPUInterface::register_IO_Out(byte port, MSXIODevice *device)
 	MSXCPUInterface::register_IO_Out(port, device);
 }
 
-MSXIODevice *TurborCPUInterface::getDelayDevice(MSXIODevice *device)
+MSXIODevice *TurborCPUInterface::getDelayDevice(MSXIODevice* device)
 {
 	if (delayDevice == NULL) {
 		delayDevice = new VDPIODelay(device, EmuTime::zero);

@@ -233,8 +233,8 @@ public:
 	TurborCPUInterface();
 	virtual ~TurborCPUInterface();
 
-	virtual void register_IO_In(byte port, MSXIODevice *device);
-	virtual void register_IO_Out(byte port, MSXIODevice *device);
+	virtual void register_IO_In(byte port, MSXIODevice* device);
+	virtual void register_IO_Out(byte port, MSXIODevice* device);
 
 private:
 	MSXIODevice *getDelayDevice(MSXIODevice *device);

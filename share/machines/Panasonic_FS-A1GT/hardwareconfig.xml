@@ -4,8 +4,8 @@
 <msxconfig>
 
   <config id="ExternalSlots">
-    <parameter name="slota">1-0</parameter>
-    <parameter name="slotb">2-0</parameter>
+    <slota>1-0</slota>
+    <slotb>2-0</slotb>
   </config>
 
   <config id="MotherBoard">
@@ -16,12 +16,12 @@
   </config>
 
   <config id="RenShaTurbo">
-     <parameter name="min_ints">47</parameter>
-     <parameter name="max_ints">221</parameter>
+     <min_ints>47</min_ints>
+     <max_ints>221</max_ints>
   </config>
 
   <config id="MapperType">
-    <parameter name="type">TurboR</parameter>
+    <type>TurboR</type>
   </config>
   
   <!-- this must come before other internal roms -->
@@ -31,35 +31,36 @@
     <slotted> <ps>3</ps> <ss>3</ss> <page>1</page> </slotted>
     <slotted> <ps>3</ps> <ss>3</ss> <page>2</page> </slotted>
     <slotted> <ps>3</ps> <ss>3</ss> <page>3</page> </slotted>
-    <parameter name="filename">roms/fs-a1gt_firmware.rom</parameter>
-    <parameter name="mappertype">PANASONIC</parameter>
-    <parameter name="sramsize">32</parameter>
-    <parameter name="sram-mirrored">false</parameter>
-    <parameter name="sramname">fs-a1gt.sram</parameter>
+    <filename>roms/fs-a1gt_firmware.rom</filename>
+    <mappertype>PANASONIC</mappertype>
+    <sramsize>32</sramsize>
+    <sram-mirrored>false</sram-mirrored>
+    <sramname>fs-a1gt.sram</sramname>
   </device>
 
   <device id="MSX BIOS with BASIC ROM">
     <type>Rom</type>
     <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
     <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
-    <parameter name="firstblock">40</parameter>
-    <parameter name="lastblock">43</parameter>
+    <firstblock>40</firstblock>
+    <lastblock>43</lastblock>
   </device>
   
   <device id="MSX Music">
     <type>Music</type>
     <slotted> <ps>0</ps> <ss>2</ss> <page>1</page> </slotted>
-    <parameter name="firstblock">62</parameter>
-    <parameter name="lastblock">63</parameter>
-    <parameter name="volume">9000</parameter>   
-    <parameter name="mode">mono</parameter>
+    <io base="0x7C" num="2" type="O"/>
+    <firstblock>62</firstblock>
+    <lastblock>63</lastblock>
+    <volume>9000</volume>   
+    <mode>mono</mode>
   </device>
   
   <device id="MSX Opening ROM">
     <type>Rom</type>
     <slotted> <ps>0</ps> <ss>3</ss> <page>1</page> </slotted>
-    <parameter name="firstblock">36</parameter>
-    <parameter name="lastblock">37</parameter>
+    <firstblock>36</firstblock>
+    <lastblock>37</lastblock>
   </device>
 
   <device id="Main RAM">
@@ -68,99 +69,109 @@
     <slotted> <ps>3</ps> <ss>0</ss> <page>1</page> </slotted>
     <slotted> <ps>3</ps> <ss>0</ss> <page>2</page> </slotted>
     <slotted> <ps>3</ps> <ss>0</ss> <page>3</page> </slotted>
-    <parameter name="slow_drain_on_reset">false</parameter>
-    <parameter name="size">512</parameter>
+    <slow_drain_on_reset>false</slow_drain_on_reset>
+    <size>512</size>
   </device>
 
   <device id="MSX Sub ROM">
     <type>Rom</type>
     <slotted> <ps>3</ps> <ss>1</ss> <page>0</page> </slotted>
-    <parameter name="firstblock">56</parameter>
-    <parameter name="lastblock">57</parameter>
+    <firstblock>56</firstblock>
+    <lastblock>57</lastblock>
   </device>
 
   <device id="MSX Kanji Driver with BASIC">
     <type>Rom</type>
     <slotted> <ps>3</ps> <ss>1</ss> <page>1</page> </slotted>
     <slotted> <ps>3</ps> <ss>1</ss> <page>2</page> </slotted>
-    <parameter name="firstblock">58</parameter>
-    <parameter name="lastblock">61</parameter>
+    <firstblock>58</firstblock>
+    <lastblock>61</lastblock>
   </device>
   
   <device id="Memory Mapped FDC">
     <type>FDC</type>
     <slotted> <ps>3</ps> <ss>2</ss> <page>1</page> </slotted>
     <slotted> <ps>3</ps> <ss>2</ss> <page>2</page> </slotted>
-    <parameter name="firstblock">48</parameter>
-    <parameter name="lastblock">55</parameter>
-    <parameter name="type">TC8566AF</parameter>
-    <parameter name="drivename1">diska</parameter>
+    <firstblock>48</firstblock>
+    <lastblock>55</lastblock>
+    <fdc_type>TC8566AF</fdc_type>
+    <drivename1>diska</drivename1>
   </device>
 
   <device id="Kanji ROM">
     <type>Kanji</type>
-    <parameter name="filename">roms/fs-a1gt_kanjifont.rom</parameter>
+    <io base="0xD8" num="4"/>
+    <filename>roms/fs-a1gt_kanjifont.rom</filename>
   </device>
 
   <device id="S1990">
     <type>S1990</type>
+    <io base="0xE4" num="2"/>
   </device>
 
   <device id="ppi">
     <type>PPI</type>
-    <parameter name="volume">16000</parameter>
-    <parameter name="key_ghosting">true</parameter>
+    <io base="0xA8" num="4"/>
+    <volume>16000</volume>
+    <key_ghosting>true</key_ghosting>
   </device>
 
   <device id="VDP">
     <type>VDP</type>
-    <parameter name="version">V9958</parameter>
-    <parameter name="vram">128</parameter>
+    <io base="0x98" num="4"/>
+    <version>V9958</version>
+    <vram>128</vram>
   </device>
 
-  <device id="PSG">
+  <device id="psg">
     <type>PSG</type>
-    <parameter name="volume">21000</parameter>
-    <parameter name="keyboardlayout">JIS</parameter>
+    <io base="0xA0" num="2" type="O"/>
+    <io base="0xA2" num="1" type="I"/>
+    <volume>21000</volume>
+    <keyboardlayout>JIS</keyboardlayout>
   </device>
 
   <device id="Real time clock">
     <type>RTC</type>
-    <parameter name="mode">EmuTime</parameter>
-    <parameter name="sramname">fs-a1gt.cmos</parameter>
-  </device>
-
-  <device id="cpu">
-    <type>CPU</type>
+    <io base="0xB4" num="2"/>
+    <mode>EmuTime</mode>
+    <sramname>fs-a1gt.cmos</sramname>
   </device>
 
   <device id="Printer Port">
     <type>PrinterPort</type>
+    <io base="0x90" num="2"/>
   </device>
   
   <device id="Turbo-R timer">
     <type>E6Timer</type>
+    <io base="0xE6" num="2"/>
   </device>
   
   <device id="F4Device">
     <type>F4Device</type>
-    <parameter name="inverted">false</parameter>
+    <io base="0xF4" num="1"/>
+    <inverted>false</inverted>
   </device>
 
   <device id="TurboRLeds">
     <type>TurboRLeds</type>
+    <io base="0xA7" num="1" type="O"/>
   </device>
 
   <device id="TurboRPause">
     <type>TurboRPause</type>
+    <io base="0xA7" num="1" type="I"/>
   </device>
 
   <device id="PCM">
     <type>TurboRPCM</type>
-    <parameter name="volume">21000</parameter>
+    <io base="0xA4" num="2"/>
+    <volume>21000</volume>
   </device>
 
   <device id="MSX-Midi">
     <type>MSX-Midi</type>
+    <io base="0xE8" num="8"/>
   </device>
 </msxconfig>

@@ -160,7 +160,7 @@ void Rom::init(const Config& config)
 	info = RomInfo::fetchRomInfo(*this, config);
 
 	// TODO fix this, this is a hack that depends heavily on MSXRomCLI.cc
-	if (!info->getTitle().empty() && name.substr(0, 6)=="MSXRom") {
+	if (!info->getTitle().empty() && (name.substr(0, 6) == "MSXRom")) {
 		char ps = name[6];
 		char ss = name[8];
 		name = info->getTitle() + " in slot " + ps + '-' + ss;

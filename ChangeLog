@@ -16,6 +16,10 @@ $Id$
 	* Removed support for autocommands, they were deprecated in 0.3.4
 	* Added Vincent van Dam to AUTHORS:
 	   cas to wav conversion code is based on his cas2wav too
+	* Moved IO port registration from DeviceFactor to hardwareconfig.xml:
+	   This is an incompatible xml format change! I only updated
+	   Philips_NMS_8250 and Panasonic_FS-A1GT. I hope someone else will
+	   update the other machines and extensions.
 
 2004-05-30 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added channel mode 'off' to mute individual sound devices
