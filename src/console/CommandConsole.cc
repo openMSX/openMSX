@@ -49,7 +49,7 @@ CommandConsole *CommandConsole::instance()
 	return &oneInstance;
 }
 
-void CommandConsole::update(const SettingLeafNode *setting)
+void CommandConsole::update(const SettingLeafNode* setting) throw()
 {
 	assert(setting == &consoleSetting);
 	updateConsole();

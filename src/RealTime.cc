@@ -113,7 +113,7 @@ EmuDuration RealTime::getEmuDuration(float realDur)
 	return EmuDuration(realDur * speedSetting.getValue() / 100.0);
 }
 
-void RealTime::update(const SettingLeafNode* setting)
+void RealTime::update(const SettingLeafNode* setting) throw()
 {
 	resync();
 }

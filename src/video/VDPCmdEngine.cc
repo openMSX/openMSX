@@ -131,7 +131,7 @@ void VDPCmdEngine::reset(const EmuTime &time)
 	updateDisplayMode(vdp->getDisplayMode(), time);
 }
 
-void VDPCmdEngine::update(const SettingLeafNode *setting)
+void VDPCmdEngine::update(const SettingLeafNode *setting) throw()
 {
 	brokenTiming = static_cast<const EnumSetting<bool>*>(setting)->getValue();
 }

@@ -5,6 +5,7 @@
 
 #include "Schedulable.hh"
 #include "Settings.hh"
+#include "SettingListener.hh"
 #include "EmuTime.hh"
 
 namespace openmsx {
@@ -46,7 +47,7 @@ private:
 	float internalSync(const EmuTime& time);
 	
 	// SettingListener
-	void update(const SettingLeafNode* setting);
+	void update(const SettingLeafNode* setting) throw();
 
 	BooleanSetting throttleSetting;
 	BooleanSetting& pauseSetting;

@@ -39,7 +39,7 @@ DebugConsole::~DebugConsole()
 	}
 }
 
-void DebugConsole::update(const SettingLeafNode* setting)
+void DebugConsole::update(const SettingLeafNode* setting) throw ()
 {
 }
 

@@ -7,7 +7,7 @@
 #include "Renderer.hh"
 #include "VDPVRAM.hh"
 #include "CircularBuffer.hh"
-#include "Settings.hh"
+#include "SettingListener.hh"
 #include "RenderSettings.hh"
 #include "DisplayMode.hh"
 
@@ -181,7 +181,7 @@ private:
 
 	/** Listen for frameskip setting changes
 	  */
-	virtual void update(const SettingLeafNode *setting);
+	virtual void update(const SettingLeafNode* setting) throw();
 	
 	/** Accuracy setting for current frame.
 	  */

@@ -102,7 +102,7 @@ void WavAudioInput::unplug(const EmuTime &time)
 	plugged = false;
 }
 
-void WavAudioInput::update(const SettingLeafNode *setting)
+void WavAudioInput::update(const SettingLeafNode *setting) throw()
 {
 	assert (setting == &audioInputFilenameSetting);
 	if (plugged) {

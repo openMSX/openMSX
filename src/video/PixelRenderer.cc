@@ -306,7 +306,7 @@ void PixelRenderer::renderUntil(const EmuTime &time)
 	nextY = limitY;
 }
 
-void PixelRenderer::update(const SettingLeafNode *setting)
+void PixelRenderer::update(const SettingLeafNode* setting) throw()
 {
 	curFrameSkip = 1;	// reset frameskip counter
 }

@@ -6,7 +6,6 @@
 #include "MSXCPU.hh"
 #include "EventDistributor.hh"
 #include "Schedulable.hh"
-#include "MSXMotherBoard.hh"
 #include "CommandController.hh"
 #include "Leds.hh"
 #include "Renderer.hh" // TODO: Temporary?
@@ -170,10 +169,9 @@ void Scheduler::powerOff()
 {
 	powerSetting.setValue(false);
 	Leds::instance()->setLed(Leds::POWER_OFF);
-	MSXMotherBoard::instance()->reInitMSX();
 }
 
-void Scheduler::update(const SettingLeafNode* setting)
+void Scheduler::update(const SettingLeafNode* setting) throw()
 {
 	if (setting == &pauseSetting) {
 		if (pauseSetting.getValue()) {

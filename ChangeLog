@@ -8,6 +8,11 @@ $Id$
 	   - Mixer now depends on Scheduler (for mute when paused) instead of
 	     the other way around
 	* Removed circular dependency between RealTime and Scheduler
+	* Split Settings.hh in Settings.hh and SettingListener.hh
+	* Removed circular dependency between Scheduler and MSXMotherBoard:
+	   - MSXMotherBoard no longer needs to be a singleton
+	   - I have to double check, but I think this was the last circular
+	     dependency between singletons
 
 2003-11-14 Maarten ter Huurne <maarten@treewalker.org>
 	* Performance fixes for SDLHi.

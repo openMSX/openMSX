@@ -21,7 +21,8 @@ noinst_LTLIBRARIES = libSettings.la
 libSettings_la_SOURCES = \
 	SettingNode.hh SettingNode.cc \
 	Settings.hh Settings.cc \
-	SettingsManager.hh SettingsManager.cc
+	SettingsManager.hh SettingsManager.cc \
+	SettingListener.hh
 
 nodebug: resetdebug all
 debug: setdebug all

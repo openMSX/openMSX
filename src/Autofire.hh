@@ -3,8 +3,12 @@
 #ifndef __AUTOFIRE_HH__
 #define __AUTOFIRE_HH__
 
+#include <string>
 #include "openmsx.hh"
+#include "SettingListener.hh"
 #include "Settings.hh"
+
+using std::string;
 
 namespace openmsx {
 
@@ -35,7 +39,7 @@ public:
 	byte getSignal(const EmuTime &time);
 
 private:
-	virtual void update(const SettingLeafNode *setting);
+	virtual void update(const SettingLeafNode* setting) throw();
 	
 	// Following two values specify the range of the autofire
 	// as measured by the test program;

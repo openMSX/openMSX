@@ -25,7 +25,7 @@ Autofire::~Autofire()
 	speedSetting.removeListener(this);
 }
 
-void Autofire::update(const SettingLeafNode* setting)
+void Autofire::update(const SettingLeafNode* setting) throw()
 {
 	assert(setting == &speedSetting);
 	int speed = speedSetting.getValue();

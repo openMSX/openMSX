@@ -7,6 +7,7 @@
 #include <map>
 #include <queue>
 #include "Settings.hh"
+#include "SettingListener.hh"
 
 using std::multimap;
 using std::queue;
@@ -52,7 +53,7 @@ private:
 	void handle(SDL_Event &event);
 
 	// SettingListener
-	virtual void update(const SettingLeafNode* setting);
+	virtual void update(const SettingLeafNode* setting) throw();
 
 	typedef multimap<int, EventListener*> ListenerMap;
 	ListenerMap lowMap;

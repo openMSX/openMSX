@@ -12,6 +12,7 @@
 #include <map>
 #include "EmuTime.hh"
 #include "Settings.hh"
+#include "SettingListener.hh"
 #include "InfoTopic.hh"
 
 namespace openmsx {
@@ -80,12 +81,12 @@ private:
 
 	void reInit();
 	void updtStrm(int samples);
-	static void audioCallbackHelper(void *userdata, Uint8 *stream, int len);
+	static void audioCallbackHelper(void* userdata, Uint8* stream, int len);
 	void audioCallback(short* stream);
 	void muteHelper(int muteCount);
 
 	// SettingListener
-	virtual void update(const SettingLeafNode *setting);
+	virtual void update(const SettingLeafNode* setting) throw();
 
 	SoundDevice* getSoundDevice(const string& name);
 

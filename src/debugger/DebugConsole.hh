@@ -6,6 +6,7 @@
 #include <map>
 #include "EventListener.hh"
 #include "Settings.hh"
+#include "SettingListener.hh"
 #include "Console.hh"
 
 using std::map;
@@ -52,7 +53,7 @@ public:
 
 private:
 	DebugConsole();
-	void update(const SettingLeafNode *setting);
+	void update(const SettingLeafNode *setting) throw ();
 	bool signalEvent(const SDL_Event& event) throw();
 
 	map<unsigned, ViewStruct*> viewList;

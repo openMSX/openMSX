@@ -93,7 +93,7 @@ void EventDistributor::unregisterEventListener(
 	}
 }
 
-void EventDistributor::update(const SettingLeafNode *setting)
+void EventDistributor::update(const SettingLeafNode *setting) throw()
 {
 	assert(setting == &grabInput);
 	SDL_WM_GrabInput(grabInput.getValue() ? SDL_GRAB_ON : SDL_GRAB_OFF);

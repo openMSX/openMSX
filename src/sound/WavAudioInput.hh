@@ -6,6 +6,7 @@
 #include <SDL/SDL.h>
 #include "AudioInputDevice.hh"
 #include "Settings.hh"
+#include "SettingListener.hh"
 #include "EmuTime.hh"
 
 
@@ -28,7 +29,7 @@ public:
 private:
 	void freeWave();
 	void loadWave() throw(MSXException);
-	void update(const SettingLeafNode* setting);
+	void update(const SettingLeafNode* setting) throw();
 
 	int length;
 	Uint8* buffer;

@@ -10,6 +10,7 @@
 #include "EventListener.hh"
 #include "CircularBuffer.hh"
 #include "Settings.hh"
+#include "SettingListener.hh"
 #include "MSXConfig.hh"
 
 namespace openmsx {
@@ -65,7 +66,7 @@ private:
 	void loadHistory();
 	void saveHistory();
 	
-	void update(const SettingLeafNode *setting);
+	void update(const SettingLeafNode* setting) throw();
 
 	BooleanSetting consoleSetting;
 	unsigned int maxHistory;

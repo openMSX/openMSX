@@ -67,8 +67,8 @@ int main(int argc, char **argv)
 			}
 			HotKey hotkey;
 			AfterCommand afterCommand;
-			MSXMotherBoard::instance()->run(
-				parseStatus == CommandLineParser::RUN);
+			MSXMotherBoard motherboard;
+			motherboard.run(parseStatus == CommandLineParser::RUN);
 		}
 	} catch (FatalError& e) {
 		cerr << "Fatal error: " << e.getMessage() << endl;

@@ -2,7 +2,7 @@
 
 #include "SettingNode.hh"
 #include "SettingsManager.hh"
-
+#include "SettingListener.hh"
 
 namespace openmsx {
 

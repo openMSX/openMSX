@@ -6,6 +6,7 @@
 #include <vector>
 #include "EmuTime.hh"
 #include "Settings.hh"
+#include "SettingListener.hh"
 #include "EventListener.hh"
 #include "Semaphore.hh"
 
@@ -104,7 +105,7 @@ private:
 	virtual ~Scheduler();
 
 	// SettingListener
-	virtual void update(const SettingLeafNode* setting);
+	virtual void update(const SettingLeafNode* setting) throw();
 
 	// EventListener
 	virtual bool signalEvent(const SDL_Event& event) throw();

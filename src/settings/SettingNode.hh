@@ -13,18 +13,7 @@ using std::list;
 
 namespace openmsx {
 
-class SettingLeafNode;
-
-/** Interface for listening to setting changes.
-  */
-class SettingListener
-{
-public:
-	/** Informs a listener of a change in a setting it subscribed to.
-	  * @param setting The setting of which the value has changed.
-	  */
-	virtual void update(const SettingLeafNode *setting) = 0;
-};
+class SettingListener;
 
 /** Node in the hierarchical setting namespace.
   */

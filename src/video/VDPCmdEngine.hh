@@ -7,6 +7,7 @@
 #include "VDP.hh"
 #include "DisplayMode.hh"
 #include "Settings.hh"
+#include "SettingListener.hh"
 
 namespace openmsx {
 
@@ -101,7 +102,7 @@ private:
 		OP_TNOT = 0xC, OP_D    = 0xD, OP_E    = 0xE, OP_F    = 0xF,
 	};
 
-	virtual void update(const SettingLeafNode *setting);
+	virtual void update(const SettingLeafNode *setting) throw();
 	
 	void executeCommand(const EmuTime &time);
 	
