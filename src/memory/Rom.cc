@@ -41,8 +41,51 @@ Rom::Rom(const string& name_, const string& description_,
 	throw ConfigException("ROM tag \"" + id + "\" missing.");
 }
 
+void Rom::readIPS(const XMLElement& config, const string& filename)
+{
+	// open file
+	try {
+		file.reset(new File(config.getFileContext().resolve(filename)));
+	} catch (FileException& e) {
+		throw FatalError("Error reading IPS: " + filename);
+	}
+
+	byte buf[5];
+	file->read(buf,5u);
+	if ( strncmp((const char*)buf,"PATCH",5) != 0 ) {
+		throw FatalError("Not a valid IPS: " + filename);
+	}
+	try{
+	  	byte* writable_rom = const_cast<byte*>(rom);
+		file->read(buf,3u);
+		while ( strncmp((const char*)buf,"EOF",3) != 0 ) {
+		  	int offset=256*256*buf[0]+256*buf[1]+buf[2];
+			cout << "offset:" << offset <<endl;
+			file->read(buf,2u);
+			int length=256*buf[0]+buf[1];
+			cout << "length:" << length <<endl;
+			if (length == 0){
+				// RLE encoded
+				file->read(buf,3u);
+				length=256*buf[0]+buf[1];
+				cout << "RLE length:" << length <<endl;
+				cout << "RLE byte:" << (int)buf[2] <<endl;
+				memset(writable_rom+offset,buf[2],length);
+			} else {
+				//Patch bytes
+				file->read(writable_rom+offset,length);
+			}
+			file->read(buf,3u);
+		}
+	} catch (FileException& e) {
+		throw FatalError("Error reading IPS: " + filename);
+	}
+}
+
+
 void Rom::init(const XMLElement& config)
 {
+  	cout << config.dump() <<endl;
 	XMLElement::Children sums;
 	config.getChildren("sha1", sums);
 	const XMLElement* filenameElem = config.findChild("filename");
@@ -82,6 +125,13 @@ void Rom::init(const XMLElement& config)
 		size = 0;
 	}
 
+	if (size != 0 ) {
+		const XMLElement* ipsElem = config.findChild("ips");
+		if (ipsElem) {
+			const XMLElement& ipsfilenameElem = ipsElem->getChild("filename");
+			readIPS(config, ipsfilenameElem.getData() );
+		}
+	}
 	info = RomInfo::fetchRomInfo(*this);
 
 	// TODO fix this, this is a hack that depends heavily on MSXRomCLI.cc
@@ -94,6 +144,7 @@ void Rom::init(const XMLElement& config)
 		Debugger::instance().registerDebuggable(name, *this);
 	}
 }
+
 
 
 void Rom::read(const XMLElement& config, const string& filename)

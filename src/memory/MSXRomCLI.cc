@@ -95,6 +95,14 @@ void MSXRomCLI::parse(const string& arg, const string& slotname)
 	auto_ptr<XMLElement> rom(new XMLElement("rom"));
 	rom->addChild(auto_ptr<XMLElement>(
 		new XMLElement("filename", romfile)));
+	cout << "has IPS is :"<<hasips<<endl;
+	if ( hasips ) {
+		auto_ptr<XMLElement> ips(new XMLElement("ips"));
+		ips->addChild(auto_ptr<XMLElement>(
+			new XMLElement("filename", ipsfile)));
+		cout << "has IPS filename :"<<ipsfile<<endl;
+		rom->addChild(ips);
+	}
 	device->addChild(rom);
 	auto_ptr<XMLElement> sound(new XMLElement("sound"));
 	sound->addChild(auto_ptr<XMLElement>(
@@ -107,14 +115,9 @@ void MSXRomCLI::parse(const string& arg, const string& slotname)
 	device->setFileContext(auto_ptr<FileContext>(
 		new UserFileContext("roms/" + sramfile)));
 
-	if ( hasips ) {
-		auto_ptr<XMLElement> ips(new XMLElement("ips"));
-		string sipsfile = FileOperations::getFilename(ipsfile);
-		ips->addChild(auto_ptr<XMLElement>(
-			new XMLElement("filename", sipsfile)));
-		device->addChild(ips);
-	};
-
+	
+	cout << device->dump() <<endl;
+	
 	secondary->addChild(device);
 	primary->addChild(secondary);
 	HardwareConfig::instance().getChild("devices").addChild(primary);
