@@ -20,6 +20,12 @@ Leds::Leds()
 
 Leds::~Leds()
 {
+	setLed(POWER_OFF);
+	setLed(CAPS_OFF);
+	setLed(KANA_OFF);
+	setLed(PAUSE_OFF);
+	setLed(TURBO_OFF);
+	setLed(FDD_OFF);
 }
 
 Leds* Leds::instance()
