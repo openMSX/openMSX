@@ -148,7 +148,7 @@ void VDP::resetInit(const EmuTime &time)
 	// Note: frameStart is the actual place palTiming is written, but it
 	//       can be read before frameStart is called.
 	//       TODO: Clean up initialisation sequence.
-	palTiming = controlRegs[9] & 0x02;
+	palTiming = true; //controlRegs[9] & 0x02;
 	displayMode.reset();
 	vramPointer = 0;
 	readAhead = 0;
