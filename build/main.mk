@@ -487,13 +487,15 @@ install: all
 	@echo "  C-BIOS..."
 	@mkdir -p $(OPENMSX_INSTALL)/Contrib/cbios
 	@cp -f Contrib/README.cbios $(OPENMSX_INSTALL)/Contrib
-	@cp -f $(addprefix Contrib/cbios/,*.BIN *.txt) $(OPENMSX_INSTALL)/Contrib/cbios
+	@cp -f $(addprefix Contrib/cbios/,*.BIN *.txt) \
+		$(OPENMSX_INSTALL)/Contrib/cbios
 	@echo "  Documentation..."
 	@mkdir -p $(OPENMSX_INSTALL)/doc
 	@cp -f README GPL AUTHORS $(OPENMSX_INSTALL)/doc
 	@cp -f $(addprefix doc/,$(INSTALL_DOCS)) $(OPENMSX_INSTALL)/doc
 	@mkdir -p $(OPENMSX_INSTALL)/doc/manual
-	@cp -f $(addprefix doc/manual/,*.html *.css) $(OPENMSX_INSTALL)/doc/manual
+	@cp -f $(addprefix doc/manual/,*.html *.css *.png) \
+		$(OPENMSX_INSTALL)/doc/manual
 ifeq ($(USE_SYMLINK),true)
 	@echo "  Creating symlinks..."
 	@ln -nsf National_CF-1200 $(OPENMSX_INSTALL)/share/machines/msx1

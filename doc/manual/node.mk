@@ -3,7 +3,7 @@
 include build/node-start.mk
 
 DIST:= \
-	*.html *.css
+	*.html *.css *.png
 
 include build/node-end.mk
 
