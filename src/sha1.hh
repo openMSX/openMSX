@@ -32,7 +32,7 @@ class SHA1
 		void reset();
 
 		// Update the hash value
-		void update(unsigned char* data, unsigned int len);
+		void update(const unsigned char* data, unsigned int len);
 
 		// Finalize hash and report
 		void finalize();
@@ -40,7 +40,8 @@ class SHA1
 
 	private:
 		// Private SHA-1 transformation
-		void transform(unsigned long state[5], unsigned char buffer[64]);
+		void transform(unsigned long state[5],
+		               const unsigned char buffer[64]);
 		
 		unsigned long m_state[5];
 		unsigned long m_count[2];

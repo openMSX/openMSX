@@ -46,7 +46,7 @@ void SHA1::reset()
 	m_count[1] = 0;
 }
 
-void SHA1::transform(unsigned long state[5], unsigned char buffer[64])
+void SHA1::transform(unsigned long state[5], const unsigned char buffer[64])
 {
 	SHA1_WORKSPACE_BLOCK* block;
 	static unsigned char workspace[64];
@@ -91,7 +91,7 @@ void SHA1::transform(unsigned long state[5], unsigned char buffer[64])
 }
 
 // Use this function to hash in binary data and strings
-void SHA1::update(unsigned char* data, unsigned int len)
+void SHA1::update(const unsigned char* data, unsigned int len)
 {
 	unsigned long j = (m_count[0] >> 3) & 63;
 

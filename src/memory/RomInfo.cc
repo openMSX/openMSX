@@ -4,6 +4,7 @@
 #include <string>
 #include "RomInfo.hh"
 #include "Rom.hh"
+#include "sha1.hh"
 #include "md5.hh"
 #include "libxmlx/xmlx.hh"
 #include "FileContext.hh"
@@ -202,7 +203,8 @@ MapperType RomInfo::guessMapperType(const byte* data, int size)
 RomInfo *RomInfo::searchRomDB(const Rom &rom)
 {
 	// TODO: Turn ROM DB into a separate class.
-	static std::map<std::string, RomInfo*> romDB;
+	static std::map<std::string, RomInfo*> romDBSHA1;
+	static std::map<std::string, RomInfo*> romDBMD5;
 	static bool init = false;
 
 	if (!init) {
@@ -217,10 +219,20 @@ RomInfo *RomInfo::searchRomDB(const Rom &rom)
 				std::list<XML::Element*>::iterator it2 = (*it1)->children.begin();
 				for ( ; it2 != (*it1)->children.end(); it2++) {
 					if ((*it2)->name == "md5") {
-						if (romDB.find((*it2)->pcdata) == romDB.end()) {
-							romDB[(*it2)->pcdata] = romInfo;
+						std::string md5 = (*it2)->pcdata;
+						if (romDBMD5.find(md5) ==
+						    romDBMD5.end()) {
+							romDBMD5[md5] = romInfo;
 						} else {
-							PRT_INFO("Warning: duplicate romdb entry " << (*it2)->pcdata);
+							PRT_INFO("Warning: duplicate romdb entry " << md5);
+						}
+					} else if ((*it2)->name == "sha1") {
+						std::string sha1 = (*it2)->pcdata;
+						if (romDBSHA1.find(sha1) ==
+						    romDBSHA1.end()) {
+							romDBSHA1[sha1] = romInfo;
+						} else {
+							PRT_INFO("Warning: duplicate romdb entry " << sha1);
 						}
 					}
 				}
@@ -235,16 +247,28 @@ RomInfo *RomInfo::searchRomDB(const Rom &rom)
 	if (size == 0) {
 		return new RomInfo("", "", "", "Empty ROM", UNKNOWN);
 	}
-	
+
+
+	SHA1 sha1;
+	sha1.update(rom.getBlock(), size);
+	sha1.finalize();
+	std::string digestSHA1(sha1.hex_digest());
+
+	if (romDBSHA1.find(digestSHA1) != romDBSHA1.end()) {
+		romDBSHA1[digestSHA1]->print();
+		// Return a copy of the DB entry.
+		return new RomInfo(*romDBSHA1[digestSHA1]);
+	}
+
 	MD5 md5;
 	md5.update(rom.getBlock(), size);
 	md5.finalize();
-	std::string digest(md5.hex_digest());
+	std::string digestMD5(md5.hex_digest());
 	
-	if (romDB.find(digest) != romDB.end()) {
-		romDB[digest]->print();
+	if (romDBMD5.find(digestMD5) != romDBMD5.end()) {
+		romDBMD5[digestMD5]->print();
 		// Return a copy of the DB entry.
-		return new RomInfo(*romDB[digest]);
+		return new RomInfo(*romDBMD5[digestMD5]);
 	}
 	return NULL;
 }

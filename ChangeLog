@@ -1,5 +1,8 @@
 $Id$
 
+2003-06-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented SHA1 support for romdb
+
 2003-06-22 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Added new YM2413 core:
 	   use with the new (temporally) device "Music_2"
