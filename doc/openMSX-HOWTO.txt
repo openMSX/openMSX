@@ -541,9 +541,7 @@ the files that are saved by the (real) FM-PAC commander's save option.
 After saving your config and running openMSX again, you should be able to get
 the FM PAC commander with CALL FMPAC in the emulated MSX!
 
-Note that you can also add a -fmpac switch to the command line. You won't be
-able to make detailed configuration settings then, but it should give you sound,
-at least. Alternatively, if you have setup an FM PAC description in
+Alternatively, if you have setup an FM PAC hardwareconfig.xml file in
 ~/.openMSX/extensions/fmpac e.g., you can also use `-ext fmpac' to use an FM
 PAC. But, as I just said, you need to have a hardware description in that
 subdirectory of extensions/, see chapter 5.
@@ -557,9 +555,6 @@ you can not put two devices in the same (sub)slot! You may need to add a slot
 expander, by simply setting a slot's subslotted parameter to "true" in the
 MotherBoard config tag at the top of the file. On the other hand, not all
 devices need a slot. An example is the MSX-Audio device.
-
-Note: the MSX Audio device can also be added by a -musmod switch on the command
-line. (And -mbstereo enables -fmpac and -musmod with stereo registration.)
 
 Another thing you may want to change: the amount of RAM of the MSX: change the
 "size" parameter in the "Main RAM" device config.
