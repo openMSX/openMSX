@@ -1,14 +1,20 @@
 <?xml version="1.0"?>
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
+
 <msxconfig>
-  <device id="2MB External RAM">
-    <type>MemoryMapper</type>
-    <slotted><ps>-1</ps><ss>-1</ss><page>0</page></slotted>
-    <slotted><ps>-1</ps><ss>-1</ss><page>1</page></slotted>
-    <slotted><ps>-1</ps><ss>-1</ss><page>2</page></slotted>
-    <slotted><ps>-1</ps><ss>-1</ss><page>3</page></slotted>
-    <parameter name="slow_drain_on_reset">false</parameter>
-    <parameter name="size">2048</parameter>
-  </device>
+
+  <primary slot="any">
+    <secondary slot="any">
+      <MemoryMapper id="2MB External RAM">
+        <mem base="0x0000" size="0x10000"/>
+        <size>2048</size>
+	<slow_drain_on_reset>false</slow_drain_on_reset>
+      </MemoryMapper>
+    </secondary>
+  </primary>
+
 </msxconfig>
+
+
+

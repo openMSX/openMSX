@@ -3,14 +3,20 @@
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
 
-  <device id="MSXDOS2">
-    <type>Rom</type>
-    <slotted> <ps>-1</ps> <ss>-1</ss> <page>1</page> </slotted>
-    <slotted> <ps>-1</ps> <ss>-1</ss> <page>2</page> </slotted>
-    <parameter name="filename">roms/msxdos22.rom</parameter>
-    <parameter name="automappertype">false</parameter>
-    <parameter name="mappertype">1</parameter>
-  </device>
+  <primary slot="any">
+    <secondary slot="any">
+      <ROM id="MSXDOS2 cart">
+        <mem base="0x4000" size="0x08000"/>
+        <rom>
+	  <filename>roms/msxdos22.rom</filename>
+	  <sha1>c36c9e0f96738a340381e23b4f97245388801a46</sha1>
+          <!-- <sha1>51a1467d73d26c91aab7923e3be66490daaffdee</sha1> -->
+	</rom>
+	<automappertype>false</automappertype>
+	<mappertype>1</mappertype>
+      </ROM>
+    </secondary>
+  </primary>
 
 </msxconfig>
 
