@@ -15,18 +15,21 @@ class ConsoleRenderer;
 class Console : private EventListener
 {
 	public:
-		static Console* instance();
+		/** Get singleton console instance.
+		  */
+		static Console *instance();
 	
-		/**
-		 * Prints a string on the console
-		 */
+		/** Prints a string on the console.
+		  */
 		void print(const std::string &text);
 		
-		/**
-		 * (Un)register a ConsoleRenderer
-		 */
-		void registerConsole(ConsoleRenderer* console);
-		void unregisterConsole(ConsoleRenderer* console);
+		/** Add a renderer for this console.
+		  */
+		void registerConsole(ConsoleRenderer *console);
+		
+		/** Remove a renderer for this console.
+		  */
+		void unregisterConsole(ConsoleRenderer *console);
 
 		int getScrollBack();
 		const std::string& getLine(int line);
@@ -57,10 +60,9 @@ class Console : private EventListener
 			public:
 				ConsoleSetting(Console *console);
 			protected:
-				virtual bool checkUpdate(bool newValue,
-				                         const EmuTime &time);
+				virtual bool checkUpdate(bool newValue);
 			private:
-				Console* console;
+				Console *console;
 		} consoleSetting;
 		friend class ConsoleSetting;
 		

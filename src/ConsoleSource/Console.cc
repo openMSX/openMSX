@@ -15,7 +15,7 @@ Console::ConsoleSetting::ConsoleSetting(Console *console_)
 {
 }
 
-bool Console::ConsoleSetting::checkUpdate(bool newValue, const EmuTime &time)
+bool Console::ConsoleSetting::checkUpdate(bool newValue)
 {
 	console->updateConsole();
 	return true;
@@ -43,18 +43,18 @@ Console::~Console()
 	EventDistributor::instance()->unregisterEventListener(SDL_KEYUP,   this);
 }
 
-Console* Console::instance()
+Console *Console::instance()
 {
 	static Console oneInstance;
 	return &oneInstance;
 }
 
-void Console::registerConsole(ConsoleRenderer* console)
+void Console::registerConsole(ConsoleRenderer *console)
 {
 	renderers.push_back(console);
 }
 
-void Console::unregisterConsole(ConsoleRenderer* console)
+void Console::unregisterConsole(ConsoleRenderer *console)
 {
 	renderers.remove(console);
 }
@@ -67,11 +67,7 @@ int Console::getScrollBack()
 const std::string& Console::getLine(int line)
 {
 	static std::string EMPTY;
-	if (line < lines.size()) {
-		return lines[line];
-	} else {
-		return EMPTY;
-	}
+	return line < lines.size() ? lines[line] : EMPTY;
 }
 
 bool Console::isVisible()
@@ -120,8 +116,9 @@ bool Console::signalEvent(SDL_Event &event, const EmuTime &time)
 			commandExecute(time);
 			break;
 		default:
-			if (event.key.keysym.unicode)
+			if (event.key.keysym.unicode) {
 				normalKey((char)event.key.keysym.unicode);
+			}
 	}
 	updateConsole();
 	return false;	// don't pass event to MSX-Keyboard
@@ -142,15 +139,13 @@ void Console::print(const std::string &text)
 
 void Console::newLineConsole(const std::string &line)
 {
-	if (lines.isFull())
-		lines.removeBack();
+	if (lines.isFull()) lines.removeBack();
 	lines.addFront(line);
 }
 
 void Console::putCommandHistory(const std::string &command)
 {
-	if (history.isFull())
-		history.removeBack();
+	if (history.isFull()) history.removeBack();
 	history.addFront(command);
 }
 
