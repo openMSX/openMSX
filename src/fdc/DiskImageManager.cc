@@ -38,8 +38,15 @@ FDCBackEnd* DiskImageManager::getBackEnd(const std::string &driveName)
 DiskImageManager::Drive::Drive(const std::string &driveName)
 {
 	name = driveName;
-	// TODO insert disk from config
-	backEnd = new FDCDummyBackEnd();
+	try {
+		MSXConfig::Config *config = MSXConfig::Backend::instance()->
+			getConfigById("Media");
+		std::string disk = config->getParameter(driveName);
+		backEnd = new FDC_DSK(disk);
+	} catch (MSXException &e) {
+		// nothing specified or file not found
+		backEnd = new FDCDummyBackEnd();
+	}
 	CommandController::instance()->registerCommand(*this, name);
 }
 

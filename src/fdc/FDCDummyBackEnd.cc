@@ -6,7 +6,6 @@
 void FDCDummyBackEnd::read(byte phystrack, byte track, byte sector,
                            byte side, int size, byte* buf)
 {
-	PRT_DEBUG("*********");
 	throw DriveEmptyException("No disk in drive");
 }
 

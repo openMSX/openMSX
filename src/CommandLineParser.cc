@@ -183,17 +183,18 @@ void CommandLineParser::configureDisk(char* filename)
 	std::ostringstream s;
 	s << "<?xml version=\"1.0\"?>";
 	s << "<msxconfig>";
-	s << "<config id=\"diskpatch_disk" << driveLetter << "\">";
+	s << "<config id=\"Media\">";
+	//s << "<config id=\"diskpatch_disk" << driveLetter << "\">";
 	s << "<type>disk</type>";
-	s << "<parameter name=\"filename\">" << sfile << "</parameter>";
-	s << "<parameter name=\"readonly\">";
-	if (*readonly == 0){
-		s << "false";
-	} else {
-		s << "true";
-	}
-	s << "</parameter>";
-	s << "<parameter name=\"defaultsize\">720</parameter>";
+	s << "<parameter name=\"diska\">" << sfile << "</parameter>";
+	//s << "<parameter name=\"readonly\">";
+	//if (*readonly == 0){
+	//	s << "false";
+	//} else {
+	//	s << "true";
+	//}
+	//s << "</parameter>";
+	//s << "<parameter name=\"defaultsize\">720</parameter>";
 	s << "</config>";
 	s << "</msxconfig>";
 	PRT_DEBUG(s.str());

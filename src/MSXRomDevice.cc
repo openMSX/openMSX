@@ -96,13 +96,12 @@ IFILETYPE* MSXRomDevice::openFile()
 
 void MSXRomDevice::readFile(IFILETYPE* file, int fileSize)
 {
-	int offset;
+	int offset = 0;
 	try {
 		int offset = deviceConfig->getParameterAsInt("skip_headerbytes");
 		file->seekg(offset);
 	} catch(MSXConfig::Exception e) {
 		// no offset specified
-		offset = 0;
 	}
 	romSize = fileSize - offset;
 	if (!(romBank = new byte[romSize]))

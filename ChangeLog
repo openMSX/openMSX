@@ -6,6 +6,8 @@ $Id$
 	   - MSXFDC compiles, but not yet tested
 	   - MSXDiskROMPatch only supports 1 drive
 	   - FDC_DSK backend only supports double sided disks
+	* Insert disk from command line works again:
+	   - just a hack, we need a better configuration format for this
 
 2002-06-27 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* MSXRom fix:
