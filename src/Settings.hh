@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __SETTING_HH__
-#define __SETTING_HH__
+#ifndef __SETTINGS_HH__
+#define __SETTINGS_HH__
 
 #include "Command.hh"
 #include <map>
@@ -52,7 +52,7 @@ public:
 	const std::string &getTypeString() const { return type; }
 
 	/** Complete a partly typed value
-	  */ 
+	  */
 	virtual void tabCompletion(std::vector<std::string> &tokens) const {}
 
 protected:
@@ -209,5 +209,5 @@ private:
 	SetCommand setCommand;
 };
 
-#endif //__SETTING_HH__
+#endif //__SETTINGS_HH__
 
