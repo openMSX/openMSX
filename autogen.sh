@@ -30,7 +30,7 @@ fi
 
 if ( automake --version ) </dev/null > /dev/null 2>&1; then
 	echo "Building Makefiles"
-	automake -a -c
+	automake -a
 else
 	echo "automake not found -- aborting"
 	exit

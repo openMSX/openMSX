@@ -14,3 +14,12 @@ configure
 stamp-h.in
 libtool
 *.tar.gz
+aclocal.m4
+config.guess
+config.sub
+depcomp
+install-sh
+ltconfig
+ltmain.sh
+missing
+mkinstalldirs

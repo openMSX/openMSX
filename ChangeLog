@@ -1,5 +1,9 @@
 $Id$
 
+2001-10-09 Joost Yervante Damad <j.damad@qahwah.net>
+	* removed all automake/autoconf utility files,
+	  use autogen.sh to install them locally
+
 2001-10-08 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* added a real time synchronizer (MSXRealTime)
 	* fixed keyGhosting bugs in Keyboard
