@@ -3,6 +3,7 @@
 #include "SimpleScaler.hh"
 #include "RenderSettings.hh"
 #include "IntegerSetting.hh"
+#include "HostCPU.hh"
 #include "openmsx.hh"
 #include <cassert>
 
@@ -139,30 +140,6 @@ void SimpleScaler<Pixel>::scaleBlank(
 }
 
 template <class Pixel>
-template <class Darken>
-void SimpleScaler<Pixel>::scanLineScale256(
-	SDL_Surface* src, int srcY, int endSrcY,
-	SDL_Surface* dst, int dstY,
-	int darkenFactor,
-	Uint32 rMask, Uint32 gMask, Uint32 bMask
-) {
-	const int WIDTH = dst->w / 2;
-	assert(dst->w == WIDTH * 2);
-	while (srcY < endSrcY) {
-		const Pixel* srcLine = Scaler<Pixel>::linePtr(src, srcY++);
-		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, dstY++);
-		Pixel* dstLower =
-			dstY == dst->h ? dstUpper : Scaler<Pixel>::linePtr(dst, dstY++);
-		for (int x = 0; x < WIDTH; x++) {
-			Pixel p = srcLine[x];
-			dstUpper[x * 2] = dstUpper[x * 2 + 1] = p;
-			dstLower[x * 2] = dstLower[x * 2 + 1] =
-				Darken::darken(darkenFactor, rMask, gMask, bMask, p);
-		}
-	}
-}
-
-template <class Pixel>
 void SimpleScaler<Pixel>::scale256(
 	SDL_Surface* src, int srcY, int endSrcY,
 	SDL_Surface* dst, int dstY )
@@ -172,51 +149,105 @@ void SimpleScaler<Pixel>::scale256(
 		return;
 	}
 
-	SDL_PixelFormat* format = dst->format;
-	Uint32 rMask = format->Rmask;
-	Uint32 gMask = format->Gmask;
-	Uint32 bMask = format->Bmask;
 	int darkenFactor = 256 - scanlineAlpha;
-	// Note: For 16bpp, HiFreeDarken is always OK.
-	//       To avoid unnecessary template expansions,
-	//       test pixel size explicitly.
-	if (sizeof(Pixel) == 2 || HiFreeDarken::check(rMask, gMask, bMask)) {
-		scanLineScale256<HiFreeDarken>(
-			src, srcY, endSrcY, dst, dstY,
-			darkenFactor, rMask, gMask, bMask
-			);
-	} else if (LoFreeDarken::check(rMask, gMask, bMask)) {
-		scanLineScale256<LoFreeDarken>(
-			src, srcY, endSrcY, dst, dstY,
-			darkenFactor, rMask, gMask, bMask
-			);
-	} else {
-		scanLineScale256<UniversalDarken>(
-			src, srcY, endSrcY, dst, dstY,
-			darkenFactor, rMask, gMask, bMask
-			);
-	}
-}
-
-template <class Pixel>
-template <class Darken>
-void SimpleScaler<Pixel>::scanLineScale512(
-	SDL_Surface* src, int srcY, int endSrcY,
-	SDL_Surface* dst, int dstY,
-	int darkenFactor,
-	Uint32 rMask, Uint32 gMask, Uint32 bMask
-) {
-	const unsigned WIDTH = dst->w;
+	const int WIDTH = dst->w / 2;
+	assert(dst->w == WIDTH * 2);
+	const HostCPU cpu = HostCPU::getInstance();
 	while (srcY < endSrcY) {
-		Scaler<Pixel>::copyLine(src, srcY, dst, dstY++);
-		if (dstY == dst->h) break;
-		const Pixel* srcLine = Scaler<Pixel>::linePtr(src, srcY);
-		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, dstY++);
-		for (unsigned x = 0; x < WIDTH; x++) {
-			dstLine[x] = Darken::darken(
-				darkenFactor, rMask, gMask, bMask, srcLine[x] );
+		const Pixel* srcLine = Scaler<Pixel>::linePtr(src, srcY++);
+		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, dstY++);
+		Pixel* dstLower =
+			dstY == dst->h ? dstUpper : Scaler<Pixel>::linePtr(dst, dstY++);
+		/*if (cpu.hasMMXEXT() && sizeof(Pixel) == 2) {
+			 TODO: Implement.
+		} else*/ if (cpu.hasMMXEXT() && sizeof(Pixel) == 4) {
+			asm (
+				// Precalc: mm6 = darkenFactor, mm7 = 0.
+				"movd	%[darkenFactor], %%mm6;"
+				"pxor	%%mm7, %%mm7;"
+				"punpcklwd	%%mm6, %%mm6;"
+				"punpckldq	%%mm6, %%mm6;"
+		
+				// Upper line: scale, no scanline.
+				// Note: Two separate loops is faster, probably because of
+				//       linear memory access.
+				"xorl	%%eax, %%eax;"
+			"0:"
+				// Load.
+				"movq	(%[srcLine],%%eax,4), %%mm0;"
+				"movq	%%mm0, %%mm1;"
+				//"prefetchnta	128(%[srcLine],%%eax,4);"
+				// Scale.
+				"punpckldq %%mm0, %%mm0;"
+				"punpckhdq %%mm1, %%mm1;"
+				// Store.
+				"movntq	%%mm0, (%[dstUpper],%%eax,8);"
+				"movntq	%%mm1, 8(%[dstUpper],%%eax,8);"
+				// Increment.
+				"addl	$2, %%eax;"
+				"cmpl	%[WIDTH], %%eax;"
+				"jl	0b;"
+		
+				// Lower line: scale and scanline.
+				"xorl	%%eax, %%eax;"
+			"1:"
+				// Load.
+				"movq	(%[srcLine],%%eax,4), %%mm0;"
+				"movq	%%mm0, %%mm1;"
+				// Darken and scale.
+				"punpcklbw %%mm7, %%mm0;"
+				"punpckhbw %%mm7, %%mm1;"
+				"pmullw	%%mm6, %%mm0;"
+				"pmullw	%%mm6, %%mm1;"
+				"psrlw	$8, %%mm0;"
+				"psrlw	$8, %%mm1;"
+				"packuswb %%mm0, %%mm0;"
+				"packuswb %%mm1, %%mm1;"
+				// Store.
+				"movntq	%%mm0, (%[dstLower],%%eax,8);"
+				"movntq	%%mm1, 8(%[dstLower],%%eax,8);"
+				// Increment.
+				"addl	$2, %%eax;"
+				"cmpl	%[WIDTH], %%eax;"
+				"jl	1b;"
+		
+				: // no output
+				: [darkenFactor] "m" (darkenFactor)
+				, [dstUpper] "r" (dstUpper)
+				, [dstLower] "r" (dstLower)
+				, [srcLine] "r" (srcLine)
+				, [WIDTH] "r" (WIDTH)
+				: "mm0", "mm1", "mm6", "mm7"
+				, "eax"
+				);
+		// TODO: Test code, remove once we're satisfied all supported
+		//       compilers skip code generation here.
+		} else if (cpu.hasImpossible()) {
+			asm ("nosuchinstruction");
+		// End of test code.
+		} else {
+			unsigned rMask = dst->format->Rmask;
+			unsigned gMask = dst->format->Gmask;
+			unsigned bMask = dst->format->Bmask;
+			for (int x = 0; x < WIDTH; x++) {
+				Pixel p = srcLine[x];
+				dstUpper[x * 2] = dstUpper[x * 2 + 1] = p;
+				if (sizeof(Pixel) == 2) {
+					dstLower[x * 2] = dstLower[x * 2 + 1] =
+						HiFreeDarken::darken(
+							darkenFactor, rMask, gMask, bMask, p );
+				} else {
+					// TODO: On my machine, HiFreeDarken is marginally
+					//       faster, but is it worth the effort?
+					dstLower[x * 2] = dstLower[x * 2 + 1] =
+						UniversalDarken::darken(
+							darkenFactor, rMask, gMask, bMask, p );
+				}
+			}
 		}
-		srcY++;
+	}
+	if (cpu.hasMMXEXT()) {
+		asm volatile ("emms");
 	}
 }
 
@@ -235,24 +266,17 @@ void SimpleScaler<Pixel>::scale512(
 	Uint32 gMask = format->Gmask;
 	Uint32 bMask = format->Bmask;
 	int darkenFactor = 256 - scanlineAlpha;
-	// Note: For 16bpp, HiFreeDarken is always OK.
-	//       To avoid unnecessary template expansions,
-	//       test pixel size explicitly.
-	if (sizeof(Pixel) == 2 || HiFreeDarken::check(rMask, gMask, bMask)) {
-		scanLineScale512<HiFreeDarken>(
-			src, srcY, endSrcY, dst, dstY,
-			darkenFactor, rMask, gMask, bMask
-			);
-	} else if (LoFreeDarken::check(rMask, gMask, bMask)) {
-		scanLineScale512<LoFreeDarken>(
-			src, srcY, endSrcY, dst, dstY,
-			darkenFactor, rMask, gMask, bMask
-			);
-	} else {
-		scanLineScale512<UniversalDarken>(
-			src, srcY, endSrcY, dst, dstY,
-			darkenFactor, rMask, gMask, bMask
-			);
+	const unsigned WIDTH = dst->w;
+	while (srcY < endSrcY) {
+		Scaler<Pixel>::copyLine(src, srcY, dst, dstY++);
+		if (dstY == dst->h) break;
+		const Pixel* srcLine = Scaler<Pixel>::linePtr(src, srcY);
+		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, dstY++);
+		for (unsigned x = 0; x < WIDTH; x++) {
+			dstLine[x] = UniversalDarken::darken(
+				darkenFactor, rMask, gMask, bMask, srcLine[x] );
+		}
+		srcY++;
 	}
 }
 
