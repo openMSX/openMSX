@@ -15,7 +15,6 @@
 #include "CliCommInput.hh"
 #include "HotKey.hh"
 #include "AfterCommand.hh"
-#include "AliasCommands.hh"
 
 using std::auto_ptr;
 using std::cerr;
@@ -59,7 +58,6 @@ static int main(int argc, char **argv)
 			}
 			HotKey hotkey;
 			AfterCommand afterCommand;
-			AliasCommands aliasCommands;
 			MSXMotherBoard motherboard;
 			motherboard.run(parseStatus == CommandLineParser::RUN);
 		}

@@ -1,5 +1,10 @@
 $Id$
 
+2004-01-25 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Removed obsolete "alias" command:
+	   for backwards compatibilty there is an "alias" proc defined in
+	   init.tcl
+
 2004-01-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Integrated TCL scripting
 	* Execute share/init.tcl at startup, marked AutoCommands deprecated
