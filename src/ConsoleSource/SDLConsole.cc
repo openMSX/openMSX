@@ -35,12 +35,22 @@ SDLConsole *SDLConsole::instance()
 
 void SDLConsole::hookUpSDLConsole(SDL_Surface *screen)
 {
-	SDL_Rect ConRect;
-	ConRect.x = 20;
-	ConRect.y = 300;
-	ConRect.w = 600;
-	ConRect.h = 180;
-	init("ConsoleFont.bmp", screen, ConRect);
+	outputScreen = screen;
+	backgroundImage = NULL;
+	consoleSurface  = NULL;
+	inputBackground = NULL;
+	consoleAlpha = SDL_ALPHA_OPAQUE;
+	font = new SDLFont("ConsoleFont.bmp", SDLFont::TRANS);	// TODO check for error
+
+	SDL_Rect rect;
+	rect.x = 20;
+	rect.y = 300;
+	rect.w = 600;
+	rect.h = 180;
+	resize(rect);
+
+	print("Console initialised");
+	
 	alpha(200);
 	SDL_EnableUNICODE(1);
 	EventDistributor::instance()->registerAsyncListener(SDL_KEYDOWN, this);
@@ -227,10 +237,9 @@ void SDLConsole::updateConsole()
 		SDL_BlitSurface(backgroundImage, NULL, consoleSurface, &destRect);
 	}
 
-	/* Draw the text from the back buffers, calculate in the scrollback from the user
-	 * this is a normal SDL software-mode blit, so we need to temporarily set the ColorKey
-	 * for the font, and then clear it when we're done.
-	 */
+	// Draw the text from the back buffers, calculate in the scrollback from the user
+	// this is a normal SDL software-mode blit, so we need to temporarily set the ColorKey
+	// for the font, and then clear it when we're done.
 	if ((outputScreen->flags & SDL_OPENGLBLIT) && (outputScreen->format->BytesPerPixel > 2)) {
 		Uint32 *pix = (Uint32 *) (font->fontSurface->pixels);
 		SDL_SetColorKey(font->fontSurface, SDL_SRCCOLORKEY, *pix);
@@ -270,55 +279,6 @@ void SDLConsole::drawConsole()
 }
 
 
-// Initializes the console
-void SDLConsole::init(const char *fontName, SDL_Surface *displayScreen, SDL_Rect rect)
-{
-	backgroundImage = NULL;
-	consoleAlpha = SDL_ALPHA_OPAQUE;
-	outputScreen = displayScreen;
-
-	// Load the consoles font
-	font = new SDLFont(fontName, SDLFont::TRANS);	// TODO check for error
-
-	/* make sure that the size of the console is valid */
-	if (rect.w > outputScreen->w || rect.w < font->width() * 32)
-		rect.w = outputScreen->w;
-	if (rect.h > outputScreen->h || rect.h < font->height())
-		rect.h = outputScreen->h;
-	if (rect.x < 0 || rect.x > outputScreen->w - rect.w)
-		dispX = 0;
-	else
-		dispX = rect.x;
-	if (rect.y < 0 || rect.y > outputScreen->h - rect.h)
-		dispY = 0;
-	else
-		dispY = rect.y;
-
-	// load the console surface
-	SDL_Surface *temp = SDL_CreateRGBSurface(SDL_SWSURFACE, rect.w, rect.h,
-	                                        outputScreen->format->BitsPerPixel, 0, 0, 0, 0);
-	if (temp == NULL) {
-		// TODO throw exception
-	}
-	consoleSurface = SDL_DisplayFormat(temp);
-	SDL_FreeSurface(temp);
-	SDL_FillRect(consoleSurface, NULL, 
-	             SDL_MapRGBA(consoleSurface->format, 0, 0, 0, consoleAlpha));
-
-	// Load the dirty rectangle for user input
-	temp = SDL_CreateRGBSurface(SDL_SWSURFACE, rect.w, font->height(),
-	                            outputScreen->format->BitsPerPixel, 0, 0, 0, 0);
-	if (temp == NULL) {
-		// Couldn't create the input background
-		// TODO throw exception
-	}
-	inputBackground = SDL_DisplayFormat(temp);
-	SDL_FreeSurface(temp);
-	SDL_FillRect(inputBackground, NULL, 
-	             SDL_MapRGBA(consoleSurface->format, 0, 0, 0, consoleAlpha));
-
-	print("Console initialised.");
-}
 
 // Draws the command line the user is typing in to the screen
 void SDLConsole::drawCommandLine()
@@ -407,7 +367,7 @@ void SDLConsole::background(const char *image, int x, int y)
 
 	// Load a new background
 	if (NULL == (temp = SDL_LoadBMP(image))) {
-		print("Cannot load background.");
+		print("Cannot load background");
 		return;
 	}
 
@@ -438,59 +398,39 @@ void SDLConsole::background(const char *image, int x, int y)
 // takes a new x and y of the top left of the console window
 void SDLConsole::position(int x, int y)
 {
-	if (x<0 || x > outputScreen->w - consoleSurface->w)
-		dispX = 0;
-	else
-		dispX = x;
-
-	if (y<0 || y > outputScreen->h - consoleSurface->h)
-		dispY = 0;
-	else
-		dispY = y;
+	assert (!(x<0 || x > outputScreen->w - consoleSurface->w));
+	assert (!(y<0 || y > outputScreen->h - consoleSurface->h));
+	dispX = x;
+	dispY = y;
 }
 
 // resizes the console, has to reset alot of stuff
 void SDLConsole::resize(SDL_Rect rect)
 {
 	// make sure that the size of the console is valid
-	if (rect.w > outputScreen->w || rect.w < font->width() * 32)
-		rect.w = outputScreen->w;
-	if (rect.h > outputScreen->h || rect.h < font->height())
-		rect.h = outputScreen->h;
-	if (rect.x < 0 || rect.x > outputScreen->w - rect.w)
-		dispX = 0;
-	else
-		dispX = rect.x;
-	if(rect.y < 0 || rect.y > outputScreen->h - rect.h)
-		dispY = 0;
-	else
-		dispY = rect.y;
+	assert (!(rect.w > outputScreen->w || rect.w < font->width() * 32));
+	assert (!(rect.h > outputScreen->h || rect.h < font->height()));
 
-	// load the console surface
-	SDL_FreeSurface(consoleSurface);
-	SDL_Surface *temp = SDL_CreateRGBSurface(SDL_SWSURFACE, rect.w, rect.h, 
-	                                         outputScreen->format->BitsPerPixel, 0, 0, 0, 0);
-	if (temp == NULL) {
-		// Couldn't create the consoleSurface
-		// TODO throw exception
+	SDL_Surface *temp1 = SDL_CreateRGBSurface(SDL_SWSURFACE, rect.w, rect.h, 
+	                            outputScreen->format->BitsPerPixel, 0, 0, 0, 0);
+	SDL_Surface *temp2 = SDL_CreateRGBSurface(SDL_SWSURFACE, rect.w, font->height(), 
+	                            outputScreen->format->BitsPerPixel, 0, 0, 0, 0);
+	if (temp1 == NULL || temp2 == NULL)
 		return;
-	}
-	consoleSurface = SDL_DisplayFormat(temp);
-	SDL_FreeSurface(temp);
+	if (consoleSurface)  SDL_FreeSurface(consoleSurface);
+	if (inputBackground) SDL_FreeSurface(inputBackground);
+	consoleSurface = SDL_DisplayFormat(temp1);
+	inputBackground = SDL_DisplayFormat(temp2);
+	SDL_FreeSurface(temp1);
+	SDL_FreeSurface(temp2);
+	SDL_FillRect(consoleSurface, NULL, 
+	             SDL_MapRGBA(consoleSurface->format, 0, 0, 0, consoleAlpha));
+	SDL_FillRect(inputBackground, NULL, 
+	             SDL_MapRGBA(consoleSurface->format, 0, 0, 0, consoleAlpha));
+	
+	position(rect.x, rect.y);
 
-	/* Load the dirty rectangle for user input */
-	SDL_FreeSurface(inputBackground);
-	temp = SDL_CreateRGBSurface(SDL_SWSURFACE, rect.w, font->height(), outputScreen->format->BitsPerPixel, 0, 0, 0, 0);
-	if(temp == NULL) {
-		// Couldn't create the input background
-		// TODO throw exception
-		return;
-	}
-	inputBackground = SDL_DisplayFormat(temp);
-	SDL_FreeSurface(temp);
-
-	// Now reset some stuff dependent on the previous size
-	consoleScrollBack = 0;
+	consoleScrollBack = 0;	// reset stuff dependent on previous size
 
 	// Reload the background image (for the input text area) in the console
 	if (backgroundImage) {
@@ -506,16 +446,12 @@ void SDLConsole::resize(SDL_Rect rect)
 		backgrounddest.w = backgroundImage->w;
 		backgrounddest.h = font->height();
 
-		SDL_FillRect(inputBackground, NULL, 
-		             SDL_MapRGBA(consoleSurface->format, 0, 0, 0, SDL_ALPHA_OPAQUE));
 		SDL_BlitSurface(backgroundImage, &backgroundsrc, inputBackground, &backgrounddest);
 	}
 }
 
-/*
- * Return the pixel value at (x, y)
- * NOTE: The surface must be locked before calling this!
- */
+// Return the pixel value at (x, y)
+// NOTE: The surface must be locked before calling this!
 Uint32 SDLConsole::getPixel(SDL_Surface *surface, int x, int y)
 {
 	int bpp = surface->format->BytesPerPixel;
@@ -538,10 +474,8 @@ Uint32 SDLConsole::getPixel(SDL_Surface *surface, int x, int y)
 	}
 }
 
-/*
- * Set the pixel at (x, y) to the given value
- * NOTE: The surface must be locked before calling this!
- */
+// Set the pixel at (x, y) to the given value
+// NOTE: The surface must be locked before calling this!
 void SDLConsole::putPixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
 {
 	int bpp = surface->format->BytesPerPixel;
@@ -555,14 +489,11 @@ void SDLConsole::putPixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
 			*(Uint16 *) p = pixel;
 			break;
 		case 3:
-			if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
-			{
+			if (SDL_BYTEORDER == SDL_BIG_ENDIAN) {
 				p[0] = (pixel >> 16) & 0xff;
 				p[1] = (pixel >> 8) & 0xff;
 				p[2] = pixel & 0xff;
-			}
-			else
-			{
+			} else {
 				p[0] = pixel & 0xff;
 				p[1] = (pixel >> 8) & 0xff;
 				p[2] = (pixel >> 16) & 0xff;

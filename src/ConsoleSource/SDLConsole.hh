@@ -32,7 +32,6 @@ class SDLConsole : public Console, private EventListener, private HotKeyListener
 		void signalHotKey(SDLKey key);
 		void signalEvent(SDL_Event &event);
 
-		void init(const char *FontName, SDL_Surface *DisplayScreen, SDL_Rect rect);
 		void alpha(unsigned char alpha);
 		void background(const char *image, int x, int y);
 		void position(int x, int y);
