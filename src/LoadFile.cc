@@ -39,7 +39,8 @@ void LoadFile::patchFile(byte* memoryBank, int size)
 	 */
 	std::list<const MSXConfig::Config::Parameter*> parameters =
 		getDeviceConfig()->getParametersWithClass("patch");
-	std::list<const MSXConfig::Config::Parameter*>::const_iterator i=parameters.begin();
+	std::list<const MSXConfig::Config::Parameter*>::const_iterator i =
+		parameters.begin();
 	for ( /**/ ; i!=parameters.end(); i++)
 	{
 		int offset = strtol((*i)->name.c_str(),0,0);
