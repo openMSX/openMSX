@@ -1,5 +1,12 @@
 $Id$
 
+2001-12-11 Maarten ter Huurne <mth@stack.nl>
+	* Compacted the SCC mixing and muting code.
+	* Added offset to lookups in SCC::getFreqVol.
+	* SCC::ch_enable is not masked upon write.
+	* Added "currentChipMode = chip" to SCC::setChipMode.
+	* Changed size of waveform array to 32 (was 64).
+
 2001-12-10 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Implemented Z80 inter-instruction-timing
 	   (DD CB instructions not correct yet)

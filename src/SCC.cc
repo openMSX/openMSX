@@ -1,5 +1,5 @@
 // $Id$
- 
+
 #include "SCC.hh"
 
 SCC::SCC()
@@ -40,7 +40,7 @@ void SCC::setChipMode(ChipMode chip)
 	memInterface[i]=255;
       };
       break;
-      
+
     case SCC_Compatible:
       //32 bytes Frequency Volume data
       getFreqVol(0x80);
@@ -53,7 +53,7 @@ void SCC::setChipMode(ChipMode chip)
       for (int i=0xE0 ; i<=0xFF ; i++)
 	memInterface[i]=0xFF;
       break;
-      
+
     case SCC_plusmode:
       //32 bytes waveform five
       for (int i=0 ; i<=31 ; i++)
@@ -66,6 +66,7 @@ void SCC::setChipMode(ChipMode chip)
       for (int i=0xE0 ; i<=0xFF ; i++)
 	memInterface[i]=0xFF;
   }
+  currentChipMode = chip;
 }
 
 void SCC::getDeform(byte offset)
@@ -77,21 +78,21 @@ void SCC::getDeform(byte offset)
 
 void SCC::getFreqVol(byte offset)
 {
-  int i;
-  byte value;
-  //32 bytes Frequency Volume data
-  for (i=0;i<10;i++){
-    value=i&1?freq[i>>1]>>8:freq[i>>1]&0xff;
-    // Take care of the mirroring
-    memInterface[i] = value;
-    memInterface[i+16] = value;
-  }
-  for (i=0;i<5;i++){
-    memInterface[i+10] = volume[i];
-    memInterface[i+10+16] = volume[i];
-  }
-  memInterface[i+15]=ch_enable;
-  memInterface[i+31]=ch_enable;
+	// 32 bytes Frequency Volume data
+	// Take care of the mirroring
+	for (int i = 0; i < 10; i++) {
+		memInterface[offset + i] =
+		memInterface[offset + i + 16] =
+			i&1 ? freq[i>>1]>>8 : freq[i>>1]&0xFF;
+	}
+	for (int i = 0; i < 5; i++) {
+		memInterface[offset + i + 10] =
+		memInterface[offset + i + 10 + 16] =
+			volume[i];
+	}
+	memInterface[offset + 15] =
+	memInterface[offset + 31] =
+		ch_enable;
 }
 
 
@@ -169,10 +170,10 @@ void SCC::setDeformReg(byte value)
     According to sean these bits should produce noise on the channels
 
   if (value&64)
-    for(int ch=0;ch<5;ch++) 
+    for(int ch=0;ch<5;ch++)
       rotate[ch] = 0x1F;
-  else 
-    for(int ch=0;ch<5;ch++) 
+  else
+    for(int ch=0;ch<5;ch++)
       rotate[ch] = 0;
   if (value&128)
     rotate[3] = rotate[4] = 0x1F;
@@ -181,14 +182,14 @@ void SCC::setDeformReg(byte value)
 
 void SCC::setFreqVol(byte value, byte address)
 {
-  if (address>16) address-=16; //regio is twice visible
+  address &= 0x0F; //regio is twice visible
   //PRT_DEBUG("SCC: setFreqVol(value " <<(int)value<<", address "<<(int)address<<")" );
 
   if (address<0x0A) {
     int ch = (address >> 1);
-    if (address&1) 
+    if (address&1)
       freq[ch] = ((value&0xf)<<8) | (freq[ch]&0xff);
-    else 
+    else
       freq[ch] = (freq[ch]&0xf00) | (value&0xff);
     if (refresh)
       count[ch] = 0;
@@ -196,7 +197,7 @@ void SCC::setFreqVol(byte value, byte address)
     if (cycle_8bit)
       frq &= 0xff;
     if (cycle_4bit)
-      frq >>= 8; 
+      frq >>= 8;
     if (frq <= 8)
       incr[ch] = 0;
     else
@@ -209,9 +210,9 @@ void SCC::setFreqVol(byte value, byte address)
 	  volAdjustedWave[channel][i] = ((((short)(wave[channel][i]) * (short)volume[channel])));
     checkMute();
   }
-  else if (address==0x0F) {
+  else { // address==0x0F
     PRT_DEBUG("SCC: changing ch_enable to "<<(int)value);
-    ch_enable = value&31;
+    ch_enable = value;
     checkMute();
   }
 }
@@ -261,13 +262,12 @@ void SCC::reset()
 
 	out = 0;
 
-	sccstep =  (unsigned)((1<<31)/(CLOCK_FREQ/2));
 	scctime = 0;
 }
 
 void SCC::setSampleRate(int sampleRate)
 {
-	realstep = (unsigned)((1<<31)/sampleRate);
+	realstep = (unsigned)(((unsigned)(1<<31))/sampleRate);
 }
 
 void SCC::setInternalVolume(short maxVolume)
@@ -275,74 +275,41 @@ void SCC::setInternalVolume(short maxVolume)
 	// TODO
 }
 
-int* SCC::updateBuffer(int length)
+int *SCC::updateBuffer(int length)
 {
-  int* buf = buffer;
-  int mask;
-  int oldlength=length;
-
-  //Clear buffer first
-  while (length){
-    *(buf++)=0;
-    length--;
-  };
-
-  length=oldlength;
-  buf = buffer;
-  mask=1;
-  for(int i=0; i<5; i++,mask<<=1 ) {
-    if (ch_enable & mask) { // ((ch_enable>>i)&1)
-      while (length) {
-	out = volAdjustedWave[i][(count[i]>>(GETA_BITS))&0x1f];
-	// Simple rate converter
-	while (realstep > scctime) {
-	  scctime += sccstep;
-	  //mix all the SCC soundchannels values into an average
-	  count[i] += incr[i];
-/*testing if really needed
-	  if(count[i] & (1<<(GETA_BITS+5))){ 
-	    count[i] &= ((1<<(GETA_BITS+5))-1);
-	    out += volAdjustedWave[i][(count[i]>>(GETA_BITS))&0x1f];
-	    out >>= 1;
-	  }
-*/
+	int *buf = buffer;
+	while (length--) {
+		scctime += realstep;
+		unsigned advance = scctime / SCC_STEP;
+		scctime %= SCC_STEP;
+		unsigned mixed = 0;
+		unsigned enable = ch_enable;
+		for (int channel = 0; channel < 5; channel++, enable >>= 1) {
+			if (enable & 1) {
+				mixed += volAdjustedWave[channel]
+					[(count[channel] >> (GETA_BITS)) & 0x1F];
+			}
+			count[channel] += incr[channel] * advance;
+		}
+		*buf++ = mixed;
 	}
-	scctime -= realstep;
-	out+= (*buf);
-	//out >>= 1;
-	*(buf++) = out;
-	length--;
-      }
-    // Set ready to mix next channel
-    buf = buffer;
-    length=oldlength;
-    }
-  }
-  return buffer;
+	return buffer;
 }
 
 void SCC::checkMute()
 {
-  unsigned hasSound=0;
-  if ( ch_enable == 0 ){
-    PRT_DEBUG("SCC: setInternalMute since ch_enable == 0 ");
-    setInternalMute(true);
-    return;
-  }
-  // If there is a channel is enabled and the volume is zero...
-  for (byte i=0;i<5;i++){
-    if (volume[i]){
-      hasSound|=( (1<<i) & ch_enable ) ;
-      //if all samples are the same then you want here the sample neither
-      //This optimisation will probably take more time to calculate then it will save later on
-    }
-  };
-  if (hasSound){
-    PRT_DEBUG("SCC+: setInternalMute(false); ");
-	setInternalMute(false);
-  }else{
-    PRT_DEBUG("SCC+: setInternalMute(true); ");
-	setInternalMute(true);
-  };
-  //setInternalMute(false);
+	// SCC is mute unless an enabled channel with non-zero volume exists.
+	bool mute = true;
+	unsigned enable = ch_enable & 0x1F;
+	unsigned *volumePtr = volume;
+	while (enable) {
+		if ((enable & 1) && *volumePtr) {
+			mute = false;
+			break;
+		}
+		enable >>= 1;
+		volumePtr++;
+	};
+	PRT_DEBUG("SCC+: setInternalMute(" << mute << "); ");
+	setInternalMute(mute);
 }

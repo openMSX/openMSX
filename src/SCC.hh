@@ -45,6 +45,8 @@ class SCC : public SoundDevice
 
 		static const int GETA_BITS = 22;
 		static const int CLOCK_FREQ = 3579545;
+		static const unsigned SCC_STEP =
+			(unsigned)(((unsigned)(1<<31))/(CLOCK_FREQ/2));
 
 		int* buffer;
 
@@ -54,7 +56,6 @@ class SCC : public SoundDevice
 
 		unsigned realstep;
 		unsigned scctime;
-		unsigned sccstep;
 
 		unsigned incr[5];
 
@@ -62,7 +63,7 @@ class SCC : public SoundDevice
 		byte ModeRegister;
 		byte DeformationRegister;
 
-		char  wave[5][64];
+		char  wave[5][32];
 		int volAdjustedWave[5][32];
 
 		unsigned enable;
