@@ -7,6 +7,7 @@ $Id$
 	   - the BASIC commands load"COM:" and save"COM:" seem to work
 	* Made sure that classes that are ment to be pure virtual,
 	  truly are pure virtual
+	* Added rs232 extension
 
 2003-07-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Added MSX-RS232 to device factory
