@@ -12,15 +12,20 @@ MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &tim
 {
 	PRT_DEBUG("Creating an MSXGameCartridge object");
 	try {
-		romSize = deviceConfig->getParameterAsInt("filesize");
-		if (romSize == 0) {
-			// filesize zero is specifiying to autodetermine size
-			throw MSXConfig::Exception("auto detect");
+		try {
+			romSize = deviceConfig->getParameterAsInt("filesize");
+			if (romSize == 0) {
+				// filesize zero is specifiying to autodetermine size
+				throw MSXConfig::Exception("auto detect");
+			}
+			loadFile(&memoryBank, romSize);
+		} catch(MSXConfig::Exception& e) {
+			// filesize was not specified or 0
+			romSize = loadFile(&memoryBank);
 		}
-		loadFile(&memoryBank, romSize);
-	} catch(MSXConfig::Exception& e) {
-		// filesize was not specified or 0
-		romSize = loadFile(&memoryBank);
+	} catch (MSXException &e) {
+		// TODO why isn't exception thrown beyond constructor
+		PRT_ERROR(e.desc);
 	}
 	
 	// Calculate mapperMask

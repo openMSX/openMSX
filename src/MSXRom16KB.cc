@@ -11,7 +11,12 @@ MSXRom16KB::MSXRom16KB(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXMemDevice(config, time), MSXRom(config, time)
 {
 	PRT_DEBUG("Creating an MSXRom16KB object");
-	loadFile(&memoryBank, 0x4000);
+	try {
+		loadFile(&memoryBank, 0x4000);
+	} catch (MSXException &e) {
+		// TODO why isn't exception thrown beyond contructor
+		PRT_ERROR(e.desc);
+	}
 }
 
 MSXRom16KB::~MSXRom16KB()

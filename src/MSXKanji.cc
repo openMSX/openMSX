@@ -8,7 +8,12 @@
 MSXKanji::MSXKanji(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time), MSXRom(config, time)
 {
-	loadFile(&memoryBank, ROM_SIZE);
+	try {
+		loadFile(&memoryBank, ROM_SIZE);
+	} catch (MSXException &e) {
+		// TODO why isn't exception thrown beyond constructor
+		PRT_ERROR(e.desc);
+	}
 	
 	MSXMotherBoard::instance()->register_IO_In (0xD9, this);
 	MSXMotherBoard::instance()->register_IO_Out(0xD8, this);
