@@ -1,5 +1,9 @@
 $Id$
 
+2003-10-19 Reikan <openMSX4Win32@ranpub.com>
+	* Call SDL_Quit() also when exit by error.
+	  This will fix crash(Win9x)/hang(Win2k/XP) on error exit.
+
 2003-10-18 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed VDP command timing:
 	   - the updateTiming() method did a sync() with the old register
