@@ -1,17 +1,16 @@
 // $Id$
 
-#ifndef __OPENMSX_CC__
-#error only use from openmsx.cc
-#else
-#define __ICON_NN__
+#include "Icon.hh"
 
-static int iconColours[] = {
+namespace openmsx {
+
+const int iconColours[] = {
 	0x00000000,
 	0xFF000000,
 	0xFFFFFFFF,
 	0xFFDBDB24,
 };
-static unsigned char iconData[] = {
+const unsigned char iconData[] = {
 	0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,
 	0,0,0,0,0,0,1,1,1,2,2,1,2,1,0,0,
 	0,0,0,0,0,1,1,1,2,2,1,2,1,2,0,0,
@@ -30,4 +29,4 @@ static unsigned char iconData[] = {
 	0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,
 };
 
-#endif
+}

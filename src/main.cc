@@ -6,8 +6,6 @@
  *  Copyright (C) 2001 David Heremans
  */
 
-#define __OPENMSX_CC__
-
 #include "config.h"
 #include "MSXConfig.hh"
 #include <SDL/SDL.h>
@@ -17,7 +15,7 @@
 #include "EventDistributor.hh"
 #include "EmuTime.hh"
 #include "CommandLineParser.hh"
-#include "icon.nn"
+#include "Icon.hh"
 #include "CommandController.hh"
 #include "KeyEventInserter.hh"
 #include "MSXCPUInterface.hh"
@@ -29,12 +27,13 @@ void initializeSDL()
 {
 	Uint32 sdl_initval = SDL_INIT_VIDEO;
 	if (DEBUGVAL) sdl_initval |= SDL_INIT_NOPARACHUTE; // dump core on segfault
-	if (SDL_Init(sdl_initval) < 0)
+	if (SDL_Init(sdl_initval) < 0) {
 		PRT_ERROR("Couldn't init SDL: " << SDL_GetError());
+	}
 	SDL_WM_SetCaption("openMSX " VERSION " [alpha]", 0);
 
 	// Set icon
-	static int iconRGBA[256];
+	static unsigned int iconRGBA[256];
 	for (int i = 0; i < 256; i++) {
 		iconRGBA[i] = iconColours[iconData[i]];
 	}
