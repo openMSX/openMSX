@@ -439,6 +439,8 @@ install: all
 			then ln -sf $(OPENMSX_INSTALL)/bin/$(BINARY_FILE) ~/bin/openmsx; \
 			fi; \
 		fi
+	@echo "  Setting permissions..."
+	@chmod -R a+rX $(OPENMSX_INSTALL)
 	@echo "Installation complete... have fun!"
 
 
