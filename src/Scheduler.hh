@@ -23,14 +23,14 @@ class SchedulerNode
 class Scheduler
 {
 	private:
+		Scheduler();
 		set<SchedulerNode> scheduleList;
 		Emutime currentTime;
 		int stateIRQline;
 		bool keepRunning;
 		static Scheduler *oneInstance;
 	public:
-		Scheduler(void);
-		~Scheduler(void);
+		~Scheduler();
 		static Scheduler *instance();
 		const Emutime &getCurrentTime();
 		const SchedulerNode &getFirstNode();

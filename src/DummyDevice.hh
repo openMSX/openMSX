@@ -8,7 +8,6 @@
 class DummyDevice : public MSXDevice
 {
 	public:
-		DummyDevice();
 		~DummyDevice();
 		static DummyDevice *instance();
 		//static MSXDevice* instantiate();
@@ -20,6 +19,7 @@ class DummyDevice : public MSXDevice
 		void saveState(ofstream &writestream);
 		void restoreState(string &devicestring, ifstream &readstream);
 	private:
+		DummyDevice();
 		static DummyDevice *oneInstance;
 };
 

@@ -28,7 +28,7 @@ MSXDevice *deviceFactory::create(MSXConfig::Device *conf) {
 
 	if ( conf->getType().compare("PPI") == 0 ){ 
 		// if 0 then strings are equal
-		device=new MSXPPI();
+		device = MSXPPI::instance();
 	};
 
 	if ( conf->getType().compare("TMS9928a") == 0 ){ 
@@ -42,11 +42,7 @@ MSXDevice *deviceFactory::create(MSXConfig::Device *conf) {
 	};
 
 	assert (device != 0);
-	//if (device == 0) {
-	//	PRT_DEBUG("device == 0  in devicefactory"); // TODO check
-	//} else {
-		device->setConfigDevice(conf);
-	//}
+	device->setConfigDevice(conf);
 	return device;
 }
 

@@ -50,7 +50,6 @@ class MSXPPI : public MSXDevice, I8255Interface
 {
 	// MSXDevice
 	public:
-		MSXPPI(); 
 		~MSXPPI(); 
 		static MSXDevice *instance();
 		
@@ -59,6 +58,7 @@ class MSXPPI : public MSXDevice, I8255Interface
 		byte readIO(byte port, Emutime &time);
 		void writeIO(byte port, byte value, Emutime &time);
 	private:
+		MSXPPI(); 
 		static MSXPPI *volatile oneInstance;
 		I8255 *i8255;
 	
