@@ -6,6 +6,8 @@ $Id$
 	      Are these numbers correct? I have to different contradicting
 	      sources for these numbers. (180 and 20 are in between the
 	      numbers of my sources)
+	* R800 IO operations takes 3 cycles:
+	   - S1990 adds two extra wait cycles cycles
 	
 2004-03-02 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Improved R800 timing, implemented CAS/RAS optimization:

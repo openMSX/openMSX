@@ -24,7 +24,7 @@ private:
 	#include "CPUCore.n1"
 
 	static const int IO_DELAY1 = 0;
-	static const int IO_DELAY2 = 1;
+	static const int IO_DELAY2 = 3;
 	static const int MEM_DELAY1 = 0;
 	static const int MEM_DELAY2 = 1;
 
