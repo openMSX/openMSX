@@ -2,6 +2,7 @@ $Id$
 
 2001-08-23 Joost Yervante Damad <j.damad@qahwah.net>
 	* msxconfig: added <desc> and <rem>
+	* msxconfig.hh: externalized nested classes
 
 2001-08-10 David Heremans <david.heremans@gnu-linux.net>
 	* sync : PPI, Z80, ...
