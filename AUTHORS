@@ -14,7 +14,7 @@ Joost Yervante Damad <joost@lumatec.be>
 And before altering (or completely rewriting) we
 used code from the following contributors:
 
-tms9918a:
+TMS9918A:
     Sean Young <sean@msxnet.org>
 VDP command engine:
     Alex Wulms <awulms@inter.nl.net>
@@ -22,13 +22,15 @@ z80:
     Marcel de Kogel
 SDL_Console:
     Garrett Banuk <mongoose@mongeese.org>
-AY8190:
+AY8910:
     Mostly taken from xmame-0.37b16.1.
         Based on various code snippets by Ville Hallik,
         Michael Cuddy, Tatsuyuki Satoh, Fabrice Frances,
         Nicola Salmoria
-Y8950 and YM2413 emulator :
+Y8950 and YM2413 emulator:
     written by Mitsutaka Okazaki
+other YM2413 emulator:
+    written by Jarek Burcynski
 TC8566AF disk controller:
     Based on code from NLMSX written by Frits Hilderink
 SDL surface scaling:
@@ -39,21 +41,19 @@ YMF262:
 YMF278:
     code taken from MAME, written by R. Belmont and O. Galibert
 
-
-
 With many thanks to:
 Alex Wulms           <awulms@inter.nl.net>
 Marcel Harkema       <marcel@qahwah.net>
-Jon Deschrijver      <jon@msx.ch>
+Jon De Schrijder     <jon@msx.ch>
 atarulum             <atarulum@yahoo.co.jp>
 Patriek Lesparre     <patriekl@dds.nl>
 Manuel Pazos         <mpazos@mundivia.es>
+Tetsuo Honda         <t-honda@hondarer-soft.com>
 
 And a special "thank you" goes to
 ???????????          <sklaitin@mappi.helsinki.fi>
 for providing an original 'way of the tiger',a tape based game
 with its own data encoding, to test our tape emulation
-
 
 
 ... this list is not complete!! ... [please add]
