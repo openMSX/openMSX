@@ -1,5 +1,11 @@
 $Id$
 
+2003-12-07 Maarten ter Huurne <maarten@treewalker.org>
+	* Integrated Scale2x algorithm:
+	    http://scale2x.sourceforge.net/
+	  Use "set scaler scale2x" in the SDLHi renderer to activate it.
+	  Unlike 2xSaI, Scale2x never blurs.
+
 2003-12-06 Maarten ter Huurne <maarten@treewalker.org>
 	* Create a scaler object once it becomes active, instead of creating all
 	  scalers in advance. This reduces memory usage when the number of

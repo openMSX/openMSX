@@ -50,6 +50,7 @@ RenderSettings::RenderSettings()
 	map<string, ScalerID> scalerMap;
 	scalerMap["simple"] = SCALER_SIMPLE;
 	scalerMap["2xsai"] = SCALER_SAI2X;
+	scalerMap["scale2x"] = SCALER_SCALE2X;
 	scaler = new EnumSetting<ScalerID>(
 		"scaler", "scaler algorithm", SCALER_SIMPLE, scalerMap);
 

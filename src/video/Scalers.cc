@@ -1,6 +1,7 @@
 // $Id$
 
 #include "Scalers.hh"
+#include "Scale2xScaler.hh"
 #include "openmsx.hh"
 #include <cassert>
 
@@ -25,6 +26,8 @@ Scaler<Pixel>* Scaler<Pixel>::createScaler(ScalerID id, Blender<Pixel> blender)
 		return new SimpleScaler<Pixel>();
 	case SCALER_SAI2X:
 		return new SaI2xScaler<Pixel>(blender);
+	case SCALER_SCALE2X:
+		return new Scale2xScaler<Pixel>();
 	default:
 		assert(false);
 		return NULL;
@@ -40,6 +43,11 @@ inline static Pixel* linePtr(SDL_Surface* surface, int y)
 }
 
 // === SimpleScaler ========================================================
+
+// Force template instantiation.
+template class SimpleScaler<byte>;
+template class SimpleScaler<word>;
+template class SimpleScaler<unsigned int>;
 
 template <class Pixel>
 SimpleScaler<Pixel>::SimpleScaler()
