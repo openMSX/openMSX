@@ -164,8 +164,8 @@ bool CommandConsole::signalEvent(const Event& event)
 		return false;	// don't pass event to MSX-Keyboard
 	}
 
-	const KeyEvent& keyEvent = dynamic_cast<const KeyEvent&>(event);
-	assert(&keyEvent);
+	assert(dynamic_cast<const KeyEvent*>(&event));
+	const KeyEvent& keyEvent = static_cast<const KeyEvent&>(event);
 	Keys::KeyCode keyCode = keyEvent.getKeyCode();
 	switch (keyCode) {
 		case (Keys::K_PAGEUP | Keys::KM_SHIFT):
