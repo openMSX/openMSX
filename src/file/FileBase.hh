@@ -6,6 +6,7 @@
 #include <string>
 #include "openmsx.hh"
 
+using std::string;
 
 class FileBase
 {

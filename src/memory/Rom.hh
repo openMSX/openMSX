@@ -8,6 +8,8 @@
 #include "RomInfo.hh"
 #include "openmsx.hh"
 
+using std::list;
+
 class EmuTime;
 class Config;
 class MSXRomPatchInterface;

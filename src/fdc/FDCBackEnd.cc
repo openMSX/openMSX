@@ -57,16 +57,26 @@ void FDCBackEnd::writeSector(const byte* buf, int logSector)
 
 int FDCBackEnd::physToLog(byte track, byte side, byte sector)
 {
-	if ((track == 0) && (side == 0) && (sector == 1))	// bootsector
+	if ((track == 0) && (side == 0) && (sector == 1)) {
+		// bootsector
 		return 0;
-	if (!nbSides) readBootSector();
-	PRT_DEBUG("FDCBackEnd::physToLog(track "<<(int)track<<", side "<<(int)side <<", sector "<<(int)sector<<") returns "<< (int)(sectorsPerTrack * (side + nbSides * track) + (sector - 1)) );
-	return sectorsPerTrack * (side + nbSides * track) + (sector - 1);
+	}
+	if (!nbSides) {
+		readBootSector();
+	}
+	int result = sectorsPerTrack * (side + nbSides * track) + (sector - 1);
+	//PRT_DEBUG("FDCBackEnd::physToLog(track " << (int)track << ", side "
+	//          << (int)side << ", sector " << (int)sector<< ") returns "
+	//          << result);
+	return result;
 }
 
 void FDCBackEnd::logToPhys(int log, byte &track, byte &side, byte &sector)
 {
-	if (!nbSides) readBootSector();
+	if (!nbSides) {
+		// try to guess values from boot sector
+		readBootSector();
+	}
 	track = log / (nbSides * sectorsPerTrack);
 	side = (log / sectorsPerTrack) % nbSides;
 	sector = (log % sectorsPerTrack) + 1;
@@ -78,7 +88,7 @@ void FDCBackEnd::readBootSector()
 	read(0, 1, 0, 512, buf);
 	sectorsPerTrack = buf[0x18] + 256 * buf[0x19];
 	nbSides         = buf[0x1A] + 256 * buf[0x1B];
-	PRT_DEBUG("FDCBackEnd sectorsPerTrack " << sectorsPerTrack);
-	PRT_DEBUG("FDCBackEnd nbSides         " << nbSides);
+	//PRT_DEBUG("FDCBackEnd sectorsPerTrack " << sectorsPerTrack);
+	//PRT_DEBUG("FDCBackEnd nbSides         " << nbSides);
 }
 

@@ -7,7 +7,8 @@
 #include "openmsx.hh"
 #include "CPU.hh"
 
-// forward declaration
+using std::list;
+
 class MSXRomPatchInterface;
 
 

@@ -6,6 +6,7 @@
 #include <fstream>
 #include "MidiOutDevice.hh"
 
+using std::ofstream;
 
 class MidiOutLogger : public MidiOutDevice
 {

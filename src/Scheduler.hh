@@ -7,11 +7,11 @@
 #include "EmuTime.hh"
 #include "Semaphore.hh"
 
+using std::vector;
+
 class MSXCPU;
 class Schedulable;
 class Renderer;
-
-using namespace std;
 
 class Scheduler
 {

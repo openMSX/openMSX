@@ -7,10 +7,12 @@
 #include <vector>
 #include <fstream>
 
+using std::vector;
+using std::fstream;
+using std::ofstream;
+
 class EmuTime;
 class FilenameSetting;
-
-using namespace std;
 
 class DebugDevice : public MSXIODevice
 {

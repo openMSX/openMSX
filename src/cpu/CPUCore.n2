@@ -2,6 +2,9 @@
 
 #include <iomanip>
 
+using std::setw;
+using std::setfill;
+
 #ifdef CPU_DEBUG
 #include "Z80Dasm.h"
 #include "Settings.hh"

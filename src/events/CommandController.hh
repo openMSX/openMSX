@@ -9,6 +9,11 @@
 #include <vector>
 #include "Command.hh"
 
+using std::string;
+using std::multimap;
+using std::set;
+using std::vector;
+
 
 class CommandController
 {

@@ -3,8 +3,6 @@
 #ifndef __OPENMSX_HH__
 #define __OPENMSX_HH__
 
-using namespace std;
-
 /** 4 bit integer */
 typedef unsigned char nibble;
 
@@ -45,6 +43,13 @@ typedef unsigned long long uint64;
 #endif
 #include <iostream>
 #include "Mutex.hh"
+
+using std::cout;
+using std::cerr;
+using std::endl;
+using std::hex;
+using std::dec;
+
 extern Mutex outputmutex, errormutex;
 #define PRT_DEBUG(mes)					\
 	do {						\

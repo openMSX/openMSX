@@ -100,6 +100,8 @@ void VDPVRAM::setRenderer(Renderer *renderer, const EmuTime &time) {
 #ifdef DEBUG
 #include <fstream>
 
+using std::ofstream;
+
 // class DumpVRAMCmd
 
 VDPVRAM::DumpVRAMCmd::DumpVRAMCmd(VDPVRAM *vram_)

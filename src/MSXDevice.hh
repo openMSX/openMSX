@@ -4,12 +4,11 @@
 #define __MSXDEVICE_HH__
 
 #include <string>
-//#include "openmsx.hh"
+
+using std::string;
 
 class EmuTime;
 class Device;
-
-using namespace std;
 
 
 /** An MSXDevice is an emulated hardware component connected to the bus

@@ -7,6 +7,7 @@
 #include "MSXIODevice.hh"
 #include <list>
 
+using std::list;
 
 class MapperMask
 {

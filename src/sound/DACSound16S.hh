@@ -11,6 +11,9 @@
 #include "SoundDevice.hh"
 #include "EmuTime.hh"
 
+using std::list;
+using std::string;
+
 class DACSound16S : public SoundDevice
 {
 	public:

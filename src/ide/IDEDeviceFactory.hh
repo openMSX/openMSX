@@ -8,7 +8,7 @@
 class IDEDevice;
 class EmuTime;
 
-using namespace std;
+using std::string;
 
 
 class IDEDeviceFactory

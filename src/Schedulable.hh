@@ -5,9 +5,9 @@
 
 #include <string>
 
-class EmuTime;
+using std::string;
 
-using namespace std;
+class EmuTime;
 
 /**
  * Every class that wants to get scheduled at some point must inherit from

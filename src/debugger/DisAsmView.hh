@@ -4,6 +4,9 @@
 #define __DISASMVIEW_HH__
 
 #include "MemoryView.hh"
+#include <string>
+
+using std::string;
 
 class DisAsmView: public MemoryView
 {

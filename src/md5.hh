@@ -49,7 +49,10 @@
 #include <iostream>
 #include <cstdio>
 
-using namespace std;
+using std::string;
+using std::istream;
+using std::ifstream;
+using std::ostream;
 
 class MD5
 {

@@ -10,6 +10,10 @@
 #include "Command.hh"
 #include "Settings.hh"
 
+using std::map;
+using std::queue;
+using std::pair;
+
 class EventListener;
 
 

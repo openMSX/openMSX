@@ -3,6 +3,8 @@
 #include <sstream>
 #include "FrameSkipSetting.hh"
 
+using std::ostringstream;
+
 
 FrameSkipSetting::FrameSkipSetting()
 	: Setting<FrameSkip>(

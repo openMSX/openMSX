@@ -8,6 +8,7 @@
 #include "SoundDevice.hh"
 #include "EmuTime.hh"
 
+using std::string;
 
 class SCC : public SoundDevice
 {

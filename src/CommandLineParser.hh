@@ -11,6 +11,12 @@
 #include "openmsx.hh"
 #include "config.h"
 
+using std::string;
+using std::list;
+using std::map;
+using std::vector;
+using std::set;
+
 class MSXConfig;
 
 

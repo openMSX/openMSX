@@ -7,6 +7,8 @@
 #include "Command.hh"
 #include "Thread.hh"
 
+using std::list;
+
 class MSXDevice;
 
 

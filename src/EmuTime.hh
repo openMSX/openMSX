@@ -7,6 +7,8 @@
 #include <cassert>
 #include "openmsx.hh"
 
+using std::ostream;
+
 // predefines
 class EmuTime;
 ostream &operator <<(ostream &os, const EmuTime &e);

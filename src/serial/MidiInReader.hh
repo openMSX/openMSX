@@ -11,6 +11,8 @@
 #include "Schedulable.hh"
 #include "Semaphore.hh"
 
+using std::list;
+
 class MidiInConnector;
 
 

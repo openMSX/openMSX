@@ -5,10 +5,10 @@
 
 #include <string>
 
+using std::string;
+
 class EmuTime;
 class Connector;
-
-using namespace std;
 
 class Pluggable
 {

@@ -4,11 +4,12 @@
 #define __PLUGGING_CONTROLLER__
 
 #include "Command.hh"
+#include <vector>
+
+using std::vector;
 
 class Connector;
 class Pluggable;
-
-using namespace std;
 
 class PluggingController
 {

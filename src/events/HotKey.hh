@@ -9,6 +9,8 @@
 #include "Keys.hh"
 #include "Command.hh"
 
+using std::string;
+using std::multimap;
 
 class HotKeyListener
 {

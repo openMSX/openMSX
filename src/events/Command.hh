@@ -7,6 +7,9 @@
 #include <vector>
 #include "MSXException.hh"
 
+using std::string;
+using std::vector;
+
 
 class CommandException : public MSXException {
 	public:

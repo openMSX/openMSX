@@ -9,8 +9,6 @@
 class DummyMidiOutDevice;
 class MidiOutLogger;
 
-using namespace std;
-
 class MidiOutConnector : public Connector, public SerialDataInterface
 {
 	public:

@@ -6,10 +6,10 @@
 #include "RomTypes.hh"
 #include <string>
 
+using std::string;
+
 class Rom;
 class Device;
-
-using namespace std;
 
 class RomInfo
 {

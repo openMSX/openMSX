@@ -7,7 +7,8 @@
 #include <map>
 #include <string>
 
-using namespace std;
+using std::map;
+using std::string;
 
 
 class Keys {

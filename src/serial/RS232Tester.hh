@@ -12,6 +12,9 @@
 #include "Schedulable.hh"
 #include "Semaphore.hh"
 
+using std::list;
+using std::ofstream;
+
 class RS232Connector;
 
 
