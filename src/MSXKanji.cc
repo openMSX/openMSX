@@ -22,7 +22,8 @@ void MSXKanji::init()
 	buffer = new byte[ROM_SIZE];
 	if (buffer==NULL)
 		PRT_ERROR("Couldn't allocate Kanji buffer");
-	std::ifstream<byte> file("KANJI.ROM");
+	//std::ifstream<byte> file("KANJI.ROM");
+	std::ifstream file("KANJI.ROM");
 	file.read(buffer, ROM_SIZE);
 	if (file.fail())
 		PRT_ERROR("Couldn't read from KANJI.ROM");

@@ -3,7 +3,7 @@
 
 #include <sstream>
 
-#define HAVE_EXT_HASH_MAP
+// #define HAVE_EXT_HASH_MAP
 
 #include <xml++.h>
 

@@ -31,7 +31,8 @@ void MSXRom16KB::init()
 	std::string filename=deviceConfig->getParameter("romfile");
 	int offset = atoi(deviceConfig->getParameter("skip_headerbytes").c_str());
 	
-	std::ifstream<byte> file(filename.c_str());
+	//std::ifstream<byte> file(filename.c_str());
+	std::ifstream file(filename.c_str());
 	file.seekg(offset);
 	file.read(memoryBank, ROM_SIZE);
 	if (file.fail())
