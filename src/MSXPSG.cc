@@ -13,6 +13,7 @@ MSXPSG::MSXPSG()
 MSXPSG::~MSXPSG()
 {
 	PRT_DEBUG("Destroying an MSXPSG object");
+	delete ay8910;
 }
 
 void MSXPSG::init()
@@ -21,6 +22,7 @@ void MSXPSG::init()
 	MSXMotherBoard::instance()->register_IO_Out(0xA0,this);
 	MSXMotherBoard::instance()->register_IO_Out(0xA1,this);
 	MSXMotherBoard::instance()->register_IO_In (0xA2,this);
+	ay8910->init();
 }
 
 void MSXPSG::reset()
@@ -63,7 +65,7 @@ byte MSXPSG::readA()
 byte MSXPSG::readB()
 {
 	// port B is normally an output on MSX
-	return 255;	// TODO check
+	return 255;
 }
 
 void MSXPSG::writeA(byte value)
