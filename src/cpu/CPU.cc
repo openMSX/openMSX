@@ -138,6 +138,7 @@ void CPU::lowerIRQ()
 void CPU::wait(const EmuTime& time)
 {
 	assert(time >= getCurrentTime());
+	scheduler.schedule(time);
 	advance(time);
 }
 
