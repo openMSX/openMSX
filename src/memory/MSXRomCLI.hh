@@ -11,41 +11,18 @@ class MSXRomCLI : public CLIOption, public CLIFileType
 {
 public:
 	MSXRomCLI(CommandLineParser& cmdLineParser);
+
 	virtual bool parseOption(const string& option,
 	                         list<string>& cmdLine);
 	virtual const string& optionHelp() const;
+
 	virtual void parseFileType(const string& filename);
 	virtual const string& fileTypeHelp() const;
 
 private:
+	void parse(const string& arg, const string& slotname);
+	
 	int cartridgeNr;
-};
-
-class MSXRomCLIPost : public CLIPostConfig
-{
-public:
-	MSXRomCLIPost(const string& arg);
-	virtual ~MSXRomCLIPost() {}
-	virtual void execute();
-protected:
-	int ps, ss;
-	const string arg;
-};
-class MSXRomPostName : public MSXRomCLIPost
-{
-public:
-	MSXRomPostName(int slot, const string& arg);
-	virtual ~MSXRomPostName() {}
-	virtual void execute();
-private:
-	int slot;
-};
-class MSXRomPostNoName : public MSXRomCLIPost
-{
-public:
-	MSXRomPostNoName(const string& arg);
-	virtual ~MSXRomPostNoName() {}
-	virtual void execute();
 };
 
 } // namespace openmsx

@@ -13,6 +13,7 @@ using std::ostringstream;
 namespace openmsx {
 
 MSXRomCLI::MSXRomCLI(CommandLineParser& cmdLineParser)
+	: cartridgeNr(0)
 {
 	cmdLineParser.registerOption("-cart", this);
 	cmdLineParser.registerOption("-carta", this);
@@ -25,55 +26,37 @@ MSXRomCLI::MSXRomCLI(CommandLineParser& cmdLineParser)
 bool MSXRomCLI::parseOption(const string& option, list<string>& cmdLine)
 {
 	string arg = getArgument(option, cmdLine);
+	string slotname;
 	if (option.length() == 6) {
 		int slot = option[5] - 'a';
 		CartridgeSlotManager::instance().reserveSlot(slot);
-		CommandLineParser::instance().registerPostConfig(new MSXRomPostName(slot, arg));
+		slotname = option[5];
 	} else {
-		CommandLineParser::instance().registerPostConfig(new MSXRomPostNoName(arg));
+		slotname = "any";
 	}
+	parse(arg, slotname);
 	return true;
 }
+
 const string& MSXRomCLI::optionHelp() const
 {
 	static const string text("Insert the ROM file (cartridge) specified in argument");
 	return text;
 }
-MSXRomPostName::MSXRomPostName(int slot_, const string& arg_)
-	: MSXRomCLIPost(arg_), slot(slot_)
+
+void MSXRomCLI::parseFileType(const string& arg)
 {
-}
-void MSXRomPostName::execute()
-{
-	CartridgeSlotManager::instance().getSlot(slot, ps, ss);
-	MSXRomCLIPost::execute();
+	parse(arg, "any");
 }
 
-void MSXRomCLI::parseFileType(const string &arg)
-{
-	CommandLineParser::instance().registerPostConfig(new MSXRomPostNoName(arg));
-}
 const string& MSXRomCLI::fileTypeHelp() const
 {
 	static const string text("ROM image of a cartridge");
 	return text;
 }
-MSXRomPostNoName::MSXRomPostNoName(const string &arg_)
-	: MSXRomCLIPost(arg_)
-{
-}
-void MSXRomPostNoName::execute()
-{
-	CartridgeSlotManager::instance().getSlot(ps, ss);
-	MSXRomCLIPost::execute();
-}
 
-MSXRomCLIPost::MSXRomCLIPost(const string& arg_)
-	: arg(arg_)
-{
-}
 
-void MSXRomCLIPost::execute()
+void MSXRomCLI::parse(const string& arg, const string& slotname)
 {
 	string romfile;
 	string mapper;
@@ -89,12 +72,11 @@ void MSXRomCLIPost::execute()
 	string sramfile = FileOperations::getFilename(romfile);
 
 	auto_ptr<XMLElement> primary(new XMLElement("primary"));
-	primary->addAttribute("slot", StringOp::toString(ps));
+	primary->addAttribute("slot", slotname);
 	auto_ptr<XMLElement> secondary(new XMLElement("secondary"));
-	secondary->addAttribute("slot", StringOp::toString(ss));
+	secondary->addAttribute("slot", slotname);
 	auto_ptr<XMLElement> device(new XMLElement("ROM"));
-	device->addAttribute("id", "MSXRom" + StringOp::toString(ps) +
-	                               "-" + StringOp::toString(ss));
+	device->addAttribute("id", "cart" + StringOp::toString(++cartridgeNr));
 	auto_ptr<XMLElement> mem(new XMLElement("mem"));
 	mem->addAttribute("base", "0x0000");
 	mem->addAttribute("size", "0x10000");
@@ -114,8 +96,6 @@ void MSXRomCLIPost::execute()
 	secondary->addChild(device);
 	primary->addChild(secondary);
 	HardwareConfig::instance().getChild("devices").addChild(primary);
-
-	delete this;
 }
 
 } // namespace openmsx

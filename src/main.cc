@@ -11,6 +11,7 @@
 #include <SDL.h>
 #include "MSXMotherBoard.hh"
 #include "CommandLineParser.hh"
+#include "CartridgeSlotManager.hh"
 #include "CliCommInput.hh"
 #include "HotKey.hh"
 #include "AfterCommand.hh"
@@ -48,6 +49,7 @@ static int main(int argc, char **argv)
 		initializeSDL();
 		CommandLineParser& parser = CommandLineParser::instance();
 		parser.parse(argc, argv);
+		CartridgeSlotManager::instance().readConfig();
 		CommandLineParser::ParseStatus parseStatus = parser.getParseStatus();
 		if (parseStatus != CommandLineParser::EXIT) {
 			auto_ptr<CliCommInput> cliCommInput;

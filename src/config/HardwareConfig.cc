@@ -22,7 +22,8 @@ HardwareConfig& HardwareConfig::instance()
 	return oneInstance;
 }
 
-void HardwareConfig::loadHardware(FileContext& context, const string& filename)
+void HardwareConfig::loadHardware(XMLElement& root, FileContext& context,
+                                  const string& filename)
 {
 	File file(context.resolve(filename));
 	XMLDocument doc(file.getLocalName());
@@ -47,7 +48,7 @@ void HardwareConfig::loadHardware(FileContext& context, const string& filename)
 	string userName;
 	
 	ConfigFileContext context2(url + '/', hwDesc, userName);
-	handleDoc(doc, context2);
+	handleDoc(root, doc, context2);
 }
 
 } // namespace openmsx

@@ -22,7 +22,6 @@ class HardwareConfig;
 class CommandController;
 class MSXCPU;
 class Scheduler;
-class CartridgeSlotManager;
 class Debugger;
 class CliCommOutput;
 
@@ -57,10 +56,8 @@ public:
 	 * Note: if a MSXDevice inherits from MSXMemDevice, it gets
 	 *       automatically registered
 	 */
-	void registerSlottedDevice(MSXMemDevice* device,
-				   int primSl, int secSL, int pages);
-	void registerSlottedDevice(MSXMemDevice* device, int page);
-	void registerPostSlots();
+	void registerMemDevice(MSXMemDevice& device,
+	                       int primSl, int secSL, int pages);
 
 	// TODO implement unregister methods
 	
@@ -127,17 +124,12 @@ public:
 	void writeSlottedMem(unsigned address, byte value,
 	                     const EmuTime& time);
 
+	void setExpanded(int ps, bool expanded);
+
 protected:
 	MSXCPUInterface();
 
 private:
-	struct RegPostSlot {
-		RegPostSlot(MSXMemDevice* device_, int pages_)
-			: device(device_), pages(pages_) {}
-		MSXMemDevice* device;
-		int pages;
-	};
-	vector<RegPostSlot> regPostSlots;
 	void registerSlot(MSXMemDevice* device,
 			  int primSl, int secSL, int page);
 	
@@ -223,7 +215,6 @@ private:
 	CommandController& commandController;
 	MSXCPU& msxcpu;
 	Scheduler& scheduler;
-	CartridgeSlotManager& slotManager;
 	Debugger& debugger;
 	CliCommOutput& cliCommOutput;
 };

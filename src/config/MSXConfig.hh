@@ -12,10 +12,12 @@ class FileContext;
 class MSXConfig : public XMLElement
 {
 public:
-	void loadConfig(const FileContext& context, auto_ptr<XMLElement> elem);
+	static void loadConfig(XMLElement& root, const FileContext& context,
+	                       auto_ptr<XMLElement> elem);
 
 protected:
-	void handleDoc(const XMLDocument& doc, FileContext& context);
+	static void handleDoc(XMLElement& root, const XMLDocument& doc,
+	                      FileContext& context);
 };
 
 } // namespace openmsx

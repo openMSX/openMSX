@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<!-- $Id$ -->
+<!DOCTYPE msxconfig SYSTEM 'msxconfig.dtd'>
+<msxconfig>
+  <primary slot="any">
+    <secondary slot="0" external="true"/>
+    <secondary slot="1" external="true"/>
+    <secondary slot="2" external="true"/>
+    <secondary slot="3" external="true"/>
+  </primary>
+</msxconfig>

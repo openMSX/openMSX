@@ -3,6 +3,11 @@ $Id$
 2004-07-10 Maarten ter Huurne <maarten@treewalker.org>
 	* Separated CPU and OS in build system.
 
+2004-07-10 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed loading of extensions
+	* Fixed some bugs in slot structure config loading
+	* It's now possible to insert a slotexpander extension
+
 2004-07-04 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed exception-safety problem in CassettePort constructor
 

@@ -85,11 +85,9 @@ void MSXMotherBoard::run(bool powerOn)
 {
 	// Initialise devices.
 	//PRT_DEBUG(HardwareConfig::instance().getChild("devices").dump());
+	cout << HardwareConfig::instance().dump() << endl;
 	createDevices(HardwareConfig::instance().getChild("devices"));
 	
-	// Register all postponed slots.
-	MSXCPUInterface::instance().registerPostSlots();
-
 	// First execute auto commands.
 	CommandController::instance().autoCommands();
 

@@ -3,6 +3,7 @@
 #include "StringOp.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXMemDevice.hh"
+#include "CartridgeSlotManager.hh"
 #include "xmlx.hh"
 
 namespace openmsx {
@@ -87,37 +88,41 @@ void MSXMemDevice::registerSlots(const XMLElement& config)
 		pages |= 1 << page;
 	}
 
-	int ps = -2;
+	int ps = 0;
 	int ss = 0;
 	const XMLElement* parent = config.getParent();
-	while (parent) {
+	while (true) {
 		const string& name = parent->getName();
 		if (name == "secondary") {
 			const string& secondSlot = parent->getAttribute("slot");
-			ss = (secondSlot == "any") ? -1 :
-				StringOp::stringToInt(secondSlot);
+			ss = CartridgeSlotManager::getSlotNum(secondSlot);
 		} else if (name == "primary") {
 			const string& primSlot = parent->getAttribute("slot");
-			ps = (primSlot == "any") ? -1 :
-				StringOp::stringToInt(primSlot);
+			ps = CartridgeSlotManager::getSlotNum(primSlot);
 			break;
 		}
 		parent = parent->getParent();
+		if (!parent) {
+			throw FatalError("Invalid memory specification");
+		}
 	}
 
-	if ((ps <= -2) || (4 <= ps)) {
-		throw FatalError("Invalid memory specification");
-	}
-	if (ps != -1) {
-		// slot specified
-		MSXCPUInterface::instance().
-			registerSlottedDevice(this, ps, ss, pages);
+	if (ps == -256) {
+		// any slot
+		CartridgeSlotManager::instance().getSlot(ps, ss);
+		MSXCPUInterface::instance().registerMemDevice(*this, ps, ss, pages);
+	} else if (ps < 0) {
+		// specified slot by name (carta, cartb, ...)
+		CartridgeSlotManager::instance().getSlot(-ps - 1, ps, ss);
+		MSXCPUInterface::instance().registerMemDevice(*this, ps, ss, pages);
 	} else {
-		// take any free slot
-		MSXCPUInterface::instance().
-			registerSlottedDevice(this, pages);
+		// numerical specified slot (0, 1, 2, 3)
+		MSXCPUInterface::instance().registerMemDevice(*this, ps, ss, pages);
 	}
 }
+	void getSlot(int slot, int& ps, int& ss);
+	void getSlot(int& ps, int& ss);
+	void getSlot(int& ps);
 
 } // namespace openmsx
 

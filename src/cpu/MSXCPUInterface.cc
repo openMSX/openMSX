@@ -9,7 +9,6 @@
 #include "MSXCPU.hh"
 #include "Scheduler.hh"
 #include "HardwareConfig.hh"
-#include "CartridgeSlotManager.hh"
 #include "VDPIODelay.hh"
 #include "Debugger.hh"
 #include "CliCommOutput.hh"
@@ -20,14 +19,16 @@ using std::ostringstream;
 
 namespace openmsx {
 
+static MSXCPUInterface* instanceHelper()
+{
+	// TODO choose one depending on MSX model (small optimization)
+	//return new MSXCPUInterface();
+	return new TurborCPUInterface();
+}
+
 MSXCPUInterface& MSXCPUInterface::instance()
 {
-	static auto_ptr<MSXCPUInterface> oneInstance;
-	if (!oneInstance.get()) {
-		// TODO choose one depending on MSX model (small optimization)
-		//oneInstance.reset(new MSXCPUInterface());
-		oneInstance.reset(new TurborCPUInterface());
-	}
+	static auto_ptr<MSXCPUInterface> oneInstance(instanceHelper());
 	return *oneInstance.get();
 }
 
@@ -42,7 +43,6 @@ MSXCPUInterface::MSXCPUInterface()
 	  commandController(CommandController::instance()),
 	  msxcpu(MSXCPU::instance()),
 	  scheduler(Scheduler::instance()),
-	  slotManager(CartridgeSlotManager::instance()),
 	  debugger(Debugger::instance()),
 	  cliCommOutput(CliCommOutput::instance())
 {
@@ -64,29 +64,6 @@ MSXCPUInterface::MSXCPUInterface()
 		visibleDevices[page] = 0;
 	}
 
-	XMLElement::Children primarySlots;
-	hardwareConfig.findChild("devices")->getChildren("primary", primarySlots);
-	for (XMLElement::Children::const_iterator it = primarySlots.begin();
-	     it != primarySlots.end(); ++it) {
-		const string& primSlot = (*it)->getAttribute("slot");
-		if (primSlot == "any") {
-			continue;
-		}
-		unsigned num = StringOp::stringToInt(primSlot);
-		if (num >= 4) {
-			throw FatalError("Invalid slot specification");
-		}
-		XMLElement::Children secondarySlots;
-		(*it)->getChildren("secondary", secondarySlots);
-		for (XMLElement::Children::const_iterator it = secondarySlots.begin();
-		     it != secondarySlots.end(); ++it) {
-			if ((*it)->getAttribute("slot") != "any") {
-				isSubSlotted[num] = true;
-				break;
-			}
-		}
-	}
-	
 	// Note: SlotState is initialised at reset
 
 	// Register console commands
@@ -121,6 +98,10 @@ MSXCPUInterface::~MSXCPUInterface()
 	}
 }
 
+void MSXCPUInterface::setExpanded(int ps, bool expanded)
+{
+	isSubSlotted[ps] = expanded;
+}
 
 void MSXCPUInterface::register_IO_In(byte port, MSXIODevice* device)
 {
@@ -191,30 +172,13 @@ void MSXCPUInterface::registerSlot(MSXMemDevice* device,
 	}
 }
 
-void MSXCPUInterface::registerSlottedDevice(MSXMemDevice* device,
-                                            int primSl, int secSl, int pages)
+void MSXCPUInterface::registerMemDevice(MSXMemDevice& device,
+                                        int primSl, int secSl, int pages)
 {
 	for (int i = 0; i < 4; ++i) {
 		if (pages & (1 << i)) {
-			registerSlot(device, primSl, secSl, i);
+			registerSlot(&device, primSl, secSl, i);
 		}
-	}
-}
-
-void MSXCPUInterface::registerSlottedDevice(MSXMemDevice* device, int pages)
-{
-	RegPostSlot regPostSlot(device, pages);
-	regPostSlots.push_back(regPostSlot);
-}
-
-void MSXCPUInterface::registerPostSlots()
-{
-	for (vector<RegPostSlot>::const_iterator it = regPostSlots.begin();
-	     it != regPostSlots.end();
-	     ++it) {
-		int ps, ss;
-		slotManager.getSlot(ps, ss);
-		registerSlottedDevice(it->device, ps, ss, it->pages);
 	}
 }
 
@@ -570,7 +534,7 @@ void TurborCPUInterface::register_IO_Out(byte port, MSXIODevice* device)
 	MSXCPUInterface::register_IO_Out(port, device);
 }
 
-MSXIODevice *TurborCPUInterface::getDelayDevice(MSXIODevice* device)
+MSXIODevice* TurborCPUInterface::getDelayDevice(MSXIODevice* device)
 {
 	if (!delayDevice.get()) {
 		delayDevice.reset(new VDPIODelay(device, EmuTime::zero));

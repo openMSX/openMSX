@@ -39,7 +39,8 @@ bool CliExtension::parseOption(const string &option,
 	ExtensionsMap::const_iterator it = extensions.find(extension);
 	if (it != extensions.end()) {
 		SystemFileContext context;
-		HardwareConfig::instance().loadHardware(context, it->second);
+		XMLElement& devices = HardwareConfig::instance().getChild("devices");
+		HardwareConfig::loadHardware(devices, context, it->second);
 	} else {
 		throw FatalError("Extension \"" + extension + "\" not found!");
 	}

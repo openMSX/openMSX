@@ -42,7 +42,7 @@ void MSXCassettePlayerCLI::parseFileType(const string &filename)
 	config->addChild(
 		auto_ptr<XMLElement>(new XMLElement("filename", filename)));
 	UserFileContext context;
-	SettingsConfig::instance().loadConfig(context, config);
+	SettingsConfig::loadConfig(SettingsConfig::instance(), context, config);
 }
 const string& MSXCassettePlayerCLI::fileTypeHelp() const
 {

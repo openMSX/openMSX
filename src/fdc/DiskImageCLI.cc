@@ -38,7 +38,7 @@ void DiskImageCLI::parseFileType(const string& filename)
 		auto_ptr<XMLElement>(new XMLElement("filename", filename)));
 	
 	UserFileContext context;
-	SettingsConfig::instance().loadConfig(context, config);
+	SettingsConfig::loadConfig(SettingsConfig::instance(), context, config);
 	driveLetter++;
 }
 const string& DiskImageCLI::fileTypeHelp() const

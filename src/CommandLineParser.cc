@@ -8,7 +8,6 @@
 #include "CommandLineParser.hh"
 #include "HardwareConfig.hh"
 #include "SettingsConfig.hh"
-#include "CartridgeSlotManager.hh"
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"
@@ -52,7 +51,6 @@ CommandLineParser::CommandLineParser()
 	  hardwareConfig(HardwareConfig::instance()),
 	  settingsConfig(SettingsConfig::instance()),
 	  output(CliCommOutput::instance()),
-	  slotManager(CartridgeSlotManager::instance()),
 	  helpOption(*this),
 	  versionOption(*this),
 	  controlOption(*this),
@@ -171,12 +169,7 @@ bool CommandLineParser::parseFileName(const string& arg, list<string>& /*cmdLine
 }
 
 
-void CommandLineParser::registerPostConfig(CLIPostConfig *post)
-{
-	postConfigs.push_back(post);
-}
-
-void CommandLineParser::parse(int argc, char **argv)
+void CommandLineParser::parse(int argc, char** argv)
 {
 	parseStatus = RUN;
 	
@@ -195,7 +188,7 @@ void CommandLineParser::parse(int argc, char **argv)
 					SystemFileContext context;
 					settingsConfig.loadSetting(context, "settings.xml");
 					haveSettings = true;
-				} catch (FileException &e) {
+				} catch (FileException& e) {
 					// settings.xml not found
 					output.printWarning(
 						"No settings file found!");
@@ -218,7 +211,7 @@ void CommandLineParser::parse(int argc, char **argv)
 				}
 				try {
 					SystemFileContext context;
-					hardwareConfig.loadHardware(context,
+					HardwareConfig::loadHardware(hardwareConfig, context,
 						MACHINE_PATH + machine + "/hardwareconfig.xml");
 					haveConfig = true;
 				} catch (FileException& e) {
@@ -259,14 +252,6 @@ void CommandLineParser::parse(int argc, char **argv)
 	if (!cmdLine.empty()) {
 		throw FatalError("Error parsing command line: " + cmdLine.front() + "\n" +
 		                 "Use \"openmsx -h\" to see a list of available options");
-	}
-	// read existing cartridge slots from config
-	slotManager.readConfig();
-
-	// execute all postponed options
-	for (vector<CLIPostConfig*>::iterator it = postConfigs.begin();
-	     it != postConfigs.end(); it++) {
-		(*it)->execute();
 	}
 }
 
@@ -494,7 +479,7 @@ bool CommandLineParser::MachineOption::parseOption(const string &option,
 	try {
 		string machine(getArgument(option, cmdLine));
 		SystemFileContext context;
-		parent.hardwareConfig.loadHardware(context,
+		HardwareConfig::loadHardware(parent.hardwareConfig, context,
 			MACHINE_PATH + machine + "/hardwareconfig.xml");
 		parent.output.printInfo(
 			"Using specified machine: " + machine);

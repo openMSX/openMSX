@@ -24,7 +24,6 @@ namespace openmsx {
 class HardwareConfig;
 class SettingsConfig;
 class CliCommOutput;
-class CartridgeSlotManager;
 class MSXRomCLI;
 class CliExtension;
 class MSXCassettePlayerCLI;
@@ -52,13 +51,6 @@ public:
 	virtual const string& fileTypeHelp() const = 0;
 };
 
-class CLIPostConfig
-{
-public:
-	virtual ~CLIPostConfig() {}
-	virtual void execute() = 0;
-};
-
 struct OptionData
 {
 	CLIOption* option;
@@ -76,7 +68,6 @@ public:
 	void registerOption(const string& str, CLIOption* cliOption,
 		byte prio = 7, byte length = 2);
 	void registerFileClass(const string& str, CLIFileType* cliFileType);
-	void registerPostConfig(CLIPostConfig* post);
 	void parse(int argc, char** argv);
 	ParseStatus getParseStatus() const;
 
@@ -93,7 +84,6 @@ private:
 	CommandLineParser();
 	~CommandLineParser();
 	void postRegisterFileTypes();
-	vector<CLIPostConfig*> postConfigs;
 	bool haveConfig;
 	bool haveSettings;
 	bool issuedHelp;
@@ -102,7 +92,6 @@ private:
 	HardwareConfig& hardwareConfig;
 	SettingsConfig& settingsConfig;
 	CliCommOutput& output;
-	CartridgeSlotManager& slotManager;
 
 	class HelpOption : public CLIOption {
 	public:
