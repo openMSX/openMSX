@@ -49,6 +49,7 @@ class Console : private EventListener
 		void scrollDown();
 		void prevCommand();
 		void nextCommand();
+		void clearCommand();
 		void backspace();
 		void delete_key();
 		void normalKey(char chr);
@@ -72,6 +73,8 @@ class Console : private EventListener
 		std::list<ConsoleRenderer*> renderers;
 		CircularBuffer<std::string, 100> lines;
 		CircularBuffer<std::string, 25> history;
+		// saves Current Command to enable command recall
+		std::string currentLine;
 		int consoleScrollBack;
 		int commandScrollBack;
 		unsigned int cursorPosition;

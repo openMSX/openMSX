@@ -1,5 +1,9 @@
 $Id$
 
+2003-05-19 Herman Oudejans <hn.oudejans@quicknet.nl>
+	* Implemented search history in the console
+	* added Ctrl-C to clear the current command.
+
 2003-05-19 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Added MoonSound:
 	  - code was largly taken from mame

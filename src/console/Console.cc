@@ -37,8 +37,6 @@ Console::Console()
 
 	EventDistributor::instance()->registerEventListener(SDL_KEYDOWN, this);
 	EventDistributor::instance()->registerEventListener(SDL_KEYUP,   this);
-
-	cursorPosition=2;
 	putPrompt();
 }
 
@@ -154,6 +152,14 @@ bool Console::signalEvent(SDL_Event &event)
 				normalKey((char)event.key.keysym.unicode);	
 			}	
 			break;	
+		case Keys::K_C:
+			if (modifier & (KMOD_LCTRL | KMOD_RCTRL)){
+				clearCommand();
+			}
+			else{
+				normalKey((char)event.key.keysym.unicode);	
+			}
+			break;			
 		case Keys::K_E:
 			if (modifier & (KMOD_LCTRL | KMOD_RCTRL)){	
 				cursorPosition=lines[0].length();
@@ -212,6 +218,8 @@ void Console::putPrompt()
 	newLineConsole(PROMPT);
 	consoleScrollBack = 0;
 	commandScrollBack = -1;
+	currentLine=PROMPT;
+	cursorPosition=PROMPT.length();
 }
 
 void Console::tabCompletion()
@@ -221,6 +229,7 @@ void Console::tabCompletion()
 	CommandController::instance()->tabCompletion(string);
 	lines[0] = PROMPT + string;
 	cursorPosition=lines[0].length();
+	currentLine=lines[0];
 }
 
 void Console::scrollUp()
@@ -237,11 +246,16 @@ void Console::scrollDown()
 
 void Console::prevCommand()
 {
+	bool match=false;
 	resetScrollBack();
-	if (commandScrollBack+1 < history.size()) {
+	while ((commandScrollBack+1 < history.size()) && (!match)) {
 		// move back a line in the command strings and copy
 		// the command to the current input string
 		commandScrollBack++;
+		match = ((history[commandScrollBack].length()>=currentLine.length()) &&
+				(history[commandScrollBack].substr(0,currentLine.length())==currentLine));
+	}		
+	if (match){
 		lines[0] = history[commandScrollBack];
 		cursorPosition=lines[0].length();
 	}
@@ -249,18 +263,32 @@ void Console::prevCommand()
 
 void Console::nextCommand()
 {
+	bool match=false;
 	resetScrollBack();
-	if (commandScrollBack > 0) {
+	while ((commandScrollBack > 0) && (!match)) {
 		// move forward a line in the command strings and copy
 		// the command to the current input string
 		commandScrollBack--;
+		match = ((history[commandScrollBack].length()>=currentLine.length()) &&
+				(history[commandScrollBack].substr(0,currentLine.length())==currentLine));
+	} 
+	if (match){
 		lines[0] = history[commandScrollBack];
-	} else if (commandScrollBack == 0) {
+		cursorPosition=lines[0].length();
+	}
+	else {
 		commandScrollBack = -1;
-		lines[0] = PROMPT;
+		lines[0] = currentLine;
 	}
 	cursorPosition=lines[0].length();
 }
+
+void Console::clearCommand()
+{
+	lines[0] = currentLine = PROMPT;
+	cursorPosition=PROMPT.length();
+}
+
 
 void Console::backspace()
 {
@@ -272,6 +300,7 @@ void Console::backspace()
 		lines[0].erase(cursorPosition-1);
 		lines[0] += temp;
 		cursorPosition--;
+		currentLine=lines[0];
 	}
 }
 
@@ -284,6 +313,7 @@ void Console::delete_key()
 		temp=lines[0].substr(cursorPosition+1);
 		lines[0].erase(cursorPosition);
 		lines[0] += temp;
+		currentLine=lines[0];
 	}
 }
 
@@ -294,11 +324,12 @@ void Console::normalKey(char chr)
 	std::string temp="";
 	temp+=chr;
 
-	if (lines[0].length() < (unsigned)(consoleColumns-1)) // ignore extra characters
-	{
+	if (lines[0].length() < (unsigned)(consoleColumns-1)){ // ignore extra characters
 		lines[0].insert(cursorPosition,temp);
 		cursorPosition++;
+		currentLine=lines[0];
 	}
+		
 }
 
 void Console::resetScrollBack(){
