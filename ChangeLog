@@ -3,7 +3,7 @@ $Id$
 2004-05-09 Manuel Bilderbeek <manuel@msxnet.org>
 	* Fixed double SRAM names for Matsushita devices
 
-2004-05-05 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2004-05-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* If init.tcl file in system dir is missing try init.tcl in user dir:
 	   The default init.tcl in the system dir still source's the user
 	   init.tcl file. 
@@ -14,7 +14,7 @@ $Id$
 	  - fixes for compiling on Mac OS X (thanks to Jalu for testing)
 
 2004-05-05 Wouter Vermaelen <wouter.vermaelen@pi.be>
-	* More V9990 work:
+	* More V9990 work
 
 2004-05-02 Maarten ter Huurne <maarten@treewalker.org>
 	* Different final probe message depending on probe results.
