@@ -2,18 +2,18 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
-  <device id="MSX-Audio">
+  <device id="Philips NMS 1205 Music Module MSX-Audio">
     <type>Audio</type>
     <parameter name="volume">12000</parameter>
     <parameter name="mode">mono</parameter>
     <parameter name="sampleram">32</parameter>
   </device>
 
-  <device id="MSX-Audio-Midi">
+  <device id="Philips NMS 1205 Music Module MSX-Audio-Midi">
     <type>Audio-Midi</type>
   </device>
 
-  <device id="Musicbox">
+  <device id="Philips NMS 1205 Music Module ROM Music Box">
     <type>Rom</type>
     <slotted> <ps>-1</ps> <ss>-1</ss> <page>1</page> </slotted>
     <slotted> <ps>-1</ps> <ss>-1</ss> <page>2</page> </slotted>

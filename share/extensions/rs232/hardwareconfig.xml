@@ -2,7 +2,7 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
-  <device id="MSX RS232">
+  <device id="Generic MSX RS-232">
     <type>MSX-RS232</type>
     <slotted> <ps>-1</ps> <ss>-1</ss> <page>1</page> </slotted>
     <parameter name="filename">roms/rs232.rom</parameter>

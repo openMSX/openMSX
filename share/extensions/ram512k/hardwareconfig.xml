@@ -2,7 +2,7 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
-  <device id="512K External RAM">
+  <device id="512k External RAM">
     <type>MemoryMapper</type>
     <slotted><ps>-1</ps><ss>-1</ss><page>0</page></slotted>
     <slotted><ps>-1</ps><ss>-1</ss><page>1</page></slotted>

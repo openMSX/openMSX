@@ -2,7 +2,7 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
-  <device id="Memory Mapped FDC">
+  <device id="Sony HBD-F1 diskROM/FDC">
     <type>FDC</type>
     <slotted> <ps>-1</ps> <ss>-1</ss> <page>1</page> </slotted>
     <parameter name="brokenFDCread">false</parameter> 

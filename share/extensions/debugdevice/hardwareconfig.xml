@@ -3,7 +3,7 @@
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
 
-<device id="DebugDevice">
+<device id="Debug Device">
   <type>DebugDevice</type>
   <parameter name="filename">stdout</parameter>
 </device>

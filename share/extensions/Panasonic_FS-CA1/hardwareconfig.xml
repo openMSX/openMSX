@@ -2,7 +2,7 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
-  <device id="MSX-Audio-1">
+  <device id="Panasonic FS-CA1 MSX-Audio">
     <type>Audio</type>
     <parameter name="volume">12000</parameter>
     <parameter name="mode">mono</parameter>
@@ -11,7 +11,7 @@
 
 <!-- I'm not sure if this device actually has sampleRAM! -->
 
-  <device id="MSX-Audio ROM">
+  <device id="Panasonic FS-CA1 MSX-Audio ROM">
     <type>Rom</type>
     <slotted> <ps>-1</ps> <ss>-1</ss> <page>0</page> </slotted>
     <slotted> <ps>-1</ps> <ss>-1</ss> <page>1</page> </slotted>
