@@ -5,7 +5,6 @@
 
 #include "MSXCPU.hh"
 
-
 namespace openmsx {
 
 /** Helper class for doing interrupt request (IRQ) administration.
@@ -16,45 +15,45 @@ namespace openmsx {
   */
 class IRQHelper
 {
-	public:
-		/** Create a new IRQHelper.
-		  * Initially there is no interrupt request on the bus.
-		  */
-		IRQHelper();
-		
-		/** Destroy this IRQHelper.
-		  * Make sure interrupt is released.
-		  */
-		~IRQHelper();
+public:
+	/** Create a new IRQHelper.
+	  * Initially there is no interrupt request on the bus.
+	  */
+	IRQHelper();
+	
+	/** Destroy this IRQHelper.
+	  * Make sure interrupt is released.
+	  */
+	~IRQHelper();
 
-		/** Set the interrupt request on the bus.
-		  */
-		inline void set() {
-			if (!request) {
-				request = true;
-				cpu.raiseIRQ();
-			}
+	/** Set the interrupt request on the bus.
+	  */
+	inline void set() {
+		if (!request) {
+			request = true;
+			cpu.raiseIRQ();
 		}
+	}
 
-		/** Reset the interrupt request on the bus.
-		  */
-		inline void reset() {
-			if (request) {
-				request = false;
-				cpu.lowerIRQ();
-			}
+	/** Reset the interrupt request on the bus.
+	  */
+	inline void reset() {
+		if (request) {
+			request = false;
+			cpu.lowerIRQ();
 		}
+	}
 
-		/** Get the interrupt state.
-		  * @return true iff interrupt request is active.
-		  */
-		inline bool getState() const {
-			return request;
-		}
+	/** Get the interrupt state.
+	  * @return true iff interrupt request is active.
+	  */
+	inline bool getState() const {
+		return request;
+	}
 
-	private:
-		bool request;
-		MSXCPU& cpu;
+private:
+	bool request;
+	MSXCPU& cpu;
 };
 
 } // namespace openmsx

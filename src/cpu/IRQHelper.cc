@@ -2,7 +2,6 @@
 
 #include "IRQHelper.hh"
 
-
 namespace openmsx {
 
 IRQHelper::IRQHelper()
