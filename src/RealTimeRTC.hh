@@ -9,7 +9,7 @@
 class RealTimeRTC : public RealTime
 {
 	public:
-		static RealTimeRTC* RealTimeRTC::create();
+		static RealTimeRTC* create();
 		virtual ~RealTimeRTC(); 
 
 	protected:
