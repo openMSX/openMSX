@@ -19,7 +19,9 @@
 #include "PixelRenderer.hh"
 
 // Rasterizers:
+#ifdef COMPONENT_GL
 #include "GLRasterizer.hh"
+#endif
 
 
 namespace openmsx {
