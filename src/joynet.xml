@@ -2,11 +2,14 @@
 
   <config id="joynet1">
     <type>joynet</type>
+    <parameter name="startlisten">true</parameter>
+    <parameter name="startconnect">true</parameter>
+
     <parameter name="listenport">3000</parameter>
     <!--
     <parameter name="listenip">3000</parameter>
     -->
-    <parameter name="connecthost">localhost</parameter>
+    <parameter name="connecthost">127.0.0.1</parameter>
     <parameter name="connectport">3000</parameter>
   </config>
 

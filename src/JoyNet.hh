@@ -5,7 +5,12 @@
 
 #include "JoystickDevice.hh"
 #include "MSXException.hh"
-
+#include "Thread.hh"
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
 /*
 
 Standard JoyNet cable for MSX (to link two or more MSX computers) 
@@ -55,6 +60,18 @@ class JoyNet : public JoystickDevice
 		virtual byte read(const EmuTime &time);
 		virtual void write(byte value, const EmuTime &time);
 
+		//Sub class for listener thread
+		class connectionListener: public Runnable
+		{
+			public:
+			  connectionListener(int listenport,byte* linestatus);
+			  virtual ~connectionListener();
+			  void run();
+			private:
+			  int port;
+			  byte* statuspointer;
+		};
+
 	private:
 		static const int JOY_UP      = 0x01;
 		static const int JOY_DOWN    = 0x02;
@@ -68,8 +85,22 @@ class JoyNet : public JoystickDevice
 		int joyNum;
 		byte status;
 		//For IP connection
-		void setupConnection();
-		void destroyConnection();
+		bool IPwritable;
+		std::string hostname;
+		int portname;
+		int listenport;
+
+		int sockfd;
+		struct sockaddr_in servaddr;
+
+		void setupConnections();
+		void destroyConnections();
+		void setupListener();
+		void destroyListener();
+		void setupWriter();
+		void destroyWriter();
 		void sendByte(byte value);
+		connectionListener* myListener;
+		Thread* thread;
 };
 #endif

@@ -1,5 +1,8 @@
 $Id$
 
+2002-05-15 David Heremans <david.heremans@gnu-linux.net>
+	* JoyNet cable using TCP/IP implemented
+
 2002-05-13 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* converted some ints to unsingned ints
 
@@ -15,14 +18,14 @@ $Id$
 2002-05-08 Bas Wijnen <b.wijnen@student.rug.nl>
 	* fixed console-key-pass-bug and some minor things
 
+2002-05-06 David Heremans <david.heremans@gnu-linux.net>
+	* Skeleton files for JoyNet configuration
+
 2002-05-05 Bas Wijnen <b.wijnen@student.rug.nl>
 	* Game Master 2 is working with SRAM and guessing.
 
 2002-05-03 Bas Wijnen <b.wijnen@student.rug.nl>
 	* Created src/FileType.hh for g++-3.0 and some g++-3.0 fixes
-
-2002-05-06 David Heremans <david.heremans@gnu-linux.net>
-	* Skeleton files for JoyNet configuration
 
 2002-05-02 Maarten ter Huurne <mth@stack.nl>
 	* Calculate pixel precision coordinates.
