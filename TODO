@@ -18,9 +18,10 @@
  - support for saving states of devices
  - http support
  - settings.xml with own DTD?
- - dynamic options with XML files
  - do key bindings in a seperate file, not with autocommands
  - The following settings should be added to settings.xml:
+   (Note that you can use AutoCommands in settings.xml to do this also,
+   so this may be obsolete!)
    + blur
    + scanline
    + frameskip
