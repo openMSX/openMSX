@@ -97,7 +97,7 @@ MSXDevice *DeviceFactory::create(Config* conf, const EmuTime& time)
 	if (type == "Music") {
 		return new MSXMusic(conf, time);
 	}
-	if (type == "FM-PAC") { // TODO change to FMPAC when XML format changes
+	if (type == "FMPAC") {
 		return new MSXFmPac(conf, time);
 	}
 	if (type == "Audio") {
