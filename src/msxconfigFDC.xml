@@ -114,7 +114,7 @@
     <parameter name="0x3FFD" class="patch">0xFC</parameter>
   </device>
 -->
-  <device id="Memmory Mapped FDC">
+  <device id="Memory Mapped FDC">
     <type>FDC</type>
     <slotted>
       <ps>3</ps>

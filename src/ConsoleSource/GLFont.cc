@@ -1,8 +1,10 @@
 // $Id$
 
+#include "GLFont.hh"
+#ifdef __GLFONT_AVAILABLE__
+
 #include "SDL/SDL.h"
 #include "SDL/SDL_image.h"
-#include "GLFont.hh"
 
 const int NUM_CHRS = 256;
 
@@ -60,3 +62,5 @@ int GLFont::width()
 {
 	return charWidth;
 }
+
+#endif	// __GLFONT_AVAILABLE__

@@ -1,11 +1,13 @@
 // $Id$
 
+#include "GLConsole.hh"
+#ifdef __GLCONSOLE_AVAILABLE__
+
 #include <cassert>
 #include "SDL/SDL_image.h"
-#include "GLConsole.hh"
 #include "FileOpener.hh"
-#include "GLFont.hh"
 #include "MSXConfig.hh"
+#include "GLFont.hh"
 
 
 GLConsole::GLConsole()
@@ -169,3 +171,5 @@ void GLConsole::drawConsole()
 	glPopMatrix();
 	glPopAttrib();
 }
+
+#endif	// __GLCONSOLE_AVAILABLE__

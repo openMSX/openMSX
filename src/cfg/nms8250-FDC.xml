@@ -107,7 +107,7 @@
   </device>
   -->
 
-  <device id="Memmory Mapped FDC">
+  <device id="Memory Mapped FDC">
     <type>FDC</type>
     <slotted>
       <ps>3</ps>

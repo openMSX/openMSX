@@ -3,13 +3,18 @@
 #ifndef __GLCONSOLE_HH__
 #define __GLCONSOLE_HH__
 
-#include "SDLInteractiveConsole.hh"
+// Only compile on systems that have OpenGL headers.
 #include "config.h"
+#if (defined(HAVE_GL_GL_H) || defined(HAVE_GL_H))
+#define __GLCONSOLE_AVAILABLE__
+
 #ifdef HAVE_GL_GL_H
 #include <GL/gl.h>
 #else // HAVE_GL_H
 #include <gl.h>
 #endif
+
+#include "SDLInteractiveConsole.hh"
 
 // forward declaration
 class GLFont;
@@ -41,4 +46,5 @@ class GLConsole : public SDLInteractiveConsole
 		Uint32 lastBlinkTime;
 };
 
-#endif
+#endif	// OpenGL header check.
+#endif	// __GLCONSOLE_HH__
