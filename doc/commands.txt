@@ -147,6 +147,13 @@ slotmap
   [ mainly usefull for debugging purposes ]
 
 
+slotselect
+----------
+
+  Shows the currently selected slots.
+  [ mainly usefull for debugging purposes ]
+
+
 speed
 -----
 
