@@ -7,6 +7,7 @@ $Id$
 	  --> method is now only called when 
 	        * keymatrix has changed and
 	        * keymatrix is read
+	* extended Mixer to support (pseudo)stereo
 
 2001-10-05 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Made a very simple mixer, made AY8910 register itself as 

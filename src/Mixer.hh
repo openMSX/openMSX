@@ -11,10 +11,13 @@
 class Mixer
 {
 	public:
+		enum ChannelMode { MONO, MONO_LEFT, MONO_RIGHT, STEREO };
+		static const int NB_MODES = STEREO+1;
+
 		~Mixer();
 		static Mixer *instance();
 		
-		void registerSound(SoundDevice *device);
+		void registerSound(SoundDevice *device, ChannelMode mode=MONO);
 		//void unregisterSound(SoundDevice *device);
 	private:
 		Mixer();
@@ -23,9 +26,10 @@ class Mixer
 		static void audioCallback(void *userdata, Uint8 *stream, int len);
 
 		static SDL_AudioSpec audioSpec;
-		static int nbDevices;
-		static std::vector<SoundDevice*> devices;
-		static std::vector<short*> buffers;
+		static int nbAllDevices;
+		static int nbDevices[NB_MODES];
+		static std::vector<SoundDevice*> devices[NB_MODES];
+		static std::vector<short*> buffers[NB_MODES];
 };
 
 #endif //__MIXER_HH__
