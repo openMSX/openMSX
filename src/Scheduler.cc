@@ -68,11 +68,6 @@ const EmuTime& Scheduler::getCurrentTime() const
 	return scheduleTime;
 }
 
-void Scheduler::setCurrentTime(const EmuTime& time)
-{
-	scheduleTime = time;
-}
-
 void Scheduler::scheduleHelper(const EmuTime& limit)
 {
 	InputEventGenerator::instance().poll();

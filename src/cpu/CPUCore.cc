@@ -174,7 +174,6 @@ template <class T> void CPUCore<T>::doBreak2()
 	breaked = true;
 
 	motherboard->block();
-	scheduler.setCurrentTime(T::clock.getTime());
 
 	std::ostringstream os;
 	os << "0x" << std::hex << (int)R.PC.w;

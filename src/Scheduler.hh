@@ -80,11 +80,6 @@ public:
 	}
 	
 	/**
-	 * Set scheduler time. Only CPU is allowed to call this method
-	 */
-	void setCurrentTime(const EmuTime& time);
-	
-	/**
 	 * Schedule till a certain moment in time.
 	 */
 	inline void schedule(const EmuTime& limit)
