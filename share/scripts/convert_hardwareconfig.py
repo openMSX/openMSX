@@ -18,7 +18,7 @@ ioAddresses = {
 	'E6Timer': [ (0xE6, 2, 'IO') ],
 	'TurboRLeds': [ (0xA7, 1, 'O') ],
 	'TurboRPause': [ (0xA7, 1, 'I') ],
-	'RTC': [ (0xB4, 2, 'IO') ],
+	'RTC': [ (0xB4, 2, 'O'), (0xB5, 1, 'I') ],
 	'PrinterPort': [ (0x90, 2, 'IO') ],
 	# Kanji is actually a device with only 2 IO ports and only 128kb ROM
 	# In case of 256kb the device is repeated on the next 2 IO port (and with

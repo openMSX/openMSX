@@ -75,7 +75,8 @@
 
   <device id="Real time clock">
     <type>RTC</type>
-    <io base="0xB4" num="2"/>
+    <io base="0xB4" num="2" type="O"/>
+    <io base="0xB5" num="1" type="I"/>
     <mode>EmuTime</mode>
     <sramname>nms8250.cmos</sramname>
   </device>
