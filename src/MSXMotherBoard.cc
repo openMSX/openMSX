@@ -47,7 +47,6 @@ void MSXMotherBoard::resetMSX(const EmuTime &time)
 
 void MSXMotherBoard::startMSX()
 {
-	resetIRQLine();
 	setPrimarySlots(0);
 	Leds::instance()->setLed(Leds::POWER_ON);
 	RealTime::instance();

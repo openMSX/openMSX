@@ -8,7 +8,6 @@
 CPU::CPU(CPUInterface *interf) 
 {
 	interface = interf;
-	invalidateCache(0x0000, 0x10000/CPU::CACHE_LINE_SIZE);
 }
 
 CPU::~CPU()
@@ -94,7 +93,18 @@ void CPU::reset(const EmuTime &time)
 	R.I = 0xff;
 	R.R = 0x00;
 	R.R2 = 0;
-
+	IRQStatus = 0;
+	invalidateCache(0x0000, 0x10000/CPU::CACHE_LINE_SIZE);
 	setCurrentTime(time);
 }
 
+void CPU::raiseIRQ()
+{
+	if (IRQStatus == 0)
+		slowInstructions++;
+	IRQStatus++;
+}
+void CPU::lowerIRQ()
+{
+	IRQStatus--;
+}

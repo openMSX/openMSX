@@ -4659,7 +4659,7 @@ void _CPU_::execute()
 				R.PC.w=0x0066;
 				M1Cycle();
 				NMI_DELAY();
-			} else if (R.IFF1 && interface->IRQStatus()) {
+			} else if (R.IFF1 && IRQStatus) {
 				// normal interrupt
 				R.HALT = false;
 				R.IFF1 = R.nextIFF1 = false;

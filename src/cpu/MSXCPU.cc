@@ -102,3 +102,14 @@ void MSXCPU::invalidateCache(word start, int num)
 {
 	activeCPU->invalidateCache(start, num);
 }
+
+void MSXCPU::raiseIRQ()
+{
+	z80->raiseIRQ();
+	//r800->raiseIRQ();
+}
+void MSXCPU::lowerIRQ()
+{
+	z80->lowerIRQ();
+	//r800->lowerIRQ();
+}

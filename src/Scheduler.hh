@@ -108,11 +108,6 @@ class Scheduler : private EventListener
 		void stopScheduling();
 
 		/**
-		 * TODO
-		 */
-		void reschedule();
-
-		/**
 		 * This pauses the emulation.
 		 */
 		void pause();
@@ -131,6 +126,7 @@ class Scheduler : private EventListener
 		Scheduler();
 		const SynchronizationPoint &getFirstSP();
 		void removeFirstSP();
+		void reschedule();
 
 		// EventListener
 		void signalEvent(SDL_Event &event);

@@ -22,11 +22,6 @@ class CPUInterface {
 		virtual void writeMem (word address, byte value, const EmuTime &time) = 0;
 
 		/**
-		 * Returns true when INT line is active
-		 */
-		virtual bool IRQStatus() = 0;
-
-		/**
 		 * CPU uses this method to read 'extra' data from the databus
 		 * used in interrupt routines. In MSX this returns always 255.
 		 */

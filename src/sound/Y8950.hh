@@ -5,7 +5,8 @@
 
 #include "openmsx.hh"
 #include "SoundDevice.hh"
-#include "MSXMotherBoard.hh"
+#include "IRQHelper.hh"
+#include "IRQHelper.ii"
 #include "Mixer.hh"
 
 //forward declarations
@@ -326,7 +327,7 @@ class Y8950 : public SoundDevice
 
 		byte status;		// STATUS Register
 		byte statusMask;	//  bit=0 -> masked 
-		MSXMotherBoard::IRQHelper irq;
+		IRQHelper irq;
 		
 		byte* wave;		// ADPCM DATA
 		byte* memory[2];	// [0] RAM, [1] ROM

@@ -159,26 +159,6 @@ void MSXCPUInterface::writeIO(word prt, byte value, const EmuTime &time)
 	IO_Out[port]->writeIO(port, value, time);
 }
 
-
-bool MSXCPUInterface::IRQStatus()
-{
-	return (bool)IRQLine;
-}
-void MSXCPUInterface::raiseIRQ()
-{
-	IRQLine++;
-}
-void MSXCPUInterface::lowerIRQ()
-{
-	assert (IRQLine != 0);
-	IRQLine--;
-}
-void MSXCPUInterface::resetIRQLine()
-{
-	IRQLine = 0;
-}
-int MSXCPUInterface::IRQLine = 0;
-
 byte* MSXCPUInterface::getReadCacheLine(word start)
 {
 	if ((start == 0x10000-CPU::CACHE_LINE_SIZE) &&	// contains 0xffff

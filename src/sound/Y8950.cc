@@ -18,6 +18,7 @@
 #include <math.h>
 #include "Y8950.hh"
 #include "Mixer.hh"
+#include "Scheduler.hh"
 
 
 short Y8950::dB2LinTab[(2*DB_MUTE)*2];

@@ -6,7 +6,8 @@
 #include "openmsx.hh"
 #include "Scheduler.hh"
 #include "MSXIODevice.hh"
-#include "MSXMotherBoard.hh"
+#include "IRQHelper.hh"
+#include "IRQHelper.ii"
 #include "EmuTime.hh"
 #include "Renderer.hh"
 #include "ConsoleSource/Command.hh"
@@ -664,11 +665,11 @@ private:
 
 	/** Manages vertical scanning interrupt request.
 	  */
-	MSXMotherBoard::IRQHelper irqVertical;
+	IRQHelper irqVertical;
 
 	/** Manages horizontal scanning interrupt request.
 	  */
-	MSXMotherBoard::IRQHelper irqHorizontal;
+	IRQHelper irqHorizontal;
 
 	/** Is the current scan position inside the display area?
 	  */

@@ -13,59 +13,6 @@
 class MSXCPUInterface : public CPUInterface
 {
 	public:
-		/** Helper class for doing interrupt request (IRQ) administration.
-		  * IRQ is either enabled or disabled; when enabled it contributes
-		  * one to the motherboard IRQ count, when disabled zero.
-		  * Calling set() in enabled state does nothing;
-		  * neither does calling reset() in disabled state.
-		  */
-		class IRQHelper
-		{
-		public:
-			/** Create a new IRQHelper.
-			  * Initially there is no interrupt request on the bus.
-			  */
-			IRQHelper() {
-				request = false;
-			}
-
-			/** Destroy this IRQHelper.
-			  * Make sure interrupt is released.
-			  */
-			~IRQHelper() {
-				reset();
-			}
-
-			/** Set the interrupt request on the bus.
-			  */
-			inline void set() {
-				if (!request) {
-					request = true;
-					MSXCPUInterface::raiseIRQ();
-				}
-			}
-
-			/** Reset the interrupt request on the bus.
-			  */
-			inline void reset() {
-				if (request) {
-					request = false;
-					MSXCPUInterface::lowerIRQ();
-				}
-			}
-
-			/** Get the interrupt state.
-			  * @return true iff interrupt request is active.
-			  */
-			inline bool getState() {
-				return request;
-			}
-
-		private:
-			bool request;
-
-		}; // end of IRQHelper
-
 		/**
 		 * Devices can register their In ports. This is normally done
 		 * in their constructor. Once device are registered, their
@@ -114,29 +61,6 @@ class MSXCPUInterface : public CPUInterface
 		 * This writes a byte to the given IO-port
 		 */
 		void writeIO(word port, byte value, const EmuTime &time);
-
-		/**
-		 * This returns the current IRQ status.
-		 * @return true iff IRQ pending.
-		 */
-		bool IRQStatus();
-
-		/**
-		 * This method raises an interrupt. A device may call this
-		 * method more than once. If the device wants to lower the
-		 * interrupt again it must call the lowerIRQ() method exactly as
-		 * many times.
-		 * Before using this method take a look at MSXMotherBoard::IRQHelper
-		 */
-		static void raiseIRQ();
-
-		/**
-		 * This methods lowers the interrupt again. A device may never
-		 * call this method more often than it called the method
-		 * raiseIRQ().
-		 * Before using this method take a look at MSXMotherBoard::IRQHelper
-		 */
-		static void lowerIRQ();
 
 		virtual byte* getReadCacheLine(word start);
 		virtual byte* getWriteCacheLine(word start);
@@ -200,7 +124,5 @@ class MSXCPUInterface : public CPUInterface
 		byte SecondarySlotState[4];
 		bool isSubSlotted[4];
 		MSXMemDevice* visibleDevices[4];
-
-		static int IRQLine;
 };
 #endif //__MSXCPUINTERFACE_HH__

@@ -18,7 +18,8 @@ libCPU_la_SOURCES = \
 	CPUCore.n1 CPUCore.n2 CPUTables.nn \
 	Z80.cc Z80.hh Z80Tables.nn Z80Dasm.h \
 	MSXCPU.hh MSXCPU.cc \
-	MSXCPUInterface.hh MSXCPUInterface.cc
+	MSXCPUInterface.hh MSXCPUInterface.cc \
+	IRQHelper.hh IRQHelper.cc IRQHelper.ii
 
 nodebug: resetdebug all
 debug: setdebug all

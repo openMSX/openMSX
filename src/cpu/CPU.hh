@@ -99,7 +99,23 @@ class CPU
 		 */
 		void invalidateCache(word start, int num);
 
-		
+
+		/**
+		 * This method raises an interrupt. A device may call this
+		 * method more than once. If the device wants to lower the
+		 * interrupt again it must call the lowerIRQ() method exactly as
+		 * many times.
+		 */
+		void raiseIRQ();
+
+		/**
+		 * This methods lowers the interrupt again. A device may never
+		 * call this method more often than it called the method
+		 * raiseIRQ().
+		 */
+		void lowerIRQ();
+
+
 		// cache constants
 		static const int CACHE_LINE_BITS = 8;	// 256bytes
 		static const int CACHE_LINE_SIZE = 1 << CACHE_LINE_BITS;
@@ -139,6 +155,7 @@ class CPU
 		EmuTime targetTime;
 		CPURegs R;
 		int slowInstructions;
+		int IRQStatus;
 
 		// flag-register tables
 		static byte ZSTable[256];

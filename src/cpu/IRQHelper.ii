@@ -1,0 +1,23 @@
+// $Id$
+
+void IRQHelper::set()
+{
+	if (!request) {
+		request = true;
+		cpu->raiseIRQ();
+	}
+}
+
+void IRQHelper::reset() 
+{
+	if (request) {
+		request = false;
+		cpu->lowerIRQ();
+	}
+}
+
+bool IRQHelper::getState()
+{
+	return request;
+}
+
