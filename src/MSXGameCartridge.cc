@@ -223,25 +223,18 @@ byte* MSXGameCartridge::getReadCacheLine(word start)
 
 void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 {
-	byte region;
-
 	switch (mapperType) {
+	byte region;
 	case 0:
-		//TODO check the SCC in here, is this correct for this type?
-		// if so, implement writememinterface
-		// also in the memRead
-
 		//--==>> Generic 8kB cartridges <<==--
-		if (address<0x4000 || address>=0xC000)
-			return;
-		if ((address&0xE000) == 0x8000) {
-			// 0x8000..0x9FFF is used as SCC switch
-			enabledSCC = ((value&0x3F)==0x3F);
-		}
+		// Unlike fMSX, our generic 8kB mapper does not have an SCC.
+		// After all, such hardware does not exist in reality.
+		// If you want an SCC, use the Konami5 mapper type.
+		
+		if (address<0x4000 || address>=0xC000) return;
 		// change internal mapper
 		value &= mapperMask;
-		region = (address>>13);	// 0-7
-		setBank(region, memoryBank+(value<<13));
+		setBank(address>>13, memoryBank+(value<<13));
 		break;
 	case 1:
 		//--==**>> Generic 16kB cartridges (MSXDOS2, Hole in one special) <<**==--
@@ -255,7 +248,7 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 	case 2:
 		//--==**>> KONAMI5 8kB cartridges <<**==--
 		// this type is used by Konami cartridges that do have an SCC and some others
-		// example of catrridges: Nemesis 2, Nemesis 3, King's Valley 2, Space Manbow
+		// examples of cartridges: Nemesis 2, Nemesis 3, King's Valley 2, Space Manbow
 		// Solid Snake, Quarth, Ashguine 1, Animal, Arkanoid 2, ...
 		//
 		// The address to change banks:
