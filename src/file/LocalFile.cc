@@ -88,7 +88,7 @@ byte* LocalFile::mmap(bool writeBack)
 		int flags = writeBack ? MAP_SHARED : MAP_PRIVATE;
 		mmem = (byte*)::mmap(0, getSize(), PROT_READ | PROT_WRITE,
 		                     flags, fileno(file), 0);
-		if ((int)mmem == -1) {
+		if (mmem == MAP_FAILED) {
 			throw FileException("Error mmapping file");
 		}
 	}
