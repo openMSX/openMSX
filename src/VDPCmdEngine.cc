@@ -20,6 +20,7 @@ TODO:
 #include "VDP.hh"
 
 #include <stdio.h>
+#include <cassert>
 
 
 // Constants:
@@ -79,8 +80,6 @@ static const int LMMM_TIMING[8]={ 1160, 1599, 1160, 1172,
 
 #define VDP_VRMP5(X, Y) (((Y&1023)<<7) + ((X&255)>>1))
 #define VDP_VRMP6(X, Y) (((Y&1023)<<7) + ((X&511)>>2))
-//#define VDP_VRMP7(X, Y) (((Y&511)<<8) + ((X&511)>>1))
-//#define VDP_VRMP8(X, Y) (((Y&511)<<8) + (X&255))
 #define VDP_VRMP7(X, Y) (((X&2)<<15) + ((Y&511)<<7) + ((X&511)>>2))
 #define VDP_VRMP8(X, Y) (((X&1)<<16) + ((Y&511)<<7) + ((X&255)>>1))
 
@@ -132,6 +131,7 @@ inline int VDPCmdEngine::vramAddr(int x, int y)
 	case 1: return VDP_VRMP6(x, y);
 	case 2: return VDP_VRMP7(x, y);
 	case 3: return VDP_VRMP8(x, y);
+	default: assert(false); return 0; // avoid warning
 	}
 }
 
@@ -162,6 +162,7 @@ inline byte VDPCmdEngine::point(int sx, int sy)
 	case 1: return point6(sx, sy);
 	case 2: return point7(sx, sy);
 	case 3: return point8(sx, sy);
+	default: assert(false); return 0; // avoid warning
 	}
 }
 
