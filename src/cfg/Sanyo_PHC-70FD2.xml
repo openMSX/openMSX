@@ -111,9 +111,9 @@
   <device id="Real time clock">
     <type>RTC</type>
     <parameter name="mode">EmuTime</parameter>
-    <parameter name="load">true</parameter>
-    <parameter name="save">true</parameter>
-    <parameter name="filename">phc-70fd2.cmos</parameter>
+    <parameter name="loadsram">true</parameter>
+    <parameter name="savesram">true</parameter>
+    <parameter name="sramname">phc-70fd2.cmos</parameter>
   </device>
 
   <device id="cpu">

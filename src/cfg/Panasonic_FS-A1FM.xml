@@ -117,9 +117,9 @@
   <device id="Real time clock">
     <type>RTC</type>
     <parameter name="mode">EmuTime</parameter>
-    <parameter name="load">true</parameter>
-    <parameter name="save">true</parameter>
-    <parameter name="filename">fs-a1fm.cmos</parameter>
+    <parameter name="loadsram">true</parameter>
+    <parameter name="savesram">true</parameter>
+    <parameter name="sramname">fs-a1fm.cmos</parameter>
   </device>
 
   <device id="cpu">
