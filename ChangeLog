@@ -1,5 +1,10 @@
 $Id$
 
+2003-08-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* more VDPCmdEngine optimizations
+	* fix VDPCmdEngine register status at end of cmd, should now also be
+	  correct when cmd is interrupted
+
 2003-08-28 Manuel Bilderbeek <manuel@msxnet.org>
 	* the file to which the PrinterLogger logs is now configurable with
 	  the setting "printerlogfilename". Default is still "printer.log".

@@ -231,12 +231,12 @@ private:
 		EmuTimeFreq<VDP::TICKS_PER_SECOND> currentTime;
 		int opsCount;
 
-		int SX, SY;
-		int DX, DY;
-		int NX, NY;
-		int TX, TY;
-		int ASX, ADX, ANX;
-		int MX;
+		word SX;
+		word DX;
+		word NX, NY;
+		word TX, TY;
+		word ASX, ADX, ANX;
+		word MX;
 		byte CL;
 		LogOp LO;
 	};
