@@ -1,5 +1,8 @@
 $Id$
 
+2004-08-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Added MMX optimizations for blur scaler
+
 2004-08-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Added new 'blur' scaler:
 	   - this scaler implements the same blur effects as the SDLGL
