@@ -21,7 +21,15 @@ main (int argc, char **argv)
 		exit(1);
 	}
 	// this is mainly for me (Joost), for testing the xml parsing
-	MSXConfig::instance()->loadFile(argv[1]);
+	try
+	{
+		MSXConfig::instance()->loadFile(argv[1]);
+	}
+	catch (MSXException e)
+	{
+		cerr << e.desc << endl;
+		exit(1);
+	}
 
 	exit (0);
 }

@@ -54,10 +54,25 @@ MSXConfig::Device::~Device()
 
 MSXConfig::Device::Device(XMLNode *deviceNodeP):deviceNode(deviceNodeP)
 {
-	cerr << "Creating " << deviceNode->name() << " : ";
-	cerr << "	id=" << deviceNode->property("id")->value() << endl;
+	// cerr << "Creating " << deviceNode->name() << " : ";
+	// cerr << "	id=" << deviceNode->property("id")->value() << endl;
+//
+//  <device id="mydummy1">
+	// check if it is a devicenode
+	if (deviceNode->name()!="device")
+		throw MSXConfig::XMLParseException("Expected <device> node.");
+	if (deviceNode->property("id")==0)
+		throw MSXConfig::XMLParseException("<device> node is missing mandatory 'id' property.");
+//    <type>DummyDevice</type>
+//        <slotted>
+//          <page>0</page>
+//          <ps>0</ps>
+//          <ss>0</ss>
+//        </slotted>
+//        <parameter name="hello">world</parameter>
+//        <parameter name="hi">alpha centauri</parameter>
+//  </device>
 
-	// TODO!! do basic validity checking of XMLTree
 }
 
 const string &MSXConfig::Device::getType()

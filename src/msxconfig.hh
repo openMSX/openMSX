@@ -43,19 +43,20 @@ public:
 		Device(const Device &foo); // block usage
 		Device &operator=(const Device &foo); // block usage
 		XMLNode *deviceNode;
+		string deviceId;
 	};
 
 public:
 	class Exception: public MSXException
 	{
 	public:
-		Exception(const string &descs="", int errnos=0):MSXException(descs,errnos) {}
+		Exception(const string &descs=""):MSXException(descs,0) {}
 	};
 
 	class XMLParseException: public Exception
 	{
 	public:
-		XMLParseException(const string &descs="", int errnos=0):Exception(descs,errnos) {}
+		XMLParseException(const string &descs=""):Exception(descs) {}
 	};
 
 	list<Device*> deviceList;
