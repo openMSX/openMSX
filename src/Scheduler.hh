@@ -24,7 +24,7 @@ class Scheduler
 {
 	private:
 		Scheduler();
-		set<SchedulerNode> scheduleList;
+		std::set<SchedulerNode> scheduleList;
 		Emutime currentTime;
 		int stateIRQline;
 		bool keepRunning;

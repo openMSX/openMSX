@@ -71,7 +71,7 @@ void Scheduler::scheduleEmulation()
 	// Time is now updated
 		currentTime=time;
 	//3. Get the device from the first SP in the list and let it reach its T-state.
-		// TODO following print gives seg fault
+		// TODO following print gives seg fault ?? it does ??
 		PRT_DEBUG ("Scheduling " << device->getName() << "\n");
 		device->executeUntilEmuTime(time);
 	//4. Remove the first element from the list
