@@ -13,19 +13,19 @@ Console::~Console()
 {
 }
 
-void Console::registerConsole(ConsoleRenderer *console)
+void Console::registerConsole(OSDConsoleRenderer *console)
 {
 	renderers.push_back(console);
 }
 
-void Console::unregisterConsole(ConsoleRenderer *console)
+void Console::unregisterConsole(OSDConsoleRenderer *console)
 {
 	renderers.remove(console);
 }
 
 void Console::updateConsole()
 {
-	for (list<ConsoleRenderer*>::iterator it = renderers.begin();
+	for (list<OSDConsoleRenderer*>::iterator it = renderers.begin();
 	     it != renderers.end();
 	     ++it) {
 		(*it)->updateConsole();

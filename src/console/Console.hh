@@ -8,7 +8,7 @@
 
 namespace openmsx {
 
-class ConsoleRenderer;
+class OSDConsoleRenderer;
 
 using std::list;
 using std::string;
@@ -28,11 +28,11 @@ public:
 
 	/** Add a renderer for this console.
 	  */
-	void registerConsole(ConsoleRenderer *console);
+	void registerConsole(OSDConsoleRenderer *console);
 	
 	/** Remove a renderer for this console.
 	  */
-	void unregisterConsole(ConsoleRenderer *console);
+	void unregisterConsole(OSDConsoleRenderer *console);
 
 	void setFont(const string& font);
 	const string& getFont() const;
@@ -67,7 +67,7 @@ private:
 	unsigned columns;
 	unsigned rows;
 	
-	list<ConsoleRenderer*> renderers;
+	list<OSDConsoleRenderer*> renderers;
 };
 
 } // namespace openmsx

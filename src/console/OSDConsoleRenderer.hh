@@ -6,7 +6,6 @@
 #include <memory>
 #include <string>
 #include <SDL.h>	// TODO get rid of this
-#include "ConsoleRenderer.hh"
 #include "EnumSetting.hh"
 #include "FilenameSetting.hh"
 #include "DummyFont.hh"
@@ -51,7 +50,7 @@ private:
 	OSDConsoleRenderer* console;
 };
 
-class OSDConsoleRenderer : public ConsoleRenderer
+class OSDConsoleRenderer
 {
 public:
 	OSDConsoleRenderer(Console& console);
@@ -59,6 +58,7 @@ public:
 	virtual bool loadBackground(const string& filename) = 0;
 	virtual bool loadFont(const string& filename) = 0;
 	virtual void drawConsole() = 0;
+	virtual void updateConsole() = 0;
 
 	void setBackgroundName(const string& name);
 	void setFontName(const string& name);

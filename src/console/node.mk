@@ -4,7 +4,7 @@ include build/node-start.mk
 
 SRC_HDR:= \
 	Console CommandConsole \
-	ConsoleRenderer OSDConsoleRenderer \
+	OSDConsoleRenderer \
 	Font DummyFont \
 	SDLConsole SDLFont
 
