@@ -40,6 +40,8 @@ openmsx_SOURCES=openmsx.cc \
 
 # libxml++ and SDL
 openmsx_LDADD= -lxml++ -lSDL -lpthread
+#I have a gcc-3.0 compatable libxml++ in /usr/local:
+#openmsx_LDADD= /usr/local/lib/libxml++.la -lSDL -lpthread
 
 # we want ALL warnings
 AM_CXXFLAGS = -Wall -DDEBUG -g -fno-rtti
