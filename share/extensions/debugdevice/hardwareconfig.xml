@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!-- $Id$ -->
+<!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
+<msxconfig>
+
+<device id="DebugDevice">
+  <type>DebugDevice</type>
+  <parameter name="filename">stdout</parameter>
+</device>
+
+</msxconfig>
+
+
