@@ -1,6 +1,22 @@
 // $Id$
 
-/* TODO:
+/*
+Implementation of the Texas Instruments TMS9918A and TMS9928A.
+
+
+Line-based sprite code by Maarten ter Huurne.
+OpenMSX integration by David Heremans.
+Based on Sean Young's code from MESS,
+which was in turn based on code by Mike Balfour.
+
+
+All undocumented features as described in the following file
+should be emulated.
+
+http://www.msxnet.org/tech/tms9918a.txt
+
+
+TODO:
 - Verify the dirty checks, especially those of mode3 and mode23,
   which were different before.
 - Apply line-based scheduling.
@@ -13,86 +29,11 @@ Better performance when doing raster tricks or double buffering.
 Probably also easier to implement when using line buffers.
 */
 
-/*
-** File: tms9928a.c -- software implementation of the Texas Instruments
-**                     TMS9918A and TMS9928A, used by the Coleco, MSX and
-**                     TI99/4A.
-**
-** All undocumented features as described in the following file
-** should be emulated.
-**
-** http://www.msxnet.org/tech/tms9918a.txt
-**
-** By Sean Young 1999 (sean@msxnet.org).
-** Based on code by Mike Balfour. Features added:
-** - read-ahead
-** - single read/write address
-** - AND mask for mode 2
-** - multicolor mode
-** - undocumented screen modes
-** - illegal sprites (max 4 on one line)
-** - vertical coordinate corrected -- was one to high (255 => 0, 0 => 1)
-** - errors in interrupt emulation
-** - back drop correctly emulated.
-**
-** 19 feb 2000, Sean:
-** - now uses plot_pixel (..), so -ror works properly
-** - fixed bug in tms.patternmask
-**
-** 3 nov 2000, Raphael Nabet:
-** - fixed a nasty bug in _TMS9928A_sprites. A transparent sprite caused
-**   sprites at lower levels not to be displayed, which is wrong.
-**
-** 3 jan 2001, Sean Young:
-** - A few minor cleanups
-** - Changed TMS9928A_vram_[rw] and  TMS9928A_register_[rw] to READ_HANDLER
-**   and WRITE_HANDLER.
-** - Got rid of the color table, unused. Also got rid of the old colors,
-**   which where commented out anyways.
-**
-**
-** Todo:
-** - The screen image is rendered in `one go'. Modifications during
-**   screen build up are not shown.
-** - Correctly emulate 4,8,16 kb VRAM if needed.
-** - uses plot_pixel (...) in TMS_sprites (...), which is rended in
-**   in a back buffer created with malloc (). Hmm..
-** - Colours are incorrect. [fixed by R Nabet ?]
-*/
-
-/*
-** 12/08/2001
-** David Heremans started rewritting the existing code to make it a
-** MSXDevice for the openMSX emulator.
-** 13/08/2001 did to readIO melting of READ_HANDLER
-** 15/08/2001 This doesn't go as planned, converting it all at once is
-** nonsens. I'm chancing tactics I remove everything, that I don't need 
-** then restart with alloc_bitmap, then try to craeate a simple window
-** and finally import all mode functions one by one
-** 
-** 04/10/2001
-** Did correct own version of osd_bitmap and draw border when changing reg 7
-**
-** 08/10/2001
-** Started converting the all in one approach as a atrter
-** Did correct blanking, mode0 renderer and some other stuff
-**
-** 09/10/2001
-** Got all modes working + sprites
-**
-** 11/10/2001
-** Enable 'dirty' methodes of Sean again + own extra dirty flag
-** as a side effect this means that the sprites aren't cleared for the moment :-)
-**
-** 12/10/2001
-** Miss-used the dirtyNames table to indicate which chars are overdrawn with sprites.
-** Noticed some timing issues that need to be looked into.
-**
-*/
 
 #include "MSXDevice.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXTMS9928a.hh"
+#include "SDLLoRenderer.hh"
 
 #include <string>
 #include <cassert>
@@ -130,7 +71,7 @@ Probably also easier to implement when using line buffers.
 	E Gray          0.80	0.47	0.47	0.80	0.80	0.80	204	204	204
 	F White         1.00	0.47	0.47	1.00	1.00	1.00	255	255	255
 */
-static unsigned char TMS9928A_palette[16 * 3] =
+const byte MSXTMS9928a::TMS9928A_PALETTE[16 * 3] =
 {
 	0, 0, 0,
 	0, 0, 0,
@@ -156,6 +97,7 @@ static unsigned char TMS9928A_palette[16 * 3] =
   * Optimised for byte-sized booleans,
   * but correct for every size.
   */
+// TODO: Routine is duplicated in SDLLoRenderer.
 inline static void fillBool(bool *ptr, bool value, int nr)
 {
 #if SIZEOF_BOOL == 1
@@ -165,17 +107,7 @@ inline static void fillBool(bool *ptr, bool value, int nr)
 #endif
 }
 
-SDLRenderer::RenderMethod SDLRenderer::modeToRenderMethod[] = {
-	&SDLRenderer::mode0,
-	&SDLRenderer::mode1,
-	&SDLRenderer::mode2,
-	&SDLRenderer::mode12,
-	&SDLRenderer::mode3,
-	&SDLRenderer::modebogus,
-	&SDLRenderer::mode23,
-	&SDLRenderer::modebogus
-};
-
+// TODO: Routine is duplicated in SDLLoRenderer.
 inline static int calculatePattern(byte *patternPtr, int y, int size, int mag)
 {
 	// Calculate pattern.
@@ -296,16 +228,19 @@ int MSXTMS9928a::checkSprites(
 MSXTMS9928a::MSXTMS9928a(MSXConfig::Device *config) : MSXDevice(config), currentTime(3579545, 0)
 {
 	PRT_DEBUG("Creating an MSXTMS9928a object");
+	// TODO: Move as much code as possible from init() to here.
 }
 
 MSXTMS9928a::~MSXTMS9928a()
 {
 	PRT_DEBUG("Destroying an MSXTMS9928a object");
+	delete(renderer);
+	delete(tms.vMem);
 }
 
 // The init, start, reset and shutdown functions
 
-void MSXTMS9928a::reset ()
+void MSXTMS9928a::reset()
 {
 	MSXDevice::reset();
 
@@ -342,7 +277,7 @@ void MSXTMS9928a::init()
 
 	printf("fullscreen = [%s]\n", deviceConfig->getParameter("fullscreen").c_str());
 	bool fullScreen = atoi(deviceConfig->getParameter("fullscreen").c_str());
-	renderer = new SDLRenderer(this, fullScreen);
+	renderer = new SDLLoRenderer(this, fullScreen);
 
 	// Register hotkey for fullscreen togling
 	HotKey::instance()->registerAsyncHotKey(SDLK_PRINT,this);
@@ -398,17 +333,6 @@ void MSXTMS9928a::executeUntilEmuTime(const Emutime &time)
 		setInterrupt();
 	}
 }
-
-/*
-~MSXTMS9928a()
-{
-	free (tms.vMem); tms.vMem = NULL;
-	free (tms.dBackMem); tms.dBackMem = NULL;
-	free (tms.DirtyColour); tms.DirtyColour = NULL;
-	free (tms.DirtyName); tms.DirtyName = NULL;
-	free (tms.DirtyPattern); tms.DirtyPattern = NULL;
-}
-*/
 
 void MSXTMS9928a::setDirty(bool dirty)
 {
@@ -607,445 +531,5 @@ void MSXTMS9928a::_TMS9928A_change_register(byte reg, byte val)
 		fillBool(dirtyColour, true, sizeof(dirtyColour));
 		break;
 	}
-}
-
-// ========================================================================
-
-SDLRenderer::SDLRenderer(MSXTMS9928a *vdp, bool fullScreen)
-{
-	this->vdp = vdp;
-
-	// Clear bitmap.
-	memset(pixelData, 0, sizeof(pixelData));
-	// All pixels are filled with zero bytes, so borders as well.
-	memset(currBorderColours, 0, sizeof(currBorderColours));
-
-	// Init line pointers array.
-	for (int line = 0; line < HEIGHT; line++) {
-		linePtrs[line] = pixelData + line * WIDTH;
-	}
-
-	/* Open the display */
-	PRT_DEBUG("OK\n  Opening display...");
-	screen = SDL_SetVideoMode( WIDTH, HEIGHT, DEPTH,
-		SDL_HWSURFACE | ( fullScreen ? SDL_FULLSCREEN : 0) );
-	if (screen == NULL) {
-		printf("FAILED");
-		return;
-	}
-
-	// Hide mouse cursor
-	SDL_ShowCursor(0);
-
-	// Reset the palette
-	for (int i = 0; i < 16; i++) {
-		XPal[i] = SDL_MapRGB(screen->format,
-			TMS9928A_palette[i * 3 + 0],
-			TMS9928A_palette[i * 3 + 1],
-			TMS9928A_palette[i * 3 + 2]);
-	}
-
-}
-
-/*
-SDLRenderer::~SDLRenderer()
-{
-}
-*/
-
-void SDLRenderer::toggleFullScreen()
-{
-	SDL_WM_ToggleFullScreen(screen);
-}
-
-// RENDERERS for line-based scanline conversion
-
-void SDLRenderer::mode0(Pixel *pixelPtr, int line)
-{
-	Pixel backDropColour = XPal[vdp->tms.Regs[7] & 0x0F];
-	int name = (line / 8) * 32;
-	// TODO: charLefts may have slightly better performance,
-	// but x may be easier to convert to pixel-based rendering.
-	for (int charsLeft = 32; charsLeft--; ) {
-		int charcode = vdp->tms.vMem[vdp->tms.nametbl + name];
-		// TODO: is dirtyColour[charcode / 64] correct?
-		if (vdp->dirtyName[name] || vdp->dirtyPattern[charcode]
-		|| vdp->dirtyColour[charcode / 64]) {
-
-			int colour = vdp->tms.vMem[vdp->tms.colour + charcode / 8];
-			Pixel fg = colour >> 4;   fg = (fg ? XPal[fg] : backDropColour);
-			Pixel bg = colour & 0x0F; bg = (bg ? XPal[bg] : backDropColour);
-
-			int pattern = vdp->tms.vMem[vdp->tms.pattern + charcode * 8 + (line & 0x07)];
-			// TODO: Compare performance of this loop vs unrolling.
-			for (int i = 8; i--; ) {
-				*pixelPtr++ = ((pattern & 0x80) ? fg : bg);
-				pattern <<= 1;
-			}
-		}
-		else {
-			pixelPtr += 8;
-		}
-		name++;
-	}
-}
-
-void SDLRenderer::mode1(Pixel *pixelPtr, int line)
-{
-	// Not needed since full screen refresh not executed now
-	//if ( !(vdp->anyDirtyColour || vdp->anyDirtyName || vdp->anyDirtyPattern) )
-	//  return;
-	if (!vdp->anyDirtyColour) return;
-
-	Pixel fg = XPal[vdp->tms.Regs[7] >> 4];
-	Pixel bg = XPal[vdp->tms.Regs[7] & 0x0F];
-
-	int name = (line / 8) * 40;
-	int x = 0;
-	// Extended left border.
-	for (; x < 8; x++) *pixelPtr++ = bg;
-	// Actual display.
-	while (x < 248) {
-		int charcode = vdp->tms.vMem[vdp->tms.nametbl + name];
-		if (vdp->dirtyName[name] || vdp->dirtyPattern[charcode]) {
-			int pattern = vdp->tms.vMem[vdp->tms.pattern + charcode * 8 + (line & 7)];
-			for (int i = 6; i--; ) {
-				*pixelPtr++ = ((pattern & 0x80) ? fg : bg);
-				pattern <<= 1;
-			}
-		}
-		else {
-			pixelPtr += 6;
-		}
-		x += 6;
-		name++;
-	}
-	// Extended right border.
-	for (; x < 256; x++) *pixelPtr++ = bg;
-}
-
-void SDLRenderer::mode2(Pixel *pixelPtr, int line)
-{
-	// Not needed since full screen refresh not executed now
-	//if ( !(vdp->anyDirtyColour || vdp->anyDirtyName || vdp->anyDirtyPattern) )
-	//  return;
-
-	Pixel backDropColour = XPal[vdp->tms.Regs[7] & 0x0F];
-	int name = (line / 8) * 32;
-	for (int x = 0; x < 256; x += 8) {
-		int charcode = vdp->tms.vMem[vdp->tms.nametbl+name] + (line / 64) * 256;
-		int colourNr = (charcode & vdp->tms.colourmask);
-		int patternNr = (charcode & vdp->tms.patternmask);
-		if (vdp->dirtyName[name] || vdp->dirtyPattern[patternNr]
-		|| vdp->dirtyColour[colourNr]) {
-			// TODO: pattern uses colourNr and colour uses patterNr...
-			//      I don't get it.
-			int pattern = vdp->tms.vMem[vdp->tms.pattern + colourNr * 8 + (line & 7)];
-			int colour = vdp->tms.vMem[vdp->tms.colour + patternNr * 8 + (line & 7)];
-			Pixel fg = colour >> 4;   fg = (fg ? XPal[fg] : backDropColour);
-			Pixel bg = colour & 0x0F; bg = (bg ? XPal[bg] : backDropColour);
-			for (int i = 8; i--; ) {
-				*pixelPtr++ = ((pattern & 0x80) ? fg : bg);
-				pattern <<= 1;
-			}
-		}
-		else {
-			pixelPtr += 8;
-		}
-		name++;
-	}
-}
-
-void SDLRenderer::mode12(Pixel *pixelPtr, int line)
-{
-	// Not needed since full screen refresh not executed now
-	//if ( !(vdp->anyDirtyColour || vdp->anyDirtyName || vdp->anyDirtyPattern) )
-	//  return;
-	if (!vdp->anyDirtyColour) return;
-
-	Pixel fg = XPal[vdp->tms.Regs[7] >> 4];
-	Pixel bg = XPal[vdp->tms.Regs[7] & 0x0F];
-
-	int name = (line / 8) * 32;
-	int x = 0;
-	// Extended left border.
-	for ( ; x < 8; x++) *pixelPtr++ = bg;
-	// Actual display.
-	while (x < 248) {
-		int charcode = (vdp->tms.vMem[vdp->tms.nametbl + name] + (line / 64) * 256) & vdp->tms.patternmask;
-		if (vdp->dirtyName[name] || vdp->dirtyPattern[charcode]) {
-			int pattern = vdp->tms.vMem[vdp->tms.pattern + charcode * 8];
-			for (int i = 6; i--; ) {
-				*pixelPtr++ = ((pattern & 0x80) ? fg : bg);
-				pattern <<= 1;
-			}
-		}
-		else {
-			pixelPtr += 6;
-		}
-		x += 6;
-		name++;
-	}
-	// Extended right border.
-	for ( ; x < 256; x++) *pixelPtr++ = bg;
-}
-
-void SDLRenderer::mode3(Pixel *pixelPtr, int line)
-{
-	// Not needed since full screen refresh not executed now
-	//if ( !(vdp->anyDirtyColour || vdp->anyDirtyName || vdp->anyDirtyPattern) )
-	//  return;
-	if (!vdp->anyDirtyColour) return;
-
-	Pixel backDropColour = XPal[vdp->tms.Regs[7] & 0x0F];
-	int name = (line / 8) * 32;
-	for (int x = 0; x < 256; x += 8) {
-		int charcode = vdp->tms.vMem[vdp->tms.nametbl + name];
-		if (vdp->dirtyName[name] || vdp->dirtyPattern[charcode]) {
-			int colour = vdp->tms.vMem[vdp->tms.pattern + charcode * 8 + ((line / 4) & 7)];
-			Pixel fg = colour >> 4;   fg = (fg ? XPal[fg] : backDropColour);
-			Pixel bg = colour & 0x0F; bg = (bg ? XPal[bg] : backDropColour);
-			int n;
-			for (n = 4; n--; ) *pixelPtr++ = fg;
-			for (n = 4; n--; ) *pixelPtr++ = bg;
-		}
-		else {
-			pixelPtr += 8;
-		}
-		name++;
-	}
-}
-
-void SDLRenderer::modebogus(Pixel *pixelPtr, int line)
-{
-	// Not needed since full screen refresh not executed now
-	//if ( !(vdp->anyDirtyColour || vdp->anyDirtyName || vdp->anyDirtyPattern) )
-	//  return;
-
-	Pixel fg = XPal[vdp->tms.Regs[7] >> 4];
-	Pixel bg = XPal[vdp->tms.Regs[7] & 0x0F];
-	int x = 0;
-	for (; x < 8; x++) *pixelPtr++ = bg;
-	for (; x < 248; x += 6) {
-		int n;
-		for (n = 4; n--; ) *pixelPtr++ = fg;
-		for (n = 2; n--; ) *pixelPtr++ = bg;
-	}
-	for (; x < 256; x++) *pixelPtr++ = bg;
-}
-
-void SDLRenderer::mode23(Pixel *pixelPtr, int line)
-{
-	// Not needed since full screen refresh not executed now
-	//if ( !(vdp->anyDirtyColour || vdp->anyDirtyName || vdp->anyDirtyPattern) )
-	//  return;
-	if (!vdp->anyDirtyColour) return;
-
-	Pixel backDropColour = XPal[vdp->tms.Regs[7] & 0x0F];
-	int name = (line / 8) * 32;
-	for (int x = 0; x < 256; x += 8) {
-		int charcode = vdp->tms.vMem[vdp->tms.nametbl + name];
-		if (vdp->dirtyName[name] || vdp->dirtyPattern[charcode]) {
-			int colour = vdp->tms.vMem[vdp->tms.pattern + ((charcode + ((line / 4) & 7) +
-				(line / 64) * 256) & vdp->tms.patternmask) * 8];
-			Pixel fg = colour >> 4;   fg = (fg ? XPal[fg] : backDropColour);
-			Pixel bg = colour & 0x0F; bg = (bg ? XPal[bg] : backDropColour);
-			int n;
-			for (n = 4; n--; ) *pixelPtr++ = fg;
-			for (n = 4; n--; ) *pixelPtr++ = bg;
-		}
-		else {
-			pixelPtr += 8;
-		}
-		name++;
-	}
-}
-
-/** TODO: Is blanking really a mode?
-  */
-void SDLRenderer::modeblank(Pixel *pixelPtr, int line)
-{
-	// Screen blanked so all background colour.
-	Pixel colour = XPal[vdp->tms.Regs[7] & 0x0F];
-	for (int x = 0; x < 256; x++) {
-		*pixelPtr++ = colour;
-	}
-}
-
-bool SDLRenderer::drawSprites(Pixel *pixelPtr, int line, bool *dirty)
-{
-	int size = (vdp->tms.Regs[1] & 2) ? 16 : 8;
-	int mag = vdp->tms.Regs[1] & 1; // 0 = normal, 1 = double
-
-	// Determine sprites visible on this line.
-	// Also sets status reg properly.
-	int visibleSprites[32];
-	int visibleIndex = vdp->checkSprites(line, visibleSprites, size, mag);
-
-	bool ret = false;
-	while (visibleIndex--) {
-		// Get sprite info.
-		byte *attributePtr = vdp->tms.vMem + vdp->tms.spriteattribute +
-			visibleSprites[visibleIndex] * 4;
-		int y = *attributePtr++;
-		y = (y > 208 ? y - 255 : y + 1);
-		int x = *attributePtr++;
-		byte *patternPtr = vdp->tms.vMem + vdp->tms.spritepattern +
-			((size == 16) ? *attributePtr & 0xFC : *attributePtr) * 8;
-		Pixel colour = *++attributePtr;
-		if (colour & 0x80) x -= 32;
-		colour &= 0x0F;
-		if (colour == 0) {
-			// Don't draw transparent sprites.
-			continue;
-		}
-		colour = XPal[colour];
-
-		int pattern = calculatePattern(patternPtr, line - y, size, mag);
-
-		// Skip any dots that end up in the left border.
-		if (x < 0) {
-			pattern <<= -x;
-			x = 0;
-		}
-		// Sprites are only visible in screen modes which have lines
-		// of 32 8x8 chars.
-		bool *dirtyPtr = dirty + (x / 8);
-		if (pattern) {
-			vdp->anyDirtyName = true;
-			ret = true;
-		}
-		// Convert pattern to pixels.
-		bool charDirty = false;
-		while (pattern && (x < 256)) {
-			// Draw pixel if sprite has a dot.
-			if (pattern & 0x80000000) {
-				pixelPtr[x] = colour;
-				charDirty = true;
-			}
-			// Advancing behaviour.
-			pattern <<= 1;
-			x++;
-			if ((x & 7) == 0) {
-				if (charDirty) *dirtyPtr = true;
-				charDirty = false;
-				dirtyPtr++;
-			}
-		}
-		// Semi-filled characters can be dirty as well.
-		if ((x < 256) && charDirty) *dirtyPtr = true;
-	}
-
-	return ret;
-}
-
-inline static void drawEmptyLine(Pixel *linePtr, Pixel colour)
-{
-	for (int i = WIDTH; i--; ) {
-		*linePtr++ = colour;
-	}
-}
-
-inline static void drawBorders(
-	Pixel *linePtr, Pixel colour, int displayStart, int displayStop)
-{
-	for (int i = displayStart; i--; ) {
-		*linePtr++ = colour;
-	}
-	linePtr += displayStop - displayStart;
-	for (int i = WIDTH - displayStop; i--; ) {
-		*linePtr++ = colour;
-	}
-}
-
-void SDLRenderer::fullScreenRefresh()
-{
-	// Only redraw if needed.
-	if (!vdp->tms.Change) return;
-
-	Pixel borderColour = XPal[vdp->tms.Regs[7] & 0x0F];
-	int displayX = (WIDTH - 256) / 2;
-	int displayY = (HEIGHT - 192) / 2;
-	int line = 0;
-	Pixel *currBorderColoursPtr = currBorderColours;
-
-	// Top border.
-	for (; line < displayY; line++, currBorderColoursPtr++) {
-		if (*currBorderColoursPtr != borderColour) {
-			drawEmptyLine(linePtrs[line], borderColour);
-			*currBorderColoursPtr = borderColour;
-		}
-	}
-
-	// Characters that contain sprites should be drawn again next frame.
-	bool nextDirty[32];
-	bool nextAnyDirty = false; // dirty pixel in current character row?
-	bool nextAnyDirtyName = false; // dirty pixel anywhere in frame?
-
-	// Display area.
-	RenderMethod renderMethod = modeToRenderMethod[vdp->tms.mode];
-	for (int y = 0; y < 192; y++, line++, currBorderColoursPtr++) {
-		if ((y & 7) == 0) {
-			fillBool(nextDirty, false, 32);
-			nextAnyDirty = false;
-		}
-		Pixel *linePtr = &linePtrs[line][displayX];
-		if (vdp->tms.Regs[1] & 0x40) {
-			// Draw background.
-			(this->*renderMethod)(linePtr, y);
-			// Sprites enabled?
-			if ((vdp->tms.Regs[1] & 0x50) == 0x40) {
-				nextAnyDirty |= drawSprites(linePtr, y, nextDirty);
-			}
-		}
-		else {
-			modeblank(linePtr, y);
-		}
-		if ((y & 7) == 7) {
-			if (nextAnyDirty) {
-				memcpy(vdp->dirtyName + (y / 8) * 32, nextDirty, 32);
-				nextAnyDirtyName = true;
-			}
-			else {
-				fillBool(vdp->dirtyName + (y / 8) * 32, false, 32);
-			}
-		}
-		// Borders are drawn after the display area:
-		// V9958 can extend the left border over the display area,
-		// this is implemented using overdraw.
-		// TODO: Does the extended border clip sprites as well?
-		if (*currBorderColoursPtr != borderColour) {
-			drawBorders(linePtrs[line], borderColour,
-				displayX, WIDTH - displayX);
-			*currBorderColoursPtr = borderColour;
-		}
-	}
-
-	// Bottom border.
-	for (; line < HEIGHT; line++, currBorderColoursPtr++) {
-		if (*currBorderColoursPtr != borderColour) {
-			drawEmptyLine(linePtrs[line], borderColour);
-			*currBorderColoursPtr = borderColour;
-		}
-	}
-
-	// TODO: Verify interaction between dirty flags and blanking.
-	vdp->anyDirtyName = nextAnyDirtyName;
-	vdp->anyDirtyColour = vdp->anyDirtyPattern = false;
-	fillBool(vdp->dirtyColour, false, sizeof(vdp->dirtyColour));
-	fillBool(vdp->dirtyPattern, false, sizeof(vdp->dirtyPattern));
-}
-
-void SDLRenderer::putImage()
-{
-	if (SDL_MUSTLOCK(screen) && SDL_LockSurface(screen)<0) return;//ExitNow=1;
-
-	// Copy image.
-	memcpy(screen->pixels, pixelData, sizeof(pixelData));
-
-	if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
-
-	// Update screen.
-	SDL_UpdateRect(screen, 0, 0, 0, 0);
 }
 
