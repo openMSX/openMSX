@@ -297,9 +297,9 @@ const opcode_fn Z80::opcode_ed[256]=
  &Z80::nop   ,&Z80::nop    ,&Z80::nop      ,&Z80::nop        ,
  &Z80::nop   ,&Z80::nop    ,&Z80::nop      ,&Z80::nop        ,
  &Z80::nop   ,&Z80::nop    ,&Z80::nop      ,&Z80::nop        ,
- &Z80::nop   ,&Z80::nop    ,&Z80::patch    ,&Z80::nop        ,
  &Z80::nop   ,&Z80::nop    ,&Z80::nop      ,&Z80::nop        ,
- &Z80::nop   ,&Z80::nop    ,&Z80::nop      ,&Z80::nop
+ &Z80::nop   ,&Z80::nop    ,&Z80::nop      ,&Z80::nop        ,
+ &Z80::nop   ,&Z80::nop    ,&Z80::patch    ,&Z80::nop
 };
 
 const opcode_fn Z80::opcode_dd[256]=
