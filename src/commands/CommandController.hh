@@ -25,10 +25,12 @@ public:
 	/**
 	 * (Un)register a command
 	 */
-	void registerCommand(Command *commandObject,
-			     const string &str);
-	void unregisterCommand(Command *commandObject,
-			       const string &str);
+	void registerCommand(Command* commandObject, const string& str);
+	void unregisterCommand(Command* commandObject, const string& str);
+	/**
+	 * Does a command with this name already exist?
+	 */
+	bool hasCommand(const string& command);
 
 	/**
 	 * Executes all defined auto commands
@@ -43,28 +45,26 @@ public:
 	/**
 	 * Complete a given command
 	 */
-	void tabCompletion(string &command);
+	void tabCompletion(string& command);
 
 	/**
 	 * TODO
 	 */
-	static void completeString(vector<string> &tokens,
-				   set<string> &set);
-	static void completeFileName(vector<string> &tokens);
+	static void completeString(vector<string>& tokens, set<string>& set);
+	static void completeFileName(vector<string>& tokens);
 
 private:
 	CommandController();
 	~CommandController();
 	
-	void split(const string& str, vector<string>& tokens,
-		   char delimiter);
+	void split(const string& str, vector<string>& tokens, char delimiter);
 	string join(const vector<string>& tokens, char delimiter);
 	string removeEscaping(const string& str);
 	void removeEscaping(const vector<string>& input,
-		     vector<string>& output, bool keepLastIfEmpty);
+	                    vector<string>& output, bool keepLastIfEmpty);
 	string addEscaping(const string& str, bool quote, bool finished);
 
-	void tabCompletion(vector<string> &tokens);
+	void tabCompletion(vector<string>& tokens);
 	static bool completeString2(string& str, set<string>& set);
 
 	typedef map<string, Command*> CommandMap;
@@ -73,11 +73,11 @@ private:
 	// Commands
 	class HelpCmd : public Command {
 	public:
-		virtual string execute(const vector<string> &tokens)
+		virtual string execute(const vector<string>& tokens)
 			throw(CommandException);
-		virtual string help(const vector<string> &tokens) const
+		virtual string help(const vector<string>& tokens) const
 			throw();
-		virtual void tabCompletion(vector<string> &tokens) const
+		virtual void tabCompletion(vector<string>& tokens) const
 			throw();
 	} helpCmd;
 	friend class HelpCmd;

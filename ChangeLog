@@ -1,5 +1,9 @@
 $Id$
 
+2003-11-10 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed crash when trying to define an alias with the same name as an
+	  existing command
+
 2003-11-10 Maarten ter Huurne <maarten@treewalker.org>
 	* Integrated part of Reikan's SDLRenderer patch:
 	  - added missing SDL_LockSurface calls when accessing surfaces directly

@@ -58,6 +58,10 @@ void CommandController::unregisterCommand(Command* command,
 	commands.erase(str);
 }
 
+bool CommandController::hasCommand(const string& command)
+{
+	return commands.find(command) != commands.end();
+}
 
 void CommandController::split(const string& str, vector<string>& tokens,
                               const char delimiter)

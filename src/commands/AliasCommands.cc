@@ -108,6 +108,9 @@ string AliasCommands::AliasCmd::execute(const vector<string> &tokens)
 		if (it != parent.aliasses.end()) {
 			delete it->second;
 		}
+		if (CommandController::instance()->hasCommand(tokens[1])) {
+			throw CommandException("Cannot redefine command as alias");
+		}
 		parent.aliasses[tokens[1]] =
 			new Alias(parent, tokens[1], definition);
 	}
