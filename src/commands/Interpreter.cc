@@ -122,7 +122,7 @@ int Interpreter::commandProc(ClientData clientData, Tcl_Interp* interp,
 	try {
 		command.execute(tokens, result);
 		return TCL_OK;
-	} catch (CommandException& e) {
+	} catch (MSXException& e) {
 		result.setString(e.getMessage());
 		return TCL_ERROR;
 	}
@@ -223,7 +223,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 			if (newValue != newValue2) {
 				Tcl_SetVar(interp, part1, newValue2.c_str(), 0);
 			}
-		} catch (CommandException& e) {
+		} catch (MSXException& e) {
 			Tcl_SetVar(interp, part1, variable->getValueString().c_str(), 0);
 			static_string = e.getMessage();
 			return const_cast<char*>(static_string.c_str());
