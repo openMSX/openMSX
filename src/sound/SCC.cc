@@ -67,6 +67,8 @@
 //   - Channel 4-5 rotation speed is set by channel 5 freq (channel 4 freq
 //     is ignored for rotation)
 //
+//
+// Something completely different: the SCC+ is actually called SCC-I.
 //-----------------------------------------------------------------------------
 
 #include "SCC.hh"

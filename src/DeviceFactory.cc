@@ -119,7 +119,7 @@ auto_ptr<MSXDevice> DeviceFactory::create(const XMLElement& conf, const EmuTime&
 	if (type == "PrinterPort") {
 		return auto_ptr<MSXDevice>(new MSXPrinterPort(conf, time));
 	}
-	if (type == "SCCplus") { // Note: it's actually called SCC-II
+	if (type == "SCCplus") { // Note: it's actually called SCC-I
 		return auto_ptr<MSXDevice>(new MSXSCCPlusCart(conf, time));
 	}
 	if (type == "WD2793") {
