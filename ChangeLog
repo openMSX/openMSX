@@ -1,5 +1,8 @@
 $Id$
 
+2004-11-22 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Merge romdb.xml in user and system dir
+
 2004-11-20 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Changed buffer managment in sound code:
 	   - Mixer now allocates/deallocates buffers iso the sounddevice

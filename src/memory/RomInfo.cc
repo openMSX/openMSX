@@ -122,53 +122,69 @@ MapperType RomInfo::nameToMapperType(const string& name)
 	return it->second;
 }
 
+static void parseDB(const XMLDocument& doc, map<string, RomInfo*>& result)
+{
+	const XMLElement::Children& children = doc.getChildren();
+	for (XMLElement::Children::const_iterator it1 = children.begin();
+	     it1 != children.end(); ++it1) {
+		// TODO there can be multiple title tags
+		string title   = (*it1)->getChildData("title", "");
+		string year    = (*it1)->getChildData("year", "");
+		string company = (*it1)->getChildData("company", "");
+		string remark  = (*it1)->getChildData("remark", "");
+		string romtype = (*it1)->getChildData("romtype", "");
+		
+		RomInfo* romInfo = new RomInfo(title, year,
+		   company, remark, RomInfo::nameToMapperType(romtype));
+		const XMLElement::Children& sub_children = (*it1)->getChildren();
+		for (XMLElement::Children::const_iterator it2 = sub_children.begin();
+		     it2 != sub_children.end(); ++it2) {
+			if ((*it2)->getName() == "sha1") {
+				string sha1 = (*it2)->getData();
+				if (result.find(sha1) == result.end()) {
+					result[sha1] = romInfo;
+				} else {
+					CliCommOutput::instance().printWarning(
+						"duplicate romdb entry SHA1: " + sha1);
+				}
+			}
+		}
+	}
+}
+
 auto_ptr<RomInfo> RomInfo::searchRomDB(const Rom& rom)
 {
 	// TODO: Turn ROM DB into a separate class.
+	// TODO - mem leak on duplicate entries
+	//      - mem not freed on exit
+	//      - RomInfo is copied only to make ownership managment easier
+	//  -->  boost::shared_ptr would solve all these issues
 	static map<string, RomInfo*> romDBSHA1;
 	static bool init = false;
 
 	if (!init) {
 		init = true;
-		try {
-			SystemFileContext context;
-			File file(context.resolve("romdb.xml"));
-			XMLDocument doc(file.getLocalName(), "romdb.dtd");
-			
-			const XMLElement::Children& children = doc.getChildren();
-			for (XMLElement::Children::const_iterator it1 = children.begin();
-			     it1 != children.end(); ++it1) {
-				// TODO there can be multiple title tags
-				string title   = (*it1)->getChildData("title", "");
-				string year    = (*it1)->getChildData("year", "");
-				string company = (*it1)->getChildData("company", "");
-				string remark  = (*it1)->getChildData("remark", "");
-				string romtype = (*it1)->getChildData("romtype", "");
-				
-				RomInfo* romInfo = new RomInfo(title, year,
-				   company, remark, nameToMapperType(romtype));
-				const XMLElement::Children& sub_children = (*it1)->getChildren();
-				for (XMLElement::Children::const_iterator it2 = sub_children.begin();
-				     it2 != sub_children.end(); ++it2) {
-					if ((*it2)->getName() == "sha1") {
-						string sha1 = (*it2)->getData();
-						if (romDBSHA1.find(sha1) ==
-						    romDBSHA1.end()) {
-							romDBSHA1[sha1] = romInfo;
-						} else {
-							CliCommOutput::instance().printWarning(
-								"duplicate romdb entry SHA1: " + sha1);
-						}
-					}
-				}
+		SystemFileContext context;
+		const vector<string>& paths = context.getPaths();
+		for (vector<string>::const_iterator it = paths.begin();
+		     it != paths.end(); ++it) {
+			try {
+				File file(*it + "romdb.xml");
+				XMLDocument doc(file.getLocalName(), "romdb.dtd");
+				map<string, RomInfo*> tmp;
+				parseDB(doc, tmp);
+				romDBSHA1.insert(tmp.begin(), tmp.end());
+			} catch (FileException& e) {
+				// couldn't read file
+			} catch (XMLException& e) {
+				CliCommOutput::instance().printWarning(
+					"Could not parse ROM DB: " + e.getMessage() + "\n"
+					"Romtype detection might fail because of this.");
 			}
-		} catch (FileException& e) {
+		}
+		if (romDBSHA1.empty()) {
 			CliCommOutput::instance().printWarning(
-				"Couldn't open romdb.xml.\n"
-				"Romtype detection might fail because of this.");
-		} catch (XMLException& e) {
-			CliCommOutput::instance().printWarning(
-				"Could not parse ROM DB: " + e.getMessage() + "\n"
+				"Couldn't load rom database.\n"
 				"Romtype detection might fail because of this.");
 		}
 	}
