@@ -1,5 +1,8 @@
 $Id$
 
+2003-11-16 Maarten ter Huurne <maarten@treewalker.org>
+	* Implemented scanlines for SDLHi.
+
 2003-11-15 Manuel Bilderbeek <manuel@msxnet.org>
 	* Moved initialization of SDL Video to RendererFactory.
 	* Added Ren-Sha Turbo device to machines which have it.

@@ -132,16 +132,22 @@ void SDLRenderer<Pixel, zoom>::putStoredImage()
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::drawEffects()
 {
-	// Apply postprocessing.
+	// All of the current postprocessing steps require hi-res.
+	if (LINE_ZOOM != 2) return;
+
+	Scaler::ScalerID scalerID =
+		RenderSettings::instance()->getScaler()->getValue();
+	int scanlineAlpha = (settings->getScanlineAlpha()->getValue() * 255) / 100;
+
+	// Lock surface, because we will access pixels directly.
+	if (SDL_MUSTLOCK(screen) && SDL_LockSurface(screen) < 0) {
+		// Display will be wrong, but this is not really critical.
+		return;
+	}
+
+	// Apply scaler.
 	if (LINE_ZOOM == 2) {
-		// Lock surface, because we will access pixels directly.
-		if (SDL_MUSTLOCK(screen) && SDL_LockSurface(screen) < 0) {
-			// Display will be wrong, but this is not really critical.
-			return;
-		}
-		Scaler *scaler = scalers[
-			RenderSettings::instance()->getScaler()->getValue()
-			];
+		Scaler* scaler = scalers[scalerID];
 		for (unsigned y = 0; y < HEIGHT; y += 2) {
 			//fprintf(stderr, "post processing line %d: %d\n", y, processLines[y]);
 			switch (processLines[y]) {
@@ -158,9 +164,71 @@ void SDLRenderer<Pixel, zoom>::drawEffects()
 				break;
 			}
 		}
-		// Unlock surface.
-		if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
 	}
+
+	// Apply scanlines.
+	// TODO: Turn off scanlines when deinterlacing.
+	// TODO: Optimize scanlineAlpha == 255.
+	// TODO: Integrate with scaler? (introduce a "darken" class like Blender)
+	if (scanlineAlpha != 0 && sizeof(Pixel) != 1) {
+		SDL_PixelFormat* format = screen->format;
+		Uint32 rMask = format->Rmask;
+		Uint32 gMask = format->Gmask;
+		Uint32 bMask = format->Bmask;
+		int darkenFactor = 256 - scanlineAlpha;
+		if (((rMask | gMask | bMask) & 0xFF000000) == 0) {
+			// Upper 8 bits do not contain colours; use them as work area.
+			for (unsigned y = 0; y < HEIGHT; y += 2) {
+				Pixel* currPixel = (Pixel*)
+					((byte*)screen->pixels + (y + 1) * screen->pitch);
+				for (unsigned x = 0; x < WIDTH; x++, currPixel++) {
+					Pixel p = *currPixel;
+					unsigned r = (((p & rMask) * darkenFactor) >> 8) & rMask;
+					unsigned g = (((p & gMask) * darkenFactor) >> 8) & gMask;
+					unsigned b = (((p & bMask) * darkenFactor) >> 8) & bMask;
+					*currPixel = r | g | b;
+				}
+			}
+		} else if (((rMask | gMask | bMask) & 0x000000FF) == 0) {
+			// Lower 8 bits do not contain colours; use them as work area.
+			for (unsigned y = 0; y < HEIGHT; y += 2) {
+				Pixel* currPixel = (Pixel*)
+					((byte*)screen->pixels + (y + 1) * screen->pitch);
+				for (unsigned x = 0; x < WIDTH; x++, currPixel++) {
+					Pixel p = *currPixel;
+					unsigned r = (((p & rMask) >> 8) * darkenFactor) & rMask;
+					unsigned g = (((p & gMask) >> 8) * darkenFactor) & gMask;
+					unsigned b = (((p & bMask) >> 8) * darkenFactor) & bMask;
+					*currPixel = r | g | b;
+				}
+			}
+		} else {
+			// Uncommon pixel format; fall back to slightly slower routine.
+			for (unsigned y = 0; y < HEIGHT; y += 2) {
+				Pixel* currPixel = (Pixel*)
+					((byte*)screen->pixels + (y + 1) * screen->pitch);
+				for (unsigned x = 0; x < WIDTH; x++, currPixel++) {
+					Pixel p = *currPixel;
+					unsigned r =
+						  rMask & 0xFF
+						? (((p & rMask) * darkenFactor) >> 8) & rMask
+						: (((p & rMask) >> 8) * darkenFactor) & rMask;
+					unsigned g =
+						  gMask & 0xFF
+						? (((p & gMask) * darkenFactor) >> 8) & gMask
+						: (((p & gMask) >> 8) * darkenFactor) & gMask;
+					unsigned b =
+						  bMask & 0xFF
+						? (((p & bMask) * darkenFactor) >> 8) & bMask
+						: (((p & bMask) >> 8) * darkenFactor) & bMask;
+					*currPixel = r | g | b;
+				}
+			}
+		}
+	}
+
+	// Unlock surface.
+	if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
 }
 
 template <class Pixel, Renderer::Zoom zoom>
