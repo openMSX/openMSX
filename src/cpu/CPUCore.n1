@@ -45,6 +45,10 @@ inline void irq2_4();
 inline void executeFast();
 inline void executeSlow();
 inline void next();
+
+inline void pLowToHigh();
+inline void pHighToLow();
+
 inline bool C();
 inline bool NC();
 inline bool Z();

@@ -279,6 +279,15 @@ void _CPU_::executeCore() {
 }
 
 
+// big/little endian pointers
+#ifdef WORDS_BIGENDIAN
+inline void _CPU_::pLowToHigh() { p--; }
+inline void _CPU_::pHighToLow() { p++; }
+#else
+inline void _CPU_::pLowToHigh() { p++; }
+inline void _CPU_::pHighToLow() { p--; }
+#endif
+
 // conditions
 inline bool _CPU_::C()  { return R.AF.B.l & C_FLAG; }
 inline bool _CPU_::NC() { return !C(); }
@@ -618,7 +627,7 @@ inline void _CPU_::RD_P_XX3() {
 }
 inline void _CPU_::RD_P_XX2() {
 	if (RDMEM(x.w, *p, &_CPU_::RD_P_XX2)) {
-		x.w++; p++; RD_P_XX3();	// TODO big endian
+		x.w++; pLowToHigh(); RD_P_XX3();
 	}
 }
 inline void _CPU_::RD_P_XX1() {
@@ -646,7 +655,7 @@ inline void _CPU_::RD_P_NN1() {
 }
 inline void _CPU_::RD_P_NN() {
 	if (RDMEM(R.PC.w, *p, &_CPU_::RD_P_NN)) {
-		R.PC.w++; p++; RD_P_NN1();	// TODO big endian
+		R.PC.w++; pLowToHigh(); RD_P_NN1();
 	}
 }
 void _CPU_::ld_bc_word() { p = &R.BC.B.l; RD_P_NN(); }
@@ -2136,7 +2145,7 @@ void _CPU_::push_ix() { x.w = R.IX.w; PUSH(); }
 void _CPU_::push_iy() { x.w = R.IY.w; PUSH(); }
 
 
-// POP ss   TODO big endian machines
+// POP ss
 inline void _CPU_::POP1() {
 	if (RDMEM(R.SP.w, *p, &_CPU_::POP1)) {
 		R.SP.w++;
@@ -2144,7 +2153,7 @@ inline void _CPU_::POP1() {
 }
 inline void _CPU_::POP() { 
 	if (RDMEM(R.SP.w, *p, &_CPU_::POP)) {
-		R.SP.w++; p++; POP1();
+		R.SP.w++; pLowToHigh(); POP1();
 	}
 }
 void _CPU_::pop_af() { p = &R.AF.B.l; POP(); }
@@ -2285,7 +2294,7 @@ void _CPU_::EX_SP3() {
 inline void _CPU_::EX_SP2() {
 	if (WRMEM(R.SP.w, *p, &_CPU_::EX_SP2)) {
 		R.SP.w--;
-		*p = y.B.h; p--;	// TODO big endian
+		*p = y.B.h; pHighToLow();
 		EX_SP3();
 	}
 }
