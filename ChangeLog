@@ -1,7 +1,11 @@
 $Id$
 
+2002-08-21 Maarten ter Huurne <mth@stack.nl>
+	* Added C-BIOS 0.04 to Contrib directory.
+	* Added config XML for using C-BIOS to src/cfg.
+
 2002-08-18 Wouter Vermaelen <wouter.vermaelen@pi.be>
-	* VDP code: 
+	* VDP code:
 	   - trivial fixes / cleanups
 	   - low resolution (SDLLo) rendering improvements
 	     try SCREEN 0 WIDTH 80

@@ -1,0 +1,25 @@
+$Id$
+
+About Contrib
+=============
+
+This directory contains third-party software that is distributed together
+with openMSX. These packages are not part of openMSX: they are maintained
+and licensed separately. Please read the documentation files of the
+contributed packages for details.
+
+We would like to thank the contributors for the software they created and
+for allowing us to distribute it.
+
+
+Contents
+========
+
+cbios: C-BIOS 0.04 (2002-08-21)
+	C-BIOS is a BIOS written from scratch that aims to be compatible with
+	the MSX BIOS. The current version runs many MSX1 ROM games succesfully.
+	Use the config file "src/cfg/cbios.xml" to use C-BIOS in openMSX.
+
+	author: BouKiChi (boukichi@emucamp.com)
+	home page: http://www.emucamp.com/boukichi/
+

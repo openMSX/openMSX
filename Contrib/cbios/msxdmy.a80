@@ -1,0 +1,7 @@
+Start 
+        code
+        org     $0000
+        align
+        org     $3fff
+        nop
+        end Start

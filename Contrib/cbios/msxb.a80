@@ -1,0 +1,1589 @@
+; C-BIOS project ver 0.04
+; copyright(c) 2002 boukichi
+;
+; [date]
+; 2002/08/07 start...
+; 2002/08/09 my birthday!! & playable game!
+; 2002/08/13 added font,print infomation
+;            key_in routine
+; 2002/08/15 improved cartridge recognition.
+; 2002/08/19 added DCOMPR(0020h) function.
+;            a decrease wait sec.
+; 2002/08/20 added a $fcc2-$fcc4 table initalizer.(playable zanac) 
+;            added a in_joy and in_trig function.
+;            divided half. use "set.bat" to rename and merge 32kbyte.
+
+        title "MSX COMPATIBLE BIOS for emulators ver 0.04 by BouKiCHi"
+
+;
+; define I/O and Hook
+;
+
+PRN_STAT equ $90 ; Printer Status
+VDP_RP   equ $98 ; VDP Read Port
+VDP_STAT equ $99 ; VDP Status & Latch Reset
+
+PSL_STAT equ $a8 ; Slot status
+KBD_STAT equ $a9 ; Keyboard status
+GIO_REGS equ $aa ; General IO register
+PPI_REGS equ $ab ; PPI register
+
+PSG_REGS equ $a0 ; PSG register number
+PSG_DATA equ $a1 ; PSG data
+PSG_STAT equ $a2 ; PSG status
+
+
+MAP_REG1 equ $fc ; Mapper 0000h-3FFFh
+MAP_REG2 equ $fd ; Mapper 4000h-7FFFh
+MAP_REG3 equ $fe ; Mapper 8000h-BFFFh
+MAP_REG4 equ $ff ; Mapper C000h-FFFFh
+
+VDP_DATA equ $98 ; VDP data store
+VDP_ADDR equ $99 ; VDP address
+VDP_PALT equ $9a ; VDP palette latch
+VDP_REGS equ $9b ; VDP register access
+
+H.KEYI   equ $fd9a ; keyboard interrupt hook
+H.TIMI   equ $fd9f ; timer interrupt hook
+H.NMI    equ $fdd6 ; non maskable interrupt hook
+
+EXP_TBL  equ $FCC1 ; second slot infomation table
+SLT_TBL  equ $FCC5 ; table of primary slot
+
+
+SSL_REGS equ $ffff ; register of second slot.
+STATFL   equ $f3e7
+RG0SAV   equ $f3df
+RG1SAV   equ $f3e0
+
+CLKFLG   equ $FBD9
+OLDKEY   equ $FBDA 
+NEWKEY   equ $FBE5
+KEYBUF   equ $FBF0
+BOTTOM   equ $FC58
+SCRMOD   equ $FCAF
+
+;-----------------
+; memory for the debug-subroutine
+;-----------------
+
+DISPADDR equ $E010 ; memory of dumping address.
+LASTSTAC equ $E000
+SP_REGS  equ $E002 
+
+;---------------------
+; Jump Table
+;---------------------
+
+; start
+Start 
+        code
+;0000h CHKRAM
+chkram
+        org     $0000
+        di
+        jp      soft_reset
+
+        org     $0006
+
+rdvdpa  db      VDP_DATA ; port of Read  VDP
+wrvdpa  db      VDP_DATA ; port of Write VDP
+
+;0008h SYNCHR
+synchr
+        org     $0008
+        nop
+        ret
+
+;000Ch RDSLT Read Slot?
+rdslt
+        org     $000c
+        nop
+        ret
+chrgtb
+        org     $0010
+        nop
+        ret
+wrslt
+        org     $0014
+        nop
+        ret
+outdo
+        org     $0018
+        nop
+        ret
+;001Ch CALSLT Interslot call routine.
+calslt
+        org     $001c
+        jp      cal_slt
+        ret
+
+;0020h DCOMPR compare HL,DE
+dcompr  org     $0020
+        jp      wordcomp
+        ret
+
+;0024h ENA_SLT Change of Slot
+slot_set org	  $0024
+	jp	slt_set
+
+;002D version ID and other.
+romid
+        org       $002d
+; version of MSX
+        db 0 ; msx1
+stat    db 0 ; ??
+stat2   db 0 ; ??
+
+;0030h CALLF Interslot Call routine(RST 30h version)
+        org     $0030
+        jp      call_lf
+
+;0038h INT_38 interrupt routine (RST38,VBlank,Timer...) 
+        org     $0038
+        jp      int_start
+
+;0038h INITIO Initalize I/O
+        org     $003b
+        ret
+
+;0041h DISSCR Disable Screen 
+        org     $0041
+        ret 
+;0044h ENASCR Enable Screen
+        org     $0044
+        ret
+
+;---------------
+;vdp_routine
+;---------------
+;0047h WRTVDP
+        org 	$0047
+        jp	wrt_vdp
+;004Ah RDVRM
+	org	$004a
+	jp	rd_vrm
+;004Dh WRTVRM
+        org	$004d
+        jp      wrt_vrm
+
+
+;0050h SETRD
+        org $0050
+        jp vdp_setrd
+
+;0053h SETWRT  .. Set adress for the write VRAM.  
+        org $0053
+        jp vdp_setwrt
+
+        org $0056
+        jp vdp_fillmem
+        org $0059
+        jp vdp_ldirmv   ; VRAM -> Memory
+        org $005C
+        jp vdp_data_rep ; Memory -> VRAM
+
+;0066h INT_NMI .. Non Maskable Interrupt.
+        org $0066
+        jp nmi_int
+
+;0069h CLRSPR  .. Clear all sprites
+        org $0069
+        ret
+
+;0072h INITGRP initalize screen to graphics mode.
+        org  $0072
+        jp   init_grp
+;0085h DOLINE Line
+doline
+        org       $0085
+        ret
+;0089h GRPPRT basic?
+grpprt
+        org       $0089
+        ret
+
+        org       $008a
+        ret
+;
+        org     $0093
+        jp      sound_out
+        org     $0096
+        jp      sound_stat
+
+;009Ch CHSNS  .. check KeyBuffer
+        org     $009c
+        jp      ch_sns
+
+;00D5h GTSTCK .. Get Joystick position status
+        org       $00d5
+        jp      in_joy
+;00D8h GTTRIG .. Get trigger status
+        org       $00d8
+        jp      in_trig
+
+;012Dh WRTVDP .. Write VDP register.. 
+wrtvdp  org       $012d
+        ret
+
+;0131h VDPSTA .. Read VDP status.. 
+vdpsta  org       $0131
+        ret
+
+;0138h RDSLTREG Read register of primary slot
+g_slotreg
+        org       $0138
+        jp      get_slotreg
+
+;013Bh WRSLTREG Write register of primary slot
+s_slotreg
+        org       $013B
+        jp      set_slotreg
+;013Eh RDVDP Read VDP status.
+        org       $013E
+        jp      vdp_stat_in
+
+;setpag  org       $013d
+;        ret
+
+;0141h SNSMAT check key mathrics
+snsmat  org       $0141
+        jp      in_keyboard
+
+;0145h RSTPLT
+rstplt  org       $0145
+        ret
+
+;0149h RSTPLT?
+rstplt  org       $0149
+        ret
+
+getplt  org       $014d
+        ret
+
+beep    org       $017d
+        ret
+
+prompt  org       $0181
+        ret
+
+newpad  org       $01ad
+        ret
+
+chgmdp  org       $01b5
+        ret
+
+knjprt  org       $01bd
+        ret
+
+redclk  org       $01f5
+        ret
+
+wrtclk  org       $01f9
+        ret
+
+; system
+
+chgsnd  org       $0135
+        nop
+        ret
+phydio  org       $0144
+        ret
+format  org       $0147
+        ret
+chkdev  org       $014a
+        ret
+;prtout  org       $014d
+;        ret
+kilbuf  org       $0156
+        ret
+calbas  org       $0159
+        ret
+subrom  org       $015c
+        ret
+extrom  org       $015f
+        ret
+eol     org       $0168
+        ret
+bigfil  org       $016b
+        ret
+nsetrd  org       $016e
+        ret
+nstwrt  org       $0171
+        ret
+nrdvrm  org       $0174
+        ret
+rdres   org       $017a
+        ret
+
+chgcpu  org       $0180
+        ret
+getcpu  org       $0183
+        ret
+pcmply  org       $0186
+        ret
+pcmrec  org       $0189
+        ret
+
+; -------------------
+; start up (reset) code
+; -------------------
+
+        org $0200
+soft_reset
+        ex (sp),hl
+        ld (LASTSTAC),hl
+
+        ld  hl,$0000
+        add hl,sp
+        ld (SP_REGS),hl
+
+        ld hl,$f300
+
+; initialize slot
+        xor a
+        out (PSL_STAT),a
+
+; initialize other interface.
+        ld a,$82
+        out (PPI_REGS),a
+        ld a,$50
+        out (GIO_REGS),a
+
+; memory check and select slot to the memory.
+        ld bc,$0303
+chk_wrt_ram   ; check RAM on page3.
+        ld a,b
+        rrca
+        rrca
+        ; BB000000
+        out (PSL_STAT),a
+
+        ld hl,SSL_REGS
+        ld a,c
+        rrca
+        rrca
+        ld (hl),a
+        ld e,a
+        ld a,$12
+        ld ($f000),a
+        ld a,($f000)
+        cp a,$12
+        jr nz,cant_wrt
+        jp ram_ok
+cant_wrt
+        ld a,b
+        or a,c
+        jp z,hang_up_mode
+        ld a,c
+        or a,c
+        jr z,psl_dec
+        dec c
+        jp chk_wrt_ram
+psl_dec
+        dec b
+        ld c,$03
+        jp chk_wrt_ram
+
+ram_ok
+        ld a,e
+        ld (EXP_TBL),a
+
+        jp skip_ram
+
+        ; set RAM to page3 and page4
+
+        ; BC= CartSlot
+; reset PSL
+
+        ld a,b
+        rrca
+        rrca
+        ld d,a
+        rrca
+        rrca
+        or a,d
+        ld d,a
+        ; D = BBBB0000
+        in  a,(PSL_STAT)
+        and a,$0F
+        or  a,d
+        out (PSL_STAT),a
+
+; reset SSL
+        ld a,c
+        rrca
+        rrca
+        ld d,a
+        rrca
+        rrca
+        or a,d
+        ld d,a
+        ; D = CCCC0000
+        ld  a,(EXP_TBL)
+        and a,$0F
+        or  a,d
+        ld (EXP_TBL),a
+        ld (SSL_REGS),a
+
+skip_ram
+; you can write the memory.
+
+
+;----------------------
+;start UserInterface ...
+;----------------------
+; set stack -> $f300
+        ld hl,$f300
+        ld sp,hl
+
+        call check_rom
+
+        call slot_clear
+
+        call init_ram
+        call init_vdp
+                
+        ei
+
+        halt
+        call disp_info
+        call start_cartprog
+
+;----------------------
+;Start GAME
+;----------------------
+start_game
+        ld hl,($4002) ; Cartridge Start Address
+        jp (hl)     ; Running ...
+
+
+;-------------------------------
+; display infomation 
+;-------------------------------
+disp_info
+
+; if press shift key then goto debug_mode
+;
+        ld   a,$06
+        call in_keyboard
+        bit  0,a
+        jp   z,debug_mode
+
+
+; display program infomation
+
+        ld hl,str_proginfo
+        ld de,$0000
+        ; HL = string address
+        ; DE = VRAM address
+        call prn_text
+
+        in   a,(PSL_STAT)
+        and  a,$0C
+        ret  nz
+        ld   hl,str_nocart
+        call prn_text
+
+        jp   hang_up_mode
+
+
+;----------------------------
+start_cartprog
+; if can see cartridge then run the program in slot.
+        ld   hl,str_thanks
+        call prn_text
+
+        ld   hl,str_slot
+        call prn_text
+
+        in   a,(PSL_STAT)
+        and  a,$0C
+        rrca
+        rrca
+        call vout_hex8
+
+
+        ld   b,90  ; 1.5sec wait (1 = 1/60sec)
+        call wait_b ; wait routine 
+
+        ld   a,$06
+        call in_keyboard
+        bit  0,a
+        jp   z,debug_mode
+        bit  1,a
+        jr   nz,skip_msg
+; check press ctrl key, display secret infomation.
+
+        ld   hl,str_secretmsg
+        call prn_text
+skip_msg
+        ld  hl,str_run
+        call prn_text
+
+        call dbg_reg
+
+        ld b,60 ; 1sec
+        call wait_b
+
+        ret
+
+; ------
+; BIOS Debug routines
+; ------
+sh_debug
+        ex (sp),hl
+        ld (LASTSTAC),hl
+
+debug_mode
+        ; return the hook. 
+        ld   a,$C9
+        ld   (H.KEYI),a
+        ld   (H.TIMI),a
+
+        call init_vdp
+
+        ld   hl,$4000 ; this address is start of Page1  
+        ld   (DISPADDR),hl 
+
+        ld   hl,$0000
+        call vdp_setwrt
+
+        ld   ix,(LASTSTAC)
+        call vout_hex16
+
+        ld   a,' '
+        out  (VDP_DATA),a
+
+        ld   ix,(SP_REGS)
+        call vout_hex16
+loop_dump
+        call disp_dump
+        call dump_keywait
+        jr loop_dump
+
+
+;-----------------
+; dump_program sub-routines.
+;-----------------
+
+disp_dump
+
+        ld   hl,40
+        ld   de,hl   ; DE = current text position
+        ld   ix,(DISPADDR)
+        ld   c,$10   ; RegC = rows
+
+dump_lp
+        ld   hl,40
+        add  hl,de
+        ld   de,hl
+
+        call vdp_setwrt
+
+        push bc
+        call vout_hex16
+        pop  bc
+        ld   a,' '
+        out  (VDP_DATA),a
+        nop
+        nop
+        ld   a,':'
+        out  (VDP_DATA),a
+        nop
+        nop
+        ld   a,' '
+        out  (VDP_DATA),a
+        nop
+        nop
+        ld   b,$10   ; RegB = cols
+d16_lp
+        ld   a,(ix)
+        push bc
+        call vout_hex8
+        pop  bc
+        inc  ix
+        djnz d16_lp
+
+        dec  c
+        jr   nz,dump_lp
+
+        ret
+
+;-------------------------
+; Wait of KeyloopRoutine
+dump_keywait
+
+        ld   e,$02
+
+        ld   a,($E008)
+        ld   d,a 
+
+        ld   a,$08
+        call in_keyboard
+
+        cp   a,d
+        jr   z,dumpkey_loop
+        ; case of A != E008
+        ld   ($E008),a
+        ld   e,$10  ; 
+
+dumpkey_loop
+        halt
+        ld   a,($E008)
+        ld   d,a 
+
+        ld   a,$08
+        call in_keyboard
+
+        dec  e
+        jr   z,skip_kchk
+        cp   a,d
+        jr   z,dumpkey_loop
+
+skip_kchk
+        bit  7,a
+        jr   z,on_pagedown
+        bit  6,a
+        jr   z,on_down
+        bit  5,a
+        jr   z,on_up
+        bit  4,a
+        jr   z,on_pageup
+
+        ld   ($E008),a
+
+        ld   a,$07
+        call in_keyboard
+
+        bit  1,a
+        jr   z,on_start
+
+        jp   dumpkey_loop
+
+on_pagedown
+        ld  bc,$100
+        jr  up_addr
+on_pageup
+        ld  bc,$100
+        jr  down_addr
+on_down
+        ld  bc,$10
+        jr  up_addr
+on_up
+        ld  bc,$10
+        jr  down_addr
+
+up_addr
+        ld  hl,($E010)
+        add hl,bc
+        ld  ($E010),hl
+        ret
+down_addr
+        ld  hl,($E010)
+        and a
+        sbc hl,bc
+        ld  ($E010),hl
+        ret
+
+on_start
+        jp start_game
+
+
+;--------------------
+;initalize VDP routine
+;--------------------
+
+init_vdp
+        in a,(VDP_STAT) ; reset Latch 
+        ld bc,$0000  ; R#0
+        call wrt_vdp
+        ld bc,$7001  ; R#1
+        call wrt_vdp 
+        ld bc,$0002  ; R#2  
+        call wrt_vdp
+        ld bc,$0104  ; R#4  
+        call wrt_vdp
+
+        call clr_text40
+
+        ld a ,$00
+        ld bc,$0800
+        ld hl,$0800
+        call vdp_fillmem
+
+; PatGenTbl
+;        76543210 76543210
+;        00000100 00000000
+;             04h      00h
+
+        ld   bc,$F507  ; R#7
+        call wrt_vdp
+
+        in   a,(VDP_STAT) ; reset Latch
+
+        ld   hl,MFonts
+
+        ld   de,$800
+        ld   bc,$800
+        call vdp_data_rep
+
+        ret
+
+;------------------------
+; Clear Text
+clr_text40
+        ld   a ,$00
+        ld   bc,$0800
+        ld   hl,$0000
+        call vdp_fillmem
+        ret
+
+;------------------------
+; initalize RAM
+init_ram
+        ld   a,$C9 ; ret code
+        ld   hl,H.KEYI
+        ld   (hl),a
+        ld   de,H.KEYI+1
+        ld   bc,$024D
+        ldir
+
+        ld   a,$FF 
+        ld   hl,OLDKEY
+        ld   (hl),a
+        ld   de,OLDKEY+1
+        ld   bc,22
+        ldir
+
+        ld   hl,$8000
+        ld   (BOTTOM),hl
+        ret
+
+
+;------------------------
+;
+;display register
+;
+dbg_reg
+        push ix
+        push iy
+        push hl
+        push de
+        push bc
+        push af
+
+        ld iy,6
+
+        ld hl,40*15
+        call vdp_setwrt
+
+dbg_loop  ; loop until pop all stack.
+        pop ix
+        call prn_hex
+
+        dec iy
+        ld  bc,iy
+        xor a,a
+        or  a,c
+
+        jp nz,dbg_loop
+        pop  ix
+        push ix
+        jp prn_hex ; Print PC
+
+
+;------------------------
+prn_hex
+;BC = Reg
+        call prn_reg
+        call vout_hex16
+
+        nop
+        nop
+        ld a,' '
+        out (VDP_DATA),a
+
+        ret
+
+;------------------------
+prn_reg
+;
+        push hl
+        push bc
+        ld  bc,iy
+        ld  a,c
+        add a,a
+        add a,a
+        ld  c,a
+        
+        ld  hl,reg_tbl
+        add hl,bc
+
+        ld b,$03
+        ld c,VDP_DATA
+        otir
+
+        pop bc
+        pop hl
+        ret
+
+;------------------------
+vout_hex16
+; display word scale hex number.
+;IX = number
+;dest = BC,HL,AF
+        ; RegB upper 4bit
+        ld hl,hex_tbl
+        ld bc,ix
+
+        ld a,b
+        rlca
+        rlca
+        rlca
+        rlca
+        and a,$0F
+
+        ld b,0
+        ld c,a
+        add hl,bc
+        ld a,(hl)
+        out (VDP_DATA),a
+
+        ; RegB lower 4bit
+        ld  hl,hex_tbl
+        ld  bc,ix
+
+        ld  a,b
+        and a,$0F
+
+        ld  b,0
+        ld  c,a
+        add hl,bc
+        ld  a,(hl)
+        out (VDP_DATA),a
+
+        ; RegC upper 4bit
+        ld  hl,hex_tbl
+        ld  bc,ix
+
+        ld  a,c
+        rlca
+        rlca
+        rlca
+        rlca
+        and a,$0F
+
+        ld  b,0
+        ld  c,a
+        add hl,bc
+        ld a,(hl)
+        out (VDP_DATA),a
+
+        ; RegC lower 4bit
+        ld  hl,hex_tbl
+        ld  bc,ix
+
+        ld  a,c
+        and a,$0F
+
+        ld  b,0
+        ld  c,a
+        add hl,bc
+        ld  a,(hl)
+        out (VDP_DATA),a
+
+        ret
+
+;------------------------
+vout_hex8
+; display byte scale hex number.
+;A = number
+;dest = BC,HL,AF
+        push af ; Backup A
+
+        ; RegA upper 4bit
+        ld hl,hex_tbl
+        rlca
+        rlca
+        rlca
+        rlca
+        and a,$0F
+
+        ld b,0
+        ld c,a
+        add hl,bc
+        ld a,(hl)
+        out (VDP_DATA),a
+
+        pop  af
+
+        ; RegA lower 4bit
+        ld  hl,hex_tbl
+
+        and a,$0F
+
+        ld  b,0
+        ld  c,a
+        add hl,bc
+        ld  a,(hl)
+        out (VDP_DATA),a
+
+        ret
+
+
+;------------------------
+; wait routine.
+;CAUTION!!
+; set always EI.
+; B = counter of loop
+wait_b
+        halt
+        djnz wait_b
+        ret
+
+;------------------------
+;prn_text
+; HL = string
+; DE = VRAM address
+
+prn_text
+        call prn_str
+
+        ; store 1line
+
+        push hl   
+        ld   hl,de
+        ld   de,40
+        add  hl,de
+        ld   de,hl
+        pop  hl
+
+        inc hl
+        cp  (hl)
+        jp   nz,prn_text
+        ret
+
+
+;------------------------
+prn_str
+        ex hl,de
+        call vdp_setwrt
+        ex hl,de
+
+;------------------------
+prn_str_lp
+        ld a,(hl)
+        or a,a
+        jp z,nul_term
+        out (VDP_DATA),a
+        inc hl
+        jr prn_str_lp
+nul_term
+        ret
+
+; -------------------------
+; check cartridge in slot.
+; -------------------------
+set_page2
+; set slot value to page2.
+; in: RegBC = slot.
+
+        ld  a,b
+        rlca
+        rlca
+        ; 0000BB00
+
+        ld  d,a 
+        in  a,(PSL_STAT)
+        and a,$F3
+        or  a,d
+        out (PSL_STAT),a
+
+        ld  hl,SSL_REGS
+        ld  a,c
+        rlca
+        rlca
+; (TBL&0xC3) | c<<2 = A 
+        ld  d,a
+        ld  a,(EXP_TBL)
+        and a,$F3
+        or  a,d
+
+        ld (hl),a
+        ret
+
+check_rom
+; RegB = the value of primary slot.
+; RegC = second slot.
+
+        ld bc,$0000
+chk_rom_loop
+        call set_page2
+
+        ld a,($4000)
+        cp a,'A' 
+        jr nz,no_cart
+
+        ld a,($4003)
+        cp a,$40
+        jr m,no_cart ; A-$40 < 0
+        cp a,$80
+        jr p,no_cart ; A-$80 >= 0
+
+        jp chk_rom_ok 
+no_cart
+        inc c
+        ld  a,$03        ; maximum slot number.
+        cp  a,c
+        jr  nz,chk_rom_loop 
+
+        inc b
+        ld  c,0
+        cp  a,b
+        jr  p,chk_rom_loop ; A-B >= 0
+        ; could'nt found the cartridge.
+chk_rom_ng
+
+        ld bc,$0000
+        call set_page2
+
+chk_rom_ok
+        ret
+
+
+
+; --------------------------
+; sub-routine
+;---------------------------
+; 001Ch CALSLT(conditional function)
+; in .. IYh(SlotNumber),(IX)
+cal_slt
+        jp (ix)
+
+;--------------------------------
+; 0020h DCOMPR
+; in .. hl,de= number
+wordcomp
+        ld a,h
+        cp a,d
+        ret nz
+        ld a,l
+        cp a,e
+        ret
+
+
+;--------------------------------
+; 0024h ENASLT
+; in .. hl=Address,a=slotnumber
+; A = FxxxEESS
+; RegA detail 
+; F = Flag of Extended slot.
+; E = Extended slot#
+; S = slot#
+
+slt_set
+
+; A=(A >> 6)&0x3
+
+        push af
+        ld   a,h
+        rlca
+        rlca
+        and  a,$03 ; H=upper 2bit
+        ld   h,a
+        pop  af
+        push af
+
+;       
+
+        call p_slot
+        pop  af
+        push de
+        and  a,a
+;           jp   p,s_slot
+        pop  de
+        in  a,(PSL_STAT)
+        and a,d
+        or  a,e
+        out (PSL_STAT),a
+
+        ret
+
+p_slot
+        ld   d,a   ; D = slot#
+        rrca
+        rrca
+        and  a,$C0 ; SS000000
+        ld   b,h   ; B = page#
+        inc  b
+ps_lp1
+        rlca
+        rlca
+        djnz ps_lp1
+
+        ld  e,a   ; E = shifted slot#
+
+        ld   b,h
+        inc  b
+        ld   a,$C0 ; a=MASK
+ps_lp2
+        rlca
+        rlca
+        djnz ps_lp2
+
+        cpl
+
+        ld  d,a   ; B = ~MASK
+        
+        ret
+
+
+;--------------------------------
+; 0030h CALLLF
+call_lf
+        pop hl ; Address of SlotInfo
+        ld  a,(hl)
+        inc hl
+        ld  e,(hl)
+        inc hl
+        ld  d,(hl)
+        inc hl
+        ex  hl,de
+        push de
+        push hl
+        push af
+        call slt_set
+        pop  af
+        pop  hl
+        jp (hl)
+
+
+;--------------------------------
+; 0050h SETRD
+vdp_setrd
+        di
+        ld  a,l
+        out (VDP_ADDR),a
+        ld  a,h
+        and a,$3f
+        out (VDP_ADDR),a
+        ei
+        ret
+
+;--------------------------------
+; 0053h SETWRT
+; set VRAM Address
+vdp_setwrt
+        di
+        ld  a,l
+        out (VDP_ADDR),a
+        ld  a,h
+        and a,$3f
+        or  a,$40
+        out (VDP_ADDR),a
+        ei
+        ret
+
+;--------------------------------
+;0056h fill VRAM
+;HL = VRAM address, BC = length , A = data
+vdp_fillmem
+        push af
+        call vdp_setwrt
+lp_u001
+        pop af
+        out (VDP_DATA),a
+        push af
+
+        dec  bc
+        ld   a,c
+        or   b
+        jr   nz,lp_u001
+        pop af
+        ret
+
+;--------------------------------
+wrt_vdp 
+; 0047h WRTVDP
+;in:B = VDP Data , C = Reg#
+        push hl
+        di
+        ld a,b
+        out (VDP_ADDR),a
+        ld a,c
+        or a,$80
+        out (VDP_ADDR),a
+        ei
+        ld a,b
+        ld b,0
+        ld hl,RG0SAV
+        add hl,bc
+        ld (hl),a
+        pop hl
+        ret
+
+;--------------------------------
+;004Ah Read VRAM
+rd_vrm
+        call vdp_setrd
+        ex (sp),ix
+        ex (sp),ix
+        in a,(VDP_DATA)
+        ret
+
+
+;--------------------------------
+;004Dh Write VRAM
+wrt_vrm
+        push af
+        call vdp_setwrt
+        ex (sp),ix
+        ex (sp),ix
+        pop  af
+        out (VDP_DATA),a
+        ret
+
+;--------------------------------
+vdp_ldirmv
+	call	vdp_setrd
+	ex	(sp),ix
+	ex	(sp),ix
+ldir_lp1
+	in	a,(VDP_DATA)
+	ld	(de),a
+	inc	de
+	dec	bc
+	ld	a,c
+	or	b
+	jr	nz,ldir_lp1
+	ret
+
+;--------------------------------
+vdp_reg1chk
+        ld a,(RG1SAV)
+        rrca
+        rrca
+        ld      a,$08
+        ret     nc
+        ld      a,$20
+        ret
+
+;--------------------------------
+vdp_data_rep
+        ex de,hl
+        call vdp_setwrt
+lp_vd_rep
+        ld      a,(de)
+        out     (VDP_DATA),a
+        inc     de
+        dec     bc
+        ld      a,c
+        or      b
+        jr      nz,lp_vd_rep
+        ret
+
+;--------------------------------
+;0072h INIGRP
+init_grp
+        ld a,$02
+        ld (SCRMOD),a
+
+        in a,(VDP_STAT) ; reset Latch
+                
+        ld bc,$0000  ; R#0
+        call wrt_vdp
+        ld bc,$6001  ; R#1
+        call wrt_vdp 
+        ld bc,$0002  ; R#2  
+        call wrt_vdp
+        ld bc,$0104  ; R#4  
+        call wrt_vdp
+        ret
+
+;--------------------------------
+;009Ch  CHSNS
+ch_sns
+        ld a,$00
+        and a
+        ret
+        
+
+;--------------------------------
+sound_out
+        di
+        out (PSG_REGS),a
+        push    af
+        ld  a,e
+        out (PSG_DATA),a
+        ei
+        pop     af
+        ret
+
+;--------------------------------
+sound_stat
+        out (PSG_REGS),a
+        in a,(PSG_STAT)
+        ret
+
+;--------------------------------
+get_slotreg
+        in a,(PSL_STAT)
+        ret
+
+;--------------------------------
+set_slotreg
+        out (PSL_STAT),a
+        ret
+
+;--------------------------------
+; 013Eh 
+vdp_stat_in
+        in a,(VDP_STAT)
+        ret
+
+;--------------------------------
+;0141h SNSMAT
+in_keyboard
+        di
+        ld  c,a
+        in  a,(GIO_REGS)
+        and a,$F0
+        or  a,c
+        out (GIO_REGS),a
+        in  a,(KBD_STAT)
+        ei
+        ret
+
+;--------------------------------
+;00D5h GTSTCK
+; a = InID...
+in_joy
+        cp a,$00
+        jr nz,joy_end
+        ld   a,$08
+        call in_keyboard
+        rrca
+        rrca
+        rrca
+        rrca
+        cpl
+        and  a,$0f ; 0000RDUL
+       
+        ld   hl,joypos_tbl
+        ld   b,0
+        ld   c,a
+        add  hl,bc
+        ld   a,(hl)
+        ret
+joy_end
+        ld a,$00
+        ret
+
+joypos_tbl
+        ;    0   1   2   3   4   5   6   7
+        db $00,$07,$01,$08,$05,$06,$00,$00
+        ;    8   9   A   B   C   D   E   F
+        db $03,$00,$02,$00,$04,$00,$00,$00
+
+
+;--------------------------------
+;00D8h GTTRIG
+in_trig
+        cp a,$00
+        jr z,space_mode
+        xor a
+        ret
+space_mode
+        ld   a,$08
+        call in_keyboard
+        and  a,$01
+        jr   z,trig_sp
+        xor  a
+        jr   trig_end
+trig_sp
+        ld   a,$FF
+trig_end
+        ret
+
+;--------------------------------
+slot_clear
+        xor a
+        ld hl,$fcc2
+        ld (hl),a
+        inc hl
+        ld (hl),a
+        inc hl
+        ld (hl),a
+        ret
+;------------------
+; interrupt routine code
+;------------------
+
+int_start
+; for debug...
+;        push    hl
+;        ld  hl,$3232
+;        ex (sp),hl
+; 
+        push    hl
+        push    de
+        push    bc
+        push    af
+        exx  
+        ex      af,af'
+        push    hl
+        push    de
+        push    bc
+        push    af
+        push    iy
+        push    ix
+
+        call   H.KEYI
+        in a,(VDP_STAT)
+        or a
+        jp p,int_end
+
+        call H.TIMI
+        ei
+        ld (STATFL),a ; save status
+
+        xor a
+        ld (CLKFLG),a
+        call in_trig
+        cpl
+        and a,$01
+        ld ($F3E8),a
+        call old_key
+        call key_in
+
+int_end
+        pop ix
+        pop iy
+        pop af
+        pop bc
+        pop de
+        pop hl
+        exx
+        ex af,af'
+        pop af
+        pop bc
+        pop de
+        pop hl
+        ei
+        ret
+
+;--------------------------------
+; 0066h NMI Interrupt
+nmi_int
+        call H.NMI
+        retn
+
+;--------------------------------
+old_key
+        ld de,NEWKEY
+        ld hl,OLDKEY
+        ld b,$0b
+oldkey_lp
+        ld a,(de)
+        ld (hl),a
+        inc de
+        inc hl
+        djnz oldkey_lp
+        ret
+
+;--------------------------------
+key_in
+        in  a,(GIO_REGS)
+        and a,$F0
+        ld  c,a
+        ld  b,$0b
+        ld  hl,NEWKEY
+key_in_lp
+        ld  a,c
+        out (GIO_REGS),a
+        in  a,(KBD_STAT)
+        ld (hl),a
+        inc hl
+        inc c
+        djnz key_in_lp
+        ret
+
+;--------------------------------
+key_int
+        ld  hl,NEWKEY
+        ld  bc,$0006
+        add hl,bc
+        ld a,(hl)
+        and a,$01
+        jr nz,ki_end
+        call dbg_reg
+ki_end
+        ret
+
+;-------------------
+        org $1000
+hang_up_mode
+        halt
+        jp hang_up_mode
+
+str_proginfo
+;           0123456789012345678901234567890123456789 
+        db "MSX COMPATIBLE BIOS ver 0.04",$00
+        db "Copyright (C) 2002 BouKiCHi",$00
+        db $00
+
+str_secretmsg
+        db " ",$00
+        db "KOGA RYOUICHI SENSEI NO [GENOME] HA",$00
+        db "SUGOKU OMOSHIROI YO!",$00
+        db " ",$00,$00
+
+str_thanks
+        db " ",$00
+        db "special thanks ...",$00
+        db "http://retropc.net/",$00
+        db "http://www.vorc.org/",$00
+        db " ",$00
+        db $00
+
+str_slot
+        db "slot:",$00
+        db $00
+
+str_nocart
+;           0123456789012345678901234567890123456789 
+        db " ",$00
+        db "        Cartridge not found!!",$00
+        db $00
+
+str_run
+;          [0123456789012345678901234567890123456789] 
+        db " ",$00
+        db "           Program Start!!!",$00
+        db $00
+
+str_testchrs
+        db " (^^; m(_ _)m (ToT)",$00
+        db "ABCDEFGHIJKLMNOPQRSTUVWXYZ",$00
+        db "abcdefghijklmnopqrstuvwxyz",$00
+        db "0123456789",$00
+        db $00
+hex_tbl
+        db "0123456789ABCDEF",$00
+reg_tbl
+        db "PC: IY: IX: HL: DE: BC: AF: ",$00
+
+
+;------------
+;new type hook routine.(for debug)
+        org $3232
+debug_test
+        ret
+
+        include "font01.z80"
+
+        align
+        org $3FFF
+        nop
+        end Start
