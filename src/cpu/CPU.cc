@@ -116,7 +116,7 @@ void CPU::reset(const EmuTime& time)
 void CPU::exitCPULoop()
 {
 	exitLoop = true;
-	slowInstructions = 1;
+	++slowInstructions;
 }
 
 void CPU::raiseIRQ()

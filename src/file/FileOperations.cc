@@ -58,7 +58,7 @@ static void cleanSetEnv(void)
 			}
 			free(p->env);
 		}
-		struct maint_setenv_table q = p;
+		struct maint_setenv_table* q = p;
 		p = p->next;
 		free(q);
 	}

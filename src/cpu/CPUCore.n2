@@ -206,7 +206,8 @@ inline void _CPU_::executeFast() {
 	#endif
 }
 
-void _CPU_::executeSlow() {
+void _CPU_::executeSlow()
+{
 	if (interface->NMIEdge()) {
 		nmi();	// NMI occured
 	} else if (R.IFF1 && IRQStatus) {
@@ -229,6 +230,7 @@ void _CPU_::executeSlow() {
 		int halts = (ticks + hltStates - 1) / hltStates;	// rounded up
 		R.R += halts;
 		clock += halts * hltStates;
+		slowInstructions = 2;
 	} else {
 		R.IFF1 = R.nextIFF1;
 		executeFast();
@@ -245,8 +247,8 @@ void _CPU_::execute()
 	if (continued || step) {
 		// at least one instruction
 		continued = false;
-		executeSlow();
 		scheduler.schedule(clock.getTime());
+		executeSlow();
 		--slowInstructions;
 		if (step) {
 			step = false;
@@ -260,12 +262,12 @@ void _CPU_::execute()
 		while (!exitLoop) {
 			if (slowInstructions) {
 				slowInstructions--;
-				executeSlow();
 				scheduler.schedule(clock.getTime());
+				executeSlow();
 			} else {
 				while (!slowInstructions) {
-					executeFast();
 					scheduler.schedule(clock.getTime());
+					executeFast();
 				}
 			}
 		}
@@ -276,12 +278,12 @@ void _CPU_::execute()
 				return;
 			} else {
 				if (slowInstructions == 0) {
-					executeFast();
 					scheduler.schedule(clock.getTime());
+					executeFast();
 				} else {
 					slowInstructions--;
-					executeSlow();
 					scheduler.schedule(clock.getTime());
+					executeSlow();
 				}
 			}
 		}

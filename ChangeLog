@@ -2,6 +2,7 @@ $Id$
 
 2004-08-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed some bugs I introduced yesterday
+	* Another bug fix: HALT instruction was broken
 
 2004-08-01 Maarten ter Huurne <maarten@treewalker.org>
 	* Initial build system support for x86_64.
