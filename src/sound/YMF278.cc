@@ -748,7 +748,7 @@ YMF278::YMF278(int ramSize, const XMLElement& config, const EmuTime& time)
 	ram = new byte[ramSize];
 	endRam = endRom + ramSize;
 	
-	registerSound(config);
+	registerSound(config, Mixer::STEREO);
 	reset(time);
 
 	Debugger::instance().registerDebuggable(getName() + " regs", debugRegisters);
