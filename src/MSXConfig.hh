@@ -81,7 +81,7 @@ public:
 
 };
 
-class Device: public Config
+class Device: virtual public Config
 {
 public:
 
@@ -141,7 +141,7 @@ public:
 	/**
 	 * get a config or device by id
 	 */
-	virtual Config* getConfigById(const std::string &type)=0;
+	virtual Config* getConfigById(const std::string &id)=0;
 
 	/**
 	 * backend factory

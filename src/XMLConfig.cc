@@ -109,8 +109,18 @@ const uint64 Config::getParameterAsUint64(const std::string &name)
 
 std::list<MSXConfig::Config::Parameter*>* Config::getParametersWithClass(const std::string &clasz)
 {
-	// TODO XXX
-	return 0;
+	std::list<MSXConfig::Config::Parameter*>* l = new std::list<MSXConfig::Config::Parameter*>;
+	for (std::list<XML::Element*>::const_iterator i = element->children.begin(); i != element->children.end(); i++)
+	{
+		if ((*i)->name=="parameter")
+		{
+			if ((*i)->getAttribute("class")==clasz)
+			{
+				l->push_back(new MSXConfig::Config::Parameter((*i)->getAttribute("name"), (*i)->pcdata, clasz));
+			}
+		}
+	}
+	return l;
 }
 
 Device::~Device()
@@ -133,6 +143,7 @@ void Backend::loadFile(const std::string &filename)
 {
 	XML::Document* doc = new XML::Document(filename);
 	docs.push_back(doc);
+	// TODO XXX update/append Devices/Configs
 }
 
 void Backend::saveFile()
@@ -147,8 +158,24 @@ void Backend::saveFile(const std::string &filename)
 	assert(false);
 }
 
-MSXConfig::Config* Backend::getConfigById(const std::string &type)
+MSXConfig::Config* Backend::getConfigById(const std::string &id)
 {
+	for (std::list<XMLConfig::Config*>::const_iterator i = configs.begin(); i != configs.end(); i++)
+	{
+		if ((*i)->getId()==id)
+		{
+			return (*i);
+		}
+	}
+
+	for (std::list<XMLConfig::Device*>::const_iterator i = devices.begin(); i != devices.end(); i++)
+	{
+		if ((*i)->getId()==id)
+		{
+			return (*i);
+		}
+	}
+	// TODO XXX raise exception?
 	return 0;
 }
 

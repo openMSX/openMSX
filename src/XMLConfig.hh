@@ -9,7 +9,7 @@
 namespace XMLConfig
 {
 
-class Config: public MSXConfig::Config
+class Config: virtual public MSXConfig::Config
 {
 public:
 	Config(XML::Element *element);
@@ -37,7 +37,7 @@ private:
 	XML::Element* getParameterElement(const std::string &name);
 };
 
-class Device: public Config, public MSXConfig::Device
+class Device: public XMLConfig::Config, public MSXConfig::Device
 {
 public:
 	Device(XML::Element *element);
@@ -60,7 +60,7 @@ public:
 	virtual void saveFile();
 	virtual void saveFile(const std::string &filename);
 
-	virtual MSXConfig::Config* getConfigById(const std::string &type);
+	virtual MSXConfig::Config* getConfigById(const std::string &id);
 
 protected:
 	virtual ~Backend();
