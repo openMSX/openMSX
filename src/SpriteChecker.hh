@@ -221,7 +221,7 @@ public:
 	inline int getSprites(int line, SpriteInfo *&visibleSprites) {
 		if (line >= currentLine) checkUntil(line + 1);
 		visibleSprites = spriteBuffer[line];
-		assert(spriteCount[line] != -1);
+		//assert(spriteCount[line] != -1);
 		if (spriteCount[line] < 0) return 0;
 		return spriteCount[line];
 	}
