@@ -1,5 +1,9 @@
 $Id$
 
+2001-12-30 Joost Yervante Damad <j.damad@qahwah.net>
+	* more disk support, it already works a little bit,
+	  but the slot switching still needs to be added
+
 2001-12-29 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Memory reads/writes can now be cached (if possible)
 	  measured 10% - 20% performance gain

@@ -36,6 +36,7 @@ class MSXDiskRomPatch: public MSXRomPatchInterface
 			void seek(int location);
 			void read(byte* to, int count);
 			void write(const byte* from, int count);
+			bool bad();
 
 		private:
 			IOFILETYPE *file;
@@ -48,36 +49,47 @@ class MSXDiskRomPatch: public MSXRomPatchInterface
 		 * read/write sectors
 		 */
 		void PHYDIO() const;
-		static const int A_PHYDIO = 0x4010;
+		static const int A_PHYDIO;
 		/**
 		 * check disk
 		 */
 		void DSKCHG() const;
-		static const int A_DSKCHG = 0x4013;
+		static const int A_DSKCHG;
 
 		/**
 		 * get disk format
 		 */
 		void GETDPB() const;
-		static const int A_GETDPB = 0x4016;
+		static const int A_GETDPB;
 
 		/**
 		 * format a disk
 		 */
 		void DSKFMT() const;
-		static const int A_DSKFMT = 0x401C;
+		static const int A_DSKFMT;
 
 		/**
 		 * stop drives
 		 */
 		void DRVOFF() const;
-		static const int A_DRVOFF = 0x401F;
+		static const int A_DRVOFF;
 
+		// drive letters
 		static const int A = 0;
 		static const int B = 1;
 		static const int LastDrive = B+1;
 
+		// files for drives
 		MSXDiskRomPatch::File* disk[MSXDiskRomPatch::LastDrive];
+
+		// disk geometry
+		struct geometry_info
+		{
+			int sectors;
+		};
+
+		static struct geometry_info geometry[8];
+		static const int sector_size;
 };
 
 #endif // __MSXDISKROMPATCH_HH__
