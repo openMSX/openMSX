@@ -38,6 +38,9 @@ install-data-hook:
 	ln -sf $(prefix)/share/machines/Philips_NMS_8250 $(prefix)/share/machines/msx2
 	ln -sf $(prefix)/share/machines/Panasonic_FS-A1FX $(prefix)/share/machines/msx2plus
 	ln -sf $(prefix)/share/machines/Panasonic_FS-A1GT $(prefix)/share/machines/turbor
+##AutoMake install documentation in share/openmsx, which is not where we want
+##it to be. No time now to dig into AutoMake, instead just link the location.
+	ln -sf $(prefix)/share/openmsx $(prefix)/doc
 ##Creating a link for the binary in /usr/local/bin
 ##TODO: Make this configurable !!
 	ln -sf $(prefix)/bin/openmsx /usr/local/bin/openmsx
