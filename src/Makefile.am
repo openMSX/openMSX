@@ -80,7 +80,7 @@ openmsx_SOURCES=\
 	CliExtension.cc CliExtension.hh \
 	MSXDiskRomPatch.cc MSXDiskRomPatch.hh \
 	atoll.c \
-	md5.cc md5.hh \
+	md5.cc md5.hh sha1.cc sha1.hh \
 	CircularBuffer.hh CircularBuffer.cc \
 	PluggingController.hh PluggingController.cc \
 	Connector.hh Connector.cc \
