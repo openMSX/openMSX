@@ -59,5 +59,12 @@
         <parameter>plug cassetteport cassetteplayer</parameter>-->
   </config>
 
+  <config id="UserDirectories">
+    <parameter>~/openMSX/roms</parameter>
+    <parameter>~/openMSX/disks</parameter>
+    <parameter>~/openMSX/tapes</parameter>
+  </config>
+  
 </msxconfig>
+
 
