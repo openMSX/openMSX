@@ -13,6 +13,14 @@ $Id$
 	* Simplified/updated MSXRomDevice:
 	   - simpler interface: you no longer need to inherit from MSXRomDevice
 	   - use mmap() to read files
+	* Implemented FS4500SRAM (suggestions for a better name are welcome):
+	   put this in your config file:
+	     <device id="FS4500 SRAM">
+	       <type>FS4500SRAM</type>
+	       <parameter name="loadsram">true</parameter>
+	       <parameter name="savesram">true</parameter>
+	       <parameter name="sramname">FS4500.SRAM</parameter>
+	     </device>
 
 2002-12-04 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* added SRAM class:

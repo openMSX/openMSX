@@ -74,6 +74,7 @@ openmsx_SOURCES=\
 	RealTime.hh RealTime.cc \
 	CartridgeSlotManager.hh CartridgeSlotManager.cc \
 	SRAM.hh SRAM.cc \
+	MSXFS4500SRAM.hh MSXFS4500SRAM.cc \
 	MSXRom.hh MSXRom.cc \
 	RomTypes.hh RomTypes.cc \
 	MSXRomDevice.cc MSXRomDevice.hh \
