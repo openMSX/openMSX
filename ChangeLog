@@ -1,5 +1,10 @@
 $Id$
 
+
+2003-05-31 Herman Oudejans <hn.oudejans@quicknet.nl>
+	* Changed console save file into ascii. When loading the history,
+	  empty lines are ignored.
+
 2003-05-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Refactored VDPCmdEngine, use VDPCmd subclasses for each command
 	  instead of function pointers

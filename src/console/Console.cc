@@ -6,6 +6,8 @@
 #include "EventDistributor.hh"
 #include "Keys.hh"
 #include "File.hh"
+#include "FileContext.hh"
+#include "FileOperations.hh"
 
 // class ConsoleSetting
 
@@ -87,51 +89,38 @@ void Console::saveHistory(Config * config)
 {
 
 	const std::string &filename = config->getParameter("historyname");
-	PRT_DEBUG("consolehistory: save " << filename);
-	UserFileContext context ("history/");
-	uint64 size;
+	UserFileContext context ("history");
 	try {
-		File file(context.resolveSave(filename),
-				  SAVE_PERSISTENT);
-		size=history.size();
-		file.write((byte *)&size,sizeof(size));
 		std::list<std::string>::iterator it;
+		std::ofstream outputfile(FileOperations::expandTilde(context.resolveSave(filename)).c_str());
+		if (!outputfile) throw FileException("Error writing Consolehistory");
 		for (it=history.begin();it!=history.end();it++){
-			size=it->length();
-			file.write((byte*)&size,sizeof(size));
-			file.write((byte*)it->c_str(),size);
-		}	
-	} catch (FileException &e) {
-		std::cout << "error saving consolehistory: " << filename << "\n";
+			outputfile << it->substr(PROMPT.length()) << std::endl;
+		}
+	}catch (FileException &e) {
+		PRT_INFO("error saving consolehistory: " << filename << "\n");
 	}
-
 }
 
 void Console::loadHistory(Config * config)
 {
 
 	const std::string &filename = config->getParameter("historyname");
-	PRT_DEBUG("consolehistory: load " << filename);
-	UserFileContext context ("history/");
-	char * command;
-	uint64 historysize;
-	uint64 commandsize;
+	UserFileContext context ("history");
 	try {
-		File file(context.resolveSave(filename),
-				  LOAD_PERSISTENT);
-		file.read((byte*)&historysize,sizeof(historysize));
-		for (unsigned i=0;i<historysize;i++){
-			file.read((byte*)&commandsize,sizeof(commandsize));
-			command=new char[commandsize+1];
-			file.read((byte*)command,commandsize);
-			command[commandsize]=0;
-			putCommandHistory(command);
-			delete []command;
+		std::string line;
+		std::ifstream inputfile(FileOperations::expandTilde(context.resolveSave(filename)).c_str());
+		if (!inputfile) throw FileException("Error loading Consolehistory");
+		while (inputfile){
+			getline(inputfile,line);
+			if (!line.empty()){
+				line.insert(0,PROMPT);
+				putCommandHistory(line);
+			}
 		}	
 	} catch (FileException &e) {
-		std::cout << "error loading consolehistory: " << filename << "\n";
+		PRT_INFO("error loading consolehistory: " << filename << "\n");
 	}	
-
 }
 
 void Console::setCursorPosition(const int xPosition,const int yPosition)

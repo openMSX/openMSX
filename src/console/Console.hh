@@ -5,6 +5,7 @@
 
 #include <list>
 #include <string>
+#include <fstream>
 #include "EventListener.hh"
 #include "CircularBuffer.hh"
 #include "Settings.hh"
