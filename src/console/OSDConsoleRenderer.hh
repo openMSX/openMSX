@@ -59,8 +59,6 @@ class OSDConsoleRenderer : public ConsoleRenderer
 						CP_BOTTOMLEFT,CP_BOTTOM,CP_BOTTOMRIGHT};
 		void setBackgroundName (std::string name);
 		void setFontName (std::string name);
-		static std::string fontName;
-		static std::string backgroundName;
 						
 	protected:
 		/** How transparent is the console? (0=invisible, 255=opaque)
@@ -76,6 +74,8 @@ class OSDConsoleRenderer : public ConsoleRenderer
 		static int consoleLines;
 		static int consoleColumns;
 		static Placement consolePlacement;
+		static std::string fontName;
+		static std::string backgroundName;
 		EnumSetting<Placement> *consolePlacementSetting;
 		IntegerSetting* consoleLinesSetting;
 		IntegerSetting* consoleColumnsSetting;

@@ -31,7 +31,7 @@ bool BackgroundSetting::checkUpdate(const std::string &newValue)
 	try {
 		UserFileContext context;
 		result = console->loadBackground(context.resolve(newValue));
-		console->backgroundName = context.resolve(newValue);
+		console->setBackgroundName (context.resolve(newValue));
 	} catch (FileException &e) {
 		// file not found
 		result = false;
@@ -55,7 +55,7 @@ bool FontSetting::checkUpdate(const std::string &newValue)
 	try {
 		UserFileContext context;
 		result = console->loadFont(context.resolve(newValue));
-		console->fontName = context.resolve(newValue);
+		console->setFontName (context.resolve(newValue));
 	} catch (FileException &e) {
 		// file not found
 		result = false;
@@ -76,7 +76,6 @@ OSDConsoleRenderer::OSDConsoleRenderer()
 		try
 		{			
 			if (!initiated){
-				std::cout << "new font\n";
 				if (config->hasParameter("font")) {
 					fontName = config->getParameter("font");
 					fontName = context->resolve(fontName);
@@ -87,7 +86,6 @@ OSDConsoleRenderer::OSDConsoleRenderer()
 		try
 		{
 			if (!initiated){
-				std::cout << "new back\n";
 				if (config->hasParameter("background")) {
 					backgroundName = config->getParameter("background");
 					backgroundName = context->resolve(backgroundName);
@@ -125,6 +123,16 @@ OSDConsoleRenderer::~OSDConsoleRenderer()
 	if (consolePlacementSetting) delete consolePlacementSetting;
  	if (consoleLinesSetting) delete consoleLinesSetting;
 	if (consoleColumnsSetting) delete consoleColumnsSetting;
+}
+
+void OSDConsoleRenderer::setBackgroundName (std::string name)
+{
+	backgroundName = name;
+}
+
+void OSDConsoleRenderer::setFontName (std::string name)
+{
+	fontName = name;
 }
 
 void OSDConsoleRenderer::initConsoleSize()
