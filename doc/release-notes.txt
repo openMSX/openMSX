@@ -1,81 +1,68 @@
-Release Notes for openMSX 0.3.4 (2004-01-16)
+Release Notes for openMSX 0.4.0 (2004-05-23)
 ============================================
 
 This new release brings you the following improvements:
-- Several fixes in VDP emulation; more games and demos work correctly.
-- Added scalers for SDLHi. A scaler is an image filter which enlarges the
-  MSX screen to PC resolution. The following scalers are implemented:
-  * simple (original)
-  * 2xSaI
-  * Scale2x
-  * hq2x
-  Use "set scaler <name>" to select a scaler.
-- Scanlines now work in SDLHi (previously, they only worked in SDLGL).
-- Per-pixel alpha blending for console on SDLHi/SDLLo.
-  This makes anti-aliased console fonts look better.
-- Rendering fixes in Win32:
-  * Fixed slowdowns in fullscreen mode.
-  * Fixed console flickering.
-- Switched to Jarek Burczynski's YM2413 core (MSX-MUSIC).
-- Added high-pass IIR filter to mixer to avoid audio clipping.
-- Added I/O device multiplexing: you can now safely insert an FM-PAC in
-  an MSX turbo R, for example.
-- Added screenshot feature.
-  Default key bindings changed to put this under PrtScr.
-  F12 toggles full screen now, while Quit is not mapped anymore, by default.
-- Added Ren-Sha Turbo (autofire) emulation: "set renshaturbo <speed>".
-- Added emulation of the MSX turbo R pause key.
-- Added LED status of disk drives.
-- Fixed harddisk image creation: automatically create or enlarge hd-image
-  when the specified file doesn't exist or is too small.
-- New console commands:
-  * after: execute command after a certain time
-  * alias/unalias: put long commands under a named alias
-  * incr and decr: increase or decrease integer settings
-    (useful when bound to a key, see "bind" command)
-- "Enum settings" are now case insensitive, i.e. you can use SDLHi, sdlhi, or
-  SdLhI now, if you mean the SDLHi renderer.
-- Added a 'boosted' MSX2 configuration: a fantasy machine with lots of
-  internal hardware. More of these will be added in future releases.
-  The current configuration is still experimental; feedback is welcome.
-- Added alternative build system ("alternative.mk"), which is more flexible
-  and easier to maintain than the old system which uses GNU's auto* tools
-  ("configure" and friends). The alternative system will replace the auto*
-  system in the future, so please test it on your machine and report any
-  problems. You can use it with "make -f alternative.mk" to compile and
-  "make -f alternative.mk install" to install.
-- Added support for Intel's ICC 8.0 compiler (only in alternative.mk).
-- Added experimental support for Mac OS X (only in alternative.mk).
-  Thanks to Jan Lukens (Jalu) for testing/debugging this.
-- Dropped support for GCC 2.95 (please upgrade to GCC 3.x).
-- Added the ability to control openMSX from an external process (launcher,
-  debugger) using an XML-based control protocol. This is an experimental
-  feature; the control protocol will change incompatibly in the next
-  release.
-  For an example client implementation, see Contrib/openmsx-control.cc.
-  We're working on a new openMSX Catapult which uses this protocol.
-- New features for external control clients:
-  * renderer "none", which displays nothing.
-  * "power" setting: enable or disable power to the MSX machine.
-  * "restoredefault" command: restores a setting to the value specified in
-    settings.xml.
-  * "info" command: gets info such as lists of pluggables, renderers etc.
-  * "keymatrixup"/"keymatrixdown" commands: manipulate the keyboard matrix.
-- Added a debugger interface, accessible through the "debug" command.
-  The following devices currently support this interface: CPU, I/O ports,
-  memory, VDP and VRAM. Also it is possible to set breakpoints.
-- Small improvements in debug device.
-  The debug device is very useful for people developing MSX software in
-  openMSX; read the manual for details.
-- Added "vdpcmdtrace" setting: enable or disable VDP command tracing.
+- Finalised the control protocol, making a fully-featured Catapult possible.
+- Implemented TCL as central scripting language (including console).
+  Consequences:
+  * AutoCommands in settings.xml have been replaced by init.tcl file
+  * "restoredefault" command replaced by TCL's "unset"
+  * "alias" is deprecated, use TCL's "proc"
+  * "decr" is deprecated, use TCL's native "incr" with negative argument
+  * "quit" is replaced by TCL's "exit"
+  * old "info" is replaced by "openmsx_info"; "info" is a TCL command
+  * Some cool TCL scripts added, e.g. multi-screenshot (make 'movies'),
+    save_debuggable, vramdump (replacing old console command)
+- New build system which replaces the GNU auto* tools.
+  It is more efficient, has cleaner output and is easier to maintain.
+  You can still use the traditional "configure ; make ; make install" steps.
+  For details, read doc/manual/compile.html.
+- Added support for compiling on FreeBSD 4 and 5.
+  Thanks to ag0ny, Jorito and Reikan.
+  Also updated support for Mac OS X, thanks to Jalu.
+- New frameskip/sync algorithm: tries to skip as little frames as possible to
+  keep the right speed; maximum and minimum number of skipped frames can be set
+  with the minframeskip and maxframeskip settings.
+  The new algorithm can deal much better with the situation where another
+  process or the OS claims the CPU for a while. As a result, animation and
+  music play more fluent and openMSX feels faster.
+- Better CPU timing (Z80 and R800), and also for R800 specifically:
+  * implemented CAS/RAS optimization
+  * implemented refresh delay
+  * IO operations take 3 cycles
+- CPU frequency is not fixed anymore:
+  * frequency can be unlocked and modified from the console
+  * "6MHz mode" of Panasonic MSX2+ machines is now supported
+- Fixes in TurboR FDC: FDD LED, disk change signal, drive detection, empty
+  drive behaviour ("Disk offline"). Thanks to Tetsuo Honda.
+- Finalized internal mapper for Panasonic FS-A1FM and added support for its
+  "frontswitch" for the firmware.
+- RS232 interface in Sony_HB-G900P has 2kb RAM.
+- Sony HBI-55 datacartridge now fully implemented.
+- Added proper support for Koei and Wizardry mappers (with SRAM).
+  Thanks to dvik (blueMSX author) for the info.
+- Added about 14 new machines.
+- Volumes are all in a 0-100 range now.
+- Added master_volume setting.
+- Several optimisations in rendering.
+- Fixed sprites in overscan.
+- Added basic frames-per-second indicator.
+- Scaled up icon to 32x32; fixes icon on Win32.
+- Using SHIFT and PageUp/PageDown you can scroll whole pages in the console
+- New "type" command: use to enter text into the MSX keyboard buffer (not
+  finalized yet)
+- Added a debugger interface to more devices: SCC, MSX AUDIO, MSX AUDIO
+  sampleRAM, MoonSound, MSX MUSIC, memory mapper, PSG. Also extended CPU
+  debuggable: IM can now be read at position 26, IFF1 and IFF2 can be read as
+  bit 0 and 1 on position 27
+- New debug interface commands: "read_block", "write_block", "after break" and 
+  "after frame".
 
 In "doc/manual/index.html" you can find a set of HTML manuals for openMSX.
 Make sure you read this if you haven't used openMSX before, but also to
 learn more about the new and changed features.
 
 Known issues / caveats:
-- In its current alpha state, openMSX is usable for power users, but its
-  interface is not very friendly to casual users yet.
 - Emulation is not perfect yet. However, in the emulator comparison of
   msx.org, openMSX scored highest on accuracy of all emulators tested
   and that was version 0.2.1.
@@ -83,10 +70,8 @@ Known issues / caveats:
 - Until we reach version 1.0.0, file formats can change in an incompatible
   way without backwards compatibility. Keep this in mind if you create
   machine descriptions, ROM database entries etc.
-- This openMSX release was tested on Linux and Win32.
-  Compilation on Mac OS X is reported to work, but openMSX does not run
-  flawlessly on that platform yet.
-  Running on BSD, Solaris, BeOS etc (wherever SDL runs) should be possible,
+- This release was tested on Linux, Win32, Mac OS X and FreeBSD 4 and 5.
+  Running on other operating systems (wherever SDL runs) should be possible,
   but will probably not work out-of-the-box. If you are compiling on such a
   platform, please share your experiences (see below for contact info),
   so we can make openMSX more portable.

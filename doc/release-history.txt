@@ -4,6 +4,65 @@ Release History
 This is an overview of the changes that were incorporated into past
 releases.
 
+openMSX 0.4.0 (2004-05-23)
+--------------------------
+
+- Finalised the control protocol, making a fully-featured Catapult possible.
+- Implemented TCL as central scripting language (including console).
+  Consequences:
+  * AutoCommands in settings.xml have been replaced by init.tcl file
+  * "restoredefault" command replaced by TCL's "unset"
+  * "alias" is deprecated, use TCL's "proc"
+  * "decr" is deprecated, use TCL's native "incr" with negative argument
+  * "quit" is replaced by TCL's "exit"
+  * old "info" is replaced by "openmsx_info"; "info" is a TCL command
+  * Some cool TCL scripts added, e.g. multi-screenshot (make 'movies'),
+    save_debuggable, vramdump (replacing old console command)
+- New build system which replaces the GNU auto* tools.
+  It is more efficient, has cleaner output and is easier to maintain.
+  You can still use the traditional "configure ; make ; make install" steps.
+  For details, read doc/manual/compile.html.
+- Added support for compiling on FreeBSD 4 and 5.
+  Thanks to ag0ny, Jorito and Reikan.
+  Also updated support for Mac OS X, thanks to Jalu.
+- New frameskip/sync algorithm: tries to skip as little frames as possible to
+  keep the right speed; maximum and minimum number of skipped frames can be set
+  with the minframeskip and maxframeskip settings.
+  The new algorithm can deal much better with the situation where another
+  process or the OS claims the CPU for a while. As a result, animation and
+  music play more fluent and openMSX feels faster.
+- Better CPU timing (Z80 and R800), and also for R800 specifically:
+  * implemented CAS/RAS optimization
+  * implemented refresh delay
+  * IO operations take 3 cycles
+- CPU frequency is not fixed anymore:
+  * frequency can be unlocked and modified from the console
+  * "6MHz mode" of Panasonic MSX2+ machines is now supported
+- Fixes in TurboR FDC: FDD LED, disk change signal, drive detection, empty
+  drive behaviour ("Disk offline"). Thanks to Tetsuo Honda.
+- Finalized internal mapper for Panasonic FS-A1FM and added support for its
+  "frontswitch" for the firmware.
+- RS232 interface in Sony_HB-G900P has 2kb RAM.
+- Sony HBI-55 datacartridge now fully implemented.
+- Added proper support for Koei and Wizardry mappers (with SRAM).
+  Thanks to dvik (blueMSX author) for the info.
+- Added about 14 new machines.
+- Volumes are all in a 0-100 range now.
+- Added master_volume setting.
+- Several optimisations in rendering.
+- Fixed sprites in overscan.
+- Added basic frames-per-second indicator.
+- Scaled up icon to 32x32; fixes icon on Win32.
+- Using SHIFT and PageUp/PageDown you can scroll whole pages in the console
+- New "type" command: use to enter text into the MSX keyboard buffer (not
+  finalized yet)
+- Added a debugger interface to more devices: SCC, MSX AUDIO, MSX AUDIO
+  sampleRAM, MoonSound, MSX MUSIC, memory mapper, PSG. Also extended CPU
+  debuggable: IM can now be read at position 26, IFF1 and IFF2 can be read as
+  bit 0 and 1 on position 27
+- New debug interface commands: "read_block", "write_block", "after break" and 
+  "after frame".
+
 openMSX 0.3.4 (2004-01-16)
 --------------------------
 
