@@ -4,8 +4,7 @@ Code out of cvs doesn't contain
 Makefile.in's and configure, soo
 you need to run
 
-autoconf
-automake
+./autogen.sh
 
 to initialize your tree.
 
