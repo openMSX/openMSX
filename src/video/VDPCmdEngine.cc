@@ -468,8 +468,10 @@ void VDPCmdEngine::VDPCmd::commandDone()
 
 // Loop over DX, DY.
 #define post__x_y(MX) \
-		if (!--ANX || ((ADX += TX) & MX)) { \
-			if (!(--NY) || (DY += TY) == -1) { \
+		ADX += TX; --ANX; \
+		if (ANX == 0) { \
+			DY += TY; --NY; \
+			if (NY == 0) { \
 				finished = true; \
 				break; \
 			} else { \
@@ -721,12 +723,15 @@ void VDPCmdEngine::LmmvCmd::start(const EmuTime &time)
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 	DX = engine->DX;
 	DY = engine->DY;
-	NX = engine->NX;
+	MX = PPL[engine->scrMode];
+	NX = engine->NX ? engine->NX : MX;
 	NY = engine->NY ? engine->NY : 1024;
 	TX = (engine->ARG & DIX) ? -1 : 1;
 	TY = (engine->ARG & DIY) ? -1 : 1;
 	CL = engine->COL & MASK[engine->scrMode];
 	LO = engine->LOG;
+	clipNX_DX();
+	clipNY_DY();
 	ADX = DX;
 	ANX = NX;
 }
@@ -933,11 +938,15 @@ void VDPCmdEngine::HmmvCmd::start(const EmuTime &time)
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 	DX = engine->DX;
 	DY = engine->DY;
-	NX = engine->NX / PPB[engine->scrMode];
+	MX = PPL[engine->scrMode];
+	NX = engine->NX ? engine->NX : MX;
 	NY = engine->NY ? engine->NY : 1024;
 	TX = (engine->ARG & DIX) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
 	TY = (engine->ARG & DIY) ? -1 : 1;
 	CL = engine->COL;
+	clipNX_DX();
+	clipNY_DY();
+	NX /= PPB[engine->scrMode];
 	ADX = DX;
 	ANX = NX;
 }
