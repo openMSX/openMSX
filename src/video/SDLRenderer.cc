@@ -13,6 +13,8 @@ TODO:
 #include "RenderSettings.hh"
 #include "RealTime.hh"
 #include "SDLConsole.hh"
+#include "CommandConsole.hh"
+#include "DebugConsole.hh"
 #include <math.h>
 #include "util.hh"
 
@@ -68,8 +70,9 @@ void SDLRenderer<Pixel, zoom>::finishFrame(bool store)
 		SDL_BlitSurface(screen, NULL, storedImage, NULL);
 	}
 
-	// Render console if needed.
+	// Render consoles if needed.
 	console->drawConsole();
+	debugger->drawConsole();
 
 	// Update screen.
 	SDL_UpdateRect(screen, 0, 0, 0, 0);
@@ -241,8 +244,8 @@ SDLRenderer<Pixel, zoom>::SDLRenderer(
 		Blender<Pixel>::createFromFormat(screen->format) )
 {
 	this->screen = screen;
-	console = new SDLConsole(screen);
-
+	console = new SDLConsole(CommandConsole::instance(), screen);
+	debugger = new SDLConsole(DebugConsole::instance(), screen);
 	// Allocate screen which will later contain the stored image.
 	storedImage = SDL_CreateRGBSurface(
 		SDL_SWSURFACE,
@@ -835,4 +838,3 @@ void SDLRenderer<Pixel, zoom>::drawSprites(
 	if (SDL_MUSTLOCK(screen))
 		SDL_UnlockSurface(screen);
 }
-

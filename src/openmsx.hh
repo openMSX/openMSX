@@ -16,6 +16,9 @@ typedef short signed_word;
 /** 16 bit unsigned integer */
 typedef unsigned short word;
 
+/** 32 bit unsigned integer */
+typedef unsigned int dword;
+
 #ifdef __WIN32__
 /** 64 bit signed integer */
 typedef __int64 int64;
@@ -67,4 +70,3 @@ extern Mutex outputmutex, errormutex;
 	} while (0)
 
 #endif //__OPENMSX_HH__
-

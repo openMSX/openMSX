@@ -252,9 +252,9 @@ private:
 	SpriteConverter<Pixel, Renderer::ZOOM_REAL> spriteConverter;
 
 	OSDConsoleRenderer *console;
+	OSDConsoleRenderer *debugger;
 
 };
 
 #endif // __OPENGL_AVAILABLE__
 #endif // __SDLGLRENDERER_HH__
-

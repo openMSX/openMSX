@@ -2,7 +2,7 @@
 
 #include "OSDConsoleRenderer.hh"
 #include "MSXConfig.hh"
-#include "Console.hh"
+#include "CommandConsole.hh"
 #include "File.hh"
 
 int OSDConsoleRenderer::wantedColumns;
@@ -76,8 +76,9 @@ bool FontSetting::checkUpdate(const std::string &newValue)
 
 // class OSDConsoleRenderer
 
-OSDConsoleRenderer::OSDConsoleRenderer()
+OSDConsoleRenderer::OSDConsoleRenderer(Console * console_)
 {
+	console = console_;
 	static bool initiated = false;
 	try {
 		Config *config = MSXConfig::instance()->getConfigById("Console");
@@ -105,12 +106,12 @@ OSDConsoleRenderer::OSDConsoleRenderer()
 	}
 
 	if (!fontName.empty()) {
-		Console::instance()->registerConsole(this);
+		console->registerConsole(this);
 	}
 	blink = false;
 	lastBlinkTime = 0;
 	int cursorY;
-	Console::instance()->getCursorPosition(&lastCursorPosition, &cursorY);
+	console->getCursorPosition(&lastCursorPosition, &cursorY);
 	
 	consolePlacementSetting = NULL;
 	consoleRowsSetting = NULL;
@@ -120,7 +121,7 @@ OSDConsoleRenderer::OSDConsoleRenderer()
 OSDConsoleRenderer::~OSDConsoleRenderer()
 {
 	if (!fontName.empty()) {
-		Console::instance()->unregisterConsole(this);
+		console->unregisterConsole(this);
 	}
 	delete font;
 	delete consolePlacementSetting;
@@ -182,7 +183,7 @@ void OSDConsoleRenderer::initConsoleSize()
 	}
 	adjustColRow();
 
-	Console::instance()->setConsoleColumns(consoleColumns);
+	console->setConsoleDimensions(consoleColumns, consoleRows);
 
 	consoleColumnsSetting = new IntegerSetting(
 		"consolecolumns", "number of columns in the console",
@@ -225,7 +226,7 @@ void OSDConsoleRenderer::updateConsoleRect(SDL_Rect & rect)
 
 	rect.h = font->getHeight() * consoleRows;
 	rect.w = (font->getWidth() * consoleColumns) + CHAR_BORDER;
-	Console::instance()->setConsoleColumns(consoleColumns);
+	console->setConsoleDimensions(consoleColumns, consoleRows);
 	
 	// TODO use setting listener in the future
 	consolePlacement = consolePlacementSetting->getValue();

@@ -30,6 +30,7 @@ MSXCPUInterface::MSXCPUInterface()
 		IO_Out[port] = dummy;
 	}
 	for (int primSlot = 0; primSlot < 4; primSlot++) {
+		primarySlotState[primSlot]=0;
 		isSubSlotted[primSlot] = false;
 		subSlotRegister[primSlot] = 0;
 		for (int secSlot = 0; secSlot < 4; secSlot++) {
@@ -239,6 +240,18 @@ byte MSXCPUInterface::peekMem(word address) const
 	return visibleDevices[address >> 14]->peekMem(address);
 }
 
+byte MSXCPUInterface::peekMemBySlot(unsigned int address, int slot, int subslot, bool direct)
+{
+	if (direct){
+		// TODO direct reading of the memorymapped
+		// requires adapting all MSXMemDevice classes.
+		return 0;
+	}
+	else{
+	return slotLayout[slot][subslot][(address & 0xffff) >> 14]->peekMem(address & 0xffff);
+	}
+}
+
 std::string MSXCPUInterface::getSlotMap()
 {
 	std::ostringstream out;
@@ -293,6 +306,16 @@ std::string MSXCPUInterface::getSlotSelection()
 	return out.str();
 }
 
+MSXCPUInterface::SlotSelection * MSXCPUInterface::getCurrentSlots()
+{
+	MSXCPUInterface::SlotSelection * slots = new SlotSelection;
+	for (int page = 0; page < 4; page++) {
+		slots->primary[page] = primarySlotState[page];
+		slots->secondary[page] = (subSlotRegister[slots->primary[page]] >> (page * 2)) & 3;
+		slots->isSubSlotted[page]=isSubSlotted[slots->primary[page]];
+	}
+	return slots;
+}
 
 void MSXCPUInterface::SlotMapCmd::execute(
 	const std::vector<std::string> &tokens )

@@ -14,11 +14,12 @@
 
 #include "OSDConsoleRenderer.hh"
 
+class Console;
 
 class GLConsole : public OSDConsoleRenderer
 {
 	public:
-		GLConsole();
+		GLConsole(Console * console_);
 		virtual ~GLConsole();
 
 		virtual bool loadFont(const std::string &filename);
@@ -39,7 +40,7 @@ class GLConsole : public OSDConsoleRenderer
 		int consoleHeight;
 		int dispX;
 		int dispY;
-		class Console* console;
+		Console* console;
 		void updateConsoleRect(SDL_Surface *screen);
 };
 

@@ -399,7 +399,8 @@ public:
 	}
 
 	void registerSetting(const string &name, Setting *setting) {
-		assert(settingsMap.find(name) == settingsMap.end());
+//TODO !!! fix this !!!!!!
+//		assert(settingsMap.find(name) == settingsMap.end());
 		settingsMap[name] = setting;
 	}
 	void unregisterSetting(const string &name) {

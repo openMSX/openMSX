@@ -84,7 +84,7 @@ dnl Checks for library functions.
 AC_CHECK_FUNCS(strtoll atoll)
 
 AC_OUTPUT(Makefile
-openmsx.lsm 
+openmsx.lsm
 openmsx.spec
 doc/Makefile
 doc/manual/Makefile
@@ -105,4 +105,5 @@ src/memory/Makefile
 src/video/Makefile
 src/input/Makefile
 src/serial/Makefile
+src/debugger/Makefile
 )

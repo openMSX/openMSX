@@ -19,6 +19,8 @@ TODO:
 #include "VDPVRAM.hh"
 #include "RenderSettings.hh"
 #include "RealTime.hh"
+#include "CommandConsole.hh"
+#include "DebugConsole.hh"
 #include "GLConsole.hh"
 #include "util.hh"
 #include <math.h>
@@ -235,8 +237,9 @@ void SDLGLRenderer::finishFrame(bool store)
 
 	drawEffects(blurSetting, scanlineAlpha);
 
-	// Render console if needed.
+	// Render consoles if needed.
 	console->drawConsole();
+	debugger->drawConsole();
 
 	// Update screen.
 	SDL_GL_SwapBuffers();
@@ -430,7 +433,8 @@ SDLGLRenderer::SDLGLRenderer(
 	, spriteConverter(vdp->getSpriteChecker())
 {
 	this->screen = screen;
-	console = new GLConsole();
+	console = new GLConsole(CommandConsole::instance());
+	debugger = new GLConsole(DebugConsole::instance());
 
 	GLint size;
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size);

@@ -12,11 +12,13 @@
 #include "SDLFont.hh"
 #include "MSXConfig.hh"
 #include "File.hh"
-#include "Console.hh"
+#include "CommandConsole.hh"
+#include "DebugConsole.hh"
 
-SDLConsole::SDLConsole(SDL_Surface *screen)
+SDLConsole::SDLConsole(Console * console_, SDL_Surface *screen)
+	:OSDConsoleRenderer (console_)
 { 
-	console = Console::instance();
+	console = console_;
 	
 	blink = false;
 	lastBlinkTime = 0;

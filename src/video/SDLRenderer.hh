@@ -213,7 +213,7 @@ private:
 	SpriteConverter<Pixel, zoom> spriteConverter;
 
 	OSDConsoleRenderer *console;
+	OSDConsoleRenderer *debugger;
 };
 
 #endif //__SDLRENDERER_HH__
-

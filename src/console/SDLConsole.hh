@@ -17,12 +17,12 @@
 	} tColorY;
 
 class SDL_Surface;
-
+class Console;
 
 class SDLConsole : public OSDConsoleRenderer
 {
 	public:
-		SDLConsole(SDL_Surface *screen);
+		SDLConsole(Console * console_, SDL_Surface *screen);
 		virtual ~SDLConsole();
 
 		virtual bool loadFont(const std::string &filename);
@@ -68,7 +68,7 @@ class SDLConsole : public OSDConsoleRenderer
 
 		BackgroundSetting* backgroundSetting;
 		FontSetting *fontSetting;
-		class Console* console;
+		Console* console;
 		
 		void alpha(unsigned char alpha);
 		void loadBackground();

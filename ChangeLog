@@ -1,5 +1,11 @@
 $Id$
 
+2003-07-20 Herman Oudejans <hn.oudejans@quicknet.nl>
+	* first steps toward a debugger. For now it's just a 
+	  static hexdump. 
+	* Temperary removed an assert in de settingsmanager
+	  because the consolesettings are init twice. 
+
 2003-07-16 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed bug in MSX-Audio sample RAM
 

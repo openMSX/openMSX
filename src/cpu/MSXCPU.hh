@@ -3,12 +3,13 @@
 #ifndef __MSXCPU_HH__
 #define __MSXCPU_HH__
 
+#include "DebugInterface.hh"
 #include "MSXDevice.hh"
 #include "Z80.hh"
 #include "R800.hh"
 
 
-class MSXCPU : public MSXDevice
+class MSXCPU : public MSXDevice, public DebugInterface
 {
 	public:
 		enum CPUType { CPU_Z80, CPU_R800 };
@@ -55,8 +56,9 @@ class MSXCPU : public MSXDevice
 		 * Send wait states to R800
 		 */
 		bool waitR800(const EmuTime &time);
+		bool getRegisters (std::map < std::string, word> & regMap);
 
-	private:
+private:
 		MSXCPU(Device *config, const EmuTime &time);
 		
 		// only for Scheduler

@@ -4,34 +4,19 @@
 #define __CONSOLE_HH__
 
 #include <list>
-#include <string>
-#include <fstream>
-#include "EventListener.hh"
-#include "CircularBuffer.hh"
-#include "Settings.hh"
-#include "MSXConfig.hh"
+
+class ConsoleRenderer;
 
 struct CursorXY {
 	unsigned x;
 	unsigned y;
 };
 
-class ConsoleRenderer;
-
-
-class Console : private EventListener, private SettingListener
+class Console
 {
 	public:
-		/** Get singleton console instance.
-		  */
-		static Console *instance();
-	
-		/** Prints a string on the console.
-		  */
-		void printFast(const std::string &text);
-		void printFlush();
-		void print(const std::string &text);
-		
+		Console();
+		virtual ~Console();
 		/** Add a renderer for this console.
 		  */
 		void registerConsole(ConsoleRenderer *console);
@@ -39,62 +24,21 @@ class Console : private EventListener, private SettingListener
 		/** Remove a renderer for this console.
 		  */
 		void unregisterConsole(ConsoleRenderer *console);
-		int getScrollBack();
-		const std::string &getLine(int line);
-		bool isVisible();
-		void getCursorPosition(int *xPosition, int *yPosition);
-		void setCursorPosition(int xPosition, int yPosition);
-		void setCursorPosition(CursorXY pos);
-		void setConsoleColumns(int columns);
-
-	private:
-		static const int LINESHISTORY = 100;
-		
-		Console();
-		virtual ~Console();
-		virtual bool signalEvent(SDL_Event &event);
-		void tabCompletion();
-		void commandExecute();
-		void scrollUp();
-		void scrollDown();
-		void prevCommand();
-		void nextCommand();
-		void clearCommand();
-		void backspace();
-		void delete_key();
-		void normalKey(char chr);
-		void putCommandHistory(const std::string &command);
-		void newLineConsole(const std::string &line);
-		void putPrompt();
+		virtual int getScrollBack()=0;
+		virtual const std::string &getLine(int line)=0;
+		virtual bool isVisible()=0;
+		virtual void getCursorPosition(int *xPosition, int *yPosition)=0;
+		virtual void setCursorPosition(int xPosition, int yPosition)=0;
+		virtual void setCursorPosition(CursorXY pos)=0;
+		virtual void setConsoleDimensions(int columns, int rows)=0;
+	protected:
 		void updateConsole();
-		void resetScrollBack();
-		
-		void combineLines(CircularBuffer<std::string, LINESHISTORY> &buffer,
-		                  CircularBuffer<bool, LINESHISTORY> &overflows,
-		                  bool fromTop = false);
-		void splitLines();
-		void loadHistory();
-		void saveHistory();
-		
-		void notify(Setting *setting);
-		
-		BooleanSetting consoleSetting;
-		unsigned int maxHistory;
+	private:
 		std::list<ConsoleRenderer*> renderers;
-		
-		std::string editLine;
-		// Are double commands allowed ?
-		bool removeDoubles;
-		CircularBuffer<std::string, 100> lines;
-		CircularBuffer<bool, 100> lineOverflows;
-		std::list<std::string> history;
-		std::list<std::string>::iterator commandScrollBack;
-		// saves Current Command to enable command recall
-		std::string currentLine;
-		int consoleScrollBack;
-		struct CursorXY cursorLocation; // full cursorcoordinates
-		int cursorPosition; // position within the current command
-		int consoleColumns;
 };
+
+
+
+
 
 #endif

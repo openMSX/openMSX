@@ -99,6 +99,8 @@ class MSXCPUInterface : public CPUInterface
 		 * @see MSXMemDevice::peekMem()
 		 */
 		byte peekMem(word address) const;
+		byte peekMemBySlot(unsigned int address, int slot, int subslot, bool direct);
+
 		
 		/*
 		 * Should only be used by PPI
@@ -118,6 +120,13 @@ class MSXCPUInterface : public CPUInterface
 		  *     selected.
 		  */
 		std::string getSlotSelection();
+		struct SlotSelection
+		{
+			byte primary [4];
+			byte secondary [4];
+			bool isSubSlotted [4];
+		};
+		MSXCPUInterface::SlotSelection * MSXCPUInterface::getCurrentSlots();
 
 	protected:
 		MSXCPUInterface();

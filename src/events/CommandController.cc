@@ -10,7 +10,7 @@
 #include "openmsx.hh"
 #include "MSXConfig.hh"
 #include "CommandController.hh"
-#include "Console.hh"
+#include "CommandConsole.hh"
 #include "FileOperations.hh"
 
 
@@ -242,10 +242,10 @@ bool CommandController::completeString2(std::string &string,
 		// print all possibilities
 		for (it = set.begin(); it != set.end(); it++) {
 			// TODO print more on one line
-			Console::instance()->printFast(*it);
+			CommandConsole::instance()->printFast(*it);
 		}
-		Console::instance()->printFast("");	// dummy 
-		Console::instance()->printFlush();	// dummy 
+		CommandConsole::instance()->printFast("");	// dummy 
+		CommandConsole::instance()->printFlush();	// dummy 
 	}
 	return false;
 }
@@ -340,4 +340,3 @@ void CommandController::HelpCmd::tabCompletion(std::vector<std::string> &tokens)
 	CommandController::instance()->tabCompletion(tokens);
 	tokens.insert(tokens.begin(), front);
 }
-

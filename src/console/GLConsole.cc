@@ -13,9 +13,10 @@
 #include "Console.hh"
 
 
-GLConsole::GLConsole()
+GLConsole::GLConsole(Console * console_)
+	:OSDConsoleRenderer (console_)
 {
-	console = Console::instance();
+	console = console_;
 	fontSetting = new FontSetting(this, fontName);
 	initConsoleSize();
 

@@ -20,6 +20,7 @@ typedef signed char offset;
 
 class CPU
 {
+	friend class MSXCPU;
 	public:
 		typedef union {
 		#ifndef WORDS_BIGENDIAN
@@ -43,7 +44,6 @@ class CPU
 		};
 
 		virtual ~CPU();
-
 		/**
 		 * Reset the CPU.
 		 */
@@ -196,4 +196,3 @@ class CPU
 	#endif
 };
 #endif //__CPU_HH__
-
