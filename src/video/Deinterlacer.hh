@@ -3,8 +3,7 @@
 #ifndef __DEINTERLACER_HH__
 #define __DEINTERLACER_HH__
 
-#include <SDL.h>
-
+struct SDL_Surface;
 
 namespace openmsx {
 
@@ -17,8 +16,6 @@ template <class Pixel>
 class Deinterlacer
 {
 public:
-	Deinterlacer();
-
 	/** Deinterlaces the given line.
 	  * @param src0 Source 0: even page of the image to be scaled.
 	  *   It should be 320 pixels wide.
@@ -31,8 +28,7 @@ public:
 	  */
 	void deinterlaceLine256(
 		SDL_Surface* src0, SDL_Surface* src1, int srcY,
-		SDL_Surface* dst, int dstY
-		);
+		SDL_Surface* dst, int dstY);
 
 	/** Deinterlaces the given line.
 	  * @param src0 Source 0: even page of the image to be deinterlaced.
@@ -46,27 +42,7 @@ public:
 	  */
 	void deinterlaceLine512(
 		SDL_Surface* src0, SDL_Surface* src1, int srcY,
-		SDL_Surface* dst, int dstY
-		);
-
-private:
-	/** Copies the given line.
-	  * @param src Source: surface to copy from.
-	  * @param srcY Line number on source surface.
-	  * @param dst Destination: surface to copy to.
-	  * @param dstY Line number on destination surface.
-	  */
-	inline void copyLine(
-		SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY );
-
-	/** Copies and scales the given line from 320 to 640 pixels wide.
-	  * @param src Source: surface to copy from.
-	  * @param srcY Line number on source surface.
-	  * @param dst Destination: surface to copy to.
-	  * @param dstY Line number on destination surface.
-	  */
-	inline void scaleLine(
-		SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY );
+		SDL_Surface* dst, int dstY);
 };
 
 } // namespace openmsx

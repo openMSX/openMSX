@@ -1,6 +1,9 @@
 $Id$
 
 2004-10-19 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Reused MMX optimized routines in Deinterlacer
+
+2004-10-19 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed SETetisDongle: unused bits should be 1 iso 0
 	* reenabled "I/O ports" debuggable, but renamed to "ioports"
 	* added MSXDevice::peekIO() method:

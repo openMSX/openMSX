@@ -85,9 +85,10 @@ public:
 		SDL_Surface* src, int srcY, int endSrcY,
 		SDL_Surface* dst, int dstY );
 
-protected:
-	Scaler();
-
+	// Utility methods  (put in seperate class?)
+	
+	/** Get the start address of a line in a surface
+	 */ 
 	inline static Pixel* linePtr(SDL_Surface* surface, int y) {
 		assert(0 <= y && y < surface->h);
 		return (Pixel*)((byte*)surface->pixels + y * surface->pitch);
@@ -140,7 +141,10 @@ protected:
 	 *  @param colour the fill colour
 	 *  @param width the width of the line (typically 320 or 640)
 	 */
-	void fillLine(Pixel* pOut, Pixel colour, unsigned width);
+	static void fillLine(Pixel* pOut, Pixel colour, unsigned width);
+
+protected:
+	Scaler();
 };
 
 } // namespace openmsx
