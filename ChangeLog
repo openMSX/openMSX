@@ -1,5 +1,9 @@
 $Id$
 
+2004-07-13 Maarten ter Huurne <maarten@treewalker.org>
+	* Fixed nullpointer dereference when ABORT command is executed
+	  in "cmdtiming broken" mode.
+
 2004-07-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Simplified SHA1 interface + cleanups
 

@@ -540,14 +540,15 @@ void VDPCmdEngine::executeCommand(const EmuTime& time)
 		reportVdpCommand();
 	}
 
-	// start command
+	// Start command.
 	status |= 0x01;
 	currentCommand = commands[CMD][scrMode];
 	currentOperation = operations[LOG];
 	currentCommand->start(time);
 
-	// finish command now if instantaneous command timing is active
-	if (brokenTiming) {
+	// Finish command now if instantaneous command timing is active.
+	// Abort finishes on start, so currentCommand can be NULL.
+	if (brokenTiming && currentCommand) {
 		currentCommand->execute(time);
 	}
 }
