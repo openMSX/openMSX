@@ -83,15 +83,12 @@ VDP::VDP(Device *config, const EmuTime &time)
 	vramMask = vramSize - 1;
 	vram = new VDPVRAM(this, vramSize);
 
-	// Put VDP into reset state, but do not call Renderer methods.
-	resetInit(time);
-
 	// Create sprite checker.
-	spriteChecker = new SpriteChecker(this, time);
+	spriteChecker = new SpriteChecker(this);
 	vram->setSpriteChecker(spriteChecker);
 
 	// Create command engine.
-	cmdEngine = new VDPCmdEngine(this, time);
+	cmdEngine = new VDPCmdEngine(this);
 	vram->setCmdEngine(cmdEngine);
 
 	// Get renderer type from config.
@@ -105,23 +102,28 @@ VDP::VDP(Device *config, const EmuTime &time)
 	
 	// Create renderer.
 	renderer = PlatformFactory::createRenderer(rendererName, this);
-	renderer->reset(time); // TODO: Move to VDP::reset.
 	vram->setRenderer(renderer);
 	switchRenderer = false;
-
-	// Tell the other subsystems of the new mask values.
-	resetMasks(time);
-
-	// Init scheduling.
-	displayStartSyncTime = time;
-	vScanSyncTime = time;
-	hScanSyncTime = time;
-	frameStart(time);
 
 	// Register console commands.
 	CommandController::instance()->registerCommand(&vdpRegsCmd,  "vdpregs");
 	CommandController::instance()->registerCommand(&paletteCmd,  "palette");
 	CommandController::instance()->registerCommand(&rendererCmd, "renderer");
+
+	// Initialise time stamps.
+	// This will be done again by frameStart, but these have to be
+	// initialised before reset() is called.
+	// TODO: Can this be simplified with a different design?
+	displayStartSyncTime = time;
+	vScanSyncTime = time;
+	hScanSyncTime = time;
+
+	// Reset state.
+	reset(time);
+
+	// Init scheduling.
+	frameStart(time);
+
 }
 
 VDP::~VDP()
@@ -193,10 +195,13 @@ void VDP::resetMasks(const EmuTime &time)
 void VDP::reset(const EmuTime &time)
 {
 	resetInit(time);
-	renderer->reset(time);
-	cmdEngine->reset(time);
+	
+	// Reset subsystems.
 	spriteChecker->reset(time);
-	// vram->reset(time);	// not necessary
+	cmdEngine->reset(time);
+	renderer->reset(time);
+	
+	// Tell the subsystems of the new mask values.
 	resetMasks(time);
 }
 

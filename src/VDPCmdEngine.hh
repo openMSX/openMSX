@@ -35,9 +35,9 @@ public:
 
 	/** Constructor.
 	  */
-	VDPCmdEngine(VDP *vdp, const EmuTime &time);
+	VDPCmdEngine(VDP *vdp);
 
-	/** Reset
+	/** Reinitialise Renderer state.
 	  * @param time The moment in time the reset occurs.
 	  */
 	void reset(const EmuTime &time);

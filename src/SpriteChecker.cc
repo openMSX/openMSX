@@ -17,13 +17,11 @@ TODO:
 #include "VDPSettings.hh"
 #include <cassert>
 
-SpriteChecker::SpriteChecker(VDP *vdp, const EmuTime &time)
+SpriteChecker::SpriteChecker(VDP *vdp)
 {
 	this->vdp = vdp;
 	limitSpritesSetting = VDPSettings::instance()->getLimitSprites();
 	vram = vdp->getVRAM();
-	reset(time);
-
 	vram->spriteAttribTable.setObserver(this);
 	vram->spritePatternTable.setObserver(this);
 }

@@ -942,12 +942,10 @@ void VDPCmdEngine::commandDone()
 
 // Added routines for openMSX:
 
-VDPCmdEngine::VDPCmdEngine(VDP *vdp, const EmuTime &time)
+VDPCmdEngine::VDPCmdEngine(VDP *vdp)
 {
 	this->vdp = vdp;
 	vram = vdp->getVRAM();
-
-	reset(time);
 }
 
 void VDPCmdEngine::reset(const EmuTime &time)
