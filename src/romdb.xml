@@ -52,5 +52,9 @@
     <md5>88ab9038be379184c70ed4aef1766a57</md5>
     <romtype>ASCII16</romtype>
   </rom>
+  <rom id="R-Type">
+    <md5>3ce7e6360a798f33940405e6501dcff2</md5>
+    <romtype>RTYPE</romtype>
+  </rom>
 </romdb>
 

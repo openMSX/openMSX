@@ -165,7 +165,7 @@ void MSXRom::reset(const EmuTime &time)
 		}
 	} else {
 		setBank16kB(0, unmapped);
-		setROM16kB (1, 0);
+		setROM16kB (1, (mapperType == R_TYPE) ? 0x17 : 0);
 		setROM16kB (2, (mapperType == HYDLIDE2 || mapperType == ASCII_16KB) ? 0 : 1);
 		setBank16kB(3, unmapped);
 	}
@@ -325,8 +325,19 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 		break;
 		
 	case R_TYPE:
-		// not yet implemented
-		assert(false);
+		//--==**>> R-Type cartridges <<**==--
+		//
+		// The address to change banks:
+		//  first  16kb: fixed at 0x0f or 0x17
+		//  second 16kb: 0x7000 - 0x7fff (0x7000 and 0x7800 used)
+		//               bit 4 selects ROM chip,
+		//                if low  bit 3-0 select page
+		//                   high     2-0 
+
+		if (0x7000<=address && address<0x8000) {
+			value &= (value & 0x10) ? 0x17 : 0x1F;
+			setROM16kB(2, value);
+		}
 		break;
 
 	case PLAIN:
