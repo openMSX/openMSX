@@ -1,5 +1,8 @@
 $Id$
 
+2002-10-02 Maarten ter Huurne <mth@stack.nl>
+	* Updated C-BIOS to version 0.13.
+
 2002-09-30 Maarten ter Huurne <mth@stack.nl>
 	* The Great VRAM Rewrite, part 4:
 	  Introduction of VRAMObserver interface. Not used yet.

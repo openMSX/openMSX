@@ -1,4 +1,4 @@
-; MSX Compatible BIOS ver 0.12 project "build castles in the air"
+; MSX Compatible BIOS ver 0.13 project "Be myself"
 ; copyright(c) 2002 BouKiCHi
 ;
 ; [date]
@@ -43,8 +43,10 @@
 ; 2002/09/25   ENASLT was rewrtten.
 ;            init_sc7 was added.
 ; 2002/09/26 the keyboard routines were fixed.
-;
-;        title "MSX COMPATIBLE BIOS for emulators ver 0.12 by BouKiCHi"
+; 2002/10/02 init_sc5 was improved.
+; 
+
+;        title "MSX COMPATIBLE BIOS for emulators ver 0.13 by BouKiCHi"
 
 ;---------------------------------------------------
 ; define I/O and Hook
@@ -1005,6 +1007,9 @@ clr_text40
 ; initialize RAM
 
 init_ram
+        
+; workarea initialize.
+
         ld      a,$00
         ld      hl,$F380
         ld      (hl),a
@@ -1107,6 +1112,13 @@ init_ram
         ld      (BAKCLR),a
         ld      a,$0F
         ld      (FORCLR),a
+
+        ld      a,$20
+        ld      (RG1SAV),a
+
+        ld      a,$08
+        ld      (RG8SAV),a
+
 
         ret
 
@@ -2015,15 +2027,33 @@ init_sc5
         ld      c,2
         call    wrt_vdp         ; write VDP R#2
 
+        ld      a,(RG0SAV+3)
+        ld      b,a             ; B = data
+        ld      c,3
+        call    wrt_vdp         ; write VDP R#3
+
         ld      a,(RG0SAV+4)
         ld      b,a             ; B = data
         ld      c,4
         call    wrt_vdp         ; write VDP R#4
 
-        ld      a,(RG0SAV+3)
-        ld      b,a             ; B = data
-        ld      c,3
-        call    wrt_vdp         ; write VDP R#3
+        ld      b,$ef           ; B = data
+        ld      c,5
+        call    wrt_vdp         ; write VDP R#5
+
+        ld      b,$0f           ; B = data
+        inc     c
+        call    wrt_vdp         ; write VDP R#6
+
+
+
+        ld      b,$08           ; B = data
+        ld      c,8
+        call    wrt_vdp         ; write VDP R#8
+
+        ld      b,$80           ; B = data
+        ld      c,9
+        call    wrt_vdp         ; write VDP R#9
 
 
         ld      b,0             ; B = data
@@ -2035,32 +2065,38 @@ init_sc5
         ld      b,0             ; B = data
         inc     c
         call    wrt_vdp         ; write VDP R#12
-
-
-        ld      b,$00           ; B = data
-        ld      c,19
-        call    wrt_vdp         ; write VDP R#19
-
-        ld      b,$01           ; B = data
-        ld      c,15
-        call    wrt_vdp         ; write VDP R#15
-
-        in      a,(VDP_STAT)	; reset Latch
-
-
-        ld      b,$00           ; B = data
-        ld      c,15
-        call    wrt_vdp         ; write VDP R#15
-
-
-
-
-        ld      b,$ef           ; B = data
-        ld      c,5
-        call    wrt_vdp         ; write VDP R#5
-        ld      b,$0f           ; B = data
+        ld      b,0             ; B = data
         inc     c
-        call    wrt_vdp         ; write VDP R#6
+        call    wrt_vdp         ; write VDP R#13
+        ld      b,1             ; B = data
+        inc     c
+        call    wrt_vdp         ; write VDP R#14
+        ld      b,0             ; B = data
+        inc     c
+        call    wrt_vdp         ; write VDP R#15
+        ld      b,$0F           ; B = data
+        inc     c
+        call    wrt_vdp         ; write VDP R#16
+        ld      b,$2C           ; B = data
+        inc     c
+        call    wrt_vdp         ; write VDP R#17
+        ld      b,$00           ; B = data
+        inc     c
+        call    wrt_vdp         ; write VDP R#18
+        ld      b,$00           ; B = data
+        inc     c
+        call    wrt_vdp         ; write VDP R#19
+        ld      b,$00           ; B = data
+        inc     c
+        call    wrt_vdp         ; write VDP R#20
+
+        ld      b,$3B           ; B = data
+        inc     c
+        call    wrt_vdp         ; write VDP R#21
+        ld      b,$05           ; B = data
+        inc     c
+        call    wrt_vdp         ; write VDP R#22
+
 
         call    enascr
         ret
@@ -3325,7 +3361,7 @@ disk_error
 
 str_proginfo
 ;                0123456789012345678901234567890123456789 
-        db      "MSX COMPATIBLE BIOS ver 0.12",$0d,$0a
+        db      "MSX COMPATIBLE BIOS ver 0.13",$0d,$0a
         db      "Copyright (C) 2002 BouKiCHi",$0d,$0a
         db      $00
 
