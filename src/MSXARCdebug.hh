@@ -4,6 +4,7 @@
 #define __MSXARCdebug_HH__
 
 #include "MSXMemDevice.hh"
+#include "FileOpener.hh"
 
 // forward declarations
 class EmuTime;
@@ -30,6 +31,8 @@ class MSXARCdebug : public MSXMemDevice
 		void writeMem(word address, byte value, const EmuTime &time);  
 		//byte* getReadCacheLine(word start);
 		//byte* getWriteCacheLine(word start);
+	private:
+		IOFILETYPE* file;
 
 };
 #endif
