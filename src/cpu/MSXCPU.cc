@@ -10,13 +10,12 @@
 
 namespace openmsx {
 
-MSXCPU::MSXCPU(Device *config, const EmuTime &time)
-	: MSXDevice(config, time),
-	  z80 (MSXCPUInterface::instance(), time),
-	  r800(MSXCPUInterface::instance(), time)
+MSXCPU::MSXCPU()
+	: z80 (MSXCPUInterface::instance(), EmuTime::zero),
+	  r800(MSXCPUInterface::instance(), EmuTime::zero)
 {
 	activeCPU = &z80;	// setActiveCPU(CPU_Z80);
-	reset(time);
+	reset(EmuTime::zero);
 }
 
 MSXCPU::~MSXCPU()
@@ -25,14 +24,8 @@ MSXCPU::~MSXCPU()
 
 MSXCPU* MSXCPU::instance()
 {
-	// MSXCPU is a MSXDevice and is automatically deleted
-	static MSXCPU* oneInstance = NULL;
-	if (oneInstance == NULL) {
-		Device* config = MSXConfig::instance()->getDeviceById("cpu");
-		EmuTime zero;
-		oneInstance = new MSXCPU(config, zero);
-	}
-	return oneInstance;
+	static MSXCPU oneInstance;
+	return &oneInstance;
 }
 
 void MSXCPU::init(Scheduler* scheduler)
@@ -43,7 +36,6 @@ void MSXCPU::init(Scheduler* scheduler)
 
 void MSXCPU::reset(const EmuTime &time)
 {
-	MSXDevice::reset(time);
 	z80.reset(time);
 	r800.reset(time);
 }

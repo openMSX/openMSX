@@ -50,8 +50,9 @@ void MSXMotherBoard::removeDevice(MSXDevice *device)
 
 void MSXMotherBoard::resetMSX()
 {
-	const EmuTime &time = MSXCPU::instance()->getCurrentTime();
+	const EmuTime& time = MSXCPU::instance()->getCurrentTime();
 	MSXCPUInterface::instance()->reset();
+	MSXCPU::instance()->reset(time);
 	for (list<MSXDevice*>::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
 		(*it)->reset(time);
@@ -60,8 +61,9 @@ void MSXMotherBoard::resetMSX()
 
 void MSXMotherBoard::reInitMSX()
 {
-	const EmuTime &time = MSXCPU::instance()->getCurrentTime();
+	const EmuTime& time = MSXCPU::instance()->getCurrentTime();
 	MSXCPUInterface::instance()->reset();
+	MSXCPU::instance()->reset(time);
 	for (list<MSXDevice*>::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
 		(*it)->reInit(time);
@@ -77,7 +79,9 @@ void MSXMotherBoard::run(bool powerOn)
 	while ((d = config->getNextDevice()) != 0) {
 		PRT_DEBUG("Instantiating: " << d->getType());
 		MSXDevice* device = DeviceFactory::create(d, EmuTime::zero);
-		addDevice(device);
+		if (device) {
+			addDevice(device);
+		}
 	}
 	// Register all postponed slots.
 	MSXCPUInterface::instance()->registerPostSlots();

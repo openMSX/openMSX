@@ -15,7 +15,6 @@
 #include "MSXTurboRPCM.hh"
 #include "MSXS1985.hh"
 #include "MSXS1990.hh"
-#include "MSXCPU.hh"
 #include "MSXMapperIO.hh"
 #include "MSXPSG.hh"
 #include "MSXMusic.hh"
@@ -65,7 +64,7 @@ MSXDevice *DeviceFactory::create(Device *conf, const EmuTime &time)
 	const string type = conf->getType();
 	MSXCPUInterface *cpuInterface = MSXCPUInterface::instance();
 	if (type == "CPU") {
-		return MSXCPU::instance();
+		return NULL;	// TODO remove it from machine specs?
 	}
 	if (type == "MapperIO") {
 		MSXMapperIO *mapperIO = MSXMapperIO::instance();
