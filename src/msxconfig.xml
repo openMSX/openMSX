@@ -6,8 +6,8 @@
     <type>DummyDevice</type>
 	<slotted>
 	  <page>0</page>
-	  <ps>0</ps>
-	  <ss>0</ss>
+	  <ps>1</ps>
+	  <ss>2</ss>
 	</slotted>
 	<parameter name="hello">world</parameter>
 	<parameter name="hi">alpha centauri</parameter>

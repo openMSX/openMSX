@@ -5,6 +5,7 @@
 
 #include <string>
 #include <list>
+#include <hash_map>
 
 // sample xml msxconfig file is available in msxconfig.xml in this dir
 
@@ -38,12 +39,17 @@ public:
 		int   getSS();
 		bool  hasParameter(const string &name);
 		const string &getParameter(const string &name);
+		void  dump();
 	private:
 		Device(); // block usage
 		Device(const Device &foo); // block usage
 		Device &operator=(const Device &foo); // block usage
 		XMLNode *deviceNode;
-		string deviceId;
+		string id, deviceType;
+		int page, ps, ss;
+		bool slotted;
+		list<string*> parameter_names;
+		list<string*> parameter_values;
 	};
 
 public:

@@ -30,7 +30,12 @@ main (int argc, char **argv)
 		cerr << e.desc << endl;
 		exit(1);
 	}
-
+	list<MSXConfig::Device*>::const_iterator i=MSXConfig::instance()->deviceList.begin();
+	for (; i != MSXConfig::instance()->deviceList.end(); i++)
+	{
+		(*i)->dump();
+	}
+	
 	exit (0);
 }
 
