@@ -85,7 +85,7 @@
 	
       <secondary slot="2">
 	<FDC id="Memory Mapped FDC">
-	  <mem base="0x0000" size="0x4000"/>
+	  <mem base="0x0000" size="0x10000"/>
 	  <rom>
 	    <firstblock>48</firstblock>
 	    <lastblock>55</lastblock>
