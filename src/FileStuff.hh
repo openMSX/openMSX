@@ -8,6 +8,7 @@
 #include "config.h"
 #include "openmsx.hh"
 #include "msxconfig.hh"
+#include <fstream>
 
 #ifdef HAVE_FSTREAM_TEMPL
 #define IFILETYPE std::ifstream<byte>
@@ -34,26 +35,26 @@ class FileStuff
 		 * try to find a readable file in the current rompath with matching filename
 		 * returns the filename with path as string
 		 */
-		 std::string  findFileName(std::string filename);
+		static std::string  findFileName(std::string filename);
 		/**
 		 * Open a file for reading only.
 		 */
-		IFILETYPE* openFileRO(std::string filename);
+		static IFILETYPE* openFileRO(std::string filename);
 		/**
 		 * Open a file for reading and writing.
 		 * if not writeable then fail
 		 */
-		IOFILETYPE* openFileMustRW(std::string filename);
+		static IOFILETYPE* openFileMustRW(std::string filename);
 		/**
 		 * Open a file for reading and writing.
 		 * if not writeable then open readonly
 		 */
-		IOFILETYPE* openFilePreferRW(std::string filename);
+		static IOFILETYPE* openFilePreferRW(std::string filename);
 
 		/** Following are for creating/reusing files **/
 		/** if not writeable then fail **/
-		IOFILETYPE* openFileAppend(std::string filename);
-		IOFILETYPE* openFileTruncate(std::string filename);
+		static IOFILETYPE* openFileAppend(std::string filename);
+		static IOFILETYPE* openFileTruncate(std::string filename);
 	private:
 		/**
 		 * Objects of this class can not be constructed 

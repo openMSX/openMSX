@@ -72,7 +72,7 @@ IOFILETYPE* FileStuff::openFilePreferRW(std::string filename)
 		return file;
 	};
 	PRT_DEBUG("Writable failed: fallback to read-only ...");
-	return openFileRO(filename);
+	return new IOFILETYPE(filename.c_str(),std::ios::in);
 };
 
 /** Following are for creating/reusing files **/
