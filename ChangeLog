@@ -3,6 +3,7 @@ $Id$
 2003-01-01 Maarten ter Huurne <maarten@treewalker.org>
 	* Workaround to prevent out-of-order I/O with the VDP.
 	* Added asserts to VDP code to check timing constraints.
+	* Fix for sprites in planar modes.
 
 2002-12-30 Joost Yervante Damad <joost@lumatec.be>
 	* updated AUTHORS

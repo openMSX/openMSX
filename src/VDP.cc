@@ -155,6 +155,9 @@ void VDP::resetInit(const EmuTime &time)
 	horizontalAdjust = 7;
 	verticalAdjust = 0;
 
+	// TODO: Real VDP probably resets timing as well.
+	isDisplayArea = false;
+
 	// Init status registers.
 	statusReg0 = 0x00;
 	statusReg1 = (version == V9958 ? 0x04 : 0x00);
@@ -172,8 +175,8 @@ void VDP::resetInit(const EmuTime &time)
 	vram->nameTable.setMask(~(-1 << 10), -1 << 17, time);
 	vram->colourTable.setMask(~(-1 << 6), -1 << 17, time);
 	vram->patternTable.setMask(~(-1 << 11), -1 << 17, time);
-	vram->spriteAttribTable.setMask(~(-1 << 7), -1 << 17, time);
-	vram->spritePatternTable.setMask(~(-1 << 11), -1 << 17, time);
+	updateSpriteAttributeBase(time);
+	updateSpritePatternBase(time);
 	// TODO: It is not clear to me yet how bitmapWindow should be used.
 	//       Currently it always spans 128K of VRAM.
 	vram->bitmapWindow.setMask(~(-1 << 17), -1 << 17, time);
@@ -186,8 +189,6 @@ void VDP::resetInit(const EmuTime &time)
 	// Init the palette.
 	memcpy(palette, V9938_PALETTE, 16 * sizeof(word));
 
-	// TODO: Real VDP probably resets timing as well.
-	isDisplayArea = false;
 }
 
 void VDP::reset(const EmuTime &time)
@@ -842,19 +843,22 @@ void VDP::setHorAdjust(const EmuTime &time)
 
 void VDP::updateSpriteAttributeBase(const EmuTime &time)
 {
-	int base = ((controlRegs[11] << 15) | (controlRegs[5] << 7)
-		| ~(-1 << 7)) & vramMask;
-	if (isPlanar()) base = ((base << 16) | (base >> 1)) & 0x1FFFF;
-	switch (getSpriteMode()) {
-	case 0:
+	int mode = getSpriteMode();
+	if (mode == 0) {
 		vram->spriteAttribTable.disable(time);
-		break;
-	case 1:
+		return;
+	}
+	int base = vramMask &
+		((controlRegs[11] << 15) | (controlRegs[5] << 7) | ~(-1 << 7));
+	if (mode == 1) {
 		vram->spriteAttribTable.setMask(base, -1 << 7, time);
-		break;
-	case 2:
-		vram->spriteAttribTable.setMask(base, -1 << 10, time);
-		break;
+	} else { // mode == 2
+		if (isPlanar()) {
+			vram->spriteAttribTable.setMask(
+				((base << 16) | (base >> 1)) & 0x1FFFF, 0x0FE00, time);
+		} else {
+			vram->spriteAttribTable.setMask(base, 0x1FC00, time);
+		}
 	}
 }
 
