@@ -1,6 +1,7 @@
 // $Id$
 
 #include <string>
+#include "MSXConfig.hh"
 #include "MSXRomDevice.hh"
 #include "MSXDiskRomPatch.hh"
 #include "MSXTapePatch.hh"

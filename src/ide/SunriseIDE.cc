@@ -7,6 +7,7 @@
 #include "MSXCPU.hh"
 #include "CPU.hh"
 #include "IDEDeviceFactory.hh"
+#include "MSXConfig.hh"
 
 
 SunriseIDE::SunriseIDE(Device *config, const EmuTime &time)

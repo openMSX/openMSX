@@ -4,6 +4,7 @@
 
 #include "Mixer.hh"
 #include "YM2413.hh"
+#include "MSXConfig.hh"
 
 
 MSXYM2413::MSXYM2413(Device *config, const EmuTime &time)

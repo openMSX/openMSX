@@ -5,6 +5,7 @@
 #include "MSXMapperIOPhilips.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
+#include "MSXConfig.hh"
 
 
 MSXMapperIO::MSXMapperIO(Device *config, const EmuTime &time)

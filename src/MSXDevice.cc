@@ -1,11 +1,12 @@
 // $Id$
 
 #include "MSXDevice.hh"
+#include "MSXConfig.hh"
 
 
 MSXDevice::MSXDevice(Device *config, const EmuTime &time)
+	: deviceConfig(config)
 {
-	deviceConfig = config;
 	//PRT_DEBUG("Instantiating MSXDevice: " << getName());
 }
 

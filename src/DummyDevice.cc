@@ -1,6 +1,7 @@
 // $Id$
 
 #include "DummyDevice.hh"
+#include "EmuTime.hh"
 #include <cassert>
 
 

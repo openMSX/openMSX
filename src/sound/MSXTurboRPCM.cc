@@ -2,6 +2,7 @@
 
 #include "MSXTurboRPCM.hh"
 #include "DACSound8U.hh"
+#include "MSXConfig.hh"
 
 
 MSXTurboRPCM::MSXTurboRPCM(Device *config, const EmuTime &time)

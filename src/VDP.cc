@@ -27,6 +27,7 @@ TODO:
 #include "PlatformFactory.hh"
 #include "CommandController.hh"
 #include "Scheduler.hh"
+#include "MSXConfig.hh"
 #include <string>
 #include <iomanip>
 #include <cassert>

@@ -5,6 +5,7 @@
 #include "DummyCassetteDevice.hh"
 #include "PluggingController.hh"
 #include "CassettePlayer.hh"
+#include "MSXConfig.hh"
 
 
 // CassettePortFactory //

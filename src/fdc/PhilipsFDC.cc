@@ -4,6 +4,7 @@
 #include "CPU.hh"
 #include "WD2793.hh"
 #include "DriveMultiplexer.hh"
+#include "MSXConfig.hh"
 
 
 PhilipsFDC::PhilipsFDC(Device *config, const EmuTime &time)

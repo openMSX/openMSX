@@ -4,8 +4,8 @@
 #define __IDEHD_HH__
 
 #include "IDEDevice.hh"
-#include "MSXConfig.hh"
 
+class Config;
 class File;
 
 

@@ -2,6 +2,7 @@
  
 #include "MSXCPUInterface.hh"
 #include "MSXMemDevice.hh"
+#include "MSXConfig.hh"
 
 
 MSXMemDevice::MSXMemDevice(Device *config, const EmuTime &time)

@@ -1,6 +1,7 @@
 // $Id$
 
 #include "MSXMatsushita.hh"
+#include "MSXConfig.hh"
 
 
 const byte ID = 0x08;

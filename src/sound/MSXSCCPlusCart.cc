@@ -6,6 +6,7 @@
 #include "File.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
+#include "MSXConfig.hh"
 
 
 MSXSCCPlusCart::MSXSCCPlusCart(Device *config, const EmuTime &time)

@@ -9,7 +9,8 @@
 #include <vector>
 #include "openmsx.hh"
 #include "config.h"
-#include "MSXConfig.hh"
+
+class MSXConfig;
 
 
 class CLIOption

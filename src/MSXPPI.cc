@@ -7,6 +7,8 @@
 #include "MSXCPUInterface.hh"
 #include "KeyClick.hh"
 #include "CassettePort.hh"
+#include "MSXConfig.hh"
+
 
 // MSXDevice
 

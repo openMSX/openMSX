@@ -3,6 +3,7 @@
 #include "MSXRTC.hh"
 #include "RP5C01.hh"
 #include "File.hh"
+#include "MSXConfig.hh"
 
 
 MSXRTC::MSXRTC(Device *config, const EmuTime &time)

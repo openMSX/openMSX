@@ -2,6 +2,7 @@
 
 #include "IDEHD.hh"
 #include "File.hh"
+#include "MSXConfig.hh"
 
 
 byte IDEHD::identifyBlock[512] = {

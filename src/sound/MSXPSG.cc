@@ -4,6 +4,8 @@
 #include "JoystickPorts.hh"
 #include "Leds.hh"
 #include "CassettePort.hh"
+#include "MSXConfig.hh"
+
 
 // MSXDevice
 MSXPSG::MSXPSG(Device *config, const EmuTime &time)

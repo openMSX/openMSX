@@ -6,6 +6,7 @@ $Id$
 	  of the config file:
 	   - this together with the change above probably means you have
 	     to rewrite some/all of your config files
+	* Moved some #include's from .hh to .cc
 
 2003-01-16 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented 8-bit unsigned 16-bit signed DAC

@@ -4,9 +4,8 @@
 #define __MSXROMDEVICE_HH__
 
 #include <list>
-#include "MSXConfig.hh"
 
-// forward declaration
+class Config;
 class MSXRomPatchInterface;
 class File;
 

@@ -1,10 +1,11 @@
 // $Id$
 
 #include "SRAM.hh"
+#include "MSXConfig.hh"
 #include "File.hh"
 
 
-SRAM::SRAM(int size_, Device *config_, const char *header_)
+SRAM::SRAM(int size_, Config *config_, const char *header_)
 {
 	size = size_;
 	config = config_;

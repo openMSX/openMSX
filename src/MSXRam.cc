@@ -2,6 +2,7 @@
 
 #include "MSXRam.hh"
 #include "CPU.hh"
+#include "MSXConfig.hh"
 
 
 MSXRam::MSXRam(Device *config, const EmuTime &time)

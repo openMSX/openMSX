@@ -3,6 +3,7 @@
 #include "MSXFDC.hh"
 #include "DiskDrive.hh"
 #include "DiskImageCLI.hh"
+#include "MSXConfig.hh"
 
 DiskImageCLI diskImageCLI;
 

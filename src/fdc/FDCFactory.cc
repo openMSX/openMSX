@@ -1,5 +1,6 @@
 // $Id$
 
+#include "MSXConfig.hh"
 #include "FDCFactory.hh"
 #include "PhilipsFDC.hh"
 #include "MicrosolFDC.hh"

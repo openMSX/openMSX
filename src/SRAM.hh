@@ -3,13 +3,15 @@
 #ifndef __SRAM_HH__
 #define __SRAM_HH__
 
-#include "MSXConfig.hh"
+#include "openmsx.hh"
+
+class Config;
 
 
 class SRAM
 {
 	public:
-		SRAM(int size, Device *config,
+		SRAM(int size, Config *config,
 		     const char* header = NULL);
 		virtual ~SRAM();
 
@@ -31,7 +33,7 @@ class SRAM
 		
 	private:
 		int size;
-		Device *config;
+		Config *config;
 		const char* header;
 		byte* sram;
 };

@@ -4,6 +4,7 @@
 #include "MSXFmPac.hh"
 #include "File.hh"
 #include "CartridgeSlotManager.hh"
+#include "MSXConfig.hh"
 
 
 MSXFmPacCLI msxFmPacCLI;

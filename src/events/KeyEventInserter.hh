@@ -7,6 +7,8 @@
 #include <SDL/SDL.h>
 #include "CommandLineParser.hh"
 
+class EmuTime;
+
 
 class KeyEventInserterCLI : public CLIOption
 {

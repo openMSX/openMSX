@@ -1,5 +1,6 @@
 // $Id$
 
+#include "MSXConfig.hh"
 #include "MSXRom.hh"
 #include "SCC.hh"
 #include "DACSound8U.hh"

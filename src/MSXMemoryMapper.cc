@@ -2,6 +2,7 @@
 
 #include "MSXMemoryMapper.hh"
 #include "MSXMapperIO.hh"
+#include "MSXConfig.hh"
 
 
 // Inlined methods first, to make sure they are actually inlined

@@ -1,6 +1,7 @@
 // $Id$
 
 #include "MSXF4Device.hh"
+#include "MSXConfig.hh"
 
 
 MSXF4Device::MSXF4Device(Device *config, const EmuTime &time)

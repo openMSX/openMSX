@@ -2,6 +2,7 @@
 
 #include "MSXBunsetsu.hh"
 #include "CPU.hh"
+#include "MSXConfig.hh"
 
 
 MSXBunsetsu::MSXBunsetsu(Device *config, const EmuTime &time)
