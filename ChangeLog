@@ -4,6 +4,11 @@ $Id$
 	* Reduce memory usage in Y8950Adpcm:
 	   - found by massif (part of valgrind)
 	* Fixed HBI-55: address 0 is read only and contains 0x53
+	* Changed (un)bind command:
+	   - a key can now only be bound to one command, this solves the
+	     "toggle + toggle = nop" problem
+	   - if you still want to bind multiple things to one key you can
+	     define a proc or bind something like "foo ; bar"
 
 2004-03-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Another config refactoring:

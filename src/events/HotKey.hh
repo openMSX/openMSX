@@ -45,7 +45,7 @@ public:
 	 * automatically executed.
 	 */
 	void   registerHotKeyCommand(Keys::KeyCode key, const string& command);
-	void unregisterHotKeyCommand(Keys::KeyCode key, const string& command);
+	void unregisterHotKeyCommand(Keys::KeyCode key);
 
 private:
 	// EventListener
@@ -54,7 +54,7 @@ private:
 	class HotKeyCmd;
 	typedef multimap<Keys::KeyCode, HotKeyListener*> ListenerMap;
 	ListenerMap listenerMap;
-	typedef multimap<Keys::KeyCode, HotKeyCmd*> CommandMap;
+	typedef map<Keys::KeyCode, HotKeyCmd*> CommandMap;
 	CommandMap cmdMap;
 
 

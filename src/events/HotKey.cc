@@ -55,23 +55,22 @@ void HotKey::unregisterHotKey(Keys::KeyCode key, HotKeyListener* listener)
 
 void HotKey::registerHotKeyCommand(Keys::KeyCode key, const string& command)
 {
+	CommandMap::iterator it = cmdMap.find(key);
+	if (it != cmdMap.end()) {
+		unregisterHotKeyCommand(key);
+	}
 	HotKeyCmd* cmd = new HotKeyCmd(command);
 	registerHotKey(key, cmd);
-	cmdMap.insert(CommandMap::value_type(key, cmd));
+	cmdMap[key] = cmd;
 }
 
-void HotKey::unregisterHotKeyCommand(Keys::KeyCode key, const string& command)
+void HotKey::unregisterHotKeyCommand(Keys::KeyCode key)
 {
-	pair<CommandMap::iterator, CommandMap::iterator> bounds =
-		cmdMap.equal_range(key);
-	for (CommandMap::iterator it = bounds.first;
-	     it != bounds.second; ++it) {
-		HotKeyCmd* cmd = it->second;
-		if (cmd->getCommand() == command) {
-			unregisterHotKey(key, cmd);
-			cmdMap.erase(it);
-			break;
-		}
+	CommandMap::iterator it = cmdMap.find(key);
+	if (it != cmdMap.end()) {
+		unregisterHotKey(key, it->second);
+		delete it->second;
+		cmdMap.erase(it);
 	}
 }
 
@@ -146,13 +145,12 @@ string HotKey::BindCmd::execute(const vector<string>& tokens)
 		if (key == Keys::K_NONE) {
 			throw CommandException("Unknown key");
 		}
-		pair<CommandMap::iterator, CommandMap::iterator> bounds =
-			parent.cmdMap.equal_range(key);
-		for (CommandMap::iterator it = bounds.first;
-		     it != bounds.second; ++it) {
-			result += Keys::getName(it->first) + ":  " +
-			      it->second->getCommand() + '\n';
+		CommandMap::const_iterator it = parent.cmdMap.find(key);
+		if (it == parent.cmdMap.end()) {
+			throw CommandException("Key not bound");
 		}
+		result = Keys::getName(it->first) + ":  " +
+		      it->second->getCommand() + '\n';
 		break;
 	}
 	default: {
@@ -175,7 +173,7 @@ string HotKey::BindCmd::execute(const vector<string>& tokens)
 string HotKey::BindCmd::help(const vector<string>& tokens) const throw()
 {
 	return "bind             : show all bounded keys\n"
-	       "bind <key>       : show all bindings for this key\n"
+	       "bind <key>       : show binding for this key\n"
 	       "bind <key> <cmd> : bind key to command\n";
 }
 
@@ -193,29 +191,12 @@ string HotKey::UnbindCmd::execute(const vector<string>& tokens)
 	string result;
 	switch (tokens.size()) {
 	case 2: {
-		// unbind all for this key
+		// unbind this key
 		Keys::KeyCode key = Keys::getCode(tokens[1]);
 		if (key == Keys::K_NONE) {
 			throw CommandException("Unknown key");
 		}
-		pair<CommandMap::iterator, CommandMap::iterator> bounds =
-			parent.cmdMap.equal_range(key);
-		// cannot iterate over changing container, so make copy
-		CommandMap copy(bounds.first, bounds.second);
-		for (CommandMap::iterator it = copy.begin();
-		     it != copy.end(); ++it) {
-			parent.unregisterHotKeyCommand(key,
-				it->second->getCommand());
-		}
-		break;
-	}
-	case 3: {
-		// unbind a specific command
-		Keys::KeyCode key = Keys::getCode(tokens[1]);
-		if (key == Keys::K_NONE) {
-			throw CommandException("Unknown key");
-		}
-		parent.unregisterHotKeyCommand(key, tokens[2]);
+		parent.unregisterHotKeyCommand(key);
 		break;
 	}
 	default:
@@ -225,8 +206,7 @@ string HotKey::UnbindCmd::execute(const vector<string>& tokens)
 }
 string HotKey::UnbindCmd::help(const vector<string>& tokens) const throw()
 {
-	return "unbind <key>       : unbind all for this key\n"
-	       "unbind <key> <cmd> : unbind a specific command\n";
+	return "unbind <key> : unbind this key\n";
 }
 
 } // namespace openmsx

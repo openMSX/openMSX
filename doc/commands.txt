@@ -51,10 +51,9 @@ bind / unbind
   
   usage:
     bind                    shows all bindings
-    bind   <key>            shows bindings for this key
+    bind   <key>            shows binding for this key
     bind   <key> <command>  make a new binding
-    unbind <key>            undo all bindings for this key
-    unbind <key> <command>  undo a specific binding
+    unbind <key>            undo binding for this key
   
   examples:
     bind PAGEUP "set speed 100"
