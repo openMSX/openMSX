@@ -1,5 +1,13 @@
 $Id$
 
+2003-06-25 Manuel Bilderbeek <manuel@msxnet.org>
+	* Cleaned up the machines and extensions dir:
+	  - added a subdir 'roms' when needed
+	  - added the Id tags when missing
+	  - filename cleanups
+	  - fixed some typos
+	* Added a few extensions
+
 2003-06-25 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented Listener interface for Setting class
 
