@@ -144,7 +144,7 @@ bool CommandLineParser::parseFileName(const string& arg, list<string>& cmdLine)
 				extension = arg.substr(begin + 1, end - begin - 1);
 			}
 		}
-		map<string, CLIFileType*>::const_iterator it2 =
+		map<string, CLIFileType*, caseltstr>::const_iterator it2 =
 			fileTypeMap.find(extension);
 		if (it2 != fileTypeMap.end()) {
 			// parse filetype
@@ -385,12 +385,12 @@ bool CommandLineParser::HelpOption::parseOption(const string &option,
 	cout << "  this is the list of supported file types:" << endl;
 
 	map<string, set<string> > extMap;
-	for (map<string, CLIFileType*>::const_iterator it = parent.fileTypeMap.begin();
+	for (map<string, CLIFileType*, caseltstr>::const_iterator it = parent.fileTypeMap.begin();
 	     it != parent.fileTypeMap.end(); ++it) {
 		extMap[it->second->fileTypeHelp()].insert(it->first);
 	}
 	printItemMap(extMap);
-	
+
 	parent.parseStatus = EXIT;
 	return true;
 }

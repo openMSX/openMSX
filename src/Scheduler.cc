@@ -11,6 +11,10 @@
 #include "Renderer.hh" // TODO: Temporary?
 
 using std::swap;
+using std::make_heap;
+using std::push_heap;
+using std::pop_heap;
+
 
 namespace openmsx {
 
