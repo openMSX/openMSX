@@ -182,12 +182,12 @@ void CommandLineParser::parse(int argc, char **argv)
 			if (machineConfig->hasParameter("machine")) {
 				machine =
 					machineConfig->getParameter("machine");
+				PRT_INFO("Using default machine: " << machine);
 			}
 		} catch (MSXException &e) {
 			// no DefaultMachine section
 		}
 		try {
-			PRT_INFO("Selected: " << MACHINE_PATH + machine);
 			config->loadFile(new SystemFileContext(),
 				MACHINE_PATH + machine + "/hardwareconfig.xml");
 		} catch (FileException &e) {
@@ -398,9 +398,10 @@ void CommandLineParser::MachineOption::parseOption(const std::string &option,
 		std::list<std::string> &cmdLine)
 {
 	MSXConfig *config = MSXConfig::instance();
+	std::string machine(getArgument(option, cmdLine));
 	config->loadFile(new SystemFileContext(),
-		MACHINE_PATH + getArgument(option, cmdLine) +
-			 "/hardwareconfig.xml");
+		MACHINE_PATH + machine + "/hardwareconfig.xml");
+	PRT_INFO("Using specified machine: " << machine);
 	CommandLineParser::instance()->haveConfig = true;
 }
 const std::string& CommandLineParser::MachineOption::optionHelp() const

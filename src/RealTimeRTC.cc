@@ -17,6 +17,7 @@ RealTimeRTC* RealTimeRTC::create()
 	RealTimeRTC* rt = new RealTimeRTC();
 	if (!rt->init()) {
 		delete rt;
+		PRT_INFO("Couldn't initialize RTC timer, falling back to (less accurate) SDL timer...");
 		rt = NULL;
 	}
 	return rt;
@@ -45,21 +46,21 @@ bool RealTimeRTC::init()
 	// Open RTC device.
 	rtcFd = open("/dev/rtc", O_RDONLY);
 	if (rtcFd == -1) {
-		PRT_INFO("Couldn't open /dev/rtc");
+		PRT_INFO("RTC timer: couldn't open /dev/rtc");
 		return false;
 	}
 
 	// Select 1024Hz.
 	int retval = ioctl(rtcFd, RTC_IRQP_SET, RTC_HERTZ);
 	if (retval == -1) {
-		PRT_INFO("Couldn't select " << RTC_HERTZ << "Hz timer");
+		PRT_INFO("RTC timer: couldn't select " << RTC_HERTZ << "Hz timer; try adding \"echo " << RTC_HERTZ <<" > /proc/sys/dev/rtc/max-user-freq\" to your system startup scripts.");
 		return false;
 	}
 
 	// Enable periodic interrupts.
 	retval = ioctl(rtcFd, RTC_PIE_ON, 0);
 	if (retval == -1) {
-		PRT_INFO("Couldn't enable timer interrupts");
+		PRT_INFO("RTC timer: couldn't enable timer interrupts");
 		return false;
 	}
 	
