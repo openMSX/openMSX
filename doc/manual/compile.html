@@ -560,27 +560,9 @@ make install
 </div>
 <p>
 This installs openMSX, by default in <code>/opt/openMSX</code>.
-<!--
-You can override this location by specifying <code>- -prefix=location</code>
-to <code>configure</code> or <code>config-i686.sh</code>.-->
 Note that only root has rights to write to system-wide directories such as
 <code>/opt</code>,
 so you may have to do <code>su</code> before <code>make install</code>.
-</p>
-
-<p>
-If you want an even smaller binary,
-then the one you get with the "i686" flavour,
-you can run <code>gzexe</code> on the binary:
-</p>
-<div class="commandline">
-gzexe /opt/openMSX/bin/openmsx
-</div>
-<p>
-This just compresses the binary, but keeps it still executable.
-For this you need the <code>gzip</code> package,
-which is installed by default on almost any system.
-See also <code>man gzexe</code>.
 </p>
 
 <h2><a id="next">5. Next Steps</a></h2>
