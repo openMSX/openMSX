@@ -137,8 +137,9 @@ void HotKey::BindCmd::execute(const vector<string> &tokens)
 	case 2: {
 		// show bindings for this key
 		Keys::KeyCode key = Keys::getCode(tokens[1]);
-		if (key == Keys::K_UNKNOWN)
+		if (key == Keys::K_NONE) {
 			throw CommandException("Unknown key");
+		}
 		multimap<Keys::KeyCode, HotKeyCmd*>::iterator it;
 		for (it = hk->cmdMap.lower_bound(key);
 				(it != hk->cmdMap.end()) && (it->first == key);
@@ -151,11 +152,11 @@ void HotKey::BindCmd::execute(const vector<string> &tokens)
 	default: {
 		// make a new binding
 		Keys::KeyCode key = Keys::getCode(tokens[1]);
-		if (key == Keys::K_UNKNOWN) {
+		if (key == Keys::K_NONE) {
 			throw CommandException("Unknown key");
 		}
 		string command;
-		for (uint i = 2; i < tokens.size(); i++) {
+		for (unsigned i = 2; i < tokens.size(); i++) {
 			if (i != 2) command += ' ';
 			command += tokens[i];
 		}
@@ -178,8 +179,9 @@ void HotKey::UnbindCmd::execute(const vector<string> &tokens)
 	case 2: {
 		// unbind all for this key
 		Keys::KeyCode key = Keys::getCode(tokens[1]);
-		if (key == Keys::K_UNKNOWN)
+		if (key == Keys::K_NONE) {
 			throw CommandException("Unknown key");
+		}
 		bool changed;
 		do {	changed = false;
 			multimap<Keys::KeyCode, HotKeyCmd*>::iterator it;
@@ -194,8 +196,9 @@ void HotKey::UnbindCmd::execute(const vector<string> &tokens)
 	case 3: {
 		// unbind a specific command
 		Keys::KeyCode key = Keys::getCode(tokens[1]);
-		if (key == Keys::K_UNKNOWN)
+		if (key == Keys::K_NONE) {
 			throw CommandException("Unknown key");
+		}
 		hk->unregisterHotKeyCommand(key, tokens[2]);
 		break;
 	}
