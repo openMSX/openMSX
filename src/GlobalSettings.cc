@@ -5,8 +5,8 @@
 namespace openmsx {
 
 GlobalSettings::GlobalSettings()
-        : pauseSetting("pause", "pauses the emulation", false)
-	, powerSetting("power", "turn power on/off", false)
+	: pauseSetting("pause", "pauses the emulation", false, DONT_SAVE_SETTING)
+	, powerSetting("power", "turn power on/off", false, DONT_SAVE_SETTING)
 {
 }
 
