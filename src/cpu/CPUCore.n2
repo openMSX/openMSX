@@ -247,16 +247,20 @@ void _CPU_::executeCore() {
 		return;
 	}
 
-	executeSlow();
-
-	if (step) {
-		targetTime = currentTime;
-		doBreak2();
-		step = false;
-		return;
+	slowInstructions = 2;
+	if (continued || step) {
+		// at least one instruction
+		continued = false;
+		executeSlow();
+		--slowInstructions;
+		if (step) {
+			targetTime = currentTime;
+			doBreak2();
+			step = false;
+			return;
+		}
 	}
 
-	slowInstructions = 1;
 	if (breakPoints.empty()) {
 		// fast path, no breakpoints
 		while (currentTime < targetTime) {

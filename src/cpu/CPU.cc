@@ -21,6 +21,7 @@ BooleanSetting CPU::traceSetting("cputrace", "CPU tracing on/off", false);
 
 multiset<word> CPU::breakPoints;
 bool CPU::breaked = false;
+bool CPU::continued = false;
 bool CPU::step = false;
 
 
@@ -184,6 +185,7 @@ void CPU::doContinue()
 {
 	if (breaked) {
 		breaked = false;
+		continued = true;
 		scheduler->decreasePauseCounter();
 	}
 }

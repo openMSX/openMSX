@@ -185,6 +185,7 @@ protected:
 
 	static multiset<word> breakPoints;
 	static bool breaked;
+	static bool continued;
 	static bool step;
 
 #ifdef CPU_DEBUG
