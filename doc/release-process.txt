@@ -28,7 +28,6 @@ Creating a release candidate
   Export instead of checkout gets rid of the CVS admin directories.
 - Have auto* create its output:
     ./autogen.sh
-    ./configure
 - Create the distribution tar.gz file:
     make -f alternative.mk dist
 - Save the created file somewhere you can find it again:
