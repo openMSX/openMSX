@@ -8,6 +8,7 @@
 #include "openmsx.hh"
 #include "SoundDevice.hh"
 #include "emutime.hh"
+#include "MSXRealTime.hh"
 
 
 class DACSound : public SoundDevice
@@ -16,31 +17,37 @@ class DACSound : public SoundDevice
 		DACSound(); 
 		virtual ~DACSound(); 
 	
-		byte readDAC(byte value, const Emutime &time);
-		void writeDAC(byte value, const Emutime &time);
-
-		//SoundDevice
 		void init();
 		void reset();
+		byte readDAC(byte value, const Emutime &time);
+		void writeDAC(byte value, const Emutime &time);
+		
+		//SoundDevice
 		void setInternalVolume(short newVolume);
 		void setSampleRate(int sampleRate);
 		int* updateBuffer(int length);
 		
 	private:
-		static const int CLOCK = 3579545;	// real time clock frequency of DACSound
-							// for the moment equals the Z80 frequence
-		int clocksPerSample;
-		Emutime lastChanged;
-		int delta;
-		unsigned short volTable[256];
+		void insertSamples(int nbSamples, short sample);
+		
+		static const int BUFSIZE = 256;
+		static const int CENTER = 0x80;
+	
+		MSXRealTime* realtime;
+		Emutime ref;
+		float left, tempVal;
+		int sampleRate;
+
+		short volTable[256];
+		
 		struct {
-		  int time;
+		  int nbSamples;
 		  short sample;
-		} audiobuffer[256]; // hint: a cyclicbuffer and the index counter is a byte
-		byte bufreadindex;
-		byte bufwriteindex;
+		} audioBuffer[BUFSIZE];
+		int bufReadIndex;
+		int bufWriteIndex;
+		
 		byte DACValue;
-		short DACSample;
 
 		int* buf;
 };

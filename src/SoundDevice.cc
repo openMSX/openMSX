@@ -4,7 +4,7 @@
 
 SoundDevice::SoundDevice()
 {
-	internalMuted = false;
+	internalMuted = false;	//TODO in the future make muted the default
 	userMuted = false;
 	// TODO is it possible to make a default implementation
 	//      to read the start volume from the config file?

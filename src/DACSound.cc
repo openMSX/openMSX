@@ -8,37 +8,39 @@
 #include <assert.h>
 #include "DACSound.hh"
 #include "Mixer.hh"
+#include "MSXRealTime.hh"
 
 
 DACSound::DACSound()
 {
-  PRT_DEBUG("DAC audio created");
+	PRT_DEBUG("DAC audio created");
+	realtime = MSXRealTime::instance();
 }
 
 
 DACSound::~DACSound()
 {
-  PRT_DEBUG("DAC audio destroyed");
+	PRT_DEBUG("DAC audio destroyed");
 }
 
 
 void DACSound::init()
 {
-	bufwriteindex=bufreadindex=0;
-	DACValue=0;
-	DACSample=0;
-	setVolume(Mixer::MAX_VOLUME);
-	reset();
 	int bufSize = Mixer::instance()->registerSound(this);
 	buf = new int[bufSize];
-	lastChanged=Emutime(CLOCK,0);
+	
+	reset();
+	setVolume(Mixer::MAX_VOLUME);
 }
 
 
 void DACSound::reset()
 {
+	bufWriteIndex = bufReadIndex = 0;	// empty sample buffer
+	DACValue = CENTER;
+	left = 1; tempVal = 0;
+	setInternalMute(true);
 }
-
 
 byte DACSound::readDAC(byte value, const Emutime &time)
 {
@@ -48,85 +50,102 @@ byte DACSound::readDAC(byte value, const Emutime &time)
 
 void DACSound::writeDAC(byte value, const Emutime &time)
 {
-  int count;
-  
-  DACValue=value;
-  DACSample=volTable[DACValue];
-  // change the audiobuffer according to time passed
-  if ( bufreadindex != bufwriteindex ){
-    // DAC output is not upto current buffer
-    // counter from audiobuffer must be set correctly according to current emutime-lastChanged
-    delta+=lastChanged.getTicksTill(time);
-    // test debug    delta+=400;
-    count=(int)(delta/clocksPerSample) ; //TODO check for overflow etc etc
-    delta=delta - ( count * clocksPerSample ) ;
-    audiobuffer[bufwriteindex].time=count;
-    //sample is set in previous call of writeDAC()
-  }
-  // we could optimise below if we save the same value twice,
-  // but we will not do this for the setVolume changes at runtime.
-  audiobuffer[++bufwriteindex].time=1;
-  audiobuffer[bufwriteindex].sample=DACSample;
-  lastChanged=time;
+	DACValue = value;
+	
+	// duration is number of samples since last writeDAC (this is a float!!)
+	float duration = realtime->getRealDuration(ref, time) * sampleRate;
+	ref = time;
+	
+	if (left != 1) {
+		// complete a previous written sample 
+		if (duration >= left) {
+			// complete till end of sample
+			insertSamples(1, tempVal + left*volTable[value]); // 1 interpolated sample
+			duration -= left;
+			left = 1;
+			tempVal = 0;
+		} else {
+			// not enough to complete sample
+			tempVal += duration*volTable[value];
+			left -= duration;
+			return;
+		}
+	}
+	// at the beginning of a sample,
+	assert((left == 1) && (tempVal == 0));
+	int wholeSamples = (int)duration;
+	if (wholeSamples > 0) {
+		insertSamples(wholeSamples, volTable[value]); // some samples at a constant level
+	}
+	duration -= wholeSamples;
+	if (duration > 0) {
+		// set first part of sample 
+		tempVal = duration*volTable[value];
+		left -= duration;
+	}
+
+	setInternalMute(false);	// set not muted
 }
 
+void DACSound::insertSamples(int nbSamples, short sample)
+{
+	//TODO check for overflow
+	audioBuffer[bufWriteIndex].nbSamples = nbSamples;
+	audioBuffer[bufWriteIndex].sample    = sample;
+	bufWriteIndex = (bufWriteIndex+1) % BUFSIZE;
+}
 
 void DACSound::setInternalVolume(short newVolume)
 {
 	// calculate the volume->voltage conversion table
 	// The DAC uses 8 bit unsigned wave data
-	// 0x00 is mac negative, 0xFF max positive
+	// 0x00 is max negative, 0xFF max positive
 	// 0x80 is centre (no amplitude)
 
-	double scale = (double) (newVolume / 0x80);	// scale factor for DAC
-  	PRT_DEBUG("DAC scale : " << scale );
-	short offset = (short)(scale * 0x80);		// is the zero level
-  	PRT_DEBUG("DAC offset :" << offset );
+	double scale = (double)(newVolume / CENTER);	// scale factor for DAC
+	PRT_DEBUG("DAC scale : " << scale );
 	for (int i=0; i<256; i++) {
-		volTable[i] = (short)((scale * i) - offset);
+		volTable[i] = (short)(scale * (i-CENTER));
 	}
-	// sample value must be changed
-	DACSample=volTable[DACValue];
-	// TODO: we also  should change the possible samples of audiobuffer 
-	// but for the moment no emutime is past with this call so we will use 
-	// getCurrentEmutime once we start implementing
 }
 
 
-void DACSound::setSampleRate (int sampleRate)
+void DACSound::setSampleRate (int smplRt)
 {
-	// Here we calculate the number of ticks which happen during one sample
-	// at the given sample rate.
-	clocksPerSample = (int)(CLOCK / sampleRate);
-	PRT_DEBUG("Clockticks per samplerate "<<clocksPerSample);
+	sampleRate = smplRt;
 }
 
 
 int* DACSound::updateBuffer(int length)
 {
-  int* buffer = buf;
-  int nrsamples;
-  short sample;
-  while (length >0 ){
-    if ( bufreadindex == bufwriteindex ){
-      // up to date so output is DACSample
-      for (;length>0;length--,buffer++) *buffer=DACSample;
-    } else {
-      // update from bufreadindex
-      nrsamples = audiobuffer[bufreadindex].time;
-      sample = audiobuffer[bufreadindex].sample;
+	int* buffer = buf;
+	
+	while (length > 0) {
+		if (bufReadIndex == bufWriteIndex) {
+			// no more data in buffer, output is last written sample
+			for (;length>0; length--) {
+				*(buffer++) = volTable[DACValue];
+			}
+			if (DACValue == CENTER)
+				setInternalMute(true);	// set muted
+		} else {
+			// update from bufreadindex
+			int nbSamples = audioBuffer[bufReadIndex].nbSamples;
+			short sample = audioBuffer[bufReadIndex].sample;
 
-      if ( nrsamples <= length ){
-	length-=nrsamples;
-	for (;nrsamples>0;nrsamples--,buffer++)*buffer=sample;
-      } else {
-	audiobuffer[bufreadindex].time-=length;
-	for (;length>0;length--,buffer++)*buffer=sample;
-      }
-      
-      bufreadindex++;
-
-    }
-  }
-  return buf;
+			if (nbSamples <= length) {
+				length -= nbSamples;
+				for (;nbSamples>0; nbSamples--) {
+					*(buffer++) = sample;
+				}
+			} else {
+				audioBuffer[bufReadIndex].nbSamples -= length;
+				for (;length>0; length--) {
+					*(buffer++) = sample;
+				}
+			}
+		}
+		bufReadIndex = (bufReadIndex+1) % BUFSIZE;
+	}
+	return buf;
 }

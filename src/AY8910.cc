@@ -46,6 +46,7 @@ void AY8910::reset()
 	for (int i=0; i<=15; i++) {
 		wrtReg(i, 0);
 	}
+	setInternalMute(true);	// set muted 
 }
 
 
