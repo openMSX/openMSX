@@ -15,9 +15,6 @@ namespace openmsx {
 class AfterCommand : public Command, private EventListener
 {
 public:
-	class AfterCmd;
-	typedef map<string, AfterCmd*> AfterCmdMap;
-
 	AfterCommand();
 	virtual ~AfterCommand();
 	
@@ -87,6 +84,7 @@ private:
 		virtual const string& getType() const;
 	};
 	
+	typedef map<string, AfterCmd*> AfterCmdMap;
 	static AfterCmdMap afterCmds;
 };
 
