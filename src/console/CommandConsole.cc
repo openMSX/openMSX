@@ -187,6 +187,7 @@ bool CommandConsole::signalEvent(const Event& event)
 			nextCommand();
 			break;
 		case Keys::K_BACKSPACE:
+		case Keys::K_H | Keys::KM_CTRL:
 			backspace();
 			break;
 		case Keys::K_DELETE:
@@ -215,27 +216,19 @@ bool CommandConsole::signalEvent(const Event& event)
 			splitLines();
 			break;
 		case Keys::K_HOME:
-			combineLines(lines, lineOverflows);
-			cursorPosition = prompt.length();
-			splitLines();
-			break;
-		case Keys::K_END:
-			combineLines(lines, lineOverflows);
-			cursorPosition = editLine.length();
-			splitLines();
-			break;
 		case Keys::K_A | Keys::KM_CTRL:
 			combineLines(lines, lineOverflows);
 			cursorPosition = prompt.length();
 			splitLines();
 			break;
-		case Keys::K_C | Keys::KM_CTRL:
-			clearCommand();
-			break;
+		case Keys::K_END:
 		case Keys::K_E | Keys::KM_CTRL:
 			combineLines(lines, lineOverflows);
 			cursorPosition = editLine.length();
 			splitLines();
+			break;
+		case Keys::K_C | Keys::KM_CTRL:
+			clearCommand();
 			break;
 		default:
 			// Treat as normal key if no modifiers except shift.
