@@ -87,7 +87,7 @@ void MidiInNative::procLongMsg(LPMIDIHDR p)
 		for (unsigned i = 0; i < p->dwBytesRecorded; ++i) {
 			queue.push_back(p->lpData[i]);
 		}
-		Scheduler::instance().setAsyncPoint(this);
+		Scheduler::instance().setSyncPoint(Scheduler::ASAP, this);
 		lock.up();
 	}
 }

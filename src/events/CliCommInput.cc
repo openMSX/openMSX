@@ -157,7 +157,7 @@ void CliCommInput::execute(const string& command)
 	lock.down();
 	cmds.push_back(command);
 	lock.up();
-	Scheduler::instance().setAsyncPoint(this);
+	Scheduler::instance().setSyncPoint(Scheduler::ASAP, this);
 }
 
 void CliCommInput::executeUntil(const EmuTime& /*time*/, int /*userData*/)

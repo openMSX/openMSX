@@ -77,7 +77,7 @@ void MidiInReader::run()
 		assert(getConnector());
 		lock.down();
 		queue.push_back(buf);
-		Scheduler::instance().setAsyncPoint(this);
+		Scheduler::instance().setSyncPoint(Scheduler::ASAP, this);
 		lock.up();
 	}
 }

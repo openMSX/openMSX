@@ -31,34 +31,18 @@ Scheduler& Scheduler::instance()
 	return oneInstance;
 }
 
-void Scheduler::setSyncPoint(const EmuTime& timeStamp, Schedulable* device, int userData)
+void Scheduler::setSyncPoint(const EmuTime& time, Schedulable* device, int userData)
 {
 	assert(device);
 	//PRT_DEBUG("Sched: registering " << device->schedName() <<
-	//          " " << userData << " for emulation at " << timeStamp);
+	//          " " << userData << " for emulation at " << time);
 
 	sem.down();
-	EmuTime time = timeStamp == ASAP ? scheduleTime : timeStamp;
-	assert(scheduleTime <= time);
+	assert(time == ASAP || time >= scheduleTime);
 
 	// Push sync point into queue.
-	syncPoints.push_back(SynchronizationPoint(timeStamp, device, userData));
+	syncPoints.push_back(SynchronizationPoint(time, device, userData));
 	push_heap(syncPoints.begin(), syncPoints.end());
-	sem.up();
-}
-
-void Scheduler::setAsyncPoint(Schedulable* device, int userData)
-{
-	assert(device);
-	//PRT_DEBUG("Sched: registering " << device->schedName() <<
-	//          " " << userData << " async for emulation ASAP");
-
-	sem.down();
-
-	// Push sync point into queue.
-	syncPoints.push_back(SynchronizationPoint(ASAP, device, userData));
-	push_heap(syncPoints.begin(), syncPoints.end());
-
 	sem.up();
 }
 

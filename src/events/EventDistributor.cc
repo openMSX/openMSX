@@ -105,7 +105,7 @@ void EventDistributor::distributeEvent(Event* event)
 		detachedListeners.equal_range(event->getType());
 	if (bounds2.first != bounds2.second) {
 		scheduledEvents.push_front(event);
-		scheduler.setAsyncPoint(this, DETACHED);
+		scheduler.setSyncPoint(Scheduler::ASAP, this, DETACHED);
 		// TODO: We cannot deliver the event to an EMU listener as well,
 		//       because the object will be deleted after the DETACHED
 		//       listener gets it.
