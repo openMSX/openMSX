@@ -816,7 +816,7 @@ void Z80::in_d_c() { M_IN(DE.B.h); }
 void Z80::in_e_c() { M_IN(DE.B.l); }
 void Z80::in_h_c() { M_IN(HL.B.h); }
 void Z80::in_l_c() { M_IN(HL.B.l); }
-void Z80::in_0_c() { byte i; M_IN(i); }
+void Z80::in_0_c() { byte i; M_IN(i); } //discard result
 void Z80::in_a_byte() { AF.B.h = Z80_In(Z80_RDMEM_OPCODE()+(AF.B.h<<8)); }
 
 void Z80::inc_xhl() {
@@ -1189,14 +1189,14 @@ void Z80::otir() {
 	if (BC.B.h) { ICount += 5; PC.w -= 2; }
 }
 
-void Z80::out_c_a()   { Z80_Out(BC.B.l+(BC.B.h<<8), AF.B.h); }
-void Z80::out_c_b()   { Z80_Out(BC.B.l+(BC.B.h<<8), BC.B.h); }
-void Z80::out_c_c()   { Z80_Out(BC.B.l+(BC.B.h<<8), BC.B.l); }
-void Z80::out_c_d()   { Z80_Out(BC.B.l+(BC.B.h<<8), DE.B.h); }
-void Z80::out_c_e()   { Z80_Out(BC.B.l+(BC.B.h<<8), DE.B.l); }
-void Z80::out_c_h()   { Z80_Out(BC.B.l+(BC.B.h<<8), HL.B.h); }
-void Z80::out_c_l()   { Z80_Out(BC.B.l+(BC.B.h<<8), HL.B.l); }
-void Z80::out_c_0()   { Z80_Out(BC.B.l+(BC.B.h<<8), 0); }
+void Z80::out_c_a()   { Z80_Out(BC.w, AF.B.h); }
+void Z80::out_c_b()   { Z80_Out(BC.w, BC.B.h); }
+void Z80::out_c_c()   { Z80_Out(BC.w, BC.B.l); }
+void Z80::out_c_d()   { Z80_Out(BC.w, DE.B.h); }
+void Z80::out_c_e()   { Z80_Out(BC.w, DE.B.l); }
+void Z80::out_c_h()   { Z80_Out(BC.w, HL.B.h); }
+void Z80::out_c_l()   { Z80_Out(BC.w, HL.B.l); }
+void Z80::out_c_0()   { Z80_Out(BC.w, 0); }
 void Z80::out_byte_a(){ Z80_Out(Z80_RDMEM_OPCODE()+(AF.B.h<<8), AF.B.h); }
 
 void Z80::pop_af() { M_POP(AF.w); }
@@ -1224,10 +1224,108 @@ void Z80::res_0_xix() {
 	M_RES(0, i);
 	Z80_WRMEM(j, i);
 }
+void Z80::res_0_xix_a() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(0, i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_0_xix_b() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(0, i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_0_xix_c() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(0, i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_0_xix_d() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(0, i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_0_xix_e() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(0, i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_0_xix_h() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(0, i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_0_xix_l() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(0, i);
+	HL.B.l = i;
+	Z80_WRMEM(j, i);
+}
 void Z80::res_0_xiy() {
 	int j = M_XIY();
 	byte i = Z80_RDMEM(j);
 	M_RES(0, i);
+	Z80_WRMEM(j, i);
+}
+void Z80::res_0_xiy_a() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(0, i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_0_xiy_b() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(0, i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_0_xiy_c() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(0, i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_0_xiy_d() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(0, i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_0_xiy_e() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(0, i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_0_xiy_h() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(0, i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_0_xiy_l() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(0, i);
+	HL.B.l = i;
 	Z80_WRMEM(j, i);
 }
 void Z80::res_0_a() { M_RES(0, AF.B.h); };
@@ -1249,10 +1347,108 @@ void Z80::res_1_xix() {
 	M_RES(1, i);
 	Z80_WRMEM(j, i);
 }
+void Z80::res_1_xix_a() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(1, i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_1_xix_b() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(1, i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_1_xix_c() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(1, i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_1_xix_d() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(1, i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_1_xix_e() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(1, i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_1_xix_h() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(1, i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_1_xix_l() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(1, i);
+	HL.B.l = i;
+	Z80_WRMEM(j, i);
+}
 void Z80::res_1_xiy() {
 	int j = M_XIY();
 	byte i = Z80_RDMEM(j);
 	M_RES(1, i);
+	Z80_WRMEM(j, i);
+}
+void Z80::res_1_xiy_a() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(1, i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_1_xiy_b() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(1, i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_1_xiy_c() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(1, i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_1_xiy_d() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(1, i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_1_xiy_e() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(1, i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_1_xiy_h() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(1, i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_1_xiy_l() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(1, i);
+	HL.B.l = i;
 	Z80_WRMEM(j, i);
 }
 void Z80::res_1_a() { M_RES(1, AF.B.h); };
@@ -1274,10 +1470,108 @@ void Z80::res_2_xix() {
 	M_RES(2, i);
 	Z80_WRMEM(j, i);
 }
+void Z80::res_2_xix_a() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(2, i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_2_xix_b() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(2, i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_2_xix_c() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(2, i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_2_xix_d() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(2, i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_2_xix_e() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(2, i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_2_xix_h() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(2, i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_2_xix_l() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(2, i);
+	HL.B.l = i;
+	Z80_WRMEM(j, i);
+}
 void Z80::res_2_xiy() {
 	int j = M_XIY();
 	byte i = Z80_RDMEM(j);
 	M_RES(2, i);
+	Z80_WRMEM(j, i);
+}
+void Z80::res_2_xiy_a() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(2, i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_2_xiy_b() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(2, i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_2_xiy_c() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(2, i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_2_xiy_d() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(2, i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_2_xiy_e() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(2, i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_2_xiy_h() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(2, i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_2_xiy_l() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(2, i);
+	HL.B.l = i;
 	Z80_WRMEM(j, i);
 }
 void Z80::res_2_a() { M_RES(2, AF.B.h); };
@@ -1299,10 +1593,108 @@ void Z80::res_3_xix() {
 	M_RES(3, i);
 	Z80_WRMEM(j, i);
 }
+void Z80::res_3_xix_a() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(3, i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_3_xix_b() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(3, i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_3_xix_c() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(3, i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_3_xix_d() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(3, i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_3_xix_e() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(3, i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_3_xix_h() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(3, i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_3_xix_l() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(3, i);
+	HL.B.l = i;
+	Z80_WRMEM(j, i);
+}
 void Z80::res_3_xiy() {
 	int j = M_XIY();
 	byte i = Z80_RDMEM(j);
 	M_RES(3, i);
+	Z80_WRMEM(j, i);
+}
+void Z80::res_3_xiy_a() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(3, i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_3_xiy_b() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(3, i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_3_xiy_c() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(3, i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_3_xiy_d() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(3, i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_3_xiy_e() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(3, i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_3_xiy_h() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(3, i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_3_xiy_l() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(3, i);
+	HL.B.l = i;
 	Z80_WRMEM(j, i);
 }
 void Z80::res_3_a() { M_RES(3, AF.B.h); };
@@ -1324,10 +1716,108 @@ void Z80::res_4_xix() {
 	M_RES(4, i);
 	Z80_WRMEM(j, i);
 }
+void Z80::res_4_xix_a() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(4, i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_4_xix_b() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(4, i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_4_xix_c() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(4, i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_4_xix_d() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(4, i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_4_xix_e() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(4, i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_4_xix_h() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(4, i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_4_xix_l() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(4, i);
+	HL.B.l = i;
+	Z80_WRMEM(j, i);
+}
 void Z80::res_4_xiy() {
 	int j = M_XIY();
 	byte i = Z80_RDMEM(j);
 	M_RES(4, i);
+	Z80_WRMEM(j, i);
+}
+void Z80::res_4_xiy_a() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(4, i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_4_xiy_b() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(4, i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_4_xiy_c() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(4, i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_4_xiy_d() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(4, i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_4_xiy_e() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(4, i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_4_xiy_h() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(4, i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_4_xiy_l() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(4, i);
+	HL.B.l = i;
 	Z80_WRMEM(j, i);
 }
 void Z80::res_4_a() { M_RES(4, AF.B.h); };
@@ -1349,10 +1839,108 @@ void Z80::res_5_xix() {
 	M_RES(5, i);
 	Z80_WRMEM(j, i);
 }
+void Z80::res_5_xix_a() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(5, i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_5_xix_b() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(5, i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_5_xix_c() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(5, i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_5_xix_d() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(5, i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_5_xix_e() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(5, i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_5_xix_h() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(5, i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_5_xix_l() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(5, i);
+	HL.B.l = i;
+	Z80_WRMEM(j, i);
+}
 void Z80::res_5_xiy() {
 	int j = M_XIY();
 	byte i = Z80_RDMEM(j);
 	M_RES(5, i);
+	Z80_WRMEM(j, i);
+}
+void Z80::res_5_xiy_a() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(5, i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_5_xiy_b() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(5, i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_5_xiy_c() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(5, i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_5_xiy_d() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(5, i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_5_xiy_e() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(5, i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_5_xiy_h() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(5, i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_5_xiy_l() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(5, i);
+	HL.B.l = i;
 	Z80_WRMEM(j, i);
 }
 void Z80::res_5_a() { M_RES(5, AF.B.h); };
@@ -1374,10 +1962,108 @@ void Z80::res_6_xix() {
 	M_RES(6, i);
 	Z80_WRMEM(j, i);
 }
+void Z80::res_6_xix_a() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(6, i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_6_xix_b() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(6, i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_6_xix_c() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(6, i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_6_xix_d() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(6, i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_6_xix_e() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(6, i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_6_xix_h() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(6, i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_6_xix_l() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(6, i);
+	HL.B.l = i;
+	Z80_WRMEM(j, i);
+}
 void Z80::res_6_xiy() {
 	int j = M_XIY();
 	byte i = Z80_RDMEM(j);
 	M_RES(6, i);
+	Z80_WRMEM(j, i);
+}
+void Z80::res_6_xiy_a() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(6, i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_6_xiy_b() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(6, i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_6_xiy_c() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(6, i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_6_xiy_d() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(6, i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_6_xiy_e() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(6, i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_6_xiy_h() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(6, i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_6_xiy_l() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(6, i);
+	HL.B.l = i;
 	Z80_WRMEM(j, i);
 }
 void Z80::res_6_a() { M_RES(6, AF.B.h); };
@@ -1399,10 +2085,108 @@ void Z80::res_7_xix() {
 	M_RES(7, i);
 	Z80_WRMEM(j, i);
 }
+void Z80::res_7_xix_a() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(7, i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_7_xix_b() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(7, i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_7_xix_c() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(7, i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_7_xix_d() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(7, i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_7_xix_e() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(7, i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_7_xix_h() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(7, i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_7_xix_l() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RES(7, i);
+	HL.B.l = i;
+	Z80_WRMEM(j, i);
+}
 void Z80::res_7_xiy() {
 	int j = M_XIY();
 	byte i = Z80_RDMEM(j);
 	M_RES(7, i);
+	Z80_WRMEM(j, i);
+}
+void Z80::res_7_xiy_a() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(7, i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_7_xiy_b() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(7, i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_7_xiy_c() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(7, i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_7_xiy_d() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(7, i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_7_xiy_e() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(7, i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_7_xiy_h() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(7, i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::res_7_xiy_l() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RES(7, i);
+	HL.B.l = i;
 	Z80_WRMEM(j, i);
 }
 void Z80::res_7_a() { M_RES(7, AF.B.h); };
@@ -1437,10 +2221,108 @@ void Z80::rl_xix() {
 	M_RL(i);
 	Z80_WRMEM(j, i);
 }
+void Z80::rl_xix_a() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RL(i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rl_xix_b() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RL(i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rl_xix_c() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RL(i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rl_xix_d() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RL(i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rl_xix_e() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RL(i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rl_xix_h() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RL(i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rl_xix_l() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RL(i);
+	HL.B.l = i;
+	Z80_WRMEM(j, i);
+}
 void Z80::rl_xiy() {
 	int j = M_XIY();
 	byte i = Z80_RDMEM(j);
 	M_RL(i);
+	Z80_WRMEM(j, i);
+}
+void Z80::rl_xiy_a() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RL(i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rl_xiy_b() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RL(i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rl_xiy_c() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RL(i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rl_xiy_d() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RL(i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rl_xiy_e() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RL(i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rl_xiy_h() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RL(i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rl_xiy_l() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RL(i);
+	HL.B.l = i;
 	Z80_WRMEM(j, i);
 }
 void Z80::rl_a() { M_RL(AF.B.h); }
@@ -1463,10 +2345,109 @@ void Z80::rlc_xix() {
 	M_RLC(i);
 	Z80_WRMEM(j, i);
 }
+void Z80::rlc_xix_a() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RLC(i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rlc_xix_b() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RLC(i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rlc_xix_c() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RLC(i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rlc_xix_d() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RLC(i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rlc_xix_e() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RLC(i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rlc_xix_h() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RLC(i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rlc_xix_l() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RLC(i);
+	HL.B.l = i;
+	Z80_WRMEM(j, i);
+}
+
 void Z80::rlc_xiy() {
 	int j = M_XIY();
 	byte i = Z80_RDMEM(j);
 	M_RLC(i);
+	Z80_WRMEM(j, i);
+}
+void Z80::rlc_xiy_a() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RLC(i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rlc_xiy_b() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RLC(i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rlc_xiy_c() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RLC(i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rlc_xiy_d() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RLC(i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rlc_xiy_e() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RLC(i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rlc_xiy_h() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RLC(i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rlc_xiy_l() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RLC(i);
+	HL.B.l = i;
 	Z80_WRMEM(j, i);
 }
 void Z80::rlc_a() { M_RLC(AF.B.h); }
@@ -1496,10 +2477,108 @@ void Z80::rr_xix() {
 	M_RR(i);
 	Z80_WRMEM(j, i);
 }
+void Z80::rr_xix_a() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RR(i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rr_xix_b() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RR(i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rr_xix_c() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RR(i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rr_xix_d() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RR(i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rr_xix_e() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RR(i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rr_xix_h() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RR(i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rr_xix_l() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RR(i);
+	HL.B.l = i;
+	Z80_WRMEM(j, i);
+}
 void Z80::rr_xiy() {
 	int j = M_XIY();
 	byte i = Z80_RDMEM(j);
 	M_RR(i);
+	Z80_WRMEM(j, i);
+}
+void Z80::rr_xiy_a() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RR(i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rr_xiy_b() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RR(i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rr_xiy_c() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RR(i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rr_xiy_d() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RR(i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rr_xiy_e() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RR(i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rr_xiy_h() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RR(i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rr_xiy_l() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RR(i);
+	HL.B.l = i;
 	Z80_WRMEM(j, i);
 }
 void Z80::rr_a() { M_RR(AF.B.h); }
@@ -1522,10 +2601,108 @@ void Z80::rrc_xix() {
 	M_RRC(i);
 	Z80_WRMEM(j, i);
 }
+void Z80::rrc_xix_a() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RRC(i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rrc_xix_b() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RRC(i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rrc_xix_c() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RRC(i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rrc_xix_d() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RRC(i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rrc_xix_e() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RRC(i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rrc_xix_h() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RRC(i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rrc_xix_l() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_RRC(i);
+	HL.B.l = i;
+	Z80_WRMEM(j, i);
+}
 void Z80::rrc_xiy() {
 	int j = M_XIY();
 	byte i = Z80_RDMEM(j);
 	M_RRC(i);
+	Z80_WRMEM(j, i);
+}
+void Z80::rrc_xiy_a() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RRC(i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rrc_xiy_b() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RRC(i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rrc_xiy_c() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RRC(i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rrc_xiy_d() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RRC(i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rrc_xiy_e() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RRC(i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rrc_xiy_h() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RRC(i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::rrc_xiy_l() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_RRC(i);
+	HL.B.l = i;
 	Z80_WRMEM(j, i);
 }
 void Z80::rrc_a() { M_RRC(AF.B.h); }
@@ -1591,10 +2768,108 @@ void Z80::set_0_xix() {
 	M_SET(0, i);
 	Z80_WRMEM(j, i);
 }
+void Z80::set_0_xix_a() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(0, i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_0_xix_b() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(0, i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_0_xix_c() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(0, i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_0_xix_d() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(0, i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_0_xix_e() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(0, i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_0_xix_h() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(0, i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_0_xix_l() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(0, i);
+	HL.B.l = i;
+	Z80_WRMEM(j, i);
+}
 void Z80::set_0_xiy() {
 	int j = M_XIY();
 	byte i = Z80_RDMEM(j);
 	M_SET(0, i);
+	Z80_WRMEM(j, i);
+}
+void Z80::set_0_xiy_a() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(0, i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_0_xiy_b() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(0, i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_0_xiy_c() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(0, i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_0_xiy_d() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(0, i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_0_xiy_e() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(0, i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_0_xiy_h() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(0, i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_0_xiy_l() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(0, i);
+	HL.B.l = i;
 	Z80_WRMEM(j, i);
 }
 void Z80::set_0_a() { M_SET(0, AF.B.h); }
@@ -1616,10 +2891,108 @@ void Z80::set_1_xix() {
 	M_SET(1, i);
 	Z80_WRMEM(j, i);
 }
+void Z80::set_1_xix_a() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(1, i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_1_xix_b() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(1, i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_1_xix_c() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(1, i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_1_xix_d() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(1, i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_1_xix_e() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(1, i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_1_xix_h() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(1, i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_1_xix_l() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(1, i);
+	HL.B.l = i;
+	Z80_WRMEM(j, i);
+}
 void Z80::set_1_xiy() {
 	int j = M_XIY();
 	byte i = Z80_RDMEM(j);
 	M_SET(1, i);
+	Z80_WRMEM(j, i);
+}
+void Z80::set_1_xiy_a() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(1, i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_1_xiy_b() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(1, i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_1_xiy_c() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(1, i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_1_xiy_d() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(1, i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_1_xiy_e() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(1, i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_1_xiy_h() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(1, i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_1_xiy_l() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(1, i);
+	HL.B.l = i;
 	Z80_WRMEM(j, i);
 }
 void Z80::set_1_a() { M_SET(1, AF.B.h); }
@@ -1641,10 +3014,108 @@ void Z80::set_2_xix() {
 	M_SET(2, i);
 	Z80_WRMEM(j, i);
 }
+void Z80::set_2_xix_a() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(2, i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_2_xix_b() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(2, i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_2_xix_c() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(2, i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_2_xix_d() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(2, i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_2_xix_e() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(2, i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_2_xix_h() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(2, i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_2_xix_l() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(2, i);
+	HL.B.l = i;
+	Z80_WRMEM(j, i);
+}
 void Z80::set_2_xiy() {
 	int j = M_XIY();
 	byte i = Z80_RDMEM(j);
 	M_SET(2, i);
+	Z80_WRMEM(j, i);
+}
+void Z80::set_2_xiy_a() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(2, i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_2_xiy_b() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(2, i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_2_xiy_c() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(2, i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_2_xiy_d() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(2, i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_2_xiy_e() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(2, i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_2_xiy_h() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(2, i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_2_xiy_l() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(2, i);
+	HL.B.l = i;
 	Z80_WRMEM(j, i);
 }
 void Z80::set_2_a() { M_SET(2, AF.B.h); }
@@ -1666,10 +3137,108 @@ void Z80::set_3_xix() {
 	M_SET(3, i);
 	Z80_WRMEM(j, i);
 }
+void Z80::set_3_xix_a() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(3, i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_3_xix_b() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(3, i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_3_xix_c() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(3, i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_3_xix_d() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(3, i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_3_xix_e() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(3, i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_3_xix_h() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(3, i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_3_xix_l() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(3, i);
+	HL.B.l = i;
+	Z80_WRMEM(j, i);
+}
 void Z80::set_3_xiy() {
 	int j = M_XIY();
 	byte i = Z80_RDMEM(j);
 	M_SET(3, i);
+	Z80_WRMEM(j, i);
+}
+void Z80::set_3_xiy_a() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(3, i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_3_xiy_b() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(3, i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_3_xiy_c() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(3, i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_3_xiy_d() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(3, i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_3_xiy_e() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(3, i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_3_xiy_h() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(3, i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_3_xiy_l() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(3, i);
+	HL.B.l = i;
 	Z80_WRMEM(j, i);
 }
 void Z80::set_3_a() { M_SET(3, AF.B.h); }
@@ -1691,10 +3260,108 @@ void Z80::set_4_xix() {
 	M_SET(4, i);
 	Z80_WRMEM(j, i);
 }
+void Z80::set_4_xix_a() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(4, i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_4_xix_b() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(4, i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_4_xix_c() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(4, i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_4_xix_d() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(4, i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_4_xix_e() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(4, i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_4_xix_h() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(4, i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_4_xix_l() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(4, i);
+	HL.B.l = i;
+	Z80_WRMEM(j, i);
+}
 void Z80::set_4_xiy() {
 	int j = M_XIY();
 	byte i = Z80_RDMEM(j);
 	M_SET(4, i);
+	Z80_WRMEM(j, i);
+}
+void Z80::set_4_xiy_a() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(4, i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_4_xiy_b() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(4, i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_4_xiy_c() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(4, i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_4_xiy_d() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(4, i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_4_xiy_e() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(4, i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_4_xiy_h() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(4, i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_4_xiy_l() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(4, i);
+	HL.B.l = i;
 	Z80_WRMEM(j, i);
 }
 void Z80::set_4_a() { M_SET(4, AF.B.h); }
@@ -1716,10 +3383,108 @@ void Z80::set_5_xix() {
 	M_SET(5, i);
 	Z80_WRMEM(j, i);
 }
+void Z80::set_5_xix_a() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(5, i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_5_xix_b() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(5, i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_5_xix_c() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(5, i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_5_xix_d() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(5, i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_5_xix_e() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(5, i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_5_xix_h() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(5, i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_5_xix_l() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(5, i);
+	HL.B.l = i;
+	Z80_WRMEM(j, i);
+}
 void Z80::set_5_xiy() {
 	int j = M_XIY();
 	byte i = Z80_RDMEM(j);
 	M_SET(5, i);
+	Z80_WRMEM(j, i);
+}
+void Z80::set_5_xiy_a() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(5, i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_5_xiy_b() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(5, i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_5_xiy_c() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(5, i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_5_xiy_d() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(5, i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_5_xiy_e() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(5, i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_5_xiy_h() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(5, i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_5_xiy_l() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(5, i);
+	HL.B.l = i;
 	Z80_WRMEM(j, i);
 }
 void Z80::set_5_a() { M_SET(5, AF.B.h); }
@@ -1741,10 +3506,108 @@ void Z80::set_6_xix() {
 	M_SET(6, i);
 	Z80_WRMEM(j, i);
 }
+void Z80::set_6_xix_a() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(6, i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_6_xix_b() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(6, i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_6_xix_c() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(6, i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_6_xix_d() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(6, i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_6_xix_e() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(6, i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_6_xix_h() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(6, i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_6_xix_l() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(6, i);
+	HL.B.l = i;
+	Z80_WRMEM(j, i);
+}
 void Z80::set_6_xiy() {
 	int j = M_XIY();
 	byte i = Z80_RDMEM(j);
 	M_SET(6, i);
+	Z80_WRMEM(j, i);
+}
+void Z80::set_6_xiy_a() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(6, i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_6_xiy_b() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(6, i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_6_xiy_c() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(6, i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_6_xiy_d() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(6, i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_6_xiy_e() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(6, i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_6_xiy_h() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(6, i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_6_xiy_l() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(6, i);
+	HL.B.l = i;
 	Z80_WRMEM(j, i);
 }
 void Z80::set_6_a() { M_SET(6, AF.B.h); }
@@ -1766,10 +3629,108 @@ void Z80::set_7_xix() {
 	M_SET(7, i);
 	Z80_WRMEM(j, i);
 }
+void Z80::set_7_xix_a() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(7, i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_7_xix_b() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(7, i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_7_xix_c() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(7, i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_7_xix_d() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(7, i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_7_xix_e() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(7, i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_7_xix_h() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(7, i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_7_xix_l() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SET(7, i);
+	HL.B.l = i;
+	Z80_WRMEM(j, i);
+}
 void Z80::set_7_xiy() {
 	int j = M_XIY();
 	byte i = Z80_RDMEM(j);
 	M_SET(7, i);
+	Z80_WRMEM(j, i);
+}
+void Z80::set_7_xiy_a() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(7, i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_7_xiy_b() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(7, i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_7_xiy_c() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(7, i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_7_xiy_d() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(7, i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_7_xiy_e() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(7, i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_7_xiy_h() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(7, i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::set_7_xiy_l() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SET(7, i);
+	HL.B.l = i;
 	Z80_WRMEM(j, i);
 }
 void Z80::set_7_a() { M_SET(7, AF.B.h); }
@@ -1791,10 +3752,108 @@ void Z80::sla_xix() {
 	M_SLA(i);
 	Z80_WRMEM(j, i);
 }
+void Z80::sla_xix_a() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SLA(i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sla_xix_b() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SLA(i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sla_xix_c() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SLA(i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sla_xix_d() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SLA(i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sla_xix_e() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SLA(i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sla_xix_h() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SLA(i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sla_xix_l() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SLA(i);
+	HL.B.l = i;
+	Z80_WRMEM(j, i);
+}
 void Z80::sla_xiy() {
 	int j = M_XIY();
 	byte i = Z80_RDMEM(j);
 	M_SLA(i);
+	Z80_WRMEM(j, i);
+}
+void Z80::sla_xiy_a() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SLA(i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sla_xiy_b() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SLA(i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sla_xiy_c() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SLA(i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sla_xiy_d() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SLA(i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sla_xiy_e() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SLA(i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sla_xiy_h() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SLA(i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sla_xiy_l() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SLA(i);
+	HL.B.l = i;
 	Z80_WRMEM(j, i);
 }
 void Z80::sla_a() { M_SLA(AF.B.h); }
@@ -1816,10 +3875,108 @@ void Z80::sll_xix() {
 	M_SLL(i);
 	Z80_WRMEM(j, i);
 }
+void Z80::sll_xix_a() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SLL(i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sll_xix_b() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SLL(i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sll_xix_c() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SLL(i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sll_xix_d() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SLL(i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sll_xix_e() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SLL(i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sll_xix_h() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SLL(i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sll_xix_l() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SLL(i);
+	HL.B.l = i;
+	Z80_WRMEM(j, i);
+}
 void Z80::sll_xiy() {
 	int j = M_XIY();
 	byte i = Z80_RDMEM(j);
 	M_SLL(i);
+	Z80_WRMEM(j, i);
+}
+void Z80::sll_xiy_a() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SLL(i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sll_xiy_b() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SLL(i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sll_xiy_c() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SLL(i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sll_xiy_d() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SLL(i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sll_xiy_e() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SLL(i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sll_xiy_h() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SLL(i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sll_xiy_l() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SLL(i);
+	HL.B.l = i;
 	Z80_WRMEM(j, i);
 }
 void Z80::sll_a() { M_SLL(AF.B.h); }
@@ -1841,10 +3998,108 @@ void Z80::sra_xix() {
 	M_SRA(i);
 	Z80_WRMEM(j, i);
 }
+void Z80::sra_xix_a() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SRA(i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sra_xix_b() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SRA(i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sra_xix_c() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SRA(i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sra_xix_d() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SRA(i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sra_xix_e() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SRA(i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sra_xix_h() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SRA(i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sra_xix_l() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SRA(i);
+	HL.B.l = i;
+	Z80_WRMEM(j, i);
+}
 void Z80::sra_xiy() {
 	int j = M_XIY();
 	byte i = Z80_RDMEM(j);
 	M_SRA(i);
+	Z80_WRMEM(j, i);
+}
+void Z80::sra_xiy_a() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SRA(i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sra_xiy_b() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SRA(i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sra_xiy_c() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SRA(i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sra_xiy_d() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SRA(i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sra_xiy_e() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SRA(i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sra_xiy_h() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SRA(i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::sra_xiy_l() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SRA(i);
+	HL.B.l = i;
 	Z80_WRMEM(j, i);
 }
 void Z80::sra_a() { M_SRA(AF.B.h); }
@@ -1866,10 +4121,108 @@ void Z80::srl_xix() {
 	M_SRL(i);
 	Z80_WRMEM(j, i);
 }
+void Z80::srl_xix_a() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SRL(i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::srl_xix_b() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SRL(i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::srl_xix_c() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SRL(i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::srl_xix_d() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SRL(i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::srl_xix_e() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SRL(i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::srl_xix_h() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SRL(i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::srl_xix_l() {
+	int j = M_XIX();
+	byte i = Z80_RDMEM(j);
+	M_SRL(i);
+	HL.B.l = i;
+	Z80_WRMEM(j, i);
+}
 void Z80::srl_xiy() {
 	int j = M_XIY();
 	byte i = Z80_RDMEM(j);
 	M_SRL(i);
+	Z80_WRMEM(j, i);
+}
+void Z80::srl_xiy_a() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SRL(i);
+	AF.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::srl_xiy_b() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SRL(i);
+	BC.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::srl_xiy_c() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SRL(i);
+	BC.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::srl_xiy_d() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SRL(i);
+	DE.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::srl_xiy_e() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SRL(i);
+	DE.B.l = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::srl_xiy_h() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SRL(i);
+	HL.B.h = i;
+	Z80_WRMEM(j, i);
+}
+void Z80::srl_xiy_l() {
+	int j = M_XIY();
+	byte i = Z80_RDMEM(j);
+	M_SRL(i);
+	HL.B.l = i;
 	Z80_WRMEM(j, i);
 }
 void Z80::srl_a() { M_SRL(AF.B.h); }
