@@ -158,13 +158,6 @@ public:
 	 */
 	void setPrimarySlots(byte value);
 
-	struct SlotSelection {
-		byte primary [4];
-		byte secondary [4];
-		bool isSubSlotted [4];
-	};
-	SlotSelection* getCurrentSlots();
-	
 	/**
 	 * Peek memory location
 	 * @see MSXDevice::peekMem()

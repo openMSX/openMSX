@@ -430,18 +430,6 @@ string MSXCPUInterface::getSlotSelection() const
 	return out.str();
 }
 
-MSXCPUInterface::SlotSelection* MSXCPUInterface::getCurrentSlots()
-{
-	MSXCPUInterface::SlotSelection * slots = new SlotSelection();
-	for (int page = 0; page < 4; ++page) {
-		slots->primary[page] = primarySlotState[page];
-		slots->secondary[page] = (subSlotRegister[slots->primary[page]] >>
-		                         (page * 2)) & 3;
-		slots->isSubSlotted[page] = isSubSlotted[slots->primary[page]];
-	}
-	return slots;
-}
-
 
 // class MemoryDebug
  
