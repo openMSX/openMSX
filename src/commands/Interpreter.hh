@@ -34,6 +34,8 @@ public:
 	void splitList(const std::string& list,
 	               std::vector<std::string>& result);
 
+	void poll();
+
 private:
 	Interpreter();
 	~Interpreter();
@@ -44,7 +46,7 @@ private:
                                int objc, Tcl_Obj* const objv[]);
 	static char* traceProc(ClientData clientData, Tcl_Interp* interp,
                 const char* part1, const char* part2, int flags);
-	
+
 	static Tcl_ChannelType channelType;
 	Tcl_Interp* interp;
 };

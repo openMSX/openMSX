@@ -3,6 +3,7 @@
 #include "Scheduler.hh"
 #include "Schedulable.hh"
 #include "InputEventGenerator.hh"
+#include "Interpreter.hh"
 #include <cassert>
 #include <algorithm>
 
@@ -71,6 +72,7 @@ const EmuTime& Scheduler::getCurrentTime() const
 void Scheduler::scheduleHelper(const EmuTime& limit)
 {
 	InputEventGenerator::instance().poll();
+	Interpreter::instance().poll();
 
 	while (true) {
 		// Get next sync point.

@@ -19,6 +19,7 @@
 #include "InputEventGenerator.hh"
 #include "GlobalSettings.hh"
 #include "BooleanSetting.hh"
+#include "Interpreter.hh"
 
 using std::string;
 using std::vector;
@@ -149,6 +150,7 @@ void MSXMotherBoard::run(bool power)
 			Display::instance().repaint();
 			Timer::sleep(100 * 1000);
 			InputEventGenerator::instance().poll();
+			Interpreter::instance().poll();
 			Scheduler& scheduler = Scheduler::instance();
 			scheduler.schedule(scheduler.getCurrentTime());
 		} else {

@@ -6,7 +6,9 @@
 #include "CommandArgument.hh"
 #include "CommandException.hh"
 #include "Setting.hh"
+#include "Scheduler.hh"
 #include "Interpreter.hh"
+//#include <tk.h>
 
 using std::set;
 using std::string;
@@ -60,9 +62,17 @@ Interpreter::Interpreter()
 	Tcl_Preserve(interp);
 	
 	// TODO need to investigate this: doesn't work on windows
-	//if (Tcl_Init(interp) != TCL_OK) {
-	//	cout << "Tcl_Init: " << interp->result << endl;
-	//}
+	/*
+	if (Tcl_Init(interp) != TCL_OK) {
+		std::cout << "Tcl_Init: " << interp->result << std::endl;
+	}
+	if (Tk_Init(interp) != TCL_OK) {
+		std::cout << "Tk_Init error: " << interp->result << std::endl;
+	}
+	if (Tcl_Eval(interp, "wm withdraw .") != TCL_OK) {
+		std::cout << "wm withdraw error: " << interp->result << std::endl;
+	}
+	*/
 
 	Tcl_Channel channel = Tcl_CreateChannel(&channelType,
 		"openMSX console", NULL, TCL_WRITABLE);
@@ -255,6 +265,13 @@ void Interpreter::splitList(const string& list, vector<string>& result)
 	}
 	result.assign(argv, argv + argc);
 	Tcl_Free((char*)argv);
+}
+
+
+void Interpreter::poll()
+{
+	//Tcl_ServiceAll();
+	Tcl_DoOneEvent(TCL_DONT_WAIT);
 }
 
 } // namespace openmsx
