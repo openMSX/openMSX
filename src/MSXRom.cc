@@ -1,6 +1,6 @@
 // $Id$
 
-#include "MSXGameCartridge.hh"
+#include "MSXRom.hh"
 #include "SCC.hh"
 #include "DACSound.hh"
 #include "MSXCPU.hh"
@@ -8,10 +8,10 @@
 #include <map>
 
 
-MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &time)
+MSXRom::MSXRom(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXMemDevice(config, time), MSXRomDevice(config, time)
 {
-	PRT_DEBUG("Creating an MSXGameCartridge object");
+	PRT_DEBUG("Creating an MSXRom object");
 	try {
 		try {
 			romSize = deviceConfig->getParameterAsInt("filesize");
@@ -75,9 +75,9 @@ MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &tim
 	reset(time);
 }
 
-MSXGameCartridge::~MSXGameCartridge()
+MSXRom::~MSXRom()
 {
-	PRT_DEBUG("Destructing an MSXGameCartridge object");
+	PRT_DEBUG("Destructing an MSXRom object");
 	if (dac)
 		delete dac;
 #ifndef DONT_WANT_SCC
@@ -96,7 +96,7 @@ MSXGameCartridge::~MSXGameCartridge()
 	delete[] unmapped;
 }
 
-void MSXGameCartridge::reset(const EmuTime &time)
+void MSXRom::reset(const EmuTime &time)
 {
 #ifndef DONT_WANT_SCC
 	if (cartridgeSCC) {
@@ -159,7 +159,7 @@ struct ltstr {
 	}
 };
 
-void MSXGameCartridge::retrieveMapperType()
+void MSXRom::retrieveMapperType()
 {
 	try {
 		if (deviceConfig->getParameterAsBool("automappertype")) {
@@ -224,7 +224,7 @@ void MSXGameCartridge::retrieveMapperType()
 	PRT_DEBUG("mapperType: " << mapperType);
 }
 
-int MSXGameCartridge::guessMapperType()
+int MSXRom::guessMapperType()
 {
 	//  GameCartridges do their bankswitching by using the Z80
 	//  instruction ld(nn),a in the middle of program code. The
@@ -303,12 +303,12 @@ int MSXGameCartridge::guessMapperType()
 		if ((type==5) && (typeGuess[0] == typeGuess[5]))
 			type=0;
 		for (int i=0; i<7; i++)
-			PRT_DEBUG("MSXGameCartridge: typeGuess["<<i<<"]="<<typeGuess[i]);
+			PRT_DEBUG("MSXRom: typeGuess["<<i<<"]="<<typeGuess[i]);
 		return type == 6 ? 19 : type;
 	}
 }
 
-byte MSXGameCartridge::readMem(word address, const EmuTime &time)
+byte MSXRom::readMem(word address, const EmuTime &time)
 {
 	//TODO optimize this (Necessary? We have read cache now)
 	// One way to optimise would be to register an SCC supporting
@@ -325,7 +325,7 @@ byte MSXGameCartridge::readMem(word address, const EmuTime &time)
 	return internalMemoryBank[address>>12][address&0x0fff];
 }
 
-byte* MSXGameCartridge::getReadCacheLine(word start)
+byte* MSXRom::getReadCacheLine(word start)
 {
 #ifndef DONT_WANT_SCC
 	if (enabledSCC && 0x9800<=start && start<0xa000) {
@@ -340,7 +340,7 @@ byte* MSXGameCartridge::getReadCacheLine(word start)
 	}
 }
 
-void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
+void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 {
 	switch (mapperType) {
 	case 0:
@@ -553,18 +553,18 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 	}
 }
 
-void MSXGameCartridge::setBank4kB(int region, byte* adr)
+void MSXRom::setBank4kB(int region, byte* adr)
 {
 	internalMemoryBank[region] = adr;
 	MSXCPU::instance()->invalidateCache(region*0x1000, 0x1000/CPU::CACHE_LINE_SIZE);
 }
-void MSXGameCartridge::setBank8kB(int region, byte* adr)
+void MSXRom::setBank8kB(int region, byte* adr)
 {
 	internalMemoryBank[2*region+0] = adr+0x0000;
 	internalMemoryBank[2*region+1] = adr+0x1000;
 	MSXCPU::instance()->invalidateCache(region*0x2000, 0x2000/CPU::CACHE_LINE_SIZE);
 }
-void MSXGameCartridge::setBank16kB(int region, byte* adr)
+void MSXRom::setBank16kB(int region, byte* adr)
 {
 	internalMemoryBank[4*region+0] = adr+0x0000;
 	internalMemoryBank[4*region+1] = adr+0x1000;
@@ -573,19 +573,19 @@ void MSXGameCartridge::setBank16kB(int region, byte* adr)
 	MSXCPU::instance()->invalidateCache(region*0x4000, 0x4000/CPU::CACHE_LINE_SIZE);
 }
 
-void MSXGameCartridge::setROM4kB(int region, int block)
+void MSXRom::setROM4kB(int region, int block)
 {
 	int nrBlocks = romSize >> 12;
 	block = (block < nrBlocks) ? block : block & (nrBlocks - 1);
 	setBank4kB(region, memoryBank + (block<<12));
 }
-void MSXGameCartridge::setROM8kB(int region, int block)
+void MSXRom::setROM8kB(int region, int block)
 {
 	int nrBlocks = romSize >> 13;
 	block = (block < nrBlocks) ? block : block & (nrBlocks - 1);
 	setBank8kB(region, memoryBank + (block<<13));
 }
-void MSXGameCartridge::setROM16kB(int region, int block)
+void MSXRom::setROM16kB(int region, int block)
 {
 	int nrBlocks = romSize >> 14;
 	block = (block < nrBlocks) ? block : block & (nrBlocks - 1);

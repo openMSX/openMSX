@@ -37,7 +37,7 @@
   </device>
 
   <device id="biosrom">
-    <type>GameCartridge</type>
+    <type>Rom</type>
     <slotted>
       <ps>0</ps>
       <ss>0</ss>
@@ -47,7 +47,7 @@
   </device>
 
   <device id="basicrom">
-    <type>GameCartridge</type>
+    <type>Rom</type>
     <slotted>
       <ps>0</ps>
       <ss>0</ss>

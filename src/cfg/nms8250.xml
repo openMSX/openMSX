@@ -43,7 +43,7 @@
   </device>
 
   <device id="biosrom">
-    <type>GameCartridge</type>
+    <type>Rom</type>
     <slotted>
       <ps>0</ps>
       <ss>0</ss>
@@ -53,7 +53,7 @@
   </device>
 
   <device id="basicrom">
-    <type>GameCartridge</type>
+    <type>Rom</type>
     <slotted>
       <ps>0</ps>
       <ss>0</ss>
@@ -63,7 +63,7 @@
   </device>
 
   <device id="subrom">
-    <type>GameCartridge</type>
+    <type>Rom</type>
     <slotted>
       <ps>3</ps>
       <ss>0</ss>
@@ -73,7 +73,7 @@
   </device>
 
   <device id="diskrom">
-    <type>GameCartridge</type>
+    <type>Rom</type>
     <slotted>
       <ps>3</ps>
       <ss>3</ss>
@@ -159,7 +159,7 @@
 
   <!--
   <device id="Penguin Adventure Cartridge">
-    <type>GameCartridge</type>
+    <type>Rom</type>
     <slotted>
       <ps>1</ps>
       <ss>0</ss>

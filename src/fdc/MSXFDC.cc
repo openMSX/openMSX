@@ -5,16 +5,16 @@
 
 	//: MSXDevice(config, time), MSXMemDevice(config, time) , MSXRom16KB(config, time)
 MSXFDC::MSXFDC(MSXConfig::Device *config, const EmuTime &time)
-	: MSXDevice(config, time), MSXGameCartridge(config, time)
+	: MSXDevice(config, time), MSXRom(config, time)
 {
 	PRT_DEBUG("Creating an MSXFDC object");
 	brokenFDCread=false;
 	emptyRom=NULL;
 	emptyRom=new byte[CPU::CACHE_LINE_SIZE];
-	if (emptyRom){
+	if (emptyRom) {
 		memset(emptyRom,255,CPU::CACHE_LINE_SIZE);
-	};
-	// The loading of the diskrom and the mapping in the slot layout has been done by the MSXRom16KB
+	}
+	// The loading of the diskrom and the mapping in the slot layout has been done by the MSXRom
 	try {
 		brokenFDCread = deviceConfig->getParameterAsBool("brokenFDCread");
 		PRT_DEBUG( "brokenFDCread   " << brokenFDCread );

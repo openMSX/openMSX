@@ -48,7 +48,7 @@
     <parameter name="slow_drain_on_reset">true</parameter>
   </device>
   <device id="biosrom">
-    <type>GameCartridge</type>
+    <type>Rom</type>
     <slotted>
       <page>0</page>
       <ps>0</ps>
@@ -57,7 +57,7 @@
   </device>
 <!--
   <device id="biosrom">
-    <type>GameCartridge</type>
+    <type>Rom</type>
     <slotted>
       <page>0</page>
       <ps>0</ps>
@@ -95,7 +95,7 @@
 
 -->  
   <device id="basicrom">
-    <type>GameCartridge</type>
+    <type>Rom</type>
     <slotted>
       <page>1</page>
       <ps>0</ps>
@@ -106,7 +106,7 @@
   </device>
 
   <device id="diskrom">
-    <type>GameCartridge</type>
+    <type>Rom</type>
     <slotted>
       <ps>3</ps>
       <ss>1</ss>
@@ -242,7 +242,7 @@
   </device>
 -->
   <device id="Penguin Adventure Cartridge">
-    <type>GameCartridge</type>
+    <type>Rom</type>
     <slotted>
       <ps>1</ps>
       <ss>0</ss>
@@ -260,7 +260,7 @@
   </device>
 <!--
   <device id="KonamiSynthesizer">
-    <type>GameCartridge</type>
+    <type>Rom</type>
     <slotted>
       <ps>1</ps>
       <ss>0</ss>
@@ -335,7 +335,7 @@
   </config>
 
   <device id="Empty SCC Cartridge">
-    <type>GameCartridge</type>
+    <type>Rom</type>
     <slotted>
       <ps>1</ps>
       <ss>0</ss>

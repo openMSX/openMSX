@@ -4,6 +4,9 @@ $Id$
 	* Scheduler fixes
 	* Removed MSX16KB device:
 	   MSXGameCartridge can do everything what MSX16KB could
+	* Renamed:
+	     MSXRom           -> MSXRomDevice
+	     MSXGameCartridge -> MSXRom
 
 2002-06-12 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* ConsoleCommand parser now understands quoted tokens or tokens with

@@ -18,7 +18,7 @@
 #include "MSXKanji.hh"
 #include "MSXMemoryMapper.hh"
 #include "MSXRTC.hh"
-#include "MSXGameCartridge.hh"
+#include "MSXRom.hh"
 #include "MSXPrinterPort.hh"
 #include "MSXSCCPlusCart.hh"
 #include "MSXARCdebug.hh"
@@ -73,8 +73,8 @@ MSXDevice *deviceFactory::create(MSXConfig::Device *conf, const EmuTime &time) {
 	if (conf->getType()=="RTC") {
 		device = new MSXRTC(conf, time);
 	} else
-	if (conf->getType()=="GameCartridge") {
-		device = new MSXGameCartridge(conf, time);
+	if (conf->getType()=="Rom") {
+		device = new MSXRom(conf, time);
 	} else
 	if (conf->getType()=="PrinterPort") {
 		device = new MSXPrinterPort(conf, time);

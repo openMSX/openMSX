@@ -18,11 +18,11 @@ class DACSound;
 class EmuTime;
 
 
-class MSXGameCartridge : public MSXMemDevice, public MSXRomDevice
+class MSXRom : public MSXMemDevice, public MSXRomDevice
 {
 	public:
-		MSXGameCartridge(MSXConfig::Device *config, const EmuTime &time);
-		~MSXGameCartridge();
+		MSXRom(MSXConfig::Device *config, const EmuTime &time);
+		~MSXRom();
 
 		void reset(const EmuTime &time);
 		byte readMem(word address, const EmuTime &time);

@@ -71,7 +71,7 @@ openmsx_SOURCES=\
 	MSXMapperIOPhilips.hh MSXMapperIOPhilips.cc \
 	MSXRTC.hh MSXRTC.cc RP5C01.hh RP5C01.cc \
 	RealTime.hh RealTime.cc \
-	MSXGameCartridge.hh MSXGameCartridge.cc \
+	MSXRom.hh MSXRom.cc \
 	KeyEventInserter.cc KeyEventInserter.hh \
 	SDLEventInserter.cc SDLEventInserter.hh \
 	MSXRomDevice.cc MSXRomDevice.hh \
