@@ -38,16 +38,14 @@ private:
 	                   std::string& value);
 
 	SDL_Surface* outputScreen;
-	std::auto_ptr<IntegerSetting> fadeTimeSetting;
-	std::auto_ptr<IntegerSetting> fadeDurationSetting;
 
 	struct LedInfo {
 		std::auto_ptr<IntegerSetting> xcoord;
 		std::auto_ptr<IntegerSetting> ycoord;
-		std::auto_ptr<FilenameSetting> active;
-		std::auto_ptr<FilenameSetting> nonActive;
-		std::auto_ptr<IMAGE> iconOn;
-		std::auto_ptr<IMAGE> iconOff;
+		std::auto_ptr<IntegerSetting> fadeTime[2];
+		std::auto_ptr<IntegerSetting> fadeDuration[2];
+		std::auto_ptr<FilenameSetting> name[2];
+		std::auto_ptr<IMAGE> icon[2];
 	};
 	LedInfo ledInfo[LedEvent::NUM_LEDS];
 };

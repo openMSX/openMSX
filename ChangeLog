@@ -4,6 +4,8 @@ $Id$
 	* Split Display.xx files in Display.xx and Layer.xx
 	* Moved fps code from (V99x8) Renderer to Display:
 	   "openmsx_info fps" now also works for gfx9000
+	* Icon fade parameters can now be configured per icon image:
+	   for example it's now possible to never fade out an active FDD LED
 
 2005-01-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented deinterlace for V9990

@@ -40,7 +40,6 @@ IconLayer<IMAGE>::IconLayer(SDL_Surface* screen)
 			ledStatus[i] = false;
 			ledTime[i] = now;
 		}
-		
 	}
 
 	createSettings(LedEvent::POWER, "power");
@@ -50,13 +49,6 @@ IconLayer<IMAGE>::IconLayer(SDL_Surface* screen)
 	createSettings(LedEvent::TURBO, "turbo");
 	createSettings(LedEvent::FDD,   "fdd");
 
-	fadeTimeSetting.reset(new IntegerSetting("icon.fade-delay",
-		"Time (in ms) after which the icons start to fade (0 means no fading)",
-		5000, 0, 1000000));
-	fadeDurationSetting.reset(new IntegerSetting("icon.fade-duration",
-		"Time (in ms) it takes for the icons the fade from completely opaque "
-		"to completely transparent", 5000, 0, 1000000));
-	
 	EventDistributor::instance().registerEventListener(LED_EVENT, *this,
 	                                           EventDistributor::NATIVE);
 }
@@ -69,20 +61,23 @@ void IconLayer<IMAGE>::createSettings(LedEvent::Led led, const string& name)
 		"X-coordinate for LED icon", ((int)led) * 50, 0, 640));
 	ledInfo[led].ycoord.reset(new IntegerSetting(icon_name + ".ycoord",
 		"Y-coordinate for LED icon", 0, 0, 480));
-	ledInfo[led].active.reset(new FilenameSetting(icon_name + ".active",
-		"Image for active LED icon", "skins/led.png"));
-	ledInfo[led].nonActive.reset(new FilenameSetting(icon_name + ".non-active",
-		"Image for active LED icon", "skins/led-off.png"));
+	for (int i = 0; i < 2; ++i) {
+		string tmp = icon_name + (i ? ".active" : ".non-active");
+		ledInfo[led].name[i].reset(new FilenameSetting(tmp + ".image",
+			"Image for active LED icon",
+			i ? "skins/led.png" : "skins/led-off.png"));
+		ledInfo[led].fadeTime[i].reset(new IntegerSetting(tmp + ".fade-delay",
+			"Time (in ms) after which the icons start to fade (0 means no fading)",
+			5000, 0, 1000000));
+		ledInfo[led].fadeDuration[i].reset(new IntegerSetting(tmp + ".fade-duration",
+			"Time (in ms) it takes for the icons the fade from completely opaque "
+			"to completely transparent", 5000, 0, 1000000));
 
-	try {
-		ledInfo[led].active->setChecker(this);
-	} catch (MSXException& e) {
-		// ignore
-	}
-	try {
-		ledInfo[led].nonActive->setChecker(this);
-	} catch (MSXException& e) {
-		// ignore
+		try {
+			ledInfo[led].name[i]->setChecker(this);
+		} catch (MSXException& e) {
+			// ignore
+		}
 	}
 }
 
@@ -97,10 +92,13 @@ IconLayer<IMAGE>::~IconLayer()
 template <class IMAGE>
 void IconLayer<IMAGE>::paint()
 {
-	unsigned long long fadeTime     = 1000 * fadeTimeSetting->getValue();
-	unsigned long long fadeDuration = 1000 * fadeDurationSetting->getValue();
-
 	for (int i = 0; i < LedEvent::NUM_LEDS; ++i) {
+		LedInfo& led = ledInfo[i];
+		int status = ledStatus[i] ? 1 : 0;
+		unsigned long long fadeTime =
+			1000 * led.fadeTime[status]->getValue();
+		unsigned long long fadeDuration =
+			1000 * led.fadeDuration[status]->getValue();
 		unsigned long long now = Timer::getTime();
 		unsigned long long diff = now - ledTime[i];
 		byte alpha;
@@ -117,12 +115,11 @@ void IconLayer<IMAGE>::paint()
 			// fading out
 			alpha = 255 - (255 * (diff - fadeTime) / fadeDuration);
 		}
-		IMAGE* icon = ledStatus[i] ? ledInfo[i].iconOn.get()
-		                           : ledInfo[i].iconOff.get();
+		IMAGE* icon = led.icon[status].get();
 		if (icon) {
-			int x = ledInfo[i].xcoord->getValue();
-			int y = ledInfo[i].ycoord->getValue();
-			icon->draw(x, y, alpha);
+			icon->draw(led.xcoord->getValue(),
+			           led.ycoord->getValue(),
+			           alpha);
 		}
 	}
 }
@@ -156,13 +153,12 @@ void IconLayer<IMAGE>::check(SettingImpl<FilenameSetting::Policy>& setting,
 		getFileContext().resolve(value);
 
 	for (int i = 0; i < LedEvent::NUM_LEDS; ++i) {
-		if (&setting == ledInfo[i].active.get()) {
-			ledInfo[i].iconOn.reset(new IMAGE(outputScreen, filename));
-			break;
-		}
-		if (&setting == ledInfo[i].nonActive.get()) {
-			ledInfo[i].iconOff.reset(new IMAGE(outputScreen, filename));
-			break;
+		for (int j = 0; j < 2; ++j) {
+			if (&setting == ledInfo[i].name[j].get()) {
+				ledInfo[i].icon[j].reset(
+					new IMAGE(outputScreen, filename));
+				break;
+			}
 		}
 	}
 }
