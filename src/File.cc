@@ -22,11 +22,11 @@ File* File::createFile(const std::string& uri, byte mode)
 	std::string scheme(urip->scheme);
 	if (scheme == "http")
 	{
-		return new HttpFile(uri);
+		file = new HttpFile(uri, mode);
 	}
 	else if ((scheme == "file") || (scheme == ""))
 	{
-		return new LocalFile(uri);
+		file = new LocalFile(uri, mode);
 	}
 	else
 	{
@@ -40,9 +40,16 @@ File* File::createFile(const std::string& uri, byte mode)
 }
 
 File::File()
+:buffer(NULL), mode(read|write|prefer)
+{
+}
+
+File::File(byte mode_)
+:buffer(NULL), mode(mode_)
 {
 }
 
 File::~File()
 {
+	delete[] buffer;
 }

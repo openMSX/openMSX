@@ -1,5 +1,8 @@
 $Id$
 
+2002-05-09 Joost Yervante Damad <andete@worldcity.nl>
+	* File, HttpFile, LocalFile [work in progress]
+
 2002-05-08 Bas Wijnen <b.wijnen@student.rug.nl>
 	* fixed console-key-pass-bug and some minor things
 
@@ -16,13 +19,15 @@ $Id$
 	* Calculate pixel precision coordinates.
 	  They are approximately right, but not exactly right yet.
 
+2002-05-02 Joost Yervante Damad <andete@worldcity.nl>
+	* File, HttpFile, LocalFile [work in progress]
+
 2002-05-01 David Heremans <david.heremans@gnu-linux.net>
 	* Skeleton files for JoyNet device
 
 2002-04-30 Joost Yervante Damad <andete@worldcity.nl>
 	* s/-fhuge-objects//g
 	* verious g++-3.0 fixes
-	* File, HttpFile, LocalFile [work in progress]
 
 2002-04-29 Maarten ter Huurne <mth@stack.nl>
 	* SDLGLRenderer is working again.

@@ -8,13 +8,18 @@
 class LocalFile: public File
 {
 public:
-	LocalFile(const std::string& uri);
+	LocalFile(const std::string& uri, byte mode);
 	virtual ~LocalFile();
 
 	virtual void fetch();
+	virtual void put();
+	virtual bool head();
 	virtual byte* getData(size_t& len);
+	virtual void setData(byte* data, size_t len);
 
 private:
+	std::string path;
+	size_t len;
 };
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef _FILETYPE_HH
-#define _FILETYPE_HH
+#ifndef __FILETYPE_HH__
+#define __FILETYPE_HH__
 
 #include <fstream>
 
@@ -57,4 +57,4 @@
 	#define IOFILETYPE std::fstream
 #endif
 
-#endif	// ndef _FILETYPE_HH
+#endif // defined __FILETYPE_HH__
