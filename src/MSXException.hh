@@ -14,8 +14,7 @@ class MSXException
 public:
 	MSXException(const string& message_)
 		: message(message_) { }
-	
-	virtual ~MSXException() { }
+	~MSXException() { }
 	
 	const string& getMessage() const {
 		return message;
@@ -26,11 +25,19 @@ private:
 };
 
 
-class FatalError: public MSXException
+class FatalError
 {
 public:
-	FatalError(const string& message)
-		: MSXException(message) {}
+	FatalError(const string& message_)
+		: message(message_) { }
+	~FatalError() { }
+
+	const string& getMessage() const {
+		return message;
+	}
+
+private:
+	const string message;
 };
 
 } // namespace openmsx
