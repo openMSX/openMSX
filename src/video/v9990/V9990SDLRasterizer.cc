@@ -7,9 +7,6 @@
 #include "openmsx.hh"
 #include <SDL.h>
 
-//#undef PRT_DEBUG
-//#define PRT_DEBUG(m) cout << m << endl
-
 namespace openmsx {
 
 // Force template instantiation.
@@ -26,14 +23,21 @@ V9990SDLRasterizer<Pixel, zoom>::V9990SDLRasterizer(
 	  bitmapConverter(*(screen_->format),palette64, palette256, palette32768) 
 {
 	PRT_DEBUG("V9990SDLRasterizer::V9990SDLRasterizer");
-	
+
+	static const int width = (zoom == Renderer::ZOOM_256)?
+	                             V9990SDLRasterizer::SCREEN_WIDTH:
+								 V9990SDLRasterizer::SCREEN_WIDTH * 2;
+	static const int height = (zoom == Renderer::ZOOM_256)?
+	                             V9990SDLRasterizer::SCREEN_HEIGHT:
+								 V9990SDLRasterizer::SCREEN_HEIGHT * 2;
+
 	vram = vdp->getVRAM();
 
 	/* Create Work screen */
 	workScreen = SDL_CreateRGBSurface(
 					SDL_SWSURFACE,
-					(zoom == Renderer::ZOOM_256)? 320: 640,
-					(zoom == Renderer::ZOOM_256)? 240: 480,
+					width,
+					height,
 					screen->format->BitsPerPixel,
 					screen->format->Rmask,
 					screen->format->Gmask,
@@ -57,6 +61,26 @@ void V9990SDLRasterizer<Pixel, zoom>::paint()
 {
 	PRT_DEBUG("V9990SDLRasterizer::paint()");
 
+	// Simple scaler for SDLHi
+	if(zoom == Renderer::ZOOM_REAL) {
+		SDL_Rect srcLine;
+		SDL_Rect dstLine;
+		srcLine.x = 0;
+		srcLine.w = V9990SDLRasterizer::SCREEN_WIDTH * 2;
+		srcLine.y = 0;
+		srcLine.h = 1;
+
+		dstLine.x = 0;
+		dstLine.w = V9990SDLRasterizer::SCREEN_WIDTH * 2;
+		dstLine.y = 1;
+		dstLine.h = 1;
+		
+		for(int y=0; y < V9990SDLRasterizer::SCREEN_HEIGHT; y++) {
+			SDL_BlitSurface(workScreen, &srcLine, workScreen, &dstLine);
+			dstLine.y += 2;
+			srcLine.y += 2;
+		}
+	} 
 	SDL_BlitSurface(workScreen, NULL, screen, NULL);
 }
 
@@ -72,18 +96,35 @@ const string& V9990SDLRasterizer<Pixel, zoom>::getName()
 template <class Pixel, Renderer::Zoom zoom>
 void V9990SDLRasterizer<Pixel, zoom>::reset()
 {
-	PRT_DEBUG("V9990SDLRasterizer::reset");
+	PRT_DEBUG("V9990SDLRasterizer::reset()");
 
-	bgColor = vdp->getBackDropColor();
-	displayMode = vdp->getDisplayMode();
-	colorMode = vdp->getColorMode();
+	setBackgroundColor(vdp->getBackDropColor());
+	setDisplayMode(vdp->getDisplayMode());
+	setColorMode(vdp->getColorMode());
 	imageWidth = vdp->getImageWidth();
 }
 
 template <class Pixel, Renderer::Zoom zoom>
-void V9990SDLRasterizer<Pixel, zoom>::frameStart()
+void V9990SDLRasterizer<Pixel, zoom>::frameStart(
+	const V9990DisplayPeriod *horTiming,
+	const V9990DisplayPeriod *verTiming)
 {
 	PRT_DEBUG("V9990SDLRasterizer::frameStart()");
+
+	/* Center image on the window.
+	 *
+	 * In SDLLo, one window pixel represents 8 UC clockticks, so the
+	 * window = 320 * 8 UC ticks wide. In SDLHi, one pixel is 4 clock-
+	 * ticks and the window 640 pixels wide -- same amount of UC ticks.
+	 */
+	colZero  = horTiming->border1 + 
+	           (horTiming->display - V9990SDLRasterizer::SCREEN_WIDTH * 8) / 2;
+
+	/* 240 display lines can be shown. In SDLHi, we can do interlace,
+	 * but still 240 lines per frame.
+	 */
+	lineZero = verTiming->border1 +
+	           (verTiming->display - V9990SDLRasterizer::SCREEN_HEIGHT) / 2;
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -126,8 +167,32 @@ template <class Pixel, Renderer::Zoom zoom>
 void V9990SDLRasterizer<Pixel, zoom>::drawBorder(
 	int fromX, int fromY, int toX, int toY)
 {
+
 	PRT_DEBUG("V9990SDLRasterizer::drawBorder(" << dec <<
 	          fromX << "," << fromY << "," << toX << "," << toY << ")");
+
+	static int const screenW = V9990SDLRasterizer::SCREEN_WIDTH * 8;
+	static int const screenH = V9990SDLRasterizer::SCREEN_HEIGHT;
+
+	// From vdp coordinates (UC ticks/lines) to screen coordinates
+	fromX -= colZero;
+	fromY -= lineZero;
+	toX   -= colZero;
+	toY   -= lineZero;
+
+	// Clip or expand to screen edges
+	if((fromX <= -colZero) || (fromX < 0)) {
+		fromX = 0;
+	}
+	if((fromY <= -lineZero) || (fromY < 0)) {
+		fromY = 0;
+	}
+	if((toX >= screenW + colZero) || (toX > screenW)) {
+		toX = screenW;
+	}
+	if((toY >= screenH + lineZero) || (toY > screenH)) {
+		toY = screenH;
+	}
 
 	int width = toX - fromX;
 	int height = toY - fromY;
@@ -152,17 +217,45 @@ void V9990SDLRasterizer<Pixel, zoom>::drawDisplay(
 	          displayX << "," << displayY << "," <<
 	          displayWidth << "," << displayHeight << ")");
 
+	static int const screenW = V9990SDLRasterizer::SCREEN_WIDTH * 8;
+	static int const screenH = V9990SDLRasterizer::SCREEN_HEIGHT;
+
 	if((displayWidth > 0) && (displayHeight > 0)) {
+		
+		// from VDP coordinates to screen coordinates
+		fromX -= colZero;
+		fromY -= lineZero;
+
+		// Clip to screen
+		if(fromX < 0) {
+			displayX -= fromX;
+			displayWidth += fromX;
+			fromX = 0;
+		}
+		if((fromX + displayWidth) > screenW) {
+			displayWidth = screenW - fromX;
+		}
+		if(fromY < 0) {
+			displayY -= fromY;
+			displayHeight += fromY;
+			fromY = 0;
+		}
+		if((fromY + displayHeight) > screenH) {
+			displayHeight = screenH - fromY;
+		}
+		
 		SDL_Rect rect;
 		rect.x = translateX(fromX);
 		rect.y = translateY(fromY);
 		rect.w = translateX(displayWidth);
 		rect.h = translateY(displayHeight);
 
-		if(displayMode == P1 || displayMode == P2) {
-			// not implemented yet
-
+		if(displayMode == P1) {
+			// not yet implemented
 			SDL_FillRect(workScreen, &rect, bgColor);
+		} else if(displayMode == P2) {
+			// not implemented yet
+			
 		} else {
 			SDL_FillRect(workScreen, &rect, (Pixel) 0);
 			int vramStep;
@@ -174,7 +267,7 @@ void V9990SDLRasterizer<Pixel, zoom>::drawDisplay(
 			displayX = V9990::UCtoX(displayX, displayMode);
 			displayWidth = V9990::UCtoX(displayWidth, displayMode);
 			byte* vramPtr = vram->getData() +
-			                V9990::XtoVRAM(&displayX, colorMode);
+			                vdp->XYtoVRAM(&displayX, displayY, colorMode);
 			switch(colorMode) {
 				case BP2:
 					vramStep = imageWidth / 4;

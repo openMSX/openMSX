@@ -61,7 +61,6 @@ V9990::V9990(const XMLElement& config, const EmuTime& time)
 	// Start with NTSC timing
 	palTiming = false;
 	
-	
 	// Register debuggable
 	Debugger::instance().registerDebuggable("V9990 regs", v9990RegDebug);
 
@@ -288,7 +287,7 @@ void V9990::writeIO(byte port, byte val, const EmuTime &time)
 			break;
 		
 		case SYSTEM_CONTROL:
-			regs[SYSTEM_CONTROL] = val;	
+			isMCLK = val & 1;
 			renderer->setDisplayMode(getDisplayMode(), time);
 			renderer->setImageWidth(getImageWidth());
 		break;
@@ -348,6 +347,7 @@ bool V9990::signalEvent(const Event& event)
 	const EmuTime& time = Scheduler::instance().getCurrentTime();
 	delete renderer;
 	createRenderer(time);
+	renderer->frameStart(time);
 	return true;
 }
 
@@ -474,6 +474,7 @@ void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
 				}
 				break;
 			case SCREEN_MODE_0:
+			case SCREEN_MODE_1:
 				renderer->setDisplayMode(getDisplayMode(), time);
 				// fall through!
 			case PALETTE_CONTROL:
@@ -498,12 +499,16 @@ void V9990::createRenderer(const EmuTime &time)
 
 void V9990::frameStart(const EmuTime& time)
 {
+	// Update setings that are fixed at the start of a frame
+	palTiming = regs[SCREEN_MODE_1] & 0x08;
+
 	renderer->frameStart(time);
 	// Schedule next VSYNC
 	frameStartTime.advance(time);
 			
 	Scheduler::instance().setSyncPoint(
-		frameStartTime + getUCTicksPerFrame(), this, V9990_VSYNC);
+		frameStartTime + V9990DisplayTiming::getUCTicksPerFrame(palTiming),
+		this, V9990_VSYNC);
 }
 
 void V9990::raiseIRQ(IRQType irqType)
@@ -559,18 +564,22 @@ V9990DisplayMode V9990::getDisplayMode(void)
 		case 0x40: mode = P2;
 			break;
 		case 0x80:
-			switch((regs[SCREEN_MODE_0] & 0x30) |
-			       (regs[SYSTEM_CONTROL] & 1)) {
-				case 0x00: mode = B1; break;
-				case 0x01: mode = B0; break;
-				case 0x10: mode = B3; break;
-				case 0x11: mode = B2; break;
-				case 0x20: mode = B7; break;
-				case 0x21: mode = B4; break;
-				case 0x30:
-				case 0x31: /*mode = INVALID_DISPLAY_MODE*/; break;
-				default:
-					assert(false);
+			if(isMCLK) {
+				switch(regs[SCREEN_MODE_0] & 0x30) {
+					case 0x00: mode = B1; break;
+					case 0x10: mode = B3; break;
+					case 0x20: mode = B7; break;
+					case 0x30: /* mode = INVALID_DISPLAY_MODE; */ break;
+					default: assert(false);
+				}
+			} else {
+				switch(regs[SCREEN_MODE_0] & 0x30) {
+					case 0x00: mode = B0; break;
+					case 0x10: mode = B2; break;
+					case 0x20: mode = B4; break;
+					case 0x30: /* mode = INVALID_DISPLAY_MODE; */ break;
+					default: assert(false);
+				}
 			}
 			break;
 		case 0xC0: /*mode = INVALID_DISPLAY_MODE*/;

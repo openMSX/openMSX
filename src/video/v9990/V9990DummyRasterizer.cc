@@ -1,6 +1,7 @@
 // $Id$
 
 #include "V9990DummyRasterizer.hh"
+#include "V9990DisplayTiming.hh"
 
 namespace openmsx {
 
@@ -22,7 +23,8 @@ void V9990DummyRasterizer::reset()
 {
 }
 
-void V9990DummyRasterizer::frameStart()
+void V9990DummyRasterizer::frameStart(const V9990DisplayPeriod *horTiming,
+                                      const V9990DisplayPeriod *verTiming)
 {
 }
 

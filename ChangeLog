@@ -1,5 +1,9 @@
 $Id$
 
+2004-10-26 Eric Boon <e.boon4@chello.nl>
+	* Improved V9990 displaying:
+		- proper PAL & NTSC imaging in Bx modes
+
 2004-10-25 Maarten ter Huurne <maarten@treewalker.org>
 	* Non-maskable interrupt (NMI) implementation:
 	  - was half implemented already; now it's fully implemented

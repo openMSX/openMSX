@@ -4,6 +4,7 @@ include build/node-start.mk
 
 SRC_HDR:= \
 	V9990 V9990VRAM \
+	V9990DisplayTiming \
 	V9990Renderer \
 	V9990DummyRenderer \
 	V9990PixelRenderer \

@@ -14,6 +14,7 @@
 #include "IRQHelper.hh"
 #include "Command.hh"
 
+#include "V9990DisplayTiming.hh"
 #include "V9990VRAM.hh"
 
 /** Some useful stuff
@@ -33,6 +34,7 @@ using std::auto_ptr;
 
 namespace openmsx {
 
+class V9990DisplayTiming;
 class V9990VRAM;
 class V9990Renderer;
 
@@ -44,21 +46,6 @@ class V9990 : public MSXDevice,
 			  private EventListener
 {
 public:
-	/** The V9990 has an internal clock (MCLK @ 14MHz) and a terminal
-	  * for an external clock (XTAL1), which can be connected to a 21
-	  * or 25 MHz crystal. The Gfx9000 provides an 21 MHz crystal.
-	  * 
-	  * The emulation combines these two clocks into one unified
-	  * clock (UC) running at 42MHz - the smallest common multple
-	  * of 14 and 21 MHz.
-	  */
-	static const int UC_TICKS_PER_SEC = 42554540; // Hz
-	
-	/** Regardless of the chosen clock or timing (PAL/NTSC), one
-	  * line is always the same number of UC ticks.
-	  */
-	static const int UC_TICKS_PER_LINE = 2736;
-
 	/** Constructor
 	  */ 
 	V9990(const XMLElement& config, const EmuTime& time);
@@ -79,14 +66,6 @@ public:
 		return vram.get();
 	}
 
-	/** Get number of UC ticks in a frame.
-	  * @return Number of UC Ticks.
-	  */
-	inline int getUCTicksPerFrame() const {
-		return palTiming? UC_TICKS_PER_LINE * 313
-			            : UC_TICKS_PER_LINE * 262;
-	}
-
 	/** Get the number of elapsed UC ticks in this frame.
 	  * @param  time Point in emulated time.
 	  * @return      Number of UC ticks.
@@ -103,14 +82,14 @@ public:
 		return palTiming;
 	}
 
-	/** Convert UC ticks to pixel position on a line
-	  * @param ticks  UC offset
+	/** Convert UC ticks to V9990 pixel position on a line
+	  * @param ticks  Nr of UC Ticks
 	  * @param mode   Display mode
-	  * @return       X offset
+	  * @return       Pixel position
 	  */
 	static inline int UCtoX(int ticks, V9990DisplayMode mode) {
 		int x;
-		ticks = ticks % UC_TICKS_PER_LINE;
+		ticks = ticks % V9990DisplayTiming::UC_TICKS_PER_LINE;
 		switch(mode) {
 			case P1: x = ticks / 8;  break;
 			case P2: x = ticks / 4;  break;
@@ -135,8 +114,8 @@ public:
 	  * @param mode  Color mode
 	  * @return      VRAM offset
 	  */
-	static inline int XtoVRAM(int *x, V9990ColorMode mode) {
-		int offset;
+	inline int XYtoVRAM(int *x, int y, V9990ColorMode mode) {
+		int offset = *x + y * getImageWidth();
 		switch(mode) {
 			case PP:
 			case BYUV:
@@ -144,10 +123,10 @@ public:
 			case BYJK:
 			case BYJKP:
 			case BD8:
-			case BP6:  offset = *x;     break;
-			case BD16: offset = *x * 2; break;
-			case BP4:  offset = *x / 2; *x &= ~1; break;
-			case BP2:  offset = *x / 4; *x &= ~3; break;
+			case BP6:  break;
+			case BD16: offset *= 2; break;
+			case BP4:  offset /= 2; *x &= ~1; break;
+			case BP2:  offset /= 4; *x &= ~3; break;
 			default:   offset = 0; break;
 		}
 		return offset;
@@ -326,9 +305,13 @@ private:
 	  */
 	bool palTiming;
 
+	/** Is master clock (MCLK) active? False means XTAL (overscan) is active
+	  */
+	bool isMCLK;
+	
 	/** Emulation time when this frame was started (VSYNC)
 	  */
-	Clock<UC_TICKS_PER_SEC> frameStartTime;
+	Clock<V9990DisplayTiming::UC_TICKS_PER_SECOND> frameStartTime;
 	
 	// --- methods ----------------------------------------------------
 

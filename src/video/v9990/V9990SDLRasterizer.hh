@@ -34,7 +34,8 @@ public:
 
 	// Rasterizer interface:
 	virtual void reset();
-	virtual void frameStart();
+	virtual void frameStart(const V9990DisplayPeriod *horTiming,
+                            const V9990DisplayPeriod *verTiming);
 	virtual void frameEnd();
 	virtual void setDisplayMode(V9990DisplayMode displayMode);
 	virtual void setColorMode(V9990ColorMode colorMode);
@@ -46,6 +47,14 @@ public:
 		int displayX, int displayY, int displayWidth, int displayHeight);
 
 private:
+	/** screen width for SDLLo
+	  */
+	static const int SCREEN_WIDTH  = 320;
+
+	/** screenheight for SDLLo
+	  */
+	static const int SCREEN_HEIGHT = 240;
+
 	/** The VDP of which the video output is being rendered.
 	  */
 	V9990* vdp;
@@ -61,6 +70,18 @@ private:
 	/** Work screen
 	  */
 	SDL_Surface* workScreen;
+
+	/** First display line to draw. Since the number of VDP lines >=
+	  * the screen height, lineZero is >= 0. Only part of the video
+	  * image is visible.
+	  */
+	int lineZero;
+
+	/** First display column to draw.  Since the width of the VDP lines <=
+	  * the screen width, colZero is <= 0. The non-displaying parts of the
+	  * screen will be filled as border.
+	  */
+	int colZero;
 
 	/** The current screen mode
 	  */ 

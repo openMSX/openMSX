@@ -67,26 +67,16 @@ private:
 	  */
 	int lastX;
 
-	/** Width of left border in UC Ticks
-	  */ 
-	int leftBorderPeriod;
-	
-	/** Nr of top border lines
+	/** Horizontal timing
 	  */
-	int topBorderPeriod;
+	const V9990DisplayPeriod* horTiming;
 
-	/** Width of display area in UC Ticks
+	/** Vertical timing
 	  */
-	int displayWidth;
+	const V9990DisplayPeriod* verTiming;
 
-	/** Nr of lines to display
-	  */ 
-	int displayPeriod;
-
-	/** Nr of lines including top and bottom border
+	/**
 	  */
-	int nofLines;
-
 	void draw(int fromX, int fromY, int toX, int toY, DrawType type);
 
 	/** Render a part of the screen.  Horizontal positions given in UC ticks
