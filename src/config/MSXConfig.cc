@@ -192,4 +192,21 @@ void Device::dump()
 	}
 }
 
+CustomConfig::CustomConfig(const std::string &_tag):tag(_tag)
+{
+}
+
+CustomConfig::~CustomConfig()
+{
+}
+
+CustomConfig::CustomConfig()
+{
+}
+
+const std::string &CustomConfig::getTag()
+{
+	return tag;
+}
+
 }; // end namespace MSXConfig

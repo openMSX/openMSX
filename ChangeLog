@@ -1,5 +1,10 @@
 $Id$
 
+2002-03-23 Joost Yervante Damad <andete@worldcity.nl>
+	* more CustomConfig framework
+	* started on FilePath CustomConfig
+	* this is WIP, and is not finished yet!
+
 2002-03-21 David Heremans <david.heremans@gnu-linux.net>
 	* Again a (total) rewrite of CommandlineParser. 
 	  A simpler and cleaner design then the previous one, and

@@ -131,11 +131,19 @@ private:
 class CustomConfig
 {
 public:
-	CustomConfig() {};
-	virtual ~CustomConfig() {};
+	CustomConfig(const std::string &id);
+	CustomConfig();
+	virtual ~CustomConfig();
+
+	/**
+	 * Every customconfig is identified by it's tag
+	 */
+	const std::string &getTag();
 private:
 	CustomConfig(const CustomConfig &foo); // block usage
 	CustomConfig &operator=(const CustomConfig &foo); // block usage
+	
+	std::string tag;
 };
 
 class Backend
@@ -160,7 +168,12 @@ public:
 	 */
 	virtual Config* getConfigById(const std::string &id)=0;
 	virtual Device* getDeviceById(const std::string &id)=0;
-	virtual CustomConfig* getCustomConfigById(const std::string &id)=0;
+	virtual CustomConfig* getCustomConfigByTag(const std::string &tag)=0;
+
+	/**
+	 * create customconfig by id
+	 */
+	virtual void createCustomConfigByTag(const std::string &tag)=0;
 
 	/**
 	 * get a device

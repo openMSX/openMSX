@@ -16,7 +16,11 @@ libConfig_la_SOURCES = \
 	MSXConfig.cc \
 	MSXConfig.hh \
 	XMLConfig.cc \
-	XMLConfig.hh
+	XMLConfig.hh \
+	MSXFilePath.hh \
+	MSXFilePath.cc \
+	XMLFilePath.hh \
+	XMLFilePath.cc
 
 
 nodebug: resetdebug all
