@@ -8,20 +8,19 @@ Mouse::Mouse()
 	status = JOY_BUTTONA | JOY_BUTTONB;
 	faze = FAZE_YLOW;
 	xrel = yrel = curxrel = curyrel = 0;
-	mut = SDL_CreateMutex();
-	EventDistributor::instance()->registerListener(SDL_MOUSEMOTION,     this);
-	EventDistributor::instance()->registerListener(SDL_MOUSEBUTTONDOWN, this);
-	EventDistributor::instance()->registerListener(SDL_MOUSEBUTTONUP,   this);
+	EventDistributor::instance()->registerSyncListener(SDL_MOUSEMOTION,     this);
+	EventDistributor::instance()->registerSyncListener(SDL_MOUSEBUTTONDOWN, this);
+	EventDistributor::instance()->registerSyncListener(SDL_MOUSEBUTTONUP,   this);
 }
 
 Mouse::~Mouse()
 {
-	SDL_DestroyMutex(mut);
 }
 
 //JoystickDevice
 byte Mouse::read()
 {
+	EventDistributor::instance()->pollSyncEvents();
 	switch (faze) {
 	case FAZE_XHIGH:
 		return ((xrel>>4)&0x0f)|status;
@@ -51,30 +50,24 @@ void Mouse::write(byte value)
 	case FAZE_YLOW:
 		if ((value&STROBE)!=0) {
 			faze=FAZE_XHIGH;
-			SDL_mutexP(mut);
 			xrel = curxrel; yrel = curyrel;
 			curxrel = 0; curyrel = 0;
-			SDL_mutexV(mut);
 		}
 		break;
 	}
 }
 
 //EventListener
-// note: this method runs in a different thread!!
-//  variable curxrel and curyrel should be locked
 void Mouse::signalEvent(SDL_Event &event)
 {
 	switch (event.type) {
 	case SDL_MOUSEMOTION:
-		SDL_mutexP(mut);
 		curxrel += event.motion.xrel;
 		curyrel += event.motion.yrel;
 		if (curxrel> 127) curxrel= 127;
 		if (curxrel<-128) curxrel=-128;
 		if (curyrel> 127) curyrel= 127;
 		if (curyrel<-128) curyrel=-128;
-		SDL_mutexV(mut);
 		break;
 	case SDL_MOUSEBUTTONDOWN:
 		switch (event.button.button) {

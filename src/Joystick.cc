@@ -13,9 +13,9 @@ Joystick::Joystick(int joyNum)
 	if (SDL_NumJoysticks() > joyNum) {
 		PRT_DEBUG("Opening joystick "<<SDL_JoystickName(joyNum));
 		joystick = SDL_JoystickOpen(joyNum);
-		EventDistributor::instance()->registerListener(SDL_JOYAXISMOTION, this);
-		EventDistributor::instance()->registerListener(SDL_JOYBUTTONDOWN, this);
-		EventDistributor::instance()->registerListener(SDL_JOYBUTTONUP,   this);
+		EventDistributor::instance()->registerSyncListener(SDL_JOYAXISMOTION, this);
+		EventDistributor::instance()->registerSyncListener(SDL_JOYBUTTONDOWN, this);
+		EventDistributor::instance()->registerSyncListener(SDL_JOYBUTTONUP,   this);
 	} else {
 		PRT_DEBUG("No joystick nummer "<<joyNum);
 	}
@@ -29,6 +29,7 @@ Joystick::~Joystick()
 //JoystickDevice
 byte Joystick::read()
 {
+	EventDistributor::instance()->pollSyncEvents();
 	return status;
 }
 
@@ -38,8 +39,6 @@ void Joystick::write(byte value)
 }
 
 //EventListener
-// note: this method runs in a different thread!!
-//  no need for locking here
 void Joystick::signalEvent(SDL_Event &event)
 {
 	if (event.jaxis.which != joyNum)	// also event.jbutton.which

@@ -5,6 +5,10 @@ $Id$
 
 2001-10-03 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* "static const int -> enum" cleanup
+	* Reworked EventDistributor, it is now possible to deliver events
+	  synchronously and asynchronously. This makes the EventDistributor
+	  more complex, but it eliminates locking problems in synchronous 
+	  ( = almost all) client code.
 
 2001-10-02 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* made Philips mapper-IO behaviour

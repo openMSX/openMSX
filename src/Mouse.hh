@@ -34,6 +34,5 @@ class Mouse : public JoystickDevice, EventListener
 		int faze;
 		int xrel, yrel;
 		int curxrel, curyrel;
-		SDL_mutex *mut;
 };
 #endif

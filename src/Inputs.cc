@@ -6,8 +6,8 @@
 
 Inputs::Inputs()
 {
-	EventDistributor::instance()->registerListener(SDL_KEYDOWN, this);
-	EventDistributor::instance()->registerListener(SDL_KEYUP,   this);
+	EventDistributor::instance()->registerSyncListener(SDL_KEYDOWN, this);
+	EventDistributor::instance()->registerSyncListener(SDL_KEYUP,   this);
 }
 
 Inputs::~Inputs()
@@ -26,12 +26,11 @@ Inputs *Inputs::oneInstance = NULL;
 
 const byte* Inputs::getKeys()
 {
+	EventDistributor::instance()->pollSyncEvents();
 	return keyMatrix;
 }
 
 
-// note: this method runs in a different thread!!
-//  no need for locking here
 void Inputs::signalEvent(SDL_Event &event)
 {
 	int key;
