@@ -6,7 +6,7 @@ $Id$
 2003-06-08 Maarten ter Huurne <maarten@treewalker.org>
 	* In the command engine, only act on display mode switches if a
 	  different command engine mode is entered.
-	* Fixed GCC 2.95 compile problems in command engine.
+	* Fixed various GCC 2.95 compile problems.
 
 2003-06-07 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Print error msg when user gives wrong diskimage on the cmd line

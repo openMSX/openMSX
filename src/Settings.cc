@@ -97,26 +97,30 @@ void FloatSetting::setRange(const float minValue, const float maxValue)
 	this->maxValue = maxValue;
 
 	// update the setting type to the new range
+	char rangeStr[12];
+	snprintf(rangeStr, 12, "%'.2f - %'.2f", minValue, maxValue);
+	type = string(rangeStr);
+	/* The following C++ style code doesn't work on GCC 2.95:
 	ostringstream out;
-	out << std::setprecision(2)
-		<< std::setiosflags(std::ios_base::fixed | std::ios_base::showpoint)
-		// clearer, but doesn't work on GCC 2.95:
-		// << std::fixed << std::showpoint
+	out << std::setprecision(2) << std::fixed << std::showpoint
 		<< minValue << " - " << maxValue;
 	type = out.str();
+	*/
 
 	if (value < minValue || value > maxValue) setValueFloat(value);
 }
 
 string FloatSetting::getValueString() const
 {
+	char rangeStr[5];
+	snprintf(rangeStr, 5, "%'.2f", value);
+	return string(rangeStr);
+	/* The following C++ style code doesn't work on GCC 2.95:
 	ostringstream out;
-	out << std::setprecision(2)
-		<< std::setiosflags(std::ios_base::fixed | std::ios_base::showpoint)
-		// clearer, but doesn't work on GCC 2.95:
-		// << std::fixed << std::showpoint
+	out << std::setprecision(2) << std::fixed << std::showpoint
 		<< value;
 	return out.str();
+	*/
 }
 
 void FloatSetting::setValueString(const string &valueString)
