@@ -46,7 +46,11 @@ void SETetrisDongle::write(byte value, const EmuTime& /*time*/)
 {
 	//Original device used 4 NOR ports
 	//pin4 will be value of pin7
-	status = (value & 2) ? JOY_RIGHT : 0;
+	if (value & 2) {
+		status |= JOY_RIGHT;
+	} else {
+		status &= ~JOY_RIGHT;
+	}
 }
 
 } // namespace openmsx
