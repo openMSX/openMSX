@@ -108,13 +108,13 @@ PixelRenderer::PixelRenderer(RendererFactory::RendererID id, VDP *vdp)
 	vram = vdp->getVRAM();
 	spriteChecker = vdp->getSpriteChecker();
 
+	curFrameSkip = 0;
 	frameSkipShortAvg = 5.0;
 	frameSkipLongAvg  = 100.0;
 	frameSkipDelay = 0;
 	while (!buffer.isFull()) {
 		buffer.addFront(1.0);
 	}
-
 }
 
 PixelRenderer::~PixelRenderer()
