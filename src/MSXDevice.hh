@@ -13,6 +13,12 @@
 class EmuTime;
 
 
+/** An MSXDevice is an emulated hardware component connected to the bus
+  * of the emulated MSX (located in MSXMotherBoard). There is no
+  * communication among devices, only between devices and the CPU.
+  * MSXMemDevice contains the interface for memory mapped communication.
+  * MSXIODevice contains the interface for I/O mapped communication.
+  */
 class MSXDevice
 {
 	public:
@@ -27,69 +33,48 @@ class MSXDevice
 		 * re-implementation should also call this method).
 		 */
 		virtual void reset(const EmuTime &time);
-		
-		
+
+
 		/**
 		 * Save all state-information for this device
 		 * Default implementation does nothing (nothing needs to be saved).
 		 *
-		 * Note: save mechanisme not implemented yet
+		 * Note: save mechanism not implemented yet
 		 */
 		virtual void saveState(std::ofstream &writestream);
 
 		/**
 		 * Restore all state-information for this device
 		 * Default implementation does nothing (nothing needs to be restored).
-		 * 
-		 * Note: save mechanisme not implemented yet
+		 *
+		 * Note: save mechanism not implemented yet
 		 */
 		virtual void restoreState(std::string &devicestring, std::ifstream &readstream);
-		
-		
+
+
 		/**
 		 * Returns a human-readable name for this device. The name is set
-		 * in the setConfigDevice() method. This method is mostly used to 
+		 * in the setConfigDevice() method. This method is mostly used to
 		 * print debug info.
 		 * Default implementation is normally ok.
 		 */
 		virtual const std::string &getName();
 
 	protected:
-		/**
-		 * Every MSXDevice has an entry in the config file, this
-		 * constructor fills in some config-related variables
-		 * All subclasses must call this super-constructor.
-		 * The devices are instantiated in a random order, so you
-		 * can't relay on other devices already being instantiated, 
-		 * if you need this you have to use the init() method.
-		 * A MSXDevice gets constructed at a certain time.
-		 */
+		/** Every MSXDevice has a config entry; this constructor gets
+		  * some device properties from that config entry.
+		  * All subclasses must call this super-constructor.
+		  * @param config config entry for this device.
+		  * @param time the moment in emulated time this MSXDevice is
+		  *   created (typically at time zero: power-up).
+		  */
 		MSXDevice(MSXConfig::Device *config, const EmuTime &time);
-		
-		/*
-		 * Only execption is the DummyDevice, this has no config-entry
-		 */
+
+		/** Superclass constructor for DummyDevice, which is the only
+		  * device that has no config entry.
+		  * It has no sense of time either.
+		  */
 		MSXDevice();
-		
-		/**
-		 * To ease the burden of keeping IRQ state.
-		 * This function raises an interrupt if this device does not
-		 * already have an active interrupt line.
-		 * Note: this is only a helper function
-		 */
-		void setInterrupt();
-		/**
-		 * To ease the burden of keeping IRQ state.
-		 * This function lowers this device its interrupt line if it
-		 * was active.
-		 * Note: this is only a helper function
-		 */
-		void resetInterrupt();
-		/**
-		 * The current state of this device its interrupt line
-		 *  true -> active   false -> not active
-		 */
-		bool isIRQset;
 
 		MSXConfig::Device *deviceConfig;
 		const std::string* deviceName;

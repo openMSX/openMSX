@@ -1,5 +1,5 @@
 // $Id$
- 
+
 #include "MSXDevice.hh"
 #include "MSXMotherBoard.hh"
 
@@ -21,13 +21,11 @@ MSXDevice::MSXDevice()
 MSXDevice::~MSXDevice()
 {
 	//PRT_DEBUG("Destructing an MSXDevice object");
-	resetInterrupt();
 }
 
 void MSXDevice::reset(const EmuTime &time)
 {
 	PRT_DEBUG ("Resetting " << getName());
-	resetInterrupt();
 }
 
 
@@ -52,22 +50,3 @@ const std::string &MSXDevice::getName()
 }
 const std::string MSXDevice::defaultName = "no name";
 
-
-// Helper functions 
-
-void MSXDevice::setInterrupt()
-{
-	if (isIRQset==false) {
-		isIRQset = true;
-		PRT_DEBUG ("Actually seting interupt line of " << getName());
-		MSXMotherBoard::instance()->raiseIRQ();
-	}
-}
-void MSXDevice::resetInterrupt()
-{
-	if (isIRQset==true) {
-		isIRQset = false;
-		PRT_DEBUG ("Actually resseting interupt line of " << getName());
-		MSXMotherBoard::instance()->lowerIRQ();
-	}
-}
