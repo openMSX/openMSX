@@ -12,6 +12,8 @@ $Id$
 	  - Print exceptions thrown in emulation thread.
 	* Minor bug fix on video init attempts in RendererFactories.
 	* Merged Reikan's configure.ac improvements.
+	* Fixed magnified sprites in sprite mode 2.
+	  Glitches in Eindeloos are gone.
 
 2003-05-03 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Trojka starts playing ADPCM samples without initializing the

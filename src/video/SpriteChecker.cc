@@ -54,14 +54,13 @@ inline SpriteChecker::SpritePattern SpriteChecker::calculatePattern(
 	// Note: For sprite pattern, mask and index never overlap.
 	const byte *patternPtr = vram->spritePatternTable.readArea(
 		planar ? 0x0FC00 : 0x1F800 );
-	if (vdp->getSpriteMag()) y /= 2;
 	int index = patternNr * 8 + y;
 	if (planar) index = ((index << 16) | (index >> 1)) & 0x1FFFF;
 	SpritePattern pattern = patternPtr[index] << 24;
 	if (vdp->getSpriteSize() == 16) {
 		pattern |= patternPtr[index + (planar ? 8 : 16)] << 16;
 	}
-	return (vdp->getSpriteMag() ? doublePattern(pattern) : pattern);
+	return vdp->getSpriteMag() == 1 ? pattern : doublePattern(pattern);
 }
 
 // TODO: Integrate with calculatePattern.
@@ -70,13 +69,12 @@ inline SpriteChecker::SpritePattern SpriteChecker::calculatePatternNP(
 {
 	// Note: For sprite pattern, mask and index never overlap.
 	const byte *patternPtr = vram->spritePatternTable.readArea(-1 << 11);
-	if (vdp->getSpriteMag()) y /= 2;
 	int index = patternNr * 8 + y;
 	SpritePattern pattern = patternPtr[index] << 24;
 	if (vdp->getSpriteSize() == 16) {
 		pattern |= patternPtr[index + 16] << 16;
 	}
-	return (vdp->getSpriteMag() ? doublePattern(pattern) : pattern);
+	return vdp->getSpriteMag() == 1 ? pattern : doublePattern(pattern);
 }
 
 inline int SpriteChecker::checkSprites1(
@@ -93,15 +91,15 @@ inline int SpriteChecker::checkSprites1(
 	bool limitSprites = limitSpritesSetting->getValue();
 	int sprite, visibleIndex = 0;
 	int size = vdp->getSpriteSize();
-	int magSize = size * (vdp->getSpriteMag() + 1);
+	int mag = vdp->getSpriteMag();
 	const byte *attributePtr = vram->spriteAttribTable.readArea(-1 << 7);
 	byte patternIndexMask = size == 16 ? 0xFC : 0xFF;
 	for (sprite = 0; sprite < 32; sprite++, attributePtr += 4) {
 		int y = *attributePtr;
 		if (y == 208) break;
 		// Calculate line number within the sprite.
-		int spriteLine = (line - y) & 0xFF;
-		if (spriteLine < magSize) {
+		int spriteLine = ((line - y) & 0xFF) / mag;
+		if (spriteLine < size) {
 			if (visibleIndex == 4) {
 				// Five sprites on a line.
 				// According to TMS9918.pdf 5th sprite detection is only
@@ -143,6 +141,7 @@ inline int SpriteChecker::checkSprites1(
 	but there are max 4 sprites and therefore max 6 pairs.
 	If any collision is found, method returns at once.
 	*/
+	int magSize = size * mag;
 	for (int i = (visibleIndex < 4 ? visibleIndex : 4); --i >= 1; ) {
 		int x_i = visibleSprites[i].x;
 		SpritePattern pattern_i = visibleSprites[i].pattern;
@@ -187,7 +186,7 @@ inline int SpriteChecker::checkSprites2(
 	bool limitSprites = limitSpritesSetting->getValue();
 	int sprite, visibleIndex = 0;
 	int size = vdp->getSpriteSize();
-	int magSize = size * (vdp->getSpriteMag() + 1);
+	int mag = vdp->getSpriteMag();
 	// TODO: Should masks be applied while processing the tables?
 	//       For attribute, no (7 bits index), for
 	// Bit9 is set for attribute table, reset for colour table.
@@ -202,8 +201,8 @@ inline int SpriteChecker::checkSprites2(
 		int y = attributePtr[0];
 		if (y == 216) break;
 		// Calculate line number within the sprite.
-		int spriteLine = (line - y) & 0xFF;
-		if (spriteLine < magSize) {
+		int spriteLine = ((line - y) & 0xFF) / mag;
+		if (spriteLine < size) {
 			if (visibleIndex == 8) {
 				// Nine sprites on a line.
 				// According to TMS9918.pdf 5th sprite detection is only
@@ -255,6 +254,7 @@ inline int SpriteChecker::checkSprites2(
 	        Probably new approach is needed anyway for OR-ing.
 	If any collision is found, method returns at once.
 	*/
+	int magSize = size * mag;
 	for (int i = (visibleIndex < 8 ? visibleIndex : 8); --i >= 1; ) {
 		// If CC or IC is set, this sprite cannot collide.
 		if (visibleSprites[i].colourAttrib & 0x60) continue;
