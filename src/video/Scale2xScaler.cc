@@ -34,7 +34,8 @@ void Scale2xScaler<Pixel>::scaleLine256Half(
 	const Pixel* src0, const Pixel* src1, const Pixel* src2,
 	int count
 ) {
-	assert(count >= 2);
+	count -= 2;
+	assert(count >= 0);
 
 	// First pixel.
 	Pixel left = src1[0];
@@ -44,10 +45,9 @@ void Scale2xScaler<Pixel>::scaleLine256Half(
 	src1++;
 	src2++;
 	dst += 2;
-	count--;
 
 	// Central pixels.
-	while (count) {
+	for (; count; count--) {
 		Pixel top = src0[0];
 		Pixel mid = src1[0];
 		dst[0] =
@@ -58,7 +58,6 @@ void Scale2xScaler<Pixel>::scaleLine256Half(
 		src1++;
 		src2++;
 		dst += 2;
-		count--;
 		left = mid;
 	}
 
