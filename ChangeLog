@@ -1,6 +1,14 @@
 $Id$
 
-2002-03-02 Maarten ter Huurne <mth@stack.nl>
+2002-03-05 Joost Yervante Damad <andete@worldcity.nl>
+	* simplified auto* support for openGL
+	  see src/config.h after running autogen.sh
+	  to see which vars to use. For now it searches
+	  for <gl.h> or <GL/gl.h> and for -lGL
+	  This should allow easy conditional compile
+	  of SDLGLRenderer.
+
+2002-03-04 Maarten ter Huurne <mth@stack.nl>
 	* Added SDLGLRenderer (work in progress).
 	* Added nms8250.xml to distributed files.
 	* Fixed compile warnings in VDPCmdEngine.

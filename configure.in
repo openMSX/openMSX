@@ -47,7 +47,8 @@ dnl CXXFLAGS="$CXXFLAGS $XML_CFLAGS"
 dnl LIBS="$XML_LIBS $LIBS"
 
 dnl openGL
-MDL_HAVE_OPENGL
+AC_CHECK_HEADERS(gl.h GL/gl.h, break)
+AC_CHECK_LIB(GL, glBegin)
 
 dnl libxml++
 dnl AM_LIBXMLPP
