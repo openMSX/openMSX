@@ -48,3 +48,7 @@ a.external:active {
 	color: #8080FF;
 	background-color: white;
 }
+
+th {
+	text-align: left;
+}

@@ -70,8 +70,17 @@
 	</li>
 
 	<li><a class="internal" href="#midi">6. MIDI</a></li>
-
-	<li><a class="internal" href="#contact">7. Contact Info</a></li>
+	
+	<li><a class="internal" href="#debugdevice">7. Debug Device</a>
+		<ol class="toc">
+			<li><a class="internal" href="#debugdeviceenable">7.1. Enabling the Debug Device</a></li>
+			<li><a class="internal" href="#debugdeviceports">7.2. The Output Ports</a></li>
+			<li><a class="internal" href="#debugdevicemode1">7.3. Single Byte Mode</a></li>
+			<li><a class="internal" href="#debugdevicemode2">7.4. Multi Byte Mode</a></li>
+			<li><a class="internal" href="#debugdeviceoutput">7.5. Controlling the Output</a></li>
+		</ol>
+	</li>
+	<li><a class="internal" href="#contact">8. Contact Info</a></li>
 </ol>
 
 
@@ -250,11 +259,11 @@ You can reset your MSX with the Console command <code>reset</code> and quit open
 
 <p>
 An interesting console command is <code>set</code>. You can use it to change the various
-settings. E.g., you can use it to set the renderer that is to be used. If you use it without parameters, you will get a list of settings. If you issue set with only the setting (like <code>set renderer</code>, you will get the current value of that setting.
+settings. E.g., you can use it to set the renderer that is to be used. If you use it without parameters, you will get a list of settings. If you issue set with only the setting (like <code>set renderer</code>), you will get the current value of that setting.
 Settings that have only two possible values can also be toggled with the <code>toggle</code>
 command (an example is the default key binding of Print Screen to <code>toggle
 fullscreen</code>, see also below). A complete list of settings should also be in the file
-<code>commands.txt</code> in the doc directory. Note that using the "tab completion" feature can help you a lot in getting an idea of what settings are possible, as it will only complete possible options. Just try that.
+<code>commands.txt</code> in the <code>doc</code> directory. Note that using the "tab completion" feature can help you a lot in getting an idea of what settings are possible, as it will only complete possible options. Just try that.
 </p>
 <!--
 <p class="todo">
@@ -306,7 +315,7 @@ steady CPU time consumption. The CPU load can be quite high though. It is about
 
 <p>
 A very good alternative for the SDLHi renderer is called SDLGL.
-This renderer uses the OpenGL graphics library to optimize the rendering.
+This renderer uses the OpenGL graphics library to optimise the rendering.
 Because part of the rendering is done by the graphics hardware,
 the CPU load can vary a lot.
 The SDLGL renderer is only useful if you have a hardware accelerated
@@ -555,14 +564,20 @@ The keys that do not map MSX keys, can be changed in the <code>settings.xml</cod
 
 <h3><a id="joystick">5.2. Joystick</a></h3>
 
+<p>If you have a joystick connected to your PC, use the following to connect it to the emulated MSX:
+</p>
+<div class="commandline">
+    plug joyporta joystick1
+</div>
+
 <p>
-To connect a fake joystick (emulated with the arrow keys), you can use the <code>plug</code> command:
+To connect a fake joystick (emulated with the arrow keys), you can use this <code>plug</code> command:
 </p>
 <div class="commandline">
     plug joyporta keyjoystick
 </div>
 <p>
-will connect a fake joystick to joystick port A. Button A of the joystick is mapped to the space bar and Button B to Left-Alt (GRAPH). For now there can be only one keyjoystick. Note that it only works if it is configured in <code>settings.xml</code>. This is of course done in the settings file that comes with openMSX. Feel free to change the configuration there.
+will connect a fake joystick to joystick port A. Button A of the joystick is mapped to the space bar and Button B to Left-Alt (GRAPH), when using the default configuration. For now there can be only one keyjoystick. Note that it only works if it is configured in <code>settings.xml</code>. This is of course done in the settings file that comes with openMSX. Feel free to change the configuration there.
 </p>
 
 <h3><a id="mouse">5.3. Mouse</a></h3>
@@ -597,11 +612,201 @@ Because there is no timing information logged, this is not very useful yet.
 It's more interesting to connect MSX-MIDI to an actual PC MIDI device,
 such as a MIDI out port or the internal synthesizer of your sound card.
 On Linux, you can use the <code>midi-out-logger</code> and set a MIDI
-device node, for example <code>/dev/midi</code>, as its output file.
-On Windows, real MIDI devices are separate pluggables.
+device node, for example <code>/dev/midi</code>, as its output file. This is done by default. To play with this setting, use <code>set midi-out-logfilename</code>.
+On Windows, real MIDI devices are separate pluggables. 
 </p>
 
-<h2><a id="contact">7. Contact Info</a></h2>
+<h2><a id="debugdevice">7. Debug Device</a></h2>
+
+<p>
+This document describes how the debug device, built in openMSX, can be used to
+the advantage of an MSX programmer. This device is an artificial MSX device that is connected to an MSX I/O port. It can be used to send debug messages to the host operating system.
+</p>
+
+
+<h3><a id="debugdeviceenable">7.1. Enabling the Debug Device</a></h3>
+
+<p>
+The easiest way to enable the debugdevice is to start openMSX with the
+debugdevice extension. To do this, simply add <code>-ext debugdevice</code> to the
+openMSX command line.
+</p>
+
+<p>
+Another way to make the device work is to add it to the <code>hardwareconfig.xml</code> from
+the machine that is used. If, for example, the device has to be used on the
+Philips NMS 8250, the following lines can be added to the <code>hardwareconfig.xml</code>
+file in the <code>share/machines/Philips_NMS_8250</code> directory.
+</p>
+<pre>
+&lt;device id="DebugDevice"&gt; 
+  &lt;type&gt;DebugDevice&lt;/type&gt; 
+  &lt;parameter name="filename"&gt;~/debugout.txt&lt;/parameter&gt;
+&lt;/device&gt;
+</pre>
+
+<p>
+The third line is optional and can specify any filename you
+like, including <code>stdout</code>.
+</p>
+
+
+<h3><a id="debugdeviceports">7.2. The Output Ports</a></h3>
+
+<p>
+Controlling the device is done from within an MSX program. For this purpose, the
+output ports 0x2E and 0x2F are used. The first port is the Mode Set Register. Bytes sent to this port have the following meaning.
+</p>
+<table>
+  <tr> <th>bit(s)</th><th>meaning</th> </tr>
+  <tr> <td>6-7</td> <td> unused </td> </tr>
+  <tr> <td>4-5</td> <td> output mode (0 = OFF, 1 = single byte, 2 = multi byte)</td> </tr> 
+  <tr> <td>0-3</td> <td> parameters for mode 1 (see below)</td> </tr>
+  <tr> <td>0-1</td> <td> parameters for mode 2 (see below)</td> </tr>
+</table>
+
+<p>
+When using mode 1, single byte mode, these are the parameters:
+</p>
+<table>
+  <tr> <th>bit(s)</th><th>meaning</th> </tr>
+  <tr> <td>0</td> <td>  hexadecimal mode on/off </td> </tr>
+  <tr> <td>1</td> <td>  binary mode on/off</td> </tr>
+  <tr> <td>2</td> <td>  decimal mode on/off</td> </tr>
+  <tr> <td>3</td> <td>  ascii mode on/off</td> </tr>
+</table>
+
+<p>
+The parameters for mode 2 (multibyte mode) are as follows:
+</p>
+<table>
+  <tr> <th>bit(s)</th><th>meaning</th> </tr>
+  <tr> <td>0-1</td> <td> mode (0 = hex, 1 = binary, 2 = decimal, 3 = ascii mode)</td> </tr>
+</table>
+
+<h3><a id="debugdevicemode1">7.3. Single Byte Mode</a></h3>
+
+<p>
+In mode 1, any write to port 0x2F will result in output. This way, the
+programmer can see if a specific address is reached by adding a single <code>OUT</code> to
+the code. The output depends on the parameters set with the mode register. Each
+bit represents a specific format, and by turning the bits on and off, the
+programmer can decide which formats should be used.
+</p>
+
+<p>
+Here is an example:
+</p>
+<pre>
+LD  A,65
+OUT ($2f),A
+</pre>
+
+<p>
+This will give the following output:
+</p>
+
+<p>
+<code>41h 01000001b 065 'A' EmuTime:087a09c75a</code><br/>
+(when all bits are on, mode register = 0x1F)
+</p>
+<p>
+or
+</p>
+<p>
+<code>41h 065 'A' EmuTime: 087a09c75a</code><br/>
+(when the binary bit is off, mode register = 0x1D)
+</p>
+<p>
+or
+</p>
+<p>
+<code>41h EmuTime: 087a09c75a</code><br/>
+(when only the hexbit is on, mode register = 0x11)
+</p>
+<p>
+and so on.
+</p>
+
+<p>
+The EmuTime part is a special number that keeps track of the openMSX emulation.
+The larger this number is, the later the event took place. This is a great way
+to find out in what order things are called. 
+</p>
+<p>
+If the character to print is a special character, like carriage return,
+linefeed, beep or tab, the character between the ' ' will be a dot (.) and the
+normal character is 'displayed' at the very and of the line, so it won't mess up
+the layout of the whole line.
+</p>
+
+
+<h3><a id="debugdevicemode2">7.4. Multi Byte Mode</a></h3>
+
+<p>
+In mode 2, writing to 0x2F does not output any text. All bytes written to this
+register are stored in a buffer and only when the mode register is set again the
+output is shown. Unlike mode 1, the data in this mode is always shown in one
+mode only. It's either in hexmode, binary mode, decimal mode or ascii mode, but
+never a combination. Also the EmuTime bit is left out.
+</p>
+
+<p>
+Here is an example:
+</p>
+<pre>
+LD  A,xx
+OUT ($2e),A
+LD  A,$41
+OUT ($2f),A
+OUT ($2f),A
+OUT ($2f),A
+LD  A,xx
+OUT ($2e),A	
+</pre>
+<p>
+Only at this last instruction the output appears.
+</p>
+
+<p>
+If we substitute <code>$20</code> for <code>xx</code>, we get:
+</p>
+
+<p>
+<code>41h 41h 41h</code>
+</p>
+
+<p>
+and if we substitute <code>$22</code> for <code>xx</code>, we get:
+</p>
+
+<p>
+<code>065 065 065</code>
+</p>
+
+<p>
+The extra zero is added to keep alignment.  Finally, if we want ASCII
+output, all we need to do is change <code>xx</code> for <code>$23</code>:
+</p>
+
+<p>
+<code>AAA</code>
+</p>
+
+<p>
+In this special case, the space in between the data is left out. Any special
+character like carriage return, linefeed, beep or tab will be printed as can be
+expected.
+</p>
+
+<h3><a id="debugdeviceoutput">7.5. Controlling the Output</a></h3>
+
+<p>
+The openMSX console can be used to control the output of the device. This is
+done by the setting <code>debugoutput</code>. You can set it to any file name or to the special settings <code>stdout</code> and <code>stderr</code>, which lets the output go to these special streams.
+</p>
+
+<h2><a id="contact">8. Contact Info</a></h2>
 
 <p>
 Since openMSX is still in heavy development, feedback and bug reports are very

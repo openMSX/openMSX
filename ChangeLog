@@ -1,5 +1,9 @@
 $Id$
 
+2003-09-30 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added the Debug Device to the User's Manual
+	* Small additions, fixes and clean ups in the User's Manual
+
 2003-09-27 Maarten ter Huurne <maarten@treewalker.org>
 	* Released openmsx-0.3.3.
 
