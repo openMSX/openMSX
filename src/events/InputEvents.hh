@@ -142,6 +142,17 @@ private:
 	short value;
 };
 
+class FocusEvent : public Event
+{
+public:
+	FocusEvent(bool gain_)
+		: Event(FOCUS_EVENT), gain(gain_) {}
+
+	bool getGain() const { return gain; }
+	
+private:
+	bool gain;
+};
 
 class QuitEvent : public Event
 {

@@ -4,8 +4,12 @@
 #include "openmsx.hh"
 #include "InputEventGenerator.hh"
 #include "EventDistributor.hh"
+#include "CommandController.hh"
 #include "InputEvents.hh"
 #include "BooleanSetting.hh"
+
+using std::string;
+using std::vector;
 
 namespace openmsx {
 
@@ -13,16 +17,24 @@ InputEventGenerator::InputEventGenerator()
 	: grabInput(new BooleanSetting("grabinput",
 		"This setting controls if openmsx takes over mouse and keyboard input",
 		false))
+	, escapeGrabCmd(*this)
 	, keyRepeat(false)
 	, distributor(EventDistributor::instance())
 {
-	setGrabInput();
+	setGrabInput(grabInput->getValue());
 	grabInput->addListener(this);
+	distributor.registerEventListener(FOCUS_EVENT, *this,
+	                                  EventDistributor::NATIVE);
+	CommandController::instance().registerCommand(&escapeGrabCmd, "escape_grab");
+
 	reinit();
 }
 
 InputEventGenerator::~InputEventGenerator()
 {
+	CommandController::instance().unregisterCommand(&escapeGrabCmd, "escape_grab");
+	distributor.unregisterEventListener(FOCUS_EVENT, *this,
+	                                  EventDistributor::NATIVE);
 	grabInput->removeListener(this);
 }
 
@@ -162,10 +174,15 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		break;
 	}
 	      
-	case SDL_QUIT: {
-		Event* event = new QuitEvent();
+	case SDL_ACTIVEEVENT: {
+		Event* event = new FocusEvent(evt.active.gain);
 		distributor.distributeEvent(event);
+		break;
 	}
+	
+	case SDL_QUIT:
+		distributor.distributeEvent(new QuitEvent());
+		break;
 
 	default:
 		break;
@@ -176,12 +193,59 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 void InputEventGenerator::update(const Setting* setting)
 {
 	assert(setting == grabInput.get());
-	setGrabInput();
+	escapeGrabState = ESCAPE_GRAB_WAIT_CMD;
+	setGrabInput(grabInput->getValue());
 }
 
-void InputEventGenerator::setGrabInput()
+bool InputEventGenerator::signalEvent(const Event& event)
 {
-	SDL_WM_GrabInput(grabInput->getValue() ? SDL_GRAB_ON : SDL_GRAB_OFF);
+	assert(event.getType() == FOCUS_EVENT);
+
+	const FocusEvent& focusEvent = static_cast<const FocusEvent&>(event);
+	switch (escapeGrabState) {
+		case ESCAPE_GRAB_WAIT_CMD:
+			// nothing
+			break;
+		case ESCAPE_GRAB_WAIT_LOST:
+			if (focusEvent.getGain() == false) {
+				escapeGrabState = ESCAPE_GRAB_WAIT_GAIN;
+			}
+			break;
+		case ESCAPE_GRAB_WAIT_GAIN:
+			if (focusEvent.getGain() == true) {
+				escapeGrabState = ESCAPE_GRAB_WAIT_CMD;
+			}
+			setGrabInput(true);
+			break;
+		default:
+			assert(false);
+	}
+	return true;
+}
+
+void InputEventGenerator::setGrabInput(bool grab)
+{
+	SDL_WM_GrabInput(grab ? SDL_GRAB_ON : SDL_GRAB_OFF);
+}
+
+// class EscapeGrabCmd
+InputEventGenerator::EscapeGrabCmd::EscapeGrabCmd(InputEventGenerator& parent_)
+	: parent(parent_)
+{
+}
+
+string InputEventGenerator::EscapeGrabCmd::execute(const vector<string>& tokens)
+{
+	if (parent.grabInput->getValue()) {
+		parent.escapeGrabState = ESCAPE_GRAB_WAIT_LOST;
+		parent.setGrabInput(false);
+	}
+	return "";
+}
+
+string InputEventGenerator::EscapeGrabCmd::help(const vector<string>& tokens) const
+{
+	return "Temporarily release input grab.";
 }
 
 } // namespace openmsx

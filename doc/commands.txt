@@ -104,6 +104,17 @@ diska / diskb
     diska eject         remove disk from virtual drive "diska"
 
 
+escape_grab
+-----------
+
+  Only has effect in windowed mode and when the 'grabinput' setting is active.
+  Temporarily release the input grab. When window has lost and regained the
+  focus the grab is again effective.
+
+  usage:
+    escape_grab  temporarily release the input grab
+
+
 help
 ----
 

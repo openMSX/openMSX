@@ -8,6 +8,7 @@ $Id$
 	* Implemented "load_settings" command:
 	    only the settings / keybindings / keyjoystick that are mentioned
 	    in the new settings file are changed, the rest stays unchanged
+	* Implemented "escape_grab" command
 
 2005-01-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Various small cleanups:
