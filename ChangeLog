@@ -1,13 +1,15 @@
 $Id$
-2003-05-11 Herman Oudejans <hn.oudejans@quicknet.nl>
-	* SDL backgroundimage can now have any pixelformat.
-	* SDL Console characters are no longer blended.
+
+2003-05-11 Maarten ter Huurne <maarten@treewalker.org>
+	* Fixed colour of font on GLConsole overlayed on Text1 mode.
 
 2003-05-11 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Fixed segfault in the SDL background scaling when using 8bpp.
-	  tested and working in 15,16 and 24 bpp. in 8 bpp it doesn't 
+	  tested and working in 15,16 and 24 bpp. in 8 bpp it doesn't
 	  give a segfault, but since the whole display isn't working, I
 	  can't see if the scaling really works.
+	* SDL backgroundimage can now have any pixelformat.
+	* SDL Console characters are no longer blended.
 
 2003-05-10 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Fixed wrong initial default size of the console.

@@ -16,9 +16,9 @@
 GLConsole::GLConsole()
 {
 	console = Console::instance();
-	fontSetting = new FontSetting(this, fontName);	
+	fontSetting = new FontSetting(this, fontName);
 	initConsoleSize();
-	
+
 	SDL_Rect rect;
 	OSDConsoleRenderer::updateConsoleRect(rect);
 	dispX = rect.x;
@@ -147,8 +147,7 @@ void GLConsole::drawConsole()
 	if (!console->isVisible()) {
 		return;
 	}
-	
-	
+
 	glPushAttrib(GL_ENABLE_BIT);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
@@ -156,9 +155,9 @@ void GLConsole::drawConsole()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	SDL_Surface *screen = SDL_GetVideoSurface();
-	
+
 	updateConsoleRect(screen);
-	
+
 	glViewport(0, 0, screen->w, screen->h);
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
@@ -190,6 +189,7 @@ void GLConsole::drawConsole()
 	glEnd();
 
 	glEnable(GL_TEXTURE_2D);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	int screenlines = consoleHeight / font->getHeight();
 	for (int loop = 0; loop < screenlines; loop++) {
 		int num = loop + console->getScrollBack();
@@ -198,7 +198,7 @@ void GLConsole::drawConsole()
 		               consoleHeight - (1 + loop) * font->getHeight());
 		glPopMatrix();
 	}
-	
+
 	// Check if the blink period is over
 	if (SDL_GetTicks() > lastBlinkTime) {
 		lastBlinkTime = SDL_GetTicks() + BLINK_RATE;
@@ -208,18 +208,18 @@ void GLConsole::drawConsole()
 	if (cursorLocation != lastCursorPosition){
 		blink=true; // force cursor
 		lastBlinkTime=SDL_GetTicks() + BLINK_RATE; // maximum time
-		lastCursorPosition=cursorLocation;	
+		lastCursorPosition=cursorLocation;
 	}
 	if (console->getScrollBack() == 0) {
 		if (blink) {
 			// Print cursor if there is enough room
-			font->drawText(std::string("_"), 
+			font->drawText(std::string("_"),
 			      CHAR_BORDER + cursorLocation * font->getWidth(),
 			      consoleHeight - font->getHeight());
-			
+
 		}
 	}
-	
+
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
 	glMatrixMode(GL_PROJECTION);
