@@ -39,6 +39,11 @@ class Mixer
 		 * updateBuffer() methods. 
 		 */
 		void updateStream(const Emutime &time);
+
+		/**
+		 * This method pauses the sound
+		 */
+		void pause(bool status);
 		
 	private:
 		Mixer();

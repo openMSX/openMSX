@@ -5,6 +5,7 @@ $Id$
 	* updated KeyClick, the "click too short" problem should be solved now
 	  KeyClick now uses a DACSound object to play sound, playing samples
 	  on KeyClick should also be possible now (untested)
+	* pause sound while pause emulation
 
 2001-10-25 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* SoundDevices can now mute themselves, mixer doesn't ask

@@ -4,6 +4,7 @@
 #include "MSXMotherBoard.hh"
 #include "MSXCPU.hh"
 #include "HotKey.hh"
+#include "Mixer.hh"
 #include <cassert>
 
 
@@ -108,11 +109,13 @@ void Scheduler::signalEvent(SDL_Event &event) {
 		// unpause
 		paused = false;
 		SDL_mutexV(pauseMutex);	// release mutex;
+		Mixer::instance()->pause(false);
 		PRT_DEBUG("Unpaused");
 	} else {
 		// pause
 		paused = true;
 		SDL_mutexP(pauseMutex);	// grab mutex
+		Mixer::instance()->pause(true);
 		PRT_DEBUG("Paused");
 	}
 }

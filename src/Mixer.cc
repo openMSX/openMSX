@@ -129,3 +129,8 @@ void Mixer::updtStrm(int samples)
 	}
 	samplesLeft -= samples;
 }
+
+void Mixer::pause(bool status)
+{
+	SDL_PauseAudio(status);
+}
