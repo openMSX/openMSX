@@ -1,5 +1,12 @@
 $Id$
 
+2003-02-08 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed MSX-AUDIO mapper:
+	   - it has 4 pages of 32kB instead of only 2
+	   - it has 4kB RAM
+	   - is mirrored at 0x8000-0xffff
+	* Fixed Y8950 interrupt masks
+
 2003-02-02 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented Panasonic MSX-Audio mapper type (untested)
 

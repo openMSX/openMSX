@@ -150,6 +150,13 @@ MSXRom::MSXRom(Device *config, const EmuTime &time)
 		dac = NULL;
 	}
 
+	// MSX-AUDIO seems to have some RAM
+	if (mapperType == MSX_AUDIO) {
+		ram = new byte[0x1000];
+	} else {
+		ram = NULL;
+	}
+
 	// to emulate non-present memory
 	unmapped = new byte[0x8000];
 	memset(unmapped, 255, 0x8000);
@@ -188,6 +195,7 @@ MSXRom::~MSXRom()
 	delete dac;
 	delete cartridgeSCC;
 	delete sram;
+	delete[] ram;
 	delete[] unmapped;
 }
 
@@ -286,8 +294,9 @@ void MSXRom::reset(const EmuTime &time)
 		break;
 
 	case MSX_AUDIO:
-		setROM32kB(0, 0);
-		setBank32kB(1, unmapped);
+		setROM32kB(0, 0);	// TODO check this
+		setROM32kB(1, 0);
+		bankSelect[0] = 0;
 		break;
 
 	default:
@@ -398,6 +407,12 @@ byte MSXRom::readMem(word address, const EmuTime &time)
 		}
 		break;
 	
+	case MSX_AUDIO:
+		address &= 0x7FFF;
+		if ((bankSelect[0] == 0) && ((address & 0x3FFF) >= 0x3000)) {
+			return ram[(address & 0x3FFF) - 0x3000];
+		}
+
 	default:
 		// do nothing
 		break;
@@ -425,6 +440,12 @@ const byte* MSXRom::getReadCacheLine(word start) const
 			return NULL;
 		}
 		break;
+
+	case MSX_AUDIO:
+		start &= 0x7FFF;
+		if ((bankSelect[0] == 0) && ((start & 0x3FFF) >= 0x3000)) {
+			return &ram[(start & 0x3FFF) - 0x3000];
+		}
 
 	default:
 		// do nothing
@@ -753,8 +774,16 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 
 	case MSX_AUDIO:
 		// Panasonic MSX-AUDIO
+		address &= 0x7FFF;
 		if (address == 0x7FFE) {
-			setROM32kB(0, value & 1);
+			setROM32kB(0, value & 3);
+			setROM32kB(1, value & 3);
+			bankSelect[0] = value & 3;
+		}
+		address &= 0x3FFF;
+		if ((bankSelect[0] == 0) && (address >= 0x3000)) {
+			PRT_DEBUG("MSXAUDIO: write 0x"<<std::hex<<(int)address<<std::dec);
+			ram[address - 0x3000] = value;
 		}
 		break;
 

@@ -100,6 +100,8 @@ class MSXRom : public MSXMemDevice
 		byte control;
 		int bankSelect[8];
 		int sramAddr;
+
+		byte* ram;
 };
 
 #endif

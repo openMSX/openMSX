@@ -1147,7 +1147,8 @@ void Y8950::resetStatus(int flags)
 void Y8950::changeStatusMask(int newMask)
 {
 	statusMask = newMask;
-	if (status & statusMask) {
+	status &= statusMask;
+	if (status) {
 		status |= 0x80;
 		irq.set();
 	} else {
