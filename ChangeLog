@@ -4,6 +4,8 @@ $Id$
 	* Implemented Koei-8 and Koei-32 mapper types:
 	   based on BlueMSX v1.4.0
 	* "openmsx_info fps" now return 0 in when "renderer none" is active
+	* Fixed bug in min/max frameskip handling (happened for example when
+	  minframeskip == maxframeskip)
 
 2004-04-25 Eric Boon <e.boon4@chello.nl>
 	* Introduction of Gfx9000/V9990
