@@ -22,33 +22,33 @@ namespace openmsx {
 template class HQ2xScaler<word>;
 template class HQ2xScaler<unsigned int>;
 
-inline Pix16 HQ2xScaler<word>::readPixel(word *pIn) {
-	word pixel = *pIn;
+template <class Pixel>
+inline Pix16 HQ2xScaler<Pixel>::readPixel(Pixel *pIn) {
 	// TODO: Use surface info instead.
-	return pixel;
+	if (typeid(Pixel) == typeid(word)) {
+		word pixel = *pIn;
+		return pixel;
+	} else {
+		unsigned int pixel = *pIn;
+		int r = (pixel & 0xFF0000) >> (16 + 8 - 5);
+		int g = (pixel & 0x00FF00) >> (8 + 8 - 6);
+		int b = (pixel & 0x0000FF) >> (8 - 5);
+		return (Pix16)((r << 11) | (g << 5) | b);
+	}
 }
 
-inline Pix16 HQ2xScaler<unsigned int>::readPixel(unsigned int* pIn) {
-	unsigned int pixel = *pIn;
-	// TODO: Use surface info instead.
-	int r = (pixel & 0xFF0000) >> (16 + 8 - 5);
-	int g = (pixel & 0x00FF00) >> (8 + 8 - 6);
-	int b = (pixel & 0x0000FF) >> (8 - 5);
-	return (Pix16)((r << 11) | (g << 5) | b);
-}
-
-inline void HQ2xScaler<word>::pset(word* pOut, Pix32 colour)
+template <class Pixel>
+inline void HQ2xScaler<Pixel>::pset(Pixel* pOut, Pix32 colour)
 {
 	// TODO: Use surface info instead.
-	int r = (colour & 0xFF0000) >> (16 + 8 - 5);
-	int g = (colour & 0x00FF00) >> (8 + 8 - 6);
-	int b = (colour & 0x0000FF) >> (8 - 5);
-	*pOut = (word)((r << 11) | (g << 5) | b);
-}
-
-inline void HQ2xScaler<unsigned int>::pset(unsigned int* pOut, Pix32 colour)
-{
-	*pOut = colour;
+	if (typeid(Pixel) == typeid(word)) {
+		int r = (colour & 0xFF0000) >> (16 + 8 - 5);
+		int g = (colour & 0x00FF00) >> (8 + 8 - 6);
+		int b = (colour & 0x0000FF) >> (8 - 5);
+		*pOut = (word)((r << 11) | (g << 5) | b);
+	} else {
+		*pOut = colour;
+	}
 }
 
 template <class Pixel>
@@ -265,2647 +265,1393 @@ void HQ2xScaler<Pixel>::scaleLine256(
 			c[k] = LUT16to32[w[k]];
 		}
 
-      switch (pattern) {
-        case 0:
-        case 1:
-        case 4:
-        case 32:
-        case 128:
-        case 5:
-        case 132:
-        case 160:
-        case 33:
-        case 129:
-        case 36:
-        case 133:
-        case 164:
-        case 161:
-        case 37:
-        case 165:
-        {
-          PIXEL00_20
-          PIXEL01_20
-          PIXEL10_20
-          PIXEL11_20
-          break;
-        }
-        case 2:
-        case 34:
-        case 130:
-        case 162:
-        {
-          PIXEL00_22
-          PIXEL01_21
-          PIXEL10_20
-          PIXEL11_20
-          break;
-        }
-        case 16:
-        case 17:
-        case 48:
-        case 49:
-        {
-          PIXEL00_20
-          PIXEL01_22
-          PIXEL10_20
-          PIXEL11_21
-          break;
-        }
-        case 64:
-        case 65:
-        case 68:
-        case 69:
-        {
-          PIXEL00_20
-          PIXEL01_20
-          PIXEL10_21
-          PIXEL11_22
-          break;
-        }
-        case 8:
-        case 12:
-        case 136:
-        case 140:
-        {
-          PIXEL00_21
-          PIXEL01_20
-          PIXEL10_22
-          PIXEL11_20
-          break;
-        }
-        case 3:
-        case 35:
-        case 131:
-        case 163:
-        {
-          PIXEL00_11
-          PIXEL01_21
-          PIXEL10_20
-          PIXEL11_20
-          break;
-        }
-        case 6:
-        case 38:
-        case 134:
-        case 166:
-        {
-          PIXEL00_22
-          PIXEL01_12
-          PIXEL10_20
-          PIXEL11_20
-          break;
-        }
-        case 20:
-        case 21:
-        case 52:
-        case 53:
-        {
-          PIXEL00_20
-          PIXEL01_11
-          PIXEL10_20
-          PIXEL11_21
-          break;
-        }
-        case 144:
-        case 145:
-        case 176:
-        case 177:
-        {
-          PIXEL00_20
-          PIXEL01_22
-          PIXEL10_20
-          PIXEL11_12
-          break;
-        }
-        case 192:
-        case 193:
-        case 196:
-        case 197:
-        {
-          PIXEL00_20
-          PIXEL01_20
-          PIXEL10_21
-          PIXEL11_11
-          break;
-        }
-        case 96:
-        case 97:
-        case 100:
-        case 101:
-        {
-          PIXEL00_20
-          PIXEL01_20
-          PIXEL10_12
-          PIXEL11_22
-          break;
-        }
-        case 40:
-        case 44:
-        case 168:
-        case 172:
-        {
-          PIXEL00_21
-          PIXEL01_20
-          PIXEL10_11
-          PIXEL11_20
-          break;
-        }
-        case 9:
-        case 13:
-        case 137:
-        case 141:
-        {
-          PIXEL00_12
-          PIXEL01_20
-          PIXEL10_22
-          PIXEL11_20
-          break;
-        }
-        case 18:
-        case 50:
-        {
-          PIXEL00_22
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_10
-          }
-          else
-          {
-            PIXEL01_20
-          }
-          PIXEL10_20
-          PIXEL11_21
-          break;
-        }
-        case 80:
-        case 81:
-        {
-          PIXEL00_20
-          PIXEL01_22
-          PIXEL10_21
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_10
-          }
-          else
-          {
-            PIXEL11_20
-          }
-          break;
-        }
-        case 72:
-        case 76:
-        {
-          PIXEL00_21
-          PIXEL01_20
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_10
-          }
-          else
-          {
-            PIXEL10_20
-          }
-          PIXEL11_22
-          break;
-        }
-        case 10:
-        case 138:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_10
-          }
-          else
-          {
-            PIXEL00_20
-          }
-          PIXEL01_21
-          PIXEL10_22
-          PIXEL11_20
-          break;
-        }
-        case 66:
-        {
-          PIXEL00_22
-          PIXEL01_21
-          PIXEL10_21
-          PIXEL11_22
-          break;
-        }
-        case 24:
-        {
-          PIXEL00_21
-          PIXEL01_22
-          PIXEL10_22
-          PIXEL11_21
-          break;
-        }
-        case 7:
-        case 39:
-        case 135:
-        {
-          PIXEL00_11
-          PIXEL01_12
-          PIXEL10_20
-          PIXEL11_20
-          break;
-        }
-        case 148:
-        case 149:
-        case 180:
-        {
-          PIXEL00_20
-          PIXEL01_11
-          PIXEL10_20
-          PIXEL11_12
-          break;
-        }
-        case 224:
-        case 228:
-        case 225:
-        {
-          PIXEL00_20
-          PIXEL01_20
-          PIXEL10_12
-          PIXEL11_11
-          break;
-        }
-        case 41:
-        case 169:
-        case 45:
-        {
-          PIXEL00_12
-          PIXEL01_20
-          PIXEL10_11
-          PIXEL11_20
-          break;
-        }
-        case 22:
-        case 54:
-        {
-          PIXEL00_22
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_0
-          }
-          else
-          {
-            PIXEL01_20
-          }
-          PIXEL10_20
-          PIXEL11_21
-          break;
-        }
-        case 208:
-        case 209:
-        {
-          PIXEL00_20
-          PIXEL01_22
-          PIXEL10_21
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_0
-          }
-          else
-          {
-            PIXEL11_20
-          }
-          break;
-        }
-        case 104:
-        case 108:
-        {
-          PIXEL00_21
-          PIXEL01_20
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_0
-          }
-          else
-          {
-            PIXEL10_20
-          }
-          PIXEL11_22
-          break;
-        }
-        case 11:
-        case 139:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_0
-          }
-          else
-          {
-            PIXEL00_20
-          }
-          PIXEL01_21
-          PIXEL10_22
-          PIXEL11_20
-          break;
-        }
-        case 19:
-        case 51:
-        {
-          if (edge(w[2], w[6]))
-          {
-            PIXEL00_11
-            PIXEL01_10
-          }
-          else
-          {
-            PIXEL00_60
-            PIXEL01_90
-          }
-          PIXEL10_20
-          PIXEL11_21
-          break;
-        }
-        case 146:
-        case 178:
-        {
-          PIXEL00_22
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_10
-            PIXEL11_12
-          }
-          else
-          {
-            PIXEL01_90
-            PIXEL11_61
-          }
-          PIXEL10_20
-          break;
-        }
-        case 84:
-        case 85:
-        {
-          PIXEL00_20
-          if (edge(w[6], w[8]))
-          {
-            PIXEL01_11
-            PIXEL11_10
-          }
-          else
-          {
-            PIXEL01_60
-            PIXEL11_90
-          }
-          PIXEL10_21
-          break;
-        }
-        case 112:
-        case 113:
-        {
-          PIXEL00_20
-          PIXEL01_22
-          if (edge(w[6], w[8]))
-          {
-            PIXEL10_12
-            PIXEL11_10
-          }
-          else
-          {
-            PIXEL10_61
-            PIXEL11_90
-          }
-          break;
-        }
-        case 200:
-        case 204:
-        {
-          PIXEL00_21
-          PIXEL01_20
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_10
-            PIXEL11_11
-          }
-          else
-          {
-            PIXEL10_90
-            PIXEL11_60
-          }
-          break;
-        }
-        case 73:
-        case 77:
-        {
-          if (edge(w[8], w[4]))
-          {
-            PIXEL00_12
-            PIXEL10_10
-          }
-          else
-          {
-            PIXEL00_61
-            PIXEL10_90
-          }
-          PIXEL01_20
-          PIXEL11_22
-          break;
-        }
-        case 42:
-        case 170:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_10
-            PIXEL10_11
-          }
-          else
-          {
-            PIXEL00_90
-            PIXEL10_60
-          }
-          PIXEL01_21
-          PIXEL11_20
-          break;
-        }
-        case 14:
-        case 142:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_10
-            PIXEL01_12
-          }
-          else
-          {
-            PIXEL00_90
-            PIXEL01_61
-          }
-          PIXEL10_22
-          PIXEL11_20
-          break;
-        }
-        case 67:
-        {
-          PIXEL00_11
-          PIXEL01_21
-          PIXEL10_21
-          PIXEL11_22
-          break;
-        }
-        case 70:
-        {
-          PIXEL00_22
-          PIXEL01_12
-          PIXEL10_21
-          PIXEL11_22
-          break;
-        }
-        case 28:
-        {
-          PIXEL00_21
-          PIXEL01_11
-          PIXEL10_22
-          PIXEL11_21
-          break;
-        }
-        case 152:
-        {
-          PIXEL00_21
-          PIXEL01_22
-          PIXEL10_22
-          PIXEL11_12
-          break;
-        }
-        case 194:
-        {
-          PIXEL00_22
-          PIXEL01_21
-          PIXEL10_21
-          PIXEL11_11
-          break;
-        }
-        case 98:
-        {
-          PIXEL00_22
-          PIXEL01_21
-          PIXEL10_12
-          PIXEL11_22
-          break;
-        }
-        case 56:
-        {
-          PIXEL00_21
-          PIXEL01_22
-          PIXEL10_11
-          PIXEL11_21
-          break;
-        }
-        case 25:
-        {
-          PIXEL00_12
-          PIXEL01_22
-          PIXEL10_22
-          PIXEL11_21
-          break;
-        }
-        case 26:
-        case 31:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_0
-          }
-          else
-          {
-            PIXEL00_20
-          }
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_0
-          }
-          else
-          {
-            PIXEL01_20
-          }
-          PIXEL10_22
-          PIXEL11_21
-          break;
-        }
-        case 82:
-        case 214:
-        {
-          PIXEL00_22
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_0
-          }
-          else
-          {
-            PIXEL01_20
-          }
-          PIXEL10_21
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_0
-          }
-          else
-          {
-            PIXEL11_20
-          }
-          break;
-        }
-        case 88:
-        case 248:
-        {
-          PIXEL00_21
-          PIXEL01_22
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_0
-          }
-          else
-          {
-            PIXEL10_20
-          }
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_0
-          }
-          else
-          {
-            PIXEL11_20
-          }
-          break;
-        }
-        case 74:
-        case 107:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_0
-          }
-          else
-          {
-            PIXEL00_20
-          }
-          PIXEL01_21
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_0
-          }
-          else
-          {
-            PIXEL10_20
-          }
-          PIXEL11_22
-          break;
-        }
-        case 27:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_0
-          }
-          else
-          {
-            PIXEL00_20
-          }
-          PIXEL01_10
-          PIXEL10_22
-          PIXEL11_21
-          break;
-        }
-        case 86:
-        {
-          PIXEL00_22
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_0
-          }
-          else
-          {
-            PIXEL01_20
-          }
-          PIXEL10_21
-          PIXEL11_10
-          break;
-        }
-        case 216:
-        {
-          PIXEL00_21
-          PIXEL01_22
-          PIXEL10_10
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_0
-          }
-          else
-          {
-            PIXEL11_20
-          }
-          break;
-        }
-        case 106:
-        {
-          PIXEL00_10
-          PIXEL01_21
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_0
-          }
-          else
-          {
-            PIXEL10_20
-          }
-          PIXEL11_22
-          break;
-        }
-        case 30:
-        {
-          PIXEL00_10
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_0
-          }
-          else
-          {
-            PIXEL01_20
-          }
-          PIXEL10_22
-          PIXEL11_21
-          break;
-        }
-        case 210:
-        {
-          PIXEL00_22
-          PIXEL01_10
-          PIXEL10_21
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_0
-          }
-          else
-          {
-            PIXEL11_20
-          }
-          break;
-        }
-        case 120:
-        {
-          PIXEL00_21
-          PIXEL01_22
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_0
-          }
-          else
-          {
-            PIXEL10_20
-          }
-          PIXEL11_10
-          break;
-        }
-        case 75:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_0
-          }
-          else
-          {
-            PIXEL00_20
-          }
-          PIXEL01_21
-          PIXEL10_10
-          PIXEL11_22
-          break;
-        }
-        case 29:
-        {
-          PIXEL00_12
-          PIXEL01_11
-          PIXEL10_22
-          PIXEL11_21
-          break;
-        }
-        case 198:
-        {
-          PIXEL00_22
-          PIXEL01_12
-          PIXEL10_21
-          PIXEL11_11
-          break;
-        }
-        case 184:
-        {
-          PIXEL00_21
-          PIXEL01_22
-          PIXEL10_11
-          PIXEL11_12
-          break;
-        }
-        case 99:
-        {
-          PIXEL00_11
-          PIXEL01_21
-          PIXEL10_12
-          PIXEL11_22
-          break;
-        }
-        case 57:
-        {
-          PIXEL00_12
-          PIXEL01_22
-          PIXEL10_11
-          PIXEL11_21
-          break;
-        }
-        case 71:
-        {
-          PIXEL00_11
-          PIXEL01_12
-          PIXEL10_21
-          PIXEL11_22
-          break;
-        }
-        case 156:
-        {
-          PIXEL00_21
-          PIXEL01_11
-          PIXEL10_22
-          PIXEL11_12
-          break;
-        }
-        case 226:
-        {
-          PIXEL00_22
-          PIXEL01_21
-          PIXEL10_12
-          PIXEL11_11
-          break;
-        }
-        case 60:
-        {
-          PIXEL00_21
-          PIXEL01_11
-          PIXEL10_11
-          PIXEL11_21
-          break;
-        }
-        case 195:
-        {
-          PIXEL00_11
-          PIXEL01_21
-          PIXEL10_21
-          PIXEL11_11
-          break;
-        }
-        case 102:
-        {
-          PIXEL00_22
-          PIXEL01_12
-          PIXEL10_12
-          PIXEL11_22
-          break;
-        }
-        case 153:
-        {
-          PIXEL00_12
-          PIXEL01_22
-          PIXEL10_22
-          PIXEL11_12
-          break;
-        }
-        case 58:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_10
-          }
-          else
-          {
-            PIXEL00_70
-          }
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_10
-          }
-          else
-          {
-            PIXEL01_70
-          }
-          PIXEL10_11
-          PIXEL11_21
-          break;
-        }
-        case 83:
-        {
-          PIXEL00_11
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_10
-          }
-          else
-          {
-            PIXEL01_70
-          }
-          PIXEL10_21
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_10
-          }
-          else
-          {
-            PIXEL11_70
-          }
-          break;
-        }
-        case 92:
-        {
-          PIXEL00_21
-          PIXEL01_11
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_10
-          }
-          else
-          {
-            PIXEL10_70
-          }
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_10
-          }
-          else
-          {
-            PIXEL11_70
-          }
-          break;
-        }
-        case 202:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_10
-          }
-          else
-          {
-            PIXEL00_70
-          }
-          PIXEL01_21
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_10
-          }
-          else
-          {
-            PIXEL10_70
-          }
-          PIXEL11_11
-          break;
-        }
-        case 78:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_10
-          }
-          else
-          {
-            PIXEL00_70
-          }
-          PIXEL01_12
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_10
-          }
-          else
-          {
-            PIXEL10_70
-          }
-          PIXEL11_22
-          break;
-        }
-        case 154:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_10
-          }
-          else
-          {
-            PIXEL00_70
-          }
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_10
-          }
-          else
-          {
-            PIXEL01_70
-          }
-          PIXEL10_22
-          PIXEL11_12
-          break;
-        }
-        case 114:
-        {
-          PIXEL00_22
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_10
-          }
-          else
-          {
-            PIXEL01_70
-          }
-          PIXEL10_12
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_10
-          }
-          else
-          {
-            PIXEL11_70
-          }
-          break;
-        }
-        case 89:
-        {
-          PIXEL00_12
-          PIXEL01_22
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_10
-          }
-          else
-          {
-            PIXEL10_70
-          }
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_10
-          }
-          else
-          {
-            PIXEL11_70
-          }
-          break;
-        }
-        case 90:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_10
-          }
-          else
-          {
-            PIXEL00_70
-          }
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_10
-          }
-          else
-          {
-            PIXEL01_70
-          }
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_10
-          }
-          else
-          {
-            PIXEL10_70
-          }
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_10
-          }
-          else
-          {
-            PIXEL11_70
-          }
-          break;
-        }
-        case 55:
-        case 23:
-        {
-          if (edge(w[2], w[6]))
-          {
-            PIXEL00_11
-            PIXEL01_0
-          }
-          else
-          {
-            PIXEL00_60
-            PIXEL01_90
-          }
-          PIXEL10_20
-          PIXEL11_21
-          break;
-        }
-        case 182:
-        case 150:
-        {
-          PIXEL00_22
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_0
-            PIXEL11_12
-          }
-          else
-          {
-            PIXEL01_90
-            PIXEL11_61
-          }
-          PIXEL10_20
-          break;
-        }
-        case 213:
-        case 212:
-        {
-          PIXEL00_20
-          if (edge(w[6], w[8]))
-          {
-            PIXEL01_11
-            PIXEL11_0
-          }
-          else
-          {
-            PIXEL01_60
-            PIXEL11_90
-          }
-          PIXEL10_21
-          break;
-        }
-        case 241:
-        case 240:
-        {
-          PIXEL00_20
-          PIXEL01_22
-          if (edge(w[6], w[8]))
-          {
-            PIXEL10_12
-            PIXEL11_0
-          }
-          else
-          {
-            PIXEL10_61
-            PIXEL11_90
-          }
-          break;
-        }
-        case 236:
-        case 232:
-        {
-          PIXEL00_21
-          PIXEL01_20
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_0
-            PIXEL11_11
-          }
-          else
-          {
-            PIXEL10_90
-            PIXEL11_60
-          }
-          break;
-        }
-        case 109:
-        case 105:
-        {
-          if (edge(w[8], w[4]))
-          {
-            PIXEL00_12
-            PIXEL10_0
-          }
-          else
-          {
-            PIXEL00_61
-            PIXEL10_90
-          }
-          PIXEL01_20
-          PIXEL11_22
-          break;
-        }
-        case 171:
-        case 43:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_0
-            PIXEL10_11
-          }
-          else
-          {
-            PIXEL00_90
-            PIXEL10_60
-          }
-          PIXEL01_21
-          PIXEL11_20
-          break;
-        }
-        case 143:
-        case 15:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_0
-            PIXEL01_12
-          }
-          else
-          {
-            PIXEL00_90
-            PIXEL01_61
-          }
-          PIXEL10_22
-          PIXEL11_20
-          break;
-        }
-        case 124:
-        {
-          PIXEL00_21
-          PIXEL01_11
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_0
-          }
-          else
-          {
-            PIXEL10_20
-          }
-          PIXEL11_10
-          break;
-        }
-        case 203:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_0
-          }
-          else
-          {
-            PIXEL00_20
-          }
-          PIXEL01_21
-          PIXEL10_10
-          PIXEL11_11
-          break;
-        }
-        case 62:
-        {
-          PIXEL00_10
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_0
-          }
-          else
-          {
-            PIXEL01_20
-          }
-          PIXEL10_11
-          PIXEL11_21
-          break;
-        }
-        case 211:
-        {
-          PIXEL00_11
-          PIXEL01_10
-          PIXEL10_21
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_0
-          }
-          else
-          {
-            PIXEL11_20
-          }
-          break;
-        }
-        case 118:
-        {
-          PIXEL00_22
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_0
-          }
-          else
-          {
-            PIXEL01_20
-          }
-          PIXEL10_12
-          PIXEL11_10
-          break;
-        }
-        case 217:
-        {
-          PIXEL00_12
-          PIXEL01_22
-          PIXEL10_10
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_0
-          }
-          else
-          {
-            PIXEL11_20
-          }
-          break;
-        }
-        case 110:
-        {
-          PIXEL00_10
-          PIXEL01_12
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_0
-          }
-          else
-          {
-            PIXEL10_20
-          }
-          PIXEL11_22
-          break;
-        }
-        case 155:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_0
-          }
-          else
-          {
-            PIXEL00_20
-          }
-          PIXEL01_10
-          PIXEL10_22
-          PIXEL11_12
-          break;
-        }
-        case 188:
-        {
-          PIXEL00_21
-          PIXEL01_11
-          PIXEL10_11
-          PIXEL11_12
-          break;
-        }
-        case 185:
-        {
-          PIXEL00_12
-          PIXEL01_22
-          PIXEL10_11
-          PIXEL11_12
-          break;
-        }
-        case 61:
-        {
-          PIXEL00_12
-          PIXEL01_11
-          PIXEL10_11
-          PIXEL11_21
-          break;
-        }
-        case 157:
-        {
-          PIXEL00_12
-          PIXEL01_11
-          PIXEL10_22
-          PIXEL11_12
-          break;
-        }
-        case 103:
-        {
-          PIXEL00_11
-          PIXEL01_12
-          PIXEL10_12
-          PIXEL11_22
-          break;
-        }
-        case 227:
-        {
-          PIXEL00_11
-          PIXEL01_21
-          PIXEL10_12
-          PIXEL11_11
-          break;
-        }
-        case 230:
-        {
-          PIXEL00_22
-          PIXEL01_12
-          PIXEL10_12
-          PIXEL11_11
-          break;
-        }
-        case 199:
-        {
-          PIXEL00_11
-          PIXEL01_12
-          PIXEL10_21
-          PIXEL11_11
-          break;
-        }
-        case 220:
-        {
-          PIXEL00_21
-          PIXEL01_11
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_10
-          }
-          else
-          {
-            PIXEL10_70
-          }
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_0
-          }
-          else
-          {
-            PIXEL11_20
-          }
-          break;
-        }
-        case 158:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_10
-          }
-          else
-          {
-            PIXEL00_70
-          }
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_0
-          }
-          else
-          {
-            PIXEL01_20
-          }
-          PIXEL10_22
-          PIXEL11_12
-          break;
-        }
-        case 234:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_10
-          }
-          else
-          {
-            PIXEL00_70
-          }
-          PIXEL01_21
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_0
-          }
-          else
-          {
-            PIXEL10_20
-          }
-          PIXEL11_11
-          break;
-        }
-        case 242:
-        {
-          PIXEL00_22
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_10
-          }
-          else
-          {
-            PIXEL01_70
-          }
-          PIXEL10_12
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_0
-          }
-          else
-          {
-            PIXEL11_20
-          }
-          break;
-        }
-        case 59:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_0
-          }
-          else
-          {
-            PIXEL00_20
-          }
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_10
-          }
-          else
-          {
-            PIXEL01_70
-          }
-          PIXEL10_11
-          PIXEL11_21
-          break;
-        }
-        case 121:
-        {
-          PIXEL00_12
-          PIXEL01_22
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_0
-          }
-          else
-          {
-            PIXEL10_20
-          }
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_10
-          }
-          else
-          {
-            PIXEL11_70
-          }
-          break;
-        }
-        case 87:
-        {
-          PIXEL00_11
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_0
-          }
-          else
-          {
-            PIXEL01_20
-          }
-          PIXEL10_21
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_10
-          }
-          else
-          {
-            PIXEL11_70
-          }
-          break;
-        }
-        case 79:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_0
-          }
-          else
-          {
-            PIXEL00_20
-          }
-          PIXEL01_12
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_10
-          }
-          else
-          {
-            PIXEL10_70
-          }
-          PIXEL11_22
-          break;
-        }
-        case 122:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_10
-          }
-          else
-          {
-            PIXEL00_70
-          }
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_10
-          }
-          else
-          {
-            PIXEL01_70
-          }
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_0
-          }
-          else
-          {
-            PIXEL10_20
-          }
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_10
-          }
-          else
-          {
-            PIXEL11_70
-          }
-          break;
-        }
-        case 94:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_10
-          }
-          else
-          {
-            PIXEL00_70
-          }
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_0
-          }
-          else
-          {
-            PIXEL01_20
-          }
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_10
-          }
-          else
-          {
-            PIXEL10_70
-          }
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_10
-          }
-          else
-          {
-            PIXEL11_70
-          }
-          break;
-        }
-        case 218:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_10
-          }
-          else
-          {
-            PIXEL00_70
-          }
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_10
-          }
-          else
-          {
-            PIXEL01_70
-          }
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_10
-          }
-          else
-          {
-            PIXEL10_70
-          }
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_0
-          }
-          else
-          {
-            PIXEL11_20
-          }
-          break;
-        }
-        case 91:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_0
-          }
-          else
-          {
-            PIXEL00_20
-          }
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_10
-          }
-          else
-          {
-            PIXEL01_70
-          }
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_10
-          }
-          else
-          {
-            PIXEL10_70
-          }
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_10
-          }
-          else
-          {
-            PIXEL11_70
-          }
-          break;
-        }
-        case 229:
-        {
-          PIXEL00_20
-          PIXEL01_20
-          PIXEL10_12
-          PIXEL11_11
-          break;
-        }
-        case 167:
-        {
-          PIXEL00_11
-          PIXEL01_12
-          PIXEL10_20
-          PIXEL11_20
-          break;
-        }
-        case 173:
-        {
-          PIXEL00_12
-          PIXEL01_20
-          PIXEL10_11
-          PIXEL11_20
-          break;
-        }
-        case 181:
-        {
-          PIXEL00_20
-          PIXEL01_11
-          PIXEL10_20
-          PIXEL11_12
-          break;
-        }
-        case 186:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_10
-          }
-          else
-          {
-            PIXEL00_70
-          }
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_10
-          }
-          else
-          {
-            PIXEL01_70
-          }
-          PIXEL10_11
-          PIXEL11_12
-          break;
-        }
-        case 115:
-        {
-          PIXEL00_11
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_10
-          }
-          else
-          {
-            PIXEL01_70
-          }
-          PIXEL10_12
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_10
-          }
-          else
-          {
-            PIXEL11_70
-          }
-          break;
-        }
-        case 93:
-        {
-          PIXEL00_12
-          PIXEL01_11
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_10
-          }
-          else
-          {
-            PIXEL10_70
-          }
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_10
-          }
-          else
-          {
-            PIXEL11_70
-          }
-          break;
-        }
-        case 206:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_10
-          }
-          else
-          {
-            PIXEL00_70
-          }
-          PIXEL01_12
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_10
-          }
-          else
-          {
-            PIXEL10_70
-          }
-          PIXEL11_11
-          break;
-        }
-        case 205:
-        case 201:
-        {
-          PIXEL00_12
-          PIXEL01_20
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_10
-          }
-          else
-          {
-            PIXEL10_70
-          }
-          PIXEL11_11
-          break;
-        }
-        case 174:
-        case 46:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_10
-          }
-          else
-          {
-            PIXEL00_70
-          }
-          PIXEL01_12
-          PIXEL10_11
-          PIXEL11_20
-          break;
-        }
-        case 179:
-        case 147:
-        {
-          PIXEL00_11
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_10
-          }
-          else
-          {
-            PIXEL01_70
-          }
-          PIXEL10_20
-          PIXEL11_12
-          break;
-        }
-        case 117:
-        case 116:
-        {
-          PIXEL00_20
-          PIXEL01_11
-          PIXEL10_12
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_10
-          }
-          else
-          {
-            PIXEL11_70
-          }
-          break;
-        }
-        case 189:
-        {
-          PIXEL00_12
-          PIXEL01_11
-          PIXEL10_11
-          PIXEL11_12
-          break;
-        }
-        case 231:
-        {
-          PIXEL00_11
-          PIXEL01_12
-          PIXEL10_12
-          PIXEL11_11
-          break;
-        }
-        case 126:
-        {
-          PIXEL00_10
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_0
-          }
-          else
-          {
-            PIXEL01_20
-          }
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_0
-          }
-          else
-          {
-            PIXEL10_20
-          }
-          PIXEL11_10
-          break;
-        }
-        case 219:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_0
-          }
-          else
-          {
-            PIXEL00_20
-          }
-          PIXEL01_10
-          PIXEL10_10
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_0
-          }
-          else
-          {
-            PIXEL11_20
-          }
-          break;
-        }
-        case 125:
-        {
-          if (edge(w[8], w[4]))
-          {
-            PIXEL00_12
-            PIXEL10_0
-          }
-          else
-          {
-            PIXEL00_61
-            PIXEL10_90
-          }
-          PIXEL01_11
-          PIXEL11_10
-          break;
-        }
-        case 221:
-        {
-          PIXEL00_12
-          if (edge(w[6], w[8]))
-          {
-            PIXEL01_11
-            PIXEL11_0
-          }
-          else
-          {
-            PIXEL01_60
-            PIXEL11_90
-          }
-          PIXEL10_10
-          break;
-        }
-        case 207:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_0
-            PIXEL01_12
-          }
-          else
-          {
-            PIXEL00_90
-            PIXEL01_61
-          }
-          PIXEL10_10
-          PIXEL11_11
-          break;
-        }
-        case 238:
-        {
-          PIXEL00_10
-          PIXEL01_12
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_0
-            PIXEL11_11
-          }
-          else
-          {
-            PIXEL10_90
-            PIXEL11_60
-          }
-          break;
-        }
-        case 190:
-        {
-          PIXEL00_10
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_0
-            PIXEL11_12
-          }
-          else
-          {
-            PIXEL01_90
-            PIXEL11_61
-          }
-          PIXEL10_11
-          break;
-        }
-        case 187:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_0
-            PIXEL10_11
-          }
-          else
-          {
-            PIXEL00_90
-            PIXEL10_60
-          }
-          PIXEL01_10
-          PIXEL11_12
-          break;
-        }
-        case 243:
-        {
-          PIXEL00_11
-          PIXEL01_10
-          if (edge(w[6], w[8]))
-          {
-            PIXEL10_12
-            PIXEL11_0
-          }
-          else
-          {
-            PIXEL10_61
-            PIXEL11_90
-          }
-          break;
-        }
-        case 119:
-        {
-          if (edge(w[2], w[6]))
-          {
-            PIXEL00_11
-            PIXEL01_0
-          }
-          else
-          {
-            PIXEL00_60
-            PIXEL01_90
-          }
-          PIXEL10_12
-          PIXEL11_10
-          break;
-        }
-        case 237:
-        case 233:
-        {
-          PIXEL00_12
-          PIXEL01_20
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_0
-          }
-          else
-          {
-            PIXEL10_100
-          }
-          PIXEL11_11
-          break;
-        }
-        case 175:
-        case 47:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_0
-          }
-          else
-          {
-            PIXEL00_100
-          }
-          PIXEL01_12
-          PIXEL10_11
-          PIXEL11_20
-          break;
-        }
-        case 183:
-        case 151:
-        {
-          PIXEL00_11
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_0
-          }
-          else
-          {
-            PIXEL01_100
-          }
-          PIXEL10_20
-          PIXEL11_12
-          break;
-        }
-        case 245:
-        case 244:
-        {
-          PIXEL00_20
-          PIXEL01_11
-          PIXEL10_12
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_0
-          }
-          else
-          {
-            PIXEL11_100
-          }
-          break;
-        }
-        case 250:
-        {
-          PIXEL00_10
-          PIXEL01_10
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_0
-          }
-          else
-          {
-            PIXEL10_20
-          }
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_0
-          }
-          else
-          {
-            PIXEL11_20
-          }
-          break;
-        }
-        case 123:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_0
-          }
-          else
-          {
-            PIXEL00_20
-          }
-          PIXEL01_10
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_0
-          }
-          else
-          {
-            PIXEL10_20
-          }
-          PIXEL11_10
-          break;
-        }
-        case 95:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_0
-          }
-          else
-          {
-            PIXEL00_20
-          }
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_0
-          }
-          else
-          {
-            PIXEL01_20
-          }
-          PIXEL10_10
-          PIXEL11_10
-          break;
-        }
-        case 222:
-        {
-          PIXEL00_10
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_0
-          }
-          else
-          {
-            PIXEL01_20
-          }
-          PIXEL10_10
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_0
-          }
-          else
-          {
-            PIXEL11_20
-          }
-          break;
-        }
-        case 252:
-        {
-          PIXEL00_21
-          PIXEL01_11
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_0
-          }
-          else
-          {
-            PIXEL10_20
-          }
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_0
-          }
-          else
-          {
-            PIXEL11_100
-          }
-          break;
-        }
-        case 249:
-        {
-          PIXEL00_12
-          PIXEL01_22
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_0
-          }
-          else
-          {
-            PIXEL10_100
-          }
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_0
-          }
-          else
-          {
-            PIXEL11_20
-          }
-          break;
-        }
-        case 235:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_0
-          }
-          else
-          {
-            PIXEL00_20
-          }
-          PIXEL01_21
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_0
-          }
-          else
-          {
-            PIXEL10_100
-          }
-          PIXEL11_11
-          break;
-        }
-        case 111:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_0
-          }
-          else
-          {
-            PIXEL00_100
-          }
-          PIXEL01_12
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_0
-          }
-          else
-          {
-            PIXEL10_20
-          }
-          PIXEL11_22
-          break;
-        }
-        case 63:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_0
-          }
-          else
-          {
-            PIXEL00_100
-          }
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_0
-          }
-          else
-          {
-            PIXEL01_20
-          }
-          PIXEL10_11
-          PIXEL11_21
-          break;
-        }
-        case 159:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_0
-          }
-          else
-          {
-            PIXEL00_20
-          }
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_0
-          }
-          else
-          {
-            PIXEL01_100
-          }
-          PIXEL10_22
-          PIXEL11_12
-          break;
-        }
-        case 215:
-        {
-          PIXEL00_11
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_0
-          }
-          else
-          {
-            PIXEL01_100
-          }
-          PIXEL10_21
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_0
-          }
-          else
-          {
-            PIXEL11_20
-          }
-          break;
-        }
-        case 246:
-        {
-          PIXEL00_22
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_0
-          }
-          else
-          {
-            PIXEL01_20
-          }
-          PIXEL10_12
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_0
-          }
-          else
-          {
-            PIXEL11_100
-          }
-          break;
-        }
-        case 254:
-        {
-          PIXEL00_10
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_0
-          }
-          else
-          {
-            PIXEL01_20
-          }
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_0
-          }
-          else
-          {
-            PIXEL10_20
-          }
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_0
-          }
-          else
-          {
-            PIXEL11_100
-          }
-          break;
-        }
-        case 253:
-        {
-          PIXEL00_12
-          PIXEL01_11
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_0
-          }
-          else
-          {
-            PIXEL10_100
-          }
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_0
-          }
-          else
-          {
-            PIXEL11_100
-          }
-          break;
-        }
-        case 251:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_0
-          }
-          else
-          {
-            PIXEL00_20
-          }
-          PIXEL01_10
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_0
-          }
-          else
-          {
-            PIXEL10_100
-          }
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_0
-          }
-          else
-          {
-            PIXEL11_20
-          }
-          break;
-        }
-        case 239:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_0
-          }
-          else
-          {
-            PIXEL00_100
-          }
-          PIXEL01_12
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_0
-          }
-          else
-          {
-            PIXEL10_100
-          }
-          PIXEL11_11
-          break;
-        }
-        case 127:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_0
-          }
-          else
-          {
-            PIXEL00_100
-          }
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_0
-          }
-          else
-          {
-            PIXEL01_20
-          }
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_0
-          }
-          else
-          {
-            PIXEL10_20
-          }
-          PIXEL11_10
-          break;
-        }
-        case 191:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_0
-          }
-          else
-          {
-            PIXEL00_100
-          }
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_0
-          }
-          else
-          {
-            PIXEL01_100
-          }
-          PIXEL10_11
-          PIXEL11_12
-          break;
-        }
-        case 223:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_0
-          }
-          else
-          {
-            PIXEL00_20
-          }
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_0
-          }
-          else
-          {
-            PIXEL01_100
-          }
-          PIXEL10_10
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_0
-          }
-          else
-          {
-            PIXEL11_20
-          }
-          break;
-        }
-        case 247:
-        {
-          PIXEL00_11
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_0
-          }
-          else
-          {
-            PIXEL01_100
-          }
-          PIXEL10_12
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_0
-          }
-          else
-          {
-            PIXEL11_100
-          }
-          break;
-        }
-        case 255:
-        {
-          if (edge(w[4], w[2]))
-          {
-            PIXEL00_0
-          }
-          else
-          {
-            PIXEL00_100
-          }
-          if (edge(w[2], w[6]))
-          {
-            PIXEL01_0
-          }
-          else
-          {
-            PIXEL01_100
-          }
-          if (edge(w[8], w[4]))
-          {
-            PIXEL10_0
-          }
-          else
-          {
-            PIXEL10_100
-          }
-          if (edge(w[6], w[8]))
-          {
-            PIXEL11_0
-          }
-          else
-          {
-            PIXEL11_100
-          }
-          break;
-        }
-      }
+		switch (pattern) {
+		case 0x2a:
+		case 0xaa:
+		case 0xe:
+		case 0x8e:
+		{
+			if (edge(w[4], w[2])) {
+				PIXEL00_10
+			} else {
+				PIXEL00_90
+			}
+			break;
+		}
+		case 0x8:
+		case 0xc:
+		case 0x88:
+		case 0x8c:
+		case 0x28:
+		case 0x2c:
+		case 0xa8:
+		case 0xac:
+		case 0x48:
+		case 0x4c:
+		case 0x18:
+		case 0x68:
+		case 0x6c:
+		case 0xc8:
+		case 0xcc:
+		case 0x1c:
+		case 0x98:
+		case 0x38:
+		case 0x58:
+		case 0xf8:
+		case 0xd8:
+		case 0x78:
+		case 0xb8:
+		case 0x9c:
+		case 0x3c:
+		case 0x5c:
+		case 0xec:
+		case 0xe8:
+		case 0x7c:
+		case 0xbc:
+		case 0xdc:
+		case 0xfc:
+		{
+			PIXEL00_21
+			break;
+		}
+		case 0xb:
+		case 0x8b:
+		case 0x1a:
+		case 0x1f:
+		case 0x4a:
+		case 0x6b:
+		case 0x1b:
+		case 0x4b:
+		case 0xcb:
+		case 0x9b:
+		case 0x3b:
+		case 0x4f:
+		case 0x5b:
+		case 0xdb:
+		case 0x7b:
+		case 0x5f:
+		case 0xeb:
+		case 0x9f:
+		case 0xfb:
+		case 0xdf:
+		{
+			if (edge(w[4], w[2])) {
+				PIXEL00_0
+			} else {
+				PIXEL00_20
+			}
+			break;
+		}
+		case 0x3a:
+		case 0xca:
+		case 0x4e:
+		case 0x9a:
+		case 0x5a:
+		case 0x9e:
+		case 0xea:
+		case 0x7a:
+		case 0x5e:
+		case 0xda:
+		case 0xba:
+		case 0xce:
+		case 0xae:
+		case 0x2e:
+		{
+			if (edge(w[4], w[2])) {
+				PIXEL00_10
+			} else {
+				PIXEL00_70
+			}
+			break;
+		}
+		case 0xab:
+		case 0x2b:
+		case 0x8f:
+		case 0xf:
+		case 0xcf:
+		case 0xbb:
+		{
+			if (edge(w[4], w[2])) {
+				PIXEL00_0
+			} else {
+				PIXEL00_90
+			}
+			break;
+		}
+		case 0x3:
+		case 0x23:
+		case 0x83:
+		case 0xa3:
+		case 0x7:
+		case 0x27:
+		case 0x87:
+		case 0x43:
+		case 0x63:
+		case 0x47:
+		case 0xc3:
+		case 0x53:
+		case 0xd3:
+		case 0x67:
+		case 0xe3:
+		case 0xc7:
+		case 0x57:
+		case 0xa7:
+		case 0x73:
+		case 0xb3:
+		case 0x93:
+		case 0xe7:
+		case 0xf3:
+		case 0xb7:
+		case 0x97:
+		case 0xd7:
+		case 0xf7:
+		{
+			PIXEL00_11
+			break;
+		}
+		case 0x6a:
+		case 0x1e:
+		case 0x3e:
+		case 0x6e:
+		case 0x7e:
+		case 0xee:
+		case 0xbe:
+		case 0xfa:
+		case 0xde:
+		case 0xfe:
+		{
+			PIXEL00_10
+			break;
+		}
+		case 0x49:
+		case 0x4d:
+		case 0x6d:
+		case 0x69:
+		case 0x7d:
+		{
+			if (edge(w[8], w[4])) {
+				PIXEL00_12
+			} else {
+				PIXEL00_61
+			}
+			break;
+		}
+		case 0x0:
+		case 0x1:
+		case 0x4:
+		case 0x20:
+		case 0x80:
+		case 0x5:
+		case 0x84:
+		case 0xa0:
+		case 0x21:
+		case 0x81:
+		case 0x24:
+		case 0x85:
+		case 0xa4:
+		case 0xa1:
+		case 0x25:
+		case 0xa5:
+		case 0x10:
+		case 0x11:
+		case 0x30:
+		case 0x31:
+		case 0x40:
+		case 0x41:
+		case 0x44:
+		case 0x45:
+		case 0x14:
+		case 0x15:
+		case 0x34:
+		case 0x35:
+		case 0x90:
+		case 0x91:
+		case 0xb0:
+		case 0xb1:
+		case 0xc0:
+		case 0xc1:
+		case 0xc4:
+		case 0xc5:
+		case 0x60:
+		case 0x61:
+		case 0x64:
+		case 0x65:
+		case 0x50:
+		case 0x51:
+		case 0x94:
+		case 0x95:
+		case 0xb4:
+		case 0xe0:
+		case 0xe4:
+		case 0xe1:
+		case 0xd0:
+		case 0xd1:
+		case 0x54:
+		case 0x55:
+		case 0x70:
+		case 0x71:
+		case 0xd5:
+		case 0xd4:
+		case 0xf1:
+		case 0xf0:
+		case 0xe5:
+		case 0xb5:
+		case 0x75:
+		case 0x74:
+		case 0xf5:
+		case 0xf4:
+		{
+			PIXEL00_20
+			break;
+		}
+		case 0x9:
+		case 0xd:
+		case 0x89:
+		case 0x8d:
+		case 0x29:
+		case 0xa9:
+		case 0x2d:
+		case 0x19:
+		case 0x1d:
+		case 0x39:
+		case 0x99:
+		case 0x59:
+		case 0xd9:
+		case 0xb9:
+		case 0x3d:
+		case 0x9d:
+		case 0x79:
+		case 0xad:
+		case 0x5d:
+		case 0xcd:
+		case 0xc9:
+		case 0xbd:
+		case 0xdd:
+		case 0xed:
+		case 0xe9:
+		case 0xf9:
+		case 0xfd:
+		{
+			PIXEL00_12
+			break;
+		}
+		case 0xaf:
+		case 0x2f:
+		case 0x6f:
+		case 0x3f:
+		case 0xef:
+		case 0x7f:
+		case 0xbf:
+		case 0xff:
+		{
+			if (edge(w[4], w[2])) {
+				PIXEL00_0
+			} else {
+				PIXEL00_100
+			}
+			break;
+		}
+		case 0x2:
+		case 0x22:
+		case 0x82:
+		case 0xa2:
+		case 0x6:
+		case 0x26:
+		case 0x86:
+		case 0xa6:
+		case 0x12:
+		case 0x32:
+		case 0x42:
+		case 0x16:
+		case 0x36:
+		case 0x92:
+		case 0xb2:
+		case 0x46:
+		case 0xc2:
+		case 0x62:
+		case 0x52:
+		case 0xd6:
+		case 0x56:
+		case 0xd2:
+		case 0xc6:
+		case 0xe2:
+		case 0x66:
+		case 0x72:
+		case 0xb6:
+		case 0x96:
+		case 0x76:
+		case 0xe6:
+		case 0xf2:
+		case 0xf6:
+		{
+			PIXEL00_22
+			break;
+		}
+		case 0xa:
+		case 0x8a:
+		{
+			if (edge(w[4], w[2])) {
+				PIXEL00_10
+			} else {
+				PIXEL00_20
+			}
+			break;
+		}
+		case 0x13:
+		case 0x33:
+		case 0x37:
+		case 0x17:
+		case 0x77:
+		{
+			if (edge(w[2], w[6])) {
+				PIXEL00_11
+			} else {
+				PIXEL00_60
+			}
+			break;
+		}
+		}
+
+		switch (pattern) {
+		case 0x37:
+		case 0x17:
+		case 0xb6:
+		case 0x96:
+		case 0xbe:
+		case 0x77:
+		{
+			if (edge(w[2], w[6])) {
+				PIXEL01_0
+			} else {
+				PIXEL01_90
+			}
+			break;
+		}
+		case 0x2:
+		case 0x22:
+		case 0x82:
+		case 0xa2:
+		case 0x3:
+		case 0x23:
+		case 0x83:
+		case 0xa3:
+		case 0xa:
+		case 0x8a:
+		case 0x42:
+		case 0xb:
+		case 0x8b:
+		case 0x2a:
+		case 0xaa:
+		case 0x43:
+		case 0xc2:
+		case 0x62:
+		case 0x4a:
+		case 0x6b:
+		case 0x6a:
+		case 0x4b:
+		case 0x63:
+		case 0xe2:
+		case 0xc3:
+		case 0xca:
+		case 0xab:
+		case 0x2b:
+		case 0xcb:
+		case 0xe3:
+		case 0xea:
+		case 0xeb:
+		{
+			PIXEL01_21
+			break;
+		}
+		case 0x13:
+		case 0x33:
+		case 0x92:
+		case 0xb2:
+		{
+			if (edge(w[2], w[6])) {
+				PIXEL01_10
+			} else {
+				PIXEL01_90
+			}
+			break;
+		}
+		case 0x3a:
+		case 0x53:
+		case 0x9a:
+		case 0x72:
+		case 0x5a:
+		case 0xf2:
+		case 0x3b:
+		case 0x7a:
+		case 0xda:
+		case 0x5b:
+		case 0xba:
+		case 0x73:
+		case 0xb3:
+		case 0x93:
+		{
+			if (edge(w[2], w[6])) {
+				PIXEL01_10
+			} else {
+				PIXEL01_70
+			}
+			break;
+		}
+		case 0x16:
+		case 0x36:
+		case 0x1a:
+		case 0x1f:
+		case 0x52:
+		case 0xd6:
+		case 0x56:
+		case 0x1e:
+		case 0x3e:
+		case 0x76:
+		case 0x9e:
+		case 0x57:
+		case 0x5e:
+		case 0x7e:
+		case 0x5f:
+		case 0xde:
+		case 0x3f:
+		case 0xf6:
+		case 0xfe:
+		case 0x7f:
+		{
+			if (edge(w[2], w[6])) {
+				PIXEL01_0
+			} else {
+				PIXEL01_20
+			}
+			break;
+		}
+		case 0x14:
+		case 0x15:
+		case 0x34:
+		case 0x35:
+		case 0x94:
+		case 0x95:
+		case 0xb4:
+		case 0x1c:
+		case 0x1d:
+		case 0x9c:
+		case 0x3c:
+		case 0x5c:
+		case 0x7c:
+		case 0xbc:
+		case 0x3d:
+		case 0x9d:
+		case 0xdc:
+		case 0xb5:
+		case 0x5d:
+		case 0x75:
+		case 0x74:
+		case 0xbd:
+		case 0x7d:
+		case 0xf5:
+		case 0xf4:
+		case 0xfc:
+		case 0xfd:
+		{
+			PIXEL01_11
+			break;
+		}
+		case 0x54:
+		case 0x55:
+		case 0xd5:
+		case 0xd4:
+		case 0xdd:
+		{
+			if (edge(w[6], w[8])) {
+				PIXEL01_11
+			} else {
+				PIXEL01_60
+			}
+			break;
+		}
+		case 0x1b:
+		case 0xd2:
+		case 0xd3:
+		case 0x9b:
+		case 0xdb:
+		case 0xbb:
+		case 0xf3:
+		case 0xfa:
+		case 0x7b:
+		case 0xfb:
+		{
+			PIXEL01_10
+			break;
+		}
+		case 0xe:
+		case 0x8e:
+		case 0x8f:
+		case 0xf:
+		case 0xcf:
+		{
+			if (edge(w[4], w[2])) {
+				PIXEL01_12
+			} else {
+				PIXEL01_61
+			}
+			break;
+		}
+		case 0x0:
+		case 0x1:
+		case 0x4:
+		case 0x20:
+		case 0x80:
+		case 0x5:
+		case 0x84:
+		case 0xa0:
+		case 0x21:
+		case 0x81:
+		case 0x24:
+		case 0x85:
+		case 0xa4:
+		case 0xa1:
+		case 0x25:
+		case 0xa5:
+		case 0x40:
+		case 0x41:
+		case 0x44:
+		case 0x45:
+		case 0x8:
+		case 0xc:
+		case 0x88:
+		case 0x8c:
+		case 0xc0:
+		case 0xc1:
+		case 0xc4:
+		case 0xc5:
+		case 0x60:
+		case 0x61:
+		case 0x64:
+		case 0x65:
+		case 0x28:
+		case 0x2c:
+		case 0xa8:
+		case 0xac:
+		case 0x9:
+		case 0xd:
+		case 0x89:
+		case 0x8d:
+		case 0x48:
+		case 0x4c:
+		case 0xe0:
+		case 0xe4:
+		case 0xe1:
+		case 0x29:
+		case 0xa9:
+		case 0x2d:
+		case 0x68:
+		case 0x6c:
+		case 0xc8:
+		case 0xcc:
+		case 0x49:
+		case 0x4d:
+		case 0xec:
+		case 0xe8:
+		case 0x6d:
+		case 0x69:
+		case 0xe5:
+		case 0xad:
+		case 0xcd:
+		case 0xc9:
+		case 0xed:
+		case 0xe9:
+		{
+			PIXEL01_20
+			break;
+		}
+		case 0xb7:
+		case 0x97:
+		case 0x9f:
+		case 0xd7:
+		case 0xbf:
+		case 0xdf:
+		case 0xf7:
+		case 0xff:
+		{
+			if (edge(w[2], w[6])) {
+				PIXEL01_0
+			} else {
+				PIXEL01_100
+			}
+			break;
+		}
+		case 0x6:
+		case 0x26:
+		case 0x86:
+		case 0xa6:
+		case 0x7:
+		case 0x27:
+		case 0x87:
+		case 0x46:
+		case 0xc6:
+		case 0x47:
+		case 0x66:
+		case 0x4e:
+		case 0x6e:
+		case 0x67:
+		case 0xe6:
+		case 0xc7:
+		case 0x4f:
+		case 0xa7:
+		case 0xce:
+		case 0xae:
+		case 0x2e:
+		case 0xe7:
+		case 0xee:
+		case 0xaf:
+		case 0x2f:
+		case 0x6f:
+		case 0xef:
+		{
+			PIXEL01_12
+			break;
+		}
+		case 0x10:
+		case 0x11:
+		case 0x30:
+		case 0x31:
+		case 0x90:
+		case 0x91:
+		case 0xb0:
+		case 0xb1:
+		case 0x50:
+		case 0x51:
+		case 0x18:
+		case 0xd0:
+		case 0xd1:
+		case 0x70:
+		case 0x71:
+		case 0x98:
+		case 0x38:
+		case 0x19:
+		case 0x58:
+		case 0xf8:
+		case 0xd8:
+		case 0x78:
+		case 0xb8:
+		case 0x39:
+		case 0x99:
+		case 0x59:
+		case 0xf1:
+		case 0xf0:
+		case 0xd9:
+		case 0xb9:
+		case 0x79:
+		case 0xf9:
+		{
+			PIXEL01_22
+			break;
+		}
+		case 0x12:
+		case 0x32:
+		{
+			if (edge(w[2], w[6])) {
+				PIXEL01_10
+			} else {
+				PIXEL01_20
+			}
+			break;
+		}
+		}
+
+		switch (pattern) {
+		case 0x2a:
+		case 0xaa:
+		case 0xab:
+		case 0x2b:
+		case 0xbb:
+		{
+			if (edge(w[4], w[2])) {
+				PIXEL10_11
+			} else {
+				PIXEL10_60
+			}
+			break;
+		}
+		case 0x40:
+		case 0x41:
+		case 0x44:
+		case 0x45:
+		case 0xc0:
+		case 0xc1:
+		case 0xc4:
+		case 0xc5:
+		case 0x50:
+		case 0x51:
+		case 0x42:
+		case 0xd0:
+		case 0xd1:
+		case 0x54:
+		case 0x55:
+		case 0x43:
+		case 0x46:
+		case 0xc2:
+		case 0x52:
+		case 0xd6:
+		case 0x56:
+		case 0xd2:
+		case 0xc6:
+		case 0x47:
+		case 0xc3:
+		case 0x53:
+		case 0xd5:
+		case 0xd4:
+		case 0xd3:
+		case 0xc7:
+		case 0x57:
+		case 0xd7:
+		{
+			PIXEL10_21
+			break;
+		}
+		case 0x48:
+		case 0x4c:
+		{
+			if (edge(w[8], w[4])) {
+				PIXEL10_10
+			} else {
+				PIXEL10_20
+			}
+			break;
+		}
+		case 0xed:
+		case 0xe9:
+		case 0xf9:
+		case 0xeb:
+		case 0xfd:
+		case 0xfb:
+		case 0xef:
+		case 0xff:
+		{
+			if (edge(w[8], w[4])) {
+				PIXEL10_0
+			} else {
+				PIXEL10_100
+			}
+			break;
+		}
+		case 0xec:
+		case 0xe8:
+		case 0x6d:
+		case 0x69:
+		case 0x7d:
+		case 0xee:
+		{
+			if (edge(w[8], w[4])) {
+				PIXEL10_0
+			} else {
+				PIXEL10_90
+			}
+			break;
+		}
+		case 0x28:
+		case 0x2c:
+		case 0xa8:
+		case 0xac:
+		case 0x29:
+		case 0xa9:
+		case 0x2d:
+		case 0x38:
+		case 0xb8:
+		case 0x39:
+		case 0x3c:
+		case 0x3a:
+		case 0x3e:
+		case 0xbc:
+		case 0xb9:
+		case 0x3d:
+		case 0x3b:
+		case 0xad:
+		case 0xba:
+		case 0xae:
+		case 0x2e:
+		case 0xbd:
+		case 0xbe:
+		case 0xaf:
+		case 0x2f:
+		case 0x3f:
+		case 0xbf:
+		{
+			PIXEL10_11
+			break;
+		}
+		case 0xd8:
+		case 0x4b:
+		case 0xcb:
+		case 0xd9:
+		case 0xdb:
+		case 0xdd:
+		case 0xcf:
+		case 0x5f:
+		case 0xde:
+		case 0xdf:
+		{
+			PIXEL10_10
+			break;
+		}
+		case 0x0:
+		case 0x1:
+		case 0x4:
+		case 0x20:
+		case 0x80:
+		case 0x5:
+		case 0x84:
+		case 0xa0:
+		case 0x21:
+		case 0x81:
+		case 0x24:
+		case 0x85:
+		case 0xa4:
+		case 0xa1:
+		case 0x25:
+		case 0xa5:
+		case 0x2:
+		case 0x22:
+		case 0x82:
+		case 0xa2:
+		case 0x10:
+		case 0x11:
+		case 0x30:
+		case 0x31:
+		case 0x3:
+		case 0x23:
+		case 0x83:
+		case 0xa3:
+		case 0x6:
+		case 0x26:
+		case 0x86:
+		case 0xa6:
+		case 0x14:
+		case 0x15:
+		case 0x34:
+		case 0x35:
+		case 0x90:
+		case 0x91:
+		case 0xb0:
+		case 0xb1:
+		case 0x12:
+		case 0x32:
+		case 0x7:
+		case 0x27:
+		case 0x87:
+		case 0x94:
+		case 0x95:
+		case 0xb4:
+		case 0x16:
+		case 0x36:
+		case 0x13:
+		case 0x33:
+		case 0x92:
+		case 0xb2:
+		case 0x37:
+		case 0x17:
+		case 0xb6:
+		case 0x96:
+		case 0xa7:
+		case 0xb5:
+		case 0xb3:
+		case 0x93:
+		case 0xb7:
+		case 0x97:
+		{
+			PIXEL10_20
+			break;
+		}
+		case 0x60:
+		case 0x61:
+		case 0x64:
+		case 0x65:
+		case 0xe0:
+		case 0xe4:
+		case 0xe1:
+		case 0x62:
+		case 0x63:
+		case 0xe2:
+		case 0x66:
+		case 0x72:
+		case 0x76:
+		case 0x67:
+		case 0xe3:
+		case 0xe6:
+		case 0xf2:
+		case 0xe5:
+		case 0x73:
+		case 0x75:
+		case 0x74:
+		case 0xe7:
+		case 0x77:
+		case 0xf5:
+		case 0xf4:
+		case 0xf6:
+		case 0xf7:
+		{
+			PIXEL10_12
+			break;
+		}
+		case 0x68:
+		case 0x6c:
+		case 0x58:
+		case 0xf8:
+		case 0x4a:
+		case 0x6b:
+		case 0x6a:
+		case 0x78:
+		case 0x7c:
+		case 0x6e:
+		case 0xea:
+		case 0x79:
+		case 0x7a:
+		case 0x7e:
+		case 0xfa:
+		case 0x7b:
+		case 0xfc:
+		case 0x6f:
+		case 0xfe:
+		case 0x7f:
+		{
+			if (edge(w[8], w[4])) {
+				PIXEL10_0
+			} else {
+				PIXEL10_20
+			}
+			break;
+		}
+		case 0x8:
+		case 0xc:
+		case 0x88:
+		case 0x8c:
+		case 0x9:
+		case 0xd:
+		case 0x89:
+		case 0x8d:
+		case 0xa:
+		case 0x8a:
+		case 0x18:
+		case 0xb:
+		case 0x8b:
+		case 0xe:
+		case 0x8e:
+		case 0x1c:
+		case 0x98:
+		case 0x19:
+		case 0x1a:
+		case 0x1f:
+		case 0x1b:
+		case 0x1e:
+		case 0x1d:
+		case 0x9c:
+		case 0x99:
+		case 0x9a:
+		case 0x8f:
+		case 0xf:
+		case 0x9b:
+		case 0x9d:
+		case 0x9e:
+		case 0x9f:
+		{
+			PIXEL10_22
+			break;
+		}
+		case 0x5c:
+		case 0xca:
+		case 0x4e:
+		case 0x59:
+		case 0x5a:
+		case 0xdc:
+		case 0x4f:
+		case 0x5e:
+		case 0xda:
+		case 0x5b:
+		case 0x5d:
+		case 0xce:
+		case 0xcd:
+		case 0xc9:
+		{
+			if (edge(w[8], w[4])) {
+				PIXEL10_10
+			} else {
+				PIXEL10_70
+			}
+			break;
+		}
+		case 0x70:
+		case 0x71:
+		case 0xf1:
+		case 0xf0:
+		case 0xf3:
+		{
+			if (edge(w[6], w[8])) {
+				PIXEL10_12
+			} else {
+				PIXEL10_61
+			}
+			break;
+		}
+		case 0xc8:
+		case 0xcc:
+		case 0x49:
+		case 0x4d:
+		{
+			if (edge(w[8], w[4])) {
+				PIXEL10_10
+			} else {
+				PIXEL10_90
+			}
+			break;
+		}
+		}
+
+		switch (pattern) {
+		case 0x10:
+		case 0x11:
+		case 0x30:
+		case 0x31:
+		case 0x14:
+		case 0x15:
+		case 0x34:
+		case 0x35:
+		case 0x12:
+		case 0x32:
+		case 0x18:
+		case 0x16:
+		case 0x36:
+		case 0x13:
+		case 0x33:
+		case 0x1c:
+		case 0x38:
+		case 0x19:
+		case 0x1a:
+		case 0x1f:
+		case 0x1b:
+		case 0x1e:
+		case 0x1d:
+		case 0x39:
+		case 0x3c:
+		case 0x3a:
+		case 0x37:
+		case 0x17:
+		case 0x3e:
+		case 0x3d:
+		case 0x3b:
+		case 0x3f:
+		{
+			PIXEL11_21
+			break;
+		}
+		case 0x53:
+		case 0x5c:
+		case 0x72:
+		case 0x59:
+		case 0x5a:
+		case 0x79:
+		case 0x57:
+		case 0x7a:
+		case 0x5e:
+		case 0x5b:
+		case 0x73:
+		case 0x5d:
+		case 0x75:
+		case 0x74:
+		{
+			if (edge(w[6], w[8])) {
+				PIXEL11_10
+			} else {
+				PIXEL11_70
+			}
+			break;
+		}
+		case 0x54:
+		case 0x55:
+		case 0x70:
+		case 0x71:
+		{
+			if (edge(w[6], w[8])) {
+				PIXEL11_10
+			} else {
+				PIXEL11_90
+			}
+			break;
+		}
+		case 0xc0:
+		case 0xc1:
+		case 0xc4:
+		case 0xc5:
+		case 0xe0:
+		case 0xe4:
+		case 0xe1:
+		case 0xc2:
+		case 0xc6:
+		case 0xe2:
+		case 0xc3:
+		case 0xca:
+		case 0xcb:
+		case 0xe3:
+		case 0xe6:
+		case 0xc7:
+		case 0xea:
+		case 0xe5:
+		case 0xce:
+		case 0xcd:
+		case 0xc9:
+		case 0xe7:
+		case 0xcf:
+		case 0xed:
+		case 0xe9:
+		case 0xeb:
+		case 0xef:
+		{
+			PIXEL11_11
+			break;
+		}
+		case 0x56:
+		case 0x78:
+		case 0x7c:
+		case 0x76:
+		case 0x7e:
+		case 0x7d:
+		case 0x77:
+		case 0x7b:
+		case 0x5f:
+		case 0x7f:
+		{
+			PIXEL11_10
+			break;
+		}
+		case 0xc8:
+		case 0xcc:
+		case 0xec:
+		case 0xe8:
+		case 0xee:
+		{
+			if (edge(w[8], w[4])) {
+				PIXEL11_11
+			} else {
+				PIXEL11_60
+			}
+			break;
+		}
+		case 0xd5:
+		case 0xd4:
+		case 0xf1:
+		case 0xf0:
+		case 0xdd:
+		case 0xf3:
+		{
+			if (edge(w[6], w[8])) {
+				PIXEL11_0
+			} else {
+				PIXEL11_90
+			}
+			break;
+		}
+		case 0x0:
+		case 0x1:
+		case 0x4:
+		case 0x20:
+		case 0x80:
+		case 0x5:
+		case 0x84:
+		case 0xa0:
+		case 0x21:
+		case 0x81:
+		case 0x24:
+		case 0x85:
+		case 0xa4:
+		case 0xa1:
+		case 0x25:
+		case 0xa5:
+		case 0x2:
+		case 0x22:
+		case 0x82:
+		case 0xa2:
+		case 0x8:
+		case 0xc:
+		case 0x88:
+		case 0x8c:
+		case 0x3:
+		case 0x23:
+		case 0x83:
+		case 0xa3:
+		case 0x6:
+		case 0x26:
+		case 0x86:
+		case 0xa6:
+		case 0x28:
+		case 0x2c:
+		case 0xa8:
+		case 0xac:
+		case 0x9:
+		case 0xd:
+		case 0x89:
+		case 0x8d:
+		case 0xa:
+		case 0x8a:
+		case 0x7:
+		case 0x27:
+		case 0x87:
+		case 0x29:
+		case 0xa9:
+		case 0x2d:
+		case 0xb:
+		case 0x8b:
+		case 0x2a:
+		case 0xaa:
+		case 0xe:
+		case 0x8e:
+		case 0xab:
+		case 0x2b:
+		case 0x8f:
+		case 0xf:
+		case 0xa7:
+		case 0xad:
+		case 0xae:
+		case 0x2e:
+		case 0xaf:
+		case 0x2f:
+		{
+			PIXEL11_20
+			break;
+		}
+		case 0x50:
+		case 0x51:
+		{
+			if (edge(w[6], w[8])) {
+				PIXEL11_10
+			} else {
+				PIXEL11_20
+			}
+			break;
+		}
+		case 0x90:
+		case 0x91:
+		case 0xb0:
+		case 0xb1:
+		case 0x94:
+		case 0x95:
+		case 0xb4:
+		case 0x98:
+		case 0xb8:
+		case 0x9c:
+		case 0x99:
+		case 0x9a:
+		case 0x9b:
+		case 0xbc:
+		case 0xb9:
+		case 0x9d:
+		case 0x9e:
+		case 0xb5:
+		case 0xba:
+		case 0xb3:
+		case 0x93:
+		case 0xbd:
+		case 0xbb:
+		case 0xb7:
+		case 0x97:
+		case 0x9f:
+		case 0xbf:
+		{
+			PIXEL11_12
+			break;
+		}
+		case 0x40:
+		case 0x41:
+		case 0x44:
+		case 0x45:
+		case 0x60:
+		case 0x61:
+		case 0x64:
+		case 0x65:
+		case 0x48:
+		case 0x4c:
+		case 0x42:
+		case 0x68:
+		case 0x6c:
+		case 0x49:
+		case 0x4d:
+		case 0x43:
+		case 0x46:
+		case 0x62:
+		case 0x4a:
+		case 0x6b:
+		case 0x6a:
+		case 0x4b:
+		case 0x63:
+		case 0x47:
+		case 0x66:
+		case 0x4e:
+		case 0x6d:
+		case 0x69:
+		case 0x6e:
+		case 0x67:
+		case 0x4f:
+		case 0x6f:
+		{
+			PIXEL11_22
+			break;
+		}
+		case 0x92:
+		case 0xb2:
+		case 0xb6:
+		case 0x96:
+		case 0xbe:
+		{
+			if (edge(w[2], w[6])) {
+				PIXEL11_12
+			} else {
+				PIXEL11_61
+			}
+			break;
+		}
+		case 0xf5:
+		case 0xf4:
+		case 0xfc:
+		case 0xf6:
+		case 0xfe:
+		case 0xfd:
+		case 0xf7:
+		case 0xff:
+		{
+			if (edge(w[6], w[8])) {
+				PIXEL11_0
+			} else {
+				PIXEL11_100
+			}
+			break;
+		}
+		case 0xd0:
+		case 0xd1:
+		case 0x52:
+		case 0xd6:
+		case 0x58:
+		case 0xf8:
+		case 0xd8:
+		case 0xd2:
+		case 0xd3:
+		case 0xd9:
+		case 0xdc:
+		case 0xf2:
+		case 0xda:
+		case 0xdb:
+		case 0xfa:
+		case 0xde:
+		case 0xf9:
+		case 0xd7:
+		case 0xfb:
+		case 0xdf:
+		{
+			if (edge(w[6], w[8])) {
+				PIXEL11_0
+			} else {
+				PIXEL11_20
+			}
+			break;
+		}
+		}
 
 		pIn += 1;
 		pOut += 2;
