@@ -20,16 +20,16 @@ byte MicrosolFDC::readIO(byte port, const EmuTime &time)
 	byte value;
 	switch (port & 0x07) {
 	case 0:
-		value = controller->getStatusReg(time);
+		value = controller.getStatusReg(time);
 		break;
 	case 1:
-		value = controller->getTrackReg(time);
+		value = controller.getTrackReg(time);
 		break;
 	case 2:
-		value = controller->getSectorReg(time);
+		value = controller.getSectorReg(time);
 		break;
 	case 3:
-		value = controller->getDataReg(time);
+		value = controller.getDataReg(time);
 		break;
 	case 4:
 		value = driveD4;
@@ -49,16 +49,16 @@ void MicrosolFDC::writeIO(byte port, byte value, const EmuTime &time)
 	PRT_DEBUG("MicrosolFDC: write 0x" << std::hex << (int)port << " 0x" << (int)value << std::dec);
 	switch (port & 0x07) {
 	case 0:
-		controller->setCommandReg(value, time);
+		controller.setCommandReg(value, time);
 		break;
 	case 1:
-		controller->setTrackReg(value, time);
+		controller.setTrackReg(value, time);
 		break;
 	case 2:
-		controller->setSectorReg(value, time);
+		controller.setSectorReg(value, time);
 		break;
 	case 3:
-		controller->setDataReg(value, time);
+		controller.setDataReg(value, time);
 		break;
 	case 4:
 		// From Ricardo Bittencourt
@@ -100,9 +100,9 @@ void MicrosolFDC::writeIO(byte port, byte value, const EmuTime &time)
 			// collision).
 			drive = DriveMultiplexer::NO_DRIVE;
 		}
-		multiplexer->selectDrive(drive, time);
-		multiplexer->setSide(value & 0x10);
-		multiplexer->setMotor(value & 0x20, time);
+		multiplexer.selectDrive(drive, time);
+		multiplexer.setSide(value & 0x10);
+		multiplexer.setMotor(value & 0x20, time);
 		break;
 	}
 }

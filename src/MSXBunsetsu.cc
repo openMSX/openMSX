@@ -61,3 +61,13 @@ const byte* MSXBunsetsu::getReadCacheLine(word start) const
 		return rom.getBlock(start - 0x4000);
 	}
 }
+
+byte* MSXBunsetsu::getWriteCacheLine(word start) const
+{
+	if ((start & CPU::CACHE_LINE_HIGH) == 
+	    (0xBFFF & CPU::CACHE_LINE_HIGH)) {
+		return NULL;
+	} else {
+		return unmappedWrite;
+	}
+}

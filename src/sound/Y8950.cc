@@ -60,7 +60,7 @@ int Y8950::EXPAND_BITS(int x, int s, int d)
 // Adjust envelope speed which depends on sampling rate
 unsigned int Y8950::rate_adjust(double x, int rate)
 {
-	double tmp = x * CLOCK_FREQ / 72 / rate + 0.5; // +0.5 to round
+	double tmp = x * CLK_FREQ / 72 / rate + 0.5; // +0.5 to round
 	assert (tmp <= 4294967295U);
 	return (unsigned int)tmp;
 }
@@ -461,8 +461,8 @@ void Y8950::setSampleRate(int sampleRate)
 	Y8950::Slot::makeDphaseARTable(sampleRate);
 	Y8950::Slot::makeDphaseDRTable(sampleRate);
 	makeDphaseNoiseTable(sampleRate);
-	pm_dphase = rate_adjust(PM_SPEED * PM_DP_WIDTH / (CLOCK_FREQ/72), sampleRate);
-	am_dphase = rate_adjust(AM_SPEED * AM_DP_WIDTH / (CLOCK_FREQ/72), sampleRate);
+	pm_dphase = rate_adjust(PM_SPEED * PM_DP_WIDTH / (CLK_FREQ/72), sampleRate);
+	am_dphase = rate_adjust(AM_SPEED * AM_DP_WIDTH / (CLK_FREQ/72), sampleRate);
 }
 
 // Reset whole of opl except patch datas. 

@@ -17,6 +17,7 @@ class RomPanasonic : public Rom8kBBlocks
 		virtual const byte* getReadCacheLine(word address) const;
 		virtual void writeMem(word address, byte value,
 		                      const EmuTime &time);
+		virtual byte* getWriteCacheLine(word address) const;
 	
 	private:
 		byte control;

@@ -5,25 +5,19 @@
 #include "MSXConfig.hh"
 #include "MSXCPUInterface.hh"
 #include "CPU.hh"
-#include "Z80.hh"
-#include "R800.hh"
 
 
 MSXCPU::MSXCPU(Device *config, const EmuTime &time)
-	: MSXDevice(config, time)
+	: MSXDevice(config, time),
+	  z80 (MSXCPUInterface::instance(), time),
+	  r800(MSXCPUInterface::instance(), time)
 {
-	PRT_DEBUG("Creating an MSXCPU object");
-	z80 = new Z80(MSXCPUInterface::instance(), time);
-	r800 = new R800(MSXCPUInterface::instance(), time);
-	activeCPU = z80;	// setActiveCPU(CPU_Z80);
+	activeCPU = &z80;	// setActiveCPU(CPU_Z80);
 	reset(time);
 }
 
 MSXCPU::~MSXCPU()
 {
-	PRT_DEBUG("Destroying an MSXCPU object");
-	delete z80;
-	delete r800;
 }
 
 MSXCPU* MSXCPU::instance()
@@ -42,8 +36,8 @@ MSXCPU* MSXCPU::instance()
 void MSXCPU::reset(const EmuTime &time)
 {
 	MSXDevice::reset(time);
-	z80->reset(time);
-	r800->reset(time);
+	z80.reset(time);
+	r800.reset(time);
 }
 
 
@@ -53,11 +47,11 @@ void MSXCPU::setActiveCPU(CPUType cpu)
 	switch (cpu) {
 		case CPU_Z80:
 			PRT_DEBUG("Active CPU: Z80");
-			newCPU = z80;
+			newCPU = &z80;
 			break;
 		case CPU_R800:
 			PRT_DEBUG("Active CPU: R800");
-			newCPU = r800;
+			newCPU = &r800;
 			break;
 		default:
 			assert(false);
@@ -102,11 +96,11 @@ void MSXCPU::invalidateCache(word start, int num)
 
 void MSXCPU::raiseIRQ()
 {
-	z80->raiseIRQ();
-	r800->raiseIRQ();
+	z80.raiseIRQ();
+	r800.raiseIRQ();
 }
 void MSXCPU::lowerIRQ()
 {
-	z80->lowerIRQ();
-	r800->lowerIRQ();
+	z80.lowerIRQ();
+	r800.lowerIRQ();
 }

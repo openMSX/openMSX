@@ -239,7 +239,7 @@ class Y8950 : public SoundDevice
 		Channel ch[9];
 		Slot *slot[18];
 
-		static const int CLOCK_FREQ = 3579545;
+		static const int CLK_FREQ = 3579545;
 		static const double PI = 3.14159265358979;
 		// PM speed(Hz) and depth(cent) 
 		static const double PM_SPEED = 6.4;

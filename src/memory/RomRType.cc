@@ -24,10 +24,10 @@ RomRType::~RomRType()
 
 void RomRType::reset(const EmuTime &time)
 {
-	setBank(0, unmapped);
+	setBank(0, unmappedRead);
 	setRom (1, 0x17);
 	setRom (2, 0);
-	setBank(3, unmapped);
+	setBank(3, unmappedRead);
 }
 
 void RomRType::writeMem(word address, byte value, const EmuTime &time)
@@ -35,5 +35,14 @@ void RomRType::writeMem(word address, byte value, const EmuTime &time)
 	if ((0x7000 <= address) && (address < 0x8000)) {
 		value &= (value & 0x10) ? 0x17 : 0x1F;
 		setRom(2, value);
+	}
+}
+
+byte* RomRType::getWriteCacheLine(word address) const
+{
+	if ((0x7000 <= address) && (address < 0x8000)) {
+		return NULL;
+	} else {
+		return unmappedWrite;
 	}
 }

@@ -64,6 +64,7 @@ byte* RomMSXAudio::getWriteCacheLine(word address) const
 	address &= 0x3FFF;
 	if ((bankSelect == 0) && (address >= 0x3000)) {
 		return &ram[address - 0x3000];
+	} else {
+		return unmappedWrite;
 	}
-	return NULL;
 }

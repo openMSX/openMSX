@@ -15,6 +15,7 @@ class RomGeneric16kB : public Rom16kBBlocks
 		virtual void reset(const EmuTime &time);
 		virtual void writeMem(word address, byte value,
 		                      const EmuTime &time);
+		virtual byte* getWriteCacheLine(word address) const;
 };
 
 #endif

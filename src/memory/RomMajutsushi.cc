@@ -30,13 +30,13 @@ RomMajutsushi::~RomMajutsushi()
 
 void RomMajutsushi::reset(const EmuTime &time)
 {
-	setBank(0, unmapped);
-	setBank(1, unmapped);
+	setBank(0, unmappedRead);
+	setBank(1, unmappedRead);
 	for (int i = 2; i < 6; i++) {
 		setRom(i, i - 2);
 	}
-	setBank(6, unmapped);
-	setBank(7, unmapped);
+	setBank(6, unmappedRead);
+	setBank(7, unmappedRead);
 
 	dac->reset(time);
 }
@@ -47,5 +47,14 @@ void RomMajutsushi::writeMem(word address, byte value, const EmuTime &time)
 		setRom(address >> 13, value);
 	} else if ((0x5000 <= address) && (address < 0x6000)) {
 		dac->writeDAC(value, time);
+	}
+}
+
+byte* RomMajutsushi::getWriteCacheLine(word address) const
+{
+	if ((0x5000 <= address) && (address < 0xC000)) {
+		return NULL;
+	} else {
+		return unmappedWrite;
 	}
 }

@@ -2,6 +2,9 @@
 
 #include "EmuTime.hh"
 
+
+const EmuTime EmuTime::zero;
+
 std::ostream &operator<<(std::ostream &os, const EmuTime &et)
 {
 	os << et.time;

@@ -14,7 +14,7 @@
 class YM2413;
 
 
-class MSXMusic : public MSXIODevice, MSXMemDevice
+class MSXMusic : public MSXIODevice, public MSXMemDevice
 {
 	public:
 		MSXMusic(Device *config, const EmuTime &time);

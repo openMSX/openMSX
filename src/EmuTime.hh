@@ -68,6 +68,8 @@ class EmuTime
 			{ assert(time >= e.time);
 			  return EmuDuration(time-e.time); }
 		
+		static const EmuTime zero;
+		
 	//protected:
 		uint64 time;
 };

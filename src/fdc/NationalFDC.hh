@@ -4,6 +4,7 @@
 #define __NATIONALFDC_HH__
 
 #include "WD2793BasedFDC.hh"
+#include "CPU.hh"
 
 
 class NationalFDC : public WD2793BasedFDC
@@ -15,10 +16,9 @@ class NationalFDC : public WD2793BasedFDC
 		virtual byte readMem(word address, const EmuTime &time);
 		virtual void writeMem(word address, byte value, const EmuTime &time);  
 		virtual const byte* getReadCacheLine(word start) const;
+		virtual byte* getWriteCacheLine(word address) const;
 
 	private:
-		byte* emptyRom;
-		bool brokenFDCread;
 		byte driveReg;
 };
 #endif

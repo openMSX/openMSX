@@ -2,6 +2,8 @@
 
 #include "MSXFmPac.hh"
 #include "MSXConfig.hh"
+#include "MSXCPU.hh"
+#include "CPU.hh"
 
 
 static const char* PAC_Header = "PAC2 BACKUP DATA";
@@ -56,6 +58,22 @@ byte MSXFmPac::readMem(word address, const EmuTime &time)
 	}
 }
 
+const byte* MSXFmPac::getReadCacheLine(word address) const
+{
+	if (address == (0x7FF4 & CPU::CACHE_LINE_HIGH)) {
+		return NULL;
+	}
+	address &= 0x3FFF;
+	if (address == (0x1FFE & CPU::CACHE_LINE_HIGH)) {
+		return NULL;
+	}
+	if (sramEnabled && (address < 0x1FFE)) {
+		return sram.getBlock(address);
+	} else {
+		return rom.getBlock(bank * 0x4000 + address);
+	}
+}
+
 void MSXFmPac::writeMem(word address, byte value, const EmuTime &time)
 {
 	switch (address) {
@@ -78,23 +96,43 @@ void MSXFmPac::writeMem(word address, byte value, const EmuTime &time)
 		case 0x7FF6:
 			enable = value & 0x11;
 			break;
-		case 0x7FF7:
-			bank = value & 0x03;
-			PRT_DEBUG("FmPac: bank " << (int)bank);
+		case 0x7FF7: {
+			byte newBank = value & 0x03;
+			if (bank != newBank) {
+				bank = newBank;
+				MSXCPU::instance()->invalidateCache(0x0000,
+				              0x10000 / CPU::CACHE_LINE_SIZE);
+			}
 			break;
+		}
 		default:
 			if (sramEnabled && (address < 0x5FFE))
 				sram.write(address - 0x4000, value);
 	}
 }
 
-void MSXFmPac::checkSramEnable()
+byte* MSXFmPac::getWriteCacheLine(word address) const
 {
-	sramEnabled = ((r5ffe == 0x4D) && (r5fff == 0x69)) ? true : false;
+	if (address == (0x5FFE & CPU::CACHE_LINE_HIGH)) {
+		return NULL;
+	}
+	if (address == (0x7FF4 & CPU::CACHE_LINE_HIGH)) {
+		return NULL;
+	}
+	if (sramEnabled && (address < 0x5FFE)) {
+		return sram.getBlock(address - 0x4000);
+	} else {
+		return unmappedWrite;
+	}
 }
 
-const byte* MSXFmPac::getReadCacheLine(word start) const
+void MSXFmPac::checkSramEnable()
 {
-	// TODO
-	return NULL;
+	bool newEnabled = ((r5ffe == 0x4D) && (r5fff == 0x69)) ? true : false;
+	if (sramEnabled != newEnabled) {
+		sramEnabled = newEnabled;
+		MSXCPU::instance()->invalidateCache(0x0000,
+		                              0x10000 / CPU::CACHE_LINE_SIZE);
+	}
 }
+

@@ -4,9 +4,8 @@
 #define __WD2793BASEDFDC_HH__
 
 #include "MSXFDC.hh"
-
-class WD2793;
-class DriveMultiplexer;
+#include "DriveMultiplexer.hh"
+#include "WD2793.hh"
 
 
 class WD2793BasedFDC : public MSXFDC
@@ -18,8 +17,8 @@ class WD2793BasedFDC : public MSXFDC
 		virtual void reset(const EmuTime &time);
 		
 	protected:
-		WD2793* controller;
-		DriveMultiplexer* multiplexer;
+		DriveMultiplexer multiplexer;
+		WD2793 controller;
 };
 
 #endif

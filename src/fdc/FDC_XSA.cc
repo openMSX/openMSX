@@ -12,16 +12,15 @@ const int FDC_XSA::cpdext[TBLSIZE] = {
 
 FDC_XSA::FDC_XSA(FileContext *context, const std::string &fileName)
 {
-	File *file = new File(context->resolve(fileName));
+	File file(context->resolve(fileName));
 	if (!isXSAImage(file)) {
 		throw MSXException("Not an XSA image");
 	}
-	int fileSize = file->getSize();
+	int fileSize = file.getSize();
 	byte* inbuf = new byte[fileSize];
 	inbufpos = inbuf;
-	file->seek(0);
-	file->read(inbuf, fileSize);
-	delete file;
+	file.seek(0);
+	file.read(inbuf, fileSize);
 	
 	chkheader();
 	inithufinfo();	// initialize the cpdist tables
@@ -30,10 +29,10 @@ FDC_XSA::FDC_XSA(FileContext *context, const std::string &fileName)
 	delete[] inbuf;
 }
 
-bool FDC_XSA::isXSAImage(File *file)
+bool FDC_XSA::isXSAImage(File &file)
 {
 	byte buffer[4];
-	file->read(buffer, 4);
+	file.read(buffer, 4);
 
 	for (int i = 0; i < 4; i++) {
 		if (buffer[i] != "PCK\010"[i]) {

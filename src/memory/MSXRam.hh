@@ -33,7 +33,5 @@ class MSXRam : public MSXMemDevice
 		int end;
 		bool slowDrainOnReset;
 		byte* memoryBank;
-		byte* emptyRead;
-		byte* emptyWrite;
 };
 #endif

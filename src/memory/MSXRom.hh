@@ -13,10 +13,12 @@ class MSXRom : public MSXMemDevice
 		MSXRom(Device* config, const EmuTime &time);
 		virtual ~MSXRom();
 
+		virtual void writeMem(word address, byte value,
+		                      const EmuTime &time);
+		virtual byte* getWriteCacheLine(word address) const;
+
 	protected:
 		Rom rom;
-		static const int UNMAPPED_SIZE = 0x8000;
-		static byte unmapped[UNMAPPED_SIZE];
 		static class MSXCPU* cpu;
 
 	private:

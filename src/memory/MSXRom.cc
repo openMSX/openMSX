@@ -4,7 +4,6 @@
 #include "MSXCPU.hh"
 
 
-byte MSXRom::unmapped[UNMAPPED_SIZE];
 MSXCPU* MSXRom::cpu;
 
 
@@ -26,6 +25,16 @@ void MSXRom::init()
 	}
 	alreadyInit = true;
 
-	memset(unmapped, 0xFF, UNMAPPED_SIZE);
 	cpu = MSXCPU::instance();
+}
+
+
+void MSXRom::writeMem(word address, byte value, const EmuTime &time)
+{
+	// nothing
+}
+
+byte* MSXRom::getWriteCacheLine(word address) const
+{
+	return unmappedWrite;
 }

@@ -4,11 +4,8 @@
 #define __MSXCPU_HH__
 
 #include "MSXDevice.hh"
-
-// forward declaration
-class CPU;
-class Z80;
-class R800;
+#include "Z80.hh"
+#include "R800.hh"
 
 
 class MSXCPU : public MSXDevice
@@ -16,9 +13,6 @@ class MSXCPU : public MSXDevice
 	public:
 		enum CPUType { CPU_Z80, CPU_R800 };
 	
-		/**
-		 * Destructor
-		 */
 		virtual ~MSXCPU();
 
 		/**
@@ -58,9 +52,6 @@ class MSXCPU : public MSXDevice
 		void lowerIRQ();
 
 	private:
-		/**
-		 * Constructor.
-		 */
 		MSXCPU(Device *config, const EmuTime &time);
 		
 		// only for Scheduler
@@ -69,8 +60,8 @@ class MSXCPU : public MSXDevice
 		const EmuTime &getTargetTime() const;
 		friend class Scheduler;
 
-		Z80 *z80;
-		R800 *r800;
+		Z80 z80;
+		R800 r800;
 	
 		CPU *activeCPU;
 };

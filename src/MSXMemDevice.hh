@@ -52,8 +52,14 @@ class MSXMemDevice : virtual public MSXDevice
 		 * The start of the interval is CACHE_LINE_SIZE alligned.
 		 */
 		virtual byte* getWriteCacheLine(word start) const;
-		
+	
+	protected:
+		static byte unmappedRead[0x10000];	// Read only
+		static byte unmappedWrite[0x10000];	// Write only
+	
 	private:
+		void init();
+		
 		/**
 		 * Register this device in all the slots that where specified
 		 * in its config file. This method is called by the constructor,

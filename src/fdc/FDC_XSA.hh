@@ -39,7 +39,7 @@ class FDC_XSA : public FDCBackEnd
 		static const int TBLSIZE = 16;
 		static const int MAXHUFCNT = 127;
 
-		bool isXSAImage(File* file);
+		bool isXSAImage(File &file);
 		inline byte charin();
 		inline void charout(byte ch);
 		void chkheader();

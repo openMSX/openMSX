@@ -11,7 +11,7 @@ RomPageNN::RomPageNN(Device* config, const EmuTime &time, byte pages)
 		if (pages & (1 << page)) {
 			setRom(page, bank++);
 		} else {
-			setBank(page, unmapped);
+			setBank(page, unmappedRead);
 		}
 	}
 }

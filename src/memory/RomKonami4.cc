@@ -10,6 +10,7 @@
 // by writting at 0x6000,0x8000 and 0xa000
 
 #include "RomKonami4.hh"
+#include "CPU.hh"
 
 
 RomKonami4::RomKonami4(Device* config, const EmuTime &time)
@@ -24,13 +25,13 @@ RomKonami4::~RomKonami4()
 
 void RomKonami4::reset(const EmuTime &time)
 {
-	setBank(0, unmapped);
-	setBank(1, unmapped);
+	setBank(0, unmappedRead);
+	setBank(1, unmappedRead);
 	for (int i = 2; i < 6; i++) {
 		setRom(i, i - 2);
 	}
-	setBank(6, unmapped);
-	setBank(7, unmapped);
+	setBank(6, unmappedRead);
+	setBank(7, unmappedRead);
 }
 
 void RomKonami4::writeMem(word address, byte value, const EmuTime &time)
@@ -39,5 +40,16 @@ void RomKonami4::writeMem(word address, byte value, const EmuTime &time)
 	    (address == 0x8000) ||
 	    (address == 0xA000)) {
 		setRom(address >> 13, value);
+	}
+}
+
+byte* RomKonami4::getWriteCacheLine(word address) const
+{
+	if ((address == (0x6000 & CPU::CACHE_LINE_HIGH)) ||
+	    (address == (0x8000 & CPU::CACHE_LINE_HIGH)) ||
+	    (address == (0xA000 & CPU::CACHE_LINE_HIGH))) {
+		return NULL;
+	} else {
+		return unmappedWrite;
 	}
 }

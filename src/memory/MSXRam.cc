@@ -43,18 +43,11 @@ MSXRam::MSXRam(Device *config, const EmuTime &time)
 	
 	memoryBank = new byte[size];
 	memset(memoryBank, 0xFF, size);
-
-	emptyRead = new byte[CPU::CACHE_LINE_SIZE];
-	memset(emptyRead, 0xFF, CPU::CACHE_LINE_SIZE);
-
-	emptyWrite = new byte[CPU::CACHE_LINE_SIZE];
 }
 
 MSXRam::~MSXRam()
 {
 	delete[] memoryBank;
-	delete[] emptyRead;
-	delete[] emptyWrite;
 }
 
 void MSXRam::reset(const EmuTime &time)
@@ -93,7 +86,7 @@ const byte* MSXRam::getReadCacheLine(word start) const
 	if (isInside(start)) {
 		return &memoryBank[start - base];
 	} else {
-		return emptyRead;
+		return unmappedRead;
 	}
 }
 
@@ -102,6 +95,6 @@ byte* MSXRam::getWriteCacheLine(word start) const
 	if (isInside(start)) {
 		return &memoryBank[start - base];
 	} else {
-		return emptyWrite;
+		return unmappedWrite;
 	}
 }

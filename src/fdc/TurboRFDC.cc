@@ -5,31 +5,23 @@
  */
 
 #include "TurboRFDC.hh"
-#include "TC8566AF.hh"
-#include "CPU.hh"
 #include "MSXCPU.hh"
 
 
 TurboRFDC::TurboRFDC(Device *config, const EmuTime &time)
-	: MSXFDC(config, time), MSXDevice(config, time)
+	: MSXFDC(config, time), MSXDevice(config, time), controller(drives, time)
 {
-	emptyRom = new byte[CPU::CACHE_LINE_SIZE];
-	memset(emptyRom, 255, CPU::CACHE_LINE_SIZE);
-	
-	controller = new TC8566AF(drives, time);
 	reset(time);
 }
 
 TurboRFDC::~TurboRFDC()
 {
-	delete controller;
-	delete[] emptyRom;
 }
 
 void TurboRFDC::reset(const EmuTime &time)
 {
 	memory = rom.getBlock(0x0000);
-	controller->reset(time);
+	controller.reset(time);
 }
 
 byte TurboRFDC::readMem(word address, const EmuTime &time)
@@ -55,11 +47,11 @@ byte TurboRFDC::readMem(word address, const EmuTime &time)
 			break;
 		case 0x3FF4:
 		case 0x3FFA:
-			result = controller->readReg(4, time);
+			result = controller.readReg(4, time);
 			break;
 		case 0x3FF5:
 		case 0x3FFB:
-			result = controller->readReg(5, time);
+			result = controller.readReg(5, time);
 			break;
 		default:
 			result = 0xFF;
@@ -76,12 +68,12 @@ byte TurboRFDC::readMem(word address, const EmuTime &time)
 
 const byte* TurboRFDC::getReadCacheLine(word start) const
 {
-	if ((start & 0x3FF0 & CPU::CACHE_LINE_HIGH) == (0x3FF0 & CPU::CACHE_LINE_HIGH)) {
+	if ((start & 0x3FF0) == (0x3FF0 & CPU::CACHE_LINE_HIGH)) {
 		return NULL;
 	} else if ((0x4000 <= start) && (start < 0x8000)) {
 		return &memory[start & 0x3FFF];
 	} else {
-		return emptyRom;
+		return unmappedRead;
 	}
 }
 
@@ -94,8 +86,8 @@ void TurboRFDC::writeMem(word address, byte value, const EmuTime &time)
 		return;
 	} else {
 		switch (address & 0x3FFF) {
-		case 0x3ff2:
-		case 0x3ff8:
+		case 0x3FF2:
+		case 0x3FF8:
 			// bit 0	Drive select bit 0
 			// bit 1	Drive select bit 1
 			// bit 2	0 = Reset FDC, 1 = Enable FDC
@@ -104,20 +96,32 @@ void TurboRFDC::writeMem(word address, byte value, const EmuTime &time)
 			// bit 5	Motor Select Drive B
 			// Bit 6	Motor Select Drive C
 			// Bit 7	Motor Select Drive D
-			controller->writeReg(2, value, time);
+			controller.writeReg(2, value, time);
 			break;
-		case 0x3ff3:
-		case 0x3ff9:
-			controller->writeReg(3, value, time);
+		case 0x3FF3:
+		case 0x3FF9:
+			controller.writeReg(3, value, time);
 			break;
-		case 0x3ff4:
-		case 0x3ffa:
-			controller->writeReg(4, value, time);
+		case 0x3FF4:
+		case 0x3FFA:
+			controller.writeReg(4, value, time);
 			break;
-		case 0x3ff5:
-		case 0x3ffb:	// FDC data port
-			controller->writeReg(5, value, time);
+		case 0x3FF5:
+		case 0x3FFB:	// FDC data port
+			controller.writeReg(5, value, time);
 			break;
 		}
+	}
+}
+
+byte* TurboRFDC::getWriteCacheLine(word address) const
+{
+	if ((address == (0x6000 & CPU::CACHE_LINE_HIGH)) ||
+	    (address == (0x7FF0 & CPU::CACHE_LINE_HIGH)) ||
+	    (address == (0x7FFE & CPU::CACHE_LINE_HIGH)) ||
+	    ((address & 0x3FF0) == (0x3FF0 & CPU::CACHE_LINE_HIGH))) {
+		return NULL;
+	} else {
+		return unmappedWrite;
 	}
 }

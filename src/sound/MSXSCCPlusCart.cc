@@ -15,12 +15,7 @@ MSXSCCPlusCart::MSXSCCPlusCart(Device *config, const EmuTime &time)
 	short volume = (short)config->getParameterAsInt("volume");
 	cartridgeSCC = new SCC(volume, time);
 
-	// allocate buffer
-	memoryBank = new byte[131072];
-	memset(memoryBank, 255, 131072);
-
-	unmapped = new byte[8192];
-	memset(unmapped, 255, 8192);
+	memset(memoryBank, 0xFF, 0x20000);
 
 	if (deviceConfig->hasParameter("filename")) {
 		// read the rom file
@@ -63,8 +58,6 @@ MSXSCCPlusCart::MSXSCCPlusCart(Device *config, const EmuTime &time)
 
 MSXSCCPlusCart::~MSXSCCPlusCart()
 {
-	delete[] unmapped;
-	delete[] memoryBank;
 	delete cartridgeSCC;
 }
 
@@ -109,7 +102,7 @@ const byte* MSXSCCPlusCart::getReadCacheLine(word start) const
 		return &internalMemoryBank[(start >> 13) - 2][start & 0x1FFF];
 	} else {
 		// outside memory range
-		return NULL;
+		return unmappedRead;
 	}
 }
 
@@ -185,7 +178,7 @@ byte* MSXSCCPlusCart::getWriteCacheLine(word start) const
 			return &internalMemoryBank[regio][start & 0x1FFF];
 		}
 	}
-	return NULL;
+	return unmappedWrite;
 }
 
 
@@ -197,7 +190,7 @@ void MSXSCCPlusCart::setMapper(int regio, byte value)
 	byte* block;
 	if ((!lowRAM  && (value <  8)) ||
 	    (!highRAM && (value >= 8))) {
-		block = unmapped;
+		block = unmappedRead;
 		isMapped[regio] = false;
 	} else {
 		block = memoryBank + (0x2000 * value);

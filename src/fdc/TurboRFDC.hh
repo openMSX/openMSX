@@ -4,8 +4,7 @@
 #define __TURBORFDC_HH__
 
 #include "MSXFDC.hh"
-
-class TC8566AF;
+#include "TC8566AF.hh"
 
 
 class TurboRFDC : public MSXFDC
@@ -19,10 +18,10 @@ class TurboRFDC : public MSXFDC
 		virtual byte readMem(word address, const EmuTime &time);
 		virtual void writeMem(word address, byte value, const EmuTime &time);  
 		virtual const byte* getReadCacheLine(word start) const;
+		virtual byte* getWriteCacheLine(word address) const;
 
 	private:
-		byte* emptyRom;
 		const byte* memory;
-		TC8566AF* controller;
+		TC8566AF controller;
 };
 #endif

@@ -9,13 +9,10 @@
 NationalFDC::NationalFDC(Device *config, const EmuTime &time)
 	: WD2793BasedFDC(config, time), MSXDevice(config, time)
 {
-	emptyRom = new byte[CPU::CACHE_LINE_SIZE];
-	memset(emptyRom, 255, CPU::CACHE_LINE_SIZE);
 }
 
 NationalFDC::~NationalFDC()
 {
-	delete[] emptyRom;
 }
 
 byte NationalFDC::readMem(word address, const EmuTime &time)
@@ -26,16 +23,16 @@ byte NationalFDC::readMem(word address, const EmuTime &time)
 	//  7FB8 - 7FBF is mirrored in 7F80 - 7FBF
 	switch (address & 0x3FC7) {
 	case 0x3F80:
-		value = controller->getStatusReg(time);
+		value = controller.getStatusReg(time);
 		break;
 	case 0x3F81:
-		value = controller->getTrackReg(time);
+		value = controller.getTrackReg(time);
 		break;
 	case 0x3F82:
-		value = controller->getSectorReg(time);
+		value = controller.getSectorReg(time);
 		break;
 	case 0x3F83:
-		value = controller->getDataReg(time);
+		value = controller.getDataReg(time);
 		break;
 	case 0x3F84:
 	case 0x3F85:
@@ -46,8 +43,8 @@ byte NationalFDC::readMem(word address, const EmuTime &time)
 		// bit 6: !dtrq
 		// other bits read 1 
 		value = 0x7F;
-		if (controller->getIRQ(time))  value |=  0x80;
-		if (controller->getDTRQ(time)) value &= ~0x40;
+		if (controller.getIRQ(time))  value |=  0x80;
+		if (controller.getDTRQ(time)) value &= ~0x40;
 		break;
 	default:
 		if (address < 0x8000) {
@@ -62,22 +59,34 @@ byte NationalFDC::readMem(word address, const EmuTime &time)
 	return value;
 }
 
+const byte* NationalFDC::getReadCacheLine(word start) const
+{
+	if ((start & 0x3FC0 & CPU::CACHE_LINE_HIGH) == (0x3F80 & CPU::CACHE_LINE_HIGH))
+		// FDC at 0x7FB8-0x7FBC (also mirrored)
+		return NULL;
+	if (start < 0x8000) {
+		// ROM at 0x0000-0x7FFF
+		return MSXFDC::getReadCacheLine(start);
+	} else {
+		return unmappedRead;
+	}
+}
 
 void NationalFDC::writeMem(word address, byte value, const EmuTime &time)
 {
 	//PRT_DEBUG("NationalFDC write 0x" << std::hex << (int)address << " 0x" << (int)value << std::dec);
 	switch (address & 0x3FC7) {
 	case 0x3F80:
-		controller->setCommandReg(value, time);
+		controller.setCommandReg(value, time);
 		break;
 	case 0x3F81:
-		controller->setTrackReg(value, time);
+		controller.setTrackReg(value, time);
 		break;
 	case 0x3F82:
-		controller->setSectorReg(value, time);
+		controller.setSectorReg(value, time);
 		break;
 	case 0x3F83:
-		controller->setDataReg(value, time);
+		controller.setDataReg(value, time);
 		break;
 	case 0x3F84:
 	case 0x3F85:
@@ -98,22 +107,19 @@ void NationalFDC::writeMem(word address, byte value, const EmuTime &time)
 			default:
 				drive = DriveMultiplexer::NO_DRIVE;
 		}
-		multiplexer->selectDrive(drive, time);
-		multiplexer->setSide(value & 0x04);
-		multiplexer->setMotor((value & 0x08), time);
+		multiplexer.selectDrive(drive, time);
+		multiplexer.setSide(value & 0x04);
+		multiplexer.setMotor((value & 0x08), time);
 		break;
 	}
 }
 
-const byte* NationalFDC::getReadCacheLine(word start) const
+byte* NationalFDC::getWriteCacheLine(word address) const
 {
-	if ((start & 0x3FC0 & CPU::CACHE_LINE_HIGH) == (0x3F80 & CPU::CACHE_LINE_HIGH))
+	if ((address & 0x3FC0) == (0x3F80 & CPU::CACHE_LINE_HIGH)) {
 		// FDC at 0x7FB8-0x7FBC (also mirrored)
 		return NULL;
-	if (start < 0x8000) {
-		// ROM at 0x0000-0x7FFF
-		return MSXFDC::getReadCacheLine(start);
 	} else {
-		return emptyRom;
+		return unmappedWrite;
 	}
 }

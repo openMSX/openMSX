@@ -5,17 +5,36 @@
 #include "MSXConfig.hh"
 
 
+byte MSXMemDevice::unmappedRead[0x10000];
+byte MSXMemDevice::unmappedWrite[0x10000];
+
 MSXMemDevice::MSXMemDevice(Device *config, const EmuTime &time)
 	: MSXDevice(config, time)
 {
+	init();
 	registerSlots();
+}
+
+void MSXMemDevice::init()
+{
+	static bool alreadyInit = false;
+	if (alreadyInit) {
+		return;
+	}
+	alreadyInit = true;
+	memset(unmappedRead, 0xFF, 0x10000);
 }
 
 byte MSXMemDevice::readMem(word address, const EmuTime &time)
 {
 	PRT_DEBUG("MSXMemDevice: read from unmapped memory " << std::hex <<
 	           (int)address << std::dec);
-	return 255;
+	return 0xFF;
+}
+
+const byte* MSXMemDevice::getReadCacheLine(word start) const
+{
+	return NULL;	// uncacheable
 }
 
 void MSXMemDevice::writeMem(word address, byte value, const EmuTime &time)
@@ -23,6 +42,11 @@ void MSXMemDevice::writeMem(word address, byte value, const EmuTime &time)
 	PRT_DEBUG("MSXMemDevice: write to unmapped memory " << std::hex <<
 	           (int)address << std::dec);
 	// do nothing
+}
+
+byte* MSXMemDevice::getWriteCacheLine(word start) const
+{
+	return NULL;	// uncacheable
 }
 
 void MSXMemDevice::registerSlots()
@@ -56,12 +80,3 @@ void MSXMemDevice::registerSlots()
 	}
 }
 
-const byte* MSXMemDevice::getReadCacheLine(word start) const
-{
-	return NULL;	// uncacheable
-}
-
-byte* MSXMemDevice::getWriteCacheLine(word start) const
-{
-	return NULL;	// uncacheable
-}

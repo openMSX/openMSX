@@ -15,6 +15,7 @@ class RomMajutsushi : public Rom8kBBlocks
 		virtual void reset(const EmuTime &time);
 		virtual void writeMem(word address, byte value,
 		                      const EmuTime &time);
+		virtual byte* getWriteCacheLine(word address) const;
 
 	private:
 		class DACSound8U* dac;

@@ -5,9 +5,8 @@
 
 #include "MSXIODevice.hh"
 #include "AY8910.hh"
+#include "JoystickPorts.hh"
 
-// forward declarations
-class JoystickPorts;
 class CassettePortInterface;
 
 
@@ -15,14 +14,7 @@ class MSXPSG : public MSXIODevice, public AY8910Interface
 {
 	// MSXDevice
 	public:
-		/**
-		 * Constructor
-		 */
 		MSXPSG(Device *config, const EmuTime &time);
-
-		/**
-		 * Destructor
-		 */
 		virtual ~MSXPSG(); 
 		
 		virtual void powerOff(const EmuTime &time);
@@ -42,7 +34,7 @@ class MSXPSG : public MSXIODevice, public AY8910Interface
 		virtual void writeB(byte value, const EmuTime &time);
 
 	private:
-		JoystickPorts *joyPorts;
+		JoystickPorts joyPorts;
 		CassettePortInterface *cassette;
 };
 #endif

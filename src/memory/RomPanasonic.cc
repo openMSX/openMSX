@@ -63,9 +63,9 @@ void RomPanasonic::writeMem(word address, byte value, const EmuTime &time)
 		// set mapper state (lower 8 bits)
 		int region = (address & 0x1C00) >> 10;
 		if ((region == 5) || (region == 6)) region ^= 3;
-		int bank = bankSelect[region];
-		int newBank = (bank & ~0xFF) | value;
-		if (newBank != bank) {
+		int selectedBank = bankSelect[region];
+		int newBank = (selectedBank & ~0xFF) | value;
+		if (newBank != selectedBank) {
 			bankSelect[region] = newBank;
 			setRom(region, newBank);
 		}
@@ -91,8 +91,28 @@ void RomPanasonic::writeMem(word address, byte value, const EmuTime &time)
 	} else if ((0x8000 <= address) && (address < 0xC000)) {
 		// SRAM TODO check
 		int region = (address & 0x1C00) >> 10;
-		if ((0x80 <= region) && (region < 0x84)) {
+		int selectedBank = bankSelect[region];
+		if ((0x80 <= selectedBank) && (selectedBank < 0x84)) {
 			bank[address>>13][address&0x1FFF] = value;
 		}
+	}
+}
+
+byte* RomPanasonic::getWriteCacheLine(word address) const
+{
+	if ((0x6000 <= address) && (address < 0x7FF0)) {
+		return NULL;
+	} else if (address == (0x7FF8 & CPU::CACHE_LINE_HIGH)) {
+		return NULL;
+	} else if ((0x8000 <= address) && (address < 0xC000)) {
+		int region = (address & 0x1C00) >> 10;
+		int selectedBank = bankSelect[region];
+		if ((0x80 <= selectedBank) && (selectedBank < 0x84)) {
+			return &bank[address>>13][address&0x1FFF];
+		} else {
+			return unmappedWrite;
+		}
+	} else {
+		return unmappedWrite;
 	}
 }

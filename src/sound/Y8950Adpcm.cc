@@ -100,7 +100,7 @@ void Y8950Adpcm::writeReg(byte rg, byte data, const EmuTime &time)
 			
 			if (playing && !(reg7 & R07_REPEAT) && (stopAddr > playAddr)) {
 				uint64 samples = stopAddr - playAddr + 1;
-				EmuTimeFreq<Y8950::CLOCK_FREQ> stop(time);
+				EmuTimeFreq<Y8950::CLK_FREQ> stop(time);
 				stop += (samples*(72<<16)/delta);
 				Scheduler::instance()->setSyncPoint(stop, this);
 			} else {
@@ -114,19 +114,19 @@ void Y8950Adpcm::writeReg(byte rg, byte data, const EmuTime &time)
 			break;
 
 		case 0x09: // START ADDRESS (L)
-			startAddr = (startAddr&0x7f800) | (data<<3);
+			startAddr = (startAddr & 0x7F800) | (data << 3);
 			memPntr = 0;
 			break;
 		case 0x0A: // START ADDRESS (H) 
-			startAddr = (startAddr&0x007f8) | (data<<11);
+			startAddr = (startAddr & 0x007F8) | (data << 11);
 			memPntr = 0;
 			break;
 
 		case 0x0B: // STOP ADDRESS (L)
-			stopAddr = (stopAddr&0x7f807) | (data<<3);
+			stopAddr = (stopAddr & 0x7F807) | (data << 3);
 			break;
 		case 0x0C: // STOP ADDRESS (H) 
-			stopAddr = (stopAddr&0x007ff) | (data<<11);
+			stopAddr = (stopAddr & 0x007FF) | (data << 11);
 			break;
 
 
@@ -143,12 +143,12 @@ void Y8950Adpcm::writeReg(byte rg, byte data, const EmuTime &time)
 			break;
 
 		case 0x10: // DELTA-N (L) 
-			delta = (delta&0xff00) | data;
+			delta = (delta & 0xFF00) | data;
 			step = Y8950::rate_adjust(delta<<GETA_BITS, sampleRate);
 			volumeWStep = (int)((double)volume * step / MAX_STEP);
 			break;
 		case 0x11: // DELTA-N (H) 
-			delta = (delta&0x00ff) | (data<<8);
+			delta = (delta & 0x00FF) | (data << 8);
 			step = Y8950::rate_adjust(delta<<GETA_BITS, sampleRate);
 			volumeWStep = (int)((double)volume * step / MAX_STEP);
 			break;
@@ -188,10 +188,10 @@ byte Y8950Adpcm::readReg(byte rg)
 			break;
 		}
 		case 0x13: // TODO check
-			result = out & 0xff;
+			result = out & 0xFF;
 			break;
 		case 0x14: // TODO check
-			result = out/256;
+			result = out / 256;
 			break;
 		default:
 			result = 255;

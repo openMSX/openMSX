@@ -30,13 +30,13 @@ RomAscii8_8::~RomAscii8_8()
 
 void RomAscii8_8::reset(const EmuTime &time)
 {
-	setBank(0, unmapped);
-	setBank(1, unmapped);
+	setBank(0, unmappedRead);
+	setBank(1, unmappedRead);
 	for (int i = 2; i < 6; i++) {
 		setRom(i, 0);
 	}
-	setBank(6, unmapped);
-	setBank(7, unmapped);
+	setBank(6, unmappedRead);
+	setBank(7, unmappedRead);
 
 	sramEnabled = 0;
 }
@@ -54,19 +54,21 @@ void RomAscii8_8::writeMem(word address, byte value, const EmuTime &time)
 			setRom(region, value);
 			sramEnabled &= ~(1 << region);
 		}
-	} else {
+	} else if ((1 << (address >> 13)) & sramEnabled & 0x30) {
 		// write to SRAM
-		if ((1 << (address >> 13)) & sramEnabled & 0x30) {
-			sram.write(address & 0x1FFF, value);
-		}
+		sram.write(address & 0x1FFF, value);
 	}
 }
 
 byte* RomAscii8_8::getWriteCacheLine(word address) const
 {
-	if ((1 << (address >> 13)) & sramEnabled & 0x30) {
+	if ((0x6000 <= address) && (address < 0x8000)) {
+		// bank switching
+		return NULL;
+	} else if ((1 << (address >> 13)) & sramEnabled & 0x30) {
+		// write to SRAM
 		return sram.getBlock(address & 0x1FFF);
 	} else {
-		return NULL;
+		return unmappedWrite;
 	}
 }

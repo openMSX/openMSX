@@ -57,13 +57,13 @@ RomGameMaster2::~RomGameMaster2()
 void RomGameMaster2::reset(const EmuTime &time)
 {
 	for (int i = 0; i < 4; i++) {
-		setBank(i, unmapped);
+		setBank(i, unmappedRead);
 	}
 	for (int i = 4; i < 12; i++) {
 		setRom(i, i - 4);
 	}
 	for (int i = 12; i < 16; i++) {
-		setBank(i, unmapped);
+		setBank(i, unmappedRead);
 	}
 	sramEnabled = false;
 }
@@ -97,9 +97,15 @@ void RomGameMaster2::writeMem(word address, byte value, const EmuTime &time)
 
 byte* RomGameMaster2::getWriteCacheLine(word address) const
 {
-	if ((0xB000 <= address) && (address < 0xC000) && sramEnabled) {
+	if ((0x6000 <= address) && (address < 0xB000)) {
+		if (!(address & 0x1000)) {
+			return NULL;
+		} else {
+			return unmappedWrite;
+		}
+	} else if ((0xB000 <= address) && (address < 0xC000) && sramEnabled) {
 		return &bank[0xB][address & 0x0FFF];
 	} else {
-		return NULL;
+		return unmappedWrite;
 	}
 }

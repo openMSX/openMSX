@@ -1,5 +1,9 @@
 $Id$
 
+2003-03-16 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Various minor optimizations / cleanups, mostly better cache for
+          unmapped memory regions
+
 2003-03-16 Manuel Bilderbeek <manuel@msxnet.org>
 	* When a ROM is found in the romdb, the info about the ROM is now
 	  printed. Later, this info could be stored somewhere, so that the GUI

@@ -8,22 +8,16 @@
 DummyDevice::DummyDevice(Device *config, const EmuTime &time) 
 	: MSXDevice(config, time), MSXIODevice(config, time), MSXMemDevice(config, time)
 {
-	PRT_DEBUG ("Instantiating dummy device");
 }
 
 DummyDevice::~DummyDevice()
 {
-	PRT_DEBUG ("Destroying dummy device");
 }
 
 DummyDevice* DummyDevice::instance()
 {
-	static DummyDevice* oneInstance = NULL;
-	if (oneInstance == NULL) {
-		EmuTime dummy;
-		oneInstance = new DummyDevice(NULL, dummy); //TODO make a MSXConfig 
-	}
-	return oneInstance;
+	static DummyDevice oneInstance(NULL, EmuTime::zero);
+	return &oneInstance;
 }
 
 

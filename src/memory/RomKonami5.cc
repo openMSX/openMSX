@@ -35,13 +35,13 @@ RomKonami5::~RomKonami5()
 
 void RomKonami5::reset(const EmuTime &time)
 {
-	setBank(0, unmapped);
-	setBank(1, unmapped);
+	setBank(0, unmappedRead);
+	setBank(1, unmappedRead);
 	for (int i = 2; i < 6; i++) {
 		setRom(i, i - 2);
 	}
-	setBank(6, unmapped);
-	setBank(7, unmapped);
+	setBank(6, unmappedRead);
+	setBank(7, unmappedRead);
 
 	sccEnabled = false;
 	scc->reset(time);
@@ -84,5 +84,23 @@ void RomKonami5::writeMem(word address, byte value, const EmuTime &time)
 	if ((address & 0x1800) == 0x1000) {
 		// page selection
 		setRom(address >> 13, value);
+	}
+}
+
+byte* RomKonami5::getWriteCacheLine(word address) const
+{
+	if ((address < 0x5000) || (address >= 0xC000)) {
+		return unmappedWrite;
+	} else if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
+		// write to SCC
+		return NULL;
+	} else if ((address & 0xF800) == (0x9000 & CPU::CACHE_LINE_HIGH)) {
+		// SCC enable/disable
+		return NULL;
+	} else if ((address & 0x1800) == (0x1000 & CPU::CACHE_LINE_HIGH)) {
+		// page selection
+		return NULL;
+	} else {
+		return unmappedWrite;
 	}
 }

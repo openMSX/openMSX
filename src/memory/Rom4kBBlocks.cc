@@ -40,6 +40,6 @@ void Rom4kBBlocks::setRom(byte region, int block)
 		block = (block < nrBlocks) ? block : block & (nrBlocks - 1);
 		setBank(region, const_cast<byte*>(rom.getBlock(block << 12)));
 	} else {
-		setBank(region, unmapped);
+		setBank(region, unmappedRead);
 	}
 }

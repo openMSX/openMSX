@@ -31,7 +31,7 @@ class Y8950KeyboardConnector : public Connector
 		virtual void unplug(const EmuTime &time);
 
 	private:
-		DummyY8950KeyboardDevice *dummy;
+		DummyY8950KeyboardDevice dummy;
 		
 		byte data;
 };
