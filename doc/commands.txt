@@ -45,12 +45,6 @@ cassetteplayer
     cassetteplayer eject        remove tape from virtual cassette player
 
     
-cpudebug
---------
-
-  [ only available when compiled with DEBUG option ]
-  
-
 diska / diskb
 -------------
 
@@ -238,6 +232,7 @@ consolebackground
     set consolebackground          shows the current setting
     set consolebackground <image>  sets a new background
 
+
 consolecolumns
 --------------
 
@@ -247,8 +242,9 @@ consolecolumns
     set consolecolumns             shows the current setting
     set consolecolumns <value>	   set the specified width
 
+
 consolefont
-------------------
+-----------
 
   Change the console font. Most image formats (.png, .jpeg, .gif, ...)
   are supported. The image must contain a 16x16 matrix with the characters
@@ -258,7 +254,8 @@ consolefont
   usage:
     set consolefont          shows the current setting
     set consolefont <image>  sets a new font
-    
+
+
 consoleplacement
 ----------------
 
@@ -271,14 +268,22 @@ consoleplacement
   <place> can be topleft, top, topright, left, center, right, bottemleft,
   bottom and bottomright.
 
+
 consolerows
---------------
+-----------
 
   Change the height of the console measured by the number of rows.
 
   usage:
     set consolerows               	shows the current setting
     set consolerows <value>    set the specified width
+
+
+cputrace
+--------
+
+  [ only available when compiled with DEBUG option ]
+  
 
 deinterlace
 -----------
@@ -329,6 +334,31 @@ fullscreen
     set fullscreen off  switch to normal mode
 
 
+glow
+----
+  
+  Sets the amount of glow effect.
+  Note: not all renderers support this.
+
+  usage:
+    set glow          shows the current setting
+    set glow <value>  change the value
+
+
+grabinput
+---------
+
+  Controls whether openmsx grabs all input or not. When this setting is turned
+  on, all input is directly passed to openMSX. The mouse pointer can't leave
+  the openMSX window and the window manager won't be able to react to keyboard
+  shortcuts.
+
+  usage:
+    set grabinput      shows the current setting
+    set grabinput on   turn input grabbing mode on
+    set grabinput off  turn input grabbing mode off
+
+    
 limitsprites
 ------------
 
