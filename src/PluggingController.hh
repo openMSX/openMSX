@@ -24,12 +24,17 @@ public:
 	
 	/**
 	 * Connectors can be (un)registered
+	 * Note: it is not an error when you try to unregister a Connector
+	 *       that was not registered before, in this case nothing happens
+	 *       
 	 */
 	void registerConnector(Connector *connector);
         void unregisterConnector(Connector *connector);
 	
 	/**
 	 * Pluggables can be (un)registered
+	 * Note: it is not an error when you try to unregister a Pluggable
+	 *       that was not registered before, in this case nothing happens
 	 */
 	void registerPluggable(Pluggable *pluggable);
 	void unregisterPluggable(Pluggable *pluggable);

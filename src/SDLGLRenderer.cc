@@ -1168,8 +1168,6 @@ Renderer *createSDLGLRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)
 		return NULL;
 	}
 	PRT_DEBUG("Display is " << (int)(screen->format->BitsPerPixel) << " bpp.");
-	//Trying to attach a console
-	//SDLConsole::instance()->hookUpSDLConsole(screen);
 
 	return new SDLGLRenderer(vdp, screen, fullScreen, time);
 }

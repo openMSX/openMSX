@@ -1,6 +1,6 @@
 <msxconfig>
 
-  <config id="joynet1">
+  <config id="joynet">
     <type>joynet</type>
     <parameter name="startlisten">true</parameter>
     <parameter name="startconnect">true</parameter>

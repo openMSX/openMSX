@@ -21,9 +21,6 @@
 #include "CommandController.hh"
 #include "KeyEventInserter.hh"
 
-// test stuff joost
-#include "MSXFilePath.hh"
-
 
 void initializeSDL()
 {
@@ -31,7 +28,6 @@ void initializeSDL()
 	if (DEBUGVAL) sdl_initval |= SDL_INIT_NOPARACHUTE; // dump copre on segfault
 	if (SDL_Init(sdl_initval) < 0)
 		PRT_ERROR("Couldn't init SDL: " << SDL_GetError());
-	atexit(SDL_Quit);
 	SDL_WM_SetCaption("openMSX " VERSION " [alpha]", 0);
 
 	// Set icon
@@ -47,39 +43,23 @@ void initializeSDL()
 }
 
 
-int main (int argc, char **argv)
+int main(int argc, char **argv)
 {
 	// create configuration backend
 	// for now there is only one, "xml" based
 	MSXConfig::Backend* config = MSXConfig::Backend::createBackend("xml");
 	try {
-		CommandLineParser::instance()->parse(config,argc,argv);
+		CommandLineParser::instance()->parse(config, argc, argv);
 		initializeSDL();
 
 		EmuTime zero;
 		config->initDeviceIterator();
 		MSXConfig::Device* d;
-		while ((d=config->getNextDevice()) != 0) {
-			//std::cout << "<device>" << std::endl;
-			//d->dump();
-			//std::cout << "</device>" << std::endl << std::endl;
+		while ((d = config->getNextDevice()) != 0) {
+			PRT_DEBUG ("Instantiating: " << d->getType());
 			MSXDevice *device = DeviceFactory::create(d, zero);
 			MSXMotherBoard::instance()->addDevice(device);
-			PRT_DEBUG ("Instantiated: " << d->getType());
 		}
-
-		// Joost test stuff
-		try
-		{
-			MSXConfig::FilePath* fp = dynamic_cast<MSXConfig::FilePath*>(config->getCustomConfigByTag("filepath"));
-			fp->dump();
-		}
-		catch (MSXException& e)
-		{
-			PRT_DEBUG ("...no filepath found...");
-		}
-
-		//exit(0);
 
 		// Start a new thread for event handling
 		Thread thread(EventDistributor::instance());
@@ -91,16 +71,16 @@ int main (int argc, char **argv)
 		//
 		new KeyEventInserter();
 
-		PRT_DEBUG ("starting MSX");
+		PRT_DEBUG ("Starting MSX");
 		MSXMotherBoard::instance()->startMSX();
 
 		// When we return we clean everything up
 		thread.stop();
 		MSXMotherBoard::instance()->destroyMSX();
+		SDL_Quit();
 	} 
 	catch (MSXException& e) {
 		PRT_ERROR("Uncaught exception: " << e.desc);
 	}
-	exit(0);
 }
 

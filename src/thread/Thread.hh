@@ -16,6 +16,7 @@ class Thread
 {
 	public:
 		Thread(Runnable *runnable);
+		~Thread();
 		void start();
 		void stop();
 

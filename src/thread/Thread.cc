@@ -5,17 +5,27 @@
 
 Thread::Thread(Runnable *runnable)
 {
+	thread = NULL;
 	this->runnable = runnable;
+}
+
+Thread::~Thread()
+{
+	stop();
 }
 
 void Thread::start()
 {
-	thread = SDL_CreateThread(startThread, runnable);
+	if (thread == NULL)
+		thread = SDL_CreateThread(startThread, runnable);
 }
 
 void Thread::stop()
 {
-	SDL_KillThread(thread);
+	if (thread != NULL) {
+		SDL_KillThread(thread);
+		thread = NULL;
+	}
 }
 
 int Thread::startThread(void *runnable)

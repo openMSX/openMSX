@@ -44,7 +44,6 @@ void PluggingController::unregisterConnector(Connector *connector)
 			return;
 		}
 	}
-	assert(false);
 }
 
 
@@ -62,7 +61,6 @@ void PluggingController::unregisterPluggable(Pluggable *pluggable)
 			return;
 		}
 	}
-	assert(false);
 }
 
 // === Commands ===
