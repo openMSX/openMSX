@@ -21,7 +21,12 @@ Mixer::Mixer()
 	desired.freq     = freq;
 	desired.samples  = samples;
 	desired.channels = 2;			// stereo
-	desired.format   = AUDIO_S16LSB;	// TODO check low|high endian
+#ifdef WORDS_BIGENDIAN
+	desired.format   = AUDIO_S16MSB;
+#else
+	desired.format   = AUDIO_S16LSB;
+#endif
+
 	desired.callback = audioCallbackHelper;	// must be a static method
 	desired.userdata = NULL;		// not used
 	if (SDL_OpenAudio(&desired, &audioSpec) < 0) {
