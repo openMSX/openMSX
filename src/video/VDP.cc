@@ -532,12 +532,18 @@ void VDP::writeIO(byte port, byte value, const EmuTime &time)
 	case 1: // Register or address write
 		if (registerDataStored) {
 			if (value & 0x80) {
-				// Register write.
-				changeRegister(
-					value & controlRegMask,
-					dataLatch,
-					time
-					);
+				if (!(value & 0x40)) {
+					// Register write.
+					changeRegister(
+						value & controlRegMask,
+						dataLatch,
+						time
+						);
+				} else {
+					// TODO what happens in this case?
+					// it's not a register write because 
+					// that breaks "SNOW26" demo
+				}
 			} else {
 				// Set read/write address.
 				vramPointer = ((word)value << 8 | dataLatch) & 0x3FFF;

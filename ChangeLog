@@ -1,5 +1,11 @@
 $Id$
 
+2004-01-10 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fix VDP bug:
+	   - out (#99), xx / OUT (#99),%11xxxxxx is NOT a register write
+	     still have to figure out what it does (if anything)
+           - fixes "SNOW26" demo
+
 2004-01-08 Maarten ter Huurne <maarten@treewalker.org>
 	* Implemented new deinterlacer for SDLHi.
 
