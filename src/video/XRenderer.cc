@@ -1,6 +1,7 @@
 // $Id$
 
-#ifndef	NO_X11
+#include "config.h"
+#ifndef	X_DISPLAY_MISSING
 
 #include "XRenderer.hh"
 #include <SDL/SDL.h>
@@ -208,4 +209,4 @@ map<KeySym, SDLKey> *XRenderer::convert::keymap = XRenderer::convert::makemap();
 
 } // namespace openmsx
 
-#endif
+#endif	// X_DISPLAY_MISSING

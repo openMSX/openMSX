@@ -74,15 +74,51 @@ AM_CONDITIONAL(RELEASE, test "$enable_release" = yes)
 
 dnl Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS(unistd.h)
-AC_CHECK_HEADERS(string.h)
-AC_CHECK_HEADERS(strings.h)
+AC_CHECK_HEADERS(unistd.h strings.h string.h)
+AC_CHECK_HEADERS(sys/mman.h, [
+  openmsx_have_sys_mman_h=yes
+],[
+  openmsx_have_sys_mman_h=no
+]
+)
+AC_CHECK_HEADERS(sys/socket.h, [
+  openmsx_have_sys_socket_h=yes
+],[
+  openmsx_have_sys_socket_h=no
+]
+)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 
 dnl Checks for library functions.
 AC_CHECK_FUNCS(strtoll atoll)
 
+dnl Check for mmap.
+AC_FUNC_MMAP
+
+dnl With/Without X11
+AC_PATH_X
+AC_PATH_XTRA
+if test x"$have_x" = "xyes"; then
+	with_x="yes"
+	no_x="no"
+	X_CXXFLAGS="$X_CFLAGS"
+	X_LIBS="$X_PRE_LIBS -lX11 $X_EXTRA_LIBS"
+else
+	with_x="no"
+	no_x="yes"
+	AC_DEFINE(X_DISPLAY_MISSING, 1, [X11 is not available])
+	X_CFLAGS=''
+	X_CXXFLAGS=''
+	X_LIBS=''
+fi
+AC_SUBST(X_CFLAGS)
+AC_SUBST(X_CXXFLAGS)
+AC_SUBST(X_LIBS)
+
+
+
+dnl Do final output.
 AC_OUTPUT(Makefile
 openmsx.lsm
 openmsx.spec

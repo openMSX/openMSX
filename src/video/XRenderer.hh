@@ -3,7 +3,8 @@
 #ifndef __XRENDERER_HH__
 #define __XRENDERER_HH__
 
-#ifndef	NO_X11
+#include "config.h"
+#ifndef	X_DISPLAY_MISSING
 
 #include "openmsx.hh"
 #include "Renderer.hh"
@@ -101,6 +102,6 @@ private:
 
 } // namespace openmsx
 
-#endif	// !NO_X11
+#endif	// X_DISPLAY_MISSING
 
 #endif // __XRENDERER_HH__

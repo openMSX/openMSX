@@ -8,7 +8,7 @@
 #include <SDL/SDL.h>
 
 #include "Settings.hh"
-#include "GLUtil.hh" // for __OPENGL_AVAILABLE__
+#include "GLUtil.hh" // for __OPENGL_AVAILABLE__ and X_DISPLAY_MISSING
 
 namespace openmsx {
 
@@ -191,7 +191,7 @@ public:
 
 #endif // __OPENGL_AVAILABLE__
 
-#ifndef	NO_X11
+#ifndef	X_DISPLAY_MISSING
 /** RendererFactory for XRenderer.
   */
 class XRendererFactory: public RendererFactory

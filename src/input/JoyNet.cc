@@ -1,6 +1,7 @@
 // $Id$
 
-#ifndef	NO_SOCKET
+#include "config.h"
+#ifdef	HAVE_SYS_SOCKET_H
 
 #include "JoyNet.hh"
 #include "PluggingController.hh"
@@ -184,4 +185,4 @@ void JoyNet::ConnectionListener::run()
 
 } // namespace openmsx
 
-#endif	// !NO_SOCKET
+#endif	// HAVE_SYS_SOCKET_H

@@ -1,7 +1,8 @@
 // $Id$
 
+#include "config.h"
 #include <unistd.h>
-#ifndef	NO_MMAP
+#ifdef	HAVE_SYS_MMAN_H
 #include <sys/mman.h>
 #endif
 #include "LocalFile.hh"
@@ -78,7 +79,7 @@ void LocalFile::write(const byte* buffer, int num)
 	}
 }
 
-#ifndef	NO_MMAP
+#ifdef	HAVE_MMAP
 byte* LocalFile::mmap(bool writeBack)
 {
 	if (!mmem) {

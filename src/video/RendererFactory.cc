@@ -22,7 +22,7 @@ RendererFactory *RendererFactory::getCurrent()
 	case SDLGL:
 		return new SDLGLRendererFactory();
 #endif
-#ifndef	NO_X11
+#ifndef	X_DISPLAY_MISSING
 	case XLIB:
 		return new XRendererFactory();
 #endif
@@ -53,7 +53,7 @@ RendererFactory::RendererSetting *RendererFactory::createRendererSetting()
 #ifdef __OPENGL_AVAILABLE__
 	rendererMap["SDLGL"] = SDLGL;
 #endif
-#ifndef	NO_X11
+#ifndef	X_DISPLAY_MISSING
 	// XRenderer is not ready for users.
 	// rendererMap["Xlib" ] = XLIB;
 #endif
@@ -227,7 +227,7 @@ Renderer *SDLGLRendererFactory::create(VDP *vdp)
 #endif // __OPENGL_AVAILABLE__
 
 
-#ifndef	NO_X11
+#ifndef	X_DISPLAY_MISSING
 // Xlib ====================================================================
 
 bool XRendererFactory::isAvailable()

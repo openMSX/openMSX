@@ -1,5 +1,7 @@
 // $Id$
 
+#include "config.h"
+
 #include "PluggableFactory.hh"
 #include "PluggingController.hh"
 
@@ -18,7 +20,7 @@ void PluggableFactory::createAll(PluggingController *controller)
 	// - real joysticks and mice can be hotplugged (USB)
 
 	controller->registerPluggable(new Mouse());
-#ifndef	NO_SOCKET
+#ifdef	HAVE_SYS_SOCKET_H
 	controller->registerPluggable(new JoyNet());
 #endif
 	controller->registerPluggable(new KeyJoystick());

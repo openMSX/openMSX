@@ -5,6 +5,7 @@
 
 #include <string>
 #include <stdio.h>
+#include "config.h"
 #include "FileBase.hh"
 #include "File.hh"
 
@@ -18,7 +19,7 @@ class LocalFile : public FileBase
 		virtual ~LocalFile();
 		virtual void read (byte* buffer, int num);
 		virtual void write(const byte* buffer, int num);
-#ifndef	NO_MMAP
+#ifdef	HAVE_MMAP
 		virtual byte* mmap(bool writeBack);
 		virtual void munmap();
 #endif
