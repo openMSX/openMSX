@@ -30,10 +30,12 @@ public:
 		  * unregister listeners in the callback.
 		  */
 		NATIVE,
+
 		/** Deliver the event immediately, in a separate thread.
 		  * A bit of overhead, but safe.
 		  */
 		DETACHED,
+
 		/** Deliver the event at the EmuTime equivalent of the current real
 		  * time, in a separate thread.
 		  * Typically used by MSX input devices.

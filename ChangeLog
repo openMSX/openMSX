@@ -4,6 +4,8 @@ $Id$
 	* Z80 speedup:
 	   union optimization is actually a pessimization on modern CPUs (and
 	   an optimizing compiler)
+	* Fixed [ 823686 ] console is included in frameskip and speed setting:
+	   also fading of console and LEDs was wrong
 
 2005-01-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Changed command line parsing of IPS files and rom type:

@@ -122,21 +122,24 @@ void OSDConsoleRenderer::setActive(bool active_)
 {
 	if (active == active_) return;
 	active = active_;
+
+	Display::INSTANCE->repaintDelayed(40000); // 25 fps
+	
 	time = Timer::getTime();
 
 	inputEventGenerator.setKeyRepeat(active);
 	if (active) {
 		eventDistributor.registerEventListener(
-			KEY_UP_EVENT,   console, EventDistributor::NATIVE );
+			KEY_UP_EVENT,   console, EventDistributor::NATIVE);
 		eventDistributor.registerEventListener(
-			KEY_DOWN_EVENT, console, EventDistributor::NATIVE );
+			KEY_DOWN_EVENT, console, EventDistributor::NATIVE);
 		eventDistributor.distributeEvent(
 		  new SimpleEvent<CONSOLE_ON_EVENT>() );
 	} else {
 		eventDistributor.unregisterEventListener(
-			KEY_DOWN_EVENT, console, EventDistributor::NATIVE );
+			KEY_DOWN_EVENT, console, EventDistributor::NATIVE);
 		eventDistributor.unregisterEventListener(
-			KEY_UP_EVENT,   console, EventDistributor::NATIVE );
+			KEY_UP_EVENT,   console, EventDistributor::NATIVE);
 		eventDistributor.distributeEvent(
 		  new SimpleEvent<CONSOLE_OFF_EVENT>() );
 	}
@@ -153,12 +156,14 @@ byte OSDConsoleRenderer::getVisibility() const
 		if (dur > FADE_IN_DURATION) {
 			return 255;
 		} else {
+			Display::INSTANCE->repaintDelayed(40000); // 25 fps
 			return (dur * 255) / FADE_IN_DURATION;
 		}
 	} else {
 		if (dur > FADE_OUT_DURATION) {
 			return 0;
 		} else {
+			Display::INSTANCE->repaintDelayed(40000); // 25 fps
 			return 255 - ((dur * 255) / FADE_OUT_DURATION);
 		}
 	}

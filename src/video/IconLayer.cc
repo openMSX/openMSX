@@ -8,6 +8,7 @@
 #include "IntegerSetting.hh"
 #include "CliCommOutput.hh"
 #include "components.hh"
+#include "Display.hh"
 #ifdef COMPONENT_GL
 #include "GLImage.hh"
 #endif
@@ -112,9 +113,11 @@ void IconLayer<IMAGE>::paint()
 		} else if (diff < fadeTime) {
 			// no fading yet
 			alpha = 255;
+			Display::INSTANCE->repaintDelayed(200000); // 5 fps
 		} else {
 			// fading out
 			alpha = 255 - (255 * (diff - fadeTime) / fadeDuration);
+			Display::INSTANCE->repaintDelayed(40000); // 25 fps
 		}
 		IMAGE* icon = led.icon[status].get();
 		if (icon) {
@@ -142,6 +145,7 @@ bool IconLayer<IMAGE>::signalEvent(const Event& event)
 	if (status != ledStatus[led]) {
 		ledStatus[led] = status;
 		ledTime[led] = Timer::getTime();
+		Display::INSTANCE->repaintDelayed(40000); // 25 fps
 	}
 	return true;
 }

@@ -39,7 +39,9 @@ Display::Display(std::auto_ptr<VideoSystem> videoSystem_)
 	prevTimeStamp = Timer::getTime();
 
 	EventDistributor::instance().registerEventListener(
-		FINISH_FRAME_EVENT, *this, EventDistributor::NATIVE );
+		FINISH_FRAME_EVENT, *this, EventDistributor::NATIVE);
+	EventDistributor::instance().registerEventListener(
+		DELAYED_REPAINT_EVENT, *this, EventDistributor::DETACHED);
 	CommandController::instance().registerCommand(
 		&screenShotCmd, "screenshot" );
 	InfoCommand::instance().registerTopic("fps", &fpsInfo);
@@ -51,7 +53,9 @@ Display::~Display()
 	CommandController::instance().unregisterCommand(
 		&screenShotCmd, "screenshot" );
 	EventDistributor::instance().unregisterEventListener(
-		FINISH_FRAME_EVENT, *this, EventDistributor::NATIVE );
+		DELAYED_REPAINT_EVENT, *this, EventDistributor::DETACHED);
+	EventDistributor::instance().unregisterEventListener(
+		FINISH_FRAME_EVENT, *this, EventDistributor::NATIVE);
 	// Prevent callbacks first...
 	for (Layers::iterator it = layers.begin(); it != layers.end(); ++it) {
 		(*it)->display = NULL;
@@ -83,24 +87,30 @@ Display::Layers::iterator Display::baseLayer()
 
 bool Display::signalEvent(const Event& event)
 {
-	assert(event.getType() == FINISH_FRAME_EVENT);
-	
-	const FinishFrameEvent& ffe = static_cast<const FinishFrameEvent&>(event);
-	VideoSource eventSource = ffe.getSource();
-	VideoSource visibleSource = 
-		RenderSettings::instance().getVideoSource()->getValue();
+	if (event.getType() == FINISH_FRAME_EVENT) {
+		const FinishFrameEvent& ffe = static_cast<const FinishFrameEvent&>(event);
+		VideoSource eventSource = ffe.getSource();
+		VideoSource visibleSource = 
+			RenderSettings::instance().getVideoSource()->getValue();
 
-	bool draw = visibleSource == eventSource;
-	if (draw) {
+		bool draw = visibleSource == eventSource;
+		if (draw) {
+			repaint();
+		}
+
+		RealTime::instance().sync(Scheduler::instance().getCurrentTime(), draw);
+	} else if (event.getType() == DELAYED_REPAINT_EVENT) {
 		repaint();
+	} else {
+		assert(false);
 	}
-
-	RealTime::instance().sync(Scheduler::instance().getCurrentTime(), draw);
 	return true;
 }
 
 void Display::repaint()
 {
+	alarm.reset(); // cancel delayed repaint
+
 	assert(videoSystem.get());
 	// TODO: Is this the proper way to react?
 	//       Behind this abstraction is SDL_LockSurface,
@@ -125,6 +135,15 @@ void Display::repaint()
 	frameDurations.addFront(duration);
 }
 
+void Display::repaintDelayed(unsigned long long delta)
+{
+	if (alarm.get()) {
+		// already a pending repaint
+		return;
+	}
+	alarm.reset(new RepaintAlarm(delta));
+}
+
 void Display::addLayer(Layer* layer)
 {
 	const int z = layer->z;
@@ -147,6 +166,23 @@ void Display::updateZ(Layer* layer, Layer::ZIndex z)
 	// ...and re-insert at new Z-index.
 	addLayer(layer);
 }
+
+
+// RepaintAlarm inner class
+
+Display::RepaintAlarm::RepaintAlarm(unsigned long long delay)
+	: Alarm(delay)
+{
+}
+
+void Display::RepaintAlarm::alarm()
+{
+	// Note: runs is seperate thread, use event mechanism to repaint
+	//       in main thread
+	EventDistributor::instance().distributeEvent(
+		new SimpleEvent<DELAYED_REPAINT_EVENT>());
+}
+
 
 // ScreenShotCmd inner class:
 

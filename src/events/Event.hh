@@ -29,9 +29,9 @@ enum EventType
             having `hanging' keys */
 	CONSOLE_ON_EVENT,
 	CONSOLE_OFF_EVENT,
-	// focus change events may be added here later
-	/** Display is updated */ 
-	DISPLAY_UPDATE_EVENT,
+
+	/** Delayed repaint */
+	DELAYED_REPAINT_EVENT,
 };
 
 class Event

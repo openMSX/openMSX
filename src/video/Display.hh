@@ -8,6 +8,7 @@
 #include "Command.hh"
 #include "InfoTopic.hh"
 #include "CircularBuffer.hh"
+#include "Alarm.hh"
 #include "openmsx.hh"
 #include <memory>
 #include <string>
@@ -38,6 +39,7 @@ public:
 	/** Redraw the display.
 	  */
 	void repaint();
+	void repaintDelayed(unsigned long long delta);
 
 	void addLayer(Layer* layer);
 
@@ -61,6 +63,16 @@ private:
 	unsigned long long frameDurationSum;
 	unsigned long long prevTimeStamp;
 
+	// Delayed repaint stuff
+	class RepaintAlarm : public Alarm {
+	public:
+		RepaintAlarm(unsigned long long delay);
+	private:
+		virtual void alarm();
+	};
+	std::auto_ptr<RepaintAlarm> alarm;
+
+	// Commands
 	class ScreenShotCmd : public SimpleCommand {
 	public:
 		ScreenShotCmd(Display& display);
@@ -70,6 +82,7 @@ private:
 		Display& display;
 	} screenShotCmd;
 
+	// Info 
 	class FpsInfoTopic : public InfoTopic {
 	public:
 		FpsInfoTopic(Display& parent);

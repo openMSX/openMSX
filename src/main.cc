@@ -28,7 +28,7 @@ namespace openmsx {
 
 static void initializeSDL()
 {
-	int flags = SDL_INIT_VIDEO;
+	int flags = SDL_INIT_VIDEO | SDL_INIT_TIMER;
 #ifndef NDEBUG
 	flags |= SDL_INIT_NOPARACHUTE;
 #endif

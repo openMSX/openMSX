@@ -10,6 +10,7 @@
 #include "CliCommOutput.hh"
 #include "SettingsConfig.hh"
 #include "InputEvents.hh"
+#include "Display.hh"
 #include <algorithm>
 #include <fstream>
 
@@ -157,6 +158,8 @@ void CommandConsole::setConsoleDimensions(unsigned columns, unsigned rows)
 
 bool CommandConsole::signalEvent(const Event& event)
 {
+	Display::INSTANCE->repaintDelayed(40000); // 25fps
+	
 	if (event.getType() == KEY_UP_EVENT) {
 		return false;	// don't pass event to MSX-Keyboard
 	}
