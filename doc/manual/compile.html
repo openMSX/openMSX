@@ -92,7 +92,11 @@ Windows is also a supported platform for openMSX. Most Windows users will just d
 </dd>
 <dt>Mac OS X</dt>
 <dd>
-If you install the development tools, you can compile openMSX on Mac OS X. The necessary libraries can be downloaded via Darwinports or Fink. Nowadays we have at least one developer that runs Mac OS X, so we support should be almost equal to that for Linux and Windows.
+You can compile openMSX on Mac OS X. Nowadays we have at least one developer that runs Mac OS X and as a result support for Mac OS X has improved a lot in openMSX 0.5.1. However, we do not have a binary package or a GUI yet, so you will have to use openMSX from the command line for now.
+<br />
+This manual contains all the essential info to compile openMSX on Mac OS X. However, if you are not experienced in compiling software yourself, there is a nice
+<a class="external" href="http://www.msxgamesbox.com/Sections/emumac/openmsx.php">article at The MSX Games bOX</a>
+which explains everything in more detail.
 </dd>
 <dt>FreeBSD/NetBSD/OpenBSD</dt>
 <dd>
@@ -386,6 +390,14 @@ Version 3.2 or later is recommended;
 
 </dl>
 
+<h5>Mac OS X</h5>
+<p>
+Install the Xcode Tools from Apple, which you can download from the
+<a class="external" href="http://connect.apple.com/">Apple Developer Connection</a>
+(free registration required).
+This package contains up-to-date versions of Make, GCC and CVS.
+</p>
+
 <h3><a id="libs">3.2 Libraries</a></h3>
 
 <p>
@@ -468,6 +480,18 @@ for drivers, which include an OpenGL implementation. ATI users can check out the
 For other cards, try Mesa, which can be found in packages like
 <code>xlibmesa-gl</code> and <code>xlibmesa-gl-dev</code> (Debian)
 or <code>XFree86-GLX</code> and <code>XFree86-GLX-devel</code> (SUSE).
+</p>
+
+<h5>Mac OS X</h5>
+<p>
+You can get the libraries from either
+<a class="external" href="http://www.darwinports.org/">DarwinPorts</a>
+or
+<a class="external" href="http://fink.sourceforge.net/">Fink</a>.
+If you are using DarwinPorts, you should install the ports
+<code>libpng</code>, <code>libsdl</code> and <code>libsdl_image</code>.
+If you are using Fink, you should install the packages
+<code>libpng3</code>, <code>sdl</code> and <code>sdl-image</code>.
 </p>
 
 <h3><a id="compilenow">3.3 Compilation Itself</a></h3>
@@ -554,6 +578,12 @@ If that doesn't help, or we forgot to list a library openMSX depends on,
 Make sure you provide us with the error message you got.
 </p>
 
+<h5>Mac OS X</h5>
+<p>
+The steps above apply to Mac OS X as well.
+If you have a G4 or better CPU, using <code>export OPENMSX_FLAVOUR=ppcg4</code> may give you a faster openMSX executable.
+</p>
+
 <h2><a id="install">4. Installation</a></h2>
 
 <p>
@@ -568,6 +598,14 @@ Note that only root has rights to write to system-wide directories such as
 <code>/opt</code>,
 so you may have to do <code>su</code> before <code>make install</code>.
 </p>
+
+<h5>Mac OS X</h5>
+<p>
+The easiest way to install openMSX system-wide is this command:
+</p>
+<div class="commandline">
+sudo make install
+</div>
 
 <h2><a id="next">5. Next Steps</a></h2>
 
@@ -627,6 +665,16 @@ it is fully running.
 If you got stuck somewhere in the compilation and installation process,
 please contact us. The next chapter will tell you how.
 </p>
+
+<h5>Mac OS X</h5>
+<p>
+By default openMSX will not be in your search path.
+So to start it, you will have to specify the full path on the command line.
+For example:
+</p>
+<div class="commandline">
+/opt/openMSX/bin/openmsx
+</div>
 
 <h2><a id="contact">6. Contact Info</a></h2>
 
