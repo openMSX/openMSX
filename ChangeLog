@@ -1,5 +1,8 @@
 $Id$
 
+2002-12-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed assertion in VDP when computer was reset while in PAL mode
+
 2002-12-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented MSXDeviceSwitch:
 	   - IO-ports 0x41-0x4F are (possibly) shared between several devices
