@@ -4,7 +4,8 @@
 #define __SCHEDULER_HH__
 
 #include "emutime.hh"
-#include "sortedlist.hh"
+//#include "sortedlist.hh"
+#include <list>
 
 class MSXZ80;
 
@@ -23,7 +24,8 @@ class SchedulerNode
 class Scheduler
 {
 	private:
-		SortedList<SchedulerNode> scheduleList;
+		//SortedList<SchedulerNode> scheduleList;
+		list<SchedulerNode> scheduleList;
 		Emutime currentTime;
 		int stateIRQline;
 		bool keepRunning;

@@ -16,8 +16,8 @@ openmsx_SOURCES=openmsx.cc \
 	devicefactory.hh devicefactory.cc \
 	Scheduler.hh Scheduler.cc \
 	Inputs.hh Inputs.cc \
-	Z80.cc Z80.hh Z80DAA.h Z80Codes.h opc__Z80.h \
-	sortedlist.hh sortedlist.cc
+	Z80.cc Z80.hh Z80DAA.h Z80Codes.h opc__Z80.h
+#	sortedlist.hh sortedlist.cc
 
 # libxml++ and SDL
 openmsx_LDADD= -lxml++ -lSDL

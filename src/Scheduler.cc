@@ -23,12 +23,14 @@ Scheduler::~Scheduler(void)
 
 const Emutime &Scheduler::getFirstStamp()
 {
-	return scheduleList.getFirst().getTime();
+//	return scheduleList.getFirst().getTime();
+	return scheduleList.front().getTime();
 }
 
 void Scheduler::removeFirstStamp()
 {
-	scheduleList.removeFirst();
+//	scheduleList.removeFirst();
+	scheduleList.pop_front();
 }
 
 
@@ -40,7 +42,8 @@ const Emutime &Scheduler::getCurrentTime()
 void Scheduler::insertStamp(Emutime &timestamp, MSXDevice &activedevice) 
 {
 	assert (timestamp >= getCurrentTime());
-	scheduleList.insert (SchedulerNode (timestamp, activedevice));
+	scheduleList.push_back(SchedulerNode (timestamp, activedevice));
+	scheduleList.sort();
 }
 
 //void Scheduler::setLaterSP(UINT64 latertimestamp,MSXDevice *activedevice)
@@ -67,7 +70,8 @@ void Scheduler::scheduleEmulation()
 {
 	keepRunning=true;
 	while(keepRunning){
-		const SchedulerNode &firstNode = scheduleList.getFirst();
+		//const SchedulerNode &firstNode = scheduleList.getFirst();
+		const SchedulerNode &firstNode = scheduleList.front();
 		const Emutime &time = firstNode.getTime();
 		MSXDevice device = firstNode.getDevice();
 	//1. Set the target T-State of the cpu to the first SP in the list.
