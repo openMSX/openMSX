@@ -72,10 +72,12 @@ inline void R800::WRMEM(word address, byte value)
 
 inline void R800::R800Refresh()
 {
-	if (lastRefreshTime.getTicksTill(currentTime) >= (180 + 20)) {
-		// TODO every 28us, is this correct?
+	// documentation says refresh every 222 clocks 
+	//  duration:  256/1024KB  13.5 clocks
+	//             512KB       21.5 clocks
+	if (lastRefreshTime.getTicksTill(currentTime) >= 222) {
 		lastRefreshTime = currentTime;
-		currentTime += 20; // duration of refresh
+		currentTime += 22;
 		if (currentTime >= targetTime) {
 			extendTarget(currentTime);
 		}
