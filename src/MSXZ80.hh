@@ -3,7 +3,6 @@
 #ifndef __MSXZ80_HH__
 #define __MSXZ80_HH__
 
-#include <iostream.h>
 #include "MSXDevice.hh"
 #include "emutime.hh"
 

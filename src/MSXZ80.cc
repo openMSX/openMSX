@@ -1,8 +1,9 @@
 // $Id$
 
+#include <iostream>
+
 #include "MSXZ80.hh"
 #include "Scheduler.hh"
-#include "iostream.h"
 #include "MSXMotherBoard.hh"
 #include <assert.h>
 
