@@ -1,5 +1,10 @@
 $Id$
 
+2003-11-17 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented per-pixel-alpha-blending for SDLConsole and SDLFont:
+	   - if whole image has the same alpha value, we use per surface
+	     alpha blending to speed up blitting
+
 2003-11-16 Reikan <openMSX4Win32@ranpub.com>
 	* Quixk fix for console input after switched renderer.
 

@@ -12,7 +12,7 @@ namespace openmsx {
 
 // class BackgroundSetting
 
-BackgroundSetting::BackgroundSetting(OSDConsoleRenderer *console_, const std::string settingName,
+BackgroundSetting::BackgroundSetting(OSDConsoleRenderer *console_, const string settingName,
                                      const string &filename)
 	: FilenameSetting(settingName, "console background file", ""),
 	  console(console_)
@@ -32,7 +32,7 @@ bool BackgroundSetting::checkFile(const string &filename)
 
 // class FontSetting
 
-FontSetting::FontSetting(OSDConsoleRenderer *console_, const std::string settingName,
+FontSetting::FontSetting(OSDConsoleRenderer *console_, const string settingName,
                          const string &filename)
 	: FilenameSetting(settingName, "console font file", ""),
 	  console(console_)

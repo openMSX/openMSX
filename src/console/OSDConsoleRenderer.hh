@@ -27,7 +27,7 @@ class FileContext;
 class BackgroundSetting : public FilenameSetting
 {
 	public:
-		BackgroundSetting(OSDConsoleRenderer *console, const std::string settingName,
+		BackgroundSetting(OSDConsoleRenderer *console, const string settingName,
 		                  const string &filename);
 
 		virtual bool checkFile(const string &filename);
@@ -39,7 +39,7 @@ class BackgroundSetting : public FilenameSetting
 class FontSetting : public FilenameSetting
 {
 	public:
-		FontSetting(OSDConsoleRenderer *console, const std::string settingName,
+		FontSetting(OSDConsoleRenderer *console, const string settingName,
 		            const string &filename);
 
 		virtual bool checkFile(const string &filename);

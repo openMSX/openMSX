@@ -17,14 +17,6 @@
 
 namespace openmsx {
 
-// TODO: Replacing this by a 4-entry array would simplify the code.
-struct ColorRGBA {
-	Uint8 r;
-	Uint8 g;
-	Uint8 b;
-	Uint8 a;
-};
-
 SDLConsole::SDLConsole(Console& console_, SDL_Surface* screen)
 	: OSDConsoleRenderer(console_),
 	  console(console_)
@@ -35,36 +27,20 @@ SDLConsole::SDLConsole(Console& console_, SDL_Surface* screen)
 	
 	outputScreen = screen;
 	backgroundImage = NULL;
-	consoleSurface  = NULL;
-	inputBackground = NULL;
-	fontLayer = NULL;
 
 	fontSetting = new FontSetting(this, temp + "font", console.getFont());
 	initConsoleSize();
 
-	SDL_Rect rect;
-	OSDConsoleRenderer::updateConsoleRect(rect);
+	OSDConsoleRenderer::updateConsoleRect(destRect);
 
-	resize(rect);
-	backgroundSetting = new BackgroundSetting(this, temp+"background", 
+	backgroundSetting = new BackgroundSetting(this, temp + "background", 
 	                                          console.getBackground());
-	alpha(CONSOLE_ALPHA);
-	
 }
 
 SDLConsole::~SDLConsole()
 {
-	if (inputBackground) {
-		SDL_FreeSurface(inputBackground);
-	}
-	if (consoleSurface) {
-		SDL_FreeSurface(consoleSurface);
-	}
 	if (backgroundImage) {
 		SDL_FreeSurface(backgroundImage);
-	}
-	if (fontLayer) {
-		SDL_FreeSurface(fontLayer);
 	}
 	
 	delete fontSetting;
@@ -75,48 +51,19 @@ SDLConsole::~SDLConsole()
 // Updates the console buffer
 void SDLConsole::updateConsole()
 {
-	if (!console.isVisible()) {
-		return;
-	}
-	updateConsole2();
-}
-
-void SDLConsole::updateConsole2()
-{
-	SDL_FillRect(fontLayer, NULL, 
-		SDL_MapRGBA(consoleSurface->format, 0, 0, 0, 0));
-	// when using SDL_RLEACCEL we get a segfault !!
-	SDL_SetColorKey(fontLayer, SDL_SRCCOLORKEY ,0);  
-	
-	// draw the background image if there is one
-	if (backgroundImage) {
-		SDL_Rect destRect;
-		destRect.x = 0;
-		destRect.y = 0;
-		destRect.w = backgroundImage->w;
-		destRect.h = backgroundImage->h;
-		SDL_BlitSurface(backgroundImage, NULL, consoleSurface, &destRect);
-	}
-
-	int screenlines = consoleSurface->h / font->getHeight();
-	for (int loop = 0; loop < screenlines; loop++) {
-		int num = loop + console.getScrollBack();
-		font->drawText(console.getLine(num), CHAR_BORDER,
-		       consoleSurface->h - (1+loop)*font->getHeight());
-	}
 }
 
 void SDLConsole::updateConsoleRect()
 {
 	SDL_Rect rect;
 	OSDConsoleRenderer::updateConsoleRect(rect);
-	if ((consoleSurface->h != rect.h) || (consoleSurface->w != rect.w)
-		|| (dispX != rect.x) || (dispY != rect.y))
-	{
-		resize(rect);
-		alpha(CONSOLE_ALPHA);
+	if ((destRect.h != rect.h) || (destRect.w != rect.w) ||
+	    (destRect.x != rect.x) || (destRect.y != rect.y)) {
+		destRect.h = rect.h;
+		destRect.w = rect.w;
+		destRect.x = rect.x;
+		destRect.y = rect.y;
 		loadBackground(console.getBackground());
-		updateConsole2();
 	}
 }
 
@@ -127,99 +74,55 @@ void SDLConsole::drawConsole()
 		return;
 	}
 	updateConsoleRect();
-	drawCursor();
+	
+	// draw the background image if there is one
+	if (backgroundImage) {
+		SDL_BlitSurface(backgroundImage, NULL, outputScreen, &destRect);
+	}
 
-	// Setup the rect the console is being blitted into based on the output screen
-	SDL_Rect destRect;
-	destRect.x = dispX;
-	destRect.y = dispY;
-	destRect.w = consoleSurface->w;
-	destRect.h = consoleSurface->h;
-	SDL_BlitSurface(consoleSurface, NULL, outputScreen, &destRect);
-	SDL_BlitSurface(fontLayer,      NULL, outputScreen, &destRect);
-}
+	int screenlines = destRect.h / font->getHeight();
+	for (int loop = 0; loop < screenlines; ++loop) {
+		int num = loop + console.getScrollBack();
+		font->drawText(console.getLine(num),
+			destRect.x + CHAR_BORDER,
+			destRect.y + destRect.h - (1 + loop) * font->getHeight());
+	}
 
-
-// Draws the command line the user is typing in to the screen
-void SDLConsole::drawCursor()
-{
-	unsigned cursorX;
-	unsigned cursorY;
-	console.getCursorPosition(cursorX, cursorY);
 	// Check if the blink period is over
 	if (SDL_GetTicks() > lastBlinkTime) {
 		lastBlinkTime = SDL_GetTicks() + BLINK_RATE;
 		blink = !blink;
-		if (console.getScrollBack() != 0) {
-			return;
-		}
-		if (blink) {
-			// Print cursor if there is enough room
-			font->drawText(string("_"),
-				      CHAR_BORDER + cursorX * font->getWidth(),
-				      consoleSurface->h - (font->getHeight() * (cursorY + 1)));
-		} else {
-			// Remove cursor
-			SDL_Rect rect;
-			rect.x = cursorX * font->getWidth() + CHAR_BORDER;
-			rect.y = consoleSurface->h - (font->getHeight() * (cursorY + 1));
-			rect.w = font->getWidth();
-			rect.h = font->getHeight();
-			SDL_FillRect(fontLayer, &rect,
-				SDL_MapRGBA(fontLayer->format, 0, 0, 0, consoleAlpha));
-
-			
-			if (backgroundImage) {
-				// draw the background image if applicable
-				SDL_Rect rect2;
-				rect2.x = cursorX * font->getWidth() + CHAR_BORDER;
-				rect.x = rect2.x;
-				rect2.y = consoleSurface->h - (font->getHeight() * (cursorY + 1));
-				rect.y = rect2.y;
-				rect2.w = rect.w = font->getWidth();
-				rect2.h = rect.h = font->getHeight();
-				SDL_BlitSurface(backgroundImage, &rect, consoleSurface, &rect2);
-			}
-			font->drawText(console.getLine(cursorY).substr(cursorX,cursorX),
-				CHAR_BORDER + cursorX * font->getWidth(),
-				consoleSurface->h - (font->getHeight()*(cursorY + 1)));
-		}
 	}
+
+	unsigned cursorX;
+	unsigned cursorY;
+	console.getCursorPosition(cursorX, cursorY);
 	if (cursorX != lastCursorPosition){
 		blink = true; // force cursor
 		lastBlinkTime = SDL_GetTicks() + BLINK_RATE; // maximum time
 		lastCursorPosition = cursorX;
-		font->drawText(string("_"),
-			CHAR_BORDER + cursorX * font->getWidth(),
-			consoleSurface->h - (font->getHeight() * (cursorY + 1)));
 	}
-}
-
-// Sets the alpha level of the console, 255 turns off alpha blending
-void SDLConsole::alpha(unsigned char newAlpha)
-{
-	// store alpha as state!
-	consoleAlpha = newAlpha;
-	if (consoleAlpha == 255) {
-		SDL_SetAlpha(consoleSurface, 0, consoleAlpha);
-	} else {
-		SDL_SetAlpha(consoleSurface, SDL_SRCALPHA, consoleAlpha);
+	if (console.getScrollBack() == 0) {
+		if (blink) {
+			font->drawText(string("_"),
+				destRect.x + CHAR_BORDER + cursorX * font->getWidth(),
+				destRect.y + destRect.h - (font->getHeight() * (cursorY + 1)));
+		}
 	}
-	updateConsole2();
 }
 
 // Adds background image to the console
-bool SDLConsole::loadBackground(const string &filename)
+bool SDLConsole::loadBackground(const string& filename)
 {
 	if (filename.empty()) {
 		return false;
 	}
 
-	SDL_Surface *pictureSurface;
+	SDL_Surface* pictureSurface;
 	try {
 		File file(filename);
 		pictureSurface = IMG_Load(file.getLocalName().c_str());
-	} catch (FileException &e) {
+	} catch (FileException& e) {
 		return false;
 	}
 	// If file does exist, but cannot be read as an image,
@@ -227,32 +130,64 @@ bool SDLConsole::loadBackground(const string &filename)
 	if (pictureSurface == NULL) {
 		return false;
 	}
-
+	
 	if (backgroundImage) {
 		SDL_FreeSurface(backgroundImage);
 	}
-	SDL_Rect rect;
-	OSDConsoleRenderer::updateConsoleRect(rect); // get the size
 
 	// create a 32 bpp surface that will hold the scaled version
+	Uint32 rmask, gmask, bmask, amask;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+	rmask = 0xff000000;
+	gmask = 0x00ff0000;
+	bmask = 0x0000ff00;
+	amask = 0x000000ff;
+#else
+	rmask = 0x000000ff;
+	gmask = 0x0000ff00;
+	bmask = 0x00ff0000;
+	amask = 0xff000000;
+#endif
 	SDL_Surface * scaled32Surface = SDL_CreateRGBSurface(
-		SDL_SWSURFACE, rect.w, rect.h, 32, 0, 0, 0, 0);
-	// convert the picturesurface to 32 bpp
-	SDL_PixelFormat* format = scaled32Surface->format;
-	SDL_Surface* picture32Surface = SDL_ConvertSurface(pictureSurface, format, SDL_SWSURFACE);
-
+		SDL_SWSURFACE, destRect.w, destRect.h, 32, rmask, gmask, bmask, amask);
+	SDL_Surface* picture32Surface =
+		SDL_ConvertSurface(pictureSurface, scaled32Surface->format, SDL_SWSURFACE);
 	SDL_FreeSurface(pictureSurface);
+
+	// zoom surface
 	zoomSurface (picture32Surface, scaled32Surface, true);
 	SDL_FreeSurface(picture32Surface);
+
+	// scan image, are all alpha values the same?
+	unsigned width = scaled32Surface->w;
+	unsigned height = scaled32Surface->h;
+	unsigned pitch = scaled32Surface->pitch / 4;
+	Uint32* pixels = (Uint32*)scaled32Surface->pixels;
+	Uint32 alpha = pixels[0] & amask;
+	bool constant = true;
+	for (unsigned y = 0; y < height; ++y) {
+		for (unsigned x = 0; x < width; ++x) {
+			if ((pixels[y * pitch + x] & amask) != alpha) {
+				constant = false;
+				break;
+			}
+		}
+		if (!constant) break;
+	}
+	
 	// convert the background to the right format
-	backgroundImage = SDL_ConvertSurface(scaled32Surface, outputScreen->format, SDL_SWSURFACE);
+	if (constant) {
+		backgroundImage = SDL_DisplayFormat(scaled32Surface);
+		SDL_SetAlpha(backgroundImage, SDL_SRCALPHA, CONSOLE_ALPHA);
+	} else {
+		backgroundImage = SDL_DisplayFormatAlpha(scaled32Surface);
+	}
 	SDL_FreeSurface(scaled32Surface);
 
-	reloadBackground();
 	return true;
 }
 
-bool SDLConsole::loadFont(const string &filename)
+bool SDLConsole::loadFont(const string& filename)
 {
 	if (filename.empty()) {
 		return false;
@@ -260,7 +195,7 @@ bool SDLConsole::loadFont(const string &filename)
 	try {
 		File file(filename);
 		SDLFont* newFont = new SDLFont(&file);
-		newFont->setSurface(fontLayer);
+		newFont->setSurface(outputScreen);
 		delete font;
 		font = newFont;
 	} catch (MSXException &e) {
@@ -269,83 +204,18 @@ bool SDLConsole::loadFont(const string &filename)
 	return true;
 }
 
-// resizes the console, has to reset alot of stuff
-void SDLConsole::resize(SDL_Rect rect)
-{
-	// make sure that the size of the console is valid
-	assert (!(rect.w > outputScreen->w || rect.w < font->getWidth() * 32));
-	assert (!(rect.h > outputScreen->h || rect.h < font->getHeight()));
 
-	SDL_Surface *temp1 = SDL_CreateRGBSurface(SDL_SWSURFACE, rect.w, rect.h,
-			outputScreen->format->BitsPerPixel,
-			outputScreen->format->Rmask, outputScreen->format->Gmask,
-			outputScreen->format->Bmask, outputScreen->format->Amask);
-	SDL_Surface *temp2 = SDL_CreateRGBSurface(SDL_SWSURFACE, rect.w, rect.h,
-			outputScreen->format->BitsPerPixel,
-			outputScreen->format->Rmask, outputScreen->format->Gmask,
-			outputScreen->format->Bmask, outputScreen->format->Amask);
-	SDL_Surface *temp3 = SDL_CreateRGBSurface(SDL_SWSURFACE, rect.w, font->getHeight(),
-			outputScreen->format->BitsPerPixel,
-			outputScreen->format->Rmask, outputScreen->format->Gmask,
-			outputScreen->format->Bmask, outputScreen->format->Amask);
-	if (temp1 == NULL || temp2 == NULL || temp3 == NULL) {
-		return;
-	}
-	if (consoleSurface) {
-		SDL_FreeSurface(consoleSurface);
-	}
-	if (inputBackground) {
-		SDL_FreeSurface(inputBackground);
-	}
-	if (fontLayer) {
-		SDL_FreeSurface(fontLayer);
-	}
-	
-	consoleSurface = temp1;
-	fontLayer = temp2;
-	inputBackground = temp3;
-	
-	SDLFont* sdlFont = dynamic_cast<SDLFont*>(font);
-	if (sdlFont) {
-		sdlFont->setSurface(fontLayer);
-	}
-	
-	SDL_FillRect(consoleSurface, NULL, 
-		SDL_MapRGBA(consoleSurface->format, 0, 0, 0, consoleAlpha));
-	
-	position(rect.x, rect.y);
-	reloadBackground();
-}
+// ----------------------------------------------------------------------------
 
-// takes a new x and y of the top left of the console window
-void SDLConsole::position(int x, int y)
-{
-	assert(!(x < 0 || x > outputScreen->w - consoleSurface->w));
-	assert(!(y < 0 || y > outputScreen->h - consoleSurface->h));
-	dispX = x;
-	dispY = y;
-}
+// TODO: Replacing this by a 4-entry array would simplify the code.
+struct ColorRGBA {
+	Uint8 r;
+	Uint8 g;
+	Uint8 b;
+	Uint8 a;
+};
 
-void SDLConsole::reloadBackground()
-{
-	SDL_FillRect(inputBackground, NULL,
-		SDL_MapRGBA(consoleSurface->format, 0, 0, 0, SDL_ALPHA_OPAQUE));
-	if (backgroundImage) {
-		SDL_Rect src;
-			src.x = 0;
-			src.y = consoleSurface->h - font->getHeight();
-			src.w = backgroundImage->w;
-			src.h = inputBackground->h;
-		SDL_Rect dest;
-			dest.x = 0;
-			dest.y = 0;
-			dest.w = backgroundImage->w;
-			dest.h = font->getHeight();
-		SDL_BlitSurface(backgroundImage, &src, inputBackground, &dest);
-	}
-}
-
-int SDLConsole::zoomSurface(SDL_Surface * src, SDL_Surface * dst, bool smooth)
+int SDLConsole::zoomSurface(SDL_Surface* src, SDL_Surface* dst, bool smooth)
 {
 	int x, y, sx, sy, *sax, *say, *csax, *csay, csx, csy, ex, ey, t1, t2, sstep;
 	ColorRGBA *c00, *c01, *c10, *c11;
