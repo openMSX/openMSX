@@ -26,7 +26,7 @@
     <slotted> <ps>3</ps> <ss>2</ss> <page>2</page> </slotted>
     <slotted> <ps>3</ps> <ss>2</ss> <page>3</page> </slotted>
     <parameter name="slow_drain_on_reset">false</parameter>
-    <parameter name="size">128</parameter>
+    <parameter name="size">64</parameter>
   </device>
 
   <device id="mainrom">
