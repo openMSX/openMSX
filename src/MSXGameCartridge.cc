@@ -18,7 +18,12 @@ MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &tim
 	
 	try {
 		romSize = deviceConfig->getParameterAsInt("filesize");
-		loadFile(&memoryBank, romSize);
+		// filesize zero is specifiying to autodetermine size
+		if (romSize == 0){
+			romSize = loadFile(&memoryBank);
+		} else {
+			loadFile(&memoryBank, romSize);
+		}
 	} catch(MSXConfig::Exception e) {
 		// filesize was not specified
 		romSize = loadFile(&memoryBank);
