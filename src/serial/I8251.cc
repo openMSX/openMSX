@@ -297,9 +297,7 @@ void I8251::setParityBit(bool enable, ParityBit parity)
 void I8251::recvByte(byte value, const EmuTime& time)
 {
 	// TODO STAT_PE / STAT_FE / STAT_SYNBRK
-	if (!(command & CMD_RXE)) {
-		return;
-	}
+	assert(recvReady && (command & CMD_RXE));
 	if (status & STAT_RXRDY) {
 		status |= STAT_OE;
 	} else {

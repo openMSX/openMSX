@@ -5,7 +5,6 @@
 
 #include <cassert>
 #include <list>
-#include <cassert>
 #include "RomInfo.hh"
 #include "openmsx.hh"
 

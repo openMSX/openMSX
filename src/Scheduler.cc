@@ -90,7 +90,7 @@ void Scheduler::scheduleDevices(const EmuTime &limit)
 		sem.up();
 		Schedulable *device = sp.getDevice();
 		int userData = sp.getUserData();
-		PRT_DEBUG ("Sched: Scheduling (2) " << device->schedName() <<
+		PRT_DEBUG ("Sched: Scheduling_2 " << device->schedName() <<
 			" " << userData << " till " << time);
 		device->executeUntilEmuTime(time, userData);
 

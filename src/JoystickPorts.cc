@@ -79,7 +79,7 @@ JoystickPorts::JoystickPorts(const EmuTime &time)
 		for (; i < 10; i++) {
 			joystick[i] = new Joystick(i);
 		}
-	} catch(JoystickException &e) {
+	} catch (JoystickException &e) {
 		for (; i < 10; i++) {
 			joystick[i] = NULL;
 		}

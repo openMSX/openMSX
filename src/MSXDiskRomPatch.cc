@@ -48,7 +48,7 @@ MSXDiskRomPatch::~MSXDiskRomPatch()
 
 void MSXDiskRomPatch::patch(CPU::CPURegs& regs)
 {
-	switch (regs.PC.w-2) {
+	switch (regs.PC.w - 2) {
 		case A_PHYDIO:
 			PHYDIO(regs);
 			break;
@@ -97,7 +97,7 @@ void MSXDiskRomPatch::PHYDIO(CPU::CPURegs& regs)
 		return;
 	}
 	// TODO check this
-	if (transferAddress + regs.BC.B.h*SECTOR_SIZE > 0x10000) {
+	if (transferAddress + regs.BC.B.h * SECTOR_SIZE > 0x10000) {
 		// read would overflow memory, adapt:
 		regs.BC.B.h = (0x10000 - transferAddress) / SECTOR_SIZE;
 	}
@@ -131,14 +131,14 @@ void MSXDiskRomPatch::PHYDIO(CPU::CPURegs& regs)
 	try {
 		while (regs.BC.B.h) {	// num_sectors
 			if (write) {
-				for (int i=0; i<SECTOR_SIZE; i++) {
+				for (int i = 0; i < SECTOR_SIZE; ++i) {
 					buffer[i] = cpuInterface->readMem(transferAddress, dummy);
 					transferAddress++;
 				}
 				drives[drive]->writeSector(buffer, sectorNumber);
 			} else {
 				drives[drive]->readSector(buffer, sectorNumber);
-				for (int i=0; i<SECTOR_SIZE; i++) {
+				for (int i = 0; i < SECTOR_SIZE; ++i) {
 					cpuInterface->writeMem(transferAddress, buffer[i], dummy);
 					transferAddress++;
 				}
@@ -298,7 +298,7 @@ void MSXDiskRomPatch::DSKFMT(CPU::CPURegs& regs)
 		regs.AF.w = 0x0C01;	// Bad parameter
 		return;
 	}
-	byte index = regs.AF.B.h-1;
+	byte index = regs.AF.B.h - 1;
 	if (index > 1) {
 		// requested format not supported by DiskPatch
 		PRT_DEBUG("    Format requested for not supported Media-ID");
@@ -326,15 +326,15 @@ void MSXDiskRomPatch::DSKFMT(CPU::CPURegs& regs)
 	byte sectorData[SECTOR_SIZE];
 	memset(sectorData, 0, SECTOR_SIZE);
 	memcpy(sectorData, bootSectorData, sizeof(bootSectorData));
-	memcpy(sectorData+3,"openMSXd",8);    // Manufacturer's ID
+	memcpy(sectorData + 3, "openMSXd", 8);    // Manufacturer's ID
 	sectorData[13] = FormatInfo[index].SectorsPerCluster;
 
 	sectorData[17] = FormatInfo[index].DirEntries;
 	sectorData[18] = 0;
 
-	PRT_DEBUG("nr of sectors =" <<FormatInfo[index].NrOfSectors);
-	sectorData[19] = FormatInfo[index].NrOfSectors&0xFF;
-	sectorData[20] = (FormatInfo[index].NrOfSectors>>8)&0xFF;
+	PRT_DEBUG("nr of sectors =" << FormatInfo[index].NrOfSectors);
+	sectorData[19] = FormatInfo[index].NrOfSectors & 0xFF;
+	sectorData[20] = (FormatInfo[index].NrOfSectors >> 8) & 0xFF;
 
 	sectorData[21] = index+0xF8; //Media ID
 
@@ -349,32 +349,33 @@ void MSXDiskRomPatch::DSKFMT(CPU::CPURegs& regs)
 
 	try {
 		drives[drive]->writeSector(sectorData, 0);
-		int Sector;
-		byte J;
-
+		int sector;
+		byte j;
 		/* Writing FATs: */
-		for (Sector=1,J=0;J<2;J++) {
-			sectorData[0] = index+0xF8;
+		for (sector = 1, j = 0; j < 2; ++j) {
+			sectorData[0] = index + 0xF8;
 			sectorData[1] = sectorData[2] = 0xFF;
-			memset(sectorData+3,0,509);
-			drives[drive]->writeSector(sectorData, Sector++);
-			memset(sectorData,0,4); //clear first bytes again
+			memset(sectorData + 3, 0, 509);
+			drives[drive]->writeSector(sectorData, sector++);
+			memset(sectorData, 0, 4); //clear first bytes again
 
-			for (byte I=FormatInfo[index].SectorsPerFAT; I>1; I--)
-				drives[drive]->writeSector(sectorData, Sector++);
+			for (byte i = FormatInfo[index].SectorsPerFAT; i > 1; --i) {
+				drives[drive]->writeSector(sectorData, sector++);
+			}
 		}
 
 		// Directory size
-		//J=FormatInfo[index].DirEntries/16;
-		for (J=7,memset(sectorData,0x00,512);J;J--)
-			drives[drive]->writeSector(sectorData, Sector++);
-
+		//j = FormatInfo[index].DirEntries / 16;
+		for (j = 7, memset(sectorData,0x00,512); j; --j) {
+			drives[drive]->writeSector(sectorData, sector++);
+		}
 		// Data size
-		J=FormatInfo[index].NrOfSectors-2*FormatInfo[index].SectorsPerFAT-8;
-		memset(sectorData,0xE5,512);
-		for (;J;J--)
-			drives[drive]->writeSector(sectorData, Sector++);
-
+		j = FormatInfo[index].NrOfSectors - 
+		    2 * FormatInfo[index].SectorsPerFAT - 8;
+		memset(sectorData, 0xE5, 512);
+		for ( ; j; --j) {
+			drives[drive]->writeSector(sectorData, sector++);
+		}
 		// Return success
 		regs.AF.B.l &= ~CPU::C_FLAG;
 

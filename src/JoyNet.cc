@@ -10,7 +10,7 @@ JoyNet::JoyNet()
 	sockfd = 0;
 	listener = 0;
 	status = 255;
-	PRT_DEBUG("instantiating JoyNet object");
+	
 	try {
 		setupConnections();
 		PluggingController::instance()->registerPluggable(this);
@@ -24,7 +24,9 @@ JoyNet::~JoyNet()
 	PluggingController::instance()->unregisterPluggable(this);
 	
 	// destroy writer
-	if (sockfd) close(sockfd);
+	if (sockfd) {
+		close(sockfd);
+	}
 	// destroy listener
 	delete listener;
 }
@@ -66,8 +68,9 @@ void JoyNet::setupConnections()
 	// setup  tcp stream with second (master) msx and listerenr for third (slave) msx
 
 	//first listener in case the connect wants to talk to it's own listener
-	if (config->getParameterAsBool("startlisten"))
+	if (config->getParameterAsBool("startlisten")) {
 		listener = new ConnectionListener(listenport, &status);
+	}
 	// Currently done when first write is tried
 	/*if (config->getParameterAsBool("startconnect")) {
 		sleep(1);	//give listener-thread some time to initialize itself
@@ -103,10 +106,10 @@ void JoyNet::sendByte(byte value)
 	// No transformation of bits to be directly read into openMSX later on
 	// needed since it is a one-on-one mapping
 
-	if (!sockfd){
+	if (!sockfd) {
 		setupWriter();
 		PRT_DEBUG("called setupWriter()");
-		};
+	}
 	if (sockfd) ::write(sockfd, &value, 1);	//TODO non-blocking
 	PRT_DEBUG("W:  sendByte " << hex << (int)value << dec);
 
