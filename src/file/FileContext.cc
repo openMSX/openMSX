@@ -6,6 +6,7 @@
 #include "FileContext.hh"
 #include "FileOperations.hh"
 #include "MSXConfig.hh"
+#include "File.hh"
 
 
 // class FileContext
@@ -47,7 +48,7 @@ const std::string FileContext::resolve(const std::list<std::string> &pathList,
 		}
 	}
 	// not found in any path
-	return filename;
+	throw FileException(filename + " not found in this context");
 }
 
 const std::string FileContext::resolveSave(const std::string &filename)
