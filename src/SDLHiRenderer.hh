@@ -40,6 +40,8 @@ public:
 	void updateBackgroundColour(int colour, const EmuTime &time);
 	void updateBlinkState(bool enabled, const EmuTime &time);
 	void updatePalette(int index, int grb, const EmuTime &time);
+	void updateVerticalScroll(int scroll, const EmuTime &time);
+	void updateHorizontalAdjust(int adjust, const EmuTime &time);
 	void updateDisplayEnabled(bool enabled, const EmuTime &time);
 	void updateDisplayMode(int mode, const EmuTime &time);
 	void updateNameBase(int addr, const EmuTime &time);
@@ -50,38 +52,59 @@ public:
 	void updateVRAM(int addr, byte data, const EmuTime &time);
 
 private:
-	typedef void (SDLHiRenderer::*RenderMethod)(int line);
+	typedef void (SDLHiRenderer::*RenderMethod)(Pixel *pixelPtr, int line);
 	typedef void (SDLHiRenderer::*PhaseHandler)(int limit);
-	typedef void (SDLHiRenderer::*DirtyChecker)(int addr, byte data);
+	typedef void (SDLHiRenderer::*DirtyChecker)
+		(int addr, byte data, const EmuTime &time);
 
-	void renderUntil(int limit);
+	inline void sync(const EmuTime &time);
+	inline void renderUntil(int limit);
 
-	void renderText1(int line);
-	void renderText1Q(int line);
-	void renderText2(int line);
-	void renderGraphic1(int line);
-	void renderGraphic2(int line);
-	void renderGraphic4(int line);
-	void renderGraphic5(int line);
-	void renderMulti(int line);
-	void renderMultiQ(int line);
-	void renderBogus(int line);
+	/** Get width of the left border in pixels.
+	  * This is equal to the X coordinate of the display area.
+	  */
+	inline int getLeftBorder();
 
-	void offPhase(int limit);
+	/** Get a pointer to the start of a VRAM line in the cache.
+	  * @param line The VRAM line:
+	  *   [0..192) for MSX1, [0..256*4) for MSX2.
+	  */
+	inline Pixel *getLinePtr(int line);
+
+	void renderText1(Pixel *pixelPtr, int line);
+	void renderText1Q(Pixel *pixelPtr, int line);
+	void renderText2(Pixel *pixelPtr, int line);
+	void renderGraphic1(Pixel *pixelPtr, int line);
+	void renderGraphic2(Pixel *pixelPtr, int line);
+	void renderGraphic4(Pixel *pixelPtr, int line);
+	void renderGraphic5(Pixel *pixelPtr, int line);
+	void renderMulti(Pixel *pixelPtr, int line);
+	void renderMultiQ(Pixel *pixelPtr, int line);
+	void renderBogus(Pixel *pixelPtr, int line);
+
+	/** Render in background colour.
+	  * Used for borders and during blanking.
+	  * @param limit Render lines [currentLine..limit).
+	  */
 	void blankPhase(int limit);
+
+	/** Render pixels according to VRAM.
+	  * Used for the display part of scanning.
+	  * @param limit Render lines [currentLine..limit).
+	  */
 	void displayPhase(int limit);
 
 	/** Dirty checking that does nothing (but is a valid method).
 	  */
-	void checkDirtyNull(int addr, byte data);
+	void checkDirtyNull(int addr, byte data, const EmuTime &time);
 
 	/** Dirty checking for MSX1 display modes.
 	  */
-	void checkDirtyMSX1(int addr, byte data);
+	void checkDirtyMSX1(int addr, byte data, const EmuTime &time);
 
 	/** Dirty checking for Text2 display mode.
 	  */
-	void checkDirtyText2(int addr, byte data);
+	void checkDirtyText2(int addr, byte data, const EmuTime &time);
 
 	/** Draw sprites on this line over the background.
 	  */
@@ -90,6 +113,10 @@ private:
 	/** Set all dirty / clean.
 	  */
 	void setDirty(bool);
+
+	/** Set up renderer state for new frame.
+	  */
+	void frameStart();
 
 	/** RenderMethods for each screen mode.
 	  */
@@ -129,21 +156,21 @@ private:
 	DirtyChecker dirtyChecker;
 
 	/** Number of the next line to render.
-	  * Absolute NTSC line number: [0..262).
+	  * Absolute line number: [0..262) for NTSC, [0..313) for PAL.
+	  * Any number larger than the number of lines means
+	  * "no more lines to render for this frame".
 	  */
-	int currLine;
+	int nextLine;
 
 	/** The surface which is visible to the user.
 	  */
 	SDL_Surface *screen;
 
 	/** The surface which the image is rendered on.
+	  * This surface contains VRAM lines, not display lines.
+	  * It is not affected by vertical scroll and it holds multiple pages.
 	  */
 	SDL_Surface *displayCache;
-
-	/** Pointers to the start of each display line in the cache.
-	  */
-	Pixel *cacheLinePtrs[212];
 
 	/** Absolute line number of first display line.
 	  */

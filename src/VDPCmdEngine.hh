@@ -25,26 +25,38 @@ public:
 	  * Bit 0 (CE) is set when a command is in progress.
 	  */
 	inline byte getStatus(const EmuTime &time) {
+		sync(time);
 		return status;
 	}
 
-	/** Use this function to transfer pixel(s) from VDP to CPU.
+	/** Use this method to transfer pixel(s) from VDP to CPU.
+	  * This method implements V9938 S#7.
 	  * @param time The moment in emulated time this read occurs.
 	  * @return Colour value of the pixel.
 	  */
-	byte read(const EmuTime &time);
+	inline byte readColour(const EmuTime &time) {
+		sync(time);
+		status &= 0x7F;
+		// TODO: Find a way to use REG_COL from here.
+		return cmdReg[0x0C /*REG_COL*/];
+	}
 
 	/** Synchronises the command engine with the VDP.
+	  * Ideally this would be a private method, but the current
+	  * design doesn't allow that.
 	  * @param time The moment in emulated time to sync to.
 	  */
 	inline void sync(const EmuTime &time) {
-	  // TODO: Currently, commands are executed instantaneously.
+		// TODO: Currently, commands are executed instantaneously.
+		currentTime = time;
+		(this->*currEngine)();
 	}
 
 	/** Gets the X coordinate of a border detected by SRCH.
 	  * @param time The moment in emulated time this get occurs.
 	  */
 	inline int getBorderX(const EmuTime &time) {
+		sync(time);
 		return borderX;
 	}
 
@@ -57,9 +69,13 @@ public:
 		// TODO: fMSX sets the register after calling write,
 		//       with write setting the register as well.
 		//       Is there a difference? Which is correct?
+		sync(time);
 		cmdReg[index] = value;
-		if (index == 12) write(value, time);
-		else if (index == 14) executeCommand();
+		if (index == 12) {
+			status &= 0x7F;
+		} else if (index == 14) {
+			executeCommand();
+		}
 	}
 
 	/** Informs the command engine of a VDP display mode change.
@@ -77,6 +93,8 @@ public:
 	  */
 	inline void updateVRAM(int addr, const EmuTime &time) {
 		// TODO: Sync until time if necessary.
+		//       VRAM update tracking is disabled at the moment
+		//       for performance reasons.
 	}
 
 private:
@@ -86,17 +104,6 @@ private:
 	typedef void (VDPCmdEngine::*EngineMethod)();
 
 	// Methods:
-
-	/** Use this function to transfer pixel(s) from CPU to VDP.
-	  * @param value Colour value of the pixel.
-	  * @param time The moment in emulated time this write occurs.
-	  */
-	void write(byte value, const EmuTime &time);
-
-	/** Perform a number of steps of the active operation.
-	  * TODO: Legacy method, should be replaced eventually.
-	  */
-	void loop();
 
 	/** Calculate addr of a pixel in VRAM.
 	  */
@@ -122,7 +129,7 @@ private:
 	  */
 	inline byte point(int sx, int sy);
 
-	/** Low level function to set a pixel on a screen.
+	/** Low level method to set a pixel on a screen.
 	  */
 	inline void psetLowLevel(int addr, byte cl, byte m, byte op);
 
@@ -156,7 +163,7 @@ private:
 	  */
 	int getVdpTimingValue(const int *timingValues);
 
-	// Engine functions which implement the different commands.
+	// Engine methods which implement the different commands.
 
 	/** Do nothing.
 	  */

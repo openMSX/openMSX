@@ -1,5 +1,14 @@
 $Id$
 
+2001-12-31 Maarten ter Huurne <mth@stack.nl>
+	* Render accuracy is now one line instead of one frame.
+	* Implemented line interrupt (horizontal scanning interrupt).
+	  Timing is still a bit off though.
+	* Implemented horizontal display adjust (vertical not yet).
+	* Implemented HR/VR status bits.
+	* Prepared for caching of rendered lines in bitmap modes.
+	* Command engine cleanups.
+
 2001-12-30 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Z80: correct inter-instruction timing for DDCB and FDCB instrcutions,
 
@@ -25,7 +34,7 @@ $Id$
 	* MSXDevice does not inherit from Schedulable anymore, devices that
 	  still need to be Schedulable must inherit itself from Schedulable
 	  (eg VDP)
- 
+
 2001-12-26 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* added getCPURegs() and setCPURegs() methods in class CPU
 

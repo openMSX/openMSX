@@ -34,7 +34,7 @@ class VDPCmdEngine;
   * the Renderer can retrieve the new state if necessary by calling
   * methods on the VDP object.
   */
-class VDP : public MSXIODevice, public Schedulable, public HotKeyListener
+class VDP : public MSXIODevice, private Schedulable, private HotKeyListener
 {
 public:
 	/** VDP version: the VDP model being emulated.
@@ -64,6 +64,10 @@ public:
 		short int x;
 		byte colour;
 	} SpriteInfo;
+
+	/** Number of VDP clock ticks per line.
+	  */
+	static const int TICKS_PER_LINE = 1368;
 
 	/** Constructor.
 	  */
@@ -101,6 +105,14 @@ public:
 	  */
 	inline int getDisplayMode() {
 		return displayMode;
+	}
+
+	/** Is the current mode a bitmap mode?
+	  * Graphic4 and higher are bitmap modes.
+	  * @return True iff the current mode is a bitmap mode.
+	  */
+	inline bool isBitmapMode() {
+		return (displayMode & 0x10) || (displayMode & 0x0C) == 0x0C;
 	}
 
 	/** Read a byte from the VRAM.
@@ -245,6 +257,23 @@ public:
 	  * @return The number of sprites stored in the visibleSprites array.
 	  */
 	inline int getSprites(int line, SpriteInfo *&visibleSprites) {
+		if (line >= spriteLine) {
+			/*
+			cout << "performing extra updateSprites: "
+				<< "old line = " << (spriteLine - 1)
+				<< ", new line = " << line
+				<< "\n";
+			*/
+
+			// TODO: Duplicated code.
+			// TODO: Would be faster if we knew how much to render ahead.
+			//       Either VDP keeps track or renderer gives parameter.
+			if (displayMode < 8) {
+				updateSprites1(line + 1);
+			} else {
+				updateSprites2(line + 1);
+			}
+		}
 		visibleSprites = spriteBuffer[line];
 		return spriteCount[line];
 	}
@@ -256,6 +285,20 @@ public:
 		return controlRegs[23];
 	}
 
+	/** Gets the current horizontal display adjust.
+	  * @return Adjust: 0 is leftmost, 7 is center, 15 is rightmost.
+	  */
+	inline int getHorizontalAdjust() {
+		return (controlRegs[18] & 0x0F) ^ 0x07;
+	}
+
+	/** Gets the current vertical display adjust.
+	  * @return Adjust: 0 is topmost, 7 is center, 15 is bottommost.
+	  */
+	inline int getVerticalAdjust() {
+		return verticalAdjust;
+	}
+
 	/** Gets the number of display lines per screen.
 	  * @return 192 or 212.
 	  */
@@ -263,10 +306,18 @@ public:
 		return (controlRegs[9] & 0x80 ? 212 : 192);
 	}
 
-	/** Gets the number of VDP clockticks (21MHz) per frame.
+	/** Is PAL timing active?
+	  * @return True if PAL timing, false if NTSC timing.
 	  */
-	inline int getTicksPerFrame() {
-		return (palTiming ? 1368 * 313 : 1368 * 262);
+	inline bool isPalTiming() {
+		return palTiming;
+	}
+
+	/** Gets the number of VDP clock ticks (21MHz) elapsed between
+	  * a given time and the start of this frame.
+	  */
+	inline int getTicksThisFrame(const EmuTime &time) {
+		return frameStartTime.getTicksTill(time);
 	}
 
 	/** Get VRAM access timing info.
@@ -281,6 +332,20 @@ public:
 	}
 
 private:
+	/** Types of VDP sync points that can be scheduled.
+	  */
+	enum SyncType {
+		/** Vertical sync: the transition from one frame to the next.
+		  */
+		VSYNC,
+		/** Vertical scanning: end of display.
+		  */
+		VSCAN,
+		/** Horizontal scanning: line interrupt.
+		  */
+		HSCAN
+	};
+
 	/** Doubles a sprite pattern.
 	  */
 	static int doublePattern(int pattern);
@@ -306,6 +371,19 @@ private:
 			&& ((controlRegs[8] & 0x02) == 0x00);
 	}
 
+	/** Calculate sprite patterns.
+	  */
+	inline void updateSprites(const EmuTime &time) {
+		int limit =
+			(getTicksThisFrame(time) - displayStart) / TICKS_PER_LINE;
+		// TODO: Use method pointer.
+		if (displayMode < 8) {
+			updateSprites1(limit);
+		} else {
+			updateSprites2(limit);
+		}
+	}
+
 	/** Calculates a sprite pattern.
 	  * @param patternNr Number of the sprite pattern [0..255].
 	  *   For 16x16 sprites, patternNr should be a multiple of 4.
@@ -314,22 +392,7 @@ private:
 	  *   Bit 31 is the leftmost bit of the sprite.
 	  *   Unused bits are zero.
 	  */
-	inline int calculatePattern(int patternNr, int y) {
-		// TODO: Optimise getSpriteSize?
-		if (getSpriteMag()) y /= 2;
-		int pattern = spritePatternBasePtr[patternNr * 8 + y] << 24;
-		if (getSpriteSize() == 16) {
-			pattern |= spritePatternBasePtr[patternNr * 8 + y + 16] << 16;
-		}
-		if (getSpriteMag()) return doublePattern(pattern);
-		else return pattern;
-	}
-
-	/** Called both on init and on reset.
-	  * Puts VDP into reset state.
-	  * Does not call any renderer methods.
-	  */
-	void resetInit(const EmuTime &time);
+	inline int calculatePattern(int patternNr, int y);
 
 	/** Check sprite collision and number of sprites per line.
 	  * This routine implements sprite mode 1 (MSX1).
@@ -340,7 +403,7 @@ private:
 	  *   in which the sprites to be displayed are returned.
 	  * @return The number of sprites stored in the visibleSprites array.
 	  */
-	int checkSprites1(int line, SpriteInfo *visibleSprites);
+	inline int checkSprites1(int line, SpriteInfo *visibleSprites);
 
 	/** Check sprite collision and number of sprites per line.
 	  * This routine implements sprite mode 2 (MSX2).
@@ -351,21 +414,44 @@ private:
 	  *   in which the sprites to be displayed are returned.
 	  * @return The number of sprites stored in the visibleSprites array.
 	  */
-	int checkSprites2(int line, SpriteInfo *visibleSprites);
+	inline int checkSprites2(int line, SpriteInfo *visibleSprites);
 
-	/** Determine next schedule point and schedule it.
+	/** Gets the number of VDP clockticks (21MHz) per frame.
 	  */
-	void scheduleNext();
+	inline int getTicksPerFrame() {
+		return (palTiming ? TICKS_PER_LINE * 313 : TICKS_PER_LINE * 262);
+	}
+
+	/** Update interrupt request on the bus.
+	  * To be called after each IE0/IE1 write and each F/FH status change.
+	  */
+	inline void updateIRQ();
+
+	/** Called both on init and on reset.
+	  * Puts VDP into reset state.
+	  * Does not call any renderer methods.
+	  */
+	void resetInit(const EmuTime &time);
 
 	/** Start a new frame.
 	  * @param time The moment in emulated time the frame starts.
 	  */
 	void frameStart(const EmuTime &time);
 
-	/** The current frame is done, now display it.
-	  * @param time The moment in emulated time the frame ends.
+	/** Schedules a HSCAN sync point.
+	  * Also removes a pending HSCAN sync, if any.
+	  * @param time The moment in emulated time this call takes place.
+	  *   Note: time is not the HSCAN sync time!
 	  */
-	void frameDone(const EmuTime &time);
+	void scheduleHScan(const EmuTime &time);
+
+	/** Calculate sprite pattern for sprite mode 1.
+	  */
+	void updateSprites1(int limit);
+
+	/** Calculate sprite pattern for sprite mode 2.
+	  */
+	void updateSprites2(int limit);
 
 	/** Byte is read from VRAM by the CPU.
 	  */
@@ -407,31 +493,50 @@ private:
 	  */
 	VdpVersion version;
 
-	/** Emulation time of the VDP.
-	  * In other words, the time of the last update.
-	  */
-	EmuTimeFreq<21477270> currentTime;
-
 	/** The emulation time when this frame was started (vsync).
 	  */
 	EmuTimeFreq<21477270> frameStartTime;
 
+	/** State of vertical scanning interrupt request.
+	  */
+	bool irqVertical;
+
+	/** State of horizontal scanning interrupt request.
+	  */
+	bool irqHorizontal;
+
+	/** VDP ticks between start of frame and start of display.
+	  */
+	int displayStart;
+
+	/** Time of last set HSCAN sync point.
+	  */
+	EmuTime hScanSyncTime;
+
 	/** Is PAL timing active? False means NTSC timing.
 	  * This value is updated at the start of every frame,
 	  * to avoid problems with mid-screen PAL/NTSC switching.
+	  * @sa isPalTiming.
 	  */
 	bool palTiming;
+
+	/** Vertical display adjust.
+	  * This value is updated at the start of every frame.
+	  * @sa getVerticalAdjust.
+	  */
+	int verticalAdjust;
+
+	/** Sprites are checked up to and excluding this display line.
+	  */
+	int spriteLine;
 
 	/** Control registers.
 	  */
 	byte controlRegs[32];
 
 	/** Mask on the control register index:
-	  * makes MSX2 registers inaccessible on MSX1.
-	  * TODO: Alternative would be to force all MSX2 register values
-	  *       to zero on MSX1, using controlValueMasks.
-	  *       Saves one variable and one AND on every VDP reg write.
-	  *       Currently only R#9 bit 1 can be non-zero (PAL on TMS9929A).
+	  * makes MSX2 registers inaccessible on MSX1,
+	  * instead the MSX1 registers are mirrored.
 	  */
 	int controlRegMask;
 
@@ -455,12 +560,12 @@ private:
 	byte statusReg2;
 
 	/** X coordinate of sprite collision.
-	  * 8 bits long -> [0..511]?
+	  * 9 bits long -> [0..511]?
 	  */
 	int collisionX;
 
 	/** Y coordinate of sprite collision.
-	  * 8 bits long -> [0..511]?
+	  * 9 bits long -> [0..511]?
 	  * Bit 9 contains EO, I guess that's a copy of the even/odd flag
 	  * of the frame on which the collision occurred.
 	  */
@@ -537,7 +642,7 @@ private:
 
 	/** VRAM is read as soon as VRAM pointer changes.
 	  * TODO: Is this actually what happens?
-	  *   On TMS9928 the VRAM interface is to only access method.
+	  *   On TMS9928 the VRAM interface is the only access method.
 	  *   But on V9938/58 there are other ways to access VRAM;
 	  *   I wonder if they are consistent with this implementation.
 	  */

@@ -38,6 +38,8 @@ public:
 	void updateBackgroundColour(int colour, const EmuTime &time);
 	void updateBlinkState(bool enabled, const EmuTime &time);
 	void updatePalette(int index, int grb, const EmuTime &time);
+	void updateVerticalScroll(int scroll, const EmuTime &time);
+	void updateHorizontalAdjust(int adjust, const EmuTime &time);
 	void updateDisplayEnabled(bool enabled, const EmuTime &time);
 	void updateDisplayMode(int mode, const EmuTime &time);
 	void updateNameBase(int addr, const EmuTime &time);

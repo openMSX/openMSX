@@ -2,13 +2,26 @@
 
 /*
 TODO:
-- Implement PAL/NTSC timing.
-  Note: TMS9928/29 timings are almost the same, but not 100%.
-- Apply line-based scheduling.
+- Implement vertical display adjust.
+- Run more measurements on real MSX to find out how horizontal
+  scanning interrupt really works.
+- Model of FH and IRQ:
+	HR = 1 & DL = IL & IE1 = 1 -> IRQ := 1
+	HR = 1 & DL = IL -> FH := 1
+	HR = 1 & IE1 = 0 -> FH := 0
+	read S#1 -> FH := 0, IRQ := 0
+	IE1 = 0 -> IRQ := 0
+  Implement it this way (unless measurements alter model).
+- Keep blank / display knowledge in VDP instead of renderer:
+  * VDP has all the info required to calculate it
+  * VDP has to know it for sprite checking in overscan
+  * command engine wants to know as well
+- Check how Z80 should treat interrupts occurring during DI.
 - Sprite attribute readout probably happens one line in advance.
   This matters when line-based scheduling is operational.
 - Get rid of hardcoded port 0x98..0x9B.
-- What is the maximum number of lines? (during overscan)
+- Implement overscan.
+  What is the maximum number of lines? (during overscan)
   Currently fixed to 212, but those tables should be expanded.
   (grep for 212 in *.cc AND *.hh)
 */
@@ -26,6 +39,231 @@ TODO:
 #include <string>
 #include <cassert>
 
+// Inlined methods first, to make sure they are actually inlined:
+
+inline int VDP::calculatePattern(int patternNr, int y)
+{
+	// TODO: Optimise getSpriteSize?
+	if (getSpriteMag()) y /= 2;
+	int pattern = spritePatternBasePtr[patternNr * 8 + y] << 24;
+	if (getSpriteSize() == 16) {
+		pattern |= spritePatternBasePtr[patternNr * 8 + y + 16] << 16;
+	}
+	return (getSpriteMag() ? doublePattern(pattern) : pattern);
+}
+
+inline int VDP::checkSprites1(int line, VDP::SpriteInfo *visibleSprites)
+{
+	if (!spritesEnabled()) return 0;
+
+	// Compensate for the fact that sprites are calculated one line
+	// before they are plotted.
+	line--;
+
+	// Get sprites for this line and detect 5th sprite if any.
+	int sprite, visibleIndex = 0;
+	int size = getSpriteSize();
+	int magSize = size * (getSpriteMag() + 1);
+	int minStart = line - magSize;
+	byte *attributePtr = spriteAttributeBasePtr;
+	for (sprite = 0; sprite < 32; sprite++, attributePtr += 4) {
+		int y = *attributePtr;
+		if (y == 208) break;
+		// Compensate for vertical scroll.
+		// TODO: Use overscan and check what really happens.
+		y = (y - getVerticalScroll()) & 0xFF;
+		if (y > 208) y -= 256;
+		if ((y > minStart) && (y <= line)) {
+			if (visibleIndex == 4) {
+				// Five sprites on a line.
+				// According to TMS9918.pdf 5th sprite detection is only
+				// active when F flag is zero.
+				if (~statusReg0 & 0xC0) {
+					statusReg0 = (statusReg0 & 0xE0) | 0x40 | sprite;
+				}
+				if (limitSprites) break;
+			}
+			SpriteInfo *sip = &visibleSprites[visibleIndex++];
+			int patternIndex = (size == 16
+				? attributePtr[2] & 0xFC : attributePtr[2]);
+			sip->pattern = calculatePattern(patternIndex, line - y);
+			sip->x = attributePtr[1];
+			if (attributePtr[3] & 0x80) sip->x -= 32;
+			sip->colour = attributePtr[3] & 0x0F;
+		}
+	}
+	if (~statusReg0 & 0x40) {
+		// No 5th sprite detected, store number of latest sprite processed.
+		statusReg0 = (statusReg0 & 0xE0) | (sprite < 32 ? sprite : 31);
+	}
+
+	// Optimisation:
+	// If collision already occurred,
+	// that state is stable until it is reset by a status reg read,
+	// so no need to execute the checks.
+	// The visibleSprites array is filled now, so we can bail out.
+	if (statusReg0 & 0x20) return visibleIndex;
+
+	/*
+	Model for sprite collision: (or "coincidence" in TMS9918 data sheet)
+	Reset when status reg is read.
+	Set when sprite patterns overlap.
+	Colour doesn't matter: sprites of colour 0 can collide.
+	Sprites with off-screen position can collide.
+
+	Implemented by checking every pair for collisions.
+	For large numbers of sprites that would be slow,
+	but there are max 4 sprites and therefore max 6 pairs.
+	If any collision is found, method returns at once.
+	*/
+	for (int i = (visibleIndex < 4 ? visibleIndex : 4); --i >= 1; ) {
+		int x_i = visibleSprites[i].x;
+		int pattern_i = visibleSprites[i].pattern;
+		for (int j = i; --j >= 0; ) {
+			// Do sprite i and sprite j collide?
+			int x_j = visibleSprites[j].x;
+			int dist = x_j - x_i;
+			if ((-magSize < dist) && (dist < magSize)) {
+				int pattern_j = visibleSprites[j].pattern;
+				if (dist < 0) {
+					pattern_j <<= -dist;
+				}
+				else if (dist > 0) {
+					pattern_j >>= dist;
+				}
+				if (pattern_i & pattern_j) {
+					// Collision!
+					statusReg0 |= 0x20;
+					// TODO: Fill in collision coordinates in S#3..S#6.
+					// ...Unless this feature only works in sprite mode 2.
+					return visibleIndex;
+				}
+			}
+		}
+	}
+
+	return visibleIndex;
+}
+
+inline int VDP::checkSprites2(int line, VDP::SpriteInfo *visibleSprites)
+{
+	if (!spritesEnabled()) return 0;
+
+	// Compensate for the fact that sprites are calculated one line
+	// before they are plotted.
+	line--;
+
+	// Get sprites for this line and detect 5th sprite if any.
+	int sprite, visibleIndex = 0;
+	int size = getSpriteSize();
+	int magSize = size * (getSpriteMag() + 1);
+	int minStart = line - magSize;
+	// TODO: Verify exact address calculation and maybe masks while
+	//       processing the tables.
+	byte *colourPtr = vramData + (spriteAttributeBase & 0x1FC00);
+	byte *attributePtr = colourPtr + 512;
+	// TODO: Implement CC bit (priority cancellation, OR-ing pixels).
+	// TODO: Implement IC bit (immunity to collisions).
+	for (sprite = 0; sprite < 32; sprite++,
+			attributePtr += 4, colourPtr += 16) {
+		int y = *attributePtr;
+		if (y == 216) break;
+		// Compensate for vertical scroll.
+		// TODO: Use overscan and check what really happens.
+		y = (y - getVerticalScroll()) & 0xFF;
+		if (y > 216) y -= 256;
+		if ((y > minStart) && (y <= line)) {
+			if (visibleIndex == 8) {
+				// Nine sprites on a line.
+				// According to TMS9918.pdf 5th sprite detection is only
+				// active when F flag is zero. Stuck to this for V9938.
+				if (~statusReg0 & 0xC0) {
+					statusReg0 = (statusReg0 & 0xE0) | 0x40 | sprite;
+				}
+				if (limitSprites) break;
+			}
+			SpriteInfo *sip = &visibleSprites[visibleIndex++];
+			int patternIndex = (size == 16
+				? attributePtr[2] & 0xFC : attributePtr[2]);
+			sip->pattern = calculatePattern(patternIndex, line - y);
+			sip->x = attributePtr[1];
+			int colourAttrib = colourPtr[line - y];
+			if (colourAttrib & 0x80) sip->x -= 32;
+			sip->colour = colourAttrib & 0x0F;
+		}
+	}
+	if (~statusReg0 & 0x40) {
+		// No 5th sprite detected, store number of latest sprite processed.
+		statusReg0 = (statusReg0 & 0xE0) | (sprite < 32 ? sprite : 31);
+	}
+
+	// Optimisation:
+	// If collision already occurred,
+	// that state is stable until it is reset by a status reg read,
+	// so no need to execute the checks.
+	// The visibleSprites array is filled now, so we can bail out.
+	if (statusReg0 & 0x20) return visibleIndex;
+
+	/*
+	Model for sprite collision: (or "coincidence" in TMS9918 data sheet)
+	Reset when status reg is read.
+	Set when sprite patterns overlap.
+	Colour doesn't matter: sprites of colour 0 can collide.
+	  TODO: V9938 data book denies this (page 98).
+	Sprites with off-screen position can collide.
+
+	Implemented by checking every pair for collisions.
+	For large numbers of sprites that would be slow.
+	There are max 8 sprites and therefore max 42 pairs.
+	  TODO: Maybe this is slow... Think of something faster.
+	        Probably new approach is needed anyway for OR-ing.
+	If any collision is found, method returns at once.
+	*/
+	for (int i = (visibleIndex < 8 ? visibleIndex : 8); --i >= 1; ) {
+		int x_i = visibleSprites[i].x;
+		int pattern_i = visibleSprites[i].pattern;
+		for (int j = i; --j >= 0; ) {
+			// Do sprite i and sprite j collide?
+			int x_j = visibleSprites[j].x;
+			int dist = x_j - x_i;
+			if ((-magSize < dist) && (dist < magSize)) {
+				int pattern_j = visibleSprites[j].pattern;
+				if (dist < 0) {
+					pattern_j <<= -dist;
+				}
+				else if (dist > 0) {
+					pattern_j >>= dist;
+				}
+				if (pattern_i & pattern_j) {
+					// Collision!
+					statusReg0 |= 0x20;
+					// TODO: Fill in collision coordinates in S#3..S#6.
+					//       See page 97 for info.
+					return visibleIndex;
+				}
+			}
+		}
+	}
+
+	return visibleIndex;
+}
+
+inline void VDP::updateIRQ()
+{
+	// TODO: Motherboard implementation can handle multiple
+	//       IRQs from a single device, but its documentation
+	//       says it cannot.
+	//       Changing that would allow this method to be replaced
+	//       by raiseIRQ() and lowerIRQ() calls from horizontal and
+	//       vertical scanning interrupt code.
+	if (irqVertical || irqHorizontal) {
+		setInterrupt();
+	} else {
+		resetInterrupt();
+	}
+}
+
+// Init and cleanup:
 
 VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time)
@@ -112,8 +350,8 @@ VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
 	}
 
 	// Init scheduling.
-	frameStart(currentTime);
-	scheduleNext();
+	hScanSyncTime = 0;
+	frameStart(time);
 }
 
 VDP::~VDP()
@@ -126,8 +364,6 @@ VDP::~VDP()
 void VDP::resetInit(const EmuTime &time)
 {
 	MSXDevice::reset(time);
-
-	currentTime = time;
 
 	for (int i = 0; i < 32; i++) controlRegs[i] = 0;
 	if (version == TMS9929A) {
@@ -144,9 +380,14 @@ void VDP::resetInit(const EmuTime &time)
 	// Init status registers.
 	statusReg0 = 0x00;
 	statusReg1 = (version == V9958 ? 0x04 : 0x00);
-	statusReg2 = 0x6C;
+	statusReg2 = 0x0C;
 	collisionX = 0;
 	collisionY = 0;
+
+	// Update IRQ to reflect new register values.
+	irqVertical = false;
+	irqHorizontal = false;
+	updateIRQ();
 
 	nameBase = ~(-1 << 10);
 	colourBase = ~(-1 << 6);
@@ -155,6 +396,9 @@ void VDP::resetInit(const EmuTime &time)
 	spritePatternBase = 0;
 	spriteAttributeBasePtr = vramData;
 	spritePatternBasePtr = vramData;
+
+	// No sprites found.
+	memset(spriteCount, 0, 212 * sizeof(int));
 
 	// From appendix 8 of the V9938 data book (page 148).
 	const word V9938_PALETTE[16] = {
@@ -183,105 +427,136 @@ void VDP::signalHotKey(SDLKey key)
 
 void VDP::executeUntilEmuTime(const EmuTime &time, int userData)
 {
-	//PRT_DEBUG("Executing VDP at time " << time);
+	/*
+	PRT_DEBUG("Executing VDP at time " << time
+		<< ", sync type " << userData);
+	*/
 
-	// TODO: Calculate once and store values.
-	//       Note that displayEndTime should be recalculated on every
-	//       reg#9 write to make overscan work.
-	int lineBottomBorder = 237 + (getNumberOfLines() - 192) / 2;
-	EmuTime displayEndTime = frameStartTime + lineBottomBorder * 1368;
-	EmuTime frameEndTime = frameStartTime + getTicksPerFrame();
+	// Handle the various sync types.
+	switch (userData) {
+	case VSYNC: {
+		// This frame is finished.
+		renderer->putImage();
 
-	// Find out what kind of sync this was.
-	// TODO: Is there some other way to do this?
-	//   For example register a different Schedulable for each sync type.
-	//   That is also safer if EmuTime precision would not be exact.
-	if (time == displayEndTime) {
-		// Vertical scanning interrupt occurs.
-		/* TODO:
-		Until renderer supports partial frame updates, be sure to
-		generate vertical scanning interrupt _after_ the update.
+		// Sync with command engine.
+		// TODO: This wouldn't be necessary if command engine is synced
+		//       on VRAM reads.
+		cmdEngine->sync(time);
+
+		// Begin next frame.
+		frameStart(time);
+		break;
+	}
+	case VSCAN:
+		// Update sprite buffer.
+		// TODO: This is a patch to cover up an inaccuracy.
+		//       Most programs change sprite attributes on VSCAN int.
+		//       The right way to do it is sync on VRAM writes.
+		updateSprites(time);
+
+		// Vertical scanning occurs.
 		statusReg0 |= 0x80;
 		if (controlRegs[1] & 0x20) {
-			setInterrupt();
+			irqVertical = true;
+			updateIRQ();
 		}
+		break;
+	case HSCAN: {
+		// TODO: This implements Marat's guess, what does real V9938 do?
+		// TODO: This is duplicated code.
+		/*
+		int ticksThisFrame = getTicksThisFrame(time);
+		int displayEnd =
+			displayStart + getNumberOfLines() * TICKS_PER_LINE;
+		bool vr = ticksThisFrame < displayStart
+			|| ticksThisFrame >= displayEnd;
+		if (vr) break;
 		*/
-	}
-	else if (time == frameEndTime) {
-		// The end of this frame and the beginning of the next.
-		frameDone(frameEndTime);
-		frameStart(frameEndTime);
-		/* TODO:
-		Until renderer supports partial frame updates, be sure to
-		generate vertical scanning interrupt _after_ the update.
-		*/
-		statusReg0 |= 0x80;
-		if (controlRegs[1] & 0x20) {
-			setInterrupt();
+
+		// Horizontal scanning occurs.
+		statusReg1 |= 0x01;
+		if (controlRegs[0] & 0x10) {
+			irqHorizontal = true;
+			updateIRQ();
 		}
+		break;
 	}
-	else {
-		// TODO: This will be triggered on overscan, I guess,
-		//   so it is only valid for debugging purposes.
-		fprintf(stderr, "Unexpected sync, ticks since last frame: %d\n",
-			frameStartTime.getTicksTill(time));
+	default:
+		assert(false);
 	}
 
-	currentTime = time;
-	scheduleNext();
 }
 
-// TODO: inline?
-void VDP::scheduleNext()
+void VDP::scheduleHScan(const EmuTime &time)
 {
-	// TODO: Calculate once and store values.
-	//       Note that displayEndTime should be recalculated on every
-	//       reg#9 write to make overscan work.
-	int lineBottomBorder = 237 + (getNumberOfLines() - 192) / 2;
-	EmuTime displayEndTime = frameStartTime + lineBottomBorder * 1368;
-	if (displayEndTime <= currentTime) {
-		displayEndTime = EmuTime::INFINITY;
+	// Remove pending HSCAN sync point, if any.
+	if (hScanSyncTime > time) {
+		Scheduler::instance()->removeSyncPoint(this, HSCAN);
 	}
-	EmuTime frameEndTime = frameStartTime + getTicksPerFrame();
-	assert(frameEndTime > currentTime);
 
-	EmuTime first = (displayEndTime < frameEndTime
-		? displayEndTime : frameEndTime);
-
-	Scheduler::instance()->setSyncPoint(first, this);
+	// Register new HSCAN sync point.
+	hScanSyncTime = frameStartTime + ( displayStart +
+		((controlRegs[19] - controlRegs[23]) & 0xFF) * TICKS_PER_LINE );
+	if (hScanSyncTime > time) {
+		Scheduler::instance()->setSyncPoint(hScanSyncTime, this, HSCAN);
+	}
 }
 
 // TODO: inline?
 void VDP::frameStart(const EmuTime &time)
 {
+	statusReg2 ^= 0x02; // toggle E/O
+
+	// Settings which are fixed at start of frame.
+	// Not sure this is how real MSX does it, but close enough.
 	palTiming = controlRegs[9] & 0x02;
+	verticalAdjust = (controlRegs[18] >> 4) ^ 0x07;
+
+	spriteLine = 0;
 	frameStartTime = time;
+	// TODO: Use display adjust register (R#18).
+	displayStart =
+		( palTiming
+		? ( controlRegs[9] & 0x80
+		  ? (3 + 13 + 43) * TICKS_PER_LINE
+		  : (3 + 13 + 53) * TICKS_PER_LINE
+		  )
+		: ( controlRegs[9] & 0x80
+		  ? (3 + 13 + 16) * TICKS_PER_LINE
+		  : (3 + 13 + 26) * TICKS_PER_LINE
+		  )
+		);
+	scheduleHScan(time);
+	Scheduler::instance()->setSyncPoint(
+		frameStartTime + (displayStart +
+			( controlRegs[9] & 0x80
+			? 212 * TICKS_PER_LINE
+			: 192 * TICKS_PER_LINE
+			)
+		), this, VSCAN);
+	Scheduler::instance()->setSyncPoint(
+		frameStartTime + getTicksPerFrame(),
+		this, VSYNC);
 }
 
-// TODO: inline?
-void VDP::frameDone(const EmuTime &time)
+void VDP::updateSprites1(int limit)
 {
-	// Sync with command engine.
-	cmdEngine->sync(time);
-
-	// Update sprite buffer.
-	// TODO: Use a method pointer for checkSprites.
-	int numLines = getNumberOfLines();
-	if (displayMode < 8) {
-		// Sprite mode 1 (MSX1).
-		for (int line = 0; line < numLines; line++) {
-			spriteCount[line] = checkSprites1(line, spriteBuffer[line]);
-		}
+	// TODO: Replace by display / blank check.
+	if (limit > 212) limit = 212;
+	for ( ; spriteLine < limit; spriteLine++) {
+		spriteCount[spriteLine] =
+			checkSprites1(spriteLine, spriteBuffer[spriteLine]);
 	}
-	else {
-		// Sprite mode 2 (MSX2).
-		for (int line = 0; line < numLines; line++) {
-			spriteCount[line] = checkSprites2(line, spriteBuffer[line]);
-		}
-	}
+}
 
-	// This frame is finished.
-	renderer->putImage();
+void VDP::updateSprites2(int limit)
+{
+	// TODO: Replace by display / blank check.
+	if (limit > 212) limit = 212;
+	for ( ; spriteLine < limit; spriteLine++) {
+		spriteCount[spriteLine] =
+			checkSprites2(spriteLine, spriteBuffer[spriteLine]);
+	}
 }
 
 // The I/O functions.
@@ -385,37 +660,72 @@ byte VDP::readIO(byte port, const EmuTime &time)
 		return vramRead();
 	}
 	else { // port == 0x99
-		/* INIT_STATUS_REGS[] =
-		0x00, 0x00, 0x6C, 0x00, 0xFE, 0x00, 0xFC, 0x00,
-		0x00, 0xFE, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
-		*/
 
 		// Abort any port 0x98 writes in progress.
 		firstByte = -1;
 
+		// Calculate status register contents.
 		switch (controlRegs[15]) {
 		case 0: {
 			byte ret = statusReg0;
-			// TODO: Used to be 0x5F, but that is contradicted by TMS9918.pdf
+			// TODO: Used to be 0x5F, but that is contradicted by
+			//       TMS9918.pdf. Check on real MSX.
 			statusReg0 &= 0x1F;
-			resetInterrupt();
+			irqVertical = false;
+			updateIRQ();
 			return ret;
 		}
-		case 1:
-			// TODO: Implement horizontal retrace interrupt.
-			//       Until then, flip the status bit on every read.
-			statusReg1 ^= 1;
-			return statusReg1;
-		case 2:
-			// TODO: Remove once accurate timing is in place.
-			if ((statusReg2 & 0x20) == 0) {
-				statusReg2 |= 0x20;
+		case 1: {
+			int ticksThisFrame = getTicksThisFrame(time);
+
+			// Reset FH if IE1 = 0 and current line is not
+			// interrupt line.
+			// TODO: Actually, it should be reset whenever
+			//       IE1 = 0 and HR = 0.
+			if (!(controlRegs[0] & 0x10)
+			&& ((ticksThisFrame - displayStart) / TICKS_PER_LINE
+			     != (controlRegs[19] - controlRegs[23]) & 0xFF)) {
+				statusReg1 &= 0xFE;
 			}
-			else {
-				statusReg2 = (statusReg2 & ~0x20) ^ 0x40;
-			}
-			//fprintf(stderr, "VDP: status reg 2: VDP part = %02X, engine part = %02X\n", statusReg2, cmdEngine->getStatus(time));
-			return statusReg2 | cmdEngine->getStatus(time);
+
+			/*
+			cout << "S#1 read: " << (int)statusReg1
+				<< " at (" << (ticksThisFrame % TICKS_PER_LINE)
+				<< "," << ((ticksThisFrame - displayStart) / TICKS_PER_LINE)
+				<< "), IRQ_H = " << (int)irqHorizontal
+				<< " IRQ_V = " << (int)irqVertical
+				<< ", frame = " << frameStartTime << "\n";
+			*/
+
+			byte ret = statusReg1;
+			statusReg1 &= 0xFE;
+			irqHorizontal = false;
+			updateIRQ();
+			return ret;
+		}
+		case 2: {
+			int ticksThisFrame = getTicksThisFrame(time);
+
+			// TODO: Use display adjust register (R#18).
+			// TODO: Precalc.
+			// TODO: Is the display mode check OK? Profile undefined modes.
+			int displayWidth =
+				((displayMode & 0x17) == 0x01 ? 960 : 1024);
+			int rightBorderErase =
+				((displayMode & 0x17) == 0x01 ? 87 + 27 : 59 + 27);
+			bool hr = (ticksThisFrame + rightBorderErase) % TICKS_PER_LINE
+				< (TICKS_PER_LINE - displayWidth);
+
+			// TODO: Once VDP keeps display/blanking state, keeping
+			//       VR is probably part of that, so use it.
+			int displayEnd =
+				displayStart + getNumberOfLines() * TICKS_PER_LINE;
+			bool vr = ticksThisFrame < displayStart
+			       || ticksThisFrame >= displayEnd;
+
+			return statusReg2 | (hr ? 0x20 : 0x00) | (vr ? 0x40 : 0x00)
+				| cmdEngine->getStatus(time);
+		}
 		case 3:
 			return (byte)collisionX;
 		case 4:
@@ -428,7 +738,7 @@ byte VDP::readIO(byte port, const EmuTime &time)
 		case 6:
 			return (byte)(collisionY >> 8) | 0xFC;
 		case 7:
-			return cmdEngine->read(time);
+			return cmdEngine->readColour(time);
 		case 8:
 			return (byte)cmdEngine->getBorderX(time);
 		case 9:
@@ -452,26 +762,34 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 	val &= controlValueMasks[reg];
 	byte oldval = controlRegs[reg];
 	if (oldval == val) return;
-	PRT_DEBUG("VDP: Reg " << (int)reg << " = " << (int)val);
+	//PRT_DEBUG("VDP: Reg " << (int)reg << " = " << (int)val);
 
 	// Perform additional tasks before new value becomes active.
 	switch (reg) {
 	case 0:
 		if ((val ^ oldval) & 0x0E) {
+			updateSprites(time);
 			updateDisplayMode(val, controlRegs[1], time);
 		}
 		break;
-	case 1:
-		if ((val & 0x20) && (statusReg0 & 0x80)) {
-			setInterrupt();
+	case 1: {
+		byte change = val ^ oldval;
+		if (change & 0x5B) {
+			// Update sprites on blank, mode, size and mag changes.
+			updateSprites(time);
 		}
-		if ((val ^ oldval) & 0x18) {
+		if ((change & 0x20) && !(val & 0x20)) {
+			irqHorizontal = false;
+			updateIRQ();
+		}
+		if (change & 0x18) {
 			updateDisplayMode(controlRegs[0], val, time);
 		}
-		if ((val ^ oldval) & 0x40) {
+		if (change & 0x40) {
 			renderer->updateDisplayEnabled(!isDisplayEnabled(), time);
 		}
 		break;
+	}
 	case 2: {
 		int addr = ((val << 10) | ~(-1 << 10)) & vramMask;
 		renderer->updateNameBase(addr, time);
@@ -499,6 +817,7 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		break;
 	}
 	case 5: {
+		updateSprites(time);
 		int addr = ((controlRegs[11] << 15) | (val << 7)) & vramMask;
 		renderer->updateSpriteAttributeBase(addr, time);
 		spriteAttributeBase = addr;
@@ -506,6 +825,7 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		break;
 	}
 	case 11: {
+		updateSprites(time);
 		int addr = ((val << 15) | (controlRegs[5] << 7)) & vramMask;
 		renderer->updateSpriteAttributeBase(addr, time);
 		spriteAttributeBase = addr;
@@ -513,6 +833,7 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		break;
 	}
 	case 6: {
+		updateSprites(time);
 		int addr = (val << 11) & vramMask;
 		renderer->updateSpritePatternBase(addr, time);
 		spritePatternBase = addr;
@@ -531,10 +852,22 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		// Any half-finished palette loads are aborted.
 		paletteLatch = -1;
 		break;
+	case 18:
+		if ((val ^ oldval) & 0x0F) {
+			renderer->updateHorizontalAdjust((val & 0x0F) ^ 0x07, time);
+		}
+		break;
+	case 23:
+		updateSprites(time);
+		renderer->updateVerticalScroll(val, time);
+		break;
 	}
 
 	// Commit the change.
 	controlRegs[reg] = val;
+
+	// Reschedule HSCAN if necessary.
+	if (reg == 19 || reg == 23) scheduleHScan(time);
 }
 
 void VDP::updateDisplayMode(byte reg0, byte reg1, const EmuTime &time)
@@ -544,7 +877,7 @@ void VDP::updateDisplayMode(byte reg0, byte reg1, const EmuTime &time)
 		| ((reg1 & 0x08) >> 2)  // M2
 		| ((reg1 & 0x10) >> 4); // M1
 	if (newMode != displayMode) {
-		fprintf(stderr, "VDP: mode %02X\n", newMode);
+		//PRT_DEBUG("VDP: mode " << newMode);
 		renderer->updateDisplayMode(newMode, time);
 		cmdEngine->updateDisplayMode(newMode, time);
 		displayMode = newMode;
@@ -560,201 +893,5 @@ int VDP::doublePattern(int a)
 	a = ((a<< 2)&0x3c3c3c3c) | (a&0xc3c3c3c3);
 	a = ((a<< 1)&0x66666666) | (a&0x99999999);
 	return a;
-}
-
-int VDP::checkSprites1(int line, VDP::SpriteInfo *visibleSprites)
-{
-	if (!spritesEnabled()) return 0;
-
-	// Compensate for the fact that sprites are calculated one line
-	// before they are plotted.
-	line--;
-
-	// Get sprites for this line and detect 5th sprite if any.
-	int sprite, visibleIndex = 0;
-	int size = getSpriteSize();
-	int magSize = size * (getSpriteMag() + 1);
-	int minStart = line - magSize;
-	byte *attributePtr = spriteAttributeBasePtr;
-	for (sprite = 0; sprite < 32; sprite++, attributePtr += 4) {
-		int y = *attributePtr;
-		if (y == 208) break;
-		// Compensate for vertical scroll.
-		// TODO: Use overscan and check what really happens.
-		y = (y - getVerticalScroll()) & 0xFF;
-		if (y > 208) y -= 256;
-		if ((y > minStart) && (y <= line)) {
-			if (visibleIndex == 4) {
-				// Five sprites on a line.
-				// According to TMS9918.pdf 5th sprite detection is only
-				// active when F flag is zero.
-				if (~statusReg0 & 0xC0) {
-					statusReg0 = (statusReg0 & 0xE0) | 0x40 | sprite;
-				}
-				if (limitSprites) break;
-			}
-			SpriteInfo *sip = &visibleSprites[visibleIndex++];
-			int patternIndex = (size == 16
-				? attributePtr[2] & 0xFC : attributePtr[2]);
-			sip->pattern = calculatePattern(patternIndex, line - y);
-			sip->x = attributePtr[1];
-			if (attributePtr[3] & 0x80) sip->x -= 32;
-			sip->colour = attributePtr[3] & 0x0F;
-		}
-	}
-	if (~statusReg0 & 0x40) {
-		// No 5th sprite detected, store number of latest sprite processed.
-		statusReg0 = (statusReg0 & 0xE0) | (sprite < 32 ? sprite : 31);
-	}
-
-	// Optimisation:
-	// If collision already occurred,
-	// that state is stable until it is reset by a status reg read,
-	// so no need to execute the checks.
-	// The visibleSprites array is filled now, so we can bail out.
-	if (statusReg0 & 0x20) return visibleIndex;
-
-	/*
-	Model for sprite collision: (or "coincidence" in TMS9918 data sheet)
-	Reset when status reg is read.
-	Set when sprite patterns overlap.
-	Colour doesn't matter: sprites of colour 0 can collide.
-	Sprites with off-screen position can collide.
-
-	Implemented by checking every pair for collisions.
-	For large numbers of sprites that would be slow,
-	but there are max 4 sprites and therefore max 6 pairs.
-	If any collision is found, method returns at once.
-	*/
-	for (int i = (visibleIndex < 4 ? visibleIndex : 4); --i >= 1; ) {
-		int x_i = visibleSprites[i].x;
-		int pattern_i = visibleSprites[i].pattern;
-		for (int j = i; --j >= 0; ) {
-			// Do sprite i and sprite j collide?
-			int x_j = visibleSprites[j].x;
-			int dist = x_j - x_i;
-			if ((-magSize < dist) && (dist < magSize)) {
-				int pattern_j = visibleSprites[j].pattern;
-				if (dist < 0) {
-					pattern_j <<= -dist;
-				}
-				else if (dist > 0) {
-					pattern_j >>= dist;
-				}
-				if (pattern_i & pattern_j) {
-					// Collision!
-					statusReg0 |= 0x20;
-					// TODO: Fill in collision coordinates in S#3..S#6.
-					// ...Unless this feature only works in sprite mode 2.
-					return visibleIndex;
-				}
-			}
-		}
-	}
-
-	return visibleIndex;
-}
-
-int VDP::checkSprites2(int line, VDP::SpriteInfo *visibleSprites)
-{
-	if (!spritesEnabled()) return 0;
-
-	// Compensate for the fact that sprites are calculated one line
-	// before they are plotted.
-	line--;
-
-	// Get sprites for this line and detect 5th sprite if any.
-	int sprite, visibleIndex = 0;
-	int size = getSpriteSize();
-	int magSize = size * (getSpriteMag() + 1);
-	int minStart = line - magSize;
-	// TODO: Verify exact address calculation and maybe masks while
-	//       processing the tables.
-	byte *colourPtr = vramData + (spriteAttributeBase & 0x1FC00);
-	byte *attributePtr = colourPtr + 512;
-	// TODO: Implement CC bit (priority cancellation, OR-ing pixels).
-	// TODO: Implement IC bit (immunity to collisions).
-	for (sprite = 0; sprite < 32; sprite++,
-			attributePtr += 4, colourPtr += 16) {
-		int y = *attributePtr;
-		if (y == 216) break;
-		// Compensate for vertical scroll.
-		// TODO: Use overscan and check what really happens.
-		y = (y - getVerticalScroll()) & 0xFF;
-		if (y > 216) y -= 256;
-		if ((y > minStart) && (y <= line)) {
-			if (visibleIndex == 8) {
-				// Nine sprites on a line.
-				// According to TMS9918.pdf 5th sprite detection is only
-				// active when F flag is zero. Stuck to this for V9938.
-				if (~statusReg0 & 0xC0) {
-					statusReg0 = (statusReg0 & 0xE0) | 0x40 | sprite;
-				}
-				if (limitSprites) break;
-			}
-			SpriteInfo *sip = &visibleSprites[visibleIndex++];
-			int patternIndex = (size == 16
-				? attributePtr[2] & 0xFC : attributePtr[2]);
-			sip->pattern = calculatePattern(patternIndex, line - y);
-			sip->x = attributePtr[1];
-			int colourAttrib = colourPtr[line - y];
-			if (colourAttrib & 0x80) sip->x -= 32;
-			sip->colour = colourAttrib & 0x0F;
-		}
-	}
-	if (~statusReg0 & 0x40) {
-		// No 5th sprite detected, store number of latest sprite processed.
-		statusReg0 = (statusReg0 & 0xE0) | (sprite < 32 ? sprite : 31);
-	}
-
-	// Optimisation:
-	// If collision already occurred,
-	// that state is stable until it is reset by a status reg read,
-	// so no need to execute the checks.
-	// The visibleSprites array is filled now, so we can bail out.
-	if (statusReg0 & 0x20) return visibleIndex;
-
-	/*
-	Model for sprite collision: (or "coincidence" in TMS9918 data sheet)
-	Reset when status reg is read.
-	Set when sprite patterns overlap.
-	Colour doesn't matter: sprites of colour 0 can collide.
-	  TODO: V9938 data book denies this (page 98).
-	Sprites with off-screen position can collide.
-
-	Implemented by checking every pair for collisions.
-	For large numbers of sprites that would be slow.
-	There are max 8 sprites and therefore max 42 pairs.
-	  TODO: Maybe this is slow... Think of something faster.
-	        Probably new approach is needed anyway for OR-ing.
-	If any collision is found, method returns at once.
-	*/
-	for (int i = (visibleIndex < 8 ? visibleIndex : 8); --i >= 1; ) {
-		int x_i = visibleSprites[i].x;
-		int pattern_i = visibleSprites[i].pattern;
-		for (int j = i; --j >= 0; ) {
-			// Do sprite i and sprite j collide?
-			int x_j = visibleSprites[j].x;
-			int dist = x_j - x_i;
-			if ((-magSize < dist) && (dist < magSize)) {
-				int pattern_j = visibleSprites[j].pattern;
-				if (dist < 0) {
-					pattern_j <<= -dist;
-				}
-				else if (dist > 0) {
-					pattern_j >>= dist;
-				}
-				if (pattern_i & pattern_j) {
-					// Collision!
-					statusReg0 |= 0x20;
-					// TODO: Fill in collision coordinates in S#3..S#6.
-					//       See page 97 for info.
-					return visibleIndex;
-				}
-			}
-		}
-	}
-
-	return visibleIndex;
 }
 

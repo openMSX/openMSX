@@ -176,6 +176,18 @@ template <class Pixel> void SDLLoRenderer<Pixel>::updatePalette(
 	// SDLLoRenderer does not currently support V9938 features.
 }
 
+template <class Pixel> void SDLLoRenderer<Pixel>::updateVerticalScroll(
+	int scroll, const EmuTime &time)
+{
+	// SDLLoRenderer does not currently support V9938 features.
+}
+
+template <class Pixel> void SDLLoRenderer<Pixel>::updateHorizontalAdjust(
+	int adjust, const EmuTime &time)
+{
+	// SDLLoRenderer does not currently support V9938 features.
+}
+
 template <class Pixel> void SDLLoRenderer<Pixel>::updateDisplayEnabled(
 	bool enabled, const EmuTime &time)
 {

@@ -25,13 +25,6 @@ public:
 	  */
 	static const byte TMS99X8A_PALETTE[16][3];
 
-	/** TODO: Soon to be replaced by pixel-based update method.
-	  *   Not sure yet how to handle PAL/NTSC differences.
-	  *   Renderer should care as little as possible, but how
-	  *   little is that?
-	  */
-	//virtual void fullScreenRefresh() = 0;
-
 	/** Puts the generated image on the screen.
 	  * May wait for a suitable moment to do so (vsync).
 	  */
@@ -74,6 +67,21 @@ public:
 	  * @param time The moment in emulated time this change occurs.
 	  */
 	virtual void updatePalette(int index, int grb, const EmuTime &time) = 0;
+
+	/** Informs the renderer of a vertical scroll change.
+	  * @param scroll The new scroll value.
+	  * @param time The moment in emulated time this change occurs.
+	  */
+	virtual void updateVerticalScroll(int scroll, const EmuTime &time) = 0;
+
+	/** Informs the renderer of a horizontal adjust change.
+	  * Note that there is no similar method for vertical adjust updates,
+	  * because vertical adjust is calculated at start of frame and
+	  * then fixed.
+	  * @param scroll The new adjust value.
+	  * @param time The moment in emulated time this change occurs.
+	  */
+	virtual void updateHorizontalAdjust(int adjust, const EmuTime &time) = 0;
 
 	/** Informs the renderer of a VDP display enabled change.
 	  * @param enabled The new display enabled state.

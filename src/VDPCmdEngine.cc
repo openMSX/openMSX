@@ -788,22 +788,6 @@ void VDPCmdEngine::hmmcEngine()
 	}
 }
 
-void VDPCmdEngine::write(byte value, const EmuTime &time)
-{
-	status&=0x7F;
-
-	if (opsCount>0) (this->*currEngine)();
-}
-
-byte VDPCmdEngine::read(const EmuTime &time)
-{
-	status&=0x7F;
-
-	if (opsCount>0) (this->*currEngine)();
-
-	return cmdReg[REG_COL];
-}
-
 void VDPCmdEngine::reportVdpCommand()
 {
 	const char *OPS[16] =
@@ -955,25 +939,7 @@ void VDPCmdEngine::executeCommand()
 	// Command execution started.
 	status |= 0x01;
 
-	// Start execution if we still have time slices.
-	if ((opsCount/*-=56250*/)>0) {
-		(this->*currEngine)();
-	}
-
 	return;
-}
-
-void VDPCmdEngine::loop()
-{
-	if (opsCount <= 0) {
-		if ((opsCount += 12500) > 0) {
-			(this->*currEngine)();
-		}
-	}
-	else {
-		opsCount = 12500;
-		(this->*currEngine)();
-	}
 }
 
 // Added routines for openMSX:
@@ -996,6 +962,7 @@ VDPCmdEngine::VDPCmdEngine(VDP *vdp, const EmuTime &time)
 
 void VDPCmdEngine::updateDisplayMode(int mode, const EmuTime &time)
 {
+	sync(time);
 	switch (mode) {
 	case 0x0C: // SCREEN5
 		scrMode = 0;

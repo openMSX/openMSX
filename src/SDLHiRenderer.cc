@@ -2,6 +2,25 @@
 
 /*
 TODO:
+- Separate dirty checking and caching for character and bitmap modes?
+  Dirty checking is pretty much separated already and there is a
+  connection between caching and dirty checking.
+  Advantages:
+  * SCREEN4/5 hybrids like Space Manbow and Psycho World will be faster.
+    Nice, but it's only a handful of games, so not very important.
+  * Enables separation of character and bitmap code into different files.
+    Useful since this file is now over 1000 lines long.
+  Disadvantages:
+  * More memory is used: 128K pixels, which is 25% more.
+    I don't think 25% extra will pose a real problem.
+- Implement dirty checking for bitmap modes.
+- Fix character mode dirty checking to work with incremental rendering.
+- Register dirty checker with VDP.
+  This saves one virtual method call on every VRAM write.
+- Support PAL timing.
+  PAL screens are rendered now, but the code still contains
+  some NTSC-only artifacts, which apparently cause no problems.
+- Correctly implement vertical scroll in text modes.
 - Move to double buffering.
   Current screen line cache performs double buffering,
   but when it is changed to a display line buffer it can no longer
@@ -9,12 +28,6 @@ TODO:
 - Further optimise the background render routines.
   For example incremental computation of the name pointers (both
   VRAM and dirty).
-- Apply vertical scroll to MSX1 modes.
-
-Idea:
-For bitmap modes, cache VRAM lines rather than screen lines.
-Better performance when doing raster tricks or double buffering.
-Probably also easier to implement when using line buffers.
 */
 
 #include "SDLHiRenderer.hh"
@@ -31,22 +44,18 @@ static const int HEIGHT = 480;
   *
   * 192    212
   * line:  line:  phase:           handler:
-  *    0      0   bottom erase     offPhase
-  *    3      3   sync             offPhase
-  *    6      6   top erase        offPhase
+  *    0      0   bottom erase     -
+  *    3      3   sync             -
+  *    6      6   top erase        -
   *   19     19   top border       blankPhase
   *   45     35   display          displayPhase
   *  237    247   bottom border    blankPhase
   *  262    262   end of screen
   */
 static const int LINE_TOP_BORDER = 19;
-static const int LINE_END_OF_SCREEN = 262;
 /** Lines rendered are [21..261).
   */
 static const int LINE_RENDER_TOP = 21;
-/** Where does the display start? (equal to width of left border)
-  */
-static const int DISPLAY_X = (WIDTH - 512) / 2;
 
 /** Fill a boolean array with a single value.
   * Optimised for byte-sized booleans,
@@ -59,6 +68,41 @@ inline static void fillBool(bool *ptr, bool value, int nr)
 #else
 	for (int i = nr; i--; ) *ptr++ = value;
 #endif
+}
+
+template <class Pixel> inline void SDLHiRenderer<Pixel>::renderUntil(
+	int limit)
+{
+	/*
+	if (nextLine != limit) {
+		cout << "render display lines ["
+			<< (nextLine - lineDisplay) << ".."
+			<< (limit - lineDisplay)
+			<< ") in mode " << vdp->getDisplayMode() << "\n";
+	}
+	*/
+	while (nextLine < limit) {
+		(this->*phaseHandler)(limit);
+	}
+}
+
+template <class Pixel> inline void SDLHiRenderer<Pixel>::sync(
+	const EmuTime &time)
+{
+	int line = vdp->getTicksThisFrame(time) / VDP::TICKS_PER_LINE;
+	renderUntil(line);
+}
+
+template <class Pixel> inline int SDLHiRenderer<Pixel>::getLeftBorder()
+{
+	return (WIDTH - 512) / 2 - 14 + vdp->getHorizontalAdjust() * 2;
+}
+
+template <class Pixel> inline Pixel *SDLHiRenderer<Pixel>::getLinePtr(
+	int line)
+{
+	return (Pixel *)( (byte *)displayCache->pixels
+		+ line * displayCache->pitch );
 }
 
 // TODO: Verify on real MSX2 what non-documented modes do.
@@ -149,10 +193,12 @@ template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 	this->vdp = vdp;
 	this->screen = screen;
 	// TODO: Store current time.
+	//       Does the renderer actually have to keep time?
+	//       Keeping render position should be good enough.
 
 	// Init render state.
-	phaseHandler = &SDLHiRenderer::offPhase;
-	currLine = 0;
+	phaseHandler = 0;
+	nextLine = 999; // past end-of-screen
 	updateDisplayMode(vdp->getDisplayMode(), time);
 	dirtyForeground = dirtyBackground = true;
 
@@ -160,21 +206,13 @@ template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 	displayCache = SDL_CreateRGBSurface(
 		SDL_HWSURFACE,
 		512,
-		212, // TODO: 256*4
+		vdp->isMSX1VDP() ? 192 : 256 * 4,
 		screen->format->BitsPerPixel,
 		screen->format->Rmask,
 		screen->format->Gmask,
 		screen->format->Bmask,
 		screen->format->Amask
 		);
-
-	// Init line pointers arrays.
-	for (int line = 0; line < 212; line++) {
-		cacheLinePtrs[line] = (Pixel *)(
-			(byte *)displayCache->pixels
-			+ line * displayCache->pitch
-			);
-	}
 
 	// Hide mouse cursor.
 	SDL_ShowCursor(SDL_DISABLE);
@@ -211,6 +249,10 @@ template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 			updatePalette(i, vdp->getPalette(i), time);
 		}
 	}
+
+	// Now we're ready to start rendering the first frame.
+	frameStart();
+	phaseHandler = &SDLHiRenderer::blankPhase;
 }
 
 template <class Pixel> SDLHiRenderer<Pixel>::~SDLHiRenderer()
@@ -229,6 +271,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::setFullScreen(
 template <class Pixel> void SDLHiRenderer<Pixel>::updateTransparency(
 	bool enabled, const EmuTime &time)
 {
+	sync(time);
 	// Set the right palette for pixels of colour 0.
 	palFg[0] = palBg[enabled ? vdp->getBackgroundColour() : 0];
 	// Any line containing pixels of colour 0 must be repainted.
@@ -241,12 +284,14 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateTransparency(
 template <class Pixel> void SDLHiRenderer<Pixel>::updateForegroundColour(
 	int colour, const EmuTime &time)
 {
+	sync(time);
 	dirtyForeground = true;
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::updateBackgroundColour(
 	int colour, const EmuTime &time)
 {
+	sync(time);
 	dirtyBackground = true;
 	if (vdp->getTransparency()) {
 		// Transparent pixels have background colour.
@@ -262,6 +307,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateBackgroundColour(
 template <class Pixel> void SDLHiRenderer<Pixel>::updateBlinkState(
 	bool enabled, const EmuTime &time)
 {
+	sync(time);
 	if (vdp->getDisplayMode() == 0x09) {
 		// Text2 with blinking text.
 		// Consider all characters dirty.
@@ -274,6 +320,8 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateBlinkState(
 template <class Pixel> void SDLHiRenderer<Pixel>::updatePalette(
 	int index, int grb, const EmuTime &time)
 {
+	sync(time);
+
 	// Update SDL colours in palette.
 	palFg[index] = palBg[index] =
 		V9938_COLOURS[(grb >> 4) & 7][(grb >> 8) & 7][grb & 7];
@@ -292,9 +340,23 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updatePalette(
 	fillBool(dirtyColour, true, sizeof(dirtyColour));
 }
 
+template <class Pixel> void SDLHiRenderer<Pixel>::updateVerticalScroll(
+	int scroll, const EmuTime &time)
+{
+	sync(time);
+}
+
+template <class Pixel> void SDLHiRenderer<Pixel>::updateHorizontalAdjust(
+	int adjust, const EmuTime &time)
+{
+	sync(time);
+}
+
 template <class Pixel> void SDLHiRenderer<Pixel>::updateDisplayEnabled(
 	bool enabled, const EmuTime &time)
 {
+	sync(time);
+
 	// When display is re-enabled, consider every pixel dirty.
 	if (enabled) {
 		dirtyForeground = true;
@@ -305,6 +367,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateDisplayEnabled(
 template <class Pixel> void SDLHiRenderer<Pixel>::updateDisplayMode(
 	int mode, const EmuTime &time)
 {
+	sync(time);
 	renderMethod = modeToRenderMethod[mode];
 	dirtyChecker = modeToDirtyChecker[mode];
 	setDirty(true);
@@ -313,6 +376,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateDisplayMode(
 template <class Pixel> void SDLHiRenderer<Pixel>::updateNameBase(
 	int addr, const EmuTime &time)
 {
+	sync(time);
 	anyDirtyName = true;
 	fillBool(dirtyName, true, sizeof(dirtyName));
 }
@@ -320,6 +384,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateNameBase(
 template <class Pixel> void SDLHiRenderer<Pixel>::updatePatternBase(
 	int addr, const EmuTime &time)
 {
+	sync(time);
 	anyDirtyPattern = true;
 	fillBool(dirtyPattern, true, sizeof(dirtyPattern));
 }
@@ -327,6 +392,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updatePatternBase(
 template <class Pixel> void SDLHiRenderer<Pixel>::updateColourBase(
 	int addr, const EmuTime &time)
 {
+	sync(time);
 	anyDirtyColour = true;
 	fillBool(dirtyColour, true, sizeof(dirtyColour));
 }
@@ -344,19 +410,25 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateSpritePatternBase(
 template <class Pixel> void SDLHiRenderer<Pixel>::updateVRAM(
 	int addr, byte data, const EmuTime &time)
 {
-	// TODO: Does updateVRAM need to know the time?
-
-	(this->*dirtyChecker)(addr, data);
+	/*
+	For the highest accuracy, we should sync here.
+	But I don't think the damage of rendering VRAM changes one frame
+	too early is worth the overhead, so I disabled it.
+	Well-behaving programs don't write to the visual area during
+	scanning anyway.
+	*/
+	//sync(time);
+	(this->*dirtyChecker)(addr, data, time);
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::checkDirtyNull(
-	int addr, byte data)
+	int addr, byte data, const EmuTime &time)
 {
 	// Do nothing: this display mode doesn't have dirty checking.
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::checkDirtyMSX1(
-	int addr, byte data)
+	int addr, byte data, const EmuTime &time)
 {
 	if ((addr | ~(-1 << 10)) == vdp->getNameMask()) {
 		dirtyName[addr & ~(-1 << 10)] = anyDirtyName = true;
@@ -370,8 +442,9 @@ template <class Pixel> void SDLHiRenderer<Pixel>::checkDirtyMSX1(
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::checkDirtyText2(
-	int addr, byte data)
+	int addr, byte data, const EmuTime &time)
 {
+	sync(time);
 	int nameBase = vdp->getNameMask() & (-1 << 12);
 	int i = addr - nameBase;
 	if ((0 <= i) && (i < 2160)) {
@@ -392,12 +465,11 @@ template <class Pixel> void SDLHiRenderer<Pixel>::setDirty(
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::renderText1(
-	int line)
+	Pixel *pixelPtr, int line)
 {
 	bool dirtyColours = dirtyForeground || dirtyBackground;
 	if (!(anyDirtyName || anyDirtyPattern || dirtyColours)) return;
 
-	Pixel *pixelPtr = cacheLinePtrs[line];
 	Pixel fg = palFg[vdp->getForegroundColour()];
 	Pixel bg = palBg[vdp->getBackgroundColour()];
 
@@ -428,12 +500,11 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderText1(
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::renderText1Q(
-	int line)
+	Pixel *pixelPtr, int line)
 {
 	bool dirtyColours = dirtyForeground || dirtyBackground;
 	if (!(anyDirtyName || anyDirtyPattern || dirtyColours)) return;
 
-	Pixel *pixelPtr = cacheLinePtrs[line];
 	Pixel fg = palFg[vdp->getForegroundColour()];
 	Pixel bg = palBg[vdp->getBackgroundColour()];
 
@@ -465,12 +536,11 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderText1Q(
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::renderText2(
-	int line)
+	Pixel *pixelPtr, int line)
 {
 	bool dirtyColours = dirtyForeground || dirtyBackground;
 	if (!(anyDirtyName || anyDirtyPattern || dirtyColours)) return;
 
-	Pixel *pixelPtr = cacheLinePtrs[line];
 	Pixel fg = palFg[vdp->getForegroundColour()];
 	Pixel bg = palBg[vdp->getBackgroundColour()];
 
@@ -503,11 +573,10 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderText2(
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::renderGraphic1(
-	int line)
+	Pixel *pixelPtr, int line)
 {
 	if (!(anyDirtyName || anyDirtyPattern || anyDirtyColour)) return;
 
-	Pixel *pixelPtr = cacheLinePtrs[line];
 	int name = (line / 8) * 32;
 
 	int nameBase = (-1 << 10) & vdp->getNameMask();
@@ -538,11 +607,10 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderGraphic1(
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::renderGraphic2(
-	int line)
+	Pixel *pixelPtr, int line)
 {
 	if (!(anyDirtyName || anyDirtyPattern || anyDirtyColour)) return;
 
-	Pixel *pixelPtr = cacheLinePtrs[line];
 	int nameStart = (line / 8) * 32;
 	int nameEnd = nameStart + 32;
 
@@ -575,44 +643,35 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderGraphic2(
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::renderGraphic4(
-	int line)
+	Pixel *pixelPtr, int line)
 {
-	Pixel *pixelPtr = cacheLinePtrs[line];
-
-	int scrolledLine = (line + vdp->getVerticalScroll()) & 0xFF;
-	int addr = vdp->getNameMask() & (0x18000 | (scrolledLine << 7));
-	int addrEnd = addr + 128;
-	for (; addr < addrEnd; addr++) {
-		byte colour = vdp->getVRAM(addr);
+	int addr = line << 7;
+	do {
+		byte colour = vdp->getVRAM(addr++);
 		pixelPtr[0] = pixelPtr[1] = palFg[colour >> 4];
 		pixelPtr[2] = pixelPtr[3] = palFg[colour & 15];
 		pixelPtr += 4;
-	}
+	} while (addr & 127);
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::renderGraphic5(
-	int line)
+	Pixel *pixelPtr, int line)
 {
-	Pixel *pixelPtr = cacheLinePtrs[line];
-
-	int scrolledLine = (line + vdp->getVerticalScroll()) & 0xFF;
-	int addr = vdp->getNameMask() & (0x18000 | (scrolledLine << 7));
-	int addrEnd = addr + 128;
-	for (; addr < addrEnd; addr++) {
-		byte colour = vdp->getVRAM(addr);
+	int addr = line << 7;
+	do {
+		byte colour = vdp->getVRAM(addr++);
 		*pixelPtr++ = palFg[colour >> 6];
 		*pixelPtr++ = palFg[(colour >> 4) & 3];
 		*pixelPtr++ = palFg[(colour >> 2) & 3];
 		*pixelPtr++ = palFg[colour & 3];
-	}
+	} while (addr & 127);
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::renderMulti(
-	int line)
+	Pixel *pixelPtr, int line)
 {
 	if (!(anyDirtyName || anyDirtyPattern)) return;
 
-	Pixel *pixelPtr = cacheLinePtrs[line];
 	int nameBase = (-1 << 10) & vdp->getNameMask();
 	int patternBaseLine = ((-1 << 11) | ((line / 4) & 7))
 		& vdp->getPatternMask();
@@ -633,28 +692,11 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderMulti(
 	}
 }
 
-template <class Pixel> void SDLHiRenderer<Pixel>::renderBogus(
-	int line)
-{
-	if (!(dirtyForeground || dirtyBackground)) return;
-
-	Pixel *pixelPtr = cacheLinePtrs[line];
-	Pixel fg = palFg[vdp->getForegroundColour()];
-	Pixel bg = palBg[vdp->getBackgroundColour()];
-	for (int n = 16; n--; ) *pixelPtr++ = bg;
-	for (int c = 40; c--; ) {
-		for (int n = 8; n--; ) *pixelPtr++ = fg;
-		for (int n = 4; n--; ) *pixelPtr++ = bg;
-	}
-	for (int n = 16; n--; ) *pixelPtr++ = bg;
-}
-
 template <class Pixel> void SDLHiRenderer<Pixel>::renderMultiQ(
-	int line)
+	Pixel *pixelPtr, int line)
 {
 	if (!(anyDirtyName || anyDirtyPattern)) return;
 
-	Pixel *pixelPtr = cacheLinePtrs[line];
 	int nameStart = (line / 8) * 32;
 	int nameEnd = nameStart + 32;
 	int nameBase = (-1 << 10) & vdp->getNameMask();
@@ -676,6 +718,21 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderMultiQ(
 	}
 }
 
+template <class Pixel> void SDLHiRenderer<Pixel>::renderBogus(
+	Pixel *pixelPtr, int line)
+{
+	if (!(dirtyForeground || dirtyBackground)) return;
+
+	Pixel fg = palFg[vdp->getForegroundColour()];
+	Pixel bg = palBg[vdp->getBackgroundColour()];
+	for (int n = 16; n--; ) *pixelPtr++ = bg;
+	for (int c = 40; c--; ) {
+		for (int n = 8; n--; ) *pixelPtr++ = fg;
+		for (int n = 4; n--; ) *pixelPtr++ = bg;
+	}
+	for (int n = 16; n--; ) *pixelPtr++ = bg;
+}
+
 template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 	int absLine)
 {
@@ -687,7 +744,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 	// TODO: Calculate pointers incrementally outside this method.
 	Pixel *pixelPtr0 = (Pixel *)( (byte *)screen->pixels
 		+ ((absLine - LINE_RENDER_TOP) * 2) * screen->pitch
-		+ DISPLAY_X * sizeof(Pixel));
+		+ getLeftBorder() * sizeof(Pixel));
 	Pixel *pixelPtr1 = (Pixel *)(((byte *)pixelPtr0) + screen->pitch);
 
 	while (visibleIndex--) {
@@ -730,43 +787,25 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 
 }
 
-template <class Pixel> void SDLHiRenderer<Pixel>::offPhase(
-	int limit)
-{
-	// Check for end of phase.
-	if (limit > LINE_TOP_BORDER) {
-		// Top border ends off phase.
-		phaseHandler = &SDLHiRenderer::blankPhase;
-		limit = LINE_TOP_BORDER;
-	}
-
-	// No rendering, only catch up.
-	if (currLine < limit) currLine = limit;
-}
-
 template <class Pixel> void SDLHiRenderer<Pixel>::blankPhase(
 	int limit)
 {
 	// Check for end of phase.
-	if ((currLine < lineBottomBorder) && (limit > lineDisplay)
+	if (nextLine < lineBottomBorder && limit > lineDisplay
 	&& vdp->isDisplayEnabled()) {
 		// Display ends blank phase.
 		phaseHandler = &SDLHiRenderer::displayPhase;
 		limit = lineDisplay;
 	}
-	else if (limit == LINE_END_OF_SCREEN) {
-		// End of screen ends blank phase.
-		phaseHandler = &SDLHiRenderer::offPhase;
-	}
 
 	// Render lines up to limit.
-	if (currLine < limit) {
+	if (nextLine < limit) {
 		// TODO: Only redraw if necessary.
 		SDL_Rect rect;
 		rect.x = 0;
-		rect.y = currLine - LINE_RENDER_TOP;
+		rect.y = nextLine - LINE_RENDER_TOP;
 		rect.w = WIDTH;
-		rect.h = limit - currLine;
+		rect.h = limit - nextLine;
 
 		// Clip to area actually displayed.
 		if (rect.y < 0) {
@@ -790,7 +829,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::blankPhase(
 			// Note: return code ignored.
 			SDL_FillRect(screen, &rect, bgColour);
 		}
-		currLine = limit;
+		nextLine = limit;
 	}
 }
 
@@ -798,6 +837,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	int limit)
 {
 	// Check for end of phase.
+	// TODO: Check whether overscan works with this implementation.
 	if (!vdp->isDisplayEnabled()) {
 		// Forced blanking ends display phase.
 		phaseHandler = &SDLHiRenderer::blankPhase;
@@ -808,7 +848,19 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 		phaseHandler = &SDLHiRenderer::blankPhase;
 		limit = lineBottomBorder;
 	}
-	if (currLine >= limit) return;
+	int numLines = limit - nextLine;
+	if (numLines <= 0) return;
+
+	// Perform vertical scroll.
+	int scrolledLine =
+		(nextLine - lineDisplay + vdp->getVerticalScroll()) & 0xFF;
+	if (scrolledLine + numLines >= 256) {
+		// If page wraps around, render it in two steps.
+		// TODO: If wrap amount is lower (R#2 as mask in bitmap modes),
+		//       split at the wrap point as well.
+		numLines = 256 - scrolledLine;
+		limit = nextLine + numLines;
+	}
 
 	// Lock surface, because we will access pixels directly.
 	if (SDL_MUSTLOCK(displayCache) && SDL_LockSurface(displayCache) < 0) {
@@ -816,24 +868,45 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 		return;
 	}
 	// Render background lines.
-	// TODO: Put loop into render methods?
-	for (int line = currLine; line < limit; line++) {
-		(this->*renderMethod)(line - lineDisplay);
+	// TODO: Unify MSX1 and MSX2 modes? Or separate them more?
+	if (vdp->isBitmapMode()) {
+		int line = scrolledLine;
+		int n = numLines;
+		do {
+			// TODO: Use variables to store settings that are different
+			//   in SCREEN7/8.
+			int addr = vdp->getNameMask() & (0x18000 | (line << 7));
+			int vramLine = addr >> 7;
+			(this->*renderMethod)(getLinePtr(vramLine), vramLine);
+			line++;
+		} while (--n);
+	} else {
+		int line = scrolledLine;
+		int n = numLines;
+		do {
+			(this->*renderMethod)(getLinePtr(line), line);
+			line++;
+		} while (--n);
 	}
 	// Unlock surface.
 	if (SDL_MUSTLOCK(displayCache)) SDL_UnlockSurface(displayCache);
 
 	// Copy background image.
-	// TODO: Is it faster or slower to alternate this with line rendering?
+	// TODO: Unify MSX1 and MSX2 modes?
 	SDL_Rect source;
 	source.x = 0;
-	source.y = currLine - lineDisplay;
+	if (vdp->isBitmapMode()) {
+		source.y =
+			(vdp->getNameMask() & (0x18000 | (scrolledLine << 7))) >> 7;
+	} else {
+		source.y = scrolledLine;
+	}
 	source.w = 512;
 	source.h = 1;
 	SDL_Rect dest;
-	dest.x = DISPLAY_X;
-	dest.y = (currLine - LINE_RENDER_TOP) * 2;
-	for (int line = currLine; line < limit; line++) {
+	dest.x = getLeftBorder();
+	dest.y = (nextLine - LINE_RENDER_TOP) * 2;
+	for (int n = numLines; n--; ) {
 		// TODO: Can we safely use SDL_LowerBlit?
 		// Note: return value is ignored.
 		SDL_BlitSurface(displayCache, &source, screen, &dest);
@@ -855,7 +928,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 		// Display will be wrong, but this is not really critical.
 		return;
 	}
-	for (int line = currLine; line < limit; line++) {
+	for (int line = nextLine; line < limit; line++) {
 		drawSprites(line);
 	}
 	// Unlock surface.
@@ -874,25 +947,18 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 		: vdp->getBackgroundColour()
 		)];
 	dest.x = 0;
-	dest.y = (currLine - LINE_RENDER_TOP) * 2;
-	dest.w = DISPLAY_X;
-	dest.h = (limit - currLine) * 2;
+	dest.y = (nextLine - LINE_RENDER_TOP) * 2;
+	dest.w = getLeftBorder();
+	dest.h = numLines * 2;
 	SDL_FillRect(screen, &dest, bgColour);
-	dest.x = WIDTH - DISPLAY_X;
+	dest.x = dest.w + 512;
+	dest.w = WIDTH - dest.x;
 	SDL_FillRect(screen, &dest, bgColour);
 
-	currLine = limit;
+	nextLine = limit;
 }
 
-template <class Pixel> void SDLHiRenderer<Pixel>::renderUntil(
-	int limit)
-{
-	while (currLine < limit) {
-		(this->*phaseHandler)(limit);
-	}
-}
-
-template <class Pixel> void SDLHiRenderer<Pixel>::putImage()
+template <class Pixel> void SDLHiRenderer<Pixel>::frameStart()
 {
 	// Calculate start and end line of display.
 	// TODO: Implement overscan: don't calculate end in advance,
@@ -900,19 +966,25 @@ template <class Pixel> void SDLHiRenderer<Pixel>::putImage()
 	int extraLines = (vdp->getNumberOfLines() - 192) / 2;
 	lineDisplay = 45 - extraLines;
 	lineBottomBorder = 237 + extraLines;
-
-	// Render changes from this last frame.
-	// TODO: Support PAL.
-	renderUntil(262);
-	currLine = 0;
-
-	// Update screen.
-	// TODO: Move to double buffering?
-	SDL_UpdateRect(screen, 0, 0, 0, 0);
+	nextLine = LINE_TOP_BORDER;
 
 	// Screen is up-to-date, so nothing is dirty.
-	setDirty(false);
-	dirtyForeground = dirtyBackground = false;
+	// TODO: Either adapt implementation to work with incremental
+	//       rendering, or get rid of dirty tracking.
+	//setDirty(false);
+	//dirtyForeground = dirtyBackground = false;
+}
+
+template <class Pixel> void SDLHiRenderer<Pixel>::putImage()
+{
+	// Render changes from this last frame.
+	renderUntil(vdp->isPalTiming() ? 313 : 262);
+
+	// Update screen.
+	// TODO: Move to double buffering.
+	SDL_UpdateRect(screen, 0, 0, 0, 0);
+
+	frameStart();
 }
 
 Renderer *createSDLHiRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)
@@ -925,7 +997,7 @@ Renderer *createSDLHiRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)
 	// If no screen or unsupported screen,
 	// try supported bpp in order of preference.
 	int bytepp = (screen ? screen->format->BytesPerPixel : 0);
-	if ((bytepp != 1) && (bytepp != 2) && (bytepp != 4)) {
+	if (bytepp != 1 && bytepp != 2 && bytepp != 4) {
 		if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 15, flags);
 		if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 16, flags);
 		if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 32, flags);
