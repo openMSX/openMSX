@@ -455,7 +455,7 @@ some place in your <code>mymsx/hardwareconfig.xml</code> file (between the <code
 
 <pre>
     &lt;primary slot="2"&gt;
-      &lt;secondary slot="0"&gt;
+      &lt;secondary slot="1"&gt;
         &lt;FMPAC id="PanaSoft SW-M004 FMPAC"&gt;
           &lt;io base="0x7C" num="2" type="O"/&gt;
           &lt;mem base="0x4000" size="0x4000"/&gt;
@@ -483,10 +483,8 @@ pools.
 You can of course do some things differently, if you like.
 The number in <code>slot</code> attribute of the <code>&lt;primary&gt;</code> tag indicates the
 primary slot of the emulated MSX you're editing. In this case the second
-cartridge slot of the NMS-8250 is used. <code>&lt;secondary&gt;</code> means sub slot. Our NMS-8250
-doesn't have an expanded slot in slot 2, so we have to specify 0 here. (If a <code>&lt;primary&gt;</code>
-tag has the attribute <code>external="true"</code>, this means that the slot is
-expanded; a normal 8250 has slot 3 expanded.)
+cartridge slot of the NMS-8250 is used. <code>&lt;secondary&gt;</code> means sub slot. If we leave it out, the slot is not expanded and the primary slot is used. If we use it like in the above example, it means that slot 1 (of the <code>&lt;primary&gt;</code> tag) will be an expanded slot. You can also use <code>slot="any"</code>, this is useful for extensions which may be in any (sub)slot. If a <code>&lt;primary&gt;</code>
+tag has the attribute <code>external="true"</code>, this means that the slot is visible on the outside of the machine and can thus be used for external cartridges like extensions and ROM software.
 As explained above, the parameter filename can be adjusted to the name of your (64kB!) FMPAC ROM
 file (note: if the file is not 64kB (65536 bytes) in size, it won't work).
 "mode" defines to what channel the FMPAC's sound will be routed by
