@@ -87,77 +87,79 @@
     <RTC id="Real time clock">
       <io base="0xB4" num="2" type="O"/>
       <io base="0xB5" num="1" type="I"/>
-      <sramname>nms8250.cmos</sramname>
+      <sramname>Boosted_MSX2_EN.cmos</sramname>
     </RTC>
 
     <PrinterPort id="Printer Port">
       <io base="0x90" num="2"/>
     </PrinterPort>
 
+    <primary slot="3">
+      <secondary slot="1">
+        <FMPAC id="PanaSoft SW-M004 FMPAC">
+          <io base="0x7C" num="2" type="O"/>
+          <mem base="0x4000" size="0x4000"/>
+          <sound>
+            <volume>13000</volume>
+            <mode>left</mode>
+          </sound>
+          <rom>
+            <sha1>9d789166e3caf28e4742fe933d962e99618c633d</sha1>
+            <filename>roms/fmpac.rom</filename>
+          </rom>
+          <sramname>fmpac.pac</sramname>
+        </FMPAC>
+      </secondary>
+    </primary>
+
+    <MSX-AUDIO id="Generic MSX-Audio">
+      <io base="0xC0" num="2"/>
+      <sound>
+        <volume>12000</volume>
+        <mode>right</mode>
+      </sound>
+      <sampleram>256</sampleram>
+    </MSX-AUDIO>
+
+    <MusicModuleMIDI id="Generic MSX-Audio-MIDI">
+      <io base="0x00" num="2" type="O"/>
+      <io base="0x04" num="2" type="I"/>
+    </MusicModuleMIDI>
+
+    <MoonSound id="Sunrise MoonSound">
+      <io base="0x7e" num="2"/>
+      <io base="0xc4" num="4"/>
+      <rom>
+        <sha1>32760893ce06dbe3930627755ba065cc3d8ec6ca</sha1>
+        <filename>roms/yrw801.rom</filename>
+      </rom>
+      <sound>
+        <volume>12000</volume>
+      </sound>
+      <sampleram>640</sampleram>
+    </MoonSound>
+
+    <primary slot="2">
+      <secondary slot="0">
+        <SCCplus id="Konami SCC+ Cartridge with expanded RAM">
+          <mem base="0x4000" size="0x8000"/>
+          <subtype>expanded</subtype>
+          <sound>
+            <volume>13000</volume>
+          </sound>
+        </SCCplus>
+      </secondary>
+
+      <secondary slot="2">
+        <MegaRam id="MegaRam">
+          <io base="0x8e" num="1"/>
+          <mem base="0x0000" size="0x10000"/>
+          <size>512</size>
+        </MegaRam>
+      </secondary>
+    </primary>
+  
   </devices>
 
-  <primary slot="3">
-    <secondary slot="1">
-      <FMPAC id="PanaSoft SW-M004 FMPAC">
-        <io base="0x7C" num="2" type="O"/>
-        <mem base="0x4000" size="0x4000"/>
-        <sound>
-          <volume>13000</volume>
-          <mode>left</mode>
-        </sound>
-        <rom>
-          <sha1>9d789166e3caf28e4742fe933d962e99618c633d</sha1>
-          <filename>roms/fmpac.rom</filename>
-        </rom>
-        <sramname>fmpac.pac</sramname>
-      </FMPAC>
-    </secondary>
-  </primary>
-
-  <MSX-AUDIO id="Generic MSX-Audio">
-    <io base="0xC0" num="2"/>
-    <sound>
-      <volume>12000</volume>
-      <mode>right</mode>
-    </sound>
-    <sampleram>256</sampleram>
-  </MSX-AUDIO>
-  <MusicModuleMIDI id="Generic MSX-Audio-MIDI">
-    <io base="0x00" num="2" type="O"/>
-    <io base="0x04" num="2" type="I"/>
-  </MusicModuleMIDI>
-
-  <MoonSound id="Sunrise MoonSound">
-    <io base="0x7e" num="2"/>
-    <io base="0xc4" num="4"/>
-    <rom>
-      <sha1>32760893ce06dbe3930627755ba065cc3d8ec6ca</sha1>
-      <filename>roms/yrw801.rom</filename>
-    </rom>
-    <sound>
-      <volume>12000</volume>
-    </sound>
-    <sampleram>640</sampleram>
-  </MoonSound>
-
-  <primary slot="2">
-    <secondary slot="0">
-      <SCCplus id="Konami SCC+ Cartridge with expanded RAM">
-        <mem base="0x4000" size="0x8000"/>
-        <subtype>expanded</subtype>
-        <sound>
-          <volume>13000</volume>
-        </sound>
-      </SCCplus>
-    </secondary>
-
-    <secondary slot="2">
-      <MegaRam id="MegaRam">
-        <io base="0x8e" num="1"/>
-        <mem base="0x0000" size="0x10000"/>
-        <size>512</size>
-      </MegaRam>
-    </secondary>
-  </primary>
 </msxconfig>
 
