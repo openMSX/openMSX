@@ -49,18 +49,24 @@ void MSXMotherBoard::resetMSX(const EmuTime &time)
 
 void MSXMotherBoard::run()
 {
-	// initialize
-	MSXCPUInterface::instance()->reset();
-	Leds::instance()->setLed(Leds::POWER_ON);
+	try {
+		// Initialize.
+		MSXCPUInterface::instance()->reset();
+		Leds::instance()->setLed(Leds::POWER_ON);
 
-	// run
-	EmuTime time(Scheduler::instance()->scheduleEmulation());
+		// Run.
+		EmuTime time(Scheduler::instance()->scheduleEmulation());
 
-	// destroy
-	std::list<MSXDevice*>::iterator i;
-	for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
-		(*i)->powerDown(time);
-		delete (*i);
+		// Destroy.
+		std::list<MSXDevice*>::iterator i;
+		for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
+			(*i)->powerDown(time);
+			delete (*i);
+		}
+	} catch (MSXException &e) {
+		PRT_ERROR("Uncaught exception: " << e.getMessage());
+	} catch (...) {
+		PRT_ERROR("Uncaught exception of unexpected type.");
 	}
 }
 
