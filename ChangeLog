@@ -1,8 +1,12 @@
 $Id$
 
-2004-10-07 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2004-10-11 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* fixed scc and Panasonic_FS-CA1 extensions:
 	    mappertype tag was moved
+	* DirAsDsk fix:
+	   - check for null ptr from localtime()
+	   - this fixes (not verified) a crash in win32 when DisAsDsk is used
+	     with files with weird dates (1913-11-16 or 2023-08-07)
 
 2004-10-10 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed assert in SimpleScaler when interlace is on and deinterlace

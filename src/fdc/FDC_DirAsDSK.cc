@@ -472,13 +472,17 @@ void FDC_DirAsDSK::updateFileInDisk(const int dirindex)
 	struct stat fst;
 	memset(&fst, 0, sizeof(struct stat));
 	stat(mapdir[dirindex].filename.c_str(), &fst);
-	struct tm mtim = *localtime(&(fst.st_mtime));
-	int t = (mtim.tm_sec >> 1) + (mtim.tm_min << 5) +
-		(mtim.tm_hour << 11);
-	setsh(mapdir[dirindex].msxinfo.time, t);
-	t = mtim.tm_mday + ((mtim.tm_mon + 1) << 5) +
-	    ((mtim.tm_year + 1900 - 1980) << 9);
-	setsh(mapdir[dirindex].msxinfo.date, t);
+	struct tm* mtim = localtime(&(fst.st_mtime));
+	int t1 = mtim 
+	       ? (mtim->tm_sec >> 1) + (mtim->tm_min << 5) +
+	         (mtim->tm_hour << 11)
+	       : 0;
+	setsh(mapdir[dirindex].msxinfo.time, t1);
+	int t2 = mtim
+	       ? mtim->tm_mday + ((mtim->tm_mon + 1) << 5) +
+	         ((mtim->tm_year + 1900 - 1980) << 9)
+	       : 0;
+	setsh(mapdir[dirindex].msxinfo.date, t2);
 	fsize = fst.st_size;
 
 	mapdir[dirindex].filesize=fsize;
