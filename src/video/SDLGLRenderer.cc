@@ -969,7 +969,7 @@ void SDLGLRenderer::renderGraphic1Row(
 			byte charPixels[8 * 8];
 			characterConverter.convertMonoBlock(
 				charPixels,
-				vram->patternTable.readArea((-1 << 13) | (charNr * 8))
+				vram->patternTable.readArea((-1 << 11) | (charNr * 8))
 				);
 			GLBindMonoBlock(textureId, charPixels);
 		}
