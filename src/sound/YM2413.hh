@@ -40,8 +40,8 @@ class YM2413 : public YM2413Core, private SoundDevice, private Debuggable
 		~Slot();
 		void reset();
 
-		inline void slotOn();
-		inline void slotOff();
+		inline void slotOn(byte stat);
+		inline void slotOff(byte stat);
 		inline void setPatch(Patch* patch);
 		inline void setVolume(int volume);
 		inline void calc_phase();
@@ -105,8 +105,8 @@ class YM2413 : public YM2413Core, private SoundDevice, private Debuggable
 		inline void setVol(int volume);
 		inline void setFnumber(int fnum);
 		inline void setBlock(int block);
-		inline void keyOn();
-		inline void keyOff();
+		inline void keyOn(byte stat);
+		inline void keyOff(byte stat);
 
 		Patch* patches;
 		bool userPatch;
