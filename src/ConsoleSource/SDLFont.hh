@@ -4,6 +4,7 @@
 #define __SDLFONT_HH__
 
 #include <SDL/SDL.h>
+#include <string>
 
 
 class SDLFont {
@@ -12,7 +13,7 @@ class SDLFont {
 
 		SDLFont(const char *BitmapName, int flags);
 		~SDLFont();
-		void drawText(const char *string, SDL_Surface *surface, int x, int y);
+		void drawText(const std::string &string, SDL_Surface *surface, int x, int y);
 		int height();
 		int width();
 

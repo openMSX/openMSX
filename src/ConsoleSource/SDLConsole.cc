@@ -65,58 +65,30 @@ void SDLConsole::signalEvent(SDL_Event &event)
 	if (!isVisible) return;
 	
 	switch (event.key.keysym.sym) {
-	case SDLK_PAGEUP:
-		if (consoleScrollBack < totalConsoleLines &&
-		    consoleScrollBack < NUM_LINES &&
-		    NUM_LINES - consoleSurface->h / font->height() > consoleScrollBack + 1) {
-			consoleScrollBack++;
-		}
-		break;
-	case SDLK_PAGEDOWN:
-		if (consoleScrollBack > 0) {
-			consoleScrollBack--;
-		}
-		break;
-	case SDLK_UP:
-		if (commandScrollBack+1 < totalCommands) {
-			// move back a line in the command strings and copy
-			// the command to the current input string
-			commandScrollBack++;
-			memset(consoleLines[0], 0, CHARS_PER_LINE);
-			strcpy(consoleLines[0], commandLines[commandScrollBack]);
-			cursorLocation = strlen(commandLines[commandScrollBack]);
-		}
-		break;
-	case SDLK_DOWN:
-		if (commandScrollBack > 0) {
-			// move forward a line in the command strings and copy
-			// the command to the current input string
-			commandScrollBack--;
-			memset(consoleLines[0], 0, CHARS_PER_LINE);
-			strcpy(consoleLines[0], commandLines[commandScrollBack]);
-			cursorLocation = strlen(consoleLines[commandScrollBack]);
-		} else if (commandScrollBack == 0) {
-			commandScrollBack = -1;
-			putPrompt();
-		}
-		break;
-	case SDLK_BACKSPACE:
-		if (cursorLocation > PROMPT_SIZE) {
-			cursorLocation--;
-			consoleLines[0][cursorLocation] = '\0';
-		}
-		break;
-	case SDLK_TAB:
-		tabCompletion();
-		break;
-	case SDLK_RETURN:
-		commandExecute();
-		break;
-	default:
-		if (cursorLocation < CHARS_PER_LINE-1 && event.key.keysym.unicode) {
-			consoleLines[0][cursorLocation] = (char)event.key.keysym.unicode;
-			cursorLocation++;
-		}
+		case SDLK_PAGEUP:
+			scrollUp();
+			break;
+		case SDLK_PAGEDOWN:
+			scrollDown();
+			break;
+		case SDLK_UP:
+			prevCommand();
+			break;
+		case SDLK_DOWN:
+			nextCommand();
+			break;
+		case SDLK_BACKSPACE:
+			backspace();
+			break;
+		case SDLK_TAB:
+			tabCompletion();
+			break;
+		case SDLK_RETURN:
+			commandExecute();
+			break;
+		default:
+			if (event.key.keysym.unicode)
+				normalKey((char)event.key.keysym.unicode);
 	}
 	updateConsole();
 }
@@ -210,9 +182,12 @@ void SDLConsole::updateConsole()
 		SDL_SetColorKey(font->fontSurface, SDL_SRCCOLORKEY, *pix);
 	}
 	int screenlines = consoleSurface->h / font->height();
-	for (int loop=1; loop<=screenlines; loop++)
-		font->drawText(consoleLines[screenlines-loop+consoleScrollBack],
-		               consoleSurface, CHAR_BORDER, loop*font->height());
+	for (int loop=1; loop<=screenlines; loop++) {
+		int num = screenlines-loop+consoleScrollBack;
+		if (num < lines.size())
+			font->drawText(lines[num], consoleSurface, CHAR_BORDER,
+			               loop*font->height());
+	}
 	if (outputScreen->flags & SDL_OPENGLBLIT)
 		SDL_SetColorKey(font->fontSurface, 0, 0);
 }
@@ -252,19 +227,18 @@ void SDLConsole::drawCursor()
 		blink = !blink;
 		if (consoleScrollBack > 0)
 			return;
+		int cursorLocation = lines[0].length();
 		if (blink) {
 			// Print cursor if there is enough room
-			if (cursorLocation < CHARS_PER_LINE) {
-				if (outputScreen->flags & SDL_OPENGLBLIT) {
-					Uint32 *pix = (Uint32 *) (font->fontSurface->pixels);
-					SDL_SetColorKey(font->fontSurface, SDL_SRCCOLORKEY, *pix);
-				}
-				font->drawText("_", consoleSurface, 
-					      CHAR_BORDER + cursorLocation * font->width(),
-					      consoleSurface->h - font->height());
-				if (outputScreen->flags & SDL_OPENGLBLIT)
-					SDL_SetColorKey(font->fontSurface, 0, 0);
+			if (outputScreen->flags & SDL_OPENGLBLIT) {
+				Uint32 *pix = (Uint32 *) (font->fontSurface->pixels);
+				SDL_SetColorKey(font->fontSurface, SDL_SRCCOLORKEY, *pix);
 			}
+			font->drawText(std::string("_"), consoleSurface, 
+				      CHAR_BORDER + cursorLocation * font->width(),
+				      consoleSurface->h - font->height());
+			if (outputScreen->flags & SDL_OPENGLBLIT)
+				SDL_SetColorKey(font->fontSurface, 0, 0);
 		} else {
 			// Remove cursor
 			SDL_Rect rect;

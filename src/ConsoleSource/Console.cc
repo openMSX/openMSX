@@ -6,40 +6,22 @@
  *  in any of your programs.
  */
 
-#include <stdio.h>
-#include <cassert>
-#include "openmsx.hh"
-#include "MSXConfig.hh"
 #include "Console.hh"
+#include "openmsx.hh"
 #include "CommandController.hh"
-#include "Command.hh"
 
+
+const std::string Console::PROMPT("> ");
 
 
 Console::Console()
 {
-	totalConsoleLines = 0;
-	totalCommands = 0;
-
-	consoleLines = (char**)malloc(sizeof(char*) * NUM_LINES);
-	commandLines = (char**)malloc(sizeof(char*) * NUM_LINES);
-	for (int loop=0; loop <= NUM_LINES-1; loop++) {
-		consoleLines[loop] = (char *)calloc(CHARS_PER_LINE, sizeof(char));
-		commandLines[loop] = (char *)calloc(CHARS_PER_LINE, sizeof(char));
-	}
 	putPrompt();
 }
 
 Console::~Console()
 {
 	PRT_DEBUG("Destroying a Console object");
-	
-	for (int i=0; i<NUM_LINES; i++) {
-		free(consoleLines[i]);
-		free(commandLines[i]);
-	}
-	free(consoleLines);
-	free(commandLines);
 }
 
 Console *Console::instance()
@@ -53,65 +35,37 @@ Console *Console::oneInstance = NULL;
 void Console::print(const std::string &text)
 {
 	int end = 0;
-	bool more = true;
-	while (more) {
+	do {
 		int start = end;
 		end = text.find('\n', start);
-		if (end == -1) {
-			more = false;
-			end = text.length();
-		}
-		char line[end-start+1];
-		text.copy(line, sizeof(line), start);
-		line[sizeof(line)-1] = '\0';
-		strncpy(consoleLines[0], line, CHARS_PER_LINE);
-		consoleLines[0][CHARS_PER_LINE-1] = '\0';
-		newLineConsole();
-		updateConsole();
+		if (end == -1) end = text.length();
+		newLineConsole(text.substr(start, end-start));
 		end++; // skip newline
-		PRT_DEBUG(line);
-	}
+		PRT_DEBUG(lines[0]);
+	} while (end < (int)text.length());
+	updateConsole();
 }
 
-// Increments the console line
-void Console::newLineConsole()
+void Console::newLineConsole(const std::string &line)
 {
-	// Scroll
-	char *temp = consoleLines[NUM_LINES-1];
-	for (int i=NUM_LINES-1; i>0; i--) {
-		consoleLines[i] = consoleLines[i-1];
-	}
-	consoleLines[0] = temp;
-
-	memset(consoleLines[0], 0, CHARS_PER_LINE);
-	if (totalConsoleLines < NUM_LINES-1) {
-		totalConsoleLines++;
-	}
+	if (lines.isFull())
+		lines.removeBack();
+	lines.addFront(line);
 }
 
-// Increments the command lines
-void Console::putCommandHistory(char* command)
+void Console::putCommandHistory(const std::string &command)
 {
-	// Scroll
-	char *temp = commandLines[NUM_LINES-1];
-	for (int i = NUM_LINES-1; i>0; i--) {
-		commandLines[i] = commandLines[i-1];
-	}
-	commandLines[0] = temp;
-
-	strcpy(commandLines[0], command);
-	if (totalCommands < NUM_LINES-1) {
-		totalCommands++;
-	}
+	if (history.isFull())
+		history.removeBack();
+	history.addFront(command);
 }
 
 void Console::commandExecute()
 {
-	putCommandHistory(consoleLines[0]);
-	newLineConsole();
+	putCommandHistory(lines[0]);
 	try {
 		CommandController::instance()->
-			executeCommand(std::string(commandLines[0]+PROMPT_SIZE));
+			executeCommand(lines[0].substr(PROMPT.length()));
 	} catch (CommandException &e) {
 		print(e.desc);
 	}
@@ -120,18 +74,60 @@ void Console::commandExecute()
 
 void Console::putPrompt()
 {
+	newLineConsole(PROMPT);
 	consoleScrollBack = 0;
 	commandScrollBack = -1;
-	consoleLines[0][0] = '>';
-	consoleLines[0][1] = ' ';
-	memset(consoleLines[0]+PROMPT_SIZE, 0, CHARS_PER_LINE-PROMPT_SIZE);
-	cursorLocation = PROMPT_SIZE;
 }
 
 void Console::tabCompletion()
 {
-	std::string string(consoleLines[0]+PROMPT_SIZE);
+	std::string string(lines[0].substr(PROMPT.length()));
 	CommandController::instance()->tabCompletion(string);
-	strncpy(consoleLines[0]+PROMPT_SIZE, string.c_str(), CHARS_PER_LINE-PROMPT_SIZE);
-	cursorLocation = string.length()+PROMPT_SIZE;
+	lines[0] = PROMPT + string;
+}
+
+void Console::scrollUp()
+{
+	if (consoleScrollBack < lines.size())
+		consoleScrollBack++;
+}
+
+void Console::scrollDown()
+{
+	if (consoleScrollBack > 0)
+		consoleScrollBack--;
+}
+
+void Console::prevCommand()
+{
+	if (commandScrollBack+1 < history.size()) {
+		// move back a line in the command strings and copy
+		// the command to the current input string
+		commandScrollBack++;
+		lines[0] = history[commandScrollBack];
+	}
+}
+
+void Console::nextCommand()
+{
+	if (commandScrollBack > 0) {
+		// move forward a line in the command strings and copy
+		// the command to the current input string
+		commandScrollBack--;
+		lines[0] = history[commandScrollBack];
+	} else if (commandScrollBack == 0) {
+		commandScrollBack = -1;
+		lines[0] = PROMPT;
+	}
+}
+
+void Console::backspace()
+{
+	if (lines[0].length() > (unsigned)PROMPT.length())
+		lines[0].erase(lines[0].length()-1);
+}
+
+void Console::normalKey(char chr)
+{
+	lines[0] += chr;
 }

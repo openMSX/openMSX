@@ -12,12 +12,15 @@ MSXMemDevice::MSXMemDevice(MSXConfig::Device *config, const EmuTime &time)
 
 byte MSXMemDevice::readMem(word address, const EmuTime &time)
 {
-	PRT_DEBUG("MSXMemDevice: read from unmapped memory " << std::hex << (int)address);
+	PRT_DEBUG("MSXMemDevice: read from unmapped memory " << std::hex <<
+	           (int)address << std::dec);
 	return 255;
 }
 
 void MSXMemDevice::writeMem(word address, byte value, const EmuTime &time)
 {
+	PRT_DEBUG("MSXMemDevice: write to unmapped memory " << std::hex <<
+	           (int)address << std::dec);
 	// do nothing
 }
 
@@ -36,10 +39,10 @@ void MSXMemDevice::registerSlots()
 
 byte* MSXMemDevice::getReadCacheLine(word start)
 {
-	return NULL;
+	return NULL;	// uncacheable
 }
 
 byte* MSXMemDevice::getWriteCacheLine(word start)
 {
-	return NULL;
+	return NULL;	// uncacheable
 }

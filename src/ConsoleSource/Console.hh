@@ -4,11 +4,11 @@
 #define __CONSOLE_HH__
 
 #include <string>
-#include <map>
-#include <vector>
+#include "CircularBuffer.hh"
 
-
+// Forward declarations
 class ConsoleCommand;
+
 
 class Console
 {
@@ -28,45 +28,40 @@ class Console
 		
 	protected:
 		Console();
+		
 		void tabCompletion();
 		void commandExecute();
-		void putCommandHistory(char* command);
-		void newLineConsole();
+		void scrollUp();
+		void scrollDown();
+		void prevCommand();
+		void nextCommand();
+		void backspace();
+		void normalKey(char chr);
+		
+		void putCommandHistory(const std::string &command);
+		void newLineConsole(const std::string &line);
 		void putPrompt();
 		
 		virtual void updateConsole() = 0;
 		
 		
-		static const int CHARS_PER_LINE = 128;
-		static const int NUM_LINES = 100;
-		static const int PROMPT_SIZE = 2;
-
 		static Console* oneInstance;
+		
+		/** This is what the prompt looks like
+		  */
+		static const std::string PROMPT;
 		
 		/** List of all the past lines.
 		  */
-		char **consoleLines;
+		CircularBuffer<std::string, 100> lines;
 
 		/** List of all the past commands.
-		  * TODO: Call this "history" or "commandHistory".
 		  */
-		char **commandLines;
-
-		/** Total number of lines in the console.
-		  */
-		int totalConsoleLines;
+		CircularBuffer<std::string, 25> history;
 
 		/** How much the users scrolled back in the console.
 		  */
 		int consoleScrollBack;
-
-		/** Number of commands in the Back Commands.
-		  */
-		int totalCommands;
-
-		/** Current character location in the current string.
-		  */
-		int cursorLocation;
 
 		/** How much the users scrolled back in the command lines.
 		  */

@@ -1,9 +1,12 @@
 $Id$
 
+2002-04-04 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* Console cleanup
+
 2002-04-04 David Heremans <david.heremans@gnu-linux.net>
 	* Added more debug info to MSXGameCartrdige.
 
-2002-03-28 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+2002-04-03 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Moved ADPCM part of Y8950 to its own file
 	* Fixed ADPCM bug: 
 	   addresses where a factor 8 too low, only first sample was

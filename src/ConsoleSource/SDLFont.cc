@@ -72,12 +72,12 @@ void SDLFont::setAlphaGL(int alpha)
 	SDL_SetAlpha(fontSurface, 0, SDL_ALPHA_OPAQUE);
 }
 
-void SDLFont::drawText(const char *string, SDL_Surface *surface, int x, int y)
+void SDLFont::drawText(const std::string &string, SDL_Surface *surface, int x, int y)
 {
 	// see how many characters can fit on the screen
 	if (x > surface->w || y > surface->h)
 		return;
-	int characters = strlen(string);
+	int characters = string.length();
 	if (characters > (surface->w - x) / charWidth)
 		characters = (surface->w - x) / charWidth;
 
