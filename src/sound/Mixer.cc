@@ -51,12 +51,17 @@ Mixer::Mixer()
 	}
 	
 	// default values
+#ifdef _WIN32
+	const int defaultsamples = 2048;
+#else
+	const int defaultsamples = 1024;
+#endif
 	frequencySetting.reset(new IntegerSetting("frequency",
 		"mixer frequency (takes effect next time openMSX is started)",
 		44100, 11025, 44100)); // TODO stricter value checks
 	samplesSetting.reset(new IntegerSetting("samples",
 		"mixer samples (takes effect next time openMSX is started)",
-		1024, 256, 4096)); // TODO stricter value checks
+		defaultsamples, 256, 4096)); // TODO stricter value checks
 
 	SDL_AudioSpec desired;
 	desired.freq     = frequencySetting->getValue();
