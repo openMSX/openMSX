@@ -5,7 +5,7 @@
 #include "PluggingController.hh"
 #include "EventDistributor.hh"
 #include "Keys.hh"
-
+#include "MSXConfig.hh"
 
 namespace openmsx {
 
@@ -18,6 +18,24 @@ KeyJoystick::KeyJoystick()
 
 	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	         JOY_BUTTONA | JOY_BUTTONB;
+
+	try {
+		Config *config = MSXConfig::instance()->getConfigById("KeyJoystick");
+		upKey=Keys::getCode(config->getParameter("upkey"));
+		rightKey=Keys::getCode(config->getParameter("rightkey"));
+		downKey=Keys::getCode(config->getParameter("downkey"));
+		leftKey=Keys::getCode(config->getParameter("leftkey"));
+		buttonAKey=Keys::getCode(config->getParameter("buttonakey"));
+		buttonBKey=Keys::getCode(config->getParameter("buttonbkey"));
+	} catch (ConfigException &e) {
+		PRT_INFO("KeyJoystick not (completely) configured, using default settings...");
+		upKey=Keys::K_UP;
+		rightKey=Keys::K_RIGHT;
+		downKey=Keys::K_DOWN;
+		leftKey=Keys::K_LEFT;
+		buttonAKey=Keys::K_SPACE;
+		buttonBKey=Keys::K_LALT;
+	}
 }
 
 KeyJoystick::~KeyJoystick()
@@ -59,56 +77,23 @@ void KeyJoystick::write(byte value, const EmuTime &time)
 // EventListener
 bool KeyJoystick::signalEvent(SDL_Event &event)
 {
+	Keys::KeyCode theKey = Keys::getCode(event.key.keysym.sym);
 	switch (event.type) {
 	case SDL_KEYDOWN:
-		switch (event.key.keysym.sym) {
-		case Keys::K_UP:
-			status &= ~JOY_UP;
-			break;
-		case Keys::K_DOWN:
-			status &= ~JOY_DOWN;
-			break;
-		case Keys::K_LEFT:
-			status &= ~JOY_LEFT;
-			break;
-		case Keys::K_RIGHT:
-			status &= ~JOY_RIGHT;
-			break;
-		case Keys::K_SPACE:
-			status &= ~JOY_BUTTONA;
-			break;
-		case Keys::K_LALT:
-			status &= ~JOY_BUTTONB;
-			break;
-		default:
-			// nothing
-			break;
-		}
+		if (theKey==upKey) status &= ~JOY_UP;
+		else if (theKey==downKey) status &= ~JOY_DOWN;
+		else if (theKey==leftKey) status &= ~JOY_LEFT;
+		else if (theKey==rightKey) status &= ~JOY_RIGHT;
+		else if (theKey==buttonAKey) status &= ~JOY_BUTTONA;
+		else if (theKey==buttonBKey) status &= ~JOY_BUTTONB;
 		break;
 	case SDL_KEYUP:
-		switch (event.key.keysym.sym) {
-		case Keys::K_UP: 
-			status |= JOY_UP;
-			break;
-		case Keys::K_DOWN:
-			status |= JOY_DOWN;
-			break;
-		case Keys::K_LEFT:
-			status |= JOY_LEFT;
-			break;
-		case Keys::K_RIGHT:
-			status |= JOY_RIGHT;
-			break;
-		case Keys::K_SPACE:
-			status |= JOY_BUTTONA;
-			break;
-		case Keys::K_LALT:
-			status |= JOY_BUTTONB;
-			break;
-		default:
-			// nothing
-			break;
-		}
+		if (theKey==upKey) status |= JOY_UP;
+		else if (theKey==downKey) status |= JOY_DOWN;
+		else if (theKey==leftKey) status |= JOY_LEFT;
+		else if (theKey==rightKey) status |= JOY_RIGHT;
+		else if (theKey==buttonAKey) status |= JOY_BUTTONA;
+		else if (theKey==buttonBKey) status |= JOY_BUTTONB;
 		break;
 	default:
 		assert(false);

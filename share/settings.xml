@@ -99,6 +99,16 @@
     <parameter class="romimages">ri</parameter>
    </config>
 
+   <config id="KeyJoystick">
+     <type>KeyJoystick</type>
+     <parameter name="upkey">UP</parameter>
+     <parameter name="rightkey">RIGHT</parameter>
+     <parameter name="downkey">DOWN</parameter>
+     <parameter name="leftkey">LEFT</parameter>
+     <parameter name="buttonakey">SPACE</parameter>
+     <parameter name="buttonbkey">M</parameter>
+   </config>
+
  <!-- Keymap definition file -->
   <config id="KeyMap">
    <!--

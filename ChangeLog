@@ -1,5 +1,9 @@
 $Id$
 
+2003-08-23 Manuel Bilderbeek <manuel@msxnet.org>
+	* Made the keys of the key joystick configurable.
+	  TODO: make it possible to have more than one key joystick.
+
 2003-08-20 David Heremans <david.heremans@gnu-linux.net>
 	* Rewrote code to be more sector based instead of cluster based:
 	   This also simplified the code, also made first steps towards

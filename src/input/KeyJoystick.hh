@@ -5,6 +5,7 @@
 
 #include "JoystickDevice.hh"
 #include "EventListener.hh"
+#include "Keys.hh"
 #include <SDL/SDL.h>
 
 
@@ -30,6 +31,13 @@ class KeyJoystick : public JoystickDevice, EventListener
 
 	private:
 		byte status;
+
+		Keys::KeyCode upKey;
+		Keys::KeyCode rightKey;
+		Keys::KeyCode downKey;
+		Keys::KeyCode leftKey;
+		Keys::KeyCode buttonAKey;
+		Keys::KeyCode buttonBKey;
 };
 
 } // namespace openmsx
