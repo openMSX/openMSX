@@ -65,6 +65,10 @@ CommandLineParser::CommandLineParser()
 	registerOption("-control", &controlOption, 1, 1);
 }
 
+CommandLineParser::~CommandLineParser()
+{
+}
+
 void CommandLineParser::registerOption(const string &str, CLIOption* cliOption, byte prio, byte length)
 {
 	OptionData temp;

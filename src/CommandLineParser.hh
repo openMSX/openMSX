@@ -88,6 +88,7 @@ private:
 	bool parseOption(const string& arg,list<string>& cmdLine, byte prio);
 
 	CommandLineParser();
+	~CommandLineParser();
 	void postRegisterFileTypes();
 	vector<CLIPostConfig*> postConfigs;
 	bool haveConfig;
@@ -98,7 +99,7 @@ private:
 	MSXConfig& msxConfig;
 	CliCommOutput& output;
 	CartridgeSlotManager& slotManager;
-	
+
 	class HelpOption : public CLIOption {
 	public:
 		HelpOption(CommandLineParser& parent);
