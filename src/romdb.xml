@@ -3041,7 +3041,7 @@
     <remark></remark>
   </rom>
   <rom id="MSX Audio (FS-CA1)">
-    <romtype>PLAIN</romtype>
+    <romtype>MSX-AUDIO</romtype>
     <md5>337c2abc33dc539c6aa2dbe0f5e7f523</md5>
     <crc32>90e893ba</crc32>
     <year>1988</year>
