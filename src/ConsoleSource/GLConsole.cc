@@ -68,7 +68,6 @@ bool GLConsole::loadBackground(const std::string &filename)
 		return false;
 	}
 	int dummyWidth, dummyHeight;
-	PRT_DEBUG("GLConsole 1");
 	return loadTexture(filename, backgroundTexture,
 	                   dummyWidth, dummyHeight, backTexCoord);
 }
@@ -76,13 +75,11 @@ bool GLConsole::loadBackground(const std::string &filename)
 bool GLConsole::loadTexture(const std::string &filename, GLuint &texture,
                             int &width, int &height, GLfloat *texCoord)
 {
-	PRT_DEBUG("GLConsole 2");
 	File file(filename);
 	SDL_Surface* image1 = IMG_Load(file.getLocalName().c_str());
 	if (image1 == NULL) {
 		return false;
 	}
-	PRT_DEBUG("GLConsole 3");
 	SDL_SetAlpha(image1, 0, 0);
 	
 	width  = image1->w;
@@ -94,7 +91,6 @@ bool GLConsole::loadTexture(const std::string &filename, GLuint &texture,
 	texCoord[2] = (GLfloat)width  / w2;	// Max X
 	texCoord[3] = (GLfloat)height / h2;	// Max Y
 
-	PRT_DEBUG("GLConsole 4");
 	SDL_Surface* image2 = SDL_CreateRGBSurface(SDL_SWSURFACE, w2, h2, 32,
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
 		0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000
@@ -105,7 +101,6 @@ bool GLConsole::loadTexture(const std::string &filename, GLuint &texture,
 	if (image2 == NULL) {
 		return false;
 	}
-	PRT_DEBUG("GLConsole 5");
 	
 	SDL_Rect area;
 	area.x = 0;
@@ -115,7 +110,6 @@ bool GLConsole::loadTexture(const std::string &filename, GLuint &texture,
 	SDL_BlitSurface(image1, &area, image2, &area);
 	SDL_FreeSurface(image1);
 
-	PRT_DEBUG("GLConsole 6");
 	if (texture) {
 		glDeleteTextures(1, &texture);
 	}
@@ -125,7 +119,6 @@ bool GLConsole::loadTexture(const std::string &filename, GLuint &texture,
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, 4, w2, h2, 0, GL_RGBA, GL_UNSIGNED_BYTE, image2->pixels);
 	SDL_FreeSurface(image2);
-	PRT_DEBUG("GLConsole 7");
 	return true;
 }
 

@@ -22,6 +22,9 @@ const std::string FileContext::resolve(const std::string &filename)
 const std::string FileContext::resolve(const std::list<std::string> &pathList,
                                        const std::string &filename)
 {
+	// TODO handle url-protocols better
+	
+	PRT_DEBUG("Context: "<<filename);
 	if ((filename.find("://") != std::string::npos) ||
 	    (filename[0] == '/')) {
 		// protocol specified or absolute path, don't resolve
@@ -31,10 +34,15 @@ const std::string FileContext::resolve(const std::list<std::string> &pathList,
 	std::list<std::string>::const_iterator it;
 	for (it = pathList.begin(); it != pathList.end(); it++) {
 		std::string name = FileOperations::expandTilde(*it + filename);
-		PRT_DEBUG("Context: "<<name);
+		unsigned pos = name.find("://");
+		if (pos != std::string::npos) {
+			name = name.substr(pos + 3);
+		}
 		struct stat buf;
+		PRT_DEBUG("Context: try "<<name);
 		if (!stat(name.c_str(), &buf)) {
 			// no error
+			PRT_DEBUG("Context: found "<<name);
 			return name;
 		}
 	}
