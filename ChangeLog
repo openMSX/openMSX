@@ -2,6 +2,7 @@ $Id$
 
 2003-10-02 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented 'vdpcmdtrace' setting
+	* Fixed VDP commands that had SX/DX >= screen-width
 
 2003-09-30 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added the Debug Device to the User's Manual

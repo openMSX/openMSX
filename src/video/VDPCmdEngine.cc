@@ -30,6 +30,9 @@ TODO:
        (wraps to the top)
   - in 512 lines modes (e.g. screen 7) NY is NOT limited to 512, so when
     NY > 512, part of the screen is overdrawn twice
+  - in 256 columns modes (e.g. screen 5) when "SX/DX >= 256", only 1 element
+    (pixel or byte) is processed per horizontal line. The real x-ccordinate
+    is "SX/DX & 255".
 */
 
 #include <cstdio>
@@ -325,8 +328,11 @@ VDPCmdEngine::VDPCmd::~VDPCmd()
 inline word VDPCmdEngine::VDPCmd::clipNX_1(word DX, word NX, byte ppbs)
 {
 	DX >>= ppbs;
-	NX >>= ppbs;
 	word MX = PPL[engine->scrMode] >> ppbs;
+	if (MX <= DX) {
+		return 1;
+	}
+	NX >>= ppbs;
 	NX = NX ? NX : MX;
 	return (engine->ARG & DIX) ? min(NX, (word)(DX + 1)) :
 	                             min(NX, (word)(MX - DX));
@@ -335,8 +341,11 @@ inline word VDPCmdEngine::VDPCmd::clipNX_2(word SX, word DX, word NX, byte ppbs)
 {
 	SX >>= ppbs;
 	DX >>= ppbs;
-	NX >>= ppbs;
 	word MX = PPL[engine->scrMode] >> ppbs;
+	if ((MX <= SX) || (MX <= DX)) {
+		return 1;
+	}
+	NX >>= ppbs;
 	NX = NX ? NX : MX;
 	return (engine->ARG & DIX) ? min(NX, (word)(min(SX, DX) + 1)) :
 	                             min(NX, (word)(MX - max(SX, DX)));
