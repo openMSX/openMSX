@@ -200,17 +200,17 @@ unsigned char *MD5::raw_digest()
 	return s;
 }
 
-char *MD5::hex_digest()
+std::string MD5::hex_digest()
 {
 	assert(finalized);	// Can't get digest if you haven't finalized the digest!
 	
-	char *s = new char[33];
-
-	for (int i=0; i<16; i++)
+	char s[33];
+	for (int i = 0; i < 16; i++) {
 		sprintf(s+i*2, "%02x", digest[i]);
+	}
 	s[32]='\0';
 
-	return s;
+	return std::string(s);
 }
 
 

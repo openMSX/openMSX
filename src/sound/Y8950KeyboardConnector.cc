@@ -5,6 +5,7 @@
 
 
 Y8950KeyboardConnector::Y8950KeyboardConnector(const EmuTime &time)
+	: data(0)
 {
 	PluggingController::instance()->registerConnector(this);
 	unplug(time);	// TODO plug device as specified in config file

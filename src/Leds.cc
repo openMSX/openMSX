@@ -22,10 +22,8 @@ Leds::~Leds()
 
 Leds* Leds::instance()
 {
-	static Leds* oneInstance = NULL;
-	if (oneInstance == NULL)
-		oneInstance = new Leds();
-	return oneInstance;
+	static Leds oneInstance;
+	return &oneInstance;
 }
 
 

@@ -48,6 +48,12 @@ SDLConsole::SDLConsole(SDL_Surface *screen)
 
 SDLConsole::~SDLConsole()
 {
+	if (inputBackground) {
+		SDL_FreeSurface(inputBackground);
+	}
+	if (consoleSurface) {
+		SDL_FreeSurface(consoleSurface);
+	}
 	if (backgroundImage) {
 		SDL_FreeSurface(backgroundImage);
 	}

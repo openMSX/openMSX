@@ -29,7 +29,7 @@ MSXPPI::MSXPPI(Device *config, const EmuTime &time)
 
 MSXPPI::~MSXPPI()
 {
-	PRT_DEBUG("Destroying an MSXPPI object");
+	delete cassettePort;
 	delete keyboard;
 	delete i8255;
 	delete click;

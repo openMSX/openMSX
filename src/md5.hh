@@ -44,6 +44,7 @@
 #ifndef __MD5_HH__
 #define __MD5_HH__
 
+#include <string>
 #include <fstream>
 #include <iostream>
 #include <cstdio>
@@ -75,7 +76,7 @@ class MD5
 
 		// methods to acquire finalized result
 		unsigned char*       raw_digest();	// digest as a 16-byte binary array
-		char *               hex_digest();	// digest as a 33-byte ascii-hex string
+		std::string          hex_digest();	// digest as a 33-byte ascii-hex string
 		friend std::ostream& operator<< (std::ostream&, MD5 context);
 
 	private:

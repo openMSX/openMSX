@@ -53,9 +53,8 @@ const std::string& MSXCassettePlayerCLI::fileTypeHelp() const
 
 
 CassettePlayer::CassettePlayer()
+	: audioLength(0), audioBuffer(0), motor(false)
 {
-	motor = false;
-	audioLength = 0;	// no tape inserted (yet)
 	try {
 		Config *config =
 			MSXConfig::instance()->getConfigById("cassetteplayer");
@@ -81,8 +80,7 @@ void CassettePlayer::insertTape(FileContext *context,
 	// TODO throw exceptions instead of PRT_ERROR
 	File file(context->resolve(filename));
 	const char* name = file.getLocalName().c_str();
-	if (audioLength != 0)
-		removeTape();
+	removeTape();
 	if (SDL_LoadWAV(name, &audioSpec, &audioBuffer, &audioLength) == NULL)
 		PRT_ERROR("CassettePlayer error: " << SDL_GetError());
 	if (audioSpec.format != AUDIO_S16)
@@ -92,13 +90,15 @@ void CassettePlayer::insertTape(FileContext *context,
 
 void CassettePlayer::removeTape()
 {
-	SDL_FreeWAV(audioBuffer);
-	audioLength = 0;
+	if (audioBuffer) {
+		SDL_FreeWAV(audioBuffer);
+		audioBuffer = 0;
+	}
 }
 
 int CassettePlayer::calcSamples(const EmuTime &time)
 {
-	if (audioLength) {
+	if (audioBuffer) {
 		// tape inserted
 		float duration = (time - timeReference).toFloat();
 		int samples = (int)(duration*audioSpec.freq);
@@ -128,10 +128,10 @@ void CassettePlayer::setMotor(bool status, const EmuTime &time)
 short CassettePlayer::readSample(const EmuTime &time)
 {
 	int samp;
-	if (motor && audioLength) {
+	if (motor && audioBuffer) {
 		// motor on and tape inserted
 		Uint32 index = calcSamples(time);
-		if (index < (audioLength/2)) {
+		if (index < (audioLength / 2)) {
 			samp =  ((short*)audioBuffer)[index];
 		} else {
 			samp = 0;

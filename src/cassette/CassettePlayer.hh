@@ -49,7 +49,7 @@ class CassettePlayer : public CassetteDevice, private Command
 		// audio related variables
 		SDL_AudioSpec audioSpec;
 		Uint32 audioLength;	// 0 means no tape inserted
-		Uint8 *audioBuffer;
+		Uint8 *audioBuffer;	// 0 means no tape inserted
 		
 		// player related variables
 		bool motor;

@@ -40,8 +40,7 @@ void CliExtension::parseOption(const std::string &option,
 	if (it != extensions.end()) {
 		MSXConfig *config = MSXConfig::instance();
 		config->loadFile(new SystemFileContext(), it->second);
-	}
-	else {
+	} else {
 		PRT_ERROR("Extension \"" << extension << "\" not found!");
 	}
 		

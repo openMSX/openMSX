@@ -15,12 +15,12 @@ class Leds
 			FDD_ON,   FDD_OFF
 		};
 		
-		~Leds();
 		static Leds *instance();
 		void setLed(LEDCommand led);
 		
 	private:
 		Leds();
+		~Leds();
 
 		bool pwrLed, capsLed, kanaLed, pauseLed, turboLed, fddLed;
 };
