@@ -81,7 +81,7 @@ static MouseButtonEvent::Button convertMouseButton(Uint8 sdlButton)
 	case SDL_BUTTON_LEFT:
 		return MouseButtonEvent::LEFT;
 	case SDL_BUTTON_RIGHT:
-		return MouseButtonEvent::MIDDLE;
+		return MouseButtonEvent::RIGHT;
 	case SDL_BUTTON_MIDDLE:
 		return MouseButtonEvent::MIDDLE;
 	default:
