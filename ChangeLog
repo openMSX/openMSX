@@ -7,6 +7,7 @@ $Id$
 	   - removed unnecessary #include statements
 	* Use FilenameSetting iso StringSetting for all filenames:
 	    previously it was only possible for already existing files
+	* Fixed UMR in WD2793 formatting routine
 
 2004-12-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed TurboR DRAM support, TRCAS works now

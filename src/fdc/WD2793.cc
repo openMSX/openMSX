@@ -41,6 +41,9 @@ void WD2793::reset(const EmuTime& /*time*/)
 	INTRQ = false;
 	immediateIRQ = false;
 	//statusReg bit 7 (Not Ready status) is already reset
+	
+	needInitWriteTrack = false;
+	formatting = false;
 }
 
 bool WD2793::getDTRQ(const EmuTime& time)
@@ -238,8 +241,16 @@ void WD2793::setDataReg(byte value, const EmuTime& time)
 		}
 	} else if ((commandReg & 0xF0) == 0xF0) {
 		// WRITE TRACK
-		//PRT_DEBUG("WD2793 WRITE TRACK value "<<hex<<
-		//          (int)value<<dec);
+		if (!formatting) {
+			return;
+		}
+		if (needInitWriteTrack) {
+			// cannot do this in writeTrackCmd() because then
+			// the correct drive is not yet selected
+			PRT_DEBUG("WD2793: initWriteTrack()");
+			needInitWriteTrack = false;
+			drive->initWriteTrack();
+		}
 		//DRQ related timing
 		DRQ = false;
 		DRQTimer.advance(time);
@@ -256,6 +267,7 @@ void WD2793::setDataReg(byte value, const EmuTime& time)
 			dataAvailable = 0; //return correct DTR
 			dataCurrent = 0;
 			DRQ = false;
+			formatting = false;
 			endCmd();
 			break;
 		}
@@ -635,8 +647,8 @@ void WD2793::writeTrackCmd(const EmuTime& time)
 		
 		// TODO wait for indexPulse
 
-		PRT_DEBUG("WD2793: initWriteTrack()");
-		drive->initWriteTrack(); 
+		needInitWriteTrack = true;
+		formatting = true;
 		DRQTimer.advance(time);
 	}
 }

@@ -111,6 +111,8 @@ private:
 	bool immediateIRQ;
 	bool DRQ;
 	bool transferring;
+	bool formatting;
+	bool needInitWriteTrack;
 
 	byte onDiskTrack;
 	byte onDiskSector;
