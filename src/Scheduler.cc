@@ -230,6 +230,7 @@ void Scheduler::unpause()
 {
 	if (paused) {
 		paused = false;
+		leds.setLed(Leds::PAUSE_OFF);
 		--pauseCounter;
 	}
 }
@@ -238,6 +239,7 @@ void Scheduler::pause()
 {
 	if (!paused) {
 		paused = true;
+		leds.setLed(Leds::PAUSE_ON);
 		++pauseCounter;
 	}
 }

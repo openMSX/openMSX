@@ -13,17 +13,19 @@
 
 #include "MSXIODevice.hh"
 
-
 namespace openmsx {
 
 class MSXTurboRLeds : public MSXIODevice
 {
-	public:
-		MSXTurboRLeds(Device *config, const EmuTime &time);
-		virtual ~MSXTurboRLeds();
-		
-		virtual void reset(const EmuTime &time);
-		virtual void writeIO(byte port, byte value, const EmuTime &time);
+public:
+	MSXTurboRLeds(Device* config, const EmuTime& time);
+	virtual ~MSXTurboRLeds();
+	
+	virtual void reset(const EmuTime& time);
+	virtual void writeIO(byte port, byte value, const EmuTime& time);
+	
+private:
+	bool turborPaused;
 };
 
 } // namespace openmsx

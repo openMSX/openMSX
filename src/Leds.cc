@@ -11,8 +11,9 @@ namespace openmsx {
 Leds::Leds()
 	: output(CliCommOutput::instance())
 {
-	pwrLed = capsLed = kanaLed = pauseLed = turboLed = true;
-	fddLedCounter=1;
+	pwrLed = capsLed = kanaLed = turboLed = true;
+	pauseLedCounter = 1;
+	fddLedCounter = 1;
 	setLed(POWER_OFF);
 	setLed(CAPS_OFF);
 	setLed(KANA_OFF);
@@ -26,9 +27,13 @@ Leds::~Leds()
 	setLed(POWER_OFF);
 	setLed(CAPS_OFF);
 	setLed(KANA_OFF);
-	setLed(PAUSE_OFF);
 	setLed(TURBO_OFF);
-	if (fddLedCounter>0) setLed(FDD_OFF);
+	if (pauseLedCounter > 0) {
+		setLed(PAUSE_OFF);
+	}
+	if (fddLedCounter > 0) {
+		setLed(FDD_OFF);
+	}
 }
 
 Leds& Leds::instance()
@@ -78,16 +83,18 @@ void Leds::setLed(LEDCommand led)
 		}
 		break;
 	case PAUSE_ON:
-		if (!pauseLed) {
+		if (pauseLedCounter == 0) {
+			// turn on if it was off
 			output.printUpdate("Pause LED ON");
-			pauseLed = true;
 		}
+		pauseLedCounter++;
 		break;
 	case PAUSE_OFF:
-		if (pauseLed) {
+		if (pauseLedCounter == 1) {
+			// only turn off when it is the last one
 			output.printUpdate("Pause LED OFF");
-			pauseLed = false;
 		}
+		pauseLedCounter--;
 		break;
 	case TURBO_ON:
 		if (!turboLed) {
@@ -102,13 +109,15 @@ void Leds::setLed(LEDCommand led)
 		}
 		break;
 	case FDD_ON:
-		if (fddLedCounter==0) { // turn on if it was off
+		if (fddLedCounter == 0) {
+			// turn on if it was off
 			output.printUpdate("FDD LED ON");
 		}
 		fddLedCounter++;
 		break;
 	case FDD_OFF:
-		if (fddLedCounter==1) { // only turn off when it is the last one
+		if (fddLedCounter == 1) {
+			// only turn off when it is the last one
 			output.printUpdate("FDD LED OFF");
 		}
 		fddLedCounter--;

@@ -4,6 +4,8 @@ $Id$
 	* Removed obsolete "alias" command:
 	   for backwards compatibilty there is an "alias" proc defined in
 	   init.tcl
+	* Use PAUSE LED also for the openMSX pause command:
+	   patch contributed by Tetsuo Honda
 
 2004-01-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Integrated TCL scripting
