@@ -181,12 +181,16 @@ class CPU
 	public:
 		byte debugmemory[65536];
 		char to_print_string[300];
-		static bool cpudebug;
+		bool cpudebug;
 
 		class DebugCmd : public Command {
+		public:
+			DebugCmd(CPU *cpu_) : cpu(cpu_) {}
 			virtual void execute(const std::vector<std::string> &tokens,
 			                     const EmuTime &time);
 			virtual void help(const std::vector<std::string> &tokens) const;
+		private:
+			CPU* cpu;
 		};
 		DebugCmd debugCmd;
 	#endif

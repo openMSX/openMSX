@@ -42,8 +42,12 @@ byte MSXMatsushita::readIO(byte port, const EmuTime &time)
 		pattern = (pattern << 2) | (pattern >> 6);
 		break;
 	case 9:
-		result = sram.read(address);
-		address = (address + 1) & 0x7FF;
+		if (address < 0x800) {
+			result = sram.read(address);
+		} else {
+			result = 0xFF;
+		}
+		address = (address + 1) & 0x1FFF;
 		break;
 	default:
 		result = 0xFF;
@@ -67,12 +71,14 @@ void MSXMatsushita::writeIO(byte port, byte value, const EmuTime &time)
 		break;
 	case 8:
 		// set address (high)
-		address = (address & 0x00FF) | ((value & 0x07) << 8);
+		address = (address & 0x00FF) | ((value & 0x1F) << 8);
 		break;
 	case 9:
 		// write sram
-		sram.write(address, value);
-		address = (address + 1) & 0x7FF;
+		if (address < 0x800) {
+			sram.write(address, value);
+		}
+		address = (address + 1) & 0x1FFF;
 		break;
 	}
 }

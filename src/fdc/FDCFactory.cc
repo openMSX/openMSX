@@ -32,7 +32,7 @@ MSXDevice* FDCFactory::create(Device *config, const EmuTime &time)
 	if (type == "National") {
 		return new NationalFDC(config, time);
 	}
-	if (type == "TurboR") {
+	if (type == "Panasonic") {
 		return new TurboRFDC(config, time);
 	}
 	PRT_ERROR("Unknown FDC type");

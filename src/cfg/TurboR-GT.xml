@@ -83,7 +83,7 @@
     <slotted> <ps>3</ps> <ss>2</ss> <page>1</page> </slotted>
     <slotted> <ps>3</ps> <ss>2</ss> <page>2</page> </slotted>
     <parameter name="filename">MSXDOS-2.3.rom</parameter>
-    <parameter name="type">TurboR</parameter>
+    <parameter name="type">Panasonic</parameter>
     <parameter name="drivename1">diska</parameter>
   </device>
 

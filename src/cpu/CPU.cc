@@ -8,7 +8,8 @@
 #endif
 
 
-CPU::CPU(CPUInterface *interf) 
+CPU::CPU(CPUInterface *interf)
+	: cpudebug(false), debugCmd(this)
 {
 	interface = interf;
 	makeTables();
@@ -112,12 +113,9 @@ void CPU::lowerIRQ()
 void CPU::DebugCmd::execute(const std::vector<std::string> &tokens,
                             const EmuTime &time)
 {
-	CPU::cpudebug = !CPU::cpudebug;
+	cpu->cpudebug = !cpu->cpudebug;
 }
 void CPU::DebugCmd::help(const std::vector<std::string> &tokens) const
 {
 }
-bool CPU::cpudebug = false;
-//bool CPU::cpudebug = true;
 #endif
-

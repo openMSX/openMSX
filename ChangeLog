@@ -1,5 +1,11 @@
 $Id$
 
+2003-01-22 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Renamed "TurboR" FDC type to "Panasonic"
+	* Fixed "cpudebug" command (I broke it yesterday)
+	* Fixed MSXMatsushita:
+	   this caused FS-4700 build-in word processor hang
+
 2003-01-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Allow muliple commands with the same name:
 	   - for example both Z80 and R800 could have a "cpudebug" command
