@@ -89,7 +89,7 @@ public:
 	  */
 	inline const byte *readArea(int start, int end, const EmuTime &time) {
 		assert(0 <= start && start < size);
-		assert(0 <= end && end < size);
+		assert(0 <= end && end <= size);
 		assert(start <= end);
 		if (writeWindow.overlaps(start, end)) {
 			cmdEngine->sync(time);
