@@ -5,7 +5,7 @@
 
 	//: MSXDevice(config, time), MSXMemDevice(config, time) , MSXRom16KB(config, time)
 MSXFDC::MSXFDC(MSXConfig::Device *config, const EmuTime &time)
-	: MSXDevice(config, time), MSXRom16KB(config, time)
+	: MSXDevice(config, time), MSXGameCartridge(config, time)
 {
 	PRT_DEBUG("Creating an MSXFDC object");
 	brokenFDCread=false;

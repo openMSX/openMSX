@@ -6,7 +6,7 @@
 
 MSXMusic::MSXMusic(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXYM2413(config, time),
-	  MSXMemDevice(config, time), MSXRom(config, time)
+	  MSXMemDevice(config, time), MSXRomDevice(config, time)
 {
 	PRT_DEBUG("Creating an MSXMusic object");
 	loadFile(&memoryBank, 0x4000);

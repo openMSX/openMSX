@@ -50,7 +50,7 @@
   </device>
 
   <device id="biosrom">
-    <type>Rom16KB</type>
+    <type>GameCartridge</type>
     <slotted>
       <ps>0</ps>
       <ss>0</ss>
@@ -60,7 +60,7 @@
   </device>
 
   <device id="basicrom">
-    <type>Rom16KB</type>
+    <type>GameCartridge</type>
     <slotted>
       <ps>0</ps>
       <ss>0</ss>
@@ -70,7 +70,7 @@
   </device>
 
   <device id="subrom">
-    <type>Rom16KB</type>
+    <type>GameCartridge</type>
     <slotted>
       <ps>3</ps>
       <ss>0</ss>
@@ -81,7 +81,7 @@
 
 <!--
   <device id="diskrom">
-    <type>Rom16KB</type>
+    <type>GameCartridge</type>
     <slotted>
       <ps>3</ps>
       <ss>3</ss>

@@ -9,7 +9,7 @@
 
 #ifndef DONT_WANT_MSXMUSIC
 
-#include "MSXRom.hh"
+#include "MSXRomDevice.hh"
 #include "MSXYM2413.hh"
 #include "MSXMemDevice.hh"
 
@@ -17,7 +17,7 @@
 class EmuTime;
 
 
-class MSXMusic : public MSXYM2413, public MSXMemDevice, public MSXRom
+class MSXMusic : public MSXYM2413, public MSXMemDevice, public MSXRomDevice
 {
 	public:
 		/**

@@ -34,7 +34,6 @@ openmsx_SOURCES=\
 	CassetteDevice.hh CassetteDevice.cc \
 	DummyCassetteDevice.hh DummyCassetteDevice.cc \
 	CassettePlayer.hh CassettePlayer.cc \
-	MSXRom16KB.hh MSXRom16KB.cc \
 	MSXSimple64KB.hh MSXSimple64KB.cc \
 	VDP.hh VDP.cc \
 	VDPCmdEngine.hh VDPCmdEngine.cc \
@@ -75,7 +74,7 @@ openmsx_SOURCES=\
 	MSXGameCartridge.hh MSXGameCartridge.cc \
 	KeyEventInserter.cc KeyEventInserter.hh \
 	SDLEventInserter.cc SDLEventInserter.hh \
-	MSXRom.cc MSXRom.hh \
+	MSXRomDevice.cc MSXRomDevice.hh \
 	MSXRomPatchInterface.hh MSXRomPatchInterface.cc \
 	MSXTapePatch.cc MSXTapePatch.hh \
 	FileOpener.cc FileOpener.hh \

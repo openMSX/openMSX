@@ -3,7 +3,7 @@
 
 #include "MSXDevice.hh"
 #include "MSXMemDevice.hh"
-#include "MSXRom16KB.hh"
+#include "MSXGameCartridge.hh"
 
 // This is the interface for the emulated MSX towards the FDC
 // in a first stage it will be only on memmorymappedFDC as in
@@ -17,7 +17,7 @@ class EmuTime;
 class FDC;
 
 
-class MSXFDC :  virtual public MSXRom16KB
+class MSXFDC :  virtual public MSXGameCartridge
 {
 	public:
 		/**

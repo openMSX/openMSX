@@ -11,10 +11,10 @@
 
 #include "MSXYM2413.hh"
 #include "MSXMemDevice.hh"
-#include "MSXRom.hh"
+#include "MSXRomDevice.hh"
 
 
-class MSXFmPac : public MSXYM2413, public MSXMemDevice, public MSXRom
+class MSXFmPac : public MSXYM2413, public MSXMemDevice, public MSXRomDevice
 {
 	public:
 		/**

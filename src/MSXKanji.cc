@@ -6,7 +6,7 @@
 
 
 MSXKanji::MSXKanji(MSXConfig::Device *config, const EmuTime &time)
-	: MSXDevice(config, time), MSXIODevice(config, time), MSXRom(config, time)
+	: MSXDevice(config, time), MSXIODevice(config, time), MSXRomDevice(config, time)
 {
 	try {
 		loadFile(&memoryBank, ROM_SIZE);

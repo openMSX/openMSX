@@ -7,7 +7,7 @@
 #include "config.h"
 #endif
 
-#include "MSXRom.hh"
+#include "MSXRomDevice.hh"
 #include "MSXMemDevice.hh"
 
 // forward declarations
@@ -18,7 +18,7 @@ class DACSound;
 class EmuTime;
 
 
-class MSXGameCartridge : public MSXMemDevice, public MSXRom
+class MSXGameCartridge : public MSXMemDevice, public MSXRomDevice
 {
 	public:
 		MSXGameCartridge(MSXConfig::Device *config, const EmuTime &time);

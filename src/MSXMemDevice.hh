@@ -28,14 +28,6 @@ class MSXMemDevice : virtual public MSXDevice
 		virtual void writeMem(word address, byte value, const EmuTime &time);
 		
 		/**
-		 * Register this device in all the slots that where specified
-		 * in its config file
-		 * Note: this is only a helper function, you do not have to use
-		 *       this to register the device
-		 */
-		virtual void registerSlots();
-
-		/**
 		 * Test that the memory in the interval [start, start+CACHE_LINE_SIZE)
 		 * is cacheable for reading. If it is, a pointer to a buffer
 		 * containing this interval must be returned. If not, a null
@@ -62,6 +54,16 @@ class MSXMemDevice : virtual public MSXDevice
 		 * An interval will never contain the address 0xffff.
 		 */
 		virtual byte* getWriteCacheLine(word start);
+		
+	private:
+		/**
+		 * Register this device in all the slots that where specified
+		 * in its config file
+		 * Note: this is only a helper function, you do not have to use
+		 *       this to register the device
+		 */
+		virtual void registerSlots();
+
 };
 
 #endif

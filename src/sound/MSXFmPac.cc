@@ -10,7 +10,7 @@
 
 MSXFmPac::MSXFmPac(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXYM2413(config, time), 
-	  MSXMemDevice(config, time), MSXRom(config, time)
+	  MSXMemDevice(config, time), MSXRomDevice(config, time)
 {
 	PRT_DEBUG("Creating an MSXFmPac object");
 	sramBank = new byte[0x1ffe];
