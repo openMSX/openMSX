@@ -4,6 +4,8 @@ $Id$
 	* Create a scaler object once it becomes active, instead of creating all
 	  scalers in advance. This reduces memory usage when the number of
 	  scalers increases or some scalers use large lookup tables.
+	* fixed bug in wait() method of CPU (order of statements problem):
+	   fixes the reset on turbor crash
 
 2003-12-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Made memory in (sub)slots debuggable

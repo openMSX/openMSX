@@ -55,6 +55,7 @@ Scheduler& Scheduler::instance()
 
 void Scheduler::setSyncPoint(const EmuTime &timeStamp, Schedulable *device, int userData)
 {
+	assert((timeStamp == ASAP) || (cpu.getCurrentTime() <= timeStamp));
 	if (device) {
 		//PRT_DEBUG("Sched: registering " << device->schedName() <<
 		//          " " << userData << " for emulation at " << timeStamp);

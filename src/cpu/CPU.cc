@@ -112,10 +112,10 @@ void CPU::lowerIRQ()
 void CPU::wait(const EmuTime& time)
 {
 	assert(time >= getCurrentTime());
+	setCurrentTime(time);
 	if (getTargetTime() <= time) {
 		extendTarget(time);
 	}
-	setCurrentTime(time);
 }
 
 void CPU::extendTarget(const EmuTime& time)
