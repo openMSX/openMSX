@@ -93,7 +93,9 @@ public:
 	// Implementation of Setting interface:
 	virtual std::string getValueString() const;
 	virtual void setValueString(const std::string &valueString);
-
+	virtual void setValueInt(int newValue);
+	void setRange (const int minvalue,const int maxvalue);
+	
 protected:
 	/**
 	 * Called just before this setting is assigned a new value
@@ -104,7 +106,7 @@ protected:
 	virtual bool checkUpdate(int newValue) {
 		return true;
 	}
-
+		
 	int value;
 	int minValue;
 	int maxValue;
@@ -278,4 +280,3 @@ private:
 };
 
 #endif //__SETTINGS_HH__
-

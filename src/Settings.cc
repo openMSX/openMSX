@@ -4,6 +4,7 @@
 #include "Settings.hh"
 #include "CommandController.hh"
 #include "RenderSettings.hh"
+#include "OSDConsoleRenderer.hh"
 #include "File.hh"
 #include "FileContext.hh"
 
@@ -11,6 +12,7 @@
 // Force template instantiation:
 template class EnumSetting<RenderSettings::Accuracy>;
 template class EnumSetting<RendererFactory::RendererID>;
+template class EnumSetting<OSDConsoleRenderer::Placement>;
 template class EnumSetting<bool>;
 
 
@@ -41,6 +43,25 @@ IntegerSetting::IntegerSetting(
 	type = out.str();
 }
 
+void IntegerSetting::setRange (const int minvalue,const int maxvalue)
+{
+	if (minvalue > maxvalue)
+	{
+		minValue = maxvalue; // autoswap if range is invalid
+		maxValue = minvalue;
+	}
+	else
+	{
+		minValue = minvalue;
+		maxValue = maxvalue;
+	}
+		
+	int curValue=getValue();
+	if (curValue < minValue) setValueInt(minValue);
+	if (curValue > maxValue) setValueInt(maxValue);
+	
+}
+
 std::string IntegerSetting::getValueString() const
 {
 	std::ostringstream out;
@@ -56,7 +77,11 @@ void IntegerSetting::setValueString(const std::string &valueString)
 		throw CommandException(
 			"Not a valid integer: \"" + valueString + "\"");
 	}
+	setValueInt(newValue);
+}
 
+void IntegerSetting::setValueInt(int newValue)
+{
 	if (newValue < minValue) {
 		newValue = minValue;
 	} else if (newValue > maxValue) {
@@ -64,9 +89,8 @@ void IntegerSetting::setValueString(const std::string &valueString)
 	}
 	if (checkUpdate((int)newValue)) {
 		value = (int)newValue;
-	}
+	}	
 }
-
 
 // EnumSetting implementation:
 
