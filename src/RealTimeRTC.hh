@@ -18,8 +18,9 @@ public:
 	virtual ~RealTimeRTC();
 
 protected:
-	virtual float doSync(const EmuTime& time);
-	virtual void resync();
+	virtual unsigned getTime();
+	virtual void doSleep(unsigned ms);
+	virtual void reset();
 
 private:
 	// Must be a power of two, <= 8192.
@@ -27,15 +28,8 @@ private:
 
 	RealTimeRTC();
 	bool init();
-	int readRTC();
-	int nonBlockReadRTC();
-	void reset(const EmuTime& time);
 
 	int rtcFd;
-	bool resyncFlag;
-	int overslept;
-	int prevOverslept;
-	EmuTimeFreq<RTC_HERTZ> emuRef;
 };
 
 } // namespace openmsx

@@ -7,6 +7,7 @@
 #include <sys/ioctl.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <time.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <cstdio>
@@ -78,84 +79,39 @@ bool RealTimeRTC::init()
 		return false;
 	}
 	
-	reset(EmuTime::zero);
-
+	initBase();
 	return true;
 }
 
 
-void RealTimeRTC::resync()
+unsigned RealTimeRTC::getTime()
 {
-	resyncFlag = true;
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	return tv.tv_sec * 1000 + tv.tv_usec / 1000;	// ms
 }
 
-float RealTimeRTC::doSync(const EmuTime &time)
+void RealTimeRTC::doSleep(unsigned ms)
 {
-	if (resyncFlag) {
-		reset(time);
-		return 1.0;
+	unsigned slept = 0;
+	while (slept < ms) {
+		// Blocks until interrupt
+		unsigned long data;
+		int retval = read(rtcFd, &data, sizeof(unsigned long));
+		if (retval == -1) {
+			throw FatalError(strerror(errno));
+		}
+		slept += (data >> 8);	// TODO 1024 is not ms
 	}
-	
-	int speed = 25600 / speedSetting.getValue();
-	int normalizedEmuTicks = (speed * emuRef.getTicksTill(time)) >> 8;
-	int sleep = normalizedEmuTicks - overslept;
-	if ((sleep * maxCatchUpTime) < (normalizedEmuTicks * 100)) {
-		// avoid catching up too fast
-		sleep = (normalizedEmuTicks * 100) / maxCatchUpTime;
-		overslept -= normalizedEmuTicks - sleep;
-	} else {
-		// we can catch up all lost time
-		overslept = 0;
-	}
-	assert(sleep >= 0);
-
-	int realTime = nonBlockReadRTC();
-	sleep -= realTime;
-	float factor = ((float)(realTime + prevOverslept)) /
-	               ((float)(normalizedEmuTicks));
-	
-	while (sleep > 0) {
-		sleep -= readRTC();
-	}
-	if (sleep < 0) {
-		// overslept
-		prevOverslept = -sleep;
-		overslept += prevOverslept;
-	}
-
-	emuRef = time;
-	//PRT_DEBUG("RTC: "<<factor);
-	return factor;
 }
 
-int RealTimeRTC::nonBlockReadRTC()
+void RealTimeRTC::reset()
 {
-	// TODO implement non-blocking read
-	return readRTC();
-}
-
-int RealTimeRTC::readRTC()
-{
-	// Blocks until interrupt
 	unsigned long data;
 	int retval = read(rtcFd, &data, sizeof(unsigned long));
 	if (retval == -1) {
 		throw FatalError(strerror(errno));
 	}
-	return data >> 8;
-}
-
-void RealTimeRTC::reset(const EmuTime &time)
-{
-	resyncFlag = false;
-	unsigned long data;
-	int retval = read(rtcFd, &data, sizeof(unsigned long));
-	if (retval == -1) {
-		throw FatalError(strerror(errno));
-	}
-	overslept = 0;
-	prevOverslept = 0;
-	emuRef = time;
 }
 
 } // namespace openmsx

@@ -43,26 +43,37 @@ private:
 
 protected:
 	RealTime(); 
+	void initBase();
+	virtual unsigned getTime() = 0;
+	virtual void doSleep(unsigned ms) = 0;
+	virtual void reset() = 0;
 	
-	virtual float doSync(const EmuTime& time) = 0;  
-	virtual void resync() = 0;
+private:
+	virtual void executeUntil(const EmuTime& time, int userData) throw();
+	virtual const string& schedName() const;
+
+	// SettingListener
+	void update(const SettingLeafNode* setting) throw();
+
+	float internalSync(const EmuTime& time);
+	float doSync(const EmuTime& time);  
+	void resync();
+	void reset(const EmuTime &time);
 
 	IntegerSetting speedSetting;
 	int maxCatchUpTime;	// max nb of ms overtime
 	int maxCatchUpFactor;	// max catch up speed factor (percentage)
 
-private:
-	virtual void executeUntil(const EmuTime& time, int userData) throw();
-	virtual const string& schedName() const;
-
-	float internalSync(const EmuTime& time);
-	
-	// SettingListener
-	void update(const SettingLeafNode* setting) throw();
-
 	BooleanSetting throttleSetting;
 	BooleanSetting& pauseSetting;
 	BooleanSetting& powerSetting;
+
+	bool resyncFlag;
+	unsigned int realRef, realOrigin;	// !! Overflow in 49 days
+	EmuTimeFreq<1000> emuRef, emuOrigin;	// in ms (rounding err!!)
+	int catchUpTime;  // number of milliseconds overtime
+	float emuFactor;
+	float sleepAdjust;
 };
 
 } // namespace openmsx

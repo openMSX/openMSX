@@ -7,6 +7,10 @@ $Id$
 	* Changed default init.tcl to only bind unbounded keys:
 	   should solve the "toggle + toggle = nop" problem
 	* Implemented 6MHz (5.3MHz actually) mode for Panasonic MSX2+ machines
+	* Refactored RealTime classes:
+	   - algorithm in RealTimeRTC was broken, refactored the code so that
+	     RealTimeSDL and RealTimeRTC share the same syncing algorithm
+	   - the algorithm itself still needs to be improved
 
 2004-02-04 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Handle unknown tags in control protocol more gracefully
