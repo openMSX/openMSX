@@ -1,5 +1,14 @@
 $Id$
 
+2002-12-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented MSXDeviceSwitch:
+	   - IO-ports 0x41-0x4F are (possibly) shared between several devices
+	   - IO-port 0x40 selects the active device
+	* Converted MSXS1985 to a MSXSwitchedDevice
+	* Converted MSXFS4500SRAM to a MSXSwitchedDevice:
+	   - renamed to MSXMatsushita
+	   - implemented PUT KANJI function (IO-ports 0x43-0x44)
+
 2002-12-09 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented correct mirroring for National based FDC's
 

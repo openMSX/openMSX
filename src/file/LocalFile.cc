@@ -20,7 +20,7 @@ LocalFile::LocalFile(const std::string &filename, int options)
 		}
 	}
 	if (!file) {
-		throw FileException("Error opening file" + filename);
+		throw FileException("Error opening file " + filename);
 	}
 }
 

@@ -28,7 +28,7 @@
 #include "MSXSCCPlusCart.hh"
 #include "FDCFactory.hh"
 #include "SunriseIDE.hh"
-#include "MSXFS4500SRAM.hh"
+#include "MSXMatsushita.hh"
 
 
 MSXDevice *DeviceFactory::create(MSXConfig::Device *conf, const EmuTime &time)
@@ -106,8 +106,8 @@ MSXDevice *DeviceFactory::create(MSXConfig::Device *conf, const EmuTime &time)
 	if (type == "SunriseIDE") {
 		return new SunriseIDE(conf, time);
 	}
-	if (type == "FS4500SRAM") {
-		return new MSXFS4500SRAM(conf, time);
+	if (type == "Matsushita") {
+		return new MSXMatsushita(conf, time);
 	}
 	PRT_ERROR("Unknown device specified in configuration");
 	return NULL;

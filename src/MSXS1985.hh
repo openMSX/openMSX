@@ -12,10 +12,11 @@
 #ifndef __S1985_HH__
 #define __S1985_HH__
 
-#include "MSXIODevice.hh"
+#include "MSXDevice.hh"
+#include "MSXDeviceSwitch.hh"
 
 
-class MSXS1985 : public MSXIODevice
+class MSXS1985 : public MSXDevice, public MSXSwitchedDevice
 {
 	public:
 		MSXS1985(MSXConfig::Device *config, const EmuTime &time);
