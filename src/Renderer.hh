@@ -154,18 +154,6 @@ public:
 	  */
 	virtual void updateColourBase(int addr, const EmuTime &time) = 0;
 
-	/** Informs the renderer of a sprite attribute table base address change.
-	  * @param addr The new base address.
-	  * @param time The moment in emulated time this change occurs.
-	  */
-	virtual void updateSpriteAttributeBase(int addr, const EmuTime &time) = 0;
-
-	/** Informs the renderer of a sprite pattern table base address change.
-	  * @param addr The new base address.
-	  * @param time The moment in emulated time this change occurs.
-	  */
-	virtual void updateSpritePatternBase(int addr, const EmuTime &time) = 0;
-
 	/** Informs the renderer of a change in VRAM contents.
 	  * TODO: Maybe this is a performance problem, if so think of a
 	  *   smarter way to update (for example, subscribe to VRAM

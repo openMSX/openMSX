@@ -56,8 +56,6 @@ public:
 	void updateNameBase(int addr, const EmuTime &time);
 	void updatePatternBase(int addr, const EmuTime &time);
 	void updateColourBase(int addr, const EmuTime &time);
-	void updateSpriteAttributeBase(int addr, const EmuTime &time);
-	void updateSpritePatternBase(int addr, const EmuTime &time);
 	void updateVRAM(int addr, byte data, const EmuTime &time);
 
 private:
@@ -67,7 +65,18 @@ private:
 	typedef void (SDLHiRenderer::*DirtyChecker)
 		(int addr, byte data, const EmuTime &time);
 
+	/** Update renderer state to specified moment in time.
+	  * @param time Moment in emulated time to update to.
+	  */
 	inline void sync(const EmuTime &time);
+
+	/** Render lines until specified moment in time.
+	  * Unlike sync(), this method does not sync with VDPVRAM.
+	  * The VRAM should be to be up to date and remain unchanged
+	  * from the current time to the specified time.
+	  * @param time Moment in emulated time to render lines until.
+	  */
+	inline void renderUntil(const EmuTime &time);
 
 	inline void renderBitmapLines(byte line, const EmuTime &until);
 	inline void renderPlanarBitmapLines(byte line, const EmuTime &until);

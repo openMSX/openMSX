@@ -233,9 +233,7 @@ void VDP::executeUntilEmuTime(const EmuTime &time, int userData)
 		// was already active.
 		if (!isDisplayArea) {
 			if (controlRegs[1] & 0x40) {
-				renderer->updateDisplayEnabled(true, time);
-				// Commands run slower when display is enabled
-				cmdEngine->sync(time);
+				vram->updateDisplayEnabled(true, time);
 			}
 			isDisplayArea = true;
 		}
@@ -243,11 +241,7 @@ void VDP::executeUntilEmuTime(const EmuTime &time, int userData)
 	case VSCAN:
 		// VSCAN is the end of display.
 		if (isDisplayEnabled()) {
-			renderer->updateDisplayEnabled(false, time);
-			// Commands run faster when display is disabled
-			cmdEngine->sync(time);
-			// TODO: This is a workaround.
-			spriteChecker->sync(time);
+			vram->updateDisplayEnabled(false, time);
 		}
 		isDisplayArea = false;
 
@@ -387,6 +381,11 @@ void VDP::frameStart(const EmuTime &time)
 {
 	//cerr << "VDP::frameStart @ " << time << "\n";
 
+	// Inform VDP subcomponents.
+	// TODO: Do this via VDPVRAM?
+	renderer->frameStart(time);
+	spriteChecker->frameStart(time);
+
 	if (switchRenderer) {
 		switchRenderer = false;
 		std::cout << "VDP: switching renderer to " << rendererName << "\n";
@@ -432,11 +431,6 @@ void VDP::frameStart(const EmuTime &time)
 		frameStartTime + getTicksPerFrame(), this, VSYNC);
 	// Schedule DISPLAY_START, VSCAN and HSCAN.
 	scheduleDisplayStart(time);
-
-	// Inform VDP subcomponents.
-	// TODO: Do this via VDPVRAM?
-	renderer->frameStart(time);
-	spriteChecker->frameStart(time);
 
 	/*
 	   std::cout << "--> frameStart = " << frameStartTime
@@ -664,14 +658,13 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 	switch (reg) {
 	case 0:
 		if ((val ^ oldval) & 0x0E) {
-			spriteChecker->sync(time);
 			updateDisplayMode(val, controlRegs[1], time);
 		}
 		break;
 	case 1:
-		if (change & 0x5B) {
-			// Update sprites on blank, mode, size and mag changes.
-			spriteChecker->sync(time);
+		if (change & 0x03) {
+			// Update sprites on size and mag changes.
+			spriteChecker->updateSpriteSizeMag(val, time);
 		}
 		// TODO: Reset vertical IRQ if IE0 is reset?
 		if (change & 0x18) {
@@ -680,9 +673,7 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		if (change & 0x40) {
 			bool newDisplayEnabled = isDisplayArea && (val & 0x40);
 			if (newDisplayEnabled != isDisplayEnabled()) {
-				renderer->updateDisplayEnabled(newDisplayEnabled, time);
-				// Command timing changes when display is enabled/disabled
-				cmdEngine->sync(time);
+				vram->updateDisplayEnabled(newDisplayEnabled, time);
 			}
 		}
 		break;
@@ -713,23 +704,20 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		break;
 	}
 	case 5: {
-		spriteChecker->sync(time);
 		int addr = ((controlRegs[11] << 15) | (val << 7)) & vramMask;
-		renderer->updateSpriteAttributeBase(addr, time);
+		spriteChecker->updateSpriteAttributeBase(addr, time);
 		spriteAttributeBase = addr;
 		break;
 	}
 	case 11: {
-		spriteChecker->sync(time);
 		int addr = ((val << 15) | (controlRegs[5] << 7)) & vramMask;
-		renderer->updateSpriteAttributeBase(addr, time);
+		spriteChecker->updateSpriteAttributeBase(addr, time);
 		spriteAttributeBase = addr;
 		break;
 	}
 	case 6: {
-		spriteChecker->sync(time);
 		int addr = (val << 11) & vramMask;
-		renderer->updateSpritePatternBase(addr, time);
+		spriteChecker->updateSpritePatternBase(addr, time);
 		spritePatternBase = addr;
 		break;
 	}
@@ -746,8 +734,7 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 			renderer->updateTransparency((val & 0x20) == 0, time);
 		}
 		if (change & 0x02) {
-			// Command timing changes when sprites are enabled/disabled
-			cmdEngine->sync(time);
+			vram->updateSpritesEnabled((val & 0x02) == 0, time);
 		}
 		break;
 	case 12:
@@ -768,7 +755,7 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		}
 		break;
 	case 23:
-		spriteChecker->sync(time);
+		spriteChecker->updateVerticalScroll(val, time);
 		renderer->updateVerticalScroll(val, time);
 		break;
 	}

@@ -46,22 +46,26 @@ inline static void fillBool(bool *ptr, bool value, int nr)
 #endif
 }
 
+template <class Pixel> inline void SDLHiRenderer<Pixel>::renderUntil(
+	const EmuTime &time)
+{
+	// TODO: This is still line based.
+	//       First move is to replace nextLine by currentTime.
+	int limit =
+		(vdp->getTicksThisFrame(time) + VDP::TICKS_PER_LINE - 400)
+		/ VDP::TICKS_PER_LINE;
+	assert(limit <= (vdp->isPalTiming() ? 313 : 262));
+	if (nextLine < limit) {
+		(this->*phaseHandler)(nextLine, limit, time);
+		nextLine = limit ;
+	}
+}
+
 template <class Pixel> inline void SDLHiRenderer<Pixel>::sync(
 	const EmuTime &time)
 {
-	if (time > currentTime) {
-		//currentTime = time;
-		// TODO: This is still line based.
-		//       First move is to replace nextLine by currentTime.
-		int limit =
-			(vdp->getTicksThisFrame(time) + VDP::TICKS_PER_LINE - 400)
-			/ VDP::TICKS_PER_LINE;
-		assert(limit <= (vdp->isPalTiming() ? 313 : 262));
-		if (nextLine < limit) {
-			(this->*phaseHandler)(nextLine, limit, time);
-			nextLine = limit ;
-		}
-	}
+	vram->sync(time);
+	renderUntil(time);
 }
 
 template <class Pixel> inline int SDLHiRenderer<Pixel>::getLeftBorder()
@@ -477,16 +481,6 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateColourBase(
 	fillBool(dirtyColour, true, sizeof(dirtyColour));
 }
 
-template <class Pixel> void SDLHiRenderer<Pixel>::updateSpriteAttributeBase(
-	int addr, const EmuTime &time)
-{
-}
-
-template <class Pixel> void SDLHiRenderer<Pixel>::updateSpritePatternBase(
-	int addr, const EmuTime &time)
-{
-}
-
 template <class Pixel> void SDLHiRenderer<Pixel>::updateVRAM(
 	int addr, byte data, const EmuTime &time)
 {
@@ -500,7 +494,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateVRAM(
 	// TODO: Changes in invisible pages do not require sync either.
 	//       Maybe this is a task for the dirty checker, because what is
 	//       visible is display mode dependant.
-	if (vdp->isDisplayEnabled()) sync(time);
+	if (vdp->isDisplayEnabled()) renderUntil(time);
 
 	(this->*dirtyChecker)(addr, data, time);
 }

@@ -488,16 +488,6 @@ void SDLGLRenderer::updateColourBase(
 	fillBool(dirtyColour, true, sizeof(dirtyColour));
 }
 
-void SDLGLRenderer::updateSpriteAttributeBase(
-	int addr, const EmuTime &time)
-{
-}
-
-void SDLGLRenderer::updateSpritePatternBase(
-	int addr, const EmuTime &time)
-{
-}
-
 void SDLGLRenderer::updateVRAM(
 	int addr, byte data, const EmuTime &time)
 {

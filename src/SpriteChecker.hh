@@ -69,29 +69,6 @@ public:
 		return ret;
 	}
 
-private:
-	/** Calculate sprite pattern for sprite mode 1.
-	  */
-	void updateSprites1(const EmuTime &until);
-
-	/** Calculate sprite pattern for sprite mode 2.
-	  */
-	void updateSprites2(const EmuTime &until);
-
-	typedef void (SpriteChecker::*UpdateSpritesMethod)
-		(const EmuTime &until);
-	UpdateSpritesMethod updateSpritesMethod;
-	
-public:
-	/** Update sprite checking to specified time.
-	  * @param time The moment in emulated time to update to.
-	  */
-	inline void sync(const EmuTime &time) {
-		// This calls either updateSprites1 or updateSprites2
-		// depending on the current DisplayMode
-		(this->*updateSpritesMethod)(time);
-	}
-
 	/** Informs the sprite checker of a VDP display mode change.
 	  * @param mode The new display mode: M5..M1.
 	  * @param time The moment in emulated time this change occurs.
@@ -103,6 +80,92 @@ public:
 		} else {
 			updateSpritesMethod = &SpriteChecker::updateSprites2;
 		}
+	}
+
+	/** Informs the sprite checker of a VDP display enabled change.
+	  * @param enabled The new display enabled state.
+	  * @param time The moment in emulated time this change occurs.
+	  */
+	inline void updateDisplayEnabled(bool enabled, const EmuTime &time) {
+		sync(time);
+		// TODO: Speed up sprite checking in display disabled case.
+	}
+
+	/** Informs the sprite checker of sprite enable changes.
+	  * @param enabled The new sprite enabled state.
+	  * @param time The moment in emulated time this change occurs.
+	  */
+	inline void updateSpritesEnabled(bool enabled, const EmuTime &time) {
+		sync(time);
+		// TODO: Speed up sprite checking in display disabled case.
+	}
+
+	/** Informs the sprite checker of sprite size or magnification changes.
+	  * @param sizeMag The new size and magnification state.
+	  *   Bit 0 is magnification: 0 = normal, 1 = doubled.
+	  *   Bit 1 is size: 0 = 8x8, 1 = 16x16.
+	  * @param time The moment in emulated time this change occurs.
+	  */
+	inline void updateSpriteSizeMag(byte sizeMag, const EmuTime &time) {
+		sync(time);
+		// TODO: Precalc something?
+	}
+
+	/** Informs the sprite checker of a vertical scroll change.
+	  * @param scroll The new scroll value.
+	  * @param time The moment in emulated time this change occurs.
+	  */
+	inline void updateVerticalScroll(int scroll, const EmuTime &time) {
+		sync(time);
+		// TODO: Precalc something?
+	}
+
+	/** Informs the sprite checker of an attribute table base address change.
+	  * @param addr The new base address.
+	  * @param time The moment in emulated time this change occurs.
+	  */
+	inline void updateSpriteAttributeBase(int addr, const EmuTime &time) {
+		sync(time);
+		// TODO: Update VRAM window range.
+	}
+
+	/** Informs the sprite checker of a pattern table base address change.
+	  * @param addr The new base address.
+	  * @param time The moment in emulated time this change occurs.
+	  */
+	inline void updateSpritePatternBase(int addr, const EmuTime &time) {
+		sync(time);
+		// TODO: Update VRAM window range.
+	}
+
+	inline void checkUntil(const EmuTime &time) {
+		// This calls either updateSprites1 or updateSprites2,
+		// depending on the current DisplayMode.
+		int limit =
+			(frameStartTime.getTicksTill(time) / VDP::TICKS_PER_LINE) + 1;
+		int linesPerFrame = vdp->isPalTiming() ? 313 : 262;
+		if (limit == linesPerFrame + 1) {
+			// Sprite memory is read one line in advance.
+			// This doesn't integrate nicely with frameStart() yet:
+			// line counter is reset at frame start, while line 0 sprite
+			// data is read at last line of previous frame.
+			// As a workaround, we read line 0 data at line 0 time,
+			// all other lines are read one line in advance as it should be.
+			limit--;
+		} else if (limit > linesPerFrame) {
+			cout << "checkUntil: limit = " << limit << "\n";
+			assert(false);
+		}
+		(this->*updateSpritesMethod)(limit);
+	}
+
+	/** Informs the sprite checker of a change in VRAM contents.
+	  * @param addr The address that will change.
+	  * @param data The new value.
+	  * @param time The moment in emulated time this change occurs.
+	  */
+	inline void updateVRAM(int addr, byte data, const EmuTime &time) {
+		checkUntil(time);
 	}
 
 	/** Get X coordinate of sprite collision.
@@ -129,7 +192,7 @@ public:
 		frameStartTime = time;
 		currentLine = 0;
 		// TODO: Reset anything else? Does the real VDP?
-		
+
 		for (int i = 0; i < 313; i++) spriteCount[i] = -1;
 	}
 
@@ -154,7 +217,9 @@ public:
 				<< ", new line = " << line
 				<< "\n";
 			*/
-			sync(time);
+			//sync(time);
+			// Current VRAM state is good, no need to sync with VRAM.
+			checkUntil(time);
 			//assert(line < currentLine);
 		}
 		visibleSprites = spriteBuffer[line];
@@ -164,6 +229,23 @@ public:
 	}
 
 private:
+	/** Update sprite checking to specified time.
+	  * @param time The moment in emulated time to update to.
+	  * TODO: Inline would be nice, but there are cyclic dependencies
+	  *       with VDPVRAM.
+	  */
+	void sync(const EmuTime &time);
+
+	/** Calculate sprite pattern for sprite mode 1.
+	  */
+	void updateSprites1(int limit);
+
+	/** Calculate sprite pattern for sprite mode 2.
+	  */
+	void updateSprites2(int limit);
+
+	typedef void (SpriteChecker::*UpdateSpritesMethod)(int limit);
+	UpdateSpritesMethod updateSpritesMethod;
 
 	/** Doubles a sprite pattern.
 	  */
@@ -177,7 +259,7 @@ private:
 	  *   Bit 31 is the leftmost bit of the sprite.
 	  *   Unused bits are zero.
 	  */
-	inline SpritePattern calculatePattern(int patternNr, int y, const EmuTime &time);
+	inline SpritePattern calculatePattern(int patternNr, int y);
 
 	/** Check sprite collision and number of sprites per line.
 	  * This routine implements sprite mode 1 (MSX1).
@@ -188,7 +270,7 @@ private:
 	  *   in which the sprites to be displayed are returned.
 	  * @return The number of sprites stored in the visibleSprites array.
 	  */
-	inline int checkSprites1(int line, SpriteInfo *visibleSprites, const EmuTime &time);
+	inline int checkSprites1(int line, SpriteInfo *visibleSprites);
 
 	/** Check sprite collision and number of sprites per line.
 	  * This routine implements sprite mode 2 (MSX2).
@@ -199,7 +281,7 @@ private:
 	  *   in which the sprites to be displayed are returned.
 	  * @return The number of sprites stored in the visibleSprites array.
 	  */
-	inline int checkSprites2(int line, SpriteInfo *visibleSprites, const EmuTime &time);
+	inline int checkSprites2(int line, SpriteInfo *visibleSprites);
 
 	/** The VDP this sprite checker is part of.
 	  */

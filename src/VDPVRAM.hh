@@ -33,6 +33,14 @@ public:
 	VDPVRAM(int size);
 	~VDPVRAM();
 
+	/** Update VRAM state to specified moment in time.
+	  * @param time Moment in emulated time to update VRAM to.
+	  * TODO: Replace this method by Window::sync().
+	  */
+	inline void sync(const EmuTime &time) {
+		cmdEngine->sync(time);
+	}
+
 	/** Write a byte from the command engine.
 	  * Synchronisation with reads by the command engine is skipped.
 	  */
@@ -40,7 +48,7 @@ public:
 		// Rewriting history is not allowed.
 		//assert(time >= currentTime);
 
-		spriteChecker->sync(time);
+		spriteChecker->updateVRAM(address, value, time);
 		// Problem: infinite loop (renderer <-> cmdEngine)
 		// Workaround: only dirty check, no render update
 		// Solution: break the chain somehow
@@ -104,6 +112,18 @@ public:
 	/** Reads an area of VRAM.
 	  * @param start Start address (inclusive) of the area to read.
 	  * @param end End address (exclusive) of the area to read.
+	  * @return A pointer to the specified area.
+	  */
+	inline const byte *readArea(int start, int end) {
+		assert(0 <= start && start < size);
+		assert(0 <= end && end <= size);
+		assert(start <= end);
+		return data + start;
+	}
+
+	/** Reads an area of VRAM.
+	  * @param start Start address (inclusive) of the area to read.
+	  * @param end End address (exclusive) of the area to read.
 	  * @param time Moment in emulated time the area's contents should
 	  *   be updated to.
 	  * @return A pointer to the specified area.
@@ -120,7 +140,7 @@ public:
 		return data + start;
 	}
 
-	/** Used by the VDP to signal display mode change.
+	/** Used by the VDP to signal display mode changes.
 	  * VDPVRAM will inform the Renderer, command engine and the sprite
 	  * checker of this change.
 	  * @param mode The new display mode: M5..M1.
@@ -135,6 +155,29 @@ public:
 		// Commit change inside VDPVRAM.
 		// TODO: Is the display mode check OK? Profile undefined modes.
 		planar = (mode & 0x14) == 0x14;
+	}
+
+	/** Used by the VDP to signal display enabled changes.
+	  * Both the regular border start/end and forced blanking by clearing
+	  * the display enable bit are considered display enabled changes.
+	  * @param enabled The new display enabled state.
+	  * @param time The moment in emulated time this change occurs.
+	  */
+	inline void updateDisplayEnabled(bool enabled, const EmuTime &time) {
+		// Synchronise subsystems.
+		renderer->updateDisplayEnabled(enabled, time);
+		cmdEngine->sync(time);
+		spriteChecker->updateDisplayEnabled(enabled, time);
+	}
+
+	/** Used by the VDP to signal sprites enabled changes.
+	  * @param enabled The new sprites enabled state.
+	  * @param time The moment in emulated time this change occurs.
+	  */
+	inline void updateSpritesEnabled(bool enabled, const EmuTime &time) {
+		// Synchronise subsystems.
+		cmdEngine->sync(time);
+		spriteChecker->updateSpritesEnabled(enabled, time);
 	}
 
 	inline void setRenderer(Renderer *renderer) {
