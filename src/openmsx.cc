@@ -106,31 +106,36 @@ int main (int argc, char **argv)
 	SDL_SetColorKey(iconSurf, SDL_SRCCOLORKEY, 0);
 	SDL_WM_SetIcon(iconSurf, NULL);
 
-	for (std::list<MSXConfig::Device*>::const_iterator j=MSXConfig::instance()->deviceList.begin();
-	     j != MSXConfig::instance()->deviceList.end();
-	     j++) {
-		(*j)->dump();
-		MSXDevice *device = deviceFactory::create( (*j) );
-		assert (device != 0);
-		// TODO this only works if MotherBoard comes first in config file!!!
-		MSXMotherBoard::instance()->addDevice(device);
-		PRT_DEBUG ("Instantiated:" << (*j)->getType());
+	try {
+		for (std::list<MSXConfig::Device*>::const_iterator j=MSXConfig::instance()->deviceList.begin();
+		     j != MSXConfig::instance()->deviceList.end();
+		     j++) {
+			(*j)->dump();
+			MSXDevice *device = deviceFactory::create( (*j) );
+			assert (device != 0);
+			// TODO this only works if MotherBoard comes first in config file!!!
+			MSXMotherBoard::instance()->addDevice(device);
+			PRT_DEBUG ("Instantiated:" << (*j)->getType());
+		}
+
+		PRT_DEBUG ("Initing MSX");
+		MSXMotherBoard::instance()->InitMSX();
+
+		// Start a new thread for event handling
+		thread=SDL_CreateThread(eventDistributorStarter, 0);
+
+		// test thingy for Joost: [doesn't do harm YET]
+		keyi << "Hello";
+
+		PRT_DEBUG ("starting MSX");
+		MSXMotherBoard::instance()->StartMSX();
+		// When we return we clean everything up
+		SDL_KillThread(thread);
+		MSXMotherBoard::instance()->DestroyMSX();
+	} catch (MSXException e) {
+		std::cerr << e.desc << std::endl;
+		exit(1);
 	}
-
-	PRT_DEBUG ("Initing MSX");
-	MSXMotherBoard::instance()->InitMSX();
-
-	// Start a new thread for event handling
-	thread=SDL_CreateThread(eventDistributorStarter, 0);
-
-	// test thingy for Joost: [doesn't do harm YET]
-	keyi << "Hello";
-
-	PRT_DEBUG ("starting MSX");
-	MSXMotherBoard::instance()->StartMSX();
-	// When we return we clean everything up
-	SDL_KillThread(thread);
-	MSXMotherBoard::instance()->DestroyMSX();
 
 	exit (0);
 }

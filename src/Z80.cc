@@ -91,88 +91,87 @@ void Z80::reset()
 /****************************************************************************/
 /*                                                                          */
 /****************************************************************************/
+
+
 void Z80::execute()
 {
 	while (currentTime < targetTime) {
-		int tStates = executeHelper();
-		//assert(tStates>0);
-		currentTime += (uint64)tStates;
+		if (interface->NMIEdge()) { 
+			// NMI occured
+			HALT = false; 
+			IFF1 = nextIFF1 = false;
+			M_PUSH (PC.w);
+			PC.w=0x0066;
+			M1Cycle();
+			currentTime += 11;
+		} else if (IFF1 && interface->IRQStatus()) {
+			// normal interrupt
+			HALT = false; 
+			IFF1 = nextIFF1 = false;
+			switch (IM) {
+			case 2:
+				// Interrupt mode 2  Call [I:databyte]
+				M_PUSH (PC.w);
+				PC.w=Z80_RDMEM_WORD((interface->dataBus())|(I<<8));
+				M1Cycle();
+				currentTime += 19;
+				break;
+			case 1:
+				// Interrupt mode 1
+				currentTime += 2;
+				executeInstruction(0xff);	// RST 38h
+				break;
+			case 0:
+				// Interrupt mode 0
+				// TODO current implementation only works for 1-byte instructions
+				//      ok for MSX 
+				currentTime += 2;
+				executeInstruction(interface->dataBus());
+				break;
+			default:
+				assert(false);
+			}
+		} else if (HALT) {
+			// in halt mode
+			const int haltStates = cycles_main[0x76] + waitCycles;	// HALT + M1
+			uint64 ticks = currentTime.getTicksTill(targetTime);
+			int halts = (ticks+(haltStates-1))/haltStates;	// rounded up
+			R += halts;
+			currentTime += halts*haltStates;
+		} else {
+			// normal instructions
+			targetChanged = false;
+			while ((currentTime < targetTime) && !targetChanged) {
+				executeInstruction(Z80_RDOP(PC.w++));
+			}
+		}
 	}
 }
 
-int Z80::executeHelper() 
+inline void Z80::executeInstruction(byte opcode)
 {
-	byte opcode;
-	
-	ICount = 0;
-	if (interface->NMIEdge()) { 
-		// NMI occured
-		HALT = false; 
-		IFF1 = nextIFF1 = false;
-		M_PUSH (PC.w);
-		PC.w=0x0066;
-		M1Cycle();
-		ICount += 11;
-		return ICount;
-	} 
-	if (IFF1 && interface->IRQStatus()) {
-		// normal interrupt
-		HALT = false; 
-		IFF1 = nextIFF1 = false;
-		switch (IM) {
-		case 2:
-			// Interrupt mode 2  Call [I:databyte]
-			M_PUSH (PC.w);
-			PC.w=Z80_RDMEM_WORD((interface->dataBus())|(I<<8));
-			M1Cycle();
-			ICount += 19;
-			return ICount;
-		case 1:
-			// Interrupt mode 1
-			opcode = 0xff;	// RST 38h
-			ICount = 2;
-			break;
-		case 0:
-			// Interrupt mode 0
-			// TODO current implementation only works for 1-byte instructions
-			//      ok for MSX 
-			opcode = interface->dataBus();
-			ICount += 2;
-			break;
-		default:
-			assert(false);
-			opcode = 0;	// prevent warning
-		}
-	} else if (HALT) {
-		// in halt mode
-		opcode = 0;	// nop
-	} else {
-		// normal instruction
-		opcode = Z80_RDOP(PC.w++);
-	}
 	IFF1 = nextIFF1;
 	#ifdef Z80DEBUG
 		word start_pc = PC.w-1;
 	#endif
 	M1Cycle();
-	ICount += cycles_main[opcode];
-	(this->*opcode_main[opcode])();	// ICount can be raised extra
+	currentTime += cycles_main[opcode];
+	(this->*opcode_main[opcode])();	// currentTime can be raised extra
 	#ifdef Z80DEBUG
 		printf("%04x : instruction ", start_pc);
 		Z80_Dasm(&debugmemory[start_pc], to_print_string, start_pc );
 		printf("%s\n", to_print_string );
 		printf("      A=%02x F=%02x \n", AF.B.h, AF.B.l);
 		printf("      BC=%04x DE=%04x HL=%04x \n", BC.w, DE.w, HL.w);
-		printf("  took %d Tstates\n", ICount);
 	#endif
-	//assert(ICount>0);
-	return ICount;
+	return;
 }
+
 
 inline void Z80::M1Cycle()
 {
 	R++;
-	ICount += waitCycles;
+	currentTime += waitCycles;
 }
 
 /*
@@ -287,17 +286,17 @@ inline void Z80::M_CALL() {
 	word q = Z80_RDMEM_OPCODE_WORD();
 	M_PUSH(PC.w);
 	PC.w = q;
-	ICount += 7; // extraTab
+	currentTime += 7; // extraTab
 }
 
 inline void Z80::M_JR() {
 	PC.w += ((offset)Z80_RDOP_ARG(PC.w))+1;
-	ICount += 5; // extraTab
+	currentTime += 5; // extraTab
 }
 
 inline void Z80::M_RET() {
 	M_POP(PC.w);
-	ICount += 6; // extraTab
+	currentTime += 6; // extraTab
 }
 
 inline void Z80::M_JP() {
@@ -695,7 +694,7 @@ void Z80::cpd() {
 }
 void Z80::cpdr() {
 	cpd ();
-	if (BC.w && !(AF.B.l&Z_FLAG)) { ICount+=5; PC.w-=2; }
+	if (BC.w && !(AF.B.l&Z_FLAG)) { currentTime+=5; PC.w-=2; }
 }
 
 void Z80::cpi() {
@@ -713,7 +712,7 @@ void Z80::cpi() {
 }
 void Z80::cpir() {
 	cpi ();
-	if (BC.w && !(AF.B.l&Z_FLAG)) { ICount+=5; PC.w-=2; }
+	if (BC.w && !(AF.B.l&Z_FLAG)) { currentTime+=5; PC.w-=2; }
 }
 
 void Z80::cpl() { AF.B.h^=0xFF; AF.B.l|=(H_FLAG|N_FLAG); }
@@ -869,7 +868,7 @@ void Z80::ind() {
 }
 void Z80::indr() {
 	ind ();
-	if (BC.B.h) { ICount += 5; PC.w -= 2; }
+	if (BC.B.h) { currentTime += 5; PC.w -= 2; }
 }
 
 void Z80::ini() {
@@ -888,7 +887,7 @@ void Z80::ini() {
 }
 void Z80::inir() {
 	ini ();
-	if (BC.B.h) { ICount += 5; PC.w -= 2; }
+	if (BC.B.h) { currentTime += 5; PC.w -= 2; }
 }
 
 void Z80::jp_hl() { PC.w = HL.w; }
@@ -1112,7 +1111,7 @@ void Z80::ldd() {
 }
 void Z80::lddr() {
 	ldd ();
-	if (BC.w) { ICount += 5; PC.w -= 2; }
+	if (BC.w) { currentTime += 5; PC.w -= 2; }
 }
 void Z80::ldi() {
 	byte io = Z80_RDMEM(HL.w);
@@ -1125,7 +1124,7 @@ void Z80::ldi() {
 }
 void Z80::ldir() {
 	ldi ();
-	if (BC.w) { ICount += 5; PC.w -= 2; }
+	if (BC.w) { currentTime += 5; PC.w -= 2; }
 }
 
 void Z80::neg() {
@@ -1167,7 +1166,7 @@ void Z80::outd() {
 }
 void Z80::otdr() {
 	outd ();
-	if (BC.B.h) { ICount += 5; PC.w -= 2; }
+	if (BC.B.h) { currentTime += 5; PC.w -= 2; }
 }
 void Z80::outi() {
 	byte io = Z80_RDMEM(HL.w++);
@@ -1184,7 +1183,7 @@ void Z80::outi() {
 }
 void Z80::otir() {
 	outi ();
-	if (BC.B.h) { ICount += 5; PC.w -= 2; }
+	if (BC.B.h) { currentTime += 5; PC.w -= 2; }
 }
 
 void Z80::out_c_a()   { Z80_Out(BC.w, AF.B.h); }
@@ -4270,26 +4269,26 @@ void Z80::patch() { interface->patch(); }
 
 void Z80::dd_cb() {
 	unsigned opcode = Z80_RDOP_ARG((PC.w+1)&0xFFFF);
-	ICount += cycles_xx_cb[opcode];
+	currentTime += cycles_xx_cb[opcode];
 	(this->*opcode_dd_cb[opcode])();
 	PC.w++;
 }
 void Z80::fd_cb() {
 	unsigned opcode = Z80_RDOP_ARG((PC.w+1)&0xFFFF);
-	ICount += cycles_xx_cb[opcode];
+	currentTime += cycles_xx_cb[opcode];
 	(this->*opcode_fd_cb[opcode])();
 	PC.w++;
 }
 void Z80::cb() {
 	M1Cycle();
 	unsigned opcode = Z80_RDOP(PC.w++);
-	ICount += cycles_cb[opcode];
+	currentTime += cycles_cb[opcode];
 	(this->*opcode_cb[opcode])();
 }
 void Z80::ed() {
 	M1Cycle();
 	unsigned opcode = Z80_RDOP(PC.w++);
-	ICount += cycles_ed[opcode];
+	currentTime += cycles_ed[opcode];
 	(this->*opcode_ed[opcode])();
 }
 void Z80::dd() {
@@ -4298,7 +4297,7 @@ void Z80::dd() {
 }
 void Z80::dd2() {
 	unsigned opcode = Z80_RDOP(PC.w++);
-	ICount += cycles_xx[opcode];
+	currentTime += cycles_xx[opcode];
 	(this->*opcode_dd[opcode])();
 }
 void Z80::fd() {
@@ -4307,7 +4306,7 @@ void Z80::fd() {
 }
 void Z80::fd2() {
 	unsigned opcode = Z80_RDOP(PC.w++);
-	ICount += cycles_xx[opcode];
+	currentTime += cycles_xx[opcode];
 	(this->*opcode_fd[opcode])();
 }
 

@@ -58,7 +58,7 @@ class Z80 : public CPU {
 
 
 	private:
-		int executeHelper();
+		void executeInstruction(byte opcode);
 		void M1Cycle();
 		void init();
 		
@@ -106,7 +106,6 @@ class Z80 : public CPU {
 		bool nextIFF1, IFF1, IFF2, HALT;
 		byte IM, I;
 		byte R, R2;	// refresh = R&127 | R2&128
-		int ICount;	// T-state count
 		int waitCycles;
 		
 		#ifdef Z80DEBUG

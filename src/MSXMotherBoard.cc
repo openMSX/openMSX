@@ -70,10 +70,14 @@ void MSXMotherBoard::addDevice(MSXDevice *device)
 	availableDevices.push_back(device);
 }
 
-void MSXMotherBoard::registerSlottedDevice(MSXDevice *device, int primSl, int secSL, int page)
+void MSXMotherBoard::registerSlottedDevice(MSXDevice *device, int primSl, int secSl, int page)
 {
-	 PRT_DEBUG(device->getName() << "registers at "<<primSl<<" "<<secSL<<" "<<page);
-	 SlotLayout[primSl][secSL][page]=device;
+	if (SlotLayout[primSl][secSl][page] == DummyDevice::instance()) {
+		PRT_DEBUG(device->getName() << "registers at "<<primSl<<" "<<secSl<<" "<<page);
+		SlotLayout[primSl][secSl][page] = device;
+	} else {
+		PRT_ERROR(device->getName() << " trying to register taken slot");
+	}
 }
 
 void MSXMotherBoard::ResetMSX()

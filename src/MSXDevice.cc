@@ -19,7 +19,7 @@ MSXDevice::MSXDevice()
 
 MSXDevice::~MSXDevice()
 {
-	PRT_DEBUG("destructing an MSXDevice object");
+	//PRT_DEBUG("Destructing an MSXDevice object");
 }
 
 // interaction with CPU
