@@ -6,9 +6,7 @@
 #include <sstream>
 #include "JoyNet.hh"
 #include "SettingsConfig.hh"
-#include "Config.hh"
 #include "CliCommOutput.hh"
-
 
 namespace openmsx {
 
@@ -68,18 +66,18 @@ void JoyNet::write(byte value, const EmuTime& time)
 
 void JoyNet::setupConnections()
 {
-	Config* config = SettingsConfig::instance().findConfigById("joynet");
+	const XMLElement* config = SettingsConfig::instance().findConfigById("joynet");
 	if (!config) {
 		return;
 	}
 
-	hostname = config->getParameter("connecthost");
-	portname = config->getParameterAsInt("connectport");
-	int listenport = config->getParameterAsInt("listenport");
+	hostname = config->getChildData("connecthost");
+	portname = config->getChildDataAsInt("connectport");
+	int listenport = config->getChildDataAsInt("listenport");
 	// setup  tcp stream with second (master) msx and listerenr for third (slave) msx
 
 	//first listener in case the connect wants to talk to it's own listener
-	if (config->getParameterAsBool("startlisten")) {
+	if (config->getChildDataAsBool("startlisten")) {
 		listener = new ConnectionListener(listenport, &status);
 	}
 	// Currently done when first write is tried

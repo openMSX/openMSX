@@ -12,9 +12,7 @@
 
 namespace openmsx {
 
-class FileContext;
 class CassetteImage;
-
 
 class MSXCassettePlayerCLI : public CLIOption, public CLIFileType
 {
@@ -35,7 +33,7 @@ public:
 	CassettePlayer();
 	virtual ~CassettePlayer();
 
-	void insertTape(FileContext& context, const string& filename);
+	void insertTape(const string& filename);
 	void removeTape();
 
 	// CassetteDevice

@@ -3,16 +3,16 @@
 #include "MSXMoonSound.hh"
 #include "YMF262.hh"
 #include "YMF278.hh"
-#include "Config.hh"
+#include "xmlx.hh"
 #include "Mixer.hh"
 
 namespace openmsx {
 
-MSXMoonSound::MSXMoonSound(Config* config, const EmuTime& time)
+MSXMoonSound::MSXMoonSound(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
-	short volume = (short)deviceConfig->getParameterAsInt("volume");
-	int ramSize = config->getParameterAsInt("sampleram", 512); // size in kb
+	short volume = config.getChildDataAsInt("volume");
+	int ramSize = config.getChildDataAsInt("sampleram", 512); // size in kb
 
 	ymf262 = new YMF262(volume, time);
 	ymf278 = new YMF278(volume, ramSize, config, time);

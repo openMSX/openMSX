@@ -12,7 +12,7 @@ class Ram;
 class MSXRam : public MSXMemDevice
 {
 public:
-	MSXRam(Config* config, const EmuTime& time);
+	MSXRam(const XMLElement& config, const EmuTime& time);
 	virtual ~MSXRam();
 	
 	virtual void reset(const EmuTime& time);

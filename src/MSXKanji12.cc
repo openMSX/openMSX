@@ -7,7 +7,7 @@ namespace openmsx {
 
 const byte ID = 0xF7;
 
-MSXKanji12::MSXKanji12(Config* config, const EmuTime& time)
+MSXKanji12::MSXKanji12(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXSwitchedDevice(ID),
 	  rom(getName(), "Kanji-12 ROM", config)
 {

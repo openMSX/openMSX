@@ -20,6 +20,8 @@ using std::ostringstream;
 namespace openmsx
 {
 
+class FileContext;
+
 class XMLException: public MSXException
 {
 public:
@@ -31,8 +33,12 @@ class XMLElement
 {
 public:
 	XMLElement(const string& name, const string& data = "");
+	XMLElement(const XMLElement& element);
 	~XMLElement();
 
+	XMLElement* getParent();
+	const XMLElement* getParent() const;
+	
 	void addChild(auto_ptr<XMLElement> child);
 	void addAttribute(const string& name, const string& value);
 	
@@ -43,13 +49,22 @@ public:
 	const Children& getChildren() const { return children; }
 	void getChildren(const string& name, Children& result) const;
 	const XMLElement* getChild(const string& name) const;
+	
 	const string& getChildData(const string& name) const;
+	string getChildData(const string& name,
+	                    const string& defaultValue) const;
+	bool getChildDataAsBool(const string& name,
+	                        bool defaultValue = false) const;
+	int getChildDataAsInt(const string& name,
+	                      int defaultValue = 0) const;
 	
 	typedef map<string, string> Attributes;
 	const Attributes& getAttributes() const { return attributes; }
 	const string& getAttribute(const string& attName) const;
 	
-	XMLElement(const XMLElement& element);
+	void setFileContext(auto_ptr<FileContext> context);
+	FileContext& getFileContext() const;
+	
 	const XMLElement& operator=(const XMLElement& element);
 
 protected:
@@ -62,6 +77,8 @@ private:
 	string data;
 	Children children;
 	Attributes attributes;
+	XMLElement* parent;
+	auto_ptr<FileContext> context;
 };
 
 

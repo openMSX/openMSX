@@ -8,7 +8,6 @@
 #include "FileContext.hh"
 #include "File.hh"
 #include "SettingsConfig.hh"
-#include "Config.hh"
 #include "openmsx.hh"
 #include "CliCommOutput.hh"
 #include "Interpreter.hh"

@@ -2,15 +2,15 @@
  
 #include "StringOp.hh"
 #include "MSXCPUInterface.hh"
-#include "Config.hh"
 #include "MSXMemDevice.hh"
+#include "xmlx.hh"
 
 namespace openmsx {
 
 byte MSXMemDevice::unmappedRead[0x10000];
 byte MSXMemDevice::unmappedWrite[0x10000];
 
-MSXMemDevice::MSXMemDevice(Config* config, const EmuTime& time)
+MSXMemDevice::MSXMemDevice(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time)
 {
 	init();
@@ -76,7 +76,7 @@ void MSXMemDevice::registerSlots()
 	int ss = 0;
 	int pages = 0;
 	
-	const XMLElement::Children& children = deviceConfig->getChildren();
+	const XMLElement::Children& children = deviceConfig.getChildren();
 	for (XMLElement::Children::const_iterator it = children.begin();
 	     it != children.end(); ++it) {
 		if ((*it)->getName() == "slotted") {

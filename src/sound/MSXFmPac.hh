@@ -11,7 +11,7 @@ namespace openmsx {
 class MSXFmPac : public MSXMusic
 {
 public:
-	MSXFmPac(Config* config, const EmuTime& time);
+	MSXFmPac(const XMLElement& config, const EmuTime& time);
 	virtual ~MSXFmPac(); 
 	
 	virtual void reset(const EmuTime& time);

@@ -2,7 +2,6 @@
 
 #include "OSDConsoleRenderer.hh"
 #include "SettingsConfig.hh"
-#include "Config.hh"
 #include "CommandConsole.hh"
 #include "File.hh"
 #include "FileContext.hh"
@@ -77,17 +76,18 @@ OSDConsoleRenderer::OSDConsoleRenderer(Console& console_)
 	string tempconfig = console.getId();
 	tempconfig[0] = ::toupper(tempconfig[0]);
 	
-	Config* config = SettingsConfig::instance().findConfigById(tempconfig);
+	const XMLElement* config = SettingsConfig::instance().findConfigById(tempconfig);
 	if (config) {
-		context = config->getContext().clone();
+		FileContext& context = config->getFileContext();
 		if (initsDone.find(tempconfig) == initsDone.end()) {
 			initsDone.insert(tempconfig);
 			initiated = false;
 		}
 		try {
-			if (!initiated && config->hasParameter("font")) {
-				string fontName = config->getParameter("font");
-				fontName = context->resolve(fontName);
+			const XMLElement* fontElem = config->getChild("font");
+			if (!initiated && fontElem) {
+				string fontName = fontElem->getData();
+				fontName = context.resolve(fontName);
 				console.setFont(fontName);
 			}
 		} catch (FileException& e) {
@@ -95,17 +95,15 @@ OSDConsoleRenderer::OSDConsoleRenderer(Console& console_)
 		}
 
 		try {
-			if (!initiated && config->hasParameter("background")) {
-				string backgroundName = config->getParameter("background");
-				backgroundName = context->resolve(backgroundName);
+			const XMLElement* backgroundElem = config->getChild("background");
+			if (!initiated && backgroundElem) {
+				string backgroundName = backgroundElem->getData();
+				backgroundName = context.resolve(backgroundName);
 				console.setBackground(backgroundName);
 			}
 		} catch (FileException& e) {
 			// nothing
 		}
-	} else {
-		// no Console section
-		context = new SystemFileContext();
 	}
 
 	initiated = true;
@@ -132,7 +130,6 @@ OSDConsoleRenderer::~OSDConsoleRenderer()
 	delete consolePlacementSetting;
  	delete consoleRowsSetting;
 	delete consoleColumnsSetting;
-	delete context;
 }
 
 void OSDConsoleRenderer::setBackgroundName(const string& name)
@@ -172,17 +169,17 @@ void OSDConsoleRenderer::initConsoleSize()
 		int columns = (((screen->w - CHAR_BORDER) / font->getWidth()) * 30) / 32;
 		int rows = ((screen->h / font->getHeight()) * 6) / 15;
 
-		Config* config = SettingsConfig::instance().findConfigById(tempconfig);
+		string placementString = "bottom";
+		const XMLElement* config = SettingsConfig::instance().findConfigById(tempconfig);
 		if (config) {
-			columns = config->getParameterAsInt("columns", columns);
-			rows    = config->getParameterAsInt("rows",    rows);
+			columns = config->getChildDataAsInt("columns", columns);
+			rows    = config->getChildDataAsInt("rows",    rows);
+			placementString = config->getChildData("placement", placementString);
 		}
 		
 		console.setColumns(columns);
 		console.setRows(rows);
 		
-		string placementString;
-		placementString = config->getParameter("placement", "bottom");
 		PlaceMap::const_iterator it = placeMap.find(placementString);
 		Console::Placement consolePlacement;
 		if (it != placeMap.end()) {

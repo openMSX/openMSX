@@ -7,14 +7,13 @@
 #include "I8255.hh"
 #include "SRAM.hh"
 
-
 namespace openmsx {
 
 class MSXHBI55 : public MSXIODevice, public I8255Interface
 {
 // MSXDevice
 public:
-	MSXHBI55(Config* config, const EmuTime& time); 
+	MSXHBI55(const XMLElement& config, const EmuTime& time); 
 	virtual ~MSXHBI55(); 
 
 	virtual void reset(const EmuTime& time);

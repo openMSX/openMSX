@@ -16,7 +16,7 @@ namespace openmsx {
 class MSXS1990 : public MSXIODevice
 {
 public:
-	MSXS1990(Config* config, const EmuTime& time);
+	MSXS1990(const XMLElement& config, const EmuTime& time);
 	virtual ~MSXS1990();
 
 	virtual void reset(const EmuTime& time);

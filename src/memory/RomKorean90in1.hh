@@ -11,7 +11,7 @@ namespace openmsx {
 class RomKorean90in1 : public Rom8kBBlocks, public MSXIODevice
 {
 public:
-	RomKorean90in1(Config* config, const EmuTime& time, auto_ptr<Rom> rom);
+	RomKorean90in1(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom);
 	virtual ~RomKorean90in1();
 	
 	virtual void reset(const EmuTime& time);

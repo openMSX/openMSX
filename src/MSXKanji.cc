@@ -6,7 +6,7 @@
 
 namespace openmsx {
 
-MSXKanji::MSXKanji(Config* config, const EmuTime& time)
+MSXKanji::MSXKanji(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
 	  rom(getName(), "Kanji ROM", config)
 {

@@ -6,7 +6,7 @@
 
 namespace openmsx {
 
-MSXMidi::MSXMidi(Config* config, const EmuTime& time)
+MSXMidi::MSXMidi(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 	, MidiInConnector("msx-midi-in")
 	, timerIRQlatch(false), timerIRQenabled(false)

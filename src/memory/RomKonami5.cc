@@ -14,17 +14,18 @@
 //  bank 4: 0xB000 - 0xB7ff (0xB000 used)
 
 #include "RomKonami5.hh"
-#include "Config.hh"
+#include "xmlx.hh"
 #include "SCC.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
+#include "Rom.hh"
 
 namespace openmsx {
 
-RomKonami5::RomKonami5(Config* config, const EmuTime& time, auto_ptr<Rom> rom)
+RomKonami5::RomKonami5(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
-	short volume = (short)config->getParameterAsInt("volume");
+	short volume = config.getChildDataAsInt("volume");
 	scc = new SCC(getName(), volume, time);
 	
 	reset(time);

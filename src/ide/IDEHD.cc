@@ -4,7 +4,7 @@
 #include "IDEHD.hh"
 #include "File.hh"
 #include "FileContext.hh"
-#include "Config.hh"
+#include "xmlx.hh"
 #include "Leds.hh"
 
 
@@ -46,14 +46,14 @@ byte IDEHD::identifyBlock[512] = {
 };
 
 
-IDEHD::IDEHD(Config* config, const EmuTime& time)
+IDEHD::IDEHD(const XMLElement& config, const EmuTime& time)
 {
 	buffer = new byte[512 * 256];
 
-	const string& filename = config->getParameter("filename");
-	file = new File(config->getContext().resolveCreate(filename), CREATE);
+	const string& filename = config.getChildData("filename");
+	file = new File(config.getFileContext().resolveCreate(filename), CREATE);
 	
-	unsigned wantedSize = config->getParameterAsInt("size");	// in MB
+	unsigned wantedSize = config.getChildDataAsInt("size");	// in MB
 	wantedSize *= 1024 * 1024;
 	unsigned fileSize = file->getSize();
 	if (wantedSize > fileSize) {

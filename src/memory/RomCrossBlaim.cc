@@ -1,11 +1,12 @@
 // $Id$
 
 #include "RomCrossBlaim.hh"
+#include "Rom.hh"
 #include "CPU.hh"
 
 namespace openmsx {
 
-RomCrossBlaim::RomCrossBlaim(Config* config, const EmuTime& time, auto_ptr<Rom> rom)
+RomCrossBlaim::RomCrossBlaim(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom)
 	: MSXDevice(config, time), Rom16kBBlocks(config, time, rom)
 {
 	reset(time);

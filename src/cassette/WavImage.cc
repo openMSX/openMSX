@@ -1,17 +1,15 @@
 // $Id$
 
 #include "WavImage.hh"
-#include "FileContext.hh"
 #include "File.hh"
 #include "EmuTime.hh"
 
-
 namespace openmsx {
 
-WavImage::WavImage(FileContext& context, const string& fileName)
+WavImage::WavImage(const string& fileName)
 	: length(0), buffer(0), freq(44100)
 {
-	File file(context.resolve(fileName));
+	File file(fileName);
 	const char* name = file.getLocalName().c_str();
 	
 	SDL_AudioSpec wavSpec;

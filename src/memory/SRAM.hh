@@ -7,21 +7,21 @@
 
 namespace openmsx {
 
-class Config;
+class XMLElement;
 
 class SRAM : public Ram
 {
 public:
 	SRAM(const string& name, int size,
-	     Config* config, const char* header = NULL);
+	     const XMLElement& config, const char* header = NULL);
 	SRAM(const string& name, const string& description, int size,
-	     Config* config, const char* header = NULL);
+	     const XMLElement& config, const char* header = NULL);
 	virtual ~SRAM();
 
 private:
 	void init();
 	
-	Config* config;
+	const XMLElement& config;
 	const char* header;
 };
 

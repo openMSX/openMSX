@@ -12,7 +12,7 @@ namespace openmsx {
 class MSXMegaRam : public MSXMemDevice, public MSXIODevice
 {
 public:
-	MSXMegaRam(Config* config, const EmuTime& time);
+	MSXMegaRam(const XMLElement& config, const EmuTime& time);
 	virtual ~MSXMegaRam();
 	
 	virtual void reset(const EmuTime& time);

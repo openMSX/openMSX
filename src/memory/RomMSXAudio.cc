@@ -3,10 +3,11 @@
 #include "RomMSXAudio.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
+#include "Rom.hh"
 
 namespace openmsx {
 
-RomMSXAudio::RomMSXAudio(Config* config, const EmuTime& time, auto_ptr<Rom> rom)
+RomMSXAudio::RomMSXAudio(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom)
 	: MSXDevice(config, time), MSXRom(config, time, rom),
 	  ram(getName() + " RAM", "MSX-AUDIO mapped RAM", 0x1000)
 {

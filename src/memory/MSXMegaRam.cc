@@ -25,18 +25,18 @@
  */
 
 #include "MSXMegaRam.hh"
-#include "Config.hh"
+#include "xmlx.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
 
 
 namespace openmsx {
 
-MSXMegaRam::MSXMegaRam(Config* config, const EmuTime& time)
+MSXMegaRam::MSXMegaRam(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time),
 	  MSXIODevice(config, time)
 {
-	int size = config->getParameterAsInt("size");
+	int size = config.getChildDataAsInt("size");
 	int blocks = size / 8;	// 8kb blocks
 	maxBlock = blocks - 1;
 	ram = new Ram(getName(), "Mega-RAM", blocks * 0x2000);

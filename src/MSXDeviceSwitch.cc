@@ -2,7 +2,7 @@
 
 #include "MSXDeviceSwitch.hh"
 #include "EmuTime.hh"
-#include "Config.hh"
+#include "xmlx.hh"
 #include "FileContext.hh"
 
 namespace openmsx {
@@ -23,10 +23,10 @@ MSXSwitchedDevice::~MSXSwitchedDevice()
 
 /// class MSXDeviceSwitch ///
 
-MSXDeviceSwitch::MSXDeviceSwitch(Config *config, const EmuTime &time)
+MSXDeviceSwitch::MSXDeviceSwitch(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
-	for (int i = 0; i < 256; i++) {
+	for (int i = 0; i < 256; ++i) {
 		devices[i] = NULL;
 	}
 	selected = 0;
@@ -45,12 +45,15 @@ MSXDeviceSwitch::~MSXDeviceSwitch()
 
 MSXDeviceSwitch& MSXDeviceSwitch::instance()
 {
-	XMLElement deviceElem("DeviceSwitch");
-	deviceElem.addChild(
-		auto_ptr<XMLElement>(new XMLElement("type", "DeviceSwitch")));
-	SystemFileContext dummyContext;
-	static Config config(deviceElem, dummyContext);
-	static MSXDeviceSwitch oneInstance(&config, EmuTime::zero);
+	static XMLElement config("DeviceSwitch");
+	static bool init = false;
+	if (!init) {
+		init = true;
+		config.addChild(
+			auto_ptr<XMLElement>(new XMLElement("type", "DeviceSwitch")));
+		config.setFileContext(auto_ptr<FileContext>(new SystemFileContext()));
+	}
+	static MSXDeviceSwitch oneInstance(config, EmuTime::zero);
 	return oneInstance;
 }
 

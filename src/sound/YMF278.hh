@@ -68,7 +68,7 @@ public:
 class YMF278 : private SoundDevice
 {
 public:
-	YMF278(short volume, int ramSize, Config* config,
+	YMF278(short volume, int ramSize, const XMLElement& config,
 	       const EmuTime& time);
 	virtual ~YMF278();
 	void reset(const EmuTime& time);

@@ -11,7 +11,7 @@ namespace openmsx {
 class MSXMemDevice : virtual public MSXDevice
 {
 public:
-	MSXMemDevice(Config* config, const EmuTime& time);
+	MSXMemDevice(const XMLElement& config, const EmuTime& time);
 	virtual ~MSXMemDevice() = 0;
 	
 	/**

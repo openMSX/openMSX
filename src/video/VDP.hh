@@ -79,12 +79,7 @@ public:
 	  */
 	static const int TICKS_PER_LINE = 1368;
 
-	/** Constructor.
-	  */
-	VDP(Config *config, const EmuTime &time);
-
-	/** Destructor.
-	  */
+	VDP(const XMLElement& config, const EmuTime &time);
 	virtual ~VDP();
 
 	// mainlife cycle of an MSXDevice

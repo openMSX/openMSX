@@ -10,7 +10,7 @@ namespace openmsx {
 class MC6850 : public MSXIODevice
 {
 public:
-	MC6850(Config* config, const EmuTime& time);
+	MC6850(const XMLElement& config, const EmuTime& time);
 	virtual ~MC6850(); 
 	
 	virtual void reset(const EmuTime& time);

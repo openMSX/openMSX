@@ -19,7 +19,7 @@ namespace openmsx {
 class MSXTurboRPause : public MSXIODevice
 {
 public:
-	MSXTurboRPause(Config *config, const EmuTime& time);
+	MSXTurboRPause(const XMLElement& config, const EmuTime& time);
 	virtual ~MSXTurboRPause();
 
 	virtual void reset(const EmuTime& time);

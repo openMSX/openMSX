@@ -12,7 +12,7 @@ class Y8950;
 class MSXAudio : public MSXIODevice
 {
 public:
-	MSXAudio(Config* config, const EmuTime& time);
+	MSXAudio(const XMLElement& config, const EmuTime& time);
 	virtual ~MSXAudio();
 
 	virtual void reset(const EmuTime& time);

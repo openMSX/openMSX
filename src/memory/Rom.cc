@@ -2,7 +2,7 @@
 
 #include <string>
 #include <sstream>
-#include "Config.hh"
+#include "xmlx.hh"
 #include "Rom.hh"
 #include "RomInfo.hh"
 #include "MSXDiskRomPatch.hh"
@@ -20,12 +20,12 @@
 
 namespace openmsx {
 
-Rom::Rom(const string& name_, const string& description_, Config* config)
+Rom::Rom(const string& name_, const string& description_, const XMLElement& config)
 	: name(name_), description(description_)
 {
 	string filename;
 	XMLElement::Children sums;
-	config->getChildren("sha1", sums);
+	config.getChildren("sha1", sums);
 	for (XMLElement::Children::const_iterator it = sums.begin();
 	     it != sums.end(); ++it) {
 		const string& sha1 = (*it)->getData();
@@ -36,15 +36,18 @@ Rom::Rom(const string& name_, const string& description_, Config* config)
 		}
 	}
 	
-	if (filename.empty() && config->hasParameter("filename")) {
-		filename = config->getParameter("filename");
+	if (filename.empty()) {
+		const XMLElement* filenameElem = config.getChild("filename");
+		if (filenameElem) {
+			filename = filenameElem->getData();
+		}
 	}
 
 	if (!filename.empty()) {
 		read(config, filename);
-	} else if (config->hasParameter("firstblock")) {
-		int first = config->getParameterAsInt("firstblock");
-		int last  = config->getParameterAsInt("lastblock");
+	} else if (config.getChild("firstblock")) {
+		int first = config.getChildDataAsInt("firstblock");
+		int last  = config.getChildDataAsInt("lastblock");
 		size = (last - first + 1) * 0x2000;
 		rom = PanasonicMemory::instance().getRomBlock(first);
 		file = NULL;
@@ -54,40 +57,37 @@ Rom::Rom(const string& name_, const string& description_, Config* config)
 		size = 0;
 		file = NULL;
 	}
-	init(*config);
+	init(config);
 }
 
-Rom::Rom(const string& name_, const string& description_, Config* config,
+Rom::Rom(const string& name_, const string& description_, const XMLElement& config,
          const string& filename)
 	: name(name_), description(description_)
 {
 	read(config, filename);	// TODO config
-	init(*config);
+	init(config);
 }
 
-void Rom::read(Config* config, const string& filename)
+void Rom::read(const XMLElement& config, const string& filename)
 {
 	// open file
 	try {
-		file = new File(config->getContext().resolve(filename));
+		file = new File(config.getFileContext().resolve(filename));
 	} catch (FileException& e) {
 		throw FatalError("Error reading ROM: " + filename);
 	}
 	
 	// get filesize
 	int fileSize;
-	if (config && config->hasParameter("filesize") &&
-	    config->getParameter("filesize") != "auto") {
-		fileSize = config->getParameterAsInt("filesize");
-	} else {
+	string fileSizeStr = config.getChildData("filesize", "auto");
+	if (fileSizeStr == "auto") {
 		fileSize = file->getSize();
+	} else {
+		fileSize = StringOp::stringToInt(fileSizeStr);
 	}
 	
 	// get offset
-	int offset = 0;
-	if (config && config->hasParameter("skip_headerbytes")) {
-		offset = config->getParameterAsInt("skip_headerbytes");
-	}
+	int offset = config.getChildDataAsInt("skip_headerbytes", 0);
 	if (fileSize <= offset) {
 		throw FatalError("Offset greater than filesize");
 	}
@@ -103,19 +103,17 @@ void Rom::read(Config* config, const string& filename)
 	}
 
 	// verify SHA1
-	if (config && !checkSHA1(*config)) {
+	if (!checkSHA1(config)) {
 		CliCommOutput::instance().printWarning(
-			"SHA1 sum for '" + config->getId() +
+			"SHA1 sum for '" + config.getAttribute("id") +
 			"' does not match with sum of '" + filename +
 			"'.");
 	}
 	
-	if (config) {
-		patch(*config);
-	}
+	patch(config);
 }
 
-bool Rom::checkSHA1(const Config& config)
+bool Rom::checkSHA1(const XMLElement& config)
 {
 	const string& sha1sum = getSHA1Sum();
 	XMLElement::Children sums;
@@ -132,13 +130,13 @@ bool Rom::checkSHA1(const Config& config)
 	return false;
 }
 
-void Rom::patch(const Config& config)
+void Rom::patch(const XMLElement& config)
 {
 	// for each patchcode parameter, construct apropriate patch
 	// object and register it at MSXCPUInterface
-	Config::Children patchCodes;
+	XMLElement::Children patchCodes;
 	config.getChildren("patchcode", patchCodes);
-	for (Config::Children::const_iterator it = patchCodes.begin();
+	for (XMLElement::Children::const_iterator it = patchCodes.begin();
 	     it != patchCodes.end(); ++it) {
 		MSXRomPatchInterface* patchInterface;
 		string name = (*it)->getData();
@@ -155,9 +153,9 @@ void Rom::patch(const Config& config)
 	
 	// also patch the file if needed:
 	byte* tmp = const_cast<byte*>(rom);
-	Config::Children patches;
+	XMLElement::Children patches;
 	config.getChildren("patch", patches);
-	for (Config::Children::const_iterator it = patches.begin();
+	for (XMLElement::Children::const_iterator it = patches.begin();
 	     it != patches.end(); ++it) {
 		unsigned addr = StringOp::stringToInt((*it)->getAttribute("addr"));
 		unsigned val  = StringOp::stringToInt((*it)->getAttribute("val"));
@@ -170,7 +168,7 @@ void Rom::patch(const Config& config)
 	}
 }
 
-void Rom::init(const Config& config)
+void Rom::init(const XMLElement& config)
 {
 	info = RomInfo::fetchRomInfo(*this, config);
 

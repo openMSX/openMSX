@@ -14,7 +14,7 @@ class MSXPSG : public MSXIODevice, public AY8910Interface
 {
 // MSXDevice
 public:
-	MSXPSG(Config *config, const EmuTime& time);
+	MSXPSG(const XMLElement& config, const EmuTime& time);
 	virtual ~MSXPSG();
 
 	virtual void reset(const EmuTime& time);

@@ -6,16 +6,16 @@
 #include "MSXCPU.hh"
 #include "CPU.hh"
 #include "HardwareConfig.hh"
-#include "Config.hh"
 
 namespace openmsx {
 
-MSXMapperIO::MSXMapperIO(Config* config, const EmuTime& time)
+MSXMapperIO::MSXMapperIO(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
-	Config* typeConfig = HardwareConfig::instance().findConfigById("MapperType");
+	const XMLElement* typeConfig =
+		HardwareConfig::instance().findConfigById("MapperType");
 	if (typeConfig) {
-		const string& type = typeConfig->getParameter("type");
+		const string& type = typeConfig->getChildData("type");
 		if (type == "TurboR") {
 			mapperMask = new MSXMapperIOTurboR();
 		} else if (type == "Philips") {

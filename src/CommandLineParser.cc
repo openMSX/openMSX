@@ -8,7 +8,6 @@
 #include "CommandLineParser.hh"
 #include "HardwareConfig.hh"
 #include "SettingsConfig.hh"
-#include "Config.hh"
 #include "CartridgeSlotManager.hh"
 #include "File.hh"
 #include "FileContext.hh"
@@ -20,6 +19,7 @@
 #include "CassettePlayer.hh"
 #include "MSXTapePatch.hh"
 #include "DiskImageCLI.hh"
+#include "ConfigException.hh"
 
 namespace openmsx {
 
@@ -98,13 +98,13 @@ void CommandLineParser::registerFileClass(const string &str,
 
 void CommandLineParser::postRegisterFileTypes()
 {
-	Config* config = settingsConfig.findConfigById("FileTypes");
+	const XMLElement* config = settingsConfig.findConfigById("FileTypes");
 	if (config) {
 		for (FileClassMap::const_iterator i = fileClassMap.begin();
 		     i != fileClassMap.end(); ++i) {
-			Config::Children extensions;
+			XMLElement::Children extensions;
 			config->getChildren(i->first, extensions);
-			for (Config::Children::const_iterator j = extensions.begin();
+			for (XMLElement::Children::const_iterator j = extensions.begin();
 			     j != extensions.end(); ++j) {
 				fileTypeMap[(*j)->getData()] = i->second;
 			}
@@ -209,11 +209,11 @@ void CommandLineParser::parse(int argc, char **argv)
 		case 5:
 			if (!issuedHelp && !haveConfig) {
 				// load default config file in case the user didn't specify one
-				string machine("default");
-				Config* machineConfig =
+				string machine = "default";
+				const XMLElement* machineConfig =
 					settingsConfig.findConfigById("DefaultMachine");
-				if (machineConfig && machineConfig->hasParameter("machine")) {
-					machine = machineConfig->getParameter("machine");
+				if (machineConfig) {
+					machine = machineConfig->getChildData("machine", machine);
 					output.printInfo("Using default machine: " + machine);
 				}
 				try {

@@ -4,13 +4,13 @@
 #include "RomTypes.hh"
 #include "MSXCPU.hh"
 #include "File.hh"
-#include "Config.hh"
+#include "Rom.hh"
 
 namespace openmsx {
 
 MSXCPU *MSXRom::cpu;
 
-MSXRom::MSXRom(Config* config, const EmuTime& time, auto_ptr<Rom> rom_)
+MSXRom::MSXRom(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom_)
 	: MSXDevice(config, time), MSXMemDevice(config, time),
 	  rom(rom_)
 {

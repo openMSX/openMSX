@@ -2,7 +2,7 @@
 
 #include <cassert>
 #include "MSXRS232.hh"
-#include "Config.hh"
+#include "xmlx.hh"
 #include "Ram.hh"
 
 namespace openmsx {
@@ -10,7 +10,7 @@ namespace openmsx {
 const unsigned RAM_OFFSET = 0x2000;
 const unsigned RAM_SIZE = 0x800;
 	
-MSXRS232::MSXRS232(Config* config, const EmuTime& time)
+MSXRS232::MSXRS232(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time)
 	, MSXIODevice(config, time)
 	, MSXMemDevice(config, time)
@@ -23,7 +23,7 @@ MSXRS232::MSXRS232(Config* config, const EmuTime& time)
 	, i8251(&interf, time)
 	, rom(MSXDevice::getName() + " ROM", "rom", config)
 {
-	if (config->getParameterAsBool("ram", false)) {
+	if (config.getChildDataAsBool("ram", false)) {
 		ram = new Ram(MSXDevice::getName() + " RAM", "RS232 RAM", RAM_SIZE);
 	} else {
 		ram = NULL;

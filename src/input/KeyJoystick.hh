@@ -6,7 +6,6 @@
 #include "JoystickDevice.hh"
 #include "EventListener.hh"
 #include "Keys.hh"
-#include "Config.hh"
 
 namespace openmsx {
 
@@ -30,8 +29,6 @@ public:
 	virtual bool signalEvent(const Event& event);
 
 private:
-	Keys::KeyCode getConfigKeyCode(const string& keyname, const Config* config);
-
 	byte status;
 
 	Keys::KeyCode upKey;

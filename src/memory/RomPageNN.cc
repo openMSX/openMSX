@@ -1,10 +1,11 @@
 // $Id$
 
 #include "RomPageNN.hh"
+#include "Rom.hh"
 
 namespace openmsx {
 
-RomPageNN::RomPageNN(Config* config, const EmuTime& time, auto_ptr<Rom> rom, byte pages)
+RomPageNN::RomPageNN(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom, byte pages)
 	: MSXDevice(config, time), Rom16kBBlocks(config, time, rom)
 {
 	int bank = 0;

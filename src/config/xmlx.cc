@@ -1,11 +1,13 @@
 // $Id$
 
 #include <cassert>
+#include "StringOp.hh"
+#include "FileContext.hh"
 #include "xmlx.hh"
 
 namespace openmsx {
 
-static string EMPTY;
+static const string EMPTY;
 
 
 // class XMLException
@@ -19,17 +21,25 @@ XMLException::XMLException(const string& msg)
 // class XMLElement
 
 XMLElement::XMLElement()
+	: parent(NULL)
 {
 }
 
 XMLElement::XMLElement(xmlNodePtr node)
+	: parent(NULL)
 {
 	init(node);
 }
 
 XMLElement::XMLElement(const string& name_, const string& data_)
-	: name(name_), data(data_)
+	: name(name_), data(data_), parent(NULL)
 {
+}
+
+XMLElement::XMLElement(const XMLElement& element)
+	: parent(NULL)
+{
+	*this = element;
 }
 
 void XMLElement::init(xmlNodePtr node)
@@ -41,7 +51,7 @@ void XMLElement::init(xmlNodePtr node)
 			data += (const char*)x->content;
 			break;
 		case XML_ELEMENT_NODE:
-			children.push_back(new XMLElement(x));
+			addChild(auto_ptr<XMLElement>(new XMLElement(x)));
 			break;
 		default:
 			// ignore
@@ -71,9 +81,21 @@ XMLElement::~XMLElement()
 	}
 }
 
+XMLElement* XMLElement::getParent()
+{
+	return parent;
+}
+
+const XMLElement* XMLElement::getParent() const
+{
+	return parent;
+}
+
 void XMLElement::addChild(auto_ptr<XMLElement> child)
 {
 	assert(child.get());
+	assert(!child->getParent());
+	child->parent = this;
 	children.push_back(child.release());
 }
 
@@ -110,6 +132,25 @@ const string& XMLElement::getChildData(const string& name) const
 	return child ? child->getData() : EMPTY;
 }
 
+string XMLElement::getChildData(const string& name,
+                                const string& defaultValue) const
+{
+	const XMLElement* child = getChild(name);
+	return child ? child->getData() : defaultValue;
+}
+
+bool XMLElement::getChildDataAsBool(const string& name, bool defaultValue) const
+{
+	const XMLElement* child = getChild(name);
+	return child ? StringOp::stringToBool(child->getData()) : defaultValue;
+}
+
+int XMLElement::getChildDataAsInt(const string& name, int defaultValue) const
+{
+	const XMLElement* child = getChild(name);
+	return child ? StringOp::stringToInt(child->getData()) : defaultValue;
+}
+
 const string& XMLElement::getAttribute(const string& attName) const
 {
 	Attributes::const_iterator it = attributes.find(attName);
@@ -120,9 +161,14 @@ const string& XMLElement::getAttribute(const string& attName) const
 	}
 }
 
-XMLElement::XMLElement(const XMLElement& element)
+void XMLElement::setFileContext(auto_ptr<FileContext> context_)
 {
-	*this = element;
+	context = context_;
+}
+
+FileContext& XMLElement::getFileContext() const
+{
+	return context.get() ? *context.get() : getParent()->getFileContext();
 }
 
 const XMLElement& XMLElement::operator=(const XMLElement& element)
@@ -141,7 +187,7 @@ const XMLElement& XMLElement::operator=(const XMLElement& element)
 	children.clear();
 	for (Children::const_iterator it = element.children.begin();
 	     it != element.children.end(); ++it) {
-		children.push_back(new XMLElement(**it));
+		addChild(auto_ptr<XMLElement>(new XMLElement(**it)));
 	}
 	return *this;
 }
@@ -184,7 +230,6 @@ const XMLDocument& XMLDocument::operator=(const XMLDocument& document)
 	this->XMLElement::operator=(document);
 	return *this;
 }
-
 
 
 string XMLEscape(const string& str)

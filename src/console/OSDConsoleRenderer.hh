@@ -17,7 +17,6 @@ using std::string;
 namespace openmsx {
 
 class OSDConsoleRenderer;
-class FileContext;
 class IntegerSetting;
 
 NON_INHERITABLE_PRE(BackgroundSetting)
@@ -79,7 +78,6 @@ protected:
 	IntegerSetting* consoleRowsSetting;
 	IntegerSetting* consoleColumnsSetting;
 	class Font* font;
-	FileContext* context;
 	bool blink;
 	unsigned lastBlinkTime;
 	unsigned lastCursorPosition;

@@ -3,7 +3,7 @@
 #include <cassert>
 #include "MSXMemoryMapper.hh"
 #include "MSXMapperIO.hh"
-#include "Config.hh"
+#include "xmlx.hh"
 #include "MSXCPUInterface.hh"
 #include "Debugger.hh"
 #include "FileContext.hh"
@@ -11,7 +11,7 @@
 namespace openmsx {
 
 unsigned MSXMemoryMapper::counter = 0;
-Config* MSXMemoryMapper::device = NULL;
+XMLElement* MSXMemoryMapper::config = NULL;
 MSXMapperIO* MSXMemoryMapper::mapperIO = NULL;
 
 // Inlined methods first, to make sure they are actually inlined
@@ -22,11 +22,11 @@ inline unsigned MSXMemoryMapper::calcAddress(word address) const
 	return (page << 14) | (address & 0x3FFF);
 }
 
-MSXMemoryMapper::MSXMemoryMapper(Config* config, const EmuTime& time)
+MSXMemoryMapper::MSXMemoryMapper(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time)
 {
-	slowDrainOnReset = deviceConfig->getParameterAsBool("slow_drain_on_reset", false);
-	int kSize = deviceConfig->getParameterAsInt("size");
+	slowDrainOnReset = deviceConfig.getChildDataAsBool("slow_drain_on_reset", false);
+	int kSize = deviceConfig.getChildDataAsInt("size");
 	if ((kSize % 16) != 0) {
 		ostringstream out;
 		out << "Mapper size is not a multiple of 16K: " << kSize;
@@ -50,14 +50,13 @@ MSXMemoryMapper::~MSXMemoryMapper()
 void MSXMemoryMapper::createMapperIO(const EmuTime& time)
 {
 	if (!counter) {
-		assert(!mapperIO && !device);
+		assert(!mapperIO && !config);
 
-		XMLElement deviceElem("MapperIO");
-		deviceElem.addChild(
+		config = new XMLElement("MapperIO");
+		config->addChild(
 			auto_ptr<XMLElement>(new XMLElement("type", "MapperIO")));
-		SystemFileContext dummyContext;
-		device = new Config(deviceElem, dummyContext);
-		mapperIO = new MSXMapperIO(device, time);
+		config->setFileContext(auto_ptr<FileContext>(new SystemFileContext()));
+		mapperIO = new MSXMapperIO(*config, time);
 	
 		MSXCPUInterface& cpuInterface = MSXCPUInterface::instance();
 		cpuInterface.register_IO_Out(0xFC, mapperIO);
@@ -76,9 +75,9 @@ void MSXMemoryMapper::destroyMapperIO()
 {
 	--counter;
 	if (!counter) {
-		assert(mapperIO && device);
+		assert(mapperIO && config);
 		delete mapperIO;
-		delete device;
+		delete config;
 	}
 }
 

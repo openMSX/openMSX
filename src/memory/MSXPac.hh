@@ -11,7 +11,7 @@ namespace openmsx {
 class MSXPac : public MSXMemDevice
 {
 public:
-	MSXPac(Config* config, const EmuTime& time);
+	MSXPac(const XMLElement& config, const EmuTime& time);
 	virtual ~MSXPac(); 
 	
 	virtual void reset(const EmuTime& time);

@@ -4,18 +4,18 @@
 #include "Leds.hh"
 #include "CassettePort.hh"
 #include "JoystickPort.hh"
-#include "Config.hh"
+#include "xmlx.hh"
 #include "RenShaTurbo.hh"
 
 namespace openmsx {
 
 // MSXDevice
-MSXPSG::MSXPSG(Config* config, const EmuTime& time)
+MSXPSG::MSXPSG(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
 	  cassette(CassettePortFactory::instance())
 {
-	keyLayoutBit = deviceConfig->getParameter("keyboardlayout", "") == "JIS";
-	short volume = (short)deviceConfig->getParameterAsInt("volume");
+	keyLayoutBit = deviceConfig.getChildData("keyboardlayout", "") == "JIS";
+	short volume = deviceConfig.getChildDataAsInt("volume");
 	ay8910 = new AY8910(*this, volume, time);
 
 	selectedPort = 0;

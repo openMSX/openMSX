@@ -1,6 +1,6 @@
 // $Id$
 
-#include "Config.hh"
+#include "xmlx.hh"
 #include "FDCFactory.hh"
 #include "PhilipsFDC.hh"
 #include "MicrosolFDC.hh"
@@ -10,9 +10,10 @@
 
 namespace openmsx {
 
-auto_ptr<MSXDevice> FDCFactory::create(Config* config, const EmuTime& time)
+auto_ptr<MSXDevice> FDCFactory::create(const XMLElement& config,
+                                       const EmuTime& time)
 {
-	const string& type = config->getParameter("fdc_type");
+	const string& type = config.getChildData("fdc_type");
 	if (type == "WD2793") {
 		return auto_ptr<MSXDevice>(new PhilipsFDC(config, time));
 	}

@@ -2,7 +2,6 @@
 
 #include "File.hh"
 #include "FDC_DirAsDSK.hh"
-#include "FileContext.hh"
 #include "CliCommOutput.hh"
 
 #include <algorithm>
@@ -176,10 +175,8 @@ string FDC_DirAsDSK::makeSimpleMSXFileName(const string& fullfilename)
 }
 
 
-FDC_DirAsDSK::FDC_DirAsDSK(FileContext &context, const string &fileName)
+FDC_DirAsDSK::FDC_DirAsDSK(const string& fileName)
 {
-	// TODO reolve fileName in given context
-	
 	// Here we create the fake diskimages based upon the files that can be
 	// found in the 'fileName' directory
 	PRT_DEBUG("Trying FDC_DirAsDSK image");

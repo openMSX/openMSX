@@ -13,6 +13,8 @@ using std::auto_ptr;
 
 namespace openmsx {
 
+class Rom;
+
 class MSXRom : public MSXMemDevice
 {
 public:
@@ -23,7 +25,7 @@ public:
 	virtual const string& getName() const;
 
 protected:
-	MSXRom(Config* config, const EmuTime& time, auto_ptr<Rom> rom);
+	MSXRom(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom);
 
 	const auto_ptr<Rom> rom;
 	static class MSXCPU* cpu;

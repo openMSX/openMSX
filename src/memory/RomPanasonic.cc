@@ -2,9 +2,10 @@
 
 #include "RomPanasonic.hh"
 #include "PanasonicMemory.hh"
-#include "Config.hh"
+#include "xmlx.hh"
 #include "SRAM.hh"
 #include "CPU.hh"
+#include "Rom.hh"
 
 namespace openmsx {
 
@@ -12,19 +13,19 @@ const int SRAM_BASE = 0x80;
 const int RAM_BASE  = 0x180;
 
 
-RomPanasonic::RomPanasonic(Config* config, const EmuTime& time, auto_ptr<Rom> rom_)
+RomPanasonic::RomPanasonic(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom_)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom_)
 {
 	PanasonicMemory::instance().registerRom(*rom);
 	
-	int sramSize = config->getParameterAsInt("sramsize", 0);
+	int sramSize = config.getChildDataAsInt("sramsize", 0);
 	if (sramSize) {
 		sram = new SRAM(getName() + " SRAM", sramSize * 1024, config);
 	} else {
 		sram = NULL;
 	}
 
-	if (config->getParameterAsBool("sram-mirrored", false)) {
+	if (config.getChildDataAsBool("sram-mirrored", false)) {
 		maxSRAMBank = SRAM_BASE + 8;
 	} else {
 		maxSRAMBank = SRAM_BASE + (sramSize / 8);

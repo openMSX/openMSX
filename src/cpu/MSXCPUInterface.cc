@@ -9,7 +9,6 @@
 #include "MSXCPU.hh"
 #include "Scheduler.hh"
 #include "HardwareConfig.hh"
-#include "Config.hh"
 #include "CartridgeSlotManager.hh"
 #include "VDPIODelay.hh"
 #include "Debugger.hh"
@@ -65,12 +64,12 @@ MSXCPUInterface::MSXCPUInterface()
 		visibleDevices[page] = 0;
 	}
 
-	Config::Children slots;
-	Config* config = hardwareConfig.findConfigById("MotherBoard");
+	XMLElement::Children slots;
+	const XMLElement* config = hardwareConfig.findConfigById("MotherBoard");
 	if (config) {
 		config->getChildren("slot", slots);
 	}
-	for (Config::Children::const_iterator it = slots.begin();
+	for (XMLElement::Children::const_iterator it = slots.begin();
 	     it != slots.end(); ++it) {
 		unsigned num = StringOp::stringToInt((*it)->getAttribute("num"));
 		bool expanded = StringOp::stringToBool((*it)->getAttribute("expanded"));

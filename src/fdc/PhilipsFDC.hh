@@ -11,7 +11,7 @@ namespace openmsx {
 class PhilipsFDC : public WD2793BasedFDC
 {
 public:
-	PhilipsFDC(Config* config, const EmuTime& time);
+	PhilipsFDC(const XMLElement& config, const EmuTime& time);
 	virtual ~PhilipsFDC();
 	
 	virtual void reset(const EmuTime& time);

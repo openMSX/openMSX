@@ -3,7 +3,6 @@
 #include "MSXTapePatch.hh"
 #include "CommandController.hh"
 #include "SettingsConfig.hh"
-#include "Config.hh"
 #include "xmlx.hh"
 #include "File.hh"
 #include "FileContext.hh"
@@ -32,13 +31,12 @@ const string& MSXCasCLI::optionHelp() const
 
 void MSXCasCLI::parseFileType(const string& filename)
 {
-	XMLElement config("config");
-	config.addAttribute("id", "cas");
-	config.addChild(
+	auto_ptr<XMLElement> config(new XMLElement("config"));
+	config->addAttribute("id", "cas");
+	config->addChild(
 		auto_ptr<XMLElement>(new XMLElement("filename", filename)));
-
 	UserFileContext context;
-	SettingsConfig::instance().loadConfig(config, context);
+	SettingsConfig::instance().loadConfig(context, config);
 }
 const string& MSXCasCLI::fileTypeHelp() const
 {
@@ -67,11 +65,11 @@ static const byte TapeHeader[8] = { 0x1F,0xA6,0xDE,0xBA,0xCC,0x13,0x7D,0x74 };
 MSXTapePatch::MSXTapePatch()
 {
 	SettingsConfig& conf = SettingsConfig::instance();
-	Config *config = conf.findConfigById("cas");
+	const XMLElement* config = conf.findConfigById("cas");
 	if (config) {
-		const string& filename = config->getParameter("filename");
+		const string& filename = config->getChildData("filename");
 		try {
-			insertTape(config->getContext(), filename);
+			insertTape(config->getFileContext().resolve(filename));
 		} catch (MSXException& e) {
 			throw FatalError("Couldn't load tape image: " + filename);
 		}
@@ -114,11 +112,11 @@ void MSXTapePatch::patch(CPU::CPURegs& R)
 	}
 }
 
-void MSXTapePatch::insertTape(FileContext& context, const string& filename)
+void MSXTapePatch::insertTape(const string& filename)
 {
 	ejectTape();
 	try {
-		file.reset(new File(context.resolve(filename)));
+		file.reset(new File(filename));
 	} catch (FileException &e) {
 		PRT_DEBUG("Loading file failed");
 	}
@@ -405,7 +403,7 @@ string MSXTapePatch::execute(const vector<string>& tokens)
 	} else {
 		result += "Changing tape\n";
 		UserFileContext context;
-		insertTape(context, tokens[1]);
+		insertTape(context.resolve(tokens[1]));
 		CliCommOutput::instance().update(CliCommOutput::MEDIA,
 		                                 "cas", tokens[1]);
 	}

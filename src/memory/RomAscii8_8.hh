@@ -12,8 +12,8 @@ class RomAscii8_8 : public Rom8kBBlocks
 {
 public:
 	enum SubType { ASCII8_8, KOEI_8, KOEI_32, WIZARDRY };
-	RomAscii8_8(Config* config, const EmuTime& time, auto_ptr<Rom> rom,
-	            SubType subType);
+	RomAscii8_8(const XMLElement& config, const EmuTime& time,
+	            auto_ptr<Rom> rom, SubType subType);
 	virtual ~RomAscii8_8();
 	
 	virtual void reset(const EmuTime& time);

@@ -33,13 +33,13 @@ const string& DiskImageCLI::optionHelp() const
 
 void DiskImageCLI::parseFileType(const string &filename)
 {
-	XMLElement config("config");
-	config.addAttribute("id", string("disk") + driveLetter);
-	config.addChild(
+	auto_ptr<XMLElement> config(new XMLElement("config"));
+	config->addAttribute("id", string("disk") + driveLetter);
+	config->addChild(
 		auto_ptr<XMLElement>(new XMLElement("filename", filename)));
 	
 	UserFileContext context;
-	SettingsConfig::instance().loadConfig(config, context);
+	SettingsConfig::instance().loadConfig(context, config);
 	driveLetter++;
 }
 const string& DiskImageCLI::fileTypeHelp() const

@@ -2,7 +2,6 @@
 
 #include "RenShaTurbo.hh"
 #include "SettingsConfig.hh"
-#include "Config.hh"
 #include "Autofire.hh"
 
 namespace openmsx {
@@ -15,10 +14,10 @@ RenShaTurbo& RenShaTurbo::instance()
 
 RenShaTurbo::RenShaTurbo()
 {
-	Config* config = SettingsConfig::instance().findConfigById("RenShaTurbo");
+	const XMLElement* config = SettingsConfig::instance().findConfigById("RenShaTurbo");
 	if (config) {
-		int min_ints = config->getParameterAsInt("min_ints", 47);
-		int max_ints = config->getParameterAsInt("max_ints", 221);
+		int min_ints = config->getChildDataAsInt("min_ints", 47);
+		int max_ints = config->getChildDataAsInt("max_ints", 221);
 		autofire.reset(new Autofire(min_ints, max_ints, "renshaturbo"));
 	}
 }

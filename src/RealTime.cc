@@ -4,7 +4,6 @@
 #include "Keys.hh"
 #include "RealTime.hh"
 #include "MSXCPU.hh"
-#include "Config.hh"
 #include "CommandController.hh"
 #include "Scheduler.hh"
 #include "Timer.hh"

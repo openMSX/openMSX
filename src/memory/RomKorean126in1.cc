@@ -9,10 +9,11 @@
 
 #include "RomKorean126in1.hh"
 #include "CPU.hh"
+#include "Rom.hh"
 
 namespace openmsx {
 
-RomKorean126in1::RomKorean126in1(Config* config, const EmuTime& time, auto_ptr<Rom> rom)
+RomKorean126in1::RomKorean126in1(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom)
 	: MSXDevice(config, time), Rom16kBBlocks(config, time, rom)
 {
 	reset(time);

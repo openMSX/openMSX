@@ -11,7 +11,7 @@ namespace openmsx {
 class MSXKanji : public MSXIODevice
 {
 public:
-	MSXKanji(Config* config, const EmuTime& time);
+	MSXKanji(const XMLElement& config, const EmuTime& time);
 	virtual ~MSXKanji();
 	
 	virtual byte readIO(byte port, const EmuTime& time);

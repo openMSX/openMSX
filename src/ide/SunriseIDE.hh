@@ -13,7 +13,7 @@ class IDEDevice;
 class SunriseIDE : public MSXMemDevice
 {
 public:
-	SunriseIDE(Config *config, const EmuTime& time);
+	SunriseIDE(const XMLElement& config, const EmuTime& time);
 	virtual ~SunriseIDE();
 	
 	virtual void reset(const EmuTime& time);

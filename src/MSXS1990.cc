@@ -6,7 +6,7 @@
 
 namespace openmsx {
 
-MSXS1990::MSXS1990(Config* config, const EmuTime& time)
+MSXS1990::MSXS1990(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	reset(time);

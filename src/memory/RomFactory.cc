@@ -29,13 +29,14 @@
 #include "RomHolyQuran.hh"
 #include "RomFSA1FM.hh"
 #include "Rom.hh"
-#include "Config.hh"
+#include "xmlx.hh"
 
 namespace openmsx {
 
-auto_ptr<MSXDevice> RomFactory::create(Config* config, const EmuTime& time)
+auto_ptr<MSXDevice> RomFactory::create(const XMLElement& config,
+                                       const EmuTime& time)
 {
-	auto_ptr<Rom> rom(new Rom(config->getId(), "rom", config));
+	auto_ptr<Rom> rom(new Rom(config.getAttribute("id"), "rom", config));
 
 	MapperType type = rom->getInfo().getMapperType();
 	switch (type) {

@@ -12,10 +12,11 @@
 //  bank 4: 0x7800 - 0x7fff (0x7800 used)
 
 #include "RomAscii8kB.hh"
+#include "Rom.hh"
 
 namespace openmsx {
 
-RomAscii8kB::RomAscii8kB(Config* config, const EmuTime& time, auto_ptr<Rom> rom)
+RomAscii8kB::RomAscii8kB(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
 	reset(time);

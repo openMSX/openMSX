@@ -17,7 +17,7 @@ public:
 	virtual const byte* getReadCacheLine(word start) const;
 
 protected:
-	MSXFDC(Config* config, const EmuTime& time);
+	MSXFDC(const XMLElement& config, const EmuTime& time);
 	virtual ~MSXFDC();
 
 	Rom rom;

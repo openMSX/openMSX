@@ -30,13 +30,12 @@
 
 #include <cassert>
 #include "MSXHBI55.hh"
-#include "Config.hh"
 
 namespace openmsx {
 
 // MSXDevice
 
-MSXHBI55::MSXHBI55(Config* config, const EmuTime& time)
+MSXHBI55::MSXHBI55(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
 	  sram(getName() + " SRAM", 0x1000, config)
 {

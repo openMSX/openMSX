@@ -3,7 +3,6 @@
 #include <cassert>
 #include "CartridgeSlotManager.hh"
 #include "HardwareConfig.hh"
-#include "Config.hh"
 
 
 namespace openmsx {
@@ -35,15 +34,16 @@ void CartridgeSlotManager::reserveSlot(int slot)
 
 void CartridgeSlotManager::readConfig()
 {
-	Config* config = hardwareConfig.findConfigById("ExternalSlots");
+	const XMLElement* config = hardwareConfig.findConfigById("ExternalSlots");
 	if (!config) {
 		return;
 	}
 	string slotName("slota");
 	for (int slot = 0; slot < 16; slot++) {
 		slotName[4] = 'a' + slot;
-		if (config->hasParameter(slotName)) {
-			string slotValue = config->getParameter(slotName);
+		const XMLElement* slotElem = config->getChild(slotName);
+		if (slotElem) {
+			string slotValue = slotElem->getData();
 			int ps = slotValue[0] - '0';
 			int ss = slotValue[2] - '0';
 			if ((ps < 0) || (ps > 3) || (ss < 0) || (ss > 3) ||

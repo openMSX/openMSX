@@ -13,10 +13,10 @@ namespace openmsx {
 class FSA1FMRam
 {
 public:
-	static byte* getSRAM(Config* config);
+	static byte* getSRAM(const XMLElement& config);
 
 private:
-	FSA1FMRam(Config* config);
+	FSA1FMRam(const XMLElement& config);
 	~FSA1FMRam();
 
 	SRAM sram;
@@ -25,7 +25,7 @@ private:
 class RomFSA1FM1 : public MSXRom
 {
 public:
-	RomFSA1FM1(Config* config, const EmuTime& time, auto_ptr<Rom> rom);
+	RomFSA1FM1(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom);
 	virtual ~RomFSA1FM1();
 	
 	virtual void reset(const EmuTime& time);
@@ -43,7 +43,7 @@ private:
 class RomFSA1FM2 : public Rom8kBBlocks
 {
 public:
-	RomFSA1FM2(Config* config, const EmuTime& time, auto_ptr<Rom> rom);
+	RomFSA1FM2(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom);
 	virtual ~RomFSA1FM2();
 	
 	virtual void reset(const EmuTime& time);

@@ -2,10 +2,11 @@
 
 #include "RomNational.hh"
 #include "CPU.hh"
+#include "Rom.hh"
 
 namespace openmsx {
 
-RomNational::RomNational(Config* config, const EmuTime& time, auto_ptr<Rom> rom)
+RomNational::RomNational(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom)
 	: MSXDevice(config, time), Rom16kBBlocks(config, time, rom),
 	  sram(getName() + " SRAM", 0x1000, config)
 {

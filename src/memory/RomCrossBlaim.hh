@@ -10,7 +10,7 @@ namespace openmsx {
 class RomCrossBlaim : public Rom16kBBlocks
 {
 public:
-	RomCrossBlaim(Config* config, const EmuTime& time, auto_ptr<Rom> rom);
+	RomCrossBlaim(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom);
 	virtual ~RomCrossBlaim();
 	
 	virtual void reset(const EmuTime& time);

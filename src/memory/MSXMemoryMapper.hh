@@ -8,13 +8,13 @@
 
 namespace openmsx {
 
-class Config;
+class XMLElement;
 class MSXMapperIO;
 
 class MSXMemoryMapper : public MSXMemDevice
 {
 public:
-	MSXMemoryMapper(Config* config, const EmuTime& time);
+	MSXMemoryMapper(const XMLElement& config, const EmuTime& time);
 	virtual ~MSXMemoryMapper();
 	
 	virtual byte readMem(word address, const EmuTime& time);
@@ -41,7 +41,7 @@ private:
 	bool slowDrainOnReset;
 
 	static unsigned counter;
-	static Config* device;
+	static XMLElement* config;
 	static MSXMapperIO* mapperIO;
 };
 

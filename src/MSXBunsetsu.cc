@@ -2,15 +2,15 @@
 
 #include "MSXBunsetsu.hh"
 #include "CPU.hh"
-#include "Config.hh"
+#include "xmlx.hh"
 
 namespace openmsx {
 
-MSXBunsetsu::MSXBunsetsu(Config* config, const EmuTime& time)
+MSXBunsetsu::MSXBunsetsu(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time),
 	  rom(getName() + "_1", "rom", config),
 	  jisyoRom(getName() + "_2", "rom", config,
-	           config->getParameter("jisyofilename"))
+	           config.getChildData("jisyofilename"))
 {
 	reset(time);
 }

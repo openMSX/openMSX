@@ -13,7 +13,6 @@ using std::auto_ptr;
 namespace openmsx {
 
 class File;
-class FileContext;
 
 class MSXCasCLI : public CLIOption, public CLIFileType
 {
@@ -35,7 +34,7 @@ public:
 	virtual void patch(CPU::CPURegs& regs);
 
 private:
-	void insertTape(FileContext& context, const string& filename);
+	void insertTape(const string& filename);
 	void ejectTape();
 
 	// 0x00E1 Tape input ON

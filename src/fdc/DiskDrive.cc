@@ -3,7 +3,6 @@
 #include "DiskDrive.hh"
 #include "CommandController.hh"
 #include "SettingsConfig.hh"
-#include "Config.hh"
 #include "DummyDisk.hh"
 #include "XSADiskImage.hh"
 #include "DSKDiskImage.hh"
@@ -141,11 +140,11 @@ RealDrive::RealDrive(const string& driveName, const EmuTime& time)
 	diskChangedFlag = false;
 
 	SettingsConfig& conf = SettingsConfig::instance();
-	Config* config = conf.findConfigById(driveName);
+	const XMLElement* config = conf.findConfigById(driveName);
 	if (config) {
-		const string& filename = config->getParameter("filename");
+		const string& filename = config->getChildData("filename");
 		try {
-			insertDisk(config->getContext(), filename);
+			insertDisk(config->getFileContext().resolve(filename));
 		} catch (FileException &e) {
 			// file not found
 			throw FatalError("Couldn't load diskimage: " + filename);
@@ -247,15 +246,14 @@ bool RealDrive::headLoaded(const EmuTime& time)
 	       (headLoadTime.getTicksTill(time) > 10);
 }
 
-void RealDrive::insertDisk(FileContext& context,
-                           const string& diskImage)
+void RealDrive::insertDisk(const string& diskImage)
 {
 	ejectDisk();
 	
 	try {
 		// first try XSA
 		PRT_DEBUG("Trying an XSA diskimage...");
-		disk.reset(new XSADiskImage(context, diskImage));
+		disk.reset(new XSADiskImage(diskImage));
 		PRT_DEBUG("Succeeded");
 	} catch (MSXException &e) {
 		try {
@@ -265,12 +263,12 @@ void RealDrive::insertDisk(FileContext& context,
 			//can be resolved and will be accepted as dsk name
 			PRT_DEBUG("Trying a DirAsDSK approach...");
 			// try to create fake DSK from a dir on host OS
-			disk.reset(new FDC_DirAsDSK(context, diskImage));
+			disk.reset(new FDC_DirAsDSK(diskImage));
 			PRT_DEBUG("Succeeded");
 		} catch (MSXException &e) {
 			// then try normal DSK
 			PRT_DEBUG("Trying a DSK diskimage...");
-			disk.reset(new DSKDiskImage(context, diskImage));
+			disk.reset(new DSKDiskImage(diskImage));
 			PRT_DEBUG("Succeeded");
 		}
 	}
@@ -302,7 +300,7 @@ string RealDrive::execute(const vector<string>& tokens)
 	} else {
 		try {
 			UserFileContext context;
-			insertDisk(context, tokens[1]);
+			insertDisk(context.resolve(tokens[1]));
 			diskChangedFlag = true;
 			CliCommOutput::instance().update(CliCommOutput::MEDIA,
 			                                 name, tokens[1]);

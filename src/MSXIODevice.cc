@@ -2,16 +2,16 @@
 
 #include "MSXIODevice.hh"
 #include "MSXCPUInterface.hh"
-#include "Config.hh"
+#include "xmlx.hh"
 #include "StringOp.hh"
 
 namespace openmsx {
 
-MSXIODevice::MSXIODevice(Config* config, const EmuTime& time)
+MSXIODevice::MSXIODevice(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time)
 {
 	XMLElement::Children ios;
-	config->getChildren("io", ios);
+	config.getChildren("io", ios);
 	for (XMLElement::Children::const_iterator it = ios.begin();
 	     it != ios.end(); ++it) {
 		unsigned base = StringOp::stringToInt((*it)->getAttribute("base"));

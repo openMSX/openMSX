@@ -1,13 +1,11 @@
 // $Id$
 
 #include "DSKDiskImage.hh"
-#include "FileContext.hh"
-
 
 namespace openmsx {
 
-DSKDiskImage::DSKDiskImage(FileContext &context, const string &fileName)
-	: file(context.resolve(fileName))
+DSKDiskImage::DSKDiskImage(const string& fileName)
+	: file(fileName)
 {
 	nbSectors = file.getSize() / SECTOR_SIZE;
 }

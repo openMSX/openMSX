@@ -11,10 +11,12 @@
 //  second 16kb: 0x7000 - 0x77ff (0x7000 and 0x77ff used)
 
 #include "RomAscii16kB.hh"
+#include "Rom.hh"
 
 namespace openmsx {
 
-RomAscii16kB::RomAscii16kB(Config* config, const EmuTime& time, auto_ptr<Rom> rom)
+RomAscii16kB::RomAscii16kB(const XMLElement& config, const EmuTime& time,
+                           auto_ptr<Rom> rom)
 	: MSXDevice(config, time), Rom16kBBlocks(config, time, rom)
 {
 	reset(time);

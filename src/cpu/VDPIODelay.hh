@@ -19,7 +19,7 @@ public:
 	virtual void writeIO(byte port, byte value, const EmuTime& time);
 
 private:
-	static Config* getConfig();
+	static const XMLElement& getConfig();
 	const EmuTime& delay(const EmuTime& time);
 
 	MSXCPU& cpu;

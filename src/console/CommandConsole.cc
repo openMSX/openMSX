@@ -10,7 +10,6 @@
 #include "SettingsManager.hh"
 #include "CliCommOutput.hh"
 #include "SettingsConfig.hh"
-#include "Config.hh"
 #include "InputEvents.hh"
 #include "InputEventGenerator.hh"
 #include <algorithm>
@@ -48,10 +47,10 @@ CommandConsole::CommandConsole()
 	putPrompt();
 	maxHistory = 100;
 	removeDoubles = true;
-	Config* config = settingsConfig.findConfigById("Console");
+	const XMLElement* config = settingsConfig.findConfigById("Console");
 	if (config) {
-		maxHistory = config->getParameterAsInt("historysize", maxHistory);
-		removeDoubles = config->getParameterAsBool("removedoubles", removeDoubles);
+		maxHistory = config->getChildDataAsInt("historysize", maxHistory);
+		removeDoubles = config->getChildDataAsBool("removedoubles", removeDoubles);
 	}
 	loadHistory();
 	commandController.setCommandConsole(this);

@@ -10,10 +10,11 @@
 //                   high     2-0 
                    
 #include "RomRType.hh"
+#include "Rom.hh"
 
 namespace openmsx {
 
-RomRType::RomRType(Config* config, const EmuTime& time, auto_ptr<Rom> rom)
+RomRType::RomRType(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom)
 	: MSXDevice(config, time), Rom16kBBlocks(config, time, rom)
 {
 	reset(time);

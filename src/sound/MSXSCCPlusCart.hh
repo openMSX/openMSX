@@ -16,7 +16,7 @@ class SCC;
 class MSXSCCPlusCart : public MSXMemDevice
 {
 public:
-	MSXSCCPlusCart(Config *config, const EmuTime& time);
+	MSXSCCPlusCart(const XMLElement& config, const EmuTime& time);
 	virtual ~MSXSCCPlusCart();
 
 	virtual void reset(const EmuTime& time);

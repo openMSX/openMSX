@@ -11,7 +11,8 @@ namespace openmsx {
 class RomHydlide2 : public RomAscii16kB
 {
 public:
-	RomHydlide2(Config* config, const EmuTime& time, auto_ptr<Rom> rom);
+	RomHydlide2(const XMLElement& config, const EmuTime& time,
+	            auto_ptr<Rom> rom);
 	virtual ~RomHydlide2();
 	
 	virtual void reset(const EmuTime& time);

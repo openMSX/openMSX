@@ -34,19 +34,18 @@
 //                0x80-0x83 0x88-0x8B  unmapped (read 0xFF)
 //                0x84-0x87 0x8C-0x8F  contain (same) 8kB RAM
 
-
 #include "RomFSA1FM.hh"
-#include "Config.hh"
+#include "xmlx.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
-
+#include "Rom.hh"
 
 namespace openmsx {
 
 // common sram //
 
-FSA1FMRam::FSA1FMRam(Config* config)
-	: sram(config->getId() + " SRAM", 0x2000, config)
+FSA1FMRam::FSA1FMRam(const XMLElement& config)
+	: sram(config.getAttribute("id") + " SRAM", 0x2000, config)
 {
 }
 
@@ -54,7 +53,7 @@ FSA1FMRam::~FSA1FMRam()
 {
 }
 
-byte* FSA1FMRam::getSRAM(Config* config)
+byte* FSA1FMRam::getSRAM(const XMLElement& config)
 {
 	static FSA1FMRam oneInstance(config);
 	return &oneInstance.sram[0];
@@ -63,7 +62,7 @@ byte* FSA1FMRam::getSRAM(Config* config)
 
 // Mapper for slot 3-1 //
 
-RomFSA1FM1::RomFSA1FM1(Config* config, const EmuTime& time, auto_ptr<Rom> rom)
+RomFSA1FM1::RomFSA1FM1(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom)
 	: MSXDevice(config, time), MSXRom(config, time, rom)
 {
 	sram = FSA1FMRam::getSRAM(config);
@@ -149,7 +148,7 @@ byte* RomFSA1FM1::getWriteCacheLine(word address) const
 
 // Mapper for slot 3-3 //
 
-RomFSA1FM2::RomFSA1FM2(Config* config, const EmuTime& time, auto_ptr<Rom> rom)
+RomFSA1FM2::RomFSA1FM2(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
 	sram = FSA1FMRam::getSRAM(config);

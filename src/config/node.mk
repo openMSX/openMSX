@@ -3,7 +3,7 @@
 include build/node-start.mk
 
 SRC_HDR:= \
-	MSXConfig Config xmlx \
+	MSXConfig xmlx \
 	HardwareConfig SettingsConfig
 
 HDR_ONLY:= \

@@ -1,12 +1,12 @@
 // $Id$
 
 #include "MSXDevice.hh"
-#include "Config.hh"
+#include "xmlx.hh"
 
 
 namespace openmsx {
 
-MSXDevice::MSXDevice(Config* config, const EmuTime& time)
+MSXDevice::MSXDevice(const XMLElement& config, const EmuTime& time)
 	: deviceConfig(config)
 {
 }
@@ -26,7 +26,7 @@ void MSXDevice::reInit(const EmuTime& time)
 
 const string& MSXDevice::getName() const
 {
-	return deviceConfig->getId();
+	return deviceConfig.getAttribute("id");
 }
 
 } // namespace openmsx

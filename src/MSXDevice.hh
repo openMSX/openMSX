@@ -9,9 +9,8 @@ using std::string;
 
 namespace openmsx {
 
+class XMLElement;
 class EmuTime;
-class Config;
-
 
 /** An MSXDevice is an emulated hardware component connected to the bus
   * of the emulated MSX. There is no communication among devices, only
@@ -55,9 +54,9 @@ protected:
 	  * @param time the moment in emulated time this MSXDevice is
 	  *   created (typically at time zero: power-up).
 	  */
-	MSXDevice(Config* config, const EmuTime& time);
+	MSXDevice(const XMLElement& config, const EmuTime& time);
 
-	Config* deviceConfig;
+	const XMLElement& deviceConfig;
 	friend class VDPIODelay;
 };
 

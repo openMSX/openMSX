@@ -7,21 +7,22 @@
 #include "MSXCPU.hh"
 #include "CPU.hh"
 #include "IDEDeviceFactory.hh"
-#include "Config.hh"
-
+#include "xmlx.hh"
 
 namespace openmsx {
 
-SunriseIDE::SunriseIDE(Config* config, const EmuTime& time)
+SunriseIDE::SunriseIDE(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time),
 	  rom(getName() + " ROM", "rom", config)
 {
-	device[0] = (config->hasParameter("master")) 
-	            ? IDEDeviceFactory::create(config->getParameter("master"), time)
-	            : new DummyIDEDevice();
-	device[1] = (config->hasParameter("slave")) 
-	            ? IDEDeviceFactory::create(config->getParameter("slave"), time)
-	            : new DummyIDEDevice();
+	const XMLElement* masterElem = config.getChild("master");
+	const XMLElement* slaveElem  = config.getChild("slave");
+	device[0] = masterElem 
+	          ? IDEDeviceFactory::create(masterElem->getData(), time)
+	          : new DummyIDEDevice();
+	device[1] = slaveElem
+	          ? IDEDeviceFactory::create(slaveElem->getData(), time)
+	          : new DummyIDEDevice();
 
 	// make valgrind happy
 	internalBank = 0;

@@ -21,7 +21,7 @@ namespace openmsx {
 class MSXS1985 : public MSXDevice, public MSXSwitchedDevice
 {
 public:
-	MSXS1985(Config* config, const EmuTime& time);
+	MSXS1985(const XMLElement& config, const EmuTime& time);
 	virtual ~MSXS1985();
 	
 	virtual void reset(const EmuTime& time);

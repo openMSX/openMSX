@@ -11,10 +11,11 @@
 
 #include "RomKonami4.hh"
 #include "CPU.hh"
+#include "Rom.hh"
 
 namespace openmsx {
 
-RomKonami4::RomKonami4(Config* config, const EmuTime& time, auto_ptr<Rom> rom)
+RomKonami4::RomKonami4(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
 	reset(time);

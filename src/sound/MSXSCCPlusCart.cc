@@ -10,28 +10,27 @@
 #include "FileContext.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
-#include "Config.hh"
+#include "xmlx.hh"
 
 namespace openmsx {
 
-MSXSCCPlusCart::MSXSCCPlusCart(Config* config, const EmuTime& time)
+MSXSCCPlusCart::MSXSCCPlusCart(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time),
 	  ram(getName() + " RAM", "SCC+ RAM", 0x20000)
 {
-	if (config->hasParameter("filename")) {
+	const XMLElement* fileElem = config.getChild("filename");
+	if (fileElem) {
 		// read the rom file
-		const string& filename =
-			deviceConfig->getParameter("filename");
+		const string& filename = fileElem->getData();
 		try {
-			File file(config->getContext().resolve(filename));
+			File file(config.getFileContext().resolve(filename));
 			int romSize = file.getSize();
 			file.read(&ram[0], romSize);
-		} catch (FileException &e) {
+		} catch (FileException& e) {
 			throw FatalError("Error reading file: " + filename);
 		}
 	}
-	const string& subtype =
-		deviceConfig->getParameter("subtype", "expanded");
+	const string subtype = config.getChildData("subtype", "expanded");
 	if (subtype == "Snatcher") {
 		mapperMask = 0x0F;
 		lowRAM  = true;
@@ -55,8 +54,8 @@ MSXSCCPlusCart::MSXSCCPlusCart(Config* config, const EmuTime& time)
 		mapper[i] = 0;
 	}
 
-	short volume = (short)config->getParameterAsInt("volume");
-	scc = new SCC(config->getId(), volume, time, SCC::SCC_Compatible);
+	short volume = config.getChildDataAsInt("volume");
+	scc = new SCC(getName(), volume, time, SCC::SCC_Compatible);
 
 	reset(time);
 }

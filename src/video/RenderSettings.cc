@@ -2,7 +2,6 @@
 
 #include "RenderSettings.hh"
 #include "SettingsConfig.hh"
-#include "Config.hh"
 #include "CliCommOutput.hh"
 #include "IntegerSetting.hh"
 #include "FloatSetting.hh"
@@ -13,7 +12,7 @@ namespace openmsx {
 RenderSettings::RenderSettings()
 	: settingsConfig(SettingsConfig::instance())
 {
-	Config* config = settingsConfig.findConfigById("renderer");
+	const XMLElement* config = settingsConfig.findConfigById("renderer");
 
 	EnumSetting<Accuracy>::Map accMap;
 	accMap["screen"] = ACC_SCREEN;
@@ -32,9 +31,10 @@ RenderSettings::RenderSettings()
 		"minframeskip", "set the min amount of frameskip",
 		0, 0, 100);
 
-	bool fsBool = config
-		    ? config->getParameterAsBool("full_screen", false)
-		    : false;
+	bool fsBool = false;
+	if (config) {
+		    fsBool = config->getChildDataAsBool("full_screen", fsBool);
+	}
 	fullScreen = new BooleanSetting(
 		"fullscreen", "full screen display on/off", fsBool);
 
@@ -51,7 +51,10 @@ RenderSettings::RenderSettings()
 		50, 0, 100);
 
 	// Get user-preferred renderer from config.
-	string rendererName = config ? config->getType() : "SDLHi";
+	string rendererName = "SDLHi";
+	if (config) {
+		rendererName = config->getChildData("type", rendererName);
+	}
 	renderer = RendererFactory::createRendererSetting(rendererName);
 
 	EnumSetting<ScalerID>::Map scalerMap;

@@ -10,7 +10,8 @@ namespace openmsx {
 class RomPlain : public Rom8kBBlocks
 {
 public:
-	RomPlain(Config* config, const EmuTime& time, auto_ptr<Rom> rom);
+	RomPlain(const XMLElement& config, const EmuTime& time,
+	         auto_ptr<Rom> rom);
 	virtual ~RomPlain();
 
 private:

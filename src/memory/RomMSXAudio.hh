@@ -11,7 +11,7 @@ namespace openmsx {
 class RomMSXAudio : public MSXRom
 {
 public:
-	RomMSXAudio(Config* config, const EmuTime& time, auto_ptr<Rom> rom);
+	RomMSXAudio(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom);
 	virtual ~RomMSXAudio();
 
 	virtual void reset(const EmuTime& time);

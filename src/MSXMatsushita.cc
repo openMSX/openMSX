@@ -7,7 +7,7 @@ namespace openmsx {
 
 const byte ID = 0x08;
 
-MSXMatsushita::MSXMatsushita(Config* config, const EmuTime& time)
+MSXMatsushita::MSXMatsushita(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXSwitchedDevice(ID),
 	  sram(getName() + " SRAM", 0x800, config)
 {

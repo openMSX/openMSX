@@ -5,7 +5,6 @@
  */
 
 #include "CasImage.hh"
-#include "FileContext.hh"
 #include "File.hh"
 #include "EmuTime.hh"
 #include <cstdlib>
@@ -36,9 +35,9 @@ const byte BIN[10]   = { 0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0 };
 const byte BASIC[10] = { 0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3 };
 
 
-CasImage::CasImage(FileContext& context, const string& fileName)
+CasImage::CasImage(const string& fileName)
 {
-	File file(context.resolve(fileName));
+	File file(fileName);
 	size = file.getSize();
 	buf = file.mmap();
 	pos = 0;

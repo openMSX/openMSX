@@ -4,10 +4,10 @@
 
 namespace openmsx {
 
-MSXTurboRPause::MSXTurboRPause(Config *config, const EmuTime& time)
+MSXTurboRPause::MSXTurboRPause(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
-		turboRPauseSetting("turborpause", 
-				"status of the TurboR pause", false)
+	  turboRPauseSetting("turborpause", 
+	                     "status of the TurboR pause", false)
 {
 	reset(time);
 }
@@ -23,10 +23,7 @@ void MSXTurboRPause::reset(const EmuTime& time)
 
 byte MSXTurboRPause::readIO(byte port, const EmuTime& time)
 {
-	if (turboRPauseSetting.getValue()) 
-		return (byte) 0x01; 
-	else
-		return (byte) 0x00;
+	return turboRPauseSetting.getValue() ? 1 : 0;
 }
 
 } // namespace openmsx

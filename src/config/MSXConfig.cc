@@ -3,28 +3,25 @@
 #include <cassert>
 #include "MSXConfig.hh"
 #include "xmlx.hh"
-#include "Config.hh"
 #include "FileContext.hh"
 #include "File.hh"
+#include "ConfigException.hh"
 
 namespace openmsx {
 
 MSXConfig::MSXConfig()
+	: root("hardware")
 {
 }
 
 MSXConfig::~MSXConfig()
 {
-	for (Configs::const_iterator it = configs.begin();
-	     it != configs.end(); ++it) {
-		delete *it;
-	}
 }
 
-void MSXConfig::loadConfig(const XMLElement& config, const FileContext& context)
+void MSXConfig::loadConfig(const FileContext& context, auto_ptr<XMLElement> elem)
 {
-	// TODO check duplicate id
-	configs.push_back(new Config(config, context));
+	elem->setFileContext(auto_ptr<FileContext>(context.clone()));
+	root.addChild(elem);
 }
 
 void MSXConfig::handleDoc(const XMLDocument& doc, FileContext& context)
@@ -42,20 +39,27 @@ void MSXConfig::handleDoc(const XMLDocument& doc, FileContext& context)
 				throw ConfigException(
 				    "<config> or <device> with duplicate 'id':" + id);
 			}
-			loadConfig(**it, context);
+			auto_ptr<XMLElement> copy(new XMLElement(**it));
+			loadConfig(context, copy);
 		}
 	}
 }
 
-Config* MSXConfig::findConfigById(const string& id)
+const XMLElement* MSXConfig::findConfigById(const string& id)
 {
-	for (Configs::const_iterator it = configs.begin();
-	     it != configs.end(); ++it) {
-		if ((*it)->getId() == id) {
+	const XMLElement::Children& children = root.getChildren();
+	for (XMLElement::Children::const_iterator it = children.begin();
+	     it != children.end(); ++it) {
+		if ((*it)->getAttribute("id") == id) {
 			return *it;
 		}
 	}
 	return NULL;
+}
+
+const XMLElement& MSXConfig::getRoot()
+{
+	return root;
 }
 
 } // namespace openmsx

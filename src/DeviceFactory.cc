@@ -1,6 +1,6 @@
 // $Id$
 
-#include "Config.hh"
+#include "xmlx.hh"
 #include "DeviceFactory.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXRam.hh"
@@ -56,9 +56,9 @@ static void createDeviceSwitch()
 	}
 }
 
-auto_ptr<MSXDevice> DeviceFactory::create(Config* conf, const EmuTime& time)
+auto_ptr<MSXDevice> DeviceFactory::create(const XMLElement& conf, const EmuTime& time)
 {
-	const string type = conf->getType();
+	const string type = conf.getChildData("type");
 	if (type == "PPI") {
 		return auto_ptr<MSXDevice>(new MSXPPI(conf, time));
 	}

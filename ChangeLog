@@ -1,6 +1,11 @@
 $Id$
 
 2004-06-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Large configuration file code refactoring:
+	   - get rid of Config class, use directly XMLElement
+	   - no changes in config files
+
+2004-06-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Config file releated cleanups (no changes in config files)
 
 2004-06-14 Wouter Vermaelen <wouter.vermaelen@pi.be>

@@ -5,9 +5,9 @@
 #include <iomanip>
 #include "EmuTime.hh"
 #include "DebugDevice.hh"
-#include "Config.hh"
 #include "FileOperations.hh"
 #include "FilenameSetting.hh"
+#include "xmlx.hh"
 
 using std::setfill;
 using std::setw;
@@ -16,11 +16,11 @@ using std::cerr;
 
 namespace openmsx {
 
-DebugDevice::DebugDevice(Config* config, const EmuTime& time)
+DebugDevice::DebugDevice(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	mode = OFF;
-	string outputFile = config->getParameter("filename", "stdout");
+	string outputFile = config.getChildData("filename", "stdout");
 	fileNameSetting = new FilenameSetting("debugoutput",
 		"name of the file the debugdevice outputs to", outputFile);
 	fileNameString = fileNameSetting->getValueString();

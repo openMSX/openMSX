@@ -8,30 +8,26 @@
 
 namespace openmsx {
 
-class FileContext;
-
-
 class DSKDiskImage : public SectorBasedDisk
 {
-	public: 
-		DSKDiskImage(FileContext &context,
-		        const string &fileName);
-		virtual ~DSKDiskImage();
+public: 
+	DSKDiskImage(const string& fileName);
+	virtual ~DSKDiskImage();
 
-		virtual void read(byte track, byte sector,
-		                  byte side, int size, byte* buf);
-		virtual void write(byte track, byte sector,
-		                   byte side, int size, const byte* buf);
+	virtual void read(byte track, byte sector,
+			  byte side, int size, byte* buf);
+	virtual void write(byte track, byte sector,
+			   byte side, int size, const byte* buf);
 
-		virtual bool writeProtected();
-		virtual bool doubleSided();
+	virtual bool writeProtected();
+	virtual bool doubleSided();
 
-	protected:
-		virtual void readBootSector();
-		int nbSectors;
+protected:
+	virtual void readBootSector();
+	int nbSectors;
 
-	private:
-		File file;
+private:
+	File file;
 };
 
 } // namespace openmsx

@@ -7,13 +7,13 @@
 
 namespace openmsx {
 
-class Config;
+class XMLElement;
 class File;
 
 class IDEHD : public IDEDevice
 {
 public:
-	IDEHD(Config* config, const EmuTime& time);
+	IDEHD(const XMLElement& config, const EmuTime& time);
 	virtual ~IDEHD();
 
 	virtual void reset(const EmuTime& time);

@@ -14,15 +14,15 @@ using std::vector;
 namespace openmsx {
 
 class EmuTime;
-class Config;
+class XMLElement;
 class MSXRomPatchInterface;
 class File;
 
 class Rom : public Debuggable
 {
 public:
-	Rom(const string& name, const string& description, Config* config);
-	Rom(const string& name, const string& description, Config* config,
+	Rom(const string& name, const string& description, const XMLElement& config);
+	Rom(const string& name, const string& description, const XMLElement& config,
 	    const string& filename);
 	virtual ~Rom();
 
@@ -48,10 +48,10 @@ public:
 	virtual void write(unsigned address, byte value);
 
 private:
-	void read(Config* config, const string& filename);
-	void init(const Config& config);
-	bool checkSHA1(const Config& config);
-	void patch(const Config& config);
+	void read(const XMLElement& config, const string& filename);
+	void init(const XMLElement& config);
+	bool checkSHA1(const XMLElement& config);
+	void patch(const XMLElement& config);
 	
 	string name;
 	const string description;

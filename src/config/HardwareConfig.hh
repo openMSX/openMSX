@@ -4,7 +4,6 @@
 #define __HARDWARECONFIG_HH__
 
 #include "MSXConfig.hh"
-#include "FileException.hh"
 
 namespace openmsx {
 

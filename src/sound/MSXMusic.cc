@@ -4,28 +4,32 @@
 #include "Mixer.hh"
 #include "YM2413.hh"
 #include "YM2413_2.hh"
-#include "Config.hh"
+#include "xmlx.hh"
 
 namespace openmsx {
 
-MSXMusic::MSXMusic(Config* config, const EmuTime& time)
+MSXMusic::MSXMusic(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
 	  MSXMemDevice(config, time), rom(getName() + " ROM", "rom", config)
 {
-	short volume = (short)deviceConfig->getParameterAsInt("volume");
-	Mixer::ChannelMode mode = Mixer::MONO;
-	if (config->hasParameter("mode")) {
-		const string &stereoMode = config->getParameter("mode");
-		PRT_DEBUG("mode is " << stereoMode);
-		if (stereoMode == "left") mode = Mixer::MONO_LEFT;
-		if (stereoMode == "right") mode = Mixer::MONO_RIGHT;
-	}
-	if (config->getParameterAsBool("alternative", false)) {
-		ym2413 = new YM2413(config->getId(), volume, time, mode);
+	short volume = config.getChildDataAsInt("volume");
+	
+	string modeStr = config.getChildData("mode", "mono");
+	Mixer::ChannelMode mode;
+	if (modeStr == "left") {
+		mode = Mixer::MONO_LEFT;
+	} else if (modeStr == "right") {
+		mode = Mixer::MONO_RIGHT;
 	} else {
-		ym2413 = new YM2413_2(config->getId(), volume, time, mode);
+		mode = Mixer::MONO;
 	}
-		
+	
+	if (config.getChildDataAsBool("alternative", false)) {
+		ym2413 = new YM2413(getName(), volume, time, mode);
+	} else {
+		ym2413 = new YM2413_2(getName(), volume, time, mode);
+	}
+	
 	reset(time);
 }
 

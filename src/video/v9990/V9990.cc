@@ -10,7 +10,6 @@
 #include <iomanip>
 #include <cassert>
 #include "Scheduler.hh"
-#include "Config.hh"
 #include "Debugger.hh"
 #include "V9990.hh"
 
@@ -18,7 +17,7 @@ namespace openmsx {
 
 const unsigned VRAM_SIZE = 0x80000; // 512kB
 
-V9990::V9990(Config* config, const EmuTime& time)
+V9990::V9990(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time),
 	  MSXIODevice(config, time),
 	  v9990RegDebug(*this),

@@ -12,7 +12,6 @@ using std::auto_ptr;
 namespace openmsx {
 
 class Disk;
-class FileContext;
 
 /**
  * This (abstract) class defines the DiskDrive interface
@@ -177,7 +176,7 @@ private:
 	virtual string execute(const vector<string>& tokens);
 	virtual string help   (const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
-	void insertDisk(FileContext& context, const string& disk);
+	void insertDisk(const string& disk);
 	void ejectDisk();
 
 	string name;

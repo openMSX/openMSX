@@ -28,8 +28,7 @@ TODO:
 #include "CommandController.hh"
 #include "Scheduler.hh"
 #include "SettingsConfig.hh"
-#include "Config.hh"
-#include "Config.hh"
+#include "xmlx.hh"
 #include "RenderSettings.hh"
 #include "RendererFactory.hh"
 #include "Debugger.hh"
@@ -45,7 +44,7 @@ namespace openmsx {
 
 // Init and cleanup:
 
-VDP::VDP(Config* config, const EmuTime& time)
+VDP::VDP(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 	, vdpRegDebug(*this)
 	, vdpStatusRegDebug(*this)
@@ -55,7 +54,7 @@ VDP::VDP(Config* config, const EmuTime& time)
 {
 	PRT_DEBUG("Creating a VDP object");
 
-	string versionString = config->getParameter("version");
+	string versionString = deviceConfig.getChildData("version");
 	if (versionString == "TMS99X8A") version = TMS99X8A;
 	else if (versionString == "TMS9929A") version = TMS9929A;
 	else if (versionString == "V9938") version = V9938;
@@ -84,7 +83,7 @@ VDP::VDP(Config* config, const EmuTime& time)
 
 	// Video RAM.
 	int vramSize =
-		(isMSX1VDP() ? 16 : deviceConfig->getParameterAsInt("vram"));
+		(isMSX1VDP() ? 16 : deviceConfig.getChildDataAsInt("vram"));
 	if (vramSize != 16 && vramSize != 64 && vramSize != 128) {
 		ostringstream out;
 		out << "VRAM size of " << vramSize << "kB is not supported!";
@@ -103,11 +102,10 @@ VDP::VDP(Config* config, const EmuTime& time)
 	vram->setCmdEngine(cmdEngine);
 
 	// Get renderer type from config.
-	Config* rendererConfig = SettingsConfig::instance().findConfigById("renderer");
+	const XMLElement* rendererConfig = SettingsConfig::instance().findConfigById("renderer");
+	rendererName = "SDLHi";
 	if (rendererConfig) {
-		rendererName = rendererConfig->getType();
-	} else {
-		rendererName = "SDLHi";
+		rendererName = rendererConfig->getChildData("type", rendererName);
 	}
 
 	resetInit(time); // must be done early to avoid UMRs

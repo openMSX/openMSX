@@ -1,7 +1,7 @@
 // $Id$
 
 #include "SRAM.hh"
-#include "Config.hh"
+#include "xmlx.hh"
 #include "File.hh"
 #include "FileContext.hh"
 #include "CliCommOutput.hh"
@@ -9,14 +9,14 @@
 namespace openmsx {
 
 SRAM::SRAM(const string& name, int size,
-           Config* config_, const char* header_)
+           const XMLElement& config_, const char* header_)
 	: Ram(name, "sram", size), config(config_), header(header_)
 {
 	init();
 }
 
 SRAM::SRAM(const string& name, const string& description, int size,
-	   Config* config_, const char* header_)
+	   const XMLElement& config_, const char* header_)
 	: Ram(name, description, size), config(config_), header(header_)
 {
 	init();
@@ -24,11 +24,11 @@ SRAM::SRAM(const string& name, const string& description, int size,
 
 void SRAM::init()
 {
-	const string& filename = config->getParameter("sramname");
+	const string& filename = config.getChildData("sramname");
 	PRT_DEBUG("SRAM: read " << filename);
 	try {
 		bool headerOk = true;
-		File file(config->getContext().resolveSave(filename),
+		File file(config.getFileContext().resolveSave(filename),
 			  LOAD_PERSISTENT);
 		if (header) {
 			int length = strlen(header);
@@ -54,10 +54,10 @@ void SRAM::init()
 
 SRAM::~SRAM()
 {
-	const string& filename = config->getParameter("sramname");
+	const string& filename = config.getChildData("sramname");
 	PRT_DEBUG("SRAM: save " << filename);
 	try {
-		File file(config->getContext().resolveSave(filename),
+		File file(config.getFileContext().resolveSave(filename),
 			  SAVE_PERSISTENT);
 		if (header) {
 			int length = strlen(header);

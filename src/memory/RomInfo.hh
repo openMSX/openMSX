@@ -13,7 +13,7 @@ using std::auto_ptr;
 namespace openmsx {
 
 class Rom;
-class Config;
+class XMLElement;
 
 class RomInfo
 {
@@ -30,7 +30,7 @@ public:
 	const MapperType& getMapperType() const { return mapperType; }
 
 	static auto_ptr<RomInfo> fetchRomInfo(
-		const Rom& rom, const Config& deviceConfig);
+		const Rom& rom, const XMLElement& deviceConfig);
 	static MapperType nameToMapperType(const string& name);
 	void print();
 

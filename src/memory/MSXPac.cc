@@ -1,17 +1,15 @@
 // $Id$
 
 #include "MSXPac.hh"
-#include "Config.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
-
 
 namespace openmsx {
 
 static const char* const PAC_Header = "PAC2 BACKUP DATA";
 //                                     1234567890123456
 
-MSXPac::MSXPac(Config* config, const EmuTime& time)
+MSXPac::MSXPac(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time), 
 	  sram(getName() + " SRAM", 0x1FFE, config, PAC_Header)
 {

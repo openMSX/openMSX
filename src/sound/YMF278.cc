@@ -738,7 +738,7 @@ byte YMF278::readStatus(const EmuTime& time)
 	return result;
 }
 
-YMF278::YMF278(short volume, int ramSize, Config* config,
+YMF278::YMF278(short volume, int ramSize, const XMLElement& config,
                const EmuTime& time)
 	: debugRegisters(*this), debugMemory(*this),
 	  rom(getName() + " ROM", "rom", config)

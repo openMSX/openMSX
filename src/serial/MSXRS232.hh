@@ -19,7 +19,7 @@ class Ram;
 class MSXRS232 : public MSXIODevice, public MSXMemDevice, public RS232Connector
 {
 public:
-	MSXRS232(Config *config, const EmuTime& time);
+	MSXRS232(const XMLElement& config, const EmuTime& time);
 	virtual ~MSXRS232();
 
 	virtual void reset(const EmuTime& time);

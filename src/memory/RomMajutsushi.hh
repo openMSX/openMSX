@@ -10,7 +10,7 @@ namespace openmsx {
 class RomMajutsushi : public Rom8kBBlocks
 {
 public:
-	RomMajutsushi(Config* config, const EmuTime& time, auto_ptr<Rom> rom);
+	RomMajutsushi(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom);
 	virtual ~RomMajutsushi();
 	
 	virtual void reset(const EmuTime& time);

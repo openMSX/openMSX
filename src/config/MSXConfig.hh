@@ -5,27 +5,22 @@
 
 #include <string>
 #include <vector>
-#include "ConfigException.hh"
+#include "xmlx.hh"
 
 using std::string;
 using std::vector;
 
 namespace openmsx {
 
-class XMLDocument;
-class XMLElement;
-class Config;
 class FileContext;
 
 class MSXConfig
 {
 public:
-	void loadConfig(const XMLElement& config, const FileContext& context);
+	void loadConfig(const FileContext& context, auto_ptr<XMLElement> elem);
 
-	Config* findConfigById(const string& id);
-
-	typedef vector<Config*> Configs;
-	const Configs& getConfigs() const { return configs; }
+	const XMLElement* findConfigById(const string& id);
+	const XMLElement& getRoot();
 
 protected:
 	MSXConfig();
@@ -33,7 +28,7 @@ protected:
 
 	void handleDoc(const XMLDocument& doc, FileContext& context);
 
-	Configs configs;
+	XMLElement root;
 };
 
 } // namespace openmsx

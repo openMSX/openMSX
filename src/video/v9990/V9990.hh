@@ -26,7 +26,7 @@ class V9990 : public MSXIODevice,
               private Schedulable
 {
 public:
-	V9990(Config* config, const EmuTime& time);
+	V9990(const XMLElement& config, const EmuTime& time);
 	virtual ~V9990();
 
 	/** Schedulable interface

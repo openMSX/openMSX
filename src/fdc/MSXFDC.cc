@@ -2,11 +2,11 @@
 
 #include "MSXFDC.hh"
 #include "DiskDrive.hh"
-#include "Config.hh"
+#include "xmlx.hh"
 
 namespace openmsx {
 
-MSXFDC::MSXFDC(Config* config, const EmuTime& time)
+MSXFDC::MSXFDC(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time),
 	  rom(getName() + " ROM", "rom", config) 
 {
@@ -14,9 +14,10 @@ MSXFDC::MSXFDC(Config* config, const EmuTime& time)
 	//                0123456789
 	for (int i = 0; i < 4; i++) {
 		drivename[9] = '1' + i;
-		if (config->hasParameter(drivename)) {
+		const XMLElement* driveElem = config.getChild(drivename);
+		if (driveElem) {
 			drives[i] = new DoubleSidedDrive(
-			                config->getParameter(drivename), time);
+			                     driveElem->getData(), time);
 		} else {
 			drives[i] = new DummyDrive();
 		}

@@ -11,12 +11,13 @@ namespace openmsx {
 
 class EmuTime;
 class MSXDevice;
-class Config;
+class XMLElement;
 
 class FDCFactory
 {
 public:
-	static auto_ptr<MSXDevice> create(Config* config, const EmuTime& time);
+	static auto_ptr<MSXDevice> create(const XMLElement& config,
+	                                  const EmuTime& time);
 };
 
 } // namespace openmsx

@@ -10,7 +10,6 @@
 #include "PluggingController.hh"
 #include "Mixer.hh"
 #include "HardwareConfig.hh"
-#include "Config.hh"
 #include "DeviceFactory.hh"
 
 namespace openmsx {
@@ -69,15 +68,15 @@ void MSXMotherBoard::reInitMSX()
 void MSXMotherBoard::run(bool powerOn)
 {
 	// Initialise devices.
-	const HardwareConfig::Configs& configs =
-		HardwareConfig::instance().getConfigs();
-	for (HardwareConfig::Configs::const_iterator it = configs.begin();
+	const XMLElement::Children& configs =
+		HardwareConfig::instance().getRoot().getChildren();
+	for (XMLElement::Children::const_iterator it = configs.begin();
 	     it != configs.end(); ++it) {
 		if ((*it)->getName() != "device") {
 			continue;
 		}
-		PRT_DEBUG("Instantiating: " << (*it)->getType());
-		auto_ptr<MSXDevice> device(DeviceFactory::create(*it, EmuTime::zero));
+		PRT_DEBUG("Instantiating: " << (*it)->getChildData("type"));
+		auto_ptr<MSXDevice> device(DeviceFactory::create(**it, EmuTime::zero));
 		addDevice(device);
 	}
 	// Register all postponed slots.

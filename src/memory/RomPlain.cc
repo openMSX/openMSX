@@ -2,14 +2,15 @@
 
 #include <algorithm>
 #include "StringOp.hh"
-#include "Config.hh"
 #include "RomPlain.hh"
+#include "Rom.hh"
+#include "xmlx.hh"
 
 using std::min;
 
 namespace openmsx {
 
-RomPlain::RomPlain(Config* config, const EmuTime& time, auto_ptr<Rom> rom_)
+RomPlain::RomPlain(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom_)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom_)
 {
 	switch (rom->getSize()) {
@@ -106,7 +107,7 @@ word RomPlain::guessLocation()
 	}
 
 	int lowest = 4;
-	const XMLElement::Children& children = deviceConfig->getChildren();
+	const XMLElement::Children& children = deviceConfig.getChildren();
 	for (XMLElement::Children::const_iterator it = children.begin();
 	     it != children.end(); ++it) {
 		if ((*it)->getName() == "slotted") {

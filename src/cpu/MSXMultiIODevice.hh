@@ -30,7 +30,7 @@ public:
 	virtual void writeIO(byte port, byte value, const EmuTime& time);
 
 private:
-	static Config* getMultiConfig();
+	static const XMLElement& getMultiConfig();
 	void preCalcName();
 	
 	vector<MSXIODevice*> devices;

@@ -4,7 +4,6 @@
 #define __SETTINGSCONFIG_HH__
 
 #include "MSXConfig.hh"
-#include "FileException.hh"
 
 namespace openmsx {
 
@@ -14,7 +13,7 @@ public:
 	static SettingsConfig& instance();
 
 	void loadSetting(FileContext& context, const string& filename);
-	
+
 private:
 	SettingsConfig();
 	~SettingsConfig();

@@ -1,14 +1,14 @@
 // $Id$
 
 #include "MSXF4Device.hh"
-#include "Config.hh"
+#include "xmlx.hh"
 
 namespace openmsx {
 
-MSXF4Device::MSXF4Device(Config* config, const EmuTime& time)
+MSXF4Device::MSXF4Device(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
-	inverted = config->getParameterAsBool("inverted", false);
+	inverted = config.getChildDataAsBool("inverted", false);
 	reset(time);
 }
 

@@ -2,20 +2,20 @@
 
 #include "MSXRam.hh"
 #include "CPU.hh"
-#include "Config.hh"
+#include "xmlx.hh"
 #include "Ram.hh"
 
 namespace openmsx {
 
-MSXRam::MSXRam(Config* config, const EmuTime& time)
+MSXRam::MSXRam(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time)
 {
 	// slow drain on reset
-	slowDrainOnReset = config->getParameterAsBool("slow_drain_on_reset", false);
+	slowDrainOnReset = config.getChildDataAsBool("slow_drain_on_reset", false);
 
 	// size / base
-	int s = deviceConfig->getParameterAsInt("size", 64);
-	int b = deviceConfig->getParameterAsInt("base", 0);
+	int s = config.getChildDataAsInt("size", 64);
+	int b = config.getChildDataAsInt("base", 0);
 	if ((s <= 0) || (s > 64)) {
 		throw FatalError("Wrong RAM size");
 	}

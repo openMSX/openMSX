@@ -4,7 +4,6 @@
 #include <cassert>
 #include "sha1.hh"
 #include "SettingsConfig.hh"
-#include "Config.hh"
 #include "File.hh"
 #include "FileOperations.hh"
 #include "FilePool.hh"
@@ -22,7 +21,7 @@ const char* const FILE_CACHE = ".filecache";
 
 FilePool::FilePool()
 {
-	Config* config = SettingsConfig::instance().findConfigById("RomPool");
+	const XMLElement* config = SettingsConfig::instance().findConfigById("RomPool");
 	if (config) {
 		XMLElement::Children dirs;
 		config->getChildren("directory", dirs);

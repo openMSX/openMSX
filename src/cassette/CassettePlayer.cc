@@ -4,7 +4,6 @@
 #include "CassettePlayer.hh"
 #include "CommandController.hh"
 #include "SettingsConfig.hh"
-#include "Config.hh"
 #include "xmlx.hh"
 #include "File.hh"
 #include "FileContext.hh"
@@ -39,13 +38,12 @@ const string& MSXCassettePlayerCLI::optionHelp() const
 
 void MSXCassettePlayerCLI::parseFileType(const string &filename)
 {
-	XMLElement config("config");
-	config.addAttribute("id", "cassetteplayer");
-	config.addChild(
+	auto_ptr<XMLElement> config(new XMLElement("config"));
+	config->addAttribute("id", "cassetteplayer");
+	config->addChild(
 		auto_ptr<XMLElement>(new XMLElement("filename", filename)));
-	
 	UserFileContext context;
-	SettingsConfig::instance().loadConfig(config, context);
+	SettingsConfig::instance().loadConfig(context, config);
 }
 const string& MSXCassettePlayerCLI::fileTypeHelp() const
 {
@@ -60,11 +58,11 @@ CassettePlayer::CassettePlayer()
 	removeTape();
 
 	SettingsConfig& conf = SettingsConfig::instance();
-	Config* config = conf.findConfigById("cassetteplayer");
+	const XMLElement* config = conf.findConfigById("cassetteplayer");
 	if (config) {
-		const string& filename = config->getParameter("filename");
+		const string& filename = config->getChildData("filename");
 		try {
-			insertTape(config->getContext(), filename);
+			insertTape(config->getFileContext().resolve(filename));
 		} catch (MSXException& e) {
 			throw FatalError("Couldn't load tape image: " + filename);
 		}
@@ -84,16 +82,15 @@ CassettePlayer::~CassettePlayer()
 	delete cassette;
 }
 
-void CassettePlayer::insertTape(FileContext &context,
-                                const string &filename)
+void CassettePlayer::insertTape(const string& filename)
 {
 	CassetteImage *tmp;
 	try {
 		// first try WAV
-		tmp = new WavImage(context, filename);
+		tmp = new WavImage(filename);
 	} catch (MSXException &e) {
 		// if that fails use CAS
-		tmp = new CasImage(context, filename);
+		tmp = new CasImage(filename);
 	}
 	delete cassette;
 	cassette = tmp;
@@ -198,7 +195,7 @@ string CassettePlayer::execute(const vector<string> &tokens)
 		try {
 			result += "Changing tape\n";
 			UserFileContext context;
-			insertTape(context, tokens[1]);
+			insertTape(context.resolve(tokens[1]));
 			CliCommOutput::instance().update(CliCommOutput::MEDIA,
 			                         "cassetteplayer", tokens[1]);
 		} catch (MSXException &e) {

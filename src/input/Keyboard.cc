@@ -7,7 +7,6 @@
 #include "Keyboard.hh"
 #include "EventDistributor.hh"
 #include "SettingsConfig.hh"
-#include "Config.hh"
 #include "File.hh"
 #include "FileContext.hh"
 #include "CommandController.hh"
@@ -79,11 +78,10 @@ Keyboard::Keyboard(bool keyG)
 	memset(cmdKeyMatrix,  255, sizeof(cmdKeyMatrix));
 	memset(userKeyMatrix, 255, sizeof(userKeyMatrix));
 	
-	Config* config = SettingsConfig::instance().findConfigById("KeyMap");
+	const XMLElement* config = SettingsConfig::instance().findConfigById("KeyMap");
 	if (config) {
-		string filename = config->getParameter("filename");
-		filename = config->getContext().resolve(filename);
-		loadKeymapfile(filename);
+		string filename = config->getChildData("filename");
+		loadKeymapfile(config->getFileContext().resolve(filename));
 	}
 
 	EventDistributor::instance().registerEventListener(KEY_DOWN_EVENT, *this);

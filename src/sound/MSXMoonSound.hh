@@ -10,7 +10,7 @@ namespace openmsx {
 class MSXMoonSound : public MSXIODevice
 {
 public:
-	MSXMoonSound(Config* config, const EmuTime& time);
+	MSXMoonSound(const XMLElement& config, const EmuTime& time);
 	virtual ~MSXMoonSound();
 	
 	virtual void reset(const EmuTime& time);

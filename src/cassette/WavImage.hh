@@ -13,12 +13,10 @@ using std::string;
 
 namespace openmsx {
 
-class FileContext;
-
 class WavImage : public CassetteImage
 {
 public:
-	WavImage(FileContext& context, const string& fileName);
+	WavImage(const string& fileName);
 	virtual ~WavImage();
 
 	virtual short getSampleAt(const EmuTime& time);

@@ -4,20 +4,21 @@
 #include "RP5C01.hh"
 #include "File.hh"
 #include "SettingsConfig.hh"
-#include "Config.hh"
 
 namespace openmsx {
 
-MSXRTC::MSXRTC(Config* config, const EmuTime& time)
+MSXRTC::MSXRTC(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
 	  sram(getName() + " SRAM", 4 * 13, config),
 	  settingsConfig(SettingsConfig::instance())
 {
 	bool emuTimeBased = true;
-	Config* rtcConfig = settingsConfig.findConfigById("RTC");
+	const XMLElement* rtcConfig = settingsConfig.findConfigById("RTC");
 	if (rtcConfig) {
-		string mode = rtcConfig->getParameter("mode", "EmuTime"); 
-		emuTimeBased = (mode == "EmuTime");
+		const XMLElement* modeParam = rtcConfig->getChild("mode");
+		if (modeParam) {
+			emuTimeBased = (modeParam->getData() == "EmuTime");
+		}
 	}
 	
 	rp5c01 = new RP5C01(emuTimeBased, &sram[0], time);

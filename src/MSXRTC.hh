@@ -14,7 +14,7 @@ class SettingsConfig;
 class MSXRTC : public MSXIODevice
 {
 public:
-	MSXRTC(Config* config, const EmuTime& time);
+	MSXRTC(const XMLElement& config, const EmuTime& time);
 	virtual ~MSXRTC(); 
 
 	virtual void reset(const EmuTime& time);

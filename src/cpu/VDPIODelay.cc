@@ -2,17 +2,20 @@
 
 #include "VDPIODelay.hh"
 #include "MSXCPU.hh"
-#include "Config.hh"
 #include "FileContext.hh"
+#include "xmlx.hh"
 
 namespace openmsx {
 
-Config* VDPIODelay::getConfig()
+const XMLElement& VDPIODelay::getConfig()
 {
-	XMLElement deviceElem("VDPIODelay");
-	SystemFileContext dummyContext;
-	static Config config(deviceElem, dummyContext);
-	return &config;
+	static XMLElement deviceElem("VDPIODelay");
+	static bool init = false;
+	if (!init) {
+		init = true;
+		deviceElem.setFileContext(auto_ptr<FileContext>(new SystemFileContext()));
+	}
+	return deviceElem;
 }
 
 VDPIODelay::VDPIODelay(MSXIODevice* device_, const EmuTime& time)

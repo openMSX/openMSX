@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-MSXE6Timer::MSXE6Timer(Config *config, const EmuTime& time)
+MSXE6Timer::MSXE6Timer(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	reset(time);

@@ -10,7 +10,7 @@ namespace openmsx {
 class RomHalnote : public Rom8kBBlocks
 {
 public:
-	RomHalnote(Config* config, const EmuTime& time, auto_ptr<Rom> rom);
+	RomHalnote(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom);
 	virtual ~RomHalnote();
 	
 	virtual void reset(const EmuTime& time);

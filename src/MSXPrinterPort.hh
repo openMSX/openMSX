@@ -26,7 +26,7 @@ protected:
 class MSXPrinterPort : public MSXIODevice, public Connector
 {
 public:
-	MSXPrinterPort(Config* config, const EmuTime& time);
+	MSXPrinterPort(const XMLElement& config, const EmuTime& time);
 	virtual ~MSXPrinterPort();
 
 	// MSXIODevice

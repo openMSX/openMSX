@@ -13,7 +13,7 @@ namespace openmsx {
 class MSXMatsushita : public MSXDevice, public MSXSwitchedDevice
 {
 public:
-	MSXMatsushita(Config* config, const EmuTime& time);
+	MSXMatsushita(const XMLElement& config, const EmuTime& time);
 	virtual ~MSXMatsushita();
 
 	virtual void reset(const EmuTime& time);

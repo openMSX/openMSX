@@ -4,9 +4,7 @@
 #include "FileContext.hh"
 #include "FileOperations.hh"
 #include "SettingsConfig.hh"
-#include "Config.hh"
 #include "File.hh"
-
 
 namespace openmsx {
 
@@ -208,12 +206,12 @@ const vector<string> &UserFileContext::getPaths()
 	if (!alreadyInit) {
 		alreadyInit = true;
 		paths.push_back("./");
-		Config* config = SettingsConfig::instance().
+		const XMLElement* config = SettingsConfig::instance().
 			findConfigById("UserDirectories");
 		if (config) {
-			Config::Children pathList;
+			XMLElement::Children pathList;
 			config->getChildren("directory", pathList);
-			for (Config::Children::const_iterator it =
+			for (XMLElement::Children::const_iterator it =
 			         pathList.begin();
 			     it != pathList.end(); ++it) {
 				string path = (*it)->getData();

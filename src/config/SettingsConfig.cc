@@ -25,8 +25,7 @@ void SettingsConfig::loadSetting(FileContext& context, const string& filename)
 {
 	File file(context.resolve(filename));
 	XMLDocument doc(file.getLocalName());
-	SettingFileContext context2(file.getURL());
-	handleDoc(doc, context2);
+	handleDoc(doc, context);
 }
 
 } // namespace openmsx

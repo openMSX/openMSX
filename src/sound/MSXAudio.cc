@@ -3,18 +3,18 @@
 #include "MSXAudio.hh"
 #include "Mixer.hh"
 #include "Y8950.hh"
-#include "Config.hh"
+#include "xmlx.hh"
 
 namespace openmsx {
 
-MSXAudio::MSXAudio(Config* config, const EmuTime& time)
+MSXAudio::MSXAudio(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
-	short volume = (short)deviceConfig->getParameterAsInt("volume");
+	short volume = config.getChildDataAsInt("volume");
 
 	// left / right / mono
 	Mixer::ChannelMode mode = Mixer::MONO;
-	const string &stereomode = config->getParameter("mode");
+	const string &stereomode = config.getChildData("mode");
 	if (stereomode == "left") {
 		mode=Mixer::MONO_LEFT;
 	} else if (stereomode == "right") {
@@ -22,9 +22,9 @@ MSXAudio::MSXAudio(Config* config, const EmuTime& time)
 	}
 
 	// SampleRAM size
-	int ramSize = config->getParameterAsInt("sampleram", 256); // size in kb
+	int ramSize = config.getChildDataAsInt("sampleram", 256); // size in kb
 
-	y8950 = new Y8950(config->getId(), volume, ramSize * 1024, time, mode);
+	y8950 = new Y8950(getName(), volume, ramSize * 1024, time, mode);
 	reset(time);
 }
 

@@ -7,7 +7,6 @@
 #include "xmlx.hh"
 #include "FileContext.hh"
 #include "File.hh"
-#include "Config.hh"
 #include "CliCommOutput.hh"
 #include "StringOp.hh"
 
@@ -274,7 +273,7 @@ auto_ptr<RomInfo> RomInfo::searchRomDB(const Rom& rom)
 	return auto_ptr<RomInfo>(NULL);
 }
 
-auto_ptr<RomInfo> RomInfo::fetchRomInfo(const Rom& rom, const Config& deviceConfig)
+auto_ptr<RomInfo> RomInfo::fetchRomInfo(const Rom& rom, const XMLElement& deviceConfig)
 {
 	// Look for the ROM in the ROM DB.
 	auto_ptr<RomInfo> info(searchRomDB(rom));
@@ -284,7 +283,7 @@ auto_ptr<RomInfo> RomInfo::fetchRomInfo(const Rom& rom, const Config& deviceConf
 	
 	// Get specified mapper type from the config.
 	// Note: config may specify "auto" as well.
-	string typestr = deviceConfig.getParameter("mappertype", "auto");
+	string typestr = deviceConfig.getChildData("mappertype", "auto");
 	if (typestr == "auto") {
 		// Guess mapper type, if it was not in DB.
 		if (info->mapperType == UNKNOWN) {

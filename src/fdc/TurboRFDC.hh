@@ -11,7 +11,7 @@ namespace openmsx {
 class TurboRFDC : public MSXFDC
 {
 public:
-	TurboRFDC(Config* config, const EmuTime& time);
+	TurboRFDC(const XMLElement& config, const EmuTime& time);
 	virtual ~TurboRFDC();
 	
 	virtual void reset(const EmuTime& time);

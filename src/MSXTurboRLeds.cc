@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-MSXTurboRLeds::MSXTurboRLeds(Config* config, const EmuTime& time)
+MSXTurboRLeds::MSXTurboRLeds(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	turborPaused = false;

@@ -7,22 +7,22 @@
 #include "MSXCPUInterface.hh"
 #include "KeyClick.hh"
 #include "CassettePort.hh"
-#include "Config.hh"
+#include "xmlx.hh"
 #include "RenShaTurbo.hh"
 
 namespace openmsx {
 
 // MSXDevice
 
-MSXPPI::MSXPPI(Config* config, const EmuTime& time)
+MSXPPI::MSXPPI(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
 	  cassettePort(CassettePortFactory::instance()),
 	  cpuInterface(MSXCPUInterface::instance()),
 	  leds(Leds::instance()),
 	  renshaTurbo(RenShaTurbo::instance())
 {
-	short volume = (short)deviceConfig->getParameterAsInt("volume");
-	bool keyGhosting = deviceConfig->getParameterAsBool("key_ghosting", true);
+	short volume = deviceConfig.getChildDataAsInt("volume");
+	bool keyGhosting = deviceConfig.getChildDataAsBool("key_ghosting", true);
 	keyboard = new Keyboard(keyGhosting);
 	i8255 = new I8255(*this, time);
 	click = new KeyClick(volume, time);
@@ -37,13 +37,13 @@ MSXPPI::~MSXPPI()
 	delete click;
 }
 
-void MSXPPI::reset(const EmuTime &time)
+void MSXPPI::reset(const EmuTime& time)
 {
 	i8255->reset(time);
 	click->reset(time);
 }
 
-byte MSXPPI::readIO(byte port, const EmuTime &time)
+byte MSXPPI::readIO(byte port, const EmuTime& time)
 {
 	switch (port & 0x03) {
 	case 0:
@@ -60,7 +60,7 @@ byte MSXPPI::readIO(byte port, const EmuTime &time)
 	}
 }
 
-void MSXPPI::writeIO(byte port, byte value, const EmuTime &time)
+void MSXPPI::writeIO(byte port, byte value, const EmuTime& time)
 {
 	switch (port & 0x03) {
 	case 0:
@@ -83,18 +83,18 @@ void MSXPPI::writeIO(byte port, byte value, const EmuTime &time)
 
 // I8255Interface
 
-byte MSXPPI::readA(const EmuTime &time)
+byte MSXPPI::readA(const EmuTime& time)
 {
 	// port A is normally an output on MSX, reading from an output port
 	// is handled internally in the 8255
 	return 255;	//TODO check this
 }
-void MSXPPI::writeA(byte value, const EmuTime &time)
+void MSXPPI::writeA(byte value, const EmuTime& time)
 {
 	cpuInterface.setPrimarySlots(value);
 }
 
-byte MSXPPI::readB(const EmuTime &time)
+byte MSXPPI::readB(const EmuTime& time)
 {
        if (selectedRow != 8) {
                return keyboard->getKeys()[selectedRow];
@@ -103,20 +103,20 @@ byte MSXPPI::readB(const EmuTime &time)
        }
 
 }
-void MSXPPI::writeB(byte value, const EmuTime &time)
+void MSXPPI::writeB(byte value, const EmuTime& time)
 {
 	// probably nothing happens on a real MSX
 }
 
-nibble MSXPPI::readC1(const EmuTime &time)
+nibble MSXPPI::readC1(const EmuTime& time)
 {
 	return 15;	// TODO check this
 }
-nibble MSXPPI::readC0(const EmuTime &time)
+nibble MSXPPI::readC0(const EmuTime& time)
 {
 	return 15;	// TODO check this
 }
-void MSXPPI::writeC1(nibble value, const EmuTime &time)
+void MSXPPI::writeC1(nibble value, const EmuTime& time)
 {
 	cassettePort.setMotor(!(value & 1), time);	// 0=0n, 1=Off
 	cassettePort.cassetteOut(value & 2, time);
@@ -126,7 +126,7 @@ void MSXPPI::writeC1(nibble value, const EmuTime &time)
 
 	click->setClick(value & 8, time);
 }
-void MSXPPI::writeC0(nibble value, const EmuTime &time)
+void MSXPPI::writeC0(nibble value, const EmuTime& time)
 {
 	selectedRow = value;
 }

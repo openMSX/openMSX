@@ -7,7 +7,6 @@
 #include "RealTime.hh"
 #include "SoundDevice.hh"
 #include "SettingsConfig.hh"
-#include "Config.hh"
 #include "CliCommOutput.hh"
 #include "InfoCommand.hh"
 #include "Scheduler.hh"
@@ -38,10 +37,10 @@ Mixer::Mixer()
 	// default values
 	int freq = 22050;
 	int samples = 512;
-	Config* config = settingsConfig.findConfigById("Mixer");
+	const XMLElement* config = settingsConfig.findConfigById("Mixer");
 	if (config) {
-		freq = config->getParameterAsInt("frequency", freq);
-		samples = config->getParameterAsInt("samples", samples);
+		freq = config->getChildDataAsInt("frequency", freq);
+		samples = config->getChildDataAsInt("samples", samples);
 	}
 
 	SDL_AudioSpec desired;

@@ -6,11 +6,27 @@
 #include "EventDistributor.hh"
 #include "Keys.hh"
 #include "SettingsConfig.hh"
-#include "Config.hh"
 #include "CliCommOutput.hh"
 #include "InputEvents.hh"
 
 namespace openmsx {
+
+static Keys::KeyCode getConfigKeyCode(const string& keyname,
+                                      const XMLElement& config)
+{
+	Keys::KeyCode testKey = Keys::K_NONE;
+	const XMLElement* keyElem = config.getChild(keyname);
+	if (keyElem) {
+		string key = keyElem->getData();
+		testKey = Keys::getCode(key);
+		if (testKey == Keys::K_NONE) {
+			CliCommOutput::instance().printWarning(
+				"unknown keycode \"" + key + "\" for key \"" +
+				keyname + "\" in KeyJoystick configuration");
+		}
+	}
+	return testKey;
+}
 
 KeyJoystick::KeyJoystick()
 {
@@ -28,14 +44,14 @@ KeyJoystick::KeyJoystick()
 	buttonAKey = Keys::K_NONE;
 	buttonBKey = Keys::K_NONE;
 
-	Config* config = SettingsConfig::instance().findConfigById("KeyJoystick");
+	const XMLElement* config = SettingsConfig::instance().findConfigById("KeyJoystick");
 	if (config) {
-		upKey      = getConfigKeyCode("upkey",      config);
-		rightKey   = getConfigKeyCode("rightkey",   config);
-		downKey    = getConfigKeyCode("downkey",    config);
-		leftKey    = getConfigKeyCode("leftkey",    config);
-		buttonAKey = getConfigKeyCode("buttonakey", config);
-		buttonBKey = getConfigKeyCode("buttonbkey", config);
+		upKey      = getConfigKeyCode("upkey",      *config);
+		rightKey   = getConfigKeyCode("rightkey",   *config);
+		downKey    = getConfigKeyCode("downkey",    *config);
+		leftKey    = getConfigKeyCode("leftkey",    *config);
+		buttonAKey = getConfigKeyCode("buttonakey", *config);
+		buttonBKey = getConfigKeyCode("buttonbkey", *config);
 	} else {
 		CliCommOutput::instance().printWarning(
 			"KeyJoystick not configured, so it won't be usable...");
@@ -46,24 +62,6 @@ KeyJoystick::~KeyJoystick()
 {
 	EventDistributor::instance().unregisterEventListener(KEY_DOWN_EVENT, *this);
 	EventDistributor::instance().unregisterEventListener(KEY_UP_EVENT  , *this);
-}
-
-// auxilliary function for constructor
-
-Keys::KeyCode KeyJoystick::getConfigKeyCode(const string& keyname,
-                                            const Config* config)
-{
-	Keys::KeyCode testKey = Keys::K_NONE;
-	if (config->hasParameter(keyname)) {
-		testKey = Keys::getCode(config->getParameter(keyname));
-		if (testKey == Keys::K_NONE) {
-			CliCommOutput::instance().printWarning(
-				"unknown keycode \"" +
-				config->getParameter(keyname) + "\" for key \"" +
-				keyname + "\" in KeyJoystick configuration");
-		}
-	}
-	return testKey;
 }
 
 // Pluggable

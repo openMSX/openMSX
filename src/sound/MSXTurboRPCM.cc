@@ -2,15 +2,15 @@
 
 #include "MSXTurboRPCM.hh"
 #include "DACSound8U.hh"
-#include "Config.hh"
+#include "xmlx.hh"
 
 namespace openmsx {
 
-MSXTurboRPCM::MSXTurboRPCM(Config* config, const EmuTime& time)
+MSXTurboRPCM::MSXTurboRPCM(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 	, AudioInputConnector("pcminput")
 {
-	short volume = (short)deviceConfig->getParameterAsInt("volume");
+	short volume = config.getChildDataAsInt("volume");
 	dac = new DACSound8U("PCM", "Turbo-R PCM", volume, time);
 
 	reset(time);

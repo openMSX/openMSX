@@ -2,10 +2,11 @@
 
 #include "RomHarryFox.hh"
 #include "CPU.hh"
+#include "Rom.hh"
 
 namespace openmsx {
 
-RomHarryFox::RomHarryFox(Config* config, const EmuTime& time, auto_ptr<Rom> rom)
+RomHarryFox::RomHarryFox(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom)
 	: MSXDevice(config, time), Rom16kBBlocks(config, time, rom)
 {
 	reset(time);

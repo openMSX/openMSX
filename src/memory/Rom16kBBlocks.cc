@@ -3,11 +3,12 @@
 #include "Rom16kBBlocks.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
-
+#include "Rom.hh"
 
 namespace openmsx {
 
-Rom16kBBlocks::Rom16kBBlocks(Config* config, const EmuTime& time, auto_ptr<Rom> rom)
+Rom16kBBlocks::Rom16kBBlocks(const XMLElement& config, const EmuTime& time,
+                             auto_ptr<Rom> rom)
 	: MSXDevice(config, time), MSXRom(config, time, rom)
 {
 	for (int i = 0; i < 4; i++) {
