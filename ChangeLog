@@ -1,5 +1,10 @@
 $Id$
 
+2004-04-07 Maarten ter Huurne <maarten@treewalker.org>
+	* Several changes to the build system; the main visible effect is
+	  that all generated files are now in "derived".
+	  You should re-run "autogen.sh" after updating.
+
 2004-04-07 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Generate update event for media change
 	* Implemeneted "openmsx_info connectionclass" info topic:
