@@ -18,6 +18,7 @@ class SDLConsole : public SDLInteractiveConsole
 		virtual ~SDLConsole();
 
 		virtual void drawConsole();
+		virtual bool loadFont(const std::string &filename);
 		virtual bool loadBackground(const std::string &filename);
 
 	private:
@@ -65,6 +66,7 @@ class SDLConsole : public SDLInteractiveConsole
 	
 		// 
 		BackgroundSetting* backgroundSetting;
+		FontSetting *fontSetting;
 };
 
 #endif

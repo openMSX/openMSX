@@ -25,6 +25,19 @@ class BackgroundSetting : public FilenameSetting
 		SDLInteractiveConsole* console;
 };
 
+class FontSetting : public FilenameSetting
+{
+	public:
+		FontSetting(SDLInteractiveConsole *console,
+		            const std::string &filename);
+
+	protected:
+		virtual bool checkUpdate(const std::string &newValue);
+
+	private:
+		SDLInteractiveConsole* console;
+};
+
 
 class SDLInteractiveConsole : public InteractiveConsole, private EventListener
 {
@@ -32,6 +45,7 @@ class SDLInteractiveConsole : public InteractiveConsole, private EventListener
 		SDLInteractiveConsole();
 		virtual ~SDLInteractiveConsole();
 		virtual bool loadBackground(const std::string &filename) = 0;
+		virtual bool loadFont(const std::string &filename) = 0;
 
 	protected:
 		bool isVisible;

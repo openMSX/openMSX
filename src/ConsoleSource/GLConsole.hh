@@ -28,6 +28,7 @@ class GLConsole : public SDLInteractiveConsole
 		virtual ~GLConsole();
 
 		virtual void drawConsole();
+		virtual bool loadFont(const std::string &filename);
 		virtual bool loadBackground(const std::string &filename);
 
 	private:
@@ -41,6 +42,7 @@ class GLConsole : public SDLInteractiveConsole
 		GLFont *font;
 		GLuint backgroundTexture;
 		BackgroundSetting* backgroundSetting;
+		FontSetting* fontSetting;
 		GLfloat backTexCoord[4];
 		int consoleWidth;
 		int consoleHeight;

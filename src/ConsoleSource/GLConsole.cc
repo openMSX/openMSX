@@ -32,11 +32,8 @@ GLConsole::GLConsole()
 	consoleHeight = (screen->h / 15) * 6;
 	
 	// load font
-	int width, height;
-	GLfloat fontTexCoord[4];
-	GLuint fontTexture = 0;
-	loadTexture(fontName, fontTexture, width, height, fontTexCoord);
-	font = new GLFont(fontTexture, width, height, fontTexCoord);
+	font = NULL;
+	fontSetting = new FontSetting(this, fontName);
 
 	// load background
 	backgroundTexture = 0;
@@ -60,6 +57,23 @@ int GLConsole::powerOfTwo(int a)
 		res <<= 1;
 	}
 	return res;
+}
+
+bool GLConsole::loadFont(const std::string &filename)
+{
+	if (filename.empty()) {
+		return false;
+	}
+	int width, height;
+	GLfloat fontTexCoord[4];
+	GLuint fontTexture = 0;
+	if (loadTexture(filename, fontTexture, width, height, fontTexCoord)) {
+		delete font;
+		font = new GLFont(fontTexture, width, height, fontTexCoord);
+		return true;
+	} else {
+		return false;
+	}
 }
 
 bool GLConsole::loadBackground(const std::string &filename)

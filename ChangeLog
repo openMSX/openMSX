@@ -1,5 +1,9 @@
 $Id$
 
+2003-02-19 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented "console_font" setting:
+	   - change the console font at run-time
+
 2003-02-19 Maarten ter Huurne <maarten@treewalker.org>
 	* Implemented "toggle" command, which toggles any BooleanSetting.
 	* Replaced "fullscreen" command by "toggle fullscreen".

@@ -33,6 +33,29 @@ bool BackgroundSetting::checkUpdate(const std::string &newValue)
 	return result;
 }
 
+// class FontSetting
+
+FontSetting::FontSetting(SDLInteractiveConsole *console_,
+                         const std::string &filename)
+	: FilenameSetting("console_font", "console font file"),
+	  console(console_)
+{
+	setValueString(filename);
+}
+
+bool FontSetting::checkUpdate(const std::string &newValue)
+{
+	bool result;
+	try {
+		UserFileContext context;
+		result = console->loadFont(context.resolve(newValue));
+	} catch (FileException &e) {
+		// file not found
+		result = false;
+	}
+	return result;
+}
+
 
 // class SDLInteractiveConsole
 

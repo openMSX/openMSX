@@ -22,11 +22,6 @@
 
 SDLConsole::SDLConsole(SDL_Surface *screen)
 {
-	if (fontName.empty()) {
-		font = NULL;
-		return;
-	}
-
 	blink = false;
 	lastBlinkTime = 0;
 	
@@ -34,10 +29,10 @@ SDLConsole::SDLConsole(SDL_Surface *screen)
 	backgroundImage = NULL;
 	consoleSurface  = NULL;
 	inputBackground = NULL;
+	font = NULL;
 	consoleAlpha = SDL_ALPHA_OPAQUE;
 	
-	File file(context->resolve(fontName));
-	font = new SDLFont(&file);
+	fontSetting = new FontSetting(this, fontName);
 	
 	SDL_Rect rect;
 	rect.x = (screen->w / 32);
@@ -174,6 +169,23 @@ bool SDLConsole::loadBackground(const std::string &filename)
 	SDL_FreeSurface(temp);
 	reloadBackground();
 
+	return true;
+}
+
+bool SDLConsole::loadFont(const std::string &filename)
+{
+	if (filename.empty()) {
+		return false;
+	}
+	try {
+		File file(filename);
+		SDLFont* newFont = new SDLFont(&file);
+		delete font;
+		font = newFont;
+		font->setSurface(consoleSurface);
+	} catch (MSXException &e) {
+		return false;
+	}
 	return true;
 }
 
