@@ -6,6 +6,7 @@ $Id$
 	   - some parts are _very_ slow now, implementation can still be
 	     optimized a lot and speed should also improve when VDPVRAM
 	     is finished. 
+	* Implemented "vdpregs" command to help vdp debugging
 
 2002-08-26 Maarten ter Huurne <mth@stack.nl>
 	* Updated C-BIOS to version 0.05.

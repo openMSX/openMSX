@@ -29,6 +29,7 @@ TODO:
 #include "CommandController.hh"
 #include "Scheduler.hh"
 #include <string>
+#include <iomanip>
 #include <cassert>
 
 
@@ -39,6 +40,7 @@ TODO:
 
 VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
+	, vdpRegsCmd(this)
 	, paletteCmd(this)
 	, rendererCmd(this)
 {
@@ -120,6 +122,7 @@ VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
 	frameStart(time);
 
 	// Register console commands.
+	CommandController::instance()->registerCommand(vdpRegsCmd, "vdpregs");
 	CommandController::instance()->registerCommand(paletteCmd, "palette");
 	CommandController::instance()->registerCommand(rendererCmd, "renderer");
 }
@@ -127,6 +130,7 @@ VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
 VDP::~VDP()
 {
 	PRT_DEBUG("Destroying a VDP object");
+	CommandController::instance()->unregisterCommand("vdpregs");
 	CommandController::instance()->unregisterCommand("palette");
 	CommandController::instance()->unregisterCommand("renderer");
 	delete cmdEngine;
@@ -818,6 +822,36 @@ void VDP::updateDisplayMode(byte reg0, byte reg1, const EmuTime &time)
 		// TODO: Why didn't I implement this yet?
 		//       It's one line of code and overhead is not huge either.
 	}
+}
+
+// VDPRegsCmd inner class:
+
+VDP::VDPRegsCmd::VDPRegsCmd(VDP *vdp)
+{
+	this->vdp = vdp;
+}
+
+void VDP::VDPRegsCmd::execute(const std::vector<std::string> &tokens)
+{
+	// Print palette in 4x4 table.
+	std::ostringstream out;
+	for (int row = 0; row < 8; row++) {
+		for (int col = 0; col < 4; col++) {
+			int reg = col * 8 + row;
+			int value = vdp->controlRegs[reg];
+			out << std::dec << std::setw(2) << reg;
+			out << " : ";
+			out << std::hex << std::setw(2) << value;
+			out << "   ";
+		}
+		out << "\n";
+	}
+	print(out.str());
+}
+
+void VDP::VDPRegsCmd::help(const std::vector<std::string> &tokens)
+{
+	print("Prints the current state of the VDP registers.");
 }
 
 // PaletteCmd inner class:

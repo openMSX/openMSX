@@ -191,3 +191,10 @@ throttle
     throttle on   turn throttle mode on
     throttle off  turn throttle mode off
     throttle      toggle throttle mode
+    
+
+vdpregs
+-------
+
+  Shows the current VDP register settings.
+  [ mainly usefull for debugging purposes ]

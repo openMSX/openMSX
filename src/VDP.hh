@@ -334,6 +334,16 @@ public:
 	}
 
 private:
+	class VDPRegsCmd : public Command {
+	public:
+		VDPRegsCmd(VDP *vdp);
+		virtual void execute(const std::vector<std::string> &tokens);
+		virtual void help(const std::vector<std::string> &tokens);
+	private:
+		VDP *vdp;
+	};
+	friend class VDPRegsCmd;
+	
 	class PaletteCmd : public Command {
 	public:
 		PaletteCmd(VDP *vdp);
@@ -618,6 +628,10 @@ private:
 	  * Contains the lower 14 bits of the current VRAM access address.
 	  */
 	int vramPointer;
+
+	/** Implements the vdp register print command.
+	  */
+	VDPRegsCmd vdpRegsCmd;
 
 	/** Implements the palette print command.
 	  */
