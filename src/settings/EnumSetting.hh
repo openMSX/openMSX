@@ -68,13 +68,14 @@ public:
 	typedef typename EnumSettingBase<ValueType>::Map Map;
 
 	EnumSetting(const string& name, const string& description,
-		    const ValueType& initialValue, const Map& map);
+	            const ValueType& initialValue, const Map& map,
+	            SaveSetting save = SAVE_SETTING);
 	virtual ~EnumSetting();
 };
 
 
 
-// class EnumSetting
+// class EnumSettingBase
 
 template<typename ValueType>
 EnumSettingBase<ValueType>::EnumSettingBase(
@@ -189,10 +190,11 @@ string EnumSettingBase<ValueType>::EnumInfo::help(
 template<typename ValueType>
 EnumSetting<ValueType>::EnumSetting(
 	const string& name, const string& description,
-	const ValueType& initialValue, const Map& map_)
+	const ValueType& initialValue, const Map& map_,
+	SaveSetting save)
 	: EnumSettingBase<ValueType>(name, description, initialValue, map_)
 {
-	Setting<ValueType>::initSetting(SAVE_SETTING);
+	Setting<ValueType>::initSetting(save);
 }
 
 template<typename ValueType>

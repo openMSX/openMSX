@@ -1,8 +1,10 @@
 $Id$
 
 2004-09-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
-	* implemented TC8566AF format command:
+	* Implemented TC8566AF format command:
 	   based on code from BlueMSX written by Daniel Vik
+	* Don't save soundchip mode setting:
+	   it gave conflicts with the mode setting in hardwareconfig.xml
 
 2004-09-23 Maarten ter Huurne <maarten@treewalker.org>
 	* Initialise I register to 0, instead of 0xFF.
