@@ -28,6 +28,7 @@ libEvents_la_SOURCES = \
 	EventDistributor.cc EventDistributor.hh \
 	EventListener.hh \
 	HotKey.cc HotKey.hh \
+	AfterCommand.cc AfterCommand.hh \
 	KeyEventInserter.cc KeyEventInserter.hh \
 	Keys.cc Keys.hh \
 	SDLEventInserter.cc SDLEventInserter.hh \

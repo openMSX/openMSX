@@ -1,5 +1,10 @@
 $Id$
 
+2003-11-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Split EventDistrubutor in EventDistributor and AfterCommand:
+	   - together with the "quit" cmd move this removes the circular
+	     dependency between EventDistributor and Scheduler
+
 2003-11-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* HotKey is no longer a singleton:
 	   - not required anymore since everything is done by bind cmds

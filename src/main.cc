@@ -16,6 +16,7 @@
 #include "Icon.hh"
 #include "CliCommInput.hh"
 #include "HotKey.hh"
+#include "AfterCommand.hh"
 
 using std::auto_ptr;
 using std::cerr;
@@ -65,6 +66,7 @@ int main(int argc, char **argv)
 				cliCommInput.reset(new CliCommInput());
 			}
 			HotKey hotkey;
+			AfterCommand afterCommand;
 			MSXMotherBoard::instance()->run(
 				parseStatus == CommandLineParser::RUN);
 		}
