@@ -213,13 +213,16 @@ void FilenameSetting::tabCompletion(std::vector<std::string> &tokens) const
 
 SettingsManager::SettingsManager()
 	: setCommand(this)
+	, toggleCommand(this)
 {
 	CommandController::instance()->registerCommand(&setCommand, "set");
+	CommandController::instance()->registerCommand(&toggleCommand, "toggle");
 }
 
 SettingsManager::~SettingsManager()
 {
 	CommandController::instance()->unregisterCommand(&setCommand, "set");
+	CommandController::instance()->unregisterCommand(&toggleCommand, "toggle");
 }
 
 
@@ -239,6 +242,7 @@ void SettingsManager::SetCommand::execute(
 	}
 
 	if (nrTokens == 1) {
+		// List all settings.
 		std::map<std::string, Setting *>::const_iterator it =
 			manager->settingsMap.begin();
 		for (; it != manager->settingsMap.end(); it++) {
@@ -247,6 +251,7 @@ void SettingsManager::SetCommand::execute(
 		return;
 	}
 
+	// Get setting object.
 	const std::string &name = tokens[1];
 	Setting *setting = manager->getByName(name);
 	if (!setting) {
@@ -299,6 +304,78 @@ void SettingsManager::SetCommand::tabCompletion(
 			if (it != manager->settingsMap.end()) {
 				it->second->tabCompletion(tokens);
 			}
+			break;
+		}
+	}
+}
+
+// ToggleCommand implementation:
+
+SettingsManager::ToggleCommand::ToggleCommand(SettingsManager *manager_)
+	: manager(manager_)
+{
+}
+
+void SettingsManager::ToggleCommand::execute(
+	const std::vector<std::string> &tokens, const EmuTime &time)
+{
+	int nrTokens = tokens.size();
+	if (nrTokens == 0 || nrTokens > 2) {
+		throw CommandException("Wrong number of parameters");
+	}
+
+	if (nrTokens == 1) {
+		// List all boolean settings.
+		std::map<std::string, Setting *>::const_iterator it =
+			manager->settingsMap.begin();
+		for (; it != manager->settingsMap.end(); it++) {
+			if (typeid(*(it->second)) == typeid(BooleanSetting)) {
+				print(it->first);
+			}
+		}
+		return;
+	}
+ 
+	// Get setting object.
+	const std::string &name = tokens[1];
+	Setting *setting = manager->getByName(name);
+	if (!setting) {
+		throw CommandException(
+			"There is no setting named \"" + name + "\"" );
+	}
+	if (typeid(*setting) != typeid(BooleanSetting)) {
+		throw CommandException(
+			"The setting named \"" + name + "\" is not a boolean" );
+	}
+	BooleanSetting *boolSetting = (BooleanSetting *)setting;
+
+	// Actual toggle.
+	boolSetting->setValue(!boolSetting->getValue());
+
+}
+
+void SettingsManager::ToggleCommand::help(
+	const std::vector<std::string> &tokens) const
+{
+	print("toggle      : list all boolean settings");
+	print("toggle name : toggles a boolean setting");
+}
+
+void SettingsManager::ToggleCommand::tabCompletion(
+	std::vector<std::string> &tokens) const
+{
+	switch (tokens.size()) {
+		case 2: {
+			// complete setting name
+			std::list<std::string> settings;
+			std::map<std::string, Setting *>::const_iterator it
+				= manager->settingsMap.begin();
+			for (; it != manager->settingsMap.end(); it++) {
+				if (typeid(*(it->second)) == typeid(BooleanSetting)) {
+					settings.push_back(it->first);
+				}
+			}
+			CommandController::completeString(tokens, settings);
 			break;
 		}
 	}

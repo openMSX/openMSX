@@ -270,6 +270,19 @@ private:
 	};
 	friend class SetCommand;
 	SetCommand setCommand;
+
+	class ToggleCommand : public Command {
+	public:
+		ToggleCommand(SettingsManager *manager);
+		virtual void execute(const std::vector<std::string> &tokens,
+		                     const EmuTime &time);
+		virtual void help   (const std::vector<std::string> &tokens) const;
+		virtual void tabCompletion(std::vector<std::string> &tokens) const;
+	private:
+		SettingsManager *manager;
+	};
+	friend class ToggleCommand;
+	ToggleCommand toggleCommand;
 };
 
 #endif //__SETTINGS_HH__
