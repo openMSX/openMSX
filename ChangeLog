@@ -1,5 +1,8 @@
 $Id$
 
+2003-06-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Print error msg when user gives wrong diskimage on the cmd line
+
 2003-06-06 Maarten ter Huurne <maarten@treewalker.org>
 	* Added FloatSetting class.
 	* Introduced new setting "gamma" for gamma correction.

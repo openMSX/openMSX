@@ -127,13 +127,19 @@ RealDrive::RealDrive(const std::string &driveName, const EmuTime &time)
 	
 	name = driveName;
 	disk = NULL;
-	try {
-		Config *config = MSXConfig::instance()->
-			getConfigById(driveName);
+	
+	MSXConfig *conf = MSXConfig::instance();
+	if (conf->hasConfigWithId(driveName)) {
+		Config *config = conf->getConfigById(driveName);
 		const std::string &filename = config->getParameter("filename");
-		insertDisk(config->getContext(), filename);
-	} catch (MSXException &e) {
-		// nothing specified or file not found
+		try {
+			insertDisk(config->getContext(), filename);
+		} catch (MSXException &e) {
+			// file not found
+			PRT_ERROR("Couldn't load diskimage: " << filename);
+		}
+	} else {
+		// nothing specified
 		ejectDisk();
 	}
 	CommandController::instance()->registerCommand(this, name);

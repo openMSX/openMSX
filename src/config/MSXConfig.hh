@@ -130,6 +130,7 @@ class MSXConfig
 		 */
 		Config* getConfigById(const std::string &id);
 		Device* getDeviceById(const std::string &id);
+		bool hasConfigWithId(const std::string &id);
 
 		/**
 		 * get a device
@@ -147,7 +148,6 @@ class MSXConfig
 	private:
 		MSXConfig();
 
-		bool hasConfigWithId(const std::string &id);
 		void handleDoc(XML::Document* doc, FileContext *context);
 
 		std::list<XML::Document*> docs;
