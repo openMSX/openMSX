@@ -80,9 +80,9 @@ void RealTime::internalSync(const EmuTime &curEmu)
 			realOrigin += lost;
 			PRT_DEBUG("RT: Emulation too slow, lost " << lost << "ms");
 		}
-		if (100*(sleep+realPassed) < maxCatchUpFactor*emuPassed) {
+		if (maxCatchUpFactor*(sleep+realPassed) < 100*emuPassed) {
 			// avoid catching up too fast
-			sleep = (maxCatchUpFactor*emuPassed)/100 - realPassed;
+			sleep = (100*emuPassed)/maxCatchUpFactor - realPassed;
 		}
 		if (sleep > 0) {
 			PRT_DEBUG("RT: Sleeping for " << sleep << "ms");

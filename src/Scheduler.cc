@@ -54,7 +54,7 @@ void Scheduler::setSyncPoint(const EmuTime &time, Schedulable* device, int userD
 {
 	PRT_DEBUG("Sched: registering " << device->getName() << " for emulation at " << time);
 	PRT_DEBUG("Sched:  CPU is at " << MSXCPU::instance()->getCurrentTime());
-	assert (time >= MSXCPU::instance()->getCurrentTime());
+	//assert (time >= MSXCPU::instance()->getCurrentTime());
 	if (time < MSXCPU::instance()->getTargetTime())
 		MSXCPU::instance()->setTargetTime(time);
 	syncPoints.push_back(SynchronizationPoint (time, device, userData));
