@@ -4,6 +4,7 @@
 #include "PlatformFactory.hh"
 #include "MSXConfig.hh"
 #include "RenderSettings.hh"
+#include "RendererFactory.hh"
 
 // Platform dependent includes:
 #include "SDLLoRenderer.hh"
@@ -14,22 +15,28 @@
 Renderer *PlatformFactory::createRenderer(
 	const std::string &name, VDP *vdp, const EmuTime &time)
 {
-	bool fullScreen = RenderSettings::instance()->getFullScreen()->getValue();
+	RendererFactory *factory = getRendererFactory(name);
+	return factory->create(vdp, time);
+}
+
+RendererFactory *getRendererFactory(const std::string &name)
+{
 	if (name == "SDLLo") {
-		return createSDLLoRenderer(vdp, fullScreen, time);
+		return new SDLLoRendererFactory();
 	}
 	else if (name == "SDLHi") {
-		return createSDLHiRenderer(vdp, fullScreen, time);
+		return new SDLHiRendererFactory();
 	}
 	else if (name == "Xlib") {
-		return new XRenderer(vdp, fullScreen, time);
+		return new XRendererFactory();
 	}
 #ifdef __SDLGLRENDERER_AVAILABLE__
 	else if (name == "SDLGL") {
-		return createSDLGLRenderer(vdp, fullScreen, time);
+		return new SDLGLRendererFactory();
 	}
 #endif
 	else {
 		throw MSXException("Unknown renderer");
 	}
 }
+

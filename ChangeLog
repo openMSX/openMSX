@@ -1,5 +1,10 @@
 $Id$
 
+2003-03-02 Maarten ter Huurne <maarten@treewalker.org>
+	* Introduced RendererFactory.
+	  This should help in making the renderer selection a setting.
+	  It will also make it possible to query which renderers are available.
+
 2003-03-02 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Converted "frameskip" console command into a setting
 	* Implemented BooleanSetting as a specialization of EnumSetting<bool>

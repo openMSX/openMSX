@@ -39,6 +39,7 @@ openmsx_SOURCES=\
 	SpriteChecker.hh SpriteChecker.cc \
 	RenderSettings.hh RenderSettings.cc \
 	Renderer.hh Renderer.cc \
+	RendererFactory.hh RendererFactory.cc \
 	PixelRenderer.hh PixelRenderer.cc \
 	SDLLoRenderer.hh SDLLoRenderer.cc \
 	SDLHiRenderer.hh SDLHiRenderer.cc \

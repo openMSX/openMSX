@@ -25,6 +25,14 @@ public:
 	  */
 	static Renderer *createRenderer(
 		const std::string &name, VDP *vdp, const EmuTime &time);
+
+private:
+	/** Get the factory for the given renderer name.
+	  * @param name The name of the Renderer.
+	  * @return The RendererFactory that belongs to the given name.
+	  */
+	static RendererFactory *getRendererFactory(const std::string &name);
+
 };
 
 #endif
