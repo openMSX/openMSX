@@ -34,6 +34,11 @@ MSXMegaRom::~MSXMegaRom()
 
 void MSXMegaRom::reset(const EmuTime &time)
 {
+	//only instanciate SCC if needed
+	if (mapperType==2){
+		cartridgeSCC= new SCC();
+	}
+
 	// set internalMemoryBank
 	// TODO: mirror if number of 8kB blocks not fully filled ?
 	internalMemoryBank[0]=0;		// unused
@@ -109,30 +114,27 @@ int MSXMegaRom::retriefMapperType()
 
 byte MSXMegaRom::readMem(word address, const EmuTime &time)
 {
-	return internalMemoryBank[(address>>13)][address&0x1fff];
+	//TODO optimize this!!!
+  byte regio;
+  if ( (mapperType == 2) && enabledSCC ){
+    regio=(address-0x5000)>>13;
+    if ( (regio==2) ){
+      return cartridgeSCC->readMemInterface(address & 0xFF , time );
+    }
+  }
+  return internalMemoryBank[(address>>13)][address&0x1fff];
 }
 
 void MSXMegaRom::writeMem(word address, byte value, const EmuTime &time)
 {
 	byte regio;
   
-	// Enable/disable SCC
-	// TODO: make this only working for empty cartridge or correct mapperType
-	// when done you could simply return from this case
-	if (address == 0x9000) {
-		enabledSCC = (value==0x3F) ? true : false;
-		//TODO: (un)register as sound device :-)
-		//      or just mute sound device
-	}
-
-	// Write to SCC register
-	if (enabledSCC && ((address&0xFF00) == 0X9800)) {
-		//cartridgeSCC((addr&0x7F),value); //TODO check if bit 7 as influence 
-		return;
-	}
-
 	switch (mapperType) {
 	case 0: 
+		//TODO check the SCC in here, is this correct for this type?
+		// if so, implement writememinterface
+		// also in the memRead
+
 		//--==>> Generic 8kB cartridges <<==--
 		if ((address<0x4000) || (address>0xBFFF))
 			return;
@@ -166,17 +168,27 @@ void MSXMegaRom::writeMem(word address, byte value, const EmuTime &time)
 		//  bank 3: 0x9000 - 0x97FF (0x9000 used)
 		//  bank 4: 0xB000 - 0xB7FF (0xB000 used)
       
-		if ((address<0x5000) || (address>0xB000) || ((address&0x1800)!=0x1000))
+		if ((address<0x5000) || (address>0xc000) )
 			return;
 		// Enable/disable SCC
 		if ((address&0xF800) == 0x9000 )  {
 			// 0x9000-0x97ff is used as SCC switch
 			enabledSCC = ((value&0x3F)==0x3F) ? true : false;
+			if (enabledSCC)
+				// TODO find out how it changes the page in  0x9000-0x97ff
+				return; 
 		}
 		// change internal mapper
 		regio = (address-0x1000)>>13;
-		value &= mapperMask;
-		internalMemoryBank[regio] = memoryBank+(value<<13);
+		if ( (regio==4) && enabledSCC && (address >= 0x9800)){
+		  cartridgeSCC->writeMemInterface(address & 0xFF, value , time);
+		  PRT_DEBUG("MegaRom: writeMemInterface (" << address <<","<<(int)value<<")"<<time );
+		} else {
+		  if ((address & 0x1800)!=0x1000) return;
+		  value &= mapperMask;
+		  internalMemoryBank[regio] = memoryBank+(value<<13);
+		  //internalMapper[regio]=value;
+		}
 		break;
 	case 3: 
 		//--==**>> KONAMI4 8kB cartridges <<**==--

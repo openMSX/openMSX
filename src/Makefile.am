@@ -59,6 +59,7 @@ openmsx_SOURCES=openmsx.cc \
 	KeyEventInserter.cc KeyEventInserter.hh \
 	SDLEventInserter.cc SDLEventInserter.hh \
 	LoadFile.hh LoadFile.cc \
+	SCC.hh SCC.cc \
 	MSXRom.cc MSXRom.hh \
 	MSXRomPatchInterface.hh MSXRomPatchInterface.cc \
 	MSXDiskRomPatch.cc MSXDiskRomPatch.hh

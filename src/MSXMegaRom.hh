@@ -6,6 +6,7 @@
 #include "MSXRom.hh"
 #include "MSXMemDevice.hh"
 #include "EmuTime.hh"
+#include "SCC.hh"
 
 class MSXMegaRom : public MSXMemDevice, public MSXRom
 {
@@ -33,7 +34,7 @@ class MSXMegaRom : public MSXMemDevice, public MSXRom
 		bool enabledSCC;
 
 		int retriefMapperType();
-		//MSXSCC *cartridgeSCC; //TODO write an SCC :-)
+		SCC* cartridgeSCC;
 
 };
 #endif
