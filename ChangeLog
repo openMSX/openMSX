@@ -1,5 +1,8 @@
 $Id$
 
+2004-04-26 Eric Boon <e.boon4@chello.nl>
+	* Add Debuggables to V9990
+
 2004-04-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented Koei-8 and Koei-32 mapper types:
 	   based on BlueMSX v1.4.0

@@ -1,3 +1,4 @@
+
 // $Id$ //
 
 /*
@@ -14,6 +15,7 @@
 #include "Schedulable.hh"
 #include "MSXIODevice.hh"
 #include "EmuTime.hh"
+#include "Debuggable.hh"
 
 using std::string;
 
@@ -25,7 +27,7 @@ class V9990 : public MSXIODevice,
 public:
 	/** Constructor
 	  */
-	V9990(Config *config, const EmuTime &time);
+	V9990(Config* config, const EmuTime& time);
 	
 	/** Destructor
 	  */ 
@@ -33,7 +35,7 @@ public:
 
 	/** Schedulable interface
 	  */ 
-	virtual void executeUntil(const EmuTime &time, int userData) throw();
+	virtual void executeUntil(const EmuTime& time, int userData) throw();
 	virtual const string& schedName() const;
 
 	/** MSXIODevice interface
@@ -47,6 +49,28 @@ public:
 	
 
 private:
+	class V9990RegDebug : public Debuggable {
+	public:
+		V9990RegDebug(V9990& parent);
+		virtual unsigned getSize() const;
+		virtual const string& getDescription() const;
+		virtual byte read(unsigned address);
+		virtual void write(unsigned address, byte value);
+	private:
+		V9990& parent;
+	} v9990RegDebug;
+
+	class V9990PortDebug : public Debuggable {
+	public:
+		V9990PortDebug(V9990& parent);
+		virtual unsigned getSize() const;
+		virtual const string& getDescription() const;
+		virtual byte read(unsigned address);
+		virtual void write(unsigned address, byte value);
+	private:
+		V9990& parent;
+	} v9990PortDebug;
+
 	/** The I/O Ports
 	  */  
 	enum PortId {
@@ -74,9 +98,7 @@ private:
 	  */
 	byte registers[54];
 
-	//virtual byte vramRead(const EmuTime &time);
-	//virtual byte readStatusReg(byte reg, const EmuTime &time);
-	//virtual void changeRegister(byte reg, byte val, const EmuTime &time);
+	virtual void changeRegister(byte reg, byte val, const EmuTime &time);
 };
 
 } // namespace openmsx
