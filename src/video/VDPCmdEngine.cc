@@ -24,7 +24,7 @@ TODO:
     and NY = 0 is equivalent to NY = 1024
   - when NX or NY is too large and the VDP command hits the border, the
     following happens:
-     - when the left or right border is hit, the command terminates
+     - when the left or right border is hit, the line terminates
      - when the top border is hit (line 0) the command terminates
      - when the bottom border (line 511 or 1023) the command continues
        (wraps to the top)
@@ -60,13 +60,13 @@ const int  PPL[4]  = { 256, 512, 512, 256 };
 
 //               Sprites:    On   On   Off  Off
 //               Screen:     Off  On   Off  On
-const int SRCH_TIMING[8] = {  92, 125,  92,  92 };
-const int LINE_TIMING[8] = { 120, 147, 120, 132 };
-const int HMMV_TIMING[8] = {  49,  65,  49,  62 };
-const int LMMV_TIMING[8] = {  98, 137,  98, 124 };
-const int YMMM_TIMING[8] = {  65, 125,  65,  68 };
-const int HMMM_TIMING[8] = {  92, 136,  92,  97 };
-const int LMMM_TIMING[8] = { 129, 197, 129, 132 };
+const int SRCH_TIMING[4] = {  92, 125,  92,  92 };
+const int LINE_TIMING[4] = { 120, 147, 120, 132 };
+const int HMMV_TIMING[4] = {  49,  65,  49,  62 };
+const int LMMV_TIMING[4] = {  98, 137,  98, 124 };
+const int YMMM_TIMING[4] = {  65, 125,  65,  68 };
+const int HMMM_TIMING[4] = {  92, 136,  92,  97 };
+const int LMMM_TIMING[4] = { 129, 197, 129, 132 };
 
 
 
@@ -136,7 +136,7 @@ void VDPCmdEngine::setCmdReg(byte index, byte value, const EmuTime &time)
 	case 0x03: // source Y high
 		SY = (SY & 0x0FF) | ((value & 0x03) << 8);
 		break;
-		
+
 	case 0x04: // destination X low
 		DX = (DX & 0x100) | value;
 		break;
@@ -149,7 +149,7 @@ void VDPCmdEngine::setCmdReg(byte index, byte value, const EmuTime &time)
 	case 0x07: // destination Y high
 		DY = (DY & 0x0FF) | ((value & 0x03) << 8);
 		break;
-	
+
 	// TODO is DX 9 or 10 bits, at least current implementation needs
 	// 10 bits (otherwise texts in UR are screwed)
 	case 0x08: // number X low
@@ -164,7 +164,7 @@ void VDPCmdEngine::setCmdReg(byte index, byte value, const EmuTime &time)
 	case 0x0B: // number Y high
 		NY = (NY & 0x0FF) | ((value & 0x03) << 8);
 		break;
-		
+
 	case 0x0C: // colour
 		COL = value;
 		status &= 0x7F;
@@ -445,7 +445,7 @@ inline void VDPCmdEngine::VDPCmd::pset(int dx, int dy, byte cl, LogOp op)
 
 int VDPCmdEngine::VDPCmd::getVdpTimingValue(const int *timingValues)
 {
-	return VDPSettings::instance()->getCmdTiming()->getValue() 
+	return VDPSettings::instance()->getCmdTiming()->getValue()
 	       ? 0
 	       : timingValues[engine->vdp->getAccessTiming()];
 }
@@ -524,7 +524,7 @@ void VDPCmdEngine::PointCmd::start(const EmuTime &time)
 	currentTime = time;
 	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 	vram->cmdWriteWindow.disable(currentTime);
-	
+
 	engine->COL = point(engine->SX, engine->SY);
 	commandDone();
 }
@@ -546,7 +546,7 @@ void VDPCmdEngine::PsetCmd::start(const EmuTime &time)
 	currentTime = time;
 	vram->cmdReadWindow.disable(currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
-	
+
 	byte col = engine->COL & MASK[engine->scrMode];
 	pset(engine->DX, engine->DY, col, engine->LOG);
 	commandDone();
