@@ -1,5 +1,8 @@
 $Id$
 
+2004-08-09 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Removed CoRoutine stuff from CVS, it's no longer used
+
 2004-08-07 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Allow multiple times the same extension (make id's unique)
 	* ROM title (from romdb) is again visible in slotmap

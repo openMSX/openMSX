@@ -31,8 +31,7 @@ OUTTCL:=$(OUTDIR)/config-tcl.mk
 # Functions
 # =========
 
-CHECK_FUNCS:=FTRUNCATE GETTIMEOFDAY MMAP USLEEP \
-             GETCONTEXT MAKECONTEXT SWAPCONTEXT SIGACTION SIGALTSTACK
+CHECK_FUNCS:=FTRUNCATE GETTIMEOFDAY MMAP USLEEP
 # Disabled X11, because it is not useful yet and the link flags are not here.
 
 FTRUNCATE_FUNC:=ftruncate
@@ -46,21 +45,6 @@ MMAP_HEADER:=<sys/mman.h>
 
 USLEEP_FUNC:=usleep
 USLEEP_HEADER:=<unistd.h>
-
-GETCONTEXT_FUNC:=getcontext
-GETCONTEXT_HEADER:=<ucontext.h>
-
-MAKECONTEXT_FUNC:=makecontext
-MAKECONTEXT_HEADER:=<ucontext.h>
-
-SWAPCONTEXT_FUNC:=swapcontext
-SWAPCONTEXT_HEADER:=<ucontext.h>
-
-SIGACTION_FUNC:=sigaction
-SIGACTION_HEADER:=<signal.h>
-
-SIGALTSTACK_FUNC:=sigaltstack
-SIGALTSTACK_HEADER:=<signal.h>
 
 #X11_FUNC:=XtMalloc
 #X11_HEADER:=<X11/Intrinsic.h>
