@@ -1,5 +1,10 @@
 $Id$
 
+2005-03-29 Manuel Bilderbeek <manuel@msxnet.org>
+	* Tried to adapt Okazaki YM2413 core in openMSX to make it look more
+	  like the original code (version 0.55, from NLMSX, thanks Frits).
+	  WIP!
+
 2005-03-28 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Handle TCL events in openmsx event loop:
 	   - makes Patrick's webserver script work

@@ -49,9 +49,9 @@ class YM2413 : public YM2413Core, private SoundDevice, private Debuggable
 		inline int calc_slot_car(int fm);
 		inline int calc_slot_mod();
 		inline int calc_slot_tom();
-		inline int calc_slot_snare(int whitenoise);
+		inline int calc_slot_snare(unsigned int whitenoise);
 		inline int calc_slot_cym(int a, int b);
-		inline int calc_slot_hat(int a, int b, int whitenoise);
+		inline int calc_slot_hat(int a, int b, unsigned int whitenoise);
 		inline void updatePG();
 		inline void updateTLL();
 		inline void updateRKS();
@@ -61,7 +61,7 @@ class YM2413 : public YM2413Core, private SoundDevice, private Debuggable
 		inline static int wave2_4pi(int e);
 		inline static int wave2_8pi(int e);
 		inline static int EG2DB(int d);
-		inline static int SL2EG(int d);
+		inline static unsigned int SL2EG(unsigned int d);
 	
 		Patch* patch;  
 		bool type;		// 0 : modulator 1 : carrier 
@@ -75,7 +75,7 @@ class YM2413 : public YM2413Core, private SoundDevice, private Debuggable
 		word* sintbl;		// Wavetable
 		unsigned int phase;	// Phase 
 		unsigned int dphase;	// Phase increment amount 
-		int pgout;		// output
+		unsigned int pgout;	// output
 
 		// for Envelope Generator (EG)
 		int fnum;		// F-Number
@@ -161,8 +161,8 @@ private:
 	inline void update_ampm();
 
 	inline static int TL2EG(int d);
-	inline static int DB_POS(int x);
-	inline static int DB_NEG(int x);
+	inline static unsigned int DB_POS(unsigned int x);
+	inline static unsigned int DB_NEG(unsigned int x);
 	inline static int HIGHBITS(int c, int b);
 	inline static int LOWBITS(int c, int b);
 	inline static int EXPAND_BITS(int x, int s, int d);
@@ -298,7 +298,7 @@ private:
 	static word AR_ADJUST_TABLE[1<<EG_BITS];
 
 	// Definition of envelope mode
-	enum { ATTACK,DECAY,SUSHOLD,SUSTINE,RELEASE,FINISH };
+	enum { SETTLE, ATTACK,DECAY,SUSHOLD,SUSTINE,RELEASE,FINISH };
 
 	// Phase incr table for Attack
 	static unsigned int dphaseARTable[16][16];
