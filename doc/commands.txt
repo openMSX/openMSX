@@ -222,6 +222,16 @@ iomap
   [ mainly useful for debugging purposes ]
 
 
+save_settings
+-------------
+
+  Write the current openMSX settings to a settings file.
+
+  usage:
+    save_settings             Save settings to the default settings file  
+    save_settings <filename>  Save settings to the given filename
+
+
 toggle
 ------
 
@@ -234,6 +244,17 @@ toggle
   examples:
     toggle mute
     toggle throttle
+
+
+type
+----
+
+  Type a string in the emulated MSX. This command automatically presses and
+  releases keys in the simulated MSX keyboard matrix. This command is mainly
+  useful for demoing.
+
+  usage:
+    type "Hello world!"
 
   
 update
@@ -338,28 +359,6 @@ restoredefault
 
   examples:
     restoredefault PSG_volume
-
-
-save_settings
--------------
-
-  Write the current openMSX settings to a settings file.
-
-  usage:
-    save_settings             Save settings to the default settings file  
-    save_settings <filename>  Save settings to the given filename
-
-
-type
-----
-
-  Type a string in the emulated MSX. This command automatically presses and
-  releases keys in the simulated MSX keyboard matrix. This command is mainly
-  useful for demoing.
-
-  usage:
-    type "Hello world!"
-
 
 SETTINGS
 ========
