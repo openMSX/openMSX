@@ -6,6 +6,7 @@
 #include "DummyDisk.hh"
 #include "XSADiskImage.hh"
 #include "DSKDiskImage.hh"
+#include "RamDSKDiskImage.hh"
 #include "FDC_DirAsDSK.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
@@ -14,6 +15,7 @@
 #include "LedEvent.hh"
 #include "CommandException.hh"
 #include "XMLElement.hh"
+#include "FileManipulator.hh"
 
 using std::string;
 using std::vector;
@@ -158,6 +160,7 @@ RealDrive::RealDrive(const EmuTime& time)
 		if (!drivesInUse[i]) {
 			name = string("disk") + static_cast<char>('a' + i);
 			drivesInUse[i] = true;
+			FileManipulator::instance().registerDrive(this,name);
 			break;
 		}
 	}
@@ -172,7 +175,11 @@ RealDrive::RealDrive(const EmuTime& time)
 	if (!filename.empty()) {
 		try {
 			FileContext& context = diskConfig.getFileContext();
-			string diskImage = context.resolve(filename);
+			string diskImage = filename;
+
+			if (filename != "ramdsk") {
+				diskImage = context.resolve(filename);
+			}
 
 			vector<string> patchFiles;
 			XMLElement::Children children;
@@ -202,6 +209,7 @@ RealDrive::~RealDrive()
 {
 	int driveNum = name[4] - 'a';
 	drivesInUse[driveNum] = false;
+	FileManipulator::instance().unregisterDrive(this,name);
 	CommandController::instance().unregisterCommand(this, name);
 }
 
@@ -308,7 +316,11 @@ bool RealDrive::headLoaded(const EmuTime& time)
 void RealDrive::insertDisk(const string& diskImage, const vector<string>& patches)
 {
 	ejectDisk();
-	
+	if ( diskImage == "ramdsk" ) {
+		PRT_DEBUG("Trying a RamDSK diskimage...");
+		CliComm::instance().printInfo("RamDSk diskimage");
+		disk.reset(new RamDSKDiskImage());
+	} else
 	try {
 		// first try XSA
 		PRT_DEBUG("Trying an XSA diskimage...");
@@ -344,6 +356,11 @@ void RealDrive::ejectDisk()
 	disk.reset(new DummyDisk());
 }
 
+Disk& RealDrive::getDisk()
+{
+	return *disk.get();
+}
+
 string RealDrive::execute(const vector<string>& tokens)
 {
 	string result;
@@ -355,6 +372,11 @@ string RealDrive::execute(const vector<string>& tokens)
 			result += "There is currently no disk inserted in drive with name \"" +
 			          name + "\"" + '\n';
 		}
+	} else if (tokens[1] == "ramdsk") {
+		vector<string> nopatchfiles;
+		insertDisk(tokens[1],nopatchfiles);
+		result += "Current disk is now RAM-image" + '\n';
+		diskChangedFlag = true;
 	} else if (tokens[1] == "eject") {
 		ejectDisk();
 		CliComm::instance().update(CliComm::MEDIA, name, "");
@@ -379,6 +401,7 @@ string RealDrive::execute(const vector<string>& tokens)
 string RealDrive::help(const vector<string>& /*tokens*/) const
 {
 	return name + " eject      : remove disk from virtual drive\n" +
+	       name + " ramdsk     : create a virtual disk in RAM\n" +
 	       name + " <filename> : change the disk file\n";
 }
 

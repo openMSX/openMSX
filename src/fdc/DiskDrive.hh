@@ -178,6 +178,8 @@ public:
 	virtual bool diskChanged();
 	virtual bool dummyDrive();
 
+	virtual Disk& getDisk();
+
 protected:
 	static const int MAX_TRACK = 85;
 	static const int TICKS_PER_ROTATION = 6850;	// TODO

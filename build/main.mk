@@ -78,9 +78,9 @@ INDENT:=sed -e "s/^/  /"
 # and by this Makefile.
 # Note: LDFLAGS are passed to the linker itself, LINK_FLAGS are passed to the
 #       compiler in the link phase.
-CXXFLAGS:=
+CXXFLAGS:=-g
 LDFLAGS:=
-LINK_FLAGS:=
+LINK_FLAGS:=-g
 
 
 # Customisation

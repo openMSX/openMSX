@@ -109,6 +109,15 @@ escape_grab
   usage:
     escape_grab  temporarily release the input grab
 
+filemanipulator
+---------------
+
+  used to manipulate the (files on) the current dsk image
+
+  usage:
+    filemanipulator savedsk <diskname> <dsk file name>
+    filemanipulator import <diskname> <host directory>
+    filemanipulator export <diskname> <host directory>
 
 help
 ----

@@ -1,5 +1,8 @@
 $Id$
 
+2005-04-04 David Heremans <david.heremans@gnu-linux.net>
+	* Filemanipulator: tab completion.
+
 2005-04-02 Maarten ter Huurne <maarten@treewalker.org>
 	* Refactored AY8910Interface and renamed to AY8910Periphery.
 	  Main difference is the discovery that peek and read actually are the
@@ -11,6 +14,15 @@ $Id$
 	* Swapped default and alternative YM2413 cores, because Okazaki core
 	  is very broken at the moment. CHECK points need to be checked by
 	  Wouter still
+
+2005-04-01 David Heremans <david.heremans@gnu-linux.net>
+	* Next step to integrate msxtar into openMSX:
+	  The creation of the RamDSK class, to allow ramdisk like dsk usage
+	  Doesn't seem to work yet though :-)
+
+2005-04-01 David Heremans <david.heremans@gnu-linux.net>
+	* First steps to integrate msxtar into openMSX:
+	  The creation of the FileManipulator class
 
 2005-03-31 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* More YM2413 fixes (ported from v0.55)

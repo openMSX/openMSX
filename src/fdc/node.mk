@@ -21,7 +21,9 @@ SRC_HDR:= \
 	XSADiskImage \
 	CRC16 \
 	FDC_DirAsDSK \
-	EmptyDiskPatch
+	EmptyDiskPatch \
+	RamDSKDiskImage \
+	FileManipulator
 
 include build/node-end.mk
 
