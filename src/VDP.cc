@@ -159,11 +159,14 @@ void VDP::resetInit(const EmuTime &time)
 	irqVertical.reset();
 	irqHorizontal.reset();
 
-	nameBase = ~(-1 << 10);
-	colourBase = ~(-1 << 6);
-	patternBase = ~(-1 << 11);
+	vram->nameTable.setMask(~(-1 << 10), 17);
+	vram->colourTable.setMask(~(-1 << 6), 17);
+	vram->patternTable.setMask(~(-1 << 11), 17);
 	spriteAttributeBase = 0;
 	spritePatternBase = 0;
+	// TODO: It is not clear to me yet how bitmapWindow should be used.
+	//       Currently it always spans 128K of VRAM.
+	vram->bitmapWindow.setMask(~(-1 << 17), 17);
 
 	// From appendix 8 of the V9938 data book (page 148).
 	const word V9938_PALETTE[16] = {
@@ -659,29 +662,33 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		}
 		break;
 	case 2: {
-		int addr = ((val << 10) | ~(-1 << 10)) & vramMask;
-		renderer->updateNameBase(addr, time);
-		nameBase = addr;
+		int base = ((val << 10) | ~(-1 << 10)) & vramMask;
+		renderer->updateNameBase(base, time);
+		// TODO: Actual number of index bits is lower than 17.
+		vram->nameTable.setMask(base, 17);
 		break;
 	}
 	case 3: {
-		int addr = ((controlRegs[10] << 14) | (val << 6)
+		int base = ((controlRegs[10] << 14) | (val << 6)
 			| ~(-1 << 6)) & vramMask;
-		renderer->updateColourBase(addr, time);
-		colourBase = addr;
+		renderer->updateColourBase(base, time);
+		// TODO: Actual number of index bits is lower than 17.
+		vram->colourTable.setMask(base, 17);
 		break;
 	}
 	case 10: {
-		int addr = ((val << 14) | (controlRegs[3] << 6)
+		int base = ((val << 14) | (controlRegs[3] << 6)
 			| ~(-1 << 6)) & vramMask;
-		renderer->updateColourBase(addr, time);
-		colourBase = addr;
+		renderer->updateColourBase(base, time);
+		// TODO: Actual number of index bits is lower than 17.
+		vram->colourTable.setMask(base, 17);
 		break;
 	}
 	case 4: {
-		int addr = ((val << 11) | ~(-1 << 11)) & vramMask;
-		renderer->updatePatternBase(addr, time);
-		patternBase = addr;
+		int base = ((val << 11) | ~(-1 << 11)) & vramMask;
+		renderer->updatePatternBase(base, time);
+		// TODO: Actual number of index bits is lower than 17.
+		vram->patternTable.setMask(base, 17);
 		break;
 	}
 	case 5: {

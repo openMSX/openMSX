@@ -83,7 +83,7 @@ if (1) {
 	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	// bind again if necessary, currently not
-	GLSetColour(0xFFFFFFu);
+	//GLSetColour(0xFFFFFFu);
 	glBegin(GL_QUADS);
 	int x1 = x + n * 2;
 	int y1 = y + 2;
@@ -110,7 +110,7 @@ if (1) {
 }
 
 inline static void GLUpdateTexture(
-	GLuint textureId, SDLGLRenderer::Pixel *data, int lineWidth)
+	GLuint textureId, const SDLGLRenderer::Pixel *data, int lineWidth)
 {
 	glBindTexture(GL_TEXTURE_2D, textureId);
 	glTexImage2D(
@@ -140,7 +140,7 @@ inline static void GLDrawTexture(
 	glEnd();
 }
 
-inline static void GLBindMonoBlock(GLuint textureId, byte *pixels)
+inline static void GLBindMonoBlock(GLuint textureId, const byte *pixels)
 {
 	glBindTexture(GL_TEXTURE_2D, textureId);
 	glTexImage2D(
@@ -156,7 +156,8 @@ inline static void GLBindMonoBlock(GLuint textureId, byte *pixels)
 		);
 }
 
-inline static void GLBindColourBlock(GLuint textureId, SDLGLRenderer::Pixel *pixels)
+inline static void GLBindColourBlock(
+	GLuint textureId, const SDLGLRenderer::Pixel *pixels)
 {
 	glBindTexture(GL_TEXTURE_2D, textureId);
 	glTexImage2D(
@@ -286,10 +287,9 @@ inline void SDLGLRenderer::renderBitmapLines(
 	int pageMask = 0x200 | vdp->getEvenOddMask();
 	while (count--) {
 		// TODO: Optimise addr and line; too many connversions right now.
-		int vramLine = (vdp->getNameMask() >> 7) & (pageMask | line);
+		int vramLine = (vram->nameTable.getMask() >> 7) & (pageMask | line);
 		if (lineValidInMode[vramLine] != mode) {
-			int addr = (vramLine << 7) & vdp->getNameMask();
-			const byte *vramPtr = vram->readArea(addr, addr + 128);
+			const byte *vramPtr = vram->bitmapWindow.readArea(vramLine << 7);
 			bitmapConverter.convertLine(lineBuffer, vramPtr);
 			GLUpdateTexture(bitmapTextureIds[vramLine], lineBuffer, lineWidth);
 			lineValidInMode[vramLine] = mode;
@@ -306,13 +306,13 @@ inline void SDLGLRenderer::renderPlanarBitmapLines(
 	int pageMask = vdp->getEvenOddMask();
 	while (count--) {
 		// TODO: Optimise addr and line; too many connversions right now.
-		int vramLine = (vdp->getNameMask() >> 7) & (pageMask | line);
+		int vramLine = (vram->nameTable.getMask() >> 7) & (pageMask | line);
 		if ( lineValidInMode[vramLine] != mode
 		|| lineValidInMode[vramLine | 512] != mode ) {
-			int addr0 = (vramLine << 7) & vdp->getNameMask();
+			int addr0 = vramLine << 7;
 			int addr1 = addr0 | 0x10000;
-			const byte *vramPtr0 = vram->readArea(addr0, addr0 + 128);
-			const byte *vramPtr1 = vram->readArea(addr1, addr1 + 128);
+			const byte *vramPtr0 = vram->bitmapWindow.readArea(addr0);
+			const byte *vramPtr1 = vram->bitmapWindow.readArea(addr1);
 			bitmapConverter.convertLinePlanar(lineBuffer, vramPtr0, vramPtr1);
 			GLUpdateTexture(bitmapTextureIds[vramLine], lineBuffer, lineWidth);
 			lineValidInMode[vramLine] =
@@ -430,8 +430,8 @@ SDLGLRenderer::SDLGLRenderer(
 	glGenTextures(256, charTextureIds);
 	for (int i = 0; i < 256; i++) {
 		glBindTexture(GL_TEXTURE_2D, charTextureIds[i]);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	}
 	// Block based:
 	glGenTextures(4 * 256, characterCache);
@@ -700,13 +700,13 @@ void SDLGLRenderer::checkDirtyNull(
 void SDLGLRenderer::checkDirtyMSX1Text(
 	int addr, byte data)
 {
-	if ((addr | ~(-1 << 10)) == vdp->getNameMask()) {
+	if (vram->nameTable.isInside(addr)) {
 		dirtyName[addr & ~(-1 << 10)] = anyDirtyName = true;
 	}
-	if ((addr | ~(-1 << 10)) == vdp->getColourMask()) {
+	if (vram->colourTable.isInside(addr)) {
 		dirtyColour[(addr / 8) & ~(-1 << 8)] = anyDirtyColour = true;
 	}
-	if ((addr | ~(-1 << 11)) == vdp->getPatternMask()) {
+	if (vram->patternTable.isInside(addr)) {
 		dirtyPattern[(addr / 8) & ~(-1 << 8)] = anyDirtyPattern = true;
 	}
 }
@@ -714,29 +714,47 @@ void SDLGLRenderer::checkDirtyMSX1Text(
 void SDLGLRenderer::checkDirtyMSX1Graphic(
 	int addr, byte data)
 {
-	if ((addr | ~(-1 << 10)) == vdp->getNameMask()) {
+	if (vram->nameTable.isInside(addr)) {
 		dirtyName[addr & ~(-1 << 10)] = anyDirtyName = true;
 	}
-	if ((addr | ~(-1 << 13)) == vdp->getColourMask()) {
+	if (vram->colourTable.isInside(addr)) {
 		dirtyColour[(addr / 8) & ~(-1 << 10)] = anyDirtyColour = true;
 	}
-	if ((addr | ~(-1 << 13)) == vdp->getPatternMask()) {
-		dirtyPattern[(addr / 8) & ~(-1 << 13)] = anyDirtyPattern = true;
+	if (vram->patternTable.isInside(addr)) {
+		dirtyPattern[(addr / 8) & ~(-1 << 10)] = anyDirtyPattern = true;
 	}
 }
 
 void SDLGLRenderer::checkDirtyText2(
 	int addr, byte data)
 {
-	int nameBase = vdp->getNameMask() & (-1 << 12);
-	int i = addr - nameBase;
-	if ((0 <= i) && (i < 2160)) {
-		dirtyName[i] = anyDirtyName = true;
+	if (vram->nameTable.isInside(addr)) {
+		dirtyName[addr & ~(-1 << 12)] = anyDirtyName = true;
 	}
-	if ((addr | ~(-1 << 11)) == vdp->getPatternMask()) {
+	if (vram->patternTable.isInside(addr)) {
 		dirtyPattern[(addr / 8) & ~(-1 << 8)] = anyDirtyPattern = true;
 	}
-	// TODO: Implement dirty check on colour table (used for blinking).
+	// TODO: Mask and index overlap in Text2, so it is possible for multiple
+	//       addresses to be mapped to a single byte in the colour table.
+	//       Therefore the current implementation is incorrect and a different
+	//       approach is needed.
+	//       The obvious solutions is to mark entries as dirty in the colour
+	//       table, instead of the name table.
+	//       The check code here was updated, the rendering code not yet.
+	/*
+	int colourBase = vdp->getColourMask() & (-1 << 9);
+	int i = addr - colourBase;
+	if ((0 <= i) && (i < 2160/8)) {
+		dirtyName[i*8+0] = dirtyName[i*8+1] =
+		dirtyName[i*8+2] = dirtyName[i*8+3] =
+		dirtyName[i*8+4] = dirtyName[i*8+5] =
+		dirtyName[i*8+6] = dirtyName[i*8+7] =
+		anyDirtyName = true;
+	}
+	*/
+	if (vram->colourTable.isInside(addr)) {
+		dirtyColour[addr & ~(-1 << 9)] = anyDirtyColour = true;
+	}
 }
 
 void SDLGLRenderer::checkDirtyBitmap(
@@ -903,11 +921,6 @@ void SDLGLRenderer::renderText1(int vramLine, int screenLine, int count)
 		};
 	glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, fgColour);
 
-	int nameBase =
-		(-1 << 10) & vdp->getNameMask();
-	int patternBaseLine =
-		(-1 << 11) & vdp->getPatternMask();
-
 	int leftBorder = getLeftBorder();
 
 	int endRow = (vramLine + count + 7) / 8;
@@ -917,7 +930,7 @@ void SDLGLRenderer::renderText1(int vramLine, int screenLine, int count)
 			// TODO: Only bind texture once?
 			//       Currently both subdirs bind the same texture.
 			int name = row * 40 + col;
-			int charcode = vram->readNP(nameBase | name);
+			int charcode = vram->nameTable.readNP(name);
 			GLuint textureId = characterCache[charcode];
 			if (dirtyPattern[charcode]) {
 				// Update cache for current character.
@@ -925,11 +938,10 @@ void SDLGLRenderer::renderText1(int vramLine, int screenLine, int count)
 				// TODO: Read byte ranges from VRAM?
 				//       Otherwise, have CharacterConverter read individual
 				//       bytes. But what is the advantage to that?
-				int addr = patternBaseLine | (charcode * 8);
 				byte charPixels[8 * 8];
 				characterConverter.convertMonoBlock(
 					charPixels,
-					vram->readArea(addr, addr + 8)
+					vram->patternTable.readArea((-1 << 11) | (charcode * 8))
 					);
 				GLBindMonoBlock(textureId, charPixels);
 			}
@@ -959,32 +971,26 @@ void SDLGLRenderer::renderGraphic2Row(int row, int screenLine)
 {
 	int nameStart = row * 32;
 	int nameEnd = nameStart + 32;
-
 	int quarter = nameStart & ~0xFF;
-	int nameBase = (-1 << 10) & vdp->getNameMask();
-	int patternQuarter = quarter & (vdp->getPatternMask() / 8);
-	int patternBaseLine = (-1 << 13) & vdp->getPatternMask();
-	int colourNrBase = 0x3FF & (vdp->getColourMask() / 8);
-	int colourBaseLine = (-1 << 13) & vdp->getColourMask();
+	int patternMask = vram->patternTable.getMask() / 8;
+	int colourMask = vram->colourTable.getMask() / 8;
 	int x = getLeftBorder();
 	for (int name = nameStart; name < nameEnd; name++) {
-		int charCode = vram->readNP(nameBase | name);
-		int colourNr = (quarter | charCode) & colourNrBase;
-		int patternNr = patternQuarter | charCode;
-		GLuint textureId = characterCache[quarter | charCode];
+		int charNr = quarter | vram->nameTable.readNP((-1 << 10) | name);
+		int colourNr = charNr & colourMask;
+		int patternNr = charNr & patternMask;
+		GLuint textureId = characterCache[charNr];
 		if (dirtyPattern[patternNr] || dirtyColour[colourNr]) {
 			// TODO: With all the masks and quarters, is this dirty
 			//       checking really correct?
 			dirtyPattern[patternNr] = false;
 			dirtyColour[colourNr] = false;
-
-			int patternAddr = patternBaseLine | (patternNr * 8);
-			int colourAddr = colourBaseLine | (colourNr * 8);
 			Pixel charPixels[8 * 8];
+			int index = (-1 << 13) | (charNr * 8);
 			characterConverter.convertColourBlock(
 				charPixels,
-				vram->readArea(patternAddr, patternAddr + 8),
-				vram->readArea(colourAddr, colourAddr + 8)
+				vram->patternTable.readArea(index),
+				vram->colourTable.readArea(index)
 				);
 			GLBindColourBlock(textureId, charPixels);
 		}
@@ -1027,7 +1033,7 @@ void SDLGLRenderer::displayPhase(
 			(vdp->isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 		do {
-			int vramLine = (vdp->getNameMask() >> 7) & (pageMask | line);
+			int vramLine = (vram->nameTable.getMask() >> 7) & (pageMask | line);
 			GLDrawTexture(bitmapTextureIds[vramLine], leftBorder, y);
 			line = (line + 1) & 0xFF;
 			y += 2;
@@ -1058,8 +1064,8 @@ void SDLGLRenderer::displayPhase(
 
 	// Render sprites.
 	glEnable(GL_TEXTURE_2D);
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	//glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	//glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glPixelZoom(2.0, 2.0);

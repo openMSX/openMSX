@@ -119,10 +119,9 @@ template <class Pixel> inline void SDLHiRenderer<Pixel>::renderBitmapLines(
 	int pageMask = 0x200 | vdp->getEvenOddMask();
 	while (count--) {
 		// TODO: Optimise addr and line; too many connversions right now.
-		int vramLine = (vdp->getNameMask() >> 7) & (pageMask | line);
+		int vramLine = (vram->nameTable.getMask() >> 7) & (pageMask | line);
 		if (lineValidInMode[vramLine] != mode) {
-			int addr = (vramLine << 7) & vdp->getNameMask();
-			const byte *vramPtr = vram->readArea(addr, addr + 128);
+			const byte *vramPtr = vram->bitmapWindow.readArea(vramLine << 7);
 			bitmapConverter.convertLine(
 				getLinePtr(bitmapDisplayCache, vramLine), vramPtr );
 			lineValidInMode[vramLine] = mode;
@@ -139,13 +138,13 @@ template <class Pixel> inline void SDLHiRenderer<Pixel>::renderPlanarBitmapLines
 	int pageMask = vdp->getEvenOddMask();
 	while (count--) {
 		// TODO: Optimise addr and line; too many connversions right now.
-		int vramLine = (vdp->getNameMask() >> 7) & (pageMask | line);
+		int vramLine = (vram->nameTable.getMask() >> 7) & (pageMask | line);
 		if ( lineValidInMode[vramLine] != mode
 		|| lineValidInMode[vramLine | 512] != mode ) {
-			int addr0 = (vramLine << 7) & vdp->getNameMask();
+			int addr0 = vramLine << 7;
 			int addr1 = addr0 | 0x10000;
-			const byte *vramPtr0 = vram->readArea(addr0, addr0 + 128);
-			const byte *vramPtr1 = vram->readArea(addr1, addr1 + 128);
+			const byte *vramPtr0 = vram->bitmapWindow.readArea(addr0);
+			const byte *vramPtr1 = vram->bitmapWindow.readArea(addr1);
 			bitmapConverter.convertLinePlanar(
 				getLinePtr(bitmapDisplayCache, vramLine),
 				vramPtr0, vramPtr1 );
@@ -510,13 +509,13 @@ template <class Pixel> void SDLHiRenderer<Pixel>::checkDirtyNull(
 template <class Pixel> void SDLHiRenderer<Pixel>::checkDirtyMSX1(
 	int addr, byte data)
 {
-	if ((addr | ~(-1 << 10)) == vdp->getNameMask()) {
+	if (vram->nameTable.isInside(addr)) {
 		dirtyName[addr & ~(-1 << 10)] = anyDirtyName = true;
 	}
-	if ((addr | ~(-1 << 13)) == vdp->getColourMask()) {
+	if (vram->colourTable.isInside(addr)) {
 		dirtyColour[(addr / 8) & ~(-1 << 10)] = anyDirtyColour = true;
 	}
-	if ((addr | ~(-1 << 13)) == vdp->getPatternMask()) {
+	if (vram->patternTable.isInside(addr)) {
 		dirtyPattern[(addr / 8) & ~(-1 << 10)] = anyDirtyPattern = true;
 	}
 }
@@ -524,22 +523,32 @@ template <class Pixel> void SDLHiRenderer<Pixel>::checkDirtyMSX1(
 template <class Pixel> void SDLHiRenderer<Pixel>::checkDirtyText2(
 	int addr, byte data)
 {
-	int nameBase = vdp->getNameMask() & (-1 << 12);
-	int i = addr - nameBase;
-	if ((0 <= i) && (i < 2160)) {
-		dirtyName[i] = anyDirtyName = true;
+	if (vram->nameTable.isInside(addr)) {
+		dirtyName[addr & ~(-1 << 12)] = anyDirtyName = true;
 	}
-	if ((addr | ~(-1 << 11)) == vdp->getPatternMask()) {
+	if (vram->patternTable.isInside(addr)) {
 		dirtyPattern[(addr / 8) & ~(-1 << 8)] = anyDirtyPattern = true;
 	}
+	// TODO: Mask and index overlap in Text2, so it is possible for multiple
+	//       addresses to be mapped to a single byte in the colour table.
+	//       Therefore the current implementation is incorrect and a different
+	//       approach is needed.
+	//       The obvious solutions is to mark entries as dirty in the colour
+	//       table, instead of the name table.
+	//       The check code here was updated, the rendering code not yet.
+	/*
 	int colourBase = vdp->getColourMask() & (-1 << 9);
-	i = addr - colourBase;
+	int i = addr - colourBase;
 	if ((0 <= i) && (i < 2160/8)) {
 		dirtyName[i*8+0] = dirtyName[i*8+1] =
 		dirtyName[i*8+2] = dirtyName[i*8+3] =
 		dirtyName[i*8+4] = dirtyName[i*8+5] =
 		dirtyName[i*8+6] = dirtyName[i*8+7] =
 		anyDirtyName = true;
+	}
+	*/
+	if (vram->colourTable.isInside(addr)) {
+		dirtyColour[addr & ~(-1 << 9)] = anyDirtyColour = true;
 	}
 }
 
@@ -741,7 +750,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	for (int n = limitY - fromY; n--; ) {
 		source.y =
 			( vdp->isBitmapMode()
-			? (vdp->getNameMask() >> 7) & (pageMaskEven | line)
+			? (vram->nameTable.getMask() >> 7) & (pageMaskEven | line)
 			: line
 			);
 		// TODO: Can we safely use SDL_LowerBlit?
@@ -750,7 +759,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 		dest.y++;
 		source.y =
 			( vdp->isBitmapMode()
-			? (vdp->getNameMask() >> 7) & (pageMaskOdd | line)
+			? (vram->nameTable.getMask() >> 7) & (pageMaskOdd | line)
 			: line
 			);
 		SDL_BlitSurface(displayCache, &source, screen, &dest);

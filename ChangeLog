@@ -1,5 +1,10 @@
 $Id$
 
+2002-07-21 Maarten ter Huurne <mth@stack.nl>
+	* The Great VRAM Rewrite, part 1:
+	  Renderers do all their VRAM reading through VDPVRAM::Window now.
+	  See doc/vram-addressing.txt for background info.
+
 2002-07-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented "bind" and "unbind" command
 

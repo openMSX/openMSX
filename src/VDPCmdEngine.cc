@@ -100,22 +100,22 @@ inline int VDPCmdEngine::vramAddr(int x, int y)
 
 inline byte VDPCmdEngine::point5(int sx, int sy)
 {
-	return ( vram->readNP(VDP_VRMP5(sx, sy)) >> (((~sx)&1)<<2) ) & 15;
+	return ( vram->cmdReadWindow.readNP(VDP_VRMP5(sx, sy)) >> (((~sx)&1)<<2) ) & 15;
 }
 
 inline byte VDPCmdEngine::point6(int sx, int sy)
 {
-	return ( vram->readNP(VDP_VRMP6(sx, sy)) >> (((~sx)&3)<<1) ) & 3;
+	return ( vram->cmdReadWindow.readNP(VDP_VRMP6(sx, sy)) >> (((~sx)&3)<<1) ) & 3;
 }
 
 inline byte VDPCmdEngine::point7(int sx, int sy)
 {
-	return ( vram->readNP(VDP_VRMP7(sx, sy)) >> (((~sx)&1)<<2) ) & 15;
+	return ( vram->cmdReadWindow.readNP(VDP_VRMP7(sx, sy)) >> (((~sx)&1)<<2) ) & 15;
 }
 
 inline byte VDPCmdEngine::point8(int sx, int sy)
 {
-	return vram->readNP(VDP_VRMP8(sx, sy));
+	return vram->cmdReadWindow.readNP(VDP_VRMP8(sx, sy));
 }
 
 inline byte VDPCmdEngine::point(int sx, int sy)
@@ -135,52 +135,52 @@ inline void VDPCmdEngine::psetLowLevel(
 	switch (op) {
 	case OP_IMP:
 		vram->cmdWrite(
-			addr, (vram->readNP(addr) & mask) | colour,
+			addr, (vram->cmdWriteWindow.readNP(addr) & mask) | colour,
 			currentTime);
 		break;
 	case OP_AND:
 		vram->cmdWrite(addr,
-			vram->readNP(addr) & (colour | mask),
+			vram->cmdWriteWindow.readNP(addr) & (colour | mask),
 			currentTime);
 		break;
 	case OP_OR:
 		vram->cmdWrite(addr,
-			vram->readNP(addr) | colour,
+			vram->cmdWriteWindow.readNP(addr) | colour,
 			currentTime);
 		break;
 	case OP_XOR:
 		vram->cmdWrite(addr,
-			vram->readNP(addr) ^ colour,
+			vram->cmdWriteWindow.readNP(addr) ^ colour,
 			currentTime);
 		break;
 	case OP_NOT:
 		vram->cmdWrite(addr,
-			(vram->readNP(addr) & mask) | ~(colour | mask),
+			(vram->cmdWriteWindow.readNP(addr) & mask) | ~(colour | mask),
 			currentTime);
 		break;
 	case OP_TIMP:
 		if (colour) vram->cmdWrite(addr,
-			(vram->readNP(addr) & mask) | colour,
+			(vram->cmdWriteWindow.readNP(addr) & mask) | colour,
 			currentTime);
 		break;
 	case OP_TAND:
 		if (colour) vram->cmdWrite(addr,
-			vram->readNP(addr) & (colour | mask),
+			vram->cmdWriteWindow.readNP(addr) & (colour | mask),
 			currentTime);
 		break;
 	case OP_TOR:
 		if (colour) vram->cmdWrite(addr,
-			vram->readNP(addr) | colour,
+			vram->cmdWriteWindow.readNP(addr) | colour,
 			currentTime);
 		break;
 	case OP_TXOR:
 		if (colour) vram->cmdWrite(addr,
-			vram->readNP(addr) ^ colour,
+			vram->cmdWriteWindow.readNP(addr) ^ colour,
 			currentTime);
 		break;
 	case OP_TNOT:
 		if (colour) vram->cmdWrite(addr,
-			(vram->readNP(addr) & mask) | ~(colour|mask),
+			(vram->cmdWriteWindow.readNP(addr) & mask) | ~(colour|mask),
 			currentTime);
 		break;
 	default:
@@ -585,7 +585,7 @@ void VDPCmdEngine::hmmmEngine()
 		pre_loop
 		vram->cmdWrite(
 			VDP_VRMP5(ADX, DY),
-			vram->readNP(VDP_VRMP5(ASX, SY)),
+			vram->cmdReadWindow.readNP(VDP_VRMP5(ASX, SY)),
 			currentTime);
 		post_xxyy(256)
 		break;
@@ -593,7 +593,7 @@ void VDPCmdEngine::hmmmEngine()
 		pre_loop
 		vram->cmdWrite(
 			VDP_VRMP6(ADX, DY),
-			vram->readNP(VDP_VRMP6(ASX, SY)),
+			vram->cmdReadWindow.readNP(VDP_VRMP6(ASX, SY)),
 			currentTime);
 		post_xxyy(512)
 		break;
@@ -601,7 +601,7 @@ void VDPCmdEngine::hmmmEngine()
 		pre_loop
 		vram->cmdWrite(
 			VDP_VRMP7(ADX, DY),
-			vram->readNP(VDP_VRMP7(ASX, SY)),
+			vram->cmdReadWindow.readNP(VDP_VRMP7(ASX, SY)),
 			currentTime);
 		post_xxyy(512)
 		break;
@@ -609,7 +609,7 @@ void VDPCmdEngine::hmmmEngine()
 		pre_loop
 		vram->cmdWrite(
 			VDP_VRMP8(ADX, DY),
-			vram->readNP(VDP_VRMP8(ASX, SY)),
+			vram->cmdReadWindow.readNP(VDP_VRMP8(ASX, SY)),
 			currentTime);
 		post_xxyy(256)
 		break;
@@ -660,7 +660,7 @@ void VDPCmdEngine::ymmmEngine()
 		pre_loop
 		vram->cmdWrite(
 			VDP_VRMP5(ADX, DY),
-			vram->readNP(VDP_VRMP5(ADX, SY)),
+			vram->cmdReadWindow.readNP(VDP_VRMP5(ADX, SY)),
 			currentTime);
 		post__xyy(256)
 		break;
@@ -668,7 +668,7 @@ void VDPCmdEngine::ymmmEngine()
 		pre_loop
 		vram->cmdWrite(
 			VDP_VRMP6(ADX, DY),
-			vram->readNP(VDP_VRMP6(ADX, SY)),
+			vram->cmdReadWindow.readNP(VDP_VRMP6(ADX, SY)),
 			currentTime);
 		post__xyy(512)
 		break;
@@ -676,7 +676,7 @@ void VDPCmdEngine::ymmmEngine()
 		pre_loop
 		vram->cmdWrite(
 			VDP_VRMP7(ADX, DY),
-			vram->readNP(VDP_VRMP7(ADX, SY)),
+			vram->cmdReadWindow.readNP(VDP_VRMP7(ADX, SY)),
 			currentTime);
 		post__xyy(512)
 		break;
@@ -684,7 +684,7 @@ void VDPCmdEngine::ymmmEngine()
 		pre_loop
 		vram->cmdWrite(
 			VDP_VRMP8(ADX, DY),
-			vram->readNP(VDP_VRMP8(ADX, SY)),
+			vram->cmdReadWindow.readNP(VDP_VRMP8(ADX, SY)),
 			currentTime);
 		post__xyy(256)
 		break;
@@ -795,70 +795,74 @@ void VDPCmdEngine::executeCommand()
 		commandDone();
 		return;
 	case CM_POINT:
-		commandDone();
+		vram->cmdReadWindow.setMask(0x1FFFF, 17);
+		vram->cmdWriteWindow.disable();
 		cmdReg[REG_COL] = point(
 			cmdReg[REG_SXL]+((int)cmdReg[REG_SXH]<<8),
 			cmdReg[REG_SYL]+((int)cmdReg[REG_SYH]<<8)
 			);
+		commandDone();
 		return;
 	case CM_PSET:
-		commandDone();
+		vram->cmdReadWindow.disable();
+		vram->cmdWriteWindow.setMask(0x1FFFF, 17);
 		pset(
 			cmdReg[REG_DXL]+((int)cmdReg[REG_DXH]<<8),
 			cmdReg[REG_DYL]+((int)cmdReg[REG_DYH]<<8),
 			cmdReg[REG_COL],
 			(LogOp)(cmdReg[REG_CMD] & 0x0F)
 			);
+		commandDone();
 		return;
 	case CM_SRCH:
 		currEngine=&VDPCmdEngine::srchEngine;
-		vram->getWindow(VDPVRAM::COMMAND_READ).setRange(0, 0x20000);
-		vram->getWindow(VDPVRAM::COMMAND_WRITE).disable();
+		vram->cmdReadWindow.setMask(0x1FFFF, 17);
+		vram->cmdWriteWindow.disable();
 		break;
 	case CM_LINE:
 		currEngine=&VDPCmdEngine::lineEngine;
-		vram->getWindow(VDPVRAM::COMMAND_READ).disable();
-		vram->getWindow(VDPVRAM::COMMAND_WRITE).setRange(0, 0x20000);
+		vram->cmdReadWindow.disable();
+		vram->cmdWriteWindow.setMask(0x1FFFF, 17);
 		break;
 	case CM_LMMV:
 		currEngine=&VDPCmdEngine::lmmvEngine;
-		vram->getWindow(VDPVRAM::COMMAND_READ).disable();
-		vram->getWindow(VDPVRAM::COMMAND_WRITE).setRange(0, 0x20000);
+		vram->cmdReadWindow.disable();
+		vram->cmdWriteWindow.setMask(0x1FFFF, 17);
 		break;
 	case CM_LMMM:
 		currEngine=&VDPCmdEngine::lmmmEngine;
-		vram->getWindow(VDPVRAM::COMMAND_READ).setRange(0, 0x20000);
-		vram->getWindow(VDPVRAM::COMMAND_WRITE).setRange(0, 0x20000);
+		vram->cmdReadWindow.setMask(0x1FFFF, 17);
+		vram->cmdWriteWindow.setMask(0x1FFFF, 17);
 		break;
 	case CM_LMCM:
 		currEngine=&VDPCmdEngine::lmcmEngine;
-		vram->getWindow(VDPVRAM::COMMAND_READ).setRange(0, 0x20000);
-		vram->getWindow(VDPVRAM::COMMAND_WRITE).disable();
+		vram->cmdReadWindow.setMask(0x1FFFF, 17);
+		vram->cmdWriteWindow.disable();
 		break;
 	case CM_LMMC:
 		currEngine=&VDPCmdEngine::lmmcEngine;
-		vram->getWindow(VDPVRAM::COMMAND_READ).disable();
-		vram->getWindow(VDPVRAM::COMMAND_WRITE).setRange(0, 0x20000);
+		vram->cmdReadWindow.disable();
+		vram->cmdWriteWindow.setMask(0x1FFFF, 17);
 		break;
 	case CM_HMMV:
 		currEngine=&VDPCmdEngine::hmmvEngine;
-		vram->getWindow(VDPVRAM::COMMAND_READ).disable();
-		vram->getWindow(VDPVRAM::COMMAND_WRITE).setRange(0, 0x20000);
+		vram->cmdReadWindow.disable();
+		vram->cmdWriteWindow.setMask(0x1FFFF, 17);
 		break;
 	case CM_HMMM:
 		currEngine=&VDPCmdEngine::hmmmEngine;
-		vram->getWindow(VDPVRAM::COMMAND_READ).setRange(0, 0x20000);
-		vram->getWindow(VDPVRAM::COMMAND_WRITE).setRange(0, 0x20000);
+		vram->cmdReadWindow.setMask(0x1FFFF, 17);
+		vram->cmdWriteWindow.setMask(0x1FFFF, 17);
 		break;
 	case CM_YMMM:
 		currEngine=&VDPCmdEngine::ymmmEngine;
-		vram->getWindow(VDPVRAM::COMMAND_READ).setRange(0, 0x20000);
-		vram->getWindow(VDPVRAM::COMMAND_WRITE).setRange(0, 0x20000);
+		vram->cmdReadWindow.setMask(0x1FFFF, 17);
+		vram->cmdWriteWindow.setMask(0x1FFFF, 17);
 		break;
 	case CM_HMMC:
 		currEngine=&VDPCmdEngine::hmmcEngine;
-		vram->getWindow(VDPVRAM::COMMAND_READ).disable();
-		vram->getWindow(VDPVRAM::COMMAND_WRITE).setRange(0, 0x20000);
+		vram->cmdReadWindow.disable();
+		vram->cmdWriteWindow.setMask(0x1FFFF, 17);
 		break;
 	default:
 		printf("V9938: Unrecognized opcode %02Xh\n", cmdReg[REG_CMD]);
@@ -922,8 +926,8 @@ void VDPCmdEngine::commandDone()
 {
 	status &= 0xFE;
 	currEngine = &VDPCmdEngine::dummyEngine;
-	vram->getWindow(VDPVRAM::COMMAND_READ).disable();
-	vram->getWindow(VDPVRAM::COMMAND_WRITE).disable();
+	vram->cmdReadWindow.disable();
+	vram->cmdWriteWindow.disable();
 }
 
 // Added routines for openMSX:

@@ -214,33 +214,6 @@ public:
 		return isDisplayArea && (controlRegs[1] & 0x40);
 	}
 
-	/** Get name table mask.
-	  * When this mask is applied to a table index with leading ones,
-	  * the result is the VRAM address of that index in the name table.
-	  * @return Current pattern name table mask.
-	  */
-	inline int getNameMask() {
-		return nameBase;
-	}
-
-	/** Get pattern table mask.
-	  * When this mask is applied to a table index with leading ones,
-	  * the result is the VRAM address of that index in the pattern table.
-	  * @return Current pattern generator table mask.
-	  */
-	inline int getPatternMask() {
-		return patternBase;
-	}
-
-	/** Get colour table mask.
-	  * When this mask is applied to a table index with leading ones,
-	  * the result is the VRAM address of that index in the colour table.
-	  * @return Current colour table base.
-	  */
-	inline int getColourMask() {
-		return colourBase;
-	}
-
 	/** Get sprite attribute table base.
 	  * TODO: Why is this not a mask?
 	  * @return Current sprite attribute table base.
@@ -640,18 +613,6 @@ private:
 	  * Equal to VRAM size minus one because VRAM size is a power of two.
 	  */
 	int vramMask;
-
-	/** VRAM address where the name table starts.
-	  */
-	int nameBase;
-
-	/** VRAM address where the pattern table starts.
-	  */
-	int patternBase;
-
-	/** VRAM address where the colour table starts.
-	  */
-	int colourBase;
 
 	/** VRAM address where the sprite attribute table starts.
 	  */

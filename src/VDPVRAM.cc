@@ -14,9 +14,17 @@ VDPVRAM::VDPVRAM(int size) {
 	memset(data, 0, size);
 
 	// Initialise access windows.
-	for (int i = 0; i < NUM_WINDOWS; i++) {
-		windows[i].setData(data);
-	}
+	// TODO: Use vram.read(window, index) instead of vram.window.read(index)?
+	//       The former doesn't need setData.
+	cmdReadWindow.setData(data);
+	cmdWriteWindow.setData(data);
+	nameTable.setData(data);
+	colourTable.setData(data);
+	patternTable.setData(data);
+	bitmapWindow.setData(data);
+	spriteAttribTable.setData(data);
+	spritePatternTable.setData(data);
+
 }
 
 VDPVRAM::~VDPVRAM() {
