@@ -197,7 +197,7 @@ const std::string &Element::getAttribute(const std::string &attName)
 {
 	for (std::list<Attribute*>::iterator i = attributes.begin(); i != attributes.end(); i++)
 	{
-		if ((*i)->name == name) return (*i)->value;
+		if ((*i)->name == attName) return (*i)->value;
 	}
 	return empty;
 }
@@ -206,7 +206,7 @@ const std::string &Element::getElementPcdata(const std::string &childName)
 {
 	for (std::list<Element*>::iterator i = children.begin(); i != children.end(); i++)
 	{
-		if ((*i)->name == name) return (*i)->pcdata;
+		if ((*i)->name == childName) return (*i)->pcdata;
 	}
 	return empty;
 }
