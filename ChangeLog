@@ -1,5 +1,11 @@
 $Id$
 
+2004-08-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* BlurScaler 16bpp improvements:
+	   - use look up table instead of (complex) computations. Is almost
+	     twice as fast. Also used 10-bit precision iso 8-bit, so less
+	     rounding errors.
+
 2004-08-25 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Don't copy HostCPU
 	* Improved MMX code. I measured between 1% and 2% speedup:

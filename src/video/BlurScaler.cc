@@ -18,13 +18,24 @@ Multiply<unsigned>::Multiply(SDL_PixelFormat* /*format*/)
 {
 }
 
-inline unsigned Multiply<unsigned>::multiply(unsigned p, unsigned factor)
+inline unsigned Multiply<unsigned>::multiply(unsigned p, unsigned f)
+{
+	return ((((p & 0xFF00FF) * f) & 0xFF00FF00) |
+	        (((p & 0x00FF00) * f) & 0x00FF0000)) >> 8;
+}
+
+inline void Multiply<unsigned>::setFactor(unsigned f)
+{
+	factor = f;
+}
+
+inline unsigned Multiply<unsigned>::mul32(unsigned p)
 {
 	return (((p & 0xFF00FF) * factor) & 0xFF00FF00) |
 	       (((p & 0x00FF00) * factor) & 0x00FF0000);
 }
 
-inline unsigned Multiply<unsigned>::convert(unsigned p)
+inline unsigned Multiply<unsigned>::conv32(unsigned p)
 {
 	return p >> 8;
 }
@@ -47,49 +58,77 @@ Multiply<word>::Multiply(SDL_PixelFormat* format)
 	Gmask1 = format->Gmask;
 	Bmask1 = format->Bmask;
 
-	Rshift1 =  0 + format->Rloss - format->Rshift;
-	Gshift1 =  8 + format->Gloss - format->Gshift;
-	Bshift1 = 16 + format->Bloss - format->Bshift;
+	Rshift1 = (2 + format->Rloss) - format->Rshift;
+	Gshift1 = (2 + format->Gloss) - format->Gshift;
+	Bshift1 = (2 + format->Bloss) - format->Bshift;
 
-	Rmask2 = ((1 << format->Rloss) - 1) <<
-	                (8 + format->Rshift - 2 * format->Rloss);
-	Gmask2 = ((1 << format->Gloss) - 1) <<
-	                (8 + format->Gshift - 2 * format->Gloss);
-	Bmask2 = ((1 << format->Bloss) - 1) <<
-	                (8 + format->Bshift - 2 * format->Bloss);
+	Rmask2 = ((1 << (2 + format->Rloss)) - 1) <<
+	                (10 + format->Rshift - 2 * (2 + format->Rloss));
+	Gmask2 = ((1 << (2 + format->Gloss)) - 1) <<
+	                (10 + format->Gshift - 2 * (2 + format->Gloss));
+	Bmask2 = ((1 << (2 + format->Bloss)) - 1) <<
+	                (10 + format->Bshift - 2 * (2 + format->Bloss));
 
-	Rshift2 =  0 + 2 * format->Rloss - format->Rshift - 8;
-	Gshift2 =  8 + 2 * format->Gloss - format->Gshift - 8;
-	Bshift2 = 16 + 2 * format->Bloss - format->Bshift - 8;
+	Rshift2 = 2 * (2 + format->Rloss) - format->Rshift - 10;
+	Gshift2 = 2 * (2 + format->Gloss) - format->Gshift - 10;
+	Bshift2 = 2 * (2 + format->Bloss) - format->Bshift - 10;
 	
-	Rshift3 = Rshift1 + 8;
-	Gshift3 = Gshift1 + 8;
-	Bshift3 = Bshift1 + 8;
+	Rshift3 = Rshift1 + 0;
+	Gshift3 = Gshift1 + 10;
+	Bshift3 = Bshift1 + 20;
 }
-inline unsigned Multiply<word>::multiply(word p, unsigned factor)
+
+inline word Multiply<word>::multiply(word p, unsigned f)
 {
-	unsigned r = rotLeft((p & Rmask1), Rshift1) |
-	             rotLeft((p & Rmask2), Rshift2);
-	unsigned g = rotLeft((p & Gmask1), Gshift1) |
-	             rotLeft((p & Gmask2), Gshift2);
-	unsigned b = rotLeft((p & Bmask1), Bshift1) |
-	             rotLeft((p & Bmask2), Bshift2);
-	return (((r | b) * factor) & 0xFF00FF00) |
-	       (( g      * factor) & 0x00FF0000); 
+	unsigned r = (((p & Rmask1) * f) >> 8) & Rmask1;
+	unsigned g = (((p & Gmask1) * f) >> 8) & Gmask1;
+	unsigned b = (((p & Bmask1) * f) >> 8) & Bmask1;
+	return r | g | b;
+	
 }
-inline word Multiply<word>::convert(unsigned p)
+
+void Multiply<word>::setFactor(unsigned f)
+{
+	if (factor == f) {
+		return;
+	}
+	factor = f;
+
+	for (unsigned p = 0; p < 0x10000; ++p) {
+		unsigned r = rotLeft((p & Rmask1), Rshift1) |
+			     rotLeft((p & Rmask2), Rshift2);
+		unsigned g = rotLeft((p & Gmask1), Gshift1) |
+			     rotLeft((p & Gmask2), Gshift2);
+		unsigned b = rotLeft((p & Bmask1), Bshift1) |
+			     rotLeft((p & Bmask2), Bshift2);
+		tab[p] = (((r * factor) >> 8) <<  0) |
+		         (((g * factor) >> 8) << 10) |
+		         (((b * factor) >> 8) << 20);
+	}
+}
+
+inline unsigned Multiply<word>::mul32(word p)
+{
+	return tab[p];
+}
+
+inline word Multiply<word>::conv32(unsigned p)
 {
 	return (rotRight(p, Rshift3) & Rmask1) |
 	       (rotRight(p, Gshift3) & Gmask1) |
 	       (rotRight(p, Bshift3) & Bmask1);
 }
 
+
+
 template <class Pixel>
 BlurScaler<Pixel>::BlurScaler(SDL_PixelFormat* format)
 	: scanlineSetting(*RenderSettings::instance().getScanlineAlpha())
 	, blurSetting(*RenderSettings::instance().getHorizontalBlur())
 	, blender(Blender<Pixel>::createFromFormat(format))
-	, multiplier(format)
+	, mult1(format)
+	, mult2(format)
+	, mult3(format)
 {
 }
 
@@ -110,8 +149,7 @@ void BlurScaler<Pixel>::scaleBlank(Pixel colour, SDL_Surface* dst,
 	} else {
 		const HostCPU& cpu = HostCPU::getInstance();
 		int scanline = 256 - (scanlineSetting.getValue() * 256) / 100;
-		Pixel scanlineColour = multiplier.convert(
-			multiplier.multiply(colour, scanline));
+		Pixel scanlineColour = mult1.multiply(colour, scanline);
 		if (ASM_X86 && cpu.hasMMXEXT()) {
 			const unsigned col32 =
 				  sizeof(Pixel) == 2
@@ -321,39 +359,41 @@ void BlurScaler<Pixel>::blur256(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 
 	} else {
 		// non-MMX routine, both 16bpp and 32bpp
-		// TODO in 16bpp colors are too dark, rounding errors??
+		mult1.setFactor(c1);
+		mult2.setFactor(c2);
+		 
 		Pixel p0 = pIn[0];
 		Pixel p1;
-		unsigned f0 = multiplier.multiply(p0, c1);
+		unsigned f0 = mult1.mul32(p0);
 		unsigned f1 = f0;
 		unsigned tmp;
 
 		unsigned x;
 		for (x = 0; x < (320 - 2); x += 2) {
-			tmp = multiplier.multiply(p0, c2);
-			pOut[2 * x + 0] = multiplier.convert(f1 + tmp);
+			tmp = mult2.mul32(p0);
+			pOut[2 * x + 0] = mult1.conv32(f1 + tmp);
 
 			p1 = pIn[x + 1];
-			f1 = multiplier.multiply(p1, c1);
-			pOut[2 * x + 1] = multiplier.convert(f1 + tmp);
+			f1 = mult1.mul32(p1);
+			pOut[2 * x + 1] = mult1.conv32(f1 + tmp);
 
-			tmp = multiplier.multiply(p1, c2);
-			pOut[2 * x + 2] = multiplier.convert(f0 + tmp);
+			tmp = mult2.mul32(p1);
+			pOut[2 * x + 2] = mult1.conv32(f0 + tmp);
 
 			p0 = pIn[x + 2];
-			f0 = multiplier.multiply(p0, c1);
-			pOut[2 * x + 3] = multiplier.convert(f0 + tmp);
+			f0 = mult1.mul32(p0);
+			pOut[2 * x + 3] = mult1.conv32(f0 + tmp);
 		}
 
-		tmp = multiplier.multiply(p0, c2);
-		pOut[2 * x + 0] = multiplier.convert(f1 + tmp);
+		tmp = mult2.mul32(p0);
+		pOut[2 * x + 0] = mult1.conv32(f1 + tmp);
 
 		p1 = pIn[x + 1];
-		f1 = multiplier.multiply(p1, c1);
-		pOut[2 * x + 1] = multiplier.convert(f1 + tmp);
+		f1 = mult1.mul32(p1);
+		pOut[2 * x + 1] = mult1.conv32(f1 + tmp);
 
-		tmp = multiplier.multiply(p1, c2);
-		pOut[2 * x + 2] = multiplier.convert(f0 + tmp);
+		tmp = mult2.mul32(p1);
+		pOut[2 * x + 2] = mult1.conv32(f0 + tmp);
 
 		pOut[2 * x + 3] = p1;
 	}
@@ -471,34 +511,36 @@ void BlurScaler<Pixel>::blur512(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 			);
 
 	} else {
+		mult1.setFactor(c1);
+		mult3.setFactor(c2);
 
 		Pixel p0 = pIn[0];
 		Pixel p1;
-		unsigned f0 = multiplier.multiply(p0, c1);
+		unsigned f0 = mult1.mul32(p0);
 		unsigned f1 = f0;
 
 		unsigned x;
 		for (x = 0; x < (640 - 2); x += 2) {
 			p1 = pIn[x + 1];
-			unsigned t0 = multiplier.multiply(p1, c1);
-			pOut[x] = multiplier.convert(
-				f0 + multiplier.multiply(p0, c2) + t0);
+			unsigned t0 = mult1.mul32(p1);
+			pOut[x] = mult1.conv32(
+				f0 + mult3.mul32(p0) + t0);
 			f0 = t0;
 
 			p0 = pIn[x + 2];
-			unsigned t1 = multiplier.multiply(p0, c1);
-			pOut[x + 1] = multiplier.convert(
-				f1 + multiplier.multiply(p1, c2) + t1);
+			unsigned t1 = mult1.mul32(p0);
+			pOut[x + 1] = mult1.conv32(
+				f1 + mult3.mul32(p1) + t1);
 			f1 = t1;
 		}
 
 		p1 = pIn[x + 1];
-		unsigned t0 = multiplier.multiply(p1, c1);
-		pOut[x] = multiplier.convert(
-			f0 + multiplier.multiply(p0, c2) + t0);
+		unsigned t0 = mult1.mul32(p1);
+		pOut[x] = mult1.conv32(
+			f0 + mult3.mul32(p0) + t0);
 
-		pOut[x + 1] = multiplier.convert(
-			f1 + multiplier.multiply(p1, c2) + t0);
+		pOut[x + 1] = mult1.conv32(
+			f1 + mult3.mul32(p1) + t0);
 	}
 }
 
@@ -559,8 +601,8 @@ void BlurScaler<Pixel>::average(
 	} else { 
 		// non-MMX routine, both 16bpp and 32bpp
 		for (unsigned x = 0; x < 640; ++x) {
-			dst[x] = multiplier.convert(
-				multiplier.multiply(blender.blend(src1[x], src2[x]), alpha));
+			dst[x] = mult1.multiply(
+				blender.blend(src1[x], src2[x]), alpha);
 		}
 	}
 }

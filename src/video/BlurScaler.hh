@@ -17,21 +17,29 @@ template<typename Pixel> class Multiply;
 template<> class Multiply<word> {
 public:
 	Multiply(SDL_PixelFormat* format);
-	inline unsigned multiply(word p, unsigned factor);
-	inline word convert(unsigned p);
+	inline word multiply(word p, unsigned factor);
+	void setFactor(unsigned factor);
+	inline unsigned mul32(word p);
+	inline word conv32(unsigned p);
 private:
-	word     Rmask1,  Gmask1,  Bmask1; 
-	word     Rmask2,  Gmask2,  Bmask2; 
+	unsigned tab[0x10000];
+	unsigned factor;
 	unsigned Rshift1, Gshift1, Bshift1;
 	unsigned Rshift2, Gshift2, Bshift2;
 	unsigned Rshift3, Gshift3, Bshift3;
+	word     Rmask1,  Gmask1,  Bmask1; 
+	word     Rmask2,  Gmask2,  Bmask2; 
 };
 
 template<> class Multiply<unsigned> {
 public:
 	Multiply(SDL_PixelFormat* format);
 	inline unsigned multiply(unsigned p, unsigned factor);
-	inline unsigned convert(unsigned p);
+	inline void setFactor(unsigned factor);
+	inline unsigned mul32(unsigned p);
+	inline unsigned conv32(unsigned p);
+private:
+	unsigned factor;
 };
 
 
@@ -58,7 +66,9 @@ private:
 	IntegerSetting& scanlineSetting;
 	IntegerSetting& blurSetting;
 	Blender<Pixel> blender;
-	Multiply<Pixel> multiplier;
+	Multiply<Pixel> mult1;
+	Multiply<Pixel> mult2;
+	Multiply<Pixel> mult3;
 };
 
 } // namespace openmsx
