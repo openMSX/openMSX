@@ -21,7 +21,8 @@ SUBDIRS = cfg libxmlx ConsoleSource cpu sound config
 #bin_PROGRAMS=openmsx cfgtest
 bin_PROGRAMS=openmsx
 
-openmsx_SOURCES=openmsx.cc icon.nn \
+openmsx_SOURCES=\
+	main.cc icon.nn \
 	system.h openmsx.hh \
 	EmuTime.hh EmuTime.cc \
 	MSXException.hh \
