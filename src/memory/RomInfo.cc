@@ -5,7 +5,6 @@
 #include "RomInfo.hh"
 #include "Rom.hh"
 #include "sha1.hh"
-#include "md5.hh"
 #include "libxmlx/xmlx.hh"
 #include "FileContext.hh"
 #include "File.hh"
@@ -244,16 +243,7 @@ RomInfo *RomInfo::searchRomDB(const Rom* rom)
 				   company, remark, nameToMapperType(romtype));
 				for (list<XML::Element*>::iterator it2 = (*it1)->children.begin();
 				     it2 != (*it1)->children.end(); ++it2) {
-					if ((*it2)->name == "md5") {
-						string md5 = (*it2)->pcdata;
-						if (romDBMD5.find(md5) ==
-						    romDBMD5.end()) {
-							romDBMD5[md5] = romInfo;
-						} else {
-							CliCommOutput::instance().printWarning(
-								"duplicate romdb entry MD5: " + md5);
-						}
-					} else if ((*it2)->name == "sha1") {
+					if ((*it2)->name == "sha1") {
 						string sha1 = (*it2)->pcdata;
 						if (romDBSHA1.find(sha1) ==
 						    romDBSHA1.end()) {
@@ -286,20 +276,6 @@ RomInfo *RomInfo::searchRomDB(const Rom* rom)
 		romDBSHA1[digestSHA1]->print();
 		// Return a copy of the DB entry.
 		return new RomInfo(*romDBSHA1[digestSHA1]);
-	}
-
-	// then try MD5 (obsolete)
-	MD5 md5;
-	md5.update(rom->getBlock(), size);
-	md5.finalize();
-	string digestMD5(md5.hex_digest());
-	if (romDBMD5.find(digestMD5) != romDBMD5.end()) {
-		CliCommOutput::instance().printWarning(
-			"Warning: You're using an old romdb.xml file.\n"
-			"         Please replace it with a recent version.");
-		romDBMD5[digestMD5]->print();
-		// Return a copy of the DB entry.
-		return new RomInfo(*romDBMD5[digestMD5]);
 	}
 
 	// no match found

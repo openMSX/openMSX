@@ -31,7 +31,7 @@ SRC_HDR:= \
 	CommandLineParser \
 	CliExtension \
 	MSXDiskRomPatch \
-	md5 sha1 \
+	sha1 \
 	CircularBuffer \
 	PluggingController Connector Pluggable PluggableFactory \
 	DebugDevice \

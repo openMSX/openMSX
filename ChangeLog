@@ -9,6 +9,8 @@ $Id$
 	* Debug device now prints time in Z80 ticks (3.58MHz), instead of
 	  internal ticks. This way we can change the internal tick resolution
 	  without changing the debug device output.
+	* Dropped support for MD5 hashes, they were already deprecated for a
+	  few releases.
 
 2004-01-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Integrated TCL scripting
