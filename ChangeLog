@@ -1,5 +1,12 @@
 $Id$
 
+2002-02-03 Maarten ter Huurne <mth@stack.nl>
+	* Implemented "slotmap" console command.
+	* Console::printOnConsole now accepts multi-line texts.
+	* Fixed buffer overrun in CON_Out.
+	* Renamed DummyDevice's device name to "empty", which makes
+	  more sense to the user (who sees it in the slotmap).
+
 2002-02-03 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Removed class LoadFile: it was only used by MSXRom and it was only
 	  usefull for that class (two classes merged now)
