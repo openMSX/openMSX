@@ -2,7 +2,7 @@
 
 # we want most warnings
 
-AM_CXXFLAGS_BASE = -Wall -pipe `test -f .debug && echo "-DDEBUG"` -fhuge-objects -Icpu -Isound @XML_CFLAGS@ @SDL_CFLAGS@ @GL_CFLAGS@
+AM_CXXFLAGS_BASE = -Wall -pipe `test -f .debug && echo "-DDEBUG"` -fhuge-objects -Icpu -Isound @XML_CFLAGS@ @SDL_CFLAGS@
 if PROFILE
 AM_CXXFLAGS = $(AM_CXXFLAGS_BASE) -pg
 else
@@ -85,8 +85,7 @@ openmsx_LDADD = \
 	cpu/libCPU.la \
 	sound/libSound.la \
 	@XML_LIBS@ \
-	@SDL_LIBS@ \
-	@GL_LIBS@
+	@SDL_LIBS@
 
 #cfgtest_SOURCES = MSXConfig.hh MSXConfig.cc \
 #	cfgtest.cc EmuTime.hh \
