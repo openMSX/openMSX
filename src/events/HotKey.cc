@@ -4,6 +4,7 @@
 #include "HotKey.hh"
 #include "CommandController.hh"
 #include "EventDistributor.hh"
+#include <cassert>
 
 
 HotKey::HotKey()
@@ -115,12 +116,14 @@ void HotKey::HotKeyCmd::signalHotKey(Keys::KeyCode key, const EmuTime &time)
 	}
 }
 
-
+#include <iostream>
 void HotKey::BindCmd::execute(const std::vector<std::string> &tokens,
                               const EmuTime &time)
 {
 	HotKey *hk = HotKey::instance();
 	switch (tokens.size()) {
+	case 0:
+		assert(false);
 	case 1: {
 		// show all bounded keys
 		std::multimap<Keys::KeyCode, HotKeyCmd*>::iterator it;
@@ -144,16 +147,22 @@ void HotKey::BindCmd::execute(const std::vector<std::string> &tokens,
 		}
 		break;
 	}
-	case 3: {
+	default: {
 		// make a new binding
 		Keys::KeyCode key = Keys::getCode(tokens[1]);
-		if (key == Keys::K_UNKNOWN)
+		if (key == Keys::K_UNKNOWN) {
 			throw CommandException("Unknown key");
-		hk->registerHotKeyCommand(key, tokens[2]);
+		}
+		std::string command = "";
+		for (uint i = 2; i < tokens.size(); i++) {
+			if (i != 2) command += ' ';
+			command += tokens[i];
+		}
+		//printf("Command: \"%s\".\n", (char *)command);
+		//cout << "Command: \"" << command << "\".\n";
+		hk->registerHotKeyCommand(key, command);
 		break;
 	}
-	default:
-		throw CommandException("Syntax error");
 	}
 }
 void HotKey::BindCmd::help(const std::vector<std::string> &tokens) const
