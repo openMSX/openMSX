@@ -8,6 +8,7 @@
 #include "Command.hh"
 
 class EmuTime;
+class RenderSettings;
 
 
 /** Abstract base class for Renderers.
@@ -202,6 +203,8 @@ protected:
 	 */
 	enum Accuracy { ACC_SCREEN, ACC_LINE, ACC_PIXEL };
 	Accuracy accuracy;
+
+	RenderSettings *settings;
 
 	bool deinterlace;
 

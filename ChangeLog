@@ -1,5 +1,9 @@
 $Id$
 
+2002-11-03 Maarten ter Huurne <mth@stack.nl>
+	* Initial version of generic settings is working now.
+	  Currently there is only 1 setting: scanline alpha.
+
 2002-11-03 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* minor cleanups
 	* fixed a few uninitialized variables:

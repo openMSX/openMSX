@@ -36,6 +36,7 @@ openmsx_SOURCES=\
 	VDPCmdEngine.hh VDPCmdEngine.cc \
 	VDPVRAM.hh VDPVRAM.cc \
 	SpriteChecker.hh SpriteChecker.cc \
+	RenderSettings.hh RenderSettings.cc \
 	Renderer.hh Renderer.cc \
 	PixelRenderer.hh PixelRenderer.cc \
 	SDLLoRenderer.hh SDLLoRenderer.cc \
@@ -82,6 +83,7 @@ openmsx_SOURCES=\
 	PluggingController.hh PluggingController.cc \
 	Connector.hh Connector.cc \
 	Pluggable.hh Pluggable.cc \
+	Settings.hh Settings.cc \
 	config.h
 
 # Very much out of date:

@@ -38,6 +38,7 @@ TODO:
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 #include "SpriteChecker.hh"
+#include "RenderSettings.hh"
 #include "RealTime.hh"
 #include "GLConsole.hh"
 #include <math.h>
@@ -217,6 +218,7 @@ void SDLGLRenderer::finishFrame()
 {
 	// Draw scanlines if enabled.
 	// TODO: Turn off scanlines when deinterlacing.
+	int scanlineAlpha = (settings->getScanlineAlpha()->getValue() * 255) / 100;
 	if (scanlineAlpha != 0) {
 		// TODO: These are always the same lines: use a display list.
 		// TODO: If interlace is active, draw scanlines on even/odd lines
@@ -366,7 +368,6 @@ SDLGLRenderer::SDLGLRenderer(
 	, bitmapConverter(palFg, PALETTE256)
 {
 	console = new GLConsole();
-	scanlineAlpha = 64;
 
 	GLint size;
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size);

@@ -3,6 +3,7 @@
 #include "Renderer.hh"
 #include "CommandController.hh"
 #include "HotKey.hh"
+#include "RenderSettings.hh"
 
 
 /*
@@ -67,6 +68,7 @@ Renderer::Renderer(bool fullScreen) :
 	fullScreenCmd(this), accuracyCmd(this), deinterlaceCmd(this)
 {
 	this->fullScreen = fullScreen;
+	settings = RenderSettings::getInstance();
 	accuracy = ACC_LINE;
 	deinterlace = true;
 	CommandController::instance()->registerCommand(fullScreenCmd, "fullscreen");
