@@ -51,6 +51,8 @@ RealTimeRTC::RealTimeRTC()
 	}
 	
 	initOK = true;
+
+	reset(EmuTime::zero);
 }
 
 RealTimeRTC::~RealTimeRTC()
@@ -68,11 +70,16 @@ RealTimeRTC::~RealTimeRTC()
 
 void RealTimeRTC::resync()
 {
-	// TODO
+	resyncFlag = true;
 }
 
 float RealTimeRTC::doSync(const EmuTime &curEmu)
 {
+	if (resyncFlag) {
+		reset(curEmu);
+		return 1.0;
+	}
+	
 	int speed = 25600 / speedSetting.getValue();
 	int emuPassed8K = (int)((speed * emuRef.getTicksTill(curEmu)) >> 8);
 	int emuPassedRTC = (emuPassed8K * RTC_HERTZ) / 8192;
@@ -99,4 +106,16 @@ float RealTimeRTC::doSync(const EmuTime &curEmu)
 
 	emuRef = curEmu;
 	return 1.0;
+}
+
+void RealTimeRTC::reset(const EmuTime &time)
+{
+	resyncFlag = false;
+	unsigned long data;
+	int retval = read(rtcFd, &data, sizeof(unsigned long));
+	if (retval == -1) {
+		perror("read");
+		exit(errno);
+	}
+	emuRef = time;
 }

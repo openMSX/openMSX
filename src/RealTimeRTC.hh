@@ -18,9 +18,11 @@ class RealTimeRTC : public RealTime
 		
 	private:
 		RealTimeRTC();
+		void reset(const EmuTime &time);
 		
 		int rtcFd;
 		bool initOK;
+		bool resyncFlag;
 		EmuTimeFreq<8192> emuRef;
 };
 
