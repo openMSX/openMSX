@@ -13,3 +13,4 @@ configure
 *.swp
 stamp-h.in
 libtool
+*.tar.gz
