@@ -629,40 +629,6 @@ void SDLRenderer<Pixel, zoom>::setDirty(
 }
 
 template <class Pixel, Renderer::Zoom zoom>
-void SDLRenderer<Pixel, zoom>::drawSprites(
-	int screenLine, int leftBorder, int minX, int maxX)
-{
-	int spriteMode = vdp->getDisplayMode().getSpriteMode();
-	if (spriteMode == 0) {
-		return;
-	}
-
-	// TODO: Pass absLine as a parameter instead of converting back.
-	int absLine = screenLine / LINE_ZOOM + lineRenderTop;
-
-	if (zoom != Renderer::ZOOM_256) {
-		// Sprites use 256 pixels per screen, while minX and maxX are 
-		// on a scale of 512 pixels per screen.
-		minX /= 2;
-		maxX /= 2;
-	}
-
-	Pixel *pixelPtr0 = (Pixel *)( (byte *)screen->pixels
-		+ screenLine * screen->pitch + leftBorder * sizeof(Pixel));
-	Pixel *pixelPtr1 = 
-		( LINE_ZOOM == 1
-		? NULL
-		: (Pixel *)(((byte *)pixelPtr0) + screen->pitch)
-		);
-
-	if (spriteMode == 1) {
-		spriteConverter.drawMode1(absLine, minX, maxX, pixelPtr0, pixelPtr1);
-	} else {
-		spriteConverter.drawMode2(absLine, minX, maxX, pixelPtr0, pixelPtr1);
-	}
-}
-
-template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::drawBorder(
 	int fromX, int fromY, int limitX, int limitY)
 {
@@ -764,7 +730,17 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 			displayY = (displayY + 1) & 255;
 		}
 	}
+}
 
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::drawSprites(
+	int fromX, int fromY,
+	int displayX, int displayY,
+	int displayWidth, int displayHeight
+) {
+	int spriteMode = vdp->getDisplayMode().getSpriteMode();
+	if (spriteMode == 0) return;
+	
 	// Render sprites.
 	// Lock surface, because we will access pixels directly.
 	// TODO: Locking the surface directly after a blit is
@@ -777,10 +753,42 @@ void SDLRenderer<Pixel, zoom>::drawDisplay(
 		// Display will be wrong, but this is not really critical.
 		return;
 	}
-	int leftBorder = translateX(getDisplayLeft());
-	for (int y = screenY; y < screenLimitY; y += LINE_ZOOM) {
-		drawSprites(y, leftBorder, displayX, displayX + displayWidth);
+	
+	// TODO: Code duplicated from drawDisplay.
+	int screenY = (fromY - lineRenderTop) * LINE_ZOOM;
+	if (!(settings->getDeinterlace()->getValue())
+	&& vdp->isInterlaced()
+	&& vdp->getEvenOdd()
+	&& zoom != Renderer::ZOOM_256) {
+		// Display odd field half a line lower.
+		screenY++;
 	}
+	
+	int displayLimitX = displayX + displayWidth;
+	int limitY = fromY + displayHeight;
+	Pixel *pixelPtr0 = (Pixel *)(
+		(byte *)screen->pixels
+		+ screenY * screen->pitch
+		+ translateX(getDisplayLeft()) * sizeof(Pixel)
+		);
+	for (int y = fromY; y < limitY; y++) {
+		Pixel *pixelPtr1 = 
+			( LINE_ZOOM == 1
+			? NULL
+			: (Pixel *)(((byte *)pixelPtr0) + screen->pitch)
+			);
+		
+		if (spriteMode == 1) {
+			spriteConverter.drawMode1(
+				y, displayX, displayLimitX, pixelPtr0, pixelPtr1 );
+		} else {
+			spriteConverter.drawMode2(
+				y, displayX, displayLimitX, pixelPtr0, pixelPtr1 );
+		}
+		
+		pixelPtr0 = (Pixel *)(((byte *)pixelPtr0) + screen->pitch * LINE_ZOOM);
+	}
+	
 	// Unlock surface.
 	if (SDL_MUSTLOCK(screen))
 		SDL_UnlockSurface(screen);

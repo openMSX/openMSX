@@ -801,31 +801,6 @@ void SDLGLRenderer::setDirty(
 	fillBool(dirtyPattern, dirty, sizeof(dirtyPattern) / sizeof(bool));
 }
 
-void SDLGLRenderer::drawSprites(int screenLine, int leftBorder, int minX, int maxX)
-{
-	int spriteMode = vdp->getDisplayMode().getSpriteMode();
-	if (spriteMode == 0) {
-		return;
-	}
-
-	// TODO: Pass absLine as a parameter instead of converting back.
-	int absLine = screenLine / 2 + lineRenderTop;
-	
-	// Buffer to render sprite pixels to; start with all transparent.
-	memset(lineBuffer, 0, 256 * sizeof(Pixel));
-
-	// TODO: Possible speedups:
-	// - for mode 1: create a texture in 1bpp, or in luminance
-	// - use VRAM to render sprite blocks instead of lines
-	if (spriteMode == 1) {
-		spriteConverter.drawMode1(absLine, minX, maxX, lineBuffer);
-	} else {
-		spriteConverter.drawMode2(absLine, minX, maxX, lineBuffer);
-	}
-	GLBlitLine(spriteTextureIds[absLine], lineBuffer,
-		leftBorder, screenLine, minX, maxX );
-}
-
 void SDLGLRenderer::drawBorder(int fromX, int fromY, int limitX, int limitY)
 {
 	// TODO: Only redraw if necessary.
@@ -1016,16 +991,54 @@ void SDLGLRenderer::drawDisplay(
 			break;
 		}
 	}
+	glDisable(GL_TEXTURE_2D);
+}
 
-	// Render sprites.
+void SDLGLRenderer::drawSprites(
+	int fromX, int fromY,
+	int displayX, int displayY,
+	int displayWidth, int displayHeight
+) {
+	int spriteMode = vdp->getDisplayMode().getSpriteMode();
+	if (spriteMode == 0) return;
+	
+	glEnable(GL_TEXTURE_2D);
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	for (int y = screenY; y < screenLimitY; y += 2) {
-		drawSprites(y, leftBorder, minX, maxX);
+	
+	// TODO: Code duplicated from drawDisplay.
+	int screenY = (fromY - lineRenderTop) * 2;
+	if (!(settings->getDeinterlace()->getValue())
+	&& vdp->isInterlaced()
+	&& vdp->getEvenOdd()) {
+		// Display odd field half a line lower.
+		screenY++;
 	}
+	
+	int leftBorder = translateX(getDisplayLeft());
+	int displayLimitX = displayX + displayWidth;
+	int limitY = fromY + displayHeight;
+	for (int y = fromY; y < limitY; y++) {
+		
+		// Buffer to render sprite pixels to; start with all transparent.
+		memset(lineBuffer, 0, 256 * sizeof(Pixel));
+		
+		// TODO: Possible speedups:
+		// - for mode 1: create a texture in 1bpp, or in luminance
+		// - use VRAM to render sprite blocks instead of lines
+		if (spriteMode == 1) {
+			spriteConverter.drawMode1(y, displayX, displayLimitX, lineBuffer);
+		} else {
+			spriteConverter.drawMode2(y, displayX, displayLimitX, lineBuffer);
+		}
+		
+		GLBlitLine(spriteTextureIds[y], lineBuffer,
+			leftBorder, screenY, displayX * 2, displayLimitX * 2 );
+		screenY += 2;
+	}
+	
 	glDisable(GL_BLEND);
-
 	glDisable(GL_TEXTURE_2D);
 }
 

@@ -69,6 +69,11 @@ protected:
 		int displayX, int displayY,
 		int displayWidth, int displayHeight
 		);
+	void drawSprites(
+		int fromX, int fromY,
+		int displayX, int displayY,
+		int displayWidth, int displayHeight
+		);
 
 private:
 
@@ -138,10 +143,6 @@ private:
 	/** Dirty checking for bitmap modes.
 	  */
 	void checkDirtyBitmap(int addr, byte data);
-
-	/** Draw sprites on this line over the background.
-	  */
-	void drawSprites(int screenLine, int leftBorder, int fromX, int limitX);
 
 	/** Set all dirty / clean.
 	  */

@@ -1,5 +1,8 @@
 $Id$
 
+2003-04-17 Maarten ter Huurne <maarten@treewalker.org>
+	* Separated drawSprites from drawDisplay in subclasses of PixelRenderer.
+
 2003-04-16 Maarten ter Huurne <maarten@treewalker.org>
 	* Moved display coordinate calculation from subclasses to PixelRenderer.
 

@@ -84,7 +84,6 @@ protected:
 	virtual void drawBorder(int fromX, int fromY, int limitX, int limitY) = 0;
 
 	/** Render a rectangle of display pixels on the host screen.
-	  * The units are absolute lines (Y) and VDP clockticks (X).
 	  * @param fromX X coordinate of render start in VDP ticks.
 	  * @param fromY Y coordinate of render start in absolute lines.
 	  * @param displayX display coordinate of render start: [0..512).
@@ -93,6 +92,23 @@ protected:
 	  * @param displayHeight rectangle height in lines.
 	  */
 	virtual void drawDisplay(
+		int fromX, int fromY,
+		int displayX, int displayY,
+		int displayWidth, int displayHeight
+		) = 0;
+
+	/** Render a rectangle of sprite pixels on the host screen.
+	  * Although the parameters are very similar to drawDisplay,
+	  * the displayX and displayWidth use range [0..256) instead of
+	  * [0..512) because VDP sprite coordinates work that way.
+	  * @param fromX X coordinate of render start in VDP ticks.
+	  * @param fromY Y coordinate of render start in absolute lines.
+	  * @param displayX display coordinate of render start: [0..256).
+	  * @param displayY display coordinate of render start: [0..256).
+	  * @param displayWidth rectangle width in pixels (256 per line).
+	  * @param displayHeight rectangle height in lines.
+	  */
+	virtual void drawSprites(
 		int fromX, int fromY,
 		int displayX, int displayY,
 		int displayWidth, int displayHeight

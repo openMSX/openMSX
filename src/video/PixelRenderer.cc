@@ -50,6 +50,11 @@ inline void PixelRenderer::draw(
 			displayX, displayY,
 			displayWidth, displayHeight
 			);
+		drawSprites(
+			startX, startY,
+			displayX / 2, displayY,
+			(displayWidth + 1) / 2, displayHeight
+			);
 		break;
 	}
 	default:
