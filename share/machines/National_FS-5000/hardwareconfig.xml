@@ -124,7 +124,7 @@
 
       <secondary slot="3">
         <MB8877A id="Memory Mapped FDC">
-          <brokenFDCread>false</brokenFDCread>
+          <broken_fdc_read>false</broken_fdc_read>
           <drives>2</drives>
           <rom>
             <filename>roms/fs-5000_disk.rom</filename>

@@ -81,7 +81,7 @@
           <mem base="0x0000" size="0x4000"/>
         </ROM>
         <WD2793 id="Memory Mapped FDC">
-          <brokenFDCread>false</brokenFDCread>
+          <broken_fdc_read>false</broken_fdc_read>
           <drives>1</drives>
           <rom>
             <filename>roms/hb-f1xd_disk.rom</filename>

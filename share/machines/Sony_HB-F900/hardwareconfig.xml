@@ -96,7 +96,7 @@
           <!-- The 2nd released version of this machine uses another disk rom:
     <parameter name="filename">roms/hb-f900_disk2.rom</parameter>
     -->
-          <brokenFDCread>false</brokenFDCread>
+          <broken_fdc_read>false</broken_fdc_read>
           <drives>2</drives>
           <rom>
             <filename>roms/hb-f900_disk.rom</filename>

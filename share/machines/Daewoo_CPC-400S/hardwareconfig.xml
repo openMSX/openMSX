@@ -106,7 +106,7 @@
 
     <primary slot="2">
       <MB8877A id="Memory Mapped FDC">
-        <brokenFDCread>false</brokenFDCread>
+        <broken_fdc_read>false</broken_fdc_read>
         <drives>1</drives>
         <rom>
           <filename>roms/cpc-400s_disk.rom</filename>

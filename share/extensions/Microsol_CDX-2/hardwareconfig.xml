@@ -6,7 +6,7 @@
     <secondary slot="any">
       <Microsol id="Microsol CDX-2/FDC">
         <io base="0xD0" num="5"/>
-        <brokenFDCread>false</brokenFDCread>
+        <broken_fdc_read>false</broken_fdc_read>
         <drives>1</drives>
         <mem base="0x4000" size="0x4000"/>
         <rom>

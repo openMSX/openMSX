@@ -65,7 +65,7 @@
 
       <secondary slot="1">
         <MB8877A id="Memory Mapped FDC">
-          <brokenFDCread>false</brokenFDCread>
+          <broken_fdc_read>false</broken_fdc_read>
           <drives>1</drives>
           <rom>
             <filename>roms/cf-3300_disk.rom</filename>

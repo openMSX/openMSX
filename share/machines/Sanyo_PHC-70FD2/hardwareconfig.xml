@@ -109,7 +109,7 @@
 
       <secondary slot="2">
         <TC8566AF id="Memory Mapped FDC">
-          <brokenFDCread>false</brokenFDCread>
+          <broken_fdc_read>false</broken_fdc_read>
           <drives>2</drives>
           <rom>
             <filename>roms/phc-70fd2_disk.rom</filename>
