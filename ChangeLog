@@ -1,5 +1,10 @@
 $Id$
 
+2004-12-04 Herman Oudejans <hn.oudejans@quicknet.nl>
+	* Made a quickfix for romloading in windows. Using another character
+	  for ips-patch separator would be highly recommended. ':' is used 
+	  between drive and path in Windows.
+
 2004-12-03 David Heremans <david.heremans@gnu-linux.net>
 	* Added more code for IPS patcher, but it is not yet functional.
 

@@ -64,7 +64,7 @@ void MSXRomCLI::parse(const string& arg, const string& slotname)
 	string mapper;
 
 	int pos = arg.find_last_of(':');
-	if (pos != -1 ) {
+	if ((pos != -1 ) && (pos != 1)) { // fix for win (<drive>:<path>)
 		romfile = arg.substr(0, pos);
 		ipsfile = arg.substr(pos + 1);
 		hasips = true;
