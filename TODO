@@ -31,3 +31,7 @@
  - support for saving states of devices
  - getBoolParameter(String parameterName, bool defaultValue), 
    also for int, string, ... [typed parameters]
+
+* build
+ - auto* improvement
+ - C++ standard compliancy (gcc-3.0 e.g.)
