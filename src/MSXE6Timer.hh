@@ -12,7 +12,7 @@
 #ifndef __E6TIMER_HH__
 #define __E6TIMER_HH__
 
-#include "MSXDevice.hh"
+#include "MSXIODevice.hh"
 #include "MSXMotherBoard.hh"
 #include "EmuTime.hh"
 

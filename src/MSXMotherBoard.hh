@@ -5,14 +5,16 @@
 
 #include <fstream>
 #include <vector>
-#include "MSXDevice.hh"
-#include "MSXIODevice.hh"
-#include "MSXMemDevice.hh"
+
 #include "Scheduler.hh"
 #include "EmuTime.hh"
 #include "CPUInterface.hh"
 #include "msxconfig.hh"
 
+// forward declarations
+class MSXDevice;
+class MSXIODevice;
+class MSXMemDevice;
 
 class MSXMotherBoard : public CPUInterface
 {	

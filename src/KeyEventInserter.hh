@@ -4,7 +4,6 @@
 #define __KEYEVENTINSERTER_HH__
 
 #include "EmuTime.hh"
-#include "SDLEventInserter.hh"
 #include <string>
 
 

@@ -6,8 +6,10 @@
 #include "MSXIODevice.hh"
 #include "EmuTime.hh"
 #include "AY8910.hh"
-#include "JoystickPorts.hh"
-#include "CassettePort.hh"
+
+// forward declarations
+class JoystickPorts;
+class CassettePortInterface;
 
 class MSXPSG : public MSXIODevice, public AY8910Interface
 {

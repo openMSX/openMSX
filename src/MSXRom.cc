@@ -4,6 +4,7 @@
 #include "MSXRom.hh"
 #include "MSXDiskRomPatch.hh"
 #include "MSXMotherBoard.hh"
+#include "MSXRomPatchInterface.hh"
 
 MSXRom::MSXRom()
 {

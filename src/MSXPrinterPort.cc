@@ -3,6 +3,7 @@
 #include <cassert>
 #include "MSXPrinterPort.hh"
 #include "MSXMotherBoard.hh"
+#include "PrinterPortDevice.hh"
 
 MSXPrinterPort::MSXPrinterPort(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time)

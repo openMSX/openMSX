@@ -9,7 +9,9 @@
 #include "EmuTime.hh"
 #include "MSXMemDevice.hh"
 #include "MSXIODevice.hh"
-#include "MSXMapperIO.hh"
+
+// forward declaration;
+class MSXMapperIO;
 
 class MSXMemoryMapper : public MSXMemDevice, public MSXIODevice
 {

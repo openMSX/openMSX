@@ -4,7 +4,9 @@
 #define __JOYSTICKPORTS_HH__
 
 #include "openmsx.hh"
-#include "JoystickDevice.hh"
+
+// forward declaration
+class JoystickDevice;
 
 class JoystickPorts
 {

@@ -3,10 +3,13 @@
 #ifndef __CPU_HH__
 #define __CPU_HH__
 
+#include "openmsx.hh"
 #include "EmuTime.hh"
-#include "CPUInterface.hh"
 
-class CPU 
+// forward declaration
+class CPUInterface;
+
+class CPU
 {
 	#ifndef WORDS_BIGENDIAN
 		#define LSB_FIRST

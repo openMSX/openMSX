@@ -4,9 +4,7 @@
 #define __YM2413_HH__
 
 #include "openmsx.hh"
-#include "Mixer.hh"
 #include "SoundDevice.hh"
-
 
 class YM2413 : public SoundDevice
 {

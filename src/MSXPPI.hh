@@ -27,13 +27,13 @@
 #ifndef __MSXPPI_HH__
 #define __MSXPPI_HH__
 
-#include "MSXDevice.hh"
-#include "MSXMotherBoard.hh"
+#include "MSXIODevice.hh"
 #include "EmuTime.hh"
 #include "I8255.hh"
 #include "Keyboard.hh"
-#include "KeyClick.hh"
-#include "CassettePort.hh"
+
+// forward declarations
+class KeyClick;
 
 // David Hermans original comments 
 // This class implements the PPI

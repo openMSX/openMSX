@@ -3,7 +3,8 @@
 #include <iostream>
 #include "MSXSCCPlusCart.hh"
 #include "MSXMotherBoard.hh"
-
+#include "msxconfig.hh"
+#include "SCC.hh"
 
 MSXSCCPlusCart::MSXSCCPlusCart(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time)

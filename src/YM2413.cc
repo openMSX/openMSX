@@ -43,6 +43,7 @@
 #include <math.h>
 #include <cassert>
 #include "YM2413.hh"
+#include "Mixer.hh"
 
 int YM2413::Slot::EG2DB(int d) { return d*(int)(EG_STEP/DB_STEP); }
 int YM2413::TL2EG(int d) { return d*(int)(TL_STEP/EG_STEP); }

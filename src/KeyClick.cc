@@ -2,10 +2,10 @@
 
 #include "KeyClick.hh"
 #include "openmsx.hh"
-#include "Mixer.hh"
+//#include "Mixer.hh"
 #include "EmuTime.hh"
-#include "MSXCPU.hh"
-
+//#include "MSXCPU.hh"
+#include "DACSound.hh"
 
 KeyClick::KeyClick(short volume, const EmuTime &time)
 {

@@ -20,7 +20,7 @@ class MSXMusic : public MSXYM2413, public MSXMemDevice, public MSXRom
 		/**
 		 * Destructor
 		 */
-		~MSXMusic(); 
+		~MSXMusic();
 		
 		byte readMem(word address, const EmuTime &time);
 		void writeMem(word address, byte value, const EmuTime &time);

@@ -2,6 +2,7 @@
 
 #include "KeyEventInserter.hh"
 #include "MSXCPU.hh"
+#include "SDLEventInserter.hh"
 
 KeyEventInserter::KeyEventInserter()
 {

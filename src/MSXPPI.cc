@@ -4,7 +4,9 @@
 #include "MSXPPI.hh"
 #include "Leds.hh"
 #include <cassert>
-
+#include "MSXMotherBoard.hh"
+#include "KeyClick.hh"
+#include "CassettePort.hh"
 
 // MSXDevice
 

@@ -2,6 +2,7 @@
 
 #include "MSXAudio.hh"
 #include "MSXMotherBoard.hh"
+#include "Y8950.hh"
 
 MSXAudio::MSXAudio(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time)

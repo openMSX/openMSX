@@ -1,6 +1,7 @@
 // $Id$
 
 #include "CPU.hh"
+#include "CPUInterface.hh"
 
 CPU::CPU(CPUInterface *interf) 
 {

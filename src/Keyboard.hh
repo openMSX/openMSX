@@ -7,7 +7,7 @@
 #include "EventDistributor.hh"
 
 
-class Keyboard : public EventListener 
+class Keyboard : public EventListener
 {
 	public:
 		/**

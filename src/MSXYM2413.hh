@@ -5,8 +5,9 @@
 
 #include "MSXIODevice.hh"
 #include "EmuTime.hh"
-#include "YM2413.hh"
 
+// forward declaration
+class YM2413;
 
 class MSXYM2413 : public MSXIODevice
 {

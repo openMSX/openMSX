@@ -4,9 +4,10 @@
 #define __MSXCASSETTEPORT_HH__
 
 #include "MSXDevice.hh"
-#include "CassetteDevice.hh"
 #include "EmuTime.hh"
 
+// forward declaration
+class CassetteDevice;
 
 class CassettePortInterface
 {

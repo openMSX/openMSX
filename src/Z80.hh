@@ -18,13 +18,15 @@
 #include "config.h"
 #include "openmsx.hh"
 #include "CPU.hh"
-#include "CPUInterface.hh"
+#include "EmuTime.hh"
 
 #ifdef DEBUG
 //#define Z80DEBUG
 #endif
 
+// forward declarations
 class Z80;
+class CPUInterface;
 typedef void (Z80::*opcode_fn)();
 
 class Z80 : public CPU {

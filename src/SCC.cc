@@ -1,6 +1,7 @@
 // $Id$
 
 #include "SCC.hh"
+#include "Mixer.hh"
 
 SCC::SCC(short volume)
 {

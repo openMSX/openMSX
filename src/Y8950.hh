@@ -5,7 +5,6 @@
 
 //#include "ADPCM.hh"
 #include "openmsx.hh"
-#include "Mixer.hh"
 #include "SoundDevice.hh"
 
 

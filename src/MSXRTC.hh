@@ -5,8 +5,9 @@
 
 #include "MSXIODevice.hh"
 #include "EmuTime.hh"
-#include "RP5C01.hh"
 
+// forward declaration
+class RP5C01;
 
 class MSXRTC : public MSXIODevice
 {

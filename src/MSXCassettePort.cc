@@ -3,7 +3,7 @@
 #include "MSXCassettePort.hh"
 #include "DummyCassetteDevice.hh"
 #include "MSXCPU.hh"
-
+#include "CassetteDevice.hh"
 
 // MSXCassettePort //
 

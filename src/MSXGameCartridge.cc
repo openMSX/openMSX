@@ -5,6 +5,8 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include "SCC.hh"
+#include "DACSound.hh"
 
 #include "config.h"
 

@@ -3,7 +3,7 @@
 #include <cassert>
 #include "MSXRTC.hh"
 #include "MSXMotherBoard.hh"
-
+#include "RP5C01.hh"
 
 MSXRTC::MSXRTC(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time)

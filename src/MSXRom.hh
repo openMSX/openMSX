@@ -8,7 +8,9 @@
 #include "msxconfig.hh"
 #include "MSXDevice.hh"
 #include "LoadFile.hh"
-#include "MSXRomPatchInterface.hh"
+
+// forward declaration
+class MSXRomPatchInterface;
 
 class MSXRom: virtual public MSXDevice, public LoadFile
 {

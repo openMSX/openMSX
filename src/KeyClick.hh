@@ -4,15 +4,15 @@
 #define __KEYCLICK_HH__
 
 #include "openmsx.hh"
-#include "SoundDevice.hh"
 #include "EmuTime.hh"
-#include "DACSound.hh"
 
+// forward declaration
+class DACSound;
 
 class KeyClick
 {
 	public:
-		KeyClick(short volume, const EmuTime &time); 
+		KeyClick(short volume, const EmuTime &time);
 		virtual ~KeyClick(); 
 	
 		void reset(const EmuTime &time);

@@ -17,7 +17,7 @@ class DACSound : public SoundDevice
 {
 	public:
 		DACSound(short maxVolume, int typicalFreq, const EmuTime &time); 
-		virtual ~DACSound(); 
+		virtual ~DACSound();
 	
 		void reset(const EmuTime &time);
 		byte readDAC(const EmuTime &time);

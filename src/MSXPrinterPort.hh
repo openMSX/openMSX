@@ -6,7 +6,6 @@
 #include "MSXIODevice.hh"
 #include "PrinterPortDevice.hh"
 
-
 class MSXPrinterPort : public MSXIODevice
 {
 	public:

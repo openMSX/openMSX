@@ -5,7 +5,6 @@
 
 #include "openmsx.hh"
 
-
 class PrinterPortDevice
 {
 	public:

@@ -15,6 +15,7 @@
 #include <cassert>
 
 #include "Z80.hh"
+#include "CPUInterface.hh"
 
 #ifdef Z80DEBUG
 #include <stdio.h>

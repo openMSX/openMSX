@@ -7,8 +7,10 @@
 #include <list>
 #include <vector>
 #include "openmsx.hh"
-#include "SoundDevice.hh"
 #include "EmuTime.hh"
+
+// forward declarations
+class SoundDevice;
 
 class Mixer
 {

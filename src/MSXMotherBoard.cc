@@ -8,7 +8,9 @@
 #include "RealTime.hh"
 #include "DummyDevice.hh"
 #include "Leds.hh"
-
+#include "MSXDevice.hh"
+#include "MSXIODevice.hh"
+#include "MSXMemDevice.hh"
 
 MSXMotherBoard::MSXMotherBoard()
 {

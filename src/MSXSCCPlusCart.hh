@@ -6,15 +6,13 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "msxconfig.hh"
-#include "MSXDevice.hh"
 #include "MSXMemDevice.hh"
 #include "EmuTime.hh"
 #include "openmsx.hh"
 #include "Scheduler.hh"
-#include "SoundDevice.hh"
-#include "Mixer.hh"
-#include "SCC.hh"
+
+// forward declaration
+class SCC;
 
 class MSXSCCPlusCart : public MSXMemDevice
 {
@@ -27,9 +25,9 @@ class MSXSCCPlusCart : public MSXMemDevice
 
 		void reset(const EmuTime &time);
 
-	protected:
-		MSXConfig::Device *deviceConfig;
-		const std::string* deviceName;
+//	protected:
+//		MSXConfig::Device *deviceConfig;
+//		const std::string* deviceName;
 
 
 	private:

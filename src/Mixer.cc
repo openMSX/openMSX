@@ -5,6 +5,7 @@
 #include "Mixer.hh"
 #include "MSXCPU.hh"
 #include "RealTime.hh"
+#include "SoundDevice.hh"
 #include "msxconfig.hh"
 
 

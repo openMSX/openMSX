@@ -17,7 +17,7 @@
 //****************************************************************************//
 #include <math.h>
 #include "Y8950.hh"
-
+#include "Mixer.hh"
 
 int Y8950::dB2LinTab[(2*DB_MUTE)*2];
 int Y8950::Slot::fullsintable[PG_WIDTH];

@@ -6,7 +6,6 @@
 #include "openmsx.hh" //for the byte definition
 #include "EmuTime.hh"
 #include "SoundDevice.hh"
-#include "Mixer.hh"
 
 class SCC : public SoundDevice
 {

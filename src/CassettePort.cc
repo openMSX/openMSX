@@ -1,6 +1,7 @@
 // $Id$
 
 #include "CassettePort.hh"
+#include "CassetteDevice.hh"
 #include "DummyCassetteDevice.hh"
 #include "MSXCPU.hh"
 

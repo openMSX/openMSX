@@ -25,11 +25,11 @@ void MSXDiskRomPatch::patch() const
 	PRT_DEBUG("void MSXDiskRomPatch::patch() const");
 	
 	CPU &cpu = MSXCPU::instance()->getActiveCPU();
-	CPU::CPURegs(cpu.getCPURegs());
+	CPU::CPURegs regs(cpu.getCPURegs());
 
+	int address = regs.PC.w;
+	PRT_DEBUG("regs.PC==" << address);
 	return;
-
-	int address;
 	
 	// TODO: get CPU[PC] of patch instruction
 	assert(false);

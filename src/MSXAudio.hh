@@ -4,7 +4,9 @@
 #define __MSXAUDIO_HH__
 
 #include "MSXIODevice.hh"
-#include "Y8950.hh"
+
+// forward declaration
+class Y8950;
 
 class MSXAudio : public MSXIODevice
 {

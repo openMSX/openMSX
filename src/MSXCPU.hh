@@ -4,7 +4,7 @@
 #define __MSXCPU_HH__
 
 #include "MSXDevice.hh"
-#include "CPUInterface.hh"
+//#include "CPUInterface.hh"
 #include "MSXMotherBoard.hh"
 #include "Scheduler.hh"
 #include "CPU.hh"

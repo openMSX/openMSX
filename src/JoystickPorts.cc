@@ -1,6 +1,7 @@
 // $Id$
 
 #include "JoystickPorts.hh"
+#include "JoystickDevice.hh"
 #include "DummyJoystick.hh"
 #include <cassert>
 

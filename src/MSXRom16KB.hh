@@ -5,7 +5,6 @@
 
 #include "MSXMemDevice.hh"
 #include "MSXRom.hh"
-#include "MSXDevice.hh"
 #include "EmuTime.hh"
 #include "msxconfig.hh"
 
