@@ -26,9 +26,7 @@ class EmuTime
 		EmuTime()                 { time = 0; }
 		EmuTime(uint64 n)         { time = n; }
 		EmuTime(const EmuTime &e) { time = e.time; }
-
-		static EmuTime &durationToEmuTime(float duration)
-			{ return *new EmuTime((uint64)(duration*MAIN_FREQ)); }
+		EmuTime(double duration)  { time = (uint64)(duration*MAIN_FREQ); }
 
 		// assignment operator
 		EmuTime &operator =(const EmuTime &e) { time = e.time; return *this; }
@@ -43,8 +41,8 @@ class EmuTime
 		// distance function
 		float getDuration(const EmuTime &e) const
 			{ return (float)(e.time-time)/MAIN_FREQ; }
-		EmuTime &operator -(const EmuTime &e) const
-			{ return *new EmuTime(time-e.time); }
+		EmuTime operator -(const EmuTime &e) const
+			{ return EmuTime(time-e.time); }
 		int subtract(const EmuTime &e) const { return (int)(time-e.time); }
 
 	//protected:
@@ -73,7 +71,7 @@ class EmuTimeFreq : public EmuTime
 		EmuTime &operator ++(int n) { time +=   (MAIN_FREQ/freq); return *this; } // postfix
 		EmuTime &operator --(int n) { time -=   (MAIN_FREQ/freq); return *this; }
 
-		EmuTime &operator +(uint64 n) { return *new EmuTime(time+n*(MAIN_FREQ/freq)); }
+		EmuTime operator +(uint64 n) { return EmuTime(time+n*(MAIN_FREQ/freq)); }
 
 		// distance function
 		int getTicksTill(const EmuTime &e) const { 

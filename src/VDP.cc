@@ -360,9 +360,9 @@ VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
 	}
 
 	// Init scheduling.
-	displayStartSyncTime = 0;
-	vScanSyncTime = 0;
-	hScanSyncTime = 0;
+	displayStartSyncTime = time;
+	vScanSyncTime = time;
+	hScanSyncTime = time;
 	frameStart(time);
 
 	// Register console commands.

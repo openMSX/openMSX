@@ -1,5 +1,12 @@
 $Id$
 
+2002-04-12 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* DACSound cleanup (still has the same(?) bug)
+	* EventDistributor simplification:
+	   use Scheduler for synchronous event delivery
+	   thanks Maarten for the idea
+	* Made Scheduler thread safe
+
 2002-04-11 Maarten ter Huurne <mth@stack.nl>
 	* Introduced "renderer" command to print current renderer and switch
 	  to another one. However, switching from SDLHi to SDLGL hangs SDL.
@@ -8,6 +15,7 @@ $Id$
 2002-04-11 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Finally (?) fixed Y8950 samples:
 	   "Arranger 4" sounds ok now
+	* Implemented ADPCM readback (untested)
 
 2002-04-11 David Heremans <david.heremans@gnu-linux.net>
 	* Added (not tested) support for ASCII8SRAM type to MSXGameCartridge.

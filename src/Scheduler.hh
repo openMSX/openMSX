@@ -10,34 +10,12 @@
 #include "HotKey.hh"
 #include "Mutex.hh"
 #include "ConsoleSource/Command.hh"
+#include "Schedulable.hh"
+#include "Mutex.hh"
 
 //forward declarations
 class MSXCPU;
 
-/**
- * Every class that wants to get scheduled at some point must inherit from
- * this class
- */
-class Schedulable
-{
-	public:
-		/**
-		 * When the previously registered syncPoint is reached, this
-		 * method gets called. The parameter "userData" is the same
-		 * as passed to setSyncPoint().
-		 */
-		virtual void executeUntilEmuTime(const EmuTime &time, int userData) = 0;
-
-#ifdef DEBUG
-		/**
-		 * This method is only used to print meaningfull debug messages
-		 */
-		virtual const std::string &getName();
-
-	protected:
-		static const std::string defaultName;
-#endif
-};
 
 class Scheduler : private EventListener
 {
@@ -74,6 +52,9 @@ class Scheduler : private EventListener
 		 * the executeUntilEmuTime() method of "device" gets called.
 		 * SyncPoints are ordered: smaller EmuTime -> scheduled
 		 * earlier.
+		 * If the supplied EmuTime may be smaller than the current CPU
+		 * (normally an error). This is usefull if you want to schedule
+		 * something ASAP, just pass a zero EmuTime.
 		 * A device may register several syncPoints.
 		 * Optionally a "userData" parameter can be passed, this
 		 * parameter is not used by the Scheduler but it is passed to
@@ -124,8 +105,6 @@ class Scheduler : private EventListener
 
 	private:
 		Scheduler();
-		const SynchronizationPoint &getFirstSP();
-		void removeFirstSP();
 		void reschedule();
 
 		// EventListener
@@ -136,6 +115,7 @@ class Scheduler : private EventListener
 		  * doesn't allow removal of non-top element.
 		  */
 		std::vector<SynchronizationPoint> syncPoints;
+		Mutex schedMutex;
 
 		bool noSound;
 

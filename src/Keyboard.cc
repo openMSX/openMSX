@@ -20,8 +20,6 @@ Keyboard::~Keyboard()
 
 const byte* Keyboard::getKeys()
 {
-	EventDistributor::instance()->pollSyncEvents();
-
 	if (!keyGhosting) {
 		return keyMatrix;
 	} else {

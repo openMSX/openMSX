@@ -46,7 +46,7 @@ openmsx_SOURCES=\
 	CharacterConverter.hh CharacterConverter.cc \
 	PlatformFactory.hh PlatformFactory.cc \
 	devicefactory.hh devicefactory.cc \
-	Scheduler.hh Scheduler.cc \
+	Scheduler.hh Scheduler.cc Schedulable.hh \
 	EventDistributor.hh EventDistributor.cc \
 	Thread.hh Thread.cc \
 	Mutex.hh Mutex.cc \

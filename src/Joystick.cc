@@ -47,7 +47,6 @@ const std::string &Joystick::getName()
 //JoystickDevice
 byte Joystick::read(const EmuTime &time)
 {
-	EventDistributor::instance()->pollSyncEvents();
 	return status;
 }
 

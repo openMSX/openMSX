@@ -194,7 +194,7 @@ void MSXDiskRomPatch::PHYDIO(CPU::CPURegs& regs) const
 	}
 
 	// turn on RAM in all slots
-	EmuTime dummy(0);
+	EmuTime dummy; // TODO
 	MSXMotherBoard* motherboard = MSXMotherBoard::instance();
 	int pri_slot = motherboard->readIO(0xA8, dummy);
 	int sec_slot = motherboard->readMem(0xFFFF, dummy)^0xFF;
@@ -334,7 +334,7 @@ void MSXDiskRomPatch::GETDPB(CPU::CPURegs& regs) const
 	word sect_num_of_data = sect_num_of_dir + 7;
 
 	MSXMotherBoard* motherboard = MSXMotherBoard::instance();
-	EmuTime dummy(0);
+	EmuTime dummy; // TODO
 	// media type: passed by caller
 	motherboard->writeMem(DPB_base_address + 0x01, media_descriptor, dummy);
 	// sector size: 512

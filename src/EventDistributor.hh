@@ -8,6 +8,7 @@
 #include <queue>
 #include "Thread.hh"
 #include "Mutex.hh"
+#include "Schedulable.hh"
 
 
 class EventListener
@@ -21,7 +22,7 @@ class EventListener
 		virtual void signalEvent(SDL_Event &event) = 0;
 };
 
-class EventDistributor : public Runnable
+class EventDistributor : public Runnable , private Schedulable
 {
 	public:
 		virtual ~EventDistributor();
@@ -34,24 +35,12 @@ class EventDistributor : public Runnable
 		 * receive certain SDL_Event's. When such an event is received
 		 * it will 'eventually' be passed to the registerd class its 
 		 * "signalEvent()" method.
-		 * Delivering of events must be triggerd by calling the method
-		 * "pollSyncEvents()". This will deliver all synchronous events,
-		 * not just the ones registerd by your class.
-		 * The events are deliverd in a synchronous manner, that is by
-		 * the same thread that executed the "pollSyncEvents()" method.
+		 * The 'main-emulation-thread' will deliver the event.
 		 * 
 		 * This method may not be call called from within a
 		 * "signalEvent()" method
 		 */
 		void registerSyncListener (int type, EventListener *listener);
-		
-		/** 
-		 * See "registerSyncListener()"
-		 * 
-		 * This method may not be call called from within a
-		 * "signalEvent()" method
-		 */
-		void pollSyncEvents();
 		
 		/**
 		 * Use this method to register a given class to asynchronously
@@ -70,6 +59,7 @@ class EventDistributor : public Runnable
 	private:
 		EventDistributor();
 		static EventDistributor *oneInstance;
+		void executeUntilEmuTime(const EmuTime &time, int userdata);
 
 		std::multimap <int, EventListener*> asyncMap;
 		std::multimap <int, EventListener*> syncMap;

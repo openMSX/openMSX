@@ -12,23 +12,20 @@
 #include "../cpu/MSXCPU.hh"
 
 
-DACSound::DACSound(short maxVolume, int typicalFreq, const EmuTime &time)
+DACSound::DACSound(short maxVolume, int typicalFreq, const EmuTime &time) :
+	emuDelay(1.0 / typicalFreq)
 {
 	PRT_DEBUG("Creating DACSound device");
 	
+	setVolume(maxVolume);
+	currentValue = nextValue = tmpValue = volTable[CENTER];
+	currentTime  = nextTime  = prevTime = lastTime = time;
+	delta = left = currentLength = 0;
+	lastValue = CENTER;
+	reset(time);
+	
 	int bufSize = Mixer::instance()->registerSound(this);
 	buf = new int[bufSize];
-	
-	emuDelay = EmuTime::durationToEmuTime(1.0/typicalFreq);
-	
-	setVolume(maxVolume);
-
-	currentValue = nextValue = volTable[CENTER];
-	currentTime  = nextTime  = prevTime = lastTime = time;
-	readIndex = writeIndex = 0;
-	left = currentLength = 0;
-	
-	reset(time);
 }
 
 
@@ -47,7 +44,6 @@ void DACSound::setInternalVolume(short newVolume)
 	// 0x80 is centre (no amplitude)
 
 	double scale = (double)(newVolume / CENTER);	// scale factor for DAC
-	PRT_DEBUG("DAC scale : " << scale );
 	for (int i=0; i<256; i++) {
 		volTable[i] = (short)(scale * (i-CENTER));
 	}
@@ -55,6 +51,7 @@ void DACSound::setInternalVolume(short newVolume)
 
 void DACSound::setSampleRate (int smplRt)
 {
+	// ignore sampleRate
 }
 
 void DACSound::reset(const EmuTime &time)
@@ -69,24 +66,30 @@ byte DACSound::readDAC(const EmuTime &time)
 
 void DACSound::writeDAC(byte value, const EmuTime &time)
 {
-	EmuTime tmp = time - emuDelay;
-	if (lastTime < tmp)
-		insertSample(volTable[lastValue], tmp);
+	// TODO temp DISABLED
+	return;
+
+	Mixer::instance()->lock();
+
+	if (time > emuDelay) {
+		EmuTime tmp = time - emuDelay;
+		if (lastTime < tmp)
+			insertSample(volTable[lastValue], tmp);
+	}
 	insertSample(volTable[value], time);
 	lastTime = time;
 	lastValue = value;
 	
 	if (value != CENTER)
 		setInternalMute(false);
+	
+	Mixer::instance()->unlock();
 }
 
 void DACSound::insertSample(short sample, const EmuTime &time)
 {
-	//TODO check for overflow
-	buffer[writeIndex].sample = sample;
-	buffer[writeIndex].time   = time;
-	writeIndex = (writeIndex+1) % BUFSIZE;
-	//assert(writeIndex != readIndex);
+	Sample s = {sample, time};
+	buffer.addBack(s);
 }
 
 int* DACSound::updateBuffer(int length)
@@ -97,12 +100,11 @@ int* DACSound::updateBuffer(int length)
 	int* buffer = buf;
 	
 	//EmuTime mixTime = MSXCPU::instance()->getCurrentTime() - emuDelay;
-	EmuTime mixTime = MSXCPU::instance()->getCurrentTime();
-	assert(length!=0);
-	timeUnit = mixTime.subtract(prevTime) / length;
+	EmuTime mixTime = MSXCPU::instance()->getCurrentTime(); // this is NOT accurate
+	int timeUnit = mixTime.subtract(prevTime) / length;
 	prevTime = mixTime;
 	while (length) {
-		if (left==0) {
+		if (left == 0) {
 			// at the beginning of a sample
 			if (currentLength >= timeUnit) {
 				// enough for a whole sample
@@ -115,7 +117,7 @@ int* DACSound::updateBuffer(int length)
 				assert(timeUnit!=0);
 				tmpValue = ((currentValue + delta/2) * currentLength) / timeUnit;
 				left = timeUnit - currentLength;
-				getNext();
+				getNext(timeUnit);
 			}
 		} else {
 			// not at the beginning of a sample
@@ -132,33 +134,32 @@ int* DACSound::updateBuffer(int length)
 				assert(timeUnit!=0);
 				tmpValue += ((currentValue + delta/2) * currentLength) / timeUnit;
 				left -= currentLength;
-				getNext();
+				getNext(timeUnit);
 			}
 		}
 	}
 	return buf;
 }
 
-void DACSound::getNext()
+void DACSound::getNext(int timeUnit)
 {
 	// old next-values become the current-values
 	currentValue = nextValue;
 	currentTime = nextTime;
-	if (readIndex != writeIndex) {
-		// still data in buffer
-		nextValue = buffer[readIndex].sample;
-		nextTime  = buffer[readIndex].time;
-		readIndex = (readIndex+1) % BUFSIZE;
+	if (!buffer.isEmpty()) {
+		nextValue = buffer[0].sample;
+		nextTime  = buffer[0].time;
+		buffer.removeFront();
 	} else {
-		// no more data in buffer
 		//nextValue = currentValue;
 		nextTime = prevTime;	// = MixTime
 		if (lastValue == CENTER)
 			setInternalMute(true);
 	}
+	assert(nextTime >= currentTime);
 	currentLength = nextTime.subtract(currentTime);
-	if (currentLength==0) currentLength=1;
-	delta = ((nextValue - currentValue) * timeUnit) / currentLength;
+	if (currentLength != 0)
+		delta = ((nextValue - currentValue) * timeUnit) / currentLength;
 	//PRT_DEBUG("DAC: currentValue  " << currentValue);
 	//PRT_DEBUG("DAC: currentTime   " << currentTime);
 	//PRT_DEBUG("DAC: nextValue     " << nextValue);

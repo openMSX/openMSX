@@ -10,6 +10,7 @@
 #include "openmsx.hh"
 #include "SoundDevice.hh"
 #include "EmuTime.hh"
+#include "../ConsoleSource/CircularBuffer.hh"
 
 
 class DACSound : public SoundDevice
@@ -29,23 +30,22 @@ class DACSound : public SoundDevice
 		
 	private:
 		void insertSample(short sample, const EmuTime &time);
-		void getNext();
+		void getNext(int timeUnit);
 		
-		static const int BUFSIZE = 4096;
 		static const int CENTER = 0x80;
 	
-		EmuTime emuDelay;
+		const EmuTime emuDelay;
 		EmuTime currentTime, nextTime, prevTime, lastTime;
 		int currentValue, nextValue, delta, tmpValue;
-		int timeUnit, left, currentLength;
+		int left, currentLength;
 		byte lastValue;
 		short volTable[256];
-		struct {
+		int* buf;
+		
+		typedef struct {
 			int sample;
 			EmuTime time;
-		} buffer[BUFSIZE];
-		int readIndex;
-		int writeIndex;
-		int* buf;
+		} Sample;
+		CircularBuffer<Sample, 4096> buffer;
 };
 #endif

@@ -1,10 +1,12 @@
 // $Id$
 
+#include <iostream>
 #include "EventDistributor.hh"
 #include "openmsx.hh"
-#include <iostream>
-
 #include "config.h"
+#include "Scheduler.hh"
+#include "MSXCPU.hh"
+
 
 EventDistributor::EventDistributor()
 {
@@ -46,15 +48,23 @@ void EventDistributor::run()
 		}
 		asyncMutex.release();
 
+		bool anySync = false;
 		syncMutex.grab();
 		queueMutex.grab();
 		for (it = syncMap.lower_bound(event.type);
 		     (it != syncMap.end()) && (it->first == event.type);
 		     it++) {
+			//it->second->signalEvent(event);
 			queue.push(std::pair<SDL_Event, EventListener*>(event, it->second));
+			anySync = true;
 		}
 		queueMutex.release();
 		syncMutex.release();
+		if (anySync) {
+			Scheduler::instance()->removeSyncPoint(this);
+			EmuTime zero; // 0
+			Scheduler::instance()->setSyncPoint(zero, this);
+		}
 	}
 	PRT_ERROR("Error while waiting for event");
 }
@@ -73,7 +83,7 @@ void EventDistributor::registerSyncListener (int type, EventListener *listener)
 	syncMutex.release();
 }
 
-void EventDistributor::pollSyncEvents()
+void EventDistributor::executeUntilEmuTime(const EmuTime &time, int userdata)
 {
 	queueMutex.grab();
 	while (!queue.empty()) {

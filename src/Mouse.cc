@@ -36,7 +36,6 @@ const std::string Mouse::name("mouse");
 //JoystickDevice
 byte Mouse::read(const EmuTime &time)
 {
-	EventDistributor::instance()->pollSyncEvents();
 	switch (faze) {
 	case FAZE_XHIGH:
 		return (((xrel/SCALE)>>4)&0x0f)|status;
