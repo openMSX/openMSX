@@ -94,11 +94,7 @@ int MSXTMS9928a::doublePattern(int a)
 
 int MSXTMS9928a::checkSprites(int line, MSXTMS9928a::SpriteInfo *visibleSprites)
 {
-	// TODO: When moving to sprite data buffering, disable sprites if:
-	// - sprites are disabled
-	// - blanking is on
-	// - current screen mode doesn't support sprites
-	// Disabling sprites can be implemented by returning 0 visible sprites.
+	if (!spritesEnabled()) return 0;
 
 	// Compensate for the fact that sprites are calculated one line
 	// before they are plotted.
@@ -242,6 +238,7 @@ void MSXTMS9928a::init()
 	//   It should be possible to switch the Renderer at run time,
 	//   probably on user request.
 	fullScreen = atoi(deviceConfig->getParameter("fullscreen").c_str());
+	PRT_DEBUG("OK\n  Opening display... ");
 	renderer = createSDLLoRenderer(this, fullScreen);
 
 	// Register hotkey for fullscreen togling
@@ -417,6 +414,9 @@ void MSXTMS9928a::changeRegister(byte reg, byte val, Emutime &time)
 			setInterrupt();
 		}
 		updateDisplayMode(time);
+		if ((val ^ oldval) & 0x40) {
+			renderer->updateBlanking((val & 0x40) == 0, time);
+		}
 		break;
 	case 2:
 		renderer->updateNameBase((val * 1024) & vramMask, time);

@@ -79,25 +79,10 @@ public:
 	inline int getBackgroundColour() {
 		return controlRegs[7] & 0x0F;
 	}
-	/** Gets the sprite size in pixels (8/16).
-	  */
-	inline int getSpriteSize() {
-		return ((controlRegs[1] & 2) << 2) + 8;
-	}
-	/** Gets the sprite magnification (0 = normal, 1 = double).
-	  */
-	inline int getSpriteMag() {
-		return controlRegs[1] & 1;
-	}
 	/** Is the display enabled? (false means blanked)
 	  */
 	inline bool displayEnabled() {
 		return (controlRegs[1] & 0x40);
-	}
-	/** Are sprites enabled?
-	  */
-	inline bool spritesEnabled() {
-		return !(controlRegs[1] & 0x10);
 	}
 
 	/** Check sprite collision and number of sprites per line.
@@ -139,6 +124,24 @@ private:
 	  */
 	static int doublePattern(int pattern);
 
+	/** Gets the sprite size in pixels (8/16).
+	  */
+	inline int getSpriteSize() {
+		return ((controlRegs[1] & 2) << 2) + 8;
+	}
+	/** Gets the sprite magnification (0 = normal, 1 = double).
+	  */
+	inline int getSpriteMag() {
+		return controlRegs[1] & 1;
+	}
+	/** Are sprites enabled?
+	  * @return True iff blanking is off and the current mode supports
+	  *   sprites.
+	  * TODO: For V9938, check bit 1 of reg 8 as well.
+	  */
+	inline bool spritesEnabled() {
+		return (controlRegs[1] & 0x50) == 0x40;
+	}
 	/** Byte is read from VRAM by the CPU.
 	  */
 	byte vramRead();

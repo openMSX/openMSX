@@ -18,10 +18,12 @@ Renderer *createSDLLoRenderer(MSXTMS9928a *vdp, bool fullScreen);
   */
 template <class Pixel> class SDLLoRenderer : public Renderer
 {
-	// TODO: gcc gives a warning for this, but I don't think
-	//   there is anything wrong or even suspicious about it.
-	friend Renderer *createSDLLoRenderer(MSXTMS9928a *, bool);
 public:
+	/** Constructor.
+	  * It is suggested to use the createSDLLoRenderer factory
+	  * function instead, which automatically selects a colour depth.
+	  */
+	SDLLoRenderer(MSXTMS9928a *vdp, SDL_Surface *screen);
 	virtual ~SDLLoRenderer();
 
 	// Renderer interface:
@@ -29,6 +31,7 @@ public:
 	void putImage();
 	void setFullScreen(bool);
 	void updateBackgroundColour(int colour, Emutime &time);
+	void updateBlanking(bool enabled, Emutime &time);
 	void updateDisplayMode(int mode, Emutime &time);
 	void updateNameBase(int addr, Emutime &time);
 	void updatePatternBase(int addr, int mask, Emutime &time);
@@ -40,13 +43,6 @@ public:
 private:
 	typedef void (SDLLoRenderer::*RenderMethod)(int line);
 	typedef void (SDLLoRenderer::*PhaseHandler)(int limit);
-
-	static const int WIDTH = 320;
-	static const int HEIGHT = 240;
-
-	/** Private: use the createSDLLoRenderer factory method instead.
-	  */
-	SDLLoRenderer(MSXTMS9928a *vdp, SDL_Surface *screen);
 
 	void renderUntil(int limit);
 
@@ -97,16 +93,19 @@ private:
 	/** The surface which the image is rendered on.
 	  */
 	SDL_Surface *displayCache;
-	/** Pointers to the start of each line.
+	/** Pointers to the start of each display line in the cache.
 	  */
-	Pixel *linePtrs[HEIGHT];
+	Pixel *cacheLinePtrs[192];
+	/** Pointers to the start of each display line on the screen.
+	  */
+	Pixel *screenLinePtrs[192];
 	/** Dirty tables indicate which character blocks must be repainted.
 	  * The anyDirty variables are true when there is at least one
 	  * element in the dirty table that is true.
 	  */
-	bool anyDirtyColour, dirtyColour[256 * 3];
-	bool anyDirtyPattern, dirtyPattern[256 * 3];
-	bool anyDirtyName, dirtyName[40 * 24];
+	bool anyDirtyColour, dirtyColour[256 * 4];
+	bool anyDirtyPattern, dirtyPattern[256 * 4];
+	bool anyDirtyName, dirtyName[40 * 32];
 	/** VRAM address where the name table starts.
 	  */
 	int nameBase;

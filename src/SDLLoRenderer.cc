@@ -25,6 +25,32 @@ Probably also easier to implement when using line buffers.
 #include "MSXTMS9928a.hh"
 #include "config.h"
 
+/** Dimensions of screen.
+  */
+static const int WIDTH = 320;
+static const int HEIGHT = 240;
+/** NTSC phase diagram
+  *
+  * line:  phase:           handler:
+  *    0   bottom erase     offPhase
+  *    3   sync             offPhase
+  *    6   top erase        offPhase
+  *   19   top border       blankPhase
+  *   45   display          displayPhase
+  *  237   bottom border    blankPhase
+  *  262   end of screen
+  */
+static const int LINE_TOP_BORDER = 19;
+static const int LINE_DISPLAY = 45;
+static const int LINE_BOTTOM_BORDER = 237;
+static const int LINE_END_OF_SCREEN = 262;
+/** Lines rendered are [21..261).
+  */
+static const int LINE_RENDER_TOP = 21;
+/** Where does the display start? (equal to width of left border)
+  */
+static const int DISPLAY_X = (WIDTH - 256) / 2;
+
 /** Fill a boolean array with a single value.
   * Optimised for byte-sized booleans,
   * but correct for every size.
@@ -84,10 +110,17 @@ template <class Pixel> SDLLoRenderer<Pixel>::SDLLoRenderer<Pixel>(
 		screen->format->Bmask,
 		screen->format->Amask
 		);
-	// Init line pointers array.
+	// Init line pointers arrays.
 	for (int line = 0; line < 192; line++) {
-		linePtrs[line] = (Pixel *)
-			((byte *)displayCache->pixels + line * displayCache->pitch);
+		cacheLinePtrs[line] = (Pixel *)(
+			(byte *)displayCache->pixels
+			+ line * displayCache->pitch
+			);
+		screenLinePtrs[line] = (Pixel *)(
+			(byte *)screen->pixels
+			+ (line + LINE_DISPLAY - LINE_RENDER_TOP) * screen->pitch
+			+ DISPLAY_X * sizeof(Pixel)
+			);
 	}
 
 	// Hide mouse cursor
@@ -127,6 +160,14 @@ template <class Pixel> void SDLLoRenderer<Pixel>::updateBackgroundColour(
 	// so we have to repaint them all.
 	anyDirtyColour = true;
 	fillBool(dirtyColour, true, sizeof(dirtyColour));
+}
+
+template <class Pixel> void SDLLoRenderer<Pixel>::updateBlanking(
+	bool enabled, Emutime &time)
+{
+	// TODO: Keep local copy of value.
+	// When display is re-enabled, consider every pixel dirty.
+	if (!enabled) setDirty(true);
 }
 
 template <class Pixel> void SDLLoRenderer<Pixel>::updateDisplayMode(
@@ -178,17 +219,17 @@ template <class Pixel> void SDLLoRenderer<Pixel>::updateVRAM(
 	int addr, byte data, Emutime &time)
 {
 	int i = addr - nameBase;
-	if ((i >= 0) && (i < (int)sizeof(dirtyName))) {
+	if ((i >= 0) && ((unsigned int)i < sizeof(dirtyName))) {
 		dirtyName[i] = anyDirtyName = true;
 	}
 
-	i = (addr - colourBase) >> 3;
-	if ((i >= 0) && (i < (int)sizeof(dirtyColour))) {
+	i = (addr - colourBase) / 8;
+	if ((i >= 0) && ((unsigned int)i < sizeof(dirtyColour))) {
 		dirtyColour[i] = anyDirtyColour = true;
 	}
 
-	i = (addr - patternBase) >> 3;
-	if ((i >= 0) && (i < (int)sizeof(dirtyPattern))) {
+	i = (addr - patternBase) / 8;
+	if ((i >= 0) && ((unsigned int)i < sizeof(dirtyPattern))) {
 		dirtyPattern[i] = anyDirtyPattern = true;
 	}
 
@@ -206,7 +247,7 @@ template <class Pixel> void SDLLoRenderer<Pixel>::setDirty(
 template <class Pixel> void SDLLoRenderer<Pixel>::mode0(
 	int line)
 {
-	Pixel *pixelPtr = linePtrs[line];
+	Pixel *pixelPtr = cacheLinePtrs[line];
 	int name = (line / 8) * 32;
 	for (int x = 0; x < 256; x += 8) {
 		int charcode = vdp->getVRAM(nameBase + name);
@@ -241,7 +282,7 @@ template <class Pixel> void SDLLoRenderer<Pixel>::mode1(
 	//  return;
 	if (!anyDirtyColour) return;
 
-	Pixel *pixelPtr = linePtrs[line];
+	Pixel *pixelPtr = cacheLinePtrs[line];
 	Pixel fg = XPalFg[vdp->getForegroundColour()];
 	Pixel bg = XPalBg[vdp->getBackgroundColour()];
 
@@ -276,20 +317,17 @@ template <class Pixel> void SDLLoRenderer<Pixel>::mode2(
 	//if ( !(anyDirtyColour || anyDirtyName || anyDirtyPattern) )
 	//  return;
 
-	// TODO: Something seems wrong about name, quarter and dirty.
-	Pixel *pixelPtr = linePtrs[line];
+	Pixel *pixelPtr = cacheLinePtrs[line];
 	int name = (line / 8) * 32;
-	int quarter = (line / 64) * 256;
+	int quarter = name & ~0xFF;
 	for (int x = 0; x < 256; x += 8) {
 		int charCode = vdp->getVRAM(nameBase + name) + quarter;
-		int colourNr = (charCode & colourMask);
-		int patternNr = (charCode & patternMask);
+		int colourNr = charCode & colourMask;
+		int patternNr = charCode & patternMask;
 		if (dirtyName[name] || dirtyPattern[patternNr]
 		|| dirtyColour[colourNr]) {
-			// TODO: pattern uses colourNr and colour uses patterNr...
-			//      I don't get it.
-			int pattern = vdp->getVRAM(patternBase + colourNr * 8 + (line & 7));
-			int colour = vdp->getVRAM(colourBase + patternNr * 8 + (line & 7));
+			int pattern = vdp->getVRAM(patternBase + patternNr * 8 + (line & 7));
+			int colour = vdp->getVRAM(colourBase + colourNr * 8 + (line & 7));
 			Pixel fg = XPalFg[colour >> 4];
 			Pixel bg = XPalFg[colour & 0x0F];
 			for (int i = 8; i--; ) {
@@ -312,7 +350,7 @@ template <class Pixel> void SDLLoRenderer<Pixel>::mode12(
 	//  return;
 	if (!anyDirtyColour) return;
 
-	Pixel *pixelPtr = linePtrs[line];
+	Pixel *pixelPtr = cacheLinePtrs[line];
 	Pixel fg = XPalFg[vdp->getForegroundColour()];
 	Pixel bg = XPalBg[vdp->getBackgroundColour()];
 
@@ -348,7 +386,7 @@ template <class Pixel> void SDLLoRenderer<Pixel>::mode3(
 	//  return;
 	if (!anyDirtyColour) return;
 
-	Pixel *pixelPtr = linePtrs[line];
+	Pixel *pixelPtr = cacheLinePtrs[line];
 	int name = (line / 8) * 32;
 	for (int x = 0; x < 256; x += 8) {
 		int charcode = vdp->getVRAM(nameBase + name);
@@ -374,7 +412,7 @@ template <class Pixel> void SDLLoRenderer<Pixel>::modebogus(
 	//if ( !(anyDirtyColour || anyDirtyName || anyDirtyPattern) )
 	//  return;
 
-	Pixel *pixelPtr = linePtrs[line];
+	Pixel *pixelPtr = cacheLinePtrs[line];
 	Pixel fg = XPalFg[vdp->getForegroundColour()];
 	Pixel bg = XPalBg[vdp->getBackgroundColour()];
 	int x = 0;
@@ -395,7 +433,7 @@ template <class Pixel> void SDLLoRenderer<Pixel>::mode23(
 	//  return;
 	if (!anyDirtyColour) return;
 
-	Pixel *pixelPtr = linePtrs[line];
+	Pixel *pixelPtr = cacheLinePtrs[line];
 	int name = (line / 8) * 32;
 	int quarter = (line / 64) * 256;
 	for (int x = 0; x < 256; x += 8) {
@@ -452,27 +490,6 @@ template <class Pixel> void SDLLoRenderer<Pixel>::drawSprites(
 	}
 
 }
-
-/*
-NTSC phase diagram
-
-line:  phase:           handler:
-   0   bottom erase     offPhase
-   3   sync             offPhase
-   6   top erase        offPhase
-  19   top border       blankPhase
-  45   display          displayPhase
- 237   bottom border    blankPhase
- 262   end of screen
-*/
-static const int LINE_TOP_BORDER = 19;
-static const int LINE_DISPLAY = 45;
-static const int LINE_BOTTOM_BORDER = 237;
-static const int LINE_END_OF_SCREEN = 262;
-/*
-Lines rendered are [21..261).
-*/
-static const int LINE_RENDER_TOP = 21;
 
 template <class Pixel> void SDLLoRenderer<Pixel>::offPhase(
 	int limit)
@@ -551,9 +568,6 @@ template <class Pixel> void SDLLoRenderer<Pixel>::displayPhase(
 	// Unlock surface.
 	if (SDL_MUSTLOCK(displayCache)) SDL_UnlockSurface(displayCache);
 
-	// Where does the display start? (equal to width of left border)
-	int displayX = (WIDTH - 256) / 2;
-
 	// Copy background image.
 	SDL_Rect source;
 	source.x = 0;
@@ -561,38 +575,30 @@ template <class Pixel> void SDLLoRenderer<Pixel>::displayPhase(
 	source.w = 256;
 	source.h = limit - currLine;
 	SDL_Rect dest;
-	dest.x = displayX;
+	dest.x = DISPLAY_X;
 	dest.y = currLine - LINE_RENDER_TOP;
 	// TODO: Can we safely use SDL_LowerBlit?
 	// Note: return value is ignored.
 	SDL_BlitSurface(displayCache, &source, screen, &dest);
 
 	// Render sprites.
-	// TODO: Draw sprites only in modes that actually have sprites.
-	if (vdp->spritesEnabled()) {
-		// Lock surface, because we will access pixels directly.
-		// TODO: Locking the surface directly after a blit is
-		//   probably not the smartest thing to do performance-wise.
-		//   Since sprite data will buffered, why not plot them
-		//   just before page flip?
-		//   Will only work if *all* data required is buffered, including
-		//   for example RGB colour (on V9938 palette may change).
-		if (SDL_MUSTLOCK(screen) && SDL_LockSurface(screen) < 0) {
-			// Display will be wrong, but this is not really critical.
-			return;
-		}
-		for (int line = currLine; line < limit; line++) {
-			// TODO: Cache this, like linePtrs?
-			Pixel *pixelPtr = (Pixel *)(
-				  (byte *)screen->pixels
-				+ (line - LINE_RENDER_TOP) * screen->pitch
-				+ displayX * sizeof(Pixel)
-				);
-			drawSprites(pixelPtr, line - LINE_DISPLAY);
-		}
-		// Unlock surface.
-		if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
+	// Lock surface, because we will access pixels directly.
+	// TODO: Locking the surface directly after a blit is
+	//   probably not the smartest thing to do performance-wise.
+	//   Since sprite data will buffered, why not plot them
+	//   just before page flip?
+	//   Will only work if *all* data required is buffered, including
+	//   for example RGB colour (on V9938 palette may change).
+	if (SDL_MUSTLOCK(screen) && SDL_LockSurface(screen) < 0) {
+		// Display will be wrong, but this is not really critical.
+		return;
 	}
+	for (int line = currLine; line < limit; line++) {
+		int y = line - LINE_DISPLAY;
+		drawSprites(screenLinePtrs[y], y);
+	}
+	// Unlock surface.
+	if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
 
 	// Borders are drawn after the display area:
 	// V9958 can extend the left border over the display area,
@@ -600,10 +606,10 @@ template <class Pixel> void SDLLoRenderer<Pixel>::displayPhase(
 	// TODO: Does the extended border clip sprites as well?
 	Pixel bgColour = XPalBg[vdp->getBackgroundColour()];
 	dest.x = 0;
-	dest.w = displayX;
+	dest.w = DISPLAY_X;
 	SDL_FillRect(screen, &dest, bgColour);
-	dest.x = WIDTH - displayX;
-	dest.w = displayX;
+	dest.x = WIDTH - DISPLAY_X;
+	dest.w = DISPLAY_X;
 	SDL_FillRect(screen, &dest, bgColour);
 
 	currLine = limit;
@@ -634,22 +640,19 @@ template <class Pixel> void SDLLoRenderer<Pixel>::putImage()
 
 Renderer *createSDLLoRenderer(MSXTMS9928a *vdp, bool fullScreen)
 {
-	int width = SDLLoRenderer<Uint32>::WIDTH;
-	int height = SDLLoRenderer<Uint32>::HEIGHT;
 	int flags = SDL_HWSURFACE | (fullScreen ? SDL_FULLSCREEN : 0);
 
 	// Try default bpp.
-	PRT_DEBUG("OK\n  Opening display... ");
-	SDL_Surface *screen = SDL_SetVideoMode(width, height, 0, flags);
+	SDL_Surface *screen = SDL_SetVideoMode(WIDTH, HEIGHT, 0, flags);
 
 	// If no screen or unsupported screen,
 	// try supported bpp in order of preference.
 	int bytepp = (screen ? screen->format->BytesPerPixel : 0);
 	if ((bytepp != 1) && (bytepp != 2) && (bytepp != 4)) {
-		if (!screen) screen = SDL_SetVideoMode(width, height, 15, flags);
-		if (!screen) screen = SDL_SetVideoMode(width, height, 16, flags);
-		if (!screen) screen = SDL_SetVideoMode(width, height, 32, flags);
-		if (!screen) screen = SDL_SetVideoMode(width, height, 8, flags);
+		if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 15, flags);
+		if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 16, flags);
+		if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 32, flags);
+		if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 8, flags);
 	}
 
 	if (!screen) {

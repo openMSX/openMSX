@@ -34,6 +34,12 @@ public:
 	  */
 	virtual void updateBackgroundColour(int colour, Emutime &time) = NULL;
 
+	/** Informs the renderer of a VDP blanking change.
+	  * @param enabled Is blanking enabled?
+	  * @param time The moment in emulated time this change occurs.
+	  */
+	virtual void updateBlanking(bool enabled, Emutime &time) = NULL;
+
 	/** Informs the renderer of a VDP display mode change.
 	  * @param mode The new display mode (M2..M0).
 	  * @param time The moment in emulated time this change occurs.

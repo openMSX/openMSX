@@ -1,5 +1,10 @@
 $Id$
 
+2001-11-27 Maarten ter Huurne <mth@stack.nl>
+	* Added updateBlanking to Renderer interface.
+	  Fixes redraw problem in King's Valley 2.
+	* Various cleanups in MSXTMS9928a and SDLLoRenderer.
+
 2001-11-26 Maarten ter Huurne <mth@stack.nl>
 	* Introduced SpriteInfo in MSXTMS9928a, this is a prelude to
 	  sprite info buffering (separating calculation time from
