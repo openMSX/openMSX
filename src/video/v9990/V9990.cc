@@ -498,6 +498,7 @@ void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
 			case SCREEN_MODE_1:
 				calcDisplayMode();
 				renderer->setDisplayMode(getDisplayMode(), time);
+				renderer->setImageWidth(getImageWidth());
 				// fall through!
 			case PALETTE_CONTROL:
 				renderer->setColorMode(getColorMode(), time);
@@ -528,6 +529,7 @@ void V9990::frameStart(const EmuTime& time)
 {
 	// Update setings that are fixed at the start of a frame
 	palTiming = regs[SCREEN_MODE_1] & 0x08;
+	status ^= 0x02; // flip EO bit
 
 	renderer->frameStart(time);
 	// Schedule next VSYNC

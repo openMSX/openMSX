@@ -49,6 +49,20 @@ public:
 		return vram.get();
 	}
 
+	/** Get even/odd page alternation status.
+	  * @return True iff even/odd page alternation is enabled.
+	  */
+	inline bool isEvenOddEnabled() const {
+		return regs[SCREEN_MODE_1] & 0x04;
+	}
+
+	/** Is the even or odd field being displayed?
+	  * @return True iff the odd lines should be displayed.
+	  */
+	inline bool getEvenOdd() const {
+		return status & 0x02;
+	}
+	
 	/** Get the number of elapsed UC ticks in this frame.
 	  * @param  time Point in emulated time.
 	  * @return      Number of UC ticks.
@@ -132,6 +146,12 @@ public:
 	  */
 	inline int getBackDropColor() {
 		return regs[BACK_DROP_COLOR];
+	}
+
+	/** Returns the Y scroll offset
+	  */
+	inline int getScrollY() {
+		return regs[SCROLL_CONTROL_AY0] + 256 * regs[SCROLL_CONTROL_AY1];
 	}
 
 	/** Return the image width

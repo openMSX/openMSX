@@ -1,6 +1,11 @@
 $Id$
 
-2004-12-22 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2004-12-24 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* More V9990 stuff
+	   - implemented interlace modes  (no de-interlacing yet)
+	       V9BMP shoud now work completely
+
+2004-12-23 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Tried to make the gfx900 parts in calculus work (not yet succeeded)
 	   - implemented LMMM command
 	   - added very basic HR, VR status bit support

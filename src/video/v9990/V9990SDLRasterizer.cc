@@ -257,7 +257,9 @@ void V9990SDLRasterizer<Pixel, zoom>::drawDisplay(
 
 			displayX = V9990::UCtoX(displayX, displayMode);
 			displayWidth = V9990::UCtoX(displayWidth, displayMode);
-			uint address = vdp->XYtoVRAM(&displayX, displayY, colorMode);
+			int scrollY = vdp->getScrollY();
+			int y = displayY + scrollY & 0x1FFF; // TODO roll is ignored
+			uint address = vdp->XYtoVRAM(&displayX, y, colorMode);
 			switch (colorMode) {
 				case BP2:
 					vramStep = imageWidth / 4;
@@ -272,7 +274,12 @@ void V9990SDLRasterizer<Pixel, zoom>::drawDisplay(
 				default:
 					vramStep = imageWidth;
 			}
-				
+			if (vdp->isEvenOddEnabled()) {
+				if (vdp->getEvenOdd()) {
+					address += vramStep;
+				}
+				vramStep *= 2;
+			}
 			while (displayHeight--) {
 				bitmapConverter.convertLine(pixelPtr, address, displayWidth);
 				
