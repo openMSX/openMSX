@@ -174,7 +174,7 @@ public:
 	  * @param data The new value.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	inline void updateVRAM(int addr, byte data, const EmuTime &time) {
+	inline void updateVRAM(int addr, const EmuTime &time) {
 		checkUntil(time);
 	}
 
