@@ -29,7 +29,7 @@ class FDC2793 : public FDC
 	FDC2793(MSXConfig::Device *config);
   private:
     
-	byte timePerStep[4]; // {3,6,10,15} in ms case of of 2 mhz clock, double this if a 1mhz clock is used!
+	byte timePerStep[4]; // {3,6,10,15} in ms case of of 2 mhz clock, double this if a 1mhz clock is used! (MSX=1mhz clock :-)
 	
   	FDCBackEnd *backend;
 
@@ -37,6 +37,7 @@ class FDC2793 : public FDC
 	EmuTime commandStart;
 	EmuTime commandEnd;
 	*/
+	EmuTimeFreq<1000> commandEnd;
 
 
 	byte statusReg;

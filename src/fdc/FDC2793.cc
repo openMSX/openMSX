@@ -109,6 +109,7 @@ void FDC2793::setCommandReg(byte value,const EmuTime &time)
 	INTRQ=false;
 	DRQ=false;
 	// commandEnd = commandStart = time;
+	commandEnd = time;
 	
 	//First we set some flags from the lower four bits of the command
 	Cflag		= value & 2 ;
@@ -126,10 +127,10 @@ void FDC2793::setCommandReg(byte value,const EmuTime &time)
 	switch (value & 0xF0){
 	  case 0x00: //restore
 	  	PRT_DEBUG("FDC command: restore");
-	  	/*
-        commandEnd += (current_track * timePerStep[stepSpeed]);
+
+		commandEnd += (current_track * timePerStep[stepSpeed]);
 		if (Vflag) commandEnd += 15; //Head setting time
-          */
+
 		// according to page 1-100 last alinea, however not sure so ommited
 		// if (Eflag) commandEnd += 15;
 		current_track = 0;
@@ -158,10 +159,10 @@ void FDC2793::setCommandReg(byte value,const EmuTime &time)
 	      }
 
 	      trackReg = dataReg;
-	      /*
-          commandEnd += (steps * timePerStep[stepSpeed]);
+
+	      commandEnd += (steps * timePerStep[stepSpeed]);
 	      if (Vflag) commandEnd += 15; //Head setting time
-            */
+
 	      //TODO actually verify
 	  	//PRT_DEBUG("after : track "<<(int)trackReg<<",data "<<(int)dataReg<<",cur "<<(int)current_track);
 		statusReg &= 254 ;// reset status on Busy
@@ -178,10 +179,10 @@ void FDC2793::setCommandReg(byte value,const EmuTime &time)
 		  current_track--;
 		  if (Tflag) trackReg--;
 		};
-        /*
+
 		commandEnd += timePerStep[stepSpeed];
 		if (Vflag) commandEnd += 15; //Head setting time
-          */
+
 		statusReg &= 254 ;// reset status on Busy
 	    break;
 
@@ -191,10 +192,10 @@ void FDC2793::setCommandReg(byte value,const EmuTime &time)
 		current_track++;
 		directionIn = true;
 		if (Tflag) trackReg++;
-        /*
+
 		commandEnd += timePerStep[stepSpeed];
 		if (Vflag) commandEnd += 15; //Head setting time
-          */
+
 		statusReg &= 254 ;// reset status on Busy
 	    break;
 
@@ -204,10 +205,10 @@ void FDC2793::setCommandReg(byte value,const EmuTime &time)
 		current_track--;  // TODO Specs don't say what happens if track was already 0 !!
 		directionIn = false;
 		if (Tflag) trackReg++;
-        /*
+
 		commandEnd += timePerStep[stepSpeed];
 		if (Vflag) commandEnd += 15; //Head setting time
-          */
+
 		statusReg &= 254 ;// reset status on Busy
 	    break;
 
@@ -247,12 +248,14 @@ void FDC2793::setCommandReg(byte value,const EmuTime &time)
 	      statusReg &= 254 ;// reset status on Busy
 	    break;
 	  case 0xE0: //read track
-	  	PRT_DEBUG("FDC command: read track");
+	       PRT_DEBUG("FDC command: read track");
 	      PRT_INFO("FDC command not yet implemented ");
 	    break;
 	  case 0xF0: //write track
-	  	PRT_DEBUG("FDC command: write track");
-	      PRT_INFO("FDC command not yet implemented ");
+	      PRT_DEBUG("FDC command: write track");
+	      statusReg &= 0x01 ;// reset lost data,record not found & status bits 5 & 6
+	      statusReg |= 2; DRQ=true;
+	      //PRT_INFO("FDC command not yet implemented ");
 	    break;
 	}
 }
@@ -263,9 +266,10 @@ byte FDC2793::getStatusReg(const EmuTime &time)
 		//Type I command so bit 1 should be the index pulse
 		
 	};
-	statusReg &= 254 ;// reset status on Busy 
+	//statusReg &= 254 ;// reset status on Busy 
 	//TODO this hould be time dependend !!!
 	// like in : if (time>=endTime) statusReg &= 254;
+	if (time>=commandEnd) statusReg &= 254;
 	PRT_DEBUG("statusReg is "<<(int)statusReg);
 	return statusReg;
 }
@@ -296,8 +300,8 @@ void FDC2793::setDataReg(byte value, const EmuTime &time)
 	  dataCurrent++;
 	  dataAvailable--;
 	  if ( dataAvailable == 0 ){
-		backend->write(current_track,trackReg,sectorReg,current_side,512,dataBuffer); 
 		PRT_DEBUG("Now we call the backend to write a sector");
+		if (backend->write(current_track,trackReg,sectorReg,current_side,512,dataBuffer) ){
 		// If we wait to long we should also write a partialy filled sector ofcourse 
 		// and set the correct status bits !!
 		statusReg &= 0x7D ;// reset status on Busy(=bit7) reset DRQ bit(=bit1)
@@ -308,7 +312,44 @@ void FDC2793::setDataReg(byte value, const EmuTime &time)
 			}
 		dataCurrent=0;
 		dataAvailable=512; // TODO should come from sector header !!!
+		} else {
+		// Backend couldn't write data
+		};
 	  }
+	} else if ((commandReg&0xF0)==0xF0){ // WRITE TRACK
+	    PRT_DEBUG("FDC2793 WRITE TRACK value "<<(int)value);
+	    switch ( value ){
+	      case 0xFE:
+	      case 0xFD:
+	      case 0xFC:
+	      case 0xFB:
+	      case 0xFA:
+	      case 0xF9:
+	      case 0xF8:
+		PRT_DEBUG("CRC generator initializing");
+		break;
+	      case 0xF6:
+		PRT_DEBUG("write C2 ?");
+		break;
+	      case 0xF5:
+		PRT_DEBUG("CRC generator initializing in MFM,write A1 ?");
+		break;
+	      case 0xF7:
+		PRT_DEBUG("two CRC characters");
+		break;
+	      default:
+	        //Normal write to track
+		break;
+	    }
+	    	//shouldn't been done here !!
+		statusReg &= 0x7D ;// reset status on Busy(=bit7) reset DRQ bit(=bit1)
+	    /*
+	    if (indexmark){
+		statusReg &= 0x7D ;// reset status on Busy(=bit7) reset DRQ bit(=bit1)
+		INTRQ=true;
+		DRQ=false; 
+	    }
+	    */
 	}
 
 }
