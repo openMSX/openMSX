@@ -99,7 +99,7 @@ byte MSXAudio::readIO(byte port, const EmuTime &time)
 			assert(false);
 			result = 0;	// avoid warning
 	}
-	PRT_DEBUG("Audio: read "<<std::hex<<(int)port<<" "<<(int)result<<std::dec);
+	//PRT_DEBUG("Audio: read "<<std::hex<<(int)port<<" "<<(int)result<<std::dec);
 	return result;
 }
 

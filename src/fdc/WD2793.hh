@@ -31,14 +31,20 @@ class WD2793 : private Schedulable
 		bool getDTRQ(const EmuTime &time);
 
 	private:
+		// Status register
 		static const int BUSY = 0x01;
 		static const int CRC  = 0x08;
 		static const int SEEK = 0x10;
+		static const int NOT_READY = 0x80;
+		
+		// Command register
 		static const int STEP_SPEED = 0x03;
 		static const int V_FLAG = 0x04;
 		static const int H_FLAG = 0x08;
 		static const int T_FLAG = 0x10;
 		static const int M_FLAG = 0x10;
+		static const int IMM_IRQ = 0x08;
+		
 		enum FSMState {
 			FSM_SEEK
 		};
@@ -53,8 +59,11 @@ class WD2793 : private Schedulable
 		void step(const EmuTime &time);
 		void seekNext(const EmuTime &time);
 		void endType1Cmd(const EmuTime &time);
+		void endCmd();
 
-		void tryToReadSector(void);
+		void tryToReadSector();
+		inline void resetIRQ();
+		inline void setIRQ();
 
 		DiskDrive* drive;
 		
@@ -69,6 +78,7 @@ class WD2793 : private Schedulable
 
 		bool directionIn;
 		bool INTRQ;
+		bool immediateIRQ;
 		bool DRQ;
 
 		byte dataBuffer[1024];	// max sector size possible

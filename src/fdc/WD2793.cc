@@ -33,13 +33,14 @@ void WD2793::reset(const EmuTime &time)
 	sectorReg = 0x01;
 	DRQ = false;
 	INTRQ = false;
+	immediateIRQ = false;
 	//statusReg bit 7 (Not Ready status) is already reset
 }
 
 bool WD2793::getDTRQ(const EmuTime &time)
 {
 	if (((commandReg & 0xF0) == 0xF0) &&
-	    (statusReg & 1)) {
+	    (statusReg & BUSY)) {
 		// WRITE TRACK && status busy
 		int ticks = DRQTime.getTicksTill(time);
 		if (ticks >= 15) { 
@@ -58,16 +59,23 @@ bool WD2793::getDTRQ(const EmuTime &time)
 bool WD2793::getIRQ(const EmuTime &time)
 {
 	return INTRQ;
-	
-	/* bool tmp = INTRQ;
-	   INTRQ = false;
-	   return tmp; */
+}
+
+void WD2793::setIRQ()
+{
+	INTRQ = true;
+}
+
+void WD2793::resetIRQ()
+{
+	INTRQ = immediateIRQ;
 }
 
 void WD2793::setCommandReg(byte value, const EmuTime &time)
 {
 	commandReg = value;
-	switch(commandReg & 0xF0) {
+	resetIRQ();
+	switch (commandReg & 0xF0) {
 		case 0x00: // restore
 		case 0x10: // seek
 		case 0x20: // step
@@ -100,7 +108,7 @@ void WD2793::setCommandReg(byte value, const EmuTime &time)
 
 byte WD2793::getStatusReg(const EmuTime &time)
 {
-	if ((commandReg & 0x80) == 0) {
+	if (((commandReg & 0x80) == 0) || ((commandReg & 0xD0) == 0xD0)) {
 		// Type I command so bit 1 should be the index pulse
 		if (drive->indexPulse(time)) {
 			statusReg |=  2;
@@ -115,6 +123,14 @@ byte WD2793::getStatusReg(const EmuTime &time)
 			statusReg &= ~2;
 		}
 	}
+	
+	if (drive->ready()) {
+		statusReg &= ~NOT_READY;
+	} else {
+		statusReg |=  NOT_READY;
+	}
+	
+	resetIRQ();
 	return statusReg;
 }
 
@@ -158,7 +174,7 @@ void WD2793::setDataReg(byte value, const EmuTime &time)
 				statusReg &= ~0x03;	// reset status on Busy and DRQ
 				if (!(commandReg & M_FLAG)) {
 					//TODO verify this !
-					INTRQ = true;
+					setIRQ();
 					DRQ = false;
 				}
 				dataCurrent = 0;
@@ -187,7 +203,7 @@ void WD2793::setDataReg(byte value, const EmuTime &time)
 			dataAvailable = 0; //return correct DTR
 			statusReg &= ~0x03;	// reset status on Busy and DRQ
 			DRQ = false;
-			INTRQ = true;
+			setIRQ();
 			dataCurrent = 0;
 			break;
 		}
@@ -231,7 +247,7 @@ void WD2793::setDataReg(byte value, const EmuTime &time)
 		/*
 		   if (indexmark) {
 		   statusReg &= ~0x03;	// reset status on Busy and DRQ
-		   INTRQ = true;
+		   setIRQ();
 		   DRQ = false; 
 		   }
 		 */
@@ -249,7 +265,7 @@ byte WD2793::getDataReg(const EmuTime &time)
 			if (!(commandReg & M_FLAG)) {
 				statusReg &= ~0x03;	// reset status on Busy and DRQ
 				DRQ = false;
-				INTRQ = true;
+				setIRQ();
 				PRT_DEBUG("FDC: Now we terminate the read sector command");
 			} else {
 				// TODO ceck in tech data (or on real machine)
@@ -273,6 +289,7 @@ void WD2793::tryToReadSector(void)
 		// is valid in case of multitrack read !!! and throw error !!! 
 		DRQ = true;	// data ready to be read
 	} catch (MSXException &e) {
+		PRT_DEBUG("FDC: read sector failed: " << e.desc);
 		DRQ = false;	// TODO data not ready (read error)
 		statusReg = 0;	// reset flags
 	}
@@ -283,7 +300,10 @@ void WD2793::executeUntilEmuTime(const EmuTime &time, int state)
 {
 	switch((FSMState)state) {
 		case FSM_SEEK:
-			seekNext(time);
+			if ((commandReg & 0x80) == 0x00) {
+				// Type I command
+				seekNext(time);
+			}
 			break;
 		default:
 			assert(false);
@@ -295,7 +315,6 @@ void WD2793::startType1Cmd(const EmuTime &time)
 	statusReg &= ~(SEEK | CRC);
 	statusReg |= BUSY;
 	DRQ = false;
-	INTRQ = false;
 
 	drive->setHeadLoaded(commandReg & H_FLAG, time);
 
@@ -377,9 +396,11 @@ void WD2793::seekNext(const EmuTime &time)
 void WD2793::endType1Cmd(const EmuTime &time)
 {
 	if (commandReg & V_FLAG) {
+		// verify sequence
+		
 		// TODO verify sequence
 	} 
-	statusReg &= ~BUSY;
+	endCmd();
 }
 
 
@@ -387,7 +408,10 @@ void WD2793::startType2Cmd(const EmuTime &time)
 {
 	statusReg &= 0x01;	// reset lost data,record not found & status bits 5 & 6
 	statusReg |= 1;	// set status on Busy
-	INTRQ = false;
+
+	if (!drive->ready()) {
+		endCmd();
+	}
 	
 	switch (commandReg & 0xF0) {
 	case 0x80: //read sector
@@ -407,8 +431,7 @@ void WD2793::startType2Cmd(const EmuTime &time)
 void WD2793::startType3Cmd(const EmuTime &time)
 {
 	commandStart = time;
-	statusReg |= 1;	// set status on Busy
-	INTRQ = false;
+	statusReg |= BUSY;	// set status on Busy
 	DRQ = false;
 
 	switch (commandReg & 0xF0) {
@@ -431,7 +454,7 @@ void WD2793::startType3Cmd(const EmuTime &time)
 
 		//PRT_INFO("FDC command not yet implemented ");
 		//CommandController::instance()->executeCommand(std::string("cpudebug"));
-		//statusReg &= ~1;	// reset status on Busy
+		//statusReg &= ~BUSY;	// reset status on Busy
 		// Variables below are a not-completely-correct hack:
 		// Correct behavior would indicate that one waits until the
 		// next indexmark before the first byte is written and that
@@ -447,10 +470,25 @@ void WD2793::startType3Cmd(const EmuTime &time)
 void WD2793::startType4Cmd(const EmuTime &time)
 {
 	// Force interrupt
-	// flags for the Force Interrupt are ignored for now.
-	PRT_DEBUG("FDC command: Force interrupt statusregister "
-	          <<(int)statusReg);
-	INTRQ = false;
+	PRT_DEBUG("FDC command: Force interrupt");
+	
+	byte flags = commandReg & 0x0F;
+	assert((flags & 0x07) == 0x00); // all flags not yet supported
+
+	if (flags == 0x00) {
+		immediateIRQ = false;
+	}
+	if (flags & IMM_IRQ) {
+		immediateIRQ = true;
+	}
+	
 	DRQ = false;
 	statusReg &= ~BUSY;	// reset status on Busy
 }
+
+void WD2793::endCmd()
+{
+	setIRQ();
+	statusReg &= ~BUSY;
+}
+

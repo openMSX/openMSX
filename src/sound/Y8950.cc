@@ -1103,7 +1103,7 @@ byte Y8950::readStatus()
 {
 	setStatus(STATUS_BUF_RDY);	// temp hack
 	byte tmp = status & (0x86 | statusMask);
-	PRT_DEBUG("Y8950 read status " << (int)tmp);
+	//PRT_DEBUG("Y8950 read status " << (int)tmp);
 	return tmp;
 }
 
