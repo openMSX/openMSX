@@ -10,8 +10,6 @@
 namespace XMLConfig
 {
 
-static std::string empty("");
-
 Config::Config(XML::Element *element_)
 :element(element_)
 {
@@ -113,7 +111,7 @@ const std::string &Config::getParameter(const std::string &name)
 	{
 		return p->pcdata;
 	}
-	return empty;
+	throw MSXConfig::Exception("Missing parameter: " + name);
 }
 
 const bool Config::getParameterAsBool(const std::string &name)

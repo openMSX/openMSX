@@ -171,11 +171,8 @@
       <page>2</page>
     </slotted>
     <parameter name="filename">NEMESIS2.ROM</parameter>
-    <parameter name="filesize">auto</parameter>
     <parameter name="skip_headerbytes">0</parameter>
     <parameter name="volume">11500</parameter>
-    <parameter name="automappertype">true</parameter>
-    <parameter name="mappertype">2</parameter>
   </device>
   -->
 

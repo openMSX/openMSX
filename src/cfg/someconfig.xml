@@ -349,8 +349,7 @@
     <parameter name="filename">/dev/zero</parameter>
     <parameter name="filesize">131072</parameter>
     <parameter name="volume">11500</parameter>
-    <parameter name="automappertype">false</parameter>
-    <parameter name="mappertype">2</parameter>
+    <parameter name="mappertype">SCC</parameter>
     <parameter name="loadsram">true</parameter>
     <parameter name="savesram">true</parameter>
     <parameter name="sramname">GAME.SRAM</parameter>

@@ -175,66 +175,65 @@ struct ltstr {
 
 void MSXRom::retrieveMapperType()
 {
-	try {
-		if (deviceConfig->getParameterAsBool("automappertype")) {
-			mapperType = guessMapperType();
-		} else {
-			std::map<const std::string, int, ltstr> mappertype;
-
-			mappertype["0"]=0;
-			mappertype["8kB"]=0;
-
-			mappertype["1"]=1;
-			mappertype["16kB"]=1;
-
-			mappertype["2"]=2;
-			mappertype["KONAMI5"]=2;
-			mappertype["SCC"]=2;
-
-			mappertype["3"]=3;
-			mappertype["KONAMI4"]=3;
-
-			mappertype["4"]=4;
-			mappertype["ASCII8"]=4;
-
-			mappertype["5"]=5;
-			mappertype["ASCII16"]=5;
-
-			//Not implemented yet
-			mappertype["7"]=7;
-			mappertype["RTYPE"]=7;
-			
-			//Cartridges with sram
-			mappertype["16"]=16;
-			mappertype["HYDLIDE2"]=16;
-
-			mappertype["17"]=17;
-			mappertype["XANADU"]=17;
-			mappertype["ASCII8SRAM"]=17;
-
-			mappertype["18"]=18;
-			mappertype["ASCII8SRAM2"]=18;
-			mappertype["ROYALBLOOD"]=18;
-
-			mappertype["19"]=19;
-			mappertype["GAMEMASTER2"]=19;
-			mappertype["RC755"]=19;
-
-			mappertype["64"]=64;
-			mappertype["KONAMIDAC"]=64;
-
-			mappertype["128"]=128;
-			mappertype["64kB"]=128;
-
-			//TODO: catch wrong options passed
-			std::string  type = deviceConfig->getParameter("mappertype");
-			mapperType = mappertype[type];
-		}
-	} catch (MSXConfig::Exception& e) {
-		// missing parameter
-		mapperType = guessMapperType();
+	std::string type ("auto");
+	try { 
+		type = deviceConfig->getParameter("mappertype");
+	} catch (MSXException &e) {
+		// no type specified, perform auto detection
 	}
-	
+	if (type == "auto") {
+		mapperType = guessMapperType();
+	} else {
+		std::map<const std::string, int, ltstr> mappertype;
+
+		mappertype["0"]=0;
+		mappertype["8kB"]=0;
+
+		mappertype["1"]=1;
+		mappertype["16kB"]=1;
+
+		mappertype["2"]=2;
+		mappertype["KONAMI5"]=2;
+		mappertype["SCC"]=2;
+
+		mappertype["3"]=3;
+		mappertype["KONAMI4"]=3;
+
+		mappertype["4"]=4;
+		mappertype["ASCII8"]=4;
+
+		mappertype["5"]=5;
+		mappertype["ASCII16"]=5;
+
+		//Not implemented yet
+		mappertype["7"]=7;
+		mappertype["RTYPE"]=7;
+		
+		//Cartridges with sram
+		mappertype["16"]=16;
+		mappertype["HYDLIDE2"]=16;
+
+		mappertype["17"]=17;
+		mappertype["XANADU"]=17;
+		mappertype["ASCII8SRAM"]=17;
+
+		mappertype["18"]=18;
+		mappertype["ASCII8SRAM2"]=18;
+		mappertype["ROYALBLOOD"]=18;
+
+		mappertype["19"]=19;
+		mappertype["GAMEMASTER2"]=19;
+		mappertype["RC755"]=19;
+
+		mappertype["64"]=64;
+		mappertype["KONAMIDAC"]=64;
+
+		mappertype["128"]=128;
+		mappertype["64kB"]=128;
+
+		//TODO: catch wrong options passed
+		mapperType = mappertype[type];
+	}
 	PRT_DEBUG("mapperType: " << mapperType);
 }
 

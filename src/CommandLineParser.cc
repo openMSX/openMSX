@@ -225,13 +225,12 @@ void CommandLineParser::configureCartridge(char* filename)
 	s << "<parameter name=\"filename\">"<<sfile<<"</parameter>";
 	s << "<parameter name=\"filesize\">auto</parameter>";
 	s << "<parameter name=\"volume\">9000</parameter>";
-	s << "<parameter name=\"automappertype\">";
-	if (*mapper != 0) {
-		s << "false</parameter>";
-		s << "<parameter name=\"mappertype\">"<<smapper<<"</parameter>";
-	} else {
-		s << "true</parameter>";
-	};
+	s << "<parameter name=\"mappertype\">";
+	if (*mapper != 0)
+		s << smapper;
+	else
+		s << "auto";
+	s << "</parameter>";
 	s << "<parameter name=\"loadsram\">true</parameter>";
 	s << "<parameter name=\"savesram\">true</parameter>";
 	s << "<parameter name=\"sramname\">"<<sfile<<".SRAM</parameter>";

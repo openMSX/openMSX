@@ -2,6 +2,8 @@ $Id$
 
 2002-07-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Experimental support for .xsa disk images
+	* Removed "automappertype" parameter, you can still explicitly specify
+	  autodetection by setting "mappertype" to "auto"
 
 2002-07-24 Maarten ter Huurne <mth@stack.nl>
 	* Added debug option NOTIME_EXECUTION, to make VDP command execute in

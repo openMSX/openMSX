@@ -216,7 +216,6 @@
     <parameter name="filesize">auto</parameter>
     <parameter name="skip_headerbytes">0</parameter>
     <parameter name="volume">11500</parameter>
-    <parameter name="automappertype">true</parameter>
     <parameter name="mappertype">2</parameter>
     <parameter name="loadsram">true</parameter>
     <parameter name="savesram">true</parameter>
