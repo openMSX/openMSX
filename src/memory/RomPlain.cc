@@ -11,7 +11,7 @@ using std::min;
 namespace openmsx {
 
 RomPlain::RomPlain(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom_)
-	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom_)
+	: Rom8kBBlocks(config, time, rom_)
 {
 	switch (rom->getSize()) {
 		case 0x2000:	//  8kB

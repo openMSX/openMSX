@@ -3,14 +3,14 @@
 #ifndef __MSXFDC_HH__
 #define __MSXFDC_HH__
 
-#include "MSXMemDevice.hh"
+#include "MSXDevice.hh"
 #include "Rom.hh"
 
 namespace openmsx {
 
 class DiskDrive;
 
-class MSXFDC : public MSXMemDevice
+class MSXFDC : public MSXDevice
 {
 public:
 	virtual byte readMem(word address, const EmuTime& time);

@@ -4,8 +4,7 @@
 #define __MSXMUSIC_HH__
 
 #include <memory>
-#include "MSXIODevice.hh"
-#include "MSXMemDevice.hh"
+#include "MSXDevice.hh"
 #include "Rom.hh"
 
 using std::auto_ptr;
@@ -14,7 +13,7 @@ namespace openmsx {
 
 class YM2413Core;
 
-class MSXMusic : public MSXIODevice, public MSXMemDevice
+class MSXMusic : public MSXDevice
 {
 public:
 	MSXMusic(const XMLElement& config, const EmuTime& time);

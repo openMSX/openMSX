@@ -15,7 +15,7 @@ namespace openmsx {
 // MSXDevice
 
 MSXPPI::MSXPPI(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time), MSXIODevice(config, time),
+	: MSXDevice(config, time),
 	  cassettePort(CassettePortFactory::instance()),
 	  cpuInterface(MSXCPUInterface::instance()),
 	  leds(Leds::instance()),

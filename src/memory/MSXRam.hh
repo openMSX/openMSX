@@ -4,7 +4,7 @@
 #define __MSXSIMPLE64KB_HH__
 
 #include <memory>
-#include "MSXMemDevice.hh"
+#include "MSXDevice.hh"
 
 using std::auto_ptr;
 
@@ -12,7 +12,7 @@ namespace openmsx {
 
 class Ram;
 
-class MSXRam : public MSXMemDevice
+class MSXRam : public MSXDevice
 {
 public:
 	MSXRam(const XMLElement& config, const EmuTime& time);

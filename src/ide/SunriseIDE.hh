@@ -4,7 +4,7 @@
 #define __SunriseIDE_HH__
 
 #include <memory>
-#include "MSXMemDevice.hh"
+#include "MSXDevice.hh"
 #include "Rom.hh"
 
 using std::auto_ptr;
@@ -13,7 +13,7 @@ namespace openmsx {
 
 class IDEDevice;
 
-class SunriseIDE : public MSXMemDevice
+class SunriseIDE : public MSXDevice
 {
 public:
 	SunriseIDE(const XMLElement& config, const EmuTime& time);

@@ -27,7 +27,7 @@
 namespace openmsx {
 
 RomSynthesizer::RomSynthesizer(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom)
-	: MSXDevice(config, time), Rom16kBBlocks(config, time, rom)
+	: Rom16kBBlocks(config, time, rom)
 {
 	setBank(0, unmappedRead);
 	setRom (1, 0);

@@ -11,8 +11,8 @@ namespace openmsx {
 
 // MSXDevice
 MSXPSG::MSXPSG(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time), MSXIODevice(config, time),
-	  cassette(CassettePortFactory::instance())
+	: MSXDevice(config, time)
+	, cassette(CassettePortFactory::instance())
 {
 	keyLayoutBit = deviceConfig.getChildData("keyboardlayout", "") == "JIS";
 	ay8910.reset(new AY8910(*this, config, time));

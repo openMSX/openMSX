@@ -4,15 +4,14 @@
 #define __MEGARAM_HH__
 
 #include <memory>
-#include "MSXMemDevice.hh"
-#include "MSXIODevice.hh"
+#include "MSXDevice.hh"
 #include "Ram.hh"
 
 using std::auto_ptr;
 
 namespace openmsx {
 
-class MSXMegaRam : public MSXMemDevice, public MSXIODevice
+class MSXMegaRam : public MSXDevice
 {
 public:
 	MSXMegaRam(const XMLElement& config, const EmuTime& time);

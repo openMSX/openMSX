@@ -4,7 +4,7 @@
 #define __MSXRTC_HH__
 
 #include <memory>
-#include "MSXIODevice.hh"
+#include "MSXDevice.hh"
 #include "SRAM.hh"
 
 using std::auto_ptr;
@@ -14,7 +14,7 @@ namespace openmsx {
 class RP5C01;
 class SettingsConfig;
 
-class MSXRTC : public MSXIODevice
+class MSXRTC : public MSXDevice
 {
 public:
 	MSXRTC(const XMLElement& config, const EmuTime& time);

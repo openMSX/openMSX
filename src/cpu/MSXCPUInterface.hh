@@ -14,8 +14,7 @@ using std::auto_ptr;
 
 namespace openmsx {
 
-class MSXIODevice;
-class MSXMemDevice;
+class MSXDevice;
 class VDPIODelay;
 class DummyDevice;
 class HardwareConfig;
@@ -34,31 +33,29 @@ public:
 	 * Devices can register their In ports. This is normally done
 	 * in their constructor. Once device are registered, their
 	 * readIO() method can get called.
-	 * TODO: implement automatic registration for MSXIODevice
+	 * TODO: implement automatic registration for MSXDevice
 	 */
-	virtual void register_IO_In(byte port, MSXIODevice* device);
-	virtual void unregister_IO_In(byte port, MSXIODevice* device);
+	virtual void register_IO_In(byte port, MSXDevice* device);
+	virtual void unregister_IO_In(byte port, MSXDevice* device);
 
 	/**
 	 * Devices can register their Out ports. This is normally done
 	 * in their constructor. Once device are registered, their
 	 * writeIO() method can get called.
-	 * TODO: implement automatic registration for MSXIODevice
+	 * TODO: implement automatic registration for MSXDevice
 	 */
-	virtual void register_IO_Out(byte port, MSXIODevice* device);
-	virtual void unregister_IO_Out(byte port, MSXIODevice* device);
+	virtual void register_IO_Out(byte port, MSXDevice* device);
+	virtual void unregister_IO_Out(byte port, MSXDevice* device);
 
 	/**
 	 * Devices can register themself in the MSX slotstructure.
 	 * This is normally done in their constructor. Once devices
 	 * are registered their readMem() / writeMem() methods can
 	 * get called.
-	 * Note: if a MSXDevice inherits from MSXMemDevice, it gets
-	 *       automatically registered
 	 */
-	void registerMemDevice(MSXMemDevice& device,
+	void registerMemDevice(MSXDevice& device,
 	                       int primSl, int secSL, int pages);
-	void unregisterMemDevice(MSXMemDevice& device,
+	void unregisterMemDevice(MSXDevice& device,
 	                         int primSl, int secSL, int pages);
 
 	// TODO implement unregister methods
@@ -82,25 +79,25 @@ public:
 
 	/**
 	 * This read a byte from the given IO-port
-	 * @see MSXMemDevice::readIO()
+	 * @see MSXDevice::readIO()
 	 */
 	virtual byte readIO(word port, const EmuTime& time);
 
 	/**
 	 * This writes a byte to the given IO-port
-	 * @see MSXMemDevice::writeIO()
+	 * @see MSXDevice::writeIO()
 	 */
 	virtual void writeIO(word port, byte value, const EmuTime& time);
 
 	/**
 	 * Gets read cache
-	 * @see MSXMemDevice::getReadCacheLine()
+	 * @see MSXDevice::getReadCacheLine()
 	 */
 	virtual const byte* getReadCacheLine(word start) const;
 	
 	/**
 	 * Gets write cache
-	 * @see MSXMemDevice::getWriteCacheLine()
+	 * @see MSXDevice::getWriteCacheLine()
 	 */
 	virtual byte* getWriteCacheLine(word start) const;
 
@@ -119,7 +116,7 @@ public:
 	
 	/**
 	 * Peek memory location
-	 * @see MSXMemDevice::peekMem()
+	 * @see MSXDevice::peekMem()
 	 */
 	byte peekMem(word address) const;
 	byte peekSlottedMem(unsigned address) const;
@@ -133,7 +130,7 @@ protected:
 	virtual ~MSXCPUInterface();
 
 private:
-	void registerSlot(MSXMemDevice* device,
+	void registerSlot(MSXDevice* device,
 			  int primSl, int secSL, int page);
 	
 	class MemoryDebug : public Debuggable {
@@ -196,22 +193,22 @@ private:
 	void updateVisible(int page);
 	void setSubSlot(byte primSlot, byte value);
 
-	void printSlotMapPages(ostream&, const MSXMemDevice* const*) const;
+	void printSlotMapPages(ostream&, const MSXDevice* const*) const;
 	string getSlotMap() const;
 	string getSlotSelection() const;
 	
 	
-	MSXIODevice* IO_In [256];
-	MSXIODevice* IO_Out[256];
+	MSXDevice* IO_In [256];
+	MSXDevice* IO_Out[256];
 	set<byte> multiIn;
 	set<byte> multiOut;
 
-	MSXMemDevice* slotLayout[4][4][4];
+	MSXDevice* slotLayout[4][4][4];
 	byte subSlotRegister[4];
 	byte primarySlotState[4];
 	byte secondarySlotState[4];
 	bool isSubSlotted[4];
-	MSXMemDevice* visibleDevices[4];
+	MSXDevice* visibleDevices[4];
 
 	DummyDevice& dummyDevice;
 	HardwareConfig& hardwareConfig;
@@ -228,13 +225,13 @@ public:
 	TurborCPUInterface();
 	virtual ~TurborCPUInterface();
 
-	virtual void register_IO_In(byte port, MSXIODevice* device);
-	virtual void unregister_IO_In(byte port, MSXIODevice* device);
-	virtual void register_IO_Out(byte port, MSXIODevice* device);
-	virtual void unregister_IO_Out(byte port, MSXIODevice* device);
+	virtual void register_IO_In(byte port, MSXDevice* device);
+	virtual void unregister_IO_In(byte port, MSXDevice* device);
+	virtual void register_IO_Out(byte port, MSXDevice* device);
+	virtual void unregister_IO_Out(byte port, MSXDevice* device);
 
 private:
-	MSXIODevice* getDelayDevice(MSXIODevice& device);
+	MSXDevice* getDelayDevice(MSXDevice& device);
 	
 	auto_ptr<VDPIODelay> delayDevice;
 };

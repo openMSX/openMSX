@@ -4,7 +4,7 @@
 #define __MSXPSG_HH__
 
 #include <memory>
-#include "MSXIODevice.hh"
+#include "MSXDevice.hh"
 #include "AY8910.hh"
 
 using std::auto_ptr;
@@ -14,7 +14,7 @@ namespace openmsx {
 class CassettePortInterface;
 class JoystickPort;
 
-class MSXPSG : public MSXIODevice, public AY8910Interface
+class MSXPSG : public MSXDevice, public AY8910Interface
 {
 // MSXDevice
 public:

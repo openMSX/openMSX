@@ -9,8 +9,8 @@
 namespace openmsx {
 
 MSXMusic::MSXMusic(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time), MSXIODevice(config, time),
-	  MSXMemDevice(config, time), rom(getName() + " ROM", "rom", config)
+	: MSXDevice(config, time)
+	, rom(getName() + " ROM", "rom", config)
 {
 	if (config.getChildDataAsBool("alternative", false)) {
 		ym2413.reset(new YM2413(getName(), config, time));

@@ -12,12 +12,12 @@
 #ifndef __MSXE6TIMER_HH__
 #define __MSXE6TIMER_HH__
 
-#include "MSXIODevice.hh"
+#include "MSXDevice.hh"
 #include "EmuTime.hh"
 
 namespace openmsx {
 
-class MSXE6Timer : public MSXIODevice
+class MSXE6Timer : public MSXDevice
 {
 public:
 	MSXE6Timer(const XMLElement& config, const EmuTime& time);

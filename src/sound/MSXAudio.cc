@@ -8,7 +8,7 @@
 namespace openmsx {
 
 MSXAudio::MSXAudio(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time), MSXIODevice(config, time)
+	: MSXDevice(config, time)
 {
 	int ramSize = config.getChildDataAsInt("sampleram", 256); // size in kb
 	y8950.reset(new Y8950(getName(), config, ramSize * 1024, time));

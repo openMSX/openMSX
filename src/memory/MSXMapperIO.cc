@@ -10,7 +10,7 @@
 namespace openmsx {
 
 MSXMapperIO::MSXMapperIO(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time), MSXIODevice(config, time)
+	: MSXDevice(config, time)
 {
 	string type = HardwareConfig::instance().
 		getChildData("MapperType", "Philips");

@@ -7,8 +7,7 @@
 namespace openmsx {
 
 MSXKanji::MSXKanji(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time), MSXIODevice(config, time),
-	  rom(getName(), "Kanji ROM", config)
+	: MSXDevice(config, time), rom(getName(), "Kanji ROM", config)
 {
 	int size = rom.getSize();
 	if ((size != 0x20000) && (size != 0x40000)) {

@@ -11,11 +11,11 @@
 #ifndef __TURBORLEDS_HH__
 #define __TURBORLEDS_HH__
 
-#include "MSXIODevice.hh"
+#include "MSXDevice.hh"
 
 namespace openmsx {
 
-class MSXTurboRLeds : public MSXIODevice
+class MSXTurboRLeds : public MSXDevice
 {
 public:
 	MSXTurboRLeds(const XMLElement& config, const EmuTime& time);

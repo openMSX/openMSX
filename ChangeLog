@@ -1,5 +1,10 @@
 $Id$
 
+2004-07-19 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* merged MSXDevice, MSXIODevice and MSXMemDevice in one class
+	  MSXDevice:
+	   - virtual inheritance can be removed because of this 
+
 2004-07-18  Arnold Metselaar  <arnold_m@operamail.com>
 	* added Unicode.{cc,hh} with minimalistic conversion of UTF-8
 	  to 8-bit Ascii
@@ -16,7 +21,7 @@ $Id$
 	  - there's no class associated with it now; it's only used to put
 	    info in the window border for now
 	  - child tags "manufacturer", "code" and "type" are now mandatory
-	  
+
 2004-07-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed MoonSound bug:
 	   When DL=0 go immediately to sustain phase.

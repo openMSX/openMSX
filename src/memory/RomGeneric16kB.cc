@@ -5,7 +5,7 @@
 namespace openmsx {
 
 RomGeneric16kB::RomGeneric16kB(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom)
-	: MSXDevice(config, time), Rom16kBBlocks(config, time, rom)
+	: Rom16kBBlocks(config, time, rom)
 {
 	reset(time);
 }

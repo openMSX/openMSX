@@ -5,7 +5,7 @@
 namespace openmsx {
 
 MSXTurboRPause::MSXTurboRPause(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time), MSXIODevice(config, time),
+	: MSXDevice(config, time),
 	  turboRPauseSetting("turborpause", 
 	                     "status of the TurboR pause", false)
 {

@@ -29,7 +29,7 @@ void MSXSwitchedDevice::reset(const EmuTime& /*time*/)
 /// class MSXDeviceSwitch ///
 
 MSXDeviceSwitch::MSXDeviceSwitch(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time), MSXIODevice(config, time)
+	: MSXDevice(config, time)
 {
 	for (int i = 0; i < 256; ++i) {
 		devices[i] = NULL;

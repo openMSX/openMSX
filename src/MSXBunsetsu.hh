@@ -3,12 +3,12 @@
 #ifndef __MSXBUNSETSU_HH__
 #define __MSXBUNSETSU_HH__
 
-#include "MSXMemDevice.hh"
+#include "MSXDevice.hh"
 #include "Rom.hh"
 
 namespace openmsx {
 
-class MSXBunsetsu : public MSXMemDevice
+class MSXBunsetsu : public MSXDevice
 {
 public:
 	MSXBunsetsu(const XMLElement& config, const EmuTime& time);

@@ -17,7 +17,7 @@ using std::cerr;
 namespace openmsx {
 
 DebugDevice::DebugDevice(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time), MSXIODevice(config, time)
+	: MSXDevice(config, time)
 {
 	mode = OFF;
 	string outputFile = config.getChildData("filename", "stdout");

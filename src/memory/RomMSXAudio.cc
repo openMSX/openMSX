@@ -8,8 +8,8 @@
 namespace openmsx {
 
 RomMSXAudio::RomMSXAudio(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom)
-	: MSXDevice(config, time), MSXRom(config, time, rom),
-	  ram(getName() + " RAM", "MSX-AUDIO mapped RAM", 0x1000)
+	: MSXRom(config, time, rom)
+	, ram(getName() + " RAM", "MSX-AUDIO mapped RAM", 0x1000)
 {
 	reset(time);
 }

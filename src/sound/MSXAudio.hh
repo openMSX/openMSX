@@ -4,7 +4,7 @@
 #define __MSXAUDIO_HH__
 
 #include <memory>
-#include "MSXIODevice.hh"
+#include "MSXDevice.hh"
 
 using std::auto_ptr;
 
@@ -12,7 +12,7 @@ namespace openmsx {
 
 class Y8950;
 
-class MSXAudio : public MSXIODevice
+class MSXAudio : public MSXDevice
 {
 public:
 	MSXAudio(const XMLElement& config, const EmuTime& time);

@@ -14,7 +14,7 @@ const int RAM_BASE  = 0x180;
 
 
 RomPanasonic::RomPanasonic(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom_)
-	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom_)
+	: Rom8kBBlocks(config, time, rom_)
 {
 	int sramSize = config.getChildDataAsInt("sramsize", 0);
 	if (sramSize) {

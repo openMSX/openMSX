@@ -4,7 +4,7 @@
 #define __MSXHBI55_HH__
 
 #include <memory>
-#include "MSXIODevice.hh"
+#include "MSXDevice.hh"
 #include "I8255.hh"
 #include "SRAM.hh"
 
@@ -12,7 +12,7 @@ using std::auto_ptr;
 
 namespace openmsx {
 
-class MSXHBI55 : public MSXIODevice, public I8255Interface
+class MSXHBI55 : public MSXDevice, public I8255Interface
 {
 // MSXDevice
 public:

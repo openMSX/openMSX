@@ -20,8 +20,7 @@
 namespace openmsx {
 
 RomKorean90in1::RomKorean90in1(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom)
-	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom),
-	  MSXIODevice(config, time)
+	: Rom8kBBlocks(config, time, rom)
 {
 	reset(time);
 	MSXCPUInterface::instance().register_IO_Out(0x77, this);

@@ -28,7 +28,7 @@
 #define __MSXPPI_HH__
 
 #include <memory>
-#include "MSXIODevice.hh"
+#include "MSXDevice.hh"
 #include "I8255.hh"
 
 using std::auto_ptr;
@@ -42,7 +42,7 @@ class Leds;
 class RenShaTurbo;
 class Keyboard;
 
-class MSXPPI: public MSXIODevice, public I8255Interface
+class MSXPPI: public MSXDevice, public I8255Interface
 {
 // MSXDevice
 public:

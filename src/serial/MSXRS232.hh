@@ -4,8 +4,7 @@
 #define __MSXRS232_HH__
 
 #include <memory>
-#include "MSXIODevice.hh"
-#include "MSXMemDevice.hh"
+#include "MSXDevice.hh"
 #include "Rom.hh"
 #include "I8251.hh"
 #include "I8254.hh"
@@ -19,7 +18,7 @@ namespace openmsx {
 
 class Ram;
 
-class MSXRS232 : public MSXIODevice, public MSXMemDevice, public RS232Connector
+class MSXRS232 : public MSXDevice, public RS232Connector
 {
 public:
 	MSXRS232(const XMLElement& config, const EmuTime& time);

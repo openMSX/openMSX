@@ -3,7 +3,7 @@
 #ifndef __MSXS1990_HH__
 #define __MSXS1990_HH__
 
-#include "MSXIODevice.hh"
+#include "MSXDevice.hh"
 #include "FrontSwitch.hh"
 
 namespace openmsx {
@@ -13,7 +13,7 @@ namespace openmsx {
  *
  * TODO explanation
  */
-class MSXS1990 : public MSXIODevice
+class MSXS1990 : public MSXDevice
 {
 public:
 	MSXS1990(const XMLElement& config, const EmuTime& time);

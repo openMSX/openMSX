@@ -4,7 +4,7 @@
 #define __MSXMOONSOUND_HH__
 
 #include <memory>
-#include "MSXIODevice.hh"
+#include "MSXDevice.hh"
 
 using std::auto_ptr;
 
@@ -13,7 +13,7 @@ namespace openmsx {
 class YMF262;
 class YMF278;
 
-class MSXMoonSound : public MSXIODevice
+class MSXMoonSound : public MSXDevice
 {
 public:
 	MSXMoonSound(const XMLElement& config, const EmuTime& time);

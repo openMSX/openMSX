@@ -12,8 +12,8 @@
 namespace openmsx {
 
 SunriseIDE::SunriseIDE(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time), MSXMemDevice(config, time),
-	  rom(getName() + " ROM", "rom", config)
+	: MSXDevice(config, time)
+	, rom(getName() + " ROM", "rom", config)
 {
 	const XMLElement* masterElem = config.findChild("master");
 	const XMLElement* slaveElem  = config.findChild("slave");

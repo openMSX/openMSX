@@ -5,7 +5,7 @@
 
 #include <string>
 #include <memory>
-#include "MSXMemDevice.hh"
+#include "MSXDevice.hh"
 #include "Rom.hh"
 
 using std::string;
@@ -15,7 +15,7 @@ namespace openmsx {
 
 class Rom;
 
-class MSXRom : public MSXMemDevice
+class MSXRom : public MSXDevice
 {
 public:
 	virtual ~MSXRom();

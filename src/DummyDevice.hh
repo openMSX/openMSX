@@ -3,12 +3,11 @@
 #ifndef __DUMMYDEVICE_HH__
 #define __DUMMYDEVICE_HH__
 
-#include "MSXIODevice.hh"
-#include "MSXMemDevice.hh"
+#include "MSXDevice.hh"
 
 namespace openmsx {
 
-class DummyDevice : public MSXIODevice, public MSXMemDevice
+class DummyDevice : public MSXDevice
 {
 public:
 	static DummyDevice& instance();

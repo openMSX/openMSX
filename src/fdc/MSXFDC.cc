@@ -8,8 +8,8 @@
 namespace openmsx {
 
 MSXFDC::MSXFDC(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time), MSXMemDevice(config, time),
-	  rom(getName() + " ROM", "rom", config) 
+	: MSXDevice(config, time)
+	, rom(getName() + " ROM", "rom", config) 
 {
 	int numDrives = config.getChildDataAsInt("drives", 1);
 	if ((0 >= numDrives) || (numDrives >= 4)) {

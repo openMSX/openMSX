@@ -3,12 +3,12 @@
 #ifndef __MSXPAC_HH__
 #define __MSXPAC_HH__
 
-#include "MSXMemDevice.hh"
+#include "MSXDevice.hh"
 #include "SRAM.hh"
 
 namespace openmsx {
 
-class MSXPac : public MSXMemDevice
+class MSXPac : public MSXDevice
 {
 public:
 	MSXPac(const XMLElement& config, const EmuTime& time);

@@ -6,7 +6,7 @@
 #include <set>
 #include <memory>
 #include "openmsx.hh"
-#include "MSXIODevice.hh"
+#include "MSXDevice.hh"
 
 using std::multiset;
 using std::auto_ptr;
@@ -20,7 +20,7 @@ public:
 	virtual byte calcMask(const multiset<unsigned>& mapperSizes) = 0;
 };
 
-class MSXMapperIO : public MSXIODevice
+class MSXMapperIO : public MSXDevice
 {
 public:
 	MSXMapperIO(const XMLElement& config, const EmuTime& time);

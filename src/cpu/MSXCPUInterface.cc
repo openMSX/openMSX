@@ -109,7 +109,7 @@ void MSXCPUInterface::setExpanded(int ps, bool expanded)
 	isSubSlotted[ps] = expanded;
 }
 
-void MSXCPUInterface::register_IO_In(byte port, MSXIODevice* device)
+void MSXCPUInterface::register_IO_In(byte port, MSXDevice* device)
 {
 	PRT_DEBUG(device->getName() << " registers In-port " <<
 	          hex << (int)port << dec);
@@ -117,7 +117,7 @@ void MSXCPUInterface::register_IO_In(byte port, MSXIODevice* device)
 		// first 
 		IO_In[port] = device;
 	} else {
-		MSXIODevice* dev2 = IO_In[port];
+		MSXDevice* dev2 = IO_In[port];
 		if (multiIn.find(port) == multiIn.end()) {
 			// second
 			MSXMultiIODevice* multi = new MSXMultiIODevice();
@@ -137,7 +137,7 @@ void MSXCPUInterface::register_IO_In(byte port, MSXIODevice* device)
 	}
 }
 
-void MSXCPUInterface::unregister_IO_In(byte port, MSXIODevice* device)
+void MSXCPUInterface::unregister_IO_In(byte port, MSXDevice* device)
 {
 	if (multiIn.find(port) == multiIn.end()) {
 		assert(IO_In[port] == device);
@@ -156,7 +156,7 @@ void MSXCPUInterface::unregister_IO_In(byte port, MSXIODevice* device)
 	}
 }
 
-void MSXCPUInterface::register_IO_Out(byte port, MSXIODevice* device)
+void MSXCPUInterface::register_IO_Out(byte port, MSXDevice* device)
 {
 	PRT_DEBUG(device->getName() << " registers Out-port " <<
 	          hex << (int)port << dec);
@@ -164,7 +164,7 @@ void MSXCPUInterface::register_IO_Out(byte port, MSXIODevice* device)
 		// first
 		IO_Out[port] = device;
 	} else {
-		MSXIODevice* dev2 = IO_Out[port];
+		MSXDevice* dev2 = IO_Out[port];
 		if (multiOut.find(port) == multiOut.end()) {
 			// second
 			MSXMultiIODevice* multi = new MSXMultiIODevice();
@@ -179,7 +179,7 @@ void MSXCPUInterface::register_IO_Out(byte port, MSXIODevice* device)
 	}
 }
 
-void MSXCPUInterface::unregister_IO_Out(byte port, MSXIODevice* device)
+void MSXCPUInterface::unregister_IO_Out(byte port, MSXDevice* device)
 {
 	if (multiOut.find(port) == multiOut.end()) {
 		assert(IO_Out[port] == device);
@@ -199,7 +199,7 @@ void MSXCPUInterface::unregister_IO_Out(byte port, MSXIODevice* device)
 }
 
 
-void MSXCPUInterface::registerSlot(MSXMemDevice* device,
+void MSXCPUInterface::registerSlot(MSXDevice* device,
                                    int primSl, int secSl, int page)
 {
 	if (!isSubSlotted[primSl] && secSl != 0) {
@@ -217,7 +217,7 @@ void MSXCPUInterface::registerSlot(MSXMemDevice* device,
 	}
 }
 
-void MSXCPUInterface::registerMemDevice(MSXMemDevice& device,
+void MSXCPUInterface::registerMemDevice(MSXDevice& device,
                                         int primSl, int secSl, int pages)
 {
 	for (int i = 0; i < 4; ++i) {
@@ -227,7 +227,7 @@ void MSXCPUInterface::registerMemDevice(MSXMemDevice& device,
 	}
 }
 
-void MSXCPUInterface::unregisterMemDevice(MSXMemDevice& device,
+void MSXCPUInterface::unregisterMemDevice(MSXDevice& device,
                                           int primSl, int secSl, int pages)
 {
 	for (int i = 0; i < 4; ++i) {
@@ -240,7 +240,7 @@ void MSXCPUInterface::unregisterMemDevice(MSXMemDevice& device,
 
 void MSXCPUInterface::updateVisible(int page)
 {
-	MSXMemDevice *newDevice = slotLayout [primarySlotState[page]]
+	MSXDevice *newDevice = slotLayout [primarySlotState[page]]
 	                                     [secondarySlotState[page]]
 	                                     [page];
 	if (visibleDevices[page] != newDevice) {
@@ -393,7 +393,7 @@ string MSXCPUInterface::getSlotMap() const
 }
 
 void MSXCPUInterface::printSlotMapPages(ostream &out,
-	const MSXMemDevice* const* devices) const
+	const MSXDevice* const* devices) const
 {
 	for (int page = 0; page < 4; ++page) {
 		char hexStr[5];
@@ -574,7 +574,7 @@ TurborCPUInterface::~TurborCPUInterface()
 {
 }
 
-void TurborCPUInterface::register_IO_In(byte port, MSXIODevice* device)
+void TurborCPUInterface::register_IO_In(byte port, MSXDevice* device)
 {
 	if ((0x98 <= port) && (port <= 0x9B)) {
 		device = getDelayDevice(*device);
@@ -582,7 +582,7 @@ void TurborCPUInterface::register_IO_In(byte port, MSXIODevice* device)
 	MSXCPUInterface::register_IO_In(port, device);
 }
 
-void TurborCPUInterface::unregister_IO_In(byte port, MSXIODevice* device)
+void TurborCPUInterface::unregister_IO_In(byte port, MSXDevice* device)
 {
 	if ((0x98 <= port) && (port <= 0x9B)) {
 		device = getDelayDevice(*device);
@@ -590,7 +590,7 @@ void TurborCPUInterface::unregister_IO_In(byte port, MSXIODevice* device)
 	MSXCPUInterface::unregister_IO_In(port, device);
 }
 
-void TurborCPUInterface::register_IO_Out(byte port, MSXIODevice* device)
+void TurborCPUInterface::register_IO_Out(byte port, MSXDevice* device)
 {
 	if ((0x98 <= port) && (port <= 0x9B)) {
 		device = getDelayDevice(*device);
@@ -598,7 +598,7 @@ void TurborCPUInterface::register_IO_Out(byte port, MSXIODevice* device)
 	MSXCPUInterface::register_IO_Out(port, device);
 }
 
-void TurborCPUInterface::unregister_IO_Out(byte port, MSXIODevice* device)
+void TurborCPUInterface::unregister_IO_Out(byte port, MSXDevice* device)
 {
 	if ((0x98 <= port) && (port <= 0x9B)) {
 		device = getDelayDevice(*device);
@@ -606,7 +606,7 @@ void TurborCPUInterface::unregister_IO_Out(byte port, MSXIODevice* device)
 	MSXCPUInterface::unregister_IO_Out(port, device);
 }
 
-MSXIODevice* TurborCPUInterface::getDelayDevice(MSXIODevice& device)
+MSXDevice* TurborCPUInterface::getDelayDevice(MSXDevice& device)
 {
 	if (!delayDevice.get()) {
 		delayDevice.reset(new VDPIODelay(device, EmuTime::zero));

@@ -3,11 +3,11 @@
 #ifndef __MC6850_HH__
 #define __MC6850_HH__
 
-#include "MSXIODevice.hh"
+#include "MSXDevice.hh"
 
 namespace openmsx {
 
-class MC6850 : public MSXIODevice
+class MC6850 : public MSXDevice
 {
 public:
 	MC6850(const XMLElement& config, const EmuTime& time);

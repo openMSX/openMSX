@@ -7,7 +7,7 @@
 #define __MSXSCCPLUSCART_HH__
 
 #include <memory>
-#include "MSXMemDevice.hh"
+#include "MSXDevice.hh"
 #include "Ram.hh"
 
 using std::auto_ptr;
@@ -16,7 +16,7 @@ namespace openmsx {
 
 class SCC;
 
-class MSXSCCPlusCart : public MSXMemDevice
+class MSXSCCPlusCart : public MSXDevice
 {
 public:
 	MSXSCCPlusCart(const XMLElement& config, const EmuTime& time);

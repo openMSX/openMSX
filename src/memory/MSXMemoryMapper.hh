@@ -4,7 +4,7 @@
 #define __MSXMEMORYMAPPER_HH__
 
 #include <memory>
-#include "MSXMemDevice.hh"
+#include "MSXDevice.hh"
 #include "Ram.hh"
 
 using std::auto_ptr;
@@ -14,7 +14,7 @@ namespace openmsx {
 class XMLElement;
 class MSXMapperIO;
 
-class MSXMemoryMapper : public MSXMemDevice
+class MSXMemoryMapper : public MSXDevice
 {
 public:
 	MSXMemoryMapper(const XMLElement& config, const EmuTime& time);

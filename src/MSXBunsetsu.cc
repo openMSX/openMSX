@@ -7,9 +7,9 @@
 namespace openmsx {
 
 MSXBunsetsu::MSXBunsetsu(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time), MSXMemDevice(config, time),
-	  bunsetsuRom(getName() + "_1", "rom", config, "bunsetsu"),
-	  jisyoRom   (getName() + "_2", "rom", config, "jisyo")
+	: MSXDevice(config, time)
+	, bunsetsuRom(getName() + "_1", "rom", config, "bunsetsu")
+	, jisyoRom   (getName() + "_2", "rom", config, "jisyo")
 {
 	reset(time);
 }

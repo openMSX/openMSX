@@ -3,12 +3,12 @@
 #ifndef __MSXKANJI_HH__
 #define __MSXKANJI_HH__
 
-#include "MSXIODevice.hh"
+#include "MSXDevice.hh"
 #include "Rom.hh"
 
 namespace openmsx {
 
-class MSXKanji : public MSXIODevice
+class MSXKanji : public MSXDevice
 {
 public:
 	MSXKanji(const XMLElement& config, const EmuTime& time);

@@ -19,9 +19,8 @@ const XMLElement& VDPIODelay::getConfig()
 	return deviceElem;
 }
 
-VDPIODelay::VDPIODelay(MSXIODevice& device_, const EmuTime& time)
+VDPIODelay::VDPIODelay(MSXDevice& device_, const EmuTime& time)
 	: MSXDevice(getConfig(), time),
-	  MSXIODevice(getConfig(), time),
 	  cpu(MSXCPU::instance()),
 	  device(device_)
 {
@@ -39,7 +38,7 @@ void VDPIODelay::writeIO(byte port, byte value, const EmuTime& time)
 	device.writeIO(port, value, lastTime.getTime());
 }
 
-const MSXIODevice& VDPIODelay::getDevice() const
+const MSXDevice& VDPIODelay::getDevice() const
 {
 	return device;
 }

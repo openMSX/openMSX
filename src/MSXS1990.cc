@@ -7,7 +7,7 @@
 namespace openmsx {
 
 MSXS1990::MSXS1990(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time), MSXIODevice(config, time)
+	: MSXDevice(config, time)
 {
 	reset(time);
 }

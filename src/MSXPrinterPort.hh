@@ -3,7 +3,7 @@
 #ifndef __MSXPRINTERPORT_HH__
 #define __MSXPRINTERPORT_HH__
 
-#include "MSXIODevice.hh"
+#include "MSXDevice.hh"
 #include "PrinterPortDevice.hh"
 #include "Connector.hh"
 
@@ -23,13 +23,13 @@ protected:
 };
 
 
-class MSXPrinterPort : public MSXIODevice, public Connector
+class MSXPrinterPort : public MSXDevice, public Connector
 {
 public:
 	MSXPrinterPort(const XMLElement& config, const EmuTime& time);
 	virtual ~MSXPrinterPort();
 
-	// MSXIODevice
+	// MSXDevice
 	virtual void reset(const EmuTime& time);
 	virtual byte readIO(byte port, const EmuTime& time);
 	virtual void writeIO(byte port, byte value, const EmuTime& time);

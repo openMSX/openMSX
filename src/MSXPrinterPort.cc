@@ -9,7 +9,6 @@ namespace openmsx {
 
 MSXPrinterPort::MSXPrinterPort(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time)
-	, MSXIODevice(config, time)
 	, Connector("printerport", auto_ptr<Pluggable>(new DummyPrinterPortDevice()))
 {
 	data = 255;	// != 0;

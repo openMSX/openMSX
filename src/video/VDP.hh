@@ -7,7 +7,7 @@
 #include <memory>
 #include "openmsx.hh"
 #include "Schedulable.hh"
-#include "MSXIODevice.hh"
+#include "MSXDevice.hh"
 #include "IRQHelper.hh"
 #include "EmuTime.hh"
 #include "Command.hh"
@@ -49,7 +49,7 @@ class SpriteChecker;
   * A note about timing: the start of a frame or line is defined as
   * the starting time of the corresponding sync (vsync, hsync).
   */
-class VDP : public MSXIODevice, private Schedulable
+class VDP : public MSXDevice, private Schedulable
 {
 public:
 	/** VDP version: the VDP model being emulated.

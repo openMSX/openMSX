@@ -7,8 +7,8 @@
 namespace openmsx {
 
 RomNational::RomNational(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom)
-	: MSXDevice(config, time), Rom16kBBlocks(config, time, rom),
-	  sram(getName() + " SRAM", 0x1000, config)
+	: Rom16kBBlocks(config, time, rom)
+	, sram(getName() + " SRAM", 0x1000, config)
 {
 	reset(time);
 }

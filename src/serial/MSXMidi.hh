@@ -3,7 +3,7 @@
 #ifndef __MSXMIDI_HH__
 #define __MSXMIDI_HH__
 
-#include "MSXIODevice.hh"
+#include "MSXDevice.hh"
 #include "I8251.hh"
 #include "I8254.hh"
 #include "ClockPin.hh"
@@ -14,7 +14,7 @@
 
 namespace openmsx {
 
-class MSXMidi: public MSXIODevice, public MidiInConnector
+class MSXMidi: public MSXDevice, public MidiInConnector
 {
 public:
 	MSXMidi(const XMLElement& config, const EmuTime& time);

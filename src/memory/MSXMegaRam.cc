@@ -33,8 +33,7 @@
 namespace openmsx {
 
 MSXMegaRam::MSXMegaRam(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time), MSXMemDevice(config, time),
-	  MSXIODevice(config, time)
+	: MSXDevice(config, time)
 {
 	int size = config.getChildDataAsInt("size");
 	int blocks = size / 8;	// 8kb blocks

@@ -5,7 +5,7 @@
 
 #include <fstream>
 #include <memory>
-#include "MSXIODevice.hh"
+#include "MSXDevice.hh"
 
 using std::ostream;
 using std::ofstream;
@@ -16,7 +16,7 @@ namespace openmsx {
 class EmuTime;
 class FilenameSetting;
 
-class DebugDevice : public MSXIODevice
+class DebugDevice : public MSXDevice
 {
 public:
 	DebugDevice(const XMLElement& config, const EmuTime& time);

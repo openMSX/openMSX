@@ -14,7 +14,7 @@
 namespace openmsx {
 
 RomKorean126in1::RomKorean126in1(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom)
-	: MSXDevice(config, time), Rom16kBBlocks(config, time, rom)
+	: Rom16kBBlocks(config, time, rom)
 {
 	reset(time);
 }

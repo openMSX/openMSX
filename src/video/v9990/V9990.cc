@@ -19,7 +19,6 @@ const unsigned VRAM_SIZE = 0x80000; // 512kB
 
 V9990::V9990(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time),
-	  MSXIODevice(config, time),
 	  v9990RegDebug(*this),
 	  v9990VRAMDebug(*this),
 	  pendingIRQs(0)

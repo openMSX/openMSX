@@ -10,8 +10,8 @@ static const char* const PAC_Header = "PAC2 BACKUP DATA";
 //                                     1234567890123456
 
 MSXFmPac::MSXFmPac(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time), MSXMusic(config, time), 
-	  sram(getName() + " SRAM", 0x1FFE, config, PAC_Header)
+	: MSXMusic(config, time)
+	, sram(getName() + " SRAM", 0x1FFE, config, PAC_Header)
 {
 	reset(time);
 }

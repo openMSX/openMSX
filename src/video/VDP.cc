@@ -45,7 +45,7 @@ namespace openmsx {
 // Init and cleanup:
 
 VDP::VDP(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time), MSXIODevice(config, time)
+	: MSXDevice(config, time)
 	, vdpRegDebug(*this)
 	, vdpStatusRegDebug(*this)
 	, vdpRegsCmd(*this)

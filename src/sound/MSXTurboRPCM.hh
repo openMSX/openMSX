@@ -4,7 +4,7 @@
 #define __MSXTURBORPCM_HH__
 
 #include <memory>
-#include "MSXIODevice.hh"
+#include "MSXDevice.hh"
 #include "EmuTime.hh"
 #include "AudioInputConnector.hh"
 
@@ -14,7 +14,7 @@ namespace openmsx {
 
 class DACSound8U;
 
-class MSXTurboRPCM : public MSXIODevice, private AudioInputConnector
+class MSXTurboRPCM : public MSXDevice, private AudioInputConnector
 {
 public:
 	MSXTurboRPCM(const XMLElement& config, const EmuTime& time);

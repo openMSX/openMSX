@@ -8,7 +8,7 @@
 namespace openmsx {
 
 NationalFDC::NationalFDC(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time), WD2793BasedFDC(config, time)
+	: WD2793BasedFDC(config, time)
 {
 }
 

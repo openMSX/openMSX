@@ -23,7 +23,7 @@ inline unsigned MSXMemoryMapper::calcAddress(word address) const
 }
 
 MSXMemoryMapper::MSXMemoryMapper(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time), MSXMemDevice(config, time)
+	: MSXDevice(config, time)
 {
 	slowDrainOnReset = deviceConfig.getChildDataAsBool("slow_drain_on_reset", false);
 	int kSize = deviceConfig.getChildDataAsInt("size");

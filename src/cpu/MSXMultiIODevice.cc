@@ -23,8 +23,7 @@ const XMLElement& MSXMultiIODevice::getMultiConfig()
 }
 
 MSXMultiIODevice::MSXMultiIODevice()
-	: MSXDevice(getMultiConfig(), EmuTime::zero),
-	  MSXIODevice(getMultiConfig(), EmuTime::zero)
+	: MSXDevice(getMultiConfig(), EmuTime::zero)
 {
 }
 
@@ -34,13 +33,13 @@ MSXMultiIODevice::~MSXMultiIODevice()
 }
 
 
-void MSXMultiIODevice::addDevice(MSXIODevice* device)
+void MSXMultiIODevice::addDevice(MSXDevice* device)
 {
 	devices.push_back(device);
 	preCalcName();
 }
 
-void MSXMultiIODevice::removeDevice(MSXIODevice* device)
+void MSXMultiIODevice::removeDevice(MSXDevice* device)
 {
 	devices.erase(remove(devices.begin(), devices.end(), device),
 	              devices.end());
@@ -58,7 +57,7 @@ void MSXMultiIODevice::preCalcName()
 	// so we do need to store the name. So we can as well precalculate it
 	name.clear();
 	bool first = true;
-	for (vector<MSXIODevice*>::const_iterator it = devices.begin();
+	for (vector<MSXDevice*>::const_iterator it = devices.begin();
 	     it != devices.end(); ++it) {
 		if (!first) {
 			name += "  ";
@@ -73,7 +72,7 @@ void MSXMultiIODevice::preCalcName()
 
 void MSXMultiIODevice::reset(const EmuTime& time)
 {
-	for (vector<MSXIODevice*>::iterator it = devices.begin();
+	for (vector<MSXDevice*>::iterator it = devices.begin();
 	     it != devices.end(); ++it) {
 		(*it)->reset(time);
 	}
@@ -81,7 +80,7 @@ void MSXMultiIODevice::reset(const EmuTime& time)
 
 void MSXMultiIODevice::reInit(const EmuTime& time)
 {
-	for (vector<MSXIODevice*>::iterator it = devices.begin();
+	for (vector<MSXDevice*>::iterator it = devices.begin();
 	     it != devices.end(); ++it) {
 		(*it)->reInit(time);
 	}
@@ -92,15 +91,12 @@ const string& MSXMultiIODevice::getName() const
 	return name;
 }
 
-
-// MSXIODevice
-
 byte MSXMultiIODevice::readIO(byte port, const EmuTime& time)
 {
 	// conflict: return the result from the first device, call readIO()
 	//           also on all other devices, but discard result
 	assert(!devices.empty());
-	vector<MSXIODevice*>::iterator it = devices.begin();
+	vector<MSXDevice*>::iterator it = devices.begin();
 	byte result = (*it)->readIO(port, time);
 	for (++it; it != devices.end(); ++it) {
 		(*it)->readIO(port, time);
@@ -110,7 +106,7 @@ byte MSXMultiIODevice::readIO(byte port, const EmuTime& time)
 
 void MSXMultiIODevice::writeIO(byte port, byte value, const EmuTime& time)
 {
-	for (vector<MSXIODevice*>::iterator it = devices.begin();
+	for (vector<MSXDevice*>::iterator it = devices.begin();
 	     it != devices.end(); ++it) {
 		(*it)->writeIO(port, value, time);
 	}

@@ -10,7 +10,7 @@
 namespace openmsx {
 
 TurboRFDC::TurboRFDC(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time), MSXFDC(config, time), controller(drives, time)
+	: MSXFDC(config, time), controller(drives, time)
 {
 	blockMask = (rom.getSize() / 0x4000) - 1;
 	reset(time);

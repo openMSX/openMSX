@@ -4,11 +4,10 @@
 #define __BRAZILFDC_HH__
 
 #include "WD2793BasedFDC.hh"
-#include "MSXIODevice.hh"
 
 namespace openmsx {
 
-class MicrosolFDC : public WD2793BasedFDC, public MSXIODevice
+class MicrosolFDC : public WD2793BasedFDC
 {
 public:
 	MicrosolFDC(const XMLElement& config, const EmuTime& time);

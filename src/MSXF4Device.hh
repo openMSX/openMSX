@@ -9,11 +9,11 @@
 #ifndef __F4DEVICE_HH__
 #define __F4DEVICE_HH__
 
-#include "MSXIODevice.hh"
+#include "MSXDevice.hh"
 
 namespace openmsx {
 
-class MSXF4Device : public MSXIODevice
+class MSXF4Device : public MSXDevice
 {
 public:
 	MSXF4Device(const XMLElement& config, const EmuTime& time);

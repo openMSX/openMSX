@@ -7,7 +7,7 @@
 namespace openmsx {
 
 MSXTurboRPCM::MSXTurboRPCM(const XMLElement& config, const EmuTime& time)
-	: MSXDevice(config, time), MSXIODevice(config, time)
+	: MSXDevice(config, time)
 	, AudioInputConnector("pcminput")
 {
 	dac.reset(new DACSound8U("PCM", "Turbo-R PCM", config, time));

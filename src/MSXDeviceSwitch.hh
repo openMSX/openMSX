@@ -3,7 +3,7 @@
 #ifndef __MSXDEVICESWITCH_HH__
 #define __MSXDEVICESWITCH_HH__
 
-#include "MSXIODevice.hh"
+#include "MSXDevice.hh"
 
 namespace openmsx {
 
@@ -67,7 +67,7 @@ private:
 };
 
 
-class MSXDeviceSwitch : public MSXIODevice
+class MSXDeviceSwitch : public MSXDevice
 {
 public:
 	virtual ~MSXDeviceSwitch();

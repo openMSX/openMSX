@@ -13,7 +13,7 @@
 
 #include "openmsx.hh"
 #include "Schedulable.hh"
-#include "MSXIODevice.hh"
+#include "MSXDevice.hh"
 #include "EmuTime.hh"
 #include "Debuggable.hh"
 #include "IRQHelper.hh"
@@ -22,7 +22,7 @@ using std::string;
 
 namespace openmsx {
 
-class V9990 : public MSXIODevice,
+class V9990 : public MSXDevice,
               private Schedulable
 {
 public:
@@ -34,15 +34,11 @@ public:
 	virtual void executeUntil(const EmuTime& time, int userData);
 	virtual const string& schedName() const;
 
-	/** MSXIODevice interface
+	/** MSXDevice interface
 	  */  
 	virtual byte readIO(byte port, const EmuTime& time);
 	virtual void writeIO(byte port, byte value, const EmuTime& time);
-
-	/** MSXDevice interface
-	  */ 
 	virtual void reset(const EmuTime& time);
-	
 
 private:
 	class V9990RegDebug : public Debuggable {

@@ -3,7 +3,7 @@
 #ifndef __TURBORPAUSE_HH__
 #define __TURBORPAUSE_HH__
 
-#include "MSXIODevice.hh"
+#include "MSXDevice.hh"
 #include "BooleanSetting.hh"
 
 namespace openmsx {
@@ -16,7 +16,7 @@ namespace openmsx {
  *   bit 0 indicates the status (1 = pause active)
  *   all other bits read 0
  */
-class MSXTurboRPause : public MSXIODevice
+class MSXTurboRPause : public MSXDevice
 {
 public:
 	MSXTurboRPause(const XMLElement& config, const EmuTime& time);

@@ -63,7 +63,7 @@ byte* FSA1FMRam::getSRAM(const XMLElement& config)
 // Mapper for slot 3-1 //
 
 RomFSA1FM1::RomFSA1FM1(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom)
-	: MSXDevice(config, time), MSXRom(config, time, rom)
+	: MSXRom(config, time, rom)
 {
 	sram = FSA1FMRam::getSRAM(config);
 	reset(time);
@@ -149,7 +149,7 @@ byte* RomFSA1FM1::getWriteCacheLine(word address) const
 // Mapper for slot 3-3 //
 
 RomFSA1FM2::RomFSA1FM2(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom)
-	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
+	: Rom8kBBlocks(config, time, rom)
 {
 	sram = FSA1FMRam::getSRAM(config);
 	reset(time);

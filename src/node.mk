@@ -8,7 +8,7 @@ SUBDIRS:= \
 
 SRC_HDR:= \
 	EmuTime \
-	MSXDevice MSXIODevice MSXMemDevice \
+	MSXDevice \
 	MSXMotherBoard \
 	MSXPPI I8255 \
 	PlatformFactory DeviceFactory \
