@@ -13,6 +13,7 @@ $Id$
 	* disk support now works completely, but not yet
 	  for all programs [starquake, on mania036.dsk
 	  works completely]
+	* fixes for slotselection [thanks Maarten]
 
 2001-12-31 Maarten ter Huurne <mth@stack.nl>
 	* Render accuracy is now one line instead of one frame.

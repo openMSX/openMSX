@@ -224,8 +224,16 @@ void MSXDiskRomPatch::PHYDIO() const
 		<< "s1:" << ((sec_slot & 0x0C)>>2) << " "
 		<< "s0:" << ((sec_slot & 0x03)>>0));
 
-	motherboard->writeIO(0xA8, 0xFF, dummy);
-	cpu->writeMem(0xFFFF,0xFF);
+	int pri_slot_target = ((pri_slot & 0xC0)>>6);
+	pri_slot_target += pri_slot_target*4 + pri_slot_target*16 + pri_slot_target*64;
+	int sec_slot_target = ((sec_slot & 0xC0)>>6);
+	sec_slot_target += sec_slot_target*4 + sec_slot_target*16 + sec_slot_target*64;
+	PRT_DEBUG("Switching slots toward: pri:0x" << std::hex
+		<< pri_slot_target
+		<< " sec:0x" << sec_slot_target << std::dec);
+
+	motherboard->writeIO(0xA8, pri_slot_target, dummy);
+	cpu->writeMem(0xFFFF,sec_slot_target);
 	
 	byte buffer[MSXDiskRomPatch::sector_size];
 	if (write)
@@ -247,8 +255,8 @@ void MSXDiskRomPatch::PHYDIO() const
 				cpu->setCPURegs(regs);
 				return;
 			}
+			regs.BC.B.h--;
 		}
-		regs.BC.B.h--;
 	}
 	else
 	{
@@ -269,8 +277,8 @@ void MSXDiskRomPatch::PHYDIO() const
 				cpu->writeMem(transfer_address, buffer[i]);
 				transfer_address++;
 			}
+			regs.BC.B.h--;
 		}
-		regs.BC.B.h--;
 	}
 
 	motherboard->writeIO(0xA8, pri_slot, dummy);
