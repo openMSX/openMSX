@@ -11,14 +11,15 @@ namespace openmsx {
 
 RenderSettings::RenderSettings()
 {
-	const XMLElement* config = SettingsConfig::instance().findChild("renderer");
+	const XMLElement* config =
+		SettingsConfig::instance().findChild("renderer");
 
 	EnumSetting<Accuracy>::Map accMap;
 	accMap["screen"] = ACC_SCREEN;
 	accMap["line"]   = ACC_LINE;
 	accMap["pixel"]  = ACC_PIXEL;
 	accuracy.reset(new EnumSetting<Accuracy>(
-		"accuracy", "rendering accuracy", ACC_LINE, accMap));
+		"accuracy", "rendering accuracy", ACC_PIXEL, accMap));
 
 	deinterlace.reset(new BooleanSetting(
 		"deinterlace", "deinterlacing on/off", true));
@@ -32,7 +33,7 @@ RenderSettings::RenderSettings()
 
 	bool fsBool = false;
 	if (config) {
-		    fsBool = config->getChildDataAsBool("full_screen", fsBool);
+		fsBool = config->getChildDataAsBool("full_screen", fsBool);
 	}
 	fullScreen.reset(new BooleanSetting(
 		"fullscreen", "full screen display on/off", fsBool));
