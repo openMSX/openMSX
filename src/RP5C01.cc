@@ -8,8 +8,10 @@
 //TODO  1Hz 16Hz output not implemented (not connected on MSX)
 
 
-RP5C01::RP5C01() : reference(FREQ)	// runs at 16384Hz
+RP5C01::RP5C01(bool emuMode) : reference(FREQ)	// runs at 16384Hz
 {
+	emuTimeBased = emuMode;
+	
 	//TODO load saved state
 	
 	// if no saved state found
@@ -152,31 +154,38 @@ void RP5C01::time2Regs()
 
 void RP5C01::updateTimeRegs(const Emutime &time)
 {
-	uint64 elapsed = (modeReg & MODE_TIMERENABLE) ? (reference.getTicksTill(time)) : 0;
-	reference = time;
+	if (emuTimeBased) {
+		// sync with emutime, perfect emulation
+		uint64 elapsed = (modeReg & MODE_TIMERENABLE) ? (reference.getTicksTill(time)) : 0;
+		reference = time;
 
-	// in test mode increase sec/min/.. at a rate of 16384Hz
-	uint64 testSeconds = (testReg & TEST_SECONDS) ? elapsed : 0;
-	uint64 testMinutes = (testReg & TEST_MINUTES) ? elapsed : 0;
-	uint64 testHours   = (testReg & TEST_HOURS  ) ? elapsed : 0;
-	uint64 testDays    = (testReg & TEST_DAYS   ) ? elapsed : 0;
-	
-	fraction += elapsed;
-	seconds  += fraction/FREQ + testSeconds; fraction %= FREQ;
-	minutes  += seconds/60    + testMinutes; seconds  %= 60;
-	hours    += minutes/60    + testHours;   minutes  %= 60;
-	int carryDays = hours/24  + testDays; 
-	days     += carryDays;      hours   %= 24;
-	dayWeek = (dayWeek + carryDays) % 7;
-	while (days >= daysInMonth(months, leapYear)) {
-		days -= daysInMonth(months, leapYear);
-		months++;
+		// in test mode increase sec/min/.. at a rate of 16384Hz
+		uint64 testSeconds = (testReg & TEST_SECONDS) ? elapsed : 0;
+		uint64 testMinutes = (testReg & TEST_MINUTES) ? elapsed : 0;
+		uint64 testHours   = (testReg & TEST_HOURS  ) ? elapsed : 0;
+		uint64 testDays    = (testReg & TEST_DAYS   ) ? elapsed : 0;
+		
+		fraction += elapsed;
+		seconds  += fraction/FREQ + testSeconds; fraction %= FREQ;
+		minutes  += seconds/60    + testMinutes; seconds  %= 60;
+		hours    += minutes/60    + testHours;   minutes  %= 60;
+		int carryDays = hours/24  + testDays; 
+		days     += carryDays;      hours   %= 24;
+		dayWeek = (dayWeek + carryDays) % 7;
+		while (days >= daysInMonth(months, leapYear)) {
+			days -= daysInMonth(months, leapYear);
+			months++;
+		}
+		int carryYears = months/12;
+		years = (years + carryYears) % 100; months %= 12;
+		leapYear = (leapYear + carryYears) % 4;
+		
+		time2Regs();
+	} else {
+		// sync with host clock
+		//   writes to time, test and reset registers have no effect
+		initializeTime();
 	}
-	int carryYears = months/12;
-	years = (years + carryYears) % 100; months %= 12;
-	leapYear = (leapYear + carryYears) % 4;
-	
-	time2Regs();
 }
 
 const int RP5C01::daysInMonths[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};

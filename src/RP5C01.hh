@@ -17,7 +17,7 @@
 class RP5C01
 {
 	public:
-		RP5C01();
+		RP5C01(bool emuMode);
 		~RP5C01(); 
 		
 		void reset();
@@ -58,6 +58,7 @@ class RP5C01
 		nibble reg[4][13];
 		static const nibble mask[4][13];
 
+		bool emuTimeBased;
 		Emutime reference;
 		int fraction;
 		int seconds, minutes, hours;

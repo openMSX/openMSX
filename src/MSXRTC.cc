@@ -8,7 +8,6 @@
 MSXRTC::MSXRTC()
 {
 	PRT_DEBUG("Creating an MSXRTC object");
-	rp5c01 = new RP5C01();
 }
 
 MSXRTC::~MSXRTC()
@@ -20,6 +19,11 @@ MSXRTC::~MSXRTC()
 void MSXRTC::init()
 {
 	MSXDevice::init();
+	bool emuTimeBased;
+	if (deviceConfig->getParameter("mode")=="RealTime")
+		emuTimeBased = false;
+	else	emuTimeBased = true;
+	rp5c01 = new RP5C01(emuTimeBased);
 	MSXMotherBoard::instance()->register_IO_Out(0xB4,this);
 	MSXMotherBoard::instance()->register_IO_Out(0xB5,this);
 	MSXMotherBoard::instance()->register_IO_In (0xB5,this);
