@@ -1,13 +1,18 @@
 // $Id$
 
-#include <sstream>
 #include "Settings.hh"
 #include "CommandController.hh"
 #include "RenderSettings.hh"
 #include "OSDConsoleRenderer.hh"
 #include "File.hh"
 #include "FileContext.hh"
+#include <sstream>
+#include <iostream>
+#include <iomanip>
+#include <stdio.h>
 
+using std::ostringstream;
+using std::string;
 
 // Force template instantiation:
 template class EnumSetting<RenderSettings::Accuracy>;
@@ -18,7 +23,7 @@ template class EnumSetting<bool>;
 
 // Setting implementation:
 
-Setting::Setting(const std::string &name_, const std::string &description_)
+Setting::Setting(const string &name_, const string &description_)
 	: name(name_), description(description_)
 {
 	SettingsManager::instance()->registerSetting(name, this);
@@ -33,47 +38,34 @@ Setting::~Setting()
 // IntegerSetting implementation:
 
 IntegerSetting::IntegerSetting(
-	const std::string &name_, const std::string &description_,
+	const string &name_, const string &description_,
 	int initialValue, int minValue_, int maxValue_)
-	: Setting(name_, description_), value(initialValue),
-	  minValue(minValue_), maxValue(maxValue_)
+	: Setting(name_, description_), value(initialValue)
 {
-	std::ostringstream out;
-	out << minValue << " - " << maxValue;
-	type = out.str();
+	setRange(minValue_, maxValue_);
 }
 
-void IntegerSetting::setRange (const int minvalue,const int maxvalue)
+void IntegerSetting::setRange(const int minValue, const int maxValue)
 {
-	if (minvalue > maxvalue)
-	{
-		minValue = maxvalue; // autoswap if range is invalid
-		maxValue = minvalue;
-	}
-	else
-	{
-		minValue = minvalue;
-		maxValue = maxvalue;
-	}
-		
-	int curValue=getValue();
-	if (curValue < minValue) setValueInt(minValue);
-	if (curValue > maxValue) setValueInt(maxValue);
-	
+	this->minValue = minValue;
+	this->maxValue = maxValue;
+
 	// update the setting type to the new range
-	std::ostringstream out;
+	ostringstream out;
 	out << minValue << " - " << maxValue;
 	type = out.str();
+
+	if (value < minValue || value > maxValue) setValueInt(value);
 }
 
-std::string IntegerSetting::getValueString() const
+string IntegerSetting::getValueString() const
 {
-	std::ostringstream out;
+	ostringstream out;
 	out << value;
 	return out.str();
 }
 
-void IntegerSetting::setValueString(const std::string &valueString)
+void IntegerSetting::setValueString(const string &valueString)
 {
 	char *endPtr;
 	long newValue = strtol(valueString.c_str(), &endPtr, 0);
@@ -91,21 +83,76 @@ void IntegerSetting::setValueInt(int newValue)
 	} else if (newValue > maxValue) {
 		newValue = maxValue;
 	}
-	if (checkUpdate((int)newValue)) {
-		value = (int)newValue;
-	}	
+	if (checkUpdate(newValue)) {
+		value = newValue;
+	}
+}
+
+// FloatSetting implementation:
+
+FloatSetting::FloatSetting(
+	const string &name_, const string &description_,
+	float initialValue, float minValue_, float maxValue_)
+	: Setting(name_, description_), value(initialValue)
+{
+	setRange(minValue_, maxValue_);
+}
+
+void FloatSetting::setRange(const float minValue, const float maxValue)
+{
+	this->minValue = minValue;
+	this->maxValue = maxValue;
+
+	// update the setting type to the new range
+	ostringstream out;
+	out << std::setprecision(2) << std::fixed << std::showpoint
+		<< minValue << " - " << maxValue;
+	type = out.str();
+
+	if (value < minValue || value > maxValue) setValueFloat(value);
+}
+
+string FloatSetting::getValueString() const
+{
+	ostringstream out;
+	out << std::setprecision(2) << std::fixed << std::showpoint
+		<< value;
+	return out.str();
+}
+
+void FloatSetting::setValueString(const string &valueString)
+{
+	float newValue;
+	int converted = sscanf(valueString.c_str(), "%f", &newValue);
+	if (converted != 1) {
+		throw CommandException(
+			"Not a valid float: \"" + valueString + "\"");
+	}
+	setValueFloat(newValue);
+}
+
+void FloatSetting::setValueFloat(float newValue)
+{
+	if (newValue < minValue) {
+		newValue = minValue;
+	} else if (newValue > maxValue) {
+		newValue = maxValue;
+	}
+	if (checkUpdate(newValue)) {
+		value = newValue;
+	}
 }
 
 // EnumSetting implementation:
 
 template <class T>
 EnumSetting<T>::EnumSetting(
-	const std::string &name_, const std::string &description_,
+	const string &name_, const string &description_,
 	const T &initialValue,
-	const std::map<std::string, T> &map_)
+	const std::map<string, T> &map_)
 	: Setting(name_, description_), value(initialValue), map(map_)
 {
-	std::ostringstream out;
+	ostringstream out;
 	MapIterator it = map.begin();
 	out << it->first;
 	for (it++; it != map.end(); it++) {
@@ -115,7 +162,7 @@ EnumSetting<T>::EnumSetting(
 }
 
 template <class T>
-std::string EnumSetting<T>::getValueString() const
+string EnumSetting<T>::getValueString() const
 {
 	MapIterator it = map.begin();
 	while (it != map.end()) {
@@ -125,7 +172,7 @@ std::string EnumSetting<T>::getValueString() const
 		it++;
 	}
 	assert(false);
-	return std::string("<unknown>");
+	return string("<unknown>");
 }
 
 template <class T>
@@ -137,7 +184,7 @@ void EnumSetting<T>::setValue(T newValue)
 }
 
 template <class T>
-void EnumSetting<T>::setValueString(const std::string &valueString)
+void EnumSetting<T>::setValueString(const string &valueString)
 {
 	MapIterator it = map.find(valueString);
 	if (it != map.end()) {
@@ -149,9 +196,9 @@ void EnumSetting<T>::setValueString(const std::string &valueString)
 }
 
 template <class T>
-void EnumSetting<T>::tabCompletion(std::vector<std::string> &tokens) const
+void EnumSetting<T>::tabCompletion(std::vector<string> &tokens) const
 {
-	std::set<std::string> values;
+	std::set<string> values;
 	for (MapIterator it = map.begin(); it != map.end(); it++) {
 		values.insert(it->first);
 	}
@@ -162,15 +209,15 @@ void EnumSetting<T>::tabCompletion(std::vector<std::string> &tokens) const
 // BooleanSetting implementation
 
 BooleanSetting::BooleanSetting(
-	const std::string &name, const std::string &description,
+	const string &name, const string &description,
 	bool initialValue)
 	: EnumSetting<bool>(name, description, initialValue, getMap())
 {
 }
 
-std::map<std::string, bool> &BooleanSetting::getMap()
+std::map<string, bool> &BooleanSetting::getMap()
 {
-	static std::map<std::string, bool> boolMap;
+	static std::map<string, bool> boolMap;
 	static bool alreadyInit = false;
 
 	if (!alreadyInit) {
@@ -185,18 +232,18 @@ std::map<std::string, bool> &BooleanSetting::getMap()
 // StringSetting implementation
 
 StringSetting::StringSetting(
-	const std::string &name_, const std::string &description_,
-	const std::string &initialValue)
+	const string &name_, const string &description_,
+	const string &initialValue)
 	: Setting(name_, description_), value(initialValue)
 {
 }
 
-std::string StringSetting::getValueString() const
+string StringSetting::getValueString() const
 {
 	return value;
 }
 
-void StringSetting::setValueString(const std::string &newValue)
+void StringSetting::setValueString(const string &newValue)
 {
 	if (checkUpdate(newValue)) {
 		value = newValue;
@@ -206,14 +253,14 @@ void StringSetting::setValueString(const std::string &newValue)
 
 // FilenameSetting implementation
 
-FilenameSetting::FilenameSetting(const std::string &name,
-	const std::string &description,
-	const std::string &initialValue)
+FilenameSetting::FilenameSetting(const string &name,
+	const string &description,
+	const string &initialValue)
 	: StringSetting(name, description, initialValue)
 {
 }
 
-void FilenameSetting::tabCompletion(std::vector<std::string> &tokens) const
+void FilenameSetting::tabCompletion(std::vector<string> &tokens) const
 {
 	CommandController::completeFileName(tokens);
 }
@@ -244,7 +291,7 @@ SettingsManager::SetCommand::SetCommand(SettingsManager *manager_)
 }
 
 void SettingsManager::SetCommand::execute(
-	const std::vector<std::string> &tokens )
+	const std::vector<string> &tokens )
 {
 	int nrTokens = tokens.size();
 	if (nrTokens == 0 || nrTokens > 3) {
@@ -253,7 +300,7 @@ void SettingsManager::SetCommand::execute(
 
 	if (nrTokens == 1) {
 		// List all settings.
-		std::map<std::string, Setting *>::const_iterator it =
+		std::map<string, Setting *>::const_iterator it =
 			manager->settingsMap.begin();
 		for (; it != manager->settingsMap.end(); it++) {
 			print(it->first);
@@ -262,7 +309,7 @@ void SettingsManager::SetCommand::execute(
 	}
 
 	// Get setting object.
-	const std::string &name = tokens[1];
+	const string &name = tokens[1];
 	Setting *setting = manager->getByName(name);
 	if (!setting) {
 		throw CommandException("There is no setting named \""
@@ -278,14 +325,14 @@ void SettingsManager::SetCommand::execute(
 		}
 	} else {
 		// Change.
-		const std::string &valueString = tokens[2];
+		const string &valueString = tokens[2];
 		setting->setValueString(valueString);
 	}
 
 }
 
 void SettingsManager::SetCommand::help(
-	const std::vector<std::string> &tokens) const
+	const std::vector<string> &tokens) const
 {
 	print("set            : list all settings");
 	print("set name       : information on setting");
@@ -293,13 +340,13 @@ void SettingsManager::SetCommand::help(
 }
 
 void SettingsManager::SetCommand::tabCompletion(
-	std::vector<std::string> &tokens) const
+	std::vector<string> &tokens) const
 {
 	switch (tokens.size()) {
 		case 2: {
 			// complete setting name
-			std::set<std::string> settings;
-			std::map<std::string, Setting *>::const_iterator it
+			std::set<string> settings;
+			std::map<string, Setting *>::const_iterator it
 				= manager->settingsMap.begin();
 			for (; it != manager->settingsMap.end(); it++) {
 				settings.insert(it->first);
@@ -309,7 +356,7 @@ void SettingsManager::SetCommand::tabCompletion(
 		}
 		case 3: {
 			// complete setting value
-			std::map<std::string, Setting*>::iterator it =
+			std::map<string, Setting*>::iterator it =
 				manager->settingsMap.find(tokens[1]);
 			if (it != manager->settingsMap.end()) {
 				it->second->tabCompletion(tokens);
@@ -327,7 +374,7 @@ SettingsManager::ToggleCommand::ToggleCommand(SettingsManager *manager_)
 }
 
 void SettingsManager::ToggleCommand::execute(
-	const std::vector<std::string> &tokens )
+	const std::vector<string> &tokens )
 {
 	int nrTokens = tokens.size();
 	if (nrTokens == 0 || nrTokens > 2) {
@@ -336,7 +383,7 @@ void SettingsManager::ToggleCommand::execute(
 
 	if (nrTokens == 1) {
 		// list all boolean settings
-		std::map<std::string, Setting *>::const_iterator it =
+		std::map<string, Setting *>::const_iterator it =
 			manager->settingsMap.begin();
 		for (; it != manager->settingsMap.end(); it++) {
 			if (dynamic_cast<BooleanSetting*>(it->second)) {
@@ -347,7 +394,7 @@ void SettingsManager::ToggleCommand::execute(
 	}
  
 	// get setting object
-	const std::string &name = tokens[1];
+	const string &name = tokens[1];
 	Setting *setting = manager->getByName(name);
 	if (!setting) {
 		throw CommandException(
@@ -364,20 +411,20 @@ void SettingsManager::ToggleCommand::execute(
 }
 
 void SettingsManager::ToggleCommand::help(
-	const std::vector<std::string> &tokens) const
+	const std::vector<string> &tokens) const
 {
 	print("toggle      : list all boolean settings");
 	print("toggle name : toggles a boolean setting");
 }
 
 void SettingsManager::ToggleCommand::tabCompletion(
-	std::vector<std::string> &tokens) const
+	std::vector<string> &tokens) const
 {
 	switch (tokens.size()) {
 		case 2: {
 			// complete setting name
-			std::set<std::string> settings;
-			std::map<std::string, Setting *>::const_iterator it
+			std::set<string> settings;
+			std::map<string, Setting *>::const_iterator it
 				= manager->settingsMap.begin();
 			for (; it != manager->settingsMap.end(); it++) {
 				if (dynamic_cast<BooleanSetting*>(it->second)) {

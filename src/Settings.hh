@@ -9,6 +9,12 @@
 
 
 /*
+TODO: Reduce code duplication.
+It is possible to put a lot of the common code in templates:
+- give Setting base class a value type
+- make OrderedSetting/OrdinalSetting/NumberSetting/ScalarSetting
+  base class for IntegerSetting and FloatSetting
+
 TODO: A way to inform listeners of a setting update.
 
 Listen to one or multiple settings?
@@ -90,12 +96,23 @@ public:
 	  */
 	int getValue() const { return value; }
 
+	/** Change the current value of this setting.
+	  * The value will be clipped to the allowed range if necessary.
+	  * @param newValue The new value.
+	  */
+	virtual void setValueInt(int newValue);
+
+	/** Change the allowed range.
+	  * @param minValue New minimal value (inclusive).
+	  * @param maxValue New maximal value (inclusive).
+	  */
+	void setRange(int minValue, int maxValue);
+
 	// Implementation of Setting interface:
 	virtual std::string getValueString() const;
 	virtual void setValueString(const std::string &valueString);
-	virtual void setValueInt(int newValue);
-	void setRange(int minValue, int maxValue);
-	
+
+
 protected:
 	/**
 	 * Called just before this setting is assigned a new value
@@ -106,10 +123,56 @@ protected:
 	virtual bool checkUpdate(int newValue) {
 		return true;
 	}
-		
+
 	int value;
 	int minValue;
 	int maxValue;
+};
+
+
+/** A Setting with a floating point value.
+  */
+class FloatSetting: public Setting
+{
+public:
+	FloatSetting(
+		const std::string &name, const std::string &description,
+		float initialValue, float minValue, float maxValue);
+
+	/** Get the current value of this setting.
+	  */
+	float getValue() const { return value; }
+
+	/** Change the current value of this setting.
+	  * The value will be clipped to the allowed range if necessary.
+	  * @param newValue The new value.
+	  */
+	virtual void setValueFloat(float newValue);
+
+	/** Change the allowed range.
+	  * @param minValue New minimal value (inclusive).
+	  * @param maxValue New maximal value (inclusive).
+	  */
+	void setRange(float minValue, float maxValue);
+
+	// Implementation of Setting interface:
+	virtual std::string getValueString() const;
+	virtual void setValueString(const std::string &valueString);
+
+protected:
+	/**
+	 * Called just before this setting is assigned a new value
+	 * @param newValue The new value, the variable value still
+	 * contains the old value
+	 * @return Only when the result is true the new value is assigned
+	 */
+	virtual bool checkUpdate(float newValue) {
+		return true;
+	}
+
+	float value;
+	float minValue;
+	float maxValue;
 };
 
 
@@ -127,7 +190,7 @@ public:
 	/** Get the current value of this setting.
 	  */
 	T getValue() const { return value; }
-	
+
 	/** Set the current value of this setting.
 	  * @param value The new value.
 	  */
