@@ -21,6 +21,7 @@ public:
 private:
 	SDL_Surface* outputScreen;
 	SDL_Surface* image;
+	SDL_Surface* workImage;
 
 public:
 	static SDL_Surface* loadImage(
