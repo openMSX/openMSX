@@ -58,7 +58,9 @@ inline static void fillBool(bool *ptr, bool value, int nr)
 inline static int translateX(int absoluteX)
 {
 	if (absoluteX == VDP::TICKS_PER_LINE) return WIDTH;
-	int screenX = (absoluteX - TICKS_VISIBLE_MIDDLE) / 2 + WIDTH / 2;
+	// Note: The "& ~1" forces the ticks to a pixel (2-tick) boundary.
+	//       If this is not done, rounding errors will occur.
+	int screenX = (absoluteX - (TICKS_VISIBLE_MIDDLE & ~1)) / 2 + WIDTH / 2;
 	return screenX < 0 ? 0 : screenX;
 }
 
@@ -69,12 +71,6 @@ template <class Pixel> void SDLHiRenderer<Pixel>::finishFrame()
 
 	// Update screen.
 	SDL_UpdateRect(screen, 0, 0, 0, 0);
-}
-
-template <class Pixel> inline int SDLHiRenderer<Pixel>::getLeftBorder()
-{
-	return (WIDTH - 512) / 2 - 14 + vdp->getHorizontalAdjust() * 2
-		+ (vdp->isTextMode() ? 18 : 0);
 }
 
 template <class Pixel> inline int SDLHiRenderer<Pixel>::getDisplayWidth()
@@ -574,6 +570,11 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 	// Lines without any sprites are very common in most programs.
 	if (visibleIndex == 0) return;
 
+	// Sprites use 256 pixels per screen, while minX and maxX are on a scale
+	// of 512 pixels per screen.
+	minX /= 2;
+	maxX /= 2;
+
 	// TODO: Calculate pointers incrementally outside this method.
 	Pixel *pixelPtr0 = (Pixel *)( (byte *)screen->pixels
 		+ screenLine * screen->pitch + leftBorder * sizeof(Pixel));
@@ -592,30 +593,27 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 			colour = palSprites[colour];
 			SpriteChecker::SpritePattern pattern = sip->pattern;
 			int x = sip->x;
-			// Skip any dots that end up in the border.
-			if (x <= -32) {
-				continue;
-			} else if (x < 0) {
-				pattern <<= -x;
-				x = 0;
-			} else if (x > 256 - 32) {
-				pattern &= -1 << (32 - (256 - x));
+			// Clip sprite pattern to render range.
+			if (x < minX) {
+				if (x <= minX - 32) continue;
+				pattern <<= minX - x;
+				x = minX;
+			} else if (x > maxX - 32) {
+				if (x >= maxX) continue;
+				pattern &= -1 << (32 - (maxX - x));
 			}
 			// Convert pattern to pixels.
-			// Only clip on left border, right side will be overdrawn shortly
-			if (minX <= (x * 2)) {
-				Pixel *p0 = &pixelPtr0[x * 2];
-				Pixel *p1 = &pixelPtr1[x * 2];
-				while (pattern) {
-					// Draw pixel if sprite has a dot.
-					if (pattern & 0x80000000) {
-						p0[0] = p0[1] = p1[0] = p1[1] = colour;
-					}
-					// Advancing behaviour.
-					pattern <<= 1;
-					p0 += 2;
-					p1 += 2;
+			Pixel *p0 = &pixelPtr0[x * 2];
+			Pixel *p1 = &pixelPtr1[x * 2];
+			while (pattern) {
+				// Draw pixel if sprite has a dot.
+				if (pattern & 0x80000000) {
+					p0[0] = p0[1] = p1[0] = p1[1] = colour;
 				}
+				// Advancing behaviour.
+				pattern <<= 1;
+				p0 += 2;
+				p1 += 2;
 			}
 		}
 	} else {
@@ -628,7 +626,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 		}
 		int maxSize = SpriteChecker::patternWidth(combined);
 		// Left-to-right scan.
-		for (int pixelDone = minX / 2; pixelDone < maxX / 2; pixelDone++) {
+		for (int pixelDone = minX; pixelDone < maxX; pixelDone++) {
 			// Skip pixels if possible.
 			int minStart = pixelDone - maxSize;
 			int leftMost = 0xFFFF;
@@ -692,28 +690,27 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawBorder(
 template <class Pixel> void SDLHiRenderer<Pixel>::drawDisplay(
 	int fromX, int fromY, int limitX, int limitY)
 {
+	// Calculate which pixels within the display area should be plotted.
+	int displayLeftTicks = getDisplayLeft();
+	int displayX = (fromX - displayLeftTicks) / 2;
+	int displayWidth = (limitX - fromX) / 2;
+	assert(0 <= displayX);
+	assert(displayX + displayWidth <= 512);
+
 	fromX = translateX(fromX);
 	limitX = translateX(limitX);
-
 	if (fromX == limitX) return;
 	assert(fromX < limitX);
-	//PRT_DEBUG("drawDisplaye: ("<<fromX<<","<<fromY<<")-("<<limitX-1<<","<<limitY<<")");
+	//PRT_DEBUG("drawDisplay: ("<<fromX<<","<<fromY<<")-("<<limitX-1<<","<<limitY<<")");
 
-	int n = limitY - fromY;
-	int minY = (fromY - lineRenderTop) * 2;
+	int displayY = (fromY - lineRenderTop) * 2;
+	int nrLines = limitY - fromY;
 	if (!deinterlace && vdp->isInterlaced() && vdp->getEvenOdd()) {
-		minY++;
+		displayY++;
 	}
-	int maxY = minY + 2 * n;
+	int displayLimitY = displayY + 2 * nrLines;
 
-	int leftBorder = getLeftBorder();
-
-	// Render background lines
-	int minX = fromX - leftBorder;
-	assert(0 <= minX);
-	assert(minX < 512);
-	int maxX = limitX - leftBorder;
-	if (maxX > 512) maxX = 512;
+	// Render background lines:
 
 	// Calculate display line (wraps at 256).
 	byte line = fromY - vdp->getLineZero();
@@ -723,16 +720,16 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawDisplay(
 
 	// Copy background image.
 	SDL_Rect source, dest;
-	source.x = minX;
-	source.w = maxX - minX;
+	source.x = displayX;
+	source.w = displayWidth;
 	source.h = 1;
 	dest.x = fromX;
 
 	if (vdp->isBitmapMode()) {
 		if (vdp->isPlanar()) {
-			renderPlanarBitmapLines(line, n);
+			renderPlanarBitmapLines(line, nrLines);
 		} else {
-			renderBitmapLines(line, n);
+			renderBitmapLines(line, nrLines);
 		}
 
 		int pageMaskEven, pageMaskOdd;
@@ -744,7 +741,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawDisplay(
 				(vdp->isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
 		}
 		// Bring bitmap cache up to date.
-		for (dest.y = minY; dest.y < maxY; ) {
+		for (dest.y = displayY; dest.y < displayLimitY; ) {
 			source.y = (vram->nameTable.getMask() >> 7)
 				& (pageMaskEven | line);
 			// TODO: Can we safely use SDL_LowerBlit?
@@ -758,9 +755,9 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawDisplay(
 			line++;	// wraps at 256
 		}
 	} else {
-		renderCharacterLines(line, n);
+		renderCharacterLines(line, nrLines);
 
-		for (dest.y = minY; dest.y < maxY; ) {
+		for (dest.y = displayY; dest.y < displayLimitY; ) {
 			assert(!vdp->isMSX1VDP() || line < 192);
 			source.y = line;
 			// TODO: Can we safely use SDL_LowerBlit?
@@ -789,8 +786,9 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawDisplay(
 		// Display will be wrong, but this is not really critical.
 		return;
 	}
-	for (int y = minY; y < maxY; y += 2) {
-		drawSprites(y, leftBorder, minX, maxX);
+	int leftBorder = translateX(displayLeftTicks);
+	for (int y = displayY; y < displayLimitY; y += 2) {
+		drawSprites(y, leftBorder, displayX, displayX + displayWidth);
 	}
 	// Unlock surface.
 	if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
