@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+<!-- $Id$ -->
+<!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
+<msxconfig>
+
+  <config id="MotherBoard">
+    <parameter name="0" class="subslotted">false</parameter>
+    <parameter name="1" class="subslotted">false</parameter>
+    <parameter name="2" class="subslotted">false</parameter>
+    <parameter name="3" class="subslotted">true</parameter>
+  </config>
+
+  <device id="MapperIO">
+    <type>MapperIO</type>
+    <parameter name="type">Philips</parameter>
+  </device>
+
+  <device id="Main RAM">
+    <type>MemoryMapper</type>
+    <parameter name="slow_drain_on_reset">false</parameter>
+    <parameter name="size">512</parameter>
+    <slotted>
+      <ps>3</ps>
+      <ss>2</ss>
+      <page>0</page>
+    </slotted>
+    <slotted>
+      <ps>3</ps>
+      <ss>2</ss>
+      <page>1</page>
+    </slotted>
+    <slotted>
+      <ps>3</ps>
+      <ss>2</ss>
+      <page>2</page>
+    </slotted>
+    <slotted>
+      <ps>3</ps>
+      <ss>2</ss>
+      <page>3</page>
+    </slotted>
+    <parameter name="slow_drain_on_reset">false</parameter>
+  </device>
+
+  <device id="biosrom">
+    <type>Rom</type>
+    <slotted>
+      <ps>0</ps>
+      <ss>0</ss>
+      <page>0</page>
+    </slotted>
+    <parameter name="filename">../Contrib/cbios/MSXB.BIN</parameter>
+  </device>
+
+  <device id="biosrom2">
+    <type>Rom</type>
+    <slotted>
+      <ps>0</ps>
+      <ss>0</ss>
+      <page>1</page>
+    </slotted>
+    <parameter name="filename">../Contrib/cbios/MSXB_SH.BIN</parameter>
+  </device>
+
+  <device id="subrom">
+    <type>Rom</type>
+    <slotted>
+      <ps>3</ps>
+      <ss>0</ss>
+      <page>0</page>
+    </slotted>
+    <parameter name="filename">../Contrib/cbios/MSXB_SUB.BIN</parameter>
+  </device>
+
+  <device id="ppi">
+    <type>PPI</type>
+    <parameter name="volume">16000</parameter>
+    <parameter name="key_ghosting">true</parameter>
+  </device>
+
+  <device id="VDP">
+    <type>VDP</type>
+    <parameter name="version">V9938</parameter>
+    <parameter name="vram">128</parameter>
+    <parameter name="limit_sprites">true</parameter>
+  </device>
+
+  <config id="renderer">
+    <type>SDLHi</type>
+    <parameter name="full_screen">false</parameter>
+  </config>
+
+  <device id="psg">
+    <type>PSG</type>
+    <parameter name="volume">21000</parameter>
+  </device>
+
+  <device id="Real time clock">
+    <type>RTC</type>
+    <parameter name="mode">EmuTime</parameter>
+    <parameter name="load">true</parameter>
+    <parameter name="save">true</parameter>
+    <parameter name="filename">RTC.SAVE</parameter>
+  </device>
+
+  <config id="RealTime">
+    <parameter name="sync_interval">50</parameter>
+    <parameter name="max_catch_up_time">2000</parameter>
+    <parameter name="max_catch_up_factor">105</parameter>
+  </config>
+
+  <device id="cpu">
+    <type>CPU</type>
+  </device>
+
+  <device id="Printer Port">
+    <type>PrinterPort</type>
+  </device>
+
+  <config id="Mixer">
+    <parameter name="frequency">22050</parameter>
+    <parameter name="samples">512</parameter>
+  </config>
+
+  <config id="Console">
+    <parameter name="font">ConsoleFont.png</parameter>
+    <parameter name="background">ConsoleBackground.png</parameter>
+  </config>
+
+</msxconfig>
+

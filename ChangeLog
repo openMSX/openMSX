@@ -6,6 +6,9 @@ $Id$
 
 2002-09-28 Maarten ter Huurne <mth@stack.nl>
 	* Updated C-BIOS to version 0.12.
+	* I forgot that the cbios.xml used TMS99x8A.
+	  With a V9938, C-BIOS can run many MSX2 ROMs as well.
+	  I created two separate config files: cbios-msx1.xml and cbios-msx2.xml.
 
 2002-09-25 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* GLFont uses 16x16 character texture instead of 256x1
