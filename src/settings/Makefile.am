@@ -20,7 +20,12 @@ endif
 noinst_LTLIBRARIES = libSettings.la
 libSettings_la_SOURCES = \
 	SettingNode.hh SettingNode.cc \
-	Settings.hh Settings.cc \
+	BooleanSetting.cc BooleanSetting.hh \
+	EnumSetting.cc EnumSetting.hh \
+	FilenameSetting.cc FilenameSetting.hh \
+	FloatSetting.cc FloatSetting.hh \
+	IntegerSetting.cc IntegerSetting.hh \
+	StringSetting.cc StringSetting.hh \
 	SettingsManager.hh SettingsManager.cc \
 	SettingListener.hh
 
