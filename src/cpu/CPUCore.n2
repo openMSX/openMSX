@@ -2291,8 +2291,8 @@ inline void _CPU_::BLOCK_IN(bool increase, bool repeat) {
 	if (increase) R.HL.w++; else R.HL.w--; 
 	R.AF.B.l = ZSTable[R.BC.B.h];
 	if (val & S_FLAG) R.AF.B.l |= N_FLAG;
-	if ((((R.BC.B.l - 1) & 0xFF) + val) & 0x100)
-		R.AF.B.l |= H_FLAG | C_FLAG;
+	int k = val + ((R.BC.B.l + (increase ? 1 : -1)) & 0xFF);
+	if (k & 0x100) R.AF.B.l |= H_FLAG | C_FLAG;
 	if ((irep_tmp1[R.BC.B.l & 3][val & 3] ^
 	    breg_tmp2[R.BC.B.h]                 ^
 	    (R.BC.B.l >> 2)                     ^
@@ -2323,8 +2323,8 @@ inline void _CPU_::BLOCK_OUT(bool increase, bool repeat) {
 	WRITE_PORT(R.BC.w, val);
 	R.AF.B.l = ZSXYTable[R.BC.B.h];
 	if (val & S_FLAG) R.AF.B.l |= N_FLAG;
-	if ((((R.BC.B.l - 1) & 0xFF) + val) & 0x100)
-		R.AF.B.l |= H_FLAG | C_FLAG;
+	int k = val + R.HL.B.l;
+	if (k & 0x100) R.AF.B.l |= H_FLAG | C_FLAG;
 	if ((irep_tmp1[R.BC.B.l & 3][val & 3] ^
 	    breg_tmp2[R.BC.B.h]                 ^
 	    (R.BC.B.l >> 2)                     ^

@@ -3,6 +3,8 @@ $Id$
 2004-09-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Blur scaler speed-up:
 	   use ext-mmx instructions "pavgb", "pshufw", "pmulhuw"
+	* Fixed bug in Z80 OTIR like instructions (bug found by mth):
+	   fixes equalizer in FDD1
 
 2004-09-05 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Converted more extensions to new config format
