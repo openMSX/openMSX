@@ -159,11 +159,14 @@ void VDP::resetInit(const EmuTime &time)
 	irqVertical.reset();
 	irqHorizontal.reset();
 
+	// Initially the table regs are zero, so every mask bit that is
+	// controlled by a the table reg should be zero.
+	// See Register Functions 1.2 in the V9938 data book (page 5).
 	vram->nameTable.setMask(~(-1 << 10), 17);
 	vram->colourTable.setMask(~(-1 << 6), 17);
 	vram->patternTable.setMask(~(-1 << 11), 17);
-	spriteAttributeBase = 0;
-	spritePatternBase = 0;
+	vram->spriteAttribTable.setMask(~(-1 << 7), 17);
+	vram->spritePatternTable.setMask(~(-1 << 11), 17);
 	// TODO: It is not clear to me yet how bitmapWindow should be used.
 	//       Currently it always spans 128K of VRAM.
 	vram->bitmapWindow.setMask(~(-1 << 17), 17);
@@ -692,21 +695,25 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		break;
 	}
 	case 5: {
-		int addr = ((controlRegs[11] << 15) | (val << 7)) & vramMask;
-		spriteChecker->updateSpriteAttributeBase(addr, time);
-		spriteAttributeBase = addr;
+		int base = ((controlRegs[11] << 15) | (val << 7)
+			| ~(-1 << 7)) & vramMask;
+		spriteChecker->updateSpriteAttributeBase(base, time);
+		// TODO: Actual number of index bits is lower than 17.
+		vram->spriteAttribTable.setMask(base, 17);
 		break;
 	}
 	case 11: {
-		int addr = ((val << 15) | (controlRegs[5] << 7)) & vramMask;
-		spriteChecker->updateSpriteAttributeBase(addr, time);
-		spriteAttributeBase = addr;
+		int base = ((val << 15) | (controlRegs[5] << 7)
+			| ~(-1 << 7)) & vramMask;
+		spriteChecker->updateSpriteAttributeBase(base, time);
+		// TODO: Actual number of index bits is lower than 17.
+		vram->spriteAttribTable.setMask(base, 17);
 		break;
 	}
 	case 6: {
-		int addr = (val << 11) & vramMask;
-		spriteChecker->updateSpritePatternBase(addr, time);
-		spritePatternBase = addr;
+		int base = ((val << 11) | ~(-1 << 11)) & vramMask;
+		spriteChecker->updateSpritePatternBase(base, time);
+		vram->spritePatternTable.setMask(base, 11);
 		break;
 	}
 	case 7:

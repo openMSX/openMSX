@@ -178,25 +178,12 @@ public:
 	}
 
 	/** Reads a byte from the VRAM in its current state.
-	  * Non-planar addressing is used no matter the display mode.
-	  * This can speed up VRAM access when the caller knows if the current
-	  * display mode is non-planar or when the caller has already performed
-	  * the planar address remapping.
-	  */
-	inline byte readNP(int address) {
-		assert(0 <= address && address < size);
-		return data[address];
-	}
-
-	/** Reads a byte from the VRAM in its current state.
 	  * Planar address remapping is performed in planar display modes.
 	  */
 	inline byte read(int address) {
-		return readNP(
-			  planar
-			? ((address << 16) | (address >> 1)) & 0x1FFFF
-			: address
-			);
+		if (planar) address = ((address << 16) | (address >> 1)) & 0x1FFFF;
+		assert(0 <= address && address < size);
+		return data[address];
 	}
 
 	/** Read a byte from VRAM though the CPU interface.
@@ -212,19 +199,6 @@ public:
 			cmdEngine->sync(time);
 		}
 		return read(address);
-	}
-
-	/** Reads an area of VRAM.
-	  * Note: planar addressing is not applied.
-	  * @param start Start address (inclusive) of the area to read.
-	  * @param end End address (exclusive) of the area to read.
-	  * @return A pointer to the specified area.
-	  */
-	inline const byte *readArea(int start, int end) {
-		assert(0 <= start && start < size);
-		assert(0 <= end && end <= size);
-		assert(start <= end);
-		return data + start;
 	}
 
 	/** Used by the VDP to signal display mode changes.
@@ -304,6 +278,8 @@ public:
 
 		/** Gets the mask for this window.
 		  * Should only be called if the window is enabled.
+		  * TODO: Only used by dirty checking. Maybe a new dirty checking
+		  *       approach can obsolete this method?
 		  */
 		inline int getMask() {
 			assert(isEnabled());

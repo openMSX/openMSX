@@ -46,11 +46,12 @@ inline SpriteChecker::SpritePattern SpriteChecker::calculatePattern(
 	int patternNr, int y)
 {
 	if (vdp->getSpriteMag()) y /= 2;
+	int index = (-1 << 11) | patternNr * 8 + y;
 	SpritePattern pattern = vram->read(
-		vdp->getSpritePatternBase() + patternNr * 8 + y) << 24;
+		vram->spritePatternTable.getMask() & index) << 24;
 	if (vdp->getSpriteSize() == 16) {
 		pattern |= vram->read(
-			vdp->getSpritePatternBase() + patternNr * 8 + y + 16) << 16;
+			vram->spritePatternTable.getMask() & (index + 16)) << 16;
 	}
 	return (vdp->getSpriteMag() ? doublePattern(pattern) : pattern);
 }
@@ -59,11 +60,10 @@ inline SpriteChecker::SpritePattern SpriteChecker::calculatePatternNP(
 	int patternNr, int y)
 {
 	if (vdp->getSpriteMag()) y /= 2;
-	SpritePattern pattern = vram->readNP(
-		vdp->getSpritePatternBase() + patternNr * 8 + y) << 24;
+	int index = (-1 << 11) | patternNr * 8 + y;
+	SpritePattern pattern = vram->spritePatternTable.readNP(index) << 24;
 	if (vdp->getSpriteSize() == 16) {
-		pattern |= vram->readNP(
-			vdp->getSpritePatternBase() + patternNr * 8 + y + 16) << 16;
+		pattern |= vram->spritePatternTable.readNP(index + 16) << 16;
 	}
 	return (vdp->getSpriteMag() ? doublePattern(pattern) : pattern);
 }
@@ -82,9 +82,7 @@ inline int SpriteChecker::checkSprites1(
 	int sprite, visibleIndex = 0;
 	int size = vdp->getSpriteSize();
 	int magSize = size * (vdp->getSpriteMag() + 1);
-	int attributeBase = vdp->getSpriteAttributeBase();
-	const byte *attributePtr = vram->readArea(
-		attributeBase, attributeBase + 4 * 32);
+	const byte *attributePtr = vram->spriteAttribTable.readArea(-1 << 7);
 	byte patternIndexMask = size == 16 ? 0xFC : 0xFF;
 	for (sprite = 0; sprite < 32; sprite++, attributePtr += 4) {
 		int y = *attributePtr;
@@ -179,7 +177,7 @@ inline int SpriteChecker::checkSprites2(
 	int size = vdp->getSpriteSize();
 	int magSize = size * (vdp->getSpriteMag() + 1);
 	// TODO: Should masks be applied while processing the tables?
-	int colourAddr = vdp->getSpriteAttributeBase() & 0x1FC00;
+	int colourAddr = vram->spriteAttribTable.getMask() & 0x1FC00;
 	int attributeAddr = colourAddr + 512;
 	byte patternIndexMask = size == 16 ? 0xFC : 0xFF;
 	// TODO: Verify CC implementation.

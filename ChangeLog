@@ -1,5 +1,11 @@
 $Id$
 
+2002-07-22 Maarten ter Huurne <mth@stack.nl>
+	* The Great VRAM Rewrite, part 2:
+	  SpriteChecker does most of its VRAM reading through VDPVRAM::Window.
+	  Updated doc/vram-addressing.txt with details of sprite indexing.
+	  Proper support for planar modes is still missing.
+
 2002-07-21 Maarten ter Huurne <mth@stack.nl>
 	* The Great VRAM Rewrite, part 1:
 	  Renderers do all their VRAM reading through VDPVRAM::Window now.

@@ -214,22 +214,6 @@ public:
 		return isDisplayArea && (controlRegs[1] & 0x40);
 	}
 
-	/** Get sprite attribute table base.
-	  * TODO: Why is this not a mask?
-	  * @return Current sprite attribute table base.
-	  */
-	inline int getSpriteAttributeBase() {
-		return spriteAttributeBase;
-	}
-
-	/** Get sprite pattern table base.
-	  * TODO: Why is this not a mask?
-	  * @return Current sprite pattern table base.
-	  */
-	inline int getSpritePatternBase() {
-		return spritePatternBase;
-	}
-
 	/** Gets the current vertical scroll (line displayed at Y=0).
 	  * @return Vertical scroll register value.
 	  */
@@ -613,14 +597,6 @@ private:
 	  * Equal to VRAM size minus one because VRAM size is a power of two.
 	  */
 	int vramMask;
-
-	/** VRAM address where the sprite attribute table starts.
-	  */
-	int spriteAttributeBase;
-
-	/** VRAM address where the sprite pattern table starts.
-	  */
-	int spritePatternBase;
 
 	/** First byte written through port #99, or -1 for none.
 	  */
