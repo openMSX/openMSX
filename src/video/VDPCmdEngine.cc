@@ -475,7 +475,7 @@ void VDPCmdEngine::VDPCmd::commandDone()
 		if (ANX == 0) { \
 			engine->DY += TY; --(engine->NY); --NY; \
 			if (NY == 0) { \
-				finished = true; \
+				commandDone(); \
 				break; \
 			} else { \
 				ADX = DX; \
@@ -490,7 +490,7 @@ void VDPCmdEngine::VDPCmd::commandDone()
 		if (ANX == 0) { \
 			engine->SY += TY; engine->DY += TY; --(engine->NY); --NY; \
 			if (NY == 0) { \
-				finished = true; \
+				commandDone(); \
 				break; \
 			} else { \
 				ASX = SX; \
@@ -581,7 +581,6 @@ void VDPCmdEngine::SrchCmd::execute(const EmuTime &time)
 	opsCount += currentTime.getTicksTill(time);
 	currentTime = time;
 	int delta = getVdpTimingValue(SRCH_TIMING);
-	bool finished = false;
 
 #define pre_srch \
 		pre_loop \
@@ -589,12 +588,14 @@ void VDPCmdEngine::SrchCmd::execute(const EmuTime &time)
 #define post_srch(MX) \
 		== CL) ^ ANX) { \
 			engine->status |= 0x10; /* Border detected */ \
-			finished = true; \
+			commandDone(); \
+			engine->borderX = 0xFE00 | SX; \
 			break; \
 		} \
 		if ((SX += TX) & MX) { \
 			engine->status &= 0xEF; /* Border not detected */ \
-			finished = true; \
+			commandDone(); \
+			engine->borderX = 0xFE00 | SX; \
 			break; \
 		} \
 	}
@@ -608,13 +609,6 @@ void VDPCmdEngine::SrchCmd::execute(const EmuTime &time)
 		break;
 	case 3: pre_srch point8(SX, engine->SY) post_srch(256)
 		break;
-	}
-
-	if (finished) {
-		// Command execution done.
-		commandDone();
-		// Update SX in VDP registers.
-		engine->borderX = 0xFE00 | SX;
 	}
 }
 
@@ -643,7 +637,6 @@ void VDPCmdEngine::LineCmd::execute(const EmuTime &time)
 	opsCount += currentTime.getTicksTill(time);
 	currentTime = time;
 	int delta = getVdpTimingValue(LINE_TIMING);
-	bool finished = false;
 
 #define post_linexmaj(MX) \
 		DX += TX; \
@@ -654,7 +647,7 @@ void VDPCmdEngine::LineCmd::execute(const EmuTime &time)
 		ASX -= NY; \
 		ASX &= 1023; /* Mask to 10 bits range */ \
 		if (ADX++ == NX || (DX & MX)) { \
-			finished = true; \
+			commandDone(); \
 			break; \
 		} \
 	}
@@ -667,7 +660,7 @@ void VDPCmdEngine::LineCmd::execute(const EmuTime &time)
 		ASX -= NY; \
 		ASX &= 1023; /* Mask to 10 bits range */ \
 		if (ADX++ == NX || (DX & MX)) { \
-			finished = true; \
+			commandDone(); \
 			break; \
 		} \
 	}
@@ -696,11 +689,6 @@ void VDPCmdEngine::LineCmd::execute(const EmuTime &time)
 		case 3: pre_loop pset8(DX, engine->DY, CL, LO); post_lineymaj(256)
 			break;
 		}
-	}
-
-	if (finished) {
-		// Command execution done.
-		commandDone();
 	}
 }
 
@@ -732,7 +720,6 @@ void VDPCmdEngine::LmmvCmd::execute(const EmuTime &time)
 	opsCount += currentTime.getTicksTill(time);
 	currentTime = time;
 	int delta = getVdpTimingValue(LMMV_TIMING);
-	bool finished = false;
 
 	switch (engine->scrMode) {
 	case 0: pre_loop
@@ -751,11 +738,6 @@ void VDPCmdEngine::LmmvCmd::execute(const EmuTime &time)
 		pset8(ADX, engine->DY, CL, LO);
 		post__x_y(256)
 		break;
-	}
-
-	if (finished) {
-		// Command execution done.
-		commandDone();
 	}
 }
 
@@ -788,7 +770,6 @@ void VDPCmdEngine::LmmmCmd::execute(const EmuTime &time)
 	opsCount += currentTime.getTicksTill(time);
 	currentTime = time;
 	int delta = getVdpTimingValue(LMMM_TIMING);
-	bool finished = false;
 
 	switch (engine->scrMode) {
 	case 0: pre_loop
@@ -807,11 +788,6 @@ void VDPCmdEngine::LmmmCmd::execute(const EmuTime &time)
 		pset8(ADX, engine->DY, point8(ASX, engine->SY), LO);
 		post_xxyy(256)
 		break;
-	}
-
-	if (finished) {
-		// Command execution done.
-		commandDone();
 	}
 }
 
@@ -848,7 +824,6 @@ void VDPCmdEngine::LmcmCmd::execute(const EmuTime &time)
 		if (ANX == 0) {
 			engine->SY += TY; --(engine->NY); --NY;
 			if (NY == 0) {
-				// Command execution done.
 				commandDone();
 			} else {
 				ASX = SX;
@@ -896,7 +871,6 @@ void VDPCmdEngine::LmmcCmd::execute(const EmuTime &time)
 		if (ANX == 0) {
 			engine->DY += TY; --(engine->NY); --NY;
 			if (NY == 0) {
-				// Command execution done.
 				commandDone();
 			} else {
 				ADX = DX;
@@ -939,7 +913,6 @@ void VDPCmdEngine::HmmvCmd::execute(const EmuTime &time)
 	opsCount += currentTime.getTicksTill(time);
 	currentTime = time;
 	int delta = getVdpTimingValue(HMMV_TIMING);
-	bool finished = false;
 
 	switch (engine->scrMode) {
 	case 0:
@@ -962,11 +935,6 @@ void VDPCmdEngine::HmmvCmd::execute(const EmuTime &time)
 		vram->cmdWrite(VDP_VRMP8(ADX, engine->DY), CL, currentTime);
 		post__x_y(256)
 		break;
-	}
-
-	if (finished) {
-		// Command execution done.
-		commandDone();
 	}
 }
 
@@ -1002,7 +970,6 @@ void VDPCmdEngine::HmmmCmd::execute(const EmuTime &time)
 	opsCount += currentTime.getTicksTill(time);
 	currentTime = time;
 	int delta = getVdpTimingValue(HMMM_TIMING);
-	bool finished = false;
 
 	switch (engine->scrMode) {
 	case 0:
@@ -1038,11 +1005,6 @@ void VDPCmdEngine::HmmmCmd::execute(const EmuTime &time)
 		post_xxyy(256)
 		break;
 	}
-
-	if (finished) {
-		// Command execution done.
-		commandDone();
-	}
 }
 
 
@@ -1076,7 +1038,6 @@ void VDPCmdEngine::YmmmCmd::execute(const EmuTime &time)
 	opsCount += currentTime.getTicksTill(time);
 	currentTime = time;
 	int delta = getVdpTimingValue(YMMM_TIMING);
-	bool finished = false;
 
 	switch (engine->scrMode) {
 	case 0:
@@ -1111,11 +1072,6 @@ void VDPCmdEngine::YmmmCmd::execute(const EmuTime &time)
 			currentTime);
 		post_xxyy(256)
 		break;
-	}
-
-	if (finished) {
-		// Command execution done.
-		commandDone();
 	}
 }
 
@@ -1157,7 +1113,6 @@ void VDPCmdEngine::HmmcCmd::execute(const EmuTime &time)
 		if (ANX == 0) {
 			engine->DY += TY; --(engine->NY); --NY;
 			if (NY == 0) {
-				// Command execution done.
 				commandDone();
 			} else {
 				ADX = DX;
