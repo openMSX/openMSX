@@ -1,10 +1,5 @@
 // $Id$
 
-/** V9990 VRAM
-  *
-  * Video RAM for the V9990
-  */
-
 #ifndef __V9990VRAM_HH__
 #define __V9990VRAM_HH__
 
@@ -17,10 +12,12 @@ namespace openmsx {
 class EmuTime;
 class V9990;
 
+/** Video RAM for the V9990.
+  */
 class V9990VRAM : private Debuggable
 {
 public:
-	/** Construct V9990 VRAM
+	/** Construct V9990 VRAM.
 	  * @param vdp The V9990 vdp this VRAM belongs to
 	  * @param time  Moment in time to create the VRAM
 	  */ 
@@ -30,7 +27,7 @@ public:
 	  */
 	virtual ~V9990VRAM();
 
-	/** Update VRAM state to specified moment in time
+	/** Update VRAM state to specified moment in time.
 	  * @param time Moment in emulated time to synchronise VRAM to
 	  */
 	inline void sync(const EmuTime& time) {
@@ -40,7 +37,7 @@ public:
 	/*inline*/ byte readVRAM(unsigned address);
 	/*inline*/ void writeVRAM(unsigned address, byte val);
 
-	/** Obtain a pointer to the data
+	/** Obtain a pointer to the data.
 	  */
 	inline byte* getData() {
 		return data;
@@ -53,7 +50,7 @@ private:
 	virtual byte read(unsigned address);
 	virtual void write(unsigned address, byte value);
 
-	/** V9990 VDP this VRAM belongs to
+	/** V9990 VDP this VRAM belongs to.
 	  */
 	V9990* vdp;
 	
@@ -61,7 +58,7 @@ private:
 	  */
 	byte* data;
 
-	/** Display mode
+	/** Display mode.
 	  */
 	V9990DisplayMode displayMode;
 

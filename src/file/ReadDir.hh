@@ -1,11 +1,5 @@
 // $Id$
 
-/**
- * Simple wrapper around openmdir() / readdir() / closedir() functions.
- * Mainly usefull to automatically call closedir() when object goes out
- * of scope.
- */
-
 #ifndef __READDIR_HH__
 #define __READDIR_HH__
 
@@ -15,6 +9,11 @@
 
 namespace openmsx {
 
+/**
+ * Simple wrapper around openmdir() / readdir() / closedir() functions.
+ * Mainly usefull to automatically call closedir() when object goes out
+ * of scope.
+ */
 class ReadDir
 {
 public:
