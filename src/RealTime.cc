@@ -32,6 +32,7 @@ RealTime::RealTime()
 	  powerSetting(scheduler.getPowerSetting())
 {
 	speedSetting.addListener(this);
+	throttleSetting.addListener(this);
 	pauseSetting.addListener(this);
 	powerSetting.addListener(this);
 	
@@ -49,6 +50,7 @@ RealTime::~RealTime()
 	scheduler.removeSyncPoint(this);
 	powerSetting.removeListener(this);
 	pauseSetting.removeListener(this);
+	throttleSetting.removeListener(this);
 	speedSetting.removeListener(this);
 }
 
@@ -93,7 +95,6 @@ void RealTime::internalSync(const EmuTime& time, bool allowSleep)
 {
 	if (throttleSetting.getValue()) {
 		unsigned realDuration = (unsigned)(getRealDuration(emuTime, time) * 1000000);
-		emuTime = time;
 		idealRealTime += realDuration;
 		unsigned currentRealTime = getRealTime();
 		int sleep = idealRealTime - currentRealTime;
@@ -104,6 +105,7 @@ void RealTime::internalSync(const EmuTime& time, bool allowSleep)
 			idealRealTime = currentRealTime - MAX_LAG / 2;
 		}
 	}
+	emuTime = time;
 	
 	// Schedule again in future
 	EmuTimeFreq<1000> time2(time);
@@ -131,80 +133,4 @@ void RealTime::resync()
 	idealRealTime = getRealTime();
 }
 
-
 } // namespace openmsx
-
-
-
-
-
-/*
-
-
-void RealTime::doSync(const EmuTime &curEmu)
-{
-	unsigned int curReal = getRealTime();
-
-	// Short period values, inaccurate but we need them to estimate our current speed
-	int realPassed = curReal - realRef;
-	int speed = 25600 / speedSetting.getValue();
-	int emuPassed = (int)((speed * emuRef.getTicksTill(curEmu)) >> 8);
-
-	PRT_DEBUG("RT: Short emu: " << emuPassed << "us  Short real: " << realPassed << "us");
-	assert(emuPassed >= 0);
-	assert(realPassed >= 0);
-	// only sync if we got meaningfull values
-	if ((emuPassed > 0) && (realPassed > 0)) {
-		// Long period values, these are used for global speed corrections
-		int totalReal = curReal - realOrigin;
-		uint64 totalEmu = (speed * emuOrigin.getTicksTill(curEmu)) >> 8;
-		PRT_DEBUG("RT: Total emu: " << totalEmu  << "us  Total real: " << totalReal  << "us");
-
-		int sleep = 0;
-		catchUpTime = totalReal - totalEmu;
-		PRT_DEBUG("RT: catchUpTime: " << catchUpTime << "us");
-		if (catchUpTime < 0) {
-			// we are too fast
-			sleep = -catchUpTime;
-		} else {
-			if (catchUpTime > maxCatchUpTime) {
-				// we are way too slow
-				int lost = catchUpTime - maxCatchUpTime;
-				realOrigin += lost;
-				PRT_DEBUG("RT: Emulation too slow, lost " << lost << "us");
-			}
-			if (maxCatchUpFactor * realPassed < 100 * emuPassed) {
-				// we are slightly too slow, avoid catching up too fast
-				sleep = (100 * emuPassed) / maxCatchUpFactor - realPassed;
-				//PRT_DEBUG("RT: max catchup: " << sleep << "us");
-			}
-		}
-		PRT_DEBUG("RT: want to sleep " << sleep << "us");
-		sleep += (int)sleepAdjust;
-		int slept, delta;
-		if (sleep > 0) {
-			PRT_DEBUG("RT: Sleeping for " << sleep << "us");
-			doSleep(sleep);
-			slept = getRealTime() - curReal;
-			PRT_DEBUG("RT: Realy slept for " << slept << "us");
-			delta = sleep - slept;
-		} else {
-			slept = 0;
-			delta = 0;
-		}
-		sleepAdjust = sleepAdjust * (1 - ALPHA) + delta * ALPHA;
-		PRT_DEBUG("RT: SleepAdjust: " << sleepAdjust);
-
-		// estimate current speed, values are inaccurate so take average
-		float curEmuFac = realPassed / (float)emuPassed;
-		emuFactor = emuFactor * (1 - ALPHA) + curEmuFac * ALPHA;
-		PRT_DEBUG("RT: Estimated max     speed (real/emu): " << emuFactor);
-
-		// adjust short period references
-		realRef = getRealTime();
-		emuRef = curEmu;
-	}
-	return emuFactor;
-}
-
-*/
