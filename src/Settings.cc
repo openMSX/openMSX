@@ -236,9 +236,9 @@ BooleanSetting::BooleanSetting(
 {
 }
 
-const map<const string, bool> &BooleanSetting::getMap()
+const map<string, bool> &BooleanSetting::getMap()
 {
-	static map<const string, bool> boolMap;
+	static map<string, bool> boolMap;
 	static bool alreadyInit = false;
 
 	if (!alreadyInit) {

@@ -142,7 +142,7 @@ void OSDConsoleRenderer::initConsoleSize()
 	static bool placementInitDone = false;
 
 	// define all possible positions
-	map<const string, Placement> placeMap;
+	map<string, Placement> placeMap;
 	placeMap["topleft"]     = CP_TOPLEFT;
 	placeMap["top"]         = CP_TOP;
 	placeMap["topright"]    = CP_TOPRIGHT;

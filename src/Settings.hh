@@ -51,9 +51,9 @@ public:
 	  */
 	const string &getDescription() const { return description; }
 
-	/** Complete a partly typed value.
+	/** Complete a partly typed setting name or value.
 	  */
-	virtual void tabCompletion(vector<string> &tokens) const {}
+	virtual void tabCompletion(vector<string> &tokens) const = 0;
 
 	// TODO: Does it make sense to listen to inner (group) nodes?
 	//       If so, move listener mechanism to this class.
@@ -93,6 +93,13 @@ public:
 	/** Get a string describing the value type to the user.
 	  */
 	const string &getTypeString() const { return type; }
+
+	/** Complete a partly typed value.
+	  * Default implementation does not complete anything,
+	  * subclasses can override this to complete according to their
+	  * specific value type.
+	  */
+	virtual void tabCompletion(vector<string> &tokens) const { }
 
 	/** Subscribes a listener to changes of this setting.
 	  */
@@ -220,7 +227,7 @@ protected:
 class IntStringMap
 {
 public:
-	typedef const map<const string, int> BaseMap;
+	typedef const map<string, int> BaseMap;
 
 	IntStringMap(BaseMap *map);
 	~IntStringMap();
@@ -243,7 +250,7 @@ public:
 	set<string> *createStringSet() const;
 
 private:
-	typedef map<const string, int>::const_iterator MapIterator;
+	typedef map<string, int>::const_iterator MapIterator;
 	BaseMap *stringToInt;
 };
 
@@ -259,7 +266,7 @@ public:
 	EnumSetting(
 		const string &name, const string &description,
 		const ValueType &initialValue,
-		const map<const string, ValueType> &map
+		const map<string, ValueType> &map
 	) : Setting<ValueType>(name, description, initialValue)
 	  , intStringMap(convertMap(map))
 	{
@@ -287,11 +294,11 @@ protected:
 	IntStringMap intStringMap;
 
 private:
-	static map<const string, int> *convertMap(
-		const map<const string, ValueType> &map_
+	static map<string, int> *convertMap(
+		const map<string, ValueType> &map_
 	) {
-		map<const string, int> *ret = new map<const string, int>();
-		typename map<const string, ValueType>::const_iterator it;
+		map<string, int> *ret = new map<string, int>();
+		typename map<string, ValueType>::const_iterator it;
 		for (it = map_.begin(); it != map_.end(); ++it) {
 			(*ret)[it->first] = static_cast<int>(it->second);
 		}
@@ -309,7 +316,7 @@ public:
 		bool initialValue = false);
 
 private:
-	static const map<const string, bool> &getMap();
+	static const map<string, bool> &getMap();
 };
 
 
@@ -348,7 +355,7 @@ public:
 class SettingsManager
 {
 private:
-	map<const string, SettingNode *> settingsMap;
+	map<string, SettingNode *> settingsMap;
 
 public:
 
@@ -360,13 +367,17 @@ public:
 	}
 
 	/** Get a setting by specifying its name.
-	  * @return The SettingNode with the given name,
-	  *   or NULL if there is no such SettingNode.
+	  * @return The SettingLeafNode with the given name,
+	  *   or NULL if there is no such SettingLeafNode.
 	  */
-	SettingNode *getByName(const string &name) const {
+	SettingLeafNode *getByName(const string &name) const {
 		map<string, SettingNode *>::const_iterator it =
 			settingsMap.find(name);
-		return it == settingsMap.end() ? NULL : it->second;
+		// TODO: The cast is valid because currently all nodes are leaves.
+		//       In the future this will no longer be the case.
+		return it == settingsMap.end()
+			? NULL
+			: static_cast<SettingLeafNode *>(it->second);
 	}
 
 	void registerSetting(const string &name, SettingNode *setting) {

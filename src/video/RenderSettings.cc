@@ -8,7 +8,7 @@ RenderSettings::RenderSettings()
 {
 	Config *config = MSXConfig::instance()->getConfigById("renderer");
 
-	map<const string, Accuracy> accMap;
+	map<string, Accuracy> accMap;
 	accMap["screen"] = ACC_SCREEN;
 	accMap["line"]   = ACC_LINE;
 	accMap["pixel"]  = ACC_PIXEL;

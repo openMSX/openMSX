@@ -40,7 +40,7 @@ Renderer *RendererFactory::switchRenderer(VDP *vdp)
 
 RendererFactory::RendererSetting *RendererFactory::createRendererSetting()
 {
-	map<const string, RendererID> rendererMap;
+	map<string, RendererID> rendererMap;
 	rendererMap["SDLHi"] = SDLHI;
 	rendererMap["SDLLo"] = SDLLO;
 #ifdef __OPENGL_AVAILABLE__
