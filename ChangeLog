@@ -7,6 +7,18 @@ $Id$
 	  match what you would expect for your CPU.
 	* Added extended-MMX version of SimpleScaler (only 256-wide 32bpp).
 	  On my machine, it can scale 50% more pixels per second.
+	* Added extended-MMX version of Scaler::scaleBlank.
+	* Added extended-MMX version of SimpleScaler::scaleBlank.
+	* Got rid of named operants: they're not widely supported. GCC 3.0 can't
+	  handle them according to the docs. GCC 3.2 can handle them according
+	  to the docs, but crashes (on mingw32). ICC cannot handle them.
+	* Made pixel accuracy default.
+	  We usually have the most realistic option as default. In the past,
+	  pixel accuracy was too slow in many cases, especially when VRAM I/O
+	  was causing a lot of syncs. Those were eliminated a while ago for the
+	  most commonly used display modes.
+	  If you encounter a program running significantly slower in pixel
+	  accuracy than in line accuracy, please report it as a bug.
 
 2004-07-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Experimental:
