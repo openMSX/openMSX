@@ -1,5 +1,11 @@
 $Id$
 
+2003-09-13 Reikan <openMSX4Win32@ranpub.com>
+	* Introduced flavour-win32.mk.
+	  Do only relatively conservative optimizations.
+	* flavour-uow32.mk contains more aggressive optimizations now.
+	* platform-mingw32-x86.mk uses flavour-win32.mk as the default now.
+
 2003-09-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* filename stuff cleanups
 

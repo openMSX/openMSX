@@ -7,8 +7,7 @@
 CXXFLAGS+= \
 	-mcpu=pentium3 -O \
 	-fno-force-mem -fno-force-addr \
-	-fstrength-reduce -fexpensive-optimizations -fschedule-insns2 \
-	-fomit-frame-pointer
+	-fstrength-reduce -fexpensive-optimizations -fschedule-insns2
 
 # Strip executable?
 OPENMSX_STRIP:=true
