@@ -3,6 +3,7 @@ $Id$
 2003-05-21 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Double commands in the console commandhistory can no
 	  longer occur.
+	* Made 'remove doubles' and history size configurable  
 
 2003-05-20 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented run-time tuneable volume for sound devices

@@ -69,9 +69,11 @@ class Console : private EventListener
 		} consoleSetting;
 		friend class ConsoleSetting;
 		
-		static const unsigned int MAXHISTORY = 25;
+		unsigned int maxHistory;
 		std::list<ConsoleRenderer*> renderers;
 		CircularBuffer<std::string, 100> lines;
+// 		Are double commands allowed ?
+		bool removeDoubles;
 //		CircularBuffer<std::string, 25> history;
 		std::list<std::string> history;
 		std::list<std::string>::iterator commandScrollBack;

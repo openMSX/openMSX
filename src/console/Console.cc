@@ -37,6 +37,19 @@ Console::Console()
 	EventDistributor::instance()->registerEventListener(SDL_KEYDOWN, this);
 	EventDistributor::instance()->registerEventListener(SDL_KEYUP,   this);
 	putPrompt();
+	Config *config = MSXConfig::instance()->getConfigById("Console");
+	if (config->hasParameter("historysize")) {
+		maxHistory = config->getParameterAsInt("historysize");
+	}
+	else{
+		maxHistory = 100;
+	}
+	if (config->hasParameter("removedoubles")){
+		removeDoubles = config->getParameterAsBool("removedoubles");
+	}
+	else{
+		removeDoubles = false;
+	}
 }
 
 Console::~Console()
@@ -196,13 +209,15 @@ void Console::newLineConsole(const std::string &line)
 
 void Console::putCommandHistory(const std::string &command)
 {
-	std::list<std::string>::iterator it;
-	it=history.begin();
-	while ((it !=history.end()) && (*it != command)) it++;
-	if (it!=history.end()){
-		history.erase(it); // delete double element
+	if (removeDoubles){
+		std::list<std::string>::iterator it;
+		it=history.begin();
+		while ((it !=history.end()) && (*it != command)) it++; // empty loop
+		if (it!=history.end()){
+			history.erase(it); // delete double element
+		}
 	}
-	if (history.size()==MAXHISTORY){
+	if (history.size()==maxHistory){
 	history.pop_front();
 	}		
 	history.push_back(command);
