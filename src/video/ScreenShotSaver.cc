@@ -127,7 +127,6 @@ ScreenShotSaver::ScreenShotSaver(SDL_Surface* surface, const string& filename)
 		throw CommandException("Failed to write " + filename);
 	}
 	CliCommOutput::instance().printInfo("Screen saved to " + filename);
-	// TODO: report whole path to user
 }
 
 ScreenShotSaver::ScreenShotSaver(unsigned width, unsigned height,
