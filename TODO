@@ -2,4 +2,12 @@
 #
 # add things todo to this file, to avoid them being forgotten
 
+* backend issues: [MSXDevice <-> OS/SDL]
  - cassette support 
+
+* devices: [MSXDevice]
+
+* config:
+ - xmlconfig save support
+ - support for configuration for non-devices
+ - support for saving states of devices

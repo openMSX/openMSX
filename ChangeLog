@@ -1,5 +1,8 @@
 $Id$
 
+2001-10-19 Joost Yervante Damad <j.damad@qahwah.net>
+	* started TODO file to collect ideas/things todo
+
 2001-10-19 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* documented SoundDevice interface on David's request
 	* RP5C01 can now optionally sync with host-clock, but this 
