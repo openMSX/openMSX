@@ -89,7 +89,7 @@ void CommandLineParser::postRegisterFileTypes()
 		fileExtMap["wav"]="cassettesounds";
 		for (j=fileExtMap.begin();j!=fileExtMap.end();j++){	
 			i=fileClassMap.find((*j).second);
-			if (i!=fileTypeMap.end()){
+			if (i!=fileClassMap.end()){
 				fileTypeMap[(*j).first]=(*i).second;
 			}
 		}	
@@ -264,7 +264,7 @@ void CommandLineParser::HelpOption::parseOption(const std::string &option,
 	std::string tempString;	
 	for (itTempOptionMap=tempOptionMap.begin();itTempOptionMap != tempOptionMap.end();itTempOptionMap++){
 		tempString = formatSet(itTempOptionMap->second,15) + " " 
-		+ formatHelptext(itTempOptionMap->first->optionHelp() + "\r",50,20);
+		+ formatHelptext(itTempOptionMap->first->optionHelp() ,50,20);
 		printSet.insert (tempString);
 		delete itTempOptionMap->second;
 	}
@@ -291,7 +291,7 @@ void CommandLineParser::HelpOption::parseOption(const std::string &option,
 	}
 	for (itTempExtMap=tempExtMap.begin();itTempExtMap != tempExtMap.end();itTempExtMap++){
 		tempString = formatSet(itTempExtMap->second,15) + " " 
-		+ formatHelptext(itTempExtMap->first->fileTypeHelp() + "\r",50,20);
+		+ formatHelptext(itTempExtMap->first->fileTypeHelp(),50,20);
 		printSet.insert (tempString);
 		delete itTempExtMap->second; 
 	}

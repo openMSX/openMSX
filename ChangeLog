@@ -19,6 +19,8 @@ $Id$
 	* Console now resets the scrollback when any key other than 
 	  page up/down is used.
 	* Fixed the blinking cursor in the SDLConsole.
+	* Fixed Ctrl-A/E when numlock is active
+	* Fixed a few small bugs in the CommandLineParser.
 
 2003-05-17 Reikan <openMSX4Win32@ranpub.com>
 	* Changed to single thread model.
