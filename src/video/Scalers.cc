@@ -5,6 +5,10 @@
 #include "HQ2xScaler.hh"
 #include "openmsx.hh"
 #include <cassert>
+#include <cmath>
+
+using std::min;
+using std::max;
 
 
 namespace openmsx {
@@ -126,34 +130,41 @@ void SaI2xScaler<Pixel>::scaleLine256(
 
 	int width = 320; // TODO: Specify this in a clean way.
 	assert(dst->w == width * 2);
-	width -= 2;
 	// TODO: Scale border pixels as well.
-	for (int x = 1; x < width; x++) {
+	for (int x = 0; x < width; x++) {
 		// Map of the pixels:
 		//   I|E F|J
 		//   G|A B|K
 		//   H|C D|L
 		//   M|N O|P
 
-		Pixel colorI = srcLine0[x - 1];
+		int xl = max(x - 1, 0);
+		int xr = min(x + 1, width - 1);
+		int xrr = min(x + 2, width - 1);
+
+		// TODO: Possible performance improvements:
+		// - Play with order of fetching (effect on data cache).
+		// - Try not fetching at all (using srcLineN[x] in algorithm).
+		// - Try rotating the fetched colours (either in vars or in array).
+		Pixel colorI = srcLine0[xl];
 		Pixel colorE = srcLine0[x];
-		Pixel colorF = srcLine0[x + 1];
-		Pixel colorJ = srcLine0[x + 2];
+		Pixel colorF = srcLine0[xr];
+		Pixel colorJ = srcLine0[xrr];
 
-		Pixel colorG = srcLine1[x - 1];
+		Pixel colorG = srcLine1[xl];
 		Pixel colorA = srcLine1[x];
-		Pixel colorB = srcLine1[x + 1];
-		Pixel colorK = srcLine1[x + 2];
+		Pixel colorB = srcLine1[xr];
+		Pixel colorK = srcLine1[xrr];
 
-		Pixel colorH = srcLine2[x - 1];
+		Pixel colorH = srcLine2[xl];
 		Pixel colorC = srcLine2[x];
-		Pixel colorD = srcLine2[x + 1];
-		Pixel colorL = srcLine2[x + 2];
+		Pixel colorD = srcLine2[xr];
+		Pixel colorL = srcLine2[xrr];
 
-		Pixel colorM = srcLine3[x - 1];
+		Pixel colorM = srcLine3[xl];
 		Pixel colorN = srcLine3[x];
-		Pixel colorO = srcLine3[x + 1];
-		//Pixel colorP = srcLine3[x + 2];
+		Pixel colorO = srcLine3[xr];
+		//Pixel colorP = srcLine3[xrr];
 
 		Pixel product, product1, product2;
 
