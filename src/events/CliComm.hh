@@ -7,7 +7,7 @@
 	typedef void* HANDLE;
 	typedef unsigned int SOCKET; // dirty but it works
 #else
-	typedef int SOCKET
+	typedef int SOCKET;
 #endif
 
 #include "Thread.hh"
@@ -140,7 +140,7 @@ private:
 	private:
 		virtual void run();
 		Thread thread;
-		int sd;
+		SOCKET sd;
 	};
 
 	class ServerSocket : private Runnable {
