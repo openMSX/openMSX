@@ -3,13 +3,12 @@
 #ifndef __VDPVRAM_HH__
 #define __VDPVRAM_HH__
 
+#include <cassert>
 #include "VRAMObserver.hh"
 #include "openmsx.hh"
 #include "Renderer.hh"
 #include "VDP.hh"
 #include "VDPCmdEngine.hh"
-#include <cassert>
-#include "Command.hh"
 #include "DisplayMode.hh"
 #include "Debuggable.hh"
 
@@ -152,7 +151,7 @@ public:
 	  *       For many tables the number of index bits depends on the
 	  *       display mode anyway.
 	  */
-	inline void setMask(int baseMask, int indexMask, const EmuTime &time) {
+	inline void setMask(int baseMask, int indexMask, const EmuTime& time) {
 		int newBaseAddr = baseMask & indexMask;
 		int newCombiMask = ~baseMask | indexMask;
 		if (baseAddr == newBaseAddr && combiMask == newCombiMask
@@ -168,7 +167,7 @@ public:
 	/** Disable this window: no address will be considered inside.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	inline void disable(const EmuTime &time) {
+	inline void disable(const EmuTime& time) {
 		if (observer) {
 			observer->updateWindow(false, time);
 		}
@@ -190,7 +189,7 @@ public:
 	  * Because the method is inlined, an optimising compiler can
 	  * probably avoid performance loss on constant expressions.
 	  */
-	inline const byte *readArea(int index) {
+	inline const byte* readArea(int index) {
 		// Reads are only allowed if window is enabled.
 		assert(isEnabled());
 		int addr = baseMask & index;
@@ -211,7 +210,7 @@ public:
 	  * There can be only one observer per window at any given time.
 	  * @param observer The observer to register.
 	  */
-	inline void setObserver(VRAMObserver *observer) {
+	inline void setObserver(VRAMObserver* observer) {
 		this->observer = observer;
 	}
 
@@ -237,7 +236,7 @@ public:
 	  * @param address The address to test.
 	  * @param time The moment in emulated time the change occurs.
 	  */
-	inline void notify(int address, const EmuTime &time) {
+	inline void notify(int address, const EmuTime& time) {
 		if (observer && isInside(address)) {
 			observer->updateVRAM(address - baseAddr, time);
 		}
@@ -255,13 +254,13 @@ private:
 
 	/** Used by VDPVRAM to pass a pointer to the VRAM data.
 	  */
-	void setData(byte *data) {
+	void setData(byte* data) {
 		this->data = data;
 	}
 
 	/** Pointer to the entire VRAM data.
 	  */
-	byte *data;
+	byte* data;
 
 	/** Mask of this window.
 	  */
@@ -279,15 +278,15 @@ private:
 	  * It will be called when changes occur within the window.
 	  * If there is no observer, this variable contains NULL.
 	  */
-	VRAMObserver *observer;
-
+	VRAMObserver* observer;
 };
 
 /** Manages VRAM contents and synchronises the various users of the VRAM.
   * VDPVRAM does not apply planar remapping to addresses, this is the
   * responsibility of the caller.
   */
-class VDPVRAM : private Debuggable {
+class VDPVRAM : private Debuggable
+{
 public:
 
 	VRAMWindow cmdReadWindow;
@@ -300,14 +299,14 @@ public:
 	VRAMWindow spriteAttribTable;
 	VRAMWindow spritePatternTable;
 
-	VDPVRAM(VDP *vdp, int size, const EmuTime& time);
+	VDPVRAM(VDP* vdp, int size, const EmuTime& time);
 	virtual ~VDPVRAM();
 
 	/** Update VRAM state to specified moment in time.
 	  * @param time Moment in emulated time to update VRAM to.
 	  * TODO: Replace this method by VRAMWindow::sync().
 	  */
-	inline void sync(const EmuTime &time) {
+	inline void sync(const EmuTime& time) {
 		assert(vdp->isInsideFrame(time));
 		cmdEngine->sync(time);
 	}
@@ -318,7 +317,7 @@ public:
 	  *       Note: "cmdSync", because it checks against read windows, unlike
 	  *       the other sync which checks against the cmd write window.
 	  */
-	inline void cmdWrite(int address, byte value, const EmuTime &time) {
+	inline void cmdWrite(int address, byte value, const EmuTime& time) {
 		// Rewriting history is not allowed.
 		assert(time >= currentTime);
 
@@ -364,7 +363,7 @@ public:
 	  * @param value The value to write.
 	  * @param time The moment in emulated time this write occurs.
 	  */
-	inline void cpuWrite(int address, byte value, const EmuTime &time) {
+	inline void cpuWrite(int address, byte value, const EmuTime& time) {
 		assert(time >= currentTime);
 		assert(vdp->isInsideFrame(time));
 		if (cmdReadWindow.isInside(address)
@@ -379,7 +378,7 @@ public:
 	  * @param time The moment in emulated time this read occurs.
 	  * @return The VRAM contents at the specified address.
 	  */
-	inline byte cpuRead(int address, const EmuTime &time) {
+	inline byte cpuRead(int address, const EmuTime& time) {
 		// VRAM should never get ahead of CPU.
 		assert(time >= currentTime);
 
@@ -399,7 +398,7 @@ public:
 	  * @param mode The new display mode.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	void updateDisplayMode(DisplayMode mode, const EmuTime &time);
+	void updateDisplayMode(DisplayMode mode, const EmuTime& time);
 
 	/** Used by the VDP to signal display enabled changes.
 	  * Both the regular border start/end and forced blanking by clearing
@@ -407,25 +406,25 @@ public:
 	  * @param enabled The new display enabled state.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	void updateDisplayEnabled(bool enabled, const EmuTime &time);
+	void updateDisplayEnabled(bool enabled, const EmuTime& time);
 
 	/** Used by the VDP to signal sprites enabled changes.
 	  * @param enabled The new sprites enabled state.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	void updateSpritesEnabled(bool enabled, const EmuTime &time);
+	void updateSpritesEnabled(bool enabled, const EmuTime& time);
 
-	void setRenderer(Renderer *renderer, const EmuTime &time);
+	void setRenderer(Renderer* renderer, const EmuTime& time);
 
 	/** Necessary because of circular dependencies.
 	  */
-	inline void setSpriteChecker(SpriteChecker *spriteChecker) {
+	inline void setSpriteChecker(SpriteChecker* spriteChecker) {
 		this->spriteChecker = spriteChecker;
 	}
 
 	/** Necessary because of circular dependencies.
 	  */
-	inline void setCmdEngine(VDPCmdEngine *cmdEngine) {
+	inline void setCmdEngine(VDPCmdEngine* cmdEngine) {
 		this->cmdEngine = cmdEngine;
 	}
 
@@ -438,11 +437,11 @@ private:
 	 
 	/** VDP this VRAM belongs to.
 	  */
-	VDP *vdp;
+	VDP* vdp;
 
 	/** Pointer to VRAM data block.
 	  */
-	byte *data;
+	byte* data;
 
 	/** Size of VRAM in bytes.
 	  */
@@ -451,29 +450,16 @@ private:
 	// TODO: Renderer field can be removed, if updateDisplayMode
 	//       and updateDisplayEnabled are moved back to VDP.
 	//       Is that a good idea?
-	Renderer *renderer;
+	Renderer* renderer;
 
-	VDPCmdEngine *cmdEngine;
-	SpriteChecker *spriteChecker;
+	VDPCmdEngine* cmdEngine;
+	SpriteChecker* spriteChecker;
 
 	/** Current time: the moment up until when the VRAM is updated.
 	  * TODO: Is this just for debugging or is it functional?
 	  *       Maybe it should stay in either case, possibly between IFDEFs.
 	  */
 	EmuTimeFreq<VDP::TICKS_PER_SECOND> currentTime;
-
-	class DumpVRAMCmd : public SimpleCommand {
-	public:
-		DumpVRAMCmd(VDPVRAM *vram_);
-		virtual string execute(const vector<string> &tokens)
-			throw (CommandException);
-		virtual string help(const vector<string> &tokens) const
-			throw();
-	private:
-		VDPVRAM *vram;
-	} dumpVRAMCmd;
-	friend class DumpVRAMCmd;
-
 };
 
 } // namespace openmsx

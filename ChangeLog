@@ -1,5 +1,8 @@
 $Id$
 
+2004-02-25 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented "vramdump" command as a TCL script
+
 2004-02-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* TCL command speedups:
 	   - avoid "int -> string -> int" conversions on command results

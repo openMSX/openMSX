@@ -2,12 +2,7 @@
 
 #include "VDPVRAM.hh"
 #include "SpriteChecker.hh"
-#include "CommandController.hh"
 #include "Debugger.hh"
-
-#include <fstream>
-using std::ofstream;
-
 
 namespace openmsx {
 
@@ -24,7 +19,7 @@ VRAMWindow::VRAMWindow() {
 // class VDPVRAM:
 
 VDPVRAM::VDPVRAM(VDP *vdp, int size, const EmuTime& time)
-	: currentTime(time), dumpVRAMCmd(this)
+	: currentTime(time)
 {
 	this->vdp = vdp;
 	this->size = size;
@@ -52,14 +47,12 @@ VDPVRAM::VDPVRAM(VDP *vdp, int size, const EmuTime& time)
 	// TODO: Move this to cache registration.
 	bitmapCacheWindow.setMask(0x1FFFF, -1 << 17, EmuTime::zero);
 
-	CommandController::instance().registerCommand(&dumpVRAMCmd, "vramdump");
 	Debugger::instance().registerDebuggable("vram", *this);
 }
 
 VDPVRAM::~VDPVRAM()
 {
 	Debugger::instance().unregisterDebuggable("vram", *this);
-	CommandController::instance().unregisterCommand(&dumpVRAMCmd, "vramdump");
 
 	delete[] data;
 }
@@ -117,30 +110,6 @@ byte VDPVRAM::read(unsigned address)
 void VDPVRAM::write(unsigned address, byte value)
 {
 	data[address] = value;
-}
-
-
-// class DumpVRAMCmd
-
-VDPVRAM::DumpVRAMCmd::DumpVRAMCmd(VDPVRAM *vram_)
-	: vram(vram_)
-{
-}
-
-string VDPVRAM::DumpVRAMCmd::execute(const vector<string> &tokens)
-	throw (CommandException)
-{
-	ofstream outfile("vramdump", ofstream::binary);
-	outfile.write((char*)vram->data, vram->size);
-	if (outfile.bad()) {
-		throw CommandException("Error writing vramdump");
-	}
-	return "";
-}
-
-string VDPVRAM::DumpVRAMCmd::help(const vector<string> &tokens) const throw()
-{
-	return "Dump vram content to file \"vramdump\"\n";
 }
 
 } // namespace openmsx
