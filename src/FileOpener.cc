@@ -67,7 +67,10 @@ IFILETYPE* FileOpener::openFileRO(std::string filename)
 	filename=findFileName(filename);
 	PRT_DEBUG("Opening file " << filename << " read-only ...");
 	IFILETYPE *file = new IFILETYPE(filename.c_str());
-	if (file->fail()) throw FileOpenerException("Error opening file");
+	if (file->fail()) {
+		delete file;
+		throw FileOpenerException("Error opening file");
+	}
 	return file;
 }
 
@@ -80,7 +83,10 @@ IOFILETYPE* FileOpener::openFileMustRW(std::string filename)
 	filename=findFileName(filename);
 	PRT_DEBUG("Opening file " << filename << " writable ...");
 	IOFILETYPE *file = new IOFILETYPE(filename.c_str(),std::ios::in|std::ios::out);
-	if (file->fail()) throw FileOpenerException("Error opening file");
+	if (file->fail()) {
+		delete file;
+		throw FileOpenerException("Error opening file");
+	}
 	return file; 
 }
 
@@ -99,7 +105,10 @@ IOFILETYPE* FileOpener::openFilePreferRW(std::string filename)
 		delete file;
 		file = new IOFILETYPE(filename.c_str(),std::ios::in);
 	}
-	if (file->fail()) throw FileOpenerException("Error opening file");
+	if (file->fail()) {
+		delete file;
+		throw FileOpenerException("Error opening file");
+	}
 	return file; 
 }
 
@@ -110,7 +119,10 @@ IOFILETYPE* FileOpener::openFileAppend(std::string filename)
 	filename=findFileName(filename);
 	PRT_DEBUG("Opening file " << filename << " to append ...");
 	IOFILETYPE *file = new IOFILETYPE(filename.c_str(),std::ios::in|std::ios::out|std::ios::ate);
-	if (file->fail()) throw FileOpenerException("Error opening file");
+	if (file->fail()) {
+		delete file;
+		throw FileOpenerException("Error opening file");
+	}
 	return file; 
 }
 
@@ -119,6 +131,9 @@ IOFILETYPE* FileOpener::openFileTruncate(std::string filename)
 	filename=findFileName(filename);
 	PRT_DEBUG("Opening file " << filename << " truncated ...");
 	IOFILETYPE *file =  new IOFILETYPE(filename.c_str(),std::ios::in|std::ios::out|std::ios::trunc);
-	if (file->fail()) throw FileOpenerException("Error opening file");
+	if (file->fail()) {
+		delete file;
+		throw FileOpenerException("Error opening file");
+	}
 	return file; 
 }

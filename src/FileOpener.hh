@@ -28,13 +28,14 @@
 #define IOFILETYPE std::fstream
 #endif
 
-class FileOpener
-{
-	class FileOpenerException : public MSXException {
+
+class FileOpenerException : public MSXException {
 	public:
 		FileOpenerException(const std::string &desc) : MSXException(desc) {}
-	};
+};
 
+class FileOpener
+{
 	public:
 		/**
 		 * try to find a readable file in the current rompath with matching filename

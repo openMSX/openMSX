@@ -23,7 +23,7 @@ MSXTapePatch::MSXTapePatch()
 
 	std::string name("tapepatch");
 	std::string filename;
-	file=0;
+	file = NULL;
 
 	Console::instance()->registerCommand(this, "tape");
 
@@ -39,7 +39,7 @@ MSXTapePatch::MSXTapePatch()
 
 MSXTapePatch::~MSXTapePatch()
 {
-  if (file) file->close();
+	delete file;
 }
 
 void MSXTapePatch::patch() const
@@ -83,20 +83,21 @@ void MSXTapePatch::patch() const
 
 void MSXTapePatch::insertTape(std::string filename)
 {
-	if (file) file->close();
+	ejectTape();
 	PRT_DEBUG("Loading file " << filename << " as tape ...");
-	// file = new FILETYPE(filename.c_str(), std::ios::in|std::ios::out);
-	file = FileOpener::openFilePreferRW(filename);
-	if (!file) {
+	try {
+		file = FileOpener::openFilePreferRW(filename);
+	} catch (FileOpenerException &e) {
 		PRT_DEBUG("Loading file failed");
+		file = NULL;
 	}
 }
 
 void MSXTapePatch::ejectTape()
 {
 	PRT_DEBUG("Ejecting tape from virtual tapedeck...");
-	file->close();
-	file=0;
+	delete file;
+	file = NULL;
 }
 
 void MSXTapePatch::TAPION(CPU::CPURegs& R) const
@@ -123,7 +124,7 @@ void MSXTapePatch::TAPION(CPU::CPURegs& R) const
 	   and HI cycles.
 	 */
 
-	if (file == 0) {
+	if (!file) {
 		PRT_DEBUG("TAPION : No tape file opened ?");
 		R.AF.B.l |= CPU::C_FLAG;
 		return;

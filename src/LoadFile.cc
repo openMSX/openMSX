@@ -13,6 +13,7 @@ void LoadFile::loadFile(byte** memoryBank, int fileSize)
 {
 	IFILETYPE* file = openFile();
 	readFile(file, fileSize, memoryBank);
+	delete file;
 }
 
 int LoadFile::loadFile(byte** memoryBank)
@@ -23,6 +24,7 @@ int LoadFile::loadFile(byte** memoryBank)
 	file->seekg(0,std::ios::beg);
 	PRT_DEBUG("rom size is determined to be " << fileSize);
 	readFile(file, fileSize, memoryBank);
+	delete file;
 	return fileSize;
 }
 
