@@ -6,6 +6,11 @@
 #include "openmsx.hh"
 #include "EmuTime.hh"
 
+#include <list>
+
+// forward declaration
+class MSXRomPatchInterface;
+
 class CPUInterface {
 	public:
 		/**
@@ -37,8 +42,13 @@ class CPUInterface {
 		 * Called when ED FE occurs. Can be used
 		 * to emulated disk access etc.
 		 */
-		virtual void patch();
-		
+		void patch();
+
+		/**
+		 * Register a MSXRomPatchInterface
+		 */
+		void registerInterface(const MSXRomPatchInterface *i);
+
 		/**
 		 * Called when RETI accurs
 		 */
@@ -49,6 +59,10 @@ class CPUInterface {
 		 */
 		virtual void retn();
 
+		/*
+		 * Destructor
+		 */
+		 virtual ~CPUInterface();
 	protected:
 		/*
 		 * Constructor
@@ -63,6 +77,7 @@ class CPUInterface {
 
 	private:
 		bool prevNMIStat;
+		std::list<const MSXRomPatchInterface*> romPatchInterfaceList;
 };
 
 #endif

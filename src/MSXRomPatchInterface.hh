@@ -16,7 +16,7 @@ class MSXRomPatchInterface
 		/**
 		 * called by CPU on encountering an EDFE
 		 */
-		virtual void patch(int address)=0;
+		virtual void patch() const=0;
 
 		/**
 		 * list of addresses I am interested in

@@ -3,6 +3,7 @@
 
 #include "MSXRom.hh"
 #include "MSXDiskRomPatch.hh"
+#include "MSXMotherBoard.hh"
 
 MSXRom::MSXRom()
 {
@@ -37,13 +38,13 @@ void MSXRom::handleRomPatchInterfaces()
 		parameters.begin();
 	for ( /**/ ; i!=parameters.end(); i++)
 	{
-		if ((*i)->name == "MSXDiskRomPatch")
+		if ((*i)->value == "MSXDiskRomPatch")
 		{
 			PRT_DEBUG("Creating MSXDiskRomPatch");
 			MSXRomPatchInterface* i=new MSXDiskRomPatch();
 			romPatchInterfaces.push_back(i);
-			PRT_DEBUG("Registering MSXDiskRomPatch at CPU [TODO]");
-			// TODO XXX
+
+			MSXMotherBoard::instance()->registerInterface(i);
 		}
 	}
 }

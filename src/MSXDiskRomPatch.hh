@@ -11,34 +11,34 @@ class MSXDiskRomPatch: public MSXRomPatchInterface
 		MSXDiskRomPatch();
 		virtual ~MSXDiskRomPatch();
 
-		virtual void patch(int address);
+		virtual void patch() const;
 	
 	private:
 
 		/**
 		 * read/write sectors
 		 */
-		void PHYDIO();
+		void PHYDIO() const;
 
 		/**
 		 * check disk
 		 */
-		void DSKCHG();
+		void DSKCHG() const;
 
 		/**
 		 * get disk format
 		 */
-		void GETDPB();
+		void GETDPB() const;
 
 		/**
 		 * format a disk
 		 */
-		void DSKFMT();
+		void DSKFMT() const;
 
 		/**
 		 * stop drives
 		 */
-		void DRVOFF();
+		void DRVOFF() const;
 };
 
 #endif // __MSXDISKROMPATCH_HH__
