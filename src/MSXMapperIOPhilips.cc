@@ -40,7 +40,7 @@ int MSXMapperIOPhilips::log2RoundedUp(int num)
 {
 	assert((1<=num)&&(num<=256));
 	int foo = 128; int res = 8;
-	while (num < foo) {
+	while (num <= foo) {
 		foo /= 2; res--;
 	} 
 	return res;

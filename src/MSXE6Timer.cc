@@ -4,7 +4,7 @@
 #include <cassert>
 
 
-MSXE6Timer::MSXE6Timer()
+MSXE6Timer::MSXE6Timer() : reference(255681)	// 1/14 * 3.58MHz
 {
 }
 
@@ -23,7 +23,7 @@ void MSXE6Timer::init()
 void MSXE6Timer::reset()
 {
 	MSXDevice::reset();
-	reference = Emutime(255681, 0);	// 1/14 * 3.58MHz
+	reference(0);
 }
 
 byte MSXE6Timer::readIO(byte port, Emutime &time)

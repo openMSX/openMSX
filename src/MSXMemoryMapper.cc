@@ -67,7 +67,7 @@ int MSXMemoryMapper::getAdr(int address)
 {
 	int pageNum = MSXMapperIO::instance()->getPageNum(address>>14);
 	pageNum %= blocks;
-	int adr = pageNum*16384 + address&0x3fff;
+	int adr = pageNum*16384 + (address&0x3fff);
 	return adr;
 }
 

@@ -69,3 +69,22 @@ void MSXKanji::writeIO(byte port, byte value, Emutime &time)
 		assert(false);
 	}
 }
+
+// This really works!
+//
+// 10 DIM A(32)
+// 20 FOR I=0 TO 4095
+// 30 OUT &HD8, I MOD 64: OUT &HD9, I\64
+// 40 FOR J=0 TO 31: A(J)=INP(&HD9): NEXT
+// 50 FOR J=0 TO 7
+// 60 PRINT RIGHT$("0000000"+BIN$(A(J)), 8);
+// 70 PRINT RIGHT$("0000000"+BIN$(A(J+8)), 8)
+// 80 NEXT
+// 90 FOR J=16 TO 23
+// 100 PRINT RIGHT$("0000000"+BIN$(A(J)), 8);
+// 110 PRINT RIGHT$("0000000"+BIN$(A(J+8)), 8)
+// 120 NEXT
+// 130 PRINT
+// 140 NEXT
+
+
