@@ -123,12 +123,14 @@ void VDPCmdEngine::setCmdReg(byte index, byte value, const EmuTime &time)
 	case 0x07: // destination Y high
 		DY = (DY & 0x0FF) | ((value & 0x03) << 8);
 		break;
-		
+	
+	// TODO is DX 9 or 10 bits, at least current implementation needs
+	// 10 bits (otherwise texts in UR are screwed)
 	case 0x08: // number X low
-		NX = (NX & 0x100) | value;
+		NX = (NX & 0x300) | value;
 		break;
 	case 0x09: // number X high
-		NX = (NX & 0x0FF) | ((value & 0x01) << 8);
+		NX = (NX & 0x0FF) | ((value & 0x03) << 8);
 		break;
 	case 0x0A: // number Y low
 		NY = (NY & 0x300) | value;
