@@ -24,6 +24,7 @@ openmsx_SOURCES=openmsx.cc \
 	MSXRom16KB.hh MSXRom16KB.cc \
 	MSXSimple64KB.hh MSXSimple64KB.cc \
 	VDP.hh VDP.cc \
+	VDPCmdEngine.hh VDPCmdEngine.cc \
 	Renderer.hh Renderer.cc \
 	SDLLoRenderer.hh SDLLoRenderer.cc \
 	SDLHiRenderer.hh SDLHiRenderer.cc \

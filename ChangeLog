@@ -1,5 +1,11 @@
 $Id$
 
+2001-12-22 Maarten ter Huurne <mth@stack.nl>
+	* Added VDP Command Engine 1.0 from Alex Wulms.
+	  Adapted the code to C++ and to openMSX conventions.
+	  Only functional change is SCREEN7/8 pixel lookups (two defines).
+	  The command engine compiles and links, but cannot run yet.
+
 2001-12-21 Maarten ter Huurne <mth@stack.nl>
 	* Implemented Text2 display mode (SCREEN0.80).
 	* Prepared for blinking (not finished yet).
