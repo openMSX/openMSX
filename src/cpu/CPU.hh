@@ -154,9 +154,7 @@ protected:
 	int slowInstructions;
 	int IRQStatus;
 
-	z80regpair x;
 	z80regpair memptr;
-	byte dummy;
 	offset ofst;
 
 	CPUInterface* interface;
