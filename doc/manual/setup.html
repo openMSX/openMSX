@@ -36,7 +36,8 @@
 	<li><a class="internal" href="#hardwareedit">5. Writing Machine Descriptions</a></li>
 	<li><a class="internal" href="#tuning">6. Performance Tuning</a>
 		<ol class="toc">
-			<li><a class="internal" href="#slow">6.1. If openMSX Runs Slow</a></li>
+			<li><a class="internal" href="#opengl">6.1. OpenGL</a></li>
+			<li><a class="internal" href="#tuningvarious">6.2. Various Tuning Tips</a></li>
 			<!--
 			<li><a class="internal" href="#linuxrtc">6.2. Timing using the Real Time Clock (Linux)</a></li>
 			-->
@@ -497,7 +498,31 @@ This chapter contains some tips for tuning the performance of openMSX
 on your system.
 </p>
 
-<h3><a id="slow">6.1. If openMSX Runs Slow</a></h3>
+<h3><a id="opengl">6.1. OpenGL</a></h3>
+
+<p>
+The SDLGL renderer needs hardware acceleration to run at a decent speed.
+If your OpenGL driver is not hardware accelerated,
+use the SDLHi renderer instead.
+If you have hardware accelerated OpenGL, but an older graphics card,
+try disabling scanlines, blur and glow (set them to 0).
+</p>
+<p>
+For OpenGL under Linux, you might have to take some additional steps to get it hardware accelerated.
+If you have an nVidia card, go to the
+<a class="external" href="http://www.nvidia.com/linux">nVidia web site</a>
+for drivers, which include an OpenGL implementation. ATI users can check out the <a class="external" href="http://www.ati.com/support/faq/linux.html">ATI web site</a> for drivers.
+For other cards, try Mesa, which can be found in packages like
+<code>xlibmesa-gl</code> and <code>xlibmesa-gl-dev</code> (Debian)
+or <code>XFree86-GLX</code> and <code>XFree86-GLX-devel</code> (SUSE).
+</p>
+<p>
+You need to have the GLX module loaded in your X server and
+also accelerated graphics (DRI).
+You can verify this by typing <code>glxinfo</code> on the command line.
+</p>
+
+<h3><a id="tuningvarious">6.2. Various Tuning Tips</a></h3>
 
 <p>
 CPU and graphics performance varies a lot, depending on the openMSX
@@ -519,20 +544,12 @@ emulation to stutter. Some peer-to-peer programs are good examples of
 this.
 </li>
 <li>
-The SDLGL renderer needs hardware acceleration to run at a decent speed.
-If your OpenGL driver is not hardware accelerated,
-use the SDLHi renderer instead.
-If you have hardware accelerated OpenGL, but an older graphics card,
-try disabling scanlines and blur (set them to 0).
-</li>
-<li>
 Use 16-bit colour mode instead of 32-bit.
 openMSX uses your platform's default setting.
 </li>
 <li>
 Use line accuracy (default) instead of pixel accuracy.
-Pixel accuracy takes a lot of overhead, while it is only really needed
-for a couple of demos (Unknown Reality, Verti).
+Pixel accuracy can be slow in worst-case situations, while it is only really needed for a couple of demos (Unknown Reality, Verti).
 </li>
 <li>
 Increase the number of frames that may be skipped ("set maxframeskip 10", for example).
