@@ -8,6 +8,7 @@
 #include "File.hh"
 #include "Console.hh"
 #include "CliCommOutput.hh"
+#include "GLImage.hh"
 
 
 namespace openmsx {
@@ -27,25 +28,16 @@ GLConsole::~GLConsole()
 	backgroundSetting.reset();
 }
 
-
-int GLConsole::powerOfTwo(int a)
-{
-	int res = 1;
-	while (a > res) {
-		res <<= 1;
-	}
-	return res;
-}
-
-bool GLConsole::loadFont(const string &filename)
+bool GLConsole::loadFont(const string& filename)
 {
 	if (filename.empty()) {
 		return false;
 	}
-	int width, height;
+	unsigned width, height;
 	GLfloat fontTexCoord[4];
-	GLuint fontTexture = 0;
-	if (loadTexture(filename, fontTexture, width, height, fontTexCoord)) {
+	GLuint fontTexture = GLImage::loadTexture(
+		filename, width, height, fontTexCoord);
+	if (fontTexture) {
 		font.reset(new GLFont(fontTexture, width, height, fontTexCoord));
 		return true;
 	} else {
@@ -53,78 +45,25 @@ bool GLConsole::loadFont(const string &filename)
 	}
 }
 
-bool GLConsole::loadBackground(const string &filename)
+bool GLConsole::loadBackground(const string& filename)
 {
 	if (filename.empty()) {
 		if (backgroundTexture) {
 			glDeleteTextures(1, &backgroundTexture);
+			backgroundTexture = 0;
 		}
-		backgroundTexture = 0;
 		return true;
-	} else {
-		int dummyWidth, dummyHeight;
-		return loadTexture(filename, backgroundTexture,
-			dummyWidth, dummyHeight, backTexCoord);
 	}
-}
-
-bool GLConsole::loadTexture(const string &filename, GLuint &texture,
-		int &width, int &height, GLfloat *texCoord)
-{
-	SDL_Surface* image1;
-	try {
-		File file(filename);
-		image1 = IMG_Load(file.getLocalName().c_str());
-		if (image1 == NULL) {
-			CliCommOutput::instance().printWarning("File \"" +
-			        file.getURL() + "\" is not a valid image");
-			return false;
+	unsigned dummyWidth, dummyHeight;
+	GLuint tmp = GLImage::loadTexture(
+		filename, dummyWidth, dummyHeight, backTexCoord);
+	if (tmp) {
+		if (backgroundTexture) {
+			glDeleteTextures(1, &backgroundTexture);
 		}
-	} catch (FileException &e) {
-		CliCommOutput::instance().printWarning("Could not open file \"" +
-		        filename + "\": " + e.getMessage());
-		return false;
+		backgroundTexture = tmp;
 	}
-	SDL_SetAlpha(image1, 0, 0);
-
-	width  = image1->w;
-	height = image1->h;
-	int w2 = powerOfTwo(width);
-	int h2 = powerOfTwo(height);
-	texCoord[0] = 0.0f;			// Min X
-	texCoord[1] = 0.0f;			// Min Y
-	texCoord[2] = (GLfloat)width  / w2;	// Max X
-	texCoord[3] = (GLfloat)height / h2;	// Max Y
-
-	SDL_Surface* image2 = SDL_CreateRGBSurface(SDL_SWSURFACE, w2, h2, 32,
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-		0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000
-#else
-		0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF
-#endif
-	);
-	if (image2 == NULL) {
-		return false;
-	}
-
-	SDL_Rect area;
-	area.x = 0;
-	area.y = 0;
-	area.w = width;
-	area.h = height;
-	SDL_BlitSurface(image1, &area, image2, &area);
-	SDL_FreeSurface(image1);
-
-	if (texture) {
-		glDeleteTextures(1, &texture);
-	}
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, 4, w2, h2, 0, GL_RGBA, GL_UNSIGNED_BYTE, image2->pixels);
-	SDL_FreeSurface(image2);
-	return true;
+	return tmp;
 }
 
 void GLConsole::paint()

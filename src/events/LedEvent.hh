@@ -17,6 +17,7 @@ public:
 		PAUSE,
 		TURBO,
 		FDD,
+		NUM_LEDS // must be last
 	};
 
 	LedEvent(Led led_, bool status_)

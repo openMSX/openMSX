@@ -12,6 +12,7 @@
 #include "SDLFont.hh"
 #include "File.hh"
 #include "CommandConsole.hh"
+#include "SDLImage.hh"
 
 namespace openmsx {
 
@@ -104,79 +105,20 @@ bool SDLConsole::loadBackground(const string& filename)
 	if (filename.empty()) {
 		if (backgroundImage) {
 			SDL_FreeSurface(backgroundImage);
+			backgroundImage = NULL;
 		}
-		backgroundImage = NULL;
 		return true;
 	}
-
-	SDL_Surface* pictureSurface;
-	try {
-		File file(filename);
-		pictureSurface = IMG_Load(file.getLocalName().c_str());
-	} catch (FileException& e) {
-		return false;
-	}
-	// If file does exist, but cannot be read as an image,
-	// IMG_Load returns NULL.
-	if (pictureSurface == NULL) {
-		return false;
-	}
-
-	if (backgroundImage) {
-		SDL_FreeSurface(backgroundImage);
-	}
-
-	// create a 32 bpp surface that will hold the scaled version
-	Uint32 rmask, gmask, bmask, amask;
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-	rmask = 0xff000000;
-	gmask = 0x00ff0000;
-	bmask = 0x0000ff00;
-	amask = 0x000000ff;
-#else
-	rmask = 0x000000ff;
-	gmask = 0x0000ff00;
-	bmask = 0x00ff0000;
-	amask = 0xff000000;
-#endif
-	SDL_Surface* scaled32Surface = SDL_CreateRGBSurface(
-		SDL_SWSURFACE, destRect.w, destRect.h, 32, rmask, gmask, bmask, amask);
-	SDL_Surface* picture32Surface =
-		SDL_ConvertSurface(pictureSurface, scaled32Surface->format, SDL_SWSURFACE);
-	SDL_FreeSurface(pictureSurface);
-
-	// zoom surface
-	zoomSurface (picture32Surface, scaled32Surface, true);
-	SDL_FreeSurface(picture32Surface);
-
-	// scan image, are all alpha values the same?
-	unsigned width = scaled32Surface->w;
-	unsigned height = scaled32Surface->h;
-	unsigned pitch = scaled32Surface->pitch / 4;
-	Uint32* pixels = (Uint32*)scaled32Surface->pixels;
-	Uint32 alpha = pixels[0] & amask;
-	bool constant = true;
-	for (unsigned y = 0; y < height; ++y) {
-		for (unsigned x = 0; x < width; ++x) {
-			if ((pixels[y * pitch + x] & amask) != alpha) {
-				constant = false;
-				break;
-			}
+	SDL_Surface* pictureSurface = SDLImage::loadImage(
+		filename, destRect.w, destRect.h, CONSOLE_ALPHA);
+	if (pictureSurface) {
+		if (backgroundImage) {
+			SDL_FreeSurface(backgroundImage);
 		}
-		if (!constant) break;
+		backgroundImage = pictureSurface;
+		backgroundName = filename;
 	}
-
-	// convert the background to the right format
-	if (constant) {
-		backgroundImage = SDL_DisplayFormat(scaled32Surface);
-		SDL_SetAlpha(backgroundImage, SDL_SRCALPHA, CONSOLE_ALPHA);
-	} else {
-		backgroundImage = SDL_DisplayFormatAlpha(scaled32Surface);
-	}
-	SDL_FreeSurface(scaled32Surface);
-
-	backgroundName = filename;
-	return true;
+	return pictureSurface;
 }
 
 bool SDLConsole::loadFont(const string& filename)
@@ -191,144 +133,6 @@ bool SDLConsole::loadFont(const string& filename)
 		return false;
 	}
 	return true;
-}
-
-
-// ----------------------------------------------------------------------------
-
-// TODO: Replacing this by a 4-entry array would simplify the code.
-struct ColorRGBA {
-	Uint8 r;
-	Uint8 g;
-	Uint8 b;
-	Uint8 a;
-};
-
-int SDLConsole::zoomSurface(SDL_Surface* src, SDL_Surface* dst, bool smooth)
-{
-	int x, y, sx, sy, *sax, *say, *csax, *csay, csx, csy, ex, ey, t1, t2, sstep;
-	ColorRGBA *c00, *c01, *c10, *c11;
-	ColorRGBA *sp, *csp, *dp;
-	int dgap;
-
-	// Variable setup
-	if (smooth) {
-		// For interpolation: assume source dimension is one pixel
-		// smaller to avoid overflow on right and bottom edge.
-		sx = (int) (65536.0 * (double)(src->w - 1) / (double)dst->w);
-		sy = (int) (65536.0 * (double)(src->h - 1) / (double)dst->h);
-	} else {
-		sx = (int) (65536.0 * (double)src->w / (double)dst->w);
-		sy = (int) (65536.0 * (double)src->h / (double)dst->h);
-	}
-
-	// Allocate memory for row increments
-	if ((sax = (int *) malloc((dst->w + 1) * sizeof(Uint32))) == NULL) {
-		return -1;
-	}
-	if ((say = (int *) malloc((dst->h + 1) * sizeof(Uint32))) == NULL) {
-		free(sax);
-		return -1;
-	}
-
-	// Precalculate row increments
-	csx = 0;
-	csax = sax;
-	for (x = 0; x <= dst->w; x++) {
-		*csax = csx;
-		csax++;
-		csx &= 0xffff;
-		csx += sx;
-	}
-	csy = 0;
-	csay = say;
-	for (y = 0; y <= dst->h; y++) {
-		*csay = csy;
-		csay++;
-		csy &= 0xffff;
-		csy += sy;
-	}
-
-	// Pointer setup
-	sp = csp = (ColorRGBA *) src->pixels;
-	dp = (ColorRGBA *) dst->pixels;
-	dgap = dst->pitch - dst->w * 4;
-
-	// Switch between interpolating and non-interpolating code
-	if (smooth) {
-		// Interpolating Zoom
-		// Scan destination
-		csay = say;
-		for (y = 0; y < dst->h; y++) {
-			// Setup color source pointers
-			c00 = csp;
-			c01 = csp;
-			c01++;
-			c10 = (ColorRGBA *) ((Uint8 *) csp + src->pitch);
-			c11 = c10;
-			c11++;
-			csax = sax;
-			for (x = 0; x < dst->w; x++) {
-				// Interpolate colors
-				ex = (*csax & 0xffff);
-				ey = (*csay & 0xffff);
-				t1 = ((((c01->r - c00->r) * ex) >> 16) + c00->r) & 0xff;
-				t2 = ((((c11->r - c10->r) * ex) >> 16) + c10->r) & 0xff;
-				dp->r = (((t2 - t1) * ey) >> 16) + t1;
-				t1 = ((((c01->g - c00->g) * ex) >> 16) + c00->g) & 0xff;
-				t2 = ((((c11->g - c10->g) * ex) >> 16) + c10->g) & 0xff;
-				dp->g = (((t2 - t1) * ey) >> 16) + t1;
-				t1 = ((((c01->b - c00->b) * ex) >> 16) + c00->b) & 0xff;
-				t2 = ((((c11->b - c10->b) * ex) >> 16) + c10->b) & 0xff;
-				dp->b = (((t2 - t1) * ey) >> 16) + t1;
-				t1 = ((((c01->a - c00->a) * ex) >> 16) + c00->a) & 0xff;
-				t2 = ((((c11->a - c10->a) * ex) >> 16) + c10->a) & 0xff;
-				dp->a = (((t2 - t1) * ey) >> 16) + t1;
-
-				// Advance source pointers
-				csax++;
-				sstep = (*csax >> 16);
-				c00 += sstep;
-				c01 += sstep;
-				c10 += sstep;
-				c11 += sstep;
-				// Advance destination pointer
-				dp++;
-			}
-			// Advance source pointer
-			csay++;
-			csp = (ColorRGBA *) ((Uint8 *) csp + (*csay >> 16) * src->pitch);
-			// Advance destination pointers
-			dp = (ColorRGBA *) ((Uint8 *) dp + dgap);
-		}
-	} else {
-		// Non-Interpolating Zoom
-		csay = say;
-		for (y = 0; y < dst->h; y++) {
-			sp = csp;
-			csax = sax;
-			for (x = 0; x < dst->w; x++) {
-				// Draw
-				*dp = *sp;
-				// Advance source pointers
-				csax++;
-				sp += (*csax >> 16);
-				// Advance destination pointer
-				dp++;
-			}
-			// Advance source pointer
-			csay++;
-			csp = (ColorRGBA *) ((Uint8 *) csp + (*csay >> 16) * src->pitch);
-			// Advance destination pointers
-			dp = (ColorRGBA *) ((Uint8 *) dp + dgap);
-		}
-	}
-
-	// Remove temp arrays
-	free(sax);
-	free(say);
-
-	return 0;
 }
 
 } // namespace openmsx

@@ -22,7 +22,6 @@ public:
 
 private:
 	void updateConsoleRect();
-	int zoomSurface(SDL_Surface* src, SDL_Surface* dst, bool smooth);
 	
 	SDL_Surface* outputScreen;
 	SDL_Surface* backgroundImage;

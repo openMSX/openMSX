@@ -1,5 +1,11 @@
 $Id$
 
+2004-11-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Initial version of OSD LEDs:
+	   very minimal version, it uses
+	       <openmsx-dir>/share/skins/led.png
+	   for all LEDs. Icons are still shown at fixed positions
+
 2004-11-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* cleanup dasm code:
 	* fixed 'cmdtiming setting'

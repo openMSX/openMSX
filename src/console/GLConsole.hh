@@ -21,10 +21,6 @@ public:
 	virtual const string& getName();
 
 private:
-	int powerOfTwo(int a);
-	bool loadTexture(const string& filename, GLuint& texture,
-	                 int& width, int& height, GLfloat* texCoord);
-
 	GLuint backgroundTexture;
 	GLfloat backTexCoord[4];
 };

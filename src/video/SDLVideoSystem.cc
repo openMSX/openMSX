@@ -12,6 +12,7 @@
 #include "InitException.hh"
 #include "BooleanSetting.hh"
 #include "ScreenShotSaver.hh"
+#include "IconLayer.hh"
 #include <SDL.h>
 #include <cassert>
 
@@ -46,6 +47,10 @@ SDLVideoSystem::SDLVideoSystem(RendererFactory::RendererID id)
 		throw InitException("unsupported colour depth");
 	}
 	new SDLConsole(CommandConsole::instance(), screen);
+
+	Layer* iconLayer = new SDLIconLayer(screen);
+	Display::INSTANCE->addLayer(iconLayer, Display::Z_ICONS);
+	Display::INSTANCE->setCoverage(iconLayer, Display::COVER_PARTIAL);
 }
 
 SDLVideoSystem::~SDLVideoSystem()

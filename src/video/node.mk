@@ -19,7 +19,9 @@ SRC_HDR:= \
 	Deinterlacer \
 	ScreenShotSaver \
 	VideoSystem Display VideoLayer \
-	DummyVideoSystem
+	DummyVideoSystem \
+	IconLayer \
+	GLImage SDLImage \
 
 HDR_ONLY:= \
 	DirtyChecker \

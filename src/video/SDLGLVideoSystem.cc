@@ -15,6 +15,7 @@
 #include "BooleanSetting.hh"
 #include "ScreenShotSaver.hh"
 #include "V9990DummyRasterizer.hh"
+#include "IconLayer.hh"
 #include <SDL.h>
 
 
@@ -39,6 +40,10 @@ SDLGLVideoSystem::SDLGLVideoSystem()
 	Display::INSTANCE.reset(display);
 	new GLSnow();
 	new GLConsole(CommandConsole::instance());
+
+	Layer* iconLayer = new GLIconLayer(screen);
+	Display::INSTANCE->addLayer(iconLayer, Display::Z_ICONS);
+	Display::INSTANCE->setCoverage(iconLayer, Display::COVER_PARTIAL);
 }
 
 SDLGLVideoSystem::~SDLGLVideoSystem()
