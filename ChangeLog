@@ -1,5 +1,8 @@
 $Id$
 
+2004-12-22 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* simple (slow) implementation of V9990 LMMV command
+
 2004-12-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* a few V9990 fixes:
 	   - unimplemented cmds should still finish

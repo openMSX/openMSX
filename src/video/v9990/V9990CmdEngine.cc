@@ -17,6 +17,12 @@ inline byte V9990CmdEngine::V9990Bpp2::writeMask(int x) {
 	return (byte) (~x & ADDRESS_MASK);
 }
 
+inline word V9990CmdEngine::V9990Bpp2::shiftDown(word value, int x)
+{
+	int  shift = (~x & 7) * BITS_PER_PIXEL;
+	return ((value >> shift) & MASK);
+}
+
 inline word V9990CmdEngine::V9990Bpp2::point(V9990VRAM* vram,
                                              int x, int y, int imageWidth)
 {
@@ -46,6 +52,12 @@ inline byte V9990CmdEngine::V9990Bpp4::writeMask(int x) {
 	return 0x00;
 }
 
+inline word V9990CmdEngine::V9990Bpp4::shiftDown(word value, int x)
+{
+	int  shift = (~x & 3) * BITS_PER_PIXEL;
+	return ((value >> shift) & MASK);
+}
+
 inline word V9990CmdEngine::V9990Bpp4::point(V9990VRAM* vram,
                                              int x, int y, int imageWidth)
 {
@@ -71,15 +83,20 @@ inline uint V9990CmdEngine::V9990Bpp8::addressOf(int x, int y, int imageWidth)
 	return ((x/PIXELS_PER_BYTE) % imageWidth) + y * imageWidth;
 }
 
+inline byte V9990CmdEngine::V9990Bpp8::writeMask(int x) {
+	return 0x00;
+}
+
+inline word V9990CmdEngine::V9990Bpp8::shiftDown(word value, int x)
+{
+	return (x & 1) ? value >> 8 : value & 0xFF;
+}
+
 inline word V9990CmdEngine::V9990Bpp8::point(V9990VRAM* vram,
                                              int x, int y, int imageWidth)
 {
 	word value = (word)(vram->readVRAM(addressOf(x,y, imageWidth)));
 	return (value);
-}
-
-inline byte V9990CmdEngine::V9990Bpp8::writeMask(int x) {
-	return 0x00;
 }
 
 inline void V9990CmdEngine::V9990Bpp8::pset(V9990VRAM* vram,
@@ -98,6 +115,11 @@ inline uint V9990CmdEngine::V9990Bpp16::addressOf(int x, int y, int imageWidth)
 
 inline byte V9990CmdEngine::V9990Bpp16::writeMask(int x) {
 	return 0x00;
+}
+
+inline word V9990CmdEngine::V9990Bpp16::shiftDown(word value, int x)
+{
+	return value;
 }
 
 inline word V9990CmdEngine::V9990Bpp16::point(V9990VRAM* vram,
@@ -218,11 +240,20 @@ void V9990CmdEngine::setCmdReg(byte reg, byte value, const EmuTime& time)
 		LOG = value & 0x1F;
 		break;
 	case 14: // write mask low
+		break;
 	case 15: // write mask high
+		break;
 	case 16: // Font color - FG low
+		fgCol = (fgCol & 0xFF00) | value;
+		break;
 	case 17: // Font color - FG high
+		fgCol = (fgCol & 0xFF) | (value << 8);
+		break;
 	case 18: // Font color - BG low
+		bgCol = (bgCol & 0xFF00) | value;
+		break;
 	case 19: // Font color - BG high
+		bgCol = (bgCol & 0xFF) | (value << 8);
 		break;
 	case 20: // CMD
 	{
@@ -362,11 +393,11 @@ void V9990CmdEngine::CmdLMMC<Mode>::execute(const EmuTime& time)
 			
 			int dx = (engine->ARG & 0x04) ? -1 : 1;
 			engine->DX += dx;
-			if(!--(engine->ANX)) {
+			if (!--(engine->ANX)) {
 				int dy = (engine->ARG & 0x08) ? -1 : 1;
 				engine->DX -= (engine->NX * dx);
 				engine->DY += dy;
-				if(!--(engine->ANY)) {
+				if (!--(engine->ANY)) {
 					engine->cmdReady();
 				} else {
 					engine->ANX = engine->NX;
@@ -390,12 +421,55 @@ V9990CmdEngine::CmdLMMV<Mode>::CmdLMMV(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdLMMV<Mode>::start(const EmuTime& time)
 {
-	engine->cmdReady(); // TODO dummy implementation
+	PRT_DEBUG("LMMV: DX=" << std::dec << engine->DX <<
+	          " DY=" << std::dec << engine->DY <<
+	          " NX=" << std::dec << engine->NX <<
+	          " NY=" << std::dec << engine->NY <<
+	          " ARG="<< std::hex << (int)engine->ARG <<
+	          " COL="<< std::hex << engine->fgCol <<
+	          " Bpp="<< std::hex << Mode::PIXELS_PER_BYTE);
+
+	engine->address = Mode::addressOf(engine->DX,
+	                                  engine->DY,
+	                                  engine->vdp->getImageWidth());
+	engine->ANX = engine->NX;
+	engine->ANY = engine->NY;
+
+	// TODO should be done by sync
+	execute(time);
 }
 
 template <class Mode>
 void V9990CmdEngine::CmdLMMV<Mode>::execute(const EmuTime& time)
 {
+	// TODO can be optimized a lot
+	
+	int width = engine->vdp->getImageWidth();
+	if (Mode::PIXELS_PER_BYTE) {
+		// hack to avoid "warning: division by zero"
+		int ppb = Mode::PIXELS_PER_BYTE; 
+		width /= ppb;
+	}
+	int dx = (engine->ARG & 0x04) ? -1 : 1;
+	int dy = (engine->ARG & 0x08) ? -1 : 1;
+	while (true) {
+		word value = Mode::point(vram, engine->DX, engine->DY, width);
+		value = engine->logOp(Mode::shiftDown(engine->fgCol, engine->DX),
+		                      value, Mode::MASK);
+		Mode::pset(vram, engine->DX, engine->DY, width, value);
+		
+		engine->DX += dx;
+		if (!--(engine->ANX)) {
+			engine->DX -= (engine->NX * dx);
+			engine->DY += dy;
+			if (!--(engine->ANY)) {
+				engine->cmdReady();
+				return;
+			} else {
+				engine->ANX = engine->NX;
+			}
+		}
+	}
 }
 
 // ====================================================================

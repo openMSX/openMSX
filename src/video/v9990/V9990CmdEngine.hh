@@ -54,11 +54,12 @@ private:
 		static const word ADDRESS_MASK    = 0x0003;
 		static inline uint addressOf(int x, int y, int imageWidth);
 		static inline byte writeMask(int x);
+		static inline word shiftDown(word data, int x);
 		static inline word point(V9990VRAM* vram, 
 		                         int x, int y, int imageWidth);
 		static inline void pset(V9990VRAM* vram,
 		                        int x, int y, int imageWidth,
-								word color);
+		                        word color);
 	};
 	
 	class V9990Bpp4 {
@@ -69,11 +70,12 @@ private:
 		static const word ADDRESS_MASK    = 0x0001;
 		static inline uint addressOf(int x, int y, int imageWidth);
 		static inline byte writeMask(int x);
+		static inline word shiftDown(word data, int x);
 		static inline word point(V9990VRAM* vram, 
 		                         int x, int y, int imageWidth);
 		static inline void pset(V9990VRAM* vram,
 		                        int x, int y, int imageWidth,
-								word color);
+		                        word color);
 	};
 	
 	class V9990Bpp8 {
@@ -84,11 +86,12 @@ private:
 		static const word ADDRESS_MASK    = 0x0000;
 		static inline uint addressOf(int x, int y, int imageWidth);
 		static inline byte writeMask(int x);
+		static inline word shiftDown(word data, int x);
 		static inline word point(V9990VRAM* vram, 
 		                         int x, int y, int imageWidth);
 		static inline void pset(V9990VRAM* vram,
 		                        int x, int y, int imageWidth,
-								word color);
+		                        word color);
 	};
 	
 	class V9990Bpp16 {
@@ -99,11 +102,12 @@ private:
 		static const word ADDRESS_MASK    = 0x0000;
 		static inline uint addressOf(int x, int y, int imageWidth);
 		static inline byte writeMask(int x);
+		static inline word shiftDown(word data, int x);
 		static inline word point(V9990VRAM* vram, 
 		                         int x, int y, int imageWidth);
 		static inline void pset(V9990VRAM* vram,
 		                        int x, int y, int imageWidth,
-								word color);
+		                        word color);
 	};
 	
 	/** This is an abstract base class for V9990 commands
@@ -181,7 +185,8 @@ private:
 	/** Command parameters
 	  */
 	word SX, SY, DX, DY, NX, NY;
-	byte COL, ARG, CMD, LOG;
+	word fgCol, bgCol;
+	byte ARG, CMD, LOG;
 
 	/** VRAM read/write address for xMMC and xMCM commands
 	  */
