@@ -1,6 +1,6 @@
 // $Id$
 
-#include "config.h"
+#include "probed_defs.hh"
 #include <unistd.h>
 #ifdef	HAVE_SYS_MMAN_H
 #include <sys/mman.h>

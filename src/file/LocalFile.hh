@@ -5,7 +5,7 @@
 
 #include "FileBase.hh"
 #include "File.hh"
-#include "config.h"
+#include "probed_defs.hh"
 #include <cstdio>
 
 

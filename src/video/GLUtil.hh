@@ -4,7 +4,7 @@
 #define __GLUTIL_HH__
 
 // Check for availability of OpenGL headers.
-#include "config.h"
+#include "probed_defs.hh"
 #if (defined(HAVE_GL_GL_H) || defined(HAVE_GL_H))
 #define __OPENGL_AVAILABLE__
 

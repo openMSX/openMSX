@@ -3,7 +3,7 @@
 #ifndef __JOYNET_HH__
 #define __JOYNET_HH__
 
-#include "config.h"
+#include "probed_defs.hh"
 #ifdef	HAVE_SYS_SOCKET_H
 
 #include "JoystickDevice.hh"

@@ -1,6 +1,6 @@
 // $Id$
 
-#include "config.h"
+#include "probed_defs.hh"
 #ifdef	HAVE_SYS_SOCKET_H
 
 #include <sstream>

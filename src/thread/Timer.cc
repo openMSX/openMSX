@@ -3,7 +3,7 @@
 #include <SDL.h>
 #include "Timer.hh"
 
-#include "config.h"
+#include "probed_defs.hh"
 #ifdef HAVE_GETTIMEOFDAY
 #include <sys/time.h>
 #include <time.h>

@@ -1,6 +1,6 @@
 // $Id$
 
-#include "config.h"
+#include "probed_defs.hh"
 
 #include "PluggableFactory.hh"
 #include "PluggingController.hh"
