@@ -159,6 +159,11 @@ void VDPCmdEngine::setCmdReg(byte index, byte value, const EmuTime &time)
 void VDPCmdEngine::updateDisplayMode(DisplayMode mode, const EmuTime &time)
 {
 	sync(time);
+
+	// TODO for now abort cmd in progress, find out what really happens
+	CMD = 0;
+	executeCommand(time);
+	
 	switch (mode.getBase()) {
 	case DisplayMode::GRAPHIC4:
 		scrMode = 0;
