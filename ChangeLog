@@ -8,6 +8,7 @@ $Id$
 	   - it's also possible to specify the start address of the rom like
 	     this 'mirrored4000', 'normal8000', ... (start address must be
 	     a multiple of 4000)
+	* Fixed parsing of romtype for 'plain' roms in database
 
 2005-02-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Update for new romdb
