@@ -221,7 +221,7 @@ private:
 	  * inverse write mask (eg. 0xF0, will write in lower nibble and
 	  * leave upper nibble intact)
 	  */
-	 byte logOp(byte src, byte dest, byte mask);
+	 word logOp(word src, word dest, word mask);
 
 	/** The running command is complete. Perform neccessary clean-up actions.
 	  */

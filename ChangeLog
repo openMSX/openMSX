@@ -3,6 +3,8 @@ $Id$
 2004-12-28 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented V9990 LINE command:
 	    MSX3D works now
+	* Implemented V9990 CMMC command
+	* Fixed V9990 cmd engine bug that could cause blue colors in 16bpp mode
 
 2004-12-27 Eric Boon <e.boon4@chello.nl>
 	* Introduced FinishFrameEvent for V9990

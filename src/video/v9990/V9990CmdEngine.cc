@@ -466,7 +466,7 @@ void V9990CmdEngine::CmdLMMV<Mode>::execute(const EmuTime& time)
 	int dy = (engine->ARG & DIY) ? -1 : 1;
 	while (true) {
 		word value = Mode::point(vram, engine->DX, engine->DY, width);
-		byte mask = Mode::shiftDown(engine->WM, engine->DX);
+		word mask = Mode::shiftDown(engine->WM, engine->DX);
 		value = engine->logOp(Mode::shiftDown(engine->fgCol, engine->DX),
 		                      value, mask);
 		Mode::pset(vram, engine->DX, engine->DY, width, value);
@@ -554,7 +554,7 @@ void V9990CmdEngine::CmdLMMM<Mode>::execute(const EmuTime& time)
 	while (true) {
 		word src  = Mode::point(vram, engine->SX, engine->SY, width);
 		word dest = Mode::point(vram, engine->DX, engine->DY, width);
-		byte mask = Mode::shiftDown(engine->WM, engine->DX);
+		word mask = Mode::shiftDown(engine->WM, engine->DX);
 		dest = engine->logOp(src, dest, mask);
 		Mode::pset(vram, engine->DX, engine->DY, width, dest);
 		
@@ -588,13 +588,59 @@ V9990CmdEngine::CmdCMMC<Mode>::CmdCMMC(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdCMMC<Mode>::start(const EmuTime& time)
 {
-	std::cout << "V9990: CMMC not yet implemented" << std::endl;
-	engine->cmdReady(); // TODO dummy implementation
+	PRT_DEBUG("CMMC: DX=" << std::dec << engine->DX <<
+	          " DY=" << std::dec << engine->DY <<
+	          " NX=" << std::dec << engine->NX <<
+	          " NY=" << std::dec << engine->NY <<
+	          " ARG="<< std::hex << (int)engine->ARG <<
+	          " WM=" << std::hex << engine->WM <<
+	          " FC=" << std::hex << engine->fgCol <<
+	          " BC=" << std::hex << engine->bgCol <<
+	          " Bpp="<< std::hex << Mode::PIXELS_PER_BYTE);
+
+	engine->ANX = engine->NX;
+	engine->ANY = engine->NY;
+	engine->transfer = false;
 }
 
 template <class Mode>
 void V9990CmdEngine::CmdCMMC<Mode>::execute(const EmuTime& time)
 {
+	if (engine->transfer) {
+		engine->transfer = false;
+
+		int width = engine->vdp->getImageWidth();
+		if (Mode::PIXELS_PER_BYTE) {
+			// hack to avoid "warning: division by zero"
+			int ppb = Mode::PIXELS_PER_BYTE; 
+			width /= ppb;
+		}
+		int dx = (engine->ARG & DIX) ? -1 : 1;
+		int dy = (engine->ARG & DIY) ? -1 : 1;
+		for (int i = 0; i < 8; ++i) {
+			bool bit = engine->data & 0x80;
+			engine->data <<= 1;
+			
+			word src = bit ? engine->fgCol : engine->bgCol;
+			word dest = Mode::point(vram, engine->DX, engine->DY, width);
+			word mask = Mode::shiftDown(engine->WM, engine->DX);
+			dest = engine->logOp(Mode::shiftDown(src, engine->DX),
+					     dest, mask);
+			Mode::pset(vram, engine->DX, engine->DY, width, dest);
+			
+			engine->DX += dx;
+			if (!--(engine->ANX)) {
+				engine->DX -= (engine->NX * dx);
+				engine->DY += dy;
+				if (!--(engine->ANY)) {
+					engine->cmdReady();
+					return;
+				} else {
+					engine->ANX = engine->NX;
+				}
+			}
+		}
+	}
 }
 
 // ====================================================================
@@ -677,7 +723,7 @@ void V9990CmdEngine::CmdCMMM<Mode>::execute(const EmuTime& time)
 		
 		word src = bit ? engine->fgCol : engine->bgCol;
 		word dest = Mode::point(vram, engine->DX, engine->DY, width);
-		byte mask = Mode::shiftDown(engine->WM, engine->DX);
+		word mask = Mode::shiftDown(engine->WM, engine->DX);
 		dest = engine->logOp(Mode::shiftDown(src, engine->DX),
 		                     dest, mask);
 		Mode::pset(vram, engine->DX, engine->DY, width, dest);
@@ -945,7 +991,7 @@ void V9990CmdEngine::CmdLINE<Mode>::execute(const EmuTime& time)
 		//while (clock.before(time)) {
 		while (true) {
 			word value = Mode::point(vram, engine->ADX, engine->DY, width);
-			byte mask = Mode::shiftDown(engine->WM, engine->DX);
+			word mask = Mode::shiftDown(engine->WM, engine->DX);
 			value = engine->logOp(Mode::shiftDown(engine->fgCol, engine->DX),
 			                      value, mask);
 			Mode::pset(vram, engine->ADX, engine->DY, width, value);
@@ -968,7 +1014,7 @@ void V9990CmdEngine::CmdLINE<Mode>::execute(const EmuTime& time)
 		//while (clock.before(time)) {
 		while (true) {
 			word value = Mode::point(vram, engine->ADX, engine->DY, width);
-			byte mask = Mode::shiftDown(engine->WM, engine->DX);
+			word mask = Mode::shiftDown(engine->WM, engine->DX);
 			value = engine->logOp(Mode::shiftDown(engine->fgCol, engine->DX),
 			                      value, mask);
 			Mode::pset(vram, engine->ADX, engine->DY, width, value);
@@ -1052,7 +1098,7 @@ void V9990CmdEngine::CmdPSET<Mode>::start(const EmuTime& time)
 		width /= ppb;
 	}
 	word value = Mode::point(vram, engine->DX, engine->DY, width);
-	byte mask = Mode::shiftDown(engine->WM, engine->DX);
+	word mask = Mode::shiftDown(engine->WM, engine->DX);
 	value = engine->logOp(Mode::shiftDown(engine->fgCol, engine->DX),
 	                      value, mask);
 	Mode::pset(vram, engine->DX, engine->DY, width, value);
@@ -1111,21 +1157,21 @@ byte V9990CmdEngine::getCmdData(const EmuTime& time)
 	return value;
 }
 
-byte V9990CmdEngine::logOp(byte src, byte dest, byte mask)
+word V9990CmdEngine::logOp(word src, word dest, word mask)
 {
-	byte value = 0;
+	word value = 0;
 	
 	if (!((LOG & 0x10) && (src == 0))) {
-		for (int i = 0; i < 8; ++i) {
+		for (int i = 0; i < 16; ++i) {
 			value >>= 1;
 			if (mask & 1) {
 				int shift = ((src & 1) << 1) | (dest & 1);
 				if (LOG & (1 << shift)) {
-					value |= 0x80;
+					value |= 0x8000;
 				}
 			} else {
 				if (dest & 1) {
-					value |= 0x80;
+					value |= 0x8000;
 				}
 			}
 			src  >>= 1;
