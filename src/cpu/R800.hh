@@ -8,8 +8,9 @@
 #include "CPU.hh"
 #include "EmuTime.hh"
 
-#undef _CPU_
+#undef  _CPU_
 #define _CPU_ R800
+#undef  ResumeFunc
 #define ResumeFunc R800_ResumeFunc
 
 class CPUInterface;

@@ -15,8 +15,9 @@
 #include "CPU.hh"
 #include "EmuTime.hh"
 
-#undef _CPU_
+#undef  _CPU_
 #define _CPU_ Z80
+#undef  ResumeFunc
 #define ResumeFunc Z80_ResumeFunc
 
 class CPUInterface;

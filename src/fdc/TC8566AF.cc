@@ -162,6 +162,8 @@ byte TC8566AF::readReg(int reg, const EmuTime &time)
 				if (SectorByteCount > 0) {
 					SectorByteCount--;
 					Value = Sector[SectorPtr++];
+				} else {
+					Value = 0xFF;
 				}
 				if (SectorByteCount == 0) {
 					Phase++;
@@ -195,7 +197,11 @@ byte TC8566AF::readReg(int reg, const EmuTime &time)
 					dataInputOutput = 0;
 					Command = 0;
 					break;
+				default:
+					Value = 0xFF;
 				}
+			default:
+				Value = 0xFF;
 			}
 			break;
 		case 2: // Write data Command
@@ -227,7 +233,11 @@ byte TC8566AF::readReg(int reg, const EmuTime &time)
 					dataInputOutput = 0;
 					Command = 0;
 					break;
+				default:
+					Value = 0xFF;
 				}
+			default:
+				Value = 0xFF;
 			}
 			break;
 		case 13:// Sense Interrupt Status Command
@@ -243,6 +253,8 @@ byte TC8566AF::readReg(int reg, const EmuTime &time)
 				dataInputOutput = 0;
 				Command = 0;
 				break;
+			default:
+				Value = 0xFF;
 			}
 			break;
 		case 15:// Sense Device Status Command
@@ -255,12 +267,16 @@ byte TC8566AF::readReg(int reg, const EmuTime &time)
 				dataInputOutput = 0;
 				Command = 0;
 				break;
+			default:
+				Value = 0xFF;
 			}
 			break;
 		default:
-			break;
+			Value = 0xFF;
 		}
 		break;
+	default:
+		Value = 0xFF;
 	}
 	return Value;
 }
