@@ -86,8 +86,10 @@ private:
 		}
 	};
 	map<string, OptionData> optionMap;
-	map<string, CLIFileType*, caseltstr> fileTypeMap;
-	map<string, CLIFileType*, caseltstr> fileClassMap;
+	typedef map<string, CLIFileType*, caseltstr> FileTypeMap;
+	FileTypeMap fileTypeMap;
+	typedef map<string, CLIFileType*, caseltstr> FileClassMap;
+	FileClassMap fileClassMap;
 
 	bool parseFileName(const string& arg,list<string>& cmdLine);
 	bool parseOption(const string& arg,list<string>& cmdLine, byte prio);

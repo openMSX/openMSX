@@ -216,12 +216,12 @@ const vector<string> &UserFileContext::getPaths()
 		try {
 			Config* config = SettingsConfig::instance().
 				getConfigById("UserDirectories");
-			Config::Parameters pathList;
-			config->getParametersWithClass("", pathList);
-			for (Config::Parameters::const_iterator it =
+			Config::Children pathList;
+			config->getChildren("directory", pathList);
+			for (Config::Children::const_iterator it =
 			         pathList.begin();
 			     it != pathList.end(); ++it) {
-				string path = it->second;
+				string path = (*it)->getData();
 				if (path[path.length() - 1] != '/') {
 					path += '/';
 				}

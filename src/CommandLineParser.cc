@@ -100,28 +100,27 @@ void CommandLineParser::postRegisterFileTypes()
 {
 	try {
 		Config* config = settingsConfig.getConfigById("FileTypes");
-		for (map<string, CLIFileType*, caseltstr>::const_iterator i = fileClassMap.begin();
+		for (FileClassMap::const_iterator i = fileClassMap.begin();
 		     i != fileClassMap.end(); ++i) {
-			Config::Parameters extensions;
-			config->getParametersWithClass(i->first, extensions);
-			for (Config::Parameters::const_iterator j = extensions.begin();
+			Config::Children extensions;
+			config->getChildren(i->first, extensions);
+			for (Config::Children::const_iterator j = extensions.begin();
 			     j != extensions.end(); ++j) {
-				fileTypeMap[j->second] = i->second;
+				fileTypeMap[(*j)->getData()] = i->second;
 			}
 		}
 	} catch (ConfigException &e) {
 		map<string, string> fileExtMap;
-		fileExtMap["rom"] = "romimages";
-		fileExtMap["dsk"] = "diskimages";
-		fileExtMap["di1"] = "diskimages";
-		fileExtMap["di2"] = "diskimages";
-		fileExtMap["xsa"] = "diskimages";
-		fileExtMap["cas"] = "cassetteimages";
-		fileExtMap["wav"] = "cassettesounds";
+		fileExtMap["rom"] = "romimage";
+		fileExtMap["dsk"] = "diskimage";
+		fileExtMap["di1"] = "diskimage";
+		fileExtMap["di2"] = "diskimage";
+		fileExtMap["xsa"] = "diskimage";
+		fileExtMap["cas"] = "cassetteimage";
+		fileExtMap["wav"] = "rawtapeimage";
 		for (map<string, string>::const_iterator j = fileExtMap.begin();
 		     j != fileExtMap.end(); ++j) {
-			map<string, CLIFileType*, caseltstr>::const_iterator i =
-				fileClassMap.find((*j).second);
+			FileClassMap::const_iterator i = fileClassMap.find(j->second);
 			if (i != fileClassMap.end()) {
 				fileTypeMap[j->first] = i->second;
 			}
@@ -161,8 +160,7 @@ bool CommandLineParser::parseFileName(const string& arg, list<string>& cmdLine)
 				extension = arg.substr(begin + 1, end - begin - 1);
 			}
 		}
-		map<string, CLIFileType*, caseltstr>::const_iterator it2 =
-			fileTypeMap.find(extension);
+		FileTypeMap::const_iterator it2 = fileTypeMap.find(extension);
 		if (it2 != fileTypeMap.end()) {
 			// parse filetype
 			it2->second->parseFileType(arg);

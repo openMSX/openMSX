@@ -19,7 +19,7 @@ MSXRomCLI::MSXRomCLI(CommandLineParser& cmdLineParser)
 	cmdLineParser.registerOption("-cartb", this);
 	cmdLineParser.registerOption("-cartc", this);
 	cmdLineParser.registerOption("-cartd", this);
-	cmdLineParser.registerFileClass("romimages", this);
+	cmdLineParser.registerFileClass("romimage", this);
 }
 
 bool MSXRomCLI::parseOption(const string& option, list<string>& cmdLine)

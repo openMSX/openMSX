@@ -8,7 +8,7 @@
 
  <!-- The machine that is loaded if no machine is specified -->
   <config id="DefaultMachine">
-    <parameter name="machine">cbios-msx2</parameter>
+    <machine>cbios-msx2</machine>
   </config>
 
  <!-- renderer settings: determines how openMSX outputs graphics -->
@@ -17,73 +17,67 @@
   <!--
     <type>SDLGL</type>
   -->
-    <parameter name="full_screen">false</parameter>
+    <full_screen>false</full_screen>
   </config>
 
  <!-- Audio mixer settings -->
   <config id="Mixer">
-    <type>Mixer</type>
   <!-- Sample frequency, 22kHz should be enough for normal MSX, use 44.1kHz for
        Moonsound -->
-    <parameter name="frequency">22050</parameter>
+    <frequency>22050</frequency>
   <!-- Use more samples when FM sound quality is bad, e.g.
-    <parameter name="samples">1024</parameter>
+    <samples>1024</samples>
    -->
-    <parameter name="samples">512</parameter>
+    <samples>512</samples>
   </config>
 
  <!-- Console font file, decorations and other settings -->
   <config id="Console">
-    <type>Console</type>
-    <parameter name="font">skins/ConsoleFont.png</parameter>
-    <parameter name="background">skins/ConsoleBackground.png</parameter>
-    <parameter name="columns">100</parameter>
-    <parameter name="rows">14</parameter>
-    <parameter name="placement">bottom</parameter>
-    <parameter name="historysize">100</parameter>
-    <parameter name="removedoubles">true</parameter>
+    <font>skins/ConsoleFont.png</font>
+    <background>skins/ConsoleBackground.png</background>
+    <columns>100</columns>
+    <rows>14</rows>
+    <placement>bottom</placement>
+    <historysize>100</historysize>
+    <removedoubles>true</removedoubles>
   </config>
 
  <!-- Directories that are searched in, when looking for files mentioned
       on the command line or Console -->
   <config id="UserDirectories">
-    <parameter>~/openMSX/roms</parameter>
-    <parameter>~/openMSX/disks</parameter>
-    <parameter>~/openMSX/tapes</parameter>
+    <directory>~/openMSX/roms</directory>
+    <directory>~/openMSX/disks</directory>
+    <directory>~/openMSX/tapes</directory>
   </config>
 
  <!-- File extensions that should be bound to certain file types -->
   <config id="FileTypes">
-    <type>FileTypes</type>
-    <parameter class="diskimages">dsk</parameter>
-    <parameter class="diskimages">di1</parameter>
-    <parameter class="diskimages">di2</parameter>
-    <parameter class="diskimages">xsa</parameter>
-    <parameter class="rawtapeimages">wav</parameter>
-    <parameter class="cassetteimages">cas</parameter>
-    <parameter class="romimages">rom</parameter>
-    <parameter class="romimages">ri</parameter>
+    <diskimage>dsk</diskimage>
+    <diskimage>di1</diskimage>
+    <diskimage>di2</diskimage>
+    <diskimage>xsa</diskimage>
+    <rawtapeimage>wav</rawtapeimage>
+    <cassetteimage>cas</cassetteimage>
+    <romimage>rom</romimage>
+    <romimage>ri</romimage>
    </config>
 
 <!-- These are the keybindings for the keyjoystick, a pluggable that makes you
      able to use the keyboard in stead of a joystick in joystick-only soft -->
    <config id="KeyJoystick">
-     <type>KeyJoystick</type>
-     <parameter name="upkey">UP</parameter>
-     <parameter name="rightkey">RIGHT</parameter>
-     <parameter name="downkey">DOWN</parameter>
-     <parameter name="leftkey">LEFT</parameter>
-     <parameter name="buttonakey">SPACE</parameter>
-     <parameter name="buttonbkey">M</parameter>
+     <upkey>UP</upkey>
+     <rightkey>RIGHT</rightkey>
+     <downkey>DOWN</downkey>
+     <leftkey>LEFT</leftkey>
+     <buttonakey>SPACE</buttonakey>
+     <buttonbkey>M</buttonbkey>
    </config>
 
  <!-- Keymap definition file -->
   <config id="KeyMap">
    <!--
-    <parameter name="filename">keymaps/keymap.default</parameter>
+    <filename>keymaps/keymap.default</filename>
    -->
   </config>
 
 </msxconfig>
-
-

@@ -14,7 +14,7 @@ DiskImageCLI::DiskImageCLI(CommandLineParser& cmdLineParser)
 	cmdLineParser.registerOption("-diska", this);
 	cmdLineParser.registerOption("-diskb", this);
 
-	cmdLineParser.registerFileClass("diskimages", this);
+	cmdLineParser.registerFileClass("diskimage", this);
 	driveLetter = 'a';
 }
 

@@ -21,7 +21,7 @@ namespace openmsx {
 MSXCassettePlayerCLI::MSXCassettePlayerCLI(CommandLineParser& cmdLineParser)
 {
 	cmdLineParser.registerOption("-cassetteplayer", this);
-	cmdLineParser.registerFileClass("rawtapeimages", this);
+	cmdLineParser.registerFileClass("rawtapeimage", this);
 }
 
 bool MSXCassettePlayerCLI::parseOption(const string &option,

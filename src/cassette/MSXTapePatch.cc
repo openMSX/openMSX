@@ -14,7 +14,7 @@ namespace openmsx {
 MSXCasCLI::MSXCasCLI(CommandLineParser& cmdLineParser)
 {
 	cmdLineParser.registerOption("-cas", this);
-	cmdLineParser.registerFileClass("cassetteimages", this);
+	cmdLineParser.registerFileClass("cassetteimage", this);
 }
 
 bool MSXCasCLI::parseOption(const string& option, list<string>& cmdLine)
