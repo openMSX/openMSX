@@ -35,8 +35,7 @@ TCLInterp::TCLInterp()
 	Tcl_Preserve(interp);
 	
 	if (Tcl_Init(interp) != TCL_OK) {
-		cleanup();
-		throw FatalError(interp->result);
+		cout << "Tcl_Init: " << interp->result << endl;
 	}
 
 	static Tcl_ChannelType channelType;
