@@ -166,11 +166,24 @@ RealDrive::RealDrive(const EmuTime& time)
 	}
 	
 	XMLElement& config = GlobalSettings::instance().getMediaConfig();
-	diskElem = &config.getCreateChild(name);
-	const string filename = diskElem->getData();
+	XMLElement& diskConfig = config.getCreateChild(name);
+	diskElem = &diskConfig.getCreateChild("filename");
+	const string& filename = diskElem->getData();
 	if (!filename.empty()) {
 		try {
-			insertDisk(diskElem->getFileContext().resolve(filename));
+			FileContext& context = diskConfig.getFileContext();
+			string diskImage = context.resolve(filename);
+
+			vector<string> patchFiles;
+			XMLElement::Children children;
+			diskConfig.getChildren("ips", children);
+			for (XMLElement::Children::const_iterator it = children.begin();
+			     it != children.end(); ++it) {
+				string patch = context.resolve((*it)->getData());
+				patchFiles.push_back(patch);
+			}
+			
+			insertDisk(diskImage, patchFiles);
 		} catch (FileException &e) {
 			// file not found
 			throw FatalError("Couldn't load diskimage: " + filename);
@@ -292,7 +305,7 @@ bool RealDrive::headLoaded(const EmuTime& time)
 	       (headLoadTimer.getTicksTill(time) > 10);
 }
 
-void RealDrive::insertDisk(const string& diskImage)
+void RealDrive::insertDisk(const string& diskImage, const vector<string>& patches)
 {
 	ejectDisk();
 	
@@ -317,6 +330,10 @@ void RealDrive::insertDisk(const string& diskImage)
 			disk.reset(new DSKDiskImage(diskImage));
 			PRT_DEBUG("Succeeded");
 		}
+	}
+	for (vector<string>::const_iterator it = patches.begin();
+	     it != patches.end(); ++it) {
+		disk->applyPatch(*it);
 	}
 	diskElem->setData(diskImage);
 }
@@ -347,7 +364,8 @@ string RealDrive::execute(const vector<string>& tokens)
 	} else {
 		try {
 			UserFileContext context;
-			insertDisk(context.resolve(tokens[1]));
+			vector<string> patches;
+			insertDisk(context.resolve(tokens[1]), patches);
 			diskChangedFlag = true;
 			CliCommOutput::instance().update(CliCommOutput::MEDIA,
 			                                 name, tokens[1]);
@@ -509,16 +527,6 @@ void DoubleSidedDrive::initWriteTrack()
 void DoubleSidedDrive::writeTrackData(byte data)
 {
 	disk->writeTrackData(data);
-}
-
-void DoubleSidedDrive::readSector(byte* buf, int sector)
-{
-	disk->readSector(buf, sector);
-}
-
-void DoubleSidedDrive::writeSector(const byte* buf, int sector)
-{
-	disk->writeSector(buf, sector);
 }
 
 } // namespace openmsx

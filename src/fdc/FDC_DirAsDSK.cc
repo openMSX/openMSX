@@ -206,17 +206,17 @@ FDC_DirAsDSK::FDC_DirAsDSK(const string& fileName)
 	struct stat fst;
 	bool readBootBlockFromFile = false;
 
-	if (stat(tmpfilename.c_str(), &fst) ==0 ) {
-		if ( fst.st_size == SECTOR_SIZE ){
-		readBootBlockFromFile=true;
-		FILE* file = fopen(tmpfilename.c_str(), "rb");
-		if (file) {
-			PRT_DEBUG("reading bootblock from " << tmpfilename);
-			//fseek(file,0,SEEK_SET);
-			// Read boot block from file
-			fread(BootBlock, 1, SECTOR_SIZE, file);
-			fclose(file);
-		}
+	if (stat(tmpfilename.c_str(), &fst) == 0) {
+		if (fst.st_size == (int)SECTOR_SIZE) {
+			readBootBlockFromFile = true;
+			FILE* file = fopen(tmpfilename.c_str(), "rb");
+			if (file) {
+				PRT_DEBUG("reading bootblock from " << tmpfilename);
+				//fseek(file,0,SEEK_SET);
+				// Read boot block from file
+				fread(BootBlock, 1, SECTOR_SIZE, file);
+				fclose(file);
+			}
 		}
 	}
 	
@@ -323,14 +323,14 @@ FDC_DirAsDSK::~FDC_DirAsDSK()
 		FILE* file = fopen(filename.c_str(), "wb");
 		if (file) {
 			// if we have cached sectors we need also to save the fat and dir sectors!
-			byte* tmpbuf=(byte*)malloc(SECTOR_SIZE);
-			for (int i=1 ; i <= 14 ; i++ ){
-				read(i, SECTOR_SIZE, tmpbuf);
+			byte tmpbuf[SECTOR_SIZE];
+			for (int i = 1; i <= 14; ++i) {
+				readLogicalSector(i, tmpbuf);
 				fwrite(&i , 1, sizeof(int), file);
-				fwrite(tmpbuf , 1, SECTOR_SIZE, file);
+				fwrite(tmpbuf, 1, SECTOR_SIZE, file);
 			}
 
-			for ( it = cachedSectors.begin() ; it != cachedSectors.end() ; it++ ) {
+			for (it = cachedSectors.begin(); it != cachedSectors.end(); ++it) {
 				PRT_DEBUG("Saving cached sector file" << it->first);
 				fwrite(&(it->first) , 1, sizeof(int), file);
 				fwrite(it->second , 1, SECTOR_SIZE, file);
@@ -353,28 +353,16 @@ FDC_DirAsDSK::~FDC_DirAsDSK()
 	}
 }
 
-void FDC_DirAsDSK::read(byte track, byte sector, byte side,
-                   int size, byte* buf)
+void FDC_DirAsDSK::readLogicalSector(unsigned sector, byte* buf)
 {
-	assert(size == SECTOR_SIZE);
-	
-	int logicalSector = physToLog(track, side, sector);
-	if (logicalSector > (nbSectors+1) ) { // not sure about the  +1, just aquick hack to fix formatting
-		throw NoSuchSectorException("No such sector");
-	}
-	read(logicalSector, size, buf);
-}
-
-void FDC_DirAsDSK::read(int logicalSector, int size, byte* buf)
-{
-	PRT_DEBUG("Reading sector : " << logicalSector );
-	if (logicalSector == 0) {
+	PRT_DEBUG("Reading sector : " << sector );
+	if (sector == 0) {
 		//copy our fake bootsector into the buffer
 		PRT_DEBUG("Reading boot sector");
 		memcpy(buf, BootBlock, SECTOR_SIZE);
-	} else if (logicalSector < (1 + 2 * SECTORS_PER_FAT)) {
+	} else if (sector < (1 + 2 * SECTORS_PER_FAT)) {
 		//copy correct sector from FAT
-		PRT_DEBUG("Reading fat sector : " << logicalSector );
+		PRT_DEBUG("Reading fat sector : " << sector );
 
 		// quick-and-dirty:
 		// we check all files in the faked disk for altered filesize
@@ -387,13 +375,13 @@ void FDC_DirAsDSK::read(int logicalSector, int size, byte* buf)
 			}
 		};
 
-		logicalSector = (logicalSector - 1) % SECTORS_PER_FAT;
-		memcpy(buf, FAT + logicalSector * SECTOR_SIZE, size);
-	} else if (logicalSector < 14) {
+		sector = (sector - 1) % SECTORS_PER_FAT;
+		memcpy(buf, FAT + sector * SECTOR_SIZE, SECTOR_SIZE);
+	} else if (sector < 14) {
 		//create correct DIR sector 
-		PRT_DEBUG("Reading dir sector : " << logicalSector );
-		logicalSector -= (1 + 2 * SECTORS_PER_FAT);
-		int dirCount = logicalSector * 16;
+		PRT_DEBUG("Reading dir sector : " << sector );
+		sector -= (1 + 2 * SECTORS_PER_FAT);
+		int dirCount = sector * 16;
 		for (int i = 0; i < 16; i++) {
 			if ( ! mapdir[i].filename.empty()) {
 				checkAlterFileInDisk(dirCount);
@@ -402,23 +390,23 @@ void FDC_DirAsDSK::read(int logicalSector, int size, byte* buf)
 			buf += 32;
 		}
 	} else {
-		PRT_DEBUG("Reading mapped sector : " << logicalSector );
+		PRT_DEBUG("Reading mapped sector : " << sector );
 		// else get map from sector to file and read correct block
 		// folowing same numbering as FAT eg. first data block is cluster 2
-		//int cluster = (int)((logicalSector - 14) / 2) + 2; 
+		//int cluster = (int)((sector - 14) / 2) + 2; 
 		//PRT_DEBUG("Reading cluster " << cluster );
-		if (sectormap[logicalSector].dirEntryNr == NODIRENTRY ) {
+		if (sectormap[sector].dirEntryNr == NODIRENTRY ) {
 			//return an 'empty' sector
 			// 0xE5 is the value used on the Philips VG8250
 			memset(buf, 0xE5, SECTOR_SIZE  );
-		} else if (sectormap[logicalSector].dirEntryNr == CACHEDSECTOR ) {
-			PRT_DEBUG ("reading  cachedSectors["<<logicalSector<<"]" );
-			PRT_DEBUG ("cachedSectors["<<logicalSector<<"] :" << cachedSectors[logicalSector] );
-			memcpy(buf, cachedSectors[logicalSector] , SECTOR_SIZE);
+		} else if (sectormap[sector].dirEntryNr == CACHEDSECTOR ) {
+			PRT_DEBUG ("reading  cachedSectors["<<sector<<"]" );
+			PRT_DEBUG ("cachedSectors["<<sector<<"] :" << cachedSectors[sector] );
+			memcpy(buf, cachedSectors[sector] , SECTOR_SIZE);
 		} else {
 			// open file and read data
-			int offset = sectormap[logicalSector].fileOffset;
-			string tmp = mapdir[sectormap[logicalSector].dirEntryNr].filename;
+			int offset = sectormap[sector].fileOffset;
+			string tmp = mapdir[sectormap[sector].dirEntryNr].filename;
 			PRT_DEBUG("  Reading from file " << tmp );
 			PRT_DEBUG("  Reading with offset " << offset );
 			checkAlterFileInDisk(tmp);
@@ -497,7 +485,7 @@ void FDC_DirAsDSK::updateFileInDisk(const int dirindex)
 	}
 	PRT_DEBUG("Starting at cluster " << curcl );
 
-	int size = fsize;
+	unsigned size = fsize;
 	int prevcl = 0; 
 	while (size && (curcl <= MAX_CLUSTER)) {
 		int logicalSector= 14 + 2*( curcl - 2 );
@@ -569,11 +557,9 @@ void FDC_DirAsDSK::updateFileInDisk(const int dirindex)
 }
 
 void FDC_DirAsDSK::write(byte track, byte sector, byte side, 
-                    int size, const byte* buf)
+                    unsigned /*size*/, const byte* buf)
 {
-	assert(size == SECTOR_SIZE);
-	
-	int logicalSector = physToLog(track, side, sector);
+	unsigned logicalSector = physToLog(track, side, sector);
 	if (logicalSector > nbSectors) {
 		throw NoSuchSectorException("No such sector");
 	}
@@ -587,7 +573,7 @@ void FDC_DirAsDSK::write(byte track, byte sector, byte side,
 		FILE* file = fopen(filename.c_str(), "wb");
 		if (file) {
 			PRT_DEBUG("Writing bootblock to " << filename);
-			fwrite(buf, 1, size, file);
+			fwrite(buf, 1, SECTOR_SIZE, file);
 			fclose(file);
 		} else {
 			CliCommOutput::instance().printWarning(
@@ -604,10 +590,10 @@ void FDC_DirAsDSK::write(byte track, byte sector, byte side,
 		//Since the two FATs should be identical after "normal" usage,
 		//we simply ignore writes (for now, later we could cache them
 		//perhaps)
-		if (logicalSector  < (1 + SECTORS_PER_FAT)){
-		logicalSector = (logicalSector - 1) % SECTORS_PER_FAT;
-		memcpy( FAT + logicalSector * SECTOR_SIZE, buf , size);
-		};
+		if (logicalSector < (1 + SECTORS_PER_FAT)) {
+			logicalSector = (logicalSector - 1) % SECTORS_PER_FAT;
+			memcpy(FAT + logicalSector * SECTOR_SIZE, buf, SECTOR_SIZE);
+		}
 		PRT_DEBUG("FAT[0] :"<< std::hex << (int)FAT[0] );
 		PRT_DEBUG("FAT[1] :"<< (int)FAT[1] );
 		PRT_DEBUG("FAT[2] :"<< (int)FAT[2] );
@@ -718,11 +704,6 @@ void FDC_DirAsDSK::write(byte track, byte sector, byte side,
 bool FDC_DirAsDSK::writeProtected()
 {
 	return false ; // for the moment we don't allow writing to this directory
-}
-
-bool FDC_DirAsDSK::doubleSided()
-{
-	return nbSides == 2;
 }
 
 void FDC_DirAsDSK::updateFileInDSK(const string& fullfilename)

@@ -29,9 +29,6 @@ public:
 		return rom[address];
 	}
 
-	const File* getFile() const {
-		return file.get();
-	}
 	const RomInfo& getInfo() const {
 		return *info;
 	}

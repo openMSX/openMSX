@@ -39,7 +39,7 @@ SRC_HDR:= \
 	Autofire RenShaTurbo \
 	StringOp \
 	Unicode \
-	IPS \
+	EmptyPatch IPSPatch \
 	Version \
 	HostCPU
 
@@ -50,6 +50,7 @@ HDR_ONLY:= \
 	openmsx \
 	Schedulable \
 	MSXException InitException \
+	PatchInterface \
 
 DIST:= \
 	Doxyfile

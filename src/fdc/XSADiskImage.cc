@@ -2,6 +2,7 @@
 
 #include "XSADiskImage.hh"
 #include "File.hh"
+#include <string.h>
 
 using std::string;
 
@@ -11,7 +12,7 @@ const int XSADiskImage::cpdext[TBLSIZE] = {
 	  0,  0,  0,  0,  1,  2,  3,  4, 5,  6,  7,  8,  9, 10, 11, 12
 };
 
-XSADiskImage::XSADiskImage(const string &fileName)
+XSADiskImage::XSADiskImage(const string& fileName)
 {
 	File file(fileName);
 	if (!isXSAImage(file)) {
@@ -30,17 +31,11 @@ XSADiskImage::XSADiskImage(const string &fileName)
 	delete[] inbuf;
 }
 
-bool XSADiskImage::isXSAImage(File &file)
+bool XSADiskImage::isXSAImage(File& file)
 {
 	byte buffer[4];
 	file.read(buffer, 4);
-
-	for (int i = 0; i < 4; i++) {
-		if (buffer[i] != "PCK\010"[i]) {
-			return false;
-		}
-	}
-	return true;
+	return memcmp(buffer, "PCK\010", 4) == 0;
 }
 
 XSADiskImage::~XSADiskImage()
@@ -48,17 +43,13 @@ XSADiskImage::~XSADiskImage()
 	delete[] outbuf;
 }
 
-void XSADiskImage::read(byte track, byte sector,
-                   byte side, int /*size*/, byte* buf)
+void XSADiskImage::readLogicalSector(unsigned sector, byte* buf)
 {
-	int logSector = physToLog(track, side, sector);
-	if (logSector >= nbSectors)
-		throw NoSuchSectorException("No such sector");
-	memcpy(buf, outbuf + logSector * 512, 512);
+	memcpy(buf, outbuf + sector * SECTOR_SIZE, SECTOR_SIZE);
 }
 
 void XSADiskImage::write(byte /*track*/, byte /*sector*/,
-                         byte /*side*/, int /*size*/, const byte* /*buf*/)
+                         byte /*side*/, unsigned /*size*/, const byte* /*buf*/)
 {
 	throw WriteProtectedException("Write protected");
 }
@@ -83,7 +74,7 @@ void XSADiskImage::chkheader()
 
 	// read original length (low endian)
 	int origLen = 0;
-	for (int i=0, base = 1; i < 4; i++, base <<= 8) {
+	for (int i = 0, base = 1; i < 4; ++i, base <<= 8) {
 		origLen += base * charin();
 	}
 	nbSectors = origLen / 512;
@@ -107,11 +98,13 @@ void XSADiskImage::unlz77()
 		if (bitin()) {
 			// 1-bit
 			int strlen = rdstrlen();
-			if (strlen == (MAXSTRLEN+1))
+			if (strlen == (MAXSTRLEN + 1)) {
 				 return;
+			}
 			int strpos = rdstrpos();
-			while (strlen--)
+			while (strlen--) {
 				 charout(*(outbufpos - strpos));
+			}
 		} else {
 			// 0-bit
 			charout(charin());
@@ -122,20 +115,19 @@ void XSADiskImage::unlz77()
 // read string length
 int XSADiskImage::rdstrlen()
 {
-	if (!bitin())
-		return 2;
-	if (!bitin())
-		return 3;
-	if (!bitin())
-		return 4;
+	if (!bitin()) return 2;
+	if (!bitin()) return 3;
+	if (!bitin()) return 4;
 
 	byte nrbits;
-	for (nrbits = 2; (nrbits != 7) && bitin(); nrbits++);
+	for (nrbits = 2; (nrbits != 7) && bitin(); ++nrbits) {
+		// nothing
+	}
 
 	int len = 1;
-	while (nrbits--)
+	while (nrbits--) {
 		len = (len << 1) | bitin();
-
+	}
 	return (len + 1);
 }
 
@@ -144,29 +136,33 @@ int XSADiskImage::rdstrpos()
 {
 	huf_node *hufpos = &huftbl[2*TBLSIZE - 2];
 
-	while (hufpos->child1)
-		if (bitin())
+	while (hufpos->child1) {
+		if (bitin()) {
 			hufpos = hufpos->child2;
-		else
+		} else {
 			hufpos = hufpos->child1;
+		}
+	}
 	byte cpdindex = hufpos-huftbl;
-	tblsizes[cpdindex]++;
+	++tblsizes[cpdindex];
 
 	int strpos;
 	if (cpdbmask[cpdindex] >= 256) {
 		byte strposlsb = charin();
 		byte strposmsb = 0;
-		for (byte nrbits = cpdext[cpdindex]-8; nrbits--; strposmsb |= bitin())
+		for (byte nrbits = cpdext[cpdindex]-8; nrbits--; strposmsb |= bitin()) {
 			strposmsb <<= 1;
+		}
 		strpos = strposlsb + 256 * strposmsb;
 	} else {
 		strpos = 0;
-		for (byte nrbits = cpdext[cpdindex]; nrbits--; strpos |= bitin())
+		for (byte nrbits = cpdext[cpdindex]; nrbits--; strpos |= bitin()) {
 			strpos <<= 1;
+		}
 	}
-	if ((updhufcnt--) == 0)
+	if ((updhufcnt--) == 0) {
 		mkhuftbl();	// make the huffman table
-
+	}
 	return strpos + cpdist[cpdindex];
 }
 
@@ -178,7 +174,7 @@ bool XSADiskImage::bitin()
 		bitcnt = 8;		// 8 bits left
 	}
 	bool temp = bitflg & 1;
-	bitcnt--;			// 1 bit less
+	--bitcnt;			// 1 bit less
 	bitflg >>= 1;
 
 	return temp;
@@ -188,14 +184,14 @@ bool XSADiskImage::bitin()
 void XSADiskImage::inithufinfo()
 {
 	int offs = 1;
-	for (int i = 0; i != TBLSIZE; i++) {
+	for (int i = 0; i != TBLSIZE; ++i) {
 		cpdist[i] = offs;
 		cpdbmask[i] = 1<<cpdext[i];
 		offs += cpdbmask[i];
 	}
 	cpdist[TBLSIZE] = offs;
 
-	for (int i = 0; i != TBLSIZE; i++) {
+	for (int i = 0; i != TBLSIZE; ++i) {
 		tblsizes[i] = 0;	// reset the table counters
 		huftbl[i].child1 = 0;	// mark the leave nodes
 	}
@@ -207,20 +203,22 @@ void XSADiskImage::mkhuftbl()
 {
 	// Initialize the huffman tree
 	huf_node *hufpos = huftbl;
-	for (int i = 0; i != TBLSIZE; i++) {
+	for (int i = 0; i != TBLSIZE; ++i) {
 		(hufpos++)->weight = 1+(tblsizes[i] >>= 1);
 	}
-	for (int i = TBLSIZE; i != 2*TBLSIZE-1; i++)
+	for (int i = TBLSIZE; i != 2*TBLSIZE-1; ++i) {
 		(hufpos++)->weight = -1;
-
+	}
 	// Place the nodes in the correct manner in the tree
 	while (huftbl[2*TBLSIZE-2].weight == -1) {
 		huf_node  *l1pos, *l2pos;
-		for (hufpos=huftbl; !(hufpos->weight); hufpos++)
-			;
+		for (hufpos=huftbl; !(hufpos->weight); ++hufpos) {
+			// nothing
+		}
 		l1pos = hufpos++;
-		while (!(hufpos->weight))
-			hufpos++; 
+		while (!(hufpos->weight)) {
+			++hufpos;
+		}
 		if (hufpos->weight < l1pos->weight) {
 			l2pos = l1pos;
 			l1pos = hufpos++;
@@ -233,10 +231,11 @@ void XSADiskImage::mkhuftbl()
 				if (tempw < l1pos->weight) {
 					l2pos = l1pos;
 					l1pos = hufpos;
-				} else if (tempw < l2pos->weight)
+				} else if (tempw < l2pos->weight) {
 					l2pos = hufpos;
+				}
 			}
-			hufpos++;
+			++hufpos;
 		}
 		hufpos->weight = l1pos->weight+l2pos->weight;
 		(hufpos->child1 = l1pos)->weight = 0;
@@ -248,11 +247,6 @@ void XSADiskImage::mkhuftbl()
 bool XSADiskImage::writeProtected()
 {
 	return true;
-}
-
-bool XSADiskImage::doubleSided()
-{
-	return nbSides == 2;
 }
 
 } // namespace openmsx

@@ -18,30 +18,20 @@ DSKDiskImage::~DSKDiskImage()
 {
 }
 
-void DSKDiskImage::read(byte track, byte sector, byte side,
-                   int /*size*/, byte* buf)
+void DSKDiskImage::readLogicalSector(unsigned sector, byte* buf)
 {
-	try {
-		int logicalSector = physToLog(track, side, sector);
-		PRT_DEBUG("Reading sector : " << logicalSector );
-		if (logicalSector >= nbSectors) {
-			throw NoSuchSectorException("No such sector");
-		}
-		file->seek(logicalSector * SECTOR_SIZE);
-		file->read(buf, SECTOR_SIZE);
-	} catch (FileException &e) {
-		throw DiskIOErrorException("Disk I/O error");
-	}
+	file->seek(sector * SECTOR_SIZE);
+	file->read(buf, SECTOR_SIZE);
 }
 
 void DSKDiskImage::write(byte track, byte sector, byte side, 
-                    int /*size*/, const byte* buf)
+                         unsigned /*size*/, const byte* buf)
 {
 	if (writeProtected()) {
 		throw WriteProtectedException("");
 	}
 	try {
-		int logicalSector = physToLog(track, side, sector);
+		unsigned logicalSector = physToLog(track, side, sector);
 		if (logicalSector >= nbSectors) {
 			throw NoSuchSectorException("No such sector");
 		}
@@ -55,11 +45,6 @@ void DSKDiskImage::write(byte track, byte sector, byte side,
 bool DSKDiskImage::writeProtected()
 {
 	return file->isReadOnly();
-}
-
-bool DSKDiskImage::doubleSided()
-{
-	return nbSides == 2;
 }
 
 } // namespace openmsx

@@ -16,9 +16,11 @@
 #include "FilePool.hh"
 #include "ConfigException.hh"
 #include "HardwareConfig.hh"
-#include "IPS.hh"
+#include "EmptyPatch.hh"
+#include "IPSPatch.hh"
 
 using std::string;
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -87,11 +89,22 @@ void Rom::init(const XMLElement& config)
 	}
 
 	if (size != 0 ) {
-		const XMLElement* ipsElem = config.findChild("ips");
-		if (ipsElem) {
-			const string& filename = ipsElem->getChildData("filename");
-			IPS::applyPatch(const_cast<byte*>(rom), getSize(),
-			                config.getFileContext().resolve(filename));
+		const XMLElement* patchesElem = config.findChild("patches");
+		if (patchesElem) {
+			auto_ptr<const PatchInterface> patch(
+				new EmptyPatch(rom, size));
+
+			FileContext& context = config.getFileContext();
+			XMLElement::Children patches;
+			patchesElem->getChildren("ips", patches);
+			for (XMLElement::Children::const_iterator it
+			       = patches.begin(); it != patches.end(); ++it) {
+				const string& filename = (*it)->getData();
+				patch.reset(new IPSPatch(
+					context.resolve(filename), patch));
+			}
+			
+			patch->copyBlock(0, const_cast<byte*>(rom), size);
 		}
 	}
 	info = RomInfo::fetchRomInfo(*this);

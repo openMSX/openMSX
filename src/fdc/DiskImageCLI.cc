@@ -33,13 +33,18 @@ const string& DiskImageCLI::optionHelp() const
 }
 
 void DiskImageCLI::parseFileType(const string& filename,
-                                 list<string>& /*cmdLine*/)
+                                 list<string>& cmdLine)
 {
 	XMLElement& config = GlobalSettings::instance().getMediaConfig();
 	XMLElement& diskElem = config.getCreateChild(string("disk") + driveLetter);
-	diskElem.setData(filename);
+	diskElem.getCreateChild("filename", filename);
 	diskElem.setFileContext(std::auto_ptr<FileContext>(new UserFileContext()));
-	driveLetter++;
+	while (peekArgument(cmdLine) == "-ips") {
+		cmdLine.pop_front();
+		string ipsFile = getArgument("-ips", cmdLine);
+		diskElem.getCreateChild("ips", ipsFile);
+	}
+	++driveLetter;
 }
 
 const string& DiskImageCLI::fileTypeHelp() const

@@ -35,18 +35,15 @@ class FDC_DirAsDSK : public SectorBasedDisk
 public: 
 	FDC_DirAsDSK(const std::string& fileName);
 	virtual ~FDC_DirAsDSK();
-	virtual void read(byte track, byte sector,
-			  byte side, int size, byte* buf);
-	virtual void write(byte track, byte sector,
-	   byte side, int size, const byte* buf);
 
+	virtual void write(byte track, byte sector,
+	                   byte side, unsigned size, const byte* buf);
 	virtual bool writeProtected();
-	virtual bool doubleSided();
 
 private:
 	static const int MAX_CLUSTER = 720;
 	static const int SECTORS_PER_FAT = 3;
-	void read(int logicalSector, int size, byte* buf);
+	virtual void readLogicalSector(unsigned sector, byte* buf);
 
 	bool checkFileUsedInDSK(const std::string& fullfilename);
 	bool checkMSXFileExists(const std::string& msxfilename);

@@ -20,7 +20,8 @@ SRC_HDR:= \
 	DSKDiskImage \
 	XSADiskImage \
 	CRC16 \
-	FDC_DirAsDSK
+	FDC_DirAsDSK \
+	EmptyDiskPatch
 
 include build/node-end.mk
 

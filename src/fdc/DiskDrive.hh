@@ -196,7 +196,8 @@ private:
 	virtual std::string execute(const std::vector<std::string>& tokens);
 	virtual std::string help   (const std::vector<std::string>& tokens) const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
-	void insertDisk(const std::string& disk);
+	void insertDisk(const std::string& disk,
+	                const std::vector<std::string>& patches);
 	void ejectDisk();
 
 	std::string name;
@@ -250,10 +251,6 @@ public:
 	virtual void getTrackHeader(byte* buf);
 	virtual void initWriteTrack();
 	virtual void writeTrackData(byte data);
-
-	// high level read / write methods used by DiskRomPatch
-	void readSector(byte* buf, int sector);
-	void writeSector(const byte* buf, int sector);
 
 private:
 	int side;

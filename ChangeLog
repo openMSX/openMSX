@@ -1,5 +1,10 @@
 $Id$
 
+2005-01-28 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Allow IPS patches for disk images:
+	   only on the command line, not yet in the console
+	* Allow multiple IPS patches on the same rom/disk
+
 2005-01-27 David Heremans <david.heremans@gnu-linux.net>
 	* Updated the LED images.
 

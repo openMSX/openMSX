@@ -14,6 +14,7 @@
 using std::auto_ptr;
 using std::list;
 using std::string;
+using std::vector;
 
 namespace openmsx {
 
@@ -66,7 +67,7 @@ const string& MSXRomCLI::fileTypeHelp() const
 void MSXRomCLI::parse(const string& arg, const string& slotname,
                       list<string>& cmdLine)
 {
-	string ipsfile;
+	vector<string> ipsfiles;
 	string mapper;
 	string romfile = arg;
 
@@ -89,7 +90,7 @@ void MSXRomCLI::parse(const string& arg, const string& slotname,
 		string extra = peekArgument(cmdLine);
 		if (extra == "-ips") {
 			cmdLine.pop_front();
-			ipsfile = getArgument("-ips", cmdLine);
+			ipsfiles.push_back(getArgument("-ips", cmdLine));
 		} else if (extra == "-romtype") {
 			cmdLine.pop_front();
 			mapper = getArgument("-romtype", cmdLine);
@@ -113,11 +114,14 @@ void MSXRomCLI::parse(const string& arg, const string& slotname,
 	auto_ptr<XMLElement> rom(new XMLElement("rom"));
 	rom->addChild(auto_ptr<XMLElement>(
 		new XMLElement("filename", romfile)));
-	if (!ipsfile.empty()) {
-		auto_ptr<XMLElement> ips(new XMLElement("ips"));
-		ips->addChild(auto_ptr<XMLElement>(
-			new XMLElement("filename", ipsfile)));
-		rom->addChild(ips);
+	if (!ipsfiles.empty()) {
+		auto_ptr<XMLElement> patches(new XMLElement("patches"));
+		for (vector<string>::const_iterator it = ipsfiles.begin();
+		     it != ipsfiles.end(); ++it) {
+			patches->addChild(auto_ptr<XMLElement>(
+				new XMLElement("ips", *it)));
+		}
+		rom->addChild(patches);
 	}
 	device->addChild(rom);
 	auto_ptr<XMLElement> sound(new XMLElement("sound"));
@@ -141,12 +145,14 @@ void MSXRomCLI::parse(const string& arg, const string& slotname,
 bool MSXRomCLI::IpsOption::parseOption(const string& option,
                                        list<string>& cmdLine)
 {
-	throw FatalError("-ips options should immediately follow a ROM.");
+	throw FatalError(
+		"-ips options should immediately follow a ROM or disk image.");
 }
 
 const string& MSXRomCLI::IpsOption::optionHelp() const
 {
-	static const string text("Apply the given IPS patch to the ROM in front.");
+	static const string text(
+		"Apply the given IPS patch to the ROM or disk iamge in front.");
 	return text;
 }
 

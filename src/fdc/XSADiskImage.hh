@@ -22,18 +22,16 @@ public:
 	XSADiskImage(const std::string& fileName);
 	virtual ~XSADiskImage();
 	
-	virtual void read(byte track, byte sector,
-			  byte side, int size, byte* buf);
 	virtual void write(byte track, byte sector,
-			   byte side, int size, const byte* buf);
-
+	                   byte side, unsigned size, const byte* buf);
 	virtual bool writeProtected();
-	virtual bool doubleSided();
 
 private:
 	static const int MAXSTRLEN = 254;
 	static const int TBLSIZE = 16;
 	static const int MAXHUFCNT = 127;
+
+	virtual void readLogicalSector(unsigned sector, byte* buf);
 
 	bool isXSAImage(File& file);
 	inline byte charin();

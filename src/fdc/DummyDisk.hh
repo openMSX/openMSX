@@ -11,13 +11,13 @@ class DummyDisk : public Disk
 {
 public:
 	virtual void read (byte track, byte sector,
-			   byte side, int size, byte* buf);
+	                   byte side, unsigned size, byte* buf);
 	virtual void write(byte track, byte sector,
-			   byte side, int size, const byte* buf);
+	                   byte side, unsigned size, const byte* buf);
 	virtual void getSectorHeader(byte track, byte sector,
-				     byte side, byte* buf);
-	virtual void getTrackHeader(byte track,
-				    byte side, byte* buf);
+	                             byte side, byte* buf);
+	virtual void getTrackHeader (byte track,
+	                             byte side, byte* buf);
 
 	virtual bool ready();
 	virtual bool writeProtected();

@@ -1,15 +1,37 @@
 // $Id$
 
 #include "SectorBasedDisk.hh"
+#include "EmptyDiskPatch.hh"
+#include "IPSPatch.hh"
 
 namespace openmsx {
 
 SectorBasedDisk::SectorBasedDisk()
+	: patch(new EmptyDiskPatch(*this))
 {
 }
 
 SectorBasedDisk::~SectorBasedDisk()
 {
+}
+
+void SectorBasedDisk::read(byte track, byte sector, byte side,
+                           unsigned /*size*/, byte* buf)
+{
+	try {
+		unsigned logicalSector = physToLog(track, side, sector);
+		if (logicalSector >= nbSectors) {
+			throw NoSuchSectorException("No such sector");
+		}
+		patch->copyBlock(logicalSector * SECTOR_SIZE, buf, SECTOR_SIZE);
+	} catch (MSXException& e) {
+		throw DiskIOErrorException("Disk I/O error");
+	}
+}
+
+void SectorBasedDisk::applyPatch(const std::string& patchFile)
+{
+	patch.reset(new IPSPatch(patchFile, patch));
 }
 
 void SectorBasedDisk::initWriteTrack(byte track, byte side)
@@ -120,6 +142,16 @@ bool SectorBasedDisk::ready()
 	return true;
 }
 
+bool SectorBasedDisk::doubleSided()
+{
+	return nbSides == 2;
+}
+
+unsigned SectorBasedDisk::getNbSectors() const
+{
+	return nbSectors;
+}
+
 void SectorBasedDisk::detectGeometry()
 {
 	// the following are just heuristics...
@@ -145,11 +177,6 @@ void SectorBasedDisk::detectGeometry()
 		// disks are double sided disk but are truncated at 360kb.
 		Disk::detectGeometry();
 	}
-}
-
-int SectorBasedDisk::getImageSize()
-{
-	return  512 * nbSectors;
 }
 
 } // namespace openmsx

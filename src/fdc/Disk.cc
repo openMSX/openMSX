@@ -2,12 +2,11 @@
 
 #include "Disk.hh"
 
-
 namespace openmsx {
 
 Disk::Disk()
+	: nbSides(0)
 {
-	nbSides = 0;
 }
 
 Disk::~Disk()
@@ -45,22 +44,10 @@ byte Disk::readTrackData()
 	return 0xF4;
 }
 
-
-
-void Disk::readSector(byte* buf, int logSector)
+void Disk::applyPatch(const std::string& patchFile)
 {
-	byte track, side, sector;
-	logToPhys(logSector, track, side, sector);
-	read(track, sector, side, 512, buf);
+	throw MSXException("Patching of this disk image format not supported.");
 }
-
-void Disk::writeSector(const byte* buf, int logSector)
-{
-	byte track, side, sector;
-	logToPhys(logSector, track, side, sector);
-	write(track, sector, side, 512, buf);
-}
-
 
 int Disk::physToLog(byte track, byte side, byte sector)
 {
