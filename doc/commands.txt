@@ -350,6 +350,17 @@ save_settings
     save_settings <filename>  Save settings to the given filename
 
 
+type
+----
+
+  Type a string in the emulated MSX. This command automatically presses and
+  releases keys in the simulated MSX keyboard matrix. This command is mainly
+  useful for demoing.
+
+  usage:
+    type "Hello world!"
+
+
 SETTINGS
 ========
 
@@ -721,7 +732,7 @@ samples
 
   usage:
     set samples       shows the current setting 
-    set samples 1024  use 44.1kHz mixing frequency
+    set samples 1024  use mixing buffer of 1024 samples
 
 
 save_settings_at_exit
@@ -758,19 +769,6 @@ speed
     set speed <num>  set new emulation speed
 
 
-throttle
---------
-
-  Sets throttle mode. In throttle mode the emulator tries to run at the
-  specified speed (see speed command). When throttling is turned off the
-  emulator runs as fast as possible.
-
-  usage:
-    set throttle      shows the current setting
-    set throttle on   turn throttle mode on
-    set throttle off  turn throttle mode off
-    
-
 [soundchip]_mode
 ------------------
 
@@ -801,6 +799,35 @@ throttle
     set PSG_volume
     set PSG_volume 18000
     set "FMPAC_volume" 15000
+
+
+throttle
+--------
+
+  Sets throttle mode. In throttle mode the emulator tries to run at the
+  specified speed (see speed command). When throttling is turned off the
+  emulator runs as fast as possible.
+
+  usage:
+    set throttle      shows the current setting
+    set throttle on   turn throttle mode on
+    set throttle off  turn throttle mode off
+    
+
+user_directories
+----------------
+
+  The list of "user directories". This makes it a bit more convenient to
+  insert disks, tapes, roms, ... See manual for more details.
+  This setting is a list in TCL format (items are space separated or enclosed
+  in braces, see TCL manual for details). Thus all TCL functions to manipulate
+  lists can be used on this setting.
+
+  usage:
+    set user_directories                   Shows the current list
+    set user_directories "~/disks ~/roms"  Replace the list with a new one
+    set user_directories {}                Remove all user directories
+    lappend user_directories ~/tapes       Add a directory to the list
 
 
 vdpcmdtrace
