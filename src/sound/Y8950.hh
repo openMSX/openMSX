@@ -117,6 +117,7 @@ class Y8950 : public SoundDevice
 			// Liner to Log curve conversion table (for Attack rate). 
 			static unsigned int AR_ADJUST_TABLE[1<<EG_BITS];
 	};
+	friend class Slot;
 
 	class Channel {
 		public:
@@ -141,18 +142,7 @@ class Y8950 : public SoundDevice
 		void setSampleRate(int sampleRate);
 		int* updateBuffer(int length);
 
-
-		// Cut the lower b bit(s) off. 
-		inline static int HIGHBITS(int c, int b);
-		// Leave the lower b bit(s). 
-		inline static int LOWBITS(int c, int b);
-		// Expand x which is s bits to d bits. 
-		inline static int EXPAND_BITS(int x, int s, int d);
-		
-		// Adjust envelope speed which depends on sampling rate. 
-		inline static unsigned int rate_adjust(double x, int rate); 
-
-	protected:
+	private:
 		// Definition of envelope mode 
 		enum { ATTACK,DECAY,SUSHOLD,SUSTINE,RELEASE,FINISH };
 		// Dynamic range 
@@ -162,9 +152,17 @@ class Y8950 : public SoundDevice
 		// PM table is calcurated by PM_AMP * pow(2,PM_DEPTH*sin(x)/1200) 
 		static const int PM_AMP_BITS = 8;
 		static const int PM_AMP = 1<<PM_AMP_BITS;
-
-	private:
-		int CLAP(int min, int x, int max);
+		
+		// Cut the lower b bit(s) off. 
+		inline static int HIGHBITS(int c, int b);
+		// Leave the lower b bit(s). 
+		inline static int LOWBITS(int c, int b);
+		// Expand x which is s bits to d bits. 
+		inline static int EXPAND_BITS(int x, int s, int d);
+		// Adjust envelope speed which depends on sampling rate. 
+		inline static unsigned int rate_adjust(double x, int rate); 
+		inline static int CLAP(int min, int x, int max);
+		
 		void makePmTable();
 		void makeAmTable();
 

@@ -76,6 +76,8 @@ class YM2413 : public SoundDevice
 			int *plfo_pm;
 			int *plfo_am;
 	};
+	friend class Slot;
+	
 	class Channel {
 		public:
 			Channel();
@@ -89,7 +91,6 @@ class YM2413 : public SoundDevice
 
 	public:
 		YM2413(short volume, const EmuTime &time, const Mixer::ChannelMode mode=Mixer::MONO);
-		//YM2413(short volume, const EmuTime &time);
 		virtual ~YM2413();
 
 		void reset(const EmuTime &time);
@@ -119,11 +120,9 @@ class YM2413 : public SoundDevice
 		static void makeRksTable();
 		static void makeDB2LinTable();
 		static void makeDefaultPatch();
-		static void getDefaultPatch(int num, Patch *patch);
 		static void dump2patch(const byte *dump, Patch *patch);
-		static byte default_inst[(16+3)*16];
+		static const byte default_inst[(16+3)*16];
 		void reset_patch();
-		void copyPatch(int num, Patch *patch);
 		inline void keyOn(int i);
 		inline void keyOff(int i);
 		inline void keyOn_BD();
@@ -145,7 +144,6 @@ class YM2413 : public SoundDevice
 		inline void update_noise();
 		inline void update_ampm();
 
-	public:
 		inline static int TL2EG(int d);
 		inline static int DB_POS(int x);
 		inline static int DB_NEG(int x);
@@ -156,7 +154,6 @@ class YM2413 : public SoundDevice
 
 	private:
 		static const int CLOCK_FREQ = 3579545;
-
 		static const double PI = 3.14159265358979;
 
 		// Size of Sintable ( 1 -- 18 can be used, but 7 -- 14 recommended.)

@@ -61,7 +61,7 @@ Scheduler* Scheduler::instance()
 Scheduler *Scheduler::oneInstance = NULL;
 
 
-void Scheduler::setSyncPoint(const EmuTime &time, Schedulable* device, int userData = 0)
+void Scheduler::setSyncPoint(const EmuTime &time, Schedulable* device, int userData)
 {
 	PRT_DEBUG("Sched: registering " << device->getName() << " for emulation at " << time);
 	PRT_DEBUG("Sched:  CPU is at " << cpu->getCurrentTime());
@@ -72,7 +72,7 @@ void Scheduler::setSyncPoint(const EmuTime &time, Schedulable* device, int userD
 	push_heap(syncPoints.begin(), syncPoints.end());
 }
 
-bool Scheduler::removeSyncPoint(Schedulable* device, int userData = 0)
+bool Scheduler::removeSyncPoint(Schedulable* device, int userData)
 {
 	std::vector<SynchronizationPoint>::iterator i;
 	for (i=syncPoints.begin(); i!=syncPoints.end(); i++) {
@@ -119,20 +119,6 @@ void Scheduler::scheduleEmulation()
 {
 	while (!exitScheduler) {
 		while (runningScheduler) {
-
-// some test stuff for joost, please leave for a few
-//	std::cerr << "foo" << std::endl;
-//	std::ifstream quakef("starquake/quake");
-//	byte quakeb[128];
-//	quakef.read(quakeb, 127);
-//	EmuTime foo;
-//	std::cerr << "foo" << std::endl;
-//	for (int joosti=0;joosti<127;joosti++)
-//	{
-//		MSXMotherBoard::instance()->writeMem(0x8000+joosti,quakeb[joosti],foo);
-//	}
-//	quakef.close();
-
 			if (syncPoints.empty()) {
 				// nothing scheduled, emulate CPU
 				PRT_DEBUG ("Sched: Scheduling CPU till infinity");
@@ -156,11 +142,9 @@ void Scheduler::scheduleEmulation()
 				}
 			}
 		}
-
 		pauseMutex.grab();	// grab and release mutex, if unpaused this will
 		pauseMutex.release();	//  succeed else we sleep till unpaused
 	}
-
 }
 
 void Scheduler::unpause()

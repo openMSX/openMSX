@@ -404,7 +404,7 @@ void Y8950::Channel::reset()
 }
 
 
-Y8950::Y8950(short volume, const EmuTime &time, Mixer::ChannelMode mode=Mixer::MONO)
+Y8950::Y8950(short volume, const EmuTime &time, Mixer::ChannelMode mode)
 {
 	makePmTable();
 	makeAmTable();
@@ -423,8 +423,7 @@ Y8950::Y8950(short volume, const EmuTime &time, Mixer::ChannelMode mode=Mixer::M
 	// 256Kbytes RAM 
 	memory[0] = new byte[256*1024];
 	// 256Kbytes ROM 
-	//memory[1] = new byte[256*1024];
-	memory[1] = memory[0];
+	memory[1] = new byte[256*1024];
 	
 	reset(time);
 
@@ -438,7 +437,7 @@ Y8950::~Y8950()
 	Mixer::instance()->unregisterSound(this);
 	delete[] buffer;
 	delete[] memory[0];
-	//delete[] memory[1];
+	delete[] memory[1];
 }
 
 void Y8950::setSampleRate(int sampleRate)

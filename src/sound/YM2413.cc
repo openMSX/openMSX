@@ -73,7 +73,7 @@ int YM2413::pm_dphase;
 int YM2413::am_dphase;
 word YM2413::AR_ADJUST_TABLE[1<<EG_BITS];
 YM2413::Patch YM2413::null_patch;
-YM2413::Patch YM2413::default_patch[(16+3)*2];
+YM2413::Patch YM2413::default_patch[19*2];
 int YM2413::dphaseARTable[16][16];
 int YM2413::dphaseDRTable[16][16];
 int YM2413::tllTable[16][8][1<<TL_BITS][4];
@@ -82,11 +82,6 @@ int YM2413::dphaseTable[512][8][16];
 short YM2413::dB2LinTab[(2*DB_MUTE)*2];
 
 
-
-YM2413::Patch::Patch()
-{
-	TL = FB = EG = ML = AR = DR = SL = RR = KR = KL = AM = PM = WF = 0;
-}
 
 //***************************************************//
 //                                                   //
@@ -267,43 +262,47 @@ void YM2413::makeRksTable()
 }
 
 
+YM2413::Patch::Patch()
+{
+	TL = FB = EG = ML = AR = DR = SL = RR = KR = KL = AM = PM = WF = 0;
+}
+
 void YM2413::makeDefaultPatch()
 {
 	for (int j=0; j<19; j++)
-		getDefaultPatch(j, &default_patch[j*2]);
-}
-void YM2413::getDefaultPatch(int num, Patch *patch)
-{
-	dump2patch(default_inst + num*16, patch);
+		dump2patch(default_inst + j*16, &default_patch[j*2]);
 }
 void YM2413::dump2patch(const byte *dump, Patch *patch)
 {
 	patch[0].AM = (dump[0]>>7)&1;
-	patch[1].AM = (dump[1]>>7)&1;
 	patch[0].PM = (dump[0]>>6)&1;
-	patch[1].PM = (dump[1]>>6)&1;
 	patch[0].EG = (dump[0]>>5)&1;
-	patch[1].EG = (dump[1]>>5)&1;
 	patch[0].KR = (dump[0]>>4)&1;
-	patch[1].KR = (dump[1]>>4)&1;
 	patch[0].ML = (dump[0])&15;
-	patch[1].ML = (dump[1])&15;
 	patch[0].KL = (dump[2]>>6)&3;
-	patch[1].KL = (dump[3]>>6)&3;
 	patch[0].TL = (dump[2])&63;
 	patch[0].FB = (dump[3])&7;
 	patch[0].WF = (dump[3]>>3)&1;
-	patch[1].WF = (dump[3]>>4)&1;
 	patch[0].AR = (dump[4]>>4)&15;
-	patch[1].AR = (dump[5]>>4)&15;
 	patch[0].DR = (dump[4])&15;
-	patch[1].DR = (dump[5])&15;
 	patch[0].SL = (dump[6]>>4)&15;
-	patch[1].SL = (dump[7]>>4)&15;
 	patch[0].RR = (dump[6])&15;
+	
+	patch[1].AM = (dump[1]>>7)&1;
+	patch[1].PM = (dump[1]>>6)&1;
+	patch[1].EG = (dump[1]>>5)&1;
+	patch[1].KR = (dump[1]>>4)&1;
+	patch[1].ML = (dump[1])&15;
+	patch[1].KL = (dump[3]>>6)&3;
+	//       TL
+	//       FB
+	patch[1].WF = (dump[3]>>4)&1;
+	patch[1].AR = (dump[5]>>4)&15;
+	patch[1].DR = (dump[5])&15;
+	patch[1].SL = (dump[7]>>4)&15;
 	patch[1].RR = (dump[7])&15;
 }
-byte YM2413::default_inst[(16+3)*16] = {
+const byte YM2413::default_inst[19*16] = {
 /* YM2413 VOICE */
 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 0x61,0x61,0x1e,0x17,0xf0,0x7f,0x07,0x17,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
@@ -571,7 +570,6 @@ void YM2413::Slot::reset()
 
 
 
-
 // Constructor
 YM2413::Channel::Channel() : mod(0), car(1)
 {
@@ -596,11 +594,7 @@ void YM2413::Channel::reset()
 
 
 // Constructor
-//YM2413::YM2413(short volume, const EmuTime &time)
-//{
-//	YM2413(volume,time,Mixer::MONO);
-//}
-YM2413::YM2413(short volume, const EmuTime &time, const Mixer::ChannelMode mode=Mixer::MONO)
+YM2413::YM2413(short volume, const EmuTime &time, const Mixer::ChannelMode mode)
 {
 	for (int i=0; i<19*2; i++) {
 		patch[i] = new Patch();
@@ -627,19 +621,6 @@ YM2413::YM2413(short volume, const EmuTime &time, const Mixer::ChannelMode mode=
 	buffer = new int[bufSize];
 }
 
-// Reset patch datas by system default
-void YM2413::reset_patch()
-{
-	for (int i = 0; i<19*2; i++)
-		copyPatch(i, &default_patch[i]);
-}
-
-// Copy patch
-void YM2413::copyPatch(int num, Patch *ptch)
-{
-	memcpy(patch[num], ptch, sizeof(Patch));
-}
-
 // Destructor
 YM2413::~YM2413()
 {
@@ -647,6 +628,13 @@ YM2413::~YM2413()
 	for (int i=0; i<19*2; i++)
 		delete patch[i];
 	delete[] buffer;
+}
+
+// Reset patch datas by system default
+void YM2413::reset_patch()
+{
+	for (int i = 0; i<19*2; i++)
+		memcpy(patch[i], &default_patch[i], sizeof(Patch));
 }
 
 // Reset whole of OPLL except patch datas
