@@ -2,6 +2,10 @@
 
 /*
 TODO:
+- Idea: make an abstract superclass for line-based Renderers, this
+  class would know when to sync etc, but not be SDL dependent.
+  Since most of the abstraction is done using <Pixel>, most code
+  is SDL independent already.
 - Implement sprite colour in Graphic 7.
 - Implement sprite pixels in Graphic 5.
 - Is it possible to combine dirtyPattern and dirtyColour into a single
@@ -83,10 +87,9 @@ inline static void fillBool(bool *ptr, bool value, int nr)
 template <class Pixel> inline void SDLHiRenderer<Pixel>::renderUntil(
 	int limit)
 {
-	// TODO: Once displayPhase handles page wraps internally,
-	//       this "while" can become an "if".
-	while (nextLine < limit) {
+	if (nextLine < limit) {
 		(this->*phaseHandler)(limit);
+		nextLine = limit ;
 	}
 }
 
@@ -235,10 +238,11 @@ template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 	//       Does the renderer actually have to keep time?
 	//       Keeping render position should be good enough.
 
-	// Init render state.
-	phaseHandler = 0;
-	nextLine = 999; // past end-of-screen
-	updateDisplayMode(vdp->getDisplayMode(), time);
+	// Init renderer state.
+	phaseHandler = &SDLHiRenderer::blankPhase;
+	renderMethod = modeToRenderMethod[vdp->getDisplayMode()];
+	dirtyChecker = modeToDirtyChecker[vdp->getDisplayMode()];
+	setDirty(true);
 	dirtyForeground = dirtyBackground = true;
 
 	// Create display caches.
@@ -305,7 +309,6 @@ template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 
 	// Now we're ready to start rendering the first frame.
 	frameStart();
-	phaseHandler = &SDLHiRenderer::blankPhase;
 }
 
 template <class Pixel> SDLHiRenderer<Pixel>::~SDLHiRenderer()
@@ -695,7 +698,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderGraphic2(
 template <class Pixel> void SDLHiRenderer<Pixel>::renderGraphic4(
 	Pixel *pixelPtr, int line)
 {
-	int addr = line << 7;
+	int addr = (line << 7) & vdp->getNameMask();
 	do {
 		byte colour = vdp->getVRAM(addr++);
 		pixelPtr[0] = pixelPtr[1] = palFg[colour >> 4];
@@ -707,7 +710,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderGraphic4(
 template <class Pixel> void SDLHiRenderer<Pixel>::renderGraphic5(
 	Pixel *pixelPtr, int line)
 {
-	int addr = line << 7;
+	int addr = (line << 7) & vdp->getNameMask();
 	do {
 		byte colour = vdp->getVRAM(addr++);
 		*pixelPtr++ = palFg[colour >> 6];
@@ -720,7 +723,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderGraphic5(
 template <class Pixel> void SDLHiRenderer<Pixel>::renderGraphic6(
 	Pixel *pixelPtr, int line)
 {
-	int addr = line << 7;
+	int addr = (line << 7) & vdp->getNameMask();
 	do {
 		byte colour = vdp->getVRAM(addr);
 		*pixelPtr++ = palFg[colour >> 4];
@@ -734,7 +737,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderGraphic6(
 template <class Pixel> void SDLHiRenderer<Pixel>::renderGraphic7(
 	Pixel *pixelPtr, int line)
 {
-	int addr = line << 7;
+	int addr = (line << 7) & vdp->getNameMask();
 	do {
 		pixelPtr[0] = pixelPtr[1] =
 			graphic7Colour(vdp->getVRAM(addr));
@@ -956,39 +959,29 @@ template <class Pixel> void SDLHiRenderer<Pixel>::blankPhase(
 		// Note: return code ignored.
 		SDL_FillRect(screen, &rect, bgColour);
 	}
-
-	// We're up-to-date now.
-	nextLine = limit;
 }
 
+// TODO: Instead of modifying nextLine field, pass it as a parameter.
+//       After all, so is limit.
+//       Having nextLine as a parameter would make it easier to put this
+//       method in a separate class.
 template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	int limit)
 {
 	//cerr << "displayPhase from " << nextLine << " until " << limit << "\n";
 
-	int numLines = limit - nextLine;
 	// Check for bottom erase; even on overscan this suspends display.
 	if (limit > lineBottomErase) {
-		numLines = lineBottomErase - nextLine;
+		limit = lineBottomErase;
 	}
-	if (nextLine + numLines > lineRenderTop + HEIGHT) {
-		numLines = lineRenderTop + HEIGHT - nextLine;
+	if (limit > lineRenderTop + HEIGHT) {
+		limit = lineRenderTop + HEIGHT;
 	}
-	if (numLines <= 0) {
-		nextLine = limit;
-		return;
-	}
+	if (nextLine >= limit) return;
 
 	// Perform vertical scroll.
-	int scrolledLine = ( nextLine
-		- vdp->getLineZero() + vdp->getVerticalScroll() ) & 0xFF;
-	if (scrolledLine + numLines >= 256) {
-		// If page wraps around, render it in two steps.
-		// TODO: If wrap amount is lower (R#2 as mask in bitmap modes),
-		//       split at the wrap point as well.
-		numLines = 256 - scrolledLine;
-		limit = nextLine + numLines;
-	}
+	int scrolledLine =
+		(nextLine - vdp->getLineZero() + vdp->getVerticalScroll()) & 0xFF;
 
 	// Character mode or bitmap mode?
 	SDL_Surface *displayCache =
@@ -1003,7 +996,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	// TODO: Complete separation of character and bitmap modes.
 	if (vdp->isBitmapMode()) {
 		int line = scrolledLine;
-		int n = numLines;
+		int n = limit - nextLine;
 		bool planar = vdp->isPlanar();
 		do {
 			int addr = planar
@@ -1019,15 +1012,15 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 					lineValidInMode[vramLine | 512] = vdp->getDisplayMode();
 				}
 			}
-			line++;
+			line = (line + 1) & 0xFF;
 		} while (--n);
 	} else {
 		int line = scrolledLine;
-		int n = numLines;
+		int n = limit - nextLine;
 		do {
 			(this->*renderMethod)
 				(getLinePtr(displayCache, line), line);
-			line++;
+			line = (line + 1) & 0xFF;
 		} while (--n);
 	}
 	// Unlock surface.
@@ -1037,25 +1030,28 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	// TODO: Unify MSX1 and MSX2 modes?
 	SDL_Rect source;
 	source.x = 0;
-	if (vdp->isBitmapMode()) {
-		source.y =
-			(vdp->getNameMask() & (0x18000 | (scrolledLine << 7))) >> 7;
-	} else {
-		source.y = scrolledLine;
-	}
 	source.w = getDisplayWidth();
 	source.h = 1;
 	SDL_Rect dest;
 	dest.x = getLeftBorder();
 	dest.y = (nextLine - lineRenderTop) * 2;
-	for (int n = numLines; n--; ) {
+	int line = scrolledLine;
+	// TODO: This is useful in the previous loop as well.
+	int pageMask = vdp->isPlanar() ? 0x100 : 0x300;
+	// TODO: Optimise.
+	for (int n = limit - nextLine; n--; ) {
+		source.y =
+			( vdp->isBitmapMode()
+			? (vdp->getNameMask() >> 7) & (pageMask | line)
+			: line
+			);
 		// TODO: Can we safely use SDL_LowerBlit?
 		// Note: return value is ignored.
 		SDL_BlitSurface(displayCache, &source, screen, &dest);
 		dest.y++;
 		SDL_BlitSurface(displayCache, &source, screen, &dest);
 		dest.y++;
-		source.y++;
+		line = (line + 1) & 0xFF;
 	}
 
 	// Render sprites.
@@ -1070,8 +1066,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 		// Display will be wrong, but this is not really critical.
 		return;
 	}
-	int line = nextLine;
-	for (int n = numLines; n--; line++) {
+	for (int line = nextLine; line < limit; line++) {
 		drawSprites(line);
 	}
 	// Unlock surface.
@@ -1081,19 +1076,15 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	// V9958 can extend the left border over the display area,
 	// this is implemented using overdraw.
 	// TODO: Does the extended border clip sprites as well?
-
 	Pixel bgColour = getBorderColour();
 	dest.x = 0;
 	dest.y = (nextLine - lineRenderTop) * 2;
 	dest.w = getLeftBorder();
-	dest.h = numLines * 2;
+	dest.h = (limit - nextLine) * 2;
 	SDL_FillRect(screen, &dest, bgColour);
 	dest.x = dest.w + getDisplayWidth();
 	dest.w = WIDTH - dest.x;
 	SDL_FillRect(screen, &dest, bgColour);
-
-	//cerr << "nextLine was " << nextLine << ", becomes " << limit << "\n";
-	nextLine = limit;
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::frameStart()
@@ -1122,6 +1113,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::putImage(
 	const EmuTime &time)
 {
 	// Render changes from this last frame.
+	// TODO: Use sync instead?
 	renderUntil(vdp->isPalTiming() ? 313 : 262);
 
 	// Render console if needed
