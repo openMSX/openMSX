@@ -1,5 +1,14 @@
 $Id$
 
+2001-11-18 Maarten ter Huurne <mth@stack.nl>
+	* The drawing area (now called "canvas") is now an off-screen SDL
+	  surface instead of a pixel array. SDL calls are for blitting and
+	  drawing empty lines (top and bottom border).
+	* Cleanup of change tracking in VDP.
+	* Cleanup of Renderer access to VDP state:
+	  public fields replaced by inline methods.
+	* Cleanup of VDP fields: slowly getting rid of "tms" struct.
+
 2001-11-18 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* updated KeyEventInserter, it works now but it is not yet useable,
 	  needs to read text from config file or something
@@ -351,7 +360,7 @@ $Id$
 	* registering SP must be done by Scheduler, not Motherboard
 
 2001-09-08 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
-	* some fixes (yesterday discussed with Davy) 
+	* some fixes (yesterday discussed with Davy)
 
 2001-09-06 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* fixed a few classes to make them compile again

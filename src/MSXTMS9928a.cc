@@ -22,6 +22,7 @@ TODO:
 - Apply line-based scheduling.
 - Sprite attribute readout probably happens one line in advance.
   This matters when line-based scheduling is operational.
+- Get rid of hardcoded port 0x98 and 0x99.
 
 Idea:
 For bitmap modes, cache VRAM lines rather than screen lines.
@@ -41,8 +42,8 @@ Probably also easier to implement when using line buffers.
 
 
 #define TMS99x8A 1
-#define TMS_MODE ( (tms.model == TMS99x8A ? (tms.Regs[0] & 2) : 0) | \
-	((tms.Regs[1] & 0x10)>>4) | ((tms.Regs[1] & 8)>>1))
+#define TMS_MODE ( (tms.model == TMS99x8A ? (controlRegs[0] & 2) : 0) | \
+	((controlRegs[1] & 0x10)>>4) | ((controlRegs[1] & 8)>>1))
 
 /*
 	New palette (R. Nabet).
@@ -107,9 +108,9 @@ inline static void fillBool(bool *ptr, bool value, int nr)
 }
 
 // TODO: Routine is duplicated in SDLLoRenderer.
+// TODO: Make this a member and get rid of size and mag params.
 inline static int calculatePattern(byte *patternPtr, int y, int size, int mag)
 {
-	// Calculate pattern.
 	if (mag) y /= 2;
 	int pattern = patternPtr[y] << 24;
 	if (size == 16) {
@@ -132,12 +133,12 @@ inline static int calculatePattern(byte *patternPtr, int y, int size, int mag)
 	}
 }
 
-int MSXTMS9928a::checkSprites(
-	int line, int *visibleSprites, int size, int mag)
+int MSXTMS9928a::checkSprites(int line, int *visibleSprites)
 {
 	// Get sprites for this line and detect 5th sprite if any.
 	int sprite, visibleIndex = 0;
-	int magSize = size * (mag + 1);
+	int size = getSpriteSize();
+	int magSize = size * (getSpriteMag() + 1);
 	int minStart = line - magSize;
 	byte *attributePtr = tms.vMem + tms.spriteattribute;
 	for (sprite = 0; sprite < 32; sprite++, attributePtr += 4) {
@@ -149,8 +150,8 @@ int MSXTMS9928a::checkSprites(
 				// Five sprites on a line.
 				// According to TMS9918.pdf 5th sprite detection is only
 				// active when F flag is zero.
-				if (~tms.StatusReg & 0xC0) {
-					tms.StatusReg = (tms.StatusReg & 0xE0) | 0x40 | sprite;
+				if (~statusReg & 0xC0) {
+					statusReg = (statusReg & 0xE0) | 0x40 | sprite;
 				}
 				if (limitSprites) break;
 			}
@@ -159,9 +160,9 @@ int MSXTMS9928a::checkSprites(
 			}
 		}
 	}
-	if (~tms.StatusReg & 0x40) {
+	if (~statusReg & 0x40) {
 		// No 5th sprite detected, store number of latest sprite processed.
-		tms.StatusReg = (tms.StatusReg & 0xE0) | (sprite < 32 ? sprite : 31);
+		statusReg = (statusReg & 0xE0) | (sprite < 32 ? sprite : 31);
 	}
 
 	// Optimisation:
@@ -169,7 +170,7 @@ int MSXTMS9928a::checkSprites(
 	// that state is stable until it is reset by a status reg read,
 	// so no need to execute the checks.
 	// The visibleSprites array is filled now, so we can bail out.
-	if (tms.StatusReg & 0x20) return visibleIndex;
+	if (statusReg & 0x20) return visibleIndex;
 
 	/*
 	Model for sprite collision: (or "coincidence" in TMS9918 data sheet)
@@ -180,7 +181,7 @@ int MSXTMS9928a::checkSprites(
 
 	Implemented by checking every pair for collisions.
 	For large numbers of sprites that would be slow,
-	but there are max 4 sprites and max 6 pairs.
+	but there are max 4 sprites and therefore max 6 pairs.
 	If any collision is found, method returns at once.
 	*/
 	for (int i = (visibleIndex < 4 ? visibleIndex : 4); --i >= 1; ) {
@@ -204,8 +205,10 @@ int MSXTMS9928a::checkSprites(
 			// Do sprite i and sprite j collide?
 			int dist = x_j - x_i;
 			if ((-magSize < dist) && (dist < magSize)) {
-				int pattern_i = calculatePattern(patternPtr_i, line - y_i, size, mag);
-				int pattern_j = calculatePattern(patternPtr_j, line - y_j, size, mag);
+				int pattern_i = calculatePattern(
+					patternPtr_i, line - y_i, size, getSpriteMag());
+				int pattern_j = calculatePattern(
+					patternPtr_j, line - y_j, size, getSpriteMag());
 				if (dist < 0) {
 					pattern_i >>= -dist;
 				}
@@ -214,7 +217,7 @@ int MSXTMS9928a::checkSprites(
 				}
 				if (pattern_i & pattern_j) {
 					// Collision!
-					tms.StatusReg |= 0x20;
+					statusReg |= 0x20;
 					return visibleIndex;
 				}
 			}
@@ -243,15 +246,15 @@ void MSXTMS9928a::reset()
 {
 	MSXDevice::reset();
 
-	for (int i = 0; i < 8; i++) tms.Regs[i] = 0;
-	tms.StatusReg = 0;
+	for (int i = 0; i < 8; i++) controlRegs[i] = 0;
+	statusReg = 0;
 	tms.nametbl = tms.pattern = tms.colour = 0;
 	tms.spritepattern = tms.spriteattribute = 0;
 	tms.colourmask = tms.patternmask = 0;
-	tms.Addr = tms.ReadAhead = 0;
+	tms.Addr = 0;
+	readAhead = 0;
 	//tms.INT = 0;
 	tms.mode = tms.BackColour = 0;
-	tms.Change = 1;
 	tms.FirstByte = -1;
 	setDirty(true);
 	stateChanged = true;
@@ -326,9 +329,9 @@ void MSXTMS9928a::executeUntilEmuTime(const Emutime &time)
 	currentTime = time;
 	Scheduler::instance()->setSyncPoint(currentTime+71258, *this); //71285 for PAL, 59404 for NTSC
 	// Since this is the vertical refresh
-	tms.StatusReg |= 0x80;
+	statusReg |= 0x80;
 	// Set interrupt if bits enable it
-	if (tms.Regs[1] & 0x20) {
+	if (controlRegs[1] & 0x20) {
 		setInterrupt();
 	}
 }
@@ -347,10 +350,8 @@ void MSXTMS9928a::writeIO(byte port, byte value, Emutime &time)
 {
 	switch (port){
 	case 0x98: {
-		//WRITE_HANDLER (TMS9928A_vram_w)
 		if (tms.vMem[tms.Addr] != value) {
 			tms.vMem[tms.Addr] = value;
-			tms.Change = 1;
 			/* dirty optimization */
 			stateChanged = true;
 
@@ -372,23 +373,21 @@ void MSXTMS9928a::writeIO(byte port, byte value, Emutime &time)
 			}
 		}
 		tms.Addr = (tms.Addr + 1) & (tms.vramsize - 1);
-		tms.ReadAhead = value;
+		readAhead = value;
 		tms.FirstByte = -1;
 		break;
 	}
 	case 0x99:
-		//WRITE_HANDLER (TMS9928A_register_w)
 		if (tms.FirstByte >= 0) {
 			if (value & 0x80) {
-				/* register write */
+				// Register write.
 				_TMS9928A_change_register ((int)(value & 7), tms.FirstByte);
-				stateChanged = true;
 			}
 			else {
-				/* set read/write address */
+				// Set read/write address.
 				tms.Addr = ((word)value << 8 | tms.FirstByte) & (tms.vramsize - 1);
 				if ( !(value & 0x40) ) {
-					/* read ahead */
+					// Read ahead.
 					TMS9928A_vram_r();
 				}
 			}
@@ -405,9 +404,8 @@ void MSXTMS9928a::writeIO(byte port, byte value, Emutime &time)
 
 byte MSXTMS9928a::TMS9928A_vram_r()
 {
-	//READ_HANDLER (TMS9928A_vram_r)
-	byte ret = tms.ReadAhead;
-	tms.ReadAhead = tms.vMem[tms.Addr];
+	byte ret = readAhead;
+	readAhead = tms.vMem[tms.Addr];
 	tms.Addr = (tms.Addr + 1) & (tms.vramsize - 1);
 	tms.FirstByte = -1;
 	return ret;
@@ -419,10 +417,9 @@ byte MSXTMS9928a::readIO(byte port, Emutime &time)
 	case 0x98:
 		return TMS9928A_vram_r();
 	case 0x99: {
-		//READ_HANDLER (TMS9928A_register_r)
-		byte ret = tms.StatusReg;
+		byte ret = statusReg;
 		// TODO: Used to be 0x5f, but that is contradicted by TMS9918.pdf
-		tms.StatusReg &= 0x1f;
+		statusReg &= 0x1f;
 		tms.FirstByte = -1;
 		resetInterrupt();
 		return ret;
@@ -443,29 +440,29 @@ void MSXTMS9928a::_TMS9928A_change_register(byte reg, byte val)
 		"Mode 1+2+3 (BOGUS)" };
 
 	val &= Mask[reg];
-	byte oldval = tms.Regs[reg];
+	byte oldval = controlRegs[reg];
 	if (oldval == val) return;
-	tms.Regs[reg] = val;
+	controlRegs[reg] = val;
+	stateChanged = true;
 
 	PRT_DEBUG("TMS9928A: Reg " << (int)reg << " = " << (int)val);
 	PRT_DEBUG ("TMS9928A: now in mode " << tms.mode );
 	// Next lines causes crashes
 	//PRT_DEBUG (sprintf("TMS9928A: %s\n", modes[tms.mode]));
-	tms.Change = 1;
 	switch (reg) {
 	case 0:
 		if ( (val ^ oldval) & 2) {
 			// re-calculate masks and pattern generator & colour
 			if (val & 2) {
-				tms.colour = ((tms.Regs[3] & 0x80) * 64) & (tms.vramsize - 1);
-				tms.colourmask = (tms.Regs[3] & 0x7f) * 8 | 7;
-				tms.pattern = ((tms.Regs[4] & 4) * 2048) & (tms.vramsize - 1);
-				tms.patternmask = (tms.Regs[4] & 3) * 256 |
+				tms.colour = ((controlRegs[3] & 0x80) * 64) & (tms.vramsize - 1);
+				tms.colourmask = (controlRegs[3] & 0x7f) * 8 | 7;
+				tms.pattern = ((controlRegs[4] & 4) * 2048) & (tms.vramsize - 1);
+				tms.patternmask = (controlRegs[4] & 3) * 256 |
 					(tms.colourmask & 255);
 			}
 			else {
-				tms.colour = (tms.Regs[3] * 64) & (tms.vramsize - 1);
-				tms.pattern = (tms.Regs[4] * 2048) & (tms.vramsize - 1);
+				tms.colour = (controlRegs[3] * 64) & (tms.vramsize - 1);
+				tms.pattern = (controlRegs[4] * 2048) & (tms.vramsize - 1);
 			}
 			tms.mode = TMS_MODE;
 			//PRT_DEBUG ("TMS9928A: now in mode " << tms.mode );
@@ -475,7 +472,7 @@ void MSXTMS9928a::_TMS9928A_change_register(byte reg, byte val)
 		break;
 	case 1: {
 		// check for changes in the INT line
-		if ((val & 0x20) && (tms.StatusReg & 0x80)) {
+		if ((val & 0x20) && (statusReg & 0x80)) {
 			/* Set the interrupt line !! */
 			setInterrupt();
 		}
@@ -494,7 +491,7 @@ void MSXTMS9928a::_TMS9928A_change_register(byte reg, byte val)
 		fillBool(dirtyName, true, sizeof(dirtyName));
 		break;
 	case 3:
-		if (tms.Regs[0] & 2) {
+		if (controlRegs[0] & 2) {
 			tms.colour = ((val & 0x80) * 64) & (tms.vramsize - 1);
 			tms.colourmask = (val & 0x7f) * 8 | 7;
 		}
@@ -505,7 +502,7 @@ void MSXTMS9928a::_TMS9928A_change_register(byte reg, byte val)
 		fillBool(dirtyColour, true, sizeof(dirtyColour));
 		break;
 	case 4:
-		if (tms.Regs[0] & 2) {
+		if (controlRegs[0] & 2) {
 			tms.pattern = ((val & 4) * 2048) & (tms.vramsize - 1);
 			tms.patternmask = (val & 3) * 256 | 255;
 		}

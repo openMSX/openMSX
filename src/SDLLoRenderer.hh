@@ -69,11 +69,12 @@ private:
 	Pixel XPal[16];
 	Pixel currBorderColours[HEIGHT];
 
-	SDL_Surface *screen;
-
-	/** Actual pixel data.
+	/** The surface which is visible to the user.
 	  */
-	Pixel pixelData[WIDTH * HEIGHT];
+	SDL_Surface *screen;
+	/** The surface which the image is rendered on.
+	  */
+	SDL_Surface *canvas;
 	/** Pointers to the start of each line.
 	  */
 	Pixel *linePtrs[HEIGHT];
