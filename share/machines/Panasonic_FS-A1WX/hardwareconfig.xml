@@ -98,8 +98,8 @@
           <rom>
             <sha1>d37ab4bd2bfddd8c97476cbe7347ae581a6f2972</sha1>
             <filename>roms/fs-a1wx_firmware.rom</filename>
-            <mappertype>PANASONIC</mappertype>
           </rom>
+          <mappertype>PANASONIC</mappertype>
           <sramsize>16</sramsize>
           <sram-mirrored>true</sram-mirrored>
           <sramname>fs-a1wx.sram</sramname>
