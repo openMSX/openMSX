@@ -68,7 +68,10 @@ public:
 	  * Bit 0 (CE) is set when a command is in progress.
 	  */
 	inline byte getStatus(const EmuTime &time) {
-		sync(time);
+		byte cmd = (cmdReg[REG_CMD] & 0xF0) >> 4;
+		if (cmd && commands[cmd]->willStatusChange(time)) {
+			sync(time);
+		}
 		return status;
 	}
 
@@ -226,6 +229,12 @@ private:
 		/** Perform a given V9938 graphical operation.
 		  */
 		virtual void execute(const EmuTime &time) = 0;
+
+		/** Will this command change the status register before the
+		  * specified time? It is allowed to return true if you're not
+		  * sure the status register will change.
+		  */
+		virtual bool willStatusChange(const EmuTime &time) { return true; }
 
 		/** Finshed executing graphical operation.
 		  */

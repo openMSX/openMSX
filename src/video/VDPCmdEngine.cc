@@ -69,7 +69,8 @@ VDPCmdEngine::VDPCmdEngine(VDP *vdp_)
 
 VDPCmdEngine::~VDPCmdEngine()
 {
-	for (int i = 0; i < 16; i++) {
+	// skip 0, 1, 2
+	for (int i = 3; i < 16; i++) {
 		delete commands[i];
 	}
 }
