@@ -3,7 +3,8 @@
 # Alternative Makefile
 # ====================
 #
-# An experiment to see if auto* is worth the effort.
+# This build system will replace automake in the future.
+# We are keeping autoconf (at least for now).
 #
 # Used a lot of ideas from Peter Miller's excellent paper
 # "Recursive Make Considered Harmful".
@@ -190,7 +191,8 @@ OBJECTS_PATH:=$(BUILD_PATH)/obj
 OBJECTS_FULL:=$(addsuffix .o,$(addprefix $(OBJECTS_PATH)/,$(SOURCES)))
 
 BINARY_PATH:=$(BUILD_PATH)/bin
-BINARY_FULL:=$(BINARY_PATH)/openmsx$(EXEEXT)
+BINARY_FILE:=openmsx$(EXEEXT)
+BINARY_FULL:=$(BINARY_PATH)/$(BINARY_FILE)
 
 LOG_PATH:=$(BUILD_PATH)/log
 
@@ -315,6 +317,41 @@ else
 	@echo "Running $(notdir $(BINARY_FULL))..."
 	@$(BINARY_FULL)
 endif
+
+
+# Installation
+# ============
+
+OPENMSX_INSTALL?=/opt/openMSX
+INSTALL_DOCS:=release-notes.txt release-history.txt
+
+install: all
+	@echo "Installing to $(OPENMSX_INSTALL):"
+	@echo "  Executable..."
+	@mkdir -p $(OPENMSX_INSTALL)/bin
+	@cp $(BINARY_FULL) $(OPENMSX_INSTALL)/bin/$(BINARY_FILE)
+	@echo "  Data files..."
+	@cp -r share $(OPENMSX_INSTALL)/
+	@echo "  C-BIOS..."
+	@mkdir -p $(OPENMSX_INSTALL)/Contrib/cbios
+	@cp Contrib/cbios/*.BIN $(OPENMSX_INSTALL)/Contrib/cbios
+	@echo "  Documentation..."
+	@mkdir -p $(OPENMSX_INSTALL)/doc
+	@cp $(addprefix doc/,$(INSTALL_DOCS)) $(OPENMSX_INSTALL)/doc
+	@mkdir -p $(OPENMSX_INSTALL)/doc/manual
+	@cp $(addprefix doc/manual/,*.html *.css) $(OPENMSX_INSTALL)/doc/manual
+	@echo "  Creating symlinks..."
+	@ln -sf National_CF-1200 $(OPENMSX_INSTALL)/share/machines/msx1
+	@ln -sf Philips_NMS_8250 $(OPENMSX_INSTALL)/share/machines/msx2
+	@ln -sf Panasonic_FS-A1FX $(OPENMSX_INSTALL)/share/machines/msx2plus
+	@ln -sf Panasonic_FS-A1GT $(OPENMSX_INSTALL)/share/machines/turbor
+	@if [ `id -u` -eq 0 ]; \
+		then ln -sf $(OPENMSX_INSTALL)/bin/$(BINARY_FILE) /usr/local/bin/openmsx; \
+		else if test -d ~/bin; \
+			then ln -sf $(OPENMSX_INSTALL)/bin/$(BINARY_FILE) ~/bin/openmsx; \
+			fi; \
+		fi
+	@echo "Installation complete... have fun!"
 
 
 # Precompiled Headers

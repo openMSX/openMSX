@@ -15,6 +15,7 @@ $Id$
 	* Finished Pluggable rewrite:
 	  - all Pluggable instantiation moved to PluggableFactory
 	  - all Pluggable destruction moved to PluggableController
+	* Added "install" target to alternative.mk.
 
 2003-09-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* tab-completion improvements:
