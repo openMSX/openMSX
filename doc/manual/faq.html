@@ -16,15 +16,16 @@
 
 <h2>Contents</h2>
 <ol class="toc">
-	<li><a class="internal" href="#difficult">1. Why is openMSX so difficult to use/install?</a> </li>
-	<li><a class="internal" href="#roms">2. Why doesn't openMSX come with system ROMs?</a> </li>
-	<li><a class="internal" href="#whereroms">3. Where do I install the ROMs?</a> </li>
-	<li><a class="internal" href="#c-bios">4. All I get is "Cartridge not found." What's wrong?</a></li>
-	<li><a class="internal" href="#samples040">5. The sound quality is quite bad in the 0.4.0 release, is that normal?</a></li>
-	<li><a class="internal" href="#harddisk">6. What is the openMSX harddisk support? </a></li>
+	<li><a class="internal" href="#difficultinstall">1. Why is openMSX so difficult to install?</a> </li>
+	<li><a class="internal" href="#difficultuse">2. Why is openMSX so difficult to use?</a> </li>
+	<li><a class="internal" href="#roms">3. Why doesn't openMSX come with system ROMs?</a> </li>
+	<li><a class="internal" href="#whereroms">4. Where do I install the ROMs?</a> </li>
+	<li><a class="internal" href="#c-bios">5. All I get is "Cartridge not found." What's wrong?</a></li>
+	<li><a class="internal" href="#samples040">6. The sound quality is quite bad in the 0.4.0 release, is that normal?</a></li>
+	<li><a class="internal" href="#harddisk">7. What is the openMSX harddisk support? </a></li>
 </ol>
 
-<h2><a id="difficult">1. Why is openMSX so difficult to install/use?</a></h2>
+<h2><a id="difficultinstall">1. Why is openMSX so difficult to install?</a></h2>
 
 <p>openMSX used to be difficult to install, but it isn't difficult at all, nowadays! At least: it shouldn't be. 
 </p>
@@ -38,30 +39,36 @@
 Note that in any case, there are no system ROMs installed, so only the C-BIOS machines work out-of-the-box. See also the next couple of questions.
 </p>
 <p>
-Also, since openMSX comes with the optional GUI dubbed "openMSX Catapult", it is not difficult to use either! The Windows installer installs it by default. For other systems, the same counts as for openMSX itself. Check out the <a class="external" href="http://openmsx.sourceforge.net/catapult-manual/">Catapult manual</a> for more information.
+If you still think openMSX is difficult to install, please tell us why! Contact info is in <a class="external" href="compile.html#contact">the manuals</a>.
+</p>
+
+<h2><a id="difficultuse">2. Why is openMSX so difficult to use?</a></h2>
+
+<p>
+Since openMSX comes with the optional GUI dubbed "openMSX Catapult", it is not difficult to use either! The Windows installer installs it by default. For other systems, the same counts as for openMSX itself. Check out the <a class="external" href="http://openmsx.sourceforge.net/catapult-manual/">Catapult manual</a> for more information. For basic usage, you just select a machine to run and click on "Start"!
 </p>
 
 <p>
-If you want to know more details of openMSX usage, check out <a class="external" href="user.html">the User's Manual</a>.
+Catapult doesn't give you access to all features of openMSX, though. You can do a lot more by using the openMSX built in console. You can read a lot more about this in <a class="external" href="user.html#controlling">the User's Manual</a>.
 </p>
 
 <p>
-If you still think openMSX is difficult to install or to use, please tell us why! Contact info is in <a class="external" href="user.html#contact">the manuals</a>.
+If you still think openMSX is difficult to use, please tell us why! Contact info is in <a class="external" href="user.html#contact">the manuals</a>.
 </p>
 
-<h2><a id="roms">2. Why doesn't openMSX come with system ROMs?</a> </h2>
+<h2><a id="roms">3. Why doesn't openMSX come with system ROMs?</a> </h2>
 
 <p>
 The MSX system ROMs are copyrighted. In other words: it's illegal to include them in our software package without a license. See also the <a class="external" href="setup.html#systemroms">Setup Guide</a>.
 </p>
 
-<h2><a id="whereroms">3. Where do I install the ROMs?</a> </h2>
+<h2><a id="whereroms">4. Where do I install the ROMs?</a> </h2>
 
 <p>For version 0.5.0: you can put all the ROMs in the ROMpool, which is a directory specified in your <code>settings.xml</code>. You can also do it in the way of the older versions: put the ROMs for the machine called WHATEVER in <code>share/machines/WHATEVER/roms</code> and for the extension called WHATEVER in <code>share/extensions/WHATEVER/roms</code>.
 See also the <a class="external" href="setup.html#dumprom">Setup Guide</a>.
 </p>
 
-<h2><a id="c-bios">4. All I get is "Cartridge not found." What's wrong?</a></h2>
+<h2><a id="c-bios">5. All I get is "Cartridge not found." What's wrong?</a></h2>
 
 <p>You are probably talking about this:</p>
 
@@ -79,7 +86,7 @@ So, the message is not from openMSX, but from C-BIOS, which tries to start a car
 <p>Note that the current version of C-BIOS can only run cartridges and does not support disk or tape usage. More information can be found in the <a class="external" href="setup.html#cbios">Setup Guide</a>.
 </p>
 
-<h2><a id="samples040">5. The sound quality is quite bad in the 0.4.0 release, is that normal?</a></h2>
+<h2><a id="samples040">6. The sound quality is quite bad in the 0.4.0 release, is that normal?</a></h2>
 
 <p>Unfortunately, we made a small mistake in the Windows release of 0.4.0. However, the problem can be easily fixed by editing the file <code>share\settings.xml</code> with Notepad or some similar text editor. Look for the section marked "Audio mixer settings" and change the 'samples' setting from 512 to 1024 or 2048. You can play around with the setting: just save the file and restart openMSX to test it.
 </p>
@@ -87,7 +94,7 @@ So, the message is not from openMSX, but from C-BIOS, which tries to start a car
 <p>At the moment, it is not clear what the default value of this setting should be anyway. It seems that the perfect combination of samples and frequency depends on the system. So, feel free to experiment with them.
 </p>
 
-<h2><a id="harddisk">6. What is the openMSX harddisk support?</a></h2>
+<h2><a id="harddisk">7. What is the openMSX harddisk support?</a></h2>
 
 <p>openMSX only supports the emulation of the Sunrise IDE interface at the moment. The extension for this is called 'ide'. The extension has a built in harddisk configuration, in the form of a 100MB sized disk image. If you want to change this, you'll have to edit the file in <code>share/extensions/ide/hardwareconfig.xml</code>. If the harddisk image is not present, or too small, the file is created or extended to the proper size.
 </p>
