@@ -1,5 +1,9 @@
 $Id$
 
+2002-06-27 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* MSXRom fix:
+	   map 32kb ROMs in the right place
+
 2002-06-22 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Small Mixer fix, cleanups
 

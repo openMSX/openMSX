@@ -32,6 +32,7 @@ class MSXRom : public MSXMemDevice, public MSXRomDevice
 	private:
 		void retrieveMapperType();
 		int guessMapperType();
+		bool mappedOdd();
 		
 		inline void setBank4kB (int region, byte* adr);
 		inline void setBank8kB (int region, byte* adr);

@@ -114,16 +114,30 @@ void MSXRom::reset(const EmuTime &time)
 				setROM16kB(3, 0);
 				break;
 			case 2:	// 32kB
-				setROM16kB(0, 0);
-				setROM16kB(1, 0);
-				setROM16kB(2, 1);
-				setROM16kB(3, 1);
+				if (mappedOdd()) {
+					setROM16kB(0, 0);
+					setROM16kB(1, 0);
+					setROM16kB(2, 1);
+					setROM16kB(3, 1);
+				} else {
+					setROM16kB(0, 0);
+					setROM16kB(1, 1);
+					setROM16kB(2, 0);
+					setROM16kB(3, 1);
+				}
 				break;
-			case 3:	// 48kB   TODO is this possible
-				setROM16kB(0, 0);
-				setROM16kB(1, 1);
-				setROM16kB(2, 2);
-				setROM16kB(3, 2);	// TODO check this
+			case 3:	// 48kB
+				if (mappedOdd()) {
+					setROM16kB(0, 0);
+					setROM16kB(1, 0);
+					setROM16kB(2, 1);
+					setROM16kB(3, 2);
+				} else {
+					setROM16kB(0, 0);
+					setROM16kB(1, 1);
+					setROM16kB(2, 2);
+					setROM16kB(3, 2);
+				}
 				break;
 			case 4:	// 64kB
 				setROM16kB(0, 0);
@@ -136,6 +150,21 @@ void MSXRom::reset(const EmuTime &time)
 				assert(false);
 		}
 	}
+}
+
+bool MSXRom::mappedOdd()
+{
+	if ((romBank[0] == 'A') && (romBank[1] == 'B'))
+		return true;
+	
+	int lowest = 4;
+	std::list<MSXConfig::Device::Slotted*>::const_iterator i;
+	for (i=deviceConfig->slotted.begin(); i!=deviceConfig->slotted.end(); i++) {
+		int page = (*i)->getPage();
+		if (page < lowest)
+			lowest = page;
+	}
+	return lowest & 1;
 }
 
 struct ltstr {

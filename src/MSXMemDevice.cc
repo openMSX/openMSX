@@ -27,13 +27,13 @@ void MSXMemDevice::writeMem(word address, byte value, const EmuTime &time)
 void MSXMemDevice::registerSlots()
 {
 	// register in slot-structure
-	if (deviceConfig==NULL) return;	// for DummyDevice
+	if (deviceConfig == NULL) return;	// for DummyDevice
 	std::list<MSXConfig::Device::Slotted*>::const_iterator i;
 	for (i=deviceConfig->slotted.begin(); i!=deviceConfig->slotted.end(); i++) {
-		int ps=(*i)->getPS();
-		int ss=(*i)->getSS();
-		int page=(*i)->getPage();
-		MSXMotherBoard::instance()->registerSlottedDevice(this,ps,ss,page);
+		int ps = (*i)->getPS();
+		int ss = (*i)->getSS();
+		int page = (*i)->getPage();
+		MSXMotherBoard::instance()->registerSlottedDevice(this, ps, ss, page);
 	}
 }
 
