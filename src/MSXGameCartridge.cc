@@ -36,6 +36,8 @@ MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &tim
 MSXGameCartridge::~MSXGameCartridge()
 {
 	PRT_DEBUG("Destructing an MSXGameCartridge object");
+	if (cartridgeSCC)
+		delete cartridgeSCC;
 }
 
 void MSXGameCartridge::reset(const EmuTime &time)
