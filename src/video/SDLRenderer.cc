@@ -19,12 +19,7 @@ TODO:
 #include "EventDistributor.hh"
 #include "FloatSetting.hh"
 #include "Scheduler.hh"
-
-#ifdef __WIN32__
-#include <windows.h>
-static int lastWindowX = 0;
-static int lastWindowY = 0;
-#endif 
+#include "SDLVideoSystem.hh"
 
 using std::max;
 using std::min;
@@ -339,25 +334,10 @@ SDLRenderer<Pixel, zoom>::SDLRenderer(
 			)
 		);
 
-	// Hide mouse cursor.
-	SDL_ShowCursor(SDL_DISABLE);
-
 	// Init the palette.
 	precalcPalette(settings.getGamma()->getValue());
 
 	settings.getDeinterlace()->addListener(this);
-
-#ifdef __WIN32__
-	// Find our current location
-	HWND handle = GetActiveWindow();
-	RECT windowRect;
-	GetWindowRect (handle, &windowRect);
-	// and adjust if needed
-	if ((windowRect.right < 0) || (windowRect.bottom < 0)){
-		SetWindowPos(handle, HWND_TOP,lastWindowX,lastWindowY,0,0,SWP_NOSIZE);
-	}
-#endif 
-
 	powerSetting.addListener(this);
 }
 
@@ -367,24 +347,11 @@ SDLRenderer<Pixel, zoom>::~SDLRenderer()
 	powerSetting.removeListener(this);
 	settings.getDeinterlace()->removeListener(this);
 
-#ifdef __WIN32__
-	// Find our current location
-	if ((screen->flags & SDL_FULLSCREEN) == 0){
-		HWND handle = GetActiveWindow();
-		RECT windowRect;
-		GetWindowRect (handle, &windowRect);
-		lastWindowX = windowRect.left;
-		lastWindowY = windowRect.top;
-	}
-#endif	 
-
 	SDL_FreeSurface(charDisplayCache);
 	if (bitmapDisplayCache) SDL_FreeSurface(bitmapDisplayCache);
 	for (int i = 0; i < 2; i++) {
 		if (workScreens[i]) SDL_FreeSurface(workScreens[i]);
 	}
-
-	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -532,24 +499,9 @@ void SDLRenderer<Pixel, zoom>::resetPalette()
 template <class Pixel, Renderer::Zoom zoom>
 bool SDLRenderer<Pixel, zoom>::checkSettings()
 {
-	// First check this is the right renderer.
-	if (!PixelRenderer::checkSettings()) return false;
-
-	// Check full screen setting.
-	bool fullScreenState = ((screen->flags & SDL_FULLSCREEN) != 0);
-	bool fullScreenTarget = settings.getFullScreen()->getValue();
-	if (fullScreenState == fullScreenTarget) return true;
-
-#ifdef __WIN32__
-	// Under win32, toggling full screen requires opening a new SDL screen.
-	return false;
-#else
-	// Try to toggle full screen.
-	SDL_WM_ToggleFullScreen(screen);
-	fullScreenState =
-		((((volatile SDL_Surface*)screen)->flags & SDL_FULLSCREEN) != 0);
-	return fullScreenState == fullScreenTarget;
-#endif
+	// TODO: Move this check away from Renderer entirely?
+	return PixelRenderer::checkSettings() // right renderer?
+		&& Display::INSTANCE->getVideoSystem()->checkSettings();
 }
 
 template <class Pixel, Renderer::Zoom zoom>

@@ -88,8 +88,7 @@ private:
 	  */
 	static const int LINE_ZOOM = (zoom == Renderer::ZOOM_256 ? 1 : 2);
 
-	friend class SDLLoRendererFactory;
-	friend class SDLHiRendererFactory;
+	friend class SDLVideoSystem;
 
 	/** Translate from absolute VDP coordinates to screen coordinates:
 	  * Note: In reality, there are only 569.5 visible pixels on a line.

@@ -21,9 +21,6 @@
 
 // Video system SDL
 #include "SDLVideoSystem.hh"
-#include "SDLRenderer.hh"
-#include "SDLSnow.hh"
-#include "SDLConsole.hh"
 
 // Video system SDLGL
 #ifdef COMPONENT_GL
@@ -128,73 +125,8 @@ bool SDLHiRendererFactory::isAvailable()
 
 Renderer* SDLHiRendererFactory::create(VDP* vdp)
 {
-	// Destruct old layers, so resources are freed before new allocations
-	// are done.
-	Display::INSTANCE.reset();
-
-	const unsigned WIDTH = 640;
-	const unsigned HEIGHT = 480;
-
-	bool fullScreen = RenderSettings::instance().getFullScreen()->getValue();
-	int flags = SDL_SWSURFACE | (fullScreen ? SDL_FULLSCREEN : 0);
-
-	initSDLVideo();
-
-	// Try default bpp.
-	SDL_Surface* screen = SDL_SetVideoMode(WIDTH, HEIGHT, 0, flags);
-	// Can we handle this bbp?
-	int bytepp = (screen ? screen->format->BytesPerPixel : 0);
-	if (bytepp != 1 && bytepp != 2 && bytepp != 4) {
-		screen = NULL;
-	}
-	// Try supported bpp in order of preference.
-	if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 15, flags);
-	if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 16, flags);
-	if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 32, flags);
-	if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 8, flags);
-
-	if (!screen) {
-		fprintf(stderr, "FAILED to open any screen!");
-		SDL_QuitSubSystem(SDL_INIT_VIDEO);
-		// TODO: Throw exception.
-		return 0;
-	}
-	PRT_DEBUG("Display is " << (int)(screen->format->BitsPerPixel) << " bpp.");
-
-	Display* display = new Display(auto_ptr<VideoSystem>(
-		new SDLVideoSystem(screen) ));
-	Display::INSTANCE.reset(display);
-	Renderer* renderer;
-	Layer* background;
-	switch (screen->format->BytesPerPixel) {
-	case 1:
-		renderer = new SDLRenderer<Uint8, Renderer::ZOOM_REAL>(
-			SDLHI, vdp, screen );
-		background = new SDLSnow<Uint8>(screen);
-		break;
-	case 2:
-		renderer = new SDLRenderer<Uint16, Renderer::ZOOM_REAL>(
-			SDLHI, vdp, screen );
-		background = new SDLSnow<Uint16>(screen);
-		break;
-	case 4:
-		renderer = new SDLRenderer<Uint32, Renderer::ZOOM_REAL>(
-			SDLHI, vdp, screen );
-		background = new SDLSnow<Uint32>(screen);
-		break;
-	default:
-		fprintf(stderr, "FAILED to open supported screen!");
-		SDL_QuitSubSystem(SDL_INIT_VIDEO);
-		return 0;
-	}
-	display->addLayer(background);
-	display->setAlpha(background, 255);
-	Layer* rendererLayer = dynamic_cast<Layer*>(renderer);
-	display->addLayer(rendererLayer);
-	display->setAlpha(rendererLayer, 255);
-	new SDLConsole(CommandConsole::instance(), screen);
-
-	return renderer;
+	SDLVideoSystem* videoSystem = new SDLVideoSystem(vdp, SDLHI);
+	return videoSystem->renderer;
 }
 
 // SDLLo ===================================================================
@@ -206,75 +138,8 @@ bool SDLLoRendererFactory::isAvailable()
 
 Renderer* SDLLoRendererFactory::create(VDP* vdp)
 {
-	// Destruct old layers, so resources are freed before new allocations
-	// are done.
-	Display::INSTANCE.reset();
-
-	const unsigned WIDTH = 320;
-	const unsigned HEIGHT = 240;
-
-	bool fullScreen = RenderSettings::instance().getFullScreen()->getValue();
-	int flags = SDL_SWSURFACE | (fullScreen ? SDL_FULLSCREEN : 0);
-
-	initSDLVideo();
-
-	// Try default bpp.
-	SDL_Surface* screen = SDL_SetVideoMode(WIDTH, HEIGHT, 0, flags);
-	// Can we handle this bbp?
-	int bytepp = (screen ? screen->format->BytesPerPixel : 0);
-	if (bytepp != 1 && bytepp != 2 && bytepp != 4) {
-		screen = NULL;
-	}
-	// Try supported bpp in order of preference.
-	if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 15, flags);
-	if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 16, flags);
-	if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 32, flags);
-	if (!screen) screen = SDL_SetVideoMode(WIDTH, HEIGHT, 8, flags);
-
-	if (!screen) {
-		fprintf(stderr, "FAILED to open any screen!");
-		SDL_QuitSubSystem(SDL_INIT_VIDEO);
-		// TODO: Throw exception.
-		return 0;
-	}
-	PRT_DEBUG("Display is " << (int)(screen->format->BitsPerPixel) << " bpp.");
-
-	Display* display = new Display(auto_ptr<VideoSystem>(
-		new SDLVideoSystem(screen) ));
-	Display::INSTANCE.reset(display);
-	Renderer* renderer;
-	Layer* background;
-	switch (screen->format->BytesPerPixel) {
-	case 1:
-		renderer = new SDLRenderer<Uint8, Renderer::ZOOM_256>(
-			SDLLO, vdp, screen );
-		background = new SDLSnow<Uint8>(screen);
-		break;
-	case 2:
-		renderer = new SDLRenderer<Uint16, Renderer::ZOOM_256>(
-			SDLLO, vdp, screen );
-		background = new SDLSnow<Uint16>(screen);
-		break;
-	case 4:
-		renderer = new SDLRenderer<Uint32, Renderer::ZOOM_256>(
-			SDLLO, vdp, screen );
-		background = new SDLSnow<Uint32>(screen);
-		break;
-	default:
-		fprintf(stderr, "FAILED to open supported screen!");
-		SDL_QuitSubSystem(SDL_INIT_VIDEO);
-		// TODO: Throw exception.
-		return 0;
-	}
-
-	display->addLayer(background);
-	display->setAlpha(background, 255);
-	Layer* rendererLayer = dynamic_cast<Layer*>(renderer);
-	display->addLayer(rendererLayer);
-	display->setAlpha(rendererLayer, 255);
-	new SDLConsole(CommandConsole::instance(), screen);
-
-	return renderer;
+	SDLVideoSystem* videoSystem = new SDLVideoSystem(vdp, SDLLO);
+	return videoSystem->renderer;
 }
 
 // SDLGL ===================================================================

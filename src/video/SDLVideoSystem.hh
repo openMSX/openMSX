@@ -4,21 +4,30 @@
 #define __SDLVIDEOSYSTEM_HH__
 
 #include "VideoSystem.hh"
-#include <SDL.h>
+#include "RendererFactory.hh"
+
+struct SDL_Surface;
 
 
 namespace openmsx {
 
+class VDP;
+class Renderer;
+
 class SDLVideoSystem: public VideoSystem
 {
 public:
-	SDLVideoSystem(SDL_Surface* screen);
+	SDLVideoSystem(VDP* vdp, RendererFactory::RendererID id);
 	virtual ~SDLVideoSystem();
 
 	// VideoSystem interface:
+	virtual bool checkSettings();
 	virtual bool prepare();
 	virtual void flush();
 	virtual void takeScreenShot(const string& filename);
+
+	/** TODO: Only here for backwards compatibility. */
+	Renderer* renderer;
 
 private:
 	SDL_Surface* screen;
