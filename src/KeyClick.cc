@@ -30,9 +30,9 @@ void KeyClick::reset()
 
 void KeyClick::setClick(bool newStatus, const Emutime &time)
 {
-	PRT_DEBUG("KeyClick: " << status << " time: " << time);
 	if (newStatus != status) {
+		PRT_DEBUG("KeyClick: " << status << " time: " << time);
 		status = newStatus;
-		dac->writeDAC(status ? 0x80 : 0xff, time);
+		dac->writeDAC((status ? 0xff : 0x80), time);
 	}
 }

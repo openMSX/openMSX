@@ -13,7 +13,7 @@ MSXPPI::MSXPPI()
 	PRT_DEBUG("Creating an MSXPPI object");
 	keyboard = new Keyboard(true); // TODO make configurable
 	i8255 = new I8255(*this);
-	click = new KeyClick();	// not too early
+	click = new KeyClick();
 }
 
 MSXPPI::~MSXPPI()

@@ -4,7 +4,7 @@
 
 * backend issues: [MSXDevice <-> OS/SDL]
  - cassette support 
- - printer support (//)
+ - printer support
  - [virtual] floppy support
  - joystick support [Wouter: implemented but not tested,
                              also no way to plug a joystick in]
@@ -14,12 +14,13 @@
 
 * devices: [MSXDevice]
  - SCC [David]
- - DAC [David]
+ - DAC [David] [Wouter, finished but not tested]
  - Floppy Controller
  - Music Module Devices
  - RS232 (Modem) [Wouter: hardware is 8254 connected to 8251
                           8254 is emulated (untested)]
- - // (Printer Port)
+ - printer-port  [Wouter: implemented but not tested,
+                  also no way to plug a PrinterPortDevice in]
  - Moon Sound Devices
  - FM-PAC Devices
  - FM-PAK Devices

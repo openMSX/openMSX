@@ -14,7 +14,6 @@
 
 #include <cassert>
 #include <climits>
-
 #include <iostream>
 
 #ifndef uint64
@@ -90,9 +89,9 @@ public:
 	}
 
 private:
-	uint64 _emutime; 
 	static const int DUMMY_FREQ = MAIN_FREQ*2;	// as long as it's greater than MAIN_FREQ
 	
+	uint64 _emutime;
 	const int _scale;
 };
 
