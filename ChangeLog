@@ -1,5 +1,10 @@
 $Id$
 
+2003-02-19 Maarten ter Huurne <maarten@treewalker.org>
+	* Implemented "toggle" command, which toggles any BooleanSetting.
+	* Replaced "fullscreen" command by "toggle fullscreen".
+	* Support key binding of command including parameters.
+
 2003-02-18 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Reworked File / FileContext classes:
 	   - separated "searchpath-resolution" from file opening

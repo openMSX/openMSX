@@ -48,7 +48,7 @@
 
  <!-- Commands that should be executed automatically after boot -->
   <config id="AutoCommands">
-    <parameter>bind print fullscreen</parameter>
+    <parameter>bind print toggle fullscreen</parameter>
     <parameter>bind pause pause</parameter>
     <parameter>bind F9 throttle</parameter>
     <parameter>bind F10 console</parameter>
