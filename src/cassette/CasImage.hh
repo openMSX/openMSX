@@ -14,6 +14,9 @@ using std::string;
 
 namespace openmsx {
 
+/**
+ * Code based on "cas2wav" tool by Vincent van Dam
+ */
 class CasImage : public CassetteImage
 {
 public:
