@@ -9,7 +9,7 @@ CXXFLAGS+= \
 	-fno-force-mem -fno-force-addr \
 	-fstrength-reduce -fexpensive-optimizations -fschedule-insns2 \
 	-fomit-frame-pointer \
-	-DNDEBUG
+	-DNDEBUG -DUOW32
 
 # Strip executable?
 OPENMSX_STRIP:=true

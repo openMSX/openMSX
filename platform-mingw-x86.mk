@@ -9,7 +9,7 @@ USE_SYMLINK:=false
 OPENMSX_FLAVOUR?=uow32
 
 # Default compiler.
-OPENMSX_CXX?=g++ -B/mingw
+OPENMSX_CXX?=g++
 
 # File name extension of executables.
 EXEEXT:=.exe
@@ -22,12 +22,10 @@ LIBS_CONFIG:=xml2 sdl
 # Compiler flags.
 CXXFLAGS+= \
 	-mthreads -mconsole -mms-bitfields \
+	-I/mingw/include -I/mingw/include/w32api \
 	-D__GTHREAD_HIDE_WIN32API \
 	-DNO_X11 -DNO_MMAP -DNO_SOCKET -DNO_BZERO -DNO_LINUX_RTC \
-	-DFS_CASEINSENSE \
-	-DUOW32
-# TODO: Not sure this is needed anymore if "g++ -B" is used.
-#	-I/mingw/include -I/mingw/include/w32api
+	-DFS_CASEINSENSE
 
 # Linker flags.
 LINK_FLAGS:=-L/mingw/lib -L/mingw/lib/w32api $(LINK_FLAGS)
