@@ -21,9 +21,9 @@ MSXMusic::MSXMusic(Device* config, const EmuTime& time)
 		if (stereoMode == "right") mode = Mixer::MONO_RIGHT;
 	}
 	if (config->getParameterAsBool("alternative", false)) {
-		ym2413 = new YM2413_2(config->getId(), volume, time, mode);
-	} else {
 		ym2413 = new YM2413(config->getId(), volume, time, mode);
+	} else {
+		ym2413 = new YM2413_2(config->getId(), volume, time, mode);
 	}
 		
 	reset(time);

@@ -1,6 +1,9 @@
 $Id$
 
 2003-11-17 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* made alternative YM2413 (MSX-MUSIC) the default
+
+2003-11-17 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented per-pixel-alpha-blending for SDLConsole and SDLFont:
 	   - if whole image has the same alpha value, we use per surface
 	     alpha blending to speed up blitting
