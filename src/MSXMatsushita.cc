@@ -60,6 +60,10 @@ byte MSXMatsushita::readIO(byte port, const EmuTime &time)
 void MSXMatsushita::writeIO(byte port, byte value, const EmuTime &time)
 {
 	switch (port & 0x0F) {
+	case 1:
+		// TODO bit0 0 -> 6MHz
+		//           1 -> 3.5MHz
+		break;
 	case 3:
 		color2 = (value & 0xF0) >> 4;
 		color1 =  value & 0x0F;
