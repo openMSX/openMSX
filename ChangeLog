@@ -1,5 +1,14 @@
 $Id$
 
+2003-05-27 Maarten ter Huurne <maarten@treewalker.org>
+	Dirty checking improvements:
+	* Removed all old character dirty checking code from SDLRenderer and
+	  SDLGLRenderer.
+	* Added DirtyChecker class, a generic VRAM cache administration.
+	* Use new DirtyChecker in SDLGLRenderer for pattern and colour table.
+	  Caching the name table is useless in SDLGLRenderer.
+	This is a work in progress, but the current state seems to be stable.
+
 2003-05-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* More RealTimeRTC improvements
 	* Some frameskip tuning
