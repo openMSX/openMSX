@@ -18,8 +18,7 @@ libEvents_la_SOURCES = \
 	HotKey.cc HotKey.hh \
 	KeyEventInserter.cc KeyEventInserter.hh \
 	Keys.cc Keys.hh \
-	SDLEventInserter.cc SDLEventInserter.hh \
-	UserEvents.cc UserEvents.hh
+	SDLEventInserter.cc SDLEventInserter.hh
 
 nodebug: resetdebug all
 debug: setdebug all
