@@ -135,9 +135,13 @@ void Y8950Adpcm::writeReg(byte rg, byte data, const EmuTime &time)
 			//if ((reg7 & R07_REC) && (reg7 & R07_MEMORY_DATA)) {
 			{
 				int tmp = ((startAddr + memPntr) & addrMask) / 2;
-				if (tmp < ramSize)
+				if (tmp < ramSize) {
 					wave[tmp] = data;
+				}
 				memPntr += 2;
+				if ((startAddr + memPntr) > stopAddr) {
+					y8950->setStatus(Y8950::STATUS_EOS);
+				}
 			}
 			y8950->setStatus(Y8950::STATUS_BUF_RDY);
 			break;
@@ -180,11 +184,13 @@ byte Y8950Adpcm::readReg(byte rg)
 	byte result;
 	switch (rg) {
 		case 0x0F: { // ADPCM-DATA
-			// TODO advance pointer (only when not playing??)
+			// TODO don't advance pointer when playing???
 			int adr = ((startAddr + memPntr) & addrMask) / 2;
-			byte tmp = wave[adr];
-			//memPntr += 2; TODO ??
-			result = tmp;
+			result = wave[adr];
+			memPntr += 2;
+			if ((startAddr + memPntr) > stopAddr) {
+				y8950->setStatus(Y8950::STATUS_EOS);
+			}
 			break;
 		}
 		case 0x13: // TODO check
