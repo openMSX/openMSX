@@ -1,5 +1,9 @@
 $Id$
 
+2004-10-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed coredump on missing arguments on the command line:
+	   e.g. "openmsx -diska" 
+
 2004-10-14 Maarten ter Huurne <maarten@treewalker.org>
 	* Added default key binding: ALT-Enter for full screen.
 	  Windows users are familiar with this hotkey.

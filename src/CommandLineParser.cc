@@ -229,8 +229,10 @@ void CommandLineParser::parse(int argc, char** argv)
 							optionMap.find(arg);
 						if (it1 != optionMap.end()) {
 							for (int i = 0; i < it1->second.length - 1; ++i) {
-								backupCmdLine.push_back(cmdLine.front());
-								cmdLine.pop_front();
+								if (!cmdLine.empty()) {
+									backupCmdLine.push_back(cmdLine.front());
+									cmdLine.pop_front();
+								}
 							}
 						}
 					}
