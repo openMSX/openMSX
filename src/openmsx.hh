@@ -16,9 +16,9 @@ typedef unsigned short word;	// 16 bit
 #define PRT_INFO(mes) {std::cout << mes << "\n"; }
 #define PRT_ERROR(mes) {std::cout << mes << "\n"; exit(1); }
 
-#ifndef DEBUG
-#define NDEBUG		// for assert.h
-#endif
+//#ifndef DEBUG
+//#define NDEBUG		// for assert.h
+//#endif
 
 #endif //__OPENMSX_HH__
 

@@ -367,6 +367,7 @@ byte MSXTMS9928a::readIO(byte port, EmuTime &time)
 	}
 	default:
 		assert(false);
+		return 0xff;	// prevent warning
 	}
 }
 

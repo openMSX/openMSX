@@ -44,6 +44,9 @@ class Scheduler : public EventListener, public HotKeyListener
 		void signalEvent(SDL_Event &event);
 		// HotKeyListener
 		void signalHotKey(SDLKey key);
+
+		void pause();
+		void unpause();
 		
 	private:
 		Scheduler();

@@ -52,6 +52,7 @@ byte MSXKanji::readIO(byte port, EmuTime &time)
 		return tmp;
 	default:
 		assert(false);
+		return 0xff;	// prevent warning
 	}
 }
 

@@ -2,6 +2,7 @@
 
 #include <SDL/SDL.h>
 #include "MSXRealTime.hh"
+#include "MSXCPU.hh"
 
 
 MSXRealTime::MSXRealTime(MSXConfig::Device *config) : MSXDevice(config), 
@@ -9,6 +10,8 @@ MSXRealTime::MSXRealTime(MSXConfig::Device *config) : MSXDevice(config),
 {
 	PRT_DEBUG("Constructing a MSXRealTime object");
 	oneInstance = this;
+	paused = false;
+	HotKey::instance()->registerAsyncHotKey(SDLK_PAUSE, this);
 }
 
 MSXRealTime::~MSXRealTime()
@@ -84,4 +87,25 @@ void MSXRealTime::executeUntilEmuTime(const EmuTime &curEmu)
 float MSXRealTime::getRealDuration(EmuTime time1, EmuTime time2)
 {
 	return time1.getDuration(time2) * factor;
+}
+
+// Note: this runs in a different thread
+void MSXRealTime::signalHotKey(SDLKey key) {
+	if (key == SDLK_PAUSE) {
+		if (paused) {
+			// reset timing variables 
+			realOrigin = SDL_GetTicks();
+			realRef = realOrigin;
+			emuOrigin = MSXCPU::instance()->getCurrentTime();
+			emuRef = emuOrigin;
+			
+			Scheduler::instance()->unpause();
+			paused = false;
+		} else {
+			Scheduler::instance()->pause();
+			paused =true;
+		}
+	} else {
+		assert(false);
+	}
 }

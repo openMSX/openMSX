@@ -8,7 +8,7 @@
 #include "EmuTime.hh"
 
 
-class MSXRealTime : public MSXDevice
+class MSXRealTime : public MSXDevice, public HotKeyListener
 {
 	public:
 		/**
@@ -34,6 +34,8 @@ class MSXRealTime : public MSXDevice
 
 		float getRealDuration(EmuTime time1, EmuTime time2);
 
+		void signalHotKey(SDLKey key);
+
 	private:
 		//TODO put these in config file
 		static const int SYNCINTERVAL    = 50;	// sync every 50ms
@@ -51,5 +53,7 @@ class MSXRealTime : public MSXDevice
 		//  ALPHA small -> past is more important
 		//        BIG   -> present is more important
 		static const float ALPHA = 0.5;
+
+		bool paused;
 };
 #endif
