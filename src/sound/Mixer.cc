@@ -427,8 +427,7 @@ void Mixer::updtStrm2(unsigned samples)
 		if (++writePtr == bufferSize) {
 			writePtr = 0;
 		}
-		if (wavfp)
-		{
+		if (wavfp) {
 			uint16 outleftwav(outLeft);
 			uint16 outrightwav(outRight);
 		
@@ -527,6 +526,7 @@ void Mixer::endRecording()
 	fwrite(&nofWavBytes, 4, 1, wavfp);
 	
 	fclose(wavfp);
+	wavfp=0;
 }
 
 void Mixer::update(const Setting* setting)

@@ -140,7 +140,7 @@ private:
 	BooleanSetting& throttleSetting;
 	bool handlingUpdate;
 	
-	FILE *wavfp;
+	FILE* wavfp;
 	uint32 nofWavBytes;
 
 	int prevLeft, outLeft;
