@@ -233,17 +233,6 @@ template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 	//       Does the renderer actually have to keep time?
 	//       Keeping render position should be good enough.
 
-	// Init renderer state.
-	dirtyChecker = modeToDirtyChecker[vdp->getDisplayMode()];
-	if (vdp->isBitmapMode()) {
-		bitmapConverter.setDisplayMode(vdp->getDisplayMode());
-	} else {
-		characterConverter.setDisplayMode(vdp->getDisplayMode());
-	}
-	palSprites = palBg;
-	setDirty(true);
-	dirtyForeground = dirtyBackground = true;
-
 	// Create display caches.
 	charDisplayCache = SDL_CreateRGBSurface(
 		SDL_HWSURFACE,
@@ -268,7 +257,6 @@ template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 			screen->format->Amask
 			)
 		);
-	memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 
 	// Hide mouse cursor.
 	SDL_ShowCursor(SDL_DISABLE);
@@ -313,12 +301,8 @@ template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 			palGraphic7Sprites[i] =
 				V9938_COLOURS[(grb >> 4) & 7][grb >> 8][grb & 7];
 		}
-		// Reset the palette.
-		for (int i = 0; i < 16; i++) {
-			updatePalette(i, vdp->getPalette(i), time);
-		}
 	}
-
+	reset(time);
 }
 
 template <class Pixel> SDLHiRenderer<Pixel>::~SDLHiRenderer()
@@ -326,6 +310,32 @@ template <class Pixel> SDLHiRenderer<Pixel>::~SDLHiRenderer()
 	delete console;
 	SDL_FreeSurface(charDisplayCache);
 	SDL_FreeSurface(bitmapDisplayCache);
+}
+
+template <class Pixel> void SDLHiRenderer<Pixel>::reset(const EmuTime &time)
+{
+	PixelRenderer::reset(time);
+	
+	// Init renderer state.
+	dirtyChecker = modeToDirtyChecker[vdp->getDisplayMode()];
+	if (vdp->isBitmapMode()) {
+		bitmapConverter.setDisplayMode(vdp->getDisplayMode());
+	} else {
+		characterConverter.setDisplayMode(vdp->getDisplayMode());
+	}
+	
+	palSprites = palBg;
+	setDirty(true);
+	dirtyForeground = dirtyBackground = true;
+	
+	memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
+
+	if (!vdp->isMSX1VDP()) {
+		// Reset the palette.
+		for (int i = 0; i < 16; i++) {
+			updatePalette(i, vdp->getPalette(i), time);
+		}
+	}
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::frameStart(

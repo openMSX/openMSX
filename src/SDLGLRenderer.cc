@@ -408,11 +408,6 @@ SDLGLRenderer::SDLGLRenderer(
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	// Init renderer state.
-	setDisplayMode(vdp->getDisplayMode());
-	setDirty(true);
-	dirtyForeground = dirtyBackground = true;
-
 	// Create character display cache.
 	// Line based:
 	glGenTextures(256, charTextureIds);
@@ -448,7 +443,6 @@ SDLGLRenderer::SDLGLRenderer(
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		}
 	}
-	memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 
 	// Hide mouse cursor.
 	SDL_ShowCursor(SDL_DISABLE);
@@ -491,18 +485,33 @@ SDLGLRenderer::SDLGLRenderer(
 			palGraphic7Sprites[i] =
 				V9938_COLOURS[(grb >> 4) & 7][grb >> 8][grb & 7];
 		}
-		// Reset the palette.
-		for (int i = 0; i < 16; i++) {
-			updatePalette(i, vdp->getPalette(i), time);
-		}
 	}
-
+	reset(time);
 }
 
 SDLGLRenderer::~SDLGLRenderer()
 {
 	delete console;
 	// TODO: Free textures.
+}
+
+void SDLGLRenderer::reset(const EmuTime &time)
+{
+	PixelRenderer::reset(time);
+	
+	// Init renderer state.
+	setDisplayMode(vdp->getDisplayMode());
+	setDirty(true);
+	dirtyForeground = dirtyBackground = true;
+
+	memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
+
+	if (!vdp->isMSX1VDP()) {
+		// Reset the palette.
+		for (int i = 0; i < 16; i++) {
+			updatePalette(i, vdp->getPalette(i), time);
+		}
+	}
 }
 
 void SDLGLRenderer::frameStart(const EmuTime &time)

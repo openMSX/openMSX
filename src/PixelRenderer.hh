@@ -66,6 +66,11 @@ protected:
 	  */
 	virtual ~PixelRenderer();
 
+	/** Reset
+	  * @param time The moment in time this reset occurs.
+	  */
+	virtual void reset(const EmuTime &time);
+
 	/** Let underlying graphics system finish rendering this frame.
 	  */
 	virtual void finishFrame() = 0;

@@ -933,11 +933,17 @@ void VDPCmdEngine::commandDone()
 // Added routines for openMSX:
 
 VDPCmdEngine::VDPCmdEngine(VDP *vdp, const EmuTime &time)
-	: currentTime(time)
 {
 	this->vdp = vdp;
 	vram = vdp->getVRAM();
 
+	reset(time);
+}
+
+void VDPCmdEngine::reset(const EmuTime &time)
+{
+	currentTime = time;
+	
 	currEngine = &VDPCmdEngine::dummyEngine;
 	for (int i = 0; i < 15; i++) {
 		cmdReg[i] = 0;
@@ -945,7 +951,7 @@ VDPCmdEngine::VDPCmdEngine(VDP *vdp, const EmuTime &time)
 	status = 0;
 	borderX = 0;
 
-	updateDisplayMode(vdp->getDisplayMode(), currentTime);
+	updateDisplayMode(vdp->getDisplayMode(), time);
 }
 
 void VDPCmdEngine::updateDisplayMode(int mode, const EmuTime &time)

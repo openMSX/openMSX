@@ -51,6 +51,11 @@ public:
 	  */
 	SpriteChecker(VDP *vdp, bool limitSprites, const EmuTime &time);
 
+	/** Reset
+	  * @param time The moment in time this reset occurs.
+	  */
+	void reset(const EmuTime &time);
+
 	/** Gets the sprite status (part of S#0).
 	  * Bit 7 (F) is zero; it is not sprite dependant.
 	  * Bit 6 (5S) is set when more than 4 (sprite mode 1) or 8 (sprite

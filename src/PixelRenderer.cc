@@ -139,13 +139,19 @@ PixelRenderer::PixelRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)
 	CommandController::instance()->registerCommand(frameSkipCmd, "frameskip");
 
 	// Now we're ready to start rendering the first frame.
-	displayEnabled = false;
-	frameStart(time);
+	reset(time);
 }
 
 PixelRenderer::~PixelRenderer()
 {
 	CommandController::instance()->unregisterCommand("frameskip");
+}
+
+
+void PixelRenderer::reset(const EmuTime &time)
+{
+	displayEnabled = false;
+	frameStart(time);
 }
 
 void PixelRenderer::updateDisplayEnabled(bool enabled, const EmuTime &time)

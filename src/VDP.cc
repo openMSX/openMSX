@@ -195,8 +195,10 @@ void VDP::resetInit(const EmuTime &time)
 void VDP::reset(const EmuTime &time)
 {
 	resetInit(time);
-	// TODO: Reset the renderer.
-	// TODO: Reset the command engine.
+	renderer->reset(time);
+	cmdEngine->reset(time);
+	spriteChecker->reset(time);
+	// vram->reset(time);	// not necessary
 }
 
 void VDP::executeUntilEmuTime(const EmuTime &time, int userData)

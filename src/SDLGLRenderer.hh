@@ -50,6 +50,11 @@ public:
 	  */
 	virtual ~SDLGLRenderer();
 
+	/** Reset
+	  * @param time The moment in time this reset occurs.
+	  */
+	virtual void reset(const EmuTime &time);
+
 	// Renderer interface:
 
 	void frameStart(const EmuTime &time);

@@ -36,6 +36,8 @@ public:
 	  */
 	virtual ~SDLLoRenderer();
 
+	virtual void reset(const EmuTime &time) {} // TODO
+
 	// Renderer interface:
 
 	void frameStart(const EmuTime &time);

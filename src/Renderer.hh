@@ -50,6 +50,11 @@ public:
 	  */
 	virtual ~Renderer();
 
+	/** Reset
+	  * @param time The moment in time this reset occurs.
+	  */
+	virtual void reset(const EmuTime &time) = 0;
+
 	/** Is this Renderer currently displaying full screen?
 	  * @return true if full screen; false if windowed.
 	  */

@@ -43,6 +43,11 @@ public:
 	  */
 	VDPCmdEngine(VDP *vdp, const EmuTime &time);
 
+	/** Reset 
+	  * @param time The moment in time the reset occurs.
+	  */
+	void reset(const EmuTime &time);
+
 	/** Synchronises the command engine with the VDP.
 	  * Ideally this would be a private method, but the current
 	  * design doesn't allow that.
