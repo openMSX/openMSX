@@ -8,7 +8,9 @@
     <rom>
       <filename>roms/yrw801.rom</filename>
     </rom>
-    <volume>12000</volume>
+    <sound>
+      <volume>12000</volume>
+    </sound>
     <sampleram>640</sampleram>
   </MoonSound>
 </msxconfig>
