@@ -153,7 +153,7 @@ void BlurScaler<Pixel>::scaleBlank(Pixel colour, SDL_Surface* dst,
 		Scaler<Pixel>::scaleBlank(colour, dst, dstY, endDstY);
 	} else {
 		const HostCPU& cpu = HostCPU::getInstance();
-		int scanline = 256 - (scanlineSetting.getValue() * 256) / 100;
+		int scanline = 255 - (scanlineSetting.getValue() * 255) / 100;
 		Pixel scanlineColour = mult1.multiply(colour, scanline);
 		if (ASM_X86 && cpu.hasMMXEXT()) {
 			const unsigned col32 =
@@ -625,7 +625,6 @@ void BlurScaler<Pixel>::average(
 		asm (
 			"movd	%3, %%mm6;"
 			"pxor	%%mm7, %%mm7;"
-			"psrlq	$1, %%mm6;"
 			"punpcklwd %%mm6, %%mm6;"
 			"punpckldq %%mm6, %%mm6;"
 
@@ -633,24 +632,22 @@ void BlurScaler<Pixel>::average(
 		"1:"
 			// load
 			"movq	(%0,%%eax,4), %%mm0;"
-			"movq	%%mm0, %%mm2;"
-			"movq	(%1,%%eax,4), %%mm1;"
-			"movq	%%mm1, %%mm3;"
+			"movq	%%mm0, %%mm1;"
+			"movq	(%1,%%eax,4), %%mm2;"
+			"movq	%%mm2, %%mm3;"
 			// unpack
 			"punpcklbw %%mm7, %%mm0;"
-			"punpcklbw %%mm7, %%mm1;"
-			"punpckhbw %%mm7, %%mm2;"
+			"punpckhbw %%mm7, %%mm1;"
+			"punpcklbw %%mm7, %%mm2;"
 			"punpckhbw %%mm7, %%mm3;"
 			// average
-			"paddw	%%mm1, %%mm0;"
-			"paddw	%%mm3, %%mm2;"
+			"paddw	%%mm2, %%mm0;"
+			"paddw	%%mm3, %%mm1;"
 			// darken
-			"pmullw	%%mm6, %%mm0;"
-			"pmullw	%%mm6, %%mm2;"
-			"psrlw	$8, %%mm0;"
-			"psrlw	$8, %%mm2;"
+			"pmulhw	%%mm6, %%mm0;"
+			"pmulhw	%%mm6, %%mm1;"
 			// pack
-			"packuswb %%mm2, %%mm0;"
+			"packuswb %%mm1, %%mm0;"
 			// store
 			"movq %%mm0, (%2,%%eax,4);"
 			
@@ -664,7 +661,7 @@ void BlurScaler<Pixel>::average(
 			: "r" (src1)  // 0
 			, "r" (src2)  // 1
 			, "r" (dst)   // 2
-			, "r" (alpha) // 3
+			, "r" (alpha << 7) // 3
 			: "mm0", "mm1", "mm2", "mm3", "mm6", "mm7"
 			, "eax"
 			);
@@ -684,7 +681,7 @@ void BlurScaler<Pixel>::scale256(
 	SDL_Surface* dst, int dstY )
 {
 	int blur = (blurSetting.getValue() * 256) / 100;
-	int scanline = 256 - (scanlineSetting.getValue() * 256) / 100;
+	int scanline = 255 - (scanlineSetting.getValue() * 255) / 100;
 
 	Pixel* srcLine  = Scaler<Pixel>::linePtr(src, srcY++);
 	Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, dstY++);
@@ -713,7 +710,7 @@ void BlurScaler<Pixel>::scale512(
 	SDL_Surface* dst, int dstY )
 {
 	int blur = (blurSetting.getValue() * 256) / 100;
-	int scanline = 256 - (scanlineSetting.getValue() * 256) / 100;
+	int scanline = 255 - (scanlineSetting.getValue() * 255) / 100;
 
 	Pixel* srcLine  = Scaler<Pixel>::linePtr(src, srcY++);
 	Pixel* dstLine0 = Scaler<Pixel>::linePtr(dst, dstY++);

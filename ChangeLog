@@ -4,6 +4,10 @@ $Id$
 	* Z80 updates:
 	   - fixed P-flag in OUTI and INI instructions
 	   - calculate DAA table 
+	* Blur scaler:
+	   - small optimization in normal-MMX code (non-extended-MMX)
+	   - fixed bug when scanline=0 (recent optimization requires
+	     scanlineAlpha <= 255, not <= 256)
 
 2004-09-08 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Created "frequency" and "samples" setting:
