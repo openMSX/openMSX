@@ -34,7 +34,7 @@ void MSXRTC::reset()
 byte MSXRTC::readIO(byte port, Emutime &time)
 {
 	assert(port==0xB5);
-	return rp5c01->readPort(registerLatch);
+	return rp5c01->readPort(registerLatch) | 0xf0;	//TODO check this
 }
 
 void MSXRTC::writeIO(byte port, byte value, Emutime &time)

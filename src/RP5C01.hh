@@ -1,4 +1,11 @@
 // $Id$
+//
+// This class implements the RP5C01 chip (RTC)
+// 
+// * For techncal details on RP5C01 see
+//     http://w3.qahwah.net/joost/openMSX/RP5C01.pdf
+//  
+
 
 #ifndef __RP5C01_HH__
 #define __RP5C01_HH__
@@ -35,6 +42,11 @@ class RP5C01
 		static const nibble MODE_ALARMENABLE = 0x4;
 		static const nibble MODE_TIMERENABLE = 0x8;
 
+		static const nibble TEST_SECONDS = 0x1;
+		static const nibble TEST_MINUTES = 0x2;
+		static const nibble TEST_HOURS   = 0x4;
+		static const nibble TEST_DAYS    = 0x8;
+		
 		static const nibble RESET_ALARM = 0x1;
 		static const nibble RESET_FRACTION = 0x2;
 
