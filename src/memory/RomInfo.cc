@@ -193,7 +193,7 @@ RomInfo RomInfo::fetchRomInfo(const Rom &rom)
 		init = true;
 		try {
 			SystemFileContext context;
-			File file(context.resolve("etc/romdb.xml"));
+			File file(context.resolve("share/romdb.xml"));
 			XML::Document doc(file.getLocalName().c_str());
 			std::list<XML::Element*>::iterator it1 = doc.root->children.begin();
 			for ( ; it1 != doc.root->children.end(); it1++) {

@@ -23,7 +23,7 @@ CliExtension::CliExtension()
 	std::list<std::string>::const_iterator it;
 	for (it = paths.begin(); it != paths.end(); it++) {
 		std::string path = FileOperations::expandTilde(*it);
-		createExtensions(path + "extensions/");
+		createExtensions(path + "share/extensions/");
 	}
 }
 

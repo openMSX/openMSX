@@ -1,6 +1,13 @@
 $Id$
 
 2003-03-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Another directory structure change:
+	   moved machines/     -> share/machines/
+	         extensions/   -> share/extensions/
+	         etc/romdb.xml -> share/romdb.xml
+	         settings.xml  -> share/settings.xml
+
+2003-03-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Reimplemented Panasonic memory system:
 	   - in TurboR rom/ram are tightly connected (dram mode, ...)
 	     Memorymapper, RomMapper, BiosRom are now implemented as special

@@ -10,6 +10,9 @@
 #include "CliExtension.hh"
 
 
+const char* const MACHINE_PATH = "share/machines/";
+
+
 CommandLineParser* CommandLineParser::instance()
 {
 	static CommandLineParser oneInstance;
@@ -96,7 +99,7 @@ void CommandLineParser::parse(int argc, char **argv)
 	
 	try {
 		if (!settingOption.parsed) {
-			config->loadFile(new SystemFileContext(), "settings.xml");
+			config->loadFile(new SystemFileContext(), "share/settings.xml");
 		}
 	} catch (MSXException &e) {
 		// settings.xml not found
@@ -117,7 +120,7 @@ void CommandLineParser::parse(int argc, char **argv)
 			// no DefaultMachine section
 		}
 		config->loadFile(new SystemFileContext(),
-		                 "machines/" + machine + "/hardwareconfig.xml");
+		        MACHINE_PATH + machine + "/hardwareconfig.xml");
 	}
 
 	// read existing cartridge slots from config
@@ -199,7 +202,7 @@ void CommandLineParser::MachineOption::parseOption(const std::string &option,
 {
 	MSXConfig *config = MSXConfig::instance();
 	config->loadFile(new SystemFileContext(),
-	                 "machines/" + cmdLine.front() + "/hardwareconfig.xml");
+	                 MACHINE_PATH + cmdLine.front() + "/hardwareconfig.xml");
 	cmdLine.pop_front();
 	CommandLineParser::instance()->haveConfig = true;
 }
