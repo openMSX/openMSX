@@ -24,7 +24,7 @@ void CliCommunicator::run()
 	Scheduler* scheduler = Scheduler::instance();
 	while (true) {
 		string cmd;
-		cin >> cmd;
+		getline(cin, cmd);
 		cmds.push_back(cmd);
 		scheduler->setSyncPoint(Scheduler::ASAP, this);
 	}
