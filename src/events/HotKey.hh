@@ -23,6 +23,7 @@ public:
 	virtual ~HotKey();
 
 private:
+	void initBindings();
 	void   registerHotKeyCommand(Keys::KeyCode key, const string& command);
 	void unregisterHotKeyCommand(Keys::KeyCode key);
 

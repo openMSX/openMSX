@@ -15,15 +15,8 @@ HotKey::HotKey()
 	: bindCmd(*this), unbindCmd(*this)
 	, bindingsElement(SettingsConfig::instance().getCreateChild("bindings"))
 {
-	XMLElement::Children children(bindingsElement.getChildren()); // copy
-	for (XMLElement::Children::const_iterator it = children.begin();
-	     it != children.end(); ++it) {
-		Keys::KeyCode key = Keys::getCode((*it)->getAttribute("key", ""));
-		if (key != Keys::K_NONE) {
-			registerHotKeyCommand(key, (*it)->getData());
-		}
-	}
-	
+	initBindings();
+
 	EventDistributor::instance().registerEventListener(
 		KEY_DOWN_EVENT, *this, EventDistributor::NATIVE);
 	EventDistributor::instance().registerEventListener(
@@ -31,6 +24,36 @@ HotKey::HotKey()
 
 	CommandController::instance().registerCommand(&bindCmd,   "bind");
 	CommandController::instance().registerCommand(&unbindCmd, "unbind");
+}
+
+void HotKey::initBindings()
+{
+	XMLElement::Children children(bindingsElement.getChildren()); // copy
+	if (!children.empty()) {
+		// there is a bindings section, use those bindings
+		for (XMLElement::Children::const_iterator it = children.begin();
+		     it != children.end(); ++it) {
+			Keys::KeyCode key =
+				Keys::getCode((*it)->getAttribute("key", ""));
+			if (key != Keys::K_NONE) {
+				registerHotKeyCommand(key, (*it)->getData());
+			}
+		}
+	} else {
+		// no (or empty) bindings section, use defaults
+		registerHotKeyCommand(Keys::K_PRINT, "screenshot");
+		registerHotKeyCommand(Keys::K_PAUSE, "pause");
+		registerHotKeyCommand(Keys::K_F9,    "toggle throttle");
+		registerHotKeyCommand(Keys::K_F10,   "toggle console");
+		registerHotKeyCommand(Keys::K_F11,   "toggle mute");
+		registerHotKeyCommand(Keys::K_F12,   "toggle fullscreen");
+		registerHotKeyCommand(
+		    static_cast<Keys::KeyCode>(Keys::K_F4    | Keys::KM_ALT),
+		    "quit");
+		registerHotKeyCommand(
+		    static_cast<Keys::KeyCode>(Keys::K_PAUSE | Keys::KM_CTRL),
+		    "quit");
+	}
 }
 
 HotKey::~HotKey()
