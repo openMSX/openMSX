@@ -285,7 +285,7 @@ template <class Pixel, Renderer::Zoom zoom>
 template <unsigned w1, unsigned w2, unsigned w3, unsigned w4>
 inline Pixel V9990BitmapConverter<Pixel, zoom>::blendPixels4(const Pixel* source)
 {
-	unsigned total = w1 + w2 + w3;
+	unsigned total = w1 + w2 + w3 + w4;
 	unsigned r = (red  (source[0]) * w1 +
 	              red  (source[1]) * w2 +
 	              red  (source[2]) * w3 +
