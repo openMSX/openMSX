@@ -1,5 +1,8 @@
 $Id$
 
+2005-02-27 Manuel Bilderbeek <manuel@msxnet.org>
+	* Also check if <rom> entries have a <type> child. Fixes Synthesizer.
+
 2005-02-26 Patrick van Arkel <sf@vampier.net>
 	* Updated the softwaredb.xml thanks to Mars2000you for providing
 	  an updated version of his rom list.

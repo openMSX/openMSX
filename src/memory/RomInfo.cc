@@ -274,11 +274,15 @@ static void parseDB(const XMLElement& doc, map<string, RomInfo*>& result)
 				              remark, megarom->getChildData("type"));
 			} else if (const XMLElement* rom = dump.findChild("rom")) {
 				string type = "mirrored";
-				string start = rom->getChildData("start", "");
-				if      (start == "0x0000") type = "normal0000";
-				else if (start == "0x4000") type = "normal4000";
-				else if (start == "0x8000") type = "normal8000";
-				else if (start == "0xC000") type = "normalC000";
+				if (rom->findChild("type")) {
+					type = rom->getChildData("type");
+				} else {
+					string start = rom->getChildData("start", "");
+					if      (start == "0x0000") type = "normal0000";
+					else if (start == "0x4000") type = "normal4000";
+					else if (start == "0x8000") type = "normal8000";
+					else if (start == "0xC000") type = "normalC000";
+				}
 				parseNewEntry(*rom, result, title, year, company,
 				              remark, type);
 			}
