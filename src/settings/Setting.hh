@@ -73,7 +73,11 @@ protected:
 				getCreateChild("settings");
 			xmlNode = &config.getCreateChildWithAttribute(
 				"setting", "id", getName(), getValueString());
-			setValueString(xmlNode->getData());
+			try {
+				setValueString(xmlNode->getData());
+			} catch (CommandException& e) {
+				// saved value no longer valid, just keep default
+			}
 		}
 		SettingsManager::instance().registerSetting(*this);
 	}

@@ -1,5 +1,8 @@
 $Id$
 
+2004-09-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Take default settings value when saved value is no longer valid
+
 2004-09-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented TC8566AF format command:
 	   based on code from BlueMSX written by Daniel Vik
