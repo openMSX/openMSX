@@ -24,7 +24,7 @@ openmsx_SOURCES=openmsx.cc \
 	Z80.cc Z80.hh Z80DAA.h Z80Codes.h opc__Z80.h \
 	MSXE6Timer.hh MSXE6Timer.cc \
 	DummyDevice.hh DummyDevice.cc \
-	SoundDeice.hh \
+	SoundDevice.hh \
 	MSXPSG.hh MSXPSG.cc AY8910.hh AY8910.cc
 	
 
