@@ -24,7 +24,8 @@ noinst_LTLIBRARIES = libCPU.la
 libCPU_la_SOURCES = \
 	CPUInterface.hh CPUInterface.cc \
 	CPU.hh CPU.cc \
-	CPUCore.n1 CPUCore.n2 CPUTables.nn \
+	CPUTables.hh CPUTables.cc \
+	CPUCore.n1 CPUCore.n2 \
 	Z80.cc Z80.hh Z80Tables.nn  \
 	Dasm.cc Dasm.hh \
 	R800.cc R800.hh R800Tables.nn \

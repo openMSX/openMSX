@@ -1,14 +1,16 @@
 // $Id$
 
-
-// These are initialized at run-time
-byte CPU::ZSTable[256];
-byte CPU::ZSXYTable[256];
-byte CPU::ZSPXYTable[256];
-byte CPU::ZSPTable[256];
+#include "CPUTables.hh"
 
 
-const word CPU::DAATable[0x800] = {
+namespace openmsx {
+
+byte CPUTables::ZSTable[256];
+byte CPUTables::ZSXYTable[256];
+byte CPUTables::ZSPXYTable[256];
+byte CPUTables::ZSPTable[256];
+
+const word CPUTables::DAATable[0x800] = {
   (0x00<<8)       +Z_FLAG                     +V_FLAG              ,
   (0x01<<8)                                                        ,
   (0x02<<8)                                                        ,
@@ -2059,18 +2061,15 @@ const word CPU::DAATable[0x800] = {
   (0x99<<8)+S_FLAG                     +X_FLAG+V_FLAG+N_FLAG+C_FLAG
 };
 
-// tmp1 value for ini/inir/outi/otir for [C.1-0][io.1-0]
-const byte CPU::irep_tmp1[4][4] = {
+const byte CPUTables::irep_tmp1[4][4] = {
         {0,0,1,0},{0,1,0,1},{1,0,1,1},{0,1,1,0}
 };
 
-// tmp1 value for ind/indr/outd/otdr for [C.1-0][io.1-0]
-const byte CPU::drep_tmp1[4][4] = {
+const byte CPUTables::drep_tmp1[4][4] = {
         {0,1,0,0},{1,0,0,1},{0,0,1,0},{0,1,0,1}
 };
 
-// tmp2 value for all in/out repeated opcodes for B.7-0
-const byte CPU::breg_tmp2[256] = {
+const byte CPUTables::breg_tmp2[256] = {
         0,0,1,1,0,1,0,0,1,1,0,0,1,0,1,1,
         0,1,0,0,1,0,1,1,0,0,1,1,0,1,0,0,
         1,1,0,0,1,0,1,1,0,0,1,1,0,1,0,0,
@@ -2088,4 +2087,29 @@ const byte CPU::breg_tmp2[256] = {
         1,1,0,0,1,0,1,1,0,0,1,1,0,1,0,0,
         1,0,1,1,0,1,0,0,1,1,0,0,1,0,1,1
 };
+
+void CPUTables::init()
+{
+	// Avoid initialising twice.
+	static bool alreadyInit = false;
+	if (alreadyInit) return;
+	alreadyInit = true;
+
+	for (int i = 0; i < 256; ++i) {
+		byte zFlag = (i == 0) ? Z_FLAG : 0;
+		byte sFlag = i & S_FLAG;
+		byte xFlag = i & X_FLAG;
+		byte yFlag = i & Y_FLAG;
+		byte vFlag = V_FLAG;
+		for (int v = 128; v != 0; v >>= 1) {
+			if (i & v) vFlag ^= V_FLAG;
+		}
+		ZSTable[i]    = zFlag | sFlag;
+		ZSXYTable[i]  = zFlag | sFlag | xFlag | yFlag;
+		ZSPXYTable[i] = zFlag | sFlag | xFlag | yFlag | vFlag;
+		ZSPTable[i]   = zFlag | sFlag |                 vFlag;
+	}
+}
+
+} // namespace openmsx
 

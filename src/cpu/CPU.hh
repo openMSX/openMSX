@@ -5,6 +5,7 @@
 
 #include "openmsx.hh"
 #include "EmuTime.hh"
+#include "CPUTables.hh"
 
 #ifdef DEBUG
 #define CPU_DEBUG
@@ -20,7 +21,7 @@ class Scheduler;
 typedef signed char offset;
 
 
-class CPU
+class CPU: public CPUTables
 {
 	friend class MSXCPU;
 	public:
@@ -48,7 +49,7 @@ class CPU
 		virtual ~CPU();
 		
 		void init(Scheduler* scheduler);
-		
+
 		/**
 		 * Reset the CPU.
 		 */
@@ -129,17 +130,6 @@ class CPU
 		static const int CACHE_LINE_LOW  = CACHE_LINE_SIZE - 1;
 		static const int CACHE_LINE_HIGH = 0xffff - CACHE_LINE_LOW;
 
-		// flag positions
-		static const byte S_FLAG = 0x80;
-		static const byte Z_FLAG = 0x40;
-		static const byte Y_FLAG = 0x20;
-		static const byte H_FLAG = 0x10;
-		static const byte X_FLAG = 0x08;
-		static const byte V_FLAG = 0x04;
-		static const byte P_FLAG = V_FLAG;
-		static const byte N_FLAG = 0x02;
-		static const byte C_FLAG = 0x01;
-
 	protected:
 		/** Create a new CPU.
 		  * @param interf Interface between this CPU and the bus.
@@ -150,8 +140,6 @@ class CPU
 		  * the target may change (become smaller) during emulation.
 		  */
 		virtual void executeCore() = 0;
-
-		void makeTables();
 
 		// state machine variables
 		CPURegs R;
@@ -171,24 +159,12 @@ class CPU
 
 		Scheduler* scheduler;
 
-		// flag-register tables
-		static byte ZSTable[256];
-		static byte ZSXYTable[256];
-		static byte ZSPXYTable[256];
-		static byte ZSPTable[256];
-
-		// instruction lookup tables
-		static const word DAATable[2048];
-		static const byte irep_tmp1[4][4];
-		static const byte drep_tmp1[4][4];
-		static const byte breg_tmp2[256];
-
 		// memory cache
 		const byte* readCacheLine[CACHE_LINE_NUM];
 		byte* writeCacheLine[CACHE_LINE_NUM];
 		bool readCacheTried [CACHE_LINE_NUM];
 		bool writeCacheTried[CACHE_LINE_NUM];
-	
+
 	#ifdef CPU_DEBUG
 		static BooleanSetting *traceSetting;
 

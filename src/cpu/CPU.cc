@@ -11,8 +11,6 @@
 
 namespace openmsx {
 
-#include "CPUTables.nn"
-
 #ifdef CPU_DEBUG
 BooleanSetting *CPU::traceSetting =
 	new BooleanSetting("cputrace", "CPU tracing on/off", false);
@@ -21,7 +19,6 @@ BooleanSetting *CPU::traceSetting =
 CPU::CPU(CPUInterface *interf)
 {
 	interface = interf;
-	makeTables();
 }
 
 CPU::~CPU()
@@ -58,23 +55,6 @@ void CPU::invalidateCache(word start, int num)
 	memset(&writeCacheTried[start>>CACHE_LINE_BITS], 0, num*sizeof(bool)); //
 }
 
-
-void CPU::makeTables()
-{
-	for (int i = 0; i < 256; ++i) {
-		byte zFlag = (i == 0) ? Z_FLAG : 0;
-		byte sFlag = i & S_FLAG;
-		byte xFlag = i & X_FLAG;
-		byte yFlag = i & Y_FLAG;
-		byte vFlag = V_FLAG;
-		for (int v = 128; v != 0; v >>= 1)
-			if (i & v) vFlag ^= V_FLAG;
-		ZSTable[i]    = zFlag | sFlag;
-		ZSXYTable[i]  = zFlag | sFlag | xFlag | yFlag;
-		ZSPXYTable[i] = zFlag | sFlag | xFlag | yFlag | vFlag;
-		ZSPTable[i]   = zFlag | sFlag |                 vFlag;
-	}
-}
 
 void CPU::reset(const EmuTime &time)
 {
