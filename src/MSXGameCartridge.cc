@@ -13,9 +13,13 @@ MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &tim
 {
 	PRT_DEBUG("Creating an MSXGameCartridge object");
 	
-	//TODO  if needed return dynamically determine romSize
-	romSize = deviceConfig->getParameterAsInt("filesize");
-	loadUnknownFile(&memoryBank, romSize);
+	try {
+		romSize = deviceConfig->getParameterAsInt("filesize");
+		loadFile(&memoryBank, romSize);
+	} catch(MSXConfig::Exception e) {
+		// filesize was not specified
+		romSize = loadFile(&memoryBank);
+	}
 	
 	// Calculate mapperMask
 	int nrblocks = romSize>>13;	//number of 8kB pages
@@ -24,15 +28,18 @@ MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &tim
 	
 	mapperType = retriefMapperType();
 	//only instanciate SCC if needed
-	if (mapperType==2){
-	  short volume = (short)config->getParameterAsInt("volume");
-	  cartridgeSCC=new SCC(volume);
+	if (mapperType==2) {
+		short volume = (short)config->getParameterAsInt("volume");
+		cartridgeSCC = new SCC(volume);
+	} else {
+		cartridgeSCC = NULL;
 	}
-	if (mapperType==64){
-	  short volume = (short)config->getParameterAsInt("volume");
-	  dac=new DACSound(volume,16000,time);
+	if (mapperType==64) {
+		short volume = (short)config->getParameterAsInt("volume");
+		dac = new DACSound(volume, 16000, time);
+	} else {
+		dac = NULL;
 	}
-
 
 	reset(time);
 }
@@ -48,153 +55,149 @@ MSXGameCartridge::~MSXGameCartridge()
 
 void MSXGameCartridge::reset(const EmuTime &time)
 {
-  byte* ptr;
-	if (cartridgeSCC){
-	  cartridgeSCC->reset();
+	if (cartridgeSCC) {
+		cartridgeSCC->reset();
 	}
-	if (dac){
-	  dac->reset(time);
+	if (dac) {
+		dac->reset(time);
 	}
-	if (mapperType < 128 ){
-	  // set internalMemoryBank
-	  // TODO: mirror if number of 8kB blocks not fully filled ?
-	  internalMemoryBank[0]=0;		// unused
-	  internalMemoryBank[1]=0;		// unused
-	  internalMemoryBank[2]=memoryBank;	// 0x4000 - 0x5fff
-	  internalMemoryBank[3]=memoryBank+0x2000;// 0x6000 - 0x7fff
-	  internalMemoryBank[4]=memoryBank+0x4000;// 0x8000 - 0x9fff
-	  internalMemoryBank[5]=memoryBank+0x6000;// 0xa000 - 0xbfff
-	  internalMemoryBank[6]=0;		// unused
-	  internalMemoryBank[7]=0;		// unused
+	if (mapperType < 128 ) {
+		// set internalMemoryBank
+		// TODO: mirror if number of 8kB blocks not fully filled ?
+		internalMemoryBank[0]=0;		// unused
+		internalMemoryBank[1]=0;		// unused
+		internalMemoryBank[2]=memoryBank;	// 0x4000 - 0x5fff
+		internalMemoryBank[3]=memoryBank+0x2000;// 0x6000 - 0x7fff
+		internalMemoryBank[4]=memoryBank+0x4000;// 0x8000 - 0x9fff
+		internalMemoryBank[5]=memoryBank+0x6000;// 0xa000 - 0xbfff
+		internalMemoryBank[6]=0;		// unused
+		internalMemoryBank[7]=0;		// unused
 	} else {
-	  // this is a simple gamerom less then 64 kB
-	  switch (romSize>>14){ // blocks of 16kB
-	    case 0:
-	      // An 8 Kb game ????
-	      for (int i=0;i<8;i++){
-		internalMemoryBank[i]=memoryBank;
-	      }
-	      break;
-	    case 1:
-	      for (int i=0;i<8;i+=2){
-		internalMemoryBank[i]=memoryBank;
-		internalMemoryBank[i+1]=memoryBank+0x2000;
-	      }
-	      break;
-	    case 2:
-	      internalMemoryBank[0]=memoryBank;		// 0x0000 - 0x1fff
-	      internalMemoryBank[1]=memoryBank+0x2000;	// 0x2000 - 0x3fff
-	      internalMemoryBank[2]=memoryBank;		// 0x4000 - 0x5fff
-	      internalMemoryBank[3]=memoryBank+0x2000;	// 0x6000 - 0x7fff
-	      internalMemoryBank[4]=memoryBank+0x4000;	// 0x8000 - 0x9fff
-	      internalMemoryBank[5]=memoryBank+0x6000;	// 0xa000 - 0xbfff
-	      internalMemoryBank[6]=memoryBank+0x4000;	// 0xc000 - 0xdfff
-	      internalMemoryBank[7]=memoryBank+0x6000;	// 0xe000 - 0xffff
-	      break;
-	    case 4:
-	      ptr=memoryBank;
-	      for (int i=0;i<8;i++,ptr+=0x2000){
-	        internalMemoryBank[i]=ptr;
-	      }
-	      break;
-	    default: 
-	      // not possible
-	      assert (false);
-	  }
+		// this is a simple gamerom less then 64 kB
+		byte* ptr;
+		switch (romSize>>14) { // blocks of 16kB
+		case 0:
+			// An 8 Kb game ????
+			for (int i=0;i<8;i++){
+				internalMemoryBank[i]=memoryBank;
+			}
+			break;
+		case 1:
+			for (int i=0;i<8;i+=2){
+				internalMemoryBank[i]=memoryBank;
+				internalMemoryBank[i+1]=memoryBank+0x2000;
+			}
+			break;
+		case 2:
+			internalMemoryBank[0]=memoryBank;		// 0x0000 - 0x1fff
+			internalMemoryBank[1]=memoryBank+0x2000;	// 0x2000 - 0x3fff
+			internalMemoryBank[2]=memoryBank;		// 0x4000 - 0x5fff
+			internalMemoryBank[3]=memoryBank+0x2000;	// 0x6000 - 0x7fff
+			internalMemoryBank[4]=memoryBank+0x4000;	// 0x8000 - 0x9fff
+			internalMemoryBank[5]=memoryBank+0x6000;	// 0xa000 - 0xbfff
+			internalMemoryBank[6]=memoryBank+0x4000;	// 0xc000 - 0xdfff
+			internalMemoryBank[7]=memoryBank+0x6000;	// 0xe000 - 0xffff
+			break;
+		case 3:
+			// TODO 48kb, is this possible?
+			assert (false);
+			break;
+		case 4:
+			ptr = memoryBank;
+			for (int i=0; i<8; i++, ptr+=0x2000) {
+				internalMemoryBank[i]=ptr;
+			}
+			break;
+		default: 
+			// not possible
+			assert (false);
+		}
 	}
-	
 }
 
 int MSXGameCartridge::retriefMapperType()
 {
-	unsigned int typeGuess[]={0,0,0,0,0,0};
+	try {
+		return deviceConfig->getParameterAsInt("mappertype");
+	} catch (MSXConfig::Exception e) {
+		//  GameCartridges do their bankswitching by using the Z80
+		//  instruction ld(nn),a in the middle of program code. The
+		//  adress nn depends upon the GameCartridge mappertype used.
+		//  To guess which mapper it is, we will look how much writes
+		//  with this instruction to the mapper-registers-addresses
+		//  occure.
 
-	//TODO make configurable or use 'auto'
-	//if (deviceConfig->getParameter("mappertype")){
-	//  return atoi(deviceConfig->getParameter("mappertype").c_str());
-	//};
-
-	//  GameCartridges do their bankswitching by using the Z80 instruction ld(nn),a in 
-	//  the middle of program code. The adress nn depends upon the GameCartridge mappertype used
-	//
-	//  To gues which mapper it is, we will look how much writes with this 
-	//  instruction to the mapper-registers-addresses occure.
-
-	// if smaller then 32kB it must be a simple rom so we return 128
-	if  (deviceConfig->getParameterAsBool("automappertype")){
-	  if (romSize <=0xFFFF){
-	    if (romSize == 0x8000){
-	      //TODO: Autodetermine for KonamiSynthesiser
-	      // works for now since most 32 KB cartridges don't write to themselves
-	      return 64;
-	    } else {
-	      return 128;
-	    }
-	  }
+		// if smaller then 32kB it must be a simple rom so we return 128
 	
-	  for (int i=0; i<romSize-2; i++) {
-		if (memoryBank[i] == 0x32) {
-			int value = memoryBank[i+1]+(memoryBank[i+2]<<8);
-			switch (value){
-			case 0x5000:
-			case 0x9000:
-			case 0xB000:
-				typeGuess[2]++;
-				break;
-			case 0x4000:
-			case 0x8000:
-			case 0xA000:
-				typeGuess[3]++;
-				break;
-			case 0x6800:
-			case 0x7800:
-				typeGuess[4]++;
-				break;
-			case 0x6000:
-				typeGuess[3]++;
-				typeGuess[4]++;
-				typeGuess[5]++;
-				break;
-			case 0x7000:
-				typeGuess[2]++;
-				typeGuess[4]++;
-				typeGuess[5]++;
-				break;
-			case 0x77FF:
-				typeGuess[5]++;
+		if (romSize <= 0x10000) {
+			if (romSize == 0x8000) {
+				//TODO: Autodetermine for KonamiSynthesiser
+				// works for now since most 32 KB cartridges don't
+				// write to themselves
+				return 64;
+			} else {
+				return 128;
 			}
+		} else {
+			unsigned int typeGuess[]={0,0,0,0,0,0};
+			for (int i=0; i<romSize-2; i++) {
+				if (memoryBank[i] == 0x32) {
+					int value = memoryBank[i+1]+(memoryBank[i+2]<<8);
+					switch (value) {
+					case 0x5000:
+					case 0x9000:
+					case 0xB000:
+						typeGuess[2]++;
+						break;
+					case 0x4000:
+					case 0x8000:
+					case 0xA000:
+						typeGuess[3]++;
+						break;
+					case 0x6800:
+					case 0x7800:
+						typeGuess[4]++;
+						break;
+					case 0x6000:
+						typeGuess[3]++;
+						typeGuess[4]++;
+						typeGuess[5]++;
+						break;
+					case 0x7000:
+						typeGuess[2]++;
+						typeGuess[4]++;
+						typeGuess[5]++;
+						break;
+					case 0x77FF:
+						typeGuess[5]++;
+					}
+				}
+			}
+			// in case of doubt we go for type 0
+			typeGuess[0]++;
+			// in case of even type 5 and 4 we would prefer 5 
+			// but we would still prefer 0 above 4 or 5 so no increment
+			if (typeGuess[4]) typeGuess[4]--; // -1 -> max_int
+			int type = 0;
+			for (int i=0; i<6; i++) {
+				if (typeGuess[i]>typeGuess[type]) 
+					type = i;
+			}
+			PRT_DEBUG("I Guess this is a nr " << type << " GameCartridge mapper type.")
+			return type;
 		}
-	  }
-	  // in case of doubt we go for type 0
-	  typeGuess[0]++;
-	  // in case of even type 5 and 4 we would prefer 5 
-	  // but we would still prefer 0 above 4 or 5 so no increment
-	  if (typeGuess[4]) typeGuess[4]--; // decrement of zero is max_int :-)
-	  int type = 0;
-	  for (int i=0; i<6; i++) {
-	  	if (typeGuess[i]>typeGuess[type]) 
-	  		type = i;
-	  }
-	  PRT_DEBUG("I Guess this is a nr. " << type << " GameCartridge mapper type.")
-	    return type;
-	} else {
-	  PRT_DEBUG("Configured as a nr. " << deviceConfig->getParameterAsInt("mappertype") << " GameCartridge mapper type.")
-	  return deviceConfig->getParameterAsInt("mappertype");
-	};
-	
+	}
 }
 
 byte MSXGameCartridge::readMem(word address, const EmuTime &time)
 {
 	//TODO optimize this!!!
-  byte regio;
-  if ( (mapperType == 2) && enabledSCC ){
-    regio=(address-0x5000)>>13;
-    if ( (regio==2) ){
-      return cartridgeSCC->readMemInterface(address & 0xFF , time );
-    }
-  }
-  return internalMemoryBank[(address>>13)][address&0x1fff];
+	if ((mapperType == 2) && enabledSCC) {
+		if ((address-0x5000)>>13 == 2) {
+			return cartridgeSCC->readMemInterface(address & 0xFF, time);
+		}
+	}
+	return internalMemoryBank[(address>>13)][address&0x1fff];
 }
 
 void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)

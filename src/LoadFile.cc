@@ -6,48 +6,48 @@
 #include <fstream>
 #include <string>
 #include <list>
-
+#include "msxexception.hh"
 #include "LoadFile.hh"
-
-// It was easier to integrate the filesize determination in the greater codepart.
-// To clean this up you should need to duplicate a lot of code or split it up in
-// more (stupid) smaller parts.
 
 void LoadFile::loadFile(byte** memoryBank, int fileSize)
 {
-   int tmp=fileSize;
-   loadUnknownFile(memoryBank,tmp);
+	FILETYPE* file = openFile();
+	readFile(file, fileSize, memoryBank);
 }
 
-void LoadFile::loadUnknownFile(byte** memoryBank, int &fileSize)
+int LoadFile::loadFile(byte** memoryBank)
 {
+	FILETYPE* file = openFile();
+	file->seekg(0,ios::end);
+	int fileSize=file->tellg();
+	file->seekg(0,ios::beg);
+	PRT_DEBUG("rom size is determined to be " << fileSize);
+	readFile(file, fileSize, memoryBank);
+	return fileSize;
+}
+
+FILETYPE* LoadFile::openFile()
+{
+	// TODO load from "ROM-directory" (temp "cd" to dir)
 	std::string filename = getDeviceConfig()->getParameter("filename");
-	int offset = getDeviceConfig()->getParameterAsInt("skip_headerbytes");
 	PRT_DEBUG("Loading file " << filename << " ...");
-	
-	// TODO load from "ROM-directory"
-        // We need to adjust filename to include the path where it can be found !!
-	
+	return new FILETYPE(filename.c_str());
+}
 
-#ifdef HAVE_FSTREAM_TEMPL
-	std::ifstream<byte> file(filename.c_str());
-#else
-	std::ifstream file(filename.c_str());
-#endif
-	// Determine filesize automatically if needed
-	if ( fileSize == 0 ){
-		 file.seekg(0,ios::end);
-		 fileSize=file.tellg();
-		 PRT_DEBUG("rom size is determined to be " << fileSize);
-	};
-
+void LoadFile::readFile(FILETYPE* file, int fileSize, byte** memoryBank)
+{
 	if (!(*memoryBank = new byte[fileSize]))
 		PRT_ERROR("Couldn't allocate enough memory");
-	file.seekg(offset);
-	file.read(*memoryBank, fileSize);
-	if (file.fail())
-		PRT_ERROR("Error reading " << filename);
-	file.close();
+	try {
+		int offset= getDeviceConfig()->getParameterAsInt("skip_headerbytes");
+		file->seekg(offset);
+	} catch(MSXConfig::Exception e) {
+		// no offset specified
+	}
+	file->read(*memoryBank, fileSize);
+	if (file->fail())
+		PRT_ERROR("Error reading " << file);
+	file->close();
 	// also patch the file if needed:
 	patchFile(*memoryBank, fileSize);
 }

@@ -2,6 +2,7 @@ $Id$
 
 2001-12-20 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* added MSX-AUDIO: no ADPCM yet, not optimized
+	* LoadFile and MSXGameCartridge cleanup
 
 2001-12-19 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Removed more indirections from YM2413
