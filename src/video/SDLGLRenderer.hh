@@ -87,12 +87,15 @@ private:
 	inline void renderBitmapLines(byte line, int count);
 	inline void renderPlanarBitmapLine(byte mode, int vramLine);
 	inline void renderPlanarBitmapLines(byte line, int count);
-	inline void renderCharacterLines(byte line, int count);
 
 	inline void renderText1(
 		int vramLine, int screenLine, int count, int minX, int maxX );
 	inline void renderText2(
 		int vramLine, int screenLine, int count, int minX, int maxX );
+	inline void renderGraphic1(
+		int vramLine, int screenLine, int count, int minX, int maxX );
+	inline void renderGraphic1Row(
+		int row, int screenLine, int col, int endCol );
 	inline void renderGraphic2(
 		int vramLine, int screenLine, int count, int minX, int maxX );
 	inline void renderGraphic2Row(
@@ -187,12 +190,6 @@ private:
 	/** Work area for redefining textures.
 	  */
 	Pixel lineBuffer[512];
-
-	/** Cache for rendered VRAM in character modes.
-	  * Cache line (N + scroll) corresponds to display line N.
-	  * It holds a single page of 256 lines.
-	  */
-	LineTexture charTextures[256];
 
 	/** Cache for rendered VRAM in bitmap modes.
 	  * Cache line N corresponds to VRAM at N * 128.

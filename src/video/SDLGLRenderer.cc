@@ -7,6 +7,8 @@ TODO:
   dirty array?
   Pitfalls:
   * in SCREEN1, a colour change invalidates 8 consequetive characters
+    however, the code only checks dirtyPattern, because there is nothing
+    to cache for the colour table (patterns are monochrome textures)
   * A12 and A11 of patternMask and colourMask may be different
     also, colourMask has A10..A6 as well
     in most realistic cases however the two will be of equal size
@@ -376,17 +378,6 @@ inline void SDLGLRenderer::renderPlanarBitmapLines(
 			vramLine &= ~0x100;
 			renderPlanarBitmapLine(mode, vramLine);
 		}
-		line++; // is a byte, so wraps at 256
-	}
-}
-
-inline void SDLGLRenderer::renderCharacterLines(
-	byte line, int count)
-{
-	while (count--) {
-		// Render this line.
-		characterConverter.convertLine(lineBuffer, line);
-		charTextures[line].update(lineBuffer, lineWidth);
 		line++; // is a byte, so wraps at 256
 	}
 }
@@ -885,6 +876,64 @@ void SDLGLRenderer::renderText2(
 	glDisable(GL_SCISSOR_TEST);
 }
 
+void SDLGLRenderer::renderGraphic1(
+	int vramLine, int screenLine, int count, int minX, int maxX
+) {
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
+
+	// Render complete characters and cut off the invisible part.
+	int screenHeight = 2 * count;
+	glScissor(
+		translateX(vdp->getLeftBackground()) + minX, // x
+		HEIGHT - screenLine - screenHeight, // y
+		maxX - minX, // w
+		screenHeight // h
+		);
+	glEnable(GL_SCISSOR_TEST);
+
+	int col = minX / 16;
+	int endCol = (maxX + 15) / 16;
+	int endRow = (vramLine + count + 7) / 8;
+	screenLine -= (vramLine & 7) * 2;
+	for (int row = vramLine / 8; row < endRow; row++) {
+		renderGraphic1Row(row & 31, screenLine, col, endCol);
+		screenLine += 16;
+	}
+	glDisable(GL_SCISSOR_TEST);
+}
+
+void SDLGLRenderer::renderGraphic1Row(
+	int row, int screenLine, int col, int endCol
+) {
+	int nameStart = row * 32 + col;
+	int nameEnd = row * 32 + endCol;
+	int x = translateX(vdp->getLeftBackground()) + col * 16;
+
+	for (int name = nameStart; name < nameEnd; name++) {
+		int charNr = vram->nameTable.readNP((-1 << 10) | name);
+		GLuint textureId = characterCache[charNr];
+		bool valid = dirtyPattern.validate(charNr);
+		if (!valid) {
+			byte charPixels[8 * 8];
+			characterConverter.convertMonoBlock(
+				charPixels,
+				vram->patternTable.readArea((-1 << 13) | (charNr * 8))
+				);
+			GLBindMonoBlock(textureId, charPixels);
+		}
+		int colour = vram->colourTable.readNP((-1 << 6) | (charNr / 8));
+		Pixel fg = palFg[colour >> 4];
+		Pixel bg = palFg[colour & 0x0F];
+		GLSetTexEnvCol(fg);
+		GLDrawMonoBlock(
+			textureId,
+			x, screenLine, 8, 2,
+			bg, 0
+			);
+		x += 16;
+	}
+}
+
 void SDLGLRenderer::renderGraphic2(
 	int vramLine, int screenLine, int count, int minX, int maxX
 ) {
@@ -1125,6 +1174,13 @@ void SDLGLRenderer::drawDisplay(
 				displayX, displayX + displayWidth
 				);
 			break;
+		case DisplayMode::GRAPHIC1:
+			// TODO: Implement horizontal scroll high.
+			renderGraphic1(
+				displayY, screenY, displayHeight,
+				displayX, displayX + displayWidth
+				);
+			break;
 		case DisplayMode::GRAPHIC2:
 		case DisplayMode::GRAPHIC3:
 			// TODO: Implement horizontal scroll high.
@@ -1141,14 +1197,7 @@ void SDLGLRenderer::drawDisplay(
 				);
 			break;
 		default:
-			renderCharacterLines(displayY, displayHeight);
-			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-			for (int y = screenY; y < screenLimitY; y += 2) {
-				charTextures[displayY].draw(
-					displayX + hScroll, screenX, y, displayWidth, 2
-					);
-				displayY = (displayY + 1) & 255;
-			}
+			assert(false);
 			break;
 		}
 	}
