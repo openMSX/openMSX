@@ -110,7 +110,7 @@ float RealTimeRTC::doSync(const EmuTime &time)
 	}
 
 	emuRef = time;
-	PRT_DEBUG("RTC: "<<factor);
+	//PRT_DEBUG("RTC: "<<factor);
 	return factor;
 }
 

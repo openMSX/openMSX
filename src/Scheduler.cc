@@ -39,8 +39,8 @@ void Scheduler::setSyncPoint(const EmuTime &timeStamp, Schedulable* device, int 
 	EmuTime time = (timeStamp == ASAP) ? targetTime : timeStamp;
 
 	if (device) {
-		PRT_DEBUG("Sched: registering " << device->schedName() <<
-		          " " << userData << " for emulation at " << time);
+		//PRT_DEBUG("Sched: registering " << device->schedName() <<
+		//          " " << userData << " for emulation at " << time);
 	}
 
 	if (time < targetTime) {
