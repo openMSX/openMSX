@@ -4,7 +4,7 @@
 #include "MSXDevice.hh"
 #include "MSXMotherBoard.hh"
 
-std::string MSXDevice::defaultName("no name");
+const std::string MSXDevice::defaultName = "no name";
 
 MSXDevice::MSXDevice()
 {
