@@ -27,8 +27,8 @@ class EventDistributor : public Runnable , private Schedulable
 		 * "signalEvent()" method.
 		 * The 'main-emulation-thread' will deliver the event.
 		 */
-		void registerEventListener(int type, EventListener *listener);
-		//void unregisterEventListener(EventListener *listener);
+		void   registerEventListener(int type, EventListener *listener);
+		void unregisterEventListener(int type, EventListener *listener);
 		
 	private:
 		EventDistributor();

@@ -34,6 +34,7 @@ Scheduler::~Scheduler()
 {
 	CommandController::instance()->unregisterCommand("quit");
 	CommandController::instance()->unregisterCommand("mute");
+	EventDistributor::instance()->unregisterEventListener(SDL_QUIT, this);
 }
 
 Scheduler* Scheduler::instance()

@@ -11,6 +11,7 @@ $Id$
 	   they aren't used anymore and they shouldn't be in the future
 	* Introduced condition variables (thread locking):
 	   used in Scheduler to implement pause
+	* Added unregisterEventListener() method
 
 2002-06-18 David Heremans <david.heremans@gnu-linux.net>
 	* Basic timing for all FDC Type I commands

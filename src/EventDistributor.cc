@@ -37,10 +37,10 @@ void EventDistributor::run()
 	while (SDL_WaitEvent(&event)) {
 		PRT_DEBUG("SDL event received");
 	
-		std::multimap<int, EventListener*>::iterator it;
-
 		bool anySync = false;
+		
 		syncMutex.grab();
+		std::multimap<int, EventListener*>::iterator it;
 		for (it = syncMap.lower_bound(event.type);
 		     (it != syncMap.end()) && (it->first == event.type);
 		     it++) {
@@ -60,13 +60,6 @@ void EventDistributor::run()
 	assert(false);
 }
 
-void EventDistributor::registerEventListener (int type, EventListener *listener)
-{
-	syncMutex.grab();
-	syncMap.insert(std::pair<int, EventListener*>(type, listener));
-	syncMutex.release();
-}
-
 void EventDistributor::executeUntilEmuTime(const EmuTime &time, int userdata)
 {
 	queueMutex.grab();
@@ -78,5 +71,27 @@ void EventDistributor::executeUntilEmuTime(const EmuTime &time, int userdata)
 		queueMutex.grab();	// retake queue mutex
 	}
 	queueMutex.release();
+}
+
+
+void EventDistributor::registerEventListener(int type, EventListener *listener)
+{
+	syncMutex.grab();
+	syncMap.insert(std::pair<int, EventListener*>(type, listener));
+	syncMutex.release();
+}
+void EventDistributor::unregisterEventListener(int type, EventListener *listener)
+{
+	syncMutex.grab();
+	std::multimap<int, EventListener*>::iterator it;
+	for (it = syncMap.lower_bound(type);
+	     (it != syncMap.end()) && (it->first == type);
+	     it++) {
+		if (it->second == listener) {
+			syncMap.erase(it);
+			break;
+		}
+	}
+	syncMutex.release();
 }
 

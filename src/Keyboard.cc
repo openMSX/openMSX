@@ -15,6 +15,8 @@ Keyboard::Keyboard(bool keyG)
 
 Keyboard::~Keyboard()
 {
+	EventDistributor::instance()->unregisterEventListener(SDL_KEYDOWN, this);
+	EventDistributor::instance()->unregisterEventListener(SDL_KEYUP,   this);
 }
 
 

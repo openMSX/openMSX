@@ -14,6 +14,7 @@ Mouse::Mouse()
 	status = JOY_BUTTONA | JOY_BUTTONB;
 	faze = FAZE_YLOW;
 	xrel = yrel = curxrel = curyrel = 0;
+	
 	EventDistributor::instance()->registerEventListener(SDL_MOUSEMOTION,     this);
 	EventDistributor::instance()->registerEventListener(SDL_MOUSEBUTTONDOWN, this);
 	EventDistributor::instance()->registerEventListener(SDL_MOUSEBUTTONUP,   this);
@@ -24,7 +25,12 @@ Mouse::Mouse()
 Mouse::~Mouse()
 {
 	PluggingController::instance()->unregisterPluggable(this);
+	
+	EventDistributor::instance()->unregisterEventListener(SDL_MOUSEMOTION,     this);
+	EventDistributor::instance()->unregisterEventListener(SDL_MOUSEBUTTONDOWN, this);
+	EventDistributor::instance()->unregisterEventListener(SDL_MOUSEBUTTONUP,   this);
 }
+
 
 //Pluggable
 const std::string &Mouse::getName()
@@ -73,6 +79,7 @@ void Mouse::write(byte value, const EmuTime &time)
 		break;
 	}
 }
+
 
 //EventListener
 void Mouse::signalEvent(SDL_Event &event)

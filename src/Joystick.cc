@@ -33,6 +33,9 @@ Joystick::Joystick(int joyNum)
 Joystick::~Joystick()
 {
 	PluggingController::instance()->unregisterPluggable(this);
+	EventDistributor::instance()->unregisterEventListener(SDL_JOYAXISMOTION, this);
+	EventDistributor::instance()->unregisterEventListener(SDL_JOYBUTTONDOWN, this);
+	EventDistributor::instance()->unregisterEventListener(SDL_JOYBUTTONUP,   this);
 	SDL_JoystickClose(joystick);
 }
 

@@ -51,6 +51,7 @@ SDLConsole::SDLConsole(SDL_Surface *screen) :
 SDLConsole::~SDLConsole()
 {
 	CommandController::instance()->unregisterCommand("console");
+	EventDistributor::instance()->unregisterEventListener(SDL_KEYDOWN, this);
 	ConsoleManager::instance()->unregisterConsole(this);
 	delete font;
 }
