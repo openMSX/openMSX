@@ -4,6 +4,7 @@ config.h.in
 config.cache
 config.cross.cache
 config.status
+autom4te.cache
 stamp-h
 Makefile
 Makefile.in
