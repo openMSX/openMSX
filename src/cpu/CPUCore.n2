@@ -58,7 +58,7 @@ inline bool _CPU_::RDMEM(word address, byte &result, ResumeFunc f)
 		#endif
 		return true;
 	}
-	RDMEMslow(address, result, f);
+	return RDMEMslow(address, result, f);
 }
 bool _CPU_::RDMEMslow(word address, byte &result, ResumeFunc f)
 {
@@ -104,7 +104,7 @@ inline bool _CPU_::WRMEM(word address, byte value, ResumeFunc f)
 		writeCacheLine[line][address&CACHE_LINE_LOW] = value;
 		return true;
 	}
-	WRMEMslow(address, value, f);
+	return WRMEMslow(address, value, f);
 }
 bool _CPU_::WRMEMslow(word address, byte value, ResumeFunc f)
 {
