@@ -15,6 +15,7 @@
 
 
 class OSDConsoleRenderer;
+class Console;
 class FileContext;
 
 
@@ -47,7 +48,7 @@ class FontSetting : public FilenameSetting
 class OSDConsoleRenderer : public ConsoleRenderer
 {
 	public:
-		OSDConsoleRenderer();
+		OSDConsoleRenderer(Console * console_);
 		virtual ~OSDConsoleRenderer();
 		virtual bool loadBackground(const std::string &filename) = 0;
 		virtual bool loadFont(const std::string &filename) = 0;
@@ -93,6 +94,7 @@ class OSDConsoleRenderer : public ConsoleRenderer
 		static int wantedRows;
 		int currentMaxX;
 		int currentMaxY;
+		Console * console;
 };
 
 #endif
