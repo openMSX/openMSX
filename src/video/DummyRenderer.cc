@@ -1,16 +1,5 @@
 // $Id$
 
-/* TODO:
- * - in RendererFactory: only register this renderer when in CliComm mode
- * - all renderers use SDL at the moment, which means the SDL_VIDEO is inited in
- *   main.cc. This should be done in a superclass of the SDL based renderers.
- *   This will fix the problem that the window isn't destroyed when switching
- *   to the Dummy Renderer, because it will only be initialized and
- *   deinitialized for SDL based renderers then (in the con/destructor of that
- *   superclass).
- */
-
-
 #include "DummyRenderer.hh"
 #include "DisplayMode.hh"
 
