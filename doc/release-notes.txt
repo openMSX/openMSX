@@ -1,82 +1,42 @@
-Release Notes for openMSX 0.5.0 (2004-10-18)
+Release Notes for openMSX 0.5.1 (2005-03-xx)
 ============================================
 
-This release includes a complete redesign of the hardware configuration XML
-files. Also many devices were renamed. I/O ports are now specified in the
-hardware configuration instead of hardcoded. Configurations in the old format
-are no longer supported.
-If you copied the configurations that came with openMSX 0.4.0 to a different
-location (for example, ~/.openMSX/share), replace them by the configurations
-shipped with 0.5.0.
-The Python script share/scripts/convert_hardwareconfig.py can be used to
-convert your custom-made configurations. It may not convert every detail
-correctly, but it will save you a lot of time compared to manually converting
-configurations.
+This release includes a complete redesign of the ROM database XML
+file. The file will be extended to a generic software database dump, with a central MySQL database as source. This database will be shared between the blueMSX and openMSX project. Other emulator authors are welcome to participate as well, of course.
 
-The new ROM pools feature makes installing system ROMs easier. A ROM pool is a
-directory where openMSX looks for system ROMs. The new hardware configuration
-XML files contain the SHA1 sums of the required system ROMs, so openMSX can
-find the right ROMs in the ROM pool automatically. The default ROM pool is the
-directory share/systemroms.
+Another new thing is that this release is the first which supports Sunrise GFX9000 to a usable extent. We have been working on this for quite some time already, but in this release you can see the first usable results. Do note that the emulation is still far from complete, fast or bug free. But we thought you might appreciate it already in its current shape.
 
-Settings, including key bindings and user directories, can now be saved. By
-default, settings are automatically saved when openMSX exits. If you don't want
-that, do "set save_settings_on_exit false" and save manually with the new
-"save_settings" console command. It is also possible to save settings to
-separate files, so you can keep multiple, independent configurations.
-
-Old configuration options were converted to settings:
-- machine: the default machine (needs openMSX restart)
-- frequency: the sound mixer frequency (needs openMSX restart)
-- samples: the size of the sound mixing buffer (needs openMSX restart)
-- user_directories: directories that are searched for data files
-The new setting "save_settings_on_exit" controls auto-saving of settings.
-Finally, we renamed "frontswitch" to "firmwareswitch".
+Other big noticable changes are firstly the addition of the OSD LEDs. This way you can see what's going on with the LEDs in full screen and without Catapult as well. Secondly, the sound quality has improved a lot for certain devices, including PCM, because of a new mixer implementation. Lastly, there is now support for IPS patches: patch disk and ROM images without modifying the image file!
 
 Changes in the video system:
-- Use of MMX to speed up video scaling considerably (mainly simple scaler).
-- Big speed up of scanline effect.
-- Enabled blur effect in the SDLHi renderer (simple scaler).
-- Scale2x and hq2x scalers now also work in hi-res modes (screen 6 and 7).
-- Made pixel accuracy the default.
-- Removed 8bpp support (which never worked before).
-- Fixed crash when making screenshot in 16bpp.
+- Even more use of MMX to speed up scaling
 
 New or improved emulator features:
-- Added channel mode 'off' to mute individual sound devices.
-- Added meta data of machines in config files.
-  Some of this information is shown in the window title bar.
-- New "iomap" command lists the I/O ports and the devices connected to them.
-- Added a debugger interface to all (S)RAM.
-- Improvements in the 'type' command, thanks to Albert Beevendorp and Arnold
-  Metselaar (welcome to the club, Arnold!).
-- Release key presses when the console becomes active.
-- Improved geometry detection of disk images; MSX1Mania disks work now.
-- Fixed crash in Win32 when dir-as-disk is used with files with weird dates.
+- Debugging: enabled 'cputrace' setting for normal builds as well.
+- Debugging: added possibility to read I/O ports.
+- Various speed ups, especially for low end machines due to better frame skip.
+- 'samples' and 'frequency' setting can now be switched at run time.
+- OSD LEDs are configurable via TCL scripts.
+- Extensions inside ZIP files are now used to guess the right file type.
+- New 'escape_grab' command: escapes from 'grabinput' once.
 
 MSX device support:
-- MoonSound fixes.
-- Added slotexpander extension: use it to change one primary slot into four
-  secondary slots.
-- 8kB BASIC ROMs now work correctly and are auto detected as well.
-- Added simple DC filter for cassette images.
-  .wav files created by MicroWAVer should work now.
-- Fixes for TC8566AF FDC (used in turbo R), thanks to Daniel Vik:
-  improved timing (fixes Gazzel intro) and added format command.
-- Force PSG portA to be input port. This fixes joystick and mouse reading in
-  games that write illegal values to the PSG (Match Maniac and others).
-- Emulation of the Tetris II Special Edition dongle (plugs into joystick port).
-- Fixed high-frequency reads of low-frequency clocks (such as RTC).
-  Thanks to Daniel Vik for spotting this problem.
-- Many bugs were fixed, including long-standing bugs such as a VDP bug causing
-  glitches in Andorogynus and CPU bugs causing glitches in Pennant Race and
-  Fony Demo Disk 1.
+- Added usable GFX9000 support; use the 'videosource' setting to switch
+- Fixes in Tetris II Special Edition dongle
+- Timing improvements of the WD2793 FDC. Fixes a few games that rely on it.
+- The 13 bit MSX-AUDIO DAC actually works now (used in modplayer).
+- Fixed booting of SVI-738 CP/M disks.
+- Fixed turboR DRAM support. Programs that use this, like TRCAS, work now.
+- Added MegaRAM Disk, thanks to Adriano da Cunha.
+- Improved Sony HBI-55, thanks to Daniel Vik.
+- Added MSX-AUDIO 2 extension. This is an Y8910 on alternative I/O ports.
+- Added separate machine configuration for Philips VG 8020/20.
 
 Build system, packaging, documentation:
-- Separated OS and CPU in the build system.
-- Build support for x86-64 (Athlon64).
-- Fixed bug: new TCL was not detected by running "make probe" again.
-- Added openMSX FAQ to documentation.
+- We now provide Debian packages, shortly after release, as well.
+- Build support for OpenBSD and NetBSD
+- Many fixes for Mac OS X
+- Updated C-BIOS to 0.20.
 
 In "doc/manual/index.html" you can find a set of HTML manuals for openMSX.
 Make sure you read this if you haven't used openMSX before, but also to learn
@@ -89,8 +49,8 @@ Known issues / caveats:
   without backwards compatibility. This happened between 0.4.0 and 0.5.0, for
   example. Keep this in mind if you create machine descriptions, ROM database
   entries etc.
-- openMSX is confirmed to run on Linux, Win32, Mac OS X and FreeBSD 4 and 5,
-  on x86, x86-64 and PPC.
+- openMSX is confirmed to run on Linux, Win32, Mac OS X, OpenBSD, NetBSD and 
+  FreeBSD 4 and 5, on x86, x86-64 and PPC.
   Running on other operating systems (wherever SDL runs) or CPUs should be
   possible, but will require some modifications to the build system. If you are
   compiling on a new platform, please share your experiences (see below for
