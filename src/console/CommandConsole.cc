@@ -237,7 +237,8 @@ bool CommandConsole::signalEvent(const Event& event)
 			splitLines();
 			break;
 		default:
-			if (keyCode & Keys::KM_SHIFT || !(keyCode & ~Keys::K_MASK)) { // no modifiers?
+			// Treat as normal key if no modifiers except shift.
+			if (!(keyCode & ~(Keys::K_MASK | Keys::KM_SHIFT))) {
 				normalKey(keyEvent.getUnicode());
 			}
 	}
