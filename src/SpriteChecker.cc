@@ -15,6 +15,8 @@ SpriteChecker::SpriteChecker(VDP *vdp, bool limitSprites, const EmuTime &time)
 	collisionX = 0;
 	collisionY = 0;
 	memset(spriteCount, 0, sizeof(spriteCount));
+
+	updateSpritesMethod = &SpriteChecker::updateSprites1;
 }
 
 inline SpriteChecker::SpritePattern SpriteChecker::doublePattern(SpriteChecker::SpritePattern a)

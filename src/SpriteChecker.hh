@@ -78,17 +78,18 @@ private:
 	  */
 	void updateSprites2(const EmuTime &until);
 
+	typedef void (SpriteChecker::*UpdateSpritesMethod)
+		(const EmuTime &until);
+	UpdateSpritesMethod updateSpritesMethod;
+	
 public:
 	/** Update sprite checking to specified time.
 	  * @param time The moment in emulated time to update to.
 	  */
 	inline void sync(const EmuTime &time) {
-		// TODO: Use method pointer.
-		if (displayMode < 8) {
-			updateSprites1(time);
-		} else {
-			updateSprites2(time);
-		}
+		// This calls either updateSprites1 or updateSprites2
+		// depending on the current DisplayMode
+		(this->*updateSpritesMethod)(time);
 	}
 
 	/** Informs the sprite checker of a VDP display mode change.
@@ -97,7 +98,11 @@ public:
 	  */
 	inline void updateDisplayMode(int mode, const EmuTime &time) {
 		sync(time);
-		displayMode = mode;
+		if (mode < 8) {
+			updateSpritesMethod = &SpriteChecker::updateSprites1;
+		} else {
+			updateSpritesMethod = &SpriteChecker::updateSprites2;
+		}
 	}
 
 	/** Get X coordinate of sprite collision.
@@ -206,10 +211,6 @@ private:
 	  * is still effective.
 	  */
 	bool limitSprites;
-
-	/** Current dispay mode: M5..M1 combined.
-	  */
-	int displayMode;
 
 	/** The emulation time when this frame was started (vsync).
 	  */
