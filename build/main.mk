@@ -17,7 +17,7 @@
 # Logical targets which require dependency files.
 DEPEND_TARGETS:=all run default
 # Logical targets which do not require dependency files.
-NODEPEND_TARGETS:=clean config
+NODEPEND_TARGETS:=clean config probe
 # Mark all logical targets as such.
 .PHONY: $(DEPEND_TARGETS) $(NODEPEND_TARGETS)
 
@@ -196,6 +196,7 @@ CONFIG_PATH:=$(BUILD_PATH)/config
 CONFIG_HEADER:=$(CONFIG_PATH)/build-info.hh
 PROBE_SCRIPT:=$(MAKE_PATH)/probe.mk
 PROBE_HEADER:=$(CONFIG_PATH)/probed_defs.hh
+PROBE_MAKE:=$(CONFIG_PATH)/probed_defs.mk
 VERSION_HEADER:=$(CONFIG_PATH)/Version.ii
 
 
@@ -214,14 +215,9 @@ CHANGELOG_REVISION:=\
 	$(shell sed -ne "s/\$$Id: ChangeLog,v \([^ ]*\).*/\1/p" ChangeLog)
 
 include $(MAKE_PATH)/info2code.mk
-
-# TCL.
 ifneq ($(filter $(DEPEND_TARGETS),$(MAKECMDGOALS)),)
--include $(CONFIG_PATH)/config-tcl.mk
+-include $(PROBE_MAKE)
 endif
-$(CONFIG_PATH)/config-tcl.mk: $(MAKE_PATH)/tcl-search.sh
-	@mkdir -p $(@D)
-	@sh $< > $@
 
 
 # Compiler and Flags
@@ -319,7 +315,27 @@ LINK_FLAGS+=$(TCL_LDFLAGS)
 # Build Rules
 # ===========
 
-all: $(CONFIG_HEADER) $(VERSION_HEADER) $(PROBE_HEADER) config $(BINARY_FULL)
+probe: $(PROBE_MAKE)
+	@echo ""
+	@echo "If you are satisfied with the probe results, run \"$(MAKE)\" to start the build."
+	@echo "Otherwise, install some libraries and headers and rerun \"configure\"."
+	@echo ""
+
+# Force a probe if "probe" target is passed explicitly.
+ifneq ($(filter probe,$(MAKECMDGOALS)),)
+.PHONY: $(PROBE_MAKE)
+endif
+
+# Probe for headers and functions.
+# TODO: It would be cleaner to include probe.mk and probe-results.mk,
+#       instead of executing them in a sub-make.
+$(PROBE_MAKE): $(PROBE_SCRIPT) $(MAKE_PATH)/tcl-search.sh
+	@OUTDIR=$(@D) OPENMSX_PLATFORM=$(OPENMSX_PLATFORM) COMPILE="$(CXX)" \
+		$(MAKE) --no-print-directory -f $<
+	@PROBE_MAKE=$(PROBE_MAKE) \
+		$(MAKE) --no-print-directory -f $(MAKE_PATH)/probe-results.mk
+
+all: $(CONFIG_HEADER) $(VERSION_HEADER) config $(BINARY_FULL)
 
 # Print configuration.
 config:
@@ -328,11 +344,6 @@ config:
 	@echo "  Flavour:  $(OPENMSX_FLAVOUR)"
 	@echo "  Profile:  $(OPENMSX_PROFILE)"
 	@echo "  Subset:   $(if $(OPENMSX_SUBSET),$(OPENMSX_SUBSET)*,full build)"
-
-# Probe for headers and functions.
-$(PROBE_HEADER): $(PROBE_SCRIPT)
-	@echo "Probing configuration..."
-	@OUTDIR=$(@D) COMPILE="$(CXX)" $(MAKE) -f $<
 
 # Include dependency files.
 ifneq ($(filter $(DEPEND_TARGETS),$(MAKECMDGOALS)),)

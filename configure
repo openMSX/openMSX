@@ -1,0 +1,33 @@
+#!/bin/sh
+# $Id$
+# Probes the build environment (libs, headers).
+
+if [ -z "$MAKE" ]
+then
+	# Look for GNU Make; prefer "gmake" over "make".
+	which make 2> /dev/null > /dev/null && MAKE=make
+	which gmake 2> /dev/null > /dev/null && MAKE=gmake
+else
+	echo "Using value of MAKE environment variable: \"$MAKE\"."
+fi
+if [ -z "$MAKE" ]
+then
+	echo 'Error: no Make found.'
+	echo 'Please install GNU Make and put it in your path as "gmake" or "make",'
+	echo 'or put its location in an environment variable named "MAKE".'
+	exit 1
+fi
+if [ "gmake" != "$MAKE" ]
+then
+	if ! ( $MAKE --version 2> /dev/null > /dev/null \
+	&& ($MAKE --version 2> /dev/null | grep "GNU Make" > /dev/null) )
+	then
+		echo "Error: Make does not appear to be GNU Make."
+		echo 'Please install GNU Make and put it in your path as "gmake" or "make",'
+		echo 'or put its location in an environment variable named "MAKE".'
+		exit 1
+	fi
+fi
+
+# Invoke actual probe.
+$MAKE -f build/main.mk probe
