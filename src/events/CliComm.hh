@@ -140,6 +140,7 @@ private:
 	class ServerSocket : private Runnable {
 	public:
 		ServerSocket();
+		~ServerSocket();
 		void start();
 	private:
 		virtual void run();

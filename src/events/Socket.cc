@@ -8,7 +8,7 @@ namespace openmsx {
 
 std::string sock_error()
 {
-#ifdef __WIN32__
+#ifdef _WIN32
 	typedef std::map<int, std::string> ErrMap;
 	static std::string UnknownError = "Unknown error";
 	static ErrMap errMap;
@@ -79,7 +79,7 @@ std::string sock_error()
 
 void sock_startup()
 {
-#ifdef __WIN32__
+#ifdef _WIN32
 	WSAData wsaData;
 	if (WSAStartup(MAKEWORD(1, 1), &wsaData) != 0) {
 		throw FatalError(sock_error());
@@ -91,7 +91,7 @@ void sock_startup()
 
 void sock_cleanup()
 {
-#ifdef __WIN32__
+#ifdef _WIN32
 	WSACleanup();
 #else
 	// nothing needed for unix
@@ -100,7 +100,7 @@ void sock_cleanup()
 
 void sock_reuseAddr(int sd)
 {
-#ifdef __WIN32__
+#ifdef _WIN32
 	// nothing similar exists in win32?
 #else
 	// Used so we can re-bind to our port while a previous connection is
@@ -114,7 +114,7 @@ void sock_reuseAddr(int sd)
 // close a connection
 void sock_close(int sd)
 {
-#ifdef __WIN32__
+#ifdef _WIN32
 	closesocket(sd);
 #else
 	close(sd);
@@ -127,7 +127,7 @@ int sock_recv(int sd, char* buf, size_t count)
 	int num = recv(sd, buf, count, 0);
 	if (num >  0) return num; // normal case
 	if (num == 0) return -1;  // socket was closed by client
-#ifdef __WIN32__
+#ifdef _WIN32
 	// Something bad happened on the socket.  It could just be a
 	// "would block" notification, or it could be something more
 	// serious.  WSAEWOULDBLOCK can happen after select() says a
@@ -149,7 +149,7 @@ int sock_send(int sd, const char* buf, size_t count)
 {
 	int num = send(sd, buf, count, 0);
 	if (num >= 0) return num; // normal case
-#ifdef __WIN32__
+#ifdef _WIN32
 	int err;
 	int errlen = sizeof(err);
 	getsockopt(sd, SOL_SOCKET, SO_ERROR, (char*)&err, &errlen);

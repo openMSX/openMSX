@@ -435,6 +435,12 @@ void CliComm::SocketConnection::close()
 CliComm::ServerSocket::ServerSocket()
 	: thread(this)
 {
+	sock_startup();
+}
+
+CliComm::ServerSocket::~ServerSocket()
+{
+	sock_cleanup();
 }
 
 void CliComm::ServerSocket::start()

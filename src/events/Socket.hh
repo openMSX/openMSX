@@ -6,7 +6,7 @@
 #include <errno.h>
 #include <string>
 
-#ifndef __WIN32__
+#ifndef _WIN32
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -18,7 +18,7 @@
 
 namespace openmsx {
 
-#ifndef __WIN32__
+#ifndef _WIN32
 static const int INVALID_SOCKET = -1;
 static const int SOCKET_ERROR = -1;
 typedef int SOCKET;
