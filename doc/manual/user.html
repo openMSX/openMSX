@@ -659,7 +659,8 @@ output ports 0x2E and 0x2F are used. The first port is the Mode Set Register. By
 </p>
 <table>
   <tr> <th>bit(s)</th><th>meaning</th> </tr>
-  <tr> <td>6-7</td> <td> unused </td> </tr>
+  <tr> <td>7  </td> <td> unused </td> </tr>
+  <tr> <td>6  </td> <td> line feed mode (0 = line feed at mode change, 1 no line feed)</td> </tr>
   <tr> <td>4-5</td> <td> output mode (0 = OFF, 1 = single byte, 2 = multi byte)</td> </tr> 
   <tr> <td>0-3</td> <td> parameters for mode 1 (see below)</td> </tr>
   <tr> <td>0-1</td> <td> parameters for mode 2 (see below)</td> </tr>
