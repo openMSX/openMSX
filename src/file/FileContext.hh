@@ -20,19 +20,18 @@ public:
 	virtual ~FileContext();
 	const string resolve(const string& filename);
 	const string resolveCreate(const string& filename);
-	const string resolveSave(const string& filename);
+	const vector<string>& getPaths() const;
 	
 	virtual FileContext* clone() const = 0;
 
 protected:
 	FileContext();
 	FileContext(const FileContext& rhs);
-	virtual const vector<string>& getPaths() = 0;
-	const string resolve(const vector<string>& pathList,
-	                     const string& filename);
+	string resolve(const vector<string>& pathList,
+	               const string& filename) const;
 
 	vector<string> paths;
-	string savePath;
+	vector<string> savePaths;
 };
 
 class ConfigFileContext : public FileContext
@@ -45,7 +44,6 @@ public:
 
 private:
 	ConfigFileContext(const ConfigFileContext& rhs);
-	virtual const vector<string>& getPaths();
 	
 	static map<string, int> nonames;
 };
@@ -54,7 +52,6 @@ class SystemFileContext : public FileContext
 {
 public:
 	SystemFileContext(bool preferSystemDir = false);
-	virtual const vector<string>& getPaths();
 	virtual SystemFileContext* clone() const;
 
 private:
@@ -65,7 +62,6 @@ class SettingFileContext : public FileContext
 {
 public:
 	SettingFileContext(const string& url);
-	virtual const vector<string>& getPaths();
 	virtual SettingFileContext* clone() const;
 
 private:
@@ -76,11 +72,9 @@ class UserFileContext : public FileContext
 {
 public:
 	UserFileContext(const string& savePath = "", bool skipUserDirs = false);
-	virtual const vector<string>& getPaths();
 	virtual UserFileContext* clone() const;
 
 private:
-	void initPaths(bool skipUserDirs);
 	UserFileContext(const UserFileContext& rhs);
 };
 

@@ -2,6 +2,11 @@ $Id$
 
 2004-10-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Improved disk geometry detection heuristics
+	* Fixed save_settings command:
+	   - when settings were loaded from system wide settings.xml file, save
+	     them to user settings.xml file
+	   - when settings were loaded from a user specified settings file,
+	     save them to that file
 
 2004-09-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Removed the MSXConfig::loadConfig method that was resposible for the

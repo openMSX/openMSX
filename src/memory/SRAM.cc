@@ -28,7 +28,7 @@ void SRAM::init()
 	PRT_DEBUG("SRAM: read " << filename);
 	try {
 		bool headerOk = true;
-		File file(config.getFileContext().resolveSave(filename),
+		File file(config.getFileContext().resolveCreate(filename),
 			  LOAD_PERSISTENT);
 		if (header) {
 			int length = strlen(header);
@@ -57,7 +57,7 @@ SRAM::~SRAM()
 	const string& filename = config.getChildData("sramname");
 	PRT_DEBUG("SRAM: save " << filename);
 	try {
-		File file(config.getFileContext().resolveSave(filename),
+		File file(config.getFileContext().resolveCreate(filename),
 			  SAVE_PERSISTENT);
 		if (header) {
 			int length = strlen(header);

@@ -62,7 +62,7 @@ void CommandConsole::saveHistory()
 	UserFileContext context("console");
 	try {
 		ofstream outputfile(FileOperations::expandTilde(
-		        context.resolveSave(filename)).c_str());
+		        context.resolveCreate(filename)).c_str());
 		if (!outputfile) {
 			throw FileException(
 				"Error while saving the consolehistory: " + filename);
@@ -83,7 +83,7 @@ void CommandConsole::loadHistory()
 	try {
 		string line;
 		ifstream inputfile(FileOperations::expandTilde(
-		        context.resolveSave(filename)).c_str());
+		        context.resolveCreate(filename)).c_str());
 		if (!inputfile) {
 			throw FileException(
 				"Error while loading the consolehistory: " + filename);

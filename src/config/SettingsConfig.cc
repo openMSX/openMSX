@@ -38,17 +38,18 @@ SettingsConfig& SettingsConfig::instance()
 
 void SettingsConfig::loadSetting(FileContext& context, const string& filename)
 {
-	loadName = context.resolveCreate(filename);
-	File file(loadName);
+	File file(context.resolve(filename));
 	XMLDocument doc(file.getLocalName());
 	SystemFileContext systemContext;
 	handleDoc(*this, doc, systemContext);
+	
+	saveName = context.resolveCreate(filename);
 }
 
 void SettingsConfig::saveSetting(const string& filename)
 {
-	const string& saveName = filename.empty() ? loadName : filename;
-	File file(saveName, TRUNCATE);
+	const string& name = filename.empty() ? saveName : filename;
+	File file(name, TRUNCATE);
 	string data = dump();
 	file.write((const byte*)data.c_str(), data.size());
 }

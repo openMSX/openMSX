@@ -20,7 +20,7 @@ private:
 	SettingsConfig();
 	~SettingsConfig();
 
-	string loadName;
+	string saveName;
 
 	// SaveSettings command
 	class SaveSettingsCommand : public SimpleCommand {

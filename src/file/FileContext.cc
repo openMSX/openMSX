@@ -23,15 +23,15 @@ FileContext::~FileContext()
 
 const string FileContext::resolve(const string& filename)
 {
-	return resolve(getPaths(), filename);
+	return resolve(paths, filename);
 }
 
 const string FileContext::resolveCreate(const string& filename)
 {
 	try {
-		return resolve(getPaths(), filename);
+		return resolve(savePaths, filename);
 	} catch (FileException& e) {
-		string path = getPaths().front();
+		string path = savePaths.front();
 		try {
 			FileOperations::mkdirp(path);
 		} catch (FileException& e) {
@@ -41,8 +41,8 @@ const string FileContext::resolveCreate(const string& filename)
 	}
 }
 
-const string FileContext::resolve(const vector<string>& pathList,
-                                  const string& filename)
+string FileContext::resolve(const vector<string>& pathList,
+                            const string& filename) const
 {
 	// TODO handle url-protocols better
 	PRT_DEBUG("Context: " << filename);
@@ -70,19 +70,13 @@ const string FileContext::resolve(const vector<string>& pathList,
 	throw FileException(filename + " not found in this context");
 }
 
-const string FileContext::resolveSave(const string& filename)
+const vector<string>& FileContext::getPaths() const
 {
-	assert(!savePath.empty());
-	try {
-		FileOperations::mkdirp(savePath);
-	} catch (FileException& e) {
-		PRT_DEBUG(e.getMessage());
-	}
-	return savePath + filename;
+	return paths;
 }
 
 FileContext::FileContext(const FileContext& rhs)
-	: paths(rhs.paths), savePath(rhs.savePath)
+	: paths(rhs.paths), savePaths(rhs.savePaths)
 {
 }
 
@@ -104,13 +98,8 @@ ConfigFileContext::ConfigFileContext(const string& path,
 		snprintf(buf, 20, "untitled%d", num);
 		userName = buf;
 	}
-	savePath = FileOperations::getUserOpenMSXDir() + "/persistent/" +
-	           hwDescr + '/' + userName + '/';
-}
-
-const vector<string>& ConfigFileContext::getPaths()
-{
-	return paths;
+	savePaths.push_back(FileOperations::getUserOpenMSXDir() +
+	                    "/persistent/" + hwDescr + '/' + userName + '/');
 }
 
 ConfigFileContext* ConfigFileContext::clone() const
@@ -138,11 +127,8 @@ SystemFileContext::SystemFileContext(bool preferSystemDir)
 		paths.push_back(userDir);
 		paths.push_back(systemDir);
 	}
-}
 
-const vector<string>& SystemFileContext::getPaths()
-{
-	return paths;
+	savePaths.push_back(userDir);
 }
 
 SystemFileContext* SystemFileContext::clone() const
@@ -172,11 +158,8 @@ SettingFileContext::SettingFileContext(const string& url)
 		paths.push_back(path1);
 		PRT_DEBUG("SettingFileContext: " << path1);
 	}
-}
 
-const vector<string>& SettingFileContext::getPaths()
-{
-	return paths;
+	savePaths = paths;
 }
 
 SettingFileContext* SettingFileContext::clone() const
@@ -192,48 +175,39 @@ SettingFileContext::SettingFileContext(const SettingFileContext& rhs)
 
 // class UserFileContext
 
-UserFileContext::UserFileContext(const string& savePath_, bool skipUserDirs)
-{
-	if (!savePath_.empty()) {
-		savePath = FileOperations::getUserOpenMSXDir() +
-		           "/persistent/" + savePath_ + '/';
-	}
-	initPaths(skipUserDirs);
-}
-
-void UserFileContext::initPaths(bool skipUserDirs)
+UserFileContext::UserFileContext(const string& savePath, bool skipUserDirs)
 {
 	paths.push_back("./");
-	if (skipUserDirs) {
-		return;
-	}
-
-	try {
-		vector<string> dirs;
-		const string& list = GlobalSettings::instance().
-			getUserDirSetting().getValue();
-		Interpreter::instance().splitList(list, dirs);
-		for (vector<string>::const_iterator it = dirs.begin();
-		     it != dirs.end(); ++it) {
-			string path = *it;
-			if (path.empty()) {
-				continue;
+	if (!skipUserDirs) {
+		try {
+			vector<string> dirs;
+			const string& list = GlobalSettings::instance().
+				getUserDirSetting().getValue();
+			Interpreter::instance().splitList(list, dirs);
+			for (vector<string>::const_iterator it = dirs.begin();
+			     it != dirs.end(); ++it) {
+				string path = *it;
+				if (path.empty()) {
+					continue;
+				}
+				if (path[path.length() - 1] != '/') {
+					path += '/';
+				}
+				path = FileOperations::expandTilde(path);
+				paths.push_back(path);
 			}
-			if (path[path.length() - 1] != '/') {
-				path += '/';
-			}
-			path = FileOperations::expandTilde(path);
-			paths.push_back(path);
+		} catch (CommandException& e) {
+			CliCommOutput::instance().printWarning(
+				"user directories: " + e.getMessage());
 		}
-	} catch (CommandException& e) {
-		CliCommOutput::instance().printWarning(
-			"user directories: " + e.getMessage());
 	}
-}
-
-const vector<string>& UserFileContext::getPaths()
-{
-	return paths;
+	
+	if (!savePath.empty()) {
+		savePaths.push_back(FileOperations::getUserOpenMSXDir() +
+		                    "/persistent/" + savePath + '/');
+	} else {
+		savePaths = paths;
+	}
 }
 
 UserFileContext* UserFileContext::clone() const
