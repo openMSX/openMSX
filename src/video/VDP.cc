@@ -955,8 +955,14 @@ void VDP::updateDisplayMode(DisplayMode newMode, const EmuTime &time)
 	// Commit the new display mode.
 	displayMode = newMode;
 
-	updateColourBase(time);
-	updatePatternBase(time);
+
+	// Speed up performance of bitmap/character mode splits:
+	// leave last used character mode active.
+	// TODO: Disable it if not used for some time.
+	if (!displayMode.isBitmapMode()) {
+		updateColourBase(time);
+		updatePatternBase(time);
+	}
 	if (planarChange || spriteModeChange) {
 		updateSpritePatternBase(time);
 		updateSpriteAttributeBase(time);
