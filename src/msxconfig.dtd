@@ -1,7 +1,12 @@
-<!ELEMENT msxconfig (device)+>
+<!ELEMENT msxconfig (device|config)+>
 <!ELEMENT device (type,slotted?,parameter*,desc?,rem?)>
 <!ATTLIST device
                  id CDATA #IMPLIED>
+<!ELEMENT config (type,parameter*,desc?,rem?)>
+<!ATTLIST config
+                 id CDATA #IMPLIED>
+<!-- config is like a device, but without a slotted,
+     and should be used for non-device configuration -->
 <!ELEMENT type (#PCDATA)>
 <!ELEMENT slotted (page,ps,ss)>
 <!ELEMENT page (#PCDATA)>
