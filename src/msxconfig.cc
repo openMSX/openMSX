@@ -79,7 +79,7 @@ MSXConfig::Device::~Device()
 }
 
 //MSXConfig::Device::Device(XMLNode *deviceNodeP):deviceNode(deviceNodeP),slotted(false)
-MSXConfig::Device::Device(XMLNode *deviceNodeP):deviceNode(deviceNodeP)
+MSXConfig::Device::Device(XMLNode *deviceNodeP):deviceNode(deviceNodeP),desc(""),rem("")
 {
 	ostringstream buffer;
 
@@ -95,7 +95,7 @@ MSXConfig::Device::Device(XMLNode *deviceNodeP):deviceNode(deviceNodeP)
 		throw MSXConfig::XMLParseException("<device> node is missing mandatory 'id' property.");
 	id = deviceNode->property("id")->value();
 
-// type - <!ELEMENT device (type,slotted*,parameter+)>
+// type - <!ELEMENT device (type,slotted*,parameter*,desc?,rem?)>
 
 	XMLNodeList::size_type device_children_count;
 	if ((device_children_count=deviceNode->children().size())<1)
@@ -125,13 +125,15 @@ MSXConfig::Device::Device(XMLNode *deviceNodeP):deviceNode(deviceNodeP)
 		return; // it was only one child node, soo we can return
 	// else: either a slotted structure, or the first parameter
 
-// slotted*,parameter* - <!ELEMENT device (type,slotted*,parameter*)>
+// slotted*,parameter* - <!ELEMENT device (type,slotted*,parameter*,desc?,rem?)>
 
 	device_children_i++;
 	if ((*device_children_i)->name()!="slotted" 
-		&& (*device_children_i)->name()!="parameter")
+		&& (*device_children_i)->name()!="parameter"
+		&& (*device_children_i)->name()!="rem"
+		&& (*device_children_i)->name()!="desc")
 	{
-		buffer << "Either <slotted> or <parameter> expected as second child node for <device id='" << id << "'>.";
+		buffer << "Either <slotted> or <parameter> or <desc> or <rem> expected as second child node for <device id='" << id << "'>.";
 		throw MSXConfig::XMLParseException(buffer);
 	}
 
@@ -199,12 +201,54 @@ MSXConfig::Device::Device(XMLNode *deviceNodeP):deviceNode(deviceNodeP)
 			parameters.push_back(new Parameter(name,value,clasz));
 			device_children_i++;
 		}
+		else if ((*device_children_i)->name()=="desc")
+		{
+			if ((*device_children_i)->children().size()!=1)
+			{
+				buffer << "Missing content node for <desc> for <device id='" << id << "'>.";
+				throw MSXConfig::XMLParseException(buffer);
+		}
+			content_node = (*device_children_i)->children().begin();
+			if (!((*content_node)->is_content()))
+			{
+				buffer << "Child node of <desc> for <device id='" << id << "'> is not a content node.";
+				throw MSXConfig::XMLParseException(buffer);
+			}
+			desc = (*content_node)->content();
+			device_children_i++;
+		}
+		else if ((*device_children_i)->name()=="rem")
+		{
+			if ((*device_children_i)->children().size()!=1)
+			{
+				buffer << "Missing content node for <rem> for <device id='" << id << "'>.";
+				throw MSXConfig::XMLParseException(buffer);
+			}
+			content_node = (*device_children_i)->children().begin();
+			if (!((*content_node)->is_content()))
+			{
+				buffer << "Child node of <rem> for <device id='" << id << "'> is not a content node.";
+				throw MSXConfig::XMLParseException(buffer);
+			}
+			rem = (*content_node)->content();
+			device_children_i++;
+		}
 	}
 }
 
 const string &MSXConfig::Device::getType()
 {
 	return deviceType;
+}
+
+const string &MSXConfig::Device::getDesc()
+{
+	return desc;
+}
+
+const string &MSXConfig::Device::getRem()
+{
+	return rem;
 }
 
 const string &MSXConfig::Device::getId()
@@ -269,11 +313,27 @@ const string &MSXConfig::Device::getParameter(const string &name)
 void MSXConfig::Device::dump()
 {
 	cout << "Device id='" << getId() << "', type='" << getType() << "'" << endl;
+	cout << "<desc>";
+	cout << getDesc();
+	cout << "</desc>" << endl;
+	cout << "<rem>";
+	cout << getRem();
+	cout << "</rem>" << endl;
 	if (!slotted.empty())
 	{
+		cout << "slotted:";
 		for (list<Slotted*>::const_iterator i=slotted.begin(); i != slotted.end(); i++)
 		{
-			cout << "       slotted: page=" << (*i)->getPage() << " ps=" << (*i)->getPS() << " ss=" << (*i)->getSS() << endl;
+            cout << " ps=" << (*i)->getPS();
+            if ((*i)->hasSS())
+            {
+                cout << " ss=" << (*i)->getSS();
+            }
+			if ((*i)->hasPage())
+            {
+               cout << " page=" << (*i)->getPage();
+			}
+            cout << endl;
 		}
 	}
 	else

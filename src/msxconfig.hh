@@ -76,6 +76,8 @@ public:
 		const string &getParameter(const string &name);
 		list<const Parameter*> getParametersWithClass(const string &clasz);
 		void  dump();
+		const string &getDesc();
+		const string &getRem();
 	private:
 		Device(); // block usage
 		Device(const Device &foo); // block usage
@@ -84,7 +86,7 @@ public:
 	public:
 		list <Slotted*> slotted;
 	private:
-		string id, deviceType;
+		string id, deviceType, desc, rem;
 		list<Parameter*> parameters;
 	};
 

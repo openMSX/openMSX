@@ -8,6 +8,7 @@
 	<parameter name="1" class="subslotted">false</parameter>
 	<parameter name="2" class="subslotted">false</parameter>
 	<parameter name="3" class="subslotted">true</parameter>
+	<desc>This is a motherboard</desc>
   </device>
   <device id="myram1">
     <type>Simple64KB</type>
@@ -17,6 +18,7 @@
 	  <ss>0</ss>
 	</slotted>
 	<parameter name="slow_drain_on_reset">true</parameter>
+	<rem>Hello, this is a comment</rem>
   </device>
   <device id="biosrom">
     <type>Rom16KB</type>

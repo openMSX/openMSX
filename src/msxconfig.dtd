@@ -1,5 +1,5 @@
 <!ELEMENT msxconfig (device)+>
-<!ELEMENT device (type,slotted?,parameter+)>
+<!ELEMENT device (type,slotted?,parameter*,desc?,rem?)>
 <!ATTLIST device
                  id CDATA #IMPLIED>
 <!ELEMENT type (#PCDATA)>
@@ -11,3 +11,5 @@
 <!ATTLIST parameter
                     name CDATA #IMPLIED
                     class CDATA #IMPLIED>
+<!ELEMENT desc (#PCDATA)>
+<!ELEMENT rem (#PCDATA)>
