@@ -13,6 +13,7 @@
 #include "SoundDevice.hh"
 #include "Debuggable.hh"
 
+
 namespace openmsx {
 
 class XMLElement;
@@ -31,7 +32,8 @@ public:
 class AY8910 : private SoundDevice, private Debuggable
 {
 public:
-	AY8910(AY8910Interface& interf, const XMLElement& config, const EmuTime& time);
+	AY8910(AY8910Interface& interf, const XMLElement& config,
+		const EmuTime& time );
 	virtual ~AY8910();
 
 	byte readRegister(byte reg, const EmuTime& time);
@@ -39,14 +41,103 @@ public:
 	void reset(const EmuTime& time);
 
 private:
-	// SoundDevice
+	class Generator {
+	public:
+		inline void reset(byte output = 0);
+		inline void setPeriod(int value, unsigned int updateStep);
+	protected:
+		/** Time between output steps.
+		  * For tones, this is half the period of the square wave.
+		  * For noise, this is the time before the random generator produces
+		  * its next output.
+		  */
+		int period;
+		/** Time left in this period: 1 <= count <= period. */
+		int count;
+		/** Current state of the wave.
+		  * For tones, this is 0 or 1.
+		  * For noise, this is 0 or 0x38.
+		  */
+		byte output;
+	};
+
+	class ToneGenerator: public Generator {
+	public:
+		/** Advance this generator in time.
+		  * @param duration Length of interval to simulate.
+		  * @return Amount of time the generator output is 1 during the given
+		  *    time interval.
+		  *    This value is only calculated if template parameter "enabled" 
+		  *    is true, otherwise 0 is returned.
+		  */
+		template <bool enabled>
+		inline int advance(int duration);
+	};
+
+	class NoiseGenerator: public Generator {
+	public:
+		inline void reset();
+		/** Gets the current output of this noise generator.
+		  */
+		inline byte getOutput();
+		/** Advance noise generator in time, but not past the next output flip.
+		  * @param duration Length of interval to simulate.
+		  * @return Amount of time actually advanced.
+		  *   If no flip occurs, this is equal to the duration parameter.
+		  */
+		inline int advanceToFlip(int duration);
+		/** Advance noise generator in time.
+		  * @param duration Length of interval to simulate.
+		  */
+		inline void advance(int duration);
+	private:
+		int random;
+	};
+
+	class Amplitude {
+	public:
+		inline unsigned int getVolume(byte chan);
+		inline void setChannelVolume(byte chan, byte value);
+		inline void setEnvelopeVolume(byte volume);
+		inline void setMasterVolume(int volume);
+		inline bool anyEnvelope();
+	private:
+		unsigned int volTable[16];
+		unsigned int vol[3];
+		bool envChan[3];
+		unsigned int envVolume;
+	};
+
+	class Envelope {
+	public:
+		inline Envelope(Amplitude& amplitude);
+		inline void reset();
+		inline void setPeriod(int value, unsigned int updateStep);
+		inline void setShape(byte shape);
+		inline bool isChanging();
+		inline void advance(int duration);
+	private:
+		/** Gets the current envolope volume.
+		  * @return [0..15].
+		  */
+		inline byte getVolume();
+
+		Amplitude& amplitude;
+		int period;
+		int count;
+		signed char step;
+		byte attack;
+		bool hold, alternate, holding;
+	};
+
+	// SoundDevice:
 	virtual const string& getName() const;
 	virtual const string& getDescription() const;
-	virtual void setVolume(int newVolume);
+	virtual void setVolume(int volume);
 	virtual void setSampleRate(int sampleRate);
 	virtual int* updateBuffer(int length);
 
-	// Debuggable
+	// Debuggable:
 	virtual unsigned getSize() const;
 	//virtual const string& getDescription() const;  // also in SoundDevice!!
 	virtual byte read(unsigned address);
@@ -54,26 +145,17 @@ private:
 
 	void wrtReg(byte reg, byte value, const EmuTime& time);
 	void checkMute();
-
-	byte regs[16];
-	unsigned int updateStep;
-	int periodA, periodB, periodC, periodN, periodE;
-	int countA,  countB,  countC,  countN,  countE;
-	unsigned int volA, volB, volC, volE;
-	bool envelopeA, envelopeB, envelopeC;
-	unsigned char outputA, outputB, outputC, outputN;
-	signed char countEnv;
-	unsigned char attack;
-	bool hold, alternate, holding;
-	int random;
-	unsigned int volTable[16];
-	byte oldEnable;
-	
-	bool semiMuted;
-	int validLength;
 	
 	AY8910Interface& interface;
+	unsigned int updateStep;
+	byte regs[16];
+	byte oldEnable;
+	ToneGenerator tone[3];
+	NoiseGenerator noise;
+	Envelope envelope;
+	Amplitude amplitude;
 };
 
 } // namespace openmsx
-#endif
+
+#endif // __AY8910_HH__

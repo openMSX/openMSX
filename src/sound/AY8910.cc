@@ -1,28 +1,30 @@
 // $Id$
 
 /*
- *
  * Emulation of the AY-3-8910
  *
- * Code largly taken from xmame-0.37b16.1
- *
- * Based on various code snippets by Ville Hallik, Michael Cuddy,
- * Tatsuyuki Satoh, Fabrice Frances, Nicola Salmoria.
- *
+ * Original code taken from xmame-0.37b16.1
+ *   Based on various code snippets by Ville Hallik, Michael Cuddy,
+ *   Tatsuyuki Satoh, Fabrice Frances, Nicola Salmoria.
+ * Integrated into openMSX by ???.
+ * Refactored in C++ style by Maarten ter Huurne.
  */
 
-#include <cassert>
 #include "AY8910.hh"
 #include "Mixer.hh"
 #include "Debugger.hh"
 #include "Scheduler.hh"
+#include <cassert>
+
 
 namespace openmsx {
 
-const int FP_UNIT = 0x8000;	// fixed point representation of 1
-const int CLOCK = 3579545 / 2;
-const int PORT_A_DIRECTION = 0x40;
-const int PORT_B_DIRECTION = 0x80;
+// Fixed point representation of 1.
+static const int FP_UNIT = 0x8000;
+
+static const int CLOCK = 3579545 / 2;
+static const int PORT_A_DIRECTION = 0x40;
+static const int PORT_B_DIRECTION = 0x80;
 enum Register {
 	AY_AFINE = 0, AY_ACOARSE = 1, AY_BFINE = 2, AY_BCOARSE = 3,
 	AY_CFINE = 4, AY_CCOARSE = 5, AY_NOISEPER = 6, AY_ENABLE = 7,
@@ -30,9 +32,273 @@ enum Register {
 	AY_ECOARSE = 12, AY_ESHAPE = 13, AY_PORTA = 14, AY_PORTB = 15
 };
 
+
+// Generator:
+
+inline void AY8910::Generator::reset(byte output) {
+	period = 0;
+	count = 0;
+	this->output = output;
+}
+
+inline void AY8910::Generator::setPeriod(int value, unsigned int updateStep) {
+	// A note about the period of tones, noise and envelope: for speed
+	// reasons, we count down from the period to 0, but careful studies of the
+	// chip output prove that it instead counts up from 0 until the counter
+	// becomes greater or equal to the period. This is an important difference
+	// when the program is rapidly changing the period to modulate the sound.
+	// To compensate for the difference, when the period is changed we adjust
+	// our internal counter.
+	// Also, note that period = 0 is the same as period = 1. This is mentioned
+	// in the YM2203 data sheets. However, this does NOT apply to the Envelope
+	// period. In that case, period = 0 is half as period = 1.
+	const int old = period;
+	if (value == 0) value = 1;
+	period = value * updateStep;
+	count += period - old;
+	if (count <= 0) count = 1;
+}
+
+
+// ToneGenerator:
+
+template <bool enabled>
+inline int AY8910::ToneGenerator::advance(int duration) {
+	int highDuration = 0;
+	if (enabled && output) highDuration += count;
+	count -= duration;
+	if (count <= 0) {
+		// Calculate number of output transitions.
+		int cycles = 1 + (-count) / period;
+		if (enabled) {
+			// Full square waves: output is 1 half of the time;
+			// which half doesn't matter.
+			highDuration += period * (cycles / 2);
+		}
+		if (cycles & 1) {
+			// Half a square wave.
+			output ^= 1;
+			if (enabled && output) highDuration += period;
+		}
+		count += period * cycles;
+	}
+	if (enabled && output) highDuration -= count;
+	return highDuration;
+}
+
+
+// NoiseGenerator:
+
+inline void AY8910::NoiseGenerator::reset() {
+	Generator::reset(0x38);
+	random = 1;
+}
+
+inline byte AY8910::NoiseGenerator::getOutput() {
+	return output;
+}
+
+inline int AY8910::NoiseGenerator::advanceToFlip(int duration) {
+	int left = duration;
+	while (true) {
+		if (count > left) {
+			// Exit: end of interval.
+			count -= left;
+			return duration;
+		}
+		left -= count;
+		count = period;
+		// Is noise output going to change?
+		const bool flip = (random + 1) & 2; // bit0 ^ bit1
+		// The Random Number Generator of the 8910 is a 17-bit shift register.
+		// The input to the shift register is bit0 XOR bit2 (bit0 is the
+		// output).
+		// The following is a fast way to compute bit 17 = bit0^bit2.
+		// Instead of doing all the logic operations, we only check bit 0,
+		// relying on the fact that after two shifts of the register, what now
+		// is bit 2 will become bit 0, and will invert, if necessary, bit 16,
+		// which previously was bit 18.
+		// Note: On Pentium 4, the "if" causes trouble in the pipeline.
+		//       After all this is pseudo-random and therefore a nightmare
+		//       for branch prediction.
+		//       A bit more calculation without a branch is faster.
+		//       Without the "if", the transformation described above still
+		//       speeds up the code, because the same "random & N"
+		//       subexpression appears twice (also when doing multiple cycles
+		//       in one go, see "advance" method).
+		//       TODO: Benchmark on other modern CPUs.
+		//if (random & 1) random ^= 0x28000;
+		//random >>= 1;
+		random =  (random >> 1)
+		       ^ ((random & 1) << 14)
+		       ^ ((random & 1) << 16);
+		if (flip) {
+			// Exit: output flip.
+			output ^= 0x38;
+			return duration - left;
+		}
+	}
+}
+
+inline void AY8910::NoiseGenerator::advance(int duration) {
+	int cycles = (duration + period - count) / period;
+	count += cycles * period - duration;
+	// See advanceToFlip for explanation of noise algorithm.
+	for (; cycles >= 4405; cycles -= 4405) {
+		random ^= (random >> 10)
+		       ^ ((random & 0x003FF) << 5)
+		       ^ ((random & 0x003FF) << 7);
+	}
+	for (; cycles >= 291; cycles -= 291) {
+		random ^= (random >> 6)
+		       ^ ((random & 0x3F) << 9)
+		       ^ ((random & 0x3F) << 11);
+	}
+	for (; cycles >= 15; cycles -= 15) {
+		random =  (random & 0x07FFF)
+		       ^  (random >> 15)
+		       ^ ((random & 0x07FFF) << 2);
+	}
+	while (cycles--) {
+		random =  (random >> 1)
+		       ^ ((random & 1) << 14)
+		       ^ ((random & 1) << 16);
+	}
+	output = (random & 1) ? 0x38 : 0x00;
+}
+
+
+// Amplitude:
+
+inline unsigned int AY8910::Amplitude::getVolume(byte chan) {
+	return vol[chan];
+}
+
+inline void AY8910::Amplitude::setChannelVolume(byte chan, byte value) {
+	envChan[chan] = value & 0x10;
+	vol[chan] = envChan[chan] ? envVolume : volTable[value & 0x0F];
+}
+
+inline void AY8910::Amplitude::setEnvelopeVolume(byte volume) {
+	envVolume = volTable[volume];
+	if (envChan[0]) vol[0] = envVolume;
+	if (envChan[1]) vol[1] = envVolume;
+	if (envChan[2]) vol[2] = envVolume;
+}
+
+inline void AY8910::Amplitude::setMasterVolume(int volume) {
+	// Calculate the volume->voltage conversion table.
+	// The AY-3-8910 has 16 levels, in a logarithmic scale (3dB per step).
+	double out = volume; // avoid clipping
+	for (int i = 15; i > 0; --i) {
+		volTable[i] = (unsigned)(out + 0.5);	// round to nearest
+		out *= 0.707945784384;			// 1/(10^(3/20)) = 1/(3dB)
+	}
+	volTable[0] = 0;
+}
+
+inline bool AY8910::Amplitude::anyEnvelope() {
+	return envChan[0] || envChan[1] || envChan[2];
+}
+
+
+// Envelope:
+
+inline AY8910::Envelope::Envelope(Amplitude& amplitude)
+	: amplitude(amplitude)
+{
+}
+
+inline void AY8910::Envelope::reset() {
+	period = 0;
+	count = 0;
+}
+
+inline void AY8910::Envelope::setPeriod(int value, unsigned int updateStep) {
+	const int old = period;
+	if (value == 0) {
+		period = updateStep;
+	} else {
+		period = value * 2 * updateStep;
+	}
+	count += period - old;
+	if (count <= 0) count = 1;
+}
+
+inline byte AY8910::Envelope::getVolume() {
+	return step ^ attack;
+}
+
+inline void AY8910::Envelope::setShape(byte shape) {
+	/*
+	envelope shapes:
+		C AtAlH
+		0 0 x x  \___
+		0 1 x x  /___
+		1 0 0 0  \\\\ 
+		1 0 0 1  \___
+		1 0 1 0  \/\/
+		1 0 1 1  \   
+		1 1 0 0  ////
+		1 1 0 1  /   
+		1 1 1 0  /\/\ 
+		1 1 1 1  /___ 
+	*/
+	attack = (shape & 0x04) ? 0x0F : 0x00;
+	if ((shape & 0x08) == 0) {
+		// If Continue = 0, map the shape to the equivalent one
+		// which has Continue = 1.
+		hold = true;
+		alternate = attack;
+	} else {
+		hold = shape & 0x01;
+		alternate = shape & 0x02;
+	}
+	count = period;
+	step = 0x0F;
+	holding = false;
+	amplitude.setEnvelopeVolume(getVolume());
+}
+
+inline bool AY8910::Envelope::isChanging() {
+	return !holding;
+}
+
+inline void AY8910::Envelope::advance(int duration) {
+	if (!holding) {
+		count -= duration;
+		if (count <= 0) {
+			const int steps = 1 + (-count) / period;
+			step -= steps;
+			count += steps * period;
+
+			// Check current envelope position.
+			if (step < 0) {
+				if (hold) {
+					if (alternate) attack ^= 0x0f;
+					holding = true;
+					step = 0;
+				} else {
+					// If step has looped an odd number of times
+					// (usually 1), invert the output.
+					if (alternate && (step & 0x10)) {
+						attack ^= 0x0F;
+					}
+					step &= 0x0F;
+				}
+			}
+			amplitude.setEnvelopeVolume(getVolume());
+		}
+	}
+}
+
+
+// AY8910 main class:
+
 AY8910::AY8910(AY8910Interface& interf, const XMLElement& config,
                const EmuTime& time)
-	: semiMuted(false), interface(interf)
+	: interface(interf)
+	, envelope(amplitude)
 {
 	reset(time);
 	registerSound(config);
@@ -59,36 +325,34 @@ const string& AY8910::getDescription() const
 
 void AY8910::reset(const EmuTime& time)
 {
+	// Reset generators and envelope.
+	for (byte chan = 0; chan < 3; chan++) {
+		tone[chan].reset();
+	}
+	noise.reset();
+	envelope.reset();
+	// Reset registers and values derived from them.
 	oldEnable = 0;
-	random = 1;
-	outputA = outputB = outputC = 0;
-	outputN = 0xff;
-	periodA = periodB = periodC = periodN = periodE = 0;
-	countA  = countB  = countC  = countN  = countE  = 0;
-	for (int i=0; i <= 15; i++) {
-		regs[i] = 0;
+	for (byte reg = 0; reg <= 15; reg++) {
+		wrtReg(reg, 0, time);
 	}
-	for (int i=0; i <= 15; i++) {
-		wrtReg(i, 0, time);
-	}
-	setMute(true);
 }
 
 
 byte AY8910::readRegister(byte reg, const EmuTime& time)
 {
-	assert (reg <= 15);
+	assert(reg <= 15);
 	
 	switch (reg) {
 	case AY_PORTA:
-		if (!(regs[AY_ENABLE] & PORT_A_DIRECTION))
-			//input
+		if (!(regs[AY_ENABLE] & PORT_A_DIRECTION)) { //input
 			regs[reg] = interface.readA(time);
+		}
 		break;
 	case AY_PORTB:
-		if (!(regs[AY_ENABLE] & PORT_B_DIRECTION))
-			//input
+		if (!(regs[AY_ENABLE] & PORT_B_DIRECTION)) { //input
 			regs[reg] = interface.readB(time);
+		}
 		break;
 	}
 	return regs[reg];
@@ -97,9 +361,9 @@ byte AY8910::readRegister(byte reg, const EmuTime& time)
 
 void AY8910::writeRegister(byte reg, byte value, const EmuTime& time)
 {
-	assert (reg <= 15);
+	assert(reg <= 15);
 	if ((reg < AY_PORTA) && (reg == AY_ESHAPE || regs[reg] != value)) {
-		// update the output buffer before changing the register
+		// Update the output buffer before changing the register.
 		Mixer::instance().updateStream(time);
 	}
 	Mixer::instance().lock();
@@ -108,183 +372,75 @@ void AY8910::writeRegister(byte reg, byte value, const EmuTime& time)
 }
 void AY8910::wrtReg(byte reg, byte value, const EmuTime& time)
 {
-	int old;
+	// Note: unused bits are stored as well; they can be read back.
 	regs[reg] = value;
-	
+
 	switch (reg) {
-	// A note about the period of tones, noise and envelope: for speed reasons,
-	// we count down from the period to 0, but careful studies of the chip
-	// output prove that it instead counts up from 0 until the counter becomes
-	// greater or equal to the period. This is an important difference when the
-	// program is rapidly changing the period to modulate the sound.
-	// To compensate for the difference, when the period is changed we adjust
-	// our internal counter.
-	// Also, note that period = 0 is the same as period = 1. This is mentioned
-	// in the YM2203 data sheets. However, this does NOT apply to the Envelope
-	// period. In that case, period = 0 is half as period = 1.
-	case AY_ACOARSE:
-		regs[AY_ACOARSE] &= 0x0F;
 	case AY_AFINE:
-		old = periodA;
-		periodA = (regs[AY_AFINE] + 256 * regs[AY_ACOARSE]) * updateStep;
-		if (periodA == 0) periodA = updateStep;
-		countA += periodA - old;
-		if (countA <= 0) countA = 1;
-		break;
-	case AY_BCOARSE:
-		regs[AY_BCOARSE] &= 0x0F;
+	case AY_ACOARSE:
 	case AY_BFINE:
-		old = periodB;
-		periodB = (regs[AY_BFINE] + 256 * regs[AY_BCOARSE]) * updateStep;
-		if (periodB == 0) periodB = updateStep;
-		countB += periodB - old;
-		if (countB <= 0) countB = 1;
-		break;
-	case AY_CCOARSE:
-		regs[AY_CCOARSE] &= 0x0F;
+	case AY_BCOARSE:
 	case AY_CFINE:
-		old = periodC;
-		periodC = (regs[AY_CFINE] + 256 * regs[AY_CCOARSE]) * updateStep;
-		if (periodC == 0) periodC = updateStep;
-		countC += periodC - old;
-		if (countC <= 0) countC = 1;
+	case AY_CCOARSE:
+		tone[reg / 2].setPeriod(
+			regs[reg & ~1] + 256 * (regs[reg | 1] & 0x0F), updateStep );
 		break;
 	case AY_NOISEPER:
-		regs[AY_NOISEPER] &= 0x1F;
-		old = periodN;
-		periodN = regs[AY_NOISEPER] * updateStep;
-		if (periodN == 0) periodN = updateStep;
-		countN += periodN - old;
-		if (countN <= 0) countN = 1;
+		noise.setPeriod(value & 0x1F, updateStep);
 		break;
 	case AY_AVOL:
-		regs[AY_AVOL] &= 0x1F;
-		envelopeA = regs[AY_AVOL] & 0x10;
-		volA = envelopeA ? volE : volTable[regs[AY_AVOL]];
-		validLength = 0;
-		checkMute();
-		break;
 	case AY_BVOL:
-		regs[AY_BVOL] &= 0x1F;
-		envelopeB = regs[AY_BVOL] & 0x10;
-		volB = envelopeB ? volE : volTable[regs[AY_BVOL]];
-		validLength = 0;
-		checkMute();
-		break;
 	case AY_CVOL:
-		regs[AY_CVOL] &= 0x1F;
-		envelopeC = regs[AY_CVOL] & 0x10;
-		volC = envelopeC ? volE : volTable[regs[AY_CVOL]];
-		validLength = 0;
+		amplitude.setChannelVolume(reg - AY_AVOL, value);
 		checkMute();
 		break;
 	case AY_EFINE:
 	case AY_ECOARSE:
-		old = periodE;
-		periodE = ((regs[AY_EFINE] + 256 * regs[AY_ECOARSE])) * (2 * updateStep);
-		if (periodE == 0) periodE = updateStep;
-		countE += periodE - old;
-		if (countE <= 0) countE = 1;
+		envelope.setPeriod(
+			regs[AY_EFINE] + 256 * regs[AY_ECOARSE], updateStep );
 		break;
 	case AY_ESHAPE:
-		/* envelope shapes:
-		 *   C AtAlH
-		 *   0 0 x x  \___
-		 *   0 1 x x  /___
-		 *   1 0 0 0  \\\\ 
-		 *   1 0 0 1  \___
-		 *   1 0 1 0  \/\/
-		 *   1 0 1 1  \   
-		 *   1 1 0 0  ////
-		 *   1 1 0 1  /   
-		 *   1 1 1 0  /\/\ 
-		 *   1 1 1 1  /___ 
-		 */
-		regs[AY_ESHAPE] &= 0x0F;
-		attack = (regs[AY_ESHAPE] & 0x04) ? 0x0F : 0x00;
-		if ((regs[AY_ESHAPE] & 0x08) == 0) {
-			// if Continue = 0, map the shape to the equivalent one which has Continue = 1
-			hold = true;
-			alternate = attack;
-		} else {
-			hold = regs[AY_ESHAPE] & 0x01;
-			alternate = regs[AY_ESHAPE] & 0x02;
-		}
-		countE = periodE;
-		countEnv = 0x0F;
-		holding = false;
-		volE = volTable[countEnv ^ attack];
-		if (envelopeA) { volA = volE;  validLength = 0; }
-		if (envelopeB) { volB = volE;  validLength = 0; }
-		if (envelopeC) { volC = volE;  validLength = 0; }
+		envelope.setShape(value);
 		break;
 	case AY_ENABLE:
-		if ((value     & PORT_A_DIRECTION) &&
-		   !(oldEnable & PORT_A_DIRECTION)) {
-			// changed from input to output
-			wrtReg(AY_PORTA, regs[AY_PORTA], time);
+		if ((value     & PORT_A_DIRECTION)
+		&& !(oldEnable & PORT_A_DIRECTION)) {
+			// Changed from input to output.
+			interface.writeA(regs[AY_PORTA], time);
 		}
-		if ((value     & PORT_B_DIRECTION) &&
-		   !(oldEnable & PORT_B_DIRECTION)) {
-			// changed from input to output
-			wrtReg(AY_PORTB, regs[AY_PORTB], time);
+		if ((value     & PORT_B_DIRECTION)
+		&& !(oldEnable & PORT_B_DIRECTION)) {
+			// Changed from input to output.
+			interface.writeB(regs[AY_PORTB], time);
 		}
 		oldEnable = value;
-		validLength = 0;
 		checkMute();
 		break;
 	case AY_PORTA:
-		if (regs[AY_ENABLE] & PORT_A_DIRECTION)
-			//output
+		if (regs[AY_ENABLE] & PORT_A_DIRECTION) { // output
 			interface.writeA(value, time);
+		}
 		break;
 	case AY_PORTB:
-		if (regs[AY_ENABLE] & PORT_B_DIRECTION)
-			//output
+		if (regs[AY_ENABLE] & PORT_B_DIRECTION) { // output
 			interface.writeB(value, time);
+		}
 		break;
 	}
 }
 
 void AY8910::checkMute()
 {
-	if ((regs[AY_AVOL] == 0) &&
-	    (regs[AY_BVOL] == 0) &&
-	    (regs[AY_CVOL] == 0)) {
-		// all volume settings equals zero
-		//PRT_DEBUG("AY8910 muted");
-		setMute(true);
-		return;
-	}
-	if ((regs[AY_ENABLE] & 0x3F) == 0x3F) {
-		// all channels disabled
-		//PRT_DEBUG("AY8910 semi-muted");
-		setMute(false);
-		if (!semiMuted) {
-			semiMuted = true;
-			validLength = 0;
-		}
-		return;
-	}
-	//PRT_DEBUG("AY8910: not muted");
-	semiMuted = false;
-	setMute(false);
+	setMute(((regs[AY_AVOL] | regs[AY_BVOL] | regs[AY_CVOL]) & 0x1F) == 0);
 }
 
-void AY8910::setVolume(int newVolume)
+void AY8910::setVolume(int volume)
 {
-	// calculate the volume->voltage conversion table
-	// The AY-3-8910 has 16 levels, in a logarithmic scale (3dB per step)
-	double out = newVolume;		// avoid clipping
-	for (int i = 15; i > 0; --i) {
-		volTable[i] = (unsigned)(out + 0.5);	// round to nearest
-		out *= 0.707945784384;			// 1/(10^(3/20)) = 1/(3dB)
-	}
-	volTable[0] = 0;
+	amplitude.setMasterVolume(volume);
 }
 
 
-void AY8910::setSampleRate (int sampleRate)
+void AY8910::setSampleRate(int sampleRate)
 {
 	// The step clock for the tone and noise generators is the chip clock
 	// divided by 8; for the envelope generator of the AY-3-8910, it is half
@@ -293,216 +449,136 @@ void AY8910::setSampleRate (int sampleRate)
 	// at the given sample rate. No. of events = sample rate / (clock/8).
 	// FP_UNIT is a multiplier used to turn the fraction into a fixed point
 	// number.
-	updateStep = ((FP_UNIT * sampleRate) / (CLOCK / 8));	// !! look out for overflow !!
+	
+	// !! look out for overflow !!
+	updateStep = (FP_UNIT * sampleRate) / (CLOCK / 8);
 }
 
 
 int* AY8910::updateBuffer(int length)
 {
-	// The 8910 has three outputs, each output is the mix of one of the three
-	// tone generators and of the (single) noise generator. The two are mixed
-	// BEFORE going into the DAC. The formula to mix each channel is:
-	//    (ToneOn | ToneDisable) & (NoiseOn | NoiseDisable).
-	// Note that this means that if both tone and noise are disabled, the output
-	// is 1, not 0, and can be modulated changing the volume.
-
-	// If the channels are disabled, set their output to 1, and increase the
-	// counter, if necessary, so they will not be inverted during this update.
-	// Setting the output to 1 is necessary because a disabled channel is locked
-	// into the ON state (see above); and it has no effect if the volume is 0.
-	// If the volume is 0, increase the counter, but don't touch the output.
-
 	//PRT_DEBUG("AY8910: update buffer");
-	if (semiMuted) {
-		if (validLength >= length) {
-			//PRT_DEBUG("AY8910: semi-muted");
-			return buffer;	// return the previously calculated buffer (constant value)
+
+	/*
+	static long long totalSamples = 0, noiseOff = 0, toneOff = 0, bothOff = 0;
+	static long long envSamples = 0;
+	static long long sameSample = 0;
+	long long oldTotal = totalSamples;
+	for (byte chan = 0; chan < 3; chan++) {
+		totalSamples += length;
+		if (regs[AY_ENABLE] & (0x08 << chan)) noiseOff += length;
+		if (regs[AY_ENABLE] & (0x01 << chan)) toneOff += length;
+		if ((regs[AY_ENABLE] & (0x09 << chan)) == (0x09 << chan)) {
+			bothOff += length;
 		}
-		validLength = length;
 	}
-	//PRT_DEBUG("AY8910: calc buffer");
-	
-	if (regs[AY_ENABLE] & 0x01) {	// disabled
-		if (countA <= length * FP_UNIT) countA += length * FP_UNIT;
-		outputA = 1;
-	} else if (regs[AY_AVOL] == 0) {
-		// note that I do count += length, NOT count = length + 1. You might think
-		// it's the same since the volume is 0, but doing the latter could cause
-		// interferencies when the program is rapidly modulating the volume.
-		if (countA <= length * FP_UNIT) countA += length * FP_UNIT;
+	if (amplitude.anyEnvelope()) envSamples += length;
+	if ((totalSamples / 100000) != (oldTotal / 100000)) {
+		fprintf(stderr,
+			"%lld samples, %3.3f%% noise, %3.3f%% tone, %3.3f%% neither, "
+			"%3.3f%% envelope, %3.3f%% same sample\n",
+			totalSamples,
+			100.0 * ((double)(totalSamples - noiseOff)/(double)totalSamples),
+			100.0 * ((double)(totalSamples - toneOff)/(double)totalSamples),
+			100.0 * ((double)bothOff/(double)totalSamples),
+			100.0 * ((double)envSamples/(double)totalSamples),
+			100.0 * ((double)sameSample/(double)totalSamples)
+			);
 	}
-	if (regs[AY_ENABLE] & 0x02) {
-		if (countB <= length * FP_UNIT) countB += length * FP_UNIT;
-		outputB = 1;
-	} else if (regs[AY_BVOL] == 0) {
-		if (countB <= length * FP_UNIT) countB += length * FP_UNIT;
+	*/
+
+	byte chanEnable = regs[AY_ENABLE];
+	// Disable channels with volume 0: since the sample value doesn't matter,
+	// we can use the fastest path.
+	for (byte chan = 0; chan < 3; chan++) {
+		if ((regs[AY_AVOL + chan] & 0x1F) == 0) {
+			chanEnable |= 0x09 << chan;
+		}
 	}
-	if (regs[AY_ENABLE] & 0x04) {
-		if (countC <= length * FP_UNIT) countC += length * FP_UNIT;
-		outputC = 1;
-	} else if (regs[AY_CVOL] == 0) {
-		if (countC <= length * FP_UNIT) countC += length * FP_UNIT;
+	// Advance tone generators for channels that have tone disabled.
+	for (byte chan = 0; chan < 3; chan++) {
+		if (chanEnable & (0x01 << chan)) { // disabled
+			tone[chan].advance<false>(length * FP_UNIT);
+		}
+	}
+	// Noise enabled on any channel?
+	bool anyNoise = (chanEnable & 0x38) != 0x38;
+	if (!anyNoise) {
+		noise.advance(length * FP_UNIT);
+	}
+	// Envelope enabled on any channel?
+	bool enveloping = amplitude.anyEnvelope() && envelope.isChanging();
+	if (!enveloping) {
+		envelope.advance(length * FP_UNIT);
 	}
 
-	// for the noise channel we must not touch outputN
-	// it's also not necessary since we use outn.
-	if ((regs[AY_ENABLE] & 0x38) == 0x38)	// all off
-		if (countN <= length * FP_UNIT) countN += length * FP_UNIT;
-	int outn = (outputN | regs[AY_ENABLE]);
-
-	// buffering loop
+	// Calculate samples.
 	int* buf = buffer;
 	while (length) {
-		// semiVolA, semiVolB and semiVolC keep track of how long each
-		// square wave stays in the 1 position during the sample period.
-		int semiVolA = 0;
-		int semiVolB = 0;
-		int semiVolC = 0;
+		// semiVol keeps track of how long each square wave stays
+		// in the 1 position during the sample period.
+		int semiVol[3] = { 0, 0, 0 };
 		int left = FP_UNIT;
 		do {
-			int nextevent = (countN < left) ? countN : left;
-			if (outn & 0x08) {
-				if (outputA) semiVolA += countA;
-				countA -= nextevent;
-				// periodA is the half period of the square wave. Here, in each
-				// loop I add periodA twice, so that at the end of the loop the
-				// square wave is in the same status (0 or 1) it was at the start.
-				// semiVolA is also incremented by periodA, since the wave has been 1
-				// exactly half of the time, regardless of the initial position.
-				// If we exit the loop in the middle, outputA has to be inverted
-				// and semiVolA incremented only if the exit status of the square
-				// wave is 1.
-				while (countA <= 0) {
-					countA += periodA;
-					if (countA > 0) {
-						outputA ^= 1;
-						if (outputA) semiVolA += periodA;
-						break;
-					}
-					countA += periodA;
-					semiVolA += periodA;
-				}
-				if (outputA) semiVolA -= countA;
+			// The 8910 has three outputs, each output is the mix of one of
+			// the three tone generators and of the (single) noise generator.
+			// The two are mixed BEFORE going into the DAC. The formula to mix
+			// each channel is:
+			//   (ToneOn | ToneDisable) & (NoiseOn | NoiseDisable),
+			//   where ToneOn and NoiseOn are the current generator state
+			//   and ToneDisable and NoiseDisable come from the enable reg.
+			// Note that this means that if both tone and noise are disabled,
+			// the output is 1, not 0, and can be modulated by changing the
+			// volume.
+
+			// Update state of noise generator.
+			byte chanFlags;
+			int nextEvent;
+			if (anyNoise) {
+				// Next event is end of this sample or noise flip.
+				chanFlags = noise.getOutput() | chanEnable;
+				nextEvent = noise.advanceToFlip(left);
 			} else {
-				countA -= nextevent;
-				while (countA <= 0) {
-					countA += periodA;
-					if (countA > 0) {
-						outputA ^= 1;
-						break;
-					}
-					countA += periodA;
+				// Next event is end of this sample.
+				chanFlags = chanEnable;
+				nextEvent = FP_UNIT;
+			}
+
+			// Mix tone generators with noise generator.
+			for (byte chan = 0; chan < 3; chan++, chanFlags >>= 1) {
+				if ((chanFlags & 0x09) == 0x08) {
+					// Square wave: alternating between 0 and 1.
+					semiVol[chan] += tone[chan].advance<true>(nextEvent);
+				} else if ((chanFlags & 0x09) == 0x09) {
+					// Channel disabled: always 1.
+					semiVol[chan] += nextEvent;
+				} else if ((chanFlags & 0x09) == 0x00) {
+					// Tone enabled, but suppressed by noise state.
+					tone[chan].advance<false>(nextEvent);
+				} else { // (chanFlags & 0x09) == 0x01
+					// Tone disabled, noise state is 0.
+					// Nothing to do.
 				}
 			}
 
-			if (outn & 0x10) {
-				if (outputB) semiVolB += countB;
-				countB -= nextevent;
-				while (countB <= 0) {
-					countB += periodB;
-					if (countB > 0) {
-						outputB ^= 1;
-						if (outputB) semiVolB += periodB;
-						break;
-					}
-					countB += periodB;
-					semiVolB += periodB;
-				}
-				if (outputB) semiVolB -= countB;
-			} else {
-				countB -= nextevent;
-				while (countB <= 0) {
-					countB += periodB;
-					if (countB > 0) {
-						outputB ^= 1;
-						break;
-					}
-					countB += periodB;
-				}
-			}
-
-			if (outn & 0x20) {
-				if (outputC) semiVolC += countC;
-				countC -= nextevent;
-				while (countC <= 0) {
-					countC += periodC;
-					if (countC > 0) {
-						outputC ^= 1;
-						if (outputC) semiVolC += periodC;
-						break;
-					}
-					countC += periodC;
-					semiVolC += periodC;
-				}
-				if (outputC) semiVolC -= countC;
-			} else {
-				countC -= nextevent;
-				while (countC <= 0) {
-					countC += periodC;
-					if (countC > 0) {
-						outputC ^= 1;
-						break;
-					}
-					countC += periodC;
-				}
-			}
-
-			countN -= nextevent;
-			if (countN <= 0) {
-				// Is noise output going to change?
-				if ((random + 1) & 2) {	// bit0 ^ bit1
-					outputN = ~outputN;
-					outn = (outputN | regs[AY_ENABLE]);
-				}
-				// The Random Number Generator of the 8910 is a 17-bit shift
-				// register. The input to the shift register is bit0 XOR bit2
-				// (bit0 is the output).
-				// The following is a fast way to compute bit 17 = bit0^bit2.
-				// Instead of doing all the logic operations, we only check
-				// bit 0, relying on the fact that after two shifts of the
-				// register, what now is bit 2 will become bit 0, and will
-				// invert, if necessary, bit 16, which previously was bit 18.
-				if (random & 1) random ^= 0x28000;
-				random >>= 1;
-				countN += periodN;
-			}
-
-			left -= nextevent;
+			left -= nextEvent;
 		} while (left > 0);
 
-		// update envelope
-		if (!holding) {
-			countE -= FP_UNIT;
-			if (countE <= 0) {
-				do {
-					countEnv--;
-					countE += periodE;
-				} while (countE <= 0);
+		// Update envelope.
+		if (enveloping) envelope.advance(FP_UNIT);
 
-				// check envelope current position
-				if (countEnv < 0) {
-					if (hold) {
-						if (alternate) attack ^= 0x0f;
-						holding = true;
-						countEnv = 0;
-					} else {
-						// if countEnv has looped an odd number of times
-						// (usually 1), invert the output.
-						if (alternate && (countEnv & 0x10)) attack ^= 0x0f;
-						countEnv &= 0x0f;
-					}
-				}
-				volE = volTable[countEnv ^ attack];
-				// reload volume
-				if (envelopeA) { volA = volE; validLength = 0; }
-				if (envelopeB) { volB = volE; validLength = 0; }
-				if (envelopeC) { volC = volE; validLength = 0; }
-			}
-		}
-
-		int chA = (semiVolA * volA) / FP_UNIT;
-		int chB = (semiVolB * volB) / FP_UNIT;
-		int chC = (semiVolC * volC) / FP_UNIT;
+		// Calculate D/A converter output.
+		// TODO: Is it easy to detect when multiple samples have the same
+		//       value? (make nextEvent depend on tone events as well?)
+		//       At 44KHz, value typically changes once every 4 to 5 samples.
+		int chA = (semiVol[0] * amplitude.getVolume(0)) / FP_UNIT;
+		int chB = (semiVol[1] * amplitude.getVolume(1)) / FP_UNIT;
+		int chC = (semiVol[2] * amplitude.getVolume(2)) / FP_UNIT;
+		/*
+		static int prevSample = 0;
+		if (chA + chB + chC == prevSample) sameSample += 3;
+		else prevSample = chA + chB + chC;
+		*/
 		*(buf++) = chA + chB + chC;
 		length--;
 	}
