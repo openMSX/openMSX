@@ -101,7 +101,7 @@ class YM2413 : public YM2413Core, private SoundDevice, private Debuggable
 		inline void keyOff();
 
 		Patch* patches;
-		bool patch_number;
+		int patch_number;
 		Slot mod, car;
 	};
 
