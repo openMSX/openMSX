@@ -126,7 +126,7 @@ The default key mapping is as follows:
 Make the table look better by using cellpadding stuff in the css.
 </p>
 <p>
-The keys that do not map MSX keys, can be changed in the settings.xml file.
+The keys that do not map MSX keys, can be changed in the <code>settings.xml</code> file.
 </p>
 
 <h2><a id="extensions">x. Using Extensions</a></h2>
@@ -296,7 +296,7 @@ and
 <p>
 to remove the tape from the virtual cassette player. This only works with a
 patched BIOS ROM, though. You can find an example of the patch in
-exampleconfigs.xml.
+<code>exampleconfigs.xml</code>.
 </p>
 
 <p>
@@ -307,9 +307,9 @@ Because patching a BIOS is not really something you want, a new feature was rece
 Other cassetteplayer related commands/setting you need to know of are:
 </p>
 <ul>
-	<li><code>casetteplayer rewind</code>, to rewind the tape</li>
-	<li><code>casetteplayer eject</code>, to eject the tape</li>
-	<li><code>set casetteplayer_volume</code>, to set the volume of the cassette player sound (yeah, the screeching tape sounds!)</li>
+	<li><code>cassetteplayer rewind</code>, to rewind the tape</li>
+	<li><code>cassetteplayer eject</code>, to eject the tape</li>
+	<li><code>set cassetteplayer_volume</code>, to set the volume of the cassette player sound (yeah, the screeching tape sounds!)</li>
 </ul>
 
 <h3><a id="other">x.x Other Important Console Commands and Settings</a></h3>
@@ -357,14 +357,16 @@ when typing <code>help</code> in the <a class="internal" href="#console">Console
 get some help about a specific <a class="internal" href="#console">Console</a> command.
 </p>
 
-<pre>
-10.3 Real disks (Linux)
+<h3><a id="realdisks">x.x Real disks (Linux)</a></h3>
 
-To use a real disk, just specify "/dev/fd0" as a disk image. This is of
+<p>
+To use a real disk, just specify <code>/dev/fd0</code> as a disk image. This is of
 course a Linux (Unix, actually) specific feature, but for now it is usable. It
 may be a bit slow though, with the FDC emulation enabled. It should be just as
 slow as a real disk drive, however!
+</p>
 
+<pre>
 10.4 Performance
 
 Note: maybe some of these belong in the Setup Guide instead.
