@@ -743,17 +743,21 @@ void MSXTMS9928a::init(void)
 	/* Open the display */
 	//if(Verbose) printf("OK\n  Opening display...");
 	PRT_DEBUG ("OK\n  Opening display...");
-#ifdef FULLSCREEN
-	if ((screen=SDL_SetVideoMode(WIDTH,HEIGHT,DEPTH,SDL_HWSURFACE|SDL_FULLSCREEN))==NULL)
-#else
-	if ((screen=SDL_SetVideoMode(WIDTH,HEIGHT,DEPTH,SDL_HWSURFACE))==NULL)
-#endif
+	if ( atoi(deviceConfig->getParameter("fullscreen").c_str())){
+	  screen=SDL_SetVideoMode(WIDTH,HEIGHT,DEPTH,SDL_HWSURFACE|SDL_FULLSCREEN);
+	} else {
+	  screen=SDL_SetVideoMode(WIDTH,HEIGHT,DEPTH,SDL_HWSURFACE);
+	};
+	if (screen==NULL)
 	{ printf("FAILED");return; }
 	//{ if(Verbose) printf("FAILED");return; }
 
 	// Hide mouse cursor
 	SDL_ShowCursor(0);
 
+	// Register hotkey for fullscreen togling
+	HotKey::instance()->registerAsyncHotKey(SDLK_PRINT,this);
+	
 	// Reset the palette
 	for (int i = 0; i < 16; i++) {
 		XPal[i] = SDL_MapRGB(screen->format,
@@ -777,6 +781,12 @@ void MSXTMS9928a::init(void)
 	MSXMotherBoard::instance()->register_IO_Out((byte)0x99,this);
 
 	return ;//0;
+}
+
+void MSXTMS9928a::signalEvent(SDL_Event &event)
+{
+	// We don't care which event, since we only registered on hotkey.
+	SDL_WM_ToggleFullScreen(screen);
 }
 
 void MSXTMS9928a::start()

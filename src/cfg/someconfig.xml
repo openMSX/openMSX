@@ -60,6 +60,7 @@
   <device id="msx1vdp">
     <type>TMS9928a</type>
     <parameter name="frequency">PAL</parameter>
+    <parameter name="fullscreen">0</parameter>
   </device>
   <device id="cpu">
     <type>CPU</type>

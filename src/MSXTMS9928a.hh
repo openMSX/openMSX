@@ -11,6 +11,7 @@
 #include "Scheduler.hh"
 #include "MSXMotherBoard.hh"
 #include "emutime.hh"
+#include "HotKey.hh"
 
 #define WIDTH 320
 #define HEIGHT 240
@@ -26,7 +27,7 @@ typedef unsigned int Pixel;
 #error DEPTH must be 8, 15, 16 or 32 bits per pixel.
 #endif
 
-class MSXTMS9928a : public MSXDevice
+class MSXTMS9928a : public MSXDevice, EventListener
 {
 public:
 	//constructor and destructor
@@ -46,7 +47,9 @@ public:
 
 	// void saveState(ofstream writestream);
 	// void restoreState(char *devicestring,ifstream readstream);
-
+	
+	// handle "toggle fullscreen"-hotkey requests
+	void signalEvent(SDL_Event &event);
 private:
 	typedef void (MSXTMS9928a::*RenderMethod)(Pixel *pixelPtr, int line);
 	static RenderMethod modeToRenderMethod[];

@@ -1,5 +1,10 @@
 $Id$
 
+2001-11-09 David Heremans
+	* quickly add a fullscreen flag in the TMS code:
+	    extra parameter in config.xml file
+	    use PrintScreen key to togle
+
 2001-11-07 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* reworked CPU related classes:
 	    much simpler structure
