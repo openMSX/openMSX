@@ -72,7 +72,7 @@ class CommandLineParser
 				return strcasecmp(s1.c_str(), s2.c_str()) < 0;
 			}
 		};
-		map<string, OptionData > optionMap;
+		map<string, OptionData> optionMap;
 		map<string, CLIFileType*, caseltstr> fileTypeMap;
 		map<string, CLIFileType*, caseltstr> fileClassMap;
 	private:
@@ -88,9 +88,6 @@ class CommandLineParser
 			virtual bool parseOption(const string &option,
 				list<string> &cmdLine);
 			virtual const string& optionHelp() const;
-		private:
-			string formatSet(set<string> * inputSet,unsigned columns);
-			string formatHelptext(string helpText,unsigned maxlength, unsigned indent);
 		} helpOption;
 		friend class HelpOption;
 		

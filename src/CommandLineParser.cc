@@ -279,6 +279,68 @@ const string& CommandLineParser::ControlOption::optionHelp() const
 
 // Help option
 
+static string formatSet(const set<string>& inputSet, unsigned columns)
+{
+	string outString;
+	unsigned totalLength = 0; // ignore the starting spaces for now
+	for (set<string>::const_iterator it = inputSet.begin();
+	     it != inputSet.end(); ++it) {
+		string temp = *it;
+		if (totalLength == 0) {
+			// first element ?
+			outString += "    " + temp;
+			totalLength = temp.length();
+		} else {
+			outString += ", ";
+			if ((totalLength + temp.length()) > columns) {
+				outString += "\n    " + temp;
+				totalLength = temp.length();
+			} else {
+				outString += temp;
+				totalLength += 2 + temp.length();
+			}
+		}
+	}
+	if (totalLength < columns) {
+		outString += string(columns - totalLength, ' ');
+	}
+	return outString;
+}
+
+static string formatHelptext(const string& helpText, unsigned maxlength, unsigned indent)
+{
+	string outText;
+	unsigned index = 0;
+	while (helpText.substr(index).length() > maxlength) {
+		unsigned pos = helpText.substr(index).rfind(' ', maxlength);
+		if (pos == string::npos) {
+			pos = helpText.substr(maxlength).find(' ');
+			if (pos == string::npos) {
+				pos = helpText.substr(index).length();
+			}
+		}
+		outText += helpText.substr(index, index + pos) + '\n' +
+		           string(indent, ' ');
+		index = pos + 1;
+	}
+	outText += helpText.substr(index);
+	return outText;
+}
+
+static void printItemMap(const map<string, set<string> >& itemMap)
+{
+	set<string> printSet;
+	for (map<string, set<string> >::const_iterator it = itemMap.begin();
+	     it != itemMap.end(); ++it) {
+		printSet.insert(formatSet(it->second, 15) + ' ' +
+		                formatHelptext(it->first, 50, 20));
+	}
+	for (set<string>::const_iterator it = printSet.begin();
+	     it != printSet.end(); ++it) {
+		cout << *it << endl;
+	}
+}
+
 bool CommandLineParser::HelpOption::parseOption(const string &option,
 		list<string> &cmdLine)
 {
@@ -295,66 +357,23 @@ bool CommandLineParser::HelpOption::parseOption(const string &option,
 	cout << endl;
 	cout << "  this is the list of supported options:" << endl;
 	
-	set<string> printSet;
-	map<CLIOption*, set<string>*> tempOptionMap;
-	map<CLIOption*, set<string>*>::const_iterator itTempOptionMap;
-	set<string>::const_iterator itSet;
-	map<string, OptionData>::const_iterator itOption;
-	for (itOption = parser->optionMap.begin();
-	     itOption != parser->optionMap.end();
-	     itOption++) {
-		itTempOptionMap = tempOptionMap.find(itOption->second.option);
-		if (itTempOptionMap == tempOptionMap.end()) {
-			tempOptionMap[itOption->second.option] = new set<string>;
-		}
-		itTempOptionMap = tempOptionMap.find(itOption->second.option);
-		if (itTempOptionMap != tempOptionMap.end()) {
-			itTempOptionMap->second->insert(itOption->first);
-		}
+	map<string, set<string> > optionMap;
+	for (map<string, OptionData>::const_iterator it = parser->optionMap.begin();
+	     it != parser->optionMap.end(); ++it) {
+		optionMap[it->second.option->optionHelp()].insert(it->first);
 	}
-	string tempString;
-	for (itTempOptionMap = tempOptionMap.begin();
-	     itTempOptionMap != tempOptionMap.end();
-	     itTempOptionMap++) {
-		tempString = formatSet(itTempOptionMap->second,15) + " " +
-			formatHelptext(itTempOptionMap->first->optionHelp(), 50, 20);
-		printSet.insert(tempString);
-		delete itTempOptionMap->second;
-	}
-	for (itSet = printSet.begin(); itSet != printSet.end(); itSet++) {
-		cout << *itSet << endl;
-	}
-	printSet.clear();
+	printItemMap(optionMap);
 	
 	cout << endl;
 	cout << "  this is the list of supported file types:" << endl;
 
-	map<CLIFileType*, set<string>*> tempExtMap;
-	map<CLIFileType*, set<string>*>::const_iterator itTempExtMap;
-	map<string, CLIFileType*>::const_iterator itFileType;
-	for (itFileType = parser->fileTypeMap.begin();
-	     itFileType != parser->fileTypeMap.end();
-	     itFileType++) {
-		itTempExtMap = tempExtMap.find(itFileType->second);
-		if (itTempExtMap == tempExtMap.end()) {
-			tempExtMap[itFileType->second] = new set<string>;
-		}
-		itTempExtMap = tempExtMap.find(itFileType->second);
-		if (itTempExtMap != tempExtMap.end()) {
-			itTempExtMap->second->insert(itFileType->first);
-		}
+	map<string, set<string> > extMap;
+	for (map<string, CLIFileType*>::const_iterator it = parser->fileTypeMap.begin();
+	     it != parser->fileTypeMap.end(); ++it) {
+		extMap[it->second->fileTypeHelp()].insert(it->first);
 	}
-	for (itTempExtMap = tempExtMap.begin();
-	     itTempExtMap != tempExtMap.end();
-	     itTempExtMap++) {
-		tempString = formatSet(itTempExtMap->second, 15) + " " +
-			formatHelptext(itTempExtMap->first->fileTypeHelp(), 50, 20);
-		printSet.insert(tempString);
-		delete itTempExtMap->second; 
-	}
-	for (itSet = printSet.begin(); itSet != printSet.end(); itSet++) {
-		cout << *itSet << endl;
-	}
+	printItemMap(extMap);
+	
 	exit(0);
 }
 
@@ -362,58 +381,6 @@ const string& CommandLineParser::HelpOption::optionHelp() const
 {
 	static const string text("Shows this text");
 	return text;
-}
-
-string CommandLineParser::HelpOption::formatSet(set<string> *inputSet,
-                                                     unsigned columns)
-{
-	string fillString(60, ' ');
-	set<string>::iterator it4;
-	string outString;
-	unsigned totalLength = 0; // ignore the starting spaces for now
-	for (it4 = inputSet->begin(); it4 != inputSet->end(); it4++) {
-		string temp = *it4;
-		if (totalLength == 0) {
-			// first element ?
-			outString += "    " + temp;
-			totalLength = temp.length();
-		} else {
-			outString += ", ";
-			if ((totalLength + temp.length()) > columns) {
-				outString += "\n    " + temp;
-				totalLength = temp.length();
-			} else {
-				outString += temp;
-				totalLength += 2 + temp.length();
-			}
-		}
-	}
-	if (totalLength <= columns) {
-		outString += fillString.substr(60 - (columns - totalLength));
-	}
-	return outString;
-}
-
-string CommandLineParser::HelpOption::formatHelptext(string helpText,
-                   unsigned maxlength, unsigned indent)
-{
-	string outText;
-	unsigned pos;
-	string fillString(60, ' ');
-	unsigned index = 0;
-	while (helpText.substr(index).length() > maxlength) {
-		pos = helpText.substr(index).rfind(' ', index+maxlength);
-		if (!pos) {
-			pos = helpText.substr(index + maxlength).find(' ');
-		}
-		if (pos) {
-			outText += helpText.substr(index, index + pos) + 
-			           "\n" + fillString.substr(60 - indent);
-			index = pos + 1;
-		}
-	}
-	outText += helpText.substr(index);
-	return outText;
 }
 
 // Config file type
