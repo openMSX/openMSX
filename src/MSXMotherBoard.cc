@@ -1,9 +1,5 @@
 // $Id$
 
-// 15-08-2001: add start-call loop
-// 31-08-2001: added dummy devices in all empty slots during instantiate
-// 01-09-2001: Fixed set_a8_register
-
 #include "MSXMotherBoard.hh"
 #include "RealTime.hh"
 #include "DummyDevice.hh"
@@ -17,7 +13,7 @@
 MSXMotherBoard::MSXMotherBoard()
 {
 	PRT_DEBUG("Creating an MSXMotherBoard object");
-	
+
 	DummyDevice* dummy = DummyDevice::instance();
 	for (int port=0; port<256; port++) {
 		IO_In [port] = dummy;
@@ -71,7 +67,7 @@ void MSXMotherBoard::register_IO_In(byte port, MSXIODevice *device)
 		PRT_DEBUG (device->getName() << " registers In-port " <<std::hex<< (int)port<<std::dec);
 		IO_In[port] = device;
 	} else {
-		PRT_ERROR (device->getName() << " trying to register taken In-port " 
+		PRT_ERROR (device->getName() << " trying to register taken In-port "
 		                        <<std::hex << (int)port << std::dec);
 	}
 }
@@ -94,7 +90,7 @@ void MSXMotherBoard::addDevice(MSXDevice *device)
 
 void MSXMotherBoard::registerSlottedDevice(MSXMemDevice *device, int primSl, int secSl, int page)
 {
-	if (!isSubSlotted[primSl]) 
+	if (!isSubSlotted[primSl])
 		secSl = 0;
 	if (SlotLayout[primSl][secSl][page] == DummyDevice::instance()) {
 		PRT_DEBUG(device->getName() << " registers at "<<primSl<<" "<<secSl<<" "<<page);
