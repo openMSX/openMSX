@@ -13,8 +13,8 @@ following features:
 - 512kB MegaRAM in slot 2-2
 
 This configuration needs the following ROMs in the roms subdir:
-- nms8250-bios.rom, nms8250-sub.rom, nms8250-basic.rom, nms8250-disk.rom: same
-  as needed for the Philips NMS 8250 config
+- nms8250_disk.rom, nms8250_basic-bios2.rom, nms8250_msx2sub.rom: same as
+  needed for the Philips NMS 8250 config
 - fmpac.rom: same as needed for the FM-PAC extension
 - yrw801.rom: same as needed for the Moonsound extension
 
