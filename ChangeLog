@@ -1,5 +1,11 @@
 $Id$
 
+2004-01-11 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added a "boosted" MSX2 config:
+	  - European MSX2 config with lots of extensions, see README in its
+	    dir
+	  - still experimental, needs testing...
+
 2004-01-10 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fix VDP bug:
 	   - out (#99), xx / OUT (#99),%11xxxxxx is NOT a register write

@@ -1,0 +1,22 @@
+This directory contains a so-called "Boosted" MSX2 configuration. It has the
+following features:
+
+- based on Philips NMS-8250 (most standard MSX2 in the Netherlands at least)
+- two external slots, slot B is a sub slot (2-1)
+- 2048kB memory mapper (in slot 3-2)
+- 2 disk drives
+- V9958 VDP
+- SCC+ in slot 2-0
+- FM-PAC (slot 3-1)
+- MSX Audio
+- Moonsound with 640kB sample RAM
+- 512kB MegaRAM in slot 2-2
+
+This configuration needs the following ROMs in the roms subdir:
+- nms8250-bios.rom, nms8250-sub.rom, nms8250-basic.rom, nms8250-disk.rom: same
+  as needed for the Philips NMS 8250 config
+- fmpac.rom: same as needed for the FM-PAC extension
+- yrw801.rom: same as needed for the Moonsound extension
+
+You can make this configuration the default by changing the DefaultMachine in
+settings.xml. See the Setup Guide of the manual.
