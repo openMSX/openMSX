@@ -23,6 +23,7 @@
 #include "MSXPrinterPort.hh"
 #include "MSXSCCPlusCart.hh"
 #include "MSXARCdebug.hh"
+#include "MSXFDC.hh"
 //#include "MSXPrinter.hh"
 //#include "MSXPostLoad.hh"
 
@@ -91,6 +92,9 @@ MSXDevice *deviceFactory::create(MSXConfig::Device *conf, const EmuTime &time) {
 #endif
 	if (conf->getType()=="ARCdebug") {
 		device = new MSXARCdebug(conf, time);
+	} else 
+	if (conf->getType()=="FDC") {
+		device = new MSXFDC(conf, time);
 	}
 //	} else
 //	if (conf->getType()=="PostLoad") {

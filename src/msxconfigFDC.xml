@@ -1,0 +1,249 @@
+<?xml version="1.0"?>
+<!-- $Id$ -->
+<!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
+<msxconfig>
+
+  <config id="MotherBoard">
+    <type>MotherBoard</type>
+    <parameter name="0" class="subslotted">false</parameter>
+    <parameter name="1" class="subslotted">false</parameter>
+    <parameter name="2" class="subslotted">false</parameter>
+    <parameter name="3" class="subslotted">true</parameter>
+  </config>
+
+  <!--
+  <device id="PrinterPort">
+    <type>PrinterPort</type>
+    <parameter name="logfile">printport.log</parameter>
+  </device>
+
+  <device id="Simple DAC via PrinterPort">
+    <type>Simple</type>
+    <parameter name="volume">20000</parameter>
+  </device>
+
+  <device id="Simple Printer Logger">
+    <type>PrinterLogger</type>
+    <parameter name="filename">PRINTER.LOG</parameter>
+  </device>
+  -->
+
+  <device id="MapperIO">
+    <type>MapperIO</type>
+    <parameter name="type">Philips</parameter>
+  </device>
+
+  <device id="Main RAM">
+    <type>MemoryMapper</type>
+    <slotted>
+      <ps>3</ps>
+      <ss>2</ss>
+      <page>0</page>
+    </slotted>
+    <slotted>
+      <ps>3</ps>
+      <ss>2</ss>
+      <page>1</page>
+    </slotted>
+    <slotted>
+      <ps>3</ps>
+      <ss>2</ss>
+      <page>2</page>
+    </slotted>
+    <slotted>
+      <ps>3</ps>
+      <ss>2</ss>
+      <page>3</page>
+    </slotted>
+    <parameter name="slow_drain_on_reset">false</parameter>
+    <parameter name="size">128</parameter>
+  </device>
+
+  <device id="biosrom">
+    <type>Rom16KB</type>
+    <slotted>
+      <ps>0</ps>
+      <ss>0</ss>
+      <page>0</page>
+    </slotted>
+    <parameter name="filename">cfg/nms8250-bios.rom</parameter>
+  </device>
+
+  <device id="basicrom">
+    <type>Rom16KB</type>
+    <slotted>
+      <ps>0</ps>
+      <ss>0</ss>
+      <page>1</page>
+    </slotted>
+    <parameter name="filename">cfg/nms8250-basic.rom</parameter>
+  </device>
+
+  <device id="subrom">
+    <type>Rom16KB</type>
+    <slotted>
+      <ps>3</ps>
+      <ss>0</ss>
+      <page>0</page>
+    </slotted>
+    <parameter name="filename">cfg/nms8250-sub.rom</parameter>
+  </device>
+
+<!--
+  <device id="diskrom">
+    <type>Rom16KB</type>
+    <slotted>
+      <ps>3</ps>
+      <ss>3</ss>
+      <page>1</page>
+    </slotted>
+    <parameter name="filename">cfg/nms8250-disk.rom</parameter>
+    <parameter name="" class="patchcode">MSXDiskRomPatch</parameter>
+
+    <parameter name="0x0010" class="patch">0xED</parameter>
+    <parameter name="0x0011" class="patch">0xFE</parameter>
+    <parameter name="0x0012" class="patch">0xC9</parameter>
+    <parameter name="0x0013" class="patch">0xED</parameter>
+    <parameter name="0x0014" class="patch">0xFE</parameter>
+    <parameter name="0x0015" class="patch">0xC9</parameter>
+    <parameter name="0x0016" class="patch">0xED</parameter>
+    <parameter name="0x0017" class="patch">0xFE</parameter>
+    <parameter name="0x0018" class="patch">0xC9</parameter>
+    <parameter name="0x001C" class="patch">0xED</parameter>
+    <parameter name="0x001D" class="patch">0xFE</parameter>
+    <parameter name="0x001E" class="patch">0xC9</parameter>
+    <parameter name="0x001F" class="patch">0xED</parameter>
+    <parameter name="0x0020" class="patch">0xFE</parameter>
+    <parameter name="0x0021" class="patch">0xC9</parameter>
+
+    <parameter name="0x3FF8" class="patch">0x24</parameter>
+    <parameter name="0x3FF9" class="patch">0x00</parameter>
+    <parameter name="0x3FFA" class="patch">0x07</parameter>
+    <parameter name="0x3FFB" class="patch">0x00</parameter>
+    <parameter name="0x3FFC" class="patch">0xFE</parameter>
+    <parameter name="0x3FFD" class="patch">0xFC</parameter>
+  </device>
+-->
+  <device id="Memmory Mapped FDC">
+    <type>FDC</type>
+    <slotted>
+      <ps>3</ps>
+      <ss>3</ss>
+      <page>1</page>
+    </slotted>
+    <parameter name="brokenFDCread">false</parameter>
+    <parameter name="filename">cfg/nms8250-disk.rom</parameter>
+    <!-- use to instantiate the correct FDC -->
+    <parameter name="chip">2793</parameter>
+    <!-- used by the FDC to instantiate correct back-end-->
+    <parameter name="backend">DSK</parameter>
+    <parameter name="drive1" class="disk">A</parameter>
+    <parameter name="drive2" class="disk">B</parameter>
+    <!-- last parameters used to look up config id "diskpatch_diskA" or "diskpatch_diskB"-->
+  </device>
+
+<!--
+  <device id="MSX-Audio">
+    <type>Audio</type>
+    <parameter name="volume">20000</parameter>
+    <parameter name="mode">right</parameter>
+  </device>
+
+  <device id="FM PAC">
+    <type>FM-PAC</type>
+    <slotted>
+      <ps>2</ps>
+      <ss>0</ss>
+      <page>1</page>
+    </slotted>
+    <parameter name="filename">FMPAC.ROM</parameter>
+    <parameter name="volume">20000</parameter>
+    <parameter name="mode">left</parameter>
+    <parameter name="load">true</parameter>
+    <parameter name="save">true</parameter>
+    <parameter name="sramname">FMPAC.PAC</parameter>
+  </device>
+-->
+
+  <device id="ppi">
+    <type>PPI</type>
+    <parameter name="volume">16000</parameter>
+    <parameter name="key_ghosting">true</parameter>
+  </device>
+
+  <device id="VDP">
+    <type>VDP</type>
+    <parameter name="version">V9938</parameter>
+    <parameter name="limit_sprites">true</parameter>
+    <parameter name="vram">128</parameter>
+  </device>
+
+  <config id="renderer">
+    <type>SDLHi</type>
+    <parameter name="full_screen">false</parameter>
+  </config>
+
+  <device id="psg">
+    <type>PSG</type>
+    <parameter name="volume">21000</parameter>
+  </device>
+
+  <device id="Real time clock">
+    <type>RTC</type>
+    <parameter name="mode">EmuTime</parameter>
+    <parameter name="load">true</parameter>
+    <parameter name="save">true</parameter>
+    <parameter name="filename">RTC.SAVE</parameter>
+  </device>
+
+  <config id="RealTime">
+    <type>RealTime</type>
+    <parameter name="sync_interval">50</parameter>
+    <parameter name="max_catch_up_time">1500</parameter>
+    <parameter name="max_catch_up_factor">105</parameter>
+  </config>
+
+  <!--
+  <device id="Penguin Adventure Cartridge">
+    <type>GameCartridge</type>
+    <slotted>
+      <ps>1</ps>
+      <ss>0</ss>
+      <page>1</page>
+    </slotted>
+    <slotted>
+      <ps>1</ps>
+      <ss>0</ss>
+      <page>2</page>
+    </slotted>
+    <parameter name="filename">NEMESIS2.ROM</parameter>
+    <parameter name="filesize">0</parameter>
+    <parameter name="skip_headerbytes">0</parameter>
+    <parameter name="volume">11500</parameter>
+    <parameter name="automappertype">true</parameter>
+    <parameter name="mappertype">2</parameter>
+    <parameter name="loadsram">true</parameter>
+    <parameter name="savesram">true</parameter>
+    <parameter name="sramname">GAME.SRAM</parameter>
+  </device>
+  -->
+
+  <device id="cpu">
+    <type>CPU</type>
+  </device>
+
+  <config id="Mixer">
+    <type>Mixer</type>
+    <parameter name="frequency">22050</parameter>
+    <parameter name="samples">512</parameter>
+  </config>
+  <config id="rompath">
+    <type>rompath</type>
+    <parameter name="separator">/</parameter>
+    <parameter name="1" class="path">ROMS</parameter>
+    <parameter name="2" class="path">TAPES</parameter>
+    <parameter name="3" class="path">DISKS</parameter>
+  </config>
+
+</msxconfig>
+
