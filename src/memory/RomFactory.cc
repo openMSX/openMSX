@@ -28,6 +28,7 @@
 #include "RomKorean80in1.hh"
 #include "RomKorean90in1.hh"
 #include "RomKorean126in1.hh"
+#include "RomHolyQuran.hh"
 #include "Rom.hh"
 
 
@@ -100,6 +101,8 @@ MSXRom *RomFactory::create(Device *config, const EmuTime &time)
 			return new RomKorean90in1(config, time, rom);
 		case KOREAN126IN1:
 			return new RomKorean126in1(config, time, rom);
+		case HOLY_QURAN:
+			return new RomHolyQuran(config, time, rom);
 		default:
 			PRT_ERROR("Unknown mapper type");
 			return NULL;

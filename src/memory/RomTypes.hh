@@ -18,6 +18,7 @@ enum MapperType {
 	KOREAN80IN1  = 11,
 	KOREAN90IN1  = 12,
 	KOREAN126IN1 = 13,
+	HOLY_QURAN   = 14,
 	PLAIN        = 15,
 
 	PAGE0        = 16 + 1,
