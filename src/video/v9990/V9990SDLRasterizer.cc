@@ -70,12 +70,15 @@ void V9990SDLRasterizer<Pixel, zoom>::paint()
 		dstLine.h = 1;
 		
 		for (int y = 0; y < SCREEN_HEIGHT; ++y) {
-			SDL_BlitSurface(workScreen, &srcLine, workScreen, &dstLine);
-			dstLine.y += 2;
+			SDL_BlitSurface(workScreen, &srcLine, screen, &dstLine);
+			dstLine.y ++;
+			SDL_BlitSurface(workScreen, &srcLine, screen, &dstLine);
+			dstLine.y ++;
 			srcLine.y += 2;
 		}
-	} 
-	SDL_BlitSurface(workScreen, NULL, screen, NULL);
+	} else { 
+		SDL_BlitSurface(workScreen, NULL, screen, NULL);
+	}
 }
 
 template <class Pixel, Renderer::Zoom zoom>
