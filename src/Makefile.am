@@ -70,6 +70,7 @@ openmsx_SOURCES=\
 	MSXMapperIOPhilips.hh MSXMapperIOPhilips.cc \
 	MSXRTC.hh MSXRTC.cc RP5C01.hh RP5C01.cc \
 	RealTime.hh RealTime.cc \
+	CartridgeSlotManager.hh CartridgeSlotManager.cc \
 	MSXRom.hh MSXRom.cc \
 	RomTypes.hh RomTypes.cc \
 	MSXRomDevice.cc MSXRomDevice.hh \

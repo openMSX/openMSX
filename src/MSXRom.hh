@@ -34,12 +34,28 @@ class MSXRomCLI : public CLIOption, public CLIFileType
 class MSXRomCLIPost : public CLIPostConfig
 {
 	public:
-		MSXRomCLIPost(int ps, int ss, const std::string &arg);
-		virtual ~MSXRomCLIPost();
+		MSXRomCLIPost(const std::string &arg);
+		virtual ~MSXRomCLIPost() {}
 		virtual void execute(MSXConfig::Backend *config);
-	private:
+	protected:
 		int ps, ss;
 		const std::string arg;
+};
+class MSXRomPostName : public MSXRomCLIPost
+{
+	public:
+		MSXRomPostName(int slot, const std::string &arg);
+		virtual ~MSXRomPostName() {}
+		virtual void execute(MSXConfig::Backend *config);
+	private:
+		int slot;
+};
+class MSXRomPostNoName : public MSXRomCLIPost
+{
+	public:
+		MSXRomPostNoName(const std::string &arg);
+		virtual ~MSXRomPostNoName() {}
+		virtual void execute(MSXConfig::Backend *config);
 };
 
 

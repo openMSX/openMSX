@@ -5,56 +5,73 @@
 #include "DACSound.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
-#include "MSXConfig.hh"
 #include "libxmlx/xmlx.hh"
+#include "CartridgeSlotManager.hh"
 
 
 MSXRomCLI msxRomCLI;
 
 MSXRomCLI::MSXRomCLI()
 {
+	CommandLineParser::instance()->registerOption("-cart", this);
 	CommandLineParser::instance()->registerOption("-carta", this);
 	CommandLineParser::instance()->registerOption("-cartb", this);
+	CommandLineParser::instance()->registerOption("-cartc", this);
+	CommandLineParser::instance()->registerOption("-cartd", this);
 	CommandLineParser::instance()->registerFileType("rom", this);
-
-	cartridgeNr = 1;
 }
 
 void MSXRomCLI::parseOption(const std::string &option,
                          std::list<std::string> &cmdLine)
 {
-	std::string filename = cmdLine.front();
+	std::string arg = cmdLine.front();
 	cmdLine.pop_front();
-
-	parseFileType(filename);
+	if (option.length() == 6) {
+		int slot = option[5] - 'a';
+		CartridgeSlotManager::instance()->reserveSlot(slot);
+		CommandLineParser::instance()->registerPostConfig(new MSXRomPostName(slot, arg));
+	} else {
+		CommandLineParser::instance()->registerPostConfig(new MSXRomPostNoName(arg));
+	}
 }
 const std::string& MSXRomCLI::optionHelp()
 {
 	static const std::string text("TODO");
 	return text;
 }
+MSXRomPostName::MSXRomPostName(int slot_, const std::string &arg)
+	: MSXRomCLIPost(arg), slot(slot_)
+{
+}
+void MSXRomPostName::execute(MSXConfig::Backend *config)
+{
+	CartridgeSlotManager::instance()->getSlot(slot, ps, ss);
+	MSXRomCLIPost::execute(config);
+}
+
 void MSXRomCLI::parseFileType(const std::string &arg)
 {
-	int ps = cartridgeNr++;
-	int ss = 0;
-	CommandLineParser::instance()->registerPostConfig(
-		new MSXRomCLIPost(ps, ss, arg));
+	CommandLineParser::instance()->registerPostConfig(new MSXRomPostNoName(arg));
 }
 const std::string& MSXRomCLI::fileTypeHelp()
 {
 	static const std::string text("TODO");
 	return text;
 }
-
-MSXRomCLIPost::MSXRomCLIPost(int ps_, int ss_, const std::string &arg_)
-	: ps(ps_), ss(ss_), arg(arg_)
+MSXRomPostNoName::MSXRomPostNoName(const std::string &arg)
+	: MSXRomCLIPost(arg)
 {
 }
-
-MSXRomCLIPost::~MSXRomCLIPost()
+void MSXRomPostNoName::execute(MSXConfig::Backend *config)
 {
+	CartridgeSlotManager::instance()->getSlot(ps, ss);
+	MSXRomCLIPost::execute(config);
 }
 
+MSXRomCLIPost::MSXRomCLIPost(const std::string &arg_)
+	: arg(arg_)
+{
+}
 void MSXRomCLIPost::execute(MSXConfig::Backend *config)
 {
 	std::string filename, mapper;
@@ -87,6 +104,7 @@ void MSXRomCLIPost::execute(MSXConfig::Backend *config)
 	s << "</device>";
 	s << "</msxconfig>";
 	config->loadStream(s);
+	delete this;
 }
 
 

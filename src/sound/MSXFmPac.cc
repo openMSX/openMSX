@@ -3,7 +3,7 @@
 #include "MSXFmPac.hh"
 #include "FileOpener.hh"
 #include <string.h>
-#include "MSXConfig.hh"
+#include "CartridgeSlotManager.hh"
 
 
 MSXFmPacCLI msxFmPacCLI;
@@ -16,12 +16,23 @@ MSXFmPacCLI::MSXFmPacCLI()
 void MSXFmPacCLI::parseOption(const std::string &option,
                               std::list<std::string> &cmdLine)
 {
+	CommandLineParser::instance()->registerPostConfig(this);
+}
+const std::string& MSXFmPacCLI::optionHelp()
+{
+	static const std::string text("Inserts an FM-PAC into the MSX machine");
+	return text;
+}
+void MSXFmPacCLI::execute(MSXConfig::Backend *config)
+{
+	int ps, ss;
+	CartridgeSlotManager::instance()->getSlot(ps, ss);
 	std::ostringstream s;
 	s << "<?xml version=\"1.0\"?>";
 	s << "<msxconfig>";
 	s << "<device id=\"FM PAC\">";
 	s << "<type>FM-PAC</type>";
-	s << "<slotted><ps>2</ps><ss>0</ss><page>1</page></slotted>";
+	s << "<slotted><ps>"<<ps<<"</ps><ss>"<<ss<<"</ss><page>1</page></slotted>";
 	s << "<parameter name=\"filename\">FMPAC.ROM</parameter>";
 	s << "<parameter name=\"volume\">13000</parameter>";
 	s << "<parameter name=\"mode\">mono</parameter>";
@@ -30,14 +41,7 @@ void MSXFmPacCLI::parseOption(const std::string &option,
 	s << "<parameter name=\"sramname\">FMPAC.PAC</parameter>";
 	s << "</device>";
 	s << "</msxconfig>";
-	
-	MSXConfig::Backend *config = MSXConfig::Backend::instance();
 	config->loadStream(s);
-}
-const std::string& MSXFmPacCLI::optionHelp()
-{
-	static const std::string text("Inserts an FM-PAC into the MSX machine");
-	return text;
 }
 
 

@@ -1,5 +1,8 @@
 $Id$
 
+2002-10-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented "CartridgeSlotManager"
+
 2002-10-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Cartridges are only inserted after configuration is parsed, this
 	  allows in the future to have configurable cartridge slots

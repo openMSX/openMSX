@@ -13,13 +13,14 @@
 #include "CommandLineParser.hh"
 
 
-class MSXFmPacCLI : public CLIOption
+class MSXFmPacCLI : public CLIOption, public CLIPostConfig
 {
 	public:
 		MSXFmPacCLI();
 		virtual void parseOption(const std::string &option,
-				std::list<std::string> &cmdLine);
+		                         std::list<std::string> &cmdLine);
 		virtual const std::string& optionHelp();
+		virtual void execute(MSXConfig::Backend *config);
 };
 
 

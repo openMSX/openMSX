@@ -4,12 +4,11 @@
 #include "libxmlx/xmlx.hh"
 #include "MSXConfig.hh"
 #include "FileOpener.hh"
+#include "CartridgeSlotManager.hh"
 
 #include <string>
 #include <sstream>
-
 #include <cstdio>
-
 
 
 CommandLineParser* CommandLineParser::instance()
@@ -99,13 +98,14 @@ void CommandLineParser::parse(int argc, char **argv)
 	if (!haveConfig) {
 		config->loadFile(std::string("msxconfig.xml"));
 	}
+
+	// read existing cartridge slots from config
+	CartridgeSlotManager::instance()->readConfig();
 	
 	// execute all postponed options
 	std::vector<CLIPostConfig*>::iterator it;
 	for (it = postConfigs.begin(); it != postConfigs.end(); it++) {
-		PRT_DEBUG("CLI: post");
 		(*it)->execute(config);
-		delete *it;
 	}
 }
 
