@@ -334,7 +334,9 @@ void MSXDiskRomPatch::DSKCHG() const
 	}
 
 	regs.BC.B.h = media_descriptor;
+	cpu->setCPURegs(regs);
 	GETDPB();
+	regs = cpu->getCPURegs();
 	if (regs.AF.B.l & Z80::C_FLAG) {
 		regs.AF.w = 0x0A01; // I/O error
 		cpu->setCPURegs(regs);
