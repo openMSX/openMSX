@@ -28,7 +28,7 @@
 	<li><a class="internal" href="#systemroms">3. System ROMs</a>
 		<ol class="toc">
 			<li><a class="internal" href="#cbios">3.1. C-BIOS</a></li>
-			<li><a class="internal" href="#dumprom">3.2. Dumping ROMs</a></li>
+			<li><a class="internal" href="#dumprom">3.2. Dumping ROMs</a>
 				<ol class="toc">
 					<li><a class="internal" href="#dumpromtools">3.2.1. Tools</a></li>
 					<li><a class="internal" href="#dumpromlocation">3.2.2. ROM Locations</a></li>
@@ -36,7 +36,7 @@
 					<li><a class="internal" href="#dumpromchecksums">3.2.4. Checksums</a></li>
 					<li><a class="internal" href="#dumpromlegal">3.2.5. Legal Issues</a></li>
 				</ol>
-
+			</li>
 			<li><a class="internal" href="#downloadrom">3.3. Downloading ROMs</a></li>
 		</ol>
 	</li>
@@ -369,55 +369,40 @@ Whatever you decide, is your own responsibility.
 <h2><a id="settings">4. User Preferences</a></h2>
 
 <p>
-In the file <code>share/settings.xml</code> you can specify
-your user preferences.
-These will be loaded every time openMSX starts.
-Note: it is convenient to use the file
-<code>~/.openMSX/share/settings.xml</code> (UNIX) or <code>My Documents\openMSX\share\settings.xml</code> (Windows) to store your custom settings,
-instead of editing <code>settings.xml</code> in the openMSX installation
-directory.
+Since openMSX 0.5.0, almost all user preferences can be done via the console, at openMSX run time. See also <a class="external" href="user.html#controlling">the User's Manual</a>. You can save your settings with the <code>save_settings</code> command, which will save the settings in <code>~/.openMSX/share/settings.xml</code> (UNIX) or <code>My Documents\openMSX\share\settings.xml</code> (Windows), your personal settings file. The settings file will be loaded every time openMSX starts. You can still manually edit this file, but it is not necessary anymore: just edit the settings from the console.
 </p>
 
 <p>
 One of the preferences is the default machine:
-the machine openMSX uses if you did not specify one on the command line.
+the machine openMSX uses if you did not specify one on the command line. The name of this setting is <code>machine</code>.
 </p>
 
 <p>
-The default <code>settings.xml</code> also contains a UserDirectories section.
-In this
-section you can specify directories in which openMSX should look for to find
+A convenient setting is called <code>user_directories</code>. With this setting you can specify directories in which openMSX should look for to find
 files that you mention on the command line or in the openMSX console.
 If
-you have some big directory with a lot of disk images, e.g., you can add a line
-with that path to this section, so that you don't have to specify the whole
-path anymore.
-Use this to make things just a little more comfortable.
+you have some big directory with a lot of disk images, e.g., you can add the path to the TCL list that holds the user directories with this setting, so that you don't have to specify the whole path anymore. Use this to make things just a little more comfortable. For example: <code>set user_directories "~/diskimages /mnt/datadisk/MSX-soft/diskimages ~/.openMSX/ROMs ~/.openMSX"</code> specifies four user directories in which is searched.
 </p>
 
+<p>
+By using the <code>bind</code> command you can create custom key bindings. These bindings will also be saved as settings in your settings file if you issue a <code>save_settings</code> command.
+</p>
+
+
+<!--
 <p>
 You can also register more file extensions in the <code>settings.xml</code> file.
 See the "FileTypes" section of the file.
 </p>
+-->
 
 <p>
-There are more settings you can make using this file. Just look at the file
-after you have a little more experience with openMSX and the comments in it
-will tell you what everything means.
+The other settings are discussed in <a class="external" href="user.html#controlling">the User's Manual</a> and in the file <code>doc/commands.txt</code>.
 </p>
 
 <p>
-Previous versions of openMSX also had an <code>AutoCommands</code>
-section in the <code>settings.xml</code> file. This has been replaced
-by an <code>init.tcl</code> file, since the commands are now processed
-by the embedded Tcl scripting language. This file can be placed in
-exactly the same directories as the <code>settings.xml</code> file.
-Anyway, use <code>init.tcl</code> to specify commands that should be
-executed at openMSX start up. By using the <code>set</code> command you can modify the runtime settings
-of openMSX.
-By using the <code>bind</code> command you can create custom key bindings.
-Note that you can put any Tcl command there,
-so you can also use it to specify aliases, for example.
+Previous versions of openMSX also had a possibility to specify <code>AutoCommands</code>. If you still want to let openMSX execute commands at start up, add those commands to the <code>init.tcl</code> file. This file can be placed in
+exactly the same directories as the <code>settings.xml</code> file. Note that you can put any Tcl command there, so you can also use it to specify aliases, for example.
 </p>
 
 <h2><a id="hardwareedit">5. Writing Machine Descriptions</a></h2>
