@@ -89,7 +89,8 @@ public:
 	
 	static string makeUnique(const string& str);
 	static string XMLEscape(const string& str);
-	static string toTagName(const string& str);
+	static string encodeTagName(const string& str);
+	static string decodeTagName(const string& str);
 
 protected:
 	XMLElement();

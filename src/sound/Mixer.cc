@@ -109,7 +109,7 @@ int Mixer::registerSound(SoundDevice& device, short volume, ChannelMode mode)
 		return 512;	// return a save value
 	}
 	
-	const string& name = XMLElement::toTagName(device.getName());
+	const string& name = device.getName();
 	SoundDeviceInfo info;
 	XMLElement& config = settingsConfig.getChild("sound");
 	XMLElement& volumeElem = config.getCreateChild(name + "_volume", "75");

@@ -46,7 +46,7 @@ XMLElement::XMLElement(const XMLElement& element)
 
 void XMLElement::init(xmlNodePtr node)
 {
-	name = (const char*)node->name;
+	name = decodeTagName((const char*)node->name);
 	for (xmlNodePtr x = node->children; x != NULL ; x = x->next) {
 		switch (x->type) {
 		case XML_TEXT_NODE:
@@ -63,7 +63,7 @@ void XMLElement::init(xmlNodePtr node)
 	for (xmlAttrPtr x = node->properties; x != NULL ; x = x->next) {
 		switch (x->type) {
 		case XML_ATTRIBUTE_NODE: {
-			string name  = (const char*)x->name;
+			string name  = decodeTagName((const char*)x->name);
 			string value = (const char*)x->children->content;
 			if (name == "id") {
 				value = makeUnique(value);
@@ -303,10 +303,10 @@ string XMLElement::dump() const
 void XMLElement::dump(string& result, unsigned indentNum) const
 {
 	string indent(indentNum, ' ');
-	result += indent + '<' + getName();
+	result += indent + '<' + encodeTagName(getName());
 	for (Attributes::const_iterator it = attributes.begin();
 	     it != attributes.end(); ++it) {
-		result += ' ' + it->first +
+		result += ' ' + encodeTagName(it->first) +
 		          "=\"" + XMLEscape(it->second) + '"';
 	}
 	if (children.empty()) {
@@ -314,7 +314,7 @@ void XMLElement::dump(string& result, unsigned indentNum) const
 			result += "/>\n";
 		} else {
 			result += '>' + XMLEscape(data) + "</" +
-			          getName() + ">\n";
+			          encodeTagName(getName()) + ">\n";
 		}
 	} else {
 		result += ">\n";
@@ -322,7 +322,7 @@ void XMLElement::dump(string& result, unsigned indentNum) const
 		     it != children.end(); ++it) {
 			(*it)->dump(result, indentNum + 2);
 		}
-		result += indent + "</" + getName() + ">\n";
+		result += indent + "</" + encodeTagName(getName()) + ">\n";
 	}
 }
 
@@ -337,10 +337,60 @@ string XMLElement::XMLEscape(const string& str)
 	return result;
 }
 
-string XMLElement::toTagName(const string& str)
+static char numToHex(unsigned a)
 {
-	string result = str;
-	replace(result.begin(), result.end(), ' ', '_');
+	if (a < 10) {
+		return '0' + a;
+	} else if (a < 16) {
+		return 'A' + a - 10;
+	} else {
+		assert(false);
+	}
+}
+
+static int hexToNum(char a)
+{
+	if (('0' <= a) && (a <= '9')) {
+		return a - '0';
+	} else if (('A' <= a) && (a <= 'F')) {
+		return a - 'A' + 10;
+	} else {
+		assert(false);
+	}
+}
+
+string XMLElement::encodeTagName(const string& str)
+{
+	static const string allowedChars = 
+		"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		"0123456789-_:"; // no '.'
+	string result;
+	for (string::const_iterator it = str.begin(); it != str.end(); ++it) {
+		if (allowedChars.find(*it) != string::npos) {
+			result += *it;
+		} else {
+			result += '.';
+			result += numToHex(*it / 0x10);
+			result += numToHex(*it & 0x0F);
+		}
+	}
+	return result;
+}
+
+string XMLElement::decodeTagName(const string& str)
+{
+	string result;
+	for (string::const_iterator it = str.begin(); it != str.end(); ++it) {
+		if (*it != '.') {
+			result += *it;
+		} else {
+			++it; assert(it != str.end());
+			char c1 = *it;
+			++it; assert(it != str.end());
+			char c2 = *it;
+			result += hexToNum(c1) * 0x10 + hexToNum(c2);
+		}
+	}
 	return result;
 }
 
