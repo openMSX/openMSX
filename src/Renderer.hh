@@ -138,7 +138,7 @@ public:
 	  * Note that there is no similar method for vertical adjust updates,
 	  * because vertical adjust is calculated at start of frame and
 	  * then fixed.
-	  * @param scroll The new adjust value.
+	  * @param adjust The new adjust value.
 	  * @param time The moment in emulated time this change occurs.
 	  */
 	virtual void updateHorizontalAdjust(int adjust, const EmuTime &time) = 0;

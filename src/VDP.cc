@@ -248,10 +248,12 @@ void VDP::executeUntilEmuTime(const EmuTime &time, int userData)
 		// Horizontal scanning occurs.
 		if (controlRegs[0] & 0x10) irqHorizontal.set();
 		break;
-	case HOR_ADJUST:
-		renderer->updateHorizontalAdjust(horizontalAdjust, time);
-		horizontalAdjust = (controlRegs[18] & 0x0F) ^ 0x07;
+	case HOR_ADJUST: {
+		int newHorAdjust = (controlRegs[18] & 0x0F) ^ 0x07;
+		renderer->updateHorizontalAdjust(newHorAdjust, time);
+		horizontalAdjust = newHorAdjust;
 		break;
+	}
 	default:
 		assert(false);
 	}
