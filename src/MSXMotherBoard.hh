@@ -3,11 +3,13 @@
 #ifndef __MSXMOTHERBOARD_HH__
 #define __MSXMOTHERBOARD_HH__
 
-#include <list>
+#include <vector>
+#include <memory>
 #include "SettingListener.hh"
 #include "Command.hh"
 
-using std::list;
+using std::vector;
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -36,22 +38,15 @@ private:
 	 * All MSXDevices should be registered by the MotherBoard.
 	 * This method should only be called at start-up
 	 */
-	void addDevice(MSXDevice* device);
+	void addDevice(auto_ptr<MSXDevice> device);
 	
-	/**
-	 * To remove a device completely from configuration
-	 * fe. yanking a cartridge out of the msx
-	 *
-	 * TODO this method not yet used!!
-	 */
-	void removeDevice(MSXDevice* device);
-
 	void reInitMSX();
 
 	// SettingListener
 	virtual void update(const SettingLeafNode* setting);
 
-	list<MSXDevice*> availableDevices;
+	typedef vector<MSXDevice*> Devices;
+	Devices availableDevices;
 
 	BooleanSetting& powerSetting;
 };

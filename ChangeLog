@@ -3,6 +3,11 @@ $Id$
 2004-06-07 Manuel Bilderbeek <manuel@msxnet.org>
 	* Rerenamed "MSX-AUDIO MIDI" to "Music Module MIDI"
 
+2004-06-08 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* removed IO port registration for Mixrosol FDCs from the code,
+	  instead it must be specified in the config file (TODO)
+	* Explicitly indicate ownership transfer in Device factories
+
 2004-06-06 Manuel Bilderbeek <manuel@msxnet.org>
 	* Moved mode setting of the RTC to settings.xml
 	  (converter still needs to be updated)

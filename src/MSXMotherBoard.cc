@@ -26,10 +26,9 @@ MSXMotherBoard::MSXMotherBoard()
 MSXMotherBoard::~MSXMotherBoard()
 {
 	// Destroy emulated MSX machine.
-	for (list<MSXDevice*>::iterator it = availableDevices.begin();
+	for (Devices::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
-		MSXDevice* device = *it;
-		delete device;
+		delete *it;
 	}
 	availableDevices.clear();
 
@@ -37,14 +36,9 @@ MSXMotherBoard::~MSXMotherBoard()
 	Scheduler::instance().setMotherBoard(NULL);
 }
 
-void MSXMotherBoard::addDevice(MSXDevice *device)
+void MSXMotherBoard::addDevice(auto_ptr<MSXDevice> device)
 {
-	availableDevices.push_back(device);
-}
-
-void MSXMotherBoard::removeDevice(MSXDevice *device)
-{
-	availableDevices.remove(device);
+	availableDevices.push_back(device.release());
 }
 
 
@@ -53,7 +47,7 @@ void MSXMotherBoard::resetMSX()
 	const EmuTime& time = Scheduler::instance().getCurrentTime();
 	PRT_DEBUG("MSXMotherBoard::reset() @ " << time);
 	MSXCPUInterface::instance().reset();
-	for (list<MSXDevice*>::iterator it = availableDevices.begin();
+	for (Devices::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
 		(*it)->reset(time);
 	}
@@ -65,7 +59,7 @@ void MSXMotherBoard::reInitMSX()
 	const EmuTime& time = Scheduler::instance().getCurrentTime();
 	PRT_DEBUG("MSXMotherBoard::reinit() @ " << time);
 	MSXCPUInterface::instance().reset();
-	for (list<MSXDevice*>::iterator it = availableDevices.begin();
+	for (Devices::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
 		(*it)->reInit(time);
 	}
@@ -83,10 +77,8 @@ void MSXMotherBoard::run(bool powerOn)
 			continue;
 		}
 		PRT_DEBUG("Instantiating: " << (*it)->getType());
-		MSXDevice* device = DeviceFactory::create(*it, EmuTime::zero);
-		if (device) {
-			addDevice(device);
-		}
+		auto_ptr<MSXDevice> device(DeviceFactory::create(*it, EmuTime::zero));
+		addDevice(device);
 	}
 	// Register all postponed slots.
 	MSXCPUInterface::instance().registerPostSlots();

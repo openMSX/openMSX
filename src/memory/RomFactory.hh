@@ -3,16 +3,20 @@
 #ifndef __ROMFACTORY_HH__
 #define __ROMFACTORY_HH__
 
+#include <memory>
+
+using std::auto_ptr;
+
 namespace openmsx {
 
-class MSXRom;
+class MSXDevice;
 class EmuTime;
 class Config;
 
 class RomFactory
 {
 public:
-	static MSXRom* create(Config* config, const EmuTime& time);
+	static auto_ptr<MSXDevice> create(Config* config, const EmuTime& time);
 };
 
 } // namespace openmsx
