@@ -24,13 +24,16 @@ Mixer::Mixer()
 	desired.format   = AUDIO_S16LSB;	// TODO check low|high endian
 	desired.callback = audioCallbackHelper;	// must be a static method
 	desired.userdata = NULL;		// not used
-	if (SDL_OpenAudio(&desired, &audioSpec) < 0)
-		PRT_ERROR("Couldn't open audio : " << SDL_GetError());
-	
-	mixBuffer = new short[audioSpec.size / sizeof(short)];
-	cpu = MSXCPU::instance();
-	realTime = RealTime::instance();
-	reInit();
+	if (SDL_OpenAudio(&desired, &audioSpec) < 0) {
+		PRT_INFO("Couldn't open audio : " << SDL_GetError());
+		init = false;
+	} else {
+		init = true;
+		mixBuffer = new short[audioSpec.size / sizeof(short)];
+		cpu = MSXCPU::instance();
+		realTime = RealTime::instance();
+		reInit();
+	}
 }
 
 Mixer::~Mixer()
@@ -49,6 +52,8 @@ Mixer *Mixer::oneInstance = NULL;
 
 int Mixer::registerSound(SoundDevice *device, ChannelMode mode)
 {
+	if (!init) return 512;	// save value
+	
 	lock();
 	if (buffers.size() == 0)
 		SDL_PauseAudio(0);	// unpause when first dev registers
@@ -62,6 +67,8 @@ int Mixer::registerSound(SoundDevice *device, ChannelMode mode)
 
 void Mixer::unregisterSound(SoundDevice *device)
 {
+	if (!init) return;
+	
 	// Note: this code assumes the given device was registered exactly once!
 	
 	lock();
@@ -97,6 +104,8 @@ void Mixer::reInit()
 
 void Mixer::updateStream(const EmuTime &time)
 {
+	if (!init) return;
+	
 	assert(prevTime <= time);
 	float duration = realTime->getRealDuration(prevTime, time);
 	//PRT_DEBUG("Mix: update, duration " << duration << "s");
@@ -161,16 +170,22 @@ void Mixer::updtStrm(int samples)
 
 void Mixer::lock()
 {
+	if (!init) return;
+	
 	SDL_LockAudio();
 }
 
 void Mixer::unlock()
 {
+	if (!init) return;
+	
 	SDL_UnlockAudio();
 }
 
 void Mixer::pause(bool status)
 {
+	if (!init) return;
+	
 	if (buffers.size() == 0)
 		return;
 	SDL_PauseAudio(status);

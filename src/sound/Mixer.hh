@@ -75,6 +75,8 @@ class Mixer
 		
 		static Mixer *oneInstance;
 
+		bool init;
+
 		SDL_AudioSpec audioSpec;
 		std::list<SoundDevice*> devices[NB_MODES];
 		std::vector<int*> buffers;
