@@ -824,7 +824,8 @@ void VDP::updateColourBase(const EmuTime &time)
 		((controlRegs[10] << 14) | (controlRegs[3] << 6) | ~(-1 << 6));
 	renderer->updateColourBase(base, time);
 	switch (displayMode & 0x1F) {
-	case 0x11: // Text 2.
+	case 0x09: // Text 2.
+		// TODO: Enable this only if dual color is actually active.
 		vram->colourTable.setMask(base, -1 << 9, time);
 		break;
 	case 0x00: // Graphic 1.
@@ -901,10 +902,12 @@ void VDP::updateDisplayMode(
 		| ((reg1  & 0x10) >> 4); // M1
 	if (newMode != displayMode) {
 		//PRT_DEBUG("VDP: mode " << newMode);
-		
+
 		// Synchronise subsystems.
 		vram->updateDisplayMode(newMode, time);
 
+		// TODO: Is this a useful optimisation, or doesn't it help
+		//       in practice?
 		// What aspects have changed:
 		// Switched from planar to nonplanar or vice versa.
 		bool planarChange = isPlanar(newMode) != isPlanar();
@@ -914,6 +917,8 @@ void VDP::updateDisplayMode(
 		// Commit the new display mode.
 		displayMode = newMode;
 
+		updateColourBase(time);
+		updatePatternBase(time);
 		if (planarChange) {
 			updateSpritePatternBase(time);
 		}

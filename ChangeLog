@@ -1,5 +1,9 @@
 $Id$
 
+2003-01-05 Maarten ter Huurne <maarten@treewalker.org>
+	* Fixed mode number for Text 2 in VDP::updateColourBase.
+	* Recalculate pattern and colour base when switching modes.
+
 2003-01-04 Maarten ter Huurne <maarten@treewalker.org>
 	* Implemented colour and pattern index mask calculation.
 	* Fixed remaining Doxygen warnings.
