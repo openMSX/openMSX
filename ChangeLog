@@ -1,5 +1,8 @@
 $Id$
 
+2001-12-26 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* added getCPURegs() and setCPURegs() methods in class CPU
+
 2001-12-25 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* small optimization in Scheduler:
 	  no overhead when unpaused

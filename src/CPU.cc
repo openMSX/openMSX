@@ -28,3 +28,13 @@ const EmuTime &CPU::getTargetTime()
 	return targetTime;
 }
 
+const CPU::CPURegs &CPU::getCPURegs()
+{
+	return R;
+}
+
+void CPU::setCPURegs(const CPURegs &regs)
+{
+	R = regs;
+}
+

@@ -28,17 +28,6 @@
 	#define LSB_FIRST
 #endif
 
-typedef union {
-#ifdef LSB_FIRST
-   struct { byte l,h; } B;
-#else
-   struct { byte h,l; } B;
-#endif
-   word w;
-} z80regpair;
-
-typedef signed char offset;
-
 
 class Z80;
 typedef void (Z80::*opcode_fn)();
@@ -95,11 +84,6 @@ class Z80 : public CPU {
 		static const opcode_fn opcode_fd[256];
 		static const opcode_fn opcode_main[256];
 
-		z80regpair AF,  BC,  DE,  HL, IX, IY, PC, SP;
-		z80regpair AF2, BC2, DE2, HL2;
-		bool nextIFF1, IFF1, IFF2, HALT;
-		byte IM, I;
-		byte R, R2;	// refresh = R&127 | R2&128
 		int waitCycles;
 		
 		#ifdef Z80DEBUG

@@ -2,16 +2,16 @@
 
 inline void Z80::M1Cycle()
 {
-	R++;
+	R.R++;
 	currentTime += (1+waitCycles);
 }
 
 
 inline void Z80::executeInstruction(byte opcode)
 {
-	IFF1 = nextIFF1;
+	R.IFF1 = R.nextIFF1;
 	#ifdef Z80DEBUG
-		word start_pc = PC.w-1;
+		word start_pc = R.PC.w-1;
 	#endif
 	M1Cycle();
 	(this->*opcode_main[opcode])();	// currentTime can be raised extra
@@ -19,8 +19,8 @@ inline void Z80::executeInstruction(byte opcode)
 		printf("%04x : instruction ", start_pc);
 		Z80_Dasm(&debugmemory[start_pc], to_print_string, start_pc );
 		printf("%s\n", to_print_string );
-		printf("      A=%02x F=%02x \n", AF.B.h, AF.B.l);
-		printf("      BC=%04x DE=%04x HL=%04x \n", BC.w, DE.w, HL.w);
+		printf("      A=%02x F=%02x \n", R.AF.B.h, R.AF.B.l);
+		printf("      R.BC=%04x R.DE=%04x R.HL=%04x \n", R.BC.w, R.DE.w, R.HL.w);
 	#endif
 	return;
 }
@@ -97,18 +97,18 @@ inline byte Z80::Z80_RDSTACK(word A) { return Z80_RDMEM(A); }
 inline void Z80::Z80_WRSTACK(word A, byte V) { Z80_WRMEM(A,V); }
 
 
-inline bool Z80::M_C()  { return AF.B.l&C_FLAG; }
+inline bool Z80::M_C()  { return R.AF.B.l&C_FLAG; }
 inline bool Z80::M_NC() { return !M_C(); }
-inline bool Z80::M_Z()  { return AF.B.l&Z_FLAG; }
+inline bool Z80::M_Z()  { return R.AF.B.l&Z_FLAG; }
 inline bool Z80::M_NZ() { return !M_Z(); }
-inline bool Z80::M_M()  { return AF.B.l&S_FLAG; }
+inline bool Z80::M_M()  { return R.AF.B.l&S_FLAG; }
 inline bool Z80::M_P()  { return !M_M(); }
-inline bool Z80::M_PE() { return AF.B.l&V_FLAG; }
+inline bool Z80::M_PE() { return R.AF.B.l&V_FLAG; }
 inline bool Z80::M_PO() { return !M_PE(); }
 
 /* Get next opcode argument and increment program counter */
 inline byte Z80::Z80_RDMEM_OPCODE () {
-	return Z80_RDOP_ARG(PC.w++);
+	return Z80_RDOP_ARG(R.PC.w++);
 }
 inline word Z80::Z80_RDMEM_WORD (word A) {
 	byte low  = Z80_RDMEM(A);
@@ -126,16 +126,16 @@ inline word Z80::Z80_RDMEM_OPCODE_WORD () {
 }
 
 inline word Z80::M_XIX() { 
-	word result = (IX.w+(offset)Z80_RDMEM_OPCODE())&0xFFFF;
+	word result = (R.IX.w+(offset)Z80_RDMEM_OPCODE())&0xFFFF;
 	currentTime += 5;
 	return result;
 }
 inline word Z80::M_XIY() { 
-	word result = (IY.w+(offset)Z80_RDMEM_OPCODE())&0xFFFF;
+	word result = (R.IY.w+(offset)Z80_RDMEM_OPCODE())&0xFFFF;
 	currentTime += 5;
 	return result;
 }
-inline byte Z80::M_RD_XHL() { return Z80_RDMEM(HL.w); }
+inline byte Z80::M_RD_XHL() { return Z80_RDMEM(R.HL.w); }
 inline byte Z80::M_RD_XIX() { return Z80_RDMEM(M_XIX()); }
 inline byte Z80::M_RD_XIY() { return Z80_RDMEM(M_XIY()); }
 inline void Z80::M_WR_XIX(byte a) { Z80_WRMEM(M_XIX(), a); }
@@ -143,29 +143,29 @@ inline void Z80::M_WR_XIY(byte a) { Z80_WRMEM(M_XIY(), a); }
 
 
 inline void Z80::M_POP(word &Rg) {
-	byte low  = Z80_RDSTACK(SP.w++);
-	byte high = Z80_RDSTACK(SP.w++);
+	byte low  = Z80_RDSTACK(R.SP.w++);
+	byte high = Z80_RDSTACK(R.SP.w++);
 	Rg = low+256*high;
 }
 inline void Z80::M_PUSH(word Rg) {
 	currentTime++;
-	Z80_WRSTACK(--SP.w, Rg>>8);
-	Z80_WRSTACK(--SP.w, Rg);
+	Z80_WRSTACK(--R.SP.w, Rg>>8);
+	Z80_WRSTACK(--R.SP.w, Rg);
 }
 
 inline void Z80::M_CALL(word adrs) {
-	M_PUSH(PC.w);
-	PC.w = adrs;
+	M_PUSH(R.PC.w);
+	R.PC.w = adrs;
 }
 inline void Z80::M_JR(offset e) {
-	PC.w += e;
+	R.PC.w += e;
 	currentTime += 5;
 }
 inline void Z80::M_RET() {
-	M_POP(PC.w);
+	M_POP(R.PC.w);
 }
 inline void Z80::M_JP(word adrs) {
-	PC.w = adrs;
+	R.PC.w = adrs;
 }
 
 inline void Z80::M_SET(int Bit, byte &Reg) { 
@@ -177,101 +177,101 @@ inline void Z80::M_RES(int Bit, byte &Reg) {
 inline void Z80::M_BIT(int Bit, byte Reg) {
 	// TODO  not for bit n,(hl)
 	//               bit n,(ix+d)      
-	AF.B.l = (AF.B.l&C_FLAG) | ZSPXYTable[Reg & (1<<Bit)];
+	R.AF.B.l = (R.AF.B.l&C_FLAG) | ZSPXYTable[Reg & (1<<Bit)];
 }
 
 inline void Z80::M_AND(byte Reg) {
-	AF.B.h &= Reg;
-	AF.B.l = ZSPXYTable[AF.B.h]|H_FLAG;
+	R.AF.B.h &= Reg;
+	R.AF.B.l = ZSPXYTable[R.AF.B.h]|H_FLAG;
 }
 inline void Z80::M_OR(byte Reg) {
-	AF.B.h |= Reg;
-	AF.B.l = ZSPXYTable[AF.B.h];
+	R.AF.B.h |= Reg;
+	R.AF.B.l = ZSPXYTable[R.AF.B.h];
 }
 inline void Z80::M_XOR(byte Reg) {
-	AF.B.h ^= Reg;
-	AF.B.l = ZSPXYTable[AF.B.h];
+	R.AF.B.h ^= Reg;
+	R.AF.B.l = ZSPXYTable[R.AF.B.h];
 }
 
 inline void Z80::M_IN(byte &Reg) {
-	Reg = Z80_In(BC.w);
-	AF.B.l = (AF.B.l&C_FLAG)|ZSPXYTable[Reg];
+	Reg = Z80_In(R.BC.w);
+	R.AF.B.l = (R.AF.B.l&C_FLAG)|ZSPXYTable[Reg];
 }
 
 inline void Z80::M_RLCA() {
-	AF.B.h = (AF.B.h<<1)|((AF.B.h&0x80)>>7);
-	AF.B.l = (AF.B.l&0xC4)|(AF.B.h&C_FLAG);
-	AF.B.l |= XYTable[AF.B.h];
+	R.AF.B.h = (R.AF.B.h<<1)|((R.AF.B.h&0x80)>>7);
+	R.AF.B.l = (R.AF.B.l&0xC4)|(R.AF.B.h&C_FLAG);
+	R.AF.B.l |= XYTable[R.AF.B.h];
 }
 inline void Z80::M_RRCA() {
-	AF.B.l = (AF.B.l&0xC4)|(AF.B.h&C_FLAG);
-	AF.B.h = (AF.B.h>>1)|(AF.B.h<<7);
-	AF.B.l |= XYTable[AF.B.h];
+	R.AF.B.l = (R.AF.B.l&0xC4)|(R.AF.B.h&C_FLAG);
+	R.AF.B.h = (R.AF.B.h>>1)|(R.AF.B.h<<7);
+	R.AF.B.l |= XYTable[R.AF.B.h];
 }
 inline void Z80::M_RLA() {
-	byte i = AF.B.l&C_FLAG;
-	AF.B.l = (AF.B.l&0xC4)|((AF.B.h&0x80)>>7);
-	AF.B.h = (AF.B.h<<1)|i;
-	AF.B.l |= XYTable[AF.B.h];
+	byte i = R.AF.B.l&C_FLAG;
+	R.AF.B.l = (R.AF.B.l&0xC4)|((R.AF.B.h&0x80)>>7);
+	R.AF.B.h = (R.AF.B.h<<1)|i;
+	R.AF.B.l |= XYTable[R.AF.B.h];
 }
 inline void Z80::M_RRA() {
-	byte i = AF.B.l&C_FLAG;
-	AF.B.l = (AF.B.l&0xC4)|(AF.B.h&0x01);
-	AF.B.h = (AF.B.h>>1)|(i<<7);
-	AF.B.l |= XYTable[AF.B.h];
+	byte i = R.AF.B.l&C_FLAG;
+	R.AF.B.l = (R.AF.B.l&0xC4)|(R.AF.B.h&0x01);
+	R.AF.B.h = (R.AF.B.h>>1)|(i<<7);
+	R.AF.B.l |= XYTable[R.AF.B.h];
 }
 
 inline void Z80::M_RLC(byte &Reg) {
 	byte q = Reg>>7;
 	Reg = (Reg<<1)|q;
-	AF.B.l = ZSPXYTable[Reg]|q;
+	R.AF.B.l = ZSPXYTable[Reg]|q;
 }
 inline void Z80::M_RRC(byte &Reg) {
 	byte q = Reg&1;
 	Reg = (Reg>>1)|(q<<7);
-	AF.B.l = ZSPXYTable[Reg]|q;
+	R.AF.B.l = ZSPXYTable[Reg]|q;
 }
 inline void Z80::M_RL(byte &Reg) {
 	byte q = Reg>>7;
-	Reg = (Reg<<1)|(AF.B.l&1);
-	AF.B.l = ZSPXYTable[Reg]|q;
+	Reg = (Reg<<1)|(R.AF.B.l&1);
+	R.AF.B.l = ZSPXYTable[Reg]|q;
 }
 inline void Z80::M_RR(byte &Reg) {
 	byte q = Reg&1;
-	Reg = (Reg>>1)|(AF.B.l<<7);
-	AF.B.l = ZSPXYTable[Reg]|q;
+	Reg = (Reg>>1)|(R.AF.B.l<<7);
+	R.AF.B.l = ZSPXYTable[Reg]|q;
 }
 inline void Z80::M_SLL(byte &Reg) {
 	byte q = Reg>>7;
 	Reg = (Reg<<1)|1;
-	AF.B.l = ZSPXYTable[Reg]|q;
+	R.AF.B.l = ZSPXYTable[Reg]|q;
 }
 inline void Z80::M_SLA(byte &Reg) {
 	byte q = Reg>>7;
 	Reg <<= 1;
-	AF.B.l = ZSPXYTable[Reg]|q;
+	R.AF.B.l = ZSPXYTable[Reg]|q;
 }
 inline void Z80::M_SRL(byte &Reg) {
 	byte q = Reg&1;
 	Reg >>= 1;
-	AF.B.l = ZSPXYTable[Reg]|q;
+	R.AF.B.l = ZSPXYTable[Reg]|q;
 }
 inline void Z80::M_SRA(byte &Reg) {
 	byte q = Reg&1;
 	Reg = (Reg>>1)|(Reg&0x80);
-	AF.B.l = ZSPXYTable[Reg]|q;
+	R.AF.B.l = ZSPXYTable[Reg]|q;
 }
 
 inline void Z80::M_INC(byte &Reg) {
 	++Reg;
-	AF.B.l = (AF.B.l&C_FLAG)|
+	R.AF.B.l = (R.AF.B.l&C_FLAG)|
 	         ((Reg==0x80) ? V_FLAG : 0)|
 	         (((Reg&0x0f)==0x00) ? H_FLAG : 0)|
 	         ZSXYTable[Reg];
 }
 inline void Z80::M_DEC(byte &Reg) {
 	Reg--;
-	AF.B.l = (AF.B.l&C_FLAG)|
+	R.AF.B.l = (R.AF.B.l&C_FLAG)|
 	         ((Reg==0x7f) ? V_FLAG : 0)|
 	         (((Reg&0x0f)==0x0f) ? H_FLAG : 0)|
 	         ZSXYTable[Reg]|
@@ -279,52 +279,52 @@ inline void Z80::M_DEC(byte &Reg) {
 }
 
 inline void Z80::M_ADD(byte Reg) {
-	int q = AF.B.h + Reg;
-	AF.B.l = ZSXYTable[q&255]|
+	int q = R.AF.B.h + Reg;
+	R.AF.B.l = ZSXYTable[q&255]|
 	         ((q&256)>>8)|
-	         ((AF.B.h^q^Reg)&H_FLAG)|
-	         (((Reg^AF.B.h^0x80)&(Reg^q)&0x80)>>5);
-	AF.B.h = q;
+	         ((R.AF.B.h^q^Reg)&H_FLAG)|
+	         (((Reg^R.AF.B.h^0x80)&(Reg^q)&0x80)>>5);
+	R.AF.B.h = q;
 }
 inline void Z80::M_ADC(byte Reg) {
-	int q = AF.B.h + Reg + (AF.B.l&C_FLAG);
-	AF.B.l = ZSXYTable[q&255]|
+	int q = R.AF.B.h + Reg + (R.AF.B.l&C_FLAG);
+	R.AF.B.l = ZSXYTable[q&255]|
 	         ((q&256)>>8)|
-	         ((AF.B.h^q^Reg)&H_FLAG)|
-	         (((Reg^AF.B.h^0x80)&(Reg^q)&0x80)>>5);
-	AF.B.h = q;
+	         ((R.AF.B.h^q^Reg)&H_FLAG)|
+	         (((Reg^R.AF.B.h^0x80)&(Reg^q)&0x80)>>5);
+	R.AF.B.h = q;
 }
 inline void Z80::M_SUB(byte Reg) {
-	int q = AF.B.h - Reg;
-	AF.B.l = ZSXYTable[q&255]|
+	int q = R.AF.B.h - Reg;
+	R.AF.B.l = ZSXYTable[q&255]|
 	         ((q&256)>>8)|
 	         N_FLAG|
-	         ((AF.B.h^q^Reg)&H_FLAG)|
-	         (((Reg^AF.B.h)&(Reg^q)&0x80)>>5);
-	AF.B.h = q;
+	         ((R.AF.B.h^q^Reg)&H_FLAG)|
+	         (((Reg^R.AF.B.h)&(Reg^q)&0x80)>>5);
+	R.AF.B.h = q;
 }
 inline void Z80::M_SBC(byte Reg) {
-	int q = AF.B.h - Reg - (AF.B.l&C_FLAG);
-	AF.B.l = ZSXYTable[q&255]|
+	int q = R.AF.B.h - Reg - (R.AF.B.l&C_FLAG);
+	R.AF.B.l = ZSXYTable[q&255]|
 	         ((q&256)>>8)|
 	         N_FLAG|
-	         ((AF.B.h^q^Reg)&H_FLAG)|
-	         (((Reg^AF.B.h)&(Reg^q)&0x80)>>5);
-	AF.B.h = q;
+	         ((R.AF.B.h^q^Reg)&H_FLAG)|
+	         (((Reg^R.AF.B.h)&(Reg^q)&0x80)>>5);
+	R.AF.B.h = q;
 }
 inline void Z80::M_CP(byte Reg) {
-	int q = AF.B.h - Reg;
-	AF.B.l = ZSTable[q&255]|
+	int q = R.AF.B.h - Reg;
+	R.AF.B.l = ZSTable[q&255]|
 	         XYTable[Reg]|	// XY from operand, not from result
 	         ((q&256)>>8)|
 	         N_FLAG|
-	         ((AF.B.h^q^Reg)&H_FLAG)|
-	         (((Reg^AF.B.h)&(Reg^q)&0x80)>>5);
+	         ((R.AF.B.h^q^Reg)&H_FLAG)|
+	         (((Reg^R.AF.B.h)&(Reg^q)&0x80)>>5);
 }
 
 inline void Z80::M_ADDW(word &Reg1, word Reg2) {
 	int q = Reg1 + Reg2;
-	AF.B.l = (AF.B.l&(S_FLAG|Z_FLAG|V_FLAG))|
+	R.AF.B.l = (R.AF.B.l&(S_FLAG|Z_FLAG|V_FLAG))|
 	         (((Reg1^q^Reg2)&0x1000)>>8)|
 	         ((q>>16)&C_FLAG)|
 	         XYTable[(q>>8)&255];
@@ -332,26 +332,26 @@ inline void Z80::M_ADDW(word &Reg1, word Reg2) {
 	currentTime += 7;
 }
 inline void Z80::M_ADCW(word Reg) {
-	int q = HL.w+Reg+(AF.B.l&C_FLAG);
-	AF.B.l = (((HL.w^q^Reg)&0x1000)>>8)|
+	int q = R.HL.w+Reg+(R.AF.B.l&C_FLAG);
+	R.AF.B.l = (((R.HL.w^q^Reg)&0x1000)>>8)|
 	         ((q>>16)&C_FLAG)|
 	         ((q&0x8000)>>8)|
 	         ((q&0xffff)?0:Z_FLAG)|
-	         (((Reg^HL.w^0x8000)&(Reg^q)&0x8000)>>13)|
+	         (((Reg^R.HL.w^0x8000)&(Reg^q)&0x8000)>>13)|
 	         XYTable[(q>>8)&255];
-	HL.w = q;
+	R.HL.w = q;
 	currentTime += 7;
 }
 inline void Z80::M_SBCW(word Reg) {
-	int q = HL.w-Reg-(AF.B.l&C_FLAG);
-	AF.B.l = (((HL.w^q^Reg)&0x1000)>>8)|
+	int q = R.HL.w-Reg-(R.AF.B.l&C_FLAG);
+	R.AF.B.l = (((R.HL.w^q^Reg)&0x1000)>>8)|
 	           ((q>>16)&C_FLAG)|
 	           ((q&0x8000)>>8)|
 	           ((q&0xffff)?0:Z_FLAG)|
-	           (((Reg^HL.w)&(Reg^q)&0x8000)>>13)|
+	           (((Reg^R.HL.w)&(Reg^q)&0x8000)>>13)|
 		   XYTable[(q>>8)&255]|
 	           N_FLAG;
-	HL.w = q;
+	R.HL.w = q;
 	currentTime += 7;
 }
 

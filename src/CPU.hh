@@ -8,6 +8,25 @@
 
 class CPU 
 {
+	typedef union {
+	#ifdef LSB_FIRST
+	   struct { byte l,h; } B;
+	#else
+	   struct { byte h,l; } B;
+	#endif
+	   word w;
+	} z80regpair;
+
+	struct CPURegs {
+		z80regpair AF,  BC,  DE,  HL, IX, IY, PC, SP;
+		z80regpair AF2, BC2, DE2, HL2;
+		bool nextIFF1, IFF1, IFF2, HALT;
+		byte IM, I;
+		byte R, R2;	// refresh = R&127 | R2&128
+	};
+
+	typedef signed char offset;
+
 	public:
 		/**
 		 * Destructor
@@ -46,7 +65,17 @@ class CPU
 		 * Returns the previously set target time
 		 */
 		const EmuTime &getTargetTime();
-	
+
+		/**
+		 * Get the current CPU registers
+		 */
+		const CPURegs& getCPURegs();
+
+		/**
+		 * Set the current CPU registers
+		 */
+		void setCPURegs(const CPURegs &regs);
+
 	protected:
 		/*
 		 * Constructor
@@ -64,5 +93,8 @@ class CPU
 		CPUInterface *interface;
 		EmuTime targetTime;
 		bool targetChanged;	// optimization
+
+		CPURegs R;
 };
 #endif //__CPU_HH__
+
