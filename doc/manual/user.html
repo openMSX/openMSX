@@ -118,7 +118,7 @@ You can also download the emulator itself from there.
 openMSX is in alpha state, which means that some things work but not all
 features are implemented yet.
 Many emulation features are implemented, but in terms of user interface
-it is rather bare bones, unless you use the optional Graphical User Interface dubbed openMSX Catapult, which has seperate <a class="external" href="http://openmsx.sourceforge.net/catapult-manual/">manuals</a> for now.
+it is rather bare bones, unless you use the optional Graphical User Interface dubbed openMSX Catapult, which has separate <a class="external" href="http://openmsx.sourceforge.net/catapult-manual/">manuals</a> for now.
 However, since the emulation is already pretty good,
 it would be nice if non-insiders would be able to play with it, too.
 For those people, we have written this guide.
@@ -593,20 +593,20 @@ Note that openMSX can be compiled without the SDLGL renderer; if that is true fo
 <h3><a id="accuracy">6.2. Accuracy</a></h3>
 
 <p>
-The <code>accuracy</code> setting controls how often the renderer is synchronized with the MSX video processor (VDP).
+The <code>accuracy</code> setting controls how often the renderer is synchronised with the MSX video processor (VDP).
 There are three options:
 </p>
  
 <dl>
 <dt>screen</dt>
 <dd>
-Synchronize once per screen (frame).
+Synchronise once per screen (frame).
 Good enough for most MSX1 software, but will break most raster effects.
 </dd>
 
 <dt>line</dt>
 <dd>
-Synchronize at the start of a line.
+Synchronise at the start of a line.
 This is the default setting;
 it is good enough for most software.
 This setting hides imperfections in raster effects,
@@ -615,7 +615,7 @@ which could be considered a useful feature.
 
 <dt>pixel</dt>
 <dd>
-Synchronize at the exact pixel where a change occurs.
+Synchronise at the exact pixel where a change occurs.
 This is the most realistic setting.
 To see demos like Unknown Reality (scope part) and Verti correctly,
 you should use this setting.
@@ -628,8 +628,8 @@ just like they occur on a real MSX.
 <p>
 Higher accuracy creates a higher CPU load.
 However, it is not as bad as it may seem at first:
-openMSX synchronizes only when it is actually needed,
-so the amount of synchronization points depends more on the program
+openMSX synchronises only when it is actually needed,
+so the amount of synchronisation points depends more on the program
 you're running than on the accuracy setting.
 </p>
 
@@ -714,7 +714,7 @@ This feature works in the <code>SDLHi</code> and <code>SDLGL</code> renderers.
 
 <dt>scanlines</dt>
 <dd>
-On TVs and MSX monitors, you can see a small black space inbetween the display lines, especially when using NTSC.
+On TVs and MSX monitors, you can see a small black space in between the display lines, especially when using NTSC.
 The scanlines feature simulates this by drawing every other line a bit darker.
 This feature works in the <code>SDLHi</code> and <code>SDLGL</code> renderers,
 but is disabled when a scaler other than <code>simple</code> is used.
@@ -728,7 +728,7 @@ The blur feature simulates this by interpolating neighbouring pixels.
 The <code>blur</code> settings control this:
 0 means no blur (completely sharp), 50 means some blur (like a monitor),
 100 means maximum blur (like a TV).
-All other values between 0 and 100 are also possible ofcourse.
+All other values between 0 and 100 are also possible of course.
 This feature works only in the <code>SDLGL</code> renderer.
 </dd>
 
@@ -766,7 +766,7 @@ All mono sound devices have an additional mode setting. You can use it to select
 <h3><a id="midi">7.2. MIDI</a></h3>
 
 <p>
-openMSX supports the MSX-MIDI interface of the MSX turbo R GT.
+openMSX supports the MSX-MIDI interface of the MSXturboR GT.
 To use this feature, start openMSX with the machine
 <code>Panasonic_FS-A1GT</code> and plug in a MIDI device on the console.
 For example:

@@ -163,7 +163,7 @@ what video processor it has, in which slots its system ROMs are located,
 whether the machine has a built-in disk drive etc.
 openMSX reads the machine description XML and will then emulate exactly
 that MSX machine, which can be anything from an MSX1 with 16K of RAM
-to the MSX turbo R GT.
+to the MSXturboR GT.
 </p>
 
 <p>
@@ -183,7 +183,7 @@ More about creating fantasy MSX machines in a
 <p>
 An <em>extension</em> is a piece of MSX hardware that can be
 inserted into a cartridge slot to extend the capabilities of an MSX.
-Examples of extensions are the Panasonic FM-PAC, the Sunrise IDE interface
+Examples of extensions are the Panasonic FMPAC, the Sunrise IDE interface
 and an external 4MB memory mapper.
 Extensions, like machines, are described in XML files.
 You can find a lot of predefined extensions
@@ -427,13 +427,13 @@ fragments from other existing configurations that can be found in
 </p>
 
 <p>
-To add an FM-PAC to the 8250, just copy this part from the <code>exampleconfigs.xml</code> to
+To add an FMPAC to the 8250, just copy this part from the <code>exampleconfigs.xml</code> to
 some place in your <code>mymsx/hardwareconfig.xml</code> file (between the <code>&lt;msxconfig&gt;</code> and
 <code>&lt;/msxconfig&gt;</code> tags!):
 </p>
 
 <pre>
-  &lt;device id="FM-PAC"&gt;
+  &lt;device id="FMPAC"&gt;
     &lt;type&gt;FM-PAC&lt;/type&gt;
     &lt;slotted&gt; &lt;ps&gt;2&lt;/ps&gt; &lt;ss&gt;0&lt;/ss&gt; &lt;page&gt;1&lt;/page&gt; &lt;/slotted&gt;
     &lt;parameter name="filename"&gt;roms/fmpac.rom&lt;/parameter&gt;
@@ -454,18 +454,18 @@ cartridge slot of the NMS-8250 is used. <code>&lt;ss&gt;</code> means sub slot. 
 doesn't have an expanded slot in slot 2, so we have to specify 0 here. (The
 MotherBoard config part at the top of the config file says what slots are
 expanded; a normal 8250 has slot 3 expanded.)
-The parameter filename can be adjusted to the name of your (64kB!) FM-PAC ROM
+The parameter filename can be adjusted to the name of your (64kB!) FMPAC ROM
 file (note: if the file is not 64kB (65536 bytes) in size, it won't work).
-"mode" says to what channel the FM-PAC's sound will be routed by
+"mode" says to what channel the FMPAC's sound will be routed by
 default.
 "sramname" specifies the file name for file in which the SRAM contents will be
 saved to or loaded from. The saved files are compatible with the files that are
-saved by the (real) FM-PAC commander's save option.
+saved by the (real) FMPAC commander's save option.
 </p>
 
 <p>
 After saving your config and running openMSX again, you should be able to get
-the FM-PAC commander with <code>CALL FMPAC</code> in the emulated MSX!
+the FMPAC commander with <code>CALL FMPAC</code> in the emulated MSX!
 </p>
 
 <p>

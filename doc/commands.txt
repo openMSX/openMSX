@@ -724,7 +724,7 @@ throttle
   examples:
     set PSG_mode
     set PSG_mode left
-    set "FM PAC_mode" mono
+    set "FMPAC_mode" mono
 
 
 [soundchip]_volume
@@ -739,7 +739,7 @@ throttle
   examples:
     set PSG_volume
     set PSG_volume 18000
-    set "FM PAC_volume" 15000
+    set "FMPAC_volume" 15000
 
 
 vdpcmdtrace
