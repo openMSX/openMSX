@@ -40,11 +40,7 @@ inline void PixelRenderer::draw(
 		} else {
 			// this is not what the real VDP does, but it is good
 			// enough for "Boring scroll" demo part of "Relax"
-			if (displayY <= 0) {
-				textModeCounter = 0;
-			} else {
-				displayY = (displayY & 7) | (textModeCounter * 8);
-			}
+			displayY = (displayY & 7) | (textModeCounter * 8);
 			if (atEnd && (drawType == DRAW_DISPLAY)) {
 				int low  = max(0, (startY - zero)) / 8;
 				int high = max(0, (endY   - zero)) / 8;
@@ -158,6 +154,9 @@ void PixelRenderer::frameStart(const EmuTime &time)
 
 	nextX = 0;
 	nextY = 0;
+	// This is not what the real VDP does, but it is good enough
+	// for the "Boring scroll" demo part of ANMA's "Relax" demo.
+	textModeCounter = 0;
 }
 
 void PixelRenderer::frameEnd(const EmuTime& time)
