@@ -44,10 +44,17 @@ void WD2793::reset(const EmuTime& /*time*/)
 
 bool WD2793::getDTRQ(const EmuTime& time)
 {
-	if (((commandReg & 0xF0) == 0xF0) &&
-	    (statusReg & BUSY)) {
-		// WRITE TRACK && status busy
-		if (writeTrack) {
+	if (((commandReg & 0xC0) == 0x80) && (statusReg & BUSY)) {
+		// read/write sector cmd busy
+		if (transferring) {
+			int ticks = DRQTimer.getTicksTill(time);
+			if (ticks >= 15) {
+				DRQ = true;
+			}
+		}
+	} else if (((commandReg & 0xF0) == 0xF0) && (statusReg & BUSY)) {
+		// WRITE TRACK cmd busy
+		if (transferring) {
 			int ticks = DRQTimer.getTicksTill(time);
 			if (ticks >= 15) { // TODO found by trial and error
 				DRQ = true;
@@ -55,7 +62,7 @@ bool WD2793::getDTRQ(const EmuTime& time)
 		} else {
 			int pulses = drive->indexPulseCount(commandStart, time);
 			if (pulses == 1) {
-				writeTrack = true;
+				transferring = true;
 			}
 		}
 		if (drive->indexPulseCount(commandStart, time) >= 2) {
@@ -90,6 +97,7 @@ void WD2793::setCommandReg(byte value, const EmuTime& time)
 	//PRT_DEBUG("WD2793::setCommandReg() 0x" << hex << (int)value);
 	commandReg = value;
 	resetIRQ();
+	transferring = false;
 	switch (commandReg & 0xF0) {
 		case 0x00: // restore
 		case 0x10: // seek
@@ -191,7 +199,10 @@ void WD2793::setDataReg(byte value, const EmuTime& time)
 		dataBuffer[dataCurrent] = value;
 		dataCurrent++;
 		dataAvailable--;
+		DRQ = false;
+		DRQTimer.advance(time);
 		if (dataAvailable == 0) {
+			transferring = false;
 			PRT_DEBUG("WD2793: Now we call the backend to write a sector");
 			try {
 				dataCurrent = 0;
@@ -210,11 +221,11 @@ void WD2793::setDataReg(byte value, const EmuTime& time)
 				// If we wait too long we should also write a
 				// partialy filled sector ofcourse and set the
 				// correct status bits!
-				statusReg &= ~(BUSY | S_DRQ);
 				if (!(commandReg & M_FLAG)) {
-					//TODO verify this !
-					setIRQ();
-					DRQ = false;
+					endCmd();
+				} else {
+					// TODO multi sector write
+					endCmd();
 				}
 			} catch (MSXException& e) {
 				// Backend couldn't write data
@@ -294,19 +305,19 @@ void WD2793::setDataReg(byte value, const EmuTime& time)
 	}
 }
 
-byte WD2793::getDataReg(const EmuTime& /*time*/)
+byte WD2793::getDataReg(const EmuTime& time)
 {
 	if (((commandReg & 0xE0) == 0x80) && (statusReg & BUSY)) {
 		// READ SECTOR
 		dataReg = dataBuffer[dataCurrent];
 		dataCurrent++;
 		dataAvailable--;
+		DRQ = false;
+		DRQTimer.advance(time);
 		if (dataAvailable == 0) {
+			transferring = false;
 			if (!(commandReg & M_FLAG)) {
-				statusReg &= ~(BUSY | S_DRQ);
-				DRQ = false;
-				setIRQ();
-				PRT_DEBUG("WD2793: Now we terminate the read sector command");
+				endCmd();
 			} else {
 				// TODO ceck in tech data (or on real machine)
 				// if implementation multi sector read is
@@ -333,7 +344,8 @@ void WD2793::tryToReadSector()
 		assert(onDiskSize == 512);
 		dataCurrent = 0;
 		dataAvailable = onDiskSize;
-		DRQ = true;	// data ready to be read
+		DRQ = false;
+		transferring = true;
 	} catch (MSXException& e) {
 		PRT_DEBUG("WD2793: read sector failed: " << e.getMessage());
 		DRQ = false;	// TODO data not ready (read error)
@@ -541,6 +553,7 @@ void WD2793::type2Loaded()
 				dataCurrent = 0;
 				dataAvailable = 512;	// TODO should come from sector header
 				DRQ = true;	// data ready to be written
+				transferring = true;
 				break;
 		}
 	}
@@ -551,7 +564,6 @@ void WD2793::startType3Cmd(const EmuTime& time)
 	statusReg &= ~(LOST_DATA | RECORD_NOT_FOUND | RECORD_TYPE);
 	statusReg |= BUSY;
 	DRQ = false;
-	writeTrack = false;
 
 	if (!drive->ready()) {
 		endCmd();

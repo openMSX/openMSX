@@ -1,5 +1,9 @@
 $Id$
 
+2004-11-10 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Improved WD2793 timing:
+	   added 15us delay between data read/write in sector read/write cmds
+
 2004-11-08 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Enabled "cputrace" setting also in non-debug versions:
 	   - There should now be very little overhead when tracing is not

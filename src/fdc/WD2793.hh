@@ -110,7 +110,7 @@ private:
 	bool INTRQ;
 	bool immediateIRQ;
 	bool DRQ;
-	bool writeTrack;
+	bool transferring;
 
 	byte onDiskTrack;
 	byte onDiskSector;
