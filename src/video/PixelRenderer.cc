@@ -187,7 +187,7 @@ void PixelRenderer::frameEnd(const EmuTime& time)
 	if (renderFrame) {
 		// Render changes from this last frame.
 		sync(time, true);
-		
+
 		// Let underlying graphics system finish rendering this frame.
 		unsigned long long time1 = Timer::getTime();
 		rasterizer->frameEnd();
@@ -196,7 +196,7 @@ void PixelRenderer::frameEnd(const EmuTime& time)
 		const double ALPHA = 0.2;
 		finishFrameDuration = finishFrameDuration * (1 - ALPHA) +
 		                      current * ALPHA;
-	
+
 		if (drawFrame) {
 			FinishFrameEvent* f = new FinishFrameEvent(VIDEO_MSX);
 			EventDistributor::instance().distributeEvent(f);
@@ -372,7 +372,7 @@ inline bool PixelRenderer::checkSync(int offset, const EmuTime& time)
 	// renderer output, therefore sync is not necessary.
 	// TODO: Have bitmapVisibleWindow disabled in this case.
 	if (!displayEnabled) return false;
-	//if (frameSkipCounter != 0) return false; // TODO 
+	//if (frameSkipCounter != 0) return false; // TODO
 	if (accuracy == RenderSettings::ACC_SCREEN) return false;
 
 	// Calculate what display lines are scanned between current

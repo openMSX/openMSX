@@ -15,8 +15,9 @@
 #include "IntegerSetting.hh"
 #include "openmsx.hh"
 
+
 namespace openmsx {
-	
+
 V9990PixelRenderer::V9990PixelRenderer(V9990* vdp_)
 	: vdp(vdp_)
 	, rasterizer(Display::instance().getVideoSystem()
@@ -39,7 +40,7 @@ V9990PixelRenderer::~V9990PixelRenderer()
 	settings.getMaxFrameSkip()->removeListener(this);
 	settings.getMinFrameSkip()->removeListener(this);
 }
-	
+
 void V9990PixelRenderer::reset(const EmuTime& time)
 {
 	PRT_DEBUG("V9990PixelRenderer::reset");
@@ -226,7 +227,7 @@ void V9990PixelRenderer::render(int fromX, int fromY, int toX, int toY,
 	   (toX > fromX)) {
 		draw(fromX, fromY, toX, toY+1, drawType);
 	}
-		
+
 }
 
 void V9990PixelRenderer::setDisplayMode(V9990DisplayMode mode, const EmuTime& /*time*/)

@@ -480,7 +480,7 @@ byte VDPCmdEngine::peekCmdReg(byte index)
 
 	case 0x0C: return COL;
 	case 0x0D: return ARG;
-	case 0x0E: return (CMD << 4) | LOG; 
+	case 0x0E: return (CMD << 4) | LOG;
 	default: assert(false); return 0;
 	}
 }
@@ -569,7 +569,7 @@ void VDPCmdEngine::reportVdpCommand()
 	};
 
 	std::cerr << "VDPCmd " << COMMANDS[CMD] << '-' << OPS[LOG]
-		<<  '(' << (int)SX << ',' << (int)SY << ")->(" 
+		<<  '(' << (int)SX << ',' << (int)SY << ")->("
 		        << (int)DX << ',' << (int)DY << ")," << (int)COL
 		<< " [" << (int)((ARG & DIX) ? -NX : NX)
 		<<  ',' << (int)((ARG & DIY) ? -NY : NY) << ']' << std::endl;

@@ -59,7 +59,7 @@ public:
 		{ return EmuDuration(time / fact); }
 	unsigned operator/(const EmuDuration& d) const
 		{ return time / d.time; }
-	
+
 	EmuDuration& operator*=(double fact)
 		{ time = static_cast<uint64>(time * fact); return *this; }
 	EmuDuration& operator/=(double fact)
@@ -174,8 +174,8 @@ public:
 	/** Calculate the number of ticks for this clock until the given time.
 	  * It is not allowed to call this method for a time in the past.
 	  */
-	unsigned getTicksTill(const EmuTime& e) const { 
-		assert(e.time >= lastTick.time); 
+	unsigned getTicksTill(const EmuTime& e) const {
+		assert(e.time >= lastTick.time);
 		return (e.time - lastTick.time) / (MAIN_FREQ / freq);
 	}
 
@@ -243,8 +243,8 @@ public:
 	/** Calculate the number of ticks for this clock until the given time.
 	  * It is not allowed to call this method for a time in the past.
 	  */
-	unsigned getTicksTill(const EmuTime& e) const { 
-		assert(e.time >= lastTick.time); 
+	unsigned getTicksTill(const EmuTime& e) const {
+		assert(e.time >= lastTick.time);
 		return (e.time - lastTick.time) / step;
 	}
 
@@ -254,7 +254,7 @@ public:
 	  * TODO: This method is only used for implementing the HALT instruction.
 	  *       Maybe it's possible to calculate this in another way?
 	  */
-	unsigned getTicksTillUp(const EmuTime& e) const { 
+	unsigned getTicksTillUp(const EmuTime& e) const {
 		assert(e.time >= lastTick.time);
 		return (e.time - lastTick.time + step - 1) / step; // round up
 	}
@@ -285,7 +285,7 @@ public:
 	/** Advance this clock by the given number of ticks.
 	  */
 	void operator+=(unsigned n) {
-		#ifdef DEBUG 
+		#ifdef DEBUG
 		// we don't even want this overhead in development versions
 		assert(((uint64)n * step) < (1ull << 32));
 		#endif
