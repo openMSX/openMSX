@@ -261,8 +261,8 @@ void MSXRom::reset(const EmuTime &time)
 	case PANASONIC:
 		control = 0;
 		for (int region = 0; region < 8; region++) {
-			bankSelect[region] = region;
-			setROM8kB(region, region);
+			bankSelect[region] = 0;
+			setROM8kB(region, 0);
 		}
 		break;
 	
@@ -331,7 +331,7 @@ byte MSXRom::readMem(word address, const EmuTime &time)
 			return control;
 		}
 		break;
-	
+		
 	case NATIONAL:
 		if ((control & 0x04) && ((address & 0x7FF9) == 0x7FF0)) {
 			// TODO check mirrored
@@ -349,7 +349,7 @@ byte MSXRom::readMem(word address, const EmuTime &time)
 		// do nothing
 		break;
 	}
-	return internalMemoryBank[address>>12][address&0x0fff];
+	return internalMemoryBank[address>>12][address&0x0FFF];
 }
 
 byte* MSXRom::getReadCacheLine(word start)
@@ -625,6 +625,7 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 		if ((0x6000 <= address) && (address < 0x7FF0)) {
 			// set mapper state (lower 8 bits)
 			int region = (address & 0x1C00) >> 10;
+			if ((region == 5) || (region == 6)) region ^= 3;
 			int bank = bankSelect[region];
 			bank = (bank & ~0xFF) | value;
 			bankSelect[region] = bank;
@@ -634,11 +635,10 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 			for (int region = 0; region < 8; region++) {
 				if (value & 1) {
 					bankSelect[region] |= 0x100;
-					setROM8kB(region, bankSelect[region]);
 				} else {
 					bankSelect[region] &= ~0x100;
-					setROM8kB(region, bankSelect[region]);
 				}
+				setROM8kB(region, bankSelect[region]);
 				value >>= 1;
 			}
 		} else if (address == 0x7FF9) {
