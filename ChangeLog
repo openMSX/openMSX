@@ -6,6 +6,8 @@ $Id$
 	  they do not need EmuTime.
 	* Removed EmuTime parameter from EventListener.
 	  The only reason this was needed before, was to execute commands.
+	* Removed code that is no longer needed in the single thread model.
+	* Fixed event handling during pause.
 
 2003-05-17 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Implemented configurable file-extentions.

@@ -6,8 +6,6 @@
 #include <SDL/SDL.h>
 #include <map>
 #include <queue>
-#include "Thread.hh"
-#include "Mutex.hh"
 #include "Schedulable.hh"
 #include "Command.hh"
 
@@ -15,21 +13,21 @@
 class EventListener;
 
 
-class EventDistributor : public Schedulable
+class EventDistributor
 {
 	public:
 		virtual ~EventDistributor();
 		static EventDistributor *instance();
-		
+
 		/** This is the main loop. It waits for events.
 		  * It does not return until openMSX is quit.
 		  * This method runs in the main thread.
 		  */
 		virtual void run();
-		
+
 		/**
 		 * Use this method to (un)register a given class to receive
-		 * certain SDLEvents. 
+		 * certain SDLEvents.
 		 * @param type The SDLEventType number of the events you want to receive
 		 * @param listener Object that will be notified when the events arrives
 		 * @param priority The priority of the listener (lower number is higher
@@ -43,12 +41,10 @@ class EventDistributor : public Schedulable
 		 */
 		void   registerEventListener(int type, EventListener *listener, int priority = 0);
 		void unregisterEventListener(int type, EventListener *listener, int priority = 0);
-		
+
 	private:
 		EventDistributor();
-		virtual void executeUntilEmuTime(const EmuTime &time, int userdata);
-		virtual const std::string &schedName() const;
-		
+
 		/** Passes an event to the emulation thread.
 		  */
 		void handleInEmu(SDL_Event &event);
@@ -57,13 +53,12 @@ class EventDistributor : public Schedulable
 		std::multimap <int, EventListener*> highMap;
 		std::queue <std::pair<SDL_Event, EventListener*> > lowQueue;
 		std::queue <std::pair<SDL_Event, EventListener*> > highQueue;
-		Mutex mutex;
 
 		/** Quit openMSX.
 		  * Starts the shutdown procedure.
 		  */
 		void quit();
-		
+
 		class QuitCommand : public Command {
 		public:
 			virtual void execute(const std::vector<std::string> &tokens);

@@ -4,8 +4,6 @@
 #define __SCHEDULER_HH__
 
 #include "EmuTime.hh"
-#include "Mutex.hh"
-#include "CondVar.hh"
 #include <vector>
 
 class MSXCPU;
@@ -20,7 +18,7 @@ class Scheduler
 			SynchronizationPoint (const EmuTime &time, Schedulable *dev, int usrdat) :
 				timeStamp(time), device(dev) , userData(usrdat) {}
 			const EmuTime &getTime() const { return timeStamp; }
-			Schedulable* getDevice() const { return device; }
+			Schedulable *getDevice() const { return device; }
 			int getUserData() const { return userData; }
 			bool operator< (const SynchronizationPoint &n) const
 				{ return getTime() > n.getTime(); } // smaller time is higher priority
@@ -50,7 +48,7 @@ class Scheduler
 		 * The supplied EmuTime may not be smaller than the current CPU
 		 * time.
 		 * If you want to schedule something as soon as possible, you
-		 * can pass Scheduler::ASAP as time argument. 
+		 * can pass Scheduler::ASAP as time argument.
 		 * A device may register several syncPoints.
 		 * Optionally a "userData" parameter can be passed, this
 		 * parameter is not used by the Scheduler but it is passed to
@@ -62,7 +60,7 @@ class Scheduler
 
 		/**
 		 * Removes a syncPoint of a given device that matches the given
-		 * userData. Returns true if a match is found and removed.
+		 * userData.
 		 * If there is more than one match only one will be removed,
 		 * there is no guarantee that the earliest syncPoint is
 		 * removed.
@@ -70,7 +68,7 @@ class Scheduler
 		 * if possible don't remove the syncPoint but ignore it in
 		 * your executeUntilEmuTime() method.
 		 */
-		bool removeSyncPoint(Schedulable* device, int userdata = 0);
+		void removeSyncPoint(Schedulable* device, int userdata = 0);
 
 		/**
 		 * This starts the schedule loop, should only be used by main
@@ -97,33 +95,28 @@ class Scheduler
 		bool isEmulationRunning() {
 			return emulationRunning;
 		}
-		
-		/**
-		 * True iff paused
-		 */
-		bool isPaused();
 
 		static const EmuTime ASAP;
 
 	private:
 		Scheduler();
 
+		/** Runs a single emulation step.
+		  */
+		inline void Scheduler::emulateStep();
+
 		/** Vector used as heap, not a priority queue because that
 		  * doesn't allow removal of non-top element.
 		  */
 		std::vector<SynchronizationPoint> syncPoints;
-		Mutex schedMutex;
-	
-		bool needBlock;
-		
+
 		/** Should the emulation continue running?
 		  */
 		volatile bool emulationRunning;
-		
+
 		bool paused;
-		CondVar pauseCond;
 		MSXCPU *cpu;
-		
+
 };
 
 #endif

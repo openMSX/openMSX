@@ -8,7 +8,6 @@
 #include "config.h"
 #include "Scheduler.hh"
 #include "HotKey.hh"
-#include "UserEvents.hh"
 
 
 EventDistributor::EventDistributor()
@@ -27,96 +26,59 @@ EventDistributor::~EventDistributor()
 EventDistributor *EventDistributor::instance()
 {
 	static EventDistributor* oneInstance = NULL;
-	if (oneInstance == NULL)
+	if (oneInstance == NULL) {
 		oneInstance = new EventDistributor();
+	}
 	return oneInstance;
 }
 
 void EventDistributor::run()
 {
 	SDL_Event event;
-	while (SDL_PollEvent(&event)==1) {
+	while (SDL_PollEvent(&event) == 1) {
 		PRT_DEBUG("SDL event received");
-		switch (event.type) {
-		case SDL_QUIT:
+		if (event.type == SDL_QUIT) {
 			quit();
-			break;
-		case SDL_USEREVENT:
-			UserEvents::handle(event.user);
-			break;
-		default:
+		} else {
 			handleInEmu(event);
-			break;
 		}
 	}
 }
 
 void EventDistributor::quit()
 {
-	// Pushing the QUIT event into the queue makes sure SDL_WaitEvent returns.
-	// The handler for the QUIT event then stops the Scheduler.
-	UserEvents::push(UserEvents::QUIT);
+	Scheduler::instance()->stopScheduling();
 }
 
 void EventDistributor::handleInEmu(SDL_Event &event)
 {
-	mutex.grab();
 	std::multimap<int, EventListener*>::iterator it;
+	bool cont = true;
 	for (it = highMap.lower_bound(event.type);
 		(it != highMap.end()) && (it->first == event.type);
-		it++) {
-		highQueue.push(std::pair<SDL_Event, EventListener*>(event, it->second));
+		it++
+	) {
+		cont &= it->second->signalEvent(event);
 	}
+	if (!cont) return;
 	for (it = lowMap.lower_bound(event.type);
 		(it != lowMap.end()) && (it->first == event.type);
-		it++) {
-		lowQueue.push(std::pair<SDL_Event, EventListener*>(event, it->second));
+		it++
+	) {
+		it->second->signalEvent(event);
 	}
-	if (!highQueue.empty() || !lowQueue.empty()) {
-		Scheduler::instance()->removeSyncPoint(this);
-		Scheduler::instance()->setSyncPoint(Scheduler::ASAP, this);
-	}
-	mutex.release();
-}
-
-void EventDistributor::executeUntilEmuTime(const EmuTime &time, int userdata)
-{
-	mutex.grab();
-	bool cont = true;
-	while (!highQueue.empty()) {
-		std::pair<SDL_Event, EventListener*> pair = highQueue.front();
-		highQueue.pop();
-		cont = pair.second->signalEvent(pair.first) && cont;
-	}
-	while (!lowQueue.empty()) {
-		std::pair<SDL_Event, EventListener*> pair = lowQueue.front();
-		lowQueue.pop();
-		if (cont)
-			pair.second->signalEvent(pair.first);
-	}
-	mutex.release();
-}
-
-const std::string &EventDistributor::schedName() const
-{
-	static const std::string name("EventDistributor");
-	return name;
 }
 
 void EventDistributor::registerEventListener(int type, EventListener *listener, int priority)
 {
 	std::multimap <int, EventListener*> &map = (priority == 0) ? highMap : lowMap;
-	
-	mutex.grab();
 	map.insert(std::pair<int, EventListener*>(type, listener));
-	mutex.release();
 }
 
 void EventDistributor::unregisterEventListener(int type, EventListener *listener, int priority)
 {
 	std::multimap <int, EventListener*> &map = (priority == 0) ? highMap : lowMap;
-	
-	mutex.grab();
+
 	std::multimap<int, EventListener*>::iterator it;
 	for (it = map.lower_bound(type);
 	     (it != map.end()) && (it->first == type);
@@ -126,7 +88,6 @@ void EventDistributor::unregisterEventListener(int type, EventListener *listener
 			break;
 		}
 	}
-	mutex.release();
 }
 
 void EventDistributor::QuitCommand::execute(

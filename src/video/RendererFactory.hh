@@ -8,7 +8,6 @@
 #include <SDL/SDL.h>
 
 #include "Settings.hh"
-#include "UserEvents.hh"
 #include "GLUtil.hh" // for __OPENGL_AVAILABLE__
 
 class Renderer;
@@ -75,8 +74,8 @@ private:
 };
 
 /** Coordinator for renderer switch operation.
-  * This is a complex operation, because renderer creation requires resources,
-  * such as SDL screens, which can only be created in the main thread.
+  * TODO: Now that we run single threaded, is there still a need to
+  *       dedicate an entire class to this task?
   */
 class RendererSwitcher
 {
@@ -84,7 +83,7 @@ private:
 	/** VDP whose state will be rendered.
 	  */
 	VDP *vdp;
-	
+
 	/** This field is used to pass a pointer to the newly created renderer
 	  * from the main thread to the emulation thread.
 	  */
@@ -96,7 +95,7 @@ public:
 	  * @param vdp VDP whose state will be rendered.
 	  */
 	RendererSwitcher(VDP *vdp);
-	
+
 	/** Called by the emulation thread to initiate the renderer switch.
 	  * @return The newly created renderer.
 	  */
