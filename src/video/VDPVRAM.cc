@@ -83,8 +83,7 @@ VDPVRAM::Window::Window() {
 
 // class DumpVRAMCmd
 
-void VDPVRAM::DumpVRAMCmd::execute(const std::vector<std::string> &tokens,
-                                   const EmuTime &time)
+void VDPVRAM::DumpVRAMCmd::execute(const std::vector<std::string> &tokens)
 {
 	std::ofstream outfile("vramdump", std::ofstream::binary);
 	outfile.write((char*)vram->data, vram->size);
