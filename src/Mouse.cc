@@ -32,6 +32,7 @@ byte Mouse::read()
 		return  (yrel    &0x0f)|status;
 	default:
 		assert(false);
+		return status;	// avoid warning
 	}
 }
 

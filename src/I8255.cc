@@ -36,6 +36,7 @@ byte I8255::readPortA() {
 	case MODEA_2: case MODEA_2_:
 	default:
 		assert (false);
+		return 255;	// avoid warning
 	}
 }
 
@@ -52,6 +53,7 @@ byte I8255::readPortB() {
 	case MODEB_1:		// TODO but not relevant for MSX
 	default:
 		assert (false);
+		return 255;	// avoid warning
 	}
 }
 

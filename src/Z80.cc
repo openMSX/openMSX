@@ -12,12 +12,15 @@
 /****************************************************************************/
 
 #include <stdio.h>
+#include <string.h>
 #include <iostream>
 #include <assert.h>
-#include "Z80Dasm.h"
 #include "Z80.hh"
-
 #include "Z80Tables.hh"
+
+#ifdef DEBUG
+#include "Z80Dasm.h"
+#endif
 
 Z80::Z80(Z80Interface *interf)
 {

@@ -36,6 +36,7 @@ byte MSXE6Timer::readIO(byte port, Emutime &time)
 		return (counter >> 8) & 0xff;
 	default:
 		assert (false);
+		return 255;	// avoid warning
 	}
 }
 

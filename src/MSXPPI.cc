@@ -65,6 +65,7 @@ byte MSXPPI::readIO(byte port, Emutime &time)
 		return i8255->readControlPort();
 	default:
 		assert (false); // code should never be reached
+		return 255;	// avoid warning
 	}
 }
 
