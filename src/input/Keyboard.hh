@@ -69,6 +69,7 @@ private:
 
 	private:
 		void type(const string& str);
+		void reschedule(const EmuTime& time);
 
 		// Command
 		virtual string execute(const vector<string>& tokens);

@@ -314,10 +314,9 @@ void Keyboard::KeyInserter::type(const string& str)
 	}
 	Scheduler& scheduler = Scheduler::instance();
 	if (text.empty()) {
-		scheduler.setSyncPoint(scheduler.getCurrentTime(), this);
+		reschedule(scheduler.getCurrentTime());
 	}
-	string temp=Unicode::utf8ToAscii(str);
-	text += temp;
+	text += Unicode::utf8ToAscii(str);
 }
 
 void Keyboard::KeyInserter::executeUntil(const EmuTime& time, int /*userData*/)
@@ -327,9 +326,14 @@ void Keyboard::KeyInserter::executeUntil(const EmuTime& time, int /*userData*/)
 	parent.pressAscii(text[0], down);
 	if (down) text = text.substr(1);
 	if (!text.empty()) {
-		Clock<15> nextTime(time);
-		Scheduler::instance().setSyncPoint(nextTime + 1, this);
+		reschedule(time);
 	}
+}
+
+void Keyboard::KeyInserter::reschedule(const EmuTime& time)
+{
+	Clock<15> nextTime(time);
+	Scheduler::instance().setSyncPoint(nextTime + 1, this);
 }
 
 const string& Keyboard::KeyInserter::schedName() const
