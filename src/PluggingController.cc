@@ -114,7 +114,8 @@ void PluggingController::PlugCmd::execute(const std::vector<std::string> &tokens
 
 void PluggingController::PlugCmd::help   (const std::vector<std::string> &tokens)
 {
-	Console::instance()->print("plug...");	// TODO
+	Console::instance()->print("Plugs a plug into a connector");
+	Console::instance()->print(" plug [connector] [plug]");
 }
 
 void PluggingController::PlugCmd::tabCompletion(std::vector<std::string> &tokens)
@@ -167,7 +168,8 @@ void PluggingController::UnplugCmd::execute(const std::vector<std::string> &toke
 
 void PluggingController::UnplugCmd::help   (const std::vector<std::string> &tokens)
 {
-	Console::instance()->print("unplug...");	// TODO
+	Console::instance()->print("Unplugs a plug from a connector");
+	Console::instance()->print(" unplug [connector]");
 }
 
 void PluggingController::UnplugCmd::tabCompletion(std::vector<std::string> &tokens)

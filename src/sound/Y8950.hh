@@ -66,20 +66,19 @@ class Y8950 : public SoundDevice
 			int output[5];	// Output value of slot 
 
 			// for Phase Generator (PG) 
-			unsigned int *sintbl;	// Wavetable 
-			unsigned int phase;	// Phase 
-			unsigned int dphase;	// Phase increment amount 
-			unsigned int pgout;	// output 
+			int phase;	// Phase 
+			int dphase;	// Phase increment amount 
+			int pgout;	// output 
 
 			// for Envelope Generator (EG) 
 			int fnum;	// F-Number 
 			int block;	// Block 
-			unsigned int tll;	// Total Level + Key scale level
-			unsigned int rks;	// Key scale offset (Rks) 
+			int tll;	// Total Level + Key scale level
+			int rks;	// Key scale offset (Rks) 
 			int eg_mode;	// Current state 
-			unsigned int eg_phase;	// Phase 
-			unsigned int eg_dphase;	// Phase increment amount 
-			unsigned int egout;	// output 
+			int eg_phase;	// Phase 
+			int eg_dphase;	// Phase increment amount 
+			int egout;	// output 
 
 			Patch patch;  
 
@@ -114,18 +113,18 @@ class Y8950 : public SoundDevice
 			static const int TL_MUTE = 1<<TL_BITS;
 			
 			// WaveTable for each envelope amp 
-			static unsigned int fullsintable[PG_WIDTH];
+			static int sintable[PG_WIDTH];
 			// Phase incr table for Attack 
-			static unsigned int dphaseARTable[16][16];
+			static int dphaseARTable[16][16];
 			// Phase incr table for Decay and Release 
-			static unsigned int dphaseDRTable[16][16];
+			static int dphaseDRTable[16][16];
 			// KSL + TL Table 
-			static unsigned int tllTable[16][8][1<<TL_BITS][4];
+			static int tllTable[16][8][1<<TL_BITS][4];
 			static int rksTable[2][8][2];
 			// Phase incr table for PG 
-			static unsigned int dphaseTable[1024][8][16]; 
+			static int dphaseTable[1024][8][16]; 
 			// Liner to Log curve conversion table (for Attack rate). 
-			static unsigned int AR_ADJUST_TABLE[1<<EG_BITS];
+			static int AR_ADJUST_TABLE[1<<EG_BITS];
 	};
 	friend class Slot;
 
@@ -172,7 +171,7 @@ class Y8950 : public SoundDevice
 		// Expand x which is s bits to d bits. 
 		inline static int EXPAND_BITS(int x, int s, int d);
 		// Adjust envelope speed which depends on sampling rate. 
-		inline static unsigned int rate_adjust(double x, int rate); 
+		inline static int rate_adjust(double x, int rate); 
 		inline static int CLAP(int min, int x, int max);
 		
 		void makePmTable();
@@ -203,7 +202,7 @@ class Y8950 : public SoundDevice
 		void resetStatus(int flags);
 		void changeStatusMask(int newMask);
 
-		unsigned int adr;
+		int adr;
 		int output[2];
 		// Register 
 		byte reg[0xff]; 
@@ -211,12 +210,12 @@ class Y8950 : public SoundDevice
 		bool rythm_mode;
 		// Pitch Modulator 
 		int pm_mode;
-		unsigned int pm_phase;
+		int pm_phase;
 		// Amp Modulator 
 		int am_mode;
-		unsigned int am_phase;
+		int am_phase;
 		// Noise Generator 
-		unsigned int noise_seed;
+		int noise_seed;
 		// Channel & Slot 
 		Channel ch[9];
 		Slot *slot[18];
@@ -256,11 +255,11 @@ class Y8950 : public SoundDevice
 		// dB to Liner table 
 		static short dB2LinTab[(2*DB_MUTE)*2];
 
-		unsigned int pm_dphase;
+		int pm_dphase;
 		int lfo_pm;
-		unsigned int am_dphase;
+		int am_dphase;
 		int lfo_am;
-		unsigned int whitenoise;
+		int whitenoise;
 
 		int* buffer;
 		short maxVolume;
