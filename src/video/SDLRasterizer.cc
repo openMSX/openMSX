@@ -502,16 +502,16 @@ void SDLRasterizer<Pixel, zoom>::precalcColourIndex0(
 		transparency = false;
 	}
 	
-	int bgColour = 0;
+	int tpIndex = 0;
 	if (transparency) {
-		bgColour = vdp->getBackgroundColour();
+		tpIndex = vdp->getBackgroundColour();
 		if (mode.getBase() == DisplayMode::GRAPHIC5) {
 			// TODO: Transparent pixels should be rendered in separate
 			//       colours for even/odd x, just like the border.
-			bgColour &= 0x03;
+			tpIndex &= 0x03;
 		}
 	}
-	palFg[0] = palBg[bgColour];
+	palFg[0] = palBg[tpIndex];
 	
 	// Any line containing pixels of colour 0 must be repainted.
 	// We don't know which lines contain such pixels,
