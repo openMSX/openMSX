@@ -365,7 +365,7 @@ of the user directories you specified with the <code>user_directories</code> set
 </p>
 
 <p>
-If things go terribly wrong, openMSX may not have the extension of your ROM file registered as such. You can then indicate that the thing is a ROM image like this:
+You can also explicitly indicate that the thing is a ROM image like this:
 </p>
 <div class="commandline">openmsx -cart galious.gam</div>
 <p>
@@ -380,7 +380,7 @@ Note that in practice you won't need this, since most ROM images are in the data
 </p>
 
 <p>
-If wanted, openMSX can apply IPS patches to ROM software before running it. This way you do not need to alter any files. To apply an IPS patch you have to provide the IPS filename like this:
+If wanted, openMSX can apply IPS patches to ROM software before running it. IPS patches are files that describe a modification of the ROM you are applying it to, e.g. a translation or a cheat. This way you do not need to alter any files. To apply an IPS patch you have to provide the IPS filename like this:
 </p>
 <div class="commandline">openmsx -cart galious.rom -ips galiouspatch.ips</div>
 <p>
