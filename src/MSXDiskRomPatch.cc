@@ -132,7 +132,7 @@ void MSXDiskRomPatch::PHYDIO(CPU::CPURegs& regs)
 		<< pri_slot_target
 		<< " sec:0x" << sec_slot_target << std::dec);
 	cpuInterface->writeIO(0xA8, pri_slot_target, dummy);
-	cpuInterface->writeMem(0xFFFF,sec_slot_target, dummy);
+	cpuInterface->writeMem(0xFFFF, sec_slot_target, dummy);
 
 	byte buffer[SECTOR_SIZE];
 	FDCBackEnd* backEnd = diskImageManager->getBackEnd(name[drive]);

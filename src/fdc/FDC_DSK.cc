@@ -3,7 +3,6 @@
 #include "FDC_DSK.hh"
 
 
-//TODO single/double sided
 const int SECTOR_SIZE = 512;
 
 
@@ -41,4 +40,17 @@ void FDC_DSK::write(byte phystrack, byte track, byte sector, byte side,
 	file->write(buf, SECTOR_SIZE);
 	if (file->bad())
 		throw DiskIOErrorException("Disk I/O error");
+}
+
+void FDC_DSK::readBootSector()
+{
+	if (nbSectors == 1440) {
+		sectorsPerTrack = 9;
+		nbSides = 2;
+	} else if (nbSectors == 720) {
+		sectorsPerTrack = 9;
+		nbSides = 1;
+	} else {
+		FDCBackEnd::readBootSector();
+	}
 }

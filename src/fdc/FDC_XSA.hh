@@ -13,7 +13,8 @@
 #include "FDCBackEnd.hh"
 
 
-class FDC_XSA : public FDCBackEnd {
+class FDC_XSA : public FDCBackEnd
+{
 	public:
 		FDC_XSA(const std::string &fileName);
 		virtual ~FDC_XSA();
@@ -21,6 +22,10 @@ class FDC_XSA : public FDCBackEnd {
 		                  byte side, int size, byte* buf);
 		virtual void write(byte phystrack, byte track, byte sector,
 		                   byte side, int size, const byte* buf);
+
+	protected:
+		virtual void readBootSector();
+		int nbSectors;
 
 	private:
 		static const int MAXSTRLEN = 254;
@@ -36,8 +41,6 @@ class FDC_XSA : public FDCBackEnd {
 		bool bitin();
 		void inithufinfo();
 		void mkhuftbl();
-
-		int origLen;
 
 		typedef struct huf_node {
 			int weight;

@@ -16,9 +16,12 @@ class FDC_DSK : public FDCBackEnd
 		                  byte side, int size, byte* buf);
 		virtual void write(byte phystrack, byte track, byte sector,
 		                   byte side, int size, const byte* buf);
-	
-	private:
+
+	protected:
+		virtual void readBootSector();
 		int nbSectors;
+
+	private:
 		IOFILETYPE* file;
 };
 

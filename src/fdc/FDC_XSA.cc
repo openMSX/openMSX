@@ -34,16 +34,29 @@ FDC_XSA::~FDC_XSA()
 void FDC_XSA::read(byte phystrack, byte track, byte sector,
                    byte side, int size, byte* buf)
 {
-	int pos = 512 * physToLog(track, side, sector);
-	if (pos >= origLen)
+	int logSector = physToLog(track, side, sector);
+	if (logSector >= nbSectors)
 		throw NoSuchSectorException("No such sector");
-	memcpy(buf, outbuf+pos, 512);
+	memcpy(buf, outbuf + logSector * 512, 512);
 }
 
 void FDC_XSA::write(byte phystrack, byte track, byte sector,
                     byte side, int size, const byte* buf)
 {
 	throw WriteProtectedException("Write protected");
+}
+
+void FDC_XSA::readBootSector()
+{
+	if (nbSectors == 1440) {
+		sectorsPerTrack = 9;
+		nbSides = 2;
+	} else if (nbSectors == 720) {
+		sectorsPerTrack = 9;
+		nbSides = 1;
+	} else {
+		FDCBackEnd::readBootSector();
+	}
 }
 
 
@@ -69,10 +82,11 @@ void FDC_XSA::chkheader()
 			throw MSXException("...");
 
 	// read original length (low endian)
-	origLen = 0;
+	int origLen = 0;
 	for (int i=0, base = 1; i < 4; i++, base <<= 8) {
 		origLen += base * charin();
 	}
+	nbSectors = origLen / 512;
 	
 	// skip compressed length
 	inbufpos += 4;

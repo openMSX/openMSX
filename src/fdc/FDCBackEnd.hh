@@ -49,8 +49,7 @@ class FDCBackEnd
 		int physToLog(byte track, byte side, byte sector);
 		void logToPhys(int log, byte &track, byte &side, byte &sector);
 	
-	private:
-		void readBootSector();
+		virtual void readBootSector();
 
 		int sectorsPerTrack;
 		int nbSides;

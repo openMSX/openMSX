@@ -1,5 +1,13 @@
 $Id$
 
+2002-08-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed SD-Snatcher loading bug:
+	   - disk has a non-standard bootsector (sectors per track and number
+	     of sides) is wrong. Updated heuristics to detect 9 sectors per
+	     track and 2 sides in case disk image has 80*2*9 sectors.
+	     How does the BDOS read this disk? Perhaps it uses the media
+	     descriptor?
+
 2002-08-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Split MSXMotherBoard in:
 	   - MSXCPUInterface: handles communication between a MSXDevice and CPU

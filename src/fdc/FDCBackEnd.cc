@@ -54,5 +54,7 @@ void FDCBackEnd::readBootSector()
 	read(0, 0, 1, 0, 512, buf);
 	sectorsPerTrack = buf[0x18] + 256 * buf[0x19];
 	nbSides         = buf[0x1A] + 256 * buf[0x1B];
+	PRT_DEBUG("FDCBackEnd sectorsPerTrack " << sectorsPerTrack);
+	PRT_DEBUG("FDCBackEnd nbSides         " << nbSides);
 }
 

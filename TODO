@@ -3,35 +3,19 @@
 # add things todo to this file, to avoid them being forgotten
 
 * backend issues: [MSXDevice <-> OS/SDL]
- - cassette support 
- - printer support
- - [virtual] floppy support
- - joystick support [Wouter: implemented but not tested,
-                             also no way to plug a joystick in]
- - mouse support    [Wouter: see joystick]
  - trackball support
  - LED status visualization
 
 * devices: [MSXDevice]
- - SCC [David]
- - DAC [David] [Wouter, finished but not tested]
- - Floppy Controller
  - Music Module Devices
  - RS232 (Modem) [Wouter: hardware is 8254 connected to 8251
                           8254 is emulated (untested)]
- - printer-port  [Wouter: implemented but not tested,
-                  also no way to plug a PrinterPortDevice in]
  - Moon Sound Devices
- - FM-PAC Devices
- - FM-PAK Devices
- - V9938, V9958
+ - V9958
 
 * config:
  - xmlconfig save support
- - support for configuration for non-devices [done]
  - support for saving states of devices
- - getBoolParameter(String parameterName, bool defaultValue), 
-   also for int, string, ... [typed parameters] [done]
  - http support
 
 * build
