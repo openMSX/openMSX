@@ -85,14 +85,14 @@ byte PhilipsFDC::readMem(word address, const EmuTime &time)
 		}
 		break;
 	}
-	PRT_DEBUG("PhilipsFDC read 0x" << std::hex << (int)address << " 0x" << (int)value << std::dec);
+	//PRT_DEBUG("PhilipsFDC read 0x" << std::hex << (int)address << " 0x" << (int)value << std::dec);
 	return value;
 }
 
 
 void PhilipsFDC::writeMem(word address, byte value, const EmuTime &time)
 {
-	PRT_DEBUG("PhilipsFDC write 0x" << std::hex << (int)address << " 0x" << (int)value << std::dec);
+	//PRT_DEBUG("PhilipsFDC write 0x" << std::hex << (int)address << " 0x" << (int)value << std::dec);
 	switch (address & 0x3FFF) {
 	case 0x3FF8:
 		controller->setCommandReg(value, time);

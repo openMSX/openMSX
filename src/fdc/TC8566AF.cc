@@ -417,12 +417,13 @@ void TC8566AF::writeReg(int reg, byte data, const EmuTime &time)
 					ST0_DS = data & 3; // Copy Drive Select
 					ST3_DS = data & 3; // Copy Drive Select
 					break;
-				case 2:
-					while (data > PCN) {
+				case 2: {
+					int maxSteps = 255;
+					while (data > PCN && maxSteps--) {
 						drive[DriveSelect]->step(true, time);
 						PCN++;
 					}
-					while (data < PCN) {
+					while (data < PCN && maxSteps--) {
 						drive[DriveSelect]->step(false, time);
 						PCN--;
 					}
@@ -433,16 +434,18 @@ void TC8566AF::writeReg(int reg, byte data, const EmuTime &time)
 					PRT_DEBUG("FDC: PCN " << (int)PCN);
 					break;
 				}
+				}
 				break;
 			case 12:// Recalibrate Command
 				switch (PhaseStep++) {
 				case 0:
 					ST0_SE = 0;	// Seek End = 0
 					break;
-				case 1:
+				case 1: {
 					ST0_DS = data & 3; // Copy Drive Select
 					ST3_DS = data & 3; // Copy Drive Select
-					while (!drive[DriveSelect]->track00(time)) {
+					int maxSteps = 255;
+					while (!drive[DriveSelect]->track00(time) && maxSteps--) {
 						drive[DriveSelect]->step(false, time);
 						PCN--;
 					}
@@ -452,6 +455,7 @@ void TC8566AF::writeReg(int reg, byte data, const EmuTime &time)
 					Command = 0;
 					PRT_DEBUG("FDC: PCN " << (int)PCN);
 					break;
+				}
 				}
 				break;
 			case 13:// Sense Interrupt Status Command
