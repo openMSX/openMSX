@@ -78,7 +78,7 @@ void DebugDevice::writeIO(byte port, byte value, const EmuTime& time)
 	}
 }
 
-void DebugDevice::outputSingleByte(byte value, const EmuTime & time)
+void DebugDevice::outputSingleByte(byte value, const EmuTime& time)
 {
 	if (modeParameter & 0x01) {
 		displayByte(value, HEX);
@@ -98,7 +98,8 @@ void DebugDevice::outputSingleByte(byte value, const EmuTime & time)
 		}
 		(*outputstrm) << "' ";
 	}
-	(*outputstrm) << "emutime:" << time; 
+	EmuTimeFreq<3579545> zero;
+	(*outputstrm) << "emutime: " << zero.getTicksTill(time); 
 	if ((modeParameter & 0x08) && ((value < ' ') || (value == 127))) {
 		displayByte(value, ASC); // do special effects
 	}

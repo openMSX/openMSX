@@ -6,6 +6,9 @@ $Id$
 	   init.tcl
 	* Use PAUSE LED also for the openMSX pause command:
 	   patch contributed by Tetsuo Honda
+	* Debug device now prints time in Z80 ticks (3.58MHz), instead of
+	  internal ticks. This way we can change the internal tick resolution
+	  without changing the debug device output.
 
 2004-01-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Integrated TCL scripting
