@@ -1,5 +1,9 @@
 $Id$
 
+2002-07-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* cleanups
+	* Support for "ROM database"
+
 2002-07-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Experimental support for .xsa disk images
 	* Removed "automappertype" parameter, you can still explicitly specify

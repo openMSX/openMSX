@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!-- $Id$ -->
+<!DOCTYPE romdb SYSTEM "romdb.dtd">
+
+<romdb>
+  <rom id="Game Master 2">
+    <md5>1fecd63cf4967dd6d2d4f6901d8d210b</md5>
+    <romtype>GAMEMASTER2</romtype>
+  </rom>
+  <rom id="Bubbler">
+    <md5>3c4113a49c1cbcefc0a73655f807691a</md5>
+    <romtype>2</romtype>
+  </rom>
+</romdb>
+

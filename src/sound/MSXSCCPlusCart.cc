@@ -4,10 +4,8 @@
 
 #ifndef DONT_WANT_SCC
 
-#include "MSXConfig.hh"
 #include "SCC.hh"
-
-#include <iostream>
+#include "FileOpener.hh"
 
 
 MSXSCCPlusCart::MSXSCCPlusCart(MSXConfig::Device *config, const EmuTime &time)
@@ -33,7 +31,7 @@ MSXSCCPlusCart::MSXSCCPlusCart(MSXConfig::Device *config, const EmuTime &time)
 
 		// read the rom file
 		// dynamically determine romSize if needed
-		file = FileOpener::openFileRO(filename);
+        	IFILETYPE* file = FileOpener::openFileRO(filename);
 		file->seekg(0,std::ios::end);
 		int romSize = file->tellg();
 		PRT_DEBUG("SCC+ MegaRom: rom size is " << romSize);

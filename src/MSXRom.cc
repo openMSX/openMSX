@@ -7,6 +7,7 @@
 #include "CPU.hh"
 #include <map>
 #include "md5.hh"
+#include "libxmlx/xmlx.hh"
 
 
 MSXRom::MSXRom(MSXConfig::Device *config, const EmuTime &time)
@@ -183,6 +184,9 @@ void MSXRom::retrieveMapperType()
 		// no type specified, perform auto detection
 	}
 	if (type == "auto") {
+		type = searchDataBase();
+	}
+	if (type == "") {
 		mapperType = guessMapperType();
 	} else {
 		std::map<const std::string, int, ltstr> mappertype;
@@ -240,11 +244,6 @@ void MSXRom::retrieveMapperType()
 
 int MSXRom::guessMapperType()
 {
-	MD5 md5;
-	md5.update(romBank, romSize);
-	md5.finalize();
-	PRT_DEBUG("MD5: "<<md5.hex_digest());
-	
 	//  GameCartridges do their bankswitching by using the Z80
 	//  instruction ld(nn),a in the middle of program code. The
 	//  adress nn depends upon the GameCartridge mappertype used.
@@ -322,6 +321,38 @@ int MSXRom::guessMapperType()
 		return type == 6 ? 19 : type;
 	}
 }
+
+const std::string &MSXRom::searchDataBase()
+{
+	initDataBase();
+	
+	MD5 md5;
+	md5.update(romBank, romSize);
+	md5.finalize();
+	PRT_DEBUG("MD5: "<<md5.hex_digest());
+	
+	return romDB[std::string(md5.hex_digest())];
+}
+
+void MSXRom::initDataBase()
+{
+	static bool init = false;
+
+	if (!init) {
+		init = true;
+		XML::Document doc(FileOpener::findFileName("romdb.xml"));
+		//doc.dump();
+		std::list<XML::Element*>::iterator it = doc.root->children.begin();
+		for ( ; it != doc.root->children.end(); it++) {
+			const std::string md5((*it)->getElementPcdata("md5"));
+			const std::string romtype((*it)->getElementPcdata("romtype"));
+			romDB[md5] = romtype;
+		}
+	}
+}
+
+std::map<const std::string, std::string, MSXRom::ltstr> MSXRom::romDB;
+
 
 byte MSXRom::readMem(word address, const EmuTime &time)
 {

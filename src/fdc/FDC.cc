@@ -62,6 +62,7 @@ void FDC::setDriveSelect(byte value,const EmuTime &time)
 byte FDC::getDriveSelect(const EmuTime &time)
 {
   PRT_DEBUG("Direct FDC object method call!");
+  return 0;	// avoid warning
 }
 
 void FDC::setMotor(byte value,const EmuTime &time)
@@ -72,6 +73,7 @@ void FDC::setMotor(byte value,const EmuTime &time)
 byte FDC::getMotor(const EmuTime &time)
 {
   PRT_DEBUG("Direct FDC object method call!");
+  return 0;	// avoid warning
 }
 
 byte FDC::getStatusReg(const EmuTime &time)

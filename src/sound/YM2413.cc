@@ -10,10 +10,10 @@
 
 #if !defined(DONT_WANT_FMPAC) || !defined(DONT_WANT_MSXMUSIC)
 
-#include "Mixer.hh"
-
 #include <math.h>
 #include <cassert>
+#include "Mixer.hh"
+
 
 word YM2413::fullsintable[PG_WIDTH];
 word YM2413::halfsintable[PG_WIDTH];
@@ -82,7 +82,7 @@ unsigned int YM2413::rate_adjust(double x, int rate)
 	double tmp = x*CLOCK_FREQ/72/rate + 0.5; // +0.5 to round
 	assert (tmp <= 4294967295U);
 	return (unsigned int)tmp;
-}	
+}
 
 
 //***************************************************//

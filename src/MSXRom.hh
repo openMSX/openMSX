@@ -7,6 +7,7 @@
 #include "config.h"
 #endif
 
+#include <map>
 #include "MSXRomDevice.hh"
 #include "MSXMemDevice.hh"
 
@@ -32,6 +33,8 @@ class MSXRom : public MSXMemDevice, public MSXRomDevice
 	private:
 		void retrieveMapperType();
 		int guessMapperType();
+		const std::string &searchDataBase();
+		void initDataBase();
 		bool mappedOdd();
 		
 		inline void setBank4kB (int region, byte* adr);
@@ -40,7 +43,14 @@ class MSXRom : public MSXMemDevice, public MSXRomDevice
 		inline void setROM4kB  (int region, int block);
 		inline void setROM8kB  (int region, int block);
 		inline void setROM16kB (int region, int block);
-		
+	
+		struct ltstr {
+			bool operator()(const std::string &s1, const std::string &s2) const {
+				return strcasecmp(s1.c_str(), s2.c_str()) < 0;
+			}
+		};
+		static std::map<const std::string, std::string, ltstr> romDB;
+
 		int mapperType;
 		byte *internalMemoryBank[16];	// 16 blocks of 4kB
 		byte *unmapped;
