@@ -75,7 +75,7 @@ template <class Pixel> SDLHiRenderer<Pixel>::RenderMethod
 		&SDLHiRenderer::renderMultiQ,
 		&SDLHiRenderer::renderBogus,
 		// M5 M4 = 0 1
-		&SDLHiRenderer::renderGraphic1, // graphic 3, actually
+		&SDLHiRenderer::renderGraphic2, // graphic 3, actually
 		&SDLHiRenderer::renderText2,
 		&SDLHiRenderer::renderBogus,
 		&SDLHiRenderer::renderBogus,
@@ -299,8 +299,15 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateVRAM(
 	int addr, byte data, const EmuTime &time)
 {
 	if ((addr & vdp->getNameMask()) == addr) {
-		dirtyName[addr & (sizeof(dirtyName) - 1)]
-			= anyDirtyName = true;
+		// TODO: Quick fix, investigate what is really going on later.
+		if (vdp->getDisplayMode() == 0x09) {
+			dirtyName[addr & (sizeof(dirtyName) - 1)]
+				= anyDirtyName = true;
+		}
+		else {
+			dirtyName[addr & ((1 << 10) - 1)]
+				= anyDirtyName = true;
+		}
 	}
 	if ((addr & vdp->getColourMask()) == addr) {
 		dirtyColour[(addr / 8) & (sizeof(dirtyColour) - 1)]
