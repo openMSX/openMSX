@@ -118,7 +118,8 @@ void XMLElement::addChild(auto_ptr<XMLElement> child)
 
 void XMLElement::deleteChild(const XMLElement& child)
 {
-	assert(find(children.begin(), children.end(), &child) != children.end());
+	assert(std::find(children.begin(), children.end(), &child)
+		!= children.end());
 	children.erase(remove(children.begin(), children.end(), &child),
 	               children.end());
 	delete &child;
