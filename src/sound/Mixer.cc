@@ -156,24 +156,33 @@ void Mixer::openSound()
 	desired.callback = audioCallbackHelper;	// must be a static method
 	desired.userdata = this;
 	
+#ifndef NULL_OUTPUT
 	if (SDL_InitSubSystem(SDL_INIT_AUDIO) == 0) {
 		if (SDL_OpenAudio(&desired, &audioSpec) == 0) {
 			frequencySetting->setValue(audioSpec.freq);
 			samplesSetting->setValue(audioSpec.samples);
-			bufferSize = 4 * audioSpec.size / (2 * sizeof(short));
-			mixBuffer = new short[2 * bufferSize];
-			memset(mixBuffer, 0, bufferSize * 2 * sizeof(short));
-			readPtr = writePtr = 0;
-			reInit();
-			prevTime = Scheduler::instance().getCurrentTime();
-			EmuDuration interval2 = interval1 * audioSpec.samples;
-			Scheduler::instance().setSyncPoint(prevTime + interval2, this);
 			init = true;
 		} else {
 			SDL_QuitSubSystem(SDL_INIT_AUDIO);
 		}
 	}
-	if (!init) {
+#else
+	audioSpec.samples = desired.samples;
+	audioSpec.freq    = desired.freq;
+	audioSpec.size    = desired.samples * 2 * sizeof(short);
+	init = true;
+#endif 
+	
+	if (init) {
+		bufferSize = 4 * audioSpec.size / (2 * sizeof(short));
+		mixBuffer = new short[2 * bufferSize];
+		memset(mixBuffer, 0, bufferSize * 2 * sizeof(short));
+		readPtr = writePtr = 0;
+		reInit();
+		prevTime = Scheduler::instance().getCurrentTime();
+		EmuDuration interval2 = interval1 * audioSpec.samples;
+		Scheduler::instance().setSyncPoint(prevTime + interval2, this);
+	} else {
 		output.printWarning(
 			string("Couldn't open audio: ") + SDL_GetError());
 	}
@@ -181,13 +190,15 @@ void Mixer::openSound()
 
 void Mixer::closeSound()
 {
-	if (init) {
-		Scheduler::instance().removeSyncPoint(this);
-		SDL_CloseAudio();
-		SDL_QuitSubSystem(SDL_INIT_AUDIO);
-		delete[] mixBuffer;
-		init = false;
-	}
+	if (!init) return;
+	
+	Scheduler::instance().removeSyncPoint(this);
+#ifndef NULL_OUTPUT
+	SDL_CloseAudio();
+	SDL_QuitSubSystem(SDL_INIT_AUDIO);
+#endif
+	delete[] mixBuffer;
+	init = false;
 }
 
 
@@ -349,6 +360,7 @@ void Mixer::updateStream(const EmuTime& time)
 }
 void Mixer::updtStrm(unsigned samples)
 {
+#ifndef NULL_OUTPUT
 	if (samples > audioSpec.samples) {
 		samples = audioSpec.samples;
 	}
@@ -378,6 +390,7 @@ void Mixer::updtStrm(unsigned samples)
 			//     << 1.0 / interval1.toDouble() << endl;
 		}
 	}
+#endif
 	updtStrm2(samples);
 }
 
@@ -448,13 +461,17 @@ void Mixer::updtStrm2(unsigned samples)
 void Mixer::lock()
 {
 	if (!init) return;
+#ifndef NULL_OUTPUT
 	SDL_LockAudio();
+#endif
 }
 
 void Mixer::unlock()
 {
 	if (!init) return;
+#ifndef NULL_OUTPUT
 	SDL_UnlockAudio();
+#endif
 }
 
 void Mixer::mute()
@@ -471,7 +488,9 @@ void Mixer::unmute()
 void Mixer::muteHelper()
 {
 	if (!init) return;
+#ifndef NULL_OUTPUT
 	SDL_PauseAudio(buffers.size() == 0 ? 1 : muteCount);
+#endif
 	reInit();
 }
 
