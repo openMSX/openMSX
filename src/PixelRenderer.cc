@@ -137,6 +137,13 @@ PixelRenderer::PixelRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)
 
 	frameSkip = curFrameSkip = 0;
 	autoFrameSkip = false;
+	frameSkipShortAvg = 10.0;
+	frameSkipLongAvg  = 100.0;
+	frameSkipDelay = 0;
+	while (!buffer.isFull()) {
+		buffer.addFront(1.0);
+	}
+	
 	CommandController::instance()->registerCommand(frameSkipCmd, "frameskip");
 
 	// Now we're ready to start rendering the first frame.
@@ -181,34 +188,31 @@ void PixelRenderer::putImage(const EmuTime &time)
 
 	// The screen will be locked for a while, so now is a good time
 	// to perform real time sync.
-	float factor=RealTime::instance()->sync();
-	if ( autoFrameSkip ){
-					
-		if (factor > 1.0  && frameSkip < 30){
-			// if sync indicates we are to slow and we have been to
-			// slow for X screen then frameSkip++
-			// increasing frameskip should be tried rather fast
-			if (++frameSkipToLow > 5){
-				frameSkipToLow=0;
-				frameSkipToHigh=0;
+	float factor = RealTime::instance()->sync();
+	
+	if (autoFrameSkip) {
+		frameSkipShortAvg += (factor - buffer[9]);	// sum last 10
+		frameSkipLongAvg  += (factor - buffer[99]);	// sum last 100
+		buffer.removeBack();
+		buffer.addFront(factor);
+	
+		if (frameSkipDelay) {
+			// recently changed frameSkip, give time to stabilize
+			frameSkipDelay--;
+		} else {
+			if (frameSkipShortAvg > 11.0  && frameSkip < 30) {
+				// over the last 10 frames we where on average
+				// ~10% too slow, increase frameSkip
 				frameSkip++;
-			}
-		} else if (factor < 0.65 ){
-			// else if sync indicates we are fast enough and we have
-			// been to fast enough for Y screens then frameSkip--
-			//
-			// once we are "on speed" we want to maintain this
-			// state long enough before trying to decrase frameSkip
-			// otherwise we need again X screens to get the correct
-			// frameskip again
-			if (frameSkip && (++frameSkipToHigh > 100) ){
-				frameSkipToLow=0;
-				frameSkipToHigh=0;
+				frameSkipDelay = 100;
+			} else if (frameSkipLongAvg < 65.0 && frameSkip > 0) {
+				// over the last 100 frames we where on average
+				// ~50% too fast, decrease frameSkip
 				frameSkip--;
+				frameSkipDelay = 10;
 			}
 		}
-
-	};
+	}
 }
 
 

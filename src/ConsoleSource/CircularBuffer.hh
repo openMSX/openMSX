@@ -35,6 +35,7 @@ class CircularBuffer {
 			return buffer[last];
 		}
 		T &operator[](int pos) {
+			assert(pos < maxSize);
 			int tmp = first+pos;
 			if (tmp>maxSize) tmp -= (maxSize+1);
 			return buffer[tmp];

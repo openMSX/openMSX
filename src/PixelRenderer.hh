@@ -7,6 +7,7 @@
 #include "Renderer.hh"
 #include "VDPVRAM.hh"
 #include "Command.hh"
+#include "CircularBuffer.hh"
 
 class VDP;
 class SpriteChecker;
@@ -186,8 +187,10 @@ private:
 	bool autoFrameSkip;
 	int frameSkip;
 	int curFrameSkip;
-	int frameSkipToHigh;
-	int frameSkipToLow;
+	float frameSkipShortAvg;
+	float frameSkipLongAvg;
+	int frameSkipDelay;
+	CircularBuffer<float, 100> buffer;
 };
 
 #endif //__PIXELRENDERER_HH__

@@ -69,7 +69,7 @@ float RealTime::sync()
 {
 	scheduler->removeSyncPoint(this);
 	internalSync(cpu->getCurrentTime());
-	return factor;
+	return emuFactor;
 }
 
 void RealTime::internalSync(const EmuTime &curEmu)
@@ -116,9 +116,12 @@ void RealTime::internalSync(const EmuTime &curEmu)
 		}
 		
 		// estimate current speed, values are inaccurate so take average
-		float curFactor = (sleep + realPassed) / (float)emuPassed;
-		factor = factor * (1 - alpha) + curFactor * alpha;	// estimate with exponential average
-		PRT_DEBUG("RT: Estimated speed factor (real/emu): " << factor);
+		float curTotalFac = (sleep + realPassed) / (float)emuPassed;
+		totalFactor = totalFactor * (1 - alpha) + curTotalFac * alpha;
+		float curEmuFac = realPassed / (float)emuPassed;
+		emuFactor = emuFactor * (1 - alpha) + curEmuFac * alpha;
+		PRT_DEBUG("RT: Estimated max     speed (real/emu): " << emuFactor);
+		PRT_DEBUG("RT: Estimated current speed (real/emu): " << totalFactor);
 		
 		// adjust short period references
 		realRef = curReal + sleep;
@@ -130,14 +133,15 @@ void RealTime::internalSync(const EmuTime &curEmu)
 
 float RealTime::getRealDuration(const EmuTime &time1, const EmuTime &time2)
 {
-	return (time2 - time1).toFloat() * factor;
+	return (time2 - time1).toFloat() * totalFactor;
 }
 
 void RealTime::resetTiming()
 {
 	realRef = realOrigin = SDL_GetTicks();
 	emuRef  = emuOrigin  = cpu->getCurrentTime();
-	factor  = 1;
+	emuFactor   = 1.0;
+	totalFactor = 1.0;
 }
 
 void RealTime::PauseCmd::execute(const std::vector<std::string> &tokens)

@@ -56,7 +56,8 @@ class RealTime : public Schedulable
 		EmuTimeFreq<1000> emuRef, emuOrigin;	// in ms (rounding err!!)
 		unsigned int realRef, realOrigin;	// !! Overflow in 49 days
 		int catchUpTime;  // number of milliseconds overtime.
-		float factor;
+		float emuFactor;
+		float totalFactor;
 
 		int speed;	// higher means slower (256 = 100%)
 		bool throttle;
