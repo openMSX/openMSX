@@ -2,19 +2,19 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
-  <Audio id="Philips NMS 1205 Music Module MSX-Audio">
+  <MSX-AUDIO id="Philips NMS 1205 Music Module MSX-Audio">
     <io base="0xC0" num="2"/>
     <sound>
       <volume>12000</volume>
       <mode>mono</mode>
     </sound>
     <sampleram>32</sampleram>
-  </Audio>
+  </MSX-AUDIO>
 
-  <Audio-Midi id="Philips NMS 1205 Music Module MSX-Audio-Midi">
+  <MusicModuleMidi id="Philips NMS 1205 Music Module MSX-Audio-Midi">
     <io base="0x00" num="2" type="O"/>
     <io base="0x04" num="2" type="I"/>
-  </Audio-Midi>
+  </MusicModuleMidi>
 
   <primary slot="any">
     <secondary slot="any">

@@ -2,14 +2,14 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
-  <Audio id="Panasonic FS-CA1 MSX-Audio">
+  <MSX-AUDIO id="Panasonic FS-CA1 MSX-Audio">
     <sound>
       <volume>12000</volume>
       <mode>mono</mode>
     </sound>
     <!-- I'm not sure if this device actually has sampleRAM! -->
     <sampleram>32</sampleram>
-  </Audio>
+  </MSX-AUDIO>
 
   <slot primary="any">
     <slot secondary="any">

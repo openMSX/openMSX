@@ -2,16 +2,16 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
-  <Audio id="Generic MSX-Audio">
+  <MSX-AUDIO id="Generic MSX-Audio">
     <io base="0xC0" num="2"/>
     <sound>
       <volume>12000</volume>
       <mode>mono</mode>
     </sound>
     <sampleram>256</sampleram>
-  </Audio>
-  <Audio-Midi id="Generic MSX-Audio-Midi">
+  </MSX-AUDIO>
+  <MusicModuleMidi id="Generic MSX-Audio-Midi">
     <io base="0x00" num="2" type="O"/>
     <io base="0x04" num="2" type="I"/>
-  </Audio-Midi>
+  </MusicModuleMidi>
 </msxconfig>

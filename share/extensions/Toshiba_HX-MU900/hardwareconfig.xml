@@ -2,14 +2,14 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
-  <Audio id="Toshiba HX-MU900 MSX-Audio">
+  <MSX-AUDIO id="Toshiba HX-MU900 MSX-Audio">
     <io base="0xC0" num="2"/>
     <sound>
       <volume>12000</volume>
       <mode>mono</mode>
     </sound>
     <!-- <sampleram>32</sampleram> -->
-  </Audio>
+  </MSX-AUDIO>
   
   <primary slot="any">
     <secondary slot="any">
