@@ -5,6 +5,7 @@
 #include "SaI2xScaler.hh"
 #include "Scale2xScaler.hh"
 #include "HQ2xScaler.hh"
+#include "HostCPU.hh"
 #include <cstring>
 
 
@@ -55,17 +56,57 @@ void Scaler<Pixel>::scaleBlank(
 	Pixel colour,
 	SDL_Surface* dst, int dstY, int endDstY
 ) {
-	SDL_Rect rect;
-	rect.x = 0;
-	rect.w = dst->w;
-	rect.y = dstY;
-	rect.h = endDstY - dstY;
-	// Note: SDL_FillRect is generally not allowed on locked surfaces.
-	//       However, we're using a software surface, which doesn't
-	//       have locking.
-	assert(!SDL_MUSTLOCK(dst));
-	// Note: return code ignored.
-	SDL_FillRect(dst, &rect, colour);
+	const HostCPU cpu = HostCPU::getInstance();
+	if (cpu.hasMMXEXT()) {
+		const unsigned col32 =
+				sizeof(Pixel) == 2
+			? (((unsigned)colour) << 16) | colour
+			: colour;
+		while (dstY < endDstY) {
+			Pixel* dstLine = Scaler<Pixel>::linePtr(dst, dstY++);
+			asm (
+				// Precalc colour.
+				"movd	%[col32], %%mm0;"
+				"punpckldq	%%mm0, %%mm0;"
+				"movq	%%mm0, %%mm1;"
+				"movq	%%mm0, %%mm2;"
+				"movq	%%mm1, %%mm3;"
+				
+				"xorl	%%eax, %%eax;"
+			"0:"
+				// Store.
+				"movntq	%%mm0, (%[dstLine],%%eax,4);"
+				"movntq	%%mm1, 8(%[dstLine],%%eax,4);"
+				"movntq	%%mm2, 16(%[dstLine],%%eax,4);"
+				"movntq	%%mm3, 24(%[dstLine],%%eax,4);"
+				// Increment.
+				"addl	%[PIXELS_PER_LOOP], %%eax;"
+				"cmpl	%[WIDTH], %%eax;"
+				"jl	0b;"
+		
+				: // no output
+				: [dstLine] "r" (dstLine)
+				, [col32] "r" (col32)
+				, [WIDTH] "r" (dst->w)
+				, [PIXELS_PER_LOOP] "r" (8 * 4 / sizeof(Pixel))
+				: "eax", "mm0", "mm1", "mm2", "mm3"
+				);
+		}
+		asm volatile ("emms");
+	} else {
+		SDL_Rect rect;
+		rect.x = 0;
+		rect.w = dst->w;
+		rect.y = dstY;
+		rect.h = endDstY - dstY;
+		// Note: SDL_FillRect is generally not allowed on locked surfaces.
+		//       However, we're using a software surface, which doesn't
+		//       have locking.
+		// TODO: But it would be more generic to just write bytes.
+		assert(!SDL_MUSTLOCK(dst));
+		// Note: return code ignored.
+		SDL_FillRect(dst, &rect, colour);
+	}
 }
 
 template <class Pixel>
