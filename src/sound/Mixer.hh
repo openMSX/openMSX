@@ -120,6 +120,8 @@ private:
 	BooleanSetting muteSetting;
 	BooleanSetting& pauseSetting;
 
+	int prevLeft, prevOutLeft;
+	int prevRight, prevOutRight;
 #ifdef DEBUG_MIXER
 	int nbClipped;
 #endif

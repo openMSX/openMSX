@@ -25,6 +25,8 @@ Mixer::Mixer()
 	  pauseSetting(Scheduler::instance().getPauseSetting()),
 	  soundDeviceInfo(*this)
 {
+	prevLeft = prevOutLeft = 0;
+	prevRight = prevOutRight = 0;
 #ifdef DEBUG_MIXER
 	nbClipped = 0;
 #endif
@@ -228,7 +230,27 @@ void Mixer::updtStrm(int samples)
 			left  += buffers[buf]  [2*j+0];
 			right += buffers[buf++][2*j+1];
 		}
+		
+		// 1st order IIR filter
+		//   y(n) = a0 * x(n) + a1 * x(n-1) + b1 * y(n-1)
+		// high-pass filter:
+		//   a0 =  (1 + x) / 2      x = exp(-2 * pi * f / fsamp)
+		//   a1 = -(1 + x) / 2      f = cut-off freq
+		//   b1 =   x               fsamp = sample freq
+		// take x = 510/512
+		//   44100Hz --> cutt-off freq = 27Hz
+		//   22050Hz                     13Hz
+		int tmp;
+		tmp = (511 * left - 511 * prevLeft + 510 * prevOutLeft) >> 9;
+		prevLeft = left;
+		prevOutLeft = tmp;
+		left = tmp;
 
+		tmp = (511 * right - 511 * prevRight + 510 * prevOutRight) >> 9;
+		prevRight = right;
+		prevOutRight = tmp;
+		right = tmp;
+ 
 		// clip
 		#ifdef DEBUG_MIXER
 		if ((left  > 32767) || (left  < -32768) ||

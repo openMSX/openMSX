@@ -5,6 +5,9 @@ $Id$
 	   romtype was wrongly detected, in romdb.xml the romtype was
 	   specified as "PLAIN", but for this type we still need to guess the
 	   start location in memory. Changed romtype in romdb.xml to "PAGE12"
+	* Added high-pass IIR filter to mixer:
+	   this greatly reduces clipping in applications that leave a sound
+	   channel at a constant non-zero value (e.g. catman)
 
 2003-12-03 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* made VDP status registers debuggable
