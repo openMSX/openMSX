@@ -145,6 +145,7 @@ static unsigned char TMS9928A_palette[16*3] =
 #define IMAGE_SIZE (256*192)        /* size of rendered image        */
 
 #define TMS_SPRITES_ENABLED ((tms.Regs[1] & 0x50) == 0x40)
+#define TMS99x8A 1
 #define TMS_MODE ( (tms.model == TMS99x8A ? (tms.Regs[0] & 2) : 0) | \
 	((tms.Regs[1] & 0x10)>>4) | ((tms.Regs[1] & 8)>>1))
 
@@ -177,7 +178,8 @@ void MSXTMS9928a::reset ()
 	tms.nametbl = tms.pattern = tms.colour = 0;
 	tms.spritepattern = tms.spriteattribute = 0;
 	tms.colourmask = tms.patternmask = 0;
-	tms.Addr = tms.ReadAhead = tms.INT = 0;
+	tms.Addr = tms.ReadAhead = 0;
+    //tms.INT = 0;
 	tms.mode = tms.BackColour = 0;
 	tms.Change = 1;
 	tms.FirstByte = -1;
@@ -200,9 +202,9 @@ void MSXTMS9928a::init(void)
 
     /* Video RAM */
     tms.vramsize = 0x4000;
-    tms.vMem = new byte [0x4000]; //(UINT8*) malloc (vram);
+    tms.vMem = new byte [tms.vramsize];
     if (!tms.vMem) return ;//(1);
-    memset (tms.vMem, 0, 0x4000);   // memset (tms.vMem, 0, vram);
+    memset (tms.vMem, 0, tms.vramsize);
 
     /* Sprite back buffer */
     tms.dBackMem = new byte [IMAGE_SIZE]; //(UINT8*)malloc (IMAGE_SIZE);
@@ -307,12 +309,17 @@ void MSXTMS9928a::executeUntilEmuTime(const Emutime &time)
 	PRT_DEBUG("Executing TMS9928a");
 
 	//TODO:: Call full screen refresh
-	//TODO:: Set interrupt if bits enable it
 	PutImage();
 	
 	//Next SP/interrupt in Pal mode here
 	currentTime = time;
 	Scheduler::instance()->setSyncPoint(currentTime+71285, *this);
+    // Since this is the vertical refresh
+    tms.StatusReg |= 0x80;
+	// Set interrupt if bits enable it
+    if (tms.Regs[1] & 0x20) {
+        setInterrupt();
+    }
 };
 
 /*
@@ -394,6 +401,8 @@ void MSXTMS9928a::writeIO(byte port, byte value, Emutime &time)
 	tms.FirstByte = value;
       }
       break;
+    default:
+      assert(false);
   }
 };
 
@@ -418,11 +427,8 @@ byte MSXTMS9928a::readIO(byte port, Emutime &time)
 		//READ_HANDLER (TMS9928A_register_r) 
 		b = tms.StatusReg;
 		tms.StatusReg &= 0x5f;
-		if (tms.INT) {
-			tms.INT = 0;
-			// TODO: if (tms.INTCallback) tms.INTCallback (tms.INT);
-		}
 		tms.FirstByte = -1;
+        resetInterrupt();
 		return b;
 	default:
 		assert(false);
@@ -446,9 +452,8 @@ void MSXTMS9928a::_TMS9928A_change_register (byte reg, byte val) {
     if (oldval == val) return;
     tms.Regs[reg] = val;
 
-    //logerror("TMS9928A: Reg %d = %02xh\n", reg, (int)val);
+    printf("TMS9928A: Reg %i = %02xh\n", (int)reg, (int)val);
     tms.Change = 1;
-    /*
     switch (reg) {
     case 0:
         if ( (val ^ oldval) & 2) {
@@ -464,22 +469,21 @@ void MSXTMS9928a::_TMS9928A_change_register (byte reg, byte val) {
                 tms.pattern = (tms.Regs[4] * 2048) & (tms.vramsize - 1);
             }
             tms.mode = TMS_MODE;
-            logerror("TMS9928A: %s\n", modes[tms.mode]);
-            _TMS9928A_set_dirty (1);
+            PRT_DEBUG (sprintf("TMS9928A: %s\n", modes[tms.mode]));
+            //_TMS9928A_set_dirty (1);
         }
         break;
     case 1:
         // check for changes in the INT line
-        b = (val & 0x20) && (tms.StatusReg & 0x80) ;
-        if (b != tms.INT) {
-            tms.INT = b;
-            if (tms.INTCallback) tms.INTCallback (tms.INT);
-        }
+        if ( (val & 0x20) && (tms.StatusReg & 0x80) ){
+          /* Set the interrupt line !! */
+          setInterrupt();
+        };
         mode = TMS_MODE;
         if (tms.mode != mode) {
             tms.mode = mode;
-            _TMS9928A_set_dirty (1);
-            logerror("TMS9928A: %s\n", modes[tms.mode]);
+            //_TMS9928A_set_dirty (1);
+            PRT_DEBUG (sprintf("TMS9928A: %s\n", modes[tms.mode]));
         }
         break;
     case 2:
@@ -517,18 +521,40 @@ void MSXTMS9928a::_TMS9928A_change_register (byte reg, byte val) {
         // The backdrop is updated at TMS9928A_refresh()
         tms.anyDirtyColour = 1;
         memset (tms.DirtyColour, 1, MAX_DIRTY_COLOUR);
+        //currently I change the entire background
+        // this should be on a line base 
+        full_border_fil();
+
         break;
     }
-    */
 };
+
+
+void MSXTMS9928a::full_border_fil()
+{
+     int i,j;
+     int bytes_per_pixel,rowlen,offset;
+
+     bytes_per_pixel=(bitmapscreen->depth+7)/8;
+     rowlen = bytes_per_pixel * (bitmapscreen->width + 2 * safetx);
+     offset = (safety + bitmapscreen->height)*rowlen;
+
+     for (i=0;i<safety*rowlen;i++){
+       bitmapscreen->_private[i] = XPal[tms.Regs[7] & 0xf] ;
+       bitmapscreen->_private[offset + i] = XPal[tms.Regs[7] & 0xf] ;
+     }
+     for (i=safety*rowlen-safetx;i<(1+bitmapscreen->height+safety)*rowlen;i+=rowlen){
+     for (j=0;j<safetx*2;j++){
+       bitmapscreen->_private[j+i] = XPal[tms.Regs[7] & 0xf] ;
+     }
+     }
+}
+
 
 /*
 ** Interface functions
 */
 
-//void TMS9928A_int_callback (void (*callback)(int)) {
-//    tms.INTCallback = callback;
-//};
 
 //void TMS9928A_set_spriteslimit (int limit) {
 //    tms.LimitSprites = limit;
@@ -683,8 +709,8 @@ struct osd_bitmap *MSXTMS9928a::alloc_bitmap(int width,int height,int depth)
 	if ((bitmap = new struct osd_bitmap) != 0)
 	{
 		unsigned char *bitmap_data=0;
-		int i,rowlen,rdwidth, bytes_per_pixel;
-		int y_rows,safety,safetx;
+		int i,rowlen,bytes_per_pixel;
+		int y_rows;
 		int bitmap_size;
 
 		bitmap->depth = depth;

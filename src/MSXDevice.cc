@@ -105,6 +105,7 @@ void MSXDevice::setInterrupt()
 {
 	if (isIRQset==false) {
 		isIRQset = true;
+		PRT_DEBUG ("Actually seting interupt line of " << getName());
 		MSXMotherBoard::instance()->raiseIRQ();
 	}
 }
@@ -112,6 +113,7 @@ void MSXDevice::resetInterrupt()
 {
 	if (isIRQset==true) {
 		isIRQset = false;
+		PRT_DEBUG ("Actually resseting interupt line of " << getName());
 		MSXMotherBoard::instance()->lowerIRQ();
 	}
 }

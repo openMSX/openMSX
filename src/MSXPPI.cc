@@ -160,12 +160,13 @@ void MSXPPI::keyGhosting(void)
 // 10111101  electrical connections  10110101
 //           that are established  by
 // the closed switches 
-	bool changed_something = false;
+	bool changed_something;
 	do {
+		changed_something = false;
 		for (int i=0; i<=Inputs::NR_KEYROWS; i++) {
 			for (int j=0; j<=Inputs::NR_KEYROWS; j++) {
 				if ((MSXKeyMatrix[i]|MSXKeyMatrix[j]) != 255) {
-					int rowanded=MSXKeyMatrix[i]&MSXKeyMatrix[j];
+					byte rowanded=MSXKeyMatrix[i]&MSXKeyMatrix[j];
 					if (rowanded != MSXKeyMatrix[i]) {
 						MSXKeyMatrix[i]=rowanded;
 						changed_something = true;

@@ -19,7 +19,7 @@ struct osd_bitmap
 {
 	int width,height;       /* width and height of the bitmap */
 	int depth;                      /* bits per pixel */
-	void *_private;         /* don't touch! - reserved for osdepend use */
+	byte *_private;         /* don't touch! - reserved for osdepend use */
 	byte  **line;           /* pointers to the start of each line */
 };
 
@@ -52,7 +52,8 @@ class MSXTMS9928a : public MSXDevice
         struct {
           /* TMS9928A internal settings */
           byte ReadAhead,Regs[8],StatusReg,oldStatusReg;
-          int Addr,FirstByte,INT,BackColour,Change,mode;
+          int Addr,FirstByte,BackColour,Change,mode;
+	  //int INT;
           int colour,pattern,nametbl,spriteattribute,spritepattern;
           int colourmask,patternmask;
           //void (*INTCallback)(int);
@@ -68,12 +69,15 @@ class MSXTMS9928a : public MSXDevice
         } tms;
         byte TMS9928A_vram_r();
         unsigned int XPal[20];
+        int safety,safetx;
         void PutImage();
         struct osd_bitmap *bitmapscreen;
 
         void plot_pixel(struct osd_bitmap *bitmap,int x,int y,int pen);
         struct osd_bitmap* alloc_bitmap(int width,int height,int depth);
         void _TMS9928A_change_register (byte reg, byte val);
+
+	void full_border_fil();
 };
 #endif //___MSXTMS9928A_HH__
 
