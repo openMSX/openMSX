@@ -2,6 +2,7 @@
 # $Id$
 #
 # Look for the lowest TCL version >= 8.4.
+# Provides an interface similar to lib-config scripts.
 
 BEST_MAJOR_VERSION=9999
 BEST_MINOR_VERSION=9999
@@ -74,11 +75,47 @@ done
 if [ $BEST_MAJOR_VERSION -eq 9999 ]
 then
 	echo "No TCL >= 8.4 found" 1>&2
-	echo "TCL_FOUND := false"
+	exit 1
 else
-	echo "Found TCL $BEST_MAJOR_VERSION.$BEST_MINOR_VERSION" 1>&2
-	echo "TCL_CFLAGS:=$BEST_CFLAGS"
-	echo "TCL_LDFLAGS:=$BEST_LDFLAGS"
-	echo "TCL_FOUND:=true"
-	echo "TCL_VERSION:=$BEST_MAJOR_VERSION.$BEST_MINOR_VERSION"
+	EXIT=0
+	if [ $# -eq 0 ]
+	then
+		HELP=true
+		EXIT=1
+	fi
+	for option in "$@"
+	do
+		case "$option" in
+			--cflags)
+				echo "$BEST_CFLAGS"
+				;;
+			--ldflags)
+				echo "$BEST_LDFLAGS"
+				;;
+			--version)
+				echo "$BEST_MAJOR_VERSION.$BEST_MINOR_VERSION"
+				;;
+			--help)
+				HELP=true
+				;;
+			*)
+				echo "Unknown option: $option" 1>&2
+				EXIT=1
+				;;
+		esac
+	done
+	if [ "$HELP" = true ]
+	then
+    	cat <<EOF
+Usage: tcl-search.sh [OPTION] ...
+
+Possible values for OPTION are:
+
+  --cflags        print compile flags
+  --ldflags       print linker flags
+  --help          print this help and exit
+  --version       print version information
+EOF
+	fi
+	exit $EXIT
 fi

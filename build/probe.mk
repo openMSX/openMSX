@@ -23,9 +23,6 @@ endif
 LOG:=$(OUTDIR)/probe.log
 OUTHEADER:=$(OUTDIR)/probed_defs.hh
 OUTMAKE:=$(OUTDIR)/probed_defs.mk
-OUTTCL:=$(OUTDIR)/config-tcl.mk
-
--include $(OUTTCL)
 
 
 # Functions
@@ -75,7 +72,7 @@ SYS_MMAN_HEADER:=<sys/mman.h>
 SYS_SOCKET_HEADER:=<sys/socket.h>
 
 TCL_HEADER:=<tcl.h>
-TCL_CFLAGS:=$(TCL_CFLAGS)
+TCL_CFLAGS:=`build/tcl-search.sh --cflags 2>> $(LOG)`
 
 XML_HEADER:=<libxml/parser.h>
 XML_CFLAGS:=`xml2-config --cflags 2>> $(LOG)`
@@ -102,8 +99,8 @@ SDL_RESULT:=`sdl-config --version`
 SDL_IMAGE_LDFLAGS=$(SDL_LDFLAGS) -lSDL_image
 SDL_IMAGE_RESULT:=yes
 
-TCL_LDFLAGS:=$(TCL_LDFLAGS)
-TCL_RESULT:=$(TCL_VERSION)
+TCL_LDFLAGS:=`build/tcl-search.sh --ldflags 2>> $(LOG)`
+TCL_RESULT:=`build/tcl-search.sh --version 2>> $(LOG)`
 
 XML_LDFLAGS:=`xml2-config --libs 2>> $(LOG)`
 XML_RESULT:=`xml2-config --version`
@@ -139,12 +136,6 @@ PRINT_LIBS:=$(addsuffix -print,$(CHECK_LIBS))
 all: check-targets print-libs
 check-targets: $(CHECK_TARGETS)
 print-libs: $(PRINT_LIBS)
-
-# Run the tcl-search.sh script.
-# Note: Because "init" target is executed after this, logging is overwritten.
-$(OUTTCL): build/tcl-search.sh
-	@mkdir -p $(@D)
-	@sh $< > $@ 2>> $(LOG)
 
 # Create empty log and result files.
 init:
