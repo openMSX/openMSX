@@ -68,38 +68,36 @@ class FileOperations
 		static string getNativePath(const string &path);
 
 		/**
+		 * Checks whether it's a absolute path or not.
+		 * @param path The pathname.
+		 * @result 1 when absolute path. 0 when relative path.
+		 */
+		static bool isAbsolutePath(const string& path);
+
+		/**
+		 * Get user's home directory.
+		 * UNI*Y: get from env-val: "HOME".
+		 * Win32: Currently use "My Documents" as home directory.
+		 *        Not "Documents and Settings".
+		 *        This is because to support Win9x.
+		 */
+		static const string& getUserDir();
+
+		/**
+		 * Get system directory.
+		 * UNI*Y: statically defined as "/opt/openMSX/".
+		 * Win32: use "same directory as .exe" instead.
+		 */
+		static const string& getSystemDir();
+
+	private:
+		/**
 		 * A wrapper for mkdir().
 		 * On some systems, mkdir() does not take permision in
 		 * arguments. For such systems, in this function,
 		 * adjust arguments.
 		 */
 		static int doMkdir(const char *name, mode_t mode);
-
-		/**
-		 * Checks whether it's a absolute path or not.
-		 * @param path The pathname.
-		 * @result 1 when absolute path. 0 when relative path.
-		 */
-		static int FileOperations::isAbsolutePath(string path);
-
-		/**
-		 * Set user's home directory.
-		 * UNI*Y: get from env-val: "HOME".
-		 * Win32: Currently use "My Documents" as home directory.
-		 *        Not "Documents and Settings".
-		 *        This is because to support Win9x.
-		 * @result 0 on success. -1 on any error.
-		 */
-		static int setUsrDir(void);
-
-		/**
-		 * Set system directory.
-		 * UNI*Y: statically defined as "/opt/openMSX/".
-		 * Win32: use "same directory as .exe" instead.
-		 * @result 0 on success. -1 on any error.
-		 */
-		static int setSysDir(void);
-
 };
 
 } // namespace openmsx

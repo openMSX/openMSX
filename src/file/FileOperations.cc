@@ -12,26 +12,22 @@
 #include <windows.h>
 #include <shlobj.h>
 #include <io.h>
+#include <ctype.h>
+#include <algorithm>
 #define	MAXPATHLEN	MAX_PATH
 #endif
 
 
 namespace openmsx {
 
-extern	string systemdir;
-string usrdir;
-
 string FileOperations::expandTilde(const string &path)
 {
-	if (path.size() <= 1) {
-		return path;
-	}
-	if (path[0] != '~') {
+	if ((path.size() <= 1) || (path[0] != '~')) {
 		return path;
 	}
 	if (path[1] == '/') {
 		// current user
-		return usrdir + path.substr(1);
+		return getUserDir() + path.substr(1);
 	} else {
 		// other user
 		PRT_INFO("Warning: ~<user>/ not yet implemented");
@@ -69,8 +65,7 @@ string FileOperations::getBaseName(const string &path)
 {
 	unsigned pos = path.rfind('/');
 	if (pos == string::npos) {
-		string empty;
-		return empty;
+		return "";
 	} else {
 		return path.substr(0, pos + 1);
 	}
@@ -78,28 +73,24 @@ string FileOperations::getBaseName(const string &path)
 
 string FileOperations::getNativePath(const string &path)
 {
-	string	ret = path;
 #if	defined(__WIN32__)
-	unsigned int	i;
-
-	for (i=0;i<ret.length();i++)
-		if (ret[i]=='/')
-			ret[i] = '\\';
+	string result(path);
+	replace(result.begin(), result.end(), '/', '\\');
+	return result;
+#else
+	return path;
 #endif
-	return	ret;
 }
 
 string FileOperations::getConventionalPath(const string &path)
 {
-	string	ret = path;
 #if	defined(__WIN32__)
-	unsigned int	i;
-
-	for (i=0;i<ret.length();i++)
-		if (ret[i]=='\\')
-			ret[i] = '/';
+	string result(path);
+	replace(result.begin(), result.end(), '\\', '/');
+	return result;
+#else
+	return path;
 #endif
-	return	ret;
 }
 
 int	FileOperations::doMkdir(const char *name, mode_t mode)
@@ -107,70 +98,65 @@ int	FileOperations::doMkdir(const char *name, mode_t mode)
 #if	defined(__MINGW32__) || defined(_MSC_VER)
 	if ((name[0]=='/' || name[0]=='\\') && name[1]=='\0' || 
 	    (name[1]==':' && name[3]=='\0' && (name[2]=='/' || name[2]=='\\')
-	    && ((name[0]>='A' && name[0]<='Z')||(name[0]>='a' && name[0]<='z'))
-	    )) {
-/*		*(_errno())=EEXIST;
-		return	-1;
-*/		return	0;
+	    && ((name[0]>='A' && name[0]<='Z')||(name[0]>='a' && name[0]<='z')))) {
+		// *(_errno()) = EEXIST;
+		// return -1;
+		return 0;
 	} else {
-		return	mkdir(name);
+		return mkdir(name);
 	}
 #else
-	return	mkdir(name, mode);
+	return mkdir(name, mode);
 #endif
 }
 
-int	FileOperations::isAbsolutePath(string path)
+bool FileOperations::isAbsolutePath(const string& path)
 {
 #if	defined(__WIN32__)
-	if (path[0]=='/' || (path[1]==':' && path[2]=='/' &&
-	    ((path[0]>='A' && path[0]<='Z')||(path[0]>='a' && path[0]<='z'))))
-#else
-	if (path[0]=='/')
+	if ((path.size() >= 3) && (path[1] == ':') && (path[2] == '/')) {
+		char drive = tolower(path[0]);
+		if (('a' <= drive) && (drive <= 'z')) {
+			return true;
+		}
+	}
 #endif
-		return	1;
-	else
-		return	0;
+	return !path.empty() && (path[0] == '/');
 }
 
-int	FileOperations::setUsrDir(void)
+const string& FileOperations::getUserDir()
 {
+	static string userDir;
+	if (userDir.empty()) {
 #if	defined(__WIN32__)
-	char	p[MAX_PATH+1];
-	int	res;
-
-	res = SHGetSpecialFolderPathA(0, p, CSIDL_PERSONAL, 1);
-	if (res==TRUE) {
-		usrdir = getConventionalPath(p);
-		return	0;
-	} else {
-		usrdir = "";
-		return	-1;
-	}
+		char p[MAX_PATH + 1];
+		int res = SHGetSpecialFolderPathA(0, p, CSIDL_PERSONAL, 1);
+		if (res != TRUE) {
+			PRT_ERROR("Cannot get user directory.");
+		}
+		userDir = getConventionalPath(p);
 #else
-	usrdir = getenv("HOME");
-	return	0;
+		userDir = getenv("HOME");
 #endif
+	}
+	return userDir;
 }
 
-int	FileOperations::setSysDir(void)
+const string& FileOperations::getSystemDir()
 {
+	static string systemDir;
+	if (systemDir.empty()) {
 #if	defined(__WIN32__)
-	char	p[MAX_PATH+1];
-	int	res;
-
-	res=GetModuleFileNameA(NULL,p,MAX_PATH);
-	if (res==0 || res==MAX_PATH) {
-		systemdir = "";
-		return	-1;
-	} else {
-		systemdir = getConventionalPath(p) + "/";
-		return	0;
-	}
+		char p[MAX_PATH + 1];
+		int res = GetModuleFileNameA(NULL, p, MAX_PATH);
+		if ((res == 0) || (res == MAX_PATH)) {
+			PRT_ERROR("Cannot detect openMSX directory.");
+		}
+		systemDir = getConventionalPath(p) + "/";
 #else
-//	systemdir = "/opt/openMSX/";
-	return	0;
+		systemDir = "/opt/openMSX/";
 #endif
- }
+	}
+	return systemDir;
+}
 
 } // namespace openmsx

@@ -11,6 +11,7 @@
 #include "CartridgeSlotManager.hh"
 #include "CliExtension.hh"
 #include "File.hh"
+#include "FileOperations.hh"
 
 namespace openmsx {
 
@@ -162,7 +163,7 @@ void CommandLineParser::parse(int argc, char **argv)
 	list<string> cmdLine;
 	list<string> backupCmdLine;
 	for (int i = 1; i < argc; i++) {
-		cmdLine.push_back(argv[i]);
+		cmdLine.push_back(FileOperations::getConventionalPath(argv[i]));
 	}
 
 	for (int priority = 1; priority <= 7; priority++){

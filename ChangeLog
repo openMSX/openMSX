@@ -1,5 +1,8 @@
 $Id$
 
+2003-09-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* filename stuff cleanups
+
 2003-09-12 Manuel Bilderbeek <manuel@msxnet.org>
 	* the file from which the WavAudioInput reads is now configurable with
 	  the setting "audio-inputfilename". Default is still

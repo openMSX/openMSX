@@ -33,11 +33,11 @@ CompressedFileAdapter::CompressedFileAdapter(FileBase* file_)
 CompressedFileAdapter::~CompressedFileAdapter()
 {
 	if (localName) {
-		unlink(FileOperations::getNativePath(localName).c_str());
+		unlink(localName);
 		free(localName);
 		--tmpCount;
 		if (tmpCount == 0) {
-			rmdir(FileOperations::getNativePath(tmpDir).c_str());
+			rmdir(tmpDir.c_str());
 		}
 	}
 
@@ -80,34 +80,39 @@ const string CompressedFileAdapter::getURL() const
 
 const string CompressedFileAdapter::getLocalName()
 {
-	if (localName == 0) {
+	if (!localName) {
+		// create temp dir
+		if (tmpCount == 0) {
 #ifdef	__WIN32__
-		char tmppath[MAX_PATH];
-		char tmpname[MAX_PATH];
-		if (tmpCount == 0) {
-			ostringstream os;
-			if (!GetTempPathA(MAX_PATH,tmppath)) {
-			throw FileException("Coundn't get temp file path");
+			char tmppath[MAX_PATH];
+			if (!GetTempPathA(MAX_PATH, tmppath)) {
+				throw FileException("Coundn't get temp file path");
 			}
-			tmpDir = FileOperations::getConventionalPath(tmppath);
-		}
-		if (!GetTempFileNameA(tmppath,"openmsx",0,tmpname)) {
-			throw FileException("Coundn't get temp file name");
-		}
-		localName = strdup(FileOperations::getConventionalPath(tmpname).c_str());
-		FILE *file = fopen(FileOperations::getNativePath(tmpname).c_str(), "w");
+			tmpDir = tmppath + "\\openmsx";
 #else
-		if (tmpCount == 0) {
 			ostringstream os;
 			os << "/tmp/openmsx." << getpid();
 			tmpDir = os.str();
+#endif
 			FileOperations::mkdirp(tmpDir);
 		}
-		string templ = tmpDir + "/XXXXXX";
-		localName = strdup(templ.c_str());
+		
+		// create temp file
+#ifdef	__WIN32__
+		char tmpname[MAX_PATH];
+		if (!GetTempFileNameA(tmpDir.c_str(), "openmsx", 0, tmpname)) {
+			throw FileException("Coundn't get temp file name");
+		}
+		localName = strdup(tmpname);
+		FILE *file = fopen(localName, "w");
+#else
+		string tmp = tmpDir + "/XXXXXX";
+		localName = strdup(tmp.c_str());
 		int fd = mkstemp(localName);
 		FILE* file = fdopen(fd, "w");
 #endif
+		
+		// write temp file
 		if (!file) {
 			throw FileException("Couldn't create temp file");
 		}
@@ -115,7 +120,7 @@ const string CompressedFileAdapter::getLocalName()
 		fclose(file);
 		++tmpCount;
 	}
-	return localName;
+	return FileOperations::getConventionalPath(localName);
 }
 
 bool CompressedFileAdapter::isReadOnly() const

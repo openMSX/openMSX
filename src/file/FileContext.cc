@@ -13,11 +13,10 @@
 namespace openmsx {
 
 #if	defined(__WIN32__)
-const string homedir("~/openMSX/");
+const string HOMEDIR("~/openMSX/");
 #else
-const string homedir("~/.openMSX/");
+const string HOMEDIR("~/.openMSX/");
 #endif
-string systemdir("/opt/openMSX/");
 
 
 
@@ -52,7 +51,7 @@ const string FileContext::resolve(const vector<string> &pathList,
 {
 	// TODO handle url-protocols better
 	
-	PRT_DEBUG("Context: "<<filename);
+	PRT_DEBUG("Context: " << filename);
 	if ((filename.find("://") != string::npos) ||
 	    FileOperations::isAbsolutePath(filename)) {
 		// protocol specified or absolute path, don't resolve
@@ -108,7 +107,7 @@ ConfigFileContext::ConfigFileContext(const string &path,
 		snprintf(buf, 20, "untitled%d", num);
 		userName = buf;
 	}
-	savePath = homedir + "persistent/" + hwDescr +
+	savePath = HOMEDIR + "persistent/" + hwDescr +
 	                       '/' + userName + '/';
 }
 
@@ -132,8 +131,8 @@ ConfigFileContext::ConfigFileContext(const ConfigFileContext& rhs)
 
 SystemFileContext::SystemFileContext()
 {
-	paths.push_back(homedir);		// user directory
-	paths.push_back(systemdir);	// system directory
+	paths.push_back(HOMEDIR);		// user directory
+	paths.push_back(FileOperations::getSystemDir());
 }
 
 const vector<string> &SystemFileContext::getPaths()
@@ -160,12 +159,12 @@ SettingFileContext::SettingFileContext(const string &url)
 	paths.push_back(path);
 	PRT_DEBUG("SettingFileContext: "<<path);
 
-	string home(FileOperations::expandTilde(homedir));
+	string home(FileOperations::expandTilde(HOMEDIR));
 	
 	unsigned pos1 = path.find(home);
 	if (pos1 != string::npos) {
 		unsigned len1 = home.length();
-		string path1 = path.replace(pos1, len1, systemdir);
+		string path1 = path.replace(pos1, len1, FileOperations::getSystemDir());
 		paths.push_back(path1);
 		PRT_DEBUG("SettingFileContext: "<<path1);
 	}
@@ -197,7 +196,7 @@ UserFileContext::UserFileContext()
 UserFileContext::UserFileContext(const string &savePath_)
 	: alreadyInit(false)
 {
-	savePath = string(homedir + "persistent/") + savePath_ + '/';
+	savePath = string(HOMEDIR + "persistent/") + savePath_ + '/';
 }
 
 const vector<string> &UserFileContext::getPaths()

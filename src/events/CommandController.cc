@@ -259,19 +259,15 @@ void CommandController::completeString(vector<string> &tokens,
 
 void CommandController::completeFileName(vector<string> &tokens)
 {
-	string& filename = tokens[tokens.size()-1];
+	string& filename = tokens[tokens.size() - 1];
 	filename = FileOperations::expandTilde(filename);
 	string basename = FileOperations::getBaseName(filename);
 	vector<string> paths;
-	if (!filename.empty() && FileOperations::isAbsolutePath(filename)) {
-		// absolute path
-#if	defined(__WIN32__)
+	if (FileOperations::isAbsolutePath(filename)) {
+		// absolute path, only try root directory
 		paths.push_back("");
-#else
-		paths.push_back("/");
-#endif
 	} else {
-		// realtive path, also try user directories
+		// relative path, also try user directories
 		UserFileContext context;
 		paths = context.getPaths();
 	}
@@ -298,7 +294,7 @@ void CommandController::completeFileName(vector<string> &tokens)
 		}
 	}
 	bool t = completeString2(filename, filenames);
-	if (t && filename[filename.size()-1] != '/') {
+	if (t && filename[filename.size() - 1] != '/') {
 		// completed filename, start new token
 		tokens.push_back(string());
 	}
