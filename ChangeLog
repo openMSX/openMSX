@@ -2,6 +2,7 @@ $Id$
 
 2004-09-27 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Use #ifdef iso if around asm routines
+	* Added normal-MMX (non-ext-MMX) routines for every ext-MMX routine
 
 2004-09-26 Arnold Metselaar <arnold_m@operamail.com>
 	* Let Keyboard and KeyJoystick release all keys when the console 

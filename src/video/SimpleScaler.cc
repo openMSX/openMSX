@@ -151,103 +151,15 @@ template <class Pixel>
 void SimpleScaler<Pixel>::scaleBlank(Pixel colour, SDL_Surface* dst,
                                      int dstY, int endDstY)
 {
-	if (colour == 0) {
-		// No need to draw scanlines if border is black.
-		// This is a special case that occurs very often.
-		Scaler<Pixel>::scaleBlank(colour, dst, dstY, endDstY);
-		return;
-	}
-	
 	int scanline = 255 - (scanlineSetting.getValue() * 255) / 100;
 	Pixel scanlineColour = mult1.multiply(colour, scanline);
 
-	#ifdef ASM_X86
-	const HostCPU& cpu = HostCPU::getInstance();
-	if (cpu.hasMMXEXT()) {
-		// extended-MMX routine (both 16bpp and 32bpp)
-		const unsigned col32 = sizeof(Pixel) == 2
-			? (((unsigned)colour) << 16) | colour
-			: colour;
-		const unsigned scan32 = sizeof(Pixel) == 2
-			? (((unsigned)scanlineColour) << 16) | scanlineColour
-			: scanlineColour;
-		while (dstY < endDstY) {
-			Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, dstY++);
-			Pixel* dstLower = Scaler<Pixel>::linePtr(dst, dstY++);
-			asm (
-				// Precalc normal colour.
-				"movd	%2, %%mm0;"
-				"punpckldq	%%mm0, %%mm0;"
-
-				"xorl	%%eax, %%eax;"
-			"0:"
-				// Store.
-				"movntq	%%mm0,   (%0,%%eax);"
-				"movntq	%%mm0,  8(%0,%%eax);"
-				"movntq	%%mm0, 16(%0,%%eax);"
-				"movntq	%%mm0, 24(%0,%%eax);"
-				"movntq	%%mm0, 32(%0,%%eax);"
-				"movntq	%%mm0, 40(%0,%%eax);"
-				"movntq	%%mm0, 48(%0,%%eax);"
-				"movntq	%%mm0, 56(%0,%%eax);"
-				// Increment.
-				"addl	$64, %%eax;"
-				"cmpl	%4, %%eax;"
-				"jl	0b;"
-
-				// Precalc darkened colour.
-				"movd	%3, %%mm1;"
-				"punpckldq	%%mm1, %%mm1;"
-
-				"xorl	%%eax, %%eax;"
-			"1:"
-				// Store.
-				"movntq	%%mm1,   (%1,%%eax);"
-				"movntq	%%mm1,  8(%1,%%eax);"
-				"movntq	%%mm1, 16(%1,%%eax);"
-				"movntq	%%mm1, 24(%1,%%eax);"
-				"movntq	%%mm1, 32(%1,%%eax);"
-				"movntq	%%mm1, 40(%1,%%eax);"
-				"movntq	%%mm1, 48(%1,%%eax);"
-				"movntq	%%mm1, 56(%1,%%eax);"
-				// Increment.
-				"addl	$64, %%eax;"
-				"cmpl	%4, %%eax;"
-				"jl	1b;"
-
-				: // no output
-				: "r" (dstUpper) // 0
-				, "r" (dstLower) // 1
-				, "rm" (col32) // 2
-				, "rm" (scan32) // 3
-				, "r" (dst->w * sizeof(Pixel)) // 4: bytes per line
-				: "mm0", "mm1"
-				, "eax"
-			);
-		}
-		asm volatile ("emms");
-		return;
-	}
-	#endif
-	
-	// Note: SDL_FillRect is generally not allowed on locked surfaces.
-	//       However, we're using a software surface, which doesn't
-	//       have locking.
-	// TODO: But it would be more generic to just write bytes.
-	assert(!SDL_MUSTLOCK(dst));
-
-	SDL_Rect rect;
-	rect.x = 0;
-	rect.w = dst->w;
-	rect.h = 1;
-	for (int y = dstY; y < endDstY; y += 2) {
-		rect.y = y;
-		// Note: return code ignored.
-		SDL_FillRect(dst, &rect, colour);
-		if (y + 1 == endDstY) break;
-		rect.y = y + 1;
-		// Note: return code ignored.
-		SDL_FillRect(dst, &rect, scanlineColour);
+	while (dstY < endDstY) {
+		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, dstY++);
+		Scaler<Pixel>::fillLine(dstUpper, colour, dst->w);
+		if (dstY == endDstY) break;
+		Pixel* dstLower = Scaler<Pixel>::linePtr(dst, dstY++);
+		Scaler<Pixel>::fillLine(dstLower, scanlineColour, dst->w);
 	}
 }
 
@@ -284,7 +196,7 @@ void SimpleScaler<Pixel>::blur256(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 	 */
 
 	if (alpha == 0) {
-		Scaler<Pixel>::scaleLine(pIn, pOut, 320);
+		Scaler<Pixel>::scaleLine(pIn, pOut, 320, true); // in cache
 		return;
 	}
 
@@ -452,7 +364,7 @@ void SimpleScaler<Pixel>::blur512(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 	 */
 
 	if (alpha == 0) {
-		Scaler<Pixel>::copyLine(pIn, pOut, 640);
+		Scaler<Pixel>::copyLine(pIn, pOut, 640, true); // in cache
 		return;
 	}
 

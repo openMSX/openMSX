@@ -101,7 +101,18 @@ protected:
 	  */
 	static void copyLine(
 		SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY);
-	static void copyLine(const Pixel* pIn, Pixel* pOut, unsigned width);
+	
+	/** Copies the given line.
+	  * @param pIn ptr to start of source line
+	  * @param pOut ptr to start of destination line
+	  * @param width the width of the line
+	  * @param inCache Indicates wheter the destination line should be
+	  *                cached. Not caching is (a lot) faster when the
+	  *                destination line is no needed later in the algorithm.
+	  *                Otherwise caching is faster.
+	  */
+	static void copyLine(const Pixel* pIn, Pixel* pOut, unsigned width,
+	                     bool inCache = false);
 
 	/** Scales the given line a factor 2 horizontally.
 	  * @param src Source: surface to copy from.
@@ -110,8 +121,26 @@ protected:
 	  * @param dstY Line number on destination surface.
 	  */
 	static void scaleLine(
-		SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY );
-	static void scaleLine(const Pixel* pIn, Pixel* pOut, unsigned width);
+		SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY);
+	
+	/** Scales the given line a factor 2 horizontally.
+	  * @param pIn ptr to start of source line
+	  * @param pOut ptr to start of destination line
+	  * @param width the width of the source line
+	  * @param inCache Indicates wheter the destination line should be
+	  *                cached. Not caching is (a lot) faster when the
+	  *                destination line is no needed later in the algorithm.
+	  *                Otherwise caching is faster.
+	  */
+	static void scaleLine(const Pixel* pIn, Pixel* pOut, unsigned width,
+	                      bool inCache = false);
+
+	/** Fill a line with a constant colour
+	 *  @param pOut ptr to start of line (typically obtained from linePtr())
+	 *  @param colour the fill colour
+	 *  @param width the width of the line (typically 320 or 640)
+	 */
+	void fillLine(Pixel* pOut, Pixel colour, unsigned width);
 };
 
 } // namespace openmsx
