@@ -5,17 +5,16 @@
 
 #include "openmsx.hh"
 #include "Schedulable.hh"
+#include "Debuggable.hh"
 
 namespace openmsx {
 
-// Forward declarartions
 class Y8950;
 
-
-class Y8950Adpcm : private Schedulable
+class Y8950Adpcm : private Schedulable, private Debuggable
 {
 public:
-	Y8950Adpcm(Y8950* y8950, int sampleRam);
+	Y8950Adpcm(Y8950& y8950, const string& name, int sampleRam);
 	virtual ~Y8950Adpcm();
 	
 	void reset(const EmuTime& time);
@@ -26,13 +25,22 @@ public:
 	int calcSample();
 
 private:
-	void schedule(const EmuTime& time);
+	// Debuggable
+	virtual unsigned getSize() const;
+	virtual const string& getDescription() const;
+	virtual byte read(unsigned address);
+	virtual void write(unsigned address, byte value);
+	
+	// Schedulable
 	virtual void executeUntil(const EmuTime& time, int userData) throw();
 	virtual const string& schedName() const;
+
+	void schedule(const EmuTime& time);
 	int CLAP(int min, int x, int max);
 	void restart();
 
-	Y8950* y8950;
+	Y8950& y8950;
+	const string name;
 
 	int sampleRate;
 	

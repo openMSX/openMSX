@@ -3,7 +3,7 @@
 #include "Y8950Adpcm.hh"
 #include "Y8950.hh"
 #include "Scheduler.hh"
-
+#include "Debugger.hh"
 
 namespace openmsx {
 
@@ -59,18 +59,21 @@ int Y8950Adpcm::CLAP(int min, int x, int max)
 //                                                          //
 //**********************************************************//
 
-Y8950Adpcm::Y8950Adpcm(Y8950* y8950_, int sampleRam)
-	: y8950(y8950_), volume(0)
+Y8950Adpcm::Y8950Adpcm(Y8950& y8950_, const string& name_, int sampleRam)
+	: y8950(y8950_), name(name_ + "_ram"), volume(0)
 {
 	ramSize = sampleRam;
 	ramBank = new byte[256*1024];
 	romBank = new byte[256*1024];
 	memset(ramBank, 255, 256*1024);
 	memset(romBank, 255, 256*1024);
+
+	Debugger::instance().registerDebuggable(name, *this);
 }
 
 Y8950Adpcm::~Y8950Adpcm()
 {
+	Debugger::instance().unregisterDebuggable(name, *this);
 	delete[] ramBank;
 	delete[] romBank;
 }
@@ -130,7 +133,7 @@ void Y8950Adpcm::schedule(const EmuTime &time)
 
 void Y8950Adpcm::executeUntil(const EmuTime& time, int userData) throw()
 {
-	y8950->setStatus(Y8950::STATUS_EOS);
+	y8950.setStatus(Y8950::STATUS_EOS);
 	if (reg7 & R07_REPEAT) {
 		schedule(time);
 	}
@@ -194,10 +197,10 @@ void Y8950Adpcm::writeReg(byte rg, byte data, const EmuTime &time)
 				//PRT_DEBUG("Y8950Adpcm: mem " << tmp << " " << (int)data);
 				memPntr += 2;
 				if ((startAddr + memPntr) > stopAddr) {
-					y8950->setStatus(Y8950::STATUS_EOS);
+					y8950.setStatus(Y8950::STATUS_EOS);
 				}
 			}
-			y8950->setStatus(Y8950::STATUS_BUF_RDY);
+			y8950.setStatus(Y8950::STATUS_BUF_RDY);
 			break;
 
 		case 0x10: // DELTA-N (L) 
@@ -243,7 +246,7 @@ byte Y8950Adpcm::readReg(byte rg)
 			result = wave[adr];
 			memPntr += 2;
 			if ((startAddr + memPntr) > stopAddr) {
-				y8950->setStatus(Y8950::STATUS_EOS);
+				y8950.setStatus(Y8950::STATUS_EOS);
 			}
 			break;
 		}
@@ -299,7 +302,7 @@ int Y8950Adpcm::calcSample()
 					restart();
 				} else {
 					playing = false;
-					//y8950->setStatus(Y8950::STATUS_EOS);
+					//y8950.setStatus(Y8950::STATUS_EOS);
 				}
 			}
 		} while (nowStep >= MAX_STEP);
@@ -309,6 +312,29 @@ int Y8950Adpcm::calcSample()
 	}
 	output += sampleStep;
 	return output >> 12;
+}
+
+
+// Debuggable
+unsigned Y8950Adpcm::getSize() const
+{
+	return ramSize;
+}
+
+const string& Y8950Adpcm::getDescription() const
+{
+	static const string desc = "Y8950 sample RAM";
+	return desc;
+}
+
+byte Y8950Adpcm::read(unsigned address)
+{
+	return ramBank[address];
+}
+
+void Y8950Adpcm::write(unsigned address, byte value)
+{
+	ramBank[address] = value;
 }
 
 } // namespace openmsx

@@ -5,6 +5,7 @@ $Id$
 	* Deleted debug view related files:
 	    they were not used anymore and doxygen didn't like them
 	* Made MoonSound debuggable
+	* Made MSX-AUDIO sample RAM debuggable
 
 2004-03-04 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Made memory mapper debuggable

@@ -418,7 +418,7 @@ void Y8950::Channel::keyOff()
 
 Y8950::Y8950(const string& name_, short volume, int sampleRam,
              const EmuTime& time, Mixer::ChannelMode mode)
-	: timer1(this), timer2(this), adpcm(this, sampleRam), connector(),
+	: timer1(this), timer2(this), adpcm(*this, name_, sampleRam), connector(),
 	  dac13(name_ + "_DAC", "MSX-AUDIO 13-bit DAC", volume, time),
           name(name_)
 {
