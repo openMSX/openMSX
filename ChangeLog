@@ -1,9 +1,14 @@
 $Id$
 
+2005-02-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed sprites in P1 mode:
+	   - Erik did all the hard work, I just had to fix one line ;-)
+	   - Battle Bomber works now!
+
 2005-02-16 Eric Boon <e.boon4@chello.nl>
 	* Initial implementation P1 sprites (~15 fps :-/)
 		- HiSpec Snowfall demo shows wrong sprite patterns
-		
+
 2005-02-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed more compiler warnings (all harmless):
 	    compiled with gcc version 4.0.0 20050212 (experimental)

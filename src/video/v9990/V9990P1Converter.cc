@@ -172,10 +172,10 @@ void V9990P1Converter<Pixel, zoom>::determineVisibleSprites(
 		byte attr = vram->readVRAM(spriteInfo+3);
 
 		if(!(attr & 0x10)) {
-			byte spriteY = vram->readVRAM(spriteInfo); 
-			if((displayY < spriteY) && (spriteY <= displayY+16)) {
+			byte spriteY = vram->readVRAM(spriteInfo) + 1;
+			if ((spriteY <= displayY) && (displayY < (spriteY + 16))) {
 				visibleSprites[index++] = sprite;
-				if(index >= 16) return;
+				if (index >= 16) return;
 			}
 		}
 	}
