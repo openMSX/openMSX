@@ -1,5 +1,6 @@
 config.log
 config.h
+config.h.in
 config.cache
 config.status
 stamp-h

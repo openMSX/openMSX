@@ -18,3 +18,7 @@ config.h.in.in
 *.ROM
 .xvpics
 *.dsk
+*.prof
+gmon.out
+*.vim
+.kdbgrc.openmsx
