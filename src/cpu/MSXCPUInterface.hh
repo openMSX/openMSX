@@ -49,7 +49,9 @@ class MSXCPUInterface : public CPUInterface
 		 *       automatically registered
 		 */
 		void registerSlottedDevice(MSXMemDevice *device,
-		                           int PrimSl, int SecSL, int Page);
+		                           int primSl, int secSL, int pages);
+		void registerSlottedDevice(MSXMemDevice *device, int Page);
+		void registerPostSlots();
 
 		/**
 		 * Reset (the slot state)
@@ -103,6 +105,16 @@ class MSXCPUInterface : public CPUInterface
 
 	private:
 		MSXCPUInterface();
+	
+		struct RegPostSlot {
+			RegPostSlot(MSXMemDevice* device_, int pages_)
+				: device(device_), pages(pages_) {}
+			MSXMemDevice* device;
+			int pages;
+		};
+		std::list<RegPostSlot> regPostSlots;
+		void registerSlot(MSXMemDevice *device,
+		                  int primSl, int secSL, int page);
 		
 		class SlotMapCmd : public Command {
 			virtual void execute(const std::vector<std::string> &tokens,

@@ -54,7 +54,7 @@ void CommandLineParser::parse(int argc, char **argv)
 	}
 
 	// iterate over all arguments
-	while(!cmdLine.empty()) {
+	while (!cmdLine.empty()) {
 		std::string arg = cmdLine.front();
 		cmdLine.pop_front();
 		

@@ -1,6 +1,14 @@
 $Id$
 
-2003-02-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2003-02-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented free slot selection:
+	   - this is only a temporary solution, it will very likely change
+	     in the next release
+	   - when you specify -1 for the primary slot, the cartridge will
+	     be inserted in a free external slot. Very usefull to write
+	     generic extensions.
+
+2003-02-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* extension directory now has the same structure as the
 	  machines directory:
 	   - for example the scc extension lives in

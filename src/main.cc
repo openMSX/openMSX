@@ -20,6 +20,7 @@
 #include "icon.nn"
 #include "CommandController.hh"
 #include "KeyEventInserter.hh"
+#include "MSXCPUInterface.hh"
 
 
 void initializeSDL()
@@ -58,6 +59,8 @@ int main(int argc, char **argv)
 			MSXDevice *device = DeviceFactory::create(d, zero);
 			MSXMotherBoard::instance()->addDevice(device);
 		}
+		// register all postponed slots
+		MSXCPUInterface::instance()->registerPostSlots();
 
 		// Start a new thread for event handling
 		Thread thread(EventDistributor::instance());

@@ -28,13 +28,31 @@ void MSXMemDevice::writeMem(word address, byte value, const EmuTime &time)
 void MSXMemDevice::registerSlots()
 {
 	// register in slot-structure
-	if (deviceConfig == NULL) return;	// for DummyDevice
-	std::list<Device::Slotted*>::const_iterator i;
-	for (i=deviceConfig->slotted.begin(); i!=deviceConfig->slotted.end(); i++) {
-		int ps = (*i)->getPS();
-		int ss = (*i)->getSS();
-		int page = (*i)->getPage();
-		MSXCPUInterface::instance()->registerSlottedDevice(this, ps, ss, page);
+	if (deviceConfig == NULL) {
+		// DummyDevice
+		return;
+	}
+	
+	assert(!deviceConfig->slotted.empty());
+	int ps = deviceConfig->slotted.front()->getPS();
+	int ss = deviceConfig->slotted.front()->getSS();
+	int pages = 0;
+	std::list<Device::Slotted*>::const_iterator it;
+	for (it  = deviceConfig->slotted.begin();
+	     it != deviceConfig->slotted.end();
+	     it++) {
+		assert((*it)->getPS() == ps);
+		assert((*it)->getSS() == ss);
+		pages |= 1 << ((*it)->getPage());
+	}
+	if (ps >= 0) {
+		// slot specified
+		MSXCPUInterface::instance()->
+			registerSlottedDevice(this, ps, ss, pages);
+	} else {
+		// take any free slot
+		MSXCPUInterface::instance()->
+			registerSlottedDevice(this, pages);
 	}
 }
 

@@ -167,7 +167,7 @@ Device::Device(XML::Element *element_, FileContext *context_)
 	std::list<XML::Element*>::iterator i;
 	for (i = element->children.begin(); i != element->children.end(); i++) {
 		if ((*i)->name == "slotted") {
-			int PS=-1;
+			int PS=-2;
 			int SS=-1;
 			int Page=-1;
 			std::list<XML::Element*>::iterator j;
@@ -179,7 +179,7 @@ Device::Device(XML::Element *element_, FileContext *context_)
 				if ((*j)->name == "page")
 					Page = Config::Parameter::stringToInt((*j)->pcdata);
 			}
-			if (PS != -1) 
+			if (PS != -2) 
 				slotted.push_back(new Device::Slotted(PS,SS,Page));
 		}
 	}
@@ -200,16 +200,6 @@ Device::Slotted::~Slotted()
 {
 }
 
-bool Device::Slotted::hasSS() const
-{
-	return (ps != -1);
-}
-
-bool Device::Slotted::hasPage() const
-{
-	return (page != -1);
-}
-
 int Device::Slotted::getPS() const
 {
 	return ps;
@@ -217,17 +207,11 @@ int Device::Slotted::getPS() const
 
 int Device::Slotted::getSS() const
 {
-	if (ss == -1) {
-		throw ConfigException("Request for SS on a Slotted without SS");
-	}
 	return ss;
 }
 
 int Device::Slotted::getPage() const
 {
-	if (page == -1) {
-		throw ConfigException("Request for Page on a Slotted without Page");
-	}
 	return page;
 }
 

@@ -7,6 +7,7 @@
 #include "CommandController.hh"
 #include "MSXCPU.hh"
 #include "MSXConfig.hh"
+#include "CartridgeSlotManager.hh"
 
 
 MSXCPUInterface* MSXCPUInterface::instance()
@@ -93,7 +94,8 @@ void MSXCPUInterface::register_IO_Out(byte port, MSXIODevice *device)
 	}
 }
 
-void MSXCPUInterface::registerSlottedDevice(MSXMemDevice *device, int primSl, int secSl, int page)
+void MSXCPUInterface::registerSlot(MSXMemDevice *device,
+                                   int primSl, int secSl, int page)
 {
 	if (!isSubSlotted[primSl] && secSl != 0) {
 		std::ostringstream s;
@@ -106,6 +108,34 @@ void MSXCPUInterface::registerSlottedDevice(MSXMemDevice *device, int primSl, in
 		slotLayout[primSl][secSl][page] = device;
 	} else {
 		PRT_ERROR(device->getName() << " trying to register taken slot");
+	}
+}
+
+void MSXCPUInterface::registerSlottedDevice(MSXMemDevice* device,
+                                            int primSl, int secSl, int pages)
+{
+	for (int i = 0; i < 4; i++) {
+		if (pages & (1 << i)) {
+			registerSlot(device, primSl, secSl, i);
+		}
+	}
+}
+
+void MSXCPUInterface::registerSlottedDevice(MSXMemDevice* device, int pages)
+{
+	PRT_DEBUG("debug1");
+	RegPostSlot regPostSlot(device, pages);
+	regPostSlots.push_back(regPostSlot);
+}
+
+void MSXCPUInterface::registerPostSlots()
+{
+	PRT_DEBUG("debug2");
+	std::list<RegPostSlot>::iterator it;
+	for (it = regPostSlots.begin(); it != regPostSlots.end(); it++) {
+		int ps, ss;
+		CartridgeSlotManager::instance()->getSlot(ps, ss);
+		registerSlottedDevice(it->device, ps, ss, it->pages);
 	}
 }
 

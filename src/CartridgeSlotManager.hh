@@ -20,6 +20,5 @@ class CartridgeSlotManager
 		int slots[16];
 };
 
-
 #endif
 

@@ -87,11 +87,9 @@ class Device: virtual public Config
 		class Slotted
 		{
 		public:
-			Slotted(int PS, int SS=-1, int Page=-1);
+			Slotted(int PS, int SS, int Page);
 			~Slotted();
 			
-			bool hasSS() const;
-			bool hasPage() const;
 			int getPS() const;
 			int getSS() const;
 			int getPage() const;
