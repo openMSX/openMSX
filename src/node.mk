@@ -20,7 +20,6 @@ SRC_HDR:= \
 	MSXS1985 \
 	MSXS1990 \
 	DummyDevice \
-	JoystickPorts \
 	MSXPrinterPort \
 	PrinterPortDevice PrinterPortSimpl PrinterPortLogger \
 	MSXKanji MSXKanji12 MSXBunsetsu \
@@ -35,7 +34,7 @@ SRC_HDR:= \
 	MSXDiskRomPatch \
 	md5 sha1 \
 	CircularBuffer \
-	PluggingController Connector Pluggable \
+	PluggingController Connector Pluggable PluggableFactory \
 	DebugDevice
 
 SRC_ONLY:= \

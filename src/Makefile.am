@@ -60,7 +60,6 @@ openmsx_SOURCES=\
 	MSXS1985.hh MSXS1985.cc \
 	MSXS1990.hh MSXS1990.cc \
 	DummyDevice.hh DummyDevice.cc \
-	JoystickPorts.hh JoystickPorts.cc \
 	MSXPrinterPort.hh MSXPrinterPort.cc \
 	PrinterPortDevice.hh PrinterPortDevice.cc \
 	PrinterPortSimpl.hh PrinterPortSimpl.cc \
@@ -85,6 +84,7 @@ openmsx_SOURCES=\
 	PluggingController.hh PluggingController.cc \
 	Connector.hh Connector.cc \
 	Pluggable.hh Pluggable.cc \
+	PluggableFactory.hh PluggableFactory.cc \
 	DebugDevice.hh DebugDevice.cc \
 	config.h
 
