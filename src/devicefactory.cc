@@ -16,6 +16,7 @@
 #include "MSXRealTime.hh"
 #include "MSXMegaRom.hh"
 #include "MSXKonamiSynthesizer.hh"
+#include "MSXPrinterPort.hh"
 //#include "MSXPostLoad.hh"
 
 
@@ -62,6 +63,9 @@ MSXDevice *deviceFactory::create(MSXConfig::Device *conf) {
 	} else
 	if (conf->getType()=="MegaRom") {
 		device = new MSXMegaRom();
+	} else
+	if (conf->getType()=="PrinterPort") {
+		device = new MSXPrinterPort();
 	} else
 	if (conf->getType()=="KonamiSynthesizer") {
 		device = new MSXKonamiSynthesizer();

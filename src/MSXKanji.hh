@@ -19,10 +19,11 @@ class MSXKanji : public MSXDevice
 		void reset();
 	
 	private:
-		static const int ROM_SIZE = 131072;
+		static const int ROM_SIZE = 256*1024;
 		
 		byte* buffer;
-		int adr, count;
+		int adr1, count1;
+		int adr2, count2;
 };
 
 #endif //__MSXKANJI_HH__

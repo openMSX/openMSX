@@ -35,6 +35,7 @@ openmsx_SOURCES=openmsx.cc \
 	JoystickPorts.hh JoystickPorts.cc JoystickDevice.hh \
 	DummyJoystick.hh DummyJoystick.cc \
 	Joystick.hh Joystick.cc Mouse.hh Mouse.cc \
+	MSXPrinterPort.hh MSXPrinterPort.cc PrinterPortDevice.hh \
 	MSXKanji.hh MSXKanji.cc \
 	MSXMemoryMapper.hh MSXMemoryMapper.cc \
 	MSXMapperIO.hh MSXMapperIO.cc \

@@ -53,7 +53,7 @@ class Mixer
 		int nbAllDevices;
 		int nbDevices[NB_MODES];
 		std::vector<SoundDevice*> devices[NB_MODES];
-		std::vector<short*> buffers[NB_MODES];
+		std::vector<int*> buffers[NB_MODES];
 		
 		short* mixBuffer;
 		int samplesLeft;

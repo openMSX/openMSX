@@ -38,19 +38,33 @@ void MSXKanji::init()
 	MSXMotherBoard::instance()->register_IO_In (0xD9, this);
 	MSXMotherBoard::instance()->register_IO_Out(0xD8, this);
 	MSXMotherBoard::instance()->register_IO_Out(0xD9, this);
+	
+	MSXMotherBoard::instance()->register_IO_In (0xDB, this);
+	MSXMotherBoard::instance()->register_IO_Out(0xDA, this);
+	MSXMotherBoard::instance()->register_IO_Out(0xDB, this);
 }
 
 void MSXKanji::reset()
 {
-	adr = count = 0;	// TODO check this
+	adr1 = count1 = 0;	// TODO check this
+	adr2 = count2 = 0;	// TODO check this
 }
 
 byte MSXKanji::readIO(byte port, Emutime &time)
 {
-	assert(port==0xD9);
-	byte tmp = buffer[adr+count];
-	count = (count+1)&0x1f;		//TODO check counter behaviour
-	return tmp;
+	byte tmp;
+	switch (port) {
+	case 0xd9:
+		tmp = buffer[adr1+count1];
+		count1 = (count1+1)&0x1f;		//TODO check counter behaviour
+		return tmp;
+	case 0xdb:
+		tmp = buffer[adr2+count2+0x20000];
+		count2 = (count2+1)&0x1f;		//TODO check counter behaviour
+		return tmp;
+	default:
+		assert(false);
+	}
 }
 
 void MSXKanji::writeIO(byte port, byte value, Emutime &time)
@@ -58,12 +72,20 @@ void MSXKanji::writeIO(byte port, byte value, Emutime &time)
 	//TODO check this
 	switch (port) {
 	case 0xd8:
-		adr = (adr&0x1f800)|((value&0x3f)<<5);
-		count = 0;
+		adr1 = (adr1&0x1f800)|((value&0x3f)<<5);
+		count1 = 0;
 		break;
 	case 0xd9:
-		adr = (adr&0x007e0)|((value&0x3f)<<11);
-		count = 0;
+		adr1 = (adr1&0x007e0)|((value&0x3f)<<11);
+		count1 = 0;
+		break;
+	case 0xda:
+		adr2 = (adr2&0x1f800)|((value&0x3f)<<5);
+		count2 = 0;
+		break;
+	case 0xdb:
+		adr2 = (adr2&0x007e0)|((value&0x3f)<<11);
+		count2 = 0;
 		break;
 	default:
 		assert(false);

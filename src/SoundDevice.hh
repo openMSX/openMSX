@@ -37,6 +37,6 @@ class SoundDevice
 		 *       (un)lock this thread with SDL_LockAudio() and
 		 *       SDL_UnlockAudio()
 		 */
-		virtual short* updateBuffer (int length) = 0;
+		virtual int* updateBuffer (int length) = 0;
 };
 #endif
