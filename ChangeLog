@@ -1,5 +1,8 @@
 $Id$
 
+2004-12-27 Manuel Bilderbeek <manuel@msxnet.org>
+	* Rom type naming clean up part 1. TODO: romdb.xml, class/file names
+
 2004-12-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented "openmsx_info romtype" command:
 	   only the code, no actual descriptions yet

@@ -5,21 +5,21 @@
 
 namespace openmsx {
 
-enum MapperType {
+enum RomType {
 	GENERIC_8KB  = 0,
 	GENERIC_16KB = 1,
-	KONAMI5      = 2,
-	KONAMI4      = 3,
-	ASCII_8KB    = 4,
-	ASCII_16KB   = 5,
+	KONAMI       = 2,
+	KONAMI_SCC   = 3,
+	ASCII8       = 4,
+	ASCII16      = 5,
 	R_TYPE       = 6,
 	CROSS_BLAIM  = 7,
 	MSX_AUDIO    = 8,
 	HARRY_FOX    = 9,
 	HALNOTE      = 10,
-	KOREAN80IN1  = 11,
-	KOREAN90IN1  = 12,
-	KOREAN126IN1 = 13,
+	ZEMINA80IN1  = 11,
+	ZEMINA90IN1  = 12,
+	ZEMINA126IN1 = 13,
 	HOLY_QURAN   = 14,
 	PLAIN        = 15,
 	FSA1FM1      = 16,
@@ -44,7 +44,7 @@ enum MapperType {
 	
 	HAS_SRAM     = 64,
 	ASCII8_8     = 64 + 0,
-	HYDLIDE2     = 64 + 1,
+	ASCII16_2    = 64 + 1,
 	GAME_MASTER2 = 64 + 2,
 	PANASONIC    = 64 + 3,
 	NATIONAL     = 64 + 4,

@@ -18,19 +18,19 @@ class RomInfo
 public:
 	RomInfo(const std::string& nid, const std::string& nyear,
 		const std::string& ncompany, const std::string& nremark,
-		const MapperType& nmapperType);
+		const RomType& nromType);
 	~RomInfo();
 
 	const std::string& getTitle()     const { return title; }
 	const std::string& getYear()      const { return year; }
 	const std::string& getCompany()   const { return company; }
 	const std::string& getRemark()    const { return remark; }
-	const MapperType& getMapperType() const { return mapperType; }
+	const RomType& getRomType() const { return romType; }
 	void print();
 
 	static std::auto_ptr<RomInfo> fetchRomInfo(const Rom& rom);
-	static MapperType nameToMapperType(std::string name);
-	static void getAllMapperTypes(std::set<std::string>& result);
+	static RomType nameToRomType(std::string name);
+	static void getAllRomTypes(std::set<std::string>& result);
 
 private:
 	/** Search for a ROM in the ROM database.
@@ -44,7 +44,7 @@ private:
 	std::string year;
 	std::string company;
 	std::string remark;
-	MapperType mapperType;
+	RomType romType;
 };
 
 } // namespace openmsx

@@ -15,25 +15,25 @@ using std::string;
 
 namespace openmsx {
 
-typedef map<MapperType, string> Description;
+typedef map<RomType, string> Description;
 static Description description;
 
 RomInfoTopic::RomInfoTopic()
 {
 	description[GENERIC_8KB] = "Generic 8kB";
 	description[GENERIC_16KB] = "Generic 16kB";
-	description[KONAMI5] = "Konami with SCC";
-	description[KONAMI4] = "Konami MegaROM";
-	description[ASCII_8KB] = "ASCII 8kB";
-	description[ASCII_16KB] = "ASCII 16kB";
+	description[KONAMI_SCC] = "Konami with SCC";
+	description[KONAMI] = "Konami MegaROM";
+	description[ASCII8] = "ASCII 8kB";
+	description[ASCII16] = "ASCII 16kB";
 	description[R_TYPE] = "R-Type";
 	description[CROSS_BLAIM] = "Cross Blaim";
 	description[MSX_AUDIO] = "Panasonic MSX-AUDIO";
 	description[HARRY_FOX] = "Harry Fox";
 	description[HALNOTE] = "Halnote";
-	description[KOREAN80IN1] = "Zemmix 80 in 1";
-	description[KOREAN90IN1] = "Zemmix 90 in 1";
-	description[KOREAN126IN1] = "Zemmix 126 in 1";
+	description[ZEMINA80IN1] = "Zemina 80 in 1";
+	description[ZEMINA90IN1] = "Zemina 90 in 1";
+	description[ZEMINA126IN1] = "Zemina 126 in 1";
 	description[HOLY_QURAN] = "Holy Qu'ran";
 	description[PLAIN] = "Plain (any size)";
 	description[FSA1FM1] = "Panasonic FS-A1FM internal mapper 1";
@@ -54,7 +54,7 @@ RomInfoTopic::RomInfoTopic()
 	
 	// with SRAM
 	description[ASCII8_8] = "ASCII 8kB with 8kB SRAM";
-	description[HYDLIDE2] = "ASCII 16kB with 2kB SRAM";
+	description[ASCII16_2] = "ASCII 16kB with 2kB SRAM";
 	description[GAME_MASTER2] = "Konami's Game Master 2";
 	description[PANASONIC] = "Panasonic internal mapper";
 	description[NATIONAL] = "National internal mapper";
@@ -73,7 +73,7 @@ void RomInfoTopic::execute(const vector<CommandArgument>& tokens,
 	switch (tokens.size()) {
 	case 2: {
 		set<string> romTypes;
-		RomInfo::getAllMapperTypes(romTypes);
+		RomInfo::getAllRomTypes(romTypes);
 		for (set<string>::const_iterator it = romTypes.begin();
 		     it != romTypes.end(); ++it) {
 			result.addListElement(*it);
@@ -81,7 +81,7 @@ void RomInfoTopic::execute(const vector<CommandArgument>& tokens,
 		break;
 	}
 	case 3: {
-		MapperType type = RomInfo::nameToMapperType(tokens[2].getString());
+		RomType type = RomInfo::nameToRomType(tokens[2].getString());
 		if (type == UNKNOWN) {
 			throw CommandException("Unknown rom type");
 		}
@@ -108,7 +108,7 @@ void RomInfoTopic::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		set<string> romTypes;
-		RomInfo::getAllMapperTypes(romTypes);
+		RomInfo::getAllRomTypes(romTypes);
 		CommandController::completeString(tokens, romTypes, false);
 	}
 }

@@ -37,7 +37,7 @@ using std::string;
 
 namespace openmsx {
 
-static MapperType guessMapperType(const Rom& rom)
+static RomType guessRomType(const Rom& rom)
 {
 	int size = rom.getSize();
 	if (size == 0) {
@@ -50,7 +50,7 @@ static MapperType guessMapperType(const Rom& rom)
 			// There are some programs convert from tape to
 			// 64kB rom cartridge these 'fake'roms are from
 			// the ASCII16 type
-			return ASCII_16KB;
+			return ASCII16;
 		} else if ((size <= 0x4000) &&
 		           (data[0] == 'A') && (data[1] == 'B')) {
 			word initAddr = data[2] + 256 * data[3];
@@ -83,47 +83,47 @@ static MapperType guessMapperType(const Rom& rom)
 					case 0x5000:
 					case 0x9000:
 					case 0xb000:
-						typeGuess[KONAMI5]++;
+						typeGuess[KONAMI_SCC]++;
 						break;
 					case 0x4000:
-						typeGuess[KONAMI4]++;
+						typeGuess[KONAMI]++;
 						break;
 					case 0x8000:
 					case 0xa000:
-						typeGuess[KONAMI4]++;
+						typeGuess[KONAMI]++;
 						break;
 					case 0x6800:
 					case 0x7800:
-						typeGuess[ASCII_8KB]++;
+						typeGuess[ASCII8]++;
 						break;
 					case 0x6000:
-						typeGuess[KONAMI4]++;
-						typeGuess[ASCII_8KB]++;
-						typeGuess[ASCII_16KB]++;
+						typeGuess[KONAMI]++;
+						typeGuess[ASCII8]++;
+						typeGuess[ASCII16]++;
 						break;
 					case 0x7000:
-						typeGuess[KONAMI5]++;
-						typeGuess[ASCII_8KB]++;
-						typeGuess[ASCII_16KB]++;
+						typeGuess[KONAMI_SCC]++;
+						typeGuess[ASCII8]++;
+						typeGuess[ASCII16]++;
 						break;
 					case 0x77ff:
-						typeGuess[ASCII_16KB]++;
+						typeGuess[ASCII16]++;
 						break;
 				}
 			}
 		}
-		if (typeGuess[ASCII_8KB]) typeGuess[ASCII_8KB]--; // -1 -> max_int
-		MapperType type = GENERIC_8KB; // 0
-		for (int i=GENERIC_8KB; i <= ASCII_16KB; i++) {
+		if (typeGuess[ASCII8]) typeGuess[ASCII8]--; // -1 -> max_int
+		RomType type = GENERIC_8KB; // 0
+		for (int i=GENERIC_8KB; i <= ASCII16; i++) {
 			if ((typeGuess[i]) && (typeGuess[i]>=typeGuess[type])) {
-				type = (MapperType)i;
+				type = (RomType)i;
 			}
 		}
 		// in case of doubt we go for type 0
 		// in case of even type 5 and 4 we would prefer 5
 		// but we would still prefer 0 above 4 or 5
-		if ((type == ASCII_16KB) &&
-		    (typeGuess[GENERIC_8KB] == typeGuess[ASCII_16KB])) {
+		if ((type == ASCII16) &&
+		    (typeGuess[GENERIC_8KB] == typeGuess[ASCII16])) {
 			type = GENERIC_8KB;
 		}
 		return type;
@@ -136,19 +136,19 @@ auto_ptr<MSXDevice> RomFactory::create(const XMLElement& config,
 	auto_ptr<Rom> rom(new Rom(config.getId(), "rom", config));
 
 	// Get specified mapper type from the config.
-	MapperType type;
+	RomType type;
 	string typestr = config.getChildData("mappertype", "plain");
 	if (typestr == "auto") {
 		// Guess mapper type, if it was not in DB.
-		type = rom->getInfo().getMapperType();
+		type = rom->getInfo().getRomType();
 		if (type == UNKNOWN) {
-			type = guessMapperType(*rom);
+			type = guessRomType(*rom);
 		}
 	} else {
 		// Use mapper type from config, even if this overrides DB.
-		type = RomInfo::nameToMapperType(typestr);
+		type = RomInfo::nameToRomType(typestr);
 	}
-	PRT_DEBUG("MapperType: " << type);
+	PRT_DEBUG("RomType: " << type);
 
 	switch (type) {
 		case PAGE0:
@@ -175,13 +175,13 @@ auto_ptr<MSXDevice> RomFactory::create(const XMLElement& config,
 			return auto_ptr<MSXDevice>(new RomGeneric8kB(config, time, rom));
 		case GENERIC_16KB:
 			return auto_ptr<MSXDevice>(new RomGeneric16kB(config, time, rom));
-		case KONAMI5:
+		case KONAMI_SCC:
 			return auto_ptr<MSXDevice>(new RomKonami5(config, time, rom));
-		case KONAMI4:
+		case KONAMI:
 			return auto_ptr<MSXDevice>(new RomKonami4(config, time, rom));
-		case ASCII_8KB:
+		case ASCII8:
 			return auto_ptr<MSXDevice>(new RomAscii8kB(config, time, rom));
-		case ASCII_16KB:
+		case ASCII16:
 			return auto_ptr<MSXDevice>(new RomAscii16kB(config, time, rom));
 		case R_TYPE:
 			return auto_ptr<MSXDevice>(new RomRType(config, time, rom));
@@ -203,7 +203,7 @@ auto_ptr<MSXDevice> RomFactory::create(const XMLElement& config,
 		case WIZARDRY:
 			return auto_ptr<MSXDevice>(new RomAscii8_8(config, time, rom,
 			                       RomAscii8_8::WIZARDRY));
-		case HYDLIDE2:
+		case ASCII16_2:
 			return auto_ptr<MSXDevice>(new RomHydlide2(config, time, rom));
 		case GAME_MASTER2:
 			return auto_ptr<MSXDevice>(new RomGameMaster2(config, time, rom));
@@ -217,11 +217,11 @@ auto_ptr<MSXDevice> RomFactory::create(const XMLElement& config,
 			return auto_ptr<MSXDevice>(new RomSynthesizer(config, time, rom));
 		case HALNOTE:
 			return auto_ptr<MSXDevice>(new RomHalnote(config, time, rom));
-		case KOREAN80IN1:
+		case ZEMINA80IN1:
 			return auto_ptr<MSXDevice>(new RomKorean80in1(config, time, rom));
-		case KOREAN90IN1:
+		case ZEMINA90IN1:
 			return auto_ptr<MSXDevice>(new RomKorean90in1(config, time, rom));
-		case KOREAN126IN1:
+		case ZEMINA126IN1:
 			return auto_ptr<MSXDevice>(new RomKorean126in1(config, time, rom));
 		case HOLY_QURAN:
 			return auto_ptr<MSXDevice>(new RomHolyQuran(config, time, rom));
@@ -230,7 +230,7 @@ auto_ptr<MSXDevice> RomFactory::create(const XMLElement& config,
 		case FSA1FM2:
 			return auto_ptr<MSXDevice>(new RomFSA1FM2(config, time, rom));
 		default:
-			throw FatalError("Unknown mapper type");
+			throw FatalError("Unknown ROM type");
 	}
 }
 

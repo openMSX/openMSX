@@ -19,8 +19,8 @@ using std::vector;
 
 namespace openmsx {
 
-typedef map<string, MapperType, StringOp::caseless> MapperTypeMap;
-static MapperTypeMap mappertype;
+typedef map<string, RomType, StringOp::caseless> RomTypeMap;
+static RomTypeMap romtype;
 static bool init = false;
 
 static void initMap()
@@ -30,103 +30,109 @@ static void initMap()
 	}
 	init = true;
 	
-	mappertype["8kB"]         = GENERIC_8KB;
-	mappertype["16kB"]        = GENERIC_16KB;
-	mappertype["konami5"]     = KONAMI5;
-	mappertype["konami4"]     = KONAMI4;
-	mappertype["ascii8"]      = ASCII_8KB;
-	mappertype["ascii16"]     = ASCII_16KB;
-	mappertype["rtype"]       = R_TYPE;
-	mappertype["crossblaim"]  = CROSS_BLAIM;
-	mappertype["panasonic"]   = PANASONIC;
-	mappertype["national"]    = NATIONAL;
-	mappertype["msx-audio"]   = MSX_AUDIO;
-	mappertype["harryfox"]    = HARRY_FOX;
-	mappertype["halnote"]     = HALNOTE;
-	mappertype["korean80in1"] = KOREAN80IN1;
-	mappertype["korean90in1"] = KOREAN90IN1;
-	mappertype["korean126in1"]= KOREAN126IN1;
-	mappertype["holyquran"]   = HOLY_QURAN;
-	mappertype["fsa1fm1"]     = FSA1FM1;
-	mappertype["fsa1fm2"]     = FSA1FM2;
-	mappertype["plain"]       = PLAIN;
-	mappertype["dram"]        = DRAM;
-	mappertype["hydlide2"]    = HYDLIDE2;
-	mappertype["ascii8-8"]    = ASCII8_8; 
-	mappertype["koei-8"]      = KOEI_8; 
-	mappertype["koei-32"]     = KOEI_32; 
-	mappertype["wizardry"]    = WIZARDRY; 
-	mappertype["gamemaster2"] = GAME_MASTER2;
-	mappertype["majutsushi"]  = MAJUTSUSHI;
-	mappertype["synthesizer"] = SYNTHESIZER;
-	mappertype["page0"]       = PAGE0;
-	mappertype["page01"]      = PAGE01;
-	mappertype["page012"]     = PAGE012;
-	mappertype["page0123"]    = PAGE0123;
-	mappertype["page1"]       = PAGE1;
-	mappertype["page12"]      = PAGE12;
-	mappertype["page123"]     = PAGE123;
-	mappertype["page2"]       = PAGE2;
-	mappertype["page23"]      = PAGE23;
-	mappertype["page3"]       = PAGE3;
+	romtype["8kB"]         = GENERIC_8KB;
+	romtype["16kB"]        = GENERIC_16KB;
+	romtype["Konami"]      = KONAMI;
+	romtype["Konami_SCC"]  = KONAMI_SCC;
+	romtype["ASCII8"]      = ASCII8;
+	romtype["ASCII16"]     = ASCII16;
+	romtype["R-Type"]      = R_TYPE;
+	romtype["CrossBlaim"]  = CROSS_BLAIM;
+	romtype["Panasonic"]   = PANASONIC;
+	romtype["National"]    = NATIONAL;
+	romtype["MSX-AUDIO"]   = MSX_AUDIO;
+	romtype["HarryFox"]    = HARRY_FOX;
+	romtype["Halnote"]     = HALNOTE;
+	romtype["Zemina80in1"] = ZEMINA80IN1;
+	romtype["Zemina90in1"] = ZEMINA90IN1;
+	romtype["Zemina126in1"]= ZEMINA126IN1;
+	romtype["HolyQuran"]   = HOLY_QURAN;
+	romtype["FSA1FM1"]     = FSA1FM1;
+	romtype["FSA1FM2"]     = FSA1FM2;
+	romtype["plain"]       = PLAIN;
+	romtype["DRAM"]        = DRAM;
+	romtype["ASCII16_2"]   = ASCII16_2;
+	romtype["ASCII8-8"]    = ASCII8_8; 
+	romtype["Koei-8"]      = KOEI_8; 
+	romtype["Koei-32"]     = KOEI_32; 
+	romtype["Wizardry"]    = WIZARDRY; 
+	romtype["GameMaster2"] = GAME_MASTER2;
+	romtype["Majutsushi"]  = MAJUTSUSHI;
+	romtype["Synthesizer"] = SYNTHESIZER;
+	romtype["page0"]       = PAGE0;
+	romtype["page01"]      = PAGE01;
+	romtype["page012"]     = PAGE012;
+	romtype["page0123"]    = PAGE0123;
+	romtype["page1"]       = PAGE1;
+	romtype["page12"]      = PAGE12;
+	romtype["page123"]     = PAGE123;
+	romtype["page2"]       = PAGE2;
+	romtype["page23"]      = PAGE23;
+	romtype["page3"]       = PAGE3;
 }
 
 RomInfo::RomInfo(const string& ntitle, const string& nyear,
                  const string& ncompany, const string& nremark,
-                 const MapperType& nmapperType)
+                 const RomType& nromType)
 {
 	title = ntitle;
 	year = nyear;
 	company = ncompany;
 	remark = nremark;
-	mapperType = nmapperType;
+	romType = nromType;
 }
 
 RomInfo::~RomInfo()
 {
 }
 
-MapperType RomInfo::nameToMapperType(string name)
+RomType RomInfo::nameToRomType(string name)
 {
 	initMap();
 	
 	static map<string, string, StringOp::caseless> aliasMap;
 	static bool aliasMapInit = false;
 	if (!aliasMapInit) {
-		// alternative names for mapper types, mainly for
+		// alternative names for rom types, mainly for
 		// backwards compatibility
 		// map from 'alternative' to 'standard' name
 		aliasMapInit = true;
-		aliasMap["0"]         = "8kB";
-		aliasMap["1"]         = "16kB";
-		aliasMap["MSXDOS2"]   = "16kB";
-		aliasMap["2"]         = "KONAMI5";
-		aliasMap["SCC"]       = "KONAMI5";
-		aliasMap["3"]         = "KONAMI4";
-		aliasMap["4"]         = "ASCII8";
-		aliasMap["5"]         = "ASCII16";
-		aliasMap["64kB"]      = "PLAIN";
-		aliasMap["ASCII16-2"] = "HYDLIDE2";
-		aliasMap["RC755"]     = "GAME_MASTER2";
-		aliasMap["ROMBAS"]    = "PAGE2";
+		aliasMap["0"]            = "8kB";
+		aliasMap["1"]            = "16kB";
+		aliasMap["MSXDOS2"]      = "16kB"; // for now
+		aliasMap["2"]            = "Konami_SCC";
+		aliasMap["SCC"]          = "Konami_SCC";
+		aliasMap["KONAMI5"]      = "Konami_SCC";
+		aliasMap["KONAMI4"]      = "Konami";
+		aliasMap["3"]            = "Konami";
+		aliasMap["4"]            = "ASCII8";
+		aliasMap["5"]            = "ASCII16";
+		aliasMap["64kB"]         = "plain";
+		aliasMap["HYDLIDE2"]     = "ASCII16_2";
+		aliasMap["RC755"]        = "GameMaster2";
+		aliasMap["ROMBAS"]       = "page2";
+		aliasMap["RTYPE"]        = "R-Type";
+		aliasMap["KOREAN80IN1"]  = "Zemina80in1";
+		aliasMap["KOREAN90IN1"]  = "Zemina90in1";
+		aliasMap["KOREAN126IN1"] = "Zemina126in1";
 	}
 	map<string, string>::const_iterator alias_it = aliasMap.find(name);
 	if (alias_it != aliasMap.end()) {
 		name = alias_it->second;
-		assert(mappertype.find(name) != mappertype.end());
+		assert(romtype.find(name) != romtype.end());
 	}
-	MapperTypeMap::const_iterator it = mappertype.find(name);
-	if (it == mappertype.end()) {
+	RomTypeMap::const_iterator it = romtype.find(name);
+	if (it == romtype.end()) {
 		return UNKNOWN;
 	}
 	return it->second;
 }
 
-void RomInfo::getAllMapperTypes(set<string>& result)
+void RomInfo::getAllRomTypes(set<string>& result)
 {
 	initMap();
-	for (MapperTypeMap::const_iterator it = mappertype.begin();
-	     it != mappertype.end(); ++it) {
+	for (RomTypeMap::const_iterator it = romtype.begin();
+	     it != romtype.end(); ++it) {
 		result.insert(it->first);
 	}
 }
@@ -144,7 +150,7 @@ static void parseDB(const XMLDocument& doc, map<string, RomInfo*>& result)
 		string romtype = (*it1)->getChildData("romtype", "");
 		
 		RomInfo* romInfo = new RomInfo(title, year,
-		   company, remark, RomInfo::nameToMapperType(romtype));
+		   company, remark, RomInfo::nameToRomType(romtype));
 		const XMLElement::Children& sub_children = (*it1)->getChildren();
 		for (XMLElement::Children::const_iterator it2 = sub_children.begin();
 		     it2 != sub_children.end(); ++it2) {
