@@ -1,19 +1,27 @@
 Release Notes for openMSX 0.5.1 (2005-03-xx)
 ============================================
 
-This release includes a complete redesign of the ROM database XML
-file. The file will be extended to a generic software database dump, with a central MySQL database as source. This database will be shared between the blueMSX and openMSX project. Other emulator authors are welcome to participate as well, of course.
+This release includes a complete redesign of the ROM database XML file. The
+file will be extended to a generic software database dump, with a central MySQL
+database as source. This database will be shared between the blueMSX and
+openMSX project. Other emulator authors are welcome to participate as well, of
+course.
 
-Another new thing is that this release is the first which supports Sunrise GFX9000 to a usable extent. We have been working on this for quite some time already, but in this release you can see the first usable results. Do note that the emulation is still far from complete, fast or bug free. But we thought you might appreciate it already in its current shape.
+Another new thing is that this release is the first which supports Sunrise
+GFX9000 to a usable extent. We have been working on this for quite some time
+already, but in this release you can see the first usable results. Do note that
+the emulation is still far from complete, fast or bug free. But we thought you
+might appreciate it already in its current shape.
 
-Other big noticable changes are firstly the addition of the OSD LEDs. This way you can see what's going on with the LEDs in full screen and without Catapult as well. Secondly, the sound quality has improved a lot for certain devices, including PCM, because of a new mixer implementation. Lastly, there is now support for IPS patches: patch disk and ROM images without modifying the image file!
-
-Changes in the video system:
-- Even more use of MMX to speed up scaling
+Other big noticable changes are firstly the addition of the OSD LEDs. This way
+you can see what's going on with the LEDs in full screen and without Catapult
+as well. Secondly, the sound quality has improved a lot for certain devices,
+including PCM, because of a new mixer implementation. Lastly, there is now
+support for IPS patches: patch disk and ROM images without modifying the image
+file!
 
 New or improved emulator features:
 - Debugging: enabled 'cputrace' setting for normal builds as well.
-- Debugging: added possibility to read I/O ports.
 - Various speed ups, especially for low end machines due to better frame skip.
 - 'samples' and 'frequency' setting can now be switched at run time.
 - OSD LEDs are configurable via TCL scripts.
@@ -21,8 +29,8 @@ New or improved emulator features:
 - New 'escape_grab' command: escapes from 'grabinput' once.
 
 MSX device support:
-- Added usable GFX9000 support; use the 'videosource' setting to switch
-- Fixes in Tetris II Special Edition dongle
+- Added usable GFX9000 support; use the 'videosource' setting to switch.
+- Fixes in Tetris II Special Edition dongle.
 - Timing improvements of the WD2793 FDC. Fixes a few games that rely on it.
 - The 13 bit MSX-AUDIO DAC actually works now (used in modplayer).
 - Fixed booting of SVI-738 CP/M disks.
@@ -34,9 +42,11 @@ MSX device support:
 
 Build system, packaging, documentation:
 - We now provide Debian packages, shortly after release, as well.
-- Build support for OpenBSD and NetBSD
-- Many fixes for Mac OS X
+- Build support for OpenBSD and NetBSD.
+- Many fixes for Mac OS X.
 - Updated C-BIOS to 0.20.
+
+And of course the usual various bug fixes.
 
 In "doc/manual/index.html" you can find a set of HTML manuals for openMSX.
 Make sure you read this if you haven't used openMSX before, but also to learn
