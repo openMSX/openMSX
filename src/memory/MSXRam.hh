@@ -18,8 +18,6 @@ public:
 	MSXRam(const XMLElement& config, const EmuTime& time);
 	virtual ~MSXRam();
 	
-	virtual void reset(const EmuTime& time);
-	
 	virtual byte readMem(word address, const EmuTime& time);
 	virtual void writeMem(word address, byte value, const EmuTime& time);  
 	virtual const byte* getReadCacheLine(word start) const;
@@ -30,7 +28,6 @@ private:
 
 	int base;
 	int end;
-	bool slowDrainOnReset;
 	auto_ptr<Ram> ram;
 };
 

@@ -25,7 +25,6 @@ inline unsigned MSXMemoryMapper::calcAddress(word address) const
 MSXMemoryMapper::MSXMemoryMapper(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time)
 {
-	slowDrainOnReset = deviceConfig.getChildDataAsBool("slow_drain_on_reset", false);
 	int kSize = deviceConfig.getChildDataAsInt("size");
 	if ((kSize % 16) != 0) {
 		ostringstream out;
@@ -90,9 +89,6 @@ void MSXMemoryMapper::destroyMapperIO()
 
 void MSXMemoryMapper::reset(const EmuTime& time)
 {
-	if (!slowDrainOnReset) {
-		ram->clear();
-	}
 	mapperIO->reset(time);
 }
 

@@ -41,7 +41,6 @@ private:
 	inline unsigned calcAddress(word address) const;
 
 	unsigned nbBlocks;
-	bool slowDrainOnReset;
 
 	static unsigned counter;
 	static XMLElement* config;

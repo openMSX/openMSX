@@ -10,9 +10,6 @@ namespace openmsx {
 MSXRam::MSXRam(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time)
 {
-	// slow drain on reset
-	slowDrainOnReset = config.getChildDataAsBool("slow_drain_on_reset", false);
-
 	// size / base
 	int s = config.getChildDataAsInt("size", 64);
 	int b = config.getChildDataAsInt("base", 0);
@@ -33,13 +30,6 @@ MSXRam::MSXRam(const XMLElement& config, const EmuTime& time)
 
 MSXRam::~MSXRam()
 {
-}
-
-void MSXRam::reset(const EmuTime& /*time*/)
-{
-	if (!slowDrainOnReset) {
-		ram->clear();
-	}
 }
 
 bool MSXRam::isInside(word address) const
