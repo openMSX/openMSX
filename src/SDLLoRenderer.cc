@@ -417,8 +417,8 @@ template <class Pixel> void SDLLoRenderer<Pixel>::mode23(
 	}
 }
 
-template <class Pixel> bool SDLLoRenderer<Pixel>::drawSprites(
-	int line)
+template <class Pixel> void SDLLoRenderer<Pixel>::drawSprites(
+	Pixel *pixelPtr, int line)
 {
 	int size = vdp->getSpriteSize();
 
@@ -426,9 +426,6 @@ template <class Pixel> bool SDLLoRenderer<Pixel>::drawSprites(
 	int visibleSprites[32];
 	int visibleIndex = vdp->checkSprites(line, visibleSprites);
 
-	Pixel *pixelPtr = linePtrs[line];
-	bool *dirty = dirtyName + (line / 8) * 32;
-	bool ret = false; // TODO: Get rid of return value.
 	while (visibleIndex--) {
 		// Get sprite info.
 		// TODO: Integrate this with visibleSprites somehow,
@@ -460,35 +457,18 @@ template <class Pixel> bool SDLLoRenderer<Pixel>::drawSprites(
 			pattern <<= -x;
 			x = 0;
 		}
-		// Sprites are only visible in screen modes which have lines
-		// of 32 8x8 chars.
-		bool *dirtyPtr = dirty + (x / 8);
-		if (pattern) {
-			anyDirtyName = true;
-			ret = true;
-		}
 		// Convert pattern to pixels.
-		bool charDirty = false;
 		while (pattern && (x < 256)) {
 			// Draw pixel if sprite has a dot.
 			if (pattern & 0x80000000) {
 				pixelPtr[x] = colour;
-				charDirty = true;
 			}
 			// Advancing behaviour.
 			pattern <<= 1;
 			x++;
-			if ((x & 7) == 0) {
-				if (charDirty) *dirtyPtr = true;
-				charDirty = false;
-				dirtyPtr++;
-			}
 		}
-		// Semi-filled characters can be dirty as well.
-		if ((x < 256) && charDirty) *dirtyPtr = true;
 	}
 
-	return ret;
 }
 
 /*
@@ -581,36 +561,18 @@ template <class Pixel> void SDLLoRenderer<Pixel>::displayPhase(
 		// Display will be wrong, but this is not really critical.
 		return;
 	}
-
 	// Render background lines.
 	RenderMethod renderMethod = modeToRenderMethod[displayMode];
 	for (int line = currLine; line < limit; line++) {
-		int y = line - LINE_DISPLAY;
-		(this->*renderMethod)(y);
-		// TODO: Depends on the fact that the number of lines
-		//   rendered is a multiple of 8.
-		// TODO: Support 40 column modes properly.
-		if ((y & 7) == 7) {
-			fillBool(dirtyName + (y / 8) * 32, false, 32);
-		}
+		(this->*renderMethod)(line - LINE_DISPLAY);
 	}
-
-	// Render sprites.
-	bool nextAnyDirtyName = false;
-	// TODO: Draw sprites only in modes that actually have sprites.
-	if (vdp->spritesEnabled()) {
-		for (int line = currLine; line < limit; line++) {
-			nextAnyDirtyName |= drawSprites(line - LINE_DISPLAY);
-		}
-	}
-
 	// Unlock surface.
 	if (SDL_MUSTLOCK(displayCache)) SDL_UnlockSurface(displayCache);
 
 	// Where does the display start? (equal to width of left border)
 	int displayX = (WIDTH - 256) / 2;
 
-	// Copy background + sprites image.
+	// Copy background image.
 	SDL_Rect source;
 	source.x = 0;
 	source.y = currLine - LINE_DISPLAY;
@@ -625,6 +587,33 @@ template <class Pixel> void SDLLoRenderer<Pixel>::displayPhase(
 	// Note: return value is ignored.
 	SDL_BlitSurface(displayCache, &source, screen, &dest);
 
+	// Render sprites.
+	// TODO: Draw sprites only in modes that actually have sprites.
+	if (vdp->spritesEnabled()) {
+		// Lock surface, because we will access pixels directly.
+		// TODO: Locking the surface directly after a blit is
+		//   probably not the smartest thing to do performance-wise.
+		//   Since sprite data will buffered, why not plot them
+		//   just before page flip?
+		//   Will only work if *all* data required is buffered, including
+		//   for example RGB colour (on V9938 palette may change).
+		if (SDL_MUSTLOCK(screen) && SDL_LockSurface(screen) < 0) {
+			// Display will be wrong, but this is not really critical.
+			return;
+		}
+		for (int line = currLine; line < limit; line++) {
+			// TODO: Cache this, like linePtrs?
+			Pixel *pixelPtr = (Pixel *)(
+				  (byte *)screen->pixels
+				+ (line - LINE_RENDER_TOP) * screen->pitch
+				+ displayX * sizeof(Pixel)
+				);
+			drawSprites(pixelPtr, line - LINE_DISPLAY);
+		}
+		// Unlock surface.
+		if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
+	}
+
 	// Borders are drawn after the display area:
 	// V9958 can extend the left border over the display area,
 	// this is implemented using overdraw.
@@ -636,12 +625,6 @@ template <class Pixel> void SDLLoRenderer<Pixel>::displayPhase(
 	dest.x = WIDTH - displayX;
 	dest.w = displayX;
 	SDL_FillRect(screen, &dest, bgColour);
-
-	// TODO: This is only correct for full-screen refreshes.
-	anyDirtyName = nextAnyDirtyName;
-	anyDirtyColour = anyDirtyPattern = false;
-	fillBool(dirtyColour, false, sizeof(dirtyColour));
-	fillBool(dirtyPattern, false, sizeof(dirtyPattern));
 
 	currLine = limit;
 }
@@ -665,6 +648,8 @@ template <class Pixel> void SDLLoRenderer<Pixel>::putImage()
 	// TODO: Move to double buffering?
 	SDL_UpdateRect(screen, 0, 0, 0, 0);
 
+	// Screen is up-to-date, so nothing is dirty.
+	setDirty(false);
 }
 
 Renderer *createSDLLoRenderer(MSXTMS9928a *vdp, bool fullScreen)

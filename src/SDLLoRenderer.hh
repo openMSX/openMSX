@@ -63,9 +63,8 @@ private:
 	void displayPhase(int limit);
 
 	/** Draw sprites on this line over the background.
-	  * @return Were any pixels drawn?
 	  */
-	bool drawSprites(int line);
+	void drawSprites(Pixel *linePtr, int line);
 
 	/** Set all dirty / clean.
 	  */

@@ -1,6 +1,11 @@
 $Id$
 
 2001-11-25 Maarten ter Huurne <mth@stack.nl>
+	* Sprites are now rendered in the screen buffer rather than in the
+	  display cache (which replaced "canvas"). As a result, sprite drawing
+	  code became simpler and the display cache needs less updates.
+
+2001-11-25 Maarten ter Huurne <mth@stack.nl>
 	* Render on demand:
 	  New Renderer can render as many lines as requested.
 	  Many lines at once has lower overhead, but if necessary it
