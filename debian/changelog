@@ -3,7 +3,7 @@ openmsx (0.5.0-8) unstable; urgency=low
   * close ITP (Closes: #221086)
   * fix menu
 
- -- Joost Yervante Damad <joost@lumatec.be>  Thu,  6 Jan 2005 20:41:19 +0100
+ -- Joost Yervante Damad <joost@lumatec.be>  Mon, 10 Jan 2005 19:30:48 +0100
 
 
 openmsx (0.5.0-7) unstable; urgency=low
