@@ -25,6 +25,7 @@ class RomPanasonic : public Rom8kBBlocks
 		byte control;
 		int bankSelect[8];
 		class SRAM* sram;
+		int maxSRAMBank;
 };
 
 #endif

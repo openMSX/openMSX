@@ -7,16 +7,35 @@
 #include "CPU.hh"
 
 
+const int SRAM_BASE = 0x80;
+const int RAM_BASE  = 0x180;
+
+
 RomPanasonic::RomPanasonic(Device* config, const EmuTime &time)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time)
 {
 	PanasonicMemory::instance()->registerRom(rom.getBlock(), rom.getSize());
 	
+	int sramSize;
 	if (config->hasParameter("sramsize")) {
-		int sramSize = config->getParameterAsInt("sramsize");
+		sramSize = config->getParameterAsInt("sramsize");
 		sram = new SRAM(sramSize * 1024, config);
 	} else {
+		sramSize = 0;
 		sram = NULL;
+	}
+
+	bool sramMirrored;
+	if (config->hasParameter("sram-mirrored")) {
+		sramMirrored = config->getParameterAsBool("sram-mirrored");
+	} else {
+		sramMirrored = false;
+	}
+	
+	if (sramMirrored) {
+		maxSRAMBank = SRAM_BASE + 8;
+	} else {
+		maxSRAMBank = SRAM_BASE + (sramSize / 8);
 	}
 	
 	reset(time);
@@ -100,10 +119,11 @@ void RomPanasonic::writeMem(word address, byte value, const EmuTime &time)
 	} else if ((0x8000 <= address) && (address < 0xC000)) {
 		int region = address >> 13;
 		int selectedBank = bankSelect[region];
-		if (sram && (0x80 <= selectedBank) && (selectedBank < 0x88)) {
+		if (sram && (SRAM_BASE <= selectedBank) &&
+			    (selectedBank < maxSRAMBank)) {
 			// SRAM
 			bank[region][address & 0x1FFF] = value;
-		} else if (0x180 <= selectedBank) {
+		} else if (RAM_BASE <= selectedBank) {
 			// RAM
 			bank[region][address & 0x1FFF] = value;
 		}
@@ -120,8 +140,9 @@ byte* RomPanasonic::getWriteCacheLine(word address) const
 	} else if ((0x8000 <= address) && (address < 0xC000)) {
 		int region = address >> 13;
 		int selectedBank = bankSelect[region];
-		if ((sram && (0x80 <= selectedBank) && (selectedBank < 0x88)) ||
-		    (0x180 <= selectedBank)) {
+		if ((sram && (SRAM_BASE <= selectedBank) &&
+			     (selectedBank < maxSRAMBank)) ||
+		    (RAM_BASE <= selectedBank)) {
 			return &bank[region][address & 0x1FFF];
 		} else {
 			return unmappedWrite;
@@ -137,18 +158,18 @@ void RomPanasonic::changeBank(byte region, int bank)
 		return;
 	}
 	bankSelect[region] = bank;
-	if (sram && (0x80 <= bank) && (bank < 0x88)) {
+	if (sram && (SRAM_BASE <= bank) && (bank < maxSRAMBank)) {
 		// SRAM
-		int offset = (bank - 0x80) * 0x2000;
+		int offset = (bank - SRAM_BASE) * 0x2000;
 		int sramSize = sram->getSize();
-		if (offset > sramSize) {
+		if (offset >= sramSize) {
 			offset &= (sramSize - 1);
 		}
 		setBank(region, sram->getBlock(offset));
-	} else if (0x180 <= bank) {
+	} else if (RAM_BASE <= bank) {
 		// RAM
 		setBank(region, PanasonicMemory::instance()->
-			getRamBlock(bank - 0x180));
+			getRamBlock(bank - RAM_BASE));
 	} else {
 		// ROM
 		setRom(region, bank);
