@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+<!-- $Id$ -->
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+
+<!-- This extension implements the Y8910 chip on the alternative I/O ports -->
+<!-- Note: it doesn't come with the MIDI part of the Music Module, which is 
+     used by some software to detect the Music Module. That software is not
+     interested in MSX-Audio 2, by the way... -->
+
+<msxconfig>
+  <MSX-AUDIO id="Generic MSX-Audio 2">
+    <io base="0xC2" num="2"/>
+    <sound>
+      <volume>12000</volume>
+      <mode>mono</mode>
+    </sound>
+    <sampleram>256</sampleram>
+  </MSX-AUDIO>
+
+</msxconfig>

@@ -1,5 +1,9 @@
 $Id$
 
+2005-02-03 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added extension for MSX-AUDIO 2. This is an Y8910 on the alternative
+	  I/O ports (C2/C3), without the MIDI part of the Music Module
+
 2005-02-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed harmless(?) UMR in AY8910 code
 
