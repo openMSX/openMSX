@@ -217,7 +217,7 @@ LOG_PATH:=$(BUILD_PATH)/log
 
 CONFIG_PATH:=$(BUILD_PATH)/config
 CONFIG_HEADER:=$(CONFIG_PATH)/src/config.h
-CONFIG_SCRIPT:=$(PWD)/configure
+CONFIG_SCRIPT:=configure
 
 
 # Compiler and Flags
@@ -320,7 +320,7 @@ config:
 $(CONFIG_HEADER): $(CONFIG_SCRIPT)
 	@echo "Checking configuration:"
 	@mkdir -p $(CONFIG_PATH)
-	@cd $(CONFIG_PATH) ; $(CONFIG_SCRIPT) $(OPENMSX_CONFIG) | $(INDENT)
+	@CONFIG_DIR=$$PWD ; cd $(CONFIG_PATH) ; $$CONFIG_DIR/$(CONFIG_SCRIPT) $(OPENMSX_CONFIG) | $(INDENT)
 
 # Include dependency files.
 ifneq ($(filter $(DEPEND_TARGETS),$(MAKECMDGOALS)),)
