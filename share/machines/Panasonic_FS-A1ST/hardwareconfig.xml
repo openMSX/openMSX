@@ -35,7 +35,7 @@
   </device>
 
   <device id="MSX BIOS BASIC ROM">
-    <type>PanasonicRom</type>
+    <type>Rom</type>
     <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
     <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
     <parameter name="firstblock">40</parameter>
@@ -52,7 +52,7 @@
   </device>
   
   <device id="MSX Opening ROM">
-    <type>PanasonicRom</type>
+    <type>Rom</type>
     <slotted> <ps>0</ps> <ss>3</ss> <page>1</page> </slotted>
     <parameter name="firstblock">36</parameter>
     <parameter name="lastlock">37</parameter>
@@ -69,14 +69,14 @@
   </device>
 
   <device id="MSX Sub ROM">
-    <type>PanasonicRom</type>
+    <type>Rom</type>
     <slotted> <ps>3</ps> <ss>1</ss> <page>0</page> </slotted>
     <parameter name="firstblock">56</parameter>
     <parameter name="lastlock">57</parameter>
   </device>
 
   <device id="MSX Kanji Driver with BASIC 1">
-    <type>PanasonicRom</type>
+    <type>Rom</type>
     <slotted> <ps>3</ps> <ss>1</ss> <page>1</page> </slotted>
     <slotted> <ps>3</ps> <ss>1</ss> <page>2</page> </slotted>
     <parameter name="firstblock">58</parameter>
