@@ -332,12 +332,12 @@ symlink to the openMSX CVS tree's src/cfg/ directory, where I put all the config
 files in different subdirectories as I have just explained.
 
 In ~/.openMSX also some decorations like ConsoleBackgrounds (see below) and
-other related files should be stored. You need settings.xml also
-here, unless you want to specify it manually on the command line with the
--setting option, as we have done above. In settings.xml you can also specify
-what machine should be used by default. Edit the file and you will see how to do
-that. Also romdb.xml should be here. Personally, I used a symbolic link to my
-CVS source tree version.
+other related files should be stored. You need settings.xml also here, unless
+you want to specify it manually on the command line with the -setting option,
+as we have done above. In settings.xml you can also specify what machine should
+be used by default. Edit the file and you will see how to do that. Also, in a
+subdirectory etc/, romdb.xml should be put. Personally, I used a symbolic link
+to my CVS source tree version.
 
 Furthermore, I created a subdirectory extensions/ in ~/.openMSX. This is one of
 the directories openMSX searches in when you use the -ext command line option.
@@ -356,19 +356,19 @@ So, the ROM files that are needed for the extensions have to be in their
 subdirectories also, if there is no path given in the hardware description XML
 file.
 
-I also use romdb.xml and settings.xml from the CVS tree via another symbolic
-link. 
-
 /home/manuel/.openMSX:
 -rw-------    1 manuel   manuel      21203 Aug 27 10:38 ConsoleBackground.png
 -rw-------    1 manuel   manuel       6016 Aug 27 10:36 ConsoleBackground1.png
 -rw-------    1 manuel   manuel       1471 Sep 25 22:33 ConsoleFont.png
 -rw-------    1 manuel   manuel       1245 Aug 26 22:46 ConsoleFont1.png
+drwx------    2 manuel   manuel       4096 Feb 26 22:41 etc/
 drwx------    2 manuel   manuel       4096 Feb 23 16:00 extensions/
 lrwxrwxrwx    1 manuel   manuel         41 Feb 17 21:56 machines -> /home/manuel/cvs/openmsx/openMSX/src/cfg/
 drwx------    4 manuel   manuel       4096 Feb 17 22:00 persistent/
-lrwxrwxrwx    1 manuel   manuel         46 Nov 26 21:18 romdb.xml -> /home/manuel/cvs/openmsx/openMSX/src/romdb.xml
 -rw-------    1 manuel   manuel       2391 Feb 18 20:46 settings.xml
+
+/home/manuel/openMSX/etc:
+lrwxrwxrwx    1 manuel   manuel         46 Feb 26 22:41 romdb.xml -> /home/manuel/cvs/openmsx/openMSX/src/romdb.xml
 
 /home/manuel/.openMSX/extensions:
 drwx------    2 manuel   manuel       4096 Feb 24 20:41 fs-ca1/
