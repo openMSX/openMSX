@@ -110,7 +110,8 @@ void MSXRomCLIPost::execute(MSXConfig *config)
 	s << "<parameter name=\"sramname\">"<<filename<<".SRAM</parameter>";
 	s << "</device>";
 	s << "</msxconfig>";
-	config->loadStream(new UserFileContext(), s);
+	UserFileContext *context = new UserFileContext("roms/" + filename);
+	config->loadStream(context, s);
 	delete this;
 }
 

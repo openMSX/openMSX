@@ -8,6 +8,9 @@ $Id$
 	     with the "-ext" command line option
 	   - example:
 	      ./openmsx SDNATCH1.DSK -ext scc+
+	* Removed -msx1 -msx2 -msx2+ -turbor command line options
+	* SRAM of rom cartridges is saved in
+	    ~/.openMSX/persistent/roms/<rom-name>/
 
 2003-02-19 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented "console_font" setting:
