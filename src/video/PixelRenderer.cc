@@ -116,6 +116,7 @@ PixelRenderer::PixelRenderer(VDP* vdp)
 
 	frameSkipCounter = 999; // force drawing of frame
 	finishFrameDuration = 0;
+	drawFrame = true;
 
 	frameDurationSum = 0;
 	for (unsigned i = 0; i < NUM_FRAME_DURATIONS; ++i) {
@@ -147,12 +148,28 @@ void PixelRenderer::updateDisplayEnabled(bool enabled, const EmuTime& time)
 	displayEnabled = enabled;
 }
 
-void PixelRenderer::frameStart(const EmuTime& /*time*/)
+void PixelRenderer::frameStart(const EmuTime& time)
 {
-	// TODO: Maybe it's cleaner to not call frameStart on skipped frames.
-	//       Calling always works, but it's not nice:
-	//       - frameEnd is not called on skipped frames (asymmetry)
-	//       - frameStart might do precalcs that are wasted energy
+	if (rasterizer->getZ() == Layer::Z_MSX_PASSIVE) {
+		// V9990 is active
+		frameSkipCounter = 0;
+		drawFrame = false;
+	} else if (frameSkipCounter < settings.getMinFrameSkip()->getValue()) {
+		++frameSkipCounter;
+		drawFrame = false;
+	} else if (frameSkipCounter >= settings.getMaxFrameSkip()->getValue()) {
+		frameSkipCounter = 0;
+		drawFrame = true;
+	} else {
+		++frameSkipCounter;
+		drawFrame = RealTime::instance().timeLeft(
+			(unsigned)finishFrameDuration, time);
+		if (drawFrame) {
+			frameSkipCounter = 0;
+		}
+	}
+	if (!drawFrame) return;
+
 	rasterizer->frameStart();
 
 	accuracy = settings.getAccuracy()->getValue();
@@ -166,26 +183,10 @@ void PixelRenderer::frameStart(const EmuTime& /*time*/)
 
 void PixelRenderer::frameEnd(const EmuTime& time)
 {
-	// Render changes from this last frame.
-	sync(time, true);
+	if (drawFrame) {
+		// Render changes from this last frame.
+		sync(time, true);
 
-	bool draw;
-	if (frameSkipCounter < settings.getMinFrameSkip()->getValue()) {
-		++frameSkipCounter;
-		draw = false;
-	} else if (frameSkipCounter >= settings.getMaxFrameSkip()->getValue()) {
-		frameSkipCounter = 0;
-		draw = true;
-	} else {
-		++frameSkipCounter;
-		draw = RealTime::instance().timeLeft(
-			(unsigned)finishFrameDuration, time);
-		if (draw) {
-			frameSkipCounter = 0;
-		}
-	}
-
-	if (draw) {
 		// Let underlying graphics system finish rendering this frame.
 		unsigned long long time1 = Timer::getTime();
 		rasterizer->frameEnd();
@@ -451,10 +452,11 @@ inline bool PixelRenderer::checkSync(int offset, const EmuTime& time)
 	}
 }
 
-void PixelRenderer::updateVRAM(unsigned offset, const EmuTime& time) {
+void PixelRenderer::updateVRAM(unsigned offset, const EmuTime& time)
+{
 	// Note: No need to sync if display is disabled, because then the
 	//       output does not depend on VRAM (only on background colour).
-	if (displayEnabled && checkSync(offset, time)) {
+	if (drawFrame && displayEnabled && checkSync(offset, time)) {
 		/*
 		fprintf(stderr, "vram sync @ line %d\n",
 			vdp->getTicksThisFrame(time) / VDP::TICKS_PER_LINE
@@ -465,14 +467,18 @@ void PixelRenderer::updateVRAM(unsigned offset, const EmuTime& time) {
 	rasterizer->updateVRAMCache(offset);
 }
 
-void PixelRenderer::updateWindow(bool /*enabled*/, const EmuTime& /*time*/) {
+void PixelRenderer::updateWindow(bool /*enabled*/, const EmuTime& /*time*/)
+{
 	// The bitmapVisibleWindow has moved to a different area.
 	// This update is redundant: Renderer will be notified in another way
 	// as well (updateDisplayEnabled or updateNameBase, for example).
 	// TODO: Can this be used as the main update method instead?
 }
 
-void PixelRenderer::sync(const EmuTime &time, bool force) {
+void PixelRenderer::sync(const EmuTime &time, bool force)
+{
+	if (!drawFrame) return;
+
 	// Synchronisation is done in two phases:
 	// 1. update VRAM
 	// 2. update other subsystems

@@ -73,6 +73,10 @@ private:
 	  */
 	const V9990DisplayPeriod* verTiming;
 
+	/** Should current frame be draw or can it be skipped.
+	  */
+	bool drawFrame;
+	
 	/**
 	  */
 	void draw(int fromX, int fromY, int toX, int toY, DrawType type);

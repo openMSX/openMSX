@@ -132,6 +132,10 @@ private:
 	  */
 	int nextY;
 
+	/** Should current frame be draw or can it be skipped.
+	  */ 
+	bool drawFrame;
+
 	int frameSkipCounter;
 	double finishFrameDuration;
 	

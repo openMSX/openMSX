@@ -43,6 +43,11 @@ void Layer::setZ(ZIndex z)
 	if (display) display->updateZ(this, z);
 }
 
+Layer::ZIndex Layer::getZ() const
+{
+	return z;
+}
+
 // Display:
 
 std::auto_ptr<Display> Display::INSTANCE;

@@ -13,7 +13,7 @@ VideoLayer::VideoLayer(RenderSettings::VideoSource videoSource)
 	, powerSetting(GlobalSettings::instance().getPowerSetting())
 {
 	setCoverage(getCoverage());
-	setZ(getZ());
+	setZ(calcZ());
 	// Register as display layer.
 	Display::INSTANCE->addLayer(this);
 
@@ -30,7 +30,7 @@ VideoLayer::~VideoLayer()
 void VideoLayer::update(const Setting* setting)
 {
 	if (setting == &videoSourceSetting) {
-		setZ(getZ());
+		setZ(calcZ());
 	} else if (setting == &powerSetting) {
 		setCoverage(getCoverage());
 	} else {
@@ -38,7 +38,7 @@ void VideoLayer::update(const Setting* setting)
 	}
 }
 
-Layer::ZIndex VideoLayer::getZ()
+Layer::ZIndex VideoLayer::calcZ()
 {
 	return videoSourceSetting.getValue() == videoSource
 		? Z_MSX_ACTIVE

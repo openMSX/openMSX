@@ -29,7 +29,7 @@ protected:
 
 private:
 	/** Calculates the current Z coordinate of this layer. */
-	ZIndex getZ();
+	ZIndex calcZ();
 	/** Calculates the current coverage of this layer. */
 	Coverage getCoverage();
 

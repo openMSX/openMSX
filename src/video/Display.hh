@@ -21,6 +21,18 @@ class VideoSystem;
 class Layer
 {
 public:
+	/** Determines stacking order of layers:
+	  * layers with higher Z-indices are closer to the viewer.
+	  */
+	enum ZIndex {
+		Z_DUMMY = -1,
+		Z_BACKGROUND = 0,
+		Z_MSX_PASSIVE = 30,
+		Z_MSX_ACTIVE = 40,
+		Z_ICONS = 90,
+		Z_CONSOLE = 100,
+	};
+
 	virtual ~Layer();
 
 	/** Paint this layer.
@@ -30,6 +42,10 @@ public:
 	/** Returns the name of this layer. Used for debugging.
 	  */
 	virtual const std::string& getName() = 0;
+
+	/** Query the Z-index of this layer.
+	  */
+	ZIndex getZ() const;
 
 protected:
 	/** Describes how much of the screen is currently covered by a particular
@@ -48,28 +64,16 @@ protected:
 		COVER_NONE,
 	};
 
-	/** Determines stacking order of layers:
-	  * layers with higher Z-indices are closer to the viewer.
-	  */
-	enum ZIndex {
-		Z_DUMMY = -1,
-		Z_BACKGROUND = 0,
-		Z_MSX_PASSIVE = 30,
-		Z_MSX_ACTIVE = 40,
-		Z_ICONS = 90,
-		Z_CONSOLE = 100,
-	};
-
 	/** Construct a layer. */
 	Layer(Coverage coverage = COVER_NONE, ZIndex z = Z_DUMMY);
 
 	/** Changes the current coverage of this layer.
 	  */
-	virtual void setCoverage(Coverage coverage);
+	void setCoverage(Coverage coverage);
 
 	/** Changes the current Z-index of this layer.
 	  */
-	virtual void setZ(ZIndex z);
+	void setZ(ZIndex z);
 
 private:
 	friend class LayerListener;

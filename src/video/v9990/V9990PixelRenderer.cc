@@ -37,6 +37,7 @@ void V9990PixelRenderer::reset(const EmuTime& time)
 
 	lastX = 0;
 	lastY = 0;
+	drawFrame = true;
 
 	setDisplayMode(vdp->getDisplayMode(), time);
 	setColorMode(vdp->getColorMode(), time);
@@ -46,6 +47,14 @@ void V9990PixelRenderer::reset(const EmuTime& time)
 
 void V9990PixelRenderer::frameStart(const EmuTime& time)
 {
+	if (rasterizer->getZ() == Layer::Z_MSX_PASSIVE) {
+		drawFrame = false;
+	} else {
+		// TODO frameskip stuff
+		drawFrame = true;
+	}
+	if (!drawFrame) return;
+	
 	// Make sure that the correct timing is used
 	setDisplayMode(vdp->getDisplayMode(), time);
 	rasterizer->frameStart(horTiming, verTiming);
@@ -54,6 +63,9 @@ void V9990PixelRenderer::frameStart(const EmuTime& time)
 void V9990PixelRenderer::frameEnd(const EmuTime& time)
 {
 	PRT_DEBUG("V9990PixelRenderer::frameEnd");
+	
+	if (!drawFrame) return;
+	
 	// Render last changes in this frame before starting a new frame
 	// sync(time);
 	renderUntil(time);
