@@ -83,13 +83,13 @@ void MSXMotherBoard::registerSlottedDevice(MSXMemDevice *device, int primSl, int
 	}
 }
 
-void MSXMotherBoard::ResetMSX()
+void MSXMotherBoard::ResetMSX(const EmuTime &time)
 {
 	IRQLine = 0;
 	set_A8_Register(0);
 	std::vector<MSXDevice*>::iterator i;
 	for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
-		(*i)->reset();
+		(*i)->reset(time);
 	}
 }
 

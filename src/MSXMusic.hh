@@ -24,7 +24,7 @@ class MSXMusic : public MSXIODevice, public MSXMemDevice, public MSXRom
 		~MSXMusic(); 
 		
 		void init();
-		void reset();
+		void reset(const EmuTime &time);
 		void writeIO(byte port, byte value, EmuTime &time);
 		byte readMem(word address, EmuTime &time);
 		void writeMem(word address, byte value, EmuTime &time);

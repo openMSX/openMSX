@@ -49,7 +49,7 @@ void MSXMapperIO::init()
 	MSXMotherBoard::instance()->register_IO_Out(0xFF,this);
 }
 
-void MSXMapperIO::reset()
+void MSXMapperIO::reset(const EmuTime &time)
 {
 	//TODO mapper is initialized like this by BIOS,
 	// but in what state is it after reset?

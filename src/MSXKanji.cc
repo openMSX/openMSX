@@ -31,7 +31,7 @@ void MSXKanji::init()
 	MSXMotherBoard::instance()->register_IO_Out(0xDB, this);
 }
 
-void MSXKanji::reset()
+void MSXKanji::reset(const EmuTime &time)
 {
 	adr1 = count1 = 0;	// TODO check this
 	adr2 = count2 = 0;	// TODO check this

@@ -29,7 +29,7 @@ class MSXRealTime : public MSXDevice, public HotKeyListener
 		 */
 		static MSXRealTime *instance();
 		
-		void reset();
+		void reset(const EmuTime &time);
 		void executeUntilEmuTime(const EmuTime &time);
 
 		float getRealDuration(EmuTime time1, EmuTime time2);

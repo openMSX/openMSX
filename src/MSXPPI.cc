@@ -50,9 +50,9 @@ void MSXPPI::init()
 	MSXMotherBoard::instance()->register_IO_Out(0xAB,this);
 }
 
-void MSXPPI::reset()
+void MSXPPI::reset(const EmuTime &time)
 {
-	MSXDevice::reset();
+	MSXDevice::reset(time);
 	i8255->reset();
 	click->reset();
 }

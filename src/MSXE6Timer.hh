@@ -30,7 +30,7 @@ class MSXE6Timer : public MSXIODevice
 		~MSXE6Timer();
 		
 		void init();
-		void reset();
+		void reset(const EmuTime &time);
 		
 		byte readIO(byte port, EmuTime &time);
 		void writeIO(byte port, byte value, EmuTime &time);

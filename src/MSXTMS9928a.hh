@@ -59,7 +59,7 @@ public:
 
 	// mainlife cycle of an MSXDevice
 	void init();
-	void reset();
+	void reset(const EmuTime &time);
 
 	// void saveState(ofstream writestream);
 	// void restoreState(char *devicestring,ifstream readstream);

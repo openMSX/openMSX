@@ -35,7 +35,7 @@ class MSXCPU : public MSXDevice
 	
 		// MSXDevice
 		void init();
-		void reset();
+		void reset(const EmuTime &time);
 		
 		// MSXCPU
 		void executeUntilTarget(const EmuTime &time);

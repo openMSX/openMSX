@@ -199,9 +199,9 @@ MSXTMS9928a::~MSXTMS9928a()
 
 // The init and reset functions
 
-void MSXTMS9928a::reset()
+void MSXTMS9928a::reset(const EmuTime &time)
 {
-	MSXDevice::reset();
+	MSXDevice::reset(time);
 
 	for (int i = 0; i < 8; i++) controlRegs[i] = 0;
 	statusReg = 0;
@@ -236,7 +236,8 @@ void MSXTMS9928a::init()
 	if (!vramData) return ;//1;
 	memset(vramData, 0, vramSize);
 
-	reset();
+	EmuTime zero;
+	reset(zero);
 
 	// TODO: Move Renderer creation outside of this class.
 	//   A setRenderer method would be used to provide a renderer.

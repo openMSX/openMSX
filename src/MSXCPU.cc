@@ -33,9 +33,9 @@ void MSXCPU::init()
 	MSXDevice::init();
 }
 
-void MSXCPU::reset()
+void MSXCPU::reset(const EmuTime &time)
 {
-	MSXDevice::reset();
+	MSXDevice::reset(time);
 	z80->reset();
 	//r800->reset();
 }

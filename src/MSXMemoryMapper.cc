@@ -33,9 +33,9 @@ void MSXMemoryMapper::init()
 	MSXMapperIO::instance()->registerMapper(blocks);
 }
 
-void MSXMemoryMapper::reset()
+void MSXMemoryMapper::reset(const EmuTime &time)
 {
-	MSXDevice::reset();
+	MSXDevice::reset(time);
 	if (!slowDrainOnReset) {
 		PRT_DEBUG("Clearing ram of " << getName());
 		memset(buffer, 0, blocks*16384);

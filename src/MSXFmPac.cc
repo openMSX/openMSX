@@ -25,12 +25,13 @@ void MSXFmPac::init()
 	MSXMotherBoard::instance()->register_IO_Out(0x7d, this);
 	ym2413 = new YM2413();
 	loadFile(&romBank, 0x10000);
-	reset();
+	EmuTime zero;
+	reset(zero);
 }
 
-void MSXFmPac::reset()
+void MSXFmPac::reset(const EmuTime &time)
 {
-	MSXMusic::reset();
+	MSXMusic::reset(time);
 	sramEnabled = false;
 	bank = 0;	// TODO check this
 }

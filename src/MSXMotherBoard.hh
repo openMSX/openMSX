@@ -81,7 +81,7 @@ class MSXMotherBoard : public CPUInterface
 		 * This will reset all MSXDevices (the reset() method of
 		 * all registered MSXDevices is called)
 		 */
-		void ResetMSX();
+		void ResetMSX(const EmuTime &time);
 
 		/**
 		 * This will destroy all MSXDevices (the destructor of

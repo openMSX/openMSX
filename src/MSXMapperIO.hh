@@ -51,7 +51,7 @@ class MSXMapperIO : public MSXIODevice
 		void writeIO(byte port, byte value, EmuTime &time);
 		
 		void init();
-		void reset();
+		void reset(const EmuTime &time);
 		
 		void registerMapper(int blocks);
 		byte getPageNum(int page);

@@ -20,10 +20,10 @@ void MSXE6Timer::init()
 	MSXMotherBoard::instance()->register_IO_Out(0xE6,this);
 }
 
-void MSXE6Timer::reset()
+void MSXE6Timer::reset(const EmuTime &time)
 {
-	MSXDevice::reset();
-	reference(0);
+	MSXDevice::reset(time);
+	reference = time;
 }
 
 byte MSXE6Timer::readIO(byte port, EmuTime &time)

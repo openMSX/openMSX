@@ -34,7 +34,7 @@ void MSXDevice::init()
 	PRT_DEBUG ("Initializing " << getName());
 }
 
-void MSXDevice::reset()
+void MSXDevice::reset(const EmuTime &time)
 {
 	PRT_DEBUG ("Resetting " << getName());
 	isIRQset = false;

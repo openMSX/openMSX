@@ -17,9 +17,9 @@ MSXSimple64KB::~MSXSimple64KB()
 	delete [] memoryBank; // C++ can handle null-pointers
 }
 
-void MSXSimple64KB::reset()
+void MSXSimple64KB::reset(const EmuTime &time)
 {
-	MSXDevice::reset();
+	MSXDevice::reset(time);
 	if (!slowDrainOnReset) {
 		PRT_DEBUG("Clearing ram of " << getName());
 		memset(memoryBank, 0, 65536);

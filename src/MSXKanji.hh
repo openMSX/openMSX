@@ -25,7 +25,7 @@ class MSXKanji : public MSXIODevice, public MSXRom
 		void writeIO(byte port, byte value, EmuTime &time);
 		
 		void init();
-		void reset();
+		void reset(const EmuTime &time);
 
 	private:
 		static const int ROM_SIZE = 256*1024;

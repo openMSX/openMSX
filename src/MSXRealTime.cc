@@ -11,7 +11,8 @@ MSXRealTime::MSXRealTime(MSXConfig::Device *config) : MSXDevice(config)
 	oneInstance = this;
 	paused = false;
 	HotKey::instance()->registerAsyncHotKey(SDLK_PAUSE, this);
-	reset();
+	EmuTime zero;
+	reset(zero);
 }
 
 MSXRealTime::~MSXRealTime()
@@ -27,12 +28,12 @@ MSXRealTime *MSXRealTime::instance()
 MSXRealTime *MSXRealTime::oneInstance = NULL;
 
 
-void MSXRealTime::reset()
+void MSXRealTime::reset(const EmuTime &time)
 {
 	realRef = SDL_GetTicks();
 	realOrigin = realRef;
-	emuOrigin(0);
-	emuRef(0);
+	emuOrigin = time;
+	emuRef = time;
 	factor = 1;
 	Scheduler::instance()->setSyncPoint(emuRef+SYNCINTERVAL, *this);
 }

@@ -37,7 +37,7 @@ class MSXDevice : public Schedulable
 		 * Default implementation resets internal IRQ flag (every
 		 * re-implementation should also call this method).
 		 */
-		virtual void reset();
+		virtual void reset(const EmuTime &time);
 		
 		
 		/**

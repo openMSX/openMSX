@@ -29,9 +29,9 @@ void MSXRTC::init()
 	MSXMotherBoard::instance()->register_IO_In (0xB5,this);
 }
 
-void MSXRTC::reset()
+void MSXRTC::reset(const EmuTime &time)
 {
-	MSXDevice::reset();
+	MSXDevice::reset(time);
 	rp5c01->reset();
 }
 

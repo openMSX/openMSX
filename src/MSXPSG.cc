@@ -31,9 +31,9 @@ void MSXPSG::init()
 	MSXMotherBoard::instance()->register_IO_In (0xA2,this);
 }
 
-void MSXPSG::reset()
+void MSXPSG::reset(const EmuTime &time)
 {
-	MSXDevice::reset();
+	MSXDevice::reset(time);
 	registerLatch = 0;
 	ay8910->reset();
 }

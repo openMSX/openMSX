@@ -34,7 +34,7 @@ void DummyDevice::init()
 	assert(false);
 }
 
-void DummyDevice::reset()
+void DummyDevice::reset(const EmuTime &time)
 {
 	assert(false);
 }

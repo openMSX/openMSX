@@ -22,10 +22,11 @@ void MSXMusic::init()
 	MSXMotherBoard::instance()->register_IO_Out(0x7d, this);
 	ym2413 = new YM2413();
 	loadFile(&romBank, 0x4000);
-	reset();
+	EmuTime zero;
+	reset(zero);
 }
 
-void MSXMusic::reset()
+void MSXMusic::reset(const EmuTime &time)
 {
 	ym2413->reset();
 	registerLatch = 0; // TODO check
