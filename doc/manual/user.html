@@ -530,6 +530,10 @@ And then in MSX Basic, type:
 </p>
 
 <p>
+Note that in Linux, one should not use the special file <code>/dev/pcm</code> for tape input. openMSX will try to read the file until the end, which doesn't exist.
+</p>
+
+<p>
 You can also use the so-called CAS files. In the console, type:
 </p>
 <div class="commandline">
@@ -560,6 +564,9 @@ Other cassetteplayer related commands/settings you need to know of are:
 	<li><code>set cassetteplayer_volume</code>, to set the volume of the cassette player sound (yeah, the screeching tape sounds!)</li>
 </ul>
 
+<p>
+A final note: saving to cassette is not supported in openMSX yet.
+</p>
 
 <h2><a id="input">5. Input Devices</a></h2>
 
