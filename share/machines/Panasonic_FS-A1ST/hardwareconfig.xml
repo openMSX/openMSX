@@ -105,8 +105,10 @@
 
       <secondary slot="0">
         <ROM id="MSX BIOS with BASIC ROM">
-          <firstblock>40</firstblock>
-          <lastblock>43</lastblock>
+          <rom>
+            <firstblock>40</firstblock>
+            <lastblock>43</lastblock>
+          </rom>
           <mem base="0x0000" size="0x8000"/>
         </ROM>
       </secondary>
@@ -115,8 +117,10 @@
 
       <secondary slot="2">
         <MSX-MUSIC id="MSX Music">
-          <firstblock>62</firstblock>
-          <lastblock>63</lastblock>
+          <rom>
+            <firstblock>62</firstblock>
+            <lastblock>63</lastblock>
+          </rom>
           <sound>
             <volume>9000</volume>
             <mode>mono</mode>
@@ -128,8 +132,10 @@
 
       <secondary slot="3">
         <ROM id="MSX Opening ROM">
-          <firstblock>36</firstblock>
-          <lastblock>37</lastblock>
+          <rom>
+            <firstblock>36</firstblock>
+            <lastblock>37</lastblock>
+          </rom>
           <mem base="0x4000" size="0x4000"/>
         </ROM>
       </secondary>
@@ -152,21 +158,27 @@
 
       <secondary slot="1">
         <ROM id="MSX Sub ROM">
-          <firstblock>56</firstblock>
-          <lastblock>57</lastblock>
+          <rom>
+            <firstblock>56</firstblock>
+            <lastblock>57</lastblock>
+          </rom>
           <mem base="0x0000" size="0x4000"/>
         </ROM>
         <ROM id="MSX Kanji Driver with BASIC 1">
-          <firstblock>58</firstblock>
-          <lastblock>61</lastblock>
+          <rom>
+            <firstblock>58</firstblock>
+            <lastblock>61</lastblock>
+          </rom>
           <mem base="0x4000" size="0x8000"/>
         </ROM>
       </secondary>
 
       <secondary slot="2">
         <TC8566AF id="Memory Mapped FDC">
-          <firstblock>48</firstblock>
-          <lastblock>55</lastblock>
+          <rom>
+            <firstblock>48</firstblock>
+            <lastblock>55</lastblock>
+          </rom>
           <drives>1</drives>
           <mem base="0x4000" size="0x8000"/>
         </TC8566AF>
