@@ -58,9 +58,13 @@ class Config
 
 		bool hasParameter(const string &name) const;
 		const string &getParameter(const string &name) const;
+		const string &getParameter(const string &name, const string &defaultValue) const;
 		const bool getParameterAsBool(const string &name) const;
+		const bool getParameterAsBool(const string &name, bool defaultValue) const;
 		const int getParameterAsInt(const string &name) const;
+		const int getParameterAsInt(const string &name, int defaultValue) const;
 		const uint64 getParameterAsUint64(const string &name) const;
+		const uint64 getParameterAsUint64(const string &name, const uint64 &defaultValue) const;
 
 		/**
 		 * This returns a freshly allocated list with freshly allocated

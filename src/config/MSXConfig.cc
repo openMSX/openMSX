@@ -71,6 +71,12 @@ const string &Config::getParameter(const string &name) const
 	throw ConfigException("Missing parameter: " + name);
 }
 
+const string &Config::getParameter(const string &name, const string &defaultValue) const
+{
+	XML::Element* p = getParameterElement(name);
+	return p ? p->pcdata : defaultValue;
+}
+
 const bool Config::getParameterAsBool(const string &name) const
 {
 	XML::Element* p = getParameterElement(name);
@@ -78,6 +84,12 @@ const bool Config::getParameterAsBool(const string &name) const
 		return Config::Parameter::stringToBool(p->pcdata);
 	}
 	throw ConfigException("Missing parameter: " + name);
+}
+
+const bool Config::getParameterAsBool(const string &name, bool defaultValue) const
+{
+	XML::Element* p = getParameterElement(name);
+	return p ? Config::Parameter::stringToBool(p->pcdata) : defaultValue;
 }
 
 const int Config::getParameterAsInt(const string &name) const
@@ -89,6 +101,12 @@ const int Config::getParameterAsInt(const string &name) const
 	throw ConfigException("Missing parameter: " + name);
 }
 
+const int Config::getParameterAsInt(const string &name, int defaultValue) const
+{
+	XML::Element* p = getParameterElement(name);
+	return p ? Config::Parameter::stringToInt(p->pcdata) : defaultValue;
+}
+
 const uint64 Config::getParameterAsUint64(const string &name) const
 {
 	XML::Element* p = getParameterElement(name);
@@ -96,6 +114,12 @@ const uint64 Config::getParameterAsUint64(const string &name) const
 		return Config::Parameter::stringToUint64(p->pcdata);
 	}
 	throw ConfigException("Missing parameter: " + name);
+}
+
+const uint64 Config::getParameterAsUint64(const string &name, const uint64 &defaultValue) const
+{
+	XML::Element* p = getParameterElement(name);
+	return p ? Config::Parameter::stringToUint64(p->pcdata) : defaultValue;
 }
 
 list<Config::Parameter*>* Config::getParametersWithClass(const string &clasz)
