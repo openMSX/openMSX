@@ -62,7 +62,7 @@ install: build
 		INSTALL_DOC_DIR=$(CURDIR)/debian/tmp/usr/share/doc/openmsx \
 		SYMLINK_FOR_BINARY=false \
 		OPENMSX_INSTALL=$(CURDIR)/debian/tmp/usr
-	@cp -f binary.lintian-overrides $(CURDIR)/debian/usr/share/lintian/overrides/openmsx
+	@cp -f $(CURDIR)/debian/binary.lintian-overrides $(CURDIR)/debian/tmp/usr/share/lintian/overrides/openmsx
 	@echo "  Cleaning up the installed package..."
 	@rm $(CURDIR)/debian/tmp/usr/share/doc/openmsx/GPL
 	@find $(CURDIR)/debian/tmp/usr/share -name CVS | xargs rm -rf
