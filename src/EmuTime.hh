@@ -8,7 +8,7 @@
 
 
 #ifndef uint64
-	typedef long long uint64;
+	typedef unsigned long long uint64;
 	// this is not portable to 64bit platforms? -> TODO check
 #endif
 
@@ -21,11 +21,11 @@ class EmuTime
 	public:
 		// friends
 		friend std::ostream &operator<<(std::ostream &os, const EmuTime &et);
-		
+
 		// constants
 		static const uint64 MAIN_FREQ = 3579545*24;
 		static const uint64 INFINITY = 18446744073709551615ULL;	//ULLONG_MAX;
-		
+
 		// constructors
 		EmuTime()                 { time = 0; }
 		EmuTime(uint64 n)         { time = n; }
@@ -43,11 +43,11 @@ class EmuTime
 		bool operator <=(const EmuTime &e) const { return time <= e.time; }
 		bool operator > (const EmuTime &e) const { return time >  e.time; }
 		bool operator >=(const EmuTime &e) const { return time >= e.time; }
-		
+
 		// distance function
-		float getDuration(const EmuTime &e) const 
+		float getDuration(const EmuTime &e) const
 			{ return (float)(e.time-time)/MAIN_FREQ; }
-		EmuTime &operator -(const EmuTime &e) const 
+		EmuTime &operator -(const EmuTime &e) const
 			{ return *new EmuTime(time-e.time); }
 		int subtract(const EmuTime &e) const { return (int)(time-e.time); }
 
@@ -62,9 +62,9 @@ class EmuTimeFreq : public EmuTime
 		// constructor
 		EmuTimeFreq()               { time  = 0; }
 		//EmuTimeFreq(uint64 n)       { time  = n*(MAIN_FREQ/freq); }
-		
+
 		void operator() (uint64 n)  { time  = n*(MAIN_FREQ/freq); }
-		
+
 		// assignment operator
 		EmuTime &operator =(const EmuTime &e) { time = e.time; return *this; }
 
@@ -79,7 +79,7 @@ class EmuTimeFreq : public EmuTime
 		EmuTime &operator +(uint64 n) { return *new EmuTime(time+n*(MAIN_FREQ/freq)); }
 
 		// distance function
-		int getTicksTill(const EmuTime &e) const 
+		int getTicksTill(const EmuTime &e) const
 			{ assert(e.time >= time); return (e.time-time)/(MAIN_FREQ/freq); }
 };
 

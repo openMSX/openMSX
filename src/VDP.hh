@@ -255,11 +255,17 @@ public:
 		return controlRegs[23];
 	}
 
-	/** Gets the number of lines per screen.
+	/** Gets the number of display lines per screen.
 	  * @return 192 or 212.
 	  */
 	inline int getNumberOfLines() {
 		return (controlRegs[9] & 0x80 ? 212 : 192);
+	}
+
+	/** Gets the number of VDP clockticks (21MHz) per frame.
+	  */
+	inline int getTicksPerFrame() {
+		return (palTiming ? 1368 * 313 : 1368 * 262);
 	}
 
 	/** Get VRAM access timing info.
@@ -270,7 +276,7 @@ public:
 	inline int getAccessTiming() {
 		return ((controlRegs[1]>>6) & 1)  // display enable
 			| (controlRegs[8] & 2)        // sprite enable
-			| ((controlRegs[9]<<1) & 4);  // 192/212 lines
+			| (palTiming ? 4 : 0);        // NTSC/PAL
 	}
 
 private:
@@ -346,6 +352,20 @@ private:
 	  */
 	int checkSprites2(int line, SpriteInfo *visibleSprites);
 
+	/** Determine next schedule point and schedule it.
+	  */
+	void scheduleNext();
+
+	/** Start a new frame.
+	  * @param time The moment in emulated time the frame starts.
+	  */
+	void frameStart(const EmuTime &time);
+
+	/** The current frame is done, now display it.
+	  * @param time The moment in emulated time the frame ends.
+	  */
+	void frameDone(const EmuTime &time);
+
 	/** Byte is read from VRAM by the CPU.
 	  */
 	byte vramRead();
@@ -389,7 +409,17 @@ private:
 	/** Emulation time of the VDP.
 	  * In other words, the time of the last update.
 	  */
-	EmuTimeFreq<3579545> currentTime;
+	EmuTimeFreq<21477270> currentTime;
+
+	/** The emulation time when this frame was started (vsync).
+	  */
+	EmuTimeFreq<21477270> frameStartTime;
+
+	/** Is PAL timing active? False means NTSC timing.
+	  * This value is updated at the start of every frame,
+	  * to avoid problems with mid-screen PAL/NTSC switching.
+	  */
+	bool palTiming;
 
 	/** Control registers.
 	  */
@@ -397,6 +427,10 @@ private:
 
 	/** Mask on the control register index:
 	  * makes MSX2 registers inaccessible on MSX1.
+	  * TODO: Alternative would be to force all MSX2 register values
+	  *       to zero on MSX1, using controlValueMasks.
+	  *       Saves one variable and one AND on every VDP reg write.
+	  *       Currently only R#9 bit 1 can be non-zero (PAL on TMS9929A).
 	  */
 	int controlRegMask;
 

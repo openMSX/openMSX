@@ -1,6 +1,12 @@
 $Id$
 
 2001-12-24 Maarten ter Huurne <mth@stack.nl>
+	* Added "unsigned" to uint64 definition in Scheduler.
+	  Before, Scheduler::INFINITY was -1.
+	* Implemented PAL at 50Hz and NTSC at 60Hz.
+	* Restructured VDP timing routines.
+
+2001-12-24 Maarten ter Huurne <mth@stack.nl>
 	* Added render routine for Graphic4 mode.
 	* Added support for 212 lines display.
 	* Added partial sprite mode 2 implementation.

@@ -55,6 +55,7 @@ VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
 	memcpy(controlValueMasks,
 		isMSX1VDP() ? VALUE_MASKS_MSX1 : VALUE_MASKS_MSX2, 32);
 	if (version == V9958) {
+		// Enable V9958-specific control registers.
 		controlValueMasks[25] = 0x7F;
 		controlValueMasks[26] = 0x3F;
 		controlValueMasks[27] = 0x07;
@@ -110,8 +111,9 @@ VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
 		MSXMotherBoard::instance()->register_IO_Out((byte)0x9B, this);
 	}
 
-	// First interrupt in Pal mode here
-	Scheduler::instance()->setSyncPoint(currentTime+71285, *this); // PAL
+	// Init scheduling.
+	frameStart(currentTime);
+	scheduleNext();
 }
 
 VDP::~VDP()
@@ -128,6 +130,10 @@ void VDP::resetInit(const EmuTime &time)
 	currentTime = time;
 
 	for (int i = 0; i < 32; i++) controlRegs[i] = 0;
+	if (version == TMS9929A) {
+		// Boots (and remains) in PAL mode, all other VDPs boot in NTSC.
+		controlRegs[9] |= 0x02;
+	}
 	displayMode = 0;
 	vramPointer = 0;
 	readAhead = 0;
@@ -157,6 +163,8 @@ void VDP::resetInit(const EmuTime &time)
 	};
 	// Init the palette.
 	memcpy(palette, V9938_PALETTE, 16 * sizeof(word));
+
+	// TODO: Real VDP probably resets timing as well.
 }
 
 void VDP::reset(const EmuTime &time)
@@ -173,29 +181,86 @@ void VDP::signalHotKey(SDLKey key)
 	renderer->setFullScreen(fullScreen);
 }
 
-/*
-TODO:
-Code seems to assume VDP is called at 50/60Hz.
-But is it guaranteed that the set sync points are actually the only
-times a sync is done?
-It seems to me that status reg reads can also be a reason for syncing.
-If not currently, then certainly in the future.
-
-TODO:
-Currently two things are done:
-- status register bookkeeping
-- force render
-The status registers will probably be calculated on demand in the
-future, instead of being kept current all the time. For registers
-like HR it will save the scheduler a lot of effort if they are
-calculated on demand.
-So only the rendering remains. Then it's probably better to schedule
-the renderer directly, instead of through the VDP.
-*/
 void VDP::executeUntilEmuTime(const EmuTime &time)
 {
-	PRT_DEBUG("Executing VDP at time " << time);
+	//PRT_DEBUG("Executing VDP at time " << time);
 
+	// TODO: Calculate once and store values.
+	//       Note that displayEndTime should be recalculated on every
+	//       reg#9 write to make overscan work.
+	int lineBottomBorder = 237 + (getNumberOfLines() - 192) / 2;
+	EmuTime displayEndTime = frameStartTime + lineBottomBorder * 1368;
+	EmuTime frameEndTime = frameStartTime + getTicksPerFrame();
+
+	// Find out what kind of sync this was.
+	// TODO: Is there some other way to do this?
+	//   For example register a different Schedulable for each sync type.
+	//   That is also safer if EmuTime precision would not be exact.
+	if (time == displayEndTime) {
+		// Vertical scanning interrupt occurs.
+		/* TODO:
+		Until renderer supports partial frame updates, be sure to
+		generate vertical scanning interrupt _after_ the update.
+		statusReg0 |= 0x80;
+		if (controlRegs[1] & 0x20) {
+			setInterrupt();
+		}
+		*/
+	}
+	else if (time == frameEndTime) {
+		// The end of this frame and the beginning of the next.
+		frameDone(frameEndTime);
+		frameStart(frameEndTime);
+		/* TODO:
+		Until renderer supports partial frame updates, be sure to
+		generate vertical scanning interrupt _after_ the update.
+		*/
+		statusReg0 |= 0x80;
+		if (controlRegs[1] & 0x20) {
+			setInterrupt();
+		}
+	}
+	else {
+		// TODO: This will be triggered on overscan, I guess,
+		//   so it is only valid for debugging purposes.
+		fprintf(stderr, "Unexpected sync, ticks since last frame: %d\n",
+			frameStartTime.getTicksTill(time));
+	}
+
+	currentTime = time;
+	scheduleNext();
+}
+
+// TODO: inline?
+void VDP::scheduleNext()
+{
+	// TODO: Calculate once and store values.
+	//       Note that displayEndTime should be recalculated on every
+	//       reg#9 write to make overscan work.
+	int lineBottomBorder = 237 + (getNumberOfLines() - 192) / 2;
+	EmuTime displayEndTime = frameStartTime + lineBottomBorder * 1368;
+	if (displayEndTime <= currentTime) {
+		displayEndTime = EmuTime::INFINITY;
+	}
+	EmuTime frameEndTime = frameStartTime + getTicksPerFrame();
+	assert(frameEndTime > currentTime);
+
+	EmuTime first = (displayEndTime < frameEndTime
+		? displayEndTime : frameEndTime);
+
+	Scheduler::instance()->setSyncPoint(first, *this);
+}
+
+// TODO: inline?
+void VDP::frameStart(const EmuTime &time)
+{
+	palTiming = controlRegs[9] & 0x02;
+	frameStartTime = time;
+}
+
+// TODO: inline?
+void VDP::frameDone(const EmuTime &time)
+{
 	// Sync with command engine.
 	cmdEngine->sync(time);
 
@@ -216,19 +281,7 @@ void VDP::executeUntilEmuTime(const EmuTime &time)
 	}
 
 	// This frame is finished.
-	// TODO: Actually, a frame ends on vsync, while interrupt
-	//   occurs at bottom border start.
 	renderer->putImage();
-
-	// Next SP/interrupt in Pal mode here.
-	currentTime = time;
-	Scheduler::instance()->setSyncPoint(currentTime+71258, *this); //71285 for PAL, 59404 for NTSC
-	// Since this is the vertical refresh.
-	statusReg0 |= 0x80;
-	// Set interrupt if bits enable it.
-	if (controlRegs[1] & 0x20) {
-		setInterrupt();
-	}
 }
 
 // The I/O functions.
