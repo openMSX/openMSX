@@ -3,6 +3,7 @@
 #include <cassert>
 #include "JoyNet.hh"
 #include "PluggingController.hh"
+#include "MSXConfig.hh"
 //#include "EventDistributor.hh"
 
 
@@ -44,8 +45,7 @@ void JoyNet::write(byte value, const EmuTime &time)
 void JoyNet::setupConnection()
 {
 	try {
-	MSXConfig::Config *config =
-	MSXConfig::Backend::instance()->getConfigById(name);
+	MSXConfig::Config *config = MSXConfig::Backend::instance()->getConfigById(name);
 	std::string hostname = config->getParameter("connecthost");
 	std::string portname = config->getParameter("connectport");
 	std::string listenport = config->getParameter("listenport");
@@ -62,6 +62,9 @@ void JoyNet::destroyConnection()
 
 void JoyNet::sendByte(byte value)
 {
+	// No transformation of bits to be directly read into openMSX later on
+	// needed since it is a one-on-one mapping
+
+	/* Joynet cable looped for Maartens test program*/
+	status=value;
 }
-
-
