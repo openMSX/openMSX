@@ -145,6 +145,8 @@ template <class Pixel>
 void BlurScaler<Pixel>::scaleBlank(Pixel colour, SDL_Surface* dst,
                                    int dstY, int endDstY)
 {
+	// TODO this routine is copied from SimpleScaler, share the code somehow
+	//  --> will be solved when SimpleScaler and BlurScaler get integrated 
 	if (colour == 0) {
 		// No need to draw scanlines if border is black.
 		// This is a special case that occurs very often.
@@ -169,38 +171,40 @@ void BlurScaler<Pixel>::scaleBlank(Pixel colour, SDL_Surface* dst,
 					// Precalc normal colour.
 					"movd	%2, %%mm0;"
 					"punpckldq	%%mm0, %%mm0;"
-					"movq	%%mm0, %%mm1;"
-					"movq	%%mm0, %%mm2;"
-					"movq	%%mm1, %%mm3;"
 
 					"xorl	%%eax, %%eax;"
 				"0:"
 					// Store.
 					"movntq	%%mm0,   (%0,%%eax);"
-					"movntq	%%mm1,  8(%0,%%eax);"
-					"movntq	%%mm2, 16(%0,%%eax);"
-					"movntq	%%mm3, 24(%0,%%eax);"
+					"movntq	%%mm0,  8(%0,%%eax);"
+					"movntq	%%mm0, 16(%0,%%eax);"
+					"movntq	%%mm0, 24(%0,%%eax);"
+					"movntq	%%mm0, 32(%0,%%eax);"
+					"movntq	%%mm0, 40(%0,%%eax);"
+					"movntq	%%mm0, 48(%0,%%eax);"
+					"movntq	%%mm0, 56(%0,%%eax);"
 					// Increment.
-					"addl	$32, %%eax;"
+					"addl	$64, %%eax;"
 					"cmpl	%4, %%eax;"
 					"jl	0b;"
 
 					// Precalc darkened colour.
-					"movd	%3, %%mm4;"
-					"punpckldq	%%mm4, %%mm4;"
-					"movq	%%mm4, %%mm5;"
-					"movq	%%mm4, %%mm6;"
-					"movq	%%mm5, %%mm7;"
+					"movd	%3, %%mm1;"
+					"punpckldq	%%mm1, %%mm1;"
 
 					"xorl	%%eax, %%eax;"
 				"1:"
 					// Store.
-					"movntq	%%mm4,   (%1,%%eax);"
-					"movntq	%%mm5,  8(%1,%%eax);"
-					"movntq	%%mm6, 16(%1,%%eax);"
-					"movntq	%%mm7, 24(%1,%%eax);"
+					"movntq	%%mm1,   (%1,%%eax);"
+					"movntq	%%mm1,  8(%1,%%eax);"
+					"movntq	%%mm1, 16(%1,%%eax);"
+					"movntq	%%mm1, 24(%1,%%eax);"
+					"movntq	%%mm1, 32(%1,%%eax);"
+					"movntq	%%mm1, 40(%1,%%eax);"
+					"movntq	%%mm1, 48(%1,%%eax);"
+					"movntq	%%mm1, 56(%1,%%eax);"
 					// Increment.
-					"addl	$32, %%eax;"
+					"addl	$64, %%eax;"
 					"cmpl	%4, %%eax;"
 					"jl	1b;"
 
@@ -210,7 +214,7 @@ void BlurScaler<Pixel>::scaleBlank(Pixel colour, SDL_Surface* dst,
 					, "rm" (col32) // 2
 					, "rm" (scan32) // 3
 					, "r" (dst->w * sizeof(Pixel)) // 4: bytes per line
-					: "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
+					: "mm0", "mm1"
 					, "eax"
 					);
 			}
