@@ -27,6 +27,7 @@
    + mute status
    + deinterlace
    + speed
+   + limitsprites
  - The following things should be made settings (adjustable in Console):
    + Mixer settings
  - The following Console commands need to be converted to a settings command:
