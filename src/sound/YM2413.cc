@@ -685,12 +685,6 @@ void YM2413::setRythmMode(int data)
 		ch[7].car.eg_mode = FINISH; // SD
 		ch[8].mod.eg_mode = FINISH; // TOM
 		ch[8].car.eg_mode = FINISH; // CYM
-		ch[6].mod.slotStatus = false;
-		ch[6].car.slotStatus = false;
-		ch[7].mod.slotStatus = false;
-		ch[7].car.slotStatus = false;
-		ch[8].mod.slotStatus = false;
-		ch[8].car.slotStatus = false;
 	}
 }
 
