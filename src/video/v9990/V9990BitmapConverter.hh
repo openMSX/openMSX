@@ -6,7 +6,7 @@
 #include <SDL.h>
 #include "openmsx.hh"
 #include "Renderer.hh"
-#include "V9990.hh"
+#include "V9990ModeEnum.hh"
 
 namespace openmsx {
 

@@ -1,5 +1,6 @@
 // $Id$
 
+#include "V9990.hh"
 #include "V9990SDLRasterizer.hh"
 #include <SDL.h>
 

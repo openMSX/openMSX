@@ -3,12 +3,12 @@
 #ifndef __V9990PIXELRENDERER_HH__
 #define __V9990PIXELRENDERER_HH__
 
-#include "V9990.hh"
 #include "V9990Renderer.hh"
 #include "openmsx.hh"
 
 namespace openmsx {
 
+class V9990;
 class V9990Rasterizer;
 
 /** Generic pixel based renderer for the V9990.

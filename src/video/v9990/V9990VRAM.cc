@@ -6,6 +6,7 @@
   */
 
 #include "Debugger.hh"
+#include "V9990.hh"
 #include "V9990VRAM.hh"
 
 using std::string;

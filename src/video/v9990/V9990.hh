@@ -12,6 +12,7 @@
 #include "IRQHelper.hh"
 #include "Command.hh"
 #include "V9990DisplayTiming.hh"
+#include "V9990ModeEnum.hh"
 
 namespace openmsx {
 
@@ -19,17 +20,6 @@ class V9990VRAM;
 class V9990CmdEngine;
 class V9990Renderer;
 class EmuTime;
-
-
-/** Some useful stuff
-  */
-enum V9990DisplayMode {
-	INVALID_DISPLAY_MODE = -1,
-	P1, P2, B0, B1, B2, B3, B4, B5, B6, B7 };
-enum V9990ColorMode {
-	INVALID_COLOR_MODE = -1, 
-	PP, BYUV, BYUVP, BYJK, BYJKP, BD16, BD8, BP6, BP4, BP2 };
-
 
 /** Implementation of the Yamaha V9990 VDP as used in the GFX9000
   * cartridge by Sunrise.

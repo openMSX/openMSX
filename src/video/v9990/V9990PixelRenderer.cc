@@ -1,5 +1,6 @@
 // $Id$
 
+#include "V9990.hh"
 #include "V9990DisplayTiming.hh"
 #include "V9990PixelRenderer.hh"
 #include "V9990Rasterizer.hh"

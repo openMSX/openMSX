@@ -3,13 +3,9 @@
 #ifndef __V9990DUMMYRENDERER_HH__
 #define __V9990DUMMYRENDERER_HH__
 
-#include "openmsx.hh"
-#include "V9990.hh"
 #include "V9990Renderer.hh"
 
 namespace openmsx {
-
-class V9990;
 
 class V9990DummyRenderer: public V9990Renderer
 {
@@ -24,7 +20,8 @@ public:
 	void setPalette(int index, byte r, byte g, byte b, const EmuTime& time);
 	void setBackgroundColor(int index);
 	void setImageWidth(int width);
+};
 
-}; // class V9990DummyRenderer
 } // namespace openmsx
+
 #endif

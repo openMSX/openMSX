@@ -10,11 +10,12 @@
 
 #include "openmsx.hh"
 #include "Debuggable.hh"
-#include "V9990.hh"
+#include "V9990ModeEnum.hh"
 
 namespace openmsx {
 
 class EmuTime;
+class V9990;
 
 class V9990VRAM : private Debuggable
 {

@@ -4,10 +4,11 @@
 #define __V9990CMDENGINE_HH__
 
 #include "openmsx.hh"
-#include "V9990.hh"
+#include "V9990ModeEnum.hh"
 
 namespace openmsx {
 
+class V9990;
 class V9990VRAM;
 class EmuTime;
 

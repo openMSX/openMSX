@@ -4,7 +4,7 @@
 #define __V9990RENDERER_HH__
 
 #include "openmsx.hh"
-#include "V9990.hh"
+#include "V9990ModeEnum.hh"
 
 namespace openmsx {
 

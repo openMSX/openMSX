@@ -4,7 +4,8 @@
 #define __V9990RASTERIZER_HH__
 
 #include "VideoLayer.hh"
-#include "V9990.hh"
+#include "V9990ModeEnum.hh"
+#include "V9990DisplayTiming.hh"
 
 namespace openmsx {
 
