@@ -4,50 +4,50 @@
 
 namespace openmsx {
 
-static const int EG_SH = 16;	// 16.16 fixed point (EG timing)
-static const unsigned EG_TIMER_OVERFLOW = 1 << EG_SH;
+const int EG_SH = 16;	// 16.16 fixed point (EG timing)
+const unsigned EG_TIMER_OVERFLOW = 1 << EG_SH;
 
 // envelope output entries
-static const int ENV_BITS      = 10;
-static const int ENV_LEN       = 1 << ENV_BITS;
-static const double ENV_STEP   = 128.0 / ENV_LEN;
-static const int MAX_ATT_INDEX = (1 << (ENV_BITS - 1)) - 1; //511
-static const int MIN_ATT_INDEX = 0;
+const int ENV_BITS      = 10;
+const int ENV_LEN       = 1 << ENV_BITS;
+const double ENV_STEP   = 128.0 / ENV_LEN;
+const int MAX_ATT_INDEX = (1 << (ENV_BITS - 1)) - 1; //511
+const int MIN_ATT_INDEX = 0;
 
 // Envelope Generator phases
-static const int EG_ATT = 4;
-static const int EG_DEC = 3;
-static const int EG_SUS = 2;
-static const int EG_REL = 1;
-static const int EG_OFF = 0;
+const int EG_ATT = 4;
+const int EG_DEC = 3;
+const int EG_SUS = 2;
+const int EG_REL = 1;
+const int EG_OFF = 0;
 
-static const int EG_REV = 5;	//pseudo reverb
-static const int EG_DMP = 6;	//damp
+const int EG_REV = 5;	//pseudo reverb
+const int EG_DMP = 6;	//damp
 
 // Pan values, units are -3dB, i.e. 8.
-static const int pan_left[16]  = {
+const int pan_left[16]  = {
 	0, 8, 16, 24, 32, 40, 48, 256, 256,   0,  0,  0,  0,  0,  0, 0
 };
-static const int pan_right[16] = {
+const int pan_right[16] = {
 	0, 0,  0,  0,  0,  0,  0,   0, 256, 256, 48, 40, 32, 24, 16, 8
 };
 
 // Mixing levels, units are -3dB, and add some marging to avoid clipping
-static const int mix_level[8] = {
+const int mix_level[8] = {
 	8, 16, 24, 32, 40, 48, 56, 0
 };
 
 // decay level table (3dB per step)
 // 0 - 15: 0, 3, 6, 9,12,15,18,21,24,27,30,33,36,39,42,93 (dB)
 #define SC(db) (unsigned)(db * (2.0 / ENV_STEP))
-static const unsigned dl_tab[16] = {
+const unsigned dl_tab[16] = {
  SC( 0), SC( 1), SC( 2), SC(3 ), SC(4 ), SC(5 ), SC(6 ), SC( 7),
  SC( 8), SC( 9), SC(10), SC(11), SC(12), SC(13), SC(14), SC(31)
 };
 #undef SC
 
-static const byte RATE_STEPS = 8;
-static const byte eg_inc[15 * RATE_STEPS] = {
+const byte RATE_STEPS = 8;
+const byte eg_inc[15 * RATE_STEPS] = {
 //cycle:0 1  2 3  4 5  6 7
 	0, 1,  0, 1,  0, 1,  0, 1, //  0  rates 00..12 0 (increment by 0 or 1)
 	0, 1,  0, 1,  1, 1,  0, 1, //  1  rates 00..12 1
@@ -70,7 +70,7 @@ static const byte eg_inc[15 * RATE_STEPS] = {
 };
 
 #define O(a) (a * RATE_STEPS)
-static const byte eg_rate_select[64] = {
+const byte eg_rate_select[64] = {
 	O( 0),O( 1),O( 2),O( 3),
 	O( 0),O( 1),O( 2),O( 3),
 	O( 0),O( 1),O( 2),O( 3),
@@ -94,7 +94,7 @@ static const byte eg_rate_select[64] = {
 //shift 12,   11,   10,   9,   8,   7,   6,  5,  4,  3,  2,  1,  0,  0,  0,  0
 //mask  4095, 2047, 1023, 511, 255, 127, 63, 31, 15, 7,  3,  1,  0,  0,  0,  0
 #define O(a) (a)
-static const byte eg_rate_shift[64] = {
+const byte eg_rate_shift[64] = {
 	O(12),O(12),O(12),O(12),
 	O(11),O(11),O(11),O(11),
 	O(10),O(10),O(10),O(10),
@@ -118,7 +118,7 @@ static const byte eg_rate_shift[64] = {
 //number of steps to take in quarter of lfo frequency
 //TODO check if frequency matches real chip
 #define O(a) ((int)((EG_TIMER_OVERFLOW / a) / 6))
-static const int lfo_period[8] = {
+const int lfo_period[8] = {
 	O(0.168), O(2.019), O(3.196), O(4.206),
 	O(5.215), O(5.888), O(6.224), O(7.066)
 };
@@ -126,7 +126,7 @@ static const int lfo_period[8] = {
 
 
 #define O(a) ((int)(a * 65536))
-static const int vib_depth[8] = {
+const int vib_depth[8] = {
 	O(0),	   O(3.378),  O(5.065),  O(6.750),
 	O(10.114), O(20.170), O(40.106), O(79.307)
 };
@@ -134,7 +134,7 @@ static const int vib_depth[8] = {
 
 
 #define SC(db) (unsigned) (db * (2.0 / ENV_STEP))
-static const int am_depth[8] = {
+const int am_depth[8] = {
 	SC(0),	   SC(1.781), SC(2.906), SC(3.656),
 	SC(4.406), SC(5.906), SC(7.406), SC(11.91)
 };
