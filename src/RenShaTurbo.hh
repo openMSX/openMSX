@@ -12,7 +12,6 @@ namespace openmsx {
 
 class EmuTime;
 class Autofire;
-class SettingsConfig;
 
 /**
  * Ren-Sha Turbo is the autofire in several MSX 2+ models and in
@@ -34,7 +33,7 @@ public:
 	 *
 	 * When auto-fire is off, bit 0 will be 0
 	 */
-	byte getSignal(const EmuTime &time);
+	byte getSignal(const EmuTime& time);
 
 private:
 	RenShaTurbo();

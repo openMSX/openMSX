@@ -2,6 +2,7 @@ $Id$
 
 2004-07-11 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Config file change: FDC type is no longer a sub type
+	* Fixed RenShaTurbo
 
 2004-07-10 Maarten ter Huurne <maarten@treewalker.org>
 	* Separated CPU and OS in build system.

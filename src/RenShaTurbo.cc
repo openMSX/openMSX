@@ -1,7 +1,7 @@
 // $Id$
 
 #include "RenShaTurbo.hh"
-#include "SettingsConfig.hh"
+#include "HardwareConfig.hh"
 #include "Autofire.hh"
 
 namespace openmsx {
@@ -14,7 +14,7 @@ RenShaTurbo& RenShaTurbo::instance()
 
 RenShaTurbo::RenShaTurbo()
 {
-	const XMLElement* config = SettingsConfig::instance().findChild("RenShaTurbo");
+	const XMLElement* config = HardwareConfig::instance().findChild("RenShaTurbo");
 	if (config) {
 		int min_ints = config->getChildDataAsInt("min_ints", 47);
 		int max_ints = config->getChildDataAsInt("max_ints", 221);
@@ -26,10 +26,9 @@ RenShaTurbo::~RenShaTurbo()
 {
 }
 
-byte RenShaTurbo::getSignal(const EmuTime &time)
+byte RenShaTurbo::getSignal(const EmuTime& time)
 {
-	return (autofire.get()) ? autofire->getSignal(time)
-	                        : 0;
+	return autofire.get() ? autofire->getSignal(time) : 0;
 }
 
 } // namespace openmsx
