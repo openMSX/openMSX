@@ -84,7 +84,7 @@ void SDLConsole::updateConsole()
 // Draws the console buffer to the screen
 void SDLConsole::drawConsole()
 {
-	if (!isVisible) return;
+	if (!consoleSetting.getValue()) return;
 	
 	drawCursor();
 

@@ -45,17 +45,6 @@ cassetteplayer
     cassetteplayer eject        remove tape from virtual cassette player
 
     
-console
--------
-
-  Bring up/down the console.
-
-  usage:
-    console up    brings the console up
-    console down  brings the console down
-    console       toggles the state of the console
-    
-
 cpudebug
 --------
 
@@ -246,6 +235,17 @@ cmdtiming
   Controls VDP command execution timing.
   [ mainly usefull for debugging purposes ]
   
+
+console
+-------
+
+  Bring up/down the console.
+
+  usage:
+    set console       shows the current setting
+    set console up    brings the console up
+    set console down  brings the console down
+    
 
 deinterlace
 -----------

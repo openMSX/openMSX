@@ -5,7 +5,6 @@
 
 #include "EventListener.hh"
 #include "InteractiveConsole.hh"
-#include "Command.hh"
 #include "Settings.hh"
 
 class SDLInteractiveConsole;
@@ -50,25 +49,13 @@ class SDLInteractiveConsole : public InteractiveConsole, private EventListener
 		virtual bool loadFont(const std::string &filename) = 0;
 
 	protected:
-		bool isVisible;
 		std::string fontName;
 		std::string backgroundName;
 		FileContext* context;
+		BooleanSetting consoleSetting;
 
 	private:
 		virtual bool signalEvent(SDL_Event &event, const EmuTime &time);
-		
-		class ConsoleCmd : public Command {
-			public:
-				ConsoleCmd(SDLInteractiveConsole *cons);
-				virtual void execute(const std::vector<std::string> &tokens,
-				                     const EmuTime &time);
-				virtual void help(const std::vector<std::string> &tokens) const;
-			private:
-				SDLInteractiveConsole *console;
-		};
-		friend class ConsoleCmd;
-		ConsoleCmd consoleCmd;
 };
 
 #endif

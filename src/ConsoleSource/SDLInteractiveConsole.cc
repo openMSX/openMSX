@@ -1,7 +1,6 @@
 // $Id$
 
 #include <cassert>
-#include "CommandController.hh"
 #include "ConsoleManager.hh"
 #include "EventDistributor.hh"
 #include "SDLInteractiveConsole.hh"
@@ -64,9 +63,8 @@ bool FontSetting::checkUpdate(const std::string &newValue, const EmuTime &time)
 // class SDLInteractiveConsole
 
 SDLInteractiveConsole::SDLInteractiveConsole() :
-	consoleCmd(this)
+	consoleSetting("console", "turns console display on/off", false)
 {
-	isVisible = false;
 	SDL_EnableUNICODE(1);
 	
 	try {
@@ -91,16 +89,12 @@ SDLInteractiveConsole::SDLInteractiveConsole() :
 		                  registerEventListener(SDL_KEYDOWN, this);
 		EventDistributor::instance()->
 		                  registerEventListener(SDL_KEYUP,   this);
-		CommandController::instance()->
-		                   registerCommand(&consoleCmd, "console");
 	}
 }
 
 SDLInteractiveConsole::~SDLInteractiveConsole()
 {
 	if (!fontName.empty()) {
-		CommandController::instance()->
-		                   unregisterCommand(&consoleCmd, "console");
 		EventDistributor::instance()->
 		                  unregisterEventListener(SDL_KEYDOWN, this);
 		EventDistributor::instance()->
@@ -113,7 +107,7 @@ SDLInteractiveConsole::~SDLInteractiveConsole()
 // Takes keys from the keyboard and inputs them to the console
 bool SDLInteractiveConsole::signalEvent(SDL_Event &event, const EmuTime &time)
 {
-	if (!isVisible)
+	if (!consoleSetting.getValue())
 		return true;
 	if (event.type == SDL_KEYUP)
 		return false;	// don't pass event to MSX-Keyboard
@@ -148,40 +142,3 @@ bool SDLInteractiveConsole::signalEvent(SDL_Event &event, const EmuTime &time)
 	updateConsole();
 	return false;	// don't pass event to MSX-Keyboard
 }
-
-
-// Console command
-SDLInteractiveConsole::ConsoleCmd::ConsoleCmd(SDLInteractiveConsole *cons)
-{
-	console = cons;
-}
-
-void SDLInteractiveConsole::ConsoleCmd::execute(const std::vector<std::string> &tokens,
-                                                const EmuTime &time)
-{
-	switch (tokens.size()) {
-	case 1:
-		console->isVisible = !console->isVisible;
-		break;
-	case 2:
-		if (tokens[1] == "on") {
-			console->isVisible = true;
-			break;
-		} 
-		if (tokens[1] == "off") {
-			console->isVisible = false;
-			break;
-		}
-		// fall through
-	default:
-		throw CommandException("Syntax error");
-	}
-}
-
-void SDLInteractiveConsole::ConsoleCmd::help(const std::vector<std::string> &tokens) const
-{
-	print("This command turns console display on/off");
-	print(" console:     toggle console display");
-	print(" console on:  show console display");
-	print(" console off: remove console display");
-} 
