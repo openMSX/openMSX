@@ -4,8 +4,8 @@
 #define __FDC_DSK__HH__
 
 #include "FDCBackEnd.hh"
+#include "File.hh"
 
-class File;
 class FileContext;
 
 
@@ -39,15 +39,15 @@ class FDC_DSK : public FDCBackEnd
 		int nbSectors;
 
 	private:
-		File* file;
-		byte* writeTrackBuf;
+		File file;
+		byte writeTrackBuf[SECTOR_SIZE];
 		int writeTrackBufCur;
 		int writeTrackSectorCur;
 		byte writeTrack_track;
 		byte writeTrack_side;
 		byte writeTrack_sector;
 		int writeTrack_CRCcount;
-		byte* readTrackDataBuf;
+		byte readTrackDataBuf[RAWTRACK_SIZE];
 		int readTrackDataCount;
 };
 

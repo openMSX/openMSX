@@ -1,23 +1,17 @@
 // $Id$
 
 #include "FDC_DSK.hh"
-#include "File.hh"
 #include "FileContext.hh"
 
 
 FDC_DSK::FDC_DSK(FileContext *context, const std::string &fileName)
+	: file(context->resolve(fileName))
 {
-	file = new File(context->resolve(fileName));
-	nbSectors = file->getSize() / SECTOR_SIZE;
-	writeTrackBuf = new byte[SECTOR_SIZE];
-	readTrackDataBuf = new byte[RAWTRACK_SIZE];
+	nbSectors = file.getSize() / SECTOR_SIZE;
 }
 
 FDC_DSK::~FDC_DSK()
 {
-	delete file;
-	delete[] writeTrackBuf;
-	delete[] readTrackDataBuf;
 }
 
 void FDC_DSK::read(byte track, byte sector, byte side,
@@ -28,8 +22,8 @@ void FDC_DSK::read(byte track, byte sector, byte side,
 		if (logicalSector >= nbSectors) {
 			throw NoSuchSectorException("No such sector");
 		}
-		file->seek(logicalSector * SECTOR_SIZE);
-		file->read(buf, SECTOR_SIZE);
+		file.seek(logicalSector * SECTOR_SIZE);
+		file.read(buf, SECTOR_SIZE);
 	} catch (FileException &e) {
 		throw DiskIOErrorException("Disk I/O error");
 	}
@@ -43,8 +37,8 @@ void FDC_DSK::write(byte track, byte sector, byte side,
 		if (logicalSector >= nbSectors) {
 			throw NoSuchSectorException("No such sector");
 		}
-		file->seek(logicalSector * SECTOR_SIZE);
-		file->write(buf, SECTOR_SIZE);
+		file.seek(logicalSector * SECTOR_SIZE);
+		file.write(buf, SECTOR_SIZE);
 	} catch (FileException &e) {
 		throw DiskIOErrorException("Disk I/O error");
 	}
@@ -84,7 +78,6 @@ void FDC_DSK::writeTrackData(byte data)
 			for (int i = 0; i < 512; i++) {
 				tempWriteBuf[i] =
 				      writeTrackBuf[(writeTrackBufCur+i) & 511];
-				PRT_DEBUG("DEBUG format " << (int)tempWriteBuf[i]);
 			}
 			write(writeTrack_track, writeTrack_sector,
 			      writeTrack_side, 512, tempWriteBuf);

@@ -199,10 +199,8 @@ int RealDrive::indexPulseCount(const EmuTime &begin,
 	if (!motorStatus) {
 		return 0;
 	}
-	assert(motorTime <= begin);
-	assert(motorTime <= end);
-	int t1 = motorTime.getTicksTill(begin);
-	int t2 = motorTime.getTicksTill(end);
+	int t1 = (motorTime <= begin) ? motorTime.getTicksTill(begin) : 0;
+	int t2 = (motorTime <= end)   ? motorTime.getTicksTill(end)   : 0;
 	int total = t2 - t1;
 	int start = t1 % TICKS_PER_ROTATION;
 	return (total - start) / TICKS_PER_ROTATION;

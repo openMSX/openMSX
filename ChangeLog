@@ -5,6 +5,7 @@ $Id$
 	   - Doesn't work yet! Only 'normal' rom switching is emulated.
 	     The program also writes to pages 0 en 3 and it selects rom
 	     pages > 0x80, I've no idea what this should do.
+	* Fixed format command, apparently I broke it several months ago.
 
 2003-03-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented "vramdump" console command, only available when

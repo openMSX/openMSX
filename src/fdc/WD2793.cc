@@ -42,15 +42,22 @@ bool WD2793::getDTRQ(const EmuTime &time)
 	if (((commandReg & 0xF0) == 0xF0) &&
 	    (statusReg & BUSY)) {
 		// WRITE TRACK && status busy
-		int ticks = DRQTime.getTicksTill(time);
-		if (ticks >= 15) { 
-			// writing a byte during format takes +/- 33 us
-			// according to tech data but on trubor fdc docs it
-			// state 15 us to get data ready
-			// TODO check for clockspeed of used diagram in wdc
-			//      docs this could explain mistake
-			DRQTime -= 15;
-			DRQ = true;
+		if (writeTrack) {
+			int ticks = DRQTime.getTicksTill(time);
+			if (ticks >= 15) { 
+				// writing a byte during format takes +/- 33 us
+				// according to tech data but on trubor fdc docs it
+				// state 15 us to get data ready
+				// TODO check for clockspeed of used diagram in wdc
+				//      docs this could explain mistake
+				DRQTime -= 15;
+				DRQ = true;
+			}
+		} else {
+			int pulses = drive->indexPulseCount(commandStart, time);
+			if (pulses == 1) {
+				writeTrack = true;
+			}
 		}
 	}
 	return DRQ;
@@ -318,7 +325,7 @@ void WD2793::tryToReadSector(void)
 
 void WD2793::executeUntilEmuTime(const EmuTime &time, int state)
 {
-	switch((FSMState)state) {
+	switch ((FSMState)state) {
 		case FSM_SEEK:
 			if ((commandReg & 0x80) == 0x00) {
 				// Type I command
@@ -331,6 +338,13 @@ void WD2793::executeUntilEmuTime(const EmuTime &time, int state)
 				type2WaitLoad(time);
 			}
 			break;
+		case FSM_TYPE3_WAIT_LOAD:
+			if (((commandReg & 0xC0) == 0xC0) &&
+			    ((commandReg & 0xF0) != 0xD0)) { 
+				// Type III command
+				type3WaitLoad(time);
+			}
+			break;
 		default:
 			assert(false);
 	}
@@ -338,13 +352,13 @@ void WD2793::executeUntilEmuTime(const EmuTime &time, int state)
 
 void WD2793::startType1Cmd(const EmuTime &time)
 {
-	statusReg &= ~(SEEK | CRC);
+	statusReg &= ~(SEEK_ERROR | CRC_ERROR);
 	statusReg |= BUSY;
 	DRQ = false;
 
 	drive->setHeadLoaded(commandReg & H_FLAG, time);
 
-	switch(commandReg & 0xF0) {
+	switch (commandReg & 0xF0) {
 		case 0x00: // restore
 			trackReg = 0xFF;
 			dataReg  = 0x00;
@@ -392,6 +406,7 @@ void WD2793::step(const EmuTime &time)
 	};
 
 	if ((commandReg & T_FLAG) || ((commandReg & 0xE0) == 0x00)) {
+		// Restore or seek  or  T_FLAG
 		if (directionIn) {
 			trackReg++;
 		} else {
@@ -423,29 +438,30 @@ void WD2793::endType1Cmd(const EmuTime &time)
 {
 	if (commandReg & V_FLAG) {
 		// verify sequence
-		
 		// TODO verify sequence
-	} 
+	}
 	endCmd();
 }
 
 
 void WD2793::startType2Cmd(const EmuTime &time)
 {
-	statusReg &= 0x01;	// reset lost data,record not found & status bits 5 & 6
-	statusReg |= 1;	// set status on Busy
-
+	statusReg &= ~(LOST_DATA   | RECORD_NOT_FOUND |
+	               RECORD_TYPE | WRITE_PROTECTED);
+	statusReg |= BUSY;
+	DRQ = false;
+	
 	if (!drive->ready()) {
 		endCmd();
 	} else {
-		// WD279[5|7] would now set SSO output
-	
+		// WD2795/WD2797 would now set SSO output
 		drive->setHeadLoaded(true, time);
 
 		if (commandReg & E_FLAG) {
 			EmuTimeFreq<1000> next(time);	// ms
-			next += 30;
-			Scheduler::instance()->setSyncPoint(next, this, FSM_TYPE2_WAIT_LOAD);
+			next += 30;	// when 1MHz clock
+			Scheduler::instance()->setSyncPoint(next, this,
+			                                 FSM_TYPE2_WAIT_LOAD);
 		} else {
 			type2WaitLoad(time);
 		}
@@ -479,40 +495,76 @@ void WD2793::type2WaitLoad(const EmuTime& time)
 
 void WD2793::startType3Cmd(const EmuTime &time)
 {
-	commandStart = time;
-	statusReg |= BUSY;	// set status on Busy
+	statusReg &= ~(LOST_DATA | RECORD_NOT_FOUND | RECORD_TYPE);
+	statusReg |= BUSY;
 	DRQ = false;
+	writeTrack = false;
 
+	if (!drive->ready()) {
+		endCmd();
+	} else {
+		drive->setHeadLoaded(true, time);
+		// WD2795/WD2797 would now set SSO output
+
+		if (commandReg & E_FLAG) {
+			EmuTimeFreq<1000> next(time);	// ms
+			next += 30;	// when 1MHz clock
+			Scheduler::instance()->setSyncPoint(next, this,
+			                                 FSM_TYPE3_WAIT_LOAD);
+		} else {
+			type3WaitLoad(time);
+		}
+	}
+}
+
+void WD2793::type3WaitLoad(const EmuTime& time)
+{
+	// TODO wait till head loaded
+	
+	// TODO TG43 update
+	
+	commandStart = time;
 	switch (commandReg & 0xF0) {
-	case 0xC0: //Read Address
-		PRT_DEBUG("FDC command: read address");
-		assert(false);	// not yet implemented
+	case 0xC0: // read Address
+		readAddressCmd(time);
 		break;
-		
-	case 0xE0: //read track
-		PRT_DEBUG("FDC command: read track");
-		assert(false);	// not yet implemented
+	case 0xE0: // read track
+		readTrackCmd(time);
 		break;
-		
-	case 0xF0: //write track
-		PRT_DEBUG("FDC command: write track");
-		statusReg &= 0x01;	// reset lost data,record not found & status bits 5 & 6
-		DRQ = true;
-		drive->initWriteTrack(); 
-		PRT_DEBUG("WD2793: initWriteTrack()");
+	case 0xF0: // write track
+		writeTrackCmd(time);
+		break;
+	}
+}
 
-		//PRT_INFO("FDC command not yet implemented ");
-		//CommandController::instance()->executeCommand(std::string("cpudebug"));
-		//statusReg &= ~BUSY;	// reset status on Busy
-		// Variables below are a not-completely-correct hack:
-		// Correct behavior would indicate that one waits until the
-		// next indexmark before the first byte is written and that
-		// from the command stays active until the next indexmark.
+void WD2793::readAddressCmd(const EmuTime &time)
+{
+	PRT_DEBUG("FDC command: read address");
+	assert(false);	// not yet implemented
+}
+
+void WD2793::readTrackCmd(const EmuTime &time)
+{
+	PRT_DEBUG("FDC command: read track");
+	assert(false);	// not yet implemented
+}
+
+void WD2793::writeTrackCmd(const EmuTime &time)
+{
+	PRT_DEBUG("FDC command: write track");
+
+	if (drive->writeProtected()) {
+		// write track command and write protected
+		statusReg |= WRITE_PROTECTED;
+		endCmd();
+	} else {
+		DRQ = true;
 		
 		// TODO wait for indexPulse
 
+		PRT_DEBUG("WD2793: initWriteTrack()");
+		drive->initWriteTrack(); 
 		DRQTime = time;
-		break;
 	}
 }
 

@@ -32,15 +32,18 @@ class WD2793 : private Schedulable
 
 	private:
 		// Status register
-		static const int BUSY            = 0x01;
-		static const int INDEX           = 0x02;
-		static const int S_DRQ           = 0x02;
-		static const int TRACK00         = 0x04;
-		static const int CRC             = 0x08;
-		static const int SEEK            = 0x10;
-		static const int HEAD_LOADED     = 0x20;
-		static const int WRITE_PROTECTED = 0x40;
-		static const int NOT_READY       = 0x80;
+		static const int BUSY             = 0x01;
+		static const int INDEX            = 0x02;
+		static const int S_DRQ            = 0x02;
+		static const int TRACK00          = 0x04;
+		static const int LOST_DATA        = 0x04;
+		static const int CRC_ERROR        = 0x08;
+		static const int SEEK_ERROR       = 0x10;
+		static const int RECORD_NOT_FOUND = 0x10;
+		static const int HEAD_LOADED      = 0x20;
+		static const int RECORD_TYPE      = 0x20;
+		static const int WRITE_PROTECTED  = 0x40;
+		static const int NOT_READY        = 0x80;
 		
 		// Command register
 		static const int STEP_SPEED = 0x03;
@@ -54,6 +57,7 @@ class WD2793 : private Schedulable
 		enum FSMState {
 			FSM_SEEK,
 			FSM_TYPE2_WAIT_LOAD,
+			FSM_TYPE3_WAIT_LOAD,
 		};
 		virtual void executeUntilEmuTime(const EmuTime &time, int state);
 
@@ -65,9 +69,14 @@ class WD2793 : private Schedulable
 		void endType1Cmd(const EmuTime &time);
 		
 		void startType2Cmd(const EmuTime &time);
-		void type2WaitLoad(const EmuTime& time);
+		void type2WaitLoad(const EmuTime &time);
 		
 		void startType3Cmd(const EmuTime &time);
+		void type3WaitLoad(const EmuTime &time);
+		void readAddressCmd(const EmuTime &time);
+		void readTrackCmd(const EmuTime &time);
+		void writeTrackCmd(const EmuTime &time);
+		
 		void startType4Cmd(const EmuTime &time);
 		
 		void endCmd();
@@ -91,6 +100,7 @@ class WD2793 : private Schedulable
 		bool INTRQ;
 		bool immediateIRQ;
 		bool DRQ;
+		bool writeTrack;
 
 		byte onDiskTrack;
 		byte onDiskSector;
