@@ -12,9 +12,9 @@ class DummyRS232Device : public RS232Device
 {
 	public:
 		virtual void signal(const EmuTime& time);
-		virtual void plug(Connector* connector, const EmuTime& time);
+		virtual void plug(Connector* connector, const EmuTime& time) throw();
 		virtual void unplug(const EmuTime& time);
-		
+
 		// SerialDataInterface (part)
 		virtual void recvByte(byte value, const EmuTime& time);
 };

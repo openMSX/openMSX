@@ -55,7 +55,7 @@ Keys::KeyCode KeyJoystick::getConfigKeyCode(const string &keyname,
 	if (config->hasParameter(keyname)) {
 		testKey = Keys::getCode(config->getParameter(keyname));
 		if (testKey == Keys::K_NONE) {
-			std::cerr << "Warning: unknown keycode \"" 
+			std::cerr << "Warning: unknown keycode \""
 			          << config->getParameter(keyname)
 			          << "\" for key \"" << keyname
 			          << "\" in KeyJoystick configuration"
@@ -73,6 +73,7 @@ const string &KeyJoystick::getName() const
 }
 
 void KeyJoystick::plug(Connector* connector, const EmuTime& time)
+	throw()
 {
 }
 

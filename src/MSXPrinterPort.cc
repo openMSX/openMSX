@@ -124,6 +124,7 @@ void DummyPrinterPortDevice::writeData(byte data, const EmuTime &time)
 }
 
 void DummyPrinterPortDevice::plug(Connector* connector, const EmuTime& time)
+	throw ()
 {
 }
 

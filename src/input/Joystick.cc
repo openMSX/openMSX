@@ -39,9 +39,14 @@ const string &Joystick::getName() const
 }
 
 void Joystick::plug(Connector* connector, const EmuTime& time)
+	throw(PlugException)
 {
 	PRT_DEBUG("Opening joystick " << SDL_JoystickName(joyNum));
 	joystick = SDL_JoystickOpen(joyNum);
+	if (!joystick) {
+		throw PlugException("Failed to open joystick device");
+	}
+
 	EventDistributor::instance()->registerEventListener(SDL_JOYAXISMOTION, this);
 	EventDistributor::instance()->registerEventListener(SDL_JOYBUTTONDOWN, this);
 	EventDistributor::instance()->registerEventListener(SDL_JOYBUTTONUP,   this);

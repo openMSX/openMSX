@@ -20,7 +20,7 @@ class KeyJoystick : public JoystickDevice, EventListener
 
 		// Pluggable
 		virtual const string &getName() const;
-		virtual void plug(Connector* connector, const EmuTime& time);
+		virtual void plug(Connector* connector, const EmuTime& time) throw ();
 		virtual void unplug(const EmuTime& time);
 
 		// KeyJoystickDevice

@@ -64,7 +64,7 @@ CassettePlayer::CassettePlayer()
 	: cassette(NULL), motor(false), forcePlay(false)
 {
 	removeTape();
-	
+
 	MSXConfig *conf = MSXConfig::instance();
 	if (conf->hasConfigWithId("cassetteplayer")) {
 		Config *config = conf->getConfigById("cassetteplayer");
@@ -89,7 +89,7 @@ CassettePlayer::~CassettePlayer()
 {
 	Mixer::instance()->unregisterSound(this);
 	delete[] buffer;
-	
+
 	CommandController::instance()->unregisterCommand(this, "cassetteplayer");
 	PluggingController::instance()->unregisterPluggable(this);
 	delete cassette;
@@ -108,7 +108,7 @@ void CassettePlayer::insertTape(FileContext &context,
 	}
 	delete cassette;
 	cassette = tmp;
-	
+
 	rewind();
 }
 
@@ -173,6 +173,7 @@ const string &CassettePlayer::getName() const
 }
 
 void CassettePlayer::plug(Connector* connector, const EmuTime& time)
+	throw()
 {
 }
 

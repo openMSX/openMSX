@@ -1,12 +1,17 @@
 $Id$
 
+2003-09-06 Maarten ter Huurne <maarten@treewalker.org>
+	* Added PlugException, which can be thrown by Pluggable::plug if the
+	  plug action fails for some reason.
+	* Declared PlugException for the methods that can throw it.
+
 2003-09-06 Manuel Bilderbeek <manuel@msxnet.org>
 	* diska/diskb/etc without argument shows the currently inserted disk
 	  now
 
 2003-09-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
-	* VDPCmdEngine: corrcet behaviour when registers are changed while cmd
-	   is executing. There seem to be a few glitched left though.
+	* VDPCmdEngine: correct behaviour when registers are changed while cmd
+	  is executing. There seem to be a few glitches left though.
 	* Fix VDPCmdEngine timimg (was broken by previous patch)
 
 2003-09-03 Maarten ter Huurne <maarten@treewalker.org>

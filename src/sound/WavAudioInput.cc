@@ -17,7 +17,7 @@ WavAudioInput::WavAudioInput()
 		PRT_DEBUG("WavAudioInput error: " << SDL_GetError());
 		return;
 	}
-	
+
 	freq = wavSpec.freq;
 	SDL_AudioCVT audioCVT;
 	if (SDL_BuildAudioCVT(&audioCVT,
@@ -27,7 +27,7 @@ WavAudioInput::WavAudioInput()
 		PRT_DEBUG("Couldn't build wav converter");
 		return;
 	}
-	
+
 	buffer = (Uint8*)malloc(wavLen * audioCVT.len_mult);
 	audioCVT.buf = buffer;
 	audioCVT.len = wavLen;
@@ -58,6 +58,7 @@ const string& WavAudioInput::getName() const
 }
 
 void WavAudioInput::plug(Connector* connector, const EmuTime &time)
+	throw()
 {
 	reference = time;
 }

@@ -49,7 +49,9 @@ void PrinterPortLogger::writeData(byte data, const EmuTime &time)
 }
 
 void PrinterPortLogger::plug(Connector* connector, const EmuTime& time)
+	throw(PlugException)
 {
+	// TODO: Add exception to File class and use it here.
 	file = new File(logFilenameSetting.getValue(), TRUNCATE);
 }
 

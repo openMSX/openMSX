@@ -20,7 +20,7 @@ class DummyPrinterPortDevice : public PrinterPortDevice
 		virtual void setStrobe(bool strobe, const EmuTime &time);
 		virtual void writeData(byte data, const EmuTime &time);
 
-		virtual void plug(Connector* connector, const EmuTime& time);
+		virtual void plug(Connector* connector, const EmuTime& time) throw();
 		virtual void unplug(const EmuTime& time);
 };
 
@@ -38,7 +38,7 @@ class MSXPrinterPort : public MSXIODevice , public Connector
 		virtual void reset(const EmuTime &time);
 		virtual byte readIO(byte port, const EmuTime &time);
 		virtual void writeIO(byte port, byte value, const EmuTime &time);
-		
+
 		// Connector
 		virtual const string &getName() const;
 		virtual const string &getClass() const;

@@ -11,6 +11,7 @@ void DummyRS232Device::signal(const EmuTime& time)
 }
 
 void DummyRS232Device::plug(Connector* connector, const EmuTime& time)
+	throw()
 {
 }
 

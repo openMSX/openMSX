@@ -10,6 +10,7 @@ void DummyMidiInDevice::signal(const EmuTime& time)
 }
 
 void DummyMidiInDevice::plug(Connector* connector, const EmuTime& time)
+	throw()
 {
 }
 

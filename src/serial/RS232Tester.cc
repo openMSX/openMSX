@@ -28,21 +28,25 @@ RS232Tester::~RS232Tester()
 
 // Pluggable
 void RS232Tester::plug(Connector* connector_, const EmuTime& time)
+	throw(PlugException)
 {
-	// output 
+	// output
 	outFile.open(rs232OutputFilenameSetting.getValue().c_str());
+	if (outFile.fail()) {
+		throw PlugException("Error opening output file");
+	}
 
 	// input
 	inFile = fopen(rs232InputFilenameSetting.getValue().c_str(), "rb");
 	if (!inFile) {
-		return;
+		throw PlugException("Error opening input file");
 	}
-	
+
 	connector = (RS232Connector*)connector_;
 	connector->setDataBits(SerialDataInterface::DATA_8);	// 8 data bits
 	connector->setStopBits(SerialDataInterface::STOP_1);	// 1 stop bit
 	connector->setParityBit(false, SerialDataInterface::EVEN); // no parity
-	
+
 	thread.start();
 }
 

@@ -12,6 +12,7 @@ void DummyMidiOutDevice::recvByte(byte value, const EmuTime& time)
 }
 
 void DummyMidiOutDevice::plug(Connector* connector, const EmuTime& time)
+	throw()
 {
 }
 

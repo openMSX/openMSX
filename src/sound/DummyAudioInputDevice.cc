@@ -10,6 +10,7 @@ DummyAudioInputDevice::DummyAudioInputDevice()
 }
 
 void DummyAudioInputDevice::plug(Connector* connector, const EmuTime &time)
+	throw()
 {
 }
 

@@ -1,4 +1,4 @@
-// $Id$ 
+// $Id$
 
 #ifndef __MIDIOUTLOGGER_HH__
 #define __MIDIOUTLOGGER_HH__
@@ -18,7 +18,8 @@ class MidiOutLogger : public MidiOutDevice
 		virtual ~MidiOutLogger();
 
 		// Pluggable
-		virtual void plug(Connector* connector, const EmuTime& time);
+		virtual void plug(Connector* connector, const EmuTime& time)
+			throw(PlugException);
 		virtual void unplug(const EmuTime& time);
 		virtual const string &getName() const;
 

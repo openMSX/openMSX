@@ -29,6 +29,7 @@ int DummyCassetteDevice::getWriteSampleRate()
 }
 
 void DummyCassetteDevice::plug(Connector* connector, const EmuTime& time)
+	throw()
 {
 }
 

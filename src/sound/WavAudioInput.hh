@@ -15,10 +15,10 @@ class WavAudioInput : public AudioInputDevice
 	public:
 		WavAudioInput();
 		virtual ~WavAudioInput();
-		
+
 		// AudioInputDevice
 		virtual const string& getName() const;
-		virtual void plug(Connector* connector, const EmuTime &time);
+		virtual void plug(Connector* connector, const EmuTime &time) throw();
 		virtual void unplug(const EmuTime &time);
 		virtual short readSample(const EmuTime &time);
 

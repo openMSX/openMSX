@@ -32,11 +32,11 @@ class CassettePlayer : public CassetteDevice, private Command, public SoundDevic
 	public:
 		CassettePlayer();
 		virtual ~CassettePlayer();
-		
+
 		void insertTape(FileContext &context,
 		                const string &filename);
 		void removeTape();
-		
+
 		// CassetteDevice
 		virtual void setMotor(bool status, const EmuTime &time);
 		virtual short readSample(const EmuTime &time);
@@ -45,7 +45,7 @@ class CassettePlayer : public CassetteDevice, private Command, public SoundDevic
 
 		// Pluggable
 		virtual const string &getName() const;
-		virtual void plug(Connector* connector, const EmuTime& time);
+		virtual void plug(Connector* connector, const EmuTime& time) throw();
 		virtual void unplug(const EmuTime& time);
 
 		// SoundDevice

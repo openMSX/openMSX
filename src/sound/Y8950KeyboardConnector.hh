@@ -14,7 +14,7 @@ class DummyY8950KeyboardDevice : public Y8950KeyboardDevice
 	virtual void write(byte data, const EmuTime &time);
 	virtual byte read(const EmuTime &time);
 
-	virtual void plug(Connector* connector, const EmuTime& time);
+	virtual void plug(Connector* connector, const EmuTime& time) throw();
 	virtual void unplug(const EmuTime& time);
 };
 

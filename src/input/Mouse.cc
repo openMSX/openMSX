@@ -43,6 +43,7 @@ const string &Mouse::getName() const
 }
 
 void Mouse::plug(Connector* connector, const EmuTime& time)
+	throw()
 {
 	if (status & JOY_BUTTONA) {
 		// not pressed, mouse mode

@@ -24,6 +24,7 @@ void DummyJoystick::write(byte value, const EmuTime &time)
 }
 
 void DummyJoystick::plug(Connector* connector, const EmuTime& time)
+	throw()
 {
 }
 
