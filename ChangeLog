@@ -1,6 +1,6 @@
 $Id$
 
-2003-05010 Herman Oudejans <hn.oudejans@quicknet.nl>
+2003-05-10 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Fixed wrong initial default size of the console.
 	* Fixed range of the consolecolumns-setting
 
