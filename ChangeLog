@@ -2,6 +2,10 @@ $Id$
 
 2004-04-07 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Generate update event for media change
+	* Implemeneted "openmsx_info connectionclass" info topic:
+	   - "openmsx_info connectionclass" returns all connectionclasses
+	   - "openmsx_info connectionclass [pluggable / connection]" shows
+	     the class to which this 'thing' belongs 
 
 2004-04-06 Reikan <openMSX4Win32@ranpub.com>
 	* Added link libs to platform-x86-mingw32.mk. Thanks to Honda.

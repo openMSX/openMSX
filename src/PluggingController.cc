@@ -20,6 +20,7 @@ PluggingController::PluggingController()
 	  unplugCmd(*this),
 	  pluggableInfo(*this),
 	  connectorInfo(*this),
+	  connectionClassInfo(*this),
 	  scheduler(Scheduler::instance()),
 	  commandController(CommandController::instance()),
 	  infoCommand(InfoCommand::instance())
@@ -30,6 +31,7 @@ PluggingController::PluggingController()
 	commandController.registerCommand(&unplugCmd, "unplug");
 	infoCommand.registerTopic("pluggable", &pluggableInfo);
 	infoCommand.registerTopic("connector", &connectorInfo);
+	infoCommand.registerTopic("connectinclass", &connectionClassInfo);
 }
 
 PluggingController::~PluggingController()
@@ -38,6 +40,7 @@ PluggingController::~PluggingController()
 	commandController.unregisterCommand(&unplugCmd, "unplug");
 	infoCommand.unregisterTopic("pluggable", &pluggableInfo);
 	infoCommand.unregisterTopic("connector", &connectorInfo);
+	infoCommand.unregisterTopic("connectinclass", &connectionClassInfo);
 
 #ifndef NDEBUG
 	// This is similar to an assert: it should never print anything,
@@ -365,6 +368,79 @@ void PluggingController::ConnectorInfo::tabCompletion(vector<string>& tokens) co
 			connectors.insert((*it)->getName());
 		}
 		CommandController::completeString(tokens, connectors);
+	}
+}
+
+// Connection Class info
+
+PluggingController::ConnectionClassInfo::ConnectionClassInfo(PluggingController& parent_)
+	: parent(parent_)
+{
+}
+
+void PluggingController::ConnectionClassInfo::execute(const vector<string>& tokens,
+	CommandResult& result) const throw(CommandException)
+{
+	switch (tokens.size()) {
+	case 2: {
+		set<string> classes;
+		for (vector<Connector*>::const_iterator it =
+			 parent.connectors.begin();
+		     it != parent.connectors.end(); ++it) {
+			classes.insert((*it)->getClass());
+		}
+		for (vector<Pluggable*>::const_iterator it =
+			 parent.pluggables.begin();
+		     it != parent.pluggables.end(); ++it) {
+			classes.insert((*it)->getClass());
+		}
+		for (set<string>::const_iterator it = classes.begin();
+		     it != classes.end(); ++it) {
+			result.addListElement(*it);
+		}
+		break;
+	}
+	case 3: {
+		const Connector* connector = parent.getConnector(tokens[2]);
+		if (connector) {
+			result.setString(connector->getClass());
+			break;
+		}
+		const Pluggable* pluggable = parent.getPluggable(tokens[2]);
+		if (pluggable) {
+			result.setString(pluggable->getClass());
+			break;
+		}
+		throw CommandException("No such connector or pluggable");
+		break;
+	}
+	default:
+		throw CommandException("Too many parameters");
+	}
+}
+
+string PluggingController::ConnectionClassInfo::help(const vector<string>& tokens) const
+	throw()
+{
+	return "Shows the class a connector or pluggable belongs to.";
+}
+
+void PluggingController::ConnectionClassInfo::tabCompletion(vector<string>& tokens) const
+	throw()
+{
+	if (tokens.size() == 3) {
+		set<string> names;
+		for (vector<Connector*>::const_iterator it =
+			               parent.connectors.begin();
+		     it != parent.connectors.end(); ++it) {
+			names.insert((*it)->getName());
+		}
+		for (vector<Pluggable*>::const_iterator it =
+			               parent.pluggables.begin();
+		     it != parent.pluggables.end(); ++it) {
+			names.insert((*it)->getName());
+		}
+		CommandController::completeString(tokens, names);
 	}
 }
 

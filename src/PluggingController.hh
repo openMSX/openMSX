@@ -112,6 +112,20 @@ private:
 		PluggingController& parent;
 	} connectorInfo;
 
+	class ConnectionClassInfo : public InfoTopic {
+	public:
+		ConnectionClassInfo(PluggingController& parent);
+		virtual void execute(const vector<string>& tokens,
+		                     CommandResult& result) const
+			throw(CommandException);
+		virtual string help   (const vector<string>& tokens) const
+			throw();
+		virtual void tabCompletion(vector<string>& tokens) const
+			throw();
+	private:
+		PluggingController& parent;
+	} connectionClassInfo;
+
 	Scheduler& scheduler;
 	CommandController& commandController;
 	InfoCommand& infoCommand;
