@@ -29,20 +29,21 @@ MSXMultiIODevice::MSXMultiIODevice()
 
 MSXMultiIODevice::~MSXMultiIODevice()
 {
-	//assert(devices.empty());
+	assert(devices.empty());
 }
 
 
 void MSXMultiIODevice::addDevice(MSXDevice* device)
 {
+	assert(count(devices.begin(), devices.end(), device) == 0);
 	devices.push_back(device);
 	preCalcName();
 }
 
 void MSXMultiIODevice::removeDevice(MSXDevice* device)
 {
-	devices.erase(remove(devices.begin(), devices.end(), device),
-	              devices.end());
+	assert(count(devices.begin(), devices.end(), device) == 1);
+	devices.erase(find(devices.begin(), devices.end(), device));
 	preCalcName();
 }
 
