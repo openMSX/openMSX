@@ -16,6 +16,6 @@ proc showmem_line { address } {
 proc showmem {address {lines 8}} {
 	for {set i 0} {$i < $lines} {incr i} {
 		puts [showmem_line $address]
-		set address [expr $address + 16]
+		incr address 16
 	}
 }
