@@ -11,13 +11,6 @@ using std::max;
 
 namespace openmsx {
 
-template <class Pixel>
-inline static Pixel* linePtr(SDL_Surface* surface, int y)
-{
-	assert(0 <= y && y < surface->h);
-	return (Pixel*)((byte*)surface->pixels + y * surface->pitch);
-}
-
 // 2xSaI is Copyright (c) 1999-2001 by Derek Liauw Kie Fa.
 //   http://elektron.its.tudelft.nl/~dalikifa/
 // 2xSaI is free under GPL.
@@ -261,12 +254,12 @@ void SaI2xScaler<Pixel>::scale256(
 {
 	assert(dst->w == WIDTH256 * 2);
 	for (int y = srcY; y < endSrcY; y++) {
-		const Pixel* srcLine0 = linePtr<Pixel>(src, max(y - 1, srcY));
-		const Pixel* srcLine1 = linePtr<Pixel>(src, y);
-		const Pixel* srcLine2 = linePtr<Pixel>(src, min(y + 1, endSrcY - 1));
-		const Pixel* srcLine3 = linePtr<Pixel>(src, min(y + 2, endSrcY - 1));
-		Pixel* dstUpper = linePtr<Pixel>(dst, dstY++);
-		Pixel* dstLower = linePtr<Pixel>(dst, min(dstY++, HEIGHT - 1));
+		const Pixel* srcLine0 = linePtr(src, max(y - 1, srcY));
+		const Pixel* srcLine1 = linePtr(src, y);
+		const Pixel* srcLine2 = linePtr(src, min(y + 1, endSrcY - 1));
+		const Pixel* srcLine3 = linePtr(src, min(y + 2, endSrcY - 1));
+		Pixel* dstUpper = linePtr(dst, dstY++);
+		Pixel* dstLower = linePtr(dst, min(dstY++, HEIGHT - 1));
 		
 		scaleLine256(
 			srcLine0, srcLine1, srcLine2, srcLine3, dstUpper, dstLower );
@@ -280,12 +273,12 @@ void SaI2xScaler<Pixel>::scale512(
 {
 	assert(dst->w == WIDTH512);
 	for (int y = srcY; y < endSrcY; y++) {
-		const Pixel* srcLine0 = linePtr<Pixel>(src, max(y - 1, srcY));
-		const Pixel* srcLine1 = linePtr<Pixel>(src, y);
-		const Pixel* srcLine2 = linePtr<Pixel>(src, min(y + 1, endSrcY - 1));
-		const Pixel* srcLine3 = linePtr<Pixel>(src, min(y + 2, endSrcY - 1));
-		Pixel* dstUpper = linePtr<Pixel>(dst, dstY++);
-		Pixel* dstLower = linePtr<Pixel>(dst, min(dstY++, HEIGHT - 1));
+		const Pixel* srcLine0 = linePtr(src, max(y - 1, srcY));
+		const Pixel* srcLine1 = linePtr(src, y);
+		const Pixel* srcLine2 = linePtr(src, min(y + 1, endSrcY - 1));
+		const Pixel* srcLine3 = linePtr(src, min(y + 2, endSrcY - 1));
+		Pixel* dstUpper = linePtr(dst, dstY++);
+		Pixel* dstLower = linePtr(dst, min(dstY++, HEIGHT - 1));
 		
 		scaleLine512(
 			srcLine0, srcLine1, srcLine2, srcLine3, dstUpper, dstLower );

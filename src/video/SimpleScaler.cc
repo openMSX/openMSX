@@ -7,13 +7,6 @@
 
 namespace openmsx {
 
-template <class Pixel>
-inline static Pixel* linePtr(SDL_Surface* surface, int y)
-{
-	assert(0 <= y && y < surface->h);
-	return (Pixel*)((byte*)surface->pixels + y * surface->pitch);
-}
-
 // Force template instantiation.
 template class SimpleScaler<byte>;
 template class SimpleScaler<word>;
@@ -25,30 +18,18 @@ SimpleScaler<Pixel>::SimpleScaler()
 }
 
 template <class Pixel>
-inline void SimpleScaler<Pixel>::copyLine(
-	SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY )
-{
-	assert(src->w == dst->w);
-	memcpy(
-		(byte*)linePtr<Pixel>(dst, dstY),
-		(byte*)linePtr<Pixel>(src, srcY),
-		dst->w * sizeof(Pixel)
-		);
-}
-
-template <class Pixel>
 void SimpleScaler<Pixel>::scale256(
 	SDL_Surface* src, int srcY, int endSrcY,
 	SDL_Surface* dst, int dstY )
 {
-	int width = 320; // TODO: Specify this in a clean way.
-	assert(dst->w == width * 2);
+	const int WIDTH = 320; // TODO: Specify this in a clean way.
+	assert(dst->w == WIDTH * 2);
 	while (srcY < endSrcY) {
-		const Pixel* srcLine = linePtr<Pixel>(src, srcY++);
-		Pixel* dstUpper = linePtr<Pixel>(dst, dstY++);
+		const Pixel* srcLine = linePtr(src, srcY++);
+		Pixel* dstUpper = linePtr(dst, dstY++);
 		Pixel* dstLower =
-			dstY == dst->h ? dstUpper : linePtr<Pixel>(dst, dstY++);
-		for (int x = 0; x < width; x++) {
+			dstY == dst->h ? dstUpper : linePtr(dst, dstY++);
+		for (int x = 0; x < WIDTH; x++) {
 			dstUpper[x * 2] = dstUpper[x * 2 + 1] =
 			dstLower[x * 2] = dstLower[x * 2 + 1] =
 				srcLine[x];

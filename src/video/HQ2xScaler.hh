@@ -14,7 +14,7 @@ typedef unsigned int Pix32;
 /** Runs the hq2x scaler algorithm.
   */
 template <class Pixel>
-class HQ2xScaler: public SimpleScaler<Pixel>
+class HQ2xScaler: public Scaler<Pixel>
 {
 public:
 	HQ2xScaler();

@@ -3,10 +3,13 @@
 #ifndef __SCALER_HH__
 #define __SCALER_HH__
 
-#include <memory>
+#include "openmsx.hh"
 #include <SDL.h>
+#include <cassert>
+#include <memory>
 
 using std::auto_ptr;
+
 
 namespace openmsx {
 
@@ -40,6 +43,7 @@ public:
 	static auto_ptr<Scaler> createScaler(ScalerID id, SDL_PixelFormat* format);
 
 	/** Scales the given area.
+	  * The default implementation scales each pixel to a 2x2 square.
 	  * @param src Source: the image to be scaled.
 	  *   It should be 320 pixels wide.
 	  * @param srcY Y-coordinate of the top source line (inclusive).
@@ -52,9 +56,10 @@ public:
 	  */
 	virtual void scale256(
 		SDL_Surface* src, int srcY, int endSrcY,
-		SDL_Surface* dst, int dstY ) = 0;
+		SDL_Surface* dst, int dstY );
 
 	/** Scales the given area.
+	  * The default implementation scales each pixel to a 1x2 rectangle.
 	  * @param src Source: the image to be scaled.
 	  *   It should be 640 pixels wide.
 	  * @param srcY Y-coordinate of the top source line (inclusive).
@@ -67,10 +72,24 @@ public:
 	  */
 	virtual void scale512(
 		SDL_Surface* src, int srcY, int endSrcY,
-		SDL_Surface* dst, int dstY ) = 0;
+		SDL_Surface* dst, int dstY );
 
 protected:
 	Scaler();
+
+	inline static Pixel* linePtr(SDL_Surface* surface, int y) {
+		assert(0 <= y && y < surface->h);
+		return (Pixel*)((byte*)surface->pixels + y * surface->pitch);
+	}
+
+	/** Copies the given line.
+	  * @param src Source: surface to copy from.
+	  * @param srcY Line number on source surface.
+	  * @param dst Destination: surface to copy to.
+	  * @param dstY Line number on destination surface.
+	  */
+	static void copyLine(
+		SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY );
 };
 
 } // namespace openmsx
