@@ -717,6 +717,7 @@ YMF278::YMF278(short volume, int ramSize, Device *config,
                const EmuTime &time)
 	: rom(config, time)
 {
+	memadr = 0;	// avoid UMR
 	endRom = rom.getSize();
 	ramSize *= 1024;	// in kb
 	ram = new byte[ramSize];
@@ -743,7 +744,7 @@ void YMF278::reset(const EmuTime &time)
 	for (int i = 0; i < 24; i++) {
 		slots[i].reset();
 	}
-	for (int i = 0; i < 256; i++) {
+	for (int i = 255; i >= 0; i--) { // reverse order to avoid UMR
 		writeRegOPL4(i, 0, time);
 	}
 	setInternalMute(true);
