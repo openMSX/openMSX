@@ -24,7 +24,11 @@ libCassette_la_SOURCES = \
 	CassettePlayer.cc CassettePlayer.hh \
 	CassettePort.cc CassettePort.hh \
 	DummyCassetteDevice.cc DummyCassetteDevice.hh \
-	MSXTapePatch.cc MSXTapePatch.hh
+	MSXTapePatch.cc MSXTapePatch.hh \
+	CassetteImage.hh \
+	DummyCassetteImage.cc DummyCassetteImage.hh \
+	CasImage.cc CasImage.cc \
+	WavImage.cc WavImage.cc
 
 nodebug: resetdebug all
 debug: setdebug all

@@ -3,24 +3,27 @@
 #ifndef __CASSETTEPLAYER_HH__
 #define __CASSETTEPLAYER_HH__
 
-#include <SDL/SDL.h>
 #include "CassetteDevice.hh"
 #include "EmuTime.hh"
 #include "Command.hh"
 #include "CommandLineParser.hh"
 
-class FileContext;
+using std::string;
+using std::vector;
+using std::list;
 
+class FileContext;
+class CassetteImage;
 
 class MSXCassettePlayerCLI : public CLIOption, public CLIFileType
 {
 	public:
 		MSXCassettePlayerCLI();
-		virtual void parseOption(const std::string &option,
-				std::list<std::string> &cmdLine);
-		virtual const std::string& optionHelp() const;
-		virtual void parseFileType(const std::string &filename);
-		virtual const std::string& fileTypeHelp() const;
+		virtual void parseOption(const string &option,
+				list<string> &cmdLine);
+		virtual const string& optionHelp() const;
+		virtual void parseFileType(const string &filename);
+		virtual const string& fileTypeHelp() const;
 };
 
 
@@ -31,7 +34,7 @@ class CassettePlayer : public CassetteDevice, private Command
 		virtual ~CassettePlayer();
 		
 		void insertTape(FileContext *context,
-		                const std::string &filename);
+		                const string &filename);
 		void removeTape();
 		
 		// CassetteDevice
@@ -41,25 +44,20 @@ class CassettePlayer : public CassetteDevice, private Command
 		virtual int getWriteSampleRate();
 
 		// Pluggable
-		virtual const std::string &getName() const;
+		virtual const string &getName() const;
 
 	private:
-		int calcSamples(const EmuTime &time);
+		float calcSamples(const EmuTime &time);
 
-		// audio related variables
-		SDL_AudioSpec audioSpec;
-		Uint32 audioLength;	// 0 means no tape inserted
-		Uint8 *audioBuffer;	// 0 means no tape inserted
-
-		// player related variables
+		CassetteImage *cassette;
 		bool motor;
 		EmuTime timeReference;
-		Uint32 posReference;
+		float durationRef;
 
 		// Tape Command
-		virtual void execute(const std::vector<std::string> &tokens);
-		virtual void help   (const std::vector<std::string> &tokens) const;
-		virtual void tabCompletion(std::vector<std::string> &tokens) const;
+		virtual void execute(const vector<string> &tokens);
+		virtual void help   (const vector<string> &tokens) const;
+		virtual void tabCompletion(vector<string> &tokens) const;
 };
 
 #endif

@@ -7,6 +7,10 @@
 #include "MSXConfig.hh"
 #include "libxmlx/xmlx.hh"
 #include "File.hh"
+#include "CassetteImage.hh"
+#include "WavImage.hh"
+#include "CasImage.hh"
+#include "DummyCassetteImage.hh"
 
 
 MSXCassettePlayerCLI msxCassettePlayerCLI;
@@ -17,20 +21,20 @@ MSXCassettePlayerCLI::MSXCassettePlayerCLI()
 	CommandLineParser::instance()->registerFileType("rawtapeimages", this);
 }
 
-void MSXCassettePlayerCLI::parseOption(const std::string &option,
-                            std::list<std::string> &cmdLine)
+void MSXCassettePlayerCLI::parseOption(const string &option,
+                                       list<string> &cmdLine)
 {
 	parseFileType(getArgument(option, cmdLine));
 }
-const std::string& MSXCassettePlayerCLI::optionHelp() const
+const string& MSXCassettePlayerCLI::optionHelp() const
 {
-	static const std::string text("Put raw tape image specified in argument in virtual cassetteplayer");
+	static const string text("Put raw tape image specified in argument in virtual cassetteplayer");
 	return text;
 }
 
-void MSXCassettePlayerCLI::parseFileType(const std::string &filename_)
+void MSXCassettePlayerCLI::parseFileType(const string &filename_)
 {
-	std::string filename(filename_); XML::Escape(filename);
+	string filename(filename_); XML::Escape(filename);
 	std::ostringstream s;
 	s << "<?xml version=\"1.0\"?>";
 	s << "<msxconfig>";
@@ -42,20 +46,22 @@ void MSXCassettePlayerCLI::parseFileType(const std::string &filename_)
 	MSXConfig *config = MSXConfig::instance();
 	config->loadStream(new UserFileContext(), s);
 }
-const std::string& MSXCassettePlayerCLI::fileTypeHelp() const
+const string& MSXCassettePlayerCLI::fileTypeHelp() const
 {
-	static const std::string text("Raw tape image, as recorded from real tape");
+	static const string text("Raw tape image, as recorded from real tape");
 	return text;
 }
 
 
 CassettePlayer::CassettePlayer()
-	: audioLength(0), audioBuffer(0), motor(false)
+	: cassette(NULL), motor(false)
 {
+	removeTape();
+	
 	MSXConfig *conf = MSXConfig::instance();
 	if (conf->hasConfigWithId("cassetteplayer")) {
 		Config *config = conf->getConfigById("cassetteplayer");
-		const std::string &filename = config->getParameter("filename");
+		const string &filename = config->getParameter("filename");
 		try {
 			insertTape(config->getContext(), filename);
 		} catch (MSXException& e) {
@@ -76,38 +82,32 @@ CassettePlayer::~CassettePlayer()
 }
 
 void CassettePlayer::insertTape(FileContext *context,
-                                const std::string &filename)
+                                const string &filename)
 {
-	// TODO throw exceptions instead of PRT_ERROR
-	File file(context->resolve(filename));
-	const char* name = file.getLocalName().c_str();
-	removeTape();
-	if (SDL_LoadWAV(name, &audioSpec, &audioBuffer, &audioLength) == NULL)
-		PRT_ERROR("CassettePlayer error: " << SDL_GetError());
-	if (audioSpec.format != AUDIO_S16)
-		PRT_ERROR("CassettePlayer error: unsupported WAV format");
-	posReference = 0;	// rewind tape (make configurable??)
+	CassetteImage *tmp;
+	try {
+		// first try WAV
+		tmp = new WavImage(context, filename);
+	} catch (MSXException &e) {
+		// if that fails use CAS
+		tmp = new CasImage(context, filename);
+	}
+	delete cassette;
+	cassette = tmp;
+	
+	durationRef = 0;	// rewind tape (make configurable??)
 }
 
 void CassettePlayer::removeTape()
 {
-	if (audioBuffer) {
-		SDL_FreeWAV(audioBuffer);
-		audioBuffer = 0;
-	}
+	delete cassette;
+	cassette = new DummyCassetteImage();
 }
 
-int CassettePlayer::calcSamples(const EmuTime &time)
+float CassettePlayer::calcSamples(const EmuTime &time)
 {
-	if (audioBuffer) {
-		// tape inserted
-		float duration = (time - timeReference).toFloat();
-		int samples = (int)(duration*audioSpec.freq);
-		return posReference + samples;
-	} else {
-		// no tape
-		return 0;
-	}
+	float duration = (time - timeReference).toFloat();
+	return durationRef + duration;
 }
 
 void CassettePlayer::setMotor(bool status, const EmuTime &time)
@@ -121,24 +121,20 @@ void CassettePlayer::setMotor(bool status, const EmuTime &time)
 		} else {
 			// motor turned off
 			//PRT_DEBUG("CassettePlayer motor off");
-			posReference = calcSamples(time);
+			durationRef = calcSamples(time);
 		}
 	}
 }
 
 short CassettePlayer::readSample(const EmuTime &time)
 {
-	int samp;
-	if (motor && audioBuffer) {
-		// motor on and tape inserted
-		Uint32 index = calcSamples(time);
-		if (index < (audioLength / 2)) {
-			samp =  ((short*)audioBuffer)[index];
-		} else {
-			samp = 0;
-		}
+	short samp;
+	if (motor) {
+		// motor on
+		float duration = calcSamples(time);
+		samp = cassette->getSampleAt(duration);
 	} else {
-		// motor off or no tape
+		// motor off
 		samp = 0;
 	}
 	//PRT_DEBUG("CassettePlayer read "<<(int)samp);
@@ -157,14 +153,14 @@ int CassettePlayer::getWriteSampleRate()
 }
 
 
-const std::string &CassettePlayer::getName() const
+const string &CassettePlayer::getName() const
 {
-	static const std::string name("cassetteplayer");
+	static const string name("cassetteplayer");
 	return name;
 }
 
 
-void CassettePlayer::execute(const std::vector<std::string> &tokens)
+void CassettePlayer::execute(const vector<string> &tokens)
 {
 	if (tokens.size() != 2)
 		throw CommandException("Syntax error");
@@ -182,13 +178,13 @@ void CassettePlayer::execute(const std::vector<std::string> &tokens)
 	}
 }
 
-void CassettePlayer::help(const std::vector<std::string> &tokens) const
+void CassettePlayer::help(const vector<string> &tokens) const
 {
 	print("cassetteplayer eject      : remove tape from virtual player");
 	print("cassetteplayer <filename> : change the tape file");
 }
 
-void CassettePlayer::tabCompletion(std::vector<std::string> &tokens) const
+void CassettePlayer::tabCompletion(vector<string> &tokens) const
 {
 	if (tokens.size() == 2)
 		CommandController::completeFileName(tokens);

@@ -8,6 +8,12 @@ $Id$
 	  - fixed some typos
 	* Added a few extensions
 
+2003-06-28 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented automatic .cas to .wav conversion in CassettePlayer:
+	  - not all .cas files seems to work though
+	  - there can be a delay of a few seconds while converting the file,
+	    need to do the conversion in a helper thread
+
 2003-06-25 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented Listener interface for Setting class
 
