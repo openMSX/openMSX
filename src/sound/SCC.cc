@@ -103,20 +103,22 @@ void SCC::writeMemInterface(byte address, byte value, const EmuTime &time)
 		// waveform info
 		// note: extra 32 bytes in SCC+ mode
 		int ch = address >> 5;
-		//Don't know why but japanese doesn't change wave when noise is enabled ??
 		//if (!rotate[ch]) {
-		wave[ch][address & 0x1f]            = value;
-		volAdjustedWave[ch][address & 0x1f] = ((signed_byte)value * volume[ch] * masterVolume) / 2048;
-		if ((currentChipMode != SCC_plusmode) && (ch == 3)) {
-			// copy waveform 4 -> waveform 5
-			wave[4][address & 0x1f]            = wave[ch][address & 0x1f];
-			volAdjustedWave[4][address & 0x1f] = volAdjustedWave[ch][address & 0x1f];
-			if (currentChipMode == SCC_Compatible)
-				memInterface[address + 64] = value;
-		}
-		//} Doing this would conflict with wave5=4 meminterface from 2 lines above
-		// TODO: Need to figure this noise thing out
+			// TODO: Need to figure this noise thing out
+			//   Don't know why but japanese doesn't change wave when noise is enabled ??
+			wave[ch][address & 0x1F]            = value;
+			volAdjustedWave[ch][address & 0x1F] = ((signed_byte)value * volume[ch] * masterVolume) / 2048;
+			if ((currentChipMode != SCC_plusmode) && (ch == 3)) {
+				// copy waveform 4 -> waveform 5
+				wave[4][address & 0x1F]            = wave[ch][address & 0x1F];
+				volAdjustedWave[4][address & 0x1F] = volAdjustedWave[ch][address & 0x1F];
+			}
+		//}
+		
 		memInterface[address] = value;
+		if ((currentChipMode == SCC_Compatible) && (ch == 3)) {
+			memInterface[address + 0x20] = value;
+		}
 		return;
 	}
 	switch (currentChipMode) {
@@ -156,20 +158,16 @@ void SCC::setDeformReg(byte value)
 	deformationRegister = value;
 	cycle_4bit = value & 1;
 	cycle_8bit = value & 2;
-	refresh    = value & 32;
-	/* Code taken from the japanese guy
-	   Didn't take time to integrate in my method so far
-	   According to sean these bits should produce noise on the channels
-
-	   if (value&64)
-	   	for(int ch=0;ch<5;ch++)
-	   		rotate[ch] = 0x1F;
-	   else
-	   	for(int ch=0;ch<5;ch++)
-	   		rotate[ch] = 0;
-	   if (value&128)
-	   	rotate[3] = rotate[4] = 0x1F;
+	refresh    = value & 0x20;
+	
+	/* Code taken from Mitsutaka Okazaki
+	 * Didn't take time to integrate in my method so far
+	 * According to sean these bits should produce noise on the channels
 	 */
+	//for (int ch = 0; ch < 5; ch++)
+	//	rotate[ch] = (value & 0x40) ? 0x1F: 0;
+	//if (value & 0x80)
+	//	rotate[3] = rotate[4] = 0x1F;
 }
 
 void SCC::setFreqVol(byte value, byte address)
@@ -254,7 +252,7 @@ int *SCC::updateBuffer(int length)
 		unsigned advance = scctime / SCC_STEP;
 		scctime %= SCC_STEP;
 		int mixed = 0;
-		unsigned enable = ch_enable;
+		byte enable = ch_enable;
 		for (int channel = 0; channel < 5; channel++, enable >>= 1) {
 			if (enable & 1) {
 				mixed += volAdjustedWave[channel]
@@ -271,7 +269,7 @@ void SCC::checkMute()
 {
 	// SCC is muted unless an enabled channel with non-zero volume exists.
 	bool mute = true;
-	unsigned enable = ch_enable & 0x1F;
+	byte enable = ch_enable & 0x1F;
 	byte *volumePtr = volume;
 	while (enable) {
 		if ((enable & 1) && *volumePtr) {

@@ -61,13 +61,13 @@ class SCC : public SoundDevice
 		unsigned count[5];
 		unsigned freq[5];
 		byte volume[5];
-		// Code taken from the japanese guy
-		// int rotate[5];
-
-		int ch_enable;
+		
+		//int rotate[5];	// TODO what exactly does this do?
 		bool cycle_4bit;
 		bool cycle_8bit;
-		int refresh;
+		bool refresh;
+		
+		byte ch_enable;
 		byte memInterface[256];
 };
 
