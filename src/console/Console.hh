@@ -11,9 +11,9 @@
 #include "Settings.hh"
 #include "MSXConfig.hh"
 
-struct CursorXY{
+struct CursorXY {
 	unsigned x;
-	unsigned y;	
+	unsigned y;
 };
 
 class ConsoleRenderer;
@@ -38,11 +38,11 @@ class Console : private EventListener
 		  */
 		void unregisterConsole(ConsoleRenderer *console);
 		int getScrollBack();
-		const std::string& getLine(int line);
+		const std::string &getLine(int line);
 		bool isVisible();
-		void getCursorPosition(int * xPosition, int * yPosition);
-		void setCursorPosition(const int xPosition,const int yPosition);
-		void setCursorPosition(struct CursorXY pos);
+		void getCursorPosition(int *xPosition, int *yPosition);
+		void setCursorPosition(int xPosition, int yPosition);
+		void setCursorPosition(CursorXY pos);
 		void setConsoleColumns(int columns);
 
 	private:
@@ -67,9 +67,9 @@ class Console : private EventListener
 		void updateConsole();
 		void resetScrollBack();
 		
-		void combineLines(CircularBuffer<std::string,LINESHISTORY> & buffer,
-							CircularBuffer<bool,LINESHISTORY> & overflows,
-							bool fromTop = false);
+		void combineLines(CircularBuffer<std::string, LINESHISTORY> &buffer,
+		                  CircularBuffer<bool, LINESHISTORY> &overflows,
+		                  bool fromTop = false);
 		void splitLines();
 		void loadHistory();
 		void saveHistory();
@@ -89,10 +89,10 @@ class Console : private EventListener
 		std::list<ConsoleRenderer*> renderers;
 		
 		std::string editLine;
-// 		Are double commands allowed ?
+		// Are double commands allowed ?
 		bool removeDoubles;
 		CircularBuffer<std::string, 100> lines;
-		CircularBuffer<bool,100> lineOverflows;
+		CircularBuffer<bool, 100> lineOverflows;
 		std::list<std::string> history;
 		std::list<std::string>::iterator commandScrollBack;
 		// saves Current Command to enable command recall
