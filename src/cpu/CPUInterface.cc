@@ -2,6 +2,7 @@
 
 #include "CPUInterface.hh"
 #include "MSXRomPatchInterface.hh"
+#include <algorithm>
 
 namespace openmsx {
 
@@ -48,7 +49,7 @@ void CPUInterface::registerInterface(MSXRomPatchInterface* i)
 }
 void CPUInterface::unregisterInterface(MSXRomPatchInterface* i)
 {
-	romPatches.erase(remove(romPatches.begin(), romPatches.end(), i),
+	romPatches.erase(std::remove(romPatches.begin(), romPatches.end(), i),
 	                 romPatches.end());
 }
 
