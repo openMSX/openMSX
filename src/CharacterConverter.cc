@@ -90,9 +90,9 @@ CharacterConverter<Pixel, zoom>::CharacterConverter(
 	vram = vdp->getVRAM();
 
 	anyDirtyColour = anyDirtyPattern = anyDirtyName = true;
-	fillBool(dirtyColour, true, sizeof(dirtyColour));
-	fillBool(dirtyPattern, true, sizeof(dirtyPattern));
-	fillBool(dirtyName, true, sizeof(dirtyName));
+	fillBool(dirtyColour, true, sizeof(dirtyColour) / sizeof(bool));
+	fillBool(dirtyPattern, true, sizeof(dirtyPattern) / sizeof(bool));
+	fillBool(dirtyName, true, sizeof(dirtyName) / sizeof(bool));
 	dirtyForeground = dirtyBackground = true;
 }
 

@@ -541,7 +541,7 @@ void SDLGLRenderer::updateTransparency(
 	// We don't know which lines contain such pixels,
 	// so we have to repaint them all.
 	anyDirtyColour = true;
-	fillBool(dirtyColour, true, sizeof(dirtyColour));
+	fillBool(dirtyColour, true, sizeof(dirtyColour) / sizeof(bool));
 	memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 }
 
@@ -564,7 +564,7 @@ void SDLGLRenderer::updateBackgroundColour(
 		// We don't know which lines contain such pixels,
 		// so we have to repaint them all.
 		anyDirtyColour = true;
-		fillBool(dirtyColour, true, sizeof(dirtyColour));
+		fillBool(dirtyColour, true, sizeof(dirtyColour) / sizeof(bool));
 		memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 	}
 }
@@ -596,7 +596,7 @@ void SDLGLRenderer::updateBlinkState(
 		// Consider all characters dirty.
 		// TODO: Only mark characters in blink colour dirty.
 		anyDirtyName = true;
-		fillBool(dirtyName, true, sizeof(dirtyName));
+		fillBool(dirtyName, true, sizeof(dirtyName) / sizeof(bool));
 	}
 }
 
@@ -620,7 +620,7 @@ void SDLGLRenderer::updatePalette(
 	// We don't know which lines contain which colours,
 	// so we have to repaint them all.
 	anyDirtyColour = true;
-	fillBool(dirtyColour, true, sizeof(dirtyColour));
+	fillBool(dirtyColour, true, sizeof(dirtyColour) / sizeof(bool));
 	memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 }
 
@@ -657,7 +657,7 @@ void SDLGLRenderer::updateNameBase(
 {
 	sync(time);
 	anyDirtyName = true;
-	fillBool(dirtyName, true, sizeof(dirtyName));
+	fillBool(dirtyName, true, sizeof(dirtyName) / sizeof(bool));
 }
 
 void SDLGLRenderer::updatePatternBase(
@@ -665,7 +665,7 @@ void SDLGLRenderer::updatePatternBase(
 {
 	sync(time);
 	anyDirtyPattern = true;
-	fillBool(dirtyPattern, true, sizeof(dirtyPattern));
+	fillBool(dirtyPattern, true, sizeof(dirtyPattern) / sizeof(bool));
 }
 
 void SDLGLRenderer::updateColourBase(
@@ -673,7 +673,7 @@ void SDLGLRenderer::updateColourBase(
 {
 	sync(time);
 	anyDirtyColour = true;
-	fillBool(dirtyColour, true, sizeof(dirtyColour));
+	fillBool(dirtyColour, true, sizeof(dirtyColour) / sizeof(bool));
 }
 
 void SDLGLRenderer::updateVRAM(
@@ -771,9 +771,9 @@ void SDLGLRenderer::setDirty(
 	bool dirty)
 {
 	anyDirtyColour = anyDirtyPattern = anyDirtyName = dirty;
-	fillBool(dirtyName, dirty, sizeof(dirtyName));
-	fillBool(dirtyColour, dirty, sizeof(dirtyColour));
-	fillBool(dirtyPattern, dirty, sizeof(dirtyPattern));
+	fillBool(dirtyName, dirty, sizeof(dirtyName) / sizeof(bool));
+	fillBool(dirtyColour, dirty, sizeof(dirtyColour) / sizeof(bool));
+	fillBool(dirtyPattern, dirty, sizeof(dirtyPattern) / sizeof(bool));
 }
 
 void SDLGLRenderer::drawSprites(int absLine)

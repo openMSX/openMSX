@@ -1,5 +1,9 @@
 $Id$
 
+2002-08-16 Maarten ter Huurne <mth@stack.nl>
+	* Fixed wrong use of sizeof(array): it returns #bytes, not #elements.
+	  Caused a segfault on Sparc.
+
 2002-08-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed SD-Snatcher loading bug:
 	   - disk has a non-standard bootsector (sectors per track and number
