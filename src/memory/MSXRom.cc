@@ -8,7 +8,7 @@ using std::string;
 
 namespace openmsx {
 
-MSXCPU *MSXRom::cpu;
+MSXCPU* MSXRom::cpu;
 
 MSXRom::MSXRom(const XMLElement& config, const EmuTime& time,
                std::auto_ptr<Rom> rom_)

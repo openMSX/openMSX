@@ -2,7 +2,6 @@
 
 #include "PanasonicMemory.hh"
 #include "MSXCPU.hh"
-#include "CPU.hh"
 #include "Ram.hh"
 #include "HardwareConfig.hh"
 
@@ -69,7 +68,7 @@ void PanasonicMemory::setDRAM(bool dram_)
 {
 	if (dram_ != dram) {
 		dram = dram_;
-		msxcpu.invalidateCache(0x0000, 0x10000 / CPU::CACHE_LINE_SIZE);
+		msxcpu.invalidateMemCache(0x0000, 0x10000);
 	}
 }
 

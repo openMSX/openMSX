@@ -88,7 +88,7 @@ public:
 	 * Invalidate the CPU its cache for the interval
 	 * [start, start+num*CACHE_LINE_SIZE).
 	 */
-	virtual void invalidateCache(word start, int num) = 0;
+	virtual void invalidateMemCache(word start, unsigned num) = 0;
 
 	/**
 	 *

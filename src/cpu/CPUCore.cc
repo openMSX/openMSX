@@ -76,13 +76,14 @@ template <class T> const EmuTime& CPUCore<T>::getCurrentTime() const
 	return T::clock.getTime();
 }
 
-template <class T> void CPUCore<T>::invalidateCache(word start, int num)
+template <class T> void CPUCore<T>::invalidateMemCache(word start, unsigned size)
 {
-	//PRT_DEBUG("cache: invalidate "<<start<<" "<<num*CACHE_LINE_SIZE);
-	memset(&readCacheLine  [start>>CACHE_LINE_BITS], 0, num*sizeof(byte*)); //	NULL
-	memset(&writeCacheLine [start>>CACHE_LINE_BITS], 0, num*sizeof(byte*)); //
-	memset(&readCacheTried [start>>CACHE_LINE_BITS], 0, num*sizeof(bool)); //	FALSE
-	memset(&writeCacheTried[start>>CACHE_LINE_BITS], 0, num*sizeof(bool)); //
+	unsigned first = start / CACHE_LINE_SIZE;
+	unsigned num = (size + CACHE_LINE_SIZE - 1) / CACHE_LINE_SIZE; 
+	memset(&readCacheLine  [first], 0, num * sizeof(byte*)); // NULL
+	memset(&writeCacheLine [first], 0, num * sizeof(byte*)); //
+	memset(&readCacheTried [first], 0, num * sizeof(bool));  // FALSE
+	memset(&writeCacheTried[first], 0, num * sizeof(bool));  //
 }
 
 template <class T> CPU::CPURegs& CPUCore<T>::getRegisters()
@@ -116,7 +117,7 @@ template <class T> void CPUCore<T>::reset(const EmuTime& time)
 	R.R  = 0x00;
 	R.R2 = 0;
 	memptr.w = 0xFFFF;
-	invalidateCache(0x0000, 0x10000 / CACHE_LINE_SIZE);
+	invalidateMemCache(0x0000, 0x10000);
 	T::clock.reset(time);
 	
 	assert(NMIStatus == 0); // other devices must reset their NMI source

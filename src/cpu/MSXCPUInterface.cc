@@ -260,8 +260,7 @@ void MSXCPUInterface::updateVisible(int page)
 	if (visibleDevices[page] != newDevice) {
 		visibleDevices[page] = newDevice;
 		// Different device, so cache is no longer valid.
-		msxcpu.invalidateCache(page * 0x4000,
-		                        0x4000 / CPU::CACHE_LINE_SIZE);
+		msxcpu.invalidateMemCache(page * 0x4000, 0x4000);
 	}
 	/*PRT_DEBUG(" page: " << (int)page <<
 	          " ps: " << (int)primarySlotState[page] <<

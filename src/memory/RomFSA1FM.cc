@@ -127,7 +127,7 @@ void RomFSA1FM1::writeMem(word address, byte value, const EmuTime& /*time*/)
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		if (address == 0x7FC4) {
 			// switch rom bank
-			cpu->invalidateCache(0x4000, 0x2000 / CPU::CACHE_LINE_SIZE);
+			cpu->invalidateMemCache(0x4000, 0x2000);
 		}
 		sram[address & 0x1FFF] = value;
 	}
@@ -267,7 +267,7 @@ void RomFSA1FM2::changeBank(byte region, byte bank)
 			isRam[region]   = false;
 			isEmpty[region] = true;
 		}
-		cpu->invalidateCache(0x2000 * region, 0x2000 / CPU::CACHE_LINE_SIZE);
+		cpu->invalidateMemCache(0x2000 * region, 0x2000);
 	} else {
 		isRam[region]   = false;
 		isEmpty[region] = false;

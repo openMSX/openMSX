@@ -86,7 +86,7 @@ void MSXCPU::setActiveCPU(CPUType cpu)
 	}
 	if (newCPU != activeCPU) {
 		newCPU->advance(activeCPU->getCurrentTime());
-		newCPU->invalidateCache(0x0000, 0x10000/CPU::CACHE_LINE_SIZE);
+		newCPU->invalidateMemCache(0x0000, 0x10000);
 		exitCPULoop();
 		activeCPU = newCPU;
 	}
@@ -109,9 +109,9 @@ const EmuTime &MSXCPU::getCurrentTimeUnsafe() const
 }
 
 
-void MSXCPU::invalidateCache(word start, int num)
+void MSXCPU::invalidateMemCache(word start, unsigned size)
 {
-	activeCPU->invalidateCache(start, num);
+	activeCPU->invalidateMemCache(start, size);
 }
 
 void MSXCPU::raiseIRQ()

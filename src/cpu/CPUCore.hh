@@ -42,7 +42,7 @@ public:
 	virtual void advance(const EmuTime& time);
 	virtual const EmuTime& getCurrentTime() const;
 	virtual void wait(const EmuTime& time);
-	virtual void invalidateCache(word start, int num);
+	virtual void invalidateMemCache(word start, unsigned size);
 	virtual CPURegs& getRegisters();
 	virtual void doStep();
 	virtual void doContinue();

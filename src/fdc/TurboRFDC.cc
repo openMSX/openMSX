@@ -78,7 +78,7 @@ void TurboRFDC::writeMem(word address, byte value, const EmuTime& time)
 {
 	//PRT_DEBUG("TurboRFDC: write 0x" << hex << (int)address << " 0x" << (int)value << dec);
 	if ((address == 0x6000) || (address == 0x7FF0) || (address == 0x7FFE)) {
-		MSXCPU::instance().invalidateCache(0x4000, 0x4000/CPU::CACHE_LINE_SIZE);
+		MSXCPU::instance().invalidateMemCache(0x4000, 0x4000);
 		memory = &rom[0x4000 * (value & blockMask)];
 		return;
 	} else {

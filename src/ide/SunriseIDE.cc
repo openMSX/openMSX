@@ -3,7 +3,6 @@
 #include "SunriseIDE.hh"
 #include "DummyIDEDevice.hh"
 #include "MSXCPU.hh"
-#include "CPU.hh"
 #include "IDEDeviceFactory.hh"
 #include "xmlx.hh"
 
@@ -119,10 +118,10 @@ void SunriseIDE::writeControl(byte value)
 	
 	if (ideRegsEnabled != (value & 1)) {
 		ideRegsEnabled = value & 1;
-		MSXCPU::instance().invalidateCache(0x3C00, 0x0300/CPU::CACHE_LINE_SIZE);
-		MSXCPU::instance().invalidateCache(0x7C00, 0x0300/CPU::CACHE_LINE_SIZE);
-		MSXCPU::instance().invalidateCache(0xBC00, 0x0300/CPU::CACHE_LINE_SIZE);
-		MSXCPU::instance().invalidateCache(0xFC00, 0x0300/CPU::CACHE_LINE_SIZE);
+		MSXCPU::instance().invalidateMemCache(0x3C00, 0x0300);
+		MSXCPU::instance().invalidateMemCache(0x7C00, 0x0300);
+		MSXCPU::instance().invalidateMemCache(0xBC00, 0x0300);
+		MSXCPU::instance().invalidateMemCache(0xFC00, 0x0300);
 	}
 
 	byte bank = reverse(value & 0xF8);
@@ -131,7 +130,7 @@ void SunriseIDE::writeControl(byte value)
 	}
 	if (internalBank != &rom[0x4000 * bank]) {
 		internalBank = &rom[0x4000 * bank];
-		MSXCPU::instance().invalidateCache(0x4000, 0x4000/CPU::CACHE_LINE_SIZE);
+		MSXCPU::instance().invalidateMemCache(0x4000, 0x4000);
 	}
 }
 

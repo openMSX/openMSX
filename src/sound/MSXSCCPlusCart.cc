@@ -207,8 +207,7 @@ void MSXSCCPlusCart::setMapper(int regio, byte value)
 	
 	checkEnable();
 	internalMemoryBank[regio] = block;
-	MSXCPU::instance().invalidateCache(0x4000 + regio * 0x2000,
-	                                   0x2000 / CPU::CACHE_LINE_SIZE);
+	MSXCPU::instance().invalidateMemCache(0x4000 + regio * 0x2000, 0x2000);
 }
 
 void MSXSCCPlusCart::setModeRegister(byte value)
@@ -232,7 +231,7 @@ void MSXSCCPlusCart::setModeRegister(byte value)
 			isRamSegment[0] = true;
 		} else {
 			if (isRamSegment[0]) {
-				MSXCPU::instance().invalidateCache(0x4000, 0x2000/CPU::CACHE_LINE_SIZE);
+				MSXCPU::instance().invalidateMemCache(0x4000, 0x2000);
 				isRamSegment[0] = false;
 			}
 		}
@@ -240,7 +239,7 @@ void MSXSCCPlusCart::setModeRegister(byte value)
 			isRamSegment[1] = true;
 		} else {
 			if (isRamSegment[1]) {
-				MSXCPU::instance().invalidateCache(0x6000, 0x2000/CPU::CACHE_LINE_SIZE);
+				MSXCPU::instance().invalidateMemCache(0x6000, 0x2000);
 				isRamSegment[1] = false;
 			}
 		}
@@ -249,12 +248,12 @@ void MSXSCCPlusCart::setModeRegister(byte value)
 			isRamSegment[2] = true;
 		} else {
 			if (isRamSegment[2]) {
-				MSXCPU::instance().invalidateCache(0x8000, 0x2000/CPU::CACHE_LINE_SIZE);
+				MSXCPU::instance().invalidateMemCache(0x8000, 0x2000);
 				isRamSegment[2] = false;
 			}
 		}
 		if (isRamSegment[3]) {
-			MSXCPU::instance().invalidateCache(0xA000, 0x2000/CPU::CACHE_LINE_SIZE);
+			MSXCPU::instance().invalidateMemCache(0xA000, 0x2000);
 			isRamSegment[3] = false;
 		}
 	}

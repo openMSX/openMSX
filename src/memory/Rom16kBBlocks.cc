@@ -2,7 +2,6 @@
 
 #include "Rom16kBBlocks.hh"
 #include "MSXCPU.hh"
-#include "CPU.hh"
 #include "Rom.hh"
 
 namespace openmsx {
@@ -33,7 +32,7 @@ const byte* Rom16kBBlocks::getReadCacheLine(word address) const
 void Rom16kBBlocks::setBank(byte region, byte* adr)
 {
 	bank[region] = adr;
-	cpu->invalidateCache(region * 0x4000, 0x4000 / CPU::CACHE_LINE_SIZE);
+	cpu->invalidateMemCache(region * 0x4000, 0x4000);
 }
 
 void Rom16kBBlocks::setRom(byte region, int block)

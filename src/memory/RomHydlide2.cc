@@ -15,7 +15,6 @@
 
 #include "RomHydlide2.hh"
 #include "MSXCPU.hh"
-#include "CPU.hh"
 #include "Rom.hh"
 
 namespace openmsx {
@@ -64,8 +63,7 @@ void RomHydlide2::writeMem(word address, byte value, const EmuTime& /*time*/)
 		if (value == 0x10) {
 			// SRAM block
 			sramEnabled |= (1 << region);
-			cpu->invalidateCache(0x4000 * region,
-			                     0x4000 / CPU::CACHE_LINE_SIZE);
+			cpu->invalidateMemCache(0x4000 * region, 0x4000);
 		} else {
 			// ROM block
 			setRom(region, value);

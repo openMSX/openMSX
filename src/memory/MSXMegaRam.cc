@@ -27,7 +27,6 @@
 #include "MSXMegaRam.hh"
 #include "xmlx.hh"
 #include "MSXCPU.hh"
-#include "CPU.hh"
 #include "Ram.hh"
 #include "Rom.hh"
 
@@ -126,8 +125,7 @@ byte MSXMegaRam::readIO(byte port, const EmuTime& /*time*/)
 			if (rom.get()) romMode = true;
 			break;
 	}
-	MSXCPU::instance().invalidateCache(0x0000,
-		0x10000 / CPU::CACHE_LINE_SIZE);
+	MSXCPU::instance().invalidateMemCache(0x0000, 0x10000);
 	return 0xFF;	// return value doesn't matter
 }
 
@@ -148,8 +146,7 @@ void MSXMegaRam::writeIO(byte port, byte value, const EmuTime& /*time*/)
 			if (rom.get()) romMode = true;
 			break;
 	}
-	MSXCPU::instance().invalidateCache(0x0000,
-		0x10000 / CPU::CACHE_LINE_SIZE);
+	MSXCPU::instance().invalidateMemCache(0x0000, 0x10000);
 }
 
 void MSXMegaRam::setBank(byte page, byte block)
@@ -157,8 +154,8 @@ void MSXMegaRam::setBank(byte page, byte block)
 	bank[page] = block & maskBlocks;
 	MSXCPU& cpu = MSXCPU::instance();
 	word adr = page * 0x2000;
-	cpu.invalidateCache(adr + 0x0000, 0x2000 / CPU::CACHE_LINE_SIZE);
-	cpu.invalidateCache(adr + 0x8000, 0x2000 / CPU::CACHE_LINE_SIZE);
+	cpu.invalidateMemCache(adr + 0x0000, 0x2000);
+	cpu.invalidateMemCache(adr + 0x8000, 0x2000);
 }
 
 } // namespace openmsx

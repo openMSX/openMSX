@@ -4,7 +4,6 @@
 #include "MSXMapperIOTurboR.hh"
 #include "MSXMapperIOPhilips.hh"
 #include "MSXCPU.hh"
-#include "CPU.hh"
 #include "HardwareConfig.hh"
 
 using std::string;
@@ -69,8 +68,7 @@ void MSXMapperIO::writeIO(byte port, byte value, const EmuTime& /*time*/)
 {
 	port &= 0x03;
 	page[port] = value;
-	MSXCPU::instance().invalidateCache(
-		0x4000 * port, 0x4000 / CPU::CACHE_LINE_SIZE );
+	MSXCPU::instance().invalidateMemCache(0x4000 * port, 0x4000);
 }
 
 byte MSXMapperIO::getSelectedPage(byte bank)
