@@ -618,7 +618,7 @@ void MSXTMS9928a::plot_pixel(struct osd_bitmap *bitmap,int x,int y,int pen)
 /** PutImage() ***********************************************/
 /** Put an image on the screen.                             **/
 /*************************************************************/
-int MSXTMS9928a::debugColor = 0;	// debug
+int MSXTMS9928a::debugColor = 2;	// debug
 
 void MSXTMS9928a::PutImage(void)
 {

@@ -33,20 +33,11 @@ MSXDevice* MSXPPI::instance(void)
 void MSXPPI::init()
 {
 	MSXDevice::init();
-	// in most cases just one PPI so we register permenantly with 
-	// Inputs object for now.
-	//
-	// The Sunrise Dual Headed MSX experiment had two!
-	// Recreating this would mean making a second PPI instance by means
-	// of a derived class (MSXPPI is singleton !!)
-	Inputs::instance()->setPPI(this);
-
 	// Register I/O ports A8..AB for reading
 	MSXMotherBoard::instance()->register_IO_In(0xA8,this);
 	MSXMotherBoard::instance()->register_IO_In(0xA9,this);
 	MSXMotherBoard::instance()->register_IO_In(0xAA,this);
 	MSXMotherBoard::instance()->register_IO_In(0xAB,this);
-
 	// Register I/O ports A8..AB for writing
 	MSXMotherBoard::instance()->register_IO_Out(0xA8,this);
 	MSXMotherBoard::instance()->register_IO_Out(0xA9,this); 
@@ -71,10 +62,6 @@ byte MSXPPI::readIO(byte port, Emutime &time)
 	case 0xAA:
 		return i8255->readPortC();
 	case 0xAB:
-        //TODO: test what a real MSX returns
-        // normally after a the MSX is started 
-        // you don't tough this register, but hey
-        // we go for the perfect emulation :-)
 		return i8255->readControlPort();
 	default:
 		assert (false); // code should never be reached
@@ -89,11 +76,11 @@ void MSXPPI::writeIO(byte port, byte value, Emutime &time)
 		i8255->writePortA(value);
 		break;
 	case 0xA9:
-        //BOGUS read-only register in case of MSX
+		//BOGUS read-only register in case of MSX
 		i8255->writePortB(value);
 		break;
 	case 0xAA:
-        //TODO use these bits
+		//TODO use these bits
 		//4    CASON  Cassette motor relay        (0=On, 1=Off)
 		//5    CASW   Cassette audio out          (Pulse)
 		//6    CAPS   CAPS-LOCK lamp              (0=On, 1=Off)
@@ -101,12 +88,12 @@ void MSXPPI::writeIO(byte port, byte value, Emutime &time)
 		i8255->writePortC(value);
 		break;
 	case 0xAB:
-	//Theoretically these registers can be used as input or output 
-	//ports. However, in the MSX, PPI Port A and C are always used as output, 
-	//and PPI Port B as input. The BIOS initializes it like that by writing 
-	//82h to Port ABh on startup. Afterwards it makes no sense to change this 
-	//setting, and thus we could simply discard any write :-)
-	//but wouter wouldn't let us ;-)
+		//Theoretically these registers can be used as input or output 
+		//ports. However, in the MSX, PPI Port A and C are always used as output, 
+		//and PPI Port B as input. The BIOS initializes it like that by writing 
+		//82h to Port ABh on startup. Afterwards it makes no sense to change this 
+		//setting, and thus we could simply discard any write :-)
+		//but wouter wouldn't let us ;-)
 		i8255->writeControlPort(value);
 		break;
 	default:
@@ -127,7 +114,11 @@ void MSXPPI::writeA(byte value) {
 }
 
 byte MSXPPI::readB() {
-	Inputs::instance()->getKeys(); //reading the keyboard events into the matrix
+	const byte* src = Inputs::instance()->getKeys(); //reading the keyboard events into the matrix
+	byte* dst = MSXKeyMatrix;
+	for (int i=0; i<NR_KEYROWS; i++) {
+		*dst++ = *src++;
+	}
 	if (keyboardGhosting) {
 		keyGhosting();
 	}
@@ -167,9 +158,6 @@ void MSXPPI::keyGhosting(void)
 // 10111101  electrical connections  10110101
 //           that are established  by
 // the closed switches 
-
-#define NR_KEYROWS 15
-
 	bool changed_something = false;
 	do {
 		for (int i=0; i<=NR_KEYROWS; i++) {

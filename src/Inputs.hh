@@ -3,24 +3,21 @@
 #ifndef __INPUTS_HH__
 #define __INPUTS_HH__
 
-#include "MSXPPI.hh"
+#include "openmsx.hh"
 #include <SDL/SDL.h>
 
-class Inputs 
-{	// this class is a singleton class
-	// usage: Inputs::instance()->method(args);
- 
-	static byte Keys[336][2];
+#define NR_KEYROWS 11
 
+class Inputs 
+{
 	private:
 		Inputs(); // private constructor -> can only construct self
 		static Inputs *volatile oneInstance; 
-		byte KeyMatrix[16];
-		MSXPPI* PPI;
+		byte keyMatrix[NR_KEYROWS];
+		static byte Keys[336][2];
 	public:
 		~Inputs(); 
 		static Inputs *instance();
-		void setPPI(MSXPPI* PPIdevice);
-		void getKeys(void);
+		const byte* getKeys();
 };
 #endif

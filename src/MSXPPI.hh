@@ -31,6 +31,7 @@
 #include "MSXMotherBoard.hh"
 #include "emutime.hh"
 #include "I8255.hh"
+#include "Inputs.hh"
 
 // David Hermans original comments 
 // This class implements the PPI
@@ -77,7 +78,7 @@ class MSXPPI : public MSXDevice, I8255Interface
 		void keyGhosting();
 		bool keyboardGhosting;
 
-		byte MSXKeyMatrix[16];
+		byte MSXKeyMatrix[NR_KEYROWS];
 		int selectedRow;
 
 	friend class Inputs;
