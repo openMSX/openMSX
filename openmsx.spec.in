@@ -12,7 +12,7 @@
 Name: %{name}
 Version: %{version}
 Release: %{release}
-Copyright: see COPYING file
+Copyright: GPL
 Group: Application/Misc
 
 # optional items
