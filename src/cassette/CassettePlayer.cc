@@ -215,8 +215,11 @@ string CassettePlayer::execute(const vector<string> &tokens)
 
 string CassettePlayer::help(const vector<string> &tokens) const throw()
 {
-	return "cassetteplayer eject      : remove tape from virtual player\n"
-	       "cassetteplayer <filename> : change the tape file\n";
+	return "cassetteplayer eject         : remove tape from virtual player\n"
+	       "cassetteplayer rewind        : rewind tape in virtual player\n"
+	       "cassetteplayer force_play    : force playing of tape (no remote)\n"
+	       "cassetteplayer no_force_play : don't force playing of tape\n"
+	       "cassetteplayer <filename>    : change the tape file\n";
 }
 
 void CassettePlayer::tabCompletion(vector<string> &tokens) const throw()
