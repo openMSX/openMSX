@@ -50,10 +50,10 @@ Mixer::Mixer()
 		"master_volume", "master volume", 75, 0, 100));
 	frequencySetting.reset(new IntegerSetting("frequency",
 		"mixer frequency",
-		44100, 11025, 48000)); // TODO stricter value checks
+		44100, 11025, 48000));
 	samplesSetting.reset(new IntegerSetting("samples",
 		"mixer samples",
-		defaultsamples, 64, 8192)); // TODO stricter value checks
+		defaultsamples, 64, 8192));
 
 	infoCommand.registerTopic("sounddevice", &soundDeviceInfo);
 	muteSetting->addListener(this);
@@ -110,6 +110,15 @@ void Mixer::reopenSound()
 	muteHelper();
 }
 
+static int roundUpPower2(int a)
+{
+	int res = 1;
+	while (a > res) {
+		res <<= 1;
+	}
+	return res;
+}
+
 void Mixer::openSound()
 {
 	if (!CommandLineParser::instance().wantSound()) {
@@ -118,7 +127,7 @@ void Mixer::openSound()
 	
 	SDL_AudioSpec desired;
 	desired.freq     = frequencySetting->getValue();
-	desired.samples  = samplesSetting->getValue();
+	desired.samples  = roundUpPower2(samplesSetting->getValue());
 	desired.channels = 2;			// stereo
 	desired.format   = OPENMSX_BIGENDIAN ? AUDIO_S16MSB : AUDIO_S16LSB;
 	desired.callback = audioCallbackHelper;	// must be a static method

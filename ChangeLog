@@ -6,6 +6,7 @@ $Id$
 	   - preparation for run-time changeable frequency/samples settings
 	* Changes to 'frequency' and 'samples' settings takes immediate effect,
 	  no longer needed to restart openMSX
+	* Value of 'samples' setting must always be a power of 2 
 
 2004-11-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Only send events on actual changes:
