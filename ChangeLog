@@ -1,5 +1,12 @@
 $Id$
 
+2001-08-10 David Heremans <david.heremans@gnu-linux.net>
+	* sync : PPI, Z80, ...
+
+2001-08-09 Joost Yervante Damad <j.damad@qahwah.net>
+	* reworked msxconfig code, now more C++
+	* added support for multiple slotted's
+
 2001-07-07 Joost Yervante Damad <j.damad@qahwah.net>
 
 	* added class property to <parameter> tag in msxconfig
