@@ -1,12 +1,5 @@
 // $Id$
 
-/*
- * Based on:
- *    Z80Em: Portable Z80 emulator
- *    written by Marcel de Kogel 1996,1997
- * heavily rewritten to fit openMSX structure
- */
-
 #ifndef __Z80_HH__
 #define __Z80_HH__
 
@@ -23,6 +16,11 @@ class Z80;
 typedef void (Z80::*Z80_ResumeFunc)();
 
 
+/// Emulation of the Z80 CPU.
+/** Based on Z80Em: Portable Z80 emulator
+  * written by Marcel de Kogel 1996, 1997.
+  * Heavily rewritten to fit openMSX structure.
+  */
 class Z80 : public CPU {
 	public:
 		static const int CLOCK_FREQ = 3579545;
