@@ -168,7 +168,7 @@ RealDrive::RealDrive(const EmuTime& time)
 	XMLElement& config = GlobalSettings::instance().getMediaConfig();
 	XMLElement& diskConfig = config.getCreateChild(name);
 	diskElem = &diskConfig.getCreateChild("filename");
-	const string& filename = diskElem->getData();
+	string filename = diskElem->getData();
 	if (!filename.empty()) {
 		try {
 			FileContext& context = diskConfig.getFileContext();
