@@ -13,6 +13,7 @@
 #include "Config.hh"
 #include "openmsx.hh"
 #include "CliCommOutput.hh"
+#include "TCLInterp.hh"
 #include "InfoCommand.hh"
 
 
@@ -22,17 +23,19 @@ CommandController::CommandController()
 	: helpCmd(*this), cmdConsole(NULL),
 	  infoCommand(InfoCommand::instance()),
 	  msxConfig(MSXConfig::instance()),
-	  output(CliCommOutput::instance())
+	  output(CliCommOutput::instance()),
+	  tclInterp(TCLInterp::instance())
 {
 	registerCommand(&helpCmd, "help");
-	registerCommand(&infoCommand, "info");
+	registerCommand(&infoCommand, "openmsx_info");
 }
 
 CommandController::~CommandController()
 {
-	unregisterCommand(&infoCommand, "info");
+	unregisterCommand(&infoCommand, "openmsx_info");
 	unregisterCommand(&helpCmd, "help");
 	assert(commands.empty());
+	assert(commandCompleters.empty());
 	assert(!cmdConsole);
 }
 
@@ -47,7 +50,10 @@ void CommandController::registerCommand(Command* command,
                                         const string& str)
 {
 	assert(commands.find(str) == commands.end());
+
+	registerCompleter(command, str);
 	commands[str] = command;
+	tclInterp.registerCommand(str, *command);
 }
 
 void CommandController::unregisterCommand(Command* command,
@@ -55,8 +61,27 @@ void CommandController::unregisterCommand(Command* command,
 {
 	assert(commands.find(str) != commands.end());
 	assert(commands.find(str)->second == command);
+
+	tclInterp.unregisterCommand(str, *command);
 	commands.erase(str);
+	unregisterCompleter(command, str);
 }
+
+void CommandController::registerCompleter(CommandCompleter* completer,
+                                          const string& str)
+{
+	assert(commandCompleters.find(str) == commandCompleters.end());
+	commandCompleters[str] = completer;
+}
+
+void CommandController::unregisterCompleter(CommandCompleter* completer,
+                                            const string& str)
+{
+	assert(commandCompleters.find(str) != commandCompleters.end());
+	assert(commandCompleters.find(str)->second == completer);
+	commandCompleters.erase(str);
+}
+
 
 bool CommandController::hasCommand(const string& command)
 {
@@ -190,53 +215,35 @@ string CommandController::join(const vector<string>& tokens, char delimiter)
 	return result;
 }
 
+bool CommandController::isComplete(const string& command) const
+{
+	return tclInterp.isComplete(command);
+}
 
-string CommandController::executeCommand(const string &cmd)
+string CommandController::executeCommand(const string& cmd)
 	throw (CommandException)
 {
-	static set<string> cmdsInProgress;
-	
-	vector<string> subcmds;
-	split(cmd, subcmds, ';');
-
-	string result;
-	for (vector<string>::const_iterator it = subcmds.begin();
-	     it != subcmds.end();
-	     ++it) {
-		const string& command = *it;
-		vector<string> originalTokens;
-		split(command, originalTokens, ' ');
-		
-		vector<string> tokens;
-		removeEscaping(originalTokens, tokens, false);
-		if (tokens.empty()) {
-			continue;
-		}
-
-		const string& cmd = tokens.front();
-		CommandMap::iterator it = commands.find(cmd);
-		if (it == commands.end()) {
-			throw CommandException(cmd + ": unknown command");
-		}
-		if (cmdsInProgress.find(command) != cmdsInProgress.end()) {
-			throw CommandException(cmd + ": recursion error");
-		}
-		try {
-			cmdsInProgress.insert(cmd);
-			result += it->second->execute(tokens);
-			cmdsInProgress.erase(cmd);
-		} catch (CommandException& e) {
-			cmdsInProgress.erase(cmd);
-			throw;
-		}
-	}
-	return result;
+	return tclInterp.execute(cmd);
 }
 
 void CommandController::autoCommands()
 {
 	try {
+		SystemFileContext context;
+		File file(context.resolve("share/init.tcl"));
+		tclInterp.executeFile(file.getLocalName());
+	} catch (FileException& e) {
+		// no init.tcl
+	} catch (CommandException& e) {
+		// TODO
+	}
+	
+	try {
 		Config* config = msxConfig.getConfigById("AutoCommands");
+		output.printWarning(
+			"Use of AutoCommands is deprecated, instead use the init.tcl script.\n"
+			"See manual for more information.");
+
 		list<Config::Parameter*>* commandList =
 			config->getParametersWithClass("");
 		for (list<Config::Parameter*>::const_iterator i = commandList->begin();
@@ -311,14 +318,14 @@ void CommandController::tabCompletion(vector<string> &tokens)
 	if (tokens.size() == 1) {
 		// build a list of all command strings
 		set<string> cmds;
-		for (CommandMap::const_iterator it = commands.begin();
-		     it != commands.end(); it++) {
+		for (CompleterMap::const_iterator it = commandCompleters.begin();
+		     it != commandCompleters.end(); it++) {
 			cmds.insert(it->first);
 		}
 		completeString(tokens, cmds);
 	} else {
-		CommandMap::const_iterator it = commands.find(tokens.front());
-		if (it != commands.end()) {
+		CompleterMap::const_iterator it = commandCompleters.find(tokens.front());
+		if (it != commandCompleters.end()) {
 			it->second->tabCompletion(tokens);
 		}
 	}

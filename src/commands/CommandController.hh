@@ -20,6 +20,7 @@ class CommandConsole;
 class InfoCommand;
 class MSXConfig;
 class CliCommOutput;
+class TCLInterp;
 
 class CommandController
 {
@@ -29,8 +30,15 @@ public:
 	/**
 	 * (Un)register a command
 	 */
-	void registerCommand(Command* commandObject, const string& str);
-	void unregisterCommand(Command* commandObject, const string& str);
+	void registerCommand(Command* command, const string& str);
+	void unregisterCommand(Command* command, const string& str);
+
+	/**
+	 * (Un)register a command completer, used to complete build-in TCL cmds
+	 */
+	void registerCompleter(CommandCompleter* completer, const string& str);
+	void unregisterCompleter(CommandCompleter* completer, const string& str);
+
 	/**
 	 * Does a command with this name already exist?
 	 */
@@ -41,6 +49,12 @@ public:
 	 */
 	void autoCommands();
 
+	/**
+	 * Returns true iff the command is complete
+	 * (all braces, quotes, .. are balanced)
+	 */
+	bool isComplete(const string& command) const;
+	
 	/**
 	 * Execute a given command
 	 */
@@ -79,7 +93,9 @@ private:
 	                  bool caseSensitive);
 
 	typedef map<string, Command*> CommandMap;
+	typedef map<string, CommandCompleter*> CompleterMap;
 	CommandMap commands;
+	CompleterMap commandCompleters;
 
 	// Commands
 	class HelpCmd : public Command {
@@ -101,6 +117,7 @@ private:
 	InfoCommand& infoCommand;
 	MSXConfig& msxConfig;
 	CliCommOutput& output;
+	TCLInterp& tclInterp;
 };
 
 } // namespace openmsx

@@ -1,14 +1,20 @@
 // $Id$
 
 #include "BooleanSetting.hh"
+#include "SettingsManager.hh"
 
 namespace openmsx {
 
-BooleanSetting::BooleanSetting(
-	const string &name, const string &description,
-	bool initialValue)
-	: EnumSetting<bool>(name, description, initialValue, getMap())
+BooleanSetting::BooleanSetting(const string& name, const string& description,
+                               bool initialValue)
+	: EnumSettingBase<bool>(name, description, initialValue, getMap())
 {
+	SettingsManager::instance().registerSetting(*this);
+}
+
+BooleanSetting::~BooleanSetting()
+{
+	SettingsManager::instance().unregisterSetting(*this);
 }
 
 const EnumSetting<bool>::Map& BooleanSetting::getMap()

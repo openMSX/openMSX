@@ -1,5 +1,9 @@
 $Id$
 
+2004-01-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Integrated TCL scripting
+	* Execute share/init.tcl at startup, marked AutoCommands deprecated
+
 2004-01-20 Maarten ter Huurne <maarten@treewalker.org>
 	* Bound quit to ctrl-break by default.
 

@@ -20,7 +20,7 @@ using std::vector;
 namespace openmsx {
 
 class CommandController;
-
+class TCLInterp;
 
 /** Manages all settings.
   */
@@ -46,14 +46,8 @@ public:
 			: static_cast<SettingLeafNode*>(it->second);
 	}
 
-	void registerSetting(const string& name, SettingNode* setting) {
-		assert(settingsMap.find(name) == settingsMap.end());
-		settingsMap[name] = setting;
-	}
-
-	void unregisterSetting(const string& name) {
-		settingsMap.erase(name);
-	}
+	void registerSetting(SettingNode& setting);
+	void unregisterSetting(SettingNode& setting);
 
 private:
 	SettingsManager();
@@ -68,19 +62,23 @@ private:
 	template <typename T>
 	T* getByName(const string& cmd, const string& name) const;
 
-	class SetCommand : public Command {
+	class SetCompleter : public CommandCompleter {
 	public:
-		SetCommand(SettingsManager* manager);
-		virtual string execute(const vector<string>& tokens)
-			throw(CommandException);
-		virtual string help(const vector<string>& tokens) const
-			throw();
+		SetCompleter(SettingsManager* manager);
 		virtual void tabCompletion(vector<string>& tokens) const
 			throw();
 	private:
 		SettingsManager* manager;
-	} setCommand;
-	friend class SetCommand;
+	} setCompleter;
+
+	class SettingCompleter : public CommandCompleter {
+	public:
+		SettingCompleter(SettingsManager* manager);
+		virtual void tabCompletion(vector<string>& tokens) const
+			throw();
+	private:
+		SettingsManager* manager;
+	} settingCompleter;
 
 	class ToggleCommand : public Command {
 	public:
@@ -94,51 +92,9 @@ private:
 	private:
 		SettingsManager* manager;
 	} toggleCommand;
-	friend class ToggleCommand;
-
-	class IncrCommand : public Command {
-	public:
-		IncrCommand(SettingsManager* manager);
-		virtual string execute(const vector<string>& tokens)
-			throw (CommandException);
-		virtual string help(const vector<string>& tokens) const
-			throw();
-		virtual void tabCompletion(vector<string>& tokens) const
-			throw();
-	private:
-		SettingsManager* manager;
-	} incrCommand;
-	friend class IncrCommand;
-
-	class DecrCommand : public Command {
-	public:
-		DecrCommand(SettingsManager* manager);
-		virtual string execute(const vector<string>& tokens)
-			throw (CommandException);
-		virtual string help(const vector<string>& tokens) const
-			throw();
-		virtual void tabCompletion(vector<string>& tokens) const
-			throw();
-	private:
-		SettingsManager* manager;
-	} decrCommand;
-	friend class DecrCommand;
-
-	class RestoreDefaultCommand : public Command {
-	public:
-		RestoreDefaultCommand(SettingsManager* manager);
-		virtual string execute(const vector<string>& tokens)
-			throw (CommandException);
-		virtual string help(const vector<string>& tokens) const
-			throw();
-		virtual void tabCompletion(vector<string>& tokens) const
-			throw();
-	private:
-		SettingsManager* manager;
-	} restoreDefaultCommand;
-	friend class RestoreDefaultCommand;
 
 	CommandController& commandController;
+	TCLInterp& tclInterp;
 };
 
 } // namespace openmsx

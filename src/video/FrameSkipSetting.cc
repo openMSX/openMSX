@@ -3,9 +3,9 @@
 #include <sstream>
 #include "FrameSkipSetting.hh"
 #include "CommandException.hh"
+#include "SettingsManager.hh"
 
 using std::ostringstream;
-
 
 namespace openmsx {
 
@@ -16,6 +16,12 @@ FrameSkipSetting::FrameSkipSetting()
 		)
 {
 	type = "0 - 100 / auto";
+	SettingsManager::instance().registerSetting(*this);
+}
+
+FrameSkipSetting::~FrameSkipSetting()
+{
+	SettingsManager::instance().unregisterSetting(*this);
 }
 
 string FrameSkipSetting::getValueString() const
@@ -29,17 +35,21 @@ string FrameSkipSetting::getValueString() const
 	}
 }
 
-void FrameSkipSetting::setValueString(
-	const string &valueString)
+void FrameSkipSetting::setValueString(const string &valueString)
+	throw(CommandException)
 {
 	if (valueString == "auto") {
 		setValue(FrameSkip(true, getValue().getFrameSkip()));
 	} else {
-		int tmp = strtol(valueString.c_str(), NULL, 0);
+		char* endptr;
+		int tmp = strtol(valueString.c_str(), &endptr, 0);
+		if (*endptr != 0) {
+			throw CommandException("Not a valid integer");
+		}
 		if ((0 <= tmp) && (tmp <= 100)) {
 			setValue(FrameSkip(false, tmp));
 		} else {
-			throw CommandException("Not a valid value");
+			throw CommandException("Out of range");
 		}
 	}
 }

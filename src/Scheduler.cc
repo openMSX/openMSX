@@ -41,6 +41,7 @@ Scheduler::Scheduler()
 	powerSetting.addListener(this);
 
 	commandController.registerCommand(&quitCommand, "quit");
+	commandController.registerCommand(&quitCommand, "exit");
 	commandController.registerCommand(&resetCommand, "reset");
 	eventDistributor.registerEventListener(SDL_QUIT, this);
 }
@@ -49,6 +50,7 @@ Scheduler::~Scheduler()
 {
 	eventDistributor.unregisterEventListener(SDL_QUIT, this);
 	commandController.unregisterCommand(&resetCommand, "reset");
+	commandController.unregisterCommand(&quitCommand, "exit");
 	commandController.unregisterCommand(&quitCommand, "quit");
 
 	powerSetting.removeListener(this);

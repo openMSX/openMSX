@@ -44,7 +44,8 @@ HDR_ONLY:= \
 	openmsx util \
 	Schedulable \
 	MSXException \
-	MSXRomPatchInterface
+	MSXRomPatchInterface \
+	NonInheritable
 
 DIST:= \
 	Doxyfile config.h.in

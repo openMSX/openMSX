@@ -8,6 +8,7 @@
 #include "FilenameSetting.hh"
 #include "DummyFont.hh"
 #include "Console.hh"
+#include "NonInheritable.hh"
 
 #include <string>
 using std::string;
@@ -22,11 +23,13 @@ class FileContext;
 class IntegerSetting;
 
 
-class BackgroundSetting : public FilenameSetting
+class BackgroundSetting : public FilenameSettingBase,
+                          NON_INHERITABLE(BackgroundSetting)
 {
 public:
-	BackgroundSetting(OSDConsoleRenderer* console, const string settingName,
-					const string& filename);
+	BackgroundSetting(OSDConsoleRenderer* console, const string& settingName,
+	                  const string& filename);
+	virtual ~BackgroundSetting();
 
 	virtual bool checkFile(const string& filename);
 
@@ -34,11 +37,12 @@ private:
 	OSDConsoleRenderer* console;
 };
 
-class FontSetting : public FilenameSetting
+class FontSetting : public FilenameSettingBase, NON_INHERITABLE(FontSetting)
 {
 public:
-	FontSetting(OSDConsoleRenderer* console, const string settingName,
-				const string& filename);
+	FontSetting(OSDConsoleRenderer* console, const string& settingName,
+	            const string& filename);
+	virtual ~FontSetting();
 
 	virtual bool checkFile(const string& filename);
 

@@ -77,6 +77,8 @@ private:
 	BooleanSetting consoleSetting;
 	unsigned int maxHistory;
 	string editLine;
+	string commandBuffer;
+	string prompt;
 	/** Are double commands allowed? */
 	bool removeDoubles;
 	CircularBuffer<string, LINESHISTORY> lines;

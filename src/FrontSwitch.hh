@@ -8,10 +8,15 @@
 
 namespace openmsx {
 
-class FrontSwitch : public BooleanSetting
+class FrontSwitch
 {
-	public:
-		FrontSwitch();
+public:
+	FrontSwitch();
+
+	bool getStatus() const;
+
+private:
+	BooleanSetting setting;
 };
 
 } // namespace openmsx

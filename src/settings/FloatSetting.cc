@@ -2,7 +2,7 @@
 
 #include "FloatSetting.hh"
 #include "CommandException.hh"
-
+#include "SettingsManager.hh"
 #include <sstream>
 #include <iomanip>
 #include <cstdio>
@@ -13,14 +13,20 @@ using std::ostringstream;
 namespace openmsx {
 
 FloatSetting::FloatSetting(
-	const string &name_, const string &description_,
-	float initialValue, float minValue_, float maxValue_)
-	: Setting<float>(name_, description_, initialValue)
+	const string& name, const string& description,
+	float initialValue, float minValue, float maxValue)
+	: Setting<float>(name, description, initialValue)
 {
-	setRange(minValue_, maxValue_);
+	setRange(minValue, maxValue);
+	SettingsManager::instance().registerSetting(*this);
 }
 
-void FloatSetting::setRange(const float minValue, const float maxValue)
+FloatSetting::~FloatSetting()
+{
+	SettingsManager::instance().unregisterSetting(*this);
+}
+
+void FloatSetting::setRange(float minValue, float maxValue)
 {
 	this->minValue = minValue;
 	this->maxValue = maxValue;
@@ -54,6 +60,7 @@ string FloatSetting::getValueString() const
 }
 
 void FloatSetting::setValueString(const string &valueString)
+	throw(CommandException)
 {
 	float newValue;
 	int converted = sscanf(valueString.c_str(), "%f", &newValue);

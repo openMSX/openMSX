@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <list>
+#include "CommandException.hh"
 
 using std::string;
 using std::vector;
@@ -22,21 +23,21 @@ class SettingNode
 public:
 	/** Get the name of this setting.
 	  */
-	const string &getName() const { return name; }
+	const string& getName() const { return name; }
 
 	/** Get a description of this setting that can be presented to the user.
 	  */
-	const string &getDescription() const { return description; }
+	const string& getDescription() const { return description; }
 
 	/** Complete a partly typed setting name or value.
 	  */
-	virtual void tabCompletion(vector<string> &tokens) const = 0;
+	virtual void tabCompletion(vector<string>& tokens) const = 0;
 
 	// TODO: Does it make sense to listen to inner (group) nodes?
 	//       If so, move listener mechanism to this class.
 
 protected:
-	SettingNode(const string &name, const string &description);
+	SettingNode(const string& name, const string& description);
 
 	virtual ~SettingNode();
 
@@ -65,7 +66,8 @@ public:
 	  * @param valueString The new value for this setting, in string format.
 	  * @throw CommandException If the valueString is invalid.
 	  */
-	virtual void setValueString(const string &valueString) = 0;
+	virtual void setValueString(const string& valueString)
+		throw(CommandException) = 0;
 
 	/** Restore the default value.
 	 */
@@ -73,25 +75,25 @@ public:
 	
 	/** Get a string describing the value type to the user.
 	  */
-	const string &getTypeString() const { return type; }
+	const string& getTypeString() const { return type; }
 
 	/** Complete a partly typed value.
 	  * Default implementation does not complete anything,
 	  * subclasses can override this to complete according to their
 	  * specific value type.
 	  */
-	virtual void tabCompletion(vector<string> &tokens) const { }
+	virtual void tabCompletion(vector<string>& tokens) const { }
 
 	/** Subscribes a listener to changes of this setting.
 	  */
-	void addListener(SettingListener *listener);
+	void addListener(SettingListener* listener);
 
 	/** Unsubscribes a listener to changes of this setting.
 	  */
-	void removeListener(SettingListener *listener);
+	void removeListener(SettingListener* listener);
 
 protected:
-	SettingLeafNode(const string &name, const string &description);
+	SettingLeafNode(const string& name, const string& description);
 
 	virtual ~SettingLeafNode();
 
@@ -105,7 +107,7 @@ protected:
 	string type;
 
 private:
-	list<SettingListener *> listeners;
+	list<SettingListener*> listeners;
 };
 
 } // namespace openmsx

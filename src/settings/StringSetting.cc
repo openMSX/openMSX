@@ -1,25 +1,43 @@
 // $Id$
 
 #include "StringSetting.hh"
-
+#include "SettingsManager.hh"
 
 namespace openmsx {
 
-StringSetting::StringSetting(
-	const string &name_, const string &description_,
-	const string &initialValue)
-	: Setting<string>(name_, description_, initialValue)
+// class StringSettingBase
+
+StringSettingBase::StringSettingBase(
+	const string& name, const string& description,
+        const string& initialValue)
+	: Setting<string>(name, description, initialValue)
 {
 }
 
-string StringSetting::getValueString() const
+string StringSettingBase::getValueString() const
 {
 	return getValue();
 }
 
-void StringSetting::setValueString(const string &newValue)
+void StringSettingBase::setValueString(const string& newValue)
+	throw(CommandException)
 {
 	setValue(newValue);
+}
+
+
+// class StringSetting
+
+StringSetting::StringSetting(const string& name, const string& description,
+                             const string& initialValue)
+	: StringSettingBase(name, description, initialValue)
+{
+	SettingsManager::instance().registerSetting(*this);
+}
+
+StringSetting::~StringSetting()
+{
+	SettingsManager::instance().unregisterSetting(*this);
 }
 
 } // namespace openmsx

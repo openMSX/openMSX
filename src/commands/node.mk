@@ -4,7 +4,8 @@ SRC_HDR:= \
 	CommandException \
 	CommandController \
 	InfoCommand \
-	AliasCommands
+	AliasCommands \
+	TCLInterp
 
 HDR_ONLY:= \
 	Command \

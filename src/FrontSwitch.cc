@@ -2,14 +2,18 @@
 
 #include "FrontSwitch.hh"
 
-
 namespace openmsx {
 
 FrontSwitch::FrontSwitch()
-	: BooleanSetting("frontswitch",
-	                 "This setting controls the front switch",
-	                 false)
+	: setting("frontswitch",
+	          "This setting controls the front switch",
+	          false)
 {
+}
+
+bool FrontSwitch::getStatus() const
+{
+	return setting.getValue();
 }
 
 } // namespace openmsx

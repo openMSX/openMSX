@@ -69,8 +69,11 @@ class FrameSkipSetting : public Setting<FrameSkip>
 {
 public:
 	FrameSkipSetting();
-	string getValueString() const;
-	void setValueString(const string& valueString);
+	virtual ~FrameSkipSetting();
+
+	virtual string getValueString() const;
+	virtual void setValueString(const string& valueString)
+		throw(CommandException);
 	void setValue(const FrameSkip& newValue);
 };
 

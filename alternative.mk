@@ -305,6 +305,8 @@ INCLUDE_INTERNAL:=$(filter-out %/CVS,$(shell find $(SOURCES_PATH) -type d))
 INCLUDE_FLAGS:=-I$(dir $(CONFIG_HEADER))
 INCLUDE_FLAGS+=$(addprefix -I,$(INCLUDE_INTERNAL))
 INCLUDE_FLAGS+=$(foreach lib,$(LIBS_CONFIG),$(shell $(lib)-config --cflags))
+#hack
+INCLUDE_FLAGS+=-I/usr/include/tcl8.4
 
 # Determine link flags.
 LINK_FLAGS_PREFIX:=-Wl,

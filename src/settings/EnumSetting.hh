@@ -9,6 +9,8 @@
 #include <cassert>
 #include "Setting.hh"
 #include "CommandController.hh"
+#include "NonInheritable.hh"
+#include "SettingsManager.hh"
 
 using std::map;
 using std::set;
@@ -21,7 +23,7 @@ namespace openmsx {
   * an integer.
   */
 template <typename ValueType>
-class EnumSetting : public Setting<ValueType>
+class EnumSettingBase : public Setting<ValueType>
 {
 public:
 	struct caseltstr {
@@ -31,20 +33,22 @@ public:
 	};
 
 	typedef map<string, ValueType, caseltstr> Map;
-	
-	EnumSetting(const string& name, const string& description,
-		    const ValueType& initialValue,
-		    const Map& map_);
-	EnumSetting(const string& name, const string& description,
-		    const ValueType& initialValue,
-		    const ValueType& defaultValue,
-		    const Map& map_);
-	
+
 	// Implementation of Setting interface:
 	virtual string getValueString() const;
-	virtual void setValueString(const string& valueString);
+	virtual void setValueString(const string& valueString)
+		throw(CommandException);
 	virtual void tabCompletion(vector<string>& tokens) const;
 	void getPossibleValues(set<string>& result) const;
+
+protected:
+	EnumSettingBase(const string& name, const string& description,
+	                const ValueType& initialValue,
+	                const Map& map_);
+	EnumSettingBase(const string& name, const string& description,
+	                const ValueType& initialValue,
+	                const ValueType& defaultValue,
+	                const Map& map_);
 
 private:
 	string getSummary() const;
@@ -53,8 +57,29 @@ private:
 };
 
 
+template <typename ValueType>
+class EnumSetting : public EnumSettingBase<ValueType>,
+                    NON_INHERITABLE(EnumSetting<ValueType>)
+{
+public:
+	typedef typename EnumSettingBase<ValueType>::Map Map;
+
+	EnumSetting(const string& name, const string& description,
+		    const ValueType& initialValue,
+		    const Map& map_);
+	EnumSetting(const string& name, const string& description,
+		    const ValueType& initialValue,
+		    const ValueType& defaultValue,
+		    const Map& map_);
+	virtual ~EnumSetting();
+};
+
+
+
+// class EnumSetting
+
 template<typename ValueType>
-EnumSetting<ValueType>::EnumSetting(
+EnumSettingBase<ValueType>::EnumSettingBase(
 	const string& name,
 	const string& description,
 	const ValueType& initialValue,
@@ -67,7 +92,7 @@ EnumSetting<ValueType>::EnumSetting(
 }
 
 template<typename ValueType>
-EnumSetting<ValueType>::EnumSetting(
+EnumSettingBase<ValueType>::EnumSettingBase(
 	const string& name,
 	const string& description,
 	const ValueType& initialValue,
@@ -81,7 +106,7 @@ EnumSetting<ValueType>::EnumSetting(
 }
 
 template<typename ValueType>
-string EnumSetting<ValueType>::getValueString() const
+string EnumSettingBase<ValueType>::getValueString() const
 {
 	for (typename Map::const_iterator it = enumMap.begin();
 	     it != enumMap.end() ; ++it) {
@@ -94,7 +119,8 @@ string EnumSetting<ValueType>::getValueString() const
 }
 
 template<typename ValueType>
-void EnumSetting<ValueType>::setValueString(const string& valueString)
+void EnumSettingBase<ValueType>::setValueString(const string& valueString)
+	throw(CommandException)
 {
 	typename Map::const_iterator it = enumMap.find(valueString);
 	if (it == enumMap.end()) {
@@ -105,7 +131,7 @@ void EnumSetting<ValueType>::setValueString(const string& valueString)
 }
 
 template<typename ValueType>
-void EnumSetting<ValueType>::tabCompletion(vector<string>& tokens) const
+void EnumSettingBase<ValueType>::tabCompletion(vector<string>& tokens) const
 {
 	set<string> stringSet;
 	getPossibleValues(stringSet);
@@ -113,7 +139,7 @@ void EnumSetting<ValueType>::tabCompletion(vector<string>& tokens) const
 }
 
 template<typename ValueType>
-void EnumSetting<ValueType>::getPossibleValues(set<string>& result) const
+void EnumSettingBase<ValueType>::getPossibleValues(set<string>& result) const
 {
 	for (typename Map::const_iterator it = enumMap.begin();
 	     it != enumMap.end(); ++it) {
@@ -122,7 +148,7 @@ void EnumSetting<ValueType>::getPossibleValues(set<string>& result) const
 }
 
 template<typename ValueType>
-string EnumSetting<ValueType>::getSummary() const
+string EnumSettingBase<ValueType>::getSummary() const
 {
 	ostringstream out;
 	typename Map::const_iterator it = enumMap.begin();
@@ -131,6 +157,35 @@ string EnumSetting<ValueType>::getSummary() const
 		out << ", " << it->first;
 	}
 	return out.str();
+}
+
+
+// class EnumSetting
+
+template<typename ValueType>
+EnumSetting<ValueType>::EnumSetting(
+	const string& name, const string& description,
+	const ValueType& initialValue, const Map& map_)
+	: EnumSettingBase<ValueType>(name, description, initialValue, map_)
+{
+	SettingsManager::instance().registerSetting(*this);
+}
+
+template<typename ValueType>
+EnumSetting<ValueType>::EnumSetting(
+	const string& name, const string& description,
+	const ValueType& initialValue, const ValueType& defaultValue,
+	const Map& map_)
+	: EnumSettingBase<ValueType>(
+		name, description, initialValue, defaultValue, map_)
+{
+	SettingsManager::instance().registerSetting(*this);
+}
+
+template<typename ValueType>
+EnumSetting<ValueType>::~EnumSetting()
+{
+	SettingsManager::instance().unregisterSetting(*this);
 }
 
 } // namespace openmsx

@@ -15,12 +15,18 @@ namespace openmsx {
 // class BackgroundSetting
 
 BackgroundSetting::BackgroundSetting(
-	OSDConsoleRenderer* console_, const string settingName,
+	OSDConsoleRenderer* console_, const string& settingName,
 	const string& filename
-)	: FilenameSetting(settingName, "console background file", "")
+)	: FilenameSettingBase(settingName, "console background file", "")
 	, console(console_)
 {
 	setValueString(filename);
+	SettingsManager::instance().registerSetting(*this);
+}
+
+BackgroundSetting::~BackgroundSetting()
+{
+	SettingsManager::instance().unregisterSetting(*this);
 }
 
 bool BackgroundSetting::checkFile(const string& filename)
@@ -36,12 +42,18 @@ bool BackgroundSetting::checkFile(const string& filename)
 // class FontSetting
 
 FontSetting::FontSetting(
-	OSDConsoleRenderer* console_, const string settingName,
+	OSDConsoleRenderer* console_, const string& settingName,
 	const string& filename
-)	: FilenameSetting(settingName, "console font file", "")
+)	: FilenameSettingBase(settingName, "console font file", "")
 	, console(console_)
 {
 	setValueString(filename);
+	SettingsManager::instance().registerSetting(*this);
+}
+
+FontSetting::~FontSetting()
+{
+	SettingsManager::instance().unregisterSetting(*this);
 }
 
 bool FontSetting::checkFile(const string& filename)

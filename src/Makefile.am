@@ -88,7 +88,8 @@ openmsx_SOURCES=\
 	PluggableFactory.hh PluggableFactory.cc \
 	DebugDevice.hh DebugDevice.cc \
 	RenShaTurbo.hh RenShaTurbo.cc \
-	Autofire.hh Autofire.cc
+	Autofire.hh Autofire.cc \
+	NonInheritable.hh
 
 # When editing this list, make sure the following sequences are maintained:
 #   memory < cassette
@@ -118,7 +119,8 @@ openmsx_LDADD = \
 	settings/libSettings.la \
 	thread/libThread.la \
 	@XML_LIBS@ \
-	-lSDL_image @SDL_LIBS@
+	-lSDL_image @SDL_LIBS@ \
+	-ltcl8.4
 
 #cfgtest_SOURCES = MSXConfig.hh MSXConfig.cc \
 #	cfgtest.cc EmuTime.hh \

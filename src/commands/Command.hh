@@ -11,10 +11,23 @@
 using std::string;
 using std::vector;
 
-
 namespace openmsx {
 
-class Command
+class CommandCompleter
+{
+public:
+	virtual ~CommandCompleter() {}
+
+	/** Attempt tab completion for this command.
+	  * @param tokens Tokenized command line;
+	  * 	tokens[0] is the command itself.
+	  * 	The last token is incomplete, this method tries to complete it.
+	  */
+	virtual void tabCompletion(vector<string>& tokens) const throw() = 0;
+};
+
+
+class Command : public CommandCompleter
 {
 public:
 	virtual ~Command() {}
