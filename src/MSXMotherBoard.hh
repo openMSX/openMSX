@@ -75,19 +75,6 @@ class MSXMotherBoard : public CPUInterface
 
 		}; // end of IRQHelper
 
-		class ResetCmd : public ConsoleCommand {
-			virtual void execute(char *commandLine);
-			virtual void help(char *commandLine);
-		};
-		class SlotMapCmd : public ConsoleCommand {
-			virtual void execute(char *commandLine);
-			virtual void help(char *commandLine);
-		};
-		class SlotSelectCmd : public ConsoleCommand {
-			virtual void execute(char *commandLine);
-			virtual void help(char *commandLine);
-		};
-	
 		/**
 		 * Destructor
 		 */
@@ -241,6 +228,19 @@ class MSXMotherBoard : public CPUInterface
 		void setPrimarySlots(byte value);
 
 	private:
+		class ResetCmd : public ConsoleCommand {
+			virtual void execute(char *commandLine);
+			virtual void help(char *commandLine);
+		};
+		class SlotMapCmd : public ConsoleCommand {
+			virtual void execute(char *commandLine);
+			virtual void help(char *commandLine);
+		};
+		class SlotSelectCmd : public ConsoleCommand {
+			virtual void execute(char *commandLine);
+			virtual void help(char *commandLine);
+		};
+
 		MSXMotherBoard();
 
 		// ConsoleCommands
