@@ -1,5 +1,11 @@
 $Id$
 
+2001-12-25 Joost Yervante Damad <j.damad@qahwah.net>
+	* added --enable-profile and --enable-release to ./configure
+	* added "debug" and "nodebug" targets to Makefile in src dir [toggle]
+	  usage: "make debug" turns on debug for this and next makes
+	         "make nodebug" turns it of again
+
 2001-12-24 Maarten ter Huurne <mth@stack.nl>
 	* Added "unsigned" to uint64 definition in Scheduler.
 	  Before, Scheduler::INFINITY was -1.

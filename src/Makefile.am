@@ -1,6 +1,20 @@
 # $Id$
 
-# on 22/8/2001 added the DLSB_FIRST to correct wrong Z80 compile
+# we want most warnings
+
+AM_CXXFLAGS_BASE = -Wall -fno-rtti -pipe `test -f .debug && echo "-DDEBUG"`
+if PROFILE
+AM_CXXFLAGS = $(AM_CXXFLAGS_BASE) -pg
+else
+if RELEASE
+AM_CXXFLAGS = $(AM_CXXFLAGS_BASE)
+else
+AM_CXXFLAGS = $(AM_CXXFLAGS_BASE) -g3
+endif
+endif
+
+# or perhaps sometimes even more:
+# AM_CXXFLAGS = -Wall -W -DDEBUG -g3 -pipe
 
 SUBDIRS = cfg
 
@@ -72,9 +86,12 @@ openmsx_SOURCES=openmsx.cc \
 #I have a gcc-3.0 compatable libxml++ in /usr/local:
 #openmsx_LDADD= /usr/local/lib/libxml++.la -lSDL -lpthread
 
-# we want most warnings
-AM_CXXFLAGS = -Wall -DDEBUG -g3 -pipe
-# or perhaps sometimes even more:
-# AM_CXXFLAGS = -Wall -W -DDEBUG -g3 -pipe
-
 MAINTAINERCLEANFILES = Makefile.in config.h.in stamp-h.in
+
+nodebug: resetdebug all
+debug: setdebug all
+
+resetdebug:
+	@-rm -f .debug
+setdebug:
+	@touch .debug
