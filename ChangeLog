@@ -2,6 +2,7 @@ $Id$
 
 2003-12-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* implemented "debug break"
+	* added a hack to make the "boring scroll" demo part of "Relax" work
 
 2003-12-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* remove VDP sync points on reset

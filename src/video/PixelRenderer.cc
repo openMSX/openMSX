@@ -1,5 +1,6 @@
 // $Id$
 
+#include <algorithm>
 #include <sstream>
 #include <cassert>
 #include "PixelRenderer.hh"
@@ -7,6 +8,8 @@
 #include "VDPVRAM.hh"
 #include "SpriteChecker.hh"
 #include "RealTime.hh"
+
+using std::max;
 
 namespace openmsx {
 
@@ -25,11 +28,24 @@ inline void PixelRenderer::draw(
 	case DRAW_DISPLAY:
 	case DRAW_SPRITES: {
 		// Calculate display coordinates.
+		int zero = vdp->getLineZero();
 		int displayX = (startX - vdp->getLeftSprites()) / 2;
-		int displayY = startY - vdp->getLineZero();
+		int displayY = startY - zero;
 		if (!vdp->getDisplayMode().isTextMode()) {
 			displayY += vdp->getVerticalScroll();
+		} else {
+			// this is not what the real VDP does, but it is good
+			// enough for "Boring scroll" demo part of "Relax"
+			if (displayY <= 0) {
+				textModeCounter = 0;
+			} else {
+				displayY = (displayY & 7) | (textModeCounter * 8);
+			}
+			int low  = max(0, (startY - zero)) / 8;
+			int high = max(0, (endY   - zero)) / 8;
+			textModeCounter += (high - low);
 		}
+		
 		displayY &= 255; // Page wrap.
 		int displayWidth = (endX - (startX & ~1)) / 2;
 		int displayHeight = endY - startY;

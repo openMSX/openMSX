@@ -208,6 +208,9 @@ private:
 	float frameSkipLongAvg;
 	int frameSkipDelay;
 	CircularBuffer<float, 100> buffer;
+
+	// internal VDP counter, actually belongs in VDP
+	int textModeCounter;
 };
 
 } // namespace openmsx
