@@ -317,11 +317,10 @@ public:
 	}
 
 	/** Gets the sprite magnification.
-	  * @return Magnification: 0 = normal, 1 = double.
-	  * TODO: Returning 1 and 2 may be more logical.
+	  * @return Magnification: 1 = normal, 2 = double.
 	  */
 	inline int getSpriteMag() {
-		return controlRegs[1] & 1;
+		return (controlRegs[1] & 1) + 1;
 	}
 
 	/** Are sprites enabled?
