@@ -371,8 +371,7 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 		}
 		break;
 		
-	case XANADU:
-	case ROYAL_BLOOD:
+	case ASCII8_8:
 		//--==**>> ASCII 8kB cartridges with 8kB SRAM<<**==--
 		// this type is used in Xanadu and Royal Blood
 		//
@@ -382,15 +381,13 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 		//  bank 3: 0x7000 - 0x77ff (0x7000 used)
 		//  bank 4: 0x7800 - 0x7fff (0x7800 used)
 		//
-		//  To select SRAM set bit 5/7 of the bank.
+		//  To select SRAM set bit 5/6/7 (depends on size) of the bank.
 		//  The SRAM can only be written to if selected in bank 3 or 4.
 
 		if (0x6000<=address && address<0x8000) {
 			byte region = ((address>>11) & 3) + 2;
-			byte SRAMEnableBit = (mapperType == XANADU) ? 0x20 : 0x80; 
+			byte SRAMEnableBit = romSize / 8192;
 			if (value & SRAMEnableBit) {
-				//bit 7 for Royal Blood
-				//bit 5 for Xanadu
 				setBank8kB(region, memorySRAM);
 				regioSRAM |=  (1 << region);
 			} else {

@@ -19,10 +19,9 @@ enum MapperType {
 	PLAIN        = 15,
 
 	HAS_SRAM     = 16,
-	XANADU       = 16,
-	ROYAL_BLOOD  = 17,
-	HYDLIDE2     = 18,
-	GAME_MASTER2 = 19,
+	ASCII8_8     = 16,
+	HYDLIDE2     = 17,
+	GAME_MASTER2 = 18,
 
 	HAS_DAC      = 32,
 	MAJUTSUSHI   = 32,

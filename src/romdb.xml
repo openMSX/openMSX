@@ -6,12 +6,6 @@
 <!-- THE ORIGINAL DB -->
 <!-- SOME ARE COMMENTED OUT TO PREVENT DOUBLES LATER ON -->
 
-<!--
-  <rom id="Game Master 2">
-    <md5>1fecd63cf4967dd6d2d4f6901d8d210b</md5>
-    <romtype>GAMEMASTER2</romtype>
-  </rom>
--->
   <rom id="Bubbler">
     <md5>3c4113a49c1cbcefc0a73655f807691a</md5>
     <romtype>KONAMI5</romtype>
@@ -21,10 +15,6 @@
     <romtype>PLAIN</romtype>
   </rom>
 <!--
-  <rom id="Konami's Synthesizer">
-    <md5>458365aa94bedcef0718207c7ecbcf85</md5>
-    <romtype>SYNTHESIZER</romtype>
-  </rom>
   <rom id="Konami Majutsushi">
     <md5>157948f839762dc9922e4011bb4dc9e6</md5>
     <romtype>MAJUTSUSHI</romtype>
@@ -34,20 +24,6 @@
     <md5>4ad6b44220390d76e8565be2abcdadda</md5>
     <romtype>HYDLIDE2</romtype>
   </rom>
-  <rom id="Xanadu (crack/modified?)">
-    <md5>03e7119173912f9444cb96ed58ba4957</md5>
-    <romtype>XANADU</romtype>
-  </rom>
-<!--
-  <rom id="Royal Blood">
-    <md5>6a1571a643e6c34837535a3240f85ef2</md5>
-    <romtype>ROYALBLOOD</romtype>
-  </rom>
-  <rom id="Rastan Saga">
-    <md5>114264bbcd0fdfa7bd083a983606a200</md5>
-    <romtype>ASCII8</romtype>
-  </rom>
--->
   <rom id="War of the Dead (crack/modified)">
     <md5>ae08cb529c454ee7477ac61662e02858</md5>
     <md5>41f4c112671b666220137f721e1460aa</md5>
@@ -69,12 +45,6 @@
     <md5>62be2cd42b3db21e68df4c6a529188ed</md5>
     <romtype>16kB</romtype>
   </rom>
-<!--
-   <rom id="Strategic Mars">
-    <md5>0f235700eecb79b0e5a517118d48112c</md5>
-    <romtype>ASCII16</romtype>
-  </rom>
--->
 
 <!-- THE NEW PART CONVERTED FROM JIROU KANEDA'S DB, MSX1 PART -->
 
@@ -5778,11 +5748,7 @@
     <remark></remark>
   </rom>
   <rom id="Royal Blood">
-<!--    <romtype>ASCII8-8</romtype> 
-    This should be changed back as soon as a generic ASCII8-8 type 
-    is implemented 
--->
-    <romtype>ROYALBLOOD</romtype> 
+    <romtype>ASCII8-8</romtype> 
     <md5>6a1571a643e6c34837535a3240f85ef2</md5>
     <crc32>fb9e42e1</crc32>
     <year>1991</year>

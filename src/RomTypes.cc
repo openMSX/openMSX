@@ -51,15 +51,9 @@ MapperType RomTypes::nameToMapperType(const std::string &name)
 		// SRAM
 		mappertype["HYDLIDE2"]    = HYDLIDE2;
 
-		mappertype["XANADU"]      = XANADU;
-		/* The following is probably wrong, but most games seem to work
-		 * when this is enabled. (FIXME)
-		 * TODO: proper support for ASCII 8kB with a certain
-		 * amount of SRAM (8 - 32kB)
-		 */
-		mappertype["ASCII8-8"]    = XANADU; 
-
-		mappertype["ROYALBLOOD"]  = ROYAL_BLOOD;
+		// TODO: proper support for ASCII 8kB with a certain
+		// amount of SRAM (8 - 32kB)
+		mappertype["ASCII8-8"]    = ASCII8_8; 
 
 		mappertype["GAMEMASTER2"] = GAME_MASTER2;
 		mappertype["RC755"]       = GAME_MASTER2;

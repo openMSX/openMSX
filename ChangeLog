@@ -2,6 +2,7 @@ $Id$
 
 2002-09-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Read/Write memory cache for SCC+
+	* Unified Xanadu and Royal Blood mapper types
 
 2002-09-28 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* SCC+ didn't work at all, fixed it.
