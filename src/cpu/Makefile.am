@@ -26,7 +26,7 @@ libCPU_la_SOURCES = \
 	CPU.hh CPU.cc \
 	CPUCore.n1 CPUCore.n2 CPUTables.nn \
 	Z80.cc Z80.hh Z80Tables.nn  \
-	Dasm.cc Dasm.hh DasmTables.hh \
+	Dasm.cc Dasm.hh DasmTables.hh DasmTables.cc \
 	R800.cc R800.hh R800Tables.nn \
 	MSXCPU.hh MSXCPU.cc \
 	MSXCPUInterface.hh MSXCPUInterface.cc \
