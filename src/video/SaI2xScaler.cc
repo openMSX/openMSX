@@ -18,7 +18,6 @@ namespace openmsx {
 // Modified for use in openMSX by Maarten ter Huurne.
 
 // Force template instantiation.
-template class SaI2xScaler<byte>;
 template class SaI2xScaler<word>;
 template class SaI2xScaler<unsigned int>;
 

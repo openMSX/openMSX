@@ -10,7 +10,6 @@
 namespace openmsx {
 
 // Force template instantiation.
-template class SimpleScaler<byte>;
 template class SimpleScaler<word>;
 template class SimpleScaler<unsigned int>;
 
@@ -100,15 +99,6 @@ public:
 	}
 };
 
-void SimpleScaler<byte>::scaleBlank(
-	byte colour,
-	SDL_Surface* dst, int dstY, int endDstY
-) {
-	// Note: Scanline algorithm does not work on palette modes (8bpp).
-	//       (100% should be possible though).
-	Scaler<byte>::scaleBlank(colour, dst, dstY, endDstY);
-}
-
 template <class Pixel>
 void SimpleScaler<Pixel>::scaleBlank(
 	Pixel colour,
@@ -172,15 +162,6 @@ void SimpleScaler<Pixel>::scanLineScale256(
 	}
 }
 
-void SimpleScaler<byte>::scale256(
-	SDL_Surface* src, int srcY, int endSrcY,
-	SDL_Surface* dst, int dstY )
-{
-	// Note: Scanline algorithm does not work on palette modes (8bpp).
-	//       (100% should be possible though).
-	Scaler<byte>::scale256(src, srcY, endSrcY, dst, dstY);
-}
-
 template <class Pixel>
 void SimpleScaler<Pixel>::scale256(
 	SDL_Surface* src, int srcY, int endSrcY,
@@ -237,15 +218,6 @@ void SimpleScaler<Pixel>::scanLineScale512(
 		}
 		srcY++;
 	}
-}
-
-void SimpleScaler<byte>::scale512(
-	SDL_Surface* src, int srcY, int endSrcY,
-	SDL_Surface* dst, int dstY )
-{
-	// Note: Scanline algorithm does not work on palette modes (8bpp).
-	//       (100% should be possible though).
-	Scaler<byte>::scale512(src, srcY, endSrcY, dst, dstY);
 }
 
 template <class Pixel>

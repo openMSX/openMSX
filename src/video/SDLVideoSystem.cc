@@ -38,15 +38,6 @@ SDLVideoSystem::SDLVideoSystem(
 	Rasterizer* rasterizer;
 	Layer* background;
 	switch (screen->format->BytesPerPixel) {
-	case 1:
-		rasterizer = (id == RendererFactory::SDLLO)
-			? static_cast<Rasterizer*>(
-				new SDLRasterizer<Uint8, Renderer::ZOOM_256>(vdp, screen) )
-			: static_cast<Rasterizer*>(
-				new SDLRasterizer<Uint8, Renderer::ZOOM_REAL>(vdp, screen) )
-			;
-		background = new SDLSnow<Uint8>(screen);
-		break;
 	case 2:
 		rasterizer = (id == RendererFactory::SDLLO)
 			? static_cast<Rasterizer*>(

@@ -65,14 +65,13 @@ SDL_Surface* openSDLVideo(int width, int height, int flags)
 	SDL_Surface* screen = SDL_SetVideoMode(width, height, 0, flags);
 	// Can we handle this bbp?
 	int bytepp = (screen ? screen->format->BytesPerPixel : 0);
-	if (bytepp != 1 && bytepp != 2 && bytepp != 4) {
+	if (bytepp != 2 && bytepp != 4) {
 		screen = NULL;
 	}
 	// Try supported bpp in order of preference.
 	if (!screen) screen = SDL_SetVideoMode(width, height, 15, flags);
 	if (!screen) screen = SDL_SetVideoMode(width, height, 16, flags);
 	if (!screen) screen = SDL_SetVideoMode(width, height, 32, flags);
-	if (!screen) screen = SDL_SetVideoMode(width, height, 8, flags);
 
 	if (!screen) {
 		SDL_QuitSubSystem(SDL_INIT_VIDEO);

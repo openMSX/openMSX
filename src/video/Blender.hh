@@ -61,14 +61,9 @@ public:
 	/** Blend the given colours into a single colour.
 	  */
 	Pixel blend(Pixel colour1, Pixel colour2) {
-		if (sizeof(Pixel) == 1) {
-			// No blending in palette mode.
-			return colour1;
-		} else {
-			return
-				((colour1 & ~blendMask) >> 1) + ((colour2 & ~blendMask) >> 1)
-				+ (colour1 & blendMask);
-		}
+		return
+			((colour1 & ~blendMask) >> 1) + ((colour2 & ~blendMask) >> 1)
+			+ (colour1 & blendMask);
 	}
 
 };

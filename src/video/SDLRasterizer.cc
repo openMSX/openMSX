@@ -18,9 +18,7 @@ using std::min;
 
 namespace openmsx {
 
-// Force template instantiation:
-template class SDLRasterizer<Uint8, Renderer::ZOOM_256>;
-template class SDLRasterizer<Uint8, Renderer::ZOOM_REAL>;
+// Force template instantiation.
 template class SDLRasterizer<Uint16, Renderer::ZOOM_256>;
 template class SDLRasterizer<Uint16, Renderer::ZOOM_REAL>;
 template class SDLRasterizer<Uint32, Renderer::ZOOM_256>;

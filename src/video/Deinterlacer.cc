@@ -15,7 +15,6 @@ inline static Pixel* linePtr(SDL_Surface* surface, int y)
 }
 
 // Force template instantiation.
-template class Deinterlacer<byte>;
 template class Deinterlacer<word>;
 template class Deinterlacer<unsigned int>;
 

@@ -11,7 +11,6 @@
 namespace openmsx {
 
 // Force template instantiation.
-template class Scaler<byte>;
 template class Scaler<word>;
 template class Scaler<unsigned int>;
 
@@ -27,11 +26,7 @@ auto_ptr<Scaler<Pixel> > Scaler<Pixel>::createScaler(
 	case SCALER_SCALE2X:
 		return auto_ptr<Scaler<Pixel> >(new Scale2xScaler<Pixel>());
 	case SCALER_HQ2X:
-		return auto_ptr<Scaler<Pixel> >(
-			  sizeof(Pixel) == 1
-			? static_cast<Scaler<Pixel>*>(new SimpleScaler<Pixel>())
-			: static_cast<Scaler<Pixel>*>(new HQ2xScaler<Pixel>())
-			);
+		return auto_ptr<Scaler<Pixel> >(new HQ2xScaler<Pixel>());
 	default:
 		assert(false);
 		return auto_ptr<Scaler<Pixel> >();

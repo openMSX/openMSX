@@ -5,8 +5,7 @@
 
 namespace openmsx {
 
-// Force template instantiation:
-template class SDLSnow<Uint8>;
+// Force template instantiation.
 template class SDLSnow<Uint16>;
 template class SDLSnow<Uint32>;
 

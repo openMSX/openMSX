@@ -24,7 +24,6 @@ using std::min;
 namespace openmsx {
 
 // Force template instantiation.
-template class Scale2xScaler<byte>;
 template class Scale2xScaler<word>;
 template class Scale2xScaler<unsigned int>;
 

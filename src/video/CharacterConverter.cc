@@ -40,10 +40,7 @@ TODO:
 
 namespace openmsx {
 
-// Force template instantiation for these types.
-// Without this, object file contains no method implementations.
-template class CharacterConverter<byte, Renderer::ZOOM_256>;
-template class CharacterConverter<byte, Renderer::ZOOM_REAL>;
+// Force template instantiation.
 template class CharacterConverter<word, Renderer::ZOOM_256>;
 template class CharacterConverter<word, Renderer::ZOOM_REAL>;
 template class CharacterConverter<unsigned int, Renderer::ZOOM_256>;

@@ -1,5 +1,8 @@
 $Id$
 
+2004-07-25 Maarten ter Huurne <maarten@treewalker.org>
+	* Removed support for 8bpp. It never worked anyway.
+
 2004-07-24 Maarten ter Huurne <maarten@treewalker.org>
 	* Split SDLRasterizer off from SDLRenderer:
 	  - SDLRenderer deals with EmuTime, is colour depth and zoom independent
