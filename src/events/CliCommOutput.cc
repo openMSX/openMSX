@@ -35,71 +35,46 @@ CliCommOutput::~CliCommOutput()
 
 void CliCommOutput::log(LogLevel level, const string& message)
 {
+	const char* levelStr[2] = {
+		"info",
+		"warning"
+	};
+	
 	if (xmlOutput) {
-		switch (level) {
-		case INFO:
-			cout << "<info>" << message << "</info>" << endl;
-			break;
-		case WARNING:
-			cout << "<warning>" << message << "</warning>" << endl;
-			break;
-		default:
-			assert(false);
-		}
+		cout << "<log level=\"" << levelStr[level] << "\">"
+		     << message
+		     << "</log>" << endl;
 	} else {
-		switch (level) {
-		case INFO:
-			cout << message << endl;
-			break;
-		case WARNING:
-			cout << "Warning: " << message << endl;
-			break;
-		default:
-			assert(false);
-		}
+		cout << levelStr[level] << ": " << message << endl;
 	}
 }
 
 void CliCommOutput::reply(ReplyStatus status, const string& message)
 {
-	assert(xmlOutput);
-	switch (status) {
-	case OK:
-		cout << "<ok>" << message << "</ok>" << endl;
-		break;
-	case NOK:
-		cout << "<nok>" << message << "</nok>" << endl;
-		break;
-	default:
-		assert(false);
-	}
+	const char* replyStr[2] = {
+		"ok",
+		"nok"
+	};
 
+	assert(xmlOutput);
+	cout << "<reply result=\"" << replyStr[status] << "\">"
+	     << message
+	     << "</reply>" << endl;
 }
 
-void CliCommOutput::update(UpdateType type, const string& message)
+void CliCommOutput::update(UpdateType type, const string& name, const string& value)
 {
+	const char* updateStr[1] = {
+		"led"
+	};
+
 	if (xmlOutput) {
-		switch (type) {
-		case LED:
-			cout << "<update>" << message << "</update>" << endl;
-			break;
-		case BREAK:
-			cout << "<update>Break at " << message << "</update>" << endl;
-			break;
-		default:
-			assert(false);
-		}
+		cout << "<update type=\"" << updateStr[type] << "\" "
+		                "name=\"" << name << "\">"
+		     << value
+		     << "</update>" << endl;
 	} else {
-		switch (type) {
-		case LED:
-			cout << message << endl;
-			break;
-		case BREAK:
-			cout << "Break at " << message << endl;
-			break;
-		default:
-			assert(false);
-		}
+		cout << updateStr[type] << ": " << name << " = " << value << endl;
 	}
 }
 

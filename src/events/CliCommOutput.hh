@@ -22,7 +22,6 @@ public:
 	};
 	enum UpdateType {
 		LED,
-		BREAK
 	};
 	
 	static CliCommOutput& instance();
@@ -30,7 +29,7 @@ public:
 	
 	void log(LogLevel level, const string& message);
 	void reply(ReplyStatus status, const string& message);
-	void update(UpdateType type, const string& message);
+	void update(UpdateType type, const string& name, const string& value);
 
 	// convient methods
 	void printInfo(const string& message) {

@@ -163,9 +163,11 @@ void CPU::doBreak2()
 	breaked = true;
 
 	scheduler->increasePauseCounter();
-	ostringstream os;
-	os << "0x" << hex << (int)R.PC.w;
-	CliCommOutput::instance().update(CliCommOutput::BREAK, os.str());
+	
+	// TODO
+	//ostringstream os;
+	//os << "0x" << hex << (int)R.PC.w;
+	//CliCommOutput::instance().update(CliCommOutput::BREAK, os.str());
 }
 
 void CPU::doStep()
