@@ -301,7 +301,7 @@ INCLUDE_EXTERNAL:= # TODO: Define these here or platform-*.mk?
 INCLUDE_EXTERNAL+=/usr/X11R6/include
 LIB_FLAGS:=$(addprefix -I,$(INCLUDE_EXTERNAL))
 LIB_FLAGS+=$(foreach lib,$(LIBS_CONFIG),$(shell $(lib)-config --cflags))
-LIB_FLAGS+=$(TCL_CXXFLAGS)
+LIB_FLAGS+=$(TCL_CFLAGS)
 COMPILE_FLAGS:=$(addprefix -I,$(INCLUDE_INTERNAL)) $(LIB_FLAGS)
 
 # Determine link flags.

@@ -79,6 +79,7 @@ SYS_MMAN_HEADER:=<sys/mman.h>
 SYS_SOCKET_HEADER:=<sys/socket.h>
 
 TCL_HEADER:=<tcl.h>
+TCL_CFLAGS:=$(TCL_CFLAGS)
 
 XML_HEADER:=<libxml/parser.h>
 XML_CFLAGS:=`xml2-config --cflags 2>> $(LOG)`
