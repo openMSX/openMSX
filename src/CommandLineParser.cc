@@ -188,7 +188,7 @@ bool CommandLineParser::parseFileName(const string& arg, list<string>& cmdLine)
 void CommandLineParser::parse(int argc, char** argv)
 {
 	parseStatus = RUN;
-	
+
 	list<string> cmdLine;
 	list<string> backupCmdLine;
 	for (int i = 1; i < argc; i++) {
@@ -217,7 +217,7 @@ void CommandLineParser::parse(int argc, char** argv)
 			break;
 		case 5: {
 			createMachineSetting();
-	
+
 			if (!issuedHelp && !haveConfig) {
 				// load default config file in case the user didn't specify one
 				const string& machine = machineSetting->getValueString();
@@ -296,15 +296,15 @@ void CommandLineParser::loadMachine(const string& machine)
 }
 
 static int select(const string& basepath, const struct dirent* d)
-{ 
+{
 	// entry must be a directory and must contain the file "hardwareconfig.xml"
 	string name = basepath + '/' + d->d_name;
 	return FileOperations::isDirectory(name) &&
 	       FileOperations::isRegularFile(name + "/hardwareconfig.xml");
-} 
+}
 
 static void searchMachines(const string& basepath, EnumSetting<int>::Map& machines)
-{ 
+{
 	static int unique = 1;
 	ReadDir dir(basepath);
 	while (dirent* d = dir.getEntry()) {
@@ -317,16 +317,16 @@ static void searchMachines(const string& basepath, EnumSetting<int>::Map& machin
 void CommandLineParser::createMachineSetting()
 {
 	EnumSetting<int>::Map machines;
-	
+
 	SystemFileContext context;
 	const vector<string>& paths = context.getPaths();
 	for (vector<string>::const_iterator it = paths.begin();
 	     it != paths.end(); ++it) {
 		searchMachines(*it + "machines", machines);
 	}
-	
-	machines["cbios-msx2"] = 0; // default machine
-	
+
+	machines["C-BIOS_MSX2+"] = 0; // default machine
+
 	machineSetting.reset(new EnumSetting<int>("machine",
 		"default machine (takes effect next time openMSX is started)",
 		0, machines));
@@ -362,10 +362,10 @@ bool CommandLineParser::ControlOption::parseOption(const string& option,
 	controlTypeMap["pipe"] = IO_PIPE;
 #endif
 	if (controlTypeMap.find(type_name) == controlTypeMap.end()) {
-		throw FatalError("Unknown control type: '"  + type_name + "'"); 
+		throw FatalError("Unknown control type: '"  + type_name + "'");
 	}
 	type = controlTypeMap[type_name];
-	
+
 	parent.output.enableXMLOutput();
 	parent.parseStatus = CONTROL;
 	return true;
@@ -473,7 +473,7 @@ bool CommandLineParser::HelpOption::parseOption(const string& /*option*/,
 		optionMap[it->second.option->optionHelp()].insert(it->first);
 	}
 	printItemMap(optionMap);
-	
+
 	cout << endl;
 	cout << "  this is the list of supported file types:" << endl;
 
