@@ -476,18 +476,6 @@ void VDPCmdEngine::VDPCmd::commandDone()
 		} \
 	}
 
-// Loop over DX, SY, DY.
-#define post__xyy(MX) \
-		if ((ADX += TX) & MX) { \
-			if (!(--NY) || (SY += TY) == -1 || (DY += TY) == -1) { \
-				finished = true; \
-				break; \
-			} else { \
-				ADX = DX; \
-			} \
-		} \
-	}
-
 // Loop over SX, DX, SY, DY.
 #define post_xxyy(MX) \
 		ASX += TX; ADX += TX; --ANX; \
@@ -1087,13 +1075,23 @@ void VDPCmdEngine::YmmmCmd::start(const EmuTime &time)
 	currentTime = time;
 	vram->cmdReadWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
+	int ppb = PPB[engine->scrMode];
+	SX = engine->DX / ppb;	// !! DX
 	SY = engine->SY;
-	DX = engine->DX;
+	DX = SX;
 	DY = engine->DY;
+	MX = PPL[engine->scrMode] / ppb;
+	NX = 512;	// large enough so that it gets clipped
 	NY = engine->NY ? engine->NY : 1024;
 	TX = (engine->ARG & DIX) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
 	TY = (engine->ARG & DIY) ? -1 : 1;
+	clipNX_SXDX();
+	clipNY_SYDY();
+	SX *= ppb;
+	DX *= ppb;
+	ASX = SX;
 	ADX = DX;
+	ANX = NX;
 }
 
 void VDPCmdEngine::YmmmCmd::execute(const EmuTime &time)
@@ -1110,7 +1108,7 @@ void VDPCmdEngine::YmmmCmd::execute(const EmuTime &time)
 			VDP_VRMP5(ADX, DY),
 			vram->cmdReadWindow.readNP(VDP_VRMP5(ADX, SY)),
 			currentTime);
-		post__xyy(256)
+		post_xxyy(256)
 		break;
 	case 1:
 		pre_loop
@@ -1118,7 +1116,7 @@ void VDPCmdEngine::YmmmCmd::execute(const EmuTime &time)
 			VDP_VRMP6(ADX, DY),
 			vram->cmdReadWindow.readNP(VDP_VRMP6(ADX, SY)),
 			currentTime);
-		post__xyy(512)
+		post_xxyy(512)
 		break;
 	case 2:
 		pre_loop
@@ -1126,7 +1124,7 @@ void VDPCmdEngine::YmmmCmd::execute(const EmuTime &time)
 			VDP_VRMP7(ADX, DY),
 			vram->cmdReadWindow.readNP(VDP_VRMP7(ADX, SY)),
 			currentTime);
-		post__xyy(512)
+		post_xxyy(512)
 		break;
 	case 3:
 		pre_loop
@@ -1134,7 +1132,7 @@ void VDPCmdEngine::YmmmCmd::execute(const EmuTime &time)
 			VDP_VRMP8(ADX, DY),
 			vram->cmdReadWindow.readNP(VDP_VRMP8(ADX, SY)),
 			currentTime);
-		post__xyy(256)
+		post_xxyy(256)
 		break;
 	}
 
