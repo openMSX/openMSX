@@ -1,9 +1,12 @@
 $Id$
 
-2002-11-29 David Heremans <david.heremans@gnu-linux.net>
+2002-12-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* added CRC16 routine, can be used by FDC / FDCBackends
+
+2002-11-30 David Heremans <david.heremans@gnu-linux.net>
 	* Still working towards raw track read
 
-2002-11-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2002-11-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* fixed auto frameskip:
 	   probably still needs some finetuning
 
