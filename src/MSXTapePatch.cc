@@ -68,7 +68,12 @@ void MSXTapePatch::patch() const
 			STMOTR(R);
 			break;
 		default:
-			assert(false);
+			//assert(false);
+			//if this assert is active then
+			//it will be active if this patchcode
+			//is registered as first
+			//patchcodeobject
+			PRT_DEBUG("Tape patch (R.PC.w-2)"<<(R.PC.w-2));
 	}
 }
 void MSXTapePatch::insertTape(std::string filename)

@@ -1,5 +1,12 @@
 $Id$
 
+2002-01-20 David Heremans <david.heremans@gnu-linux.net>
+	* Added DSKFMT-implementationr:.
+	  Formating of a 360kB dsk file doens't work. A 720kB dsk file
+	  can be formated single or double sided.
+	* Autofill of empty,newly generated .dskfiles:
+	  No auto formating however, maybe later.
+
 2002-01-19 Joost Yervante Damad <j.damad@qahwah.net>
 	* openmsx now uses new config code
 	* features:

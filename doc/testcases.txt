@@ -1,0 +1,35 @@
+This file is a small and simple list of programs(mostly games and demo's) and why they make intresting test case for an MSX emulator:
+
+Time Curb:
+Beside that it is a nice test for tape support, the most ineteresting thing is the samples played(Time curb, world war one, world war two, etc...). The program puts the PSG on zero frequency and then uses the volume to alter the output voltage to play samples.
+
+Hydefoss:
+A screensplit that switches between screen 5 and 4
+
+Quinpl:
+Detects v9958 by register ??
+
+F1 spirit 3d:
+Scroll registers at every line during gameplay
+
+Track and Field:
+Di when the VDP set the interrupt, so the emulator must react imedialtely on this pending interrupt when the EI instruction is executed.
+
+Calculus:
+Heli-part: uses screen 3 and magnifiewd sprites
+Aquarel: 'illegal' use of vdp(2) combined with vdp(24)
+Picture: interlaced screen7 with vdp(24) trickery
+
+Compass:
+212 lines on screen 0, 4 colors
+
+Unknown Reality:
+- vdp(19) to increase from 212 to 228 lines
+  when displaying the logo on the chequered background
+- horizontal screensplit when displaying the scope-picture
+  beside the scrolling text
+
+
+Good example needed for
+overscan trick
+

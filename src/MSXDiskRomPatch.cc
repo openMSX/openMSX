@@ -13,13 +13,52 @@ const int MSXDiskRomPatch::A_DSKCHG = 0x4013;
 const int MSXDiskRomPatch::A_GETDPB = 0x4016;
 const int MSXDiskRomPatch::A_DSKFMT = 0x401C;
 const int MSXDiskRomPatch::A_DRVOFF = 0x401F;
+const byte MSXDiskRomPatch::bootSectorData[]={
+  0xeb, 0xfe, 0x90, 0x4e, 0x4d, 0x53, 0x20, 0x38, 0x32, 0x34, 0x35,    0, 0x02, 0x02, 0x01,    0,
+  0x02, 0x70,    0, 0xa0, 0x05, 0xf9, 0x03,    0, 0x09,    0, 0x02,    0,    0,    0, 0xd0, 0xed,
+  0x53, 0x59, 0xc0, 0x32, 0xc4, 0xc0, 0x36, 0x56, 0x23, 0x36, 0xc0, 0x31, 0x1f, 0xf5, 0x11, 0x79,
+  0xc0, 0x0e, 0x0f, 0xcd, 0x7d, 0xf3, 0x3c, 0xca, 0x63, 0xc0, 0x11,    0, 0x01, 0x0e, 0x1a, 0xcd,
+  0x7d, 0xf3, 0x21, 0x01,    0, 0x22, 0x87, 0xc0, 0x21,    0, 0x3f, 0x11, 0x79, 0xc0, 0x0e, 0x27,
+  0xcd, 0x7d, 0xf3, 0xc3,    0, 0x01, 0x58, 0xc0, 0xcd,    0,    0, 0x79, 0xe6, 0xfe, 0xfe, 0x02,
+  0xc2, 0x6a, 0xc0, 0x3a, 0xc4, 0xc0, 0xa7, 0xca, 0x22, 0x40, 0x11, 0x9e, 0xc0, 0x0e, 0x09, 0xcd,
+  0x7d, 0xf3, 0x0e, 0x07, 0xcd, 0x7d, 0xf3, 0x18, 0xb2,    0, 0x4d, 0x53, 0x58, 0x44, 0x4f, 0x53,
+  0x20, 0x20, 0x53, 0x59, 0x53,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+     0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0, 0x42, 0x6f,
+  0x6f, 0x74, 0x20, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x0d, 0x0a, 0x50, 0x72, 0x65, 0x73, 0x73, 0x20,
+  0x61, 0x6e, 0x79, 0x20, 0x6b, 0x65, 0x79, 0x20, 0x66, 0x6f, 0x72, 0x20, 0x72, 0x65, 0x74, 0x72,
+  0x79, 0x0d, 0x0a, 0x24
+};
 
 
-MSXDiskRomPatch::DiskImage::DiskImage(std::string fileName)
+MSXDiskRomPatch::DiskImage::DiskImage(std::string fileName,std::string defaultSize)
 {
+	PRT_DEBUG("file = FileOpener::openFilePreferRW("<<fileName<<");");
 	file = FileOpener::openFilePreferRW(fileName);
-	file->seekg(0,std::ios::end);
-	nbSectors = file->tellg() / SECTOR_SIZE;
+	if (!file->fail()){
+	    file->seekg(0,std::ios::end);
+	    if (file->tellg()==0){
+		    // For the moment I assume that
+		    // if the file as zero length that is is just created
+		    // Ofcourse it is possible that the file existed but
+		    // that we do not have any rights on it whatsoever.
+		    // So we test this.
+		    file->put(0);
+		    if (!file->fail()){
+			    file->seekg(0,std::ios::beg);
+			    PRT_DEBUG("Filling new file "<<fileName);
+			    if (defaultSize.compare("360")==0){
+			      for (long i=0;i<368640;i++) file->put(0);
+			    } else {
+			      for (long i=0;i<737280;i++) file->put(0);
+			    }
+			    //I thought about imediatly formatting the disk ?
+			    //But I would need to alter the rest of the source to hard for the moment
+			    //AND on a "real MSX" you should format a new disks also, so...
+		    }
+	    };
+	    //file->seekg(0,std::ios::end);
+	    nbSectors = file->tellg() / SECTOR_SIZE;
+	}
 }
 
 MSXDiskRomPatch::DiskImage::~DiskImage()
@@ -58,13 +97,15 @@ MSXDiskRomPatch::MSXDiskRomPatch()
 	
 	std::string name("diskpatch_diskA");
 	//                0123456789ABCDE
+	std::string defaultsize;
 	std::string filename;
 	for (int i=0; i<LAST_DRIVE; i++) {
 		disk[i] = NULL;
 		try {
 			MSXConfig::Config *config = MSXConfig::Backend::instance()->getConfigById(name);
 			filename = config->getParameter("filename");
-			disk[i] = new DiskImage(filename);
+			defaultsize = config->getParameter("defaultsize");
+			disk[i] = new DiskImage(filename,defaultsize);
 		} catch (MSXException& e) {
 			PRT_DEBUG("void MSXDiskRomPatch::MSXDiskRomPatch() disk exception for disk " << i << " patch: " << name << " filename: " << filename);
 			delete disk[i];
@@ -320,8 +361,123 @@ void MSXDiskRomPatch::GETDPB(CPU::CPURegs& regs) const
 
 void MSXDiskRomPatch::DSKFMT(CPU::CPURegs& regs) const
 {
-	assert(false);
-	// TODO XXX
+	// Keep in mind following inputs
+	// regs.AF.B.h  Specified choice (1-9)      
+	// regs.DE.B.h  Drive number (0=A:)
+	// regs.HL.w    Begin address of work area  
+	// regs.BC.w    Length of work area
+	// TODO: check how HL and BC are influenced!!
+	regs.IFF1 = regs.nextIFF1 = regs.IFF2 = true;	// EI
+
+	PRT_DEBUG("sizeof(bootSectorData) :"<<sizeof(bootSectorData));
+	PRT_DEBUG("regs.AF.B.h =" << (int)regs.AF.B.h);
+	PRT_DEBUG("regs.AF.B.w =" << (int)regs.AF.w);
+
+	byte drive = regs.DE.B.h;	// drive #, 0="A:", 1="B:", ..
+	if (drive >= LAST_DRIVE) {
+		// illegal drive letter
+		PRT_DEBUG("    Illegal Drive letter " << (int)drive);
+		regs.AF.w = 0x0C01;	// Bad parameter
+		return;
+	}
+	if (disk[drive] == NULL) {
+		// no disk file
+		PRT_DEBUG("    No Disk File For Drive " << (int)drive);
+		regs.AF.w = 0x0201;	// Not Ready
+		return;
+	}
+    byte Index=regs.AF.B.h-1;
+    if (Index>1) {
+		// requested format not supported by DiskPatch
+		PRT_DEBUG("    Format requested for not supported Media-ID");
+		regs.AF.w = 0x0C01;	// Bad parameter
+		return;
+    }
+  static struct
+  { int NrOfSectors;byte NrOfHeads,DirEntries,SectorsPerTrack,SectorsPerFAT,SectorsPerCluster; }
+  FormatInfo[2] =
+  {
+    {  720,1,112,9,2,2 }, // Normal 360kb single sided disk
+    { 1440,2,112,9,3,2 }, // Normal 720kb double sided disk
+    /* these aren't supported for the moment
+    {  640,1,112,8,1,2 },
+    { 1280,2,112,8,2,2 },
+    {  360,1, 64,9,2,1 },
+    {  720,2,112,9,2,2 },
+    {  320,1, 64,8,1,1 },
+    {  640,2,112,8,1,2 }
+    */
+  };
+  
+/* Fill bootblock with data: */
+  byte *sectorData=new byte[512];
+  memset(sectorData,0,512); //just to be sure (possible faulty C++ implemenatations :-)
+  memcpy(sectorData,bootSectorData,sizeof(bootSectorData));
+  memcpy(sectorData+3,"openMSXd",8);    /* Manufacturer's ID   */
+  *(sectorData+13)=FormatInfo[Index].SectorsPerCluster;
+
+  *(sectorData+17)=FormatInfo[Index].DirEntries;
+  *(sectorData+18)=0;
+
+  PRT_DEBUG("nr of sectors =" <<FormatInfo[Index].NrOfSectors);
+  *(sectorData+19)=FormatInfo[Index].NrOfSectors&0xFF;
+  *(sectorData+20)=(FormatInfo[Index].NrOfSectors>>8)&0xFF;
+
+  *(sectorData+21)=Index+0xF8; //Media ID
+
+  *(sectorData+22)=FormatInfo[Index].SectorsPerFAT;
+  *(sectorData+23)=0;
+
+  *(sectorData+24)=FormatInfo[Index].SectorsPerTrack;
+  *(sectorData+25)=0;
+
+  *(sectorData+26)=FormatInfo[Index].NrOfHeads;
+  *(sectorData+27)=0;
+  
+  try {
+    disk[drive]->writeSector(sectorData, 0);
+
+    int Sector;
+    byte J;
+
+    /* Writing FATs: */
+    for(Sector=1,J=0;J<2;J++)
+    {
+      sectorData[0]=Index+0xF8;
+      sectorData[1]=sectorData[2]=0xFF;
+      memset(sectorData+3,0,509);
+      disk[drive]->writeSector(sectorData, Sector++);
+
+      memset(sectorData,0,4); //clear first bytes again
+
+      for(byte I=FormatInfo[Index].SectorsPerFAT;I>1;I--)
+        disk[drive]->writeSector(sectorData, Sector++);
+    }
+
+    /* Directory size */
+    //J=FormatInfo[Index].DirEntries/16;
+    for(J=7,memset(sectorData,0x00,512);J;J--)
+      disk[drive]->writeSector(sectorData, Sector++);
+
+
+    /* Data size */
+    J=FormatInfo[Index].NrOfSectors-2*FormatInfo[Index].SectorsPerFAT-8;
+    memset(sectorData,0xE5,512);
+    for(;J;J--)
+      disk[drive]->writeSector(sectorData, Sector++);
+
+    /* Return success      */
+    regs.AF.B.l &= ~CPU::C_FLAG;
+
+  } catch (NoSuchSectorException& e) {
+    regs.AF.w = 0x0801;	// Record not found
+  } catch (DiskIOErrorException& e) {
+    regs.AF.w = 0x0A01;	// I/O error
+  }
+
+  delete[] sectorData;
+  //assert(false);
+
 }
 
 void MSXDiskRomPatch::DRVOFF(CPU::CPURegs& regs) const

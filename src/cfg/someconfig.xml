@@ -130,11 +130,13 @@
     <type>disk</type>
     <parameter name="readonly">true</parameter>
     <parameter name="filename">mania036.dsk</parameter>
+    <parameter name="defaultsize">360</parameter>
   </config>
   <config id="diskpatch_diskB">
     <type>disk</type>
     <parameter name="readonly">false</parameter>
     <parameter name="filename">mania111.dsk</parameter>
+    <parameter name="defaultsize">720</parameter>
   </config>
 
   <device id="ppi">

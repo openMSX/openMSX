@@ -16,7 +16,7 @@ class MSXDiskRomPatch: public MSXRomPatchInterface
 	class DiskImage
 	{
 		public:
-			DiskImage(std::string filename);
+			DiskImage(std::string filename,std::string defaultSize);
 			~DiskImage();
 
 			void readSector(byte* to, int sector);
@@ -57,6 +57,7 @@ class MSXDiskRomPatch: public MSXRomPatchInterface
 		 */
 		void DSKFMT(CPU::CPURegs& regs) const;
 		static const int A_DSKFMT;
+		static const byte bootSectorData[]; // size is 196
 
 		/**
 		 * stop drives
