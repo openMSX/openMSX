@@ -1,10 +1,10 @@
 // $Id$
 
+#include <cassert>
+#include <algorithm>
 #include "Scheduler.hh"
 #include "MSXCPU.hh"
 #include "Mixer.hh"
-#include <cassert>
-#include <algorithm>
 #include "EventDistributor.hh"
 #include "Schedulable.hh"
 #include "RealTime.hh"
@@ -12,6 +12,7 @@
 #include "Leds.hh"
 #include "Renderer.hh" // TODO: Temporary?
 
+using std::swap;
 
 namespace openmsx {
 
@@ -73,12 +74,12 @@ void Scheduler::removeSyncPoint(Schedulable* device, int userData)
 {
 	sem.down();
 	for (vector<SynchronizationPoint>::iterator it = syncPoints.begin();
-	     it != syncPoints.end();
-	     ++it) {
+	     it != syncPoints.end(); ++it) {
 		SynchronizationPoint& sp = *it;
 		if ((sp.getDevice() == device) && 
 		    (sp.getUserData() == userData)) {
-			syncPoints.erase(it);
+			swap(sp, syncPoints.back()); 
+			syncPoints.pop_back();
 			make_heap(syncPoints.begin(), syncPoints.end());
 			break;
 		}
