@@ -1,0 +1,73 @@
+// $Id$
+
+#ifndef __MIDIINNATIVE_HH__
+#define __MIDIINNATIVE_HH__
+
+#if defined(__WIN32__)
+
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
+#include <list>
+#include "openmsx.hh"
+#include "MidiInDevice.hh"
+#include "Thread.hh"
+#include "Schedulable.hh"
+#include "Semaphore.hh"
+#include <SDL/SDL_thread.h>
+#include <windows.h>
+#include <mmsystem.h>
+
+using std::list;
+
+
+namespace openmsx {
+
+class MidiInConnector;
+class PluggingController;
+
+class MidiInNative : public MidiInDevice, private Runnable, private Schedulable
+{
+public:
+	/** Register all available native midi in devcies
+	  */
+	static void registerAll(PluggingController* controller);
+	
+	MidiInNative(const string& name);
+	virtual ~MidiInNative();
+
+	// Pluggable
+	virtual void plug(Connector *connector, const EmuTime &time)
+		throw(PlugException);
+	virtual void unplug(const EmuTime &time);
+	virtual const string &getName() const;
+
+	// MidiInDevice
+	virtual void signal(const EmuTime &time);
+
+private:
+	// Runnable
+	virtual void run();
+
+	// Schedulable
+	virtual void executeUntilEmuTime(const EmuTime &time, int userData);
+	virtual const string &schedName() const;
+
+	void procShortMsg(long unsigned int param);
+	void procLongMsg(LPMIDIHDR p);
+	
+	Thread thread;
+	unsigned int devidx;
+	unsigned int thrdid;
+	MidiInConnector *connector;
+	list<byte> queue;
+	Semaphore lock; // to protect queue
+	const string name;
+};
+
+} // namespace openmsx
+
+#endif // defined(__WIN32__)
+#endif // __MIDIINNATIVE_HH__
+
