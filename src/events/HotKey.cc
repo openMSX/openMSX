@@ -48,10 +48,13 @@ void HotKey::initBindings()
 		registerHotKeyCommand(Keys::K_F11,   "toggle mute");
 		registerHotKeyCommand(Keys::K_F12,   "toggle fullscreen");
 		registerHotKeyCommand(
-		    static_cast<Keys::KeyCode>(Keys::K_F4    | Keys::KM_ALT),
+		    static_cast<Keys::KeyCode>(Keys::K_RETURN | Keys::KM_ALT),
+		    "toggle fullscreen");
+		registerHotKeyCommand(
+		    static_cast<Keys::KeyCode>(Keys::K_F4     | Keys::KM_ALT),
 		    "quit");
 		registerHotKeyCommand(
-		    static_cast<Keys::KeyCode>(Keys::K_PAUSE | Keys::KM_CTRL),
+		    static_cast<Keys::KeyCode>(Keys::K_PAUSE  | Keys::KM_CTRL),
 		    "quit");
 	}
 }
