@@ -4,9 +4,17 @@
 #define __SETTINGS_HH__
 
 #include "Command.hh"
-#include <map>
+#include "CommandController.hh"
 #include <cassert>
+#include <map>
+#include <set>
+#include <string>
+#include <vector>
 
+using std::map;
+using std::set;
+using std::string;
+using std::vector;
 
 /*
 TODO: Reduce code duplication.
@@ -37,49 +45,49 @@ class Setting
 public:
 	/** Get the name of this setting.
 	  */
-	const std::string &getName() const { return name; }
+	const string &getName() const { return name; }
 
 	/** Get a description of this setting that can be presented to the user.
 	  */
-	const std::string &getDescription() const { return description; }
+	const string &getDescription() const { return description; }
 
 	/** Get the current value of this setting in a string format that can be
 	  * presented to the user.
 	  */
-	virtual std::string getValueString() const = 0;
+	virtual string getValueString() const = 0;
 
 	/** Change the value of this setting by parsing the given string.
 	  * @param valueString The new value for this setting, in string format.
 	  * @throw CommandException If the valueString is invalid.
 	  */
-	virtual void setValueString(const std::string &valueString) = 0;
+	virtual void setValueString(const string &valueString) = 0;
 
 	/** Get a string describing the value type to the user.
 	  */
-	const std::string &getTypeString() const { return type; }
+	const string &getTypeString() const { return type; }
 
 	/** Complete a partly typed value
 	  */
-	virtual void tabCompletion(std::vector<std::string> &tokens) const {}
+	virtual void tabCompletion(vector<string> &tokens) const {}
 
 protected:
-	Setting(const std::string &name, const std::string &description);
+	Setting(const string &name, const string &description);
 
 	virtual ~Setting();
 
 	/** A description of the type of this setting's value that can be
 	  * presented to the user.
 	  */
-	std::string type;
+	string type;
 
 private:
 	/** The name of this setting.
 	  */
-	std::string name;
+	string name;
 
 	/** A description of this setting that can be presented to the user.
 	  */
-	std::string description;
+	string description;
 };
 
 
@@ -89,7 +97,7 @@ class IntegerSetting: public Setting
 {
 public:
 	IntegerSetting(
-		const std::string &name, const std::string &description,
+		const string &name, const string &description,
 		int initialValue, int minValue, int maxValue);
 
 	/** Get the current value of this setting.
@@ -109,8 +117,8 @@ public:
 	void setRange(int minValue, int maxValue);
 
 	// Implementation of Setting interface:
-	virtual std::string getValueString() const;
-	virtual void setValueString(const std::string &valueString);
+	virtual string getValueString() const;
+	virtual void setValueString(const string &valueString);
 
 
 protected:
@@ -136,7 +144,7 @@ class FloatSetting: public Setting
 {
 public:
 	FloatSetting(
-		const std::string &name, const std::string &description,
+		const string &name, const string &description,
 		float initialValue, float minValue, float maxValue);
 
 	/** Get the current value of this setting.
@@ -156,8 +164,8 @@ public:
 	void setRange(float minValue, float maxValue);
 
 	// Implementation of Setting interface:
-	virtual std::string getValueString() const;
-	virtual void setValueString(const std::string &valueString);
+	virtual string getValueString() const;
+	virtual void setValueString(const string &valueString);
 
 protected:
 	/**
@@ -176,16 +184,58 @@ protected:
 };
 
 
+/** Associates pairs of an a integer and a string.
+  * Used internally by EnumSetting to associate enum constants with strings.
+  */
+class IntStringMap
+{
+public:
+	typedef const map<const string, int> BaseMap;
+
+	IntStringMap(BaseMap &map);
+
+	/** Gets the string associated with a given integer.
+	  */
+	const string &lookupInt(int n) const;
+
+	/** Gets the string associated with a given string.
+	  */
+	int lookupString(const string &s) const;
+
+	/** Get the list of all strings, separated by commas.
+	  */
+	string getSummary() const;
+
+	/** Create a set containing all the strings in this association.
+	  * The caller becomes the owner of the newly created set object.
+	  */
+	set<string> *createStringSet() const;
+
+private:
+	typedef map<const string, int>::const_iterator MapIterator;
+	const map<const string, int> stringToInt;
+};
+
+
 /** A Setting with a string value out of a finite set.
+  * The type parameter can be anything that can be converted from and to
+  * an integer.
   */
 template <class T>
 class EnumSetting : public Setting
 {
+	typedef const map<const string, int> DummyMap;
 public:
 	EnumSetting(
-		const std::string &name, const std::string &description,
+		const string &name, const string &description,
 		const T &initialValue,
-		const std::map<std::string, T> &map);
+		const map<const string, T> &map
+	) : Setting(name, description)
+	  , value(initialValue)
+	  , intStringMap(reinterpret_cast<IntStringMap::BaseMap &>(map))
+	{
+		type = intStringMap.getSummary();
+	}
 
 	/** Get the current value of this setting.
 	  */
@@ -194,12 +244,27 @@ public:
 	/** Set the current value of this setting.
 	  * @param value The new value.
 	  */
-	void setValue(T value);
+	void setValue(T value) {
+		// TODO: Move code to Setting.
+		if (checkUpdate(value)) {
+			this->value = value;
+		}
+	}
 
 	// Implementation of Setting interface:
-	virtual std::string getValueString() const;
-	virtual void setValueString(const std::string &valueString);
-	virtual void tabCompletion(std::vector<std::string> &tokens) const;
+	virtual string getValueString() const {
+		return intStringMap.lookupInt(static_cast<int>(value));
+	}
+
+	virtual void setValueString(const string &valueString) {
+		value = static_cast<T>(intStringMap.lookupString(valueString));
+	}
+
+	virtual void tabCompletion(vector<string> &tokens) const {
+		set<string> *stringSet = intStringMap.createStringSet();
+		CommandController::completeString(tokens, *stringSet);
+		delete stringSet;
+	}
 
 protected:
 	/**
@@ -213,9 +278,7 @@ protected:
 	}
 
 	T value;
-	typedef typename
-		std::map<std::string, T>::const_iterator MapIterator;
-	const std::map<std::string, T> map;
+	IntStringMap intStringMap;
 };
 
 
@@ -225,11 +288,11 @@ class BooleanSetting : public EnumSetting<bool>
 {
 public:
 	BooleanSetting(
-		const std::string &name, const std::string &description,
+		const string &name, const string &description,
 		bool initialValue = false);
 
 private:
-	static std::map<std::string, bool> &getMap();
+	static const map<const string, bool> &getMap();
 };
 
 
@@ -238,12 +301,12 @@ private:
 class StringSetting : public Setting
 {
 public:
-	StringSetting(const std::string &name, const std::string &description,
-		const std::string &initialValue);
+	StringSetting(const string &name, const string &description,
+		const string &initialValue);
 
 	// Implementation of Setting interface:
-	virtual std::string getValueString() const;
-	virtual void setValueString(const std::string &valueString);
+	virtual string getValueString() const;
+	virtual void setValueString(const string &valueString);
 
 protected:
 	/**
@@ -252,11 +315,11 @@ protected:
 	 *                 contains the old value
 	 * @return Only when the result is true the new value is assigned
 	 */
-	virtual bool checkUpdate(const std::string &newValue) {
+	virtual bool checkUpdate(const string &newValue) {
 		return true;
 	}
 
-	std::string value;
+	string value;
 };
 
 
@@ -268,12 +331,12 @@ class FileContext;
 class FilenameSetting : public StringSetting
 {
 public:
-	FilenameSetting(const std::string &name,
-		const std::string &description,
-		const std::string &initialValue);
+	FilenameSetting(const string &name,
+		const string &description,
+		const string &initialValue);
 
 	// Implementation of Setting interface:
-	virtual void tabCompletion(std::vector<std::string> &tokens) const;
+	virtual void tabCompletion(vector<string> &tokens) const;
 };
 
 
@@ -282,7 +345,7 @@ public:
 class SettingsManager
 {
 private:
-	std::map<const std::string, Setting *> settingsMap;
+	map<const string, Setting *> settingsMap;
 
 public:
 
@@ -297,17 +360,17 @@ public:
 	  * @return The Setting with the given name,
 	  *   or NULL if there is no such Setting.
 	  */
-	Setting *getByName(const std::string &name) const {
-		std::map<std::string, Setting *>::const_iterator it =
+	Setting *getByName(const string &name) const {
+		map<string, Setting *>::const_iterator it =
 			settingsMap.find(name);
 		return it == settingsMap.end() ? NULL : it->second;
 	}
 
-	void registerSetting(const std::string &name, Setting *setting) {
+	void registerSetting(const string &name, Setting *setting) {
 		assert(settingsMap.find(name) == settingsMap.end());
 		settingsMap[name] = setting;
 	}
-	void unregisterSetting(const std::string &name) {
+	void unregisterSetting(const string &name) {
 		settingsMap.erase(name);
 	}
 
@@ -318,9 +381,9 @@ private:
 	class SetCommand : public Command {
 	public:
 		SetCommand(SettingsManager *manager);
-		virtual void execute(const std::vector<std::string> &tokens);
-		virtual void help   (const std::vector<std::string> &tokens) const;
-		virtual void tabCompletion(std::vector<std::string> &tokens) const;
+		virtual void execute(const vector<string> &tokens);
+		virtual void help   (const vector<string> &tokens) const;
+		virtual void tabCompletion(vector<string> &tokens) const;
 	private:
 		SettingsManager *manager;
 	};
@@ -330,9 +393,9 @@ private:
 	class ToggleCommand : public Command {
 	public:
 		ToggleCommand(SettingsManager *manager);
-		virtual void execute(const std::vector<std::string> &tokens);
-		virtual void help   (const std::vector<std::string> &tokens) const;
-		virtual void tabCompletion(std::vector<std::string> &tokens) const;
+		virtual void execute(const vector<string> &tokens);
+		virtual void help   (const vector<string> &tokens) const;
+		virtual void tabCompletion(vector<string> &tokens) const;
 	private:
 		SettingsManager *manager;
 	};

@@ -12,13 +12,6 @@
 #include <stdio.h>
 
 using std::ostringstream;
-using std::string;
-
-// Force template instantiation:
-template class EnumSetting<RenderSettings::Accuracy>;
-template class EnumSetting<RendererFactory::RendererID>;
-template class EnumSetting<OSDConsoleRenderer::Placement>;
-template class EnumSetting<bool>;
 
 
 // Setting implementation:
@@ -143,68 +136,51 @@ void FloatSetting::setValueFloat(float newValue)
 	}
 }
 
-// EnumSetting implementation:
+// IntStringMap implementation:
 
-template <class T>
-EnumSetting<T>::EnumSetting(
-	const string &name_, const string &description_,
-	const T &initialValue,
-	const std::map<string, T> &map_)
-	: Setting(name_, description_), value(initialValue), map(map_)
+IntStringMap::IntStringMap(const std::map<const string, int> &map_)
+	: stringToInt(map_)
+{
+}
+
+const string &IntStringMap::lookupInt(int n) const
+{
+	for (MapIterator it = stringToInt.begin()
+	; it != stringToInt.end() ; it++) {
+		if (it->second == n) return it->first;
+	}
+	throw MSXException("Integer not in map: " + n);
+}
+
+int IntStringMap::lookupString(const string &s) const
+{
+	MapIterator it = stringToInt.find(s);
+	if (it != stringToInt.end()) return it->second;
+	// TODO: Don't use the knowledge that we're called inside command
+	//       processing: use a different exception.
+	throw CommandException("Not a valid value: \"" + s + "\"");
+}
+
+string IntStringMap::getSummary() const
 {
 	ostringstream out;
-	MapIterator it = map.begin();
+	MapIterator it = stringToInt.begin();
 	out << it->first;
-	for (it++; it != map.end(); it++) {
+	for (it++; it != stringToInt.end(); it++) {
 		out << ", " << it->first;
 	}
-	type = out.str();
+	return out.str();
 }
 
-template <class T>
-string EnumSetting<T>::getValueString() const
+set<string> *IntStringMap::createStringSet() const
 {
-	MapIterator it = map.begin();
-	while (it != map.end()) {
-		if (it->second == value) {
-			return it->first;
-		}
-		it++;
+	set<string> *ret = new set<string>;
+	for (MapIterator it = stringToInt.begin()
+	; it != stringToInt.end(); it++) {
+		ret->insert(it->first);
 	}
-	assert(false);
-	return string("<unknown>");
+	return ret;
 }
-
-template <class T>
-void EnumSetting<T>::setValue(T newValue)
-{
-	if (checkUpdate(newValue)) {
-		value = newValue;
-	}
-}
-
-template <class T>
-void EnumSetting<T>::setValueString(const string &valueString)
-{
-	MapIterator it = map.find(valueString);
-	if (it != map.end()) {
-		setValue(it->second);
-	} else {
-		throw CommandException(
-			"Not a valid value: \"" + valueString + "\"");
-	}
-}
-
-template <class T>
-void EnumSetting<T>::tabCompletion(std::vector<string> &tokens) const
-{
-	std::set<string> values;
-	for (MapIterator it = map.begin(); it != map.end(); it++) {
-		values.insert(it->first);
-	}
-	CommandController::completeString(tokens, values);
-}
-
 
 // BooleanSetting implementation
 
@@ -215,9 +191,9 @@ BooleanSetting::BooleanSetting(
 {
 }
 
-std::map<string, bool> &BooleanSetting::getMap()
+const map<const string, bool> &BooleanSetting::getMap()
 {
-	static std::map<string, bool> boolMap;
+	static map<const string, bool> boolMap;
 	static bool alreadyInit = false;
 
 	if (!alreadyInit) {
@@ -260,7 +236,7 @@ FilenameSetting::FilenameSetting(const string &name,
 {
 }
 
-void FilenameSetting::tabCompletion(std::vector<string> &tokens) const
+void FilenameSetting::tabCompletion(vector<string> &tokens) const
 {
 	CommandController::completeFileName(tokens);
 }
@@ -291,7 +267,7 @@ SettingsManager::SetCommand::SetCommand(SettingsManager *manager_)
 }
 
 void SettingsManager::SetCommand::execute(
-	const std::vector<string> &tokens )
+	const vector<string> &tokens )
 {
 	int nrTokens = tokens.size();
 	if (nrTokens == 0 || nrTokens > 3) {
@@ -300,7 +276,7 @@ void SettingsManager::SetCommand::execute(
 
 	if (nrTokens == 1) {
 		// List all settings.
-		std::map<string, Setting *>::const_iterator it =
+		map<string, Setting *>::const_iterator it =
 			manager->settingsMap.begin();
 		for (; it != manager->settingsMap.end(); it++) {
 			print(it->first);
@@ -332,7 +308,7 @@ void SettingsManager::SetCommand::execute(
 }
 
 void SettingsManager::SetCommand::help(
-	const std::vector<string> &tokens) const
+	const vector<string> &tokens) const
 {
 	print("set            : list all settings");
 	print("set name       : information on setting");
@@ -340,13 +316,13 @@ void SettingsManager::SetCommand::help(
 }
 
 void SettingsManager::SetCommand::tabCompletion(
-	std::vector<string> &tokens) const
+	vector<string> &tokens) const
 {
 	switch (tokens.size()) {
 		case 2: {
 			// complete setting name
-			std::set<string> settings;
-			std::map<string, Setting *>::const_iterator it
+			set<string> settings;
+			map<string, Setting *>::const_iterator it
 				= manager->settingsMap.begin();
 			for (; it != manager->settingsMap.end(); it++) {
 				settings.insert(it->first);
@@ -356,7 +332,7 @@ void SettingsManager::SetCommand::tabCompletion(
 		}
 		case 3: {
 			// complete setting value
-			std::map<string, Setting*>::iterator it =
+			map<string, Setting*>::iterator it =
 				manager->settingsMap.find(tokens[1]);
 			if (it != manager->settingsMap.end()) {
 				it->second->tabCompletion(tokens);
@@ -374,7 +350,7 @@ SettingsManager::ToggleCommand::ToggleCommand(SettingsManager *manager_)
 }
 
 void SettingsManager::ToggleCommand::execute(
-	const std::vector<string> &tokens )
+	const vector<string> &tokens )
 {
 	int nrTokens = tokens.size();
 	if (nrTokens == 0 || nrTokens > 2) {
@@ -383,7 +359,7 @@ void SettingsManager::ToggleCommand::execute(
 
 	if (nrTokens == 1) {
 		// list all boolean settings
-		std::map<string, Setting *>::const_iterator it =
+		map<string, Setting *>::const_iterator it =
 			manager->settingsMap.begin();
 		for (; it != manager->settingsMap.end(); it++) {
 			if (dynamic_cast<BooleanSetting*>(it->second)) {
@@ -411,20 +387,20 @@ void SettingsManager::ToggleCommand::execute(
 }
 
 void SettingsManager::ToggleCommand::help(
-	const std::vector<string> &tokens) const
+	const vector<string> &tokens) const
 {
 	print("toggle      : list all boolean settings");
 	print("toggle name : toggles a boolean setting");
 }
 
 void SettingsManager::ToggleCommand::tabCompletion(
-	std::vector<string> &tokens) const
+	vector<string> &tokens) const
 {
 	switch (tokens.size()) {
 		case 2: {
 			// complete setting name
-			std::set<string> settings;
-			std::map<string, Setting *>::const_iterator it
+			set<string> settings;
+			map<string, Setting *>::const_iterator it
 				= manager->settingsMap.begin();
 			for (; it != manager->settingsMap.end(); it++) {
 				if (dynamic_cast<BooleanSetting*>(it->second)) {
