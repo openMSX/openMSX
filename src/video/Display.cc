@@ -65,15 +65,11 @@ Display::~Display()
 	EventDistributor::instance().unregisterEventListener(
 		FINISH_FRAME_EVENT, *this, EventDistributor::NATIVE );
 	// Prevent callbacks first...
-	for (Layers::iterator it = layers.begin();
-		it != layers.end(); ++it
-	) {
+	for (Layers::iterator it = layers.begin(); it != layers.end(); ++it) {
 		(*it)->display = NULL;
 	}
 	// ...then destruct layers.
-	for (Layers::iterator it = layers.begin();
-		it != layers.end(); ++it
-	) {
+	for (Layers::iterator it = layers.begin(); it != layers.end(); ++it) {
 		delete *it;
 	}
 }
@@ -125,11 +121,9 @@ void Display::repaint()
 	//       it is unknown whether a failure is transient or permanent.
 	if (!videoSystem->prepare()) return;
 	
-	Layers::iterator it = baseLayer();
-	for (; it != layers.end(); ++it) {
+	for(Layers::iterator it = baseLayer(); it != layers.end(); ++it) {
 		if ((*it)->coverage != Layer::COVER_NONE) {
-			// Paint this layer.
-			//cerr << "Painting layer " << (*it)->layer->getName() << "\n";
+			//std::cout << "Painting layer " << (*it)->getName() << std::endl;
 			(*it)->paint();
 		}
 	}
@@ -141,7 +135,8 @@ void Display::addLayer(Layer* layer)
 {
 	const int z = layer->z;
 	Layers::iterator it;
-	for (it = layers.begin(); it != layers.end() && (*it)->z < z; ++it);
+	for(it = layers.begin(); it != layers.end() && (*it)->z < z; ++it)
+		/* do nothing */;
 	layers.insert(it, layer);
 	layer->display = this;
 }

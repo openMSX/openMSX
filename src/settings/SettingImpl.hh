@@ -56,7 +56,7 @@ public:
 	
 	// virtual methods from Setting class
 	virtual std::string getValueString() const;
-	virtual void setValueString(const std::string& value);
+	virtual void setValueString(const std::string& valueString);
 	virtual void restoreDefault();
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
@@ -180,9 +180,9 @@ std::string SettingImpl<POLICY>::getValueString() const
 }
 
 template<typename POLICY>
-void SettingImpl<POLICY>::setValueString(const std::string& value)
+void SettingImpl<POLICY>::setValueString(const std::string& valueString)
 {
-	setValue(POLICY::fromString(value));
+	setValue(POLICY::fromString(valueString));
 }
 
 template<typename POLICY>

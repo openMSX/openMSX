@@ -1,5 +1,8 @@
 $Id$
 
+2004-12-30 Eric Boon <e.boon4@chello.nl>
+	* Fixed dOxygen warnings
+
 2004-12-29 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed bug in V9990 cmds (address masking bug):
 	   underwater demo works now!

@@ -143,31 +143,125 @@ private:
 		virtual void execute(const EmuTime& time);
 	};
 
-	// Just to make life (typing, that is) a bit easier...
-	#define CLASS_COMMAND(NAME)                            \
-		template <class Mode>                              \
-		class NAME: public V9990Cmd {                      \
-		public:                                            \
-			NAME(V9990CmdEngine* engine, V9990VRAM* vram); \
-			virtual void start(const EmuTime& time);       \
-			virtual void execute(const EmuTime& time);     \
-		}
+	template <class Mode>
+	class CmdLMMC: public V9990Cmd {
+	public:
+		CmdLMMC(V9990CmdEngine* engine, V9990VRAM* vram);
+		virtual void start(const EmuTime& time);
+		virtual void execute(const EmuTime& time);
+	};
 
-	CLASS_COMMAND(CmdLMMC);
-	CLASS_COMMAND(CmdLMMV);
-	CLASS_COMMAND(CmdLMCM);
-	CLASS_COMMAND(CmdLMMM);
-	CLASS_COMMAND(CmdCMMC);
-	CLASS_COMMAND(CmdCMMK);
-	CLASS_COMMAND(CmdCMMM);
-	CLASS_COMMAND(CmdBMXL);
-	CLASS_COMMAND(CmdBMLX);
-	CLASS_COMMAND(CmdBMLL);
-	CLASS_COMMAND(CmdLINE);
-	CLASS_COMMAND(CmdSRCH);
-	CLASS_COMMAND(CmdPOINT);
-	CLASS_COMMAND(CmdPSET);
-	CLASS_COMMAND(CmdADVN);
+	template <class Mode>
+	class CmdLMMV: public V9990Cmd {
+	public:
+		CmdLMMV(V9990CmdEngine* engine, V9990VRAM* vram);
+		virtual void start(const EmuTime& time);
+		virtual void execute(const EmuTime& time);
+	};
+
+	template <class Mode>
+	class CmdLMCM: public V9990Cmd {
+	public:
+		CmdLMCM(V9990CmdEngine* engine, V9990VRAM* vram);
+		virtual void start(const EmuTime& time);
+		virtual void execute(const EmuTime& time);
+	};
+
+	template <class Mode>
+	class CmdLMMM: public V9990Cmd {
+	public:
+		CmdLMMM(V9990CmdEngine* engine, V9990VRAM* vram);
+		virtual void start(const EmuTime& time);
+		virtual void execute(const EmuTime& time);
+	};
+
+	template <class Mode>
+	class CmdCMMC: public V9990Cmd {
+	public:
+		CmdCMMC(V9990CmdEngine* engine, V9990VRAM* vram);
+		virtual void start(const EmuTime& time);
+		virtual void execute(const EmuTime& time);
+	};
+
+	template <class Mode>
+	class CmdCMMK: public V9990Cmd {
+	public:
+		CmdCMMK(V9990CmdEngine* engine, V9990VRAM* vram);
+		virtual void start(const EmuTime& time);
+		virtual void execute(const EmuTime& time);
+	};
+
+	template <class Mode>
+	class CmdCMMM: public V9990Cmd {
+	public:
+		CmdCMMM(V9990CmdEngine* engine, V9990VRAM* vram);
+		virtual void start(const EmuTime& time);
+		virtual void execute(const EmuTime& time);
+	};
+
+	template <class Mode>
+	class CmdBMXL: public V9990Cmd {
+	public:
+		CmdBMXL(V9990CmdEngine* engine, V9990VRAM* vram);
+		virtual void start(const EmuTime& time);
+		virtual void execute(const EmuTime& time);
+	};
+
+	template <class Mode>
+	class CmdBMLX: public V9990Cmd {
+	public:
+		CmdBMLX(V9990CmdEngine* engine, V9990VRAM* vram);
+		virtual void start(const EmuTime& time);
+		virtual void execute(const EmuTime& time);
+	};
+
+	template <class Mode>
+	class CmdBMLL: public V9990Cmd {
+	public:
+		CmdBMLL(V9990CmdEngine* engine, V9990VRAM* vram);
+		virtual void start(const EmuTime& time);
+		virtual void execute(const EmuTime& time);
+	};
+
+	template <class Mode>
+	class CmdLINE: public V9990Cmd {
+	public:
+		CmdLINE(V9990CmdEngine* engine, V9990VRAM* vram);
+		virtual void start(const EmuTime& time);
+		virtual void execute(const EmuTime& time);
+	};
+
+	template <class Mode>
+	class CmdSRCH: public V9990Cmd {
+	public:
+		CmdSRCH(V9990CmdEngine* engine, V9990VRAM* vram);
+		virtual void start(const EmuTime& time);
+		virtual void execute(const EmuTime& time);
+	};
+
+	template <class Mode>
+	class CmdPOINT: public V9990Cmd {
+	public:
+		CmdPOINT(V9990CmdEngine* engine, V9990VRAM* vram);
+		virtual void start(const EmuTime& time);
+		virtual void execute(const EmuTime& time);
+	};
+
+	template <class Mode>
+	class CmdPSET: public V9990Cmd {
+	public:
+		CmdPSET(V9990CmdEngine* engine, V9990VRAM* vram);
+		virtual void start(const EmuTime& time);
+		virtual void execute(const EmuTime& time);
+	};
+
+	template <class Mode>
+	class CmdADVN: public V9990Cmd {
+	public:
+		CmdADVN(V9990CmdEngine* engine, V9990VRAM* vram);
+		virtual void start(const EmuTime& time);
+		virtual void execute(const EmuTime& time);
+	};
 
 	/** V9990 VDP this engine belongs to
 	  */

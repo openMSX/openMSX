@@ -69,6 +69,8 @@ void V9990SDLRasterizer<Pixel, zoom>::paint()
 		dstLine.y = 1;
 		dstLine.h = 1;
 		
+		// Direct blitting to 'screen'. First doubling lines in workScreen
+		// and then blitting to 'screen' doesn't work properly (in M$ Win)
 		for (int y = 0; y < SCREEN_HEIGHT; ++y) {
 			SDL_BlitSurface(workScreen, &srcLine, screen, &dstLine);
 			dstLine.y ++;

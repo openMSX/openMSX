@@ -25,8 +25,8 @@ public:
 	virtual void reset() = 0;
 
 	/** Indicates the start of a new frame.
-	  * @param nofTicks  number of clockticks in the displayable area.
-	  * @param nofLines  number of display lines in the displayable area.
+	  * @param horTiming  number of clockticks in the displayable area.
+	  * @param verTiming  number of display lines in the displayable area.
 	  */
 	virtual void frameStart(const V9990DisplayPeriod *horTiming,
 	                        const V9990DisplayPeriod *verTiming) = 0;

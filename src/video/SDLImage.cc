@@ -156,7 +156,7 @@ SDL_Surface* SDLImage::scaleImage32(
 }
 
 SDL_Surface* SDLImage::convertToDisplayFormat(
-	SDL_Surface* input, Uint8 defaultAlpha)
+	SDL_Surface* input, byte defaultAlpha)
 {
 	// scan image, are all alpha values the same?
 	const char* pixels = (char*)input->pixels;

@@ -50,7 +50,6 @@ public:
 
 	/** Create the renderer setting.
 	  * The map of this setting contains only the available renderers.
-	  * @param defaultRenderer The name of the default renderer
 	  */
 	static std::auto_ptr<RendererSetting> createRendererSetting();
 };

@@ -46,7 +46,7 @@ public:
 	  * 	tokens[0] is the command itself.
 	  * 	The last token is incomplete, this method tries to complete it.
 	  */
-	virtual void tabCompletion(std::vector<std::string>& /*tokens*/) const {}
+	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 };
 
 /**

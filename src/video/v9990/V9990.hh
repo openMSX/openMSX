@@ -104,11 +104,12 @@ public:
 		return x;
 	}
 	
-	/** Get VRAM offset for X position.  Depending on the colormode,
+	/** Get VRAM offset for (X,Y) position.  Depending on the colormode,
 	  * one byte in VRAM may span several pixels, or one pixel may span
-	  * 1 or 2 bytes.
+	  * 1 or 2 bytes. 
 	  * @param x     Pointer to X position - on exit, the X position is the
 	  *              X position of the left most pixel at this VRAM address
+	  * @param y     Y position
 	  * @param mode  Color mode
 	  * @return      VRAM offset
 	  * TODO: Move this to V9990VRAM ??
