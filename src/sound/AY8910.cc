@@ -100,6 +100,11 @@ inline int AY8910::ToneGenerator::advance(int duration)
 
 // NoiseGenerator:
 
+AY8910::NoiseGenerator::NoiseGenerator()
+{
+	reset();
+}
+
 inline void AY8910::NoiseGenerator::reset()
 {
 	Generator::reset(0x38);
@@ -190,6 +195,7 @@ AY8910::Amplitude::Amplitude()
 	vol[0] = vol[1] = vol[2] = 0;
 	envChan[0] = envChan[1] = envChan[2] = false;
 	envVolume = 0;
+	setMasterVolume(0); // avoid UMR
 }
 
 inline unsigned int AY8910::Amplitude::getVolume(byte chan)
@@ -234,6 +240,8 @@ inline bool AY8910::Amplitude::anyEnvelope()
 inline AY8910::Envelope::Envelope(Amplitude& amplitude)
 	: amplitude(amplitude)
 {
+	period = count = step = attack = 0;
+	hold = alternate = holding = false;
 }
 
 inline void AY8910::Envelope::reset()

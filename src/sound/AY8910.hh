@@ -81,6 +81,8 @@ private:
 
 	class NoiseGenerator: public Generator {
 	public:
+		NoiseGenerator();
+
 		inline void reset();
 		/** Gets the current output of this noise generator.
 		  */
@@ -131,8 +133,8 @@ private:
 		Amplitude& amplitude;
 		int period;
 		int count;
-		signed char step;
-		byte attack;
+		int step;
+		int attack;
 		bool hold, alternate, holding;
 	};
 
