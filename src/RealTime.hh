@@ -36,11 +36,6 @@ class RealTime : public Schedulable
 		 */
 		void sync();
 
-		/**
-		 * Turns throtteling on/off
-		 */
-		void setThrottle(bool throttle);
-
 	private:
 		RealTime(); 
 		void internalSync(const EmuTime &time);

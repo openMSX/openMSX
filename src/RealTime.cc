@@ -59,7 +59,10 @@ void RealTime::sync()
 
 void RealTime::internalSync(const EmuTime &curEmu)
 {
-	if (!throttle) return;
+	if (!throttle) {
+		resetTiming();
+		return;
+	}
 	
 	unsigned int curReal = SDL_GetTicks();
 	
@@ -115,13 +118,6 @@ float RealTime::getRealDuration(const EmuTime time1, const EmuTime time2)
 	return time1.getDuration(time2) * factor;
 }
 
-void RealTime::setThrottle(bool throttle)
-{
-	this->throttle = throttle;
-	if (throttle)
-		resetTiming();
-}
-
 void RealTime::resetTiming()
 {
 	realRef = realOrigin = SDL_GetTicks();
@@ -149,15 +145,15 @@ void RealTime::ThrottleCmd::execute(const std::vector<std::string> &tokens)
 	RealTime *rt = RealTime::instance();
 	switch (tokens.size()) {
 	case 1:
-		rt->setThrottle(!rt->throttle);
+		rt->throttle = !rt->throttle;
 		break;
 	case 2:
 		if (tokens[1] == "on") {
-			rt->setThrottle(true);
+			rt->throttle = true;
 			break;
 		}
 		if (tokens[1] == "off") {
-			rt->setThrottle(false);
+			rt->throttle = false;
 			break;
 		}
 	default:
