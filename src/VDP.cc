@@ -114,6 +114,9 @@ VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
 		MSXCPUInterface::instance()->register_IO_Out((byte)0x9B, this);
 	}
 
+	// Tell the other subsystems of the new mask values.
+	resetMasks(time);
+
 	// Init scheduling.
 	displayStartSyncTime = time;
 	vScanSyncTime = time;
@@ -168,20 +171,6 @@ void VDP::resetInit(const EmuTime &time)
 	irqVertical.reset();
 	irqHorizontal.reset();
 
-	// Initially the table regs are zero, so every mask bit that is
-	// controlled by a the table reg should be zero.
-	// See Register Functions 1.2 in the V9938 data book (page 5).
-	// TODO: Use the updateXxx methods instead of duplicating their efforts
-	//       here for the initial state.
-	vram->nameTable.setMask(~(-1 << 10), -1 << 17, time);
-	vram->colourTable.setMask(~(-1 << 6), -1 << 17, time);
-	vram->patternTable.setMask(~(-1 << 11), -1 << 17, time);
-	updateSpriteAttributeBase(time);
-	updateSpritePatternBase(time);
-	// TODO: It is not clear to me yet how bitmapWindow should be used.
-	//       Currently it always spans 128K of VRAM.
-	vram->bitmapWindow.setMask(~(-1 << 17), -1 << 17, time);
-
 	// From appendix 8 of the V9938 data book (page 148).
 	const word V9938_PALETTE[16] = {
 		0x000, 0x000, 0x611, 0x733, 0x117, 0x327, 0x151, 0x627,
@@ -192,6 +181,20 @@ void VDP::resetInit(const EmuTime &time)
 
 }
 
+void VDP::resetMasks(const EmuTime &time)
+{
+	// TODO: Use the updateNameBase method instead of duplicating the effort
+	//       here for the initial state.
+	vram->nameTable.setMask(~(-1 << 10), -1 << 17, time);
+	updateColourBase(time);
+	updatePatternBase(time);
+	updateSpriteAttributeBase(time);
+	updateSpritePatternBase(time);
+	// TODO: It is not clear to me yet how bitmapWindow should be used.
+	//       Currently it always spans 128K of VRAM.
+	vram->bitmapWindow.setMask(~(-1 << 17), -1 << 17, time);
+}
+
 void VDP::reset(const EmuTime &time)
 {
 	resetInit(time);
@@ -199,6 +202,7 @@ void VDP::reset(const EmuTime &time)
 	cmdEngine->reset(time);
 	spriteChecker->reset(time);
 	// vram->reset(time);	// not necessary
+	resetMasks(time);
 }
 
 void VDP::executeUntilEmuTime(const EmuTime &time, int userData)
@@ -705,29 +709,6 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		vram->nameTable.setMask(base, -1 << 17, time);
 		break;
 	}
-	case 3: {
-		int base = ((controlRegs[10] << 14) | (val << 6)
-			| ~(-1 << 6)) & vramMask;
-		renderer->updateColourBase(base, time);
-		// TODO: Actual number of index bits is lower than 17.
-		vram->colourTable.setMask(base, -1 << 17, time);
-		break;
-	}
-	case 10: {
-		int base = ((val << 14) | (controlRegs[3] << 6)
-			| ~(-1 << 6)) & vramMask;
-		renderer->updateColourBase(base, time);
-		// TODO: Actual number of index bits is lower than 17.
-		vram->colourTable.setMask(base, -1 << 17, time);
-		break;
-	}
-	case 4: {
-		int base = ((val << 11) | ~(-1 << 11)) & vramMask;
-		renderer->updatePatternBase(base, time);
-		// TODO: Actual number of index bits is lower than 17.
-		vram->patternTable.setMask(base, -1 << 17, time);
-		break;
-	}
 	case 7:
 		if (change & 0xF0) {
 			renderer->updateForegroundColour(val >> 4, time);
@@ -780,6 +761,8 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 	controlRegs[reg] = val;
 
 	// Perform additional tasks after new value became active.
+	// Because base masks cannot be read from the VDP, updating them after
+	// the commit is equivalent to updating before.
 	switch (reg) {
 	case 0:
 		if (change & 0x10) { // IE1
@@ -795,15 +778,18 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 			if (!(val & 0x20)) irqVertical.reset();
 		}
 		break;
+	case 3:
+	case 10:
+		updateColourBase(time);
+		break;
+	case 4:
+		updatePatternBase(time);
+		break;
 	case 5:
 	case 11:
-		// Because this state cannot be read from the VDP, updating after the
-		// commit is equivalent to updating before.
 		updateSpriteAttributeBase(time);
 		break;
 	case 6:
-		// Because this state cannot be read from the VDP, updating after the
-		// commit is equivalent to updating before.
 		updateSpritePatternBase(time);
 		break;
 	case 9:
@@ -839,6 +825,23 @@ void VDP::setHorAdjust(const EmuTime &time)
 	int ticks = (line + 1) * TICKS_PER_LINE;
 	EmuTime nextTime = frameStartTime + ticks;
 	Scheduler::instance()->setSyncPoint(nextTime, this, HOR_ADJUST);
+}
+
+void VDP::updateColourBase(const EmuTime &time)
+{
+	int base = vramMask &
+		((controlRegs[10] << 14) | (controlRegs[3] << 6) | ~(-1 << 6));
+	renderer->updateColourBase(base, time);
+	// TODO: Actual number of index bits is lower than 17.
+	vram->colourTable.setMask(base, -1 << 17, time);
+}
+
+void VDP::updatePatternBase(const EmuTime &time)
+{
+	int base = vramMask & ((controlRegs[4] << 11) | ~(-1 << 11));
+	renderer->updatePatternBase(base, time);
+	// TODO: Actual number of index bits is lower than 17.
+	vram->patternTable.setMask(base, -1 << 17, time);
 }
 
 void VDP::updateSpriteAttributeBase(const EmuTime &time)

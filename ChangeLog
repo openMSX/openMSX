@@ -5,6 +5,8 @@ $Id$
 	* Added asserts to VDP code to check timing constraints.
 	* Fix for sprites in planar modes.
 	* Fixed behaviour of port #99, #9A and #9B interference.
+	* Colour and pattern base mask calculation are now done in a single
+	  method each.
 
 2002-12-30 Joost Yervante Damad <joost@lumatec.be>
 	* updated AUTHORS

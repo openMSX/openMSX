@@ -495,6 +495,12 @@ private:
 	  */
 	void resetInit(const EmuTime &time);
 
+	/** Companion to resetInit: in resetInit the registers are reset,
+	  * in this method the new base masks are distributed to the VDP
+	  * subsystems.
+	  */
+	void resetMasks(const EmuTime &time);
+
 	/** Start a new frame.
 	  * @param time The moment in emulated time the frame starts.
 	  */
@@ -532,7 +538,17 @@ private:
 	void changeRegister(byte reg, byte val, const EmuTime &time);
 
 	void setHorAdjust(const EmuTime &time);
-	
+
+	/** Colour base mask has changed.
+	  * Inform the renderer and the VRAM.
+	  */
+	void updateColourBase(const EmuTime &time);
+
+	/** Pattern base mask has changed.
+	  * Inform the renderer and the VRAM.
+	  */
+	void updatePatternBase(const EmuTime &time);
+
 	/** Sprite attribute base mask has changed.
 	  * Inform the SpriteChecker and the VRAM.
 	  */
