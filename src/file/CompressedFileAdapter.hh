@@ -22,18 +22,21 @@ public:
 	virtual const string getURL() const;
 	virtual const string getLocalName();
 	virtual bool isReadOnly() const;
+	virtual time_t getModificationDate();
 
 protected:
 	CompressedFileAdapter(auto_ptr<FileBase> file);
 	virtual ~CompressedFileAdapter();
+	virtual void decompress() = 0;
 
 	const auto_ptr<FileBase> file;
 	byte* buf;
 	unsigned size;
 
 private:
+	void fillBuffer();
+	
 	unsigned pos;
-
 	static int tmpCount;	// nb of files in tmp dir
 	static string tmpDir;	// name of tmp dir (when tmpCount > 0)
 	char* localName;	// name of tmp file (when != 0)

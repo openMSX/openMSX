@@ -1,6 +1,6 @@
-<?xml version="1.0"?>
-<!-- $Id$ -->
-<!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
+<?xml version="1.0" ?>
+<!-- $Id$ --><!DOCTYPE msxconfig
+  SYSTEM 'msxconfig.dtd'>
 <msxconfig>
 
 <config id="ExternalSlots">
@@ -9,10 +9,10 @@
   </config>
 
   <config id="MotherBoard">
-    <slot num="0" expanded="false"/>
-    <slot num="1" expanded="false"/>
-    <slot num="2" expanded="false"/>
-    <slot num="3" expanded="true"/>
+    <slot expanded="false" num="0"/>
+    <slot expanded="false" num="1"/>
+    <slot expanded="false" num="2"/>
+    <slot expanded="true" num="3"/>
   </config>
 
   <config id="MapperType">
@@ -30,14 +30,14 @@
   </device>
 
   <device id="MSX BIOS with BASIC ROM">
-    <type>Rom</type>
+    <type>ROM</type>
     <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
     <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
     <filename>roms/nms8250_basic-bios2.rom</filename>
   </device>
 
   <device id="MSX Sub ROM">
-    <type>Rom</type>
+    <type>ROM</type>
     <slotted> <ps>3</ps> <ss>0</ss> <page>0</page> </slotted>
     <filename>roms/nms8250_msx2sub.rom</filename>
   </device>
@@ -46,7 +46,7 @@
     <type>FDC</type>
     <slotted> <ps>3</ps> <ss>3</ss> <page>1</page> </slotted>
     <slotted> <ps>3</ps> <ss>3</ss> <page>2</page> </slotted>
-    <brokenFDCread>false</brokenFDCread> 
+    <broken_fdc_read>false</broken_fdc_read> 
     <fdc_type>WD2793</fdc_type>
     <filename>roms/nms8250_disk.rom</filename>
     <drivename1>diska</drivename1>
@@ -78,7 +78,7 @@
     <type>RTC</type>
     <io base="0xB4" num="2" type="O"/>
     <io base="0xB5" num="1" type="I"/>
-    <mode>EmuTime</mode>
+    
     <sramname>nms8250.cmos</sramname>
   </device>
 

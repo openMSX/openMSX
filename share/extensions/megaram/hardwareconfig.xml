@@ -1,6 +1,6 @@
-<?xml version="1.0"?>
-<!-- $Id$ -->
-<!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
+<?xml version="1.0" ?>
+<!-- $Id$ --><!DOCTYPE msxconfig
+  SYSTEM 'msxconfig.dtd'>
 <msxconfig>
   <device id="MegaRam">
     <type>MegaRam</type>
@@ -8,7 +8,6 @@
     <slotted> <ps>-1</ps> <ss>-1</ss> <page>1</page> </slotted>
     <slotted> <ps>-1</ps> <ss>-1</ss> <page>2</page> </slotted>
     <slotted> <ps>-1</ps> <ss>-1</ss> <page>3</page> </slotted>
-    <parameter name="size">512</parameter>
-  </device>
+    <size>512</size>
+  <io base="0x8e" num="1"/></device>
 </msxconfig>
-

@@ -1,5 +1,9 @@
 $Id$
 
+2004-06-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented RomPool:
+	    still needs heavy testing and cleanups
+
 2004-06-07 Manuel Bilderbeek <manuel@msxnet.org>
 	* Rerenamed "MSX-AUDIO MIDI" to "Music Module MIDI"
 

@@ -18,6 +18,10 @@ const byte RESERVED     = 0xE0; // bits 5..7: reserved
 GZFileAdapter::GZFileAdapter(auto_ptr<FileBase> file_)
 	: CompressedFileAdapter(file_)
 {
+}
+
+void GZFileAdapter::decompress()
+{
 	int inputSize = file->getSize();
 	byte* inputBuf = file->mmap();
 

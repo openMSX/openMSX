@@ -11,6 +11,7 @@
 #include "HardwareConfig.hh"
 #include "FileOperations.hh"
 #include "FileContext.hh"
+#include "ReadDir.hh"
 
 namespace openmsx {
 
@@ -84,22 +85,17 @@ void CliExtension::createExtensions(const string& basepath)
 		return;
 	}
 
-	DIR* dir = opendir(".");
-	if (dir) {
-		struct dirent* d = readdir(dir);
-		while (d) {
-			if (select(d)) {
-				string name(d->d_name);
-				string path(basepath + name +
-				                       "/hardwareconfig.xml");
-				if (extensions.find(name) == extensions.end()) {
-					// not yet found in prev directory
-					extensions[name] = path;
-				}
+	ReadDir dir(".");
+	while (dirent* d = dir.getEntry()) {
+		if (select(d)) {
+			string name(d->d_name);
+			string path(basepath + name +
+					       "/hardwareconfig.xml");
+			if (extensions.find(name) == extensions.end()) {
+				// not yet found in prev directory
+				extensions[name] = path;
 			}
-			d = readdir(dir);
 		}
-		closedir(dir);
 	}
 	chdir(buf);
 }

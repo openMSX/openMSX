@@ -1,13 +1,12 @@
-<?xml version="1.0"?>
-<!-- $Id$ -->
-<!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
+<?xml version="1.0" ?>
+<!-- $Id$ --><!DOCTYPE msxconfig
+  SYSTEM 'msxconfig.dtd'>
 <msxconfig>
   <device id="Konami SCC+ Cartridge">
-    <type>SCCPlusCart</type>
+    <type>SCC+</type>
     <slotted> <ps>-1</ps> <ss>-1</ss> <page>1</page> </slotted>
     <slotted> <ps>-1</ps> <ss>-1</ss> <page>2</page> </slotted>
-    <parameter name="subtype">expanded</parameter>
-    <parameter name="volume">13000</parameter>
+    <subtype>expanded</subtype>
+    <volume>13000</volume>
   </device>
 </msxconfig>
-

@@ -1,6 +1,6 @@
-<?xml version="1.0"?>
-<!-- $Id$ -->
-<!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
+<?xml version="1.0" ?>
+<!-- $Id$ --><!DOCTYPE msxconfig
+  SYSTEM 'msxconfig.dtd'>
 <msxconfig>
 
   <config id="ExternalSlots">
@@ -9,10 +9,10 @@
   </config>
 
   <config id="MotherBoard">
-    <slot num="0" expanded="true"/>
-    <slot num="1" expanded="false"/>
-    <slot num="2" expanded="false"/>
-    <slot num="3" expanded="true"/>
+    <slot expanded="true" num="0"/>
+    <slot expanded="false" num="1"/>
+    <slot expanded="false" num="2"/>
+    <slot expanded="true" num="3"/>
   </config>
 
   <config id="RenShaTurbo">
@@ -26,7 +26,7 @@
   
   <!-- this must come before other internal roms -->
   <device id="Firmware">
-    <type>Rom</type>
+    <type>ROM</type>
     <slotted> <ps>3</ps> <ss>3</ss> <page>0</page> </slotted>
     <slotted> <ps>3</ps> <ss>3</ss> <page>1</page> </slotted>
     <slotted> <ps>3</ps> <ss>3</ss> <page>2</page> </slotted>
@@ -39,7 +39,7 @@
   </device>
 
   <device id="MSX BIOS with BASIC ROM">
-    <type>Rom</type>
+    <type>ROM</type>
     <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
     <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
     <firstblock>40</firstblock>
@@ -47,7 +47,7 @@
   </device>
   
   <device id="MSX Music">
-    <type>Music</type>
+    <type>MSX-MUSIC</type>
     <slotted> <ps>0</ps> <ss>2</ss> <page>1</page> </slotted>
     <io base="0x7C" num="2" type="O"/>
     <firstblock>62</firstblock>
@@ -57,14 +57,14 @@
   </device>
   
   <device id="MSX Opening ROM">
-    <type>Rom</type>
+    <type>ROM</type>
     <slotted> <ps>0</ps> <ss>3</ss> <page>1</page> </slotted>
     <firstblock>36</firstblock>
     <lastblock>37</lastblock>
   </device>
 
   <device id="Main RAM">
-    <type>PanasonicRam</type>
+    <type>PanasonicRAM</type>
     <slotted> <ps>3</ps> <ss>0</ss> <page>0</page> </slotted>
     <slotted> <ps>3</ps> <ss>0</ss> <page>1</page> </slotted>
     <slotted> <ps>3</ps> <ss>0</ss> <page>2</page> </slotted>
@@ -74,14 +74,14 @@
   </device>
 
   <device id="MSX Sub ROM">
-    <type>Rom</type>
+    <type>ROM</type>
     <slotted> <ps>3</ps> <ss>1</ss> <page>0</page> </slotted>
     <firstblock>56</firstblock>
     <lastblock>57</lastblock>
   </device>
 
   <device id="MSX Kanji Driver with BASIC">
-    <type>Rom</type>
+    <type>ROM</type>
     <slotted> <ps>3</ps> <ss>1</ss> <page>1</page> </slotted>
     <slotted> <ps>3</ps> <ss>1</ss> <page>2</page> </slotted>
     <firstblock>58</firstblock>
@@ -136,7 +136,7 @@
     <type>RTC</type>
     <io base="0xB4" num="2" type="O"/>
     <io base="0xB5" num="1" type="I"/>
-    <mode>EmuTime</mode>
+    
     <sramname>fs-a1gt.cmos</sramname>
   </device>
 
@@ -173,7 +173,7 @@
   </device>
 
   <device id="MSX-Midi">
-    <type>MSX-Midi</type>
+    <type>MSX-MIDI</type>
     <io base="0xE8" num="8"/>
   </device>
 </msxconfig>

@@ -1,6 +1,6 @@
-<?xml version="1.0"?>
-<!-- $Id$ -->
-<!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
+<?xml version="1.0" ?>
+<!-- $Id$ --><!DOCTYPE msxconfig
+  SYSTEM 'msxconfig.dtd'>
 <msxconfig>
 
   <device id="Sunrise IDE">
@@ -9,14 +9,14 @@
     <slotted> <ps>-1</ps> <ss>-1</ss> <page>1</page> </slotted>
     <slotted> <ps>-1</ps> <ss>-1</ss> <page>2</page> </slotted>
     <slotted> <ps>-1</ps> <ss>-1</ss> <page>3</page> </slotted>
-    <parameter name="filename">roms/ide221.dat</parameter>
-    <parameter name="master">myHD</parameter>
+    <filename>roms/ide221.dat</filename>
+    <master>myHD</master>
   </device>
 
   <config id="myHD">
     <type>IDEHD</type>
-    <parameter name="filename">hd.dsk</parameter>
-    <parameter name="size">100</parameter>
+    <filename>hd.dsk</filename>
+    <size>100</size>
   </config>
 
 </msxconfig>

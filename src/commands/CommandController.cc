@@ -17,7 +17,7 @@
 #include "CliCommOutput.hh"
 #include "Interpreter.hh"
 #include "InfoCommand.hh"
-
+#include "ReadDir.hh"
 
 namespace openmsx {
 
@@ -400,20 +400,17 @@ void CommandController::completeFileName(vector<string> &tokens)
 	     it != paths.end();
 	     ++it) {
 		string dirname = *it + basename;
-		DIR* dirp = opendir(FileOperations::getNativePath(dirname).c_str());
-		if (dirp != NULL) {
-			while (dirent* de = readdir(dirp)) {
-				struct stat st;
-				string name = dirname + de->d_name;
-				if (!(stat(FileOperations::getNativePath(name).c_str(), &st))) {
-					string nm = basename + de->d_name;
-					if (S_ISDIR(st.st_mode)) {
-						nm += "/";
-					}
-					filenames.insert(FileOperations::getConventionalPath(nm));
+		ReadDir dir(FileOperations::getNativePath(dirname).c_str());
+		while (dirent* de = dir.getEntry()) {
+			struct stat st;
+			string name = dirname + de->d_name;
+			if (!(stat(FileOperations::getNativePath(name).c_str(), &st))) {
+				string nm = basename + de->d_name;
+				if (S_ISDIR(st.st_mode)) {
+					nm += "/";
 				}
+				filenames.insert(FileOperations::getConventionalPath(nm));
 			}
-			closedir(dirp);
 		}
 	}
 	bool t = completeString2(filename, filenames, true);

@@ -5,6 +5,7 @@
 
 #include <memory>
 #include <string>
+#include <time.h>
 #include "openmsx.hh"
 #include "FileException.hh"
 
@@ -122,6 +123,12 @@ public:
 	 * @throws FileException
 	 */
 	bool isReadOnly() const;
+
+	/**
+	 * Get the date/time of last modification
+	 * @throws FileException
+	 */
+	time_t getModificationDate();
 
 private:
 	auto_ptr<FileBase> file;

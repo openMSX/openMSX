@@ -97,4 +97,9 @@ bool File::isReadOnly() const
 	return file->isReadOnly();
 }
 
+time_t File::getModificationDate()
+{
+	return file->getModificationDate();
+}
+
 } // namespace openmsx

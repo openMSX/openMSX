@@ -9,6 +9,10 @@ namespace openmsx {
 ZipFileAdapter::ZipFileAdapter(auto_ptr<FileBase> file_)
 	: CompressedFileAdapter(file_)
 {
+}
+
+void ZipFileAdapter::decompress()
+{
 	byte* inputBuf = file->mmap();
 
 	byte* ptr = inputBuf;

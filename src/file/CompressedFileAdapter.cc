@@ -46,9 +46,16 @@ CompressedFileAdapter::~CompressedFileAdapter()
 	}
 }
 
+void CompressedFileAdapter::fillBuffer()
+{
+	if (!buf) {
+		decompress();
+	}
+}
 
 void CompressedFileAdapter::read(byte* buffer, unsigned num)
 {
+	fillBuffer();
 	memcpy(buffer, &buf[pos], num);
 }
 
@@ -59,6 +66,7 @@ void CompressedFileAdapter::write(const byte* buffer, unsigned num)
 
 unsigned CompressedFileAdapter::getSize()
 {
+	fillBuffer();
 	return size;
 }
 
@@ -84,6 +92,7 @@ const string CompressedFileAdapter::getURL() const
 
 const string CompressedFileAdapter::getLocalName()
 {
+	fillBuffer();
 	if (!localName) {
 		// create temp dir
 		if (tmpCount == 0) {
@@ -130,6 +139,11 @@ const string CompressedFileAdapter::getLocalName()
 bool CompressedFileAdapter::isReadOnly() const
 {
 	return true;
+}
+
+time_t CompressedFileAdapter::getModificationDate()
+{
+	return file->getModificationDate();
 }
 
 } // namespace openmsx

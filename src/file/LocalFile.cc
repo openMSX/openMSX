@@ -2,6 +2,8 @@
 
 #include "probed_defs.hh"
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #ifdef	HAVE_SYS_MMAN_H
 #include <sys/mman.h>
 #endif
@@ -148,6 +150,15 @@ const string LocalFile::getLocalName()
 bool LocalFile::isReadOnly() const
 {
 	return readOnly;
+}
+
+time_t LocalFile::getModificationDate()
+{
+	struct stat st;
+	if (fstat(fileno(file), &st)) {
+		throw FileException("Cannot stat file");
+	}
+	return st.st_mtime;
 }
 
 } // namespace openmsx

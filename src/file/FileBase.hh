@@ -33,6 +33,7 @@ public:
 	virtual const string getURL() const = 0;
 	virtual const string getLocalName() = 0;
 	virtual bool isReadOnly() const = 0;
+	virtual time_t getModificationDate() = 0;
 
 protected:
 	byte* mmem;

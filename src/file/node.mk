@@ -10,7 +10,9 @@ SRC_HDR:= \
 	FileOperations \
 	CompressedFileAdapter \
 	GZFileAdapter \
-	ZipFileAdapter
+	ZipFileAdapter \
+	ReadDir \
+	FilePool
 	
 HDR_ONLY:= \
 	FileException

@@ -30,6 +30,7 @@ public:
 	virtual const string getURL() const;
 	virtual const string getLocalName();
 	virtual bool isReadOnly() const;
+	virtual time_t getModificationDate();
 
 private:
 	string filename;

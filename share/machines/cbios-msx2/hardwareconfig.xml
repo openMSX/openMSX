@@ -1,86 +1,83 @@
-<?xml version="1.0"?>
-<!-- $Id$ -->
-<!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
+<?xml version="1.0" ?>
+<!-- $Id$ --><!DOCTYPE msxconfig
+  SYSTEM 'msxconfig.dtd'>
 <msxconfig>
 
   <config id="ExternalSlots">
-    <parameter name="slota">1-0</parameter>
-    <parameter name="slotb">2-0</parameter>
+    <slota>1-0</slota>
+    <slotb>2-0</slotb>
   </config>
 
   <config id="MotherBoard">
-    <parameter name="0" class="subslotted">false</parameter>
-    <parameter name="1" class="subslotted">false</parameter>
-    <parameter name="2" class="subslotted">false</parameter>
-    <parameter name="3" class="subslotted">true</parameter>
+    <slot expanded="false" num="0"/>
+    <slot expanded="false" num="1"/>
+    <slot expanded="false" num="2"/>
+    <slot expanded="true" num="3"/>
   </config>
 
   <config id="MapperType">
-    <parameter name="type">Philips</parameter>
+    <type>Philips</type>
   </config>
 
   <device id="Main RAM">
     <type>MemoryMapper</type>
-    <parameter name="slow_drain_on_reset">false</parameter>
-    <parameter name="size">512</parameter>
+    <slow_drain_on_reset>false</slow_drain_on_reset>
+    <size>512</size>
     <slotted> <ps>3</ps> <ss>2</ss> <page>0</page> </slotted>
     <slotted> <ps>3</ps> <ss>2</ss> <page>1</page> </slotted>
     <slotted> <ps>3</ps> <ss>2</ss> <page>2</page> </slotted>
     <slotted> <ps>3</ps> <ss>2</ss> <page>3</page> </slotted>
-    <parameter name="slow_drain_on_reset">false</parameter>
+    <slow_drain_on_reset>false</slow_drain_on_reset>
   </device>
 
   <device id="C-BIOS main">
-    <type>Rom</type>
+    <type>ROM</type>
     <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
-    <parameter name="filename">../../../Contrib/cbios/CB_MAIN.BIN</parameter>
+    <filename>../../../Contrib/cbios/CB_MAIN.BIN</filename>
   </device>
 
   <device id="C-BIOS second half">
-    <type>Rom</type>
+    <type>ROM</type>
     <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
-    <parameter name="filename">../../../Contrib/cbios/CB_SH.BIN</parameter>
+    <filename>../../../Contrib/cbios/CB_SH.BIN</filename>
   </device>
 
   <device id="C-BIOS subrom">
-    <type>Rom</type>
+    <type>ROM</type>
     <slotted> <ps>3</ps> <ss>0</ss> <page>0</page> </slotted>
-    <parameter name="filename">../../../Contrib/cbios/CB_SUB.BIN</parameter>
+    <filename>../../../Contrib/cbios/CB_SUB.BIN</filename>
   </device>
 
   <device id="ppi">
     <type>PPI</type>
-    <parameter name="volume">16000</parameter>
-    <parameter name="key_ghosting">true</parameter>
-  </device>
+    <volume>16000</volume>
+    <key_ghosting>true</key_ghosting>
+  <io base="0xa8" num="4"/></device>
 
   <device id="VDP">
     <type>VDP</type>
-    <parameter name="version">V9938</parameter>
-    <parameter name="vram">128</parameter>
-  </device>
+    <version>V9938</version>
+    <vram>128</vram>
+  <io base="0x98" num="4" type="O"/><io base="0x98" num="2" type="I"/></device>
 
   <device id="Real time clock">
     <type>RTC</type>
-    <parameter name="mode">EmuTime</parameter>
-    <parameter name="sramname">cbios-msx2.cmos</parameter>
-  </device>
+    
+    <sramname>cbios-msx2.cmos</sramname>
+  <io base="0xb4" num="2" type="O"/><io base="0xb5" num="1" type="I"/></device>
 
   <device id="PSG">
     <type>PSG</type>
-    <parameter name="volume">21000</parameter>
-  </device>
+    <volume>21000</volume>
+  <io base="0xa0" num="2" type="O"/><io base="0xa2" num="1" type="I"/></device>
 
-  <device id="cpu">
-    <type>CPU</type>
-  </device>
+  
 
   <device id="Printer Port">
     <type>PrinterPort</type>
-  </device>
+  <io base="0x90" num="2"/></device>
 
   <config id="CassettePort">
   </config>
 
 </msxconfig>
-

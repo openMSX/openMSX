@@ -54,6 +54,12 @@
     <directory>~/openMSX/tapes</directory>
   </config>
 
+<!--
+  <config id="RomPool">
+    <directory>~/openMSX/systemroms</directory>
+  </config>
+-->
+
  <!-- File extensions that should be bound to certain file types -->
   <config id="FileTypes">
     <diskimage>dsk</diskimage>

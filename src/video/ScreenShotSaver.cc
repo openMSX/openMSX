@@ -9,6 +9,7 @@
 #include <png.h>
 #include "ScreenShotSaver.hh"
 #include "FileOperations.hh"
+#include "ReadDir.hh"
 
 using std::ostringstream;
 using std::max;
@@ -162,14 +163,9 @@ string ScreenShotSaver::getFileName()
 		// ignore
 	}
 
-	DIR* dir = opendir(dirName.c_str());
-	if (dir) {
-		struct dirent* d = readdir(dir);
-		while (d) {
-			max_num = max(max_num, getNum(d));
-			d = readdir(dir);
-		}
-		closedir(dir);
+	ReadDir dir(dirName.c_str());
+	while (dirent* d = dir.getEntry()) {
+		max_num = max(max_num, getNum(d));
 	}
 
 	ostringstream os;

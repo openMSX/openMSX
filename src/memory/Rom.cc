@@ -16,6 +16,7 @@
 #include "Debugger.hh"
 #include "sha1.hh"
 #include "CliCommOutput.hh"
+#include "FilePool.hh"
 
 namespace openmsx {
 
@@ -23,8 +24,23 @@ Rom::Rom(const string& name_, const string& description_, Config* config)
 	: name(name_), description(description_)
 {
 	// TODO use SHA1 to fetch file from ROM pool
-	if (config->hasParameter("filename")) {
-		string filename = config->getParameter("filename");
+	
+	string filename;
+	XMLElement::Children sums;
+	config->getChildren("sha1", sums);
+	for (XMLElement::Children::const_iterator it = sums.begin();
+	     it != sums.end(); ++it) {
+		filename = FilePool::instance().getFile((*it)->getData());
+		if (!filename.empty()) {
+			break;
+		}
+	}
+	
+	if (filename.empty() && config->hasParameter("filename")) {
+		filename = config->getParameter("filename");
+	}
+
+	if (!filename.empty()) {
 		read(config, filename);
 	} else if (config->hasParameter("firstblock")) {
 		int first = config->getParameterAsInt("firstblock");

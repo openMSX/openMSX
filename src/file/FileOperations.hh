@@ -103,7 +103,6 @@ public:
 	* Linux: just return an empty string
 	*/
 	static string expandCurrentDirFromDrive (const string& path);
-		
 };
 
 } // namespace openmsx

@@ -11,6 +11,9 @@ class ZipFileAdapter : public CompressedFileAdapter
 {
 public:
 	ZipFileAdapter(auto_ptr<FileBase> file);
+
+protected:
+	virtual void decompress();
 };
 
 } // namespace openmsx
