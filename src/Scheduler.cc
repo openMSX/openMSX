@@ -8,6 +8,8 @@
 #include "EventDistributor.hh"
 #include "Schedulable.hh"
 #include "RealTime.hh"
+#include "MSXMotherBoard.hh"
+#include "Leds.hh"
 #include "Renderer.hh" // TODO: Temporary?
 
 
@@ -17,7 +19,8 @@ const EmuTime Scheduler::ASAP;
 
 Scheduler::Scheduler()
 	: sem(1),
-	  pauseSetting("pause", "pauses the emulation", false)
+	  pauseSetting("pause", "pauses the emulation", false),
+	  powerSetting("power", "turn power on/off", false)
 {
 	paused = false;
 	emulationRunning = true;
@@ -26,10 +29,12 @@ Scheduler::Scheduler()
 	renderer = NULL;
 	
 	pauseSetting.addListener(this);
+	powerSetting.addListener(this);
 }
 
 Scheduler::~Scheduler()
 {
+	powerSetting.removeListener(this);
 	pauseSetting.removeListener(this);
 }
 
@@ -59,7 +64,7 @@ void Scheduler::setSyncPoint(const EmuTime &timeStamp, Schedulable* device, int 
 	syncPoints.push_back(SynchronizationPoint (time, device, userData));
 	push_heap(syncPoints.begin(), syncPoints.end());
 	sem.up();
-	if (paused) {
+	if (paused || !powerSetting.getValue()) {
 		EventDistributor::instance()->notify();
 	}
 }
@@ -145,7 +150,7 @@ const EmuTime Scheduler::scheduleEmulation()
 	EventDistributor *eventDistributor = EventDistributor::instance();
 	while (emulationRunning) {
 		emulateStep();
-		if (paused) {
+		if (paused || !powerSetting.getValue()) {
 			assert(renderer != NULL);
 			renderer->putStoredImage();
 			eventDistributor->wait();
@@ -172,16 +177,38 @@ void Scheduler::pause()
 	}
 }
 
-void Scheduler::update(const SettingLeafNode *setting)
+void Scheduler::powerOn()
 {
-	assert(setting == &pauseSetting);
-	if (pauseSetting.getValue()) {
-		// VDP has taken over this role.
-		// TODO: Should it stay that way?
-		// pause();
+	powerSetting.setValue(true);
+	Leds::instance()->setLed(Leds::POWER_ON);
+	RealTime::instance()->resync();
+}
+
+void Scheduler::powerOff()
+{
+	powerSetting.setValue(false);
+	Leds::instance()->setLed(Leds::POWER_OFF);
+	MSXMotherBoard::instance()->reInitMSX();
+}
+
+void Scheduler::update(const SettingLeafNode* setting)
+{
+	if (setting == &pauseSetting) {
+		if (pauseSetting.getValue()) {
+			// VDP has taken over this role.
+			// TODO: Should it stay that way?
+			// pause();
+		} else {
+			unpause();
+		}
+	} else if (setting == &powerSetting) {
+		if (powerSetting.getValue()) {
+			powerOn();
+		} else {
+			powerOff();
+		}
 	} else {
-		RealTime::instance()->resync();
-		unpause();
+		assert(false);
 	}
 }
 

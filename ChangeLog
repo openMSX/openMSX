@@ -1,5 +1,9 @@
 $Id$
 
+2003-10-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented "power" setting:
+	   display is still wrong in power off mode
+
 2003-11-01 Maarten ter Huurne <maarten@treewalker.org>
 	* Added "createsubs" target to "alternative.mk":
 	  this creates a Makefile in every source directory

@@ -1,7 +1,6 @@
 // $Id$
 
 #include "MSXMotherBoard.hh"
-#include "Leds.hh"
 #include "MSXDevice.hh"
 #include "CommandController.hh"
 #include "Scheduler.hh"
@@ -53,13 +52,23 @@ void MSXMotherBoard::resetMSX()
 {
 	const EmuTime &time = MSXCPU::instance()->getCurrentTime();
 	MSXCPUInterface::instance()->reset();
-	list<MSXDevice*>::iterator i;
-	for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
-		(*i)->reset(time);
+	for (list<MSXDevice*>::iterator it = availableDevices.begin();
+	     it != availableDevices.end(); ++it) {
+		(*it)->reset(time);
 	}
 }
 
-void MSXMotherBoard::run()
+void MSXMotherBoard::reInitMSX()
+{
+	const EmuTime &time = MSXCPU::instance()->getCurrentTime();
+	MSXCPUInterface::instance()->reset();
+	for (list<MSXDevice*>::iterator it = availableDevices.begin();
+	     it != availableDevices.end(); ++it) {
+		(*it)->reInit(time);
+	}
+}
+
+void MSXMotherBoard::run(bool powerOn)
 {
 	// Initialise devices.
 	MSXConfig* config = MSXConfig::instance();
@@ -67,7 +76,7 @@ void MSXMotherBoard::run()
 	Device* d;
 	while ((d = config->getNextDevice()) != 0) {
 		PRT_DEBUG("Instantiating: " << d->getType());
-		MSXDevice *device = DeviceFactory::create(d, EmuTime::zero);
+		MSXDevice* device = DeviceFactory::create(d, EmuTime::zero);
 		addDevice(device);
 	}
 	// Register all postponed slots.
@@ -82,10 +91,13 @@ void MSXMotherBoard::run()
 
 	// Initialize.
 	MSXCPUInterface::instance()->reset();
-	Leds::instance()->setLed(Leds::POWER_ON);
 
 	// Run.
+	if (powerOn) {
+		Scheduler::instance()->powerOn();
+	}
 	EmuTime time(Scheduler::instance()->scheduleEmulation());
+	Scheduler::instance()->powerOff();
 
 	// Shut down mixing because it depends on MSXCPU,
 	// which will be destroyed in the next step.
@@ -93,11 +105,12 @@ void MSXMotherBoard::run()
 	Mixer::instance()->shutDown();
 
 	// Destroy emulated MSX machine.
-	for (list<MSXDevice*>::iterator i = availableDevices.begin();
-	     i != availableDevices.end(); ++i) {
-		(*i)->powerDown(time);
-		delete (*i);
+	for (list<MSXDevice*>::iterator it = availableDevices.begin();
+	     it != availableDevices.end(); ++it) {
+		MSXDevice* device = *it;
+		delete device;
 	}
+	availableDevices.clear();
 }
 
 

@@ -100,6 +100,9 @@ public:
 		this->renderer = renderer;
 	}
 
+	void powerOn();
+	void powerOff();
+
 	// Should only be called by VDP 
 	void pause();
 	bool isPaused() const {
@@ -135,6 +138,7 @@ private:
 	MSXCPU* cpu;
 	Renderer* renderer;
 	BooleanSetting pauseSetting;
+	BooleanSetting powerSetting;
 };
 
 } // namespace openmsx

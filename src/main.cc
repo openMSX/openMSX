@@ -55,9 +55,9 @@ int main(int argc, char **argv)
 		initializeSDL();
 		CommandLineParser::ParseStatus parseStatus =
 			CommandLineParser::instance()->parse(argc, argv);
-		if (parseStatus == CommandLineParser::OK) {
-			// Start emulation thread.
-			MSXMotherBoard::instance()->run();
+		if (parseStatus != CommandLineParser::EXIT) {
+			MSXMotherBoard::instance()->run(
+				parseStatus == CommandLineParser::RUN);
 		}
 	} catch (FatalError& e) {
 		cerr << "Fatal error: " << e.getMessage() << endl;

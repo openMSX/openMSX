@@ -57,7 +57,7 @@ struct OptionData
 class CommandLineParser
 {
 	public:
-		enum ParseStatus { OK, EXIT };
+		enum ParseStatus { RUN, CONTROL, EXIT };
 		
 		static CommandLineParser* instance();
 		

@@ -153,7 +153,7 @@ void CommandLineParser::registerPostConfig(CLIPostConfig *post)
 CommandLineParser::ParseStatus CommandLineParser::parse(int argc, char **argv)
 {
 	MSXConfig *config = MSXConfig::instance();
-	parseStatus = OK;
+	parseStatus = RUN;
 	
 	CliExtension extension; // for -ext option
 	
@@ -260,6 +260,7 @@ bool CommandLineParser::ControlOption::parseOption(const string &option,
 		list<string> &cmdLine)
 {
 	CliCommunicator::instance().enable();
+	CommandLineParser::instance()->parseStatus = CONTROL;
 	return true;
 }
 
