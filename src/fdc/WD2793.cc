@@ -1,13 +1,13 @@
 // $Id$
 
-#include "FDC2793.hh"
+#include "WD2793.hh"
 #include "DiskImageManager.hh"
 #include "FDCBackEnd.hh"
 
 
-FDC2793::FDC2793(MSXConfig::Device *config) 
+WD2793::WD2793(MSXConfig::Device *config) 
 {
-	PRT_DEBUG("instantiating an FDC2793 object..");
+	PRT_DEBUG("instantiating an WD2793 object..");
 	driveName[0] = config->getParameter("drivename1");
 	DiskImageManager::instance()->registerDrive(driveName[0]);
 	try {
@@ -25,17 +25,17 @@ FDC2793::FDC2793(MSXConfig::Device *config)
 	timePerStep[3]=30;
 }
 
-FDC2793::~FDC2793()
+WD2793::~WD2793()
 {
-	PRT_DEBUG("Destructing an FDC2793 object..");
+	PRT_DEBUG("Destructing an WD2793 object..");
 	for (int i=0; i<numDrives; i++) {
 		DiskImageManager::instance()->unregisterDrive(driveName[i]);
 	}
 }
 
-void FDC2793::reset()
+void WD2793::reset()
 {
-  PRT_DEBUG("FDC2793::reset()");
+  PRT_DEBUG("WD2793::reset()");
   statusReg=0;
   trackReg=0;
   dataReg=0;
@@ -64,7 +64,7 @@ void FDC2793::reset()
   //statusReg bit 7 (Not Ready status) is already reset
 }
 
-void FDC2793::setDriveSelect(byte value,const EmuTime &time)
+void WD2793::setDriveSelect(byte value,const EmuTime &time)
 {
   switch (value & 3){
   case 0:
@@ -81,7 +81,7 @@ void FDC2793::setDriveSelect(byte value,const EmuTime &time)
   //PRT_DEBUG("motor is "<<(int)motor_drive<<" drive "<<(int)current_drive);
 }
 
-void FDC2793::setMotor(byte value,const EmuTime &time)
+void WD2793::setMotor(byte value,const EmuTime &time)
 {
   if (current_drive != 255 ){
   	if (motor_drive[current_drive] != value){
@@ -93,23 +93,23 @@ void FDC2793::setMotor(byte value,const EmuTime &time)
 }
 
 //actually not used, maybe for GUI ?
-byte FDC2793::getDriveSelect(const EmuTime &time)
+byte WD2793::getDriveSelect(const EmuTime &time)
 {
   return current_drive;
 }
 
 //actually not used ,maybe for GUI ?
-byte FDC2793::getMotor(const EmuTime &time)
+byte WD2793::getMotor(const EmuTime &time)
 {
   return (current_drive<4)?motor_drive[current_drive]:0;
 }
 
-byte FDC2793::getDTRQ(const EmuTime &time)
+byte WD2793::getDTRQ(const EmuTime &time)
 {
   return dataAvailable?1:0 ;
 }
 
-byte FDC2793::getIRQ(const EmuTime &time)
+byte WD2793::getIRQ(const EmuTime &time)
 {
   return INTRQ?1:0;
   if (INTRQ){
@@ -120,17 +120,17 @@ byte FDC2793::getIRQ(const EmuTime &time)
   }
 }
 
-void FDC2793::setSideSelect(byte value,const EmuTime &time)
+void WD2793::setSideSelect(byte value,const EmuTime &time)
 {
   current_side=value&1;
 }
 
-byte FDC2793::getSideSelect(const EmuTime &time)
+byte WD2793::getSideSelect(const EmuTime &time)
 {
   return current_side;
 }
 
-FDCBackEnd* FDC2793::getBackEnd()
+FDCBackEnd* WD2793::getBackEnd()
 {
 	if (current_drive < numDrives) {
 		return DiskImageManager::instance()->
@@ -140,7 +140,7 @@ FDCBackEnd* FDC2793::getBackEnd()
 	}
 }
 
-void FDC2793::setCommandReg(byte value,const EmuTime &time)
+void WD2793::setCommandReg(byte value,const EmuTime &time)
 {
 	commandReg = value;
 	statusReg |= 1 ;// set status on Busy
@@ -300,7 +300,7 @@ void FDC2793::setCommandReg(byte value,const EmuTime &time)
 	}
 }
 
-byte FDC2793::getStatusReg(const EmuTime &time)
+byte WD2793::getStatusReg(const EmuTime &time)
 {
 	if ( (commandReg & 0x80) == 0){
 		//Type I command so bit 1 should be the index pulse
@@ -323,25 +323,25 @@ byte FDC2793::getStatusReg(const EmuTime &time)
 	return statusReg;
 }
 
-void FDC2793::setTrackReg(byte value,const EmuTime &time)
+void WD2793::setTrackReg(byte value,const EmuTime &time)
 {
   trackReg=value;
 };
-byte FDC2793::getTrackReg(const EmuTime &time)
+byte WD2793::getTrackReg(const EmuTime &time)
 {
   return trackReg;
 };
 
-void FDC2793::setSectorReg(byte value,const EmuTime &time)
+void WD2793::setSectorReg(byte value,const EmuTime &time)
 {
   sectorReg=value;
 };
-byte FDC2793::getSectorReg(const EmuTime &time)
+byte WD2793::getSectorReg(const EmuTime &time)
 {
   return sectorReg;
 };
 
-void FDC2793::setDataReg(byte value, const EmuTime &time)
+void WD2793::setDataReg(byte value, const EmuTime &time)
 {
 	dataReg=value; // TODO is this also true in case of sector write ? Not so according to ASM of brMSX
 	if ((commandReg&0xE0)==0xA0){ // WRITE SECTOR
@@ -368,7 +368,7 @@ void FDC2793::setDataReg(byte value, const EmuTime &time)
 		}
 	  }
 	} else if ((commandReg&0xF0)==0xF0){ // WRITE TRACK
-	    PRT_DEBUG("FDC2793 WRITE TRACK value "<<(int)value);
+	    PRT_DEBUG("WD2793 WRITE TRACK value "<<(int)value);
 	    switch ( value ){
 	      case 0xFE:
 	      case 0xFD:
@@ -405,7 +405,7 @@ void FDC2793::setDataReg(byte value, const EmuTime &time)
 
 }
 
-byte FDC2793::getDataReg(const EmuTime &time)
+byte WD2793::getDataReg(const EmuTime &time)
 {
   if ((commandReg&0xE0)==0x80){ // READ SECTOR
     dataReg=dataBuffer[dataCurrent];

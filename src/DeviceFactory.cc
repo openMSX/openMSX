@@ -25,83 +25,83 @@
 #include "MSXRom.hh"
 #include "MSXPrinterPort.hh"
 #include "MSXSCCPlusCart.hh"
-#include "MSXFDC.hh"
+#include "FDCFactory.hh"
 #include "SunriseIDE.hh"
 
 
-MSXDevice *DeviceFactory::create(MSXConfig::Device *conf, const EmuTime &time) {
-	MSXDevice *device = NULL;
-	if (conf->getType()=="CPU") {
-		device = MSXCPU::instance();
-	} else
-	if (conf->getType()=="MapperIO") {
-		device = MSXMapperIO::instance();
-	} else
-	if (conf->getType()=="PPI") {
-		device = new MSXPPI(conf, time);
-	} else
-	if (conf->getType()=="RAM") {
-		device = new MSXRam(conf, time);
-	} else
-	if (conf->getType()=="VDP") {
-		device = new VDP(conf, time);
-	} else
-	if (conf->getType()=="E6Timer") {
-		device = new MSXE6Timer(conf, time);
-	} else
-	if (conf->getType()=="F4Device") {
-		device = new MSXF4Device(conf, time);
-	} else
-	if (conf->getType()=="TurboRLeds") {
-		device = new MSXTurboRLeds(conf, time);
-	} else
-	if (conf->getType()=="TurboRPause") {
-		device = new MSXTurboRPause(conf, time);
-	} else
-	if (conf->getType()=="S1990") {
-		device = new MSXS1990(conf, time);
-	} else
-	if (conf->getType()=="PSG") {
-		device = new MSXPSG(conf, time);
-	} else
-	if (conf->getType()=="Music") {
-		device = new MSXMusic(conf, time);
-	} else
-	if (conf->getType()=="FM-PAC") {
-		device = new MSXFmPac(conf, time);
-	} else
-	if (conf->getType()=="Audio") {
-		device = new MSXAudio(conf, time);
-	} else
-	if (conf->getType()=="Audio-Midi") {
-		device = new MC6850(conf, time);
-	} else
-	if (conf->getType()=="Kanji") {
-		device = new MSXKanji(conf, time);
-	} else
-	if (conf->getType()=="MemoryMapper") {
-		device = new MSXMemoryMapper(conf, time);
-	} else
-	if (conf->getType()=="RTC") {
-		device = new MSXRTC(conf, time);
-	} else
-	if (conf->getType()=="Rom") {
-		device = new MSXRom(conf, time);
-	} else
-	if (conf->getType()=="PrinterPort") {
-		device = new MSXPrinterPort(conf, time);
-	} else
-	if (conf->getType()=="SCCPlusCart") {
-		device = new MSXSCCPlusCart(conf, time);
-	} else
-	if (conf->getType()=="FDC") {
-		device = new MSXFDC(conf, time);
+MSXDevice *DeviceFactory::create(MSXConfig::Device *conf, const EmuTime &time)
+{
+	const std::string type = conf->getType();
+	if (type == "CPU") {
+		return MSXCPU::instance();
+	} 
+	if (type == "MapperIO") {
+		return MSXMapperIO::instance();
+	} 
+	if (type == "PPI") {
+		return new MSXPPI(conf, time);
+	} 
+	if (type == "RAM") {
+		return new MSXRam(conf, time);
+	} 
+	if (type == "VDP") {
+		return new VDP(conf, time);
+	} 
+	if (type == "E6Timer") {
+		return new MSXE6Timer(conf, time);
+	} 
+	if (type == "F4Device") {
+		return new MSXF4Device(conf, time);
+	} 
+	if (type == "TurboRLeds") {
+		return new MSXTurboRLeds(conf, time);
+	} 
+	if (type == "TurboRPause") {
+		return new MSXTurboRPause(conf, time);
+	} 
+	if (type == "S1990") {
+		return new MSXS1990(conf, time);
+	} 
+	if (type == "PSG") {
+		return new MSXPSG(conf, time);
+	} 
+	if (type == "Music") {
+		return new MSXMusic(conf, time);
+	} 
+	if (type == "FM-PAC") {
+		return new MSXFmPac(conf, time);
+	} 
+	if (type == "Audio") {
+		return new MSXAudio(conf, time);
+	} 
+	if (type == "Audio-Midi") {
+		return new MC6850(conf, time);
+	} 
+	if (type == "Kanji") {
+		return new MSXKanji(conf, time);
+	} 
+	if (type == "MemoryMapper") {
+		return new MSXMemoryMapper(conf, time);
+	} 
+	if (type == "RTC") {
+		return new MSXRTC(conf, time);
+	} 
+	if (type == "Rom") {
+		return new MSXRom(conf, time);
+	} 
+	if (type == "PrinterPort") {
+		return new MSXPrinterPort(conf, time);
+	} 
+	if (type == "SCCPlusCart") {
+		return new MSXSCCPlusCart(conf, time);
+	} 
+	if (type == "FDC") {
+		return FDCFactory::create(conf, time);
 	}
-	if (conf->getType()=="SunriseIDE") {
-		device = new SunriseIDE(conf, time);
+	if (type == "SunriseIDE") {
+		return new SunriseIDE(conf, time);
 	}
-	if (device == NULL)
-		PRT_ERROR("Unknown device specified in configuration");
-	return device;
+	PRT_ERROR("Unknown device specified in configuration");
+	return NULL;
 }
 

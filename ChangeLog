@@ -1,5 +1,22 @@
 $Id$
 
+2002-10-27 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* rewrite of FDC infrastructure:
+	   - the existing diskroms are too different to handle them all
+	     in one class -> made FDCFactory that instantiates the right 
+	     object
+	   - Implemented support for:
+	       - Philips based diskroms: were already supported
+	       - Brazil  based diskroms (needs better name?): IO-based
+	           were already supported, but I never tested them
+	           I also didn't test the new implementation
+	       - National based diskroms (needs better name?):
+	           also untested
+	     The three diskroms above are all build around the WD2793 (or 
+	     compatible) controller. 
+	   - Configuration format changed slightly, see msxconfigFDC.xml
+	     for details
+
 2002-10-29 Maarten ter Huurne <mth@stack.nl>
 	* Minor cleanups in PixelRenderer and SDLHiRenderer.
 

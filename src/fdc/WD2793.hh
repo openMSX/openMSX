@@ -1,19 +1,18 @@
 // $Id$
 
-#ifndef __FDC2793_HH__
-#define __FDC2793_HH__
+#ifndef __WD2793_HH__
+#define __WD2793_HH__
 
-#include "FDC.hh"
 #include "MSXConfig.hh"
 
 // forward declarations
 class FDCBackEnd;
 
 
-class FDC2793 : public FDC
+class WD2793
 {
   public:
-	virtual ~FDC2793();
+	virtual ~WD2793();
 
 	virtual void reset();
 	virtual byte getStatusReg(const EmuTime &time);
@@ -33,7 +32,7 @@ class FDC2793 : public FDC
 	virtual void setDriveSelect(byte value,const EmuTime &time);
 	virtual void setMotor(byte value,const EmuTime &time);
 
-	FDC2793(MSXConfig::Device *config);
+	WD2793(MSXConfig::Device *config);
 	
   private:
 	FDCBackEnd* getBackEnd();

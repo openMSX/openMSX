@@ -13,13 +13,16 @@ endif
 
 noinst_LTLIBRARIES = libFdc.la
 libFdc_la_SOURCES = \
+	FDCFactory.cc FDCFactory.hh \
 	MSXFDC.cc MSXFDC.hh \
-	FDC.hh \
-	FDC2793.cc FDC2793.hh \
+	PhilipsFDC.cc PhilipsFDC.hh \
+	BrazilFDC.cc BrazilFDC.hh \
+	NationalFDC.cc NationalFDC.hh \
+	WD2793.cc WD2793.hh \
+	DiskImageManager.cc DiskImageManager.hh \
 	FDCBackEnd.cc FDCBackEnd.hh \
 	FDCDummyBackEnd.cc FDCDummyBackEnd.hh \
 	FDC_DSK.cc FDC_DSK.hh \
-	DiskImageManager.cc DiskImageManager.hh \
 	FDC_XSA.cc FDC_XSA.hh
 
 nodebug: resetdebug all
