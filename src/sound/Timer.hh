@@ -7,6 +7,8 @@
 #include "openmsx.hh"
 
 
+class Scheduler;
+
 class TimerCallback
 {
 	public:
@@ -26,11 +28,11 @@ class Timer : public Schedulable
 		virtual void executeUntilEmuTime(const EmuTime &time, int userData);
 		void schedule(const EmuTime &time);
 		void unschedule();
-	
+
 		int count;
 		bool counting;
 		TimerCallback *cb;
-		class Scheduler *scheduler;
+		Scheduler *scheduler;
 };
 
 #endif
