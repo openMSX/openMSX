@@ -278,6 +278,25 @@ clean:
 	@echo "Cleaning up..."
 	@rm -rf $(BUILD_PATH)
 
+# Create Makefiles in source subdirectories, to conveniently build a subset.
+ifneq ($(filter createsubs,$(MAKECMDGOALS)),)
+# Function that concatenates list items to form a single string.
+# Usage: $(call JOIN,TEXT)
+JOIN=$(if $(1),$(firstword $(1))$(call JOIN,$(wordlist 2,999999,$(1))),)
+
+RELPATH=$(call JOIN,$(patsubst %,../,$(subst /, ,$(@:%/Makefile=%))))
+
+SUB_MAKEFILES:=$(addsuffix Makefile,$(sort $(dir $(SOURCES_FULL))))
+createsubs: $(SUB_MAKEFILES)
+$(SUB_MAKEFILES):
+	@echo "Creating $@..."
+	@echo "export OPENMSX_SUBSET=$(@:$(SOURCES_PATH)/%Makefile=%)" > $@
+	@echo "all:" >> $@
+	@echo "	@\$$(MAKE) -C $(RELPATH) -f alternative.mk" >> $@
+# Force re-creation every time this target is run.
+.PHONY: $(SUB_MAKEFILES)
+endif
+
 # Compile and generate dependency files in one go.
 DEPEND_SUBST=$(patsubst $(SOURCES_PATH)/%.cc,$(DEPEND_PATH)/%.d,$<)
 $(OBJECTS_FULL): $(OBJECTS_PATH)/%.o: $(SOURCES_PATH)/%.cc $(DEPEND_PATH)/%.d
