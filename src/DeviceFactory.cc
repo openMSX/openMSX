@@ -41,6 +41,7 @@
 #include "MSXMegaRam.hh"
 #include "MSXPac.hh"
 #include "MSXHBI55.hh"
+#include "DebugDevice.hh"
 
 
 // TODO: Add the switched device to the config files.
@@ -290,7 +291,13 @@ MSXDevice *DeviceFactory::create(Device *conf, const EmuTime &time)
 		cpuInterface->register_IO_In (0xB3, hbi55);
 		return hbi55;
 	}
+	
+	if (type == "DebugDevice") {
+		DebugDevice * debugDevice = new DebugDevice(conf, time);
+		cpuInterface->register_IO_Out(0x2E, debugDevice);
+		cpuInterface->register_IO_Out(0x2F, debugDevice);
+		return debugDevice;
+	}
 	PRT_ERROR("Unknown device \""<<type<<"\" specified in configuration");
 	return NULL;
 }
-

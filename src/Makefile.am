@@ -87,6 +87,7 @@ openmsx_SOURCES=\
 	Connector.hh Connector.cc \
 	Pluggable.hh Pluggable.cc \
 	Settings.hh Settings.cc \
+	DebugDevice.hh DebugDevice.cc \
 	config.h
 
 openmsx_LDADD = \
