@@ -32,7 +32,13 @@ CPU::CPU(const string& name, int defaultFreq,
 	, freq(defaultFreq)
 	, traceSetting(traceSetting_)
 {
-	clock.setFreq(defaultFreq);
+	if (freqLocked.getValue()) {
+		// locked
+		clock.setFreq(defaultFreq);
+	} else {
+		// unlocked
+		clock.setFreq(freqValue.getValue());
+	}
 
 	freqLocked.addListener(this);
 	freqValue.addListener(this);

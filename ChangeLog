@@ -1,5 +1,12 @@
 $Id$
 
+2004-10-12 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Correctly restore saved cpu freq settings:
+	   - When z80_freq_locked was saved as 'false', you had to do
+	     set z80_freq_locked true ; set z80_freq_locked false to
+	     really get the wanted behaviour. 
+	   - Thanks to patatof for reporting this bug.
+
 2004-10-11 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* fixed scc and Panasonic_FS-CA1 extensions:
 	    mappertype tag was moved
