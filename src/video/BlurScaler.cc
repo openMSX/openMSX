@@ -251,6 +251,8 @@ void BlurScaler<Pixel>::blur256(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 
 			"packuswb %%mm4, %%mm1;"
 			"movq	%%mm1, 8(%1,%%eax,8);"	// pOut[2*x+0] = ..  pOut[2*x+1] = ..
+			
+			"emms;"
 
 			: // no output
 			: "r" (pIn)   // 0
@@ -263,6 +265,7 @@ void BlurScaler<Pixel>::blur256(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 
 	} else {
 		// non-MMX routine, both 16bpp and 32bpp
+		// TODO in 16bpp colors are too dark, rounding errors??
 		Pixel p0 = pIn[0];
 		Pixel p1;
 		unsigned f0 = multiply(p0, c1);
@@ -334,7 +337,7 @@ void BlurScaler<Pixel>::blur512(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 	unsigned c2 = 256 - alpha / 2;
 
 	const HostCPU& cpu = HostCPU::getInstance();
-	if (false && cpu.hasMMXEXT() && sizeof(Pixel) == 4) {
+	if (ASM_X86 && cpu.hasMMXEXT() && sizeof(Pixel) == 4) {
 		// MMX routine, 32bpp
 		asm (
 			"xorl	%%eax, %%eax;"
@@ -400,6 +403,8 @@ void BlurScaler<Pixel>::blur512(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 			"packuswb %%mm1, %%mm4;"
 			"movq	%%mm4, (%1,%%eax,4);"	// pOut[x] = ..  pOut[x+1] = ..
 			
+			"emms;"
+
 			: // no output
 			: "r" (pIn)   // 0
 			, "r" (pOut)  // 1
@@ -479,6 +484,8 @@ void BlurScaler<Pixel>::average(
 			"addl	$2, %%eax;"
 			"cmpl	$640, %%eax;"
 			"jl	1b;"
+			
+			"emms;"
 			
 			: // no output
 			: "r" (src1)  // 0
