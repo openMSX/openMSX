@@ -1,8 +1,85 @@
 Release History
 ===============
 
-This is an overview of the changes that were incorporated into past
-releases.
+This is an overview of the changes that were incorporated into past releases.
+
+openMSX 0.5.0 (2004-10-15)
+--------------------------
+
+This release includes a complete redesign of the hardware configuration XML files. Also many devices were renamed. I/O ports are now specified in the hardware configuration instead of hardcoded. Configurations in the old format
+are no longer supported.
+If you copied the configurations that came with openMSX 0.4.0 to a different
+location (for example, ~/.openMSX/share), replace them by the configurations
+shipped with 0.5.0.
+The Python script share/scripts/convert_hardwareconfig.py can be used to
+convert your custom-made configurations. It may not convert every detail
+correctly, but it will save you a lot of time compared to manually converting
+configurations.
+
+The new ROM pools feature makes installing system ROMs easier. A ROM pool is a
+directory where openMSX looks for system ROMs. The new hardware configuation
+XML files contain the SHA1 sums of the required system ROMs, so openMSX can
+find the right ROMs in the ROM pool automatically. The default ROM pool is the
+directory share/systemroms.
+
+Settings, including key bindings and user directories, can now be saved. By
+default, settings are automatically saved when openMSX exits. If you don't want
+that, do "set save_settings_on_exit false" and save manually with the new
+"save_settings" console command. It is also possible to save settings to
+separate files, so you can keep multiple, independent configurations.
+
+Old configuration options were converted to settings:
+- machine: the default machine (needs openMSX restart)
+- frequency: the sound mixer frequency (needs openMSX restart)
+- samples: the size of the sound mixing buffer (needs openMSX restart)
+- user_directories: directories that are searched for data files
+The new setting "save_settings_on_exit" controls auto-saving of settings.
+Finally, we renamed "frontswitch" to "firmwareswitch".
+
+Changes in the video system:
+- Use of MMX to speed up video scaling considerably (mainly simple scaler).
+- Big speed up of scanline effect.
+- Enabled blur effect in the SDLHi renderer (simple scaler).
+- Scale2x and hq2x scalers now also work in hi-res modes (screen 6 and 7).
+- Made pixel accuracy the default.
+- Removed 8bpp support (which never worked before).
+- Fixed crash when making screenshot in 16bpp.
+
+New or improved emulator features:
+- Added channel mode 'off' to mute individual sound devices.
+- Added meta data of machines in config files.
+  Some of this information is shown in the window title bar.
+- New "iomap" command lists the I/O ports and the devices connected to them.
+- Added a debugger interface to all (S)RAM.
+- Improvements in the 'type' command, thanks to Albert Beevendorp and Arnold
+  Metselaar (welcome to the club, Arnold!).
+- Release key presses when the console becomes active.
+- Improved geometry detection of disk images; MSX1Mania disks work now.
+- Fixed crash in Win32 when dir-as-disk is used with files with weird dates.
+
+MSX device support:
+- MoonSound fixes.
+- Added slotexpander extension: use it to change one primary slot into four
+  secondary slots.
+- 8kB BASIC ROMs now work correctly and are auto detected as well.
+- Added simple DC filter for cassette images.
+  .wav files created by MicroWAVer should work now.
+- Added format command for TC8566AF FDC, thanks to Daniel Vik.
+- Force PSG portA to be input port. This fixes joystick and mouse reading in
+  games that write illegal values to the PSG (Match Maniac and others).
+- Emulation of the Tetris II Special Edition dongle (plugs into joystick port).
+- Fixed high-frequency reads of low-frequency clocks (such as RTC).
+  Thanks to Daniel Vik for spotting this problem.
+- Many bugs were fixed, including long-standing bugs such as a VDP bug causing
+  glitches in Andorogynus and CPU bugs causing glitches in Pennant Race and
+  Fony Demo Disk 1.
+
+Build system, packaging, documentation:
+- Separated OS and CPU in the build system.
+- Build support for x86-64 (Athlon64).
+- Fixed bug: new TCL was not detected by running "make probe" again.
+- Added packaging support for Debian Linux.
+- Added openMSX FAQ to documentation.
 
 openMSX 0.4.0 (2004-05-28)
 --------------------------
