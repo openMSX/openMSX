@@ -27,7 +27,7 @@ public:
 	// Renderer interface:
 
 	void frameStart(const EmuTime &time);
-	void putImage(const EmuTime &time);
+	void frameEnd(const EmuTime &time);
 	void updateDisplayEnabled(bool enabled, const EmuTime &time);
 	void updateHorizontalScrollLow(byte scroll, const EmuTime &time);
 	void updateHorizontalScrollHigh(byte scroll, const EmuTime &time);
@@ -65,8 +65,8 @@ protected:
 	virtual void reset(const EmuTime &time);
 
 	/** Let underlying graphics system finish rendering this frame.
-	  * The image is stored for plotting it again later,
-	  * using the putStoredImage method.
+	  * The image is stored for plotting later, once or multiple times,
+	  * using the putImage method.
 	  */
 	virtual void finishFrame() = 0;
 

@@ -125,10 +125,10 @@ bool XRenderer::checkSettings() {
 void XRenderer::frameStart(const EmuTime &time) {
 }
 
-void XRenderer::putImage(const EmuTime &time) {
+void XRenderer::frameEnd(const EmuTime &time) {
 }
 
-void XRenderer::putStoredImage() {
+void XRenderer::putImage() {
 }
 
 int XRenderer::putPowerOffImage() {

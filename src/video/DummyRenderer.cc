@@ -5,8 +5,8 @@
  * - all renderers use SDL at the moment, which means the SDL_VIDEO is inited in
  *   main.cc. This should be done in a superclass of the SDL based renderers.
  *   This will fix the problem that the window isn't destroyed when switching
- *   to the Dummy Renderer, because it will only be initialized and 
- *   deinitialized for SDL based renderers then (in the con/destructor of that 
+ *   to the Dummy Renderer, because it will only be initialized and
+ *   deinitialized for SDL based renderers then (in the con/destructor of that
  *   superclass).
  */
 
@@ -34,17 +34,17 @@ DummyRenderer::~DummyRenderer () {
 bool DummyRenderer::checkSettings() {
 	// First check this is the right renderer.
 	if (!Renderer::checkSettings()) return false;
-	
+
 	return true;
 }
 
 void DummyRenderer::frameStart(const EmuTime &time) {
 }
 
-void DummyRenderer::putImage(const EmuTime &time) {
+void DummyRenderer::frameEnd(const EmuTime &time) {
 }
 
-void DummyRenderer::putStoredImage() {
+void DummyRenderer::putImage() {
 }
 
 int DummyRenderer::putPowerOffImage() {

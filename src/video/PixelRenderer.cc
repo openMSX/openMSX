@@ -154,7 +154,7 @@ void PixelRenderer::frameStart(const EmuTime &time)
 	}
 }
 
-void PixelRenderer::putImage(const EmuTime &time)
+void PixelRenderer::frameEnd(const EmuTime &time)
 {
 	// Render changes from this last frame.
 	sync(time, true);

@@ -80,17 +80,7 @@ throw()
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::finishFrame()
 {
-	// Remember interlace status of the completed frame.
-	interlaced = vdp->isInterlaced();
-
-	drawEffects();
-
-	// Render consoles if needed.
-	console->drawConsole();
-	if (debugger) debugger->drawConsole();
-
-	// Update screen.
-	SDL_Flip(screen);
+	// Nothing to do.
 }
 
 // random routine, less random than libc rand(), but a lot faster
@@ -140,11 +130,9 @@ int SDLRenderer<Pixel, zoom>::putPowerOffImage()
 }
 
 template <class Pixel, Renderer::Zoom zoom>
-void SDLRenderer<Pixel, zoom>::putStoredImage()
+void SDLRenderer<Pixel, zoom>::putImage()
 {
-	// Previous image will be restored from workScreen.
-	// Usual end-of-frame behaviour.
-	// TODO: This is a copy of finishFrame.
+	// Draw screen using image in workScreen.
 	drawEffects();
 
 	// Render consoles if needed.
@@ -747,6 +735,16 @@ void SDLRenderer<Pixel, zoom>::frameStart(const EmuTime& time)
 			lineContent[y] = lineType; //LINE_BLANK;
 		}
 	}
+}
+
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRenderer<Pixel, zoom>::frameEnd(const EmuTime& time)
+{
+	// Remember interlace status of the completed frame,
+	// for use in putImage.
+	interlaced = vdp->isInterlaced();
+
+	PixelRenderer::frameEnd(time);
 }
 
 template <class Pixel, Renderer::Zoom zoom>

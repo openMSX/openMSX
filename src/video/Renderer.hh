@@ -75,16 +75,17 @@ public:
 	  */
 	virtual void frameStart(const EmuTime& time) = 0;
 
-	/** Puts the generated image on the screen.
-	  * @param time The moment in emulated time the frame is finished.
+	/** Signals the end of a frame.
+	  * @param time The moment in emulated time the frame ends.
+	  *   Note: this is the same time stamp as the start of the next frame.
 	  */
-	virtual void putImage(const EmuTime& time) = 0;
+	virtual void frameEnd(const EmuTime& time) = 0;
 
-	/** Refreshes the screen by drawing the same image as last frame.
-	  * Even if a renderer cannot reproduce the last frame, it should paint
-	  * something that fills the entire rendering area of the screen.
+	/** Paints the last full frame on the screen.
+	  * Typically, this method will be called just after frameEnd,
+	  * but it is valid to call this method at any time.
 	  */
-	virtual void putStoredImage() = 0;
+	virtual void putImage() = 0;
 
 	/** Refreshes the screen by drawing an image that does not depend on
 	  * VDP state. Examples: black screen, logo, snow.

@@ -36,8 +36,8 @@ public:
 	virtual void reset(const EmuTime &time);
 	virtual bool checkSettings();
 	virtual void frameStart(const EmuTime &time);
-	//virtual void putImage(const EmuTime &time);
-	virtual void putStoredImage();
+	//virtual void frameEnd(const EmuTime &time);
+	virtual void putImage();
 	virtual int  putPowerOffImage();
 	virtual void takeScreenShot(const string& filename)
 		throw(CommandException);
@@ -137,15 +137,14 @@ private:
 	  */
 	void setPalette(int index, int grb);
 
-	/** Apply effects such as scanline or blur to the current image.
-	  * For blur, the image in the texture identified by storedImageTextureId
-	  * is used to blur over the current image.
-	  * @param blurSetting Amount of horizontal blur to apply,
-	  * 	0 <= blurSetting <= 100.
-	  * @param scanlineAlpha Alpha value for scanlines,
-	  * 	0 <= scanlineAlpha <= 255, 0 = transparent, 255 = opaque.
+	/** TODO: Temporary method to reduce code duplication.
 	  */
-	void drawEffects(int blurSetting, int scanlineAlpha);
+	void drawRest();
+
+	/** Apply effects such as scanline or blur to the current image.
+	  * Requires the image of the current frame to be stored.
+	  */
+	void drawEffects();
 
 	/** Line to render at top of display.
 	  * After all, our screen is 240 lines while display is 262 or 313.

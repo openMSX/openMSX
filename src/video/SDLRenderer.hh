@@ -34,8 +34,8 @@ public:
 	virtual void reset(const EmuTime& time);
 	virtual bool checkSettings();
 	virtual void frameStart(const EmuTime& time);
-	//virtual void putImage(const EmuTime& time);
-	virtual void putStoredImage();
+	virtual void frameEnd(const EmuTime& time);
+	virtual void putImage();
 	virtual int putPowerOffImage();
 	virtual void takeScreenShot(const string& filename)
 		throw(CommandException);

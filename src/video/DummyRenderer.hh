@@ -27,8 +27,8 @@ public:
 	void reset(const EmuTime &time) {} // TODO
 	bool checkSettings();
 	void frameStart(const EmuTime &time);
-	void putImage(const EmuTime &time);
-	void putStoredImage();
+	void frameEnd(const EmuTime &time);
+	void putImage();
 	int putPowerOffImage();
 	void updateTransparency(bool enabled, const EmuTime &time);
 	void updateForegroundColour(int colour, const EmuTime &time);

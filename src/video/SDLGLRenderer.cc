@@ -203,17 +203,17 @@ void SDLGLRenderer::finishFrame()
 		glDisable(GL_TEXTURE_2D);
 	}
 
-	// Determine which effects to apply.
-	int blurSetting = settings.getHorizontalBlur()->getValue();
-	int scanlineAlpha = (settings.getScanlineAlpha()->getValue() * 255) / 100;
-	// TODO: Turn off scanlines when deinterlacing.
-
 	// Store current frame as a texture.
 	glBindTexture(GL_TEXTURE_2D, storedImageTextureId);
 	glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, 1024, 512, 0);
 	prevStored = true;
 
-	drawEffects(blurSetting, scanlineAlpha);
+	drawRest();
+}
+
+void SDLGLRenderer::drawRest()
+{
+	drawEffects();
 
 	// Render consoles if needed.
 	console->drawConsole();
@@ -248,7 +248,7 @@ int SDLGLRenderer::putPowerOffImage()
 	return 10;	// 10 fps
 }
 
-void SDLGLRenderer::putStoredImage()
+void SDLGLRenderer::putImage()
 {
 	// Copy stored image to screen.
 	glEnable(GL_TEXTURE_2D);
@@ -257,22 +257,7 @@ void SDLGLRenderer::putStoredImage()
 	GLDrawBlur(0, 0, 1.0);
 	glDisable(GL_TEXTURE_2D);
 
-	// TODO: The code below is a modified copy-paste of finishFrame.
-	//       Refactor it to remove code duplication.
-
-	// Determine which effects to apply.
-	int blurSetting = settings.getHorizontalBlur()->getValue();
-	int scanlineAlpha = (settings.getScanlineAlpha()->getValue() * 255) / 100;
-	// TODO: Turn off scanlines when deinterlacing.
-
-	drawEffects(blurSetting, scanlineAlpha);
-
-	// Render console if needed.
-	console->drawConsole();
-	if (debugger) debugger->drawConsole();
-
-	// Update screen.
-	SDL_GL_SwapBuffers();
+	drawRest();
 }
 
 void SDLGLRenderer::takeScreenShot(const string& filename)
@@ -287,8 +272,13 @@ void SDLGLRenderer::takeScreenShot(const string& filename)
 	ScreenShotSaver(WIDTH, HEIGHT, row_pointers, filename);
 }
 
-void SDLGLRenderer::drawEffects(int blurSetting, int scanlineAlpha)
+void SDLGLRenderer::drawEffects()
 {
+	// Determine which effects to apply.
+	int blurSetting = settings.getHorizontalBlur()->getValue();
+	int scanlineAlpha = (settings.getScanlineAlpha()->getValue() * 255) / 100;
+
+	// TODO: Turn off scanlines when deinterlacing.
 	bool horizontalBlur = blurSetting != 0;
 	bool scanlines = scanlineAlpha != 0;
 

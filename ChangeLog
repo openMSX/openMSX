@@ -1,5 +1,10 @@
 $Id$
 
+2004-02-01 Maarten ter Huurne <maarten@treewalker.org>
+	* Simplified rendering interface and code:
+	  - unified putImage and putStoredImage
+	  - introduced frameEnd, moved some of the old putImage code there
+
 2004-01-31 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Changed the XML format of the CliComm protocol:
 	   - the new format is not compatible with the old version

@@ -186,7 +186,7 @@ void Scheduler::schedule(const EmuTime& from, const EmuTime& limit)
 					eventDistributor.poll();
 				}
 			} else {
-				renderer->putStoredImage();
+				renderer->putImage();
 				eventDistributor.wait();
 			}
 		} else {
