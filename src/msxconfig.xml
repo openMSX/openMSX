@@ -2,7 +2,7 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
-  <device>
+  <device id="mydummy1">
     <type>DummyDevice</type>
 	<slotted>
 	  <page>0</page>
@@ -12,7 +12,7 @@
 	<parameter name="hello">world</parameter>
 	<parameter name="hi">alpha centauri</parameter>
   </device>
-  <device>
+  <device id="vdp">
     <type>VDP</type>
 	<parameter name="foo_bug">no</parameter>
   </device>
