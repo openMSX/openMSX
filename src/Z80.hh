@@ -24,11 +24,6 @@
 //#define Z80DEBUG
 #endif
 
-#ifndef WORDS_BIGENDIAN
-	#define LSB_FIRST
-#endif
-
-
 class Z80;
 typedef void (Z80::*opcode_fn)();
 

@@ -8,6 +8,10 @@
 
 class CPU 
 {
+	#ifndef WORDS_BIGENDIAN
+		#define LSB_FIRST
+	#endif
+
 	typedef union {
 	#ifdef LSB_FIRST
 	   struct { byte l,h; } B;
