@@ -180,6 +180,11 @@ private:
 	  */
 	int lineBottomBorder;
 
+	/** Line to render at top of display.
+	  * After all, our screen is 240 lines while display is 262 or 313.
+	  */
+	int lineRenderTop;
+
 	/** Dirty tables indicate which character blocks must be repainted.
 	  * The anyDirty variables are true when there is at least one
 	  * element in the dirty table that is true.
