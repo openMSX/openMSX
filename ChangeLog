@@ -1,5 +1,8 @@
 $Id$
 
+2002-04-28 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* Tab-completion updates
+
 2002-04-28 Maarten ter Huurne <mth@stack.nl>
 	* Removed re-entering of SpriteChecker::sync and Renderer::sync.
 	  Display enable/disable changes now go through VDPVRAM.

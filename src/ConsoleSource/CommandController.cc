@@ -143,7 +143,7 @@ bool CommandController::completeString2(std::string &string, std::list<std::stri
 	std::list<std::string>::iterator it;
 	
 	it = list.begin();
-	while (it!=list.end()) {
+	while (it != list.end()) {
 		if (string == (*it).substr(0, string.size())) {
 			it++;
 		} else {
@@ -161,22 +161,34 @@ bool CommandController::completeString2(std::string &string, std::list<std::stri
 		string = *(list.begin());
 		return true;
 	}
+	bool expanded = false;
 	while (true) {
 		it = list.begin();
 		if (string == *it) {
 			// match is as long as first word
-			return false;
+			goto out;	// TODO rewrite this
 		}
-		// expand with one char 
+		// expand with one char and check all strings 
 		std::string string2 = string + (*it)[string.size()];
 		for (;  it!=list.end(); it++) {
 			if (string2 != (*it).substr(0, string2.size())) {
-				return false;
+				goto out;	// TODO rewrite this
 			}
 		}
 		// no conflict found
 		string = string2;
+		expanded = true;
 	}
+	out:
+	if (!expanded) {
+		// print all possibilities
+		for (it = list.begin(); it != list.end(); it++) {
+			// TODO print more on one line
+			ConsoleManager::instance()->print(*it);
+		}
+		ConsoleManager::instance()->print("");	// dummy 
+	}
+	return false;
 }
 void CommandController::completeString(std::string &string, std::list<std::string> &list)
 {
@@ -189,19 +201,19 @@ void CommandController::completeFileName(std::string &filename)
 	std::string npath, dpath;
 	std::list<std::string> filenames;
 	std::string::size_type pos = filename.find_last_of("/");	// TODO std delimiter
-	if (pos==std::string::npos) {
+	if (pos == std::string::npos) {
 		dpath = ".";
 		npath = "";
 	} else {
-		dpath = filename.substr(0,pos);
-		npath = filename.substr(0,pos+1);
+		dpath = filename.substr(0, pos ? pos : 1);	// excl "/" except for root
+		npath = filename.substr(0, pos+1);	// incl "/"
 	}
 	
 	DIR* dirp = opendir(dpath.c_str());
 	if (dirp != NULL) {
 		while (dirent* de = readdir(dirp)) {
 			struct stat st;
-			if (!(stat((npath+de->d_name).c_str(), &st))) {
+			if (!(stat((npath + de->d_name).c_str(), &st))) {
 				std::string name = npath + de->d_name;
 				if (S_ISDIR(st.st_mode))
 					name += "/";
@@ -210,7 +222,7 @@ void CommandController::completeFileName(std::string &filename)
 		}
 	}
 	bool t = completeString2(filename, filenames);
-	if (t && filename[filename.size()-1]!='/')
+	if (t && filename[filename.size()-1] != '/')
 		filename += " ";
 }
 
