@@ -1,5 +1,8 @@
 $Id$
 
+2004-04-19 Herman Oudejans <hn.oudejans@quicknet.nl>
+	* Fixed 'no window when return from full screen' in SDLGL (windows only).
+
 2004-04-18 Maarten ter Huurne <maarten@treewalker.org>
 	* Dropped autoconf completely.
 	  This also means autogen.sh is no longer necessary.

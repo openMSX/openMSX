@@ -29,6 +29,9 @@ TODO:
 #include "EventDistributor.hh"
 #include "FloatSetting.hh"
 
+#ifdef __WIN32__
+#include <windows.h>
+#endif
 
 namespace openmsx {
 
@@ -503,6 +506,16 @@ SDLGLRenderer::SDLGLRenderer(
 	vram->patternTable.setObserver(&dirtyPattern);
 	vram->colourTable.setObserver(&dirtyColour);
 
+#ifdef __WIN32__
+	// Find our current location
+	HWND handle = GetActiveWindow();
+	RECT windowRect;
+	GetWindowRect (handle, &windowRect);
+	// and adjust if needed
+	if ((windowRect.right < 0) || (windowRect.bottom < 0)){
+		SetWindowPos(handle, HWND_TOP, 0,0,0,0,SWP_NOSIZE);
+	}
+#endif
 }
 
 SDLGLRenderer::~SDLGLRenderer()
