@@ -216,6 +216,7 @@
     <parameter name="skip_headerbytes">0</parameter>
     <parameter name="automappertype">false</parameter>
     <parameter name="mappertype">64</parameter>
+    <parameter name="volume">13000</parameter>
   </device>
 <!--  
   <device id="FM PAC">
