@@ -8,7 +8,7 @@ byte Z80::ZSPTable[512];
 
 /********************************************************************/
 /*                                                                  */
-/* This file contains all the common opcode tablesas can be found   */
+/* This file contains all the common opcode tables as can be found  */
 /* in both R800 and Z80.                                            */
 /*                                                                  */
 /* The timing cycles are stored in different files for each CPU.    */

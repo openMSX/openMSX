@@ -26,8 +26,8 @@ class MSXRealTime : public MSXDevice
 		MSXRealTime(); 
 		static MSXRealTime *oneInstance;
 
-		Emutime emuRef;
-		unsigned int realRef;	// !! Overflow in 49 days
+		Emutime emuRef, emuOrigin;
+		unsigned int realRef, realOrigin;	// !! Overflow in 49 days
 		int catchUpTime;  // number of milliseconds overtime.
 		float factor;
 		static const float ALPHA = 0.5;

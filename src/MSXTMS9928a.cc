@@ -765,13 +765,13 @@ void MSXTMS9928a::start()
 {
 	MSXDevice::start();
 	//First interrupt in Pal mode here
-	Scheduler::instance()->setSyncPoint(currentTime+71285, *this);
+	Scheduler::instance()->setSyncPoint(currentTime+71285, *this); // PAL
 	PutImage();
 };
 
 void MSXTMS9928a::executeUntilEmuTime(const Emutime &time)
 {
-	PRT_DEBUG("Executing TMS9928a at time ");
+	PRT_DEBUG("Executing TMS9928a at time " << time);
 
 	//TODO:: Change from full screen refresh to emutime based!!
 	if (tms.stateChanged){
@@ -782,7 +782,7 @@ void MSXTMS9928a::executeUntilEmuTime(const Emutime &time)
 	
 	//Next SP/interrupt in Pal mode here
 	currentTime = time;
-	Scheduler::instance()->setSyncPoint(currentTime+85542, *this); //71285 for NTS, 85542 for PAL
+	Scheduler::instance()->setSyncPoint(currentTime+71258, *this); //71285 for PAL, 59404 for NTSC
     // Since this is the vertical refresh
     tms.StatusReg |= 0x80;
 	// Set interrupt if bits enable it

@@ -83,7 +83,7 @@ public:
 	uint64 getTicksTill(const Emutime &foo) const {
 		assert (_scale!=0);
 		assert (foo._emutime >= _emutime);
-		return (int)(foo._emutime-_emutime)/_scale;
+		return (foo._emutime-_emutime)/_scale;
 	}
 	float getDuration(const Emutime &foo) const {
 		return (float)(foo._emutime-_emutime)/MAIN_FREQ;

@@ -80,12 +80,12 @@ void Scheduler::scheduleEmulation()
 			if (MSXCPU::instance()->getCurrentTime() < time) {
 				// emulate CPU till first SP, don't immediately emulate
 				// device since CPU could not have reached SP
-				PRT_DEBUG ("Scheduling CPU till SP");
+				PRT_DEBUG ("Scheduling CPU till " << time);
 				MSXCPU::instance()->executeUntilTarget(time);
 			} else {
 				// if CPU has reached SP, emulate the device
 				Schedulable *device = &(sp.getDevice());
-				PRT_DEBUG ("Scheduling " << device->getName());
+				PRT_DEBUG ("Scheduling " << device->getName() << " till " << time);
 				device->executeUntilEmuTime(time);
 				removeFirstSP();
 			}
