@@ -33,7 +33,7 @@ proc data_file { file } {
 # the version in the user directory in case a script exists in both
 set user_scripts [glob -dir $env(OPENMSX_USER_DATA)/scripts -tails -nocomplain *.tcl]
 set system_scripts [glob -dir $env(OPENMSX_SYSTEM_DATA)/scripts -tails -nocomplain *.tcl]
-foreach script [lsort -unique "$user_scripts $system_scripts"] {
+foreach script [lsort -unique [concat $user_scripts $system_scripts]] {
 	source [data_file scripts/$script]
 }
 
