@@ -38,7 +38,8 @@ SRC_HDR:= \
 	PluggingController Connector Pluggable PluggableFactory \
 	DebugDevice \
 	Autofire RenShaTurbo \
-	StringOp
+	StringOp \
+	Version
 
 SRC_ONLY:= \
 	main
