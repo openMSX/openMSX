@@ -84,6 +84,11 @@
     <parameter name="0x0021" class="patch">0xC9</parameter>
   </device>
 
+  <config id="rompatches">
+    <type>ROMPatches</type>
+    <parameter name="MSXDiskRomPatch"></parameter>
+  </config>
+
   <device id="ppi">
     <type>PPI</type>
     <parameter name="foo_bug">no</parameter>
@@ -197,18 +202,7 @@
     <parameter name="skip_headerbytes">0</parameter>
   </device>
 -->
-  <config id="Foobar">
-    <type>Test thingy</type>
-    <parameter name="fred">vom.jupiter</parameter>
-    <desc>
-      bla
-      bla
-    </desc>
-    <rem>
-      Hello, mars.
-    </rem>
-  </config>
-  
+ 
   <device id="cpu">
     <type>CPU</type>
   </device>

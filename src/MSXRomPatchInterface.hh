@@ -21,8 +21,13 @@ class MSXRomPatchInterface
 		/**
 		 * list of addresses I am interested in
 		 */
-		std::list<int> &addresses() { return addr_list; }
-	
+		const std::list<int> &addresses();
+
+		/**
+		 * destructor
+		 */
+		virtual ~MSXRomPatchInterface();
+
 	protected:
 
 		/**

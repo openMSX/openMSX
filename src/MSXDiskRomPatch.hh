@@ -8,6 +8,9 @@
 class MSXDiskRomPatch: public MSXRomPatchInterface
 {
 	public:
+		MSXDiskRomPatch();
+		virtual ~MSXDiskRomPatch();
+
 		virtual void patch(int address);
 };
 
