@@ -64,7 +64,6 @@ ioAddresses = {
 	'FDC': [],
 	
 	# Switched devices (share ports 0x40-0x4F):
-	'Bunsetsu': [],
 	'Matsushita': [],
 	'S1985': [],
 	'Kanji12': [],
