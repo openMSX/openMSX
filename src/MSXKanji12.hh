@@ -21,6 +21,7 @@ class MSXKanji12 : public MSXDevice, public MSXSwitchedDevice
 	private:
 		MSXRomDevice rom;
 		int adr;
+		int mask;
 };
 
 #endif //__MSXKANJI12_HH__

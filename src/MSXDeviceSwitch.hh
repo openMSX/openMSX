@@ -56,7 +56,7 @@ class MSXSwitchedDevice
 		MSXSwitchedDevice(byte id);
 		virtual ~MSXSwitchedDevice();
 		
-		virtual void reset(const EmuTime &time) = 0;
+		virtual void reset(const EmuTime &time) {}
 		virtual byte readIO(byte port, const EmuTime &time) = 0;
 		virtual void writeIO(byte port, byte value, const EmuTime &time) = 0;
 

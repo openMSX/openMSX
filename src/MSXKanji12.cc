@@ -13,6 +13,7 @@ MSXKanji12::MSXKanji12(MSXConfig::Device *config, const EmuTime &time)
 	if ((size != 0x20000) && (size != 0x40000)) {
 		PRT_ERROR("MSXKanji12: wrong kanji rom");
 	}
+	mask = size - 1;
 
 	reset(time);
 }
@@ -38,7 +39,7 @@ byte MSXKanji12::readIO(byte port, const EmuTime &time)
 			break;
 		case 9:
 			result = rom.read(adr);
-			adr++;
+			adr = (adr + 1) & mask;
 			break;
 		default:
 			result = 0xFF;
@@ -58,13 +59,13 @@ void MSXKanji12::writeIO(byte port, byte value, const EmuTime &time)
 		case 7: {
 			byte row = value;
 			byte col = ((adr - 0x800) / 18) % 192;
-			adr = 0x800 + (row * 192 + col) * 18;
+			adr = (0x800 + (row * 192 + col) * 18) & mask;
 			break;
 		}
 		case 8: {
 			byte row = (adr - 0x800) / (18 * 192);
 			byte col = value;
-			adr = 0x800 + (row * 192 + col) * 18;
+			adr = (0x800 + (row * 192 + col) * 18) & mask;
 			break;
 		}
 	}

@@ -1,6 +1,9 @@
 $Id$
 
-2003-01-12 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2003-01-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed Kanji12
+
+2003-01-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented Kanji 12x12:
 	   - not tested, I don't have correct ROM
 	* Implemented front switch:
