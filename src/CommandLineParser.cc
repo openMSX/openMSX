@@ -157,7 +157,7 @@ void CommandLineParser::ConfigFile::parseOption(const std::string &option,
 }
 const std::string& CommandLineParser::ConfigFile::optionHelp()
 {
-	static const std::string text("TODO");
+	static const std::string text("Use configuration file specified in argument");
 	return text;
 }
 void CommandLineParser::ConfigFile::parseFileType(const std::string &filename)
@@ -169,7 +169,7 @@ void CommandLineParser::ConfigFile::parseFileType(const std::string &filename)
 }
 const std::string& CommandLineParser::ConfigFile::fileTypeHelp()
 {
-	static const std::string text("TODO");
+	static const std::string text("Configuration file");
 	return text;
 }
 
@@ -184,7 +184,7 @@ void CommandLineParser::MSX1Option::parseOption(const std::string &option,
 }
 const std::string& CommandLineParser::MSX1Option::optionHelp()
 {
-	static const std::string text("Loads a default MSX 1 configuration");
+	static const std::string text("Loads a default MSX1 configuration");
 	return text;
 }
 
@@ -199,7 +199,7 @@ void CommandLineParser::MSX2Option::parseOption(const std::string &option,
 }
 const std::string& CommandLineParser::MSX2Option::optionHelp()
 {
-	static const std::string text("Loads a default MSX 2 configuration");
+	static const std::string text("Loads a default MSX2 configuration");
 	return text;
 }
 
@@ -214,7 +214,7 @@ void CommandLineParser::MSX2POption::parseOption(const std::string &option,
 }
 const std::string& CommandLineParser::MSX2POption::optionHelp()
 {
-	static const std::string text("Loads a default MSX 2 Plus configuration");
+	static const std::string text("Loads a default MSX2+ configuration");
 	return text;
 }
 
@@ -229,7 +229,7 @@ void CommandLineParser::MSXTurboROption::parseOption(const std::string &option,
 }
 const std::string& CommandLineParser::MSXTurboROption::optionHelp()
 {
-	static const std::string text("Loads a MSX Turbo R configuration");
+	static const std::string text("Loads a MSXturboR configuration");
 	return text;
 }
 

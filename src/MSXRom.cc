@@ -40,7 +40,7 @@ void MSXRomCLI::parseOption(const std::string &option,
 }
 const std::string& MSXRomCLI::optionHelp()
 {
-	static const std::string text("TODO");
+	static const std::string text("Insert the ROM file (cartridge) specified in argument");
 	return text;
 }
 MSXRomPostName::MSXRomPostName(int slot_, const std::string &arg)
@@ -59,7 +59,7 @@ void MSXRomCLI::parseFileType(const std::string &arg)
 }
 const std::string& MSXRomCLI::fileTypeHelp()
 {
-	static const std::string text("TODO");
+	static const std::string text("ROM image of a cartridge");
 	return text;
 }
 MSXRomPostNoName::MSXRomPostNoName(const std::string &arg)

@@ -27,7 +27,7 @@ void MSXCassettePlayerCLI::parseOption(const std::string &option,
 }
 const std::string& MSXCassettePlayerCLI::optionHelp()
 {
-	static const std::string text("TODO");
+	static const std::string text("Put raw tape image specified in argument in virtual\n\t\t\t  cassetteplayer");
 	return text;
 }
 
@@ -47,7 +47,7 @@ void MSXCassettePlayerCLI::parseFileType(const std::string &filename_)
 }
 const std::string& MSXCassettePlayerCLI::fileTypeHelp()
 {
-	static const std::string text("TODO");
+	static const std::string text("Raw tape image, as recorded from real tape");
 	return text;
 }
 
@@ -62,7 +62,7 @@ CassettePlayer::CassettePlayer()
 		std::string filename = config->getParameter("filename");
 		insertTape(filename);
 	} catch (MSXException& e) {
-		PRT_DEBUG("No correct tape insertion!");
+		PRT_DEBUG("Incorrect tape insertion!");
 	}
 	PluggingController::instance()->registerPluggable(this);
 	CommandController::instance()->registerCommand(*this, "cassetteplayer");

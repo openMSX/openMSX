@@ -35,7 +35,7 @@ void DiskImageCLI::parseOption(const std::string &option,
 }
 const std::string& DiskImageCLI::optionHelp()
 {
-	static const std::string text("TODO");
+	static const std::string text("Insert the disk image specified in argument");
 	return text;
 }
 
@@ -56,7 +56,7 @@ void DiskImageCLI::parseFileType(const std::string &filename_)
 }
 const std::string& DiskImageCLI::fileTypeHelp()
 {
-	static const std::string text("TODO");
+	static const std::string text("Disk image");
 	return text;
 }
 

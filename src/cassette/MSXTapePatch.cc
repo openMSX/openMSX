@@ -25,7 +25,7 @@ void MSXCasCLI::parseOption(const std::string &option,
 }
 const std::string& MSXCasCLI::optionHelp()
 {
-	static const std::string text("TODO");
+	static const std::string text("Put tape image in CAS format specified in argument in\n\t\t  virtual cassette player");
 	return text;
 }
 
@@ -45,7 +45,7 @@ void MSXCasCLI::parseFileType(const std::string &filename_)
 }
 const std::string& MSXCasCLI::fileTypeHelp()
 {
-	static const std::string text("TODO");
+	static const std::string text("Tape image in fMSX CAS format");
 	return text;
 }
 
@@ -78,7 +78,7 @@ MSXTapePatch::MSXTapePatch()
 		std::string filename = config->getParameter("filename");
 		insertTape(filename);
 	} catch (MSXException& e) {
-		PRT_DEBUG("No correct tape insertion!");
+		PRT_DEBUG("Incorrect tape insertion!");
 	}
 }
 
@@ -162,12 +162,12 @@ void MSXTapePatch::TAPION(CPU::CPURegs& R)
 	 */
 
 	if (!file) {
-		PRT_DEBUG("TAPION : No tape file opened");
+		PRT_DEBUG("TAPION: No tape file opened");
 		R.AF.B.l |= CPU::C_FLAG;
 		return;
 	}
 
-	PRT_DEBUG("TAPION : Looking for header...");
+	PRT_DEBUG("TAPION: Looking for header...");
 
 	// go forward to multiple of 8 bytes
 	try {
