@@ -13,7 +13,7 @@ JoyNet::JoyNet(int joyNum)
 
 	//throw JoyNetException("No such joystick number");
 
-	name = std::string("joyNet")+(char)('1'+joyNum);
+	name = std::string("joynet")+(char)('1'+joyNum);
 
 	PluggingController::instance()->registerPluggable(this);
 }
@@ -40,4 +40,28 @@ void JoyNet::write(byte value, const EmuTime &time)
 {
 	//do nothing
 }
+
+void JoyNet::setupConnection()
+{
+	try {
+	MSXConfig::Config *config =
+	MSXConfig::Backend::instance()->getConfigById(name);
+	std::string hostname = config->getParameter("connecthost");
+	std::string portname = config->getParameter("connectport");
+	std::string listenport = config->getParameter("listenport");
+	// setup  tcp stream with second (master) msx and listerenr for third (slave) msx
+	} catch (MSXException& e) {
+	PRT_DEBUG("No correct connection configuration for "<<name);
+	}
+}
+void JoyNet::destroyConnection()
+{
+	// destroy connection (and thread?)
+}
+
+
+void JoyNet::sendByte(byte value)
+{
+}
+
 

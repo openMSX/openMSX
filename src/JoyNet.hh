@@ -37,5 +37,9 @@ class JoyNet : public JoystickDevice
 
 		int joyNum;
 		byte status;
+		//For IP connection
+		void setupConnection();
+		void destroyConnection();
+		void sendByte(byte value);
 };
 #endif

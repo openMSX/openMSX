@@ -1,0 +1,13 @@
+<msxconfig>
+
+  <config id="joynet1">
+    <type>joynet</type>
+    <parameter name="listenport">3000</parameter>
+    <!--
+    <parameter name="listenip">3000</parameter>
+    -->
+    <parameter name="connecthost">localhost</parameter>
+    <parameter name="connectport">3000</parameter>
+  </config>
+
+</msxconfig>
