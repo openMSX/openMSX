@@ -10,20 +10,20 @@
 
 namespace openmsx {
 
-int dummyClose(ClientData /*instanceData*/, Tcl_Interp* /*interp*/)
+static int dummyClose(ClientData /*instanceData*/, Tcl_Interp* /*interp*/)
 {
 	return 0;
 }
-int dummyInput(ClientData /*instanceData*/, char* /*buf*/, int /*bufSize*/,
-               int* /*errorCodePtr*/)
+static int dummyInput(ClientData /*instanceData*/, char* /*buf*/,
+                      int /*bufSize*/, int* /*errorCodePtr*/)
 {
 	return 0;
 }
-void dummyWatch(ClientData /*instanceData*/, int /*mask*/)
+static void dummyWatch(ClientData /*instanceData*/, int /*mask*/)
 {
 }
-int dummyGetHandle(ClientData /*instanceData*/, int /*direction*/,
-                   ClientData* /*handlePtr*/)
+static int dummyGetHandle(ClientData /*instanceData*/, int /*direction*/,
+                          ClientData* /*handlePtr*/)
 {
 	return TCL_ERROR;
 }
