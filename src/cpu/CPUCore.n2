@@ -179,10 +179,10 @@ inline void _CPU_::cpuTracePre()
 inline void _CPU_::cpuTracePost()
 {
 	if (traceSetting.getValue()) {
-		Dasm(&debugmemory[start_pc], to_print_string,
-		     start_pc);
+		string dasmOutput;
+		dasm(&debugmemory[start_pc], start_pc, dasmOutput);
 		cout << setfill('0') << hex << setw(4) << start_pc
-		     << " : " << to_print_string
+		     << " : " << dasmOutput
 		     << " AF=" << setw(4) << R.AF.w
 		     << " BC=" << setw(4) << R.BC.w
 		     << " DE=" << setw(4) << R.DE.w

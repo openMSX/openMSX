@@ -196,7 +196,6 @@ protected:
 
 public:
 	byte debugmemory[65536];
-	char to_print_string[300];
 
 private:
 	virtual void update(const SettingLeafNode* setting);
