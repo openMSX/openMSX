@@ -5,33 +5,85 @@
 
 namespace openmsx {
 
-Keys::KeyCode Keys::getCode(const string &name)
+map<string, Keys::KeyCode, Keys::ltstrcase> Keys::keymap;
+
+Keys::KeyCode Keys::getCode(const string& name)
 {
 	initialize();
-	map<string, KeyCode, ltstrcase>::const_iterator it = keymap.find(name);
-	if (it != keymap.end()) {
-		return (*it).second;
-	} else {
-		return K_NONE;
+
+	KeyCode result = static_cast<KeyCode>(0);
+	unsigned lastPos = 0;
+	while (lastPos != string::npos) {
+		unsigned pos = name.find_first_of(",+/", lastPos);
+		string part = (pos != string::npos)
+		            ? name.substr(lastPos, pos - lastPos)
+			    : name.substr(lastPos);
+		KeyMap::const_iterator it = keymap.find(part);
+		if (it != keymap.end()) {
+			result = static_cast<KeyCode>(result | (*it).second);
+		} else {
+			return K_NONE;
+		}
+		lastPos = pos;
+		if (lastPos != string::npos) {
+			++lastPos;
+		}
 	}
+	return result;
 }
 
-Keys::KeyCode Keys::getCode(const SDLKey &key)
+Keys::KeyCode Keys::getCode(SDLKey key, SDLMod mod, bool up)
 {
-	return (Keys::KeyCode) key;
+	KeyCode result = (KeyCode)key;
+	if (mod & KMOD_CTRL) {
+		result = static_cast<KeyCode>(result | KM_CTRL);
+	}
+	if (mod & KMOD_SHIFT) {
+		result = static_cast<KeyCode>(result | KM_SHIFT);
+	}
+	if (mod & KMOD_ALT) {
+		result = static_cast<KeyCode>(result | KM_ALT);
+	}
+	if (mod & KMOD_META) {
+		result = static_cast<KeyCode>(result | KM_META);
+	}
+	if (up) {
+		result = static_cast<KeyCode>(result | KD_UP);
+	}
+	return result;
 }
 
-const string &Keys::getName(const KeyCode keyCode)
+const string Keys::getName(KeyCode keyCode)
 {
-	static const string unknown("unknown");
-
 	initialize();
-	map<string, KeyCode, ltstrcase>::const_iterator it;
-	for (it = keymap.begin(); it != keymap.end(); ++it) {
-		if (it->second == keyCode)
-			return it->first;
+	
+	string result;
+	for (KeyMap::const_iterator it = keymap.begin();
+	     it != keymap.end(); ++it) {
+		if (it->second == (keyCode & K_MASK)) {
+			result = it->first;
+			break;
+		}
 	}
-	return unknown;
+	if (result.empty()) { 
+		return "unknown";
+	}
+	if (keyCode & KM_CTRL) {
+		result += "+CTRL";
+	}
+	if (keyCode & KM_SHIFT) {
+		result += "+SHIFT";
+	}
+	if (keyCode & KM_ALT) {
+		result += "+ALT";
+	}
+	if (keyCode & KM_META) {
+		result += "+META";
+	}
+	if (keyCode & KD_UP) {
+		result += ",UP";
+	}
+	return result;
 }
 
 void Keys::initialize()
@@ -186,15 +238,17 @@ void Keys::initialize()
 	keymap["MENU"]		= K_MENU;
 	keymap["POWER"]		= K_POWER;	// Power Macintosh power key
 	keymap["EURO"]		= K_EURO;	// Some european keyboards
-	
-	map<string, KeyCode, ltstrcase> tmp(keymap);
-	map<string, KeyCode, ltstrcase>::const_iterator it;
-	for (it = tmp.begin(); it != tmp.end(); it++) {
-		keymap[it->first + ",up"] = (KeyCode)(it->second | KD_UP);
-	}
-}
 
-map<string, Keys::KeyCode, Keys::ltstrcase> Keys::keymap;
+	// Modifiers
+	keymap["SHIFT"] 	= KM_SHIFT;
+	keymap["CTRL"]		= KM_CTRL;
+	keymap["ALT"]		= KM_ALT;
+	keymap["META"]		= KM_META;
+	
+	// Direction modifiers
+	keymap["DOWN"]		= KD_DOWN;
+	keymap["UP"]		= KD_UP;
+}
 
 } // namespace openmsx
 

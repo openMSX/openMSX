@@ -22,8 +22,8 @@ public:
 	//  - K_UNKNOWN : this code is returned when a real key was
 	//                pressed, but we have no idea which key it is.
 	//                Should only happen when the user has some
-	//                exotic keyboard. Note that might be possible
-	//                there are multiple keys that produce this
+	//                exotic keyboard. Note that it might be possible
+	//                that there are multiple keys that produce this
 	//                code.
 	enum KeyCode 
 	{
@@ -175,34 +175,42 @@ public:
 		K_POWER		= SDLK_POWER,	// Power Macintosh power key
 		K_EURO		= SDLK_EURO,	// Some european keyboards
 
+		K_MASK		= 0xFFFF,
+		
+		// Modifiers
+		KM_SHIFT	= 0x10000,
+		KM_CTRL		= 0x20000,
+		KM_ALT		= 0x40000,
+		KM_META		= 0x80000,
+		
 		// Direction modifiers
 		KD_DOWN		= 0,		// key press
-		KD_UP		= 0x10000,	// key release
+		KD_UP		= 0x100000,	// key release
 	};
 
 	/**
 	 * Translate key name to key code.
 	 * Returns K_NONE when the name is unknown.
 	 */
-	static Keys::KeyCode getCode(const string &name);
-
-	static Keys::KeyCode getCode(const SDLKey &key);
+	static KeyCode getCode(const string& name);
+	static KeyCode getCode(SDLKey key, SDLMod mod = KMOD_NONE, bool up = false);
 
 	/**
 	 * Translate key code to key name.
 	 * Returns the string "unknown" for unknown key codes.
 	 */
-	static const string &getName(const KeyCode keyCode);
+	static const string getName(KeyCode keyCode);
 
 private:
 	static void initialize();
 
 	struct ltstrcase {
-		bool operator()(const string &s1, const string &s2) const {
+		bool operator()(const string& s1, const string& s2) const {
 			return strcasecmp(s1.c_str(), s2.c_str()) < 0;
 		}
 	};
-	static map<string, KeyCode, ltstrcase> keymap;
+	typedef map<string, KeyCode, ltstrcase> KeyMap;
+	static KeyMap keymap;
 };
 
 } // namespace openmsx

@@ -1,5 +1,9 @@
 $Id$
 
+2004-01-20 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented key modifiers for bind command:
+	   example:  bind CTRL+ALT+DELETE quit
+
 2004-01-19 Maarten ter Huurne <maarten@treewalker.org>
 	* Integrated FDC fixes by Tetsuo Honda:
 	  1. FDD LED on Turbo R FDC (TC8566AF)

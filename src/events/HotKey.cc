@@ -75,10 +75,9 @@ void HotKey::unregisterHotKeyCommand(Keys::KeyCode key, const string& command)
 
 bool HotKey::signalEvent(const SDL_Event& event) throw()
 {
-	Keys::KeyCode key = (Keys::KeyCode)event.key.keysym.sym;
-	if (event.type == SDL_KEYUP) {
-		key = (Keys::KeyCode)(key | Keys::KD_UP);
-	}
+	Keys::KeyCode key = Keys::getCode(event.key.keysym.sym,
+	                                  event.key.keysym.mod,
+	                                  event.type == SDL_KEYUP);
 	pair<ListenerMap::iterator, ListenerMap::iterator> bounds =
 		map.equal_range(key);
 	for (ListenerMap::iterator it = bounds.first;
