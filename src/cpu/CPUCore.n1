@@ -28,9 +28,12 @@ inline int haltStates();
 
 inline void READ_PORT(word port, byte &result);
 inline void WRITE_PORT(word port, byte value);
+inline void RDMEM_OPCODE(word address, byte &result);
 inline void RDMEM(word address, byte &result);
+inline void RDMEM_common(word address, byte &result);
 void RDMEMslow(word address, byte &result);
 inline void WRMEM(word address, byte value);
+inline void WRMEM_common(word address, byte value);
 void WRMEMslow(word address, byte value);
 
 inline void M1Cycle();

@@ -35,6 +35,41 @@ inline void R800::INC_DELAY()      { currentTime += 1; }
 inline void R800::SMALL_DELAY()    { }
 inline int R800::haltStates() { return 1; }	// HALT + M1 // TODO check this
 
+int R800::lastPage = -1;
+
+inline void R800::RDMEM_OPCODE(word address, byte &result)
+{
+	int newPage = address >> 8;
+	if (newPage != lastPage) {
+		lastPage = newPage;
+		currentTime += 1;
+		if (currentTime >= targetTime) {
+			extendTarget(currentTime);
+		}
+	}
+	RDMEM_common(address, result);
+}
+
+inline void R800::RDMEM(word address, byte &result)
+{
+	currentTime += 1;
+	if (currentTime >= targetTime) {
+		extendTarget(currentTime);
+	}
+	lastPage = -1;
+	RDMEM_common(address, result);
+}
+
+inline void R800::WRMEM(word address, byte value)
+{
+	currentTime += 1;
+	if (currentTime >= targetTime) {
+		extendTarget(currentTime);
+	}
+	lastPage = -1;
+	WRMEM_common(address, value);
+}
+
 } // namespace openmsx
 
 #define _CPU_ R800

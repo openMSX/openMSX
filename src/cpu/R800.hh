@@ -35,6 +35,8 @@ private:
 	static const R800_ResumeFunc opcode_ed[256];
 	static const R800_ResumeFunc opcode_fd[256];
 	static const R800_ResumeFunc opcode_main[256];
+
+	static int lastPage;
 };
 
 } // namespace openmsx

@@ -42,7 +42,7 @@ inline void _CPU_::WRITE_PORT(word port, byte value)
 	currentTime += IO_DELAY2;
 }
 
-inline void _CPU_::RDMEM(word address, byte &result)
+inline void _CPU_::RDMEM_common(word address, byte &result)
 {
 	int line = address >> CACHE_LINE_BITS;
 	if (readCacheLine[line] != NULL) {
@@ -86,7 +86,7 @@ void _CPU_::RDMEMslow(word address, byte &result)
 	currentTime += MEM_DELAY2;
 }
 
-inline void _CPU_::WRMEM(word address, byte value)
+inline void _CPU_::WRMEM_common(word address, byte value)
 {
 	int line = address >> CACHE_LINE_BITS;
 	if (writeCacheLine[line] != NULL) {
@@ -182,7 +182,7 @@ inline void _CPU_::executeInstruction1(byte opcode) {
 
 inline void _CPU_::executeInstruction() {
 	byte opcode;
-	RDMEM(R.PC.w, opcode);
+	RDMEM_OPCODE(R.PC.w, opcode);
 	R.PC.w++; executeInstruction1(opcode);
 }
 
@@ -427,7 +427,7 @@ void _CPU_::ld_xhl_l() { WR_HL_X(R.HL.B.l); }
 // LD (HL),n
 void _CPU_::ld_xhl_byte() { 
 	byte val;
-	RDMEM(R.PC.w++, val);
+	RDMEM_OPCODE(R.PC.w++, val);
 	WR_HL_X(val);
 }
 
@@ -436,7 +436,7 @@ inline void _CPU_::WR_X_X(byte val) {
 	WRMEM(memptr.w, val);
 }
 inline void _CPU_::WR_XIX(byte val) {
-	RDMEM(R.PC.w++, (byte&)ofst);
+	RDMEM_OPCODE(R.PC.w++, (byte&)ofst);
 	memptr.w = R.IX.w + ofst; ADD_16_8_DELAY(); WR_X_X(val);
 }
 void _CPU_::ld_xix_a() { WR_XIX(R.AF.B.h); }
@@ -449,7 +449,7 @@ void _CPU_::ld_xix_l() { WR_XIX(R.HL.B.l); }
 
 // LD (IY+e),r
 inline void _CPU_::WR_XIY(byte val) {
-	RDMEM(R.PC.w++, (byte&)ofst);
+	RDMEM_OPCODE(R.PC.w++, (byte&)ofst);
 	memptr.w = R.IY.w + ofst; ADD_16_8_DELAY(); WR_X_X(val);
 }
 void _CPU_::ld_xiy_a() { WR_XIY(R.AF.B.h); }
@@ -462,36 +462,36 @@ void _CPU_::ld_xiy_l() { WR_XIY(R.HL.B.l); }
 
 // LD (IX+e),n
 void _CPU_::ld_xix_byte() {
-	RDMEM(R.PC.w++, (byte&)ofst);
+	RDMEM_OPCODE(R.PC.w++, (byte&)ofst);
 	memptr.w = R.IX.w + ofst;
 	byte val;
-	RDMEM(R.PC.w++, val);
+	RDMEM_OPCODE(R.PC.w++, val);
 	PARALLEL_DELAY(); WR_X_X(val);
 }
 
 // LD (IY+e),n
 void _CPU_::ld_xiy_byte() {
-	RDMEM(R.PC.w++, (byte &)ofst);
+	RDMEM_OPCODE(R.PC.w++, (byte &)ofst);
 	memptr.w = R.IY.w + ofst;
 	byte val;
-	RDMEM(R.PC.w++, val);
+	RDMEM_OPCODE(R.PC.w++, val);
 	PARALLEL_DELAY(); WR_X_X(val);
 }
 
 // LD (nn),A
 void _CPU_::ld_xbyte_a() {
 	z80regpair x;
-	RDMEM(R.PC.w++, x.B.l);
-	RDMEM(R.PC.w++, x.B.h);
+	RDMEM_OPCODE(R.PC.w++, x.B.l);
+	RDMEM_OPCODE(R.PC.w++, x.B.h);
 	memptr.w = R.AF.B.h << 8;
 	WR_X_A(x.w);
 }
 
 // LD (nn),ss
 inline void _CPU_::WR_NN_Y(z80regpair reg) {
-	RDMEM(R.PC.w, memptr.B.l);
+	RDMEM_OPCODE(R.PC.w, memptr.B.l);
 	R.PC.w++;
-	RDMEM(R.PC.w, memptr.B.h);
+	RDMEM_OPCODE(R.PC.w, memptr.B.h);
 	R.PC.w++;
 	WRMEM(memptr.w, reg.B.l);
 	memptr.w++;
@@ -514,28 +514,28 @@ void _CPU_::ld_a_xhl() { RD_A_X(R.HL.w); }
 
 // LD A,(IX+e)
 void _CPU_::ld_a_xix() {   
-	RDMEM(R.PC.w++, (byte&)ofst);
+	RDMEM_OPCODE(R.PC.w++, (byte&)ofst);
 	memptr.w = R.IX.w + ofst; ADD_16_8_DELAY(); RD_A_X(memptr.w);
 }
 
 // LD A,(IY+e)
 void _CPU_::ld_a_xiy() {   
-	RDMEM(R.PC.w++, (byte&)ofst);
+	RDMEM_OPCODE(R.PC.w++, (byte&)ofst);
 	memptr.w = R.IY.w + ofst; ADD_16_8_DELAY(); RD_A_X(memptr.w);
 }
 
 // LD A,(nn)
 void _CPU_::ld_a_xbyte() {
 	z80regpair x;
-	RDMEM(R.PC.w++, x.B.l);
-	RDMEM(R.PC.w++, x.B.h);
+	RDMEM_OPCODE(R.PC.w++, x.B.l);
+	RDMEM_OPCODE(R.PC.w++, x.B.h);
 	memptr.w = x.w + 1;
 	RD_A_X(x.w);
 }
 
 // LD r,n
 inline void _CPU_::RD_R_N(byte& reg) {
-	RDMEM(R.PC.w++, reg);
+	RDMEM_OPCODE(R.PC.w++, reg);
 }
 void _CPU_::ld_a_byte()  { RD_R_N(R.AF.B.h); }
 void _CPU_::ld_b_byte()  { RD_R_N(R.BC.B.h); }
@@ -565,7 +565,7 @@ inline void _CPU_::RD_R_X(byte& reg) {
 	RDMEM(memptr.w, reg);
 }
 inline void _CPU_::RD_R_XIX(byte& reg) {   
-	RDMEM(R.PC.w, (byte &)ofst);
+	RDMEM_OPCODE(R.PC.w, (byte &)ofst);
 	R.PC.w++; memptr.w = R.IX.w + ofst; ADD_16_8_DELAY(); RD_R_X(reg);
 }
 void _CPU_::ld_b_xix()   { RD_R_XIX(R.BC.B.h); }
@@ -577,7 +577,7 @@ void _CPU_::ld_l_xix()   { RD_R_XIX(R.HL.B.l); }
 
 // LD r,(IY+e)
 inline void _CPU_::RD_R_XIY(byte& reg) {   
-	RDMEM(R.PC.w, (byte &)ofst);
+	RDMEM_OPCODE(R.PC.w, (byte &)ofst);
 	R.PC.w++; memptr.w = R.IY.w + ofst; ADD_16_8_DELAY(); RD_R_X(reg);
 }
 void _CPU_::ld_b_xiy()   { RD_R_XIY(R.BC.B.h); }
@@ -589,8 +589,8 @@ void _CPU_::ld_l_xiy()   { RD_R_XIY(R.HL.B.l); }
 
 // LD ss,(nn)
 inline void _CPU_::RD_P_XX(z80regpair& reg) {
-	RDMEM(R.PC.w++, memptr.B.l);
-	RDMEM(R.PC.w++, memptr.B.h);
+	RDMEM_OPCODE(R.PC.w++, memptr.B.l);
+	RDMEM_OPCODE(R.PC.w++, memptr.B.h);
 	RDMEM(memptr.w++, reg.B.l);
 	RDMEM(memptr.w,   reg.B.h);
 }
@@ -603,8 +603,8 @@ void _CPU_::ld_sp_xword(){ RD_P_XX(R.SP); }
 
 // LD ss,nn
 inline void _CPU_::RD_P_NN(z80regpair& reg) {
-	RDMEM(R.PC.w++, reg.B.l);
-	RDMEM(R.PC.w++, reg.B.h);
+	RDMEM_OPCODE(R.PC.w++, reg.B.l);
+	RDMEM_OPCODE(R.PC.w++, reg.B.h);
 }
 void _CPU_::ld_bc_word() { RD_P_NN(R.BC); }
 void _CPU_::ld_de_word() { RD_P_NN(R.DE); }
@@ -636,7 +636,7 @@ void _CPU_::adc_a_iyl() { ADC(R.IY.B.l); }
 void _CPU_::adc_a_iyh() { ADC(R.IY.B.h); }
 void _CPU_::adc_a_byte(){
 	byte n;
-	RDMEM(R.PC.w, n);
+	RDMEM_OPCODE(R.PC.w, n);
 	R.PC.w++; ADC(n);
 }
 inline void _CPU_::adc_a_x(word x) {
@@ -646,12 +646,12 @@ inline void _CPU_::adc_a_x(word x) {
 }
 void _CPU_::adc_a_xhl() { adc_a_x(R.HL.w); }
 void _CPU_::adc_a_xix() {
-	RDMEM(R.PC.w++, (byte &)ofst);
+	RDMEM_OPCODE(R.PC.w++, (byte &)ofst);
 	memptr.w = R.IX.w + ofst;
 	ADD_16_8_DELAY(); adc_a_x(memptr.w);
 }
 void _CPU_::adc_a_xiy() {
-	RDMEM(R.PC.w++, (byte &)ofst);
+	RDMEM_OPCODE(R.PC.w++, (byte &)ofst);
 	memptr.w = R.IY.w + ofst;
 	ADD_16_8_DELAY(); adc_a_x(memptr.w);
 }
@@ -678,7 +678,7 @@ void _CPU_::add_a_iyl() { ADD(R.IY.B.l); }
 void _CPU_::add_a_iyh() { ADD(R.IY.B.h); }
 void _CPU_::add_a_byte(){
 	byte n;
-	RDMEM(R.PC.w, n);
+	RDMEM_OPCODE(R.PC.w, n);
 	R.PC.w++; ADD(n);
 }
 inline void _CPU_::add_a_x(word x) {
@@ -688,12 +688,12 @@ inline void _CPU_::add_a_x(word x) {
 }
 void _CPU_::add_a_xhl() { add_a_x(R.HL.w); }
 void _CPU_::add_a_xix() {
-	RDMEM(R.PC.w++, (byte &)ofst);
+	RDMEM_OPCODE(R.PC.w++, (byte &)ofst);
 	memptr.w = R.IX.w + ofst;
 	ADD_16_8_DELAY(); add_a_x(memptr.w);
 }
 void _CPU_::add_a_xiy() {
-	RDMEM(R.PC.w++, (byte &)ofst);
+	RDMEM_OPCODE(R.PC.w++, (byte &)ofst);
 	memptr.w = R.IY.w + ofst;
 	ADD_16_8_DELAY(); add_a_x(memptr.w);
 }
@@ -716,7 +716,7 @@ void _CPU_::and_iyh() { AND(R.IY.B.h); }
 void _CPU_::and_iyl() { AND(R.IY.B.l); }
 void _CPU_::and_byte(){
 	byte n;
-	RDMEM(R.PC.w, n);
+	RDMEM_OPCODE(R.PC.w, n);
 	R.PC.w++; AND(n);
 }
 inline void _CPU_::and_x(word x) {
@@ -726,12 +726,12 @@ inline void _CPU_::and_x(word x) {
 }
 void _CPU_::and_xhl() { and_x(R.HL.w); }
 void _CPU_::and_xix() {
-	RDMEM(R.PC.w++, (byte&)ofst);
+	RDMEM_OPCODE(R.PC.w++, (byte&)ofst);
 	memptr.w = R.IX.w + ofst;
 	ADD_16_8_DELAY(); and_x(memptr.w);
 }
 void _CPU_::and_xiy() {
-	RDMEM(R.PC.w++, (byte&)ofst);
+	RDMEM_OPCODE(R.PC.w++, (byte&)ofst);
 	memptr.w = R.IY.w + ofst;
 	ADD_16_8_DELAY(); and_x(memptr.w);
 }
@@ -759,7 +759,7 @@ void _CPU_::cp_iyh() { CP(R.IY.B.h); }
 void _CPU_::cp_iyl() { CP(R.IY.B.l); }
 void _CPU_::cp_byte(){
 	byte n;
-	RDMEM(R.PC.w, n);
+	RDMEM_OPCODE(R.PC.w, n);
 	R.PC.w++; CP(n);
 }
 inline void _CPU_::cp_x(word x) {
@@ -769,12 +769,12 @@ inline void _CPU_::cp_x(word x) {
 }
 void _CPU_::cp_xhl() { cp_x(R.HL.w); }
 void _CPU_::cp_xix() {
-	RDMEM(R.PC.w++, (byte&)ofst);
+	RDMEM_OPCODE(R.PC.w++, (byte&)ofst);
 	memptr.w = R.IX.w + ofst;
 	ADD_16_8_DELAY(); cp_x(memptr.w);
 }
 void _CPU_::cp_xiy() {
-	RDMEM(R.PC.w++, (byte&)ofst);
+	RDMEM_OPCODE(R.PC.w++, (byte&)ofst);
 	memptr.w = R.IY.w + ofst;
 	ADD_16_8_DELAY(); cp_x(memptr.w);
 }
@@ -797,7 +797,7 @@ void _CPU_::or_iyh() { OR(R.IY.B.h); }
 void _CPU_::or_iyl() { OR(R.IY.B.l); }
 void _CPU_::or_byte(){
 	byte n;
-	RDMEM(R.PC.w, n);
+	RDMEM_OPCODE(R.PC.w, n);
 	R.PC.w++; OR(n);
 }
 inline void _CPU_::or_x(word x) {
@@ -807,12 +807,12 @@ inline void _CPU_::or_x(word x) {
 }
 void _CPU_::or_xhl() { or_x(R.HL.w); }
 void _CPU_::or_xix() {
-	RDMEM(R.PC.w++, (byte&)ofst);
+	RDMEM_OPCODE(R.PC.w++, (byte&)ofst);
 	memptr.w = R.IX.w + ofst;
 	ADD_16_8_DELAY(); or_x(memptr.w);
 }
 void _CPU_::or_xiy() {
-	RDMEM(R.PC.w++, (byte&)ofst);
+	RDMEM_OPCODE(R.PC.w++, (byte&)ofst);
 	memptr.w = R.IY.w + ofst;
 	ADD_16_8_DELAY(); or_x(memptr.w);
 }
@@ -840,7 +840,7 @@ void _CPU_::sbc_a_iyh() { SBC(R.IY.B.h); }
 void _CPU_::sbc_a_iyl() { SBC(R.IY.B.l); }
 void _CPU_::sbc_a_byte(){
 	byte n;
-	RDMEM(R.PC.w, n);
+	RDMEM_OPCODE(R.PC.w, n);
 	R.PC.w++; SBC(n);
 }
 inline void _CPU_::sbc_a_x(word x) {
@@ -850,12 +850,12 @@ inline void _CPU_::sbc_a_x(word x) {
 }
 void _CPU_::sbc_a_xhl() { sbc_a_x(R.HL.w); }
 void _CPU_::sbc_a_xix() {
-	RDMEM(R.PC.w++, (byte&)ofst);
+	RDMEM_OPCODE(R.PC.w++, (byte&)ofst);
 	memptr.w = R.IX.w + ofst;
 	ADD_16_8_DELAY(); sbc_a_x(memptr.w);
 }
 void _CPU_::sbc_a_xiy() {
-	RDMEM(R.PC.w++, (byte&)ofst);
+	RDMEM_OPCODE(R.PC.w++, (byte&)ofst);
 	memptr.w = R.IY.w + ofst;
 	ADD_16_8_DELAY(); sbc_a_x(memptr.w);
 }
@@ -883,7 +883,7 @@ void _CPU_::sub_iyh() { SUB(R.IY.B.h); }
 void _CPU_::sub_iyl() { SUB(R.IY.B.l); }
 void _CPU_::sub_byte(){
 	byte n;
-	RDMEM(R.PC.w, n);
+	RDMEM_OPCODE(R.PC.w, n);
 	R.PC.w++; SUB(n);
 }
 inline void _CPU_::sub_x(word x) {
@@ -893,12 +893,12 @@ inline void _CPU_::sub_x(word x) {
 }
 void _CPU_::sub_xhl() { sub_x(R.HL.w); }
 void _CPU_::sub_xix() {
-	RDMEM(R.PC.w++, (byte&)ofst);
+	RDMEM_OPCODE(R.PC.w++, (byte&)ofst);
 	memptr.w = R.IX.w + ofst;
 	ADD_16_8_DELAY(); sub_x(memptr.w);
 }
 void _CPU_::sub_xiy() {
-	RDMEM(R.PC.w++, (byte&)ofst);
+	RDMEM_OPCODE(R.PC.w++, (byte&)ofst);
 	memptr.w = R.IY.w + ofst;
 	ADD_16_8_DELAY(); sub_x(memptr.w);
 }
@@ -922,7 +922,7 @@ void _CPU_::xor_iyh() { XOR(R.IY.B.h); }
 void _CPU_::xor_iyl() { XOR(R.IY.B.l); }
 void _CPU_::xor_byte(){
 	byte n;
-	RDMEM(R.PC.w, n);
+	RDMEM_OPCODE(R.PC.w, n);
 	R.PC.w++; XOR(n);
 }
 inline void _CPU_::xor_x(word x) {
@@ -932,12 +932,12 @@ inline void _CPU_::xor_x(word x) {
 }
 void _CPU_::xor_xhl() { xor_x(R.HL.w); }
 void _CPU_::xor_xix() {
-	RDMEM(R.PC.w++, (byte&)ofst);
+	RDMEM_OPCODE(R.PC.w++, (byte&)ofst);
 	memptr.w = R.IX.w + ofst;
 	ADD_16_8_DELAY(); xor_x(memptr.w);
 }
 void _CPU_::xor_xiy() {
-	RDMEM(R.PC.w++, (byte&)ofst);
+	RDMEM_OPCODE(R.PC.w++, (byte&)ofst);
 	memptr.w = R.IY.w + ofst;
 	ADD_16_8_DELAY(); xor_x(memptr.w);
 }
@@ -972,12 +972,12 @@ inline void _CPU_::DEC_X(word x) {
 }
 void _CPU_::dec_xhl() { DEC_X(R.HL.w); }
 void _CPU_::dec_xix() {
-	RDMEM(R.PC.w++, (byte&)ofst);
+	RDMEM_OPCODE(R.PC.w++, (byte&)ofst);
 	memptr.w = R.IX.w + ofst;
 	ADD_16_8_DELAY(); DEC_X(memptr.w);
 }
 void _CPU_::dec_xiy() {
-	RDMEM(R.PC.w++, (byte&)ofst);
+	RDMEM_OPCODE(R.PC.w++, (byte&)ofst);
 	memptr.w = R.IY.w + ofst;
 	ADD_16_8_DELAY(); DEC_X(memptr.w);
 }
@@ -1010,12 +1010,12 @@ inline void _CPU_::INC_X(word x) {
 }
 void _CPU_::inc_xhl() { INC_X(R.HL.w); }
 void _CPU_::inc_xix() {
-	RDMEM(R.PC.w++, (byte&)ofst);
+	RDMEM_OPCODE(R.PC.w++, (byte&)ofst);
 	memptr.w = R.IX.w + ofst;
 	ADD_16_8_DELAY(); INC_X(memptr.w);
 }
 void _CPU_::inc_xiy() {
-	RDMEM(R.PC.w++, (byte&)ofst);
+	RDMEM_OPCODE(R.PC.w++, (byte&)ofst);
 	memptr.w = R.IY.w + ofst;
 	ADD_16_8_DELAY(); INC_X(memptr.w);
 }
@@ -2078,16 +2078,16 @@ void _CPU_::pop_iy() { POP(R.IY); }
 
 // CALL nn / CALL cc,nn
 inline void _CPU_::CALL() {
-	RDMEM(R.PC.w++, memptr.B.l);
-	RDMEM(R.PC.w++, memptr.B.h);
+	RDMEM_OPCODE(R.PC.w++, memptr.B.l);
+	RDMEM_OPCODE(R.PC.w++, memptr.B.h);
 	SMALL_DELAY();
 	PUSH2(R.PC);
 	R.PC.w = memptr.w;
 }
 inline void _CPU_::SKIP_JP() {
-	RDMEM(R.PC.w, memptr.B.l);
+	RDMEM_OPCODE(R.PC.w, memptr.B.l);
 	R.PC.w++;
-	RDMEM(R.PC.w, memptr.B.h);
+	RDMEM_OPCODE(R.PC.w, memptr.B.h);
 	R.PC.w++;
 }
 void _CPU_::call()    { CALL(); }
@@ -2152,9 +2152,9 @@ void _CPU_::jp_iy() { R.PC.w = R.IY.w; }
 
 // JP nn / JP cc,nn
 inline void _CPU_::JP() {
-	RDMEM(R.PC.w, memptr.B.l);
+	RDMEM_OPCODE(R.PC.w, memptr.B.l);
 	R.PC.w++;
-	RDMEM(R.PC.w, memptr.B.h);
+	RDMEM_OPCODE(R.PC.w, memptr.B.h);
 	R.PC.w = memptr.w;
 }
 void _CPU_::jp()    { JP(); }
@@ -2169,7 +2169,7 @@ void _CPU_::jp_z()  { if (Z())  JP(); else SKIP_JP(); }
 
 // JR e
 inline void _CPU_::JR() {
-	RDMEM(R.PC.w, (byte &)ofst);
+	RDMEM_OPCODE(R.PC.w, (byte &)ofst);
 	R.PC.w++;
 	R.PC.w += ofst;
 	memptr.w = R.PC.w;
@@ -2177,7 +2177,7 @@ inline void _CPU_::JR() {
 }
 inline void _CPU_::SKIP_JR() {
 	byte dummy;
-	RDMEM(R.PC.w++, dummy);
+	RDMEM_OPCODE(R.PC.w++, dummy);
 }
 void _CPU_::jr()    { JR(); }
 void _CPU_::jr_c()  { if (C())  JR(); else SKIP_JR(); }
@@ -2225,7 +2225,7 @@ void _CPU_::in_0_c() { byte dummy; IN(dummy); } // discard result
 // IN a,(n)
 void _CPU_::in_a_byte() {
 	z80regpair y;
-	RDMEM(R.PC.w, y.B.l);
+	RDMEM_OPCODE(R.PC.w, y.B.l);
 	R.PC.w++; y.B.h = R.AF.B.h;
 	READ_PORT(y.w, R.AF.B.h);
 }
@@ -2247,7 +2247,7 @@ void _CPU_::out_c_0()   { OUT(0);        }
 // OUT (n),a
 void _CPU_::out_byte_a() {
 	z80regpair y;
-	RDMEM(R.PC.w, y.B.l);
+	RDMEM_OPCODE(R.PC.w, y.B.l);
 	R.PC.w++; y.B.h = R.AF.B.h;
 	WRITE_PORT(y.w, R.AF.B.h);
 }
@@ -2505,40 +2505,40 @@ void _CPU_::muluw_hl_sp() { MULUW(R.SP.w); }
 
 // prefixes
 void _CPU_::dd_cb() {
-	RDMEM(R.PC.w, (byte &)ofst);
+	RDMEM_OPCODE(R.PC.w, (byte &)ofst);
 	R.PC.w++;
 	byte opcode;
-	RDMEM(R.PC.w, opcode);
+	RDMEM_OPCODE(R.PC.w, opcode);
 	R.PC.w++; DD_CB_DELAY();
 	(this->*opcode_dd_cb[opcode])();
 }
 
 void _CPU_::fd_cb() {
-	RDMEM(R.PC.w, (byte &)ofst);
+	RDMEM_OPCODE(R.PC.w, (byte &)ofst);
 	R.PC.w++;
 	byte opcode;
-	RDMEM(R.PC.w, opcode);
+	RDMEM_OPCODE(R.PC.w, opcode);
 	R.PC.w++; DD_CB_DELAY();
 	(this->*opcode_fd_cb[opcode])();
 }
 
 void _CPU_::cb() {
 	byte opcode;
-	RDMEM(R.PC.w, opcode);
+	RDMEM_OPCODE(R.PC.w, opcode);
 	R.PC.w++; M1Cycle();
 	(this->*opcode_cb[opcode])();
 }
 
 void _CPU_::ed() {
 	byte opcode;
-	RDMEM(R.PC.w, opcode);
+	RDMEM_OPCODE(R.PC.w, opcode);
 	R.PC.w++; M1Cycle();
 	(this->*opcode_ed[opcode])();
 }
 
 void _CPU_::dd() {
 	byte opcode;
-	RDMEM(R.PC.w, opcode);
+	RDMEM_OPCODE(R.PC.w, opcode);
 	R.PC.w++; 
 	if ((opcode != 0xCB) && (opcode != 0xDD) && (opcode != 0xFD))
 		M1Cycle();
@@ -2548,14 +2548,14 @@ void _CPU_::dd() {
 }
 void _CPU_::dd2() {
 	byte opcode;
-	RDMEM(R.PC.w, opcode);
+	RDMEM_OPCODE(R.PC.w, opcode);
 	R.PC.w++; SMALL_DELAY();
 	(this->*opcode_dd[opcode])();
 }
 
 void _CPU_::fd() {
 	byte opcode;
-	RDMEM(R.PC.w, opcode);
+	RDMEM_OPCODE(R.PC.w, opcode);
 	R.PC.w++; 
 	if ((opcode != 0xCB) && (opcode != 0xDD) && (opcode != 0xFD))
 		M1Cycle();
@@ -2565,7 +2565,7 @@ void _CPU_::fd() {
 }
 void _CPU_::fd2() {
 	byte opcode;
-	RDMEM(R.PC.w, opcode);
+	RDMEM_OPCODE(R.PC.w, opcode);
 	R.PC.w++; SMALL_DELAY();
 	(this->*opcode_fd[opcode])();
 }

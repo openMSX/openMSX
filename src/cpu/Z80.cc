@@ -46,6 +46,21 @@ inline void Z80::INC_DELAY()      { currentTime += 1; }
 inline void Z80::SMALL_DELAY()    { currentTime += 1; }  // TODO more detailed?
 inline int Z80::haltStates() { return 4 + WAIT_CYCLES; } // HALT + M1
 
+inline void Z80::RDMEM_OPCODE(word address, byte &result)
+{
+	RDMEM_common(address, result);
+}
+
+inline void Z80::RDMEM(word address, byte &result)
+{
+	RDMEM_common(address, result);
+}
+
+inline void Z80::WRMEM(word address, byte value)
+{
+	WRMEM_common(address, value);
+}
+
 } // namespace openmsx
 
 #define _CPU_ Z80
