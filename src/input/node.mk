@@ -1,11 +1,14 @@
 # $Id$
 
 SRC_HDR:= \
-	JoystickPort \
 	Keyboard \
+	JoystickPort \
+	JoystickDevice \
+	DummyJoystick \
 	Joystick \
 	KeyJoystick \
-	Mouse
+	Mouse \
+	JoyNet
 
 $(eval $(PROCESS_NODE))
 

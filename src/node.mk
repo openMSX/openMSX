@@ -21,9 +21,6 @@ SRC_HDR:= \
 	MSXS1990 \
 	DummyDevice \
 	JoystickPorts \
-	JoystickDevice \
-	DummyJoystick \
-	JoyNet \
 	MSXPrinterPort \
 	PrinterPortDevice PrinterPortSimpl PrinterPortLogger \
 	MSXKanji MSXKanji12 MSXBunsetsu \

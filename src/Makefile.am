@@ -61,9 +61,6 @@ openmsx_SOURCES=\
 	MSXS1990.hh MSXS1990.cc \
 	DummyDevice.hh DummyDevice.cc \
 	JoystickPorts.hh JoystickPorts.cc \
-	JoystickDevice.hh JoystickDevice.cc \
-	DummyJoystick.hh DummyJoystick.cc \
-	JoyNet.hh JoyNet.cc \
 	MSXPrinterPort.hh MSXPrinterPort.cc \
 	PrinterPortDevice.hh PrinterPortDevice.cc \
 	PrinterPortSimpl.hh PrinterPortSimpl.cc \
