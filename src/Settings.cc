@@ -2,11 +2,13 @@
 
 #include "Settings.hh"
 #include "CommandController.hh"
-
 #include <sstream>
+#include "RenderSettings.hh"
 
-// TODO: TEMP
-#include <stdio.h>
+
+// Force template instantiation
+template class EnumSetting<RenderSettings::Accuracy>;
+
 
 // Setting implementation:
 
@@ -15,18 +17,54 @@ Setting::Setting(const std::string &name, const std::string &description)
 	this->name = name;
 	this->description = description;
 
-	SettingsManager::getInstance()->registerSetting(name, this);
+	SettingsManager::instance()->registerSetting(name, this);
 }
 
 Setting::~Setting()
 {
+	SettingsManager::instance()->unregisterSetting(name);
 }
+
+
+// BooleanSetting implementation:
+
+BooleanSetting::BooleanSetting(
+	const std::string &name, const std::string &description,
+	bool initialValue)
+	: Setting(name, description)
+{
+	value = initialValue;
+	type = "on - off";
+}
+
+std::string BooleanSetting::getValueString()
+{
+	if (value) {
+		return std::string("on");
+	} else {
+		return std::string("off");
+	}
+}
+
+void BooleanSetting::setValueString(const std::string &valueString)
+{
+	if (valueString == "on") {
+		value = true;
+	} else if (valueString == "off") {
+		value = false;
+	} else {
+		throw CommandException(
+			"Not a valid boolean: \"" + valueString + "\"");
+	}
+	// TODO: Inform listeners.
+}
+
 
 // IntegerSetting implementation:
 
 IntegerSetting::IntegerSetting(
 	const std::string &name, const std::string &description,
-	int initialValue, int minValue, int maxValue )
+	int initialValue, int minValue, int maxValue)
 	: Setting(name, description)
 {
 	value = initialValue;
@@ -50,8 +88,8 @@ void IntegerSetting::setValueString(const std::string &valueString)
 	char *endPtr;
 	long newValue = strtol(valueString.c_str(), &endPtr, 0);
 	if (*endPtr != '\0') {
-		throw new CommandException(
-			"Not a valid integer: \"" + valueString + "\"" );
+		throw CommandException(
+			"Not a valid integer: \"" + valueString + "\"");
 	}
 
 	if (newValue < minValue) {
@@ -63,6 +101,54 @@ void IntegerSetting::setValueString(const std::string &valueString)
 
 	// TODO: Inform listeners.
 }
+
+
+// EnumSetting implementation:
+
+template <class T>
+EnumSetting<T>::EnumSetting(
+	const std::string &name, const std::string &description,
+	const T &initialValue,
+	const std::map<const std::string, T> &map_)
+	: Setting(name, description), map(map_)
+{
+	value = initialValue;
+
+	std::ostringstream out;
+	MapIterator it = map.begin();
+	out << it->first;
+	for (it++; it != map.end(); it++) {
+		out << ", " << it->first;
+	}
+	type = out.str();
+}
+
+template <class T>
+std::string EnumSetting<T>::getValueString()
+{
+	MapIterator it = map.begin();
+	while (it != map.end()) {
+		if (it->second == value) {
+			return it->first;
+		}
+		it++;
+	}
+	assert(false);
+	return std::string("<unknown>");
+}
+
+template <class T>
+void EnumSetting<T>::setValueString(const std::string &valueString)
+{
+	MapIterator it = map.find(valueString);
+	if (it != map.end()) {
+		value = it->second;
+	} else {
+		throw CommandException(
+			"Not a valid value: \"" + valueString + "\"");
+	}
+}
+
 
 // SettingsManager implementation:
 
@@ -100,7 +186,7 @@ void SettingsManager::SetCommand::execute(
 	const std::string &name = tokens[1];
 	Setting *setting = manager->getByName(name);
 	if (!setting) {
-		throw CommandException("There is no setting named \"" + name + "\"" );
+		throw CommandException("There is no setting named \"" + name + "\"");
 	}
 
 	if (nrTokens == 2) {

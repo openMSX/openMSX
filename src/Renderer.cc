@@ -65,15 +65,11 @@ const word Renderer::GRAPHIC7_SPRITE_PALETTE[16] = {
 };
 
 Renderer::Renderer(bool fullScreen) :
-	fullScreenCmd(this), accuracyCmd(this), deinterlaceCmd(this)
+	fullScreenCmd(this)
 {
 	this->fullScreen = fullScreen;
-	settings = RenderSettings::getInstance();
-	accuracy = ACC_LINE;
-	deinterlace = true;
+	settings = RenderSettings::instance();
 	CommandController::instance()->registerCommand(fullScreenCmd, "fullscreen");
-	CommandController::instance()->registerCommand(accuracyCmd, "accuracy");
-	CommandController::instance()->registerCommand(deinterlaceCmd, "deinterlace");
 	HotKey::instance()->registerHotKeyCommand(Keys::K_PRINT, "fullscreen");
 }
 
@@ -81,7 +77,6 @@ Renderer::~Renderer()
 {
 	HotKey::instance()->unregisterHotKeyCommand(Keys::K_PRINT, "fullscreen");
 	CommandController::instance()->unregisterCommand("fullscreen");
-	CommandController::instance()->unregisterCommand("accuracy");
 }
 
 void Renderer::setFullScreen(bool enabled)
@@ -122,92 +117,4 @@ void Renderer::FullScreenCmd::help(const std::vector<std::string> &tokens)
 	print(" fullscreen:     toggle full-screen");
 	print(" fullscreen on:  switch to full-screen display");
 	print(" fullscreen off: switch to windowed display");
-}
-
-
-// Accuracy command
-Renderer::AccuracyCmd::AccuracyCmd(Renderer *rend)
-{
-	renderer = rend;
-}
-
-void Renderer::AccuracyCmd::execute(const std::vector<std::string> &tokens)
-{
-	switch (tokens.size()) {
-	case 1:
-		switch (renderer->accuracy) {
-		case ACC_SCREEN:
-			print("screen");
-			break;
-		case ACC_LINE:
-			print("line");
-			break;
-		case ACC_PIXEL:
-			print("pixel");
-			break;
-		}
-		break;
-	case 2:
-		if (tokens[1] == "screen") {
-			renderer->accuracy = ACC_SCREEN;
-			break;
-		}
-		if (tokens[1] == "line") {
-			renderer->accuracy = ACC_LINE;
-			break;
-		}
-		if (tokens[1] == "pixel") {
-			renderer->accuracy = ACC_PIXEL;
-			break;
-		}
-		// fall through
-	default:
-		throw CommandException("Syntax error");
-	}
-}
-void Renderer::AccuracyCmd::help(const std::vector<std::string> &tokens)
-{
-	print("This command sets the render accuracy");
-	print(" accuracy:         displays the current setting");
-	print(" accuracy screen:  sets screen accurate rendering");
-	print(" accuracy line:    sets line accurate rendering");
-	print(" accuracy pixel:   sets pixel accurate rendering");
-}
-
-// Deinterlace command
-Renderer::DeinterlaceCmd::DeinterlaceCmd(Renderer *rend)
-{
-	renderer = rend;
-}
-
-void Renderer::DeinterlaceCmd::execute(const std::vector<std::string> &tokens)
-{
-	switch (tokens.size()) {
-	case 1:
-		if (renderer->deinterlace) {
-			print("deinterlace: on");
-		} else {
-			print("deinterlace: off");
-		}
-		break;
-	case 2:
-		if (tokens[1] == "on") {
-			renderer->deinterlace = true;
-			break;
-		}
-		if (tokens[1] == "off") {
-			renderer->deinterlace = false;
-			break;
-		}
-		// fall through
-	default:
-		throw CommandException("Syntax error");
-	}
-}
-void Renderer::DeinterlaceCmd::help(const std::vector<std::string> &tokens)
-{
-	print("This command sets the deinterlace setting");
-	print(" deinterlace:      displays the current setting");
-	print(" deinterlace on:   turns deinterlacing on");
-	print(" deinterlace off:  turns deinterlacing off");
 }

@@ -4,6 +4,12 @@ $Id$
 	* a few WD2793 updates (David please review):
 	   MicrosolFDC partly works now: in BASIC the commands files load save
 	   work, but starting a game from disk doesn't work.
+	* converted "deinterlace" from a command to a setting:
+	   - you should now use "set deinterlace [on|off]" instead of just
+	     "deinterlace [on|off]"
+	* converted "accuracy" from a command to a setting:
+	   - you should now use "set accuracy [line|pixel|screen]" instead of
+	     just "accuracy [line|pixel|screen]"
 
 2002-11-16 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* renamed BrazilFDC to MicorsolFDC:

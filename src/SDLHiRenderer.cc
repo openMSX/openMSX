@@ -16,6 +16,7 @@ TODO:
 #include "RealTime.hh"
 #include <math.h>
 #include "SDLConsole.hh"
+#include "RenderSettings.hh"
 
 
 /** Dimensions of screen.
@@ -721,7 +722,9 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawDisplay(
 
 	int displayY = (fromY - lineRenderTop) * 2;
 	int nrLines = limitY - fromY;
-	if (!deinterlace && vdp->isInterlaced() && vdp->getEvenOdd()) {
+	if (!(settings->getDeinterlace()->getValue()) &&
+	    vdp->isInterlaced() &&
+	    vdp->getEvenOdd()) {
 		displayY++;
 	}
 	int displayLimitY = displayY + 2 * nrLines;
@@ -749,7 +752,9 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawDisplay(
 		}
 
 		int pageMaskEven, pageMaskOdd;
-		if (deinterlace && vdp->isInterlaced() && vdp->isEvenOddEnabled()) {
+		if (settings->getDeinterlace()->getValue() &&
+		    vdp->isInterlaced() &&
+		    vdp->isEvenOddEnabled()) {
 			pageMaskEven = vdp->isPlanar() ? 0x000 : 0x200;
 			pageMaskOdd  = vdp->isPlanar() ? 0x100 : 0x300;
 		} else {

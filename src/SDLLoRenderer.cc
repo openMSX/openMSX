@@ -20,6 +20,7 @@ TODO:
 #include "RealTime.hh"
 #include <math.h>
 #include "SDLConsole.hh"
+#include "RenderSettings.hh"
 
 
 /** Dimensions of screen.
@@ -50,8 +51,8 @@ template <class Pixel> inline void SDLLoRenderer<Pixel>::renderUntil(
 {
 	int limitTicks = vdp->getTicksThisFrame(time);
 
-	switch (accuracy) {
-	case ACC_PIXEL: {
+	switch (settings->getAccuracy()->getValue()) {
+	case RenderSettings::ACC_PIXEL: {
 		int limitX = limitTicks % VDP::TICKS_PER_LINE;
 		//limitX = (limitX - 100 - (VDP::TICKS_PER_LINE - 100) / 2 + WIDTH) / 2;
 		// TODO: Apply these transformations in the phaseHandler instead.
@@ -92,7 +93,7 @@ template <class Pixel> inline void SDLLoRenderer<Pixel>::renderUntil(
 		nextY = limitY;
 		break;
 	}
-	case ACC_LINE: {
+	case RenderSettings::ACC_LINE: {
 		int limitY = limitTicks / VDP::TICKS_PER_LINE;
 		// TODO: Because of rounding errors, this might not always be true.
 		//assert(limitY <= (vdp->isPalTiming() ? 313 : 262));
@@ -104,7 +105,7 @@ template <class Pixel> inline void SDLLoRenderer<Pixel>::renderUntil(
 		}
 		break;
 	}
-	case ACC_SCREEN: {
+	case RenderSettings::ACC_SCREEN: {
 		// TODO
 		break;
 	}

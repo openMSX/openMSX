@@ -5,25 +5,33 @@
 
 #include "Settings.hh"
 
+
 /** Singleton containing all settings for renderers.
   * Keeping the settings here makes sure they are preserved when the user
   * switches to another renderer.
   */
 class RenderSettings
 {
+public:
+	/** Render accuracy
+	  */
+	enum Accuracy { ACC_SCREEN, ACC_LINE, ACC_PIXEL };
+
 private:
 	RenderSettings();
+	~RenderSettings();
 
 	IntegerSetting *scanlineAlpha;
 	IntegerSetting *horizontalBlur;
+	BooleanSetting *deinterlace;
+	EnumSetting<Accuracy> *accuracy;
 
 public:
 	/** Get singleton instance.
 	  */
-	static RenderSettings *getInstance() {
-		static RenderSettings *instance = NULL;
-		if (!instance) instance = new RenderSettings();
-		return instance;
+	static RenderSettings *instance() {
+		static RenderSettings oneInstance;
+		return &oneInstance;
 	}
 
 	/** The alpha value [0..100] of the scanlines. */
@@ -32,6 +40,11 @@ public:
 	/** The amount of horizontal blur [0..100]. */
 	IntegerSetting *getHorizontalBlur() { return horizontalBlur; }
 
+	/** Deinterlacing [on / off]. */
+	BooleanSetting *getDeinterlace() { return deinterlace; }
+
+	/** Accuracy [screen, line, pixel] */
+	EnumSetting<Accuracy> *getAccuracy() { return accuracy; }
 };
 
 #endif // __RENDERSETTINGS_HH__

@@ -1,21 +1,6 @@
+COMMANDS
+========
 
-accuracy
---------
-
-  Sets the render accuracy. Currently there are three render modes:
-    - screen accurate: This is the fastest but also least accurate mode.
-    - line accurate: This is the recommended mode. Most tricks are 
-                     rendered correctly.
-    - pixel accuracte: This is the slowest but also most accuracte mode.
-                       In this mode even the 'Unknown Reality scoop part'
-                       is renderer correctly.
-  Note: not all renderers support all render modes
-
-  usage:
-    accuracy          shows the current setting
-    accuracy screen   selects screen accuracte rendering
-    accuracy line     selects line accurate rendering
-    accuracy pixel    selects pixel accurate rendering
 
 bind / unbind
 -------------
@@ -76,18 +61,6 @@ cpudebug
 
   [ only available when compiled with DEBUG option ]
   
-
-deinterlace
------------
-
-  Turns deinterlacing on/off.
-  Note: not all renderers support deinterlacing.
-
-  usage:
-    deinterlace      shows the current setting
-    deinterlace on   turns deinterlacing on
-    deinterlace off  turns deinterlacing off
-
 
 diska / diskb
 -------------
@@ -208,7 +181,30 @@ reset
 -----
 
   Resets the emulated MSX.
+
+
+set
+---
+
+  Change or query the value of various settings.
   
+  usage:
+    set                    Shows a list of all supported settings 
+    set <setting>          Query the current value of the specified setting
+    set <setting> <value>  Change the specified setting to the given value
+  
+  For the moment these settings are supported
+    accuracy     Controls the rendering accuracy
+    blur         Controls amount of blurring
+    deinterlace  Controls deinterlacing
+    scanline     Controls the scanline effect 
+
+  examples:
+    set accuracy pixel
+    set blur 25
+    set scanline 20
+    set deinterlace on
+
 
 slotmap
 -------
@@ -253,3 +249,53 @@ vdpregs
 
   Shows the current VDP register settings.
   [ mainly usefull for debugging purposes ]
+
+
+
+
+
+SETTINGS
+========
+
+
+accuracy
+--------
+
+  Sets the render accuracy. Currently there are three render modes:
+    - screen accurate: This is the fastest but also least accurate mode.
+    - line accurate: This is the recommended mode. Most tricks are 
+                     rendered correctly.
+    - pixel accuracte: This is the slowest but also most accuracte mode.
+                       In this mode even the 'Unknown Reality scoop part'
+                       is renderer correctly.
+  Note: not all renderers support all render modes
+
+  usage:
+    set accuracy          shows the current setting
+    set accuracy screen   selects screen accuracte rendering
+    set accuracy line     selects line accurate rendering
+    set accuracy pixel    selects pixel accurate rendering
+
+
+blur
+----
+
+  TODO
+
+
+deinterlace
+-----------
+
+  Turns deinterlacing on/off.
+  Note: not all renderers support deinterlacing.
+
+  usage:
+    set deinterlace      shows the current setting
+    set deinterlace on   turns deinterlacing on
+    set deinterlace off  turns deinterlacing off
+
+
+scanline
+--------
+
+  TODO

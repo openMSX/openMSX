@@ -204,14 +204,7 @@ protected:
 	  */
 	static const word GRAPHIC7_SPRITE_PALETTE[16];
 
-	/** Render accuracy
-	 */
-	enum Accuracy { ACC_SCREEN, ACC_LINE, ACC_PIXEL };
-	Accuracy accuracy;
-
 	RenderSettings *settings;
-
-	bool deinterlace;
 
 private:
 
@@ -231,28 +224,6 @@ private:
 	};
 	friend class FullScreenCmd;
 	FullScreenCmd fullScreenCmd;
-	
-	class AccuracyCmd : public Command {
-		public:
-			AccuracyCmd(Renderer *rend);
-			virtual void execute(const std::vector<std::string> &tokens);
-			virtual void help   (const std::vector<std::string> &tokens);
-		private:
-			Renderer *renderer;
-	};
-	friend class AccuracyCmd;
-	AccuracyCmd accuracyCmd;
-	
-	class DeinterlaceCmd : public Command {
-		public:
-			DeinterlaceCmd(Renderer *rend);
-			virtual void execute(const std::vector<std::string> &tokens);
-			virtual void help   (const std::vector<std::string> &tokens);
-		private:
-			Renderer *renderer;
-	};
-	friend class DeinterlaceCmd;
-	DeinterlaceCmd deinterlaceCmd;
 };
 
 #endif //__RENDERER_HH__

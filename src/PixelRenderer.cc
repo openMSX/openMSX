@@ -6,6 +6,7 @@
 #include "SpriteChecker.hh"
 #include "RealTime.hh"
 #include "CommandController.hh"
+#include "RenderSettings.hh"
 
 /*
 TODO:
@@ -79,20 +80,20 @@ inline void PixelRenderer::renderUntil(const EmuTime &time)
 	int limitTicks = vdp->getTicksThisFrame(time);
 	int displayL = getDisplayLeft();
 	int limitX, limitY;
-	switch (accuracy) {
-	case ACC_PIXEL: {
+	switch (settings->getAccuracy()->getValue()) {
+	case RenderSettings::ACC_PIXEL: {
 		limitX = limitTicks % VDP::TICKS_PER_LINE;
 		limitY = limitTicks / VDP::TICKS_PER_LINE;
 		break;
 	}
-	case ACC_LINE: {
+	case RenderSettings::ACC_LINE: {
 		limitX = 0;
 		limitY = (limitTicks + VDP::TICKS_PER_LINE - displayL)
 			/ VDP::TICKS_PER_LINE;
 		if (limitY == nextY) return;
 		break;
 	}
-	case ACC_SCREEN: {
+	case RenderSettings::ACC_SCREEN: {
 		// TODO: Implement.
 		return;
 	}

@@ -1058,7 +1058,9 @@ void SDLGLRenderer::drawDisplay(int fromX, int fromY, int limitX, int limitY)
 
 	int nrLines = limitY - fromY;
 	int minY = (fromY - lineRenderTop) * 2;
-	if (!deinterlace && vdp->isInterlaced() && vdp->getEvenOdd()) {
+	if (!(settings->getDeinterlace()->getValue()) &&
+	    vdp->isInterlaced() &&
+	    vdp->getEvenOdd()) {
 		minY++;
 	}
 	int maxY = minY + 2 * nrLines;
@@ -1086,7 +1088,9 @@ void SDLGLRenderer::drawDisplay(int fromX, int fromY, int limitX, int limitY)
 		}
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 		// Which bits in the name mask determine the page?
-		bool deinterlaced = deinterlace && vdp->isInterlaced() && vdp->isEvenOddEnabled();
+		bool deinterlaced = settings->getDeinterlace()->getValue() &&
+		                    vdp->isInterlaced() &&
+				    vdp->isEvenOddEnabled();
 		int pageMaskEven, pageMaskOdd;
 		if (deinterlaced) {
 			pageMaskEven = vdp->isPlanar() ? 0x000 : 0x200;

@@ -6,6 +6,7 @@
 #include "Command.hh"
 #include <map>
 
+
 /*
 TODO: A way to inform listeners of a setting update.
 
@@ -19,8 +20,8 @@ Identifying source:
 - by pointer
 - by ID (to be added)
 
-
 */
+
 
 /** Abstract base class for Settings.
   */
@@ -75,34 +76,36 @@ private:
 	/** A description of this setting that can be presented to the user.
 	  */
 	std::string description;
-
 };
 
-#if 0
 
 /** A Setting with a boolean value.
   */
-class BooleanSetting
+class BooleanSetting : public Setting
 {
 public:
 
 	/** Create a new BooleanSetting.
 	  */
-	BooleanSetting(value, enabled = false);
+	BooleanSetting(
+		const std::string &name, const std::string &description,
+		bool initialValue = false);
 
 	/** Get the current value of this setting.
 	  */
 	bool getValue() { return value; }
+
+	// Implementation of Setting interface:
+	std::string getValueString();
+	void setValueString(const std::string &valueString);
 
 protected:
 
 private:
 
 	bool value;
-
 };
 
-#endif
 
 /** A Setting with an integer value.
   */
@@ -114,7 +117,7 @@ public:
 	  */
 	IntegerSetting(
 		const std::string &name, const std::string &description,
-		int initialValue, int minValue, int maxValue );
+		int initialValue, int minValue, int maxValue);
 
 	/** Get the current value of this setting.
 	  */
@@ -131,8 +134,39 @@ private:
 	int value;
 	int minValue;
 	int maxValue;
-
 };
+
+
+/** A Setting with a string value out of a finite set.
+  */
+template <class T>
+class EnumSetting : public Setting
+{
+public:
+
+	/** Create a new EnumSetting.
+	  */
+	EnumSetting(
+		const std::string &name, const std::string &description,
+		const T &initialValue,
+		const std::map<const std::string, T> &map);
+
+	/** Get the current value of this setting.
+	  */
+	T getValue() { return value; }
+
+	// Implementation of Setting interface:
+	std::string getValueString();
+	void setValueString(const std::string &valueString);
+
+protected:
+
+private:
+	T value;
+	typedef typename std::map<const std::string, T>::const_iterator MapIterator;
+	const std::map<const std::string, T> map;
+};
+
 
 /** Manages all settings.
   */
@@ -145,7 +179,7 @@ public:
 
 	/** Get singleton instance.
 	  */
-	static SettingsManager *getInstance() {
+	static SettingsManager *instance() {
 		static SettingsManager *instance = NULL;
 		if (!instance) instance = new SettingsManager();
 		return instance;
@@ -164,6 +198,9 @@ public:
 	void registerSetting(const std::string &name, Setting *setting) {
 		settingsMap[name] = setting;
 	}
+	void unregisterSetting(const std::string &name) {
+		settingsMap.erase(name);
+	}
 
 private:
 
@@ -180,7 +217,6 @@ private:
 	};
 	friend class SetCommand;
 	SetCommand setCommand;
-
 };
 
 #endif //__SETTING_HH__
