@@ -38,4 +38,7 @@ AM_LIBXMLPP
 dnl libxml
 AM_PATH_XML2
 
+dnl libSDL
+AM_PATH_SDL
+
 AC_OUTPUT(Makefile openmsx.lsm openmsx.spec doc/Makefile src/Makefile)

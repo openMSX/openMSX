@@ -15,8 +15,8 @@ openmsx_SOURCES=openmsx.cc \
 	Scheduler.hh Scheduler.cc \
 	Z80.cc Z80.hh Z80DAA.h Z80Codes.h opc__Z80.h
 
-# libxml++ and SDL, SDL needs to be autoconfized still TODO !
-LDADD=-lxml++ -lSDL
+# libxml++ and SDL
+openmsx_LDADD= -lxml++ -lSDL
 
 # we want ALL warnings
 AM_CXXFLAGS = -Wall
