@@ -18,6 +18,7 @@
 namespace openmsx {
 
 CommandController::CommandController()
+	: aliasCmds(*this)
 {
 	registerCommand(&helpCmd, "help");
 	registerCommand(&InfoCommand::instance(), "info");

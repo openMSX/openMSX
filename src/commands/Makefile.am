@@ -27,7 +27,8 @@ libCommands_la_SOURCES = \
 	Command.hh \
 	CommandController.cc CommandController.hh \
 	InfoCommand.cc InfoCommand.hh \
-	InfoTopic.hh
+	InfoTopic.hh \
+	AliasCommands.cc AliasCommands.hh
 
 nodebug: resetdebug all
 debug: setdebug all

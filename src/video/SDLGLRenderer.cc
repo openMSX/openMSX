@@ -229,9 +229,9 @@ int SDLGLRenderer::putPowerOffImage()
 	glBindTexture(GL_TEXTURE_2D, noiseTextureId);
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 	glBegin(GL_QUADS);
-	glTexCoord2f(0.0f + x, 2.0f + y); glVertex2i(   0, HEIGHT - 512);
-	glTexCoord2f(4.0f + x, 2.0f + y); glVertex2i(1024, HEIGHT - 512);
-	glTexCoord2f(4.0f + x, 0.0f + y); glVertex2i(1024, HEIGHT);
+	glTexCoord2f(0.0f + x, 1.5f + y); glVertex2i(   0, HEIGHT - 512);
+	glTexCoord2f(3.0f + x, 1.5f + y); glVertex2i(1024, HEIGHT - 512);
+	glTexCoord2f(3.0f + x, 0.0f + y); glVertex2i(1024, HEIGHT);
 	glTexCoord2f(0.0f + x, 0.0f + y); glVertex2i(   0, HEIGHT);
 	glEnd();
 	glDisable(GL_TEXTURE_2D);

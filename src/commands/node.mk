@@ -2,7 +2,8 @@
 
 SRC_HDR:= \
 	CommandController \
-	InfoCommand
+	InfoCommand \
+	AliasCommands
 
 HDR_ONLY:= \
 	Command \

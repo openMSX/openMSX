@@ -2,6 +2,18 @@ COMMANDS
 ========
 
 
+alias / unalias
+---------------
+
+  Create a new command that is an alias for another (group of) command(s).
+
+  usage:
+    alias                   show all aliasses
+    alias <name>            show the definition of this alias
+    alias <name> <command>  (re)define an alias
+    unalias <name>          remove the given alias
+
+
 bind / unbind
 -------------
   
