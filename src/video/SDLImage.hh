@@ -20,7 +20,7 @@ public:
 	         byte defaultAlpha = 255);
 	~SDLImage();
 	
-	void draw(unsigned x, unsigned y, unsigned char alpha = 255);
+	void draw(unsigned x, unsigned y, byte alpha = 255);
 
 private:
 	void init(const std::string& filename);
@@ -32,17 +32,17 @@ private:
 public:
 	static SDL_Surface* loadImage(
 		const std::string& filename,
-		unsigned char defaultAlpha = 255);
+		byte defaultAlpha = 255);
 	static SDL_Surface* loadImage(
 		const std::string& filename,
 		unsigned width, unsigned height,
-		unsigned char defaultAlpha = 255);
+		byte defaultAlpha = 255);
 	static SDL_Surface* readImage(const std::string& filename);
 	static SDL_Surface* scaleImage32(
 		SDL_Surface* input,
 		unsigned width, unsigned height);
 	static SDL_Surface* convertToDisplayFormat(
-		SDL_Surface* input, unsigned char defaultAlpha);
+		SDL_Surface* input, byte defaultAlpha);
 	static int zoomSurface(SDL_Surface* src, SDL_Surface* dst, bool smooth);
 };
 
