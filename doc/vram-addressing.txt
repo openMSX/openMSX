@@ -71,8 +71,17 @@ tables. On reads and writes to tables, interested subsystems must be
 informed so they can update their internal state. Therefore an algorithm is
 needed which calculates in which tables (if any) a given address is located.
 
-TODO: Create a simple function that returns true iff a given address is
-      inside a given table.
+Let "inside : Int -> Bool" be the function that tells whether an address is
+inside a table:
+  inside.addr = (Exist i : i in Indices : i & mask = addr)
+In English: there is an index i, for which the VRAM address is addr.
+
+A convenient formula for the inside function is this one:
+  inside.addr =
+    addr & (~mask | (-1 << index_width)) = mask & (-1 << index_width)
+Note that "addr" only occurs once and all other values are constant for each
+display mode, so the check takes two operations (one compare and one AND).
+This is probably the cheapest you can get.
 
 Index Width
 -----------
