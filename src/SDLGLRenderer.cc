@@ -763,34 +763,6 @@ void SDLGLRenderer::renderGraphic2(
 void SDLGLRenderer::renderGraphic4(
 	Pixel *pixelPtr, int line, int destX, int destY)
 {
-	GLubyte lineBuffer[256];
-	GLubyte *lineBufferPtr = lineBuffer;
-	int addr = (line << 7) & vdp->getNameMask();
-	do {
-		byte colour = vdp->getVRAM(addr++);
-		lineBufferPtr[0] = colour >> 4;
-		lineBufferPtr[1] = colour & 15;
-		lineBufferPtr += 2;
-	} while (addr & 127);
-
-	// Set pixel format.
-	glPixelStorei(GL_UNPACK_ROW_LENGTH, 256);
-	glPixelZoom(2.0, 2.0);
-
-	// Draw pixels in frame buffer.
-	glRasterPos2i(destX, HEIGHT - 1 - destY);
-	glDrawPixels(
-		256, 1,
-		GL_COLOR_INDEX, GL_UNSIGNED_BYTE,
-		lineBuffer
-		//vdp->getVRAMPtr() + ((line << 7) & vdp->getNameMask())
-		);
-}
-
-#if 0
-void SDLGLRenderer::renderGraphic4(
-	Pixel *pixelPtr, int line, int destX, int destY)
-{
 	int addr = (line << 7) & vdp->getNameMask();
 	do {
 		byte colour = vdp->getVRAM(addr++);
@@ -811,7 +783,6 @@ void SDLGLRenderer::renderGraphic4(
 		pixelPtr - 256
 		);
 }
-#endif
 
 void SDLGLRenderer::renderGraphic5(
 	Pixel *pixelPtr, int line, int destX, int destY)
