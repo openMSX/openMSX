@@ -5,17 +5,19 @@
 
 #include "MSXException.hh"
 
+
 namespace openmsx {
 
 class CommandException : public MSXException {
 public:
-	CommandException(const string& desc)
-		: MSXException(desc) {}
+	CommandException(const string& desc);
+	virtual ~CommandException();
 };
 
 class SyntaxError : public CommandException {
 public:
-	SyntaxError() : CommandException("Syntax error") {}
+	SyntaxError();
+	virtual ~SyntaxError();
 };
 
 } // namespace openmsx
