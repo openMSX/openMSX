@@ -189,6 +189,11 @@ private:
 		  */
 		virtual void execute(const EmuTime& time) = 0;
 
+		/** Copy progress state from another command.
+		  * TODO: Look for a design in which this method is not needed.
+		  */
+		void copyProgressFrom(VDPCmd* other);
+
 	protected:
 		VDPCmdEngine* engine;
 		VDPVRAM* vram;

@@ -506,13 +506,17 @@ void VDPCmdEngine::updateDisplayMode(DisplayMode mode, const EmuTime& time)
 
 	if (newScrMode != scrMode) {
 		if (currentCommand) {
-			PRT_DEBUG("Warning: VDP mode switch while command in progress");
+			PRT_DEBUG("VDP mode switch while command in progress");
 			if (newScrMode == -1) {
 				// TODO: For now abort cmd in progress,
 				//       later find out what really happens.
 				//       At least CE remains high for a while,
 				//       but it is not yet clear what happens in VRAM.
 				commandDone(time);
+			} else {
+				VDPCmd* newCommand = commands[CMD][newScrMode];
+				newCommand->copyProgressFrom(currentCommand);
+				currentCommand = newCommand;
 			}
 		}
 		sync(time);
@@ -582,6 +586,14 @@ VDPCmdEngine::VDPCmd::VDPCmd(VDPCmdEngine* engine_, VDPVRAM* vram_)
 
 VDPCmdEngine::VDPCmd::~VDPCmd()
 {
+}
+
+void VDPCmdEngine::VDPCmd::copyProgressFrom(VDPCmd* other)
+{
+	this->ASX = other->ASX;
+	this->ADX = other->ADX;
+	this->ANX = other->ANX;
+	this->currentTime = other->currentTime;
 }
 
 // Many VDP commands are executed in some kind of loop but
