@@ -36,6 +36,7 @@
 
 */
 
+#if 0
 std::string FileManager::findFileName(std::string filename, bool* wasURL)
 {
 	if (wasURL != NULL)
@@ -106,12 +107,12 @@ std::string FileManager::findFileName(std::string filename, bool* wasURL)
 	
 	return filename;
 }
-
+#endif
 
 /**
  * Open a file for reading only.
  */
-IFILETYPE* FileManager::openFileRO(std::string filename)
+IFILETYPE* FileManager::openFileRO(std::string filename, bool cache=false)
 {
 	filename=findFileName(filename);
 	PRT_DEBUG("Opening file " << filename << " read-only ...");
@@ -148,7 +149,7 @@ IOFILETYPE* FileManager::openFileMustRW(std::string filename)
  * Open a file for reading and writing.
  * if not writeable then open readonly
  */
-IOFILETYPE* FileManager::openFilePreferRW(std::string filename)
+IOFILETYPE* FileManager::openFilePreferRW(std::string filename, bool cache=false)
 {
 	bool wasURL;
 	std::string full_filename=findFileName(filename, &wasURL);
@@ -213,7 +214,7 @@ IOFILETYPE* FileManager::openFileTruncate(std::string filename)
 	return file; 
 }
 
-bool FileManager::Path::isHTTP(const std::string &path)
+bool FileManager::Path::isHTTP()
 {
 	// http://
 	// 0123456
@@ -232,7 +233,7 @@ bool FileManager::Path::isHTTP(const std::string &path)
 		);
 }
 
-bool FileManager::Path::isFTP(const std::string &path)
+bool FileManager::Path::isFTP()
 {
 	// ftp://
 	// 012345
@@ -261,16 +262,40 @@ FileManager::FileManager()
 	try 
 	{
 		MSXConfig::Config *config = MSXConfig::Backend::instance()->getConfigById("filepath");
-		std::list<MSXConfig::Device::Parameter*>* config_path_list = config->getParametersWithClass("path");
-		std::list<MSXConfig::Device::Parameter*>::const_iterator i = config_path_list->begin();
-		while (i != config_path_list->end())
+		try
 		{
-			path_list.push_back(new Path((*i)->value));
+			std::list<MSXConfig::Device::Parameter*>* config_path_list = config->getParametersWithClass("path");
+			std::list<MSXConfig::Device::Parameter*>::const_iterator i = config_path_list->begin();
+			while (i != config_path_list->end())
+			{
+				Path* p=new Path((*i)->value);
+				path_list.push_back(p);
+				if ((!p->isHTTP()) && (!p->isFTP()))
+				{
+					path_list_local_only.push_back(p);
+				}
+			}
+		}
+		catch (MSXConfig::Exception &e)
+		{
+			PRT_DEBUG("no path(s) defined in filepath config section: " << e.desc);
+		}
+		try
+		{
+			separator = config->getParameter("separator");
+		}
+		catch (MSXConfig::Exception &e)
+		{
+			PRT_DEBUG("no separator defined in filepath config section: " << e.desc);
+			PRT_DEBUG("Asuming unix file separator /");
+			separator = "/";
 		}
 	}
 	catch (MSXConfig::Exception &e)
 	{
 		PRT_DEBUG("no filepath config entry in config file: " << e.desc);
+		PRT_DEBUG("Asuming unix file separator /");
+		separator = "/";
 	}
 	
 	// filecaching

@@ -9,6 +9,8 @@
 #include "openmsx.hh"
 #include "MSXConfig.hh"
 #include <fstream>
+#include <string>
+#include <list>
 
 #ifdef HAVE_FSTREAM_TEMPL
 #define IFILETYPE std::ifstream<byte>
@@ -47,10 +49,13 @@ class FileManager
 		 * The One FileManager instance
 		 */
 		FileManager* instance();
+		
+		~FileManager();
+		
 		/**
 		 * Open a file for reading only.
 		 */
-		IFILETYPE* openFileRO(std::string filename, cached=false);
+		IFILETYPE* openFileRO(std::string filename, bool cache=false);
 		/**
 		 * Open a file for reading and writing.
 		 * if not writeable then fail
@@ -60,20 +65,18 @@ class FileManager
 		 * Open a file for reading and writing.
 		 * if not writeable then open readonly
 		 */
-		IOFILETYPE* openFilePreferRW(std::string filename, cached=false);
+		IOFILETYPE* openFilePreferRW(std::string filename, bool cache=false);
 
 		/** Following are for creating/reusing files **/
 		/** if not writeable then fail **/
 		IOFILETYPE* openFileAppend(std::string filename);
 		IOFILETYPE* openFileTruncate(std::string filename);
 	private:
-		/**
-		 * Objects of this class can not be constructed,
-		 * but there is one always, which is used for init
-		 * and destroying of the protocol contexts
-		 */
+
+		// predefine
+		class Path;
+
 		FileManager();
-		~FileManager();
 
 		/// The one instance
 		static FileManager* _instance;
@@ -83,11 +86,12 @@ class FileManager
 		 * returns the filename with path as string, and tells if the original path was an url (http:// or ftp://)
 		 * note that it is recommended to put URL's last in the rompaths
 		 */
-		std::string findFileName(std::string filename, bool* wasURL=NULL);
+		//std::string findFileName(std::string filename, bool* wasURL=NULL);
 
 		// filepath vars
-		std::string seperator;
+		std::string separator;
 		std::list<Path*> path_list;
+		std::list<Path*> path_list_local_only;
 
 		// filecaching vars
 		std::string cachedir;
@@ -104,11 +108,11 @@ class FileManager
 				/**
 				 * Is path an HTTP path?
 				 */
-				bool isHTTP(const std::string &path);
+				bool isHTTP();
 				/**
 				 * Is path an FTP path?
 				 */
-				bool isFTP(const std::string &path);
+				bool isFTP();
 		};
 };
 
