@@ -44,19 +44,6 @@ bind / unbind
     bind F9,release "set throttle on"
 
 
-cas
----
-
-  Insert a tape image in a virtual cassette player. The image must be in .cas
-  format. You only get this command if you have a MSXTapePatch installed in the
-  configuration file of your machine, see exampleconfigs.xml
-
-  usage:
-    cas <tape image>  insert tape image in virtual cassette player
-    cas eject         remove tape from virtual cassette player
-    cas rewind        rewind the current tape
-
-
 cassetteplayer
 --------------
 
@@ -95,7 +82,7 @@ debug
 diska / diskb
 -------------
 
-  Insert a disk image in a virtual drive. Optionally apply a IPS patch to the
+  Insert a disk image in a virtual drive. Optionally apply an IPS patch to the
   disk image.
   Note: the command-name is the same as the drive-name and the drive-name is
         configurable
@@ -620,7 +607,7 @@ icon.<name>.non-active.fade-duration
   
   <name> can be 'caps', 'fdd', 'kana', 'pause', 'power' or 'turbo'.
 
-  The position is set with the 'xccord' and 'ycoord' settings. The active and
+  The position is set with the 'xcoord' and 'ycoord' settings. The active and
   non-active version have the same position. The value is in pixels and (0,0)
   corresponds to the top-left of the screen.
   Note: In the future this will most likely change so that it is resolution
@@ -634,7 +621,7 @@ icon.<name>.non-active.fade-duration
   the LED changes status (on->off or off->on) the image is always shown, after
   the 'delay' time it will start to fade out. The time from completely visible
   to completely transparent is controlled with the fade.duration setting. Both
-  fade.duration and fade.delay are specied in milliseconds. A fade delay of 0
+  fade.duration and fade.delay are specified in milliseconds. A fade delay of 0
   means don't fade out. Duration and delay can be set independently for active
   and non-active image.
 
