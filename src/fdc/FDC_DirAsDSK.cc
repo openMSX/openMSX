@@ -358,10 +358,6 @@ void FDC_DirAsDSK::read(int logicalSector, int size, byte* buf)
 		};
 
 		logicalSector = (logicalSector - 1) % SECTORS_PER_FAT;
-		PRT_DEBUG("memcpy FAT located at : "<<(int)FAT );
-		PRT_DEBUG("FAT[0] : "<< std::hex <<FAT[0] );
-		PRT_DEBUG("FAT[1] : "<<FAT[1] );
-		PRT_DEBUG("FAT[2] : "<<FAT[2] );
 		memcpy(buf, FAT + logicalSector * SECTOR_SIZE, size);
 	} else if (logicalSector < 14) {
 		//create correct DIR sector 
@@ -566,15 +562,47 @@ void FDC_DirAsDSK::write(byte track, byte sector, byte side,
 		memcpy( FAT + logicalSector * SECTOR_SIZE, buf , size);
 	} else if (logicalSector < 14) {
 		//create correct DIR sector 
+		/*
+		 We assume that the dir entry is updatet as latest: So 
+		 the fat and actual sectordata should already contain the correct data
+		 Most MSX disk roms honour this behaviour for normal fileactions
+		 Ofcourse some diskcaching programs en disk optimizers can abandon this behaviour 
+		 and in such case the logic used here goes haywire!!
+		*/
 		logicalSector -= (1 + 2 * SECTORS_PER_FAT);
 		int dirCount = logicalSector * 16;
 		for (int i = 0; i < 16; i++) {
 			//TODO check if changed and take apropriate actions if needed
-			if (memcmp( (mapdir[dirCount].msxinfo.filename), buf, 32 ) != 0) {
+			if (memcmp( mapdir[dirCount].msxinfo.filename , buf, 32 ) != 0) {
 				PRT_DEBUG("dir entry for "<<mapdir[dirCount].filename <<" has changed");
 				//mapdir[dirCount].msxinfo.filename[0] == 0xE5 if already deleted....
 
-				if ( buf[0] == 0xE5 ) {
+				//the 3 vital informations needed
+				bool chgName=(memcmp( mapdir[dirCount].msxinfo.filename , buf, 11 ) ==0 ) ? true : false ;
+				
+				int tmpint=(int)(buf[25] + buf[26]<<8);
+				PRT_DEBUG(" buf[25] + buf[26]<<8 "<< tmpint << "?");
+				bool chgClus=( rdsh(mapdir[dirCount].msxinfo.startcluster) ==
+						(buf[25] + buf[26]<<8 )  ) ? true : false ;
+				tmpint=(int)(buf[27] + buf[27]<<8 + buf[27]<<16 + buf[27]<<24 );
+				PRT_DEBUG(" (buf[27] + buf[27]<<8 + buf[27]<<16 + buf[27]<<24 ) "<< tmpint << "?");
+				bool chgSize=( rdlg(mapdir[dirCount].msxinfo.size) ==
+						(buf[27] + buf[27]<<8 + buf[27]<<16 + buf[27]<<24 ) ) ? true : false ;
+
+				PRT_DEBUG("	chgSize "<< (chgSize?"true":"false"));
+				PRT_DEBUG("	chgClus "<< (chgClus?"true":"false"));
+				PRT_DEBUG("	chgName "<< (chgName?"true":"false"));
+
+				if ( chgClus && chgName){
+					PRT_DEBUG("Major change: new file started !!!!");
+				} else {
+					PRT_INFO("! A unussual change has been performed on this disk");
+					PRT_INFO("! are you running a disk editor or optimizer, or maybe");
+					PRT_INFO("! a diskcache program");
+					PRT_INFO("! Do not use 'dir as disk' emulation while running these kind of programs!");
+				}
+				if ( chgName && !chgClus && !chgSize ) {
+					if ( buf[0] == 0xE5 )  {
 					PRT_DEBUG("dir entry for "<<mapdir[dirCount].filename <<" has been deleted");
 					//TODO: What now, really remove entry
 					//and clean sectors or keep around in
@@ -582,7 +610,15 @@ void FDC_DirAsDSK::write(byte track, byte sector, byte side,
 					//more real though, but is it safe
 					//enough for host OS files when writing
 					//sectors?
+					} else {
+						PRT_INFO("File has been renamed in emulated disk, Host OS file(" << mapdir[dirCount].filename << ") remains untouched!");
+					}
 				} 
+
+				if ( !chgName && !chgClus && chgSize ) {
+					PRT_DEBUG("Content of "<<mapdir[dirCount].filename <<" changed");
+					// extract the file
+				}
 				//for now simply blindly take over info
 				memcpy( &(mapdir[dirCount].msxinfo), buf, 32);
 			} else {
@@ -606,43 +642,6 @@ void FDC_DirAsDSK::write(byte track, byte sector, byte side,
 		}
 		memcpy( cachedSectors[logicalSector] ,buf, SECTOR_SIZE);
 		sectormap[logicalSector].dirEntryNr = CACHEDSECTOR ;
-		/*
-
-
-		Code no longer needed just in comment while not commited
-
-		int cluster = (int)((logicalSector - 14) / 2) + 2; 
-		// read the second sector from the cluster into cache now if needed
-
-		if ( ( sectormap[logicalSector].dirEntryNr != NODIRENTRY ) &&
-		     ( sectormap[logicalSector].dirEntryNr != CACHEDCLUSTER ) ){
-			logicalSector ^= 1 ;
-			PRT_DEBUG("Reading extra sector("<<logicalSector<<") from cluster "<<cluster);
-			// we can be sure that this sector isn't yet cached :-)
-			byte *tmp;
-			tmp=(byte*)malloc(SECTOR_SIZE);
-			if (tmp == NULL){
-			  throw WriteProtectedException( "Malloc failure for FDC_DirAsDSK");
-			}
-			cachedSectors[logicalSector]=tmp;
-
-			int offset = clustermap[cluster].fileOffset + (logicalSector & 1) * SECTOR_SIZE;
-			string tmpfilename = mapdir[clustermap[cluster].dirEntryNr].filename;
-			PRT_DEBUG("  Reading from file " << tmpfilename );
-			PRT_DEBUG("  Reading with offset " << offset );
-			try {
-			FILE* file = fopen(tmpfilename.c_str(), "r");
-			if (file) {
-				fseek(file,offset,SEEK_SET);
-				fread(tmp, 1, SECTOR_SIZE, file);
-				fclose(file);
-			} 
-			} catch (...){
-				PRT_DEBUG("problems with file reading");
-			}
-		}
-		clustermap[cluster].dirEntryNr = CACHEDCLUSTER ;
-		*/
 	  //
 	  //   for now simply ignore writes
 	  //
