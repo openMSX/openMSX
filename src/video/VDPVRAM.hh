@@ -189,11 +189,11 @@ public:
 	  * Because the method is inlined, an optimising compiler can
 	  * probably avoid performance loss on constant expressions.
 	  */
-	inline const byte* readArea(int index) {
+	inline const byte* readArea(unsigned index) {
 		// Reads are only allowed if window is enabled.
 		assert(isEnabled());
-		int addr = baseMask & index;
-		assert(0 <= addr && addr < (1 << 17));
+		unsigned addr = baseMask & index;
+		assert(addr < (1 << 17));
 		return &data[addr];
 	}
 
@@ -201,7 +201,7 @@ public:
 	  * @param index Index in table, with unused bits set to 1.
 	  * TODO: Rename to "read", since all access is nonplanar (NP) now.
 	  */
-	inline byte readNP(int index) {
+	inline byte readNP(unsigned index) {
 		return *readArea(index);
 	}
 
@@ -227,8 +227,8 @@ public:
 	  * @param address The address to test.
 	  * @return true iff the address is inside this window.
 	  */
-	inline bool isInside(int address) {
-		return (address & combiMask) == baseAddr;
+	inline bool isInside(unsigned address) {
+		return (address & combiMask) == (unsigned)baseAddr;
 	}
 
 	/** Notifies the observer of this window of a VRAM change,
@@ -236,7 +236,7 @@ public:
 	  * @param address The address to test.
 	  * @param time The moment in emulated time the change occurs.
 	  */
-	inline void notify(int address, const EmuTime& time) {
+	inline void notify(unsigned address, const EmuTime& time) {
 		if (observer && isInside(address)) {
 			observer->updateVRAM(address - baseAddr, time);
 		}
@@ -299,7 +299,7 @@ public:
 	VRAMWindow spriteAttribTable;
 	VRAMWindow spritePatternTable;
 
-	VDPVRAM(VDP* vdp, int size, const EmuTime& time);
+	VDPVRAM(VDP* vdp, unsigned size, const EmuTime& time);
 	virtual ~VDPVRAM();
 
 	/** Update VRAM state to specified moment in time.
@@ -317,7 +317,7 @@ public:
 	  *       Note: "cmdSync", because it checks against read windows, unlike
 	  *       the other sync which checks against the cmd write window.
 	  */
-	inline void cmdWrite(int address, byte value, const EmuTime& time) {
+	inline void cmdWrite(unsigned address, byte value, const EmuTime& time) {
 		// Rewriting history is not allowed.
 		assert(time >= currentTime);
 
@@ -363,7 +363,7 @@ public:
 	  * @param value The value to write.
 	  * @param time The moment in emulated time this write occurs.
 	  */
-	inline void cpuWrite(int address, byte value, const EmuTime& time) {
+	inline void cpuWrite(unsigned address, byte value, const EmuTime& time) {
 		assert(time >= currentTime);
 		assert(vdp->isInsideFrame(time));
 		if (cmdReadWindow.isInside(address)
@@ -378,7 +378,7 @@ public:
 	  * @param time The moment in emulated time this read occurs.
 	  * @return The VRAM contents at the specified address.
 	  */
-	inline byte cpuRead(int address, const EmuTime& time) {
+	inline byte cpuRead(unsigned address, const EmuTime& time) {
 		// VRAM should never get ahead of CPU.
 		assert(time >= currentTime);
 
@@ -387,7 +387,7 @@ public:
 		if (cmdWriteWindow.isInside(address)) {
 			cmdEngine->sync(time);
 		}
-		assert(0 <= address && address < size);
+		assert(address < size);
 		return data[address];
 	}
 
@@ -445,7 +445,7 @@ private:
 
 	/** Size of VRAM in bytes.
 	  */
-	int size;
+	unsigned size;
 
 	// TODO: Renderer field can be removed, if updateDisplayMode
 	//       and updateDisplayEnabled are moved back to VDP.

@@ -18,7 +18,7 @@ VRAMWindow::VRAMWindow() {
 
 // class VDPVRAM:
 
-VDPVRAM::VDPVRAM(VDP *vdp, int size, const EmuTime& time)
+VDPVRAM::VDPVRAM(VDP *vdp, unsigned size, const EmuTime& time)
 	: currentTime(time)
 {
 	this->vdp = vdp;
@@ -93,7 +93,7 @@ void VDPVRAM::setRenderer(Renderer *renderer, const EmuTime &time) {
 
 unsigned VDPVRAM::getSize() const
 {
-	return 0x20000;	// 128KB
+	return size;
 }
 
 const string& VDPVRAM::getDescription() const
