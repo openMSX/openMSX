@@ -130,7 +130,7 @@ void CliCommInput::run() throw()
 #else
 		n = read(STDIN_FILENO, buf, 4096); // and in non-windows systems
 #endif
-		if (n == -1) {
+		if (n <= 0) {
 			break;
 		}
 		xmlParseChunk(parser_context, buf, n, 0);
