@@ -6,6 +6,9 @@ $Id$
 	     100% CPU usage for several seconds.
 	* Increased speed of type command
 
+2004-10-03 Maarten ter Huurne <maarten@treewalker.org>
+	* Updated configuration converter.
+
 2004-10-03 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed simple
 	* Don't autodetect mapper type for roms in machine configs
@@ -18,7 +21,7 @@ $Id$
 
 2004-10-02 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Force PSG portA to be programmed as input port:
-	   some programs (e.g. Match Maniac) wronly program portA as output,
+	   some programs (e.g. Match Maniac) wrongly program portA as output,
 	   but on most(?) MSX machines this works normally (e.g NMS8250)
 	* Fixed initial value of mode settings
 	* correctly give "write protected" err msg on read only disk:
@@ -93,8 +96,8 @@ $Id$
 
 2004-09-24 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed assert in Mixer on unmute if initial state was muted.
-	* Load settings file specified with "-setting" from UserContext,
-	  but load the files it refers to using SystemContext.
+	* Load settings file specified with "-setting" from UserFileContext,
+	  but load the files it refers to using SystemFileContext.
 	  Fixes console look when openMSX is started with "-setting" option.
 
 2004-09-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
