@@ -46,6 +46,7 @@ libMemory_la_SOURCES = \
 	RomSynthesizer.cc RomSynthesizer.hh \
 	RomHalnote.cc RomHalnote.hh \
 	RomKorean80in1.cc RomKorean80in1.hh \
+	RomKorean90in1.cc RomKorean90in1.hh \
 	RomKorean126in1.cc RomKorean126in1.hh \
 	RomFactory.cc RomFactory.hh \
 	PanasonicMemory.cc PanasonicMemory.hh \

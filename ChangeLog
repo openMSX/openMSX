@@ -1,7 +1,9 @@
 $Id$
 
 2003-03-31 Wouter Vermaelen <wouter.vermaelen@pi.be>
-	* Added Korean80-in-1 / Korean 126-in-1 mapper type
+	* Added Korean80-in-1 mapper type
+	* Added Korean90-in-1 mapper type
+	* Added Korean126-in-1 mapper type
 
 2003-04-04 David Heremans <david.heremans@gnu-linux.net>
 	* Getting everything in /opt/openmsx installed, no links yet

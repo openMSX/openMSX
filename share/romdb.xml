@@ -112,6 +112,14 @@
     <company>Ascii</company>
     <remark></remark>
   </rom>
+  <rom id="80-in-1">
+    <romtype>KOREAN80IN1</romtype>
+    <md5>992c279de3b12fb0550d64787eecc09c</md5>
+  </rom>
+  <rom id="90-in-1">
+    <romtype>KOREAN90IN1</romtype>
+    <md5>9cd6d90e6f87d6be581bab86b26268d7</md5>
+  </rom>
   <rom id="A Life M36 Planet">
     <romtype>ASCII8</romtype>
     <md5>ee9fe57e172b4e734847b95cdb57e9d5</md5>

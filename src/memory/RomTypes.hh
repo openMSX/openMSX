@@ -16,7 +16,8 @@ enum MapperType {
 	HARRY_FOX    = 9,
 	HALNOTE      = 10,
 	KOREAN80IN1  = 11,
-	KOREAN126IN1 = 12,
+	KOREAN90IN1  = 12,
+	KOREAN126IN1 = 13,
 	PLAIN        = 15,
 
 	PAGE0        = 16 + 1,
