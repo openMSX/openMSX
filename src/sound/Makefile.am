@@ -9,6 +9,7 @@ AM_CXXFLAGS_BASE = -Wall -pipe `test -f $(srcdir)/../.debug && echo "-DDEBUG"` \
 	-I$(srcdir)/../file \
 	-I$(srcdir)/../memory \
 	-I$(srcdir)/../thread \
+	-I$(srcdir)/../serial \
 	@XML_CFLAGS@ @SDL_CFLAGS@
 if PROFILE
 AM_CXXFLAGS = $(AM_CXXFLAGS_BASE) -pg
@@ -45,7 +46,6 @@ libSound_la_SOURCES = \
 	YM2413.cc YM2413.hh \
 	YM2413_2.cc YM2413_2.hh \
 	MSXTurboRPCM.cc MSXTurboRPCM.hh \
-	MSXMidi.cc MSXMidi.hh \
 	YMF262.cc YMF262.hh \
 	YMF278.cc YMF278.hh \
 	MSXMoonSound.cc MSXMoonSound.hh

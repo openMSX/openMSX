@@ -16,6 +16,7 @@ AM_CXXFLAGS_BASE = -Wall -pipe `test -f .debug && echo "-DDEBUG"` \
 	-I$(srcdir)/sound \
 	-I$(srcdir)/thread \
 	-I$(srcdir)/video \
+	-I$(srcdir)/serial \
 	@XML_CFLAGS@ @SDL_CFLAGS@
 if PROFILE
 AM_CXXFLAGS = $(AM_CXXFLAGS_BASE) -pg
@@ -31,7 +32,7 @@ endif
 # AM_CXXFLAGS = -Wall -W -DDEBUG -g3 -pipe
 
 SUBDIRS = libxmlx console cpu sound config \
-          fdc file ide thread cassette events memory video input
+          fdc file ide thread cassette events memory video input serial
 
 #bin_PROGRAMS=openmsx cfgtest
 bin_PROGRAMS=openmsx
@@ -103,6 +104,7 @@ openmsx_LDADD = \
 	sound/libSound.la \
 	thread/libThread.la \
 	video/libVideo.la \
+	serial/libSerial.la \
 	@XML_LIBS@ \
 	-lSDL_image @SDL_LIBS@
 

@@ -22,17 +22,37 @@ class EmuDuration
 		friend class EmuTime;
 	
 		// constructors
-		EmuDuration()                { time = 0; }
-		EmuDuration(uint64 n)        { time = n; }
-		EmuDuration(double duration) { time = (uint64)(duration*MAIN_FREQ); }
+		EmuDuration()                  { time = 0; }
+		explicit EmuDuration(uint64 n) { time = n; }
+		explicit EmuDuration(double duration) 
+			{ time = (uint64)(duration * MAIN_FREQ); }
 
 		// conversions
 		float toFloat() const { return (float)time / MAIN_FREQ; }
 		uint64 length() const { return time; }
+		int frequency() const { return MAIN_FREQ / time; }
 
 		// assignment operator
 		EmuDuration &operator =(const EmuDuration &d)
 			{ time = d.time; return *this; }
+		
+		// comparison operators
+		bool operator ==(const EmuDuration &d) const { return time == d.time; }
+		bool operator !=(const EmuDuration &d) const { return time != d.time; }
+		bool operator < (const EmuDuration &d) const { return time <  d.time; }
+		bool operator <=(const EmuDuration &d) const { return time <= d.time; }
+		bool operator > (const EmuDuration &d) const { return time >  d.time; }
+		bool operator >=(const EmuDuration &d) const { return time >= d.time; }
+		
+		// arithmetic operators
+		EmuDuration operator %(const EmuDuration &d) const 
+			{ return EmuDuration(time % d.time); }
+		EmuDuration operator *(int fact) const
+			{ return EmuDuration(time * fact); }
+		int operator /(const EmuDuration &d) const { return time / d.time; }
+		
+		static const EmuDuration zero;
+		static const EmuDuration infinity;
 
 	private:
 		uint64 time;
@@ -44,20 +64,17 @@ class EmuTime
 		// friends
 		friend std::ostream &operator<<(std::ostream &os, const EmuTime &et);
 
-		// constants
-		// Do not use INFINITY because it is macro-expanded on some systems
-		static const uint64 INFTY = 18446744073709551615ULL; //ULLONG_MAX;
-
 		// constructors
-		EmuTime()                 { time = 0; }
-		EmuTime(uint64 n)         { time = n; }
-		EmuTime(const EmuTime &e) { time = e.time; }
+		EmuTime()                  { time = 0; }
+		explicit EmuTime(uint64 n) { time = n; }
+		EmuTime(const EmuTime &e)  { time = e.time; }
 
 		// assignment operator
 		EmuTime &operator =(const EmuTime &e) { time = e.time; return *this; }
 
 		// comparison operators
 		bool operator ==(const EmuTime &e) const { return time == e.time; }
+		bool operator !=(const EmuTime &e) const { return time != e.time; }
 		bool operator < (const EmuTime &e) const { return time <  e.time; }
 		bool operator <=(const EmuTime &e) const { return time <= e.time; }
 		bool operator > (const EmuTime &e) const { return time >  e.time; }
@@ -76,7 +93,7 @@ class EmuTime
 			  time -= d.time; return *this; }
 		EmuDuration operator -(const EmuTime &e) const
 			{ assert(time >= e.time);
-			  return EmuDuration(time-e.time); }
+			  return EmuDuration(time - e.time); }
 		
 		// ticks
 		int getTicksAt(int freq) const { return time / (MAIN_FREQ / freq); }
@@ -93,9 +110,9 @@ class EmuTimeFreq : public EmuTime
 {
 	public:
 		// constructor
-		EmuTimeFreq()                 { time  = 0; }
-		EmuTimeFreq(const EmuTime &e) { time = e.time; }
-		//EmuTimeFreq(uint64 n)       { time  = n*(MAIN_FREQ/freq); }
+		EmuTimeFreq()                          { time  = 0; }
+		explicit EmuTimeFreq(const EmuTime &e) { time = e.time; }
+		//EmuTimeFreq(uint64 n)   { time  = n*(MAIN_FREQ/freq); }
 
 		void operator() (uint64 n)  { time  = n*(MAIN_FREQ/freq); }
 

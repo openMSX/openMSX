@@ -2,8 +2,12 @@
 
 #include "EmuTime.hh"
 
+// Do not use INFINITY because it is macro-expanded on some systems
+static const uint64 INFTY = 18446744073709551615ULL; //ULLONG_MAX;
 
-const EmuTime EmuTime::zero(0);
+const EmuDuration EmuDuration::zero((uint64)0);
+const EmuDuration EmuDuration::infinity(INFTY);
+const EmuTime EmuTime::zero((uint64)0);
 const EmuTime EmuTime::infinity(INFTY);
 
 

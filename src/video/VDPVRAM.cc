@@ -27,7 +27,7 @@ VDPVRAM::VDPVRAM(VDP *vdp, int size)
 	this->size = size;
 
 	// TODO: If this stays, initialise from constructor param.
-	currentTime = 0ull;
+	currentTime(0ull);
 
 	// Initialise VRAM data array.
 	data = new byte[size];

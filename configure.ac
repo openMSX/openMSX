@@ -103,4 +103,5 @@ src/events/Makefile
 src/memory/Makefile
 src/video/Makefile
 src/input/Makefile
+src/serial/Makefile
 )
