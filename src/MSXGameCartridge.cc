@@ -19,7 +19,7 @@ MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &tim
 		} else {
 			loadFile(&memoryBank, romSize);
 		}
-	} catch(MSXConfig::Exception e) {
+	} catch(MSXConfig::Exception& e) {
 		// filesize was not specified
 		romSize = loadFile(&memoryBank);
 	}
@@ -128,7 +128,7 @@ int MSXGameCartridge::retriefMapperType()
 			PRT_DEBUG("Using mapper type " << type);
 			return type;
 		}
-	} catch (MSXConfig::Exception e) {
+	} catch (MSXConfig::Exception& e) {
 		// missing parameter
 		return guessMapperType();
 	}

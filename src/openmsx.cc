@@ -105,7 +105,7 @@ int main (int argc, char **argv)
 		SDL_KillThread(thread);
 		MSXMotherBoard::instance()->DestroyMSX();
 	} 
-	catch (MSXException e) {
+	catch (MSXException& e) {
 		std::cerr << e.desc << std::endl;
 		exit(1);
 	}

@@ -29,7 +29,7 @@ MSXTapePatch::MSXTapePatch()
 			MSXConfig::instance()->getConfigById(name);
 		filename = config->getParameter("filename");
 		insertTape(filename);
-	} catch (MSXException e) {
+	} catch (MSXException& e) {
 		PRT_DEBUG("No correct tape insertion!");
 	}
 }

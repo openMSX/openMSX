@@ -44,7 +44,7 @@ std::string FileOpener::findFileName(std::string filename)
 	      PRT_DEBUG("Directory-separator found in filename ");
 	  }
 	}
-	catch (MSXException e)
+	catch (MSXException& e)
 	{
 	  PRT_DEBUG("No correct rompath info in xml ?!");
 	}

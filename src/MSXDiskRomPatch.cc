@@ -30,21 +30,21 @@ MSXDiskRomPatch::DiskImage::~DiskImage()
 void MSXDiskRomPatch::DiskImage::readSector(byte* to, int sector)
 {
 	if (sector >= nbSectors)
-		throw new NoSuchSectorException();
+		throw NoSuchSectorException();
 	file->seekg(sector*SECTOR_SIZE, std::ios::beg);
 	file->read(to, SECTOR_SIZE);
 	if (file->bad())
-		throw new DiskIOErrorException();
+		throw DiskIOErrorException();
 }
 
 void MSXDiskRomPatch::DiskImage::writeSector(const byte* from, int sector)
 {
 	if (sector >= nbSectors)
-		throw new NoSuchSectorException();
+		throw NoSuchSectorException();
 	file->seekg(sector*SECTOR_SIZE, std::ios::beg);
 	file->write(from, SECTOR_SIZE);
 	if (file->bad())
-		throw new DiskIOErrorException();
+		throw DiskIOErrorException();
 }
 
 
@@ -65,7 +65,7 @@ MSXDiskRomPatch::MSXDiskRomPatch()
 			MSXConfig::Config *config = MSXConfig::instance()->getConfigById(name);
 			filename = config->getParameter("filename");
 			disk[i] = new DiskImage(filename);
-		} catch (MSXException e) {
+		} catch (MSXException& e) {
 			PRT_DEBUG("void MSXDiskRomPatch::MSXDiskRomPatch() disk exception for disk " << i << " patch: " << name << " filename: " << filename);
 			delete disk[i];
 			disk[i] = NULL;
@@ -188,9 +188,9 @@ void MSXDiskRomPatch::PHYDIO(CPU::CPURegs& regs) const
 			sectorNumber++;
 		}
 		regs.AF.B.l &= ~CPU::C_FLAG;	// clear carry, OK
-	} catch (NoSuchSectorException* e) {
+	} catch (NoSuchSectorException& e) {
 		regs.AF.w = 0x0801;	// Record not found
-	} catch (DiskIOErrorException* e) {
+	} catch (DiskIOErrorException& e) {
 		regs.AF.w = 0x0A01;	// I/O error
 	}
 
@@ -226,11 +226,11 @@ void MSXDiskRomPatch::DSKCHG(CPU::CPURegs& regs) const
 	byte buffer[SECTOR_SIZE];
 	try {
 		disk[drive]->readSector(buffer, 1);
-	} catch (DiskIOErrorException* e) {
+	} catch (DiskIOErrorException& e) {
 		PRT_DEBUG("    I/O error reading FAT");
 		regs.AF.w = 0x0A01; // I/O error
 		return;
-	} catch (NoSuchSectorException* e) {
+	} catch (NoSuchSectorException& e) {
 		PRT_DEBUG("    no sector 1, check your disk image");
 		regs.AF.w = 0x0A01; // I/O error
 		return;
