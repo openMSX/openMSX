@@ -1,5 +1,11 @@
 $Id$
 
+2001-09-25 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* added locking to class EventDistributor (maybe std::multimap is
+	  thread-safe and no locking is necessary)
+	* added locking to class Mouse, there was a small race that could cause
+	  some mouse-movement-glitches
+
 2001-09-24 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* implemented Real Time Clock device
 	* implemented joystick support. Cannot be used yet since there is no

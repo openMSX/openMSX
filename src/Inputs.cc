@@ -28,6 +28,9 @@ const byte* Inputs::getKeys()
 	return keyMatrix;
 }
 
+
+// note: this method runs in a different thread!!
+//  no need for locking here
 void Inputs::signalEvent(SDL_Event &event)
 {
 	int key;

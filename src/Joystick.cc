@@ -37,6 +37,8 @@ void Joystick::write(byte value)
 }
 
 //EventListener
+// note: this method runs in a different thread!!
+//  no need for locking here
 void Joystick::signalEvent(SDL_Event &event)
 {
 	if (event.jaxis.which != joyNum)	// also event.jbutton.which
