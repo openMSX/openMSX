@@ -1,6 +1,7 @@
 # $Id$
 
 SRC_HDR:= \
+	JoystickPort \
 	Keyboard \
 	Joystick \
 	KeyJoystick \

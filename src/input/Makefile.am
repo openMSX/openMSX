@@ -20,6 +20,7 @@ endif
 
 noinst_LTLIBRARIES        = libInput.la
 libInput_la_SOURCES = \
+	JoystickPort.hh JoystickPort.cc \
 	Keyboard.hh Keyboard.cc \
 	Joystick.hh Joystick.cc \
 	KeyJoystick.hh KeyJoystick.cc \
