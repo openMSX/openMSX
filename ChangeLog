@@ -4,6 +4,7 @@ $Id$
 	* Implemented partial character rendering for SDLGLRenderer:
 	   - fixes top border while vertical scrolling in Space Manbow
 	   - fixes Psycho World
+	* Implemented vertical scrolling in TextMode1 in SDLGLRenderer
 
 2002-08-25 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Use SDL_image to load images (.png .bmp .jpg ...)

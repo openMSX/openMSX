@@ -175,17 +175,18 @@ inline static void GLBindColourBlock(
 }
 
 inline static void GLDrawMonoBlock(
-	GLuint textureId, int x, int y, SDLGLRenderer::Pixel bg)
+	GLuint textureId, int x, int y, SDLGLRenderer::Pixel bg, int verticalScroll)
 {
 	glBindTexture(GL_TEXTURE_2D, textureId);
 	GLSetColour(bg);
 	glBegin(GL_QUADS);
 	int x1 = x + 16;
 	int y1 = y + 16;
-	glTexCoord2i(0, 1); glVertex2i(x,  y1); // Bottom Left
-	glTexCoord2i(1, 1); glVertex2i(x1, y1); // Bottom Right
-	glTexCoord2i(1, 0); glVertex2i(x1, y ); // Top Right
-	glTexCoord2i(0, 0); glVertex2i(x,  y ); // Top Left
+	GLfloat roll = verticalScroll / 8.0f;
+	glTexCoord2f(0.0f, 1.0f + roll); glVertex2i(x,  y1); // Bottom Left
+	glTexCoord2f(1.0f, 1.0f + roll); glVertex2i(x1, y1); // Bottom Right
+	glTexCoord2f(1.0f,        roll); glVertex2i(x1, y ); // Top Right
+	glTexCoord2f(0.0f,        roll); glVertex2i(x,  y ); // Top Left
 	glEnd();
 }
 
@@ -932,6 +933,7 @@ void SDLGLRenderer::renderText1(int vramLine, int screenLine, int count)
 
 	int endRow = (vramLine + count + 7) / 8;
 	screenLine -= (vramLine & 7) * 2;
+	int verticalScroll = vdp->getVerticalScroll();
 	for (int row = vramLine / 8; row < endRow; row++) {
 		for (int col = 0; col < 40; col++) {
 			// TODO: Only bind texture once?
@@ -955,7 +957,8 @@ void SDLGLRenderer::renderText1(int vramLine, int screenLine, int count)
 			}
 			// Plot current character.
 			// TODO: SCREEN 0.40 characters are 12 wide, not 16.
-			GLDrawMonoBlock(textureId, leftBorder + col * 12, screenLine, bg);
+			GLDrawMonoBlock(textureId, leftBorder + col * 12,
+			                screenLine, bg, verticalScroll);
 		}
 		screenLine += 16;
 	}
