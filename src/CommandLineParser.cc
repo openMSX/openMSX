@@ -193,8 +193,6 @@ void CommandLineParser::parse(int argc, char** argv)
 					haveSettings = true;
 				} catch (FileException& e) {
 					// settings.xml not found
-					output.printWarning(
-						"No settings file found!");
 				} catch (ConfigException& e) {
 					throw FatalError("Error in default settings: "
 						+ e.getMessage());

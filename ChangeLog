@@ -7,6 +7,7 @@ $Id$
 	* Only allow existing machines to be selected with machine setting.
 	* Fall back to "cbios-msx2" when the selected machine no longer
 	  exists.
+	* Removed warning for missing settings.xml
 
 2004-10-05 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* saving_settings didn't work when file didn't exist yet
