@@ -1,18 +1,14 @@
 #!/bin/sh
 # $Id$
 
+# Force new autoconf on Gentoo.
+# (autodetect fails because output dir does not contain any trigger files)
+export WANT_AUTOCONF=2.5
+
 INDIR=${PWD}/build
 OUTDIR=${PWD}/derived/autotools
 
 mkdir -p ${OUTDIR}
-
-if ( aclocal --version ) </dev/null > /dev/null 2>&1; then
-	echo "Building macros"
-	cd ${INDIR} ; aclocal --output=${OUTDIR}/aclocal.m4 -I m4 || exit
-else
-	echo "aclocal not found -- aborting"
-	exit
-fi
 
 if ( autoheader --version ) </dev/null > /dev/null 2>&1; then
 	echo "Building config header template"
