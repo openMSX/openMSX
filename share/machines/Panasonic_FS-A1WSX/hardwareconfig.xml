@@ -102,7 +102,7 @@
     <parameter name="vram">128</parameter>
   </device>
 
-  <device id="psg">
+  <device id="PSG">
     <type>PSG</type>
     <parameter name="volume">21000</parameter>
   </device>

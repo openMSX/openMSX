@@ -51,7 +51,7 @@ AY8910::~AY8910()
 
 const string& AY8910::getName() const
 {
-	static const string name("psg");
+	static const string name("PSG");
 	return name;
 }
 

@@ -42,7 +42,7 @@
     <parameter name="version">TMS99X8A</parameter>
   </device>
 
-  <device id="psg">
+  <device id="PSG">
     <type>PSG</type>
     <parameter name="volume">21000</parameter>
   </device>
