@@ -15,7 +15,7 @@ class MSXKonamiSynthesizer : public MSXMemDevice, public MSXRom
 		/**
 		 * Constructor
 		 */
-		MSXKonamiSynthesizer(MSXConfig::Device *config);
+		MSXKonamiSynthesizer(MSXConfig::Device *config, const EmuTime &time);
 
 		/**
 		 * Destructor

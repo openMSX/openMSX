@@ -52,7 +52,7 @@ class MSXMapperIO : public MSXIODevice
 		/**
 		 * Constructor.
 		 */
-		MSXMapperIO(MSXConfig::Device *config);
+		MSXMapperIO(MSXConfig::Device *config, const EmuTime &time);
 
 		static MSXMapperIO *oneInstance;
 

@@ -13,7 +13,7 @@ class MSXSimple64KB : public MSXMemDevice
 		/**
 		 * Constructor
 		 */
-		MSXSimple64KB(MSXConfig::Device *config);
+		MSXSimple64KB(MSXConfig::Device *config, const EmuTime &time);
 
 		/**
 		 * Destructor

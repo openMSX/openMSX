@@ -8,7 +8,8 @@
 
 #include "config.h"
 
-MSXKonamiSynthesizer::MSXKonamiSynthesizer(MSXConfig::Device *config) : MSXDevice(config)
+MSXKonamiSynthesizer::MSXKonamiSynthesizer(MSXConfig::Device *config, const EmuTime &time)
+	: MSXDevice(config, time)
 {
 	PRT_DEBUG("Creating an MSXKonamiSynthesizer object");
 	DAC = new DACSound(25000);	// TODO find a good value, put it into config file
@@ -19,7 +20,6 @@ MSXKonamiSynthesizer::~MSXKonamiSynthesizer()
 {
 	PRT_DEBUG("Destructing an MSXKonamiSynthesizer object");
 	delete DAC;
-	delete [] memoryBank;
 }
 
 byte MSXKonamiSynthesizer::readMem(word address, EmuTime &time)

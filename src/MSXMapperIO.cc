@@ -7,7 +7,8 @@
 #include "MSXMotherBoard.hh"
 
 
-MSXMapperIO::MSXMapperIO(MSXConfig::Device *config) : MSXDevice(config)
+MSXMapperIO::MSXMapperIO(MSXConfig::Device *config, const EmuTime &time)
+	: MSXDevice(config, time)
 {
 	oneInstance = this;
 	
@@ -44,7 +45,8 @@ MSXMapperIO *MSXMapperIO::instance()
 		if (deviceList.size() != 1)
 			PRT_ERROR("There must be exactly one MapperIO in config file");
 		MSXConfig::Device* config = deviceList.front();
-		new MSXMapperIO(config);
+		EmuTime zero;
+		new MSXMapperIO(config, zero);
 	}
 	return oneInstance;
 }

@@ -6,7 +6,8 @@
 #include "msxconfig.hh"
 
 
-MSXCPU::MSXCPU(MSXConfig::Device *config) : MSXDevice(config)
+MSXCPU::MSXCPU(MSXConfig::Device *config, const EmuTime &time)
+	: MSXDevice(config, time)
 {
 	PRT_DEBUG("Creating an MSXCPU object");
 	oneInstance = this;
@@ -30,7 +31,8 @@ MSXCPU* MSXCPU::instance()
 		if (deviceList.size() != 1)
 			PRT_ERROR("There must be exactly one CPU in config file");
 		MSXConfig::Device* config = deviceList.front();
-		new MSXCPU(config);
+		EmuTime zero;
+		new MSXCPU(config, zero);
 	}
 	return oneInstance;
 }

@@ -5,7 +5,8 @@
 #include "MSXMotherBoard.hh"
 
 
-MSXMemoryMapper::MSXMemoryMapper(MSXConfig::Device *config) : MSXDevice(config)
+MSXMemoryMapper::MSXMemoryMapper(MSXConfig::Device *config, const EmuTime &time)
+	: MSXDevice(config, time)
 {
 	PRT_DEBUG("Creating an MSXMemoryMapper object");
 	

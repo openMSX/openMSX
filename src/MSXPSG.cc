@@ -7,7 +7,8 @@
 
 
 // MSXDevice
-MSXPSG::MSXPSG(MSXConfig::Device *config) : MSXDevice(config)
+MSXPSG::MSXPSG(MSXConfig::Device *config, const EmuTime &time)
+	: MSXDevice(config, time)
 {
 	PRT_DEBUG("Creating an MSXPSG object");
 	
@@ -18,6 +19,8 @@ MSXPSG::MSXPSG(MSXConfig::Device *config) : MSXDevice(config)
 	MSXMotherBoard::instance()->register_IO_Out(0xA0,this);
 	MSXMotherBoard::instance()->register_IO_Out(0xA1,this);
 	MSXMotherBoard::instance()->register_IO_In (0xA2,this);
+
+	reset(time);
 }
 
 MSXPSG::~MSXPSG()

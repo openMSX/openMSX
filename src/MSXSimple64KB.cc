@@ -6,7 +6,8 @@
 #include "MSXSimple64KB.hh" 
 #include <string>
 
-MSXSimple64KB::MSXSimple64KB(MSXConfig::Device *config) : MSXDevice(config)
+MSXSimple64KB::MSXSimple64KB(MSXConfig::Device *config, const EmuTime &time)
+	: MSXDevice(config, time)
 {
 	PRT_DEBUG("Creating an MSXSimple64KB object");
 	

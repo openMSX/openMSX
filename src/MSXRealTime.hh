@@ -33,7 +33,7 @@ class MSXRealTime : public MSXDevice, public HotKeyListener
 		/**
 		 * Constructor.
 		 */
-		MSXRealTime(MSXConfig::Device *config); 
+		MSXRealTime(MSXConfig::Device *config, const EmuTime &time); 
 
 		//TODO put these in config file
 		static const int SYNCINTERVAL    = 50;	// sync every 50ms

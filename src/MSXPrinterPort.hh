@@ -13,7 +13,7 @@ class MSXPrinterPort : public MSXIODevice
 		/**
 		 * Constructor
 		 */
-		MSXPrinterPort(MSXConfig::Device *config);
+		MSXPrinterPort(MSXConfig::Device *config, const EmuTime &time);
 
 		/**
 		 * Destructor

@@ -9,7 +9,8 @@
 #include "MSXMotherBoard.hh"
 
 
-MSXKanji::MSXKanji(MSXConfig::Device *config) : MSXDevice(config)
+MSXKanji::MSXKanji(MSXConfig::Device *config, const EmuTime &time)
+	: MSXDevice(config, time)
 {
 	loadFile(&memoryBank, ROM_SIZE);
 	
@@ -20,6 +21,8 @@ MSXKanji::MSXKanji(MSXConfig::Device *config) : MSXDevice(config)
 	MSXMotherBoard::instance()->register_IO_In (0xDB, this);
 	MSXMotherBoard::instance()->register_IO_Out(0xDA, this);
 	MSXMotherBoard::instance()->register_IO_Out(0xDB, this);
+
+	reset(time);
 }
 
 MSXKanji::~MSXKanji()

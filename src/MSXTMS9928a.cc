@@ -184,7 +184,8 @@ int MSXTMS9928a::checkSprites(int line, MSXTMS9928a::SpriteInfo *visibleSprites)
 	return visibleIndex;
 }
 
-MSXTMS9928a::MSXTMS9928a(MSXConfig::Device *config) : MSXDevice(config)
+MSXTMS9928a::MSXTMS9928a(MSXConfig::Device *config, const EmuTime &time)
+	: MSXDevice(config, time)
 {
 	PRT_DEBUG("Creating an MSXTMS9928a object");
 
@@ -200,8 +201,7 @@ MSXTMS9928a::MSXTMS9928a(MSXConfig::Device *config) : MSXDevice(config)
 	if (!vramData) return ;//1;
 	memset(vramData, 0, vramSize);
 
-	EmuTime zero;
-	reset(zero);
+	reset(time);
 
 	// TODO: Move Renderer creation outside of this class.
 	//   A setRenderer method would be used to provide a renderer.
@@ -237,6 +237,8 @@ void MSXTMS9928a::reset(const EmuTime &time)
 {
 	MSXDevice::reset(time);
 
+	currentTime = time;
+	
 	for (int i = 0; i < 8; i++) controlRegs[i] = 0;
 	statusReg = 0;
 	vramPointer = 0;

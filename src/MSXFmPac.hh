@@ -12,7 +12,7 @@ class MSXFmPac : public MSXMusic
 		/**
 		 * Constructor
 		 */
-		MSXFmPac(MSXConfig::Device *config);
+		MSXFmPac(MSXConfig::Device *config, const EmuTime &time);
 
 		/**
 		 * Destructor

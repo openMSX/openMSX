@@ -72,7 +72,7 @@ class MSXPPI : public MSXIODevice, public I8255Interface
 		/**
 		 * Constructor.
 		 */
-		MSXPPI(MSXConfig::Device *config); 
+		MSXPPI(MSXConfig::Device *config, const EmuTime &time); 
 
 		static MSXPPI *oneInstance;
 		I8255 *i8255;

@@ -5,7 +5,8 @@
 #include "MSXMotherBoard.hh"
 
 
-MSXRTC::MSXRTC(MSXConfig::Device *config) : MSXDevice(config)
+MSXRTC::MSXRTC(MSXConfig::Device *config, const EmuTime &time)
+	: MSXDevice(config, time)
 {
 	PRT_DEBUG("Creating an MSXRTC object");
 	bool emuTimeBased;

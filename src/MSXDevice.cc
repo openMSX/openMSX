@@ -5,7 +5,7 @@
 #include "MSXMotherBoard.hh"
 
 
-MSXDevice::MSXDevice(MSXConfig::Device *config)
+MSXDevice::MSXDevice(MSXConfig::Device *config, const EmuTime &time)
 {
 	PRT_DEBUG("instantiating an MSXDevice object..");
 	deviceConfig=config;

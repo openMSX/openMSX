@@ -7,7 +7,8 @@
 #include "msxconfig.hh"
 
 
-MSXRealTime::MSXRealTime(MSXConfig::Device *config) : MSXDevice(config) 
+MSXRealTime::MSXRealTime(MSXConfig::Device *config, const EmuTime &time)
+	: MSXDevice(config, time) 
 {
 	PRT_DEBUG("Constructing a MSXRealTime object");
 	oneInstance = this;
@@ -30,7 +31,8 @@ MSXRealTime *MSXRealTime::instance()
 		if (deviceList.size() != 1)
 			PRT_ERROR("There must be exactly one RealTime in config file");
 		MSXConfig::Device* config = deviceList.front();
-		new MSXRealTime(config);
+		EmuTime zero;
+		new MSXRealTime(config, zero);
 	}
 	return oneInstance;
 }

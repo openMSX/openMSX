@@ -41,7 +41,7 @@ class MSXCPU : public MSXDevice
 		/**
 		 * Constructor.
 		 */
-		MSXCPU(MSXConfig::Device *config);
+		MSXCPU(MSXConfig::Device *config, const EmuTime &time);
 
 		static MSXCPU *oneInstance;
 		void executeUntilEmuTime(const EmuTime &time); // prevent use

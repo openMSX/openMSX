@@ -67,8 +67,9 @@ class MSXDevice : public Schedulable
 		 * The devices are instantiated in a random order, so you
 		 * can't relay on other devices already being instantiated, 
 		 * if you need this you have to use the init() method.
+		 * A MSXDevice gets constructed at a certain time.
 		 */
-		MSXDevice(MSXConfig::Device *config);
+		MSXDevice(MSXConfig::Device *config, const EmuTime &time);
 		
 		/*
 		 * Only execption is the DummyDevice, this has no config-entry

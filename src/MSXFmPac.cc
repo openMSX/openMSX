@@ -6,7 +6,8 @@
 //TODO save and restore SRAM 
 
 
-MSXFmPac::MSXFmPac(MSXConfig::Device *config) : MSXMusic(config)
+MSXFmPac::MSXFmPac(MSXConfig::Device *config, const EmuTime &time)
+	: MSXMusic(config, time)
 {
 	PRT_DEBUG("Creating an MSXFmPac object");
 	sramBank = new byte[0x1ffe];
@@ -14,9 +15,8 @@ MSXFmPac::MSXFmPac(MSXConfig::Device *config) : MSXMusic(config)
 	MSXMotherBoard::instance()->register_IO_Out(0x7c, this);
 	MSXMotherBoard::instance()->register_IO_Out(0x7d, this);
 	ym2413 = new YM2413();
-	loadFile(&romBank, 0x10000);
-	EmuTime zero;
-	reset(zero);
+	loadFile(&memoryBank, 0x10000);
+	reset(time);
 }
 
 MSXFmPac::~MSXFmPac()
@@ -49,7 +49,7 @@ byte MSXFmPac::readMem(word address, EmuTime &time)
 		if (sramEnabled && (address < 0x5ffe)) {
 			return sramBank[address-0x4000];
 		} else {
-			return romBank[bank*0x4000 + (address-0x4000)];
+			return memoryBank[bank*0x4000 + (address-0x4000)];
 		}
 	}
 }

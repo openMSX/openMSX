@@ -22,7 +22,7 @@ class MSXE6Timer : public MSXIODevice
 		/**
 		 * Constructor
 		 */
-		MSXE6Timer(MSXConfig::Device *config);
+		MSXE6Timer(MSXConfig::Device *config, const EmuTime &time);
 
 		/**
 		 * Destructor

@@ -108,11 +108,12 @@ int main (int argc, char **argv)
 	SDL_WM_SetIcon(iconSurf, NULL);
 
 	try {
+		EmuTime zero;
 		for (std::list<MSXConfig::Device*>::const_iterator j=MSXConfig::instance()->deviceList.begin();
 		     j != MSXConfig::instance()->deviceList.end();
 		     j++) {
 			(*j)->dump();
-			MSXDevice *device = deviceFactory::create( (*j) );
+			MSXDevice *device = deviceFactory::create((*j), zero);
 			assert (device != 0);
 			MSXMotherBoard::instance()->addDevice(device);
 			PRT_DEBUG ("Instantiated:" << (*j)->getType());

@@ -13,7 +13,7 @@ class MSXMegaRom : public MSXMemDevice, public MSXRom
 		/**
 		 * Constructor
 		 */
-		MSXMegaRom(MSXConfig::Device *config);
+		MSXMegaRom(MSXConfig::Device *config, const EmuTime &time);
 
 		/**
 		 * Destructor

@@ -23,7 +23,7 @@
 //#include "MSXPostLoad.hh"
 
 
-MSXDevice *deviceFactory::create(MSXConfig::Device *conf) {
+MSXDevice *deviceFactory::create(MSXConfig::Device *conf, const EmuTime &time) {
 	MSXDevice *device = NULL;
 	if (conf->getType()=="CPU") {
 		device = MSXCPU::instance();
@@ -38,47 +38,47 @@ MSXDevice *deviceFactory::create(MSXConfig::Device *conf) {
 		device = MSXMapperIO::instance();
 	} else
 	if (conf->getType()=="Rom16KB") {
-		device = new MSXRom16KB(conf);
+		device = new MSXRom16KB(conf, time);
 	} else
 	if (conf->getType()=="Simple64KB") {
-		device = new MSXSimple64KB(conf);
+		device = new MSXSimple64KB(conf, time);
 	} else
 	if (conf->getType()=="TMS9928a") {
-		device = new MSXTMS9928a(conf);
+		device = new MSXTMS9928a(conf, time);
 	} else
 	if (conf->getType()=="E6Timer") {
-		device = new MSXE6Timer(conf);
+		device = new MSXE6Timer(conf, time);
 	} else
 	if (conf->getType()=="PSG") {
-		device = new MSXPSG(conf);
+		device = new MSXPSG(conf, time);
 	} else
 	if (conf->getType()=="Music") {
-		device = new MSXMusic(conf);
+		device = new MSXMusic(conf, time);
 	} else
 	if (conf->getType()=="FM-PAC") {
-		device = new MSXFmPac(conf);
+		device = new MSXFmPac(conf, time);
 	} else
 	if (conf->getType()=="Kanji") {
-		device = new MSXKanji(conf);
+		device = new MSXKanji(conf, time);
 	} else
 	if (conf->getType()=="MemoryMapper") {
-		device = new MSXMemoryMapper(conf);
+		device = new MSXMemoryMapper(conf, time);
 	} else
 	if (conf->getType()=="RTC") {
-		device = new MSXRTC(conf);
+		device = new MSXRTC(conf, time);
 	} else
 	if (conf->getType()=="MegaRom") {
-		device = new MSXMegaRom(conf);
+		device = new MSXMegaRom(conf, time);
 	} else
 	if (conf->getType()=="PrinterPort") {
-		device = new MSXPrinterPort(conf);
+		device = new MSXPrinterPort(conf, time);
 	} else
 	if (conf->getType()=="KonamiSynthesizer") {
-		device = new MSXKonamiSynthesizer(conf);
+		device = new MSXKonamiSynthesizer(conf, time);
 	}
 //	} else
 //	if (conf->getType()=="PostLoad") {
-//		device = new MSXPostLoad(conf);
+//		device = new MSXPostLoad(conf, time);
 //	}
 	if (device == NULL)
 		PRT_ERROR("Unknown device specified in configuration");

@@ -7,7 +7,8 @@
 
 #include "config.h"
 
-MSXRom16KB::MSXRom16KB(MSXConfig::Device *config) : MSXDevice(config)
+MSXRom16KB::MSXRom16KB(MSXConfig::Device *config, const EmuTime &time)
+	: MSXDevice(config, time)
 {
 	PRT_DEBUG("Creating an MSXRom16KB object");
 	loadFile(&memoryBank, 0x4000);

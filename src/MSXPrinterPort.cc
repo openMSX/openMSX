@@ -4,7 +4,8 @@
 #include "MSXPrinterPort.hh"
 #include "MSXMotherBoard.hh"
 
-MSXPrinterPort::MSXPrinterPort(MSXConfig::Device *config) : MSXDevice(config)
+MSXPrinterPort::MSXPrinterPort(MSXConfig::Device *config, const EmuTime &time)
+	: MSXDevice(config, time)
 {
 	PRT_DEBUG("Creating an MSXPrinterPort");
 	MSXMotherBoard::instance()->register_IO_In (0x90, this);

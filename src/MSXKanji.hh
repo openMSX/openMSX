@@ -14,7 +14,7 @@ class MSXKanji : public MSXIODevice, public MSXRom
 		/**
 		 * Constructor
 		 */
-		MSXKanji(MSXConfig::Device *config);
+		MSXKanji(MSXConfig::Device *config, const EmuTime &time);
 
 		/**
 		 * Destructor

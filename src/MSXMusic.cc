@@ -4,16 +4,16 @@
 #include "MSXMotherBoard.hh"
 #include "Mixer.hh"
 
-MSXMusic::MSXMusic(MSXConfig::Device *config) : MSXDevice(config)
+MSXMusic::MSXMusic(MSXConfig::Device *config, const EmuTime &time)
+	: MSXDevice(config, time)
 {
 	PRT_DEBUG("Creating an MSXMusic object");
 	
 	MSXMotherBoard::instance()->register_IO_Out(0x7c, this);
 	MSXMotherBoard::instance()->register_IO_Out(0x7d, this);
 	ym2413 = new YM2413();
-	loadFile(&romBank, 0x4000);
-	EmuTime zero;
-	reset(zero);
+	loadFile(&memoryBank, 0x4000);
+	reset(time);
 }
 
 MSXMusic::~MSXMusic()
@@ -54,7 +54,7 @@ byte MSXMusic::readMem(word address, EmuTime &time)
 		return enable;
 	//case 0x7ff7:
 	default:
-		return romBank[address&0x3fff];
+		return memoryBank[address&0x3fff];
 	}
 }
 

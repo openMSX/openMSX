@@ -46,7 +46,7 @@ public:
 
 	/** Constructor.
 	  */
-	MSXTMS9928a(MSXConfig::Device *config);
+	MSXTMS9928a(MSXConfig::Device *config, const EmuTime &time);
 
 	/** Destructor.
 	  */

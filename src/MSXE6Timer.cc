@@ -4,11 +4,13 @@
 #include <cassert>
 
 
-MSXE6Timer::MSXE6Timer(MSXConfig::Device *config) : MSXDevice(config)
+MSXE6Timer::MSXE6Timer(MSXConfig::Device *config, const EmuTime &time)
+	: MSXDevice(config, time)
 {
 	MSXMotherBoard::instance()->register_IO_In (0xE6,this);
 	MSXMotherBoard::instance()->register_IO_In (0xE7,this);
 	MSXMotherBoard::instance()->register_IO_Out(0xE6,this);
+	reset(time);
 }
 
 MSXE6Timer::~MSXE6Timer()

@@ -8,7 +8,8 @@
 
 // MSXDevice
 
-MSXPPI::MSXPPI(MSXConfig::Device *config) : MSXDevice(config)
+MSXPPI::MSXPPI(MSXConfig::Device *config, const EmuTime &time)
+	: MSXDevice(config, time)
 {
 	PRT_DEBUG("Creating an MSXPPI object");
 	oneInstance = this;
@@ -45,7 +46,8 @@ MSXPPI* MSXPPI::instance(void)
 		if (deviceList.size() != 1)
 			PRT_ERROR("There must be exactly one PPI in config file");
 		MSXConfig::Device* config = deviceList.front();
-		new MSXPPI(config);
+		EmuTime zero;
+		new MSXPPI(config, zero);
 	}
 	return oneInstance;
 }

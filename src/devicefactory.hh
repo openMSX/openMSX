@@ -9,6 +9,6 @@
 class deviceFactory
 {
 	public:
-		static MSXDevice *create(MSXConfig::Device *conf);
+		static MSXDevice *create(MSXConfig::Device *conf, const EmuTime &time);
 };
 #endif

@@ -15,7 +15,7 @@ class MSXRom16KB : public MSXMemDevice, public MSXRom
 		/**
 		 * Constructor
 		 */
-		MSXRom16KB(MSXConfig::Device *config);
+		MSXRom16KB(MSXConfig::Device *config, const EmuTime &time);
 
 		/**
 		 * Destructor

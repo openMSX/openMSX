@@ -8,7 +8,8 @@
 
 #include "config.h"
 
-MSXMegaRom::MSXMegaRom(MSXConfig::Device *config) : MSXDevice(config)
+MSXMegaRom::MSXMegaRom(MSXConfig::Device *config, const EmuTime &time)
+	: MSXDevice(config, time)
 {
 	PRT_DEBUG("Creating an MSXMegaRom object");
 	
@@ -39,7 +40,6 @@ MSXMegaRom::MSXMegaRom(MSXConfig::Device *config) : MSXDevice(config)
 MSXMegaRom::~MSXMegaRom()
 {
 	PRT_DEBUG("Destructing an MSXMegaRom object");
-	delete[] memoryBank;
 }
 
 int MSXMegaRom::retriefMapperType()

@@ -16,7 +16,7 @@ class MSXMusic : public MSXIODevice, public MSXMemDevice, public MSXRom
 		/**
 		 * Constructor
 		 */
-		MSXMusic(MSXConfig::Device *config);
+		MSXMusic(MSXConfig::Device *config, const EmuTime &time);
 
 		/**
 		 * Destructor
@@ -34,7 +34,6 @@ class MSXMusic : public MSXIODevice, public MSXMemDevice, public MSXRom
 
 		byte enable;
 		YM2413 *ym2413;
-		byte* romBank;
 		
 	private:
 		int registerLatch;
