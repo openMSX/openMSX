@@ -46,28 +46,6 @@ int main (int argc, char **argv)
 	// for now there is only one, "xml" based
 	MSXConfig::Backend* config = MSXConfig::Backend::createBackend("xml");
 	
-	/*
-	// [Wouter->Joost] Is there a reason why you need this list,
-	//                 why not directly config->loadFile(argv[i])
-	// create a list of used config files
-	std::list<std::string> configfiles;
-	if (argc<2) {
-		configfiles.push_back(std::string("msxconfig.xml"));
-		PRT_INFO ("Using msxconfig.xml as default configuration file.");
-	} else {
-		for (int i = 1; i < argc; i++)
-		{
-		configfiles.push_back(std::string(argv[i]));
-		}
-	}
-	try {
-		// Load all config files in memory
-		for (std::list<std::string>::const_iterator i = configfiles.begin(); i != configfiles.end(); i++)
-		{
-			config->loadFile(*i);
-		}
-	*/
-
 	try {
 		if (argc<2) {
 			PRT_INFO ("Using msxconfig.xml as default configuration file");
