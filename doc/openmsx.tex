@@ -1,7 +1,6 @@
 
 %TODO:
 % translate in english
-% restructure chapters
 % corrections/additions
 
 
@@ -16,10 +15,10 @@
 
 \chapter{Analysis}
 
+\section{When does a device need to be emulated}
+
 A MSX computer has several components: a CPU, audio and video devices and
 many others. All these devices need to be emulated.
-
-\section{When does a device need to be emulated}
 
 In a real machine all devices work in parallel all the time. Of cource an
 emulator can only emulate one device at a time. This creates some problems:
@@ -47,13 +46,14 @@ So we need some sort of synchronization mechanism.
 
 \section{Communication in MSX}
 
-\subsection{General communication}
+\subsection{General principles}
 
 In a MSX communication happens only between the CPU and another device, never
 between two non-CPUs. All communication is initiated by the CPU, except for
-interupts.
+interupts. Communication happens at a specific moment in time but is not 
+instantaneous.
 
-Communication happens at a specific moment in time but is not instantaneous.
+\subsection{(Un)predictable communication}
 
 Communication can be either predictable or unpredictable:
 \begin{itemize}
@@ -80,7 +80,7 @@ important for some optimizations (see next chapters).
 
 Important example: memory mappers (IO 0xfc \ldots 0xff).
 
-Writing is not a problem, reading is since the result is not defined in the MSX
+Writing is not a problem but reading is, since the result is not defined in the MSX
 standard. But some programs expect a certain behaviour\ldots
 
 
@@ -105,7 +105,7 @@ to complete. So besides to obvious parameters (adres/port, value) and return
 values (byte read), we also need to pass and return a timestamp.
 
 
-\subsection{Interupts}
+\subsection{Initiated by other device (interupts)}
 
 \subsubsection{General}
 
@@ -124,15 +124,15 @@ Ik zie hier twee mogelijke oplossingen:
 \begin{enumerate}
 \item Polling.
 Bij deze oplossing zetten we zelf de SP om de bv 50 HZ T-states.
-Blijven we bij het voorbeeld van de rs232 dan betekend dat er om de 0.02 seconden 
+Blijven we bij het voorbeeld van de RS232 dan betekend dat er om de 0.02 seconden 
 gevraagd gaat worden of er een byte klaar staat. Als dit het geval is dan kan de 
-ge-emuleerde rs232 zijn volgende SP plaatsten binnen bv 100 T-States en deze tijd 
+ge-emuleerde RS232 zijn volgende SP plaatsten binnen bv 100 T-States en deze tijd 
 langzaam laten toenemen als blijkt dat er geen byte meer ontvangen is.
 
 Methode heeft het voordeel dat je zelf een vorm van snelheid begrenzing kunt
 inbouwen door een apparaat steeds maar een lage hoeveelheid interrupts te laten
 genereren. Tevens zou op deze manier het mogelijk eenvoudiger zijn om bv een
-rs232 connectie te faken aan de hand van een file met een 'opgenomen' connectie.
+RS232 connectie te faken aan de hand van een file met een 'opgenomen' connectie.
 Bij beide methodes moet het device er voor zorgen dat het er rekening mee houd
 dat een geregistreerd SP wel eens tijdens een DI zou kunnen vallen en dat daarom
 een gesette interrupt niet noodzakelijker wijze word afgehandeld. Dit wil
@@ -177,9 +177,9 @@ en de juiste taakdelegatie te kunnen doen.
 
 \section{Synchronization}
 
-\section{Time-active and time-passive devices}
+\subsection{Time-active and time-passive devices}
 
-\subsection*{Time-active devices}
+\subsubsection{Time-active devices}
 This are devices that can request to be emulated at a future moment in time,
 such a moment is called a \emph{synchronization point}. The reasons for such a request
 are:
@@ -195,7 +195,7 @@ with a synchronization point. This is easy for predictable IRQ's, but must be
 estimated for unpreditable IRQ's (see section \ref{unpredic-irq}).
 \end{itemize}
 
-\subsection*{Time-passive devices}
+\subsubsection{Time-passive devices}
 These devices can be emulated at the moment the CPU tries to communicate with
 it. Example: 
 \begin{itemize}
@@ -204,7 +204,7 @@ it. Example:
 \end{itemize}
 
 
-\section{Scheduler algorithm}
+\subsection{Scheduler algorithm}
 
 A few rules:
 \begin{enumerate}
@@ -252,7 +252,14 @@ current time. (Step \ref{alg:ok}, \ref{alg:nok})
 
 \section{Timetracking}
 
-...Emutime...
+Every device has its own native clock frequency, for the emulation of one
+particular device it is easy to work with native T-states. But for the
+global emulator it is easier to work with some least-common-multiple frequency.
+
+The class 'Emutime' offers such an interface: devices work with native T-states,
+but they are internally converted to global emulator T-states.
+
+All operations involving time should go through this class.
 
 
 \section{The implementation of the scheduler in openMSX}
