@@ -1,5 +1,11 @@
 $Id$
 
+2001-10-12 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* Simplified MSXRealTime implementation
+
+2001-10-11 David Heremans <david.heremans@gnu-linux.net>
+	* MSXTMS9928a and MSXRealTime updates
+
 2001-10-08 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* update parts of audio-buffer when registers have changed
 	* fixed tone generation in AY8910 (overflow in calculation)

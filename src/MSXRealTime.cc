@@ -31,46 +31,36 @@ void MSXRealTime::reset()
 	Scheduler::instance()->setSyncPoint(emuRef+SYNCINTERVAL, *this);
 }
 	
-void MSXRealTime::executeUntilEmuTime(const Emutime &time)
+void MSXRealTime::executeUntilEmuTime(const Emutime &curEmu)
 {
-	unsigned int curTime = SDL_GetTicks();
-	int realPassed = curTime - realRef;
-	realRef = curTime;
-	int emuPassed = emuRef.getTicksTill(time);
-	emuRef = time;
-	float curFactor = realPassed / emuPassed;
-	factor = factor*(1-ALPHA)+curFactor*ALPHA;
+	unsigned int curReal = SDL_GetTicks();
+	int realPassed = curReal - realRef;
+	realRef = curReal;
+	int emuPassed = emuRef.getTicksTill(curEmu);
+	emuRef = curEmu;
 
+	int slept = 0;
 	PRT_DEBUG("Emu  " << emuPassed << "ms    Real " << realPassed << "ms");
-	int diff = emuPassed - realPassed;
-	if (diff>0) {
-	  if (catchUpTime){
-	    if (catchUpTime>=diff){
-	      catchUpTime-=diff;
-	      PRT_DEBUG("Catching up " << diff << " ms");
-	    } else {
-	      diff-=catchUpTime;
-	      PRT_DEBUG("Catched up " << catchUpTime << " ms");
-	      catchUpTime=0;
-	      PRT_DEBUG("Sleeping for " << diff << " ms");
-	      SDL_Delay(diff);
-	    }
-	  } else {
-	    PRT_DEBUG("Sleeping for " << diff << " ms");
-	    SDL_Delay(diff);
-	  }
+	catchUpTime += realPassed - emuPassed;
+	if (catchUpTime < 0) {
+		slept = -catchUpTime;
+		PRT_DEBUG("Sleeping for " << slept << "ms");
+		SDL_Delay(slept);
+		catchUpTime = 0;
 	} else {
-		if (catchUpTime<MAX_CATCHUPTIME) catchUpTime-=diff; // increasing catchUpTime
-		PRT_DEBUG("Time we need to catch up in the next frames : " << catchUpTime << " ms");
+		if (catchUpTime > MAX_CATCHUPTIME) {
+			PRT_DEBUG("Emualtion too slow, lost " << catchUpTime-MAX_CATCHUPTIME << "ms");
+			catchUpTime = MAX_CATCHUPTIME;
+		}
+		PRT_DEBUG("Time to catch up in next frames: " << catchUpTime << "ms");
 	}
 
+	float curFactor = (slept+realPassed) / emuPassed;
+	factor = factor*(1-ALPHA)+curFactor*ALPHA;	// estimate with exponential average
 	Scheduler::instance()->setSyncPoint(emuRef+SYNCINTERVAL, *this);
 }
 
 float MSXRealTime::getRealDuration(Emutime time1, Emutime time2)
 {
-	// TODO make better estimations
-	float emuDuration = time1.getDuration(time2);
-	float adjust = (factor<1) ? 1 : factor;	// MAX(1,factor)
-	return emuDuration*adjust;
+	return time1.getDuration(time2) * factor;
 }

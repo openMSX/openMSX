@@ -3,13 +3,13 @@
 # $Id$
 
 # Generate the Makefiles and configure files
-if ( aclocal --version ) </dev/null > /dev/null 2>&1; then
-	echo "Building macros."
-	aclocal -I m4
-else
-	echo "aclocal not found -- aborting"
-	exit
-fi
+#if ( aclocal --version ) </dev/null > /dev/null 2>&1; then
+#	echo "Building macros."
+#	aclocal -I m4
+#else
+#	echo "aclocal not found -- aborting"
+#	exit
+#fi
 
 if ( autoheader --version ) </dev/null > /dev/null 2>&1; then
 	echo "Building config header template"

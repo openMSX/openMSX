@@ -20,15 +20,15 @@ class MSXRealTime : public MSXDevice
 		float getRealDuration(Emutime time1, Emutime time2);
 
 	private:
-		static const int SYNCINTERVAL = 50;	// sync every 50ms
+		static const int SYNCINTERVAL    = 50;	// sync every 50ms
+		static const int MAX_CATCHUPTIME = 2500;	// max nb of ms overtime
 	
 		MSXRealTime(); 
 		static MSXRealTime *oneInstance;
 
 		Emutime emuRef;
-		unsigned int realRef;
+		unsigned int realRef;	// !! Overflow in 49 days
 		int catchUpTime;  // number of milliseconds overtime.
-		static const int MAX_CATCHUPTIME = 5000;  // number of milliseconds overtime.
 		float factor;
 		static const float ALPHA = 0.5;
 };
