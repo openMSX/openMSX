@@ -10,7 +10,6 @@
 
 namespace openmsx {
 
-class Scheduler;
 class MSXMotherBoard;
 class MSXCPUInterface;
 class InfoCommand;
@@ -96,11 +95,9 @@ private:
 	MSXCPU();
 	virtual ~MSXCPU();
 	
-	// only for Scheduler/MSXMotherBoard
+	// only for MSXMotherBoard
 	void execute();
-	void setScheduler(Scheduler* scheduler);
 	void setMotherboard(MSXMotherBoard* motherboard);
-	friend class Scheduler;
 	friend class MSXMotherBoard;
 	
 	void wait(const EmuTime& time);

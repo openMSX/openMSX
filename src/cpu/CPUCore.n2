@@ -20,7 +20,7 @@ inline void _CPU_::READ_PORT(word port, byte &result)
 {
 	memptr.w = port + 1;
 	clock += IO_DELAY1;
-	scheduler->schedule(clock.getTime());
+	scheduler.schedule(clock.getTime());
 	//PRT_DEBUG("CPU: In 0x" << hex << (int)port <<
 	//          dec << " at " << clock);
 	result = interface->readIO(port, clock.getTime());
@@ -31,7 +31,7 @@ inline void _CPU_::WRITE_PORT(word port, byte value)
 {
 	memptr.w = port + 1;
 	clock += IO_DELAY1;
-	scheduler->schedule(clock.getTime());
+	scheduler.schedule(clock.getTime());
 	//PRT_DEBUG("CPU: Out 0x" << hex << (int)port <<
 	//          dec << " at " << clock);
 	interface->writeIO(port, value, clock.getTime());
@@ -72,7 +72,7 @@ void _CPU_::RDMEMslow(word address, byte &result)
 	}
 	// uncacheable
 	clock += MEM_DELAY1;
-	scheduler->schedule(clock.getTime());
+	scheduler.schedule(clock.getTime());
 	result = interface->readMem(address, clock.getTime());
 	#ifdef CPU_DEBUG
 	debugmemory[address] = result;
@@ -109,7 +109,7 @@ void _CPU_::WRMEMslow(word address, byte value)
 	}
 	// uncacheable
 	clock += MEM_DELAY1;
-	scheduler->schedule(clock.getTime());
+	scheduler.schedule(clock.getTime());
 	interface->writeMem(address, value, clock.getTime());
 	clock += MEM_DELAY2;
 }
@@ -224,7 +224,7 @@ void _CPU_::executeSlow() {
 		}
 	} else if (R.HALT) {
 		// in halt mode
-		uint64 ticks = clock.getTicksTillUp(scheduler->getNext());
+		uint64 ticks = clock.getTicksTillUp(scheduler.getNext());
 		int hltStates = haltStates();
 		int halts = (ticks + hltStates - 1) / hltStates;	// rounded up
 		R.R += halts;
@@ -246,7 +246,7 @@ void _CPU_::execute()
 		// at least one instruction
 		continued = false;
 		executeSlow();
-		scheduler->schedule(clock.getTime());
+		scheduler.schedule(clock.getTime());
 		--slowInstructions;
 		if (step) {
 			step = false;
@@ -261,11 +261,11 @@ void _CPU_::execute()
 			if (slowInstructions) {
 				slowInstructions--;
 				executeSlow();
-				scheduler->schedule(clock.getTime());
+				scheduler.schedule(clock.getTime());
 			} else {
 				while (!slowInstructions) {
 					executeFast();
-					scheduler->schedule(clock.getTime());
+					scheduler.schedule(clock.getTime());
 				}
 			}
 		}
@@ -277,11 +277,11 @@ void _CPU_::execute()
 			} else {
 				if (slowInstructions == 0) {
 					executeFast();
-					scheduler->schedule(clock.getTime());
+					scheduler.schedule(clock.getTime());
 				} else {
 					slowInstructions--;
 					executeSlow();
-					scheduler->schedule(clock.getTime());
+					scheduler.schedule(clock.getTime());
 				}
 			}
 		}

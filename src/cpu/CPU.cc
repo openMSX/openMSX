@@ -29,14 +29,15 @@ bool CPU::step = false;
 
 
 CPU::CPU(const string& name, int defaultFreq)
-	: interface(NULL),
-	  freqLocked(name + "_freq_locked",
+	: interface(NULL)
+	, scheduler(Scheduler::instance())
+	, freqLocked(name + "_freq_locked",
 	             "real (locked) or custom (unlocked) " + name + " frequency",
-	             true),
-	  freqValue(name + "_freq",
+	             true)
+	, freqValue(name + "_freq",
 	            "custom " + name + " frequency (only valid when unlocked)",
-	            defaultFreq, 1, 100000000),
-	  freq(defaultFreq)
+	            defaultFreq, 1, 100000000)
+	, freq(defaultFreq)
 {
 	clock.setFreq(defaultFreq);
 
@@ -48,11 +49,6 @@ CPU::~CPU()
 {
 	freqValue.removeListener(this);
 	freqLocked.removeListener(this);
-}
-
-void CPU::setScheduler(Scheduler* scheduler_)
-{
-	scheduler = scheduler_;
 }
 
 void CPU::setMotherboard(MSXMotherBoard* motherboard_)
@@ -151,7 +147,7 @@ void CPU::doBreak2()
 	breaked = true;
 
 	motherboard->block();
-	scheduler->setCurrentTime(clock.getTime());
+	scheduler.setCurrentTime(clock.getTime());
 
 	ostringstream os;
 	os << "0x" << hex << (int)R.PC.w;

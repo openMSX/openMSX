@@ -11,8 +11,6 @@ using std::vector;
 
 namespace openmsx {
 
-class MSXCPU;
-class InputEventGenerator;
 class Schedulable;
 
 class Scheduler
@@ -108,7 +106,7 @@ public:
 
 private:
 	Scheduler();
-	virtual ~Scheduler();
+	~Scheduler();
 
 	void scheduleHelper(const EmuTime& limit);
 
@@ -119,10 +117,6 @@ private:
 	Semaphore sem;	// protects syncPoints
 
 	EmuTime scheduleTime;
-
-	InputEventGenerator* eventGenerator;
-	
-	MSXCPU& cpu;
 };
 
 } // namespace openmsx

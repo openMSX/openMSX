@@ -56,7 +56,6 @@ public:
 
 	virtual ~CPU();
 	
-	void setScheduler(Scheduler* scheduler);
 	void setMotherboard(MSXMotherBoard* motherboard);
 	void setInterface(CPUInterface* interf);
 
@@ -179,7 +178,7 @@ protected:
 	static bool continued;
 	static bool step;
 	
-	Scheduler* scheduler;
+	Scheduler& scheduler;
 
 #ifdef CPU_DEBUG
 	static BooleanSetting traceSetting;

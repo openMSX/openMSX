@@ -41,12 +41,6 @@ MSXCPU& MSXCPU::instance()
 	return oneInstance;
 }
 
-void MSXCPU::setScheduler(Scheduler* scheduler)
-{
-	z80 .setScheduler(scheduler);
-	r800.setScheduler(scheduler);
-}
-
 void MSXCPU::setMotherboard(MSXMotherBoard* motherboard)
 {
 	z80 .setMotherboard(motherboard);

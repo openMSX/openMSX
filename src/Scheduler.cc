@@ -1,8 +1,7 @@
 // $Id$
 
-#include "Schedulable.hh"
 #include "Scheduler.hh"
-#include "MSXCPU.hh"
+#include "Schedulable.hh"
 #include "InputEventGenerator.hh"
 #include <cassert>
 #include <algorithm>
@@ -19,10 +18,7 @@ const EmuTime Scheduler::ASAP;
 
 Scheduler::Scheduler()
 	: sem(1)
-	, eventGenerator(NULL)
-	, cpu(MSXCPU::instance())
 {
-	cpu.setScheduler(this);
 }
 
 Scheduler::~Scheduler()
@@ -49,12 +45,6 @@ void Scheduler::setSyncPoint(const EmuTime& timeStamp, Schedulable* device, int 
 	syncPoints.push_back(SynchronizationPoint(timeStamp, device, userData));
 	push_heap(syncPoints.begin(), syncPoints.end());
 	sem.up();
-
-	/*
-	if ((pauseCounter > 0) && eventGenerator) {
-		eventGenerator->notify();
-	}
-	*/
 }
 
 void Scheduler::setAsyncPoint(Schedulable* device, int userData)
@@ -70,12 +60,6 @@ void Scheduler::setAsyncPoint(Schedulable* device, int userData)
 	push_heap(syncPoints.begin(), syncPoints.end());
 
 	sem.up();
-
-	/*
-	if ((pauseCounter > 0) && eventGenerator) {
-		eventGenerator->notify();
-	}
-	*/
 }
 
 void Scheduler::removeSyncPoint(Schedulable* device, int userData)
@@ -107,8 +91,7 @@ void Scheduler::setCurrentTime(const EmuTime& time)
 
 void Scheduler::scheduleHelper(const EmuTime& limit)
 {
-	eventGenerator = &InputEventGenerator::instance();
-	eventGenerator->poll();
+	InputEventGenerator::instance().poll();
 
 	while (true) {
 		// Get next sync point.
