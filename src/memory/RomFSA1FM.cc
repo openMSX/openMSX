@@ -85,6 +85,15 @@ byte RomFSA1FM1::readMem(word address, const EmuTime &time)
 		// read rom
 		return rom->read((0x2000 * (sram[0x1FC4] & 0x0F)) + 
 		                 (address & 0x1FFF));
+	} else if ((0x7FC0 <= address) && (address < 0x7FCF)) {
+		switch (address & 0x0F) {
+		case 4:
+			return sram[address & 0x1FFF];
+		case 6:
+			return frontSwitch.getStatus() ? 0xFB : 0xFF;
+		default:
+			return 0xFF;
+		}
 	} else if ((0x6000 <= address) && (address < 0x8000)) {
 		// read sram
 		// TODO are there multiple sram blocks?
@@ -96,7 +105,10 @@ byte RomFSA1FM1::readMem(word address, const EmuTime &time)
 
 const byte* RomFSA1FM1::getReadCacheLine(word address) const
 {
-	if ((0x4000 <= address) && (address < 0x6000)) {
+	if (address == (0x7FC0 & CPU::CACHE_LINE_HIGH)) {
+		// dont't cache IO area
+		return NULL;
+	} else if ((0x4000 <= address) && (address < 0x6000)) {
 		// read rom
 		return rom->getBlock((0x2000 * (sram[0x1FC4] & 0x0F)) +
 		                     (address & 0x1FFF));
