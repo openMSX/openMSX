@@ -5,6 +5,8 @@ $Id$
 	  is alreday defined, then take this value as initial setting value:
 	   fixes icon stuff defined in init.tcl when openmsx is started with
 	   renderer none (-control mode)
+	* Only use one .filecache file for all rom pools:
+	   this file is put in the (writable) user directory
 
 2005-01-29 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Extended "disk[x]" console command to accept IPS patches:

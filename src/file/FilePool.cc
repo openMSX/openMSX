@@ -22,7 +22,7 @@ using std::vector;
 
 namespace openmsx {
 
-const char* const FILE_CACHE = ".filecache";
+const char* const FILE_CACHE = "/.filecache";
 
 FilePool::FilePool()
 {
@@ -33,7 +33,7 @@ FilePool::FilePool()
 		for (XMLElement::Children::const_iterator it = dirs.begin();
 		     it != dirs.end(); ++it) {
 			string dir = FileOperations::expandTilde((*it)->getData());
-			readSha1sums(dir, database[dir]);
+			directories.push_back(dir);
 		}
 	}
 	SystemFileContext context;
@@ -41,16 +41,15 @@ FilePool::FilePool()
 	for (vector<string>::const_iterator it = paths.begin();
 	     it != paths.end(); ++it) {
 		string dir = *it + "/systemroms";
-		readSha1sums(dir, database[dir]);
+		directories.push_back(dir);
 	}
+
+	readSha1sums();
 }
 
 FilePool::~FilePool()
 {
-	for (Database::const_iterator it = database.begin();
-	     it != database.end(); ++it) {
-		writeSha1sums(it->first, it->second);
-	}
+	writeSha1sums();
 }
 
 FilePool& FilePool::instance()
@@ -72,10 +71,20 @@ static bool parse(const string& line, string& sha1, time_t& time, string& filena
 	       (time != static_cast<time_t>(-1));
 }
 
-void FilePool::readSha1sums(const string& directory, Pool& pool)
+static void calcSha1sum(const string& filename, time_t& time, string& sum)
 {
-	string filename = directory + '/' + FILE_CACHE;
-	ifstream file(filename.c_str());
+	File file(filename);
+	time = file.getModificationDate();
+	byte* data = file.mmap();
+	SHA1 sha1;
+	sha1.update(data, file.getSize());
+	sum = sha1.hex_digest();
+}
+
+void FilePool::readSha1sums()
+{
+	string cacheFile = FileOperations::getUserDataDir() + FILE_CACHE;
+	ifstream file(cacheFile.c_str());
 	while (file.good()) {
 		string line;
 		getline(file, line);
@@ -89,58 +98,53 @@ void FilePool::readSha1sums(const string& directory, Pool& pool)
 	}
 }
 
-void FilePool::writeSha1sums(const string& directory, const Pool& pool)
+void FilePool::writeSha1sums()
 {
-	string filename = directory + '/' + FILE_CACHE;
-	ofstream file(filename.c_str());
+	string cacheFile = FileOperations::getUserDataDir() + FILE_CACHE;
+	ofstream file(cacheFile.c_str());
 	if (!file.is_open()) {
 		return;
 	}
 	for (Pool::const_iterator it = pool.begin(); it != pool.end(); ++it) {
-		file << it->first << "  "
-		     << Date::toString(it->second.first) << "  "
-		     << it->second.second
+		file << it->first << "  "                        // sum
+		     << Date::toString(it->second.first) << "  " // date
+		     << it->second.second                        // filename 
 		     << endl;
 	}
 }
 
 string FilePool::getFile(const string& sha1sum)
 {
-	for (Database::iterator it = database.begin();
-	     it != database.end(); ++it) {
-		string filename = getFromPool(sha1sum, it->first, it->second);
-		if (!filename.empty()) {
-			return filename;
-		}
+	string filename = getFromPool(sha1sum);
+	if (!filename.empty()) {
+		return filename;
 	}
 
-	for (Database::iterator it = database.begin();
-	     it != database.end(); ++it) {
-		string filename = scanDirectory(sha1sum, it->first, it->second);
+	for (Directories::const_iterator it = directories.begin();
+	     it != directories.end(); ++it) {
+		string filename = scanDirectory(sha1sum, *it);
 		if (!filename.empty()) {
 			return filename;
 		}
 	}
 	
-	return "";
+	return string(); // not found
 }
 
-string FilePool::getFromPool(const string& sha1sum, const string& directory,
-                             Pool& pool)
+string FilePool::getFromPool(const string& sha1sum)
 {
 	pair<Pool::iterator, Pool::iterator> bound = pool.equal_range(sha1sum);
 	Pool::iterator it = bound.first;
 	while (it != bound.second) {
 		time_t& time = it->second.first;
 		const string& filename = it->second.second;
-		string full_name = directory + '/' + filename;
 		try {
 			time_t newTime;
 			string newSum;
-			calcSha1sum(full_name, newTime, newSum);
+			calcSha1sum(filename, newTime, newSum);
 			if (newSum == sha1sum) {
 				time = newTime;
-				return full_name;
+				return filename;
 			}
 			// did not match, update db with new sum
 			pool.erase(it++);
@@ -151,30 +155,28 @@ string FilePool::getFromPool(const string& sha1sum, const string& directory,
 			pool.erase(it++);
 		}
 	}
-	return "";
+	return string();
 }
 
-string FilePool::scanDirectory(const string& sha1sum, const string& directory,
-                               Pool& pool)
+string FilePool::scanDirectory(const string& sha1sum, const string& directory)
 {
 	ReadDir dir(directory);
 	while (dirent* d = dir.getEntry()) {
-		string filename = d->d_name;
-		string full_name = directory + '/' + filename;
-		if (!FileOperations::isRegularFile(full_name)) {
+		string filename = directory + '/' + d->d_name;
+		if (!FileOperations::isRegularFile(filename)) {
 			continue;
 		}
-		Pool::iterator it = findInDatabase(filename, pool);
+		Pool::iterator it = findInDatabase(filename);
 		if (it == pool.end()) {
 			// not in pool
 			try {
 				time_t time;
 				string sum;
-				calcSha1sum(full_name, time, sum);
+				calcSha1sum(filename, time, sum);
 				pool.insert(make_pair(sum,
 				                 make_pair(time, filename)));
 				if (sum == sha1sum) {
-					return full_name;
+					return filename;
 				}
 			} catch (FileException& e) {
 				// ignore
@@ -183,22 +185,22 @@ string FilePool::scanDirectory(const string& sha1sum, const string& directory,
 			// already in pool
 			assert(filename == it->second.second);
 			try {
-				File file(full_name);
+				File file(filename);
 				if (file.getModificationDate() == it->second.first) {
 					// db is still up to date
 					if (it->first == sha1sum) {
-						return full_name;
+						return filename;
 					}
 				} else {
 					// db outdated
 					time_t time;
 					string sum;
-					calcSha1sum(full_name, time, sum);
+					calcSha1sum(filename, time, sum);
 					pool.erase(it);
 					pool.insert(make_pair(sum,
 					                 make_pair(time, filename)));
 					if (sum == sha1sum) {
-						return full_name;
+						return filename;
 					}
 				}
 			} catch (FileException& e) {
@@ -207,23 +209,10 @@ string FilePool::scanDirectory(const string& sha1sum, const string& directory,
 			}
 		}
 	}
-	return "";
+	return string();
 }
 
-void FilePool::calcSha1sum(const string& filename, time_t& time, string& sum)
-{
-	PRT_DEBUG("FilePool: calculating SHA1 for " << filename);
-
-	File file(filename);
-	time = file.getModificationDate();
-	byte* data = file.mmap();
-	SHA1 sha1;
-	sha1.update(data, file.getSize());
-	sum = sha1.hex_digest();
-}
-
-FilePool::Pool::iterator FilePool::findInDatabase(const string& filename,
-                                                  Pool& pool)
+FilePool::Pool::iterator FilePool::findInDatabase(const string& filename)
 {
 	for (Pool::iterator it = pool.begin(); it != pool.end(); ++it) {
 		if (it->second.second == filename) {

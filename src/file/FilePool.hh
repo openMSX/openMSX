@@ -5,6 +5,7 @@
 
 #include <string>
 #include <map>
+#include <vector>
 #include <time.h>
 
 namespace openmsx {
@@ -20,21 +21,21 @@ public:
 
 private:
 	typedef std::multimap<std::string, std::pair<time_t, std::string> > Pool;
-	typedef std::map<std::string, Pool> Database;
+	typedef std::vector<std::string> Directories;
 
 	FilePool();
 	~FilePool();
-	
-	void readSha1sums(const std::string& directory, Pool& pool);
-	void writeSha1sums(const std::string& directory, const Pool& pool);
-	std::string getFromPool(const std::string& sha1sum, const std::string& directory,
-	                   Pool& pool);
-	std::string scanDirectory(const std::string& sha1sum, const std::string& directory,
-                             Pool& pool);
-	void calcSha1sum(const std::string& filename, time_t& time, std::string& sum);
-	Pool::iterator findInDatabase(const std::string& filename, Pool& pool);
 
-	Database database;
+	void readSha1sums();
+	void writeSha1sums();
+
+	std::string getFromPool(const std::string& sha1sum);
+	std::string scanDirectory(const std::string& sha1sum,
+	                          const std::string& directory);
+	Pool::iterator findInDatabase(const std::string& filename);
+
+	Pool pool;
+	Directories directories;
 };
 
 } // namespace openmsx
