@@ -1,5 +1,10 @@
 $Id$
 
+2001-12-16 David Heremans <david.heremans@gnu-linux.net>
+	* Extende LoadFile to autodetermine file-size.
+	* Renamed MSXMegaRom to MSXGameCartrdige.
+	* MSXGameCartridge can now handle smaller game roms (<= 64kB)
+
 2001-12-15 David Heremans <david.heremans@gnu-linux.net>
 	* Added volume to the SCC.
 	* Used F11 as HotKey to sound on/off:

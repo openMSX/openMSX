@@ -1,25 +1,25 @@
 // $Id$
 
-#ifndef __MSXMEGAROM_HH__
-#define __MSXMEGAROM_HH__
+#ifndef __MSXGAMECARTRIDGE_HH__
+#define __MSXGAMECARTRIDGE_HH__
 
 #include "MSXRom.hh"
 #include "MSXMemDevice.hh"
 #include "EmuTime.hh"
 #include "SCC.hh"
 
-class MSXMegaRom : public MSXMemDevice, public MSXRom
+class MSXGameCartridge : public MSXMemDevice, public MSXRom
 {
 	public:
 		/**
 		 * Constructor
 		 */
-		MSXMegaRom(MSXConfig::Device *config, const EmuTime &time);
+		MSXGameCartridge(MSXConfig::Device *config, const EmuTime &time);
 
 		/**
 		 * Destructor
 		 */
-		~MSXMegaRom();
+		~MSXGameCartridge();
 
 		void reset(const EmuTime &time);
 

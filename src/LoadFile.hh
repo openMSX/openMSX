@@ -19,6 +19,7 @@ class LoadFile
 		 * The first "skip_headerbytes" bytes of the file are ignored.
 		 */
 		void loadFile(byte** memoryBank, int fileSize);
+		void loadUnknownFile(byte** memoryBank, int &fileSize);
 
 	protected:
 		/**

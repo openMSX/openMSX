@@ -53,7 +53,7 @@ openmsx_SOURCES=openmsx.cc \
 	MSXMapperIOPhilips.hh MSXMapperIOPhilips.cc \
 	MSXRTC.hh MSXRTC.cc RP5C01.hh RP5C01.cc \
 	RealTime.hh RealTime.cc \
-	MSXMegaRom.hh MSXMegaRom.cc \
+	MSXGameCartridge.hh MSXGameCartridge.cc \
 	MSXKonamiSynthesizer.hh  MSXKonamiSynthesizer.cc \
 	DACSound.cc DACSound.hh \
 	KeyEventInserter.cc KeyEventInserter.hh \

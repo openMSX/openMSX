@@ -15,7 +15,7 @@
 #include "MSXKanji.hh"
 #include "MSXMemoryMapper.hh"
 #include "MSXRTC.hh"
-#include "MSXMegaRom.hh"
+#include "MSXGameCartridge.hh"
 #include "MSXKonamiSynthesizer.hh"
 #include "MSXPrinterPort.hh"
 #include "MSXSCCPlusCart.hh"
@@ -60,8 +60,8 @@ MSXDevice *deviceFactory::create(MSXConfig::Device *conf, const EmuTime &time) {
 	if (conf->getType()=="RTC") {
 		device = new MSXRTC(conf, time);
 	} else
-	if (conf->getType()=="MegaRom") {
-		device = new MSXMegaRom(conf, time);
+	if (conf->getType()=="GameCartridge") {
+		device = new MSXGameCartridge(conf, time);
 	} else
 	if (conf->getType()=="PrinterPort") {
 		device = new MSXPrinterPort(conf, time);
