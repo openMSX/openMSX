@@ -439,9 +439,10 @@ void VDPCmdEngine::setCmdReg(byte index, byte value, const EmuTime& time)
 
 	case 0x0C: // colour
 		COL = value;
-		//status &= 0x7F;	// don't reset TR
-		// Note: Real VDP does reset TR, but for such a short time
+		// Note: Real VDP always resets TR, but for such a short time
 		//       that the MSX won't notice it.
+		// TODO: What happens on non-transfer commands?
+		if (!currentCommand) status &= 0x7F;
 		transfer = true;
 		break;
 	case 0x0D: // argument

@@ -53,9 +53,7 @@ public:
 		if (time >= statusChangeTime) {
 			sync(time);
 		}
-		byte ret = status;
-		if (!currentCommand) status &= 0x7F;
-		return ret;
+		return status;
 	}
 
 	/** Use this method to transfer pixel(s) from VDP to CPU.
@@ -68,9 +66,10 @@ public:
 		return COL;
 	}
 	inline void resetColour() {
-		//status &= 0x7F; // dont reset TR
-		// Note: Real VDP does reset TR, but for such a short time
+		// Note: Real VDP always resets TR, but for such a short time
 		//       that the MSX won't notice it.
+		// TODO: What happens on non-transfer commands?
+		if (!currentCommand) status &= 0x7F;
 		transfer = true;
 	}
 
