@@ -93,38 +93,6 @@ class CommandLineParser
 			virtual const std::string& optionHelp() const;
 			bool parsed;
 		} settingOption;
-		
-		class MSX1Option : public CLIOption {
-		public:
-			virtual void parseOption(const std::string &option,
-				std::list<std::string> &cmdLine);
-			virtual const std::string& optionHelp() const;
-		} msx1Option;
-		friend class MSX1Option;
-		
-		class MSX2Option : public CLIOption {
-		public:
-			virtual void parseOption(const std::string &option,
-				std::list<std::string> &cmdLine);
-			virtual const std::string& optionHelp() const;
-		} msx2Option;
-		friend class MSX2Option;
-		
-		class MSX2POption : public CLIOption {
-		public:
-			virtual void parseOption(const std::string &option,
-				std::list<std::string> &cmdLine);
-			virtual const std::string& optionHelp() const;
-		} msx2POption;
-		friend class MSX2POption;
-		
-		class MSXTurboROption : public CLIOption {
-		public:
-			virtual void parseOption(const std::string &option,
-				std::list<std::string> &cmdLine);
-			virtual const std::string& optionHelp() const;
-		} msxTurboROption;
-		friend class MSXTurboROption;
 };
 
 #endif

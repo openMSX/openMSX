@@ -21,10 +21,6 @@ CommandLineParser::CommandLineParser()
 	haveConfig = false;
 
 	registerOption("-h",       &helpOption);
-	registerOption("-msx1",    &msx1Option);
-	registerOption("-msx2",    &msx2Option);
-	registerOption("-msx2+",   &msx2POption);
-	registerOption("-turbor",  &msxTurboROption);
 	registerOption("-config",  &configFile);
 	registerFileType("xml",    &configFile);
 	registerOption("-machine", &machineOption);
@@ -231,76 +227,3 @@ const std::string& CommandLineParser::SettingOption::optionHelp() const
 	static const std::string text("Load an alternative settings file");
 	return text;
 }
-
-
-// MSX1
-void CommandLineParser::MSX1Option::parseOption(const std::string &option,
-                                                std::list<std::string> &cmdLine)
-{
-	MSXConfig *config = MSXConfig::instance();
-	config->loadFile(new SystemFileContext(), "msx1.xml");
-
-	CommandLineParser::instance()->haveConfig = true;
-}
-const std::string& CommandLineParser::MSX1Option::optionHelp() const
-{
-	static const std::string text("Loads a default MSX1 configuration");
-	return text;
-}
-
-// MSX2
-void CommandLineParser::MSX2Option::parseOption(const std::string &option,
-                                                std::list<std::string> &cmdLine)
-{
-	MSXConfig *config = MSXConfig::instance();
-	config->loadFile(new SystemFileContext(), "msx2.xml");
-
-	CommandLineParser::instance()->haveConfig = true;
-}
-const std::string& CommandLineParser::MSX2Option::optionHelp() const
-{
-	static const std::string text("Loads a default MSX2 configuration");
-	return text;
-}
-
-// MSX2+
-void CommandLineParser::MSX2POption::parseOption(const std::string &option,
-                                                std::list<std::string> &cmdLine)
-{
-	MSXConfig *config = MSXConfig::instance();
-	config->loadFile(new SystemFileContext(), "msx2plus.xml");
-
-	CommandLineParser::instance()->haveConfig = true;
-}
-const std::string& CommandLineParser::MSX2POption::optionHelp() const
-{
-	static const std::string text("Loads a default MSX2+ configuration");
-	return text;
-}
-
-// MSX Turbo R
-void CommandLineParser::MSXTurboROption::parseOption(const std::string &option,
-                                                std::list<std::string> &cmdLine)
-{
-	MSXConfig *config = MSXConfig::instance();
-	config->loadFile(new SystemFileContext(), "turbor.xml");
-
-	CommandLineParser::instance()->haveConfig = true;
-}
-const std::string& CommandLineParser::MSXTurboROption::optionHelp() const
-{
-	static const std::string text("Loads a MSXturboR configuration");
-	return text;
-}
-
-
-
-/*
-	if (isUsed(MBSTEREO)) {
-		// Alter subslotting if we need to insert fmpac 
-		configureMusMod(std::string("right"));
-		configureFmPac(std::string("left"));
-	}
-
-addOption(MBSTEREO, "-mbstereo",   false, "Enables -fmpac and -musmod with stereo registration");
-*/
