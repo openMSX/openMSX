@@ -67,6 +67,7 @@ openmsx_SOURCES=\
 	PrinterPortSimpl.hh PrinterPortSimpl.cc \
 	PrinterPortLogger.cc PrinterPortLogger.hh \
 	MSXKanji.hh MSXKanji.cc \
+	MSXBunsetsu.hh MSXBunsetsu.cc \
 	MSXMemoryMapper.hh MSXMemoryMapper.cc MSXMapperIO.hh MSXMapperIO.cc \
 	MSXMapperIOTurboR.hh MSXMapperIOTurboR.cc \
 	MSXMapperIOPhilips.hh MSXMapperIOPhilips.cc \

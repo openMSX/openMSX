@@ -11,12 +11,24 @@
 
 MSXRomDevice::MSXRomDevice(MSXConfig::Device* config, const EmuTime &time)
 {
+	std::string filename = config->getParameter("filename");
+	read(config, filename, time);
+}
+
+MSXRomDevice::MSXRomDevice(const std::string &filename, const EmuTime &time)
+{
+	read(NULL, filename, time);
+}
+
+void MSXRomDevice::read(MSXConfig::Device* config,
+                        const std::string &filename, const EmuTime &time)
+{
 	// open file
-	file = new File(config->getParameter("filename"), ROM);
+	file = new File(filename, ROM);
 	
 	// get filesize
 	int fileSize;
-	if (config->hasParameter("filesize") &&
+	if (config && config->hasParameter("filesize") &&
 	    config->getParameter("filesize") != "auto") {
 		fileSize = config->getParameterAsInt("filesize");
 	} else {
@@ -25,7 +37,7 @@ MSXRomDevice::MSXRomDevice(MSXConfig::Device* config, const EmuTime &time)
 	
 	// get offset
 	int offset = 0;
-	if (config->hasParameter("skip_headerbytes")) {
+	if (config && config->hasParameter("skip_headerbytes")) {
 		offset = config->getParameterAsInt("skip_headerbytes");
 	}
 
@@ -40,9 +52,12 @@ MSXRomDevice::MSXRomDevice(MSXConfig::Device* config, const EmuTime &time)
 		byte *tmp = file->mmap();
 		rom = tmp + offset;
 	} catch (FileException &e) {
-		PRT_ERROR("Error reading ROM image: " << config->getParameter("filename"));
+		PRT_ERROR("Error reading ROM image: " << filename);
 	}
-	
+
+	if (!config) {
+		return;
+	}
 	// for each patchcode parameter, construct apropriate patch
 	// object and register it at MSXCPUInterface
 	std::list<MSXConfig::Config::Parameter*>* parameters =

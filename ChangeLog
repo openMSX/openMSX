@@ -1,5 +1,10 @@
 $Id$
 
+2002-12-17 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented MSX Bunsetsu Henkan / Jisyo:
+	   - I don't have much info on this device, but at least BUNSDUMP.BAS
+	     gives the correct result
+
 2002-12-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed assertion in VDP when computer was reset while in PAL mode
 

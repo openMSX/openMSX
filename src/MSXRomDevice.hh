@@ -15,6 +15,7 @@ class MSXRomDevice
 {
 	public:
 		MSXRomDevice(MSXConfig::Device *config, const EmuTime &time);
+		MSXRomDevice(const std::string &filename, const EmuTime &time);
 		virtual ~MSXRomDevice();
 
 		byte read(int address) const {
@@ -30,9 +31,11 @@ class MSXRomDevice
 		}
 
 	private:
+		void read(MSXConfig::Device *config, 
+		          const std::string &filename, const EmuTime &time);
+		
 		byte* rom;
 		int size;
-
 		File* file;
 		std::list<MSXRomPatchInterface*> romPatchInterfaces;
 };

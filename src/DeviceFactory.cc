@@ -21,6 +21,7 @@
 #include "MSXAudio.hh"
 #include "MC6850.hh"
 #include "MSXKanji.hh"
+#include "MSXBunsetsu.hh"
 #include "MSXMemoryMapper.hh"
 #include "MSXRTC.hh"
 #include "MSXRom.hh"
@@ -84,6 +85,9 @@ MSXDevice *DeviceFactory::create(MSXConfig::Device *conf, const EmuTime &time)
 	} 
 	if (type == "Kanji") {
 		return new MSXKanji(conf, time);
+	} 
+	if (type == "Bunsetsu") {
+		return new MSXBunsetsu(conf, time);
 	} 
 	if (type == "MemoryMapper") {
 		return new MSXMemoryMapper(conf, time);
