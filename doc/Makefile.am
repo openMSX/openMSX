@@ -3,19 +3,18 @@
 SUBDIRS = manual
 
 #  install the man pages
-man_MANS = \
-	openmsx.1
+# Man page is broken, so I disabled it.
+#man_MANS = \
+#	openmsx.1
 
 pkgdata_DATA = \
-	commands.txt \
-	developersFAQ.txt \
-	openmsx.tex \
-	testcases.txt \
-	vram-addressing.txt \
-	openMSX-HOWTO.txt \
-	after-bussum-FAQ.txt \
+	release-notes.txt release-history.txt \
+	commands.txt debugdevice.txt \
+	developersFAQ.txt testcases.txt \
 	exampleconfigs.xml \
-	debugdevice.txt
+	vram-addressing.txt \
+	openmsx.tex MSX-cassette.dia \
+	msxinfo-article.html schema1.png schema2.png screenshot.png
 
 EXTRA_DIST = $(man_MANS) $(pkgdata_DATA)
 
