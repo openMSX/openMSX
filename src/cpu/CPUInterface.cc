@@ -12,7 +12,7 @@ CPUInterface::~CPUInterface()
 {
 }
 
-bool CPUInterface::NMIStatus()
+inline bool CPUInterface::NMIStatus()
 {
 	return false;
 }
@@ -20,7 +20,7 @@ bool CPUInterface::NMIStatus()
 bool CPUInterface::NMIEdge()
 {
 	bool newNMIStat = NMIStatus();
-	bool result = !prevNMIStat && newNMIStat;
+	bool result = newNMIStat && !prevNMIStat;
 	prevNMIStat = newNMIStat;
 	return result;
 }

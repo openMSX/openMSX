@@ -790,7 +790,7 @@ void _CPU_::inir() {
 void _CPU_::jp_hl() { R.PC.w = R.HL.w; }
 void _CPU_::jp_ix() { R.PC.w = R.IX.w; }
 void _CPU_::jp_iy() { R.PC.w = R.IY.w; }
-void _CPU_::jp()    { word adrs = RDMEM_OPCODE_WORD();             JP(adrs); }
+void _CPU_::jp()    { word adrs = RDMEM_OPCODE_WORD();           JP(adrs); }
 void _CPU_::jp_c()  { word adrs = RDMEM_OPCODE_WORD(); if (C())  JP(adrs); }
 void _CPU_::jp_m()  { word adrs = RDMEM_OPCODE_WORD(); if (M())  JP(adrs); }
 void _CPU_::jp_nc() { word adrs = RDMEM_OPCODE_WORD(); if (NC()) JP(adrs); }
@@ -800,7 +800,7 @@ void _CPU_::jp_pe() { word adrs = RDMEM_OPCODE_WORD(); if (PE()) JP(adrs); }
 void _CPU_::jp_po() { word adrs = RDMEM_OPCODE_WORD(); if (PO()) JP(adrs); }
 void _CPU_::jp_z()  { word adrs = RDMEM_OPCODE_WORD(); if (Z())  JP(adrs); }
 
-void _CPU_::jr()    { offset e = RDMEM_OPCODE();             JR(e); }
+void _CPU_::jr()    { offset e = RDMEM_OPCODE();           JR(e); }
 void _CPU_::jr_c()  { offset e = RDMEM_OPCODE(); if (C())  JR(e); }
 void _CPU_::jr_nc() { offset e = RDMEM_OPCODE(); if (NC()) JR(e); }
 void _CPU_::jr_nz() { offset e = RDMEM_OPCODE(); if (NZ()) JR(e); }
@@ -4694,9 +4694,10 @@ void _CPU_::execute()
 			} else if (R.HALT) {
 				// in halt mode
 				uint64 ticks = currentTime.getTicksTillUp(targetTime);
-				int halts = (ticks+(haltStates()-1))/haltStates();	// rounded up
-					R.R += halts;
-				currentTime += halts*haltStates();
+				int hltStates = haltStates();
+				int halts = (ticks+hltStates-1)/hltStates;	// rounded up
+				R.R += halts;
+				currentTime += halts*hltStates;
 			} else {
 				// normal instructions
 				R.IFF1 = R.nextIFF1;

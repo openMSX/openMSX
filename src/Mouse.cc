@@ -3,6 +3,10 @@
 #include "Mouse.hh"
 
 
+//TODO implement timeout
+
+
+
 Mouse::Mouse()
 {
 	status = JOY_BUTTONA | JOY_BUTTONB;
