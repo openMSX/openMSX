@@ -12,6 +12,7 @@
 #include <map>
 #include "EmuTime.hh"
 #include "Settings.hh"
+#include "InfoTopic.hh"
 
 namespace openmsx {
 
@@ -29,7 +30,6 @@ class Mixer : private SettingListener
 			MONO, MONO_LEFT, MONO_RIGHT, STEREO, NB_MODES
 		};
 
-		virtual ~Mixer();
 		static Mixer *instance();
 		void shutDown();
 
@@ -78,6 +78,8 @@ class Mixer : private SettingListener
 
 	private:
 		Mixer();
+		virtual ~Mixer();
+
 		void reInit();
 		void updtStrm(int samples);
 		static void audioCallbackHelper(void *userdata, Uint8 *stream, int len);
@@ -89,9 +91,10 @@ class Mixer : private SettingListener
 		int muteCount;
 
 		struct SoundDeviceInfo {
+			ChannelMode mode;
+			string name;
 			IntegerSetting* volumeSetting;
 			EnumSetting<ChannelMode> *modeSetting;
-			ChannelMode mode;
 		};
 		map<SoundDevice*, SoundDeviceInfo> infos;
 
@@ -112,6 +115,13 @@ class Mixer : private SettingListener
 #ifdef DEBUG_MIXER
 		int nbClipped;
 #endif
+
+		class SoundDeviceInfoTopic : public InfoTopic {
+		public:
+			virtual string execute(const vector<string> &tokens) const;
+			virtual string help   (const vector<string> &tokens) const;
+		} soundDeviceInfo;
+		friend class SoundDeviceInfoTopic;
 };
 
 } // namespace openmsx

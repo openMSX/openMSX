@@ -5,6 +5,7 @@ $Id$
 	* Added info command infrastructure
 	* Added "info version" command
 	* Added "info pluggable" and "info connector"
+	* Added "info sounddevice"
 
 2003-10-24 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added -v cli option to get version number of openMSX

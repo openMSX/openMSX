@@ -8,6 +8,7 @@
 #include "SoundDevice.hh"
 #include "MSXConfig.hh"
 #include "CliCommunicator.hh"
+#include "InfoCommand.hh"
 
 namespace openmsx {
 
@@ -54,6 +55,7 @@ Mixer::Mixer()
 		reInit();
 		muteSetting.addListener(this);
 	}
+	InfoCommand::instance().registerTopic("sounddevice", &soundDeviceInfo);
 }
 
 Mixer::~Mixer()
@@ -74,6 +76,8 @@ void Mixer::shutDown()
 	//       to the rest of openMSX (CPU, maybe more).
 	//       Because of those depedencies, the destruction sequence is
 	//       relevant and therefore must be made explicit.
+	
+	InfoCommand::instance().unregisterTopic("sounddevice", &soundDeviceInfo);
 	if (init) {
 		muteSetting.removeListener(this);
 		SDL_CloseAudio();
@@ -103,11 +107,12 @@ int Mixer::registerSound(const string &name, SoundDevice *device,
 		modeMap["right"] = MONO_RIGHT;
 	}
 	info.modeSetting = new EnumSetting<ChannelMode>(name + "_mode", "the channel mode of this sound chip", mode, modeMap);
+	
 	info.mode = mode;
-	infos[device] = info;
-
+	info.name = name;
 	info.modeSetting->addListener(this);
 	info.volumeSetting->addListener(this);
+	infos[device] = info;
 
 	lock();
 	if (buffers.size() == 0) {
@@ -311,6 +316,24 @@ void Mixer::update(const SettingLeafNode *setting)
 			} else assert(false);
 		}
 	}
+}
+
+
+// Sound device info
+string Mixer::SoundDeviceInfoTopic::execute(const vector<string> &tokens) const
+{
+	string result;
+	Mixer* mixer = Mixer::instance();
+	for (map<SoundDevice*, SoundDeviceInfo>::const_iterator it =
+	       mixer->infos.begin(); it != mixer->infos.end(); ++it) {
+		result += it->second.name + '\n';
+	}
+	return result;
+}
+
+string Mixer::SoundDeviceInfoTopic::help(const vector<string> &tokens) const
+{
+	return "Shows a list of available sound devices.\n";
 }
 
 } // namespace openmsx
