@@ -1,30 +1,26 @@
 #include "FDC2793.hh"
-#include "FDC_DSK.hh"
+#include "DiskImageManager.hh"
+#include "FDCBackEnd.hh"
+
 
 FDC2793::FDC2793(MSXConfig::Device *config) 
   : FDC(config)
 {
-  PRT_DEBUG("instantiating an FDC2793 object..");
-  try {
-    std::string back = config->getParameter("backend");
-    PRT_DEBUG( "backend: " << back );
-    if ( strcmp(back.c_str(),"DSK") == 0 ) {
-      backend=new FDC_DSK(config);
-    }
-  } catch(MSXConfig::Exception& e) {
-    // No chip type found
-  }
-  reset();
-  timePerStep[0]=6; // in MSX a 1mhz clock is used!
-  timePerStep[1]=12;
-  timePerStep[2]=20;
-  timePerStep[3]=30;
-
+	PRT_DEBUG("instantiating an FDC2793 object..");
+	driveName1 = config->getParameter("drivename1");
+	DiskImageManager::instance()->registerDrive(driveName1);
+  
+	reset();
+	timePerStep[0]=6;	// in MSX a 1MHz clock is used!
+	timePerStep[1]=12;
+	timePerStep[2]=20;
+	timePerStep[3]=30;
 }
 
 FDC2793::~FDC2793()
 {
-  PRT_DEBUG("Destructing an FDC2793 object..");
+	PRT_DEBUG("Destructing an FDC2793 object..");
+	DiskImageManager::instance()->unregisterDrive(driveName1);
 }
 
 void FDC2793::reset()
@@ -221,11 +217,13 @@ void FDC2793::setCommandReg(byte value,const EmuTime &time)
 		//statusReg &= 0x 	// fake ready, fake CRC error, fake record t1=copy DRQ Type :-)
 	  	dataCurrent=0;
 		dataAvailable=512; // TODO should come from sector header !!!
-		if (backend->read(current_track,trackReg,sectorReg,current_side,512,dataBuffer) ){
-		  statusReg |= 2; DRQ=true; // data ready to be read 
-		} else {
+		try {
+			DiskImageManager::instance()->getBackEnd(driveName1)->
+				read(current_track,trackReg,sectorReg,current_side,512,dataBuffer);
+			statusReg |= 2; DRQ=true; // data ready to be read
+		} catch (MSXException &e) {
 		  statusReg |= 2; DRQ=true; // TODO data not ready because read error
-		};
+		}
 	    break;
 
 	  case 0xA0: // write sector
@@ -301,20 +299,22 @@ void FDC2793::setDataReg(byte value, const EmuTime &time)
 	  dataAvailable--;
 	  if ( dataAvailable == 0 ){
 		PRT_DEBUG("Now we call the backend to write a sector");
-		if (backend->write(current_track,trackReg,sectorReg,current_side,512,dataBuffer) ){
-		// If we wait to long we should also write a partialy filled sector ofcourse 
-		// and set the correct status bits !!
-		statusReg &= 0x7D ;// reset status on Busy(=bit7) reset DRQ bit(=bit1)
-		DRQ=false;
-		if (mflag==0){
-			//TODO verify this !
-			INTRQ=true;
+		try {
+			DiskImageManager::instance()->getBackEnd(driveName1)->
+				write(current_track,trackReg,sectorReg,current_side,512,dataBuffer);
+			// If we wait too long we should also write a partialy filled sector
+			// ofcourse and set the correct status bits !!
+			statusReg &= 0x7D ;// reset status on Busy(=bit7) reset DRQ bit(=bit1)
+			DRQ=false;
+			if (mflag==0) {
+				//TODO verify this !
+				INTRQ=true;
 			}
-		dataCurrent=0;
-		dataAvailable=512; // TODO should come from sector header !!!
-		} else {
-		// Backend couldn't write data
-		};
+			dataCurrent=0;
+			dataAvailable=512; // TODO should come from sector header !!!
+		} catch (MSXException &e) {
+			// Backend couldn't write data
+		}
 	  }
 	} else if ((commandReg&0xF0)==0xF0){ // WRITE TRACK
 	    PRT_DEBUG("FDC2793 WRITE TRACK value "<<(int)value);

@@ -5,15 +5,19 @@
 #include "MSXConfig.hh"
 #include "CPU.hh"
 #include "MSXMotherBoard.hh"
-#include "ConsoleSource/ConsoleManager.hh"
-#include "ConsoleSource/CommandController.hh"
+#include "DiskImageManager.hh"
+#include "FDCBackEnd.hh"
 
 
-const int MSXDiskRomPatch::A_PHYDIO = 0x4010;
-const int MSXDiskRomPatch::A_DSKCHG = 0x4013;
-const int MSXDiskRomPatch::A_GETDPB = 0x4016;
-const int MSXDiskRomPatch::A_DSKFMT = 0x401C;
-const int MSXDiskRomPatch::A_DRVOFF = 0x401F;
+const int LAST_DRIVE = 1;	// TODO support multiple drives
+const int SECTOR_SIZE = 512;
+
+const int A_PHYDIO = 0x4010;
+const int A_DSKCHG = 0x4013;
+const int A_GETDPB = 0x4016;
+const int A_DSKFMT = 0x401C;
+const int A_DRVOFF = 0x401F;
+
 const byte MSXDiskRomPatch::bootSectorData[] = {
   0xeb, 0xfe, 0x90, 0x4e, 0x4d, 0x53, 0x20, 0x38, 0x32, 0x34, 0x35, 0x00, 0x02, 0x02, 0x01, 0x00,
   0x02, 0x70, 0x00, 0xa0, 0x05, 0xf9, 0x03, 0x00, 0x09, 0x00, 0x02, 0x00, 0x00, 0x00, 0xd0, 0xed,
@@ -30,100 +34,16 @@ const byte MSXDiskRomPatch::bootSectorData[] = {
   0x79, 0x0d, 0x0a, 0x24
 };
 
-
-MSXDiskRomPatch::DiskImage::DiskImage(std::string fileName, std::string defaultSize)
-{
-	file = FileOpener::openFilePreferRW(fileName);
-	if (!file->fail()) {
-		file->seekg(0,std::ios::end);
-		if (!file->tellg()) {
-			// For the moment I assume that
-			// if the file as zero length that is is just created
-			// Ofcourse it is possible that the file existed but
-			// that we do not have any rights on it whatsoever.
-			// So we test this.
-			file->put(0);
-			if (!file->fail()) {
-				file->seekg(0,std::ios::beg);
-				PRT_DEBUG("Filling new file "<<fileName);
-				if (defaultSize.compare("360")==0) {
-					for (int i=0; i<368640; i++) file->put(0);
-				} else {
-					for (int i=0; i<737280; i++) file->put(0);
-				}
-				//I thought about imediatly formatting the disk ?
-				//But I would need to alter the rest of the source to hard for the moment
-				//AND on a "real MSX" you should format a new disks also, so...
-			}
-		}
-		nbSectors = file->tellg() / SECTOR_SIZE;
-	}
-}
-
-MSXDiskRomPatch::DiskImage::~DiskImage()
-{
-	delete file;
-}
-
-void MSXDiskRomPatch::DiskImage::readSector(byte* to, int sector)
-{
-	if (sector >= nbSectors)
-		throw NoSuchSectorException("No such sector");
-	file->seekg(sector*SECTOR_SIZE, std::ios::beg);
-	file->read(to, SECTOR_SIZE);
-	if (file->bad())
-		throw DiskIOErrorException("Disk I/O error");
-}
-
-void MSXDiskRomPatch::DiskImage::writeSector(const byte* from, int sector)
-{
-	if (sector >= nbSectors)
-		throw NoSuchSectorException("No such sector");
-	file->seekg(sector*SECTOR_SIZE, std::ios::beg);
-	file->write(from, SECTOR_SIZE);
-	if (file->bad())
-		throw DiskIOErrorException("Disk I/O error");
-}
-
-
 MSXDiskRomPatch::MSXDiskRomPatch()
 {
-	std::string name("diskpatch_diskA");
-	//                0123456789ABCDE
-	std::string defaultsize;
-	std::string filename;
-	PRT_INFO("Attaching drives...");
-	for (int i=0; i<LAST_DRIVE; i++) {
-		disk[i] = NULL;
-		try {
-			MSXConfig::Config *config = MSXConfig::Backend::instance()->getConfigById(name);
-			filename = config->getParameter("filename");
-			defaultsize = config->getParameter("defaultsize");
-			disk[i] = new DiskImage(filename, defaultsize);
-		} catch (MSXException& e) {
-			PRT_DEBUG("MSXException "<< e.desc);
-			PRT_INFO("Problems opening disk for drive "<<name[0xE] );
-			delete disk[i];
-			disk[i] = NULL;
-		}
-		// next drive letter
-		name[0xE]++;
-	}
-
-	CommandController::instance()->registerCommand(*this, "disk");
-	CommandController::instance()->registerCommand(*this, "diska");
-	CommandController::instance()->registerCommand(*this, "diskb");
+	diskImageManager = DiskImageManager::instance();
+	// TODO make name configurable
+	diskImageManager->registerDrive("diska");
 }
 
 MSXDiskRomPatch::~MSXDiskRomPatch()
 {
-	CommandController::instance()->unregisterCommand("disk");
-	CommandController::instance()->unregisterCommand("diska");
-	CommandController::instance()->unregisterCommand("diskb");
-	
-	for (int i=0; i<LAST_DRIVE; i++) {
-		if (disk[i] != NULL) delete disk[i];
-	}
+	diskImageManager->unregisterDrive("diska");
 }
 
 void MSXDiskRomPatch::patch(CPU::CPURegs& regs) const
@@ -176,11 +96,6 @@ void MSXDiskRomPatch::PHYDIO(CPU::CPURegs& regs) const
 		regs.AF.w = 0x0201;	// Not Ready
 		return;
 	}
-	if (disk[drive] == NULL) {
-		// no disk file
-		regs.AF.w = 0x0201;	// Not Ready
-		return;
-	}
 	// TODO check this
 	if (transferAddress + regs.BC.B.h*SECTOR_SIZE > 0x10000) {
 		// read would overflow memory, adapt:
@@ -213,6 +128,7 @@ void MSXDiskRomPatch::PHYDIO(CPU::CPURegs& regs) const
 	motherboard->writeMem(0xFFFF,sec_slot_target, dummy);
 
 	byte buffer[SECTOR_SIZE];
+	FDCBackEnd* backEnd = diskImageManager->getBackEnd("diska");
 	try {
 		while (regs.BC.B.h) {	// num_sectors
 			if (write) {
@@ -220,9 +136,9 @@ void MSXDiskRomPatch::PHYDIO(CPU::CPURegs& regs) const
 					buffer[i] = motherboard->readMem(transferAddress, dummy);
 					transferAddress++;
 				}
-				disk[drive]->writeSector(buffer, sectorNumber);
+				backEnd->writeSector(buffer, sectorNumber);
 			} else {
-				disk[drive]->readSector(buffer, sectorNumber);
+				backEnd->readSector(buffer, sectorNumber);
 				for (int i=0; i<SECTOR_SIZE; i++) {
 					motherboard->writeMem(transferAddress, buffer[i], dummy);
 					transferAddress++;
@@ -236,6 +152,8 @@ void MSXDiskRomPatch::PHYDIO(CPU::CPURegs& regs) const
 		regs.AF.w = 0x0801;	// Record not found
 	} catch (DiskIOErrorException& e) {
 		regs.AF.w = 0x0A01;	// I/O error
+	} catch (DriveEmptyException &e) {
+		regs.AF.w = 0x0201;	// Not Ready
 	}
 
 	// restore memory settings
@@ -259,17 +177,12 @@ void MSXDiskRomPatch::DSKCHG(CPU::CPURegs& regs) const
 		regs.AF.w = 0x0201;	// Not Ready
 		return;
 	}
-	if (disk[drive] == NULL) {
-		// no disk file
-		PRT_DEBUG("    No Disk File For Drive " << (int)drive);
-		regs.AF.w = 0x0201;	// Not Ready
-		return;
-	}
 
 	// Read media descriptor from first byte of FAT.
 	byte buffer[SECTOR_SIZE];
 	try {
-		disk[drive]->readSector(buffer, 1);
+		diskImageManager->getBackEnd("diska")->
+			readSector(buffer, 1);
 	} catch (DiskIOErrorException& e) {
 		PRT_DEBUG("    I/O error reading FAT");
 		regs.AF.w = 0x0A01; // I/O error
@@ -278,6 +191,8 @@ void MSXDiskRomPatch::DSKCHG(CPU::CPURegs& regs) const
 		PRT_DEBUG("    no sector 1, check your disk image");
 		regs.AF.w = 0x0A01; // I/O error
 		return;
+	} catch (DriveEmptyException &e) {
+		regs.AF.w = 0x0201;	// Not Ready
 	}
 	regs.BC.B.h = buffer[0];
 	GETDPB(regs);
@@ -383,14 +298,8 @@ void MSXDiskRomPatch::DSKFMT(CPU::CPURegs& regs) const
 		regs.AF.w = 0x0C01;	// Bad parameter
 		return;
 	}
-	if (disk[drive] == NULL) {
-		// no disk file
-		PRT_DEBUG("    No Disk File For Drive " << (int)drive);
-		regs.AF.w = 0x0201;	// Not Ready
-		return;
-	}
-	byte Index=regs.AF.B.h-1;
-	if (Index>1) {
+	byte index = regs.AF.B.h-1;
+	if (index > 1) {
 		// requested format not supported by DiskPatch
 		PRT_DEBUG("    Format requested for not supported Media-ID");
 		regs.AF.w = 0x0C01;	// Bad parameter
@@ -414,71 +323,69 @@ void MSXDiskRomPatch::DSKFMT(CPU::CPURegs& regs) const
 	};
 
 	// Fill bootblock with data:
-	byte *sectorData = new byte[512];
-	memset(sectorData,0,512); //just to be sure (possible faulty C++ implemenatations :-)
-	memcpy(sectorData,bootSectorData,sizeof(bootSectorData));
+	byte sectorData[SECTOR_SIZE];
+	memset(sectorData, 0, SECTOR_SIZE);
+	memcpy(sectorData, bootSectorData, sizeof(bootSectorData));
 	memcpy(sectorData+3,"openMSXd",8);    // Manufacturer's ID
-	*(sectorData+13)=FormatInfo[Index].SectorsPerCluster;
+	sectorData[13] = FormatInfo[index].SectorsPerCluster;
 
-	*(sectorData+17)=FormatInfo[Index].DirEntries;
-	*(sectorData+18)=0;
+	sectorData[17] = FormatInfo[index].DirEntries;
+	sectorData[18] = 0;
 
-	PRT_DEBUG("nr of sectors =" <<FormatInfo[Index].NrOfSectors);
-	*(sectorData+19)=FormatInfo[Index].NrOfSectors&0xFF;
-	*(sectorData+20)=(FormatInfo[Index].NrOfSectors>>8)&0xFF;
+	PRT_DEBUG("nr of sectors =" <<FormatInfo[index].NrOfSectors);
+	sectorData[19] = FormatInfo[index].NrOfSectors&0xFF;
+	sectorData[20] = (FormatInfo[index].NrOfSectors>>8)&0xFF;
 
-	*(sectorData+21)=Index+0xF8; //Media ID
+	sectorData[21] = index+0xF8; //Media ID
 
-	*(sectorData+22)=FormatInfo[Index].SectorsPerFAT;
-	*(sectorData+23)=0;
+	sectorData[22] = FormatInfo[index].SectorsPerFAT;
+	sectorData[23] = 0;
 
-	*(sectorData+24)=FormatInfo[Index].SectorsPerTrack;
-	*(sectorData+25)=0;
+	sectorData[24] = FormatInfo[index].SectorsPerTrack;
+	sectorData[25] = 0;
 
-	*(sectorData+26)=FormatInfo[Index].NrOfHeads;
-	*(sectorData+27)=0;
+	sectorData[26] = FormatInfo[index].NrOfHeads;
+	sectorData[27] = 0;
 
 	try {
-		disk[drive]->writeSector(sectorData, 0);
-
+		FDCBackEnd* backEnd = diskImageManager->getBackEnd("diska");
+		backEnd->writeSector(sectorData, 0);
 		int Sector;
 		byte J;
 
 		/* Writing FATs: */
 		for (Sector=1,J=0;J<2;J++) {
-			sectorData[0]=Index+0xF8;
-			sectorData[1]=sectorData[2]=0xFF;
+			sectorData[0] = index+0xF8;
+			sectorData[1] = sectorData[2] = 0xFF;
 			memset(sectorData+3,0,509);
-			disk[drive]->writeSector(sectorData, Sector++);
-
+			backEnd->writeSector(sectorData, Sector++);
 			memset(sectorData,0,4); //clear first bytes again
 
-			for(byte I=FormatInfo[Index].SectorsPerFAT;I>1;I--)
-				disk[drive]->writeSector(sectorData, Sector++);
+			for (byte I=FormatInfo[index].SectorsPerFAT; I>1; I--)
+				backEnd->writeSector(sectorData, Sector++);
 		}
 
-		/* Directory size */
-		//J=FormatInfo[Index].DirEntries/16;
+		// Directory size
+		//J=FormatInfo[index].DirEntries/16;
 		for (J=7,memset(sectorData,0x00,512);J;J--)
-			disk[drive]->writeSector(sectorData, Sector++);
+			backEnd->writeSector(sectorData, Sector++);
 
-
-		/* Data size */
-		J=FormatInfo[Index].NrOfSectors-2*FormatInfo[Index].SectorsPerFAT-8;
+		// Data size
+		J=FormatInfo[index].NrOfSectors-2*FormatInfo[index].SectorsPerFAT-8;
 		memset(sectorData,0xE5,512);
 		for (;J;J--)
-			disk[drive]->writeSector(sectorData, Sector++);
+			backEnd->writeSector(sectorData, Sector++);
 
-		/* Return success      */
+		// Return success
 		regs.AF.B.l &= ~CPU::C_FLAG;
 
 	} catch (NoSuchSectorException& e) {
 		regs.AF.w = 0x0801;	// Record not found
 	} catch (DiskIOErrorException& e) {
 		regs.AF.w = 0x0A01;	// I/O error
+	} catch (DriveEmptyException &e) {
+		regs.AF.w = 0x0201;	// Not Ready
 	}
-
-	delete[] sectorData;
 }
 
 void MSXDiskRomPatch::DRVOFF(CPU::CPURegs& regs) const
@@ -486,37 +393,4 @@ void MSXDiskRomPatch::DRVOFF(CPU::CPURegs& regs) const
 	PRT_DEBUG("void MSXDiskRomPatch::DRVOFF() const [does nothing]");
 
 	// do nothing
-}
-
-
-void MSXDiskRomPatch::execute(const std::vector<std::string> &tokens)
-{
-	// TODO only works for 720Kb disks
-	if (tokens.size() != 2)
-		throw CommandException("Syntax error");
-	int drive = tokens[0][4];
-	if (drive != 0)
-		drive -= 'a';
-	if (tokens[1]=="eject") {
-		ConsoleManager::instance()->print("Disk ejected");
-		delete disk[drive];
-		disk[drive] = NULL;
-	} else {
-		ConsoleManager::instance()->print("Changing disk");
-		delete disk[drive];
-		disk[drive] = NULL; // following might fail
-		disk[drive] = new DiskImage(tokens[1], std::string("720"));
-	}
-}
-
-void MSXDiskRomPatch::help(const std::vector<std::string> &tokens)
-{
-	ConsoleManager::instance()->print("disk eject      : remove disk from virtual drive");
-	ConsoleManager::instance()->print("disk <filename> : change the disk file");
-}
-
-void MSXDiskRomPatch::tabCompletion(std::vector<std::string> &tokens)
-{
-	if (tokens.size()==2)
-		CommandController::completeFileName(tokens);
 }

@@ -1,6 +1,6 @@
 # $Id$
 
-AM_CXXFLAGS_BASE = -Wall -pipe `test -f $(srcdir)/../.debug && echo "-DDEBUG"` -I$(srcdir)/.. -I$(srcdir)/../cpu -I$(srcdir)/../config -I$(srcdir)/../thread @XML_CFLAGS@ @SDL_CFLAGS@
+AM_CXXFLAGS_BASE = -Wall -pipe `test -f $(srcdir)/../.debug && echo "-DDEBUG"` -I$(srcdir)/.. -I$(srcdir)/../cpu -I$(srcdir)/../config -I$(srcdir)/../thread -I$(srcdir)/../ConsoleSource @XML_CFLAGS@ @SDL_CFLAGS@
 if PROFILE
 AM_CXXFLAGS = $(AM_CXXFLAGS_BASE) -pg
 else
@@ -17,7 +17,9 @@ libFdc_la_SOURCES = \
 	FDC.cc FDC.hh \
 	FDC2793.cc FDC2793.hh \
 	FDCBackEnd.cc FDCBackEnd.hh \
-	FDC_DSK.cc FDC_DSK.hh
+	FDCDummyBackEnd.cc FDCDummyBackEnd.hh \
+	FDC_DSK.cc FDC_DSK.hh \
+	DiskImageManager.cc DiskImageManager.hh
 
 nodebug: resetdebug all
 debug: setdebug all

@@ -1,5 +1,12 @@
 $Id$
 
+2002-06-28 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Initial version of DiskImageManager (WIP):
+	   - insert disk from commandline doesn't work yet
+	   - MSXFDC compiles, but not yet tested
+	   - MSXDiskROMPatch only supports 1 drive
+	   - FDC_DSK backend only supports double sided disks
+
 2002-06-27 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* MSXRom fix:
 	   map 32kb ROMs in the right place

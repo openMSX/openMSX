@@ -73,9 +73,9 @@ void MSXRomDevice::loadFile()
 
 	// autodetect filesize
 	IFILETYPE* file = openFile();
-	file->seekg(0,std::ios::end);
+	file->seekg(0, std::ios::end);
 	int fileSize = file->tellg();
-	file->seekg(0,std::ios::beg);
+	file->seekg(0, std::ios::beg);
 	
 	readFile(file, fileSize);
 	delete file;

@@ -1,31 +1,31 @@
+// $Id$
+
 #include "FDCBackEnd.hh"
 
-FDCBackEnd::FDCBackEnd(MSXConfig::Device *config )
-{
-  PRT_DEBUG("Creating an FDC back-end");
-}
 
-FDCBackEnd::~FDCBackEnd()
-{
-  PRT_DEBUG("Destroying an FDC back-end");
-}
-
-bool FDCBackEnd::read(byte phystrack, byte track, byte sector, byte side, int size, byte* buf)
-{
-  PRT_DEBUG("FDCBackEnd::read(track "<<track<<", sector "<<sector<<", side "<<side<<", size "<<size<<")");
-  assert(true);
-}
-bool FDCBackEnd::write(byte phystrack, byte track, byte sector, byte side, int size, byte* buf)
-{
-  PRT_DEBUG("FDCBackEnd::write(track "<<track<<", sector "<<sector<<", side "<<side<<", size "<<size<<", buf "<<std::hex<<buf<<std::dec<<")");
-  assert(true);
-}
 void FDCBackEnd::getTrackHeader(byte phystrack, byte track, byte side, byte* buf)
 {
-  PRT_DEBUG("Routine to get the TrackHeader from the current track");
+	PRT_DEBUG("FDCBackEnd::getTrackHeader [unimplemented]");
 }
 void FDCBackEnd::getSectorHeader(byte phystrack, byte track, byte sector, byte side, byte* buf)
 {
-  PRT_DEBUG("Routine to get the sectorHeader from the current sector");
+	PRT_DEBUG("FDCBackEnd::getSectorHeader [unimplemented]");
 }
 
+void FDCBackEnd::readSector(byte* buf, int logSector)
+{
+	// TODO only works for double sided disks
+	byte track  = logSector / 18;
+	byte side   = (logSector%18) / 9;
+	byte sector = (logSector%9) + 1;
+	read(track, track, sector, side, 512, buf);
+}
+
+void FDCBackEnd::writeSector(const byte* buf, int logSector)
+{
+	// TODO only works for double sided disks
+	byte track  = logSector / 18;
+	byte side   = (logSector%18) / 9;
+	byte sector = (logSector%9) + 1;
+	write(track, track, sector, side, 512, buf);
+}

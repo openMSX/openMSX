@@ -29,9 +29,9 @@ class FDC2793 : public FDC
 	FDC2793(MSXConfig::Device *config);
   private:
     
-	byte timePerStep[4]; // {3,6,10,15} in ms case of of 2 mhz clock, double this if a 1mhz clock is used! (MSX=1mhz clock :-)
+	byte timePerStep[4]; // {3,6,10,15} in ms case of of 2 MHz clock, double this if a 1MHz clock is used! (MSX=1MHz clock :-)
 	
-  	FDCBackEnd *backend;
+  	std::string driveName1;
 
 	/*
 	EmuTime commandStart;

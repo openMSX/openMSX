@@ -1,25 +1,43 @@
+// $Id$
+
 #ifndef __FDCBACKEND__HH__
 #define __FDCBACKEND__HH__
 
-#include "MSXConfig.hh"
+#include "MSXException.hh"
+#include "openmsx.hh"
+
+
+class NoSuchSectorException : public MSXException {
+	public:
+		NoSuchSectorException(const std::string &desc)
+			: MSXException(desc) {}
+};
+class DiskIOErrorException  : public MSXException {
+	public:
+		DiskIOErrorException(const std::string &desc)
+			: MSXException(desc) {}
+};
+class DriveEmptyException  : public MSXException {
+	public:
+		DriveEmptyException(const std::string &desc)
+			: MSXException(desc) {}
+};
 
 
 class FDCBackEnd 
 {
-	public:
-		/**
-		 * Constructor
-		 */
-		FDCBackEnd(MSXConfig::Device *config);
+	public: 
+		virtual void read (byte phystrack, byte track, byte sector,
+		                   byte side, int size, byte* buf) = 0;
+		virtual void write(byte phystrack, byte track, byte sector,
+		                   byte side, int size, const byte* buf) = 0;
+		virtual void getSectorHeader(byte phystrack, byte track, byte sector,
+		                             byte side, byte* buf);
+		virtual void getTrackHeader(byte phystrack, byte track,
+		                            byte side, byte* buf);
 
-		/**
-		 * Destructor
-		 */
-		virtual ~FDCBackEnd();
-		
-		virtual bool read( byte phystrack, byte track, byte sector, byte side, int size, byte* buf);
-		virtual bool write(byte phystrack, byte track, byte sector, byte side, int size, byte* buf);
-		virtual void getSectorHeader(byte phystrack, byte track, byte sector, byte side, byte* buf);
-		virtual void getTrackHeader(byte phystrack, byte track, byte side, byte* buf);
+		void readSector(byte* buf, int sector);
+		void writeSector(const byte* buf, int sector);
 };
+
 #endif
