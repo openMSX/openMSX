@@ -316,8 +316,9 @@ private:
 
 	/** VRAM read/write address for various commands
 	  */
-	uint srcAddress;
-	uint dstAddress;
+	unsigned srcAddress;
+	unsigned dstAddress;
+	unsigned nbBytes;
 
 	/** counters
 	  */

@@ -880,13 +880,30 @@ V9990CmdEngine::CmdBMLL<Mode>::CmdBMLL(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdBMLL<Mode>::start(const EmuTime& time)
 {
-	std::cout << "V9990: BMLL not yet implemented" << std::endl;
-	engine->cmdReady(); // TODO dummy implementation
+	engine->srcAddress = (engine->SX & 0xFF) + ((engine->SY & 0x7FF) << 8);
+	engine->dstAddress = (engine->DX & 0xFF) + ((engine->DY & 0x7FF) << 8);
+	engine->nbBytes    = (engine->NX & 0xFF) + ((engine->NY & 0x7FF) << 8);
+
+	// TODO should be done by sync
+	execute(time);
 }
 
 template <class Mode>
 void V9990CmdEngine::CmdBMLL<Mode>::execute(const EmuTime& time)
 {
+	// TODO DIX DIY?
+	//      Log op?
+	while (engine->nbBytes) {
+		byte src = vram->readVRAM(engine->srcAddress);
+		byte dst = vram->readVRAM(engine->dstAddress);
+		byte mask = (engine->dstAddress & 1)
+		          ? (engine->WM >> 8) : (engine->WM & 0xFF);
+		byte res = (src & mask) | (dst & ~mask); 
+		vram->writeVRAM(engine->dstAddress, res);
+		++engine->srcAddress;
+		++engine->dstAddress;
+		--engine->nbBytes;
+	}
 }
 
 // ====================================================================
