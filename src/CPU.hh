@@ -14,6 +14,7 @@ typedef signed char offset;
 
 class CPU
 {
+	public:
 	#ifndef WORDS_BIGENDIAN
 		#define LSB_FIRST
 	#endif
@@ -35,8 +36,6 @@ class CPU
 		byte R, R2;	// refresh = R&127 | R2&128
 	};
 
-
-	public:
 		/**
 		 * Destructor
 		 */

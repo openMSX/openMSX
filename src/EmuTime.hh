@@ -24,7 +24,7 @@ class EmuTime
 
 		// constants
 		static const uint64 MAIN_FREQ = 3579545*24;
-		static const uint64 INFINITY = 18446744073709551615ULL;	//ULLONG_MAX;
+		static const uint64 INFINITY = 18446744073709551615ULL; //ULLONG_MAX;
 
 		// constructors
 		EmuTime()                 { time = 0; }

@@ -30,9 +30,9 @@ const int MSXDiskRomPatch::A_DRVOFF = 0x401F;
 MSXDiskRomPatch::File::File(std::string _filename):filename(_filename)
 {
 	file = new IOFILETYPE(filename.c_str(), IOFILETYPE::out|IOFILETYPE::in);
-	file->seekg(0,ios::end);
+	file->seekg(0,std::ios::end);
 	size=file->tellg();
-	file->seekg(0,ios::beg);
+	file->seekg(0,std::ios::beg);
 }
 
 MSXDiskRomPatch::File::~File()
@@ -43,7 +43,7 @@ MSXDiskRomPatch::File::~File()
 void MSXDiskRomPatch::File::seek(int location)
 {
 	// seek from beginning of file
-	file->seekg(location, ios::beg);
+	file->seekg(location, std::ios::beg);
 }
 
 void MSXDiskRomPatch::File::read(byte* to, int count)
@@ -58,7 +58,7 @@ void MSXDiskRomPatch::File::write(const byte* from, int count)
 
 bool MSXDiskRomPatch::File::bad()
 {
-	file->bad();
+	return file->bad();
 }
 
 MSXDiskRomPatch::MSXDiskRomPatch()

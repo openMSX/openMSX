@@ -60,7 +60,7 @@ protected:
 	std::string id, configType, desc, rem;
 	std::list<Parameter*> parameters;
 	const Parameter &getParameterByName(const std::string &name);
-	list<XMLNode * >* slotted_pass; // hack to pass on slotted to MSXConfig::Device if needed // + another hack cause XMLNodeList is a typedef *sigh*
+	std::list<XMLNode * >* slotted_pass; // hack to pass on slotted to MSXConfig::Device if needed // + another hack cause XMLNodeList is a typedef *sigh*
 };
 
 #endif

@@ -53,8 +53,8 @@ class Attribute
 public:
 	Attribute(const std::string &name, const std::string &value);
 	
-	string name;
-	string value;
+	std::string name;
+	std::string value;
 
 private:
 	Attribute();                                // block usage
@@ -95,7 +95,7 @@ private:
 	void libxml_to_tree();
 
 	xmlDocPtr doc;
-	string filename;
+	std::string filename;
 };
 
 }; // end namespace XML

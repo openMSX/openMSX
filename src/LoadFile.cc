@@ -18,9 +18,9 @@ void LoadFile::loadFile(byte** memoryBank, int fileSize)
 int LoadFile::loadFile(byte** memoryBank)
 {
 	FILETYPE* file = openFile();
-	file->seekg(0,ios::end);
+	file->seekg(0,std::ios::end);
 	int fileSize=file->tellg();
-	file->seekg(0,ios::beg);
+	file->seekg(0,std::ios::beg);
 	PRT_DEBUG("rom size is determined to be " << fileSize);
 	readFile(file, fileSize, memoryBank);
 	return fileSize;

@@ -12,8 +12,8 @@
 /***     Please, notify me, if you make any changes to this file          ***/
 /****************************************************************************/
 
-#ifndef __Z80_H__
-#define __Z80_H__
+#ifndef __Z80_HH__
+#define __Z80_HH__
 
 #include "config.h"
 #include "openmsx.hh"
@@ -61,7 +61,7 @@ class Z80 : public CPU {
 		inline void executeInstruction(byte opcode);
 		inline void M1Cycle();
 		
-		#include "Z80Core.hh"
+		#include "Z80Core.nn"
 
 		// flag-register tables
 		static byte ZSTable[256];

@@ -79,7 +79,7 @@ void MSXMemoryMapper::initIO()
 	if (device == NULL) {
 		// Create specified IO behaviour
 		MSXConfig::Config* config = MSXConfig::instance()->getConfigById("MapperIO");
-		string type = config->getParameter("type");
+		std::string type = config->getParameter("type");
 		if (type == "TurboR")
 			device = new MSXMapperIOTurboR();
 		else if (type == "Philips")

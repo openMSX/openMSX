@@ -5,6 +5,7 @@
 #include "MSXMotherBoard.hh"
 #include "msxconfig.hh"
 #include "SCC.hh"
+#include "config.h"
 
 MSXSCCPlusCart::MSXSCCPlusCart(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time)
@@ -35,11 +36,11 @@ MSXSCCPlusCart::MSXSCCPlusCart(MSXConfig::Device *config, const EmuTime &time)
 	  std::ifstream file(filename.c_str());
 #endif
 	  // dynamically determine ROM_SIZE if needed
-	  file.seekg(0,ios::end);
+	  file.seekg(0,std::ios::end);
 	  ROM_SIZE=file.tellg();
 	  PRT_DEBUG("SCC+ MegaRom: rom size is " << ROM_SIZE);
 
-	  file.seekg(0,ios::beg);
+	  file.seekg(0,std::ios::beg);
 	  file.read(memoryBank, ROM_SIZE);
 	  if (file.fail())
 	    PRT_ERROR("Error reading " << filename);

@@ -1,5 +1,12 @@
 // $Id$
 
+#ifndef __Z80_HH__
+#error please include Z80.hh
+#endif
+
+#ifndef __Z80CORE_NN__
+#define __Z80CORE_NN__
+
 inline byte Z80_In (word port);
 inline void Z80_Out (word port,byte value);
 inline byte Z80_RDMEM(word address);
@@ -1213,3 +1220,5 @@ inline void M_CP(byte Reg);
 inline void M_ADDW(word &Reg1, word Reg2);
 inline void M_ADCW(word Reg);
 inline void M_SBCW(word Reg);
+
+#endif
