@@ -10,10 +10,10 @@
 #include "V9990VRAM.hh"
 
 using std::string;
+using std::vector;
 
 namespace openmsx {
 
-static const unsigned VRAM_SIZE = 512 * 1024; // 512kB
 static const char*    DEBUG_ID  = "V9990 VRAM";
 	
 // -------------------------------------------------------------------------
@@ -25,7 +25,7 @@ V9990VRAM::V9990VRAM(V9990 *vdp_, const EmuTime& time)
 {
 	data = new byte[VRAM_SIZE];
 	memset(data, 0, VRAM_SIZE);
-	
+
 	Debugger::instance().registerDebuggable(DEBUG_ID, *this);
 }
 
@@ -71,6 +71,7 @@ byte V9990VRAM::readVRAM(unsigned address)
 void V9990VRAM::writeVRAM(unsigned address, byte value)
 {
 	data[mapAddress(address, vdp->getDisplayMode())] = value;
+	notifyObservers(address);
 }
 
 byte V9990VRAM::readVRAMInterleave(unsigned address)
@@ -81,6 +82,33 @@ byte V9990VRAM::readVRAMInterleave(unsigned address)
 void V9990VRAM::writeVRAMInterleave(unsigned address, byte value)
 {
 	data[interleave(address)] = value;
+}
+
+void V9990VRAM::addObserver(V9990VRAMObserver* observer)
+{
+	if(!observer) return;
+
+	for(V9990VRAMObservers::iterator it = observers.begin();
+		it != observers.end(); it++) {
+		if((*it) == observer)
+			return;
+	}
+	observers.push_back(observer);
+}
+
+void V9990VRAM::removeObserver(V9990VRAMObserver* observer)
+{
+	observers.erase(std::find(observers.begin(), observers.end(), observer));
+}
+
+void V9990VRAM::notifyObservers(unsigned address)
+{
+	for(V9990VRAMObservers::iterator it = observers.begin();
+		it != observers.end(); it++) {
+		if((*it)->isInWindow(address)) {
+			(*it)->updateVRAM(address);
+		}
+	}
 }
 
 // -------------------------------------------------------------------------

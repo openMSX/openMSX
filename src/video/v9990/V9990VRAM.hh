@@ -3,11 +3,16 @@
 #ifndef __V9990VRAM_HH__
 #define __V9990VRAM_HH__
 
+#include <vector>
+
 #include "openmsx.hh"
 #include "Debuggable.hh"
 #include "V9990ModeEnum.hh"
+#include "V9990VRAMObserver.hh"
 
 namespace openmsx {
+
+typedef	std::vector<V9990VRAMObserver *> V9990VRAMObservers;
 
 class EmuTime;
 class V9990;
@@ -27,6 +32,10 @@ public:
 	  */
 	virtual ~V9990VRAM();
 
+	/** VRAM Size
+	  */
+	static const unsigned VRAM_SIZE = 512 * 1024; // 512kB
+	
 	/** Update VRAM state to specified moment in time.
 	  * @param time Moment in emulated time to synchronise VRAM to
 	  */
@@ -45,12 +54,27 @@ public:
 		return data;
 	}
 
+	// Interface for V9990VRAMObservers
+	/** Add an observer to a window of the VRAM
+	  * @param observer  The observer
+	  */ 
+	void addObserver(V9990VRAMObserver* observer);
+
+	/** Remove an observer
+	  * @param observer  Observer to be removed
+	  */
+	void removeObserver(V9990VRAMObserver* observer);
+
 private:
 	// Debuggable:
 	virtual unsigned getSize() const;
 	virtual const std::string& getDescription() const;
 	virtual byte read(unsigned address);
 	virtual void write(unsigned address, byte value);
+
+	/** Inform observers of an update
+	  */
+	void notifyObservers(unsigned address);
 
 	/** V9990 VDP this VRAM belongs to.
 	  */
@@ -64,6 +88,9 @@ private:
 	  */
 	V9990DisplayMode displayMode;
 
+	/** Observers
+	  */
+	V9990VRAMObservers observers;
 }; // class V9990VRAM
 
 } // namespace openmsx

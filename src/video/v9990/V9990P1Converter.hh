@@ -33,9 +33,12 @@ private:
 	Pixel raster(int xA, int yA,
 	             unsigned int nameTableA, unsigned int patternTableA,
 				 int xB, int yB,
-	             unsigned int nameTableB, unsigned int patternTableB);
+	             unsigned int nameTableB, unsigned int patternTableB,
+				 int *visibleSprites, unsigned int x, unsigned int y);
 	byte getPixel(int x, int y,
 	               unsigned int nameTable, unsigned int patternTable);
+	void determineVisibleSprites(int* visibleSprites, int displayY);
+	byte getSpritePixel(int* visibleSprites, int x, int y, bool front);
 };
 
 } // namespace

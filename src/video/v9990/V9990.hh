@@ -225,6 +225,25 @@ public:
 		raiseIRQ(CMD_IRQ);
 	}
 
+	/** Return the sprite pattern table base address 
+	  */ 
+	inline int getSpritePatternAddress(V9990DisplayMode mode) {
+		switch(mode) {
+		case P1:
+			return (int(regs[SPRITE_PATTERN_ADDRESS] & 0x0E) << 14);
+		case P2:
+			return (int(regs[SPRITE_PATTERN_ADDRESS] & 0x0F) << 15);
+		default:
+			return 0;
+		}
+	}
+
+	/** return sprite palette offset
+	  */
+	inline byte getSpritePaletteOffset(void) {
+		return regs[SPRITE_PALETTE_CONTROL] << 2;
+	}
+
 private:
 	// Schedulable interface:
 	virtual void executeUntil(const EmuTime& time, int userData);

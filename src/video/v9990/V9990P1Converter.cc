@@ -1,13 +1,13 @@
 // $Id$
 
-#include "V9990P1Converter.hh"
-#include "V9990VRAM.hh"
-#include "V9990.hh"
-#include "GLUtil.hh"
-
 #include <string.h>
 #include <cassert>
 #include <algorithm>
+
+#include "GLUtil.hh"
+#include "V9990.hh"
+#include "V9990VRAM.hh"
+#include "V9990P1Converter.hh"
 
 using std::min;
 using std::max;
@@ -69,6 +69,10 @@ void V9990P1Converter<Pixel, zoom>::convertLine(
 	int prioX = 256; // TODO get prio X & Y from reg #27
 	int prioY = 256;
 
+	int visibleSprites[16];
+
+	determineVisibleSprites(visibleSprites, displayY);
+	
 	if(displayY > prioY) prioX = 0;
 	
 	int displayAX = displayX + vdp->getScrollAX();
@@ -76,25 +80,27 @@ void V9990P1Converter<Pixel, zoom>::convertLine(
 	int displayBX = displayX + vdp->getScrollBX();
 	int displayBY = displayY + vdp->getScrollBY();
 	
-	/* TODO: displayX += scrollX; displayY += scrollY */
-	
 	for(i = 0; (i < prioX) && (i < displayWidth); i++) {
-		Pixel pix = raster(displayAX, displayAY, 0x7C000, 0x00000,  // A
-		                   displayBX, displayBY, 0x7E000, 0x40000); // B
+		Pixel pix = raster(displayAX, displayAY, 0x7C000, 0x00000, // A
+		                   displayBX, displayBY, 0x7E000, 0x40000, // B
+						   visibleSprites, displayX, displayY);
 		*linePtr++ = pix;
 		if(zoom == Renderer::ZOOM_REAL)
 			*linePtr++ = pix;
 
+		displayX++;
 		displayAX++;
 		displayBX++;
 	}
 	for(; (i < 256) && (i < displayWidth); i++) {
 		Pixel pix = raster(displayBX, displayBY, 0x7E000, 0x40000,  // B
-		                   displayAX, displayAY, 0x7C000, 0x00000); // A
+		                   displayAX, displayAY, 0x7C000, 0x00000,  // A
+						   visibleSprites, displayX, displayY);
 		*linePtr++ = pix;
 		if(zoom == Renderer::ZOOM_REAL)
 			*linePtr++ = pix;
 
+		displayX++;
 		displayAX++;
 		displayBX++;
 	}
@@ -104,16 +110,35 @@ template <class Pixel, Renderer::Zoom zoom>
 Pixel V9990P1Converter<Pixel, zoom>::raster(int xA, int yA,
 		unsigned int nameTableA, unsigned int patternTableA,
 		int xB, int yB,
-		unsigned int nameTableB, unsigned int patternTableB)
+		unsigned int nameTableB, unsigned int patternTableB,
+		int* visibleSprites,
+		unsigned int x, unsigned int y)
 {
 	byte offset = vdp->getPaletteOffset();
+
+	byte p = 0;
 	
-	byte p = getPixel(xA, yA, nameTableA, patternTableA) +
+	// Front sprite plane
+	p = getSpritePixel(visibleSprites, x, y, true);
+
+	// Front image plane
+	if (!(p & 0x0F)) {
+		p = getPixel(xA, yA, nameTableA, patternTableA) +
 	         ((offset & 0x03) << 4);
+	}
+
+	// Back sprite plane
+	if (!(p & 0x0F)) {
+		p = getSpritePixel(visibleSprites, x, y, false);
+	}
+
+	// Back image plane
 	if (!(p & 0x0F)) {
 		p = getPixel(xB, yB, nameTableB, patternTableB) +
 			((offset & 0x0C) << 2);
 	}
+	
+	// Backdrop color
 	if (!(p & 0x0F)) { return vdp->getBackDropColor(); }
 	return palette64[p];
 }
@@ -135,5 +160,69 @@ byte V9990P1Converter<Pixel, zoom>::getPixel(
 	return dixel & 15;
 }	
 
+template <class Pixel, Renderer::Zoom zoom>
+void V9990P1Converter<Pixel, zoom>::determineVisibleSprites(
+		int* visibleSprites, int displayY)
+{
+	static const unsigned int spriteTable = 0x3FE00;
+	int index = 0;
+
+	for(int sprite = 0; sprite < 125; sprite++) {
+		int spriteInfo = spriteTable + 4 * sprite;
+		byte attr = vram->readVRAM(spriteInfo+3);
+
+		if(!(attr & 0x10)) {
+			byte spriteY = vram->readVRAM(spriteInfo); 
+			if((displayY < spriteY) && (spriteY <= displayY+16)) {
+				visibleSprites[index++] = sprite;
+				if(index >= 16) return;
+			}
+		}
+	}
+	for(; index < 16; index++) {
+		visibleSprites[index] = -1;
+	}
 }
+
+template <class Pixel, Renderer::Zoom zoom>
+byte V9990P1Converter<Pixel, zoom>::getSpritePixel(
+		int* visibleSprites, int x, int y, bool front)
+{
+	static const unsigned int spriteTable = 0x3FE00;
+	byte dixel = 0;
+	int spritePatternTable = vdp->getSpritePatternAddress(P1);
+
+	for(int sprite = 0;
+		(sprite < 16) && !(dixel & 0x0F) && (visibleSprites[sprite] != -1);
+		sprite++)
+	{
+		int   addr       = spriteTable + 4 * visibleSprites[sprite];
+		byte  spriteY    = vram->readVRAM(addr);
+		byte  spriteNo   = vram->readVRAM(addr+1);
+		int   spriteX    = vram->readVRAM(addr+2);
+		byte  spriteAttr = vram->readVRAM(addr+3);
+		spriteX += 256*(spriteAttr & 0x03);
+
+		if(spriteX > 1008) spriteX -=1024; /* hack X coord into -16..1008 */
+		spriteX = x-spriteX;
+		spriteY = y-(spriteY+1);
+		if((( front && !(spriteAttr & 0x20)) ||
+		    (!front &&  (spriteAttr & 0x20))) &&
+		   (spriteX >= 0) && (spriteX < 16))
+		{
+			addr  = spritePatternTable
+				  + (128 * ((spriteNo & 0xF0) + spriteY))
+				  +	(8   *  (spriteNo & 0x0F))
+				  +	(spriteX/2);
+			dixel = vram->readVRAM(addr);
+			if(!(spriteX & 1)) dixel >>= 4;
+			dixel &= 0x0F;
+			dixel |= (spriteAttr >> 2) & 0x30;
+		}
+	}
+	return dixel;
+}
+
+} // namespace openmsx
+
 
