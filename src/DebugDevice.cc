@@ -39,6 +39,7 @@ void DebugDevice::writeIO(byte port, byte value, const EmuTime& time)
 		fileNameString = currentName;
 		openOutput(fileNameString);
 	}
+	
 	switch (port & 0x01) {
 		case 0:
 			switch ((value & 0x30) >> 4) {
@@ -56,7 +57,9 @@ void DebugDevice::writeIO(byte port, byte value, const EmuTime& time)
 				case 3:
 					break;
 			}
-			(*outputstrm) << endl;
+			if (!(value & 0x40)){ 
+				(*outputstrm) << endl;
+			}
 			break;
 		case 1:
 			switch (mode) {
