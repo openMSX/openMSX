@@ -34,7 +34,7 @@
         <ROM id="C-BIOS Sub ROM">
           <mem base="0x0000" size="0x4000"/>
           <rom>
-            <filename>../../../Contrib/cbios/CB_SUB.BIN</filename>
+            <filename>../../../Contrib/cbios/cbios_sub.rom</filename>
           </rom>
         </ROM>
       </secondary>
