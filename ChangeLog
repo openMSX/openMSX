@@ -1,5 +1,11 @@
 $Id$
 
+2001-12-10 Maarten ter Huurne <mth@stack.nl>
+	* Implemented indirect register write for V9938/58.
+	* V9938/58 can now have 16K, 64K or 128K of VRAM.
+	* Upgraded CPU interface to read/write more than 16K of VRAM.
+	* Changed video mode naming scheme to match V9938 data book.
+
 2001-12-10 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Cleanups in MSXMemoryMapper, requires config file change
 	* More config file changes:

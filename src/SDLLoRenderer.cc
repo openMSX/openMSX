@@ -22,6 +22,8 @@ Probably also easier to implement when using line buffers.
 #include "VDP.hh"
 #include "config.h"
 
+#include <cassert>
+
 /** Dimensions of screen.
   */
 static const int WIDTH = 320;
@@ -63,14 +65,14 @@ inline static void fillBool(bool *ptr, bool value, int nr)
 
 template <class Pixel> SDLLoRenderer<Pixel>::RenderMethod
 	SDLLoRenderer<Pixel>::modeToRenderMethod[] = {
-		&SDLLoRenderer::mode0,
-		&SDLLoRenderer::mode1,
-		&SDLLoRenderer::mode2,
-		&SDLLoRenderer::mode12,
-		&SDLLoRenderer::mode3,
-		&SDLLoRenderer::modebogus,
-		&SDLLoRenderer::mode23,
-		&SDLLoRenderer::modebogus
+		&SDLLoRenderer::renderGraphic1,
+		&SDLLoRenderer::renderText1,
+		&SDLLoRenderer::renderMulti,
+		&SDLLoRenderer::renderBogus,
+		&SDLLoRenderer::renderGraphic2,
+		&SDLLoRenderer::renderText1Q,
+		&SDLLoRenderer::renderMultiQ,
+		&SDLLoRenderer::renderBogus
 	};
 
 template <class Pixel> SDLLoRenderer<Pixel>::SDLLoRenderer<Pixel>(
@@ -171,6 +173,8 @@ template <class Pixel> void SDLLoRenderer<Pixel>::updateDisplayEnabled(
 template <class Pixel> void SDLLoRenderer<Pixel>::updateDisplayMode(
 	const EmuTime &time)
 {
+	// Only MSX1 video modes are supported.
+	assert((vdp->getDisplayMode() & ~0x07) == 0);
 	renderMethod = modeToRenderMethod[vdp->getDisplayMode()];
 	setDirty(true);
 }
@@ -229,7 +233,7 @@ template <class Pixel> void SDLLoRenderer<Pixel>::setDirty(
 	fillBool(dirtyPattern, dirty, sizeof(dirtyPattern));
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::mode0(
+template <class Pixel> void SDLLoRenderer<Pixel>::renderGraphic1(
 	int line)
 {
 	if (!(anyDirtyName || anyDirtyPattern || anyDirtyColour)) return;
@@ -263,7 +267,7 @@ template <class Pixel> void SDLLoRenderer<Pixel>::mode0(
 	}
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::mode1(
+template <class Pixel> void SDLLoRenderer<Pixel>::renderText1(
 	int line)
 {
 	bool dirtyColours = dirtyForeground || dirtyBackground;
@@ -300,7 +304,7 @@ template <class Pixel> void SDLLoRenderer<Pixel>::mode1(
 	for (; x < 256; x++) *pixelPtr++ = bg;
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::mode2(
+template <class Pixel> void SDLLoRenderer<Pixel>::renderGraphic2(
 	int line)
 {
 	if (!(anyDirtyName || anyDirtyPattern || anyDirtyColour)) return;
@@ -336,7 +340,7 @@ template <class Pixel> void SDLLoRenderer<Pixel>::mode2(
 	}
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::mode12(
+template <class Pixel> void SDLLoRenderer<Pixel>::renderText1Q(
 	int line)
 {
 	bool dirtyColours = dirtyForeground || dirtyBackground;
@@ -374,7 +378,7 @@ template <class Pixel> void SDLLoRenderer<Pixel>::mode12(
 	for ( ; x < 256; x++) *pixelPtr++ = bg;
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::mode3(
+template <class Pixel> void SDLLoRenderer<Pixel>::renderMulti(
 	int line)
 {
 	if (!(anyDirtyName || anyDirtyPattern)) return;
@@ -401,7 +405,7 @@ template <class Pixel> void SDLLoRenderer<Pixel>::mode3(
 	}
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::modebogus(
+template <class Pixel> void SDLLoRenderer<Pixel>::renderBogus(
 	int line)
 {
 	if (!(dirtyForeground || dirtyBackground)) return;
@@ -419,7 +423,7 @@ template <class Pixel> void SDLLoRenderer<Pixel>::modebogus(
 	for (; x < 256; x++) *pixelPtr++ = bg;
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::mode23(
+template <class Pixel> void SDLLoRenderer<Pixel>::renderMultiQ(
 	int line)
 {
 	if (!(anyDirtyName || anyDirtyPattern)) return;

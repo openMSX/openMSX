@@ -83,10 +83,34 @@ VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
 	else if (versionString == "V9958") version = V9958;
 	else PRT_ERROR("Unknown VDP version \"" << versionString << "\"");
 
-	controlRegMask = (version == V9938 || version == V9958 ? 0x3F : 0x07);
+	// Set up control register availability.
+	static const byte VALUE_MASKS_MSX1[64] = {
+		0x03, 0xFB, 0x0F, 0xFF, 0x07, 0x7F, 0x07, 0xFF  // 00..07
+		};
+	static const byte VALUE_MASKS_MSX2[64] = {
+		0x7E, 0x7B, 0x7F, 0xFF, 0x3F, 0xFF, 0x3F, 0xFF, // 00..07
+		0xFB, 0xBF, 0x07, 0x03, 0xFF, 0xFF, 0x07, 0x0F, // 08..15
+		0x0F, 0xBF, 0xFF, 0xFF, 0x3F, 0x3F, 0x3F, 0xFF, // 16..23
+		0,    0,    0,    0,    0,    0,    0,    0,    // 24..31
+		0xFF, 0x01, 0xFF, 0x03, 0xFF, 0x01, 0xFF, 0x03, // 32..39
+		0xFF, 0x01, 0xFF, 0x03, 0xFF, 0x7F, 0xFF        // 40..46
+		};
+	controlRegMask = (isMSX1VDP() ? 0x07 : 0x3F);
+	memcpy(controlValueMasks,
+		isMSX1VDP() ? VALUE_MASKS_MSX1 : VALUE_MASKS_MSX2, 64);
+	if (version == V9958) {
+		controlValueMasks[25] = 0x7F;
+		controlValueMasks[26] = 0x3F;
+		controlValueMasks[27] = 0x07;
+	}
 
 	// Video RAM.
-	int vramSize = 0x4000;
+	int vramSize =
+		(isMSX1VDP() ? 16 : deviceConfig->getParameterAsInt("vram"));
+	if (vramSize != 16 && vramSize != 64 && vramSize != 128) {
+		PRT_ERROR("VRAM size of " << vramSize << "kB is not supported!");
+	}
+	vramSize *= 1024;
 	vramMask = vramSize - 1;
 	vramData = new byte[vramSize];
 	// TODO: Use exception instead?
@@ -121,7 +145,7 @@ VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
 	MSXMotherBoard::instance()->register_IO_Out((byte)0x98, this);
 	MSXMotherBoard::instance()->register_IO_In((byte)0x99, this);
 	MSXMotherBoard::instance()->register_IO_Out((byte)0x99, this);
-	if (version == V9938 || version == V9958) {
+	if (!isMSX1VDP()) {
 		MSXMotherBoard::instance()->register_IO_Out((byte)0x9A, this);
 		MSXMotherBoard::instance()->register_IO_Out((byte)0x9B, this);
 	}
@@ -226,12 +250,17 @@ void VDP::writeIO(byte port, byte value, const EmuTime &time)
 {
 	switch (port){
 	case 0x98: {
-		//fprintf(stderr, "VRAM[%04X]=%02X\n", vramPointer, value);
-		if (vramData[vramPointer] != value) {
-			vramData[vramPointer] = value;
-			renderer->updateVRAM(vramPointer, value, time);
+		int addr = ((controlRegs[14] << 14) | vramPointer) & vramMask;
+		//fprintf(stderr, "VRAM[%05X]=%02X\n", addr, value);
+		if (vramData[addr] != value) {
+			vramData[addr] = value;
+			renderer->updateVRAM(addr, value, time);
 		}
-		vramPointer = (vramPointer + 1) & vramMask;
+		vramPointer = (vramPointer + 1) & 0x3FFF;
+		if (vramPointer == 0 && (displayMode & 0x18)) {
+			// In MSX2 video modes, pointer range is 128K.
+			controlRegs[14] = (controlRegs[14] + 1) & 0x07;
+		}
 		readAhead = value;
 		firstByte = -1;
 		break;
@@ -248,8 +277,8 @@ void VDP::writeIO(byte port, byte value, const EmuTime &time)
 			}
 			else {
 				// Set read/write address.
-				vramPointer = ((word)value << 8 | firstByte) & vramMask;
-				if ( !(value & 0x40) ) {
+				vramPointer = ((word)value << 8 | firstByte) & 0x3FFF;
+				if (!(value & 0x40)) {
 					// Read ahead.
 					vramRead();
 				}
@@ -261,11 +290,20 @@ void VDP::writeIO(byte port, byte value, const EmuTime &time)
 		}
 		break;
 	case 0x9A:
-		fprintf(stderr, "VDP colour write: %02X\n", value);
+		//fprintf(stderr, "VDP colour write: %02X\n", value);
 		break;
-	case 0x9B:
-		fprintf(stderr, "VDP indirect register write: %02X\n", value);
+	case 0x9B: {
+		// TODO: Does port 0x9B affect firstByte?
+		// TODO: What happens if reg 17 is written indirectly?
+		//fprintf(stderr, "VDP indirect register write: %02X\n", value);
+		byte regNr = controlRegs[17];
+		changeRegister(regNr & 0x3F, value, time);
+		if ((regNr & 0x80) == 0) {
+			// Auto-increment.
+			controlRegs[17] = (regNr + 1) & 0x3F;
+		}
 		break;
+	}
 	default:
 		assert(false);
 	}
@@ -274,8 +312,13 @@ void VDP::writeIO(byte port, byte value, const EmuTime &time)
 byte VDP::vramRead()
 {
 	byte ret = readAhead;
-	readAhead = vramData[vramPointer];
-	vramPointer = (vramPointer + 1) & vramMask;
+	readAhead = vramData[
+		((controlRegs[14] << 14) | vramPointer) & vramMask ];
+	vramPointer = (vramPointer + 1) & 0x3FFF;
+	if (vramPointer == 0 && (displayMode & 0x18)) {
+		// In MSX2 video mode, pointer range is 128K.
+		controlRegs[14] = (controlRegs[14] + 1) & 0x07;
+	}
 	firstByte = -1;
 	return ret;
 }
@@ -320,18 +363,7 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 {
 	//fprintf(stderr, "VDP[%02X]=%02X\n", reg, val);
 
-	// TODO: Mask for 00..07 are for MSX1, on MSX2 the masks are
-	//   less restrictive.
-	static const byte REG_MASKS[64] = {
-		0x03, 0xFB, 0x0F, 0xFF, 0x07, 0x7F, 0x07, 0xFF, // 00..07
-		0xFB, 0xBF, 0x07, 0x03, 0xFF, 0xFF, 0x07, 0x0F, // 08..15
-		0x0F, 0xBF, 0xFF, 0xFF, 0x3F, 0x3F, 0x3F, 0xFF, // 16..23
-		0,    0x7F, 0x3F, 0x07, 0,    0,    0,    0,    // 24..31
-		0xFF, 0x01, 0xFF, 0x03, 0xFF, 0x01, 0xFF, 0x03, // 32..39
-		0xFF, 0x01, 0xFF, 0x03, 0xFF, 0x7F, 0xFF        // 40..46
-		};
-
-	val &= REG_MASKS[reg];
+	val &= controlValueMasks[reg];
 	byte oldval = controlRegs[reg];
 	if (oldval == val) return;
 	controlRegs[reg] = val;
@@ -339,7 +371,7 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 	PRT_DEBUG("VDP: Reg " << (int)reg << " = " << (int)val);
 	switch (reg) {
 	case 0:
-		if ((val ^ oldval) & 2) {
+		if ((val ^ oldval) & 0x0E) {
 			updateDisplayMode(time);
 		}
 		break;
@@ -359,25 +391,27 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 		renderer->updateNameBase(time);
 		break;
 	case 3:
-		colourBase = ((val << 6) | ~(-1 << 6)) & vramMask;
+	case 10:
+		colourBase = ((controlRegs[10] << 14) | (controlRegs[3] << 6)
+			| ~(-1 << 6)) & vramMask;
 		renderer->updateColourBase(time);
 		break;
 	case 4:
 		patternBase = ((val << 11) | ~(-1 << 11)) & vramMask;
 		renderer->updatePatternBase(time);
 		break;
-	case 5: {
-		spriteAttributeBase = (val << 7) & vramMask;
+	case 5:
+	case 11:
+		spriteAttributeBase =
+			((controlRegs[11] << 15) | (controlRegs[5] << 7)) & vramMask;
 		spriteAttributeBasePtr = vramData + spriteAttributeBase;
 		renderer->updateSpriteAttributeBase(time);
 		break;
-	}
-	case 6: {
+	case 6:
 		spritePatternBase = (val << 11) & vramMask;
 		spritePatternBasePtr = vramData + spritePatternBase;
 		renderer->updateSpritePatternBase(time);
 		break;
-	}
 	case 7:
 		if ((val ^ oldval) & 0xF0) {
 			renderer->updateForegroundColour(time);
@@ -398,9 +432,9 @@ void VDP::updateDisplayMode(const EmuTime &time)
 		"Mode 1+2+3 (BOGUS)" };
 
 	int newMode =
-		   (controlRegs[0] & 0x02)
-		| ((controlRegs[1] & 0x10) >> 4)
-		| ((controlRegs[1] & 0x08) >> 1);
+		  ((controlRegs[0] & 0x0E) << 1)
+		| ((controlRegs[1] & 0x08) >> 2)
+		| ((controlRegs[1] & 0x10) >> 4);
 	if (newMode != displayMode) {
 		displayMode = newMode;
 		renderer->updateDisplayMode(time);
@@ -448,7 +482,7 @@ int VDP::checkSprites(int line, VDP::SpriteInfo *visibleSprites)
 				if (limitSprites) break;
 			}
 			SpriteInfo *sip = &visibleSprites[visibleIndex++];
-			int patternIndex = ((size == 16)
+			int patternIndex = (size == 16
 				? attributePtr[2] & 0xFC : attributePtr[2]);
 			sip->pattern = calculatePattern(patternIndex, line - y);
 			sip->x = attributePtr[1];

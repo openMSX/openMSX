@@ -157,6 +157,7 @@ public:
 	}
 
 	/** Get sprite attribute table base.
+	  * TODO: Why is this not a mask?
 	  * @return Current sprite attribute table base.
 	  */
 	inline int getSpriteAttributeBase() {
@@ -164,6 +165,7 @@ public:
 	}
 
 	/** Get sprite pattern table base.
+	  * TODO: Why is this not a mask?
 	  * @return Current sprite pattern table base.
 	  */
 	inline int getSpritePatternBase() {
@@ -201,6 +203,14 @@ private:
 	  */
 	inline int getSpriteMag() {
 		return controlRegs[1] & 1;
+	}
+
+	/** Is this an MSX1 VDP?
+	  * @return True if this is an MSX1 VDP (TMS99X8A or TMS9929A),
+	  *   False otherwise.
+	  */
+	inline bool isMSX1VDP() {
+		return version == TMS99X8A || version == TMS9929A;
 	}
 
 	/** Are sprites enabled?
@@ -294,6 +304,10 @@ private:
 	  */
 	int controlRegMask;
 
+	/** Mask on the values of control registers.
+	  */
+	byte controlValueMasks[64];
+
 	/** Status registers.
 	  * There max 10 status registers, but that's not a power of 2.
 	  */
@@ -368,7 +382,7 @@ private:
 	int displayMode;
 
 	/** VRAM read/write access pointer.
-	  * Not a C pointer, but an address.
+	  * Contains the lower 14 bits of the current VRAM access address.
 	  */
 	int vramPointer;
 

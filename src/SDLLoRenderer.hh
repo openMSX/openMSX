@@ -50,13 +50,13 @@ private:
 
 	void renderUntil(int limit);
 
-	void mode0(int line);
-	void mode1(int line);
-	void mode2(int line);
-	void mode12(int line);
-	void mode3(int line);
-	void modebogus(int line);
-	void mode23(int line);
+	void renderGraphic1(int line);
+	void renderText1(int line);
+	void renderGraphic2(int line);
+	void renderText1Q(int line);
+	void renderMulti(int line);
+	void renderBogus(int line);
+	void renderMultiQ(int line);
 
 	void offPhase(int limit);
 	void blankPhase(int limit);

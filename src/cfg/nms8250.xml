@@ -112,6 +112,7 @@
     <type>VDP</type>
     <parameter name="version">V9938</parameter>
     <parameter name="limit_sprites">true</parameter>
+    <parameter name="vram">128</parameter>
   </device>
 
   <config id="renderer">
@@ -136,7 +137,6 @@
     <parameter name="min_real_time">40</parameter>
   </config>
 
-<!--
   <device id="Penguin Adventure Cartridge">
     <type>MegaRom</type>
     <slotted>
@@ -153,7 +153,6 @@
     <parameter name="filesize">131072</parameter>
     <parameter name="skip_headerbytes">0</parameter>
   </device>
--->
 
   <device id="cpu">
     <type>CPU</type>
