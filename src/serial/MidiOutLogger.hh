@@ -5,6 +5,7 @@
 
 #include <fstream>
 #include "MidiOutDevice.hh"
+#include "Settings.hh"
 
 using std::ofstream;
 
@@ -26,6 +27,8 @@ class MidiOutLogger : public MidiOutDevice
 	
 	private:
 		ofstream file;
+
+		StringSetting logFilenameSetting;
 };
 
 } // namespace openmsx

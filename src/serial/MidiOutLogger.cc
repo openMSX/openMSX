@@ -6,6 +6,10 @@
 namespace openmsx {
 
 MidiOutLogger::MidiOutLogger()
+	: logFilenameSetting("midi-out-logfilename",
+                "filename of the file where the MIDI output is logged to",
+                "/dev/midi")
+
 {
 	PluggingController::instance()->registerPluggable(this);
 }
@@ -17,7 +21,7 @@ MidiOutLogger::~MidiOutLogger()
 
 void MidiOutLogger::plug(Connector* connector, const EmuTime& time)
 {
-	file.open("/dev/midi");
+	file.open(logFilenameSetting.getValue().c_str());
 }
 
 void MidiOutLogger::unplug(const EmuTime &time)

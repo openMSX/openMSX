@@ -393,6 +393,17 @@ limitsprites
     set limitsprites on   limit number of sprites per line
     set limitsprites off  no limit on number of sprites per line
 
+
+midi-out-logfilename
+------------------
+
+  Sets the file(name) to which the MIDI output is logged.
+  By default, it logs to /dev/midi when available.
+  
+  usage:
+    set midi-out-logfilename               shows the current setting
+    set midi-out-logilename mymidilog.dat  log to mymidilog.dat
+
   
 mute
 ----
