@@ -14,7 +14,7 @@
 # ===============
 
 # Logical targets which require dependency files.
-DEPEND_TARGETS:=all run
+DEPEND_TARGETS:=all run default
 # Logical targets which do not require dependency files.
 NODEPEND_TARGETS:=clean config
 # Mark all logical targets as such.
