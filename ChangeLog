@@ -1,5 +1,9 @@
 $Id$
 
+2003-05-17 Reikan <openMSX4Win32@ranpub.com>
+	* Changed to single thread model.
+	  Now fixed SDLGL renderer fault on XFree86-4.3.0.
+
 2003-05-11 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed colour of font on GLConsole overlayed on Text1 mode.
 
