@@ -4,14 +4,26 @@
 #include "CPU.hh"
 #include "CPU.ii"
 #include "CPUTables.nn"
+#ifdef CPU_DEBUG
+#include "CommandController.hh"
+#endif
+
 
 CPU::CPU(CPUInterface *interf) 
 {
 	interface = interf;
+	makeTables();
+
+	#ifdef CPU_DEBUG
+	CommandController::instance()->registerCommand(debugCmd, "cpudebug");
+	#endif
 }
 
 CPU::~CPU()
 {
+	#ifdef CPU_DEBUG
+	CommandController::instance()->unregisterCommand("cpudebug");
+	#endif
 }
 
 void CPU::executeUntilTarget(const EmuTime &time)
@@ -98,3 +110,15 @@ void CPU::lowerIRQ()
 	IRQStatus--;
 	PRT_DEBUG("CPU: lower IRQ " << IRQStatus);
 }
+
+#ifdef CPU_DEBUG
+void CPU::DebugCmd::execute(const std::vector<std::string> &tokens)
+{
+	CPU::cpudebug = !CPU::cpudebug;
+}
+void CPU::DebugCmd::help(const std::vector<std::string> &tokens)
+{
+}
+bool CPU::cpudebug = false;
+#endif
+

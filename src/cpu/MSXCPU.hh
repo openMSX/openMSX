@@ -8,13 +8,13 @@
 // forward declaration
 class CPU;
 class Z80;
-//class R800;
+class R800;
 
 
 class MSXCPU : public MSXDevice
 {
 	public:
-		enum CPUType { CPU_Z80 };	//, CPU_R800 };
+		enum CPUType { CPU_Z80, CPU_R800 };
 	
 		/**
 		 * Destructor
@@ -72,7 +72,7 @@ class MSXCPU : public MSXDevice
 		static MSXCPU *oneInstance;
 
 		Z80 *z80;
-		//R800 *r800;
+		R800 *r800;
 	
 		CPU *activeCPU;
 };

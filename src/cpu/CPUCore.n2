@@ -1,5 +1,9 @@
 // $Id$
 
+#ifdef CPU_DEBUG
+#include "Z80Dasm.h"
+#endif
+
 inline void _CPU_::M1Cycle() { R.R++; M1_DELAY(); }
 
 inline void _CPU_::executeInstruction(byte opcode)
@@ -1826,6 +1830,37 @@ void _CPU_::xor_ixl() { XOR(R.IX.B.l); }
 void _CPU_::xor_iyh() { XOR(R.IY.B.h); }
 void _CPU_::xor_iyl() { XOR(R.IY.B.l); }
 void _CPU_::xor_byte(){ XOR(RDMEM_OPCODE()); }
+
+inline void _CPU_::MULUB(byte reg) {
+	// TODO check flags
+	R.HL.w = (word)R.AF.B.h * reg;
+	R.AF.B.l = (R.AF.B.l & (N_FLAG | H_FLAG)) |
+	           (R.HL.w ? 0 : Z_FLAG) |
+		   ((R.HL.w & 0x8000) ? C_FLAG : 0);
+}
+void _CPU_::mulub_a_xhl() {} // TODO
+void _CPU_::mulub_a_a()   {} // TODO
+void _CPU_::mulub_a_b()   { MULUB(R.BC.B.h); }
+void _CPU_::mulub_a_c()   { MULUB(R.BC.B.l); }
+void _CPU_::mulub_a_d()   { MULUB(R.DE.B.h); }
+void _CPU_::mulub_a_e()   { MULUB(R.DE.B.l); }
+void _CPU_::mulub_a_h()   {} // TODO
+void _CPU_::mulub_a_l()   {} // TODO
+
+inline void _CPU_::MULUW(word reg) {
+	// TODO check flags
+	unsigned long res = (unsigned long)R.HL.w * reg;
+	R.DE.w = res >> 16;
+	R.HL.w = res & 0xffff;
+	R.AF.B.l = (R.AF.B.l & (N_FLAG | H_FLAG)) |
+	           (res ? 0 : Z_FLAG) |
+		   ((res & 0x80000000) ? C_FLAG : 0);
+}
+void _CPU_::muluw_hl_bc() { MULUW(R.BC.w); }
+void _CPU_::muluw_hl_de() {} // TODO
+void _CPU_::muluw_hl_hl() {} // TODO
+void _CPU_::muluw_hl_sp() { MULUW(R.SP.w); }
+
 
 
 void _CPU_::patch() {

@@ -15,16 +15,11 @@
 #include "CPU.hh"
 #include "EmuTime.hh"
 
-#ifdef CPU_DEBUG
-#include "Command.hh"
-#endif
-
-
 // forward declarations
 class Z80;
 class CPUInterface;
-typedef void (Z80::*opcode_fn)();
-typedef void (Z80::*opcode_fn_n)(offset n);
+typedef void (Z80::*opcode_Z80)();
+typedef void (Z80::*opcode_Z80_n)(offset n);
 
 class Z80 : public CPU {
 	public:
@@ -34,6 +29,7 @@ class Z80 : public CPU {
 		virtual const EmuTime &getCurrentTime();
 
 	private:
+		#undef _CPU_
 		#define _CPU_ Z80
 		#include "CPUCore.n1"
 
@@ -41,27 +37,14 @@ class Z80 : public CPU {
 		EmuTimeFreq<3579545> currentTime;
 
 		// opcode function pointers
-		static const opcode_fn_n opcode_dd_cb[256];
-		static const opcode_fn_n opcode_fd_cb[256];
-		static const opcode_fn opcode_cb[256];
-		static const opcode_fn opcode_dd[256];
-		static const opcode_fn opcode_ed[256];
-		static const opcode_fn opcode_fd[256];
-		static const opcode_fn opcode_main[256];
-		
-	#ifdef CPU_DEBUG
-	public:
-			byte debugmemory[65536];
-			char to_print_string[300];
-			static bool cpudebug;
-
-			class DebugCmd : public Command {
-				virtual void execute(const std::vector<std::string> &tokens);
-				virtual void help   (const std::vector<std::string> &tokens);
-			};
-			DebugCmd debugCmd;
-	#endif
+		static const opcode_Z80_n opcode_dd_cb[256];
+		static const opcode_Z80_n opcode_fd_cb[256];
+		static const opcode_Z80   opcode_cb[256];
+		static const opcode_Z80   opcode_dd[256];
+		static const opcode_Z80   opcode_ed[256];
+		static const opcode_Z80   opcode_fd[256];
+		static const opcode_Z80   opcode_main[256];
 };
 
-#endif // __Z80_H__
+#endif
 

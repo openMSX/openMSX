@@ -1255,3 +1255,20 @@ void ed();
 void fd();
 void fd2();
 void ei();
+
+inline void MULUB(byte reg);
+void mulub_a_xhl();
+void mulub_a_a();
+void mulub_a_b();
+void mulub_a_c();
+void mulub_a_d();
+void mulub_a_e();
+void mulub_a_h();
+void mulub_a_l();
+
+inline void MULUW(word reg);
+void muluw_hl_bc();
+void muluw_hl_de();
+void muluw_hl_hl();
+void muluw_hl_sp();
+

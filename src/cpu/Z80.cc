@@ -17,27 +17,16 @@
 #include "CPUInterface.hh"
 #include "Z80Tables.nn"
 #include "CPU.ii"
-#ifdef CPU_DEBUG
-#include "Z80Dasm.h"
-#include "CommandController.hh"
-#endif
 
 
-Z80::Z80(CPUInterface *interf, int waitCycl, const EmuTime &time) : CPU(interf)
+Z80::Z80(CPUInterface *interf, int waitCycl, const EmuTime &time) :
+	CPU(interf)
 {
-	makeTables();
 	waitCycles = waitCycl;
 	reset(time);
-
-	#ifdef CPU_DEBUG
-	CommandController::instance()->registerCommand(debugCmd, "cpudebug");
-	#endif
 }
 Z80::~Z80()
 {
-	#ifdef CPU_DEBUG
-	CommandController::instance()->unregisterCommand("cpudebug");
-	#endif
 }
 
 void Z80::setCurrentTime(const EmuTime &time)
@@ -74,15 +63,4 @@ inline int Z80::haltStates() { return 4 + waitCycles; }	// HALT + M1
 
 #include "CPUCore.n2"
 
-
-#ifdef CPU_DEBUG
-void Z80::DebugCmd::execute(const std::vector<std::string> &tokens)
-{
-	Z80::cpudebug = !Z80::cpudebug;
-}
-void Z80::DebugCmd::help(const std::vector<std::string> &tokens)
-{
-}
-bool Z80::cpudebug = false;
-#endif
 

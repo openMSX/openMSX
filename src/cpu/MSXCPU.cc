@@ -6,7 +6,7 @@
 #include "MSXCPUInterface.hh"
 #include "CPU.hh"
 #include "Z80.hh"
-//#include "R800.hh"
+#include "R800.hh"
 
 
 MSXCPU::MSXCPU(MSXConfig::Device *config, const EmuTime &time)
@@ -15,7 +15,7 @@ MSXCPU::MSXCPU(MSXConfig::Device *config, const EmuTime &time)
 	PRT_DEBUG("Creating an MSXCPU object");
 	oneInstance = this;
 	z80 = new Z80(MSXCPUInterface::instance(), 1, time);
-	//r800 = new R800(MSXCPUInterface::instance(), time);
+	r800 = new R800(MSXCPUInterface::instance(), time);
 	activeCPU = z80;	// setActiveCPU(CPU_Z80);
 	reset(time);
 }
@@ -24,7 +24,7 @@ MSXCPU::~MSXCPU()
 {
 	PRT_DEBUG("Destroying an MSXCPU object");
 	delete z80;
-	//delete r800;
+	delete r800;
 }
 
 MSXCPU* MSXCPU::instance()
@@ -43,7 +43,7 @@ void MSXCPU::reset(const EmuTime &time)
 {
 	MSXDevice::reset(time);
 	z80->reset(time);
-	//r800->reset(time);
+	r800->reset(time);
 }
 
 
@@ -54,9 +54,9 @@ void MSXCPU::setActiveCPU(CPUType cpu)
 		case CPU_Z80:
 			newCPU = z80;
 			break;
-	//	case CPU_R800:
-	//		newCPU = r800;
-	//		break;
+		case CPU_R800:
+			newCPU = r800;
+			break;
 		default:
 			assert(false);
 			newCPU = NULL;	// prevent warning
@@ -97,10 +97,10 @@ void MSXCPU::invalidateCache(word start, int num)
 void MSXCPU::raiseIRQ()
 {
 	z80->raiseIRQ();
-	//r800->raiseIRQ();
+	r800->raiseIRQ();
 }
 void MSXCPU::lowerIRQ()
 {
 	z80->lowerIRQ();
-	//r800->lowerIRQ();
+	r800->lowerIRQ();
 }

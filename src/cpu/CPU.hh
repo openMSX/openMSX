@@ -10,6 +10,10 @@
 #define CPU_DEBUG
 #endif
 
+#ifdef CPU_DEBUG
+#include "Command.hh"
+#endif
+
 
 // forward declaration
 class CPUInterface;
@@ -171,6 +175,19 @@ class CPU
 		byte* writeCacheLine[CACHE_LINE_NUM];
 		bool readCacheTried [CACHE_LINE_NUM];
 		bool writeCacheTried[CACHE_LINE_NUM];
+	
+	#ifdef CPU_DEBUG
+	public:
+		byte debugmemory[65536];
+		char to_print_string[300];
+		static bool cpudebug;
+
+		class DebugCmd : public Command {
+			virtual void execute(const std::vector<std::string> &tokens);
+			virtual void help   (const std::vector<std::string> &tokens);
+		};
+		DebugCmd debugCmd;
+	#endif
 };
 #endif //__CPU_HH__
 

@@ -2,6 +2,9 @@ $Id$
 
 2002-08-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Move common code from SDLConsole and GLConsole to a new parent class
+	* Added R800:
+	   there is nothing implemented to switch from Z80 to R800, so for the
+	   moment R800 is not yet usable
 
 2002-08-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* SDLGLRenderer:
