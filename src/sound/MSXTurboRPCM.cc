@@ -72,7 +72,7 @@ void MSXTurboRPCM::writeIO(byte port, byte value, const EmuTime &time)
 		// Resets counter
 		reference = time;
 		DValue = value;
-		if (status & 0x01) {
+		if (status & 0x02) {
 			dac->writeDAC(DValue, time);
 		}
 		break;
