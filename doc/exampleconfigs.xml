@@ -381,6 +381,9 @@
   <config id="Console">
     <parameter name="font">ConsoleFont.png</parameter>
     <parameter name="background">ConsoleBackground.png</parameter>
+    <parameter name="width">50</parameter>
+    <parameter name="height">7</parameter>
+    <parameter name="placement">bottom</parameter>
   </config>
 
   <device id="Sunrise IDE">

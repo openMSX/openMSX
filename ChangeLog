@@ -1,5 +1,10 @@
 $Id$
 
+2003-05-09 Herman Oudejans <hn.oudejans@quicknet.nl>
+	* Added resizing and moving to the console. Extended the console editing
+	keys. Added keyrepeat. Added setValueInt() and setRange to 
+	integersetting. added SDL background scaling.
+
 2003-05-08 Maarten ter Huurne <maarten@treewalker.org>
 	* Another GCC 3.3-pre fix: passing signed byte references as unsigned
 	  byte references. Typecasting to "(byte &)" instead of "(byte)" works

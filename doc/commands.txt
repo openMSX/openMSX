@@ -219,15 +219,15 @@ cmdtiming
 console
 -------
 
-  Bring up/down the console.
+  Turns the console on or off.
 
   usage:
     set console       shows the current setting
-    set console up    brings the console up
-    set console down  brings the console down
+    set console on    turns the console on
+    set console off   turns the console off
     
 
-console_background
+consolebackground
 ------------------
 
   Change the console background image. Most image formats (.png, .jpeg,
@@ -235,11 +235,19 @@ console_background
   channel, this channel is only present in .png images.
 
   usage:
-    set console_background          shows the current setting
-    set console_background <image>  sets a new background
+    set consolebackground          shows the current setting
+    set consolebackground <image>  sets a new background
 
+consolecolumns
+--------------
+
+  Change the width of the console measured by the number of columns.
   
-console_font
+  usage:
+    set consolecolumns             shows the current setting
+    set consolecolumns <value>	   set the specified width
+
+consolefont
 ------------------
 
   Change the console font. Most image formats (.png, .jpeg, .gif, ...)
@@ -248,10 +256,30 @@ console_font
   transparency in the font, this channel is only present in .png images.
 
   usage:
-    set console_font          shows the current setting
-    set console_font <image>  sets a new font
+    set consolefont          shows the current setting
+    set consolefont <image>  sets a new font
+    
+consolelines
+--------------
 
-  
+  Change the height of the console measured by the number of lines.
+
+  usage:
+    set consolelines               shows the current setting
+    set consolelines <value>       set the specified width
+
+consoleplacement
+----------------
+
+  Change the position of the console within the emulator
+
+  usage:
+    set consoleplacement	  shows the current setting
+    set consoleplacement <place>  moves the console the the specified location
+
+  <place> can be topleft, top, topright, left, center, right, bottemleft,
+  bottom and bottomright.
+
 deinterlace
 -----------
 

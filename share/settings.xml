@@ -44,6 +44,9 @@
     <type>Console</type>
     <parameter name="font">skins/ConsoleFont.png</parameter>
     <parameter name="background">skins/ConsoleBackground.png</parameter>
+    <parameter name="width">100</parameter>
+    <parameter name="height">14</parameter>
+    <parameter name="placement">bottom</parameter>
   </config>
 
  <!-- Commands that should be executed automatically after boot -->
