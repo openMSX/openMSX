@@ -1,6 +1,9 @@
 $Id$
 
 2004-01-07 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed crash when trying to save screenshot to read-only directory
+
+2004-01-07 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Updated control-type selection code (written by tcm1998):
 	   - generate error for unknown control types
 	   - "pipe" is (currently) not a valid type for linux

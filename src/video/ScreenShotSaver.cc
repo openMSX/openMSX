@@ -16,42 +16,36 @@ using std::max;
 /* PNG save code by Darren Grant sdl@lokigames.com */
 /* heavily modified for openMSX by Joost Damad joost@lumatec.be */
 
-static void png_user_warn(png_structp ctx, png_const_charp str)
-{
-	fprintf(stderr, "libpng: warning: %s\n", str);
-}
+namespace openmsx {
 
-static void png_user_error(png_structp ctx, png_const_charp str)
+static bool IMG_SavePNG_RW(int width, int height, png_bytep* row_pointers,
+                           const string& filename)
 {
-	fprintf(stderr, "libpng: error: %s\n", str);
-}
-
-static int IMG_SavePNG_RW(int width, int height, png_bytep* row_pointers,
-                          const string& filename)
-{
-	int result = -1;
 	FILE* fp = fopen(filename.c_str(), "wb");
+	if (!fp) {
+		return false;
+	}
+	bool result = false;
 	png_infop info_ptr = 0;
 
 	png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING,
-		NULL, png_user_error, png_user_warn);
+	        NULL, NULL, NULL);
 	if (png_ptr == NULL) {
-		//IMG_SetError("Couldn't allocate memory for PNG file");
-		goto done;
-	}
-
-	// Allocate/initialize the image information data.  REQUIRED
-	info_ptr = png_create_info_struct(png_ptr);
-	if (info_ptr == NULL) {
-		//IMG_SetError("Couldn't create image information for PNG file");
+		// Couldn't allocate memory for PNG file
 		goto done;
 	}
 	png_ptr->io_ptr = fp;
 
+	// Allocate/initialize the image information data.  REQUIRED
+	info_ptr = png_create_info_struct(png_ptr);
+	if (info_ptr == NULL) {
+		// Couldn't create image information for PNG file
+		goto done;
+	}
+
 	// Set error handling.
 	if (setjmp(png_ptr->jmpbuf)) {
-		// If we get here, we had a problem reading the file
-		//IMG_SetError("Error writing the PNG file");
+		// Error writing the PNG file
 		goto done;
 	}
 	
@@ -68,8 +62,8 @@ static int IMG_SavePNG_RW(int width, int height, png_bytep* row_pointers,
 	// because that is by far the easiest thing to do
 	
 	png_set_IHDR(png_ptr, info_ptr, width, height, 8,
-		PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
-		PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+	             PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
+	             PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
 
 	// Write the file header information.  REQUIRED
 	png_write_info(png_ptr, info_ptr);
@@ -77,7 +71,7 @@ static int IMG_SavePNG_RW(int width, int height, png_bytep* row_pointers,
 	// write out the entire image data in one call
 	png_write_image(png_ptr, row_pointers);
 	png_write_end(png_ptr, info_ptr);
-	result = 0;  // success!
+	result = true;  // success!
 
 done:
 	if (info_ptr->palette) {
@@ -88,8 +82,6 @@ done:
 	fclose(fp);
 	return result;
 }
-
-namespace openmsx {
 
 ScreenShotSaver::ScreenShotSaver(SDL_Surface* surface, const string& filename)
 	throw (CommandException)
@@ -122,28 +114,25 @@ ScreenShotSaver::ScreenShotSaver(SDL_Surface* surface, const string& filename)
 		}
 	}
 
-	int result = IMG_SavePNG_RW(surface->w, surface->h, row_pointers, filename);
+	bool result = IMG_SavePNG_RW(surface->w, surface->h, row_pointers, filename);
 
 	for (int i = 0; i < surface->h; ++i) {
 		free(row_pointers[i]);
 	}
 	free(row_pointers);
 	
-	if (result < 0) {
+	if (!result) {
 		throw CommandException("Failed to write " + filename);
 	}
-	else {
-		CliCommOutput::instance().printInfo("Screen saved to " + filename);
-		// TODO: report whole path to user
-	}
-
+	CliCommOutput::instance().printInfo("Screen saved to " + filename);
+	// TODO: report whole path to user
 }
 
 ScreenShotSaver::ScreenShotSaver(unsigned width, unsigned height,
                  byte** row_pointers, const string& filename)
 	throw (CommandException)
 {
-	if (IMG_SavePNG_RW(width, height, (png_bytep*)row_pointers, filename) < 0) {
+	if (!IMG_SavePNG_RW(width, height, (png_bytep*)row_pointers, filename)) {
 		throw CommandException("Failed to write " + filename);
 	}
 }
