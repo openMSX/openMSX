@@ -190,7 +190,6 @@ MSXTMS9928a::MSXTMS9928a(MSXConfig::Device *config, const EmuTime &time)
 	PRT_DEBUG("Creating an MSXTMS9928a object");
 
 	limitSprites = true; // TODO: Read from config.
-	displayMode = 0;	// Maarten, is this ok?
 
 	version = TMS99X8A; // MSX1 VDP
 
@@ -232,16 +231,15 @@ MSXTMS9928a::~MSXTMS9928a()
 	delete[](vramData);
 }
 
-// The init and reset functions
-
 void MSXTMS9928a::reset(const EmuTime &time)
 {
 	MSXDevice::reset(time);
 
 	currentTime = time;
-	
+
 	for (int i = 0; i < 8; i++) controlRegs[i] = 0;
 	statusReg = 0;
+	displayMode = 0;
 	vramPointer = 0;
 	readAhead = 0;
 	firstByte = -1;

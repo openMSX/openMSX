@@ -1,5 +1,9 @@
 $Id$
 
+2001-12-06 Maarten ter Huurne <mth@stack.nl>
+	* Small initialisation fix in MSXTMS9928a.
+	  Thanks to Wouter for spotting the problem.
+
 2001-12-06 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* removed init() method from MSXDevice:
 	  initialization should be done in the constructor
@@ -30,7 +34,7 @@ $Id$
 	* started on disk support "level 2" [not in CVS yet]
 
 2001-12-03 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
-	* Made a new EmuTime class (for details search mailarchives for 
+	* Made a new EmuTime class (for details search mailarchives for
 	   "[RFC] new EmuTiem class"). This gave a large performance gain,
 	   more than I had hoped for.
 	* SoundDevices now unregister themself before destruction
