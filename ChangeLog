@@ -1,6 +1,11 @@
 $Id$
 
-2004-06-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2004-06-18 Manuel Bilderbeek <manuel@msxnet.org>
+	* Fixed Floating Point Exception in Y8950Adpcm, which was triggered
+	  by 4Trax Songbook #1. Thanks to Eric for finding it and Wouter for
+	  providing the fix :)
+
+2004-06-17 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Large configuration file code refactoring:
 	   - get rid of Config class, use directly XMLElement
 	   - no changes in config files

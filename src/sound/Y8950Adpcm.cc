@@ -118,7 +118,7 @@ void Y8950Adpcm::restart()
 
 void Y8950Adpcm::schedule(const EmuTime &time)
 {
-	if (stopAddr > startAddr) {
+	if (stopAddr > startAddr && delta != 0) {
 		uint64 samples = stopAddr - playAddr + 1;
 		EmuTimeFreq<Y8950::CLK_FREQ> stop(time);
 		stop += (samples * (72 << 16) / delta);
