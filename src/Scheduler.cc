@@ -191,14 +191,33 @@ void Scheduler::QuitCmd::help   (const std::vector<std::string> &tokens)
 	Console::instance()->print("Use this command to stop the emulator");
 }
 
+//TODO this command belongs in Mixer instead of Scheduler
 void Scheduler::MuteCmd::execute(const std::vector<std::string> &tokens)
 {
 	Scheduler *sch = Scheduler::instance();
-	sch->noSound = !sch->noSound;
-	Mixer::instance()->pause(sch->noSound||sch->paused);
+	switch (tokens.size()) {
+		case 1:
+			sch->noSound = !sch->noSound;
+			break;
+		case 2:
+			if (tokens[1] == "on") {
+				sch->noSound = true;
+				break;
+			}
+			if (tokens[1] == "off") {
+				sch->noSound = false;
+				break;
+			}
+		default:
+			Console::instance()->print("Syntax error");
+	}
+	Mixer::instance()->pause(sch->noSound||sch->isPaused());
 }
 void Scheduler::MuteCmd::help   (const std::vector<std::string> &tokens)
 {
 	Console::instance()->print("Use this command to mute/unmute the emulator");
+	Console::instance()->print(" mute:     toggle mute");
+	Console::instance()->print(" mute on:  set muted");
+	Console::instance()->print(" mute off: set unmuted");
 }
 
