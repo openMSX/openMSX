@@ -3,31 +3,30 @@ dnl Process this file with autoconf to produce a configure script.
 
 
 AC_INIT(src/main.cc)
-dnl Every other copy of the package version number gets its value from here
-AM_INIT_AUTOMAKE(openmsx, 0.2.1)
 
-if test "$prefix" = "NONE"; then
-  prefix="/opt/openMSX"
-fi
-LIBS="-L$prefix/lib $LIBS"
+ISODATE=`date +%Y-%m-%d`
+OPENMSX_VERSION=0.2.1
+
+dnl Change default prefix.
+AC_PREFIX_DEFAULT(/opt/openMSX)
 
 dnl create a config.h file (Automake will add -DHAVE_CONFIG_H)
 AM_CONFIG_HEADER(src/config.h)
 
+AC_CANONICAL_SYSTEM
+
+AM_INIT_AUTOMAKE(openmsx, OPENMSX_VERSION)
+
 AC_SUBST(VERSION)
-
-ISODATE=`date +%Y-%m-%d`
 AC_SUBST(ISODATE)
-
-AC_CANONICAL_HOST
-
-dnl Checks for programs.
-AC_PROG_INSTALL
-AC_PROG_CC
-AC_PROG_CXX
 
 dnl libtool
 AC_PROG_LIBTOOL
+
+dnl Checks for programs.
+AC_PROG_CC
+AC_PROG_CXX
+AC_PROG_INSTALL
 
 dnl check ENDIAN-ness
 AC_C_BIGENDIAN
@@ -61,11 +60,11 @@ fi
 
 dnl SDL_image
 AC_CHECK_HEADERS(SDL_image.h SDL/SDL_image.h , break)
-AC_CHECK_LIB(SDL_image, IMG_Load, break, AC_MSG_ERROR([Sorry no SDL_image library found]))
+AC_CHECK_LIB(SDL_image, IMG_Load, LIB="$LIBS -lSDL_image", AC_MSG_ERROR([Sorry no SDL_image library found]))
 
 dnl libpng
 AC_CHECK_HEADERS(png.h, break)
-AC_CHECK_LIB(png, png_create_read_struct)
+AC_CHECK_LIB(png, png_create_read_struct, LIB="$LIBS -lpng")
 
 dnl check if fstream can be used as template
 AC_CXX_FSTREAM_TEMPL
