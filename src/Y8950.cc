@@ -484,7 +484,7 @@ void Y8950::reset(const EmuTime &time)
 	// adpcm
 	reg[0x04] = 0x18;
 	play_start = false;
-	status = 0;
+	status = 0x06;	// TODO
 	play_addr = 0;
 	start_addr = 0;
 	stop_addr = 0;
@@ -736,9 +736,9 @@ int Y8950::calcAdpcm()
 
 void Y8950::checkMute()
 {
-	bool status = checkMuteHelper();
-	PRT_DEBUG("Y8950: muted " << status);
-	setInternalMute(status);
+	bool mute = checkMuteHelper();
+	PRT_DEBUG("Y8950: muted " << mute);
+	setInternalMute(mute);
 }
 bool Y8950::checkMuteHelper()
 {
@@ -809,11 +809,33 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 
 	if (rg<0x20) {
 		switch (rg) {
-		case 0x00: // NOT USED 
-			reg[0x00] = data;
-			break;
-
-		case 0x01: // TEST 
+		case 0x01: // TEST
+			// TODO
+			// Y8950 MSX-AUDIO Test register $01 (write only)
+			//
+			// Bit	Description
+			//
+			// 7	Reset LFOs - seems to force the LFOs to their initial values (eg.
+			//	maximum amplitude, zero phase deviation)
+			//
+			// 6	something to do with ADPCM - bit 0 of the status register is
+			//	affected by setting this bit (PCM BSY)
+			//
+			// 5	No effect? - Waveform select enable in YM3812 OPL2 so seems
+			//	reasonable that this bit wouldn't have been used in OPL
+			//
+			// 4	No effect?
+			//
+			// 3	Faster LFOs - increases the frequencies of the LFOs and (maybe)
+			//	the timers (cf. YM2151 test register)
+			//
+			// 2	Reset phase generators - No phase generator output, but envelope
+			//	generators still work (can hear a transient when they are gated)
+			//
+			// 1	No effect?
+			//
+			// 0	Reset envelopes - Envelope generator outputs forced to maximum,
+			//	so all enabled voices sound at maximum
 			reg[0x01] = data;
 			break;
 
@@ -829,15 +851,15 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 
 		case 0x04: // FLAG CONTROL 
 			if (data & R04_IRQ_RESET) {
-				status &= (data&0x78);
+				status &= 0x07;	//TODO
 			} else {
 				reg[0x04] = data;
 			}
 			break;
 
-		case 0x05: // (KEYBOARD IN) 
+		case 0x05: // (KEYBOARD IN)
 			// TODO
-			reg[0x05] = data;
+			// read-only
 			break;
 
 		case 0x06: // (KEYBOARD OUT) 
@@ -845,7 +867,7 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 			reg[0x06] = data;
 			break;
 
-		case 0x07: // START/REC/MEM DATA/REPEAT/SP-OFF/RESET 
+		case 0x07: // START/REC/MEM DATA/REPEAT/SP-OFF/-/-/RESET 
 			if (data & R07_RESET) {
 				play_start = false;
 				break;
@@ -860,7 +882,7 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 			reg[0x07] = data;
 			break;
 
-		case 0x08: // CSM/KEY BOARD SPLIT/SAMPLE/DA AD/64K/ROM 
+		case 0x08: // CSM/KEY BOARD SPLIT/-/-/SAMPLE/DA AD/64K/ROM 
 			reg[0x08] = data;
 			wave = reg[0x08]&R08_ROM ? memory[1] : memory[0];
 			play_addr_mask = reg[0x08]&R08_64K ? (1<<17)-1 : (1<<19)-1;
@@ -879,18 +901,15 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 			break;
 
 		case 0x0D: // PRESCALE (L) 
-			reg[0x0D] = data;
-			break;
-
 		case 0x0E: // PRESCALE (H) 
-			reg[0x0E] = data;
+			reg[rg] = data;
 			break;
 
 		case 0x0F: // ADPCM-DATA 
 			reg[0x0F] = data;
 			if ((reg[0x07]&R07_REC) && (reg[0x07]&R07_MEMORY_DATA)) {
 				wave[play_addr>>1] = data;
-				play_addr = (play_addr + 2)&(play_addr_mask);
+				play_addr = (play_addr+2)&(play_addr_mask);
 				if (play_addr >= (stop_addr & play_addr_mask)) {
 					//status |= STATUS_EOS; // Bug? 
 				}
@@ -908,6 +927,37 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 			reg[0x12] = data;
 			break;
 
+		case 0x15: // DAC-DATA  (bit9-2)
+		case 0x16: //           (bit1-0)
+		case 0x17: //           (exponent)
+			// TODO
+			reg[rg] = data;
+			break;
+
+		case 0x18: // I/O-CONTROL (bit3-0)
+			// TODO
+			// 0 -> input
+			// 1 -> output
+			reg[0x18] = data;
+			break;
+		
+		case 0x19: // I/O-DATA (bit3-0)
+			// TODO
+			reg[0x19] = data;
+			break;
+
+		case 0x1A: // PCM-DATA
+			reg[0x1A] = data;
+			break;
+
+		case 0x00: // NOT USED 
+		case 0x13: // NOT USED 
+		case 0x14: // NOT USED 
+		case 0x1B: // NOT USED 
+		case 0x1C: // NOT USED 
+		case 0x1D: // NOT USED 
+		case 0x1E: // NOT USED 
+		case 0x1F: // NOT USED 
 		default:
 			// do nothing
 			break;
