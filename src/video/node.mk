@@ -21,7 +21,7 @@ SRC_HDR:= \
 	VideoSystem Display VideoLayer \
 	DummyVideoSystem \
 	IconLayer \
-	SDLImage \
+	SDLImage
 
 HDR_ONLY:= \
 	DirtyChecker \
@@ -32,7 +32,7 @@ HDR_ONLY:= \
 	Rasterizer 
 
 SRC_HDR_$(COMPONENT_GL)+= \
-	SDLGLVideoSystem GLRasterizer GLSnow GLUtil GLImage 
+	SDLGLVideoSystem GLRasterizer GLSnow GLUtil GLImage
 
 include build/node-end.mk
 
