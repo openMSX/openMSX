@@ -1,7 +1,6 @@
 // $Id$
 
 #include "RomGeneric16kB.hh"
-#include "MSXConfig.hh"
 
 
 RomGeneric16kB::RomGeneric16kB(Device* config, const EmuTime &time)

@@ -23,6 +23,7 @@
 #include "RomMajutsushi.hh"
 #include "RomSynthesizer.hh"
 #include "RomGameMaster2.hh"
+#include "RomHalnote.hh"
 #include "Rom.hh"
 
 
@@ -85,6 +86,8 @@ MSXRom* RomFactory::create(Device* config, const EmuTime &time)
 			return new RomMajutsushi(config, time);
 		case SYNTHESIZER:
 			return new RomSynthesizer(config, time);
+		case HALNOTE:
+			return new RomHalnote(config, time);
 		default:
 			PRT_DEBUG("Unknown mapper type");
 			return NULL;

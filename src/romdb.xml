@@ -5262,7 +5262,7 @@
     <remark></remark>
   </rom>
   <rom id="Halnote">
-    <romtype>PLAIN</romtype>
+    <romtype>HALNOTE</romtype>
     <md5>43e912285287a9cf52abdc3bfab2951f</md5>
     <crc32>40313fec</crc32>
     <year>1987</year>

@@ -43,6 +43,7 @@ libMemory_la_SOURCES = \
 	RomNational.cc RomNational.hh \
 	RomMajutsushi.cc RomMajutsushi.hh \
 	RomSynthesizer.cc RomSynthesizer.hh \
+	RomHalnote.cc RomHalnote.hh \
 	RomFactory.cc RomFactory.hh
 	
 

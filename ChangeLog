@@ -1,5 +1,11 @@
 $Id$
 
+2003-03-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Added HALNOTE mapper type:
+	   - Doesn't work yet! Only 'normal' rom switching is emulated.
+	     The program also writes to pages 0 en 3 and it selects rom
+	     pages > 0x80, I've no idea what this should do.
+
 2003-03-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented "vramdump" console command, only available when
 	  compiled with DEBUG
