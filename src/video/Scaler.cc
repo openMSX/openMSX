@@ -66,7 +66,7 @@ void Scaler<Pixel>::scaleBlank(
 			Pixel* dstLine = Scaler<Pixel>::linePtr(dst, dstY++);
 			asm (
 				// Precalc colour.
-				"movd	%[col32], %%mm0;"
+				"movd	%1, %%mm0;"
 				"punpckldq	%%mm0, %%mm0;"
 				"movq	%%mm0, %%mm1;"
 				"movq	%%mm0, %%mm2;"
@@ -75,20 +75,19 @@ void Scaler<Pixel>::scaleBlank(
 				"xorl	%%eax, %%eax;"
 			"0:"
 				// Store.
-				"movntq	%%mm0, (%[dstLine],%%eax,4);"
-				"movntq	%%mm1, 8(%[dstLine],%%eax,4);"
-				"movntq	%%mm2, 16(%[dstLine],%%eax,4);"
-				"movntq	%%mm3, 24(%[dstLine],%%eax,4);"
+				"movntq	%%mm0,   (%0,%%eax);"
+				"movntq	%%mm1,  8(%0,%%eax);"
+				"movntq	%%mm2, 16(%0,%%eax);"
+				"movntq	%%mm3, 24(%0,%%eax);"
 				// Increment.
-				"addl	%[pixelsPerLoop], %%eax;"
-				"cmpl	%[width], %%eax;"
+				"addl	$32, %%eax;"
+				"cmpl	%2, %%eax;"
 				"jl	0b;"
 		
 				: // no output
-				: [dstLine] "r" (dstLine)
-				, [col32] "r" (col32)
-				, [width] "r" (dst->w)
-				, [pixelsPerLoop] "r" (8 * 4 / sizeof(Pixel))
+				: "r" (dstLine) // 0
+				, "rm" (col32) // 1
+				, "r" (dst->w * sizeof(Pixel)) // 2: bytes per line
 				: "eax", "mm0", "mm1", "mm2", "mm3"
 				);
 		}
