@@ -95,11 +95,6 @@
     <parameter name="full_screen">false</parameter>
   </config>
 
-  <device id="psg">
-    <type>PSG</type>
-    <parameter name="volume">21000</parameter>
-  </device>
-
   <device id="Real time clock">
     <type>RTC</type>
     <parameter name="mode">EmuTime</parameter>
@@ -108,12 +103,6 @@
     <parameter name="filename">RTC.SAVE</parameter>
   </device>
 
-  <config id="RealTime">
-    <parameter name="sync_interval">50</parameter>
-    <parameter name="max_catch_up_time">2000</parameter>
-    <parameter name="max_catch_up_factor">105</parameter>
-  </config>
-
   <device id="cpu">
     <type>CPU</type>
   </device>
@@ -121,16 +110,6 @@
   <device id="Printer Port">
     <type>PrinterPort</type>
   </device>
-
-  <config id="Mixer">
-    <parameter name="frequency">22050</parameter>
-    <parameter name="samples">512</parameter>
-  </config>
-
-  <config id="Console">
-    <parameter name="font">ConsoleFont.png</parameter>
-    <parameter name="background">ConsoleBackground.png</parameter>
-  </config>
 
 </msxconfig>
 
