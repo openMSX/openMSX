@@ -443,6 +443,7 @@ void VDP::frameStart(const EmuTime& time)
 	// Tell renderer to sync with render settings.
 	if (!renderer->checkSettings()) {
 		// Renderer failed to sync; replace it.
+		renderer.reset(); // destroy old renderer before creating a new one
 		renderer = RendererFactory::createRenderer(this);
 		renderer->reset(time);
 		vram->setRenderer(renderer.get(), time);

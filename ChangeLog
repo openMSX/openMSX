@@ -1,5 +1,9 @@
 $Id$
 
+2004-06-20 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* bug fix: first destroy renderer before creating a new one, bug was
+	   introduced when using auto_ptr
+
 2004-06-19 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed ROM loading bug when no SHA1 match was found and no filename
 	  was specified
