@@ -29,8 +29,6 @@
 
     <primary external="true" slot="1"/>
 
-    <primary external="true" slot="2"/>
-
     <primary slot="3">
 
       <secondary slot="0">
@@ -158,6 +156,8 @@
         </SCCplus>
       </secondary>
 
+      <secondary slot="1" external="true"/>
+
       <secondary slot="2">
         <MegaRam id="MegaRam">
           <io base="0x8e" num="1"/>
@@ -165,6 +165,8 @@
           <size>512</size>
         </MegaRam>
       </secondary>
+
+      <secondary slot="3" external="true"/>
 
     </primary>
 
