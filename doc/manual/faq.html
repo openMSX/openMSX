@@ -90,7 +90,7 @@ So, the message is not from openMSX, but from C-BIOS, which tries to start a car
 
 <h2><a id="samples040">6. The sound quality is quite bad in the 0.4.0 release, is that normal?</a></h2>
 
-<p>Unfortunately, we made a small mistake in the Windows release of 0.4.0. However, the problem can be easily fixed by editing the file <code>share\settings.xml</code> with Notepad or some similar text editor. Look for the section marked "Audio mixer settings" and change the 'samples' setting from 512 to 1024 or 2048. You can play around with the setting: just save the file and restart openMSX to test it. 
+<p>Unfortunately, we made a small mistake in the Windows release of 0.4.0. However, the problem can be easily fixed by editing the file <code>share\settings.xml</code> with Notepad or some similar text editor. Look for the section marked "Audio mixer settings" and change the 'samples' setting from 512 to 1024 or 2048. You can play around with the setting: just save the file and restart openMSX to test it. Note that later versions should have this fixed.
 </p>
 <p>
 The effect of a wrong setting is that if it is too high, you will get an irregular tempo of the music (high latencies) and if it's too low, the music will sound choppy.
