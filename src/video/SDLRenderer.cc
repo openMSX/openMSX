@@ -3,7 +3,6 @@
 /*
 TODO:
 - Implement blinking (of page mask) in bitmap modes.
-- Move dirty checking to VDPVRAM.
 - Spot references to EmuTime: if implemented correctly this class should
   not need EmuTime, since it uses absolute VDP coordinates instead.
 */
@@ -202,52 +201,10 @@ inline void SDLRenderer<Pixel, zoom>::renderCharacterLines(
 			getLinePtr(charDisplayCache, line), line);
 		line++; // is a byte, so wraps at 256
 	}
-	
+
 	// Unlock surface.
 	if (SDL_MUSTLOCK(charDisplayCache)) SDL_UnlockSurface(charDisplayCache);
 }
-
-template <class Pixel, Renderer::Zoom zoom>
-typename SDLRenderer<Pixel, zoom>::DirtyChecker
-	// Use checkDirtyBitmap for every mode for which isBitmapMode is true.
-	SDLRenderer<Pixel, zoom>::modeToDirtyChecker[] = {
-		// M5 M4 = 0 0  (MSX1 modes)
-		&SDLRenderer::checkDirtyMSX1, // Graphic 1
-		&SDLRenderer::checkDirtyMSX1, // Text 1
-		&SDLRenderer::checkDirtyMSX1, // Multicolour
-		&SDLRenderer::checkDirtyNull,
-		&SDLRenderer::checkDirtyMSX1, // Graphic 2
-		&SDLRenderer::checkDirtyMSX1, // Text 1 Q
-		&SDLRenderer::checkDirtyMSX1, // Multicolour Q
-		&SDLRenderer::checkDirtyNull,
-		// M5 M4 = 0 1
-		&SDLRenderer::checkDirtyMSX1, // Graphic 3
-		&SDLRenderer::checkDirtyText2,
-		&SDLRenderer::checkDirtyNull,
-		&SDLRenderer::checkDirtyNull,
-		&SDLRenderer::checkDirtyBitmap, // Graphic 4
-		&SDLRenderer::checkDirtyBitmap,
-		&SDLRenderer::checkDirtyBitmap,
-		&SDLRenderer::checkDirtyBitmap,
-		// M5 M4 = 1 0
-		&SDLRenderer::checkDirtyBitmap, // Graphic 5
-		&SDLRenderer::checkDirtyBitmap,
-		&SDLRenderer::checkDirtyBitmap,
-		&SDLRenderer::checkDirtyBitmap,
-		&SDLRenderer::checkDirtyBitmap, // Graphic 6
-		&SDLRenderer::checkDirtyBitmap,
-		&SDLRenderer::checkDirtyBitmap,
-		&SDLRenderer::checkDirtyBitmap,
-		// M5 M4 = 1 1
-		&SDLRenderer::checkDirtyBitmap,
-		&SDLRenderer::checkDirtyBitmap,
-		&SDLRenderer::checkDirtyBitmap,
-		&SDLRenderer::checkDirtyBitmap,
-		&SDLRenderer::checkDirtyBitmap, // Graphic 7
-		&SDLRenderer::checkDirtyBitmap,
-		&SDLRenderer::checkDirtyBitmap,
-		&SDLRenderer::checkDirtyBitmap
-	};
 
 template <class Pixel, Renderer::Zoom zoom>
 SDLRenderer<Pixel, zoom>::SDLRenderer(
@@ -350,6 +307,9 @@ SDLRenderer<Pixel, zoom>::SDLRenderer(
 template <class Pixel, Renderer::Zoom zoom>
 SDLRenderer<Pixel, zoom>::~SDLRenderer()
 {
+	// Unregister caches with VDPVRAM.
+	vram->nameTable.setObserver(NULL);
+
 	delete console;
 	SDL_FreeSurface(charDisplayCache);
 	SDL_FreeSurface(bitmapDisplayCache);
@@ -359,13 +319,12 @@ template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::reset(const EmuTime &time)
 {
 	PixelRenderer::reset(time);
-	
+
 	// Init renderer state.
 	setDisplayMode(vdp->getDisplayMode());
 	spriteConverter.setTransparency(vdp->getTransparency());
 
-	setDirty(true);
-	dirtyForeground = dirtyBackground = true;
+	// Invalidate bitmap cache.
 	memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 
 	if (!vdp->isMSX1VDP()) {
@@ -380,12 +339,12 @@ template <class Pixel, Renderer::Zoom zoom>
 bool SDLRenderer<Pixel, zoom>::checkSettings() {
 	// First check this is the right renderer.
 	if (!PixelRenderer::checkSettings()) return false;
-	
+
 	// Check full screen setting.
 	bool fullScreenState = ((screen->flags & SDL_FULLSCREEN) != 0);
 	bool fullScreenTarget = settings->getFullScreen()->getValue();
 	if (fullScreenState == fullScreenTarget) return true;
-	
+
 #ifdef __WIN32__
 	// Under win32, toggling full screen requires opening a new SDL screen.
 	return false;
@@ -418,7 +377,6 @@ void SDLRenderer<Pixel, zoom>::frameStart(
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::setDisplayMode(DisplayMode mode)
 {
-	dirtyChecker = modeToDirtyChecker[mode.getBase()];
 	if (mode.isBitmapMode()) {
 		bitmapConverter.setDisplayMode(mode);
 	} else {
@@ -436,14 +394,12 @@ void SDLRenderer<Pixel, zoom>::updateTransparency(
 {
 	sync(time);
 	spriteConverter.setTransparency(enabled);
-	
+
 	// Set the right palette for pixels of colour 0.
 	palFg[0] = palBg[enabled ? vdp->getBackgroundColour() : 0];
 	// Any line containing pixels of colour 0 must be repainted.
 	// We don't know which lines contain such pixels,
 	// so we have to repaint them all.
-	anyDirtyColour = true;
-	fillBool(dirtyColour, true, sizeof(dirtyColour) / sizeof(bool));
 	memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 }
 
@@ -452,7 +408,6 @@ void SDLRenderer<Pixel, zoom>::updateForegroundColour(
 	int colour, const EmuTime &time)
 {
 	sync(time);
-	dirtyForeground = true;
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -460,15 +415,12 @@ void SDLRenderer<Pixel, zoom>::updateBackgroundColour(
 	int colour, const EmuTime &time)
 {
 	sync(time);
-	dirtyBackground = true;
 	if (vdp->getTransparency()) {
 		// Transparent pixels have background colour.
 		palFg[0] = palBg[colour];
 		// Any line containing pixels of colour 0 must be repainted.
 		// We don't know which lines contain such pixels,
 		// so we have to repaint them all.
-		anyDirtyColour = true;
-		fillBool(dirtyColour, true, sizeof(dirtyColour) / sizeof(bool));
 		memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 	}
 }
@@ -478,7 +430,6 @@ void SDLRenderer<Pixel, zoom>::updateBlinkForegroundColour(
 	int colour, const EmuTime &time)
 {
 	sync(time);
-	dirtyForeground = true;
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -486,7 +437,6 @@ void SDLRenderer<Pixel, zoom>::updateBlinkBackgroundColour(
 	int colour, const EmuTime &time)
 {
 	sync(time);
-	dirtyBackground = true;
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -498,13 +448,6 @@ void SDLRenderer<Pixel, zoom>::updateBlinkState(
 	//       I don't know why exactly, but it's probably related to
 	//       being called at frame start.
 	//sync(time);
-	if (vdp->getDisplayMode().getBase() == DisplayMode::TEXT2) {
-		// Text2 with blinking text.
-		// Consider all characters dirty.
-		// TODO: Only mark characters in blink colour dirty.
-		anyDirtyName = true;
-		fillBool(dirtyName, true, sizeof(dirtyName) / sizeof(bool));
-	}
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -525,7 +468,6 @@ void SDLRenderer<Pixel, zoom>::setPalette(
 
 	// Is this the background colour?
 	if (vdp->getBackgroundColour() == index && vdp->getTransparency()) {
-		dirtyBackground = true;
 		// Transparent pixels have background colour.
 		palFg[0] = palBg[vdp->getBackgroundColour()];
 	}
@@ -533,8 +475,6 @@ void SDLRenderer<Pixel, zoom>::setPalette(
 	// Any line containing pixels of this colour must be repainted.
 	// We don't know which lines contain which colours,
 	// so we have to repaint them all.
-	anyDirtyColour = true;
-	fillBool(dirtyColour, true, sizeof(dirtyColour) / sizeof(bool));
 	memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 }
 
@@ -558,7 +498,6 @@ void SDLRenderer<Pixel, zoom>::updateDisplayMode(
 {
 	sync(time);
 	setDisplayMode(mode);
-	setDirty(true);
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -566,8 +505,6 @@ void SDLRenderer<Pixel, zoom>::updateNameBase(
 	int addr, const EmuTime &time)
 {
 	sync(time);
-	anyDirtyName = true;
-	fillBool(dirtyName, true, sizeof(dirtyName) / sizeof(bool));
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -575,8 +512,6 @@ void SDLRenderer<Pixel, zoom>::updatePatternBase(
 	int addr, const EmuTime &time)
 {
 	sync(time);
-	anyDirtyPattern = true;
-	fillBool(dirtyPattern, true, sizeof(dirtyPattern) / sizeof(bool));
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -584,77 +519,12 @@ void SDLRenderer<Pixel, zoom>::updateColourBase(
 	int addr, const EmuTime &time)
 {
 	sync(time);
-	anyDirtyColour = true;
-	fillBool(dirtyColour, true, sizeof(dirtyColour) / sizeof(bool));
 }
 
 template <class Pixel, Renderer::Zoom zoom>
-void SDLRenderer<Pixel, zoom>::checkDirtyNull(int addr)
+void SDLRenderer<Pixel, zoom>::updateVRAMCache(int address)
 {
-	// Do nothing: this is a bogus mode whose display doesn't depend
-	// on VRAM contents.
-}
-
-template <class Pixel, Renderer::Zoom zoom>
-void SDLRenderer<Pixel, zoom>::checkDirtyMSX1(int addr)
-{
-	if (vram->nameTable.isInside(addr)) {
-		dirtyName[addr & ~(-1 << 10)] = anyDirtyName = true;
-	}
-	if (vram->colourTable.isInside(addr)) {
-		dirtyColour[(addr / 8) & ~(-1 << 10)] = anyDirtyColour = true;
-	}
-	if (vram->patternTable.isInside(addr)) {
-		dirtyPattern[(addr / 8) & ~(-1 << 10)] = anyDirtyPattern = true;
-	}
-}
-
-template <class Pixel, Renderer::Zoom zoom>
-void SDLRenderer<Pixel, zoom>::checkDirtyText2(int addr)
-{
-	if (vram->nameTable.isInside(addr)) {
-		dirtyName[addr & ~(-1 << 12)] = anyDirtyName = true;
-	}
-	if (vram->patternTable.isInside(addr)) {
-		dirtyPattern[(addr / 8) & ~(-1 << 8)] = anyDirtyPattern = true;
-	}
-	// TODO: Mask and index overlap in Text2, so it is possible for multiple
-	//       addresses to be mapped to a single byte in the colour table.
-	//       Therefore the current implementation is incorrect and a different
-	//       approach is needed.
-	//       The obvious solutions is to mark entries as dirty in the colour
-	//       table, instead of the name table.
-	//       The check code here was updated, the rendering code not yet.
-	/*
-	int colourBase = vdp->getColourMask() & (-1 << 9);
-	int i = addr - colourBase;
-	if ((0 <= i) && (i < 2160/8)) {
-		dirtyName[i*8+0] = dirtyName[i*8+1] =
-		dirtyName[i*8+2] = dirtyName[i*8+3] =
-		dirtyName[i*8+4] = dirtyName[i*8+5] =
-		dirtyName[i*8+6] = dirtyName[i*8+7] =
-		anyDirtyName = true;
-	}
-	*/
-	if (vram->colourTable.isInside(addr)) {
-		dirtyColour[addr & ~(-1 << 9)] = anyDirtyColour = true;
-	}
-}
-
-template <class Pixel, Renderer::Zoom zoom>
-void SDLRenderer<Pixel, zoom>::checkDirtyBitmap(int addr)
-{
-	lineValidInMode[addr >> 7] = 0xFF;
-}
-
-template <class Pixel, Renderer::Zoom zoom>
-void SDLRenderer<Pixel, zoom>::setDirty(
-	bool dirty)
-{
-	anyDirtyColour = anyDirtyPattern = anyDirtyName = dirty;
-	fillBool(dirtyName, dirty, sizeof(dirtyName) / sizeof(bool));
-	fillBool(dirtyColour, dirty, sizeof(dirtyColour) / sizeof(bool));
-	fillBool(dirtyPattern, dirty, sizeof(dirtyPattern) / sizeof(bool));
+	lineValidInMode[address >> 7] = 0xFF;
 }
 
 template <class Pixel, Renderer::Zoom zoom>

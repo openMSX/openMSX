@@ -41,14 +41,12 @@ public:
 	void updateNameBase(int addr, const EmuTime &time);
 	void updatePatternBase(int addr, const EmuTime &time);
 	void updateColourBase(int addr, const EmuTime &time);
-	//void updateVRAM(int address, const EmuTime &time);
-	//void updateWindow(const EmuTime &time);
+	//void updateVRAM(int offset, const EmuTime &time);
+	//void updateWindow(bool enabled, const EmuTime &time);
 
 protected:
 	void finishFrame();
-	void updateVRAMCache(int addr) {
-		(this->*dirtyChecker)(addr);
-	}
+	void updateVRAMCache(int addr);
 	void drawBorder(int fromX, int fromY, int limitX, int limitY);
 	void drawDisplay(
 		int fromX, int fromY,
@@ -63,8 +61,6 @@ protected:
 
 private:
 
-	typedef void (SDLRenderer::*DirtyChecker)(int addr);
-
 	/** Horizontal dimensions of the screen.
 	  */
 	static const int WIDTH = (zoom == Renderer::ZOOM_256 ? 320 : 640);
@@ -72,11 +68,11 @@ private:
 	/** Vertical dimensions of the screen.
 	  */
 	static const int HEIGHT = (zoom == Renderer::ZOOM_256 ? 240 : 480);
- 
+
 	/** Number of host screen lines per VDP display line.
 	  */
 	static const int LINE_ZOOM = (zoom == Renderer::ZOOM_256 ? 1 : 2);
-	
+
 	friend class SDLLoRendererFactory;
 	friend class SDLHiRendererFactory;
 
@@ -125,30 +121,6 @@ private:
 	  * Used to implement updatePalette.
 	  */
 	void setPalette(int index, int grb);
-	
-	/** Dirty checking that does nothing (but is a valid method).
-	  */
-	void checkDirtyNull(int addr);
-
-	/** Dirty checking for MSX1 display modes.
-	  */
-	void checkDirtyMSX1(int addr);
-
-	/** Dirty checking for Text2 display mode.
-	  */
-	void checkDirtyText2(int addr);
-
-	/** Dirty checking for bitmap modes.
-	  */
-	void checkDirtyBitmap(int addr);
-
-	/** Set all dirty / clean.
-	  */
-	void setDirty(bool);
-
-	/** DirtyCheckers for each display mode.
-	  */
-	static DirtyChecker modeToDirtyChecker[];
 
 	/** Line to render at top of display.
 	  * After all, our screen is 240 lines while display is 262 or 313.
@@ -186,10 +158,6 @@ private:
 	  */
 	Pixel V9958_COLOURS[32768];
 	
-	/** Dirty checker: update dirty tables on VRAM write.
-	  */
-	DirtyChecker dirtyChecker;
-
 	/** The surface which is visible to the user.
 	  */
 	SDL_Surface *screen;
@@ -211,23 +179,6 @@ private:
 	  * 0xFF means invalid in every mode.
 	  */
 	byte lineValidInMode[256 * 4];
-
-	/** Dirty tables indicate which character blocks must be repainted.
-	  * The anyDirty variables are true when there is at least one
-	  * element in the dirty table that is true.
-	  */
-	bool anyDirtyColour, dirtyColour[1 << 10];
-	bool anyDirtyPattern, dirtyPattern[1 << 10];
-	bool anyDirtyName, dirtyName[1 << 12];
-	// TODO: Introduce "allDirty" to speed up screen splits.
-
-	/** Did foreground colour change since last screen update?
-	  */
-	bool dirtyForeground;
-
-	/** Did background colour change since last screen update?
-	  */
-	bool dirtyBackground;
 
 	/** VRAM to pixels converter for character display modes.
 	  */
