@@ -127,7 +127,7 @@ inline void PixelRenderer::renderUntil(const EmuTime &time)
 	nextY = limitY;
 }
 
-PixelRenderer::PixelRenderer(VDP *vdp, const EmuTime &time)
+PixelRenderer::PixelRenderer(VDP *vdp)
 	: Renderer(), frameSkipSetting(this)
 {
 	this->vdp = vdp;
@@ -141,18 +141,14 @@ PixelRenderer::PixelRenderer(VDP *vdp, const EmuTime &time)
 		buffer.addFront(1.0);
 	}
 
-	// Now we're ready to start rendering the first frame.
-	reset(time);
 }
 
 PixelRenderer::~PixelRenderer()
 {
 }
 
-#include <stdio.h>
 void PixelRenderer::reset(const EmuTime &time)
 {
-	PRT_DEBUG("PixelRenderer::reset");
 	displayEnabled = false;
 	frameStart(time);
 }

@@ -17,9 +17,8 @@ bool SDLHiRendererFactory::isAvailable()
 	return true; // TODO: Actually query.
 }
 
-Renderer *SDLHiRendererFactory::create(
-	VDP *vdp, const EmuTime &time
-) {
+Renderer *SDLHiRendererFactory::create(VDP *vdp)
+{
 	const int WIDTH = 640;
 	const int HEIGHT = 480;
 
@@ -48,11 +47,11 @@ Renderer *SDLHiRendererFactory::create(
 
 	switch (screen->format->BytesPerPixel) {
 	case 1:
-		return new SDLHiRenderer<Uint8>(vdp, screen, time);
+		return new SDLHiRenderer<Uint8>(vdp, screen);
 	case 2:
-		return new SDLHiRenderer<Uint16>(vdp, screen, time);
+		return new SDLHiRenderer<Uint16>(vdp, screen);
 	case 4:
-		return new SDLHiRenderer<Uint32>(vdp, screen, time);
+		return new SDLHiRenderer<Uint32>(vdp, screen);
 	default:
 		printf("FAILED to open supported screen!");
 		return NULL;
@@ -66,9 +65,8 @@ bool SDLLoRendererFactory::isAvailable()
 	return true; // TODO: Actually query.
 }
 
-Renderer *SDLLoRendererFactory::create(
-	VDP *vdp, const EmuTime &time
-) {
+Renderer *SDLLoRendererFactory::create(VDP *vdp)
+{
 	const int WIDTH = 320;
 	const int HEIGHT = 240;
 
@@ -97,11 +95,11 @@ Renderer *SDLLoRendererFactory::create(
 
 	switch (screen->format->BytesPerPixel) {
 	case 1:
-		return new SDLLoRenderer<Uint8>(vdp, screen, time);
+		return new SDLLoRenderer<Uint8>(vdp, screen);
 	case 2:
-		return new SDLLoRenderer<Uint16>(vdp, screen, time);
+		return new SDLLoRenderer<Uint16>(vdp, screen);
 	case 4:
-		return new SDLLoRenderer<Uint32>(vdp, screen, time);
+		return new SDLLoRenderer<Uint32>(vdp, screen);
 	default:
 		printf("FAILED to open supported screen!");
 		// TODO: Throw exception.
@@ -119,9 +117,8 @@ bool SDLGLRendererFactory::isAvailable()
 	return true; // TODO: Actually query.
 }
 
-Renderer *SDLGLRendererFactory::create(
-	VDP *vdp, const EmuTime &time
-) {
+Renderer *SDLGLRendererFactory::create(VDP *vdp)
+{
 	const int WIDTH = 640;
 	const int HEIGHT = 480;
 
@@ -152,7 +149,7 @@ Renderer *SDLGLRendererFactory::create(
 	}
 	PRT_DEBUG("Display is " << (int)(screen->format->BitsPerPixel) << " bpp.");
 
-	return new SDLGLRenderer(vdp, screen, time);
+	return new SDLGLRenderer(vdp, screen);
 }
 
 #endif // __SDLGLRENDERER_AVAILABLE__
@@ -164,9 +161,8 @@ bool XRendererFactory::isAvailable()
 	return true; // TODO: Actually query.
 }
 
-Renderer *XRendererFactory::create(
-	VDP *vdp, const EmuTime &time
-) {
-	return new XRenderer(vdp, time);
+Renderer *XRendererFactory::create(VDP *vdp)
+{
+	return new XRenderer(vdp);
 }
 

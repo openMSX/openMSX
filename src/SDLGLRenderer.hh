@@ -37,13 +37,9 @@ public:
 	// are using this type.
 	typedef GLuint Pixel;
 
-	/** Reset
-	  * @param time The moment in time this reset occurs.
-	  */
-	virtual void reset(const EmuTime &time);
-
 	// Renderer interface:
 
+	void reset(const EmuTime &time);
 	void frameStart(const EmuTime &time);
 	//void putImage(const EmuTime &time);
 	void updateTransparency(bool enabled, const EmuTime &time);
@@ -80,7 +76,7 @@ private:
 
 	/** Constructor, called by SDLGLRendererFactory.
 	  */
-	SDLGLRenderer(VDP *vdp, SDL_Surface *screen, const EmuTime &time);
+	SDLGLRenderer(VDP *vdp, SDL_Surface *screen);
 
 	/** Destructor.
 	  */

@@ -11,7 +11,7 @@
 #define WIDTH 640
 #define HEIGHT 480
 
-XRenderer::XRenderer(VDP *vdp, const EmuTime &time)
+XRenderer::XRenderer(VDP *vdp)
 :
 Renderer (),
 vdp (vdp),

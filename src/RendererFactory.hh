@@ -35,11 +35,10 @@ public:
 
 	/** Instantiate the associated Renderer.
 	  * @param vdp VDP whose state will be rendered.
-	  * @param time Moment in emulated time the renderer is created.
 	  * @return a newly created Renderer, or NULL if creation failed.
 	  *   TODO: Throwing an exception would be cleaner.
 	  */
-	virtual Renderer *create(VDP *vdp, const EmuTime &time) = 0;
+	virtual Renderer *create(VDP *vdp) = 0;
 
 };
 
@@ -59,7 +58,7 @@ public:
 
 	bool isAvailable();
 
-	Renderer *create(VDP *vdp, const EmuTime &time);
+	Renderer *create(VDP *vdp);
 
 };
 
@@ -79,7 +78,7 @@ public:
 
 	bool isAvailable();
 
-	Renderer *create(VDP *vdp, const EmuTime &time);
+	Renderer *create(VDP *vdp);
 
 };
 
@@ -101,7 +100,7 @@ public:
 
 	bool isAvailable();
 
-	Renderer *create(VDP *vdp, const EmuTime &time);
+	Renderer *create(VDP *vdp);
 
 };
 
@@ -123,7 +122,7 @@ public:
 
 	bool isAvailable();
 
-	Renderer *create(VDP *vdp, const EmuTime &time);
+	Renderer *create(VDP *vdp);
 
 };
 

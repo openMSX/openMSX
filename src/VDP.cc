@@ -104,8 +104,8 @@ VDP::VDP(Device *config, const EmuTime &time)
 	}
 	
 	// Create renderer.
-	renderer = PlatformFactory::createRenderer(
-		rendererName, this, time);
+	renderer = PlatformFactory::createRenderer(rendererName, this);
+	renderer->reset(time); // TODO: Move to VDP::reset.
 	vram->setRenderer(renderer);
 	switchRenderer = false;
 
@@ -399,8 +399,9 @@ void VDP::frameStart(const EmuTime &time)
 		PRT_DEBUG("VDP: switching renderer to " << rendererName);
 		delete renderer;
 		// TODO: Handle invalid names more gracefully.
-		renderer = PlatformFactory::createRenderer(
-			rendererName, this, time);
+		// TODO: Merge with constructor code that creates Renderer.
+		renderer = PlatformFactory::createRenderer(rendererName, this);
+		renderer->reset(time);
 		vram->setRenderer(renderer);
 	} else {
 		renderer->checkFullScreen();

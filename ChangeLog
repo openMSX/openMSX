@@ -4,6 +4,9 @@ $Id$
 	* Removed fullScreen parameter from Renderer constructors.
 	* Made Renderer constructors private, only available to their
 	  respective factories.
+	* Renderer reset methods are no longer called by their constructor,
+	  instead they are called explicitly by the VDP.
+	* Removed EmuTime parameter from Renderer constructors.
 
 2003-03-29 Manuel Bilderbeek <manuel@msxnet.org>
 	* Moved other configs from src/cfg to share/machines

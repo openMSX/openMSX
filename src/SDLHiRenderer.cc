@@ -225,8 +225,8 @@ template <class Pixel> typename SDLHiRenderer<Pixel>::DirtyChecker
 	};
 
 template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
-	VDP *vdp, SDL_Surface *screen, const EmuTime &time)
-	: PixelRenderer(vdp, time)
+	VDP *vdp, SDL_Surface *screen)
+	: PixelRenderer(vdp)
 	, characterConverter(vdp, palFg, palBg)
 	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS)
 {
@@ -322,7 +322,7 @@ template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 				V9938_COLOURS[(grb >> 4) & 7][grb >> 8][grb & 7];
 		}
 	}
-	reset(time);
+
 }
 
 template <class Pixel> SDLHiRenderer<Pixel>::~SDLHiRenderer()

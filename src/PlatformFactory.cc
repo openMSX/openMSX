@@ -13,10 +13,9 @@
 #include "XRenderer.hh"
 
 Renderer *PlatformFactory::createRenderer(
-	const std::string &name, VDP *vdp, const EmuTime &time)
+	const std::string &name, VDP *vdp)
 {
-	RendererFactory *factory = getRendererFactory(name);
-	return factory->create(vdp, time);
+	return getRendererFactory(name)->create(vdp);
 }
 
 RendererFactory *PlatformFactory::getRendererFactory(const std::string &name)

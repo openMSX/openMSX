@@ -22,10 +22,9 @@ public:
 	/** Create a Renderer.
 	  * @param name the name of the Renderer to create.
 	  * @param vdp the VDP whose display will be rendered.
-	  * @param time the moment in emulated time the renderer is created.
 	  */
 	static Renderer *createRenderer(
-		const std::string &name, VDP *vdp, const EmuTime &time);
+		const std::string &name, VDP *vdp);
 
 private:
 	/** Get the factory for the given renderer name.

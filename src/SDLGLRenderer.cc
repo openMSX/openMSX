@@ -413,9 +413,8 @@ SDLGLRenderer::DirtyChecker
 		&SDLGLRenderer::checkDirtyBitmap
 	};
 
-SDLGLRenderer::SDLGLRenderer(
-	VDP *vdp, SDL_Surface *screen, const EmuTime &time)
-	: PixelRenderer(vdp, time)
+SDLGLRenderer::SDLGLRenderer(VDP *vdp, SDL_Surface *screen)
+	: PixelRenderer(vdp)
 	, characterConverter(vdp, palFg, palBg)
 	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS)
 {
@@ -560,7 +559,7 @@ SDLGLRenderer::SDLGLRenderer(
 				V9938_COLOURS[(grb >> 4) & 7][grb >> 8][grb & 7];
 		}
 	}
-	reset(time);
+
 }
 
 SDLGLRenderer::~SDLGLRenderer()

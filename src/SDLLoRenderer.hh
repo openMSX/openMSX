@@ -19,13 +19,9 @@ template <class Pixel> class SDLLoRenderer : public PixelRenderer
 {
 public:
 
-	/** Reset
-	  * @param time The moment in time this reset occurs.
-	  */
-	virtual void reset(const EmuTime &time);
-
 	// Renderer interface:
 
+	void reset(const EmuTime &time);
 	void frameStart(const EmuTime &time);
 	//void putImage(const EmuTime &time);
 	void updateTransparency(bool enabled, const EmuTime &time);
@@ -62,7 +58,7 @@ private:
 
 	/** Constructor, called by SDLLoRendererFactory.
 	  */
-	SDLLoRenderer(VDP *vdp, SDL_Surface *screen, const EmuTime &time);
+	SDLLoRenderer(VDP *vdp, SDL_Surface *screen);
 
 	/** Destructor.
 	  */

@@ -29,10 +29,10 @@ class XRenderer : public Renderer
 	}
 public:
 
-	virtual void reset(const EmuTime &time) {} // TODO
 
 	// Renderer interface:
 
+	void reset(const EmuTime &time) {} // TODO
 	void frameStart(const EmuTime &time);
 	void putImage(const EmuTime &time);
 	void updateTransparency(bool enabled, const EmuTime &time);
@@ -60,7 +60,7 @@ private:
 
 	/** Constructor, called by XRendererFactory.
 	  */
-	XRenderer(VDP *vdp, const EmuTime &time);
+	XRenderer(VDP *vdp);
 
 	/** Destructor.
 	  */
