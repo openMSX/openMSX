@@ -1,103 +1,110 @@
-<?xml version="1.0"?>
+<?xml version="1.0" ?>
 <!-- $Id$ -->
-<!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
 
   <info>
     <manufacturer>Sony</manufacturer>
     <code>HB-F1XD</code>
     <release_year>1987</release_year>
-    <description></description>
+    <description/>
     <type>MSX2</type>
   </info>
 
-  <config id="ExternalSlots">
-    <parameter name="slota">1-0</parameter>
-    <parameter name="slotb">2-0</parameter>
-  </config>
+  <RenShaTurbo>
+    <min_ints>47</min_ints>
+    <max_ints>221</max_ints>
+  </RenShaTurbo>
 
-  <config id="MotherBoard">
-    <parameter name="0" class="subslotted">false</parameter>
-    <parameter name="1" class="subslotted">false</parameter>
-    <parameter name="2" class="subslotted">false</parameter>
-    <parameter name="3" class="subslotted">true</parameter>
-  </config>
+  <MapperReadBackBits>largest</MapperReadBackBits>
 
-  <config id="RenShaTurbo">
-     <parameter name="min_ints">47</parameter>
-     <parameter name="max_ints">221</parameter>
-  </config>
-                                                                                
-  <config id="MapperType">
-    <parameter name="type">Philips</parameter>
-  </config>
+  <CassettePort/>
 
-  <device id="Main RAM">
-    <type>MemoryMapper</type>
-    <slotted> <ps>3</ps> <ss>3</ss> <page>0</page> </slotted>
-    <slotted> <ps>3</ps> <ss>3</ss> <page>1</page> </slotted>
-    <slotted> <ps>3</ps> <ss>3</ss> <page>2</page> </slotted>
-    <slotted> <ps>3</ps> <ss>3</ss> <page>3</page> </slotted>
-    <parameter name="slow_drain_on_reset">false</parameter>
-    <parameter name="size">64</parameter>
-  </device>
+  <devices>
 
-  <device id="MSX BIOS with BASIC ROM">
-    <type>Rom</type>
-    <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
-    <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
-    <parameter name="filename">roms/hb-f1xd_basic-bios2.rom</parameter>
-  </device>
+    <PPI id="ppi">
+      <key_ghosting>true</key_ghosting>
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <io base="0xA8" num="4"/>
+    </PPI>
 
-  <device id="MSX Sub ROM">
-    <type>Rom</type>
-    <slotted> <ps>3</ps> <ss>0</ss> <page>0</page> </slotted>
-    <parameter name="filename">roms/hb-f1xd_msx2sub.rom</parameter>
-  </device>
+    <VDP id="VDP">
+      <version>V9938</version>
+      <vram>128</vram>
+      <io base="0x98" num="4" type="O"/>
+      <io base="0x98" num="2" type="I"/>
+    </VDP>
 
-  <device id="Memory Mapped FDC">
-    <type>FDC</type>
-    <slotted> <ps>3</ps> <ss>0</ss> <page>1</page> </slotted>
-    <slotted> <ps>3</ps> <ss>0</ss> <page>2</page> </slotted>
-    <parameter name="filename">roms/hb-f1xd_disk.rom</parameter>
-    <parameter name="type">WD2793</parameter>
-    <parameter name="brokenFDCread">false</parameter>
-    <parameter name="drivename1">diska</parameter>
-  </device>
-                                                                                
-  <device id="ppi">
-    <type>PPI</type>
-    <parameter name="volume">16000</parameter>
-    <parameter name="key_ghosting">true</parameter>
-  </device>
+    <PSG id="PSG">
+      <keyboardlayout>JIS</keyboardlayout>
+      <sound>
+        <volume>21000</volume>
+      </sound>
+      <io base="0xA0" num="2" type="O"/>
+      <io base="0xA2" num="1" type="I"/>
+    </PSG>
 
-  <device id="VDP">
-    <type>VDP</type>
-    <parameter name="version">V9938</parameter>
-    <parameter name="vram">128</parameter>
-  </device>
+    <RTC id="Real time clock">
+      <sramname>hb-f1xd.cmos</sramname>
+      <io base="0xB4" num="2" type="O"/>
+      <io base="0xB5" num="1" type="I"/>
+    </RTC>
 
-  <device id="PSG">
-    <type>PSG</type>
-    <parameter name="volume">21000</parameter>
-    <parameter name="keyboardlayout">JIS</parameter>
-  </device>
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="2"/>
+    </PrinterPort>
 
-  <device id="Real time clock">
-    <type>RTC</type>
-    <parameter name="mode">EmuTime</parameter>
-    <parameter name="sramname">hb-f1xd.cmos</parameter>
-  </device>
+    <primary slot="0">
+      <ROM id="MSX BIOS with BASIC ROM">
+        <rom>
+          <filename>roms/hb-f1xd_basic-bios2.rom</filename>
+          <sha1>4ce41fcc1a603411ec4e99556409c442078f0ecf</sha1>
+        </rom>
+        <mem base="0x0000" size="0x8000"/>
+      </ROM>
+    </primary>
 
-  <device id="cpu">
-    <type>CPU</type>
-  </device>
+    <primary external="true" slot="1"/>
 
-  <device id="Printer Port">
-    <type>PrinterPort</type>
-  </device>
+    <primary external="true" slot="2"/>
 
-  <config id="CassettePort">
-  </config>
+    <primary slot="3">
+
+      <secondary slot="0">
+        <ROM id="MSX Sub ROM">
+          <rom>
+            <filename>roms/hb-f1xd_msx2sub.rom</filename>
+            <sha1>0fbd45ef3dd7bb82d4c31f1947884f411f1ca344</sha1>
+          </rom>
+          <mem base="0x0000" size="0x4000"/>
+        </ROM>
+        <WD2793 id="Memory Mapped FDC">
+          <brokenFDCread>false</brokenFDCread>
+          <drives>1</drives>
+          <rom>
+            <filename>roms/hb-f1xd_disk.rom</filename>
+            <sha1>12f2cc79b3d09723840bae774be48c0d721ec1c6</sha1>
+          </rom>
+          <mem base="0x4000" size="0x8000"/>
+        </WD2793>
+      </secondary>
+
+      <secondary slot="1"/>
+
+      <secondary slot="2"/>
+
+      <secondary slot="3">
+        <MemoryMapper id="Main RAM">
+          <slow_drain_on_reset>false</slow_drain_on_reset>
+          <size>64</size>
+          <mem base="0x0000" size="0x10000"/>
+        </MemoryMapper>
+      </secondary>
+
+    </primary>
+
+  </devices>
 
 </msxconfig>

@@ -12,10 +12,11 @@
   </info>
 
   <MapperReadBackBits>largest</MapperReadBackBits>
-  
+
   <CassettePort/>
 
   <devices>
+
     <primary slot="0">
       <ROM id="C-BIOS Main ROM">
         <mem base="0x0000" size="0x8000"/>
@@ -25,12 +26,13 @@
         </rom>
       </ROM>
     </primary>
-    
-    <primary slot="1" external="true"/>
 
-    <primary slot="2" external="true"/>
+    <primary external="true" slot="1"/>
+
+    <primary external="true" slot="2"/>
 
     <primary slot="3">
+
       <secondary slot="0">
         <ROM id="C-BIOS Sub ROM">
           <mem base="0x0000" size="0x4000"/>

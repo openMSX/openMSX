@@ -1,113 +1,128 @@
-<?xml version="1.0"?>
+<?xml version="1.0" ?>
 <!-- $Id$ -->
-<!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
 
   <info>
     <manufacturer>Panasonic</manufacturer>
     <code>FS-A1F</code>
     <release_year>1987</release_year>
-    <description></description>
+    <description/>
     <type>MSX2</type>
   </info>
 
-  <config id="ExternalSlots">
-    <parameter name="slota">1-0</parameter>
-    <parameter name="slotb">2-0</parameter>
-  </config>
+  <CassettePort/>
 
-  <config id="MotherBoard">
-    <parameter name="0" class="subslotted">false</parameter>
-    <parameter name="1" class="subslotted">false</parameter>
-    <parameter name="2" class="subslotted">false</parameter>
-    <parameter name="3" class="subslotted">true</parameter>
-  </config>
+  <devices>
 
-  <device id="Main RAM">
-    <type>MemoryMapper</type>
-    <slotted> <ps>3</ps> <ss>0</ss> <page>0</page> </slotted>
-    <slotted> <ps>3</ps> <ss>0</ss> <page>1</page> </slotted>
-    <slotted> <ps>3</ps> <ss>0</ss> <page>2</page> </slotted>
-    <slotted> <ps>3</ps> <ss>0</ss> <page>3</page> </slotted>
-    <parameter name="slow_drain_on_reset">false</parameter>
-    <parameter name="size">64</parameter>
-  </device>
+    <Kanji id="Kanji ROM">
+      <rom>
+        <filename>roms/fs-a1f_kanjifont.rom</filename>
+        <sha1>5e872d5853698731a0ed22fb72dbcdfd59cd19c3</sha1>
+      </rom>
+      <io base="0xD8" num="2" type="O"/>
+      <io base="0xD9" num="1" type="I"/>
+    </Kanji>
 
-  <device id="MSX BIOS with BASIC ROM">
-    <type>Rom</type>
-    <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
-    <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
-    <parameter name="filename">roms/fs-a1f_basic-bios2.rom</parameter>
-  </device>
+    <PPI id="ppi">
+      <key_ghosting>true</key_ghosting>
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <io base="0xA8" num="4"/>
+    </PPI>
 
-  <device id="MSX Sub ROM">
-    <type>Rom</type>
-    <slotted> <ps>3</ps> <ss>1</ss> <page>0</page> </slotted>
-    <parameter name="filename">roms/fs-a1f_msx2sub.rom</parameter>
-  </device>
+    <VDP id="VDP">
+      <version>V9938</version>
+      <vram>128</vram>
+      <io base="0x98" num="4" type="O"/>
+      <io base="0x98" num="2" type="I"/>
+    </VDP>
 
-  <device id="A1 Cockpit">
-    <type>Rom</type>
-    <slotted> <ps>3</ps> <ss>3</ss> <page>1</page> </slotted>
-    <slotted> <ps>3</ps> <ss>3</ss> <page>2</page> </slotted>
-    <parameter name="filename">roms/fs-a1f_cockpit.rom</parameter>
-  </device>
+    <PSG id="PSG">
+      <keyboardlayout>JIS</keyboardlayout>
+      <sound>
+        <volume>21000</volume>
+      </sound>
+      <io base="0xA0" num="2" type="O"/>
+      <io base="0xA2" num="1" type="I"/>
+    </PSG>
 
-  <device id="MSX Kanji Driver">
-    <type>Rom</type>
-    <slotted> <ps>3</ps> <ss>1</ss> <page>1</page> </slotted>
-    <slotted> <ps>3</ps> <ss>1</ss> <page>2</page> </slotted>
-    <parameter name="filename">roms/fs-a1f_kanjibasic.rom</parameter>
-  </device>
+    <RTC id="Real time clock">
+      <sramname>fs-a1f.cmos</sramname>
+      <io base="0xB4" num="2" type="O"/>
+      <io base="0xB5" num="1" type="I"/>
+    </RTC>
 
-  <device id="Kanji ROM">
-    <type>Kanji</type>
-    <parameter name="filename">roms/fs-a1f_kanjifont.rom</parameter>
-  </device>
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="2"/>
+    </PrinterPort>
 
-  <device id="Memory Mapped FDC">
-    <type>FDC</type>
-    <slotted> <ps>3</ps> <ss>2</ss> <page>1</page> </slotted>
-    <slotted> <ps>3</ps> <ss>2</ss> <page>2</page> </slotted>
-    <parameter name="filename">roms/fs-a1f_disk.rom</parameter>
-    <parameter name="type">TC8566AF</parameter>
-    <parameter name="brokenFDCread">false</parameter>
-    <parameter name="drivename1">diska</parameter>
-  </device>
+    <primary slot="0">
+      <ROM id="MSX BIOS with BASIC ROM">
+        <rom>
+          <filename>roms/fs-a1f_basic-bios2.rom</filename>
+          <sha1>0081ea0d25bc5cd8d70b60ad8cfdc7307812c0fd</sha1>
+        </rom>
+        <mem base="0x0000" size="0x8000"/>
+      </ROM>
+    </primary>
 
-  <device id="ppi">
-    <type>PPI</type>
-    <parameter name="volume">16000</parameter>
-    <parameter name="key_ghosting">true</parameter>
-  </device>
+    <primary external="true" slot="1"/>
 
-  <device id="VDP">
-    <type>VDP</type>
-    <parameter name="version">V9938</parameter>
-    <parameter name="vram">128</parameter>
-  </device>
+    <primary external="true" slot="2"/>
 
-  <device id="PSG">
-    <type>PSG</type>
-    <parameter name="volume">21000</parameter>
-    <parameter name="keyboardlayout">JIS</parameter>
-  </device>
+    <primary slot="3">
 
-  <device id="Real time clock">
-    <type>RTC</type>
-    <parameter name="mode">EmuTime</parameter>
-    <parameter name="sramname">fs-a1f.cmos</parameter>
-  </device>
+      <secondary slot="0">
+        <MemoryMapper id="Main RAM">
+          <slow_drain_on_reset>false</slow_drain_on_reset>
+          <size>64</size>
+          <mem base="0x0000" size="0x10000"/>
+        </MemoryMapper>
+      </secondary>
 
-  <device id="cpu">
-    <type>CPU</type>
-  </device>
+      <secondary slot="1">
+        <ROM id="MSX Sub ROM">
+          <rom>
+            <filename>roms/fs-a1f_msx2sub.rom</filename>
+            <sha1>0fbd45ef3dd7bb82d4c31f1947884f411f1ca344</sha1>
+          </rom>
+          <mem base="0x0000" size="0x4000"/>
+        </ROM>
+        <ROM id="MSX Kanji Driver">
+          <rom>
+            <filename>roms/fs-a1f_kanjibasic.rom</filename>
+            <sha1>ea35cc2cad9cfdf56cae224d8ee41579de37f000</sha1>
+          </rom>
+          <mem base="0x4000" size="0x8000"/>
+        </ROM>
+      </secondary>
 
-  <device id="Printer Port">
-    <type>PrinterPort</type>
-  </device>
+      <secondary slot="2">
+        <TC8566AF id="Memory Mapped FDC">
+          <brokenFDCread>false</brokenFDCread>
+          <drives>1</drives>
+          <rom>
+            <filename>roms/fs-a1f_disk.rom</filename>
+            <sha1>141e61cc8e0e51382e508fbd77a34b778a4f8444</sha1>
+          </rom>
+          <mem base="0x4000" size="0x8000"/>
+        </TC8566AF>
+      </secondary>
 
-  <config id="CassettePort">
-  </config>
+      <secondary slot="3">
+        <ROM id="A1 Cockpit">
+          <rom>
+            <filename>roms/fs-a1f_cockpit.rom</filename>
+            <sha1>4a99f2444f29c2b642efd6f084081d6fd96bfa9b</sha1>
+          </rom>
+          <mem base="0x4000" size="0x8000"/>
+        </ROM>
+      </secondary>
+
+    </primary>
+
+  </devices>
 
 </msxconfig>

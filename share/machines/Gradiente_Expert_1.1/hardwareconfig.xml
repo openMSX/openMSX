@@ -1,69 +1,66 @@
-<?xml version="1.0"?>
+<?xml version="1.0" ?>
 <!-- $Id$ -->
-<!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
 
   <info>
     <manufacturer>Gradiente</manufacturer>
     <code>Expert 1.1</code>
     <release_year>1984</release_year>
-    <description></description>
+    <description/>
     <type>MSX</type>
   </info>
 
-  <config id="ExternalSlots">
-    <parameter name="slota">1-0</parameter>
-    <parameter name="slotb">2-0</parameter>
-  </config>
+  <CassettePort/>
 
-  <config id="MotherBoard">
-    <parameter name="0" class="subslotted">false</parameter>
-    <parameter name="1" class="subslotted">false</parameter>
-    <parameter name="2" class="subslotted">false</parameter>
-    <parameter name="3" class="subslotted">false</parameter>
-  </config>
+  <devices>
 
-  <device id="Main RAM">
-    <type>RAM</type>
-    <slotted> <ps>3</ps> <ss>0</ss> <page>0</page> </slotted>
-    <slotted> <ps>3</ps> <ss>0</ss> <page>1</page> </slotted>
-    <slotted> <ps>3</ps> <ss>0</ss> <page>2</page> </slotted>
-    <slotted> <ps>3</ps> <ss>0</ss> <page>3</page> </slotted>
-    <parameter name="slow_drain_on_reset">false</parameter>
-  </device>
+    <PPI id="ppi">
+      <key_ghosting>true</key_ghosting>
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <io base="0xA8" num="4"/>
+    </PPI>
 
-  <device id="MSX BIOS with BASIC ROM">
-    <type>Rom</type>
-    <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
-    <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
-    <parameter name="filename">roms/expert_1.1_basic-bios1.rom</parameter>
-  </device>
+    <VDP id="VDP">
+      <version>TMS99X8A</version>
+      <io base="0x98" num="2"/>
+    </VDP>
 
-  <device id="ppi">
-    <type>PPI</type>
-    <parameter name="volume">16000</parameter>
-    <parameter name="key_ghosting">true</parameter>
-  </device>
+    <PSG id="PSG">
+      <sound>
+        <volume>21000</volume>
+      </sound>
+      <io base="0xA0" num="2" type="O"/>
+      <io base="0xA2" num="1" type="I"/>
+    </PSG>
 
-  <device id="VDP">
-    <type>VDP</type>
-    <parameter name="version">TMS99X8A</parameter>
-  </device>
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="2"/>
+    </PrinterPort>
 
-  <device id="PSG">
-    <type>PSG</type>
-    <parameter name="volume">21000</parameter>
-  </device>
+    <primary slot="0">
+      <ROM id="MSX BIOS with BASIC ROM">
+        <rom>
+          <filename>roms/expert_1.1_basic-bios1.rom</filename>
+          <sha1>d6720845928ee848cfa88a86accb067397685f02</sha1>
+        </rom>
+        <mem base="0x0000" size="0x8000"/>
+      </ROM>
+    </primary>
 
-  <device id="cpu">
-    <type>CPU</type>
-  </device>
+    <primary external="true" slot="1"/>
 
-  <device id="Printer Port">
-    <type>PrinterPort</type>
-  </device>
+    <primary external="true" slot="2"/>
 
-  <config id="CassettePort">
-  </config>
+    <primary slot="3">
+      <RAM id="Main RAM">
+        <slow_drain_on_reset>false</slow_drain_on_reset>
+        <mem base="0x0000" size="0x10000"/>
+      </RAM>
+    </primary>
+
+  </devices>
 
 </msxconfig>

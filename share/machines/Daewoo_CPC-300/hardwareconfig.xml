@@ -1,99 +1,105 @@
-<?xml version="1.0"?>
+<?xml version="1.0" ?>
 <!-- $Id$ -->
-<!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
 
   <info>
     <manufacturer>Daewoo</manufacturer>
     <code>CPC-300</code>
     <release_year>1986</release_year>
-    <description></description>
+    <description/>
     <type>MSX2</type>
   </info>
 
-  <config id="ExternalSlots">
-    <parameter name="slota">1-0</parameter>
-    <parameter name="slotb">3-0</parameter>
-  </config>
+  <MapperReadBackBits>largest</MapperReadBackBits>
 
-  <config id="MotherBoard">
-    <parameter name="0" class="subslotted">true</parameter>
-    <parameter name="1" class="subslotted">false</parameter>
-    <parameter name="2" class="subslotted">false</parameter>
-    <parameter name="3" class="subslotted">false</parameter>
-  </config>
+  <CassettePort/>
 
-  <config id="MapperType">
-    <parameter name="type">Philips</parameter>
-  </config>
-  
-  <device id="Main RAM">
-    <type>MemoryMapper</type>
-    <slotted> <ps>0</ps> <ss>2</ss> <page>0</page> </slotted>
-    <slotted> <ps>0</ps> <ss>2</ss> <page>1</page> </slotted>
-    <slotted> <ps>0</ps> <ss>2</ss> <page>2</page> </slotted>
-    <slotted> <ps>0</ps> <ss>2</ss> <page>3</page> </slotted>
-    <parameter name="slow_drain_on_reset">false</parameter>
-    <parameter name="size">128</parameter>
-  </device>
+  <devices>
 
-  <device id="MSX BIOS with BASIC ROM">
-    <type>Rom</type>
-    <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
-    <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
-    <parameter name="filename">roms/cpc-300_basic-bios2.rom</parameter>
-  </device>
+    <S1985 id="S1985"/>
 
-  <device id="MSX Sub ROM">
-    <type>Rom</type>
-    <slotted> <ps>0</ps> <ss>3</ss> <page>0</page> </slotted>
-    <slotted> <ps>0</ps> <ss>3</ss> <page>1</page> </slotted>
-    <parameter name="filename">roms/cpc-300_msx2sub.rom</parameter>
-  </device>
+    <PPI id="ppi">
+      <key_ghosting>true</key_ghosting>
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <io base="0xA8" num="4"/>
+    </PPI>
 
-  <device id="MSX Hangul Driver">
-    <type>Rom</type>
-    <slotted> <ps>0</ps> <ss>1</ss> <page>1</page> </slotted>
-    <slotted> <ps>0</ps> <ss>1</ss> <page>2</page> </slotted>
-    <parameter name="filename">roms/cpc-300_hangul.rom</parameter>
-  </device>
+    <VDP id="VDP">
+      <version>V9938</version>
+      <vram>128</vram>
+      <io base="0x98" num="4" type="O"/>
+      <io base="0x98" num="2" type="I"/>
+    </VDP>
 
-  <device id="S1985">
-    <type>S1985</type>
-  </device>
+    <PSG id="PSG">
+      <sound>
+        <volume>21000</volume>
+      </sound>
+      <io base="0xA0" num="2" type="O"/>
+      <io base="0xA2" num="1" type="I"/>
+    </PSG>
 
-  <device id="ppi">
-    <type>PPI</type>
-    <parameter name="volume">16000</parameter>
-    <parameter name="key_ghosting">true</parameter>
-  </device>
+    <RTC id="Real time clock">
+      <sramname>cpc-300.cmos</sramname>
+      <io base="0xB4" num="2" type="O"/>
+      <io base="0xB5" num="1" type="I"/>
+    </RTC>
 
-  <device id="VDP">
-    <type>VDP</type>
-    <parameter name="version">V9938</parameter>
-    <parameter name="vram">128</parameter>
-  </device>
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="2"/>
+    </PrinterPort>
 
-  <device id="PSG">
-    <type>PSG</type>
-    <parameter name="volume">21000</parameter>
-  </device>
+    <primary slot="0">
 
-  <device id="Real time clock">
-    <type>RTC</type>
-    <parameter name="mode">EmuTime</parameter>
-    <parameter name="sramname">cpc-300.cmos</parameter>
-  </device>
+      <secondary slot="0">
+        <ROM id="MSX BIOS with BASIC ROM">
+          <rom>
+            <filename>roms/cpc-300_basic-bios2.rom</filename>
+            <sha1>affa3c5cd8db79a1450ad8a7f405a425b251653d</sha1>
+          </rom>
+          <mem base="0x0000" size="0x8000"/>
+        </ROM>
+      </secondary>
 
-  <device id="cpu">
-    <type>CPU</type>
-  </device>
+      <secondary slot="1">
+        <ROM id="MSX Hangul Driver">
+          <rom>
+            <filename>roms/cpc-300_hangul.rom</filename>
+            <sha1>47a9d9a24e4fc6f9467c6e7d61a02d45f5a753ef</sha1>
+          </rom>
+          <mem base="0x4000" size="0x8000"/>
+        </ROM>
+      </secondary>
 
-  <device id="Printer Port">
-    <type>PrinterPort</type>
-  </device>
+      <secondary slot="2">
+        <MemoryMapper id="Main RAM">
+          <slow_drain_on_reset>false</slow_drain_on_reset>
+          <size>128</size>
+          <mem base="0x0000" size="0x10000"/>
+        </MemoryMapper>
+      </secondary>
 
-  <config id="CassettePort">
-  </config>
+      <secondary slot="3">
+        <ROM id="MSX Sub ROM">
+          <rom>
+            <filename>roms/cpc-300_msx2sub.rom</filename>
+            <sha1>fb51c505adfbc174df94289fa894ef969f5357bc</sha1>
+          </rom>
+          <mem base="0x0000" size="0x8000"/>
+        </ROM>
+      </secondary>
+
+    </primary>
+
+    <primary external="true" slot="1"/>
+
+    <primary slot="2"/>
+
+    <primary external="true" slot="3"/>
+
+  </devices>
 
 </msxconfig>

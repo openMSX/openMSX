@@ -1,41 +1,44 @@
-<?xml version="1.0"?>
+<?xml version="1.0" ?>
 <!-- $Id$ -->
-<!DOCTYPE msxconfig SYSTEM "msxconfig2.dtd">
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
 
   <info>
     <manufacturer>Canon</manufacturer>
     <code>V-20</code>
     <release_year>1984?</release_year>
-    <description></description>
+    <description/>
     <type>MSX</type>
   </info>
 
   <CassettePort/>
 
   <devices>
+
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <mem base="0x0000" size="0x8000"/>
-	<rom>
-	  <sha1>8963fc041975f31dc2ab1019cfdd4967999de53e</sha1>
-	  <filename>roms/v-20_basic-bios1.rom</filename>
-	</rom>
+        <rom>
+          <sha1>8963fc041975f31dc2ab1019cfdd4967999de53e</sha1>
+          <filename>roms/v-20_basic-bios1.rom</filename>
+        </rom>
       </ROM>
     </primary>
 
-    <primary slot="1" external="true"/>
+    <primary external="true" slot="1"/>
 
     <primary slot="2">
+
       <secondary slot="0">
         <RAM id="Main RAM">
-	  <mem base="0x0000" size="0x10000"/>
-	  <slow_drain_on_reset>false</slow_drain_on_reset>
-	</RAM>
+          <mem base="0x0000" size="0x10000"/>
+          <slow_drain_on_reset>false</slow_drain_on_reset>
+        </RAM>
       </secondary>
+
     </primary>
-    
-    <primary slot="3" external="true"/>
+
+    <primary external="true" slot="3"/>
 
     <PPI id="ppi">
       <io base="0xA8" num="4"/>
@@ -65,5 +68,5 @@
     </PrinterPort>
 
   </devices>
-</msxconfig>
 
+</msxconfig>

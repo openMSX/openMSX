@@ -1,93 +1,103 @@
-<?xml version="1.0"?>
+<?xml version="1.0" ?>
 <!-- $Id$ -->
-<!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
 
   <info>
     <manufacturer>Philips</manufacturer>
     <code>NMS 8220</code>
     <release_year>1986</release_year>
-    <description></description>
+    <description/>
     <type>MSX2</type>
   </info>
 
-  <config id="ExternalSlots">
-    <parameter name="slota">1-0</parameter>
-    <parameter name="slotb">2-0</parameter>
-  </config>
+  <MapperReadBackBits>largest</MapperReadBackBits>
 
-  <config id="MotherBoard">
-    <parameter name="0" class="subslotted">false</parameter>
-    <parameter name="1" class="subslotted">false</parameter>
-    <parameter name="2" class="subslotted">false</parameter>
-    <parameter name="3" class="subslotted">true</parameter>
-  </config>
+  <CassettePort/>
 
-  <config id="MapperType">
-    <parameter name="type">Philips</parameter>
-  </config>
+  <devices>
 
-  <device id="Main RAM">
-    <type>MemoryMapper</type>
-    <slotted> <ps>3</ps> <ss>2</ss> <page>0</page> </slotted>
-    <slotted> <ps>3</ps> <ss>2</ss> <page>1</page> </slotted>
-    <slotted> <ps>3</ps> <ss>2</ss> <page>2</page> </slotted>
-    <slotted> <ps>3</ps> <ss>2</ss> <page>3</page> </slotted>
-    <parameter name="slow_drain_on_reset">false</parameter>
-    <parameter name="size">64</parameter>
-  </device>
+    <PPI id="ppi">
+      <key_ghosting>true</key_ghosting>
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <io base="0xA8" num="4"/>
+    </PPI>
 
-  <device id="MSX BIOS with BASIC ROM">
-    <type>Rom</type>
-    <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
-    <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
-    <parameter name="filename">roms/nms8220_basic-bios2.rom</parameter>
-  </device>
+    <VDP id="VDP">
+      <version>V9938</version>
+      <vram>128</vram>
+      <io base="0x98" num="4" type="O"/>
+      <io base="0x98" num="2" type="I"/>
+    </VDP>
 
-  <device id="MSX Sub ROM">
-    <type>Rom</type>
-    <slotted> <ps>3</ps> <ss>0</ss> <page>0</page> </slotted>
-    <parameter name="filename">roms/nms8220_msx2sub.rom</parameter>
-  </device>
+    <PSG id="PSG">
+      <sound>
+        <volume>21000</volume>
+      </sound>
+      <io base="0xA0" num="2" type="O"/>
+      <io base="0xA2" num="1" type="I"/>
+    </PSG>
 
-  <device id="MSX Designer">
-    <type>Rom</type>
-    <slotted> <ps>3</ps> <ss>3</ss> <page>1</page> </slotted>
-    <parameter name="filename">roms/nms8220_designer.rom</parameter>
-  </device>
+    <RTC id="Real time clock">
+      <sramname>nms_8220.cmos</sramname>
+      <io base="0xB4" num="2" type="O"/>
+      <io base="0xB5" num="1" type="I"/>
+    </RTC>
 
-  <device id="ppi">
-    <type>PPI</type>
-    <parameter name="volume">16000</parameter>
-    <parameter name="key_ghosting">true</parameter>
-  </device>
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="2"/>
+    </PrinterPort>
 
-  <device id="VDP">
-    <type>VDP</type>
-    <parameter name="version">V9938</parameter>
-    <parameter name="vram">128</parameter>
-  </device>
+    <primary slot="0">
+      <ROM id="MSX BIOS with BASIC ROM">
+        <rom>
+          <filename>roms/nms8220_basic-bios2.rom</filename>
+          <sha1>6103b39f1e38d1aa2d84b1c3219c44f1abb5436e</sha1>
+        </rom>
+        <mem base="0x0000" size="0x8000"/>
+      </ROM>
+    </primary>
 
-  <device id="PSG">
-    <type>PSG</type>
-    <parameter name="volume">21000</parameter>
-  </device>
+    <primary external="true" slot="1"/>
 
-  <device id="Real time clock">
-    <type>RTC</type>
-    <parameter name="mode">EmuTime</parameter>
-    <parameter name="sramname">nms_8220.cmos</parameter>
-  </device>
+    <primary external="true" slot="2"/>
 
-  <device id="cpu">
-    <type>CPU</type>
-  </device>
+    <primary slot="3">
 
-  <device id="Printer Port">
-    <type>PrinterPort</type>
-  </device>
+      <secondary slot="0">
+        <ROM id="MSX Sub ROM">
+          <rom>
+            <filename>roms/nms8220_msx2sub.rom</filename>
+            <sha1>f5eb0a396097572589f2a6efeed045044e9425e4</sha1>
+          </rom>
+          <mem base="0x0000" size="0x4000"/>
+        </ROM>
+      </secondary>
 
-  <config id="CassettePort">
-  </config>
+      <secondary slot="1"/>
+
+      <secondary slot="2">
+        <MemoryMapper id="Main RAM">
+          <slow_drain_on_reset>false</slow_drain_on_reset>
+          <size>64</size>
+          <mem base="0x0000" size="0x10000"/>
+        </MemoryMapper>
+      </secondary>
+
+      <secondary slot="3">
+        <ROM id="MSX Designer">
+          <rom>
+            <filename>roms/nms8220_designer.rom</filename>
+            <sha1>cb754aed85b3e97a7d3c5894310df7ca18f89f41</sha1>
+          </rom>
+          <mem base="0x4000" size="0x4000"/>
+        </ROM>
+      </secondary>
+
+    </primary>
+
+  </devices>
 
 </msxconfig>

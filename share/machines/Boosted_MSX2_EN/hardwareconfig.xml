@@ -1,6 +1,6 @@
-<?xml version="1.0"?>
+<?xml version="1.0" ?>
 <!-- $Id$ -->
-<!DOCTYPE msxconfig SYSTEM "msxconfig2.dtd">
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
 
   <info>
@@ -16,6 +16,7 @@
   <CassettePort/>
 
   <devices>
+
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <mem base="0x0000" size="0x8000"/>
@@ -26,10 +27,12 @@
       </ROM>
     </primary>
 
-    <primary slot="1" external="true"/>
-    <primary slot="2" external="true"/>
+    <primary external="true" slot="1"/>
+
+    <primary external="true" slot="2"/>
 
     <primary slot="3">
+
       <secondary slot="0">
         <ROM id="MSX Sub ROM">
           <mem base="0x0000" size="0x4000"/>
@@ -51,7 +54,7 @@
       <secondary slot="3">
         <WD2793 id="Memory Mapped FDC">
           <mem base="0x4000" size="0x8000"/>
-          <broken_fdc_read>false</broken_fdc_read> 
+          <broken_fdc_read>false</broken_fdc_read>
           <rom>
             <sha1>c3efedda7ab947a06d9345f7b8261076fa7ceeef</sha1>
             <sha1>1f0d4ee511874a9ccba10141b51da8e07451a141</sha1>
@@ -60,6 +63,7 @@
           <drives>2</drives>
         </WD2793>
       </secondary>
+
     </primary>
 
     <PPI id="ppi">
@@ -96,6 +100,7 @@
     </PrinterPort>
 
     <primary slot="3">
+
       <secondary slot="1">
         <FMPAC id="PanaSoft SW-M004 FMPAC">
           <io base="0x7C" num="2" type="O"/>
@@ -111,6 +116,7 @@
           <sramname>fmpac.pac</sramname>
         </FMPAC>
       </secondary>
+
     </primary>
 
     <MSX-AUDIO id="Generic MSX-Audio">
@@ -141,6 +147,7 @@
     </MoonSound>
 
     <primary slot="2">
+
       <secondary slot="0">
         <SCCplus id="Konami SCC+ Cartridge with expanded RAM">
           <mem base="0x4000" size="0x8000"/>
@@ -158,9 +165,9 @@
           <size>512</size>
         </MegaRam>
       </secondary>
+
     </primary>
-  
+
   </devices>
 
 </msxconfig>
-

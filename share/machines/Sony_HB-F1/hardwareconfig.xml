@@ -1,104 +1,117 @@
-<?xml version="1.0"?>
+<?xml version="1.0" ?>
 <!-- $Id$ -->
-<!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
 
   <info>
     <manufacturer>Sony</manufacturer>
     <code>HB-F1</code>
     <release_year>1986</release_year>
-    <description></description>
+    <description/>
     <type>MSX2</type>
   </info>
 
-  <config id="ExternalSlots">
-    <parameter name="slota">1-0</parameter>
-    <parameter name="slotb">2-0</parameter>
-  </config>
+  <MapperReadBackBits>largest</MapperReadBackBits>
 
-  <config id="MotherBoard">
-    <parameter name="0" class="subslotted">false</parameter>
-    <parameter name="1" class="subslotted">false</parameter>
-    <parameter name="2" class="subslotted">false</parameter>
-    <parameter name="3" class="subslotted">true</parameter>
-  </config>
+  <CassettePort/>
 
-  <config id="MapperType">
-    <parameter name="type">Philips</parameter>
-  </config>
+  <devices>
 
-  <device id="Main RAM">
-    <type>RAM</type>
-    <slotted> <ps>3</ps> <ss>3</ss> <page>0</page> </slotted>
-    <slotted> <ps>3</ps> <ss>3</ss> <page>1</page> </slotted>
-    <slotted> <ps>3</ps> <ss>3</ss> <page>2</page> </slotted>
-    <slotted> <ps>3</ps> <ss>3</ss> <page>3</page> </slotted>
-  </device>
+    <PPI id="ppi">
+      <key_ghosting>true</key_ghosting>
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <io base="0xA8" num="4"/>
+    </PPI>
 
-  <device id="MSX BIOS with BASIC ROM">
-    <type>Rom</type>
-    <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
-    <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
-    <parameter name="filename">roms/hb-f1_basic-bios2.rom</parameter>
-  </device>
+    <VDP id="VDP">
+      <version>V9938</version>
+      <vram>128</vram>
+      <io base="0x98" num="4" type="O"/>
+      <io base="0x98" num="2" type="I"/>
+    </VDP>
 
-  <device id="MSX Sub ROM">
-    <type>Rom</type>
-    <slotted> <ps>3</ps> <ss>0</ss> <page>0</page> </slotted>
-    <parameter name="filename">roms/hb-f1_msx2sub.rom</parameter>
-  </device>
+    <PSG id="PSG">
+      <keyboardlayout>50on</keyboardlayout>
+      <sound>
+        <volume>21000</volume>
+      </sound>
+      <io base="0xA0" num="2" type="O"/>
+      <io base="0xA2" num="1" type="I"/>
+    </PSG>
 
-  <device id="Firmware 1">
-    <type>Rom</type>
-    <slotted> <ps>3</ps> <ss>0</ss> <page>1</page> </slotted>
-    <parameter name="filename">roms/hb-f1_firmware1.rom</parameter>
-  </device>
+    <RTC id="Real time clock">
+      <sramname>hb-f1.cmos</sramname>
+      <io base="0xB4" num="2" type="O"/>
+      <io base="0xB5" num="1" type="I"/>
+    </RTC>
 
-  <device id="Firmware 2">
-    <type>Rom</type>
-    <slotted> <ps>3</ps> <ss>1</ss> <page>1</page> </slotted>
-    <parameter name="filename">roms/hb-f1_firmware2.rom</parameter>
-  </device>
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="2"/>
+    </PrinterPort>
 
-  <device id="Firmware 3">
-    <type>Rom</type>
-    <slotted> <ps>3</ps> <ss>2</ss> <page>1</page> </slotted>
-    <parameter name="filename">roms/hb-f1_firmware3.rom</parameter>
-  </device>
+    <primary slot="0">
+      <ROM id="MSX BIOS with BASIC ROM">
+        <rom>
+          <filename>roms/hb-f1_basic-bios2.rom</filename>
+          <sha1>0081ea0d25bc5cd8d70b60ad8cfdc7307812c0fd</sha1>
+        </rom>
+        <mem base="0x0000" size="0x8000"/>
+      </ROM>
+    </primary>
 
-  <device id="ppi">
-    <type>PPI</type>
-    <parameter name="volume">16000</parameter>
-    <parameter name="key_ghosting">true</parameter>
-  </device>
+    <primary external="true" slot="1"/>
 
-  <device id="VDP">
-    <type>VDP</type>
-    <parameter name="version">V9938</parameter>
-    <parameter name="vram">128</parameter>
-  </device>
+    <primary external="true" slot="2"/>
 
-  <device id="PSG">
-    <type>PSG</type>
-    <parameter name="volume">21000</parameter>
-    <parameter name="keyboardlayout">50on</parameter>
-  </device>
+    <primary slot="3">
 
-  <device id="Real time clock">
-    <type>RTC</type>
-    <parameter name="mode">EmuTime</parameter>
-    <parameter name="sramname">hb-f1.cmos</parameter>
-  </device>
+      <secondary slot="0">
+        <ROM id="MSX Sub ROM">
+          <rom>
+            <filename>roms/hb-f1_msx2sub.rom</filename>
+            <sha1>b8e30d604d319d511cbfbc61e5d8c38fbb9c5a33</sha1>
+          </rom>
+          <mem base="0x0000" size="0x4000"/>
+        </ROM>
+        <ROM id="Firmware 1">
+          <rom>
+            <filename>roms/hb-f1_firmware1.rom</filename>
+            <sha1>9db72bb78792595a12499c821048504dc96ef848</sha1>
+          </rom>
+          <mem base="0x4000" size="0x4000"/>
+        </ROM>
+      </secondary>
 
-  <device id="cpu">
-    <type>CPU</type>
-  </device>
+      <secondary slot="1">
+        <ROM id="Firmware 2">
+          <rom>
+            <filename>roms/hb-f1_firmware2.rom</filename>
+            <sha1>aa78fc9bcd2343f84cf790310a768ee47f90c841</sha1>
+          </rom>
+          <mem base="0x4000" size="0x4000"/>
+        </ROM>
+      </secondary>
 
-  <device id="Printer Port">
-    <type>PrinterPort</type>
-  </device>
+      <secondary slot="2">
+        <ROM id="Firmware 3">
+          <rom>
+            <filename>roms/hb-f1_firmware3.rom</filename>
+            <sha1>58accf41a90693874b86ce98d8d43c27beb8b6dc</sha1>
+          </rom>
+          <mem base="0x4000" size="0x4000"/>
+        </ROM>
+      </secondary>
 
-  <config id="CassettePort">
-  </config>
+      <secondary slot="3">
+        <RAM id="Main RAM">
+          <mem base="0x0000" size="0x10000"/>
+        </RAM>
+      </secondary>
+
+    </primary>
+
+  </devices>
 
 </msxconfig>

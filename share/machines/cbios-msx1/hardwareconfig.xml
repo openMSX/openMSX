@@ -1,6 +1,6 @@
-<?xml version="1.0"?>
+<?xml version="1.0" ?>
 <!-- $Id$ -->
-<!DOCTYPE msxconfig SYSTEM "msxconfig2.dtd">
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
 
   <info>
@@ -14,6 +14,7 @@
   <CassettePort/>
 
   <devices>
+
     <primary slot="0">
       <ROM id="C-BIOS Main ROM">
         <mem base="0x0000" size="0x8000"/>
@@ -23,10 +24,10 @@
         </rom>
       </ROM>
     </primary>
-    
-    <primary slot="1" external="true"/>
 
-    <primary slot="2" external="true"/>
+    <primary external="true" slot="1"/>
+
+    <primary external="true" slot="2"/>
 
     <primary slot="3">
       <RAM id="Main RAM">

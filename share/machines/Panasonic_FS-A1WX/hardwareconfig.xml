@@ -1,27 +1,29 @@
-<?xml version="1.0"?>
+<?xml version="1.0" ?>
 <!-- $Id$ -->
-<!DOCTYPE msxconfig SYSTEM "msxconfig2.dtd">
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
 
   <info>
     <manufacturer>Panasonic</manufacturer>
     <code>FS-A1WX</code>
     <release_year>1988</release_year>
-    <description></description>
+    <description/>
     <type>MSX2+</type>
   </info>
 
   <RenShaTurbo>
-     <min_ints>47</min_ints>
-     <max_ints>221</max_ints>
+    <min_ints>47</min_ints>
+    <max_ints>221</max_ints>
   </RenShaTurbo>
 
   <MapperReadBackBits>largest</MapperReadBackBits>
-  
+
   <CassettePort/>
- 
+
   <devices>
+
     <primary slot="0">
+
       <secondary slot="0">
         <ROM id="MSX BIOS with BASIC ROM">
           <mem base="0x0000" size="0x8000"/>
@@ -40,18 +42,20 @@
             <filename>roms/fs-a1wx_fmbasic.rom</filename>
           </rom>
           <sound>
-            <volume>9000</volume>   
+            <volume>9000</volume>
             <mode>mono</mode>
           </sound>
         </MSX-MUSIC>
       </secondary>
+
     </primary>
 
-    <primary slot="1" external="true"/>
-    
-    <primary slot="2" external="true"/>
-    
+    <primary external="true" slot="1"/>
+
+    <primary external="true" slot="2"/>
+
     <primary slot="3">
+
       <secondary slot="0">
         <MemoryMapper id="Main RAM">
           <mem base="0x0000" size="0x10000"/>
@@ -59,7 +63,7 @@
           <size>64</size>
         </MemoryMapper>
       </secondary>
- 
+
       <secondary slot="1">
         <ROM id="MSX Sub ROM">
           <mem base="0x0000" size="0x4000"/>
@@ -68,7 +72,6 @@
             <filename>roms/fs-a1wx_msx2psub.rom</filename>
           </rom>
         </ROM>
-
         <ROM id="MSX Kanji Driver with BASIC">
           <mem base="0x4000" size="0x8000"/>
           <rom>
@@ -102,6 +105,7 @@
           <sramname>fs-a1wx.sram</sramname>
         </ROM>
       </secondary>
+
     </primary>
 
     <Kanji id="Kanji ROM">
@@ -150,7 +154,7 @@
       <io base="0xF4" num="1"/>
       <inverted>false</inverted>
     </F4Device>
-  
+
     <Matsushita id="Matsushita">
       <sramname>fs-a1wx_matsushita.sram</sramname>
     </Matsushita>
