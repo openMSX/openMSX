@@ -17,6 +17,7 @@
 using std::string;
 using std::auto_ptr;
 
+
 namespace openmsx {
 
 class Renderer;
@@ -464,15 +465,6 @@ private:
 		VDP& vdp;
 	} paletteCmd;
 	
-	class ScreenShotCmd : public SimpleCommand {
-	public:
-		ScreenShotCmd(VDP& vdp);
-		virtual string execute(const vector<string>& tokens);
-		virtual string help(const vector<string>& tokens) const;
-	private:
-		VDP& vdp;
-	} screenShotCmd;
-
 	/** Time at which the internal VDP display line counter is reset,
 	  * expressed in ticks after vsync.
 	  * I would expect the counter to reset at line 16, but measurements

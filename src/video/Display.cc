@@ -2,8 +2,11 @@
 
 #include "Display.hh"
 #include "VideoSystem.hh"
+#include "ScreenShotSaver.hh"
 #include "EventDistributor.hh"
+#include "CommandController.hh"
 #include "CommandException.hh"
+#include "CliCommOutput.hh"
 #include <cassert>
 
 
@@ -20,16 +23,21 @@ Layer::~Layer()
 auto_ptr<Display> Display::INSTANCE;
 
 Display::Display(auto_ptr<VideoSystem> videoSystem)
+	: screenShotCmd(*this)
 {
 	this->videoSystem = videoSystem;
 	forceRepaint = false;
 
 	EventDistributor::instance().registerEventListener(
 		FINISH_FRAME_EVENT, *this, EventDistributor::NATIVE );
+	CommandController::instance().registerCommand(
+		&screenShotCmd, "screenshot" );
 }
 
 Display::~Display()
 {
+	CommandController::instance().unregisterCommand(
+		&screenShotCmd, "screenshot" );
 	EventDistributor::instance().unregisterEventListener(
 		FINISH_FRAME_EVENT, *this, EventDistributor::NATIVE );
 	for (vector<LayerInfo*>::iterator it = layers.begin();
@@ -145,6 +153,39 @@ void Display::setAlpha(Layer* layer, byte alpha)
 	vector<LayerInfo*>::iterator it = findLayer(layer);
 	(*it)->alpha = alpha;
 	forceRepaint = true;
+}
+
+// ScreenShotCmd inner class:
+
+Display::ScreenShotCmd::ScreenShotCmd(Display& display_)
+	: display(display_)
+{
+}
+
+string Display::ScreenShotCmd::execute(const vector<string>& tokens)
+{
+	string filename;
+	switch (tokens.size()) {
+	case 1:
+		filename = ScreenShotSaver::getFileName();
+		break;
+	case 2:
+		filename = tokens[1];
+		break;
+	default:
+		throw SyntaxError();
+	}
+	
+	Display::INSTANCE->getVideoSystem()->takeScreenShot(filename);
+	CliCommOutput::instance().printInfo("Screen saved to " + filename);
+	return filename;
+}
+
+string Display::ScreenShotCmd::help(const vector<string>& /*tokens*/) const
+{
+	return
+		"screenshot             Write screenshot to file \"openmsxNNNN.png\"\n"
+		"screenshot <filename>  Write screenshot to indicated file\n";
 }
 
 // LayerInfo:

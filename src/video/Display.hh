@@ -5,6 +5,7 @@
 
 //#include "VideoSystem.hh"
 #include "EventListener.hh"
+#include "Command.hh"
 #include "openmsx.hh"
 #include <memory>
 #include <string>
@@ -100,6 +101,16 @@ private:
 
 	bool forceRepaint;
 	auto_ptr<VideoSystem> videoSystem;
+
+	class ScreenShotCmd : public SimpleCommand {
+	public:
+		ScreenShotCmd(Display& display);
+		virtual string execute(const vector<string>& tokens);
+		virtual string help(const vector<string>& tokens) const;
+	private:
+		Display& display;
+	} screenShotCmd;
+
 };
 
 } // namespace openmsx

@@ -32,10 +32,6 @@ TODO:
 #include "RenderSettings.hh"
 #include "RendererFactory.hh"
 #include "Debugger.hh"
-#include "ScreenShotSaver.hh"
-#include "CliCommOutput.hh"
-#include "Display.hh" // TODO: Remove after screenshot is moved.
-#include "VideoSystem.hh" // TODO: Remove after screenshot is moved.
 
 using std::setw;
 
@@ -53,7 +49,6 @@ VDP::VDP(const XMLElement& config, const EmuTime& time)
 	, vdpStatusRegDebug(*this)
 	, vdpRegsCmd(*this)
 	, paletteCmd(*this)
-	, screenShotCmd(*this)
 {
 	PRT_DEBUG("Creating a VDP object");
 
@@ -121,7 +116,6 @@ VDP::VDP(const XMLElement& config, const EmuTime& time)
 	// Register console commands.
 	CommandController::instance().registerCommand(&vdpRegsCmd, "vdpregs");
 	CommandController::instance().registerCommand(&paletteCmd, "palette");
-	CommandController::instance().registerCommand(&screenShotCmd, "screenshot");
 
 	Debugger::instance().registerDebuggable("VDP regs", vdpRegDebug);
 	Debugger::instance().registerDebuggable("VDP status regs", vdpStatusRegDebug);
@@ -144,7 +138,6 @@ VDP::~VDP()
 	Debugger::instance().unregisterDebuggable("VDP status regs", vdpStatusRegDebug);
 	Debugger::instance().unregisterDebuggable("VDP regs", vdpRegDebug);
 
-	CommandController::instance().unregisterCommand(&screenShotCmd, "screenshot");
 	CommandController::instance().unregisterCommand(&vdpRegsCmd,  "vdpregs");
 	CommandController::instance().unregisterCommand(&paletteCmd,  "palette");
 }
@@ -1156,38 +1149,6 @@ string VDP::PaletteCmd::execute(const vector<string>& /*tokens*/)
 string VDP::PaletteCmd::help(const vector<string>& /*tokens*/) const
 {
 	return "Prints the current VDP palette (i:rgb).\n";
-}
-
-// ScreenShotCmd inner class
-// TODO: Move elsewhere.
-VDP::ScreenShotCmd::ScreenShotCmd(VDP& vdp_)
-	: vdp(vdp_)
-{
-}
-
-string VDP::ScreenShotCmd::execute(const vector<string>& tokens)
-{
-	string filename;
-	switch (tokens.size()) {
-	case 1:
-		filename = ScreenShotSaver::getFileName();
-		break;
-	case 2:
-		filename = tokens[1];
-		break;
-	default:
-		throw SyntaxError();
-	}
-	
-	Display::INSTANCE->getVideoSystem()->takeScreenShot(filename);
-	CliCommOutput::instance().printInfo("Screen saved to " + filename);
-	return filename;
-}
-
-string VDP::ScreenShotCmd::help(const vector<string>& /*tokens*/) const
-{
-	return "screenshot             Write screenshot to file \"openmsxNNNN.png\"\n"
-	       "screenshot <filename>  Write screenshot to indicated file\n";
 }
 
 } // namespace openmsx
