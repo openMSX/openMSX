@@ -6,7 +6,7 @@
 DummyDevice::DummyDevice()
 {
 	PRT_DEBUG ("Instantiating dummy device");
-	deviceName = new string("Dummy device");
+	deviceName = new std::string("Dummy device");
 }
 
 DummyDevice::~DummyDevice()

@@ -28,17 +28,17 @@ void MSXRom16KB::init()
 		PRT_ERROR("Couldn't create 16KB rom bank !!!!!!");
 	
 	// read the rom file
-	string filename=deviceConfig->getParameter("romfile");
+	std::string filename=deviceConfig->getParameter("romfile");
 	int offset = atoi(deviceConfig->getParameter("skip_headerbytes").c_str());
 	
-	ifstream file(filename.c_str());
+	std::ifstream<byte> file(filename.c_str());
 	file.seekg(offset);
 	file.read(memoryBank, ROM_SIZE);
 	if (file.fail())
 		PRT_ERROR("Error reading " << filename);
 	
 	// register in slot-structure
-	list<MSXConfig::Device::Slotted*>::const_iterator i;
+	std::list<MSXConfig::Device::Slotted*>::const_iterator i;
 	for (i=deviceConfig->slotted.begin(); i!=deviceConfig->slotted.end(); i++) {
 		int ps=(*i)->getPS();
 		int ss=(*i)->getSS();
