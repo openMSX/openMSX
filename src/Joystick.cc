@@ -8,18 +8,18 @@
 Joystick::Joystick(int joyNum)
 {
 	PRT_DEBUG("Creating a Joystick object for joystick " << joyNum);
-	
+
 	if (!SDLJoysticksInitialized) {
 		SDL_InitSubSystem(SDL_INIT_JOYSTICK);
 		SDL_JoystickEventState(SDL_ENABLE);	// joysticks generate events
 		SDLJoysticksInitialized = true;
 	}
 
-	if (SDL_NumJoysticks() <= joyNum) 
+	if (SDL_NumJoysticks() <= joyNum)
 		throw JoystickException("No such joystick number");
 
-	name = std::string("joystick")+(char)("1"+joyNum);
-	
+	name = std::string("joystick")+(char)('1'+joyNum);
+
 	PRT_DEBUG("Opening joystick " << SDL_JoystickName(joyNum));
 	this->joyNum = joyNum;
 	joystick = SDL_JoystickOpen(joyNum);
