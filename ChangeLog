@@ -1,5 +1,10 @@
 $Id$
 
+2003-03-03 Maarten ter Huurne <maarten@treewalker.org>
+	* Fixed bug in PixelRenderer: finishFrame was called every frame,
+	  even with frame skip active.
+	  This also fixes the special effects in GL with frame skip active.
+
 2003-03-02 Maarten ter Huurne <maarten@treewalker.org>
 	* Introduced RendererFactory.
 	  This should help in making the renderer selection a setting.

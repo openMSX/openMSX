@@ -178,7 +178,7 @@ void PixelRenderer::putImage(const EmuTime &time)
 	sync(time);
 
 	// Let underlying graphics system finish rendering this frame.
-	finishFrame();
+	if (curFrameSkip == 0) finishFrame();
 
 	// The screen will be locked for a while, so now is a good time
 	// to perform real time sync.
