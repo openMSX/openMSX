@@ -5,30 +5,9 @@ About Contrib
 
 This directory contains third-party software that is distributed together
 with openMSX. These packages are not part of openMSX: they are maintained
-and licensed separately. Please read the documentation files of the
-contributed packages for details.
+and licensed separately. Please read the README.<package> file and the
+documentation files of the contributed packages for details.
 
 We would like to thank the contributors for the software they created and
 for allowing us to distribute it.
-
-
-Contents
-========
-
-cbios: C-BIOS 0.17 (2003-08-14)
-	C-BIOS is a BIOS written from scratch that aims to be compatible with
-	the MSX BIOS. The current version runs most MSX1 ROM games succesfully
-	and many MSX2 ROM games as well.
-	The machine configurations "cbios-msx1" and "cbios-msx2" let you use
-	C-BIOS in openMSX.
-
-	original author: BouKiCHi (boukichi@emucamp.com)
-	current maintainer: Reikan (cbios@ranpub.com)
-	home page: http://www.ranpub.com/CBIOS/
-
-msxdos_bootsectors.zip (2002-10-29)
-	Contains the Standard MSX Boot Sector by ASCII & MS.
-	for MSX-DOS 1&2 1DD/2DD disks
-
-	donated by atarulum (atarulum@yahoo.co.jp)
 

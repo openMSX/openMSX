@@ -1,0 +1,15 @@
+$Id$
+
+C-BIOS 0.17 (2003-08-14)
+========================
+
+C-BIOS is a BIOS written from scratch that aims to be compatible with the
+MSX BIOS. The current version runs most MSX1 ROM games succesfully and
+many MSX2 ROM games as well.
+The machine configurations "cbios-msx1" and "cbios-msx2" let you use C-BIOS
+in openMSX.
+
+original author:     BouKiCHi (boukichi@emucamp.com)
+current maintainer:  Reikan (cbios@ranpub.com)
+home page:           http://www.ranpub.com/CBIOS/
+
