@@ -52,15 +52,20 @@ void MSXAudio::reset(const EmuTime &time)
 
 byte MSXAudio::readIO(byte port, const EmuTime &time)
 {
+	byte result;
 	switch (port) {
 		case 0xc0:
-			return y8950->readStatus();
+			result = y8950->readStatus();
+			break;
 		case 0xc1:
-			return y8950->readReg(registerLatch, time);
+			result = y8950->readReg(registerLatch, time);
+			break;
 		default:
 			assert(false);
-			return 0;	// avoid warning
+			result = 0;	// avoid warning
 	}
+	PRT_DEBUG("Audio: read "<<std::hex<<(int)port<<" "<<(int)result<<std::dec);
+	return result;
 }
 
 void MSXAudio::writeIO(byte port, byte value, const EmuTime &time)

@@ -1,6 +1,9 @@
 $Id$
 
-2002-08-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2002-08-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* FDC supports 2 drives
+
+2002-08-28 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented pixel-accurate rendering in SDLGLRenderer:
 	   - scope part in Unknown Reality is correct now!
 	   - some parts are _very_ slow now, implementation can still be

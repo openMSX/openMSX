@@ -134,6 +134,7 @@
     <!-- use to instantiate the correct FDC -->
     <parameter name="chip">2793</parameter>
     <parameter name="drivename1">diska</parameter>
+    <parameter name="drivename2">diskb</parameter>
   </device>
 
 <!--

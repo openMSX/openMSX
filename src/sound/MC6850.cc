@@ -25,15 +25,21 @@ void MC6850::reset(const EmuTime &time)
 
 byte MC6850::readIO(byte port, const EmuTime &time)
 {
+	byte result;
 	switch (port) {
 		case 0x04:
 			// read status
-			return 2;
+			result = 2;
+			break;
 		case 0x05:
 			// read data
-			return 0;
+			result = 0;
+			break;
+		default:
+			result = 0;	// avoid warning
 	}
-	return 0;	// avoid warning
+	PRT_DEBUG("Audio: read "<<std::hex<<(int)port<<" "<<(int)result<<std::dec);
+	return result;
 }
 
 void MC6850::writeIO(byte port, byte value, const EmuTime &time)

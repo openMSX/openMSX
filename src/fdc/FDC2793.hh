@@ -6,6 +6,9 @@
 #include "FDC.hh"
 #include "MSXConfig.hh"
 
+// forward declarations
+class FDCBackEnd;
+
 
 class FDC2793 : public FDC
 {
@@ -31,11 +34,14 @@ class FDC2793 : public FDC
 	virtual void setMotor(byte value,const EmuTime &time);
 
 	FDC2793(MSXConfig::Device *config);
+	
   private:
-    
+	FDCBackEnd* getBackEnd();
+	
 	byte timePerStep[4]; // {3,6,10,15} in ms case of of 2 MHz clock, double this if a 1MHz clock is used! (MSX=1MHz clock :-)
 	
-  	std::string driveName1;
+  	std::string driveName[2];
+	int numDrives;	// number of connected drives (1 or 2)
 
 	/*
 	EmuTime commandStart;
