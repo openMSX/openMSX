@@ -9,7 +9,7 @@
 
 
 TurboRFDC::TurboRFDC(Device *config, const EmuTime &time)
-	: MSXFDC(config, time), MSXDevice(config, time), controller(drives, time)
+	: MSXDevice(config, time), MSXFDC(config, time), controller(drives, time)
 {
 	reset(time);
 }

@@ -6,7 +6,7 @@
 
 
 MicrosolFDC::MicrosolFDC(Device *config, const EmuTime &time)
-	: WD2793BasedFDC(config, time), MSXDevice(config, time),
+	: MSXDevice(config, time), WD2793BasedFDC(config, time),
 	  MSXIODevice(config, time)
 {
 }

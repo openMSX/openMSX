@@ -8,7 +8,7 @@
 
 
 PhilipsFDC::PhilipsFDC(Device *config, const EmuTime &time)
-	: WD2793BasedFDC(config, time), MSXDevice(config, time)
+	: MSXDevice(config, time), WD2793BasedFDC(config, time)
 {
 	if (deviceConfig->hasParameter("brokenFDCread")) {
 		brokenFDCread = deviceConfig->getParameterAsBool("brokenFDCread");

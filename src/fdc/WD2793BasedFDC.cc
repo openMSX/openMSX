@@ -4,7 +4,7 @@
 
 
 WD2793BasedFDC::WD2793BasedFDC(Device *config, const EmuTime &time)
-	: MSXFDC(config, time), MSXDevice(config, time),
+	: MSXDevice(config, time), MSXFDC(config, time),
 	  multiplexer(drives), controller(&multiplexer, time)
 {
 }
