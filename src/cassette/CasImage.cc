@@ -36,7 +36,7 @@ CasImage::CasImage(FileContext *context, const string &fileName)
 		size = file.getSize();
 		buf = file.mmap();
 		pos = 0;
-		baudRate = 1200;
+		baudRate = 2400;
 		convert();
 		file.munmap();
 	} catch (FileException &e) {
