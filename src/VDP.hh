@@ -33,6 +33,9 @@ class VDPCmdEngine;
   * Observer pattern: a VDP object fires events when its state changes,
   * the Renderer can retrieve the new state if necessary by calling
   * methods on the VDP object.
+  *
+  * A note about timing: the start of a frame or line is defined as
+  * the starting time of the corresponding sync (vsync, hsync).
   */
 class VDP : public MSXIODevice, private Schedulable, private HotKeyListener
 {
@@ -105,6 +108,15 @@ public:
 	  */
 	inline int getDisplayMode() {
 		return displayMode;
+	}
+
+	/** Is the current mode a text mode?
+	  * Text1 and Text2 are text modes.
+	  * @return True iff the current mode is a bitmap mode.
+	  */
+	inline bool isTextMode() {
+		// TODO: Is the display mode check OK? Profile undefined modes.
+		return (displayMode & 0x17) == 0x01;
 	}
 
 	/** Is the current mode a bitmap mode?
@@ -422,6 +434,27 @@ private:
 		return (palTiming ? TICKS_PER_LINE * 313 : TICKS_PER_LINE * 262);
 	}
 
+	/** Gets the value of the horizontal retrace status bit.
+	  * Note that HR flipping continues at all times, not just during
+	  * vertical display range.
+	  * TODO: This method is used just once currently, if it stays
+	  *   that way substitute the code instead of having a method.
+	  * @param ticksThisFrame The screen position (in VDP ticks)
+	  *    to return HR for.
+	  * @return True iff the VDP scanning is inside the left/right
+	  *   border or left/right erase or horizontal sync.
+	  *   False iff the VDP scanning is in the display range.
+	  */
+	inline bool getHR(int ticksThisFrame) {
+		// TODO: Use display adjust register (R#18).
+		return (isTextMode()
+			? (ticksThisFrame + (87 + 27)) % TICKS_PER_LINE
+			  < (TICKS_PER_LINE - 960)
+			: (ticksThisFrame + (59 + 27)) % TICKS_PER_LINE
+			  < (TICKS_PER_LINE - 1024)
+			);
+	}
+
 	/** Update interrupt request on the bus.
 	  * To be called after each IE0/IE1 write and each F/FH status change.
 	  */
@@ -509,6 +542,11 @@ private:
 	  */
 	int displayStart;
 
+	/** VDP ticks between start of frame and the moment horizontal
+	  * scan match occurs.
+	  */
+	int horizontalScanOffset;
+
 	/** Time of last set HSCAN sync point.
 	  */
 	EmuTime hScanSyncTime;
@@ -549,7 +587,9 @@ private:
 	byte statusReg0;
 
 	/** Status register 1.
-	  * TODO: Only bit 0 can change, use a bool instead of a byte?
+	  * Bit 7 and 6 are always zero because light pen is not implemented.
+	  * Bit 0 is always zero; its calculation depends on IE1.
+	  * So all that remains is the version number.
 	  */
 	byte statusReg1;
 

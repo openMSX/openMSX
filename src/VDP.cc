@@ -4,13 +4,14 @@
 TODO:
 - Run more measurements on real MSX to find out how horizontal
   scanning interrupt really works.
-- Model of FH and IRQ:
-	HR = 1 & DL = IL & IE1 = 1 -> IRQ := 1
-	HR = 1 & DL = IL -> FH := 1
-	HR = 1 & IE1 = 0 -> FH := 0
-	read S#1 -> FH := 0, IRQ := 0
-	IE1 = 0 -> IRQ := 0
-  Implement it this way (unless measurements alter model).
+  Finish model and implement it.
+  Especially test this scenario:
+  * IE1 enabled, interrupt occurs
+  * wait until matching line is passed
+  * disable IE1
+  * read FH
+  * read FH
+  Current implementation would return FH=0 both times.
 - Keep blank / display knowledge in VDP instead of renderer:
   * VDP has all the info required to calculate it
   * VDP has to know it for sprite checking in overscan
@@ -24,6 +25,8 @@ TODO:
   This avoids cycling through all 32 possible sprites on every line.
   Keeping administration up-to-date is not that hard and happens
   at a low frequency (typically once per frame).
+- Verify model for 5th sprite number calculation.
+  For example, does it have the right value in text mode?
 - Get rid of hardcoded port 0x98..0x9B.
 - Implement overscan.
   What is the maximum number of lines? (during overscan)
@@ -468,7 +471,9 @@ void VDP::executeUntilEmuTime(const EmuTime &time, int userData)
 		break;
 	case HSCAN: {
 		// TODO: This implements Marat's guess, what does real V9938 do?
-		// TODO: This is duplicated code.
+		// TODO: If it is correct, implement it in scheduleHScan instead:
+		//       it is faster not the schedule HSCAN in the first place
+		//       than to ignore a sync.
 		/*
 		int ticksThisFrame = getTicksThisFrame(time);
 		int displayEnd =
@@ -479,7 +484,6 @@ void VDP::executeUntilEmuTime(const EmuTime &time, int userData)
 		*/
 
 		// Horizontal scanning occurs.
-		statusReg1 |= 0x01;
 		if (controlRegs[0] & 0x10) {
 			irqHorizontal = true;
 			updateIRQ();
@@ -499,21 +503,31 @@ void VDP::scheduleHScan(const EmuTime &time)
 		Scheduler::instance()->removeSyncPoint(this, HSCAN);
 	}
 
-	// Register new HSCAN sync point.
-	hScanSyncTime = frameStartTime + ( displayStart +
-		((controlRegs[19] - controlRegs[23]) & 0xFF) * TICKS_PER_LINE );
-	if (hScanSyncTime > time) {
-		Scheduler::instance()->setSyncPoint(hScanSyncTime, this, HSCAN);
+	// Calculate moment in time line match occurs.
+	horizontalScanOffset = displayStart
+		+ ((controlRegs[19] - controlRegs[23]) & 0xFF) * TICKS_PER_LINE
+		+ (isTextMode() ?
+			TICKS_PER_LINE - 87 - 27 : TICKS_PER_LINE - 59 - 27);
+
+	// Register new HSCAN sync point if interrupt is enabled.
+	if (controlRegs[0] & 0x10) {
+		hScanSyncTime = frameStartTime + horizontalScanOffset;
+		if (hScanSyncTime > time) {
+			Scheduler::instance()->setSyncPoint(hScanSyncTime, this, HSCAN);
+		}
 	}
 }
 
 // TODO: inline?
 void VDP::frameStart(const EmuTime &time)
 {
-	statusReg2 ^= 0x02; // toggle E/O
+	// Toggle E/O.
+	// Actually this should occur half a line earlier,
+	// but for now this is accurate enough.
+	statusReg2 ^= 0x02;
 
 	// Settings which are fixed at start of frame.
-	// Not sure this is how real MSX does it, but close enough.
+	// Not sure this is how real MSX does it, but close enough for now.
 	palTiming = controlRegs[9] & 0x02;
 	verticalAdjust = (controlRegs[18] >> 4) ^ 0x07;
 
@@ -681,45 +695,33 @@ byte VDP::readIO(byte port, const EmuTime &time)
 			return ret;
 		}
 		case 1: {
-			int ticksThisFrame = getTicksThisFrame(time);
-
-			// Reset FH if IE1 = 0 and current line is not
-			// interrupt line.
-			// TODO: Actually, it should be reset whenever
-			//       IE1 = 0 and HR = 0.
-			if (!(controlRegs[0] & 0x10)
-			&& ((ticksThisFrame - displayStart) / TICKS_PER_LINE
-			     != (controlRegs[19] - controlRegs[23]) & 0xFF)) {
-				statusReg1 &= 0xFE;
-			}
-
 			/*
-			cout << "S#1 read: " << (int)statusReg1
-				<< " at (" << (ticksThisFrame % TICKS_PER_LINE)
+			cout << "S#1 read at (" << (ticksThisFrame % TICKS_PER_LINE)
 				<< "," << ((ticksThisFrame - displayStart) / TICKS_PER_LINE)
 				<< "), IRQ_H = " << (int)irqHorizontal
 				<< " IRQ_V = " << (int)irqVertical
 				<< ", frame = " << frameStartTime << "\n";
 			*/
 
-			byte ret = statusReg1;
-			statusReg1 &= 0xFE;
-			irqHorizontal = false;
-			updateIRQ();
-			return ret;
+			if (controlRegs[0] & 0x10) { // line int enabled
+				byte ret = statusReg1 | irqHorizontal;
+				irqHorizontal = false;
+				updateIRQ();
+				return ret;
+			} else { // line int disabled
+				// FH goes up at the start of the right border of IL and
+				// goes down at the start of the next left border.
+				// TODO: Precalc matchLength?
+				int afterMatch =
+					getTicksThisFrame(time) - horizontalScanOffset;
+				int matchLength = isTextMode()
+					? 87 + 27 + 100 + 102 : 59 + 27 + 100 + 102;
+				return statusReg1
+					| (0 <= afterMatch && afterMatch < matchLength);
+			}
 		}
 		case 2: {
 			int ticksThisFrame = getTicksThisFrame(time);
-
-			// TODO: Use display adjust register (R#18).
-			// TODO: Precalc.
-			// TODO: Is the display mode check OK? Profile undefined modes.
-			int displayWidth =
-				((displayMode & 0x17) == 0x01 ? 960 : 1024);
-			int rightBorderErase =
-				((displayMode & 0x17) == 0x01 ? 87 + 27 : 59 + 27);
-			bool hr = (ticksThisFrame + rightBorderErase) % TICKS_PER_LINE
-				< (TICKS_PER_LINE - displayWidth);
 
 			// TODO: Once VDP keeps display/blanking state, keeping
 			//       VR is probably part of that, so use it.
@@ -728,7 +730,9 @@ byte VDP::readIO(byte port, const EmuTime &time)
 			bool vr = ticksThisFrame < displayStart
 			       || ticksThisFrame >= displayEnd;
 
-			return statusReg2 | (hr ? 0x20 : 0x00) | (vr ? 0x40 : 0x00)
+			return statusReg2
+				| (getHR(ticksThisFrame) ? 0x20 : 0x00)
+				| (vr ? 0x40 : 0x00)
 				| cmdEngine->getStatus(time);
 		}
 		case 3:
@@ -766,7 +770,8 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 
 	val &= controlValueMasks[reg];
 	byte oldval = controlRegs[reg];
-	if (oldval == val) return;
+	byte change = val ^ oldval;
+	if (!change) return;
 	//PRT_DEBUG("VDP: Reg " << (int)reg << " = " << (int)val);
 
 	// Perform additional tasks before new value becomes active.
@@ -777,16 +782,12 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 			updateDisplayMode(val, controlRegs[1], time);
 		}
 		break;
-	case 1: {
-		byte change = val ^ oldval;
+	case 1:
 		if (change & 0x5B) {
 			// Update sprites on blank, mode, size and mag changes.
 			updateSprites(time);
 		}
-		if ((change & 0x20) && !(val & 0x20)) {
-			irqHorizontal = false;
-			updateIRQ();
-		}
+		// TODO: Reset irqVertical if IE0 is reset?
 		if (change & 0x18) {
 			updateDisplayMode(controlRegs[0], val, time);
 		}
@@ -794,7 +795,6 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 			renderer->updateDisplayEnabled(!isDisplayEnabled(), time);
 		}
 		break;
-	}
 	case 2: {
 		int addr = ((val << 10) | ~(-1 << 10)) & vramMask;
 		renderer->updateNameBase(addr, time);
@@ -871,8 +871,22 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 	// Commit the change.
 	controlRegs[reg] = val;
 
-	// Reschedule HSCAN if necessary.
-	if (reg == 19 || reg == 23) scheduleHScan(time);
+	// Perform additional tasks after new value became active.
+	switch (reg) {
+		case 0:
+			if (change & 0x10) { // IE1
+				if (val & 0x10) {
+					scheduleHScan(time);
+				} else {
+					irqHorizontal = false;
+					updateIRQ();
+				}
+			}
+		case 19:
+		case 23:
+			scheduleHScan(time);
+			break;
+	}
 }
 
 void VDP::updateDisplayMode(byte reg0, byte reg1, const EmuTime &time)
@@ -886,6 +900,9 @@ void VDP::updateDisplayMode(byte reg0, byte reg1, const EmuTime &time)
 		renderer->updateDisplayMode(newMode, time);
 		cmdEngine->updateDisplayMode(newMode, time);
 		displayMode = newMode;
+		// To be extremely accurate, reschedule hscan when changing
+		// from/to text mode. Text mode has different border width,
+		// which affects the moment hscan occurs.
 	}
 }
 

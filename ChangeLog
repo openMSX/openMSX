@@ -1,5 +1,9 @@
 $Id$
 
+2002-01-02 Maarten ter Huurne <mth@stack.nl>
+	* Improved VDP accuracy.
+	  Space Manbow still flashes, but less than before.
+
 2001-12-31 Maarten ter Huurne <mth@stack.nl>
 	* SDLHiRenderer uses double buffering.
 	* Prepared SDLHiRenderer for RealTime sync, but if I enable it the
