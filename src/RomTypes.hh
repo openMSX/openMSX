@@ -17,6 +17,7 @@ enum MapperType {
 	R_TYPE       = 6,
 	CROSS_BLAIM  = 7,
 	MSX_AUDIO    = 8,
+	HARRY_FOX    = 9,
 	PLAIN        = 15,
 
 	PAGE0        = 16 + 1,

@@ -51,6 +51,8 @@ MapperType RomTypes::nameToMapperType(const std::string &name)
 		mappertype["NATIONAL"]    = NATIONAL;
 	
 		mappertype["MSX-AUDIO"]   = MSX_AUDIO;
+		
+		mappertype["HARRYFOX"]    = HARRY_FOX;
 
 		mappertype["64kB"]        = PLAIN;
 		mappertype["PLAIN"]       = PLAIN;

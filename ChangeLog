@@ -1,5 +1,8 @@
 $Id$
 
+2003-03-05 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented "Harry Fox" mapper type
+
 2003-03-03 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed bug in PixelRenderer: finishFrame was called every frame,
 	  even with frame skip active.

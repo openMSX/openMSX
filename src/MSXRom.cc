@@ -303,7 +303,9 @@ void MSXRom::reset(const EmuTime &time)
 	default:
 		setBank16kB(0, unmapped);
 		setROM16kB (1, (mapperType == R_TYPE) ? 0x17 : 0);
-		setROM16kB (2, (mapperType == HYDLIDE2 || mapperType == ASCII_16KB) ? 0 : 1);
+		setROM16kB (2, ((mapperType == HYDLIDE2)   || 
+		                (mapperType == ASCII_16KB) ||
+				(mapperType == ASCII_8KB)) ? 0 : 1);
 		setBank16kB(3, unmapped);
 	}
 }
@@ -784,6 +786,17 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 		address &= 0x3FFF;
 		if ((bankSelect[0] == 0) && (address >= 0x3000)) {
 			ram[address - 0x3000] = value;
+		}
+		break;
+
+	case HARRY_FOX:
+		// Harryfox Yki no Maoh
+		// TODO switch addresses mirrored?
+		if (address == 0x6000) {
+			setROM16kB(1, 2 * (value & 1));
+		}
+		if (address == 0x7000) {
+			setROM16kB(2, 2 * (value & 1) + 1);
 		}
 		break;
 
