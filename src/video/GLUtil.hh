@@ -3,15 +3,14 @@
 #ifndef __GLUTIL_HH__
 #define __GLUTIL_HH__
 
-// Check for availability of OpenGL headers.
-#include "probed_defs.hh"
-#if (defined(HAVE_GL_GL_H) || defined(HAVE_GL_H))
-#define __OPENGL_AVAILABLE__
+// Check for availability of OpenGL.
+#include "components.hh"
 
 // Remainder of this header needs GL to work.
-#ifdef __OPENGL_AVAILABLE__
+#ifdef COMPONENT_GL
 
 // Include OpenGL headers.
+#include "probed_defs.hh"
 #ifdef HAVE_GL_GL_H
 #include <GL/gl.h>
 #else // HAVE_GL_H
@@ -33,7 +32,6 @@ private:
 
 } // namespace openmsx
 
-#endif // __OPENGL_AVAILABLE__
+#endif // COMPONENT_GL
 
-#endif // OpenGL header check.
 #endif // __GLUTIL_HH__
