@@ -97,15 +97,16 @@ openmsx_SOURCES=\
 #   video < console
 #   video < cpu
 #   video < debugger
+#   cpu < debugger
 # TODO: Get rid of this manual dependency resolution.
 openmsx_LDADD = \
 	memory/libMemory.la \
 	video/libVideo.la \
+	cpu/libCPU.la \
 	\
 	cassette/libCassette.la \
 	config/libConfig.la \
 	console/libConsole.la \
-	cpu/libCPU.la \
 	debugger/libDebugger.la \
 	events/libEvents.la \
 	fdc/libFdc.la \

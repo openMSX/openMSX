@@ -29,7 +29,8 @@ libDebugger_la_SOURCES = \
 	DisAsmView.cc DisAsmView.hh \
 	DebugConsole.cc DebugConsole.hh \
 	ViewControl.cc ViewControl.hh \
-	DebugInterface.cc DebugInterface.hh
+	DebugInterface.cc DebugInterface.hh \
+	DasmTables.cc DasmTables.hh
 
 nodebug: resetdebug all
 debug: setdebug all
