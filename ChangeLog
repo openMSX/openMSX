@@ -1,5 +1,9 @@
 $Id$
 
+2002-03-14 Maarten ter Huurne <mth@stack.nl>
+	* Fixed ASCII16K MegaROM mapper.
+	  Eggerland 2 works now, but is still autodetected incorrectly.
+
 2002-03-14 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Fixed tab completion bug
 	* Fixed printed CPU T-States (only printed value was wrong)
@@ -19,7 +23,7 @@ $Id$
 
 2002-03-10 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Console cleanup
-	* Added console prompt 
+	* Added console prompt
 	* Tab completion for help command
 	* Fixed uninitialized variable (enabledSCC) in MSXGameCartridge
 	* made MSXConfig::getParameterAsXXX() methods throw execptions again

@@ -29,7 +29,7 @@ MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &tim
 	mapperMask--;
 	
 	mapperType = retrieveMapperType();
-	
+
 	// only instantiate SCC if needed
 	if (mapperType==2) {
 		short volume = (short)config->getParameterAsInt("volume");
@@ -73,8 +73,13 @@ void MSXGameCartridge::reset(const EmuTime &time)
 		setBank(1, 0);			// unused
 		setBank(2, memoryBank);		// 0x4000 - 0x5fff
 		setBank(3, memoryBank+0x2000);	// 0x6000 - 0x7fff
-		setBank(4, memoryBank+0x4000);	// 0x8000 - 0x9fff
-		setBank(5, memoryBank+0x6000);	// 0xa000 - 0xbfff
+		if (mapperType == 5) {
+			setBank(4, memoryBank);	// 0x8000 - 0x9fff
+			setBank(5, memoryBank+0x2000);	// 0xa000 - 0xbfff
+		} else {
+			setBank(4, memoryBank+0x4000);	// 0x8000 - 0x9fff
+			setBank(5, memoryBank+0x6000);	// 0xa000 - 0xbfff
+		}
 		setBank(6, 0);			// unused
 		setBank(7, 0);			// unused
 	} else {
@@ -269,6 +274,10 @@ byte* MSXGameCartridge::getReadCacheLine(word start)
 
 void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 {
+	/*
+	cerr << std::hex << "GameCart[" << address << "] := "
+		<< (int)value << std::dec << "\n";
+	*/
 	switch (mapperType) {
 	byte region;
 	case 0:
@@ -353,10 +362,8 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 	case 5:
 		//--==**>> ASCII 16kB cartridges <<**==--
 		// this type is used in a few cartridges.
-		// example of cartridges: Xevious, Fantasy Zone 2, Return of Ishitar, Androgynus, ...
-		//
-		// Gallforce is a special case after a reset the second 16kb has to start with
-		// the first 16kb after a reset
+		// example of cartridges: Xevious, Fantasy Zone 2,
+		// Return of Ishitar, Androgynus, Gallforce ...
 		//
 		// The address to change banks:
 		//  first  16kb: 0x6000 - 0x67FF (0x6000 used)
