@@ -4,6 +4,8 @@ $Id$
 	* Removed EmuTime parameter from Command::execute.
 	  Since most commands do not interact with the emulated machine,
 	  they do not need EmuTime.
+	* Removed EmuTime parameter from EventListener.
+	  The only reason this was needed before, was to execute commands.
 
 2003-05-17 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Implemented configurable file-extentions.

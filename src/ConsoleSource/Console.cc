@@ -99,7 +99,7 @@ void Console::updateConsole()
 }
 
 
-bool Console::signalEvent(SDL_Event &event, const EmuTime &time)
+bool Console::signalEvent(SDL_Event &event)
 {
 	if (!isVisible())
 		return true;

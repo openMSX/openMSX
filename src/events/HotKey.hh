@@ -17,9 +17,8 @@ class HotKeyListener
 		  * This method gets called when the key you are interested in
 		  * is pressed.
 		  */
-		 virtual void signalHotKey(Keys::KeyCode key,
-		                           const EmuTime &time) = 0;
-}; 
+		 virtual void signalHotKey(Keys::KeyCode key) = 0;
+};
 
 
 class HotKey : private EventListener
@@ -50,14 +49,13 @@ class HotKey : private EventListener
 				HotKeyCmd(const std::string &cmd);
 				virtual ~HotKeyCmd();
 				const std::string &getCommand();
-				virtual void signalHotKey(Keys::KeyCode key,
-				                          const EmuTime &time);
+				virtual void signalHotKey(Keys::KeyCode key);
 			private:
 				std::string command;
 		};
 		
 		// EventListener
-		virtual bool signalEvent(SDL_Event &event, const EmuTime &time);
+		virtual bool signalEvent(SDL_Event &event);
 
 		HotKey();
 

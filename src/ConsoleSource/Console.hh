@@ -41,7 +41,7 @@ class Console : private EventListener
 		Console();
 		virtual ~Console();
 
-		virtual bool signalEvent(SDL_Event &event, const EmuTime &time);
+		virtual bool signalEvent(SDL_Event &event);
 
 		void tabCompletion();
 		void commandExecute();

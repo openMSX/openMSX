@@ -86,13 +86,13 @@ void EventDistributor::executeUntilEmuTime(const EmuTime &time, int userdata)
 	while (!highQueue.empty()) {
 		std::pair<SDL_Event, EventListener*> pair = highQueue.front();
 		highQueue.pop();
-		cont = pair.second->signalEvent(pair.first, time) && cont;
+		cont = pair.second->signalEvent(pair.first) && cont;
 	}
 	while (!lowQueue.empty()) {
 		std::pair<SDL_Event, EventListener*> pair = lowQueue.front();
 		lowQueue.pop();
 		if (cont)
-			pair.second->signalEvent(pair.first, time);
+			pair.second->signalEvent(pair.first);
 	}
 	mutex.release();
 }
