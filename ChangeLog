@@ -5,6 +5,8 @@ $Id$
 	* use auto_ptr to indicate ownership transfers
 	* use stl bitset instead of an array of booleans
 	* don't use exception specifications, they do more harm than good
+	* don't use global objects, they are constructed before main() and
+	  thus we can't catch execptions yet
 
 2004-05-28 Maarten ter Huurne <maarten@treewalker.org>
 	* Released openmsx-0.4.0.

@@ -10,9 +10,8 @@ namespace openmsx {
 class DiskImageCLI : public CLIOption, public CLIFileType
 {
 public:
-	DiskImageCLI();
-	virtual bool parseOption(const string& option,
-		list<string>& cmdLine);
+	DiskImageCLI(CommandLineParser& cmdLineParser);
+	virtual bool parseOption(const string& option, list<string>& cmdLine);
 	virtual const string& optionHelp() const;
 	virtual void parseFileType(const string& filename);
 	virtual const string& fileTypeHelp() const;

@@ -8,6 +8,7 @@
 #include <map>
 #include <vector>
 #include <set>
+#include <memory>
 #include "openmsx.hh"
 
 using std::string;
@@ -15,7 +16,7 @@ using std::list;
 using std::map;
 using std::vector;
 using std::set;
-
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -23,7 +24,11 @@ class HardwareConfig;
 class SettingsConfig;
 class CliCommOutput;
 class CartridgeSlotManager;
-
+class MSXRomCLI;
+class CliExtension;
+class MSXCassettePlayerCLI;
+class MSXCasCLI;
+class DiskImageCLI;
 
 class CLIOption
 {
@@ -157,6 +162,12 @@ private:
 	private:
 		CommandLineParser& parent;
 	} settingOption;
+	
+	const auto_ptr<MSXRomCLI> msxRomCLI;
+	const auto_ptr<CliExtension> cliExtension;
+	const auto_ptr<MSXCassettePlayerCLI> cassettePlayerCLI;
+	const auto_ptr<MSXCasCLI> casCLI;
+	const auto_ptr<DiskImageCLI> diskImageCLI;
 };
 
 } // namespace openmsx

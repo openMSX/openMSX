@@ -19,7 +19,7 @@ class CassetteImage;
 class MSXCassettePlayerCLI : public CLIOption, public CLIFileType
 {
 public:
-	MSXCassettePlayerCLI();
+	MSXCassettePlayerCLI(CommandLineParser& cmdLineParser);
 	virtual bool parseOption(const string& option,
 			list<string>& cmdLine);
 	virtual const string& optionHelp() const;

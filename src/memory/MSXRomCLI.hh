@@ -10,7 +10,7 @@ namespace openmsx {
 class MSXRomCLI : public CLIOption, public CLIFileType
 {
 public:
-	MSXRomCLI();
+	MSXRomCLI(CommandLineParser& cmdLineParser);
 	virtual bool parseOption(const string& option,
 	                         list<string>& cmdLine);
 	virtual const string& optionHelp() const;

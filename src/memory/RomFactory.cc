@@ -1,6 +1,5 @@
 // $Id$
 
-#include "MSXRomCLI.hh"
 #include "RomFactory.hh"
 #include "MSXConfig.hh"
 #include "RomTypes.hh"
@@ -34,9 +33,6 @@
 #include "Config.hh"
 
 namespace openmsx {
-
-static MSXRomCLI msxRomCLI;
-
 
 MSXRom *RomFactory::create(Config* config, const EmuTime& time)
 {

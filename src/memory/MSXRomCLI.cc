@@ -12,18 +12,17 @@ using std::ostringstream;
 
 namespace openmsx {
 
-MSXRomCLI::MSXRomCLI()
+MSXRomCLI::MSXRomCLI(CommandLineParser& cmdLineParser)
 {
-	CommandLineParser::instance().registerOption("-cart", this);
-	CommandLineParser::instance().registerOption("-carta", this);
-	CommandLineParser::instance().registerOption("-cartb", this);
-	CommandLineParser::instance().registerOption("-cartc", this);
-	CommandLineParser::instance().registerOption("-cartd", this);
-	CommandLineParser::instance().registerFileClass("romimages", this);
+	cmdLineParser.registerOption("-cart", this);
+	cmdLineParser.registerOption("-carta", this);
+	cmdLineParser.registerOption("-cartb", this);
+	cmdLineParser.registerOption("-cartc", this);
+	cmdLineParser.registerOption("-cartd", this);
+	cmdLineParser.registerFileClass("romimages", this);
 }
 
-bool MSXRomCLI::parseOption(const string &option,
-                         list<string> &cmdLine)
+bool MSXRomCLI::parseOption(const string& option, list<string>& cmdLine)
 {
 	string arg = getArgument(option, cmdLine);
 	if (option.length() == 6) {
@@ -40,7 +39,7 @@ const string& MSXRomCLI::optionHelp() const
 	static const string text("Insert the ROM file (cartridge) specified in argument");
 	return text;
 }
-MSXRomPostName::MSXRomPostName(int slot_, const string &arg_)
+MSXRomPostName::MSXRomPostName(int slot_, const string& arg_)
 	: MSXRomCLIPost(arg_), slot(slot_)
 {
 }
@@ -69,7 +68,7 @@ void MSXRomPostNoName::execute()
 	MSXRomCLIPost::execute();
 }
 
-MSXRomCLIPost::MSXRomCLIPost(const string &arg_)
+MSXRomCLIPost::MSXRomCLIPost(const string& arg_)
 	: arg(arg_)
 {
 }

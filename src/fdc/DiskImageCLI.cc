@@ -9,12 +9,12 @@ using std::ostringstream;
 
 namespace openmsx {
 
-DiskImageCLI::DiskImageCLI()
+DiskImageCLI::DiskImageCLI(CommandLineParser& cmdLineParser)
 {
-	CommandLineParser::instance().registerOption("-diska", this);
-	CommandLineParser::instance().registerOption("-diskb", this);
+	cmdLineParser.registerOption("-diska", this);
+	cmdLineParser.registerOption("-diskb", this);
 
-	CommandLineParser::instance().registerFileClass("diskimages", this);
+	cmdLineParser.registerFileClass("diskimages", this);
 	driveLetter = 'a';
 }
 

@@ -2,13 +2,9 @@
 
 #include "MSXFDC.hh"
 #include "DiskDrive.hh"
-#include "DiskImageCLI.hh"
 #include "Config.hh"
 
 namespace openmsx {
-
-static DiskImageCLI diskImageCLI;
-
 
 MSXFDC::MSXFDC(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time),

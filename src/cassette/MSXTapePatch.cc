@@ -11,12 +11,10 @@
 
 namespace openmsx {
 
-static MSXCasCLI msxCasCLI;
-
-MSXCasCLI::MSXCasCLI()
+MSXCasCLI::MSXCasCLI(CommandLineParser& cmdLineParser)
 {
-	CommandLineParser::instance().registerOption("-cas", this);
-	CommandLineParser::instance().registerFileClass("cassetteimages", this);
+	cmdLineParser.registerOption("-cas", this);
+	cmdLineParser.registerFileClass("cassetteimages", this);
 }
 
 bool MSXCasCLI::parseOption(const string& option, list<string>& cmdLine)

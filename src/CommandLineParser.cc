@@ -10,13 +10,16 @@
 #include "SettingsConfig.hh"
 #include "Config.hh"
 #include "CartridgeSlotManager.hh"
-#include "CliExtension.hh"
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"
 #include "CliCommOutput.hh"
 #include "Version.hh"
-
+#include "MSXRomCLI.hh"
+#include "CliExtension.hh"
+#include "CassettePlayer.hh"
+#include "MSXTapePatch.hh"
+#include "DiskImageCLI.hh"
 
 namespace openmsx {
 
@@ -54,7 +57,12 @@ CommandLineParser::CommandLineParser()
 	  versionOption(*this),
 	  controlOption(*this),
 	  machineOption(*this),
-	  settingOption(*this)
+	  settingOption(*this),
+	  msxRomCLI(new MSXRomCLI(*this)),
+	  cliExtension(new CliExtension(*this)),
+	  cassettePlayerCLI(new MSXCassettePlayerCLI(*this)),
+	  casCLI(new MSXCasCLI(*this)),
+	  diskImageCLI(new DiskImageCLI(*this))
 {
 	haveConfig = false;
 	haveSettings = false;
@@ -173,8 +181,6 @@ void CommandLineParser::registerPostConfig(CLIPostConfig *post)
 void CommandLineParser::parse(int argc, char **argv)
 {
 	parseStatus = RUN;
-	
-	CliExtension extension; // for -ext option
 	
 	list<string> cmdLine;
 	list<string> backupCmdLine;

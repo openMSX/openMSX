@@ -12,12 +12,11 @@
 #include "FileOperations.hh"
 #include "FileContext.hh"
 
-
 namespace openmsx {
 
-CliExtension::CliExtension()
+CliExtension::CliExtension(CommandLineParser& cmdLineParser)
 {
-	CommandLineParser::instance().registerOption("-ext", this);
+	cmdLineParser.registerOption("-ext", this);
 
 	SystemFileContext context;
 	const vector<string>& paths = context.getPaths();
@@ -36,8 +35,7 @@ bool CliExtension::parseOption(const string &option,
                                list<string> &cmdLine)
 {
 	string extension = getArgument(option, cmdLine);
-	map<string, string>::const_iterator it =
-		extensions.find(extension);
+	ExtensionsMap::const_iterator it = extensions.find(extension);
 	if (it != extensions.end()) {
 		SystemFileContext context;
 		HardwareConfig::instance().loadHardware(context, it->second);

@@ -18,7 +18,7 @@ class FileContext;
 class MSXCasCLI : public CLIOption, public CLIFileType
 {
 public:
-	MSXCasCLI();
+	MSXCasCLI(CommandLineParser& cmdLineParser);
 	virtual bool parseOption(const string& option,
 			list<string>& cmdLine);
 	virtual const string& optionHelp() const;
