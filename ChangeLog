@@ -3,6 +3,9 @@ $Id$
 2003-12-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented automatic filename generation for screenshot feature
 
+2003-12-23 Maarten ter Huurne <maarten@treewalker.org>
+	* Integrated Mac OS X patches from Jalu.
+
 2003-12-22 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed reset problems (again):
 	    reset could go wrong when it was given in the middle of a CPU
