@@ -78,7 +78,6 @@ Build system, packaging, documentation:
 - Separated OS and CPU in the build system.
 - Build support for x86-64 (Athlon64).
 - Fixed bug: new TCL was not detected by running "make probe" again.
-- Added packaging support for Debian Linux.
 - Added openMSX FAQ to documentation.
 
 openMSX 0.4.0 (2004-05-28)
