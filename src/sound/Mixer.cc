@@ -237,17 +237,17 @@ void Mixer::updtStrm(int samples)
 		//   a0 =  (1 + x) / 2      x = exp(-2 * pi * f / fsamp)
 		//   a1 = -(1 + x) / 2      f = cut-off freq
 		//   b1 =   x               fsamp = sample freq
-		// take x = 510/512
-		//   44100Hz --> cutt-off freq = 27Hz
-		//   22050Hz                     13Hz
+		// take x = 1022/1024
+		//   44100Hz --> cutt-off freq = 14Hz
+		//   22050Hz                     7Hz
 		int tmp;
-		tmp = 511 * left;
-		left = (tmp - prevLeft + 510 * prevOutLeft) >> 9;
+		tmp = 1023 * left;
+		left = (tmp - prevLeft + 1022 * prevOutLeft) >> 10;
 		prevLeft = tmp;
 		prevOutLeft = left;
 
-		tmp = 511 * right;
-		right = (tmp - prevRight + 510 * prevOutRight) >> 9;
+		tmp = 1023 * right;
+		right = (tmp - prevRight + 1022 * prevOutRight) >> 10;
 		prevRight = tmp;
 		prevOutRight = right;
  
