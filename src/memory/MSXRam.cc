@@ -32,7 +32,7 @@ MSXRam::~MSXRam()
 {
 }
 
-void MSXRam::reInit(const EmuTime& /*time*/)
+void MSXRam::powerUp(const EmuTime& /*time*/)
 {
 	ram->clear();
 }

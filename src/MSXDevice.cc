@@ -154,9 +154,15 @@ void MSXDevice::unregisterPorts(const XMLElement& config)
 
 void MSXDevice::reset(const EmuTime& /*time*/)
 {
+	// nothing
 }
 
-void MSXDevice::reInit(const EmuTime& time)
+void MSXDevice::powerDown(const EmuTime& time)
+{
+	// nothing
+}
+
+void MSXDevice::powerUp(const EmuTime& time)
 {
 	reset(time);
 }

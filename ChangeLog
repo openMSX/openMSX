@@ -1,5 +1,8 @@
 $Id$
 
+2004-12-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Turn off all LEDs when MSX is powered down
+
 2004-12-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Large cleanup:
 	   - prefer not to use the 'using' statement in header files,

@@ -14,6 +14,7 @@ class DiskDrive;
 class MSXFDC : public MSXDevice
 {
 public:
+	virtual void powerDown(const EmuTime& time);
 	virtual byte readMem(word address, const EmuTime& time);
 	virtual const byte* getReadCacheLine(word start) const;
 

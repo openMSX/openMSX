@@ -16,7 +16,7 @@ public:
 	MSXRam(const XMLElement& config, const EmuTime& time);
 	virtual ~MSXRam();
 	
-	virtual void reInit(const EmuTime& time);
+	virtual void powerUp(const EmuTime& time);
 	virtual byte readMem(word address, const EmuTime& time);
 	virtual void writeMem(word address, byte value, const EmuTime& time);  
 	virtual const byte* getReadCacheLine(word start) const;

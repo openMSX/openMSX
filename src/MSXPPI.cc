@@ -39,6 +39,12 @@ void MSXPPI::reset(const EmuTime& time)
 	click->reset(time);
 }
 
+void MSXPPI::powerDown(const EmuTime& time)
+{
+	EventDistributor::instance().distributeEvent(
+		new LedEvent(LedEvent::CAPS, false));
+}
+
 byte MSXPPI::readIO(byte port, const EmuTime& time)
 {
 	switch (port & 0x03) {

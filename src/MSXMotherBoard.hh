@@ -44,7 +44,8 @@ private:
 	void addDevice(std::auto_ptr<MSXDevice> device);
 	
 	void createDevices(const XMLElement& elem);
-	void reInitMSX();
+	void powerDownMSX();
+	void powerUpMSX();
 
 	// SettingListener
 	virtual void update(const Setting* setting);
@@ -63,7 +64,8 @@ private:
 	bool paused;
 	bool powered;
 	bool needReset;
-	bool needReInit;
+	bool needPowerDown;
+	bool needPowerUp;
 
 	int blockedCounter;
 	bool emulationRunning;

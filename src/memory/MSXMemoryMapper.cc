@@ -44,7 +44,7 @@ MSXMemoryMapper::~MSXMemoryMapper()
 	destroyMapperIO();
 }
 
-void MSXMemoryMapper::reInit(const EmuTime& /*time*/)
+void MSXMemoryMapper::powerUp(const EmuTime& /*time*/)
 {
 	ram->clear();
 }

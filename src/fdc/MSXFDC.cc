@@ -29,6 +29,13 @@ MSXFDC::~MSXFDC()
 {
 }
 
+void MSXFDC::powerDown(const EmuTime& time)
+{
+	for (int i = 0; i < 4; ++i) {
+		drives[i]->setMotor(false, time);
+	}
+}
+
 byte MSXFDC::readMem(word address, const EmuTime& /*time*/)
 {
 	return rom[address & 0x3FFF];

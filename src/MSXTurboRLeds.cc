@@ -21,6 +21,11 @@ void MSXTurboRLeds::reset(const EmuTime& time)
 	writeIO(0, 0, time);
 }
 
+void MSXTurboRLeds::powerDown(const EmuTime& time)
+{
+	writeIO(0, 0, time);
+}
+
 void MSXTurboRLeds::writeIO(byte /*port*/, byte value, const EmuTime& /*time*/)
 {
 	EventDistributor::instance().distributeEvent(

@@ -25,7 +25,8 @@ using std::vector;
 namespace openmsx {
 
 MSXMotherBoard::MSXMotherBoard()
-	: paused(false), powered(false), needReset(false), needReInit(false)
+	: paused(false), powered(false)
+	, needReset(false), needPowerDown(false), needPowerUp(false)
 	, blockedCounter(1) // power off
 	, emulationRunning(true)
         , pauseSetting(GlobalSettings::instance().getPauseSetting())
@@ -76,7 +77,6 @@ void MSXMotherBoard::addDevice(std::auto_ptr<MSXDevice> device)
 void MSXMotherBoard::resetMSX()
 {
 	const EmuTime& time = Scheduler::instance().getCurrentTime();
-	PRT_DEBUG("MSXMotherBoard::reset() @ " << time);
 	MSXCPUInterface::instance().reset();
 	for (Devices::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
@@ -85,14 +85,22 @@ void MSXMotherBoard::resetMSX()
 	MSXCPU::instance().reset(time);
 }
 
-void MSXMotherBoard::reInitMSX()
+void MSXMotherBoard::powerDownMSX()
 {
 	const EmuTime& time = Scheduler::instance().getCurrentTime();
-	PRT_DEBUG("MSXMotherBoard::reinit() @ " << time);
+	for (Devices::iterator it = availableDevices.begin();
+	     it != availableDevices.end(); ++it) {
+		(*it)->powerDown(time);
+	}
+}
+
+void MSXMotherBoard::powerUpMSX()
+{
+	const EmuTime& time = Scheduler::instance().getCurrentTime();
 	MSXCPUInterface::instance().reset();
 	for (Devices::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
-		(*it)->reInit(time);
+		(*it)->powerUp(time);
 	}
 	MSXCPU::instance().reset(time);
 }
@@ -128,19 +136,24 @@ void MSXMotherBoard::run(bool power)
 	// Run.
 	if (power) {
 		powerOn();
+		powerUpMSX();
 	}
 	
 	while (emulationRunning) {
 		if (blockedCounter > 0) {
+			if (needPowerDown) {
+				needPowerDown = false;
+				powerDownMSX();
+			}
 			Display::INSTANCE->repaint();
 			Timer::sleep(100 * 1000);
 			InputEventGenerator::instance().poll();
 			Scheduler& scheduler = Scheduler::instance();
 			scheduler.schedule(scheduler.getCurrentTime());
 		} else {
-			if (needReInit) {
-				needReInit = false;
-				reInitMSX();
+			if (needPowerUp) {
+				needPowerUp = false;
+				powerUpMSX();
 			}
 			if (needReset) {
 				needReset = false;
@@ -151,6 +164,7 @@ void MSXMotherBoard::run(bool power)
 	}
 
 	powerOff();
+	powerDownMSX();
 }
 
 void MSXMotherBoard::unpause()
@@ -201,9 +215,10 @@ void MSXMotherBoard::update(const Setting* setting)
 	if (setting == &powerSetting) {
 		if (powerSetting.getValue()) {
 			powerOn();
+			needPowerUp = true;
 		} else {
 			powerOff();
-			needReInit = true;
+			needPowerDown = true;
 		}
 	} else if (setting == &pauseSetting) {
 		if (pauseSetting.getValue()) {

@@ -22,7 +22,8 @@ public:
 	
 	// MSXDevice
 	virtual void reset(const EmuTime& time);
-	virtual void reInit(const EmuTime& time);
+	virtual void powerDown(const EmuTime& time);
+	virtual void powerUp(const EmuTime& time);
 	virtual const std::string& getName() const;
 	virtual byte readIO(byte port, const EmuTime& time);
 	virtual byte peekIO(byte port, const EmuTime& time) const;

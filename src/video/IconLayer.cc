@@ -57,7 +57,8 @@ IconLayer<IMAGE>::IconLayer(SDL_Surface* screen)
 		"Time (in ms) it takes for the icons the fade from completely opaque "
 		"to completely transparent", 5000, 0, 1000000));
 	
-	EventDistributor::instance().registerEventListener(LED_EVENT, *this);
+	EventDistributor::instance().registerEventListener(LED_EVENT, *this,
+	                                           EventDistributor::NATIVE);
 }
 
 template <class IMAGE>
@@ -81,7 +82,8 @@ void IconLayer<IMAGE>::createSettings(LedEvent::Led led, const string& name)
 template <class IMAGE>
 IconLayer<IMAGE>::~IconLayer()
 {
-	EventDistributor::instance().unregisterEventListener(LED_EVENT, *this);
+	EventDistributor::instance().unregisterEventListener(LED_EVENT, *this,
+	                                             EventDistributor::NATIVE);
 }
 
 template <class IMAGE>

@@ -81,11 +81,19 @@ void MSXMultiIODevice::reset(const EmuTime& time)
 	}
 }
 
-void MSXMultiIODevice::reInit(const EmuTime& time)
+void MSXMultiIODevice::powerDown(const EmuTime& time)
 {
 	for (Devices::iterator it = devices.begin();
 	     it != devices.end(); ++it) {
-		(*it)->reInit(time);
+		(*it)->powerDown(time);
+	}
+}
+
+void MSXMultiIODevice::powerUp(const EmuTime& time)
+{
+	for (Devices::iterator it = devices.begin();
+	     it != devices.end(); ++it) {
+		(*it)->powerUp(time);
 	}
 }
 

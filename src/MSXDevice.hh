@@ -27,13 +27,19 @@ public:
 	virtual void reset(const EmuTime& time);
 
 	/**
-	 * This method should reinitialize the device to the power-on state.
-	 * The default implementation calls reset(). Only devices that act
-	 * differently on a reset and a power-down / power-up cycle should
-	 * reimplement this method.
-	 * @param time The moment in time the power down-up occurs.
+	 * This method is called when MSX is powered down. The default
+	 * implementation does nothing, this is usually ok. Typically devices
+	 * that need to turn off LEDs need to reimplement this method.
+	 * @param time The moment in time the power down occurs.
 	 */
-	virtual void reInit(const EmuTime& time);
+	virtual void powerDown(const EmuTime& time);
+
+	/**
+	 * This method is called when MSX is powered up. The default
+	 * implementation calls reset(), this is usually ok. 
+	 * @param time The moment in time the power up occurs.
+	 */
+	virtual void powerUp(const EmuTime& time);
 
 	/**
 	 * Returns a human-readable name for this device. The name is set

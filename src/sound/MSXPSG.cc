@@ -35,6 +35,12 @@ void MSXPSG::reset(const EmuTime& time)
 	ay8910->reset(time);
 }
 
+void MSXPSG::powerDown(const EmuTime& time)
+{
+	EventDistributor::instance().distributeEvent(
+		new LedEvent(LedEvent::KANA, false));
+}
+
 byte MSXPSG::readIO(byte /*port*/, const EmuTime& time)
 {
 	byte result = ay8910->readRegister(registerLatch, time);
