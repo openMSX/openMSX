@@ -14,12 +14,6 @@
     <md5>403cdea1cbd2bb24fae506941f8f655e</md5>
     <romtype>PLAIN</romtype>
   </rom>
-<!--
-  <rom id="Konami Majutsushi">
-    <md5>157948f839762dc9922e4011bb4dc9e6</md5>
-    <romtype>MAJUTSUSHI</romtype>
-  </rom>
--->
   <rom id="Hydlide 2 (crack/modified?)">
     <md5>4ad6b44220390d76e8565be2abcdadda</md5>
     <romtype>HYDLIDE2</romtype>
@@ -53,6 +47,18 @@
     <md5>c2f548fdb9c888b6d7fd494d04b8e764</md5>
     <romtype>MSX-AUDIO</romtype>
   </rom>
+  <rom id="Game World 126">
+    <romtype>KOREAN126IN1</romtype>
+    <md5>629a08c7b2f5a4b5f24187801dde174c</md5>
+    <company>Zemina</company>
+    <remark></remark>
+  </rom>
+  <rom id="Game's 80">
+    <romtype>KOREAN80IN1</romtype>
+    <md5>992c279de3b12fb0550d64787eecc09c</md5>
+    <company>Zemina</company>
+    <remark></remark>
+  </rom>
 
 
 
@@ -65,10 +71,6 @@
     <year>1986</year>
     <company>Irem</company>
     <remark></remark>
-  </rom>
-  <rom id="126-in-1">
-    <romtype>KOREAN126IN1</romtype>
-    <md5>629a08c7b2f5a4b5f24187801dde174c</md5>
   </rom>
   <rom id="1942">
     <romtype>ASCII8</romtype>
@@ -109,10 +111,6 @@
     <year>1983</year>
     <company>Ascii</company>
     <remark></remark>
-  </rom>
-  <rom id="80-in-1">
-    <romtype>KOREAN80IN1</romtype>
-    <md5>992c279de3b12fb0550d64787eecc09c</md5>
   </rom>
   <rom id="A Life M36 Planet">
     <romtype>ASCII8</romtype>
