@@ -4,7 +4,6 @@
 #include "CassetteDevice.hh"
 #include "DummyCassetteDevice.hh"
 #include "PluggingController.hh"
-#include "MSXCPU.hh"
 #include "CassettePlayer.hh"
 
 
@@ -38,8 +37,12 @@ CassettePortInterface::CassettePortInterface(const EmuTime &time)
 
 CassettePortInterface::~CassettePortInterface()
 {
-	unplug(MSXCPU::instance()->getCurrentTime());
 	delete dummy;
+}
+
+void CassettePortInterface::powerOff(const EmuTime &time)
+{
+	unplug(time);
 }
 
 void CassettePortInterface::plug(Pluggable *dev, const EmuTime &time)
@@ -107,6 +110,7 @@ CassettePort::~CassettePort()
 	PluggingController::instance()->unregisterConnector(this);
 	delete[] buffer;
 }
+
 
 void CassettePort::setMotor(bool status, const EmuTime &time)
 {

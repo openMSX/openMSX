@@ -20,6 +20,7 @@ class Y8950KeyboardConnector : public Connector
 		Y8950KeyboardConnector(const EmuTime &time);
 		virtual ~Y8950KeyboardConnector();
 
+		void powerOff(const EmuTime &time);
 		void write(byte data, const EmuTime &time);
 		byte read(const EmuTime &time);
 

@@ -77,8 +77,9 @@ class Scheduler : private EventListener
 		/**
 		 * This starts the schedule loop, should only be used by main
 		 * the program.
+		 * @result The moment in time the scheduler stopped.
 		 */
-		void scheduleEmulation();
+		const EmuTime scheduleEmulation();
 
 		/**
 		 * This stops the schedule loop, should only be used by the

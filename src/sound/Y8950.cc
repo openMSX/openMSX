@@ -446,6 +446,11 @@ Y8950::~Y8950()
 	delete[] buffer;
 }
 
+void Y8950::powerOff(const EmuTime &time)
+{
+	connector.powerOff(time);
+}
+
 void Y8950::setSampleRate(int sampleRate)
 {
 	adpcm.setSampleRate(sampleRate);

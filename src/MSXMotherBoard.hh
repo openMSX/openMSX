@@ -41,20 +41,13 @@ class MSXMotherBoard
 		/**
 		 * This starts the Scheduler.
 		 */
-		void startMSX();
+		void runMSX();
 
 		/**
 		 * This will reset all MSXDevices (the reset() method of
 		 * all registered MSXDevices is called)
 		 */
 		void resetMSX(const EmuTime &time);
-
-		/**
-		 * This will destroy all MSXDevices (the destructor of
-		 * all registered MSXDevices is called)
-		 */
-		void destroyMSX();
-
 
 	private:
 		MSXMotherBoard();

@@ -39,6 +39,12 @@ class MSXDevice
 		 */
 		virtual const std::string &getName() const;
 
+		/**
+		 * This method is called right before we power down our MSX.
+		 * @param time The moment in time the power down occurs.
+		 */
+		virtual void powerDown(const EmuTime &time) {}
+
 	protected:
 		/** Every MSXDevice has a config entry; this constructor gets
 		  * some device properties from that config entry.

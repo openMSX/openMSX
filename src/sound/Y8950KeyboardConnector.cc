@@ -14,11 +14,14 @@ Y8950KeyboardConnector::Y8950KeyboardConnector(const EmuTime &time)
 
 Y8950KeyboardConnector::~Y8950KeyboardConnector()
 {
-	//unplug(time)
 	PluggingController::instance()->unregisterConnector(this);
 	delete dummy;
 }
 
+void Y8950KeyboardConnector::powerOff(const EmuTime &time)
+{
+	unplug(time);
+}
 
 void Y8950KeyboardConnector::write(byte newData, const EmuTime &time)
 {

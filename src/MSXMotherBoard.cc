@@ -48,19 +48,21 @@ void MSXMotherBoard::resetMSX(const EmuTime &time)
 	}
 }
 
-void MSXMotherBoard::startMSX()
+void MSXMotherBoard::runMSX()
 {
+	// initialize
 	MSXCPUInterface::instance()->reset();
 	Leds::instance()->setLed(Leds::POWER_ON);
 	EmuTime zero;
 	RealTime::instance()->reset(zero);
-	Scheduler::instance()->scheduleEmulation();
-}
 
-void MSXMotherBoard::destroyMSX()
-{
+	// run
+	EmuTime time(Scheduler::instance()->scheduleEmulation());
+
+	// destroy
 	std::list<MSXDevice*>::iterator i;
 	for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
+		(*i)->powerDown(time);
 		delete (*i);
 	}
 }

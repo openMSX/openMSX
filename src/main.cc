@@ -72,11 +72,10 @@ int main(int argc, char **argv)
 		new KeyEventInserter(zero);
 
 		PRT_DEBUG ("Starting MSX");
-		MSXMotherBoard::instance()->startMSX();
+		MSXMotherBoard::instance()->runMSX();
 
 		// When we return we clean everything up
 		thread.stop();
-		MSXMotherBoard::instance()->destroyMSX();
 		SDL_Quit();
 	} 
 	catch (MSXException& e) {

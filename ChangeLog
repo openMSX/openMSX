@@ -1,5 +1,9 @@
 $Id$
 
+2003-01-12 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Added powerOff() method to MSXDevice
+	* Removed getCurrentTime() calls from destructors
+
 2003-01-11 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* removed MSXCPU::getTargetTime() method
 	* added EmuTime argument to the execute() method of a Command:

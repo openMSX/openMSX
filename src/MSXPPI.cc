@@ -33,6 +33,10 @@ MSXPPI::~MSXPPI()
 	delete click;
 }
 
+void MSXPPI::powerOff(const EmuTime &time)
+{
+	cassettePort->powerOff(time);
+}
 
 void MSXPPI::reset(const EmuTime &time)
 {

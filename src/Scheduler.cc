@@ -97,7 +97,7 @@ void Scheduler::stopScheduling()
 }
 
 
-void Scheduler::scheduleEmulation()
+const EmuTime Scheduler::scheduleEmulation()
 {
 	while (!exitScheduler) {
 		schedMutex.grab();
@@ -142,6 +142,7 @@ void Scheduler::scheduleEmulation()
 			pauseCond.wait();
 		}
 	}
+	return targetTime;
 }
 
 void Scheduler::unpause()

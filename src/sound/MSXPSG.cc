@@ -23,6 +23,11 @@ MSXPSG::~MSXPSG()
 	delete joyPorts;
 }
 
+void MSXPSG::powerOff(const EmuTime &time)
+{
+	joyPorts->powerOff(time);
+}
+
 void MSXPSG::reset(const EmuTime &time)
 {
 	registerLatch = 0;

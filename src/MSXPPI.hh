@@ -52,6 +52,7 @@ class MSXPPI : public MSXIODevice, public I8255Interface
 		 */
 		virtual ~MSXPPI(); 
 
+		virtual void powerOff(const EmuTime &time);
 		virtual void reset(const EmuTime &time);
 		virtual byte readIO(byte port, const EmuTime &time);
 		virtual void writeIO(byte port, byte value, const EmuTime &time);

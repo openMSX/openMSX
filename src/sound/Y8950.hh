@@ -156,6 +156,7 @@ class Y8950 : public SoundDevice
 		      Mixer::ChannelMode mode=Mixer::MONO);
 		virtual ~Y8950();
 
+		void powerOff(const EmuTime &time);
 		void reset(const EmuTime &time);
 		void writeReg(byte reg, byte data, const EmuTime &time);
 		byte readReg(byte reg, const EmuTime &time);

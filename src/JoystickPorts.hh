@@ -40,6 +40,7 @@ class JoystickPorts
 		JoystickPorts(const EmuTime &time);
 		~JoystickPorts();
 
+		void powerOff(const EmuTime &time);
 		byte read(const EmuTime &time);
 		void write(byte value, const EmuTime &time);
 

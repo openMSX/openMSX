@@ -24,13 +24,16 @@ MSXPrinterPort::MSXPrinterPort(MSXConfig::Device *config, const EmuTime &time)
 
 MSXPrinterPort::~MSXPrinterPort()
 {
-	//unplug(time)
 	PluggingController::instance()->unregisterConnector(this);
 	delete dummy;
 	delete logger;
 	delete simple;
 }
 
+void MSXPrinterPort::powerOff(const EmuTime &time)
+{
+	unplug(time);
+}
 
 void MSXPrinterPort::reset(const EmuTime &time)
 {

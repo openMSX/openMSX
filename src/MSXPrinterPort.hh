@@ -26,6 +26,9 @@ class MSXPrinterPort : public MSXIODevice , public Connector
 		MSXPrinterPort(MSXConfig::Device *config, const EmuTime &time);
 		virtual ~MSXPrinterPort();
 
+		// MSXDevice
+		virtual void powerOff(const EmuTime &time);
+
 		// MSXIODevice
 		virtual void reset(const EmuTime &time);
 		virtual byte readIO(byte port, const EmuTime &time);

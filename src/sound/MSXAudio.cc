@@ -74,6 +74,11 @@ MSXAudio::~MSXAudio()
 	delete y8950;
 }
 
+void MSXAudio::powerOff(const EmuTime &time)
+{
+	y8950->powerOff(time);
+}
+
 void MSXAudio::reset(const EmuTime &time)
 {
 	y8950->reset(time);

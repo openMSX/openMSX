@@ -17,7 +17,9 @@ class CassettePortInterface : public Connector
 	public:
 		CassettePortInterface(const EmuTime &time);
 		virtual ~CassettePortInterface();
-	
+
+		void powerOff(const EmuTime &time);
+
 		/**
 		 * Sets the casette motor relay
 		 *  false = off   true = on
