@@ -1,5 +1,8 @@
 $Id$
 
+2004-07-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* a few small fixes
+
 2004-07-19 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* merged MSXDevice, MSXIODevice and MSXMemDevice in one class
 	  MSXDevice:
