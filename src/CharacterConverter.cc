@@ -2,6 +2,8 @@
 
 /*
 TODO:
+- Dirty checking is currently broken in some places.
+  Clean this up after new VRAM Window implemenation is in place.
 - Is it possible to combine dirtyPattern and dirtyColour into a single
   dirty array?
   Pitfalls:
@@ -104,16 +106,19 @@ void CharacterConverter<Pixel, zoom>::renderText1(
 	Pixel fg = palFg[vdp->getForegroundColour()];
 	Pixel bg = palBg[vdp->getBackgroundColour()];
 
-	int nameBase = (-1 << 10) & vdp->getNameMask();
-	int patternBaseLine = ((-1 << 11) | (line & 7)) & vdp->getPatternMask();
+	int patternBaseLine = (-1 << 11) | (line & 7);
 
 	// Actual display.
+	// Note: Because line width is not a power of two, reading an entire line
+	//       from a VRAM pointer returned by readArea will not wrap the index
+	//       correctly. Therefore we read one character at a time.
 	int nameStart = (line / 8) * 40;
 	int nameEnd = nameStart + 40;
 	for (int name = nameStart; name < nameEnd; name++) {
-		int charcode = vram->readNP(nameBase | name);
+		int charcode = vram->nameTable.readNP((name + 0xC00) | (-1 << 12));
 		if (dirtyColours || dirtyName[name] || dirtyPattern[charcode]) {
-			int pattern = vram->readNP(patternBaseLine | (charcode * 8));
+			int pattern = vram->patternTable.readNP(
+				patternBaseLine | (charcode * 8) );
 			for (int i = 6; i--; ) {
 				if (zoom == Renderer::ZOOM_512) {
 					pixelPtr[0] = pixelPtr[1] = (pattern & 0x80) ? fg : bg;
@@ -139,17 +144,18 @@ void CharacterConverter<Pixel, zoom>::renderText1Q(
 	Pixel fg = palFg[vdp->getForegroundColour()];
 	Pixel bg = palBg[vdp->getBackgroundColour()];
 
-	int nameBase = (-1 << 10) & vdp->getNameMask();
 	int nameStart = (line / 8) * 32;
 	int nameEnd = nameStart + 32;
-	int patternQuarter = (nameStart & ~0xFF) & (vdp->getPatternMask() / 8);
-	int patternBaseLine = ((-1 << 13) | (line & 7)) & vdp->getPatternMask();
+	int patternQuarter = nameStart & ~0xFF;
+	int patternBaseLine = (-1 << 13) | (line & 7);
+	const byte *namePtr = vram->nameTable.readArea(nameStart | (-1 << 10));
 
 	// Actual display.
 	for (int name = nameStart; name < nameEnd; name++) {
-		int patternNr = vram->readNP(nameBase | name) | patternQuarter;
+		int patternNr = patternQuarter | *namePtr++;
 		if (dirtyColours || dirtyName[name] || dirtyPattern[patternNr]) {
-			int pattern = vram->readNP(patternBaseLine | (patternNr * 8));
+			int pattern = vram->patternTable.readNP(
+				patternBaseLine | (patternNr * 8) );
 			for (int i = 6; i--; ) {
 				if (zoom == Renderer::ZOOM_512) {
 					pixelPtr[0] = pixelPtr[1] = (pattern & 0x80) ? fg : bg;
@@ -184,10 +190,7 @@ void CharacterConverter<Pixel, zoom>::renderText2(
 		blinkBg = plainBg;
 	}
 
-	// TODO: This name masking seems unnecessarily complex.
-	int nameBase = (-1 << 12) & vdp->getNameMask();
-	int nameMask = ~(-1 << 12) & vdp->getNameMask();
-	int patternBaseLine = ((-1 << 11) | (line & 7)) & vdp->getPatternMask();
+	int patternBaseLine = (-1 << 11) | (line & 7);
 
 	// Actual display.
 	// TODO: Implement blinking.
@@ -197,14 +200,12 @@ void CharacterConverter<Pixel, zoom>::renderText2(
 	for (int name = nameStart; name < nameEnd; name++) {
 		// Colour table contains one bit per character.
 		if ((name & 7) == 0) {
-			colourPattern = vram->readNP(
-				((-1 << 9) | (name >> 3)) & vdp->getColourMask() );
+			colourPattern = vram->colourTable.readNP((name >> 3) | (-1 << 9));
 		} else {
 			colourPattern <<= 1;
 		}
-		int maskedName = name & nameMask;
-		int charcode = vram->readNP(nameBase | maskedName);
-		if (dirtyColours || dirtyName[maskedName] || dirtyPattern[charcode]) {
+		int charcode = vram->nameTable.readNP(name | (-1 << 12));
+		if (dirtyColours || dirtyName[name] || dirtyPattern[charcode]) {
 			Pixel fg, bg;
 			if (colourPattern & 0x80) {
 				fg = blinkFg;
@@ -213,7 +214,8 @@ void CharacterConverter<Pixel, zoom>::renderText2(
 				fg = plainFg;
 				bg = plainBg;
 			}
-			int pattern = vram->readNP(patternBaseLine | (charcode * 8));
+			int pattern = vram->patternTable.readNP(
+				patternBaseLine | (charcode * 8) );
 			if (zoom == Renderer::ZOOM_256) {
 				for (int i = 3; i--; ) {
 					*pixelPtr++ = (pattern & 0xC0) ? fg : bg;
@@ -240,19 +242,19 @@ void CharacterConverter<Pixel, zoom>::renderGraphic1(
 
 	int name = (line / 8) * 32;
 
-	int nameBase = (-1 << 10) & vdp->getNameMask();
-	int patternBaseLine = ((-1 << 11) | (line & 7)) & vdp->getPatternMask();
-	int colourBase = (-1 << 6) & vdp->getColourMask();
+	const byte *namePtr = vram->nameTable.readArea(name | (-1 << 10));
+	int patternBaseLine = (-1 << 11) | (line & 7);
 
-	for (int x = 0; x < 256; x += 8) {
-		int charcode = vram->readNP(nameBase | name);
+	for (int n = 32; n--; name++) {
+		int charcode = *namePtr++;
 		if (dirtyName[name] || dirtyPattern[charcode]
 		|| dirtyColour[charcode / 64]) {
-			int colour = vram->readNP(colourBase | (charcode / 8));
+			int colour = vram->colourTable.readNP((charcode / 8) | (-1 << 6));
 			Pixel fg = palFg[colour >> 4];
 			Pixel bg = palFg[colour & 0x0F];
 
-			int pattern = vram->readNP(patternBaseLine | (charcode * 8));
+			int pattern = vram->patternTable.readNP(
+				patternBaseLine | (charcode * 8) );
 			// TODO: Compare performance of this loop vs unrolling.
 			for (int i = 8; i--; ) {
 				if (zoom == Renderer::ZOOM_512) {
@@ -266,7 +268,6 @@ void CharacterConverter<Pixel, zoom>::renderGraphic1(
 		} else {
 			pixelPtr += zoom == Renderer::ZOOM_512 ? 16 : 8;
 		}
-		name++;
 	}
 }
 
@@ -276,23 +277,19 @@ void CharacterConverter<Pixel, zoom>::renderGraphic2(
 {
 	if (!(anyDirtyName || anyDirtyPattern || anyDirtyColour)) return;
 
-	int nameStart = (line / 8) * 32;
-	int nameEnd = nameStart + 32;
+	int name = (line / 8) * 32;
+	const byte *namePtr = vram->nameTable.readArea(name | (-1 << 10));
 
-	int quarter = nameStart & ~0xFF;
-	int nameBase = (-1 << 10) & vdp->getNameMask();
-	int patternQuarter = quarter & (vdp->getPatternMask() / 8);
-	int patternBaseLine = ((-1 << 13) | (line & 7)) & vdp->getPatternMask();
-	int colourNrBase = 0x3FF & (vdp->getColourMask() / 8);
-	int colourBaseLine = ((-1 << 13) | (line & 7)) & vdp->getColourMask();
-	for (int name = nameStart; name < nameEnd; name++) {
-		int charCode = vram->readNP(nameBase | name);
-		int colourNr = (quarter | charCode) & colourNrBase;
-		int patternNr = patternQuarter | charCode;
-		if (dirtyName[name] || dirtyPattern[patternNr]
-		|| dirtyColour[colourNr]) {
-			int pattern = vram->readNP(patternBaseLine | (patternNr * 8));
-			int colour = vram->readNP(colourBaseLine | (colourNr * 8));
+	int quarter = name & ~0xFF;
+	int baseLine = (-1 << 13) | (quarter << 3) | (line & 7);
+
+	for (int n = 32; n--; name++) {
+		int charCode = *namePtr++;
+		if (dirtyName[name] || dirtyPattern[quarter | charCode]
+		|| dirtyColour[quarter | charCode]) {
+			int index = (charCode * 8) | baseLine;
+			int pattern = vram->patternTable.readNP(index);
+			int colour = vram->colourTable.readNP(index);
 			Pixel fg = palFg[colour >> 4];
 			Pixel bg = palFg[colour & 0x0F];
 			for (int i = 8; i--; ) {
@@ -317,15 +314,14 @@ void CharacterConverter<Pixel, zoom>::renderMulti(
 {
 	if (!(anyDirtyName || anyDirtyPattern)) return;
 
-	int nameBase = (-1 << 10) & vdp->getNameMask();
-	int patternBaseLine = ((-1 << 11) | ((line / 4) & 7))
-		& vdp->getPatternMask();
+	int baseLine = (-1 << 11) | ((line / 4) & 7);
 	int nameStart = (line / 8) * 32;
 	int nameEnd = nameStart + 32;
+	const byte *namePtr = vram->nameTable.readArea(nameStart | (-1 << 10));
 	for (int name = nameStart; name < nameEnd; name++) {
-		int charcode = vram->readNP(nameBase | name);
+		int charcode = *namePtr++;
 		if (dirtyName[name] || dirtyPattern[charcode]) {
-			int colour = vram->readNP(patternBaseLine | (charcode * 8));
+			int colour = vram->patternTable.readNP((charcode * 8) | baseLine);
 			Pixel cl = palFg[colour >> 4];
 			Pixel cr = palFg[colour & 0x0F];
 			if (zoom == Renderer::ZOOM_512) {
@@ -349,14 +345,13 @@ void CharacterConverter<Pixel, zoom>::renderMultiQ(
 
 	int nameStart = (line / 8) * 32;
 	int nameEnd = nameStart + 32;
-	int nameBase = (-1 << 10) & vdp->getNameMask();
-	int patternQuarter = (nameStart & ~0xFF) & (vdp->getPatternMask() / 8);
-	int patternBaseLine = ((-1 << 13) | ((line / 4) & 7))
-		& vdp->getPatternMask();
+	int patternQuarter = nameStart & ~0xFF;
+	int baseLine = (-1 << 13) | ((line / 4) & 7);
+	const byte *namePtr = vram->nameTable.readArea(nameStart | (-1 << 10));
 	for (int name = nameStart; name < nameEnd; name++) {
-		int patternNr = patternQuarter | vram->readNP(nameBase | name);
+		int patternNr = patternQuarter | *namePtr++;
 		if (dirtyName[name] || dirtyPattern[patternNr]) {
-			int colour = vram->readNP(patternBaseLine | (patternNr * 8));
+			int colour = vram->patternTable.readNP((patternNr * 8) | baseLine);
 			Pixel cl = palFg[colour >> 4];
 			Pixel cr = palFg[colour & 0x0F];
 			if (zoom == Renderer::ZOOM_512) {
