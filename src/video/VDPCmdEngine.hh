@@ -429,7 +429,6 @@ private:
 		int ADX, ANX;
 	};
 	friend class HmmcCmd;
-
 };
 
 } // namespace openmsx

@@ -18,6 +18,20 @@ TODO:
   operation.
 */
 
+/*
+ About NX, NY
+  - for block commands NX = 0 is equivalent to NX = 512 (TODO recheck this)
+    and NY = 0 is equivalent to NY = 1024
+  - when NX or NY is too large and the VDP command hits the border, the
+    following happens:
+     - when the left or right border is hit, the command terminates
+     - when the top border is hit (line 0) the command terminates
+     - when the bottom border (line 511 or 1023) the command continues
+       (wraps to the top)
+  - in 512 lines modes (e.g. screen 7) NY is NOT limited to 512, so when
+    NY > 512, part of the screen is overdrawn twice
+*/
+
 #include <stdio.h>
 #include <cassert>
 #include "VDPCmdEngine.hh"
@@ -411,7 +425,7 @@ void VDPCmdEngine::VDPCmd::commandDone()
 // Loop over DX, DY.
 #define post__x_y(MX) \
 		if (!--ANX || ((ADX += TX) & MX)) { \
-			if (!(--NY & 1023) || (DY += TY) == -1) { \
+			if (!(--NY) || (DY += TY) == -1) { \
 				finished = true; \
 				break; \
 			} else { \
@@ -424,7 +438,7 @@ void VDPCmdEngine::VDPCmd::commandDone()
 // Loop over DX, SY, DY.
 #define post__xyy(MX) \
 		if ((ADX += TX) & MX) { \
-			if (!(--NY & 1023) || (SY += TY) == -1 || (DY += TY) == -1) { \
+			if (!(--NY) || (SY += TY) == -1 || (DY += TY) == -1) { \
 				finished = true; \
 				break; \
 			} else { \
@@ -436,7 +450,7 @@ void VDPCmdEngine::VDPCmd::commandDone()
 // Loop over SX, DX, SY, DY.
 #define post_xxyy(MX) \
 		if (!--ANX || ((ASX += TX) & MX) || ((ADX += TX) & MX)) { \
-			if (!(--NY & 1023) || (SY += TY) == -1 || (DY += TY) == -1) { \
+			if (!(--NY) || (SY += TY) == -1 || (DY += TY) == -1) { \
 				finished = true; \
 				break; \
 			} else { \
@@ -564,7 +578,7 @@ void VDPCmdEngine::LineCmd::start(const EmuTime &time)
 	DX = engine->DX;
 	DY = engine->DY;
 	NX = engine->NX;
-	NY = engine->NY;
+	NY = engine->NY;	// don't transform 0 -> 1024
 	TX = (engine->ARG & 0x04) ? -1 : 1;
 	TY = (engine->ARG & 0x08) ? -1 : 1;
 	CL = engine->COL & MASK[engine->scrMode];
@@ -650,7 +664,7 @@ void VDPCmdEngine::LmmvCmd::start(const EmuTime &time)
 	DX = engine->DX;
 	DY = engine->DY;
 	NX = engine->NX;
-	NY = engine->NY;
+	NY = engine->NY ? engine->NY : 1024;
 	TX = (engine->ARG & 0x04) ? -1 : 1;
 	TY = (engine->ARG & 0x08) ? -1 : 1;
 	CL = engine->COL & MASK[engine->scrMode];
@@ -708,7 +722,7 @@ void VDPCmdEngine::LmmmCmd::start(const EmuTime &time)
 	DX = engine->DX;
 	DY = engine->DY;
 	NX = engine->NX;
-	NY = engine->NY;
+	NY = engine->NY ? engine->NY : 1024;
 	TX = (engine->ARG & 0x04) ? -1 : 1;
 	TY = (engine->ARG & 0x08) ? -1 : 1;
 	LO = engine->LOG;
@@ -771,7 +785,7 @@ void VDPCmdEngine::LmcmCmd::start(const EmuTime &time)
 	SY = engine->SY;
 	DY = engine->DY;
 	NX = engine->NX;
-	NY = engine->NY;
+	NY = engine->NY ? engine->NY : 1024;
 	TX = (engine->ARG & 0x04) ? -1 : 1;
 	TY = (engine->ARG & 0x08) ? -1 : 1;
 	MX = PPL[engine->scrMode];
@@ -789,7 +803,7 @@ void VDPCmdEngine::LmcmCmd::execute(const EmuTime &time)
 		engine->status |= 0x80;
 
 		if (!--ANX || ((ASX += TX) & MX)) {
-			if (!(--NY & 1023) || (SY += TY) == -1) {
+			if (!(--NY) || (SY += TY) == -1) {
 				// Command execution done.
 				commandDone();
 				if (!NY) DY += TY;
@@ -815,7 +829,7 @@ void VDPCmdEngine::LmmcCmd::start(const EmuTime &time)
 	DX = engine->DX;
 	DY = engine->DY;
 	NX = engine->NX;
-	NY = engine->NY;
+	NY = engine->NY ? engine->NY : 1024;
 	TX = (engine->ARG & 0x04) ? -1 : 1;
 	TY = (engine->ARG & 0x08) ? -1 : 1;
 	MX = PPL[engine->scrMode];
@@ -835,7 +849,7 @@ void VDPCmdEngine::LmmcCmd::execute(const EmuTime &time)
 		engine->status |= 0x80;
 
 		if (!--ANX || ((ADX += TX) & MX)) {
-			if (!(--NY & 1023) || (DY += TY) == -1) {
+			if (!(--NY) || (DY += TY) == -1) {
 				// Command execution done.
 				commandDone();
 				if (!NY) DY += TY;
@@ -862,7 +876,7 @@ void VDPCmdEngine::HmmvCmd::start(const EmuTime &time)
 	DX = engine->DX;
 	DY = engine->DY;
 	NX = engine->NX / PPB[engine->scrMode];
-	NY = engine->NY;
+	NY = engine->NY ? engine->NY : 1024;
 	TX = (engine->ARG & 0x04) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
 	TY = (engine->ARG & 0x08) ? -1 : 1;
 	CL = engine->COL;
@@ -923,7 +937,7 @@ void VDPCmdEngine::HmmmCmd::start(const EmuTime &time)
 	DX = engine->DX;
 	DY = engine->DY;
 	NX = engine->NX / PPB[engine->scrMode];
-	NY = engine->NY;
+	NY = engine->NY ? engine->NY : 1024;
 	TX = (engine->ARG & 0x04) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
 	TY = (engine->ARG & 0x08) ? -1 : 1;
 	ASX = SX;
@@ -1000,7 +1014,7 @@ void VDPCmdEngine::YmmmCmd::start(const EmuTime &time)
 	SY = engine->SY;
 	DX = engine->DX;
 	DY = engine->DY;
-	NY = engine->NY;
+	NY = engine->NY ? engine->NY : 1024;
 	TX = (engine->ARG & 0x04) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
 	TY = (engine->ARG & 0x08) ? -1 : 1;
 	ADX = DX;
@@ -1075,7 +1089,7 @@ void VDPCmdEngine::HmmcCmd::start(const EmuTime &time)
 	DX = engine->DX;
 	DY = engine->DY;
 	NX = engine->NX / PPB[engine->scrMode];
-	NY = engine->NY;
+	NY = engine->NY ? engine->NY : 1024;
 	TX = (engine->ARG & 0x04) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
 	TY = (engine->ARG & 0x08) ? -1 : 1;
 	MX = PPL[engine->scrMode];
@@ -1093,7 +1107,7 @@ void VDPCmdEngine::HmmcCmd::execute(const EmuTime &time)
 		engine->status |= 0x80;
 
 		if (!--ANX || ((ADX += TX) & MX)) {
-			if (!(--NY & 1023) || (DY += TY) == -1) {
+			if (!(--NY) || (DY += TY) == -1) {
 				// Command execution done.
 				commandDone();
 				if (!NY) DY += TY;
