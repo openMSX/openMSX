@@ -307,7 +307,7 @@ string FileOperations::getSystemDataDir()
 	*(strrchr(p, '\\')) = '\0';
 	newValue = getConventionalPath(p) + "/share";
 #else
-	newValue = DATADIR; // defined in config.h (default /opt/openMSX/share)
+	newValue = DATADIR; // defined in build-info.h (default /opt/openMSX/share)
 #endif
 	setenv(NAME, newValue.c_str(), 0);
 	return newValue;
