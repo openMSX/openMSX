@@ -2,6 +2,7 @@
 
 #include "VideoLayer.hh"
 #include "RenderSettings.hh"
+#include "Display.hh"
 #include "GlobalSettings.hh"
 #include <cassert>
 

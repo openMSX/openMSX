@@ -1,6 +1,7 @@
 // $Id$
 
 #include "SDLSnow.hh"
+#include "Display.hh"
 
 using std::string;
 

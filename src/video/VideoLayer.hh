@@ -3,7 +3,7 @@
 #ifndef __VIDEOLAYER_HH__
 #define __VIDEOLAYER_HH__
 
-#include "Display.hh"
+#include "Layer.hh"
 #include "SettingListener.hh"
 #include "VideoSourceSetting.hh"
 
@@ -37,7 +37,6 @@ private:
 	VideoSourceActivator videoSourceActivator;
 	/** Reference to "power" setting. */
 	BooleanSetting& powerSetting;
-
 };
 
 } // namespace openmsx

@@ -1,5 +1,8 @@
 $Id$
 
+2005-01-04 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Split Display.xx files in Display.xx and Layer.xx
+
 2005-01-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented deinterlace for V9990
 	* Better frameskip implementation (skip more code)

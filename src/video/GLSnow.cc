@@ -1,6 +1,7 @@
 // $Id$
 
 #include "GLSnow.hh"
+#include "Display.hh"
 #include <cstdlib>
 
 using std::string;

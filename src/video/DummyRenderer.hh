@@ -5,7 +5,7 @@
 
 #include "openmsx.hh"
 #include "Renderer.hh"
-#include "Display.hh"
+#include "Layer.hh"
 
 namespace openmsx {
 

@@ -6,7 +6,7 @@
 #include <memory>
 #include <string>
 #include <SDL.h>	// TODO get rid of this
-#include "Display.hh"
+#include "Layer.hh"
 #include "EnumSetting.hh"
 #include "FilenameSetting.hh"
 #include "SettingListener.hh"

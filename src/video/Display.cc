@@ -20,36 +20,6 @@ using std::vector;
 
 namespace openmsx {
 
-// Layer:
-
-Layer::Layer(Coverage coverage, ZIndex z)
-{
-	display = NULL;
-	this->coverage = coverage;
-	this->z = z;
-}
-
-Layer::~Layer()
-{
-}
-
-void Layer::setCoverage(Coverage coverage)
-{
-	this->coverage = coverage;
-	if (display) display->updateCoverage(this, coverage);
-}
-
-void Layer::setZ(ZIndex z)
-{
-	this->z = z;
-	if (display) display->updateZ(this, z);
-}
-
-Layer::ZIndex Layer::getZ() const
-{
-	return z;
-}
-
 // Display:
 
 std::auto_ptr<Display> Display::INSTANCE;

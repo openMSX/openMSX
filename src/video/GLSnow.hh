@@ -3,7 +3,7 @@
 #ifndef __GLSNOW_HH__
 #define __GLSNOW_HH__
 
-#include "Display.hh"
+#include "Layer.hh"
 #include "GLUtil.hh"
 
 namespace openmsx {

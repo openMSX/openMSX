@@ -20,6 +20,7 @@ SRC_HDR:= \
 	Deinterlacer \
 	ScreenShotSaver \
 	VideoSystem Display VideoLayer \
+	Layer \
 	DummyVideoSystem \
 	IconLayer \
 	SDLImage

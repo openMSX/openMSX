@@ -3,7 +3,7 @@
 #ifndef _ICONLAYER_HH_
 #define _ICONLAYER_HH_
 
-#include "Display.hh"
+#include "Layer.hh"
 #include "EventListener.hh"
 #include "LedEvent.hh"
 #include "FilenameSetting.hh"

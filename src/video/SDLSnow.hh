@@ -3,7 +3,7 @@
 #ifndef __SDLSNOW_HH__
 #define __SDLSNOW_HH__
 
-#include "Display.hh"
+#include "Layer.hh"
 #include <SDL.h>
 
 namespace openmsx {
