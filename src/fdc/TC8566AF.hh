@@ -14,25 +14,30 @@ namespace openmsx {
 class EmuTime;
 class DiskDrive;
 
-
 class TC8566AF
 {
 	public:
-		TC8566AF(DiskDrive* drive[4], const EmuTime &time);
-		virtual ~TC8566AF();
+		TC8566AF(DiskDrive* drive[4], const EmuTime& time);
+		~TC8566AF();
 
-		void reset(const EmuTime &time);
-		byte readReg(int reg, const EmuTime &time);
-		void writeReg(int reg, byte value, const EmuTime &time);
+		void reset(const EmuTime& time);
+		byte readReg(int reg, const EmuTime& time);
+		void writeReg(int reg, byte value, const EmuTime& time);
 		bool diskChanged(int driveno);
 
 	private:
-		DiskDrive* drive[4];
+		byte readDataTransferPhase(const EmuTime& time);
+		byte readDataResultPhase(const EmuTime& time);
+		void writeDataIdlePhase(byte data, const EmuTime& time);
+		void writeDataCommandPhase(byte data, const EmuTime& time);
+		void writeDataTransferPhase(byte data, const EmuTime& time);
 
 		byte makeST0();
 		byte makeST1();
 		byte makeST2();
 		byte makeST3();
+		
+		DiskDrive* drive[4];
 
 		// Control register 0
 		byte EnableIntDma;	// always 0
@@ -116,6 +121,7 @@ class TC8566AF
 		byte StartHead;
 		byte StartRecord;
 		byte StartN;
+		byte SectorsPerCylinder;
 
 	//	byte DiskLEDOn;		// 0 = disk LED off,	1 = disk LED on
 	//	byte DiskMotorOn;	// 0 = disk motor off,	1 = disk motor on

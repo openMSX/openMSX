@@ -2,16 +2,39 @@
 
 /*
  * Based on code from NLMSX written by Frits Hilderink
+ * Format command based on code from BlueMSX written by Daniel Vik
  */
 
 #include "TC8566AF.hh"
 #include "DiskDrive.hh"
 #include "Disk.hh"
 
-
 namespace openmsx {
 
-TC8566AF::TC8566AF(DiskDrive* drv[4], const EmuTime &time)
+const byte PHASE_IDLE         = 0;
+const byte PHASE_COMMAND      = 1;
+const byte PHASE_DATATRANSFER = 2;
+const byte PHASE_RESULT       = 3;
+
+const byte CMD_UNKNOWN                =  0;
+const byte CMD_READ_DATA              =  1;
+const byte CMD_WRITE_DATA             =  2;
+const byte CMD_WRITE_DELETED_DATA     =  3;
+const byte CMD_READ_DELETED_DATA      =  4;
+const byte CMD_READ_DIAGNOSTIC        =  5;
+const byte CMD_READ_ID                =  6;
+const byte CMD_FORMAT                 =  7;
+const byte CMD_SCAN_EQUAL             =  8;
+const byte CMD_SCAN_LOW_OR_EQUAL      =  9;
+const byte CMD_SCAN_HIGH_OR_EQUAL     = 10;
+const byte CMD_SEEK                   = 11;
+const byte CMD_RECALIBRATE            = 12;
+const byte CMD_SENSE_INTERRUPT_STATUS = 13;
+const byte CMD_SPECIFY                = 14;
+const byte CMD_SENSE_DEVICE_STATUS    = 15;
+
+
+TC8566AF::TC8566AF(DiskDrive* drv[4], const EmuTime& time)
 {
 	drive[0] = drv[0];
 	drive[1] = drv[1];
@@ -24,7 +47,7 @@ TC8566AF::~TC8566AF()
 {
 }
 
-void TC8566AF::reset(const EmuTime &time)
+void TC8566AF::reset(const EmuTime& time)
 {
 	// Control register 0
 	drive[0]->setMotor(false, time);
@@ -46,9 +69,9 @@ void TC8566AF::reset(const EmuTime &time)
 	FDD1Busy = 0;
 	FDD0Busy = 0;
 
-	Phase = 0;
+	Phase = PHASE_IDLE;
 	PhaseStep = 0;
-	Command = 0;
+	Command = CMD_UNKNOWN;
 
 	ST0_IC = 0;		// bit 7,6	Interrupt Code
 	ST0_SE = 0;		// bit 5	Seek End
@@ -86,173 +109,160 @@ void TC8566AF::reset(const EmuTime &time)
 byte TC8566AF::makeST0()
 {
 	return  (ST0_IC << 6) |		// bit 7,6	Interrupt Code
-		(ST0_SE << 5) |		// bit 5	Seek End
-		(ST0_EC << 4) |		// bit 4	Equipment Check
-		(ST0_NR << 3) |		// bit 3	Not Ready
-		(ST0_HD << 2) |		// bit 2	Head Address
-		(ST0_DS);		// bit 1,0	Drive Select
+	        (ST0_SE << 5) |		// bit 5	Seek End
+	        (ST0_EC << 4) |		// bit 4	Equipment Check
+	        (ST0_NR << 3) |		// bit 3	Not Ready
+	        (ST0_HD << 2) |		// bit 2	Head Address
+	        (ST0_DS << 0);		// bit 1,0	Drive Select
 }
 
 byte TC8566AF::makeST1()
 {
 	return  (ST1_EN << 7) |		// bit 7	End of Cylinder
-		(ST1_DE << 5) |		// bit 5	data Error
-		(ST1_OR << 4) |		// bit 4	Over Run
-		(ST1_ND << 2) |		// bit 2	No data
-		(ST1_NW << 1) |		// bit 1	Not Writable
-		(ST1_MA);		// bit 0	Missing Address Mark
+	        (ST1_DE << 5) |		// bit 5	data Error
+	        (ST1_OR << 4) |		// bit 4	Over Run
+	        (ST1_ND << 2) |		// bit 2	No data
+	        (ST1_NW << 1) |		// bit 1	Not Writable
+	        (ST1_MA << 0);		// bit 0	Missing Address Mark
 }
 
 byte TC8566AF::makeST2()
 {
 	return  (ST2_CM << 6) |		// bit 6	Control Mark
-		(ST2_DD << 5) |		// bit 5	data Error in data Field
-		(ST2_NC << 4) |		// bit 4	No Cylinder
-		(ST2_SH << 3) |		// bit 3	Scan Equal Satisfied
-		(ST2_SN << 2) |		// bit 2	Scan Not Satisfied
-		(ST2_BC << 1) |		// bit 1	Bad Cylinder
-		(ST2_MD);		// bit 0	Missing Address Mark in data Field
+	        (ST2_DD << 5) |		// bit 5	data Error in data Field
+	        (ST2_NC << 4) |		// bit 4	No Cylinder
+	        (ST2_SH << 3) |		// bit 3	Scan Equal Satisfied
+	        (ST2_SN << 2) |		// bit 2	Scan Not Satisfied
+	        (ST2_BC << 1) |		// bit 1	Bad Cylinder
+	        (ST2_MD << 0);		// bit 0	Missing Address Mark in data Field
 }
 
 byte TC8566AF::makeST3()
 {
 	return  (ST3_FLT << 7) |	// bit 7	Fault
-		(ST3_WP  << 6) |	// bit 6	Write Protect
-		(ST3_RDY << 5) |	// bit 5	Ready
-		(ST3_TK0 << 4) |	// bit 4	Track 0
-		(ST3_2S  << 3) |	// bit 3	Two Side
-		(ST3_HD  << 2) |	// bit 2	Head Address
-		(ST3_DS);		// bit 1,0	Drive Select
+	        (ST3_WP  << 6) |	// bit 6	Write Protect
+	        (ST3_RDY << 5) |	// bit 5	Ready
+	        (ST3_TK0 << 4) |	// bit 4	Track 0
+	        (ST3_2S  << 3) |	// bit 3	Two Side
+	        (ST3_HD  << 2) |	// bit 2	Head Address
+	        (ST3_DS  << 0);		// bit 1,0	Drive Select
 }
 
-byte TC8566AF::readReg(int reg, const EmuTime& /*time*/)
+byte TC8566AF::readReg(int reg, const EmuTime& time)
 {
-	byte Value = 0xFF;	// avoid warning
-
-	switch	(reg) {
+	byte result = 0xFF;
+	switch (reg) {
 	case 4: // Main Status Register
-		Value = (RequestForMaster << 7) |
-			(dataInputOutput  << 6) |
-			(NonDMAMode       << 5) |
-			(FDCBusy          << 4) |
-			(FDD3Busy         << 3) |
-			(FDD2Busy         << 2) |
-			(FDD1Busy         << 1) |
-			(FDD0Busy);
+		result = (RequestForMaster << 7) |
+		         (dataInputOutput  << 6) |
+		         (NonDMAMode       << 5) |
+		         (FDCBusy          << 4) |
+		         (FDD3Busy         << 3) |
+		         (FDD2Busy         << 2) |
+		         (FDD1Busy         << 1) |
+		         (FDD0Busy         << 0);
 		break;
 
 	case 5: // data port
-		switch (Command) {
-		case 1: // Read data Command
-			switch (Phase) {
-			case 2: // Execution Phase
-				if (SectorByteCount > 0) {
-					SectorByteCount--;
-					Value = Sector[SectorPtr++];
-				}
-				if (SectorByteCount == 0) {
-					Phase++;
-					PhaseStep = 0;
-				}
-				break;
-			case 3: // Result Phase
-				switch	(PhaseStep++) {
-				case 0:
-					Value = makeST0();
-					break;
-				case 1:
-					Value = makeST1();
-					break;
-				case 2:
-					Value = makeST2();
-					break;
-				case 3:
-					Value = StartCylinder;
-					break;
-				case 4:
-					Value = StartHead;
-					break;
-				case 5:
-					Value = StartRecord;
-					break;
-				case 6:
-					Value = StartN;
-					FDCBusy = 0;
-					Phase = 0;
-					dataInputOutput = 0;
-					Command = 0;
-					break;
-				}
-			}
+		switch (Phase) {
+		case PHASE_DATATRANSFER:
+			result = readDataTransferPhase(time);
 			break;
-		case 2: // Write data Command
-			switch (Phase) {
-			case 3: // Result Phase
-				switch (PhaseStep++) {
-				case 0:
-					Value = makeST0();
-					break;
-				case 1:
-					Value = makeST1();
-					break;
-				case 2:
-					Value = makeST2();
-					break;
-				case 3:
-					Value = StartCylinder;
-					break;
-				case 4:
-					Value = StartHead;
-					break;
-				case 5:
-					Value = StartRecord;
-					break;
-				case 6:
-					Value = StartN;
-					FDCBusy = 0;
-					Phase = 0;
-					dataInputOutput = 0;
-					Command = 0;
-					break;
-				}
-			}
-			break;
-		case 13:// Sense Interrupt Status Command
-			// Result Phase
-			switch (PhaseStep++) {
-			case 0:
-				Value = makeST0();
-				break;
-			case 1:
-				Value = PCN;
-				FDCBusy = 0;
-				Phase = 0;
-				dataInputOutput = 0;
-				Command = 0;
-				break;
-			}
-			break;
-		case 15:// Sense Device Status Command
-			// Result Phase
-			switch	(PhaseStep++) {
-			case 0:
-				Value = makeST3();
-				FDCBusy = 0;
-				Phase = 0;
-				dataInputOutput = 0;
-				Command = 0;
-				break;
-			}
-			break;
-		default:
+		case PHASE_RESULT:
+			result = readDataResultPhase(time);
 			break;
 		}
 		break;
 	}
-	return Value;
+	return result;
 }
 
-void TC8566AF::writeReg(int reg, byte data, const EmuTime &time)
+byte TC8566AF::readDataTransferPhase(const EmuTime& /*time*/)
+{
+	byte result = 0xFF;
+	switch (Command) {
+	case CMD_READ_DATA:
+		if (SectorByteCount > 0) {
+			SectorByteCount--;
+			result = Sector[SectorPtr++];
+		}
+		if (SectorByteCount == 0) {
+			Phase = PHASE_RESULT;
+			PhaseStep = 0;
+		}
+		break;
+	}
+	return result;
+}
+
+byte TC8566AF::readDataResultPhase(const EmuTime& /*time*/)
+{
+	byte result = 0xFF;
+	switch (Command) {
+	case CMD_READ_DATA:
+	case CMD_WRITE_DATA:
+	case CMD_FORMAT:
+		switch	(PhaseStep++) {
+		case 0:
+			result = makeST0();
+			break;
+		case 1:
+			result = makeST1();
+			break;
+		case 2:
+			result = makeST2();
+			break;
+		case 3:
+			result = StartCylinder;
+			break;
+		case 4:
+			result = StartHead;
+			break;
+		case 5:
+			result = StartRecord;
+			break;
+		case 6:
+			result = StartN;
+			FDCBusy = 0;
+			Phase = PHASE_IDLE;
+			dataInputOutput = 0;
+			Command = CMD_UNKNOWN;
+			break;
+		}
+		break;
+
+	case CMD_SENSE_INTERRUPT_STATUS:
+		switch (PhaseStep++) {
+		case 0:
+			result = makeST0();
+			break;
+		case 1:
+			result = PCN;
+			FDCBusy = 0;
+			Phase = PHASE_IDLE;
+			dataInputOutput = 0;
+			Command = CMD_UNKNOWN;
+			break;
+		}
+		break;
+
+	case CMD_SENSE_DEVICE_STATUS:
+		switch	(PhaseStep++) {
+		case 0:
+			result = makeST3();
+			FDCBusy = 0;
+			Phase = PHASE_IDLE;
+			dataInputOutput = 0;
+			Command = CMD_UNKNOWN;
+			break;
+		}
+		break;
+	}
+	return result;
+}
+
+
+void TC8566AF::writeReg(int reg, byte data, const EmuTime& time)
 {
 	switch (reg) {
 	case 2: // Control register 0
@@ -271,283 +281,321 @@ void TC8566AF::writeReg(int reg, byte data, const EmuTime &time)
 
 	case 5: // data port
 		switch (Phase) {
+		case PHASE_IDLE:
+			writeDataIdlePhase(data, time);
+			break;
+
+		case PHASE_COMMAND:
+			writeDataCommandPhase(data, time);
+			break;
+
+		case PHASE_DATATRANSFER:
+			writeDataTransferPhase(data, time);
+			break;
+
+		case PHASE_RESULT:
+			// nothing
+			break;
+		}
+		break;
+	}
+}
+
+void TC8566AF::writeDataIdlePhase(byte data, const EmuTime& time)
+{
+	Command = CMD_UNKNOWN;
+	if ((data & 0x1f) == 0x06) Command = CMD_READ_DATA;
+	if ((data & 0x3f) == 0x05) Command = CMD_WRITE_DATA;
+	if ((data & 0x3f) == 0x09) Command = CMD_WRITE_DELETED_DATA;
+	if ((data & 0x1f) == 0x0c) Command = CMD_READ_DELETED_DATA;
+	if ((data & 0xbf) == 0x02) Command = CMD_READ_DIAGNOSTIC;
+	if ((data & 0xbf) == 0x0a) Command = CMD_READ_ID;
+	if ((data & 0xbf) == 0x0d) Command = CMD_FORMAT;
+	if ((data & 0x1f) == 0x11) Command = CMD_SCAN_EQUAL;
+	if ((data & 0x1f) == 0x19) Command = CMD_SCAN_LOW_OR_EQUAL;
+	if ((data & 0x1f) == 0x1d) Command = CMD_SCAN_HIGH_OR_EQUAL;
+	if ((data & 0xff) == 0x0f) Command = CMD_SEEK;
+	if ((data & 0xff) == 0x07) Command = CMD_RECALIBRATE;
+	if ((data & 0xff) == 0x08) Command = CMD_SENSE_INTERRUPT_STATUS;
+	if ((data & 0xff) == 0x03) Command = CMD_SPECIFY;
+	if ((data & 0xff) == 0x04) Command = CMD_SENSE_DEVICE_STATUS;
+
+	Phase = PHASE_COMMAND;
+	PhaseStep = 0;
+	FDCBusy = 1;
+
+	switch (Command) {
+		case CMD_READ_DATA:
+		case CMD_WRITE_DATA:
+		case CMD_FORMAT:
+			ST0_IC = 0;
+			ST1_ND = 0;
+			MT  = (data & 0x80) != 0;
+			MFM = (data & 0x40) != 0;
+			SK  = (data & 0x20) != 0;
+			break;
+
+		case CMD_RECALIBRATE:
+			ST0_SE = 0;	// Seek End = 0
+			break;
+
+		case CMD_SENSE_INTERRUPT_STATUS:
+			Phase = PHASE_RESULT;
+			dataInputOutput = 1;
+			break;
+
+		case CMD_SEEK:
+		case CMD_SPECIFY:
+		case CMD_SENSE_DEVICE_STATUS:
+			break;
+
+		default:
+			FDCBusy = 0;
+			Phase = PHASE_IDLE;
+			Command = CMD_UNKNOWN;
+			break;
+	}
+
+}
+
+void TC8566AF::writeDataCommandPhase(byte data, const EmuTime& time)
+{
+	switch (Command) {
+	case CMD_READ_DATA:
+	case CMD_WRITE_DATA:
+		switch (PhaseStep++) {
 		case 0:
-			Command = 16; // 16 = Invalid Command
-			if ((data & 0x1f) == 0x06) Command = 1; // 1 = Read data Command
-			if ((data & 0x3f) == 0x05) Command = 2; // 2 = Write data Command
-			if ((data & 0x3f) == 0x09) Command = 3; // 3 = Write Deleted data Command
-			if ((data & 0x1f) == 0x0c) Command = 4; // 4 = Read Deleted data Command
-			if ((data & 0xbf) == 0x02) Command = 5; // 5 = Read Diagnostic Command
-			if ((data & 0xbf) == 0x0a) Command = 6; // 6 = Read ID Command
-			if ((data & 0xbf) == 0x0d) Command = 7; // 7 = Format Command
-			if ((data & 0x1f) == 0x11) Command = 8; // 8 = Scan Equal Command
-			if ((data & 0x1f) == 0x19) Command = 9; // 9 = Scan Low or Equal Command
-			if ((data & 0x1f) == 0x1d) Command = 10;// 10 = Scan High or Equal Command
-			if ((data & 0xff) == 0x0f) Command = 11;// 11 = Seek Command
-			if ((data & 0xff) == 0x07) Command = 12;// 12 = Recalibrate Command
-			if ((data & 0xff) == 0x08) Command = 13;// 13 = Sense Interrupt Status Command
-			if ((data & 0xff) == 0x03) Command = 14;// 14 = Specify Command
-			if ((data & 0xff) == 0x04) Command = 15;// 15 = Sense Device Status Command
-
-			Phase++;
-			PhaseStep = 0;
-			FDCBusy = 1;
-
-		case 1: // Command Phase
-			switch (Command) {
-			case 1: // Read data Command
-				switch (PhaseStep++) {
-				case 0:
-					ST0_IC = 0;
-					ST1_ND = 0;
-					MT  = (data & 0x80) != 0;
-					MFM = (data & 0x40) != 0;
-					SK  = (data & 0x20) != 0;
-					break;
-				case 1:
-					ST0_DS = data & 3; // Copy Drive Select
-					ST3_DS = data & 3; // Copy Drive Select
-					try {
-						ST3_RDY = drive[DriveSelect]->ready()          ? 1 : 0;
-						ST3_WP  = drive[DriveSelect]->writeProtected() ? 1 : 0;
-						ST3_TK0 = drive[DriveSelect]->track00(time)    ? 1 : 0;
-						ST3_HD  = drive[DriveSelect]->doubleSided()    ? 1 : 0;
-					} catch (DriveEmptyException &e) {
-						ST0_IC = 1; // bit 7,6 Interrupt Code
-					}
-					// HS
-					break;
-				case 2:
-					StartCylinder = data;
-					break;
-				case 3:
-					StartHead = data;
-					break;
-				case 4:
-					StartRecord = data;
-					break;
-				case 5:
-					StartN = data;
-					if ((MT == 0) && (MFM == 1) && (StartN == 2))
-						SectorByteCount = 512;
-					else
-						SectorByteCount = 0;
-					break;
-				case 6: // EOT: End Of Track
-					break;
-				case 7: // GPL: Gap Length
-					break;
-				case 8:
-					// DTL: DATA Length
-					try {
-						byte dummy;
-						int dummy2;
-						drive[DriveSelect]->setSide(StartHead);
-						drive[DriveSelect]->read(
-						    StartRecord, Sector, dummy,
-						    dummy, dummy, dummy2);
-						Phase++;
-						PhaseStep = 0;
-						dataInputOutput = 1;
-						SectorPtr = 0;
-					} catch (MSXException &e) {
-						Phase++;
-						PhaseStep = 0;
-						dataInputOutput = 1;
-						SectorPtr = 0;
-						ST0_IC = 1;
-						ST1_ND = 1;
-					}
-					break;
+			ST0_DS = data & 3; // Copy Drive Select
+			ST3_DS = data & 3; // Copy Drive Select
+			try {
+				ST3_RDY = drive[DriveSelect]->ready()          ? 1 : 0;
+				ST3_WP  = drive[DriveSelect]->writeProtected() ? 1 : 0;
+				ST3_TK0 = drive[DriveSelect]->track00(time)    ? 1 : 0;
+				ST3_HD  = drive[DriveSelect]->doubleSided()    ? 1 : 0;
+			} catch (DriveEmptyException& e) {
+				ST0_IC = 1; // bit 7,6 Interrupt Code
+			}
+			// HS
+			break;
+		case 1:
+			StartCylinder = data;
+			break;
+		case 2:
+			StartHead = data;
+			break;
+		case 3:
+			StartRecord = data;
+			break;
+		case 4:
+			StartN = data;
+			SectorByteCount = ((MT == 0) && (MFM == 1) && (StartN == 2)) ? 512 : 0;
+			break;
+		case 5: // EOT: End Of Track
+			break;
+		case 6: // GPL: Gap Length
+			break;
+		case 7: // DTL: DATA Length
+			if (Command == CMD_READ_DATA) {
+				// read
+				try {
+					byte dummy;
+					int dummy2;
+					drive[DriveSelect]->setSide(StartHead);
+					drive[DriveSelect]->read(
+					    StartRecord, Sector, dummy,
+					    dummy, dummy, dummy2);
+				} catch (MSXException& e) {
+					ST0_IC = 1;
+					ST1_ND = 1;
 				}
-				break;
-			case 2: // Write data Command
-				// Command Phase
-				switch (PhaseStep++) {
-				case 0:
-					ST0_IC = 0;
-					ST1_ND = 0;
-					MT  = (data & 0x80) != 0;
-					MFM = (data & 0x40) != 0;
-					SK  = (data & 0x20) != 0;
-					break;
-				case 1:
-					ST0_DS = data & 3; // Copy Drive Select
-					ST3_DS = data & 3; // Copy Drive Select
-					try {
-						ST3_RDY = drive[DriveSelect]->ready()          ? 1 : 0;
-						ST3_WP  = drive[DriveSelect]->writeProtected() ? 1 : 0;
-						ST3_TK0 = drive[DriveSelect]->track00(time)    ? 1 : 0;
-						ST3_HD  = drive[DriveSelect]->doubleSided()    ? 1 : 0;
-					} catch (DriveEmptyException &e) {
-						ST0_IC = 1; // bit 7,6 Interrupt Code
-					}
-					// HS
-					break;
-				case 2:
-					StartCylinder = data;
-					break;
-				case 3:
-					StartHead = data;
-					break;
-				case 4:
-					StartRecord = data;
-					break;
-				case 5:
-					StartN = data;
-					if ((MT == 0) && (MFM == 1) && (StartN == 2))
-						SectorByteCount = 512;
-					else
-						SectorByteCount = 0;
-					break;
-				case 6: // EOT: End Of Track
-					break;
-				case 7: // GPL: Gap Length
-					break;
-				case 8: // DTL: DATA Length
-					Phase++;
-					PhaseStep = 0;
-					dataInputOutput = 0;
-					SectorPtr = 0;
-					break;
-				}
-				break;
-			case 11:// Seek Command
-				switch (PhaseStep++) {
-				case 0:
-					break;
-				case 1:
-					ST0_DS = data & 3; // Copy Drive Select
-					ST3_DS = data & 3; // Copy Drive Select
-					try {
-						ST3_RDY = drive[DriveSelect]->ready()          ? 1 : 0;
-						ST3_WP  = drive[DriveSelect]->writeProtected() ? 1 : 0;
-						ST3_TK0 = drive[DriveSelect]->track00(time)    ? 1 : 0;
-						ST3_HD  = drive[DriveSelect]->doubleSided()    ? 1 : 0;
-					} catch (DriveEmptyException &e) {
-						ST0_IC = 1; // bit 7,6 Interrupt Code
-					}
-					break;
-				case 2: {
-					int maxSteps = 255;
-					while (data > PCN && maxSteps--) {
-						drive[DriveSelect]->step(true, time);
-						PCN++;
-					}
-					while (data < PCN && maxSteps--) {
-						drive[DriveSelect]->step(false, time);
-						PCN--;
-					}
-					ST0_SE = 1;	// Seek End = 1
-					FDCBusy = 0;
-					Phase = 0;
-					Command = 0;
-					PRT_DEBUG("FDC: PCN " << (int)PCN);
-					break;
-				}
-				}
-				break;
-			case 12:// Recalibrate Command
-				switch (PhaseStep++) {
-				case 0:
-					ST0_SE = 0;	// Seek End = 0
-					break;
-				case 1: {
-					ST0_DS = data & 3; // Copy Drive Select
-					ST3_DS = data & 3; // Copy Drive Select
-					try {
-						ST3_RDY = drive[DriveSelect]->ready()          ? 1 : 0;
-						ST3_WP  = drive[DriveSelect]->writeProtected() ? 1 : 0;
-						ST3_TK0 = drive[DriveSelect]->track00(time)    ? 1 : 0;
-						ST3_HD  = drive[DriveSelect]->doubleSided()    ? 1 : 0;
-					} catch (DriveEmptyException &e) {
-						ST0_IC = 1; // bit 7,6 Interrupt Code
-					}
-					int maxSteps = 255;
-					while (!drive[DriveSelect]->track00(time) && maxSteps--) {
-						drive[DriveSelect]->step(false, time);
-						PCN--;
-					}
-					ST0_SE = 1;	// Seek End = 1
-					FDCBusy = 0;
-					Phase = 0;
-					Command = 0;
-					PRT_DEBUG("FDC: PCN " << (int)PCN);
-					break;
-				}
-				}
-				break;
-			case 13:// Sense Interrupt Status Command
-				Phase = 2;
 				dataInputOutput = 1;
-				break;
-			case 14:// Specify Command
-				switch (PhaseStep++) {
-				case 0:
-					break;
-				case 1:
-					break;
-				case 2:
-					FDCBusy = 0;
-					Phase = 0;
-					Command = 0;
-					break;
-				}
-				break;
-			case 15:// Sense Device Status Command
-				switch (PhaseStep++) {
-				case 0:
-					break;
-				case 1:
-					ST0_DS = data & 3; // Copy Drive Select
-					ST3_DS = data & 3; // Copy Drive Select
-					try {
-						ST3_RDY = drive[DriveSelect]->ready()          ? 1 : 0;
-						ST3_WP  = drive[DriveSelect]->writeProtected() ? 1 : 0;
-						ST3_TK0 = drive[DriveSelect]->track00(time)    ? 1 : 0;
-						ST3_HD  = drive[DriveSelect]->doubleSided()    ? 1 : 0;
-					} catch (DriveEmptyException &e) {
-						ST0_IC = 1; // bit 7,6 Interrupt Code
-					}
-					Phase = 2;
-					PhaseStep = 0;
-					dataInputOutput = 1;
-					break;
-				}
-				break;
-			default:
-				FDCBusy = 0;
-				Phase = 0;
-				Command = 0;
-				break;
+			} else {
+				// write
+				dataInputOutput = 0;
+			}
+			Phase = PHASE_DATATRANSFER;
+			PhaseStep = 0;
+			SectorPtr = 0;
+			break;
+		}
+		break;
+
+	case CMD_FORMAT:
+		switch (PhaseStep++) {
+		case 0:
+			ST0_DS = data & 3; // Copy Drive Select
+			ST3_DS = data & 3; // Copy Drive Select
+			try {
+				ST3_RDY = drive[DriveSelect]->ready()          ? 1 : 0;
+				ST3_WP  = drive[DriveSelect]->writeProtected() ? 1 : 0;
+				ST3_TK0 = drive[DriveSelect]->track00(time)    ? 1 : 0;
+				ST3_HD  = drive[DriveSelect]->doubleSided()    ? 1 : 0;
+			} catch (DriveEmptyException& e) {
+				ST0_IC = 1; // bit 7,6 Interrupt Code
 			}
 			break;
-		case 2: // Execution Phase
-			switch (Command) {
-			case 2: // Write data Command
-				if (SectorByteCount > 0) {
-					SectorByteCount--;
-					Sector[SectorPtr++] = data;
-				}
-				if (SectorByteCount == 0) {
-					try {
-						byte dummy;
-						int dummy2;
-						drive[DriveSelect]->setSide(StartHead);
-						drive[DriveSelect]->write(
-						    StartRecord, Sector, dummy,
-						    dummy, dummy, dummy2);
-						Phase++;
-						PhaseStep = 0;
-						dataInputOutput = 1;
-					} catch (MSXException &e) {
-					}
-				}
-				break;
+		case 1:
+			StartN = data;
+			break;
+		case 2:
+			SectorsPerCylinder = data;
+			StartRecord        = data;
+			break;
+		case 4:
+			SectorPtr       = 0;
+			dataInputOutput = 0;
+			Phase           = PHASE_DATATRANSFER;
+			PhaseStep       = 0;
+			break;
+		}
+		break;
+
+	case CMD_SEEK:
+		switch (PhaseStep++) {
+		case 0:
+			ST0_DS = data & 3; // Copy Drive Select
+			ST3_DS = data & 3; // Copy Drive Select
+			try {
+				ST3_RDY = drive[DriveSelect]->ready()          ? 1 : 0;
+				ST3_WP  = drive[DriveSelect]->writeProtected() ? 1 : 0;
+				ST3_TK0 = drive[DriveSelect]->track00(time)    ? 1 : 0;
+				ST3_HD  = drive[DriveSelect]->doubleSided()    ? 1 : 0;
+			} catch (DriveEmptyException& e) {
+				ST0_IC = 1; // bit 7,6 Interrupt Code
 			}
 			break;
-		case 3: // Result
+		case 1: {
+			int maxSteps = 255;
+			while (data > PCN && maxSteps--) {
+				drive[DriveSelect]->step(true, time);
+				PCN++;
+			}
+			while (data < PCN && maxSteps--) {
+				drive[DriveSelect]->step(false, time);
+				PCN--;
+			}
+			ST0_SE = 1;	// Seek End = 1
+			FDCBusy = 0;
+			Phase = PHASE_IDLE;
+			Command = CMD_UNKNOWN;
+			PRT_DEBUG("FDC: PCN " << (int)PCN);
 			break;
+		}
+		}
+		break;
+
+	case CMD_RECALIBRATE:
+		switch (PhaseStep++) {
+		case 0: {
+			ST0_DS = data & 3; // Copy Drive Select
+			ST3_DS = data & 3; // Copy Drive Select
+			try {
+				ST3_RDY = drive[DriveSelect]->ready()          ? 1 : 0;
+				ST3_WP  = drive[DriveSelect]->writeProtected() ? 1 : 0;
+				ST3_TK0 = drive[DriveSelect]->track00(time)    ? 1 : 0;
+				ST3_HD  = drive[DriveSelect]->doubleSided()    ? 1 : 0;
+			} catch (DriveEmptyException& e) {
+				ST0_IC = 1; // bit 7,6 Interrupt Code
+			}
+			int maxSteps = 255;
+			while (!drive[DriveSelect]->track00(time) && maxSteps--) {
+				drive[DriveSelect]->step(false, time);
+				PCN--;
+			}
+			ST0_SE = 1;	// Seek End = 1
+			FDCBusy = 0;
+			Phase = PHASE_IDLE;
+			Command = CMD_UNKNOWN;
+			PRT_DEBUG("FDC: PCN " << (int)PCN);
+			break;
+		}
+		}
+		break;
+
+	case CMD_SPECIFY:
+		switch (PhaseStep++) {
+		case 0:
+			break;
+		case 1:
+			FDCBusy = 0;
+			Phase = PHASE_IDLE;
+			Command = CMD_UNKNOWN;
+			break;
+		}
+		break;
+
+	case CMD_SENSE_DEVICE_STATUS:
+		switch (PhaseStep++) {
+		case 0:
+			ST0_DS = data & 3; // Copy Drive Select
+			ST3_DS = data & 3; // Copy Drive Select
+			try {
+				ST3_RDY = drive[DriveSelect]->ready()          ? 1 : 0;
+				ST3_WP  = drive[DriveSelect]->writeProtected() ? 1 : 0;
+				ST3_TK0 = drive[DriveSelect]->track00(time)    ? 1 : 0;
+				ST3_HD  = drive[DriveSelect]->doubleSided()    ? 1 : 0;
+			} catch (DriveEmptyException& e) {
+				ST0_IC = 1; // bit 7,6 Interrupt Code
+			}
+			Phase = PHASE_RESULT;
+			PhaseStep = 0;
+			dataInputOutput = 1;
+			break;
+		}
+		break;
+	}
+}
+
+void TC8566AF::writeDataTransferPhase(byte data, const EmuTime& time)
+{
+	switch (Command) {
+	case CMD_WRITE_DATA:
+		if (SectorByteCount > 0) {
+			SectorByteCount--;
+			Sector[SectorPtr++] = data;
+		}
+		if (SectorByteCount == 0) {
+			try {
+				byte dummy;
+				int dummy2;
+				drive[DriveSelect]->setSide(StartHead);
+				drive[DriveSelect]->write(
+				    StartRecord, Sector, dummy,
+				    dummy, dummy, dummy2);
+				Phase = PHASE_RESULT;
+				PhaseStep = 0;
+				dataInputOutput = 1;
+			} catch (MSXException& e) {
+			}
+		}
+		break;
+	
+	case CMD_FORMAT:
+		switch(PhaseStep & 3) {
+		case 0:
+			PCN = data;
+			break;
+		case 1:
+			try {
+				memset(Sector, 0, 512);
+				byte dummy;
+				int dummy2;
+				drive[DriveSelect]->setSide(data);
+				drive[DriveSelect]->write(
+				    StartRecord, Sector, dummy,
+				    dummy, dummy, dummy2);
+			} catch (MSXException& e) {
+			}
+			break;
+		case 2:
+			StartRecord = data;
+			break;
+		}
+
+		if (++PhaseStep == (4 * SectorsPerCylinder - 2)) {
+			Phase       = PHASE_RESULT;
+			PhaseStep   = 0;
+			dataInputOutput = 1;
 		}
 		break;
 	}
