@@ -2,6 +2,7 @@ $Id$
 
 2004-11-02 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Removed Disk and Tape BIOS patches
+	* Fixed cassetteplayer noise
 
 2004-11-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* small VDP fix:

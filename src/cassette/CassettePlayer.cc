@@ -124,6 +124,7 @@ void CassettePlayer::setMotor(bool status, const EmuTime& time)
 {
 	updatePosition(time);
 	motor = status;
+	setMute(!motor && !forcePlay);
 }
 
 short CassettePlayer::getSample(const EmuTime& time)
@@ -190,8 +191,10 @@ string CassettePlayer::execute(const vector<string>& tokens)
 		rewind();
 	} else if (tokens[1] == "force_play") {
 		forcePlay = true;
+		setMute(false);
 	} else if (tokens[1] == "no_force_play") {
 		forcePlay = false;
+		setMute(!motor);
 	} else {
 		try {
 			result += "Changing tape\n";
@@ -235,9 +238,6 @@ void CassettePlayer::setSampleRate(int sampleRate)
 
 int *CassettePlayer::updateBuffer(int length)
 {
-	if (!motor && !forcePlay) {
-		return NULL;
-	}
 	int *buf = buffer;
 	while (length--) {
 		*(buf++) = (((int)getSample(playTapeTime)) * volume) >> 15;
