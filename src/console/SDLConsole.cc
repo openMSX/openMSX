@@ -245,7 +245,7 @@ bool SDLConsole::loadBackground(const string &filename)
 	zoomSurface (picture32Surface, scaled32Surface, true);
 	SDL_FreeSurface(picture32Surface);
 	// convert the background to the right format
-	backgroundImage = SDL_DisplayFormat(scaled32Surface);
+	backgroundImage = SDL_ConvertSurface(scaled32Surface, outputScreen->format, SDL_SWSURFACE);
 	SDL_FreeSurface(scaled32Surface);
 
 	reloadBackground();
@@ -276,12 +276,18 @@ void SDLConsole::resize(SDL_Rect rect)
 	assert (!(rect.w > outputScreen->w || rect.w < font->getWidth() * 32));
 	assert (!(rect.h > outputScreen->h || rect.h < font->getHeight()));
 
-	SDL_Surface *temp1 = SDL_CreateRGBSurface(SDL_SWSURFACE, rect.w, rect.h, 
-			outputScreen->format->BitsPerPixel, 0, 0, 0, 0);
+	SDL_Surface *temp1 = SDL_CreateRGBSurface(SDL_SWSURFACE, rect.w, rect.h,
+			outputScreen->format->BitsPerPixel,
+			outputScreen->format->Rmask, outputScreen->format->Gmask,
+			outputScreen->format->Bmask, outputScreen->format->Amask);
 	SDL_Surface *temp2 = SDL_CreateRGBSurface(SDL_SWSURFACE, rect.w, rect.h,
-			outputScreen->format->BitsPerPixel, 0, 0, 0, 0);
+			outputScreen->format->BitsPerPixel,
+			outputScreen->format->Rmask, outputScreen->format->Gmask,
+			outputScreen->format->Bmask, outputScreen->format->Amask);
 	SDL_Surface *temp3 = SDL_CreateRGBSurface(SDL_SWSURFACE, rect.w, font->getHeight(),
-			outputScreen->format->BitsPerPixel, 0, 0, 0, 0);
+			outputScreen->format->BitsPerPixel,
+			outputScreen->format->Rmask, outputScreen->format->Gmask,
+			outputScreen->format->Bmask, outputScreen->format->Amask);
 	if (temp1 == NULL || temp2 == NULL || temp3 == NULL) {
 		return;
 	}
@@ -295,18 +301,15 @@ void SDLConsole::resize(SDL_Rect rect)
 		SDL_FreeSurface(fontLayer);
 	}
 	
-	consoleSurface = SDL_DisplayFormat(temp1);
-	fontLayer = SDL_DisplayFormat(temp2);
+	consoleSurface = temp1;
+	fontLayer = temp2;
+	inputBackground = temp3;
 	
 	SDLFont* sdlFont = dynamic_cast<SDLFont*>(font);
 	if (sdlFont) {
 		sdlFont->setSurface(fontLayer);
 	}
 	
-	inputBackground = SDL_DisplayFormat(temp3);
-	SDL_FreeSurface(temp1);
-	SDL_FreeSurface(temp2);
-	SDL_FreeSurface(temp3);
 	SDL_FillRect(consoleSurface, NULL, 
 		SDL_MapRGBA(consoleSurface->format, 0, 0, 0, consoleAlpha));
 	
