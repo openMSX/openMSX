@@ -5,6 +5,9 @@
 // you need libxml++ 0.13 and libxml2 > 2.0.0
 #include <xml++.h>
 
+// for atoi()
+#include <stdlib.h>
+
 MSXConfig *volatile MSXConfig::oneInstance;
 
 MSXConfig *MSXConfig::instance()
@@ -61,6 +64,9 @@ MSXConfig::Device::Device(XMLNode *deviceNodeP):deviceNode(deviceNodeP)
 
 const string &MSXConfig::Device::getType()
 {
+	// mandatory first child
+	// TODO add checks ... also for next functions!!
+	return (*(deviceNode->children().begin()))->content();
 }
 
 const string &MSXConfig::Device::getId()
@@ -70,18 +76,32 @@ const string &MSXConfig::Device::getId()
 
 bool MSXConfig::Device::isSlotted()
 {
+	// if there, it is the second child
+	return (*(deviceNode->children().begin()++))->name()=="slotted";
 }
 
 int MSXConfig::Device::getPage()
 {
+	// TODO: clean + exceptions
+	if (isSlotted())
+		return atoi((*(*(deviceNode->children().begin()++))->children().begin())->content().c_str());
+	return -1;
 }
 
 int MSXConfig::Device::getPS()
 {
+	// TODO: clean + exceptions
+	if (isSlotted())
+		return atoi((*(*((deviceNode->children().begin()++)++))->children().begin())->content().c_str());
+	return -1;
 }
 
 int MSXConfig::Device::getSS()
 {
+	// TODO: clean + exceptions
+	if (isSlotted())
+		return atoi((*(*(((deviceNode->children().begin()++)++)++))->children().begin())->content().c_str());
+	return -1;
 }
 
 bool MSXConfig::Device::hasParameter(const string &name)
