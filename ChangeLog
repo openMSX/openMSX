@@ -1,6 +1,12 @@
 $Id$
 
 2003-02-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* extension directory now has the same structure as the
+	  machines directory:
+	   - for example the scc extension lives in
+	       ~/.openMSX/extensions/scc/hardwareconfig.xml
+
+2003-02-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented command line extensions:
 	   - you can load configuration files located in
 	      ~/.openMSX/extensions/

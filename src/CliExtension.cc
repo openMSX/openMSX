@@ -52,12 +52,18 @@ const std::string& CliExtension::optionHelp() const
 
 static int select(const struct dirent* d)
 {
-	const char* p = strstr(d->d_name, ".xml");
-	if (!p || p[4] != 0) {
+	struct stat s;
+	// entry must be a directory
+	if (stat(d->d_name, &s)) {
 		return 0;
 	}
-	struct stat s;
-	if (stat(d->d_name, &s)) {
+	if (!S_ISDIR(s.st_mode)) {
+		return 0;
+	}
+
+	// directory must contain the file "hardwareconfig.xml"
+	std::string file(std::string(d->d_name) + "/hardwareconfig.xml");
+	if (stat(file.c_str(), &s)) {
 		return 0;
 	}
 	if (!S_ISREG(s.st_mode)) {
@@ -78,10 +84,8 @@ void CliExtension::createExtensions(const std::string &path)
 	struct dirent **namelist;
 	int n = scandir(".", &namelist, select, 0);
 	while ((n--) > 0) {
-		std::string filename(namelist[n]->d_name);
-		unsigned pos = filename.rfind(".xml");
-		std::string optionName(filename.substr(0, pos));
-		std::string optionPath(path + filename);
+		std::string optionName(namelist[n]->d_name);
+		std::string optionPath(path + optionName + "/hardwareconfig.xml");
 		PRT_DEBUG("Extension: " << optionName << " " << optionPath);
 		extensions[optionName] = optionPath;
 		free(namelist[n]);
