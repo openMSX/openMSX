@@ -10,7 +10,7 @@
 #include <algorithm>
 
 
-// Schedulable 
+// Schedulable
 
 Schedulable::Schedulable() {
 }
@@ -30,6 +30,7 @@ Scheduler::Scheduler()
 	paused = false;
 	noSound = false;
 	runningScheduler = true;
+	exitScheduler = false;
 	EventDistributor::instance()->registerAsyncListener(SDL_QUIT, this);
 	HotKey::instance()->registerAsyncHotKey(SDLK_F12, this);
 	HotKey::instance()->registerAsyncHotKey(SDLK_F11, this);
@@ -50,7 +51,7 @@ Scheduler* Scheduler::instance()
 Scheduler *Scheduler::oneInstance = NULL;
 
 
-void Scheduler::setSyncPoint(const EmuTime &time, Schedulable* device, int userData = 0) 
+void Scheduler::setSyncPoint(const EmuTime &time, Schedulable* device, int userData = 0)
 {
 	PRT_DEBUG("Sched: registering " << device->getName() << " for emulation at " << time);
 	PRT_DEBUG("Sched:  CPU is at " << MSXCPU::instance()->getCurrentTime());
@@ -90,16 +91,18 @@ void Scheduler::removeFirstSP()
 
 void Scheduler::stopScheduling()
 {
-	runningScheduler=false;
+	exitScheduler = true;
+	runningScheduler = false;
 	// We set current time as SP, this means reschedule as sson as possible.
 	// We must give a device, we choose MSXCPU.
 	EmuTime now = MSXCPU::instance()->getCurrentTime();
-	setSyncPoint(now, MSXCPU::instance()); 
+	setSyncPoint(now, MSXCPU::instance());
 }
 
 void Scheduler::scheduleEmulation()
 {
-	while (runningScheduler) {
+	while (!exitScheduler) {
+		while (runningScheduler) {
 
 // some test stuff for joost, please leave for a few
 //	std::cerr << "foo" << std::endl;
@@ -114,55 +117,55 @@ void Scheduler::scheduleEmulation()
 //	}
 //	quakef.close();
 
-		if (syncPoints.empty()) {
-			// nothing scheduled, emulate CPU
-			PRT_DEBUG ("Sched: Scheduling CPU till infinity");
-			const EmuTime infinity = EmuTime(EmuTime::INFINITY);
-			MSXCPU::instance()->executeUntilTarget(infinity);
-		} else {
-			const SynchronizationPoint &sp = getFirstSP();
-			const EmuTime &time = sp.getTime();
-			if (MSXCPU::instance()->getCurrentTime() < time) {
-				// emulate CPU till first SP, don't immediately emulate
-				// device since CPU could not have reached SP
-				PRT_DEBUG ("Sched: Scheduling CPU till " << time);
-				MSXCPU::instance()->executeUntilTarget(time);
+			if (syncPoints.empty()) {
+				// nothing scheduled, emulate CPU
+				PRT_DEBUG ("Sched: Scheduling CPU till infinity");
+				const EmuTime infinity = EmuTime(EmuTime::INFINITY);
+				MSXCPU::instance()->executeUntilTarget(infinity);
 			} else {
-				// if CPU has reached SP, emulate the device
-				Schedulable *device = sp.getDevice();
-				int userData = sp.getUserData();
-				PRT_DEBUG ("Sched: Scheduling " << device->getName() << " till " << time);
-				device->executeUntilEmuTime(time, userData);
-				removeFirstSP();
+				const SynchronizationPoint &sp = getFirstSP();
+				const EmuTime &time = sp.getTime();
+				if (MSXCPU::instance()->getCurrentTime() < time) {
+					// emulate CPU till first SP, don't immediately emulate
+					// device since CPU could not have reached SP
+					PRT_DEBUG ("Sched: Scheduling CPU till " << time);
+					MSXCPU::instance()->executeUntilTarget(time);
+				} else {
+					// if CPU has reached SP, emulate the device
+					Schedulable *device = sp.getDevice();
+					int userData = sp.getUserData();
+					PRT_DEBUG ("Sched: Scheduling " << device->getName() << " till " << time);
+					device->executeUntilEmuTime(time, userData);
+					removeFirstSP();
+				}
 			}
 		}
+
+		SDL_mutexP(pauseMutex); // grab and release mutex, if unpaused this will
+		SDL_mutexV(pauseMutex); //  succeed else we sleep till unpaused
 	}
+
 }
 
 void Scheduler::unpause()
 {
-	if (paused) { 
+	if (paused) {
 		paused = false;
-		SDL_mutexV(pauseMutex);	// release mutex;
+		runningScheduler = true;
 		Mixer::instance()->pause(noSound);
 		PRT_DEBUG("Unpaused");
+		SDL_mutexV(pauseMutex);	// release mutex
 	}
 }
 void Scheduler::pause()
 {
-	if (!paused) { 
-		paused = true;
+	if (!paused) {
 		SDL_mutexP(pauseMutex);	// grab mutex
+		paused = true;
+		runningScheduler = false;
 		Mixer::instance()->pause(true);
-		setSyncPoint(MSXCPU::instance()->getCurrentTime(), this);
 		PRT_DEBUG("Paused");
 	}
-}
-
-void Scheduler::executeUntilEmuTime(const EmuTime &time, int userData)
-{
-	SDL_mutexP(pauseMutex); // grab and release mutex, if unpaused this will
-	SDL_mutexV(pauseMutex); //  succeed else we sleep till unpaused
 }
 
 // Note: this runs in a different thread

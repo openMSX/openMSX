@@ -20,33 +20,33 @@ class Schedulable
 
 		/**
 		 * When the previously registered syncPoint is reached, this
-		 * method gets called. The parameter "userData" is the same 
-		 * as passed to setSyncPoint(). 
+		 * method gets called. The parameter "userData" is the same
+		 * as passed to setSyncPoint().
 		 */
 		virtual void executeUntilEmuTime(const EmuTime &time, int userData) = 0;
-		
+
 		/**
 		 * This method is only used to print meaningfull debug messages
 		 */
 		virtual const std::string &getName();
-		
+
 	protected:
 		static const std::string defaultName;
 };
 
-class Scheduler : public EventListener, public HotKeyListener, public Schedulable
+class Scheduler : private EventListener, private HotKeyListener
 {
 	class SynchronizationPoint
 	{
 		public:
-			SynchronizationPoint (const EmuTime &time, Schedulable *dev, int usrdat) : 
+			SynchronizationPoint (const EmuTime &time, Schedulable *dev, int usrdat) :
 				timeStamp(time), device(dev) , userData(usrdat) {}
 			const EmuTime &getTime() const { return timeStamp; }
 			Schedulable* getDevice() const { return device; }
 			int getUserData() const { return userData; }
-			bool operator< (const SynchronizationPoint &n) const 
+			bool operator< (const SynchronizationPoint &n) const
 				{ return getTime() > n.getTime(); } // smaller time is higher priority
-		private: 
+		private:
 			EmuTime timeStamp;
 			Schedulable* device;
 			int userData;
@@ -89,7 +89,7 @@ class Scheduler : public EventListener, public HotKeyListener, public Schedulabl
 		 * your executeUntilEmuTime() method.
 		 */
 		bool Scheduler::removeSyncPoint(Schedulable* device, int userdata = 0);
-		
+
 		/**
 		 * This starts the schedule loop, should only be used by main
 		 * the program.
@@ -97,7 +97,7 @@ class Scheduler : public EventListener, public HotKeyListener, public Schedulabl
 		void scheduleEmulation();
 
 		/**
-		 * This stops the schedule loop, should only be used by the 
+		 * This stops the schedule loop, should only be used by the
 		 * quit program routine.
 		 */
 		void stopScheduling();
@@ -111,28 +111,32 @@ class Scheduler : public EventListener, public HotKeyListener, public Schedulabl
 		 * This unpauses the emulation
 		 */
 		void unpause();
-		
-		
-		// Schedulable
-		void executeUntilEmuTime(const EmuTime &time, int userData);
+
+
 		// EventListener
 		void signalEvent(SDL_Event &event);
 		// HotKeyListener
 		void signalHotKey(SDLKey key);
-		
+
 	private:
 		Scheduler();
 		const SynchronizationPoint &getFirstSP();
 		void removeFirstSP();
-		
+
 		static Scheduler *oneInstance;
-		// vector used as heap, not a priority queue because this
-		// doesn't allow removal of non-top element
+		/** Vector used as heap, not a priority queue because that
+		  * doesn't allow removal of non-top element.
+		  */
 		std::vector<SynchronizationPoint> syncPoints;
 
-		bool paused;
 		bool noSound;
+
+		/** The scheduler is considered running unless it is paused
+		  * or exited.
+		  */
 		bool runningScheduler;
+		bool exitScheduler;
+		bool paused;
 		SDL_mutex *pauseMutex;
 };
 
