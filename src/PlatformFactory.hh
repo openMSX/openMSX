@@ -6,6 +6,7 @@
 #include <string>
 
 class Renderer;
+class RendererFactory;
 class VDP;
 class EmuTime;
 

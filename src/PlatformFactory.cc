@@ -19,7 +19,7 @@ Renderer *PlatformFactory::createRenderer(
 	return factory->create(vdp, time);
 }
 
-RendererFactory *getRendererFactory(const std::string &name)
+RendererFactory *PlatformFactory::getRendererFactory(const std::string &name)
 {
 	if (name == "SDLLo") {
 		return new SDLLoRendererFactory();
