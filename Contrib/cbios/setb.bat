@@ -1,2 +1,2 @@
-copy /b msxb.bin+msxb_sh.bin msx.rom
-copy msxb_sub.bin msxb_sub.rom
+copy /b msxb.bin+msxb_sh.bin cbios.rom
+copy msxb_sub.bin cbios_sub.rom
