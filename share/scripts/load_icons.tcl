@@ -87,9 +87,11 @@ proc load_icons { set_name { set_position top } } {
 		source $script
 	}
 
-	proc set_image { setting value } {
-		if [file exists $value] {
-			set $setting $value
+	proc set_image { setting directory file } {
+		if [string equal $file ""] {
+			set $setting ""
+		} elseif [file exists $directory/$file] {
+			set $setting $directory/$file
 		}
 	}
 	foreach led $leds {
@@ -99,8 +101,8 @@ proc load_icons { set_name { set_position top } } {
 		set ::icon.${led}.active.fade-duration $active_fade_duration($led)
 		set ::icon.${led}.non-active.fade-delay $non_active_fade_delay($led)
 		set ::icon.${led}.non-active.fade-duration $non_active_fade_duration($led)
-		set_image ::icon.${led}.active.image $directory/$active_image($led)
-		set_image ::icon.${led}.non-active.image $directory/$non_active_image($led)
+		set_image ::icon.${led}.active.image $directory $active_image($led)
+		set_image ::icon.${led}.non-active.image $directory $non_active_image($led)
 	}
 	return ""
 }

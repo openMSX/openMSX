@@ -1,6 +1,9 @@
 $Id$
 
 2005-02-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added 'none' icon set
+
+2005-02-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed CPU tracing (patch created by Maarten)
 	* Fixed(?) sporadic crash when switching renderer on MSX1:
 	   - this is quick fix, needs more work after release
@@ -14,7 +17,7 @@ $Id$
 2005-02-04 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed all warning when compiling with icc
 	* Fixed V9990 palette initialization when switching renderer
-	   (sdllo <-> sdllo)
+	   (sdlhi <-> sdllo)
 
 2005-02-03 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added extension for MSX-AUDIO 2. This is an Y8910 on the alternative
