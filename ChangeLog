@@ -6,6 +6,7 @@ $Id$
 	   Although it didn't actually use these bytes, it could trigger a
 	   segfault. Fixed by using the SDL convserion routines (probably
 	   faster as well).
+	* Don't plug printer logger with an invalid log file
 
 2004-10-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed(?) crash on exit in FreeBSD:

@@ -44,8 +44,12 @@ void PrinterPortLogger::writeData(byte data, const EmuTime& /*time*/)
 
 void PrinterPortLogger::plugHelper(Connector* /*connector*/, const EmuTime& /*time*/)
 {
-	// TODO: Add exception to File class and use it here.
-	file.reset(new File(logFilenameSetting.getValue(), TRUNCATE));
+	try {
+		file.reset(new File(logFilenameSetting.getValue(), TRUNCATE));
+	} catch (FileException& e) {
+		throw PlugException("Couldn't plug printer logger: " +
+		                    e.getMessage());
+	}
 }
 
 void PrinterPortLogger::unplugHelper(const EmuTime& /*time*/)
