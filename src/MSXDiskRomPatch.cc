@@ -6,6 +6,7 @@
 #include "CPU.hh"
 #include "MSXCPU.hh"
 #include "Z80.hh"
+#include "MSXMotherBoard.hh"
 
 struct MSXDiskRomPatch::geometry_info MSXDiskRomPatch::geometry[8] =
 	{
@@ -139,7 +140,11 @@ void MSXDiskRomPatch::PHYDIO() const
 	PRT_DEBUG("void MSXDiskRomPatch::PHYDIO() const");
 	
 	CPU* cpu = MSXCPU::instance()->getActiveCPU();
+	MSXMotherBoard* motherboard = MSXMotherBoard::instance();
+
 	CPU::CPURegs regs(cpu->getCPURegs());
+	
+	regs.IFF1 = true;
 	
 	// drive #, 0="A:", 1="B:", ..
 	byte drive = regs.AF.B.h;
@@ -183,7 +188,13 @@ void MSXDiskRomPatch::PHYDIO() const
 	}
 
 	// turn on RAM in all slots?
-	// TODO XXX
+	// TODO, currently this just assumes RAM is in PS:3/SS:3
+	// this is of course quite wrong
+	EmuTime dummy(0);
+	int pri_slot = motherboard->readIO(0xA8, dummy);
+	int sec_slot = cpu->readMem(0xFFFF)^0xFF;
+	motherboard->writeIO(0xA8, 0xFF, dummy);
+	cpu->writeMem(0xFFFF,0xFF);
 	
 	byte buffer[MSXDiskRomPatch::sector_size];
 	if (write)
@@ -200,7 +211,8 @@ void MSXDiskRomPatch::PHYDIO() const
 			if (disk[drive]->bad())
 			{
 				regs.AF.w = 0x0A01;
-				// restore slot?
+				motherboard->writeIO(0xA8, pri_slot, dummy);
+				cpu->writeMem(0xFFFF,sec_slot);
 				cpu->setCPURegs(regs);
 				return;
 			}
@@ -216,7 +228,8 @@ void MSXDiskRomPatch::PHYDIO() const
 			if (disk[drive]->bad())
 			{
 				regs.AF.w = 0x0A01;
-				// restore slot?
+				motherboard->writeIO(0xA8, pri_slot, dummy);
+				cpu->writeMem(0xFFFF,sec_slot);
 				cpu->setCPURegs(regs);
 				return;
 			}
@@ -229,6 +242,8 @@ void MSXDiskRomPatch::PHYDIO() const
 		regs.BC.B.h--;
 	}
 
+	motherboard->writeIO(0xA8, pri_slot, dummy);
+	cpu->writeMem(0xFFFF,sec_slot);
 	regs.AF.B.l &= (~Z80::C_FLAG);
 	cpu->setCPURegs(regs);
 }
@@ -238,6 +253,8 @@ void MSXDiskRomPatch::DSKCHG() const
 
 	CPU* cpu = MSXCPU::instance()->getActiveCPU();
 	CPU::CPURegs regs(cpu->getCPURegs());
+
+	regs.IFF1 = true;
 
 	// drive #, 0="A:", 1="B:", ..
 	byte drive = regs.AF.B.h;
@@ -263,6 +280,8 @@ void MSXDiskRomPatch::GETDPB() const
 	
 	CPU* cpu = MSXCPU::instance()->getActiveCPU();
 	CPU::CPURegs regs(cpu->getCPURegs());
+
+	regs.IFF1 = true;
 
 	// drive #, 0="A:", 1="B:", ..
 	byte drive = regs.AF.B.h;

@@ -1,5 +1,5 @@
 lib_LTLIBRARIES = libxmlx.la
-libxmlx_la_SOURCES = libxmlx.cc libxmlx.hh system.h aclocal.m4
+libxmlx_la_SOURCES = libxmlx.cc libxmlx.hh
 
 #  uncomment the following if libxmlx requires the math library
 #libxmlx_LDADD=-lm
