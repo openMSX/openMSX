@@ -9,6 +9,7 @@
 namespace openmsx {
 
 class Ram;
+class Rom;
 
 class MSXMegaRam : public MSXDevice
 {
@@ -31,9 +32,12 @@ private:
 	void setBank(byte page, byte block);
 
 	std::auto_ptr<Ram> ram;
-	byte maxBlock;
+	std::auto_ptr<Rom> rom;
+	byte numBlocks;
+	byte maskBlocks;
 	byte bank[4];
 	bool writeMode;
+	bool romMode;
 };
 
 } // namespace openmsx

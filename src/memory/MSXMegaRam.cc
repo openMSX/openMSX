@@ -29,22 +29,34 @@
 #include "MSXCPU.hh"
 #include "CPU.hh"
 #include "Ram.hh"
+#include "Rom.hh"
 
 
 namespace openmsx {
+
+static int roundUpPow2(int a)
+{
+	int result = 1;
+	while (a > result) {
+		result <<= 1;
+	}
+	return result;
+}
 
 MSXMegaRam::MSXMegaRam(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time)
 {
 	int size = config.getChildDataAsInt("size");
-	int blocks = size / 8;	// 8kb blocks
-	maxBlock = blocks - 1;
-	ram.reset(new Ram(getName(), "Mega-RAM", blocks * 0x2000));
+	numBlocks = size / 8;	// 8kb blocks
+	maskBlocks = roundUpPow2(numBlocks) - 1;
+	ram.reset(new Ram(getName() + " RAM", "Mega-RAM", numBlocks * 0x2000));
+	rom.reset(new Rom(getName() + " ROM", "Mega-RAM DiskROM", config));
 	
 	for (int i = 0; i < 4; i++) {
 		setBank(i, 0);
 	}
 	writeMode = false;
+	reset(time);
 }
 
 MSXMegaRam::~MSXMegaRam()
@@ -54,49 +66,66 @@ MSXMegaRam::~MSXMegaRam()
 void MSXMegaRam::reset(const EmuTime& /*time*/)
 {
 	// selected banks nor writeMode does change after reset
+	romMode = rom->getSize(); // select rom mode if there is a rom
 }
 
 byte MSXMegaRam::readMem(word address, const EmuTime& /*time*/)
 {
-	address &= 0x7FFF;
-	byte page = address / 0x2000;
-	byte result = (*ram)[bank[page] * 0x2000 + (address & 0x1FFF)];
-	return result;
+	return *getReadCacheLine(address);
 }
 
 const byte* MSXMegaRam::getReadCacheLine(word address) const
 {
-	address &= 0x7FFF;
-	byte page = address / 0x2000;
-	return &(*ram)[bank[page] * 0x2000 + (address & 0x1FFF)];
+	if (romMode) {
+		if (address >= 0x4000 && address <= 0xbfff) {
+			return &(*rom)[address - 0x4000];
+		}
+		return unmappedRead;
+	}
+	int block = bank[(address & 0x7FFF) / 0x2000];
+	return (block < numBlocks)
+	     ? &(*ram)[(block * 0x2000) + (address & 0x1FFF)]
+	     : unmappedRead;
 }
 
 void MSXMegaRam::writeMem(word address, byte value, const EmuTime& /*time*/)
 {
-	address &= 0x7FFF;
-	byte page = address / 0x2000;
-	if (writeMode) {
-		(*ram)[bank[page] * 0x2000 + (address & 0x1FFF)] = value;
+	byte* tmp = getWriteCacheLine(address);
+	if (tmp) {
+		*tmp = value;
 	} else {
-		setBank(page, value);
+		assert(!romMode && !writeMode);
+		setBank((address & 0x7FFF) / 0x2000, value);
 	}
 }
 
 byte* MSXMegaRam::getWriteCacheLine(word address) const
 {
-	address &= 0x7FFF;
+	if (romMode) return unmappedWrite;
 	if (writeMode) {
-		byte page = address / 0x2000;
-		return &(*ram)[bank[page] * 0x2000 + (address & 0x1FFF)];
+		int block = bank[(address & 0x7FFF) / 0x2000];
+		return (block < numBlocks)
+		     ? &(*ram)[(block * 0x2000) + (address & 0x1FFF)]
+		     : unmappedWrite;
 	} else {
 		return NULL;
 	}
 }
 
-byte MSXMegaRam::readIO(byte /*port*/, const EmuTime& /*time*/)
+byte MSXMegaRam::readIO(byte port, const EmuTime& /*time*/)
 {
-	// enable writing
-	writeMode = true;
+	switch (port) {
+		case 0x8E:
+			// enable writing
+			writeMode = true;
+			romMode = false;
+			break;
+		case 0x8F:
+			if (rom->getSize()) romMode = true;
+			break;
+	}
+	MSXCPU::instance().invalidateCache(0x0000,
+		0x10000 / CPU::CACHE_LINE_SIZE);
 	return 0xFF;	// return value doesn't matter
 }
 
@@ -105,23 +134,28 @@ byte MSXMegaRam::peekIO(byte /*port*/, const EmuTime& /*time*/) const
 	return 0xFF;
 }
 
-void MSXMegaRam::writeIO(byte /*port*/, byte /*value*/, const EmuTime& /*time*/)
+void MSXMegaRam::writeIO(byte port, byte value, const EmuTime& /*time*/)
 {
-	// enable switching
-	writeMode = false;
+	switch (port) {
+		case 0x8E:
+			// enable switching
+			writeMode = false;
+			romMode = false;
+			break;
+		case 0x8F:
+			if (rom->getSize()) romMode = true;
+			break;
+	}
 	MSXCPU::instance().invalidateCache(0x0000,
 		0x10000 / CPU::CACHE_LINE_SIZE);
 }
 
 void MSXMegaRam::setBank(byte page, byte block)
 {
-	if (block > maxBlock) {
-		block &= maxBlock;
-	}
-	bank[page] = block;
+	bank[page] = block & maskBlocks;
 	MSXCPU& cpu = MSXCPU::instance();
 	word adr = page * 0x2000;
-	cpu.invalidateCache(adr,          0x2000 / CPU::CACHE_LINE_SIZE);
+	cpu.invalidateCache(adr + 0x0000, 0x2000 / CPU::CACHE_LINE_SIZE);
 	cpu.invalidateCache(adr + 0x8000, 0x2000 / CPU::CACHE_LINE_SIZE);
 }
 
