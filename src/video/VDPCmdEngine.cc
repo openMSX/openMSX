@@ -252,11 +252,9 @@ void VDPCmdEngine::updateDisplayMode(DisplayMode mode, const EmuTime &time)
 	}
 
 	if (newScrMode != scrMode) {
-		sync(time);
-		scrMode = newScrMode;
 		if (CMD) {
 			PRT_DEBUG("Warning: VDP mode switch while command in progress");
-			if (scrMode == -1) {
+			if (newScrMode == -1) {
 				// TODO: For now abort cmd in progress,
 				//       later find out what really happens.
 				//       At least CE remains high for a while,
@@ -264,6 +262,8 @@ void VDPCmdEngine::updateDisplayMode(DisplayMode mode, const EmuTime &time)
 				commandDone(time);
 			}
 		}
+		sync(time);
+		scrMode = newScrMode;
 	}
 }
 
