@@ -4,6 +4,9 @@ $Id$
 	* Console cleanup
 	* Console is no longer a singleton, instead there is now a singleton
 	  ConsoleManager. All Consoles must register with the ConsoleManager.
+	* Made InteractiveConsole subclass of Console:
+	   SDLConsole inherit from InteractiveConsole
+	   a logging-only console inherits from Console
 
 2002-04-04 David Heremans <david.heremans@gnu-linux.net>
 	* Added more debug info to MSXGameCartrdige.

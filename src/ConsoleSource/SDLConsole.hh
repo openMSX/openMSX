@@ -6,11 +6,11 @@
 #include <SDL/SDL.h>
 #include "../EventDistributor.hh"
 #include "SDLFont.hh"
-#include "Console.hh"
+#include "InteractiveConsole.hh"
 #include "Command.hh"
 
 
-class SDLConsole : public Console, private EventListener
+class SDLConsole : public InteractiveConsole, private EventListener
 {
 	public:
 		SDLConsole(SDL_Surface *screen);
