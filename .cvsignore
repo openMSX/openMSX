@@ -28,3 +28,4 @@ missing
 mkinstalldirs
 tmp
 *.diff
+derived
