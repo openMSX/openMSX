@@ -51,8 +51,6 @@ class UserFileContext : public FileContext
 	public:
 		UserFileContext();
 		UserFileContext(const std::string &savePath);
-
-	protected:
 		virtual const std::list<std::string> &getPaths();
 	
 	private:

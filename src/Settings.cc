@@ -124,9 +124,9 @@ void EnumSetting<T>::setValueString(const std::string &valueString,
 template <class T>
 void EnumSetting<T>::tabCompletion(std::vector<std::string> &tokens) const
 {
-	std::list<std::string> values;
+	std::set<std::string> values;
 	for (MapIterator it = map.begin(); it != map.end(); it++) {
-		values.push_back(it->first);
+		values.insert(it->first);
 	}
 	CommandController::completeString(tokens, values);
 }
@@ -272,11 +272,11 @@ void SettingsManager::SetCommand::tabCompletion(
 	switch (tokens.size()) {
 		case 2: {
 			// complete setting name
-			std::list<std::string> settings;
+			std::set<std::string> settings;
 			std::map<std::string, Setting *>::const_iterator it
 				= manager->settingsMap.begin();
 			for (; it != manager->settingsMap.end(); it++) {
-				settings.push_back(it->first);
+				settings.insert(it->first);
 			}
 			CommandController::completeString(tokens, settings);
 			break;
@@ -350,12 +350,12 @@ void SettingsManager::ToggleCommand::tabCompletion(
 	switch (tokens.size()) {
 		case 2: {
 			// complete setting name
-			std::list<std::string> settings;
+			std::set<std::string> settings;
 			std::map<std::string, Setting *>::const_iterator it
 				= manager->settingsMap.begin();
 			for (; it != manager->settingsMap.end(); it++) {
 				if (dynamic_cast<BooleanSetting*>(it->second)) {
-					settings.push_back(it->first);
+					settings.insert(it->first);
 				}
 			}
 			CommandController::completeString(tokens, settings);

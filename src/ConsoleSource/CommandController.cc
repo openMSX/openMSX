@@ -11,6 +11,7 @@
 #include "MSXConfig.hh"
 #include "CommandController.hh"
 #include "Console.hh"
+#include "FileOperations.hh"
 
 
 CommandController::CommandController()
@@ -182,10 +183,10 @@ void CommandController::tabCompletion(std::vector<std::string> &tokens)
 	}
 	if (tokens.size()==1) {
 		// build a list of all command strings
-		std::list<std::string> cmds;
+		std::set<std::string> cmds;
 		std::multimap<const std::string, Command*, ltstr>::const_iterator it;
 		for (it = commands.begin(); it != commands.end(); it++) {
-			cmds.push_back(it->first);
+			cmds.insert(it->first);
 		}
 		completeString(tokens, cmds);
 	} else {
@@ -198,39 +199,37 @@ void CommandController::tabCompletion(std::vector<std::string> &tokens)
 }
 
 bool CommandController::completeString2(std::string &string,
-                                        std::list<std::string> &list)
+                                        std::set<std::string> &set)
 {
-	std::list<std::string>::iterator it;
-	
-	it = list.begin();
-	while (it != list.end()) {
+	std::set<std::string>::iterator it = set.begin();
+	while (it != set.end()) {
 		if (string == (*it).substr(0, string.size())) {
 			it++;
 		} else {
-			std::list<std::string>::iterator it2 = it;
+			std::set<std::string>::iterator it2 = it;
 			it++;
-			list.erase(it2);
+			set.erase(it2);
 		}
 	}
-	if (list.empty()) {
+	if (set.empty()) {
 		// no matching commands
 		return false;
 	}
-	if (list.size()==1) {
+	if (set.size()==1) {
 		// only one match
-		string = *(list.begin());
+		string = *(set.begin());
 		return true;
 	}
 	bool expanded = false;
 	while (true) {
-		it = list.begin();
+		it = set.begin();
 		if (string == *it) {
 			// match is as long as first word
 			goto out;	// TODO rewrite this
 		}
 		// expand with one char and check all strings 
 		std::string string2 = string + (*it)[string.size()];
-		for (;  it!=list.end(); it++) {
+		for (;  it != set.end(); it++) {
 			if (string2 != (*it).substr(0, string2.size())) {
 				goto out;	// TODO rewrite this
 			}
@@ -242,7 +241,7 @@ bool CommandController::completeString2(std::string &string,
 	out:
 	if (!expanded) {
 		// print all possibilities
-		for (it = list.begin(); it != list.end(); it++) {
+		for (it = set.begin(); it != set.end(); it++) {
 			// TODO print more on one line
 			Console::instance()->print(*it);
 		}
@@ -251,41 +250,57 @@ bool CommandController::completeString2(std::string &string,
 	return false;
 }
 void CommandController::completeString(std::vector<std::string> &tokens,
-                                       std::list<std::string> &list)
+                                       std::set<std::string> &set)
 {
-	if (completeString2(tokens[tokens.size()-1], list))
+	if (completeString2(tokens[tokens.size()-1], set))
 		tokens.push_back(std::string());
 }
 
 void CommandController::completeFileName(std::vector<std::string> &tokens)
 {
 	std::string& filename = tokens[tokens.size()-1];
-	std::string npath, dpath;
-	std::list<std::string> filenames;
-	std::string::size_type pos = filename.find_last_of("/");	// TODO std delimiter
-	if (pos == std::string::npos) {
-		dpath = ".";
-		npath = "";
+	filename = FileOperations::expandTilde(filename);
+	std::string basename = FileOperations::getBaseName(filename);
+	std::string base;
+	if (!basename.empty()) {
+		base = basename + '/';
+	}
+	std::list<std::string> paths;
+	if (!filename.empty() && (filename[0] == '/')) {
+		// absolute path
+		paths.push_back("/");
 	} else {
-		dpath = filename.substr(0, pos ? pos : 1);	// excl "/" except for root
-		npath = filename.substr(0, pos+1);	// incl "/"
+		// realtive path, also try user directories
+		UserFileContext context;
+		paths = context.getPaths();
 	}
 	
-	DIR* dirp = opendir(dpath.c_str());
-	if (dirp != NULL) {
-		while (dirent* de = readdir(dirp)) {
-			struct stat st;
-			if (!(stat((npath + de->d_name).c_str(), &st))) {
-				std::string name = npath + de->d_name;
-				if (S_ISDIR(st.st_mode))
-					name += "/";
-				filenames.push_back(name);
+	std::set<std::string> filenames;
+	for (std::list<std::string>::const_iterator it = paths.begin();
+	     it != paths.end();
+	     it++) {
+		std::string dirname = *it + basename;
+		DIR* dirp = opendir(dirname.c_str());
+		if (dirp != NULL) {
+			while (dirent* de = readdir(dirp)) {
+				struct stat st;
+				std::string name = dirname + '/' + de->d_name;
+				if (!(stat(name.c_str(), &st))) {
+					std::string nm = base + de->d_name;
+					if (S_ISDIR(st.st_mode)) {
+						nm += "/";
+					}
+					filenames.insert(nm);
+				}
 			}
+			closedir(dirp);
 		}
 	}
 	bool t = completeString2(filename, filenames);
-	if (t && filename[filename.size()-1] != '/')
+	if (t && filename[filename.size()-1] != '/') {
+		// completed filename, start new token
 		tokens.push_back(std::string());
+	}
 }
 
 // Help Command

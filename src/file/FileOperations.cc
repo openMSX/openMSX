@@ -10,16 +10,18 @@
 
 std::string FileOperations::expandTilde(const std::string &path)
 {
+	if (path.size() <= 1) {
+		return path;
+	}
 	if (path[0] != '~') {
 		return path;
 	}
-
 	if (path[1] == '/') {
 		// current user
 		return std::string(getenv("HOME")) + path.substr(1);
 	} else {
 		// other user
-		PRT_ERROR("Error: ~<user>/ not yet implemented");
+		PRT_INFO("Warning: ~<user>/ not yet implemented");
 		return path;
 	}
 }
@@ -53,5 +55,10 @@ std::string FileOperations::getFilename(const std::string &path)
 std::string FileOperations::getBaseName(const std::string &path)
 {
 	unsigned pos = path.rfind('/');
-	return path.substr(0, pos);
+	if (pos == std::string::npos) {
+		std::string empty;
+		return empty;
+	} else {
+		return path.substr(0, pos);
+	}
 }

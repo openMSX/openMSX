@@ -1,5 +1,9 @@
 $Id$
 
+2003-04-27 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented more complete filename completion as described in
+	  feature request 713442
+
 2003-04-27 Maarten ter Huurne <maarten@treewalker.org>
 	* Added a console background to SDLGL when no image is used.
 	* Minor cleanups to console classes.

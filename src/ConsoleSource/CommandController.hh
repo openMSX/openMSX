@@ -5,8 +5,8 @@
 
 #include <string>
 #include <map>
+#include <set>
 #include <vector>
-#include <list>
 #include "Command.hh"
 
 
@@ -45,7 +45,7 @@ class CommandController
 		 * TODO
 		 */
 		static void completeString(std::vector<std::string> &tokens,
-		                           std::list<std::string> &list);
+		                           std::set<std::string> &set);
 		static void completeFileName(std::vector<std::string> &tokens);
 
 	private:
@@ -54,7 +54,7 @@ class CommandController
 		              std::vector<std::string> &tokens,
 		              const std::string &delimiters = " ");
 		static bool completeString2(std::string &string,
-		                            std::list<std::string> &list);
+		                            std::set<std::string> &set);
 
 		struct ltstr {
 			bool operator()(const std::string &s1, const std::string &s2) const {

@@ -145,18 +145,18 @@ void PluggingController::PlugCmd::tabCompletion(std::vector<std::string> &tokens
 	PluggingController* controller = PluggingController::instance();
 	if (tokens.size() == 2) {
 		// complete connector
-		std::list<std::string> connectors;
+		std::set<std::string> connectors;
 		std::vector<Connector*>::iterator i;
 		for (i=controller->connectors.begin(); i!=controller->connectors.end(); i++) {
-			connectors.push_back((*i)->getName());
+			connectors.insert((*i)->getName());
 		}
 		CommandController::completeString(tokens, connectors);
 	} else if (tokens.size() == 3) {
 		// complete pluggable
-		std::list<std::string> pluggables;
+		std::set<std::string> pluggables;
 		std::vector<Pluggable*>::iterator i;
 		for (i=controller->pluggables.begin(); i!=controller->pluggables.end(); i++) {
-			pluggables.push_back((*i)->getName());
+			pluggables.insert((*i)->getName());
 		}
 		CommandController::completeString(tokens, pluggables);
 	}
@@ -195,10 +195,10 @@ void PluggingController::UnplugCmd::tabCompletion(std::vector<std::string> &toke
 	PluggingController* controller = PluggingController::instance();
 	if (tokens.size() == 2) {
 		// complete connector
-		std::list<std::string> connectors;
+		std::set<std::string> connectors;
 		std::vector<Connector*>::iterator i;
 		for (i=controller->connectors.begin(); i!=controller->connectors.end(); i++) {
-			connectors.push_back((*i)->getName());
+			connectors.insert((*i)->getName());
 		}
 		CommandController::completeString(tokens, connectors);
 	}

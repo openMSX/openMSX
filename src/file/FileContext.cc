@@ -142,12 +142,13 @@ const std::list<std::string> &UserFileContext::getPaths()
 				if (path[path.length() - 1] != '/') {
 					path += '/';
 				}
+				path = FileOperations::expandTilde(path);
 				paths.push_back(path);
 			}
 		} catch (MSXException &e) {
 			// no UserDirectories specified
 		}
-		paths.push_back("");
+		paths.push_back("./");
 	}
 	return paths;
 }
