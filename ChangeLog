@@ -1,5 +1,15 @@
 $Id$
 
+2004-08-18 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Added "-nosound" command line option:
+	   - main raison to add it was faster profiling. Audio thread takes
+	     50% of the time when running (far from realtime) under cachegrind,
+	     even though the sound was muted in openMSX.
+	* Initialize SDL AUDIO subsystem:
+	   - AUDIO subsystem was never initialized. Apparently this isn't
+	     needed for Linux / Windows. But some platforms probably do need
+	     it.
+	
 2004-08-17 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Made tiny optimization in DynamicClock, however this gave a speedup
 	  of about 1.5% because this class is _heavily_ used in the CPU code:

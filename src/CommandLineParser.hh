@@ -70,6 +70,7 @@ public:
 	void registerFileClass(const string& str, CLIFileType* cliFileType);
 	void parse(int argc, char** argv);
 	ParseStatus getParseStatus() const;
+	bool wantSound() const;
 
 private:
 	map<string, OptionData> optionMap;
@@ -88,6 +89,7 @@ private:
 	bool haveSettings;
 	bool issuedHelp;
 	ParseStatus parseStatus;
+	bool sound;
 
 	HardwareConfig& hardwareConfig;
 	SettingsConfig& settingsConfig;
@@ -149,6 +151,17 @@ private:
 	private:
 		CommandLineParser& parent;
 	} settingOption;
+	
+	class NoSoundOption : public CLIOption {
+	public:
+		NoSoundOption(CommandLineParser& parent);
+		virtual ~NoSoundOption();
+		virtual bool parseOption(const string& option,
+			list<string>& cmdLine);
+		virtual const string& optionHelp() const;
+	private:
+		CommandLineParser& parent;
+	} noSoundOption;
 	
 	const auto_ptr<MSXRomCLI> msxRomCLI;
 	const auto_ptr<CliExtension> cliExtension;

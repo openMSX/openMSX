@@ -11,6 +11,7 @@
 #include "InfoCommand.hh"
 #include "GlobalSettings.hh"
 #include "CommandArgument.hh"
+#include "CommandLineParser.hh"
 
 using std::remove;
 
@@ -28,12 +29,22 @@ Mixer::Mixer()
 	  pauseSetting(GlobalSettings::instance().getPauseSetting()),
 	  soundDeviceInfo(*this)
 {
+	init = false;
 	prevLeft = outLeft = 0;
 	prevRight = outRight = 0;
 #ifdef DEBUG_MIXER
 	nbClipped = 0;
 #endif
+	
+	infoCommand.registerTopic("sounddevice", &soundDeviceInfo);
+	muteSetting.addListener(this);
+	masterVolume.addListener(this);
+	pauseSetting.addListener(this);
 
+	if (!CommandLineParser::instance().wantSound()) {
+		return;
+	}
+	
 	// default values
 	int freq = 22050;
 	int samples = 512;
@@ -50,31 +61,34 @@ Mixer::Mixer()
 	desired.format   = OPENMSX_BIGENDIAN ? AUDIO_S16MSB : AUDIO_S16LSB;
 	desired.callback = audioCallbackHelper;	// must be a static method
 	desired.userdata = this;
-	if (SDL_OpenAudio(&desired, &audioSpec) < 0) {
+	
+	if (SDL_InitSubSystem(SDL_INIT_AUDIO) == 0) {
+		if (SDL_OpenAudio(&desired, &audioSpec) == 0) {
+			mixBuffer = new short[audioSpec.size / sizeof(short)];
+			reInit();
+			init = true;
+		} else {
+			SDL_QuitSubSystem(SDL_INIT_AUDIO);
+		}
+	}
+	if (!init) {
 		output.printWarning(
 			string("Couldn't open audio : ") + SDL_GetError());
-		init = false;
-	} else {
-		init = true;
-		mixBuffer = new short[audioSpec.size / sizeof(short)];
-		reInit();
 	}
-	infoCommand.registerTopic("sounddevice", &soundDeviceInfo);
-	muteSetting.addListener(this);
-	masterVolume.addListener(this);
-	pauseSetting.addListener(this);
 }
 
 Mixer::~Mixer()
 {
+	if (init) {
+		SDL_CloseAudio();
+		SDL_QuitSubSystem(SDL_INIT_AUDIO);
+		delete[] mixBuffer;
+	}
+	
 	pauseSetting.removeListener(this);
 	masterVolume.removeListener(this);
 	muteSetting.removeListener(this);
 	infoCommand.unregisterTopic("sounddevice", &soundDeviceInfo);
-	if (init) {
-		SDL_CloseAudio();
-		delete[] mixBuffer;
-	}
 }
 
 Mixer& Mixer::instance()

@@ -47,20 +47,22 @@ CommandLineParser& CommandLineParser::instance()
 }
 
 CommandLineParser::CommandLineParser()
-	: parseStatus(UNPARSED),
-	  hardwareConfig(HardwareConfig::instance()),
-	  settingsConfig(SettingsConfig::instance()),
-	  output(CliCommOutput::instance()),
-	  helpOption(*this),
-	  versionOption(*this),
-	  controlOption(*this),
-	  machineOption(*this),
-	  settingOption(*this),
-	  msxRomCLI(new MSXRomCLI(*this)),
-	  cliExtension(new CliExtension(*this)),
-	  cassettePlayerCLI(new MSXCassettePlayerCLI(*this)),
-	  casCLI(new MSXCasCLI(*this)),
-	  diskImageCLI(new DiskImageCLI(*this))
+	: parseStatus(UNPARSED)
+	, sound(true)
+	, hardwareConfig(HardwareConfig::instance())
+	, settingsConfig(SettingsConfig::instance())
+	, output(CliCommOutput::instance())
+	, helpOption(*this)
+	, versionOption(*this)
+	, controlOption(*this)
+	, machineOption(*this)
+	, settingOption(*this)
+	, noSoundOption(*this)
+	, msxRomCLI(new MSXRomCLI(*this))
+	, cliExtension(new CliExtension(*this))
+	, cassettePlayerCLI(new MSXCassettePlayerCLI(*this))
+	, casCLI(new MSXCasCLI(*this))
+	, diskImageCLI(new DiskImageCLI(*this))
 {
 	haveConfig = false;
 	haveSettings = false;
@@ -68,6 +70,7 @@ CommandLineParser::CommandLineParser()
 
 	registerOption("-machine",  &machineOption, 3);
 	registerOption("-setting",  &settingOption, 2);
+	registerOption("-nosound",  &noSoundOption, 1, 1);
 	registerOption("-h",        &helpOption, 1, 1);
 	registerOption("--help",    &helpOption, 1, 1);
 	registerOption("-v",        &versionOption, 1, 1);
@@ -259,6 +262,12 @@ CommandLineParser::ParseStatus CommandLineParser::getParseStatus() const
 {
 	assert(parseStatus != UNPARSED);
 	return parseStatus;
+}
+
+bool CommandLineParser::wantSound() const
+{
+	assert(parseStatus != UNPARSED);
+	return sound;
 }
 
 void CommandLineParser::getControlParameters(ControlType& type, string& argument)
@@ -530,6 +539,31 @@ bool CommandLineParser::SettingOption::parseOption(const string &option,
 const string& CommandLineParser::SettingOption::optionHelp() const
 {
 	static const string text("Load an alternative settings file");
+	return text;
+}
+
+
+// NoSoundOption
+
+CommandLineParser::NoSoundOption::NoSoundOption(CommandLineParser& parent_)
+	: parent(parent_)
+{
+}
+
+CommandLineParser::NoSoundOption::~NoSoundOption()
+{
+}
+
+bool CommandLineParser::NoSoundOption::parseOption(const string& /*option*/,
+		list<string>& /*cmdLine*/)
+{
+	parent.sound = false;
+	return true;
+}
+
+const string& CommandLineParser::NoSoundOption::optionHelp() const
+{
+	static const string text("Disable sound output");
 	return text;
 }
 
