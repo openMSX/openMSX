@@ -49,7 +49,7 @@ byte MSXTurboRPCM::readIO(byte port, const EmuTime &time)
 		// bit 5-6       not used
 		// bit 7   COMP  comparator result 0->greater
 		//                                 1->smaller
-		result = (getComp() ? 0x80 : 0x00) | (status & 0x1F);
+		result = (getComp(time) ? 0x80 : 0x00) | (status & 0x1F);
 		break;
 	default: // unreachable, avoid warning
 		assert(false);
@@ -69,7 +69,9 @@ void MSXTurboRPCM::writeIO(byte port, byte value, const EmuTime &time)
 		// Resets counter
 		reference = time;
 		DValue = value;
-		dac->writeDAC(value, time);
+		if (status & 0x01) {
+			dac->writeDAC(DValue, time);
+		}
 		break;
 
 	case 1:
@@ -88,26 +90,34 @@ void MSXTurboRPCM::writeIO(byte port, byte value, const EmuTime &time)
 		// TODO hardwareMute(status & 0x02);
 		// TODO status & 0x08
 		if ((change & 0x10) && (status & 0x10)) {
-			hold = getSample();
+			hold = getSample(time);
 		}
 		break;
 	}
 }
 
-
-byte MSXTurboRPCM::readSample()
+byte MSXTurboRPCM::getSample(const EmuTime& time)
 {
-	return 0x80;	// TODO  read real sample
+	byte result;
+	if (status & 0x04) {
+		result = (readSample(time) / 256) + 0x80;
+	} else {
+		result = 0x80;	// TODO check
+	}
+	//PRT_DEBUG("PCM: read " << (int)result);
+	return result;
 }
 
-byte MSXTurboRPCM::getSample()
-{
-	return (status & 0x04) ? readSample() : 0x80;	// TODO check 0x80
-}
-
-bool MSXTurboRPCM::getComp()
+bool MSXTurboRPCM::getComp(const EmuTime& time)
 {
 	// TODO also when D/A ??
-	byte sample = (status & 0x10) ? hold : getSample();
-	return sample < DValue;	// TODO check
+	byte sample = (status & 0x10) ? hold : getSample(time);
+	return sample >= DValue;
+}
+
+
+const string& MSXTurboRPCM::getName() const
+{
+	static const string name("pcminput");
+	return name;
 }

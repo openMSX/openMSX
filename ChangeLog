@@ -6,11 +6,13 @@ $Id$
 	   - when a class needs a FileContext parameter for a longer time than
 	     the duration of the method call, it should make a copy of the
 	     FileContext object
+	* Added audio input pluggable/connector for turbor PCM:
+	   - for now it just reads "audio-input.wav"
 
 2003-08-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* CPU cleanup / speedup:
 	* FDC cleanups:
-	   - renamed soem classes
+	   - renamed some classes
 	   - added a base class for sector based disks (those that don't
 	     store the information 'between' the sectors)
 

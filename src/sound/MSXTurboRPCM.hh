@@ -5,11 +5,12 @@
 
 #include "MSXIODevice.hh"
 #include "EmuTime.hh"
+#include "AudioInputConnector.hh"
 
 class DACSound8U;
 
 
-class MSXTurboRPCM : public MSXIODevice
+class MSXTurboRPCM : public MSXIODevice, private AudioInputConnector
 {
 	public:
 		MSXTurboRPCM(Device *config, const EmuTime &time);
@@ -20,10 +21,12 @@ class MSXTurboRPCM : public MSXIODevice
 		virtual void writeIO(byte port, byte value, const EmuTime &time);
 
 	private:
-		byte readSample();
-		byte getSample();
-		bool getComp();
+		byte getSample(const EmuTime &time);
+		bool getComp(const EmuTime &time);
 		
+		// AudioInputConnector
+		virtual const string &getName() const;
+
 		EmuTimeFreq<15750> reference;
 		byte DValue;
 		byte status;

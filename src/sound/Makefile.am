@@ -50,7 +50,11 @@ libSound_la_SOURCES = \
 	MSXTurboRPCM.cc MSXTurboRPCM.hh \
 	YMF262.cc YMF262.hh \
 	YMF278.cc YMF278.hh \
-	MSXMoonSound.cc MSXMoonSound.hh
+	MSXMoonSound.cc MSXMoonSound.hh \
+	AudioInputConnector.cc AudioInputConnector.hh \
+	AudioInputDevice.cc AudioInputDevice.hh \
+	DummyAudioInputDevice.cc DummyAudioInputDevice.hh \
+	WavAudioInput.cc WavAudioInput.hh
 
 nodebug: resetdebug all
 debug: setdebug all

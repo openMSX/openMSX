@@ -60,6 +60,10 @@ class EmuDuration
 		unsigned operator /(const EmuDuration &d) const
 			{ return time / d.time; }
 		
+		// ticks
+		unsigned getTicksAt(unsigned freq) const
+			{ return time / (MAIN_FREQ / freq); }
+		
 		static const EmuDuration zero;
 		static const EmuDuration infinity;
 
