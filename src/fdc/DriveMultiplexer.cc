@@ -79,14 +79,20 @@ bool DriveMultiplexer::headLoaded(const EmuTime &time)
 	return drive[selected]->headLoaded(time);
 }
 
-void DriveMultiplexer::read(byte sector, int size, byte* buf)
+void DriveMultiplexer::read(byte sector, byte* buf,
+                            byte &onDiskTrack, byte &onDiskSector,
+                            byte &onDiskSide,  int  &onDiskSize)
 {
-	drive[selected]->read(sector, size, buf);
+	drive[selected]->read(sector, buf, onDiskTrack,
+	                      onDiskSector, onDiskSide, onDiskSize);
 }
 
-void DriveMultiplexer::write(byte sector, int size, const byte* buf)
+void DriveMultiplexer::write(byte sector, const byte* buf,
+                             byte &onDiskTrack, byte &onDiskSector,
+                             byte &onDiskSide,  int  &onDiskSize)
 {
-	drive[selected]->write(sector, size, buf);
+	drive[selected]->write(sector, buf, onDiskTrack,
+	                       onDiskSector, onDiskSide, onDiskSize);
 }
 
 void DriveMultiplexer::getSectorHeader(byte sector, byte* buf)

@@ -39,8 +39,12 @@ class DriveMultiplexer : public DiskDrive
 		                            const EmuTime &end);
 		virtual void setHeadLoaded(bool status, const EmuTime &time);
 		virtual bool headLoaded(const EmuTime &time);
-		virtual void read (byte sector, int size, byte* buf);
-		virtual void write(byte sector, int size, const byte* buf);
+		virtual void read (byte sector, byte* buf,
+		                   byte &onDiskTrack, byte &onDiskSector,
+		                   byte &onDiskSide,  int  &onDiskSize);
+		virtual void write(byte sector, const byte* buf,
+		                   byte &onDiskTrack, byte &onDiskSector,
+		                   byte &onDiskSide,  int  &onDiskSize);
 		virtual void getSectorHeader(byte sector, byte* buf);
 		virtual void getTrackHeader(byte track, byte* buf);
 		virtual void initWriteTrack(byte track);

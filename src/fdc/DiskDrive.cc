@@ -91,34 +91,38 @@ bool DummyDrive::headLoaded(const EmuTime &time)
 	return false;	// TODO check
 }
 
-void DummyDrive::read(byte sector, int size, byte* buf)
+void DummyDrive::read(byte sector, byte* buf,
+                      byte &onDiskTrack, byte &onDiskSector,
+                      byte &onDiskSide,  int  &onDiskSize)
 {
+	throw DriveEmptyException("No drive connected");
 }
-	// ignore
 
-void DummyDrive::write(byte sector, int size, const byte* buf)
+void DummyDrive::write(byte sector, const byte* buf,
+                       byte &onDiskTrack, byte &onDiskSector,
+                       byte &onDiskSide,  int  &onDiskSize)
 {
-	// ignore
+	throw DriveEmptyException("No drive connected");
 }
 
 void DummyDrive::getSectorHeader(byte sector, byte* buf)
 {
-	// ignore
+	throw DriveEmptyException("No drive connected");
 }
 
 void DummyDrive::getTrackHeader(byte track, byte* buf)
 {
-	// ignore
+	throw DriveEmptyException("No drive connected");
 }
 
 void DummyDrive::initWriteTrack(byte track)
 {
-	// ignore
+	// ignore ???
 }
 
 void DummyDrive::writeTrackData(byte data)
 {
-	// ignore
+	// ignore ???
 }
 
 
@@ -288,14 +292,26 @@ void SingleSidedDrive::setSide(bool side)
 	// ignore
 }
 
-void SingleSidedDrive::read(byte sector, int size, byte* buf)
+void SingleSidedDrive::read(byte sector, byte* buf,
+                            byte &onDiskTrack, byte &onDiskSector,
+                            byte &onDiskSide,  int  &onDiskSize)
 {
-	disk->read(headPos, headPos, sector, 0, size, buf);
+	onDiskTrack = headPos;
+	onDiskSector = sector;
+	onDiskSide = 0;
+	onDiskSize = 512;
+	disk->read(headPos, headPos, sector, 0, 512, buf);
 }
 
-void SingleSidedDrive::write(byte sector, int size, const byte* buf)
+void SingleSidedDrive::write(byte sector, const byte* buf,
+                             byte &onDiskTrack, byte &onDiskSector,
+                             byte &onDiskSide,  int  &onDiskSize)
 {
-	disk->write(headPos, headPos, sector, 0, size, buf);
+	onDiskTrack = headPos;
+	onDiskSector = sector;
+	onDiskSide = 0;
+	onDiskSize = 512;
+	disk->write(headPos, headPos, sector, 0, 512, buf);
 }
 
 void SingleSidedDrive::getSectorHeader(byte sector, byte* buf)
@@ -342,14 +358,26 @@ void DoubleSidedDrive::setSide(bool side_)
 	side = side_ ? 1 : 0;
 }
 
-void DoubleSidedDrive::read(byte sector, int size, byte* buf)
+void DoubleSidedDrive::read(byte sector, byte* buf,
+                            byte &onDiskTrack, byte &onDiskSector,
+                            byte &onDiskSide,  int  &onDiskSize)
 {
-	disk->read(headPos, headPos, sector, side, size, buf);
+	onDiskTrack = headPos;
+	onDiskSector = sector;
+	onDiskSide = side;
+	onDiskSize = 512;
+	disk->read(headPos, headPos, sector, side, 512, buf);
 }
 
-void DoubleSidedDrive::write(byte sector, int size, const byte* buf)
+void DoubleSidedDrive::write(byte sector, const byte* buf,
+                             byte &onDiskTrack, byte &onDiskSector,
+                             byte &onDiskSide,  int  &onDiskSize)
 {
-	disk->write(headPos, headPos, sector, side, size, buf);
+	onDiskTrack = headPos;
+	onDiskSector = sector;
+	onDiskSide = side;
+	onDiskSize = 512;
+	disk->write(headPos, headPos, sector, side, 512, buf);
 }
 
 void DoubleSidedDrive::getSectorHeader(byte sector, byte* buf)

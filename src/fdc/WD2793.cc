@@ -108,19 +108,34 @@ void WD2793::setCommandReg(byte value, const EmuTime &time)
 
 byte WD2793::getStatusReg(const EmuTime &time)
 {
-	if (((commandReg & 0x80) == 0) || ((commandReg & 0xD0) == 0xD0)) {
-		// Type I command so bit 1 should be the index pulse
+	if (((commandReg & 0x80) == 0) || ((commandReg & 0xF0) == 0xD0)) {
+		// Type I or type IV command 
 		if (drive->indexPulse(time)) {
-			statusReg |=  2;
+			statusReg |=  INDEX;
 		} else {
-			statusReg &= ~2;
+			statusReg &= ~INDEX;
+		}
+		if (drive->track00(time)) {
+			statusReg |=  TRACK00;
+		} else {
+			statusReg &= ~TRACK00;
+		}
+		if (drive->headLoaded(time)) {
+			statusReg |=  HEAD_LOADED;
+		} else {
+			statusReg &= ~HEAD_LOADED;
+		}
+		if (drive->writeProtected()) {
+			statusReg |=  WRITE_PROTECTED;
+		} else {
+			statusReg &= ~WRITE_PROTECTED;
 		}
 	} else {
 		// Not type I command so bit 1 should be DRQ
 		if (getDTRQ(time)) {
-			statusReg |= 2;
+			statusReg |=  S_DRQ;
 		} else {
-			statusReg &= ~2;
+			statusReg &= ~S_DRQ;
 		}
 	}
 	
@@ -167,7 +182,11 @@ void WD2793::setDataReg(byte value, const EmuTime &time)
 		if (dataAvailable == 0) {
 			PRT_DEBUG("FDC: Now we call the backend to write a sector");
 			try {
-				drive->write(sectorReg, 512, dataBuffer);
+				drive->write(sectorReg, dataBuffer,
+				             onDiskTrack, onDiskSector,
+					     onDiskSide, onDiskSize);
+				assert(onDiskTrack == trackReg);
+				assert(onDiskSize == 512);
 				// If we wait too long we should also write a
 				// partialy filled sector ofcourse and set the
 				// correct status bits!
@@ -178,7 +197,7 @@ void WD2793::setDataReg(byte value, const EmuTime &time)
 					DRQ = false;
 				}
 				dataCurrent = 0;
-				dataAvailable = 512; // TODO should come from sector header
+				dataAvailable = onDiskSize;
 			} catch (MSXException &e) {
 				// Backend couldn't write data
 			}
@@ -256,7 +275,7 @@ void WD2793::setDataReg(byte value, const EmuTime &time)
 
 byte WD2793::getDataReg(const EmuTime &time)
 {
-	if ((commandReg & 0xE0) == 0x80) {
+	if (((commandReg & 0xE0) == 0x80) && (statusReg & BUSY)) {
 		// READ SECTOR
 		dataReg = dataBuffer[dataCurrent];
 		dataCurrent++;
@@ -281,12 +300,13 @@ byte WD2793::getDataReg(const EmuTime &time)
 
 void WD2793::tryToReadSector(void)
 {
-	dataCurrent = 0;
-	dataAvailable = 512;	// TODO should come from sector header
 	try {
-		drive->read(sectorReg, 512, dataBuffer);
-		// TODO  backend should make sure that combination of trackReg, sectorReg etc
-		// is valid in case of multitrack read !!! and throw error !!! 
+		drive->read(sectorReg, dataBuffer,
+		            onDiskTrack, onDiskSector, onDiskSide, onDiskSize);
+		assert(onDiskTrack == trackReg);
+		assert(onDiskSize == 512);
+		dataCurrent = 0;
+		dataAvailable = onDiskSize;
 		DRQ = true;	// data ready to be read
 	} catch (MSXException &e) {
 		PRT_DEBUG("FDC: read sector failed: " << e.desc);
@@ -303,6 +323,12 @@ void WD2793::executeUntilEmuTime(const EmuTime &time, int state)
 			if ((commandReg & 0x80) == 0x00) {
 				// Type I command
 				seekNext(time);
+			}
+			break;
+		case FSM_TYPE2_WAIT_LOAD:
+			if ((commandReg & 0xC0) == 0x80)  {
+				// Type II command
+				type2WaitLoad(time);
 			}
 			break;
 		default:
@@ -411,20 +437,43 @@ void WD2793::startType2Cmd(const EmuTime &time)
 
 	if (!drive->ready()) {
 		endCmd();
-	}
+	} else {
+		// WD279[5|7] would now set SSO output
 	
-	switch (commandReg & 0xF0) {
-	case 0x80: //read sector
-	case 0x90: //read sector (multi)
-		tryToReadSector();
-		break;
+		drive->setHeadLoaded(true, time);
 
-	case 0xA0: // write sector
-	case 0xB0: // write sector (multi)
-		dataCurrent = 0;
-		dataAvailable = 512;	// TODO should come from sector header
-		DRQ = true;	// data ready to be written
-		break;
+		if (commandReg & E_FLAG) {
+			EmuTimeFreq<1000> next(time);	// ms
+			next += 30;
+			Scheduler::instance()->setSyncPoint(next, this, FSM_TYPE2_WAIT_LOAD);
+		} else {
+			type2WaitLoad(time);
+		}
+	}
+}
+
+void WD2793::type2WaitLoad(const EmuTime& time)
+{
+	// TODO wait till head loaded
+	
+	if (((commandReg & 0xE0) == 0xA0) && (drive->writeProtected())) {
+		// write command and write protected
+		statusReg |= WRITE_PROTECTED;
+		endCmd();
+	} else {
+		switch (commandReg & 0xF0) {
+			case 0x80: //read sector
+			case 0x90: //read sector (multi)
+				tryToReadSector();
+				break;
+
+			case 0xA0: // write sector
+			case 0xB0: // write sector (multi)
+				dataCurrent = 0;
+				dataAvailable = 512;	// TODO should come from sector header
+				DRQ = true;	// data ready to be written
+				break;
+		}
 	}
 }
 

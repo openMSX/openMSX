@@ -345,8 +345,11 @@ void TC8566AF::writeReg(int reg, byte data)
 				case 8:
 					// DTL: DATA Length
 					try {
+						byte dummy;
+						int dummy2;
 						drive[DriveSelect]->read(
-						    StartRecord, 512, Sector);
+						    StartRecord, Sector, dummy,
+						    dummy, dummy, dummy2);
 						Phase++;
 						PhaseStep = 0;
 						dataInputOutput = 1;
@@ -484,8 +487,11 @@ void TC8566AF::writeReg(int reg, byte data)
 				}
 				if (SectorByteCount == 0) {
 					try {
+						byte dummy;
+						int dummy2;
 						drive[DriveSelect]->write(
-						    StartRecord, 512, Sector);
+						    StartRecord, Sector, dummy,
+						    dummy, dummy, dummy2);
 						Phase++;
 						PhaseStep = 0;
 						dataInputOutput = 1;

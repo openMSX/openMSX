@@ -32,33 +32,44 @@ class WD2793 : private Schedulable
 
 	private:
 		// Status register
-		static const int BUSY = 0x01;
-		static const int CRC  = 0x08;
-		static const int SEEK = 0x10;
-		static const int NOT_READY = 0x80;
+		static const int BUSY            = 0x01;
+		static const int INDEX           = 0x02;
+		static const int S_DRQ           = 0x02;
+		static const int TRACK00         = 0x04;
+		static const int CRC             = 0x08;
+		static const int SEEK            = 0x10;
+		static const int HEAD_LOADED     = 0x20;
+		static const int WRITE_PROTECTED = 0x40;
+		static const int NOT_READY       = 0x80;
 		
 		// Command register
 		static const int STEP_SPEED = 0x03;
-		static const int V_FLAG = 0x04;
-		static const int H_FLAG = 0x08;
-		static const int T_FLAG = 0x10;
-		static const int M_FLAG = 0x10;
-		static const int IMM_IRQ = 0x08;
+		static const int V_FLAG     = 0x04;
+		static const int E_FLAG     = 0x04;
+		static const int H_FLAG     = 0x08;
+		static const int IMM_IRQ    = 0x08;
+		static const int T_FLAG     = 0x10;
+		static const int M_FLAG     = 0x10;
 		
 		enum FSMState {
-			FSM_SEEK
+			FSM_SEEK,
+			FSM_TYPE2_WAIT_LOAD,
 		};
 		virtual void executeUntilEmuTime(const EmuTime &time, int state);
 
 		void startType1Cmd(const EmuTime &time);
-		void startType2Cmd(const EmuTime &time);
-		void startType3Cmd(const EmuTime &time);
-		void startType4Cmd(const EmuTime &time);
 
 		void seek(const EmuTime &time);
 		void step(const EmuTime &time);
 		void seekNext(const EmuTime &time);
 		void endType1Cmd(const EmuTime &time);
+		
+		void startType2Cmd(const EmuTime &time);
+		void type2WaitLoad(const EmuTime& time);
+		
+		void startType3Cmd(const EmuTime &time);
+		void startType4Cmd(const EmuTime &time);
+		
 		void endCmd();
 
 		void tryToReadSector();
@@ -80,6 +91,11 @@ class WD2793 : private Schedulable
 		bool INTRQ;
 		bool immediateIRQ;
 		bool DRQ;
+
+		byte onDiskTrack;
+		byte onDiskSector;
+		byte onDiskSide;
+		int  onDiskSize;
 
 		byte dataBuffer[1024];	// max sector size possible
 		int dataCurrent;	// which byte in dataBuffer is next to be read/write

@@ -74,8 +74,12 @@ class DiskDrive
 		// TODO
 		// Read / write methods, mostly copied from FDCBackEnd,
 		// but needs to be reworked
-		virtual void read (byte sector, int size, byte* buf) = 0;
-		virtual void write(byte sector, int size, const byte* buf) = 0;
+		virtual void read (byte sector, byte* buf,
+		                   byte &onDiskTrack, byte &onDiskSector,
+		                   byte &onDiskSide,  int  &onDiskSize) = 0;
+		virtual void write(byte sector, const byte* buf,
+		                   byte &onDiskTrack, byte &onDiskSector,
+		                   byte &onDiskSide,  int  &onDiskSize) = 0;
 		virtual void getSectorHeader(byte sector, byte* buf) = 0;
 		virtual void getTrackHeader(byte track, byte* buf) = 0;
 		virtual void initWriteTrack(byte track) = 0;
@@ -107,8 +111,12 @@ class DummyDrive : public DiskDrive
 		                    const EmuTime &end);
 		virtual void setHeadLoaded(bool status, const EmuTime &time);
 		virtual bool headLoaded(const EmuTime &time);
-		virtual void read (byte sector, int size, byte* buf);
-		virtual void write(byte sector, int size, const byte* buf);
+		virtual void read (byte sector, byte* buf,
+		                   byte &onDiskTrack, byte &onDiskSector,
+		                   byte &onDiskSide,  int  &onDiskSize);
+		virtual void write(byte sector, const byte* buf,
+		                   byte &onDiskTrack, byte &onDiskSector,
+		                   byte &onDiskSide,  int  &onDiskSize);
 		virtual void getSectorHeader(byte sector, byte* buf);
 		virtual void getTrackHeader(byte track, byte* buf);
 		virtual void initWriteTrack(byte track);
@@ -174,8 +182,12 @@ class SingleSidedDrive : public RealDrive
 		virtual ~SingleSidedDrive();
 		virtual bool doubleSided();
 		virtual void setSide(bool side);
-		virtual void read (byte sector, int size, byte* buf);
-		virtual void write(byte sector, int size, const byte* buf);
+		virtual void read (byte sector, byte* buf,
+		                   byte &onDiskTrack, byte &onDiskSector,
+		                   byte &onDiskSide,  int  &onDiskSize);
+		virtual void write(byte sector, const byte* buf,
+		                   byte &onDiskTrack, byte &onDiskSector,
+		                   byte &onDiskSide,  int  &onDiskSize);
 		virtual void getSectorHeader(byte sector, byte* buf);
 		virtual void getTrackHeader(byte track, byte* buf);
 		virtual void initWriteTrack(byte track);
@@ -194,8 +206,12 @@ class DoubleSidedDrive : public RealDrive
 		virtual ~DoubleSidedDrive();
 		virtual bool doubleSided();
 		virtual void setSide(bool side);
-		virtual void read (byte sector, int size, byte* buf);
-		virtual void write(byte sector, int size, const byte* buf);
+		virtual void read (byte sector, byte* buf,
+		                   byte &onDiskTrack, byte &onDiskSector,
+		                   byte &onDiskSide,  int  &onDiskSize);
+		virtual void write(byte sector, const byte* buf,
+		                   byte &onDiskTrack, byte &onDiskSector,
+		                   byte &onDiskSide,  int  &onDiskSize);
 		virtual void getSectorHeader(byte sector, byte* buf);
 		virtual void getTrackHeader(byte track, byte* buf);
 		virtual void initWriteTrack(byte track);
