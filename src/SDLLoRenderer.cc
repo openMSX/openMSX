@@ -2,18 +2,17 @@
 
 /*
 TODO:
-- Move to double buffering.
-  Current screen line cache performs double buffering,
-  but when it is changed to a display line buffer it can no longer
-  serve that function.
-- Further optimise the background render routines.
-  For example incremental computation of the name pointers (both
-  VRAM and dirty).
-
-Idea:
-For bitmap modes, cache VRAM lines rather than screen lines.
-Better performance when doing raster tricks or double buffering.
-Probably also easier to implement when using line buffers.
+At the moment I only make sure this class compiles, but it is not tested
+nor are improvements applied.
+One noticable lack is that SDLLo does not support V9938 features.
+Options for the future:
+- When SDLHi is stable, port all changes to this class.
+  Only difference will be resolution.
+- Keep SDLLo as a limited renderer for slow machines.
+  For example: only frame-based updates, only MSX1 modes.
+Maybe both approaches are useful and should be implemented in different
+classes.
+In any case, it is a good idea to share more code between SDLLo and SDLHi.
 */
 
 #include "SDLLoRenderer.hh"
@@ -659,7 +658,8 @@ template <class Pixel> void SDLLoRenderer<Pixel>::renderUntil(
 	}
 }
 
-template <class Pixel> void SDLLoRenderer<Pixel>::putImage()
+template <class Pixel> void SDLLoRenderer<Pixel>::putImage(
+	const EmuTime &time)
 {
 	// Render changes from this last frame.
 	// TODO: Support PAL.

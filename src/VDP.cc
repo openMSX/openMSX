@@ -2,7 +2,6 @@
 
 /*
 TODO:
-- Implement vertical display adjust.
 - Run more measurements on real MSX to find out how horizontal
   scanning interrupt really works.
 - Model of FH and IRQ:
@@ -16,9 +15,15 @@ TODO:
   * VDP has all the info required to calculate it
   * VDP has to know it for sprite checking in overscan
   * command engine wants to know as well
+- Implement vertical display adjust.
 - Check how Z80 should treat interrupts occurring during DI.
 - Sprite attribute readout probably happens one line in advance.
   This matters when line-based scheduling is operational.
+- Speed up checkSpritesN by administrating which lines contain which
+  sprites in a bit vector.
+  This avoids cycling through all 32 possible sprites on every line.
+  Keeping administration up-to-date is not that hard and happens
+  at a low frequency (typically once per frame).
 - Get rid of hardcoded port 0x98..0x9B.
 - Implement overscan.
   What is the maximum number of lines? (during overscan)
@@ -435,13 +440,13 @@ void VDP::executeUntilEmuTime(const EmuTime &time, int userData)
 	// Handle the various sync types.
 	switch (userData) {
 	case VSYNC: {
-		// This frame is finished.
-		renderer->putImage();
-
 		// Sync with command engine.
 		// TODO: This wouldn't be necessary if command engine is synced
 		//       on VRAM reads.
 		cmdEngine->sync(time);
+
+		// This frame is finished.
+		renderer->putImage(time);
 
 		// Begin next frame.
 		frameStart(time);

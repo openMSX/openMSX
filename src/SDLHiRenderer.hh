@@ -33,7 +33,7 @@ public:
 
 	// Renderer interface:
 
-	void putImage();
+	void putImage(const EmuTime &time);
 	void setFullScreen(bool);
 	void updateTransparency(bool enabled, const EmuTime &time);
 	void updateForegroundColour(int colour, const EmuTime &time);

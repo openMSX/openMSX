@@ -1,5 +1,11 @@
 $Id$
 
+2001-12-31 Maarten ter Huurne <mth@stack.nl>
+	* SDLHiRenderer uses double buffering.
+	* Prepared SDLHiRenderer for RealTime sync, but if I enable it the
+	  emulated MSX slows down (even though host CPU load remains low).
+	* Added FDC values as patches to nms8250.xml, fixes disk ROM hang.
+
 2001-12-31 Joost Yervante Damad <j.damad@qahwah.net>
 	* lots of small C++ standard compliancy fixes
 	* Z80Core.hh -> Z80Core.nn

@@ -26,9 +26,9 @@ public:
 	static const byte TMS99X8A_PALETTE[16][3];
 
 	/** Puts the generated image on the screen.
-	  * May wait for a suitable moment to do so (vsync).
+	  * @param time The moment in emulated time the frame is finished.
 	  */
-	virtual void putImage() = 0;
+	virtual void putImage(const EmuTime &time) = 0;
 
 	/** Render full screen or windowed?
 	  * This is a hint to the renderer, not all renderers will

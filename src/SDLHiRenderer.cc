@@ -2,6 +2,16 @@
 
 /*
 TODO:
+- Is it possible to combine dirtyPattern and dirtyColour into a single
+  dirty array?
+  Pitfalls:
+  * in SCREEN1, a colour change invalidates 8 consequetive characters
+  * A12 and A11 of patternMask and colourMask may be different
+    also, colourMask has A10..A6 as well
+    in most realistic cases however the two will be of equal size
+- Clean up renderGraphics2, it is currently very hard to understand
+  with all the masks and quarters etc.
+- Try using a generic inlined pattern-to-pixels converter.
 - Separate dirty checking and caching for character and bitmap modes?
   Dirty checking is pretty much separated already and there is a
   connection between caching and dirty checking.
@@ -14,17 +24,35 @@ TODO:
   * More memory is used: 128K pixels, which is 25% more.
     I don't think 25% extra will pose a real problem.
 - Implement dirty checking for bitmap modes.
+  Approach:
+  * use an array which one entry for each 128 bytes of VRAM
+    contains display mode in which line is valid, or 0xFF for none
+  * when constructing the screen, only re-render if display mode
+    mismatches
+  * in SCREEN7/8, check two entries and store on lower pages
 - Fix character mode dirty checking to work with incremental rendering.
+  Approach 1:
+  * use two dirty arrays, one for this frame, one for next frame
+  * on every change, mark dirty in both arrays
+    (checking line is useless because of vertical scroll on screen splits)
+  * in frameStart, swap arrays
+  Approach 2:
+  * cache characters as 16x16 blocks and blit them to the screen
+  * on a name change, do nothing
+  * on a pattern or colour change, mark the block as dirty
+  * if a to-be-blitted block is dirty, recalculate it
+  I'll implement approach 1 on account of being very similar to the
+  existing code. Some time I'll implement approach 2 as well and see
+  if it is an improvement (in clarity and performance).
 - Register dirty checker with VDP.
-  This saves one virtual method call on every VRAM write.
+  This saves one virtual method call on every VRAM write. (does it?)
+  Put some generic dirty check classes in Renderer.hh/cc.
 - Support PAL timing.
   PAL screens are rendered now, but the code still contains
   some NTSC-only artifacts, which apparently cause no problems.
 - Correctly implement vertical scroll in text modes.
-- Move to double buffering.
-  Current screen line cache performs double buffering,
-  but when it is changed to a display line buffer it can no longer
-  serve that function.
+  Can be implemented by reordering blitting, but uses a smaller
+  wrap than GFX modes: 8 lines instead of 256 lines.
 - Further optimise the background render routines.
   For example incremental computation of the name pointers (both
   VRAM and dirty).
@@ -32,6 +60,8 @@ TODO:
 
 #include "SDLHiRenderer.hh"
 #include "VDP.hh"
+#include "RealTime.hh"
+#include "MSXCPU.hh"
 #include "config.h"
 
 #include <math.h>
@@ -975,21 +1005,32 @@ template <class Pixel> void SDLHiRenderer<Pixel>::frameStart()
 	//dirtyForeground = dirtyBackground = false;
 }
 
-template <class Pixel> void SDLHiRenderer<Pixel>::putImage()
+template <class Pixel> void SDLHiRenderer<Pixel>::putImage(
+	const EmuTime &time)
 {
 	// Render changes from this last frame.
 	renderUntil(vdp->isPalTiming() ? 313 : 262);
 
 	// Update screen.
-	// TODO: Move to double buffering.
-	SDL_UpdateRect(screen, 0, 0, 0, 0);
+	// Note: return value ignored.
+	SDL_Flip(screen);
+
+	// The screen will be locked for a while, so now is a good time
+	// to perform real time sync.
+	// TODO: Why is CPU ahead?
+	// TODO: I don't like using MSXCPU from the Renderer,
+	//       if this is the only way to do it, move the code to RealTime.
+	//Scheduler::instance()->setSyncPoint(time, RealTime::instance());
+	//Scheduler::instance()->setSyncPoint(
+	//	MSXCPU::instance()->getCurrentTime(), RealTime::instance());
 
 	frameStart();
 }
 
 Renderer *createSDLHiRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)
 {
-	int flags = SDL_HWSURFACE | (fullScreen ? SDL_FULLSCREEN : 0);
+	int flags = SDL_HWSURFACE | SDL_DOUBLEBUF
+		| (fullScreen ? SDL_FULLSCREEN : 0);
 
 	// Try default bpp.
 	SDL_Surface *screen = SDL_SetVideoMode(WIDTH, HEIGHT, 0, flags);

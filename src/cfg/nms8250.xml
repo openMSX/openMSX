@@ -50,7 +50,6 @@
       <page>0</page>
     </slotted>
     <parameter name="filename">cfg/nms8250-bios.rom</parameter>
-    <parameter name="skip_headerbytes">0</parameter>
   </device>
 
   <device id="basicrom">
@@ -61,7 +60,6 @@
       <page>1</page>
     </slotted>
     <parameter name="filename">cfg/nms8250-basic.rom</parameter>
-    <parameter name="skip_headerbytes">0</parameter>
   </device>
 
   <device id="subrom">
@@ -72,7 +70,6 @@
       <page>0</page>
     </slotted>
     <parameter name="filename">cfg/nms8250-sub.rom</parameter>
-    <parameter name="skip_headerbytes">0</parameter>
   </device>
 
   <device id="diskrom">
@@ -83,7 +80,8 @@
       <page>1</page>
     </slotted>
     <parameter name="filename">cfg/nms8250-disk.rom</parameter>
-    <parameter name="skip_headerbytes">0</parameter>
+    <parameter name="" class="patchcode">MSXDiskRomPatch</parameter>
+
     <parameter name="0x0010" class="patch">0xED</parameter>
     <parameter name="0x0011" class="patch">0xFE</parameter>
     <parameter name="0x0012" class="patch">0xC9</parameter>
@@ -99,8 +97,27 @@
     <parameter name="0x001F" class="patch">0xED</parameter>
     <parameter name="0x0020" class="patch">0xFE</parameter>
     <parameter name="0x0021" class="patch">0xC9</parameter>
-    <parameter name="" class="patchcode">MSXDiskRomPatch</parameter>
+
+    <parameter name="0x3FF8" class="patch">0x24</parameter>
+    <parameter name="0x3FF9" class="patch">0x00</parameter>
+    <parameter name="0x3FFA" class="patch">0x07</parameter>
+    <parameter name="0x3FFB" class="patch">0x00</parameter>
+    <parameter name="0x3FFC" class="patch">0xFE</parameter>
+    <parameter name="0x3FFD" class="patch">0xFC</parameter>
   </device>
+
+  <!--
+  <config id="diskpatch_diskA">
+    <type>disk</type>
+    <parameter name="readonly">true</parameter>
+    <parameter name="filename">cfg/a.dsk</parameter>
+  </config>
+  <config id="diskpatch_diskB">
+    <type>disk</type>
+    <parameter name="readonly">true</parameter>
+    <parameter name="filename">cfg/b.dsk</parameter>
+  </config>
+  -->
 
   <device id="ppi">
     <type>PPI</type>
@@ -137,6 +154,7 @@
     <parameter name="min_real_time">40</parameter>
   </config>
 
+  <!--
   <device id="Penguin Adventure Cartridge">
     <type>GameCartridge</type>
     <slotted>
@@ -156,6 +174,21 @@
     <parameter name="automappertype">true</parameter>
     <parameter name="mappertype">2</parameter>
   </device>
+  -->
+
+  <!--
+  <device id="FM PAC">
+    <type>FM-PAC</type>
+    <slotted>
+      <ps>2</ps>
+      <ss>0</ss>
+      <page>1</page>
+    </slotted>
+    <parameter name="filename">FMPAC.ROM</parameter>
+    <parameter name="skip_headerbytes">0</parameter>
+    <parameter name="volume">20000</parameter>
+  </device>
+  -->
 
   <device id="cpu">
     <type>CPU</type>
