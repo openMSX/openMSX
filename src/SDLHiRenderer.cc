@@ -7,51 +7,10 @@ TODO:
   class would know when to sync etc, but not be SDL dependent.
   Since most of the abstraction is done using <Pixel>, most code
   is SDL independent already.
+  Is this still relevant after CharacterConverter/BitmapConverter
+  split-off?
 - Implement sprite pixels in Graphic 5.
-- Is it possible to combine dirtyPattern and dirtyColour into a single
-  dirty array?
-  Pitfalls:
-  * in SCREEN1, a colour change invalidates 8 consequetive characters
-  * A12 and A11 of patternMask and colourMask may be different
-    also, colourMask has A10..A6 as well
-    in most realistic cases however the two will be of equal size
-- Clean up renderGraphics2, it is currently very hard to understand
-  with all the masks and quarters etc.
-- Try using a generic inlined pattern-to-pixels converter.
-- Separate dirty checking and caching for character and bitmap modes?
-  Dirty checking is pretty much separated already and there is a
-  connection between caching and dirty checking.
-  Advantages:
-  * SCREEN4/5 hybrids like Space Manbow and Psycho World will be faster.
-    Nice, but it's only a handful of games, so not very important.
-  * Enables separation of character and bitmap code into different files.
-    Useful since this file is now over 1000 lines long.
-  Disadvantages:
-  * More memory is used: 128K pixels, which is 25% more.
-    I don't think 25% extra will pose a real problem.
-- Fix character mode dirty checking to work with incremental rendering.
-  Approach 1:
-  * use two dirty arrays, one for this frame, one for next frame
-  * on every change, mark dirty in both arrays
-    (checking line is useless because of vertical scroll on screen splits)
-  * in frameStart, swap arrays
-  Approach 2:
-  * cache characters as 16x16 blocks and blit them to the screen
-  * on a name change, do nothing
-  * on a pattern or colour change, mark the block as dirty
-  * if a to-be-blitted block is dirty, recalculate it
-  I'll implement approach 1 on account of being very similar to the
-  existing code. Some time I'll implement approach 2 as well and see
-  if it is an improvement (in clarity and performance).
-- Register dirty checker with VDP.
-  This saves one virtual method call on every VRAM write. (does it?)
-  Put some generic dirty check classes in Renderer.hh/cc.
-- Correctly implement vertical scroll in text modes.
-  Can be implemented by reordering blitting, but uses a smaller
-  wrap than GFX modes: 8 lines instead of 256 lines.
-- Further optimise the background render routines.
-  For example incremental computation of the name pointers (both
-  VRAM and dirty).
+- Move dirty checking to VDPVRAM.
 */
 
 #include "SDLHiRenderer.hh"

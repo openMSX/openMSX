@@ -1,5 +1,36 @@
 // $Id$
 
+/*
+TODO:
+- Is it possible to combine dirtyPattern and dirtyColour into a single
+  dirty array?
+  Pitfalls:
+  * in SCREEN1, a colour change invalidates 8 consequetive characters
+  * A12 and A11 of patternMask and colourMask may be different
+    also, colourMask has A10..A6 as well
+    in most realistic cases however the two will be of equal size
+- Clean up renderGraphics2, it is currently very hard to understand
+  with all the masks and quarters etc.
+- Try using a generic inlined pattern-to-pixels converter.
+- Fix character mode dirty checking to work with incremental rendering.
+  Approach 1:
+  * use two dirty arrays, one for this frame, one for next frame
+  * on every change, mark dirty in both arrays
+    (checking line is useless because of vertical scroll on screen splits)
+  * in frameStart, swap arrays
+  Approach 2:
+  * cache characters as 16x16 blocks and blit them to the screen
+  * on a name change, do nothing
+  * on a pattern or colour change, mark the block as dirty
+  * if a to-be-blitted block is dirty, recalculate it
+  I'll implement approach 1 on account of being very similar to the
+  existing code. Some time I'll implement approach 2 as well and see
+  if it is an improvement (in clarity and performance).
+- Correctly implement vertical scroll in text modes.
+  Can be implemented by reordering blitting, but uses a smaller
+  wrap than GFX modes: 8 lines instead of 256 lines.
+*/
+
 #include "CharacterConverter.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
