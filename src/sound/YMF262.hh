@@ -131,7 +131,7 @@ public:
 class YMF262 : private SoundDevice, private EmuTimerCallback, private Debuggable
 {
 public:
-	YMF262(short volume, const EmuTime& time);
+	YMF262(const XMLElement& config, const EmuTime& time);
 	virtual ~YMF262();
 	
 	virtual void reset(const EmuTime& time);
@@ -221,7 +221,6 @@ private:
 	EmuTimer< 3125, STATUS_T2> timer2;	// 320us
 
 	int chanout[18];		// 18 channels 
-	int* buffer;
 	int maxVolume;
 };
 

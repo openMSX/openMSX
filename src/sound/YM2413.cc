@@ -504,9 +504,7 @@ void YM2413::Channel::keyOff()
 //                                                           //
 //***********************************************************//
 
-// Constructor
-YM2413::YM2413(const string& name_, short volume, const EmuTime& time,
-               Mixer::ChannelMode mode)
+YM2413::YM2413(const string& name_, const XMLElement& config, const EmuTime& time)
 	: rythm_mode(false), name(name_)
 {
 	// User instrument
@@ -565,11 +563,11 @@ YM2413::YM2413(const string& name_, short volume, const EmuTime& time,
 	patches[36] = Patch(false, false,  true, 0,  5, 0,  0, 0, 0, 15,  8, 15,  8);
 	patches[37] = Patch(false, false, false, 1,  8, 0,  0, 0, 0, 13, 10,  5,  5);
 
-	for (int i = 0; i < 0x40; i++) {
+	for (int i = 0; i < 0x40; ++i) {
 		reg[i] = 0; // avoid UMR
 	}
 
-	for (int i = 0; i < 9; i++) {
+	for (int i = 0; i < 9; ++i) {
 		// TODO cleanup
 		ch[i].mod.plfo_am = &lfo_am;
 		ch[i].mod.plfo_pm = &lfo_pm;
@@ -585,20 +583,16 @@ YM2413::YM2413(const string& name_, short volume, const EmuTime& time,
 	makeSinTable();
 	makeDB2LinTable();
 
-	int bufSize = Mixer::instance().registerSound(this, volume, mode);
-	buffer = new int[bufSize];
-	
+	registerSound(config);
 	reset(time);
 
 	Debugger::instance().registerDebuggable(name + " regs", *this);
 }
 
-// Destructor
 YM2413::~YM2413()
 {
 	Debugger::instance().unregisterDebuggable(name + " regs", *this);
-	Mixer::instance().unregisterSound(this);
-	delete[] buffer;
+	unregisterSound();
 }
 
 const string& YM2413::getName() const

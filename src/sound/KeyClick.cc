@@ -5,8 +5,8 @@
 
 namespace openmsx {
 
-KeyClick::KeyClick(short volume, const EmuTime& time)
-	: dac("keyclick", "1-bit click generator", volume, time)
+KeyClick::KeyClick(const XMLElement& config, const EmuTime& time)
+	: dac("keyclick", "1-bit click generator", config, time)
 {
 	status = false;
 }

@@ -13,7 +13,7 @@ class EmuTime;
 class KeyClick
 {
 public:
-	KeyClick(short volume, const EmuTime& time);
+	KeyClick(const XMLElement& config, const EmuTime& time);
 	virtual ~KeyClick(); 
 
 	void reset(const EmuTime& time);

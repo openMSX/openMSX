@@ -69,15 +69,19 @@ CassettePlayer::CassettePlayer()
 	}
 	CommandController::instance().registerCommand(this, "cassetteplayer");
 
-	int bufSize = Mixer::instance().registerSound(this, 5000, Mixer::MONO);
-	buffer = new int[bufSize];
+	static XMLElement cassettePlayerConfig("cassetteplayer");
+	static bool init = false;
+	if (!init) {
+		init = true;
+		cassettePlayerConfig.addChild(auto_ptr<XMLElement>(
+			new XMLElement("volume", "5000")));
+	}
+	registerSound(cassettePlayerConfig);
 }
 
 CassettePlayer::~CassettePlayer()
 {
-	Mixer::instance().unregisterSound(this);
-	delete[] buffer;
-
+	unregisterSound();
 	CommandController::instance().unregisterCommand(this, "cassetteplayer");
 }
 

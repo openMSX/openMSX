@@ -76,14 +76,12 @@
 
 namespace openmsx {
 
-SCC::SCC(const string& name_, short volume, const EmuTime& time,
-         ChipMode mode)
+SCC::SCC(const string& name_, const XMLElement& config, const EmuTime& time,
+	 ChipMode mode)
 	: sccDebuggable(*this), currentChipMode(mode), name(name_)
 {
 	// Register as a soundevice
-	int bufSize = Mixer::instance().registerSound(this, volume,
-	                                               Mixer::MONO);
-	buffer = new int[bufSize];
+	registerSound(config);
 
 	// clear wave forms
 	for (unsigned i = 0; i < 5; ++i) {
@@ -93,14 +91,13 @@ SCC::SCC(const string& name_, short volume, const EmuTime& time,
 	}
 	
 	reset(time);
-	Debugger::instance().registerDebuggable(name + " SCC", sccDebuggable);
+	Debugger::instance().registerDebuggable(name, sccDebuggable);
 }
 
 SCC::~SCC()
 {
 	Debugger::instance().unregisterDebuggable(name + " SCC", sccDebuggable);
-	Mixer::instance().unregisterSound(this);
-	delete[] buffer;
+	unregisterSound();
 }
 
 const string& SCC::getName() const

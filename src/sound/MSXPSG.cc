@@ -15,8 +15,7 @@ MSXPSG::MSXPSG(const XMLElement& config, const EmuTime& time)
 	  cassette(CassettePortFactory::instance())
 {
 	keyLayoutBit = deviceConfig.getChildData("keyboardlayout", "") == "JIS";
-	short volume = deviceConfig.getChildDataAsInt("volume");
-	ay8910.reset(new AY8910(*this, volume, time));
+	ay8910.reset(new AY8910(*this, config, time));
 
 	selectedPort = 0;
 	ports[0].reset(new JoystickPort("joyporta"));

@@ -21,11 +21,10 @@ MSXPPI::MSXPPI(const XMLElement& config, const EmuTime& time)
 	  leds(Leds::instance()),
 	  renshaTurbo(RenShaTurbo::instance())
 {
-	short volume = deviceConfig.getChildDataAsInt("volume");
 	bool keyGhosting = deviceConfig.getChildDataAsBool("key_ghosting", true);
 	keyboard.reset(new Keyboard(keyGhosting));
 	i8255.reset(new I8255(*this, time));
-	click.reset(new KeyClick(volume, time));
+	click.reset(new KeyClick(config, time));
 
 	reset(time);
 }

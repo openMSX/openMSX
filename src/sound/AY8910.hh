@@ -15,6 +15,7 @@
 
 namespace openmsx {
 
+class XMLElement;
 class EmuTime;
 
 class AY8910Interface
@@ -30,7 +31,7 @@ public:
 class AY8910 : private SoundDevice, private Debuggable
 {
 public:
-	AY8910(AY8910Interface& interf, short volume, const EmuTime& time);
+	AY8910(AY8910Interface& interf, const XMLElement& config, const EmuTime& time);
 	virtual ~AY8910();
 
 	byte readRegister(byte reg, const EmuTime& time);
@@ -68,7 +69,6 @@ private:
 	unsigned int volTable[16];
 	byte oldEnable;
 	
-	int* buffer;
 	bool semiMuted;
 	int validLength;
 	

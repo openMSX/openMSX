@@ -83,12 +83,11 @@ public:
 class YM2413_2 : public YM2413Core, private SoundDevice, private Debuggable
 {
 public:
-	YM2413_2(const string& name, short volume, const EmuTime& time,
-		 const Mixer::ChannelMode mode);
+	YM2413_2(const string& name, const XMLElement& config, const EmuTime& time);
 	virtual ~YM2413_2();
 	
-	void reset(const EmuTime &time);
-	void writeReg(byte r, byte v, const EmuTime &time);
+	void reset(const EmuTime& time);
+	void writeReg(byte r, byte v, const EmuTime& time);
 	
 private:
 	void checkMute();
@@ -122,8 +121,6 @@ private:
 	virtual byte read(unsigned address);
 	virtual void write(unsigned address, byte value);
 
-	
-	int* buffer;
 	int maxVolume;
 
 	Channel channels[9];		// OPLL chips have 9 channels

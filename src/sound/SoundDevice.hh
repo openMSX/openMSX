@@ -4,10 +4,13 @@
 #define __SOUNDDEVICE_HH__
 
 #include <string>
+#include "Mixer.hh"
 
 using std::string;
 
 namespace openmsx {
+
+class XMLElement;
 
 class SoundDevice
 {
@@ -72,6 +75,18 @@ protected:
 	 * (methods setMute() and setInternalMute())
 	 */
 	bool isInternalMuted() const;
+
+	/**
+	 * Helper methods to (un)register
+	 */
+	void registerSound(const XMLElement& config,
+	                   Mixer::ChannelMode = Mixer::MONO);
+	void unregisterSound();
+
+	/**
+	 * 
+	 */
+	int* buffer;
 	
 // may only be called by Mixer
 public:

@@ -19,9 +19,7 @@ namespace openmsx {
 RomMajutsushi::RomMajutsushi(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
-	short volume = config.getChildDataAsInt("volume");
-	dac.reset(new DACSound8U(getName(), "Majutsushi DAC", volume, time));
-	
+	dac.reset(new DACSound8U(getName(), "Majutsushi DAC", config, time));
 	reset(time);
 }
 

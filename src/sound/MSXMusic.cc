@@ -12,24 +12,11 @@ MSXMusic::MSXMusic(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
 	  MSXMemDevice(config, time), rom(getName() + " ROM", "rom", config)
 {
-	short volume = config.getChildDataAsInt("volume");
-	
-	string modeStr = config.getChildData("mode", "mono");
-	Mixer::ChannelMode mode;
-	if (modeStr == "left") {
-		mode = Mixer::MONO_LEFT;
-	} else if (modeStr == "right") {
-		mode = Mixer::MONO_RIGHT;
-	} else {
-		mode = Mixer::MONO;
-	}
-	
 	if (config.getChildDataAsBool("alternative", false)) {
-		ym2413.reset(new YM2413(getName(), volume, time, mode));
+		ym2413.reset(new YM2413(getName(), config, time));
 	} else {
-		ym2413.reset(new YM2413_2(getName(), volume, time, mode));
+		ym2413.reset(new YM2413_2(getName(), config, time));
 	}
-	
 	reset(time);
 }
 

@@ -738,8 +738,7 @@ byte YMF278::readStatus(const EmuTime& time)
 	return result;
 }
 
-YMF278::YMF278(short volume, int ramSize, const XMLElement& config,
-               const EmuTime& time)
+YMF278::YMF278(int ramSize, const XMLElement& config, const EmuTime& time)
 	: debugRegisters(*this), debugMemory(*this),
 	  rom(getName() + " ROM", "rom", config)
 {
@@ -749,9 +748,7 @@ YMF278::YMF278(short volume, int ramSize, const XMLElement& config,
 	ram = new byte[ramSize];
 	endRam = endRom + ramSize;
 	
-	int bufSize = Mixer::instance().registerSound(this,
-	                                               volume, Mixer::STEREO);
-	buffer = new int[2 * bufSize];
+	registerSound(config);
 	reset(time);
 
 	Debugger::instance().registerDebuggable(getName() + " regs", debugRegisters);
@@ -762,8 +759,7 @@ YMF278::~YMF278()
 {
 	Debugger::instance().unregisterDebuggable(getName() + " mem", debugMemory);
 	Debugger::instance().unregisterDebuggable(getName() + " regs", debugRegisters);
-	Mixer::instance().unregisterSound(this);
-	delete[] buffer;
+	unregisterSound();
 	delete[] ram;
 }
 

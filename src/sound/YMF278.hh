@@ -68,8 +68,7 @@ public:
 class YMF278 : private SoundDevice
 {
 public:
-	YMF278(short volume, int ramSize, const XMLElement& config,
-	       const EmuTime& time);
+	YMF278(int ramSize, const XMLElement& config, const EmuTime& time);
 	virtual ~YMF278();
 	void reset(const EmuTime& time);
 	void writeRegOPL4(byte reg, byte data, const EmuTime& time);
@@ -141,7 +140,6 @@ private:
 	// enveloppe and pan levels
 	int volume[256 * 4];
 
-	int* buffer;
 	double freqbase;
 
 	byte regs[256];

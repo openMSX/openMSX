@@ -166,8 +166,8 @@ class Y8950 : private SoundDevice, private EmuTimerCallback, private Debuggable
 	};
 
 public:
-	Y8950(const string& name, short volume, int sampleRam,
-	      const EmuTime& time, Mixer::ChannelMode mode = Mixer::MONO);
+	Y8950(const string& name, const XMLElement& config, int sampleRam,
+	      const EmuTime& time);
 	virtual ~Y8950();
 
 	void reset(const EmuTime &time);
@@ -296,7 +296,6 @@ private:
 	unsigned int am_dphase;
 	int lfo_am;
 
-	int* buffer;
 	int maxVolume;
 
 

@@ -1803,7 +1803,7 @@ void YMF262::reset(const EmuTime& time)
 	setInternalMute(true);
 }
 
-YMF262::YMF262(short volume, const EmuTime& time)
+YMF262::YMF262(const XMLElement& config, const EmuTime& time)
 	: timer1(this), timer2(this)
 {
 	LFO_AM = LFO_PM = 0;
@@ -1815,9 +1815,7 @@ YMF262::YMF262(short volume, const EmuTime& time)
 	
 	init_tables();
 
-	int bufSize = Mixer::instance().registerSound(this,
-	                                               volume, Mixer::STEREO);
-	buffer = new int[2 * bufSize];
+	registerSound(config, Mixer::STEREO);
 	reset(time);
 
 	Debugger::instance().registerDebuggable(getName() + " regs", *this);
@@ -1826,8 +1824,7 @@ YMF262::YMF262(short volume, const EmuTime& time)
 YMF262::~YMF262()
 {
 	Debugger::instance().unregisterDebuggable(getName() + " regs", *this);
-	Mixer::instance().unregisterSound(this);
-	delete[] buffer;
+	unregisterSound();
 }
 
 const string& YMF262::getName() const

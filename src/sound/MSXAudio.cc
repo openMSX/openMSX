@@ -10,21 +10,8 @@ namespace openmsx {
 MSXAudio::MSXAudio(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
-	short volume = config.getChildDataAsInt("volume");
-
-	// left / right / mono
-	Mixer::ChannelMode mode = Mixer::MONO;
-	const string &stereomode = config.getChildData("mode");
-	if (stereomode == "left") {
-		mode=Mixer::MONO_LEFT;
-	} else if (stereomode == "right") {
-		mode=Mixer::MONO_RIGHT;
-	}
-
-	// SampleRAM size
 	int ramSize = config.getChildDataAsInt("sampleram", 256); // size in kb
-
-	y8950.reset(new Y8950(getName(), volume, ramSize * 1024, time, mode));
+	y8950.reset(new Y8950(getName(), config, ramSize * 1024, time));
 	reset(time);
 }
 

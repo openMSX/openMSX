@@ -15,7 +15,7 @@ class SCC : private SoundDevice
 public:
 	enum ChipMode {SCC_Real, SCC_Compatible, SCC_plusmode};
 
-	SCC(const string& name, short volume, const EmuTime& time,
+	SCC(const string& name, const XMLElement& config, const EmuTime& time,
 	    ChipMode mode = SCC_Real);
 	virtual ~SCC();
 
@@ -57,7 +57,6 @@ private:
 		(unsigned)(((unsigned)(1 << 31)) / (CLOCK_FREQ / 2));
 
 	ChipMode currentChipMode;
-	int* buffer;
 	int masterVolume;
 	unsigned realstep;
 	unsigned scctime;

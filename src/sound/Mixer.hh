@@ -47,12 +47,12 @@ public:
 	 * The maximum number of samples asked for is returned by this
 	 * method.
 	 */
-	int registerSound(SoundDevice* device, short volume, ChannelMode mode);
+	int registerSound(SoundDevice& device, short volume, ChannelMode mode);
 
 	/**
 	 * Every sounddevice must unregister before it is destructed
 	 */
-	void unregisterSound(SoundDevice* device);
+	void unregisterSound(SoundDevice& device);
 
 	/**
 	 * Use this method to force an 'early' call to all

@@ -1352,8 +1352,7 @@ void YM2413_2::reset(const EmuTime &time)
 }
 
 
-YM2413_2::YM2413_2(const string& name_, short volume, const EmuTime& time,
-                   const Mixer::ChannelMode mode)
+YM2413_2::YM2413_2(const string& name_, const XMLElement& config, const EmuTime& time)
 	: name(name_)
 {
 	eg_cnt = eg_timer = 0;
@@ -1361,14 +1360,12 @@ YM2413_2::YM2413_2(const string& name_, short volume, const EmuTime& time,
 	lfo_am_cnt = lfo_pm_cnt = 0;
 	noise_rng = noise_p = 0;
 	LFO_AM = LFO_PM = 0;
-	for (int i = 0; i < 9; i++) {
+	for (int i = 0; i < 9; ++i) {
 		instvol_r[i] = 0;
 	}
-	
 	init_tables();
 
-	int bufSize = Mixer::instance().registerSound(this, volume, mode);
-	buffer = new int[bufSize];
+	registerSound(config);
 	reset(time);
 
 	Debugger::instance().registerDebuggable(name + " regs", *this);
@@ -1377,8 +1374,7 @@ YM2413_2::YM2413_2(const string& name_, short volume, const EmuTime& time,
 YM2413_2::~YM2413_2()
 {
 	Debugger::instance().unregisterDebuggable(name + " regs", *this);
-	Mixer::instance().unregisterSound(this);
-	delete[] buffer;
+	unregisterSound();
 }
 
 const string& YM2413_2::getName() const

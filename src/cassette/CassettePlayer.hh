@@ -74,7 +74,6 @@ private:
 	virtual void tabCompletion(vector<string>& tokens) const;
 
 	// SoundDevice
-	int* buffer;
 	int volume;
 	EmuDuration delta;
 	EmuTime playTapeTime;

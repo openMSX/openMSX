@@ -31,12 +31,11 @@ enum Register {
 };
 
 
-AY8910::AY8910(AY8910Interface& interf, short volume, const EmuTime& time)
+AY8910::AY8910(AY8910Interface& interf, const XMLElement& config,
+               const EmuTime& time)
 	: semiMuted(false), interface(interf)
 {
-	int bufSize = Mixer::instance().registerSound(this,
-	                                              volume, Mixer::MONO);
-	buffer = new int[bufSize];
+	registerSound(config);
 	reset(time);
 	Debugger::instance().registerDebuggable(getName() + " regs", *this);
 }
@@ -45,8 +44,7 @@ AY8910::AY8910(AY8910Interface& interf, short volume, const EmuTime& time)
 AY8910::~AY8910()
 {
 	Debugger::instance().unregisterDebuggable(getName() + " regs", *this);
-	Mixer::instance().unregisterSound(this);
-	delete[] buffer;
+	unregisterSound();
 }
 
 const string& AY8910::getName() const

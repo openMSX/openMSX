@@ -25,9 +25,7 @@ namespace openmsx {
 RomKonami5::RomKonami5(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
-	short volume = config.getChildDataAsInt("volume");
-	scc.reset(new SCC(getName(), volume, time));
-	
+	scc.reset(new SCC(getName(), config, time));
 	reset(time);
 }
 

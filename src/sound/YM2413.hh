@@ -115,12 +115,11 @@ class YM2413 : public YM2413Core, private SoundDevice, private Debuggable
 	};
 
 public:
-	YM2413(const string& name, short volume, const EmuTime &time,
-	       Mixer::ChannelMode mode = Mixer::MONO);
+	YM2413(const string& name, const XMLElement& config, const EmuTime& time);
 	virtual ~YM2413();
 
-	void reset(const EmuTime &time);
-	void writeReg(byte reg, byte value, const EmuTime &time);
+	void reset(const EmuTime& time);
+	void writeReg(byte reg, byte value, const EmuTime& time);
 
 	// SoundDevice
 	virtual const string& getName() const;
@@ -239,7 +238,6 @@ private:
 	static const double AM_SPEED = 3.7;
 	static const double AM_DEPTH = 2.4;
 
-	int* buffer;
 	int maxVolume;
 
 	int output[2];

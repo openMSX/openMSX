@@ -11,11 +11,9 @@ namespace openmsx {
 MSXMoonSound::MSXMoonSound(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
-	short volume = config.getChildDataAsInt("volume");
 	int ramSize = config.getChildDataAsInt("sampleram", 512); // size in kb
-
-	ymf262.reset(new YMF262(volume, time));
-	ymf278.reset(new YMF278(volume, ramSize, config, time));
+	ymf262.reset(new YMF262(config, time));
+	ymf278.reset(new YMF278(ramSize, config, time));
 	reset(time);
 }
 

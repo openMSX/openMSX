@@ -54,8 +54,7 @@ MSXSCCPlusCart::MSXSCCPlusCart(const XMLElement& config, const EmuTime& time)
 		mapper[i] = 0;
 	}
 
-	short volume = config.getChildDataAsInt("volume");
-	scc.reset(new SCC(getName(), volume, time, SCC::SCC_Compatible));
+	scc.reset(new SCC(getName(), config, time, SCC::SCC_Compatible));
 
 	reset(time);
 }

@@ -20,7 +20,7 @@ class DACSound16S : public SoundDevice
 {
 public:
 	DACSound16S(const string& name, const string& desc,
-		    short maxVolume, const EmuTime& time); 
+		    const XMLElement& config, const EmuTime& time); 
 	virtual ~DACSound16S();
 
 	void reset(const EmuTime& time);
@@ -50,7 +50,6 @@ private:
 	EmuTime lastTime;
 	EmuTime nextTime;
 	int volume;
-	int* buffer;
 
 	const string name;
 	const string desc;
