@@ -236,9 +236,6 @@ template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 	this->screen = screen;
 	vram = vdp->getVRAM();
 	spriteChecker = vdp->getSpriteChecker();
-	// TODO: Store current time.
-	//       Does the renderer actually have to keep time?
-	//       Keeping render position should be good enough.
 
 	// Create display caches.
 	charDisplayCache = SDL_CreateRGBSurface(
