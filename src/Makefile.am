@@ -59,6 +59,7 @@ openmsx_SOURCES=openmsx.cc icon.nn \
 	Joystick.hh Joystick.cc Mouse.hh Mouse.cc \
 	MSXPrinterPort.hh MSXPrinterPort.cc \
 	PrinterPortDevice.hh PrinterPortDevice.cc \
+	PrinterPortSimple.hh PrinterPortSimple.cc \
 	MSXKanji.hh MSXKanji.cc \
 	MSXMemoryMapper.hh MSXMemoryMapper.cc MSXMapperIO.hh MSXMapperIO.cc \
 	MSXMapperIOTurboR.hh MSXMapperIOTurboR.cc \
@@ -73,7 +74,6 @@ openmsx_SOURCES=openmsx.cc icon.nn \
 	MSXTapePatch.cc MSXTapePatch.hh \
 	FileOpener.cc FileOpener.hh \
 	MSXARCdebug.cc MSXARCdebug.hh \
-	MSXSimple.cc MSXSimple.hh \
 	MSXPrinterLogger.cc MSXPrinterLogger.hh \
 	CommandLineParser.cc CommandLineParser.hh \
 	MSXDiskRomPatch.cc MSXDiskRomPatch.hh \

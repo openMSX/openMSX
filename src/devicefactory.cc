@@ -18,7 +18,6 @@
 #include "MSXRTC.hh"
 #include "MSXGameCartridge.hh"
 #include "MSXPrinterPort.hh"
-#include "MSXSimple.hh"
 #include "MSXPrinterLogger.hh"
 #include "MSXSCCPlusCart.hh"
 #include "MSXARCdebug.hh"
@@ -81,9 +80,6 @@ MSXDevice *deviceFactory::create(MSXConfig::Device *conf, const EmuTime &time) {
 	} else
 	if (conf->getType()=="ARCdebug") {
 		device = new MSXARCdebug(conf, time);
-	} else
-	if (conf->getType()=="Simple") {
-		device = new MSXSimple(conf, time);
 	} else
 	if (conf->getType()=="PrinterLogger") {
 		device = new MSXPrinterLogger(conf, time);

@@ -15,7 +15,7 @@ class PrinterPortDevice : public Pluggable
 		 *  false = low  = ready
 		 *  true  = high = not ready
 		 */
-		virtual bool getStatus() = 0;
+		virtual bool getStatus(const EmuTime &time) = 0;
 
 		/**
 		 * Sets the strobe signal.

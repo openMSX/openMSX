@@ -108,6 +108,8 @@ void PluggingController::PlugCmd::execute(const std::vector<std::string> &tokens
 	const EmuTime &time = MSXCPU::instance()->getCurrentTime();
 	connector->unplug(time);
 	connector->plug(pluggable, time);
+
+	PRT_DEBUG("Plug: " << connector->getName() << " " << pluggable->getName());
 }
 
 void PluggingController::PlugCmd::help   (const std::vector<std::string> &tokens)

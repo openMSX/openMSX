@@ -5,12 +5,13 @@
 #include "MSXMotherBoard.hh"
 #include "PrinterPortDevice.hh"
 #include "PluggingController.hh"
+#include "PrinterPortSimple.hh"
 
 
 MSXPrinterPort::MSXPrinterPort(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time)
 {
-	PRT_DEBUG("Creating an MSXPrinterPort");
+	PRT_DEBUG("Creating a MSXPrinterPort");
 	MSXMotherBoard::instance()->register_IO_In (0x90, this);
 	MSXMotherBoard::instance()->register_IO_Out(0x90, this);
 	MSXMotherBoard::instance()->register_IO_Out(0x91, this);
@@ -21,14 +22,17 @@ MSXPrinterPort::MSXPrinterPort(MSXConfig::Device *config, const EmuTime &time)
 	reset(time);
 	
 	logger = new LoggingPrinterPortDevice();
+	simple = new PrinterPortSimple();
 }
 
 MSXPrinterPort::~MSXPrinterPort()
 {
+	PRT_DEBUG("Destroying a MSXPrinterPort");
 	//unplug(time)
 	PluggingController::instance()->unregisterConnector(this);
 	delete dummy;
 	delete logger;
+	delete simple;
 }
 
 
@@ -44,7 +48,7 @@ void MSXPrinterPort::reset(const EmuTime &time)
 byte MSXPrinterPort::readIO(byte port, const EmuTime &time)
 {
 	assert(port == 0x90);
-	return ((PrinterPortDevice*)pluggable)->getStatus() ? 0xff : 0xfd;	// bit 1 = status / other bits always 1
+	return ((PrinterPortDevice*)pluggable)->getStatus(time) ? 0xff : 0xfd;	// bit 1 = status / other bits always 1
 }
 
 void MSXPrinterPort::writeIO(byte port, byte value, const EmuTime &time)
@@ -92,9 +96,9 @@ void MSXPrinterPort::unplug(const EmuTime &time)
 
 // --- DummyPrinterPortDevice ---
 
-bool DummyPrinterPortDevice::getStatus()
+bool DummyPrinterPortDevice::getStatus(const EmuTime &time)
 {
-	return true;	// true = high = not ready	TODO check this
+	return true;	// true = high = not ready
 }
 
 void DummyPrinterPortDevice::setStrobe(bool strobe, const EmuTime &time)
@@ -126,9 +130,9 @@ LoggingPrinterPortDevice::~LoggingPrinterPortDevice()
 	PluggingController::instance()->unregisterPluggable(this);
 }
 
-bool LoggingPrinterPortDevice::getStatus()
+bool LoggingPrinterPortDevice::getStatus(const EmuTime &time)
 {
-	return false;	// false = low = ready	TODO check this
+	return false;	// false = low = ready
 }
 
 void LoggingPrinterPortDevice::setStrobe(bool strobe, const EmuTime &time)

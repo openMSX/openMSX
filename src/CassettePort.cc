@@ -120,7 +120,7 @@ void CassettePort::cassetteOut(bool output, const EmuTime &time)
 	//   on a transition the output is 0
 	//   everywhere else it is max or min
 	// this is probably good enough
-	flushOutput(time);
+	//flushOutput(time);
 	nextSample = 0;
 	lastOutput = output;
 }

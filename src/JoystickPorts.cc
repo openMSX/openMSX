@@ -68,10 +68,13 @@ JoystickPorts::JoystickPorts(const EmuTime &time)
 	ports[1] = new JoystickPort("joyportb", time);
 
 	mouse = new Mouse();
+	int i=0;
 	try {
-		for (int i=0; i<10; i++)
+		for (; i<10; i++)
 			joystick[i] = new Joystick(i);
 	} catch(JoystickException &e) {
+		for (; i<10; i++)
+			joystick[i] = NULL;
 	}
 }
 

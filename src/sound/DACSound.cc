@@ -6,7 +6,6 @@
  *
  */
 
-
 #include <cassert>
 #include "DACSound.hh"
 #include "Mixer.hh"
@@ -15,7 +14,7 @@
 
 DACSound::DACSound(short maxVolume, int typicalFreq, const EmuTime &time)
 {
-	PRT_DEBUG("DAC audio created");
+	PRT_DEBUG("Creating DACSound device");
 	
 	int bufSize = Mixer::instance()->registerSound(this);
 	buf = new int[bufSize];
@@ -30,7 +29,6 @@ DACSound::DACSound(short maxVolume, int typicalFreq, const EmuTime &time)
 	left = currentLength = 0;
 	
 	reset(time);
-
 }
 
 
