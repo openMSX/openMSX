@@ -6,20 +6,15 @@
 
 MSXE6Timer::MSXE6Timer(MSXConfig::Device *config) : MSXDevice(config)
 {
+	MSXMotherBoard::instance()->register_IO_In (0xE6,this);
+	MSXMotherBoard::instance()->register_IO_In (0xE7,this);
+	MSXMotherBoard::instance()->register_IO_Out(0xE6,this);
 }
 
 MSXE6Timer::~MSXE6Timer()
 {
 }
  
-void MSXE6Timer::init()
-{
-	MSXDevice::init();
-	MSXMotherBoard::instance()->register_IO_In (0xE6,this);
-	MSXMotherBoard::instance()->register_IO_In (0xE7,this);
-	MSXMotherBoard::instance()->register_IO_Out(0xE6,this);
-}
-
 void MSXE6Timer::reset(const EmuTime &time)
 {
 	MSXDevice::reset(time);

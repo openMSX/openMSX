@@ -24,7 +24,6 @@ class MSXKanji : public MSXIODevice, public MSXRom
 		byte readIO(byte port, EmuTime &time);
 		void writeIO(byte port, byte value, EmuTime &time);
 		
-		void init();
 		void reset(const EmuTime &time);
 
 	private:

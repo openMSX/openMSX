@@ -24,7 +24,8 @@ Mixer::Mixer()
 	mixBuffer = new short[audioSpec.size / sizeof(short)];
 	for (int i=0; i<NB_MODES; i++) 
 	nbAllDevices = 0;
-	reInit();
+	samplesLeft = audioSpec.samples;
+	offset = 0;
 }
 
 Mixer::~Mixer()
@@ -50,7 +51,7 @@ int Mixer::registerSound(SoundDevice *device, ChannelMode mode=MONO)
 	device->setSampleRate(audioSpec.freq);
 	buffers[mode].push_back(NULL);	// make room for one more
 	devices[mode].push_back(device);
-	if (++nbAllDevices == 1) SDL_PauseAudio(0);	// unpause when first device registers
+	if (nbAllDevices++ == 0) SDL_PauseAudio(0);	// unpause when first dev registers
 	SDL_UnlockAudio();
 
 	return audioSpec.samples;
@@ -142,5 +143,7 @@ void Mixer::updtStrm(int samples)
 
 void Mixer::pause(bool status)
 {
+	if (nbAllDevices == 0)
+		return;
 	SDL_PauseAudio(status);
 }

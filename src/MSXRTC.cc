@@ -8,17 +8,6 @@
 MSXRTC::MSXRTC(MSXConfig::Device *config) : MSXDevice(config)
 {
 	PRT_DEBUG("Creating an MSXRTC object");
-}
-
-MSXRTC::~MSXRTC()
-{
-	PRT_DEBUG("Detructing an MSXRTC object");
-	delete rp5c01;
-}
-
-void MSXRTC::init()
-{
-	MSXDevice::init();
 	bool emuTimeBased;
 	if (deviceConfig->getParameter("mode")=="RealTime")
 		emuTimeBased = false;
@@ -27,6 +16,12 @@ void MSXRTC::init()
 	MSXMotherBoard::instance()->register_IO_Out(0xB4,this);
 	MSXMotherBoard::instance()->register_IO_Out(0xB5,this);
 	MSXMotherBoard::instance()->register_IO_In (0xB5,this);
+}
+
+MSXRTC::~MSXRTC()
+{
+	PRT_DEBUG("Detructing an MSXRTC object");
+	delete rp5c01;
 }
 
 void MSXRTC::reset(const EmuTime &time)

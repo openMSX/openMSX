@@ -29,6 +29,21 @@ MSXMotherBoard::MSXMotherBoard()
 			}
 		}
 	}
+	
+	// Make sure that the MotherBoard is correctly 'init'ed.
+	std::list<const MSXConfig::Device::Parameter*> subslotted_list = config->getParametersWithClass("subslotted");
+	for (std::list<const MSXConfig::Device::Parameter*>::const_iterator i=subslotted_list.begin(); i != subslotted_list.end(); i++) {
+		bool hasSubs=false;
+		if ((*i)->value.compare("true") == 0) {
+			hasSubs=true;
+		}
+		int counter=atoi((*i)->name.c_str());
+		isSubSlotted[counter]=hasSubs;
+     
+		std::cout << "Parameter, name: " << (*i)->name;
+		std::cout << " value: " << (*i)->value;
+		std::cout << " class: " << (*i)->clasz << std::endl;
+	}
 }
 
 MSXMotherBoard::~MSXMotherBoard()
@@ -90,28 +105,6 @@ void MSXMotherBoard::ResetMSX(const EmuTime &time)
 	std::vector<MSXDevice*>::iterator i;
 	for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
 		(*i)->reset(time);
-	}
-}
-
-void MSXMotherBoard::InitMSX()
-{
-	// Make sure that the MotherBoard is correctly 'init'ed.
-	std::list<const MSXConfig::Device::Parameter*> subslotted_list = config->getParametersWithClass("subslotted");
-	for (std::list<const MSXConfig::Device::Parameter*>::const_iterator i=subslotted_list.begin(); i != subslotted_list.end(); i++) {
-		bool hasSubs=false;
-		if ((*i)->value.compare("true") == 0) {
-			hasSubs=true;
-		}
-		int counter=atoi((*i)->name.c_str());
-		isSubSlotted[counter]=hasSubs;
-     
-		std::cout << "Parameter, name: " << (*i)->name;
-		std::cout << " value: " << (*i)->value;
-		std::cout << " class: " << (*i)->clasz << std::endl;
-	}
-	std::vector<MSXDevice*>::iterator i;
-	for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
-		(*i)->init();
 	}
 }
 

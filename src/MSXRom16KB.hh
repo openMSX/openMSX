@@ -22,9 +22,6 @@ class MSXRom16KB : public MSXMemDevice, public MSXRom
 		 */
 		~MSXRom16KB();
 		
-		// don't forget you inherited from MSXDevice
-		void init();
-		
 		byte readMem(word address, EmuTime &time);
 };
 #endif

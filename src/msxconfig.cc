@@ -1,5 +1,6 @@
 // $Id$
 
+#include "openmsx.hh"
 #include "msxconfig.hh"
 #include "xmlhelper.hh"
 #include "xmlhelper.ii"
@@ -17,12 +18,12 @@
 // TODO turn on validation with extern libxml switch var
 
 
-MSXConfig *volatile MSXConfig::oneInstance;
+MSXConfig *MSXConfig::oneInstance = NULL;
 
 MSXConfig *MSXConfig::instance()
 {
-	if (oneInstance == 0)
-		oneInstance = new MSXConfig;
+	if (oneInstance == NULL)
+		oneInstance = new MSXConfig();
 	return oneInstance;
 }
 
@@ -434,8 +435,8 @@ int MSXConfig::Device::Slotted::getPage()
 
 MSXConfig::Config* MSXConfig::getConfigById(const std::string &id)
 {
-    for (std::list <MSXConfig::Config*>::const_iterator i=configList.begin();i!=configList.end();i++)
-	{
+	for (std::list<MSXConfig::Config*>::const_iterator i=configList.begin();
+	     i!=configList.end(); i++) {
 		if ((*i)->getId()==id) return *i;
 	}
 	throw MSXConfig::Exception("Request for non-existing config for Id");
@@ -443,3 +444,15 @@ MSXConfig::Config* MSXConfig::getConfigById(const std::string &id)
 	// not reached:
 	return 0;
 }
+
+std::list<MSXConfig::Device*> MSXConfig::getDeviceByType(const std::string &type)
+{
+	std::list<MSXConfig::Device*> resultList;
+	for (std::list <MSXConfig::Device*>::const_iterator i = deviceList.begin();
+	     i != deviceList.end(); i++) {
+		if ((*i)->getType() == type)
+			resultList.push_back(*i);
+	}
+	return resultList;
+}
+	

@@ -25,26 +25,29 @@
 
 MSXDevice *deviceFactory::create(MSXConfig::Device *conf) {
 	MSXDevice *device = NULL;
+	if (conf->getType()=="CPU") {
+		device = MSXCPU::instance();
+	} else
+	if (conf->getType()=="RealTime") {
+		device = MSXRealTime::instance();
+	} else
+	if (conf->getType()=="PPI") {
+		device = MSXPPI::instance();
+	} else
+	if (conf->getType()=="MapperIO") {
+		device = MSXMapperIO::instance();
+	} else
 	if (conf->getType()=="Rom16KB") {
 		device = new MSXRom16KB(conf);
 	} else
 	if (conf->getType()=="Simple64KB") {
 		device = new MSXSimple64KB(conf);
 	} else
-	if (conf->getType()=="PPI") {
-		device = new MSXPPI(conf);
-	} else
-	if (conf->getType()=="CassettePort") {
-		device = new MSXCassettePort(conf);
-	} else
 	if (conf->getType()=="TMS9928a") {
 		device = new MSXTMS9928a(conf);
 	} else
 	if (conf->getType()=="E6Timer") {
 		device = new MSXE6Timer(conf);
-	} else
-	if (conf->getType()=="CPU") {
-		device = new MSXCPU(conf);
 	} else
 	if (conf->getType()=="PSG") {
 		device = new MSXPSG(conf);
@@ -61,14 +64,8 @@ MSXDevice *deviceFactory::create(MSXConfig::Device *conf) {
 	if (conf->getType()=="MemoryMapper") {
 		device = new MSXMemoryMapper(conf);
 	} else
-	if (conf->getType()=="MapperIO") {
-		device = new MSXMapperIO(conf);
-	} else
 	if (conf->getType()=="RTC") {
 		device = new MSXRTC(conf);
-	} else
-	if (conf->getType()=="RealTime") {
-		device = new MSXRealTime(conf);
 	} else
 	if (conf->getType()=="MegaRom") {
 		device = new MSXMegaRom(conf);

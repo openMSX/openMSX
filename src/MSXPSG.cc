@@ -10,18 +10,7 @@
 MSXPSG::MSXPSG(MSXConfig::Device *config) : MSXDevice(config)
 {
 	PRT_DEBUG("Creating an MSXPSG object");
-}
-
-MSXPSG::~MSXPSG()
-{
-	PRT_DEBUG("Destroying an MSXPSG object");
-	delete ay8910;
-	//delete joyPorts;	// is singleton
-}
-
-void MSXPSG::init()
-{
-	MSXDevice::init();
+	
 	ay8910 = new AY8910(*this);
 	joyPorts = JoystickPorts::instance();
 	cassette = MSXCassettePort::instance();
@@ -29,6 +18,13 @@ void MSXPSG::init()
 	MSXMotherBoard::instance()->register_IO_Out(0xA0,this);
 	MSXMotherBoard::instance()->register_IO_Out(0xA1,this);
 	MSXMotherBoard::instance()->register_IO_In (0xA2,this);
+}
+
+MSXPSG::~MSXPSG()
+{
+	PRT_DEBUG("Destroying an MSXPSG object");
+	delete ay8910;
+	//delete joyPorts;	// is singleton
 }
 
 void MSXPSG::reset(const EmuTime &time)

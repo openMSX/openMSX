@@ -187,42 +187,6 @@ int MSXTMS9928a::checkSprites(int line, MSXTMS9928a::SpriteInfo *visibleSprites)
 MSXTMS9928a::MSXTMS9928a(MSXConfig::Device *config) : MSXDevice(config)
 {
 	PRT_DEBUG("Creating an MSXTMS9928a object");
-	// TODO: Move as much code as possible from init() to here.
-}
-
-MSXTMS9928a::~MSXTMS9928a()
-{
-	PRT_DEBUG("Destroying an MSXTMS9928a object");
-	delete(renderer);
-	delete[](vramData);
-}
-
-// The init and reset functions
-
-void MSXTMS9928a::reset(const EmuTime &time)
-{
-	MSXDevice::reset(time);
-
-	for (int i = 0; i < 8; i++) controlRegs[i] = 0;
-	statusReg = 0;
-	vramPointer = 0;
-	readAhead = 0;
-	firstByte = -1;
-
-	nameBase = ~(-1 << 10);
-	colourBase = ~(-1 << 6);
-	patternBase = ~(-1 << 11);
-	spriteAttributeBase = 0;
-	spritePatternBase = 0;
-	spriteAttributeBasePtr = vramData;
-	spritePatternBasePtr = vramData;
-
-	// TODO: Reset the renderer.
-}
-
-void MSXTMS9928a::init()
-{
-	MSXDevice::init();
 
 	limitSprites = true; // TODO: Read from config.
 
@@ -258,6 +222,36 @@ void MSXTMS9928a::init()
 	//First interrupt in Pal mode here
 	Scheduler::instance()->setSyncPoint(currentTime+71285, *this); // PAL
 	renderer->putImage();
+}
+
+MSXTMS9928a::~MSXTMS9928a()
+{
+	PRT_DEBUG("Destroying an MSXTMS9928a object");
+	delete(renderer);
+	delete[](vramData);
+}
+
+// The init and reset functions
+
+void MSXTMS9928a::reset(const EmuTime &time)
+{
+	MSXDevice::reset(time);
+
+	for (int i = 0; i < 8; i++) controlRegs[i] = 0;
+	statusReg = 0;
+	vramPointer = 0;
+	readAhead = 0;
+	firstByte = -1;
+
+	nameBase = ~(-1 << 10);
+	colourBase = ~(-1 << 6);
+	patternBase = ~(-1 << 11);
+	spriteAttributeBase = 0;
+	spritePatternBase = 0;
+	spriteAttributeBasePtr = vramData;
+	spritePatternBasePtr = vramData;
+
+	// TODO: Reset the renderer.
 }
 
 void MSXTMS9928a::signalHotKey(SDLKey key)

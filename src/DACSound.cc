@@ -16,7 +16,6 @@
 DACSound::DACSound(short maxVolume)
 {
 	PRT_DEBUG("DAC audio created");
-	realtime = MSXRealTime::instance();
 	
 	int bufSize = Mixer::instance()->registerSound(this);
 	buf = new int[bufSize];
@@ -52,7 +51,7 @@ void DACSound::writeDAC(byte value, const EmuTime &time)
 	DACValue = value;
 	
 	// duration is number of samples since last writeDAC (this is a float!!)
-	float duration = realtime->getRealDuration(ref, time) * sampleRate;
+	float duration = MSXRealTime::instance()->getRealDuration(ref, time) * sampleRate;
 	ref = time;
 	
 	if (left != 1) {

@@ -28,12 +28,6 @@ void MSXDevice::executeUntilEmuTime(const EmuTime &time)
 	PRT_DEBUG ("Empty executeUntilEmuTime function");
 }
 
-
-void MSXDevice::init()
-{
-	PRT_DEBUG ("Initializing " << getName());
-}
-
 void MSXDevice::reset(const EmuTime &time)
 {
 	PRT_DEBUG ("Resetting " << getName());

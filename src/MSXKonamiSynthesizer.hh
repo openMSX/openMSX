@@ -22,8 +22,6 @@ class MSXKonamiSynthesizer : public MSXMemDevice, public MSXRom
 		 */
 		~MSXKonamiSynthesizer();
 		
-		void init();
-		
 		byte readMem(word address, EmuTime &time);
 		void writeMem(word address, byte value, EmuTime &time);
 

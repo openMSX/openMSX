@@ -12,13 +12,6 @@ class MSXRealTime : public MSXDevice, public HotKeyListener
 {
 	public:
 		/**
-		 * Constructor.
-		 * This is a singleton class. Constructor may only be used
-		 * once in the class devicefactory
-		 */
-		MSXRealTime(MSXConfig::Device *config); 
-
-		/**
 		 * Destructor
 		 */
 		~MSXRealTime(); 
@@ -37,6 +30,11 @@ class MSXRealTime : public MSXDevice, public HotKeyListener
 		void signalHotKey(SDLKey key);
 
 	private:
+		/**
+		 * Constructor.
+		 */
+		MSXRealTime(MSXConfig::Device *config); 
+
 		//TODO put these in config file
 		static const int SYNCINTERVAL    = 50;	// sync every 50ms
 		static const int MAX_CATCHUPTIME = 1500;	// max nb of ms overtime

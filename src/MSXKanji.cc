@@ -11,15 +11,6 @@
 
 MSXKanji::MSXKanji(MSXConfig::Device *config) : MSXDevice(config)
 {
-}
-
-MSXKanji::~MSXKanji()
-{
-}
-
-void MSXKanji::init()
-{
-	MSXDevice::init();
 	loadFile(&memoryBank, ROM_SIZE);
 	
 	MSXMotherBoard::instance()->register_IO_In (0xD9, this);
@@ -29,6 +20,10 @@ void MSXKanji::init()
 	MSXMotherBoard::instance()->register_IO_In (0xDB, this);
 	MSXMotherBoard::instance()->register_IO_Out(0xDA, this);
 	MSXMotherBoard::instance()->register_IO_Out(0xDB, this);
+}
+
+MSXKanji::~MSXKanji()
+{
 }
 
 void MSXKanji::reset(const EmuTime &time)

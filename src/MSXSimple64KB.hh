@@ -20,7 +20,6 @@ class MSXSimple64KB : public MSXMemDevice
 		 */
 		~MSXSimple64KB();
 		
-		void init();
 		void reset(const EmuTime &time);
 		
 		//void SaveStateMSX(ofstream savestream);

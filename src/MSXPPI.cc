@@ -12,31 +12,10 @@ MSXPPI::MSXPPI(MSXConfig::Device *config) : MSXDevice(config)
 {
 	PRT_DEBUG("Creating an MSXPPI object");
 	oneInstance = this;
-}
-
-MSXPPI::~MSXPPI()
-{
-	PRT_DEBUG("Destroying an MSXPPI object");
-	delete keyboard;
-	delete i8255;
-	delete click;
-}
-
-MSXPPI* MSXPPI::instance(void)
-{
-	assert (oneInstance != NULL );
-	return oneInstance;
-}
-MSXPPI *MSXPPI::oneInstance = NULL;
-
-
-void MSXPPI::init()
-{
-	MSXDevice::init();
+	
 	keyboard = new Keyboard(true); // TODO make configurable
 	i8255 = new I8255(*this);
 	click = new KeyClick();
-	cassette = MSXCassettePort::instance();
 	
 	// Register I/O ports A8..AB for reading
 	MSXMotherBoard::instance()->register_IO_In(0xA8,this);
@@ -49,6 +28,29 @@ void MSXPPI::init()
 	MSXMotherBoard::instance()->register_IO_Out(0xAA,this);
 	MSXMotherBoard::instance()->register_IO_Out(0xAB,this);
 }
+
+MSXPPI::~MSXPPI()
+{
+	PRT_DEBUG("Destroying an MSXPPI object");
+	delete keyboard;
+	delete i8255;
+	delete click;
+}
+
+MSXPPI* MSXPPI::instance(void)
+{
+	if (oneInstance == NULL) {
+		std::list<MSXConfig::Device*> deviceList;
+		deviceList = MSXConfig::instance()->getDeviceByType("PPI");
+		if (deviceList.size() != 1)
+			PRT_ERROR("There must be exactly one PPI in config file");
+		MSXConfig::Device* config = deviceList.front();
+		new MSXPPI(config);
+	}
+	return oneInstance;
+}
+MSXPPI *MSXPPI::oneInstance = NULL;
+
 
 void MSXPPI::reset(const EmuTime &time)
 {
@@ -125,8 +127,8 @@ nibble MSXPPI::readC0(const EmuTime &time) {
 	return 15;	// TODO check this
 }
 void MSXPPI::writeC1(nibble value, const EmuTime &time) {
-	cassette->setMotor(!(value&1), time);		// 0=0n, 1=Off
-	cassette->cassetteOut(value&2, time);
+	MSXCassettePort::instance()->setMotor(!(value&1), time);	// 0=0n, 1=Off
+	MSXCassettePort::instance()->cassetteOut(value&2, time);
 	
 	Leds::LEDCommand caps = (value&4) ? Leds::CAPS_OFF : Leds::CAPS_ON;
 	Leds::instance()->setLed(caps);

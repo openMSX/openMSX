@@ -34,7 +34,6 @@ class DACSound : public SoundDevice
 		static const int BUFSIZE = 1024;
 		static const int CENTER = 0x80;
 	
-		MSXRealTime* realtime;
 		EmuTime ref;
 		float left, tempVal;
 		int sampleRate;

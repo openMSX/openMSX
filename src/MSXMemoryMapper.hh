@@ -25,7 +25,6 @@ class MSXMemoryMapper : public MSXMemDevice
 		byte readMem(word address, EmuTime &time);
 		void writeMem(word address, byte value, EmuTime &time);
 		
-		void init();
 		void reset(const EmuTime &time);
 	
 	private:

@@ -10,23 +10,6 @@
 MSXMapperIO::MSXMapperIO(MSXConfig::Device *config) : MSXDevice(config)
 {
 	oneInstance = this;
-}
-
-MSXMapperIO::~MSXMapperIO()
-{
-}
-
-MSXMapperIO *MSXMapperIO::instance()
-{
-	assert (oneInstance != NULL);
-	return oneInstance;
-}
-MSXMapperIO *MSXMapperIO::oneInstance = NULL;
-
-
-void MSXMapperIO::init()
-{
-	MSXDevice::init();
 	
 	// Create specified IO behaviour
 	string type = deviceConfig->getParameter("type");
@@ -48,6 +31,25 @@ void MSXMapperIO::init()
 	MSXMotherBoard::instance()->register_IO_Out(0xFE,this);
 	MSXMotherBoard::instance()->register_IO_Out(0xFF,this);
 }
+
+MSXMapperIO::~MSXMapperIO()
+{
+}
+
+MSXMapperIO *MSXMapperIO::instance()
+{
+	if (oneInstance == NULL) {
+		std::list<MSXConfig::Device*> deviceList;
+		deviceList = MSXConfig::instance()->getDeviceByType("MapperIO");
+		if (deviceList.size() != 1)
+			PRT_ERROR("There must be exactly one MapperIO in config file");
+		MSXConfig::Device* config = deviceList.front();
+		new MSXMapperIO(config);
+	}
+	return oneInstance;
+}
+MSXMapperIO *MSXMapperIO::oneInstance = NULL;
+
 
 void MSXMapperIO::reset(const EmuTime &time)
 {

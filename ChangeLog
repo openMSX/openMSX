@@ -1,5 +1,10 @@
 $Id$
 
+<<<<<<< ChangeLog
+2001-12-06 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* removed init() method from MSXDevice:
+	  initialization should be done in the constructor
+
 2001-12-05 Joost Yervante Damad <j.damad@qahwah.net>
 	* MSXRom continued [reworked, no longer inherited from MSXDevice]
 

@@ -88,21 +88,9 @@ class DummyCassettePort : public CassettePortInterface
 };
 
 
-class MSXCassettePort : public MSXDevice
+class MSXCassettePort
 {
 	public:
-		/**
-		 * Constructor.
-		 * This is a singleton class. Constructor can only be used once
-		 * by the class devicefactory.
-		 */
-		MSXCassettePort(MSXConfig::Device *config); 
-
-		/**
-		 * Destructor
-		 */
-		~MSXCassettePort(); 
-
 		/**
 		 * If an MSXCassette was specified in the conig file (constructor
 		 * was called) this method returns an CassettePort object, 

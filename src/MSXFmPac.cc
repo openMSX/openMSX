@@ -10,23 +10,19 @@ MSXFmPac::MSXFmPac(MSXConfig::Device *config) : MSXMusic(config)
 {
 	PRT_DEBUG("Creating an MSXFmPac object");
 	sramBank = new byte[0x1ffe];
-}
-
-MSXFmPac::~MSXFmPac()
-{
-	PRT_DEBUG("Destroying an MSXFmPac object");
-	delete[] sramBank;
-}
-
-void MSXFmPac::init()
-{
-	MSXDevice::init();
+	
 	MSXMotherBoard::instance()->register_IO_Out(0x7c, this);
 	MSXMotherBoard::instance()->register_IO_Out(0x7d, this);
 	ym2413 = new YM2413();
 	loadFile(&romBank, 0x10000);
 	EmuTime zero;
 	reset(zero);
+}
+
+MSXFmPac::~MSXFmPac()
+{
+	PRT_DEBUG("Destroying an MSXFmPac object");
+	delete[] sramBank;
 }
 
 void MSXFmPac::reset(const EmuTime &time)

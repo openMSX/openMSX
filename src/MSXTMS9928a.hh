@@ -58,7 +58,6 @@ public:
 	void executeUntilEmuTime(const EmuTime &time);
 
 	// mainlife cycle of an MSXDevice
-	void init();
 	void reset(const EmuTime &time);
 
 	// void saveState(ofstream writestream);

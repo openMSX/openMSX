@@ -20,8 +20,6 @@ class MSXPrinterPort : public MSXIODevice
 		 */
 		~MSXPrinterPort();
 
-		void init();
-		
 		byte readIO(byte port, EmuTime &time);
 		void writeIO(byte port, byte value, EmuTime &time);
 		

@@ -36,6 +36,7 @@ public:
 
 	std::list<Config*> configList;
 	std::list<Device*> deviceList;
+	std::list<Device*> getDeviceByType(const std::string &type);
 	std::list<Config*> allList;
 	//std::list<Config*> getConfigByType(const std::string &type);
 	Config *getConfigById(const std::string &type);
@@ -46,7 +47,7 @@ private:
 	MSXConfig(const MSXConfig &foo); // block usage
 	MSXConfig &operator=(const MSXConfig &foo); // block usage
 
-	static MSXConfig *volatile oneInstance;
+	static MSXConfig *oneInstance;
 	XMLTree *tree;
 	std::string loaded_filename;
 };

@@ -1,8 +1,10 @@
 // $Id$
 
 #include <SDL/SDL.h>
+#include <list>
 #include "MSXRealTime.hh"
 #include "MSXCPU.hh"
+#include "msxconfig.hh"
 
 
 MSXRealTime::MSXRealTime(MSXConfig::Device *config) : MSXDevice(config) 
@@ -22,7 +24,14 @@ MSXRealTime::~MSXRealTime()
 
 MSXRealTime *MSXRealTime::instance()
 {
-	assert (oneInstance != NULL );
+	if (oneInstance == NULL) {
+		std::list<MSXConfig::Device*> deviceList;
+		deviceList = MSXConfig::instance()->getDeviceByType("RealTime");
+		if (deviceList.size() != 1)
+			PRT_ERROR("There must be exactly one RealTime in config file");
+		MSXConfig::Device* config = deviceList.front();
+		new MSXRealTime(config);
+	}
 	return oneInstance;
 }
 MSXRealTime *MSXRealTime::oneInstance = NULL;

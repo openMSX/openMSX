@@ -1,7 +1,9 @@
 // $Id$
 
 #include <cassert>
+#include <list>
 #include "MSXCPU.hh"
+#include "msxconfig.hh"
 
 
 MSXCPU::MSXCPU(MSXConfig::Device *config) : MSXDevice(config)
@@ -22,16 +24,18 @@ MSXCPU::~MSXCPU()
 
 MSXCPU* MSXCPU::instance()
 {
-	assert (oneInstance != NULL );
+	if (oneInstance == NULL) {
+		std::list<MSXConfig::Device*> deviceList;
+		deviceList = MSXConfig::instance()->getDeviceByType("CPU");
+		if (deviceList.size() != 1)
+			PRT_ERROR("There must be exactly one CPU in config file");
+		MSXConfig::Device* config = deviceList.front();
+		new MSXCPU(config);
+	}
 	return oneInstance;
 }
 MSXCPU* MSXCPU::oneInstance = NULL;
 
-
-void MSXCPU::init()
-{
-	MSXDevice::init();
-}
 
 void MSXCPU::reset(const EmuTime &time)
 {

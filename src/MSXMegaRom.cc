@@ -11,17 +11,6 @@
 MSXMegaRom::MSXMegaRom(MSXConfig::Device *config) : MSXDevice(config)
 {
 	PRT_DEBUG("Creating an MSXMegaRom object");
-}
-
-MSXMegaRom::~MSXMegaRom()
-{
-	PRT_DEBUG("Destructing an MSXMegaRom object");
-	delete[] memoryBank;
-}
-
-void MSXMegaRom::init()
-{
-	MSXDevice::init();
 	
 	//TODO dynamically determine romSize
 	romSize = deviceConfig->getParameterAsInt("filesize");
@@ -45,6 +34,12 @@ void MSXMegaRom::init()
 	internalMemoryBank[7]=0;		// unused
 
 	mapperType = retriefMapperType();
+}
+
+MSXMegaRom::~MSXMegaRom()
+{
+	PRT_DEBUG("Destructing an MSXMegaRom object");
+	delete[] memoryBank;
 }
 
 int MSXMegaRom::retriefMapperType()

@@ -118,9 +118,6 @@ int main (int argc, char **argv)
 			PRT_DEBUG ("Instantiated:" << (*j)->getType());
 		}
 
-		PRT_DEBUG ("Initing MSX");
-		MSXMotherBoard::instance()->InitMSX();
-
 		// Start a new thread for event handling
 		thread=SDL_CreateThread(eventDistributorStarter, 0);
 

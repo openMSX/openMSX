@@ -6,16 +6,7 @@
 
 MSXPrinterPort::MSXPrinterPort(MSXConfig::Device *config) : MSXDevice(config)
 {
-}
-
-MSXPrinterPort::~MSXPrinterPort()
-{
-	delete dummy;
-}
-
-
-void MSXPrinterPort::init()
-{
+	PRT_DEBUG("Creating an MSXPrinterPort");
 	MSXMotherBoard::instance()->register_IO_In (0x90, this);
 	MSXMotherBoard::instance()->register_IO_Out(0x90, this);
 	MSXMotherBoard::instance()->register_IO_Out(0x91, this);
@@ -23,6 +14,11 @@ void MSXPrinterPort::init()
 	dummy = new DummyPrinterPortDevice();
 	// TODO plug device as specified in config file
 	unplug();
+}
+
+MSXPrinterPort::~MSXPrinterPort()
+{
+	delete dummy;
 }
 
 byte MSXPrinterPort::readIO(byte port, EmuTime &time)

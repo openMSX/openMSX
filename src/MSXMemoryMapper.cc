@@ -8,17 +8,6 @@
 MSXMemoryMapper::MSXMemoryMapper(MSXConfig::Device *config) : MSXDevice(config)
 {
 	PRT_DEBUG("Creating an MSXMemoryMapper object");
-}
-
-MSXMemoryMapper::~MSXMemoryMapper()
-{
-	PRT_DEBUG("Destructing an MSXMemoryMapper object");
-	delete [] buffer; // C++ can handle null-pointers
-}
-
-void MSXMemoryMapper::init()
-{
-	MSXDevice::init();
 	
 	slowDrainOnReset = deviceConfig->getParameterAsBool("slow_drain_on_reset");
 	int kSize = deviceConfig->getParameterAsInt("size");
@@ -31,6 +20,12 @@ void MSXMemoryMapper::init()
 	memset(buffer, 0, size);
 	 
 	MSXMapperIO::instance()->registerMapper(blocks);
+}
+
+MSXMemoryMapper::~MSXMemoryMapper()
+{
+	PRT_DEBUG("Destructing an MSXMemoryMapper object");
+	delete [] buffer; // C++ can handle null-pointers
 }
 
 void MSXMemoryMapper::reset(const EmuTime &time)

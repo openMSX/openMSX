@@ -30,13 +30,6 @@ class MSXMapperIO : public MSXIODevice
 {
 	public:
 		/**
-		 * Constructor.
-		 * This is a singleton class. Constructor may only be used
-		 * once in the class devicefactory
-		 */
-		MSXMapperIO(MSXConfig::Device *config);
-
-		/**
 		 * Destructor
 		 */
 		~MSXMapperIO();
@@ -50,13 +43,17 @@ class MSXMapperIO : public MSXIODevice
 		byte readIO(byte port, EmuTime &time);
 		void writeIO(byte port, byte value, EmuTime &time);
 		
-		void init();
 		void reset(const EmuTime &time);
 		
 		void registerMapper(int blocks);
 		byte getPageNum(int page);
 	
 	private:
+		/**
+		 * Constructor.
+		 */
+		MSXMapperIO(MSXConfig::Device *config);
+
 		static MSXMapperIO *oneInstance;
 
 		MSXMapperIODevice *device;

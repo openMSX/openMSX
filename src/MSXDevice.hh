@@ -27,12 +27,6 @@ class MSXDevice : public Schedulable
 		virtual void executeUntilEmuTime(const EmuTime &time);
 		
 		/**
-		 * This method is called when all devices are instantiated
-		 * Default implementation does nothing.
-		 */
-		virtual void init();
-
-		/**
 		 * This method is called on reset.
 		 * Default implementation resets internal IRQ flag (every
 		 * re-implementation should also call this method).

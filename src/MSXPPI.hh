@@ -54,13 +54,6 @@ class MSXPPI : public MSXIODevice, public I8255Interface
 	// MSXDevice
 	public:
 		/**
-		 * Constructor.
-		 * This is a singleton class. Constructor can only be used once
-		 * by the class devicefactory.
-		 */
-		MSXPPI(MSXConfig::Device *config); 
-
-		/**
 		 * Destructor
 		 */
 		~MSXPPI(); 
@@ -71,11 +64,16 @@ class MSXPPI : public MSXIODevice, public I8255Interface
 		 */
 		static MSXPPI *instance();
 		
-		void init();
 		void reset(const EmuTime &time);
 		byte readIO(byte port, EmuTime &time);
 		void writeIO(byte port, byte value, EmuTime &time);
+
 	private:
+		/**
+		 * Constructor.
+		 */
+		MSXPPI(MSXConfig::Device *config); 
+
 		static MSXPPI *oneInstance;
 		I8255 *i8255;
 	
@@ -95,6 +93,5 @@ class MSXPPI : public MSXIODevice, public I8255Interface
 		byte MSXKeyMatrix[Keyboard::NR_KEYROWS];
 		int selectedRow;
 		KeyClick *click;
-		CassettePortInterface *cassette;
 };
 #endif

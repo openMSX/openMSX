@@ -10,17 +10,12 @@
 MSXRom16KB::MSXRom16KB(MSXConfig::Device *config) : MSXDevice(config)
 {
 	PRT_DEBUG("Creating an MSXRom16KB object");
+	loadFile(&memoryBank, 0x4000);
 }
 
 MSXRom16KB::~MSXRom16KB()
 {
 	PRT_DEBUG("Destructing an MSXRom16KB object");
-}
-
-void MSXRom16KB::init()
-{
-	MSXDevice::init();
-	loadFile(&memoryBank, 0x4000);
 }
 
 byte MSXRom16KB::readMem(word address, EmuTime &time)

@@ -7,23 +7,19 @@
 MSXMusic::MSXMusic(MSXConfig::Device *config) : MSXDevice(config)
 {
 	PRT_DEBUG("Creating an MSXMusic object");
-}
-
-MSXMusic::~MSXMusic()
-{
-	PRT_DEBUG("Destroying an MSXMusic object");
-	delete ym2413;
-}
-
-void MSXMusic::init()
-{
-	MSXDevice::init();
+	
 	MSXMotherBoard::instance()->register_IO_Out(0x7c, this);
 	MSXMotherBoard::instance()->register_IO_Out(0x7d, this);
 	ym2413 = new YM2413();
 	loadFile(&romBank, 0x4000);
 	EmuTime zero;
 	reset(zero);
+}
+
+MSXMusic::~MSXMusic()
+{
+	PRT_DEBUG("Destroying an MSXMusic object");
+	delete ym2413;
 }
 
 void MSXMusic::reset(const EmuTime &time)

@@ -11,6 +11,8 @@
 MSXKonamiSynthesizer::MSXKonamiSynthesizer(MSXConfig::Device *config) : MSXDevice(config)
 {
 	PRT_DEBUG("Creating an MSXKonamiSynthesizer object");
+	DAC = new DACSound(25000);	// TODO find a good value, put it into config file
+	loadFile(&memoryBank, 0x8000);
 }
 
 MSXKonamiSynthesizer::~MSXKonamiSynthesizer()
@@ -18,13 +20,6 @@ MSXKonamiSynthesizer::~MSXKonamiSynthesizer()
 	PRT_DEBUG("Destructing an MSXKonamiSynthesizer object");
 	delete DAC;
 	delete [] memoryBank;
-}
-
-void MSXKonamiSynthesizer::init()
-{
-	MSXDevice::init();
-	DAC = new DACSound(25000);	// TODO find a good value, put it into config file
-	loadFile(&memoryBank, 0x8000);
 }
 
 byte MSXKonamiSynthesizer::readMem(word address, EmuTime &time)

@@ -20,8 +20,6 @@ class MSXMegaRom : public MSXMemDevice, public MSXRom
 		 */
 		~MSXMegaRom();
 		
-		void init();
-		
 		byte readMem(word address, EmuTime &time);
 		void writeMem(word address, byte value, EmuTime &time);
 
