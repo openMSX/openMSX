@@ -239,7 +239,7 @@ bool SDLConsole::loadBackground(const string &filename)
 		SDL_SWSURFACE, rect.w, rect.h, 32, 0, 0, 0, 0);
 	// convert the picturesurface to 32 bpp
 	SDL_PixelFormat* format = scaled32Surface->format;
-	SDL_Surface* picture32Surface = SDL_ConvertSurface(pictureSurface, format, 0);
+	SDL_Surface* picture32Surface = SDL_ConvertSurface(pictureSurface, format, SDL_SWSURFACE);
 
 	SDL_FreeSurface(pictureSurface);
 	zoomSurface (picture32Surface, scaled32Surface, true);
