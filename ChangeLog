@@ -1,5 +1,11 @@
 $Id$
 
+2004-10-13 Maarten ter Huurne <maarten@treewalker.org>
+	* Disabled "I/O ports" debuggable:
+	  - it reads I/O ports with side effects, which can trigger assertions
+	  - the name "I/O ports" is not suitable as a file name for "save_all"
+	  We can re-enable and then fix it after the release.
+
 2004-10-13 Joost Damad <joost@lumatec.be>
 	* import of debian/
 	* some non-intrusive changes to the build/ dir
