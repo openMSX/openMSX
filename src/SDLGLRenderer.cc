@@ -418,6 +418,7 @@ SDLGLRenderer::SDLGLRenderer(VDP *vdp, SDL_Surface *screen)
 	, characterConverter(vdp, palFg, palBg)
 	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS)
 {
+	this->screen = screen;
 	console = new GLConsole();
 
 	GLint size;
@@ -442,14 +443,6 @@ SDLGLRenderer::SDLGLRenderer(VDP *vdp, SDL_Surface *screen)
 		&size
 		);
 	printf("512*1 texture fits: %d (512 if OK, 0 if failed)\n", size);
-
-	this->vdp = vdp;
-	this->screen = screen;
-	vram = vdp->getVRAM();
-	spriteChecker = vdp->getSpriteChecker();
-	// TODO: Store current time.
-	//       Does the renderer actually have to keep time?
-	//       Keeping render position should be good enough.
 
 	// Clear graphics buffers.
 	glClearColor(0.0, 0.0, 0.0, 0.0);

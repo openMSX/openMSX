@@ -21,9 +21,6 @@
 #include <gl.h>
 #endif
 
-class VDP;
-class VDPVRAM;
-class SpriteChecker;
 class GLConsole;
 
 
@@ -148,18 +145,6 @@ private:
 	/** DirtyCheckers for each screen mode.
 	  */
 	static DirtyChecker modeToDirtyChecker[];
-
-	/** The VDP of which the video output is being rendered.
-	  */
-	VDP *vdp;
-
-	/** The VRAM whose contents are used for rendering.
-	  */
-	VDPVRAM *vram;
-
-	/** The sprite checker whose sprites are rendered.
-	  */
-	SpriteChecker *spriteChecker;
 
 	/** RGB colours corresponding to each VDP palette entry.
 	  * palFg has entry 0 set to the current background colour,
