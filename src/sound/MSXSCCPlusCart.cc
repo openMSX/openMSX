@@ -63,7 +63,7 @@ byte MSXSCCPlusCart::readMem(word address, const EmuTime &time)
 	// ModeRegister can not be read!;
 
 	if ((address<0x4000) || (address>=0xc000))
-		return;
+		return 0xff;
 	//SCC(+) not visible !!!
 	if (enable == 0) 
 		return internalMemoryBank[(address>>13)-2][address & 0x1fff];
