@@ -139,6 +139,11 @@ public:
 	 */
 	const std::string &getTag();
 
+	/**
+	 * dump content of CustomConfig
+	 */
+	virtual void dump()=0;
+
 protected:
 	/**
 	 * initialize this tag in your implementation in

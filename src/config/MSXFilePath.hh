@@ -14,6 +14,8 @@ public:
 	FilePath();
 	virtual ~FilePath();
 
+	virtual void dump()=0;
+
 	/**
 	 * is the client internet enabled?
 	 */

@@ -22,6 +22,8 @@
 #include "ConsoleSource/CommandController.hh"
 #include "KeyEventInserter.hh"
 
+// test stuff joost
+#include "MSXFilePath.hh"
 
 void initializeSDL()
 {
@@ -63,6 +65,12 @@ int main (int argc, char **argv)
 			MSXMotherBoard::instance()->addDevice(device);
 			PRT_DEBUG ("Instantiated: " << d->getType());
 		}
+
+		// Joost test stuff
+		MSXConfig::FilePath* fp = dynamic_cast<MSXConfig::FilePath*>(config->getCustomConfigByTag("filepath"));
+		fp->dump();
+
+		//exit(0);
 
 		// Start a new thread for event handling
 		Thread thread(EventDistributor::instance());

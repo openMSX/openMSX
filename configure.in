@@ -63,6 +63,7 @@ dnl a bunch of disable/enable
 AC_ENABLE_SCC
 AC_ENABLE_FMPAC
 AC_ENABLE_MSXMUSIC
+dnl AC_ENABLE_GLRENDERER
 
 dnl Checks for header files.
 AC_HEADER_STDC

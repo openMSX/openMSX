@@ -40,6 +40,8 @@ public:
 	FilePath();
 	virtual ~FilePath();
 
+	virtual void dump();
+
 	virtual void backendInit(XML::Element *e);
 
 	virtual bool internet();

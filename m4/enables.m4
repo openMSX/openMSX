@@ -38,3 +38,15 @@ else
   AC_MSG_RESULT(yes)
 fi
 ])
+
+AC_DEFUN([AC_ENABLE_GLRENDERER],[
+AC_MSG_CHECKING(if we want the openGL Renderer)
+AC_ARG_ENABLE(GLRENDERER, [  --disable-GLRENDERER    Disable openGL renderer],enable_GLRENDERER=no,enable_GLRENDERER=yes)
+if test "$enable_GLRENDERER" = no
+then
+  AC_MSG_RESULT(no)
+  AC_DEFINE(DONT_WANT_GLRENDERER,, [define if GLRENDERER is not wanted])
+else
+  AC_MSG_RESULT(yes)
+fi
+])

@@ -21,6 +21,20 @@ FilePath::~FilePath()
 {
 }
 
+void FilePath::dump()
+{
+	std::cout << "FilePath::dump:" << std::endl;
+	std::cout << "    internet:" << (internet()?"true":"false") << std::endl;
+	std::cout << "    paths:" << std::endl;
+	for (std::list<std::string*>::const_iterator i = paths.begin(); i != paths.end(); i++)
+	{
+		std::cout << "        " << *(*i) << std::endl;
+	}
+	std::cout << "    cache expire:" << (caching()?"true":"false") << std::endl;
+	std::cout << "    cache expire days:" << cacheDays() << std::endl;
+	std::cout << "    persistentdir:" << persistantdir() << std::endl;
+}
+
 void FilePath::backendInit(XML::Element *e)
 {
 	std::list<XML::Element*>::const_iterator i = e->children.begin();
@@ -48,12 +62,13 @@ void FilePath::backendInit(XML::Element *e)
 			s << "<filepath> contains unknown element <" << (*i)->name << ">";
 			throw MSXConfig::Exception(s);
 		}
+		++i;
 	}
 }
 
 void FilePath::handleInternet(XML::Element *e)
 {
-	std::string enabled(e->getAttribute("enabled"));
+	std::string enabled = e->getAttribute("enabled");
 	if (enabled=="true" || enabled=="TRUE")
 	{
 		internet_ = true;
@@ -71,12 +86,13 @@ void FilePath::handleDatafiles(XML::Element *e)
 			FilePath::expandPath(*t_str);
 			paths.push_back(t_str);
 		}
+		++i;
 	}
 }
 
 void FilePath::handleCache(XML::Element *e)
 {
-	std::string enabled(e->getAttribute("enabled"));
+	std::string enabled = e->getAttribute("enabled");
 	if (enabled=="true" || enabled=="TRUE")
 	{
 		caching_ = true;

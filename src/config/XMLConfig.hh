@@ -65,6 +65,9 @@ public:
 	 * the actual XML logic
 	 */
 	virtual void backendInit(XML::Element *element)=0;
+
+	virtual void dump()=0;
+
 private:
 	CustomConfig(const CustomConfig &foo); // block usage
 	CustomConfig &operator=(const CustomConfig &foo); // block usage

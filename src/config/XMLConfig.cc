@@ -233,7 +233,7 @@ void Backend::handleDoc(XML::Document* doc)
 		else
 		{
 			createCustomConfigByTag((*i)->name);
-			CustomConfig *c = reinterpret_cast<CustomConfig*>(getCustomConfigByTag((*i)->name));
+			CustomConfig *c = dynamic_cast<CustomConfig*>(getCustomConfigByTag((*i)->name));
 			c->backendInit((*i));
 		}
 	}
