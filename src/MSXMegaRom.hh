@@ -9,8 +9,14 @@
 class MSXMegaRom : public MSXDevice
 {
 	public:
-		//constructor and destructor
-		MSXMegaRom();
+		/**
+		 * Constructor
+		 */
+		MSXMegaRom(MSXConfig::Device *config);
+
+		/**
+		 * Destructor
+		 */
 		~MSXMegaRom();
 		
 		// don't forget you inherited from MSXDevice

@@ -52,7 +52,22 @@ class MSXPPI : public MSXDevice, I8255Interface
 {
 	// MSXDevice
 	public:
+		/**
+		 * Constructor.
+		 * This is a singleton class. Constructor can only be used once
+		 * by the class devicefactory.
+		 */
+		MSXPPI(MSXConfig::Device *config); 
+
+		/**
+		 * Destructor
+		 */
 		~MSXPPI(); 
+
+		/**
+		 * This is a singleton class. This method returns a reference 
+		 * to the single instance of this class.
+		 */
 		static MSXPPI *instance();
 		
 		void init();
@@ -60,7 +75,6 @@ class MSXPPI : public MSXDevice, I8255Interface
 		byte readIO(byte port, Emutime &time);
 		void writeIO(byte port, byte value, Emutime &time);
 	private:
-		MSXPPI(); 
 		static MSXPPI *oneInstance;
 		I8255 *i8255;
 		KeyClick *click;

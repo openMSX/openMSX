@@ -19,7 +19,22 @@ class MSXMapperIODevice
 class MSXMapperIO : public MSXDevice
 {
 	public:
+		/**
+		 * Constructor.
+.       .        * This is a singleton class. Constructor may only be used
+.       .        * once in the class devicefactory
+.       .        */
+		MSXMapperIO(MSXConfig::Device *config);
+
+		/**
+		 * Destructor
+		 */
 		~MSXMapperIO();
+
+		/**
+.       .        * This is a singleton class. This method returns a reference
+.       .        * to the single instance of this class.
+.       .        */
 		static MSXMapperIO *instance();
 		
 		byte readIO(byte port, Emutime &time);
@@ -35,7 +50,6 @@ class MSXMapperIO : public MSXDevice
 		byte getPageNum(int page);
 	
 	private:
-		MSXMapperIO();
 		static MSXMapperIO *oneInstance;
 
 		MSXMapperIODevice *device;

@@ -1,5 +1,11 @@
 $Id$
 
+2001-11-14 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* an MSXDevice is now associated with an MSXConfig object as soon as 
+	  it is instantiated. Before this change it was possible that a
+	  MSXDevice (mostly singletons) was used before it could access its
+	  parameters.
+
 2001-11-13 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* fixed HotKey: method find() returns a normal iterator, not an
 	   iterator that goes over elements that match the search criteria

@@ -5,6 +5,13 @@
 #include "MSXMotherBoard.hh"
 
 
+MSXDevice::MSXDevice(MSXConfig::Device *config)
+{
+	PRT_DEBUG("instantiating an MSXDevice object");
+	deviceConfig=config;
+	deviceName=&config->getId();
+}
+
 MSXDevice::MSXDevice()
 {
 	PRT_DEBUG("instantiating an MSXDevice object");
@@ -13,12 +20,6 @@ MSXDevice::MSXDevice()
 MSXDevice::~MSXDevice()
 {
 	PRT_DEBUG("destructing an MSXDevice object");
-}
-
-void MSXDevice::setConfigDevice(MSXConfig::Device *config)
-{
-	deviceConfig=config;
-	deviceName=&config->getId();
 }
 
 // interaction with CPU
@@ -84,21 +85,20 @@ const std::string &MSXDevice::getName()
 		return defaultName;
 	}
 }
-//const std::string MSXDevice::defaultName = "no name";
 
 
 //These are used for save/restoreState see note over
 //savefile-structure
-bool MSXDevice::writeSaveStateHeader(std::ofstream &readstream )
-{
-	// TODO
-	return true;
-}
-bool MSXDevice::checkSaveStateHeader(std::string &devicestring)
-{
-	// TODO
-	return true;
-}
+//bool MSXDevice::writeSaveStateHeader(std::ofstream &readstream )
+//{
+//	// TODO
+//	return true;
+//}
+//bool MSXDevice::checkSaveStateHeader(std::string &devicestring)
+//{
+//	// TODO
+//	return true;
+//}
 
 
 void MSXDevice::setInterrupt()

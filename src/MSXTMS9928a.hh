@@ -30,9 +30,15 @@ typedef unsigned int Pixel;
 class MSXTMS9928a : public MSXDevice, EventListener
 {
 public:
-	//constructor and destructor
-	MSXTMS9928a(void);
-	~MSXTMS9928a(void);
+	/**
+	 * Constructor
+	 */
+	MSXTMS9928a(MSXConfig::Device *config);
+
+	/**
+	 * Destructor
+	 */
+	~MSXTMS9928a();
 
 	// interaction with CPU
 	byte readIO(byte port, Emutime &time);

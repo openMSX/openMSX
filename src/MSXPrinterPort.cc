@@ -4,7 +4,7 @@
 #include "MSXPrinterPort.hh"
 #include "MSXMotherBoard.hh"
 
-MSXPrinterPort::MSXPrinterPort()
+MSXPrinterPort::MSXPrinterPort(MSXConfig::Device *config) : MSXDevice(config)
 {
 }
 

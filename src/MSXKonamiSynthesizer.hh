@@ -10,8 +10,14 @@
 class MSXKonamiSynthesizer : public MSXDevice
 {
 	public:
-		//constructor and destructor
-		MSXKonamiSynthesizer();
+		/**
+		 * Constructor
+		 */
+		MSXKonamiSynthesizer(MSXConfig::Device *config);
+
+		/**
+		 * Destructor
+		 */
 		~MSXKonamiSynthesizer();
 		
 		// don't forget you inherited from MSXDevice

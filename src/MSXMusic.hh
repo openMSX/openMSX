@@ -11,7 +11,14 @@
 class MSXMusic : public MSXDevice
 {
 	public:
-		MSXMusic();
+		/**
+		 * Constructor
+		 */
+		MSXMusic(MSXConfig::Device *config);
+
+		/**
+		 * Destructor
+		 */
 		~MSXMusic(); 
 		
 		void init();

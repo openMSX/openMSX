@@ -10,9 +10,10 @@
 #include "MSXCPU.hh"
 
 
-MSXMotherBoard::MSXMotherBoard()
+MSXMotherBoard::MSXMotherBoard(MSXConfig::Device *config) : MSXDevice(config)
 {
 	PRT_DEBUG("Creating an MSXMotherBoard object");
+	oneInstance = this;
 	for (int i=0; i<256; i++) {
 		IO_In[i]  = DummyDevice::instance();
 		IO_Out[i] = DummyDevice::instance();
@@ -36,8 +37,7 @@ MSXMotherBoard::~MSXMotherBoard()
 
 MSXMotherBoard *MSXMotherBoard::instance()
 {
-	if (oneInstance == 0)
-		oneInstance = new MSXMotherBoard;
+	assert (oneInstance != NULL);
 	return oneInstance;
 }
 MSXMotherBoard *MSXMotherBoard::oneInstance = NULL;

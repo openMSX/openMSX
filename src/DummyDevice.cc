@@ -27,11 +27,6 @@ DummyDevice *DummyDevice::oneInstance = NULL;
 
 // Block usage of the following methods
 
-void DummyDevice::setConfigDevice(MSXConfig::Device *config)
-{
-	assert(false);
-}
-
 void DummyDevice::init()
 {
 	assert(false);

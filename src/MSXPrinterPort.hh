@@ -10,7 +10,14 @@
 class MSXPrinterPort : public MSXDevice
 {
 	public:
-		MSXPrinterPort();
+		/**
+		 * Constructor
+		 */
+		MSXPrinterPort(MSXConfig::Device *config);
+
+		/**
+		 * Destructor
+		 */
 		~MSXPrinterPort();
 
 		void init();

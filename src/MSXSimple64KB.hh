@@ -10,8 +10,14 @@
 class MSXSimple64KB : public MSXDevice
 {
 	public:
-		//constructor and destructor
-		MSXSimple64KB();
+		/**
+		 * Constructor
+		 */
+		MSXSimple64KB(MSXConfig::Device *config);
+
+		/**
+		 * Destructor
+		 */
 		~MSXSimple64KB();
 		
 		// don't forget you inherited from MSXDevice

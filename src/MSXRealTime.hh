@@ -11,7 +11,22 @@
 class MSXRealTime : public MSXDevice
 {
 	public:
+		/**
+		 * Constructor.
+		 * This is a singleton class. Constructor may only be used
+		 * once in the class devicefactory
+		 */
+		MSXRealTime(MSXConfig::Device *config); 
+
+		/**
+		 * Destructor
+		 */
 		~MSXRealTime(); 
+
+		/**
+.       .        * This is a singleton class. This method returns a reference
+.       .        * to the single instance of this class.
+.       .        */
 		static MSXRealTime *instance();
 		
 		void reset();
@@ -24,7 +39,6 @@ class MSXRealTime : public MSXDevice
 		static const int MAX_CATCHUPTIME = 2000;	// max nb of ms overtime
 		static const int MIN_REALTIME    = 40;	// min duration of interval
 	
-		MSXRealTime(); 
 		static MSXRealTime *oneInstance;
 
 		Emutime emuRef, emuOrigin;

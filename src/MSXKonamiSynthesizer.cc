@@ -8,10 +8,9 @@
 
 #include "config.h"
 
-MSXKonamiSynthesizer::MSXKonamiSynthesizer()
+MSXKonamiSynthesizer::MSXKonamiSynthesizer(MSXConfig::Device *config) : MSXDevice(config)
 {
 	PRT_DEBUG("Creating an MSXKonamiSynthesizer object");
-	DAC = new DACSound(25000);	// TODO find a good value, put it into config file
 }
 
 MSXKonamiSynthesizer::~MSXKonamiSynthesizer()
@@ -24,6 +23,7 @@ MSXKonamiSynthesizer::~MSXKonamiSynthesizer()
 void MSXKonamiSynthesizer::init()
 {
 	MSXDevice::init();
+	DAC = new DACSound(25000);	// TODO find a good value, put it into config file
 	
 	// allocate buffer
 	memoryBank=new byte[ROM_SIZE + 0x4000 ];

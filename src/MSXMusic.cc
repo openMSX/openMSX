@@ -4,7 +4,7 @@
 #include "MSXMotherBoard.hh"
 #include "Mixer.hh"
 
-MSXMusic::MSXMusic()
+MSXMusic::MSXMusic(MSXConfig::Device *config) : MSXDevice(config)
 {
 	PRT_DEBUG("Creating an MSXMusic object");
 }

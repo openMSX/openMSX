@@ -4,10 +4,10 @@
 #include "MSXCPU.hh"
 
 
-MSXCPU::MSXCPU()
+MSXCPU::MSXCPU(MSXConfig::Device *config) : MSXDevice(config)
 {
 	PRT_DEBUG("Creating an MSXCPU object");
-	mb = MSXMotherBoard::instance();
+	oneInstance = this;
 	z80 = new Z80(this, 3579545, 1);
 	//r800 = new R800(this, 3579545*2);
 	activeCPU = z80;	// setActiveCPU(CPU_Z80);
@@ -22,9 +22,7 @@ MSXCPU::~MSXCPU()
 
 MSXCPU* MSXCPU::instance()
 {
-	if (oneInstance == NULL ) {
-		oneInstance = new MSXCPU();
-	}
+	assert (oneInstance != NULL );
 	return oneInstance;
 }
 MSXCPU* MSXCPU::oneInstance = NULL;
@@ -33,6 +31,7 @@ MSXCPU* MSXCPU::oneInstance = NULL;
 void MSXCPU::init()
 {
 	MSXDevice::init();
+	mb = MSXMotherBoard::instance();
 }
 
 void MSXCPU::reset()

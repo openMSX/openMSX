@@ -9,17 +9,12 @@
 KeyClick::KeyClick()
 {
 	dac = new DACSound(15000);	// TODO find a good value and put it in config file
+	reset();
 }
 
 KeyClick::~KeyClick()
 {
 	delete dac;
-}
-
-void KeyClick::init()
-{
-	PRT_DEBUG("Initializing a KeyClick Device");
-	reset();
 }
 
 void KeyClick::reset()

@@ -9,7 +9,7 @@
 #include "MSXMotherBoard.hh"
 
 
-MSXKanji::MSXKanji()
+MSXKanji::MSXKanji(MSXConfig::Device *config) : MSXDevice(config)
 {
 }
 

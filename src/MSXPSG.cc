@@ -7,11 +7,9 @@
 
 
 // MSXDevice
-MSXPSG::MSXPSG()
+MSXPSG::MSXPSG(MSXConfig::Device *config) : MSXDevice(config)
 {
 	PRT_DEBUG("Creating an MSXPSG object");
-	ay8910 = new AY8910(*this);
-	joyPorts = JoystickPorts::instance();
 }
 
 MSXPSG::~MSXPSG()
@@ -24,6 +22,9 @@ MSXPSG::~MSXPSG()
 void MSXPSG::init()
 {
 	MSXDevice::init();
+	ay8910 = new AY8910(*this);
+	joyPorts = JoystickPorts::instance();
+	
 	MSXMotherBoard::instance()->register_IO_Out(0xA0,this);
 	MSXMotherBoard::instance()->register_IO_Out(0xA1,this);
 	MSXMotherBoard::instance()->register_IO_In (0xA2,this);

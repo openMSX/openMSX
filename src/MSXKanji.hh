@@ -9,7 +9,14 @@
 class MSXKanji : public MSXDevice
 {
 	public:
-		MSXKanji();
+		/**
+		 * Constructor
+		 */
+		MSXKanji(MSXConfig::Device *config);
+
+		/**
+		 * Destructor
+		 */
 		~MSXKanji();
 		
 		byte readIO(byte port, Emutime &time);

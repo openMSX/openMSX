@@ -4,7 +4,8 @@
 #include <cassert>
 
 
-MSXE6Timer::MSXE6Timer() : reference(255681)	// 1/14 * 3.58MHz
+MSXE6Timer::MSXE6Timer(MSXConfig::Device *config) : MSXDevice(config), 
+                                                    reference(255681)	// 1/14 * 3.58MHz
 {
 }
 

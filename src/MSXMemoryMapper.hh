@@ -12,7 +12,14 @@
 class MSXMemoryMapper : public MSXDevice
 {
 	public:
-		MSXMemoryMapper();
+		/**
+		 * Constructor
+		 */
+		MSXMemoryMapper(MSXConfig::Device *config);
+
+		/**
+		 * Destructor
+		 */
 		~MSXMemoryMapper();
 		
 		byte readMem(word address, Emutime &time);

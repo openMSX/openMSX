@@ -672,7 +672,7 @@ void MSXTMS9928a::putImage(void)
 }
 
 
-MSXTMS9928a::MSXTMS9928a() : currentTime(3579545, 0)
+MSXTMS9928a::MSXTMS9928a(MSXConfig::Device *config) : MSXDevice(config), currentTime(3579545, 0)
 {
 	PRT_DEBUG("Creating an MSXTMS9928a object");
 }

@@ -9,8 +9,14 @@
 class MSXRom16KB : public MSXDevice
 {
 	public:
-		//constructor and destructor
-		MSXRom16KB();
+		/**
+		 * Constructor
+		 */
+		MSXRom16KB(MSXConfig::Device *config);
+
+		/**
+		 * Destructor
+		 */
 		~MSXRom16KB();
 		
 		// don't forget you inherited from MSXDevice

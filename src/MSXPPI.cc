@@ -8,12 +8,10 @@
 
 // MSXDevice
 
-MSXPPI::MSXPPI()
+MSXPPI::MSXPPI(MSXConfig::Device *config) : MSXDevice(config)
 {
 	PRT_DEBUG("Creating an MSXPPI object");
-	keyboard = new Keyboard(true); // TODO make configurable
-	i8255 = new I8255(*this);
-	click = new KeyClick();
+	oneInstance = this;
 }
 
 MSXPPI::~MSXPPI()
@@ -26,9 +24,7 @@ MSXPPI::~MSXPPI()
 
 MSXPPI* MSXPPI::instance(void)
 {
-	if (oneInstance == NULL ) {
-		oneInstance = new MSXPPI();
-	}
+	assert (oneInstance != NULL );
 	return oneInstance;
 }
 MSXPPI *MSXPPI::oneInstance = NULL;
@@ -37,6 +33,10 @@ MSXPPI *MSXPPI::oneInstance = NULL;
 void MSXPPI::init()
 {
 	MSXDevice::init();
+	keyboard = new Keyboard(true); // TODO make configurable
+	i8255 = new I8255(*this);
+	click = new KeyClick();
+	
 	// Register I/O ports A8..AB for reading
 	MSXMotherBoard::instance()->register_IO_In(0xA8,this);
 	MSXMotherBoard::instance()->register_IO_In(0xA9,this);
@@ -47,8 +47,6 @@ void MSXPPI::init()
 	MSXMotherBoard::instance()->register_IO_Out(0xA9,this); 
 	MSXMotherBoard::instance()->register_IO_Out(0xAA,this);
 	MSXMotherBoard::instance()->register_IO_Out(0xAB,this);
-	
-	click->init();
 }
 
 void MSXPPI::reset()

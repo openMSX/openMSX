@@ -4,9 +4,11 @@
 #include "MSXRealTime.hh"
 
 
-MSXRealTime::MSXRealTime() : emuRef(1000), emuOrigin(1000)	// timer in ms (rounding err!!)
+MSXRealTime::MSXRealTime(MSXConfig::Device *config) : MSXDevice(config), 
+	emuRef(1000), emuOrigin(1000)	// timer in ms (rounding err!!)
 {
 	PRT_DEBUG("Constructing a MSXRealTime object");
+	oneInstance = this;
 }
 
 MSXRealTime::~MSXRealTime()
@@ -16,9 +18,7 @@ MSXRealTime::~MSXRealTime()
 
 MSXRealTime *MSXRealTime::instance()
 {
-	if (oneInstance == NULL ) {
-		oneInstance = new MSXRealTime();
-	}
+	assert (oneInstance != NULL );
 	return oneInstance;
 }
 MSXRealTime *MSXRealTime::oneInstance = NULL;

@@ -19,7 +19,14 @@
 class MSXE6Timer : public MSXDevice
 {
 	public:
-		MSXE6Timer();
+		/**
+		 * Constructor
+		 */
+		MSXE6Timer(MSXConfig::Device *config);
+
+		/**
+		 * Destructor
+		 */
 		~MSXE6Timer();
 		
 		void init();

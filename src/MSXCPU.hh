@@ -15,7 +15,22 @@ class MSXCPU : public MSXDevice, public CPUInterface
 	public:
 		enum CPUType { CPU_Z80 };	//, CPU_R800 };
 	
+		/**
+		 * Constructor.
+		 * This is a singleton class. Constructor may only be used 
+		 * once in the class devicefactory
+		 */
+		MSXCPU(MSXConfig::Device *config);
+
+		/**
+		 * Destructor
+		 */
 		virtual ~MSXCPU();
+
+		/**
+		 * This is a singleton class. This method returns a reference
+		 * to the single instance of this class.
+		 */
 		static MSXCPU *instance();
 	
 		// MSXDevice
@@ -38,7 +53,6 @@ class MSXCPU : public MSXDevice, public CPUInterface
 		const Emutime &getTargetTime();
 
 	private:
-		MSXCPU();
 		static MSXCPU *oneInstance;
 		void executeUntilEmuTime(const Emutime &time); // prevent use
 

@@ -15,7 +15,6 @@ class KeyClick
 		KeyClick(); 
 		virtual ~KeyClick(); 
 	
-		void init();
 		void reset();
 		void setClick(bool status, const Emutime &time);
 

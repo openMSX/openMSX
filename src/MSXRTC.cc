@@ -5,7 +5,7 @@
 #include "MSXMotherBoard.hh"
 
 
-MSXRTC::MSXRTC()
+MSXRTC::MSXRTC(MSXConfig::Device *config) : MSXDevice(config)
 {
 	PRT_DEBUG("Creating an MSXRTC object");
 }

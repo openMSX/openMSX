@@ -12,7 +12,14 @@ class MSXPSG : public MSXDevice, AY8910Interface
 {
 	// MSXDevice
 	public:
-		MSXPSG();
+		/**
+		 * Constructor
+		 */
+		MSXPSG(MSXConfig::Device *config);
+
+		/**
+		 * Destructor
+		 */
 		~MSXPSG(); 
 		
 		void init();

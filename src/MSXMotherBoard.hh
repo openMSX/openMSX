@@ -13,9 +13,22 @@
 class MSXMotherBoard : public MSXDevice
 {	
 	public:
+		/**
+		 * Constructor
+		 * This is a singleton class, constructor may only be used
+		 * once in the class devicefactory.
+		 */
+		MSXMotherBoard(MSXConfig::Device *config);
+
+		/**
+		 * Destructor
+		 */
 		~MSXMotherBoard();
-		// this class is a singleton class
-		// usage: MSXConfig::instance()->method(args);
+		
+		/**
+		 * this class is a singleton class
+		 * usage: MSXConfig::instance()->method(args);
+		 */
 		static MSXMotherBoard *instance();
 	 
 		// Devices can (un)register IO ports
@@ -52,7 +65,6 @@ class MSXMotherBoard : public MSXDevice
 		void set_A8_Register(byte value);
 
 	private:
-		MSXMotherBoard();
 
 		MSXDevice* IO_In[256];
 		MSXDevice* IO_Out[256];

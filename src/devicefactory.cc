@@ -24,63 +24,62 @@
 MSXDevice *deviceFactory::create(MSXConfig::Device *conf) {
 	MSXDevice *device = NULL;
 	if (conf->getType()=="MotherBoard") {
-		device = MSXMotherBoard::instance();
+		device = new MSXMotherBoard(conf);
 	} else
 	if (conf->getType()=="Rom16KB") {
-		device = new MSXRom16KB();
+		device = new MSXRom16KB(conf);
 	} else
 	if (conf->getType()=="Simple64KB") {
-		device = new MSXSimple64KB();
+		device = new MSXSimple64KB(conf);
 	} else
 	if (conf->getType()=="PPI") {
-		device = MSXPPI::instance();
+		device = new MSXPPI(conf);
 	} else
 	if (conf->getType()=="TMS9928a") {
-		device = new MSXTMS9928a();
+		device = new MSXTMS9928a(conf);
 	} else
 	if (conf->getType()=="E6Timer") {
-		device = new MSXE6Timer();
+		device = new MSXE6Timer(conf);
 	} else
 	if (conf->getType()=="CPU") {
-		device = MSXCPU::instance();
+		device = new MSXCPU(conf);
 	} else
 	if (conf->getType()=="PSG") {
-		device = new MSXPSG();
+		device = new MSXPSG(conf);
 	} else
 	if (conf->getType()=="Music") {
-		device = new MSXMusic();
+		device = new MSXMusic(conf);
 	} else
 	if (conf->getType()=="Kanji") {
-		device = new MSXKanji();
+		device = new MSXKanji(conf);
 	} else
 	if (conf->getType()=="MemoryMapper") {
-		device = new MSXMemoryMapper();
+		device = new MSXMemoryMapper(conf);
 	} else
 	if (conf->getType()=="MapperIO") {
-		device = MSXMapperIO::instance();
+		device = new MSXMapperIO(conf);
 	} else
 	if (conf->getType()=="RTC") {
-		device = new MSXRTC();
+		device = new MSXRTC(conf);
 	} else
 	if (conf->getType()=="RealTime") {
-		device = MSXRealTime::instance();
+		device = new MSXRealTime(conf);
 	} else
 	if (conf->getType()=="MegaRom") {
-		device = new MSXMegaRom();
+		device = new MSXMegaRom(conf);
 	} else
 	if (conf->getType()=="PrinterPort") {
-		device = new MSXPrinterPort();
+		device = new MSXPrinterPort(conf);
 	} else
 	if (conf->getType()=="KonamiSynthesizer") {
-		device = new MSXKonamiSynthesizer();
+		device = new MSXKonamiSynthesizer(conf);
 	}
 //	} else
 //	if (conf->getType()=="PostLoad") {
-//		device = new MSXPostLoad();
+//		device = new MSXPostLoad(conf);
 //	}
 	if (device == NULL)
 		PRT_ERROR("Unknown device specified in configuration");
-	device->setConfigDevice(conf);
 	return device;
 }
 

@@ -106,21 +106,19 @@ int main (int argc, char **argv)
 	SDL_SetColorKey(iconSurf, SDL_SRCCOLORKEY, 0);
 	SDL_WM_SetIcon(iconSurf, NULL);
 
-	// Een moederbord als eerste
-	MSXMotherBoard *motherboard = MSXMotherBoard::instance();
-	// en dan nu al de devices die volgens de xml nodig zijn
-	std::list<MSXConfig::Device*>::const_iterator j=MSXConfig::instance()->deviceList.begin();
-	for (; j != MSXConfig::instance()->deviceList.end(); j++) {
+	for (std::list<MSXConfig::Device*>::const_iterator j=MSXConfig::instance()->deviceList.begin();
+	     j != MSXConfig::instance()->deviceList.end();
+	     j++) {
 		(*j)->dump();
 		MSXDevice *device = deviceFactory::create( (*j) );
-		if (device != 0){
-			motherboard->addDevice(device);
-		PRT_DEBUG ("---------------------------\nfactory:" << (*j)->getType());
-		}
+		assert (device != 0);
+		// TODO this only works if MotherBoard comes first in config file!!!
+		MSXMotherBoard::instance()->addDevice(device);
+		PRT_DEBUG ("Instantiated:" << (*j)->getType());
 	}
 
 	PRT_DEBUG ("Initing MSX");
-	motherboard->InitMSX();
+	MSXMotherBoard::instance()->InitMSX();
 
 	// Start a new thread for event handling
 	thread=SDL_CreateThread(eventDistributorStarter, 0);
@@ -129,13 +127,10 @@ int main (int argc, char **argv)
 	keyi << "Hello";
 
 	PRT_DEBUG ("starting MSX");
-	motherboard->StartMSX();
+	MSXMotherBoard::instance()->StartMSX();
 	// When we return we clean everything up
 	SDL_KillThread(thread);
-	motherboard->DestroyMSX();
-
-	
+	MSXMotherBoard::instance()->DestroyMSX();
 
 	exit (0);
 }
-

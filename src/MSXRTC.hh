@@ -11,7 +11,14 @@
 class MSXRTC : public MSXDevice
 {
 	public:
-		MSXRTC();
+		/**
+		 * Constructor
+		 */
+		MSXRTC(MSXConfig::Device *config);
+
+		/**
+		 * Destructor
+		 */
 		~MSXRTC(); 
 		
 		void init();

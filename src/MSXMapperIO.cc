@@ -7,8 +7,9 @@
 #include "MSXMotherBoard.hh"
 
 
-MSXMapperIO::MSXMapperIO()
+MSXMapperIO::MSXMapperIO(MSXConfig::Device *config) : MSXDevice(config)
 {
+	oneInstance = this;
 }
 
 MSXMapperIO::~MSXMapperIO()
@@ -17,9 +18,7 @@ MSXMapperIO::~MSXMapperIO()
 
 MSXMapperIO *MSXMapperIO::instance()
 {
-	if (oneInstance == NULL) {
-		oneInstance = new MSXMapperIO();
-	}
+	assert (oneInstance != NULL);
 	return oneInstance;
 }
 MSXMapperIO *MSXMapperIO::oneInstance = NULL;
