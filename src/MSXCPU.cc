@@ -30,7 +30,7 @@ MSXCPU* MSXCPU::oneInstance = NULL;
 void MSXCPU::init()
 {
 	MSXDevice::init();
-	setActiveCPU(CPU_Z80);
+	activeCPU = z80;	// setActiveCPU(CPU_Z80);
 	z80->init();
 	//r800->init();
 }
@@ -45,16 +45,19 @@ void MSXCPU::reset()
 
 void MSXCPU::setActiveCPU(int cpu)
 {
+	MSXCPUDevice *newCPU;
 	switch (cpu) {
 	case CPU_Z80:
-		activeCPU = z80;
+		newCPU = z80;
 		break;
 //	case CPU_R800:
-//		activeCPU = r800;
+//		newCPU = r800;
 //		break;
 	default:
 		assert(false);
 	}
+	newCPU->currentTime = activeCPU->currentTime;
+	activeCPU = newCPU;
 }
 
 void MSXCPU::IRQ(bool irq)
@@ -62,7 +65,30 @@ void MSXCPU::IRQ(bool irq)
 	activeCPU->IRQ(irq);
 }
 
+void MSXCPU::executeUntilTarget(const Emutime &time)
+{
+	setTargetTime(time);
+	activeCPU->executeUntilTarget();
+}
+
+
+void MSXCPU::setTargetTime(const Emutime &time)
+{
+	assert(getCurrentTime() <= time);
+	targetTime = time;
+}
+const Emutime &MSXCPU::getTargetTime()
+{
+	return targetTime;
+}
+
+Emutime &MSXCPU::getCurrentTime()
+{
+	return activeCPU->getCurrentTime();
+}
+
+
 void MSXCPU::executeUntilEmuTime(const Emutime &time)
 {
-	activeCPU->executeUntilEmuTime(time);
+	assert(false);
 }

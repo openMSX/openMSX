@@ -297,7 +297,7 @@ void MSXTMS9928a::start()
 {
 	MSXDevice::start();
 	//First interrupt in Pal mode here
-	Scheduler::instance()->insertStamp(currentTime+71285, *this);
+	Scheduler::instance()->setSyncPoint(currentTime+71285, *this);
 	PutImage();
 };
 
@@ -311,7 +311,7 @@ void MSXTMS9928a::executeUntilEmuTime(const Emutime &time)
 	
 	//Next SP/interrupt in Pal mode here
 	currentTime = time;
-	Scheduler::instance()->insertStamp(currentTime+71285, *this);
+	Scheduler::instance()->setSyncPoint(currentTime+71285, *this);
 };
 
 /*

@@ -16,6 +16,7 @@
 #include <stdlib.h>
 
 #include "MSXMotherBoard.hh"
+#include "MSXZ80.hh"
 
 //debugercode
 #include "Z80Dasm.h"
@@ -2257,3 +2258,50 @@ void Reset_CPU (void)
 //	R.ICount=R.IPeriod;
 //
 //}
+
+
+
+//TODO need cleanup
+
+/****************************************************************************/
+/* Input a byte from given I/O port                                         */
+/****************************************************************************/
+byte Z80_In (byte port)
+{
+	return MSXMotherBoard::instance()->readIO(port, MSXCPU::instance()->getCurrentTime());
+}
+
+
+/****************************************************************************/
+/* Output a byte to given I/O port                                          */
+/****************************************************************************/
+void Z80_Out (byte port,byte value)
+{
+	 MSXMotherBoard::instance()->writeIO(port, value, MSXCPU::instance()->getCurrentTime());
+}
+   
+/****************************************************************************/
+/* Read a byte from given memory location                                   */
+/****************************************************************************/
+byte Z80_RDMEM(word A)
+{
+#ifdef DEBUG
+	debugmemory[A]=MSXMotherBoard::instance()->readMem(A, MSXCPU::instance()->getCurrentTime());
+	return debugmemory[A];
+#else
+	return  MSXMotherBoard::instance()->readMem(A, MSXCPU::instance()->getCurrentTime());
+#endif
+}
+
+/****************************************************************************/
+/* Write a byte to given memory location                                    */
+/****************************************************************************/
+void Z80_WRMEM(word A,byte V)
+{
+	 MSXMotherBoard::instance()->writeMem(A,V, MSXCPU::instance()->getCurrentTime());
+	 // No debugmemory[A] here otherwise self-modifying code could 
+	 // alter the executing code before the disassembled opcode
+	 // is printed;
+}
+
+

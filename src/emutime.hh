@@ -12,10 +12,13 @@
 #ifndef __EMUTIME_HH__
 #define __EMUTIME_HH__
 
-#include "assert.h"
+#include <assert.h>
+#include <limits.h>
+
 
 #define MAIN_FREQ  3579545*8
 #define DUMMY_FREQ 3579545*99	// as long as it's greater than MAIN_FREQ
+#define INFINITY 18446744073709551615ULL	// 2^64 - 1
 
 
 
@@ -45,14 +48,22 @@ public:
 	void operator() (const uint64 &foo) {_emutime=foo*_scale; }
 
 	// arithmetic operators
-	Emutime &operator +=(const uint64 &foo) { _emutime+=foo*_scale ; return *this; }
-	Emutime &operator +=(const Emutime &foo) { _emutime+=foo._emutime ; return *this; }
-	Emutime &operator -=(const uint64 &foo) { _emutime-=foo*_scale ; return *this; }
-	Emutime &operator -=(const Emutime &foo) { _emutime-=foo._emutime ; return *this; }
-	Emutime &operator ++() { _emutime+=_scale ; return *this; } // prefix
-	Emutime &operator --() { _emutime-=_scale ; return *this; }
-	Emutime &operator ++(int unused) { _emutime+=_scale ; return *this; } // postfix
-	Emutime &operator --(int unused) { _emutime-=_scale ; return *this; }
+	Emutime &operator +=(const uint64 &foo) 
+		{ assert(_scale!=0); _emutime+=foo*_scale ; return *this; }
+	Emutime &operator +=(const Emutime &foo) 
+		{ assert(_scale!=0); _emutime+=foo._emutime ; return *this; }
+	Emutime &operator -=(const uint64 &foo) 
+		{ assert(_scale!=0); _emutime-=foo*_scale ; return *this; }
+	Emutime &operator -=(const Emutime &foo) 
+		{ assert(_scale!=0); _emutime-=foo._emutime ; return *this; }
+	Emutime &operator ++() 
+		{ assert(_scale!=0); _emutime+=_scale ; return *this; } // prefix
+	Emutime &operator --() 
+		{ assert(_scale!=0); _emutime-=_scale ; return *this; }
+	Emutime &operator ++(int unused) 
+		{ assert(_scale!=0); _emutime+=_scale ; return *this; } // postfix
+	Emutime &operator --(int unused) 
+		{ assert(_scale!=0); _emutime-=_scale ; return *this; }
 
 	Emutime &operator +(const uint64 &foo) {Emutime *bar = new Emutime(*this); *bar+=foo; return *bar; }
 	Emutime &operator +(const Emutime &foo) {Emutime *bar = new Emutime(*this); *bar+=foo; return *bar; }
@@ -66,7 +77,7 @@ public:
 
 	// distance function
 	uint64 getTicksTill(const Emutime &foo) const {
-		assert (_scale != 0);
+		assert (_scale!=0);
 		assert (foo._emutime >= _emutime);
 		return (int)(foo._emutime-_emutime)/_scale;
 	}

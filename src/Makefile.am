@@ -16,7 +16,7 @@ openmsx_SOURCES=openmsx.cc \
 	MSXRom16KB.hh MSXRom16KB.cc \
 	MSXSimple64KB.hh MSXSimple64KB.cc \
 	MSXTMS9928a.hh MSXTMS9928a.cc \
-	MSXCPUDevice.hh MSXCPU.hh MSXCPU.cc \
+	MSXCPUDevice.hh MSXCPUDevice.cc MSXCPU.hh MSXCPU.cc \
 	MSXZ80.hh MSXZ80.cc \
 	Z80.cc Z80.hh Z80DAA.h Z80Codes.h opc__Z80.h \
 	devicefactory.hh devicefactory.cc \

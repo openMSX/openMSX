@@ -7,21 +7,27 @@
 #include "MSXCPUDevice.hh"
 #include "MSXZ80.hh"
 //#include "MSXR800.hh"
+class MSXZ80;
+//class MSXR800;
 
-
-class MSXCPU : public MSXDevice
+class MSXCPU : public MSXDevice 
 {
+	friend class MSXZ80;
+	//friend class MSXR800;
+
 	public:
-		~MSXCPU();
+		virtual ~MSXCPU();
 		static MSXCPU *instance();
 		
 		void init();
 		void reset();
+		void IRQ(bool irq);
+		void setTargetTime(const Emutime &time);
+		void executeUntilTarget(const Emutime &time);
 		
 		void setActiveCPU(int cpu);
-		
-		void IRQ(bool irq);
-		void executeUntilEmuTime(const Emutime &time);
+		Emutime &getCurrentTime();
+		const Emutime &getTargetTime();
 
 	private:
 		static const int CPU_Z80 = 0;
@@ -29,9 +35,12 @@ class MSXCPU : public MSXDevice
 	
 		MSXCPU();
 		static MSXCPU *oneInstance;
+		void executeUntilEmuTime(const Emutime &time); // prevent use
 
 		MSXZ80 *z80;
 		//MSXR800 *r800;
 		MSXCPUDevice *activeCPU;
+
+		Emutime targetTime;
 };
 #endif //__MSXCPU_HH__

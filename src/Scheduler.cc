@@ -7,15 +7,12 @@
 #include <assert.h>
 
 
-Scheduler::Scheduler(void) : currentTime()
+Scheduler::Scheduler()
 {
 }
 
-Scheduler::~Scheduler(void)
+Scheduler::~Scheduler()
 {
-	//while (!scheduleList.empty()) {
-	//	removeFirstNode();
-	//}
 }
 
 Scheduler* Scheduler::instance()
@@ -27,56 +24,51 @@ Scheduler* Scheduler::instance()
 }
 Scheduler *Scheduler::oneInstance = NULL;
 
-const SchedulerNode &Scheduler::getFirstNode()
+
+void Scheduler::setSyncPoint(Emutime &time, MSXDevice &device) 
+{
+	assert (time >= MSXCPU::instance()->getCurrentTime());
+	if (time < MSXCPU::instance()->getTargetTime())
+		MSXCPU::instance()->setTargetTime(time);
+	scheduleList.insert(SynchronizationPoint (time, device));
+}
+
+const SynchronizationPoint &Scheduler::getFirstSP()
 {
 	assert (!scheduleList.empty());
 	return *(scheduleList.begin());
 }
 
-void Scheduler::removeFirstNode()
+void Scheduler::removeFirstSP()
 {
 	assert (!scheduleList.empty());
 	scheduleList.erase(scheduleList.begin());
 }
 
 
-const Emutime &Scheduler::getCurrentTime()
-{
-	return currentTime;
-}
-
-void Scheduler::insertStamp(Emutime &timestamp, MSXDevice &activedevice) 
-{
-	assert (timestamp >= getCurrentTime());
-	scheduleList.insert(SchedulerNode (timestamp, activedevice));
-}
-
 void Scheduler::scheduleEmulation()
 {
-	keepRunning=true;
-	while(keepRunning){
-		//const SchedulerNode &firstNode = scheduleList.getFirst();
-		const SchedulerNode &firstNode = getFirstNode();
-		const Emutime &time = firstNode.getTime();
-		MSXDevice *device = &firstNode.getDevice();
-	//1. Set the target T-State of the cpu to the first SP in the list.
-	// and let the CPU execute until the target T-state.
-		PRT_DEBUG ("Scheduling CPU\n");
-		MSXCPU::instance()->executeUntilEmuTime(time);
-	// Time is now updated
-		currentTime=time;
-	//3. Get the device from the first SP in the list and let it reach its T-state.
-		PRT_DEBUG ("Scheduling " << device->getName() << "\n");
-		device->executeUntilEmuTime(time);
-	//4. Remove the first element from the list
-		removeFirstNode();
-	// TODO: loop if there are other devices with the same timestamp
+	//TODO slow down when emulation is going too fast
+	while (true) {
+		if (scheduleList.empty()) {
+			// nothing scheduled, emulate CPU
+			PRT_DEBUG ("Scheduling CPU till infinity");
+			MSXCPU::instance()->executeUntilTarget(infinity);
+		} else {
+			const SynchronizationPoint &sp = getFirstSP();
+			const Emutime &time = sp.getTime();
+			if (MSXCPU::instance()->getCurrentTime() < time) {
+				// emulate CPU till first SP
+				PRT_DEBUG ("Scheduling CPU till SP");
+				MSXCPU::instance()->executeUntilTarget(time);
+			} else {
+				// if CPU is emulated, emulate the device
+				MSXDevice *device = &(sp.getDevice());
+				PRT_DEBUG ("Scheduling " << device->getName());
+				device->executeUntilEmuTime(time);
+				removeFirstSP();
+			}
+		}
 	}
 }
-
-void Scheduler::stopEmulation()
-{
-	keepRunning=false;
-}
-
-
+const Emutime Scheduler::infinity = Emutime(1, INFINITY);
