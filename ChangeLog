@@ -1,5 +1,8 @@
 $Id$
 
+2005-02-26 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Renamed new db to softwaredb.xml
+
 2005-02-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* fixed cassette WavImage DC correction:
 	    forgot to properly clip signal

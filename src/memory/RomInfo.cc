@@ -286,6 +286,22 @@ static void parseDB(const XMLElement& doc, map<string, RomInfo*>& result)
 	}
 }
 
+static auto_ptr<XMLElement> openDB(const string& filename, const string& type)
+{
+	auto_ptr<XMLElement> doc;
+	try {
+		File file(filename);
+		doc = XMLLoader::loadXML(file.getLocalName(), type);
+	} catch (FileException& e) {
+		// couldn't read file
+	} catch (XMLException& e) {
+		CliCommOutput::instance().printWarning(
+			"Could not parse ROM DB: " + e.getMessage() + "\n"
+			"Romtype detection might fail because of this.");
+	}
+	return doc;
+}
+
 auto_ptr<RomInfo> RomInfo::searchRomDB(const Rom& rom)
 {
 	// TODO: Turn ROM DB into a separate class.
@@ -302,19 +318,17 @@ auto_ptr<RomInfo> RomInfo::searchRomDB(const Rom& rom)
 		const vector<string>& paths = context.getPaths();
 		for (vector<string>::const_iterator it = paths.begin();
 		     it != paths.end(); ++it) {
-			try {
-				File file(*it + "romdb.xml");
-				auto_ptr<XMLElement> doc(XMLLoader::loadXML(
-					file.getLocalName(), "romdb.dtd"));
+			// first try new db
+			auto_ptr<XMLElement> doc(
+				openDB(*it + "softwaredb.xml", "softwaredb1.dtd"));
+			if (!doc.get()) {
+				// if that fails try old
+				doc = openDB(*it + "romdb.xml", "romdb.dtd");
+			}
+			if (doc.get()) {
 				map<string, RomInfo*> tmp;
 				parseDB(*doc, tmp);
 				romDBSHA1.insert(tmp.begin(), tmp.end());
-			} catch (FileException& e) {
-				// couldn't read file
-			} catch (XMLException& e) {
-				CliCommOutput::instance().printWarning(
-					"Could not parse ROM DB: " + e.getMessage() + "\n"
-					"Romtype detection might fail because of this.");
 			}
 		}
 		if (romDBSHA1.empty()) {
