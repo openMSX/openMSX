@@ -6,7 +6,9 @@
 #include "MSXRom.hh"
 #include "MSXYM2413.hh"
 #include "MSXMemDevice.hh"
-#include "EmuTime.hh"
+
+// forward declarations
+class EmuTime;
 
 
 class MSXMusic : public MSXYM2413, public MSXMemDevice, public MSXRom

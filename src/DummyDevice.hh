@@ -5,10 +5,12 @@
 
 #include <fstream>
 #include <string>
-
 #include "MSXIODevice.hh"
 #include "MSXMemDevice.hh"
-#include "EmuTime.hh"
+
+// forward declarations
+class EmuTime;
+
 
 class DummyDevice : public MSXIODevice, public MSXMemDevice
 {

@@ -6,11 +6,11 @@
 #include <SDL/SDL.h>
 #include <list>
 #include <vector>
-#include "openmsx.hh"
 #include "EmuTime.hh"
 
 // forward declarations
 class SoundDevice;
+
 
 class Mixer
 {

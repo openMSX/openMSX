@@ -3,15 +3,13 @@
 #ifndef __MSXMEMORYMAPPER_HH__
 #define __MSXMEMORYMAPPER_HH__
 
-#include <iostream>
-#include <fstream>
-#include <string>
-#include "EmuTime.hh"
 #include "MSXMemDevice.hh"
 #include "MSXIODevice.hh"
 
 // forward declaration;
 class MSXMapperIO;
+class EmuTime;
+
 
 class MSXMemoryMapper : public MSXMemDevice, public MSXIODevice
 {

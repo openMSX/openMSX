@@ -5,7 +5,6 @@
 
 #include "MSXIODevice.hh"
 #include "MSXRom.hh"
-#include "MSXDevice.hh"
 
 
 class MSXKanji : public MSXIODevice, public MSXRom

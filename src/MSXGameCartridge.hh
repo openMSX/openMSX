@@ -5,11 +5,12 @@
 
 #include "MSXRom.hh"
 #include "MSXMemDevice.hh"
-#include "EmuTime.hh"
 
 // forward declarations
 class SCC;
 class DACSound;
+class EmuTime;
+
 
 class MSXGameCartridge : public MSXMemDevice, public MSXRom
 {

@@ -8,6 +8,7 @@
 #include "MSXMapperIOPhilips.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXCPU.hh"
+#include "CPU.hh"
 
 
 MSXMemoryMapper::MSXMemoryMapper(MSXConfig::Device *config, const EmuTime &time)

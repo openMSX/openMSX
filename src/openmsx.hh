@@ -6,6 +6,7 @@
 typedef unsigned char nibble;	// 4 bit
 typedef unsigned char byte;	// 8 bit
 typedef unsigned short word;	// 16 bit 
+typedef unsigned long long uint64; // this is not portable to 64bit platforms? -> TODO check
 
 #ifdef DEBUG
 #define PRT_DEBUG(mes) {std::cout << mes << "\n"; }

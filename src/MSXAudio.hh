@@ -8,6 +8,7 @@
 // forward declaration
 class Y8950;
 
+
 class MSXAudio : public MSXIODevice
 {
 	public:

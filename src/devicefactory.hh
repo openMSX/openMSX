@@ -3,7 +3,9 @@
 #ifndef __DEVICEFACTORY_HH__
 #define __DEVICEFACTORY_HH__
 
-#include "MSXDevice.hh"
+// forward declaration
+class MSXDevice;
+class EmuTime;
 
 
 class deviceFactory

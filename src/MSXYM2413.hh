@@ -4,10 +4,11 @@
 #define __MSXYM2413_HH__
 
 #include "MSXIODevice.hh"
-#include "EmuTime.hh"
 
 // forward declaration
 class YM2413;
+class EmuTime;
+
 
 class MSXYM2413 : public MSXIODevice
 {

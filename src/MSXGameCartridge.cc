@@ -8,6 +8,7 @@
 #include "SCC.hh"
 #include "DACSound.hh"
 #include "MSXCPU.hh"
+#include "CPU.hh"
 
 #include "config.h"
 

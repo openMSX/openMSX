@@ -11,7 +11,10 @@
 
 #include "openmsx.hh"
 #include "SoundDevice.hh"
-#include "EmuTime.hh"
+
+// forward declarations
+class EmuTime;
+
 
 #define MIN(x,y)	(x) < (y) ? (x) : (y)
 
@@ -81,6 +84,8 @@ class AY8910 : public SoundDevice
 		byte oldEnable;
 		
 		int* buffer;
+		bool semiMuted;
+		int validLength;
 		
 		AY8910Interface &interface;
 };

@@ -1,6 +1,11 @@
 $Id$
 
-2002-01-03 Joost Yervante Damad <j.damad@qahwah.net>
+2002-01-05 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* #include cleanup
+	* Changed PSG mute routine:
+	  PSG-samples in "time curb" now work!
+
+2002-01-05 Joost Yervante Damad <j.damad@qahwah.net>
 	* small libxmlx improvements
 		- should handle comments and pcdata correctly
 		- started modifications of msxconfig code, first in

@@ -3,15 +3,11 @@
 #ifndef __MSXTapePatch_HH__
 #define __MSXTapePatch_HH__
 
+#include <fstream>
+#include <string>
 #include "openmsx.hh"
 #include "MSXRomPatchInterface.hh"
-#include "msxconfig.hh"
 #include "config.h"
-
-#include <string>
-#include "CPU.hh"
-#include <iostream>
-#include <fstream>
 
 
 #ifdef HAVE_FSTREAM_TEMPL

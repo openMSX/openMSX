@@ -10,6 +10,7 @@
 #include "EmuTime.hh"
 #include "Renderer.hh"
 
+
 class VDPCmdEngine;
 
 /** Unified implementation of MSX Video Display Processors (VDPs).

@@ -11,7 +11,9 @@
 #define __I8254_HH__
 
 #include "openmsx.hh"
-#include "EmuTime.hh"
+
+// forward declarations
+class EmuTime;
 
 
 // TODO EmuTime support is broken

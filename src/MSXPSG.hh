@@ -4,10 +4,10 @@
 #define __MSXPSG_HH__
 
 #include "MSXIODevice.hh"
-#include "EmuTime.hh"
 #include "AY8910.hh"
 
 // forward declarations
+class EmuTime;
 class JoystickPorts;
 class CassettePortInterface;
 

@@ -3,9 +3,12 @@
 #ifndef __SDLEVENTINSERTER_HH__
 #define __SDLEVENTINSERTER_HH__
 
-#include "EmuTime.hh"
-#include "Scheduler.hh"
 #include <SDL/SDL.h>
+#include "Scheduler.hh"
+
+// forward declarations
+class EmuTime;
+
 
 class SDLEventInserter : public Schedulable
 {

@@ -1,6 +1,7 @@
 // $Id$
 
 #include "MSXE6Timer.hh"
+#include "MSXMotherBoard.hh"
 #include <cassert>
 
 

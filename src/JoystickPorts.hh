@@ -8,6 +8,7 @@
 // forward declaration
 class JoystickDevice;
 
+
 class JoystickPorts
 {
 	public:

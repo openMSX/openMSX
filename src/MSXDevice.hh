@@ -6,10 +6,12 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-
 #include "msxconfig.hh"
-#include "EmuTime.hh"
 #include "openmsx.hh"
+
+// forward declarations
+class EmuTime;
+
 
 class MSXDevice
 {

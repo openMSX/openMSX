@@ -19,6 +19,7 @@
 #include "devicefactory.hh"
 #include "EventDistributor.hh"
 #include "KeyEventInserter.hh"
+#include "EmuTime.hh"
 
 
 static int iconColours[] = {

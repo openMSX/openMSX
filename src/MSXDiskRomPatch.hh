@@ -6,7 +6,6 @@
 #include "MSXRomPatchInterface.hh"
 #include "msxconfig.hh"
 #include "config.h"
-
 #include <iostream>
 #include <fstream>
 

@@ -8,6 +8,7 @@
 #include "RealTime.hh"
 #include "DummyDevice.hh"
 #include "Leds.hh"
+#include "CPU.hh"
 #include "MSXCPU.hh"
 #include "MSXDevice.hh"
 #include "MSXIODevice.hh"

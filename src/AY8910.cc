@@ -132,18 +132,21 @@ void AY8910::wrtReg(byte reg, byte value, const EmuTime &time)
 		regs[AY_AVOL] &= 0x1f;
 		envelopeA = regs[AY_AVOL] & 0x10;
 		volA = envelopeA ? volE : volTable[regs[AY_AVOL]];
+		validLength = 0;
 		checkMute();
 		break;
 	case AY_BVOL:
 		regs[AY_BVOL] &= 0x1f;
 		envelopeB = regs[AY_BVOL] & 0x10;
 		volB = envelopeB ? volE : volTable[regs[AY_BVOL]];
+		validLength = 0;
 		checkMute();
 		break;
 	case AY_CVOL:
 		regs[AY_CVOL] &= 0x1f;
 		envelopeC = regs[AY_CVOL] & 0x10;
 		volC = envelopeC ? volE : volTable[regs[AY_CVOL]];
+		validLength = 0;
 		checkMute();
 		break;
 	case AY_EFINE:
@@ -181,9 +184,9 @@ void AY8910::wrtReg(byte reg, byte value, const EmuTime &time)
 		countEnv = 0x0f;
 		holding = false;
 		volE = volTable[countEnv ^ attack];
-		if (envelopeA) volA = volE;
-		if (envelopeB) volB = volE;
-		if (envelopeC) volC = volE;
+		if (envelopeA) { volA = volE;  validLength = 0; }
+		if (envelopeB) { volB = volE;  validLength = 0; }
+		if (envelopeC) { volC = volE;  validLength = 0; }
 		break;
 	case AY_ENABLE:
 		if ((value     & PORT_A_DIRECTION) &&
@@ -197,6 +200,7 @@ void AY8910::wrtReg(byte reg, byte value, const EmuTime &time)
 			wrtReg(AY_PORTB, regs[AY_PORTB], time);
 		}
 		oldEnable = value;
+		validLength = 0;
 		checkMute();
 		break;
 	case AY_PORTA:
@@ -214,14 +218,25 @@ void AY8910::wrtReg(byte reg, byte value, const EmuTime &time)
 
 void AY8910::checkMute()
 {
-	// TODO not completely correct, when not enabled output != 0 but a 
-	// constant value depending on the volume
-	bool chA = (regs[AY_AVOL] == 0) || ((regs[AY_ENABLE]&0x09)==0x09);
-	bool chB = (regs[AY_BVOL] == 0) || ((regs[AY_ENABLE]&0x12)==0x12);
-	bool chC = (regs[AY_CVOL] == 0) || ((regs[AY_ENABLE]&0x24)==0x24);
-	bool muted = chA && chB && chC;
-	PRT_DEBUG("AY8910 muted: " << muted);
-	setInternalMute(muted);
+	if ((regs[AY_AVOL]==0)&&(regs[AY_BVOL]==0)&&(regs[AY_CVOL]==0)) {
+		// all volume settings equals zero
+		PRT_DEBUG("AY8910 muted");
+		setInternalMute(true);
+		return;
+	}
+	if ((regs[AY_ENABLE]&0x3f)==0x3f) {
+		// all channels disabled
+		PRT_DEBUG("AY8910 semi-muted");
+		setInternalMute(false);
+		if (!semiMuted) {
+			semiMuted = true;
+			validLength = 0;
+		}
+		return;
+	}
+	PRT_DEBUG("AY8910: not muted");
+	semiMuted = false;
+	setInternalMute(false);
 }
 
 void AY8910::setInternalVolume(short newVolume)
@@ -266,12 +281,20 @@ int* AY8910::updateBuffer(int length)
 	// into the ON state (see above); and it has no effect if the volume is 0.
 	// If the volume is 0, increase the counter, but don't touch the output.
 
-	PRT_DEBUG("AY8910 updateBuffer");
+	PRT_DEBUG("AY8910: update buffer");
 	if (isInternalMuted()) {
-		PRT_DEBUG("AY8910 MUTED");
+		PRT_DEBUG("AY8910: muted");
 		return NULL;
 	}
-
+	if (semiMuted) {
+		if (validLength>=length) {
+			PRT_DEBUG("AY8910: semi-muted");
+			return buffer;	// return the previously calculated buffer (constant value)
+		}
+		validLength = length;
+	}
+	PRT_DEBUG("AY8910: calc buffer");
+	
 	if (regs[AY_ENABLE] & 0x01) {	// disabled
 		if (countA <= length*FP_UNIT) countA += length*FP_UNIT;
 		outputA = 1;
@@ -420,8 +443,8 @@ int* AY8910::updateBuffer(int length)
 			left -= nextevent;
 		} while (left > 0);
 
-		/* update envelope */
-		if (holding == false) {
+		// update envelope
+		if (!holding) {
 			countE -= FP_UNIT;
 			if (countE <= 0) {
 				do {
@@ -429,24 +452,24 @@ int* AY8910::updateBuffer(int length)
 					countE += periodE;
 				} while (countE <= 0);
 
-				/* check envelope current position */
+				// check envelope current position
 				if (countEnv < 0) {
 					if (hold) {
 						if (alternate) attack ^= 0x0f;
 						holding = true;
 						countEnv = 0;
 					} else {
-						/* if countEnv has looped an odd number of times (usually 1), */
-						/* invert the output. */
+						// if countEnv has looped an odd number of times
+						// (usually 1), invert the output.
 						if (alternate && (countEnv & 0x10)) attack ^= 0x0f;
 						countEnv &= 0x0f;
 					}
 				}
 				volE = volTable[countEnv ^ attack];
-				/* reload volume */
-				if (envelopeA) volA = volE;
-				if (envelopeB) volB = volE;
-				if (envelopeC) volC = volE;
+				// reload volume
+				if (envelopeA) { volA = volE; validLength = 0; }
+				if (envelopeB) { volB = volE; validLength = 0; }
+				if (envelopeC) { volC = volE; validLength = 0; }
 			}
 		}
 

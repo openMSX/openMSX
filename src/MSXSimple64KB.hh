@@ -4,7 +4,10 @@
 #define __MSXSIMPLE64KB_HH__
 
 #include "MSXMemDevice.hh"
-#include "EmuTime.hh"
+
+// forward declarations
+class EmuTime;
+
 
 class MSXSimple64KB : public MSXMemDevice
 {

@@ -1,9 +1,9 @@
 // $Id$
 
-#include "Keyboard.hh"
-#include "MSXPPI.hh"
-#include "Leds.hh"
 #include <cassert>
+#include "MSXPPI.hh"
+#include "Keyboard.hh"
+#include "Leds.hh"
 #include "MSXMotherBoard.hh"
 #include "KeyClick.hh"
 #include "CassettePort.hh"

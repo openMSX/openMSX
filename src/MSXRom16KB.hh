@@ -5,8 +5,11 @@
 
 #include "MSXMemDevice.hh"
 #include "MSXRom.hh"
-#include "EmuTime.hh"
 #include "msxconfig.hh"
+
+// forward declarations
+class EmuTime;
+
 
 class MSXRom16KB : public MSXMemDevice, public MSXRom
 {

@@ -3,8 +3,11 @@
 #ifndef __DUMMYCASSETTEDEVICE_HH__
 #define __DUMMYCASSETTEDEVICE_HH__
 
-#include "EmuTime.hh"
 #include "CassetteDevice.hh"
+
+// forward declarations
+class EmuTime;
+
 
 class DummyCassetteDevice : public CassetteDevice
 {

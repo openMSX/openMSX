@@ -5,16 +5,12 @@
 
 #include <iostream>
 #include <cassert>
-
-
-#ifndef uint64
-	typedef unsigned long long uint64;
-	// this is not portable to 64bit platforms? -> TODO check
-#endif
+#include "openmsx.hh"
 
 // predefines
 class EmuTime;
 std::ostream &operator<<(std::ostream &os, const EmuTime &e);
+
 
 class EmuTime
 {

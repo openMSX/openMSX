@@ -4,7 +4,6 @@
 #define __MSXREALTIME_HH__
 
 #include "Scheduler.hh"
-#include "MSXMotherBoard.hh"
 #include "EmuTime.hh"
 
 

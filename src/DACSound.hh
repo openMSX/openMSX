@@ -10,7 +10,6 @@
 #include "openmsx.hh"
 #include "SoundDevice.hh"
 #include "EmuTime.hh"
-#include "RealTime.hh"
 
 
 class DACSound : public SoundDevice

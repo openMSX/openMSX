@@ -3,16 +3,12 @@
 #ifndef __MSXSCCPLUSCART_HH__
 #define __MSXSCCPLUSCART_HH__
 
-#include <iostream>
-#include <fstream>
-#include <string>
 #include "MSXMemDevice.hh"
-#include "EmuTime.hh"
 #include "openmsx.hh"
-#include "Scheduler.hh"
 
 // forward declaration
 class SCC;
+class EmuTime;
 
 class MSXSCCPlusCart : public MSXMemDevice
 {

@@ -4,12 +4,12 @@
 #define __CPUINTERFACE_HH__
 
 #include "openmsx.hh"
-#include "EmuTime.hh"
-
 #include <list>
 
 // forward declaration
 class MSXRomPatchInterface;
+class EmuTime;
+
 
 class CPUInterface {
 	public:

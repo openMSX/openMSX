@@ -4,8 +4,11 @@
 #define __SCC_HH__
 
 #include "openmsx.hh" //for the byte definition
-#include "EmuTime.hh"
 #include "SoundDevice.hh"
+
+// forward declarations
+class EmuTime;
+
 
 class SCC : public SoundDevice
 {

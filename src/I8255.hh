@@ -12,7 +12,9 @@
 #define __I8255_HH__
 
 #include "openmsx.hh"
-#include "EmuTime.hh"
+
+// forward declarations
+class EmuTime;
 
 
 class I8255Interface

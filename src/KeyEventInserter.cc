@@ -3,6 +3,7 @@
 #include "KeyEventInserter.hh"
 #include "MSXCPU.hh"
 #include "SDLEventInserter.hh"
+#include "EmuTime.hh"
 
 KeyEventInserter::KeyEventInserter()
 {
@@ -20,7 +21,7 @@ KeyEventInserter &KeyEventInserter::operator<<(const char *cstr)
 	return operator<<(str);
 }
 
-void KeyEventInserter::flush(uint64 offset)
+void KeyEventInserter::flush()
 {
 	SDL_Event event;
 	EmuTimeFreq<10> time;	// 10 Hz

@@ -28,12 +28,13 @@
 #define __MSXPPI_HH__
 
 #include "MSXIODevice.hh"
-#include "EmuTime.hh"
-#include "I8255.hh"
 #include "Keyboard.hh"
+#include "I8255.hh"
 
 // forward declarations
 class KeyClick;
+class EmuTime;
+
 
 // David Hermans original comments 
 // This class implements the PPI

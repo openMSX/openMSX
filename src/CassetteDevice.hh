@@ -3,8 +3,9 @@
 #ifndef __CASSETTEDEVICE_HH__
 #define __CASSETTEDEVICE_HH__
 
-#include "openmsx.hh"
-#include "EmuTime.hh"
+// forward declarations
+class EmuTime;
+
 
 class CassetteDevice
 {

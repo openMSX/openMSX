@@ -7,11 +7,11 @@
 #include <list>
 #include <iostream>
 #include <sstream>
+#include "openmsx.hh"
 
 // sample xml msxconfig file is available in msxconfig.xml in this dir
 
 #include "msxexception.hh"
-#include "EmuTime.hh"
 
 // predefines
 class XMLTree;

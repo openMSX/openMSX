@@ -4,10 +4,13 @@
 #define __MSXCPU_HH__
 
 #include "MSXDevice.hh"
-#include "MSXMotherBoard.hh"
 #include "Scheduler.hh"
-#include "Z80.hh"
-//#include "MSXR800.hh"
+
+// forward declaration
+class CPU;
+class Z80;
+//class R800;
+
 
 class MSXCPU : public MSXDevice, public Schedulable
 {

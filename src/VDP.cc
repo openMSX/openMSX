@@ -43,7 +43,6 @@ TODO:
 #include "VDPCmdEngine.hh"
 
 #include <SDL/SDL.h>
-
 #include <string>
 #include <cassert>
 

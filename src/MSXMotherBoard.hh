@@ -5,9 +5,6 @@
 
 #include <fstream>
 #include <vector>
-
-#include "Scheduler.hh"
-#include "EmuTime.hh"
 #include "CPUInterface.hh"
 #include "msxconfig.hh"
 
@@ -15,6 +12,8 @@
 class MSXDevice;
 class MSXIODevice;
 class MSXMemDevice;
+class EmuTime;
+
 
 class MSXMotherBoard : public CPUInterface
 {	

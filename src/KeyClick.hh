@@ -4,10 +4,11 @@
 #define __KEYCLICK_HH__
 
 #include "openmsx.hh"
-#include "EmuTime.hh"
 
 // forward declaration
 class DACSound;
+class EmuTime;
+
 
 class KeyClick
 {

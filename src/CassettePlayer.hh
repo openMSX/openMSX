@@ -4,7 +4,8 @@
 #define __CASSETTEPLAYER_HH__
 
 #include "CassetteDevice.hh"
-#include "SDL/SDL.h"
+#include "EmuTime.hh"
+#include <SDL/SDL.h>
 
 class CassettePlayer : public CassetteDevice
 {
