@@ -12,6 +12,8 @@ $Id$
 	   added
 	     <user>/share/systemroms  and  <system>/share/systemroms
 	   as default rom pool locations. The use can still add more pools.
+	* Fixed crash on "save_settings" when there was no settings.xml file
+	  loaded
 
 2004-09-18 Maarten ter Huurne <maarten@treewalker.org>
 	* Cleaned up layer system:

@@ -30,7 +30,7 @@ SettingsConfig& SettingsConfig::instance()
 
 void SettingsConfig::loadSetting(FileContext& context, const string& filename)
 {
-	loadName = context.resolve(filename);
+	loadName = context.resolveCreate(filename);
 	File file(loadName);
 	XMLDocument doc(file.getLocalName());
 	handleDoc(*this, doc, context);
@@ -39,8 +39,8 @@ void SettingsConfig::loadSetting(FileContext& context, const string& filename)
 void SettingsConfig::saveSetting(const string& filename)
 {
 	const string& saveName = filename.empty() ? loadName : filename;
-	string data = dump();
 	File file(saveName, TRUNCATE);
+	string data = dump();
 	file.write((const byte*)data.c_str(), data.size());
 }
 
@@ -55,17 +55,21 @@ SettingsConfig::SaveSettingsCommand::SaveSettingsCommand(
 string SettingsConfig::SaveSettingsCommand::execute(
 	const vector<string>& tokens)
 {
-	switch (tokens.size()) {
-		case 1:
-			parent.saveSetting();
-			break;
-		
-		case 2:
-			parent.saveSetting(tokens[1]);
-			break;
+	try {
+		switch (tokens.size()) {
+			case 1:
+				parent.saveSetting();
+				break;
 			
-		default:
-			throw SyntaxError();
+			case 2:
+				parent.saveSetting(tokens[1]);
+				break;
+				
+			default:
+				throw SyntaxError();
+		}
+	} catch (FileException& e) {
+		throw CommandException(e.getMessage());
 	}
 	return "";
 }
