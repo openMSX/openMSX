@@ -399,7 +399,8 @@ void SDLRasterizer<Pixel, zoom>::setPalette(
 		V9938_COLOURS[(grb >> 4) & 7][grb >> 8][grb & 7];
 
 	// Is this the background colour?
-	if (vdp->getTransparency() && vdp->getBackgroundColour() == index) {
+	if (vdp->getTransparency()
+	&& (index == 0 || index == vdp->getBackgroundColour()) ) {
 		// Transparent pixels have background colour.
 		precalcColourIndex0(vdp->getDisplayMode());
 		// Note: Relies on the fact that precalcColourIndex0 flushes the cache.
