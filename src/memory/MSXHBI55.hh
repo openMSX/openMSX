@@ -36,6 +36,7 @@ public:
 	virtual void writeC1(nibble value, const EmuTime& time);
 
 private:
+	byte readSRAM(word address);
 	SRAM sram;
 	word address;
 	byte mode;

@@ -3,6 +3,7 @@ $Id$
 2004-03-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Reduce memory usage in Y8950Adpcm:
 	   - found by massif (part of valgrind)
+	* Fixed HBI-55: address 0 is read only and contains 0x53
 
 2004-03-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Another config refactoring:

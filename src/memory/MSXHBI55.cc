@@ -32,7 +32,6 @@
 #include "MSXHBI55.hh"
 #include "Config.hh"
 
-
 namespace openmsx {
 
 // MSXDevice
@@ -76,13 +75,13 @@ byte MSXHBI55::readIO(byte port, const EmuTime& time)
 		assert(false);
 		result = 0;
 	}
-	PRT_DEBUG("HBI-55 read "<<hex<<(int)port<<" "<<(int)result<<dec);
+	//PRT_DEBUG("HBI-55 read "<<hex<<(int)port<<" "<<(int)result<<dec);
 	return result;
 }
 
 void MSXHBI55::writeIO(byte port, byte value, const EmuTime& time)
 {
-	PRT_DEBUG("HBI-55 write "<<hex<<(int)port<<" "<<(int)value<<dec);
+	//PRT_DEBUG("HBI-55 write "<<hex<<(int)port<<" "<<(int)value<<dec);
 	switch (port & 0x03) {
 	case 0:
 		i8255->writePortA(value, time);
@@ -127,29 +126,33 @@ void MSXHBI55::writeB(byte value, const EmuTime& time)
 
 nibble MSXHBI55::readC1(const EmuTime& time)
 {
+	byte result;
 	if (mode == 0xC0) {
 		// read mode
-		return sram.read(address) >> 4;
+		result = readSRAM(address) >> 4;
 	} else {
 		// TODO check
-		return 15;
+		result = 15;
 	}
+	return result;
 }
 nibble MSXHBI55::readC0(const EmuTime& time)
 {
+	byte result;
 	if (mode == 0xC0) {
 		// read mode
-		return sram.read(address) & 0x0F;
+		result = readSRAM(address) & 0x0F;
 	} else {
 		// TODO check
-		return 15;
+		result = 15;
 	}
+	return result;
 }
 void MSXHBI55::writeC1(nibble value, const EmuTime& time)
 {
 	if (mode == 0x40) {
 		// write mode
-		byte tmp = sram.read(address);
+		byte tmp = readSRAM(address);
 		sram.write(address, (tmp & 0x0F) | (value << 4));
 	} else {
 		// TODO check
@@ -160,11 +163,20 @@ void MSXHBI55::writeC0(nibble value, const EmuTime& time)
 {
 	if (mode == 0x40) {
 		// write mode
-		byte tmp = sram.read(address);
+		byte tmp = readSRAM(address);
 		sram.write(address, (tmp & 0xF0) | value);
 	} else {
 		// TODO check
 		// nothing 
+	}
+}
+
+byte MSXHBI55::readSRAM(word address)
+{
+	if (address != 0) {
+		return sram.read(address);
+	} else {
+		return 0x53;
 	}
 }
 
