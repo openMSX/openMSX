@@ -1,7 +1,6 @@
 // $Id$
 
 #include <sstream>
-#include <typeinfo>
 #include "Settings.hh"
 #include "CommandController.hh"
 #include "RenderSettings.hh"
@@ -331,31 +330,30 @@ void SettingsManager::ToggleCommand::execute(
 	}
 
 	if (nrTokens == 1) {
-		// List all boolean settings.
+		// list all boolean settings
 		std::map<std::string, Setting *>::const_iterator it =
 			manager->settingsMap.begin();
 		for (; it != manager->settingsMap.end(); it++) {
-			if (typeid(*(it->second)) == typeid(BooleanSetting)) {
+			if (dynamic_cast<BooleanSetting*>(it->second)) {
 				print(it->first);
 			}
 		}
 		return;
 	}
  
-	// Get setting object.
+	// get setting object
 	const std::string &name = tokens[1];
 	Setting *setting = manager->getByName(name);
 	if (!setting) {
 		throw CommandException(
 			"There is no setting named \"" + name + "\"" );
 	}
-	if (typeid(*setting) != typeid(BooleanSetting)) {
+	BooleanSetting* boolSetting = dynamic_cast<BooleanSetting*>(setting);
+	if (!boolSetting) {
 		throw CommandException(
 			"The setting named \"" + name + "\" is not a boolean" );
 	}
-	BooleanSetting *boolSetting = (BooleanSetting *)setting;
-
-	// Actual toggle.
+	// actual toggle
 	boolSetting->setValue(!boolSetting->getValue(), time);
 
 }
@@ -377,7 +375,7 @@ void SettingsManager::ToggleCommand::tabCompletion(
 			std::map<std::string, Setting *>::const_iterator it
 				= manager->settingsMap.begin();
 			for (; it != manager->settingsMap.end(); it++) {
-				if (typeid(*(it->second)) == typeid(BooleanSetting)) {
+				if (dynamic_cast<BooleanSetting*>(it->second)) {
 					settings.push_back(it->first);
 				}
 			}
