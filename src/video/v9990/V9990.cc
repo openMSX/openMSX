@@ -9,7 +9,6 @@
 #include "V9990VRAM.hh"
 #include "V9990CmdEngine.hh"
 #include "V9990Renderer.hh"
-#include "RenderSettings.hh"
 #include <cassert>
 #include <iomanip>
 

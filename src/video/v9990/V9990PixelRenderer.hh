@@ -4,6 +4,7 @@
 #define __V9990PIXELRENDERER_HH__
 
 #include "V9990Renderer.hh"
+#include "SettingListener.hh"
 #include "V9990DisplayTiming.hh"
 #include "openmsx.hh"
 
@@ -17,7 +18,7 @@ class V9990Rasterizer;
   *
   * @see PixelRenderer.cc
   */
-class V9990PixelRenderer : public V9990Renderer
+class V9990PixelRenderer : public V9990Renderer, private SettingListener
 {
 public:
 	/** Constructor.
@@ -76,6 +77,11 @@ private:
 	/** Should current frame be draw or can it be skipped.
 	  */
 	bool drawFrame;
+
+	/** Frameskip
+	  */
+	int frameSkipCounter;
+	double finishFrameDuration;
 	
 	/**
 	  */
@@ -100,6 +106,11 @@ private:
 	void render(int fromX, int fromY, int toX, int toY,
 			    int clipL, int clipT, int clipR, int clipB,
 				DrawType drawType);
-}; // class V9990Renderer
+
+	// SettingListener
+	virtual void update(const Setting* setting);
+};
+
 } // namespace openmsx
+
 #endif

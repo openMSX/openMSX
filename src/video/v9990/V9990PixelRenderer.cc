@@ -8,8 +8,11 @@
 #include "Display.hh"
 #include "VideoSystem.hh"
 #include "FinishFrameEvent.hh"
+#include "RealTime.hh"
+#include "Timer.hh"
 #include "EventDistributor.hh"
 #include "RenderSettings.hh"
+#include "IntegerSetting.hh"
 #include "openmsx.hh"
 
 namespace openmsx {
@@ -21,14 +24,20 @@ V9990PixelRenderer::V9990PixelRenderer(V9990* vdp_)
 	  horTiming(&V9990DisplayTiming::lineMCLK),
 	  verTiming(&V9990DisplayTiming::displayNTSC_MCLK)
 {
-	PRT_DEBUG("V9990PixelRenderer::V9990PixelRenderer");
+	frameSkipCounter = 999; // force drawing of frame;
+	finishFrameDuration = 0;
+	drawFrame = false; // don't draw before frameStart is called
 	
 	reset(Scheduler::instance().getCurrentTime());
+
+	settings.getMaxFrameSkip()->addListener(this);
+	settings.getMinFrameSkip()->addListener(this);
 }
 
 V9990PixelRenderer::~V9990PixelRenderer()
 {
-	PRT_DEBUG("V9990PixelRenderer::~V9990PixelRenderer");
+	settings.getMaxFrameSkip()->removeListener(this);
+	settings.getMinFrameSkip()->removeListener(this);
 }
 	
 void V9990PixelRenderer::reset(const EmuTime& time)
@@ -37,7 +46,6 @@ void V9990PixelRenderer::reset(const EmuTime& time)
 
 	lastX = 0;
 	lastY = 0;
-	drawFrame = true;
 
 	setDisplayMode(vdp->getDisplayMode(), time);
 	setColorMode(vdp->getColorMode(), time);
@@ -48,10 +56,22 @@ void V9990PixelRenderer::reset(const EmuTime& time)
 void V9990PixelRenderer::frameStart(const EmuTime& time)
 {
 	if (rasterizer->getZ() == Layer::Z_MSX_PASSIVE) {
+		// V99x8 is active
+		frameSkipCounter = 0;
 		drawFrame = false;
-	} else {
-		// TODO frameskip stuff
+	} else if (frameSkipCounter < settings.getMinFrameSkip()->getValue()) {
+		++frameSkipCounter;
+		drawFrame = false;
+	} else if (frameSkipCounter >= settings.getMaxFrameSkip()->getValue()) {
+		frameSkipCounter = 0;
 		drawFrame = true;
+	} else {
+		++frameSkipCounter;
+		drawFrame = RealTime::instance().timeLeft(
+			(unsigned)finishFrameDuration, time);
+		if (drawFrame) {
+			frameSkipCounter = 0;
+		}
 	}
 	if (!drawFrame) return;
 	
@@ -65,6 +85,8 @@ void V9990PixelRenderer::frameEnd(const EmuTime& time)
 	PRT_DEBUG("V9990PixelRenderer::frameEnd");
 	
 	if (!drawFrame) return;
+
+	unsigned long long time1 = Timer::getTime();
 	
 	// Render last changes in this frame before starting a new frame
 	// sync(time);
@@ -72,6 +94,12 @@ void V9990PixelRenderer::frameEnd(const EmuTime& time)
 	lastX = 0; lastY = 0;
 	rasterizer->frameEnd();
 
+	unsigned long long time2 = Timer::getTime();
+	unsigned long long current = time2 - time1;
+	const double ALPHA = 0.2;
+	finishFrameDuration = finishFrameDuration * (1 - ALPHA) +
+	                      current * ALPHA;
+	
 	FinishFrameEvent *f = new FinishFrameEvent(VIDEO_GFX9000);
 	EventDistributor::instance().distributeEvent(f);
 }
@@ -256,6 +284,17 @@ void V9990PixelRenderer::updateBackgroundColor(int index, const EmuTime& time)
 void V9990PixelRenderer::setImageWidth(int width)
 {
 	rasterizer->setImageWidth(width);
+}
+
+void V9990PixelRenderer::update(const Setting* setting)
+{
+	if (setting == settings.getMinFrameSkip() ||
+	    setting == settings.getMaxFrameSkip()) {
+		// Force drawing of frame
+		frameSkipCounter = 999;
+	} else {
+		assert(false);
+	}
 }
 
 } // namespace openmsx

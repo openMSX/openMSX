@@ -9,6 +9,7 @@
 namespace openmsx {
 
 class EmuTime;
+class RenderSettings;
 
 /** Abstract base class for V9990 renderers.
   * A V9990Renderer is a class that covnerts the V9990 state into
@@ -74,6 +75,10 @@ public:
 	  */
 	virtual void setImageWidth(int width) = 0;
 
-}; // class V9990Renderer
+protected:
+	RenderSettings& settings;
+};
+
 } // namespace openmsx
+
 #endif

@@ -1,5 +1,10 @@
 $Id$
 
+2005-02-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented frameskip for gfx9000:
+	   I mostly copied code from V99x8 renderer, we might want to factor
+	   this common code out in the future
+
 2005-02-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added locking to EventDistributor:
 	   There was a race in EventDistributor (long time already).

@@ -1,6 +1,7 @@
 // $Id$
 
 #include "V9990Renderer.hh"
+#include "RenderSettings.hh"
 
 namespace openmsx {
 
@@ -8,6 +9,7 @@ namespace openmsx {
   * methods mentioned here...
   */
 V9990Renderer::V9990Renderer()
+	: settings(RenderSettings::instance())
 {
 }
 
