@@ -66,31 +66,32 @@ void CPU::makeTables()
 
 void CPU::reset(const EmuTime &time)
 {
-	// AF and SP are 0xffff
+	// AF and SP are 0xFFFF
 	// PC, R, IFF1, IFF2, HALT and IM are 0x0
 	// all others are random
-	R.AF.w = 0xffff;
-	R.BC.w = 0xffff;
-	R.DE.w = 0xffff;
-	R.HL.w = 0xffff;
-	R.IX.w = 0xffff;
-	R.IY.w = 0xffff;
-	R.PC.w = 0x0000;
-	R.SP.w = 0xffff;
-	R.AF2.w = 0xffff;
-	R.BC2.w = 0xffff;
-	R.DE2.w = 0xffff;
-	R.HL2.w = 0xffff;
+	R.AF.w  = 0xFFFF;
+	R.BC.w  = 0xFFFF;
+	R.DE.w  = 0xFFFF;
+	R.HL.w  = 0xFFFF;
+	R.IX.w  = 0xFFFF;
+	R.IY.w  = 0xFFFF;
+	R.PC.w  = 0x0000;
+	R.SP.w  = 0xFFFF;
+	R.AF2.w = 0xFFFF;
+	R.BC2.w = 0xFFFF;
+	R.DE2.w = 0xFFFF;
+	R.HL2.w = 0xFFFF;
 	R.nextIFF1 = false;
-	R.IFF1 = false;
-	R.IFF2 = false;
-	R.HALT = false;
+	R.IFF1     = false;
+	R.IFF2     = false;
+	R.HALT     = false;
 	R.IM = 0;
-	R.I = 0xff;
-	R.R = 0x00;
+	R.I  = 0xFF;
+	R.R  = 0x00;
 	R.R2 = 0;
 	IRQStatus = 0;
-	invalidateCache(0x0000, 0x10000/CPU::CACHE_LINE_SIZE);
+	memptr.w = 0xFFFF;
+	invalidateCache(0x0000, 0x10000 / CPU::CACHE_LINE_SIZE);
 	setCurrentTime(time);
 	
 	resetCore();

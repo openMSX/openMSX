@@ -1,5 +1,9 @@
 $Id$
 
+2003-06-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented undocumented flag bits for "BIT n,(HL)" instructions,
+	  ZEXALL test still passes
+
 2003-06-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Improved performance for tab-completion:
 	    without this patch "diska <tab>" could take several seconds

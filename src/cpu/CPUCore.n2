@@ -16,6 +16,7 @@ void _CPU_::resetCore() {
 inline bool _CPU_::READ_PORT(word port, byte &result, ResumeFunc f)
 {
 	if ((currentTime + IO_DELAY1) < targetTime) {
+		memptr.w = port + 1;
 		currentTime += IO_DELAY1;
 		assert (currentTime < targetTime);
 		//PRT_DEBUG("CPU: In 0x" << std::hex << (int)port <<
@@ -33,6 +34,7 @@ inline bool _CPU_::READ_PORT(word port, byte &result, ResumeFunc f)
 inline bool _CPU_::WRITE_PORT(word port, byte value, ResumeFunc f)
 {
 	if ((currentTime + IO_DELAY1) < targetTime) {
+		memptr.w = port + 1;
 		currentTime += IO_DELAY1;
 		assert (currentTime < targetTime);
 		//PRT_DEBUG("CPU: Out 0x" << std::hex << (int)port <<
@@ -444,12 +446,12 @@ void _CPU_::ld_xhl_byte(){
 
 // LD (IX+e),r
 inline void _CPU_::WR_X_X() {
-	if (WRMEM(x.w, dummy, &_CPU_::WR_X_X)) {
+	if (WRMEM(memptr.w, dummy, &_CPU_::WR_X_X)) {
 	}
 }
 inline void _CPU_::WR_XIX() {
 	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::WR_XIX)) {
-		R.PC.w++; x.w = R.IX.w + ofst; ADD_16_8_DELAY(); WR_X_X();
+		R.PC.w++; memptr.w = R.IX.w + ofst; ADD_16_8_DELAY(); WR_X_X();
 	}
 }
 void _CPU_::ld_xix_a() { dummy = R.AF.B.h; WR_XIX(); }
@@ -463,7 +465,7 @@ void _CPU_::ld_xix_l() { dummy = R.HL.B.l; WR_XIX(); }
 // LD (IY+e),r
 inline void _CPU_::WR_XIY() {
 	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::WR_XIY)) {
-		R.PC.w++; x.w = R.IY.w + ofst; ADD_16_8_DELAY(); WR_X_X();
+		R.PC.w++; memptr.w = R.IY.w + ofst; ADD_16_8_DELAY(); WR_X_X();
 	}
 }
 void _CPU_::ld_xiy_a() { dummy = R.AF.B.h; WR_XIY(); }
@@ -482,7 +484,7 @@ void _CPU_::ld_xix_byte1() {
 }
 void _CPU_::ld_xix_byte() {
 	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::ld_xix_byte)) {
-		R.PC.w++; x.w = R.IX.w + ofst; ld_xix_byte1();
+		R.PC.w++; memptr.w = R.IX.w + ofst; ld_xix_byte1();
 	}
 }
 
@@ -494,13 +496,14 @@ void _CPU_::ld_xiy_byte1() {
 }
 void _CPU_::ld_xiy_byte() {
 	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::ld_xiy_byte)) {
-		R.PC.w++; x.w = R.IY.w + ofst; ld_xiy_byte1();
+		R.PC.w++; memptr.w = R.IY.w + ofst; ld_xiy_byte1();
 	}
 }
 
 // LD (nn),A
 void _CPU_::ld_xbyte_a1() {
 	if (RDMEM(R.PC.w, x.B.h, &_CPU_::ld_xbyte_a1)) {
+		memptr.w = R.AF.B.h << 8;
 		R.PC.w++; WR_X_A();
 	}
 }
@@ -510,23 +513,24 @@ void _CPU_::ld_xbyte_a() {
 	}
 }
 
-// LD (ss),nn
+// LD (nn),ss
 inline void _CPU_::WR_X_Y1() {
-	if (WRMEM(x.w, y.B.h, &_CPU_::WR_X_Y1)) {
+	if (WRMEM(memptr.w, y.B.h, &_CPU_::WR_X_Y1)) {
 	}
 }
 inline void _CPU_::WR_X_Y() {
-	if (WRMEM(x.w, y.B.l, &_CPU_::WR_X_Y)) {
-		x.w++; WR_X_Y1();
+	if (WRMEM(memptr.w, y.B.l, &_CPU_::WR_X_Y)) {
+		memptr.w++;
+		WR_X_Y1();
 	}
 }
 inline void _CPU_::WR_NN_Y1() {
-	if (RDMEM(R.PC.w, x.B.h, &_CPU_::WR_NN_Y1)) {
+	if (RDMEM(R.PC.w, memptr.B.h, &_CPU_::WR_NN_Y1)) {
 		R.PC.w++; WR_X_Y();
 	}
 }
 inline void _CPU_::WR_NN_Y() {
-	if (RDMEM(R.PC.w, x.B.l, &_CPU_::WR_NN_Y)) {
+	if (RDMEM(R.PC.w, memptr.B.l, &_CPU_::WR_NN_Y)) {
 		R.PC.w++; WR_NN_Y1();
 	}
 }
@@ -548,20 +552,21 @@ void _CPU_::ld_a_xhl() { x.w = R.HL.w; RD_A_X(); }
 // LD A,(IX+e)
 void _CPU_::ld_a_xix() {   
 	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::ld_a_xix)) {
-		R.PC.w++; x.w = R.IX.w + ofst; RD_A_X();
+		R.PC.w++; x.w = R.IX.w + ofst; memptr.w = x.w; RD_A_X();
 	}
 }
 
 // LD A,(IY+e)
 void _CPU_::ld_a_xiy() {   
 	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::ld_a_xiy)) {
-		R.PC.w++; x.w = R.IY.w + ofst; RD_A_X();
+		R.PC.w++; x.w = R.IY.w + ofst; memptr.w = x.w; RD_A_X();
 	}
 }
 
 // LD A,(nn)
 void _CPU_::ld_a_xbyte1() {
 	if (RDMEM(R.PC.w, x.B.h, &_CPU_::ld_a_xbyte1)) {
+		memptr.w = x.w + 1;
 		R.PC.w++; RD_A_X();
 	}
 }
@@ -603,12 +608,12 @@ void _CPU_::ld_l_xhl()   { p = &R.HL.B.l; RD_R_HL(); }
 
 // LD r,(IX+e)
 inline void _CPU_::RD_R_X() {
-	if (RDMEM(x.w, *p, &_CPU_::RD_R_X)) {
+	if (RDMEM(memptr.w, *p, &_CPU_::RD_R_X)) {
 	}
 }
 inline void _CPU_::RD_R_XIX() {   
 	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::RD_R_XIX)) {
-		R.PC.w++; x.w = R.IX.w + ofst; RD_R_X();
+		R.PC.w++; memptr.w = R.IX.w + ofst; RD_R_X();
 	}
 }
 void _CPU_::ld_b_xix()   { p = &R.BC.B.h; RD_R_XIX(); }
@@ -621,7 +626,7 @@ void _CPU_::ld_l_xix()   { p = &R.HL.B.l; RD_R_XIX(); }
 // LD r,(IY+e)
 inline void _CPU_::RD_R_XIY() {   
 	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::RD_R_XIY)) {
-		R.PC.w++; x.w = R.IY.w + ofst; RD_R_X();
+		R.PC.w++; memptr.w = R.IY.w + ofst; RD_R_X();
 	}
 }
 void _CPU_::ld_b_xiy()   { p = &R.BC.B.h; RD_R_XIY(); }
@@ -633,21 +638,21 @@ void _CPU_::ld_l_xiy()   { p = &R.HL.B.l; RD_R_XIY(); }
 
 // LD ss,(nn)
 inline void _CPU_::RD_P_XX3() {
-	if (RDMEM(x.w, *p, &_CPU_::RD_P_XX3)) {
+	if (RDMEM(memptr.w, *p, &_CPU_::RD_P_XX3)) {
 	}
 }
 inline void _CPU_::RD_P_XX2() {
-	if (RDMEM(x.w, *p, &_CPU_::RD_P_XX2)) {
-		x.w++; pLowToHigh(); RD_P_XX3();
+	if (RDMEM(memptr.w, *p, &_CPU_::RD_P_XX2)) {
+		memptr.w++; pLowToHigh(); RD_P_XX3();
 	}
 }
 inline void _CPU_::RD_P_XX1() {
-	if (RDMEM(R.PC.w, x.B.h, &_CPU_::RD_P_XX1)) {
+	if (RDMEM(R.PC.w, memptr.B.h, &_CPU_::RD_P_XX1)) {
 		R.PC.w++; RD_P_XX2();
 	}
 }
 inline void _CPU_::RD_P_XX() {
-	if (RDMEM(R.PC.w, x.B.l, &_CPU_::RD_P_XX)) {
+	if (RDMEM(R.PC.w, memptr.B.l, &_CPU_::RD_P_XX)) {
 		R.PC.w++; RD_P_XX1();
 	}
 }
@@ -712,12 +717,14 @@ inline void _CPU_::adc_a_x() {
 void _CPU_::adc_a_xhl() { x.w = R.HL.w; adc_a_x(); }
 void _CPU_::adc_a_xix() {
 	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::adc_a_xix)) {
-		R.PC.w++; x.w = R.IX.w + ofst; ADD_16_8_DELAY(); adc_a_x();
+		R.PC.w++; x.w = R.IX.w + ofst; memptr.w = x.w;
+		ADD_16_8_DELAY(); adc_a_x();
 	}
 }
 void _CPU_::adc_a_xiy() {
 	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::adc_a_xiy)) {
-		R.PC.w++; x.w = R.IY.w + ofst; ADD_16_8_DELAY(); adc_a_x();
+		R.PC.w++; x.w = R.IY.w + ofst; memptr.w = x.w;
+		ADD_16_8_DELAY(); adc_a_x();
 	}
 }
 
@@ -756,12 +763,14 @@ inline void _CPU_::add_a_x() {
 void _CPU_::add_a_xhl() { x.w = R.HL.w; add_a_x(); }
 void _CPU_::add_a_xix() {
 	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::add_a_xix)) {
-		R.PC.w++; x.w = R.IX.w + ofst; ADD_16_8_DELAY(); add_a_x();
+		R.PC.w++; x.w = R.IX.w + ofst; memptr.w = x.w;
+		ADD_16_8_DELAY(); add_a_x();
 	}
 }
 void _CPU_::add_a_xiy() {
 	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::add_a_xiy)) {
-		R.PC.w++; x.w = R.IY.w + ofst; ADD_16_8_DELAY(); add_a_x();
+		R.PC.w++; x.w = R.IY.w + ofst; memptr.w = x.w;
+		ADD_16_8_DELAY(); add_a_x();
 	}
 }
 
@@ -796,12 +805,14 @@ inline void _CPU_::and_x() {
 void _CPU_::and_xhl() { x.w = R.HL.w; and_x(); }
 void _CPU_::and_xix() {
 	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::and_xix)) {
-		R.PC.w++; x.w = R.IX.w + ofst; ADD_16_8_DELAY(); and_x();
+		R.PC.w++; x.w = R.IX.w + ofst; memptr.w = x.w;
+		ADD_16_8_DELAY(); and_x();
 	}
 }
 void _CPU_::and_xiy() {
 	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::and_xiy)) {
-		R.PC.w++; x.w = R.IY.w + ofst; ADD_16_8_DELAY(); and_x();
+		R.PC.w++; x.w = R.IY.w + ofst; memptr.w = x.w;
+		ADD_16_8_DELAY(); and_x();
 	}
 }
 
@@ -841,12 +852,14 @@ inline void _CPU_::cp_x() {
 void _CPU_::cp_xhl() { x.w = R.HL.w; cp_x(); }
 void _CPU_::cp_xix() {
 	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::cp_xix)) {
-		R.PC.w++; x.w = R.IX.w + ofst; ADD_16_8_DELAY(); cp_x();
+		R.PC.w++; x.w = R.IX.w + ofst; memptr.w = x.w;
+		ADD_16_8_DELAY(); cp_x();
 	}
 }
 void _CPU_::cp_xiy() {
 	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::cp_xiy)) {
-		R.PC.w++; x.w = R.IY.w + ofst; ADD_16_8_DELAY(); cp_x();
+		R.PC.w++; x.w = R.IY.w + ofst; memptr.w = x.w;
+		ADD_16_8_DELAY(); cp_x();
 	}
 }
 
@@ -881,12 +894,14 @@ inline void _CPU_::or_x() {
 void _CPU_::or_xhl() { x.w = R.HL.w; or_x(); }
 void _CPU_::or_xix() {
 	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::or_xix)) {
-		R.PC.w++; x.w = R.IX.w + ofst; ADD_16_8_DELAY(); or_x();
+		R.PC.w++; x.w = R.IX.w + ofst; memptr.w = x.w;
+		ADD_16_8_DELAY(); or_x();
 	}
 }
 void _CPU_::or_xiy() {
 	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::or_xiy)) {
-		R.PC.w++; x.w = R.IY.w + ofst; ADD_16_8_DELAY(); or_x();
+		R.PC.w++; x.w = R.IY.w + ofst; memptr.w = x.w;
+		ADD_16_8_DELAY(); or_x();
 	}
 }
 
@@ -926,12 +941,14 @@ inline void _CPU_::sbc_a_x() {
 void _CPU_::sbc_a_xhl() { x.w = R.HL.w; sbc_a_x(); }
 void _CPU_::sbc_a_xix() {
 	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::sbc_a_xix)) {
-		R.PC.w++; x.w = R.IX.w + ofst; ADD_16_8_DELAY(); sbc_a_x();
+		R.PC.w++; x.w = R.IX.w + ofst; memptr.w = x.w;
+		ADD_16_8_DELAY(); sbc_a_x();
 	}
 }
 void _CPU_::sbc_a_xiy() {
 	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::sbc_a_xiy)) {
-		R.PC.w++; x.w = R.IY.w + ofst; ADD_16_8_DELAY(); sbc_a_x();
+		R.PC.w++; x.w = R.IY.w + ofst; memptr.w = x.w;
+		ADD_16_8_DELAY(); sbc_a_x();
 	}
 }
 
@@ -971,12 +988,14 @@ inline void _CPU_::sub_x() {
 void _CPU_::sub_xhl() { x.w = R.HL.w; sub_x(); }
 void _CPU_::sub_xix() {
 	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::sub_xix)) {
-		R.PC.w++; x.w = R.IX.w + ofst; ADD_16_8_DELAY(); sub_x();
+		R.PC.w++; x.w = R.IX.w + ofst; memptr.w = x.w;
+		ADD_16_8_DELAY(); sub_x();
 	}
 }
 void _CPU_::sub_xiy() {
 	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::sub_xiy)) {
-		R.PC.w++; x.w = R.IY.w + ofst; ADD_16_8_DELAY(); sub_x();
+		R.PC.w++; x.w = R.IY.w + ofst; memptr.w = x.w;
+		ADD_16_8_DELAY(); sub_x();
 	}
 }
 
@@ -1012,12 +1031,14 @@ inline void _CPU_::xor_x() {
 void _CPU_::xor_xhl() { x.w = R.HL.w; xor_x(); }
 void _CPU_::xor_xix() {
 	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::xor_xix)) {
-		R.PC.w++; x.w = R.IX.w + ofst; ADD_16_8_DELAY(); xor_x();
+		R.PC.w++; x.w = R.IX.w + ofst; memptr.w = x.w;
+		ADD_16_8_DELAY(); xor_x();
 	}
 }
 void _CPU_::xor_xiy() {
 	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::xor_xiy)) {
-		R.PC.w++; x.w = R.IY.w + ofst; ADD_16_8_DELAY(); xor_x();
+		R.PC.w++; x.w = R.IY.w + ofst; memptr.w = x.w;
+		ADD_16_8_DELAY(); xor_x();
 	}
 }
 
@@ -1055,12 +1076,14 @@ inline void _CPU_::DEC_X1() {
 void _CPU_::dec_xhl() { x.w = R.HL.w; DEC_X(); }
 void _CPU_::dec_xix() {
 	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::dec_xix)) {
-		R.PC.w++; x.w = R.IX.w + ofst; ADD_16_8_DELAY(); DEC_X();
+		R.PC.w++; x.w = R.IX.w + ofst; memptr.w = x.w;
+		ADD_16_8_DELAY(); DEC_X();
 	}
 }
 void _CPU_::dec_xiy() {
 	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::dec_xiy)) {
-		R.PC.w++; x.w = R.IY.w + ofst; ADD_16_8_DELAY(); DEC_X();
+		R.PC.w++; x.w = R.IY.w + ofst; memptr.w = x.w;
+		ADD_16_8_DELAY(); DEC_X();
 	}
 }
 
@@ -1096,18 +1119,21 @@ inline void _CPU_::INC_X1() {
 void _CPU_::inc_xhl() { x.w = R.HL.w; INC_X(); }
 void _CPU_::inc_xix() {
 	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::inc_xix)) {
-		R.PC.w++; x.w = R.IX.w + ofst; ADD_16_8_DELAY(); INC_X();
+		R.PC.w++; x.w = R.IX.w + ofst; memptr.w = x.w;
+		ADD_16_8_DELAY(); INC_X();
 	}
 }
 void _CPU_::inc_xiy() {
 	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::inc_xiy)) {
-		R.PC.w++; x.w = R.IY.w + ofst; ADD_16_8_DELAY(); INC_X();
+		R.PC.w++; x.w = R.IY.w + ofst; memptr.w = x.w;
+		ADD_16_8_DELAY(); INC_X();
 	}
 }
 
 
 // ADC HL,ss
 inline void _CPU_::ADCW(word reg) {
+	memptr.w = R.HL.w + 1;
 	int res = R.HL.w + reg + ((R.AF.B.l & C_FLAG) ? 1 : 0);
 	R.AF.B.l = (((R.HL.w ^ res ^ reg) >> 8) & H_FLAG) |
 	           ((res & 0x10000) ? C_FLAG : 0) |
@@ -1124,6 +1150,7 @@ void _CPU_::adc_hl_sp() { ADCW(R.SP.w); }
 
 // ADD HL/IX/IY,ss
 inline void _CPU_::ADDW(word &reg1, word reg2) {
+	memptr.w = reg1 + 1;
 	int res = reg1 + reg2;
 	R.AF.B.l = (R.AF.B.l & (S_FLAG | Z_FLAG | V_FLAG)) |
 	           (((reg1 ^ res ^ reg2) >> 8) & H_FLAG) |
@@ -1147,6 +1174,7 @@ void _CPU_::add_iy_sp() { ADDW(R.IY.w, R.SP.w); }
 
 // SBC HL,ss
 inline void _CPU_::SBCW(word reg) {
+	memptr.w = R.HL.w + 1;
 	int res = R.HL.w - reg - ((R.AF.B.l & C_FLAG) ? 1 : 0);
 	R.AF.B.l = (((R.HL.w ^ res ^ reg) >> 8) & H_FLAG) |
 	           ((res & 0x10000) ? C_FLAG : 0) |
@@ -1249,8 +1277,8 @@ inline void _CPU_::BIT_HL() {
 	if (RDMEM(R.HL.w, n, &_CPU_::BIT_HL)) {
 		R.AF.B.l = (R.AF.B.l & C_FLAG) |
 			    ZSPTable[n & (1 << bit)] |
-			    //TODO
-			    H_FLAG;
+			    H_FLAG |
+			    memptr.B.h & (X_FLAG | Y_FLAG);
 		SMALL_DELAY();
 	}
 }
@@ -1267,10 +1295,11 @@ inline void _CPU_::BIT_IX() {
 	byte n;
 	word addr = R.IX.w + ofst;
 	if (RDMEM(addr, n, &_CPU_::BIT_IX)) {
+		memptr.w = addr;
 		R.AF.B.l = (R.AF.B.l & C_FLAG) | 
 			   ZSPTable[n & (1 << bit)] | 
 			   H_FLAG |
-			   ((addr >> 8) & (X_FLAG | Y_FLAG));
+			   memptr.B.h & (X_FLAG | Y_FLAG);
 		SMALL_DELAY();
 	}
 }
@@ -1287,10 +1316,11 @@ inline void _CPU_::BIT_IY() {
 	byte n;
 	word addr = R.IY.w + ofst;
 	if (RDMEM(addr, n, &_CPU_::BIT_IY)) {
+		memptr.w = addr;
 		R.AF.B.l = (R.AF.B.l & C_FLAG) | 
 			   ZSPTable[n & (1 << bit)] | 
 			   H_FLAG |
-			   ((addr >> 8) & (X_FLAG | Y_FLAG));
+			   memptr.B.h & (X_FLAG | Y_FLAG);
 		SMALL_DELAY();
 	}
 }
@@ -1363,6 +1393,10 @@ void _CPU_::res_7_e() { RES(7, R.DE.B.l); }
 void _CPU_::res_7_h() { RES(7, R.HL.B.h); }
 void _CPU_::res_7_l() { RES(7, R.HL.B.l); }
 
+inline void _CPU_::RES_X2() {
+	if (WRMEM(x.w, *p, &_CPU_::RES_X2)) {
+	}
+}
 inline void _CPU_::RES_X() {
 	if (RDMEM(x.w, *p, &_CPU_::RES_X)) {
 		RES(bit, *p); 
@@ -1370,10 +1404,7 @@ inline void _CPU_::RES_X() {
 		RES_X2();
 	}
 }
-inline void _CPU_::RES_X2() {
-	if (WRMEM(x.w, *p, &_CPU_::RES_X2)) {
-	}
-}
+inline void _CPU_::RES_X_() { memptr.w = x.w; RES_X(); }
 void _CPU_::res_0_xhl()   { bit = 0; x.w = R.HL.w; p = &dummy; RES_X(); }
 void _CPU_::res_1_xhl()   { bit = 1; x.w = R.HL.w; p = &dummy; RES_X(); }
 void _CPU_::res_2_xhl()   { bit = 2; x.w = R.HL.w; p = &dummy; RES_X(); }
@@ -1383,137 +1414,137 @@ void _CPU_::res_5_xhl()   { bit = 5; x.w = R.HL.w; p = &dummy; RES_X(); }
 void _CPU_::res_6_xhl()   { bit = 6; x.w = R.HL.w; p = &dummy; RES_X(); }
 void _CPU_::res_7_xhl()   { bit = 7; x.w = R.HL.w; p = &dummy; RES_X(); }
 
-void _CPU_::res_0_xix  () { bit = 0; x.w = R.IX.w + ofst; p = &dummy; RES_X(); }
-void _CPU_::res_1_xix  () { bit = 1; x.w = R.IX.w + ofst; p = &dummy; RES_X(); }
-void _CPU_::res_2_xix  () { bit = 2; x.w = R.IX.w + ofst; p = &dummy; RES_X(); }
-void _CPU_::res_3_xix  () { bit = 3; x.w = R.IX.w + ofst; p = &dummy; RES_X(); }
-void _CPU_::res_4_xix  () { bit = 4; x.w = R.IX.w + ofst; p = &dummy; RES_X(); }
-void _CPU_::res_5_xix  () { bit = 5; x.w = R.IX.w + ofst; p = &dummy; RES_X(); }
-void _CPU_::res_6_xix  () { bit = 6; x.w = R.IX.w + ofst; p = &dummy; RES_X(); }
-void _CPU_::res_7_xix  () { bit = 7; x.w = R.IX.w + ofst; p = &dummy; RES_X(); }
+void _CPU_::res_0_xix  () { bit = 0; x.w = R.IX.w + ofst; p = &dummy; RES_X_(); }
+void _CPU_::res_1_xix  () { bit = 1; x.w = R.IX.w + ofst; p = &dummy; RES_X_(); }
+void _CPU_::res_2_xix  () { bit = 2; x.w = R.IX.w + ofst; p = &dummy; RES_X_(); }
+void _CPU_::res_3_xix  () { bit = 3; x.w = R.IX.w + ofst; p = &dummy; RES_X_(); }
+void _CPU_::res_4_xix  () { bit = 4; x.w = R.IX.w + ofst; p = &dummy; RES_X_(); }
+void _CPU_::res_5_xix  () { bit = 5; x.w = R.IX.w + ofst; p = &dummy; RES_X_(); }
+void _CPU_::res_6_xix  () { bit = 6; x.w = R.IX.w + ofst; p = &dummy; RES_X_(); }
+void _CPU_::res_7_xix  () { bit = 7; x.w = R.IX.w + ofst; p = &dummy; RES_X_(); }
 
-void _CPU_::res_0_xiy  () { bit = 0; x.w = R.IY.w + ofst; p = &dummy; RES_X(); }
-void _CPU_::res_1_xiy  () { bit = 1; x.w = R.IY.w + ofst; p = &dummy; RES_X(); }
-void _CPU_::res_2_xiy  () { bit = 2; x.w = R.IY.w + ofst; p = &dummy; RES_X(); }
-void _CPU_::res_3_xiy  () { bit = 3; x.w = R.IY.w + ofst; p = &dummy; RES_X(); }
-void _CPU_::res_4_xiy  () { bit = 4; x.w = R.IY.w + ofst; p = &dummy; RES_X(); }
-void _CPU_::res_5_xiy  () { bit = 5; x.w = R.IY.w + ofst; p = &dummy; RES_X(); }
-void _CPU_::res_6_xiy  () { bit = 6; x.w = R.IY.w + ofst; p = &dummy; RES_X(); }
-void _CPU_::res_7_xiy  () { bit = 7; x.w = R.IY.w + ofst; p = &dummy; RES_X(); }
+void _CPU_::res_0_xiy  () { bit = 0; x.w = R.IY.w + ofst; p = &dummy; RES_X_(); }
+void _CPU_::res_1_xiy  () { bit = 1; x.w = R.IY.w + ofst; p = &dummy; RES_X_(); }
+void _CPU_::res_2_xiy  () { bit = 2; x.w = R.IY.w + ofst; p = &dummy; RES_X_(); }
+void _CPU_::res_3_xiy  () { bit = 3; x.w = R.IY.w + ofst; p = &dummy; RES_X_(); }
+void _CPU_::res_4_xiy  () { bit = 4; x.w = R.IY.w + ofst; p = &dummy; RES_X_(); }
+void _CPU_::res_5_xiy  () { bit = 5; x.w = R.IY.w + ofst; p = &dummy; RES_X_(); }
+void _CPU_::res_6_xiy  () { bit = 6; x.w = R.IY.w + ofst; p = &dummy; RES_X_(); }
+void _CPU_::res_7_xiy  () { bit = 7; x.w = R.IY.w + ofst; p = &dummy; RES_X_(); }
 
-void _CPU_::res_0_xix_a() { bit = 0; x.w = R.IX.w + ofst; p = &R.AF.B.h; RES_X(); }
-void _CPU_::res_0_xix_b() { bit = 0; x.w = R.IX.w + ofst; p = &R.BC.B.h; RES_X(); }
-void _CPU_::res_0_xix_c() { bit = 0; x.w = R.IX.w + ofst; p = &R.BC.B.l; RES_X(); }
-void _CPU_::res_0_xix_d() { bit = 0; x.w = R.IX.w + ofst; p = &R.DE.B.h; RES_X(); }
-void _CPU_::res_0_xix_e() { bit = 0; x.w = R.IX.w + ofst; p = &R.DE.B.l; RES_X(); }
-void _CPU_::res_0_xix_h() { bit = 0; x.w = R.IX.w + ofst; p = &R.HL.B.h; RES_X(); }
-void _CPU_::res_0_xix_l() { bit = 0; x.w = R.IX.w + ofst; p = &R.HL.B.l; RES_X(); }
-void _CPU_::res_1_xix_a() { bit = 1; x.w = R.IX.w + ofst; p = &R.AF.B.h; RES_X(); }
-void _CPU_::res_1_xix_b() { bit = 1; x.w = R.IX.w + ofst; p = &R.BC.B.h; RES_X(); }
-void _CPU_::res_1_xix_c() { bit = 1; x.w = R.IX.w + ofst; p = &R.BC.B.l; RES_X(); }
-void _CPU_::res_1_xix_d() { bit = 1; x.w = R.IX.w + ofst; p = &R.DE.B.h; RES_X(); }
-void _CPU_::res_1_xix_e() { bit = 1; x.w = R.IX.w + ofst; p = &R.DE.B.l; RES_X(); }
-void _CPU_::res_1_xix_h() { bit = 1; x.w = R.IX.w + ofst; p = &R.HL.B.h; RES_X(); }
-void _CPU_::res_1_xix_l() { bit = 1; x.w = R.IX.w + ofst; p = &R.HL.B.l; RES_X(); }
-void _CPU_::res_2_xix_a() { bit = 2; x.w = R.IX.w + ofst; p = &R.AF.B.h; RES_X(); }
-void _CPU_::res_2_xix_b() { bit = 2; x.w = R.IX.w + ofst; p = &R.BC.B.h; RES_X(); }
-void _CPU_::res_2_xix_c() { bit = 2; x.w = R.IX.w + ofst; p = &R.BC.B.l; RES_X(); }
-void _CPU_::res_2_xix_d() { bit = 2; x.w = R.IX.w + ofst; p = &R.DE.B.h; RES_X(); }
-void _CPU_::res_2_xix_e() { bit = 2; x.w = R.IX.w + ofst; p = &R.DE.B.l; RES_X(); }
-void _CPU_::res_2_xix_h() { bit = 2; x.w = R.IX.w + ofst; p = &R.HL.B.h; RES_X(); }
-void _CPU_::res_2_xix_l() { bit = 2; x.w = R.IX.w + ofst; p = &R.HL.B.l; RES_X(); }
-void _CPU_::res_3_xix_a() { bit = 3; x.w = R.IX.w + ofst; p = &R.AF.B.h; RES_X(); }
-void _CPU_::res_3_xix_b() { bit = 3; x.w = R.IX.w + ofst; p = &R.BC.B.h; RES_X(); }
-void _CPU_::res_3_xix_c() { bit = 3; x.w = R.IX.w + ofst; p = &R.BC.B.l; RES_X(); }
-void _CPU_::res_3_xix_d() { bit = 3; x.w = R.IX.w + ofst; p = &R.DE.B.h; RES_X(); }
-void _CPU_::res_3_xix_e() { bit = 3; x.w = R.IX.w + ofst; p = &R.DE.B.l; RES_X(); }
-void _CPU_::res_3_xix_h() { bit = 3; x.w = R.IX.w + ofst; p = &R.HL.B.h; RES_X(); }
-void _CPU_::res_3_xix_l() { bit = 3; x.w = R.IX.w + ofst; p = &R.HL.B.l; RES_X(); }
-void _CPU_::res_4_xix_a() { bit = 4; x.w = R.IX.w + ofst; p = &R.AF.B.h; RES_X(); }
-void _CPU_::res_4_xix_b() { bit = 4; x.w = R.IX.w + ofst; p = &R.BC.B.h; RES_X(); }
-void _CPU_::res_4_xix_c() { bit = 4; x.w = R.IX.w + ofst; p = &R.BC.B.l; RES_X(); }
-void _CPU_::res_4_xix_d() { bit = 4; x.w = R.IX.w + ofst; p = &R.DE.B.h; RES_X(); }
-void _CPU_::res_4_xix_e() { bit = 4; x.w = R.IX.w + ofst; p = &R.DE.B.l; RES_X(); }
-void _CPU_::res_4_xix_h() { bit = 4; x.w = R.IX.w + ofst; p = &R.HL.B.h; RES_X(); }
-void _CPU_::res_4_xix_l() { bit = 4; x.w = R.IX.w + ofst; p = &R.HL.B.l; RES_X(); }
-void _CPU_::res_5_xix_a() { bit = 5; x.w = R.IX.w + ofst; p = &R.AF.B.h; RES_X(); }
-void _CPU_::res_5_xix_b() { bit = 5; x.w = R.IX.w + ofst; p = &R.BC.B.h; RES_X(); }
-void _CPU_::res_5_xix_c() { bit = 5; x.w = R.IX.w + ofst; p = &R.BC.B.l; RES_X(); }
-void _CPU_::res_5_xix_d() { bit = 5; x.w = R.IX.w + ofst; p = &R.DE.B.h; RES_X(); }
-void _CPU_::res_5_xix_e() { bit = 5; x.w = R.IX.w + ofst; p = &R.DE.B.l; RES_X(); }
-void _CPU_::res_5_xix_h() { bit = 5; x.w = R.IX.w + ofst; p = &R.HL.B.h; RES_X(); }
-void _CPU_::res_5_xix_l() { bit = 5; x.w = R.IX.w + ofst; p = &R.HL.B.l; RES_X(); }
-void _CPU_::res_6_xix_a() { bit = 6; x.w = R.IX.w + ofst; p = &R.AF.B.h; RES_X(); }
-void _CPU_::res_6_xix_b() { bit = 6; x.w = R.IX.w + ofst; p = &R.BC.B.h; RES_X(); }
-void _CPU_::res_6_xix_c() { bit = 6; x.w = R.IX.w + ofst; p = &R.BC.B.l; RES_X(); }
-void _CPU_::res_6_xix_d() { bit = 6; x.w = R.IX.w + ofst; p = &R.DE.B.h; RES_X(); }
-void _CPU_::res_6_xix_e() { bit = 6; x.w = R.IX.w + ofst; p = &R.DE.B.l; RES_X(); }
-void _CPU_::res_6_xix_h() { bit = 6; x.w = R.IX.w + ofst; p = &R.HL.B.h; RES_X(); }
-void _CPU_::res_6_xix_l() { bit = 6; x.w = R.IX.w + ofst; p = &R.HL.B.l; RES_X(); }
-void _CPU_::res_7_xix_a() { bit = 7; x.w = R.IX.w + ofst; p = &R.AF.B.h; RES_X(); }
-void _CPU_::res_7_xix_b() { bit = 7; x.w = R.IX.w + ofst; p = &R.BC.B.h; RES_X(); }
-void _CPU_::res_7_xix_c() { bit = 7; x.w = R.IX.w + ofst; p = &R.BC.B.l; RES_X(); }
-void _CPU_::res_7_xix_d() { bit = 7; x.w = R.IX.w + ofst; p = &R.DE.B.h; RES_X(); }
-void _CPU_::res_7_xix_e() { bit = 7; x.w = R.IX.w + ofst; p = &R.DE.B.l; RES_X(); }
-void _CPU_::res_7_xix_h() { bit = 7; x.w = R.IX.w + ofst; p = &R.HL.B.h; RES_X(); }
-void _CPU_::res_7_xix_l() { bit = 7; x.w = R.IX.w + ofst; p = &R.HL.B.l; RES_X(); }
+void _CPU_::res_0_xix_a() { bit = 0; x.w = R.IX.w + ofst; p = &R.AF.B.h; RES_X_(); }
+void _CPU_::res_0_xix_b() { bit = 0; x.w = R.IX.w + ofst; p = &R.BC.B.h; RES_X_(); }
+void _CPU_::res_0_xix_c() { bit = 0; x.w = R.IX.w + ofst; p = &R.BC.B.l; RES_X_(); }
+void _CPU_::res_0_xix_d() { bit = 0; x.w = R.IX.w + ofst; p = &R.DE.B.h; RES_X_(); }
+void _CPU_::res_0_xix_e() { bit = 0; x.w = R.IX.w + ofst; p = &R.DE.B.l; RES_X_(); }
+void _CPU_::res_0_xix_h() { bit = 0; x.w = R.IX.w + ofst; p = &R.HL.B.h; RES_X_(); }
+void _CPU_::res_0_xix_l() { bit = 0; x.w = R.IX.w + ofst; p = &R.HL.B.l; RES_X_(); }
+void _CPU_::res_1_xix_a() { bit = 1; x.w = R.IX.w + ofst; p = &R.AF.B.h; RES_X_(); }
+void _CPU_::res_1_xix_b() { bit = 1; x.w = R.IX.w + ofst; p = &R.BC.B.h; RES_X_(); }
+void _CPU_::res_1_xix_c() { bit = 1; x.w = R.IX.w + ofst; p = &R.BC.B.l; RES_X_(); }
+void _CPU_::res_1_xix_d() { bit = 1; x.w = R.IX.w + ofst; p = &R.DE.B.h; RES_X_(); }
+void _CPU_::res_1_xix_e() { bit = 1; x.w = R.IX.w + ofst; p = &R.DE.B.l; RES_X_(); }
+void _CPU_::res_1_xix_h() { bit = 1; x.w = R.IX.w + ofst; p = &R.HL.B.h; RES_X_(); }
+void _CPU_::res_1_xix_l() { bit = 1; x.w = R.IX.w + ofst; p = &R.HL.B.l; RES_X_(); }
+void _CPU_::res_2_xix_a() { bit = 2; x.w = R.IX.w + ofst; p = &R.AF.B.h; RES_X_(); }
+void _CPU_::res_2_xix_b() { bit = 2; x.w = R.IX.w + ofst; p = &R.BC.B.h; RES_X_(); }
+void _CPU_::res_2_xix_c() { bit = 2; x.w = R.IX.w + ofst; p = &R.BC.B.l; RES_X_(); }
+void _CPU_::res_2_xix_d() { bit = 2; x.w = R.IX.w + ofst; p = &R.DE.B.h; RES_X_(); }
+void _CPU_::res_2_xix_e() { bit = 2; x.w = R.IX.w + ofst; p = &R.DE.B.l; RES_X_(); }
+void _CPU_::res_2_xix_h() { bit = 2; x.w = R.IX.w + ofst; p = &R.HL.B.h; RES_X_(); }
+void _CPU_::res_2_xix_l() { bit = 2; x.w = R.IX.w + ofst; p = &R.HL.B.l; RES_X_(); }
+void _CPU_::res_3_xix_a() { bit = 3; x.w = R.IX.w + ofst; p = &R.AF.B.h; RES_X_(); }
+void _CPU_::res_3_xix_b() { bit = 3; x.w = R.IX.w + ofst; p = &R.BC.B.h; RES_X_(); }
+void _CPU_::res_3_xix_c() { bit = 3; x.w = R.IX.w + ofst; p = &R.BC.B.l; RES_X_(); }
+void _CPU_::res_3_xix_d() { bit = 3; x.w = R.IX.w + ofst; p = &R.DE.B.h; RES_X_(); }
+void _CPU_::res_3_xix_e() { bit = 3; x.w = R.IX.w + ofst; p = &R.DE.B.l; RES_X_(); }
+void _CPU_::res_3_xix_h() { bit = 3; x.w = R.IX.w + ofst; p = &R.HL.B.h; RES_X_(); }
+void _CPU_::res_3_xix_l() { bit = 3; x.w = R.IX.w + ofst; p = &R.HL.B.l; RES_X_(); }
+void _CPU_::res_4_xix_a() { bit = 4; x.w = R.IX.w + ofst; p = &R.AF.B.h; RES_X_(); }
+void _CPU_::res_4_xix_b() { bit = 4; x.w = R.IX.w + ofst; p = &R.BC.B.h; RES_X_(); }
+void _CPU_::res_4_xix_c() { bit = 4; x.w = R.IX.w + ofst; p = &R.BC.B.l; RES_X_(); }
+void _CPU_::res_4_xix_d() { bit = 4; x.w = R.IX.w + ofst; p = &R.DE.B.h; RES_X_(); }
+void _CPU_::res_4_xix_e() { bit = 4; x.w = R.IX.w + ofst; p = &R.DE.B.l; RES_X_(); }
+void _CPU_::res_4_xix_h() { bit = 4; x.w = R.IX.w + ofst; p = &R.HL.B.h; RES_X_(); }
+void _CPU_::res_4_xix_l() { bit = 4; x.w = R.IX.w + ofst; p = &R.HL.B.l; RES_X_(); }
+void _CPU_::res_5_xix_a() { bit = 5; x.w = R.IX.w + ofst; p = &R.AF.B.h; RES_X_(); }
+void _CPU_::res_5_xix_b() { bit = 5; x.w = R.IX.w + ofst; p = &R.BC.B.h; RES_X_(); }
+void _CPU_::res_5_xix_c() { bit = 5; x.w = R.IX.w + ofst; p = &R.BC.B.l; RES_X_(); }
+void _CPU_::res_5_xix_d() { bit = 5; x.w = R.IX.w + ofst; p = &R.DE.B.h; RES_X_(); }
+void _CPU_::res_5_xix_e() { bit = 5; x.w = R.IX.w + ofst; p = &R.DE.B.l; RES_X_(); }
+void _CPU_::res_5_xix_h() { bit = 5; x.w = R.IX.w + ofst; p = &R.HL.B.h; RES_X_(); }
+void _CPU_::res_5_xix_l() { bit = 5; x.w = R.IX.w + ofst; p = &R.HL.B.l; RES_X_(); }
+void _CPU_::res_6_xix_a() { bit = 6; x.w = R.IX.w + ofst; p = &R.AF.B.h; RES_X_(); }
+void _CPU_::res_6_xix_b() { bit = 6; x.w = R.IX.w + ofst; p = &R.BC.B.h; RES_X_(); }
+void _CPU_::res_6_xix_c() { bit = 6; x.w = R.IX.w + ofst; p = &R.BC.B.l; RES_X_(); }
+void _CPU_::res_6_xix_d() { bit = 6; x.w = R.IX.w + ofst; p = &R.DE.B.h; RES_X_(); }
+void _CPU_::res_6_xix_e() { bit = 6; x.w = R.IX.w + ofst; p = &R.DE.B.l; RES_X_(); }
+void _CPU_::res_6_xix_h() { bit = 6; x.w = R.IX.w + ofst; p = &R.HL.B.h; RES_X_(); }
+void _CPU_::res_6_xix_l() { bit = 6; x.w = R.IX.w + ofst; p = &R.HL.B.l; RES_X_(); }
+void _CPU_::res_7_xix_a() { bit = 7; x.w = R.IX.w + ofst; p = &R.AF.B.h; RES_X_(); }
+void _CPU_::res_7_xix_b() { bit = 7; x.w = R.IX.w + ofst; p = &R.BC.B.h; RES_X_(); }
+void _CPU_::res_7_xix_c() { bit = 7; x.w = R.IX.w + ofst; p = &R.BC.B.l; RES_X_(); }
+void _CPU_::res_7_xix_d() { bit = 7; x.w = R.IX.w + ofst; p = &R.DE.B.h; RES_X_(); }
+void _CPU_::res_7_xix_e() { bit = 7; x.w = R.IX.w + ofst; p = &R.DE.B.l; RES_X_(); }
+void _CPU_::res_7_xix_h() { bit = 7; x.w = R.IX.w + ofst; p = &R.HL.B.h; RES_X_(); }
+void _CPU_::res_7_xix_l() { bit = 7; x.w = R.IX.w + ofst; p = &R.HL.B.l; RES_X_(); }
 
-void _CPU_::res_0_xiy_a() { bit = 0; x.w = R.IY.w + ofst; p = &R.AF.B.h; RES_X(); }
-void _CPU_::res_0_xiy_b() { bit = 0; x.w = R.IY.w + ofst; p = &R.BC.B.h; RES_X(); }
-void _CPU_::res_0_xiy_c() { bit = 0; x.w = R.IY.w + ofst; p = &R.BC.B.l; RES_X(); }
-void _CPU_::res_0_xiy_d() { bit = 0; x.w = R.IY.w + ofst; p = &R.DE.B.h; RES_X(); }
-void _CPU_::res_0_xiy_e() { bit = 0; x.w = R.IY.w + ofst; p = &R.DE.B.l; RES_X(); }
-void _CPU_::res_0_xiy_h() { bit = 0; x.w = R.IY.w + ofst; p = &R.HL.B.h; RES_X(); }
-void _CPU_::res_0_xiy_l() { bit = 0; x.w = R.IY.w + ofst; p = &R.HL.B.l; RES_X(); }
-void _CPU_::res_1_xiy_a() { bit = 1; x.w = R.IY.w + ofst; p = &R.AF.B.h; RES_X(); }
-void _CPU_::res_1_xiy_b() { bit = 1; x.w = R.IY.w + ofst; p = &R.BC.B.h; RES_X(); }
-void _CPU_::res_1_xiy_c() { bit = 1; x.w = R.IY.w + ofst; p = &R.BC.B.l; RES_X(); }
-void _CPU_::res_1_xiy_d() { bit = 1; x.w = R.IY.w + ofst; p = &R.DE.B.h; RES_X(); }
-void _CPU_::res_1_xiy_e() { bit = 1; x.w = R.IY.w + ofst; p = &R.DE.B.l; RES_X(); }
-void _CPU_::res_1_xiy_h() { bit = 1; x.w = R.IY.w + ofst; p = &R.HL.B.h; RES_X(); }
-void _CPU_::res_1_xiy_l() { bit = 1; x.w = R.IY.w + ofst; p = &R.HL.B.l; RES_X(); }
-void _CPU_::res_2_xiy_a() { bit = 2; x.w = R.IY.w + ofst; p = &R.AF.B.h; RES_X(); }
-void _CPU_::res_2_xiy_b() { bit = 2; x.w = R.IY.w + ofst; p = &R.BC.B.h; RES_X(); }
-void _CPU_::res_2_xiy_c() { bit = 2; x.w = R.IY.w + ofst; p = &R.BC.B.l; RES_X(); }
-void _CPU_::res_2_xiy_d() { bit = 2; x.w = R.IY.w + ofst; p = &R.DE.B.h; RES_X(); }
-void _CPU_::res_2_xiy_e() { bit = 2; x.w = R.IY.w + ofst; p = &R.DE.B.l; RES_X(); }
-void _CPU_::res_2_xiy_h() { bit = 2; x.w = R.IY.w + ofst; p = &R.HL.B.h; RES_X(); }
-void _CPU_::res_2_xiy_l() { bit = 2; x.w = R.IY.w + ofst; p = &R.HL.B.l; RES_X(); }
-void _CPU_::res_3_xiy_a() { bit = 3; x.w = R.IY.w + ofst; p = &R.AF.B.h; RES_X(); }
-void _CPU_::res_3_xiy_b() { bit = 3; x.w = R.IY.w + ofst; p = &R.BC.B.h; RES_X(); }
-void _CPU_::res_3_xiy_c() { bit = 3; x.w = R.IY.w + ofst; p = &R.BC.B.l; RES_X(); }
-void _CPU_::res_3_xiy_d() { bit = 3; x.w = R.IY.w + ofst; p = &R.DE.B.h; RES_X(); }
-void _CPU_::res_3_xiy_e() { bit = 3; x.w = R.IY.w + ofst; p = &R.DE.B.l; RES_X(); }
-void _CPU_::res_3_xiy_h() { bit = 3; x.w = R.IY.w + ofst; p = &R.HL.B.h; RES_X(); }
-void _CPU_::res_3_xiy_l() { bit = 3; x.w = R.IY.w + ofst; p = &R.HL.B.l; RES_X(); }
-void _CPU_::res_4_xiy_a() { bit = 4; x.w = R.IY.w + ofst; p = &R.AF.B.h; RES_X(); }
-void _CPU_::res_4_xiy_b() { bit = 4; x.w = R.IY.w + ofst; p = &R.BC.B.h; RES_X(); }
-void _CPU_::res_4_xiy_c() { bit = 4; x.w = R.IY.w + ofst; p = &R.BC.B.l; RES_X(); }
-void _CPU_::res_4_xiy_d() { bit = 4; x.w = R.IY.w + ofst; p = &R.DE.B.h; RES_X(); }
-void _CPU_::res_4_xiy_e() { bit = 4; x.w = R.IY.w + ofst; p = &R.DE.B.l; RES_X(); }
-void _CPU_::res_4_xiy_h() { bit = 4; x.w = R.IY.w + ofst; p = &R.HL.B.h; RES_X(); }
-void _CPU_::res_4_xiy_l() { bit = 4; x.w = R.IY.w + ofst; p = &R.HL.B.l; RES_X(); }
-void _CPU_::res_5_xiy_a() { bit = 5; x.w = R.IY.w + ofst; p = &R.AF.B.h; RES_X(); }
-void _CPU_::res_5_xiy_b() { bit = 5; x.w = R.IY.w + ofst; p = &R.BC.B.h; RES_X(); }
-void _CPU_::res_5_xiy_c() { bit = 5; x.w = R.IY.w + ofst; p = &R.BC.B.l; RES_X(); }
-void _CPU_::res_5_xiy_d() { bit = 5; x.w = R.IY.w + ofst; p = &R.DE.B.h; RES_X(); }
-void _CPU_::res_5_xiy_e() { bit = 5; x.w = R.IY.w + ofst; p = &R.DE.B.l; RES_X(); }
-void _CPU_::res_5_xiy_h() { bit = 5; x.w = R.IY.w + ofst; p = &R.HL.B.h; RES_X(); }
-void _CPU_::res_5_xiy_l() { bit = 5; x.w = R.IY.w + ofst; p = &R.HL.B.l; RES_X(); }
-void _CPU_::res_6_xiy_a() { bit = 6; x.w = R.IY.w + ofst; p = &R.AF.B.h; RES_X(); }
-void _CPU_::res_6_xiy_b() { bit = 6; x.w = R.IY.w + ofst; p = &R.BC.B.h; RES_X(); }
-void _CPU_::res_6_xiy_c() { bit = 6; x.w = R.IY.w + ofst; p = &R.BC.B.l; RES_X(); }
-void _CPU_::res_6_xiy_d() { bit = 6; x.w = R.IY.w + ofst; p = &R.DE.B.h; RES_X(); }
-void _CPU_::res_6_xiy_e() { bit = 6; x.w = R.IY.w + ofst; p = &R.DE.B.l; RES_X(); }
-void _CPU_::res_6_xiy_h() { bit = 6; x.w = R.IY.w + ofst; p = &R.HL.B.h; RES_X(); }
-void _CPU_::res_6_xiy_l() { bit = 6; x.w = R.IY.w + ofst; p = &R.HL.B.l; RES_X(); }
-void _CPU_::res_7_xiy_a() { bit = 7; x.w = R.IY.w + ofst; p = &R.AF.B.h; RES_X(); }
-void _CPU_::res_7_xiy_b() { bit = 7; x.w = R.IY.w + ofst; p = &R.BC.B.h; RES_X(); }
-void _CPU_::res_7_xiy_c() { bit = 7; x.w = R.IY.w + ofst; p = &R.BC.B.l; RES_X(); }
-void _CPU_::res_7_xiy_d() { bit = 7; x.w = R.IY.w + ofst; p = &R.DE.B.h; RES_X(); }
-void _CPU_::res_7_xiy_e() { bit = 7; x.w = R.IY.w + ofst; p = &R.DE.B.l; RES_X(); }
-void _CPU_::res_7_xiy_h() { bit = 7; x.w = R.IY.w + ofst; p = &R.HL.B.h; RES_X(); }
-void _CPU_::res_7_xiy_l() { bit = 7; x.w = R.IY.w + ofst; p = &R.HL.B.l; RES_X(); }
+void _CPU_::res_0_xiy_a() { bit = 0; x.w = R.IY.w + ofst; p = &R.AF.B.h; RES_X_(); }
+void _CPU_::res_0_xiy_b() { bit = 0; x.w = R.IY.w + ofst; p = &R.BC.B.h; RES_X_(); }
+void _CPU_::res_0_xiy_c() { bit = 0; x.w = R.IY.w + ofst; p = &R.BC.B.l; RES_X_(); }
+void _CPU_::res_0_xiy_d() { bit = 0; x.w = R.IY.w + ofst; p = &R.DE.B.h; RES_X_(); }
+void _CPU_::res_0_xiy_e() { bit = 0; x.w = R.IY.w + ofst; p = &R.DE.B.l; RES_X_(); }
+void _CPU_::res_0_xiy_h() { bit = 0; x.w = R.IY.w + ofst; p = &R.HL.B.h; RES_X_(); }
+void _CPU_::res_0_xiy_l() { bit = 0; x.w = R.IY.w + ofst; p = &R.HL.B.l; RES_X_(); }
+void _CPU_::res_1_xiy_a() { bit = 1; x.w = R.IY.w + ofst; p = &R.AF.B.h; RES_X_(); }
+void _CPU_::res_1_xiy_b() { bit = 1; x.w = R.IY.w + ofst; p = &R.BC.B.h; RES_X_(); }
+void _CPU_::res_1_xiy_c() { bit = 1; x.w = R.IY.w + ofst; p = &R.BC.B.l; RES_X_(); }
+void _CPU_::res_1_xiy_d() { bit = 1; x.w = R.IY.w + ofst; p = &R.DE.B.h; RES_X_(); }
+void _CPU_::res_1_xiy_e() { bit = 1; x.w = R.IY.w + ofst; p = &R.DE.B.l; RES_X_(); }
+void _CPU_::res_1_xiy_h() { bit = 1; x.w = R.IY.w + ofst; p = &R.HL.B.h; RES_X_(); }
+void _CPU_::res_1_xiy_l() { bit = 1; x.w = R.IY.w + ofst; p = &R.HL.B.l; RES_X_(); }
+void _CPU_::res_2_xiy_a() { bit = 2; x.w = R.IY.w + ofst; p = &R.AF.B.h; RES_X_(); }
+void _CPU_::res_2_xiy_b() { bit = 2; x.w = R.IY.w + ofst; p = &R.BC.B.h; RES_X_(); }
+void _CPU_::res_2_xiy_c() { bit = 2; x.w = R.IY.w + ofst; p = &R.BC.B.l; RES_X_(); }
+void _CPU_::res_2_xiy_d() { bit = 2; x.w = R.IY.w + ofst; p = &R.DE.B.h; RES_X_(); }
+void _CPU_::res_2_xiy_e() { bit = 2; x.w = R.IY.w + ofst; p = &R.DE.B.l; RES_X_(); }
+void _CPU_::res_2_xiy_h() { bit = 2; x.w = R.IY.w + ofst; p = &R.HL.B.h; RES_X_(); }
+void _CPU_::res_2_xiy_l() { bit = 2; x.w = R.IY.w + ofst; p = &R.HL.B.l; RES_X_(); }
+void _CPU_::res_3_xiy_a() { bit = 3; x.w = R.IY.w + ofst; p = &R.AF.B.h; RES_X_(); }
+void _CPU_::res_3_xiy_b() { bit = 3; x.w = R.IY.w + ofst; p = &R.BC.B.h; RES_X_(); }
+void _CPU_::res_3_xiy_c() { bit = 3; x.w = R.IY.w + ofst; p = &R.BC.B.l; RES_X_(); }
+void _CPU_::res_3_xiy_d() { bit = 3; x.w = R.IY.w + ofst; p = &R.DE.B.h; RES_X_(); }
+void _CPU_::res_3_xiy_e() { bit = 3; x.w = R.IY.w + ofst; p = &R.DE.B.l; RES_X_(); }
+void _CPU_::res_3_xiy_h() { bit = 3; x.w = R.IY.w + ofst; p = &R.HL.B.h; RES_X_(); }
+void _CPU_::res_3_xiy_l() { bit = 3; x.w = R.IY.w + ofst; p = &R.HL.B.l; RES_X_(); }
+void _CPU_::res_4_xiy_a() { bit = 4; x.w = R.IY.w + ofst; p = &R.AF.B.h; RES_X_(); }
+void _CPU_::res_4_xiy_b() { bit = 4; x.w = R.IY.w + ofst; p = &R.BC.B.h; RES_X_(); }
+void _CPU_::res_4_xiy_c() { bit = 4; x.w = R.IY.w + ofst; p = &R.BC.B.l; RES_X_(); }
+void _CPU_::res_4_xiy_d() { bit = 4; x.w = R.IY.w + ofst; p = &R.DE.B.h; RES_X_(); }
+void _CPU_::res_4_xiy_e() { bit = 4; x.w = R.IY.w + ofst; p = &R.DE.B.l; RES_X_(); }
+void _CPU_::res_4_xiy_h() { bit = 4; x.w = R.IY.w + ofst; p = &R.HL.B.h; RES_X_(); }
+void _CPU_::res_4_xiy_l() { bit = 4; x.w = R.IY.w + ofst; p = &R.HL.B.l; RES_X_(); }
+void _CPU_::res_5_xiy_a() { bit = 5; x.w = R.IY.w + ofst; p = &R.AF.B.h; RES_X_(); }
+void _CPU_::res_5_xiy_b() { bit = 5; x.w = R.IY.w + ofst; p = &R.BC.B.h; RES_X_(); }
+void _CPU_::res_5_xiy_c() { bit = 5; x.w = R.IY.w + ofst; p = &R.BC.B.l; RES_X_(); }
+void _CPU_::res_5_xiy_d() { bit = 5; x.w = R.IY.w + ofst; p = &R.DE.B.h; RES_X_(); }
+void _CPU_::res_5_xiy_e() { bit = 5; x.w = R.IY.w + ofst; p = &R.DE.B.l; RES_X_(); }
+void _CPU_::res_5_xiy_h() { bit = 5; x.w = R.IY.w + ofst; p = &R.HL.B.h; RES_X_(); }
+void _CPU_::res_5_xiy_l() { bit = 5; x.w = R.IY.w + ofst; p = &R.HL.B.l; RES_X_(); }
+void _CPU_::res_6_xiy_a() { bit = 6; x.w = R.IY.w + ofst; p = &R.AF.B.h; RES_X_(); }
+void _CPU_::res_6_xiy_b() { bit = 6; x.w = R.IY.w + ofst; p = &R.BC.B.h; RES_X_(); }
+void _CPU_::res_6_xiy_c() { bit = 6; x.w = R.IY.w + ofst; p = &R.BC.B.l; RES_X_(); }
+void _CPU_::res_6_xiy_d() { bit = 6; x.w = R.IY.w + ofst; p = &R.DE.B.h; RES_X_(); }
+void _CPU_::res_6_xiy_e() { bit = 6; x.w = R.IY.w + ofst; p = &R.DE.B.l; RES_X_(); }
+void _CPU_::res_6_xiy_h() { bit = 6; x.w = R.IY.w + ofst; p = &R.HL.B.h; RES_X_(); }
+void _CPU_::res_6_xiy_l() { bit = 6; x.w = R.IY.w + ofst; p = &R.HL.B.l; RES_X_(); }
+void _CPU_::res_7_xiy_a() { bit = 7; x.w = R.IY.w + ofst; p = &R.AF.B.h; RES_X_(); }
+void _CPU_::res_7_xiy_b() { bit = 7; x.w = R.IY.w + ofst; p = &R.BC.B.h; RES_X_(); }
+void _CPU_::res_7_xiy_c() { bit = 7; x.w = R.IY.w + ofst; p = &R.BC.B.l; RES_X_(); }
+void _CPU_::res_7_xiy_d() { bit = 7; x.w = R.IY.w + ofst; p = &R.DE.B.h; RES_X_(); }
+void _CPU_::res_7_xiy_e() { bit = 7; x.w = R.IY.w + ofst; p = &R.DE.B.l; RES_X_(); }
+void _CPU_::res_7_xiy_h() { bit = 7; x.w = R.IY.w + ofst; p = &R.HL.B.h; RES_X_(); }
+void _CPU_::res_7_xiy_l() { bit = 7; x.w = R.IY.w + ofst; p = &R.HL.B.l; RES_X_(); }
 
 
 // SET n,r
@@ -1575,6 +1606,10 @@ void _CPU_::set_7_e() { SET(7, R.DE.B.l); }
 void _CPU_::set_7_h() { SET(7, R.HL.B.h); }
 void _CPU_::set_7_l() { SET(7, R.HL.B.l); }
 
+inline void _CPU_::SET_X2() {
+	if (WRMEM(x.w, *p, &_CPU_::SET_X2)) {
+	}
+}
 inline void _CPU_::SET_X() {
 	if (RDMEM(x.w, *p, &_CPU_::SET_X)) {
 		SET(bit, *p); 
@@ -1582,10 +1617,7 @@ inline void _CPU_::SET_X() {
 		SET_X2();
 	}
 }
-inline void _CPU_::SET_X2() {
-	if (WRMEM(x.w, *p, &_CPU_::SET_X2)) {
-	}
-}
+inline void _CPU_::SET_X_() { memptr.w = x.w; SET_X(); }
 void _CPU_::set_0_xhl()   { bit = 0; x.w = R.HL.w; p = &dummy; SET_X(); }
 void _CPU_::set_1_xhl()   { bit = 1; x.w = R.HL.w; p = &dummy; SET_X(); }
 void _CPU_::set_2_xhl()   { bit = 2; x.w = R.HL.w; p = &dummy; SET_X(); }
@@ -1595,137 +1627,137 @@ void _CPU_::set_5_xhl()   { bit = 5; x.w = R.HL.w; p = &dummy; SET_X(); }
 void _CPU_::set_6_xhl()   { bit = 6; x.w = R.HL.w; p = &dummy; SET_X(); }
 void _CPU_::set_7_xhl()   { bit = 7; x.w = R.HL.w; p = &dummy; SET_X(); }
 
-void _CPU_::set_0_xix  () { bit = 0; x.w = R.IX.w + ofst; p = &dummy; SET_X(); }
-void _CPU_::set_1_xix  () { bit = 1; x.w = R.IX.w + ofst; p = &dummy; SET_X(); }
-void _CPU_::set_2_xix  () { bit = 2; x.w = R.IX.w + ofst; p = &dummy; SET_X(); }
-void _CPU_::set_3_xix  () { bit = 3; x.w = R.IX.w + ofst; p = &dummy; SET_X(); }
-void _CPU_::set_4_xix  () { bit = 4; x.w = R.IX.w + ofst; p = &dummy; SET_X(); }
-void _CPU_::set_5_xix  () { bit = 5; x.w = R.IX.w + ofst; p = &dummy; SET_X(); }
-void _CPU_::set_6_xix  () { bit = 6; x.w = R.IX.w + ofst; p = &dummy; SET_X(); }
-void _CPU_::set_7_xix  () { bit = 7; x.w = R.IX.w + ofst; p = &dummy; SET_X(); }
+void _CPU_::set_0_xix  () { bit = 0; x.w = R.IX.w + ofst; p = &dummy; SET_X_(); }
+void _CPU_::set_1_xix  () { bit = 1; x.w = R.IX.w + ofst; p = &dummy; SET_X_(); }
+void _CPU_::set_2_xix  () { bit = 2; x.w = R.IX.w + ofst; p = &dummy; SET_X_(); }
+void _CPU_::set_3_xix  () { bit = 3; x.w = R.IX.w + ofst; p = &dummy; SET_X_(); }
+void _CPU_::set_4_xix  () { bit = 4; x.w = R.IX.w + ofst; p = &dummy; SET_X_(); }
+void _CPU_::set_5_xix  () { bit = 5; x.w = R.IX.w + ofst; p = &dummy; SET_X_(); }
+void _CPU_::set_6_xix  () { bit = 6; x.w = R.IX.w + ofst; p = &dummy; SET_X_(); }
+void _CPU_::set_7_xix  () { bit = 7; x.w = R.IX.w + ofst; p = &dummy; SET_X_(); }
 
-void _CPU_::set_0_xiy  () { bit = 0; x.w = R.IY.w + ofst; p = &dummy; SET_X(); }
-void _CPU_::set_1_xiy  () { bit = 1; x.w = R.IY.w + ofst; p = &dummy; SET_X(); }
-void _CPU_::set_2_xiy  () { bit = 2; x.w = R.IY.w + ofst; p = &dummy; SET_X(); }
-void _CPU_::set_3_xiy  () { bit = 3; x.w = R.IY.w + ofst; p = &dummy; SET_X(); }
-void _CPU_::set_4_xiy  () { bit = 4; x.w = R.IY.w + ofst; p = &dummy; SET_X(); }
-void _CPU_::set_5_xiy  () { bit = 5; x.w = R.IY.w + ofst; p = &dummy; SET_X(); }
-void _CPU_::set_6_xiy  () { bit = 6; x.w = R.IY.w + ofst; p = &dummy; SET_X(); }
-void _CPU_::set_7_xiy  () { bit = 7; x.w = R.IY.w + ofst; p = &dummy; SET_X(); }
+void _CPU_::set_0_xiy  () { bit = 0; x.w = R.IY.w + ofst; p = &dummy; SET_X_(); }
+void _CPU_::set_1_xiy  () { bit = 1; x.w = R.IY.w + ofst; p = &dummy; SET_X_(); }
+void _CPU_::set_2_xiy  () { bit = 2; x.w = R.IY.w + ofst; p = &dummy; SET_X_(); }
+void _CPU_::set_3_xiy  () { bit = 3; x.w = R.IY.w + ofst; p = &dummy; SET_X_(); }
+void _CPU_::set_4_xiy  () { bit = 4; x.w = R.IY.w + ofst; p = &dummy; SET_X_(); }
+void _CPU_::set_5_xiy  () { bit = 5; x.w = R.IY.w + ofst; p = &dummy; SET_X_(); }
+void _CPU_::set_6_xiy  () { bit = 6; x.w = R.IY.w + ofst; p = &dummy; SET_X_(); }
+void _CPU_::set_7_xiy  () { bit = 7; x.w = R.IY.w + ofst; p = &dummy; SET_X_(); }
 
-void _CPU_::set_0_xix_a() { bit = 0; x.w = R.IX.w + ofst; p = &R.AF.B.h; SET_X(); }
-void _CPU_::set_0_xix_b() { bit = 0; x.w = R.IX.w + ofst; p = &R.BC.B.h; SET_X(); }
-void _CPU_::set_0_xix_c() { bit = 0; x.w = R.IX.w + ofst; p = &R.BC.B.l; SET_X(); }
-void _CPU_::set_0_xix_d() { bit = 0; x.w = R.IX.w + ofst; p = &R.DE.B.h; SET_X(); }
-void _CPU_::set_0_xix_e() { bit = 0; x.w = R.IX.w + ofst; p = &R.DE.B.l; SET_X(); }
-void _CPU_::set_0_xix_h() { bit = 0; x.w = R.IX.w + ofst; p = &R.HL.B.h; SET_X(); }
-void _CPU_::set_0_xix_l() { bit = 0; x.w = R.IX.w + ofst; p = &R.HL.B.l; SET_X(); }
-void _CPU_::set_1_xix_a() { bit = 1; x.w = R.IX.w + ofst; p = &R.AF.B.h; SET_X(); }
-void _CPU_::set_1_xix_b() { bit = 1; x.w = R.IX.w + ofst; p = &R.BC.B.h; SET_X(); }
-void _CPU_::set_1_xix_c() { bit = 1; x.w = R.IX.w + ofst; p = &R.BC.B.l; SET_X(); }
-void _CPU_::set_1_xix_d() { bit = 1; x.w = R.IX.w + ofst; p = &R.DE.B.h; SET_X(); }
-void _CPU_::set_1_xix_e() { bit = 1; x.w = R.IX.w + ofst; p = &R.DE.B.l; SET_X(); }
-void _CPU_::set_1_xix_h() { bit = 1; x.w = R.IX.w + ofst; p = &R.HL.B.h; SET_X(); }
-void _CPU_::set_1_xix_l() { bit = 1; x.w = R.IX.w + ofst; p = &R.HL.B.l; SET_X(); }
-void _CPU_::set_2_xix_a() { bit = 2; x.w = R.IX.w + ofst; p = &R.AF.B.h; SET_X(); }
-void _CPU_::set_2_xix_b() { bit = 2; x.w = R.IX.w + ofst; p = &R.BC.B.h; SET_X(); }
-void _CPU_::set_2_xix_c() { bit = 2; x.w = R.IX.w + ofst; p = &R.BC.B.l; SET_X(); }
-void _CPU_::set_2_xix_d() { bit = 2; x.w = R.IX.w + ofst; p = &R.DE.B.h; SET_X(); }
-void _CPU_::set_2_xix_e() { bit = 2; x.w = R.IX.w + ofst; p = &R.DE.B.l; SET_X(); }
-void _CPU_::set_2_xix_h() { bit = 2; x.w = R.IX.w + ofst; p = &R.HL.B.h; SET_X(); }
-void _CPU_::set_2_xix_l() { bit = 2; x.w = R.IX.w + ofst; p = &R.HL.B.l; SET_X(); }
-void _CPU_::set_3_xix_a() { bit = 3; x.w = R.IX.w + ofst; p = &R.AF.B.h; SET_X(); }
-void _CPU_::set_3_xix_b() { bit = 3; x.w = R.IX.w + ofst; p = &R.BC.B.h; SET_X(); }
-void _CPU_::set_3_xix_c() { bit = 3; x.w = R.IX.w + ofst; p = &R.BC.B.l; SET_X(); }
-void _CPU_::set_3_xix_d() { bit = 3; x.w = R.IX.w + ofst; p = &R.DE.B.h; SET_X(); }
-void _CPU_::set_3_xix_e() { bit = 3; x.w = R.IX.w + ofst; p = &R.DE.B.l; SET_X(); }
-void _CPU_::set_3_xix_h() { bit = 3; x.w = R.IX.w + ofst; p = &R.HL.B.h; SET_X(); }
-void _CPU_::set_3_xix_l() { bit = 3; x.w = R.IX.w + ofst; p = &R.HL.B.l; SET_X(); }
-void _CPU_::set_4_xix_a() { bit = 4; x.w = R.IX.w + ofst; p = &R.AF.B.h; SET_X(); }
-void _CPU_::set_4_xix_b() { bit = 4; x.w = R.IX.w + ofst; p = &R.BC.B.h; SET_X(); }
-void _CPU_::set_4_xix_c() { bit = 4; x.w = R.IX.w + ofst; p = &R.BC.B.l; SET_X(); }
-void _CPU_::set_4_xix_d() { bit = 4; x.w = R.IX.w + ofst; p = &R.DE.B.h; SET_X(); }
-void _CPU_::set_4_xix_e() { bit = 4; x.w = R.IX.w + ofst; p = &R.DE.B.l; SET_X(); }
-void _CPU_::set_4_xix_h() { bit = 4; x.w = R.IX.w + ofst; p = &R.HL.B.h; SET_X(); }
-void _CPU_::set_4_xix_l() { bit = 4; x.w = R.IX.w + ofst; p = &R.HL.B.l; SET_X(); }
-void _CPU_::set_5_xix_a() { bit = 5; x.w = R.IX.w + ofst; p = &R.AF.B.h; SET_X(); }
-void _CPU_::set_5_xix_b() { bit = 5; x.w = R.IX.w + ofst; p = &R.BC.B.h; SET_X(); }
-void _CPU_::set_5_xix_c() { bit = 5; x.w = R.IX.w + ofst; p = &R.BC.B.l; SET_X(); }
-void _CPU_::set_5_xix_d() { bit = 5; x.w = R.IX.w + ofst; p = &R.DE.B.h; SET_X(); }
-void _CPU_::set_5_xix_e() { bit = 5; x.w = R.IX.w + ofst; p = &R.DE.B.l; SET_X(); }
-void _CPU_::set_5_xix_h() { bit = 5; x.w = R.IX.w + ofst; p = &R.HL.B.h; SET_X(); }
-void _CPU_::set_5_xix_l() { bit = 5; x.w = R.IX.w + ofst; p = &R.HL.B.l; SET_X(); }
-void _CPU_::set_6_xix_a() { bit = 6; x.w = R.IX.w + ofst; p = &R.AF.B.h; SET_X(); }
-void _CPU_::set_6_xix_b() { bit = 6; x.w = R.IX.w + ofst; p = &R.BC.B.h; SET_X(); }
-void _CPU_::set_6_xix_c() { bit = 6; x.w = R.IX.w + ofst; p = &R.BC.B.l; SET_X(); }
-void _CPU_::set_6_xix_d() { bit = 6; x.w = R.IX.w + ofst; p = &R.DE.B.h; SET_X(); }
-void _CPU_::set_6_xix_e() { bit = 6; x.w = R.IX.w + ofst; p = &R.DE.B.l; SET_X(); }
-void _CPU_::set_6_xix_h() { bit = 6; x.w = R.IX.w + ofst; p = &R.HL.B.h; SET_X(); }
-void _CPU_::set_6_xix_l() { bit = 6; x.w = R.IX.w + ofst; p = &R.HL.B.l; SET_X(); }
-void _CPU_::set_7_xix_a() { bit = 7; x.w = R.IX.w + ofst; p = &R.AF.B.h; SET_X(); }
-void _CPU_::set_7_xix_b() { bit = 7; x.w = R.IX.w + ofst; p = &R.BC.B.h; SET_X(); }
-void _CPU_::set_7_xix_c() { bit = 7; x.w = R.IX.w + ofst; p = &R.BC.B.l; SET_X(); }
-void _CPU_::set_7_xix_d() { bit = 7; x.w = R.IX.w + ofst; p = &R.DE.B.h; SET_X(); }
-void _CPU_::set_7_xix_e() { bit = 7; x.w = R.IX.w + ofst; p = &R.DE.B.l; SET_X(); }
-void _CPU_::set_7_xix_h() { bit = 7; x.w = R.IX.w + ofst; p = &R.HL.B.h; SET_X(); }
-void _CPU_::set_7_xix_l() { bit = 7; x.w = R.IX.w + ofst; p = &R.HL.B.l; SET_X(); }
+void _CPU_::set_0_xix_a() { bit = 0; x.w = R.IX.w + ofst; p = &R.AF.B.h; SET_X_(); }
+void _CPU_::set_0_xix_b() { bit = 0; x.w = R.IX.w + ofst; p = &R.BC.B.h; SET_X_(); }
+void _CPU_::set_0_xix_c() { bit = 0; x.w = R.IX.w + ofst; p = &R.BC.B.l; SET_X_(); }
+void _CPU_::set_0_xix_d() { bit = 0; x.w = R.IX.w + ofst; p = &R.DE.B.h; SET_X_(); }
+void _CPU_::set_0_xix_e() { bit = 0; x.w = R.IX.w + ofst; p = &R.DE.B.l; SET_X_(); }
+void _CPU_::set_0_xix_h() { bit = 0; x.w = R.IX.w + ofst; p = &R.HL.B.h; SET_X_(); }
+void _CPU_::set_0_xix_l() { bit = 0; x.w = R.IX.w + ofst; p = &R.HL.B.l; SET_X_(); }
+void _CPU_::set_1_xix_a() { bit = 1; x.w = R.IX.w + ofst; p = &R.AF.B.h; SET_X_(); }
+void _CPU_::set_1_xix_b() { bit = 1; x.w = R.IX.w + ofst; p = &R.BC.B.h; SET_X_(); }
+void _CPU_::set_1_xix_c() { bit = 1; x.w = R.IX.w + ofst; p = &R.BC.B.l; SET_X_(); }
+void _CPU_::set_1_xix_d() { bit = 1; x.w = R.IX.w + ofst; p = &R.DE.B.h; SET_X_(); }
+void _CPU_::set_1_xix_e() { bit = 1; x.w = R.IX.w + ofst; p = &R.DE.B.l; SET_X_(); }
+void _CPU_::set_1_xix_h() { bit = 1; x.w = R.IX.w + ofst; p = &R.HL.B.h; SET_X_(); }
+void _CPU_::set_1_xix_l() { bit = 1; x.w = R.IX.w + ofst; p = &R.HL.B.l; SET_X_(); }
+void _CPU_::set_2_xix_a() { bit = 2; x.w = R.IX.w + ofst; p = &R.AF.B.h; SET_X_(); }
+void _CPU_::set_2_xix_b() { bit = 2; x.w = R.IX.w + ofst; p = &R.BC.B.h; SET_X_(); }
+void _CPU_::set_2_xix_c() { bit = 2; x.w = R.IX.w + ofst; p = &R.BC.B.l; SET_X_(); }
+void _CPU_::set_2_xix_d() { bit = 2; x.w = R.IX.w + ofst; p = &R.DE.B.h; SET_X_(); }
+void _CPU_::set_2_xix_e() { bit = 2; x.w = R.IX.w + ofst; p = &R.DE.B.l; SET_X_(); }
+void _CPU_::set_2_xix_h() { bit = 2; x.w = R.IX.w + ofst; p = &R.HL.B.h; SET_X_(); }
+void _CPU_::set_2_xix_l() { bit = 2; x.w = R.IX.w + ofst; p = &R.HL.B.l; SET_X_(); }
+void _CPU_::set_3_xix_a() { bit = 3; x.w = R.IX.w + ofst; p = &R.AF.B.h; SET_X_(); }
+void _CPU_::set_3_xix_b() { bit = 3; x.w = R.IX.w + ofst; p = &R.BC.B.h; SET_X_(); }
+void _CPU_::set_3_xix_c() { bit = 3; x.w = R.IX.w + ofst; p = &R.BC.B.l; SET_X_(); }
+void _CPU_::set_3_xix_d() { bit = 3; x.w = R.IX.w + ofst; p = &R.DE.B.h; SET_X_(); }
+void _CPU_::set_3_xix_e() { bit = 3; x.w = R.IX.w + ofst; p = &R.DE.B.l; SET_X_(); }
+void _CPU_::set_3_xix_h() { bit = 3; x.w = R.IX.w + ofst; p = &R.HL.B.h; SET_X_(); }
+void _CPU_::set_3_xix_l() { bit = 3; x.w = R.IX.w + ofst; p = &R.HL.B.l; SET_X_(); }
+void _CPU_::set_4_xix_a() { bit = 4; x.w = R.IX.w + ofst; p = &R.AF.B.h; SET_X_(); }
+void _CPU_::set_4_xix_b() { bit = 4; x.w = R.IX.w + ofst; p = &R.BC.B.h; SET_X_(); }
+void _CPU_::set_4_xix_c() { bit = 4; x.w = R.IX.w + ofst; p = &R.BC.B.l; SET_X_(); }
+void _CPU_::set_4_xix_d() { bit = 4; x.w = R.IX.w + ofst; p = &R.DE.B.h; SET_X_(); }
+void _CPU_::set_4_xix_e() { bit = 4; x.w = R.IX.w + ofst; p = &R.DE.B.l; SET_X_(); }
+void _CPU_::set_4_xix_h() { bit = 4; x.w = R.IX.w + ofst; p = &R.HL.B.h; SET_X_(); }
+void _CPU_::set_4_xix_l() { bit = 4; x.w = R.IX.w + ofst; p = &R.HL.B.l; SET_X_(); }
+void _CPU_::set_5_xix_a() { bit = 5; x.w = R.IX.w + ofst; p = &R.AF.B.h; SET_X_(); }
+void _CPU_::set_5_xix_b() { bit = 5; x.w = R.IX.w + ofst; p = &R.BC.B.h; SET_X_(); }
+void _CPU_::set_5_xix_c() { bit = 5; x.w = R.IX.w + ofst; p = &R.BC.B.l; SET_X_(); }
+void _CPU_::set_5_xix_d() { bit = 5; x.w = R.IX.w + ofst; p = &R.DE.B.h; SET_X_(); }
+void _CPU_::set_5_xix_e() { bit = 5; x.w = R.IX.w + ofst; p = &R.DE.B.l; SET_X_(); }
+void _CPU_::set_5_xix_h() { bit = 5; x.w = R.IX.w + ofst; p = &R.HL.B.h; SET_X_(); }
+void _CPU_::set_5_xix_l() { bit = 5; x.w = R.IX.w + ofst; p = &R.HL.B.l; SET_X_(); }
+void _CPU_::set_6_xix_a() { bit = 6; x.w = R.IX.w + ofst; p = &R.AF.B.h; SET_X_(); }
+void _CPU_::set_6_xix_b() { bit = 6; x.w = R.IX.w + ofst; p = &R.BC.B.h; SET_X_(); }
+void _CPU_::set_6_xix_c() { bit = 6; x.w = R.IX.w + ofst; p = &R.BC.B.l; SET_X_(); }
+void _CPU_::set_6_xix_d() { bit = 6; x.w = R.IX.w + ofst; p = &R.DE.B.h; SET_X_(); }
+void _CPU_::set_6_xix_e() { bit = 6; x.w = R.IX.w + ofst; p = &R.DE.B.l; SET_X_(); }
+void _CPU_::set_6_xix_h() { bit = 6; x.w = R.IX.w + ofst; p = &R.HL.B.h; SET_X_(); }
+void _CPU_::set_6_xix_l() { bit = 6; x.w = R.IX.w + ofst; p = &R.HL.B.l; SET_X_(); }
+void _CPU_::set_7_xix_a() { bit = 7; x.w = R.IX.w + ofst; p = &R.AF.B.h; SET_X_(); }
+void _CPU_::set_7_xix_b() { bit = 7; x.w = R.IX.w + ofst; p = &R.BC.B.h; SET_X_(); }
+void _CPU_::set_7_xix_c() { bit = 7; x.w = R.IX.w + ofst; p = &R.BC.B.l; SET_X_(); }
+void _CPU_::set_7_xix_d() { bit = 7; x.w = R.IX.w + ofst; p = &R.DE.B.h; SET_X_(); }
+void _CPU_::set_7_xix_e() { bit = 7; x.w = R.IX.w + ofst; p = &R.DE.B.l; SET_X_(); }
+void _CPU_::set_7_xix_h() { bit = 7; x.w = R.IX.w + ofst; p = &R.HL.B.h; SET_X_(); }
+void _CPU_::set_7_xix_l() { bit = 7; x.w = R.IX.w + ofst; p = &R.HL.B.l; SET_X_(); }
 
-void _CPU_::set_0_xiy_a() { bit = 0; x.w = R.IY.w + ofst; p = &R.AF.B.h; SET_X(); }
-void _CPU_::set_0_xiy_b() { bit = 0; x.w = R.IY.w + ofst; p = &R.BC.B.h; SET_X(); }
-void _CPU_::set_0_xiy_c() { bit = 0; x.w = R.IY.w + ofst; p = &R.BC.B.l; SET_X(); }
-void _CPU_::set_0_xiy_d() { bit = 0; x.w = R.IY.w + ofst; p = &R.DE.B.h; SET_X(); }
-void _CPU_::set_0_xiy_e() { bit = 0; x.w = R.IY.w + ofst; p = &R.DE.B.l; SET_X(); }
-void _CPU_::set_0_xiy_h() { bit = 0; x.w = R.IY.w + ofst; p = &R.HL.B.h; SET_X(); }
-void _CPU_::set_0_xiy_l() { bit = 0; x.w = R.IY.w + ofst; p = &R.HL.B.l; SET_X(); }
-void _CPU_::set_1_xiy_a() { bit = 1; x.w = R.IY.w + ofst; p = &R.AF.B.h; SET_X(); }
-void _CPU_::set_1_xiy_b() { bit = 1; x.w = R.IY.w + ofst; p = &R.BC.B.h; SET_X(); }
-void _CPU_::set_1_xiy_c() { bit = 1; x.w = R.IY.w + ofst; p = &R.BC.B.l; SET_X(); }
-void _CPU_::set_1_xiy_d() { bit = 1; x.w = R.IY.w + ofst; p = &R.DE.B.h; SET_X(); }
-void _CPU_::set_1_xiy_e() { bit = 1; x.w = R.IY.w + ofst; p = &R.DE.B.l; SET_X(); }
-void _CPU_::set_1_xiy_h() { bit = 1; x.w = R.IY.w + ofst; p = &R.HL.B.h; SET_X(); }
-void _CPU_::set_1_xiy_l() { bit = 1; x.w = R.IY.w + ofst; p = &R.HL.B.l; SET_X(); }
-void _CPU_::set_2_xiy_a() { bit = 2; x.w = R.IY.w + ofst; p = &R.AF.B.h; SET_X(); }
-void _CPU_::set_2_xiy_b() { bit = 2; x.w = R.IY.w + ofst; p = &R.BC.B.h; SET_X(); }
-void _CPU_::set_2_xiy_c() { bit = 2; x.w = R.IY.w + ofst; p = &R.BC.B.l; SET_X(); }
-void _CPU_::set_2_xiy_d() { bit = 2; x.w = R.IY.w + ofst; p = &R.DE.B.h; SET_X(); }
-void _CPU_::set_2_xiy_e() { bit = 2; x.w = R.IY.w + ofst; p = &R.DE.B.l; SET_X(); }
-void _CPU_::set_2_xiy_h() { bit = 2; x.w = R.IY.w + ofst; p = &R.HL.B.h; SET_X(); }
-void _CPU_::set_2_xiy_l() { bit = 2; x.w = R.IY.w + ofst; p = &R.HL.B.l; SET_X(); }
-void _CPU_::set_3_xiy_a() { bit = 3; x.w = R.IY.w + ofst; p = &R.AF.B.h; SET_X(); }
-void _CPU_::set_3_xiy_b() { bit = 3; x.w = R.IY.w + ofst; p = &R.BC.B.h; SET_X(); }
-void _CPU_::set_3_xiy_c() { bit = 3; x.w = R.IY.w + ofst; p = &R.BC.B.l; SET_X(); }
-void _CPU_::set_3_xiy_d() { bit = 3; x.w = R.IY.w + ofst; p = &R.DE.B.h; SET_X(); }
-void _CPU_::set_3_xiy_e() { bit = 3; x.w = R.IY.w + ofst; p = &R.DE.B.l; SET_X(); }
-void _CPU_::set_3_xiy_h() { bit = 3; x.w = R.IY.w + ofst; p = &R.HL.B.h; SET_X(); }
-void _CPU_::set_3_xiy_l() { bit = 3; x.w = R.IY.w + ofst; p = &R.HL.B.l; SET_X(); }
-void _CPU_::set_4_xiy_a() { bit = 4; x.w = R.IY.w + ofst; p = &R.AF.B.h; SET_X(); }
-void _CPU_::set_4_xiy_b() { bit = 4; x.w = R.IY.w + ofst; p = &R.BC.B.h; SET_X(); }
-void _CPU_::set_4_xiy_c() { bit = 4; x.w = R.IY.w + ofst; p = &R.BC.B.l; SET_X(); }
-void _CPU_::set_4_xiy_d() { bit = 4; x.w = R.IY.w + ofst; p = &R.DE.B.h; SET_X(); }
-void _CPU_::set_4_xiy_e() { bit = 4; x.w = R.IY.w + ofst; p = &R.DE.B.l; SET_X(); }
-void _CPU_::set_4_xiy_h() { bit = 4; x.w = R.IY.w + ofst; p = &R.HL.B.h; SET_X(); }
-void _CPU_::set_4_xiy_l() { bit = 4; x.w = R.IY.w + ofst; p = &R.HL.B.l; SET_X(); }
-void _CPU_::set_5_xiy_a() { bit = 5; x.w = R.IY.w + ofst; p = &R.AF.B.h; SET_X(); }
-void _CPU_::set_5_xiy_b() { bit = 5; x.w = R.IY.w + ofst; p = &R.BC.B.h; SET_X(); }
-void _CPU_::set_5_xiy_c() { bit = 5; x.w = R.IY.w + ofst; p = &R.BC.B.l; SET_X(); }
-void _CPU_::set_5_xiy_d() { bit = 5; x.w = R.IY.w + ofst; p = &R.DE.B.h; SET_X(); }
-void _CPU_::set_5_xiy_e() { bit = 5; x.w = R.IY.w + ofst; p = &R.DE.B.l; SET_X(); }
-void _CPU_::set_5_xiy_h() { bit = 5; x.w = R.IY.w + ofst; p = &R.HL.B.h; SET_X(); }
-void _CPU_::set_5_xiy_l() { bit = 5; x.w = R.IY.w + ofst; p = &R.HL.B.l; SET_X(); }
-void _CPU_::set_6_xiy_a() { bit = 6; x.w = R.IY.w + ofst; p = &R.AF.B.h; SET_X(); }
-void _CPU_::set_6_xiy_b() { bit = 6; x.w = R.IY.w + ofst; p = &R.BC.B.h; SET_X(); }
-void _CPU_::set_6_xiy_c() { bit = 6; x.w = R.IY.w + ofst; p = &R.BC.B.l; SET_X(); }
-void _CPU_::set_6_xiy_d() { bit = 6; x.w = R.IY.w + ofst; p = &R.DE.B.h; SET_X(); }
-void _CPU_::set_6_xiy_e() { bit = 6; x.w = R.IY.w + ofst; p = &R.DE.B.l; SET_X(); }
-void _CPU_::set_6_xiy_h() { bit = 6; x.w = R.IY.w + ofst; p = &R.HL.B.h; SET_X(); }
-void _CPU_::set_6_xiy_l() { bit = 6; x.w = R.IY.w + ofst; p = &R.HL.B.l; SET_X(); }
-void _CPU_::set_7_xiy_a() { bit = 7; x.w = R.IY.w + ofst; p = &R.AF.B.h; SET_X(); }
-void _CPU_::set_7_xiy_b() { bit = 7; x.w = R.IY.w + ofst; p = &R.BC.B.h; SET_X(); }
-void _CPU_::set_7_xiy_c() { bit = 7; x.w = R.IY.w + ofst; p = &R.BC.B.l; SET_X(); }
-void _CPU_::set_7_xiy_d() { bit = 7; x.w = R.IY.w + ofst; p = &R.DE.B.h; SET_X(); }
-void _CPU_::set_7_xiy_e() { bit = 7; x.w = R.IY.w + ofst; p = &R.DE.B.l; SET_X(); }
-void _CPU_::set_7_xiy_h() { bit = 7; x.w = R.IY.w + ofst; p = &R.HL.B.h; SET_X(); }
-void _CPU_::set_7_xiy_l() { bit = 7; x.w = R.IY.w + ofst; p = &R.HL.B.l; SET_X(); }
+void _CPU_::set_0_xiy_a() { bit = 0; x.w = R.IY.w + ofst; p = &R.AF.B.h; SET_X_(); }
+void _CPU_::set_0_xiy_b() { bit = 0; x.w = R.IY.w + ofst; p = &R.BC.B.h; SET_X_(); }
+void _CPU_::set_0_xiy_c() { bit = 0; x.w = R.IY.w + ofst; p = &R.BC.B.l; SET_X_(); }
+void _CPU_::set_0_xiy_d() { bit = 0; x.w = R.IY.w + ofst; p = &R.DE.B.h; SET_X_(); }
+void _CPU_::set_0_xiy_e() { bit = 0; x.w = R.IY.w + ofst; p = &R.DE.B.l; SET_X_(); }
+void _CPU_::set_0_xiy_h() { bit = 0; x.w = R.IY.w + ofst; p = &R.HL.B.h; SET_X_(); }
+void _CPU_::set_0_xiy_l() { bit = 0; x.w = R.IY.w + ofst; p = &R.HL.B.l; SET_X_(); }
+void _CPU_::set_1_xiy_a() { bit = 1; x.w = R.IY.w + ofst; p = &R.AF.B.h; SET_X_(); }
+void _CPU_::set_1_xiy_b() { bit = 1; x.w = R.IY.w + ofst; p = &R.BC.B.h; SET_X_(); }
+void _CPU_::set_1_xiy_c() { bit = 1; x.w = R.IY.w + ofst; p = &R.BC.B.l; SET_X_(); }
+void _CPU_::set_1_xiy_d() { bit = 1; x.w = R.IY.w + ofst; p = &R.DE.B.h; SET_X_(); }
+void _CPU_::set_1_xiy_e() { bit = 1; x.w = R.IY.w + ofst; p = &R.DE.B.l; SET_X_(); }
+void _CPU_::set_1_xiy_h() { bit = 1; x.w = R.IY.w + ofst; p = &R.HL.B.h; SET_X_(); }
+void _CPU_::set_1_xiy_l() { bit = 1; x.w = R.IY.w + ofst; p = &R.HL.B.l; SET_X_(); }
+void _CPU_::set_2_xiy_a() { bit = 2; x.w = R.IY.w + ofst; p = &R.AF.B.h; SET_X_(); }
+void _CPU_::set_2_xiy_b() { bit = 2; x.w = R.IY.w + ofst; p = &R.BC.B.h; SET_X_(); }
+void _CPU_::set_2_xiy_c() { bit = 2; x.w = R.IY.w + ofst; p = &R.BC.B.l; SET_X_(); }
+void _CPU_::set_2_xiy_d() { bit = 2; x.w = R.IY.w + ofst; p = &R.DE.B.h; SET_X_(); }
+void _CPU_::set_2_xiy_e() { bit = 2; x.w = R.IY.w + ofst; p = &R.DE.B.l; SET_X_(); }
+void _CPU_::set_2_xiy_h() { bit = 2; x.w = R.IY.w + ofst; p = &R.HL.B.h; SET_X_(); }
+void _CPU_::set_2_xiy_l() { bit = 2; x.w = R.IY.w + ofst; p = &R.HL.B.l; SET_X_(); }
+void _CPU_::set_3_xiy_a() { bit = 3; x.w = R.IY.w + ofst; p = &R.AF.B.h; SET_X_(); }
+void _CPU_::set_3_xiy_b() { bit = 3; x.w = R.IY.w + ofst; p = &R.BC.B.h; SET_X_(); }
+void _CPU_::set_3_xiy_c() { bit = 3; x.w = R.IY.w + ofst; p = &R.BC.B.l; SET_X_(); }
+void _CPU_::set_3_xiy_d() { bit = 3; x.w = R.IY.w + ofst; p = &R.DE.B.h; SET_X_(); }
+void _CPU_::set_3_xiy_e() { bit = 3; x.w = R.IY.w + ofst; p = &R.DE.B.l; SET_X_(); }
+void _CPU_::set_3_xiy_h() { bit = 3; x.w = R.IY.w + ofst; p = &R.HL.B.h; SET_X_(); }
+void _CPU_::set_3_xiy_l() { bit = 3; x.w = R.IY.w + ofst; p = &R.HL.B.l; SET_X_(); }
+void _CPU_::set_4_xiy_a() { bit = 4; x.w = R.IY.w + ofst; p = &R.AF.B.h; SET_X_(); }
+void _CPU_::set_4_xiy_b() { bit = 4; x.w = R.IY.w + ofst; p = &R.BC.B.h; SET_X_(); }
+void _CPU_::set_4_xiy_c() { bit = 4; x.w = R.IY.w + ofst; p = &R.BC.B.l; SET_X_(); }
+void _CPU_::set_4_xiy_d() { bit = 4; x.w = R.IY.w + ofst; p = &R.DE.B.h; SET_X_(); }
+void _CPU_::set_4_xiy_e() { bit = 4; x.w = R.IY.w + ofst; p = &R.DE.B.l; SET_X_(); }
+void _CPU_::set_4_xiy_h() { bit = 4; x.w = R.IY.w + ofst; p = &R.HL.B.h; SET_X_(); }
+void _CPU_::set_4_xiy_l() { bit = 4; x.w = R.IY.w + ofst; p = &R.HL.B.l; SET_X_(); }
+void _CPU_::set_5_xiy_a() { bit = 5; x.w = R.IY.w + ofst; p = &R.AF.B.h; SET_X_(); }
+void _CPU_::set_5_xiy_b() { bit = 5; x.w = R.IY.w + ofst; p = &R.BC.B.h; SET_X_(); }
+void _CPU_::set_5_xiy_c() { bit = 5; x.w = R.IY.w + ofst; p = &R.BC.B.l; SET_X_(); }
+void _CPU_::set_5_xiy_d() { bit = 5; x.w = R.IY.w + ofst; p = &R.DE.B.h; SET_X_(); }
+void _CPU_::set_5_xiy_e() { bit = 5; x.w = R.IY.w + ofst; p = &R.DE.B.l; SET_X_(); }
+void _CPU_::set_5_xiy_h() { bit = 5; x.w = R.IY.w + ofst; p = &R.HL.B.h; SET_X_(); }
+void _CPU_::set_5_xiy_l() { bit = 5; x.w = R.IY.w + ofst; p = &R.HL.B.l; SET_X_(); }
+void _CPU_::set_6_xiy_a() { bit = 6; x.w = R.IY.w + ofst; p = &R.AF.B.h; SET_X_(); }
+void _CPU_::set_6_xiy_b() { bit = 6; x.w = R.IY.w + ofst; p = &R.BC.B.h; SET_X_(); }
+void _CPU_::set_6_xiy_c() { bit = 6; x.w = R.IY.w + ofst; p = &R.BC.B.l; SET_X_(); }
+void _CPU_::set_6_xiy_d() { bit = 6; x.w = R.IY.w + ofst; p = &R.DE.B.h; SET_X_(); }
+void _CPU_::set_6_xiy_e() { bit = 6; x.w = R.IY.w + ofst; p = &R.DE.B.l; SET_X_(); }
+void _CPU_::set_6_xiy_h() { bit = 6; x.w = R.IY.w + ofst; p = &R.HL.B.h; SET_X_(); }
+void _CPU_::set_6_xiy_l() { bit = 6; x.w = R.IY.w + ofst; p = &R.HL.B.l; SET_X_(); }
+void _CPU_::set_7_xiy_a() { bit = 7; x.w = R.IY.w + ofst; p = &R.AF.B.h; SET_X_(); }
+void _CPU_::set_7_xiy_b() { bit = 7; x.w = R.IY.w + ofst; p = &R.BC.B.h; SET_X_(); }
+void _CPU_::set_7_xiy_c() { bit = 7; x.w = R.IY.w + ofst; p = &R.BC.B.l; SET_X_(); }
+void _CPU_::set_7_xiy_d() { bit = 7; x.w = R.IY.w + ofst; p = &R.DE.B.h; SET_X_(); }
+void _CPU_::set_7_xiy_e() { bit = 7; x.w = R.IY.w + ofst; p = &R.DE.B.l; SET_X_(); }
+void _CPU_::set_7_xiy_h() { bit = 7; x.w = R.IY.w + ofst; p = &R.HL.B.h; SET_X_(); }
+void _CPU_::set_7_xiy_l() { bit = 7; x.w = R.IY.w + ofst; p = &R.HL.B.l; SET_X_(); }
 
 
 // RL r
@@ -1753,23 +1785,24 @@ inline void _CPU_::RL_X() {
 }
 void _CPU_::rl_xhl() { x.w = R.HL.w; p = &dummy; RL_X(); }
 
-void _CPU_::rl_xix  () { x.w = R.IX.w + ofst; p = &dummy;    RL_X(); }
-void _CPU_::rl_xix_a() { x.w = R.IX.w + ofst; p = &R.AF.B.h; RL_X(); }
-void _CPU_::rl_xix_b() { x.w = R.IX.w + ofst; p = &R.BC.B.h; RL_X(); }
-void _CPU_::rl_xix_c() { x.w = R.IX.w + ofst; p = &R.BC.B.l; RL_X(); }
-void _CPU_::rl_xix_d() { x.w = R.IX.w + ofst; p = &R.DE.B.h; RL_X(); }
-void _CPU_::rl_xix_e() { x.w = R.IX.w + ofst; p = &R.DE.B.l; RL_X(); }
-void _CPU_::rl_xix_h() { x.w = R.IX.w + ofst; p = &R.HL.B.h; RL_X(); }
-void _CPU_::rl_xix_l() { x.w = R.IX.w + ofst; p = &R.HL.B.l; RL_X(); }
+inline void _CPU_::RL_X_() { memptr.w = x.w; RL_X(); }
+void _CPU_::rl_xix  () { x.w = R.IX.w + ofst; p = &dummy;    RL_X_(); }
+void _CPU_::rl_xix_a() { x.w = R.IX.w + ofst; p = &R.AF.B.h; RL_X_(); }
+void _CPU_::rl_xix_b() { x.w = R.IX.w + ofst; p = &R.BC.B.h; RL_X_(); }
+void _CPU_::rl_xix_c() { x.w = R.IX.w + ofst; p = &R.BC.B.l; RL_X_(); }
+void _CPU_::rl_xix_d() { x.w = R.IX.w + ofst; p = &R.DE.B.h; RL_X_(); }
+void _CPU_::rl_xix_e() { x.w = R.IX.w + ofst; p = &R.DE.B.l; RL_X_(); }
+void _CPU_::rl_xix_h() { x.w = R.IX.w + ofst; p = &R.HL.B.h; RL_X_(); }
+void _CPU_::rl_xix_l() { x.w = R.IX.w + ofst; p = &R.HL.B.l; RL_X_(); }
 
-void _CPU_::rl_xiy  () { x.w = R.IY.w + ofst; p = &dummy;    RL_X(); }
-void _CPU_::rl_xiy_a() { x.w = R.IY.w + ofst; p = &R.AF.B.h; RL_X(); }
-void _CPU_::rl_xiy_b() { x.w = R.IY.w + ofst; p = &R.BC.B.h; RL_X(); }
-void _CPU_::rl_xiy_c() { x.w = R.IY.w + ofst; p = &R.BC.B.l; RL_X(); }
-void _CPU_::rl_xiy_d() { x.w = R.IY.w + ofst; p = &R.DE.B.h; RL_X(); }
-void _CPU_::rl_xiy_e() { x.w = R.IY.w + ofst; p = &R.DE.B.l; RL_X(); }
-void _CPU_::rl_xiy_h() { x.w = R.IY.w + ofst; p = &R.HL.B.h; RL_X(); }
-void _CPU_::rl_xiy_l() { x.w = R.IY.w + ofst; p = &R.HL.B.l; RL_X(); }
+void _CPU_::rl_xiy  () { x.w = R.IY.w + ofst; p = &dummy;    RL_X_(); }
+void _CPU_::rl_xiy_a() { x.w = R.IY.w + ofst; p = &R.AF.B.h; RL_X_(); }
+void _CPU_::rl_xiy_b() { x.w = R.IY.w + ofst; p = &R.BC.B.h; RL_X_(); }
+void _CPU_::rl_xiy_c() { x.w = R.IY.w + ofst; p = &R.BC.B.l; RL_X_(); }
+void _CPU_::rl_xiy_d() { x.w = R.IY.w + ofst; p = &R.DE.B.h; RL_X_(); }
+void _CPU_::rl_xiy_e() { x.w = R.IY.w + ofst; p = &R.DE.B.l; RL_X_(); }
+void _CPU_::rl_xiy_h() { x.w = R.IY.w + ofst; p = &R.HL.B.h; RL_X_(); }
+void _CPU_::rl_xiy_l() { x.w = R.IY.w + ofst; p = &R.HL.B.l; RL_X_(); }
 
 
 // RLC r
@@ -1797,23 +1830,24 @@ inline void _CPU_::RLC_X() {
 }
 void _CPU_::rlc_xhl() { x.w = R.HL.w; p = &dummy; RLC_X(); }
 
-void _CPU_::rlc_xix  () { x.w = R.IX.w + ofst; p = &dummy;    RLC_X(); }
-void _CPU_::rlc_xix_a() { x.w = R.IX.w + ofst; p = &R.AF.B.h; RLC_X(); }
-void _CPU_::rlc_xix_b() { x.w = R.IX.w + ofst; p = &R.BC.B.h; RLC_X(); }
-void _CPU_::rlc_xix_c() { x.w = R.IX.w + ofst; p = &R.BC.B.l; RLC_X(); }
-void _CPU_::rlc_xix_d() { x.w = R.IX.w + ofst; p = &R.DE.B.h; RLC_X(); }
-void _CPU_::rlc_xix_e() { x.w = R.IX.w + ofst; p = &R.DE.B.l; RLC_X(); }
-void _CPU_::rlc_xix_h() { x.w = R.IX.w + ofst; p = &R.HL.B.h; RLC_X(); }
-void _CPU_::rlc_xix_l() { x.w = R.IX.w + ofst; p = &R.HL.B.l; RLC_X(); }
+inline void _CPU_::RLC_X_() { memptr.w = x.w; RLC_X(); }
+void _CPU_::rlc_xix  () { x.w = R.IX.w + ofst; p = &dummy;    RLC_X_(); }
+void _CPU_::rlc_xix_a() { x.w = R.IX.w + ofst; p = &R.AF.B.h; RLC_X_(); }
+void _CPU_::rlc_xix_b() { x.w = R.IX.w + ofst; p = &R.BC.B.h; RLC_X_(); }
+void _CPU_::rlc_xix_c() { x.w = R.IX.w + ofst; p = &R.BC.B.l; RLC_X_(); }
+void _CPU_::rlc_xix_d() { x.w = R.IX.w + ofst; p = &R.DE.B.h; RLC_X_(); }
+void _CPU_::rlc_xix_e() { x.w = R.IX.w + ofst; p = &R.DE.B.l; RLC_X_(); }
+void _CPU_::rlc_xix_h() { x.w = R.IX.w + ofst; p = &R.HL.B.h; RLC_X_(); }
+void _CPU_::rlc_xix_l() { x.w = R.IX.w + ofst; p = &R.HL.B.l; RLC_X_(); }
 
-void _CPU_::rlc_xiy  () { x.w = R.IY.w + ofst; p = &dummy;    RLC_X(); }
-void _CPU_::rlc_xiy_a() { x.w = R.IY.w + ofst; p = &R.AF.B.h; RLC_X(); }
-void _CPU_::rlc_xiy_b() { x.w = R.IY.w + ofst; p = &R.BC.B.h; RLC_X(); }
-void _CPU_::rlc_xiy_c() { x.w = R.IY.w + ofst; p = &R.BC.B.l; RLC_X(); }
-void _CPU_::rlc_xiy_d() { x.w = R.IY.w + ofst; p = &R.DE.B.h; RLC_X(); }
-void _CPU_::rlc_xiy_e() { x.w = R.IY.w + ofst; p = &R.DE.B.l; RLC_X(); }
-void _CPU_::rlc_xiy_h() { x.w = R.IY.w + ofst; p = &R.HL.B.h; RLC_X(); }
-void _CPU_::rlc_xiy_l() { x.w = R.IY.w + ofst; p = &R.HL.B.l; RLC_X(); }
+void _CPU_::rlc_xiy  () { x.w = R.IY.w + ofst; p = &dummy;    RLC_X_(); }
+void _CPU_::rlc_xiy_a() { x.w = R.IY.w + ofst; p = &R.AF.B.h; RLC_X_(); }
+void _CPU_::rlc_xiy_b() { x.w = R.IY.w + ofst; p = &R.BC.B.h; RLC_X_(); }
+void _CPU_::rlc_xiy_c() { x.w = R.IY.w + ofst; p = &R.BC.B.l; RLC_X_(); }
+void _CPU_::rlc_xiy_d() { x.w = R.IY.w + ofst; p = &R.DE.B.h; RLC_X_(); }
+void _CPU_::rlc_xiy_e() { x.w = R.IY.w + ofst; p = &R.DE.B.l; RLC_X_(); }
+void _CPU_::rlc_xiy_h() { x.w = R.IY.w + ofst; p = &R.HL.B.h; RLC_X_(); }
+void _CPU_::rlc_xiy_l() { x.w = R.IY.w + ofst; p = &R.HL.B.l; RLC_X_(); }
 
 
 // RR r
@@ -1841,23 +1875,24 @@ inline void _CPU_::RR_X() {
 }
 void _CPU_::rr_xhl() { x.w = R.HL.w; p = &dummy; RR_X(); }
 
-void _CPU_::rr_xix  () { x.w = R.IX.w + ofst; p = &dummy;    RR_X(); }
-void _CPU_::rr_xix_a() { x.w = R.IX.w + ofst; p = &R.AF.B.h; RR_X(); }
-void _CPU_::rr_xix_b() { x.w = R.IX.w + ofst; p = &R.BC.B.h; RR_X(); }
-void _CPU_::rr_xix_c() { x.w = R.IX.w + ofst; p = &R.BC.B.l; RR_X(); }
-void _CPU_::rr_xix_d() { x.w = R.IX.w + ofst; p = &R.DE.B.h; RR_X(); }
-void _CPU_::rr_xix_e() { x.w = R.IX.w + ofst; p = &R.DE.B.l; RR_X(); }
-void _CPU_::rr_xix_h() { x.w = R.IX.w + ofst; p = &R.HL.B.h; RR_X(); }
-void _CPU_::rr_xix_l() { x.w = R.IX.w + ofst; p = &R.HL.B.l; RR_X(); }
+inline void _CPU_::RR_X_() { memptr.w = x.w; RR_X(); }
+void _CPU_::rr_xix  () { x.w = R.IX.w + ofst; p = &dummy;    RR_X_(); }
+void _CPU_::rr_xix_a() { x.w = R.IX.w + ofst; p = &R.AF.B.h; RR_X_(); }
+void _CPU_::rr_xix_b() { x.w = R.IX.w + ofst; p = &R.BC.B.h; RR_X_(); }
+void _CPU_::rr_xix_c() { x.w = R.IX.w + ofst; p = &R.BC.B.l; RR_X_(); }
+void _CPU_::rr_xix_d() { x.w = R.IX.w + ofst; p = &R.DE.B.h; RR_X_(); }
+void _CPU_::rr_xix_e() { x.w = R.IX.w + ofst; p = &R.DE.B.l; RR_X_(); }
+void _CPU_::rr_xix_h() { x.w = R.IX.w + ofst; p = &R.HL.B.h; RR_X_(); }
+void _CPU_::rr_xix_l() { x.w = R.IX.w + ofst; p = &R.HL.B.l; RR_X_(); }
 
-void _CPU_::rr_xiy  () { x.w = R.IY.w + ofst; p = &dummy;    RR_X(); }
-void _CPU_::rr_xiy_a() { x.w = R.IY.w + ofst; p = &R.AF.B.h; RR_X(); }
-void _CPU_::rr_xiy_b() { x.w = R.IY.w + ofst; p = &R.BC.B.h; RR_X(); }
-void _CPU_::rr_xiy_c() { x.w = R.IY.w + ofst; p = &R.BC.B.l; RR_X(); }
-void _CPU_::rr_xiy_d() { x.w = R.IY.w + ofst; p = &R.DE.B.h; RR_X(); }
-void _CPU_::rr_xiy_e() { x.w = R.IY.w + ofst; p = &R.DE.B.l; RR_X(); }
-void _CPU_::rr_xiy_h() { x.w = R.IY.w + ofst; p = &R.HL.B.h; RR_X(); }
-void _CPU_::rr_xiy_l() { x.w = R.IY.w + ofst; p = &R.HL.B.l; RR_X(); }
+void _CPU_::rr_xiy  () { x.w = R.IY.w + ofst; p = &dummy;    RR_X_(); }
+void _CPU_::rr_xiy_a() { x.w = R.IY.w + ofst; p = &R.AF.B.h; RR_X_(); }
+void _CPU_::rr_xiy_b() { x.w = R.IY.w + ofst; p = &R.BC.B.h; RR_X_(); }
+void _CPU_::rr_xiy_c() { x.w = R.IY.w + ofst; p = &R.BC.B.l; RR_X_(); }
+void _CPU_::rr_xiy_d() { x.w = R.IY.w + ofst; p = &R.DE.B.h; RR_X_(); }
+void _CPU_::rr_xiy_e() { x.w = R.IY.w + ofst; p = &R.DE.B.l; RR_X_(); }
+void _CPU_::rr_xiy_h() { x.w = R.IY.w + ofst; p = &R.HL.B.h; RR_X_(); }
+void _CPU_::rr_xiy_l() { x.w = R.IY.w + ofst; p = &R.HL.B.l; RR_X_(); }
 
 
 // RRC r
@@ -1885,23 +1920,24 @@ inline void _CPU_::RRC_X() {
 }
 void _CPU_::rrc_xhl() { x.w = R.HL.w; p = &dummy; RRC_X(); }
 
-void _CPU_::rrc_xix  () { x.w = R.IX.w + ofst; p = &dummy;    RRC_X(); }
-void _CPU_::rrc_xix_a() { x.w = R.IX.w + ofst; p = &R.AF.B.h; RRC_X(); }
-void _CPU_::rrc_xix_b() { x.w = R.IX.w + ofst; p = &R.BC.B.h; RRC_X(); }
-void _CPU_::rrc_xix_c() { x.w = R.IX.w + ofst; p = &R.BC.B.l; RRC_X(); }
-void _CPU_::rrc_xix_d() { x.w = R.IX.w + ofst; p = &R.DE.B.h; RRC_X(); }
-void _CPU_::rrc_xix_e() { x.w = R.IX.w + ofst; p = &R.DE.B.l; RRC_X(); }
-void _CPU_::rrc_xix_h() { x.w = R.IX.w + ofst; p = &R.HL.B.h; RRC_X(); }
-void _CPU_::rrc_xix_l() { x.w = R.IX.w + ofst; p = &R.HL.B.l; RRC_X(); }
+inline void _CPU_::RRC_X_() { memptr.w = x.w; RRC_X(); }
+void _CPU_::rrc_xix  () { x.w = R.IX.w + ofst; p = &dummy;    RRC_X_(); }
+void _CPU_::rrc_xix_a() { x.w = R.IX.w + ofst; p = &R.AF.B.h; RRC_X_(); }
+void _CPU_::rrc_xix_b() { x.w = R.IX.w + ofst; p = &R.BC.B.h; RRC_X_(); }
+void _CPU_::rrc_xix_c() { x.w = R.IX.w + ofst; p = &R.BC.B.l; RRC_X_(); }
+void _CPU_::rrc_xix_d() { x.w = R.IX.w + ofst; p = &R.DE.B.h; RRC_X_(); }
+void _CPU_::rrc_xix_e() { x.w = R.IX.w + ofst; p = &R.DE.B.l; RRC_X_(); }
+void _CPU_::rrc_xix_h() { x.w = R.IX.w + ofst; p = &R.HL.B.h; RRC_X_(); }
+void _CPU_::rrc_xix_l() { x.w = R.IX.w + ofst; p = &R.HL.B.l; RRC_X_(); }
 
-void _CPU_::rrc_xiy  () { x.w = R.IY.w + ofst; p = &dummy;    RRC_X(); }
-void _CPU_::rrc_xiy_a() { x.w = R.IY.w + ofst; p = &R.AF.B.h; RRC_X(); }
-void _CPU_::rrc_xiy_b() { x.w = R.IY.w + ofst; p = &R.BC.B.h; RRC_X(); }
-void _CPU_::rrc_xiy_c() { x.w = R.IY.w + ofst; p = &R.BC.B.l; RRC_X(); }
-void _CPU_::rrc_xiy_d() { x.w = R.IY.w + ofst; p = &R.DE.B.h; RRC_X(); }
-void _CPU_::rrc_xiy_e() { x.w = R.IY.w + ofst; p = &R.DE.B.l; RRC_X(); }
-void _CPU_::rrc_xiy_h() { x.w = R.IY.w + ofst; p = &R.HL.B.h; RRC_X(); }
-void _CPU_::rrc_xiy_l() { x.w = R.IY.w + ofst; p = &R.HL.B.l; RRC_X(); }
+void _CPU_::rrc_xiy  () { x.w = R.IY.w + ofst; p = &dummy;    RRC_X_(); }
+void _CPU_::rrc_xiy_a() { x.w = R.IY.w + ofst; p = &R.AF.B.h; RRC_X_(); }
+void _CPU_::rrc_xiy_b() { x.w = R.IY.w + ofst; p = &R.BC.B.h; RRC_X_(); }
+void _CPU_::rrc_xiy_c() { x.w = R.IY.w + ofst; p = &R.BC.B.l; RRC_X_(); }
+void _CPU_::rrc_xiy_d() { x.w = R.IY.w + ofst; p = &R.DE.B.h; RRC_X_(); }
+void _CPU_::rrc_xiy_e() { x.w = R.IY.w + ofst; p = &R.DE.B.l; RRC_X_(); }
+void _CPU_::rrc_xiy_h() { x.w = R.IY.w + ofst; p = &R.HL.B.h; RRC_X_(); }
+void _CPU_::rrc_xiy_l() { x.w = R.IY.w + ofst; p = &R.HL.B.l; RRC_X_(); }
 
 
 // SLA r
@@ -1929,23 +1965,24 @@ inline void _CPU_::SLA_X() {
 }
 void _CPU_::sla_xhl() { x.w = R.HL.w; p = &dummy; SLA_X(); }
 
-void _CPU_::sla_xix  () { x.w = R.IX.w + ofst; p = &dummy;    SLA_X(); }
-void _CPU_::sla_xix_a() { x.w = R.IX.w + ofst; p = &R.AF.B.h; SLA_X(); }
-void _CPU_::sla_xix_b() { x.w = R.IX.w + ofst; p = &R.BC.B.h; SLA_X(); }
-void _CPU_::sla_xix_c() { x.w = R.IX.w + ofst; p = &R.BC.B.l; SLA_X(); }
-void _CPU_::sla_xix_d() { x.w = R.IX.w + ofst; p = &R.DE.B.h; SLA_X(); }
-void _CPU_::sla_xix_e() { x.w = R.IX.w + ofst; p = &R.DE.B.l; SLA_X(); }
-void _CPU_::sla_xix_h() { x.w = R.IX.w + ofst; p = &R.HL.B.h; SLA_X(); }
-void _CPU_::sla_xix_l() { x.w = R.IX.w + ofst; p = &R.HL.B.l; SLA_X(); }
+inline void _CPU_::SLA_X_() { memptr.w = x.w; SLA_X(); }
+void _CPU_::sla_xix  () { x.w = R.IX.w + ofst; p = &dummy;    SLA_X_(); }
+void _CPU_::sla_xix_a() { x.w = R.IX.w + ofst; p = &R.AF.B.h; SLA_X_(); }
+void _CPU_::sla_xix_b() { x.w = R.IX.w + ofst; p = &R.BC.B.h; SLA_X_(); }
+void _CPU_::sla_xix_c() { x.w = R.IX.w + ofst; p = &R.BC.B.l; SLA_X_(); }
+void _CPU_::sla_xix_d() { x.w = R.IX.w + ofst; p = &R.DE.B.h; SLA_X_(); }
+void _CPU_::sla_xix_e() { x.w = R.IX.w + ofst; p = &R.DE.B.l; SLA_X_(); }
+void _CPU_::sla_xix_h() { x.w = R.IX.w + ofst; p = &R.HL.B.h; SLA_X_(); }
+void _CPU_::sla_xix_l() { x.w = R.IX.w + ofst; p = &R.HL.B.l; SLA_X_(); }
 
-void _CPU_::sla_xiy  () { x.w = R.IY.w + ofst; p = &dummy;    SLA_X(); }
-void _CPU_::sla_xiy_a() { x.w = R.IY.w + ofst; p = &R.AF.B.h; SLA_X(); }
-void _CPU_::sla_xiy_b() { x.w = R.IY.w + ofst; p = &R.BC.B.h; SLA_X(); }
-void _CPU_::sla_xiy_c() { x.w = R.IY.w + ofst; p = &R.BC.B.l; SLA_X(); }
-void _CPU_::sla_xiy_d() { x.w = R.IY.w + ofst; p = &R.DE.B.h; SLA_X(); }
-void _CPU_::sla_xiy_e() { x.w = R.IY.w + ofst; p = &R.DE.B.l; SLA_X(); }
-void _CPU_::sla_xiy_h() { x.w = R.IY.w + ofst; p = &R.HL.B.h; SLA_X(); }
-void _CPU_::sla_xiy_l() { x.w = R.IY.w + ofst; p = &R.HL.B.l; SLA_X(); }
+void _CPU_::sla_xiy  () { x.w = R.IY.w + ofst; p = &dummy;    SLA_X_(); }
+void _CPU_::sla_xiy_a() { x.w = R.IY.w + ofst; p = &R.AF.B.h; SLA_X_(); }
+void _CPU_::sla_xiy_b() { x.w = R.IY.w + ofst; p = &R.BC.B.h; SLA_X_(); }
+void _CPU_::sla_xiy_c() { x.w = R.IY.w + ofst; p = &R.BC.B.l; SLA_X_(); }
+void _CPU_::sla_xiy_d() { x.w = R.IY.w + ofst; p = &R.DE.B.h; SLA_X_(); }
+void _CPU_::sla_xiy_e() { x.w = R.IY.w + ofst; p = &R.DE.B.l; SLA_X_(); }
+void _CPU_::sla_xiy_h() { x.w = R.IY.w + ofst; p = &R.HL.B.h; SLA_X_(); }
+void _CPU_::sla_xiy_l() { x.w = R.IY.w + ofst; p = &R.HL.B.l; SLA_X_(); }
 
 
 // SLL r
@@ -1973,23 +2010,24 @@ inline void _CPU_::SLL_X() {
 }
 void _CPU_::sll_xhl() { x.w = R.HL.w; p = &dummy; SLL_X(); }
 
-void _CPU_::sll_xix  () { x.w = R.IX.w + ofst; p = &dummy;    SLL_X(); }
-void _CPU_::sll_xix_a() { x.w = R.IX.w + ofst; p = &R.AF.B.h; SLL_X(); }
-void _CPU_::sll_xix_b() { x.w = R.IX.w + ofst; p = &R.BC.B.h; SLL_X(); }
-void _CPU_::sll_xix_c() { x.w = R.IX.w + ofst; p = &R.BC.B.l; SLL_X(); }
-void _CPU_::sll_xix_d() { x.w = R.IX.w + ofst; p = &R.DE.B.h; SLL_X(); }
-void _CPU_::sll_xix_e() { x.w = R.IX.w + ofst; p = &R.DE.B.l; SLL_X(); }
-void _CPU_::sll_xix_h() { x.w = R.IX.w + ofst; p = &R.HL.B.h; SLL_X(); }
-void _CPU_::sll_xix_l() { x.w = R.IX.w + ofst; p = &R.HL.B.l; SLL_X(); }
+inline void _CPU_::SLL_X_() { memptr.w = x.w; SLL_X(); }
+void _CPU_::sll_xix  () { x.w = R.IX.w + ofst; p = &dummy;    SLL_X_(); }
+void _CPU_::sll_xix_a() { x.w = R.IX.w + ofst; p = &R.AF.B.h; SLL_X_(); }
+void _CPU_::sll_xix_b() { x.w = R.IX.w + ofst; p = &R.BC.B.h; SLL_X_(); }
+void _CPU_::sll_xix_c() { x.w = R.IX.w + ofst; p = &R.BC.B.l; SLL_X_(); }
+void _CPU_::sll_xix_d() { x.w = R.IX.w + ofst; p = &R.DE.B.h; SLL_X_(); }
+void _CPU_::sll_xix_e() { x.w = R.IX.w + ofst; p = &R.DE.B.l; SLL_X_(); }
+void _CPU_::sll_xix_h() { x.w = R.IX.w + ofst; p = &R.HL.B.h; SLL_X_(); }
+void _CPU_::sll_xix_l() { x.w = R.IX.w + ofst; p = &R.HL.B.l; SLL_X_(); }
 
-void _CPU_::sll_xiy  () { x.w = R.IY.w + ofst; p = &dummy;    SLL_X(); }
-void _CPU_::sll_xiy_a() { x.w = R.IY.w + ofst; p = &R.AF.B.h; SLL_X(); }
-void _CPU_::sll_xiy_b() { x.w = R.IY.w + ofst; p = &R.BC.B.h; SLL_X(); }
-void _CPU_::sll_xiy_c() { x.w = R.IY.w + ofst; p = &R.BC.B.l; SLL_X(); }
-void _CPU_::sll_xiy_d() { x.w = R.IY.w + ofst; p = &R.DE.B.h; SLL_X(); }
-void _CPU_::sll_xiy_e() { x.w = R.IY.w + ofst; p = &R.DE.B.l; SLL_X(); }
-void _CPU_::sll_xiy_h() { x.w = R.IY.w + ofst; p = &R.HL.B.h; SLL_X(); }
-void _CPU_::sll_xiy_l() { x.w = R.IY.w + ofst; p = &R.HL.B.l; SLL_X(); }
+void _CPU_::sll_xiy  () { x.w = R.IY.w + ofst; p = &dummy;    SLL_X_(); }
+void _CPU_::sll_xiy_a() { x.w = R.IY.w + ofst; p = &R.AF.B.h; SLL_X_(); }
+void _CPU_::sll_xiy_b() { x.w = R.IY.w + ofst; p = &R.BC.B.h; SLL_X_(); }
+void _CPU_::sll_xiy_c() { x.w = R.IY.w + ofst; p = &R.BC.B.l; SLL_X_(); }
+void _CPU_::sll_xiy_d() { x.w = R.IY.w + ofst; p = &R.DE.B.h; SLL_X_(); }
+void _CPU_::sll_xiy_e() { x.w = R.IY.w + ofst; p = &R.DE.B.l; SLL_X_(); }
+void _CPU_::sll_xiy_h() { x.w = R.IY.w + ofst; p = &R.HL.B.h; SLL_X_(); }
+void _CPU_::sll_xiy_l() { x.w = R.IY.w + ofst; p = &R.HL.B.l; SLL_X_(); }
 
 
 // SRA r
@@ -2017,23 +2055,24 @@ inline void _CPU_::SRA_X() {
 }
 void _CPU_::sra_xhl() { x.w = R.HL.w; p = &dummy; SRA_X(); }
 
-void _CPU_::sra_xix  () { x.w = R.IX.w + ofst; p = &dummy;    SRA_X(); }
-void _CPU_::sra_xix_a() { x.w = R.IX.w + ofst; p = &R.AF.B.h; SRA_X(); }
-void _CPU_::sra_xix_b() { x.w = R.IX.w + ofst; p = &R.BC.B.h; SRA_X(); }
-void _CPU_::sra_xix_c() { x.w = R.IX.w + ofst; p = &R.BC.B.l; SRA_X(); }
-void _CPU_::sra_xix_d() { x.w = R.IX.w + ofst; p = &R.DE.B.h; SRA_X(); }
-void _CPU_::sra_xix_e() { x.w = R.IX.w + ofst; p = &R.DE.B.l; SRA_X(); }
-void _CPU_::sra_xix_h() { x.w = R.IX.w + ofst; p = &R.HL.B.h; SRA_X(); }
-void _CPU_::sra_xix_l() { x.w = R.IX.w + ofst; p = &R.HL.B.l; SRA_X(); }
+inline void _CPU_::SRA_X_() { memptr.w = x.w; SRA_X(); }
+void _CPU_::sra_xix  () { x.w = R.IX.w + ofst; p = &dummy;    SRA_X_(); }
+void _CPU_::sra_xix_a() { x.w = R.IX.w + ofst; p = &R.AF.B.h; SRA_X_(); }
+void _CPU_::sra_xix_b() { x.w = R.IX.w + ofst; p = &R.BC.B.h; SRA_X_(); }
+void _CPU_::sra_xix_c() { x.w = R.IX.w + ofst; p = &R.BC.B.l; SRA_X_(); }
+void _CPU_::sra_xix_d() { x.w = R.IX.w + ofst; p = &R.DE.B.h; SRA_X_(); }
+void _CPU_::sra_xix_e() { x.w = R.IX.w + ofst; p = &R.DE.B.l; SRA_X_(); }
+void _CPU_::sra_xix_h() { x.w = R.IX.w + ofst; p = &R.HL.B.h; SRA_X_(); }
+void _CPU_::sra_xix_l() { x.w = R.IX.w + ofst; p = &R.HL.B.l; SRA_X_(); }
 
-void _CPU_::sra_xiy  () { x.w = R.IY.w + ofst; p = &dummy;    SRA_X(); }
-void _CPU_::sra_xiy_a() { x.w = R.IY.w + ofst; p = &R.AF.B.h; SRA_X(); }
-void _CPU_::sra_xiy_b() { x.w = R.IY.w + ofst; p = &R.BC.B.h; SRA_X(); }
-void _CPU_::sra_xiy_c() { x.w = R.IY.w + ofst; p = &R.BC.B.l; SRA_X(); }
-void _CPU_::sra_xiy_d() { x.w = R.IY.w + ofst; p = &R.DE.B.h; SRA_X(); }
-void _CPU_::sra_xiy_e() { x.w = R.IY.w + ofst; p = &R.DE.B.l; SRA_X(); }
-void _CPU_::sra_xiy_h() { x.w = R.IY.w + ofst; p = &R.HL.B.h; SRA_X(); }
-void _CPU_::sra_xiy_l() { x.w = R.IY.w + ofst; p = &R.HL.B.l; SRA_X(); }
+void _CPU_::sra_xiy  () { x.w = R.IY.w + ofst; p = &dummy;    SRA_X_(); }
+void _CPU_::sra_xiy_a() { x.w = R.IY.w + ofst; p = &R.AF.B.h; SRA_X_(); }
+void _CPU_::sra_xiy_b() { x.w = R.IY.w + ofst; p = &R.BC.B.h; SRA_X_(); }
+void _CPU_::sra_xiy_c() { x.w = R.IY.w + ofst; p = &R.BC.B.l; SRA_X_(); }
+void _CPU_::sra_xiy_d() { x.w = R.IY.w + ofst; p = &R.DE.B.h; SRA_X_(); }
+void _CPU_::sra_xiy_e() { x.w = R.IY.w + ofst; p = &R.DE.B.l; SRA_X_(); }
+void _CPU_::sra_xiy_h() { x.w = R.IY.w + ofst; p = &R.HL.B.h; SRA_X_(); }
+void _CPU_::sra_xiy_l() { x.w = R.IY.w + ofst; p = &R.HL.B.l; SRA_X_(); }
 
 
 // SRL R
@@ -2061,23 +2100,24 @@ inline void _CPU_::SRL_X() {
 }
 void _CPU_::srl_xhl() { x.w = R.HL.w; p = &dummy; SRL_X(); }
 
-void _CPU_::srl_xix  () { x.w = R.IX.w + ofst; p = &dummy;    SRL_X(); }
-void _CPU_::srl_xix_a() { x.w = R.IX.w + ofst; p = &R.AF.B.h; SRL_X(); }
-void _CPU_::srl_xix_b() { x.w = R.IX.w + ofst; p = &R.BC.B.h; SRL_X(); }
-void _CPU_::srl_xix_c() { x.w = R.IX.w + ofst; p = &R.BC.B.l; SRL_X(); }
-void _CPU_::srl_xix_d() { x.w = R.IX.w + ofst; p = &R.DE.B.h; SRL_X(); }
-void _CPU_::srl_xix_e() { x.w = R.IX.w + ofst; p = &R.DE.B.l; SRL_X(); }
-void _CPU_::srl_xix_h() { x.w = R.IX.w + ofst; p = &R.HL.B.h; SRL_X(); }
-void _CPU_::srl_xix_l() { x.w = R.IX.w + ofst; p = &R.HL.B.l; SRL_X(); }
+inline void _CPU_::SRL_X_() { memptr.w = x.w; SRL_X(); }
+void _CPU_::srl_xix  () { x.w = R.IX.w + ofst; p = &dummy;    SRL_X_(); }
+void _CPU_::srl_xix_a() { x.w = R.IX.w + ofst; p = &R.AF.B.h; SRL_X_(); }
+void _CPU_::srl_xix_b() { x.w = R.IX.w + ofst; p = &R.BC.B.h; SRL_X_(); }
+void _CPU_::srl_xix_c() { x.w = R.IX.w + ofst; p = &R.BC.B.l; SRL_X_(); }
+void _CPU_::srl_xix_d() { x.w = R.IX.w + ofst; p = &R.DE.B.h; SRL_X_(); }
+void _CPU_::srl_xix_e() { x.w = R.IX.w + ofst; p = &R.DE.B.l; SRL_X_(); }
+void _CPU_::srl_xix_h() { x.w = R.IX.w + ofst; p = &R.HL.B.h; SRL_X_(); }
+void _CPU_::srl_xix_l() { x.w = R.IX.w + ofst; p = &R.HL.B.l; SRL_X_(); }
 
-void _CPU_::srl_xiy  () { x.w = R.IY.w + ofst; p = &dummy;    SRL_X(); }
-void _CPU_::srl_xiy_a() { x.w = R.IY.w + ofst; p = &R.AF.B.h; SRL_X(); }
-void _CPU_::srl_xiy_b() { x.w = R.IY.w + ofst; p = &R.BC.B.h; SRL_X(); }
-void _CPU_::srl_xiy_c() { x.w = R.IY.w + ofst; p = &R.BC.B.l; SRL_X(); }
-void _CPU_::srl_xiy_d() { x.w = R.IY.w + ofst; p = &R.DE.B.h; SRL_X(); }
-void _CPU_::srl_xiy_e() { x.w = R.IY.w + ofst; p = &R.DE.B.l; SRL_X(); }
-void _CPU_::srl_xiy_h() { x.w = R.IY.w + ofst; p = &R.HL.B.h; SRL_X(); }
-void _CPU_::srl_xiy_l() { x.w = R.IY.w + ofst; p = &R.HL.B.l; SRL_X(); }
+void _CPU_::srl_xiy  () { x.w = R.IY.w + ofst; p = &dummy;    SRL_X_(); }
+void _CPU_::srl_xiy_a() { x.w = R.IY.w + ofst; p = &R.AF.B.h; SRL_X_(); }
+void _CPU_::srl_xiy_b() { x.w = R.IY.w + ofst; p = &R.BC.B.h; SRL_X_(); }
+void _CPU_::srl_xiy_c() { x.w = R.IY.w + ofst; p = &R.BC.B.l; SRL_X_(); }
+void _CPU_::srl_xiy_d() { x.w = R.IY.w + ofst; p = &R.DE.B.h; SRL_X_(); }
+void _CPU_::srl_xiy_e() { x.w = R.IY.w + ofst; p = &R.DE.B.l; SRL_X_(); }
+void _CPU_::srl_xiy_h() { x.w = R.IY.w + ofst; p = &R.HL.B.h; SRL_X_(); }
+void _CPU_::srl_xiy_l() { x.w = R.IY.w + ofst; p = &R.HL.B.l; SRL_X_(); }
 
 
 // RLA RLCA RRA RRCA
@@ -2117,6 +2157,7 @@ void _CPU_::rld1() {
 }
 void _CPU_::rld() {
 	if (RDMEM(R.HL.w, dummy, &_CPU_::rld)) {
+		memptr.w = R.HL.w + 1;
 		RLD_DELAY(); rld1();
 	}
 }
@@ -2130,6 +2171,7 @@ void _CPU_::rrd1() {
 }
 void _CPU_::rrd() {
 	if (RDMEM(R.HL.w, dummy, &_CPU_::rrd)) {
+		memptr.w = R.HL.w + 1;
 		RLD_DELAY(); rrd1();
 	}
 }
@@ -2177,53 +2219,64 @@ void _CPU_::pop_iy() { p = &R.IY.B.l; POP(); }
 
 // CALL nn / CALL cc,nn
 inline void _CPU_::CALL1() {
-	if (RDMEM(R.PC.w, y.B.h, &_CPU_::CALL1)) {
+	if (RDMEM(R.PC.w, memptr.B.h, &_CPU_::CALL1)) {
 		x.w = R.PC.w + 1;
-		R.PC.w = y.w;
+		R.PC.w = memptr.w;
 		PUSH();
 	}
 }
 inline void _CPU_::CALL() {
-	if (RDMEM(R.PC.w, y.B.l, &_CPU_::CALL)) {
+	if (RDMEM(R.PC.w, memptr.B.l, &_CPU_::CALL)) {
 		R.PC.w++;
 		CALL1();
 	}
 }
-inline void _CPU_::SKIP_ONE() {
-	if (RDMEM(R.PC.w, dummy, &_CPU_::SKIP_ONE)) {
+inline void _CPU_::SKIP_JP1() {
+	if (RDMEM(R.PC.w, memptr.B.h, &_CPU_::SKIP_JP1)) {
 		R.PC.w++;
 	}
 }
-inline void _CPU_::SKIP_TWO() {
-	if (RDMEM(R.PC.w, dummy, &_CPU_::SKIP_TWO)) {
+inline void _CPU_::SKIP_JP() {
+	if (RDMEM(R.PC.w, memptr.B.l, &_CPU_::SKIP_JP)) {
 		R.PC.w++;
-		SKIP_ONE();
+		SKIP_JP1();
 	}
 }
 void _CPU_::call()    { CALL(); }
-void _CPU_::call_c()  { if (C())  CALL(); else SKIP_TWO(); }
-void _CPU_::call_m()  { if (M())  CALL(); else SKIP_TWO(); }
-void _CPU_::call_nc() { if (NC()) CALL(); else SKIP_TWO(); }
-void _CPU_::call_nz() { if (NZ()) CALL(); else SKIP_TWO(); }
-void _CPU_::call_p()  { if (P())  CALL(); else SKIP_TWO(); }
-void _CPU_::call_pe() { if (PE()) CALL(); else SKIP_TWO(); }
-void _CPU_::call_po() { if (PO()) CALL(); else SKIP_TWO(); }
-void _CPU_::call_z()  { if (Z())  CALL(); else SKIP_TWO(); }
+void _CPU_::call_c()  { if (C())  CALL(); else SKIP_JP(); }
+void _CPU_::call_m()  { if (M())  CALL(); else SKIP_JP(); }
+void _CPU_::call_nc() { if (NC()) CALL(); else SKIP_JP(); }
+void _CPU_::call_nz() { if (NZ()) CALL(); else SKIP_JP(); }
+void _CPU_::call_p()  { if (P())  CALL(); else SKIP_JP(); }
+void _CPU_::call_pe() { if (PE()) CALL(); else SKIP_JP(); }
+void _CPU_::call_po() { if (PO()) CALL(); else SKIP_JP(); }
+void _CPU_::call_z()  { if (Z())  CALL(); else SKIP_JP(); }
 
 
 // RST n
-void _CPU_::rst_00() { x.w = R.PC.w; R.PC.w = 0x00; PUSH(); }
-void _CPU_::rst_08() { x.w = R.PC.w; R.PC.w = 0x08; PUSH(); }
-void _CPU_::rst_10() { x.w = R.PC.w; R.PC.w = 0x10; PUSH(); }
-void _CPU_::rst_18() { x.w = R.PC.w; R.PC.w = 0x18; PUSH(); }
-void _CPU_::rst_20() { x.w = R.PC.w; R.PC.w = 0x20; PUSH(); }
-void _CPU_::rst_28() { x.w = R.PC.w; R.PC.w = 0x28; PUSH(); }
-void _CPU_::rst_30() { x.w = R.PC.w; R.PC.w = 0x30; PUSH(); }
-void _CPU_::rst_38() { x.w = R.PC.w; R.PC.w = 0x38; PUSH(); }
+inline void _CPU_::RST() { memptr.w = R.PC.w; PUSH(); }
+void _CPU_::rst_00() { x.w = R.PC.w; R.PC.w = 0x00; RST(); }
+void _CPU_::rst_08() { x.w = R.PC.w; R.PC.w = 0x08; RST(); }
+void _CPU_::rst_10() { x.w = R.PC.w; R.PC.w = 0x10; RST(); }
+void _CPU_::rst_18() { x.w = R.PC.w; R.PC.w = 0x18; RST(); }
+void _CPU_::rst_20() { x.w = R.PC.w; R.PC.w = 0x20; RST(); }
+void _CPU_::rst_28() { x.w = R.PC.w; R.PC.w = 0x28; RST(); }
+void _CPU_::rst_30() { x.w = R.PC.w; R.PC.w = 0x30; RST(); }
+void _CPU_::rst_38() { x.w = R.PC.w; R.PC.w = 0x38; RST(); }
 
 
 // RET
-inline void _CPU_::RET() { p = &R.PC.B.l; POP(); }
+inline void _CPU_::RET1() {
+	if (RDMEM(R.SP.w, R.PC.B.h, &_CPU_::RET1)) {
+		R.SP.w++;
+		memptr.w = R.PC.w;
+	}
+}
+inline void _CPU_::RET() { 
+	if (RDMEM(R.SP.w, R.PC.B.l, &_CPU_::RET)) {
+		R.SP.w++; RET1();
+	}
+}
 void _CPU_::ret()    { RET(); }
 void _CPU_::ret_c()  { SMALL_DELAY(); if (C())  RET(); }
 void _CPU_::ret_m()  { SMALL_DELAY(); if (M())  RET(); }
@@ -2254,68 +2307,74 @@ void _CPU_::jp_ix() { R.PC.w = R.IX.w; }
 void _CPU_::jp_iy() { R.PC.w = R.IY.w; }
 
 // JP nn / JP cc,nn
+inline void _CPU_::JP1() {
+	if (RDMEM(R.PC.w, memptr.B.h, &_CPU_::JP1)) {
+		R.PC.w = memptr.w;
+	}
+}
 inline void _CPU_::JP() {
-	if (RDMEM(R.PC.w, y.B.l, &_CPU_::JP)) {
+	if (RDMEM(R.PC.w, memptr.B.l, &_CPU_::JP)) {
 		R.PC.w++;
 		JP1();
 	}
 }
-inline void _CPU_::JP1() {
-	if (RDMEM(R.PC.w, y.B.h, &_CPU_::JP1)) {
-		R.PC.w = y.w;
-	}
-}
 void _CPU_::jp()    { JP(); }
-void _CPU_::jp_c()  { if (C())  JP(); else SKIP_TWO(); }
-void _CPU_::jp_m()  { if (M())  JP(); else SKIP_TWO(); }
-void _CPU_::jp_nc() { if (NC()) JP(); else SKIP_TWO(); }
-void _CPU_::jp_nz() { if (NZ()) JP(); else SKIP_TWO(); }
-void _CPU_::jp_p()  { if (P())  JP(); else SKIP_TWO(); }
-void _CPU_::jp_pe() { if (PE()) JP(); else SKIP_TWO(); }
-void _CPU_::jp_po() { if (PO()) JP(); else SKIP_TWO(); }
-void _CPU_::jp_z()  { if (Z())  JP(); else SKIP_TWO(); }
+void _CPU_::jp_c()  { if (C())  JP(); else SKIP_JP(); }
+void _CPU_::jp_m()  { if (M())  JP(); else SKIP_JP(); }
+void _CPU_::jp_nc() { if (NC()) JP(); else SKIP_JP(); }
+void _CPU_::jp_nz() { if (NZ()) JP(); else SKIP_JP(); }
+void _CPU_::jp_p()  { if (P())  JP(); else SKIP_JP(); }
+void _CPU_::jp_pe() { if (PE()) JP(); else SKIP_JP(); }
+void _CPU_::jp_po() { if (PO()) JP(); else SKIP_JP(); }
+void _CPU_::jp_z()  { if (Z())  JP(); else SKIP_JP(); }
 
 // JR e
 inline void _CPU_::JR() {
 	if (RDMEM(R.PC.w, (byte &)ofst, &_CPU_::JR)) {
 		R.PC.w++;
 		R.PC.w += ofst;
+		memptr.w = R.PC.w;
 		ADD_16_8_DELAY();
 	}
 }
+inline void _CPU_::SKIP_JR() {
+	if (RDMEM(R.PC.w, dummy, &_CPU_::SKIP_JR)) {
+		R.PC.w++;
+	}
+}
 void _CPU_::jr()    { JR(); }
-void _CPU_::jr_c()  { if (C())  JR(); else SKIP_ONE(); }
-void _CPU_::jr_nc() { if (NC()) JR(); else SKIP_ONE(); }
-void _CPU_::jr_nz() { if (NZ()) JR(); else SKIP_ONE(); }
-void _CPU_::jr_z()  { if (Z())  JR(); else SKIP_ONE(); }
+void _CPU_::jr_c()  { if (C())  JR(); else SKIP_JR(); }
+void _CPU_::jr_nc() { if (NC()) JR(); else SKIP_JR(); }
+void _CPU_::jr_nz() { if (NZ()) JR(); else SKIP_JR(); }
+void _CPU_::jr_z()  { if (Z())  JR(); else SKIP_JR(); }
 
 // DJNZ e
 void _CPU_::djnz() {
 	SMALL_DELAY();
-	if (--R.BC.B.h) JR(); else SKIP_ONE();
+	if (--R.BC.B.h) JR(); else SKIP_JR();
 }
 
 // EX (SP),ss
 void _CPU_::EX_SP3() {
 	if (WRMEM(R.SP.w, *p, &_CPU_::EX_SP3)) {
-		*p = y.B.l;
+		*p = memptr.B.l;
 		EX_SP_HL_DELAY();
 	}
 }
 inline void _CPU_::EX_SP2() {
 	if (WRMEM(R.SP.w, *p, &_CPU_::EX_SP2)) {
 		R.SP.w--;
-		*p = y.B.h; pHighToLow();
+		*p = memptr.B.h; pHighToLow();
 		EX_SP3();
 	}
 }
 inline void _CPU_::EX_SP1() {
-	if (RDMEM(R.SP.w, y.B.h, &_CPU_::EX_SP1)) {
+	if (RDMEM(R.SP.w, memptr.B.h, &_CPU_::EX_SP1)) {
 		EX_SP2();
 	}
 }
 inline void _CPU_::EX_SP() {
-	if (RDMEM(R.SP.w, y.B.l, &_CPU_::EX_SP)) {
+	if (RDMEM(R.SP.w, memptr.B.l, &_CPU_::EX_SP)) {
 		R.SP.w++;
 		EX_SP1();
 	}
@@ -2348,7 +2407,8 @@ void _CPU_::in_a_byte1() {
 }
 void _CPU_::in_a_byte() {
 	if (RDMEM(R.PC.w, y.B.l, &_CPU_::in_a_byte)) {
-		R.PC.w++; y.B.h = R.AF.B.h; in_a_byte1();
+		R.PC.w++; y.B.h = R.AF.B.h;
+		in_a_byte1();
 	}
 }
 
