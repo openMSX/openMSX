@@ -1,5 +1,10 @@
 $Id$
 
+2001-11-07 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* reworked CPU related classes:
+	    much simpler structure
+	    more optimizations possible in the future
+
 2001-11-05 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Z80: undocumented instructions like "res 4,(ix+5),b" implemented
 	* Z80: correct(?) timing for undocumented instructions

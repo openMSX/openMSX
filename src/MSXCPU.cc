@@ -7,8 +7,9 @@
 MSXCPU::MSXCPU()
 {
 	PRT_DEBUG("Creating an MSXCPU object");
-	z80 = new MSXZ80();
-	//r800 = new MSXR800();
+	mb = MSXMotherBoard::instance();
+	z80 = new Z80(this, 3579545, 1);
+	//r800 = new R800(this, 3579545*2);
 	activeCPU = z80;	// setActiveCPU(CPU_Z80);
 }
 
@@ -32,8 +33,6 @@ MSXCPU* MSXCPU::oneInstance = NULL;
 void MSXCPU::init()
 {
 	MSXDevice::init();
-	z80->init();
-	//r800->init();
 }
 
 void MSXCPU::reset()
@@ -46,37 +45,40 @@ void MSXCPU::reset()
 
 void MSXCPU::setActiveCPU(CPUType cpu)
 {
-	MSXCPUDevice *newCPU = NULL;	// prevent warning
+	CPU *newCPU;
 	switch (cpu) {
-	case Z80:
+	case CPU_Z80:
 		newCPU = z80;
 		break;
-//	case R800:
+//	case CPU_R800:
 //		newCPU = r800;
 //		break;
+	default:
+		assert(false);
+		newCPU = NULL;	// prevent warning
 	}
-	newCPU->setCurrentTime(activeCPU->getCurrentTime());
-	activeCPU = newCPU;
+	if (newCPU != activeCPU) {
+		newCPU->setCurrentTime(activeCPU->getCurrentTime());
+		activeCPU = newCPU;
+	}
 }
 
 void MSXCPU::executeUntilTarget(const Emutime &time)
 {
-	setTargetTime(time);
-	activeCPU->executeUntilTarget();
+	activeCPU->executeUntilTarget(time);
 }
 
 
 void MSXCPU::setTargetTime(const Emutime &time)
 {
-	//assert(getCurrentTime() <= time);
-	targetTime = time;
+	activeCPU->setTargetTime(time);
 }
 const Emutime &MSXCPU::getTargetTime()
 {
-	return targetTime;
+	return activeCPU->getTargetTime();
 }
 
-Emutime &MSXCPU::getCurrentTime()
+const Emutime &MSXCPU::getCurrentTime()
 {
 	return activeCPU->getCurrentTime();
 }
@@ -86,3 +88,28 @@ void MSXCPU::executeUntilEmuTime(const Emutime &time)
 {
 	assert(false);
 }
+
+
+
+bool MSXCPU::IRQStatus()
+{
+	return mb->IRQstatus();
+}
+
+byte MSXCPU::readIO(word port, Emutime &time)
+{
+	return mb->readIO(port&255, time);
+}
+
+void MSXCPU::writeIO (word port, byte value, Emutime &time) {
+	mb->writeIO(port&255, value, time);
+}
+
+byte MSXCPU::readMem(word address, Emutime &time) {
+	return  mb->readMem(address, time);
+}
+
+void MSXCPU::writeMem(word address, byte value, Emutime &time) {
+	mb->writeMem(address, value, time);
+}
+

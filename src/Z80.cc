@@ -11,9 +11,6 @@
 /***     Please, notify me, if you make any changes to this file          ***/
 /****************************************************************************/
 
-#include <cstdio>
-#include <cstring>
-#include <iostream>
 #include <cassert>
 #include "Z80.hh"
 #include "Z80Tables.hh"
@@ -22,9 +19,11 @@
 #include "Z80Dasm.h"
 #endif
 
-Z80::Z80(Z80Interface *interf)
+Z80::Z80(CPUInterface *interf, int clockFreq, int waitCycles) : CPU(interf, clockFreq)
 {
-	interface = interf;
+	//CPU::CPU(interf, clockFreq);
+	init();
+	setWaitStates(waitCycles);
 }
 Z80::~Z80()
 {
@@ -58,9 +57,27 @@ void Z80::init ()
 }
 
 /****************************************************************************/
+/* Set number of memory refresh wait states (i.e. extra cycles inserted     */
+/* when the refresh register is being incremented)                          */
+/****************************************************************************/
+void Z80::setWaitStates (int n)
+{
+	int diff = n - waitStates;
+	waitStates = n;
+	for (int i=0; i<256; ++i) {
+		cycles_main[i] += diff;
+		cycles_cb[i]   += diff;
+		cycles_ed[i]   += diff;
+		cycles_xx[i]   += diff;
+		//cycles_xx_cb[i]+= diff;	//TODO check this not needed
+	}
+}
+int Z80::waitStates = 0;
+
+
+/****************************************************************************/
 /* Reset the CPU emulation core                                             */
 /* Set registers to their initial values                                    */
-/* and make the Z80 the starting CPU                                        */
 /****************************************************************************/
 void Z80::reset()
 {
@@ -95,12 +112,20 @@ void Z80::reset()
 /****************************************************************************/
 /*                                                                          */
 /****************************************************************************/
-int Z80::Z80_SingleInstruction() 
+void Z80::execute()
+{
+	while (currentTime < targetTime) {
+		int tStates = executeHelper();
+		//assert(tStates>0);
+		currentTime += (uint64)tStates;
+	}
+}
+
+int Z80::executeHelper() 
 {
 	byte opcode;
 	
-	if (interface->NMIStatus()) { 
-		// TODO NMI is edge triggered
+	if (interface->NMIEdge()) { 
 		// NMI occured
 		HALT = false; 
 		IFF1 = nextIFF1 = false;
@@ -119,7 +144,7 @@ int Z80::Z80_SingleInstruction()
 			M_PUSH (PC.w);
 			PC.w=Z80_RDMEM_WORD((interface->dataBus())|(I<<8));
 			R++;
-			return 19;	//TODO this value is wrong
+			return 19;
 		case 1:
 			// Interrupt mode 1
 			opcode = 0xff;	// RST 38h
@@ -164,53 +189,35 @@ int Z80::Z80_SingleInstruction()
 	return ICount;
 }
 
-/****************************************************************************/
-/* Set number of memory refresh wait states (i.e. extra cycles inserted     */
-/* when the refresh register is being incremented)                          */
-/****************************************************************************/
-void Z80::Z80_SetWaitStates (int n)
-{
-	int diff = n - waitStates;
-	waitStates = n;
-	for (int i=0; i<256; ++i) {
-		cycles_main[i] += diff;
-		cycles_cb[i]   += diff;
-		cycles_ed[i]   += diff;
-		cycles_xx[i]   += diff;
-		//cycles_xx_cb[i]+= diff;	//TODO check this not needed
-	}
-}
-int Z80::waitStates = 0;
-
 
 /*
  * Input a byte from given I/O port
  */
 inline byte Z80::Z80_In (word port) {
-	return interface->readIO(port);
+	return interface->readIO(port, currentTime);
 }
 /*
  * Output a byte to given I/O port
  */
 inline void Z80::Z80_Out (word port,byte value) { 
-	interface->writeIO(port, value);
+	interface->writeIO(port, value, currentTime);
 }
 /*
  * Read a byte from given memory location
  */
 inline byte Z80::Z80_RDMEM(word address) { 
 #ifdef Z80DEBUG
-	debugmemory[address] = interface->readMem(address);
+	debugmemory[address] = interface->readMem(address, currentTime);
 	return debugmemory[address];
 #else
-	return interface->readMem(address);
+	return interface->readMem(address, currentTime);
 #endif
 }
 /*
  * Write a byte to given memory location
  */
 inline void Z80::Z80_WRMEM(word address, byte value) {
-	interface->writeMem(address, value);
+	interface->writeMem(address, value, currentTime);
 	// No debugmemory[A] here otherwise self-modifying code could
 	// alter the executing code before the disassembled opcode
 	// is printed;
@@ -2213,8 +2220,8 @@ void Z80::ret_pe() { if (M_PE()) { M_RET(); } else { M_SKIP_RET(); } }
 void Z80::ret_po() { if (M_PO()) { M_RET(); } else { M_SKIP_RET(); } }
 void Z80::ret_z()  { if (M_Z())  { M_RET(); } else { M_SKIP_RET(); } }
 
-void Z80::reti() { IFF1 = nextIFF1 = IFF2; interface->Z80_Reti(); M_RET(); }	// same as retn!!
-void Z80::retn() { IFF1 = nextIFF1 = IFF2; interface->Z80_Retn(); M_RET(); }
+void Z80::reti() { IFF1 = nextIFF1 = IFF2; interface->reti(); M_RET(); }	// same as retn!!
+void Z80::retn() { IFF1 = nextIFF1 = IFF2; interface->retn(); M_RET(); }
 
 void Z80::rl_xhl() {
 	byte i = Z80_RDMEM(HL.w);
@@ -4272,7 +4279,7 @@ void Z80::xor_iyl() { M_XOR(IY.B.l); }
 void Z80::xor_byte(){ M_XOR(Z80_RDMEM_OPCODE()); }
 
 
-void Z80::patch() { interface->Z80_Patch(); }
+void Z80::patch() { interface->patch(); }
 
 
 

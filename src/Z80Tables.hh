@@ -112,7 +112,7 @@ int Z80::cycles_ed[256] = {
 	 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8
 };
 
-opcode_fn Z80::opcode_dd_cb[256] = {
+const opcode_fn Z80::opcode_dd_cb[256] = {
  &Z80::rlc_xix_b  ,&Z80::rlc_xix_c  ,&Z80::rlc_xix_d  ,&Z80::rlc_xix_e  ,
  &Z80::rlc_xix_h  ,&Z80::rlc_xix_l  ,&Z80::rlc_xix    ,&Z80::rlc_xix_a  ,
  &Z80::rrc_xix_b  ,&Z80::rrc_xix_c  ,&Z80::rrc_xix_d  ,&Z80::rrc_xix_e  ,
@@ -182,7 +182,7 @@ opcode_fn Z80::opcode_dd_cb[256] = {
  &Z80::set_7_xix_h,&Z80::set_7_xix_l,&Z80::set_7_xix  ,&Z80::set_7_xix_a,
 };
 
-opcode_fn Z80::opcode_fd_cb[256] = {
+const opcode_fn Z80::opcode_fd_cb[256] = {
  &Z80::rlc_xiy_b  ,&Z80::rlc_xiy_c  ,&Z80::rlc_xiy_d  ,&Z80::rlc_xiy_e  ,
  &Z80::rlc_xiy_h  ,&Z80::rlc_xiy_l  ,&Z80::rlc_xiy    ,&Z80::rlc_xiy_a  ,
  &Z80::rrc_xiy_b  ,&Z80::rrc_xiy_c  ,&Z80::rrc_xiy_d  ,&Z80::rrc_xiy_e  ,
@@ -252,7 +252,7 @@ opcode_fn Z80::opcode_fd_cb[256] = {
  &Z80::set_7_xiy_h,&Z80::set_7_xiy_l,&Z80::set_7_xiy  ,&Z80::set_7_xiy_a,
 };
 
-opcode_fn Z80::opcode_cb[256]=
+const opcode_fn Z80::opcode_cb[256]=
 {
  &Z80::rlc_b   ,&Z80::rlc_c   ,&Z80::rlc_d     ,&Z80::rlc_e  ,
  &Z80::rlc_h   ,&Z80::rlc_l   ,&Z80::rlc_xhl   ,&Z80::rlc_a  ,
@@ -323,7 +323,7 @@ opcode_fn Z80::opcode_cb[256]=
  &Z80::set_7_h ,&Z80::set_7_l ,&Z80::set_7_xhl ,&Z80::set_7_a
 };
 
-opcode_fn Z80::opcode_ed[256]=
+const opcode_fn Z80::opcode_ed[256]=
 {
  &Z80::nop   ,&Z80::nop    ,&Z80::nop      ,&Z80::nop        ,
  &Z80::nop   ,&Z80::nop    ,&Z80::nop      ,&Z80::nop        ,
@@ -394,7 +394,7 @@ opcode_fn Z80::opcode_ed[256]=
  &Z80::nop   ,&Z80::nop    ,&Z80::nop      ,&Z80::nop
 };
 
-opcode_fn Z80::opcode_dd[256]=
+const opcode_fn Z80::opcode_dd[256]=
 {
   &Z80::nop       ,&Z80::ld_bc_word,&Z80::ld_xbc_a   ,&Z80::inc_bc    ,
   &Z80::inc_b     ,&Z80::dec_b     ,&Z80::ld_b_byte  ,&Z80::rlca      ,
@@ -464,81 +464,8 @@ opcode_fn Z80::opcode_dd[256]=
   &Z80::ret_m     ,&Z80::ld_sp_ix  ,&Z80::jp_m       ,&Z80::ei        ,
   &Z80::call_m    ,&Z80::fd2       ,&Z80::cp_byte    ,&Z80::rst_38  
 };
-/*
-opcode_fn Z80::opcode_dd[256]=
-{
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::add_ix_bc ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::add_ix_de ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::ld_ix_word,&Z80::ld_xword_ix,&Z80::inc_ix   ,
-  &Z80::inc_ixh   ,&Z80::dec_ixh   ,&Z80::ld_ixh_byte,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::add_ix_ix ,&Z80::ld_ix_xword,&Z80::dec_ix   ,
-  &Z80::inc_ixl   ,&Z80::dec_ixl   ,&Z80::ld_ixl_byte,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::inc_xix   ,&Z80::dec_xix   ,&Z80::ld_xix_byte,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::add_ix_sp ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::ld_b_ixh  ,&Z80::ld_b_ixl  ,&Z80::ld_b_xix   ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::ld_c_ixh  ,&Z80::ld_c_ixl  ,&Z80::ld_c_xix   ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::ld_d_ixh  ,&Z80::ld_d_ixl  ,&Z80::ld_d_xix   ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::ld_e_ixh  ,&Z80::ld_e_ixl  ,&Z80::ld_e_xix   ,&Z80::no_op    ,
-  &Z80::ld_ixh_b  ,&Z80::ld_ixh_c  ,&Z80::ld_ixh_d   ,&Z80::ld_ixh_e ,
-  &Z80::ld_ixh_ixh,&Z80::ld_ixh_ixl,&Z80::ld_h_xix   ,&Z80::ld_ixh_a ,
-  &Z80::ld_ixl_b  ,&Z80::ld_ixl_c  ,&Z80::ld_ixl_d   ,&Z80::ld_ixl_e ,
-  &Z80::ld_ixl_ixh,&Z80::ld_ixl_ixl,&Z80::ld_l_xix   ,&Z80::ld_ixl_a ,
-  &Z80::ld_xix_b  ,&Z80::ld_xix_c  ,&Z80::ld_xix_d   ,&Z80::ld_xix_e ,
-  &Z80::ld_xix_h  ,&Z80::ld_xix_l  ,&Z80::no_op      ,&Z80::ld_xix_a ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::ld_a_ixh  ,&Z80::ld_a_ixl  ,&Z80::ld_a_xix   ,&Z80::no_op    ,
-  
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::add_a_ixh ,&Z80::add_a_ixl ,&Z80::add_a_xix  ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::adc_a_ixh ,&Z80::adc_a_ixl ,&Z80::adc_a_xix  ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::sub_ixh   ,&Z80::sub_ixl   ,&Z80::sub_xix    ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::sbc_a_ixh ,&Z80::sbc_a_ixl ,&Z80::sbc_a_xix  ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::and_ixh   ,&Z80::and_ixl   ,&Z80::and_xix    ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::xor_ixh   ,&Z80::xor_ixl   ,&Z80::xor_xix    ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::or_ixh    ,&Z80::or_ixl    ,&Z80::or_xix     ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::cp_ixh    ,&Z80::cp_ixl    ,&Z80::cp_xix     ,&Z80::no_op    ,
-  
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::dd_cb    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::pop_ix    ,&Z80::no_op      ,&Z80::ex_xsp_ix,
-  &Z80::no_op     ,&Z80::push_ix   ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::jp_ix     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::ld_sp_ix  ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op
-};
-*/
 
-
-opcode_fn Z80::opcode_fd[256]=
+const opcode_fn Z80::opcode_fd[256]=
 {
   &Z80::nop       ,&Z80::ld_bc_word,&Z80::ld_xbc_a   ,&Z80::inc_bc    ,
   &Z80::inc_b     ,&Z80::dec_b     ,&Z80::ld_b_byte  ,&Z80::rlca      ,
@@ -609,81 +536,7 @@ opcode_fn Z80::opcode_fd[256]=
   &Z80::call_m    ,&Z80::fd2       ,&Z80::cp_byte    ,&Z80::rst_38  
 };
 
-/*
-opcode_fn Z80::opcode_fd[256]=
-{
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::add_iy_bc ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::add_iy_de ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::ld_iy_word,&Z80::ld_xword_iy,&Z80::inc_iy   ,
-  &Z80::inc_iy    ,&Z80::dec_iy    ,&Z80::ld_iyh_byte,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::add_iy_iy ,&Z80::ld_iy_xword,&Z80::dec_iy   ,
-  &Z80::inc_iy    ,&Z80::dec_iy    ,&Z80::ld_iyl_byte,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::inc_xiy   ,&Z80::dec_xiy   ,&Z80::ld_xiy_byte,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::add_iy_sp ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::ld_b_iyh  ,&Z80::ld_b_iyl  ,&Z80::ld_b_xiy   ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::ld_c_iyh  ,&Z80::ld_c_iyl  ,&Z80::ld_c_xiy   ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::ld_d_iyh  ,&Z80::ld_d_iyl  ,&Z80::ld_d_xiy   ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::ld_e_iyh  ,&Z80::ld_e_iyl  ,&Z80::ld_e_xiy   ,&Z80::no_op    ,
-  &Z80::ld_iyh_b  ,&Z80::ld_iyh_c  ,&Z80::ld_iyh_d   ,&Z80::ld_iyh_e ,
-  &Z80::ld_iyh_iyh,&Z80::ld_iyh_iyl,&Z80::ld_h_xiy   ,&Z80::ld_iyh_a ,
-  &Z80::ld_iyl_b  ,&Z80::ld_iyl_c  ,&Z80::ld_iyl_d   ,&Z80::ld_iyl_e ,
-  &Z80::ld_iyl_iyh,&Z80::ld_iyl_iyl,&Z80::ld_l_xiy   ,&Z80::ld_iyl_a ,
-  &Z80::ld_xiy_b  ,&Z80::ld_xiy_c  ,&Z80::ld_xiy_d   ,&Z80::ld_xiy_e ,
-  &Z80::ld_xiy_h  ,&Z80::ld_xiy_l  ,&Z80::no_op      ,&Z80::ld_xiy_a ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::ld_a_iyh  ,&Z80::ld_a_iyl  ,&Z80::ld_a_xiy   ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::add_a_iyh ,&Z80::add_a_iyl ,&Z80::add_a_xiy  ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::adc_a_iyh ,&Z80::adc_a_iyl ,&Z80::adc_a_xiy  ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::sub_iyh   ,&Z80::sub_iyl   ,&Z80::sub_xiy    ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::sbc_a_iyh ,&Z80::sbc_a_iyl ,&Z80::sbc_a_xiy  ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::and_iyh   ,&Z80::and_iyl   ,&Z80::and_xiy    ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::xor_iyh   ,&Z80::xor_iyl   ,&Z80::xor_xiy    ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::or_iyh    ,&Z80::or_iyl    ,&Z80::or_xiy     ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::cp_iyh    ,&Z80::cp_iyl    ,&Z80::cp_xiy     ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::fd_cb    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::pop_iy    ,&Z80::no_op      ,&Z80::ex_xsp_iy,
-  &Z80::no_op     ,&Z80::push_iy   ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::jp_iy     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::ld_sp_iy  ,&Z80::no_op      ,&Z80::no_op    ,
-  &Z80::no_op     ,&Z80::no_op     ,&Z80::no_op      ,&Z80::no_op 
-};
-*/
-
-
-
-
-
-opcode_fn Z80::opcode_main[256]=
+const opcode_fn Z80::opcode_main[256]=
 {
  &Z80::nop     ,&Z80::ld_bc_word,&Z80::ld_xbc_a   ,&Z80::inc_bc    ,
  &Z80::inc_b   ,&Z80::dec_b     ,&Z80::ld_b_byte  ,&Z80::rlca      ,
@@ -2806,17 +2659,17 @@ const word Z80::DAATable[0x800] = {
 };
 
 // tmp1 value for ini/inir/outi/otir for [C.1-0][io.1-0]
-byte Z80::irep_tmp1[4][4] = {
+const byte Z80::irep_tmp1[4][4] = {
         {0,0,1,0},{0,1,0,1},{1,0,1,1},{0,1,1,0}
 };
 
 // tmp1 value for ind/indr/outd/otdr for [C.1-0][io.1-0]
-byte Z80::drep_tmp1[4][4] = {
+const byte Z80::drep_tmp1[4][4] = {
         {0,1,0,0},{1,0,0,1},{0,0,1,0},{0,1,0,1}
 };
 
 // tmp2 value for all in/out repeated opcodes for B.7-0
-byte Z80::breg_tmp2[256] = {
+const byte Z80::breg_tmp2[256] = {
         0,0,1,1,0,1,0,0,1,1,0,0,1,0,1,1,
         0,1,0,0,1,0,1,1,0,0,1,1,0,1,0,0,
         1,1,0,0,1,0,1,1,0,0,1,1,0,1,0,0,

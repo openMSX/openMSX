@@ -24,7 +24,6 @@
 #include <SDL/SDL_thread.h>
 #include "MSXDevice.hh"
 #include "MSXMotherBoard.hh"
-#include "MSXZ80.hh"
 #include "MSXSimple64KB.hh"
 #include "MSXRom16KB.hh"
 #include "devicefactory.hh"
