@@ -861,7 +861,7 @@ void VDPCmdEngine::LmcmCmd::execute(const EmuTime &time)
 		engine->COL = point(ASX, SY);
 		opsCount -= getVdpTimingValue(LMMV_TIMING);
 		engine->status |= 0x80;
-		ASX += TX --ANX;
+		ASX += TX; --ANX;
 		if (ANX == 0) {
 			SY += TY; --NY;
 			if (NY == 0) {
