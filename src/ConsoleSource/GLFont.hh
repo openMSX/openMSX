@@ -3,16 +3,8 @@
 #ifndef __GLFONT_HH__
 #define __GLFONT_HH__
 
-// Only compile on systems that have OpenGL headers.
-#include "config.h"
-#if (defined(HAVE_GL_GL_H) || defined(HAVE_GL_H))
-#define __GLFONT_AVAILABLE__
-
-#ifdef HAVE_GL_GL_H
-#include <GL/gl.h>
-#else // HAVE_GL_H
-#include <gl.h>
-#endif
+#include "GLUtil.hh"
+#ifdef __OPENGL_AVAILABLE__
 
 #include <string>
 #include "Font.hh"
@@ -31,5 +23,5 @@ class GLFont : public Font
 		int listBase;
 };
 
-#endif	// OpenGL header check.
-#endif	// __GLFONT_HH__
+#endif // __OPENGL_AVAILABLE__
+#endif // __GLFONT_HH__

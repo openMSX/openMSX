@@ -3,10 +3,8 @@
 #ifndef __SDLGLRENDERER_HH__
 #define __SDLGLRENDERER_HH__
 
-// Only compile on systems that have OpenGL headers.
-#include "config.h"
-#if (defined(HAVE_GL_GL_H) || defined(HAVE_GL_H))
-#define __SDLGLRENDERER_AVAILABLE__
+#include "GLUtil.hh"
+#ifdef __OPENGL_AVAILABLE__
 
 #include <SDL/SDL.h>
 #include "openmsx.hh"
@@ -15,12 +13,6 @@
 #include "BitmapConverter.hh"
 #include "SpriteConverter.hh"
 #include "DisplayMode.hh"
-
-#ifdef HAVE_GL_GL_H
-#include <GL/gl.h>
-#else // HAVE_GL_H
-#include <gl.h>
-#endif
 
 class GLConsole;
 
@@ -270,6 +262,6 @@ private:
 
 };
 
-#endif // OpenGL header check.
+#endif // __OPENGL_AVAILABLE__
 #endif // __SDLGLRENDERER_HH__
 

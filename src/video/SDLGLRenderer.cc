@@ -30,7 +30,7 @@ TODO:
 */
 
 #include "SDLGLRenderer.hh"
-#ifdef __SDLGLRENDERER_AVAILABLE__
+#ifdef __OPENGL_AVAILABLE__
 
 #include "VDP.hh"
 #include "VDPVRAM.hh"
@@ -1153,4 +1153,4 @@ void SDLGLRenderer::drawSprites(
 	glDisable(GL_TEXTURE_2D);
 }
 
-#endif // __SDLGLRENDERER_AVAILABLE__
+#endif // __OPENGL_AVAILABLE__

@@ -28,7 +28,9 @@ libVideo_la_SOURCES = \
 	XRenderer.hh XRenderer.cc \
 	BitmapConverter.hh BitmapConverter.cc \
 	CharacterConverter.hh CharacterConverter.cc \
-	SpriteConverter.hh
+	SpriteConverter.hh \
+	Blender.hh \
+	GLUtil.hh
 
 libVideo_la_LIBADD = \
 	../ConsoleSource/libSDL_console.la \

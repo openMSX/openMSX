@@ -3,16 +3,8 @@
 #ifndef __GLCONSOLE_HH__
 #define __GLCONSOLE_HH__
 
-// Only compile on systems that have OpenGL headers.
-#include "config.h"
-#if (defined(HAVE_GL_GL_H) || defined(HAVE_GL_H))
-#define __GLCONSOLE_AVAILABLE__
-
-#ifdef HAVE_GL_GL_H
-#include <GL/gl.h>
-#else // HAVE_GL_H
-#include <gl.h>
-#endif
+#include "GLUtil.hh"
+#ifdef __OPENGL_AVAILABLE__
 
 #include "OSDConsoleRenderer.hh"
 
@@ -47,5 +39,5 @@ class GLConsole : public OSDConsoleRenderer
 		class Console* console;
 };
 
-#endif	// OpenGL header check.
-#endif	// __GLCONSOLE_HH__
+#endif // __OPENGL_AVAILABLE__
+#endif // __GLCONSOLE_HH__

@@ -1,7 +1,7 @@
 // $Id$
 
 #include "GLFont.hh"
-#ifdef __GLFONT_AVAILABLE__
+#ifdef __OPENGL_AVAILABLE__
 
 #include "SDL/SDL.h"
 
@@ -65,4 +65,4 @@ void GLFont::drawText(const std::string &string, int x, int y)
 	glCallLists(strlen(text), GL_UNSIGNED_BYTE, text);
 }
 
-#endif	// __GLFONT_AVAILABLE__
+#endif // __OPENGL_AVAILABLE__

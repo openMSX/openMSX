@@ -1,7 +1,7 @@
 // $Id$
 
 #include "GLConsole.hh"
-#ifdef __GLCONSOLE_AVAILABLE__
+#ifdef __OPENGL_AVAILABLE__
 
 #include <cassert>
 
@@ -216,4 +216,4 @@ void GLConsole::drawConsole()
 	glPopAttrib();
 }
 
-#endif	// __GLCONSOLE_AVAILABLE__
+#endif // __OPENGL_AVAILABLE__
