@@ -147,15 +147,13 @@ inline void V9990CmdEngine::V9990Bpp16::pset(V9990VRAM* vram,
 // ====================================================================
 /** Constructor
   */
-V9990CmdEngine::V9990CmdEngine(V9990 *vdp_)
+V9990CmdEngine::V9990CmdEngine(V9990* vdp_)
+	: vdp(vdp_)
+	, cmdTraceSetting("v9990cmdtrace", "V9990 command tracing on/off", false)
 {
-	vdp = vdp_;
-
 	V9990CmdEngine::CmdSTOP* stopCmd =
 		new V9990CmdEngine::CmdSTOP(this, vdp->getVRAM());
-
-	commands[0][0]  = NULL;
-	for (int mode = 0; mode < (BP2+1); mode++) {
+	for (int mode = 0; mode <= BP2; ++mode) {
 		commands[0][mode] = stopCmd;
 	}
 
@@ -183,9 +181,9 @@ V9990CmdEngine::~V9990CmdEngine()
 {
 	delete commands[0][0]; // Delete the STOP cmd
 	
-	for(int cmd = 1; cmd < 16; cmd++) { // Delete the rest
-		for(int mode = 0; mode < (BP2+1); mode++) {
-			if(commands[cmd][mode]) delete commands[cmd][mode];
+	for (int cmd = 1; cmd < 16; ++cmd) { // Delete the rest
+		for (int mode = 0; mode <= BP2; ++mode) {
+			delete commands[cmd][mode];
 		}
 	}
 }
@@ -264,18 +262,45 @@ void V9990CmdEngine::setCmdReg(byte reg, byte value, const EmuTime& time)
 		break;
 	case 20: // CMD
 	{
-		int cmd = (value >> 4) & 0x0F;
+		CMD = value;
 		if (currentCommand) {
 			// Do Something to stop the running command
 		}
+		if (cmdTraceSetting.getValue()) {
+			reportV9990Command();
+		}
 		vdp->cmdStart();
-		currentCommand = commands[cmd][vdp->getColorMode()];
+		currentCommand = commands[CMD >> 4][vdp->getColorMode()];
 		if (currentCommand) currentCommand->start(time);
 		break;
 	}
 	default: /* nada */
 		;
 	}
+}
+
+void V9990CmdEngine::reportV9990Command()
+{
+	const char* const COMMANDS[16] = {
+		"STOP", "LMMC", "LMMV", "LMCM",
+		"LMMM", "CMMC", "CMMK", "CMMM",
+		"BMXL", "BMLX", "BMLL", "LINE",
+		"SRCH", "POINT","PSET", "ADVN"
+	};
+	std::cerr << "V9990Cmd " << COMMANDS[CMD >> 4]
+	          << " SX="  << std::dec << SX
+	          << " SY="  << std::dec << SY
+	          << " DX="  << std::dec << DX
+	          << " DY="  << std::dec << DY
+	          << " NX="  << std::dec << NX
+	          << " NY="  << std::dec << NY
+	          << " ARG=" << std::hex << (int)ARG
+	          << " LOG=" << std::hex << (int)LOG
+	          << " WM="  << std::hex << WM
+	          << " FC="  << std::hex << fgCol
+	          << " BC="  << std::hex << bgCol
+	          << " CMD=" << std::hex << (int)CMD
+	          << std::endl;
 }
 
 template <template <class Mode> class Command>
@@ -342,14 +367,6 @@ V9990CmdEngine::CmdLMMC<Mode>::CmdLMMC(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdLMMC<Mode>::start(const EmuTime& time)
 {
-	PRT_DEBUG("LMMC: DX=" << std::dec << engine->DX <<
-	          " DY=" << std::dec << engine->DY <<
-	          " NX=" << std::dec << engine->NX <<
-	          " NY=" << std::dec << engine->NY <<
-	          " ARG="<< std::hex << (int)engine->ARG <<
-	          " WM=" << std::hex << engine->WM <<
-	          " Bpp="<< std::hex << Mode::PIXELS_PER_BYTE);
-
 	if (Mode::BITS_PER_PIXEL == 16) {
 		engine->dstAddress = Mode::addressOf(engine->DX,
 		                                     engine->DY,
@@ -435,15 +452,6 @@ V9990CmdEngine::CmdLMMV<Mode>::CmdLMMV(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdLMMV<Mode>::start(const EmuTime& time)
 {
-	PRT_DEBUG("LMMV: DX=" << std::dec << engine->DX <<
-	          " DY=" << std::dec << engine->DY <<
-	          " NX=" << std::dec << engine->NX <<
-	          " NY=" << std::dec << engine->NY <<
-	          " ARG="<< std::hex << (int)engine->ARG <<
-	          " WM=" << std::hex << engine->WM <<
-	          " COL="<< std::hex << engine->fgCol <<
-	          " Bpp="<< std::hex << Mode::PIXELS_PER_BYTE);
-
 	engine->ANX = engine->NX;
 	engine->ANY = engine->NY;
 
@@ -520,17 +528,6 @@ V9990CmdEngine::CmdLMMM<Mode>::CmdLMMM(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdLMMM<Mode>::start(const EmuTime& time)
 {
-	PRT_DEBUG("LMMM: SX=" << std::dec << engine->SX <<
-	          " SY=" << std::dec << engine->SY <<
-	          " DX=" << std::dec << engine->DX <<
-	          " DY=" << std::dec << engine->DY <<
-	          " NX=" << std::dec << engine->NX <<
-	          " NY=" << std::dec << engine->NY <<
-	          " ARG="<< std::hex << (int)engine->ARG <<
-	          " LOG="<< std::hex << (int)engine->LOG <<
-	          " WM=" << std::hex << engine->WM <<
-	          " Bpp="<< std::hex << Mode::PIXELS_PER_BYTE);
-
 	engine->ANX = engine->NX;
 	engine->ANY = engine->NY;
 
@@ -588,16 +585,6 @@ V9990CmdEngine::CmdCMMC<Mode>::CmdCMMC(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdCMMC<Mode>::start(const EmuTime& time)
 {
-	PRT_DEBUG("CMMC: DX=" << std::dec << engine->DX <<
-	          " DY=" << std::dec << engine->DY <<
-	          " NX=" << std::dec << engine->NX <<
-	          " NY=" << std::dec << engine->NY <<
-	          " ARG="<< std::hex << (int)engine->ARG <<
-	          " WM=" << std::hex << engine->WM <<
-	          " FC=" << std::hex << engine->fgCol <<
-	          " BC=" << std::hex << engine->bgCol <<
-	          " Bpp="<< std::hex << Mode::PIXELS_PER_BYTE);
-
 	engine->ANX = engine->NX;
 	engine->ANY = engine->NY;
 	engine->transfer = false;
@@ -680,17 +667,6 @@ void V9990CmdEngine::CmdCMMM<Mode>::start(const EmuTime& time)
 {
 	engine->srcAddress = (engine->SX & 0xFF) + ((engine->SY & 0x3FF) << 8);
 
-	PRT_DEBUG("CMMM: ADR=0x" << std::hex << engine->srcAddress <<
-	          " DX=" << std::dec << engine->DX <<
-	          " DY=" << std::dec << engine->DY <<
-	          " NX=" << std::dec << engine->NX <<
-	          " NY=" << std::dec << engine->NY <<
-	          " ARG="<< std::hex << (int)engine->ARG <<
-	          " WM=" << std::hex << engine->WM <<
-	          " FC=" << std::hex << engine->fgCol <<
-	          " BC=" << std::hex << engine->bgCol <<
-	          " Bpp="<< std::hex << Mode::PIXELS_PER_BYTE);
-
 	engine->ANX = engine->NX;
 	engine->ANY = engine->NY;
 	engine->bitsLeft = 0;
@@ -756,14 +732,6 @@ template <class Mode>
 void V9990CmdEngine::CmdBMXL<Mode>::start(const EmuTime& time)
 {
 	engine->srcAddress = (engine->SX & 0xFF) + ((engine->SY & 0x3FF) << 8);
-
-	PRT_DEBUG("BMXL: DX=" << std::dec << engine->DX <<
-	          " DY=" << std::dec << engine->DY <<
-	          " NX=" << std::dec << engine->NX <<
-	          " NY=" << std::dec << engine->NY <<
-	          " ARG="<< std::hex << (int)engine->ARG <<
-	          " WM=" << std::hex << engine->WM <<
-	          " Bpp="<< std::hex << Mode::PIXELS_PER_BYTE);
 
 	if (Mode::BITS_PER_PIXEL == 16) {
 		engine->dstAddress = Mode::addressOf(engine->DX,
@@ -856,16 +824,6 @@ void V9990CmdEngine::CmdBMLX<Mode>::start(const EmuTime& time)
 {
 	engine->dstAddress = (engine->DX & 0xFF) + ((engine->DY & 0x3FF) << 8);
 
-	PRT_DEBUG("BMLX: SX=" << std::dec << engine->SX <<
-	          " SY=" << std::dec << engine->SY <<
-	          " ADR="<< std::hex << engine->dstAddress <<
-	          " NX=" << std::dec << engine->NX <<
-	          " NY=" << std::dec << engine->NY <<
-	          " ARG="<< std::hex << (int)engine->ARG <<
-	          " LOG="<< std::hex << (int)engine->LOG <<
-	          " WM=" << std::hex << engine->WM <<
-	          " Bpp="<< std::hex << Mode::PIXELS_PER_BYTE);
-
 	engine->ANX = engine->NX;
 	engine->ANY = engine->NY;
 
@@ -954,16 +912,6 @@ V9990CmdEngine::CmdLINE<Mode>::CmdLINE(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdLINE<Mode>::start(const EmuTime& time)
 {
-	PRT_DEBUG("LINE: DX=" << std::dec << engine->DX <<
-	          " DY=" << std::dec << engine->DY <<
-	          " MJ=" << std::dec << engine->NX <<
-	          " MI=" << std::dec << engine->NY <<
-	          " ARG="<< std::hex << (int)engine->ARG <<
-	          " LOG="<< std::hex << (int)engine->LOG <<
-	          " WM=" << std::hex << engine->WM <<
-	          " FC=" << std::hex << engine->fgCol <<
-	          " Bpp="<< std::hex << Mode::PIXELS_PER_BYTE);
-
 	engine->ASX = (engine->NX - 1) / 2;
 	engine->ADX = engine->DX;
 	engine->ANX = 0;

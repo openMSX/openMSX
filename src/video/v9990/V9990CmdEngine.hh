@@ -5,6 +5,7 @@
 
 #include "openmsx.hh"
 #include "V9990ModeEnum.hh"
+#include "BooleanSetting.hh"
 
 namespace openmsx {
 
@@ -200,7 +201,7 @@ private:
 	  */
 	word SX, SY, DX, DY, NX, NY;
 	word WM, fgCol, bgCol;
-	byte ARG, CMD, LOG;
+	byte ARG, LOG, CMD;
 
 	/** VRAM read/write address for various commands
 	  */
@@ -210,6 +211,10 @@ private:
 	/** counters
 	  */
 	word ASX, ADX, ANX, ANY;
+	
+	/** Only call reportV9990Command() when this setting is turned on
+	  */
+	BooleanSetting cmdTraceSetting;
 	
 	/** Create the engines for a given command.
 	  * For each bitdepth, a separate engine is created.
@@ -226,6 +231,10 @@ private:
 	/** The running command is complete. Perform neccessary clean-up actions.
 	  */
 	void cmdReady();
+
+	/** For debugging: Print the info about the current command.
+	  */ 
+	void reportV9990Command();
 };
 
 } // namespace openmsx

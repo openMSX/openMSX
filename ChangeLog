@@ -1,5 +1,8 @@
 $Id$
 
+2004-12-29 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added v9990cmdtracing setting
+
 2004-12-28 Eric Boon <e.boon4@chello.nl>
 	* Improved V9990 simple scaler
 		Fixes 'no V9990 updates' problem in M$ Windows
