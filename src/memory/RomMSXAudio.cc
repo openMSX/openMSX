@@ -6,21 +6,20 @@
 
 namespace openmsx {
 
-RomMSXAudio::RomMSXAudio(Config* config, const EmuTime& time, Rom* rom)
-	: MSXDevice(config, time), MSXRom(config, time, rom)
+RomMSXAudio::RomMSXAudio(Config* config, const EmuTime& time, auto_ptr<Rom> rom)
+	: MSXDevice(config, time), MSXRom(config, time, rom),
+	  ram(getName(), "MSX-AUDIO mapped RAM", 0x1000)
 {
-	ram = new byte[0x1000];
-	
 	reset(time);
 }
 
 RomMSXAudio::~RomMSXAudio()
 {
-	delete[] ram;
 }
 
 void RomMSXAudio::reset(const EmuTime& time)
 {
+	ram.clear();	// TODO check
 	bankSelect = 0;
 	cpu->invalidateCache(0x0000, 0x10000 / CPU::CACHE_LINE_SIZE);
 }
@@ -30,7 +29,7 @@ byte RomMSXAudio::readMem(word address, const EmuTime& time)
 	if ((bankSelect == 0) && ((address & 0x3FFF) >= 0x3000)) {
 		return ram[(address & 0x3FFF) - 0x3000];
 	} else {
-		return rom->read(0x8000 * bankSelect + (address & 0x7FFF));
+		return (*rom)[0x8000 * bankSelect + (address & 0x7FFF)];
 	}
 }
 
@@ -39,7 +38,7 @@ const byte* RomMSXAudio::getReadCacheLine(word address) const
 	if ((bankSelect == 0) && ((address & 0x3FFF) >= 0x3000)) {
 		return &ram[(address & 0x3FFF) - 0x3000];
 	} else {
-		return rom->getBlock(0x8000 * bankSelect + (address & 0x7FFF));
+		return &(*rom)[0x8000 * bankSelect + (address & 0x7FFF)];
 	}
 }
 
@@ -64,7 +63,7 @@ byte* RomMSXAudio::getWriteCacheLine(word address) const
 	}
 	address &= 0x3FFF;
 	if ((bankSelect == 0) && (address >= 0x3000)) {
-		return &ram[address - 0x3000];
+		return const_cast<byte*>(&ram[address - 0x3000]);
 	} else {
 		return unmappedWrite;
 	}

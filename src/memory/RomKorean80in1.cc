@@ -13,7 +13,7 @@
 
 namespace openmsx {
 
-RomKorean80in1::RomKorean80in1(Config* config, const EmuTime& time, Rom* rom)
+RomKorean80in1::RomKorean80in1(Config* config, const EmuTime& time, auto_ptr<Rom> rom)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
 	reset(time);

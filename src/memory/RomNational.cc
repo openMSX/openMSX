@@ -5,9 +5,9 @@
 
 namespace openmsx {
 
-RomNational::RomNational(Config* config, const EmuTime& time, Rom* rom)
+RomNational::RomNational(Config* config, const EmuTime& time, auto_ptr<Rom> rom)
 	: MSXDevice(config, time), Rom16kBBlocks(config, time, rom),
-	  sram(0x1000, config)
+	  sram(getName() + "-SRAM", 0x1000, config)
 {
 	reset(time);
 }
@@ -36,7 +36,7 @@ byte RomNational::readMem(word address, const EmuTime& time)
 	}
 	if ((control & 0x02) && ((address & 0x3FFF) == 0x3FFD)) {
 		// SRAM read
-		return sram.read(sramAddr++ & 0x0FFF);
+		return sram[sramAddr++ & 0x0FFF];
 	}
 	return Rom16kBBlocks::readMem(address, time);
 }
@@ -80,7 +80,7 @@ void RomNational::writeMem(word address, byte value, const EmuTime& time)
 			// SRAM address bits 7-0
 			sramAddr = (sramAddr & 0xFFFF00) | value;
 		} else if (address == 0x3FFD) {
-			sram.write(sramAddr++ & 0x0FFF, value);
+			sram[sramAddr++ & 0x0FFF] = value;
 		}
 	}
 }

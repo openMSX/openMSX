@@ -10,7 +10,7 @@ namespace openmsx {
 class RomRType : public Rom16kBBlocks
 {
 public:
-	RomRType(Config* config, const EmuTime& time, Rom* rom);
+	RomRType(Config* config, const EmuTime& time, auto_ptr<Rom> rom);
 	virtual ~RomRType();
 	
 	virtual void reset(const EmuTime& time);

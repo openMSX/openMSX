@@ -42,9 +42,9 @@
 
 namespace openmsx {
 
-RomGameMaster2::RomGameMaster2(Config* config, const EmuTime& time, Rom* rom)
+RomGameMaster2::RomGameMaster2(Config* config, const EmuTime& time, auto_ptr<Rom> rom)
 	: MSXDevice(config, time), Rom4kBBlocks(config, time, rom),
-	  sram(0x2000, config)
+	  sram(getName() + "-SRAM", 0x2000, config)
 {
 	reset(time);
 }
@@ -78,8 +78,8 @@ void RomGameMaster2::writeMem(word address, byte value, const EmuTime& time)
 			if (value & 0x10) {
 				// switch SRAM
 				word offset = (value & 0x20) ? 0x1000: 0x0000;
-				setBank(region,     sram.getBlock(offset));
-				setBank(region + 1, sram.getBlock(offset));
+				setBank(region,     &sram[offset]);
+				setBank(region + 1, &sram[offset]);
 			} else {
 				// switch ROM
 				setRom(region,     2 * (value & 0x0F));

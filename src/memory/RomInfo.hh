@@ -4,9 +4,11 @@
 #define __ROMINFO_HH__
 
 #include <string>
+#include <memory>
 #include "RomTypes.hh"
 
 using std::string;
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -27,7 +29,7 @@ public:
 	const string& getRemark()         const { return remark; }
 	const MapperType& getMapperType() const { return mapperType; }
 
-	static RomInfo* fetchRomInfo(
+	static auto_ptr<RomInfo> fetchRomInfo(
 		const Rom* rom, const Config& deviceConfig);
 	static MapperType nameToMapperType(const string& name);
 	void print();
@@ -38,7 +40,7 @@ private:
 	  * @return The information found in the database,
 	  * 	or NULL if the given ROM is not in the database.
 	  */
-	static RomInfo* searchRomDB(const Rom* rom);
+	static auto_ptr<RomInfo> searchRomDB(const Rom* rom);
 	static MapperType guessMapperType(const Rom* rom);
 
 	string title;

@@ -7,7 +7,7 @@
 
 namespace openmsx {
 
-Rom4kBBlocks::Rom4kBBlocks(Config* config, const EmuTime& time, Rom* rom)
+Rom4kBBlocks::Rom4kBBlocks(Config* config, const EmuTime& time, auto_ptr<Rom> rom)
 	: MSXDevice(config, time), MSXRom(config, time, rom)
 {
 	for (int i = 0; i < 16; i++) {
@@ -40,7 +40,7 @@ void Rom4kBBlocks::setRom(byte region, int block)
 	int nrBlocks = rom->getSize() >> 12;
 	if (nrBlocks != 0) {
 		block = (block < nrBlocks) ? block : block & (nrBlocks - 1);
-		setBank(region, const_cast<byte*>(rom->getBlock(block << 12)));
+		setBank(region, const_cast<byte*>(&(*rom)[block << 12]));
 	} else {
 		setBank(region, unmappedRead);
 	}

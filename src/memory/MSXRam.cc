@@ -3,7 +3,7 @@
 #include "MSXRam.hh"
 #include "CPU.hh"
 #include "Config.hh"
-
+#include "Ram.hh"
 
 namespace openmsx {
 
@@ -28,20 +28,18 @@ MSXRam::MSXRam(Config* config, const EmuTime& time)
 	
 	assert(CPU::CACHE_LINE_SIZE <= 1024);	// size must be cache aligned
 	
-	memoryBank = new byte[size];
-	memset(memoryBank, 0xFF, size);
+	ram = new Ram(getName(), "ram", size);
 }
 
 MSXRam::~MSXRam()
 {
-	delete[] memoryBank;
+	delete ram;
 }
 
 void MSXRam::reset(const EmuTime& time)
 {
 	if (!slowDrainOnReset) {
-		int size = end - base;
-		memset(memoryBank, 0, size);
+		ram->clear();
 	}
 }
 
@@ -53,7 +51,7 @@ bool MSXRam::isInside(word address) const
 byte MSXRam::readMem(word address, const EmuTime& time)
 {
 	if (isInside(address)) {
-		return memoryBank[address - base];
+		return (*ram)[address - base];
 	} else {
 		return 0xFF;
 	}
@@ -62,7 +60,7 @@ byte MSXRam::readMem(word address, const EmuTime& time)
 void MSXRam::writeMem(word address, byte value, const EmuTime& time)
 {
 	if (isInside(address)) {
-		memoryBank[address - base] = value;
+		(*ram)[address - base] = value;
 	} else {
 		// ignore
 	}
@@ -71,7 +69,7 @@ void MSXRam::writeMem(word address, byte value, const EmuTime& time)
 const byte* MSXRam::getReadCacheLine(word start) const
 {
 	if (isInside(start)) {
-		return &memoryBank[start - base];
+		return &(*ram)[start - base];
 	} else {
 		return unmappedRead;
 	}
@@ -80,7 +78,7 @@ const byte* MSXRam::getReadCacheLine(word start) const
 byte* MSXRam::getWriteCacheLine(word start) const
 {
 	if (isInside(start)) {
-		return &memoryBank[start - base];
+		return &(*ram)[start - base];
 	} else {
 		return unmappedWrite;
 	}

@@ -10,7 +10,7 @@ namespace openmsx {
 class RomPanasonic : public Rom8kBBlocks
 {
 public:
-	RomPanasonic(Config* config, const EmuTime& time, Rom* rom);
+	RomPanasonic(Config* config, const EmuTime& time, auto_ptr<Rom> rom);
 	virtual ~RomPanasonic();
 	
 	virtual void reset(const EmuTime& time);

@@ -19,13 +19,13 @@
 
 namespace openmsx {
 
-RomAscii8_8::RomAscii8_8(Config* config, const EmuTime& time, Rom* rom,
-		         SubType subType)
-	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom),
-	  sram((subType == KOEI_32) ? 0x8000 : 0x2000, config)
+RomAscii8_8::RomAscii8_8(Config* config, const EmuTime& time, auto_ptr<Rom> rom_,
+                         SubType subType)
+	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom_),
+	  sram(getName() + "-SRAM", (subType == KOEI_32) ? 0x8000 : 0x2000, config)
 {
 	sramEnableBit = (subType == WIZARDRY) ? 0x80
-	                                     : rom->getSize() / 0x2000;
+	                                      : rom->getSize() / 0x2000;
 	sramPages = ((subType == KOEI_8) || (subType == KOEI_32))
 	          ? 0x34 : 0x30;
 
@@ -56,7 +56,7 @@ void RomAscii8_8::writeMem(word address, byte value, const EmuTime& time)
 		byte region = ((address >> 11) & 3) + 2;
 		if (value & sramEnableBit) {
 			sramBlock[region] = value & ((sram.getSize() / 0x2000) - 1);
-			setBank(region, sram.getBlock(sramBlock[region] * 0x2000));
+			setBank(region, &sram[sramBlock[region] * 0x2000]);
 			sramEnabled |= (1 << region) & sramPages;
 		} else {
 			setRom(region, value);
@@ -67,7 +67,7 @@ void RomAscii8_8::writeMem(word address, byte value, const EmuTime& time)
 		if ((1 << bank) & sramEnabled) {
 			// write to SRAM
 			word addr = (sramBlock[bank] * 0x2000) + (address & 0x1FFF);
-			sram.write(addr, value);
+			sram[addr] = value;
 		}
 	}
 }
@@ -81,7 +81,7 @@ byte* RomAscii8_8::getWriteCacheLine(word address) const
 		// write to SRAM
 		byte bank = address >> 13;
 		word addr = (sramBlock[bank] * 0x2000) + (address & 0x1FFF);
-		return sram.getBlock(addr);
+		return const_cast<byte*>(&sram[addr]);
 	} else {
 		return unmappedWrite;
 	}

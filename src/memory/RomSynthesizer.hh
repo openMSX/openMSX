@@ -10,7 +10,7 @@ namespace openmsx {
 class RomSynthesizer : public Rom16kBBlocks
 {
 public:
-	RomSynthesizer(Config* config, const EmuTime& time, Rom* rom);
+	RomSynthesizer(Config* config, const EmuTime& time, auto_ptr<Rom> rom);
 	virtual ~RomSynthesizer();
 
 	virtual void reset(const EmuTime& time);

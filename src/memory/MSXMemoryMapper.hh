@@ -4,14 +4,14 @@
 #define __MSXMEMORYMAPPER_HH__
 
 #include "MSXMemDevice.hh"
-#include "Debuggable.hh"
+#include "Ram.hh"
 
 namespace openmsx {
 
 class Config;
 class MSXMapperIO;
 
-class MSXMemoryMapper : public MSXMemDevice, private Debuggable
+class MSXMemoryMapper : public MSXMemDevice
 {
 public:
 	MSXMemoryMapper(Config* config, const EmuTime& time);
@@ -25,6 +25,9 @@ public:
 	virtual void reset(const EmuTime& time);
 
 protected:
+	Ram* ram;
+
+private:
 	void createMapperIO(const EmuTime& time);
 	void destroyMapperIO();
 
@@ -34,20 +37,12 @@ protected:
 	  */
 	inline unsigned calcAddress(word address) const;
 
-	byte* buffer;
 	unsigned nbBlocks;
 	bool slowDrainOnReset;
 
 	static unsigned counter;
 	static Config* device;
 	static MSXMapperIO* mapperIO;
-
-private:
-	// Debuggable
-	virtual unsigned getSize() const;
-	virtual const string& getDescription() const;
-	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value);
 };
 
 } // namespace openmsx

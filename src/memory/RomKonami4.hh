@@ -10,7 +10,7 @@ namespace openmsx {
 class RomKonami4 : public Rom8kBBlocks
 {
 public:
-	RomKonami4(Config* config, const EmuTime& time, Rom* rom);
+	RomKonami4(Config* config, const EmuTime& time, auto_ptr<Rom> rom);
 	virtual ~RomKonami4();
 	
 	virtual void reset(const EmuTime& time);

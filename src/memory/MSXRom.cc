@@ -13,11 +13,11 @@ namespace openmsx {
 
 MSXCPU *MSXRom::cpu;
 
-MSXRom::MSXRom(Config* config, const EmuTime &time, Rom *rom)
-	: MSXDevice(config, time), MSXMemDevice(config, time)
+MSXRom::MSXRom(Config* config, const EmuTime& time, auto_ptr<Rom> rom_)
+	: MSXDevice(config, time), MSXMemDevice(config, time),
+	  rom(rom_)
 {
 	init();
-	this->rom = rom;
 
 	ostringstream tmpname;
 	if (rom->getSize() == 0) {
@@ -39,7 +39,6 @@ MSXRom::MSXRom(Config* config, const EmuTime &time, Rom *rom)
 
 MSXRom::~MSXRom()
 {
-	delete rom;
 }
 
 void MSXRom::init()
@@ -54,17 +53,17 @@ void MSXRom::init()
 }
 
 
-void MSXRom::writeMem(word address, byte value, const EmuTime &time)
+void MSXRom::writeMem(word address, byte value, const EmuTime& time)
 {
 	// nothing
 }
 
-byte *MSXRom::getWriteCacheLine(word address) const
+byte* MSXRom::getWriteCacheLine(word address) const
 {
 	return unmappedWrite;
 }
 
-const string &MSXRom::getName() const
+const string& MSXRom::getName() const
 {
 	return romName;
 }

@@ -4,7 +4,7 @@
 
 namespace openmsx {
 
-RomPageNN::RomPageNN(Config* config, const EmuTime& time, Rom* rom, byte pages)
+RomPageNN::RomPageNN(Config* config, const EmuTime& time, auto_ptr<Rom> rom, byte pages)
 	: MSXDevice(config, time), Rom16kBBlocks(config, time, rom)
 {
 	int bank = 0;

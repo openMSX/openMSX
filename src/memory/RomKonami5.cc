@@ -21,11 +21,11 @@
 
 namespace openmsx {
 
-RomKonami5::RomKonami5(Config* config, const EmuTime& time, Rom* rom)
+RomKonami5::RomKonami5(Config* config, const EmuTime& time, auto_ptr<Rom> rom)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
 	short volume = (short)config->getParameterAsInt("volume");
-	scc = new SCC(config->getId(), volume, time);
+	scc = new SCC(getName(), volume, time);
 	
 	reset(time);
 }

@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-RomHarryFox::RomHarryFox(Config* config, const EmuTime& time, Rom* rom)
+RomHarryFox::RomHarryFox(Config* config, const EmuTime& time, auto_ptr<Rom> rom)
 	: MSXDevice(config, time), Rom16kBBlocks(config, time, rom)
 {
 	reset(time);

@@ -3,7 +3,8 @@
 #include "PanasonicMemory.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
-
+#include "Rom.hh"
+#include "Ram.hh"
 
 namespace openmsx {
 
@@ -23,16 +24,16 @@ PanasonicMemory& PanasonicMemory::instance()
 	return oneInstance;
 }
 
-void PanasonicMemory::registerRom(const byte* rom_, int romSize_)
+void PanasonicMemory::registerRom(const Rom& rom_)
 {
-	rom = rom_;
-	romSize = romSize_;
+	rom = &rom_[0];
+	romSize = rom_.getSize();
 }
 
-void PanasonicMemory::registerRam(byte* ram_, int ramSize_)
+void PanasonicMemory::registerRam(Ram& ram_)
 {
-	ram = ram_;
-	ramSize = ramSize_;
+	ram = &ram_[0];
+	ramSize = ram_.getSize();
 }
 
 const byte* PanasonicMemory::getRomBlock(int block)

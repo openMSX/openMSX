@@ -5,20 +5,14 @@
 
 #include "MSXMemDevice.hh"
 
-
 namespace openmsx {
+
+class Ram;
 
 class MSXRam : public MSXMemDevice
 {
 public:
-	/**
-	 * Constructor
-	 */
 	MSXRam(Config* config, const EmuTime& time);
-
-	/**
-	 * Destructor
-	 */
 	virtual ~MSXRam();
 	
 	virtual void reset(const EmuTime& time);
@@ -34,7 +28,7 @@ private:
 	int base;
 	int end;
 	bool slowDrainOnReset;
-	byte* memoryBank;
+	Ram* ram;
 };
 
 } // namespace openmsx

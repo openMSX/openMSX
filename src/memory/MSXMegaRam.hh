@@ -5,6 +5,7 @@
 
 #include "MSXMemDevice.hh"
 #include "MSXIODevice.hh"
+#include "Ram.hh"
 
 namespace openmsx {
 
@@ -27,7 +28,7 @@ public:
 private:
 	void setBank(byte page, byte block);
 
-	byte* ram;
+	Ram* ram;
 	byte maxBlock;
 	byte bank[4];
 	bool writeMode;

@@ -14,7 +14,7 @@
 
 namespace openmsx {
 
-RomKonami4::RomKonami4(Config* config, const EmuTime& time, Rom* rom)
+RomKonami4::RomKonami4(Config* config, const EmuTime& time, auto_ptr<Rom> rom)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
 	reset(time);

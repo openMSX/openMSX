@@ -13,10 +13,12 @@
 #include "FileContext.hh"
 #include "PanasonicMemory.hh"
 #include "StringOp.hh"
+#include "Debugger.hh"
 
 namespace openmsx {
 
-Rom::Rom(Config* config)
+Rom::Rom(const string& name_, const string& description_, Config* config)
+	: name(name_), description(description_)
 {
 	if (config->hasParameter("filename")) {
 		string filename = config->getParameter("filename");
@@ -33,13 +35,15 @@ Rom::Rom(Config* config)
 		size = 0;
 		file = NULL;
 	}
-	info = RomInfo::fetchRomInfo(this, *config);
+	init(*config);
 }
 
-Rom::Rom(Config* config, const string& filename)
+Rom::Rom(const string& name_, const string& description_, Config* config,
+         const string& filename)
+	: name(name_), description(description_)
 {
 	read(config, filename);	// TODO config
-	info = RomInfo::fetchRomInfo(this, *config);
+	init(*config);
 }
 
 void Rom::read(Config* config, const string& filename)
@@ -120,8 +124,20 @@ void Rom::read(Config* config, const string& filename)
 	}
 }
 
+void Rom::init(const Config& config)
+{
+	info = RomInfo::fetchRomInfo(this, config);
+	if (size) {
+		Debugger::instance().registerDebuggable(name, *this);
+	}
+}
+
 Rom::~Rom()
 {
+	if (size) {
+		Debugger::instance().unregisterDebuggable(name, *this);
+	}
+	
 	for (vector<MSXRomPatchInterface*>::const_iterator it =
 	           romPatchInterfaces.begin();
 	     it != romPatchInterfaces.end(); ++it) {
@@ -132,7 +148,28 @@ Rom::~Rom()
 		file->munmap();
 		delete file;
 	}
-	delete info;
+}
+
+
+unsigned Rom::getSize() const
+{
+	return size;
+}
+
+const string& Rom::getDescription() const
+{
+	return description;
+}
+
+byte Rom::read(unsigned address)
+{
+	assert(address < size);
+	return rom[address];
+}
+
+void Rom::write(unsigned address, byte value)
+{
+	// ignore
 }
 
 } // namespace openmsx

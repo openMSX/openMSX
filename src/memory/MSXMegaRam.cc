@@ -39,7 +39,7 @@ MSXMegaRam::MSXMegaRam(Config* config, const EmuTime& time)
 	int size = config->getParameterAsInt("size");
 	int blocks = size / 8;	// 8kb blocks
 	maxBlock = blocks - 1;
-	ram = new byte[blocks * 0x2000];
+	ram = new Ram(getName(), "Mega-RAM", blocks * 0x2000);
 	
 	for (int i = 0; i < 4; i++) {
 		setBank(i, 0);
@@ -49,7 +49,7 @@ MSXMegaRam::MSXMegaRam(Config* config, const EmuTime& time)
 
 MSXMegaRam::~MSXMegaRam()
 {
-	delete[] ram;
+	delete ram;
 }
 
 void MSXMegaRam::reset(const EmuTime& time)
@@ -61,7 +61,7 @@ byte MSXMegaRam::readMem(word address, const EmuTime& time)
 {
 	address &= 0x7FFF;
 	byte page = address / 0x2000;
-	byte result = ram[bank[page] * 0x2000 + (address & 0x1FFF)];
+	byte result = (*ram)[bank[page] * 0x2000 + (address & 0x1FFF)];
 	return result;
 }
 
@@ -69,7 +69,7 @@ const byte* MSXMegaRam::getReadCacheLine(word address) const
 {
 	address &= 0x7FFF;
 	byte page = address / 0x2000;
-	return &ram[bank[page] * 0x2000 + (address & 0x1FFF)];
+	return &(*ram)[bank[page] * 0x2000 + (address & 0x1FFF)];
 }
 
 void MSXMegaRam::writeMem(word address, byte value, const EmuTime& time)
@@ -77,7 +77,7 @@ void MSXMegaRam::writeMem(word address, byte value, const EmuTime& time)
 	address &= 0x7FFF;
 	byte page = address / 0x2000;
 	if (writeMode) {
-		ram[bank[page] * 0x2000 + (address & 0x1FFF)] = value;
+		(*ram)[bank[page] * 0x2000 + (address & 0x1FFF)] = value;
 	} else {
 		setBank(page, value);
 	}
@@ -88,7 +88,7 @@ byte* MSXMegaRam::getWriteCacheLine(word address) const
 	address &= 0x7FFF;
 	if (writeMode) {
 		byte page = address / 0x2000;
-		return &ram[bank[page] * 0x2000 + (address & 0x1FFF)];
+		return &(*ram)[bank[page] * 0x2000 + (address & 0x1FFF)];
 	} else {
 		return NULL;
 	}

@@ -15,11 +15,11 @@
 
 namespace openmsx {
 
-RomMajutsushi::RomMajutsushi(Config* config, const EmuTime& time, Rom* rom)
+RomMajutsushi::RomMajutsushi(Config* config, const EmuTime& time, auto_ptr<Rom> rom)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
 	short volume = (short)config->getParameterAsInt("volume");
-	dac = new DACSound8U(config->getId(), "Majutsushi DAC", volume, time);
+	dac = new DACSound8U(getName(), "Majutsushi DAC", volume, time);
 	
 	reset(time);
 }

@@ -4,13 +4,14 @@
 #define __ROMMSXAUDIO_HH__
 
 #include "MSXRom.hh"
+#include "Ram.hh"
 
 namespace openmsx {
 
 class RomMSXAudio : public MSXRom
 {
 public:
-	RomMSXAudio(Config* config, const EmuTime& time, Rom* rom);
+	RomMSXAudio(Config* config, const EmuTime& time, auto_ptr<Rom> rom);
 	virtual ~RomMSXAudio();
 
 	virtual void reset(const EmuTime& time);
@@ -21,7 +22,7 @@ public:
 
 protected:
 	byte bankSelect;
-	byte* ram;
+	Ram ram;
 };
 
 } // namespace openmsx

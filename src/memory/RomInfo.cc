@@ -136,7 +136,7 @@ MapperType RomInfo::guessMapperType(const Rom* rom)
 	if (size == 0) {
 		return PLAIN;
 	}
-	const byte* data = rom->getBlock();
+	const byte* data = &(*rom)[0];
 	
 	if (size <= 0x10000) {
 		if (size == 0x10000) {
@@ -218,7 +218,7 @@ MapperType RomInfo::guessMapperType(const Rom* rom)
 	}
 }
 
-RomInfo *RomInfo::searchRomDB(const Rom* rom)
+auto_ptr<RomInfo> RomInfo::searchRomDB(const Rom* rom)
 {
 	// TODO: Turn ROM DB into a separate class.
 	static map<string, RomInfo*> romDBSHA1;
@@ -268,30 +268,29 @@ RomInfo *RomInfo::searchRomDB(const Rom* rom)
 	
 	int size = rom->getSize();
 	if (size == 0) {
-		return new RomInfo("", "", "", "Empty ROM", UNKNOWN);
+		return auto_ptr<RomInfo>(new RomInfo("", "", "", "Empty ROM", UNKNOWN));
 	}
 
-	// first try SHA1
 	SHA1 sha1;
-	sha1.update(rom->getBlock(), size);
+	sha1.update(&(*rom)[0], size);
 	sha1.finalize();
 	string digestSHA1(sha1.hex_digest());
 	if (romDBSHA1.find(digestSHA1) != romDBSHA1.end()) {
 		romDBSHA1[digestSHA1]->print();
 		// Return a copy of the DB entry.
-		return new RomInfo(*romDBSHA1[digestSHA1]);
+		return auto_ptr<RomInfo>(new RomInfo(*romDBSHA1[digestSHA1]));
 	}
 
 	// no match found
-	return NULL;
+	return auto_ptr<RomInfo>(NULL);
 }
 
-RomInfo *RomInfo::fetchRomInfo(const Rom* rom, const Config& deviceConfig)
+auto_ptr<RomInfo> RomInfo::fetchRomInfo(const Rom* rom, const Config& deviceConfig)
 {
 	// Look for the ROM in the ROM DB.
-	RomInfo* info = searchRomDB(rom);
-	if (!info) {
-		info = new RomInfo(deviceConfig.getId(), "", "", "", UNKNOWN);
+	auto_ptr<RomInfo> info(searchRomDB(rom));
+	if (!info.get()) {
+		info.reset(new RomInfo(deviceConfig.getId(), "", "", "", UNKNOWN));
 	}
 	
 	// Get specified mapper type from the config.

@@ -18,7 +18,7 @@
 
 namespace openmsx {
 
-RomKorean90in1::RomKorean90in1(Config* config, const EmuTime& time, Rom* rom)
+RomKorean90in1::RomKorean90in1(Config* config, const EmuTime& time, auto_ptr<Rom> rom)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom),
 	  MSXIODevice(config, time)
 {

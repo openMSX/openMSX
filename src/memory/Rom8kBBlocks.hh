@@ -14,7 +14,7 @@ public:
 	virtual const byte* getReadCacheLine(word start) const;
 
 protected:
-	Rom8kBBlocks(Config* config, const EmuTime& time, Rom* rom);
+	Rom8kBBlocks(Config* config, const EmuTime& time, auto_ptr<Rom> rom);
 	virtual ~Rom8kBBlocks();
 
 	void setBank(byte region, byte* adr);

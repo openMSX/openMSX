@@ -3,42 +3,26 @@
 #ifndef __SRAM_HH__
 #define __SRAM_HH__
 
-#include "openmsx.hh"
-#include <cassert>
+#include "Ram.hh"
 
 namespace openmsx {
 
 class Config;
 
-
-class SRAM
+class SRAM : public Ram
 {
 public:
-	SRAM(int size, Config *config,
-	     const char* header = NULL);
+	SRAM(const string& name, int size,
+	     Config* config, const char* header = NULL);
+	SRAM(const string& name, const string& description, int size,
+	     Config* config, const char* header = NULL);
 	virtual ~SRAM();
 
-	byte read(int address) const {
-		assert(address < size);
-		return sram[address];
-	}
-	void write(int address, byte value) {
-		assert(address < size);
-		sram[address] = value;
-	}
-	byte* getBlock(int address = 0) const {
-		assert(address < size);
-		return &sram[address];
-	}
-	int getSize() const {
-		return size;
-	}
-	
 private:
-	int size;
-	Config *config;
+	void init();
+	
+	Config* config;
 	const char* header;
-	byte* sram;
 };
 
 } // namespace openmsx

@@ -14,7 +14,7 @@
 
 namespace openmsx {
 
-RomAscii16kB::RomAscii16kB(Config* config, const EmuTime& time, Rom* rom)
+RomAscii16kB::RomAscii16kB(Config* config, const EmuTime& time, auto_ptr<Rom> rom)
 	: MSXDevice(config, time), Rom16kBBlocks(config, time, rom)
 {
 	reset(time);

@@ -25,7 +25,7 @@
 
 namespace openmsx {
 
-RomSynthesizer::RomSynthesizer(Config* config, const EmuTime& time, Rom* rom)
+RomSynthesizer::RomSynthesizer(Config* config, const EmuTime& time, auto_ptr<Rom> rom)
 	: MSXDevice(config, time), Rom16kBBlocks(config, time, rom)
 {
 	setBank(0, unmappedRead);
@@ -34,7 +34,7 @@ RomSynthesizer::RomSynthesizer(Config* config, const EmuTime& time, Rom* rom)
 	setBank(3, unmappedRead);
 
 	short volume = (short)config->getParameterAsInt("volume");
-	dac = new DACSound8U(config->getId(), "Konami Synthesizer DAC",
+	dac = new DACSound8U(getName(), "Konami Synthesizer DAC",
 	                     volume, time);
 
 	reset(time);

@@ -10,7 +10,7 @@ namespace openmsx {
 class RomAscii8kB : public Rom8kBBlocks
 {
 public:
-	RomAscii8kB(Config* config, const EmuTime& time, Rom* rom);
+	RomAscii8kB(Config* config, const EmuTime& time, auto_ptr<Rom> rom);
 	virtual ~RomAscii8kB();
 	
 	virtual void reset(const EmuTime& time);

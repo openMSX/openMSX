@@ -46,7 +46,7 @@ namespace openmsx {
 // common sram //
 
 FSA1FMRam::FSA1FMRam(Config* config)
-	: sram(0x2000, config)
+	: sram(config->getId() + "-SRAM", 0x2000, config)
 {
 }
 
@@ -57,13 +57,13 @@ FSA1FMRam::~FSA1FMRam()
 byte* FSA1FMRam::getSRAM(Config* config)
 {
 	static FSA1FMRam oneInstance(config);
-	return oneInstance.sram.getBlock();
+	return &oneInstance.sram[0];
 }
 
 
 // Mapper for slot 3-1 //
 
-RomFSA1FM1::RomFSA1FM1(Config* config, const EmuTime& time, Rom* rom)
+RomFSA1FM1::RomFSA1FM1(Config* config, const EmuTime& time, auto_ptr<Rom> rom)
 	: MSXDevice(config, time), MSXRom(config, time, rom)
 {
 	sram = FSA1FMRam::getSRAM(config);
@@ -83,8 +83,8 @@ byte RomFSA1FM1::readMem(word address, const EmuTime& time)
 {
 	if ((0x4000 <= address) && (address < 0x6000)) {
 		// read rom
-		return rom->read((0x2000 * (sram[0x1FC4] & 0x0F)) + 
-		                 (address & 0x1FFF));
+		return (*rom)[(0x2000 * (sram[0x1FC4] & 0x0F)) + 
+		              (address & 0x1FFF)];
 	} else if ((0x7FC0 <= address) && (address < 0x7FD0)) {
 		switch (address & 0x0F) {
 		case 4:
@@ -110,8 +110,8 @@ const byte* RomFSA1FM1::getReadCacheLine(word address) const
 		return NULL;
 	} else if ((0x4000 <= address) && (address < 0x6000)) {
 		// read rom
-		return rom->getBlock((0x2000 * (sram[0x1FC4] & 0x0F)) +
-		                     (address & 0x1FFF));
+		return &(*rom)[(0x2000 * (sram[0x1FC4] & 0x0F)) +
+		               (address & 0x1FFF)];
 	} else if ((0x6000 <= address) && (address < 0x8000)) {
 		// read sram
 		return &sram[address & 0x1FFF];
@@ -149,7 +149,7 @@ byte* RomFSA1FM1::getWriteCacheLine(word address) const
 
 // Mapper for slot 3-3 //
 
-RomFSA1FM2::RomFSA1FM2(Config* config, const EmuTime& time, Rom* rom)
+RomFSA1FM2::RomFSA1FM2(Config* config, const EmuTime& time, auto_ptr<Rom> rom)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
 	sram = FSA1FMRam::getSRAM(config);

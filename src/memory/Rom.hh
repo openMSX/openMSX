@@ -7,6 +7,7 @@
 #include <cassert>
 #include "RomInfo.hh"
 #include "openmsx.hh"
+#include "Debuggable.hh"
 
 using std::vector;
 
@@ -17,24 +18,19 @@ class Config;
 class MSXRomPatchInterface;
 class File;
 
-class Rom
+class Rom : public Debuggable
 {
 public:
-	Rom(Config* config);
-	Rom(Config* config, const string& filename);
+	Rom(const string& name, const string& description, Config* config);
+	Rom(const string& name, const string& description, Config* config,
+	    const string& filename);
 	virtual ~Rom();
 
-	byte read(unsigned int address) const {
+	const byte& operator[](unsigned address) const {
 		assert(address < size);
 		return rom[address];
 	}
-	const byte* getBlock(unsigned int address = 0) const {
-		assert(address < size);
-		return &rom[address];
-	}
-	int getSize() const {
-		return size;
-	}
+
 	const File* getFile() const {
 		return file;
 	}
@@ -42,14 +38,24 @@ public:
 		return *info;
 	}
 
+	// Debuggable
+	virtual unsigned getSize() const;
+	virtual const string& getDescription() const;
+	virtual byte read(unsigned address);
+	virtual void write(unsigned address, byte value);
+
 private:
 	void read(Config* config, const string& filename);
+	void init(const Config& config);
 	
+	const string name;
+	const string description;
+	unsigned size;
 	const byte* rom;
-	unsigned int size;
+
 	File* file;
 	vector<MSXRomPatchInterface*> romPatchInterfaces;
-	RomInfo* info;
+	auto_ptr<RomInfo> info;
 };
 
 } // namespace openmsx

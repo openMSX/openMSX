@@ -31,6 +31,7 @@
 #include "RomHolyQuran.hh"
 #include "RomFSA1FM.hh"
 #include "Rom.hh"
+#include "Config.hh"
 
 namespace openmsx {
 
@@ -39,7 +40,7 @@ static MSXRomCLI msxRomCLI;
 
 MSXRom *RomFactory::create(Config* config, const EmuTime& time)
 {
-	Rom* rom = new Rom(config);
+	auto_ptr<Rom> rom(new Rom(config->getId(), "rom", config));
 
 	MapperType type = rom->getInfo().getMapperType();
 	switch (type) {

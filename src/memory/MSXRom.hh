@@ -3,9 +3,13 @@
 #ifndef __MSXRom_HH__
 #define __MSXRom_HH__
 
+#include <string>
+#include <memory>
 #include "MSXMemDevice.hh"
 #include "Rom.hh"
-#include <string>
+
+using std::string;
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -19,9 +23,9 @@ public:
 	virtual const string& getName() const;
 
 protected:
-	MSXRom(Config* config, const EmuTime& time, Rom* rom);
+	MSXRom(Config* config, const EmuTime& time, auto_ptr<Rom> rom);
 
-	Rom* rom;
+	const auto_ptr<Rom> rom;
 	string romName;
 	static class MSXCPU* cpu;
 

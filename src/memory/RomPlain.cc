@@ -9,8 +9,8 @@ using std::min;
 
 namespace openmsx {
 
-RomPlain::RomPlain(Config* config, const EmuTime& time, Rom* rom)
-	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
+RomPlain::RomPlain(Config* config, const EmuTime& time, auto_ptr<Rom> rom_)
+	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom_)
 {
 	switch (rom->getSize()) {
 		case 0x2000:	//  8kB
@@ -68,10 +68,10 @@ RomPlain::~RomPlain()
 
 void RomPlain::guessHelper(word offset, int* pages)
 {
-	if ((rom->read(offset++) == 'A') && (rom->read(offset++) =='B')) {
+	if (((*rom)[offset++] == 'A') && ((*rom)[offset++] =='B')) {
 		for (int i = 0; i < 4; i++) {
-			word addr = rom->read(offset++) +
-			            rom->read(offset++) * 256;
+			word addr = (*rom)[offset++] +
+			            (*rom)[offset++] * 256;
 			if (addr) {
 				int page = (addr >> 14) - (offset >> 14);
 				if ((0 <= page) && (page <= 2)) {

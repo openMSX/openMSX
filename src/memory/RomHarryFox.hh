@@ -10,7 +10,7 @@ namespace openmsx {
 class RomHarryFox : public Rom16kBBlocks
 {
 public:
-	RomHarryFox(Config* config, const EmuTime& time, Rom* rom);
+	RomHarryFox(Config* config, const EmuTime& time, auto_ptr<Rom> rom);
 	virtual ~RomHarryFox();
 	
 	virtual void reset(const EmuTime& time);

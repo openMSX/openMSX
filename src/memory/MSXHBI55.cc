@@ -38,7 +38,7 @@ namespace openmsx {
 
 MSXHBI55::MSXHBI55(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
-	  sram(0x1000, config)
+	  sram(getName() + "-SRAM", 0x1000, config)
 {
 	i8255 = new I8255(*this, time);
 
@@ -153,7 +153,7 @@ void MSXHBI55::writeC1(nibble value, const EmuTime& time)
 	if (mode == 0x40) {
 		// write mode
 		byte tmp = readSRAM(address);
-		sram.write(address, (tmp & 0x0F) | (value << 4));
+		sram[address] = (tmp & 0x0F) | (value << 4);
 	} else {
 		// TODO check
 		// nothing 
@@ -164,7 +164,7 @@ void MSXHBI55::writeC0(nibble value, const EmuTime& time)
 	if (mode == 0x40) {
 		// write mode
 		byte tmp = readSRAM(address);
-		sram.write(address, (tmp & 0xF0) | value);
+		sram[address] = (tmp & 0xF0) | value;
 	} else {
 		// TODO check
 		// nothing 
@@ -174,7 +174,7 @@ void MSXHBI55::writeC0(nibble value, const EmuTime& time)
 byte MSXHBI55::readSRAM(word address)
 {
 	if (address != 0) {
-		return sram.read(address);
+		return sram[address];
 	} else {
 		return 0x53;
 	}

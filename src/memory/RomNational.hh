@@ -11,7 +11,7 @@ namespace openmsx {
 class RomNational : public Rom16kBBlocks
 {
 public:
-	RomNational(Config* config, const EmuTime& time, Rom* rom);
+	RomNational(Config* config, const EmuTime& time, auto_ptr<Rom> rom);
 	virtual ~RomNational();
 	
 	virtual void reset(const EmuTime& time);

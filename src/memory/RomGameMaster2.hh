@@ -11,7 +11,7 @@ namespace openmsx {
 class RomGameMaster2 : public Rom4kBBlocks
 {
 public:
-	RomGameMaster2(Config* config, const EmuTime& time, Rom* rom);
+	RomGameMaster2(Config* config, const EmuTime& time, auto_ptr<Rom> rom);
 	virtual ~RomGameMaster2();
 	
 	virtual void reset(const EmuTime& time);

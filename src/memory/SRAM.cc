@@ -8,14 +8,22 @@
 
 namespace openmsx {
 
-SRAM::SRAM(int size_, Config* config_, const char* header_)
+SRAM::SRAM(const string& name, int size,
+           Config* config_, const char* header_)
+	: Ram(name, "sram", size), config(config_), header(header_)
 {
-	size = size_;
-	config = config_;
-	header = header_;
-	sram = new byte[size];
-	memset(sram, 0xFF, size);
-	
+	init();
+}
+
+SRAM::SRAM(const string& name, const string& description, int size,
+	   Config* config_, const char* header_)
+	: Ram(name, description, size), config(config_), header(header_)
+{
+	init();
+}
+
+void SRAM::init()
+{
 	const string& filename = config->getParameter("sramname");
 	PRT_DEBUG("SRAM: read " << filename);
 	try {
@@ -32,7 +40,7 @@ SRAM::SRAM(int size_, Config* config_, const char* header_)
 			delete[] temp;
 		}
 		if (headerOk) {
-			file.read(sram, size);
+			file.read(&(this->operator[](0)), getSize());
 		} else {
 			CliCommOutput::instance().printWarning(
 				"Warning no correct SRAM file: " + filename);
@@ -55,13 +63,12 @@ SRAM::~SRAM()
 			int length = strlen(header);
 			file.write((const byte*)header, length);
 		}
-		file.write(sram, size);
+		file.write(&(this->operator[](0)), getSize());
 	} catch (FileException& e) {
 		CliCommOutput::instance().printWarning(
 			"Couldn't save SRAM " + filename +
 			" (" + e.getMessage() + ").");
 	}
-	delete[] sram;
 }
 
 } // namespace openmsx

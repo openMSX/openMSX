@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-RomCrossBlaim::RomCrossBlaim(Config* config, const EmuTime& time, Rom* rom)
+RomCrossBlaim::RomCrossBlaim(Config* config, const EmuTime& time, auto_ptr<Rom> rom)
 	: MSXDevice(config, time), Rom16kBBlocks(config, time, rom)
 {
 	reset(time);

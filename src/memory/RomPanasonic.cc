@@ -12,14 +12,14 @@ const int SRAM_BASE = 0x80;
 const int RAM_BASE  = 0x180;
 
 
-RomPanasonic::RomPanasonic(Config* config, const EmuTime& time, Rom* rom)
-	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
+RomPanasonic::RomPanasonic(Config* config, const EmuTime& time, auto_ptr<Rom> rom_)
+	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom_)
 {
-	PanasonicMemory::instance().registerRom(rom->getBlock(), rom->getSize());
+	PanasonicMemory::instance().registerRom(*rom);
 	
 	int sramSize = config->getParameterAsInt("sramsize", 0);
 	if (sramSize) {
-		sram = new SRAM(sramSize * 1024, config);
+		sram = new SRAM(getName() + "-SRAM", sramSize * 1024, config);
 	} else {
 		sram = NULL;
 	}
@@ -157,7 +157,7 @@ void RomPanasonic::changeBank(byte region, int bank)
 		if (offset >= sramSize) {
 			offset &= (sramSize - 1);
 		}
-		setBank(region, sram->getBlock(offset));
+		setBank(region, &sram->operator[](offset));
 	} else if (RAM_BASE <= bank) {
 		// RAM
 		setBank(region, PanasonicMemory::instance().
