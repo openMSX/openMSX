@@ -1,5 +1,12 @@
 $Id$
 
+2002-08-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Split MSXMotherBoard in:
+	   - MSXCPUInterface: handles communication between a MSXDevice and CPU
+	        - registration of IO- and memory-space
+	        - slotselection mechanism
+	   - MSXMotherboard: keeps a list of all MSXDevices
+
 2002-08-11 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* more Z80 cleanups
 	* commands can now also be bound to key releases (was only keypresses)

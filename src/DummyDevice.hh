@@ -15,7 +15,6 @@ class DummyDevice : public MSXIODevice, public MSXMemDevice
 	public:
 		~DummyDevice();
 		static DummyDevice *instance();
-		void init();
 		void reset(const EmuTime &time);
 	
 	private:

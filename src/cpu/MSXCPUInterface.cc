@@ -1,14 +1,21 @@
 // $Id$
 
-#include <stdio.h>
 #include "MSXCPUInterface.hh"
 #include "DummyDevice.hh"
 #include "CommandController.hh"
 #include "MSXCPU.hh"
-#include "MSXMotherBoard.hh"
+#include "MSXConfig.hh"
 
 
-MSXCPUInterface::MSXCPUInterface(MSXConfig::Config *config)
+MSXCPUInterface* MSXCPUInterface::instance()
+{
+	static MSXCPUInterface* oneInstance = NULL;
+	if (oneInstance == NULL)
+		oneInstance = new MSXCPUInterface();
+	return oneInstance;
+}
+
+MSXCPUInterface::MSXCPUInterface()
 {
 	PRT_DEBUG("Creating an MSXCPUInterface object");
 
@@ -30,6 +37,8 @@ MSXCPUInterface::MSXCPUInterface(MSXConfig::Config *config)
 		visibleDevices[page] = 0;
 	}
 
+	MSXConfig::Config* config = MSXConfig::Backend::instance()->
+		getConfigById("MotherBoard");
 	std::list<MSXConfig::Device::Parameter*>* subslotted_list;
 	subslotted_list = config->getParametersWithClass("subslotted");
 	std::list<MSXConfig::Device::Parameter*>::const_iterator it;
@@ -44,10 +53,9 @@ MSXCPUInterface::MSXCPUInterface(MSXConfig::Config *config)
 	}
 	config->getParametersWithClassClean(subslotted_list);
 
-	// Note: primarySlotState and secondarySlotState will be
-	//       initialised at reset.
+	// Note: SlotState is initialised at reset
 
-	// Register console commands.
+	// Register console commands
 	CommandController::instance()->registerCommand(slotMapCmd,    "slotmap");
 	CommandController::instance()->registerCommand(slotSelectCmd, "slotselect");
 }
@@ -62,22 +70,24 @@ MSXCPUInterface::~MSXCPUInterface()
 void MSXCPUInterface::register_IO_In(byte port, MSXIODevice *device)
 {
 	if (IO_In[port] == DummyDevice::instance()) {
-		PRT_DEBUG (device->getName() << " registers In-port " <<std::hex<< (int)port<<std::dec);
+		PRT_DEBUG(device->getName() << " registers In-port "
+		          << std::hex << (int)port << std::dec);
 		IO_In[port] = device;
 	} else {
-		PRT_ERROR (device->getName() << " trying to register taken In-port "
-		                        <<std::hex << (int)port << std::dec);
+		PRT_ERROR(device->getName() << " trying to register taken In-port "
+		          << std::hex << (int)port << std::dec);
 	}
 }
 
 void MSXCPUInterface::register_IO_Out(byte port, MSXIODevice *device)
 {
 	if (IO_Out[port] == DummyDevice::instance()) {
-		PRT_DEBUG (device->getName() << " registers Out-port " <<std::hex<<(int)port<<std::dec);
+		PRT_DEBUG(device->getName() << " registers Out-port "
+		          << std::hex << (int)port << std::dec);
 		IO_Out[port] = device;
 	} else {
-		PRT_ERROR (device->getName() << " trying to register taken Out-port "
-		                        <<std::hex<< (int)port<<std::dec);
+		PRT_ERROR(device->getName() << " trying to register taken Out-port "
+		          << std::hex << (int)port << std::dec);
 	}
 }
 
@@ -108,6 +118,11 @@ void MSXCPUInterface::updateVisible(int page)
 		MSXCPU::instance()->invalidateCache(
 			page*0x4000, 0x4000/CPU::CACHE_LINE_SIZE);
 	}
+}
+
+void MSXCPUInterface::reset()
+{
+	setPrimarySlots(0);
 }
 
 void MSXCPUInterface::setPrimarySlots(byte value)
@@ -237,7 +252,7 @@ std::string MSXCPUInterface::getSlotSelection()
 
 void MSXCPUInterface::SlotMapCmd::execute(const std::vector<std::string> &tokens)
 {
-	print(MSXMotherBoard::instance()->getSlotMap());
+	print(MSXCPUInterface::instance()->getSlotMap());
 }
 void MSXCPUInterface::SlotMapCmd::help   (const std::vector<std::string> &tokens)
 {
@@ -246,7 +261,7 @@ void MSXCPUInterface::SlotMapCmd::help   (const std::vector<std::string> &tokens
 
 void MSXCPUInterface::SlotSelectCmd::execute(const std::vector<std::string> &tokens)
 {
-	print(MSXMotherBoard::instance()->getSlotSelection());
+	print(MSXCPUInterface::instance()->getSlotSelection());
 }
 void MSXCPUInterface::SlotSelectCmd::help   (const std::vector<std::string> &tokens)
 {

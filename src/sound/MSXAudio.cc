@@ -1,7 +1,7 @@
 // $Id$
 
 #include "MSXAudio.hh"
-#include "MSXMotherBoard.hh"
+#include "MSXCPUInterface.hh"
 #include "Mixer.hh"
 #include "Y8950.hh"
 
@@ -10,10 +10,10 @@ MSXAudio::MSXAudio(MSXConfig::Device *config, const EmuTime &time)
 {
 	PRT_DEBUG("Creating an MSXAudio object");
 
-	MSXMotherBoard::instance()->register_IO_Out(0xc0, this);
-	MSXMotherBoard::instance()->register_IO_Out(0xc1, this);
-	MSXMotherBoard::instance()->register_IO_In (0xc0, this);
-	MSXMotherBoard::instance()->register_IO_In (0xc1, this);
+	MSXCPUInterface::instance()->register_IO_Out(0xc0, this);
+	MSXCPUInterface::instance()->register_IO_Out(0xc1, this);
+	MSXCPUInterface::instance()->register_IO_In (0xc0, this);
+	MSXCPUInterface::instance()->register_IO_In (0xc1, this);
 	short volume = (short)deviceConfig->getParameterAsInt("volume");
 	
 	// left / right / mono

@@ -2,7 +2,7 @@
 
 #include <cassert>
 #include "MSXPrinterPort.hh"
-#include "MSXMotherBoard.hh"
+#include "MSXCPUInterface.hh"
 #include "PrinterPortDevice.hh"
 #include "PluggingController.hh"
 #include "PrinterPortSimpl.hh"
@@ -13,9 +13,9 @@ MSXPrinterPort::MSXPrinterPort(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	PRT_DEBUG("Creating a MSXPrinterPort");
-	MSXMotherBoard::instance()->register_IO_In (0x90, this);
-	MSXMotherBoard::instance()->register_IO_Out(0x90, this);
-	MSXMotherBoard::instance()->register_IO_Out(0x91, this);
+	MSXCPUInterface::instance()->register_IO_In (0x90, this);
+	MSXCPUInterface::instance()->register_IO_Out(0x90, this);
+	MSXCPUInterface::instance()->register_IO_Out(0x91, this);
 
 	dummy = new DummyPrinterPortDevice();
 	PluggingController::instance()->registerConnector(this);

@@ -4,7 +4,7 @@
 #include "MSXDiskRomPatch.hh"
 #include "MSXConfig.hh"
 #include "CPU.hh"
-#include "MSXMotherBoard.hh"
+#include "MSXCPUInterface.hh"
 #include "DiskImageManager.hh"
 #include "FDCBackEnd.hh"
 
@@ -111,9 +111,9 @@ void MSXDiskRomPatch::PHYDIO(CPU::CPURegs& regs)
 
 	// turn on RAM in all slots
 	EmuTime dummy; // TODO
-	MSXMotherBoard* motherboard = MSXMotherBoard::instance();
-	int pri_slot = motherboard->readIO(0xA8, dummy);
-	int sec_slot = motherboard->readMem(0xFFFF, dummy)^0xFF;
+	MSXCPUInterface* cpuInterface = MSXCPUInterface::instance();
+	int pri_slot = cpuInterface->readIO(0xA8, dummy);
+	int sec_slot = cpuInterface->readMem(0xFFFF, dummy)^0xFF;
 	PRT_DEBUG("Primary: "
 		<< "s3:" << ((pri_slot & 0xC0)>>6) << " "
 		<< "s2:" << ((pri_slot & 0x30)>>4) << " "
@@ -131,8 +131,8 @@ void MSXDiskRomPatch::PHYDIO(CPU::CPURegs& regs)
 	PRT_DEBUG("Switching slots toward: pri:0x" << std::hex
 		<< pri_slot_target
 		<< " sec:0x" << sec_slot_target << std::dec);
-	motherboard->writeIO(0xA8, pri_slot_target, dummy);
-	motherboard->writeMem(0xFFFF,sec_slot_target, dummy);
+	cpuInterface->writeIO(0xA8, pri_slot_target, dummy);
+	cpuInterface->writeMem(0xFFFF,sec_slot_target, dummy);
 
 	byte buffer[SECTOR_SIZE];
 	FDCBackEnd* backEnd = diskImageManager->getBackEnd(name[drive]);
@@ -140,14 +140,14 @@ void MSXDiskRomPatch::PHYDIO(CPU::CPURegs& regs)
 		while (regs.BC.B.h) {	// num_sectors
 			if (write) {
 				for (int i=0; i<SECTOR_SIZE; i++) {
-					buffer[i] = motherboard->readMem(transferAddress, dummy);
+					buffer[i] = cpuInterface->readMem(transferAddress, dummy);
 					transferAddress++;
 				}
 				backEnd->writeSector(buffer, sectorNumber);
 			} else {
 				backEnd->readSector(buffer, sectorNumber);
 				for (int i=0; i<SECTOR_SIZE; i++) {
-					motherboard->writeMem(transferAddress, buffer[i], dummy);
+					cpuInterface->writeMem(transferAddress, buffer[i], dummy);
 					transferAddress++;
 				}
 			}
@@ -166,8 +166,8 @@ void MSXDiskRomPatch::PHYDIO(CPU::CPURegs& regs)
 	}
 
 	// restore memory settings
-	motherboard->writeIO(0xA8, pri_slot, dummy);
-	motherboard->writeMem(0xFFFF,sec_slot, dummy);
+	cpuInterface->writeIO(0xA8, pri_slot, dummy);
+	cpuInterface->writeMem(0xFFFF,sec_slot, dummy);
 }
 
 void MSXDiskRomPatch::DSKCHG(CPU::CPURegs& regs)
@@ -250,37 +250,37 @@ void MSXDiskRomPatch::GETDPB(CPU::CPURegs& regs)
 	word sect_num_of_dir = 1 + sect_per_fat * 2;
 	word sect_num_of_data = sect_num_of_dir + 7;
 
-	MSXMotherBoard* motherboard = MSXMotherBoard::instance();
+	MSXCPUInterface* cpuInterface = MSXCPUInterface::instance();
 	EmuTime dummy; // TODO
 	// media type: passed by caller
-	motherboard->writeMem(DPB_base_address + 0x01, media_descriptor, dummy);
+	cpuInterface->writeMem(DPB_base_address + 0x01, media_descriptor, dummy);
 	// sector size: 512
-	motherboard->writeMem(DPB_base_address + 0x02, 0x00, dummy);
-	motherboard->writeMem(DPB_base_address + 0x03, 0x02, dummy);
+	cpuInterface->writeMem(DPB_base_address + 0x02, 0x00, dummy);
+	cpuInterface->writeMem(DPB_base_address + 0x03, 0x02, dummy);
 	// directory mask/shift
-	motherboard->writeMem(DPB_base_address + 0x04, 0x0F, dummy);
-	motherboard->writeMem(DPB_base_address + 0x05, 4,    dummy);
+	cpuInterface->writeMem(DPB_base_address + 0x04, 0x0F, dummy);
+	cpuInterface->writeMem(DPB_base_address + 0x05, 4,    dummy);
 	// cluster mask/shift
-	motherboard->writeMem(DPB_base_address + 0x06, 0x01, dummy);
-	motherboard->writeMem(DPB_base_address + 0x07, 2,    dummy);
+	cpuInterface->writeMem(DPB_base_address + 0x06, 0x01, dummy);
+	cpuInterface->writeMem(DPB_base_address + 0x07, 2,    dummy);
 	// sector # of first FAT
-	motherboard->writeMem(DPB_base_address + 0x08, 0x01, dummy);
-	motherboard->writeMem(DPB_base_address + 0x09, 0x00, dummy);
+	cpuInterface->writeMem(DPB_base_address + 0x08, 0x01, dummy);
+	cpuInterface->writeMem(DPB_base_address + 0x09, 0x00, dummy);
 	// # of FATS
-	motherboard->writeMem(DPB_base_address + 0x0A, 2,    dummy);
+	cpuInterface->writeMem(DPB_base_address + 0x0A, 2,    dummy);
 	// # of directory entries
-	motherboard->writeMem(DPB_base_address + 0x0B, 112,  dummy);
+	cpuInterface->writeMem(DPB_base_address + 0x0B, 112,  dummy);
 	// sector # of first data sector
-	motherboard->writeMem(DPB_base_address + 0x0C, sect_num_of_data & 0xFF, dummy);
-	motherboard->writeMem(DPB_base_address + 0x0D, (sect_num_of_data>>8) & 0xFF, dummy);
+	cpuInterface->writeMem(DPB_base_address + 0x0C, sect_num_of_data & 0xFF, dummy);
+	cpuInterface->writeMem(DPB_base_address + 0x0D, (sect_num_of_data>>8) & 0xFF, dummy);
 	// # of clusters
-	motherboard->writeMem(DPB_base_address + 0x0E, maxclus & 0xFF, dummy);
-	motherboard->writeMem(DPB_base_address + 0x0F, (maxclus>>8) & 0xFF, dummy);
+	cpuInterface->writeMem(DPB_base_address + 0x0E, maxclus & 0xFF, dummy);
+	cpuInterface->writeMem(DPB_base_address + 0x0F, (maxclus>>8) & 0xFF, dummy);
 	// sectors per fat
-	motherboard->writeMem(DPB_base_address + 0x10, sect_per_fat, dummy);
+	cpuInterface->writeMem(DPB_base_address + 0x10, sect_per_fat, dummy);
 	// sector # of dir
-	motherboard->writeMem(DPB_base_address + 0x11, sect_num_of_dir & 0xFF, dummy);
-	motherboard->writeMem(DPB_base_address + 0x12, (sect_num_of_dir>>8) & 0xFF, dummy);
+	cpuInterface->writeMem(DPB_base_address + 0x11, sect_num_of_dir & 0xFF, dummy);
+	cpuInterface->writeMem(DPB_base_address + 0x12, (sect_num_of_dir>>8) & 0xFF, dummy);
 
 	regs.AF.B.l &= ~CPU::C_FLAG;
 }

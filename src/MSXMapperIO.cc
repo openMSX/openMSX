@@ -1,7 +1,7 @@
 // $Id$
 
 #include "MSXMapperIO.hh"
-#include "MSXMotherBoard.hh"
+#include "MSXCPUInterface.hh"
 #include "MSXMapperIOTurboR.hh"
 #include "MSXMapperIOPhilips.hh"
 #include "MSXCPU.hh"
@@ -24,14 +24,14 @@ MSXMapperIO::MSXMapperIO(MSXConfig::Device *config, const EmuTime &time)
 	mask = mapperMask->calcMask(mapperSizes);
 	
 	// Register I/O ports FC..FF
-	MSXMotherBoard::instance()->register_IO_In (0xFC,this);
-	MSXMotherBoard::instance()->register_IO_In (0xFD,this);
-	MSXMotherBoard::instance()->register_IO_In (0xFE,this);
-	MSXMotherBoard::instance()->register_IO_In (0xFF,this);
-	MSXMotherBoard::instance()->register_IO_Out(0xFC,this);
-	MSXMotherBoard::instance()->register_IO_Out(0xFD,this);
-	MSXMotherBoard::instance()->register_IO_Out(0xFE,this);
-	MSXMotherBoard::instance()->register_IO_Out(0xFF,this);
+	MSXCPUInterface::instance()->register_IO_In (0xFC,this);
+	MSXCPUInterface::instance()->register_IO_In (0xFD,this);
+	MSXCPUInterface::instance()->register_IO_In (0xFE,this);
+	MSXCPUInterface::instance()->register_IO_In (0xFF,this);
+	MSXCPUInterface::instance()->register_IO_Out(0xFC,this);
+	MSXCPUInterface::instance()->register_IO_Out(0xFD,this);
+	MSXCPUInterface::instance()->register_IO_Out(0xFE,this);
+	MSXCPUInterface::instance()->register_IO_Out(0xFF,this);
 
 	reset(time);
 }

@@ -2,20 +2,20 @@
 
 #include <cassert>
 #include "MSXKanji.hh"
-#include "MSXMotherBoard.hh"
+#include "MSXCPUInterface.hh"
 
 
 MSXKanji::MSXKanji(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
 	  MSXRomDevice(config, time, ROM_SIZE)
 {
-	MSXMotherBoard::instance()->register_IO_In (0xD9, this);
-	MSXMotherBoard::instance()->register_IO_Out(0xD8, this);
-	MSXMotherBoard::instance()->register_IO_Out(0xD9, this);
+	MSXCPUInterface::instance()->register_IO_In (0xD9, this);
+	MSXCPUInterface::instance()->register_IO_Out(0xD8, this);
+	MSXCPUInterface::instance()->register_IO_Out(0xD9, this);
 	
-	MSXMotherBoard::instance()->register_IO_In (0xDB, this);
-	MSXMotherBoard::instance()->register_IO_Out(0xDA, this);
-	MSXMotherBoard::instance()->register_IO_Out(0xDB, this);
+	MSXCPUInterface::instance()->register_IO_In (0xDB, this);
+	MSXCPUInterface::instance()->register_IO_Out(0xDA, this);
+	MSXCPUInterface::instance()->register_IO_Out(0xDB, this);
 
 	reset(time);
 }

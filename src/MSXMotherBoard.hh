@@ -4,9 +4,7 @@
 #define __MSXMOTHERBOARD_HH__
 
 #include <list>
-#include "MSXConfig.hh"
 #include "Command.hh"
-#include "MSXCPUInterface.hh"
 #include "Schedulable.hh"
 
 // forward declarations
@@ -14,7 +12,7 @@ class MSXDevice;
 class EmuTime;
 
 
-class MSXMotherBoard : public MSXCPUInterface, public Schedulable
+class MSXMotherBoard : public Schedulable
 {
 	public:
 		/**
@@ -61,7 +59,7 @@ class MSXMotherBoard : public MSXCPUInterface, public Schedulable
 
 
 	private:
-		MSXMotherBoard(MSXConfig::Config *config);
+		MSXMotherBoard();
 		virtual void executeUntilEmuTime(const EmuTime &time, int userData);
 		
 		class ResetCmd : public Command {

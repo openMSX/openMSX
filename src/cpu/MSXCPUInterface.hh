@@ -4,10 +4,11 @@
 #define __MSXCPUINTERFACE_HH__
 
 #include "CPUInterface.hh"
-#include "MSXConfig.hh"
-#include "MSXIODevice.hh"
-#include "MSXMemDevice.hh"
 #include "Command.hh"
+
+// forward declarations
+class MSXIODevice;
+class MSXMemDevice;
 
 
 class MSXCPUInterface : public CPUInterface
@@ -17,6 +18,11 @@ class MSXCPUInterface : public CPUInterface
 		 * Destructor
 		 */
 		~MSXCPUInterface();
+		
+		/**
+		 * this is a singleton class
+		 */
+		static MSXCPUInterface* instance();
 		
 		/**
 		 * Devices can register their In ports. This is normally done
@@ -45,6 +51,11 @@ class MSXCPUInterface : public CPUInterface
 		void registerSlottedDevice(MSXMemDevice *device,
 		                           int PrimSl, int SecSL, int Page);
 
+		/**
+		 * Reset (the slot state)
+		 */
+		void reset();
+
 		// CPUInterface //
 
 		/**
@@ -71,30 +82,15 @@ class MSXCPUInterface : public CPUInterface
 		virtual byte* getWriteCacheLine(word start);
 
 
-		/** Gets a string representation of the slot map of the emulated MSX.
-		  * @return a multi-line string describing which slot holds which
-		  *     device.
-		  */
-		std::string getSlotMap();
-
-		/** Gets a string representation of the currently selected slots.
-		  * @return a multi-line string describing which slot are currently
-		  *     selected.
-		  */
-		std::string getSlotSelection();
-
 		/*
 		 * Should only be used by PPI
 		 *  TODO: make private / friend
 		 */
 		void setPrimarySlots(byte value);
 
-	protected:
-		MSXCPUInterface(MSXConfig::Config *config);
-
-		void resetIRQLine();
-
 	private:
+		MSXCPUInterface();
+		
 		class SlotMapCmd : public Command {
 			virtual void execute(const std::vector<std::string> &tokens);
 			virtual void help   (const std::vector<std::string> &tokens);
@@ -115,6 +111,19 @@ class MSXCPUInterface : public CPUInterface
 		/** Used by getSlotMap to print the contents of a single slot.
 		  */
 		void printSlotMapPages(std::ostream &, MSXMemDevice *[]);
+		
+		/** Gets a string representation of the slot map of the emulated MSX.
+		  * @return a multi-line string describing which slot holds which
+		  *     device.
+		  */
+		std::string getSlotMap();
+
+		/** Gets a string representation of the currently selected slots.
+		  * @return a multi-line string describing which slot are currently
+		  *     selected.
+		  */
+		std::string getSlotSelection();
+
 
 		// Commands
 		SlotMapCmd slotMapCmd;

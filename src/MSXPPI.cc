@@ -4,7 +4,7 @@
 #include "MSXPPI.hh"
 #include "Keyboard.hh"
 #include "Leds.hh"
-#include "MSXMotherBoard.hh"
+#include "MSXCPUInterface.hh"
 #include "KeyClick.hh"
 #include "CassettePort.hh"
 
@@ -20,20 +20,20 @@ MSXPPI::MSXPPI(MSXConfig::Device *config, const EmuTime &time)
 	keyboard = new Keyboard(keyGhosting);
 	i8255 = new I8255(*this, time);
 	click = new KeyClick(volume, time);
-	motherBoard = MSXMotherBoard::instance();
+	cpuInterface = MSXCPUInterface::instance();
 	cassettePort = CassettePortFactory::instance(time);
 	leds = Leds::instance();
 	
 	// Register I/O ports A8..AB for reading
-	MSXMotherBoard::instance()->register_IO_In(0xA8,this);
-	MSXMotherBoard::instance()->register_IO_In(0xA9,this);
-	MSXMotherBoard::instance()->register_IO_In(0xAA,this);
-	MSXMotherBoard::instance()->register_IO_In(0xAB,this);
+	MSXCPUInterface::instance()->register_IO_In(0xA8,this);
+	MSXCPUInterface::instance()->register_IO_In(0xA9,this);
+	MSXCPUInterface::instance()->register_IO_In(0xAA,this);
+	MSXCPUInterface::instance()->register_IO_In(0xAB,this);
 	// Register I/O ports A8..AB for writing
-	MSXMotherBoard::instance()->register_IO_Out(0xA8,this);
-	MSXMotherBoard::instance()->register_IO_Out(0xA9,this); 
-	MSXMotherBoard::instance()->register_IO_Out(0xAA,this);
-	MSXMotherBoard::instance()->register_IO_Out(0xAB,this);
+	MSXCPUInterface::instance()->register_IO_Out(0xA8,this);
+	MSXCPUInterface::instance()->register_IO_Out(0xA9,this); 
+	MSXCPUInterface::instance()->register_IO_Out(0xAA,this);
+	MSXCPUInterface::instance()->register_IO_Out(0xAB,this);
 
 	reset(time);
 }
@@ -100,7 +100,7 @@ byte MSXPPI::readA(const EmuTime &time) {
 	return 255;	//TODO check this
 }
 void MSXPPI::writeA(byte value, const EmuTime &time) {
-	motherBoard->setPrimarySlots(value);
+	cpuInterface->setPrimarySlots(value);
 }
 
 byte MSXPPI::readB(const EmuTime &time) {

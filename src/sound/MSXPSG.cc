@@ -1,7 +1,7 @@
 // $Id$
 
 #include "MSXPSG.hh"
-#include "MSXMotherBoard.hh"
+#include "MSXCPUInterface.hh"
 #include "JoystickPorts.hh"
 #include "Leds.hh"
 #include "CassettePort.hh"
@@ -17,9 +17,9 @@ MSXPSG::MSXPSG(MSXConfig::Device *config, const EmuTime &time)
 	joyPorts = new JoystickPorts(time);
 	cassette = CassettePortFactory::instance(time);
 	
-	MSXMotherBoard::instance()->register_IO_Out(0xA0,this);
-	MSXMotherBoard::instance()->register_IO_Out(0xA1,this);
-	MSXMotherBoard::instance()->register_IO_In (0xA2,this);
+	MSXCPUInterface::instance()->register_IO_Out(0xA0,this);
+	MSXCPUInterface::instance()->register_IO_Out(0xA1,this);
+	MSXCPUInterface::instance()->register_IO_In (0xA2,this);
 
 	reset(time);
 }

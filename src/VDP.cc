@@ -20,7 +20,7 @@ TODO:
   falls outside of the rendered screen area.
 */
 
-#include "MSXMotherBoard.hh"
+#include "MSXCPUInterface.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 #include "VDPCmdEngine.hh"
@@ -104,13 +104,13 @@ VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
 	vram->setRenderer(renderer);
 	switchRenderer = false;
 
-	MSXMotherBoard::instance()->register_IO_In((byte)0x98, this);
-	MSXMotherBoard::instance()->register_IO_Out((byte)0x98, this);
-	MSXMotherBoard::instance()->register_IO_In((byte)0x99, this);
-	MSXMotherBoard::instance()->register_IO_Out((byte)0x99, this);
+	MSXCPUInterface::instance()->register_IO_In((byte)0x98, this);
+	MSXCPUInterface::instance()->register_IO_Out((byte)0x98, this);
+	MSXCPUInterface::instance()->register_IO_In((byte)0x99, this);
+	MSXCPUInterface::instance()->register_IO_Out((byte)0x99, this);
 	if (!isMSX1VDP()) {
-		MSXMotherBoard::instance()->register_IO_Out((byte)0x9A, this);
-		MSXMotherBoard::instance()->register_IO_Out((byte)0x9B, this);
+		MSXCPUInterface::instance()->register_IO_Out((byte)0x9A, this);
+		MSXCPUInterface::instance()->register_IO_Out((byte)0x9B, this);
 	}
 
 	// Init scheduling.

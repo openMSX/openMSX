@@ -1,6 +1,6 @@
 // $Id$
  
-#include "MSXMotherBoard.hh"
+#include "MSXCPUInterface.hh"
 #include "MSXMemDevice.hh"
 
 
@@ -33,7 +33,7 @@ void MSXMemDevice::registerSlots()
 		int ps = (*i)->getPS();
 		int ss = (*i)->getSS();
 		int page = (*i)->getPage();
-		MSXMotherBoard::instance()->registerSlottedDevice(this, ps, ss, page);
+		MSXCPUInterface::instance()->registerSlottedDevice(this, ps, ss, page);
 	}
 }
 

@@ -12,8 +12,8 @@ class EmuTime;
 
 
 /** An MSXDevice is an emulated hardware component connected to the bus
-  * of the emulated MSX (located in MSXMotherBoard). There is no
-  * communication among devices, only between devices and the CPU.
+  * of the emulated MSX. There is no communication among devices, only
+  * between devices and the CPU.
   * MSXMemDevice contains the interface for memory mapped communication.
   * MSXIODevice contains the interface for I/O mapped communication.
   */

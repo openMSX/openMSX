@@ -28,11 +28,6 @@ DummyDevice* DummyDevice::instance()
 
 // Block usage of the following methods
 
-void DummyDevice::init()
-{
-	assert(false);
-}
-
 void DummyDevice::reset(const EmuTime &time)
 {
 	assert(false);

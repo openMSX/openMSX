@@ -3,56 +3,54 @@
 #include "MSXFDC.hh"
 #include "FDC2793.hh"
 #include "CPU.hh"
-#include "MSXMotherBoard.hh"
+#include "MSXCPUInterface.hh"
 
 
-	//: MSXDevice(config, time), MSXMemDevice(config, time) , MSXRom16KB(config, time)
 MSXFDC::MSXFDC(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXRom(config, time), MSXIODevice(config, time)
 {
 	PRT_DEBUG("Creating an MSXFDC object");
-	
+
 	// The loading of the diskrom and the mapping in the slot layout
 	// has been done by the MSXRom
-	
-	brokenFDCread = false;
+
 	emptyRom = new byte[CPU::CACHE_LINE_SIZE];
 	memset(emptyRom, 255, CPU::CACHE_LINE_SIZE);
-	
+
 	std::string fdcChip = deviceConfig->getParameter("chip");
-	PRT_DEBUG( "FDC of chiptype " << fdcChip );
+	PRT_DEBUG("FDC of chiptype " << fdcChip);
 	if (fdcChip == "2793")
 		controller = new FDC2793(config);
+	
 	try {
 		brokenFDCread = deviceConfig->getParameterAsBool("brokenFDCread");
-		PRT_DEBUG( "brokenFDCread   " << brokenFDCread );
+		PRT_DEBUG("brokenFDCread " << brokenFDCread);
 	} catch(MSXConfig::Exception& e) {
+		brokenFDCread = false;
 	}
-	std::string interfaceType="hybrid";
+	
 	try {
-		interfaceType= deviceConfig->getParameter("interface");
-		PRT_DEBUG( "interfaceType   " << interfaceType );
+		std::string interfaceType= deviceConfig->getParameter("interface");
+		PRT_DEBUG("interfaceType " << interfaceType);
+		if      (interfaceType == "memory")
+			interface = 0;
+		else if (interfaceType == "port")
+			interface = 1;
+		else if (interfaceType == "hybrid")
+			interface = 2;
+		else
+			assert(false);
 	} catch(MSXConfig::Exception& e) {
-		interfaceType="hybrid";
+		interface = 2;
 	}
-	
-	if (strcasecmp(interfaceType.c_str(),"memory")){
-	  interface=0;
-	};
-	if (strcasecmp(interfaceType.c_str(),"port")){
-	  interface=1;
-	};
-	if (strcasecmp(interfaceType.c_str(),"hybrid")){
-	  interface=2;
-	};
-	
-	if (interface){
-	  //register extra IO ports for brazilian based interfaces
-	  MSXMotherBoard::instance()->register_IO_In (0xD0,this);
-	  MSXMotherBoard::instance()->register_IO_In (0xD1,this);
-	  MSXMotherBoard::instance()->register_IO_In (0xD2,this);
-	  MSXMotherBoard::instance()->register_IO_In (0xD3,this);
-	};
+
+	if (interface) {
+		//register extra IO ports for brazilian based interfaces
+		MSXCPUInterface::instance()->register_IO_In (0xD0,this);
+		MSXCPUInterface::instance()->register_IO_In (0xD1,this);
+		MSXCPUInterface::instance()->register_IO_In (0xD2,this);
+		MSXCPUInterface::instance()->register_IO_In (0xD3,this);
+	}
 }
 
 MSXFDC::~MSXFDC()

@@ -1,7 +1,7 @@
 // $Id$
 
 #include "MC6850.hh"
-#include "MSXMotherBoard.hh"
+#include "MSXCPUInterface.hh"
 
 
 MC6850::MC6850(MSXConfig::Device *config, const EmuTime &time)
@@ -9,10 +9,10 @@ MC6850::MC6850(MSXConfig::Device *config, const EmuTime &time)
 {
 	PRT_DEBUG("Creating an MC6850 object");
 
-	MSXMotherBoard::instance()->register_IO_Out(0x00, this);
-	MSXMotherBoard::instance()->register_IO_Out(0x01, this);
-	MSXMotherBoard::instance()->register_IO_In (0x04, this);
-	MSXMotherBoard::instance()->register_IO_In (0x05, this);
+	MSXCPUInterface::instance()->register_IO_Out(0x00, this);
+	MSXCPUInterface::instance()->register_IO_Out(0x01, this);
+	MSXCPUInterface::instance()->register_IO_In (0x04, this);
+	MSXCPUInterface::instance()->register_IO_In (0x05, this);
 
 	reset(time);
 }

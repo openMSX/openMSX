@@ -5,7 +5,7 @@
 #include "MSXRomDevice.hh"
 #include "MSXDiskRomPatch.hh"
 #include "MSXTapePatch.hh"
-#include "MSXMotherBoard.hh"
+#include "MSXCPUInterface.hh"
 #include "MSXRomPatchInterface.hh"
 
 
@@ -29,7 +29,7 @@ MSXRomDevice::~MSXRomDevice()
 	
 	std::list<MSXRomPatchInterface*>::iterator i;
 	for (i=romPatchInterfaces.begin(); i!=romPatchInterfaces.end(); i++) {
-		MSXMotherBoard::instance()->unregisterInterface(*i);
+		MSXCPUInterface::instance()->unregisterInterface(*i);
 		delete (*i);
 	}
 	delete[] romBank;
@@ -39,7 +39,7 @@ MSXRomDevice::~MSXRomDevice()
 void MSXRomDevice::handleRomPatchInterfaces()
 {
 	// for each patchcode parameter, construct apropriate patch
-	// object and register it at MSXMotherBoard
+	// object and register it at MSXCPUInterface
 	std::list<MSXConfig::Config::Parameter*>* parameters =
 		deviceConfig->getParametersWithClass("patchcode");
 	std::list<MSXConfig::Config::Parameter*>::const_iterator i;
@@ -53,7 +53,7 @@ void MSXRomDevice::handleRomPatchInterfaces()
 			PRT_ERROR("Unknown patch interface");
 		}
 		romPatchInterfaces.push_back(patchInterface);
-		MSXMotherBoard::instance()->registerInterface(patchInterface);
+		MSXCPUInterface::instance()->registerInterface(patchInterface);
 	}
 	deviceConfig->getParametersWithClassClean(parameters);
 }

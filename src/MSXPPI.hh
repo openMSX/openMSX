@@ -34,7 +34,7 @@
 // forward declarations
 class KeyClick;
 class EmuTime;
-class MSXMotherBoard;
+class MSXCPUInterface;
 class CassettePortInterface;
 class Leds;
 
@@ -86,7 +86,7 @@ class MSXPPI : public MSXIODevice, public I8255Interface
 		void writeC1(nibble value, const EmuTime &time);
 	
 	private:
-		MSXMotherBoard *motherBoard;
+		MSXCPUInterface *cpuInterface;
 		CassettePortInterface *cassettePort;
 		Leds *leds;
 		KeyClick *click;

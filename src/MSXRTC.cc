@@ -2,7 +2,7 @@
 
 #include <cassert>
 #include "MSXRTC.hh"
-#include "MSXMotherBoard.hh"
+#include "MSXCPUInterface.hh"
 #include "RP5C01.hh"
 #include "FileOpener.hh"
 
@@ -28,9 +28,9 @@ MSXRTC::MSXRTC(MSXConfig::Device *config, const EmuTime &time)
 	} catch (FileOpenerException &e) {
 		rp5c01 = new RP5C01(emuTimeBased, time);	// use default values
 	}
-	MSXMotherBoard::instance()->register_IO_Out(0xB4,this);
-	MSXMotherBoard::instance()->register_IO_Out(0xB5,this);
-	MSXMotherBoard::instance()->register_IO_In (0xB5,this);
+	MSXCPUInterface::instance()->register_IO_Out(0xB4,this);
+	MSXCPUInterface::instance()->register_IO_Out(0xB5,this);
+	MSXCPUInterface::instance()->register_IO_In (0xB5,this);
 	reset(time);
 }
 

@@ -195,7 +195,7 @@ byte MSXRom::readMem(word address, const EmuTime &time)
 	// One way to optimise would be to register an SCC supporting
 	// device only if mapperType is 2 and only in 8000..Bfff.
 	// That way, there is no SCC overhead in non-SCC pages.
-	// If MSXMotherBoard would support hot-plugging of devices,
+	// If MSXCPUInterface would support hot-plugging of devices,
 	// it would be possible to insert an SCC supporting device
 	// only when the SCC is enabled.
 #ifndef DONT_WANT_SCC

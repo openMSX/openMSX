@@ -6,17 +6,16 @@
 #include "MSXDevice.hh"
 #include "CommandController.hh"
 #include "Scheduler.hh"
+#include "MSXCPUInterface.hh"
 
 
-MSXMotherBoard::MSXMotherBoard(MSXConfig::Config *config) : MSXCPUInterface(config)
+MSXMotherBoard::MSXMotherBoard()
 {
-	PRT_DEBUG("Creating an MSXMotherBoard object");
 	CommandController::instance()->registerCommand(resetCmd, "reset");
 }
 
 MSXMotherBoard::~MSXMotherBoard()
 {
-	PRT_DEBUG("Destructing an MSXMotherBoard object");
 	CommandController::instance()->unregisterCommand("reset");
 }
 
@@ -24,8 +23,7 @@ MSXMotherBoard *MSXMotherBoard::instance()
 {
 	static MSXMotherBoard* oneInstance = NULL;
 	if (oneInstance == NULL)
-		oneInstance = new MSXMotherBoard(
-			MSXConfig::Backend::instance()->getConfigById("MotherBoard"));
+		oneInstance = new MSXMotherBoard();
 	return oneInstance;
 }
 
@@ -43,7 +41,7 @@ void MSXMotherBoard::removeDevice(MSXDevice *device)
 
 void MSXMotherBoard::resetMSX(const EmuTime &time)
 {
-	setPrimarySlots(0);
+	MSXCPUInterface::instance()->reset();
 	std::list<MSXDevice*>::iterator i;
 	for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
 		(*i)->reset(time);
@@ -52,7 +50,7 @@ void MSXMotherBoard::resetMSX(const EmuTime &time)
 
 void MSXMotherBoard::startMSX()
 {
-	setPrimarySlots(0);
+	MSXCPUInterface::instance()->reset();
 	Leds::instance()->setLed(Leds::POWER_ON);
 	RealTime::instance();
 	Scheduler::instance()->scheduleEmulation();
