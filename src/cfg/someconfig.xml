@@ -255,7 +255,7 @@
     <parameter name="savesram">true</parameter>
     <parameter name="sramname">GAME.SRAM</parameter>
   </device>
-<!--
+<!-- Note that Synthesizer also works from the command line, thanks to romdb.xml
   <device id="KonamiSynthesizer">
     <type>Rom</type>
     <slotted>
@@ -269,7 +269,7 @@
       <page>2</page>
     </slotted>
     <parameter name="filename">Synthesizer.rom</parameter>
-    <parameter name="mappertype">64</parameter>
+    <parameter name="mappertype">SYNTHESIZER</parameter>
     <parameter name="volume">13000</parameter>
     <parameter name="loadsram">true</parameter>
     <parameter name="savesram">true</parameter>
