@@ -33,10 +33,10 @@ RP5C01::~RP5C01()
 
 void RP5C01::reset(const EmuTime &time)
 {
+	modeReg = MODE_TIMERENABLE;
+	testReg = 0;
+	resetReg = 0;
 	updateTimeRegs(time);
-	writePort(MODE_REG, MODE_TIMERENABLE, reference);
-	writePort(TEST_REG,  0, reference);
-	writePort(RESET_REG, 0, reference);
 }
 
 nibble RP5C01::readPort(nibble port, const EmuTime &time)

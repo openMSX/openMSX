@@ -59,12 +59,15 @@ byte SunriseIDE::readMem(word address, const EmuTime &time)
 
 byte* SunriseIDE::getReadCacheLine(word start)
 {
-	if (ideRegsEnabled && ((start & 0x3E00) == 0x3C00))
+	if (ideRegsEnabled && ((start & 0x3E00) == 0x3C00)) {
 		return NULL;
-	if (ideRegsEnabled && ((start & 0x3F00) == 0x3E00))
+	}
+	if (ideRegsEnabled && ((start & 0x3F00) == 0x3E00)) {
 		return NULL;
-	if ((0x4000 <= start) && (start < 0x8000))
+	}
+	if ((0x4000 <= start) && (start < 0x8000)) {
 		return &internalBank[start & 0x3FFF];
+	}
 	return NULL;
 }
 
@@ -97,7 +100,7 @@ void SunriseIDE::writeControl(byte value)
 {
 	PRT_DEBUG("IDE write control: " << (int)value);
 	
-	if (ideRegsEnabled != value & 1) {
+	if (ideRegsEnabled != (value & 1)) {
 		ideRegsEnabled = value & 1;
 		MSXCPU::instance()->invalidateCache(0x3C00, 0x0300/CPU::CACHE_LINE_SIZE);
 		MSXCPU::instance()->invalidateCache(0x7C00, 0x0300/CPU::CACHE_LINE_SIZE);
@@ -143,6 +146,7 @@ word SunriseIDE::readData(const EmuTime &time)
 
 byte SunriseIDE::readReg(nibble reg, const EmuTime &time)
 {
+	PRT_DEBUG("IDE read reg: " << (int)reg);
 	byte result;
 	if (reg == 14) {
 		// alternate status register

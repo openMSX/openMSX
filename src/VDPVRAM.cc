@@ -37,6 +37,7 @@ VDPVRAM::~VDPVRAM() {
 
 VDPVRAM::Window::Window() {
 	observer = NULL;
+	combiMask = 0;	// doesn't matter but makes valgrind happy
 	disable();
 }
 

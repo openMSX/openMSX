@@ -7,6 +7,7 @@
 Keyboard::Keyboard(bool keyG)
 {
 	keyGhosting = keyG;
+	keysChanged = false;
 	memset(keyMatrix , 255, sizeof(keyMatrix) );
 	memset(keyMatrix2, 255, sizeof(keyMatrix2));
 	EventDistributor::instance()->registerEventListener(SDL_KEYDOWN, this, 1);

@@ -96,9 +96,15 @@ void CassettePlayer::removeTape()
 
 int CassettePlayer::calcSamples(const EmuTime &time)
 {
-	float duration = (time - timeReference).toFloat();
-	int samples = (int)(duration*audioSpec.freq);
-	return posReference + samples;
+	if (audioLength) {
+		// tape inserted
+		float duration = (time - timeReference).toFloat();
+		int samples = (int)(duration*audioSpec.freq);
+		return posReference + samples;
+	} else {
+		// no tape
+		return 0;
+	}
 }
 
 void CassettePlayer::setMotor(bool status, const EmuTime &time)
@@ -120,8 +126,8 @@ void CassettePlayer::setMotor(bool status, const EmuTime &time)
 short CassettePlayer::readSample(const EmuTime &time)
 {
 	int samp;
-	if (motor) {
-		// motor on
+	if (motor && audioLength) {
+		// motor on and tape inserted
 		Uint32 index = calcSamples(time);
 		if (index < (audioLength/2)) {
 			samp =  ((short*)audioBuffer)[index];
@@ -129,7 +135,7 @@ short CassettePlayer::readSample(const EmuTime &time)
 			samp = 0;
 		}
 	} else {
-		// motor off
+		// motor off or no tape
 		samp = 0;
 	}
 	//PRT_DEBUG("CasPlayer read "<<(int)samp);

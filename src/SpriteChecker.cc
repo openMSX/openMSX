@@ -17,7 +17,6 @@ TODO:
 #include <cassert>
 
 SpriteChecker::SpriteChecker(VDP *vdp, bool limitSprites, const EmuTime &time)
-	: currentTime(time)
 {
 	this->vdp = vdp;
 	this->limitSprites = limitSprites;
@@ -26,6 +25,9 @@ SpriteChecker::SpriteChecker(VDP *vdp, bool limitSprites, const EmuTime &time)
 	status = 0;
 	collisionX = 0;
 	collisionY = 0;
+	currentLine = 0;
+	currentTime = time;
+	frameStartTime = time;
 	memset(spriteCount, 0, sizeof(spriteCount));
 
 	updateSpritesMethod = &SpriteChecker::updateSprites1;
@@ -290,6 +292,7 @@ inline int SpriteChecker::checkSprites2(
 void SpriteChecker::sync(const EmuTime &time)
 {
 	static bool syncInProgress = false;
+	
 	assert(!syncInProgress);
 	syncInProgress = true;
 	vram->sync(time);

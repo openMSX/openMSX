@@ -15,6 +15,7 @@ JoystickPort::JoystickPort(const std::string &nm, const EmuTime &time)
 {
 	name = nm;
 	dummy = new DummyJoystick();
+	lastValue = 255;	// != 0
 	PluggingController::instance()->registerConnector(this);
 	
 	unplug(time);

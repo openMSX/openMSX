@@ -41,7 +41,10 @@ void AY8910::reset(const EmuTime &time)
 	outputN = 0xff;
 	periodA = periodB = periodC = periodN = periodE = 0;
 	countA  = countB  = countC  = countN  = countE  = 0;
-	for (int i=0; i<=15; i++) {
+	for (int i=0; i <= 15; i++) {
+		regs[i] = 0;
+	}
+	for (int i=0; i <= 15; i++) {
 		wrtReg(i, 0, time);
 	}
 	setInternalMute(true);	// set muted 

@@ -401,7 +401,7 @@ byte WD2793::getDataReg(const EmuTime &time)
     if ( dataAvailable == 0 ){
       statusReg &= 0x7D ;// reset status on Busy(=bit7) reset DRQ bit(=bit1)
       DRQ=false;
-      if (mflag==0) INTRQ=true;
+      if (!mflag) INTRQ=true;
       PRT_DEBUG("Now we terminate the read sector command or skip to next sector if multi set");
     }
   }

@@ -18,6 +18,9 @@ MSXPrinterPort::MSXPrinterPort(MSXConfig::Device *config, const EmuTime &time)
 	dummy = new DummyPrinterPortDevice();
 	PluggingController::instance()->registerConnector(this);
 	unplug(time);	// TODO plug device as specified in config file
+	
+	data = 255;	// != 0;
+	strobe = false;	// != true;
 	reset(time);
 	
 	logger = new PrinterPortLogger();

@@ -1,5 +1,11 @@
 $Id$
 
+2002-11-03 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* minor cleanups
+	* fixed a few uninitialized variables:
+	   - discoverd with valgrind
+	   - some were harmless, fixed anyway to keep valgrind quiet
+
 2002-11-02 David Heremans <david.heremans@gnu-linux.net>
 	* Added two calls to the FDC backend:
 	   These should later be used to enable the writeTrack command

@@ -211,6 +211,9 @@ void IDEHD::setError(byte error)
 {
 	errorReg = error;
 	statusReg |= 0x01;	// ERR
+	statusReg &= ~0x08;	// DRQ
+	transferWrite = false;
+	transferRead  = false;
 }
 
 int IDEHD::getSectorNumber()

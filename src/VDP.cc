@@ -155,6 +155,7 @@ void VDP::resetInit(const EmuTime &time)
 	blinkCount = 0;
 	horizontalAdjust = 7;
 	verticalAdjust = 0;
+	palTiming = false;
 
 	// Init status registers.
 	statusReg0 = 0x00;

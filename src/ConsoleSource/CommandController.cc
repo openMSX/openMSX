@@ -281,7 +281,7 @@ void CommandController::HelpCmd::execute(const std::vector<std::string> &tokens)
 			}
 			break;
 		}
-		case 2: {
+		default: {
 			std::map<const std::string, Command*, ltstr>::const_iterator it;
 			it = cc->commands.find(tokens[1]);
 			if (it == cc->commands.end())
@@ -291,8 +291,6 @@ void CommandController::HelpCmd::execute(const std::vector<std::string> &tokens)
 			it->second->help(tokens2);
 			break;
 		}
-		default:
-			throw CommandException("Syntax error");
 	}
 }
 void CommandController::HelpCmd::help(const std::vector<std::string> &tokens)

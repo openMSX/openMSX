@@ -32,6 +32,7 @@ byte MSXS1990::readIO(byte port, const EmuTime &time)
 		case 0xE4:
 			return registerSelect;
 		case 0xE5:
+			PRT_DEBUG("S1990: read reg "<<(int)registerSelect);
 			switch (registerSelect) {
 				case 5:
 					return frontSwitch;

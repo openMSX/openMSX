@@ -7,6 +7,7 @@
 
 Leds::Leds()
 {
+	pwrLed = capsLed = kanaLed = pauseLed = turboLed = fddLed = true;
 	setLed(POWER_OFF);
 	setLed(CAPS_OFF);
 	setLed(KANA_OFF);

@@ -11,6 +11,7 @@ SCC::SCC(short volume)
 	int bufSize = Mixer::instance()->registerSound(this);
 	buffer = new int[bufSize];
 	setVolume(volume);
+	currentChipMode = SCC_Compatible;	// != SCC_Real;
 	reset();
 }
 

@@ -630,6 +630,7 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 			bank = (bank & ~0xFF) | value;
 			bankSelect[region] = bank;
 			setROM8kB(region, bank);
+			PRT_DEBUG("PANASONIC: region 0x" << std::hex << (int)0x2000*region << " 0x" << (int)bank);
 		} else if (address == 0x7FF8) {
 			// set mapper state (9th bit)
 			for (int region = 0; region < 8; region++) {
@@ -639,11 +640,19 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 					bankSelect[region] &= ~0x100;
 				}
 				setROM8kB(region, bankSelect[region]);
+				PRT_DEBUG("PANASONIC: region 0x" << std::hex << (int)0x2000*region << " 0x" << (int)bankSelect[region]);
 				value >>= 1;
 			}
 		} else if (address == 0x7FF9) {
 			// write control byte
 			control = value;
+		} else if ((0x8000 <= address) && (address < 0xC000)) {
+			// SRAM TODO check
+			PRT_DEBUG("PANASONIC: SRAM");
+			int region = (address & 0x1C00) >> 10;
+			if ((0x80 <= region) && (region < 0x84)) {
+				internalMemoryBank[address>>12][address&0x0FFF] = value;
+			}
 		}
 		break;
 

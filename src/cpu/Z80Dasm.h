@@ -10,7 +10,6 @@
 /***     Please, notify me, if you make any changes to this file          ***/
 /****************************************************************************/
 
-#include <stdio.h>
 #include <string.h>
 
 static char *mnemonic_xx_cb[256] =

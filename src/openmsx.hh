@@ -45,20 +45,20 @@ extern Mutex outputmutex, errormutex;
 	do {						\
 		if (DEBUGVAL) {				\
 			outputmutex.grab();		\
-			std::cout << mes << "\n";	\
+			std::cout << mes << std::endl;	\
 			outputmutex.release();		\
 		}					\
 	} while (0)
 #define PRT_INFO(mes)				\
 	do {					\
 		outputmutex.grab();		\
-		std::cout << mes << "\n";	\
+		std::cout << mes << std::endl;	\
 		outputmutex.release();		\
 	} while (0)
 #define PRT_ERROR(mes)				\
 	do {					\
 		errormutex.grab();		\
-		std::cerr << mes << "\n";	\
+		std::cerr << mes << std::endl;	\
 		errormutex.release();		\
 		exit(1);			\
 	} while (0)
