@@ -26,14 +26,19 @@ public:
 	  */
 	byte read();
 
-	/** Perform a given V9938 graphical operation.
-	  * @param op The operation to perform.
-	  */
-	void draw(byte op);
-
 	/** Perform a number of steps of the active operation.
 	  */
 	void loop();
+
+	/** Writes to a command register.
+	  * @param index The register [0..14] to write to.
+	  * @param index The new value for the specified register.
+	  * @param time The moment in emulated time this write occurs.
+	  */
+	inline void setCmdReg(int index, byte value, const EmuTime &time) {
+		cmdReg[index] = value;
+		if (index == 14) executeCommand();
+	}
 
 	/** Informs the command engine of a VDP display mode change.
 	  * @param time The moment in emulated time this change occurs.
@@ -96,6 +101,10 @@ private:
 	  */
 	inline void pset(int dx, int dy, byte cl, byte op);
 
+	/** Perform a given V9938 graphical operation.
+	  */
+	void executeCommand();
+
 	/** Get timing value for a certain VDP command.
 	  * @param timingValues Pointer to a table containing the timing
 	  *   values for the VDP command in question.
@@ -148,9 +157,9 @@ private:
 	  */
 	void hmmcEngine();
 
-	/** Report to stdout the VDP Command to be executed.
+	/** Report to stdout the VDP command specified in the registers.
 	  */
-	void reportVdpCommand(byte op);
+	void reportVdpCommand();
 
 	// Fields:
 
@@ -165,6 +174,10 @@ private:
 		byte LO;
 		byte CM;
 	} MMC;
+
+	/** VDP command registers.
+	  */
+	byte cmdReg[15];
 
 	/** Operation timing.
 	  */

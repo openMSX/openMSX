@@ -8,13 +8,28 @@
 
 // Compile hacks, should be replaced by openMSX calls.
 
-byte controlReg[64];
 byte VDPStatus[16];
 
 // End of compile hacks.
 
 
 // Constants:
+
+static const int REG_SXL = 0x00; // VDP R#32: source X low
+static const int REG_SXH = 0x01; // VDP R#32: source X high
+static const int REG_SYL = 0x02; // VDP R#34: source Y low
+static const int REG_SYH = 0x03; // VDP R#35: source Y high
+static const int REG_DXL = 0x04; // VDP R#36: destination X low
+static const int REG_DXH = 0x05; // VDP R#37: destination X high
+static const int REG_DYL = 0x06; // VDP R#38: destination Y low
+static const int REG_DYH = 0x07; // VDP R#39: destination Y high
+static const int REG_NXL = 0x08; // VDP R#40: number X low
+static const int REG_NXH = 0x09; // VDP R#41: number X high
+static const int REG_NYL = 0x0A; // VDP R#42: number Y low
+static const int REG_NYH = 0x0B; // VDP R#43: number Y high
+static const int REG_COL = 0x0C; // VDP R#44: colour
+static const int REG_ARG = 0x0D; // VDP R#45: argument
+static const int REG_CMD = 0x0E; // VDP R#46: command
 
 static const byte CM_ABRT  = 0x0;
 static const byte CM_POINT = 0x4;
@@ -233,8 +248,7 @@ inline void VDPCmdEngine::pset(
 
 int VDPCmdEngine::getVdpTimingValue(const int *timingValues)
 {
-	return timingValues[
-		((controlReg[1]>>6) & 1) | (controlReg[8] & 2) | ((controlReg[9]<<1) & 4) ];
+	return timingValues[vdp->getAccessTiming()];
 }
 
 void VDPCmdEngine::dummyEngine()
@@ -327,7 +341,7 @@ void VDPCmdEngine::lineEngine()
 		break; \
 	}
 
-	if ((controlReg[45]&0x01)==0) {
+	if ((cmdReg[REG_ARG]&0x01)==0) {
 		/* X-Axis is major direction */
 		switch (scrMode) {
 		case 0: pre_loop pset5(DX, DY, CL, LO); post_linexmaj(256)
@@ -358,8 +372,8 @@ void VDPCmdEngine::lineEngine()
 		/* Command execution done */
 		VDPStatus[2]&=0xFE;
 		currEngine=&VDPCmdEngine::dummyEngine;
-		controlReg[38]=DY & 0xFF;
-		controlReg[39]=(DY>>8) & 0x03;
+		cmdReg[REG_DYL]=DY & 0xFF;
+		cmdReg[REG_DYH]=(DY>>8) & 0x03;
 	}
 	else {
 		MMC.DX=DX;
@@ -402,10 +416,10 @@ void VDPCmdEngine::lmmvEngine()
 		currEngine=&VDPCmdEngine::dummyEngine;
 		if (!NY)
 		DY+=TY;
-		controlReg[38]=DY & 0xFF;
-		controlReg[39]=(DY>>8) & 0x03;
-		controlReg[42]=NY & 0xFF;
-		controlReg[43]=(NY>>8) & 0x03;
+		cmdReg[REG_DYL]=DY & 0xFF;
+		cmdReg[REG_DYH]=(DY>>8) & 0x03;
+		cmdReg[REG_NYL]=NY & 0xFF;
+		cmdReg[REG_NYH]=(NY>>8) & 0x03;
 	}
 	else {
 		MMC.DY=DY;
@@ -455,12 +469,12 @@ void VDPCmdEngine::lmmmEngine()
 		else
 		if (SY==-1)
 			DY+=TY;
-		controlReg[42]=NY & 0xFF;
-		controlReg[43]=(NY>>8) & 0x03;
-		controlReg[34]=SY & 0xFF;
-		controlReg[35]=(SY>>8) & 0x03;
-		controlReg[38]=DY & 0xFF;
-		controlReg[39]=(DY>>8) & 0x03;
+		cmdReg[REG_NYL]=NY & 0xFF;
+		cmdReg[REG_NYH]=(NY>>8) & 0x03;
+		cmdReg[REG_SYL]=SY & 0xFF;
+		cmdReg[REG_SYH]=(SY>>8) & 0x03;
+		cmdReg[REG_DYL]=DY & 0xFF;
+		cmdReg[REG_DYH]=(DY>>8) & 0x03;
 	}
 	else {
 		MMC.SY=SY;
@@ -476,7 +490,7 @@ void VDPCmdEngine::lmcmEngine()
 {
 	if ((VDPStatus[2]&0x80)!=0x80) {
 
-		VDPStatus[7]=controlReg[44]=point(MMC.ASX, MMC.SY);
+		VDPStatus[7]=cmdReg[REG_COL]=point(MMC.ASX, MMC.SY);
 		opsCount-=getVdpTimingValue(LMMV_TIMING);
 		VDPStatus[2]|=0x80;
 
@@ -486,10 +500,10 @@ void VDPCmdEngine::lmcmEngine()
 				currEngine=&VDPCmdEngine::dummyEngine;
 				if (!MMC.NY)
 				MMC.DY+=MMC.TY;
-				controlReg[42]=MMC.NY & 0xFF;
-				controlReg[43]=(MMC.NY>>8) & 0x03;
-				controlReg[34]=MMC.SY & 0xFF;
-				controlReg[35]=(MMC.SY>>8) & 0x03;
+				cmdReg[REG_NYL]=MMC.NY & 0xFF;
+				cmdReg[REG_NYH]=(MMC.NY>>8) & 0x03;
+				cmdReg[REG_SYL]=MMC.SY & 0xFF;
+				cmdReg[REG_SYH]=(MMC.SY>>8) & 0x03;
 			}
 			else {
 				MMC.ASX=MMC.SX;
@@ -503,8 +517,8 @@ void VDPCmdEngine::lmmcEngine()
 {
 	if ((VDPStatus[2]&0x80)!=0x80) {
 
-		VDPStatus[7]=controlReg[44]&=MASK[scrMode];
-		pset(MMC.ADX, MMC.DY, controlReg[44], MMC.LO);
+		VDPStatus[7]=cmdReg[REG_COL]&=MASK[scrMode];
+		pset(MMC.ADX, MMC.DY, cmdReg[REG_COL], MMC.LO);
 		opsCount-=getVdpTimingValue(LMMV_TIMING);
 		VDPStatus[2]|=0x80;
 
@@ -514,10 +528,10 @@ void VDPCmdEngine::lmmcEngine()
 			currEngine=&VDPCmdEngine::dummyEngine;
 			if (!MMC.NY)
 			MMC.DY+=MMC.TY;
-			controlReg[42]=MMC.NY & 0xFF;
-			controlReg[43]=(MMC.NY>>8) & 0x03;
-			controlReg[38]=MMC.DY & 0xFF;
-			controlReg[39]=(MMC.DY>>8) & 0x03;
+			cmdReg[REG_NYL]=MMC.NY & 0xFF;
+			cmdReg[REG_NYH]=(MMC.NY>>8) & 0x03;
+			cmdReg[REG_DYL]=MMC.DY & 0xFF;
+			cmdReg[REG_DYH]=(MMC.DY>>8) & 0x03;
 		}
 		else {
 			MMC.ADX=MMC.DX;
@@ -570,10 +584,10 @@ void VDPCmdEngine::hmmvEngine()
 		currEngine=&VDPCmdEngine::dummyEngine;
 		if (!NY)
 		DY+=TY;
-		controlReg[42]=NY & 0xFF;
-		controlReg[43]=(NY>>8) & 0x03;
-		controlReg[38]=DY & 0xFF;
-		controlReg[39]=(DY>>8) & 0x03;
+		cmdReg[REG_NYL]=NY & 0xFF;
+		cmdReg[REG_NYH]=(NY>>8) & 0x03;
+		cmdReg[REG_DYL]=DY & 0xFF;
+		cmdReg[REG_DYH]=(DY>>8) & 0x03;
 	}
 	else {
 		MMC.DY=DY;
@@ -646,12 +660,12 @@ void VDPCmdEngine::hmmmEngine()
 		else if (SY==-1) {
 			DY+=TY;
 		}
-		controlReg[42]=NY & 0xFF;
-		controlReg[43]=(NY>>8) & 0x03;
-		controlReg[34]=SY & 0xFF;
-		controlReg[35]=(SY>>8) & 0x03;
-		controlReg[38]=DY & 0xFF;
-		controlReg[39]=(DY>>8) & 0x03;
+		cmdReg[REG_NYL]=NY & 0xFF;
+		cmdReg[REG_NYH]=(NY>>8) & 0x03;
+		cmdReg[REG_SYL]=SY & 0xFF;
+		cmdReg[REG_SYH]=(SY>>8) & 0x03;
+		cmdReg[REG_DYL]=DY & 0xFF;
+		cmdReg[REG_DYH]=(DY>>8) & 0x03;
 	}
 	else {
 		MMC.SY=SY;
@@ -722,12 +736,12 @@ void VDPCmdEngine::ymmmEngine()
 		else if (SY==-1) {
 			DY+=TY;
 		}
-		controlReg[42]=NY & 0xFF;
-		controlReg[43]=(NY>>8) & 0x03;
-		controlReg[34]=SY & 0xFF;
-		controlReg[35]=(SY>>8) & 0x03;
-		controlReg[38]=DY & 0xFF;
-		controlReg[39]=(DY>>8) & 0x03;
+		cmdReg[REG_NYL]=NY & 0xFF;
+		cmdReg[REG_NYH]=(NY>>8) & 0x03;
+		cmdReg[REG_SYL]=SY & 0xFF;
+		cmdReg[REG_SYH]=(SY>>8) & 0x03;
+		cmdReg[REG_DYL]=DY & 0xFF;
+		cmdReg[REG_DYH]=(DY>>8) & 0x03;
 	}
 	else {
 		MMC.SY=SY;
@@ -742,7 +756,7 @@ void VDPCmdEngine::hmmcEngine()
 	if ((VDPStatus[2]&0x80)!=0x80) {
 
 		vdp->setVRAM(vramAddr(MMC.ADX, MMC.DY),
-			controlReg[44], currentTime);
+			cmdReg[REG_COL], currentTime);
 		opsCount-=getVdpTimingValue(HMMV_TIMING);
 		VDPStatus[2]|=0x80;
 
@@ -751,10 +765,10 @@ void VDPCmdEngine::hmmcEngine()
 				VDPStatus[2]&=0xFE;
 				currEngine=&VDPCmdEngine::dummyEngine;
 				if (!MMC.NY) MMC.DY+=MMC.TY;
-				controlReg[42]=MMC.NY & 0xFF;
-				controlReg[43]=(MMC.NY>>8) & 0x03;
-				controlReg[38]=MMC.DY & 0xFF;
-				controlReg[39]=(MMC.DY>>8) & 0x03;
+				cmdReg[REG_NYL]=MMC.NY & 0xFF;
+				cmdReg[REG_NYH]=(MMC.NY>>8) & 0x03;
+				cmdReg[REG_DYL]=MMC.DY & 0xFF;
+				cmdReg[REG_DYH]=(MMC.DY>>8) & 0x03;
 			}
 			else {
 				MMC.ADX=MMC.DX;
@@ -768,7 +782,7 @@ void VDPCmdEngine::write(byte value)
 {
 	VDPStatus[2]&=0x7F;
 
-	VDPStatus[7]=controlReg[44]=value;
+	VDPStatus[7]=cmdReg[REG_COL]=value;
 
 	if (opsCount>0) (this->*currEngine)();
 }
@@ -779,10 +793,10 @@ byte VDPCmdEngine::read()
 
 	if (opsCount>0) (this->*currEngine)();
 
-	return controlReg[44];
+	return cmdReg[REG_COL];
 }
 
-void VDPCmdEngine::reportVdpCommand(register byte op)
+void VDPCmdEngine::reportVdpCommand()
 {
 	const char *OPS[16] =
 	{
@@ -796,38 +810,38 @@ void VDPCmdEngine::reportVdpCommand(register byte op)
 	};
 
 	// Fetch arguments.
-	byte cl = controlReg[44];
-	int sx = (controlReg[32]+((int)controlReg[33]<<8)) & 511;
-	int sy = (controlReg[34]+((int)controlReg[35]<<8)) & 1023;
-	int dx = (controlReg[36]+((int)controlReg[37]<<8)) & 511;
-	int dy = (controlReg[38]+((int)controlReg[39]<<8)) & 1023;
-	int nx = (controlReg[40]+((int)controlReg[41]<<8)) & 1023;
-	int ny = (controlReg[42]+((int)controlReg[43]<<8)) & 1023;
-	byte cm = op >> 4;
-	byte lo = op & 0x0F;
+	byte cl = cmdReg[REG_COL];
+	int sx = (cmdReg[REG_SXL]+((int)cmdReg[REG_SXH]<<8)) & 511;
+	int sy = (cmdReg[REG_SYL]+((int)cmdReg[REG_SYH]<<8)) & 1023;
+	int dx = (cmdReg[REG_DXL]+((int)cmdReg[REG_DXH]<<8)) & 511;
+	int dy = (cmdReg[REG_DYL]+((int)cmdReg[REG_DYH]<<8)) & 1023;
+	int nx = (cmdReg[REG_NXL]+((int)cmdReg[REG_NXH]<<8)) & 1023;
+	int ny = (cmdReg[REG_NYL]+((int)cmdReg[REG_NYH]<<8)) & 1023;
+	byte cm = cmdReg[REG_CMD] >> 4;
+	byte lo = cmdReg[REG_CMD] & 0x0F;
 
 	printf("V9938: Opcode %02Xh %s-%s (%d,%d)->(%d,%d),%d [%d,%d]%s\n",
-		op, COMMANDS[cm], OPS[lo],
-		sx,sy, dx,dy, cl, controlReg[45]&0x04? -nx:nx,
-		controlReg[45]&0x08? -ny:ny,
-		controlReg[45]&0x70? " on ExtVRAM":""
+		cmdReg[REG_CMD], COMMANDS[cm], OPS[lo],
+		sx,sy, dx,dy, cl, cmdReg[REG_ARG]&0x04? -nx:nx,
+		cmdReg[REG_ARG]&0x08? -ny:ny,
+		cmdReg[REG_ARG]&0x70? " on ExtVRAM":""
 		);
 }
 
-void VDPCmdEngine::draw(byte op)
+void VDPCmdEngine::executeCommand()
 {
 	// V9938 ops only work in SCREENs 5-8.
 	if (scrMode < 0) return;
 
-	MMC.CM = op >> 4;
+	MMC.CM = cmdReg[REG_CMD] >> 4;
 	if ((MMC.CM & 0x0C) != 0x0C && MMC.CM != 0) {
 		// Dot operation: use only relevant bits of color.
-		VDPStatus[7]=(controlReg[44]&=MASK[scrMode]);
+		VDPStatus[7]=(cmdReg[REG_COL]&=MASK[scrMode]);
 	}
 
-	reportVdpCommand(op);
+	reportVdpCommand();
 
-	switch(op >> 4) {
+	switch(cmdReg[REG_CMD] >> 4) {
 	case CM_ABRT:
 		VDPStatus[2]&=0xFE;
 		currEngine=&VDPCmdEngine::dummyEngine;
@@ -835,19 +849,19 @@ void VDPCmdEngine::draw(byte op)
 	case CM_POINT:
 		VDPStatus[2]&=0xFE;
 		currEngine=&VDPCmdEngine::dummyEngine;
-		VDPStatus[7] = controlReg[44] = point(
-			controlReg[32]+((int)controlReg[33]<<8),
-			controlReg[34]+((int)controlReg[35]<<8)
+		VDPStatus[7] = cmdReg[REG_COL] = point(
+			cmdReg[REG_SXL]+((int)cmdReg[REG_SXH]<<8),
+			cmdReg[REG_SYL]+((int)cmdReg[REG_SYH]<<8)
 			);
 		return;
 	case CM_PSET:
 		VDPStatus[2]&=0xFE;
 		currEngine=&VDPCmdEngine::dummyEngine;
 		pset(
-			controlReg[36]+((int)controlReg[37]<<8),
-			controlReg[38]+((int)controlReg[39]<<8),
-			controlReg[44],
-			op&0x0F
+			cmdReg[REG_DXL]+((int)cmdReg[REG_DXH]<<8),
+			cmdReg[REG_DYL]+((int)cmdReg[REG_DYH]<<8),
+			cmdReg[REG_COL],
+			cmdReg[REG_CMD]&0x0F
 			);
 		return;
 	case CM_SRCH:
@@ -881,7 +895,7 @@ void VDPCmdEngine::draw(byte op)
 		currEngine=&VDPCmdEngine::hmmcEngine;
 		break;
 	default:
-		printf("V9938: Unrecognized opcode %02Xh\n", op);
+		printf("V9938: Unrecognized opcode %02Xh\n", cmdReg[REG_CMD]);
 		// TODO: Which engine belongs to invalid opcodes?
 		//   Currently none is assigned, so previous is used.
 		//   Assigning dummyEngine might make more sense.
@@ -890,24 +904,24 @@ void VDPCmdEngine::draw(byte op)
 	}
 
 	/* Fetch unconditional arguments */
-	MMC.SX = (controlReg[32]+((int)controlReg[33]<<8)) & 511;
-	MMC.SY = (controlReg[34]+((int)controlReg[35]<<8)) & 1023;
-	MMC.DX = (controlReg[36]+((int)controlReg[37]<<8)) & 511;
-	MMC.DY = (controlReg[38]+((int)controlReg[39]<<8)) & 1023;
-	MMC.NY = (controlReg[42]+((int)controlReg[43]<<8)) & 1023;
-	MMC.TY = controlReg[45]&0x08? -1:1;
+	MMC.SX = (cmdReg[REG_SXL]+((int)cmdReg[REG_SXH]<<8)) & 511;
+	MMC.SY = (cmdReg[REG_SYL]+((int)cmdReg[REG_SYH]<<8)) & 1023;
+	MMC.DX = (cmdReg[REG_DXL]+((int)cmdReg[REG_DXH]<<8)) & 511;
+	MMC.DY = (cmdReg[REG_DYL]+((int)cmdReg[REG_DYH]<<8)) & 1023;
+	MMC.NY = (cmdReg[REG_NYL]+((int)cmdReg[REG_NYH]<<8)) & 1023;
+	MMC.TY = cmdReg[REG_ARG]&0x08? -1:1;
 	MMC.MX = PPL[scrMode];
-	MMC.CL = controlReg[44];
-	MMC.LO = op & 0x0F;
+	MMC.CL = cmdReg[REG_COL];
+	MMC.LO = cmdReg[REG_CMD] & 0x0F;
 
 	/* Argument depends on byte or dot operation */
 	if ((MMC.CM & 0x0C) == 0x0C) {
-		MMC.TX = controlReg[45]&0x04? -PPB[scrMode]:PPB[scrMode];
-		MMC.NX = ((controlReg[40]+((int)controlReg[41]<<8)) & 1023)/PPB[scrMode];
+		MMC.TX = cmdReg[REG_ARG]&0x04? -PPB[scrMode]:PPB[scrMode];
+		MMC.NX = ((cmdReg[REG_NXL]+((int)cmdReg[REG_NXH]<<8)) & 1023)/PPB[scrMode];
 	}
 	else {
-		MMC.TX = controlReg[45]&0x04? -1:1;
-		MMC.NX = (controlReg[40]+((int)controlReg[41]<<8)) & 1023;
+		MMC.TX = cmdReg[REG_ARG]&0x04? -1:1;
+		MMC.NX = (cmdReg[REG_NXL]+((int)cmdReg[REG_NXH]<<8)) & 1023;
 	}
 
 	// X loop variables are treated specially for LINE command.
@@ -922,7 +936,7 @@ void VDPCmdEngine::draw(byte op)
 
 	// NX loop variable is treated specially for SRCH command.
 	MMC.ANX = (MMC.CM == CM_SRCH
-		? (controlReg[45]&0x02)!=0 // TODO: Do we look for "==" or "!="?
+		? (cmdReg[REG_ARG]&0x02)!=0 // TODO: Do we look for "==" or "!="?
 		: MMC.NX
 		);
 
@@ -959,6 +973,9 @@ VDPCmdEngine::VDPCmdEngine(VDP *vdp, const EmuTime &time)
 
 	opsCount = 1;
 	currEngine = &VDPCmdEngine::dummyEngine;
+	for (int i = 0; i < 15; i++) {
+		cmdReg[i] = 0;
+	}
 
 	updateDisplayMode(currentTime);
 }

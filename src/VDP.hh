@@ -239,6 +239,17 @@ public:
 		return spriteCount[line];
 	}
 
+	/** Get VRAM access timing info.
+	  * This is the internal format used by the command engine.
+	  * TODO: When improving the timing accuracy, think of a clearer
+	  *       way of sharing this information.
+	  */
+	inline int getAccessTiming() {
+		return ((controlRegs[1]>>6) & 1)  // display enable
+			| (controlRegs[8] & 2)        // sprite enable
+			| ((controlRegs[9]<<1) & 4);  // 192/212 lines
+	}
+
 private:
 	/** Doubles a sprite pattern.
 	  */
