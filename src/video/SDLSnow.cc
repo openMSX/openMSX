@@ -11,7 +11,8 @@ template class SDLSnow<Uint32>;
 
 template <class Pixel>
 SDLSnow<Pixel>::SDLSnow(SDL_Surface* screen)
-	: screen(screen)
+	: Layer(COVER_FULL, Z_BACKGROUND)
+	, screen(screen)
 {
 	// Precalc gray values for noise
 	for (unsigned i = 0; i < 256; i++) {
@@ -19,8 +20,7 @@ SDLSnow<Pixel>::SDLSnow(SDL_Surface* screen)
 	}
 
 	// Register as display layer.
-	Display::INSTANCE->addLayer(this, Display::Z_BACKGROUND);
-	Display::INSTANCE->setCoverage(this, Display::COVER_FULL);
+	Display::INSTANCE->addLayer(this);
 }
 
 template <class Pixel>

@@ -42,8 +42,7 @@ SDLGLVideoSystem::SDLGLVideoSystem()
 	new GLConsole(CommandConsole::instance());
 
 	Layer* iconLayer = new GLIconLayer(screen);
-	Display::INSTANCE->addLayer(iconLayer, Display::Z_ICONS);
-	Display::INSTANCE->setCoverage(iconLayer, Display::COVER_PARTIAL);
+	Display::INSTANCE->addLayer(iconLayer);
 }
 
 SDLGLVideoSystem::~SDLGLVideoSystem()

@@ -1,7 +1,11 @@
 $Id$
 
+2004-12-01 Maarten ter Huurne <maarten@treewalker.org>
+	* Moved coverage and z-index from LayerInfo into Layer.
+	  This also fixes an undefined memory read when Display is destructed.
+
 2004-11-29 Maarten ter Huurne <maarten@treewalker.org>
-        * Fixed base port of debug device.
+	* Fixed base port of debug device.
 
 2004-11-29 Eric Boon <e.boon4@chello.nl>
 	* Fixed broken build for non-GL systems

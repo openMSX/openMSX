@@ -63,7 +63,8 @@ bool FontSetting::checkFile(const string& filename)
 // class OSDConsoleRenderer
 
 OSDConsoleRenderer::OSDConsoleRenderer(Console& console_)
-	: console(console_)
+	: Layer(COVER_NONE, Z_CONSOLE)
+	, console(console_)
 	, eventDistributor(EventDistributor::instance())
 	, inputEventGenerator(InputEventGenerator::instance())
 	, consoleSetting(GlobalSettings::instance().getConsoleSetting())
@@ -74,7 +75,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(Console& console_)
 	unsigned cursorY;
 	console.getCursorPosition(lastCursorPosition, cursorY);
 
-	Display::INSTANCE->addLayer(this, Display::Z_CONSOLE);
+	Display::INSTANCE->addLayer(this);
 	active = false;
 	consoleSetting.addListener(this);
 	setActive(consoleSetting.getValue());
@@ -153,22 +154,21 @@ void OSDConsoleRenderer::setActive(bool active)
 	if (this->active == active) return;
 	this->active = active;
 	inputEventGenerator.setKeyRepeat(active);
-	Display::INSTANCE->setCoverage(
-		this, active ? Display::COVER_PARTIAL : Display::COVER_NONE );
+	setCoverage(active ? COVER_PARTIAL : COVER_NONE);
 	if (active) {
 		eventDistributor.registerEventListener(
 			KEY_UP_EVENT,   console, EventDistributor::NATIVE );
 		eventDistributor.registerEventListener(
 			KEY_DOWN_EVENT, console, EventDistributor::NATIVE );
-		eventDistributor.distributeEvent
-		  (new SimpleEvent<CONSOLE_ON_EVENT>());
+		eventDistributor.distributeEvent(
+		  new SimpleEvent<CONSOLE_ON_EVENT>() );
 	} else {
 		eventDistributor.unregisterEventListener(
 			KEY_DOWN_EVENT, console, EventDistributor::NATIVE );
 		eventDistributor.unregisterEventListener(
 			KEY_UP_EVENT,   console, EventDistributor::NATIVE );
-		eventDistributor.distributeEvent
-		  (new SimpleEvent<CONSOLE_OFF_EVENT>());
+		eventDistributor.distributeEvent(
+		  new SimpleEvent<CONSOLE_OFF_EVENT>() );
 	}
 }
 

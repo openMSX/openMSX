@@ -3,7 +3,6 @@
 #ifndef __DISPLAY_HH__
 #define __DISPLAY_HH__
 
-//#include "VideoSystem.hh"
 #include "EventListener.hh"
 #include "Command.hh"
 #include "openmsx.hh"
@@ -16,10 +15,9 @@ using std::string;
 using std::vector;
 
 
-
-
 namespace openmsx {
 
+class LayerListener;
 class VideoSystem;
 
 
@@ -37,23 +35,8 @@ public:
 	/** Returns the name of this layer. Used for debugging.
 	  */
 	virtual const string& getName() = 0;
-};
 
-
-/** Represents the output window/screen of openMSX.
-  * A display contains several layers.
-  */
-class Display: private EventListener
-{
-public:
-	enum {
-		Z_BACKGROUND = 0,
-		Z_MSX_PASSIVE = 30,
-		Z_MSX_ACTIVE = 40,
-		Z_ICONS = 90,
-		Z_CONSOLE = 100,
-	};
-
+protected:
 	/** Describes how much of the screen is currently covered by a particular
 	  * layer.
 	  */
@@ -70,6 +53,60 @@ public:
 		COVER_NONE,
 	};
 
+	/** Determines stacking order of layers:
+	  * layers with higher Z-indices are closer to the viewer.
+	  */
+	enum ZIndex {
+		Z_DUMMY = -1,
+		Z_BACKGROUND = 0,
+		Z_MSX_PASSIVE = 30,
+		Z_MSX_ACTIVE = 40,
+		Z_ICONS = 90,
+		Z_CONSOLE = 100,
+	};
+
+	/** Construct a layer. */
+	Layer(Coverage coverage = COVER_NONE, ZIndex z = Z_DUMMY);
+
+	/** Changes the current coverage of this layer.
+	  */
+	virtual void setCoverage(Coverage coverage);
+
+	/** Changes the current Z-index of this layer.
+	  */
+	virtual void setZ(ZIndex z);
+
+private:
+	friend class LayerListener;
+	friend class Display;
+
+	/** The display this layer is part of. */
+	LayerListener* display;
+
+	/** Inspected by Display to determine which layers to paint. */
+	Coverage coverage;
+
+	/** Inspected by Display to determine the order in which layers are
+	  * painted.
+	  */
+	ZIndex z;
+
+};
+
+
+class LayerListener {
+public:
+	virtual void updateCoverage(Layer* layer, Layer::Coverage coverage) = 0;
+	virtual void updateZ(Layer* layer, Layer::ZIndex z) = 0;
+};
+
+
+/** Represents the output window/screen of openMSX.
+  * A display contains several layers.
+  */
+class Display: private EventListener, private LayerListener
+{
+public:
 	// TODO: Keep as singleton?
 	static auto_ptr<Display> INSTANCE;
 
@@ -86,34 +123,20 @@ public:
 	  */
 	void repaint();
 
-	// TODO: Add as methods to LayerInfo and expose LayerInfo to outside.
-	void addLayer(Layer* layer, int z);
-	bool isActive(Layer* layer);
-	void setZ(Layer* layer, int z);
-	void setCoverage(Layer* layer, Coverage coverage);
+	void addLayer(Layer* layer);
 
 private:
 
-	class LayerInfo {
-	public:
-		LayerInfo(Layer* layer, int z);
-		Layer* layer;
-		Coverage coverage;
-		int z;
-	};
-
-	// TODO: Add as methods to LayerInfo and expose LayerInfo to outside.
-	vector<LayerInfo*>::iterator findLayer(Layer* layer);
+	virtual void updateCoverage(Layer* layer, Layer::Coverage coverage);
+	virtual void updateZ(Layer* layer, Layer::ZIndex z);
 
 	/** Find frontmost opaque layer.
 	  */
-	vector<LayerInfo*>::iterator baseLayer();
+	vector<Layer*>::iterator baseLayer();
 
-	vector<LayerInfo*> layers;
+	vector<Layer*> layers;
 
 	auto_ptr<VideoSystem> videoSystem;
-
-	void addLayer(LayerInfo* info);
 
 	class ScreenShotCmd : public SimpleCommand {
 	public:

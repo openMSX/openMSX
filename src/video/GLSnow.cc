@@ -11,6 +11,7 @@ static const int WIDTH = 640;
 static const int HEIGHT = 480;
 
 GLSnow::GLSnow()
+	: Layer(COVER_FULL, Z_BACKGROUND)
 {
 	// Create noise texture.
 	byte buf[128 * 128];
@@ -25,8 +26,7 @@ GLSnow::GLSnow()
 	             GL_LUMINANCE, GL_UNSIGNED_BYTE, buf);
 
 	// Register as display layer.
-	Display::INSTANCE->addLayer(this, Display::Z_BACKGROUND);
-	Display::INSTANCE->setCoverage(this, Display::COVER_FULL);
+	Display::INSTANCE->addLayer(this);
 }
 
 GLSnow::~GLSnow()

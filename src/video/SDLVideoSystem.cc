@@ -49,8 +49,7 @@ SDLVideoSystem::SDLVideoSystem(RendererFactory::RendererID id)
 	new SDLConsole(CommandConsole::instance(), screen);
 
 	Layer* iconLayer = new SDLIconLayer(screen);
-	Display::INSTANCE->addLayer(iconLayer, Display::Z_ICONS);
-	Display::INSTANCE->setCoverage(iconLayer, Display::COVER_PARTIAL);
+	Display::INSTANCE->addLayer(iconLayer);
 }
 
 SDLVideoSystem::~SDLVideoSystem()

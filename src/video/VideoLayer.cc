@@ -13,9 +13,10 @@ VideoLayer::VideoLayer(RenderSettings::VideoSource videoSource)
 	, videoSourceSetting(*RenderSettings::instance().getVideoSource())
 	, powerSetting(GlobalSettings::instance().getPowerSetting())
 {
+	setCoverage(getCoverage());
+	setZ(getZ());
 	// Register as display layer.
-	Display::INSTANCE->addLayer(this, getZ());
-	Display::INSTANCE->setCoverage(this, getCoverage());
+	Display::INSTANCE->addLayer(this);
 
 	videoSourceSetting.addListener(this);
 	powerSetting.addListener(this);
@@ -30,26 +31,26 @@ VideoLayer::~VideoLayer()
 void VideoLayer::update(const SettingLeafNode* setting)
 {
 	if (setting == &videoSourceSetting) {
-		Display::INSTANCE->setZ(this, getZ());
+		setZ(getZ());
 	} else if (setting == &powerSetting) {
-		Display::INSTANCE->setCoverage(this, getCoverage());
+		setCoverage(getCoverage());
 	} else {
 		assert(false);
 	}
 }
 
-int VideoLayer::getZ()
+Layer::ZIndex VideoLayer::getZ()
 {
 	return videoSourceSetting.getValue() == videoSource
-		? Display::Z_MSX_ACTIVE
-		: Display::Z_MSX_PASSIVE;
+		? Z_MSX_ACTIVE
+		: Z_MSX_PASSIVE;
 }
 
-Display::Coverage VideoLayer::getCoverage()
+Layer::Coverage VideoLayer::getCoverage()
 {
 	return powerSetting.getValue()
-		? Display::COVER_FULL
-		: Display::COVER_NONE;
+		? COVER_FULL
+		: COVER_NONE;
 }
 
 } // namespace openmsx

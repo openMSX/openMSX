@@ -7,6 +7,7 @@
 #include "CommandController.hh"
 #include "CommandException.hh"
 #include "CliCommOutput.hh"
+#include <algorithm>
 #include <cassert>
 
 
@@ -14,8 +15,27 @@ namespace openmsx {
 
 // Layer:
 
+Layer::Layer(Coverage coverage, ZIndex z)
+{
+	display = NULL;
+	this->coverage = coverage;
+	this->z = z;
+}
+
 Layer::~Layer()
 {
+}
+
+void Layer::setCoverage(Coverage coverage)
+{
+	this->coverage = coverage;
+	if (display) display->updateCoverage(this, coverage);
+}
+
+void Layer::setZ(ZIndex z)
+{
+	this->z = z;
+	if (display) display->updateZ(this, z);
 }
 
 // Display:
@@ -39,17 +59,25 @@ Display::~Display()
 		&screenShotCmd, "screenshot" );
 	EventDistributor::instance().unregisterEventListener(
 		FINISH_FRAME_EVENT, *this, EventDistributor::NATIVE );
-	for (vector<LayerInfo*>::iterator it = layers.begin();
+	// Prevent callbacks first...
+	for (vector<Layer*>::iterator it = layers.begin();
 		it != layers.end(); ++it
 	) {
-		delete (*it)->layer;
+		(*it)->display = NULL;
+	}
+	// ...then destruct layers.
+	for (vector<Layer*>::iterator it = layers.begin();
+		it != layers.end(); ++it
+	) {
 		delete *it;
 	}
 }
 
-vector<Display::LayerInfo*>::iterator Display::baseLayer()
+vector<Layer*>::iterator Display::baseLayer()
 {
-	vector<LayerInfo*>::iterator it = layers.end();
+	// Note: It is possible to cache this, but since the number of layers is
+	//       low at the moment, it's not really worth it.
+	vector<Layer*>::iterator it = layers.end();
 	while (true) {
 		if (it == layers.begin()) {
 			// There should always be at least one opaque layer.
@@ -60,7 +88,7 @@ vector<Display::LayerInfo*>::iterator Display::baseLayer()
 			return it;
 		}
 		--it;
-		if ((*it)->coverage == COVER_FULL) return it;
+		if ((*it)->coverage == Layer::COVER_FULL) return it;
 	}
 }
 
@@ -79,67 +107,38 @@ void Display::repaint()
 	//       it is unknown whether a failure is transient or permanent.
 	if (!videoSystem->prepare()) return;
 	
-	vector<LayerInfo*>::iterator it = baseLayer();
+	vector<Layer*>::iterator it = baseLayer();
 	for (; it != layers.end(); ++it) {
-		if ((*it)->coverage != COVER_NONE) {
-			assert(isActive((*it)->layer));
+		if ((*it)->coverage != Layer::COVER_NONE) {
 			// Paint this layer.
 			//cerr << "Painting layer " << (*it)->layer->getName() << "\n";
-			(*it)->layer->paint();
+			(*it)->paint();
 		}
 	}
 	
 	videoSystem->flush();
 }
 
-void Display::addLayer(Layer* layer, int z)
+void Display::addLayer(Layer* layer)
 {
-	addLayer(new LayerInfo(layer, z));
+	const int z = layer->z;
+	vector<Layer*>::iterator it;
+	for (it = layers.begin(); it != layers.end() && (*it)->z < z; ++it);
+	layers.insert(it, layer);
+	layer->display = this;
 }
 
-void Display::addLayer(LayerInfo* info)
+void Display::updateCoverage(Layer* layer, Layer::Coverage coverage)
 {
-	vector<LayerInfo*>::iterator it;
-	for (it = layers.begin(); it != layers.end() && (*it)->z < info->z; ++it);
-	layers.insert(it, info);
+	// Do nothing.
 }
 
-vector<Display::LayerInfo*>::iterator Display::findLayer(Layer* layer)
+void Display::updateZ(Layer* layer, Layer::ZIndex z)
 {
-	for (vector<LayerInfo*>::iterator it = layers.begin(); ; ++it) {
-		assert(it != layers.end());
-		if ((*it)->layer == layer) {
-			return it;
-		}
-	}
-}
-
-bool Display::isActive(Layer* layer)
-{
-	vector<LayerInfo*>::iterator it = baseLayer();
-	for (; it != layers.end(); ++it) {
-		if ((*it)->layer == layer) {
-			// Layer in active part of stack.
-			return (*it)->coverage != COVER_NONE;
-		}
-	}
-	// Layer not in active part of stack.
-	return false;
-}
-
-void Display::setZ(Layer* layer, int z)
-{
-	vector<LayerInfo*>::iterator it = findLayer(layer);
-	LayerInfo* info = *it;
-	info->z = z;
-	layers.erase(it);
-	addLayer(info);
-}
-
-void Display::setCoverage(Layer* layer, Coverage coverage)
-{
-	vector<LayerInfo*>::iterator it = findLayer(layer);
-	(*it)->coverage = coverage;
+	// Remove at old Z-index...
+	layers.erase(std::find(layers.begin(), layers.end(), layer));
+	// ...and re-insert at new Z-index.
+	addLayer(layer);
 }
 
 // ScreenShotCmd inner class:
@@ -173,15 +172,6 @@ string Display::ScreenShotCmd::help(const vector<string>& /*tokens*/) const
 	return
 		"screenshot             Write screenshot to file \"openmsxNNNN.png\"\n"
 		"screenshot <filename>  Write screenshot to indicated file\n";
-}
-
-// LayerInfo:
-
-Display::LayerInfo::LayerInfo(Layer* layer, int z)
-{
-	this->layer = layer;
-	this->z = z;
-	coverage = COVER_NONE;
 }
 
 } // namespace openmsx

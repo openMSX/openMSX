@@ -30,7 +30,9 @@ static const unsigned long long fadeDuration = 5000000;
 
 template <class IMAGE>
 IconLayer<IMAGE>::IconLayer(SDL_Surface* screen)
-	: outputScreen(screen)
+	// Just assume partial coverage and let paint() sort it out.
+	: Layer(COVER_PARTIAL, Z_ICONS)
+	, outputScreen(screen)
 {
 	if (!init) {
 		init = true;

@@ -30,9 +30,9 @@ protected:
 
 private:
 	/** Calculates the current Z coordinate of this layer. */
-	int getZ();
+	ZIndex getZ();
 	/** Calculates the current coverage of this layer. */
-	Display::Coverage getCoverage();
+	Coverage getCoverage();
 
 	/** Video source that displays on this layer. */
 	RenderSettings::VideoSource videoSource;
@@ -40,6 +40,7 @@ private:
 	EnumSetting<RenderSettings::VideoSource>& videoSourceSetting;
 	/** Reference to "power" setting. */
 	BooleanSetting& powerSetting;
+
 };
 
 } // namespace openmsx
