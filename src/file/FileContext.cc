@@ -130,12 +130,18 @@ ConfigFileContext::ConfigFileContext(const ConfigFileContext& rhs)
 
 // class SystemFileContext
 
-SystemFileContext::SystemFileContext(bool onlySystemDir)
+SystemFileContext::SystemFileContext(bool preferSystemDir)
 {
-	if (!onlySystemDir) {
-		paths.push_back(FileOperations::getUserDataDir() + "/");
+	string userDir   = FileOperations::getUserDataDir()   + '/';
+	string systemDir = FileOperations::getSystemDataDir() + '/';
+	
+	if (preferSystemDir) {
+		paths.push_back(systemDir);
+		paths.push_back(userDir);
+	} else {
+		paths.push_back(userDir);
+		paths.push_back(systemDir);
 	}
-	paths.push_back(FileOperations::getSystemDataDir() + "/");
 }
 
 const vector<string>& SystemFileContext::getPaths()
