@@ -9,7 +9,35 @@
   </rom>
   <rom id="Bubbler">
     <md5>3c4113a49c1cbcefc0a73655f807691a</md5>
-    <romtype>2</romtype>
+    <romtype>KONAMI5</romtype>
+  </rom>
+  <rom id="Painter">
+    <md5>403cdea1cbd2bb24fae506941f8f655e</md5>
+    <romtype>PLAIN</romtype>
+  </rom>
+  <rom id="Konami's Synthesizer">
+    <md5>458365aa94bedcef0718207c7ecbcf85</md5>
+    <romtype>SYNTHESIZER</romtype>
+  </rom>
+  <rom id="Konami Majutsushi">
+    <md5>157948f839762dc9922e4011bb4dc9e6</md5>
+    <romtype>MAJUTSUSHI</romtype>
+  </rom>
+  <rom id="Hydlide 2">
+    <md5>4ad6b44220390d76e8565be2abcdadda</md5>
+    <romtype>HYDLIDE2</romtype>
+  </rom>
+  <rom id="Xanadu">
+    <md5>03e7119173912f9444cb96ed58ba4957</md5>
+    <romtype>XANADU</romtype>
+  </rom>
+  <rom id="Royal Blood">
+    <md5>6a1571a643e6c34837535a3240f85ef2</md5>
+    <romtype>ROYALBLOOD</romtype>
+  </rom>
+  <rom id="Rastan Saga">
+    <md5>114264bbcd0fdfa7bd083a983606a200</md5>
+    <romtype>ASCII8</romtype>
   </rom>
 </romdb>
 

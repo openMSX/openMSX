@@ -1,5 +1,10 @@
 $Id$
 
+2002-08-03 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* wrote doc/commands.txt
+	* cleanups, small fixes in RomTypes and MSXRom
+	* added some entries in romdb.xml
+
 2002-08-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* EmuTime cleanups:
 	   introduced EmuDuration class

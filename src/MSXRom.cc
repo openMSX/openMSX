@@ -5,7 +5,6 @@
 #include "DACSound.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
-#include "RomTypes.hh"
 
 
 MSXRom::MSXRom(MSXConfig::Device *config, const EmuTime &time)
@@ -16,7 +15,7 @@ MSXRom::MSXRom(MSXConfig::Device *config, const EmuTime &time)
 	retrieveMapperType();
 
 	// only if needed reserve memory for SRAM
-	if (mapperType & 16) {
+	if (mapperType & HAS_SRAM) {
 		memorySRAM = new byte[0x2000];
 		memset(memorySRAM, 255, 0x2000);
 		try {
@@ -37,7 +36,7 @@ MSXRom::MSXRom(MSXConfig::Device *config, const EmuTime &time)
 
 #ifndef DONT_WANT_SCC
 	// only instantiate SCC if needed
-	if (mapperType == 2) {
+	if (mapperType == KONAMI5) {
 		short volume = (short)config->getParameterAsInt("volume");
 		cartridgeSCC = new SCC(volume);
 	} else {
@@ -46,7 +45,7 @@ MSXRom::MSXRom(MSXConfig::Device *config, const EmuTime &time)
 #endif
 
 	// only instantiate DACSound if needed
-	if (mapperType == 64) {
+	if (mapperType & HAS_DAC) {
 		short volume = (short)config->getParameterAsInt("volume");
 		dac = new DACSound(volume, 16000, time);
 	} else {
@@ -93,7 +92,7 @@ MSXRom::~MSXRom()
 #ifndef DONT_WANT_SCC
 	delete cartridgeSCC;
 #endif
-	if ((mapperType & 16) && deviceConfig->getParameterAsBool("savesram")) {
+	if ((mapperType & HAS_SRAM) && deviceConfig->getParameterAsBool("savesram")) {
 		std::string filename = deviceConfig->getParameter("sramname");
 		PRT_DEBUG("Trying to save to "<<filename<<" for SRAM of the cartrdige");
 		IOFILETYPE* file = FileOpener::openFileTruncate(filename);
@@ -118,12 +117,7 @@ void MSXRom::reset(const EmuTime &time)
 	// After a reset SRAM is not selected in all known cartrdiges
 	regioSRAM = 0;
 
-	if (mapperType < 128) {
-		setBank16kB(0, unmapped);
-		setROM16kB (1, 0);
-		setROM16kB (2, (mapperType == 16 || mapperType == 5) ? 0 : 1);
-		setBank16kB(3, unmapped);
-	} else {
+	if ((mapperType & PLAIN) == PLAIN) {
 		// this is a simple gamerom less or equal then 64 kB
 		switch (romSize >> 14) { // blocks of 16kB
 			case 0:	//  8kB
@@ -172,6 +166,11 @@ void MSXRom::reset(const EmuTime &time)
 				// not possible
 				assert(false);
 		}
+	} else {
+		setBank16kB(0, unmapped);
+		setROM16kB (1, 0);
+		setROM16kB (2, (mapperType == HYDLIDE2 || mapperType == ASCII_16KB) ? 0 : 1);
+		setBank16kB(3, unmapped);
 	}
 }
 
@@ -224,15 +223,24 @@ byte* MSXRom::getReadCacheLine(word start)
 
 void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 {
-	switch (mapperType) {
-	case 0:
+	if (mapperType & HAS_DAC) {
+		//--==**>> <<**==--
+		// Konami Synthezier / Majutsushi
+		if (address == 0x4000) {
+			PRT_DEBUG("Konami DAC " << (int)value);
+			dac->writeDAC(value,time);
+		}
+	}
+	
+	switch (mapperType & ~HAS_DAC) {
+	case GENERIC_8KB:
 		//--==**>> Generic 8kB cartridges <<**==--
 		if (0x4000<=address && address<0xc000) {
 			setROM8kB(address>>13, value);
 		}
 		break;
 		
-	case 1:
+	case GENERIC_16KB:
 		//--==**>> Generic 16kB cartridges <<**==--
 		// examples: MSXDOS2, Hole in one special
 		
@@ -242,7 +250,7 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 		}
 		break;
 	
-	case 2:
+	case KONAMI5:
 		//--==**>> KONAMI5 8kB cartridges <<**==--
 		// this type is used by Konami cartridges that do have an SCC and some others
 		// examples of cartridges: Nemesis 2, Nemesis 3, King's Valley 2, Space Manbow
@@ -273,7 +281,7 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 			setROM8kB(address>>13, value);
 		break;
 	
-	case 3:
+	case KONAMI4:
 		//--==**>> KONAMI4 8kB cartridges <<**==--
 		// this type is used by Konami cartridges that do not have an SCC and some others
 		// example of catrridges: Nemesis, Penguin Adventure, Usas, Metal Gear, Shalom,
@@ -286,7 +294,7 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 			setROM8kB(address>>13, value);
 		break;
 		
-	case 4:
+	case ASCII_8KB:
 		//--==**>> ASCII 8kB cartridges <<**==--
 		// this type is used in many japanese-only cartridges.
 		// example of cartridges: Valis(Fantasm Soldier), Dragon Slayer, Outrun, 
@@ -303,7 +311,7 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 		}
 		break;
 		
-	case 5:
+	case ASCII_16KB:
 		//--==**>> ASCII 16kB cartridges <<**==--
 		// this type is used in a few cartridges.
 		// example of cartridges: Xevious, Fantasy Zone 2,
@@ -319,7 +327,18 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 		}
 		break;
 		
-	case 16:
+	case R_TYPE:
+		// not yet implemented
+		assert(false);
+		break;
+
+	case PLAIN:
+		//--==**>> Simple romcartridge <= 64 KB <<**==--
+		// No extra writable hardware
+		break;
+		
+		
+	case HYDLIDE2:
 		//--==**>> HYDLIDE2 cartridges <<**==--
 		// this type is is almost completely a ASCII16 cartrdige
 		// However, it has 2kB of SRAM (and 128 kB ROM)
@@ -353,8 +372,8 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 		}
 		break;
 		
-	case 17:
-	case 18:
+	case XANADU:
+	case ROYAL_BLOOD:
 		//--==**>> ASCII 8kB cartridges with 8kB SRAM<<**==--
 		// this type is used in Xanadu and Royal Blood
 		//
@@ -369,7 +388,7 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 
 		if (0x6000<=address && address<0x8000) {
 			byte region = ((address>>11)&3)+2;
-			byte SRAMEnableBit = (mapperType==17) ? 0x20 : 0x80; 
+			byte SRAMEnableBit = (mapperType == XANADU) ? 0x20 : 0x80; 
 			if (value & SRAMEnableBit) {
 				//bit 7 for Royal Blood
 				//bit 5 for Xanadu
@@ -387,7 +406,7 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 		}
 		break;
 		
-	case 19:
+	case GAME_MASTER2:
 		// Konami Game Master 2, 8KB cartridge with 8KB sram
 		if (0x6000<=address && address<0xc000) {
 			if (address >= 0xb000) {
@@ -416,22 +435,8 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 		}
 		break;
 	
-	case 64:
-		//--==**>> <<**==--
-		// Konami Synthezier cartridge
-		// Should be only for 0x4000, but since this isn't confirmed on a real
-		// cratridge we will simply use every write.
-		PRT_DEBUG("Konami DAC " << (int)value);
-		dac->writeDAC(value,time);
-		break;
-		
-	case 128:
-		//--==**>> Simple romcartridge <= 64 KB <<**==--
-		// No extra writable hardware
-		break;
-		
 	default:
-		// Unknow mapper type
+		// Unknown mapper type
 		assert(false);
 	}
 }

@@ -9,6 +9,7 @@
 
 #include "MSXRomDevice.hh"
 #include "MSXMemDevice.hh"
+#include "RomTypes.hh"
 
 // forward declarations
 #ifndef DONT_WANT_SCC
@@ -40,7 +41,7 @@ class MSXRom : public MSXMemDevice, public MSXRomDevice
 		inline void setROM8kB  (int region, int block);
 		inline void setROM16kB (int region, int block);
 	
-		int mapperType;
+		MapperType mapperType;
 		byte *internalMemoryBank[16];	// 16 blocks of 4kB
 		byte *unmapped;
 		
