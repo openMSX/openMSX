@@ -3,13 +3,19 @@
 #include "PanasonicMemory.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
-#include "Rom.hh"
 #include "Ram.hh"
+#include "HardwareConfig.hh"
 
 namespace openmsx {
 
+static XMLElement& getRomConfig()
+{
+	return HardwareConfig::instance().getChild("PanasonicRom");
+}
+
 PanasonicMemory::PanasonicMemory()
-	: rom(NULL), ram(NULL), dram(false),
+	: rom("PanasonicRom", "Turbo-R main ROM", getRomConfig()),
+	  ram(NULL), dram(false),
 	  msxcpu(MSXCPU::instance())
 {
 }
@@ -24,42 +30,35 @@ PanasonicMemory& PanasonicMemory::instance()
 	return oneInstance;
 }
 
-void PanasonicMemory::registerRom(const Rom& rom_)
-{
-	rom = &rom_[0];
-	romSize = rom_.getSize();
-}
-
 void PanasonicMemory::registerRam(Ram& ram_)
 {
 	ram = &ram_[0];
 	ramSize = ram_.getSize();
 }
 
-const byte* PanasonicMemory::getRomBlock(int block)
+const byte* PanasonicMemory::getRomBlock(unsigned block)
 {
 	if (dram &&
 	    (((0x28 <= block) && (block < 0x2C)) ||
 	     ((0x38 <= block) && (block < 0x3C)))) {
 		assert(ram);
-		int offset = (block & 0x03) * 0x2000;
-		int ramOffset = (block < 0x30) ? ramSize - 0x10000 :
-		                                 ramSize - 0x08000;
+		unsigned offset = (block & 0x03) * 0x2000;
+		unsigned ramOffset = (block < 0x30) ? ramSize - 0x10000 :
+		                                      ramSize - 0x08000;
 		return ram + ramOffset + offset;
 	} else {
-		assert(rom);
-		int offset = block * 0x2000;
-		if (offset >= romSize) {
-			offset &= romSize - 1;
+		unsigned offset = block * 0x2000;
+		if (offset >= rom.getSize()) {
+			offset &= rom.getSize() - 1;
 		}
-		return rom + offset;
+		return &rom[offset];
 	}
 }
 
-byte* PanasonicMemory::getRamBlock(int block)
+byte* PanasonicMemory::getRamBlock(unsigned block)
 {
 	assert(ram);
-	int offset = block * 0x2000;
+	unsigned offset = block * 0x2000;
 	if (offset >= ramSize) {
 		offset &= ramSize - 1;
 	}

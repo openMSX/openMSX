@@ -1,5 +1,8 @@
 $Id$
 
+2004-06-27 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Get rid of ordering requirement in turbor hardwareconfig.xml
+
 2004-06-26 Maarten ter Huurne <maarten@treewalker.org>
 	* Replaced EmuTimeFreq by Clock and DynamicEmuTime by DynamicClock:
 	  - Fixes accuracy bug where fractions of ticks were discarded,

@@ -21,23 +21,14 @@
   </RenShaTurbo>
 
   <MapperType>TurboR</MapperType>
+
+  <PanasonicRom>
+    <rom>
+      <filename>roms/fs-a1gt_firmware.rom</filename>
+    </rom>
+  </PanasonicRom>
   
   <devices>
-
-    <!-- this must come before other internal roms -->
-    <ROM id="Firmware">
-      <slotted> <ps>3</ps> <ss>3</ss> <page>0</page> </slotted>
-      <slotted> <ps>3</ps> <ss>3</ss> <page>1</page> </slotted>
-      <slotted> <ps>3</ps> <ss>3</ss> <page>2</page> </slotted>
-      <slotted> <ps>3</ps> <ss>3</ss> <page>3</page> </slotted>
-      <rom>
-        <filename>roms/fs-a1gt_firmware.rom</filename>
-        <mappertype>PANASONIC</mappertype>
-      </rom>
-      <sramsize>32</sramsize>
-      <sram-mirrored>false</sram-mirrored>
-      <sramname>fs-a1gt.sram</sramname>
-    </ROM>
 
     <ROM id="MSX BIOS with BASIC ROM">
       <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
@@ -103,6 +94,22 @@
       <fdc_type>TC8566AF</fdc_type>
       <drives>1</drives>
     </FDC>
+    
+    <ROM id="Firmware">
+      <slotted> <ps>3</ps> <ss>3</ss> <page>0</page> </slotted>
+      <slotted> <ps>3</ps> <ss>3</ss> <page>1</page> </slotted>
+      <slotted> <ps>3</ps> <ss>3</ss> <page>2</page> </slotted>
+      <slotted> <ps>3</ps> <ss>3</ss> <page>3</page> </slotted>
+      <rom>
+        <firstblock>0</firstblock>
+        <lastblock>511</lastblock>
+        <mappertype>PANASONIC</mappertype>
+      </rom>
+      <sramsize>32</sramsize>
+      <sram-mirrored>false</sram-mirrored>
+      <sramname>fs-a1gt.sram</sramname>
+    </ROM>
+
 
     <Kanji id="Kanji ROM">
       <io base="0xD8" num="4"/>

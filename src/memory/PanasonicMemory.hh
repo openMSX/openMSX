@@ -4,11 +4,11 @@
 #define __PANASONICMEMORY_HH__
 
 #include "openmsx.hh"
+#include "Rom.hh"
 
 namespace openmsx {
 
 class MSXCPU;
-class Rom;
 class Ram;
 
 class PanasonicMemory
@@ -16,20 +16,18 @@ class PanasonicMemory
 public:
 	static PanasonicMemory& instance();
 
-	void registerRom(const Rom& rom);
 	void registerRam(Ram& ram);
-	const byte* getRomBlock(int block);
-	byte* getRamBlock(int block);
+	const byte* getRomBlock(unsigned block);
+	byte* getRamBlock(unsigned block);
 	void setDRAM(bool dram);
 
 private:
 	PanasonicMemory();
 	~PanasonicMemory();
 
-	const byte* rom;
-	int romSize;
+	Rom rom;
 	byte* ram;
-	int ramSize;
+	unsigned ramSize;
 	bool dram;
 
 	MSXCPU& msxcpu;

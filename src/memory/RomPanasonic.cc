@@ -16,8 +16,6 @@ const int RAM_BASE  = 0x180;
 RomPanasonic::RomPanasonic(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom_)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom_)
 {
-	PanasonicMemory::instance().registerRom(*rom);
-	
 	int sramSize = config.getChildDataAsInt("sramsize", 0);
 	if (sramSize) {
 		sram.reset(new SRAM(getName() + " SRAM", sramSize * 1024, config));
