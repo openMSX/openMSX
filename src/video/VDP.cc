@@ -150,6 +150,7 @@ void VDP::resetInit(const EmuTime &time)
 	vramPointer = 0;
 	readAhead = 0;
 	dataLatch = 0;
+	cpuExtendedVram = false;
 	registerDataStored = false;
 	paletteDataStored = false;
 	blinkState = false;
@@ -461,12 +462,13 @@ void VDP::writeIO(byte port, byte value, const EmuTime &time)
 	case 0: { // VRAM data write
 		int addr = ((controlRegs[14] << 14) | vramPointer) & vramMask;
 		//fprintf(stderr, "VRAM[%05X]=%02X\n", addr, value);
-		// TODO: Check MXC bit (R#45, bit 6) for extension RAM access.
-		//       This bit is kept by the command engine.
+		// TODO: Is extended VRAM planar?
+		//       I don't think so, because it is limited to 64K.
 		if (displayMode.isPlanar()) {
 			addr = ((addr << 16) | (addr >> 1)) & 0x1FFFF;
 		}
-		vram->cpuWrite(addr, value, time);
+		// TODO: Implement extended VRAM.
+		if (!cpuExtendedVram) vram->cpuWrite(addr, value, time);
 		vramPointer = (vramPointer + 1) & 0x3FFF;
 		if (vramPointer == 0 && displayMode.isV9938Mode()) {
 			// In MSX2 video modes, pointer range is 128K.
@@ -531,17 +533,20 @@ byte VDP::vramRead(const EmuTime &time)
 {
 	byte ret = readAhead;
 	int addr = (controlRegs[14] << 14) | vramPointer;
+	// TODO: Is extended VRAM planar?
+	//       I don't think so, because it is limited to 64K.
 	if (displayMode.isPlanar()) {
 		addr = ((addr << 16) | (addr >> 1)) & 0x1FFFF;
 	}
 	readAhead = vram->cpuRead(addr, time);
 	vramPointer = (vramPointer + 1) & 0x3FFF;
 	if (vramPointer == 0 && displayMode.isV9938Mode()) {
-		// In MSX2 video mode, pointer range is 128K.
+		// In MSX2 video modes , pointer range is 128K.
 		controlRegs[14] = (controlRegs[14] + 1) & 0x07;
 	}
 	registerDataStored = false;
-	return ret;
+	// TODO: Implement extended VRAM.
+	return cpuExtendedVram ? 0xFF : ret;
 }
 
 byte VDP::readIO(byte port, const EmuTime &time)
@@ -638,13 +643,12 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 {
 	//PRT_DEBUG("VDP[" << (int)reg << "] = " << std::hex << (int)val << std::dec);
 
-	if (reg>=47) {
-		// ignore non-existing registers
-		return;
-	}
-	if (reg>=32) {
+	if (reg >= 32) {
+		// MXC belongs to CPU interface;
+		// other bits in this register belong to command engine.
+		if (reg == 45) cpuExtendedVram = val & 0x40;
 		// Pass command register writes to command engine.
-		cmdEngine->setCmdReg(reg - 32, val, time);
+		if (reg < 47) cmdEngine->setCmdReg(reg - 32, val, time);
 		return;
 	}
 

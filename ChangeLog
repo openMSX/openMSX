@@ -1,5 +1,8 @@
 $Id$
 
+2003-05-24 Maarten ter Huurne <maarten@treewalker.org>
+	* I/O to extended VRAM now goes to limbo, instead of main VRAM.
+
 2003-05-24 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* commands can now be on multiple lines in the console.
 

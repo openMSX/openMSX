@@ -716,6 +716,11 @@ private:
 	  */
 	byte readAhead;
 
+	/** Does CPU interface access main VRAM (false) or extended VRAM (true)?
+	  * This is determined by MXC (R#45, bit 6).
+	  */
+	bool cpuExtendedVram;
+
 	/** Current dispay mode.
 	  */
 	DisplayMode displayMode;
