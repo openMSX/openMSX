@@ -4,6 +4,9 @@ $Id$
 	* Split CliComm in CliComm and CliServer:
 	   - fixed assert on startup (CliComm must be instantiated in main
 	     thread)
+	* Added cheat.tcl:
+	   written by Patrick van Arkel <sf@vampier.net>
+	   see share/scripts/cheat.tcl for a short explanation
 
 2005-03-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented step_in, step_over and run_to as TCL procs
