@@ -5,7 +5,7 @@ dnl Process this file with autoconf to produce a configure script.
 AC_INIT(src/main.cc)
 
 ISODATE=`date +%Y-%m-%d`
-OPENMSX_VERSION=0.2.1
+OPENMSX_VERSION=0.3.0[CVS]
 
 dnl Change default prefix.
 AC_PREFIX_DEFAULT(/opt/openMSX)
