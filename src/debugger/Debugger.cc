@@ -243,17 +243,19 @@ void Debugger::DebugCmd::writeBlock(const vector<CommandArgument>& tokens,
 string Debugger::DebugCmd::help(const vector<string>& /*tokens*/) const
 {
 	static const string helpText =
-		"debug list                       returns a list of all debuggables\n"
-		"debug desc <name>                returns a description of this debuggable\n"
-		"debug size <name>                returns the size of this debuggable\n"
-		"debug read <name> <addr>         read a byte from a debuggable\n"
-		"debug write <name> <addr> <val>  write a byte to a debuggable\n" 
-		"debug set_bp <addr>              insert a new breakpoint\n"
-		"debug remove_bp <addr>           remove a certain breapoint\n"
-		"debug list_bp                    list the active breakpoints\n"
-		"debug cont                       continue execution aftre break\n"
-		"debug step                       execute one instruction\n"
-		"debug break                      break CPU at current position\n";
+		"debug list                                returns a list of all debuggables\n"
+		"debug desc <name>                         returns a description of this debuggable\n"
+		"debug size <name>                         returns the size of this debuggable\n"
+		"debug read <name> <addr>                  read a byte from a debuggable\n"
+		"debug write <name> <addr> <val>           write a byte to a debuggable\n" 
+		"debug read_block <name> <addr> <size>     read a whole block at once\n"
+		"debug write_block <name> <addr> <values>  write a whole block at once\n" 
+		"debug set_bp <addr>                       insert a new breakpoint\n"
+		"debug remove_bp <addr>                    remove a certain breapoint\n"
+		"debug list_bp                             list the active breakpoints\n"
+		"debug cont                                continue execution aftre break\n"
+		"debug step                                execute one instruction\n"
+		"debug break                               break CPU at current position\n";
 	return helpText;
 }
 
