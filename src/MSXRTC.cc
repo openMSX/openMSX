@@ -14,6 +14,7 @@ MSXRTC::MSXRTC(Config* config, const EmuTime& time)
 	bool emuTimeBased = deviceConfig->getParameter("mode") != "RealTime";
 	
 	rp5c01 = new RP5C01(emuTimeBased, &sram[0], time);
+	registerLatch = 0; // Note: not verified on real hardware.
 }
 
 MSXRTC::~MSXRTC()
