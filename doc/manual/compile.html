@@ -6,7 +6,7 @@
 <head>
 <link title="Purple" rel="stylesheet" href="manual-purple.css" type="text/css" />
 <link title="Minty" rel="alternate stylesheet" href="manual-minty.css" type="text/css" />
-<link title="Plain" rel="alternate stylesheet" href="manual-plain.css" type="text/css" />
+<link title="Plain" rel="alternate stylesheet" href="manual.css" type="text/css" />
 <title>openMSX Compilation Guide</title>
 </head>
 
@@ -389,33 +389,25 @@ Development packages are typically named
 </p>
 
 <p>
-First of all, you need a lot of SDL packages:
+First of all, you need some SDL packages,
 the run time ones and also the developer packages.
-You need the SDL_image, SDL_mixer, SDL_net (for future usage)
-and the general SDL libs.
+You need the general SDL libs and SDL_image.
 The exact names of the package are different for each distribution.
 On a Debian testing system, they are called:
 </p>
 
 <dl>
 
+<dt>libsdl1.2debian and libsdl1.2-dev</dt>
+<dd>Simple DirectMedia Layer.</dd>
+
 <dt>libsdl-image1.2 and libsdl-image1.2-dev</dt>
 <dd>Image loading library for SDL.</dd>
 
-<dt>libsdl-mixer1.2 and libsdl-mixer1.2-dev</dt>
-<dd>Mixer library for SDL.</dd>
-
+<!-- maybe in the future
 <dt>libsdl-net1.2 and libsdl-net1.2-dev</dt>
 <dd>Network library for SDL.</dd>
-
-<dt>libsdl1.2debian</dt>
-<dd>Simple DirectMedia Layer.</dd>
-
-<dt>libsdl1.2debian-all</dt>
-<dd>Simple DirectMedia Layer (with all available options).</dd>
-
-<dt>libsdl1.2-dev</dt>
-<dd>Simple DirectMedia Layer development files.</dd>
+-->
 
 </dl>
 
