@@ -273,14 +273,15 @@ image may be patched though, I'm not sure if it works)
 fmpac.zip
 
 Now that you have all ROMs, you can place them into the
-share/machines/Philips_NMS_8250/ directory for now. You noticed I let you
+share/machines/Philips_NMS_8250/roms directory for now. You noticed I let you
 rename the ROMs. This is because one of the configuration files (which configs
 openMSX to emulate a Philips NMS 8250), included in the openMSX distribution,
 assumes those names for the ROM files. In other words: we are going to emulate
 a Philips NMS 8250.
 
-You can also get the ROMs from your real MSX of course. I'm not going to explain
-how to do that in this HOWTO though.
+You can also get the ROMs from your real MSX of course. I'm not going to
+explain how to do that in this HOWTO though. It will at least guarantee you
+that you have exactly the right ROMs.
 
 Later, you may want to emulate the real 8250 (i.e., using the real ROMs of the
 8250) or another specific MSX. openMSX provides a lot premade configuration
@@ -444,7 +445,7 @@ drwx------    3 manuel   manuel       4096 Mar 25 20:52 scc+/
 drwx------    2 manuel   manuel       4096 Mar 29 13:37 roms/
 
 /home/manuel/.openMSX/share/extensions/fs-ca1/roms:
--r--------    1 manuel   manuel     131072 Mar 29 13:17 FS-CA1.ROM
+-r--------    1 manuel   manuel     131072 Mar 29 13:17 fs-ca1.rom
 
 /home/manuel/.openMSX/share/extensions/ide:
 -rw-------    1 manuel   manuel        668 Dec 18 21:21 hardwareconfig.xml
@@ -453,10 +454,6 @@ drwx------    2 manuel   manuel       4096 Mar 29 13:16 roms/
 
 /home/manuel/.openMSX/share/extensions/ide/roms:
 -rw-------    1 manuel   manuel     131072 Nov  3 01:35 IDE210.ROM
-
-/home/manuel/.openMSX/share/extensions/msxdos2:
--rw-------    1 manuel   manuel        477 Feb 23 15:45 hardwareconfig.xml
--rw-------    1 manuel   manuel      65536 Oct 14 22:00 msxdos22.rom
 
 The directory persistent is automatically created when you close openMSX. There,
 persistent states of your MSX machines will be saved: the Real Time Clock
@@ -570,7 +567,7 @@ If you have setup an FM PAC hardwareconfig.xml file in
 FM PAC. But, as I just said, you need to have a hardware description in that
 subdirectory of share/extensions/, see chapter 5. Fortunately, openMSX comes
 with a predefined FM-PAC extension. You only need to add the directory 'roms' in
-share/extensions/fmpac and put the FMPAC.ROM there. If you look at that
+share/extensions/fmpac and put the fmpac.rom there. If you look at that
 share/extensions directory, you will find more extensions. E.g. using `-ext
 mbstereo' gives you the Moonblaster stereo effect: FM PAC on one channel and MSX
 Audio on the other. Try them out, if you like.
@@ -601,11 +598,13 @@ some place in your mymsx/hardwareconfig.xml file (between the <msxconfig> and
   <device id="FM PAC">
     <type>FM-PAC</type>
     <slotted> <ps>2</ps> <ss>0</ss> <page>1</page> </slotted>
-    <parameter name="filename">fmpac.rom</parameter>
+    <parameter name="filename">roms/fmpac.rom</parameter>
     <parameter name="volume">9000</parameter>
     <parameter name="mode">left</parameter>
     <parameter name="sramname">fmpac.pac</parameter>
   </device>
+
+Don't forget to add the fmpac.rom file to the roms direcory of your machine.
 
 You can make some settings, too. The number in the <ps> tag indicates the
 primary slot of the MSX you're going to emulate. In this case the second
