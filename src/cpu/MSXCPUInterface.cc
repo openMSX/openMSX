@@ -7,6 +7,8 @@
 #include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
 
+#include <stdio.h>
+
 
 MSXCPUInterface::MSXCPUInterface(MSXConfig::Config *config)
 {
