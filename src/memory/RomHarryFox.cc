@@ -4,8 +4,8 @@
 #include "CPU.hh"
 
 
-RomHarryFox::RomHarryFox(Device* config, const EmuTime &time)
-	: MSXDevice(config, time), Rom16kBBlocks(config, time)
+RomHarryFox::RomHarryFox(Device* config, const EmuTime &time, Rom *rom)
+	: MSXDevice(config, time), Rom16kBBlocks(config, time, rom)
 {
 	reset(time);
 }

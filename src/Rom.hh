@@ -4,6 +4,7 @@
 #define __MSXROMDEVICE_HH__
 
 #include <list>
+#include "RomInfo.hh"
 
 class Config;
 class MSXRomPatchInterface;
@@ -32,6 +33,9 @@ class Rom
 		const File* getFile() const {
 			return file;
 		}
+		RomInfo getInfo() const {
+			return *info;
+		}
 
 	private:
 		void read(Device *config, 
@@ -41,6 +45,7 @@ class Rom
 		unsigned int size;
 		File* file;
 		std::list<MSXRomPatchInterface*> romPatchInterfaces;
+		RomInfo *info;
 };
 
 #endif

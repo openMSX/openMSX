@@ -9,7 +9,7 @@
 class RomSynthesizer : public Rom16kBBlocks
 {
 	public:
-		RomSynthesizer(Device* config, const EmuTime &time);
+		RomSynthesizer(Device* config, const EmuTime &time, Rom *rom);
 		virtual ~RomSynthesizer();
 
 		virtual void reset(const EmuTime &time);

@@ -5,6 +5,7 @@
 // this type is used by Konami cartridges that do have an SCC and some others
 // examples of cartridges: Nemesis 2, Nemesis 3, King's Valley 2, Space Manbow
 // Solid Snake, Quarth, Ashguine 1, Animal, Arkanoid 2, ...
+// Those last 3 were probably modified ROM images, they should be ASCII8
 //
 // The address to change banks:
 //  bank 1: 0x5000 - 0x57ff (0x5000 used)
@@ -19,8 +20,8 @@
 #include "CPU.hh"
 
 
-RomKonami5::RomKonami5(Device* config, const EmuTime &time)
-	: MSXDevice(config, time), Rom8kBBlocks(config, time)
+RomKonami5::RomKonami5(Device* config, const EmuTime &time, Rom *rom)
+	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
 	short volume = (short)config->getParameterAsInt("volume");
 	scc = new SCC(volume, time);

@@ -11,10 +11,10 @@ const int SRAM_BASE = 0x80;
 const int RAM_BASE  = 0x180;
 
 
-RomPanasonic::RomPanasonic(Device* config, const EmuTime &time)
-	: MSXDevice(config, time), Rom8kBBlocks(config, time)
+RomPanasonic::RomPanasonic(Device* config, const EmuTime &time, Rom *rom)
+	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
-	PanasonicMemory::instance()->registerRom(rom.getBlock(), rom.getSize());
+	PanasonicMemory::instance()->registerRom(rom->getBlock(), rom->getSize());
 	
 	int sramSize;
 	if (config->hasParameter("sramsize")) {

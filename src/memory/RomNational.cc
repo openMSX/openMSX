@@ -5,8 +5,8 @@
 #include "CPU.hh"
 
 
-RomNational::RomNational(Device* config, const EmuTime &time)
-	: MSXDevice(config, time), Rom16kBBlocks(config, time),
+RomNational::RomNational(Device* config, const EmuTime &time, Rom *rom)
+	: MSXDevice(config, time), Rom16kBBlocks(config, time, rom),
 	  sram(0x1000, config)
 {
 	reset(time);

@@ -14,8 +14,8 @@
 #include "DACSound8U.hh"
 
 
-RomMajutsushi::RomMajutsushi(Device* config, const EmuTime &time)
-	: MSXDevice(config, time), Rom8kBBlocks(config, time)
+RomMajutsushi::RomMajutsushi(Device* config, const EmuTime &time, Rom *rom)
+	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
 	short volume = (short)config->getParameterAsInt("volume");
 	dac = new DACSound8U(volume, time);

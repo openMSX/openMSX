@@ -9,7 +9,7 @@
 class RomCrossBlaim : public Rom16kBBlocks
 {
 	public:
-		RomCrossBlaim(Device* config, const EmuTime &time);
+		RomCrossBlaim(Device* config, const EmuTime &time, Rom *rom);
 		virtual ~RomCrossBlaim();
 		
 		virtual void reset(const EmuTime &time);

@@ -10,7 +10,7 @@
 class RomHydlide2 : public RomAscii16kB
 {
 	public:
-		RomHydlide2(Device* config, const EmuTime &time);
+		RomHydlide2(Device* config, const EmuTime &time, Rom *rom);
 		virtual ~RomHydlide2();
 		
 		virtual void reset(const EmuTime &time);

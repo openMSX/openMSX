@@ -14,8 +14,8 @@
 #include "RomAscii8kB.hh"
 
 
-RomAscii8kB::RomAscii8kB(Device* config, const EmuTime &time)
-	: MSXDevice(config, time), Rom8kBBlocks(config, time)
+RomAscii8kB::RomAscii8kB(Device* config, const EmuTime &time, Rom *rom)
+	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
 	reset(time);
 }

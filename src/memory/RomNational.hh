@@ -10,7 +10,7 @@
 class RomNational : public Rom16kBBlocks
 {
 	public:
-		RomNational(Device* config, const EmuTime &time);
+		RomNational(Device* config, const EmuTime &time, Rom *rom);
 		virtual ~RomNational();
 		
 		virtual void reset(const EmuTime &time);

@@ -9,7 +9,7 @@
 class Rom16kBBlocks : public MSXRom
 {
 	public:
-		Rom16kBBlocks(Device* config, const EmuTime &time);
+		Rom16kBBlocks(Device* config, const EmuTime &time, Rom *rom);
 		virtual ~Rom16kBBlocks();
 
 		virtual byte readMem(word address, const EmuTime &time);

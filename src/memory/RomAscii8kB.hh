@@ -9,7 +9,7 @@
 class RomAscii8kB : public Rom8kBBlocks
 {
 	public:
-		RomAscii8kB(Device* config, const EmuTime &time);
+		RomAscii8kB(Device* config, const EmuTime &time, Rom *rom);
 		virtual ~RomAscii8kB();
 		
 		virtual void reset(const EmuTime &time);

@@ -43,8 +43,8 @@
 #include "MSXConfig.hh"
 
 
-RomGameMaster2::RomGameMaster2(Device* config, const EmuTime &time)
-	: MSXDevice(config, time), Rom4kBBlocks(config, time),
+RomGameMaster2::RomGameMaster2(Device* config, const EmuTime &time, Rom *rom)
+	: MSXDevice(config, time), Rom4kBBlocks(config, time, rom),
 	  sram(0x2000, config)
 {
 	reset(time);

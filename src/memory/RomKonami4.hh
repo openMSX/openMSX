@@ -9,7 +9,7 @@
 class RomKonami4 : public Rom8kBBlocks
 {
 	public:
-		RomKonami4(Device* config, const EmuTime &time);
+		RomKonami4(Device* config, const EmuTime &time, Rom *rom);
 		virtual ~RomKonami4();
 		
 		virtual void reset(const EmuTime &time);

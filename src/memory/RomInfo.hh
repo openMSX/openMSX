@@ -7,7 +7,8 @@
 #include <string>
 #include "EmuTime.hh"
 #include "MSXConfig.hh"
-#include "Rom.hh"
+
+class Rom;
 
 class RomInfo
 {
@@ -19,16 +20,16 @@ class RomInfo
 		const std::string &getCompany() { return company; }
 		const std::string &getRemark() { return remark; }
 		//const std::string &getRomType() { return romType; }
-		const MapperType &getMapperType() { return mapperType; }
+		const MapperType &getMapperType() const { return mapperType; }
 
-		static MapperType retrieveMapperType(Device *config,
-		                              const EmuTime &time);
+		static RomInfo *fetchRomInfo(const Rom &rom);
+		static MapperType nameToMapperType(const std::string &name);
+		void print();
 
 	private:
 
 		static MapperType guessMapperType(const byte* data, int size);
-		static MapperType nameToMapperType(const std::string &name);
-		static RomInfo fetchRomInfo(const Rom &rom);
+		static RomInfo* searchDataBaseOrGuess(const Rom &rom);
 		
 		std::string id;
 		std::string year;

@@ -5,8 +5,8 @@
 #include "CPU.hh"
 
 
-Rom4kBBlocks::Rom4kBBlocks(Device* config, const EmuTime &time)
-	: MSXDevice(config, time), MSXRom(config, time)
+Rom4kBBlocks::Rom4kBBlocks(Device* config, const EmuTime &time, Rom *rom)
+	: MSXDevice(config, time), MSXRom(config, time, rom)
 {
 	for (int i = 0; i < 16; i++) {
 		setRom(i, 0);
@@ -35,10 +35,10 @@ void Rom4kBBlocks::setBank(byte region, byte* adr)
 
 void Rom4kBBlocks::setRom(byte region, int block)
 {
-	int nrBlocks = rom.getSize() >> 12;
+	int nrBlocks = rom->getSize() >> 12;
 	if (nrBlocks != 0) {
 		block = (block < nrBlocks) ? block : block & (nrBlocks - 1);
-		setBank(region, const_cast<byte*>(rom.getBlock(block << 12)));
+		setBank(region, const_cast<byte*>(rom->getBlock(block << 12)));
 	} else {
 		setBank(region, unmappedRead);
 	}

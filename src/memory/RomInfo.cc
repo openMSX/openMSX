@@ -2,6 +2,7 @@
 
 #include <map>
 #include "RomInfo.hh"
+#include "Rom.hh"
 #include "md5.hh"
 #include "libxmlx/xmlx.hh"
 #include "FileContext.hh"
@@ -184,7 +185,7 @@ MapperType RomInfo::guessMapperType(const byte* data, int size)
 	}
 }
 
-RomInfo RomInfo::fetchRomInfo(const Rom &rom)
+RomInfo* RomInfo::searchDataBaseOrGuess(const Rom &rom)
 {
 	static std::map<std::string, RomInfo*> romDB;
 	static bool init = false;
@@ -221,41 +222,29 @@ RomInfo RomInfo::fetchRomInfo(const Rom &rom)
 	std::string digest(md5.hex_digest());
 	
 	if (romDB.find(digest) != romDB.end()) {
-		std::string year(romDB[digest]->getYear());
-		if (year.length()==0) year="(info not available)";
-		std::string company(romDB[digest]->getCompany());
-		if (company.length()==0) company="(info not available)";
-		PRT_INFO("Found this ROM in the database:\n"
-				"  Title (id):  " << romDB[digest]->getId() << "\n"
-				"  Year:        " << year << "\n"
-				"  Company:     " << company << "\n"
-				"  Remark:      " << romDB[digest]->getRemark() << "\n"
-				"  Mapper type: " << romDB[digest]->getMapperType());
-		return (*romDB[digest]);
+		return new RomInfo(*romDB[digest]);
 	} else {
 		// Rom is not in database, try to guess
-		return RomInfo(rom.getFile()->getURL(),"","","Guessed mappertype",guessMapperType(rom.getBlock(), rom.getSize()));
+		return new RomInfo("","","","Guessed mappertype",guessMapperType(rom.getBlock(), rom.getSize()));
 	}
 }
 
-MapperType RomInfo::retrieveMapperType(Device *config, const EmuTime &time)
+RomInfo* RomInfo::fetchRomInfo(const Rom &rom)
 {
-	std::string type;
-	if (config->hasParameter("mappertype")) {
-		type = config->getParameter("mappertype");
-	} else {
-		// no type specified, perform auto detection
-		type = "auto";
-	}
-	MapperType mapperType;
-	if (type == "auto") {
-		Rom rom(config, time);
-		// automatically detect type, first look in database
-		mapperType=fetchRomInfo(rom).getMapperType();
-	} else {
-		// explicitly specified type
-		mapperType = nameToMapperType(type);
-	}
-	PRT_DEBUG("MapperType: " << mapperType);
-	return mapperType;
+	return searchDataBaseOrGuess(rom);
 }
+
+void RomInfo::print()
+{
+	std::string year(this->getYear());
+	if (year.length()==0) year="(info not available)";
+	std::string company(this->getCompany());
+	if (company.length()==0) company="(info not available)";
+	PRT_INFO("Found this ROM in the database:\n"
+			"  Title (id):  " << this->getId() << "\n"
+			"  Year:        " << year << "\n"
+			"  Company:     " << company);
+	if (this->getRemark().length()!=0)
+	PRT_INFO("\n" << "  Remark:      " << this->getRemark());
+}
+

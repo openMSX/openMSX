@@ -19,8 +19,8 @@
 #include "CPU.hh"
 
 
-RomHydlide2::RomHydlide2(Device* config, const EmuTime &time)
-	: MSXDevice(config, time), RomAscii16kB(config, time),
+RomHydlide2::RomHydlide2(Device* config, const EmuTime &time, Rom *rom)
+	: MSXDevice(config, time), RomAscii16kB(config, time, rom),
 	  sram(0x0800, config)
 {
 	reset(time);

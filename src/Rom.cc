@@ -3,6 +3,7 @@
 #include <string>
 #include "MSXConfig.hh"
 #include "Rom.hh"
+#include "RomInfo.hh"
 #include "MSXDiskRomPatch.hh"
 #include "MSXTapePatch.hh"
 #include "MSXCPUInterface.hh"
@@ -19,12 +20,14 @@ Rom::Rom(Device* config, const EmuTime &time)
 		size = 0;
 		file = NULL;
 	}
+	info = RomInfo::fetchRomInfo(*this);
 }
 
 Rom::Rom(Device* config, const std::string &filename,
                            const EmuTime &time)
 {
 	read(config, filename, time);	// TODO config
+	info = RomInfo::fetchRomInfo(*this);
 }
 
 void Rom::read(Device* config,
@@ -113,4 +116,5 @@ Rom::~Rom()
 		file->munmap();
 		delete file;
 	}
+	if (info) delete info;
 }

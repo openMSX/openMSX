@@ -4,10 +4,10 @@
 #include "MSXConfig.hh"
 
 
-RomPlain::RomPlain(Device* config, const EmuTime &time)
-	: MSXDevice(config, time), Rom16kBBlocks(config, time)
+RomPlain::RomPlain(Device* config, const EmuTime &time, Rom *rom)
+	: MSXDevice(config, time), Rom16kBBlocks(config, time, rom)
 {
-	switch (rom.getSize()) {
+	switch (rom->getSize()) {
 		case 0x4000:	// 16kB
 			for (int i = 0; i < 4; i++) {
 				setRom(i, 0);
@@ -57,10 +57,10 @@ RomPlain::~RomPlain()
 
 void RomPlain::guessHelper(word offset, int* pages)
 {
-	if ((rom.read(offset++) == 'A') && (rom.read(offset++) =='B')) {
+	if ((rom->read(offset++) == 'A') && (rom->read(offset++) =='B')) {
 		for (int i = 0; i < 4; i++) {
-			word addr = rom.read(offset++) +
-			            rom.read(offset++) * 256;
+			word addr = rom->read(offset++) +
+			            rom->read(offset++) * 256;
 			if (addr) {
 				int page = (addr >> 14) - (offset >> 14);
 				if ((0 <= page) && (page <= 2)) {
@@ -76,10 +76,10 @@ word RomPlain::guessLocation()
 	int pages[3] = { 0, 0, 0 };
 
 	// count number of possible routine pointers
-	if (rom.getSize() >= 0x0010) {
+	if (rom->getSize() >= 0x0010) {
 		guessHelper(0x0000, pages);
 	}
-	if (rom.getSize() >= 0x4010) {
+	if (rom->getSize() >= 0x4010) {
 		guessHelper(0x4000, pages);
 	}
 	PRT_DEBUG("MSXRom: location " << pages[0] << 

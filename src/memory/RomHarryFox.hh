@@ -9,7 +9,7 @@
 class RomHarryFox : public Rom16kBBlocks
 {
 	public:
-		RomHarryFox(Device* config, const EmuTime &time);
+		RomHarryFox(Device* config, const EmuTime &time, Rom *rom);
 		virtual ~RomHarryFox();
 		
 		virtual void reset(const EmuTime &time);

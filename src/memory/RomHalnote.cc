@@ -4,8 +4,8 @@
 #include "CPU.hh"
 
 
-RomHalnote::RomHalnote(Device* config, const EmuTime &time)
-	: MSXDevice(config, time), Rom8kBBlocks(config, time)
+RomHalnote::RomHalnote(Device* config, const EmuTime &time, Rom *rom)
+	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
 	reset(time);
 }

@@ -5,8 +5,8 @@
 #include "CPU.hh"
 
 
-RomMSXAudio::RomMSXAudio(Device* config, const EmuTime &time)
-	: MSXDevice(config, time), MSXRom(config, time)
+RomMSXAudio::RomMSXAudio(Device* config, const EmuTime &time, Rom *rom)
+	: MSXDevice(config, time), MSXRom(config, time, rom)
 {
 	ram = new byte[0x1000];
 	
@@ -29,7 +29,7 @@ byte RomMSXAudio::readMem(word address, const EmuTime &time)
 	if ((bankSelect == 0) && ((address & 0x3FFF) >= 0x3000)) {
 		return ram[(address & 0x3FFF) - 0x3000];
 	} else {
-		return rom.read(0x8000 * bankSelect + (address & 0x7FFF));
+		return rom->read(0x8000 * bankSelect + (address & 0x7FFF));
 	}
 }
 
@@ -38,7 +38,7 @@ const byte* RomMSXAudio::getReadCacheLine(word address) const
 	if ((bankSelect == 0) && ((address & 0x3FFF) >= 0x3000)) {
 		return &ram[(address & 0x3FFF) - 0x3000];
 	} else {
-		return rom.getBlock(0x8000 * bankSelect + (address & 0x7FFF));
+		return rom->getBlock(0x8000 * bankSelect + (address & 0x7FFF));
 	}
 }
 

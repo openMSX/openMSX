@@ -6,8 +6,8 @@
 #include "CPU.hh"
 
 
-RomSynthesizer::RomSynthesizer(Device* config, const EmuTime &time)
-	: MSXDevice(config, time), Rom16kBBlocks(config, time)
+RomSynthesizer::RomSynthesizer(Device* config, const EmuTime &time, Rom *rom)
+	: MSXDevice(config, time), Rom16kBBlocks(config, time, rom)
 {
 	setBank(0, unmappedRead);
 	setRom (1, 0);

@@ -13,8 +13,8 @@
 #include "CPU.hh"
 
 
-RomKonami4::RomKonami4(Device* config, const EmuTime &time)
-	: MSXDevice(config, time), Rom8kBBlocks(config, time)
+RomKonami4::RomKonami4(Device* config, const EmuTime &time, Rom *rom)
+	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
 	reset(time);
 }

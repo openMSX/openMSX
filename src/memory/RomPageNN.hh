@@ -9,7 +9,7 @@
 class RomPageNN : public Rom16kBBlocks
 {
 	public:
-		RomPageNN(Device* config, const EmuTime &time, byte pages);
+		RomPageNN(Device* config, const EmuTime &time, Rom *rom, byte pages);
 		virtual ~RomPageNN();
 };
 

@@ -9,7 +9,7 @@
 class RomPlain : public Rom16kBBlocks
 {
 	public:
-		RomPlain(Device* config, const EmuTime &time);
+		RomPlain(Device* config, const EmuTime &time, Rom *rom);
 		virtual ~RomPlain();
 
 	private:

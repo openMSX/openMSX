@@ -9,7 +9,7 @@
 class RomGeneric16kB : public Rom16kBBlocks
 {
 	public:
-		RomGeneric16kB(Device* config, const EmuTime &time);
+		RomGeneric16kB(Device* config, const EmuTime &time, Rom *rom);
 		virtual ~RomGeneric16kB();
 		
 		virtual void reset(const EmuTime &time);

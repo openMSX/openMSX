@@ -12,8 +12,8 @@
 #include "RomRType.hh"
 
 
-RomRType::RomRType(Device* config, const EmuTime &time)
-	: MSXDevice(config, time), Rom16kBBlocks(config, time)
+RomRType::RomRType(Device* config, const EmuTime &time, Rom *rom)
+	: MSXDevice(config, time), Rom16kBBlocks(config, time, rom)
 {
 	reset(time);
 }

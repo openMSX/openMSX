@@ -9,7 +9,7 @@
 class RomRType : public Rom16kBBlocks
 {
 	public:
-		RomRType(Device* config, const EmuTime &time);
+		RomRType(Device* config, const EmuTime &time, Rom *rom);
 		virtual ~RomRType();
 		
 		virtual void reset(const EmuTime &time);

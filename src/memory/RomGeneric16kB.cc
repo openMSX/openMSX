@@ -3,8 +3,8 @@
 #include "RomGeneric16kB.hh"
 
 
-RomGeneric16kB::RomGeneric16kB(Device* config, const EmuTime &time)
-	: MSXDevice(config, time), Rom16kBBlocks(config, time)
+RomGeneric16kB::RomGeneric16kB(Device* config, const EmuTime &time, Rom *rom)
+	: MSXDevice(config, time), Rom16kBBlocks(config, time, rom)
 {
 	reset(time);
 }

@@ -3,8 +3,8 @@
 #include "RomPageNN.hh"
 
 
-RomPageNN::RomPageNN(Device* config, const EmuTime &time, byte pages)
-	: MSXDevice(config, time), Rom16kBBlocks(config, time)
+RomPageNN::RomPageNN(Device* config, const EmuTime &time, Rom *rom, byte pages)
+	: MSXDevice(config, time), Rom16kBBlocks(config, time, rom)
 {
 	int bank = 0;
 	for (int page = 0; page < 4; page++) {

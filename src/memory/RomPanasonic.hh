@@ -9,7 +9,7 @@
 class RomPanasonic : public Rom8kBBlocks
 {
 	public:
-		RomPanasonic(Device* config, const EmuTime &time);
+		RomPanasonic(Device* config, const EmuTime &time, Rom *rom);
 		virtual ~RomPanasonic();
 		
 		virtual void reset(const EmuTime &time);

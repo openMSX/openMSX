@@ -9,7 +9,7 @@
 class RomMajutsushi : public Rom8kBBlocks
 {
 	public:
-		RomMajutsushi(Device* config, const EmuTime &time);
+		RomMajutsushi(Device* config, const EmuTime &time, Rom *rom);
 		virtual ~RomMajutsushi();
 		
 		virtual void reset(const EmuTime &time);

@@ -17,8 +17,8 @@
 #include "MSXConfig.hh"
 
 
-RomAscii8_8::RomAscii8_8(Device* config, const EmuTime &time)
-	: MSXDevice(config, time), Rom8kBBlocks(config, time),
+RomAscii8_8::RomAscii8_8(Device* config, const EmuTime &time, Rom *rom)
+	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom),
 	  sram(0x2000, config)
 {
 	reset(time);
@@ -46,7 +46,7 @@ void RomAscii8_8::writeMem(word address, byte value, const EmuTime &time)
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		// bank switching
 		byte region = ((address >> 11) & 3) + 2;
-		byte sramEnableBit = rom.getSize() / 8192;
+		byte sramEnableBit = rom->getSize() / 8192;
 		if (value & sramEnableBit) {
 			setBank(region, sram.getBlock());
 			sramEnabled |= (1 << region);

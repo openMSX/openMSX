@@ -9,7 +9,7 @@
 class RomHalnote : public Rom8kBBlocks
 {
 	public:
-		RomHalnote(Device* config, const EmuTime &time);
+		RomHalnote(Device* config, const EmuTime &time, Rom *rom);
 		virtual ~RomHalnote();
 		
 		virtual void reset(const EmuTime &time);

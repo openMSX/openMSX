@@ -10,7 +10,7 @@
 class RomGameMaster2 : public Rom4kBBlocks
 {
 	public:
-		RomGameMaster2(Device* config, const EmuTime &time);
+		RomGameMaster2(Device* config, const EmuTime &time, Rom *rom);
 		virtual ~RomGameMaster2();
 		
 		virtual void reset(const EmuTime &time);

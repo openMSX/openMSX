@@ -9,7 +9,7 @@
 class RomMSXAudio : public MSXRom
 {
 	public:
-		RomMSXAudio(Device* config, const EmuTime &time);
+		RomMSXAudio(Device* config, const EmuTime &time, Rom *rom);
 		virtual ~RomMSXAudio();
 
 		virtual void reset(const EmuTime &time);
