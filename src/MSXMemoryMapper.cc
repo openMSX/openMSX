@@ -52,7 +52,7 @@ word MSXMemoryMapper::getAdr(word address)
 {
 	int pageNum = MSXMapperIO::instance()->getPageNum(address>>14);
 	pageNum %= blocks;
-	int adr = pageNum<<14 + (address&0x3fff);
+	word adr = (pageNum<<14) | (address&0x3fff);
 	return adr;
 }
 
