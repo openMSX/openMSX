@@ -31,12 +31,11 @@ MSXConfig::~MSXConfig()
 	}
 }
 
-bool MSXConfig::loadFile(const string &filename)
+void MSXConfig::loadFile(const string &filename)
 {
 	tree = new XMLTree();
 	if (!tree->read(filename))
-		return false;
-	//cout << tree->write_buffer() << endl;
+		throw MSXConfig::XMLParseException("File I/O Error.");
 
 	XMLNodeList children=tree->root()->children();
 	for (XMLNodeList::iterator i(children.begin()); i != children.end(); i++)
@@ -47,7 +46,6 @@ bool MSXConfig::loadFile(const string &filename)
 			deviceList.push_back(new Device(*i));
 		}
 	}
-	return true;
 }
 
 MSXConfig::Device::~Device()

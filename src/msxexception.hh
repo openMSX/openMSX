@@ -6,10 +6,10 @@
 class MSXException
 {
 public:
-	MSXException(const string &descs="", int errno=0):desc(descs),errno(errnos) {}
+	MSXException(const string &descs="", int errnos=0):desc(descs),errorcode(errnos) {}
 	virtual ~MSXException() {}
 	const string desc;
-	const int    errno;
+	const int    errorcode;
 };
 
 #endif

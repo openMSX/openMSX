@@ -8,6 +8,8 @@
 
 // sample xml msxconfig file is available in msxconfig.xml in this dir
 
+#include "msxexception.hh"
+
 // predefines
 class XMLTree;
 class XMLNode;
@@ -20,7 +22,7 @@ public:
 
 	static MSXConfig *instance();
 
-	bool loadFile(const string &filename);
+	void loadFile(const string &filename);
 	//void saveFile(const string &filename = 0);
 
 	class Device
@@ -41,6 +43,19 @@ public:
 		Device(const Device &foo); // block usage
 		Device &operator=(const Device &foo); // block usage
 		XMLNode *deviceNode;
+	};
+
+public:
+	class Exception: public MSXException
+	{
+	public:
+		Exception(const string &descs="", int errnos=0):MSXException(descs,errnos) {}
+	};
+
+	class XMLParseException: public Exception
+	{
+	public:
+		XMLParseException(const string &descs="", int errnos=0):Exception(descs,errnos) {}
 	};
 
 	list<Device*> deviceList;
