@@ -55,6 +55,7 @@
           <broken_fdc_read>false</broken_fdc_read> 
           <rom>
 	    <sha1>c3efedda7ab947a06d9345f7b8261076fa7ceeef</sha1>
+	    <sha1>1f0d4ee511874a9ccba10141b51da8e07451a141</sha1>
             <filename>roms/nms8250_disk.rom</filename>
           </rom>
           <drives>1</drives>
