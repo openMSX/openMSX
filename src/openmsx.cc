@@ -29,9 +29,7 @@
 #include "MSXRom16KB.hh"
 #include "devicefactory.hh"
 #include "EventDistributor.hh"
-
-//David Heremans
-
+#include "KeyEventInserter.hh"
 
 int eventDistributorStarter(void* parm)
 {
@@ -89,6 +87,9 @@ int main (int argc, char **argv)
 	
 	// Start a new thread for event handling
 	SDL_CreateThread(eventDistributorStarter, 0);
+
+	// test thingy for Joost: [doesn't do harm YET]
+	keyi << "Hello";
 
 	PRT_DEBUG ("starting MSX");
 	motherboard->StartMSX();
