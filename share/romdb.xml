@@ -66,6 +66,10 @@
     <company>Irem</company>
     <remark></remark>
   </rom>
+  <rom id="126-in-1">
+    <romtype>KOREAN126IN1</romtype>
+    <md5>629a08c7b2f5a4b5f24187801dde174c</md5>
+  </rom>
   <rom id="1942">
     <romtype>ASCII8</romtype>
     <md5>284f6df2bc8b829bc99775b52a00c509</md5>
@@ -105,6 +109,10 @@
     <year>1983</year>
     <company>Ascii</company>
     <remark></remark>
+  </rom>
+  <rom id="80-in-1">
+    <romtype>KOREAN80IN1</romtype>
+    <md5>992c279de3b12fb0550d64787eecc09c</md5>
   </rom>
   <rom id="A Life M36 Planet">
     <romtype>ASCII8</romtype>
