@@ -8,6 +8,10 @@ $Id$
 	   - FDC_DSK backend only supports double sided disks
 	* Insert disk from command line works again:
 	   - just a hack, we need a better configuration format for this
+	* MSXFDC still seems to work:
+	  - config file changed slightly, see msxconfigFDC.xml
+	  - David please check my modifications, especially the error
+	    handling code
 
 2002-06-27 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* MSXRom fix:

@@ -132,9 +132,7 @@
     <parameter name="chip">2793</parameter>
     <!-- used by the FDC to instantiate correct back-end-->
     <parameter name="backend">DSK</parameter>
-    <parameter name="drive1" class="disk">A</parameter>
-    <parameter name="drive2" class="disk">B</parameter>
-    <!-- last parameters used to look up config id "diskpatch_diskA" or "diskpatch_diskB"-->
+    <parameter name="drivename1">diska</parameter>
   </device>
 
 <!--
