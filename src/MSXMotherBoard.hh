@@ -8,13 +8,14 @@
 #include "MSXConfig.hh"
 #include "ConsoleSource/Command.hh"
 #include "cpu/MSXCPUInterface.hh"
+#include "Schedulable.hh"
 
 // forward declarations
 class MSXDevice;
 class EmuTime;
 
 
-class MSXMotherBoard : public MSXCPUInterface
+class MSXMotherBoard : public MSXCPUInterface, private Schedulable
 {
 	public:
 		/**
@@ -77,6 +78,7 @@ class MSXMotherBoard : public MSXCPUInterface
 
 	private:
 		MSXMotherBoard(MSXConfig::Config *config);
+		virtual void executeUntilEmuTime(const EmuTime &time, int userData);
 		
 		class ResetCmd : public Command {
 			virtual void execute(const std::vector<std::string> &tokens);

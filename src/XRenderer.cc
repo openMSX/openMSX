@@ -4,6 +4,7 @@
 #include "EmuTime.hh"
 #include "SDLEventInserter.hh"
 #include <X11/keysym.h>
+#include "Scheduler.hh"
 
 #define WIDTH 640
 #define HEIGHT 480
@@ -92,7 +93,7 @@ void XRenderer::EventLoop (void) {
 // Without any good reason, I assume SDL keycodes are the same as X keycodes.
 				ev.key.keysym.sym = convert(XKeycodeToKeysym (X.display, event.xkey.keycode, 0));
 				PRT_DEBUG ("XRenderer: Inserting KeyEvent in SDL queue");
-				new SDLEventInserter (ev, MSXCPU::instance()->getCurrentTime());
+				new SDLEventInserter (ev, Scheduler::ASAP);
 				break;
 			default:
 				PRT_INFO ("Event of type " << event.type << " not handled");

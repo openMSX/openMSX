@@ -4,7 +4,7 @@
 #include "CassetteDevice.hh"
 #include "DummyCassetteDevice.hh"
 #include "PluggingController.hh"
-#include "cpu/MSXCPU.hh"
+#include "MSXCPU.hh"
 #include "CassettePlayer.hh"
 
 

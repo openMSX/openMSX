@@ -3,7 +3,6 @@
 #include "MSXMotherBoard.hh"
 #include "RealTime.hh"
 #include "Leds.hh"
-#include "MSXCPU.hh"
 #include "MSXDevice.hh"
 #include "ConsoleSource/ConsoleManager.hh"
 #include "ConsoleSource/CommandController.hh"
@@ -71,10 +70,15 @@ void MSXMotherBoard::saveStateMSX(std::ofstream &savestream)
 	}
 }
 
+void MSXMotherBoard::executeUntilEmuTime(const EmuTime &time, int userData)
+{
+	resetMSX(time);
+}
+
 
 void MSXMotherBoard::ResetCmd::execute(const std::vector<std::string> &tokens)
 {
-	MSXMotherBoard::instance()->resetMSX(MSXCPU::instance()->getCurrentTime());
+	Scheduler::instance()->setSyncPoint(Scheduler::ASAP, MSXMotherBoard::instance());
 }
 void MSXMotherBoard::ResetCmd::help   (const std::vector<std::string> &tokens)
 {

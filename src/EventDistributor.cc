@@ -6,7 +6,6 @@
 #include "openmsx.hh"
 #include "config.h"
 #include "Scheduler.hh"
-#include "MSXCPU.hh"
 
 
 EventDistributor::EventDistributor()
@@ -64,8 +63,7 @@ void EventDistributor::run()
 			syncMutex.release();
 			if (anySync) {
 				Scheduler::instance()->removeSyncPoint(this);
-				EmuTime zero; // 0
-				Scheduler::instance()->setSyncPoint(zero, this);
+				Scheduler::instance()->setSyncPoint(Scheduler::ASAP, this);
 			}
 		}
 		catch (handled) {}

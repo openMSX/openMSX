@@ -13,6 +13,8 @@
 #include "Schedulable.hh"
 
 
+const EmuTime Scheduler::ASAP;
+
 Scheduler::Scheduler()
 {
 	paused = false;
@@ -44,13 +46,18 @@ Scheduler* Scheduler::instance()
 Scheduler *Scheduler::oneInstance = NULL;
 
 
-void Scheduler::setSyncPoint(const EmuTime &time, Schedulable* device, int userData)
+void Scheduler::setSyncPoint(const EmuTime &timestamp, Schedulable* device, int userData)
 {
+	EmuTime time(timestamp);
+	
 	schedMutex.grab();
 	
 	PRT_DEBUG("Sched: registering " << device->getName() << " for emulation at " << time);
 	PRT_DEBUG("Sched:  CPU is at " << cpu->getCurrentTime());
 
+	if (time == ASAP)
+		time = cpu->getCurrentTime();
+	//assert (time >= cpu->getCurrentTime());
 	if (time < cpu->getTargetTime())
 		cpu->setTargetTime(time);
 	syncPoints.push_back(SynchronizationPoint (time, device, userData));

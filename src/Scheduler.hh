@@ -49,9 +49,10 @@ class Scheduler : private EventListener
 		 * the executeUntilEmuTime() method of "device" gets called.
 		 * SyncPoints are ordered: smaller EmuTime -> scheduled
 		 * earlier.
-		 * The supplied EmuTime may be smaller than the current CPU
-		 * (normally an error). This is usefull if you want to schedule
-		 * something ASAP, just pass a zero EmuTime.
+		 * The supplied EmuTime may not be smaller than the current CPU
+		 * time.
+		 * If you want to schedule something as sson as possible, you
+		 * can pass Scheduler::ASAP as time argument. 
 		 * A device may register several syncPoints.
 		 * Optionally a "userData" parameter can be passed, this
 		 * parameter is not used by the Scheduler but it is passed to
@@ -71,7 +72,7 @@ class Scheduler : private EventListener
 		 * if possible don't remove the syncPoint but ignore it in
 		 * your executeUntilEmuTime() method.
 		 */
-		bool Scheduler::removeSyncPoint(Schedulable* device, int userdata = 0);
+		bool removeSyncPoint(Schedulable* device, int userdata = 0);
 
 		/**
 		 * This starts the schedule loop, should only be used by main
@@ -100,6 +101,9 @@ class Scheduler : private EventListener
 		 */
 		bool isPaused();
 
+
+		static const EmuTime ASAP;
+
 	private:
 		Scheduler();
 		void reschedule();
@@ -113,7 +117,7 @@ class Scheduler : private EventListener
 		  */
 		std::vector<SynchronizationPoint> syncPoints;
 		Mutex schedMutex;
-
+		
 		bool noSound;
 
 		/** The scheduler is considered running unless it is paused

@@ -3,7 +3,7 @@
 #include <cassert>
 #include "ConsoleSource/ConsoleManager.hh"
 #include "ConsoleSource/CommandController.hh"
-#include "cpu/MSXCPU.hh"
+#include "MSXCPU.hh"
 #include "PluggingController.hh"
 #include "Connector.hh"
 #include "Pluggable.hh"

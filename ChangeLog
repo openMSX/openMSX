@@ -1,5 +1,8 @@
 $Id$
 
+2002-06-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Scheduler fixes
+
 2002-06-12 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* ConsoleCommand parser now understands quoted tokens or tokens with
 	  escaped characters. Examples:

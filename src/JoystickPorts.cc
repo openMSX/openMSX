@@ -5,6 +5,7 @@
 #include "JoystickDevice.hh"
 #include "DummyJoystick.hh"
 #include "PluggingController.hh"
+#include "MSXCPU.hh"
 #include "Mouse.hh"
 #include "Joystick.hh"
 #include "JoyNet.hh"
@@ -21,7 +22,7 @@ JoystickPort::JoystickPort(const std::string &nm, const EmuTime &time)
 
 JoystickPort::~JoystickPort()
 {
-	//unplug(time);
+	unplug(MSXCPU::instance()->getCurrentTime());
 	PluggingController::instance()->unregisterConnector(this);
 	delete dummy;
 }

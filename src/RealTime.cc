@@ -128,7 +128,7 @@ float RealTime::getRealDuration(const EmuTime time1, const EmuTime time2)
 void RealTime::resetTiming()
 {
 	realRef = realOrigin = SDL_GetTicks();
-	emuRef  = emuOrigin  = MSXCPU::instance()->getCurrentTime();
+	emuRef  = emuOrigin  = cpu->getCurrentTime();
 	factor  = 1;
 }
 

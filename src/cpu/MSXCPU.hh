@@ -31,15 +31,9 @@ class MSXCPU : public MSXDevice, public Schedulable
 	
 		void reset(const EmuTime &time);
 		
-		// MSXCPU
-		void executeUntilTarget(const EmuTime &time);
-		void setTargetTime(const EmuTime &time);
 		const EmuTime &getCurrentTime();
-		
 		void setActiveCPU(CPUType cpu);
 		
-		const EmuTime &getTargetTime();
-
 		/**
 		 * Get the current CPU registers.
 		 * This method return a non-const alias, this means it can
@@ -78,6 +72,12 @@ class MSXCPU : public MSXDevice, public Schedulable
 		 * Constructor.
 		 */
 		MSXCPU(MSXConfig::Device *config, const EmuTime &time);
+		
+		// only for Scheduler
+		void executeUntilTarget(const EmuTime &time);
+		void setTargetTime(const EmuTime &time);
+		const EmuTime &getTargetTime();
+		friend class Scheduler;
 
 		static MSXCPU *oneInstance;
 		void executeUntilEmuTime(const EmuTime &time, int userData); // prevent use
