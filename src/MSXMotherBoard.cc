@@ -1,7 +1,6 @@
 // $Id$
 
 #include "MSXMotherBoard.hh"
-#include "RealTime.hh"
 #include "Leds.hh"
 #include "MSXDevice.hh"
 #include "CommandController.hh"
@@ -53,8 +52,6 @@ void MSXMotherBoard::run()
 	// initialize
 	MSXCPUInterface::instance()->reset();
 	Leds::instance()->setLed(Leds::POWER_ON);
-	EmuTime zero;
-	RealTime::instance()->reset(zero);
 
 	// run
 	EmuTime time(Scheduler::instance()->scheduleEmulation());
