@@ -5,6 +5,7 @@ $Id$
 	* Fixed "cpudebug" command (I broke it yesterday)
 	* Fixed MSXMatsushita:
 	   this caused FS-4700 build-in word processor hang
+	* Removed ROM files from CVS
 
 2003-01-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Allow muliple commands with the same name:
