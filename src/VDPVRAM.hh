@@ -34,7 +34,7 @@ public:
 	  * Synchronisation with reads by the command engine is skipped.
 	  */
 	inline void cmdWrite(int address, byte value, const EmuTime &time) {
-		if (readWindows[RENDER_NAME].isInside(address)
+		if (true || readWindows[RENDER_NAME].isInside(address)
 		|| readWindows[RENDER_COLOUR].isInside(address)
 		|| readWindows[RENDER_PATTERN].isInside(address)
 		|| readWindows[RENDER_BITMAP].isInside(address)) {
@@ -73,7 +73,7 @@ public:
 	/** Read a byte from VRAM.
 	  */
 	inline byte read(int address, const EmuTime &time) {
-		if (true || writeWindow.isInside(address)) {
+		if (writeWindow.isInside(address)) {
 			cmdEngine->sync(time);
 		}
 		return cmdRead(address);
