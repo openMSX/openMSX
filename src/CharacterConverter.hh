@@ -134,7 +134,11 @@ public:
 		renderMethod = modeToRenderMethod[mode];
 	}
 
+	void setBlendMask(int blendMask);
+
 private:
+	inline Pixel blend(Pixel col1, Pixel col2);
+	
 	typedef void (CharacterConverter::*RenderMethod)
 		(Pixel *pixelPtr, int line);
 
@@ -172,6 +176,8 @@ private:
 	bool anyDirtyPattern, dirtyPattern[1 << 10];
 	bool anyDirtyName, dirtyName[1 << 12];
 	bool dirtyForeground, dirtyBackground;
+
+	int blendMask;
 };
 
 #endif // __CHARACTERCONVERTER_HH__

@@ -21,11 +21,24 @@ BitmapConverter<Pixel, zoom>::BitmapConverter(
 }
 
 template <class Pixel, Renderer::Zoom zoom>
+void BitmapConverter<Pixel, zoom>::setBlendMask(int blendMask)
+{
+	this->blendMask = blendMask;
+}
+
+template <class Pixel, Renderer::Zoom zoom>
 inline Pixel BitmapConverter<Pixel, zoom>::blend(
 	byte colour1, byte colour2)
 {
-	// TODO fix this for non 24-bit display modes
-	return ((palette16[colour1] & 0xfefefe) + (palette16[colour2] & 0xfefefe)) / 2;
+	if (sizeof(Pixel) == 1) {
+		// no blending in palette mode
+		return palette16[colour1];
+	} else {
+		Pixel col1 = palette16[colour1];
+		Pixel col2 = palette16[colour2];
+		col2 = (col2 & ~blendMask) | (col1 & blendMask); 
+		return (col1 + col2) / 2;
+	}
 }
 
 template <class Pixel, Renderer::Zoom zoom>

@@ -213,6 +213,19 @@ template <class Pixel> SDLLoRenderer<Pixel>::SDLLoRenderer<Pixel>(
 	, characterConverter(vdp, palFg, palBg)
 	, bitmapConverter(palFg, PALETTE256)
 {
+	// Calculate blendMask:
+	//      0000BBBBGGGGRRRR 
+	//  --> 0001000100010000
+	const SDL_PixelFormat *format = screen->format;
+	int rBit = (format->Rmask << 1) & ~format->Rmask;
+	int gBit = (format->Gmask << 1) & ~format->Gmask;
+	int bBit = (format->Bmask << 1) & ~format->Bmask;
+	int blendMask = rBit | gBit | bBit;
+
+	characterConverter.setBlendMask(blendMask);
+	bitmapConverter.setBlendMask(blendMask);
+
+
 	console = new SDLConsole(screen);
 
 	this->vdp = vdp;

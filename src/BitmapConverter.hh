@@ -74,6 +74,8 @@ public:
 		}
 	}
 
+	void setBlendMask(int blendMask);
+	
 private:
 	inline Pixel blend(byte colour1, byte colour2);
 
@@ -97,6 +99,8 @@ private:
 
 	const Pixel *palette16;
 	const Pixel *palette256;
+
+	int blendMask;
 };
 
 #endif // __BITMAPCONVERTER_HH__

@@ -1,5 +1,9 @@
 $Id$
 
+2002-09-07 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Correct blending in all non-paletted modes, no blending in
+	  paletted modes
+
 2002-09-02 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Dont't stop when sound device couldn't be opened, just continue
 	  without sound.

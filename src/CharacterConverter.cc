@@ -96,6 +96,26 @@ CharacterConverter<Pixel, zoom>::CharacterConverter(
 	dirtyForeground = dirtyBackground = true;
 }
 
+
+template <class Pixel, Renderer::Zoom zoom>
+void CharacterConverter<Pixel, zoom>::setBlendMask(int blendMask)
+{
+	this->blendMask = blendMask;
+}
+
+template <class Pixel, Renderer::Zoom zoom>
+inline Pixel CharacterConverter<Pixel, zoom>::blend(
+	Pixel col1, Pixel col2)
+{
+	if (sizeof(Pixel) == 1) {
+		// no blending in palette mode
+		return col1;
+	} else {
+		col2 = (col2 & ~blendMask) | (col1 & blendMask);
+		return (col1 + col2) / 2;
+	}
+}
+
 template <class Pixel, Renderer::Zoom zoom>
 void CharacterConverter<Pixel, zoom>::renderText1(
 	Pixel *pixelPtr, int line)
@@ -218,7 +238,7 @@ void CharacterConverter<Pixel, zoom>::renderText2(
 				patternBaseLine | (charcode * 8) );
 			if (zoom == Renderer::ZOOM_256) {
 				// TODO fix this for non 24-bit modes
-				Pixel mix = ((fg & 0xfefefe) + (bg & 0xfefefe)) / 2;
+				Pixel mix = blend(fg, bg);
 				for (int i = 3; i--; ) {
 					*pixelPtr++ = (pattern & 0x80) ? 
 					              ((pattern & 0x40) ? fg : mix) :
