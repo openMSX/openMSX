@@ -7,35 +7,27 @@
 
 namespace openmsx {
 
-Scaler::Scaler() {
+Scaler::Scaler()
+{
 }
 
-template <class Pixel>
-Scaler** Scaler::createScalers(Blender<Pixel> blender) {
-	Scaler** ret = new Scaler*[LAST];
-	ret[SIMPLE] = new SimpleScaler();
-	ret[SAI2X] = new SaI2xScaler<Pixel>(blender);
-	return ret;
-}
-
-// Force template instantiation.
-template Scaler** Scaler::createScalers<byte>(Blender<byte> blender);
-template Scaler** Scaler::createScalers<word>(Blender<word> blender);
-template Scaler** Scaler::createScalers<unsigned int>(Blender<unsigned int> blender);
-
-void Scaler::disposeScalers(Scaler** scalers) {
-	for (int i = 0; i < LAST; i++) {
-		delete scalers[i];
+void Scaler::disposeScalers(vector<Scaler*>& scalers)
+{
+	for (vector<Scaler*>::iterator it = scalers.begin();
+	    it != scalers.end(); ++it) {
+		delete *it;
 	}
-	delete[] scalers;
+	scalers.clear();
 }
 
 // === SimpleScaler ========================================================
 
-SimpleScaler::SimpleScaler() {
+SimpleScaler::SimpleScaler()
+{
 }
 
-inline void SimpleScaler::copyLine(SDL_Surface* surface, int y) {
+inline void SimpleScaler::copyLine(SDL_Surface* surface, int y)
+{
 	// TODO: Cheating (or at least using an undocumented feature) by
 	//       assuming that pixels are already doubled horizontally.
 	memcpy(
@@ -45,11 +37,13 @@ inline void SimpleScaler::copyLine(SDL_Surface* surface, int y) {
 		);
 }
 
-void SimpleScaler::scaleLine256(SDL_Surface* surface, int y) {
+void SimpleScaler::scaleLine256(SDL_Surface* surface, int y)
+{
 	copyLine(surface, y);
 }
 
-void SimpleScaler::scaleLine512(SDL_Surface* surface, int y) {
+void SimpleScaler::scaleLine512(SDL_Surface* surface, int y)
+{
 	copyLine(surface, y);
 }
 
@@ -73,7 +67,8 @@ SaI2xScaler<Pixel>::SaI2xScaler(Blender<Pixel> blender)
 }
 
 template <class Pixel>
-inline static Pixel* linePtr(SDL_Surface* surface, int y) {
+inline static Pixel* linePtr(SDL_Surface* surface, int y)
+{
 	if (y < 0) y = 0;
 	if (y >= surface->h) y = surface->h - 2;
 	return (Pixel*)((byte*)surface->pixels + y * surface->pitch);

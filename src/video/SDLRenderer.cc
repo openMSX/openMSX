@@ -382,9 +382,8 @@ SDLRenderer<Pixel, zoom>::SDLRenderer(
 		Blender<Pixel>::createFromFormat(screen->format) )
 {
 	this->screen = screen;
-	scalers = Scaler::createScalers<Pixel>(
-		Blender<Pixel>::createFromFormat(screen->format)
-		);
+	Scaler::createScalers<Pixel>(
+		Blender<Pixel>::createFromFormat(screen->format), scalers);
 
 	console = new SDLConsole(CommandConsole::instance(), screen);
 	debugger = NULL;

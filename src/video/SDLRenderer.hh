@@ -3,6 +3,7 @@
 #ifndef __SDLRENDERER_HH__
 #define __SDLRENDERER_HH__
 
+#include <vector>
 #include <SDL/SDL.h>
 #include "openmsx.hh"
 #include "PixelRenderer.hh"
@@ -11,6 +12,8 @@
 #include "SpriteConverter.hh"
 #include "DisplayMode.hh"
 #include "Blender.hh"
+
+using std::vector;
 
 namespace openmsx {
 
@@ -167,7 +170,7 @@ private:
 	};
 	LineContent lineContent[HEIGHT];
 
-	Scaler **scalers;
+	vector<Scaler*> scalers;
 
 	/** SDL colours corresponding to each VDP palette entry.
 	  * palFg has entry 0 set to the current background colour,

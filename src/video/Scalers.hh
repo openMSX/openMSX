@@ -3,8 +3,11 @@
 #ifndef __SCALERS_HH__
 #define __SCALERS_HH__
 
+#include <vector>
 #include <SDL/SDL.h>
 #include "Blender.hh"
+
+using std::vector;
 
 namespace openmsx {
 
@@ -21,19 +24,18 @@ public:
 		SIMPLE,
 		/** SaI2xScaler, naieve. */
 		SAI2X,
-		/** Number of elements in enum. */
-		LAST
 	};
 
 	/** Returns an array containing an instance of every Scaler subclass,
 	  * indexed by ScaledID.
 	  */
 	template <class Pixel>
-	static Scaler** createScalers(Blender<Pixel> blender);
+	static void createScalers(Blender<Pixel> blender,
+	                          vector<Scaler*>& scalers);
 
 	/** Disposes of the scalers created by the createScalers method.
 	  */
-	static void disposeScalers(Scaler** scalers);
+	static void disposeScalers(vector<Scaler*>& scalers);
 
 	/** Scales the given line.
 	  * Pixels at even X coordinates are read and written in a 2x2 square
@@ -89,6 +91,14 @@ public:
 protected:
 	Blender<Pixel> blender;
 };
+
+
+template <class Pixel>
+void Scaler::createScalers(Blender<Pixel> blender, vector<Scaler*>& scalers)
+{
+	scalers.push_back(new SimpleScaler());
+	scalers.push_back(new SaI2xScaler<Pixel>(blender));
+}
 
 } // namespace openmsx
 
