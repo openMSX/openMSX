@@ -19,6 +19,9 @@
 
 using std::auto_ptr;
 using std::ostringstream;
+using std::setfill;
+using std::setw;
+using std::uppercase;
 
 namespace openmsx {
 
@@ -375,63 +378,67 @@ string MSXCPUInterface::getSlotMap() const
 	return out.str();
 }
 
-string MSXCPUInterface::getIOMap() const
+static string ioMapHelper(const string& type, int begin, int end,
+                          const MSXDevice* device)
 {
 	ostringstream out;
-	string spec="", prevSpec;
-	string prevDevName="";
-	int prevLines=0;
-	int firstPort = 0;
-	for (int port = 0; port <= 256; ++port) { // 256 is a marker to finish the last range
-		string iostr, devName="";
-		string devNameIn="empty";
-		string devNameOut="empty";		
-		if (port < 256){	
-			devNameIn  = IO_In[port]->getName();
-			devNameOut = IO_Out[port]->getName();
-		}
-		int lines=1;
-		if (devNameIn != "empty" && devNameOut != "empty"){
-			devName=devNameIn;
-			if (devNameIn != devNameOut){
-				iostr="I  ";
-				lines=2;
-			}
-			else iostr="I/O";
-		}
-		else if (devNameIn == "empty" && devNameOut != "empty"){
-			iostr="  O";
-			devName=devNameOut;
-		}
-		else {
-			iostr="I  ";
-			devName=devNameIn;
-		}
-
-		prevSpec = spec;
-		spec = iostr + " " + devName;
-
-		if ((spec != prevSpec) &&  (prevSpec != "")){
-			if (prevDevName != "empty"){
-				for (int i=0; i < prevLines; ++i){
-					if (i>0){ // multiline, first I device was printed, now do O device
-						prevSpec = "  O " + IO_Out[port-1]->getName(); // cheating a little bit
-					}
-					out << "port " << hex << std::setw(2) << std::setfill('0') << std::uppercase;
-					if ((port-1) == firstPort) // a normal 1 port thing
-						out << (port-1) << ":   ";
-					else // a multi port thing
-						out << firstPort << "-" << hex << std::setw(2) << std::setfill('0') << std::uppercase << (port-1) << ":";
-					out <<  " " << prevSpec << "\n";
-				}
-
-			}
-			firstPort=port;				
-		}
-		prevDevName = devName;
-		prevLines = lines;
+	out << "port " << hex << setw(2) << setfill('0') << uppercase << begin;
+	if (begin == end) {
+		out << ":    ";
+	} else {
+		out << "-" << setw(2) << setfill('0') << uppercase << end << ": ";
 	}
+	out << type << " " << device->getName() << "\n";
 	return out.str();
+}
+
+string MSXCPUInterface::getIOMap() const
+{
+	string result;
+	for (int port = 0; port < 256; ++port) {
+		// skip empty regions
+		for ( ; port < 256; ++port) {
+			if ((IO_In [port] != &dummyDevice) ||
+			    (IO_Out[port] != &dummyDevice)) {
+				break;
+			}
+		}
+		if (port == 256) {
+			break;
+		}
+
+		// scan over equal region
+		const MSXDevice* deviceIn  = IO_In [port];
+		const MSXDevice* deviceOut = IO_Out[port];
+		int port2 = port;
+		for ( ; port2 < 256; ++port2) {
+			if ((IO_In [port2 + 1] != deviceIn) ||
+			    (IO_Out[port2 + 1] != deviceOut)) {
+				break;
+			}
+		}
+		if (deviceIn == &dummyDevice) {
+			// Out
+			assert(deviceOut != &dummyDevice);
+			result += ioMapHelper("  O", port, port2, deviceOut);
+		} else {
+			if (deviceOut == &dummyDevice) {
+				// In
+				result += ioMapHelper("I  ", port, port2, deviceIn);
+			} else {
+				if (deviceIn == deviceOut) {
+					// In/Out same device
+					result += ioMapHelper("I/O", port, port2, deviceIn);
+				} else {
+					// In and Out different devices
+					result += ioMapHelper("I  ", port, port2, deviceIn);
+					result += ioMapHelper("  O", port, port2, deviceOut);
+				}
+			}
+		}
+		port = port2;
+	}
+	return result;
 }
 
 void MSXCPUInterface::printSlotMapPages(ostream &out,
