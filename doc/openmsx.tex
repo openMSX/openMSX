@@ -356,6 +356,17 @@ Before you start implementing a new device for openMSX make sure you have read a
 \section{The life cycle of an MSXDevice}
 
 \section{The life cycle of an MSXDevice}
+
+\subsection{In the beginning}
+In the beginning there was nothing....
+And then a lot of things happened and after a few billion yeas it all resulted in openMSX. And internally in openMSX also a lot of things need to happen before you get a running emulator.
+This is what happens before a device becomes aware of its existance.
+\begin{itemize}
+\item The main loop creates an MSXConfig object and let it parse a configuration file.
+\item A MSXMotherBoard is create, this object can be viewed as the bus of the MSX and keep tracks of all the devices and slot layouts.
+\item The devicefactory creates the objects that are indicate by the MSXConfig object. It loops trough the objects that are summed up in the configuration, each time creating an object of the indicated class and adding to the deviceslist of the motherboard. Each MSXDevice also gets a pointer set towards it personal configuration object. For people who need a more vivid description of what has happended up until now: We just create all the needed chips and PCB's and tossed them all on a big pile.
+
+
 The life cycle of an MSXdevice follows the following basic steps
 \begin{itemize}
 \item Object is instantiated
@@ -364,7 +375,37 @@ The life cycle of an MSXdevice follows the following basic steps
 \item When destroyed the object nicely releases it sources.
 \end{itemize}
 
-\subsection{MSXDevice instantiation}
+\subsection{Instantiation}
+The life cycle starts with the birth of the object.
+During this constructor fase the MSXDevice can set some of its internal parameters to default values. The general rule being that this initialisation must be fail-proof. Meaning that during this initialization we can not try to malloc some memory or read a file or something else that could go hay-wire. By following this simple rule we can safely asume that the device factory can contruct all of the desired devices with out bailing out.
+If we need to bail out this will result in the termination of the entire emulator. If for instance the total system memory isn't enough to even create an object.
 
+\subsection{Initialization}
+Alsmost imediately after the device is instantiated, the first method that will be called is the setConfigDevice(MSXConfig::Device*). This will allow the MSXDevice to read its own configuration during the following initialization. Remember that the instantiation should be simple and fail-safe. Now it is time to begin the more dangerous internal set up. At this point all needed devices are instantiated, only there configuration isn't complete yet. Now the motherboard start calling the init() method of all of it's known devices. 
+Know you can try to read files, allocated memory and (since all devices are existing) trying some initial communication with other MSXDevices. Be aware howver that this device itself may not have yet been initialized.
+
+During the initialisation the device should register its place in the slot structure with the MSXMotherBoard. Also registering I/O ports is done at this point.
+
+One of the reasons to have this method seperate from the instatiation is the fact that later on we could decide that each device should be able to be re-initialized during run time. It would be advicable to write your code so that this is possible. For pointers this would mean that the contructor makes them NULL pointers and that the init should check if the pointers is empty before trying the malloc, and constructs such a like.
+
+\subsection{Start}
+One of the first things the device should do in his start method is asking the motherboard for the actual emutime. Remember that it should be possible to insert a device during the emulation. So it isn't smart to assume that the start method will be called when emutime is still zero. This is ofcourse only needed if the device uses time ^_^
+During this start the device sould also set it's synchronisation points if needed. ex. a VDP should register it's first following interrupt.
+
+\subsection{Stop}
+\subsection{Reset}
+
+/*
+Remark 1 : creating of MSXDevices
+---------------------------------
+the sequence in which MSXDevices are used is as follows
+--if <slotted> are embeded in the <device>-block this device will be visible in the slotstructure of the emulated MSX.Multiple <slotted>blocks are possible f.e. a simple 64KB RAM expansion is visible in one slot,one subslot and the 4 pages of it.
+--the< parameter> block is parsed and every key,value pair is passed to the setParameter methode. This method is used to set internal parameters of the MSXDevice, f.e. the amount of vram could be passed to a VDPdevice, or the number of mapper pages for a MemMapper.
+-once athe configuration file is parsed and all devices created, all devices in the deviceslist have their init() method called. In the init() method the devices can allocate desired memmory, register I/O ports using the register_IO_Ini/IO_Out method of the MSXMotherBoard.
+-at last the virtual MSX is started, the motherboard sends a reeset signal to all devices and starts emulating, if the user requests a reset, the reset method is called for all devices and the MSX comenses al over. The reset method is used for warm-boot, so for example memory should NOT be cleared from most memory devices.
+
+
+
+*/
 
 \end{document}
