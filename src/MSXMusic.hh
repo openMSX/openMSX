@@ -4,13 +4,12 @@
 #define __MSXMUSIC_HH__
 
 #include "MSXRom.hh"
-#include "MSXIODevice.hh"
+#include "MSXYM2413.hh"
 #include "MSXMemDevice.hh"
 #include "EmuTime.hh"
-#include "YM2413.hh"
 
 
-class MSXMusic : public MSXIODevice, public MSXMemDevice, public MSXRom
+class MSXMusic : public MSXYM2413, public MSXMemDevice, public MSXRom
 {
 	public:
 		/**
@@ -23,19 +22,7 @@ class MSXMusic : public MSXIODevice, public MSXMemDevice, public MSXRom
 		 */
 		~MSXMusic(); 
 		
-		void reset(const EmuTime &time);
-		void writeIO(byte port, byte value, const EmuTime &time);
 		byte readMem(word address, const EmuTime &time);
 		void writeMem(word address, byte value, const EmuTime &time);
-
-	protected:
-		void writeRegisterPort(byte value, const EmuTime &time);
-		void writeDataPort(byte value, const EmuTime &time);
-
-		byte enable;
-		YM2413 *ym2413;
-		
-	private:
-		int registerLatch;
 };
 #endif

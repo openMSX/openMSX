@@ -5,45 +5,16 @@
 #include "Mixer.hh"
 
 MSXMusic::MSXMusic(MSXConfig::Device *config, const EmuTime &time)
-	: MSXDevice(config, time)
+	: MSXDevice(config, time), MSXYM2413(config, time)
 {
 	PRT_DEBUG("Creating an MSXMusic object");
-	
-	MSXMotherBoard::instance()->register_IO_Out(0x7c, this);
-	MSXMotherBoard::instance()->register_IO_Out(0x7d, this);
-	short volume = (short)deviceConfig->getParameterAsInt("volume");
-	ym2413 = new YM2413(volume);
 	loadFile(&memoryBank, 0x4000);
-	reset(time);
+	enable = 1;
 }
 
 MSXMusic::~MSXMusic()
 {
 	PRT_DEBUG("Destroying an MSXMusic object");
-	delete ym2413;
-}
-
-void MSXMusic::reset(const EmuTime &time)
-{
-	ym2413->reset();
-	registerLatch = 0; // TODO check
-	enable = 0; 	// TODO check
-}
-
-void MSXMusic::writeIO(byte port, byte value, const EmuTime &time)
-{
-	if (enable&0x01) {
-		switch(port) {
-		case 0x7c:
-			writeRegisterPort(value, time);
-			break;
-		case 0x7d:
-			writeDataPort(value, time);
-			break;
-		default:
-			assert(false);
-		}
-	}
 }
 
 byte MSXMusic::readMem(word address, const EmuTime &time)
@@ -71,14 +42,4 @@ void MSXMusic::writeMem(word address, byte value, const EmuTime &time)
 	//default:
 		// do nothing
 	}
-}
-
-void MSXMusic::writeRegisterPort(byte value, const EmuTime &time)
-{
-	registerLatch = (value & 0x3f);
-}
-void MSXMusic::writeDataPort(byte value, const EmuTime &time)
-{
-	Mixer::instance()->updateStream(time);
-	ym2413->writeReg(registerLatch, value);
 }

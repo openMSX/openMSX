@@ -1,21 +1,15 @@
 // $Id$
 
 #include "MSXFmPac.hh"
-#include "MSXMotherBoard.hh"
 
 //TODO save and restore SRAM 
 
 
 MSXFmPac::MSXFmPac(MSXConfig::Device *config, const EmuTime &time)
-	: MSXMusic(config, time)
+	: MSXDevice(config, time), MSXYM2413(config, time) 
 {
 	PRT_DEBUG("Creating an MSXFmPac object");
 	sramBank = new byte[0x1ffe];
-	
-	MSXMotherBoard::instance()->register_IO_Out(0x7c, this);
-	MSXMotherBoard::instance()->register_IO_Out(0x7d, this);
-	short volume = (short)deviceConfig->getParameterAsInt("volume");
-	ym2413 = new YM2413(volume);
 	loadFile(&memoryBank, 0x10000);
 	reset(time);
 }
@@ -28,7 +22,7 @@ MSXFmPac::~MSXFmPac()
 
 void MSXFmPac::reset(const EmuTime &time)
 {
-	MSXMusic::reset(time);
+	MSXYM2413::reset(time);
 	sramEnabled = false;
 	bank = 0;	// TODO check this
 }
@@ -47,10 +41,11 @@ byte MSXFmPac::readMem(word address, const EmuTime &time)
 	case 0x7ff7:
 		return bank;
 	default:
-		if (sramEnabled && (address < 0x5ffe)) {
-			return sramBank[address-0x4000];
+		address &= 0x3fff;
+		if (sramEnabled && (address < 0x1ffe)) {
+			return sramBank[address];
 		} else {
-			return memoryBank[bank*0x4000 + (address-0x4000)];
+			return memoryBank[bank*0x4000 + address];
 		}
 	}
 }
@@ -79,6 +74,7 @@ void MSXFmPac::writeMem(word address, byte value, const EmuTime &time)
 		break;
 	case 0x7ff7:
 		bank = value&0x03;
+		PRT_DEBUG("FmPac: bank " << (int)bank);
 		break;
 	default:
 		if (sramEnabled && (address < 0x5ffe)) {

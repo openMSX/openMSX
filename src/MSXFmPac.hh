@@ -3,10 +3,12 @@
 #ifndef __MSXFMPAC_HH__
 #define __MSXFMPAC_HH__
 
-#include "MSXMusic.hh"
+#include "MSXYM2413.hh"
+#include "MSXMemDevice.hh"
+#include "MSXRom.hh"
 
 
-class MSXFmPac : public MSXMusic
+class MSXFmPac : public MSXYM2413, public MSXMemDevice, public MSXRom
 {
 	public:
 		/**
