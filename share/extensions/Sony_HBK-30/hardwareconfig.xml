@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!-- $Id$ -->
+<!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
+<msxconfig>
+  <device id="Memory Mapped FDC">
+    <type>FDC</type>
+    <slotted> <ps>-1</ps> <ss>-1</ss> <page>1</page> </slotted>
+    <slotted> <ps>-1</ps> <ss>-1</ss> <page>2</page> </slotted>
+    <parameter name="brokenFDCread">false</parameter> 
+    <parameter name="type">Philips</parameter>
+    <parameter name="filename">roms/hbk-30.rom</parameter>
+    <parameter name="drivename1">diska</parameter>
+  </device>
+</msxconfig>
