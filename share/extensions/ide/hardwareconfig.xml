@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
+<msxconfig>
+
+  <device id="Sunrise IDE">
+    <type>SunriseIDE</type>
+    <slotted> <ps>-1</ps> <ss>-1</ss> <page>0</page> </slotted>
+    <slotted> <ps>-1</ps> <ss>-1</ss> <page>1</page> </slotted>
+    <slotted> <ps>-1</ps> <ss>-1</ss> <page>2</page> </slotted>
+    <slotted> <ps>-1</ps> <ss>-1</ss> <page>3</page> </slotted>
+    <parameter name="filename">roms/IDE210.ROM</parameter>
+    <parameter name="master">myHD</parameter>
+  </device>
+
+  <config id="myHD">
+    <type>IDEHD</type>
+    <parameter name="filename">hd.dsk</parameter>
+    <parameter name="size">100</parameter>
+  </config>
+
+</msxconfig>

@@ -6,6 +6,7 @@ $Id$
 	         extensions/   -> share/extensions/
 	         etc/romdb.xml -> share/romdb.xml
 	         settings.xml  -> share/settings.xml
+	* Create share directory, moved a lot of files around
 
 2003-03-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Reimplemented Panasonic memory system:

@@ -3,8 +3,8 @@
 <msxconfig>
   <device id="SCC+ Cartridge">
     <type>SCCPlusCart</type>
-    <slotted> <ps>1</ps> <ss>0</ss> <page>1</page> </slotted>
-    <slotted> <ps>1</ps> <ss>0</ss> <page>2</page> </slotted>
+    <slotted> <ps>-1</ps> <ss>-1</ss> <page>1</page> </slotted>
+    <slotted> <ps>-1</ps> <ss>-1</ss> <page>2</page> </slotted>
     <parameter name="subtype">expanded</parameter>
     <parameter name="volume">13000</parameter>
   </device>
