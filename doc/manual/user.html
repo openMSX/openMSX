@@ -324,13 +324,16 @@ You can also change disks at run time of course. Just type
 in the <a class="internal" href="#console">Console</a> to put the specified disk image in drive A.
 </p>
 
+<p>
+Disk images in XSA format are also supported, use them as regular disk images, but do note that they are read only.
+
 <h4><a id="realdisks">x.x.x Using Real Disks (Linux)</a></h4>
 
 <p>
 To use a real disk, just specify <code>/dev/fd0</code> as a disk image. This is of
 course a Linux (Unix, actually) specific feature, but for now it is usable. It
 may be a bit slow though, with the FDC emulation enabled. It should be just as
-slow as a real disk drive, however!
+slow as a real disk drive, however! Don't forget that you shouldn't have it mounted to be able to use it this way.
 </p>
 
 <h3><a id="tape">x.x Running Tape Software</a></h3>
@@ -387,7 +390,7 @@ Because patching a BIOS is not really something you want, a new feature was rece
 </p>
 
 <p>
-Other cassetteplayer related commands/setting you need to know of are:
+Other cassetteplayer related commands/settings you need to know of are:
 </p>
 <ul>
 	<li><code>cassetteplayer rewind</code>, to rewind the tape</li>
@@ -434,7 +437,7 @@ To connect a fake joystick (emulated with the arrow keys), you can use the <code
     plug joyporta keyjoystick
 </div>
 <p>
-will connect a fake joystick to joystick port A.
+will connect a fake joystick to joystick port A. Button A of the joystick is mapped to the space bar and Button B to Left-Alt (GRAPH). For now there can be only one keyjoystick.
 </p>
 
 <h3><a id="mouse">x.x Mouse</a></h3>
