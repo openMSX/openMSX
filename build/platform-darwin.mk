@@ -1,6 +1,6 @@
 # $Id$
 #
-# Configuration for Darwin on PPC machines.
+# Configuration for Darwin.
 
 # Does platform support symlinks?
 USE_SYMLINK:=true
@@ -10,6 +10,10 @@ OPENMSX_CXX?=g++
 
 # File name extension of executables.
 EXEEXT:=
+
+# Bind when executable is loaded, rather then when symbols are accessed.
+# I don't know why, but the linker suggests this.
+LINK_FLAGS+=-bind_at_load
 
 # Probe Overrides
 # ===============
