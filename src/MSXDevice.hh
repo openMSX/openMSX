@@ -1,3 +1,5 @@
+// $Id$
+
 #ifndef __MSXDEVICE_H__
 #define __MSXDEVICE_H__
 

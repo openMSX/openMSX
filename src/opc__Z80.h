@@ -1,3 +1,5 @@
+// $Id$
+
 /********************************************************************/
 /*                                                                  */
 /* This file contains all the common opcode tablesas can be found   */

@@ -1,3 +1,5 @@
+// $Id$
+
 /************************************************************************/
 /* This file contains all the opcode tables that will be used       	*/
 /* to specicly emulate an R800                                      	*/

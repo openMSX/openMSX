@@ -1,3 +1,5 @@
+// $Id$
+
 #include "MSXDevice.hh"
 #include "iostream.h"
 //using namespace std;

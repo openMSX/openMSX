@@ -1,3 +1,5 @@
+// $Id$
+
 #ifndef __MSXMOTHERBOARD_H__
 #define __MSXMOTHERBOARD_H__
 
