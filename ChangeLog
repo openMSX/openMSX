@@ -1,5 +1,8 @@
 $Id$
 
+2004-01-03 Maarten ter Huurne <maarten@treewalker.org>
+	* Separated Scalers.hh/cc into Scaler, SimpleScaler and SaI2xScaler.
+
 2003-12-30 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed Scale2x scaler: one pixel too many per line was scaled,
 	  which lead to out-of-range memory writes.

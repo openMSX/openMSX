@@ -8,7 +8,7 @@
 #include "BooleanSetting.hh"
 #include "RendererFactory.hh"
 #include "FrameSkipSetting.hh"
-#include "Scalers.hh"
+#include "Scaler.hh"
 #include "InfoTopic.hh"
 
 

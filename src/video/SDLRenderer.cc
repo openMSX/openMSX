@@ -14,7 +14,7 @@ TODO:
 #include "CommandConsole.hh"
 #include "DebugConsole.hh"
 #include "SDLConsole.hh"
-#include "Scalers.hh"
+#include "Scaler.hh"
 #include "ScreenShotSaver.hh"
 #include "util.hh"
 #include <algorithm>

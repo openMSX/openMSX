@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __SCALERS_HH__
-#define __SCALERS_HH__
+#ifndef __SCALER_HH__
+#define __SCALER_HH__
 
 #include <SDL/SDL.h>
 #include "Blender.hh"
@@ -10,7 +10,7 @@
 namespace openmsx {
 
 /** Enumeration of Scalers known to openMSX.
-*/
+  */
 enum ScalerID {
 	/** SimpleScaler. */
 	SCALER_SIMPLE,
@@ -30,7 +30,7 @@ class Scaler
 {
 public:
 	virtual ~Scaler() {}
-	
+
 	/** Instantiates a Scaler.
 	  * @param id Identifies the scaler algorithm.
 	  * @param blender Pixel blender that can be used by the scaler algorithm
@@ -65,38 +65,6 @@ protected:
 	Scaler();
 };
 
-/** Scaler which assigns the colour of the original pixel to all pixels in
-  * the 2x2 square.
-  */
-template <class Pixel>
-class SimpleScaler: public Scaler<Pixel>
-{
-public:
-	SimpleScaler();
-	void scaleLine256(SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY);
-	void scaleLine512(SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY);
-private:
-	/** Copies the line; implements both scaleLine256 and scaleLine512.
-	  */
-	inline void copyLine(
-		SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY );
-};
-
-/** 2xSaI algorithm: edge-detection which produces a rounded look.
-  * Algorithm was developed by Derek Liauw Kie Fa.
-  */
-template <class Pixel>
-class SaI2xScaler: public Scaler<Pixel>
-{
-public:
-	SaI2xScaler(Blender<Pixel> blender);
-	void scaleLine256(SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY);
-	void scaleLine512(SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY);
-//private:
-protected:
-	Blender<Pixel> blender;
-};
-
 } // namespace openmsx
 
-#endif // __SCALERS_HH__
+#endif // __SCALER_HH__

@@ -3,8 +3,9 @@
 #ifndef __HQ2XSCALER_HH__
 #define __HQ2XSCALER_HH__
 
-#include "Scalers.hh"
+#include "SimpleScaler.hh"
 #include "openmsx.hh"
+
 
 namespace openmsx {
 
