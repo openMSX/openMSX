@@ -6,6 +6,8 @@ $Id$
 	* crosscompiling now works, xmlxdump.exe works, openmsx.exe
 	  doesn't work yet
 	* for instructions, see README.WIN32
+	* fixed faulty CHECK_FUNC in configure.in
+	* atoll.c is now only used when needed
 
 2002-02-25 Maarten ter Huurne <mth@stack.nl>
 	* Implemented even/odd and interlace display.
