@@ -45,5 +45,5 @@ openmsx_LDADD= -lxml++ -lSDL -lpthread
 #openmsx_LDADD= /usr/local/lib/libxml++.la -lSDL -lpthread
 
 # we want ALL warnings
-AM_CXXFLAGS = -Wall -DDEBUG -g -fno-rtti
+AM_CXXFLAGS = -Wall -DDEBUG -g -fno-rtti -pipe
 #AM_CXXFLAGS = -Wall -fno-rtti

@@ -5,12 +5,16 @@
 
 #include <iostream>
 
+#include "config.h"
+
 EventDistributor::EventDistributor()
 {
 	asyncMutex = SDL_CreateMutex();
 	syncMutex  = SDL_CreateMutex();
 	queueMutex = SDL_CreateMutex();
+//#ifndef NO_SDL_QUIT_EVENT
 	registerAsyncListener(SDL_QUIT, this);
+//#endif
 }
 
 EventDistributor::~EventDistributor()
