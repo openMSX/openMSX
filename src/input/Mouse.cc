@@ -4,6 +4,14 @@
 #include "PluggingController.hh"
 #include "EventDistributor.hh"
 
+const int TRESHOLD = 2;
+const int SCALE = 2;
+const int FAZE_XHIGH = 0;
+const int FAZE_XLOW  = 1;
+const int FAZE_YHIGH = 2;
+const int FAZE_YLOW  = 3;
+const int STROBE = 0x04;
+
 
 Mouse::Mouse(const EmuTime &time)
 	: lastTime(time)
@@ -11,6 +19,7 @@ Mouse::Mouse(const EmuTime &time)
 	status = JOY_BUTTONA | JOY_BUTTONB;
 	faze = FAZE_YLOW;
 	xrel = yrel = curxrel = curyrel = 0;
+	mouseMode = true;
 
 	EventDistributor::instance()->registerEventListener(SDL_MOUSEMOTION,     this);
 	EventDistributor::instance()->registerEventListener(SDL_MOUSEBUTTONDOWN, this);
@@ -38,7 +47,14 @@ const std::string &Mouse::getName() const
 
 void Mouse::plug(Connector* connector, const EmuTime& time)
 {
-	lastTime = time;
+	if (status & JOY_BUTTONA) {
+		// not pressed, mouse mode
+		mouseMode = true;
+		lastTime = time;
+	} else {
+		// left mouse button pressed, joystick emulation mode
+		mouseMode = false;
+	}
 }
 
 void Mouse::unplug(const EmuTime& time)
@@ -49,50 +65,108 @@ void Mouse::unplug(const EmuTime& time)
 //JoystickDevice
 byte Mouse::read(const EmuTime &time)
 {
-	switch (faze) {
-		case FAZE_XHIGH:
-			return (((xrel / SCALE) >> 4) & 0x0f) | status;
-		case FAZE_XLOW:
-			return  ((xrel / SCALE)       & 0x0f) | status;
-		case FAZE_YHIGH:
-			return (((yrel / SCALE) >> 4) & 0x0f) | status;
-		case FAZE_YLOW:
-			return  ((yrel / SCALE)       & 0x0f) | status;
-	default:
-		assert(false);
-		return status;	// avoid warning
+	if (mouseMode) {
+		switch (faze) {
+			case FAZE_XHIGH:
+				return (((xrel / SCALE) >> 4) & 0x0F) | status;
+			case FAZE_XLOW:
+				return  ((xrel / SCALE)       & 0x0F) | status;
+			case FAZE_YHIGH:
+				return (((yrel / SCALE) >> 4) & 0x0F) | status;
+			case FAZE_YLOW:
+				return  ((yrel / SCALE)       & 0x0F) | status;
+			default:
+				assert(false);
+				return status;	// avoid warning
+		}
+	} else {
+		emulateJoystick();
+		return status;
+	}
+}
+
+void Mouse::emulateJoystick()
+{
+	status &= ~(JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT);
+
+	int deltax = curxrel; curxrel = 0;
+	int deltay = curyrel; curyrel = 0;
+	int absx = (deltax > 0) ? deltax : -deltax;
+	int absy = (deltay > 0) ? deltay : -deltay;
+
+	if ((absx < TRESHOLD) && (absy < TRESHOLD)) {
+		return;
+	}
+	
+	// tan(pi/8) ~= 5/12
+	if (deltax > 0) {
+		if (deltay > 0) {
+			if ((12 * absx) > (5 * absy)) {
+				status |= JOY_RIGHT;
+			}
+			if ((12 * absy) > (5 * absx)) {
+				status |= JOY_DOWN;
+			}
+		} else {
+			if ((12 * absx) > (5 * absy)) {
+				status |= JOY_RIGHT;
+			}
+			if ((12 * absy) > (5 * absx)) {
+				status |= JOY_UP;
+			}
+		}
+	} else {
+		if (deltay > 0) {
+			if ((12 * absx) > (5 * absy)) {
+				status |= JOY_LEFT;
+			}
+			if ((12 * absy) > (5 * absx)) {
+				status |= JOY_DOWN;
+			}
+		} else {
+			if ((12 * absx) > (5 * absy)) {
+				status |= JOY_LEFT;
+			}
+			if ((12 * absy) > (5 * absx)) {
+				status |= JOY_UP;
+			}
+		}
 	}
 }
 
 void Mouse::write(byte value, const EmuTime &time)
 {
-	// TODO figure out the timeout mechanism
-	//      does it exist at all?
-	
-	const int TIMEOUT = 1000;	// TODO find a good value
-	int delta = lastTime.getTicksTill(time);
-	lastTime = time;
-	if (delta >= TIMEOUT) {
-		faze = FAZE_YLOW;
-	}
-	
-	switch (faze) {
-		case FAZE_XHIGH:
-			if ((value & STROBE) == 0) faze = FAZE_XLOW;
-			break;
-		case FAZE_XLOW:
-			if ((value & STROBE) != 0) faze = FAZE_YHIGH;
-			break;
-		case FAZE_YHIGH:
-			if ((value & STROBE) == 0) faze = FAZE_YLOW;
-			break;
-		case FAZE_YLOW:
-			if ((value & STROBE) != 0) {
-				faze = FAZE_XHIGH;
-				xrel = curxrel; yrel = curyrel;
-				curxrel = 0; curyrel = 0;
-			}
-			break;
+	if (mouseMode) {
+		// TODO figure out the timeout mechanism
+		//      does it exist at all?
+		
+		const int TIMEOUT = 1000;	// TODO find a good value
+		int delta = lastTime.getTicksTill(time);
+		lastTime = time;
+		if (delta >= TIMEOUT) {
+			faze = FAZE_YLOW;
+		}
+		
+		switch (faze) {
+			case FAZE_XHIGH:
+				if ((value & STROBE) == 0) faze = FAZE_XLOW;
+				break;
+			case FAZE_XLOW:
+				if ((value & STROBE) != 0) faze = FAZE_YHIGH;
+				break;
+			case FAZE_YHIGH:
+				if ((value & STROBE) == 0) faze = FAZE_YLOW;
+				break;
+			case FAZE_YLOW:
+				if ((value & STROBE) != 0) {
+					faze = FAZE_XHIGH;
+					xrel = curxrel; yrel = curyrel;
+					curxrel = 0; curyrel = 0;
+				}
+				break;
+		}
+	} else {
+		// ignore
 	}
 }
 

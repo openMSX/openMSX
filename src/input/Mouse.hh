@@ -27,17 +27,13 @@ class Mouse : public JoystickDevice, EventListener
 		virtual bool signalEvent(SDL_Event &event);
 
 	private:
-		static const int SCALE = 2;
-		static const int FAZE_XHIGH = 0;
-		static const int FAZE_XLOW  = 1;
-		static const int FAZE_YHIGH = 2;
-		static const int FAZE_YLOW  = 3;
-		static const int STROBE = 0x04;
-
+		void emulateJoystick();
+		
 		byte status;
 		int faze;
 		int xrel, yrel;
 		int curxrel, curyrel;
 		EmuTimeFreq<1000> lastTime;	// ms
+		bool mouseMode;
 };
 #endif
