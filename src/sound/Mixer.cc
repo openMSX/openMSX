@@ -104,21 +104,22 @@ void Mixer::reInit()
 {
 	samplesLeft = audioSpec.samples;
 	offset = 0;
-	prevTime = cpu->getCurrentTime();
+	prevTime = cpu->getCurrentTime(); // !! can be one instruction off
 }
 
 void Mixer::updateStream(const EmuTime &time)
 {
 	if (!init) return;
-	
-	assert(prevTime <= time);
-	float duration = realTime->getRealDuration(prevTime, time);
-	//PRT_DEBUG("Mix: update, duration " << duration << "s");
-	assert(duration >= 0);
-	prevTime = time;
-	lock();
-	updtStrm((int)(audioSpec.freq * duration));
-	unlock();
+
+	if (prevTime < time) {
+		float duration = realTime->getRealDuration(prevTime, time);
+		//PRT_DEBUG("Mix: update, duration " << duration << "s");
+		assert(duration >= 0);
+		prevTime = time;
+		lock();
+		updtStrm((int)(audioSpec.freq * duration));
+		unlock();
+	}
 }
 void Mixer::updtStrm(int samples)
 {
