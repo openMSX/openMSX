@@ -162,8 +162,13 @@ MapperType RomTypes::searchDataBase(byte* data, int size)
 			const std::string romType((*it1)->getElementPcdata("romtype"));
 			std::list<XML::Element*>::iterator it2 = (*it1)->children.begin();
 			for ( ; it2 != (*it1)->children.end(); it2++) {
-				if ((*it2)->name == "md5")
-					romDB[(*it2)->pcdata] = romType;
+				if ((*it2)->name == "md5") {
+					if (romDB.find((*it2)->pcdata) == romDB.end()) {
+						romDB[(*it2)->pcdata] = romType;
+					} else {
+						PRT_INFO("Warning duplicate romdb entry " << (*it2)->pcdata);
+					}
+				}
 			}
 		}
 	}

@@ -360,7 +360,7 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 		//  second 16kb: 0x7000 - 0x77ff (0x7000 and 0x77ff used)
 
 		if (0x6000<=address && address<0x7800 && !(address&0x0800)) {
-			byte region = ((address>>12)&1)+1;
+			byte region = ((address>>12) & 1) + 1;
 			if (value == 0x10) {
 				// SRAM block
 				setBank8kB(2*region,   memorySRAM);
@@ -395,7 +395,7 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 		//  The SRAM can only be written to if selected in bank 3 or 4.
 
 		if (0x6000<=address && address<0x8000) {
-			byte region = ((address>>11)&3)+2;
+			byte region = ((address>>11) & 3) + 2;
 			byte SRAMEnableBit = (mapperType == XANADU) ? 0x20 : 0x80; 
 			if (value & SRAMEnableBit) {
 				//bit 7 for Royal Blood
@@ -408,8 +408,9 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 			}
 		} else {
 			// Writting to SRAM?
-			if ((1 << (address>>13)) & regioSRAM & 0x0c) { 
-				memorySRAM[address & 0x1fff] = value;
+			if ((1 << (address>>13)) & regioSRAM & 0x30) { 
+				// 0x8000 - 0xBFFF
+				memorySRAM[address & 0x1FFF] = value;
 			}
 		}
 		break;
@@ -419,7 +420,7 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 		if (0x6000<=address && address<0xc000) {
 			if (address >= 0xb000) {
 				// SRAM write
-				if (regioSRAM & 0x20)	// 0xa000 - 0xbfff
+				if (regioSRAM & 0x20)	// 0xA000 - 0xBFFF
 					internalMemoryBank[0xb][address&0x0fff] = value;
 			}
 			if (!(address & 0x1000)) {
