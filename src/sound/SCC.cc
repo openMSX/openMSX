@@ -1,7 +1,39 @@
 // $Id$
 
-#include "SCC.hh"
+//----------------------------------------------------------------------------
+// 
+// On Mon, 24 Feb 2003, Jon De Schrijder wrote:
+// 
+// I've done some measurements with the scope on the output of the SCC.
+// I didn't do timing tests, only amplitude checks:
+// 
+// I know now for sure, the amplitude calculation works as follows:
+// 
+// AmpOut=640+AmpA+AmpB+AmpC+AmpD+AmpE
+// 
+// range AmpOut (11 bits positive number=SCC digital output): [+40...+1235]
+// 
+// AmpA="((SampleValue*VolA) AND #7FF0) div 16"
+// AmpB="((SampleValue*VolB) AND #7FF0) div 16"
+// AmpC="((SampleValue*VolC) AND #7FF0) div 16"
+// AmpD="((SampleValue*VolD) AND #7FF0) div 16"
+// AmpE="((SampleValue*VolE) AND #7FF0) div 16"
+// 
+// Setting the enablebit to zero, corresponds with VolX=0.
+// 
+// SampleValue range [-128...+127]
+// VolX range [0..15]
+// 
+// Notes: 
+// * SampleValue*VolX is calculated (signed multiplication) and the lower 4
+//   bits are dropped (both in case the value is positive or negative), before
+//   the addition of the 5 values is done. This was tested by setting
+//   SampleValue=+1 and VolX=15 of different channels. The resulting AmpOut=640,
+//   indicating that the 4 lower bits were dropped *before* the addition.
+// 
+//----------------------------------------------------------------------------
 
+#include "SCC.hh"
 #include "Mixer.hh"
 
 
@@ -23,7 +55,6 @@ SCC::~SCC()
 
 byte SCC::readMemInterface(byte address, const EmuTime &time)
 {
-	//PRT_DEBUG("SCC read " << std::hex << (int)address << std::dec);
 	return memInterface[address];
 }
 
@@ -36,65 +67,68 @@ void SCC::setChipMode(ChipMode chip)
 	switch (chip) {
 		case SCC_Real:
 			// Simply mask upper 128 bytes
-			for (int i=0x80; i<=0xFF; i++)
+			for (int i = 0x80; i <= 0xFF; i++) {
 				memInterface[i] = 0xFF;
+			}
 			break;
 		case SCC_Compatible:
 			// 32 bytes Frequency Volume data
 			getFreqVol(0x80);
 			// 32 bytes waveform five
-			for (int i=0; i<=0x1F; i++)
-				memInterface[0xA0+i] = wave[4][i];
+			for (int i = 0; i <= 0x1F; i++) {
+				memInterface[0xA0 + i] = wave[4][i];
+			}
 			// 32 bytes deform register
 			getDeform(0xC0);
 			// no function area
-			for (int i=0xE0; i<=0xFF; i++)
+			for (int i = 0xE0; i <= 0xFF; i++) {
 				memInterface[i] = 0xFF;
+			}
 			break;
 		case SCC_plusmode:
 			// 32 bytes waveform five
-			for (int i=0; i<=0x1F; i++)
-				memInterface[0x80+i] = wave[4][i];
+			for (int i = 0; i <= 0x1F; i++) {
+				memInterface[0x80 + i] = wave[4][i];
+			}
 			// 32 bytes Frequency Volume data
 			getFreqVol(0xA0);
 			// 32 bytes deform register
 			getDeform(0xC0);
 			// no function area
-			for (int i=0xE0; i<=0xFF; i++)
+			for (int i = 0xE0; i <= 0xFF; i++) {
 				memInterface[i] = 0xFF;
+			}
 	}
 }
 
 void SCC::getDeform(byte offset)
 {
 	// 32 bytes deform register
-	for (int i=0; i<=0x1F; i++)
+	for (int i = 0; i <= 0x1F; i++) {
 		memInterface[i + offset] = deformationRegister;
+	}
 }
 
 void SCC::getFreqVol(byte offset)
 {
 	// 32 bytes Frequency Volume data
 	// Take care of the mirroring
-	for (int i=0; i<10; i++) {
+	for (int i = 0; i < 10; i++) {
 		memInterface[offset + i]      =
 		memInterface[offset + i + 16] =
 			(i & 1) ? freq[i / 2] >> 8 : freq[i / 2] & 0xFF;
 	}
 	for (int i = 0; i < 5; i++) {
 		memInterface[offset + i + 10]      =
-		memInterface[offset + i + 10 + 16] =
-			volume[i];
+		memInterface[offset + i + 10 + 16] = volume[i];
 	}
 	memInterface[offset + 15] =
-	memInterface[offset + 31] =
-		ch_enable;
+	memInterface[offset + 31] = ch_enable;
 }
 
 
 void SCC::writeMemInterface(byte address, byte value, const EmuTime &time)
 {
-	//PRT_DEBUG("SCC write " << std::hex <<(int)address << " " << (int)value << std::dec);
 	Mixer::instance()->updateStream(time);
 
 	byte waveborder = (currentChipMode == SCC_plusmode) ? 0xA0 : 0x80;
@@ -104,13 +138,17 @@ void SCC::writeMemInterface(byte address, byte value, const EmuTime &time)
 		int ch = address >> 5;
 		//if (!rotate[ch]) {
 			// TODO: Need to figure this noise thing out
-			//   Don't know why but japanese doesn't change wave when noise is enabled ??
-			wave[ch][address & 0x1F]            = value;
-			volAdjustedWave[ch][address & 0x1F] = ((signed_byte)value * volume[ch] * masterVolume) / 2048;
+			//   Don't know why but japanese doesn't change wave
+			//   when noise is enabled ??
+			wave[ch][address & 0x1F] = value;
+			int tmp = ((signed_byte)value * volume[ch]) / 16;
+			volAdjustedWave[ch][address & 0x1F] =
+				(tmp * masterVolume) / 256;
 			if ((currentChipMode != SCC_plusmode) && (ch == 3)) {
 				// copy waveform 4 -> waveform 5
-				wave[4][address & 0x1F]            = wave[ch][address & 0x1F];
-				volAdjustedWave[4][address & 0x1F] = volAdjustedWave[ch][address & 0x1F];
+				wave[4][address & 0x1F] = wave[ch][address & 0x1F];
+				volAdjustedWave[4][address & 0x1F] =
+					volAdjustedWave[ch][address & 0x1F];
 			}
 		//}
 		
@@ -135,8 +173,9 @@ void SCC::writeMemInterface(byte address, byte value, const EmuTime &time)
 				memInterface[address & 0xEF] = value;
 			} else if ((address >= 0xC0) && (address < 0xE0)) {
 				setDeformReg(value);
-				for (int i=0xC0; i<=0xE0; i++)
+				for (int i = 0xC0; i <= 0xE0; i++) {
 					memInterface[i] = value;
+				}
 			}
 			break;
 		case SCC_plusmode:
@@ -146,8 +185,9 @@ void SCC::writeMemInterface(byte address, byte value, const EmuTime &time)
 				memInterface[address & 0xEF] = value;
 			} else if ((address >= 0xC0) && (address < 0xE0)) {
 				setDeformReg(value);
-				for (int i=0xC0; i<=0xE0; i++)
+				for (int i = 0xC0; i <= 0xE0; i++) {
 					memInterface[i] = value;
+				}
 			}
 	}
 }
@@ -163,37 +203,44 @@ void SCC::setDeformReg(byte value)
 	 * Didn't take time to integrate in my method so far
 	 * According to sean these bits should produce noise on the channels
 	 */
-	//for (int ch = 0; ch < 5; ch++)
+	//for (int ch = 0; ch < 5; ch++) {
 	//	rotate[ch] = (value & 0x40) ? 0x1F: 0;
-	//if (value & 0x80)
+	//}
+	//if (value & 0x80) {
 	//	rotate[3] = rotate[4] = 0x1F;
+	//}
 }
 
 void SCC::setFreqVol(byte value, byte address)
 {
-	address &= 0x0f; // regio is twice visible
-	if (address < 0x0a) {
+	address &= 0x0F; // regio is twice visible
+	if (address < 0x0A) {
 		// change frequency
 		byte channel = address / 2;
-		if (address & 1)
-			freq[channel] = ((value & 0xf)<<8) | (freq[channel] & 0xff);
-		else
-			freq[channel] = (freq[channel] & 0xf00) | (value & 0xff);
-		if (refresh)
+		if (address & 1) {
+			freq[channel] = ((value & 0xF) << 8) | (freq[channel] & 0xFF);
+		} else {
+			freq[channel] = (freq[channel] & 0xF00) | (value & 0xFF);
+		}
+		if (refresh) {
 			count[channel] = 0;
+		}
 		unsigned frq = freq[channel];
-		if (cycle_8bit)
-			frq &= 0xff;
-		if (cycle_4bit)
+		if (cycle_8bit) {
+			frq &= 0xFF;
+		}
+		if (cycle_4bit) {
 			frq >>= 8;
+		}
 		incr[channel] = (frq <= 8) ? 0 : (2 << GETA_BITS) / (frq + 1);
-	}
-	else if (address < 0x0f) {
+	} else if (address < 0x0F) {
 		// change volume
-		byte channel = address - 0x0a;
-		volume[channel] = value & 0xf;
-		for (int i=0; i<32; i++)
-			volAdjustedWave[channel][i] = ((signed_byte)(wave[channel][i]) * volume[channel] * masterVolume) / 2048;
+		byte channel = address - 0x0A;
+		volume[channel] = value & 0xF;
+		for (int i = 0; i < 32; i++) {
+			int tmp = ((signed_byte)wave[channel][i] * volume[channel]) / 16;
+			volAdjustedWave[channel][i] = (tmp * masterVolume) / 256;
+		}
 		checkMute();
 	} else {
 		// change enable-bits
@@ -208,8 +255,8 @@ void SCC::reset()
 	setChipMode(SCC_Real);
 	deformationRegister = 0;
 
-	for (int i=0; i<5; i++) {
-		for (int j=0; j<32 ; j++) {
+	for (int i = 0; i < 5; i++) {
+		for (int j = 0; j < 32; j++) {
 			wave[i][j] = 0;
 			volAdjustedWave[i][j] = 0;
 		}
@@ -218,7 +265,7 @@ void SCC::reset()
 		volume[i] = 0;
 		//rotate[i] = 0;
 	}
-	ch_enable = 0xff;
+	ch_enable = 0xFF;
 	cycle_4bit = false;
 	cycle_8bit = false;
 	refresh = false;
@@ -239,9 +286,7 @@ void SCC::setInternalVolume(short maxVolume)
 
 int *SCC::updateBuffer(int length)
 {
-	//PRT_DEBUG("SCC: updateBuffer called");
 	if (isInternalMuted()) {
-		//PRT_DEBUG("SCC: muted");
 		return NULL;
 	}
 
@@ -278,6 +323,5 @@ void SCC::checkMute()
 		enable >>= 1;
 		volumePtr++;
 	}
-	//PRT_DEBUG("SCC: setInternalMute(" << mute << "); ");
 	setInternalMute(mute);
 }

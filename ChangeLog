@@ -5,6 +5,7 @@ $Id$
 	  machines directory:
 	   - for example the scc extension lives in
 	       ~/.openMSX/extensions/scc/hardwareconfig.xml
+	* Implemented Jon's SCC amplitude measurements
 
 2003-02-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented command line extensions:

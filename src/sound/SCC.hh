@@ -3,14 +3,9 @@
 #ifndef __SCC_HH__
 #define __SCC_HH__
 
-#ifndef VERSION
-#include "config.h"
-#endif
-
 #include "openmsx.hh"
 #include "SoundDevice.hh"
 
-// forward declarations
 class EmuTime;
 
 
@@ -25,7 +20,8 @@ class SCC : public SoundDevice
 		// interaction with realCartridge
 		void reset();
 		byte readMemInterface(byte address,const EmuTime &time);
-		void writeMemInterface(byte address, byte value,const EmuTime &time);
+		void writeMemInterface(byte address, byte value,
+		                       const EmuTime &time);
 		void setChipMode(ChipMode chip);
 
 		// SoundDevice
