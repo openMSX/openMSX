@@ -1,6 +1,7 @@
 // $Id$
 
 #include <string>
+#include <sstream>
 #include "MSXConfig.hh"
 #include "Rom.hh"
 #include "RomInfo.hh"
@@ -113,7 +114,9 @@ void Rom::read(Device* config,
 		unsigned int romOffset = strtol((*i)->name.c_str(), 0, 0);
 		int value  = (*i)->getAsInt();
 		if (romOffset >= size) {
-			PRT_INFO("Ignoring illegal ROM patch-offset: " << romOffset);
+			ostringstream out;
+			out << "Ignoring illegal ROM patch-offset: 0x" << hex << romOffset;
+			throw FatalError(out.str());
 		} else {
 			PRT_DEBUG("Patching ROM[" << (*i)->name << "]=" << (*i)->value);
 			tmp[romOffset] = value; // tmp = rom, but rom is read only

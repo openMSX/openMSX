@@ -5,12 +5,12 @@
 #ifdef __OPENGL_AVAILABLE__
 
 #include <cassert>
-
 #include "MSXConfig.hh"
 #include "DummyFont.hh"
 #include "GLFont.hh"
 #include "File.hh"
 #include "Console.hh"
+#include "CliCommunicator.hh"
 
 
 namespace openmsx {
@@ -91,13 +91,13 @@ bool GLConsole::loadTexture(const string &filename, GLuint &texture,
 		File file(filename);
 		image1 = IMG_Load(file.getLocalName().c_str());
 		if (image1 == NULL) {
-			PRT_INFO("File \"" << file.getURL() << "\" is not a valid image");
+			CliCommunicator::instance().printWarning("File \"" +
+			        file.getURL() + "\" is not a valid image");
 			return false;
 		}
 	} catch (FileException &e) {
-		PRT_INFO(
-			"Could not open file \"" << filename << "\": " << e.getMessage()
-			);
+		CliCommunicator::instance().printWarning("Could not open file \"" +
+		        filename + "\": " + e.getMessage());
 		return false;
 	}
 	SDL_SetAlpha(image1, 0, 0);

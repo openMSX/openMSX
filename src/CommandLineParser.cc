@@ -12,6 +12,7 @@
 #include "CliExtension.hh"
 #include "File.hh"
 #include "FileOperations.hh"
+#include "CliCommunicator.hh"
 
 namespace openmsx {
 
@@ -178,7 +179,8 @@ void CommandLineParser::parse(int argc, char **argv)
 				}
 			} catch (MSXException &e) {
 				// settings.xml not found
-				PRT_INFO("Warning: No settings file found!");
+				CliCommunicator::instance().printWarning(
+					"No settings file found!");
 			}
 			haveSettings = true;
 			postRegisterFileTypes();
@@ -195,7 +197,8 @@ void CommandLineParser::parse(int argc, char **argv)
 							config->getConfigById("DefaultMachine");
 						if (machineConfig->hasParameter("machine")) {
 							machine = machineConfig->getParameter("machine");
-							PRT_INFO("Using default machine: " << machine);
+							CliCommunicator::instance().printInfo(
+								"Using default machine: " + machine);
 						}
 					} catch (ConfigException &e) {
 						// no DefaultMachine section
@@ -205,7 +208,8 @@ void CommandLineParser::parse(int argc, char **argv)
 						config->loadHardware(context,
 						MACHINE_PATH + machine + "/hardwareconfig.xml");
 					} catch (FileException &e) {
-						PRT_INFO("Warning: No machine file found!");
+						CliCommunicator::instance().printWarning(
+							"No machine file found!");
 					}
 				}
 				haveConfig = true;
@@ -263,13 +267,13 @@ bool CommandLineParser::HelpOption::parseOption(const string &option,
 	if (!parser->haveSettings){
 		return false; // not parsed yet, load settings first
 	}
-	PRT_INFO("OpenMSX " VERSION);
-	PRT_INFO("=============");
-	PRT_INFO("");
-	PRT_INFO("usage: openmsx [arguments]");
-	PRT_INFO("  an argument is either an option or a filename");
-	PRT_INFO("");
-	PRT_INFO("  this is the list of supported options:");
+	cout << "OpenMSX " VERSION << endl;
+	cout << "=============" << endl;
+	cout << endl;
+	cout << "usage: openmsx [arguments]" << endl;
+	cout << "  an argument is either an option or a filename" << endl;
+	cout << endl;
+	cout << "  this is the list of supported options:" << endl;
 	
 	set<string> printSet;
 	map<CLIOption*, set<string>*> tempOptionMap;
@@ -298,12 +302,12 @@ bool CommandLineParser::HelpOption::parseOption(const string &option,
 		delete itTempOptionMap->second;
 	}
 	for (itSet = printSet.begin(); itSet != printSet.end(); itSet++) {
-		PRT_INFO(*itSet);
+		cout << (*itSet);
 	}
 	printSet.clear();
 	
-	PRT_INFO("");
-	PRT_INFO("  this is the list of supported file types:");
+	cout << endl;
+	cout << "  this is the list of supported file types:" << endl;
 
 	map<CLIFileType*, set<string>*> tempExtMap;
 	map<CLIFileType*, set<string>*>::const_iterator itTempExtMap;
@@ -329,7 +333,7 @@ bool CommandLineParser::HelpOption::parseOption(const string &option,
 		delete itTempExtMap->second; 
 	}
 	for (itSet = printSet.begin(); itSet != printSet.end(); itSet++) {
-		PRT_INFO(*itSet);
+		cout << *itSet << endl;
 	}
 	exit(0);
 }
@@ -430,7 +434,8 @@ bool CommandLineParser::MachineOption::parseOption(const string &option,
 	SystemFileContext context;
 	config->loadHardware(context,
 		MACHINE_PATH + machine + "/hardwareconfig.xml");
-	PRT_INFO("Using specified machine: " << machine);
+	CliCommunicator::instance().printInfo(
+		"Using specified machine: " + machine);
 	parser->haveConfig = true;
 	return true;
 }

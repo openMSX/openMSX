@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include "FileOperations.hh"
 #include "openmsx.hh"
+#include "CliCommunicator.hh"
 #ifdef	__WIN32__
 #define WIN32_LEAN_AND_MEAN
 #define	_WIN32_IE	0x0400
@@ -30,7 +31,8 @@ string FileOperations::expandTilde(const string &path)
 		return getUserDir() + path.substr(1);
 	} else {
 		// other user
-		PRT_INFO("Warning: ~<user>/ not yet implemented");
+		CliCommunicator::instance().printWarning(
+			"~<user>/ not yet implemented");
 		return path;
 	}
 }

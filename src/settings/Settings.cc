@@ -3,6 +3,7 @@
 #include "Settings.hh"
 #include "File.hh"
 #include "FileContext.hh"
+#include "CliCommunicator.hh"
 #include <sstream>
 #include <iostream>
 #include <iomanip>
@@ -247,7 +248,8 @@ void FilenameSetting::setValue(const string &newValue)
 		resolved = context.resolve(newValue);
 	} catch (FileException &e) {
 		// File not found.
-		PRT_INFO("Warning: couldn't find file: \"" << newValue << "\"");
+		CliCommunicator::instance().printWarning(
+			"couldn't find file: \"" + newValue + "\"");
 		return;
 	}
 	if (checkFile(resolved)) {

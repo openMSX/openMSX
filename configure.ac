@@ -92,6 +92,7 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 
 dnl Checks for library functions.
 AC_CHECK_FUNCS(strtoll atoll)
+AC_CHECK_FUNCS(ftruncate)
 
 dnl Check for mmap.
 AC_FUNC_MMAP

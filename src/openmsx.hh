@@ -3,9 +3,8 @@
 #ifndef __OPENMSX_HH__
 #define __OPENMSX_HH__
 
-#include "Mutex.hh"
-
 #include <iostream>
+
 using std::cout;
 using std::endl;
 using std::hex;
@@ -64,20 +63,11 @@ typedef unsigned long long uint64;
 #define DEBUGVAL 0
 #endif
 
-extern Mutex outputmutex;
-#define PRT_DEBUG(mes)					\
-	do {						\
-		if (DEBUGVAL) {				\
-			outputmutex.grab();		\
-			cout << mes << endl;	\
-			outputmutex.release();		\
-		}					\
-	} while (0)
-#define PRT_INFO(mes)				\
+#define PRT_DEBUG(mes)				\
 	do {					\
-		outputmutex.grab();		\
-		cout << mes << endl;	\
-		outputmutex.release();		\
+		if (DEBUGVAL) {			\
+			cout << mes << endl;	\
+		}				\
 	} while (0)
 
 } // namespace openmsx

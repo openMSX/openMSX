@@ -6,8 +6,6 @@
 
 namespace openmsx {
 
-Mutex outputmutex;
-
 Mutex::Mutex()
 {
 	mutex = SDL_CreateMutex();

@@ -10,6 +10,7 @@
 #include "FileContext.hh"
 #include "File.hh"
 #include "MSXConfig.hh"
+#include "CliCommunicator.hh"
 
 namespace openmsx {
 
@@ -244,7 +245,8 @@ RomInfo *RomInfo::searchRomDB(const Rom *rom)
 						    romDBMD5.end()) {
 							romDBMD5[md5] = romInfo;
 						} else {
-							PRT_INFO("Warning: duplicate romdb entry " << md5);
+							CliCommunicator::instance().printWarning(
+								"duplicate romdb entry MD5: " + md5);
 						}
 					} else if ((*it2)->name == "sha1") {
 						string sha1 = (*it2)->pcdata;
@@ -252,14 +254,16 @@ RomInfo *RomInfo::searchRomDB(const Rom *rom)
 						    romDBSHA1.end()) {
 							romDBSHA1[sha1] = romInfo;
 						} else {
-							PRT_INFO("Warning: duplicate romdb entry " << sha1);
+							CliCommunicator::instance().printWarning(
+								"duplicate romdb entry SHA1: " + sha1);
 						}
 					}
 				}
 			}
 		} catch (FileException &e) {
-			PRT_INFO("Warning: couldn't open romdb.xml.\n"
-			         "Romtype detection might fail because of this.");
+			CliCommunicator::instance().printWarning(
+				"Warning: couldn't open romdb.xml.\n"
+				"Romtype detection might fail because of this.");
 		}
 	}
 	
@@ -285,8 +289,9 @@ RomInfo *RomInfo::searchRomDB(const Rom *rom)
 	md5.finalize();
 	string digestMD5(md5.hex_digest());
 	if (romDBMD5.find(digestMD5) != romDBMD5.end()) {
-		PRT_INFO("Warning: You're using an old romdb.xml file.");
-		PRT_INFO("         Please replace it with a recent version.");
+		CliCommunicator::instance().printWarning(
+			"Warning: You're using an old romdb.xml file.\n"
+			"         Please replace it with a recent version.");
 		romDBMD5[digestMD5]->print();
 		// Return a copy of the DB entry.
 		return new RomInfo(*romDBMD5[digestMD5]);
@@ -331,13 +336,14 @@ void RomInfo::print()
 	if (company.empty()) {
 		company = "(info not available)";
 	}
-	PRT_INFO("Found this ROM in the database:\n"
-		         "  Title:    " << getTitle() << "\n"
-		         "  Year:     " << year << "\n"
-		         "  Company:  " << company);
+	string info = "Found this ROM in the database:\n"
+	              "  Title:    " + getTitle() + "\n"
+	              "  Year:     " + year + "\n"
+	              "  Company:  " + company;
 	if (!getRemark().empty()) {
-		PRT_INFO("  Remark:   " << getRemark());
+		info += "  Remark:   " + getRemark();
 	}
+	CliCommunicator::instance().printInfo(info);
 }
 
 } // namespace openmsx

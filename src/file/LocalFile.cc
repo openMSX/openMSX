@@ -79,7 +79,7 @@ void LocalFile::write(const byte* buffer, unsigned num)
 	}
 }
 
-#ifdef	HAVE_MMAP
+#ifdef HAVE_MMAP
 byte* LocalFile::mmap(bool writeBack)
 {
 	if (!mmem) {
@@ -126,10 +126,14 @@ unsigned LocalFile::getPos()
 
 void LocalFile::truncate(unsigned size)
 {
+#ifdef HAVE_FTRUNCATE
 	int fd = fileno(file);
 	if (ftruncate(fd, size)) {
 		throw FileException("Error truncating file");
 	}
+#else
+	// TODO
+#endif
 }
 
 const string LocalFile::getURL() const

@@ -2,7 +2,7 @@
 
 #include "RenderSettings.hh"
 #include "MSXConfig.hh"
-
+#include "CliCommunicator.hh"
 
 namespace openmsx {
 
@@ -44,7 +44,8 @@ RenderSettings::RenderSettings()
 	try {
 		renderer->setValueString(rendererName);
 	} catch (CommandException &e) {
-		PRT_INFO("Invalid renderer requested: \"" << rendererName << "\"");
+		CliCommunicator::instance().printWarning(
+			"Invalid renderer requested: \"" + rendererName + "\"");
 		// Stick with default given by RendererFactory.
 	}
 

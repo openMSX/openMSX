@@ -7,6 +7,7 @@
 #include "RealTime.hh"
 #include "SoundDevice.hh"
 #include "MSXConfig.hh"
+#include "CliCommunicator.hh"
 
 namespace openmsx {
 
@@ -42,7 +43,8 @@ Mixer::Mixer()
 	desired.callback = audioCallbackHelper;	// must be a static method
 	desired.userdata = this;
 	if (SDL_OpenAudio(&desired, &audioSpec) < 0) {
-		PRT_INFO("Couldn't open audio : " << SDL_GetError());
+		CliCommunicator::instance().printWarning(
+		        string("Couldn't open audio : ") + SDL_GetError());
 		init = false;
 	} else {
 		init = true;

@@ -1,6 +1,11 @@
 $Id$
 
 2003-10-20 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Converted CliCommunicator to take XML input
+	* replaced PRT_INFO macro with printInfo(), printWarning() or
+	  printUpdate()
+
+2003-10-20 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Added truncate() method to File classes
 	* use unsigned iso int for file size and file position
 

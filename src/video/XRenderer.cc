@@ -9,6 +9,7 @@
 #include "SDLEventInserter.hh"
 #include <X11/keysym.h>
 #include "Scheduler.hh"
+#include "CliCommunicator.hh"
 
 #define WIDTH 640
 #define HEIGHT 480
@@ -44,11 +45,13 @@ void XRenderer::EventLoop (void) {
 	char *nam = const_cast<char*>("openMSX [ALPHA]");
 	XTextProperty name, iconname;
 	if (!XStringListToTextProperty(&nam, 1, &name)) {
-		PRT_INFO ("XRenderer: error setting window name");
+		CliCommunicator::instance().printWarning (
+			"XRenderer: error setting window name");
 	}
 	char *iconnam = const_cast<char*>("openMSX");
 	if (!XStringListToTextProperty(&iconnam, 1, &iconname)) {
-		PRT_INFO ("XRenderer: error setting iconname");
+		CliCommunicator::instance().printWarning (
+			"XRenderer: error setting iconname");
 	}
 	XSizeHints xsh;
 	XClassHint xch;
@@ -100,7 +103,7 @@ void XRenderer::EventLoop (void) {
 				new SDLEventInserter (ev, Scheduler::ASAP);
 				break;
 			default:
-				PRT_INFO ("Event of type " << event.type << " not handled");
+				PRT_DEBUG("Event of type " << event.type << " not handled");
 		}
 	}
 	if (X.keyboard_state.global_auto_repeat == AutoRepeatModeOn) XAutoRepeatOn (X.display);

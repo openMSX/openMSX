@@ -3,6 +3,7 @@
 #include "File.hh"
 #include "FDC_DirAsDSK.hh"
 #include "FileContext.hh"
+#include "CliCommunicator.hh"
 
 #include <algorithm>
 #include <cassert>
@@ -213,7 +214,7 @@ FDC_DirAsDSK::FDC_DirAsDSK(FileContext &context, const string &fileName)
 		readBootBlockFromFile=true;
 		FILE* file = fopen(tmpfilename.c_str(), "rb");
 		if (file) {
-			PRT_INFO("reading bootblock from " << tmpfilename);
+			PRT_DEBUG("reading bootblock from " << tmpfilename);
 			//fseek(file,0,SEEK_SET);
 			// Read boot block from file
 			fread(BootBlock, 1, SECTOR_SIZE, file);
@@ -263,50 +264,51 @@ FDC_DirAsDSK::FDC_DirAsDSK(FileContext &context, const string &fileName)
 	PRT_DEBUG("Trying to read cached sector file" << tmpfilename);
 	if (stat(tmpfilename.c_str(), &fst) ==0 ) {
 		if ( ( fst.st_size % ( SECTOR_SIZE + sizeof(int)) ) == 0 ){
-		FILE* file = fopen(tmpfilename.c_str(), "rb");
-		if (file) {
-			PRT_INFO("reading cached sectors from " << tmpfilename);
-			saveCachedSectors=true; //make sure that we don't destroy the cache when destroying this object
-			int i;
-			byte* tmpbuf;
-			while ( fread(&i , 1, sizeof(int), file) ){ // feof(file) 
-				
-				PRT_INFO("reading cached sector " << i);
-				if (i == 0){
-					PRT_DEBUG("cached sector is 0, this should be impossible!");
-				} else if ( i < (1 + 2 * SECTORS_PER_FAT) ){
-					i=(i-1) % SECTORS_PER_FAT;
-					PRT_DEBUG("cached sector is FAT sector "<< i);
-					fread(FAT + i * SECTOR_SIZE , 1, SECTOR_SIZE, file);
-				} else if ( i < 14 ){
-					i -= (1 + 2 * SECTORS_PER_FAT);
-					PRT_DEBUG("cached sector is DIR sector "<< i);
-					int dirCount = i * 16;
-					for (int j = 0; j < 16; j++) {
-					  fread( &(mapdir[dirCount++].msxinfo), 1 ,32 ,file );
+			FILE* file = fopen(tmpfilename.c_str(), "rb");
+			if (file) {
+				PRT_DEBUG("reading cached sectors from " << tmpfilename);
+				saveCachedSectors=true; //make sure that we don't destroy the cache when destroying this object
+				int i;
+				byte* tmpbuf;
+				while ( fread(&i , 1, sizeof(int), file) ){ // feof(file) 
+
+					PRT_DEBUG("reading cached sector " << i);
+					if (i == 0){
+						PRT_DEBUG("cached sector is 0, this should be impossible!");
+					} else if ( i < (1 + 2 * SECTORS_PER_FAT) ){
+						i=(i-1) % SECTORS_PER_FAT;
+						PRT_DEBUG("cached sector is FAT sector "<< i);
+						fread(FAT + i * SECTOR_SIZE , 1, SECTOR_SIZE, file);
+					} else if ( i < 14 ){
+						i -= (1 + 2 * SECTORS_PER_FAT);
+						PRT_DEBUG("cached sector is DIR sector "<< i);
+						int dirCount = i * 16;
+						for (int j = 0; j < 16; j++) {
+							fread( &(mapdir[dirCount++].msxinfo), 1 ,32 ,file );
+						}
+					} else {
+						//regular cached sector
+						PRT_DEBUG("reading regular cached sector " << i);
+						tmpbuf=(byte*)malloc(SECTOR_SIZE); //TODO check failure!!
+						fread(tmpbuf , 1, SECTOR_SIZE, file);
+						cachedSectors[i]=tmpbuf;
+						sectormap[i].dirEntryNr = CACHEDSECTOR ;
+
 					}
-				} else {
-				//regular cached sector
-				PRT_DEBUG("reading regular cached sector " << i);
-				tmpbuf=(byte*)malloc(SECTOR_SIZE); //TODO check failure!!
-				fread(tmpbuf , 1, SECTOR_SIZE, file);
-				cachedSectors[i]=tmpbuf;
-				sectormap[i].dirEntryNr = CACHEDSECTOR ;
-
 				}
-			}
 
-			//fread(BootBlock, 1, SECTOR_SIZE, file);
-			fclose(file);
-		} else {
-				PRT_INFO("Couldn't open file " << tmpfilename);
+				//fread(BootBlock, 1, SECTOR_SIZE, file);
+				fclose(file);
+			} else {
+				CliCommunicator::instance().printWarning(
+					"Couldn't open file " + tmpfilename);
 			}
 		} else {
-		// fst.st_size % ( SECTOR_SIZE + sizeof(int))
-	  	PRT_DEBUG("Wrong filesize for file" << tmpfilename << "=" << fst.st_size);
+			// fst.st_size % ( SECTOR_SIZE + sizeof(int))
+			PRT_DEBUG("Wrong filesize for file" << tmpfilename << "=" << fst.st_size);
 		}
 	} else {
-	  PRT_DEBUG("Couldn't stat cached sector file" << tmpfilename);
+		PRT_DEBUG("Couldn't stat cached sector file" << tmpfilename);
 	}
 }
 
@@ -318,32 +320,33 @@ FDC_DirAsDSK::~FDC_DirAsDSK()
 	std::string filename=std::string(MSXrootdir) + "/" + CachedSectorsFileName ;
 	//PRT_DEBUG (" cachedSectors.begin() " << (int)cachedSectors.begin() );
 	//PRT_DEBUG (" cachedSectors.end() " << (int)cachedSectors.end() );
-	
+
 	//if ( cachedSectors.begin() != cachedSectors.end() )
 	if ( saveCachedSectors ) {
 		FILE* file = fopen(filename.c_str(), "wb");
 		if (file) {
-		  // if we have cached sectors we need also to save the fat and dir sectors!
-		  byte* tmpbuf=(byte*)malloc(SECTOR_SIZE);
-		  for (int i=1 ; i <= 14 ; i++ ){
-		    read(i, SECTOR_SIZE, tmpbuf);
-		    fwrite(&i , 1, sizeof(int), file);
-		    fwrite(tmpbuf , 1, SECTOR_SIZE, file);
-		  }
+			// if we have cached sectors we need also to save the fat and dir sectors!
+			byte* tmpbuf=(byte*)malloc(SECTOR_SIZE);
+			for (int i=1 ; i <= 14 ; i++ ){
+				read(i, SECTOR_SIZE, tmpbuf);
+				fwrite(&i , 1, sizeof(int), file);
+				fwrite(tmpbuf , 1, SECTOR_SIZE, file);
+			}
 
-		  for ( it = cachedSectors.begin() ; it != cachedSectors.end() ; it++ ) {
-		    PRT_DEBUG("Saving cached sector file" << it->first);
-		    fwrite(&(it->first) , 1, sizeof(int), file);
-		    fwrite(it->second , 1, SECTOR_SIZE, file);
-		  }
-		  fclose(file);
+			for ( it = cachedSectors.begin() ; it != cachedSectors.end() ; it++ ) {
+				PRT_DEBUG("Saving cached sector file" << it->first);
+				fwrite(&(it->first) , 1, sizeof(int), file);
+				fwrite(it->second , 1, SECTOR_SIZE, file);
+			}
+			fclose(file);
 		} else {
-		PRT_INFO("Couldn't create cached sector file" << filename);
-	  }
+			CliCommunicator::instance().printWarning(
+				"Couldn't create cached sector file " + filename);
+		}
 	} else {
 		// remove cached sectors file if it exists
-		PRT_INFO("Removing "<<filename );
-		unlink( filename.c_str() );
+		PRT_DEBUG("Removing " << filename);
+		unlink(filename.c_str());
 	}
 
 
@@ -470,7 +473,7 @@ void FDC_DirAsDSK::checkAlterFileInDisk(const int dirindex)
 }
 void FDC_DirAsDSK::updateFileInDisk(const int dirindex)
 {
-	PRT_INFO("updateFileInDisk : " << mapdir[dirindex].filename << " with dirindex  " << dirindex);
+	PRT_DEBUG("updateFileInDisk : " << mapdir[dirindex].filename << " with dirindex  " << dirindex);
 	// compute time/date stamps
 	int fsize;
 	struct stat fst;
@@ -555,7 +558,8 @@ void FDC_DirAsDSK::updateFileInDisk(const int dirindex)
 	} else {
 		//TODO: don't we need a EOF_FAT in this case as well ?
 		// find out and adjust code here
-		PRT_INFO("Fake Diskimage full: " << mapdir[dirindex].filename << " truncated.");
+		CliCommunicator::instance().printWarning("Fake Diskimage full: " +
+			mapdir[dirindex].filename + " truncated.");
 	}
 	//write (possibly truncated) file size
 	setlg(mapdir[dirindex].msxinfo.size, fsize - size);
@@ -580,11 +584,12 @@ void FDC_DirAsDSK::write(byte track, byte sector, byte side,
 		filename+="/"+BootBlockFileName ;
 		FILE* file = fopen(filename.c_str(), "wb");
 		if (file) {
-			PRT_INFO("Writing bootblock to " << filename);
+			PRT_DEBUG("Writing bootblock to " << filename);
 			fwrite(buf, 1, size, file);
 			fclose(file);
 		} else {
-			PRT_INFO("Couldn't create bootsector file" << filename);
+			CliCommunicator::instance().printWarning(
+				"Couldn't create bootsector file " + filename);
 		}
 	} else if (logicalSector < (1 + 2 * SECTORS_PER_FAT)) {
 		//copy to correct sector from FAT
@@ -645,10 +650,11 @@ void FDC_DirAsDSK::write(byte track, byte sector, byte side,
 				if ( chgClus && chgName){
 					PRT_DEBUG("Major change: new file started !!!!");
 				} else {
-					PRT_INFO("! A unussual change has been performed on this disk");
-					PRT_INFO("! are you running a disk editor or optimizer, or maybe");
-					PRT_INFO("! a diskcache program");
-					PRT_INFO("! Do not use 'dir as disk' emulation while running these kind of programs!");
+					CliCommunicator::instance().printWarning(
+						"! A unussual change has been performed on this disk\n"
+						"! are you running a disk editor or optimizer, or maybe\n"
+						"! a diskcache program\n"
+						"! Do not use 'dir as disk' emulation while running these kind of programs!\n");
 				}
 				if ( chgName && !chgClus && !chgSize ) {
 					if ( buf[0] == 0xE5 )  {
@@ -660,7 +666,9 @@ void FDC_DirAsDSK::write(byte track, byte sector, byte side,
 					//enough for host OS files when writing
 					//sectors?
 					} else {
-						PRT_INFO("File has been renamed in emulated disk, Host OS file(" << mapdir[dirCount].filename << ") remains untouched!");
+						CliCommunicator::instance().printWarning(
+							"File has been renamed in emulated disk, Host OS file (" +
+							mapdir[dirCount].filename + ") remains untouched!");
 					}
 				} 
 
@@ -676,7 +684,8 @@ void FDC_DirAsDSK::write(byte track, byte sector, byte side,
 			dirCount++;
 			buf += 32;
 		}
-		PRT_INFO("writing to DIR not yet fully implemented !!!!");
+		CliCommunicator::instance().printWarning(
+			"writing to DIR not yet fully implemented !!!!");
 	} else {
 	  // simply buffering everything for now, no write-through to host-OS
 		//check if cachedSectors exists, if not assign memory.
@@ -732,12 +741,14 @@ void FDC_DirAsDSK::updateFileInDSK(const string& fullfilename)
 	struct stat fst;
 
 	if (stat(fullfilename.c_str(), &fst)) {
-		PRT_INFO("Error accessing " << fullfilename);
+		CliCommunicator::instance().printWarning(
+			"Error accessing " + fullfilename);
 		return;
 	}
 	if (!S_ISREG(fst.st_mode)) {
 		// we only handle regular files for now
-		PRT_INFO("Not a regular file: " << fullfilename);
+		CliCommunicator::instance().printWarning(
+			"Not a regular file: " + fullfilename);
 		return;
 	}
 	    
@@ -760,7 +771,8 @@ void FDC_DirAsDSK::addFileToDSK(const string& fullfilename)
 	}
 	PRT_DEBUG("Adding on dirindex " << dirindex);
 	if (dirindex == 112) {
-		PRT_INFO( "Couldn't add " << fullfilename << ": root dir full");
+		CliCommunicator::instance().printWarning(
+			"Couldn't add " + fullfilename + ": root dir full");
 		return;
 	}
 
@@ -772,8 +784,9 @@ void FDC_DirAsDSK::addFileToDSK(const string& fullfilename)
 	PRT_DEBUG("Using MSX filename " << MSXfilename );
 	if (checkMSXFileExists(MSXfilename)) {
 		//TODO: actually should increase vfat abrev if possible!!
-		PRT_INFO("Couldn't add " << fullfilename << ": MSX name "
-		         << MSXfilename<< "existed already");
+		CliCommunicator::instance().printWarning(
+			"Couldn't add " + fullfilename + ": MSX name "
+		         + MSXfilename + " existed already");
 		return;
 	}
 	

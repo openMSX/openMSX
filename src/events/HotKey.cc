@@ -1,10 +1,11 @@
 // $Id$
 
+#include <cassert>
 #include "openmsx.hh"
 #include "HotKey.hh"
 #include "CommandController.hh"
 #include "EventDistributor.hh"
-#include <cassert>
+#include "CliCommunicator.hh"
 
 
 namespace openmsx {
@@ -116,7 +117,8 @@ void HotKey::HotKeyCmd::signalHotKey(Keys::KeyCode key)
 		// ignore return value
 		CommandController::instance()->executeCommand(command);
 	} catch (CommandException &e) {
-		PRT_INFO("Error executing hot key command: " << e.getMessage());
+		CliCommunicator::instance().printWarning(
+		        "Error executing hot key command: " + e.getMessage());
 	}
 }
 

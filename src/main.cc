@@ -73,8 +73,7 @@ int main(int argc, char **argv)
 		// TODO move this somewhere else
 		KeyEventInserter* keyEvents = new KeyEventInserter(zero);
 
-		CliCommunicator communicator;
-		Thread communicatorThread(&communicator);
+		Thread communicatorThread(&CliCommunicator::instance());
 		communicatorThread.start();
 		
 		// Start emulation thread.

@@ -3,7 +3,7 @@
 #include "SRAM.hh"
 #include "MSXConfig.hh"
 #include "File.hh"
-
+#include "CliCommunicator.hh"
 
 namespace openmsx {
 
@@ -33,8 +33,8 @@ SRAM::SRAM(int size_, Config *config_, const char *header_)
 		if (headerOk) {
 			file.read(sram, size);
 		} else {
-			PRT_INFO("Warning no correct SRAM file: " <<
-				 filename);
+			CliCommunicator::instance().printWarning(
+				"Warning no correct SRAM file: " + filename);
 		}
 	} catch (FileException &e) {
 		PRT_DEBUG("Couldn't load SRAM " << filename);
@@ -54,7 +54,8 @@ SRAM::~SRAM()
 		}
 		file.write(sram, size);
 	} catch (FileException &e) {
-		PRT_INFO("Couldn't save SRAM " << filename);
+		CliCommunicator::instance().printWarning(
+			"Couldn't save SRAM " + filename);
 	}
 	delete[] sram;
 }

@@ -1,16 +1,17 @@
 // $Id$
 
-#include "CommandController.hh"
-#include "CommandConsole.hh"
-#include "FileOperations.hh"
-#include "MSXConfig.hh"
-#include "openmsx.hh"
 #include <cassert>
 #include <cstdlib>
 #include <dirent.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include "CommandController.hh"
+#include "CommandConsole.hh"
+#include "FileOperations.hh"
+#include "MSXConfig.hh"
+#include "openmsx.hh"
+#include "CliCommunicator.hh"
 
 
 namespace openmsx {
@@ -226,8 +227,9 @@ void CommandController::autoCommands()
 			try {
 				executeCommand((*i)->value);
 			} catch (CommandException &e) {
-				PRT_INFO("Warning, while executing autocommands:\n"
-				         "   " << e.getMessage());
+				CliCommunicator::instance().printWarning(
+				         "While executing autocommands: "
+				         + e.getMessage());
 			}
 		}
 		config->getParametersWithClassClean(commandList);

@@ -3,15 +3,16 @@
 #include "PanasonicRom.hh"
 #include "PanasonicMemory.hh"
 #include "MSXConfig.hh"
-
+#include "CliCommunicator.hh"
 
 namespace openmsx {
 
 PanasonicRom::PanasonicRom(Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXMemDevice(config, time)
 {
-	PRT_INFO("PanasonicRom device is deprecated, "
-	         "please upgrade your (turbor) machine configuration.");
+	CliCommunicator::instance().printWarning(
+		"PanasonicRom device is deprecated, "
+	        "please upgrade your (turbor) machine configuration.");
 	block = config->getParameterAsInt("block");
 }
 

@@ -4,6 +4,7 @@ AM_CXXFLAGS_BASE = -Wall -pipe `test -f $(srcdir)/../.debug && echo "-DDEBUG"` \
 	-I$(srcdir)/.. \
 	-I$(srcdir)/../config \
 	-I$(srcdir)/../cpu \
+	-I$(srcdir)/../events \
 	-I$(srcdir)/../thread \
 	@XML_CFLAGS@ @SDL_CFLAGS@
 if PROFILE

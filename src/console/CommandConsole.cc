@@ -8,6 +8,7 @@
 #include "FileContext.hh"
 #include "FileOperations.hh"
 #include "SettingsManager.hh"
+#include "CliCommunicator.hh"
 
 
 namespace openmsx {
@@ -72,7 +73,7 @@ void CommandConsole::saveHistory()
 			outputfile << it->substr(PROMPT.length()) << endl;
 		}
 	} catch (FileException &e) {
-		PRT_INFO(e.getMessage());
+		CliCommunicator::instance().printWarning(e.getMessage());
 	}
 }
 
