@@ -448,7 +448,7 @@ The extension for this is called 'ide'. The extension has a built in harddisk
 configuration, in the form of a 100MB sized disk image. If you want to change
 this, you'll have to edit the file in
 <code>share/extensions/ide/hardwareconfig.xml</code>. If the harddisk image is
-not present, or too small, the file is created or extended to the proper size.
+not present, or too small, the file is created or extended to the proper size. The image will end up in your openMSX user directory<code>/persistent/ide/untitled1/hd.dsk</code>.
 </p>
 
 <p>
@@ -474,7 +474,7 @@ For clarity: because the emulation is done on a big disk image, you need free
 disk space for this image, which can be quite big (default 100MB). Also, you
 can't really use your normal PC harddisk as an MSX harddisk for this extension.
 (Maybe on UNIX systems it works if you choose a device like
-<code>/dev/hde</code> as harddisk image file, but we have not tested it and do
+<code>/dev/hdb</code> as harddisk image file, but we have not tested it and do
 note that it can cause loss of data of that partition or disk!!) This means
 that there can be no data corruption of your PC's harddisk.
 </p>
