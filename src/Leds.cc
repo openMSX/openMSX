@@ -10,13 +10,13 @@ namespace openmsx {
 Leds::Leds()
 {
 	pwrLed = capsLed = kanaLed = pauseLed = turboLed = true;
+	fddLedCounter=1;
 	setLed(POWER_OFF);
 	setLed(CAPS_OFF);
 	setLed(KANA_OFF);
 	setLed(PAUSE_OFF);
 	setLed(TURBO_OFF);
 	setLed(FDD_OFF);
-	fddLedCounter=0; // all FDD leds are off
 }
 
 Leds::~Leds()
