@@ -12,26 +12,40 @@ namespace openmsx {
 
 FilenameSettingBase::FilenameSettingBase(
 	const string& name, const string& description,
-	const string& initialValue, XMLElement* node)
-	: StringSettingBase(name, description, initialValue, node)
+        const string& initialValue)
+	: StringSettingBase(name, description, initialValue)
+{
+}
+
+FilenameSettingBase::FilenameSettingBase(
+	XMLElement& node, const string& description)
+	: StringSettingBase(node, description)
 {
 }
 
 void FilenameSettingBase::setValue(const string& newValue)
 {
-	try {
-		UserFileContext context;
-		string resolved = newValue.empty() ? newValue
-		                                   : context.resolve(newValue);
-		if (checkFile(resolved)) {
-			StringSettingBase::setValue(newValue);
+	string resolved;
+	if (!newValue.empty() && xmlNode) {
+		try {
+			resolved = xmlNode->getFileContext().resolve(newValue);
+		} catch (FileException& e) {
+			// ignore
 		}
-	} catch (FileException& e) {
-		// File not found.
-		if (!newValue.empty()) {
+	}
+	if (!newValue.empty() && resolved.empty()) {
+		try {
+			UserFileContext context;
+			resolved = context.resolve(newValue);
+		} catch (FileException& e) {
+			// File not found
 			CliCommOutput::instance().printWarning(
 				"couldn't find file: \"" + newValue + "\"");
+			return;
 		}
+	}
+	if (checkFile(resolved)) {
+		StringSettingBase::setValue(newValue);
 	}
 }
 
@@ -45,8 +59,15 @@ void FilenameSettingBase::tabCompletion(vector<string>& tokens) const
 
 FilenameSetting::FilenameSetting(
 	const string& name, const string& description,
-	const string& initialValue, XMLElement* node)
-	: FilenameSettingBase(name, description, initialValue, node)
+	const string& initialValue)
+	: FilenameSettingBase(name, description, initialValue)
+{
+	initSetting();
+}
+
+FilenameSetting::FilenameSetting(
+	XMLElement& node, const string& description)
+	: FilenameSettingBase(node, description)
 {
 	initSetting();
 }

@@ -21,7 +21,6 @@ Darkener<word>::Darkener(SDL_PixelFormat* format_)
 {
 	factor = 0;
 	memset(tab, 0, sizeof(tab));
-	cout << "16" << endl;
 }
 
 inline word Darkener<word>::darken(word p, unsigned f)
@@ -62,7 +61,6 @@ inline unsigned* Darkener<word>::getTable()
 
 Darkener<unsigned>::Darkener(SDL_PixelFormat* /*format*/)
 {
-	cout << "32" << endl;
 }
 
 inline unsigned Darkener<unsigned>::darken(unsigned p, unsigned f)

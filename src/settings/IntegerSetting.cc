@@ -11,9 +11,15 @@ using std::ostringstream;
 namespace openmsx {
 
 IntegerSetting::IntegerSetting(const string& name, const string& description,
-                               int initialValue, int minValue, int maxValue,
-                               XMLElement* node)
-	: Setting<int>(name, description, initialValue, node)
+                               int initialValue, int minValue, int maxValue)
+	: Setting<int>(name, description, initialValue)
+{
+	setRange(minValue, maxValue);
+	initSetting();
+}
+IntegerSetting::IntegerSetting(XMLElement& node, const string& description,
+                               int minValue, int maxValue)
+	: Setting<int>(node, description, node.getDataAsInt())
 {
 	setRange(minValue, maxValue);
 	initSetting();

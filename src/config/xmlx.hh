@@ -61,7 +61,6 @@ public:
 
 	XMLElement& getCreateChild(const string& name,
 	                           const string& defaultValue = "");
-	XMLElement& getCreateChild(const string& name, int defaultValue);
 	
 	const string& getChildData(const string& name) const;
 	string getChildData(const string& name,

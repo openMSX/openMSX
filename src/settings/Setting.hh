@@ -53,16 +53,15 @@ public:
 
 protected:
 	Setting(const string& name, const string& description,
-		const ValueType& initialValue, XMLElement* node = NULL)
+		const ValueType& initialValue)
 		: SettingLeafNode(name, description)
-		, value(initialValue), defaultValue(initialValue)
-		, xmlNode(node) { }
-	Setting(const string& name, const string& description,
-		const ValueType& initialValue, const ValueType& defaultValue_,
-		XMLElement* node = NULL)
-		: SettingLeafNode(name, description)
-		, value(initialValue), defaultValue(defaultValue_)
-		, xmlNode(node) { }
+		, xmlNode(NULL)
+		, value(initialValue), defaultValue(initialValue) { }
+	Setting(XMLElement& node, const string& description,
+		const ValueType& initialValue)
+		: SettingLeafNode(node.getName(), description)
+		, xmlNode(&node), value(initialValue)
+		, defaultValue(initialValue) {}
 
 	/**
 	 * This method must be called from the constructor of the child class
@@ -80,6 +79,8 @@ protected:
 	void exitSetting() {
 		SettingsManager::instance().unregisterSetting(*this);
 	}
+	
+	XMLElement* xmlNode;
 
 private:
 	/** The current value of this setting.
@@ -87,7 +88,6 @@ private:
 	  */
 	ValueType value;
 	ValueType defaultValue;
-	XMLElement* xmlNode;
 };
 
 } // namespace openmsx

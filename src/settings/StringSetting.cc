@@ -8,8 +8,14 @@ namespace openmsx {
 
 StringSettingBase::StringSettingBase(
 	const string& name, const string& description,
-        const string& initialValue, XMLElement* node)
-	: Setting<string>(name, description, initialValue, node)
+        const string& initialValue)
+	: Setting<string>(name, description, initialValue)
+{
+}
+
+StringSettingBase::StringSettingBase(
+	XMLElement& node, const string& description)
+	: Setting<string>(node, description, node.getData())
 {
 }
 
@@ -27,8 +33,14 @@ void StringSettingBase::setValueString(const string& newValue)
 // class StringSetting
 
 StringSetting::StringSetting(const string& name, const string& description,
-                             const string& initialValue, XMLElement* node)
-	: StringSettingBase(name, description, initialValue, node)
+                             const string& initialValue)
+	: StringSettingBase(name, description, initialValue)
+{
+	initSetting();
+}
+
+StringSetting::StringSetting(XMLElement& node, const string& description)
+	: StringSettingBase(node, description)
 {
 	initSetting();
 }

@@ -9,9 +9,9 @@
 
   <!-- renderer settings: determines how openMSX outputs graphics -->
   <renderer>
-    <type>SDLHi</type>
+    <renderer>SDLHi</renderer>
     <!-- <type>SDLGL</type> -->
-    <full_screen>false</full_screen>
+    <fullscreen>false</fullscreen>
   </renderer>
 
   <!-- Audio mixer settings -->
@@ -31,11 +31,11 @@
 
   <!-- Console font file, decorations and other settings -->
   <console>
-    <font>skins/ConsoleFont.png</font>
-    <background>skins/ConsoleBackground.png</background>
-    <columns>100</columns>
-    <rows>14</rows>
-    <placement>bottom</placement>
+    <consolefont>skins/ConsoleFont.png</consolefont>
+    <consolebackground>skins/ConsoleBackground.png</consolebackground>
+    <consolecolumns>100</consolecolumns>
+    <consolerows>14</consolerows>
+    <consoleplacement>bottom</consoleplacement>
     <historysize>100</historysize>
     <removedoubles>true</removedoubles>
   </console>

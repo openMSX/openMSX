@@ -15,8 +15,9 @@ class IntegerSetting: public Setting<int>, NON_INHERITABLE(IntegerSetting)
 {
 public:
 	IntegerSetting(const string& name, const string& description,
-	               int initialValue, int minValue, int maxValue,
-		       XMLElement* node = NULL);
+	               int initialValue, int minValue, int maxValue);
+	IntegerSetting(XMLElement& node, const string& description,
+	               int minValue, int maxValue);
 	virtual ~IntegerSetting();
 
 	/** Change the allowed range.

@@ -12,9 +12,16 @@ namespace openmsx {
 
 FloatSetting::FloatSetting(
 	const string& name, const string& description,
-	float initialValue, float minValue, float maxValue,
-	XMLElement* node)
-	: Setting<float>(name, description, initialValue, node)
+	float initialValue, float minValue, float maxValue)
+	: Setting<float>(name, description, initialValue)
+{
+	setRange(minValue, maxValue);
+	initSetting();
+}
+
+FloatSetting::FloatSetting(XMLElement& node, const string& description,
+                           float minValue, float maxValue)
+	: Setting<float>(node, description, node.getDataAsDouble())
 {
 	setRange(minValue, maxValue);
 	initSetting();

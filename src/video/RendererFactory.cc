@@ -74,14 +74,14 @@ auto_ptr<RendererFactory::RendererSetting> RendererFactory::createRendererSettin
 			"Invalid renderer requested: \"" + defaultRenderer + "\"");
 		defaultValue = SDLHI;
 	}
-	RendererID initialValue =
-		(CommandLineParser::instance().getParseStatus() ==
-		 CommandLineParser::CONTROL)
-		? DUMMY
-		: defaultValue;
-	return auto_ptr<RendererSetting>(new RendererSetting(
-		"renderer", "rendering back-end used to display the MSX screen",
-		initialValue, defaultValue, rendererMap, &rendererElem));
+	auto_ptr<RendererSetting> setting(new RendererSetting(
+		rendererElem, "rendering back-end used to display the MSX screen",
+		defaultValue, rendererMap));
+	if (CommandLineParser::instance().getParseStatus() ==
+	    CommandLineParser::CONTROL) {
+		setting->setValue(DUMMY);
+	}
+	return setting;
 }
 
 } // namespace openmsx

@@ -14,7 +14,8 @@ class StringSettingBase : public Setting<string>
 {
 protected:
 	StringSettingBase(const string& name, const string& description,
-	                  const string& initialValue, XMLElement* node);
+	                  const string& initialValue);
+	StringSettingBase(XMLElement& node, const string& description);
 
 public:
 	// Implementation of Setting interface:
@@ -27,7 +28,8 @@ class StringSetting : public StringSettingBase, NON_INHERITABLE(StringSetting)
 {
 public:
 	StringSetting(const string& name, const string& description,
-	              const string& initialValue, XMLElement* node = NULL);
+	              const string& initialValue);
+	StringSetting(XMLElement& node, const string& description);
 	virtual ~StringSetting();
 };
 

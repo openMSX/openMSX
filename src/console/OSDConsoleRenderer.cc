@@ -18,12 +18,10 @@ namespace openmsx {
 // class BackgroundSetting
 
 BackgroundSetting::BackgroundSetting(
-	OSDConsoleRenderer& console_, const string& settingName,
-	const string& filename, XMLElement* node)
-	: FilenameSettingBase(settingName, "console background file", "", node)
+	OSDConsoleRenderer& console_, XMLElement& node)
+	: FilenameSettingBase(node, "console background file")
 	, console(console_)
 {
-	setValueString(filename);
 	initSetting();
 }
 
@@ -41,12 +39,10 @@ bool BackgroundSetting::checkFile(const string& filename)
 // class FontSetting
 
 FontSetting::FontSetting(
-	OSDConsoleRenderer& console_, const string& settingName,
-	const string& filename, XMLElement* node)
-	: FilenameSettingBase(settingName, "console font file", "", node)
+	OSDConsoleRenderer& console_, XMLElement& node)
+	: FilenameSettingBase(node, "console font file")
 	, console(console_)
 {
-	setValueString(filename);
 	initSetting();
 }
 
@@ -92,34 +88,27 @@ OSDConsoleRenderer::~OSDConsoleRenderer()
 void OSDConsoleRenderer::initConsole()
 {
 	XMLElement& config = SettingsConfig::instance().getCreateChild("console");
-	FileContext& context = config.getFileContext();
 
 	// font
-	XMLElement& fontElem = config.getCreateChild("font", "");
-	string fontName;
-	try {
-		fontName = context.resolve(fontElem.getData());
-	} catch (FileException& e) {
-		// nothing
-	}
-	fontSetting.reset(new FontSetting(*this, "consolefont", fontName, &fontElem));
+	XMLElement& fontElem = config.getCreateChild("consolefont", "");
+	fontSetting.reset(new FontSetting(*this, fontElem));
 	
 	// rows / columns
 	SDL_Surface* screen = SDL_GetVideoSurface();
 	int columns = (((screen->w - CHAR_BORDER) / font->getWidth()) * 30) / 32;
 	int rows = ((screen->h / font->getHeight()) * 6) / 15;
-	XMLElement& columnsElem = config.getCreateChild("columns", columns);
-	XMLElement& rowsElem    = config.getCreateChild("rows",    rows);
-	console.setColumns(columnsElem.getDataAsInt());
-	console.setRows(rowsElem.getDataAsInt());
+	XMLElement& columnsElem = config.getCreateChild(
+		"consolecolumns", StringOp::toString(columns));
+	XMLElement& rowsElem    = config.getCreateChild(
+		"consolerows",    StringOp::toString(rows));
+	consoleColumnsSetting.reset(new IntegerSetting(
+		columnsElem, "number of columns in the console", 32, 999));
+	consoleRowsSetting.reset(new IntegerSetting(
+		rowsElem, "number of rows in the console", 1, 99));
+	console.setColumns(consoleColumnsSetting->getValue());
+	console.setRows(consoleRowsSetting->getValue());
 	adjustColRow();
 	console.setConsoleDimensions(consoleColumns, consoleRows);
-	consoleColumnsSetting.reset(new IntegerSetting(
-		"consolecolumns", "number of columns in the console",
-		console.getColumns(), 32, 999, &columnsElem));
-	consoleRowsSetting.reset(new IntegerSetting(
-		"consolerows", "number of rows in the console",
-		console.getRows(), 1, 99, &rowsElem));
 	
 	// placement
 	typedef EnumSetting<Placement>::Map PlaceMap;
@@ -133,29 +122,21 @@ void OSDConsoleRenderer::initConsole()
 	placeMap["bottomleft"]  = CP_BOTTOMLEFT;
 	placeMap["bottom"]      = CP_BOTTOM;
 	placeMap["bottomright"] = CP_BOTTOMRIGHT;
-	XMLElement& placeElem   = config.getCreateChild("placement", "bottom");
+	XMLElement& placeElem   = config.getCreateChild("consoleplacement", "bottom");
 	Placement placement = CP_BOTTOM;
 	PlaceMap::const_iterator it = placeMap.find(placeElem.getData());
 	if (it != placeMap.end()) {
 		placement = it->second;
 	}
 	consolePlacementSetting.reset(new EnumSetting<Placement>(
-		"consoleplacement", "position of the console within the emulator",
-		placement, placeMap, &placeElem));
+		placeElem, "position of the console within the emulator",
+		placement, placeMap));
 	
 	updateConsoleRect(destRect);
 	
 	// background
-	XMLElement& backgroundElem = config.getCreateChild("background", "");
-	string backgroundName;
-	try {
-		backgroundName = context.resolve(backgroundElem.getData());
-	} catch (FileException& e) {
-		// nothing
-	}
-	backgroundSetting.reset(
-		new BackgroundSetting(*this, "consolebackground",
-		                      backgroundName, &backgroundElem));
+	XMLElement& backgroundElem = config.getCreateChild("consolebackground", "");
+	backgroundSetting.reset(new BackgroundSetting(*this, backgroundElem));
 }
 
 void OSDConsoleRenderer::adjustColRow()

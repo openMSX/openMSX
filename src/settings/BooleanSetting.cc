@@ -5,8 +5,14 @@
 namespace openmsx {
 
 BooleanSetting::BooleanSetting(const string& name, const string& description,
-                               bool initialValue, XMLElement* node)
-	: EnumSettingBase<bool>(name, description, initialValue, getMap(), node)
+                               bool initialValue)
+	: EnumSettingBase<bool>(name, description, initialValue, getMap())
+{
+	initSetting();
+}
+
+BooleanSetting::BooleanSetting(XMLElement& node, const string& description)
+	: EnumSettingBase<bool>(node, description, node.getDataAsBool(), getMap())
 {
 	initSetting();
 }

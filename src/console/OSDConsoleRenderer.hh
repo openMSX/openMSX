@@ -31,8 +31,7 @@ class BackgroundSetting : public FilenameSettingBase,
                           NON_INHERITABLE(BackgroundSetting)
 {
 public:
-	BackgroundSetting(OSDConsoleRenderer& console, const string& settingName,
-	                  const string& filename, XMLElement* node = NULL);
+	BackgroundSetting(OSDConsoleRenderer& console, XMLElement& node);
 	virtual ~BackgroundSetting();
 
 	virtual bool checkFile(const string& filename);
@@ -45,8 +44,7 @@ NON_INHERITABLE_PRE(FontSetting)
 class FontSetting : public FilenameSettingBase, NON_INHERITABLE(FontSetting)
 {
 public:
-	FontSetting(OSDConsoleRenderer& console, const string& settingName,
-	            const string& filename, XMLElement* node = NULL);
+	FontSetting(OSDConsoleRenderer& console, XMLElement& node);
 	virtual ~FontSetting();
 
 	virtual bool checkFile(const string& filename);

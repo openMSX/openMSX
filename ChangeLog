@@ -1,5 +1,16 @@
 $Id$
 
+2004-09-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Refactored settings:
+	   - creating saveable settings is easier now
+	   - settings.xml format changed slightly: tag name is now the same as
+	     the name of the setting. So if you're not using the default
+	     settings.xml file you need to make at least changes
+	       <font>        -->  <consolefont>
+	       <background>  -->  <consolebackground>
+	       <renderer>         <renderer>
+	         <type>      -->    <renderer>
+
 2004-08-31 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Renderer settings can be saved now
 

@@ -190,11 +190,6 @@ XMLElement& XMLElement::getCreateChild(const string& name,
 	return *result;
 }
 
-XMLElement& XMLElement::getCreateChild(const string& name, int defaultValue)
-{
-	return getCreateChild(name, StringOp::toString(defaultValue));
-}
-
 const string& XMLElement::getChildData(const string& name) const
 {
 	const XMLElement& child = getChild(name);
