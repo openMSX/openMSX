@@ -1089,7 +1089,7 @@ VDP::PaletteCmd::PaletteCmd(VDP *vdp)
 	this->vdp = vdp;
 }
 
-void VDP::PaletteCmd::execute(const char *commandLine)
+void VDP::PaletteCmd::execute(const std::vector<std::string> &tokens)
 {
 	// Print palette in 4x4 table.
 	std::ostringstream out;
@@ -1106,7 +1106,7 @@ void VDP::PaletteCmd::execute(const char *commandLine)
 	Console::instance()->print(out.str());
 }
 
-void VDP::PaletteCmd::help(const char *commandLine)
+void VDP::PaletteCmd::help   (const std::vector<std::string> &tokens)
 {
 	Console::instance()->print("Prints the current VDP palette (i:rgb).");
 }

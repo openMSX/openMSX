@@ -8,7 +8,6 @@
 
 #include <stdio.h>
 #include <cassert>
-#include <hash_map>
 #include "../openmsx.hh"
 #include "../MSXConfig.hh"
 #include "Console.hh"
@@ -39,18 +38,18 @@ Console *Console::instance()
 Console *Console::oneInstance = NULL;
 
 
-void Console::registerCommand(ConsoleCommand &command, char *string)
+void Console::registerCommand(ConsoleCommand &command, const std::string &str)
 {
-	commands[string] = &command;
+	commands[str] = &command;
 }
 
-void Console::unRegisterCommand(char *commandString)
+void Console::unRegisterCommand(const std::string &str)
 {
 	assert(false);	// unimplemented
 }
 
 
-void Console::print(std::string text)
+void Console::print(const std::string &text)
 {
 	int end = 0;
 	bool more = true;
@@ -123,43 +122,56 @@ void Console::newLineCommand()
 }
 
 
-// executes the help command passed in from the string
-void Console::commandHelp()
+void Console::tokenize(const std::string &str, vector<std::string> &tokens, const std::string &delimiters = " ")
 {
-	char command[CHARS_PER_LINE];
-	char *backStrings = consoleLines[0];
-
-	// Get the command out of the string
-	if (EOF == sscanf(backStrings, "%s", command))
-		return;
-
-	newLineConsole();
-
-	std::hash_map<const char*, ConsoleCommand*, hash<const char*>, eqstr>::const_iterator it;
-	it = commands.find(command);
-	if (it==commands.end()) {
-		out("No help for command");
-	} else {
-		it->second->help(backStrings);
+	// TODO implement "backslash before space"
+	// Skip delimiters at beginning
+	std::string::size_type lastPos = str.find_first_not_of(delimiters, 0);
+	// Find first "non-delimiter"
+	std::string::size_type pos     = str.find_first_of(delimiters, lastPos);
+	while (std::string::npos != pos || std::string::npos != lastPos) {
+		// Found a token, add it to the vector
+		tokens.push_back(str.substr(lastPos, pos - lastPos));
+		// Skip delimiters
+		lastPos = str.find_first_not_of(delimiters, pos);
+		// Find next "non-delimiter"
+		pos = str.find_first_of(delimiters, lastPos);
 	}
 }
 
-void Console::commandExecute(const std::string cmd)
+// executes the help command passed in from the string
+void Console::commandHelp()
 {
-	const char *backStrings = cmd.c_str();
-	// Get the command out of the string
-	char command[CHARS_PER_LINE];
-	if (EOF == sscanf(backStrings, "%s", command))
+	std::string cmd(consoleLines[0]);
+	vector<std::string> tokens;
+	tokenize(cmd, tokens);
+	if (tokens.empty())
 		return;
-
-	newLineConsole();
 	
-	std::hash_map<const char*, ConsoleCommand*, hash<const char*>, eqstr>::const_iterator it;
-	it = commands.find(command);
+	newLineConsole();
+	std::map<const std::string, ConsoleCommand*, ltstr>::const_iterator it;
+	it = commands.find(tokens[0]);
+	if (it==commands.end()) {
+		out("No help for command");
+	} else {
+		it->second->help(tokens);
+	}
+}
+
+void Console::commandExecute(const std::string &cmd)
+{
+	vector<std::string> tokens;
+	tokenize(cmd, tokens);
+	if (tokens.empty())
+		return;
+	
+	newLineConsole();
+	std::map<const std::string, ConsoleCommand*, ltstr>::const_iterator it;
+	it = commands.find(tokens[0]);
 	if (it==commands.end()) {
 		out("Unknown command");
 	} else {
-		it->second->execute(backStrings);
+		it->second->execute(tokens);
 	}
 }
 
@@ -186,7 +198,7 @@ void Console::tabCompletion()
 	int matches = 0;
 	int *location = &stringLocation;
 	char *commandLine = consoleLines[0];
-	const char *matchingCommand;
+	const char *matchingCommand = 0;
 	int commandlength;
 	int spacefound = 0;
 	
@@ -194,7 +206,7 @@ void Console::tabCompletion()
 	// the user is typing options, which will need an extra routine :-)
 	// if there is a space then the command must be already completed
 	PRT_DEBUG(commandLine);
-	for (int i=0;i<strlen(commandLine);i++){
+	for (unsigned i=0; i<strlen(commandLine); i++){
 		//printf("%i : %c %i \n", i, CommandLine[i], (int)CommandLine[i] );
 		if (commandLine[i] == ' '){
 			spacefound=i;
@@ -205,10 +217,10 @@ void Console::tabCompletion()
 
 	// Find all the commands that match
 	commandlength = spacefound ? spacefound : strlen(commandLine);
-	std::hash_map<const char*, ConsoleCommand*, hash<const char*>, eqstr>::const_iterator it;
+	std::map<const std::string, ConsoleCommand*, ltstr>::const_iterator it;
 	for (it=commands.begin(); it!=commands.end(); it++) {
-		if (0 == strncmp(commandLine, it->first, commandlength)) {
-			matchingCommand=it->first;
+		if (0 == strncmp(commandLine, it->first.c_str(), commandlength)) {
+			matchingCommand=it->first.c_str();
 			matches++;
 		}
 	}
@@ -230,8 +242,8 @@ void Console::tabCompletion()
 	        // multiple matches so print them out to the user
 		newLineConsole();
 		for (it=commands.begin(); it!=commands.end(); it++) {
-			if (0 == strncmp(commandLine, it->first, strlen(commandLine)))
-				out(it->first);
+			if (0 == strncmp(commandLine, it->first.c_str(), strlen(commandLine)))
+				print(it->first);
 		}
 	}
 	else if (matches == 0)
@@ -243,8 +255,8 @@ void Console::tabCompletion()
 void Console::listCommands()
 {
 	out(" ");
-	std::hash_map<const char*, ConsoleCommand*, hash<const char*>, eqstr>::const_iterator it;
+	std::map<const std::string, ConsoleCommand*, ltstr>::const_iterator it;
 	for (it=commands.begin(); it!=commands.end(); it++) {
-		out("%s", it->first);
+		print(it->first);
 	}
 }

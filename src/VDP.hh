@@ -458,8 +458,8 @@ private:
 	class PaletteCmd : public ConsoleCommand {
 	public:
 		PaletteCmd(VDP *vdp);
-		virtual void execute(const char *commandLine);
-		virtual void help(const char *commandLine);
+		virtual void execute(const std::vector<std::string> &tokens);
+		virtual void help   (const std::vector<std::string> &tokens);
 	private:
 		VDP *vdp;
 	};

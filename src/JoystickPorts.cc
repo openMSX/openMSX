@@ -72,18 +72,22 @@ JoystickPorts::JoyPortCmd::~JoyPortCmd()
 		delete joystick[i];
 	}
 }
-void JoystickPorts::JoyPortCmd::execute(const char* commandLine)
+void JoystickPorts::JoyPortCmd::execute(const std::vector<std::string> &tokens)
 {
 	bool error = false;
-	int port = (commandLine[7] == 'b') ? 1 : 0;	// is either 'a' or 'b'
-	if (0 == strncmp(&commandLine[9], "unplug", 6)) {
+	int port;
+	if      (tokens[0]=="joyporta") port = 0;
+	else if (tokens[0]=="joyportb") port = 1;
+	else assert(false);
+	
+	if        (tokens[1]=="unplug") {
 		JoystickPorts::instance()->unplug(port);
-	} else if (0 == strncmp(&commandLine[9], "mouse", 5)) {
+	} else if (tokens[1]=="mouse") {
 		if (mouse==NULL)
 			mouse = new Mouse();
 		JoystickPorts::instance()->plug(port, mouse);
-	} else if (0 == strncmp(&commandLine[9], "joystick", 8)) {
-		int num = commandLine[17]-'1';
+	} else if (tokens[1].substr(0, 8)=="joystick") {
+		int num = tokens[1][8]-'1';
 		if (num<0 || num>NUM_JOYSTICKS) {
 			error = true;
 		} else {
@@ -101,7 +105,7 @@ void JoystickPorts::JoyPortCmd::execute(const char* commandLine)
 	if (error)
 		Console::instance()->print("syntax error");
 }
-void JoystickPorts::JoyPortCmd::help(const char *commandLine)
+void JoystickPorts::JoyPortCmd::help   (const std::vector<std::string> &tokens)
 {
 	Console::instance()->print("joyport[a|b] unplug        unplugs device from port");
 	Console::instance()->print("joyport[a|b] mouse         plugs mouse in port");

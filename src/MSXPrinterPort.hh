@@ -56,12 +56,10 @@ class MSXPrinterPort : public MSXIODevice
 		public:
 			printPortCmd();
 			virtual ~printPortCmd();
-			virtual void execute(const char *commandLine);
-			virtual void help(const char *commandLine);
+			virtual void execute(const std::vector<std::string> &tokens);
+			virtual void help   (const std::vector<std::string> &tokens);
 		};
-
 		printPortCmd printPortCmd ;
-
 };
 
 #endif

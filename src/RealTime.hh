@@ -66,8 +66,8 @@ class RealTime : public Schedulable
 
 		class PauseCmd : public ConsoleCommand {
 			public:
-				virtual void execute(const char *commandLine);
-				virtual void help(const char *commandLine);
+				virtual void execute(const std::vector<std::string> &tokens);
+				virtual void help   (const std::vector<std::string> &tokens);
 		};
 		friend class PauseCmd;
 		PauseCmd pauseCmd;

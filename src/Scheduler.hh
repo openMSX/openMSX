@@ -155,14 +155,14 @@ class Scheduler : private EventListener
 		// Console commands
 		class QuitCmd : public ConsoleCommand {
 		public:
-			virtual void execute(const char *commandLine);
-			virtual void help(const char *commandLine);
+			virtual void execute(const std::vector<std::string> &tokens);
+			virtual void help   (const std::vector<std::string> &tokens);
 		};
 		QuitCmd quitCmd;
 		class MuteCmd : public ConsoleCommand {
 		public:
-			virtual void execute(const char *commandLine);
-			virtual void help(const char *commandLine);
+			virtual void execute(const std::vector<std::string> &tokens);
+			virtual void help   (const std::vector<std::string> &tokens);
 		};
 		friend class MuteCmd;
 		MuteCmd muteCmd;

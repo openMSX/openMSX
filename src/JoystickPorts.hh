@@ -35,8 +35,8 @@ class JoystickPorts
 		public:
 			JoyPortCmd();
 			virtual ~JoyPortCmd();
-			virtual void execute(const char *commandLine);
-			virtual void help(const char *commandLine);
+			virtual void execute(const std::vector<std::string> &tokens);
+			virtual void help   (const std::vector<std::string> &tokens);
 			
 			static const int NUM_JOYSTICKS = 9;
 			Mouse *mouse;

@@ -4,7 +4,8 @@
 #define __CONSOLE_HH__
 
 #include <string>
-#include <hash_map>
+#include <map>
+#include <vector>
 
 
 class ConsoleCommand;
@@ -19,13 +20,13 @@ class Console
 		 * objects that want to accept commands from the console 
 		 * must register themself
 		 */
-		void registerCommand(ConsoleCommand &commandObject, char *string);
-		void unRegisterCommand(char *commandString);
+		void registerCommand(ConsoleCommand &commandObject, const std::string &str);
+		void unRegisterCommand(const std::string &str);
 		
 		/**
 		 * Prints a string on the console
 		 */
-		void print(std::string text);
+		void print(const std::string &text);
 		
 		/**
 		 * This method redraws console, it must be called every frame
@@ -40,7 +41,7 @@ class Console
 		/**
 		 * Execute a given command
 		 */
-		void commandExecute(const std::string backstrings);
+		void commandExecute(const std::string &backstrings);
 		
 	protected:
 		Console();
@@ -51,6 +52,7 @@ class Console
 		void out(const char *str, ...);
 		void newLineConsole();
 		virtual void updateConsole() = 0;
+		void tokenize(const std::string &str, vector<std::string> &tokens, const std::string &delimiters = " ");
 		
 		static const int CHARS_PER_LINE = 128;
 	
@@ -90,12 +92,17 @@ class Console
 		int commandScrollBack;
 		
 	private:
-		struct eqstr {
-			bool operator()(const char* s1, const char* s2) const {
-				return strcmp(s1, s2) == 0;
+		struct ltstr {
+			bool operator()(const std::string &s1, const std::string &s2) const {
+				return s1 < s2;
 			}
 		};
-		std::hash_map<const char*, ConsoleCommand*, hash<const char*>, eqstr> commands;
+		//struct eqstr {
+		//	bool operator()(const std::string &s1, const std::string &s2) const {
+		//		return s1 == s2;
+		//	}
+		//};
+		std::map<const std::string, ConsoleCommand*, ltstr> commands;
 };
 
 #endif

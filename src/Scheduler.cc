@@ -190,22 +190,22 @@ void Scheduler::signalEvent(SDL_Event &event) {
 }
 
 
-void Scheduler::QuitCmd::execute(const char *string)
+void Scheduler::QuitCmd::execute(const std::vector<std::string> &tokens)
 {
 	Scheduler::instance()->stopScheduling();
 }
-void Scheduler::QuitCmd::help(const char *string)
+void Scheduler::QuitCmd::help   (const std::vector<std::string> &tokens)
 {
 	Console::instance()->print("Use this command to stop the emulator");
 }
 
-void Scheduler::MuteCmd::execute(const char *string)
+void Scheduler::MuteCmd::execute(const std::vector<std::string> &tokens)
 {
 	Scheduler *sch = Scheduler::instance();
 	sch->noSound = !sch->noSound;
 	Mixer::instance()->pause(sch->noSound||sch->paused);
 }
-void Scheduler::MuteCmd::help(const char *string)
+void Scheduler::MuteCmd::help   (const std::vector<std::string> &tokens)
 {
 	Console::instance()->print("Use this command to mute/unmute the emulator");
 }

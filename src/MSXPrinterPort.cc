@@ -121,22 +121,22 @@ MSXPrinterPort::printPortCmd::~printPortCmd()
    PRT_DEBUG("Destructing printPortCmd");
 }
 
-void MSXPrinterPort::printPortCmd::execute(const char* commandLine)
+void MSXPrinterPort::printPortCmd::execute(const std::vector<std::string> &tokens)
 {
 	const EmuTime &time = MSXCPU::instance()->getCurrentTime();
 	bool error = false;
-	if (0 == strncmp(&commandLine[12], "unplug", 6)) {
+	if        (tokens[1]=="unplug") {
 		MSXPrinterPort::instance()->unplug(time);
-	} else if (0 == strncmp(&commandLine[12], "log", 3)) {
+	} else if (tokens[1]=="log") {
 		MSXPrinterPort::instance()->plug(logger, time);
 	} else {
 		error = true;
-	};
+	}
 	if (error)
 		Console::instance()->print("syntax error");
 }
 
-void MSXPrinterPort::printPortCmd::help(const char *commandLine)
+void MSXPrinterPort::printPortCmd::help   (const std::vector<std::string> &tokens)
 {
 	Console::instance()->print("printerport unplug         unplugs device from port");
 	Console::instance()->print("printerport log <filename> log printerdata to file");

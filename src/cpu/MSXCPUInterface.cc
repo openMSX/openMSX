@@ -247,20 +247,20 @@ std::string MSXCPUInterface::getSlotSelection()
 }
 
 
-void MSXCPUInterface::SlotMapCmd::execute(const char* commandLine)
+void MSXCPUInterface::SlotMapCmd::execute(const std::vector<std::string> &tokens)
 {
 	Console::instance()->print(MSXMotherBoard::instance()->getSlotMap());
 }
-void MSXCPUInterface::SlotMapCmd::help(const char *commandLine)
+void MSXCPUInterface::SlotMapCmd::help   (const std::vector<std::string> &tokens)
 {
 	Console::instance()->print("Prints which slots contain which devices.");
 }
 
-void MSXCPUInterface::SlotSelectCmd::execute(const char* commandLine)
+void MSXCPUInterface::SlotSelectCmd::execute(const std::vector<std::string> &tokens)
 {
 	Console::instance()->print(MSXMotherBoard::instance()->getSlotSelection());
 }
-void MSXCPUInterface::SlotSelectCmd::help(const char *commandLine)
+void MSXCPUInterface::SlotSelectCmd::help   (const std::vector<std::string> &tokens)
 {
 	Console::instance()->print("Prints which slots are currently selected.");
 }

@@ -112,7 +112,7 @@ float RealTime::getRealDuration(const EmuTime time1, const EmuTime time2)
 }
 
 
-void RealTime::PauseCmd::execute(const char *string)
+void RealTime::PauseCmd::execute(const std::vector<std::string> &tokens)
 {
 	Scheduler *sch = Scheduler::instance();
 	RealTime *rt = RealTime::instance();
@@ -127,7 +127,7 @@ void RealTime::PauseCmd::execute(const char *string)
 		sch->pause();
 	}
 }
-void RealTime::PauseCmd::help(const char *string)
+void RealTime::PauseCmd::help   (const std::vector<std::string> &tokens)
 {
 	Console::instance()->print("Use this command to pause/unpause the emulator");
 }

@@ -1,5 +1,8 @@
 $Id$
 
+2002-03-06 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* split console commands in tokens
+
 2002-03-05 Joost Yervante Damad <andete@worldcity.nl>
 	* simplified auto* support for openGL
 	  see src/config.h after running autogen.sh

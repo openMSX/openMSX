@@ -356,22 +356,18 @@ void MSXTapePatch::STMOTR(CPU::CPURegs& R) const
 }
 
 
-void MSXTapePatch::execute(const char *string)
+void MSXTapePatch::execute(const std::vector<std::string> &tokens)
 {
-	if (0 == strcmp(string,"tape eject")) {
+	if (tokens[1]=="eject") {
 		Console::instance()->print("Tape ejected");
 		ejectTape();
 	} else {
-		char tapefile[250];
-		/* Get the tapefile out of the string */
-		if (EOF != sscanf(string, "tape %s", tapefile)) {
-			Console::instance()->print("Changing tape");
-			insertTape(std::string(tapefile));
-		}
+		Console::instance()->print("Changing tape");
+		insertTape(tokens[1]);
 	}
 }
 
-void MSXTapePatch::help(const char *string)
+void MSXTapePatch::help(const std::vector<std::string> &tokens)
 {
 	Console::instance()->print("tape eject      : remove tape from virtual player");
 	Console::instance()->print("tape <filename> : change the tape file");

@@ -70,11 +70,11 @@ void MSXMotherBoard::saveStateMSX(std::ofstream &savestream)
 }
 
 
-void MSXMotherBoard::ResetCmd::execute(const char* commandLine)
+void MSXMotherBoard::ResetCmd::execute(const std::vector<std::string> &tokens)
 {
 	MSXMotherBoard::instance()->resetMSX(MSXCPU::instance()->getCurrentTime());
 }
-void MSXMotherBoard::ResetCmd::help(const char *commandLine)
+void MSXMotherBoard::ResetCmd::help   (const std::vector<std::string> &tokens)
 {
 	Console::instance()->print("Resets the MSX.");
 }

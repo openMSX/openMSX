@@ -167,12 +167,12 @@ class MSXCPUInterface : public CPUInterface
 
 	private:
 		class SlotMapCmd : public ConsoleCommand {
-			virtual void execute(const char *commandLine);
-			virtual void help(const char *commandLine);
+			virtual void execute(const std::vector<std::string> &tokens);
+			virtual void help   (const std::vector<std::string> &tokens);
 		};
 		class SlotSelectCmd : public ConsoleCommand {
-			virtual void execute(const char *commandLine);
-			virtual void help(const char *commandLine);
+			virtual void execute(const std::vector<std::string> &tokens);
+			virtual void help   (const std::vector<std::string> &tokens);
 		};
 
 		/** Updated visibleDevices for a given page and clears the cache
