@@ -1,6 +1,7 @@
 // $Id$
 
 #include <cassert>
+#include <cstdio>
 #include "CommandController.hh"
 #include "MSXCPU.hh"
 #include "PluggingController.hh"
