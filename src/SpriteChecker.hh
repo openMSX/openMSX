@@ -138,11 +138,13 @@ public:
 		// TODO: Update VRAM window range.
 	}
 
-	inline void checkUntil(const EmuTime &time) {
+private:
+	/** Update sprite checking until specified line.
+	  * @param limit Line (exclusive) to update sprite checking to.
+	  */
+	inline void checkUntil(int limit) {
 		// This calls either updateSprites1 or updateSprites2,
 		// depending on the current DisplayMode.
-		int limit =
-			(frameStartTime.getTicksTill(time) / VDP::TICKS_PER_LINE) + 1;
 		int linesPerFrame = vdp->isPalTiming() ? 313 : 262;
 		if (limit == linesPerFrame + 1) {
 			// Sprite memory is read one line in advance.
@@ -159,6 +161,12 @@ public:
 		(this->*updateSpritesMethod)(limit);
 	}
 
+	inline void checkUntil(const EmuTime &time) {
+		checkUntil(
+			frameStartTime.getTicksTill(time) / VDP::TICKS_PER_LINE + 1 );
+	}
+
+public:
 	/** Informs the sprite checker of a change in VRAM contents.
 	  * @param addr The address that will change.
 	  * @param data The new value.
@@ -209,21 +217,9 @@ public:
 	  * @return The number of sprites stored in the visibleSprites array.
 	  */
 	inline int getSprites(int line, SpriteInfo *&visibleSprites) {
-		EmuTime time = frameStartTime + line * VDP::TICKS_PER_LINE;
-		if (line >= currentLine) {
-			/*
-			cout << "performing extra updateSprites: "
-				<< "old line = " << (currentLine - 1)
-				<< ", new line = " << line
-				<< "\n";
-			*/
-			//sync(time);
-			// Current VRAM state is good, no need to sync with VRAM.
-			checkUntil(time);
-			//assert(line < currentLine);
-		}
+		if (line >= currentLine) checkUntil(line + 1);
 		visibleSprites = spriteBuffer[line];
-		//assert(spriteCount[line] != -1);
+		assert(spriteCount[line] != -1);
 		if (spriteCount[line] < 0) return 0;
 		return spriteCount[line];
 	}

@@ -12,6 +12,7 @@ TODO:
 */
 
 #include "SpriteChecker.hh"
+#include "VDP.hh"
 #include "VDPVRAM.hh"
 #include <cassert>
 
