@@ -33,6 +33,8 @@ class MSXMusic : public MSXIODevice, public MSXMemDevice, public MSXRom
 		void writeRegisterPort(byte value, EmuTime &time);
 		void writeDataPort(byte value, EmuTime &time);
 
+		virtual MSXConfig::Device * GetDeviceConfig();
+
 		byte enable;
 		YM2413 *ym2413;
 		byte* romBank;

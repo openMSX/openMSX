@@ -15,13 +15,12 @@ MSXKanji::MSXKanji(MSXConfig::Device *config) : MSXDevice(config)
 
 MSXKanji::~MSXKanji()
 {
-	delete [] buffer;
 }
 
 void MSXKanji::init()
 {
 	MSXDevice::init();
-	loadFile(&buffer, ROM_SIZE);
+	loadFile(&memoryBank, ROM_SIZE);
 	
 	MSXMotherBoard::instance()->register_IO_In (0xD9, this);
 	MSXMotherBoard::instance()->register_IO_Out(0xD8, this);
@@ -43,11 +42,11 @@ byte MSXKanji::readIO(byte port, EmuTime &time)
 	byte tmp;
 	switch (port) {
 	case 0xd9:
-		tmp = buffer[adr1+count1];
+		tmp = memoryBank[adr1+count1];
 		count1 = (count1+1)&0x1f;		//TODO check counter behaviour
 		return tmp;
 	case 0xdb:
-		tmp = buffer[adr2+count2+0x20000];
+		tmp = memoryBank[adr2+count2+0x20000];
 		count2 = (count2+1)&0x1f;		//TODO check counter behaviour
 		return tmp;
 	default:
@@ -79,6 +78,11 @@ void MSXKanji::writeIO(byte port, byte value, EmuTime &time)
 	default:
 		assert(false);
 	}
+}
+
+MSXConfig::Device* MSXKanji::GetDeviceConfig()
+{
+	return deviceConfig;
 }
 
 // This really works!

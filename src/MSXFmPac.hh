@@ -22,8 +22,8 @@ class MSXFmPac : public MSXMusic
 		void init();
 		void reset();
 		byte readMem(word address, EmuTime &time);
-		void writeMem(word address, byte value, EmuTime &time);  
-	
+		void writeMem(word address, byte value, EmuTime &time);
+
 	private:
 		void checkSramEnable();
 	

@@ -5,7 +5,9 @@
 
 #include "MSXMemDevice.hh"
 #include "MSXRom.hh"
+#include "MSXDevice.hh"
 #include "EmuTime.hh"
+#include "msxconfig.hh"
 
 class MSXRom16KB : public MSXMemDevice, public MSXRom
 {
@@ -24,8 +26,10 @@ class MSXRom16KB : public MSXMemDevice, public MSXRom
 		void init();
 		
 		byte readMem(word address, EmuTime &time);
-
-	private:
-		byte* memoryBank;
+	protected:
+		/**
+		 * provided for LoadFile mixin
+		 */
+		virtual MSXConfig::Device* GetDeviceConfig();
 };
 #endif

@@ -9,16 +9,21 @@
 #include "MSXDevice.hh"
 #include "LoadFile.hh"
 
-class MSXRom: virtual public MSXDevice, public LoadFile
+class MSXRom: public LoadFile
 {
+    public:
+
+        /**
+         * delete memory bank
+         */
+        virtual ~MSXRom();
+
     protected:
         /**
-         * Trivially needed for LoadFile mixin
+         * Delegate down more
          */
-        virtual MSXConfig::Device* LoadFileGetConfigDevice() {
-            return deviceConfig; }
+        virtual MSXConfig::Device* GetDeviceConfig()=0;
 
-    private:
         byte* memoryBank;
 };
 

@@ -25,9 +25,11 @@ class MSXMegaRom : public MSXMemDevice, public MSXRom
 		byte readMem(word address, EmuTime &time);
 		void writeMem(word address, byte value, EmuTime &time);
 
+	protected:
+		virtual MSXConfig::Device* GetDeviceConfig();
+
 	private:
 		int romSize;
-		byte* memoryBank;
 		int mapperType;
 		byte mapperMask;
 		byte *internalMemoryBank[8]; // 4 blocks of 8kB starting at #4000

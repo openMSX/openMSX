@@ -25,7 +25,7 @@ class LoadFile
      * Pure virtual function that needs to be supplied
      * by class that is using this mixin.
      */
-    virtual MSXConfig::Device* LoadFileGetConfigDevice()=0;
+    virtual MSXConfig::Device* GetDeviceConfig()=0;
 };
 
 

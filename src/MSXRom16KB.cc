@@ -15,7 +15,6 @@ MSXRom16KB::MSXRom16KB(MSXConfig::Device *config) : MSXDevice(config)
 MSXRom16KB::~MSXRom16KB()
 {
 	PRT_DEBUG("Destructing an MSXRom16KB object");
-	delete [] memoryBank;
 }
 
 void MSXRom16KB::init()
@@ -27,4 +26,9 @@ void MSXRom16KB::init()
 byte MSXRom16KB::readMem(word address, EmuTime &time)
 {
 	return memoryBank [address & 0x3fff];
+}
+
+MSXConfig::Device* MSXRom16KB::GetDeviceConfig()
+{
+	return deviceConfig;
 }

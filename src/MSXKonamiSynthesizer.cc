@@ -38,3 +38,8 @@ void MSXKonamiSynthesizer::writeMem(word address, byte value, EmuTime &time)
 	// cratridge we will simply use every write.
 	DAC->writeDAC(value,time);
 }
+
+MSXConfig::Device* MSXKonamiSynthesizer::GetDeviceConfig()
+{
+	return deviceConfig;
+}
