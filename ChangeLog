@@ -1,5 +1,8 @@
 $Id$
 
+2005-01-27 David Heremans <david.heremans@gnu-linux.net>
+	* Updated the LED images.
+
 2005-01-26 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Don't save "mute" setting, at least not until we have an OSD
 	  indication for this
