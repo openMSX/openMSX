@@ -19,6 +19,7 @@ CliCommInput::ParseState CliCommInput::user_data;
 CliCommInput::CliCommInput()
 	: lock(1), thread(this)
 {
+	Scheduler::instance(); // make sure it is instantiated in main thread
 	thread.start();
 }
 
