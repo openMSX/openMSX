@@ -1,4 +1,4 @@
-// $Id$ 
+// $Id$
 
 #ifndef __COMMANDCONTROLLER_HH__
 #define __COMMANDCONTROLLER_HH__
@@ -27,13 +27,12 @@ class CommandController
 		/**
 		 * Executes all defined auto commands
 		 */
-		void autoCommands(const EmuTime &time);
+		void autoCommands();
 
 		/**
 		 * Execute a given command
 		 */
-		void executeCommand(const std::string &command,
-		                    const EmuTime &time);
+		void executeCommand(const std::string &command);
 
 		/**
 		 * Complete a given command
@@ -66,8 +65,7 @@ class CommandController
 		// Commands
 		class HelpCmd : public Command {
 		public:
-			virtual void execute(const std::vector<std::string> &tokens,
-			                     const EmuTime &time);
+			virtual void execute(const std::vector<std::string> &tokens);
 			virtual void help(const std::vector<std::string> &tokens) const;
 			virtual void tabCompletion(std::vector<std::string> &tokens) const;
 		};

@@ -1,5 +1,10 @@
 $Id$
 
+2003-05-17 Maarten ter Huurne <maarten@treewalker.org>
+	* Removed EmuTime parameter from Command::execute.
+	  Since most commands do not interact with the emulated machine,
+	  they do not need EmuTime.
+
 2003-05-17 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Implemented configurable file-extentions.
 	* Lined the help-text up, properly.

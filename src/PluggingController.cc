@@ -66,17 +66,18 @@ void PluggingController::unregisterPluggable(Pluggable *pluggable)
 // === Commands ===
 //  plug command
 
-void PluggingController::PlugCmd::execute(const std::vector<std::string> &tokens,
-                                          const EmuTime &time)
+void PluggingController::PlugCmd::execute(
+	const std::vector<std::string> &tokens )
 {
+	const EmuTime &time = MSXCPU::instance()->getCurrentTime();
 	PluggingController* controller = PluggingController::instance();
 	switch (tokens.size()) {
-		case 1: { 
+		case 1: {
 			std::vector<Connector*>::iterator i;
 			for (i =  controller->connectors.begin();
 			     i != controller->connectors.end();
 			     i++) {
-				print((*i)->getName() + ": " + 
+				print((*i)->getName() + ": " +
 				      (*i)->getPlug()->getName());
 			}
 			break;
@@ -94,7 +95,7 @@ void PluggingController::PlugCmd::execute(const std::vector<std::string> &tokens
 			}
 			if (connector == NULL)
 				throw CommandException("No such connector");
-			print(connector->getName() + ": " + 
+			print(connector->getName() + ": " +
 			      connector->getPlug()->getName());
 			break;
 		}
@@ -165,11 +166,12 @@ void PluggingController::PlugCmd::tabCompletion(std::vector<std::string> &tokens
 
 //  unplug command
 
-void PluggingController::UnplugCmd::execute(const std::vector<std::string> &tokens,
-                                            const EmuTime &time)
+void PluggingController::UnplugCmd::execute(
+	const std::vector<std::string> &tokens )
 {
-	if (tokens.size() != 2)
+	if (tokens.size() != 2) {
 		throw CommandException("Syntax error");
+	}
 	PluggingController* controller = PluggingController::instance();
 	Connector* connector = NULL;
 	std::vector<Connector*>::iterator i;
@@ -179,8 +181,10 @@ void PluggingController::UnplugCmd::execute(const std::vector<std::string> &toke
 			break;
 		}
 	}
-	if (connector == NULL)
+	if (connector == NULL) {
 		throw CommandException("No such connector");
+	}
+	const EmuTime &time = MSXCPU::instance()->getCurrentTime();
 	connector->unplug(time);
 }
 

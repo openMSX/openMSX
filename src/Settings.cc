@@ -244,7 +244,7 @@ SettingsManager::SetCommand::SetCommand(SettingsManager *manager_)
 }
 
 void SettingsManager::SetCommand::execute(
-	const std::vector<std::string> &tokens, const EmuTime &time)
+	const std::vector<std::string> &tokens )
 {
 	int nrTokens = tokens.size();
 	if (nrTokens == 0 || nrTokens > 3) {
@@ -327,7 +327,7 @@ SettingsManager::ToggleCommand::ToggleCommand(SettingsManager *manager_)
 }
 
 void SettingsManager::ToggleCommand::execute(
-	const std::vector<std::string> &tokens, const EmuTime &time)
+	const std::vector<std::string> &tokens )
 {
 	int nrTokens = tokens.size();
 	if (nrTokens == 0 || nrTokens > 2) {

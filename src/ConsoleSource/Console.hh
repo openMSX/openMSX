@@ -44,7 +44,7 @@ class Console : private EventListener
 		virtual bool signalEvent(SDL_Event &event, const EmuTime &time);
 
 		void tabCompletion();
-		void commandExecute(const EmuTime &time);
+		void commandExecute();
 		void scrollUp();
 		void scrollDown();
 		void prevCommand();
@@ -56,7 +56,7 @@ class Console : private EventListener
 		void newLineConsole(const std::string &line);
 		void putPrompt();
 		void updateConsole();
-		
+
 		class ConsoleSetting : public BooleanSetting
 		{
 			public:

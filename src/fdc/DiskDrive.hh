@@ -155,7 +155,7 @@ class RealDrive : public DiskDrive, public Command
 		static const int TICKS_PER_ROTATION = 6850;	// TODO
 		static const int ROTATIONS_PER_SECOND = 5;
 		static const int INDEX_DURATION = TICKS_PER_ROTATION / 50;
-	
+
 		FDCBackEnd* disk;
 		int headPos;
 		bool motorStatus;
@@ -165,8 +165,7 @@ class RealDrive : public DiskDrive, public Command
 
 	private:
 		// Command interface
-		virtual void execute(const std::vector<std::string> &tokens,
-		                     const EmuTime &time);
+		virtual void execute(const std::vector<std::string> &tokens);
 		virtual void help   (const std::vector<std::string> &tokens) const;
 		virtual void tabCompletion(std::vector<std::string> &tokens) const;
 		void insertDisk(FileContext *context,
@@ -222,11 +221,11 @@ class DoubleSidedDrive : public RealDrive
 		virtual void getTrackHeader(byte* buf);
 		virtual void initWriteTrack();
 		virtual void writeTrackData(byte data);
-		
+
 		// high level read / write methods used by DiskRomPatch
 		void readSector(byte* buf, int sector);
 		void writeSector(const byte* buf, int sector);
-	
+
 	private:
 		int side;
 };

@@ -45,20 +45,19 @@ class CassettePlayer : public CassetteDevice, private Command
 
 	private:
 		int calcSamples(const EmuTime &time);
-		
+
 		// audio related variables
 		SDL_AudioSpec audioSpec;
 		Uint32 audioLength;	// 0 means no tape inserted
 		Uint8 *audioBuffer;	// 0 means no tape inserted
-		
+
 		// player related variables
 		bool motor;
 		EmuTime timeReference;
 		Uint32 posReference;
 
 		// Tape Command
-		virtual void execute(const std::vector<std::string> &tokens,
-		                     const EmuTime &time);
+		virtual void execute(const std::vector<std::string> &tokens);
 		virtual void help   (const std::vector<std::string> &tokens) const;
 		virtual void tabCompletion(std::vector<std::string> &tokens) const;
 };

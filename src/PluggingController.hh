@@ -48,8 +48,7 @@ private:
 	// Commands
 	class PlugCmd : public Command {
 	public:
-		virtual void execute(const std::vector<std::string> &tokens,
-		                     const EmuTime &time);
+		virtual void execute(const std::vector<std::string> &tokens);
 		virtual void help   (const std::vector<std::string> &tokens) const;
 		virtual void tabCompletion(std::vector<std::string> &tokens) const;
 	};
@@ -57,8 +56,7 @@ private:
 	PlugCmd plugCmd;
 	class UnplugCmd : public Command {
 	public:
-		virtual void execute(const std::vector<std::string> &tokens,
-		                     const EmuTime &time);
+		virtual void execute(const std::vector<std::string> &tokens);
 		virtual void help   (const std::vector<std::string> &tokens) const;
 		virtual void tabCompletion(std::vector<std::string> &tokens) const;
 	};

@@ -131,7 +131,7 @@ bool Console::signalEvent(SDL_Event &event, const EmuTime &time)
 			tabCompletion();
 			break;
 		case Keys::K_RETURN:
-			commandExecute(time);
+			commandExecute();
 			cursorPosition=2;
 			break;
 		case Keys::K_LEFT:
@@ -203,12 +203,12 @@ void Console::putCommandHistory(const std::string &command)
 	history.addFront(command);
 }
 
-void Console::commandExecute(const EmuTime &time)
+void Console::commandExecute()
 {
 	putCommandHistory(lines[0]);
 	try {
 		CommandController::instance()->
-			executeCommand(lines[0].substr(PROMPT.length()), time);
+			executeCommand(lines[0].substr(PROMPT.length()));
 	} catch (CommandException &e) {
 		print(e.getMessage());
 	}
@@ -259,7 +259,7 @@ void Console::nextCommand()
 		// move forward a line in the command strings and copy
 		// the command to the current input string
 		commandScrollBack--;
-		lines[0] = history[commandScrollBack];		
+		lines[0] = history[commandScrollBack];
 	} else if (commandScrollBack == 0) {
 		commandScrollBack = -1;
 		lines[0] = PROMPT;

@@ -66,8 +66,7 @@ class EventDistributor : public Schedulable
 		
 		class QuitCommand : public Command {
 		public:
-			virtual void execute(
-				const std::vector<std::string> &tokens, const EmuTime &time );
+			virtual void execute(const std::vector<std::string> &tokens);
 			virtual void help(const std::vector<std::string> &tokens) const;
 		} quitCommand;
 		friend class QuitCommand;

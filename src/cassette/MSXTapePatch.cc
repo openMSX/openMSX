@@ -393,8 +393,7 @@ void MSXTapePatch::STMOTR(CPU::CPURegs& R)
 }
 
 
-void MSXTapePatch::execute(const std::vector<std::string> &tokens,
-                           const EmuTime &time)
+void MSXTapePatch::execute(const std::vector<std::string> &tokens)
 {
 	if (tokens.size() != 2)
 		throw CommandException("Syntax error");

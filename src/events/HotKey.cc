@@ -110,15 +110,13 @@ const std::string &HotKey::HotKeyCmd::getCommand()
 void HotKey::HotKeyCmd::signalHotKey(Keys::KeyCode key, const EmuTime &time)
 {
 	try {
-		CommandController::instance()->executeCommand(command, time);
+		CommandController::instance()->executeCommand(command);
 	} catch (CommandException &e) {
-		// ignore error
+		PRT_INFO("Error executing hot key command: " << e.getMessage());
 	}
 }
 
-#include <iostream>
-void HotKey::BindCmd::execute(const std::vector<std::string> &tokens,
-                              const EmuTime &time)
+void HotKey::BindCmd::execute(const std::vector<std::string> &tokens)
 {
 	HotKey *hk = HotKey::instance();
 	switch (tokens.size()) {
@@ -158,8 +156,6 @@ void HotKey::BindCmd::execute(const std::vector<std::string> &tokens,
 			if (i != 2) command += ' ';
 			command += tokens[i];
 		}
-		//printf("Command: \"%s\".\n", (char *)command);
-		//cout << "Command: \"" << command << "\".\n";
 		hk->registerHotKeyCommand(key, command);
 		break;
 	}
@@ -172,8 +168,7 @@ void HotKey::BindCmd::help(const std::vector<std::string> &tokens) const
 	print("bind <key> <cmd> : bind key to command");
 }
 
-void HotKey::UnbindCmd::execute(const std::vector<std::string> &tokens,
-                                const EmuTime &time)
+void HotKey::UnbindCmd::execute(const std::vector<std::string> &tokens)
 {
 	HotKey *hk = HotKey::instance();
 	switch (tokens.size()) {

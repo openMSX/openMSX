@@ -109,8 +109,7 @@ void CommandController::tokenize(const std::string &str,
 		tokens.erase(tokens.begin());
 }
 
-void CommandController::executeCommand(const std::string &cmd,
-                                       const EmuTime &time)
+void CommandController::executeCommand(const std::string &cmd)
 {
 	std::vector<std::string> tokens;
 	tokenize(cmd, tokens);
@@ -124,12 +123,12 @@ void CommandController::executeCommand(const std::string &cmd,
 		throw CommandException("Unknown command");
 	}
 	while (it != commands.end() && it->first == tokens[0]) {
-		it->second->execute(tokens, time);
+		it->second->execute(tokens);
 		it++;
 	}
 }
 
-void CommandController::autoCommands(const EmuTime &time)
+void CommandController::autoCommands()
 {
 	try {
 		Config *config = MSXConfig::instance()->getConfigById("AutoCommands");
@@ -138,7 +137,7 @@ void CommandController::autoCommands(const EmuTime &time)
 		std::list<Device::Parameter*>::const_iterator i;
 		for (i = commandList->begin(); i != commandList->end(); i++) {
 			try {
-				executeCommand((*i)->value, time);
+				executeCommand((*i)->value);
 			} catch (CommandException &e) {
 				PRT_INFO("Warning, while executing autocommands:\n"
 				         "   " << e.getMessage());
@@ -301,8 +300,7 @@ void CommandController::completeFileName(std::vector<std::string> &tokens)
 
 // Help Command
 
-void CommandController::HelpCmd::execute(const std::vector<std::string> &tokens,
-                                         const EmuTime &time)
+void CommandController::HelpCmd::execute(const std::vector<std::string> &tokens)
 {
 	CommandController *cc = CommandController::instance();
 	switch (tokens.size()) {

@@ -6,6 +6,8 @@
 #include "CommandController.hh"
 #include "Scheduler.hh"
 #include "MSXCPUInterface.hh"
+#include "MSXCPU.hh"
+#include "EmuTime.hh"
 
 
 MSXMotherBoard::MSXMotherBoard()
@@ -38,8 +40,9 @@ void MSXMotherBoard::removeDevice(MSXDevice *device)
 }
 
 
-void MSXMotherBoard::resetMSX(const EmuTime &time)
+void MSXMotherBoard::resetMSX()
 {
+	const EmuTime &time = MSXCPU::instance()->getCurrentTime();
 	MSXCPUInterface::instance()->reset();
 	std::list<MSXDevice*>::iterator i;
 	for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
@@ -71,10 +74,9 @@ void MSXMotherBoard::run()
 }
 
 
-void MSXMotherBoard::ResetCmd::execute(const std::vector<std::string> &tokens,
-                                       const EmuTime &time)
+void MSXMotherBoard::ResetCmd::execute(const std::vector<std::string> &tokens)
 {
-	MSXMotherBoard::instance()->resetMSX(time);
+	MSXMotherBoard::instance()->resetMSX();
 }
 void MSXMotherBoard::ResetCmd::help(const std::vector<std::string> &tokens) const
 {

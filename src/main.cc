@@ -65,7 +65,7 @@ int main(int argc, char **argv)
 		MSXCPUInterface::instance()->registerPostSlots();
 
 		// First execute auto commands.
-		CommandController::instance()->autoCommands(zero);
+		CommandController::instance()->autoCommands();
 
 		// Schedule key insertions.
 		new KeyEventInserter(zero);

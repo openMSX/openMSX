@@ -47,14 +47,13 @@ class MSXMotherBoard
 		 * This will reset all MSXDevices (the reset() method of
 		 * all registered MSXDevices is called)
 		 */
-		void resetMSX(const EmuTime &time);
+		void resetMSX();
 
 	private:
 		MSXMotherBoard();
-		
+
 		class ResetCmd : public Command {
-			virtual void execute(const std::vector<std::string> &tokens,
-			                     const EmuTime &time);
+			virtual void execute(const std::vector<std::string> &tokens);
 			virtual void help(const std::vector<std::string> &tokens) const;
 		};
 		ResetCmd resetCmd;

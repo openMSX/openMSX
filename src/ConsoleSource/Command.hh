@@ -7,8 +7,6 @@
 #include <vector>
 #include "MSXException.hh"
 
-class EmuTime;
-
 
 class CommandException : public MSXException {
 	public:
@@ -18,35 +16,28 @@ class CommandException : public MSXException {
 
 class Command
 {
-	/** 
-	 * These are the functions the console can call after a device
-	 * has registered commands with the console.
-	 */
 	public:
-		/**
-		 * called by the console when a command is typed
-		 */
-		virtual void execute(const std::vector<std::string> &tokens,
-		                     const EmuTime &time) = 0;
-		/**
-		 * called by the console when a help command is typed
-		 */
+		/** Execute this command.
+		  * @param tokens Tokenized command line;
+		  * 	tokens[0] is the command itself.
+		  */
+		virtual void execute(const std::vector<std::string> &tokens) = 0;
+
+		/** Print help for this command.
+		  */
 		virtual void help(const std::vector<std::string> &tokens) const = 0;
-		/**
-		 * tab completeion for this command
-		 * @param tokens A set of tokens, the last is incomplete, this
-		 *               method tries to complete it.
-		 * Default implementation does nothing
-		 */
+
+		/** Attempt tab completion for this command.
+		  * Default implementation does nothing.
+		  * @param tokens Tokenized command line;
+		  * 	tokens[0] is the command itself.
+		  * 	The last token is incomplete, this method tries to complete it.
+		  */
 		virtual void tabCompletion(std::vector<std::string> &tokens) const {}
 
-	/** 
-	 * These are just helper functions
-	 */
 	protected:
-		/**
-		 * Prints a message to the console
-		 */
+		/** Convenience method to print a message to the console.
+		  */
 		void print(const std::string &message) const;
 };
 

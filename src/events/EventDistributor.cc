@@ -130,7 +130,7 @@ void EventDistributor::unregisterEventListener(int type, EventListener *listener
 }
 
 void EventDistributor::QuitCommand::execute(
-	const std::vector<std::string> &tokens, const EmuTime &time )
+	const std::vector<std::string> &tokens )
 {
 	EventDistributor::instance()->quit();
 }
