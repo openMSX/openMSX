@@ -11,6 +11,7 @@ $Id$
 	* Renamed lines/rows/columns/width/height -> rows/columns
 	* Fixed a uncaught exception when the SDLConsole is resized
 	  and the backgroundfile can't be loaded.
+	* Fixed -h when the specified machine can't be loaded.
 
 2003-05-17 Reikan <openMSX4Win32@ranpub.com>
 	* Changed to single thread model.

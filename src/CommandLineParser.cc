@@ -186,8 +186,21 @@ void CommandLineParser::parse(int argc, char **argv)
 		} catch (MSXException &e) {
 			// no DefaultMachine section
 		}
+		try{		
 		config->loadFile(new SystemFileContext(),
 		        MACHINE_PATH + machine + "/hardwareconfig.xml");
+		} catch (MSXException &e) {
+		bool found=false;
+		std::list<std::string>::const_iterator it;
+		for (it = fileCmdLine.begin();it !=	fileCmdLine.end();it ++){
+			if (*it == "-h"){
+				found = true;	
+			}
+		}
+		if (!found){
+			PRT_INFO("Warning: No machine file found!");	
+		}
+		}		
 	}
 
 	postRegisterFileTypes();
