@@ -160,11 +160,7 @@ If you get the following line:
 
 configure.in: 147: required file `./ltmain.sh' not found
 
-as the last line, run 'sh autogen.sh' again, and it will work.  This could be
-some timing issue with the script running so fast that the file ltmain.sh (which
-is created by autogen.sh) isn't generated yet.  Or something like that. It never
-happened on Manuel's system, but it did on Jorrith's.  Anyways, if you get that
-error, just run it twice :)
+don't worry. This is just a warning you get if you run autogen.sh for the first time.
 
 Now it's time for the tools to probe the system configuration.
 Just type the following command:
