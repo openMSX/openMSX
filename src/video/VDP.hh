@@ -481,13 +481,10 @@ private:
 	  *   False iff the VDP scanning is in the display range.
 	  */
 	inline bool getHR(int ticksThisFrame) {
-		// TODO: Use display adjust register (R#18).
-		return (displayMode.isTextMode()
-			? (ticksThisFrame + (87 + 27)) % TICKS_PER_LINE
-			  < (TICKS_PER_LINE - 960)
-			: (ticksThisFrame + (59 + 27)) % TICKS_PER_LINE
-			  < (TICKS_PER_LINE - 1024)
-			);
+		return
+			( ticksThisFrame + TICKS_PER_LINE - getRightBorder()
+				) % TICKS_PER_LINE
+			< TICKS_PER_LINE - (displayMode.isTextMode() ? 960 : 1024);
 	}
 
 	/** Called both on init and on reset.

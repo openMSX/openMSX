@@ -353,8 +353,7 @@ void VDP::scheduleHScan(const EmuTime &time)
 	// Calculate moment in time line match occurs.
 	horizontalScanOffset = displayStart
 		+ ((controlRegs[19] - controlRegs[23]) & 0xFF) * TICKS_PER_LINE
-		+ (displayMode.isTextMode() ?
-			TICKS_PER_LINE - 87 - 27 : TICKS_PER_LINE - 59 - 27);
+		+ getRightBorder();
 	// Display line counter continues into the next frame.
 	// Note that this implementation is not 100% accurate, since the
 	// number of ticks of the *previous* frame should be subtracted.

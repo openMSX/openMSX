@@ -7,6 +7,11 @@ $Id$
 2003-04-27 Maarten ter Huurne <maarten@treewalker.org>
 	* Added a console background to SDLGL when no image is used.
 	* Minor cleanups to console classes.
+	* Take horizontal adjust into account for calculating HR and horizontal
+	  retrace interrupt timing.
+	  Fixes some of the glitches in No Waste, but not all.
+	* Fixed text colour in Text1 mode in SDLGL: reverted a misguided
+	  optimisation. (in GL, the int value of white is 0x7FFFFFFF, not 0xFF)
 
 2003-04-25 David Heremans <david.heremans@gnu-linux.net>
 	* Allowed JoyNet to accept a new connection if
@@ -38,9 +43,9 @@ $Id$
 
 2003-04-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Improved DACSound quality:
-	   - improved qualityu at the expense of an (extra) delay
+	   - improved quality at the expense of an (extra) delay
 	   - samples in Swiss Demo sound acceptable now
-	   - modplayer sound better but still not very good
+	   - modplayer sounds better but still not very good
 	* Updated FMPAC:
 	   - ROM is not visible while SRAM is active
 
