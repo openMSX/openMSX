@@ -66,6 +66,7 @@ protected:
 	OSDConsoleRenderer(Console& console);
 	void initConsole();
 	void updateConsoleRect(SDL_Rect& rect);
+	byte getVisibility() const;
 
 	/** How transparent is the console? (0=invisible, 255=opaque)
 	  * Note that when using a background image on the GLConsole,
@@ -101,6 +102,7 @@ private:
 	void setActive(bool active);
 
 	bool active;
+	unsigned long long time;
 	EventDistributor& eventDistributor;
 	InputEventGenerator& inputEventGenerator;
 	BooleanSetting& consoleSetting;

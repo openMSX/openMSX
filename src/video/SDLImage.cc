@@ -6,33 +6,66 @@
 #include <SDL_image.h>
 #include <SDL.h>
 
+using std::string;
+
 namespace openmsx {
 
 SDLImage::SDLImage(SDL_Surface* output, const string& filename)
 	: outputScreen(output)
 {
 	image = loadImage(filename);
+	init(filename);
+}
+
+SDLImage::SDLImage(SDL_Surface* output, const string& filename,
+	           unsigned width, unsigned height, byte defaultAlpha)
+	: outputScreen(output)
+{
+	image = loadImage(filename, width, height, defaultAlpha);
+	init(filename);
+}
+
+SDLImage::SDLImage(SDL_Surface* output, unsigned width, unsigned height,
+                   byte defaultAlpha)
+	: outputScreen(output)
+{
+	SDL_PixelFormat* format = outputScreen->format;
+	image = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA,
+		width, height, format->BitsPerPixel,
+		format->Rmask, format->Gmask, format->Bmask, 0);
+	if (image) {
+		SDL_SetAlpha(image, SDL_SRCALPHA, defaultAlpha);
+	}
+	init("");
+}
+
+void SDLImage::init(const string& filename)
+{
+	if (!image) {
+		throw MSXException("Error loading image " + filename);
+	}
 	SDL_PixelFormat* format = image->format;
 	workImage = SDL_CreateRGBSurface(SDL_SWSURFACE,
 		image->w, image->h, format->BitsPerPixel,
 		format->Rmask, format->Gmask, format->Bmask, 0);
+	if (!workImage) {
+		SDL_FreeSurface(image);
+		throw MSXException("Error loading image " + filename);
+	}
 }
 
 SDLImage::~SDLImage()
 {
-	if (image) SDL_FreeSurface(image);
-	if (workImage) SDL_FreeSurface(workImage);
+	SDL_FreeSurface(image);
+	SDL_FreeSurface(workImage);
 }
 
-void SDLImage::draw(unsigned x, unsigned y, unsigned char alpha)
+void SDLImage::draw(unsigned x, unsigned y, byte alpha)
 {
-	if (!image) return;
-
 	if (alpha == 255) {
 		SDL_Rect rect;
 		rect.x = x;
 		rect.y = y;
-		SDL_SetAlpha(image, SDL_SRCALPHA, 255);
 		SDL_BlitSurface(image, NULL, outputScreen, &rect);
 	} else {
 		SDL_Rect rect;
@@ -41,17 +74,14 @@ void SDLImage::draw(unsigned x, unsigned y, unsigned char alpha)
 		rect.w = image->w;
 		rect.h = image->h;
 		SDL_BlitSurface(outputScreen, &rect, workImage, NULL);
-		SDL_SetAlpha(image, SDL_SRCALPHA, 255);
-		SDL_BlitSurface(image, NULL, workImage, NULL);
+		SDL_BlitSurface(image,        NULL,  workImage, NULL);
 		SDL_SetAlpha(workImage, SDL_SRCALPHA, alpha);
-		SDL_BlitSurface(workImage, NULL, outputScreen, &rect);
+		SDL_BlitSurface(workImage,    NULL,  outputScreen, &rect);
 	}
 }
 
 
-SDL_Surface* SDLImage::loadImage(
-	const string& filename,
-	unsigned char defaultAlpha)
+SDL_Surface* SDLImage::loadImage(const string& filename, byte defaultAlpha)
 {
 	SDL_Surface* picture = readImage(filename);
 	if (picture == NULL) {
@@ -63,10 +93,8 @@ SDL_Surface* SDLImage::loadImage(
 	return result;
 }
 
-SDL_Surface* SDLImage::loadImage(
-	const string& filename,
-	unsigned width, unsigned height,
-	unsigned char defaultAlpha)
+SDL_Surface* SDLImage::loadImage(const string& filename,
+	unsigned width, unsigned height, byte defaultAlpha)
 {
 	SDL_Surface* picture = readImage(filename);
 	if (picture == NULL) {

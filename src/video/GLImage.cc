@@ -11,17 +11,18 @@ namespace openmsx {
 GLImage::GLImage(SDL_Surface* output, const string& filename)
 {
 	texture = loadTexture(filename, width, height, texCoord);
+	if (!texture) {
+		throw MSXException("Error loading image " + filename);
+	}
 }
 
 GLImage::~GLImage()
 {
-	if (texture) glDeleteTextures(1, &texture);
+	glDeleteTextures(1, &texture);
 }
 
 void GLImage::draw(unsigned x, unsigned y, unsigned char alpha)
 {
-	if (!texture) return;
-
 	glPushAttrib(GL_ENABLE_BIT);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -75,7 +76,10 @@ GLuint GLImage::loadTexture(const string& filename,
 		0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF
 #endif
 	);
-	if (image2 == NULL) return 0;
+	if (image2 == NULL) {
+		SDL_FreeSurface(image1);
+		return 0;
+	}
 
 	SDL_Rect area;
 	area.x = 0;

@@ -68,6 +68,9 @@ bool GLConsole::loadBackground(const string& filename)
 
 void GLConsole::paint()
 {
+	byte visibility = getVisibility();
+	if (!visibility) return;
+	
 	glPushAttrib(GL_ENABLE_BIT);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
@@ -91,12 +94,13 @@ void GLConsole::paint()
 	// Draw the background image if there is one, otherwise a solid rectangle.
 	if (backgroundTexture) {
 		glEnable(GL_TEXTURE_2D);
-		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,
+		          (visibility == 255) ? GL_REPLACE : GL_MODULATE);
+		glColor4ub(255, 255, 255, visibility);
 		glBindTexture(GL_TEXTURE_2D, backgroundTexture);
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 	} else {
 		glDisable(GL_TEXTURE_2D);
-		glColor4ub(0, 0, 0, CONSOLE_ALPHA);
+		glColor4ub(0, 0, 0, (CONSOLE_ALPHA * visibility) >> 8);
 	}
 	glBegin(GL_QUADS);
 	glTexCoord2f(backTexCoord[0], backTexCoord[1]);
@@ -109,14 +113,13 @@ void GLConsole::paint()
 	glVertex2i(destRect.w, 0);
 	glEnd();
 
-	glEnable(GL_TEXTURE_2D);
-	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	int screenlines = destRect.h / font->getHeight();
 	for (int loop = 0; loop < screenlines; loop++) {
 		int num = loop + console.getScrollBack();
 		glPushMatrix();
 		font->drawText(console.getLine(num), CHAR_BORDER,
-		               destRect.h - (1 + loop) * font->getHeight());
+		               destRect.h - (1 + loop) * font->getHeight(),
+		               visibility);
 		glPopMatrix();
 	}
 
@@ -139,7 +142,8 @@ void GLConsole::paint()
 			// Print cursor if there is enough room
 			font->drawText(string("_"),
 				CHAR_BORDER + cursorX * font->getWidth(),
-				destRect.h - (font->getHeight() * (cursorY + 1)));
+				destRect.h - (font->getHeight() * (cursorY + 1)),
+				visibility);
 
 		}
 	}

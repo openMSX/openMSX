@@ -2,7 +2,6 @@
 
 #include "DummyFont.hh"
 
-
 namespace openmsx {
 
 DummyFont::DummyFont()
@@ -12,7 +11,8 @@ DummyFont::DummyFont()
 	charHeight = 8;
 }
 
-void DummyFont::drawText(const string& /*string*/, int /*x*/, int /*y*/)
+void DummyFont::drawText(const std::string& /*str*/, int /*x*/, int /*y*/,
+                         byte alpha)
 {
 	// do nothing
 }

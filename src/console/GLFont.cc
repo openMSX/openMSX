@@ -49,11 +49,16 @@ GLFont::~GLFont()
 	glDeleteTextures(1, &fontTexture);
 }
 
-void GLFont::drawText(const string& string, int x, int y)
+void GLFont::drawText(const std::string& str, int x, int y, byte alpha)
 {
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_BLEND);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,
+	          (alpha == 255) ? GL_REPLACE : GL_MODULATE);
+	glColor4ub(255, 255, 255, alpha);
 	glBindTexture(GL_TEXTURE_2D, fontTexture);
 	glTranslated(x, y, 0);
-	const char* text = string.c_str();
+	const char* text = str.c_str();
 	glListBase(listBase);
 	glCallLists(strlen(text), GL_UNSIGNED_BYTE, text);
 }

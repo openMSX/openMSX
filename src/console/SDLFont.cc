@@ -21,7 +21,7 @@ const int CHARS_PER_COL = NUM_CHRS / CHARS_PER_ROW;
 
 
 SDLFont::SDLFont(File* file, SDL_Surface* surface)
-	: drawSurface(surface)
+	: outputScreen(surface)
 {
 	// load the font bitmap
 	SDL_Surface* image1;
@@ -33,22 +33,32 @@ SDLFont::SDLFont(File* file, SDL_Surface* surface)
 	
 	charWidth  = fontSurface->w / CHARS_PER_ROW;
 	charHeight = fontSurface->h / CHARS_PER_COL;
+
+	SDL_PixelFormat* format = fontSurface->format;
+	workImage = SDL_CreateRGBSurface(SDL_SWSURFACE,
+		charWidth, charHeight, format->BitsPerPixel,
+		format->Rmask, format->Gmask, format->Bmask, 0);
+	if (!workImage) {
+		SDL_FreeSurface(fontSurface);
+		throw MSXException("Can't load font");
+	}
 }
 
 SDLFont::~SDLFont()
 {
+	SDL_FreeSurface(workImage);
 	SDL_FreeSurface(fontSurface);
 }
 
-void SDLFont::drawText(const string& string, int x, int y)
+void SDLFont::drawText(const std::string& str, int x, int y, byte alpha)
 {
 	// see how many characters can fit on the screen
-	if ((drawSurface->w <= x) || (drawSurface->h <= y)) {
+	if ((outputScreen->w <= x) || (outputScreen->h <= y)) {
 		return;
 	}
-	unsigned characters = string.length();
-	if (characters > ((drawSurface->w - x) / charWidth)) {
-		characters = (drawSurface->w - x) / charWidth;
+	unsigned characters = str.length();
+	if (characters > ((outputScreen->w - x) / charWidth)) {
+		characters = (outputScreen->w - x) / charWidth;
 	}
 	SDL_Rect destRect;
 	destRect.x = x;
@@ -62,9 +72,20 @@ void SDLFont::drawText(const string& string, int x, int y)
 
 	// Now draw it
 	for (unsigned loop = 0; loop < characters; loop++) {
-		sourceRect.x = (string[loop] % CHARS_PER_ROW) * charWidth;
-		sourceRect.y = (string[loop] / CHARS_PER_ROW) * charHeight;
-		SDL_BlitSurface(fontSurface, &sourceRect, drawSurface, &destRect);
+		sourceRect.x = (str[loop] % CHARS_PER_ROW) * charWidth;
+		sourceRect.y = (str[loop] / CHARS_PER_ROW) * charHeight;
+		if (alpha == 255) {
+			SDL_BlitSurface(fontSurface, &sourceRect,
+			                outputScreen, &destRect);
+		} else {
+			SDL_BlitSurface(outputScreen, &destRect,
+			                workImage, NULL);
+			SDL_BlitSurface(fontSurface, &sourceRect,
+			                workImage, NULL);
+			SDL_SetAlpha(workImage, SDL_SRCALPHA, alpha);
+			SDL_BlitSurface(workImage, NULL,
+			                outputScreen, &destRect);
+		}
 		destRect.x += charWidth;
 	}
 }

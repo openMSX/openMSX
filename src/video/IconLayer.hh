@@ -6,6 +6,7 @@
 #include "Display.hh"
 #include "EventListener.hh"
 #include "LedEvent.hh"
+#include <memory>
 
 class SDL_Surface;
 
@@ -27,8 +28,8 @@ private:
 	virtual bool signalEvent(const Event& event);
 
 	SDL_Surface* outputScreen;
-	IMAGE* iconOn;
-	IMAGE* iconOff;
+	std::auto_ptr<IMAGE> iconOn;
+	std::auto_ptr<IMAGE> iconOff;
 };
 
 class SDLImage;

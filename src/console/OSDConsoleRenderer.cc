@@ -10,6 +10,7 @@
 #include "Display.hh"
 #include "EventDistributor.hh"
 #include "InputEventGenerator.hh"
+#include "Timer.hh"
 #include <algorithm>
 #include <SDL.h>
 
@@ -75,8 +76,10 @@ OSDConsoleRenderer::OSDConsoleRenderer(Console& console_)
 	unsigned cursorY;
 	console.getCursorPosition(lastCursorPosition, cursorY);
 
-	Display::INSTANCE->addLayer(this);
 	active = false;
+	time = 0;
+	setCoverage(COVER_PARTIAL);
+	Display::INSTANCE->addLayer(this);
 	consoleSetting.addListener(this);
 	setActive(consoleSetting.getValue());
 }
@@ -149,12 +152,13 @@ void OSDConsoleRenderer::update(const SettingLeafNode* setting)
 	setActive(consoleSetting.getValue());
 }
 
-void OSDConsoleRenderer::setActive(bool active)
+void OSDConsoleRenderer::setActive(bool active_)
 {
-	if (this->active == active) return;
-	this->active = active;
+	if (active == active_) return;
+	active = active_;
+	time = Timer::getTime();
+
 	inputEventGenerator.setKeyRepeat(active);
-	setCoverage(active ? COVER_PARTIAL : COVER_NONE);
 	if (active) {
 		eventDistributor.registerEventListener(
 			KEY_UP_EVENT,   console, EventDistributor::NATIVE );
@@ -169,6 +173,28 @@ void OSDConsoleRenderer::setActive(bool active)
 			KEY_UP_EVENT,   console, EventDistributor::NATIVE );
 		eventDistributor.distributeEvent(
 		  new SimpleEvent<CONSOLE_OFF_EVENT>() );
+	}
+}
+
+byte OSDConsoleRenderer::getVisibility() const
+{
+	const unsigned long long FADE_IN_DURATION  = 100000;
+	const unsigned long long FADE_OUT_DURATION = 150000;
+
+	unsigned long long now = Timer::getTime();
+	unsigned long long dur = now - time;
+	if (active) {
+		if (dur > FADE_IN_DURATION) {
+			return 255;
+		} else {
+			return (dur * 255) / FADE_IN_DURATION;
+		}
+	} else {
+		if (dur > FADE_OUT_DURATION) {
+			return 0;
+		} else {
+			return 255 - ((dur * 255) / FADE_OUT_DURATION);
+		}
 	}
 }
 

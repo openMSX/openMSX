@@ -45,14 +45,14 @@ IconLayer<IMAGE>::IconLayer(SDL_Surface* screen)
 	}
 	SystemFileContext context;
 	try {
-		iconOn = new IMAGE(screen, context.resolve("skins/led.png"));
-	} catch (FileException& e) {
-		iconOn = NULL;
+		iconOn.reset(new IMAGE(screen, context.resolve("skins/led.png")));
+	} catch (MSXException& e) {
+		// nothing
 	}
 	try {
-		iconOff = new IMAGE(screen, context.resolve("skins/led-off.png"));
-	} catch (FileException& e) {
-		iconOff = NULL;
+		iconOff.reset(new IMAGE(screen, context.resolve("skins/led-off.png")));
+	} catch (MSXException& e) {
+		// nothing
 	}
 	EventDistributor::instance().registerEventListener(LED_EVENT, *this);
 }
@@ -61,8 +61,6 @@ template <class IMAGE>
 IconLayer<IMAGE>::~IconLayer()
 {
 	EventDistributor::instance().unregisterEventListener(LED_EVENT, *this);
-	delete iconOn;
-	delete iconOff;
 }
 
 template <class IMAGE>
@@ -79,7 +77,7 @@ void IconLayer<IMAGE>::paint()
 		} else {
 			alpha = 255 - (255 * (diff - fadeTime) / fadeDuration);
 		}
-		IMAGE* icon = ledStatus[i] ? iconOn : iconOff;
+		IMAGE* icon = ledStatus[i] ? iconOn.get() : iconOff.get();
 		if (icon) {
 			icon->draw(50 * i, 0, alpha);
 		}

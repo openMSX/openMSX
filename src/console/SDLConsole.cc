@@ -18,20 +18,16 @@ namespace openmsx {
 
 SDLConsole::SDLConsole(Console& console_, SDL_Surface* screen)
 	: OSDConsoleRenderer(console_)
+	, outputScreen(screen)
 {
 	blink = false;
 	lastBlinkTime = 0;
-	backgroundImage = 0;
-	outputScreen = screen;
 
 	initConsole();
 }
 
 SDLConsole::~SDLConsole()
 {
-	if (backgroundImage) {
-		SDL_FreeSurface(backgroundImage);
-	}
 }
 
 void SDLConsole::updateConsoleRect()
@@ -50,24 +46,32 @@ void SDLConsole::updateConsoleRect()
 
 void SDLConsole::paint()
 {
+	byte visibility = getVisibility();
+	if (!visibility) return;
+	
 	updateConsoleRect();
 
 	// draw the background image if there is one
-	if (!backgroundImage) {
-		SDL_PixelFormat* format = outputScreen->format;
-		backgroundImage = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA,
-			destRect.w, destRect.h, format->BitsPerPixel,
-			format->Rmask, format->Gmask, format->Bmask, format->Amask);
-		SDL_SetAlpha(backgroundImage, SDL_SRCALPHA, CONSOLE_ALPHA);
+	if (!backgroundImage.get()) {
+		// no background image, try to create an empty one
+		try {
+			backgroundImage.reset(new SDLImage(outputScreen,
+				destRect.w, destRect.h, CONSOLE_ALPHA));
+		} catch (MSXException& e) {
+			// nothing
+		}
 	}
-	SDL_BlitSurface(backgroundImage, NULL, outputScreen, &destRect);
+	if (backgroundImage.get()) {
+		backgroundImage->draw(destRect.x, destRect.y, visibility);
+	}
 
 	int screenlines = destRect.h / font->getHeight();
 	for (int loop = 0; loop < screenlines; ++loop) {
 		int num = loop + console.getScrollBack();
 		font->drawText(console.getLine(num),
 			destRect.x + CHAR_BORDER,
-			destRect.y + destRect.h - (1 + loop) * font->getHeight());
+			destRect.y + destRect.h - (1 + loop) * font->getHeight(),
+			visibility);
 	}
 
 	// Check if the blink period is over
@@ -88,7 +92,8 @@ void SDLConsole::paint()
 		if (blink) {
 			font->drawText(string("_"),
 				destRect.x + CHAR_BORDER + cursorX * font->getWidth(),
-				destRect.y + destRect.h - (font->getHeight() * (cursorY + 1)));
+				destRect.y + destRect.h - (font->getHeight() * (cursorY + 1)),
+				visibility);
 		}
 	}
 }
@@ -103,22 +108,17 @@ const string& SDLConsole::getName()
 bool SDLConsole::loadBackground(const string& filename)
 {
 	if (filename.empty()) {
-		if (backgroundImage) {
-			SDL_FreeSurface(backgroundImage);
-			backgroundImage = NULL;
-		}
+		backgroundImage.reset();
 		return true;
 	}
-	SDL_Surface* pictureSurface = SDLImage::loadImage(
-		filename, destRect.w, destRect.h, CONSOLE_ALPHA);
-	if (pictureSurface) {
-		if (backgroundImage) {
-			SDL_FreeSurface(backgroundImage);
-		}
-		backgroundImage = pictureSurface;
+	try {
+		backgroundImage.reset(new SDLImage(outputScreen, filename,
+			destRect.w, destRect.h, CONSOLE_ALPHA));
 		backgroundName = filename;
+	} catch (MSXException &e) {
+		return false;
 	}
-	return pictureSurface;
+	return true;
 }
 
 bool SDLConsole::loadFont(const string& filename)

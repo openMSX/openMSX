@@ -3,10 +3,13 @@
 #ifndef __SDLCONSOLE_HH__
 #define __SDLCONSOLE_HH__
 
-#include <SDL.h>
 #include "OSDConsoleRenderer.hh"
+#include <SDL.h>
+#include <memory>
 
 namespace openmsx {
+
+class SDLImage;
 
 class SDLConsole : public OSDConsoleRenderer
 {
@@ -24,7 +27,7 @@ private:
 	void updateConsoleRect();
 	
 	SDL_Surface* outputScreen;
-	SDL_Surface* backgroundImage;
+	std::auto_ptr<SDLImage> backgroundImage;
 	string backgroundName;
 };
 
