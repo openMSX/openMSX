@@ -33,7 +33,7 @@ public:
 	 * @param mode Mode to open the file in:
 	 * @throws FileException
 	 */
-	File(const string &url, OpenMode mode = NORMAL);
+	File(const string& url, OpenMode mode = NORMAL);
 	
 	/**
 	 * Destroy file object.

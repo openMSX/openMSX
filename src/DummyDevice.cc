@@ -21,8 +21,7 @@ DummyDevice::~DummyDevice()
 DummyDevice& DummyDevice::instance()
 {
 	XMLElement deviceElem("Dummy");
-	XMLElement* typeElem = new XMLElement("type", "empty");
-	deviceElem.addChild(typeElem);
+	deviceElem.addChild(auto_ptr<XMLElement>(new XMLElement("type", "empty")));
 	SystemFileContext dummyContext;
 	static Config config(deviceElem, dummyContext);
 	static DummyDevice oneInstance(&config, EmuTime::zero);

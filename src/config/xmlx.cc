@@ -71,10 +71,10 @@ XMLElement::~XMLElement()
 	}
 }
 
-void XMLElement::addChild(XMLElement* child)
+void XMLElement::addChild(auto_ptr<XMLElement> child)
 {
-	assert(child);
-	children.push_back(child);
+	assert(child.get());
+	children.push_back(child.release());
 }
 
 void XMLElement::addAttribute(const string& name, const string& value)

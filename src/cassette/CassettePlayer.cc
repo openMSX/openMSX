@@ -41,9 +41,8 @@ void MSXCassettePlayerCLI::parseFileType(const string &filename)
 {
 	XMLElement config("config");
 	config.addAttribute("id", "cassetteplayer");
-	XMLElement* parameter = new XMLElement("parameter", filename);
-	parameter->addAttribute("name", "filename");
-	config.addChild(parameter);
+	config.addChild(
+		auto_ptr<XMLElement>(new XMLElement("filename", filename)));
 	
 	UserFileContext context;
 	SettingsConfig::instance().loadConfig(config, context);

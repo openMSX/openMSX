@@ -12,7 +12,6 @@
 namespace openmsx {
 
 class Scheduler;
-class SettingsConfig;
 
 class RealTime : private Schedulable, private SettingListener
 {
@@ -56,7 +55,6 @@ private:
 	void resync();
 
 	Scheduler& scheduler;
-	SettingsConfig& settingsConfig;
 
 	IntegerSetting speedSetting;
 

@@ -35,9 +35,8 @@ void DiskImageCLI::parseFileType(const string &filename)
 {
 	XMLElement config("config");
 	config.addAttribute("id", string("disk") + driveLetter);
-	XMLElement* parameter = new XMLElement("parameter", filename);
-	parameter->addAttribute("name", "filename");
-	config.addChild(parameter);
+	config.addChild(
+		auto_ptr<XMLElement>(new XMLElement("filename", filename)));
 	
 	UserFileContext context;
 	SettingsConfig::instance().loadConfig(config, context);

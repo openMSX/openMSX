@@ -6,6 +6,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <memory>
 #include <sstream>
 #include <libxml/parser.h>
 #include "MSXException.hh"
@@ -13,6 +14,7 @@
 using std::map;
 using std::vector;
 using std::string;
+using std::auto_ptr;
 using std::ostringstream;
 
 namespace openmsx
@@ -31,7 +33,7 @@ public:
 	XMLElement(const string& name, const string& data = "");
 	~XMLElement();
 
-	void addChild(XMLElement* child);
+	void addChild(auto_ptr<XMLElement> child);
 	void addAttribute(const string& name, const string& value);
 	
 	const string& getName() const { return name; }

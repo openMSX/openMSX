@@ -1,5 +1,8 @@
 $Id$
 
+2004-06-03 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed creation of internal datastructures to match the new XML format
+
 2004-06-03 Manuel Bilderbeek <manuel@msxnet.org>
 	* More config file changes: 
 	  - renamed old parameter brokenFDCread to broken_fdc_read (needs

@@ -74,20 +74,16 @@ MSXRomCLIPost::MSXRomCLIPost(const string& arg_)
 }
 
 
-static XMLElement* createSlotted(int ps, int ss, int page)
+static auto_ptr<XMLElement> createSlotted(int ps, int ss, int page)
 {
-	XMLElement* slotted = new XMLElement("slotted");
-	slotted->addChild(new XMLElement("ps",   StringOp::toString(ps)));
-	slotted->addChild(new XMLElement("ss",   StringOp::toString(ss)));
-	slotted->addChild(new XMLElement("page", StringOp::toString(page)));
+	auto_ptr<XMLElement> slotted(new XMLElement("slotted"));
+	slotted->addChild(auto_ptr<XMLElement>(
+		new XMLElement("ps",   StringOp::toString(ps))));
+	slotted->addChild(auto_ptr<XMLElement>(
+		new XMLElement("ss",   StringOp::toString(ss))));
+	slotted->addChild(auto_ptr<XMLElement>(
+		new XMLElement("page", StringOp::toString(page))));
 	return slotted;
-}
-
-static XMLElement* createParameter(const string& name, const string& value)
-{
-	XMLElement* parameter = new XMLElement("parameter", value);
-	parameter->addAttribute("name", name);
-	return parameter;
 }
 
 void MSXRomCLIPost::execute()
@@ -108,15 +104,19 @@ void MSXRomCLIPost::execute()
 	XMLElement device = XMLElement("device");
 	device.addAttribute("id", "MSXRom" + StringOp::toString(ps) +
 			               "-" + StringOp::toString(ss));
-	device.addChild(new XMLElement("type", "Rom"));
+	device.addChild(auto_ptr<XMLElement>(new XMLElement("type", "Rom")));
 	device.addChild(createSlotted(ps, ss, 0));
 	device.addChild(createSlotted(ps, ss, 1));
 	device.addChild(createSlotted(ps, ss, 2));
 	device.addChild(createSlotted(ps, ss, 3));
-	device.addChild(createParameter("filename", romfile));
-	device.addChild(createParameter("volume", "9000"));
-	device.addChild(createParameter("mappertype", mapper));
-	device.addChild(createParameter("sramname", sramfile + ".SRAM"));
+	device.addChild(auto_ptr<XMLElement>(
+		new XMLElement("filename", romfile)));
+	device.addChild(auto_ptr<XMLElement>(
+		new XMLElement("volume", "9000")));
+	device.addChild(auto_ptr<XMLElement>(
+		new XMLElement("mappertype", mapper)));
+	device.addChild(auto_ptr<XMLElement>(
+		new XMLElement("sramname", sramfile + ".SRAM")));
 
 	UserFileContext context("roms/" + sramfile);
 	HardwareConfig::instance().loadConfig(device, context);

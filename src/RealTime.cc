@@ -4,7 +4,6 @@
 #include "Keys.hh"
 #include "RealTime.hh"
 #include "MSXCPU.hh"
-#include "SettingsConfig.hh"
 #include "Config.hh"
 #include "CommandController.hh"
 #include "Scheduler.hh"
@@ -19,7 +18,6 @@ const unsigned long long ALLOWED_LAG   =  20000; // us
 
 RealTime::RealTime()
 	: scheduler(Scheduler::instance()),
-	  settingsConfig(SettingsConfig::instance()),
 	  speedSetting("speed",
 	       "controls the emulation speed: higher is faster, 100 is normal",
 	       100, 1, 1000000),

@@ -46,8 +46,8 @@ MSXDeviceSwitch::~MSXDeviceSwitch()
 MSXDeviceSwitch& MSXDeviceSwitch::instance()
 {
 	XMLElement deviceElem("DeviceSwitch");
-	XMLElement* typeElem = new XMLElement("type", "DeviceSwitch");
-	deviceElem.addChild(typeElem);
+	deviceElem.addChild(
+		auto_ptr<XMLElement>(new XMLElement("type", "DeviceSwitch")));
 	SystemFileContext dummyContext;
 	static Config config(deviceElem, dummyContext);
 	static MSXDeviceSwitch oneInstance(&config, EmuTime::zero);

@@ -54,8 +54,8 @@ void MSXMemoryMapper::createMapperIO(const EmuTime& time)
 		assert(!mapperIO && !device);
 
 		XMLElement deviceElem("MapperIO");
-		XMLElement* typeElem = new XMLElement("type", "MapperIO");
-		deviceElem.addChild(typeElem);
+		deviceElem.addChild(
+			auto_ptr<XMLElement>(new XMLElement("type", "MapperIO")));
 		SystemFileContext dummyContext;
 		device = new Config(deviceElem, dummyContext);
 		mapperIO = new MSXMapperIO(device, time);
