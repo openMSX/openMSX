@@ -629,9 +629,13 @@ void MSXTMS9928a::PutImage(void)
   if (SDL_MUSTLOCK(screen) && SDL_LockSurface(screen)<0) return;//ExitNow=1;
 
 	//debug code
-	for (byte i=0; i<190 ;i++) 
-		plot_pixel(bitmapscreen ,i,i,XPal[debugColor]);
-	debugColor = (debugColor++)&0x0f;
+	for (byte i=0; i<190 ;i++) {
+		for (byte j=0;j<30;j++){
+		  plot_pixel(bitmapscreen ,i+j,i,XPal[debugColor]);
+		  plot_pixel(bitmapscreen ,255-i-j,i,XPal[debugColor]);
+		}
+		debugColor = (debugColor++)&0x0f;
+		}
 
   /* Copy image */
   //memcpy(screen->pixels,bitmapscreen->_private,WIDTH*HEIGHT*sizeof(pixel));
@@ -676,52 +680,49 @@ struct osd_bitmap *MSXTMS9928a::alloc_bitmap(int width,int height,int depth)
 		return 0;
 	}
 
-	if ((bitmap = (struct osd_bitmap*)malloc(sizeof(struct osd_bitmap))) != 0)
+	if ((bitmap = new struct osd_bitmap) != 0)
 	{
 		unsigned char *bitmap_data=0;
 		int i,rowlen,rdwidth, bytes_per_pixel;
-		int y_rows,safety;
+		int y_rows,safety,safetx;
 		int bitmap_size;
 
 		bitmap->depth = depth;
 		bitmap->width = width;
 		bitmap->height = height;
 
-		safety=(int)((HEIGHT-height)/2);
-
-		rdwidth = (WIDTH + 7) & ~7;     /* round width to a quadword */
-
+		// does the border otherwise mismatch between
+		// size of the SDL buffer and the 
+		// (osd_)bitmap_data
+		safetx=(WIDTH-width)/2;
+		safety=(HEIGHT-height)/2;
 		bytes_per_pixel=(depth+7)/8;
 
-		rowlen = bytes_per_pixel * (rdwidth + 2 * safety) * sizeof(unsigned char);
-		
+		rowlen = bytes_per_pixel * (width + 2 * safetx);
 		y_rows = height + 2 * safety;
 
 		bitmap_size = y_rows * rowlen ;
 
-		if ((bitmap_data = (byte*)malloc(bitmap_size)) == 0)
-		{
-			free(bitmap);
+		if ((bitmap_data = new byte[bitmap_size]) == 0) {
+			delete bitmap;
 			return 0;
 		}
 	
 		/* clear ALL bitmap, including SAFETY area, to avoid garbage on right */
 		/* side of screen is width is not a multiple of 4 */
-		memset(bitmap_data, 0, (height + 2 * safety) * rowlen);
+		memset(bitmap_data, 0, bitmap_size);
 
-		if ((bitmap->line = (byte**)malloc((height + 2 * safety) * sizeof(unsigned char *))) == 0)
+		if ((bitmap->line = new byte*[height + 2 * safety ]) == 0)
 		{
-		    free(bitmap_data);
-		    free(bitmap);
+		    delete[] bitmap_data;
+		    delete bitmap;
 		    return 0;
 		}
 
-		for (i = 0; i < height + 2 * safety; i++)
+		for (i = 0; i < height ; i++)
 		{
-		    bitmap->line[i] = &bitmap_data[i * rowlen + safety * bytes_per_pixel];
+		    bitmap->line[i] = bitmap_data + safetx + (i + safety) * rowlen ;
 		}
-
-		bitmap->line += safety;
 
 		bitmap->_private = bitmap_data ;
 	}
