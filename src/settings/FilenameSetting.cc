@@ -26,8 +26,10 @@ void FilenameSettingBase::setValue(const string& newValue)
 		resolved = context.resolve(newValue);
 	} catch (FileException& e) {
 		// File not found.
-		CliCommOutput::instance().printWarning(
-			"couldn't find file: \"" + newValue + "\"");
+		if (newValue != ""){
+			CliCommOutput::instance().printWarning(
+				"couldn't find file: \"" + newValue + "\"");
+		}
 		return;
 	}
 	if (checkFile(resolved)) {

@@ -1,5 +1,8 @@
 $Id$
 
+2004-04-20 Herman Oudejans <hn.oudejans@quicknet.nl>
+	* suppressed warning in windows (warning: couldn't find file: "").
+
 2004-04-19 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed small bug: I forgot to replace "#ifndef X_DISPLAY_MISSING" by
 	  "#ifdef HAVE_X11" in RendererFactory class.
