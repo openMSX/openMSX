@@ -35,7 +35,6 @@ public:
 	                        const V9990DisplayPeriod *verTiming);
 	virtual void frameEnd();
 	virtual void setDisplayMode(V9990DisplayMode displayMode);
-	virtual void setBackgroundColor(int index);
 	virtual void setImageWidth(int width);
 	virtual void setColorMode(V9990ColorMode colorMode);
 	virtual void setPalette(int index, byte r, byte g, byte b);

@@ -114,7 +114,6 @@ void V9990SDLRasterizer<Pixel, zoom>::reset()
 {
 	PRT_DEBUG("V9990SDLRasterizer::reset()");
 
-	setBackgroundColor(vdp->getBackDropColor());
 	setDisplayMode(vdp->getDisplayMode());
 	setColorMode(vdp->getColorMode());
 	imageWidth = vdp->getImageWidth();
@@ -221,6 +220,7 @@ void V9990SDLRasterizer<Pixel, zoom>::drawBorder(
 		rect.w = translateX<zoom>(width);
 		rect.y = fromY;
 		rect.h = height;
+		Pixel bgColor = palette64[vdp->getBackDropColor() & 63];
 		SDL_FillRect(getWorkScreen(), &rect, bgColor);
 	}
 }
@@ -374,27 +374,37 @@ void V9990SDLRasterizer<Pixel, zoom>::precalcPalettes()
 
 	// the 32768 color palette
 	for (int g = 0; g < 32; ++g) {
-		for (int r = 0; r < 32; ++r)
-			for (int b = 0; b < 32; ++b) 
+		for (int r = 0; r < 32; ++r) {
+			for (int b = 0; b < 32; ++b) {
 				palette32768[(g << 10) + (r << 5) + b] =
 					SDL_MapRGB(screen->format,
 					           (int)(r * (255.0 / 31.0)),
 					           (int)(g * (255.0 / 31.0)),
 					           (int)(b * (255.0 / 31.0)));
+			}
+		}
 	}
 	
 	// the 256 color palette
 	int mapRG[8] = { 0, 4, 9, 13, 18, 22, 27, 31 };
 	int mapB [4] = { 0, 11, 21, 31 };
-	for (int g = 0; g < 8; ++g)
-		for (int r = 0; r < 8; ++r)
-			for (int b = 0; b < 4; ++b)
+	for (int g = 0; g < 8; ++g) {
+		for (int r = 0; r < 8; ++r) {
+			for (int b = 0; b < 4; ++b) {
 				palette256[(g << 5) + (r << 2) + b] = 
 					palette32768[(mapRG[g] << 10) +
 					             (mapRG[r] <<  5) +
 					              mapB [b]];
+			}
+		}
+	}
 	
-	// TODO Get 64 color palette from VDP
+	// get 64 color palette from VDP
+	for (int i = 0; i < 64; ++i) {
+		byte r, g, b;
+		vdp->getPalette(i, r, g, b);
+		setPalette(i, r, g, b);
+	}
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -404,13 +414,6 @@ void V9990SDLRasterizer<Pixel, zoom>::setPalette(int index,
 	palette64[index & 63] = palette32768[((g & 31) << 10) + 
 	                                     ((r & 31) <<  5) +
 	                                      (b & 31)]; 
-}
-
-
-template <class Pixel, Renderer::Zoom zoom>
-void V9990SDLRasterizer<Pixel, zoom>::setBackgroundColor(int index)
-{
-	bgColor = palette64[index & 63];
 }
 
 } // namespace openmsx

@@ -86,6 +86,14 @@ public:
 	inline byte getPaletteOffset() const {
 		return (regs[PALETTE_CONTROL] & 0x0F);
 	}
+
+	/** Get palette entry
+	  * @param index The palette index
+	  * @param r The corresponding r value (output parameter)
+	  * @param g The corresponding g value (output parameter)
+	  * @param b The corresponding b value (output parameter)
+	  */
+	void getPalette(int index, byte& r, byte& g, byte& b);
 	
 	/** Get the number of elapsed UC ticks in this frame.
 	  * @param  time Point in emulated time.

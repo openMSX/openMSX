@@ -47,11 +47,6 @@ public:
 	  */
 	virtual void setColorMode(enum V9990ColorMode colorMode) = 0;
 
-	/** Set Background color
-	  * @param index  Index in palette
-	  */
-	virtual void setBackgroundColor(int index) = 0;
-
 	/** Set RGB values for a palette entry
 	  * @param index  Index in palette
 	  * @param r      Red component intensity (5 bits)

@@ -30,12 +30,12 @@ void V9990DummyRenderer::setColorMode(V9990ColorMode /* mode */,
 {
 }
 
-void V9990DummyRenderer::setPalette(int index, byte r, byte g, byte b,
+void V9990DummyRenderer::updatePalette(int index, byte r, byte g, byte b,
                                     const EmuTime& time)
 {
 }
 
-void V9990DummyRenderer::setBackgroundColor(int /* index */)
+void V9990DummyRenderer::updateBackgroundColor(int /* index */, const EmuTime& /*time*/)
 {
 }
 

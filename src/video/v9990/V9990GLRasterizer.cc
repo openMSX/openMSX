@@ -82,12 +82,6 @@ void V9990GLRasterizer::drawDisplay(
 	          displayWidth << "," << displayHeight << ")");
 }
 
-void V9990GLRasterizer::setBackgroundColor(int index)
-{
-	PRT_DEBUG("V9990GLRasterizer::setBackgroundColor(" << std::dec <<
-	          index << ")" );
-}
-
 void V9990GLRasterizer::setImageWidth(int width)
 {
 	PRT_DEBUG("V9990GLRasterizer::setImageWidth(" << std::dec << width << ")");

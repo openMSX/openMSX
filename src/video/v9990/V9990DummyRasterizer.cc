@@ -41,10 +41,6 @@ void V9990DummyRasterizer::setColorMode(V9990ColorMode colorMode)
 {
 }
 
-void V9990DummyRasterizer::setBackgroundColor(int index)
-{
-}
-
 void V9990DummyRasterizer::setPalette(int index, byte r, byte g, byte b)
 {
 }

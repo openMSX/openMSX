@@ -17,8 +17,8 @@ public:
 	void renderUntil(const EmuTime& time);
 	void setDisplayMode(V9990DisplayMode mode, const EmuTime& time);
 	void setColorMode(V9990ColorMode mode, const EmuTime& time);
-	void setPalette(int index, byte r, byte g, byte b, const EmuTime& time);
-	void setBackgroundColor(int index);
+	void updatePalette(int index, byte r, byte g, byte b, const EmuTime& time);
+	void updateBackgroundColor(int index, const EmuTime& time);
 	void setImageWidth(int width);
 };
 

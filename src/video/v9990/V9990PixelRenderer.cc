@@ -236,9 +236,10 @@ void V9990PixelRenderer::setDisplayMode(V9990DisplayMode mode, const EmuTime& ti
 	rasterizer->setDisplayMode(mode);
 }
 
-void V9990PixelRenderer::setPalette(int index, byte r, byte g, byte b,
-                                    const EmuTime& time)
+void V9990PixelRenderer::updatePalette(int index, byte r, byte g, byte b,
+                                       const EmuTime& time)
 {
+	// sync(time);
 	rasterizer->setPalette(index, r, g, b);
 }
 void V9990PixelRenderer::setColorMode(V9990ColorMode mode, const EmuTime& time)
@@ -247,9 +248,9 @@ void V9990PixelRenderer::setColorMode(V9990ColorMode mode, const EmuTime& time)
 	rasterizer->setColorMode(mode);
 }
 
-void V9990PixelRenderer::setBackgroundColor(int index)
+void V9990PixelRenderer::updateBackgroundColor(int index, const EmuTime& time)
 {
-	rasterizer->setBackgroundColor(index);
+	// sync(time);
 }
 
 void V9990PixelRenderer::setImageWidth(int width)

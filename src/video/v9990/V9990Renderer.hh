@@ -63,12 +63,12 @@ public:
 
 	/** Set a palette entry
 	  */
-	virtual void setPalette(int index, byte r, byte g, byte b,
+	virtual void updatePalette(int index, byte r, byte g, byte b,
 	                        const EmuTime& time) = 0;
 
 	/** Set background color
 	  */
-	virtual void setBackgroundColor(int index) = 0;
+	virtual void updateBackgroundColor(int index, const EmuTime& time) = 0;
 
 	/** Set image width
 	  */

@@ -66,6 +66,14 @@ V9990::V9990(const XMLElement& config, const EmuTime& time)
         memset(regs, 0, sizeof(regs));
 	calcDisplayMode();
 
+	// initialize palette
+	for (int i = 0; i < 64; ++i) {
+		palette[4 * i + 0] = 0x9F;
+		palette[4 * i + 1] = 0x1F;
+		palette[4 * i + 2] = 0x1F;
+		palette[4 * i + 3] = 0x00;
+	}
+
 	// create VRAM
 	vram.reset(new V9990VRAM(this, time));
 
@@ -84,15 +92,6 @@ V9990::V9990(const XMLElement& config, const EmuTime& time)
 
 	// Initialise rendering system
 	createRenderer(time);
-
-	// initialize palette
-	for (int i = 0; i < 64; ++i) {
-		palette[4 * i + 0] = 0x9F;
-		palette[4 * i + 1] = 0x1F;
-		palette[4 * i + 2] = 0x1F;
-		palette[4 * i + 3] = 0x00;
-		renderer->setPalette(i, 0x9F, 0x1F, 0x1F, time);
-	}
 
 	reset(time);
 	EventDistributor::instance().registerEventListener(
@@ -532,7 +531,7 @@ void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
 				renderer->setColorMode(getColorMode(), time);
 				break;
 			case BACK_DROP_COLOR:
-				renderer->setBackgroundColor(val & 63);
+				renderer->updateBackgroundColor(val & 63, time);
 				break;
 			default: break;
 		}
@@ -557,14 +556,18 @@ void V9990::writePaletteRegister(byte reg, byte val, const EmuTime& time)
 	palette[reg] = val;
 	reg &= ~3;
 	byte index = reg / 4;
-	renderer->setPalette(index,
-	                     palette[reg + 0],
-	                     palette[reg + 1],
-	                     palette[reg + 2],
-	                     time);
+	renderer->updatePalette(index, palette[reg + 0], palette[reg + 1],
+	                        palette[reg + 2], time);
 	if (index == regs[BACK_DROP_COLOR]) {
-		renderer->setBackgroundColor(index);
+		renderer->updateBackgroundColor(index, time);
 	}
+}
+
+void V9990::getPalette(int index, byte& r, byte& g, byte& b)
+{
+	r = palette[4 * index + 0];
+	g = palette[4 * index + 1];
+	b = palette[4 * index + 2];
 }
 
 void V9990::createRenderer(const EmuTime& time)
