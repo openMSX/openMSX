@@ -54,6 +54,7 @@ void Mixer::registerSound(SoundDevice *device, ChannelMode mode=MONO)
 {
 	PRT_DEBUG("Registering sound device");
 	SDL_LockAudio();
+	device->setSampleRate(audioSpec.freq);
 	int bufSize = audioSpec.size / sizeof(short);
 	if (mode!=STEREO) bufSize /= 2;
 	short *buf = new short[bufSize];

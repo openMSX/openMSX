@@ -13,6 +13,7 @@ class Mixer
 {
 	// TODO remove static declarations
 	public:
+		static const int MAX_VOLUME = 32767;
 		enum ChannelMode { MONO, MONO_LEFT, MONO_RIGHT, STEREO };
 		static const int NB_MODES = STEREO+1;
 

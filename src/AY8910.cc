@@ -29,8 +29,7 @@ AY8910::~AY8910()
 
 void AY8910::init()
 {
-	setVolume(32767);
-	setSampleRate(22050);
+	setVolume(Mixer::MAX_VOLUME);
 	reset();
 	Mixer::instance()->registerSound(this);
 }
@@ -231,7 +230,8 @@ void AY8910::setSampleRate (int sampleRate)
 	// at the given sample rate. No. of events = sample rate / (clock/8).
 	// FP_UNIT is a multiplier used to turn the fraction into a fixed point
 	// number.
-	updateStep = (FP_UNIT * sampleRate * 8) / CLOCK;
+	updateStep = ((FP_UNIT * sampleRate) / (CLOCK/8));	// !! look out for overflow !!
+	PRT_DEBUG("UpdateStep "<<updateStep);
 }
 
 
