@@ -90,7 +90,7 @@
     <slotted> <ps>3</ps> <ss>3</ss> <page>3</page> </slotted>
     <parameter name="filename">fs-a1gt_firmware.rom</parameter>
     <parameter name="mappertype">PANASONIC</parameter>
-    <parameter name-"sramsize">32</parameter>
+    <parameter name="sramsize">32</parameter>
     <parameter name="loadsram">true</parameter>
     <parameter name="savesram">true</parameter>
     <parameter name="sramname">fs-a1gt.sram</parameter>
