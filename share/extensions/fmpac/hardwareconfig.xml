@@ -1,13 +1,22 @@
 <?xml version="1.0" ?>
-<!-- $Id$ --><!DOCTYPE msxconfig
-  SYSTEM 'msxconfig.dtd'>
+<!-- $Id$ -->
+<!DOCTYPE msxconfig SYSTEM 'msxconfig.dtd'>
 <msxconfig>
-  <device id="PanaSoft SW-M004 FMPAC">
-    <type>FMPAC</type>
-    <slotted><ps>-1</ps><ss>-1</ss><page>1</page></slotted>
-    <filename>roms/fmpac.rom</filename>
-    <volume>13000</volume>
-    <mode>mono</mode>
-    <sramname>fmpac.pac</sramname>
-  <io base="0x7c" num="2" type="O"/></device>
+  <primary slot="any">
+    <secondary slot="any">
+      <FMPAC id="PanaSoft SW-M004 FMPAC">
+        <io base="0x7C" num="2" type="O"/>
+        <mem base="0x4000" size="0x4000"/>
+        <sound>
+          <volume>13000</volume>
+          <mode>mono</mode>
+        </sound>  
+        <rom>
+          <sha1>9d789166e3caf28e4742fe933d962e99618c633d</sha1>
+          <filename>roms/fmpac.rom</filename>
+        </rom>  
+        <sramname>fmpac.pac</sramname>
+      </FMPAC>
+    </secondary>  
+  </primary>  
 </msxconfig>

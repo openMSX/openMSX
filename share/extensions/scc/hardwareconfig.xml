@@ -1,12 +1,19 @@
 <?xml version="1.0" ?>
-<!-- $Id$ --><!DOCTYPE msxconfig
-  SYSTEM 'msxconfig.dtd'>
+<!-- $Id$ -->
+<!DOCTYPE msxconfig SYSTEM 'msxconfig.dtd'>
 <msxconfig>
-  <device id="Empty Konami SCC Cartridge">
-    <type>ROM</type>
-    <slotted> <ps>-1</ps> <ss>-1</ss> <page>1</page> </slotted>
-    <slotted> <ps>-1</ps> <ss>-1</ss> <page>2</page> </slotted>
-    <volume>11500</volume>
-    <mappertype>SCC</mappertype>
-  </device>
+  <primary slot="any">
+    <secondary slot="any">
+      <ROM id="Empty Konami SCC Cartridge">
+        <mem base="0x4000" size="0x8000"/>
+        <sound>
+          <volume>11500</volume>
+          <mode>mono</mode>
+        </sound>
+        <rom>
+          <mappertype>SCC</mappertype>
+        </rom>
+      </ROM>
+    </secondary>
+  </primary>
 </msxconfig>

@@ -1,11 +1,12 @@
 <?xml version="1.0" ?>
-<!-- $Id$ --><!DOCTYPE msxconfig
-  SYSTEM 'msxconfig.dtd'>
+<!-- $Id$ -->
+<!DOCTYPE msxconfig SYSTEM 'msxconfig.dtd'>
 <msxconfig>
   <MoonSound id="Sunrise MoonSound">
     <io base="0x7e" num="2"/>
     <io base="0xc4" num="4"/>
     <rom>
+      <sha1>32760893ce06dbe3930627755ba065cc3d8ec6ca</sha1>
       <filename>roms/yrw801.rom</filename>
     </rom>
     <sound>

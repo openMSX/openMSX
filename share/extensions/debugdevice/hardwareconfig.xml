@@ -2,12 +2,8 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
-
-<device id="Debug Device">
-  <type>DebugDevice</type>
-  <parameter name="filename">stdout</parameter>
-</device>
-
+  <DebugDevice id="Debug Device">
+    <io base="0x2F" num="2" type="O"/>
+    <filename>stdout</filename>
+  </DebugDevice>
 </msxconfig>
-
-

@@ -1,8 +1,7 @@
 <?xml version="1.0" ?>
-<!-- $Id$ --><!DOCTYPE msxconfig
-  SYSTEM 'msxconfig.dtd'>
+<!-- $Id$ -->
+<!DOCTYPE msxconfig SYSTEM 'msxconfig.dtd'>
 <msxconfig>
-
   <primary slot="any">
     <secondary slot="any">
       <SunriseIDE id="Sunrise IDE">
@@ -19,5 +18,4 @@
       </SunriseIDE>
     </secondary>
   </primary>
-
 </msxconfig>

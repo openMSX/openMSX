@@ -2,8 +2,7 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
-  <device id="Sunrise GFX9000">
-    <type>V9990</type>
-  </device>
+  <V9990 id="Sunrise GFX9000">
+    <io base="0x60" num="0x10"/>
+  </V9990>
 </msxconfig>
-

@@ -1,10 +1,13 @@
 <?xml version="1.0" ?>
-<!-- $Id$ --><!DOCTYPE msxconfig
-  SYSTEM 'msxconfig.dtd'>
+<!-- $Id$ -->
+<!DOCTYPE msxconfig SYSTEM 'msxconfig.dtd'>
 <msxconfig>
-  <device id="PanaSoft SW-M001 PAC">
-    <type>PAC</type>
-    <slotted><ps>-1</ps><ss>-1</ss><page>1</page></slotted>
-    <sramname>pac.pac</sramname>
-  </device>
+  <primary slot="any">
+    <secondary slot="any">
+      <PAC id="PanaSoft SW-M001 PAC">
+        <mem base="0x4000" size="0x4000"/>
+        <sramname>pac.pac</sramname>
+      </PAC>
+    </secondary>
+  </primary>
 </msxconfig>
