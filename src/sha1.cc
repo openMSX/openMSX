@@ -157,7 +157,7 @@ void SHA1::transform(const byte buffer[64])
 }
 
 // Use this function to hash in binary data and strings
-void SHA1::update(const byte* data, unsigned int len)
+void SHA1::update(const byte* data, unsigned len)
 {
 	assert(digest.empty());
 	uint32 j = (m_count >> 3) & 63;
