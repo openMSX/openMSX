@@ -51,10 +51,6 @@ ifeq ($(OPENMSX_STRIP),true)
   LDFLAGS+=--strip-all
 endif
 
-LIBS_EXTERNAL:=stdc++ xml2 SDL SDL_image GL
-# TODO: Find the right place for this.
-INCLUDE_EXTERNAL:=/usr/include/libxml2
-
 # Logical targets which require dependency files.
 DEPEND_TARGETS:=all run
 # Logical targets which do not require dependency files.
@@ -74,14 +70,6 @@ SOURCES:=$(SOURCES_FULL:$(SOURCES_PATH)/%.cc=%)
 DEPEND_PATH:=$(BUILD_PATH)/dep
 DEPEND_FULL:=$(addsuffix .d,$(addprefix $(DEPEND_PATH)/,$(SOURCES)))
 
-LIBS_FLAGS:=$(addprefix -l,$(LIBS_EXTERNAL))
-
-LINK_FLAGS_PREFIX:=-Wl,
-LINK_FLAGS:=$(addprefix $(LINK_FLAGS_PREFIX),$(LDFLAGS))
-
-INCLUDE_INTERNAL:=$(filter-out %/CVS,$(shell find $(SOURCES_PATH) -type d))
-INCLUDE_FLAGS:=$(addprefix -I,$(INCLUDE_INTERNAL) $(INCLUDE_EXTERNAL))
-
 OBJECTS_PATH:=$(BUILD_PATH)/obj
 OBJECTS_FULL:=$(addsuffix .o,$(addprefix $(OBJECTS_PATH)/,$(SOURCES)))
 
@@ -89,6 +77,22 @@ BINARY_PATH:=$(BUILD_PATH)/bin
 BINARY_FULL:=$(BINARY_PATH)/openmsx
 
 LOG_PATH:=$(BUILD_PATH)/log
+
+# Libraries that do not have a lib-config script.
+LIBS_PLAIN:=stdc++ SDL_image GL
+# Libraries that have a lib-config script.
+LIBS_CONFIG:=xml2 sdl
+
+# Determine include flags.
+INCLUDE_INTERNAL:=$(filter-out %/CVS,$(shell find $(SOURCES_PATH) -type d))
+INCLUDE_FLAGS:=$(addprefix -I,$(INCLUDE_INTERNAL))
+INCLUDE_FLAGS+=$(foreach lib,$(LIBS_CONFIG),$(shell $(lib)-config --cflags))
+
+# Determine link flags.
+LINK_FLAGS_PREFIX:=-Wl,
+LINK_FLAGS:=$(addprefix $(LINK_FLAGS_PREFIX),$(LDFLAGS))
+LINK_FLAGS+=$(addprefix -l,$(LIBS_PLAIN))
+LINK_FLAGS+=$(foreach lib,$(LIBS_CONFIG),$(shell $(lib)-config --libs))
 
 # Default target; make sure this is always the first target in this Makefile.
 all: config $(BINARY_FULL)
@@ -126,7 +130,7 @@ $(DEPEND_FULL):
 $(BINARY_FULL): $(OBJECTS_FULL)
 	@echo "Linking $(notdir $@)..."
 	@mkdir -p $(@D)
-	@gcc -o $@ $(CXXFLAGS) $(LINK_FLAGS) $(LIBS_FLAGS) $^
+	@gcc -o $@ $(CXXFLAGS) $(LINK_FLAGS) $^
 	@ln -sf $(@:$(BUILD_BASE)/%=%) $(BUILD_BASE)/$(notdir $@)
 
 # Run executable.
