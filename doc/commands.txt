@@ -340,6 +340,15 @@ restoredefault
     restoredefault PSG_volume
 
 
+save_settings
+-------------
+
+  Write the current openMSX settings to a settings file.
+
+  usage:
+    save_settings             Save settings to the default settings file  
+    save_settings <filename>  Save settings to the given filename
+
 
 SETTINGS
 ========
@@ -491,6 +500,17 @@ deinterlace
     set deinterlace off  turns deinterlacing off
 
 
+frequency
+---------
+
+  The sound mixer frequency. Changing this setting only takes effect the next
+  time openMSX is started.
+
+  usage:
+    set frequency        shows the current setting 
+    set frequency 44100  use 44.1kHz mixing frequency
+
+
 frontswitch
 -----------
 
@@ -561,6 +581,17 @@ limitsprites
     set limitsprites on   limit number of sprites per line
     set limitsprites off  no limit on number of sprites per line
 
+
+machine
+-------
+
+  The default machine. OpenMSX uses this machine when it is started without
+  "-machine" option.
+
+  usage:
+    set machine                     shows current setting
+    set machine Panasonic_FS-A1GT   use this machine next time openMSX is
+                                    started
 
 midi-in-readfilename
 --------------------
@@ -681,6 +712,29 @@ rs232-outputfilename
     set rs232-outputfilename                    shows the current setting
     set rs232-outputfilename myrs232output.txt  write to myrs232output.txt
 
+
+samples
+-------
+
+  Sets the size of the sound mixer buffer. Changing this setting only takes
+  effect the next time openMSX is started.
+
+  usage:
+    set samples       shows the current setting 
+    set samples 1024  use 44.1kHz mixing frequency
+
+
+save_settings_at_exit
+---------------------
+
+  Automatically save the current settings when openMSX exits (execute a
+  save_settings command).
+
+  usage:
+    set save_settings_at_exit        Show current setting
+    set save_settings_at_exit true   Enable auto save
+    set save_settings_at_exit false  Disable auto save
+    
 
 scanline
 --------
