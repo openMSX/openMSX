@@ -24,19 +24,6 @@ MSXMotherBoard::MSXMotherBoard()
 	CommandController::instance().registerCommand(&resetCmd, "reset");
 	powerSetting.addListener(this);
 	
-	// Initialise devices.
-	MSXConfig& config = MSXConfig::instance();
-	config.initDeviceIterator();
-	Device* d;
-	while ((d = config.getNextDevice()) != 0) {
-		PRT_DEBUG("Instantiating: " << d->getType());
-		MSXDevice* device = DeviceFactory::create(d, EmuTime::zero);
-		if (device) {
-			addDevice(device);
-		}
-	}
-	// Register all postponed slots.
-	MSXCPUInterface::instance().registerPostSlots();
 }
 
 MSXMotherBoard::~MSXMotherBoard()
@@ -88,6 +75,20 @@ void MSXMotherBoard::reInitMSX()
 
 void MSXMotherBoard::run(bool powerOn)
 {
+	// Initialise devices.
+	MSXConfig& config = MSXConfig::instance();
+	config.initDeviceIterator();
+	Device* d;
+	while ((d = config.getNextDevice()) != 0) {
+		PRT_DEBUG("Instantiating: " << d->getType());
+		MSXDevice* device = DeviceFactory::create(d, EmuTime::zero);
+		if (device) {
+			addDevice(device);
+		}
+	}
+	// Register all postponed slots.
+	MSXCPUInterface::instance().registerPostSlots();
+
 	// First execute auto commands.
 	CommandController::instance().autoCommands();
 
