@@ -87,6 +87,7 @@ openmsx_SOURCES=openmsx.cc icon.nn \
 	CommandLineParser.cc CommandLineParser.hh \
 	MSXDiskRomPatch.cc MSXDiskRomPatch.hh
 
+#	MSXPrinter.cc MSXPrinter.hh \
 # uncomment if you want to link with libxmlx
 # doesn't do anything yet at the moment
 openmsx_LDADD = libxmlx/libxmlx.la ConsoleSource/libSDL_console.la
