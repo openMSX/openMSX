@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <cassert>
+#include "xmlx.hh"
 #include "CliCommOutput.hh"
 
 using std::cout;
@@ -42,7 +43,7 @@ void CliCommOutput::log(LogLevel level, const string& message)
 	
 	if (xmlOutput) {
 		cout << "<log level=\"" << levelStr[level] << "\">"
-		     << message
+		     << XMLEscape(message)
 		     << "</log>" << endl;
 	} else {
 		cout << levelStr[level] << ": " << message << endl;
@@ -58,7 +59,7 @@ void CliCommOutput::reply(ReplyStatus status, const string& message)
 
 	assert(xmlOutput);
 	cout << "<reply result=\"" << replyStr[status] << "\">"
-	     << message
+	     << XMLEscape(message)
 	     << "</reply>" << endl;
 }
 
@@ -71,7 +72,7 @@ void CliCommOutput::update(UpdateType type, const string& name, const string& va
 	if (xmlOutput) {
 		cout << "<update type=\"" << updateStr[type] << "\" "
 		                "name=\"" << name << "\">"
-		     << value
+		     << XMLEscape(value)
 		     << "</update>" << endl;
 	} else {
 		cout << updateStr[type] << ": " << name << " = " << value << endl;

@@ -77,14 +77,8 @@ private:
 
 /**
  * XML escape a string
- * ! changes the string in place!
- * returns const reference to changed self
- * for easy chaining in streams
- * sample:
- * //string stest("hello & world");
- * //cout << XML::Escape(stest) << endl;
  */
-const string& XMLEscape(string& str);
+string XMLEscape(const string& str);
 
 } // namespace openmsx
 

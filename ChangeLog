@@ -1,5 +1,8 @@
 $Id$
 
+2004-03-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Proper XML escaping for results from comm protocol
+
 2004-03-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Reduce memory usage in Y8950Adpcm:
 	   - found by massif (part of valgrind)

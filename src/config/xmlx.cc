@@ -171,15 +171,15 @@ const XMLDocument& XMLDocument::operator=(const XMLDocument& document)
 
 
 
-const string& XMLEscape(string& str)
+string XMLEscape(const string& str)
 {
 	xmlChar* buffer = xmlEncodeEntitiesReentrant(NULL, (const xmlChar*)str.c_str());
-	str = (const char*)buffer;
+	string result = (const char*)buffer;
 	// buffer is allocated in C code, soo we free it the C-way:
 	if (buffer != NULL) {
 		free(buffer);
 	}
-	return str;
+	return result;
 }
 
 } // namespace openmsx
