@@ -122,9 +122,14 @@ class CPU
 		CPURegs R;
 
 	private:
-		byte* readCacheLine[0x100];
-		byte* writeCacheLine[0x100];
-		int hit, miss;
+		static const int CACHE_LINE_BITS = 8;	// 256bytes, not too big address 0xffff cannot be cached
+		static const int CACHE_LINE_SIZE = 1 << CACHE_LINE_BITS;
+		static const int CACHE_LINE_NUM  = 0x10000 / CACHE_LINE_SIZE;
+		static const int CACHE_LINE_LOW  = CACHE_LINE_SIZE - 1;
+		static const int CACHE_LINE_HIGH = 0xffff - CACHE_LINE_LOW;
+
+		byte* readCacheLine[CACHE_LINE_NUM];
+		byte* writeCacheLine[CACHE_LINE_NUM];
 };
 #endif //__CPU_HH__
 

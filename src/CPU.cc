@@ -11,7 +11,6 @@ CPU::CPU(CPUInterface *interf)
 	//targetChanged = true; // not necessary
 	
 	invalidateCache(0x0000, 0x10000);
-	//hit=miss=0;
 }
 
 CPU::~CPU()
@@ -47,8 +46,8 @@ void CPU::setCPURegs(const CPURegs &regs)
 
 void CPU::invalidateCache(word start, int length)
 {
-	PRT_DEBUG("cache: invalidate");
-	int num = (length+0xff)>>8;
-	memset(&readCacheLine[start>>8],  0xff, num*sizeof(byte*)); //	-1
-	memset(&writeCacheLine[start>>8], 0xff, num*sizeof(byte*)); //	-1
+	PRT_DEBUG("cache: invalidate "<<start<<" "<<length );
+	int num = (length+CACHE_LINE_LOW) >> CACHE_LINE_BITS;
+	memset(&readCacheLine [start>>CACHE_LINE_BITS], 0xff, num*sizeof(byte*)); //	-1
+	memset(&writeCacheLine[start>>CACHE_LINE_BITS], 0xff, num*sizeof(byte*)); //	-1
 }
