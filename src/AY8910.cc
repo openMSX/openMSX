@@ -208,7 +208,7 @@ void AY8910::wrtReg(byte reg, byte value)
 }
 
 
-void AY8910::setVolume(int newVolume)
+void AY8910::setVolume(short newVolume)
 {
 	// calculate the volume->voltage conversion table
 	// The AY-3-8910 has 16 levels, in a logarithmic scale (3dB per step)

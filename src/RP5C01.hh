@@ -12,7 +12,6 @@
 
 #include "openmsx.hh"
 #include "emutime.hh"
-//#include <SDL/SDL.h>
 
 
 class RP5C01

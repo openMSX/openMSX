@@ -9,31 +9,33 @@ class SoundDevice
 {
 	public:
 		/**
-		 *
-		 */
-		virtual void init() {}
-
-		/**
-		 *
-		 */
-		virtual void reset() {}
-
-		/**
 		 * Set the relative volume for this sound device, this
 		 * can be used to make a MSX-MUSIC sound louder than a
-		 * MSX-AUDIO
-		 * 
-		 *    0 <= newVolume <= 32767
+		 * MSX-AUDIO  (0 <= newVolume <= 32767)
+		 *
+		 * The SoundDevice itself should call this method once at
+		 * initialization (preferably with a value from the config
+		 * file). Later on the user might (interactively) alter the
+		 * volume of this device
 		 */
-		virtual void setVolume (int newVolume) = 0;
+		virtual void setVolume (short newVolume) = 0;
 
 		/**
-		 *
+		 * When a SoundDevice registers itself with the Mixer, the
+		 * Mixer sets the required sampleRate through this method. All
+		 * sound devices share a common sampleRate.
+		 * It is not possible to change the samplerate on-the-fly.
 		 */
 		virtual void setSampleRate (int newSampleRate) = 0;
 
 		/**
-		 * TODO update sound buffers
+		 * This method is regularly called from the Mixer, it should
+		 * just fill the given buffer with the required number of
+		 * samples. Samples are always 16-bit signed
+		 *
+		 * Note: this method runs in a different thread, you can
+		 *       (un)lock this thread with SDL_LockAudio() and
+		 *       SDL_UnlockAudio()
 		 */
 		virtual void updateBuffer (short *buffer, int length) = 0;
 };

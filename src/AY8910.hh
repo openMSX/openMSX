@@ -37,7 +37,7 @@ class AY8910 : public SoundDevice
 		//SoundDevice
 		void init();
 		void reset();
-		void setVolume(int newVolume);
+		void setVolume(short newVolume);
 		void setSampleRate(int sampleRate);
 		void updateBuffer(short *buffer, int length);
 		
