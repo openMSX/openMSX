@@ -4,6 +4,7 @@ $Id$
 	* When pausing, store last frame and keep plotting it during pause.
 	  Also keep redrawing the console, so it is usable during pause.
 	  Current implementation is a bit of a hack, but it works.
+	* Implemented afterglow effect, try "set glow N" in SDLGL.
 
 2003-05-31 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* VDPCmdEngine cleanups

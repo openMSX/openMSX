@@ -201,15 +201,36 @@ inline static int translateX(int absoluteX)
 
 void SDLGLRenderer::finishFrame(bool store)
 {
+	// Glow effect.
+	// Must be applied before storedImage is updated.
+	int glowSetting = settings->getGlow()->getValue();
+	if (glowSetting != 0 && prevStored) {
+		// Draw stored image.
+		glEnable(GL_TEXTURE_2D);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBindTexture(GL_TEXTURE_2D, storedImageTextureId);
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+		// Note:
+		// 100% glow means current frame has no influence at all.
+		// Values near 100% may have the same effect due to rounding.
+		// This formula makes sure that on 15bpp R/G/B value 0 can still pull
+		// down R/G/B value 31 of the previous frame.
+		GLDrawBlur(0, 0, glowSetting * 31 / 3200.0);
+		glDisable(GL_BLEND);
+		glDisable(GL_TEXTURE_2D);
+	}
+
 	// Determine which effects to apply.
 	int blurSetting = settings->getHorizontalBlur()->getValue();
 	int scanlineAlpha = (settings->getScanlineAlpha()->getValue() * 255) / 100;
 	// TODO: Turn off scanlines when deinterlacing.
 
 	// Store current frame as a texture.
-	if (store || blurSetting != 0 || scanlineAlpha != 0) {
+	if (store || glowSetting != 0 || blurSetting != 0 || scanlineAlpha != 0) {
 		glBindTexture(GL_TEXTURE_2D, storedImageTextureId);
 		glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, 1024, 512, 0);
+		prevStored = true;
 	}
 
 	drawEffects(blurSetting, scanlineAlpha);
@@ -223,13 +244,6 @@ void SDLGLRenderer::finishFrame(bool store)
 
 void SDLGLRenderer::putStoredImage()
 {
-	// Draw stored image.
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, storedImageTextureId);
-	// Note: Without blending enabled, this method is rather efficient.
-	GLDrawBlur(0, 0, 1.0);
-	glDisable(GL_TEXTURE_2D);
-
 	// TODO: The code below is a modified copy-paste of finishFrame.
 	//       Refactor it to remove code duplication.
 
@@ -474,6 +488,7 @@ SDLGLRenderer::SDLGLRenderer(
 	glBindTexture(GL_TEXTURE_2D, storedImageTextureId);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	prevStored = false;
 
 	// Create bitmap display cache.
 	if (vdp->isMSX1VDP()) {

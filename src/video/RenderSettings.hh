@@ -26,11 +26,12 @@ private:
 	// Please keep the settings ordered alphabetically.
 	EnumSetting<Accuracy> *accuracy;
 	BooleanSetting *deinterlace;
+	FrameSkipSetting *frameSkip;
 	BooleanSetting *fullScreen;
+	IntegerSetting *glow;
 	IntegerSetting *horizontalBlur;
 	RendererFactory::RendererSetting *renderer;
 	IntegerSetting *scanlineAlpha;
-	FrameSkipSetting *frameSkip;
 
 public:
 	/** Get singleton instance.
@@ -46,20 +47,24 @@ public:
 	/** Deinterlacing [on, off]. */
 	BooleanSetting *getDeinterlace() { return deinterlace; }
 
+	/** The current frameskip. */
+	FrameSkipSetting *getFrameSkip() { return frameSkip; }
+
 	/** Full screen [on, off]. */
 	BooleanSetting *getFullScreen() { return fullScreen; }
-	
+
+	/** The amount of glow [0..100]. */
+	IntegerSetting *getGlow() { return glow; }
+
 	/** The amount of horizontal blur [0..100]. */
 	IntegerSetting *getHorizontalBlur() { return horizontalBlur; }
 
 	/** The current renderer. */
 	RendererFactory::RendererSetting *getRenderer() { return renderer; }
-	
+
 	/** The alpha value [0..100] of the scanlines. */
 	IntegerSetting *getScanlineAlpha() { return scanlineAlpha; }
 
-	/** The current frameskip. */
-	FrameSkipSetting *getFrameSkip() { return frameSkip; }
 };
 
 #endif // __RENDERSETTINGS_HH__

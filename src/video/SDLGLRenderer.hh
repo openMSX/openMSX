@@ -193,6 +193,10 @@ private:
 	  */
 	GLuint storedImageTextureId;
 
+	/** Was the previous frame image stored?
+	  */
+	bool prevStored;
+
 	/** Display mode the line is valid in.
 	  * 0xFF means invalid in every mode.
 	  */
