@@ -3,11 +3,17 @@
 #ifndef __MSXGAMECARTRIDGE_HH__
 #define __MSXGAMECARTRIDGE_HH__
 
+#ifndef VERSION
+#include "config.h"
+#endif
+
 #include "MSXRom.hh"
 #include "MSXMemDevice.hh"
 
 // forward declarations
+#ifndef DONT_WANT_SCC
 class SCC;
+#endif
 class DACSound;
 class EmuTime;
 
@@ -38,7 +44,6 @@ class MSXGameCartridge : public MSXMemDevice, public MSXRom
 		int mapperType;
 		byte mapperMask;
 		byte *internalMemoryBank[8]; // 4 blocks of 8kB starting at #4000
-		bool enabledSCC;
 		bool enabledSRAM;
 		byte *memorySRAM; // SRAM area of Hydlide2/Xanadu/Royal Blood/Gamemaster2
 		byte SRAMEnableBit;
@@ -47,7 +52,10 @@ class MSXGameCartridge : public MSXMemDevice, public MSXRom
 
 		int retrieveMapperType();
 		int guessMapperType();
+#ifndef DONT_WANT_SCC
 		SCC* cartridgeSCC;
+		bool enabledSCC;
+#endif
 		DACSound* dac;
 };
 #endif

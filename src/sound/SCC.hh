@@ -3,6 +3,12 @@
 #ifndef __SCC_HH__
 #define __SCC_HH__
 
+#ifndef VERSION
+#include "config.h"
+#endif
+
+#ifndef DONT_WANT_SCC
+
 #include "openmsx.hh"
 #include "SoundDevice.hh"
 
@@ -64,4 +70,7 @@ class SCC : public SoundDevice
 		int refresh;
 		byte memInterface[256];
 };
+
+#endif // ndef DONT_WANT_SCC
+
 #endif //__SCC_HH__

@@ -82,7 +82,8 @@ openmsx_SOURCES=\
 	MSXDiskRomPatch.cc MSXDiskRomPatch.hh \
 	atoll.c \
 	PluggingController.hh PluggingController.cc \
-	Connector.hh Connector.cc Pluggable.hh
+	Connector.hh Connector.cc Pluggable.hh \
+	config.h
 
 #	MSXPrinter.cc MSXPrinter.hh
 #	SDLLoRenderer.hh SDLLoRenderer.cc

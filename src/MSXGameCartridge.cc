@@ -66,6 +66,7 @@ MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &tim
 		memorySRAM = NULL;
 	}
 
+#ifndef DONT_WANT_SCC
 	// only instantiate SCC if needed
 	if (mapperType==2) {
 		short volume = (short)config->getParameterAsInt("volume");
@@ -73,7 +74,8 @@ MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &tim
 	} else {
 		cartridgeSCC = NULL;
 	}
-	
+#endif
+
 	// only instantiate DACSound if needed
 	if (mapperType==64) {
 		short volume = (short)config->getParameterAsInt("volume");
@@ -90,8 +92,10 @@ MSXGameCartridge::~MSXGameCartridge()
 	PRT_DEBUG("Destructing an MSXGameCartridge object");
 	if (dac)
 		delete dac;
+#ifndef DONT_WANT_SCC
 	if (cartridgeSCC)
 		delete cartridgeSCC;
+#endif
 	if ((mapperType&16) && deviceConfig->getParameterAsBool("savesram")) {
 		std::string filename = deviceConfig->getParameter("sramname");
 		PRT_INFO("Trying to save to "<<filename<<" for SRAM of the cartrdige");
@@ -105,10 +109,12 @@ MSXGameCartridge::~MSXGameCartridge()
 
 void MSXGameCartridge::reset(const EmuTime &time)
 {
+#ifndef DONT_WANT_SCC
 	if (cartridgeSCC) {
 		cartridgeSCC->reset();
 	}
 	enabledSCC = false;
+#endif
 	if (dac) {
 		dac->reset(time);
 	}
@@ -340,9 +346,11 @@ byte MSXGameCartridge::readMem(word address, const EmuTime &time)
 	// If MSXMotherBoard would support hot-plugging of devices,
 	// it would be possible to insert an SCC supporting device
 	// only when the SCC is enabled.
+#ifndef DONT_WANT_SCC
 	if (enabledSCC && 0x9800 <= address && address < 0xA000) {
 		return cartridgeSCC->readMemInterface(address & 0xFF, time);
 	}
+#endif
 	PRT_DEBUG(std::hex << "GameCartridge read [" << address << "] := " << (int)internalMemoryBank[address>>13][address&0x1fff] << std::dec );
 	return internalMemoryBank[address>>13][address&0x1fff];
 }
@@ -351,16 +359,20 @@ byte* MSXGameCartridge::getReadCacheLine(word start)
 {
 	// extra check for SRAM: (enabledSRAM && adr2pag[start>>13]&regioSRAM)
 	// not needed since SRAM may be cached.
+#ifndef DONT_WANT_SCC
 	if ( (enabledSRAM && adr2pag[start>>13]&regioSRAM)
 	    || (enabledSCC && 0x9800<=start && start<0xA000)) {
 		// don't cache SRAM and SCC
 		PRT_DEBUG("No caching for " << std::hex << start << std::dec);
 		return NULL;
 	} else {
+#endif
 		// assumes CACHE_LINE_SIZE <= 0x2000
 		PRT_DEBUG("Caching for " << std::hex << start << std::dec);
 		return &internalMemoryBank[start>>13][start&0x1fff];
+#ifndef DONT_WANT_SCC
 	}
+#endif
 }
 
 void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
@@ -404,6 +416,7 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		//  bank 4: 0xB000 - 0xB7FF (0xB000 used)
 
 		if (address<0x5000 || address>=0xC000) return;
+#ifndef DONT_WANT_SCC
 		// Write to SCC?
 		if (enabledSCC && 0x9800<=address && address<0xA000) {
 			cartridgeSCC->writeMemInterface(address & 0xFF, value , time);
@@ -416,6 +429,7 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 			enabledSCC = ((value&0x3F)==0x3F);
 			MSXCPU::instance()->invalidateCache(0x9800, 0x0800/CPU::CACHE_LINE_SIZE);
 		}
+#endif
 		// Page selection?
 		if ((address & 0x1800) != 0x1000) return;
 		value &= mapperMask;

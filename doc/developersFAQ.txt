@@ -58,6 +58,25 @@ A: The class MSXCPU offers two methods raiseIRQ() and lowerIRQ(). However direct
    the class IRQHelper.
 Example: VDP.cc
 
+Q: How do I compile a version with certain features not compiled in?
+A: ./configure --help shows which parts you can disable, for example
+   --disable-SCC will configure openmsx for compiling without SCC code.
+
+Q: How do I make a part of openMSX optional for compilation?
+A: 1) add an section for your part to m4/enables.m4
+   2) add your new macro to configure.in in the enables section
+   3) run ./autogen.sh : your disable option is now available in
+      ./configure --help
+   4) modify the devicefactory or other factory where the part is allocated
+      to not create the part if not needed, for examples see devicefactory.cc
+   5) modify the part by including config.h and enclosing both header and
+      code file in #ifndef #endif, for example see src/sound/SCC.hh and
+      src/sound/SCC.cc
+   6) make sure all still compiles and runs both with and without your new
+      option by compiling 2 times, once with, and once without ;-)
+      You might need to disable/enable some parts in config files.
+   For a more complex example, take a look at FMPAC and MSXMUSIC, since
+   they both share the same chip.
 
 TODO
 Q: How do I write my own sound device?

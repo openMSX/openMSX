@@ -3,6 +3,12 @@
 #ifndef __MSXYM2413_HH__
 #define __MSXYM2413_HH__
 
+#ifndef VERSION
+#include "config.h"
+#endif
+
+#if !defined(DONT_WANT_FMPAC) || !defined(DONT_WANT_MSXMUSIC)
+
 #include "MSXIODevice.hh"
 
 // forward declaration
@@ -36,4 +42,7 @@ class MSXYM2413 : public MSXIODevice
 	private:
 		int registerLatch;
 };
+
+#endif // not defined(DONT_WANT_FMPAC) || not defined(DONT_WANT_MSXMUSIC)
+
 #endif

@@ -3,6 +3,12 @@
 #ifndef __MSXFMPAC_HH__
 #define __MSXFMPAC_HH__
 
+#ifndef VERSION
+#include "config.h"
+#endif
+
+#ifndef DONT_WANT_FMPAC
+
 #include "MSXYM2413.hh"
 #include "MSXMemDevice.hh"
 #include "MSXRom.hh"
@@ -35,6 +41,9 @@ class MSXFmPac : public MSXYM2413, public MSXMemDevice, public MSXRom
 		byte r5ffe, r5fff;
 		byte* sramBank;
 };
+
+#endif // ndef DONT_WANT_FMPAC
+
 #endif
 
 

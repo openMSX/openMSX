@@ -1,8 +1,8 @@
 $Id$
 
 Prime Authors:
-David Heremans <david.heremans@gnu-linux.net>
-Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+David Heremans       <david.heremans@gnu-linux.net>
+Wouter Vermaelen     <wouter.vermaelen@student.kuleuven.ac.be>
 Joost Yervante Damad <j.damad@qahwah.net / andete@worldcity.nl>
 Maarten Ter Huurne   <mth@stack.nl>
 
@@ -13,18 +13,18 @@ And before altering (or completely rewriting) we
 used code from the following contributors:
 
 tms9918a:
-	Sean Young <sean@msxnet.org>
+    Sean Young <sean@msxnet.org>
 z80:
-	Marcel de Kogel
+    Marcel de Kogel
 SDL_Console:
-	Garrett Banuk <mongoose@mongeese.org>
+    Garrett Banuk <mongoose@mongeese.org>
 AY8190:
-	Mostly taken from xmame-0.37b16.1.
+    Mostly taken from xmame-0.37b16.1.
         Based on various code snippets by Ville Hallik,
-	Michael Cuddy, Tatsuyuki Satoh, Fabrice Frances,
-	Nicola Salmoria
+        Michael Cuddy, Tatsuyuki Satoh, Fabrice Frances,
+        Nicola Salmoria
 Y8950 and YM2413 emulator :
-	written by Mitsutaka Okazaki
+    written by Mitsutaka Okazaki
 
 
 
@@ -33,4 +33,5 @@ Alex Wulms           <awulms@inter.nl.net>
 Marcel Harkema       <marcel@qahwah.net>
 Jon Deschrijver      <jon@msx.ch>
 Manuel Bilderbeek    <manuel@msxnet.org>
+
 ... this list is not complete!! ... [please add]

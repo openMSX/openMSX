@@ -3,6 +3,12 @@
 #ifndef __MSXSCCPLUSCART_HH__
 #define __MSXSCCPLUSCART_HH__
 
+#ifndef VERSION
+#include "config.h"
+#endif
+
+#ifndef DONT_WANT_SCC
+
 #include "MSXMemDevice.hh"
 #include "openmsx.hh"
 #include "FileOpener.hh"
@@ -46,6 +52,8 @@ class MSXSCCPlusCart : public MSXMemDevice
 		byte internalMapper[4];
       		byte *internalMemoryBank[4]; // 4 blocks of 8kB starting at #4000
 };
+
+#endif // ndef DONT_WANT_SCC
 
 #endif //__MSXSCCPlusCart_HH__
 

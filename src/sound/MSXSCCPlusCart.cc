@@ -1,10 +1,13 @@
 // $Id$
- 
-#include <iostream>
+
 #include "MSXSCCPlusCart.hh"
+
+#ifndef DONT_WANT_SCC
+
 #include "MSXConfig.hh"
 #include "SCC.hh"
-#include "config.h"
+
+#include <iostream>
 
 
 MSXSCCPlusCart::MSXSCCPlusCart(MSXConfig::Device *config, const EmuTime &time)
@@ -175,3 +178,5 @@ void MSXSCCPlusCart::checkEnable()
 	else 
 		enable = 0;
 }
+
+#endif // ndef DONT_WANT_SCC

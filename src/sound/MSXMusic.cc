@@ -2,6 +2,7 @@
 
 #include "MSXMusic.hh"
 
+#ifndef DONT_WANT_MSXMUSIC
 
 MSXMusic::MSXMusic(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXYM2413(config, time),
@@ -49,3 +50,5 @@ void MSXMusic::writeMem(word address, byte value, const EmuTime &time)
 		// do nothing
 	}
 }
+
+#endif // ndef DONT_WANT_MSXMUSIC

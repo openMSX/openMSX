@@ -1,9 +1,12 @@
 // $Id$
 
-#include <string.h>
 #include "MSXFmPac.hh"
+
+#ifndef DONT_WANT_FMPAC
+
 #include "FileOpener.hh"
 
+#include <string.h>
 
 MSXFmPac::MSXFmPac(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXYM2413(config, time), 
@@ -115,3 +118,5 @@ void MSXFmPac::checkSramEnable()
 {
 	sramEnabled = ((r5ffe==0x4d)&&(r5fff=0x69)) ? true : false;
 }
+
+#endif // ndef DONT_WANT_FMPAC

@@ -6,10 +6,14 @@
   * heavily rewritten to fit openMSX structure
   */
 
+#include "YM2413.hh"
+
+#if !defined(DONT_WANT_FMPAC) || !defined(DONT_WANT_MSXMUSIC)
+
+#include "Mixer.hh"
+
 #include <math.h>
 #include <cassert>
-#include "YM2413.hh"
-#include "Mixer.hh"
 
 word YM2413::fullsintable[PG_WIDTH];
 word YM2413::halfsintable[PG_WIDTH];
@@ -1165,3 +1169,5 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 	Mixer::instance()->unlock();
 	checkMute();
 }
+
+#endif // not defined(DONT_WANT_FMPAC) || not defined(DONT_WANT_MSXMUSIC)
