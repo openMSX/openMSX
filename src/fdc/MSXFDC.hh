@@ -7,7 +7,7 @@
 #include "MSXRomDevice.hh"
 
 
-class MSXFDC : public MSXMemDevice, private MSXRomDevice
+class MSXFDC : public MSXMemDevice, public MSXRomDevice
 {
 	public:
 		MSXFDC(MSXConfig::Device *config, const EmuTime &time);

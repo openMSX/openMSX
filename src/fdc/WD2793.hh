@@ -3,15 +3,16 @@
 #ifndef __WD2793_HH__
 #define __WD2793_HH__
 
-#include "MSXConfig.hh"
+#include "FDC.hh"
 
 // forward declarations
 class FDCBackEnd;
 
 
-class WD2793
+class WD2793 : public FDC
 {
   public:
+	WD2793(MSXConfig::Device *config);
 	virtual ~WD2793();
 
 	virtual void reset();
@@ -31,17 +32,10 @@ class WD2793
 	virtual void setSideSelect(byte value,const EmuTime &time);
 	virtual void setDriveSelect(byte value,const EmuTime &time);
 	virtual void setMotor(byte value,const EmuTime &time);
-
-	WD2793(MSXConfig::Device *config);
 	
   private:
-	FDCBackEnd* getBackEnd();
-	
 	byte timePerStep[4]; // {3,6,10,15} in ms case of of 2 MHz clock, double this if a 1MHz clock is used! (MSX=1MHz clock :-)
 	
-  	std::string driveName[2];
-	int numDrives;	// number of connected drives (1 or 2)
-
 	/*
 	EmuTime commandStart;
 	EmuTime commandEnd;

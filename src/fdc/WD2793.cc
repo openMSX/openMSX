@@ -1,23 +1,11 @@
 // $Id$
 
 #include "WD2793.hh"
-#include "DiskImageManager.hh"
-#include "FDCBackEnd.hh"
 
 
-WD2793::WD2793(MSXConfig::Device *config) 
+WD2793::WD2793(MSXConfig::Device *config)
+	: FDC(config)
 {
-	PRT_DEBUG("instantiating an WD2793 object..");
-	driveName[0] = config->getParameter("drivename1");
-	DiskImageManager::instance()->registerDrive(driveName[0]);
-	try {
-		driveName[1] = config->getParameter("drivename2");
-		DiskImageManager::instance()->registerDrive(driveName[1]);
-		numDrives = 2;
-	} catch (MSXException &e) {
-		numDrives = 1;
-	}
-  
 	reset();
 	timePerStep[0]=6;	// in MSX a 1MHz clock is used!
 	timePerStep[1]=12;
@@ -27,10 +15,6 @@ WD2793::WD2793(MSXConfig::Device *config)
 
 WD2793::~WD2793()
 {
-	PRT_DEBUG("Destructing an WD2793 object..");
-	for (int i=0; i<numDrives; i++) {
-		DiskImageManager::instance()->unregisterDrive(driveName[i]);
-	}
 }
 
 void WD2793::reset()
@@ -128,16 +112,6 @@ void WD2793::setSideSelect(byte value,const EmuTime &time)
 byte WD2793::getSideSelect(const EmuTime &time)
 {
   return current_side;
-}
-
-FDCBackEnd* WD2793::getBackEnd()
-{
-	if (current_drive < numDrives) {
-		return DiskImageManager::instance()->
-			getBackEnd(driveName[current_drive]);
-	} else {
-		throw MSXException("No such drive");
-	}
 }
 
 void WD2793::setCommandReg(byte value,const EmuTime &time)
@@ -260,8 +234,8 @@ void WD2793::setCommandReg(byte value,const EmuTime &time)
 	  	dataCurrent=0;
 		dataAvailable=512; // TODO should come from sector header !!!
 		try {
-			getBackEnd()->read(current_track, trackReg, sectorReg,
-			                   current_side, 512, dataBuffer);
+			getBackEnd(current_drive)->read(current_track, trackReg,
+			              sectorReg, current_side, 512, dataBuffer);
 			statusReg |= 2; DRQ=true; // data ready to be read
 		} catch (MSXException &e) {
 		  statusReg |= 2; DRQ=true; // TODO data not ready because read error
@@ -351,8 +325,8 @@ void WD2793::setDataReg(byte value, const EmuTime &time)
 	  if ( dataAvailable == 0 ){
 		PRT_DEBUG("Now we call the backend to write a sector");
 		try {
-			getBackEnd()->write(current_track, trackReg, sectorReg,
-			                    current_side, 512, dataBuffer);
+			getBackEnd(current_drive)->write(current_track, trackReg,
+			              sectorReg, current_side, 512, dataBuffer);
 			// If we wait too long we should also write a partialy filled sector
 			// ofcourse and set the correct status bits !!
 			statusReg &= 0x7D ;// reset status on Busy(=bit7) reset DRQ bit(=bit1)

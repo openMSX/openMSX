@@ -1,5 +1,10 @@
 $Id$
 
+2002-11-02 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Basic TC8566AF disk controller support (TurboR):
+	   - Based on code from NLMSX written by Frits Hilderink
+	   - TurboR boots now! It still has a lot of missing features though.
+
 2002-11-01 Maarten ter Huurne <mth@stack.nl>
 	* Scanline emulation in SDLGLRenderer.
 	  Very rudimentary in this stage, but it works.

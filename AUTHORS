@@ -27,6 +27,8 @@ AY8190:
         Nicola Salmoria
 Y8950 and YM2413 emulator :
     written by Mitsutaka Okazaki
+TC8566AF disk controller:
+    Based on code from NLMSX written by Frits Hilderink
 
 
 

@@ -15,10 +15,13 @@ noinst_LTLIBRARIES = libFdc.la
 libFdc_la_SOURCES = \
 	FDCFactory.cc FDCFactory.hh \
 	MSXFDC.cc MSXFDC.hh \
+	FDC.cc FDC.hh \
 	PhilipsFDC.cc PhilipsFDC.hh \
 	BrazilFDC.cc BrazilFDC.hh \
 	NationalFDC.cc NationalFDC.hh \
 	WD2793.cc WD2793.hh \
+	TurboRFDC.cc TurboRFDC.hh \
+	TC8566AF.cc TC8566AF.hh \
 	DiskImageManager.cc DiskImageManager.hh \
 	FDCBackEnd.cc FDCBackEnd.hh \
 	FDCDummyBackEnd.cc FDCDummyBackEnd.hh \

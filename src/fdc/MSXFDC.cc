@@ -1,7 +1,6 @@
 // $Id$
 
 #include "MSXFDC.hh"
-#include "CPU.hh"
 
 
 MSXFDC::MSXFDC(MSXConfig::Device *config, const EmuTime &time)

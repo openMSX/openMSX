@@ -4,6 +4,7 @@
 #include "PhilipsFDC.hh"
 #include "BrazilFDC.hh"
 #include "NationalFDC.hh"
+#include "TurboRFDC.hh"
 
 
 MSXDevice* FDCFactory::create(MSXConfig::Device *config, const EmuTime &time)
@@ -17,6 +18,9 @@ MSXDevice* FDCFactory::create(MSXConfig::Device *config, const EmuTime &time)
 	}
 	if (type == "National") {
 		return new NationalFDC(config, time);
+	}
+	if (type == "TurboR") {
+		return new TurboRFDC(config, time);
 	}
 	PRT_ERROR("Unknown FDC type");
 	return NULL;

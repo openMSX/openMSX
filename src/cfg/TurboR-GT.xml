@@ -111,41 +111,17 @@
     </slotted>
     <parameter name="filename">TurboR-GT-kanji.rom</parameter>
   </device>
-<!--
-  <device id="diskrom">
-    <type>Rom</type>
-    <slotted>
-      <ps>3</ps>
-      <ss>2</ss>
-      <page>1</page>
-    </slotted>
+
+  <device id="Memory Mapped FDC">
+    <type>FDC</type>
+    <slotted> <ps>3</ps> <ss>2</ss> <page>1</page> </slotted>
+    <slotted> <ps>3</ps> <ss>2</ss> <page>2</page> </slotted>
     <parameter name="filename">MSXDOS-2.3.rom</parameter>
-    <parameter name="" class="patchcode">MSXDiskRomPatch</parameter>
-
-    <parameter name="0x0010" class="patch">0xED</parameter>
-    <parameter name="0x0011" class="patch">0xFE</parameter>
-    <parameter name="0x0012" class="patch">0xC9</parameter>
-    <parameter name="0x0013" class="patch">0xED</parameter>
-    <parameter name="0x0014" class="patch">0xFE</parameter>
-    <parameter name="0x0015" class="patch">0xC9</parameter>
-    <parameter name="0x0016" class="patch">0xED</parameter>
-    <parameter name="0x0017" class="patch">0xFE</parameter>
-    <parameter name="0x0018" class="patch">0xC9</parameter>
-    <parameter name="0x001C" class="patch">0xED</parameter>
-    <parameter name="0x001D" class="patch">0xFE</parameter>
-    <parameter name="0x001E" class="patch">0xC9</parameter>
-    <parameter name="0x001F" class="patch">0xED</parameter>
-    <parameter name="0x0020" class="patch">0xFE</parameter>
-    <parameter name="0x0021" class="patch">0xC9</parameter>
-
-    <parameter name="0x3FF8" class="patch">0x24</parameter>
-    <parameter name="0x3FF9" class="patch">0x00</parameter>
-    <parameter name="0x3FFA" class="patch">0x07</parameter>
-    <parameter name="0x3FFB" class="patch">0x00</parameter>
-    <parameter name="0x3FFC" class="patch">0xFE</parameter>
-    <parameter name="0x3FFD" class="patch">0xFC</parameter>
+    <parameter name="type">TurboR</parameter>
+    <parameter name="drivename1">diska</parameter>
+    <parameter name="drivename2">diskb</parameter>
   </device>
--->
+
   <device id="MSX VIEW">
     <type>Rom</type>
     <slotted>
