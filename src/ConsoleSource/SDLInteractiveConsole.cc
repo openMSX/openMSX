@@ -47,9 +47,11 @@ SDLInteractiveConsole::SDLInteractiveConsole() :
 		context = config->getContext();
 		if (config->hasParameter("font")) {
 			fontName = config->getParameter("font");
+			fontName = context->resolve(fontName);
 		}
 		if (config->hasParameter("background")) {
 			backgroundName = config->getParameter("background");
+			backgroundName = context->resolve(backgroundName);
 		}
 	} catch (MSXException &e) {
 		// no Console section
