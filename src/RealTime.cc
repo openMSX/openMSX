@@ -125,7 +125,7 @@ const string &RealTime::schedName() const
 	return name;
 }
 
-void RealTime::update(const SettingLeafNode* /*setting*/)
+void RealTime::update(const Setting* /*setting*/)
 {
 	resync();
 }

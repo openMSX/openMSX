@@ -92,7 +92,7 @@ RenderSettings& RenderSettings::instance()
 	return oneInstance;
 }
 
-void RenderSettings::update(const SettingLeafNode* setting)
+void RenderSettings::update(const Setting* setting)
 {
 	if (setting == renderer.get()) {
 		checkRendererSwitch();

@@ -6,19 +6,8 @@ namespace openmsx {
 
 BooleanSetting::BooleanSetting(const string& name, const string& description,
                                bool initialValue, SaveSetting save)
-	: EnumSettingBase<bool>(name, description, initialValue, getMap())
+	: EnumSetting<bool>(name, description, initialValue, getMap(), save)
 {
-	initSetting(save);
-}
-
-BooleanSetting::~BooleanSetting()
-{
-	exitSetting();
-}
-
-string BooleanSetting::getValueString() const
-{
-	return string(getValue() ? "true" : "false");
 }
 
 const EnumSetting<bool>::Map& BooleanSetting::getMap()

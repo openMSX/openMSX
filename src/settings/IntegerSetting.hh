@@ -3,35 +3,26 @@
 #ifndef __INTEGERSETTING_HH__
 #define __INTEGERSETTING_HH__
 
-#include "Setting.hh"
-#include "NonInheritable.hh"
+#include "SettingPolicy.hh"
+#include "SettingImpl.hh"
 
 namespace openmsx {
 
+class IntegerSettingPolicy : public SettingRangePolicy<int>
+{
+protected:
+	IntegerSettingPolicy(int minValue, int maxValue);
+	std::string toString(int value) const;
+	int fromString(const std::string& str) const;
+};
+
 /** A Setting with an integer value.
   */
-NON_INHERITABLE_PRE(IntegerSetting)
-class IntegerSetting: public Setting<int>, NON_INHERITABLE(IntegerSetting)
+class IntegerSetting : public SettingImpl<IntegerSettingPolicy>
 {
 public:
 	IntegerSetting(const string& name, const string& description,
 	               int initialValue, int minValue, int maxValue);
-	virtual ~IntegerSetting();
-
-	/** Change the allowed range.
-	  * @param minValue New minimal value (inclusive).
-	  * @param maxValue New maximal value (inclusive).
-	  */
-	void setRange(int minValue, int maxValue);
-
-	// Implementation of Setting interface:
-	virtual string getValueString() const;
-	virtual void setValueString(const string& valueString);
-	virtual void setValue(const int& newValue);
-
-protected:
-	int minValue;
-	int maxValue;
 };
 
 } // namespace openmsx

@@ -3,32 +3,23 @@
 #ifndef __STRINGSETTING_HH__
 #define __STRINGSETTING_HH__
 
-#include "Setting.hh"
-#include "NonInheritable.hh"
+#include "SettingPolicy.hh"
+#include "SettingImpl.hh"
 
 namespace openmsx {
 
-/** A Setting with a string value.
-  */
-class StringSettingBase : public Setting<string>
+class StringSettingPolicy : public SettingPolicy<std::string>
 {
 protected:
-	StringSettingBase(const string& name, const string& description,
-	                  const string& initialValue);
-
-public:
-	// Implementation of Setting interface:
-	virtual string getValueString() const;
-	virtual void setValueString(const string& valueString);
+	const std::string& toString(const std::string& value) const;
+	const std::string& fromString(const std::string& str) const;
 };
 
-NON_INHERITABLE_PRE(StringSetting)
-class StringSetting : public StringSettingBase, NON_INHERITABLE(StringSetting)
+class StringSetting : public SettingImpl<StringSettingPolicy>
 {
 public:
 	StringSetting(const string& name, const string& description,
 	              const string& initialValue);
-	virtual ~StringSetting();
 };
 
 } // namespace openmsx

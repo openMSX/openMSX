@@ -3,13 +3,17 @@
 include build/node-start.mk
 
 SRC_HDR:= \
-	SettingNode SettingsManager \
-	IntegerSetting FloatSetting \
+	SettingsManager \
+	Setting \
+	IntegerSetting \
+	FloatSetting \
+	StringSetting \
 	BooleanSetting \
-	StringSetting FilenameSetting
+	FilenameSetting
 
 HDR_ONLY:= \
-	Setting SettingListener \
+	SettingImpl \
+	SettingListener \
 	EnumSetting
 
 include build/node-end.mk

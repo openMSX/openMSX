@@ -1,77 +1,28 @@
 // $Id$
 
 #include "FilenameSetting.hh"
-#include "File.hh"
 #include "FileContext.hh"
 #include "CliCommOutput.hh"
 #include "CommandController.hh"
 
 namespace openmsx {
 
-// class FilenameSettingBase
-
-FilenameSettingBase::FilenameSettingBase(
-	const string& name, const string& description,
-        const string& initialValue)
-	: StringSettingBase(name, description, initialValue)
-	, printWarnings(true)
-{
-}
-
-void FilenameSettingBase::setValue(const string& newValue)
-{
-	string resolved;
-	if (!newValue.empty() && xmlNode) {
-		try {
-			resolved = xmlNode->getFileContext().resolve(newValue);
-		} catch (FileException& e) {
-			// ignore
-		}
-	}
-	if (!newValue.empty() && resolved.empty()) {
-		try {
-			UserFileContext context;
-			resolved = context.resolve(newValue);
-		} catch (FileException& e) {
-			// File not found
-			if (printWarnings) {
-				CliCommOutput::instance().printWarning(
-					"couldn't find file: \"" + newValue + "\"");
-			}
-			return;
-		}
-	}
-	if (checkFile(resolved)) {
-		StringSettingBase::setValue(newValue);
-	}
-}
-
-void FilenameSettingBase::tabCompletion(vector<string>& tokens) const
+void FilenameSettingPolicy::tabCompletion(std::vector<std::string>& tokens) const
 {
 	CommandController::completeFileName(tokens);
 }
 
 
-// class FilenameSetting
-
-FilenameSetting::FilenameSetting(
-	const string& name, const string& description,
-	const string& initialValue)
-	: FilenameSettingBase(name, description, initialValue)
+FilenameSetting::FilenameSetting(const std::string& name, const std::string& description,
+                                 const std::string& initialValue)
+	: SettingImpl<FilenameSettingPolicy>(name, description, initialValue,
+	                                     Setting::SAVE)
 {
-	printWarnings = false;
-	initSetting(SAVE_SETTING);
-	printWarnings = true;
 }
 
-FilenameSetting::~FilenameSetting()
+FileContext& FilenameSetting::getFileContext() const
 {
-	exitSetting();
-}
-
-bool FilenameSetting::checkFile(const string& /*filename*/)
-{
-	return true;
+	return xmlNode->getFileContext();
 }
 
 } // namespace openmsx

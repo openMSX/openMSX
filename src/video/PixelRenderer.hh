@@ -65,7 +65,7 @@ private:
 	enum DrawType { DRAW_BORDER, DRAW_DISPLAY };
 
 	// SettingListener interface:
-	virtual void update(const SettingLeafNode* setting);
+	virtual void update(const Setting* setting);
 
 	/** Call the right draw method in the subclass,
 	  * depending on passed drawType.

@@ -11,7 +11,6 @@
 #include "FilenameSetting.hh"
 #include "DummyFont.hh"
 #include "Console.hh"
-#include "NonInheritable.hh"
 #include "SettingListener.hh"
 
 using std::auto_ptr;
@@ -19,43 +18,15 @@ using std::string;
 
 namespace openmsx {
 
-class OSDConsoleRenderer;
 class IntegerSetting;
 class Font;
 class InputEventGenerator;
 class EventDistributor;
 class BooleanSetting;
 
-NON_INHERITABLE_PRE(BackgroundSetting)
-class BackgroundSetting : public FilenameSettingBase,
-                          NON_INHERITABLE(BackgroundSetting)
-{
-public:
-	BackgroundSetting(OSDConsoleRenderer& console,
-	                  const string& initialValue);
-	virtual ~BackgroundSetting();
 
-	virtual bool checkFile(const string& filename);
-
-private:
-	OSDConsoleRenderer& console;
-};
-
-NON_INHERITABLE_PRE(FontSetting)
-class FontSetting : public FilenameSettingBase, NON_INHERITABLE(FontSetting)
-{
-public:
-	FontSetting(OSDConsoleRenderer& console,
-	            const string& initialValue);
-	virtual ~FontSetting();
-
-	virtual bool checkFile(const string& filename);
-
-private:
-	OSDConsoleRenderer& console;
-};
-
-class OSDConsoleRenderer: public Layer, private SettingListener
+class OSDConsoleRenderer : public Layer, private SettingListener,
+                           private SettingChecker<FilenameSetting::Policy>
 {
 public:
 	virtual ~OSDConsoleRenderer();
@@ -87,8 +58,8 @@ protected:
 	auto_ptr<EnumSetting<Placement> > consolePlacementSetting;
 	auto_ptr<IntegerSetting> consoleRowsSetting;
 	auto_ptr<IntegerSetting> consoleColumnsSetting;
-	auto_ptr<BackgroundSetting> backgroundSetting;
-	auto_ptr<FontSetting> fontSetting;
+	auto_ptr<FilenameSetting> backgroundSetting;
+	auto_ptr<FilenameSetting> fontSetting;
 	auto_ptr<Font> font;
 	bool blink;
 	unsigned lastBlinkTime;
@@ -98,8 +69,12 @@ protected:
 
 private:
 	void adjustColRow();
-	void update(const SettingLeafNode* setting);
+	void update(const Setting* setting);
 	void setActive(bool active);
+
+	// SettingChecker
+	virtual void check(SettingImpl<FilenameSetting::Policy>& setting,
+	                   string& value);
 
 	bool active;
 	unsigned long long time;

@@ -27,7 +27,7 @@ public:
 private:
 	void freeWave();
 	void loadWave();
-	void update(const SettingLeafNode* setting);
+	void update(const Setting* setting);
 
 	int length;
 	Uint8* buffer;

@@ -8,7 +8,7 @@
 #include <set>
 #include <string>
 #include <vector>
-#include "SettingNode.hh"
+#include "Setting.hh"
 #include "Command.hh"
 
 using std::map;
@@ -26,27 +26,25 @@ class Interpreter;
 class SettingsManager
 {
 private:
-	typedef map<string, SettingNode*> SettingsMap;
+	typedef map<string, Setting*> SettingsMap;
 	SettingsMap settingsMap;
 
 public:
 	static SettingsManager& instance();
 
 	/** Get a setting by specifying its name.
-	  * @return The SettingLeafNode with the given name,
-	  *   or NULL if there is no such SettingLeafNode.
+	  * @return The Setting with the given name,
+	  *   or NULL if there is no such Setting.
 	  */
-	SettingLeafNode* getByName(const string& name) const {
+	Setting* getByName(const string& name) const {
 		SettingsMap::const_iterator it = settingsMap.find(name);
 		// TODO: The cast is valid because currently all nodes are leaves.
 		//       In the future this will no longer be the case.
-		return it == settingsMap.end()
-			? NULL
-			: static_cast<SettingLeafNode*>(it->second);
+		return it != settingsMap.end() ? it->second : NULL;
 	}
 
-	void registerSetting(SettingNode& setting);
-	void unregisterSetting(SettingNode& setting);
+	void registerSetting(Setting& setting);
+	void unregisterSetting(Setting& setting);
 
 private:
 	SettingsManager();

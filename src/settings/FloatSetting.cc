@@ -6,79 +6,40 @@
 #include <iomanip>
 #include <cstdio>
 
-using std::ostringstream;
-
 namespace openmsx {
 
-FloatSetting::FloatSetting(
-	const string& name, const string& description,
-	double initialValue, double minValue, double maxValue)
-	: Setting<double>(name, description, initialValue)
+// class FloatSettingPolicy
+
+FloatSettingPolicy::FloatSettingPolicy(double minValue, double maxValue)
+	: SettingRangePolicy<double>(minValue, maxValue)
 {
-	setRange(minValue, maxValue);
-	initSetting(SAVE_SETTING);
 }
 
-FloatSetting::~FloatSetting()
+std::string FloatSettingPolicy::toString(double value) const
 {
-	exitSetting();
-}
-
-void FloatSetting::setRange(double minValue, double maxValue)
-{
-	this->minValue = minValue;
-	this->maxValue = maxValue;
-
-	// Update the setting type to the new range.
-	char rangeStr[12];
-	snprintf(rangeStr, 12, "%.2f - %.2f", minValue, maxValue);
-	type = string(rangeStr);
-	/* The following C++ style code doesn't work on GCC 2.95:
-	ostringstream out;
-	out << setprecision(2) << fixed << showpoint
-		<< minValue << " - " << maxValue;
-	type = out.str();
-	*/
-
-	// Clip to new range.
-	setValue(getValue());
-}
-
-string FloatSetting::getValueString() const
-{
-	char rangeStr[5];
-	snprintf(rangeStr, 5, "%.2f", getValue());
-	return string(rangeStr);
-	/* The following C++ style code doesn't work on GCC 2.95:
-	ostringstream out;
-	out << setprecision(2) << fixed << showpoint
-		<< value;
+	std::stringstream out;
+	out << std::setprecision(2) << std::fixed << std::showpoint << value;
 	return out.str();
-	*/
 }
 
-void FloatSetting::setValueString(const string& valueString)
+double FloatSettingPolicy::fromString(const std::string& str) const
 {
-	double newValue;
-	int converted = sscanf(valueString.c_str(), "%lf", &newValue);
-	if (converted != 1) {
-		throw CommandException(
-			"set: " + valueString + ": not a valid float");
+	char* endPtr;
+	double result = strtod(str.c_str(), &endPtr);
+	if (*endPtr != '\0') {
+		throw CommandException("not a valid float: " + str);
 	}
-	setValue(newValue);
+	return result;
 }
 
-void FloatSetting::setValue(const double& newValue)
+
+//class FloatSetting
+
+FloatSetting::FloatSetting(const string& name, const string& description,
+                           double initialValue, double minValue, double maxValue)
+	: SettingImpl<FloatSettingPolicy>(name, description, initialValue,
+	                                  Setting::SAVE, minValue, maxValue)
 {
-	// TODO: Almost identical copy of IntegerSetting::setValue.
-	//       A definate sign Ranged/OrdinalSetting is a good idea.
-	double nv = newValue;
-	if (nv < minValue) {
-		nv = minValue;
-	} else if (nv > maxValue) {
-		nv = maxValue;
-	}
-	Setting<double>::setValue(nv);
 }
 
 } // namespace openmsx

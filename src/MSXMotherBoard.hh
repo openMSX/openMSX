@@ -50,7 +50,7 @@ private:
 	void reInitMSX();
 
 	// SettingListener
-	virtual void update(const SettingLeafNode* setting);
+	virtual void update(const Setting* setting);
 
 	// EventListener
 	bool signalEvent(const Event& event);

@@ -1,108 +1,84 @@
 // $Id$
 
-#ifndef __SETTING_HH__
-#define __SETTING_HH__
+#ifndef __SETTINGNODE_HH__
+#define __SETTINGNODE_HH__
 
-#include "SettingsManager.hh"
-#include "SettingNode.hh"
-#include "SettingsConfig.hh"
-#include "xmlx.hh"
 #include <string>
-
-using std::string;
+#include <vector>
 
 namespace openmsx {
 
-enum SaveSetting {
-	SAVE_SETTING,
-	DONT_SAVE_SETTING,
-};
+class SettingListener;
 
-/** Abstract base class for Settings.
-  */
-template <typename ValueType>
-class Setting: public SettingLeafNode
+class Setting 
 {
-// All implementation is located in this header file to avoid template
-// instantiation problems.
 public:
-	/** Gets the current value of this setting.
-	  */
-	const ValueType& getValue() const { return value; }
+	enum SaveSetting {
+		SAVE,
+		DONT_SAVE,
+	};
 
-	/** Get the default value of this setting
+	/** Get the name of this setting.
 	  */
-	const ValueType& getDefaultValue() const { return defaultValue; }
+	const std::string& getName() const { return name; }
 
-	/** Set a new default value
+	/** Get a description of this setting that can be presented to the user.
 	  */
-	void setDefaultValue(const ValueType& value) { defaultValue = value; }
+	const std::string& getDescription() const { return description; }
 
-	/** Changes the current value of this setting.
-	  * If the given value is invalid, it will be mapped to the closest
-	  * valid value.
-	  * If that is not appropriate or possible,
-	  * the value of this setting will not change.
-	  * The implementation of setValueString should use this method
-	  * to set the new value.
-	  * @param newValue The new value.
+	/** Get the current value of this setting in a string format that can be
+	  * presented to the user.
 	  */
-	virtual void setValue(const ValueType& newValue) {
-		if (newValue != value) {
-			value = newValue;
-			notify();
-			if (xmlNode) {
-				xmlNode->setData(getValueString());
-			}
-		}
-	}
+	virtual std::string getValueString() const = 0;
 
-	virtual void restoreDefault() {
-		setValue(defaultValue);
-	}
+	/** Change the value of this setting by parsing the given string.
+	  * @param valueString The new value for this setting, in string format.
+	  * @throw CommandException If the valueString is invalid.
+	  */
+	virtual void setValueString(const std::string& valueString) = 0;
+
+	/** Restore the default value.
+	 */
+	virtual void restoreDefault() = 0;
+	
+	/** Complete a partly typed value.
+	  * Default implementation does not complete anything,
+	  * subclasses can override this to complete according to their
+	  * specific value type.
+	  */
+	virtual void tabCompletion(std::vector<std::string>& tokens) const = 0;
+
+	/** Subscribes a listener to changes of this setting.
+	  */
+	void addListener(SettingListener* listener);
+
+	/** Unsubscribes a listener to changes of this setting.
+	  */
+	void removeListener(SettingListener* listener);
 
 protected:
-	Setting(const string& name, const string& description,
-		const ValueType& initialValue)
-		: SettingLeafNode(name, description)
-		, xmlNode(NULL)
-		, value(initialValue), defaultValue(initialValue) { }
+	Setting(const std::string& name, const std::string& description);
 
-	/**
-	 * This method must be called from the constructor of the child class
-	 */
-	void initSetting(SaveSetting save) {
-		if (save == SAVE_SETTING) {
-			XMLElement& config = SettingsConfig::instance().
-				getCreateChild("settings");
-			xmlNode = &config.getCreateChildWithAttribute(
-				"setting", "id", getName(), getValueString());
-			try {
-				setValueString(xmlNode->getData());
-			} catch (CommandException& e) {
-				// saved value no longer valid, just keep default
-			}
-		}
-		SettingsManager::instance().registerSetting(*this);
-	}
+	virtual ~Setting();
 
-	/**
-	 * This method must be called from the destructor of the child class
-	 */
-	void exitSetting() {
-		SettingsManager::instance().unregisterSetting(*this);
-	}
-	
-	XMLElement* xmlNode;
+	/** Notify all listeners of a change to this setting's value.
+	  */
+	void notify() const;
 
 private:
-	/** The current value of this setting.
-	  * Private to force use of setValue().
+	/** The name of this setting.
 	  */
-	ValueType value;
-	ValueType defaultValue;
+	std::string name;
+
+	/** A description of this setting that can be presented to the user.
+	  */
+	std::string description;
+
+	/** Collection of all listeners
+	 */
+	std::vector<SettingListener*> listeners;
 };
 
 } // namespace openmsx
 
-#endif //__SETTING_HH__
+#endif //__SETTINGNODE_HH__

@@ -100,7 +100,7 @@ void WavAudioInput::unplugHelper(const EmuTime& /*time*/)
 	plugged = false;
 }
 
-void WavAudioInput::update(const SettingLeafNode* setting)
+void WavAudioInput::update(const Setting* setting)
 {
 	assert (setting == &audioInputFilenameSetting);
 	if (plugged) {

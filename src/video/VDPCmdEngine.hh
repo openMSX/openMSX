@@ -359,7 +359,7 @@ private:
 	};
 
 
-	virtual void update(const SettingLeafNode* setting);
+	virtual void update(const Setting* setting);
 	
 	void executeCommand(const EmuTime& time);
 	

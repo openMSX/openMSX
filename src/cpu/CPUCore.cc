@@ -205,7 +205,7 @@ template <class T> void CPUCore<T>::doBreak()
 	}
 }
 
-template <class T> void CPUCore<T>::update(const SettingLeafNode* setting)
+template <class T> void CPUCore<T>::update(const Setting* setting)
 {
 	if (setting == &freqLocked) {
 		if (freqLocked.getValue()) {

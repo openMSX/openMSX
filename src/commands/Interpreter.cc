@@ -4,7 +4,7 @@
 #include "CommandConsole.hh"
 #include "CommandArgument.hh"
 #include "MSXException.hh"
-#include "SettingNode.hh"
+#include "Setting.hh"
 #include "Interpreter.hh"
 
 
@@ -183,7 +183,7 @@ string Interpreter::getVariable(const string& name) const
 	return Tcl_GetVar(interp, name.c_str(), 0);
 }
 
-void Interpreter::registerSetting(SettingLeafNode& variable)
+void Interpreter::registerSetting(Setting& variable)
 {
 	const string& name = variable.getName();
 	setVariable(name, variable.getValueString());
@@ -192,7 +192,7 @@ void Interpreter::registerSetting(SettingLeafNode& variable)
 	             traceProc, static_cast<ClientData>(&variable));
 }
 
-void Interpreter::unregisterSetting(SettingLeafNode& variable)
+void Interpreter::unregisterSetting(Setting& variable)
 {
 	const string& name = variable.getName();
 	Tcl_UntraceVar(interp, name.c_str(),
@@ -206,7 +206,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 {
 	static string static_string;
 	
-	SettingLeafNode* variable = static_cast<SettingLeafNode*>(clientData);
+	Setting* variable = static_cast<Setting*>(clientData);
 	
 	if (flags & TCL_TRACE_READS) {
 		Tcl_SetVar(interp, part1, variable->getValueString().c_str(), 0);

@@ -39,7 +39,7 @@ public:
 	byte getSignal(const EmuTime& time);
 
 private:
-	virtual void update(const SettingLeafNode* setting);
+	virtual void update(const Setting* setting);
 
 	// Following two values specify the range of the autofire
 	// as measured by the test program:

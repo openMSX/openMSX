@@ -49,7 +49,6 @@ HDR_ONLY:= \
 	openmsx \
 	Schedulable \
 	MSXException InitException \
-	NonInheritable
 
 DIST:= \
 	Doxyfile

@@ -149,7 +149,7 @@ void MSXCPU::wait(const EmuTime& time)
 	activeCPU->wait(time);
 }
 
-void MSXCPU::update(const SettingLeafNode* setting)
+void MSXCPU::update(const Setting* setting)
 {
 	assert(setting == &traceSetting);
 	exitCPULoop();

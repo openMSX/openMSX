@@ -96,7 +96,7 @@ private:
 	void reInit();
 
 	// SettingListener
-	virtual void update(const SettingLeafNode* setting);
+	virtual void update(const Setting* setting);
 
 	// Schedulable
 	virtual void executeUntil(const EmuTime& time, int userData);

@@ -1,5 +1,10 @@
 $Id$
 
+2004-12-05 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Refactored setting code:
+	   - redesigned class structure: settings no longer need to be
+	     non-inheritable
+
 2004-12-04 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed (+ cleanup) IPS patch code
 

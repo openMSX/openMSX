@@ -192,7 +192,7 @@ void Mixer::registerSound(SoundDevice& device, short volume, ChannelMode mode)
 	modeMap["off"] = OFF;
 	info.modeSetting = new EnumSetting<ChannelMode>(
 		name + "_mode", "the channel mode of this sound chip",
-		modeMap[defaultMode], modeMap, DONT_SAVE_SETTING);
+		modeMap[defaultMode], modeMap, Setting::DONT_SAVE);
 	info.modeSetting->setValue(mode);
 	
 	info.mode = mode;
@@ -454,7 +454,7 @@ void Mixer::reInit()
 	intervalAverage = EmuDuration(percent / (audioSpec.freq * 100));
 }
 
-void Mixer::update(const SettingLeafNode* setting)
+void Mixer::update(const Setting* setting)
 {
 	if (setting == muteSetting.get()) {
 		if (muteSetting->getValue()) {

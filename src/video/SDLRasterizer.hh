@@ -67,7 +67,7 @@ public:
 
 protected:
 	// SettingListener interface:
-	virtual void update(const SettingLeafNode* setting);
+	virtual void update(const Setting* setting);
 
 private:
 	/** Horizontal dimensions of the screen.

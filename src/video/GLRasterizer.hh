@@ -61,7 +61,7 @@ public:
 
 protected:
 	// SettingListener interface:
-	virtual void update(const SettingLeafNode* setting);
+	virtual void update(const Setting* setting);
 
 private:
 	inline void renderBitmapLine(byte mode, int vramLine);

@@ -2,40 +2,29 @@
 
 #include "StringSetting.hh"
 
+using std::string;
+
 namespace openmsx {
 
-// class StringSettingBase
-
-StringSettingBase::StringSettingBase(
-	const string& name, const string& description,
-        const string& initialValue)
-	: Setting<string>(name, description, initialValue)
+// class StringSettingPolicy
+ 
+const string& StringSettingPolicy::toString(const string& value) const
 {
+	return value;
 }
 
-string StringSettingBase::getValueString() const
+const string& StringSettingPolicy::fromString(const string& str) const
 {
-	return getValue();
+	return str;
 }
-
-void StringSettingBase::setValueString(const string& newValue)
-{
-	setValue(newValue);
-}
-
 
 // class StringSetting
 
 StringSetting::StringSetting(const string& name, const string& description,
                              const string& initialValue)
-	: StringSettingBase(name, description, initialValue)
+	: SettingImpl<StringSettingPolicy>(name, description, initialValue,
+	                                   Setting::SAVE)
 {
-	initSetting(SAVE_SETTING);
-}
-
-StringSetting::~StringSetting()
-{
-	exitSetting();
 }
 
 } // namespace openmsx

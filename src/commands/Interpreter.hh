@@ -13,7 +13,7 @@ using std::string;
 
 namespace openmsx {
 
-class SettingLeafNode;
+class Setting;
 
 class Interpreter
 {
@@ -31,8 +31,8 @@ public:
 	void setVariable(const string& name, const string& value);
 	void unsetVariable(const string& name);
 	string getVariable(const string& name) const;
-	void registerSetting(SettingLeafNode& variable);
-	void unregisterSetting(SettingLeafNode& variable);
+	void registerSetting(Setting& variable);
+	void unregisterSetting(Setting& variable);
 
 	void splitList(const string& list, vector<string>& result);
 

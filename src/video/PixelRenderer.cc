@@ -568,7 +568,7 @@ void PixelRenderer::renderUntil(const EmuTime& time)
 	nextY = limitY;
 }
 
-void PixelRenderer::update(const SettingLeafNode* setting)
+void PixelRenderer::update(const Setting* setting)
 {
 	if (setting == settings.getMinFrameSkip()
 	|| setting == settings.getMaxFrameSkip() ) {

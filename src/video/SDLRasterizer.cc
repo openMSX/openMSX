@@ -818,7 +818,7 @@ void SDLRasterizer<Pixel, zoom>::drawSprites(
 }
 
 template <class Pixel, Renderer::Zoom zoom>
-void SDLRasterizer<Pixel, zoom>::update(const SettingLeafNode* setting)
+void SDLRasterizer<Pixel, zoom>::update(const Setting* setting)
 {
 	if (setting == RenderSettings::instance().getDeinterlace()) {
 		initWorkScreens();

@@ -11,13 +11,13 @@ GlobalSettings::GlobalSettings()
 	       "controls the emulation speed: higher is faster, 100 is normal",
 	       100, 1, 1000000)
 	, throttleSetting("throttle", "controls speed throttling", true)
-	, pauseSetting("pause", "pauses the emulation", false, DONT_SAVE_SETTING)
-	, powerSetting("power", "turn power on/off", false, DONT_SAVE_SETTING)
+	, pauseSetting("pause", "pauses the emulation", false, Setting::DONT_SAVE)
+	, powerSetting("power", "turn power on/off", false, Setting::DONT_SAVE)
 	, autoSaveSetting("save_settings_on_exit",
 	                  "automatically save settings when openMSX exits",
 	                  true)
 	, consoleSetting("console", "turns console display on/off", false,
-	                 DONT_SAVE_SETTING)
+	                 Setting::DONT_SAVE)
 	, userDirSetting("user_directories", "list of user directories", "")
 {
 }

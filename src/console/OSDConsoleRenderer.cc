@@ -17,50 +17,6 @@
 
 namespace openmsx {
 
-// class BackgroundSetting
-
-BackgroundSetting::BackgroundSetting(
-	OSDConsoleRenderer& console_, const string& initialValue)
-	: FilenameSettingBase("consolebackground", "console background file",
-	                      initialValue)
-	, console(console_)
-{
-	initSetting(SAVE_SETTING);
-}
-
-BackgroundSetting::~BackgroundSetting()
-{
-	exitSetting();
-}
-
-bool BackgroundSetting::checkFile(const string& filename)
-{
-	return console.loadBackground(filename);
-}
-
-
-// class FontSetting
-
-FontSetting::FontSetting(
-	OSDConsoleRenderer& console_, const string& initialValue)
-	: FilenameSettingBase("consolefont", "console font file",
-	                      initialValue)
-	, console(console_)
-{
-	initSetting(SAVE_SETTING);
-}
-
-FontSetting::~FontSetting()
-{
-	exitSetting();
-}
-
-bool FontSetting::checkFile(const string& filename)
-{
-	return console.loadFont(filename);
-}
-
-
 // class OSDConsoleRenderer
 
 OSDConsoleRenderer::OSDConsoleRenderer(Console& console_)
@@ -93,7 +49,10 @@ OSDConsoleRenderer::~OSDConsoleRenderer()
 void OSDConsoleRenderer::initConsole()
 {
 	// font
-	fontSetting.reset(new FontSetting(*this, "skins/ConsoleFont.png"));
+	fontSetting.reset(new FilenameSetting(
+		"consolefont", "console font file",
+		"skins/ConsoleFont.png"));
+	fontSetting->setChecker(this);
 	
 	// rows / columns
 	SDL_Surface* screen = SDL_GetVideoSurface();
@@ -127,8 +86,10 @@ void OSDConsoleRenderer::initConsole()
 	updateConsoleRect(destRect);
 	
 	// background
-	backgroundSetting.reset(new BackgroundSetting(
-		*this, "skins/ConsoleBackground.png"));
+	backgroundSetting.reset(new FilenameSetting(
+		"consolebackground", "console background file",
+		"skins/ConsoleBackground.png"));
+	backgroundSetting->setChecker(this);
 }
 
 void OSDConsoleRenderer::adjustColRow()
@@ -146,7 +107,7 @@ void OSDConsoleRenderer::adjustColRow()
 	}
 }
 
-void OSDConsoleRenderer::update(const SettingLeafNode* setting)
+void OSDConsoleRenderer::update(const Setting* setting)
 {
 	assert(setting == &consoleSetting);
 	setActive(consoleSetting.getValue());
@@ -247,6 +208,22 @@ void OSDConsoleRenderer::updateConsoleRect(SDL_Rect& rect)
 		default:
 			rect.y = (screen->h - rect.h);
 			break;
+	}
+}
+
+void OSDConsoleRenderer::check(SettingImpl<FilenameSetting::Policy>& setting,
+                               string& value)
+{
+	assert(dynamic_cast<FilenameSetting*>(&setting));
+	
+	string filename = static_cast<FilenameSetting&>(setting).
+		getFileContext().resolve(value);
+	if        (&setting == backgroundSetting.get()) {
+		loadBackground(filename);
+	} else if (&setting == fontSetting.get()) {
+		loadFont(filename);
+	} else {
+		assert(false);
 	}
 }
 

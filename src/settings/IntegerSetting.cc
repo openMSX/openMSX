@@ -5,65 +5,40 @@
 #include <sstream>
 #include <cstdio>
 
-using std::ostringstream;
-
-
 namespace openmsx {
 
-IntegerSetting::IntegerSetting(const string& name, const string& description,
-                               int initialValue, int minValue, int maxValue)
-	: Setting<int>(name, description, initialValue)
+// class IntegerSettingPolicy
+
+IntegerSettingPolicy::IntegerSettingPolicy(int minValue, int maxValue)
+	: SettingRangePolicy<int>(minValue, maxValue)
 {
-	setRange(minValue, maxValue);
-	initSetting(SAVE_SETTING);
 }
 
-IntegerSetting::~IntegerSetting()
+std::string IntegerSettingPolicy::toString(int value) const
 {
-	exitSetting();
-}
-
-void IntegerSetting::setRange(int minValue, int maxValue)
-{
-	this->minValue = minValue;
-	this->maxValue = maxValue;
-
-	// Update the setting type to the new range.
-	ostringstream out;
-	out << minValue << " - " << maxValue;
-	type = out.str();
-
-	// Clip to new range.
-	setValue(getValue());
-}
-
-string IntegerSetting::getValueString() const
-{
-	ostringstream out;
-	out << getValue();
+	std::ostringstream out;
+	out << value;
 	return out.str();
 }
 
-void IntegerSetting::setValueString(const string &valueString)
+int IntegerSettingPolicy::fromString(const std::string& str) const
 {
 	char* endPtr;
-	int newValue = strtol(valueString.c_str(), &endPtr, 0);
+	int result = strtol(str.c_str(), &endPtr, 0);
 	if (*endPtr != '\0') {
-		throw CommandException(
-			"set: " + valueString + ": not a valid integer");
+		throw CommandException("not a valid integer: " + str);
 	}
-	setValue(newValue);
+	return result;
 }
 
-void IntegerSetting::setValue(const int& newValue)
+
+// class IntegerSetting
+
+IntegerSetting::IntegerSetting(const string& name, const string& description,
+                               int initialValue, int minValue, int maxValue)
+	: SettingImpl<IntegerSettingPolicy>(name, description, initialValue,
+	                                    Setting::SAVE, minValue, maxValue)
 {
-	int nv = newValue;
-	if (nv < minValue) {
-		nv = minValue;
-	} else if (nv > maxValue) {
-		nv = maxValue;
-	}
-	Setting<int>::setValue(nv);
 }
 
 } // namespace openmsx

@@ -49,7 +49,7 @@ private:
 	virtual const string& schedName() const;
 
 	// SettingListener
-	void update(const SettingLeafNode* setting);
+	void update(const Setting* setting);
 
 	void internalSync(const EmuTime& time, bool allowSleep);
 	void resync();

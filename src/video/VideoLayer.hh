@@ -26,7 +26,7 @@ protected:
 	VideoLayer(RenderSettings::VideoSource videoSource);
 
 	// SettingListener interface:
-	virtual void update(const SettingLeafNode* setting);
+	virtual void update(const Setting* setting);
 
 private:
 	/** Calculates the current Z coordinate of this layer. */

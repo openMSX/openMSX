@@ -4,42 +4,24 @@
 #define __FILENAMESETTING_HH__
 
 #include "StringSetting.hh"
-#include "NonInheritable.hh"
 
 namespace openmsx {
 
-/** A Setting with a filename value.
-  */
-class FilenameSettingBase : public StringSettingBase
+class FileContext;
+
+class FilenameSettingPolicy : public StringSettingPolicy
 {
-public:
-	// Implementation of Setting interface:
-	virtual void setValue(const string& newValue);
-	virtual void tabCompletion(vector<string>& tokens) const;
-
 protected:
-	FilenameSettingBase(const string& name, const string& description,
-	                    const string& initialValue);
-
-	/** Used by subclass to check a new file name and/or contents.
-	  * @param filename The file path to an existing file.
-	  * @return true to accept this file name; false to reject it.
-	  */
-	virtual bool checkFile(const string& filename) = 0;
-
-	bool printWarnings;
+	void tabCompletion(std::vector<std::string>& tokens) const;
 };
 
-NON_INHERITABLE_PRE(FilenameSetting)
-class FilenameSetting : public FilenameSettingBase,
-                        NON_INHERITABLE(FilenameSetting)
+class FilenameSetting : public SettingImpl<FilenameSettingPolicy>
 {
 public:
-	FilenameSetting(const string& name, const string& description,
-	                const string& initialValue);
-	virtual ~FilenameSetting();
-	
-	virtual bool checkFile(const string& filename);
+	FilenameSetting(const std::string& name, const std::string& description,
+	                const std::string& initialValue);
+
+	FileContext& getFileContext() const;
 };
 
 } // namespace openmsx

@@ -95,7 +95,7 @@ private:
 	void doBreak2();
 
 	// SettingListener
-	virtual void update(const SettingLeafNode* setting);
+	virtual void update(const Setting* setting);
 
 	/**
 	 * Set to true when there was a rising edge on the NMI line

@@ -193,7 +193,7 @@ void MSXMotherBoard::powerOff()
 }
 
 // SettingListener
-void MSXMotherBoard::update(const SettingLeafNode* setting)
+void MSXMotherBoard::update(const Setting* setting)
 {
 	if (setting == &powerSetting) {
 		if (powerSetting.getValue()) {

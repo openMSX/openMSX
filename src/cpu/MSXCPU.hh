@@ -128,7 +128,7 @@ private:
 	friend class VDPIODelay;
 
 	// SettingListener
-	void update(const SettingLeafNode* setting);
+	void update(const Setting* setting);
 
 	BooleanSetting traceSetting;
 	CPUCore<Z80TYPE> z80;

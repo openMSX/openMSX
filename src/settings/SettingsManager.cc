@@ -37,21 +37,21 @@ SettingsManager& SettingsManager::instance()
 	return oneInstance;
 }
 
-void SettingsManager::registerSetting(SettingNode& setting)
+void SettingsManager::registerSetting(Setting& setting)
 {
 	const string& name = setting.getName();
 	assert(settingsMap.find(name) == settingsMap.end());
 	settingsMap[name] = &setting;
 
-	SettingLeafNode* leafNode = dynamic_cast<SettingLeafNode*>(&setting);
+	Setting* leafNode = dynamic_cast<Setting*>(&setting);
 	if (leafNode) {
 		interpreter.registerSetting(*leafNode);
 	}
 }
 
-void SettingsManager::unregisterSetting(SettingNode& setting)
+void SettingsManager::unregisterSetting(Setting& setting)
 {
-	SettingLeafNode* leafNode = dynamic_cast<SettingLeafNode*>(&setting);
+	Setting* leafNode = dynamic_cast<Setting*>(&setting);
 	if (leafNode) {
 		interpreter.unregisterSetting(*leafNode);
 	}
@@ -87,7 +87,7 @@ void SettingsManager::getSettingNames(set<string>& result) const
 template <typename T>
 T& SettingsManager::getByName(const string& cmd, const string& name) const
 {
-	SettingNode* setting = getByName(name);
+	Setting* setting = getByName(name);
 	if (!setting) {
 		throw CommandException(cmd + ": " + name +
 		                       ": no such setting");
@@ -111,7 +111,7 @@ SettingsManager::SetCompleter::SetCompleter(SettingsManager& manager_)
 string SettingsManager::SetCompleter::help(const vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		return manager.getByName<SettingNode>("set", tokens[1])
+		return manager.getByName<Setting>("set", tokens[1])
 		                                          .getDescription();
 	}
 	return "Set or query the value of a openMSX setting or TCL variable\n"
@@ -127,7 +127,7 @@ void SettingsManager::SetCompleter::tabCompletion(vector<string>& tokens) const
 		case 2: {
 			// complete setting name
 			set<string> settings;
-			manager.getSettingNames<SettingLeafNode>(settings);
+			manager.getSettingNames<Setting>(settings);
 			CommandController::completeString(tokens, settings);
 			break;
 		}
@@ -162,7 +162,7 @@ void SettingsManager::SettingCompleter::tabCompletion(vector<string>& tokens) co
 		case 2: {
 			// complete setting name
 			set<string> settings;
-			manager.getSettingNames<SettingLeafNode>(settings);
+			manager.getSettingNames<Setting>(settings);
 			CommandController::completeString(tokens, settings);
 			break;
 		}

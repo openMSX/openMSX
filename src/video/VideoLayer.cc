@@ -28,7 +28,7 @@ VideoLayer::~VideoLayer()
 	videoSourceSetting.removeListener(this);
 }
 
-void VideoLayer::update(const SettingLeafNode* setting)
+void VideoLayer::update(const Setting* setting)
 {
 	if (setting == &videoSourceSetting) {
 		setZ(getZ());

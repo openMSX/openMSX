@@ -80,7 +80,7 @@ private:
 	virtual ~RenderSettings();
 
 	// SettingListener interface:
-	virtual void update(const SettingLeafNode* setting);
+	virtual void update(const Setting* setting);
 
 	// EventListener interface:
 	virtual bool signalEvent(const Event& event);

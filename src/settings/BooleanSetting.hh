@@ -4,24 +4,19 @@
 #define __BOOLEANSETTING_HH__
 
 #include "EnumSetting.hh"
-#include "NonInheritable.hh"
 
 namespace openmsx {
 
 /** A Setting with a boolean value.
   */
-NON_INHERITABLE_PRE(BooleanSetting)
-class BooleanSetting : public EnumSettingBase<bool>,
-                       NON_INHERITABLE(BooleanSetting)
+class BooleanSetting : public EnumSetting<bool>
 {
 public:
 	BooleanSetting(const string& name, const string& description,
-	               bool initialValue, SaveSetting save = SAVE_SETTING);
-	virtual ~BooleanSetting();
-	virtual string getValueString() const;
+	               bool initialValue, SaveSetting save = SAVE);
 
 private:
-	static const EnumSettingBase<bool>::Map& getMap();
+	static const EnumSetting<bool>::Map& getMap();
 };
 
 } // namespace openmsx
