@@ -1,6 +1,6 @@
 // $Id$
 // 
-// #include "MSXDevice.hh
+#include "MSXDevice.hh"
 #include "iostream.h"
 //using namespace std;
 
