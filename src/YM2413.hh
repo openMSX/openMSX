@@ -17,7 +17,7 @@ class YM2413 : public SoundDevice
 	};
 	class Slot {
 		public:
-			Slot(int type, short* volTb);
+			Slot(int type);
 			~Slot();
 			void reset();
 
@@ -26,6 +26,7 @@ class YM2413 : public SoundDevice
 			inline void slotOff();
 			inline void setSlotPatch(Patch *patch);
 			inline void setSlotVolume(int volume);
+			inline void setVolumeTable(short* volTab);
 			inline int calc_phase();
 			inline int calc_envelope();
 			inline int calc_slot_car(int fm);
@@ -56,55 +57,55 @@ class YM2413 : public SoundDevice
 			int output[5];	// Output value of slot 
 
 			// for Phase Generator (PG)
-			word *sintbl;		// Wavetable 
+			word *sintbl;		// Wavetable
 			int phase;		// Phase 
 			int dphase;		// Phase increment amount 
-			int pgout;		// output 
+			int pgout;		// output
 
-			// for Envelope Generator (EG) 
-			int fnum;		// F-Number 
-			int block;		// Block 
-			int volume;		// Current volume 
-			int sustine;		// Sustine 1 = ON, 0 = OFF 
+			// for Envelope Generator (EG)
+			int fnum;		// F-Number
+			int block;		// Block
+			int volume;		// Current volume
+			int sustine;		// Sustine 1 = ON, 0 = OFF
 			int tll;		// Total Level + Key scale level
-			int rks;		// Key scale offset (Rks) 
-			int eg_mode;		// Current state 
-			int eg_phase;		// Phase 
-			int eg_dphase;		// Phase increment amount 
-			int egout;		// output 
+			int rks;		// Key scale offset (Rks)
+			int eg_mode;		// Current state
+			int eg_phase;		// Phase
+			int eg_dphase;		// Phase increment amount
+			int egout;		// output
 
-			// refer to opll-> 
+			// refer to opll->
 			int *plfo_pm;
 			int *plfo_am;
 	};
 	class Channel {
 		public:
-			Channel(short* volTab);
+			Channel();
 			~Channel();
 			void reset();
-		
+
 			int patch_number;
 			bool key_status;
 			Slot *mod, *car;
 	};
-	
+
 	public:
 		YM2413(short volume);
 		virtual ~YM2413();
 
 		void reset();
 		void writeReg(byte reg, byte value);
-		
+
 		void setInternalVolume(short maxVolume);
 		void setSampleRate(int sampleRate);
 		int* updateBuffer(int length);
 
 	private:
-		int calcSample();
-	
+		inline int calcSample(int channelMask);
+
 		void checkMute();
 		bool checkMuteHelper();
-	
+
 		static void makeAdjustTable();
 		static void makeSinTable();
 		static int lin2db(double d);
@@ -143,7 +144,7 @@ class YM2413 : public SoundDevice
 		inline void setRythmMode(int data);
 		inline void update_noise();
 		inline void update_ampm();
-	
+
 	public:
 		inline static int TL2EG(int d);
 		inline static int DB_POS(int x);
@@ -155,24 +156,24 @@ class YM2413 : public SoundDevice
 
 	private:
 		static const int CLOCK_FREQ = 3579545;
-		
+
 		static const double PI = 3.14159265358979;
 
 		// Size of Sintable ( 1 -- 18 can be used, but 7 -- 14 recommended.)
 		static const int PG_BITS = 9;
 		static const int PG_WIDTH = (1<<PG_BITS);
 
-		// Phase increment counter 
+		// Phase increment counter
 		static const int DP_BITS = 18;
 		static const int DP_WIDTH = (1<<DP_BITS);
 		static const int DP_BASE_BITS = (DP_BITS - PG_BITS);
 
-		// Dynamic range (Accuracy of sin table) 
+		// Dynamic range (Accuracy of sin table)
 		static const int DB_BITS = 8;
 		static const double DB_STEP = (48.0/(1<<DB_BITS));
 		static const int DB_MUTE = (1<<DB_BITS);
 
-		// Dynamic range of envelope 
+		// Dynamic range of envelope
 		static const double EG_STEP = 0.375;
 		static const int EG_BITS = 7;
 		static const int EG_MUTE = (1<<EG_BITS);
@@ -182,7 +183,7 @@ class YM2413 : public SoundDevice
 		static const int TL_BITS = 6;
 		static const int TL_MUTE = (1<<TL_BITS);
 
-		// Dynamic range of sustine level 
+		// Dynamic range of sustine level
 		static const double SL_STEP = 3.0;
 		static const int SL_BITS = 4;
 		static const int SL_MUTE = (1<<SL_BITS);
@@ -213,7 +214,7 @@ class YM2413 : public SoundDevice
 		static const double PM_SPEED = 6.4;
 		static const double PM_DEPTH = 13.75;
 
-		// AM speed(Hz) and depth(dB) 
+		// AM speed(Hz) and depth(dB)
 		static const double AM_SPEED = 3.7;
 		static const double AM_DEPTH = 2.4;
 
@@ -228,7 +229,7 @@ class YM2413 : public SoundDevice
 
 		int output[2];
 
-		// Register 
+		// Register
 		byte reg[0x40]; 
 		byte slot_on_flag[18];
 
@@ -254,18 +255,18 @@ class YM2413 : public SoundDevice
 		int noiseB_dphase;
 
 		// Channel & Slot 
-		Channel *ch[9];
+		Channel ch[9];
 		Slot *slot[18];
 
-		// Voice Data 
+		// Voice Data
 		Patch* patch[19*2];
-		int patch_update[2]; // flag for check patch update 
+		int patch_update[2]; // flag for check patch update
 
 		// dB to linear table (used by Slot)
 		short dB2LinTab[(DB_MUTE+DB_MUTE)*2];
 
 
-		// WaveTable for each envelope amp 
+		// WaveTable for each envelope amp
 		static word fullsintable[PG_WIDTH];
 		static word halfsintable[PG_WIDTH];
 
@@ -273,11 +274,11 @@ class YM2413 : public SoundDevice
 
 		static word *waveform[2];
 
-		// LFO Table 
+		// LFO Table
 		static int pmtable[PM_PG_WIDTH];
 		static int amtable[AM_PG_WIDTH];
 
-		// Noise and LFO 
+		// Noise and LFO
 		static int pm_dphase;
 		static int am_dphase;
 
