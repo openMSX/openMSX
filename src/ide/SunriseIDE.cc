@@ -18,10 +18,10 @@ SunriseIDE::SunriseIDE(const XMLElement& config, const EmuTime& time)
 	const XMLElement* masterElem = config.findChild("master");
 	const XMLElement* slaveElem  = config.findChild("slave");
 	device[0].reset(masterElem 
-	          ? IDEDeviceFactory::create(masterElem->getData(), time)
+	          ? IDEDeviceFactory::create(*masterElem, time)
 	          : new DummyIDEDevice());
 	device[1].reset(slaveElem
-	          ? IDEDeviceFactory::create(slaveElem->getData(), time)
+	          ? IDEDeviceFactory::create(*slaveElem, time)
 	          : new DummyIDEDevice());
 
 	// make valgrind happy

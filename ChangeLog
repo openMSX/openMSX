@@ -1,5 +1,8 @@
 $Id$
 
+2004-08-19 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed XML configuration stuff for IDE
+
 2004-08-18 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Added "-nosound" command line option:
 	   - main raison to add it was faster profiling. Audio thread takes

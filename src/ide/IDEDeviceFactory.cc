@@ -1,24 +1,17 @@
 // $Id$
 
 #include "IDEDeviceFactory.hh"
-#include "HardwareConfig.hh"
-#include "ConfigException.hh"
 #include "IDEHD.hh"
+#include "xmlx.hh"
 
 namespace openmsx {
 
-IDEDevice* IDEDeviceFactory::create(const string& name,
+IDEDevice* IDEDeviceFactory::create(const XMLElement& config,
                                     const EmuTime& time)
 {
-	const XMLElement* config = HardwareConfig::instance().findChild(name);
-	if (!config) {
-		throw ConfigException("Configuration for IDE device " + name +
-		                      " missing.");
-	}
-	
-	const string& type = config->getChildData("type");
+	const string& type = config.getChildData("type");
 	if (type == "IDEHD") {
-		return new IDEHD(*config, time);
+		return new IDEHD(config, time);
 	}
 	
 	throw FatalError("Unknown IDE device: " + type);

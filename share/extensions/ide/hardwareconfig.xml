@@ -3,20 +3,21 @@
   SYSTEM 'msxconfig.dtd'>
 <msxconfig>
 
-  <device id="Sunrise IDE">
-    <type>SunriseIDE</type>
-    <slotted> <ps>-1</ps> <ss>-1</ss> <page>0</page> </slotted>
-    <slotted> <ps>-1</ps> <ss>-1</ss> <page>1</page> </slotted>
-    <slotted> <ps>-1</ps> <ss>-1</ss> <page>2</page> </slotted>
-    <slotted> <ps>-1</ps> <ss>-1</ss> <page>3</page> </slotted>
-    <filename>roms/ide221.dat</filename>
-    <master>myHD</master>
-  </device>
-
-  <config id="myHD">
-    <type>IDEHD</type>
-    <filename>hd.dsk</filename>
-    <size>100</size>
-  </config>
+  <primary slot="any">
+    <secondary slot="any">
+      <SunriseIDE id="Sunrise IDE">
+        <mem base="0x0000" size="0x10000"/>
+        <rom>
+          <filename>roms/ide221.dat</filename>
+          <sha1>51a1467d73d26c91aab7923e3be66490daaffdee</sha1>
+        </rom>
+        <master>
+          <type>IDEHD</type>
+          <filename>hd.dsk</filename>
+          <size>100</size>
+        </master>
+      </SunriseIDE>
+    </secondary>
+  </primary>
 
 </msxconfig>

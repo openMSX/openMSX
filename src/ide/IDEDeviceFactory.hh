@@ -3,21 +3,16 @@
 #ifndef __IDEDEVICEFACTORY_HH__
 #define __IDEDEVICEFACTORY_HH__
 
-#include <string>
-
 namespace openmsx {
 
 class IDEDevice;
+class XMLElement;
 class EmuTime;
-
-using std::string;
-
 
 class IDEDeviceFactory
 {
-	public:
-		static IDEDevice* create(const string &name,
-		                         const EmuTime &time);
+public:
+	static IDEDevice* create(const XMLElement& config, const EmuTime& time);
 };
 
 } // namespace openmsx
