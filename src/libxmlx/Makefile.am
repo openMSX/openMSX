@@ -1,10 +1,20 @@
+# $Id$
+
 lib_LTLIBRARIES = libxmlx.la
-libxmlx_la_SOURCES = libxmlx.cc libxmlx.hh
+libxmlx_la_SOURCES = libxmlx.cc xmlx.hh
+
+AM_CXXFLAGS = -Wall -DXMLX_DEBUG -g3 -pipe
 
 #  uncomment the following if libxmlx requires the math library
 #libxmlx_LDADD=-lm
 
+# we do not want all the libs that openmsx links at the moment
 LIBS=@XML_LIBS@
+#libxmlx_la_LIBADD=@XML_LIBS@
+
+bin_PROGRAMS  = xmlxdump
+xmlxdump_SOURCES = xmlxdump.cc
+xmlxdump_LDADD   = libxmlx.la
 
 #EXTRA_DIST=libxmlx.lsm.in #NAME.texinfo libxmlx.spec.in
 
