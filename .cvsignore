@@ -12,3 +12,4 @@ openmsx
 configure
 *.swp
 stamp-h.in
+libtool
