@@ -50,7 +50,9 @@ MSXMegaRam::MSXMegaRam(const XMLElement& config, const EmuTime& time)
 	numBlocks = size / 8;	// 8kb blocks
 	maskBlocks = roundUpPow2(numBlocks) - 1;
 	ram.reset(new Ram(getName() + " RAM", "Mega-RAM", numBlocks * 0x2000));
-	rom.reset(new Rom(getName() + " ROM", "Mega-RAM DiskROM", config));
+	if (config.findChild("rom")) {
+		rom.reset(new Rom(getName() + " ROM", "Mega-RAM DiskROM", config));
+	}
 	
 	for (int i = 0; i < 4; i++) {
 		setBank(i, 0);
@@ -66,7 +68,7 @@ MSXMegaRam::~MSXMegaRam()
 void MSXMegaRam::reset(const EmuTime& /*time*/)
 {
 	// selected banks nor writeMode does change after reset
-	romMode = rom->getSize(); // select rom mode if there is a rom
+	romMode = rom.get(); // select rom mode if there is a rom
 }
 
 byte MSXMegaRam::readMem(word address, const EmuTime& /*time*/)
@@ -121,7 +123,7 @@ byte MSXMegaRam::readIO(byte port, const EmuTime& /*time*/)
 			romMode = false;
 			break;
 		case 0x8F:
-			if (rom->getSize()) romMode = true;
+			if (rom.get()) romMode = true;
 			break;
 	}
 	MSXCPU::instance().invalidateCache(0x0000,
@@ -143,7 +145,7 @@ void MSXMegaRam::writeIO(byte port, byte value, const EmuTime& /*time*/)
 			romMode = false;
 			break;
 		case 0x8F:
-			if (rom->getSize()) romMode = true;
+			if (rom.get()) romMode = true;
 			break;
 	}
 	MSXCPU::instance().invalidateCache(0x0000,
