@@ -208,6 +208,12 @@ void PixelRenderer::updateMultiPage(
 	sync(time);
 }
 
+void PixelRenderer::updateSpritesEnabled(
+	bool enabled, const EmuTime &time
+) {
+	sync(time);
+}
+
 void PixelRenderer::updateVRAM(int offset, const EmuTime &time) {
 	// If display is disabled, VRAM changes will not affect the
 	// renderer output, therefore sync is not necessary.

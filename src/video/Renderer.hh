@@ -208,6 +208,12 @@ public:
 	  */
 	virtual void updateColourBase(int addr, const EmuTime &time) = 0;
 
+	/** Informs the renderer of a VDP sprites enabled change.
+	  * @param enabled The new sprites enabled state.
+	  * @param time The moment in emulated time this change occurs.
+	  */
+	virtual void updateSpritesEnabled(bool enabled, const EmuTime &time) = 0;
+
 protected:
 	/** NTSC version of the MSX1 palette.
 	  * An array of 16 RGB triples.
