@@ -92,8 +92,11 @@ void MSXRom::readFile(IFILETYPE* file, int fileSize, byte** memoryBank)
 		// no offset specified
 	}
 	file->read(*memoryBank, fileSize);
-	if (file->fail())
-		PRT_ERROR("Error reading " << file);
+	if (file->fail()) {
+		// TODO: Throw exception, so that caller can print an error
+		//       message which includes the file name.
+		PRT_ERROR("Error reading ROM image.");
+	}
 	file->close();
 	// also patch the file if needed:
 	patchFile(*memoryBank, fileSize);
