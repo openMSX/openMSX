@@ -17,7 +17,7 @@ class MSXFDC : public MSXMemDevice
 		MSXFDC(Device *config, const EmuTime &time);
 		virtual ~MSXFDC() = 0;
 
-		virtual byte readMem(word address, const EmuTime &time) const;
+		virtual byte readMem(word address, const EmuTime &time);
 		virtual const byte* getReadCacheLine(word start) const;
 	
 	protected:

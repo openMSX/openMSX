@@ -111,7 +111,7 @@ byte SectorBasedDisk::readTrackData()
 {
 	if (readTrackDataCount == RAWTRACK_SIZE) {
 		// end of command in any case
-		return readTrackDataBuf[RAWTRACK_SIZE];
+		return readTrackDataBuf[RAWTRACK_SIZE - 1];
 	} else {
 		return readTrackDataBuf[readTrackDataCount++];
 	}

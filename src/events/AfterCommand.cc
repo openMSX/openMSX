@@ -138,7 +138,7 @@ string AfterCommand::help(const vector<string>& tokens) const
 	       "after cancel <id>               cancel the postponed command with given id\n";
 }
 
-void AfterCommand::tabCompletion(const vector<string>& tokens)
+void AfterCommand::tabCompletion(vector<string>& tokens)
 	const throw()
 {
 	// TODO

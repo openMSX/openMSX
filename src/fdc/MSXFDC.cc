@@ -34,7 +34,7 @@ MSXFDC::~MSXFDC()
 	}
 }
 
-byte MSXFDC::readMem(word address, const EmuTime& time) const
+byte MSXFDC::readMem(word address, const EmuTime& time)
 {
 	return rom.read(address & 0x3FFF);
 }

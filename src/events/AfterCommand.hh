@@ -22,7 +22,7 @@ public:
 		throw(CommandException);
 	virtual string help(const vector<string>& tokens) const
 		throw();
-	virtual void tabCompletion(const vector<string>& tokens) const
+	virtual void tabCompletion(vector<string>& tokens) const
 		throw();
 
 private:

@@ -87,7 +87,7 @@ const string Config::getParameter(const string& name, const string& defaultValue
 	return p ? p->pcdata : defaultValue;
 }
 
-const bool Config::getParameterAsBool(const string& name) const
+bool Config::getParameterAsBool(const string& name) const
 	throw(ConfigException)
 {
 	XML::Element* p = getParameterElement(name);
@@ -97,13 +97,13 @@ const bool Config::getParameterAsBool(const string& name) const
 	return Config::Parameter::stringToBool(p->pcdata);
 }
 
-const bool Config::getParameterAsBool(const string& name, bool defaultValue) const
+bool Config::getParameterAsBool(const string& name, bool defaultValue) const
 {
 	XML::Element* p = getParameterElement(name);
 	return p ? Config::Parameter::stringToBool(p->pcdata) : defaultValue;
 }
 
-const int Config::getParameterAsInt(const string& name) const
+int Config::getParameterAsInt(const string& name) const
 	throw(ConfigException)
 {
 	XML::Element* p = getParameterElement(name);
@@ -113,13 +113,13 @@ const int Config::getParameterAsInt(const string& name) const
 	return Config::Parameter::stringToInt(p->pcdata);
 }
 
-const int Config::getParameterAsInt(const string& name, int defaultValue) const
+int Config::getParameterAsInt(const string& name, int defaultValue) const
 {
 	XML::Element* p = getParameterElement(name);
 	return p ? Config::Parameter::stringToInt(p->pcdata) : defaultValue;
 }
 
-const uint64 Config::getParameterAsUint64(const string& name) const
+uint64 Config::getParameterAsUint64(const string& name) const
 	throw(ConfigException)
 {
 	XML::Element* p = getParameterElement(name);
@@ -129,7 +129,7 @@ const uint64 Config::getParameterAsUint64(const string& name) const
 	return Config::Parameter::stringToUint64(p->pcdata);
 }
 
-const uint64 Config::getParameterAsUint64(const string& name, const uint64& defaultValue) const
+uint64 Config::getParameterAsUint64(const string& name, const uint64& defaultValue) const
 {
 	XML::Element* p = getParameterElement(name);
 	return p ? Config::Parameter::stringToUint64(p->pcdata) : defaultValue;
@@ -193,17 +193,17 @@ uint64 Config::Parameter::stringToUint64(const string& str)
 	return atoll(str.c_str());
 }
 
-const bool Config::Parameter::getAsBool() const
+bool Config::Parameter::getAsBool() const
 {
 	return stringToBool(value);
 }
 
-const int Config::Parameter::getAsInt() const
+int Config::Parameter::getAsInt() const
 {
 	return stringToInt(value);
 }
 
-const uint64 Config::Parameter::getAsUint64() const
+uint64 Config::Parameter::getAsUint64() const
 {
 	return stringToUint64(value);
 }
