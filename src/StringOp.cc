@@ -1,21 +1,12 @@
 //$Id$
 
-#include <sstream>
 #include <cstdlib>
 #include <algorithm>
 #include "StringOp.hh"
 
-using std::ostringstream;
 using std::transform;
 
 namespace openmsx {
-
-string StringOp::intToString(int num)
-{
-	ostringstream s;
-	s << num;
-	return s.str();
-}
 
 int StringOp::stringToInt(const string& str)
 {

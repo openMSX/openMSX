@@ -78,9 +78,9 @@ MSXRomCLIPost::MSXRomCLIPost(const string &arg_)
 static XMLElement* createSlotted(int ps, int ss, int page)
 {
 	XMLElement* slotted = new XMLElement("slotted");
-	slotted->addChild(new XMLElement("ps",   StringOp::intToString(ps)));
-	slotted->addChild(new XMLElement("ss",   StringOp::intToString(ss)));
-	slotted->addChild(new XMLElement("page", StringOp::intToString(page)));
+	slotted->addChild(new XMLElement("ps",   StringOp::toString(ps)));
+	slotted->addChild(new XMLElement("ss",   StringOp::toString(ss)));
+	slotted->addChild(new XMLElement("page", StringOp::toString(page)));
 	return slotted;
 }
 
@@ -107,8 +107,8 @@ void MSXRomCLIPost::execute()
 	string sramfile = FileOperations::getFilename(romfile) + ".SRAM";
 
 	XMLElement device = XMLElement("device");
-	device.addAttribute("id", "MSXRom" + StringOp::intToString(ps) +
-			               "-" + StringOp::intToString(ss));
+	device.addAttribute("id", "MSXRom" + StringOp::toString(ps) +
+			               "-" + StringOp::toString(ss));
 	device.addChild(new XMLElement("type", "Rom"));
 	device.addChild(createSlotted(ps, ss, 0));
 	device.addChild(createSlotted(ps, ss, 1));

@@ -65,17 +65,22 @@ void CliCommOutput::reply(ReplyStatus status, const string& message)
 
 void CliCommOutput::update(UpdateType type, const string& name, const string& value)
 {
-	const char* updateStr[2] = {
-		"led", "break"
+	const char* updateStr[3] = {
+		"led", "break", "fps"
 	};
 
 	if (xmlOutput) {
-		cout << "<update type=\"" << updateStr[type] << "\" "
-		                "name=\"" << name << "\">"
-		     << XMLEscape(value)
-		     << "</update>" << endl;
+		cout << "<update type=\"" << updateStr[type] << '\"';
+		if (!name.empty()) {
+			cout << " name=\"" << name << '\"';
+		}
+		cout << '>' << XMLEscape(value) << "</update>" << endl;
 	} else {
-		cout << updateStr[type] << ": " << name << " = " << value << endl;
+		cout << updateStr[type] << ": ";
+		if (!name.empty()) {
+			cout << name << " = ";
+		}
+		cout << value << endl;
 	}
 }
 

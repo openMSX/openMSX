@@ -24,6 +24,11 @@ public:
 	static RealTime& instance();
 
 	/**
+	 * Get the real time (in ms)
+	 */
+	virtual unsigned getTime() = 0;
+
+	/**
 	 * Convert EmuTime to RealTime and vice versa
 	 */
 	float getRealDuration(const EmuTime& time1, const EmuTime& time2);
@@ -44,7 +49,6 @@ private:
 protected:
 	RealTime(); 
 	void initBase();
-	virtual unsigned getTime() = 0;
 	virtual void doSleep(unsigned ms) = 0;
 	virtual void reset() = 0;
 	

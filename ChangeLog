@@ -1,5 +1,8 @@
 $Id$
 
+2004-03-20 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented a very basic fps indicator
+
 2004-03-17 Maarten ter Huurne <maarten@treewalker.org>
 	* Do not copy captured GL frame back the the frame buffer
 	  if the same image is still there.

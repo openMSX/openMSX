@@ -8,6 +8,8 @@
 #include "VDPVRAM.hh"
 #include "SpriteChecker.hh"
 #include "RealTime.hh"
+#include "CliCommOutput.hh"
+#include "StringOp.hh"
 
 using std::max;
 
@@ -123,6 +125,14 @@ PixelRenderer::PixelRenderer(RendererFactory::RendererID id, VDP *vdp)
 		buffer.addFront(1.0);
 	}
 
+	frameDurationSum = 0;
+	for (unsigned i = 0; i < NUM_FRAME_DURATIONS; ++i) {
+		frameDurations.addFront(20);
+		frameDurationSum += 20;
+	}
+	prevTimeStamp = RealTime::instance().getTime();
+	printCounter = PRINT_FPS_FREQ;
+	
 	settings.getFrameSkip()->addListener(this);
 }
 
@@ -163,6 +173,18 @@ void PixelRenderer::frameEnd(const EmuTime &time)
 	// Let underlying graphics system finish rendering this frame.
 	if (curFrameSkip == 0) {
 		finishFrame();
+	
+		unsigned timeStamp = RealTime::instance().getTime();
+		unsigned duration = timeStamp - prevTimeStamp;
+		prevTimeStamp = timeStamp;
+		frameDurationSum += duration - frameDurations.removeBack();
+		frameDurations.addFront(duration);
+		float fps = 1000.0 * NUM_FRAME_DURATIONS / frameDurationSum;
+		if (--printCounter == 0) {
+			printCounter = PRINT_FPS_FREQ;
+			CliCommOutput::instance().update(CliCommOutput::FPS, "",
+			     StringOp::toString(fps));
+		}
 	}
 
 	// The screen will be locked for a while, so now is a good time

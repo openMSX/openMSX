@@ -52,18 +52,6 @@
     <parameter name="removedoubles">true</parameter>
   </config>
 
-<!-- The debugger console is disabled for now, since it is not really
-     implemented yet...
-  <config id="Debugger">
-    <type>Debugger</type>
-    <parameter name="font">skins/ConsoleFontRave.png</parameter>
-    <parameter name="background">skins/ConsoleBackground2.png</parameter>
-    <parameter name="columns">100</parameter>
-    <parameter name="rows">20</parameter>
-    <parameter name="placement">top</parameter>
-  </config>
--->
-
  <!-- Directories that are searched in, when looking for files mentioned
       on the command line or Console -->
   <config id="UserDirectories">

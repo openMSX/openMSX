@@ -215,6 +215,13 @@ private:
 	float frameSkipLongAvg;
 	int frameSkipDelay;
 	CircularBuffer<float, 100> buffer;
+	
+	static const unsigned NUM_FRAME_DURATIONS = 50;
+	CircularBuffer<unsigned, NUM_FRAME_DURATIONS> frameDurations;
+	unsigned frameDurationSum;
+	unsigned prevTimeStamp;
+	static const unsigned PRINT_FPS_FREQ = 250;
+	unsigned printCounter;
 
 	// internal VDP counter, actually belongs in VDP
 	int textModeCounter;

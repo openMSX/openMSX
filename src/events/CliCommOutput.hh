@@ -22,7 +22,8 @@ public:
 	};
 	enum UpdateType {
 		LED,
-		BREAK
+		BREAK,
+		FPS
 	};
 	
 	static CliCommOutput& instance();
