@@ -5,7 +5,7 @@
 
 #include <SDL/SDL.h>
 #include "openmsx.hh"
-#include "Renderer.hh"
+#include "PixelRenderer.hh"
 #include "CharacterConverter.hh"
 #include "BitmapConverter.hh"
 
@@ -23,7 +23,7 @@ Renderer *createSDLHiRenderer(VDP *vdp, bool fullScreen, const EmuTime &time);
 
 /** Hi-res (640x480) renderer on SDL.
   */
-template <class Pixel> class SDLHiRenderer : public Renderer
+template <class Pixel> class SDLHiRenderer : public PixelRenderer
 {
 public:
 	/** Constructor.
@@ -38,8 +38,8 @@ public:
 
 	// Renderer interface:
 
-	void frameStart(const EmuTime &time);
-	void putImage(const EmuTime &time);
+	//void frameStart(const EmuTime &time);
+	//void putImage(const EmuTime &time);
 	void setFullScreen(bool);
 	void updateTransparency(bool enabled, const EmuTime &time);
 	void updateForegroundColour(int colour, const EmuTime &time);
@@ -55,7 +55,16 @@ public:
 	void updateNameBase(int addr, const EmuTime &time);
 	void updatePatternBase(int addr, const EmuTime &time);
 	void updateColourBase(int addr, const EmuTime &time);
-	void updateVRAM(int addr, byte data, const EmuTime &time);
+	//void updateVRAM(int addr, byte data, const EmuTime &time);
+
+protected:
+	void finishFrame();
+	void updateVRAMCache(int addr, byte data) {
+		(this->*dirtyChecker)(addr, data);
+	}
+	void drawArea(int fromX, int fromY, int limitX, int limitY) {
+		(this->*phaseHandler)(fromX, fromY, limitX, limitY);
+	}
 
 private:
 	/** Render a rectangle on the host screen.
@@ -71,19 +80,6 @@ private:
 
 	typedef void (SDLHiRenderer::*DirtyChecker)
 		(int addr, byte data);
-
-	/** Update renderer state to specified moment in time.
-	  * @param time Moment in emulated time to update to.
-	  */
-	inline void sync(const EmuTime &time);
-
-	/** Render lines until specified moment in time.
-	  * Unlike sync(), this method does not sync with VDPVRAM.
-	  * The VRAM should be to be up to date and remain unchanged
-	  * from the current time to the specified time.
-	  * @param time Moment in emulated time to render lines until.
-	  */
-	inline void renderUntil(const EmuTime &time);
 
 	inline void renderBitmapLines(byte line, int count);
 	inline void renderPlanarBitmapLines(byte line, int count);
@@ -154,17 +150,9 @@ private:
 	  */
 	static DirtyChecker modeToDirtyChecker[];
 
-	/** The VDP of which the video output is being rendered.
+	/** Phase handler: current drawing mode (off, blank, display).
 	  */
-	VDP *vdp;
-
-	/** The VRAM whose contents are rendered.
-	  */
-	VDPVRAM *vram;
-
-	/** The sprite checker whose sprites are rendered.
-	  */
-	SpriteChecker *spriteChecker;
+	PhaseHandler phaseHandler;
 
 	/** SDL colours corresponding to each VDP palette entry.
 	  * palFg has entry 0 set to the current background colour,
@@ -193,24 +181,9 @@ private:
 	  */
 	Pixel PALETTE256[256];
 
-	/** Phase handler: current drawing mode (off, blank, display).
-	  */
-	PhaseHandler phaseHandler;
-
 	/** Dirty checker: update dirty tables on VRAM write.
 	  */
 	DirtyChecker dirtyChecker;
-
-	/** Number of the next position within a line to render.
-	  * Expressed in "small pixels" (Text2, Graphics 5/6) from the
-	  * left border of the rendered screen.
-	  */
-	int nextX;
-
-	/** Number of the next line to render.
-	  * Expressed in number of lines above lineRenderTop.
-	  */
-	int nextY;
 
 	/** The surface which is visible to the user.
 	  */
@@ -233,15 +206,6 @@ private:
 	  * 0xFF means invalid in every mode.
 	  */
 	byte lineValidInMode[256 * 4];
-
-	/** Absolute line number of first bottom erase line.
-	  */
-	int lineBottomErase;
-
-	/** Line to render at top of display.
-	  * After all, our screen is 240 lines while display is 262 or 313.
-	  */
-	int lineRenderTop;
 
 	/** Dirty tables indicate which character blocks must be repainted.
 	  * The anyDirty variables are true when there is at least one

@@ -1,5 +1,10 @@
 $Id$
 
+2002-10-12 Maarten ter Huurne <mth@stack.nl>
+	* Split off some functionality from SDLHiRenderer into new PixelRenderer.
+	  PixelRenderer will contain the common code of the pixel-based
+	  renderers (SDLHi, SDLLo, SDLGL).
+
 2002-10-07 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed sound on high endian machines (untested)
 

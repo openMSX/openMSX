@@ -11,6 +11,8 @@ TODO:
   split-off?
 - Implement sprite pixels in Graphic 5.
 - Move dirty checking to VDPVRAM.
+- Spot references to EmuTime: if implemented correctly this class should
+  not need EmuTime, since it uses absolute VDP coordinates instead.
 */
 
 #include "SDLHiRenderer.hh"
@@ -45,79 +47,13 @@ inline static void fillBool(bool *ptr, bool value, int nr)
 #endif
 }
 
-template <class Pixel> inline void SDLHiRenderer<Pixel>::renderUntil(
-	const EmuTime &time)
+template <class Pixel> inline void SDLHiRenderer<Pixel>::finishFrame()
 {
-	int limitTicks = vdp->getTicksThisFrame(time);
+	// Render console if needed
+	console->drawConsole();
 
-	switch (accuracy) {
-	case ACC_PIXEL: {
-		int limitX = limitTicks % VDP::TICKS_PER_LINE;
-		//limitX = (limitX - 100 - (VDP::TICKS_PER_LINE - 100) / 2 + WIDTH) / 2;
-		// TODO: Apply these transformations in the phaseHandler instead.
-		limitX = (limitX - 100 / 2 - 102) / 2;
-		if (limitX < 0) {
-			limitX = 0;
-		} else if (limitX > WIDTH) {
-			limitX = WIDTH;
-		}
-
-		int limitY = limitTicks / VDP::TICKS_PER_LINE;
-		// TODO: Because of rounding errors, this might not always be true.
-		//assert(limitY <= (vdp->isPalTiming() ? 313 : 262));
-		int totalLines = vdp->isPalTiming() ? 313 : 262;
-		if (limitY > totalLines) {
-			limitX = WIDTH;
-			limitY = totalLines;
-		}
-
-		// Split in rectangles:
-
-		// Finish any partial top line.
-		if (0 < nextX && nextX < WIDTH) {
-			(this->*phaseHandler)(nextX, nextY, WIDTH, nextY + 1);
-			nextY++;
-		}
-		// Draw full-width middle part (multiple lines).
-		if (limitY > nextY) {
-			// middle
-			(this->*phaseHandler)(0, nextY, WIDTH, limitY);
-		}
-		// Start any partial bottom line.
-		if (0 < limitX && limitX < WIDTH) {
-			(this->*phaseHandler)(0, limitY, limitX, limitY + 1);
-		}
-
-		nextX = limitX;
-		nextY = limitY;
-		break;
-	}
-	case ACC_LINE: {
-		int limitY = limitTicks / VDP::TICKS_PER_LINE;
-		// TODO: Because of rounding errors, this might not always be true.
-		//assert(limitY <= (vdp->isPalTiming() ? 313 : 262));
-		int totalLines = vdp->isPalTiming() ? 313 : 262;
-		if (limitY > totalLines) limitY = totalLines;
-		if (nextY < limitY) {
-			(this->*phaseHandler)(0, nextY, WIDTH, limitY);
-			nextY = limitY ;
-		}
-		break;
-	}
-	case ACC_SCREEN: {
-		// TODO
-		break;
-	}
-	default:
-		assert(false);
-	}
-}
-
-template <class Pixel> inline void SDLHiRenderer<Pixel>::sync(
-	const EmuTime &time)
-{
-	vram->sync(time);
-	renderUntil(time);
+	// Update screen.
+	SDL_UpdateRect(screen, 0, 0, 0, 0);
 }
 
 template <class Pixel> inline int SDLHiRenderer<Pixel>::getLeftBorder()
@@ -280,7 +216,7 @@ template <class Pixel> SDLHiRenderer<Pixel>::DirtyChecker
 
 template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 	VDP *vdp, SDL_Surface *screen, bool fullScreen, const EmuTime &time)
-	: Renderer(fullScreen)
+	: PixelRenderer(vdp, fullScreen, time)
 	, characterConverter(vdp, palFg, palBg)
 	, bitmapConverter(palFg, PALETTE256)
 {
@@ -381,8 +317,6 @@ template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 		}
 	}
 
-	// Now we're ready to start rendering the first frame.
-	frameStart(time);
 }
 
 template <class Pixel> SDLHiRenderer<Pixel>::~SDLHiRenderer()
@@ -550,24 +484,6 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateColourBase(
 	sync(time);
 	anyDirtyColour = true;
 	fillBool(dirtyColour, true, sizeof(dirtyColour) / sizeof(bool));
-}
-
-template <class Pixel> void SDLHiRenderer<Pixel>::updateVRAM(
-	int addr, byte data, const EmuTime &time)
-{
-	// TODO: Is it possible to get rid of this method?
-	//       One method call is a considerable overhead since VRAM
-	//       changes occur pretty often.
-	//       For example, register dirty checker at caller.
-
-	// If display is disabled, VRAM changes will not affect the
-	// renderer output, therefore sync is not necessary.
-	// TODO: Changes in invisible pages do not require sync either.
-	//       Maybe this is a task for the dirty checker, because what is
-	//       visible is display mode dependant.
-	if (vdp->isDisplayEnabled()) renderUntil(time);
-
-	(this->*dirtyChecker)(addr, data);
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::checkDirtyNull(
@@ -902,48 +818,6 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 		//       one line out of the screen.
 		SDL_FillRect(screen, &dest, getBorderColour());
 	}
-}
-
-template <class Pixel> void SDLHiRenderer<Pixel>::frameStart(
-	const EmuTime &time)
-{
-	//cerr << "timing: " << (vdp->isPalTiming() ? "PAL" : "NTSC") << "\n";
-
-	// Calculate line to render at top of screen.
-	// Make sure the display area is centered.
-	// 240 - 212 = 28 lines available for top/bottom border; 14 each.
-	// NTSC: display at [32..244),
-	// PAL:  display at [59..271).
-	// TODO: Use screen lines instead.
-	lineRenderTop = vdp->isPalTiming() ? 59 - 14 : 32 - 14;
-
-	// Calculate important moments in frame rendering.
-	lineBottomErase = vdp->isPalTiming() ? 313 - 3 : 262 - 3;
-	nextX = 0;
-	nextY = 0;
-
-	// Screen is up-to-date, so nothing is dirty.
-	// TODO: Either adapt implementation to work with incremental
-	//       rendering, or get rid of dirty tracking.
-	//setDirty(false);
-	//dirtyForeground = dirtyBackground = false;
-}
-
-template <class Pixel> void SDLHiRenderer<Pixel>::putImage(
-	const EmuTime &time)
-{
-	// Render changes from this last frame.
-	sync(time);
-
-	// Render console if needed
-	console->drawConsole();
-
-	// Update screen.
-	SDL_UpdateRect(screen, 0, 0, 0, 0);
-
-	// The screen will be locked for a while, so now is a good time
-	// to perform real time sync.
-	RealTime::instance()->sync();
 }
 
 Renderer *createSDLHiRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)
