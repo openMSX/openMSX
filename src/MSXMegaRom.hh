@@ -4,9 +4,10 @@
 #define __MSXMEGAROM_HH__
 
 #include "MSXRom.hh"
+#include "MSXMemDevice.hh"
 #include "EmuTime.hh"
 
-class MSXMegaRom : public MSXRom
+class MSXMegaRom : public MSXMemDevice, public MSXRom
 {
 	public:
 		/**

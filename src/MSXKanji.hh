@@ -3,10 +3,11 @@
 #ifndef __MSXKANJI_HH__
 #define __MSXKANJI_HH__
 
+#include "MSXIODevice.hh"
 #include "MSXRom.hh"
 
 
-class MSXKanji : public MSXRom
+class MSXKanji : public MSXIODevice, public MSXRom
 {
 	public:
 		/**

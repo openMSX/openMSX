@@ -8,7 +8,7 @@
 
 #include "config.h"
 
-MSXKonamiSynthesizer::MSXKonamiSynthesizer(MSXConfig::Device *config) : MSXRom(config)
+MSXKonamiSynthesizer::MSXKonamiSynthesizer(MSXConfig::Device *config) : MSXDevice(config)
 {
 	PRT_DEBUG("Creating an MSXKonamiSynthesizer object");
 }
@@ -25,7 +25,6 @@ void MSXKonamiSynthesizer::init()
 	MSXDevice::init();
 	DAC = new DACSound(25000);	// TODO find a good value, put it into config file
 	loadFile(&memoryBank, 0x8000);
-	registerSlots();
 }
 
 byte MSXKonamiSynthesizer::readMem(word address, EmuTime &time)

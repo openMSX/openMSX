@@ -3,11 +3,11 @@
 #ifndef __MSXSIMPLE64KB_HH__
 #define __MSXSIMPLE64KB_HH__
 
-#include "MSXDevice.hh"
+#include "MSXMemDevice.hh"
 #include "MSXMotherBoard.hh"
 #include "EmuTime.hh"
 
-class MSXSimple64KB : public MSXDevice
+class MSXSimple64KB : public MSXMemDevice
 {
 	public:
 		/**

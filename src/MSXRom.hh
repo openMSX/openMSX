@@ -9,11 +9,8 @@
 #include "MSXDevice.hh"
 #include "LoadFile.hh"
 
-class MSXRom: public MSXDevice, public LoadFile
+class MSXRom: virtual public MSXDevice, public LoadFile
 {
-    public:
-        MSXRom(MSXConfig::Device *config);
-
     protected:
         /**
          * Trivially needed for LoadFile mixin

@@ -7,6 +7,7 @@
 DummyDevice::DummyDevice()
 {
 	PRT_DEBUG ("Instantiating dummy device");
+	// deviceConfig = null;
 	deviceName = new std::string("Dummy device");
 }
 
@@ -57,5 +58,3 @@ void DummyDevice::restoreState(std::string &devicestring, std::ifstream &readstr
 {
 	assert(false);
 }
-
-

@@ -32,7 +32,7 @@ class Renderer;
   * as a parameter or not. Maybe it's faster to read them, but it
   * also takes time to pass them.
   */
-class MSXTMS9928a : public MSXDevice, HotKeyListener
+class MSXTMS9928a : public MSXIODevice, HotKeyListener
 {
 public:
 	enum VdpVersion { TMS99X8, TMS99X8A, V9938, V9959 };

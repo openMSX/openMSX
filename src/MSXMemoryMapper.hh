@@ -7,9 +7,9 @@
 #include <fstream>
 #include <string>
 #include "EmuTime.hh"
-#include "MSXDevice.hh"
+#include "MSXMemDevice.hh"
 
-class MSXMemoryMapper : public MSXDevice
+class MSXMemoryMapper : public MSXMemDevice
 {
 	public:
 		/**

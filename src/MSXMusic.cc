@@ -4,7 +4,7 @@
 #include "MSXMotherBoard.hh"
 #include "Mixer.hh"
 
-MSXMusic::MSXMusic(MSXConfig::Device *config) : MSXRom(config)
+MSXMusic::MSXMusic(MSXConfig::Device *config) : MSXDevice(config)
 {
 	PRT_DEBUG("Creating an MSXMusic object");
 }
@@ -23,7 +23,6 @@ void MSXMusic::init()
 	ym2413 = new YM2413();
 	loadFile(&romBank, 0x4000);
 	reset();
-	registerSlots();
 }
 
 void MSXMusic::reset()

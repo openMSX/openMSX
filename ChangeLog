@@ -1,5 +1,11 @@
 $Id$
 
+2001-12-05 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* Made MSXIODevice and MSXMemDevice both subclasses of MSXDevice:
+	  these 2 classes take functionality away from MSXDevice and put it
+	  in more specialized classes. They also offer things like automatic
+	  slot-registration (and in the future automatic IO-registration)
+
 2001-12-04 Joost Yervante Damad <j.damad@qahwah.net>
 	* added MSXRom subclass and LoadFile mixin, as first step
 	  towards ROM patching support

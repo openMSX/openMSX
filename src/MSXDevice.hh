@@ -20,36 +20,6 @@ class MSXDevice : public Schedulable
 		 */
 		virtual ~MSXDevice();
 
-		//
-		// interaction with CPU
-		//
-		/**
-		 * Read a byte from a location at a certain time from this
-		 * device.
-		 * The deafult implementation returns 255.
-		 */
-		virtual byte readMem(word address, EmuTime &time);
-
-		/**
-		 * Write a given byte to a given location at a certain time 
-		 * to this device.
-		 * The default implementation ignores the write (does nothing).
-		 */
-		virtual void writeMem(word address, byte value, EmuTime &time);
-
-		/**
-		 * Read a byte from an IO port at a certain time from this device.
-		 * The default implementation returns 255.
-		 */
-		virtual byte readIO(byte port, EmuTime &time);
-
-		/**
-		 * Write a byte to a given IO port at a certain time to this
-		 * device.
-		 * The default implementation ignores the write (does nothing)
-		 */
-		virtual void writeIO(byte port, byte value, EmuTime &time);
-
 		/**
 		 * Emulates this device until a given time.
 		 * The Default implementation does nothing.
@@ -148,14 +118,6 @@ class MSXDevice : public Schedulable
 		 *  true -> active   false -> not active
 		 */
 		bool isIRQset;
-
-		/**
-		 * Register this device in all the slots that where specified
-		 * in its config file
-		 * Note: this is only a helper function, you do not have to use
-		 *       this to register the device
-		 */
-		void registerSlots();
 
 		MSXConfig::Device *deviceConfig;
 		const std::string* deviceName;

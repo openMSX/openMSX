@@ -4,10 +4,11 @@
 #define __MSXKonamiSynthesizer_HH__
 
 #include "MSXRom.hh"
+#include "MSXMemDevice.hh"
 #include "DACSound.hh"
 #include "EmuTime.hh"
 
-class MSXKonamiSynthesizer : public MSXRom
+class MSXKonamiSynthesizer : public MSXMemDevice, public MSXRom
 {
 	public:
 		/**

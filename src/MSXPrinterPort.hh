@@ -3,11 +3,11 @@
 #ifndef __MSXPRINTERPORT_HH__
 #define __MSXPRINTERPORT_HH__
 
-#include "MSXDevice.hh"
+#include "MSXIODevice.hh"
 #include "PrinterPortDevice.hh"
 
 
-class MSXPrinterPort : public MSXDevice
+class MSXPrinterPort : public MSXIODevice
 {
 	public:
 		/**

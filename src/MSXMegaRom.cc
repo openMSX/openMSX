@@ -8,7 +8,7 @@
 
 #include "config.h"
 
-MSXMegaRom::MSXMegaRom(MSXConfig::Device *config) : MSXRom(config)
+MSXMegaRom::MSXMegaRom(MSXConfig::Device *config) : MSXDevice(config)
 {
 	PRT_DEBUG("Creating an MSXMegaRom object");
 }
@@ -45,8 +45,6 @@ void MSXMegaRom::init()
 	internalMemoryBank[7]=0;		// unused
 
 	mapperType = retriefMapperType();
-
-	registerSlots();
 }
 
 int MSXMegaRom::retriefMapperType()

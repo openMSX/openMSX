@@ -16,7 +16,7 @@
 #include "MSXMotherBoard.hh"
 #include "EmuTime.hh"
 
-class MSXE6Timer : public MSXDevice
+class MSXE6Timer : public MSXIODevice
 {
 	public:
 		/**

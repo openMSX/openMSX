@@ -30,7 +30,6 @@ void MSXMemoryMapper::init()
 	//always contain all zero if started
 	memset(buffer, 0, size);
 	 
-	registerSlots();
 	MSXMapperIO::instance()->registerMapper(blocks);
 }
 

@@ -7,7 +7,7 @@
 #include <fstream>
 #include <string>
 #include "EmuTime.hh"
-#include "MSXDevice.hh"
+#include "MSXIODevice.hh"
 
 class MSXMapperIODevice
 {
@@ -26,7 +26,7 @@ class MSXMapperIODevice
 		virtual void registerMapper(int blocks) = 0;
 };
 
-class MSXMapperIO : public MSXDevice
+class MSXMapperIO : public MSXIODevice
 {
 	public:
 		/**

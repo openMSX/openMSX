@@ -42,8 +42,6 @@ void MSXSimple64KB::init()
 	//Isn't completely true, but let's suppose that ram will 
 	//always contain all zero if started
 	memset(memoryBank, 0, 65536); // new doesn't fill with zero
-
-	registerSlots();
 }
 
 byte MSXSimple64KB::readMem(word address, EmuTime &time)

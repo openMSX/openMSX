@@ -6,10 +6,11 @@
 #include <fstream>
 #include <string>
 
-#include "MSXDevice.hh"
+#include "MSXIODevice.hh"
+#include "MSXMemDevice.hh"
 #include "EmuTime.hh"
 
-class DummyDevice : public MSXDevice
+class DummyDevice : public MSXIODevice, public MSXMemDevice
 {
 	public:
 		~DummyDevice();

@@ -24,10 +24,10 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_thread.h>
 
-#include "MSXDevice.hh"
+//#include "MSXDevice.hh"
 #include "MSXMotherBoard.hh"
-#include "MSXSimple64KB.hh"
-#include "MSXRom16KB.hh"
+//#include "MSXSimple64KB.hh"
+//#include "MSXRom16KB.hh"
 #include "devicefactory.hh"
 #include "EventDistributor.hh"
 #include "KeyEventInserter.hh"

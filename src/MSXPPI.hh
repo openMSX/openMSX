@@ -49,7 +49,7 @@
 //AB      W      I 8255A/ULA9RA041 Mode select and I/O setup of A,B,C
 
 
-class MSXPPI : public MSXDevice, I8255Interface
+class MSXPPI : public MSXIODevice, public I8255Interface
 {
 	// MSXDevice
 	public:

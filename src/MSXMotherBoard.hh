@@ -6,6 +6,8 @@
 #include <fstream>
 #include <vector>
 #include "MSXDevice.hh"
+#include "MSXIODevice.hh"
+#include "MSXMemDevice.hh"
 #include "Scheduler.hh"
 #include "EmuTime.hh"
 #include "CPUInterface.hh"
@@ -32,7 +34,7 @@ class MSXMotherBoard : public CPUInterface
 		 * Once device are registered, their readIO() method
 		 * can get called.
 		 */
-		void register_IO_In(byte port,MSXDevice *device);
+		void register_IO_In(byte port,MSXIODevice *device);
 		
 		/**
 		 * Devices can register their Out ports. 
@@ -40,7 +42,7 @@ class MSXMotherBoard : public CPUInterface
 		 * Once device are registered, their writeIO() method
 		 * can get called.
 		 */
-		void register_IO_Out(byte port,MSXDevice *device);
+		void register_IO_Out(byte port,MSXIODevice *device);
 
 		/**
 		 * Devices can register themself in the MSX slotstructure.
@@ -48,7 +50,7 @@ class MSXMotherBoard : public CPUInterface
 		 * devices are registered their readMem() / writeMem() methods
 		 * can get called.
 		 */
-		void registerSlottedDevice(MSXDevice *device,int PrimSl,int SecSL,int Page);
+		void registerSlottedDevice(MSXMemDevice *device,int PrimSl,int SecSL,int Page);
 		
 		/**
 		 * All MSXDevices should be registered by tyhe MotherBoard.
@@ -160,17 +162,17 @@ class MSXMotherBoard : public CPUInterface
 	private:
 		MSXMotherBoard();
 
-		MSXDevice* IO_In[256];
-		MSXDevice* IO_Out[256];
+		MSXIODevice* IO_In[256];
+		MSXIODevice* IO_Out[256];
 		std::vector<MSXDevice*> availableDevices;
 		
-		MSXDevice* SlotLayout[4][4][4];
+		MSXMemDevice* SlotLayout[4][4][4];
 		byte SubSlot_Register[4];
 		byte A8_Register;
 		byte PrimarySlotState[4];
 		byte SecondarySlotState[4];
 		bool isSubSlotted[4];
-		MSXDevice* visibleDevices[4]; 
+		MSXMemDevice* visibleDevices[4]; 
 		
 		int IRQLine;
 

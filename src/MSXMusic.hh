@@ -4,11 +4,13 @@
 #define __MSXMUSIC_HH__
 
 #include "MSXRom.hh"
+#include "MSXIODevice.hh"
+#include "MSXMemDevice.hh"
 #include "EmuTime.hh"
 #include "YM2413.hh"
 
 
-class MSXMusic : public MSXRom
+class MSXMusic : public MSXIODevice, public MSXMemDevice, public MSXRom
 {
 	public:
 		/**

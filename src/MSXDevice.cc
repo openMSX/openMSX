@@ -7,9 +7,10 @@
 
 MSXDevice::MSXDevice(MSXConfig::Device *config)
 {
-	PRT_DEBUG("instantiating an MSXDevice object");
+	PRT_DEBUG("instantiating an MSXDevice object..");
 	deviceConfig=config;
 	deviceName=&config->getId();
+	PRT_DEBUG(".." << getName());
 }
 
 MSXDevice::MSXDevice()
@@ -22,23 +23,6 @@ MSXDevice::~MSXDevice()
 	//PRT_DEBUG("Destructing an MSXDevice object");
 }
 
-// interaction with CPU
-byte MSXDevice::readMem(word address, EmuTime &time)
-{
-	return 255;
-}
-void MSXDevice::writeMem(word address, byte value, EmuTime &time)
-{
-	// do nothing
-}
-byte MSXDevice:: readIO(byte port, EmuTime &time)
-{
-	return 255;
-}
-void MSXDevice::writeIO(byte port, byte value, EmuTime &time)
-{
-	// do nothing
-}
 void MSXDevice::executeUntilEmuTime(const EmuTime &time)
 {
 	PRT_DEBUG ("Empty executeUntilEmuTime function");
@@ -117,17 +101,5 @@ void MSXDevice::resetInterrupt()
 		isIRQset = false;
 		PRT_DEBUG ("Actually resseting interupt line of " << getName());
 		MSXMotherBoard::instance()->lowerIRQ();
-	}
-}
-
-void MSXDevice::registerSlots()
-{
-	// register in slot-structure
-	std::list<MSXConfig::Device::Slotted*>::const_iterator i;
-	for (i=deviceConfig->slotted.begin(); i!=deviceConfig->slotted.end(); i++) {
-		int ps=(*i)->getPS();
-		int ss=(*i)->getSS();
-		int page=(*i)->getPage();
-		MSXMotherBoard::instance()->registerSlottedDevice(this,ps,ss,page);
 	}
 }

@@ -46,7 +46,7 @@ MSXMotherBoard *MSXMotherBoard::instance()
 MSXMotherBoard *MSXMotherBoard::oneInstance = NULL;
 
 
-void MSXMotherBoard::register_IO_In(byte port, MSXDevice *device)
+void MSXMotherBoard::register_IO_In(byte port, MSXIODevice *device)
 {
 	if (IO_In[port] == DummyDevice::instance()) {
 		PRT_DEBUG (device->getName() << " registers In-port " << (int)port);
@@ -57,7 +57,7 @@ void MSXMotherBoard::register_IO_In(byte port, MSXDevice *device)
 	}
 }
 
-void MSXMotherBoard::register_IO_Out(byte port, MSXDevice *device)
+void MSXMotherBoard::register_IO_Out(byte port, MSXIODevice *device)
 {
 	if ( IO_Out[port] == DummyDevice::instance()) {
 		PRT_DEBUG (device->getName() << " registers Out-port " << (int)port);
@@ -73,7 +73,7 @@ void MSXMotherBoard::addDevice(MSXDevice *device)
 	availableDevices.push_back(device);
 }
 
-void MSXMotherBoard::registerSlottedDevice(MSXDevice *device, int primSl, int secSl, int page)
+void MSXMotherBoard::registerSlottedDevice(MSXMemDevice *device, int primSl, int secSl, int page)
 {
 	if (SlotLayout[primSl][secSl][page] == DummyDevice::instance()) {
 		PRT_DEBUG(device->getName() << " registers at "<<primSl<<" "<<secSl<<" "<<page);

@@ -3,13 +3,13 @@
 #ifndef __MSXPSG_HH__
 #define __MSXPSG_HH__
 
-#include "MSXDevice.hh"
+#include "MSXIODevice.hh"
 #include "EmuTime.hh"
 #include "AY8910.hh"
 #include "JoystickPorts.hh"
 #include "MSXCassettePort.hh"
 
-class MSXPSG : public MSXDevice, AY8910Interface
+class MSXPSG : public MSXIODevice, public AY8910Interface
 {
 	// MSXDevice
 	public:

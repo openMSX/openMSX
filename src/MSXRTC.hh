@@ -3,12 +3,12 @@
 #ifndef __MSXRTC_HH__
 #define __MSXRTC_HH__
 
-#include "MSXDevice.hh"
+#include "MSXIODevice.hh"
 #include "EmuTime.hh"
 #include "RP5C01.hh"
 
 
-class MSXRTC : public MSXDevice
+class MSXRTC : public MSXIODevice
 {
 	public:
 		/**

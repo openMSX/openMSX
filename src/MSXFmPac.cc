@@ -26,7 +26,6 @@ void MSXFmPac::init()
 	ym2413 = new YM2413();
 	loadFile(&romBank, 0x10000);
 	reset();
-	registerSlots();
 }
 
 void MSXFmPac::reset()
