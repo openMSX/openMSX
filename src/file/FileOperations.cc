@@ -44,3 +44,14 @@ bool FileOperations::mkdirp(const std::string &path_)
 	return true;
 }
 
+std::string FileOperations::getFilename(const std::string &path)
+{
+	unsigned pos = path.rfind('/');
+	return path.substr(pos + 1);
+}
+
+std::string FileOperations::getBaseName(const std::string &path)
+{
+	unsigned pos = path.rfind('/');
+	return path.substr(0, pos);
+}

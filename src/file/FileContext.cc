@@ -109,7 +109,8 @@ UserFileContext::UserFileContext()
 
 UserFileContext::UserFileContext(const std::string &savePath_)
 {
-	savePath = std::string("~/.openMSX/persistent/") + savePath + '/';
+	savePath = std::string("~/.openMSX/persistent/") + savePath_ + '/';
+	PRT_DEBUG("DEBUG savepath " << savePath);
 }
 
 const std::list<std::string> &UserFileContext::getPaths()

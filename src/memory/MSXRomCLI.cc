@@ -3,6 +3,7 @@
 #include "MSXRomCLI.hh"
 #include "CartridgeSlotManager.hh"
 #include "MSXConfig.hh"
+#include "FileOperations.hh"
 
 
 MSXRomCLI::MSXRomCLI()
@@ -78,8 +79,10 @@ void MSXRomCLIPost::execute(MSXConfig *config)
 		filename = arg;
 		mapper = "auto";
 	}
-	
+	std::string file = FileOperations::getFilename(filename);
+
 	XML::Escape(filename);
+	XML::Escape(file);
 	std::ostringstream s;
 	s << "<?xml version=\"1.0\"?>";
 	s << "<msxconfig>";
@@ -95,10 +98,11 @@ void MSXRomCLIPost::execute(MSXConfig *config)
 	s << "<parameter name=\"mappertype\">"<<mapper<<"</parameter>";
 	s << "<parameter name=\"loadsram\">true</parameter>";
 	s << "<parameter name=\"savesram\">true</parameter>";
-	s << "<parameter name=\"sramname\">"<<filename<<".SRAM</parameter>";
+	s << "<parameter name=\"sramname\">"<<file<<".SRAM</parameter>";
 	s << "</device>";
 	s << "</msxconfig>";
-	UserFileContext *context = new UserFileContext("roms/" + filename);
+	PRT_DEBUG("DEBUG " << file);
+	UserFileContext *context = new UserFileContext("roms/" + file);
 	config->loadStream(context, s);
 	delete this;
 }

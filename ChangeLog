@@ -4,6 +4,8 @@ $Id$
 	* Reworked MSXRom:
 	   - made a (small) subclass for every mapper type:
 	* Moved MSXRom MSXRam related files to a new directory "memory"
+	* Fixed rom-cartridge SRAM saving, path was wrong:
+	   - it is now ~/.openMSX/persistent/roms/<romname>/<sramname>
 
 2003-03-05 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented "Harry Fox" mapper type
