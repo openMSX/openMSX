@@ -1,12 +1,11 @@
 // $Id$
-//
-// These are the functions the console can call after a device 
-// has registered commands with the console.
-//
 
 #ifndef __CONSOLECOMMAND_HH__
 #define __CONSOLECOMMAND_HH__
 
+/** These are the functions the console can call after a device
+  * has registered commands with the console.
+  */
 class ConsoleCommand
 {
 	public:
