@@ -73,10 +73,6 @@ private:
 	inline void renderPlanarBitmapLines(byte line, int count);
 	inline void renderCharacterLines(byte line, int count);
 
-	/** Get width of the left border on the host screen in pixels.
-	  */
-	inline int getLeftBorder();
-
 	/** Get width of the display area in pixels.
 	  */
 	inline int getDisplayWidth();
