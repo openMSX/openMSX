@@ -40,7 +40,7 @@ const string &JoyNet::getName() const
 	return name;
 }
 
-void JoyNet::plug(Connector* connector, const EmuTime& time)
+void JoyNet::plug(Connector* connector, const EmuTime& time) throw()
 {
 }
 
