@@ -27,31 +27,31 @@ public:
 
 	/** Bits of VDP register 1 that encode part of the display mode. */
 	static const byte REG1_MASK = 0x18;
-	
+
 	/** Bits of VDP register 25 that encode part of the display mode. */
 	static const byte REG25_MASK = 0x18;
 
 	/** Encoding of base mode Text 1. */
 	static const byte TEXT1 = 0x01;
-	
+
 	/** Encoding of base mode Text 2. */
 	static const byte TEXT2 = 0x09;
-	
+
 	/** Encoding of base mode Multicolour. */
 	static const byte MULTICOLOUR = 0x02;
-	
+
 	/** Encoding of base mode Graphic 1. */
 	static const byte GRAPHIC1 = 0x00;
-	
+
 	/** Encoding of base mode Graphic 2. */
 	static const byte GRAPHIC2 = 0x04;
-	
+
 	/** Encoding of base mode Graphic 3. */
 	static const byte GRAPHIC3 = 0x08;
-	
+
 	/** Encoding of base mode Graphic 4. */
 	static const byte GRAPHIC4 = 0x0C;
-	
+
 	/** Encoding of base mode Graphic 5. */
 	static const byte GRAPHIC5 = 0x10;
 	
@@ -115,7 +115,7 @@ public:
 
 	/** Get the dispay mode as a byte: YAE YJK M5..M1 combined.
 	  * @return The byte representation of this display mode,
-	  * 	in the range [0..0x7F).
+	  * 	in the range [0..0x7F].
 	  */
 	inline byte getByte() const {
 		return byte(mode);
@@ -124,7 +124,7 @@ public:
 	/** Get the base dispay mode as an integer: M5..M1 combined.
 	  * If YJK is active, the base mode is the underlying display mode.
 	  * @return The integer representation of the base of this display mode,
-	  * 	in the range [0..0x1F).
+	  * 	in the range [0..0x1F].
 	  */
 	inline int getBase() const {
 		return mode & 0x1F;
