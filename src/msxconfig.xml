@@ -108,7 +108,6 @@
   <device id="Real time synchronizer">
     <type>RealTime</type>
   </device>
-<!--
   <device id="Penguin Adventure Cartridge">
     <type>MegaRom</type>
     <slotted>
@@ -121,9 +120,8 @@
       <ss>0</ss>
       <page>2</page>
     </slotted>
-    <parameter name="romfile">PENGUIN.ROM</parameter>
+    <parameter name="romfile">NEMESIS.ROM</parameter>
     <parameter name="filesize">131072</parameter>
     <parameter name="skip_headerbytes">0</parameter>
   </device>
--->
 </msxconfig>

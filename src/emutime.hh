@@ -83,10 +83,12 @@ public:
 		return (float)(foo._emutime-_emutime)/MAIN_FREQ;
 	}
 
+	//TODO: make emutime printable !!
+
 private:
+	uint64 _emutime; 
 	static const int DUMMY_FREQ = MAIN_FREQ*2;	// as long as it's greater than MAIN_FREQ
 	
-	uint64 _emutime;
 	const int _scale;
 };
 

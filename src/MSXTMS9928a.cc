@@ -68,7 +68,11 @@
 ** 
 ** 11/10/2001
 ** Enable 'dirty' methodes of Sean again + own extra dirty flag
-** as a side effect this means trhat the sprites aren't cleared for the moment :-)
+** as a side effect this means that the sprites aren't cleared for the moment :-)
+** 
+** 12/10/2001
+** Miss-used the dirtyNames table to indicate which chars are overdrawn with sprites.
+** Noticed some timing issues that need to be looked into.
 ** 
 */
 
@@ -428,6 +432,7 @@ void MSXTMS9928a::sprites(struct osd_bitmap* bmp){
     int p,x,y,size,i,j,large,yy,xx,limit[192],
         illegalsprite,illegalspriteline;
     word line,line2;
+    int dirtycheat;
 
     attributeptr = tms.vMem + tms.spriteattribute;
     size = (tms.Regs[1] & 2) ? 16 : 8;
@@ -454,6 +459,39 @@ void MSXTMS9928a::sprites(struct osd_bitmap* bmp){
         c = (*attributeptr & 0x0f);
         if (*attributeptr & 0x80) x -= 32;
         attributeptr++;
+
+	// Hack: mark the characters that are toughed by the sprites as dirty
+	// This way we also redraw the affected chars 
+	// sprites are only visible in screen modes of 32 chars wide
+	
+	dirtycheat=(x>>3)+(y>>3)*32;
+	//mark four chars dirty (2x2)
+	tms.DirtyName[dirtycheat]=1;
+	tms.DirtyName[dirtycheat+1]=1;
+	tms.DirtyName[dirtycheat+32]=1;
+	tms.DirtyName[dirtycheat+33]=1;
+	//if needed extra 5 around them also (3x3)
+	if ((size == 16) || large){
+	tms.DirtyName[dirtycheat+2]=1;
+	tms.DirtyName[dirtycheat+34]=1;
+	tms.DirtyName[dirtycheat+64]=1;
+	tms.DirtyName[dirtycheat+65]=1;
+	tms.DirtyName[dirtycheat+66]=1;
+	}
+	//if needed extra 7 around them also (4x4)
+	if ((size == 16) && large){
+	tms.DirtyName[dirtycheat+3]=1;
+	tms.DirtyName[dirtycheat+35]=1;
+	tms.DirtyName[dirtycheat+65]=1;
+	tms.DirtyName[dirtycheat+96]=1;
+	tms.DirtyName[dirtycheat+97]=1;
+	tms.DirtyName[dirtycheat+98]=1;
+	tms.DirtyName[dirtycheat+99]=1;
+	}
+	// worst case is 32*24+99(=867)
+	// DirtyName 40x24(=960)  => is large enough 
+	tms.anyDirtyName =1;
+	// No need to clean sprites if no vram write so tms.Change could remain false;
 
         if (!large) {
             /* draw sprite (not enlarged) */
@@ -733,7 +771,7 @@ void MSXTMS9928a::start()
 
 void MSXTMS9928a::executeUntilEmuTime(const Emutime &time)
 {
-	PRT_DEBUG("Executing TMS9928a");
+	PRT_DEBUG("Executing TMS9928a at time ");
 
 	//TODO:: Change from full screen refresh to emutime based!!
 	if (tms.stateChanged){
@@ -744,7 +782,7 @@ void MSXTMS9928a::executeUntilEmuTime(const Emutime &time)
 	
 	//Next SP/interrupt in Pal mode here
 	currentTime = time;
-	Scheduler::instance()->setSyncPoint(currentTime+71285, *this);
+	Scheduler::instance()->setSyncPoint(currentTime+85542, *this); //71285 for NTS, 85542 for PAL
     // Since this is the vertical refresh
     tms.StatusReg |= 0x80;
 	// Set interrupt if bits enable it
@@ -789,7 +827,7 @@ void MSXTMS9928a::writeIO(byte port, byte value, Emutime &time)
       //WRITE_HANDLER (TMS9928A_vram_w)
       if (tms.vMem[tms.Addr] != value) {
 	tms.vMem[tms.Addr] = value;
-	tms.Change = 1;
+	tms.Change = 1; 
 	/* dirty optimization */
 	tms.stateChanged=true;
 
