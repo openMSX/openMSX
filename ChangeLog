@@ -5,6 +5,9 @@ $Id$
 		- Bx modes & belonging palettes
 		- start of SDL Rasterizer, dummy GL rasterizer
 
+2004-10-18 Maarten ter Huurne <maarten@treewalker.org>
+	* Released openmsx-0.5.0.
+
 2004-10-18 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* forgot some "up"->"release" renames
 	* Added MMX optimizations in Scale2x scaler
