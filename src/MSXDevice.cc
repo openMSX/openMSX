@@ -15,7 +15,8 @@ MSXDevice::MSXDevice(MSXConfig::Device *config, const EmuTime &time)
 
 MSXDevice::MSXDevice()
 {
-	PRT_DEBUG("instantiating an MSXDevice object");
+	PRT_DEBUG("instantiating an MSXDevice object (Dummy)");
+	deviceConfig = NULL;
 }
 
 MSXDevice::~MSXDevice()

@@ -27,7 +27,7 @@ MSXMotherBoard::MSXMotherBoard()
 			}
 		}
 	}
-	
+
 	config = MSXConfig::instance()->getConfigById("MotherBoard");
 	std::list<const MSXConfig::Device::Parameter*> subslotted_list;
 	subslotted_list = config->getParametersWithClass("subslotted");

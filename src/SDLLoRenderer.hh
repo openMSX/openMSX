@@ -12,7 +12,7 @@ class MSXTMS9928a;
 
 /** Factory method to create SDLLoRenderer objects.
   */
-Renderer *createSDLLoRenderer(MSXTMS9928a *vdp, bool fullScreen);
+Renderer *createSDLLoRenderer(MSXTMS9928a *vdp, bool fullScreen, const EmuTime &time);
 
 /** Low-res (320x240) renderer on SDL.
   */
@@ -23,7 +23,7 @@ public:
 	  * It is suggested to use the createSDLLoRenderer factory
 	  * function instead, which automatically selects a colour depth.
 	  */
-	SDLLoRenderer(MSXTMS9928a *vdp, SDL_Surface *screen);
+	SDLLoRenderer(MSXTMS9928a *vdp, SDL_Surface *screen, const EmuTime &time);
 
 	/** Destructor.
 	  */

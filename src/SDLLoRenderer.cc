@@ -76,7 +76,7 @@ template <class Pixel> SDLLoRenderer<Pixel>::RenderMethod
 	};
 
 template <class Pixel> SDLLoRenderer<Pixel>::SDLLoRenderer<Pixel>(
-	MSXTMS9928a *vdp, SDL_Surface *screen)
+	MSXTMS9928a *vdp, SDL_Surface *screen, const EmuTime &time)
 {
 	this->vdp = vdp;
 	this->screen = screen;
@@ -85,8 +85,7 @@ template <class Pixel> SDLLoRenderer<Pixel>::SDLLoRenderer<Pixel>(
 	currPhase = &SDLLoRenderer::offPhase;
 	currLine = 0;
 	// TODO: Fill in current time once that exists.
-	EmuTime dummyTime;
-	updateDisplayMode(dummyTime);
+	updateDisplayMode(time);
 	dirtyForeground = dirtyBackground = true;
 
 	// Create display cache.
@@ -126,7 +125,6 @@ template <class Pixel> SDLLoRenderer<Pixel>::SDLLoRenderer<Pixel>(
 			MSXTMS9928a::TMS9928A_PALETTE[i * 3 + 2]
 			);
 	}
-
 }
 
 template <class Pixel> SDLLoRenderer<Pixel>::~SDLLoRenderer()
@@ -635,7 +633,7 @@ template <class Pixel> void SDLLoRenderer<Pixel>::putImage()
 	dirtyForeground = dirtyBackground = false;
 }
 
-Renderer *createSDLLoRenderer(MSXTMS9928a *vdp, bool fullScreen)
+Renderer *createSDLLoRenderer(MSXTMS9928a *vdp, bool fullScreen, const EmuTime &time)
 {
 	int flags = SDL_HWSURFACE | (fullScreen ? SDL_FULLSCREEN : 0);
 
@@ -661,16 +659,15 @@ Renderer *createSDLLoRenderer(MSXTMS9928a *vdp, bool fullScreen)
 
 	switch (screen->format->BytesPerPixel) {
 	case 1:
-		return new SDLLoRenderer<Uint8>(vdp, screen);
+		return new SDLLoRenderer<Uint8>(vdp, screen, time);
 	case 2:
-		return new SDLLoRenderer<Uint16>(vdp, screen);
+		return new SDLLoRenderer<Uint16>(vdp, screen, time);
 	case 4:
-		return new SDLLoRenderer<Uint32>(vdp, screen);
+		return new SDLLoRenderer<Uint32>(vdp, screen, time);
 	default:
 		printf("FAILED to open supported screen!");
 		// TODO: Throw exception.
 		return NULL;
 	}
-
 }
 

@@ -190,6 +190,7 @@ MSXTMS9928a::MSXTMS9928a(MSXConfig::Device *config, const EmuTime &time)
 	PRT_DEBUG("Creating an MSXTMS9928a object");
 
 	limitSprites = true; // TODO: Read from config.
+	displayMode = 0;	// Maarten, is this ok?
 
 	version = TMS99X8A; // MSX1 VDP
 
@@ -209,7 +210,7 @@ MSXTMS9928a::MSXTMS9928a(MSXConfig::Device *config, const EmuTime &time)
 	//   probably on user request.
 	fullScreen = atoi(deviceConfig->getParameter("fullscreen").c_str());
 	PRT_DEBUG("OK\n  Opening display... ");
-	renderer = createSDLLoRenderer(this, fullScreen);
+	renderer = createSDLLoRenderer(this, fullScreen, time);
 
 	// Register hotkey for fullscreen togling
 	HotKey::instance()->registerAsyncHotKey(SDLK_PRINT, this);

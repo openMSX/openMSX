@@ -4,10 +4,9 @@
 #include <cassert>
 
 
-DummyDevice::DummyDevice()
+DummyDevice::DummyDevice() 
 {
 	PRT_DEBUG ("Instantiating dummy device");
-	// deviceConfig = null;
 	deviceName = new std::string("Dummy device");
 }
 
