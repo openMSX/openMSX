@@ -88,24 +88,31 @@ MapperType RomTypes::nameToMapperType(const std::string &name)
 
 MapperType RomTypes::guessMapperType(byte* data, int size)
 {
-	//  GameCartridges do their bankswitching by using the Z80
-	//  instruction ld(nn),a in the middle of program code. The
-	//  adress nn depends upon the GameCartridge mappertype used.
-	//  To guess which mapper it is, we will look how much writes
-	//  with this instruction to the mapper-registers-addresses
-	//  occure.
-
 	if (size <= 0x10000) {
 		if (size == 0x10000) {
 			// There are some programs convert from tape to 64kB rom cartridge
 			// these 'fake'roms are from the ASCII16 type
 			return ASCII_16KB;
+		} else if ((size <= 0x4000) &&
+		           (data[0] == 'A') && (data[1] == 'B')) {
+			word initAddr = data[2] + 256 * data[3];
+			word textAddr = data[8] + 256 * data[9];
+			if ((initAddr == 0) && ((textAddr & 0xC000) == 0x8000)) {
+				return PAGE2;
+			}
 		} else {
 			// not correct for Konami-DAC, but does this really need
 			// to be correct for _every_ rom?
 			return PLAIN;
 		}
 	} else {
+		//  GameCartridges do their bankswitching by using the Z80
+		//  instruction ld(nn),a in the middle of program code. The
+		//  adress nn depends upon the GameCartridge mappertype used.
+		//  To guess which mapper it is, we will look how much writes
+		//  with this instruction to the mapper-registers-addresses
+		//  occure.
+
 		unsigned int typeGuess[] = {0,0,0,0,0,0};
 		for (int i=0; i<size-3; i++) {
 			if (data[i] == 0x32) {

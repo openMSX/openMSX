@@ -1,5 +1,9 @@
 $Id$
 
+2002-12-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Autodetect BASIC ROM cartridges:
+	   code mostly taken from windows port
+
 2002-12-29 Maarten ter Huurne <maarten@treewalker.org>
 	* The VDPVRAM::VRAMObserver interface is put to use for the first time,
 	  by SpriteChecker. Cleans up the VDP subsystem synchronisation code.
