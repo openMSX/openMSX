@@ -48,4 +48,16 @@ all:
 	@echo "Components overview:"
 	@echo "  Emulation core:  $(call YESNO,$(COMPONENT_CORE))"
 	@echo "  SDLGL renderer:  $(call YESNO,$(COMPONENT_GL))"
+	@echo ""
+ifeq ($(COMPONENTS_ALL),true)
+	@echo "All required and optional components can be built."
+else
+ifeq ($(COMPONENT_CORE),true)
+	@echo "If you are satisfied with the probe results, run \"$(MAKE)\" to start the build."
+	@echo "Otherwise, install some libraries and headers and rerun \"configure\"."
+else
+	@echo "Please install missing libraries and headers and rerun \"configure\"."
+endif
+endif
+	@echo ""
 
