@@ -9,7 +9,7 @@ Q: How do I add a memmory mapped device?
 A: Inherrit from the class MSXMemDevice and implement the methods readMem
    and writeMem. Don't forget to use the getReadCacheLine and getWriteCacheLine
    if possible to gain a lot of performance.
-Example: MSXSimple64KB
+Example: MSXSimple64KB.cc
 
 Q: I need a device with a ROM in it. This must be something verry common. Is
    there a simpler method?
@@ -17,22 +17,21 @@ A: If it is to implement a rom you can inherit from MSXRom which has a
    method loadFile that will do all the needed filehandling to read a romfile
    into memmory. Also there is a Patch interface for Roms so that you can patch
    eg bioscalls in the rom file to be redirected to your own bioshandler.
-Example: MSXRom16KB
+Example: MSXRom16KB.cc
 
 Q: How do I add an I/O port device?
 A: Inherrit from the class MSXIODevice, and register the needed in- and
    out-ports with MSXMotherBoard
-Example: MSXE6Timer
+Example: MSXE6Timer.cc
 
 Q: How do I add a connector based device?
 A: If you want to make a brand new connector type, you must inherit specific
    connector and pluggable types from the class Connector and Pluggable.
-Example: MSXPrinterPort
+Example: MSXPrinterPort.cc
 A: If you just want to make a new device that plugs into an existing
    connector (JoystickPort, PrinterPort, ...), you must inherit from the
    specific Pluggable (JoystickDevice, PrinterPortDevice, ...)
-Example: PrinterPortLogger
-
+Example: PrinterPortLogger.cc
 
 Q: What is this EmuTime thing?
 A: Every device that is timesensitive has it own emutime object.
@@ -44,8 +43,7 @@ A: Every device that is timesensitive has it own emutime object.
    frequencies. The distance function getTicksTill() and getTicksTillUp() can be
    used to find out how many native ticks are needed to catchup with an other
    device.
-Example: CPU, Scheduler ? Anybody any good examples here ??
-
+Example: MSXE6Timer.cc
 
 Q: My device has to perform some action at a later time. Can my device be
    notified when this time has come?
@@ -54,6 +52,13 @@ A: Use scheduler->setSyncPoint(T,D) to register the MSXDevice to be called at
    method executeUntilEmuTime.
 Example: sound/Y8950Timer.cc
 
-TODO
 Q: How can a device generate IRQs?
+A: The class MSXCPU offers two methods raiseIRQ() and lowerIRQ(). However direct
+   use of these methods is not recommended. Instead use the methods offered by 
+   the class IRQHelper.
+Example: VDP.cc
 
+
+TODO
+Q: -- read data from config file --
+Q: How do I write my own sound device?

@@ -61,7 +61,7 @@ class MSXCPU : public MSXDevice, public Schedulable
 		 * method more than once. If the device wants to lower the
 		 * interrupt again it must call the lowerIRQ() method exactly as
 		 * many times.
-		 * Before using this method take a look at MSXMotherBoard::IRQHelper
+		 * Before using this method take a look at IRQHelper
 		 */
 		void raiseIRQ();
 
@@ -69,7 +69,7 @@ class MSXCPU : public MSXDevice, public Schedulable
 		 * This methods lowers the interrupt again. A device may never
 		 * call this method more often than it called the method
 		 * raiseIRQ().
-		 * Before using this method take a look at MSXMotherBoard::IRQHelper
+		 * Before using this method take a look at IRQHelper
 		 */
 		void lowerIRQ();
 
