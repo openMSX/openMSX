@@ -8,6 +8,8 @@
 #include "MSXCPUInterface.hh"
 #include "MSXCPU.hh"
 #include "EmuTime.hh"
+#include "PluggingController.hh"
+#include "Mixer.hh"
 
 
 namespace openmsx {
@@ -62,12 +64,18 @@ void MSXMotherBoard::run()
 		// Run.
 		EmuTime time(Scheduler::instance()->scheduleEmulation());
 
-		// Destroy.
+		// Shut down mixing because it depends on MSXCPU,
+		// which will be destroyed in the next step.
+		// TODO: Get rid of this dependency.
+		Mixer::instance()->shutDown();
+
+		// Destroy emulated MSX machine.
 		list<MSXDevice*>::iterator i;
 		for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
 			(*i)->powerDown(time);
 			delete (*i);
 		}
+
 	} catch (MSXException &e) {
 		PRT_ERROR("Uncaught exception: " << e.getMessage());
 	} catch (...) {

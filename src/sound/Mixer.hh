@@ -31,6 +31,7 @@ class Mixer : private SettingListener
 
 		virtual ~Mixer();
 		static Mixer *instance();
+		void shutDown();
 
 		/**
 		 * Use this method to register a given sounddevice.
@@ -50,7 +51,7 @@ class Mixer : private SettingListener
 		 * Every sounddevice must unregister before it is destructed
 		 */
 		void unregisterSound(SoundDevice *device);
-		
+
 		/**
 		 * Use this method to force an 'early' call to all
 		 * updateBuffer() methods.
@@ -74,7 +75,7 @@ class Mixer : private SettingListener
 		 */
 		void mute();
 		void unmute();
-		
+
 	private:
 		Mixer();
 		void reInit();

@@ -56,20 +56,28 @@ Mixer::Mixer()
 
 Mixer::~Mixer()
 {
-	if (init) {
-		muteSetting.removeListener(this);
-		SDL_CloseAudio();
-		delete[] mixBuffer;
-	}
+	// Note: Code was moved to shutDown(), read explanation there.
 }
 
-Mixer* Mixer::instance(void)
+Mixer *Mixer::instance()
 {
 	static Mixer oneInstance;
 
 	return &oneInstance;
 }
 
+void Mixer::shutDown()
+{
+	// TODO: This method is only necessary because Mixer has dependencies
+	//       to the rest of openMSX (CPU, maybe more).
+	//       Because of those depedencies, the destruction sequence is
+	//       relevant and therefore must be made explicit.
+	if (init) {
+		muteSetting.removeListener(this);
+		SDL_CloseAudio();
+		delete[] mixBuffer;
+	}
+}
 
 int Mixer::registerSound(const string &name, SoundDevice *device,
                          short volume, ChannelMode mode)
@@ -78,7 +86,7 @@ int Mixer::registerSound(const string &name, SoundDevice *device,
 		return 512;	// return a save value
 	}
 	SoundDeviceInfo info;
-	info.volumeSetting = new IntegerSetting(name + "_volume", 
+	info.volumeSetting = new IntegerSetting(name + "_volume",
 			"the volume of this sound chip", volume, 0, 32767);
 
 	map<string, ChannelMode> modeMap;
@@ -92,13 +100,13 @@ int Mixer::registerSound(const string &name, SoundDevice *device,
 		modeMap["left"] = MONO_LEFT;
 		modeMap["right"] = MONO_RIGHT;
 	}
-	info.modeSetting = new EnumSetting<ChannelMode>(name + "_mode", "the channel mode of this sound chip", mode, modeMap); 
+	info.modeSetting = new EnumSetting<ChannelMode>(name + "_mode", "the channel mode of this sound chip", mode, modeMap);
 	info.mode = mode;
 	infos[device] = info;
 
 	info.modeSetting->addListener(this);
 	info.volumeSetting->addListener(this);
-	
+
 	lock();
 	if (buffers.size() == 0) {
 		SDL_PauseAudio(0);	// unpause when first dev registers
@@ -176,12 +184,12 @@ void Mixer::updateStream(const EmuTime &time)
 }
 void Mixer::updtStrm(int samples)
 {
-	if (samples > samplesLeft) 
+	if (samples > samplesLeft)
 		samples = samplesLeft;
-	if (samples == 0) 
+	if (samples == 0)
 		return;
 	//PRT_DEBUG("Mix: Generate " << samples << " samples");
-	
+
 	int modeOffset[NB_MODES];
 	int unmuted = 0;
 	for (int mode = 0; mode < NB_MODES; mode++) {
@@ -214,7 +222,7 @@ void Mixer::updtStrm(int samples)
 			left  += buffers[buf]  [2*j+0];
 			right += buffers[buf++][2*j+1];
 		}
-		
+
 		// clip
 		#ifdef DEBUG_MIXER
 		if ((left  > 32767) || (left  < -32768) ||
@@ -227,7 +235,7 @@ void Mixer::updtStrm(int samples)
 		else if (left  < -32768) left  = -32768;
 		if      (right > 32767)  right =  32767;
 		else if (right < -32768) right = -32768;
-		
+
 		mixBuffer[offset++] = (short)left;
 		mixBuffer[offset++] = (short)right;
 	}
@@ -237,14 +245,14 @@ void Mixer::updtStrm(int samples)
 void Mixer::lock()
 {
 	if (!init) return;
-	
+
 	SDL_LockAudio();
 }
 
 void Mixer::unlock()
 {
 	if (!init) return;
-	
+
 	SDL_UnlockAudio();
 }
 
@@ -260,7 +268,7 @@ void Mixer::unmute()
 void Mixer::muteHelper(int muteCount)
 {
 	if (!init) return;
-	
+
 	if (buffers.size() == 0)
 		return;
 	SDL_PauseAudio(muteCount);

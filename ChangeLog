@@ -1,5 +1,10 @@
 $Id$
 
+2003-09-21 Maarten ter Huurne <maarten@treewalker.org>
+	* Workaround for bug in shutdown sequence:
+	  MSXCPU::getCurrentTime is needed by audio callback,
+	  but MSXCPU got destroyed before audio was stopped.
+
 2003-09-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* tab-completion improvements:
 	   - fixed bug while completing tokens that contained spaces
