@@ -31,8 +31,6 @@ class MSXTapePatch : public MSXRomPatchInterface, private Command
 		virtual void patch(CPU::CPURegs& regs);
 
 	private:
-		// TapeHeader used to be fMSX compatible
-		static const byte TapeHeader[] = { 0x1F,0xA6,0xDE,0xBA,0xCC,0x13,0x7D,0x74 };
 		File* file;
 
 		void insertTape(const std::string &context,

@@ -22,7 +22,7 @@ class MSXRomDevice
 			assert(address < size);
 			return rom[address];
 		}
-		byte* getBlock(unsigned int address = 0) const {
+		const byte* getBlock(unsigned int address = 0) const {
 			assert(address < size);
 			return &rom[address];
 		}

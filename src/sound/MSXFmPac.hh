@@ -3,7 +3,7 @@
 #ifndef __MSXFMPAC_HH__
 #define __MSXFMPAC_HH__
 
-#include "MSXYM2413.hh"
+#include "MSXMusic.hh"
 #include "CommandLineParser.hh"
 #include "SRAM.hh"
 
@@ -19,21 +19,23 @@ class MSXFmPacCLI : public CLIOption, public CLIPostConfig
 };
 
 
-class MSXFmPac : public MSXYM2413
+class MSXFmPac : public MSXMusic
 {
 	public:
 		MSXFmPac(Device *config, const EmuTime &time);
 		virtual ~MSXFmPac(); 
 		
 		virtual void reset(const EmuTime &time);
+		virtual void writeIO(byte port, byte value, const EmuTime &time);
 		virtual byte readMem(word address, const EmuTime &time);
 		virtual void writeMem(word address, byte value, const EmuTime &time);
+		virtual const byte* getReadCacheLine(word start) const;
 
 	private:
 		void checkSramEnable();
 		
-		static const char* PAC_Header;
 		bool sramEnabled;
+		byte enable;
 		byte bank;
 		byte r5ffe, r5fff;
 		SRAM sram;

@@ -22,7 +22,7 @@ class TurboRFDC : public MSXFDC
 
 	private:
 		byte* emptyRom;
-		byte* memory;
+		const byte* memory;
 		TC8566AF* controller;
 };
 #endif

@@ -169,7 +169,7 @@ void MSXRom::retrieveMapperType()
 		// automatically detect type
 		try {
 			// first look in database
-			mapperType = RomTypes::searchDataBase (rom.getBlock(), rom.getSize());
+			mapperType = RomTypes::searchDataBase(rom.getBlock(), rom.getSize());
 		} catch (NotInDataBaseException &e) {
 			// not in database, try to guess
 			mapperType = RomTypes::guessMapperType(rom.getBlock(), rom.getSize());
@@ -779,7 +779,7 @@ void MSXRom::setROM4kB(int region, int block)
 	int nrBlocks = rom.getSize() >> 12;
 	if (nrBlocks != 0) {
 		block = (block < nrBlocks) ? block : block & (nrBlocks - 1);
-		setBank4kB(region, rom.getBlock(block << 12));
+		setBank4kB(region, (byte*)rom.getBlock(block << 12));
 	} else {
 		setBank4kB(region, unmapped);
 	}
@@ -789,7 +789,7 @@ void MSXRom::setROM8kB(int region, int block)
 	int nrBlocks = rom.getSize() >> 13;
 	if (nrBlocks != 0) {
 		block = (block < nrBlocks) ? block : block & (nrBlocks - 1);
-		setBank8kB(region, rom.getBlock(block << 13));
+		setBank8kB(region, (byte*)rom.getBlock(block << 13));
 	} else {
 		setBank8kB(region, unmapped);
 	}
@@ -799,7 +799,7 @@ void MSXRom::setROM16kB(int region, int block)
 	int nrBlocks = rom.getSize() >> 14;
 	if (nrBlocks != 0) {
 		block = (block < nrBlocks) ? block : block & (nrBlocks - 1);
-		setBank16kB(region, rom.getBlock(block << 14));
+		setBank16kB(region, (byte*)rom.getBlock(block << 14));
 	} else {
 		setBank16kB(region, unmapped);
 	}

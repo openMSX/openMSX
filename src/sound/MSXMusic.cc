@@ -1,43 +1,70 @@
 // $Id$
 
 #include "MSXMusic.hh"
+#include "Mixer.hh"
+#include "YM2413.hh"
+#include "MSXConfig.hh"
+
 
 MSXMusic::MSXMusic(Device *config, const EmuTime &time)
-	: MSXDevice(config, time), MSXYM2413(config, time)
+	: MSXDevice(config, time), MSXIODevice(config, time),
+	  MSXMemDevice(config, time), rom(config, time)
 {
-	enable = 1;
+	short volume = (short)deviceConfig->getParameterAsInt("volume");
+	Mixer::ChannelMode mode = Mixer::MONO;
+	if (config->hasParameter("mode")) {
+		const std::string &stereoMode = config->getParameter("mode");
+		PRT_DEBUG("mode is " << stereoMode);
+		if (stereoMode == "left") mode = Mixer::MONO_LEFT;
+		if (stereoMode == "right") mode = Mixer::MONO_RIGHT;
+	}
+	ym2413 = new YM2413(volume, time, mode);
+	reset(time);
 }
 
 MSXMusic::~MSXMusic()
 {
+	delete ym2413;
 }
+
 
 void MSXMusic::reset(const EmuTime &time)
 {
-	MSXYM2413::reset(time);
+	ym2413->reset(time);
+	registerLatch = 0; // TODO check
 }
+
+
+void MSXMusic::writeIO(byte port, byte value, const EmuTime &time)
+{
+	switch (port & 0x01) {
+		case 0:
+			writeRegisterPort(value, time);
+			break;
+		case 1:
+			writeDataPort(value, time);
+			break;
+	}
+}
+
+void MSXMusic::writeRegisterPort(byte value, const EmuTime &time)
+{
+	registerLatch = value & 0x3F;
+}
+
+void MSXMusic::writeDataPort(byte value, const EmuTime &time)
+{
+	//PRT_DEBUG("YM2413: reg "<<(int)registerLatch<<" val "<<(int)value);
+	ym2413->writeReg(registerLatch, value, time);
+}
+
 
 byte MSXMusic::readMem(word address, const EmuTime &time)
 {
-	switch (address) {
-		//case 0x7ff4:	// TODO are these two defined for MSX-MUSIC
-		//case 0x7ff5:
-		case 0x7ff6:
-			return enable;
-		//case 0x7ff7:
-		default:
-			return rom.read(address & 0x3fff);
-	}
+	return rom.read(address & 0x3FFF);
 }
 
-void MSXMusic::writeMem(word address, byte value, const EmuTime &time)
+const byte* MSXMusic::getReadCacheLine(word start) const
 {
-	switch (address) {
-		//case 0x7ff4:	// TODO are these two defined for MSX-MUSIC
-		//case 0x7ff5;
-		case 0x7ff6:
-			enable = value & 0x11;
-			break;
-		//case 0x7ff7:
-	}
+	return rom.getBlock(start & 0x3FFF);
 }

@@ -57,8 +57,8 @@ class RomTypes
 {
 	public:
 		static MapperType nameToMapperType(const std::string &name);
-		static MapperType guessMapperType(byte* data, int size);
-		static MapperType searchDataBase (byte* data, int size);
+		static MapperType guessMapperType(const byte* data, int size);
+		static MapperType searchDataBase (const byte* data, int size);
 };
 
 #endif

@@ -86,7 +86,7 @@ MapperType RomTypes::nameToMapperType(const std::string &name)
 }
 
 
-MapperType RomTypes::guessMapperType(byte* data, int size)
+MapperType RomTypes::guessMapperType(const byte* data, int size)
 {
 	if (size <= 0x10000) {
 		if (size == 0x10000) {
@@ -165,7 +165,7 @@ MapperType RomTypes::guessMapperType(byte* data, int size)
 	}
 }
 
-MapperType RomTypes::searchDataBase(byte* data, int size)
+MapperType RomTypes::searchDataBase(const byte* data, int size)
 {
 	static std::map<const std::string, std::string, caseltstr> romDB;
 	static bool init = false;

@@ -35,7 +35,7 @@ class SunriseIDE : public MSXMemDevice
 		void writeReg(nibble reg, byte value, const EmuTime &time);
 
 		MSXRomDevice rom;
-		byte* internalBank;
+		const byte* internalBank;
 		bool ideRegsEnabled;
 		bool softReset;
 		byte readLatch;

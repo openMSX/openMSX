@@ -65,7 +65,8 @@ const std::string& MSXCasCLI::fileTypeHelp() const
  duration as determined by the TAPION standard routine.
 */
 
-const byte MSXTapePatch::TapeHeader[];
+// TapeHeader used to be fMSX compatible
+static const byte TapeHeader[8] = { 0x1F,0xA6,0xDE,0xBA,0xCC,0x13,0x7D,0x74 };
 
 MSXTapePatch::MSXTapePatch()
 {
