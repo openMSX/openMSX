@@ -37,9 +37,10 @@ class JoystickPorts
 			virtual ~JoyPortCmd();
 			virtual void execute(char *commandLine);
 			virtual void help(char *commandLine);
+			
+			static const int NUM_JOYSTICKS = 9;
 			Mouse *mouse;
-			Joystick *joystick1;
-			Joystick *joystick2;
+			Joystick *joystick[NUM_JOYSTICKS];
 		};
 		JoyPortCmd joyPortCmd;
 };

@@ -5,8 +5,14 @@
 
 #include "JoystickDevice.hh"
 #include "EventDistributor.hh"
+#include "MSXException.hh"
 #include <SDL/SDL.h>
 
+
+class JoystickException : public MSXException {
+	public:
+		JoystickException(const std::string &desc) : MSXException(desc) {}
+};
 
 class Joystick : public JoystickDevice, EventListener
 {
@@ -30,6 +36,7 @@ class Joystick : public JoystickDevice, EventListener
 		static const int JOY_BUTTONB = 0x20;
 		static const int THRESHOLD = 32768/10;
 
+		static bool SDLJoysticksInitialized;
 		int joyNum;
 		SDL_Joystick* joystick;
 		byte status;

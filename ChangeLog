@@ -5,6 +5,8 @@ $Id$
 	   convert code to C++
 	   split code in SDL dependent and SDL independent part
 	   moved all console code to directory ConsoleSource
+	* Support for 9 joysticks
+	* Stricter syntax checking for joyport command
 	   
 2002-02-07 Maarten ter Huurne <mth@stack.nl>
 	* Fixed ASCII 16K (type 5) mapper.

@@ -60,37 +60,46 @@ void JoystickPorts::unplug(int port)
 
 JoystickPorts::JoyPortCmd::JoyPortCmd()
 {
-	mouse = new Mouse();
-	joystick1 = new Joystick(0);
-	joystick2 = new Joystick(1);
+	mouse = NULL;
+	for (int i=0; i<NUM_JOYSTICKS; i++) {
+		joystick[i] = NULL;
+	}
 }
 JoystickPorts::JoyPortCmd::~JoyPortCmd()
 {
 	delete mouse;
-	delete joystick1;
-	delete joystick2;
+	for (int i=0; i<NUM_JOYSTICKS; i++) {
+		delete joystick[i];
+	}
 }
 void JoystickPorts::JoyPortCmd::execute(char* commandLine)
 {
-	// TODO stricter syntax checking
-	int port = (commandLine[7] == 'b') ? 1 : 0;
-	switch (commandLine[9]) {
-	case 'u':
+	bool error = false;
+	int port = (commandLine[7] == 'b') ? 1 : 0;	// is either 'a' or 'b'
+	if (0 == strncmp(&commandLine[9], "unplug", 6)) {
 		JoystickPorts::instance()->unplug(port);
-		break;
-	case 'm':
+	} else if (0 == strncmp(&commandLine[9], "mouse", 5)) {
+		if (mouse==NULL)
+			mouse = new Mouse();
 		JoystickPorts::instance()->plug(port, mouse);
-		break;
-	case 'j':
-		if (commandLine[17] == '1') {
-			JoystickPorts::instance()->plug(port, joystick1);
+	} else if (0 == strncmp(&commandLine[9], "joystick", 8)) {
+		int num = commandLine[17]-'1';
+		if (num<0 || num>NUM_JOYSTICKS) {
+			error = true;
 		} else {
-			JoystickPorts::instance()->plug(port, joystick2);
+			try {
+				if (joystick[num]==NULL)
+					joystick[num] = new Joystick(num);
+				JoystickPorts::instance()->plug(port, joystick[num]);
+			} catch (JoystickException &e) {
+				Console::instance()->print(e.desc);
+			}
 		}
-		break;
-	default:
-		Console::instance()->print("syntax error");
+	} else {
+		error = true;
 	}
+	if (error)
+		Console::instance()->print("syntax error");
 }
 void JoystickPorts::JoyPortCmd::help(char *commandLine)
 {

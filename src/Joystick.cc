@@ -6,20 +6,25 @@
 
 Joystick::Joystick(int joyNum)
 {
-	this->joyNum = joyNum;
-	PRT_DEBUG("Creating a Joystick object for joystick "<<joyNum);
-	SDL_InitSubSystem(SDL_INIT_JOYSTICK);
-	SDL_JoystickEventState(SDL_ENABLE);	// joysticks generate events
-	if (SDL_NumJoysticks() > joyNum) {
-		PRT_DEBUG("Opening joystick "<<SDL_JoystickName(joyNum));
-		joystick = SDL_JoystickOpen(joyNum);
-		EventDistributor::instance()->registerSyncListener(SDL_JOYAXISMOTION, this);
-		EventDistributor::instance()->registerSyncListener(SDL_JOYBUTTONDOWN, this);
-		EventDistributor::instance()->registerSyncListener(SDL_JOYBUTTONUP,   this);
-	} else {
-		PRT_DEBUG("No joystick nummer "<<joyNum);
+	PRT_DEBUG("Creating a Joystick object for joystick " << joyNum);
+	
+	if (!SDLJoysticksInitialized) {
+		SDL_InitSubSystem(SDL_INIT_JOYSTICK);
+		SDL_JoystickEventState(SDL_ENABLE);	// joysticks generate events
+		SDLJoysticksInitialized = true;
 	}
+	
+	if (SDL_NumJoysticks() <= joyNum) 
+		throw JoystickException("No such joystick number");
+	
+	PRT_DEBUG("Opening joystick " << SDL_JoystickName(joyNum));
+	this->joyNum = joyNum;
+	joystick = SDL_JoystickOpen(joyNum);
+	EventDistributor::instance()->registerSyncListener(SDL_JOYAXISMOTION, this);
+	EventDistributor::instance()->registerSyncListener(SDL_JOYBUTTONDOWN, this);
+	EventDistributor::instance()->registerSyncListener(SDL_JOYBUTTONUP,   this);
 }
+bool Joystick::SDLJoysticksInitialized = false;
 
 Joystick::~Joystick()
 {
