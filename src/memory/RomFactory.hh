@@ -7,12 +7,12 @@ namespace openmsx {
 
 class MSXRom;
 class EmuTime;
-class Device;
+class Config;
 
 class RomFactory
 {
 public:
-	static MSXRom* create(Device* config, const EmuTime& time);
+	static MSXRom* create(Config* config, const EmuTime& time);
 };
 
 } // namespace openmsx

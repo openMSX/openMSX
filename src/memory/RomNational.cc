@@ -1,13 +1,11 @@
 // $Id$
 
 #include "RomNational.hh"
-#include "Device.hh"
 #include "CPU.hh"
-
 
 namespace openmsx {
 
-RomNational::RomNational(Device* config, const EmuTime& time, Rom* rom)
+RomNational::RomNational(Config* config, const EmuTime& time, Rom* rom)
 	: MSXDevice(config, time), Rom16kBBlocks(config, time, rom),
 	  sram(0x1000, config)
 {

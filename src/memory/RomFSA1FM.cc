@@ -36,7 +36,7 @@
 
 
 #include "RomFSA1FM.hh"
-#include "Device.hh"
+#include "Config.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
 
@@ -63,7 +63,7 @@ byte* FSA1FMRam::getSRAM(Config* config)
 
 // Mapper for slot 3-1 //
 
-RomFSA1FM1::RomFSA1FM1(Device* config, const EmuTime &time, Rom *rom)
+RomFSA1FM1::RomFSA1FM1(Config* config, const EmuTime& time, Rom* rom)
 	: MSXDevice(config, time), MSXRom(config, time, rom)
 {
 	sram = FSA1FMRam::getSRAM(config);
@@ -74,12 +74,12 @@ RomFSA1FM1::~RomFSA1FM1()
 {
 }
 
-void RomFSA1FM1::reset(const EmuTime &time)
+void RomFSA1FM1::reset(const EmuTime& time)
 {
 	// initial rom bank is undefined
 }
 
-byte RomFSA1FM1::readMem(word address, const EmuTime &time)
+byte RomFSA1FM1::readMem(word address, const EmuTime& time)
 {
 	if ((0x4000 <= address) && (address < 0x6000)) {
 		// read rom
@@ -120,7 +120,7 @@ const byte* RomFSA1FM1::getReadCacheLine(word address) const
 	}
 }
 
-void RomFSA1FM1::writeMem(word address, byte value, const EmuTime &time)
+void RomFSA1FM1::writeMem(word address, byte value, const EmuTime& time)
 {
 	// TODO 0x7FC0 - 0x7FCF is modem IO area
 	
@@ -149,7 +149,7 @@ byte* RomFSA1FM1::getWriteCacheLine(word address) const
 
 // Mapper for slot 3-3 //
 
-RomFSA1FM2::RomFSA1FM2(Device* config, const EmuTime &time, Rom *rom)
+RomFSA1FM2::RomFSA1FM2(Config* config, const EmuTime& time, Rom* rom)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
 	sram = FSA1FMRam::getSRAM(config);
@@ -160,7 +160,7 @@ RomFSA1FM2::~RomFSA1FM2()
 {
 }
 
-void RomFSA1FM2::reset(const EmuTime &time)
+void RomFSA1FM2::reset(const EmuTime& time)
 {
 	control = 0;
 	for (int region = 0; region < 6; ++region) {
@@ -170,7 +170,7 @@ void RomFSA1FM2::reset(const EmuTime &time)
 	changeBank(7, 0);
 }
 
-byte RomFSA1FM2::readMem(word address, const EmuTime &time)
+byte RomFSA1FM2::readMem(word address, const EmuTime& time)
 {
 	byte result;
 	if (0xC000 <= address) {
@@ -205,7 +205,7 @@ const byte* RomFSA1FM2::getReadCacheLine(word address) const
 }
 
 void RomFSA1FM2::writeMem(word address, byte value,
-                          const EmuTime &time)
+                          const EmuTime& time)
 {
 	//PRT_DEBUG("FSA1FM2: write "<<hex<<(int)address<<" "<<(int)value<<dec);
 

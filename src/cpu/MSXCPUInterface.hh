@@ -16,7 +16,7 @@ class MSXIODevice;
 class MSXMemDevice;
 class VDPIODelay;
 class DummyDevice;
-class MSXConfig;
+class HardwareConfig;
 class CommandController;
 class MSXCPU;
 class Scheduler;
@@ -222,7 +222,7 @@ private:
 	MSXMemDevice* visibleDevices[4];
 
 	DummyDevice& dummyDevice;
-	MSXConfig& msxConfig;
+	HardwareConfig& hardwareConfig;
 	CommandController& commandController;
 	MSXCPU& msxcpu;
 	Scheduler& scheduler;

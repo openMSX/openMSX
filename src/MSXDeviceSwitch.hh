@@ -83,7 +83,7 @@ public:
 	virtual void writeIO(byte port, byte value, const EmuTime& time);
 
 private:
-	MSXDeviceSwitch(Device* config, const EmuTime& time);
+	MSXDeviceSwitch(Config* config, const EmuTime& time);
 	
 	byte selected;
 	MSXSwitchedDevice* devices[256];

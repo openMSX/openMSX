@@ -2,7 +2,7 @@
 
 #include <string>
 #include <sstream>
-#include "Device.hh"
+#include "Config.hh"
 #include "Rom.hh"
 #include "RomInfo.hh"
 #include "MSXDiskRomPatch.hh"
@@ -16,7 +16,7 @@
 
 namespace openmsx {
 
-Rom::Rom(Device* config)
+Rom::Rom(Config* config)
 {
 	if (config->hasParameter("filename")) {
 		string filename = config->getParameter("filename");
@@ -36,13 +36,13 @@ Rom::Rom(Device* config)
 	info = RomInfo::fetchRomInfo(this, *config);
 }
 
-Rom::Rom(Device* config, const string& filename)
+Rom::Rom(Config* config, const string& filename)
 {
 	read(config, filename);	// TODO config
 	info = RomInfo::fetchRomInfo(this, *config);
 }
 
-void Rom::read(Device* config, const string& filename)
+void Rom::read(Config* config, const string& filename)
 {
 	// open file
 	try {

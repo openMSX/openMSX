@@ -3,14 +3,14 @@
 #include "MSXFDC.hh"
 #include "DiskDrive.hh"
 #include "DiskImageCLI.hh"
-#include "Device.hh"
+#include "Config.hh"
 
 namespace openmsx {
 
 static DiskImageCLI diskImageCLI;
 
 
-MSXFDC::MSXFDC(Device* config, const EmuTime& time)
+MSXFDC::MSXFDC(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time),
 	  rom(config) 
 {

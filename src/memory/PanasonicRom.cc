@@ -2,12 +2,12 @@
 
 #include "PanasonicRom.hh"
 #include "PanasonicMemory.hh"
-#include "Device.hh"
+#include "Config.hh"
 #include "CliCommOutput.hh"
 
 namespace openmsx {
 
-PanasonicRom::PanasonicRom(Device* config, const EmuTime& time)
+PanasonicRom::PanasonicRom(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time)
 {
 	CliCommOutput::instance().printWarning(

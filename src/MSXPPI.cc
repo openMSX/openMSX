@@ -7,15 +7,14 @@
 #include "MSXCPUInterface.hh"
 #include "KeyClick.hh"
 #include "CassettePort.hh"
-#include "Device.hh"
+#include "Config.hh"
 #include "RenShaTurbo.hh"
-
 
 namespace openmsx {
 
 // MSXDevice
 
-MSXPPI::MSXPPI(Device* config, const EmuTime& time)
+MSXPPI::MSXPPI(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
 	  cassettePort(CassettePortFactory::instance()),
 	  cpuInterface(MSXCPUInterface::instance()),

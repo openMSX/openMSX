@@ -2,12 +2,11 @@
 
 #include "MSXBunsetsu.hh"
 #include "CPU.hh"
-#include "Device.hh"
-
+#include "Config.hh"
 
 namespace openmsx {
 
-MSXBunsetsu::MSXBunsetsu(Device* config, const EmuTime& time)
+MSXBunsetsu::MSXBunsetsu(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time),
 	  rom(config), jisyoRom(config, config->getParameter("jisyofilename"))
 {
@@ -18,12 +17,12 @@ MSXBunsetsu::~MSXBunsetsu()
 {
 }
 
-void MSXBunsetsu::reset(const EmuTime &time)
+void MSXBunsetsu::reset(const EmuTime& time)
 {
 	jisyoAddress = 0;
 }
 
-byte MSXBunsetsu::readMem(word address, const EmuTime &time)
+byte MSXBunsetsu::readMem(word address, const EmuTime& time)
 {
 	byte result;
 	if (address == 0xBFFF) {
@@ -37,7 +36,7 @@ byte MSXBunsetsu::readMem(word address, const EmuTime &time)
 	return result;
 }
 
-void MSXBunsetsu::writeMem(word address, byte value, const EmuTime &time)
+void MSXBunsetsu::writeMem(word address, byte value, const EmuTime& time)
 {
 	switch (address) {
 		case 0xBFFC:

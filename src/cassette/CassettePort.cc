@@ -5,7 +5,7 @@
 #include "CassetteDevice.hh"
 #include "DummyCassetteDevice.hh"
 #include "PluggingController.hh"
-#include "MSXConfig.hh"
+#include "HardwareConfig.hh"
 
 using std::auto_ptr;
 
@@ -19,7 +19,7 @@ CassettePortInterface& CassettePortFactory::instance()
 	static auto_ptr<CassettePortInterface> oneInstance;
 	if (!oneInstance.get()) {
 		oneInstance.reset(
-			MSXConfig::instance().hasConfigWithId("CassettePort")
+			HardwareConfig::instance().hasConfigWithId("CassettePort")
 			? static_cast<CassettePortInterface *>(new CassettePort())
 			: static_cast<CassettePortInterface *>(new DummyCassettePort()));
 	}

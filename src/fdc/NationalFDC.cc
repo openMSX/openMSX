@@ -5,10 +5,9 @@
 #include "WD2793.hh"
 #include "DriveMultiplexer.hh"
 
-
 namespace openmsx {
 
-NationalFDC::NationalFDC(Device *config, const EmuTime &time)
+NationalFDC::NationalFDC(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), WD2793BasedFDC(config, time)
 {
 }
@@ -17,7 +16,7 @@ NationalFDC::~NationalFDC()
 {
 }
 
-byte NationalFDC::readMem(word address, const EmuTime &time)
+byte NationalFDC::readMem(word address, const EmuTime& time)
 {
 	byte value;
 	// According to atarulum:
@@ -74,7 +73,7 @@ const byte* NationalFDC::getReadCacheLine(word start) const
 	}
 }
 
-void NationalFDC::writeMem(word address, byte value, const EmuTime &time)
+void NationalFDC::writeMem(word address, byte value, const EmuTime& time)
 {
 	//PRT_DEBUG("NationalFDC write 0x" << hex << (int)address << " 0x" << (int)value << dec);
 	switch (address & 0x3FC7) {

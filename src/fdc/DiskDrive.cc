@@ -2,7 +2,7 @@
 
 #include "DiskDrive.hh"
 #include "CommandController.hh"
-#include "MSXConfig.hh"
+#include "SettingsConfig.hh"
 #include "Config.hh"
 #include "DummyDisk.hh"
 #include "XSADiskImage.hh"
@@ -140,7 +140,7 @@ RealDrive::RealDrive(const string& driveName, const EmuTime& time)
 	disk = NULL;
 	diskChangedFlag = false;
 
-	MSXConfig& conf = MSXConfig::instance();
+	SettingsConfig& conf = SettingsConfig::instance();
 	if (conf.hasConfigWithId(driveName)) {
 		Config* config = conf.getConfigById(driveName);
 		const string& filename = config->getParameter("filename");

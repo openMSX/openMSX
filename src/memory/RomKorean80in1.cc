@@ -11,10 +11,9 @@
 #include "RomKorean80in1.hh"
 #include "CPU.hh"
 
-
 namespace openmsx {
 
-RomKorean80in1::RomKorean80in1(Device* config, const EmuTime &time, Rom *rom)
+RomKorean80in1::RomKorean80in1(Config* config, const EmuTime& time, Rom* rom)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
 	reset(time);
@@ -24,7 +23,7 @@ RomKorean80in1::~RomKorean80in1()
 {
 }
 
-void RomKorean80in1::reset(const EmuTime &time)
+void RomKorean80in1::reset(const EmuTime& time)
 {
 	setBank(0, unmappedRead);
 	setBank(1, unmappedRead);
@@ -35,7 +34,7 @@ void RomKorean80in1::reset(const EmuTime &time)
 	setBank(7, unmappedRead);
 }
 
-void RomKorean80in1::writeMem(word address, byte value, const EmuTime &time)
+void RomKorean80in1::writeMem(word address, byte value, const EmuTime& time)
 {
 	if ((0x4000 <= address) && (address < 0x4004)) {
 		setRom(2 + (address - 0x4000), value);

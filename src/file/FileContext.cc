@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include "FileContext.hh"
 #include "FileOperations.hh"
-#include "MSXConfig.hh"
+#include "SettingsConfig.hh"
 #include "Config.hh"
 #include "File.hh"
 
@@ -206,7 +206,7 @@ const vector<string> &UserFileContext::getPaths()
 		alreadyInit = true;
 		paths.push_back("./");
 		try {
-			Config* config = MSXConfig::instance().
+			Config* config = SettingsConfig::instance().
 				getConfigById("UserDirectories");
 			Config::Parameters pathList;
 			config->getParametersWithClass("", pathList);

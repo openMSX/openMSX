@@ -11,10 +11,9 @@
                    
 #include "RomRType.hh"
 
-
 namespace openmsx {
 
-RomRType::RomRType(Device* config, const EmuTime &time, Rom *rom)
+RomRType::RomRType(Config* config, const EmuTime& time, Rom* rom)
 	: MSXDevice(config, time), Rom16kBBlocks(config, time, rom)
 {
 	reset(time);
@@ -24,7 +23,7 @@ RomRType::~RomRType()
 {
 }
 
-void RomRType::reset(const EmuTime &time)
+void RomRType::reset(const EmuTime& time)
 {
 	setBank(0, unmappedRead);
 	setRom (1, 0x17);
@@ -32,7 +31,7 @@ void RomRType::reset(const EmuTime &time)
 	setBank(3, unmappedRead);
 }
 
-void RomRType::writeMem(word address, byte value, const EmuTime &time)
+void RomRType::writeMem(word address, byte value, const EmuTime& time)
 {
 	if ((0x7000 <= address) && (address < 0x8000)) {
 		value &= (value & 0x10) ? 0x17 : 0x1F;

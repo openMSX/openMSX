@@ -10,7 +10,7 @@ using std::string;
 namespace openmsx {
 
 class EmuTime;
-class Device;
+class Config;
 
 
 /** An MSXDevice is an emulated hardware component connected to the bus
@@ -55,9 +55,9 @@ protected:
 	  * @param time the moment in emulated time this MSXDevice is
 	  *   created (typically at time zero: power-up).
 	  */
-	MSXDevice(Device* config, const EmuTime& time);
+	MSXDevice(Config* config, const EmuTime& time);
 
-	Device* deviceConfig;
+	Config* deviceConfig;
 	friend class VDPIODelay;
 };
 

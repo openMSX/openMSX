@@ -10,19 +10,18 @@ namespace openmsx {
 
 class DiskDrive;
 
-
 class MSXFDC : public MSXMemDevice
 {
-	public:
-		MSXFDC(Device *config, const EmuTime &time);
-		virtual ~MSXFDC() = 0;
+public:
+	virtual byte readMem(word address, const EmuTime& time);
+	virtual const byte* getReadCacheLine(word start) const;
 
-		virtual byte readMem(word address, const EmuTime &time);
-		virtual const byte* getReadCacheLine(word start) const;
-	
-	protected:
-		Rom rom;
-		DiskDrive* drives[4];
+protected:
+	MSXFDC(Config* config, const EmuTime& time);
+	virtual ~MSXFDC();
+
+	Rom rom;
+	DiskDrive* drives[4];
 };
 
 } // namespace openmsx

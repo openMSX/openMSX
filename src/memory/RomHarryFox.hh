@@ -5,19 +5,17 @@
 
 #include "Rom16kBBlocks.hh"
 
-
 namespace openmsx {
 
 class RomHarryFox : public Rom16kBBlocks
 {
-	public:
-		RomHarryFox(Device* config, const EmuTime &time, Rom *rom);
-		virtual ~RomHarryFox();
-		
-		virtual void reset(const EmuTime &time);
-		virtual void writeMem(word address, byte value,
-		                      const EmuTime &time);
-		virtual byte* getWriteCacheLine(word address) const;
+public:
+	RomHarryFox(Config* config, const EmuTime& time, Rom* rom);
+	virtual ~RomHarryFox();
+	
+	virtual void reset(const EmuTime& time);
+	virtual void writeMem(word address, byte value, const EmuTime& time);
+	virtual byte* getWriteCacheLine(word address) const;
 };
 
 } // namespace openmsx

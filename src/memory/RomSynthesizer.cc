@@ -1,14 +1,13 @@
 // $Id$
 
 #include "RomSynthesizer.hh"
-#include "Device.hh"
+#include "Config.hh"
 #include "DACSound8U.hh"
 #include "CPU.hh"
 
-
 namespace openmsx {
 
-RomSynthesizer::RomSynthesizer(Device* config, const EmuTime& time, Rom* rom)
+RomSynthesizer::RomSynthesizer(Config* config, const EmuTime& time, Rom* rom)
 	: MSXDevice(config, time), Rom16kBBlocks(config, time, rom)
 {
 	setBank(0, unmappedRead);

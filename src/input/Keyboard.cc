@@ -6,7 +6,7 @@
 #include <cassert>
 #include "Keyboard.hh"
 #include "EventDistributor.hh"
-#include "MSXConfig.hh"
+#include "SettingsConfig.hh"
 #include "Config.hh"
 #include "File.hh"
 #include "FileContext.hh"
@@ -79,7 +79,7 @@ Keyboard::Keyboard(bool keyG)
 	memset(cmdKeyMatrix,  255, sizeof(cmdKeyMatrix));
 	memset(userKeyMatrix, 255, sizeof(userKeyMatrix));
 	try {
-		Config* config = MSXConfig::instance().getConfigById("KeyMap");
+		Config* config = SettingsConfig::instance().getConfigById("KeyMap");
 		string filename = config->getParameter("filename");
 		filename = config->getContext().resolve(filename);
 		loadKeymapfile(filename);

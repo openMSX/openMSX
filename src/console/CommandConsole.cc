@@ -11,7 +11,7 @@
 #include "FileOperations.hh"
 #include "SettingsManager.hh"
 #include "CliCommOutput.hh"
-#include "MSXConfig.hh"
+#include "SettingsConfig.hh"
 #include "Config.hh"
 #include "InputEvents.hh"
 #include "InputEventGenerator.hh"
@@ -29,7 +29,7 @@ const char* const PROMPT2 = "| ";
 CommandConsole::CommandConsole()
 	: consoleSetting("console", "turns console display on/off", false),
 	  eventDistributor(EventDistributor::instance()),
-	  msxConfig(MSXConfig::instance()),
+	  settingsConfig(SettingsConfig::instance()),
 	  commandController(CommandController::instance()),
 	  output(CliCommOutput::instance()),
 	  settingsManager(SettingsManager::instance()),
@@ -40,7 +40,7 @@ CommandConsole::CommandConsole()
 	eventDistributor.registerEventListener(KEY_DOWN_EVENT, *this);
 	eventDistributor.registerEventListener(KEY_UP_EVENT,   *this);
 	putPrompt();
-	Config* config = msxConfig.getConfigById("Console");
+	Config* config = settingsConfig.getConfigById("Console");
 	maxHistory = config->getParameterAsInt("historysize", 100);
 	removeDoubles = config->getParameterAsBool("removedoubles", true);
 	loadHistory();

@@ -4,10 +4,9 @@
 #include "MSXKanji.hh"
 #include "MSXException.hh"
 
-
 namespace openmsx {
 
-MSXKanji::MSXKanji(Device *config, const EmuTime &time)
+MSXKanji::MSXKanji(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
 	  rom(config)
 {
@@ -23,13 +22,13 @@ MSXKanji::~MSXKanji()
 {
 }
 
-void MSXKanji::reset(const EmuTime &time)
+void MSXKanji::reset(const EmuTime& time)
 {
 	adr1 = 0;	// TODO check this
 	adr2 = 0x20000;	// TODO check this
 }
 
-void MSXKanji::writeIO(byte port, byte value, const EmuTime &time)
+void MSXKanji::writeIO(byte port, byte value, const EmuTime& time)
 {
 	//PRT_DEBUG("MSXKanji: write " << (int)port << " " << (int)value);
 	switch (port & 0x03) {
@@ -50,7 +49,7 @@ void MSXKanji::writeIO(byte port, byte value, const EmuTime &time)
 	}
 }
 
-byte MSXKanji::readIO(byte port, const EmuTime &time)
+byte MSXKanji::readIO(byte port, const EmuTime& time)
 {
 	byte result;
 	switch (port & 0x03) {

@@ -11,7 +11,7 @@ using std::string;
 namespace openmsx {
 
 class Rom;
-class Device;
+class Config;
 
 class RomInfo
 {
@@ -28,7 +28,7 @@ public:
 	const MapperType& getMapperType() const { return mapperType; }
 
 	static RomInfo* fetchRomInfo(
-		const Rom* rom, const Device& deviceConfig);
+		const Rom* rom, const Config& deviceConfig);
 	static MapperType nameToMapperType(const string& name);
 	void print();
 

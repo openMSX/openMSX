@@ -7,7 +7,6 @@
 #include "DriveMultiplexer.hh"
 #include "WD2793.hh"
 
-
 namespace openmsx {
 
 class WD2793BasedFDC : public MSXFDC
@@ -16,7 +15,7 @@ public:
 	virtual void reset(const EmuTime& time);
 	
 protected:
-	WD2793BasedFDC(Device *config, const EmuTime& time);
+	WD2793BasedFDC(Config* config, const EmuTime& time);
 	virtual ~WD2793BasedFDC();
 	
 	DriveMultiplexer multiplexer;

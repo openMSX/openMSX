@@ -5,22 +5,20 @@
 
 #include "Rom8kBBlocks.hh"
 
-
 namespace openmsx {
 
 class RomMajutsushi : public Rom8kBBlocks
 {
-	public:
-		RomMajutsushi(Device* config, const EmuTime &time, Rom *rom);
-		virtual ~RomMajutsushi();
-		
-		virtual void reset(const EmuTime &time);
-		virtual void writeMem(word address, byte value,
-		                      const EmuTime &time);
-		virtual byte* getWriteCacheLine(word address) const;
+public:
+	RomMajutsushi(Config* config, const EmuTime& time, Rom* rom);
+	virtual ~RomMajutsushi();
+	
+	virtual void reset(const EmuTime& time);
+	virtual void writeMem(word address, byte value, const EmuTime& time);
+	virtual byte* getWriteCacheLine(word address) const;
 
-	private:
-		class DACSound8U* dac;
+private:
+	class DACSound8U* dac;
 };
 
 } // namespace openmsx

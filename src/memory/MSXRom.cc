@@ -13,7 +13,7 @@ namespace openmsx {
 
 MSXCPU *MSXRom::cpu;
 
-MSXRom::MSXRom(Device *config, const EmuTime &time, Rom *rom)
+MSXRom::MSXRom(Config* config, const EmuTime &time, Rom *rom)
 	: MSXDevice(config, time), MSXMemDevice(config, time)
 {
 	init();

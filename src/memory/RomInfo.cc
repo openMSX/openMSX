@@ -8,7 +8,7 @@
 #include "xmlx.hh"
 #include "FileContext.hh"
 #include "File.hh"
-#include "Device.hh"
+#include "Config.hh"
 #include "CliCommOutput.hh"
 
 
@@ -285,7 +285,7 @@ RomInfo *RomInfo::searchRomDB(const Rom* rom)
 	return NULL;
 }
 
-RomInfo *RomInfo::fetchRomInfo(const Rom* rom, const Device& deviceConfig)
+RomInfo *RomInfo::fetchRomInfo(const Rom* rom, const Config& deviceConfig)
 {
 	// Look for the ROM in the ROM DB.
 	RomInfo* info = searchRomDB(rom);

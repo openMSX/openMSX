@@ -3,12 +3,12 @@
 #include <cassert>
 #include "DummyDevice.hh"
 #include "EmuTime.hh"
-#include "Device.hh"
+#include "Config.hh"
 #include "FileContext.hh"
 
 namespace openmsx {
 
-DummyDevice::DummyDevice(Device* config, const EmuTime& time) 
+DummyDevice::DummyDevice(Config* config, const EmuTime& time) 
 	: MSXDevice(config, time), MSXIODevice(config, time),
 	  MSXMemDevice(config, time)
 {
@@ -24,8 +24,8 @@ DummyDevice& DummyDevice::instance()
 	XMLElement* typeElem = new XMLElement("type", "empty");
 	deviceElem.addChild(typeElem);
 	SystemFileContext dummyContext;
-	static Device device(deviceElem, dummyContext);
-	static DummyDevice oneInstance(&device, EmuTime::zero);
+	static Config config(deviceElem, dummyContext);
+	static DummyDevice oneInstance(&config, EmuTime::zero);
 	return oneInstance;
 }
 

@@ -5,7 +5,7 @@
 
 #include <sstream>
 #include "JoyNet.hh"
-#include "MSXConfig.hh"
+#include "SettingsConfig.hh"
 #include "Config.hh"
 #include "CliCommOutput.hh"
 
@@ -72,7 +72,7 @@ void JoyNet::write(byte value, const EmuTime& time)
 
 void JoyNet::setupConnections()
 {
-	Config* config = MSXConfig::instance().getConfigById("joynet");
+	Config* config = SettingsConfig::instance().getConfigById("joynet");
 	hostname = config->getParameter("connecthost");
 	portname = config->getParameterAsInt("connectport");
 	int listenport = config->getParameterAsInt("listenport");

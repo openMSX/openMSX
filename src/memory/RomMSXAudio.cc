@@ -4,10 +4,9 @@
 #include "MSXCPU.hh"
 #include "CPU.hh"
 
-
 namespace openmsx {
 
-RomMSXAudio::RomMSXAudio(Device* config, const EmuTime &time, Rom *rom)
+RomMSXAudio::RomMSXAudio(Config* config, const EmuTime& time, Rom* rom)
 	: MSXDevice(config, time), MSXRom(config, time, rom)
 {
 	ram = new byte[0x1000];
@@ -20,13 +19,13 @@ RomMSXAudio::~RomMSXAudio()
 	delete[] ram;
 }
 
-void RomMSXAudio::reset(const EmuTime &time)
+void RomMSXAudio::reset(const EmuTime& time)
 {
 	bankSelect = 0;
 	cpu->invalidateCache(0x0000, 0x10000 / CPU::CACHE_LINE_SIZE);
 }
 
-byte RomMSXAudio::readMem(word address, const EmuTime &time)
+byte RomMSXAudio::readMem(word address, const EmuTime& time)
 {
 	if ((bankSelect == 0) && ((address & 0x3FFF) >= 0x3000)) {
 		return ram[(address & 0x3FFF) - 0x3000];
@@ -44,7 +43,7 @@ const byte* RomMSXAudio::getReadCacheLine(word address) const
 	}
 }
 
-void RomMSXAudio::writeMem(word address, byte value, const EmuTime &time)
+void RomMSXAudio::writeMem(word address, byte value, const EmuTime& time)
 {
 	address &= 0x7FFF;
 	if (address == 0x7FFE) {

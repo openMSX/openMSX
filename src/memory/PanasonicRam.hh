@@ -9,9 +9,9 @@ namespace openmsx {
 
 class PanasonicRam : public MSXMemoryMapper
 {
-	public:
-		PanasonicRam(Device *config, const EmuTime &time);
-		virtual ~PanasonicRam();
+public:
+	PanasonicRam(Config* config, const EmuTime& time);
+	virtual ~PanasonicRam();
 };
 
 } // namespace openmsx

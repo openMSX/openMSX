@@ -1,7 +1,7 @@
 // $Id$
 
 #include "DiskImageCLI.hh"
-#include "MSXConfig.hh"
+#include "SettingsConfig.hh"
 #include "xmlx.hh"
 #include "FileContext.hh"
 
@@ -40,7 +40,7 @@ void DiskImageCLI::parseFileType(const string &filename)
 	config.addChild(parameter);
 	
 	UserFileContext context;
-	MSXConfig::instance().loadConfig(config, context);
+	SettingsConfig::instance().loadConfig(config, context);
 	driveLetter++;
 }
 const string& DiskImageCLI::fileTypeHelp() const

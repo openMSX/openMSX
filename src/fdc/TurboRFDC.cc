@@ -7,10 +7,9 @@
 #include "TurboRFDC.hh"
 #include "MSXCPU.hh"
 
-
 namespace openmsx {
 
-TurboRFDC::TurboRFDC(Device *config, const EmuTime &time)
+TurboRFDC::TurboRFDC(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXFDC(config, time), controller(drives, time)
 {
 	blockMask = (rom.getSize() / 0x4000) - 1;
@@ -21,13 +20,13 @@ TurboRFDC::~TurboRFDC()
 {
 }
 
-void TurboRFDC::reset(const EmuTime &time)
+void TurboRFDC::reset(const EmuTime& time)
 {
 	memory = rom.getBlock(0x0000);
 	controller.reset(time);
 }
 
-byte TurboRFDC::readMem(word address, const EmuTime &time)
+byte TurboRFDC::readMem(word address, const EmuTime& time)
 {
 	byte result;
 	if (0x3FF0 <= (address & 0x3FFF)) {
@@ -74,7 +73,7 @@ const byte* TurboRFDC::getReadCacheLine(word start) const
 	}
 }
 
-void TurboRFDC::writeMem(word address, byte value, const EmuTime &time)  
+void TurboRFDC::writeMem(word address, byte value, const EmuTime& time)  
 {
 	//PRT_DEBUG("TurboRFDC: write 0x" << hex << (int)address << " 0x" << (int)value << dec);
 	if ((address == 0x6000) || (address == 0x7FF0) || (address == 0x7FFE)) {

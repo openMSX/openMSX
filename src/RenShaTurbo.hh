@@ -9,7 +9,7 @@ namespace openmsx {
 
 class EmuTime;
 class Autofire;
-class MSXConfig;
+class SettingsConfig;
 
 /**
  * Ren-Sha Turbo is the autofire in several MSX 2+ models and in
@@ -39,7 +39,7 @@ private:
 
 	// The Autofire circuit
 	Autofire* autofire;
-	MSXConfig& msxConfig;
+	SettingsConfig& settingsConfig;
 };
 
 } // namespace openmsx

@@ -81,7 +81,7 @@ public:
 
 	/** Constructor.
 	  */
-	VDP(Device *config, const EmuTime &time);
+	VDP(Config *config, const EmuTime &time);
 
 	/** Destructor.
 	  */

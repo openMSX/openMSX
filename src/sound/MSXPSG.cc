@@ -4,13 +4,13 @@
 #include "Leds.hh"
 #include "CassettePort.hh"
 #include "JoystickPort.hh"
-#include "Device.hh"
+#include "Config.hh"
 #include "RenShaTurbo.hh"
 
 namespace openmsx {
 
 // MSXDevice
-MSXPSG::MSXPSG(Device* config, const EmuTime& time)
+MSXPSG::MSXPSG(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
 	  cassette(CassettePortFactory::instance())
 {

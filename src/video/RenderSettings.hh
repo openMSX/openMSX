@@ -14,7 +14,7 @@
 
 namespace openmsx {
 
-class MSXConfig;
+class SettingsConfig;
 class InfoCommand;
 
 
@@ -97,7 +97,7 @@ private:
 		RenderSettings& parent;
 	} scalerInfo;
 
-	MSXConfig& msxConfig;
+	SettingsConfig& settingsConfig;
 	InfoCommand& infoCommand;
 };
 

@@ -7,12 +7,12 @@
 #include "MSXCPU.hh"
 #include "CPU.hh"
 #include "IDEDeviceFactory.hh"
-#include "Device.hh"
+#include "Config.hh"
 
 
 namespace openmsx {
 
-SunriseIDE::SunriseIDE(Device* config, const EmuTime& time)
+SunriseIDE::SunriseIDE(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time),
 	  rom(config)
 {
@@ -38,7 +38,7 @@ SunriseIDE::~SunriseIDE()
 }
 
 
-void SunriseIDE::reset(const EmuTime &time)
+void SunriseIDE::reset(const EmuTime& time)
 {
 	selectedDevice = 0;
 	softReset = false;
@@ -47,7 +47,7 @@ void SunriseIDE::reset(const EmuTime &time)
 }
 
 
-byte SunriseIDE::readMem(word address, const EmuTime &time)
+byte SunriseIDE::readMem(word address, const EmuTime& time)
 {
 	if (ideRegsEnabled && ((address & 0x3E00) == 0x3C00)) {
 		// 0x7C00 - 0x7DFF   ide data register
@@ -83,7 +83,7 @@ const byte* SunriseIDE::getReadCacheLine(word start) const
 	return unmappedRead;
 }
 
-void SunriseIDE::writeMem(word address, byte value, const EmuTime &time)
+void SunriseIDE::writeMem(word address, byte value, const EmuTime& time)
 {
 	if ((address & 0xBF04) == 0x0104) {
 		// control register
@@ -139,24 +139,24 @@ void SunriseIDE::writeControl(byte value)
 }
 
 
-byte SunriseIDE::readDataLow(const EmuTime &time)
+byte SunriseIDE::readDataLow(const EmuTime& time)
 {
 	word temp = readData(time);
 	readLatch = temp >> 8;
 	return temp & 0xFF;
 }
-byte SunriseIDE::readDataHigh(const EmuTime &time)
+byte SunriseIDE::readDataHigh(const EmuTime& time)
 {
 	return readLatch;
 }
-word SunriseIDE::readData(const EmuTime &time)
+word SunriseIDE::readData(const EmuTime& time)
 {
 	word result = device[selectedDevice]->readData(time);
 	PRT_DEBUG("IDE read data: 0x" << hex << int(result) << dec);
 	return result;
 }
 
-byte SunriseIDE::readReg(nibble reg, const EmuTime &time)
+byte SunriseIDE::readReg(nibble reg, const EmuTime& time)
 {
 	PRT_DEBUG("IDE read reg: " << (int)reg);
 	byte result;
@@ -188,22 +188,22 @@ byte SunriseIDE::readReg(nibble reg, const EmuTime &time)
 }
 
 
-void SunriseIDE::writeDataLow(byte value, const EmuTime &time)
+void SunriseIDE::writeDataLow(byte value, const EmuTime& time)
 {
 	writeLatch = value;
 }
-void SunriseIDE::writeDataHigh(byte value, const EmuTime &time)
+void SunriseIDE::writeDataHigh(byte value, const EmuTime& time)
 {
 	word temp = (value << 8) | writeLatch;
 	writeData(temp, time);
 }
-void SunriseIDE::writeData(word value, const EmuTime &time)
+void SunriseIDE::writeData(word value, const EmuTime& time)
 {
 	PRT_DEBUG("IDE write data: 0x" << hex << int(value) << dec);
 	device[selectedDevice]->writeData(value, time);
 }
 
-void SunriseIDE::writeReg(nibble reg, byte value, const EmuTime &time)
+void SunriseIDE::writeReg(nibble reg, byte value, const EmuTime& time)
 {
 	PRT_DEBUG("IDE write reg: " << (int)reg << " 0x" << hex << (int)value << dec);
 	if (softReset) {

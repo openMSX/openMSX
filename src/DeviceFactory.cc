@@ -2,7 +2,7 @@
 
 #include "config.h"
 
-#include "Device.hh"
+#include "Config.hh"
 #include "DeviceFactory.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXRam.hh"
@@ -59,7 +59,7 @@ static void createDeviceSwitch()
 	}
 }
 
-MSXDevice *DeviceFactory::create(Device* conf, const EmuTime& time)
+MSXDevice *DeviceFactory::create(Config* conf, const EmuTime& time)
 {
 	const string type = conf->getType();
 	MSXCPUInterface& cpuInterface = MSXCPUInterface::instance();

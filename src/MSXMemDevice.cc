@@ -1,16 +1,16 @@
 // $Id$
  
+#include "StringOp.hh"
 #include "MSXCPUInterface.hh"
+#include "Config.hh"
 #include "MSXMemDevice.hh"
-#include "Device.hh"
-
 
 namespace openmsx {
 
 byte MSXMemDevice::unmappedRead[0x10000];
 byte MSXMemDevice::unmappedWrite[0x10000];
 
-MSXMemDevice::MSXMemDevice(Device* config, const EmuTime& time)
+MSXMemDevice::MSXMemDevice(Config* config, const EmuTime& time)
 	: MSXDevice(config, time)
 {
 	init();
@@ -32,7 +32,7 @@ void MSXMemDevice::init()
 	memset(unmappedRead, 0xFF, 0x10000);
 }
 
-byte MSXMemDevice::readMem(word address, const EmuTime &time)
+byte MSXMemDevice::readMem(word address, const EmuTime& time)
 {
 	PRT_DEBUG("MSXMemDevice: read from unmapped memory " << hex <<
 	          (int)address << dec);
@@ -44,7 +44,7 @@ const byte* MSXMemDevice::getReadCacheLine(word start) const
 	return NULL;	// uncacheable
 }
 
-void MSXMemDevice::writeMem(word address, byte value, const EmuTime &time)
+void MSXMemDevice::writeMem(word address, byte value, const EmuTime& time)
 {
 	PRT_DEBUG("MSXMemDevice: write to unmapped memory " << hex <<
 	          (int)address << dec);
@@ -72,21 +72,43 @@ byte* MSXMemDevice::getWriteCacheLine(word start) const
 void MSXMemDevice::registerSlots()
 {
 	// register in slot-structure
-	const Device::Slots& slots = deviceConfig->getSlots();
-	if (slots.empty()) {
-		return; // DummyDevice
+	int ps = 0;
+	int ss = 0;
+	int pages = 0;
+	
+	const XMLElement::Children& children =
+		deviceConfig->getXMLElement().getChildren();
+	for (XMLElement::Children::const_iterator it = children.begin();
+	     it != children.end(); ++it) {
+		if ((*it)->getName() == "slotted") {
+			int ps2 = -2;
+			int ss2 = -1;
+			int page = -1;
+			const XMLElement::Children& slot_children = (*it)->getChildren();
+			for (XMLElement::Children::const_iterator it2 = slot_children.begin();
+			     it2 != slot_children.end(); ++it2) {
+				if ((*it2)->getName() == "ps") {
+					ps2 = StringOp::stringToInt((*it2)->getPcData());
+				} else if ((*it2)->getName() == "ss") {
+					ss2 = StringOp::stringToInt((*it2)->getPcData());
+				} else if ((*it2)->getName() == "page") {
+					page = StringOp::stringToInt((*it2)->getPcData());
+				}
+			}
+			if ((pages != 0) && ((ps != ps2) || (ss != ss2))) {
+				throw FatalError("All pages of one device must be in the same slot/subslot");
+			}
+			if (ps != -2) {
+				ps = ps2;
+				ss = ss2;
+				pages |= 1 << page;
+			}
+		}
+	}
+	if (pages == 0) {
+		return;
 	}
 	
-	int ps = slots.front().getPS();
-	int ss = slots.front().getSS();
-	int pages = 0;
-	for (Device::Slots::const_iterator it = slots.begin();
-	     it != slots.end(); ++it) {
-		if ((it->getPS() != ps) || (it->getSS() != ss)) {
-			throw FatalError("All pages of one device must be in the same slot/subslot");
-		}
-		pages |= 1 << (it->getPage());
-	}
 	if (ps >= 0) {
 		// slot specified
 		MSXCPUInterface::instance().

@@ -12,13 +12,12 @@
 #include "IRQHelper.hh"
 #include "RS232Connector.hh"
 
-
 namespace openmsx {
 
 class MSXRS232:
 	public MSXIODevice, public MSXMemDevice, public RS232Connector {
 public:
-	MSXRS232(Device *config, const EmuTime& time);
+	MSXRS232(Config *config, const EmuTime& time);
 	virtual ~MSXRS232();
 
 	virtual void reset(const EmuTime& time);

@@ -2,10 +2,9 @@
 
 #include "RomPanasonic.hh"
 #include "PanasonicMemory.hh"
-#include "Device.hh"
+#include "Config.hh"
 #include "SRAM.hh"
 #include "CPU.hh"
-
 
 namespace openmsx {
 
@@ -13,7 +12,7 @@ const int SRAM_BASE = 0x80;
 const int RAM_BASE  = 0x180;
 
 
-RomPanasonic::RomPanasonic(Device* config, const EmuTime& time, Rom* rom)
+RomPanasonic::RomPanasonic(Config* config, const EmuTime& time, Rom* rom)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
 	PanasonicMemory::instance().registerRom(rom->getBlock(), rom->getSize());

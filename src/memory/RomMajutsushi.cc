@@ -10,13 +10,12 @@
 // by writting at 0x6000,0x8000 and 0xa000
 
 #include "RomMajutsushi.hh"
-#include "Device.hh"
+#include "Config.hh"
 #include "DACSound8U.hh"
-
 
 namespace openmsx {
 
-RomMajutsushi::RomMajutsushi(Device* config, const EmuTime& time, Rom* rom)
+RomMajutsushi::RomMajutsushi(Config* config, const EmuTime& time, Rom* rom)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
 	short volume = (short)config->getParameterAsInt("volume");

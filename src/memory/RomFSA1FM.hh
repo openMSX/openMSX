@@ -8,7 +8,6 @@
 #include "SRAM.hh"
 #include "FrontSwitch.hh"
 
-
 namespace openmsx {
 
 class FSA1FMRam
@@ -26,14 +25,14 @@ private:
 class RomFSA1FM1 : public MSXRom
 {
 public:
-	RomFSA1FM1(Device* config, const EmuTime &time, Rom *rom);
+	RomFSA1FM1(Config* config, const EmuTime& time, Rom* rom);
 	virtual ~RomFSA1FM1();
 	
-	virtual void reset(const EmuTime &time);
-	virtual byte readMem(word address, const EmuTime &time);
+	virtual void reset(const EmuTime& time);
+	virtual byte readMem(word address, const EmuTime& time);
 	virtual const byte* getReadCacheLine(word address) const;
 	virtual void writeMem(word address, byte value,
-			      const EmuTime &time);
+			      const EmuTime& time);
 	virtual byte* getWriteCacheLine(word address) const;
 
 private:
@@ -44,14 +43,14 @@ private:
 class RomFSA1FM2 : public Rom8kBBlocks
 {
 public:
-	RomFSA1FM2(Device* config, const EmuTime &time, Rom *rom);
+	RomFSA1FM2(Config* config, const EmuTime& time, Rom* rom);
 	virtual ~RomFSA1FM2();
 	
-	virtual void reset(const EmuTime &time);
-	virtual byte readMem(word address, const EmuTime &time);
+	virtual void reset(const EmuTime& time);
+	virtual byte readMem(word address, const EmuTime& time);
 	virtual const byte* getReadCacheLine(word address) const;
 	virtual void writeMem(word address, byte value,
-			      const EmuTime &time);
+			      const EmuTime& time);
 	virtual byte* getWriteCacheLine(word address) const;
 
 private:

@@ -9,8 +9,8 @@
 #include "EmuTime.hh"
 #include "PluggingController.hh"
 #include "Mixer.hh"
-#include "MSXConfig.hh"
-#include "Device.hh"
+#include "HardwareConfig.hh"
+#include "Config.hh"
 #include "DeviceFactory.hh"
 
 namespace openmsx {
@@ -75,9 +75,13 @@ void MSXMotherBoard::reInitMSX()
 void MSXMotherBoard::run(bool powerOn)
 {
 	// Initialise devices.
-	const MSXConfig::Devices& devices = MSXConfig::instance().getDevices();
-	for (MSXConfig::Devices::const_iterator it = devices.begin();
-	     it != devices.end(); ++it) {
+	const HardwareConfig::Configs& configs =
+		HardwareConfig::instance().getConfigs();
+	for (HardwareConfig::Configs::const_iterator it = configs.begin();
+	     it != configs.end(); ++it) {
+		if ((*it)->getXMLElement().getName() != "device") {
+			continue;
+		}
 		PRT_DEBUG("Instantiating: " << (*it)->getType());
 		MSXDevice* device = DeviceFactory::create(*it, EmuTime::zero);
 		if (device) {

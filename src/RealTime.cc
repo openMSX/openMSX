@@ -6,7 +6,7 @@
 #include "Keys.hh"
 #include "RealTime.hh"
 #include "MSXCPU.hh"
-#include "MSXConfig.hh"
+#include "SettingsConfig.hh"
 #include "Config.hh"
 #include "CommandController.hh"
 #include "Scheduler.hh"
@@ -22,7 +22,7 @@ const int SYNC_INTERVAL = 50;
 
 RealTime::RealTime()
 	: scheduler(Scheduler::instance()),
-	  msxConfig(MSXConfig::instance()),
+	  settingsConfig(SettingsConfig::instance()),
 	  speedSetting("speed",
 	       "controls the emulation speed: higher is faster, 100 is normal",
 	       100, 1, 1000000),
@@ -37,7 +37,7 @@ RealTime::RealTime()
 	maxCatchUpTime = 2000;	// ms
 	maxCatchUpFactor = 105; // %
 	try {
-		Config *config = msxConfig.getConfigById("RealTime");
+		Config *config = settingsConfig.getConfigById("RealTime");
 		maxCatchUpTime = config->getParameterAsInt("max_catch_up_time", maxCatchUpTime);
 		maxCatchUpFactor = config->getParameterAsInt("max_catch_up_factor", maxCatchUpFactor);
 	} catch (ConfigException &e) {

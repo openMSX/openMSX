@@ -9,7 +9,8 @@
 
 namespace openmsx {
 
-class DummyPrinterPortDevice : public PrinterPortDevice {
+class DummyPrinterPortDevice : public PrinterPortDevice
+{
 public:
 	virtual bool getStatus(const EmuTime& time);
 	virtual void setStrobe(bool strobe, const EmuTime& time);
@@ -21,9 +22,10 @@ public:
 };
 
 
-class MSXPrinterPort : public MSXIODevice, public Connector {
+class MSXPrinterPort : public MSXIODevice, public Connector
+{
 public:
-	MSXPrinterPort(Device* config, const EmuTime& time);
+	MSXPrinterPort(Config* config, const EmuTime& time);
 	virtual ~MSXPrinterPort();
 
 	// MSXIODevice

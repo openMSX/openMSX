@@ -6,7 +6,6 @@
 #include <string>
 #include <vector>
 #include "ConfigException.hh"
-#include "FileException.hh"
 
 using std::string;
 using std::vector;
@@ -16,52 +15,29 @@ namespace openmsx {
 class XMLDocument;
 class XMLElement;
 class Config;
-class Device;
 class FileContext;
 
 class MSXConfig
 {
 public:
-	static MSXConfig& instance();
-
-	/**
-	 * load a config file's content, and add it to
-	 *  the config data [can be called multiple times]
-	 */
-	void loadHardware(FileContext& context, const string &filename)
-		throw(FileException, ConfigException);
-	void loadSetting(FileContext& context, const string &filename)
-		throw(FileException, ConfigException);
-
 	void loadConfig(const XMLElement& config, const FileContext& context)
 		throw(ConfigException);
-	void loadDevice(const XMLElement& config, const FileContext& context)
-		throw(ConfigException);
 
-	/**
-	 * get a config or device or customconfig by id
-	 */
 	Config* getConfigById(const string& id) throw(ConfigException);
 	Config* findConfigById(const string& id);
 	bool hasConfigWithId(const string& id);
-	Device* getDeviceById(const string& id) throw(ConfigException);
 
-	typedef vector<Device*> Devices;
-	const Devices& getDevices() const { return devices; }
+	typedef vector<Config*> Configs;
+	const Configs& getConfigs() const { return configs; }
 
-private:
+protected:
 	MSXConfig();
 	~MSXConfig();
 
 	void handleDoc(const XMLDocument& doc, FileContext& context)
 		throw(ConfigException);
 
-	typedef vector<Config*> Configs;
 	Configs configs;
-	Devices devices;
-
-	// Let GCC-3.2.3 be quiet...
-	friend class dontGenerateWarningOnOlderCompilers;
 };
 
 } // namespace openmsx

@@ -13,6 +13,7 @@ class StringOp
 {
 public:
 	static string intToString(int num);
+	static int stringToInt(const string& str);
 };
 
 } // namespace openmsx

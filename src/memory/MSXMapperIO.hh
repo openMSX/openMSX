@@ -21,7 +21,7 @@ public:
 class MSXMapperIO : public MSXIODevice
 {
 public:
-	MSXMapperIO(Device* config, const EmuTime& time);
+	MSXMapperIO(Config* config, const EmuTime& time);
 	virtual ~MSXMapperIO();
 
 	virtual void reset(const EmuTime& time);

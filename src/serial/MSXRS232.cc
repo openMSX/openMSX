@@ -4,10 +4,9 @@
 #include "MSXRS232.hh"
 #include "RS232Device.hh"
 
-
 namespace openmsx {
 
-MSXRS232::MSXRS232(Device *config, const EmuTime &time)
+MSXRS232::MSXRS232(Config* config, const EmuTime& time)
 	: MSXDevice(config, time)
 	, MSXIODevice(config, time)
 	, MSXMemDevice(config, time)
@@ -32,14 +31,14 @@ MSXRS232::~MSXRS232()
 {
 }
 
-void MSXRS232::reset(const EmuTime &time)
+void MSXRS232::reset(const EmuTime& time)
 {
 	rxrdyIRQlatch = false;
 	rxrdyIRQenabled = false;
 	rxrdyIRQ.reset();
 }
 
-byte MSXRS232::readMem(word address, const EmuTime &time)
+byte MSXRS232::readMem(word address, const EmuTime& time)
 {
 	return rom.read(address & 0x3FFF);
 }
@@ -49,7 +48,7 @@ const byte* MSXRS232::getReadCacheLine(word start) const
 	return rom.getBlock(start & 0x3FFF);
 }
 
-byte MSXRS232::readIO(byte port, const EmuTime &time)
+byte MSXRS232::readIO(byte port, const EmuTime& time)
 {
 	byte result;
 	port &= 0x07;
@@ -78,7 +77,7 @@ byte MSXRS232::readIO(byte port, const EmuTime &time)
 	return result;
 }
 
-void MSXRS232::writeIO(byte port, byte value, const EmuTime &time)
+void MSXRS232::writeIO(byte port, byte value, const EmuTime& time)
 {
 	//PRT_DEBUG("MSXRS232 write " << (int)port << " " << (int)value);
 	port &= 0x07;

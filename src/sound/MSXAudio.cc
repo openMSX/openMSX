@@ -3,11 +3,11 @@
 #include "MSXAudio.hh"
 #include "Mixer.hh"
 #include "Y8950.hh"
-#include "Device.hh"
+#include "Config.hh"
 
 namespace openmsx {
 
-MSXAudio::MSXAudio(Device* config, const EmuTime& time)
+MSXAudio::MSXAudio(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	short volume = (short)deviceConfig->getParameterAsInt("volume");

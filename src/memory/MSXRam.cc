@@ -2,12 +2,12 @@
 
 #include "MSXRam.hh"
 #include "CPU.hh"
-#include "Device.hh"
+#include "Config.hh"
 
 
 namespace openmsx {
 
-MSXRam::MSXRam(Device* config, const EmuTime& time)
+MSXRam::MSXRam(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time)
 {
 	// slow drain on reset
@@ -37,7 +37,7 @@ MSXRam::~MSXRam()
 	delete[] memoryBank;
 }
 
-void MSXRam::reset(const EmuTime &time)
+void MSXRam::reset(const EmuTime& time)
 {
 	if (!slowDrainOnReset) {
 		int size = end - base;
@@ -50,7 +50,7 @@ bool MSXRam::isInside(word address) const
 	return ((base <= address) && (address < end));
 }
 
-byte MSXRam::readMem(word address, const EmuTime &time)
+byte MSXRam::readMem(word address, const EmuTime& time)
 {
 	if (isInside(address)) {
 		return memoryBank[address - base];
@@ -59,7 +59,7 @@ byte MSXRam::readMem(word address, const EmuTime &time)
 	}
 }
 
-void MSXRam::writeMem(word address, byte value, const EmuTime &time)
+void MSXRam::writeMem(word address, byte value, const EmuTime& time)
 {
 	if (isInside(address)) {
 		memoryBank[address - base] = value;

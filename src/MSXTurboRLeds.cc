@@ -3,10 +3,9 @@
 #include "MSXTurboRLeds.hh"
 #include "Leds.hh"
 
-
 namespace openmsx {
 
-MSXTurboRLeds::MSXTurboRLeds(Device* config, const EmuTime& time)
+MSXTurboRLeds::MSXTurboRLeds(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	turborPaused = false;

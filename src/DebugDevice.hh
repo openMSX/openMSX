@@ -17,7 +17,7 @@ class FilenameSetting;
 class DebugDevice : public MSXIODevice
 {
 	public:
-		DebugDevice(Device *config, const EmuTime& time);
+		DebugDevice(Config* config, const EmuTime& time);
 		~DebugDevice();
 		
 		void writeIO(byte port, byte value, const EmuTime& time);

@@ -2,12 +2,11 @@
 
 #include "MSXS1985.hh"
 
-
 namespace openmsx {
 
 const byte ID = 0xFE;
 
-MSXS1985::MSXS1985(Device *config, const EmuTime &time)
+MSXS1985::MSXS1985(Config *config, const EmuTime& time)
 	: MSXDevice(config, time), MSXSwitchedDevice(ID)
 {
 	// TODO load ram
@@ -18,12 +17,11 @@ MSXS1985::~MSXS1985()
 	// TODO save ram
 }
 
-
-void MSXS1985::reset(const EmuTime &time)
+void MSXS1985::reset(const EmuTime& time)
 {
 }
 
-byte MSXS1985::readIO(byte port, const EmuTime &time)
+byte MSXS1985::readIO(byte port, const EmuTime& time)
 {
 	byte result;
 	switch (port & 0x0F) {
@@ -44,7 +42,7 @@ byte MSXS1985::readIO(byte port, const EmuTime &time)
 	return result;
 }
 
-void MSXS1985::writeIO(byte port, byte value, const EmuTime &time)
+void MSXS1985::writeIO(byte port, byte value, const EmuTime& time)
 {
 	//PRT_DEBUG("S1985: write " << (int) port << " " << (int)value);
 	switch (port & 0x0F) {

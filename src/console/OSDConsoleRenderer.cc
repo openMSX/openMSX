@@ -1,7 +1,7 @@
 // $Id$
 
 #include "OSDConsoleRenderer.hh"
-#include "MSXConfig.hh"
+#include "SettingsConfig.hh"
 #include "Config.hh"
 #include "CommandConsole.hh"
 #include "File.hh"
@@ -77,7 +77,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(Console& console_)
 	string tempconfig = console.getId();
 	tempconfig[0] = ::toupper(tempconfig[0]);
 	try {
-		Config* config = MSXConfig::instance().getConfigById(tempconfig);
+		Config* config = SettingsConfig::instance().getConfigById(tempconfig);
 		context = config->getContext().clone();
 		if (initsDone.find(tempconfig) == initsDone.end()) {
 			initsDone.insert(tempconfig);
@@ -163,7 +163,7 @@ void OSDConsoleRenderer::initConsoleSize()
 
 	string tempconfig = console.getId();
 	tempconfig[0]=::toupper(tempconfig[0]);
-	Config* config = MSXConfig::instance().getConfigById(tempconfig);
+	Config* config = SettingsConfig::instance().getConfigById(tempconfig);
 	// check if this console is already initiated
 	if (initsDone.find(tempconfig) == initsDone.end()) {
 		initsDone.insert(tempconfig);

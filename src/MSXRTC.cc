@@ -3,12 +3,11 @@
 #include "MSXRTC.hh"
 #include "RP5C01.hh"
 #include "File.hh"
-#include "Device.hh"
-
+#include "Config.hh"
 
 namespace openmsx {
 
-MSXRTC::MSXRTC(Device* config, const EmuTime& time)
+MSXRTC::MSXRTC(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time), sram(4 * 13, config) 
 {
 	bool emuTimeBased = deviceConfig->getParameter("mode") != "RealTime";
@@ -28,17 +27,17 @@ void MSXRTC::reset(const EmuTime& time)
 
 byte MSXRTC::readIO(byte port, const EmuTime& time)
 {
-	return rp5c01->readPort(registerLatch, time) | 0xf0;
+	return rp5c01->readPort(registerLatch, time) | 0xF0;
 }
 
 void MSXRTC::writeIO(byte port, byte value, const EmuTime& time)
 {
 	switch (port & 0x01) {
 	case 0:
-		registerLatch = value & 0x0f;
+		registerLatch = value & 0x0F;
 		break;
 	case 1:
-		rp5c01->writePort(registerLatch, value & 0x0f, time);
+		rp5c01->writePort(registerLatch, value & 0x0F, time);
 		break;
 	default:
 		assert(false);

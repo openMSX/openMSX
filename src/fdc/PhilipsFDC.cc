@@ -4,12 +4,11 @@
 #include "CPU.hh"
 #include "WD2793.hh"
 #include "DriveMultiplexer.hh"
-#include "Device.hh"
-
+#include "Config.hh"
 
 namespace openmsx {
 
-PhilipsFDC::PhilipsFDC(Device* config, const EmuTime& time)
+PhilipsFDC::PhilipsFDC(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), WD2793BasedFDC(config, time)
 {
 	brokenFDCread = deviceConfig->getParameterAsBool("brokenFDCread", false);

@@ -3,12 +3,12 @@
 #include "MSXMoonSound.hh"
 #include "YMF262.hh"
 #include "YMF278.hh"
-#include "Device.hh"
+#include "Config.hh"
 #include "Mixer.hh"
 
 namespace openmsx {
 
-MSXMoonSound::MSXMoonSound(Device* config, const EmuTime& time)
+MSXMoonSound::MSXMoonSound(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	short volume = (short)deviceConfig->getParameterAsInt("volume");

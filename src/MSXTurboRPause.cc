@@ -2,10 +2,9 @@
 
 #include "MSXTurboRPause.hh"
 
-
 namespace openmsx {
 
-MSXTurboRPause::MSXTurboRPause(Device *config, const EmuTime &time)
+MSXTurboRPause::MSXTurboRPause(Config *config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
 		turboRPauseSetting("turborpause", 
 				"status of the TurboR pause", false)
@@ -17,12 +16,12 @@ MSXTurboRPause::~MSXTurboRPause()
 {
 }
  
-void MSXTurboRPause::reset(const EmuTime &time)
+void MSXTurboRPause::reset(const EmuTime& time)
 {
 	turboRPauseSetting.setValue(false);
 }
 
-byte MSXTurboRPause::readIO(byte port, const EmuTime &time)
+byte MSXTurboRPause::readIO(byte port, const EmuTime& time)
 {
 	if (turboRPauseSetting.getValue()) 
 		return (byte) 0x01; 

@@ -12,12 +12,11 @@
 #include "MidiOutConnector.hh"
 #include "SerialDataInterface.hh"
 
-
 namespace openmsx {
 
 class MSXMidi: public MSXIODevice, public MidiInConnector {
 public:
-	MSXMidi(Device *config, const EmuTime& time);
+	MSXMidi(Config* config, const EmuTime& time);
 	virtual ~MSXMidi();
 
 	virtual void reset(const EmuTime& time);

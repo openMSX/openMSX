@@ -1,7 +1,7 @@
 // $Id$
 
 #include "RenShaTurbo.hh"
-#include "MSXConfig.hh"
+#include "SettingsConfig.hh"
 #include "Config.hh"
 #include "Autofire.hh"
 
@@ -14,10 +14,10 @@ RenShaTurbo& RenShaTurbo::instance()
 }
 
 RenShaTurbo::RenShaTurbo()
-	: msxConfig(MSXConfig::instance())
+	: settingsConfig(SettingsConfig::instance())
 {
 	try {
-		Config *config = msxConfig.getConfigById("RenShaTurbo");
+		Config *config = settingsConfig.getConfigById("RenShaTurbo");
 		int min_ints = config->getParameterAsInt("min_ints", 47);
 		int max_ints = config->getParameterAsInt("max_ints", 221);
 		autofire = new Autofire(min_ints, max_ints, "renshaturbo");

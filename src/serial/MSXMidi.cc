@@ -4,10 +4,9 @@
 #include "MSXMidi.hh"
 #include "MidiInDevice.hh"
 
-
 namespace openmsx {
 
-MSXMidi::MSXMidi(Device *config, const EmuTime &time)
+MSXMidi::MSXMidi(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 	, MidiInConnector("msx-midi-in")
 	, timerIRQlatch(false), timerIRQenabled(false)
@@ -29,7 +28,7 @@ MSXMidi::~MSXMidi()
 {
 }
 
-void MSXMidi::reset(const EmuTime &time)
+void MSXMidi::reset(const EmuTime& time)
 {
 	timerIRQlatch = false;
 	timerIRQenabled = false;
@@ -39,7 +38,7 @@ void MSXMidi::reset(const EmuTime &time)
 	rxrdyIRQ.reset();
 }
 
-byte MSXMidi::readIO(byte port, const EmuTime &time)
+byte MSXMidi::readIO(byte port, const EmuTime& time)
 {
 	byte result;
 	port &= 0x07;
@@ -66,7 +65,7 @@ byte MSXMidi::readIO(byte port, const EmuTime &time)
 	return result;
 }
 
-void MSXMidi::writeIO(byte port, byte value, const EmuTime &time)
+void MSXMidi::writeIO(byte port, byte value, const EmuTime& time)
 {
 	//PRT_DEBUG("MSX-Midi write " << (int)port << " " << (int)value);
 	port &= 0x07;

@@ -4,11 +4,11 @@
 #include "Mixer.hh"
 #include "YM2413.hh"
 #include "YM2413_2.hh"
-#include "Device.hh"
+#include "Config.hh"
 
 namespace openmsx {
 
-MSXMusic::MSXMusic(Device* config, const EmuTime& time)
+MSXMusic::MSXMusic(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
 	  MSXMemDevice(config, time), rom(config)
 {

@@ -20,8 +20,8 @@ class File;
 class Rom
 {
 public:
-	Rom(Device* config);
-	Rom(Device* config, const string& filename);
+	Rom(Config* config);
+	Rom(Config* config, const string& filename);
 	virtual ~Rom();
 
 	byte read(unsigned int address) const {
@@ -43,7 +43,7 @@ public:
 	}
 
 private:
-	void read(Device* config, const string& filename);
+	void read(Config* config, const string& filename);
 	
 	const byte* rom;
 	unsigned int size;

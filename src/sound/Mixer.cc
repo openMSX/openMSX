@@ -6,7 +6,7 @@
 #include "MSXCPU.hh"
 #include "RealTime.hh"
 #include "SoundDevice.hh"
-#include "MSXConfig.hh"
+#include "SettingsConfig.hh"
 #include "Config.hh"
 #include "CliCommOutput.hh"
 #include "InfoCommand.hh"
@@ -19,7 +19,7 @@ Mixer::Mixer()
 	: muteCount(0),
 	  cpu(MSXCPU::instance()),
 	  realTime(RealTime::instance()),
-	  msxConfig(MSXConfig::instance()),
+	  settingsConfig(SettingsConfig::instance()),
 	  output(CliCommOutput::instance()),
 	  infoCommand(InfoCommand::instance()),
 	  muteSetting("mute", "(un)mute the emulation sound", false),
@@ -37,7 +37,7 @@ Mixer::Mixer()
 	int freq = 22050;
 	int samples = 512;
 	try {
-		Config* config = msxConfig.getConfigById("Mixer");
+		Config* config = settingsConfig.getConfigById("Mixer");
 		freq = config->getParameterAsInt("frequency", freq);
 		samples = config->getParameterAsInt("samples", samples);
 	} catch (ConfigException &e) {

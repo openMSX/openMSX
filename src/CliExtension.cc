@@ -8,7 +8,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include "CliExtension.hh"
-#include "MSXConfig.hh"
+#include "HardwareConfig.hh"
 #include "FileOperations.hh"
 #include "FileContext.hh"
 
@@ -39,9 +39,8 @@ bool CliExtension::parseOption(const string &option,
 	map<string, string>::const_iterator it =
 		extensions.find(extension);
 	if (it != extensions.end()) {
-		MSXConfig &config = MSXConfig::instance();
 		SystemFileContext context;
-		config.loadHardware(context, it->second);
+		HardwareConfig::instance().loadHardware(context, it->second);
 	} else {
 		throw FatalError("Extension \"" + extension + "\" not found!");
 	}

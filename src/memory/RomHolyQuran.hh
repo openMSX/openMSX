@@ -5,19 +5,17 @@
 
 #include "Rom8kBBlocks.hh"
 
-
 namespace openmsx {
 
 class RomHolyQuran : public Rom8kBBlocks
 {
-	public:
-		RomHolyQuran(Device* config, const EmuTime &time, Rom *rom);
-		virtual ~RomHolyQuran();
-		
-		virtual void reset(const EmuTime &time);
-		virtual void writeMem(word address, byte value,
-		                      const EmuTime &time);
-		virtual byte* getWriteCacheLine(word address) const;
+public:
+	RomHolyQuran(Config* config, const EmuTime& time, Rom* rom);
+	virtual ~RomHolyQuran();
+	
+	virtual void reset(const EmuTime& time);
+	virtual void writeMem(word address, byte value, const EmuTime& time);
+	virtual byte* getWriteCacheLine(word address) const;
 };
 
 } // namespace openmsx

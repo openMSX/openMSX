@@ -5,7 +5,7 @@
 #include "KeyJoystick.hh"
 #include "EventDistributor.hh"
 #include "Keys.hh"
-#include "MSXConfig.hh"
+#include "SettingsConfig.hh"
 #include "Config.hh"
 #include "CliCommOutput.hh"
 #include "InputEvents.hh"
@@ -29,7 +29,7 @@ KeyJoystick::KeyJoystick()
 	buttonBKey = Keys::K_NONE;
 
 	try {
-		Config* config = MSXConfig::instance().getConfigById("KeyJoystick");
+		Config* config = SettingsConfig::instance().getConfigById("KeyJoystick");
 		upKey      = getConfigKeyCode("upkey",      config);
 		rightKey   = getConfigKeyCode("rightkey",   config);
 		downKey    = getConfigKeyCode("downkey",    config);

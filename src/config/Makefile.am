@@ -14,8 +14,9 @@ endif
 noinst_LTLIBRARIES = libConfig.la
 libConfig_la_SOURCES = \
 	MSXConfig.cc MSXConfig.hh \
+	HardwareConfig.cc HardwareConfig.hh \
+	SettingsConfig.cc SettingsConfig.hh \
 	Config.cc Config.hh \
-	Device.cc Device.hh \
 	ConfigException.hh \
 	xmlx.cc xmlx.hh
 

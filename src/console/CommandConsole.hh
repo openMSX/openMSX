@@ -15,7 +15,7 @@
 namespace openmsx {
 
 class EventDistributor;
-class MSXConfig;
+class SettingsConfig;
 class CommandController;
 class CliCommOutput;
 class SettingsManager;
@@ -94,7 +94,7 @@ private:
 	unsigned consoleRows;
 
 	EventDistributor& eventDistributor;
-	MSXConfig& msxConfig;
+	SettingsConfig& settingsConfig;
 	CommandController& commandController;
 	CliCommOutput& output;
 	SettingsManager& settingsManager;

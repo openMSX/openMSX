@@ -7,28 +7,26 @@
 #include "Rom.hh"
 #include <string>
 
-
 namespace openmsx {
 
 class MSXRom : public MSXMemDevice
 {
-	public:
-		virtual ~MSXRom();
+public:
+	virtual ~MSXRom();
 
-		virtual void writeMem(word address, byte value,
-		                      const EmuTime &time);
-		virtual byte *getWriteCacheLine(word address) const;
-		virtual const string &getName() const;
+	virtual void writeMem(word address, byte value, const EmuTime& time);
+	virtual byte* getWriteCacheLine(word address) const;
+	virtual const string& getName() const;
 
-	protected:
-		MSXRom(Device *config, const EmuTime &time, Rom *rom);
+protected:
+	MSXRom(Config* config, const EmuTime& time, Rom* rom);
 
-		Rom* rom;
-		string romName;
-		static class MSXCPU* cpu;
+	Rom* rom;
+	string romName;
+	static class MSXCPU* cpu;
 
-	private:
-		void init();
+private:
+	void init();
 };
 
 } // namespace openmsx

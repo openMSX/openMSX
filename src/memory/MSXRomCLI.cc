@@ -4,7 +4,7 @@
 #include "xmlx.hh"
 #include "MSXRomCLI.hh"
 #include "CartridgeSlotManager.hh"
-#include "MSXConfig.hh"
+#include "HardwareConfig.hh"
 #include "FileOperations.hh"
 #include "FileContext.hh"
 
@@ -44,10 +44,10 @@ MSXRomPostName::MSXRomPostName(int slot_, const string &arg_)
 	: MSXRomCLIPost(arg_), slot(slot_)
 {
 }
-void MSXRomPostName::execute(MSXConfig& config)
+void MSXRomPostName::execute()
 {
 	CartridgeSlotManager::instance().getSlot(slot, ps, ss);
-	MSXRomCLIPost::execute(config);
+	MSXRomCLIPost::execute();
 }
 
 void MSXRomCLI::parseFileType(const string &arg)
@@ -63,10 +63,10 @@ MSXRomPostNoName::MSXRomPostNoName(const string &arg_)
 	: MSXRomCLIPost(arg_)
 {
 }
-void MSXRomPostNoName::execute(MSXConfig& config)
+void MSXRomPostNoName::execute()
 {
 	CartridgeSlotManager::instance().getSlot(ps, ss);
-	MSXRomCLIPost::execute(config);
+	MSXRomCLIPost::execute();
 }
 
 MSXRomCLIPost::MSXRomCLIPost(const string &arg_)
@@ -91,7 +91,7 @@ static XMLElement* createParameter(const string& name, const string& value)
 	return parameter;
 }
 
-void MSXRomCLIPost::execute(MSXConfig& config)
+void MSXRomCLIPost::execute()
 {
 	string romfile;
 	string mapper;
@@ -122,7 +122,7 @@ void MSXRomCLIPost::execute(MSXConfig& config)
 	device.addChild(createParameter("sramname", sramfile + ".SRAM"));
 
 	UserFileContext context("roms/" + sramfile);
-	config.loadDevice(device, context);
+	HardwareConfig::instance().loadConfig(device, context);
 	delete this;
 }
 

@@ -6,7 +6,8 @@
 #include <iostream>
 #include <cstdio>
 #include "CommandLineParser.hh"
-#include "MSXConfig.hh"
+#include "HardwareConfig.hh"
+#include "SettingsConfig.hh"
 #include "Config.hh"
 #include "CartridgeSlotManager.hh"
 #include "CliExtension.hh"
@@ -44,7 +45,8 @@ CommandLineParser& CommandLineParser::instance()
 
 CommandLineParser::CommandLineParser()
 	: parseStatus(UNPARSED),
-	  msxConfig(MSXConfig::instance()),
+	  hardwareConfig(HardwareConfig::instance()),
+	  settingsConfig(SettingsConfig::instance()),
 	  output(CliCommOutput::instance()),
 	  slotManager(CartridgeSlotManager::instance()),
 	  helpOption(*this),
@@ -86,7 +88,7 @@ void CommandLineParser::registerFileClass(const string &str,
 void CommandLineParser::postRegisterFileTypes()
 {
 	try {
-		Config* config = msxConfig.getConfigById("FileTypes");
+		Config* config = settingsConfig.getConfigById("FileTypes");
 		for (map<string, CLIFileType*, caseltstr>::const_iterator i = fileClassMap.begin();
 		     i != fileClassMap.end(); ++i) {
 			Config::Parameters extensions;
@@ -184,7 +186,7 @@ void CommandLineParser::parse(int argc, char **argv)
 				// load default settings file in case the user didn't specify one
 				try {
 					SystemFileContext context;
-					msxConfig.loadSetting(context, "settings.xml");
+					settingsConfig.loadSetting(context, "settings.xml");
 					haveSettings = true;
 				} catch (FileException &e) {
 					// settings.xml not found
@@ -203,7 +205,7 @@ void CommandLineParser::parse(int argc, char **argv)
 				string machine("default");
 				try {
 					Config *machineConfig =
-						msxConfig.getConfigById("DefaultMachine");
+						settingsConfig.getConfigById("DefaultMachine");
 					if (machineConfig->hasParameter("machine")) {
 						machine = machineConfig->getParameter("machine");
 						output.printInfo(
@@ -214,7 +216,7 @@ void CommandLineParser::parse(int argc, char **argv)
 				}
 				try {
 					SystemFileContext context;
-					msxConfig.loadHardware(context,
+					hardwareConfig.loadHardware(context,
 						MACHINE_PATH + machine + "/hardwareconfig.xml");
 					haveConfig = true;
 				} catch (FileException& e) {
@@ -262,7 +264,7 @@ void CommandLineParser::parse(int argc, char **argv)
 	// execute all postponed options
 	for (vector<CLIPostConfig*>::iterator it = postConfigs.begin();
 	     it != postConfigs.end(); it++) {
-		(*it)->execute(msxConfig);
+		(*it)->execute();
 	}
 }
 
@@ -490,7 +492,7 @@ bool CommandLineParser::MachineOption::parseOption(const string &option,
 	try {
 		string machine(getArgument(option, cmdLine));
 		SystemFileContext context;
-		parent.msxConfig.loadHardware(context,
+		parent.hardwareConfig.loadHardware(context,
 			MACHINE_PATH + machine + "/hardwareconfig.xml");
 		parent.output.printInfo(
 			"Using specified machine: " + machine);
@@ -528,7 +530,7 @@ bool CommandLineParser::SettingOption::parseOption(const string &option,
 	}
 	try {
 		UserFileContext context;
-		parent.msxConfig.loadSetting(context, getArgument(option, cmdLine));
+		parent.settingsConfig.loadSetting(context, getArgument(option, cmdLine));
 		parent.haveSettings = true;
 	} catch (FileException& e) {
 		throw FatalError(e.getMessage());

@@ -8,10 +8,9 @@ namespace openmsx {
 class MSXDevice;
 class EmuTime;
 
-
 class DeviceFactory {
 public:
-	static MSXDevice *create(Device *conf, const EmuTime &time);
+	static MSXDevice *create(Config* conf, const EmuTime& time);
 };
 
 } // namespace openmsx

@@ -18,7 +18,7 @@ namespace openmsx {
 class MSXTurboRLeds : public MSXIODevice
 {
 public:
-	MSXTurboRLeds(Device* config, const EmuTime& time);
+	MSXTurboRLeds(Config* config, const EmuTime& time);
 	virtual ~MSXTurboRLeds();
 	
 	virtual void reset(const EmuTime& time);

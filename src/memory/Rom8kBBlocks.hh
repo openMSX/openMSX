@@ -5,23 +5,22 @@
 
 #include "MSXRom.hh"
 
-
 namespace openmsx {
 
 class Rom8kBBlocks : public MSXRom
 {
-	public:
-		Rom8kBBlocks(Device* config, const EmuTime &time, Rom *rom);
-		virtual ~Rom8kBBlocks() = 0;
+public:
+	virtual byte readMem(word address, const EmuTime& time);
+	virtual const byte* getReadCacheLine(word start) const;
 
-		virtual byte readMem(word address, const EmuTime &time);
-		virtual const byte* getReadCacheLine(word start) const;
+protected:
+	Rom8kBBlocks(Config* config, const EmuTime& time, Rom* rom);
+	virtual ~Rom8kBBlocks();
 
-	protected:
-		void setBank(byte region, byte* adr);
-		void setRom(byte region, int block);
+	void setBank(byte region, byte* adr);
+	void setRom(byte region, int block);
 
-		byte* bank[8];
+	byte* bank[8];
 };
 
 } // namespace openmsx

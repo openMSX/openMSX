@@ -7,10 +7,9 @@
 
 #include "RomHolyQuran.hh"
 
-
 namespace openmsx {
 
-RomHolyQuran::RomHolyQuran(Device* config, const EmuTime &time, Rom *rom)
+RomHolyQuran::RomHolyQuran(Config* config, const EmuTime& time, Rom* rom)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
 	reset(time);
@@ -20,7 +19,7 @@ RomHolyQuran::~RomHolyQuran()
 {
 }
 
-void RomHolyQuran::reset(const EmuTime &time)
+void RomHolyQuran::reset(const EmuTime& time)
 {
 	setBank(0, unmappedRead);
 	setBank(1, unmappedRead);
@@ -31,7 +30,7 @@ void RomHolyQuran::reset(const EmuTime &time)
 	setBank(7, unmappedRead);
 }
 
-void RomHolyQuran::writeMem(word address, byte value, const EmuTime &time)
+void RomHolyQuran::writeMem(word address, byte value, const EmuTime& time)
 {
 	// TODO are switch addresses mirrored?
 	if ((0x5000 <= address) && (address < 0x6000)) {

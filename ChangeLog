@@ -1,6 +1,11 @@
 $Id$
 
-2004-03-11 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2004-03-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Another config refactoring:
+	   - split MSXConfig in hardware and settings part
+	   - merge Config and Device class
+
+2004-03-12 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented "type" command:
 	   - replaces KeyEventInserter
 	   - TODO  documentation

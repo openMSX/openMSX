@@ -7,12 +7,11 @@
 #include "FileContext.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
-#include "Device.hh"
-
+#include "Config.hh"
 
 namespace openmsx {
 
-MSXSCCPlusCart::MSXSCCPlusCart(Device* config, const EmuTime& time)
+MSXSCCPlusCart::MSXSCCPlusCart(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time)
 {
 	memset(memoryBank, 0xFF, 0x20000);

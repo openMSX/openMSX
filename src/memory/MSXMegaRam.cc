@@ -25,14 +25,14 @@
  */
 
 #include "MSXMegaRam.hh"
-#include "Device.hh"
+#include "Config.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
 
 
 namespace openmsx {
 
-MSXMegaRam::MSXMegaRam(Device* config, const EmuTime& time)
+MSXMegaRam::MSXMegaRam(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time),
 	  MSXIODevice(config, time)
 {

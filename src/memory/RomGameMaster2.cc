@@ -38,14 +38,11 @@
 // memory bank is 8Kb in size, the first and second 4Kb of the memory bank
 // read the same 4Kb of SRAM if SRAM is selected. 
 
-
 #include "RomGameMaster2.hh"
-#include "Device.hh"
-
 
 namespace openmsx {
 
-RomGameMaster2::RomGameMaster2(Device* config, const EmuTime& time, Rom* rom)
+RomGameMaster2::RomGameMaster2(Config* config, const EmuTime& time, Rom* rom)
 	: MSXDevice(config, time), Rom4kBBlocks(config, time, rom),
 	  sram(0x2000, config)
 {

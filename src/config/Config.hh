@@ -28,6 +28,7 @@ public:
 	const string& getType() const;
 	const string& getId() const;
 
+	const XMLElement& getXMLElement() const;
 	FileContext& getContext() const;
 
 	bool hasParameter(const string& name) const;
@@ -41,12 +42,10 @@ public:
 	typedef multimap<string, string> Parameters;
 	void getParametersWithClass(const string& clasz, Parameters& result);
 
-protected:
-	XMLElement element;
-
 private:
 	XMLElement* getParameterElement(const string& name) const;
 
+	XMLElement element;
 	FileContext* context;
 };
 

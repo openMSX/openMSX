@@ -21,7 +21,7 @@ namespace openmsx {
 
 class SoundDevice;
 class MSXCPU;
-class MSXConfig;
+class SettingsConfig;
 class RealTime;
 class CliCommOutput;
 class InfoCommand;
@@ -119,7 +119,7 @@ private:
 
 	MSXCPU& cpu;
 	RealTime& realTime;
-	MSXConfig& msxConfig;
+	SettingsConfig& settingsConfig;
 	CliCommOutput& output;
 	InfoCommand& infoCommand;
 

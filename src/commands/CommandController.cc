@@ -11,7 +11,7 @@
 #include "FileOperations.hh"
 #include "FileContext.hh"
 #include "File.hh"
-#include "MSXConfig.hh"
+#include "SettingsConfig.hh"
 #include "Config.hh"
 #include "openmsx.hh"
 #include "CliCommOutput.hh"
@@ -24,7 +24,7 @@ namespace openmsx {
 CommandController::CommandController()
 	: helpCmd(*this), cmdConsole(NULL),
 	  infoCommand(InfoCommand::instance()),
-	  msxConfig(MSXConfig::instance()),
+	  settingsConfig(SettingsConfig::instance()),
 	  output(CliCommOutput::instance()),
 	  interpreter(Interpreter::instance())
 {
@@ -241,7 +241,7 @@ void CommandController::autoCommands()
 	}
 	
 	try {
-		Config* config = msxConfig.getConfigById("AutoCommands");
+		Config* config = settingsConfig.getConfigById("AutoCommands");
 		output.printWarning(
 			"Use of AutoCommands is deprecated, instead use the init.tcl script.\n"
 			"See manual for more information.");

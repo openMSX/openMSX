@@ -16,10 +16,9 @@
 #include "RomKorean90in1.hh"
 #include "MSXCPUInterface.hh"
 
-
 namespace openmsx {
 
-RomKorean90in1::RomKorean90in1(Device* config, const EmuTime &time, Rom *rom)
+RomKorean90in1::RomKorean90in1(Config* config, const EmuTime& time, Rom* rom)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom),
 	  MSXIODevice(config, time)
 {
@@ -31,7 +30,7 @@ RomKorean90in1::~RomKorean90in1()
 {
 }
 
-void RomKorean90in1::reset(const EmuTime &time)
+void RomKorean90in1::reset(const EmuTime& time)
 {
 	setBank(0, unmappedRead);
 	setBank(1, unmappedRead);
@@ -40,7 +39,7 @@ void RomKorean90in1::reset(const EmuTime &time)
 	writeIO(0x77, 0, time);
 }
 
-void RomKorean90in1::writeIO(byte port, byte value, const EmuTime & time)
+void RomKorean90in1::writeIO(byte port, byte value, const EmuTime& time)
 {
 	byte page = 2 * (value & 0x3F);
 	switch (value & 0xC0) {

@@ -2,7 +2,7 @@
 
 #include <cassert>
 #include "CartridgeSlotManager.hh"
-#include "MSXConfig.hh"
+#include "HardwareConfig.hh"
 #include "Config.hh"
 
 
@@ -13,7 +13,7 @@ const int EXISTS   = 32;
 
 
 CartridgeSlotManager::CartridgeSlotManager()
-	: msxConfig(MSXConfig::instance())
+	: hardwareConfig(HardwareConfig::instance())
 {
 	for (int slot = 0; slot < 16; slot++) {
 		slots[slot] = 0;
@@ -36,7 +36,7 @@ void CartridgeSlotManager::reserveSlot(int slot)
 void CartridgeSlotManager::readConfig()
 {
 	try {
-		Config* config = msxConfig.getConfigById("ExternalSlots");
+		Config* config = hardwareConfig.getConfigById("ExternalSlots");
 		string slotName("slota");
 		for (int slot = 0; slot < 16; slot++) {
 			slotName[4] = 'a' + slot;

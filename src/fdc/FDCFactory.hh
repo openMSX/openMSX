@@ -9,11 +9,10 @@ class EmuTime;
 class MSXDevice;
 class Config;
 
-
 class FDCFactory
 {
-	public:
-		static MSXDevice* create(Device *config, const EmuTime &time);
+public:
+	static MSXDevice* create(Config* config, const EmuTime& time);
 };
 
 } // namespace openmsx

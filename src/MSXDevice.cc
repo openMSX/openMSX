@@ -1,12 +1,12 @@
 // $Id$
 
 #include "MSXDevice.hh"
-#include "Device.hh"
+#include "Config.hh"
 
 
 namespace openmsx {
 
-MSXDevice::MSXDevice(Device* config, const EmuTime& time)
+MSXDevice::MSXDevice(Config* config, const EmuTime& time)
 	: deviceConfig(config)
 {
 }

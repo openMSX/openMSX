@@ -3,7 +3,7 @@
 #include <cassert>
 #include "MSXMemoryMapper.hh"
 #include "MSXMapperIO.hh"
-#include "Device.hh"
+#include "Config.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXConfig.hh"
 #include "Debugger.hh"
@@ -12,7 +12,7 @@
 namespace openmsx {
 
 unsigned MSXMemoryMapper::counter = 0;
-Device* MSXMemoryMapper::device = NULL;
+Config* MSXMemoryMapper::device = NULL;
 MSXMapperIO* MSXMemoryMapper::mapperIO = NULL;
 
 // Inlined methods first, to make sure they are actually inlined
@@ -23,7 +23,7 @@ inline unsigned MSXMemoryMapper::calcAddress(word address) const
 	return (page << 14) | (address & 0x3FFF);
 }
 
-MSXMemoryMapper::MSXMemoryMapper(Device* config, const EmuTime& time)
+MSXMemoryMapper::MSXMemoryMapper(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time)
 {
 	slowDrainOnReset = deviceConfig->getParameterAsBool("slow_drain_on_reset", false);
@@ -64,7 +64,7 @@ void MSXMemoryMapper::createMapperIO(const EmuTime& time)
 		XMLElement* typeElem = new XMLElement("type", "MapperIO");
 		deviceElem.addChild(typeElem);
 		SystemFileContext dummyContext;
-		device = new Device(deviceElem, dummyContext);
+		device = new Config(deviceElem, dummyContext);
 		mapperIO = new MSXMapperIO(device, time);
 	
 		MSXCPUInterface& cpuInterface = MSXCPUInterface::instance();

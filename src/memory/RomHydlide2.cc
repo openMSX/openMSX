@@ -14,14 +14,12 @@
 //  second 16kb: 0x7000 - 0x77FF (0x7000 and 0x77FF used)
 
 #include "RomHydlide2.hh"
-#include "Device.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
 
-
 namespace openmsx {
 
-RomHydlide2::RomHydlide2(Device* config, const EmuTime& time, Rom* rom)
+RomHydlide2::RomHydlide2(Config* config, const EmuTime& time, Rom* rom)
 	: MSXDevice(config, time), RomAscii16kB(config, time, rom),
 	  sram(0x0800, config)
 {

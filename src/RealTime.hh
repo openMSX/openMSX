@@ -13,7 +13,7 @@
 namespace openmsx {
 
 class Scheduler;
-class MSXConfig;
+class SettingsConfig;
 
 
 class RealTime : private Schedulable, private SettingListener
@@ -39,7 +39,7 @@ public:
 
 private:
 	Scheduler& scheduler;
-	MSXConfig& msxConfig;
+	SettingsConfig& settingsConfig;
 
 protected:
 	RealTime(); 

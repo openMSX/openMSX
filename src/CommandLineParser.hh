@@ -20,7 +20,8 @@ using std::set;
 
 namespace openmsx {
 
-class MSXConfig;
+class HardwareConfig;
+class SettingsConfig;
 class CliCommOutput;
 class CartridgeSlotManager;
 
@@ -50,7 +51,7 @@ class CLIPostConfig
 {
 public:
 	virtual ~CLIPostConfig() {}
-	virtual void execute(MSXConfig& config) = 0;
+	virtual void execute() = 0;
 };
 
 struct OptionData
@@ -96,7 +97,8 @@ private:
 	bool issuedHelp;
 	ParseStatus parseStatus;
 
-	MSXConfig& msxConfig;
+	HardwareConfig& hardwareConfig;
+	SettingsConfig& settingsConfig;
 	CliCommOutput& output;
 	CartridgeSlotManager& slotManager;
 

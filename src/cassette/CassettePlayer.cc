@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include "CassettePlayer.hh"
 #include "CommandController.hh"
-#include "MSXConfig.hh"
+#include "SettingsConfig.hh"
 #include "Config.hh"
 #include "xmlx.hh"
 #include "File.hh"
@@ -48,7 +48,7 @@ void MSXCassettePlayerCLI::parseFileType(const string &filename)
 	config.addChild(parameter);
 	
 	UserFileContext context;
-	MSXConfig::instance().loadConfig(config, context);
+	SettingsConfig::instance().loadConfig(config, context);
 }
 const string& MSXCassettePlayerCLI::fileTypeHelp() const
 {
@@ -62,7 +62,7 @@ CassettePlayer::CassettePlayer()
 {
 	removeTape();
 
-	MSXConfig& conf = MSXConfig::instance();
+	SettingsConfig& conf = SettingsConfig::instance();
 	if (conf.hasConfigWithId("cassetteplayer")) {
 		Config* config = conf.getConfigById("cassetteplayer");
 		const string& filename = config->getParameter("filename");

@@ -6,20 +6,19 @@
 #include "WD2793BasedFDC.hh"
 #include "MSXIODevice.hh"
 
-
 namespace openmsx {
 
 class MicrosolFDC : public WD2793BasedFDC, public MSXIODevice
 {
-	public:
-		MicrosolFDC(Device *config, const EmuTime &time);
-		virtual ~MicrosolFDC();
-		
-		virtual byte readIO(byte port, const EmuTime &time);
-		virtual void writeIO(byte port, byte value, const EmuTime &time);
+public:
+	MicrosolFDC(Config* config, const EmuTime& time);
+	virtual ~MicrosolFDC();
+	
+	virtual byte readIO(byte port, const EmuTime& time);
+	virtual void writeIO(byte port, byte value, const EmuTime& time);
 
-	private:
-		byte driveD4;
+private:
+	byte driveD4;
 };
 
 } // namespace openmsx

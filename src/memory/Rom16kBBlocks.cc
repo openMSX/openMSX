@@ -7,7 +7,7 @@
 
 namespace openmsx {
 
-Rom16kBBlocks::Rom16kBBlocks(Device* config, const EmuTime &time, Rom *rom)
+Rom16kBBlocks::Rom16kBBlocks(Config* config, const EmuTime& time, Rom *rom)
 	: MSXDevice(config, time), MSXRom(config, time, rom)
 {
 	for (int i = 0; i < 4; i++) {
@@ -19,7 +19,7 @@ Rom16kBBlocks::~Rom16kBBlocks()
 {
 }
 
-byte Rom16kBBlocks::readMem(word address, const EmuTime &time)
+byte Rom16kBBlocks::readMem(word address, const EmuTime& time)
 {
 	return bank[address >> 14][address & 0x3FFF];
 }

@@ -2,11 +2,11 @@
 
 #include "MSXTurboRPCM.hh"
 #include "DACSound8U.hh"
-#include "Device.hh"
+#include "Config.hh"
 
 namespace openmsx {
 
-MSXTurboRPCM::MSXTurboRPCM(Device* config, const EmuTime& time)
+MSXTurboRPCM::MSXTurboRPCM(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 	, AudioInputConnector("pcminput")
 {

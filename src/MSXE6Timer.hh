@@ -15,22 +15,21 @@
 #include "MSXIODevice.hh"
 #include "EmuTime.hh"
 
-
 namespace openmsx {
 
 class MSXE6Timer : public MSXIODevice
 {
-	public:
-		MSXE6Timer(Device *config, const EmuTime &time);
-		virtual ~MSXE6Timer();
-		
-		virtual void reset(const EmuTime &time);
-		
-		virtual byte readIO(byte port, const EmuTime &time);
-		virtual void writeIO(byte port, byte value, const EmuTime &time);
+public:
+	MSXE6Timer(Config* config, const EmuTime& time);
+	virtual ~MSXE6Timer();
+	
+	virtual void reset(const EmuTime& time);
+	
+	virtual byte readIO(byte port, const EmuTime& time);
+	virtual void writeIO(byte port, byte value, const EmuTime& time);
 
-	private:
-		EmuTimeFreq<255681> reference;	// 1/14 * 3.58MHz
+private:
+	EmuTimeFreq<255681> reference;	// 1/14 * 3.58MHz
 };
 
 } // namespace openmsx

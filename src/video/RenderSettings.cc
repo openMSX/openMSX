@@ -1,7 +1,7 @@
 // $Id$
 
 #include "RenderSettings.hh"
-#include "MSXConfig.hh"
+#include "SettingsConfig.hh"
 #include "Config.hh"
 #include "CliCommOutput.hh"
 #include "InfoCommand.hh"
@@ -12,10 +12,10 @@ namespace openmsx {
 RenderSettings::RenderSettings()
 	: rendererInfo(*this),
 	  scalerInfo(*this),
-	  msxConfig(MSXConfig::instance()),
+	  settingsConfig(SettingsConfig::instance()),
 	  infoCommand(InfoCommand::instance())
 {
-	Config* config = msxConfig.getConfigById("renderer");
+	Config* config = settingsConfig.getConfigById("renderer");
 
 	EnumSetting<Accuracy>::Map accMap;
 	accMap["screen"] = ACC_SCREEN;

@@ -32,6 +32,11 @@ const string& Config::getId() const
 	return element.getAttribute("id");
 }
 
+const XMLElement& Config::getXMLElement() const
+{
+	return element;
+}
+
 FileContext& Config::getContext() const
 {
 	assert(context);

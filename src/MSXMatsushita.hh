@@ -8,13 +8,12 @@
 #include "FrontSwitch.hh"
 #include "SRAM.hh"
 
-
 namespace openmsx {
 
 class MSXMatsushita : public MSXDevice, public MSXSwitchedDevice
 {
 public:
-	MSXMatsushita(Device* config, const EmuTime& time);
+	MSXMatsushita(Config* config, const EmuTime& time);
 	virtual ~MSXMatsushita();
 
 	virtual void reset(const EmuTime& time);

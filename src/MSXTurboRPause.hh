@@ -6,7 +6,6 @@
 #include "MSXIODevice.hh"
 #include "BooleanSetting.hh"
 
-
 namespace openmsx {
 
 /**
@@ -20,11 +19,11 @@ namespace openmsx {
 class MSXTurboRPause : public MSXIODevice
 {
 public:
-	MSXTurboRPause(Device *config, const EmuTime &time);
+	MSXTurboRPause(Config *config, const EmuTime& time);
 	virtual ~MSXTurboRPause();
 
-	virtual void reset(const EmuTime &time);
-	virtual byte readIO(byte port, const EmuTime &time);
+	virtual void reset(const EmuTime& time);
+	virtual byte readIO(byte port, const EmuTime& time);
 
 private:
 	BooleanSetting turboRPauseSetting;

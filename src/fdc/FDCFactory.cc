@@ -1,6 +1,6 @@
 // $Id$
 
-#include "Device.hh"
+#include "Config.hh"
 #include "FDCFactory.hh"
 #include "PhilipsFDC.hh"
 #include "MicrosolFDC.hh"
@@ -8,10 +8,9 @@
 #include "TurboRFDC.hh"
 #include "MSXCPUInterface.hh"
 
-
 namespace openmsx {
 
-MSXDevice* FDCFactory::create(Device* config, const EmuTime& time)
+MSXDevice* FDCFactory::create(Config* config, const EmuTime& time)
 {
 	const string& type = config->getParameter("type");
 	if (type == "WD2793") {

@@ -27,9 +27,9 @@ TODO:
 #include "SpriteChecker.hh"
 #include "CommandController.hh"
 #include "Scheduler.hh"
-#include "MSXConfig.hh"
+#include "SettingsConfig.hh"
 #include "Config.hh"
-#include "Device.hh"
+#include "Config.hh"
 #include "RenderSettings.hh"
 #include "RendererFactory.hh"
 #include "Debugger.hh"
@@ -44,7 +44,7 @@ namespace openmsx {
 
 // Init and cleanup:
 
-VDP::VDP(Device* config, const EmuTime& time)
+VDP::VDP(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 	, vdpRegDebug(*this)
 	, vdpStatusRegDebug(*this)
@@ -103,7 +103,7 @@ VDP::VDP(Device* config, const EmuTime& time)
 
 	// Get renderer type from config.
 	try {
-		Config* config = MSXConfig::instance().getConfigById("renderer");
+		Config* config = SettingsConfig::instance().getConfigById("renderer");
 		rendererName = config->getType();
 	} catch (ConfigException &e) {
 		// no renderer section

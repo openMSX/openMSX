@@ -1,17 +1,17 @@
 // $Id$
 
 #include "MSXPac.hh"
-#include "Device.hh"
+#include "Config.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
 
 
 namespace openmsx {
 
-static const char* PAC_Header = "PAC2 BACKUP DATA";
-//                               1234567890123456
+static const char* const PAC_Header = "PAC2 BACKUP DATA";
+//                                     1234567890123456
 
-MSXPac::MSXPac(Device *config, const EmuTime &time)
+MSXPac::MSXPac(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time), 
 	  sram(0x1FFE, config, PAC_Header)
 {
@@ -22,13 +22,13 @@ MSXPac::~MSXPac()
 {
 }
 
-void MSXPac::reset(const EmuTime &time)
+void MSXPac::reset(const EmuTime& time)
 {
 	sramEnabled = false;
 	r1ffe = r1fff = 0xFF;	// TODO check
 }
 
-byte MSXPac::readMem(word address, const EmuTime &time)
+byte MSXPac::readMem(word address, const EmuTime& time)
 {
 	byte result;
 	address &= 0x3FFF;
@@ -65,7 +65,7 @@ const byte* MSXPac::getReadCacheLine(word address) const
 	}
 }
 
-void MSXPac::writeMem(word address, byte value, const EmuTime &time)
+void MSXPac::writeMem(word address, byte value, const EmuTime& time)
 {
 	//PRT_DEBUG("PAC write "<<hex<<(int)address<<" "<<(int)value<<dec);
 	address &= 0x3FFF;

@@ -1,17 +1,16 @@
 // $Id$
 
 #include "MSXFmPac.hh"
-#include "Device.hh"
+#include "Config.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
 
-
 namespace openmsx {
 
-static const char* PAC_Header = "PAC2 BACKUP DATA";
-//                               1234567890123456
+static const char* const PAC_Header = "PAC2 BACKUP DATA";
+//                                     1234567890123456
 
-MSXFmPac::MSXFmPac(Device* config, const EmuTime& time)
+MSXFmPac::MSXFmPac(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMusic(config, time), 
 	  sram(0x1FFE, config, PAC_Header)
 {

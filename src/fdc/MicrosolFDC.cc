@@ -4,10 +4,9 @@
 #include "WD2793.hh"
 #include "DriveMultiplexer.hh"
 
-
 namespace openmsx {
 
-MicrosolFDC::MicrosolFDC(Device *config, const EmuTime &time)
+MicrosolFDC::MicrosolFDC(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), WD2793BasedFDC(config, time),
 	  MSXIODevice(config, time)
 {
@@ -17,7 +16,7 @@ MicrosolFDC::~MicrosolFDC()
 {
 }
 
-byte MicrosolFDC::readIO(byte port, const EmuTime &time)
+byte MicrosolFDC::readIO(byte port, const EmuTime& time)
 {
 	byte value;
 	switch (port & 0x07) {
@@ -46,7 +45,7 @@ byte MicrosolFDC::readIO(byte port, const EmuTime &time)
 	return value;
 }
 
-void MicrosolFDC::writeIO(byte port, byte value, const EmuTime &time)
+void MicrosolFDC::writeIO(byte port, byte value, const EmuTime& time)
 {
 	PRT_DEBUG("MicrosolFDC: write 0x" << hex << (int)port << " 0x" << (int)value << dec);
 	switch (port & 0x07) {

@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class MSXConfig;
+class HardwareConfig;
 
 class CartridgeSlotManager
 {
@@ -21,7 +21,7 @@ class CartridgeSlotManager
 		CartridgeSlotManager();
 
 		int slots[16];
-		MSXConfig& msxConfig;
+		HardwareConfig& hardwareConfig;
 };
 
 } // namespace openmsx

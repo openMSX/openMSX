@@ -8,7 +8,7 @@
 #include "CommandController.hh"
 #include "MSXCPU.hh"
 #include "Scheduler.hh"
-#include "MSXConfig.hh"
+#include "HardwareConfig.hh"
 #include "Config.hh"
 #include "CartridgeSlotManager.hh"
 #include "VDPIODelay.hh"
@@ -39,7 +39,7 @@ MSXCPUInterface::MSXCPUInterface()
 	  slotMapCmd(*this),
 	  slotSelectCmd(*this),
 	  dummyDevice(DummyDevice::instance()),
-	  msxConfig(MSXConfig::instance()),
+	  hardwareConfig(HardwareConfig::instance()),
 	  commandController(CommandController::instance()),
 	  msxcpu(MSXCPU::instance()),
 	  scheduler(Scheduler::instance()),
@@ -65,7 +65,7 @@ MSXCPUInterface::MSXCPUInterface()
 		visibleDevices[page] = 0;
 	}
 
-	Config* config = msxConfig.getConfigById("MotherBoard");
+	Config* config = hardwareConfig.getConfigById("MotherBoard");
 	Config::Parameters subslotted_list;
 	config->getParametersWithClass("subslotted", subslotted_list);
 	for (Config::Parameters::const_iterator it = subslotted_list.begin();

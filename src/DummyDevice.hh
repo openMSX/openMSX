@@ -15,7 +15,7 @@ public:
 	virtual void reset(const EmuTime& time);
 
 private:
-	DummyDevice(Device* config, const EmuTime& time);
+	DummyDevice(Config* config, const EmuTime& time);
 	virtual ~DummyDevice();
 };
 

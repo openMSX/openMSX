@@ -1,12 +1,15 @@
 // $Id$
 
+#include <algorithm>
+#include "StringOp.hh"
+#include "Config.hh"
 #include "RomPlain.hh"
-#include "Device.hh"
 
+using std::min;
 
 namespace openmsx {
 
-RomPlain::RomPlain(Device* config, const EmuTime& time, Rom* rom)
+RomPlain::RomPlain(Config* config, const EmuTime& time, Rom* rom)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
 	switch (rom->getSize()) {
@@ -103,14 +106,22 @@ word RomPlain::guessLocation()
 	}
 
 	int lowest = 4;
-	const Device::Slots& slots = deviceConfig->getSlots();
-	for (Device::Slots::const_iterator i = slots.begin();
-	     i != slots.end(); ++i) {
-		int page = i->getPage();
-		if (page < lowest) {
-			lowest = page;
+	const XMLElement::Children& children =
+		deviceConfig->getXMLElement().getChildren();
+	for (XMLElement::Children::const_iterator it = children.begin();
+	     it != children.end(); ++it) {
+		if ((*it)->getName() == "slotted") {
+			const XMLElement::Children& slot_children = (*it)->getChildren();
+			for (XMLElement::Children::const_iterator it2 = slot_children.begin();
+			     it2 != slot_children.end(); ++it2) {
+				if ((*it2)->getName() == "page") {
+					int page = StringOp::stringToInt((*it2)->getPcData());
+					lowest = min(lowest, page);
+				}
+			}
 		}
 	}
+
 	return (lowest * 0x4000) & 0xFFFF;
 }
 

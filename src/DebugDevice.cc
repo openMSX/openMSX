@@ -5,7 +5,7 @@
 #include <iomanip>
 #include "EmuTime.hh"
 #include "DebugDevice.hh"
-#include "Device.hh"
+#include "Config.hh"
 #include "FileOperations.hh"
 #include "FilenameSetting.hh"
 
@@ -16,7 +16,7 @@ using std::cerr;
 
 namespace openmsx {
 
-DebugDevice::DebugDevice(Device* config, const EmuTime& time)
+DebugDevice::DebugDevice(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
 	mode = OFF;

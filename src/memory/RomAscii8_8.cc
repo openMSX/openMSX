@@ -14,12 +14,10 @@
 //  The SRAM can only be written to if selected in bank 3 or 4.
 
 #include "RomAscii8_8.hh"
-#include "Device.hh"
-
 
 namespace openmsx {
 
-RomAscii8_8::RomAscii8_8(Device* config, const EmuTime& time, Rom* rom)
+RomAscii8_8::RomAscii8_8(Config* config, const EmuTime& time, Rom* rom)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom),
 	  sram(0x2000, config)
 {
