@@ -24,10 +24,7 @@ public:
 	virtual void write(byte value, const EmuTime& time);
 
 private:
-
 	byte status;
-	string name;
-	string desc;
 };
 
 } // namespace openmsx

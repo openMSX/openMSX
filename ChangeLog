@@ -1,5 +1,8 @@
 $Id$
 
+2004-10-19 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed SETetisDongle: unused bits should be 1 iso 0
+
 2004-10-19 Joost Damad <joost@lumatec.be>
 	* sync with debian/
 	* updated manpage and control file

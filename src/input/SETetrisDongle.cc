@@ -6,9 +6,8 @@ namespace openmsx {
 
 SETetrisDongle::SETetrisDongle()
 {
-	PRT_DEBUG("Creating a SETetrisDongle object for joystick " );
-	name=string("tetris2-protection");
-	desc=string("SETetrisDongledongle");
+	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
+	         JOY_BUTTONA | JOY_BUTTONB;
 }
 
 SETetrisDongle::~SETetrisDongle()
@@ -18,12 +17,14 @@ SETetrisDongle::~SETetrisDongle()
 //Pluggable
 const string& SETetrisDongle::getName() const
 {
-	return name;
+	static const string NAME = "tetris2-protection";
+	return NAME;
 }
 
 const string& SETetrisDongle::getDescription() const
 {
-	return desc;
+	static const string DESC = "SETetrisDongledongle";
+	return DESC;
 }
 
 void SETetrisDongle::plugHelper(Connector* /*connector*/, const EmuTime& /*time*/)
@@ -45,8 +46,7 @@ void SETetrisDongle::write(byte value, const EmuTime& /*time*/)
 {
 	//Original device used 4 NOR ports
 	//pin4 will be value of pin7
-	status=value&2?JOY_RIGHT:0;
+	status = (value & 2) ? JOY_RIGHT : 0;
 }
-
 
 } // namespace openmsx
