@@ -19,14 +19,13 @@ class MSXMegaRom : public MSXDevice
 		 */
 		~MSXMegaRom();
 		
-		// don't forget you inherited from MSXDevice
 		void init();
 		
 		byte readMem(word address, Emutime &time);
 		void writeMem(word address, byte value, Emutime &time);
 
 	private:
-		int ROM_SIZE;
+		int romSize;
 		byte* memoryBank;
 		int mapperType;
 		byte mapperMask;

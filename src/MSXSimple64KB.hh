@@ -32,6 +32,6 @@ class MSXSimple64KB : public MSXDevice
 	
 	private:
 		byte* memoryBank;
-		bool slow_drain_on_reset;
+		bool slowDrainOnReset;
 };
 #endif

@@ -27,16 +27,13 @@ class MSXMemoryMapper : public MSXDevice
 		
 		void init();
 		void reset();
-		
-		//void saveState(std::ofstream &writestream);
-		//void restoreState(std::string &devicestring, std::ifstream &readstream);
 	
 	private:
 		int getAdr(int address);
 
 		byte *buffer;
 		int blocks;
-		bool slow_drain_on_reset;
+		bool slowDrainOnReset;
 };
 
 #endif //__MSXMEMORYMAPPER_HH__

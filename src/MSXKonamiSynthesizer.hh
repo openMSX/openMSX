@@ -20,14 +20,12 @@ class MSXKonamiSynthesizer : public MSXDevice
 		 */
 		~MSXKonamiSynthesizer();
 		
-		// don't forget you inherited from MSXDevice
 		void init();
 		
 		byte readMem(word address, Emutime &time);
 		void writeMem(word address, byte value, Emutime &time);
 
 	private:
-		static const int ROM_SIZE = 2*16384;
 		byte* memoryBank;
 		DACSound *DAC;
 };

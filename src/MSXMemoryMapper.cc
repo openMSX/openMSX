@@ -20,15 +20,11 @@ void MSXMemoryMapper::init()
 {
 	MSXDevice::init();
 	
-	if (deviceConfig->getParameter("slow_drain_on_reset") == "true")
-		slow_drain_on_reset = true;
-	else	slow_drain_on_reset = false;
-	
-	int kSize = atoi(deviceConfig->getParameter("size").c_str());
+	slowDrainOnReset = deviceConfig->getParameterAsBool("slow_drain_on_reset");
+	int kSize = deviceConfig->getParameterAsInt("size");
 	blocks = kSize/16;
 	int size = 16384*blocks;
-	buffer = new byte[size];
-	if (buffer == NULL)
+	if (!(buffer = new byte[size]))
 		PRT_ERROR("Couldn't allocate memory for " << getName());
 	//Isn't completely true, but let's suppose that ram will
 	//always contain all zero if started
@@ -41,7 +37,7 @@ void MSXMemoryMapper::init()
 void MSXMemoryMapper::reset()
 {
 	MSXDevice::reset();
-	if (!slow_drain_on_reset) {
+	if (!slowDrainOnReset) {
 		PRT_DEBUG("Clearing ram of " << getName());
 		memset(buffer, 0, blocks*16384);
 	}
@@ -65,5 +61,3 @@ int MSXMemoryMapper::getAdr(int address)
 	return adr;
 }
 
-//void MSXMemoryMapper::saveState(std::ofstream &writestream);
-//void MSXMemoryMapper::restoreState(std::string &devicestring, std::ifstream &readstream);

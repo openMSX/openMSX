@@ -40,7 +40,7 @@
       <ps>0</ps>
       <ss>0</ss>
     </slotted>
-    <parameter name="romfile">MSX.ROM</parameter>
+    <parameter name="filename">MSX.ROM</parameter>
     <parameter name="skip_headerbytes">0</parameter>
   </device>
   <device id="basicrom">
@@ -50,7 +50,7 @@
       <ps>0</ps>
       <ss>0</ss>
     </slotted>
-    <parameter name="romfile">MSX.ROM</parameter>
+    <parameter name="filename">MSX.ROM</parameter>
     <parameter name="skip_headerbytes">16384</parameter>
   </device>
   <device id="ppi">
@@ -73,6 +73,8 @@
   </device>
   <device id="Kanji ROM">
     <type>Kanji</type>
+    <parameter name="filename">KANJI.ROM</parameter>
+    <parameter name="skip_headerbytes">0</parameter>
   </device>
   <device id="Mapper IO">
     <type>MapperIO</type>
@@ -124,7 +126,7 @@
       <ss>0</ss>
       <page>2</page>
     </slotted>
-    <parameter name="romfile">PENGUIN.ROM</parameter>
+    <parameter name="filename">PENGUIN.ROM</parameter>
     <parameter name="filesize">131072</parameter>
     <parameter name="skip_headerbytes">0</parameter>
   </device>

@@ -25,7 +25,7 @@ void MSXSimple64KB::start()
 void MSXSimple64KB::reset()
 {
 	MSXDevice::reset();
-	if (!slow_drain_on_reset) {
+	if (!slowDrainOnReset) {
 		PRT_DEBUG("Clearing ram of " << getName());
 		memset(memoryBank, 0, 65536);
 	}
@@ -35,10 +35,7 @@ void MSXSimple64KB::init()
 {
 	MSXDevice::init();
 	
-	if (deviceConfig->getParameter("slow_drain_on_reset") == "true")
-		slow_drain_on_reset = true;
-	else	slow_drain_on_reset = false;
-	
+	slowDrainOnReset = deviceConfig->getParameterAsBool("slow_drain_on_reset");
 	memoryBank = new byte[65536];
 	if (memoryBank == NULL) 
 		PRT_ERROR("Couldn't create 64KB memory bank !!!!!!");

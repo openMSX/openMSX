@@ -21,19 +21,7 @@ MSXKanji::~MSXKanji()
 void MSXKanji::init()
 {
 	MSXDevice::init();
-	
-	buffer = new byte[ROM_SIZE];
-	if (buffer==NULL)
-		PRT_ERROR("Couldn't allocate Kanji buffer");
-#ifdef HAVE_FSTREAM_TEMPL
-	std::ifstream<byte> file("KANJI.ROM");
-#else
-	std::ifstream file("KANJI.ROM");
-#endif
-	file.read(buffer, ROM_SIZE);
-	if (file.fail())
-		PRT_ERROR("Couldn't read from KANJI.ROM");
-	file.close();
+	loadFile(&buffer, ROM_SIZE);
 	
 	MSXMotherBoard::instance()->register_IO_In (0xD9, this);
 	MSXMotherBoard::instance()->register_IO_Out(0xD8, this);

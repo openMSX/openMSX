@@ -15,41 +15,21 @@ MSXMegaRom::MSXMegaRom(MSXConfig::Device *config) : MSXDevice(config)
 
 MSXMegaRom::~MSXMegaRom()
 {
-	delete [] memoryBank; // C++ can handle null-pointers
 	PRT_DEBUG("Destructing an MSXMegaRom object");
+	delete [] memoryBank;
 }
 
 void MSXMegaRom::init()
 {
 	MSXDevice::init();
 	
-	std::string filename=deviceConfig->getParameter("romfile");
-	int offset = atoi(deviceConfig->getParameter("skip_headerbytes").c_str());
-	ROM_SIZE = atoi(deviceConfig->getParameter("filesize").c_str());
-	
-	// allocate buffer
-	memoryBank=new byte[ROM_SIZE];
-	if (memoryBank == NULL)
-		PRT_ERROR("Couldn't create megarom bank !!!!!!");
-	
-	// read the rom file
-#ifdef HAVE_FSTREAM_TEMPL
-	std::ifstream<byte> file(filename.c_str());
-#else
-	std::ifstream file(filename.c_str());
-#endif
-	//TODO dynamically determine ROM_SIZE
-	//file.seekg(0,end);
-	//ROM_SIZE=-offset;
-	file.seekg(offset);
-	file.read(memoryBank, ROM_SIZE);
-	if (file.fail())
-		PRT_ERROR("Error reading " << filename);
-	// TODO: maybe check for AB signature ?
+	//TODO dynamically determine romSize
+	romSize = deviceConfig->getParameterAsInt("filesize");
+	loadFile(&memoryBank, romSize);
 	
 	// Calculate mapperMask
-	int nrblocks=ROM_SIZE>>13;  //number of 8kB pages
-	for (mapperMask=1;mapperMask<nrblocks;mapperMask<<=1);
+	int nrblocks = romSize>>13;	//number of 8kB pages
+	for (mapperMask=1; mapperMask<nrblocks; mapperMask<<=1);
 	mapperMask--;
 	
 	// TODO: mirror if number of 8kB blocks not fully filled ?
@@ -79,7 +59,7 @@ int MSXMegaRom::retriefMapperType()
 	//
 	//  To gues which mapper it is, we will look how much writes with this 
 	//  instruction to the mapper-registers-addresses occure.
-	for (int i=0;i<ROM_SIZE-2;i++) {
+	for (int i=0;i<romSize-2;i++) {
 		if (memoryBank[i] == 0x32) {
 			int value=memoryBank[i+1]+(memoryBank[i+2]<<8);
 			switch (value){
