@@ -158,9 +158,9 @@ MSXRom::MSXRom(MSXConfig::Device *config, const EmuTime &time)
 void MSXRom::retrieveMapperType()
 {
 	std::string type;
-	try { 
+	if (deviceConfig->hasParameter("mappertype")) {
 		type = deviceConfig->getParameter("mappertype");
-	} catch (MSXException &e) {
+	} else {
 		// no type specified, perform auto detection
 		type = "auto";
 	}
@@ -774,18 +774,30 @@ void MSXRom::setBank16kB(int region, byte* adr)
 void MSXRom::setROM4kB(int region, int block)
 {
 	int nrBlocks = rom.getSize() >> 12;
-	block = (block < nrBlocks) ? block : block & (nrBlocks - 1);
-	setBank4kB(region, rom.getBlock(block << 12));
+	if (nrBlocks != 0) {
+		block = (block < nrBlocks) ? block : block & (nrBlocks - 1);
+		setBank4kB(region, rom.getBlock(block << 12));
+	} else {
+		setBank4kB(region, unmapped);
+	}
 }
 void MSXRom::setROM8kB(int region, int block)
 {
 	int nrBlocks = rom.getSize() >> 13;
-	block = (block < nrBlocks) ? block : block & (nrBlocks - 1);
-	setBank8kB(region, rom.getBlock(block << 13));
+	if (nrBlocks != 0) {
+		block = (block < nrBlocks) ? block : block & (nrBlocks - 1);
+		setBank8kB(region, rom.getBlock(block << 13));
+	} else {
+		setBank8kB(region, unmapped);
+	}
 }
 void MSXRom::setROM16kB(int region, int block)
 {
 	int nrBlocks = rom.getSize() >> 14;
-	block = (block < nrBlocks) ? block : block & (nrBlocks - 1);
-	setBank16kB(region, rom.getBlock(block << 14));
+	if (nrBlocks != 0) {
+		block = (block < nrBlocks) ? block : block & (nrBlocks - 1);
+		setBank16kB(region, rom.getBlock(block << 14));
+	} else {
+		setBank16kB(region, unmapped);
+	}
 }

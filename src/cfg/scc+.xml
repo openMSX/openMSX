@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
+<msxconfig>
+  <device id="SCC+ Cartridge">
+    <type>SCCPlusCart</type>
+    <slotted> <ps>1</ps> <ss>0</ss> <page>1</page> </slotted>
+    <slotted> <ps>1</ps> <ss>0</ss> <page>2</page> </slotted>
+    <!--<parameter name="filename">NEMESIS2.ROM</parameter>-->
+    <parameter name="volume">13000</parameter>
+  </device>
+</msxconfig>
+

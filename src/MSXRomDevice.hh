@@ -18,11 +18,11 @@ class MSXRomDevice
 		MSXRomDevice(const std::string &filename, const EmuTime &time);
 		virtual ~MSXRomDevice();
 
-		byte read(int address) const {
+		byte read(unsigned int address) const {
 			assert(address < size);
 			return rom[address];
 		}
-		byte* getBlock(int address = 0) const {
+		byte* getBlock(unsigned int address = 0) const {
 			assert(address < size);
 			return &rom[address];
 		}

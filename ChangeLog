@@ -4,6 +4,11 @@ $Id$
 	* removed MSXCPU::getTargetTime() method
 	* added EmuTime argument to the execute() method of a Command:
 	   this removes some of the calls to MSXCPU::getCurrentTime()
+	* An empty SCC cartridge no longer needs "/dev/zero" as filename,
+	  just don't specify a filename:
+	   this also works in OSes that don't support /dev/zero
+	* Removed "readromfile" parameter from SCCPlusCart:
+	   if you don't want to read a rom just don't specify one
 
 2003-01-09 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed CPU on big endian machines

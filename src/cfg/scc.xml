@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
+<msxconfig>
+  <device id="Empty SCC Cartridge">
+    <type>Rom</type>
+    <slotted> <ps>1</ps> <ss>0</ss> <page>1</page> </slotted>
+    <slotted> <ps>1</ps> <ss>0</ss> <page>2</page> </slotted>
+    <parameter name="volume">11500</parameter>
+    <parameter name="mappertype">SCC</parameter>
+  </device>
+</msxconfig>
+

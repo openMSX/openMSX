@@ -18,13 +18,9 @@ MSXSCCPlusCart::MSXSCCPlusCart(MSXConfig::Device *config, const EmuTime &time)
 	memoryBank = new byte[131072];
 	memset(memoryBank, 255, 131072);
 
-	PRT_DEBUG("SCC+ readromfile" << deviceConfig->getParameterAsBool("readromfile"));
-
-	if (deviceConfig->getParameterAsBool("readromfile")) {
-		std::string filename=deviceConfig->getParameter("filename");
-		PRT_DEBUG("SCC+ romfile" << filename);
-
+	if (deviceConfig->hasParameter("filename")) {
 		// read the rom file
+		std::string filename = deviceConfig->getParameter("filename");
 		try {
 			File file(filename, STATE);
 			int romSize = file.size();

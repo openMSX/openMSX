@@ -11,8 +11,13 @@
 
 MSXRomDevice::MSXRomDevice(MSXConfig::Device* config, const EmuTime &time)
 {
-	std::string filename = config->getParameter("filename");
-	read(config, filename, time);
+	if (config->hasParameter("filename")) {
+		std::string filename = config->getParameter("filename");
+		read(config, filename, time);
+	} else {
+		size = 0;
+		file = NULL;
+	}
 }
 
 MSXRomDevice::MSXRomDevice(const std::string &filename, const EmuTime &time)
@@ -102,6 +107,8 @@ MSXRomDevice::~MSXRomDevice()
 		MSXCPUInterface::instance()->unregisterInterface(*i);
 		delete (*i);
 	}
-	file->munmap();
-	delete file;
+	if (file) {
+		file->munmap();
+		delete file;
+	}
 }
