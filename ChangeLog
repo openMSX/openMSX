@@ -4,14 +4,15 @@ $Id$
 	* Create a scaler object once it becomes active, instead of creating all
 	  scalers in advance. This reduces memory usage when the number of
 	  scalers increases or some scalers use large lookup tables.
-	* fixed bug in wait() method of CPU (order of statements problem):
-	   fixes the reset on turbor crash
-	* "cassetteplayer" doesn't crash anymore on non-existing filenames
-	* use HAVE_LINUX_RTC_H instead of NO_LINUX_RTC, makes it easier to
-	  port to non-linux platforms
+	* Made Scaler base class a template. Preparation for later changes.
 
 2003-12-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Made memory in (sub)slots debuggable
+	* fixed bug in wait() method of CPU (order of statements problem):
+	  fixes the reset on turbor crash
+	* "cassetteplayer" doesn't crash anymore on non-existing filenames
+	* use HAVE_LINUX_RTC_H instead of NO_LINUX_RTC, makes it easier to
+	  port to non-linux platforms
 
 2003-12-04 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed "Back to the Future" hang:

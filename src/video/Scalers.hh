@@ -11,28 +11,28 @@ using std::vector;
 
 namespace openmsx {
 
+/** Enumeration of Scalers known to openMSX.
+*/
+enum ScalerID {
+	/** SimpleScaler. */
+	SCALER_SIMPLE,
+	/** SaI2xScaler. */
+	SCALER_SAI2X,
+};
+
 /** Abstract base class for scalers.
   * A scaler is an algorithm that converts low-res graphics to hi-res graphics.
   */
+template <class Pixel>
 class Scaler
 {
 public:
-	/** Enumeration of Scalers known to openMSX.
-	  */
-	enum ScalerID {
-		/** SimpleScaler. */
-		SIMPLE,
-		/** SaI2xScaler, naieve. */
-		SAI2X,
-	};
-
 	/** Instantiates a Scaler.
 	  * @param id Identifies the scaler algorithm.
 	  * @param blender Pixel blender that can be used by the scaler algorithm
 	  *   to interpolate pixels.
 	  * @return A Scaler object, owned by the caller.
 	  */
-	template <class Pixel>
 	static Scaler* createScaler(ScalerID id, Blender<Pixel> blender);
 
 	/** Scales the given line.
@@ -63,7 +63,8 @@ protected:
 /** Scaler which assigns the colour of the original pixel to all pixels in
   * the 2x2 square.
   */
-class SimpleScaler: public Scaler
+template <class Pixel>
+class SimpleScaler: public Scaler<Pixel>
 {
 public:
 	SimpleScaler();
@@ -79,7 +80,7 @@ private:
   * Algorithm was developed by Derek Liauw Kie Fa.
   */
 template <class Pixel>
-class SaI2xScaler: public Scaler
+class SaI2xScaler: public Scaler<Pixel>
 {
 public:
 	SaI2xScaler(Blender<Pixel> blender);

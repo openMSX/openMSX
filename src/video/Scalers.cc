@@ -7,22 +7,23 @@
 
 namespace openmsx {
 
-Scaler::Scaler()
+template <class Pixel>
+Scaler<Pixel>::Scaler()
 {
 }
 
 // Force template instantiation.
-template Scaler* Scaler::createScaler<byte>(ScalerID id, Blender<byte> blender);
-template Scaler* Scaler::createScaler<word>(ScalerID id, Blender<word> blender);
-template Scaler* Scaler::createScaler<unsigned int>(ScalerID id, Blender<unsigned int> blender);
+template class Scaler<byte>;
+template class Scaler<word>;
+template class Scaler<unsigned int>;
 
 template <class Pixel>
-Scaler* Scaler::createScaler(ScalerID id, Blender<Pixel> blender)
+Scaler<Pixel>* Scaler<Pixel>::createScaler(ScalerID id, Blender<Pixel> blender)
 {
 	switch(id) {
-	case SIMPLE:
-		return new SimpleScaler();
-	case SAI2X:
+	case SCALER_SIMPLE:
+		return new SimpleScaler<Pixel>();
+	case SCALER_SAI2X:
 		return new SaI2xScaler<Pixel>(blender);
 	default:
 		assert(false);
@@ -32,11 +33,13 @@ Scaler* Scaler::createScaler(ScalerID id, Blender<Pixel> blender)
 
 // === SimpleScaler ========================================================
 
-SimpleScaler::SimpleScaler()
+template <class Pixel>
+SimpleScaler<Pixel>::SimpleScaler()
 {
 }
 
-inline void SimpleScaler::copyLine(SDL_Surface* surface, int y)
+template <class Pixel>
+inline void SimpleScaler<Pixel>::copyLine(SDL_Surface* surface, int y)
 {
 	// TODO: Cheating (or at least using an undocumented feature) by
 	//       assuming that pixels are already doubled horizontally.
@@ -47,12 +50,14 @@ inline void SimpleScaler::copyLine(SDL_Surface* surface, int y)
 		);
 }
 
-void SimpleScaler::scaleLine256(SDL_Surface* surface, int y)
+template <class Pixel>
+void SimpleScaler<Pixel>::scaleLine256(SDL_Surface* surface, int y)
 {
 	copyLine(surface, y);
 }
 
-void SimpleScaler::scaleLine512(SDL_Surface* surface, int y)
+template <class Pixel>
+void SimpleScaler<Pixel>::scaleLine512(SDL_Surface* surface, int y)
 {
 	copyLine(surface, y);
 }

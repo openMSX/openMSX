@@ -47,11 +47,11 @@ RenderSettings::RenderSettings()
 	string rendererName = config->getType();
 	renderer = RendererFactory::createRendererSetting(rendererName);
 
-	map<string, Scaler::ScalerID> scalerMap;
-	scalerMap["simple"] = Scaler::SIMPLE;
-	scalerMap["2xsai"] = Scaler::SAI2X;
-	scaler = new EnumSetting<Scaler::ScalerID>(
-		"scaler", "scaler algorithm", Scaler::SIMPLE, scalerMap);
+	map<string, ScalerID> scalerMap;
+	scalerMap["simple"] = SCALER_SIMPLE;
+	scalerMap["2xsai"] = SCALER_SAI2X;
+	scaler = new EnumSetting<ScalerID>(
+		"scaler", "scaler algorithm", SCALER_SIMPLE, scalerMap);
 
 	scanlineAlpha = new IntegerSetting(
 		"scanline", "amount of scanline effect: 0 = none, 100 = full",

@@ -18,7 +18,7 @@ using std::vector;
 namespace openmsx {
 
 class OSDConsoleRenderer;
-class Scaler;
+template <class Pixel> class Scaler;
 
 
 /** Renderer on SDL surface.
@@ -170,8 +170,8 @@ private:
 	};
 	LineContent lineContent[HEIGHT];
 
-	Scaler* currScaler;
-	Scaler::ScalerID currScalerID;
+	Scaler<Pixel>* currScaler;
+	ScalerID currScalerID;
 
 	/** SDL colours corresponding to each VDP palette entry.
 	  * palFg has entry 0 set to the current background colour,

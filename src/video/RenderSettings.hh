@@ -53,7 +53,7 @@ public:
 	RendererFactory::RendererSetting *getRenderer() { return renderer; }
 
 	/** The current scaling algorithm. */
-	EnumSetting<Scaler::ScalerID> *getScaler() { return scaler; }
+	EnumSetting<ScalerID> *getScaler() { return scaler; }
 
 	/** The alpha value [0..100] of the scanlines. */
 	IntegerSetting *getScanlineAlpha() { return scanlineAlpha; }
@@ -71,7 +71,7 @@ private:
 	IntegerSetting *glow;
 	IntegerSetting *horizontalBlur;
 	RendererFactory::RendererSetting *renderer;
-	EnumSetting<Scaler::ScalerID> *scaler;
+	EnumSetting<ScalerID> *scaler;
 	IntegerSetting *scanlineAlpha;
 
 	class RendererInfo : public InfoTopic {
@@ -84,7 +84,7 @@ private:
 	private:
 		RenderSettings& parent;
 	} rendererInfo;
-	
+
 	MSXConfig& msxConfig;
 	InfoCommand& infoCommand;
 };

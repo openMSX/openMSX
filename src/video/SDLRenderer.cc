@@ -146,10 +146,10 @@ void SDLRenderer<Pixel, zoom>::drawEffects()
 	// Apply scaler.
 	if (LINE_ZOOM == 2) {
 		// New scaler algorithm selected?
-		Scaler::ScalerID scalerID = settings.getScaler()->getValue();
+		ScalerID scalerID = settings.getScaler()->getValue();
 		if (currScalerID != scalerID) {
-			if (currScaler) delete currScaler;
-			currScaler = Scaler::createScaler<Pixel>(
+			delete currScaler;
+			currScaler = Scaler<Pixel>::createScaler(
 				scalerID,
 				Blender<Pixel>::createFromFormat(screen->format)
 				);
@@ -390,7 +390,7 @@ SDLRenderer<Pixel, zoom>::SDLRenderer(
 		Blender<Pixel>::createFromFormat(screen->format) )
 {
 	this->screen = screen;
-	currScalerID = (Scaler::ScalerID)-1; // not a valid scaler
+	currScalerID = (ScalerID)-1; // not a valid scaler
 	currScaler = NULL;
 
 	console = new SDLConsole(CommandConsole::instance(), screen);
@@ -447,8 +447,8 @@ template <class Pixel, Renderer::Zoom zoom>
 SDLRenderer<Pixel, zoom>::~SDLRenderer()
 {
 	delete console;
-	if (debugger) delete debugger;
-	if (currScaler) delete currScaler;
+	delete debugger;
+	delete currScaler;
 	SDL_FreeSurface(charDisplayCache);
 	SDL_FreeSurface(bitmapDisplayCache);
 	SDL_FreeSurface(storedImage);
