@@ -7,7 +7,9 @@ pkgdata_DATA = \
 	openmsx.tex \
 	testcases.txt \
 	vram-addressing.txt \
-	openMSX-HOWTO.txt 
+	openMSX-HOWTO.txt \
+	after-bussum-FAQ.txt \
+	exampleconfigs.xml
 
 EXTRA_DIST = $(man_MANS) $(pkgdata_DATA)
 

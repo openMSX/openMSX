@@ -15,7 +15,8 @@ MAINTAINERCLEANFILES = aclocal.m4 Makefile.in \
 #bin_PROGRAMS=openmsx
 #openmsx_SOURCES=openmsx.cc openmsx.1 system.h aclocal.m4
 
-EXTRA_DIST=openmsx.lsm.in GPL TODO config-i686.sh autogen.sh share
+EXTRA_DIST = openmsx.lsm.in GPL TODO config-i686.sh autogen.sh share \
+             README.MD5SUMS
 
 # Altough (no)debug only needed in the src dir, we want 
 # to use the parameters here also
