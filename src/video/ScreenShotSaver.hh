@@ -3,7 +3,10 @@
 #ifndef __SCREENSHOTSAVER_HH__
 #define __SCREENSHOTSAVER_HH__
 
+#include <string>
 #include <SDL/SDL.h>
+
+using std::string;
 
 namespace openmsx {
 
@@ -13,14 +16,10 @@ class ScreenShotSaver
 {
 public:
 	ScreenShotSaver(SDL_Surface* image);
-	void take();
+	void take(const string& filename);
 
 private:
-	ScreenShotSaver() {};
-
 	SDL_Surface* image;
-
-	static int count;
 };
 
 } // namespace openmsx

@@ -147,31 +147,18 @@ done:
 
 namespace openmsx {
 
-int ScreenShotSaver::count = -1;
-
 ScreenShotSaver::ScreenShotSaver(SDL_Surface* image)
-:image(image)
+	:image(image)
 {
 }
 
-void ScreenShotSaver::take()
+void ScreenShotSaver::take(const string& filename)
 {
-	// TODO:
-	// Save in current directory with as name: "openmsxshotXXXXX.png"
-	// with XXXXX an automatically decided number by looking at the directory
-	// content
-
-	if (count == -1)
-	{
-		// decide on which number to actually use by looking at the directory
-	}
-  
-	FILE* fp = fopen("openmsxshot.png", "wb");
+	FILE* fp = fopen(filename.c_str(), "wb");
 
 	SDL_RWops* foo = SDL_RWFromFP(fp, 1);
-	if (IMG_SavePNG_RW(image, foo) < 0)
-	{
-		throw MSXException("Failed to write openmsxshot.png");
+	if (IMG_SavePNG_RW(image, foo) < 0) {
+		throw MSXException("Failed to write " + filename);
 	}
 	fclose(fp);
 }
