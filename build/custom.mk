@@ -12,5 +12,7 @@ INSTALL_BASE:=/opt/openMSX
 # development versions, not to release versions (see version.mk).
 VERSION_EXEC:=false
 
-# want a symbolic link for the binary?
+# Create a symbolic link to the installed binary?
+# This link is placed in a location that is typically in a user's path:
+# /usr/local/bin for system-wide installs and ~/bin for personal installs.
 SYMLINK_FOR_BINARY:=true
