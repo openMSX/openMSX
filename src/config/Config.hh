@@ -41,6 +41,7 @@ public:
 	};
 
 	Config(XML::Element* element, FileContext& context);
+	Config(const string& type, const string& id);
 	virtual ~Config();
 
 	const string& getType() const;
@@ -71,11 +72,12 @@ public:
 
 protected:
 	XML::Element* element;
+	FileContext* context;
+	string type;
+	string id;
 
 private:
 	XML::Element* getParameterElement(const string& name) const;
-	
-	FileContext* context;
 };
 
 } // namespace openmsx

@@ -27,6 +27,7 @@ public:
 	};
 
 	Device(XML::Element* element, FileContext& context);
+	Device(const string& type, const string& id);
 	~Device();
 
 	list<Slotted*> slotted;

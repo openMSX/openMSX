@@ -19,7 +19,7 @@ MSXMemDevice::MSXMemDevice(Device* config, const EmuTime& time)
 
 MSXMemDevice::~MSXMemDevice()
 {
-	// TODO unregister
+	// TODO unregister slots
 }
 
 void MSXMemDevice::init()
@@ -35,7 +35,7 @@ void MSXMemDevice::init()
 byte MSXMemDevice::readMem(word address, const EmuTime &time)
 {
 	PRT_DEBUG("MSXMemDevice: read from unmapped memory " << hex <<
-	           (int)address << dec);
+	          (int)address << dec);
 	return 0xFF;
 }
 
@@ -47,7 +47,7 @@ const byte* MSXMemDevice::getReadCacheLine(word start) const
 void MSXMemDevice::writeMem(word address, byte value, const EmuTime &time)
 {
 	PRT_DEBUG("MSXMemDevice: write to unmapped memory " << hex <<
-	           (int)address << dec);
+	          (int)address << dec);
 	// do nothing
 }
 
@@ -72,19 +72,16 @@ byte* MSXMemDevice::getWriteCacheLine(word start) const
 void MSXMemDevice::registerSlots()
 {
 	// register in slot-structure
-	if (deviceConfig == NULL) {
-		// DummyDevice
-		return;
+	if (deviceConfig->slotted.empty()) {
+		return; // DummyDevice
 	}
 	
-	assert(!deviceConfig->slotted.empty());
 	int ps = deviceConfig->slotted.front()->getPS();
 	int ss = deviceConfig->slotted.front()->getSS();
 	int pages = 0;
-	list<Device::Slotted*>::const_iterator it;
-	for (it  = deviceConfig->slotted.begin();
-	     it != deviceConfig->slotted.end();
-	     it++) {
+	for (list<Device::Slotted*>::const_iterator it =
+	         deviceConfig->slotted.begin();
+	     it != deviceConfig->slotted.end(); ++it) {
 		if (((*it)->getPS() != ps) || ((*it)->getSS() != ss)) {
 			throw FatalError("All pages of one device must be in the same slot/subslot");
 		}

@@ -33,6 +33,11 @@ Device::Device(XML::Element* element_, FileContext& context_)
 	}
 }
 
+Device::Device(const string& type, const string& id)
+	: Config(type, id)
+{
+}
+
 Device::~Device()
 {
 }

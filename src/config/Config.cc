@@ -1,5 +1,6 @@
 // $Id$
 
+#include <cassert>
 #include <algorithm>	// for tolower
 #include <cstdlib>	// for strtol() and atoll()
 #include "config.h"	// for the autoconf defines
@@ -16,7 +17,14 @@ namespace openmsx {
 // class Config
 
 Config::Config(XML::Element* element_, FileContext& context_)
-	: element(element_), context(context_.clone())
+	: element(element_), context(context_.clone()),
+	  type(element->getElementPcdata("type")),
+	  id(element->getAttribute("id"))
+{
+}
+
+Config::Config(const string& type_, const string& id_)
+	: element(0), context(0), type(type_), id(id_)
 {
 }
 
@@ -27,30 +35,33 @@ Config::~Config()
 
 const string &Config::getType() const
 {
-	return element->getElementPcdata("type");
+	return type;
 }
 
 const string &Config::getId() const
 {
-	return element->getAttribute("id");
+	return id;
 }
 
 FileContext& Config::getContext() const
 {
+	assert(context);
 	return *context;
 }
 
 XML::Element* Config::getParameterElement(const string& name) const
 {
-	for (list<XML::Element*>::iterator i = element->children.begin();
-	     i != element->children.end(); ++i) {
-		if ((*i)->name == "parameter") {
-			if ((*i)->getAttribute("name") == name) {
-				return (*i);
+	if (element) {
+		for (list<XML::Element*>::iterator i = element->children.begin();
+		     i != element->children.end(); ++i) {
+			if ((*i)->name == "parameter") {
+				if ((*i)->getAttribute("name") == name) {
+					return (*i);
+				}
 			}
 		}
 	}
-	return 0;
+	return NULL;
 }
 
 
@@ -63,10 +74,10 @@ const string &Config::getParameter(const string& name) const
 	throw(ConfigException)
 {
 	XML::Element* p = getParameterElement(name);
-	if (p != 0) {
-		return p->pcdata;
+	if (!p) {
+		throw ConfigException("Missing parameter: " + name);
 	}
-	throw ConfigException("Missing parameter: " + name);
+	return p->pcdata;
 }
 
 const string Config::getParameter(const string& name, const string& defaultValue) const
@@ -80,10 +91,10 @@ const bool Config::getParameterAsBool(const string& name) const
 	throw(ConfigException)
 {
 	XML::Element* p = getParameterElement(name);
-	if (p != 0) {
-		return Config::Parameter::stringToBool(p->pcdata);
+	if (!p) {
+		throw ConfigException("Missing parameter: " + name);
 	}
-	throw ConfigException("Missing parameter: " + name);
+	return Config::Parameter::stringToBool(p->pcdata);
 }
 
 const bool Config::getParameterAsBool(const string& name, bool defaultValue) const
@@ -96,10 +107,10 @@ const int Config::getParameterAsInt(const string& name) const
 	throw(ConfigException)
 {
 	XML::Element* p = getParameterElement(name);
-	if (p != 0) {
-		return Config::Parameter::stringToInt(p->pcdata);
+	if (!p) {
+		throw ConfigException("Missing parameter: " + name);
 	}
-	throw ConfigException("Missing parameter: " + name);
+	return Config::Parameter::stringToInt(p->pcdata);
 }
 
 const int Config::getParameterAsInt(const string& name, int defaultValue) const
@@ -112,10 +123,10 @@ const uint64 Config::getParameterAsUint64(const string& name) const
 	throw(ConfigException)
 {
 	XML::Element* p = getParameterElement(name);
-	if (p != 0) {
-		return Config::Parameter::stringToUint64(p->pcdata);
+	if (!p) {
+		throw ConfigException("Missing parameter: " + name);
 	}
-	throw ConfigException("Missing parameter: " + name);
+	return Config::Parameter::stringToUint64(p->pcdata);
 }
 
 const uint64 Config::getParameterAsUint64(const string& name, const uint64& defaultValue) const
@@ -127,12 +138,14 @@ const uint64 Config::getParameterAsUint64(const string& name, const uint64& defa
 list<Config::Parameter*>* Config::getParametersWithClass(const string& clasz)
 {
 	list<Config::Parameter*>* l = new list<Config::Parameter*>;
-	for (list<XML::Element*>::const_iterator i = element->children.begin();
-	     i != element->children.end(); ++i) {
-		if ((*i)->name == "parameter") {
-			if ((*i)->getAttribute("class") == clasz) {
-				l->push_back(new Parameter((*i)->getAttribute("name"),
-				                           (*i)->pcdata, clasz));
+	if (element) {
+		for (list<XML::Element*>::const_iterator i = element->children.begin();
+		     i != element->children.end(); ++i) {
+			if ((*i)->name == "parameter") {
+				if ((*i)->getAttribute("class") == clasz) {
+					l->push_back(new Parameter((*i)->getAttribute("name"),
+								   (*i)->pcdata, clasz));
+				}
 			}
 		}
 	}

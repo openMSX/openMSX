@@ -6,18 +6,17 @@
 #include "MSXIODevice.hh"
 #include "MSXMemDevice.hh"
 
-
 namespace openmsx {
 
 class DummyDevice : public MSXIODevice, public MSXMemDevice
 {
-	public:
-		virtual ~DummyDevice();
-		static DummyDevice *instance();
-		virtual void reset(const EmuTime &time);
-	
-	private:
-		DummyDevice(Device *config, const EmuTime &time);
+public:
+	static DummyDevice* instance();
+	virtual void reset(const EmuTime& time);
+
+private:
+	DummyDevice(Device* config, const EmuTime& time);
+	virtual ~DummyDevice();
 };
 
 } // namespace openmsx
