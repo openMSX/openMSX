@@ -44,7 +44,7 @@ class Y8950Adpcm : private Schedulable
 		byte *romBank;
 		
 		bool playing;
-		byte volume;
+		int volume;
 		word delta;
 		int nowStep, step;
 		int out, output;
@@ -55,6 +55,11 @@ class Y8950Adpcm : private Schedulable
 		
 		byte reg7;
 		byte reg15;
+
+	
+		// Relative volume between ADPCM part and FM part, 
+		// value experimentally found by Manuel Bilderbeek
+		static const int ADPCM_VOLUME = 356;
 
 		// Bitmask for register 0x07
 		static const int R07_RESET        = 0x01;

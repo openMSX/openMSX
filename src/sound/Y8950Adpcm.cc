@@ -155,7 +155,7 @@ void Y8950Adpcm::writeReg(byte rg, byte data, const EmuTime &time)
 
 		case 0x12: { // ENVELOP CONTROL 
 			byte oldVol = volume;
-			volume = data;
+			volume = (data * ADPCM_VOLUME) >> 8;
 			if (oldVol != 0) {
 				double factor = (double)volume / (double)oldVol;
 				output =     (int)((double)output     * factor);
