@@ -568,8 +568,8 @@ void WD2793::readAddressCmd(const EmuTime &time)
 
 void WD2793::readTrackCmd(const EmuTime &time)
 {
-	PRT_DEBUG("FDC command: read track");
-	assert(false);	// not yet implemented
+	PRT_DEBUG("FDC command: read track   NOT YET IMPLEMENTED");
+	// just continue iso assert(false)  'fixes' TNT
 }
 
 void WD2793::writeTrackCmd(const EmuTime &time)
