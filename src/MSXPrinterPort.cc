@@ -5,6 +5,7 @@
 #include "PluggingController.hh"
 #include "PrinterPortSimpl.hh"
 #include "PrinterPortLogger.hh"
+#include <cassert>
 
 
 MSXPrinterPort::MSXPrinterPort(Device *config, const EmuTime &time)

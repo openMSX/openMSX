@@ -4,6 +4,7 @@
 #include "PluggingController.hh"
 #include "FileContext.hh"
 #include "File.hh"
+#include <cassert>
 
 
 PrinterPortLogger::PrinterPortLogger()

@@ -2,6 +2,7 @@
 
 #include "Keyboard.hh"
 #include "EventDistributor.hh"
+#include <cassert>
 
 
 Keyboard::Keyboard(bool keyG)

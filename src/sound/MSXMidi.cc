@@ -1,6 +1,7 @@
 // $Id$
 
 #include "MSXMidi.hh"
+#include <cassert>
 
 
 MSXMidi::MSXMidi(Device *config, const EmuTime &time)

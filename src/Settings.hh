@@ -5,6 +5,7 @@
 
 #include "Command.hh"
 #include <map>
+#include <cassert>
 
 
 /*

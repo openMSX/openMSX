@@ -1,6 +1,7 @@
 // $Id$
 
 #include "MC6850.hh"
+#include <cassert>
 
 
 MC6850::MC6850(Device *config, const EmuTime &time)
