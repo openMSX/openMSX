@@ -7,8 +7,9 @@
 
 #include <memory> // for auto_ptr
 #include <iostream>
-#include <SDL/SDL.h>
 #include <exception>
+#include <SDL/SDL.h>
+#include <tcl.h>
 #include "config.h"
 #include "MSXMotherBoard.hh"
 #include "CommandLineParser.hh"
@@ -44,6 +45,7 @@ static int main(int argc, char **argv)
 	
 	int err = 0;
 	try {
+		Tcl_FindExecutable(argv[0]);
 		initializeSDL();
 		CommandLineParser& parser = CommandLineParser::instance();
 		parser.parse(argc, argv);
