@@ -10,14 +10,12 @@
 #include <unistd.h>
 #include <errno.h>
 
-// Must be a power of two, <= 8192.
-const int RTC_HERTZ = 1024;
 
 
 RealTimeRTC* RealTimeRTC::create()
 {
 	RealTimeRTC* rt = new RealTimeRTC();
-	if (!rt->initOK) {
+	if (!rt->init()) {
 		delete rt;
 		rt = NULL;
 	}
@@ -27,32 +25,6 @@ RealTimeRTC* RealTimeRTC::create()
 
 RealTimeRTC::RealTimeRTC()
 {
-	initOK = false;
-	
-	// Open RTC device.
-	rtcFd = open("/dev/rtc", O_RDONLY);
-	if (rtcFd == -1) {
-		PRT_INFO("Couldn't open /dev/rtc");
-		return;
-	}
-
-	// Select 1024Hz.
-	int retval = ioctl(rtcFd, RTC_IRQP_SET, RTC_HERTZ);
-	if (retval == -1) {
-		PRT_INFO("Couldn't select " << RTC_HERTZ << "Hz timer");
-		return;
-	}
-
-	// Enable periodic interrupts.
-	retval = ioctl(rtcFd, RTC_PIE_ON, 0);
-	if (retval == -1) {
-		PRT_INFO("Couldn't enable timer interrupts");
-		return;
-	}
-	
-	initOK = true;
-
-	reset(EmuTime::zero);
 }
 
 RealTimeRTC::~RealTimeRTC()
@@ -68,44 +40,94 @@ RealTimeRTC::~RealTimeRTC()
 	close(rtcFd);
 }
 
+bool RealTimeRTC::init()
+{
+	// Open RTC device.
+	rtcFd = open("/dev/rtc", O_RDONLY);
+	if (rtcFd == -1) {
+		PRT_INFO("Couldn't open /dev/rtc");
+		return false;
+	}
+
+	// Select 1024Hz.
+	int retval = ioctl(rtcFd, RTC_IRQP_SET, RTC_HERTZ);
+	if (retval == -1) {
+		PRT_INFO("Couldn't select " << RTC_HERTZ << "Hz timer");
+		return false;
+	}
+
+	// Enable periodic interrupts.
+	retval = ioctl(rtcFd, RTC_PIE_ON, 0);
+	if (retval == -1) {
+		PRT_INFO("Couldn't enable timer interrupts");
+		return false;
+	}
+	
+	reset(EmuTime::zero);
+
+	return true;
+}
+
+
 void RealTimeRTC::resync()
 {
 	resyncFlag = true;
 }
 
-float RealTimeRTC::doSync(const EmuTime &curEmu)
+float RealTimeRTC::doSync(const EmuTime &time)
 {
 	if (resyncFlag) {
-		reset(curEmu);
+		reset(time);
 		return 1.0;
 	}
 	
 	int speed = 25600 / speedSetting.getValue();
-	int emuPassed8K = (int)((speed * emuRef.getTicksTill(curEmu)) >> 8);
-	int emuPassedRTC = (emuPassed8K * RTC_HERTZ) / 8192;
-
-	//fprintf(stderr, "syncing %d ticks: ", emuPassedRTC);
-	while (emuPassedRTC > 0) {
-		// Blocks until interrupt.
-		unsigned long data;
-		int retval = read(rtcFd, &data, sizeof(unsigned long));
-		if (retval == -1) {
-			perror("read");
-			exit(errno);
-		}
-		int nrInts = data >> 8;
-		//fprintf(stderr, " %d",nrInts);
-		emuPassedRTC -= nrInts;
-	}
-	//fprintf(stderr, "\n");
-	if (emuPassedRTC >= 0) {
-		//fprintf(stderr, "ok\n");
+	int normalizedEmuTicks = (speed * emuRef.getTicksTill(time)) >> 8;
+	int sleep = normalizedEmuTicks - overslept;
+	if ((sleep * maxCatchUpTime) < (normalizedEmuTicks * 100)) {
+		// avoid catching up too fast
+		sleep = (normalizedEmuTicks * 100) / maxCatchUpTime;
+		overslept -= normalizedEmuTicks - sleep;
 	} else {
-		fprintf(stderr, "%d ", -emuPassedRTC);
+		// we can catch up all lost time
+		overslept = 0;
+	}
+	assert(sleep >= 0);
+
+	int realTime = nonBlockReadRTC();
+	float factor = ((float)(realTime + prevOverslept)) /
+	               ((float)(normalizedEmuTicks));
+	
+	while (sleep > 0) {
+		sleep -= readRTC();
+	}
+	if (sleep < 0) {
+		// overslept
+		prevOverslept = -sleep;
+		overslept += prevOverslept;
 	}
 
-	emuRef = curEmu;
-	return 1.0;
+	emuRef = time;
+	PRT_DEBUG("RTC: "<<factor);
+	return factor;
+}
+
+int RealTimeRTC::nonBlockReadRTC()
+{
+	// TODO implement non-blocking read
+	return readRTC();
+}
+
+int RealTimeRTC::readRTC()
+{
+	// Blocks until interrupt
+	unsigned long data;
+	int retval = read(rtcFd, &data, sizeof(unsigned long));
+	if (retval == -1) {
+		perror("read");
+		exit(errno);
+	}
+	return data >> 8;
 }
 
 void RealTimeRTC::reset(const EmuTime &time)
@@ -117,5 +139,7 @@ void RealTimeRTC::reset(const EmuTime &time)
 		perror("read");
 		exit(errno);
 	}
+	overslept = 0;
+	prevOverslept = 0;
 	emuRef = time;
 }

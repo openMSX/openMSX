@@ -108,7 +108,7 @@ PixelRenderer::PixelRenderer(RendererFactory::RendererID id, VDP *vdp)
 	vram = vdp->getVRAM();
 	spriteChecker = vdp->getSpriteChecker();
 
-	frameSkipShortAvg = 10.0;
+	frameSkipShortAvg = 5.0;
 	frameSkipLongAvg  = 100.0;
 	frameSkipDelay = 0;
 	while (!buffer.isFull()) {
@@ -156,7 +156,8 @@ void PixelRenderer::putImage(const EmuTime &time)
 	float factor = RealTime::instance()->sync(time);
 
 	if (autoFrameSkip) {
-		frameSkipShortAvg += (factor - buffer[9]);	// sum last 10
+		//PRT_DEBUG("FrameSkip "<<frameSkip);
+		frameSkipShortAvg += (factor - buffer[4]);	// sum last 5
 		frameSkipLongAvg  += (factor - buffer[99]);	// sum last 100
 		buffer.removeBack();
 		buffer.addFront(factor);
@@ -165,16 +166,16 @@ void PixelRenderer::putImage(const EmuTime &time)
 			// recently changed frameSkip, give time to stabilize
 			frameSkipDelay--;
 		} else {
-			if (frameSkipShortAvg > 11.0  && frameSkip < 30) {
-				// over the last 10 frames we where on average
-				// ~10% too slow, increase frameSkip
+			if (frameSkipShortAvg > 5.25  && frameSkip < 30) {
+				// over the last 5 frames we where on average
+				// ~5% too slow, increase frameSkip
 				frameSkip++;
-				frameSkipDelay = 100;
-			} else if (frameSkipLongAvg < 65.0 && frameSkip > 0) {
+				frameSkipDelay = 25;
+			} else if (frameSkipLongAvg < 50.0 && frameSkip > 0) {
 				// over the last 100 frames we where on average
 				// ~50% too fast, decrease frameSkip
 				frameSkip--;
-				frameSkipDelay = 10;
+				frameSkipDelay = 250;
 			}
 		}
 	}

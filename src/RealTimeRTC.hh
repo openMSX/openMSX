@@ -17,13 +17,20 @@ class RealTimeRTC : public RealTime
 		virtual void resync();
 		
 	private:
+		// Must be a power of two, <= 8192.
+		static const int RTC_HERTZ = 1024;
+		
 		RealTimeRTC();
+		bool init();
+		int readRTC();
+		int nonBlockReadRTC();
 		void reset(const EmuTime &time);
 		
 		int rtcFd;
-		bool initOK;
 		bool resyncFlag;
-		EmuTimeFreq<8192> emuRef;
+		int overslept;
+		int prevOverslept;
+		EmuTimeFreq<RTC_HERTZ> emuRef;
 };
 
 #endif
