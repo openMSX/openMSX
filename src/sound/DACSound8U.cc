@@ -5,9 +5,9 @@
 
 namespace openmsx {
 
-DACSound8U::DACSound8U(const string &name, short maxVolume,
-                       const EmuTime &time)
-	: DACSound16S(name, maxVolume, time)
+DACSound8U::DACSound8U(const string& name, const string& desc,
+                       short maxVolume, const EmuTime& time)
+	: DACSound16S(name, desc, maxVolume, time)
 {
 }
 

@@ -17,7 +17,8 @@ RomSynthesizer::RomSynthesizer(Device* config, const EmuTime &time, Rom *rom)
 	setBank(3, unmappedRead);
 
 	short volume = (short)config->getParameterAsInt("volume");
-	dac = new DACSound8U(config->getId(), volume, time);
+	dac = new DACSound8U(config->getId(), "Konami Synthesizer DAC",
+	                     volume, time);
 
 	reset(time);
 }

@@ -1,6 +1,10 @@
 $Id$
 
 2003-10-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Added descriptions to sounddevices:
+	    can be queried with "info sounddevice <name>"
+
+2003-10-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* commands can only throw CommandExceptions
 	* fixed possible resource leaks caused by thrown exceptions
 

@@ -12,7 +12,7 @@ MSXTurboRPCM::MSXTurboRPCM(Device *config, const EmuTime &time)
 	, AudioInputConnector("pcminput")
 {
 	short volume = (short)deviceConfig->getParameterAsInt("volume");
-	dac = new DACSound8U("PCM", volume, time);
+	dac = new DACSound8U("PCM", "Turbo-R PCM", volume, time);
 
 	reset(time);
 }

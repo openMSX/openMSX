@@ -504,9 +504,9 @@ void YM2413::Channel::keyOff()
 //***********************************************************//
 
 // Constructor
-YM2413::YM2413(const string &name, short volume, const EmuTime &time,
+YM2413::YM2413(const string& name_, short volume, const EmuTime& time,
                Mixer::ChannelMode mode)
-	: rythm_mode(false)
+	: rythm_mode(false), name(name_)
 {
 	// User instrument
 	patches[ 0] = Patch(false, false, false, 0,  0, 0,  0, 0, 0,  0,  0,  0,  0);
@@ -584,7 +584,7 @@ YM2413::YM2413(const string &name, short volume, const EmuTime &time,
 	makeSinTable();
 	makeDB2LinTable();
 
-	int bufSize = Mixer::instance()->registerSound(name, this, volume, mode);
+	int bufSize = Mixer::instance()->registerSound(this, volume, mode);
 	buffer = new int[bufSize];
 	
 	reset(time);
@@ -595,6 +595,17 @@ YM2413::~YM2413()
 {
 	Mixer::instance()->unregisterSound(this);
 	delete[] buffer;
+}
+
+const string& YM2413::getName() const
+{
+	return name;
+}
+
+const string& YM2413::getDescription() const
+{
+	static const string desc("MSX-MUSIC");
+	return desc;
 }
 
 // Reset whole of OPLL except patch datas

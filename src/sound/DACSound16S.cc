@@ -11,8 +11,9 @@ namespace openmsx {
 const float DELAY = 0.08;	// TODO tune
 
 
-DACSound16S::DACSound16S(const string &name, short volume,
-                         const EmuTime &time)
+DACSound16S::DACSound16S(const string& name_, const string& desc_,
+                         short volume, const EmuTime& time)
+	: name(name_), desc(desc_)
 {
 	cpu = MSXCPU::instance();
 	realTime = RealTime::instance();
@@ -21,7 +22,7 @@ DACSound16S::DACSound16S(const string &name, short volume,
 	nextTime = EmuTime::infinity;
 	reset(time);
 	
-	int bufSize = Mixer::instance()->registerSound(name, this,
+	int bufSize = Mixer::instance()->registerSound(this,
 	                                               volume, Mixer::MONO);
 	buffer = new int[bufSize];
 }
@@ -30,6 +31,16 @@ DACSound16S::~DACSound16S()
 {
 	Mixer::instance()->unregisterSound(this);
 	delete[] buffer;
+}
+
+const string& DACSound16S::getName() const
+{
+	return name;
+}
+
+const string& DACSound16S::getDescription() const
+{
+	return desc;
 }
 
 void DACSound16S::setInternalVolume(short newVolume)

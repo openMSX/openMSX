@@ -7,17 +7,16 @@
 
 #include "DACSound16S.hh"
 
-
 namespace openmsx {
 
 class DACSound8U : public DACSound16S
 {
-	public:
-		DACSound8U(const string &name, short maxVolume,
-		           const EmuTime &time); 
-		virtual ~DACSound8U();
-	
-		void writeDAC(byte value, const EmuTime &time);
+public:
+	DACSound8U(const string &name, const string& desc,
+	           short maxVolume, const EmuTime& time); 
+	virtual ~DACSound8U();
+
+	void writeDAC(byte value, const EmuTime& time);
 };
 
 } // namespace openmsx

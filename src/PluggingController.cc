@@ -266,9 +266,14 @@ string PluggingController::PluggableInfo::execute(const vector<string> &tokens)
 			result += (*it)->getName() + '\n';
 		}
 		break;
-	case 3:
-		result = controller->getPluggable(tokens[2])->getDescription();
+	case 3: {
+		const Pluggable* pluggable = controller->getPluggable(tokens[2]);
+		if (!pluggable) {
+			throw CommandException("No such pluggable");
+		}
+		result = pluggable->getDescription();
 		break;
+	}
 	default:
 		throw CommandException("Too many parameters");
 	}
@@ -312,9 +317,14 @@ string PluggingController::ConnectorInfo::execute(const vector<string> &tokens)
 			result += (*it)->getName() + '\n';
 		}
 		break;
-	case 3:
-		result = controller->getConnector(tokens[2])->getDescription();
+	case 3: {
+		const Connector* connector = controller->getConnector(tokens[2]);
+		if (!connector) {
+			throw CommandException("No such connector");
+		}
+		result = connector->getDescription();
 		break;
+	}
 	default:
 		throw CommandException("Too many parameters");
 	}

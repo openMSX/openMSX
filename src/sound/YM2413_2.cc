@@ -1350,8 +1350,9 @@ void YM2413_2::reset(const EmuTime &time)
 }
 
 
-YM2413_2::YM2413_2(const string &name, short volume, const EmuTime &time,
+YM2413_2::YM2413_2(const string& name_, short volume, const EmuTime& time,
                    const Mixer::ChannelMode mode)
+	: name(name_)
 {
 	eg_cnt = eg_timer = 0;
 	rhythm = 0;
@@ -1364,7 +1365,7 @@ YM2413_2::YM2413_2(const string &name, short volume, const EmuTime &time,
 	
 	init_tables();
 
-	int bufSize = Mixer::instance()->registerSound(name, this, volume, mode);
+	int bufSize = Mixer::instance()->registerSound(this, volume, mode);
 	buffer = new int[bufSize];
 	reset(time);
 }
@@ -1373,6 +1374,17 @@ YM2413_2::~YM2413_2()
 {
 	Mixer::instance()->unregisterSound(this);
 	delete[] buffer;
+}
+
+const string& YM2413_2::getName() const
+{
+	return name;
+}
+
+const string& YM2413_2::getDescription() const
+{
+	static const string desc("MSX-MUSIC");
+	return desc;
 }
 
 int* YM2413_2::updateBuffer(int length)

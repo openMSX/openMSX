@@ -8,22 +8,20 @@
 
 namespace openmsx {
 
-// forward declaration
 class EmuTime;
-
 
 class KeyClick
 {
-	public:
-		KeyClick(short volume, const EmuTime &time);
-		virtual ~KeyClick(); 
-	
-		void reset(const EmuTime &time);
-		void setClick(bool status, const EmuTime &time);
+public:
+	KeyClick(short volume, const EmuTime& time);
+	virtual ~KeyClick(); 
 
-	private:
-		DACSound8U dac;
-		bool status;
+	void reset(const EmuTime& time);
+	void setClick(bool status, const EmuTime& time);
+
+private:
+	DACSound8U dac;
+	bool status;
 };
 
 } // namespace openmsx

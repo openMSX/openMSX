@@ -35,7 +35,7 @@ void PrinterPortSimpl::plug(Connector *connector, const EmuTime &time)
 	throw()
 {
 	short volume = 12000;	// TODO read from config
-	dac = new DACSound8U("simpl", volume, time);
+	dac = new DACSound8U("simpl", getDescription(), volume, time);
 }
 
 void PrinterPortSimpl::unplug(const EmuTime &time)

@@ -15,7 +15,8 @@
 
 namespace openmsx {
 
-class Y8950: public SoundDevice, public TimerCallback {
+class Y8950: public SoundDevice, public TimerCallback
+{
 	class Patch {
 	public:
 		Patch();
@@ -166,8 +167,8 @@ class Y8950: public SoundDevice, public TimerCallback {
 	};
 
 public:
-	Y8950(const string &name, short volume, int sampleRam,
-		const EmuTime &time, Mixer::ChannelMode mode=Mixer::MONO);
+	Y8950(const string& name, short volume, int sampleRam,
+	      const EmuTime& time, Mixer::ChannelMode mode = Mixer::MONO);
 	virtual ~Y8950();
 
 	void reset(const EmuTime &time);
@@ -175,6 +176,9 @@ public:
 	byte readReg(byte reg, const EmuTime &time);
 	byte readStatus();
 
+	// SoundDevice
+	virtual const string& getName() const;
+	virtual const string& getDescription() const;
 	virtual void setInternalVolume(short maxVolume);
 	virtual void setSampleRate(int sampleRate);
 	virtual int* updateBuffer(int length);
@@ -336,6 +340,8 @@ private:
 
 	/** 13-bit (exponential) DAC. */
 	DACSound16S dac13;
+
+	const string name;
 };
 
 } // namespace openmsx

@@ -85,12 +85,14 @@ void Mixer::shutDown()
 	}
 }
 
-int Mixer::registerSound(const string &name, SoundDevice *device,
-                         short volume, ChannelMode mode)
+int Mixer::registerSound(SoundDevice* device, short volume, ChannelMode mode)
 {
 	if (!init) {
+		// sound disabled
 		return 512;	// return a save value
 	}
+	
+	const string& name = device->getName();
 	SoundDeviceInfo info;
 	info.volumeSetting = new IntegerSetting(name + "_volume",
 			"the volume of this sound chip", volume, 0, 32767);
@@ -109,7 +111,6 @@ int Mixer::registerSound(const string &name, SoundDevice *device,
 	info.modeSetting = new EnumSetting<ChannelMode>(name + "_mode", "the channel mode of this sound chip", mode, modeMap);
 	
 	info.mode = mode;
-	info.name = name;
 	info.modeSetting->addListener(this);
 	info.volumeSetting->addListener(this);
 	infos[device] = info;
@@ -306,28 +307,56 @@ void Mixer::update(const SettingLeafNode *setting)
 			devices[info.mode].push_back(it->first);
 			unlock();
 		} else {
-			const IntegerSetting* t = dynamic_cast <const IntegerSetting* >(setting);
-			if (t!=NULL) {
+			const IntegerSetting* t = dynamic_cast <const IntegerSetting*>(setting);
+			if (t != NULL) {
 				map<SoundDevice*, SoundDeviceInfo>::iterator it = infos.begin();
 				while (it != infos.end() && it->second.volumeSetting != setting) ++it;
 				assert (it!=infos.end());
 				// it->first is the SoundDevice we need
 				it->first->setVolume(it->second.volumeSetting->getValue()); 
-			} else assert(false);
+			} else {
+				assert(false);
+			}
 		}
 	}
 }
 
 
 // Sound device info
+
+SoundDevice* Mixer::getSoundDevice(const string& name)
+{
+	for (map<SoundDevice*, SoundDeviceInfo>::const_iterator it =
+	       infos.begin(); it != infos.end(); ++it) {
+		if (it->first->getName() == name) {
+			return it->first;
+		}
+	}
+	return NULL;
+}
+
 string Mixer::SoundDeviceInfoTopic::execute(const vector<string> &tokens) const
-	throw()
+	throw(CommandException)
 {
 	string result;
 	Mixer* mixer = Mixer::instance();
-	for (map<SoundDevice*, SoundDeviceInfo>::const_iterator it =
-	       mixer->infos.begin(); it != mixer->infos.end(); ++it) {
-		result += it->second.name + '\n';
+	switch (tokens.size()) {
+	case 2:
+		for (map<SoundDevice*, SoundDeviceInfo>::const_iterator it =
+		       mixer->infos.begin(); it != mixer->infos.end(); ++it) {
+			result += it->first->getName() + '\n';
+		}
+		break;
+	case 3: {
+		SoundDevice* device = mixer->getSoundDevice(tokens[2]);
+		if (!device) {
+			throw CommandException("Unknown sound device");
+		}
+		result = device->getDescription();
+		break;
+	}
+	default:
+		throw CommandException("Too many parameters");
 	}
 	return result;
 }
@@ -336,6 +365,20 @@ string Mixer::SoundDeviceInfoTopic::help(const vector<string> &tokens) const
 	throw()
 {
 	return "Shows a list of available sound devices.\n";
+}
+
+void Mixer::SoundDeviceInfoTopic::tabCompletion(vector<string>& tokens) const
+	throw()
+{
+	if (tokens.size() == 3) {
+		Mixer* mixer = Mixer::instance();
+		set<string> devices;
+		for (map<SoundDevice*, SoundDeviceInfo>::const_iterator it =
+		       mixer->infos.begin(); it != mixer->infos.end(); ++it) {
+			devices.insert(it->first->getName());
+		}
+		CommandController::completeString(tokens, devices);
+	}
 }
 
 } // namespace openmsx

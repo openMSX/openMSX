@@ -718,7 +718,7 @@ byte YMF278::readStatus(const EmuTime &time)
 }
 
 YMF278::YMF278(short volume, int ramSize, Device *config,
-               const EmuTime &time)
+               const EmuTime& time)
 	: rom(config, time)
 {
 	memadr = 0;	// avoid UMR
@@ -727,7 +727,7 @@ YMF278::YMF278(short volume, int ramSize, Device *config,
 	ram = new byte[ramSize];
 	endRam = endRom + ramSize;
 	
-	int bufSize = Mixer::instance()->registerSound("MoonSoundWave", this,
+	int bufSize = Mixer::instance()->registerSound(this,
 	                                               volume, Mixer::STEREO);
 	buffer = new int[2 * bufSize];
 	reset(time);
@@ -738,6 +738,18 @@ YMF278::~YMF278()
 	Mixer::instance()->unregisterSound(this);
 	delete[] buffer;
 	delete[] ram;
+}
+
+const string& YMF278::getName() const
+{
+	static const string name("MoonSoundWave");
+	return name;
+}
+
+const string& YMF278::getDescription() const
+{
+	static const string desc("MoonSound wave-part");
+	return desc;
 }
 
 void YMF278::reset(const EmuTime &time)

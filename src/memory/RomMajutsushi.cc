@@ -20,7 +20,7 @@ RomMajutsushi::RomMajutsushi(Device* config, const EmuTime &time, Rom *rom)
 	: MSXDevice(config, time), Rom8kBBlocks(config, time, rom)
 {
 	short volume = (short)config->getParameterAsInt("volume");
-	dac = new DACSound8U(config->getId(), volume, time);
+	dac = new DACSound8U(config->getId(), "Majutsushi DAC", volume, time);
 	
 	reset(time);
 }

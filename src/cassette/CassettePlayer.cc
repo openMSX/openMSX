@@ -78,7 +78,7 @@ CassettePlayer::CassettePlayer()
 	}
 	CommandController::instance()->registerCommand(this, "cassetteplayer");
 
-	int bufSize = Mixer::instance()->registerSound("cassetteplayer", this,
+	int bufSize = Mixer::instance()->registerSound(this,
 	                                               5000, Mixer::MONO);
 	buffer = new int[bufSize];
 }

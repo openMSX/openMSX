@@ -3,6 +3,9 @@
 #ifndef __SOUNDDEVICE_HH__
 #define __SOUNDDEVICE_HH__
 
+#include <string>
+
+using std::string;
 
 namespace openmsx {
 
@@ -11,7 +14,17 @@ class SoundDevice
 	public:
 		// Constructor
 		SoundDevice();
-	
+
+		/**
+		 * Get name
+		 */
+		virtual const string& getName() const = 0;
+
+		/**
+		 * Get description
+		 */
+		virtual const string& getDescription() const = 0;
+		
 		/**
 		 * Set the relative volume for this sound device, this
 		 * can be used to make a MSX-MUSIC sound louder than a
@@ -47,7 +60,6 @@ class SoundDevice
 		 * devices needs to be mixed must be done with isInternalMute()
 		 */
 		bool isMuted() const;
-
 
 	protected:
 		/**

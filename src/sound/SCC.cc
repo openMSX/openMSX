@@ -75,12 +75,12 @@
 
 namespace openmsx {
 
-SCC::SCC(const string &name, short volume, const EmuTime &time,
+SCC::SCC(const string& name_, short volume, const EmuTime &time,
          ChipMode mode)
-	: currentChipMode(mode)
+	: currentChipMode(mode), name(name_)
 {
 	// Register as a soundevice
-	int bufSize = Mixer::instance()->registerSound(name, this, volume,
+	int bufSize = Mixer::instance()->registerSound(this, volume,
 	                                               Mixer::MONO);
 	buffer = new int[bufSize];
 
@@ -98,6 +98,19 @@ SCC::~SCC()
 {
 	Mixer::instance()->unregisterSound(this);
 	delete[] buffer;
+}
+
+const string& SCC::getName() const
+{
+	return name;
+}
+
+const string& SCC::getDescription() const
+{
+	static string desc_scc ("Konami SCC");
+	static string desc_sccp("Konami SCC+");
+	return (currentChipMode == SCC_Real) ? desc_scc
+	                                     : desc_sccp;
 }
 
 void SCC::reset(const EmuTime &time)

@@ -44,8 +44,7 @@ public:
 	 * The maximum number of samples asked for is returned by this
 	 * method.
 	 */
-	int registerSound(const string &name, SoundDevice *device,
-			  short volume, ChannelMode mode);
+	int registerSound(SoundDevice *device, short volume, ChannelMode mode);
 
 	/**
 	 * Every sounddevice must unregister before it is destructed
@@ -87,12 +86,13 @@ private:
 	void muteHelper(int muteCount);
 	virtual void update(const SettingLeafNode *setting);
 
+	SoundDevice* getSoundDevice(const string& name);
+
 	bool init;
 	int muteCount;
 
 	struct SoundDeviceInfo {
 		ChannelMode mode;
-		string name;
 		IntegerSetting* volumeSetting;
 		EnumSetting<ChannelMode> *modeSetting;
 	};
@@ -119,8 +119,10 @@ private:
 	class SoundDeviceInfoTopic : public InfoTopic {
 	public:
 		virtual string execute(const vector<string> &tokens) const
-			throw();
+			throw(CommandException);
 		virtual string help   (const vector<string> &tokens) const
+			throw();
+		virtual void tabCompletion(vector<string>& tokens) const
 			throw();
 	} soundDeviceInfo;
 	friend class SoundDeviceInfoTopic;

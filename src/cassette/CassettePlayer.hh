@@ -43,9 +43,11 @@ public:
 	virtual void writeWave(short *buf, int length);
 	virtual int getWriteSampleRate();
 
-	// Pluggable
+	// Pluggable + SoundDevice
 	virtual const string& getName() const;
 	virtual const string& getDescription() const;
+	
+	// Pluggable
 	virtual void plug(Connector *connector, const EmuTime &time) throw();
 	virtual void unplug(const EmuTime &time);
 

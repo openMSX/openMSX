@@ -1802,7 +1802,7 @@ void YMF262::reset(const EmuTime &time)
 	setInternalMute(true);
 }
 
-YMF262::YMF262(short volume, const EmuTime &time)
+YMF262::YMF262(short volume, const EmuTime& time)
 	: timer1(this), timer2(this)
 {
 	LFO_AM = LFO_PM = 0;
@@ -1814,7 +1814,7 @@ YMF262::YMF262(short volume, const EmuTime &time)
 	
 	init_tables();
 
-	int bufSize = Mixer::instance()->registerSound("MoonSoundFM", this,
+	int bufSize = Mixer::instance()->registerSound(this,
 	                                               volume, Mixer::STEREO);
 	buffer = new int[2 * bufSize];
 	reset(time);
@@ -1824,6 +1824,18 @@ YMF262::~YMF262()
 {
 	Mixer::instance()->unregisterSound(this);
 	delete[] buffer;
+}
+
+const string& YMF262::getName() const
+{
+	static const string name("MoonSoundFM");
+	return name;
+}
+
+const string& YMF262::getDescription() const
+{
+	static const string desc("MoonSound FM-part");
+	return desc;
 }
 
 byte YMF262::readStatus()

@@ -11,7 +11,6 @@
  *
  */
 
-
 #include <cassert>
 #include "AY8910.hh"
 #include "Mixer.hh"
@@ -19,11 +18,23 @@
 
 namespace openmsx {
 
+const int FP_UNIT = 0x8000;	// fixed point representation of 1
+const int CLOCK = 3579545 / 2;
+const int PORT_A_DIRECTION = 0x40;
+const int PORT_B_DIRECTION = 0x80;
+enum Register {
+	AY_AFINE = 0, AY_ACOARSE = 1, AY_BFINE = 2, AY_BCOARSE = 3,
+	AY_CFINE = 4, AY_CCOARSE = 5, AY_NOISEPER = 6, AY_ENABLE = 7,
+	AY_AVOL = 8, AY_BVOL = 9, AY_CVOL = 10, AY_EFINE = 11,
+	AY_ECOARSE = 12, AY_ESHAPE = 13, AY_PORTA = 14, AY_PORTB = 15
+};
+
+
 AY8910::AY8910(AY8910Interface &interf, short volume, const EmuTime &time)
 	: semiMuted(false), interface(interf)
 {
-	int bufSize = Mixer::instance()->registerSound("psg",
-	                                        this, volume, Mixer::MONO);
+	int bufSize = Mixer::instance()->registerSound(this,
+	                                               volume, Mixer::MONO);
 	buffer = new int[bufSize];
 	reset(time);
 }
@@ -35,6 +46,17 @@ AY8910::~AY8910()
 	delete[] buffer;
 }
 
+const string& AY8910::getName() const
+{
+	static const string name("psg");
+	return name;
+}
+
+const string& AY8910::getDescription() const
+{
+	static const string desc("PSG");
+	return desc;
+}
 
 void AY8910::reset(const EmuTime &time)
 {
