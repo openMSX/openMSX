@@ -251,7 +251,6 @@ inline void _CPU_::executeSlow() {
 		int halts = (ticks + hltStates - 1) / hltStates;	// rounded up
 		R.R += halts;
 		currentTime += halts * hltStates;
-		stop = true;
 	} else {
 		R.IFF1 = R.nextIFF1;
 		executeFast();
