@@ -1,5 +1,11 @@
 $Id$
 
+2005-03-31 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* More YM2413 fixes (ported from v0.55)
+	* Swapped default and alternative YM2413 cores:
+	   is easier to test this way, if results are good, this might stay
+	   the default order
+
 2005-03-29 Manuel Bilderbeek <manuel@msxnet.org>
 	* Tried to adapt Okazaki YM2413 core in openMSX to make it look more
 	  like the original code (version 0.55, from NLMSX, thanks Frits).
