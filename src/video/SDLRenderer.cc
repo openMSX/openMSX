@@ -112,38 +112,40 @@ void SDLRenderer<Pixel, zoom>::paint()
 	}
 
 	// Scale image.
-	int deltaY = interlaced && vdp->getEvenOdd() ? 1 : 0;
-	
+	const unsigned deltaY = interlaced && vdp->getEvenOdd() ? 1 : 0;
 	unsigned startY = 0;
 	while (startY < HEIGHT / 2) {
-		LineContent content = lineContent[startY];
+		const LineContent content = lineContent[startY];
 		unsigned endY = startY + 1;
 		while (endY < HEIGHT / 2 && lineContent[endY] == content) endY++;
 
 		switch (content) {
 		case LINE_BLANK: {
-			Pixel colour = *reinterpret_cast<Pixel*>(
+			// Reduce area to same-colour starting segment.
+			const Pixel colour = *reinterpret_cast<Pixel*>(
 				reinterpret_cast<byte*>(workScreen->pixels) +
 				workScreen->pitch * startY
 				);
 			for (unsigned y = startY + 1; y < endY; y++) {
-				Pixel colour2 = *reinterpret_cast<Pixel*>(
+				const Pixel colour2 = *reinterpret_cast<Pixel*>(
 					reinterpret_cast<byte*>(workScreen->pixels) +
 					workScreen->pitch * y
 					);
 				if (colour != colour2) endY = y;
 			}
-			SDL_Rect rect;
-			rect.x = 0;
-			rect.w = WIDTH;
-			rect.y = startY * 2;
-			rect.h = (endY - startY) * 2;
-			// Note: SDL_FillRect is generally not allowed on locked surfaces.
-			//       However, we're using a software surface, which doesn't
-			//       have locking.
-			assert(!SDL_MUSTLOCK(screen));
-			// Note: return code ignored.
-			SDL_FillRect(screen, &rect, colour);
+			
+			if (deinterlace) {
+				// TODO: This isn't 100% accurate:
+				//       on the previous frame, this area may have contained
+				//       graphics instead of blank pixels.
+				currScaler->scaleBlank(
+					colour, screen,
+					startY * 2 + deltaY, endY * 2 + deltaY );
+			} else {
+				currScaler->scaleBlank(
+					colour, screen,
+					startY * 2 + deltaY, endY * 2 + deltaY );
+			}
 			break;
 		}
 		case LINE_256:
@@ -177,9 +179,6 @@ void SDLRenderer<Pixel, zoom>::paint()
 		//	startY, endY, content );
 		startY = endY;
 	}
-	
-	// Apply scanlines.
-	drawScanlines();
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -187,84 +186,6 @@ const string& SDLRenderer<Pixel, zoom>::getName()
 {
 	static const string NAME = "SDLRenderer";
 	return NAME;
-}
-
-template <class Pixel, Renderer::Zoom zoom>
-void SDLRenderer<Pixel, zoom>::drawScanlines()
-{
-	// Scanline algorithm does not work on palette modes (8bpp).
-	if (sizeof(Pixel) == 1) return;
-	// On low-res screens, there is no room to draw scanlines.
-	if (LINE_ZOOM == 1) return;
-
-	// Disable scanlines when deinterlacing.
-	if (interlaced && settings.getDeinterlace()->getValue()) return;
-	// Disable scanlines when scaling.
-	if (currScalerID != SCALER_SIMPLE) return;
-
-	int scanlineAlpha = (settings.getScanlineAlpha()->getValue() * 255) / 100;
-	if (scanlineAlpha == 0) return;
-
-	// Apply scanlines.
-	// TODO: Optimize scanlineAlpha == 255.
-	// TODO: Integrate with scaler? (introduce a "darken" class like Blender)
-	//       Now that scanlines are enabled only for simple scaler,
-	//       this becomes feasible.
-	SDL_PixelFormat* format = screen->format;
-	Uint32 rMask = format->Rmask;
-	Uint32 gMask = format->Gmask;
-	Uint32 bMask = format->Bmask;
-	int darkenFactor = 256 - scanlineAlpha;
-	int startLine = interlaced && vdp->getEvenOdd() ? 0 : 1;
-	if (((rMask | gMask | bMask) & 0xFF000000) == 0) {
-		// Upper 8 bits do not contain colours; use them as work area.
-		for (unsigned y = startLine; y < HEIGHT; y += 2) {
-			Pixel* currPixel = (Pixel*)
-				((byte*)screen->pixels + y * screen->pitch);
-			for (unsigned x = 0; x < WIDTH; x++, currPixel++) {
-				Pixel p = *currPixel;
-				unsigned r = (((p & rMask) * darkenFactor) >> 8) & rMask;
-				unsigned g = (((p & gMask) * darkenFactor) >> 8) & gMask;
-				unsigned b = (((p & bMask) * darkenFactor) >> 8) & bMask;
-				*currPixel = r | g | b;
-			}
-		}
-	} else if (((rMask | gMask | bMask) & 0x000000FF) == 0) {
-		// Lower 8 bits do not contain colours; use them as work area.
-		for (unsigned y = startLine; y < HEIGHT; y += 2) {
-			Pixel* currPixel = (Pixel*)
-				((byte*)screen->pixels + y * screen->pitch);
-			for (unsigned x = 0; x < WIDTH; x++, currPixel++) {
-				Pixel p = *currPixel;
-				unsigned r = (((p & rMask) >> 8) * darkenFactor) & rMask;
-				unsigned g = (((p & gMask) >> 8) * darkenFactor) & gMask;
-				unsigned b = (((p & bMask) >> 8) * darkenFactor) & bMask;
-				*currPixel = r | g | b;
-			}
-		}
-	} else {
-		// Uncommon pixel format; fall back to slightly slower routine.
-		for (unsigned y = startLine; y < HEIGHT; y += 2) {
-			Pixel* currPixel = (Pixel*)
-				((byte*)screen->pixels + y * screen->pitch);
-			for (unsigned x = 0; x < WIDTH; x++, currPixel++) {
-				Pixel p = *currPixel;
-				unsigned r =
-					rMask & 0xFF
-					? (((p & rMask) * darkenFactor) >> 8) & rMask
-					: (((p & rMask) >> 8) * darkenFactor) & rMask;
-				unsigned g =
-					gMask & 0xFF
-					? (((p & gMask) * darkenFactor) >> 8) & gMask
-					: (((p & gMask) >> 8) * darkenFactor) & gMask;
-				unsigned b =
-					bMask & 0xFF
-					? (((p & bMask) * darkenFactor) >> 8) & bMask
-					: (((p & bMask) >> 8) * darkenFactor) & bMask;
-				*currPixel = r | g | b;
-			}
-		}
-	}
 }
 
 template <class Pixel, Renderer::Zoom zoom>

@@ -56,6 +56,24 @@ Scaler<Pixel>::Scaler()
 }
 
 template <class Pixel>
+void Scaler<Pixel>::scaleBlank(
+	Pixel colour,
+	SDL_Surface* dst, int dstY, int endDstY
+) {
+	SDL_Rect rect;
+	rect.x = 0;
+	rect.w = dst->w;
+	rect.y = dstY;
+	rect.h = endDstY - dstY;
+	// Note: SDL_FillRect is generally not allowed on locked surfaces.
+	//       However, we're using a software surface, which doesn't
+	//       have locking.
+	assert(!SDL_MUSTLOCK(dst));
+	// Note: return code ignored.
+	SDL_FillRect(dst, &rect, colour);
+}
+
+template <class Pixel>
 void Scaler<Pixel>::scale256(
 	SDL_Surface* src, int srcY, int endSrcY,
 	SDL_Surface* dst, int dstY )

@@ -1,5 +1,12 @@
 $Id$
 
+2004-07-22 Maarten ter Huurne <maarten@treewalker.org>
+	* Changed scanline drawing from a post-processing operation to
+	  an integrated part of the "simple" scaler.
+	  As a result, drawing with scanlines is now equally fast as drawing
+	  without scanlines. Probably this means small computations can be done
+	  in cycles that would otherwise be wasted waiting for memory access.
+
 2004-07-21 Maarten ter Huurne <maarten@treewalker.org>
 	* Introduced display which manages multiple layers.
 	  Currently, the following layers exist:

@@ -42,7 +42,18 @@ public:
 	  */
 	static auto_ptr<Scaler> createScaler(ScalerID id, SDL_PixelFormat* format);
 
-	/** Scales the given area.
+	/** Fills the given area, which contains only a single colour.
+	  * @param colour Colour the area should be filled with.
+	  * @param dst Destination: image to store the scaled output in.
+	  *   It should be 640 pixels wide.
+	  * @param dstY Y-coordinate of the top destination line.
+	  * @param endDstY Y-coordinate of the bottom destination line (exclusive).
+	  */
+	virtual void scaleBlank(
+		Pixel colour,
+		SDL_Surface* dst, int dstY, int endDstY );
+
+	/** Scales the given area 200% horizontally and vertically.
 	  * The default implementation scales each pixel to a 2x2 square.
 	  * @param src Source: the image to be scaled.
 	  *   It should be 320 pixels wide.
@@ -58,7 +69,7 @@ public:
 		SDL_Surface* src, int srcY, int endSrcY,
 		SDL_Surface* dst, int dstY );
 
-	/** Scales the given area.
+	/** Scales the given area 200% vertically.
 	  * The default implementation scales each pixel to a 1x2 rectangle.
 	  * @param src Source: the image to be scaled.
 	  *   It should be 640 pixels wide.

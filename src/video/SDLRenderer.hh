@@ -168,10 +168,6 @@ private:
 	  */
 	void precalcColourIndex0(DisplayMode mode, bool transparency = true);
 
-	/** Draw scanlines.
-	  */
-	void drawScanlines();
-
 	/** Line to render at top of display.
 	  * After all, our screen is 240 lines while display is 262 or 313.
 	  */
