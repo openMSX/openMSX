@@ -28,6 +28,11 @@ EventDistributor& EventDistributor::instance()
 
 void EventDistributor::wait()
 {
+	// SDL bug workaround
+	if (!SDL_WasInit(SDL_INIT_VIDEO)) {
+		SDL_Delay(100);
+	}
+
 	if (SDL_WaitEvent(NULL)) {
 		poll();
 	}
