@@ -62,6 +62,7 @@ class Console : private EventListener
 			private:
 				Console* console;
 		} consoleSetting;
+		friend class ConsoleSetting;
 		
 		std::list<ConsoleRenderer*> renderers;
 		CircularBuffer<std::string, 100> lines;
