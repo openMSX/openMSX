@@ -9,6 +9,7 @@
 #include "VRAMObserver.hh"
 #include "CommandException.hh"
 
+
 namespace openmsx {
 
 class EmuTime;
@@ -53,7 +54,7 @@ public:
 	/** Reinitialise Renderer state.
 	  * @param time The moment in time this reset occurs.
 	  */
-	virtual void reset(const EmuTime &time) = 0;
+	virtual void reset(const EmuTime& time) = 0;
 
 	/** Requests that this renderer checks its settings against the
 	  * current RenderSettings. If possible, update the settings of this
@@ -72,59 +73,65 @@ public:
 	  * the VDP, such as PAL/NTSC timing.
 	  * @param time The moment in emulated time the frame starts.
 	  */
-	virtual void frameStart(const EmuTime &time) = 0;
+	virtual void frameStart(const EmuTime& time) = 0;
 
 	/** Puts the generated image on the screen.
 	  * @param time The moment in emulated time the frame is finished.
 	  */
-	virtual void putImage(const EmuTime &time) = 0;
+	virtual void putImage(const EmuTime& time) = 0;
 
-	/** Puts the stored image on the screen.
-	  * Images can be stored by requesting the putImage method to do so.
+	/** Refreshes the screen by drawing the same image as last frame.
+	  * Even if a renderer cannot reproduce the last frame, it should paint
+	  * something that fills the entire rendering area of the screen.
 	  */
 	virtual void putStoredImage() = 0;
+
+	/** Refreshes the screen by drawing an image that does not depend on
+	  * VDP state. Examples: black screen, logo, snow.
+	  */
 	virtual int putPowerOffImage() = 0;
 
-	/** Take a screenshot
-	 */
+	/** Take a screenshot.
+	  * @param filename Name of the file to save the screenshot to.
+	  */
 	virtual void takeScreenShot(const string& filename)
 		throw (CommandException);
-	
+
 	/** Informs the renderer of a VDP transparency enable/disable change.
 	  * @param enabled The new transparency state.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateTransparency(bool enabled, const EmuTime &time) = 0;
+	virtual void updateTransparency(bool enabled, const EmuTime& time) = 0;
 
 	/** Informs the renderer of a VDP foreground colour change.
 	  * @param colour The new foreground colour.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateForegroundColour(int colour, const EmuTime &time) = 0;
+	virtual void updateForegroundColour(int colour, const EmuTime& time) = 0;
 
 	/** Informs the renderer of a VDP background colour change.
 	  * @param colour The new background colour.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateBackgroundColour(int colour, const EmuTime &time) = 0;
+	virtual void updateBackgroundColour(int colour, const EmuTime& time) = 0;
 
 	/** Informs the renderer of a VDP blink foreground colour change.
 	  * @param colour The new blink foreground colour.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateBlinkForegroundColour(int colour, const EmuTime &time) = 0;
+	virtual void updateBlinkForegroundColour(int colour, const EmuTime& time) = 0;
 
 	/** Informs the renderer of a VDP blink background colour change.
 	  * @param colour The new blink background colour.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateBlinkBackgroundColour(int colour, const EmuTime &time) = 0;
+	virtual void updateBlinkBackgroundColour(int colour, const EmuTime& time) = 0;
 
 	/** Informs the renderer of a VDP blinking state change.
 	  * @param enabled The new blink state.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateBlinkState(bool enabled, const EmuTime &time) = 0;
+	virtual void updateBlinkState(bool enabled, const EmuTime& time) = 0;
 
 	/** Informs the renderer of a VDP palette change.
 	  * @param index The index [0..15] in the palette that changes.
@@ -133,41 +140,41 @@ public:
 	  *   all other bits are zero.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updatePalette(int index, int grb, const EmuTime &time) = 0;
+	virtual void updatePalette(int index, int grb, const EmuTime& time) = 0;
 
 	/** Informs the renderer of a vertical scroll change.
 	  * @param scroll The new scroll value.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateVerticalScroll(int scroll, const EmuTime &time) = 0;
+	virtual void updateVerticalScroll(int scroll, const EmuTime& time) = 0;
 
 	/** Informs the renderer of a horizontal scroll change:
 	  * the lower scroll value has changed.
 	  * @param scroll The new scroll value.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateHorizontalScrollLow(byte scroll, const EmuTime &time) = 0;
+	virtual void updateHorizontalScrollLow(byte scroll, const EmuTime& time) = 0;
 
 	/** Informs the renderer of a horizontal scroll change:
 	  * the higher scroll value has changed.
 	  * @param scroll The new scroll value.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateHorizontalScrollHigh(byte scroll, const EmuTime &time) = 0;
+	virtual void updateHorizontalScrollHigh(byte scroll, const EmuTime& time) = 0;
 
 	/** Informs the renderer of a horizontal scroll change:
 	  * the border mask has been enabled/disabled.
 	  * @param masked true iff enabled.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateBorderMask(bool masked, const EmuTime &time) = 0;
+	virtual void updateBorderMask(bool masked, const EmuTime& time) = 0;
 
 	/** Informs the renderer of a horizontal scroll change:
 	  * the multi page setting has changed.
 	  * @param multiPage The new multi page flag.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateMultiPage(bool multiPage, const EmuTime &time) = 0;
+	virtual void updateMultiPage(bool multiPage, const EmuTime& time) = 0;
 
 	/** Informs the renderer of a horizontal adjust change.
 	  * Note that there is no similar method for vertical adjust updates,
@@ -176,7 +183,7 @@ public:
 	  * @param adjust The new adjust value.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateHorizontalAdjust(int adjust, const EmuTime &time) = 0;
+	virtual void updateHorizontalAdjust(int adjust, const EmuTime& time) = 0;
 
 	/** Informs the renderer of a VDP display enabled change.
 	  * Both the regular border start/end and forced blanking by clearing
@@ -184,37 +191,37 @@ public:
 	  * @param enabled The new display enabled state.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateDisplayEnabled(bool enabled, const EmuTime &time) = 0;
+	virtual void updateDisplayEnabled(bool enabled, const EmuTime& time) = 0;
 
 	/** Informs the renderer of a VDP display mode change.
 	  * @param mode The new display mode.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateDisplayMode(DisplayMode mode, const EmuTime &time) = 0;
+	virtual void updateDisplayMode(DisplayMode mode, const EmuTime& time) = 0;
 
 	/** Informs the renderer of a name table base address change.
 	  * @param addr The new base address.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateNameBase(int addr, const EmuTime &time) = 0;
+	virtual void updateNameBase(int addr, const EmuTime& time) = 0;
 
 	/** Informs the renderer of a pattern table base address change.
 	  * @param addr The new base address.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updatePatternBase(int addr, const EmuTime &time) = 0;
+	virtual void updatePatternBase(int addr, const EmuTime& time) = 0;
 
 	/** Informs the renderer of a colour table base address change.
 	  * @param addr The new base address.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateColourBase(int addr, const EmuTime &time) = 0;
+	virtual void updateColourBase(int addr, const EmuTime& time) = 0;
 
 	/** Informs the renderer of a VDP sprites enabled change.
 	  * @param enabled The new sprites enabled state.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateSpritesEnabled(bool enabled, const EmuTime &time) = 0;
+	virtual void updateSpritesEnabled(bool enabled, const EmuTime& time) = 0;
 
 protected:
 	/** NTSC version of the MSX1 palette.
