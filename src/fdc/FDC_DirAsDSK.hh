@@ -49,6 +49,7 @@ class FDC_DirAsDSK : public SectorBasedDisk
 
 	private:
 		static const int MAX_CLUSTER = 720;
+		static const int SECTORS_PER_FAT = 3;
 
 		void updateFileInDSK(const string& fullfilename);
 		bool checkFileUsedInDSK(const string& fullfilename);
@@ -61,7 +62,7 @@ class FDC_DirAsDSK : public SectorBasedDisk
 		void WriteFAT(word clnr, word val);
 		MappedDirEntry mapdir[112];	// max nr of entries in root directory: 7 sectors, each 16 entries
 		ReverseCluster clustermap[MAX_CLUSTER];
-		byte FAT[SECTOR_SIZE * 5];
+		byte FAT[SECTOR_SIZE * SECTORS_PER_FAT];
 
 		static const byte BootBlock[];
 };

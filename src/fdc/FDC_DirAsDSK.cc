@@ -88,7 +88,7 @@ bool FDC_DirAsDSK::checkMSXFileExists(const string& msxfilename)
 	unsigned pos = msxfilename.find_last_of('/');
 	string tmp;
 	if (pos != string::npos) {
-		tmp = msxfilename.substr(pos+1);
+		tmp = msxfilename.substr(pos + 1);
 	} else {
 		tmp = msxfilename;
 	}
@@ -177,14 +177,14 @@ FDC_DirAsDSK::FDC_DirAsDSK(FileContext *context, const string &fileName)
 	}
 
 	// Make a full clear FAT
-	memset(FAT, 0, SECTOR_SIZE * 5);
+	memset(FAT, 0, SECTOR_SIZE * SECTORS_PER_FAT);
 
 	//read directory and fill the fake disk
 	struct dirent* d = readdir(dir);
 	while (d) {
 		string name(d->d_name);
 		PRT_DEBUG("reading name in dir :" << name);
-		updateFileInDSK(fileName+name); // used here to add file into fake dsk
+		updateFileInDSK(fileName + '/' + name); // used here to add file into fake dsk
 		d = readdir(dir);
 	}
 	closedir(dir);
@@ -198,20 +198,22 @@ FDC_DirAsDSK::~FDC_DirAsDSK()
 void FDC_DirAsDSK::read(byte track, byte sector, byte side,
                    int size, byte* buf)
 {
+	assert(size == SECTOR_SIZE);
+	
 	int logicalSector = physToLog(track, side, sector);
 	if (logicalSector >= nbSectors) {
 		throw NoSuchSectorException("No such sector");
 	}
 	if (logicalSector == 0) {
 		//copy our fake bootsector into the buffer
-		memcpy(buf,BootBlock,size);
-	} else if (logicalSector < 11) {
+		memcpy(buf, BootBlock, SECTOR_SIZE);
+	} else if (logicalSector < (1 + 2 * SECTORS_PER_FAT)) {
 		//copy correct sector from FAT
-		logicalSector -= (logicalSector > 5 ? 1 : 6);
+		logicalSector = (logicalSector - 1) % SECTORS_PER_FAT;
 		memcpy(buf, FAT + logicalSector * SECTOR_SIZE, size);
-	} else if (logicalSector < 18){
+	} else if (logicalSector < 14) {
 		//create correct DIR sector 
-		logicalSector -= 11;
+		logicalSector -= (1 + 2 * SECTORS_PER_FAT);
 		int dirCount = logicalSector * 16;
 		for (int i = 0; i < 16; i++) {
 			memcpy(buf, &mapdir[dirCount++].msxinfo, 32);
@@ -220,7 +222,7 @@ void FDC_DirAsDSK::read(byte track, byte sector, byte side,
 	} else {
 		// else get map from sector to file and read correct block
 		// folowing same numbering as FAT eg. first data block is cluster 2
-		int cluster = (int)((logicalSector - 18) / 2) + 2; 
+		int cluster = (int)((logicalSector - 14) / 2) + 2; 
 		// open file and read data
 		int offset = clustermap[cluster].fileOffset + (cluster & 1) * SECTOR_SIZE;
 		string tmp = mapdir[clustermap[cluster].dirEntryNr].filename;
@@ -284,7 +286,10 @@ void FDC_DirAsDSK::updateFileInDSK(const string& fullfilename)
 {
 	struct stat fst;
 
-	stat(fullfilename.c_str(), &fst);
+	if (stat(fullfilename.c_str(), &fst)) {
+		PRT_INFO("Error accessing " << fullfilename);
+		return;
+	}
 	if (!S_ISREG(fst.st_mode)) {
 		// we only handle regular files for now
 		PRT_INFO("Not a regular file: " << fullfilename);
@@ -304,7 +309,7 @@ void FDC_DirAsDSK::addFileToDSK(const string& fullfilename)
 {
 	//get emtpy dir entry
 	int dirindex = 0;
-	while (mapdir[dirindex].filename.length() && (dirindex < 112)) {
+	while ((dirindex < 112) && !mapdir[dirindex].filename.empty()) {
 	     dirindex++;
 	}
 	PRT_DEBUG("Adding on dirindex " << dirindex);
@@ -312,6 +317,9 @@ void FDC_DirAsDSK::addFileToDSK(const string& fullfilename)
 		PRT_INFO( "Couldn't add " << fullfilename << ": root dir full");
 		return;
 	}
+
+	// fill in native file name
+	mapdir[dirindex].filename = fullfilename;
 
 	// create correct MSX filename
 	string MSXfilename = makeSimpleMSXFileName(fullfilename);
@@ -323,8 +331,8 @@ void FDC_DirAsDSK::addFileToDSK(const string& fullfilename)
 		return;
 	}
 	
-	//set correct info in mapdir
-	memcpy(&(mapdir[dirindex].filename), MSXfilename.c_str(), 11);
+	// fill in MSX file name
+	memcpy(&(mapdir[dirindex].msxinfo.filename), MSXfilename.c_str(), 11);
 	
 	//open file
 	int fsize;
@@ -377,10 +385,10 @@ void FDC_DirAsDSK::addFileToDSK(const string& fullfilename)
 		do {
 			curcl++;
 		} while((curcl <= MAX_CLUSTER) && ReadFAT(curcl));
-		PRT_DEBUG("Continuing at cluster " << curcl );
+		PRT_DEBUG("Continuing at cluster " << curcl);
 	}
 	if ((size == 0) && (curcl <= MAX_CLUSTER)) {
-		WriteFAT(prevcl,EOF_FAT);
+		WriteFAT(prevcl, EOF_FAT);
 	} else {
 		PRT_INFO("Fake Diskimage full: " << MSXfilename << " truncated.");
 	}
