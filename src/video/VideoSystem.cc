@@ -17,12 +17,6 @@ Rasterizer* VideoSystem::createRasterizer(VDP* vdp)
 	return 0;
 }
 
-V9990Rasterizer* VideoSystem::createV9990Rasterizer(V9990* vdp)
-{
-	assert(false);
-	return 0;
-}
-
 bool VideoSystem::checkSettings()
 {
 	return true;

@@ -34,7 +34,7 @@ public:
 	  * @param vdp The V9990 whose display will be rendered.
 	  * @return The rasterizer created.
 	  */
-	virtual V9990Rasterizer* createV9990Rasterizer(V9990* vdp);
+	virtual V9990Rasterizer* createV9990Rasterizer(V9990* vdp) = 0;
 
 	/** Requests that this renderer checks its settings against the
 	  * current RenderSettings. If possible, update the settings of this

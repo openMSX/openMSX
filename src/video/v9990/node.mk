@@ -4,6 +4,7 @@ include build/node-start.mk
 
 SRC_HDR:= \
 	V9990 V9990VRAM \
+	V9990DummyRasterizer \
 	V9990SDLRasterizer
 
 HDR_ONLY:= \
