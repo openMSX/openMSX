@@ -34,5 +34,7 @@ AC_PROG_LIBTOOL
 
 dnl libxml++
 AM_LIBXMLPP
+dnl libxml -> NO! libxml.m4 is currently broken
+dnl AM_PATH_XML
 
 AC_OUTPUT(Makefile openmsx.lsm openmsx.spec doc/Makefile src/Makefile)
