@@ -73,7 +73,7 @@ class MSXRom : public MSXMemDevice
 		
 	private:
 		void retrieveMapperType();
-		bool guessHelper(word offset, word page);
+		void guessHelper(word offset, int* pages);
 		word guessLocation();
 		
 		inline void setBank4kB (int region, byte* adr);

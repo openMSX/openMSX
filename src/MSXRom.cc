@@ -293,50 +293,52 @@ void MSXRom::reset(const EmuTime &time)
 
 
 
-bool MSXRom::guessHelper(word offset, word page)
+void MSXRom::guessHelper(word offset, int* pages)
 {
-	if ((rom.read(offset) == 'A') && (rom.read(offset + 1) == 'B')) {
-		offset += 2;
+	if ((rom.read(offset++) == 'A') && (rom.read(offset++) =='B')) {
 		for (int i = 0; i < 4; i++) {
-			word addr = rom.read(offset) +
-			            rom.read(offset + 1) * 256;
-			offset += 2;
-			if (addr && ((addr & 0xC000) == page)) {
-				return true;
+			word addr = rom.read(offset++) +
+			            rom.read(offset++) * 256;
+			if (addr) {
+				int page = (addr >> 14) - (offset >> 14);
+				if ((0 <= page) && (page <= 2)) {
+					pages[page]++;
+				}
 			}
 		}
 	}
-	return false;
 }
 
 word MSXRom::guessLocation()
 {
+	int pages[3] = { 0, 0, 0 };
+
+	// count number of possible routine pointers
 	if (rom.getSize() >= 0x0010) {
-		if (guessHelper(0x0000, 0x0000)) {
-			return 0x0000;
-		}
-		if (guessHelper(0x0000, 0x4000)) {
-			return 0x4000;
-		}
-		if (guessHelper(0x0000, 0x8000)) {
-			return 0x8000;
-		}
+		guessHelper(0x0000, pages);
 	}
 	if (rom.getSize() >= 0x4010) {
-		if (guessHelper(0x4000, 0x4000)) {
-			return 0x0000;
-		}
-		if (guessHelper(0x4000, 0x8000)) {
-			return 0x4000;
-		}
+		guessHelper(0x4000, pages);
+	}
+	PRT_DEBUG("MSXRom: location " << pages[0] << 
+	                          " " << pages[1] <<
+				  " " << pages[2]);
+	// we prefer 0x4000, then 0x000 and then 0x8000
+	if (pages[1] && (pages[1] >= pages[0]) && (pages[1] >= pages[2])) {
+		return 0x4000;
+	} else if (pages[0] && pages[0] >= pages[2]) {
+		return 0x0000;
+	} else if (pages[2]) {
+		return 0x8000;
 	}
 
 	int lowest = 4;
 	std::list<MSXConfig::Device::Slotted*>::const_iterator i;
-	for (i=deviceConfig->slotted.begin(); i!=deviceConfig->slotted.end(); i++) {
+	for (i =  deviceConfig->slotted.begin(); 
+	     i != deviceConfig->slotted.end();
+	     i++) {
 		int page = (*i)->getPage();
-		if (page < lowest)
-			lowest = page;
+		if (page < lowest) lowest = page;
 	}
 	return (lowest * 0x4000) & 0xFFFF;
 }

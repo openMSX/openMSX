@@ -35,7 +35,7 @@ class MSXRomDevice
 		          const std::string &filename, const EmuTime &time);
 		
 		byte* rom;
-		int size;
+		unsigned int size;
 		File* file;
 		std::list<MSXRomPatchInterface*> romPatchInterfaces;
 };
