@@ -231,7 +231,7 @@ string CommandController::executeCommand(const string& cmd)
 void CommandController::autoCommands()
 {
 	try {
-		SystemFileContext context;
+		SystemFileContext context(true); // only in system dir
 		File file(context.resolve("init.tcl"));
 		interpreter.executeFile(file.getLocalName());
 	} catch (FileException& e) {

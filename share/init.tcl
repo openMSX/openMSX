@@ -29,8 +29,14 @@ proc data_file { file } {
 	return $env(OPENMSX_SYSTEM_DATA)/$file
 }
 
-# Source additional scripts
-source [data_file scripts/multi_screenshot.tcl]
+# Source all .tcl files in user and system scripts directory. Prefer
+# the version in the user directory in case a script exists in both
+set user_scripts [glob -dir $env(OPENMSX_USER_DATA)/scripts -tails -nocomplain *.tcl]
+set system_scripts [glob -dir $env(OPENMSX_SYSTEM_DATA)/scripts -tails -nocomplain *.tcl]
+foreach script [lsort -unique "$user_scripts $system_scripts"] {
+	source [data_file scripts/$script]
+}
 
-# Disable build-in firmware
-#if [info exists frontswitch] { set frontswitch off }
+# Execute the init.tcl file in the user's directory (if it exists)
+set user_init_tcl $env(OPENMSX_USER_DATA)/init.tcl
+if [file exists $user_init_tcl] { source $user_init_tcl }

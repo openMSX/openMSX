@@ -130,9 +130,11 @@ ConfigFileContext::ConfigFileContext(const ConfigFileContext& rhs)
 
 // class SystemFileContext
 
-SystemFileContext::SystemFileContext()
+SystemFileContext::SystemFileContext(bool onlySystemDir)
 {
-	paths.push_back(FileOperations::getUserDataDir() + "/");
+	if (!onlySystemDir) {
+		paths.push_back(FileOperations::getUserDataDir() + "/");
+	}
 	paths.push_back(FileOperations::getSystemDataDir() + "/");
 }
 

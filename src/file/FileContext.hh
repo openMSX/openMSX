@@ -53,7 +53,7 @@ private:
 class SystemFileContext : public FileContext
 {
 public:
-	SystemFileContext();
+	SystemFileContext(bool onlySystemDir = false);
 	virtual const vector<string>& getPaths();
 	virtual SystemFileContext* clone() const;
 
