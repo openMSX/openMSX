@@ -4,7 +4,7 @@
 <msxconfig>
 
   <DebugDevice id="Debug Device">
-    <io base="0x2F" num="2" type="O"/>
+    <io base="0x2E" num="2" type="O"/>
     <filename>stdout</filename>
   </DebugDevice>
 
