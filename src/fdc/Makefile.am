@@ -39,6 +39,7 @@ libFdc_la_SOURCES = \
 	FDC_DSK.cc FDC_DSK.hh \
 	FDC_XSA.cc FDC_XSA.hh \
 	CRC16.hh CRC16.cc 
+#	FDC_DirAsDSK.cc FDC_DirAsDSK.hh \ 
 
 nodebug: resetdebug all
 debug: setdebug all

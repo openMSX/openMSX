@@ -4,8 +4,9 @@
 #include "CommandController.hh"
 #include "MSXConfig.hh"
 #include "FDCDummyBackEnd.hh"
-#include "FDC_DSK.hh"
 #include "FDC_XSA.hh"
+#include "FDC_DSK.hh"
+#include "FDC_DirAsDSK.hh"
 
 
 /// class DiskDrive ///
@@ -234,8 +235,16 @@ void RealDrive::insertDisk(FileContext *context,
 		// first try XSA
 		tmp = new FDC_XSA(context, diskImage);
 	} catch (MSXException &e) {
-		// if that fails use DSK
-		tmp = new FDC_DSK(context, diskImage);
+		// if that fails use DSK or DirAsDSK
+		try {
+			// try normal DSK
+			tmp = new FDC_DSK(context, diskImage);
+		} catch (MSXException &e) {
+			// try to create fak DSK from a dir on host OS
+			try {
+			tmp = new FDC_DirAsDSK(context, diskImage);
+			} catch (MSXException &e) {}
+		}
 	}
 	delete disk;
 	disk = tmp;

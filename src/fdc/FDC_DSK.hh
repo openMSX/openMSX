@@ -3,14 +3,12 @@
 #ifndef __FDC_DSK__HH__
 #define __FDC_DSK__HH__
 
+#include "FDC_CONSTS.hh"
 #include "FDCBackEnd.hh"
 #include "File.hh"
 
 class FileContext;
 
-
-const int SECTOR_SIZE = 512;
-const int RAWTRACK_SIZE = 6850;
 
 class FDC_DSK : public FDCBackEnd
 {
