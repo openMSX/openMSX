@@ -7,6 +7,8 @@ $Id$
 	* For the renderer setting, take the value found in settings file (if
 	  any) as default value:
 	   - this fixes the "Catapult always uses SDLHi" problem
+	* Also recognize zip files with extension ".ZIP" (uppercase)
+	* Fixed reading 1st FAT sector in detectGeometry() routine
 
 2004-10-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed coredump on missing arguments on the command line:

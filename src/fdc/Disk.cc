@@ -64,9 +64,9 @@ void Disk::writeSector(const byte* buf, int logSector)
 
 int Disk::physToLog(byte track, byte side, byte sector)
 {
-	if ((track == 0) && (side == 0) && (sector == 1)) {
-		// bootsector
-		return 0;
+	if ((track == 0) && (side == 0)) {
+		// special case for bootsector or 1st FAT sector
+		return sector - 1;
 	}
 	if (!nbSides) {
 		detectGeometry();

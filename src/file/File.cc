@@ -32,7 +32,15 @@ File::File(const string& url, OpenMode mode)
 	    (pos == (name.size() - 3))) {
 		file.reset(new GZFileAdapter(file));
 	} else
+	if (((pos = name.rfind(".GZ")) != string::npos) &&
+	    (pos == (name.size() - 3))) {
+		file.reset(new GZFileAdapter(file));
+	} else
 	if (((pos = name.rfind(".zip")) != string::npos) &&
+	    (pos == (name.size() - 4))) {
+		file.reset(new ZipFileAdapter(file));
+	} else
+	if (((pos = name.rfind(".ZIP")) != string::npos) &&
 	    (pos == (name.size() - 4))) {
 		file.reset(new ZipFileAdapter(file));
 	}
