@@ -537,7 +537,9 @@ void YMF278::writeRegOPL4(byte reg, byte data, const EmuTime &time)
 			                 ((buf[0] & 0x3F) << 16);
 			slot.loopaddr = buf[4] + (buf[3] << 8);
 			slot.endaddr  = (((buf[6] + (buf[5] << 8)) ^ 0xFFFF) + 1);
-			keyOnHelper(slot);
+			if ((regs[reg + 4] & 0x080)) {
+				keyOnHelper(slot);
+			}
 			break;
 		}
 		case 1: {
