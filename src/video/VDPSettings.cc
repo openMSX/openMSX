@@ -16,7 +16,8 @@ VDPSettings::VDPSettings()
 	cmdMap["real"]   = false;
 	cmdMap["broken"] = true;
 	cmdTiming.reset(new EnumSetting<bool>(
-		"cmdtiming", "VDP command timing", false, cmdMap));
+		"cmdtiming", "VDP command timing", false, cmdMap, Setting::DONT_SAVE
+		));
 }
 
 VDPSettings::~VDPSettings()
