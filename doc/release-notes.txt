@@ -1,62 +1,54 @@
-Release Notes for openMSX 0.4.0 (2004-05-28)
+Release Notes for openMSX 0.5.0 (2004-10-??)
 ============================================
 
 This new release brings you the following improvements:
-- Finalised the control protocol, making a fully-featured Catapult possible.
-- Implemented TCL as central scripting language (including console).
-  Consequences:
-  * AutoCommands in settings.xml have been replaced by init.tcl file
-  * "restoredefault" command replaced by TCL's "unset"
-  * "alias" is deprecated, use TCL's "proc"
-  * "decr" is deprecated, use TCL's native "incr" with negative argument
-  * "quit" is replaced by TCL's "exit"
-  * old "info" is replaced by "openmsx_info"; "info" is a TCL command
-  * Some cool TCL scripts added, e.g. multi-screenshot (make 'movies'),
-    save_debuggable, vramdump (replacing old console command)
-- New build system which replaces the GNU auto* tools.
-  It is more efficient, has cleaner output and is easier to maintain.
-  You can still use the traditional "configure ; make ; make install" steps.
-  For details, read doc/manual/compile.html.
-- Added support for compiling on FreeBSD 4 and 5.
-  Thanks to ag0ny, Jorito and Reikan.
-  Also updated support for Mac OS X, thanks to Jalu.
-- New frameskip/sync algorithm: tries to skip as little frames as possible to
-  keep the right speed; maximum and minimum number of skipped frames can be set
-  with the minframeskip and maxframeskip settings.
-  The new algorithm can deal much better with the situation where another
-  process or the OS claims the CPU for a while. As a result, animation and
-  music play more fluent and openMSX feels faster.
-- Better CPU timing (Z80 and R800), and also for R800 specifically:
-  * implemented CAS/RAS optimization
-  * implemented refresh delay
-  * IO operations take 3 cycles
-- CPU frequency is not fixed anymore:
-  * frequency can be unlocked and modified from the console
-  * "6MHz mode" of Panasonic MSX2+ machines is now supported
-- Fixes in TurboR FDC: FDD LED, disk change signal, drive detection, empty
-  drive behaviour ("Disk offline"). Thanks to Tetsuo Honda.
-- Finalized internal mapper for Panasonic FS-A1FM and added support for its
-  "frontswitch" for the firmware.
-- RS232 interface in Sony_HB-G900P has 2kb RAM.
-- Sony HBI-55 datacartridge now fully implemented.
-- Added proper support for Koei and Wizardry mappers (with SRAM).
-  Thanks to dvik (blueMSX author) for the info.
-- Added about 14 new machines.
-- Volumes are all in a 0-100 range now.
-- Added master_volume setting.
-- Several optimisations in rendering.
-- Fixed sprites in overscan.
-- Added basic frames-per-second indicator.
-- Scaled up icon to 32x32; fixes icon on Win32.
-- Using SHIFT and PageUp/PageDown you can scroll whole pages in the console
-- New "type" command: use to enter text into the MSX keyboard buffer (not
-  finalized yet)
-- Added a debugger interface to more devices: SCC, MSX AUDIO, MSX AUDIO
-  sampleRAM, MoonSound, MSX MUSIC, memory mapper, PSG. Also extended CPU
-  debuggable: IM can now be read at position 26, IFF1 and IFF2 can be read as
-  bit 0 and 1 on position 27
-- New debug interface commands: "read_block", "write_block", "after break" and 
-  "after frame".
+- Complete redesign of the hardware configuration files, including a lot of
+  renames and I/O ports being specified in them.
+- Added ROM pools: the new XML hardware configuration file specifies the sha1
+  sum of the necessary ROMs, which will be automatically searched from ROM
+  pools; directories where the user can put all system ROMs. Default:
+  share/systemroms
+- (Almost) all settings (including key bindings and user directories) can be
+  saved to a config file now. No need to edit settings.xml anymore. Defaults are
+  hardcoded now
+- Implemented MMX and MMXext optimisations, which can mean quite a speedup
+- Added channel mode 'off' to mute individual sound devices
+- Added a debugger interface to all (S)RAM
+- Moonsound fixes
+- Internal clock refactoring, thanks to Daniel Vik for finding the problem
+- Added simple DC filter for cassette images. .wav files from MicroWAVer should
+  work now
+- Added slotexpander extension: use it to change one primary slot into four
+  secondary slots!
+- Added meta data of machines in config files, which is (partly) shown in the
+  window title bar
+- Improvements in the 'type' command, thanks to Albert Beevendorp (and Arnold
+  Metselaar, welcome to the club!)
+- Graphical system now uses layers
+- Basic build support for AMD64
+- 8kB BASIC ROMs now work correctly and are auto detected
+- Scale2x and hq2x now also work in hi-res modes (screen 6 and 7)
+- Added new settings, partly to replace stuff from the old settings.xml:
+  * frequency: the sound mixer frequency (needs openMSX restart)
+  * machine: the default machine (needs openMSX restart of course)
+  * samples: the size of the sound mixing buffer (needs openMSX restart)
+  * save_settings_on_exit: auto save settings when openMSX quits
+  * user_directories: to specify directories that have to be searched in
+- New commands:
+  * iomap: list the I/O ports and the devices connected to them
+  * save_settings: save current settings to file
+- Added emulation of the dongle of Tetris II Special Edition
+- Added blur effect for the SDLHi renderer
+- Added format command for TC8566AF FDC, thanks to Daniel Vik
+- Added openMSX FAQ to documentation
+- Release key presses when the console becomes active
+- Improved geometry detection of disk images (MSX1Mania disks work now)
+- Force PSG portA to be input port
+- Big speed up of scanline effect
+- Made pixel accuracy the default
+- Removed faulty 8bpp support
+- Improvements on new build system: separate OS and CPU
+- Loads and loads of (other) bug fixes
 
 In "doc/manual/index.html" you can find a set of HTML manuals for openMSX.
 Make sure you read this if you haven't used openMSX before, but also to
@@ -69,8 +61,10 @@ Known issues / caveats:
   See the bug tracker on sourceforge.net for known bugs.
 - Until we reach version 1.0.0, file formats can change in an incompatible
   way without backwards compatibility. Keep this in mind if you create
-  machine descriptions, ROM database entries etc.
+  machine descriptions, ROM database entries etc. This happened severely when
+  going from version 0.4.0 to 0.5.0, for example.
 - This release was tested on Linux, Win32, Mac OS X and FreeBSD 4 and 5.
+  TODO: really test on Mac OS X and FreeBSD!
   Running on other operating systems (wherever SDL runs) should be possible,
   but will probably not work out-of-the-box. If you are compiling on such a
   platform, please share your experiences (see below for contact info),
@@ -79,6 +73,10 @@ Known issues / caveats:
   settings and the MSX hardware and software you're emulating.
   Some things run fine on a 200MHz machine, others are slow on a 2GHz
   machine. For performance tuning tips, see the Setup Guide.
+
+CALL FOR HELP:
+To increase performance on Windows, we are looking for a DirectX programmer who
+would like to help us! 
 
 openMSX Home Page:
   http://openmsx.sourceforge.net/
@@ -89,6 +87,7 @@ Contact options:
   Go to the SourceForge project page and look under "Lists".
 - Talk to us on #openmsx on irc.freenode.net.
 - Use the "Support" tab on the project page.
+- Use the Forums on the project page
 
 Have fun with your emulated MSX!
                                         the openMSX developers

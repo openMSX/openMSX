@@ -1,16 +1,17 @@
 $Id$
 
-2004-10-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2004-10-07 Manuel Bilderbeek <manuel@msxnet.org>
+	* Renamed save_settings_at_exit to save_settings_on_exit
+	
+2004-10-07 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Fixed crash on exit in FreeBSD:
+	   - was order of destruction of global objects problem
 	* Fixed Screenshot code in 16bpp:
 	   conversion routine to 24bpp read 2 bytes outside the array.
 	   Although it didn't actually use these bytes, it could trigger a
 	   segfault. Fixed by using the SDL convserion routines (probably
 	   faster as well).
 	* Don't plug printer logger with an invalid log file
-
-2004-10-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
-	* Fixed(?) crash on exit in FreeBSD:
-	   - was order of destruction of global objects problem
 
 2004-10-06 Manuel Bilderbeek <manuel@msxnet.org>
 	* Renamed frontswitch to firmwareswitch

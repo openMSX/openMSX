@@ -742,16 +742,16 @@ samples
     set samples 1024  use mixing buffer of 1024 samples
 
 
-save_settings_at_exit
+save_settings_on_exit
 ---------------------
 
   Automatically save the current settings when openMSX exits (execute a
   save_settings command).
 
   usage:
-    set save_settings_at_exit        Show current setting
-    set save_settings_at_exit true   Enable auto save
-    set save_settings_at_exit false  Disable auto save
+    set save_settings_on_exit        Show current setting
+    set save_settings_on_exit true   Enable auto save
+    set save_settings_on_exit false  Disable auto save
     
 
 scanline
