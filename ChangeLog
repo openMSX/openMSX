@@ -1,5 +1,17 @@
 $Id$
 
+2002-08-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* EmuTime cleanups:
+	   introduced EmuDuration class
+	    - the subtraction of 2 EmuTimes results in an EmuDuration,
+	      this used to result in another EmuTime
+	    - an EmuDuration can be added to / subtracted from an EmuTime,
+	      this results in another EmuTime
+	* DACSound:
+	   - totally discarded old implementation
+	   - new implementation is extremely simple, relatively slow, has
+	     poor sound quality, but is bug free
+
 2002-07-31 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Made "check-db":
 	   a primitive tool to compare a romtype database against the build-in 

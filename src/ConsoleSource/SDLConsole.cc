@@ -74,7 +74,7 @@ bool SDLConsole::signalEvent(SDL_Event &event)
 	if (!isVisible)
 		return true;
 	if (event.type == SDL_KEYUP)
-		return false;
+		return false;	// don't pass event to MSX-Keyboard
 	
 	Keys::KeyCode key = (Keys::KeyCode)event.key.keysym.sym;
 	switch (key) {

@@ -14,7 +14,7 @@ inline void _CPU_::executeInstruction(byte opcode)
 			printf("%s\n", to_print_string );
 			printf("      A=%02x F=%02x BC=%04x DE=%04x HL=%04x IX=%04x IY=%04x\n", 
 				      R.AF.B.h, R.AF.B.l, R.BC.w, R.DE.w, R.HL.w, R.IX.w, R.IY.w);
-			PRT_DEBUG("CPU: Took "<<currentTime.subtract(before)/24<<"T-States");
+			PRT_DEBUG("CPU: Took " << before.getTicksTill(currentTime) << "T-States");
 		}
 	#endif
 }
@@ -4717,5 +4717,5 @@ void _CPU_::execute()
 
 #ifdef CPU_DEBUG
 word _CPU_::start_pc;
-EmuTime _CPU_::before;
+EmuTimeFreq<3579545> _CPU_::before;
 #endif

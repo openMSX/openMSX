@@ -28,7 +28,7 @@ class RealTime : public Schedulable
 		
 		void executeUntilEmuTime(const EmuTime &time, int userData);
 
-		float getRealDuration(const EmuTime time1, const EmuTime time2);
+		float getRealDuration(const EmuTime &time1, const EmuTime &time2);
 
 		/**
 		 * Synchronize EmuTime with RealTime, normally this is done

@@ -121,9 +121,9 @@ void RealTime::internalSync(const EmuTime &curEmu)
 	scheduler->setSyncPoint(emuRef+syncInterval, this);
 }
 
-float RealTime::getRealDuration(const EmuTime time1, const EmuTime time2)
+float RealTime::getRealDuration(const EmuTime &time1, const EmuTime &time2)
 {
-	return time1.getDuration(time2) * factor;
+	return (time2 - time1).toFloat() * factor;
 }
 
 void RealTime::resetTiming()

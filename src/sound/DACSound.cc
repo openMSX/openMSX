@@ -1,38 +1,31 @@
 // $Id$
 
 /**
- *
  * Emulation of an 8bit unsigned DAC audio device
- *
  */
 
-#include <cassert>
 #include "DACSound.hh"
 #include "Mixer.hh"
-#include "MSXCPU.hh"
 
 
-DACSound::DACSound(short maxVolume, int typicalFreq, const EmuTime &time) :
-	emuDelay(1.0 / typicalFreq)
+DACSound::DACSound(short maxVolume, int typicalFreq, const EmuTime &time)
 {
 	PRT_DEBUG("Creating DACSound device");
+	mixer = Mixer::instance();
 	
 	setVolume(maxVolume);
-	currentValue = nextValue = tmpValue = volTable[CENTER];
-	currentTime  = nextTime  = prevTime = lastTime = time;
-	delta = left = currentLength = 0;
 	lastValue = CENTER;
 	reset(time);
 	
-	int bufSize = Mixer::instance()->registerSound(this);
+	int bufSize = mixer->registerSound(this);
 	buf = new int[bufSize];
 }
-
 
 DACSound::~DACSound()
 {
 	PRT_DEBUG("Destroying DACSound device");
-	Mixer::instance()->unregisterSound(this);
+	
+	mixer->unregisterSound(this);
 	delete[] buf;
 }
 
@@ -59,37 +52,12 @@ void DACSound::reset(const EmuTime &time)
 	writeDAC(CENTER, time);
 }
 
-byte DACSound::readDAC(const EmuTime &time)
-{
-	return lastValue;
-}
-
 void DACSound::writeDAC(byte value, const EmuTime &time)
 {
-	// TODO temp DISABLED
-	return;
-
-	Mixer::instance()->lock();
-
-	if (time > emuDelay) {
-		EmuTime tmp = time - emuDelay;
-		if (lastTime < tmp)
-			insertSample(volTable[lastValue], tmp);
-	}
-	insertSample(volTable[value], time);
-	lastTime = time;
+	mixer->updateStream(time);
+	
 	lastValue = value;
-	
-	if (value != CENTER)
-		setInternalMute(false);
-	
-	Mixer::instance()->unlock();
-}
-
-void DACSound::insertSample(short sample, const EmuTime &time)
-{
-	Sample s = {sample, time};
-	buffer.addBack(s);
+	setInternalMute(value == CENTER);
 }
 
 int* DACSound::updateBuffer(int length)
@@ -98,72 +66,7 @@ int* DACSound::updateBuffer(int length)
 		return NULL;
 	
 	int* buffer = buf;
-	
-	//EmuTime mixTime = MSXCPU::instance()->getCurrentTime() - emuDelay;
-	EmuTime mixTime = MSXCPU::instance()->getCurrentTime(); // this is NOT accurate
-	int timeUnit = mixTime.subtract(prevTime) / length;
-	prevTime = mixTime;
-	while (length) {
-		if (left == 0) {
-			// at the beginning of a sample
-			if (currentLength >= timeUnit) {
-				// enough for a whole sample
-				*buffer++ = currentValue + delta/2;
-				length--;
-				currentLength -= timeUnit;
-				currentValue += delta;
-			} else {
-				// not enough for a whole sample
-				assert(timeUnit!=0);
-				tmpValue = ((currentValue + delta/2) * currentLength) / timeUnit;
-				left = timeUnit - currentLength;
-				getNext(timeUnit);
-			}
-		} else {
-			// not at the beginning of a sample
-			if (currentLength >= left) {
-				// enough to complete sample
-				assert(timeUnit!=0);
-				*buffer++ = tmpValue + ((currentValue + delta/2) * left) / timeUnit;
-				length--;
-				left = 0;
-				currentLength -= left;
-				currentValue += (delta*left)/timeUnit;
-			} else {
-				// not enough to complete sample
-				assert(timeUnit!=0);
-				tmpValue += ((currentValue + delta/2) * currentLength) / timeUnit;
-				left -= currentLength;
-				getNext(timeUnit);
-			}
-		}
-	}
+	while (length--)
+		*buffer++ = volTable[lastValue];
 	return buf;
-}
-
-void DACSound::getNext(int timeUnit)
-{
-	// old next-values become the current-values
-	currentValue = nextValue;
-	currentTime = nextTime;
-	if (!buffer.isEmpty()) {
-		nextValue = buffer[0].sample;
-		nextTime  = buffer[0].time;
-		buffer.removeFront();
-	} else {
-		//nextValue = currentValue;
-		nextTime = prevTime;	// = MixTime
-		if (lastValue == CENTER)
-			setInternalMute(true);
-	}
-	assert(nextTime >= currentTime);
-	currentLength = nextTime.subtract(currentTime);
-	if (currentLength != 0)
-		delta = ((nextValue - currentValue) * timeUnit) / currentLength;
-	//PRT_DEBUG("DAC: currentValue  " << currentValue);
-	//PRT_DEBUG("DAC: currentTime   " << currentTime);
-	//PRT_DEBUG("DAC: nextValue     " << nextValue);
-	//PRT_DEBUG("DAC: nextTime      " << nextTime);
-	//PRT_DEBUG("DAC: currentLength " << currentLength);
-	//PRT_DEBUG("DAC: delta         " << delta);
 }

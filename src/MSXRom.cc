@@ -421,6 +421,7 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 		// Konami Synthezier cartridge
 		// Should be only for 0x4000, but since this isn't confirmed on a real
 		// cratridge we will simply use every write.
+		PRT_DEBUG("Konami DAC " << (int)value);
 		dac->writeDAC(value,time);
 		break;
 		

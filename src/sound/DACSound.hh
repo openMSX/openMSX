@@ -7,10 +7,11 @@
 #ifndef __DACSOUND_HH__
 #define __DACSOUND_HH__
 
-#include "openmsx.hh"
 #include "SoundDevice.hh"
 #include "EmuTime.hh"
-#include "../ConsoleSource/CircularBuffer.hh"
+
+// forward declarations
+class Mixer;
 
 
 class DACSound : public SoundDevice
@@ -20,7 +21,6 @@ class DACSound : public SoundDevice
 		virtual ~DACSound();
 	
 		void reset(const EmuTime &time);
-		byte readDAC(const EmuTime &time);
 		void writeDAC(byte value, const EmuTime &time);
 		
 		//SoundDevice
@@ -29,23 +29,11 @@ class DACSound : public SoundDevice
 		int* updateBuffer(int length);
 		
 	private:
-		void insertSample(short sample, const EmuTime &time);
-		void getNext(int timeUnit);
-		
 		static const int CENTER = 0x80;
 	
-		const EmuTime emuDelay;
-		EmuTime currentTime, nextTime, prevTime, lastTime;
-		int currentValue, nextValue, delta, tmpValue;
-		int left, currentLength;
 		byte lastValue;
 		short volTable[256];
 		int* buf;
-		
-		typedef struct {
-			int sample;
-			EmuTime time;
-		} Sample;
-		CircularBuffer<Sample, 4096> buffer;
+		Mixer* mixer;
 };
 #endif

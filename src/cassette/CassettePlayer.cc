@@ -45,7 +45,7 @@ void CassettePlayer::removeTape()
 
 int CassettePlayer::calcSamples(const EmuTime &time)
 {
-	float duration = timeReference.getDuration(time);
+	float duration = (time - timeReference).toFloat();
 	int samples = (int)(duration*audioSpec.freq);
 	return posReference + samples;
 }
