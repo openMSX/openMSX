@@ -4,7 +4,7 @@ Prime Authors:
 David Heremans       <david.heremans@gnu-linux.net>
 Wouter Vermaelen     <wouter.vermaelen@student.kuleuven.ac.be>
 Joost Yervante Damad <j.damad@qahwah.net / andete@worldcity.nl>
-Maarten Ter Huurne   <mth@stack.nl>
+Maarten ter Huurne   <mth@stack.nl>
 
 
 
@@ -14,6 +14,8 @@ used code from the following contributors:
 
 tms9918a:
     Sean Young <sean@msxnet.org>
+VDP command engine:
+    Alex Wulms <awulms@inter.nl.net>
 z80:
     Marcel de Kogel
 SDL_Console:
