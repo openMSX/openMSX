@@ -6,7 +6,6 @@
 #include "openmsx.hh"
 #include "SoundDevice.hh"
 #include "IRQHelper.hh"
-#include "IRQHelper.ii"
 #include "Mixer.hh"
 #include "Y8950Timer.hh"
 #include "Y8950Adpcm.hh"

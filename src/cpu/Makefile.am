@@ -20,7 +20,7 @@ libCPU_la_SOURCES = \
 	R800.cc R800.hh R800Tables.nn \
 	MSXCPU.hh MSXCPU.cc \
 	MSXCPUInterface.hh MSXCPUInterface.cc \
-	IRQHelper.hh IRQHelper.cc IRQHelper.ii
+	IRQHelper.hh IRQHelper.cc
 
 nodebug: resetdebug all
 debug: setdebug all

@@ -3,8 +3,7 @@
 #ifndef __IRQHELPER_HH__
 #define __IRQHELPER_HH__
 
-// forward declarations
-class MSXCPU;
+#include "MSXCPU.hh"
 
 
 /** Helper class for doing interrupt request (IRQ) administration.
@@ -28,16 +27,28 @@ class IRQHelper
 
 		/** Set the interrupt request on the bus.
 		  */
-		inline void set();
+		inline void set() {
+			if (!request) {
+				request = true;
+				cpu->raiseIRQ();
+			}
+		}
 
 		/** Reset the interrupt request on the bus.
 		  */
-		inline void reset();
+		inline void reset() {
+			if (request) {
+				request = false;
+				cpu->lowerIRQ();
+			}
+		}
 
 		/** Get the interrupt state.
 		  * @return true iff interrupt request is active.
 		  */
-		inline bool getState();
+		inline bool getState() const {
+			return request;
+		}
 
 	private:
 		bool request;
@@ -45,4 +56,3 @@ class IRQHelper
 };
 
 #endif
-

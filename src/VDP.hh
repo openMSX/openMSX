@@ -7,7 +7,6 @@
 #include "Schedulable.hh"
 #include "MSXIODevice.hh"
 #include "IRQHelper.hh"
-#include "IRQHelper.ii"
 #include "EmuTime.hh"
 #include "Command.hh"
 

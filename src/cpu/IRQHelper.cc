@@ -1,7 +1,7 @@
 // $Id$
 
 #include "IRQHelper.hh"
-#include "IRQHelper.ii"
+
 
 IRQHelper::IRQHelper()
 {
