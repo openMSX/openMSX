@@ -139,12 +139,10 @@ inline word Z80::M_XIY() {
 	return result;
 }
 inline word Z80::M_XIX(offset n) { 
-	word result = R.IX.w+n;
-	return result;
+	return R.IX.w+n;
 }
 inline word Z80::M_XIY(offset n) { 
-	word result = R.IY.w+n;
-	return result;
+	return R.IY.w+n;
 }
 inline byte Z80::M_RD_XHL() { return Z80_RDMEM(R.HL.w); }
 inline byte Z80::M_RD_XIX() { return Z80_RDMEM(M_XIX()); }

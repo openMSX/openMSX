@@ -154,7 +154,13 @@ void Z80::execute()
 			// normal instructions
 			targetChanged = false;
 			while (!targetChanged && (currentTime < targetTime)) {
+				#ifdef Z80DEBUG
+				EmuTime before(currentTime);
 				executeInstruction(Z80_RDOP(R.PC.w++));
+				PRT_DEBUG("CPU: Took "<<currentTime.subtract(before)/24<<"T-States");
+				#else
+				executeInstruction(Z80_RDOP(R.PC.w++));
+				#endif
 			}
 		}
 	}
@@ -4390,32 +4396,33 @@ void Z80::patch()
 
 
 void Z80::dd_cb() {
-	currentTime++;
 	offset n = Z80_RDMEM_OPCODE();
 	byte opcode = Z80_RDOP(R.PC.w++);
 	currentTime+=2;
 	(this->*opcode_dd_cb[opcode])(n);
 }
 void Z80::fd_cb() {
-	currentTime++;
 	offset n = Z80_RDMEM_OPCODE();
 	byte opcode = Z80_RDOP(R.PC.w++);
 	currentTime+=2;
 	(this->*opcode_fd_cb[opcode])(n);
 }
 void Z80::cb() {
-	M1Cycle();
 	byte opcode = Z80_RDOP(R.PC.w++);
+	M1Cycle();
 	(this->*opcode_cb[opcode])();
 }
 void Z80::ed() {
-	M1Cycle();
 	byte opcode = Z80_RDOP(R.PC.w++);
+	M1Cycle();
 	(this->*opcode_ed[opcode])();
 }
 void Z80::dd() {
-	M1Cycle();
 	byte opcode = Z80_RDOP(R.PC.w++);
+	if (opcode != 0xcb)
+		M1Cycle();
+	else
+		currentTime++;
 	(this->*opcode_dd[opcode])();
 }
 void Z80::dd2() {
@@ -4424,8 +4431,11 @@ void Z80::dd2() {
 	(this->*opcode_dd[opcode])();
 }
 void Z80::fd() {
-	M1Cycle();
 	byte opcode = Z80_RDOP(R.PC.w++);
+	if (opcode != 0xcb)
+		M1Cycle();
+	else
+		currentTime++;
 	(this->*opcode_fd[opcode])();
 }
 void Z80::fd2() {
