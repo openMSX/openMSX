@@ -34,7 +34,7 @@ private:
 	             unsigned int nameTableA, unsigned int patternTableA,
 				 int xB, int yB,
 	             unsigned int nameTableB, unsigned int patternTableB);
-	Pixel getPixel(int x, int y,
+	byte getPixel(int x, int y,
 	               unsigned int nameTable, unsigned int patternTable);
 };
 
