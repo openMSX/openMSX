@@ -33,7 +33,7 @@ typedef short signed_word;
 typedef unsigned short word;
 
 /** 32 bit unsigned integer */
-typedef unsigned int dword;
+typedef unsigned int uint32;
 
 #ifdef __WIN32__
 #ifdef	__MINGW32__
