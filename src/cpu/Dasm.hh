@@ -3,12 +3,13 @@
 #ifndef __DASM_HH__
 #define __DASM_HH__
 
+
 namespace openmsx {
 
 /** Disassemble first opcode in buffer.
   * @return length of given opcode in bytes
   */
-extern int Dasm(unsigned char *buffer, char *dest, unsigned int PC);
+int Dasm(unsigned char* buffer, char* dest, unsigned int PC);
 
 } // namespace openmsx
 

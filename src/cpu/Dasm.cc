@@ -1,8 +1,10 @@
 // $Id$
 
+#include "Dasm.hh"
+#include "DasmTables.hh"
 #include <cstdio>
 #include <cstring>
-#include "DasmTables.hh"
+
 
 namespace openmsx {
 
@@ -17,9 +19,9 @@ static int Abs(unsigned char a)
 	else return a;
 }
 
-int Dasm(unsigned char *buffer, char *dest, unsigned int PC)
+int Dasm(unsigned char* buffer, char* dest, unsigned int PC)
 {
-	const char *S;
+	const char* S;
 	//unsigned char buf[10];
 	char buf[10];
 	int i=0;
@@ -134,7 +136,7 @@ int Dasm(unsigned char *buffer, char *dest, unsigned int PC)
 
 #ifdef TEST
 #include <cstdlib>
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
 	int i;
 	unsigned char buffer[16];
