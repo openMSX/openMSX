@@ -57,6 +57,9 @@ BOOLCHECK=$(strip \
 
 # Shell function for indenting output.
 # Usage: command | $(INDENT)
+# TODO: Disabled for now, the exit status of a piped command is the exit
+#       status of the command after the pipe, which is not what we want
+#       in the case of indenting.
 INDENT:=sed -e "s/^/  /"
 
 # Will be added to by platform specific Makefile, by flavour specific Makefile
@@ -91,7 +94,7 @@ DETECTSYS_INPUT:=detectsys.mk.in
 $(DETECTSYS_MAKE): $(DETECTSYS_SCRIPT) $(DETECTSYS_INPUT)
 	@echo "Autodetecting native system:"
 	@cp $(DETECTSYS_INPUT) $(@D)
-	@cd $(@D) ; sh $(notdir $(DETECTSYS_SCRIPT)) | $(INDENT)
+	@cd $(@D) ; sh $(notdir $(DETECTSYS_SCRIPT)) #| $(INDENT)
 
 # Note: This step needs autoconf, but by shipping DETECTSYS_SCRIPT in source
 #       releases, we avoid this step being triggered.
@@ -236,7 +239,7 @@ CONFIG_SCRIPT:=configure
 # Determine compiler.
 $(call DEFCHECK,OPENMSX_CXX)
 DEPEND_FLAGS:=
-ifneq ($(filter %g++,$(OPENMSX_CXX)),)
+ifneq ($(filter %g++,$(OPENMSX_CXX))$(filter g++%,$(OPENMSX_CXX)),)
   # Generic compilation flags.
   CXXFLAGS+=-pipe
   # Stricter warning and error reporting.
@@ -302,11 +305,13 @@ endif
 
 # Determine include flags.
 INCLUDE_INTERNAL:=$(filter-out %/CVS,$(shell find $(SOURCES_PATH) -type d))
-INCLUDE_FLAGS:=-I$(dir $(CONFIG_HEADER))
-INCLUDE_FLAGS+=$(addprefix -I,$(INCLUDE_INTERNAL))
-INCLUDE_FLAGS+=$(foreach lib,$(LIBS_CONFIG),$(shell $(lib)-config --cflags))
-#hack
-INCLUDE_FLAGS+=-I/usr/include/tcl8.4
+INCLUDE_INTERNAL+=$(dir $(CONFIG_HEADER))
+INCLUDE_EXTERNAL:= # TODO: Define these here or platform-*.mk?
+INCLUDE_EXTERNAL+=/usr/include/tcl8.4 /usr/local/include/tcl8.4 #hack
+INCLUDE_EXTERNAL+=/usr/X11R6/include
+LIB_FLAGS:=$(addprefix -I,$(INCLUDE_EXTERNAL))
+LIB_FLAGS+=$(foreach lib,$(LIBS_CONFIG),$(shell $(lib)-config --cflags))
+COMPILE_FLAGS:=$(addprefix -I,$(INCLUDE_INTERNAL)) $(LIB_FLAGS)
 
 # Determine link flags.
 LINK_FLAGS_PREFIX:=-Wl,
@@ -332,7 +337,9 @@ config:
 $(CONFIG_HEADER): $(CONFIG_SCRIPT)
 	@echo "Checking configuration:"
 	@mkdir -p $(CONFIG_PATH)
-	@CONFIG_DIR=$$PWD ; cd $(CONFIG_PATH) ; $$CONFIG_DIR/$(CONFIG_SCRIPT) $(OPENMSX_CONFIG) | $(INDENT)
+	@CONFIG_DIR=$$PWD ; cd $(CONFIG_PATH) ; \
+		CPPFLAGS="$(LIB_FLAGS)" LDFLAGS="$(LINK_FLAGS)" \
+		$$CONFIG_DIR/$(CONFIG_SCRIPT) $(OPENMSX_CONFIG) #| $(INDENT)
 
 # Include dependency files.
 ifneq ($(filter $(DEPEND_TARGETS),$(MAKECMDGOALS)),)
@@ -371,7 +378,7 @@ $(OBJECTS_FULL): $(OBJECTS_PATH)/%.o: $(SOURCES_PATH)/%.cc $(DEPEND_PATH)/%.d
 	@mkdir -p $(patsubst $(OBJECTS_PATH)%,$(DEPEND_PATH)%,$(@D))
 	@$(CXX) $(PRECOMPH_FLAGS) \
 		$(DEPEND_FLAGS) -MMD -MF $(DEPEND_SUBST) \
-		-o $@ $(CXXFLAGS) $(INCLUDE_FLAGS) -c $<
+		-o $@ $(CXXFLAGS) $(COMPILE_FLAGS) -c $<
 	@touch $@ # Force .o file to be newer than .d file.
 # Generate dependencies that do not exist yet.
 # This is only in case some .d files have been deleted;
@@ -494,7 +501,7 @@ $(PRECOMPH_COMB): $(HEADERS_FULL)
 .DELETE_ON_ERROR: $(PRECOMPH_FILE)
 $(PRECOMPH_FILE): $(PRECOMPH_COMB)
 	@echo "Precompiling headers..."
-	@$(CXX) $(CXXFLAGS) $(INCLUDE_FLAGS) $<
+	@$(CXX) $(CXXFLAGS) $(COMPILE_FLAGS) $<
 
 else # USE_PRECOMPH == false
 PRECOMPH_FLAGS:=

@@ -19,3 +19,4 @@ LIBS_PLAIN:=SDL_image png GL z tcl84
 # Libraries that have a lib-config script.
 LIBS_CONFIG:=xml2 sdl11
 
+LINK_FLAGS+=-L/usr/X11R6/lib
