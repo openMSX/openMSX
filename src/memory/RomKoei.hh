@@ -22,6 +22,7 @@ public:
 private:
 	SRAM sram;
 	byte sramEnabled;
+	byte sramBlock[8];
 };
 
 } // namespace openmsx

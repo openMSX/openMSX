@@ -49,8 +49,8 @@ void RomKoei::writeMem(word address, byte value, const EmuTime& time)
 		byte region = ((address >> 11) & 3) + 2;
 		byte sramEnableBit = rom->getSize() / 0x2000;
 		if (value >= sramEnableBit) {
-			byte sramBlock = value & ((sram.getSize() / 0x2000) - 1);
-			setBank(region, sram.getBlock(sramBlock * 0x2000));
+			sramBlock[region] = value & ((sram.getSize() / 0x2000) - 1);
+			setBank(region, sram.getBlock(sramBlock[region] * 0x2000));
 			sramEnabled |= (1 << region);
 		} else {
 			setRom(region, value);
@@ -58,9 +58,11 @@ void RomKoei::writeMem(word address, byte value, const EmuTime& time)
 		}
 	}
 	
-	if ((1 << (address >> 13)) & sramEnabled) {
+	byte bank = address >> 13;
+	if ((1 << bank) & sramEnabled & 0x3C) {
 		// write to SRAM
-		sram.write(address & 0x1FFF, value);
+		word addr = (sramBlock[bank] * 0x2000) + (address & 0x1FFF);
+		sram.write(addr, value);
 	}
 }
 
@@ -69,9 +71,11 @@ byte* RomKoei::getWriteCacheLine(word address) const
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		// bank switching
 		return NULL;
-	} else if ((1 << (address >> 13)) & sramEnabled) {
+	} else if ((1 << (address >> 13)) & sramEnabled & 0x3C) {
 		// write to SRAM
-		return sram.getBlock(address & 0x1FFF);
+		byte bank = address >> 13;
+		word addr = (sramBlock[bank] * 0x2000) + (address & 0x1FFF);
+		return sram.getBlock(addr);
 	} else {
 		return unmappedWrite;
 	}
