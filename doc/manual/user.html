@@ -95,7 +95,7 @@ The latest version of the openMSX manual can be found on the openMSX home page:
 <a class="external" href="http://openmsx.sf.net/manual/">http://openmsx.sf.net/manual/</a>
 </p>
 <p>
-You can also use this URL to get up-to-date versions of the hyperlinks
+You can also use this URL to get up-to-date versions of the hyper links
 if you printed out this manual.
 </p>
 
@@ -377,15 +377,15 @@ accurate setting. This will break a lot of software that uses raster effects.
 <h4><a id="scalers">3.3.4. Scalers</a></h4>
 
 <p>
-Most MSX screen modes are only 256&times;212 pixels big. However, the SDLHi renderer uses a 640&times;480 screen mode to display the MSX screen. In those low reslution MSX screen modes many of the pixels in the high resolution PC screen are not used very well: they are simply multiplications of the original image: every MSX pixel is represented by four pixels in the SDLHi renderer. This is a form of scaling. In stead of just multiplying the pixels by four, we could also use the extra pixels to make the MSX image look sharper. There exist several algorithms that try to do this. Some of them are implemented in openMSX.
+Most MSX screen modes are only 256&times;212 pixels big. However, the SDLHi renderer uses a 640&times;480 screen mode to display the MSX screen. In those low resolution MSX screen modes many of the pixels in the high resolution PC screen are not used very well: they are simply multiplications of the original image: every MSX pixel is represented by four pixels in the SDLHi renderer. This is a form of scaling. In stead of just multiplying the pixels by four, we could also use the extra pixels to make the MSX image look sharper. There exist several algorithms that try to do this. Some of them are implemented in openMSX.
 </p>
 
 <p>
 If you don't appreciate the `smart' scaling, you can just leave the <code>scaler</code>setting to the default value: simple. This is the simple multiplication by four as is explained above. However, if you'd like to try the other scalers, here is some information about them:
 </p>
 <ul>
-<li><a class="external" href="http://elektron.its.tudelft.nl/~dalikifa/">2xsai</a>: this is the 2xSaI scaler. It does a pretty good job: it tries to find intermediate colours to make the image smoother. However, when using white fonts on a black background, you can get some nasty gray lines around them.</li>
-<li><a class="external" href="http://scale2x.sf.net/">scale2x</a>: Scale2x is a simple algorithm that only uses the original colours, so it will not give any blur</li>
+<li><a class="external" href="http://elektron.its.tudelft.nl/~dalikifa/">2xSaI</a>: this is the 2xSaI scaler. It does a pretty good job: it tries to find intermediate colours to make the image smoother. However, when using white fonts on a black background, you can get some nasty gray lines around them.</li>
+<li><a class="external" href="http://scale2x.sf.net/">Scale2x</a>: Scale2x is a simple algorithm that only uses the original colours, so it will not give any blur</li>
 <li><a class="external" href="http://www.hiend3d.com/hq2x.html">hq2x</a>: a very complex algorithm, somewhat similar to 2xSaI, with the difference that takes edges into account. Gives a very good result most of the time, but is also very CPU intensive. Only use it on very fast computers</li>
 </ul>
 <p>
@@ -442,11 +442,11 @@ example). You can then indicate this by typing:
 This lets openMSX know that the file is a ROM cartridge and that openMSX should insert it in the first available free cartridge slot. You can also use <code>-carta</code> to explicitly specify cartridge slot A.
 </p>
 <p>
-Or, maybe openMSX didn't have the ROM in the ROM database and failed autodetection of the mapper type. You can specify the mapper to KONAMI4 like this:
+Or, maybe openMSX didn't have the ROM in the ROM database and failed auto detection of the mapper type. You can specify the mapper to KONAMI4 like this:
 </p>
 <div class="commandline">openmsx galious.rom,KONAMI4</div>
 <p>
-Note that in practice you won't need this, since most ROM images are in the database or autodetected if they are not. Also note that the ROM type names may change in future versions of openMSX.
+Note that in practice you won't need this, since most ROM images are in the database or auto detected if they are not. Also note that the ROM type names may change in future versions of openMSX.
 </p>
 
 <h3><a id="disks">4.2. Running Disk Software</a></h3>
@@ -573,7 +573,7 @@ The default key mapping is as follows:
   <tr> <td>L-Windows</td> <td>MSX iee ('no') key</td> </tr>
   <tr> <td>R-Windows</td> <td>MSX hai ('yes') key</td> </tr>
   <tr> <td>Pause</td> <td>Pause emulation</td> </tr>
-  <tr> <td>PrtScr</td> <td>Save current screen to a file (screenshot)</td> </tr>
+  <tr> <td>PrtScr</td> <td>Save current screen to a file (screen shot)</td> </tr>
 </table>
 <!--
 <p class="todo">
@@ -703,7 +703,7 @@ So, every parameter bit turns an output format on or off and more than one outpu
 </p>
 
 <p>
-The parameters for mode 2 (multibyte mode) are as follows:
+The parameters for mode 2 (multi byte mode) are as follows:
 </p>
 <table>
   <tr> <th>bit(s)</th><th>meaning</th> </tr>
@@ -773,7 +773,7 @@ the layout of the whole line.
 In mode 2, writing to 0x2F does not output any text. All bytes written to this
 register are stored in a buffer and only when the mode register is set again the
 output is shown. Unlike mode 1, the data in this mode is always shown in one
-mode only. It's either in hexmode, binary mode, decimal mode or ascii mode, but
+mode only. It's either in hex mode, binary mode, decimal mode or ascii mode, but
 never a combination. Also the EmuTime bit is left out.
 </p>
 
