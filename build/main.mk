@@ -11,12 +11,9 @@
 # http://www.tip.net.au/~millerp/rmch/recu-make-cons-harm.html
 
 # TODO:
-# - Refuse to build if COMPONENT_CORE is false.
-# - Show different text after running probe-results.mk depending on
-#   components that can be built.
-# - If COMPONENT_GL is false, do not build SDLGL.
 # - Move calculation of CFLAGS and LDFLAGS to components.mk?
 # - Change output format of tcl-search.sh to match probed_defs.mk format.
+# - Make XRenderer into a component.
 
 
 # Logical Targets
@@ -146,8 +143,8 @@ ifeq ($(OPENMSX_PROFILE),true)
 endif
 
 
-# Filesets
-# ========
+# Paths
+# =====
 
 BUILD_PATH:=$(BUILD_BASE)/$(OPENMSX_PLATFORM)-$(OPENMSX_FLAVOUR)
 ifeq ($(OPENMSX_PROFILE),true)
@@ -155,6 +152,50 @@ ifeq ($(OPENMSX_PROFILE),true)
 endif
 
 SOURCES_PATH:=src
+
+BINARY_PATH:=$(BUILD_PATH)/bin
+BINARY_FILE:=openmsx$(EXEEXT)
+BINARY_FULL:=$(BINARY_PATH)/$(BINARY_FILE)
+
+LOG_PATH:=$(BUILD_PATH)/log
+
+CONFIG_PATH:=$(BUILD_PATH)/config
+CONFIG_HEADER:=$(CONFIG_PATH)/build-info.hh
+PROBE_SCRIPT:=$(MAKE_PATH)/probe.mk
+PROBE_HEADER:=$(CONFIG_PATH)/probed_defs.hh
+PROBE_MAKE:=$(CONFIG_PATH)/probed_defs.mk
+VERSION_HEADER:=$(CONFIG_PATH)/Version.ii
+COMPONENTS_MAKE:=$(MAKE_PATH)/components.mk
+COMPONENTS_HEADER:=$(CONFIG_PATH)/components.hh
+
+
+# Configuration
+# =============
+
+OPENMSX_INSTALL?=/opt/openMSX
+
+PACKAGE_NAME:=openmsx
+PACKAGE_VERSION:=0.3.4
+PACKAGE_FULL:=$(PACKAGE_NAME)-$(PACKAGE_VERSION)
+
+RELEASE_FLAG:=false
+
+CHANGELOG_REVISION:=\
+	$(shell sed -ne "s/\$$Id: ChangeLog,v \([^ ]*\).*/\1/p" ChangeLog)
+
+include $(MAKE_PATH)/info2code.mk
+ifneq ($(filter $(DEPEND_TARGETS),$(MAKECMDGOALS)),)
+-include $(PROBE_MAKE)
+ifeq ($(PROBE_MAKE_INCLUDED),true)
+include $(COMPONENTS_MAKE)
+$(call BOOLCHECK,COMPONENT_CORE)
+$(call BOOLCHECK,COMPONENT_GL)
+endif
+endif
+
+
+# Filesets
+# ========
 
 # Force evaluation upon assignment.
 SOURCES_FULL:=
@@ -190,44 +231,6 @@ DEPEND_FULL:=$(addsuffix .d,$(addprefix $(DEPEND_PATH)/,$(SOURCES)))
 
 OBJECTS_PATH:=$(BUILD_PATH)/obj
 OBJECTS_FULL:=$(addsuffix .o,$(addprefix $(OBJECTS_PATH)/,$(SOURCES)))
-
-BINARY_PATH:=$(BUILD_PATH)/bin
-BINARY_FILE:=openmsx$(EXEEXT)
-BINARY_FULL:=$(BINARY_PATH)/$(BINARY_FILE)
-
-LOG_PATH:=$(BUILD_PATH)/log
-
-CONFIG_PATH:=$(BUILD_PATH)/config
-CONFIG_HEADER:=$(CONFIG_PATH)/build-info.hh
-PROBE_SCRIPT:=$(MAKE_PATH)/probe.mk
-PROBE_HEADER:=$(CONFIG_PATH)/probed_defs.hh
-PROBE_MAKE:=$(CONFIG_PATH)/probed_defs.mk
-VERSION_HEADER:=$(CONFIG_PATH)/Version.ii
-
-
-# Configuration
-# =============
-
-OPENMSX_INSTALL?=/opt/openMSX
-
-PACKAGE_NAME:=openmsx
-PACKAGE_VERSION:=0.3.4
-PACKAGE_FULL:=$(PACKAGE_NAME)-$(PACKAGE_VERSION)
-
-RELEASE_FLAG:=false
-
-CHANGELOG_REVISION:=\
-	$(shell sed -ne "s/\$$Id: ChangeLog,v \([^ ]*\).*/\1/p" ChangeLog)
-
-include $(MAKE_PATH)/info2code.mk
-ifneq ($(filter $(DEPEND_TARGETS),$(MAKECMDGOALS)),)
--include $(PROBE_MAKE)
-ifeq ($(PROBE_MAKE_INCLUDED),true)
-include $(MAKE_PATH)/components.mk
-$(call BOOLCHECK,COMPONENT_CORE)
-$(call BOOLCHECK,COMPONENT_GL)
-endif
-endif
 
 
 # Compiler and Flags
@@ -330,14 +333,15 @@ endif
 # Build Rules
 # ===========
 
-probe: $(PROBE_MAKE)
-	@echo ""
-	@echo "If you are satisfied with the probe results, run \"$(MAKE)\" to start the build."
-	@echo "Otherwise, install some libraries and headers and rerun \"configure\"."
-	@echo ""
+# Do not build if core component dependencies are not met.
+ifeq ($(COMPONENT_CORE),false)
+$(error Cannot build openMSX because essential libraries are unavailable. \
+Please install the needed libraries and their header files and rerun "configure")
+endif
 
 # Force a probe if "probe" target is passed explicitly.
 ifneq ($(filter probe,$(MAKECMDGOALS)),)
+probe: $(PROBE_MAKE)
 .PHONY: $(PROBE_MAKE)
 endif
 
@@ -347,10 +351,11 @@ endif
 $(PROBE_MAKE): $(PROBE_SCRIPT) $(MAKE_PATH)/tcl-search.sh
 	@OUTDIR=$(@D) OPENMSX_PLATFORM=$(OPENMSX_PLATFORM) COMPILE="$(CXX)" \
 		$(MAKE) --no-print-directory -f $<
-	@PROBE_MAKE=$(PROBE_MAKE) COMPONENTS_MAKE=$(MAKE_PATH)/components.mk \
+	@PROBE_MAKE=$(PROBE_MAKE) COMPONENTS_MAKE=$(COMPONENTS_MAKE) \
 		$(MAKE) --no-print-directory -f $(MAKE_PATH)/probe-results.mk
 
-all: $(CONFIG_HEADER) $(VERSION_HEADER) config $(BINARY_FULL)
+all: $(VERSION_HEADER) $(CONFIG_HEADER) $(COMPONENTS_HEADER) \
+	config $(BINARY_FULL)
 
 # Print configuration.
 config:
