@@ -3,6 +3,9 @@
 #ifndef __MSXCONFIG_HH__
 #define __MSXCONFIG_HH__
 
+// for uint64
+#include "EmuTime.hh"
+
 #include <string>
 
 namespace MSXConfig
@@ -45,11 +48,11 @@ public:
 class Backend
 {
 public:
-	void loadFile(const std::string &filename)=0;
-	void saveFile()=0;
-	void saveFile(const std::string &filename)=0;
+	virtual void loadFile(const std::string &filename)=0;
+	virtual void saveFile()=0;
+	virtual void saveFile(const std::string &filename)=0;
 
-	Config* getConfigById(const std::string &type)=0;
+	virtual Config* getConfigById(const std::string &type)=0;
 
 	/**
 	 * backend factory
@@ -57,10 +60,12 @@ public:
 	 */
 	static Backend* createBackend(const std::string &name);
 
+protected:
+	virtual ~Backend();
+
 private:
 	// only I create instances of me
 	Backend();
-	virtual ~Backend();
 
 };
 

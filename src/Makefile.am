@@ -18,7 +18,7 @@ endif
 
 SUBDIRS = cfg libxmlx
 
-bin_PROGRAMS=openmsx
+bin_PROGRAMS=openmsx cfgtest
 openmsx_SOURCES=openmsx.cc \
 	system.h openmsx.hh \
 	msxconfig.hh msxconfig.cc \
@@ -84,6 +84,11 @@ openmsx_SOURCES=openmsx.cc \
 # uncomment if you want to link with libxmlx
 # doesn't do anything yet at the moment
 # openmsx_LDADD = libxmlx/libxmlx.la
+
+cfgtest_SOURCES = MSXConfig.hh MSXConfig.cc \
+	cfgtest.cc EmuTime.hh
+
+cfgtest_LDADD = libxmlx/libxmlx.la
 
 MAINTAINERCLEANFILES = Makefile.in config.h.in stamp-h.in
 

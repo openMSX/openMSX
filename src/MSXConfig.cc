@@ -57,8 +57,9 @@ Backend::~Backend()
 {
 }
 
-static Backend* Backend::createBackend(const std::string &name)
+Backend* Backend::createBackend(const std::string &name)
 {
+	return 0;
 }
 
 }; // end namespace MSXConfig
