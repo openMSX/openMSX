@@ -5,6 +5,9 @@ $Id$
 	* updated all machine configurations to new file format:
 	   thanks to mth for writing the convertor script!
 	* test release openmsx-0.5.0-test1
+	* fixed sprite color bug:
+	   in planar modes the sprite color table was not read correctly (bit
+	   masking error)
 
 2004-10-04 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Don't use exceptions to report unconnected drive in ready() method:

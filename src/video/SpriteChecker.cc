@@ -223,7 +223,7 @@ inline int SpriteChecker::checkSprites2(
 				}
 				if (limitSprites) break;
 			}
-			int colourIndex = (-1 << 10) | (sprite * 16 + spriteLine);
+			int colourIndex = ((-1 << 10) | (sprite * 16 + spriteLine)) & 0x1FFFF;
 			if (planar) colourIndex =
 				((colourIndex << 16) | (colourIndex >> 1)) & 0x1FFFF;
 			byte colourAttrib = vram->spriteAttribTable.readNP(colourIndex);
