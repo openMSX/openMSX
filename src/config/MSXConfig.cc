@@ -63,6 +63,7 @@ bool Config::hasParameter(const string &name) const
 }
 
 const string &Config::getParameter(const string &name) const
+	throw(ConfigException)
 {
 	XML::Element* p = getParameterElement(name);
 	if (p != 0) {
@@ -79,6 +80,7 @@ const string Config::getParameter(const string &name, const string &defaultValue
 }
 
 const bool Config::getParameterAsBool(const string &name) const
+	throw(ConfigException)
 {
 	XML::Element* p = getParameterElement(name);
 	if (p != 0) {
@@ -94,6 +96,7 @@ const bool Config::getParameterAsBool(const string &name, bool defaultValue) con
 }
 
 const int Config::getParameterAsInt(const string &name) const
+	throw(ConfigException)
 {
 	XML::Element* p = getParameterElement(name);
 	if (p != 0) {
@@ -109,6 +112,7 @@ const int Config::getParameterAsInt(const string &name, int defaultValue) const
 }
 
 const uint64 Config::getParameterAsUint64(const string &name) const
+	throw(ConfigException)
 {
 	XML::Element* p = getParameterElement(name);
 	if (p != 0) {
@@ -275,6 +279,7 @@ MSXConfig* MSXConfig::instance()
 
 void MSXConfig::loadHardware(FileContext &context,
                              const string &filename)
+	throw(ConfigException)
 {
 	File file(context.resolve(filename));
 	XML::Document *doc = new XML::Document(file.getLocalName());
@@ -304,6 +309,7 @@ void MSXConfig::loadHardware(FileContext &context,
 
 void MSXConfig::loadSetting(FileContext &context,
                             const string &filename)
+	throw(ConfigException)
 {
 	File file(context.resolve(filename));
 	XML::Document *doc = new XML::Document(file.getLocalName());
@@ -313,12 +319,14 @@ void MSXConfig::loadSetting(FileContext &context,
 
 void MSXConfig::loadStream(FileContext &context,
                            const ostringstream &stream)
+	throw(ConfigException)
 {
 	XML::Document* doc = new XML::Document(stream);
 	handleDoc(doc, context);
 }
 
 void MSXConfig::handleDoc(XML::Document* doc, FileContext &context)
+	throw(ConfigException)
 {
 	docs.push_back(doc);
 	// TODO update/append Devices/Configs
@@ -362,6 +370,7 @@ bool MSXConfig::hasConfigWithId(const string &id)
 }
 
 Config* MSXConfig::getConfigById(const string &id)
+	throw(ConfigException)
 {
 	Config* result = findConfigById(id);
 	if (!result) {
@@ -391,6 +400,7 @@ Config* MSXConfig::findConfigById(const string &id)
 }
 
 Device* MSXConfig::getDeviceById(const string &id)
+	throw(ConfigException)
 {
 	for (list<Device*>::const_iterator i = devices.begin();
 	     i != devices.end();
