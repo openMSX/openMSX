@@ -11,7 +11,6 @@
 #include "MSXConfig.hh"
 #include "File.hh"
 #include "CommandConsole.hh"
-#include "DebugConsole.hh"
 #include <cassert>
 
 #include "config.h"
