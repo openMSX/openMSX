@@ -3,6 +3,7 @@ config.h
 config.cache
 config.status
 stamp-h
+stamp-h1
 Makefile
 Makefile.in
 .deps
