@@ -436,46 +436,48 @@ else
 endif
 
 
-# Installation
-# ============
+# Installation and Binary Packaging
+# =================================
 
-INSTALL_DOCS:=release-notes.txt release-history.txt
-
+# Note: Use OPENMSX_INSTALL only to create binary packages.
+#       To change installation dir for actual installations, edit "custom.mk".
+OPENMSX_INSTALL?=$(INSTALL_BASE)
 install: all
-	@echo "Installing to $(INSTALL_BASE):"
+	@echo "Installing to $(OPENMSX_INSTALL):"
 	@echo "  Executable..."
-	@mkdir -p $(INSTALL_BASE)/bin
-	@cp $(BINARY_FULL) $(INSTALL_BASE)/bin/$(BINARY_FILE)
+	@mkdir -p $(OPENMSX_INSTALL)/bin
+	@cp -f $(BINARY_FULL) $(OPENMSX_INSTALL)/bin/$(BINARY_FILE)
 	@echo "  Data files..."
-	@cp -r share $(INSTALL_BASE)/
+	@cp -rf share $(OPENMSX_INSTALL)/
 	@echo "  C-BIOS..."
-	@mkdir -p $(INSTALL_BASE)/Contrib/cbios
-	@cp Contrib/cbios/*.BIN $(INSTALL_BASE)/Contrib/cbios
+	@mkdir -p $(OPENMSX_INSTALL)/Contrib/cbios
+	@cp -f Contrib/cbios/*.BIN $(OPENMSX_INSTALL)/Contrib/cbios
 	@echo "  Documentation..."
-	@mkdir -p $(INSTALL_BASE)/doc
-	@cp $(addprefix doc/,$(INSTALL_DOCS)) $(INSTALL_BASE)/doc
-	@mkdir -p $(INSTALL_BASE)/doc/manual
-	@cp $(addprefix doc/manual/,*.html *.css) $(INSTALL_BASE)/doc/manual
+	@mkdir -p $(OPENMSX_INSTALL)/doc
+	@cp -f README GPL AUTHORS $(OPENMSX_INSTALL)/doc
+	@cp -f $(addprefix doc/,$(INSTALL_DOCS)) $(OPENMSX_INSTALL)/doc
+	@mkdir -p $(OPENMSX_INSTALL)/doc/manual
+	@cp -f $(addprefix doc/manual/,*.html *.css) $(OPENMSX_INSTALL)/doc/manual
 ifeq ($(USE_SYMLINK),true)
 	@echo "  Creating symlinks..."
-	@ln -sf National_CF-1200 $(INSTALL_BASE)/share/machines/msx1
-	@ln -sf Philips_NMS_8250 $(INSTALL_BASE)/share/machines/msx2
-	@ln -sf Panasonic_FS-A1FX $(INSTALL_BASE)/share/machines/msx2plus
-	@ln -sf Panasonic_FS-A1GT $(INSTALL_BASE)/share/machines/turbor
+	@ln -sf National_CF-1200 $(OPENMSX_INSTALL)/share/machines/msx1
+	@ln -sf Philips_NMS_8250 $(OPENMSX_INSTALL)/share/machines/msx2
+	@ln -sf Panasonic_FS-A1FX $(OPENMSX_INSTALL)/share/machines/msx2plus
+	@ln -sf Panasonic_FS-A1GT $(OPENMSX_INSTALL)/share/machines/turbor
 	@if [ -d /usr/local/bin -a -w /usr/local/bin ]; \
-		then ln -sf $(INSTALL_BASE)/bin/$(BINARY_FILE) /usr/local/bin/openmsx; \
+		then ln -sf $(OPENMSX_INSTALL)/bin/$(BINARY_FILE) /usr/local/bin/openmsx; \
 		else if [ -d ~/bin ]; \
-			then ln -sf $(INSTALL_BASE)/bin/$(BINARY_FILE) ~/bin/openmsx; \
+			then ln -sf $(OPENMSX_INSTALL)/bin/$(BINARY_FILE) ~/bin/openmsx; \
 			fi; \
 		fi
 endif
 	@echo "  Setting permissions..."
-	@chmod -R a+rX $(INSTALL_BASE)
+	@chmod -R a+rX $(OPENMSX_INSTALL)
 	@echo "Installation complete... have fun!"
 
 
-# Packaging
-# =========
+# Source Packaging
+# ================
 
 DIST_BASE:=$(BUILD_BASE)/dist
 DIST_PATH:=$(DIST_BASE)/$(PACKAGE_FULL)
