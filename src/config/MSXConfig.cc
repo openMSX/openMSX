@@ -279,7 +279,7 @@ MSXConfig* MSXConfig::instance()
 
 void MSXConfig::loadHardware(FileContext &context,
                              const string &filename)
-	throw(ConfigException)
+	throw(FileException, ConfigException)
 {
 	File file(context.resolve(filename));
 	XML::Document *doc = new XML::Document(file.getLocalName());
@@ -309,7 +309,7 @@ void MSXConfig::loadHardware(FileContext &context,
 
 void MSXConfig::loadSetting(FileContext &context,
                             const string &filename)
-	throw(ConfigException)
+	throw(FileException, ConfigException)
 {
 	File file(context.resolve(filename));
 	XML::Document *doc = new XML::Document(file.getLocalName());

@@ -9,6 +9,7 @@
 #include "MSXException.hh"
 #include "libxmlx/xmlx.hh"
 #include "FileContext.hh"
+#include "File.hh"
 
 using std::string;
 using std::list;
@@ -120,9 +121,9 @@ public:
 	 *  the config data [can be called multiple times]
 	 */
 	void loadHardware(FileContext &context, const string &filename)
-		throw(ConfigException);
+		throw(FileException, ConfigException);
 	void loadSetting(FileContext &context, const string &filename)
-		throw(ConfigException);
+		throw(FileException, ConfigException);
 	void loadStream(FileContext &context, const ostringstream &stream)
 		throw(ConfigException);
 

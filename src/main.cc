@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <SDL/SDL.h>
+#include <exception>
 #include "config.h"
 #include "MSXMotherBoard.hh"
 #include "CommandLineParser.hh"
@@ -40,9 +41,15 @@ void initializeSDL()
 	SDL_FreeSurface(iconSurf);
 }
 
+void unexpectedExceptionHandler()
+{
+	cerr << "Unexpected exception." << endl;
+}
 
 int main(int argc, char **argv)
 {
+	std::set_unexpected(unexpectedExceptionHandler);
+	
 	int err = 0;
 	try {
 		initializeSDL();

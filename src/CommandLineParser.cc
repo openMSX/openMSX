@@ -172,10 +172,13 @@ CommandLineParser::ParseStatus CommandLineParser::parse(int argc, char **argv)
 					SystemFileContext context;
 					config->loadSetting(context, "share/settings.xml");
 					haveSettings = true;
-				} catch (MSXException &e) {
+				} catch (FileException &e) {
 					// settings.xml not found
 					CliCommunicator::instance().printWarning(
 						"No settings file found!");
+				} catch (ConfigException& e) {
+					throw FatalError("Error in default settings: "
+						+ e.getMessage());
 				}
 			}
 			postRegisterFileTypes();
@@ -200,9 +203,11 @@ CommandLineParser::ParseStatus CommandLineParser::parse(int argc, char **argv)
 					config->loadHardware(context,
 						MACHINE_PATH + machine + "/hardwareconfig.xml");
 					haveConfig = true;
-				} catch (FileException &e) {
-					CliCommunicator::instance().printWarning(
-						"No machine file found!");
+				} catch (FileException& e) {
+					throw FatalError("No machine file found!");
+				} catch (ConfigException& e) {
+					throw FatalError("Error in default machine config: "
+						+ e.getMessage());
 				}
 			}
 			break;
@@ -400,14 +405,20 @@ bool CommandLineParser::MachineOption::parseOption(const string &option,
 	if (parser->issuedHelp) {
 		return true;
 	}
-	MSXConfig *config = MSXConfig::instance();
-	string machine(getArgument(option, cmdLine));
-	SystemFileContext context;
-	config->loadHardware(context,
-		MACHINE_PATH + machine + "/hardwareconfig.xml");
-	CliCommunicator::instance().printInfo(
-		"Using specified machine: " + machine);
-	parser->haveConfig = true;
+	try {
+		MSXConfig *config = MSXConfig::instance();
+		string machine(getArgument(option, cmdLine));
+		SystemFileContext context;
+		config->loadHardware(context,
+			MACHINE_PATH + machine + "/hardwareconfig.xml");
+		CliCommunicator::instance().printInfo(
+			"Using specified machine: " + machine);
+		parser->haveConfig = true;
+	} catch (FileException& e) {
+		throw FatalError(e.getMessage());
+	} catch (ConfigException& e) {
+		throw FatalError(e.getMessage());
+	}
 	return true;
 }
 const string& CommandLineParser::MachineOption::optionHelp() const
@@ -425,10 +436,16 @@ bool CommandLineParser::SettingOption::parseOption(const string &option,
 	if (parser->haveSettings) {
 		throw FatalError("Only one setting option allowed");
 	}
-	parser->haveSettings = true;
-	MSXConfig *config = MSXConfig::instance();
-	UserFileContext context;
-	config->loadSetting(context, getArgument(option, cmdLine));
+	try {
+		MSXConfig *config = MSXConfig::instance();
+		UserFileContext context;
+		config->loadSetting(context, getArgument(option, cmdLine));
+		parser->haveSettings = true;
+	} catch (FileException& e) {
+		throw FatalError(e.getMessage());
+	} catch (ConfigException& e) {
+		throw FatalError(e.getMessage());
+	}
 	return true;
 }
 const string& CommandLineParser::SettingOption::optionHelp() const
