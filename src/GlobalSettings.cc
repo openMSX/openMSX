@@ -16,7 +16,7 @@ GlobalSettings::GlobalSettings()
 	       "controls the emulation speed: higher is faster, 100 is normal",
 	       100, 1, 1000000));
 	throttleSetting.reset(new BooleanSetting("throttle",
-	       "controls speed throttling", true));
+	       "controls speed throttling", true, Setting::DONT_SAVE));
 	pauseSetting.reset(new BooleanSetting("pause", "pauses the emulation",
 	       false, Setting::DONT_SAVE));
 	powerSetting.reset(new BooleanSetting("power", "turn power on/off",
