@@ -647,7 +647,8 @@ void SDLGLRenderer::frameStart(const EmuTime &time)
 	lineRenderTop = vdp->isPalTiming() ? 59 - 14 : 32 - 14;
 
 	float gamma = settings->getGamma()->getValue();
-	if (gamma != prevGamma) {
+	// (gamma != prevGamma) gives compiler warnings
+	if ((gamma > prevGamma) || (gamma < prevGamma)) { 
 		prevGamma = gamma;
 		precalcPalette(gamma);
 		resetPalette();

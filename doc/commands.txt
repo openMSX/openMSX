@@ -335,6 +335,16 @@ fullscreen
     set fullscreen off  switch to normal mode
 
 
+gamma
+-----
+
+  Sets the amount of gamma correction: low is dark, high is bright
+
+  usage:
+    set gamma        shows the current value
+    set gamma <num>  set new value
+
+    
 glow
 ----
   

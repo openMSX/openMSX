@@ -421,7 +421,8 @@ void SDLRenderer<Pixel, zoom>::frameStart(
 	lineRenderBottom = lineRenderTop + HEIGHT / LINE_ZOOM;
 
 	float gamma = settings->getGamma()->getValue();
-	if (gamma != prevGamma) {
+	// (gamma != prevGamma) gives compiler warnings
+	if ((gamma > prevGamma) || (gamma < prevGamma)) { 
 		prevGamma = gamma;
 		precalcPalette(gamma);
 		resetPalette();
