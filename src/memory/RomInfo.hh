@@ -29,7 +29,7 @@ public:
 	void print();
 
 	static std::auto_ptr<RomInfo> fetchRomInfo(const Rom& rom);
-	static MapperType nameToMapperType(const std::string& name);
+	static MapperType nameToMapperType(std::string name);
 	static void getAllMapperTypes(std::set<std::string>& result);
 
 private:

@@ -30,83 +30,45 @@ static void initMap()
 	}
 	init = true;
 	
-	mappertype["0"]           = GENERIC_8KB;
 	mappertype["8kB"]         = GENERIC_8KB;
-
-	mappertype["1"]           = GENERIC_16KB;
 	mappertype["16kB"]        = GENERIC_16KB;
-	mappertype["MSXDOS2"]     = GENERIC_16KB; /* For now...*/
-
-	mappertype["2"]           = KONAMI5;
-	mappertype["KONAMI5"]     = KONAMI5;
-	mappertype["SCC"]         = KONAMI5;
-
-	mappertype["3"]           = KONAMI4;
-	mappertype["KONAMI4"]     = KONAMI4;
-
-	mappertype["4"]           = ASCII_8KB;
-	mappertype["ASCII8"]      = ASCII_8KB;
-
-	mappertype["5"]           = ASCII_16KB;
-	mappertype["ASCII16"]     = ASCII_16KB;
-
-	mappertype["RTYPE"]       = R_TYPE;
-
-	mappertype["CROSSBLAIM"]  = CROSS_BLAIM;
-	
-	mappertype["PANASONIC"]   = PANASONIC;
-	
-	mappertype["NATIONAL"]    = NATIONAL;
-
-	mappertype["MSX-AUDIO"]   = MSX_AUDIO;
-	
-	mappertype["HARRYFOX"]    = HARRY_FOX;
-	
-	mappertype["HALNOTE"]     = HALNOTE;
-	
-	mappertype["KOREAN80IN1"] = KOREAN80IN1;
-	
-	mappertype["KOREAN90IN1"] = KOREAN90IN1;
-	
-	mappertype["KOREAN126IN1"]= KOREAN126IN1;
-	
-	mappertype["HOLYQURAN"]   = HOLY_QURAN;
-
-	mappertype["FSA1FM1"]     = FSA1FM1;
-	mappertype["FSA1FM2"]     = FSA1FM2;
-	
-	mappertype["64kB"]        = PLAIN;
-	mappertype["PLAIN"]       = PLAIN;
-	mappertype["DRAM"]        = DRAM;
-	
-	// SRAM
-	mappertype["HYDLIDE2"]    = HYDLIDE2;
-	mappertype["ASCII16-2"]   = HYDLIDE2;
-
-	mappertype["ASCII8-8"]    = ASCII8_8; 
-	mappertype["KOEI-8"]      = KOEI_8; 
-	mappertype["KOEI-32"]     = KOEI_32; 
-	mappertype["WIZARDRY"]    = WIZARDRY; 
-
-	mappertype["GAMEMASTER2"] = GAME_MASTER2;
-	mappertype["RC755"]       = GAME_MASTER2;
-
-	// DAC
-	mappertype["MAJUTSUSHI"]  = MAJUTSUSHI;
-	
-	mappertype["SYNTHESIZER"] = SYNTHESIZER;
-	
-	mappertype["PAGE0"]       = PAGE0;
-	mappertype["PAGE01"]      = PAGE01;
-	mappertype["PAGE012"]     = PAGE012;
-	mappertype["PAGE0123"]    = PAGE0123;
-	mappertype["PAGE1"]       = PAGE1;
-	mappertype["PAGE12"]      = PAGE12;
-	mappertype["PAGE123"]     = PAGE123;
-	mappertype["PAGE2"]       = PAGE2;
-	mappertype["ROMBAS"]      = PAGE2;
-	mappertype["PAGE23"]      = PAGE23;
-	mappertype["PAGE3"]       = PAGE3;
+	mappertype["konami5"]     = KONAMI5;
+	mappertype["konami4"]     = KONAMI4;
+	mappertype["ascii8"]      = ASCII_8KB;
+	mappertype["ascii16"]     = ASCII_16KB;
+	mappertype["rtype"]       = R_TYPE;
+	mappertype["crossblaim"]  = CROSS_BLAIM;
+	mappertype["panasonic"]   = PANASONIC;
+	mappertype["national"]    = NATIONAL;
+	mappertype["msx-audio"]   = MSX_AUDIO;
+	mappertype["harryfox"]    = HARRY_FOX;
+	mappertype["halnote"]     = HALNOTE;
+	mappertype["korean80in1"] = KOREAN80IN1;
+	mappertype["korean90in1"] = KOREAN90IN1;
+	mappertype["korean126in1"]= KOREAN126IN1;
+	mappertype["holyquran"]   = HOLY_QURAN;
+	mappertype["fsa1fm1"]     = FSA1FM1;
+	mappertype["fsa1fm2"]     = FSA1FM2;
+	mappertype["plain"]       = PLAIN;
+	mappertype["dram"]        = DRAM;
+	mappertype["hydlide2"]    = HYDLIDE2;
+	mappertype["ascii8-8"]    = ASCII8_8; 
+	mappertype["koei-8"]      = KOEI_8; 
+	mappertype["koei-32"]     = KOEI_32; 
+	mappertype["wizardry"]    = WIZARDRY; 
+	mappertype["gamemaster2"] = GAME_MASTER2;
+	mappertype["majutsushi"]  = MAJUTSUSHI;
+	mappertype["synthesizer"] = SYNTHESIZER;
+	mappertype["page0"]       = PAGE0;
+	mappertype["page01"]      = PAGE01;
+	mappertype["page012"]     = PAGE012;
+	mappertype["page0123"]    = PAGE0123;
+	mappertype["page1"]       = PAGE1;
+	mappertype["page12"]      = PAGE12;
+	mappertype["page123"]     = PAGE123;
+	mappertype["page2"]       = PAGE2;
+	mappertype["page23"]      = PAGE23;
+	mappertype["page3"]       = PAGE3;
 }
 
 RomInfo::RomInfo(const string& ntitle, const string& nyear,
@@ -124,9 +86,35 @@ RomInfo::~RomInfo()
 {
 }
 
-MapperType RomInfo::nameToMapperType(const string& name)
+MapperType RomInfo::nameToMapperType(string name)
 {
 	initMap();
+	
+	static map<string, string, StringOp::caseless> aliasMap;
+	static bool aliasMapInit = false;
+	if (!aliasMapInit) {
+		// alternative names for mapper types, mainly for
+		// backwards compatibility
+		// map from 'alternative' to 'standard' name
+		aliasMapInit = true;
+		aliasMap["0"]         = "8kB";
+		aliasMap["1"]         = "16kB";
+		aliasMap["MSXDOS2"]   = "16kB";
+		aliasMap["2"]         = "KONAMI5";
+		aliasMap["SCC"]       = "KONAMI5";
+		aliasMap["3"]         = "KONAMI4";
+		aliasMap["4"]         = "ASCII8";
+		aliasMap["5"]         = "ASCII16";
+		aliasMap["64kB"]      = "PLAIN";
+		aliasMap["ASCII16-2"] = "HYDLIDE2";
+		aliasMap["RC755"]     = "GAME_MASTER2";
+		aliasMap["ROMBAS"]    = "PAGE2";
+	}
+	map<string, string>::const_iterator alias_it = aliasMap.find(name);
+	if (alias_it != aliasMap.end()) {
+		name = alias_it->second;
+		assert(mappertype.find(name) != mappertype.end());
+	}
 	MapperTypeMap::const_iterator it = mappertype.find(name);
 	if (it == mappertype.end()) {
 		return UNKNOWN;

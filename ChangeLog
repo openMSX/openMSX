@@ -3,6 +3,8 @@ $Id$
 2004-12-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented "openmsx_info romtype" command:
 	   only the code, no actual descriptions yet
+	* Split rom type names in standard names and alternative names:
+	   preparation for rom type naming cleanup
 
 2004-12-26 Eric Boon <e.boon4@chello.nl>
 	* Improved V9990 YUV and YJK modes:

@@ -106,10 +106,10 @@ string RomInfoTopic::help(const vector<string>& tokens) const
 
 void RomInfoTopic::tabCompletion(vector<string>& tokens) const
 {
-	if (tokens.size() == 2) {
+	if (tokens.size() == 3) {
 		set<string> romTypes;
 		RomInfo::getAllMapperTypes(romTypes);
-		CommandController::completeString(tokens, romTypes);
+		CommandController::completeString(tokens, romTypes, false);
 	}
 }
 
