@@ -30,7 +30,7 @@ HDR_ONLY:= \
 	Rasterizer
 
 SRC_HDR_$(COMPONENT_GL)+= \
-	SDLGLVideoSystem SDLGLRenderer GLSnow GLUtil
+	SDLGLVideoSystem SDLGLRenderer GLRasterizer GLSnow GLUtil
 
 include build/node-end.mk
 

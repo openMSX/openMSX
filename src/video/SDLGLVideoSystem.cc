@@ -2,6 +2,7 @@
 
 #include "SDLGLVideoSystem.hh"
 #include "SDLGLRenderer.hh"
+#include "GLRasterizer.hh"
 #include "GLSnow.hh"
 #include "GLConsole.hh"
 #include "GLUtil.hh"
@@ -36,18 +37,20 @@ SDLGLVideoSystem::SDLGLVideoSystem(VDP* vdp)
 	Display* display = new Display(auto_ptr<VideoSystem>(this));
 	Display::INSTANCE.reset(display);
 	GLSnow* background = new GLSnow();
-	SDLGLRenderer* renderer = new SDLGLRenderer(RendererFactory::SDLGL, vdp);
+	Rasterizer* rasterizer = new GLRasterizer(vdp);
 	display->addLayer(background);
 	display->setAlpha(background, 255);
-	display->addLayer(renderer);
-	display->setAlpha(renderer, 255);
+	display->addLayer(rasterizer);
+	display->setAlpha(rasterizer, 255);
 	new GLConsole(CommandConsole::instance());
 
-	this->renderer = renderer;
+	this->renderer =
+		new SDLGLRenderer(RendererFactory::SDLGL, vdp, rasterizer);
 }
 
 SDLGLVideoSystem::~SDLGLVideoSystem()
 {
+	delete renderer;
 	closeSDLVideo();
 }
 

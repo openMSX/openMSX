@@ -80,6 +80,7 @@ SDLVideoSystem::SDLVideoSystem(
 
 SDLVideoSystem::~SDLVideoSystem()
 {
+	delete renderer;
 	closeSDLVideo();
 }
 

@@ -28,7 +28,6 @@ SDLRenderer::SDLRenderer(
 SDLRenderer::~SDLRenderer()
 {
 	powerSetting.removeListener(this);
-	delete rasterizer;
 }
 
 void SDLRenderer::update(const SettingLeafNode* setting)

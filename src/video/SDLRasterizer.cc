@@ -3,9 +3,9 @@
 #include "SDLRasterizer.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
+#include "Renderer.hh"
 #include "RenderSettings.hh"
 #include "Scaler.hh"
-#include "ScreenShotSaver.hh"
 #include "FloatSetting.hh"
 #include <SDL.h>
 #include <algorithm>
@@ -32,8 +32,7 @@ static const int TICKS_LEFT_BORDER = 100 + 102;
 
 /** The middle of the visible (display + borders) part of a line,
   * expressed in VDP ticks since the start of the line.
-  * TODO: Move this to PixelRenderer?
-  *       It is not used there, but it is used by multiple subclasses.
+  * TODO: Move this to a central location?
   */
 static const int TICKS_VISIBLE_MIDDLE =
 	TICKS_LEFT_BORDER + (VDP::TICKS_PER_LINE - TICKS_LEFT_BORDER - 27) / 2;
@@ -55,104 +54,6 @@ inline int SDLRasterizer<Pixel, zoom>::translateX(int absoluteX, bool narrow)
 		/ (zoom == Renderer::ZOOM_REAL && narrow ? 2 : 4)
 		+ maxX / 2;
 	return max(screenX, 0);
-}
-
-template <class Pixel, Renderer::Zoom zoom>
-void SDLRasterizer<Pixel, zoom>::paint()
-{
-	// All of the current postprocessing steps require hi-res.
-	if (LINE_ZOOM != 2) {
-		// Just copy the image as-is.
-		SDL_BlitSurface(workScreen, NULL, screen, NULL);
-		return;
-	}
-
-	const bool deinterlace =
-		interlaced && RenderSettings::instance().getDeinterlace()->getValue();
-	assert(!deinterlace || workScreens[1]);
-
-	// New scaler algorithm selected?
-	ScalerID scalerID = RenderSettings::instance().getScaler()->getValue();
-	if (currScalerID != scalerID) {
-		currScaler = Scaler<Pixel>::createScaler(scalerID, screen->format);
-		currScalerID = scalerID;
-	}
-
-	// Scale image.
-	const unsigned deltaY = interlaced && vdp->getEvenOdd() ? 1 : 0;
-	unsigned startY = 0;
-	while (startY < HEIGHT / 2) {
-		const LineContent content = lineContent[startY];
-		unsigned endY = startY + 1;
-		while (endY < HEIGHT / 2 && lineContent[endY] == content) endY++;
-
-		switch (content) {
-		case LINE_BLANK: {
-			// Reduce area to same-colour starting segment.
-			const Pixel colour = *reinterpret_cast<Pixel*>(
-				reinterpret_cast<byte*>(workScreen->pixels) +
-				workScreen->pitch * startY
-				);
-			for (unsigned y = startY + 1; y < endY; y++) {
-				const Pixel colour2 = *reinterpret_cast<Pixel*>(
-					reinterpret_cast<byte*>(workScreen->pixels) +
-					workScreen->pitch * y
-					);
-				if (colour != colour2) endY = y;
-			}
-			
-			if (deinterlace) {
-				// TODO: This isn't 100% accurate:
-				//       on the previous frame, this area may have contained
-				//       graphics instead of blank pixels.
-				currScaler->scaleBlank(
-					colour, screen,
-					startY * 2 + deltaY, endY * 2 + deltaY );
-			} else {
-				currScaler->scaleBlank(
-					colour, screen,
-					startY * 2 + deltaY, endY * 2 + deltaY );
-			}
-			break;
-		}
-		case LINE_256:
-			if (deinterlace) {
-				for (unsigned y = startY; y < endY; y++) {
-					deinterlacer.deinterlaceLine256(
-						workScreens[0], workScreens[1], y, screen, y * 2 );
-				}
-			} else {
-				currScaler->scale256(
-					workScreen, startY, endY, screen, startY * 2 + deltaY );
-			}
-			break;
-		case LINE_512:
-			if (deinterlace) {
-				for (unsigned y = startY; y < endY; y++) {
-					deinterlacer.deinterlaceLine512(
-						workScreens[0], workScreens[1], y, screen, y * 2 );
-				}
-			} else {
-				currScaler->scale512(
-					workScreen, startY, endY, screen, startY * 2 + deltaY );
-			}
-			break;
-		default:
-			assert(false);
-			break;
-		}
-
-		//fprintf(stderr, "post processing lines %d-%d: %d\n",
-		//	startY, endY, content );
-		startY = endY;
-	}
-}
-
-template <class Pixel, Renderer::Zoom zoom>
-const string& SDLRasterizer<Pixel, zoom>::getName()
-{
-	static const string NAME = "SDLRasterizer";
-	return NAME;
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -325,6 +226,104 @@ SDLRasterizer<Pixel, zoom>::~SDLRasterizer()
 }
 
 template <class Pixel, Renderer::Zoom zoom>
+void SDLRasterizer<Pixel, zoom>::paint()
+{
+	// All of the current postprocessing steps require hi-res.
+	if (LINE_ZOOM != 2) {
+		// Just copy the image as-is.
+		SDL_BlitSurface(workScreen, NULL, screen, NULL);
+		return;
+	}
+
+	const bool deinterlace =
+		interlaced && RenderSettings::instance().getDeinterlace()->getValue();
+	assert(!deinterlace || workScreens[1]);
+
+	// New scaler algorithm selected?
+	ScalerID scalerID = RenderSettings::instance().getScaler()->getValue();
+	if (currScalerID != scalerID) {
+		currScaler = Scaler<Pixel>::createScaler(scalerID, screen->format);
+		currScalerID = scalerID;
+	}
+
+	// Scale image.
+	const unsigned deltaY = interlaced && vdp->getEvenOdd() ? 1 : 0;
+	unsigned startY = 0;
+	while (startY < HEIGHT / 2) {
+		const LineContent content = lineContent[startY];
+		unsigned endY = startY + 1;
+		while (endY < HEIGHT / 2 && lineContent[endY] == content) endY++;
+
+		switch (content) {
+		case LINE_BLANK: {
+			// Reduce area to same-colour starting segment.
+			const Pixel colour = *reinterpret_cast<Pixel*>(
+				reinterpret_cast<byte*>(workScreen->pixels) +
+				workScreen->pitch * startY
+				);
+			for (unsigned y = startY + 1; y < endY; y++) {
+				const Pixel colour2 = *reinterpret_cast<Pixel*>(
+					reinterpret_cast<byte*>(workScreen->pixels) +
+					workScreen->pitch * y
+					);
+				if (colour != colour2) endY = y;
+			}
+			
+			if (deinterlace) {
+				// TODO: This isn't 100% accurate:
+				//       on the previous frame, this area may have contained
+				//       graphics instead of blank pixels.
+				currScaler->scaleBlank(
+					colour, screen,
+					startY * 2 + deltaY, endY * 2 + deltaY );
+			} else {
+				currScaler->scaleBlank(
+					colour, screen,
+					startY * 2 + deltaY, endY * 2 + deltaY );
+			}
+			break;
+		}
+		case LINE_256:
+			if (deinterlace) {
+				for (unsigned y = startY; y < endY; y++) {
+					deinterlacer.deinterlaceLine256(
+						workScreens[0], workScreens[1], y, screen, y * 2 );
+				}
+			} else {
+				currScaler->scale256(
+					workScreen, startY, endY, screen, startY * 2 + deltaY );
+			}
+			break;
+		case LINE_512:
+			if (deinterlace) {
+				for (unsigned y = startY; y < endY; y++) {
+					deinterlacer.deinterlaceLine512(
+						workScreens[0], workScreens[1], y, screen, y * 2 );
+				}
+			} else {
+				currScaler->scale512(
+					workScreen, startY, endY, screen, startY * 2 + deltaY );
+			}
+			break;
+		default:
+			assert(false);
+			break;
+		}
+
+		//fprintf(stderr, "post processing lines %d-%d: %d\n",
+		//	startY, endY, content );
+		startY = endY;
+	}
+}
+
+template <class Pixel, Renderer::Zoom zoom>
+const string& SDLRasterizer<Pixel, zoom>::getName()
+{
+	static const string NAME = "SDLRasterizer";
+	return NAME;
+}
+
+template <class Pixel, Renderer::Zoom zoom>
 void SDLRasterizer<Pixel, zoom>::reset()
 {
 	// Init renderer state.
@@ -370,6 +369,12 @@ void SDLRasterizer<Pixel, zoom>::frameStart()
 		precalcPalette(gamma);
 		resetPalette();
 	}
+}
+
+template <class Pixel, Renderer::Zoom zoom>
+void SDLRasterizer<Pixel, zoom>::frameEnd()
+{
+	// Nothing to do.
 }
 
 template <class Pixel, Renderer::Zoom zoom>

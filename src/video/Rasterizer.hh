@@ -25,6 +25,11 @@ public:
 	  */
 	virtual void frameStart() = 0;
 
+	/** Indicates the end of the current frame.
+	  * The rasterizer can perform image post processing.
+	  */
+	virtual void frameEnd() = 0;
+
 	/** Precalc several values that depend on the display mode.
 	  * @param mode The new display mode.
 	  */

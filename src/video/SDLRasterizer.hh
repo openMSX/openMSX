@@ -26,7 +26,7 @@ class VDP;
 class VDPVRAM;
 
 
-/** Renderer on SDL surface.
+/** Rasterizer using SDL.
   */
 template <class Pixel, Renderer::Zoom zoom>
 class SDLRasterizer : public Rasterizer, private SettingListener
@@ -47,6 +47,7 @@ public:
 	// Rasterizer interface:
 	virtual void reset();
 	virtual void frameStart();
+	virtual void frameEnd();
 	virtual void setDisplayMode(DisplayMode mode);
 	virtual void setPalette(int index, int grb);
 	virtual void setBackgroundColour(int index);

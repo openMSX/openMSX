@@ -9,6 +9,7 @@
 
 namespace openmsx {
 
+class BooleanSetting;
 class Rasterizer;
 
 
