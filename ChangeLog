@@ -7,6 +7,8 @@ $Id$
 	   - when you specify -1 for the primary slot, the cartridge will
 	     be inserted in a free external slot. Very usefull to write
 	     generic extensions.
+	* romdb.xml is now searched in /opt/openMSX/etc/romdb.xml
+	                         or in ~/.openMSX/etc/romdb.xml
 
 2003-02-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* extension directory now has the same structure as the
