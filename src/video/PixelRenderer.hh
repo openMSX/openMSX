@@ -136,8 +136,8 @@ protected:
 		// the past.
 		// TODO: I wonder if it's possible to enforce this synchronisation
 		//       scheme at a higher level. Probably. But how...
-		if (curFrameSkip == 0
-		&& (accuracy != RenderSettings::ACC_SCREEN || force) ) {
+		//if ((frameSkipCounter == 0) && TODO
+		if (accuracy != RenderSettings::ACC_SCREEN || force) {
 			vram->sync(time);
 			renderUntil(time);
 		}
@@ -211,11 +211,8 @@ private:
 	  */
 	int nextY;
 
-	int curFrameSkip;
-	float frameSkipShortAvg;
-	float frameSkipLongAvg;
-	int frameSkipDelay;
-	CircularBuffer<float, 100> buffer;
+	int frameSkipCounter;
+	unsigned finishFrameDuration;
 	
 	static const unsigned NUM_FRAME_DURATIONS = 50;
 	CircularBuffer<unsigned, NUM_FRAME_DURATIONS> frameDurations;

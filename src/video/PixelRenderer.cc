@@ -117,20 +117,15 @@ PixelRenderer::PixelRenderer(RendererFactory::RendererID id, VDP *vdp)
 	vram = vdp->getVRAM();
 	spriteChecker = vdp->getSpriteChecker();
 
-	curFrameSkip = 0;
-	frameSkipShortAvg = 5.0;
-	frameSkipLongAvg  = 100.0;
-	frameSkipDelay = 0;
-	while (!buffer.isFull()) {
-		buffer.addFront(1.0);
-	}
+	frameSkipCounter = 0;
+	finishFrameDuration = 0;
 
 	frameDurationSum = 0;
 	for (unsigned i = 0; i < NUM_FRAME_DURATIONS; ++i) {
 		frameDurations.addFront(20);
 		frameDurationSum += 20;
 	}
-	prevTimeStamp = RealTime::instance().getTime();
+	prevTimeStamp = RealTime::instance().getRealTime();
 	
 	settings.getFrameSkip()->addListener(this);
 	InfoCommand::instance().registerTopic("fps", &fpsInfo);
@@ -160,61 +155,49 @@ void PixelRenderer::frameStart(const EmuTime &time)
 
 	nextX = 0;
 	nextY = 0;
-
-	if (--curFrameSkip < 0) {
-		curFrameSkip = settings.getFrameSkip()->getValue().getFrameSkip();
-	}
 }
 
-void PixelRenderer::frameEnd(const EmuTime &time)
+void PixelRenderer::frameEnd(const EmuTime& time)
 {
 	// Render changes from this last frame.
 	sync(time, true);
 
-	// Let underlying graphics system finish rendering this frame.
-	if (curFrameSkip == 0) {
-		finishFrame();
-	
-		unsigned timeStamp = RealTime::instance().getTime();
-		unsigned duration = timeStamp - prevTimeStamp;
-		prevTimeStamp = timeStamp;
-		frameDurationSum += duration - frameDurations.removeBack();
-		frameDurations.addFront(duration);
+	bool draw;
+	--frameSkipCounter;
+	if (settings.getFrameSkip()->getValue().isAutoFrameSkip()) {
+		// TODO limit max frame skip
+		if (frameSkipCounter < 0) {
+			// limit max frame skip
+			draw = true;
+		} else {
+			draw = RealTime::instance().timeLeft(finishFrameDuration, time);
+		}
+		if (draw) {
+			frameSkipCounter = 20;
+		}
+	} else {
+		draw = (frameSkipCounter < 0);
+		if (draw) {
+			frameSkipCounter = settings.getFrameSkip()->getValue().getFrameSkip();
+		}
 	}
+	if (draw) {
+		// Let underlying graphics system finish rendering this frame.
+		unsigned time1 = RealTime::instance().getRealTime();
+		finishFrame();
+		unsigned time2 = RealTime::instance().getRealTime();
+		finishFrameDuration = time2 - time1;
+	}
+
+	unsigned timeStamp = RealTime::instance().getRealTime();
+	unsigned duration = timeStamp - prevTimeStamp;
+	prevTimeStamp = timeStamp;
+	frameDurationSum += duration - frameDurations.removeBack();
+	frameDurations.addFront(duration);
 
 	// The screen will be locked for a while, so now is a good time
 	// to perform real time sync.
-	float factor = RealTime::instance().sync(time);
-
-	if (settings.getFrameSkip()->getValue().isAutoFrameSkip()) {
-		int frameSkip = settings.getFrameSkip()->getValue().getFrameSkip();
-		//PRT_DEBUG("FrameSkip " << frameSkip);
-		frameSkipShortAvg += (factor - buffer[4]);	// sum last 5
-		frameSkipLongAvg  += (factor - buffer[99]);	// sum last 100
-		buffer.removeBack();
-		buffer.addFront(factor);
-
-		if (frameSkipDelay) {
-			// recently changed frameSkip, give time to stabilize
-			frameSkipDelay--;
-		} else {
-			if (frameSkipShortAvg > 5.25  && frameSkip < 30) {
-				// over the last 5 frames we where on average
-				// ~5% too slow, increase frameSkip
-				settings.getFrameSkip()->setValue(
-					settings.getFrameSkip()->getValue().modify(+1)
-					);
-				frameSkipDelay = 25;
-			} else if (frameSkipLongAvg < 50.0 && frameSkip > 0) {
-				// over the last 100 frames we where on average
-				// ~50% too fast, decrease frameSkip
-				settings.getFrameSkip()->setValue(
-					settings.getFrameSkip()->getValue().modify(-1)
-					);
-				frameSkipDelay = 250;
-			}
-		}
-	}
+	RealTime::instance().sync(time, draw);
 }
 
 void PixelRenderer::updateHorizontalScrollLow(
@@ -266,14 +249,15 @@ static inline bool overlap(
 	return false;
 }
 
-inline bool PixelRenderer::checkSync(int offset, const EmuTime &time) {
+inline bool PixelRenderer::checkSync(int offset, const EmuTime &time)
+{
 	// TODO: Because range is entire VRAM, offset == address.
 
 	// If display is disabled, VRAM changes will not affect the
 	// renderer output, therefore sync is not necessary.
 	// TODO: Have bitmapVisibleWindow disabled in this case.
 	if (!vdp->isDisplayEnabled()) return false;
-	if (curFrameSkip != 0) return false;
+	//if (frameSkipCounter != 0) return false; // TODO 
 	if (accuracy == RenderSettings::ACC_SCREEN) return false;
 
 	// Calculate what display lines are scanned between current
@@ -446,7 +430,7 @@ void PixelRenderer::renderUntil(const EmuTime &time)
 
 void PixelRenderer::update(const SettingLeafNode* setting) throw()
 {
-	curFrameSkip = 1;	// reset frameskip counter
+	frameSkipCounter = 1;	// reset frameskip counter
 }
 
 
@@ -460,7 +444,7 @@ PixelRenderer::FpsInfoTopic::FpsInfoTopic(PixelRenderer& parent_)
 void PixelRenderer::FpsInfoTopic::execute(const vector<string>& tokens,
                                           CommandResult& result) const throw()
 {
-	result.setDouble(1000.0 * NUM_FRAME_DURATIONS / parent.frameDurationSum);
+	result.setDouble(1000000.0 * NUM_FRAME_DURATIONS / parent.frameDurationSum);
 }
 
 string PixelRenderer::FpsInfoTopic::help (const vector<string>& tokens) const

@@ -192,6 +192,18 @@ public:
 	inline bool isDisplayEnabled() const {
 		return isDisplayArea && displayEnabled;
 	}
+	
+	/** Is spritechecking done on this line?
+	  * This method is alomost equivalent to 
+	  *     spritesEnabled() && isDisplayEnabled()
+	  * excepts that 'display enabled' is shifted one line to above.
+	  */
+	inline bool needSpriteChecks(int line) const {
+		return spritesEnabled() &&
+		       displayEnabled &&
+		       ((lineZero - 1) <= line) &&
+		       (line <= (lineZero - 1 + getNumberOfLines())); // wrong in case of overscan
+	}
 
 	/** Gets the current vertical scroll (line displayed at Y=0).
 	  * @return Vertical scroll register value.

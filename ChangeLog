@@ -1,5 +1,8 @@
 $Id$
 
+2004-04-02 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented different frameskip and real time sync algorithm
+
 2004-03-29 Maarten ter Huurne <maarten@treewalker.org>
 	* Made new ("alternative") build system default:
 	  GNUmakefile is picked up by GNU Make before Makefile is.

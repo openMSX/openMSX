@@ -9,12 +9,10 @@
 #include "SettingListener.hh"
 #include "EmuTime.hh"
 
-
 namespace openmsx {
 
 class Scheduler;
 class SettingsConfig;
-
 
 class RealTime : private Schedulable, private SettingListener
 {
@@ -24,9 +22,9 @@ public:
 	static RealTime& instance();
 
 	/**
-	 * Get the real time (in ms)
+	 * Get the real time (in us)
 	 */
-	virtual unsigned getTime() = 0;
+	virtual unsigned getRealTime() = 0;
 
 	/**
 	 * Convert EmuTime to RealTime and vice versa
@@ -34,50 +32,44 @@ public:
 	float getRealDuration(const EmuTime& time1, const EmuTime& time2);
 	EmuDuration getEmuDuration(float realDur);
 
+	
+	bool timeLeft(unsigned us, const EmuTime& time);
 	/**
 	 * Synchronize EmuTime with RealTime, normally this is done
 	 * automatically, but some devices have additional information
 	 * and can indicate 'good' moments to sync, eg: VDP can call
 	 * this method at the end of each frame.
 	 */
-	float sync(const EmuTime& time);
-
-private:
-	Scheduler& scheduler;
-	SettingsConfig& settingsConfig;
+	void sync(const EmuTime& time, bool allowSleep);
 
 protected:
 	RealTime(); 
 	void initBase();
-	virtual void doSleep(unsigned ms) = 0;
+	virtual void doSleep(unsigned us) = 0;
 	virtual void reset() = 0;
 	
 private:
+	// Schedulable
 	virtual void executeUntil(const EmuTime& time, int userData) throw();
 	virtual const string& schedName() const;
 
 	// SettingListener
 	void update(const SettingLeafNode* setting) throw();
 
-	float internalSync(const EmuTime& time);
-	float doSync(const EmuTime& time);  
+	void internalSync(const EmuTime& time, bool allowSleep);
 	void resync();
-	void reset(const EmuTime &time);
+
+	Scheduler& scheduler;
+	SettingsConfig& settingsConfig;
 
 	IntegerSetting speedSetting;
-	int maxCatchUpTime;	// max nb of ms overtime
-	int maxCatchUpFactor;	// max catch up speed factor (percentage)
 
 	BooleanSetting throttleSetting;
 	BooleanSetting& pauseSetting;
 	BooleanSetting& powerSetting;
 
-	bool resyncFlag;
-	unsigned int realRef, realOrigin;	// !! Overflow in 49 days
-	EmuTimeFreq<1000> emuRef, emuOrigin;	// in ms (rounding err!!)
-	int catchUpTime;  // number of milliseconds overtime
-	float emuFactor;
-	float sleepAdjust;
+	unsigned idealRealTime;
+	EmuTime emuTime;
 };
 
 } // namespace openmsx

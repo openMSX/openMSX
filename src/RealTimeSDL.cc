@@ -10,14 +10,14 @@ RealTimeSDL::RealTimeSDL()
 	initBase();
 }
 
-unsigned RealTimeSDL::getTime()
+unsigned RealTimeSDL::getRealTime()
 {
-	return SDL_GetTicks();
+	return SDL_GetTicks() * 1000; // ms -> us
 }
 
-void RealTimeSDL::doSleep(unsigned ms)
+void RealTimeSDL::doSleep(unsigned us)
 {
-	SDL_Delay(ms);
+	SDL_Delay(us / 1000);
 }
 
 void RealTimeSDL::reset()

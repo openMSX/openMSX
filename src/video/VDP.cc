@@ -261,7 +261,6 @@ void VDP::executeUntil(const EmuTime &time, int userData) throw()
 	case VSYNC:
 		// This frame is finished.
 		renderer->frameEnd(time);
-		renderer->putImage();
 		frameStart(time);
 		break;
 	case DISPLAY_START:

@@ -18,8 +18,8 @@ public:
 	virtual ~RealTimeRTC();
 
 protected:
-	virtual unsigned getTime();
-	virtual void doSleep(unsigned ms);
+	virtual unsigned getRealTime();
+	virtual void doSleep(unsigned us);
 	virtual void reset();
 
 private:

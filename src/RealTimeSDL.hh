@@ -13,7 +13,7 @@ public:
 	RealTimeSDL();
 
 protected:
-	virtual unsigned getTime();
+	virtual unsigned getRealTime();
 	virtual void doSleep(unsigned ms);
 	virtual void reset();
 };

@@ -84,24 +84,24 @@ bool RealTimeRTC::init()
 }
 
 
-unsigned RealTimeRTC::getTime()
+unsigned RealTimeRTC::getRealTime()
 {
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
-	return tv.tv_sec * 1000 + tv.tv_usec / 1000;	// ms
+	return tv.tv_sec * 1000000 + tv.tv_usec;
 }
 
-void RealTimeRTC::doSleep(unsigned ms)
+void RealTimeRTC::doSleep(unsigned us)
 {
-	unsigned slept = 0;
-	while (slept < ms) {
+	int sleep = us / (1000000 / 1024); // RTC ticks to sleep
+	while (sleep > 0) {
 		// Blocks until interrupt
 		unsigned long data;
 		int retval = read(rtcFd, &data, sizeof(unsigned long));
 		if (retval == -1) {
 			throw FatalError(strerror(errno));
 		}
-		slept += (data >> 8);	// TODO 1024 is not ms
+		sleep -= (data >> 8);
 	}
 }
 

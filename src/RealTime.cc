@@ -17,7 +17,8 @@ using std::auto_ptr;
 
 namespace openmsx {
 
-const int SYNC_INTERVAL = 50;
+const int SYNC_INTERVAL = 500;    // ms
+const int MAX_LAG       = 200000; // us
 
 
 RealTime::RealTime()
@@ -34,22 +35,13 @@ RealTime::RealTime()
 	pauseSetting.addListener(this);
 	powerSetting.addListener(this);
 	
-	maxCatchUpTime = 2000;	// ms
-	maxCatchUpFactor = 105; // %
-	try {
-		Config *config = settingsConfig.getConfigById("RealTime");
-		maxCatchUpTime = config->getParameterAsInt("max_catch_up_time", maxCatchUpTime);
-		maxCatchUpFactor = config->getParameterAsInt("max_catch_up_factor", maxCatchUpFactor);
-	} catch (ConfigException &e) {
-		// no Realtime section
-	}
-	
 	scheduler.setSyncPoint(Scheduler::ASAP, this);
 }
 
 void RealTime::initBase()
 {
-	reset(EmuTime::zero);
+	reset();
+	resync();
 }
 
 RealTime::~RealTime()
@@ -74,41 +66,7 @@ RealTime& RealTime::instance()
 	return *oneInstance.get();
 }
 
-const string &RealTime::schedName() const
-{
-	static const string name("RealTime");
-	return name;
-}
-
-void RealTime::executeUntil(const EmuTime& curEmu, int userData) throw()
-{
-	internalSync(curEmu);
-}
-
-float RealTime::sync(const EmuTime &time)
-{
-	scheduler.removeSyncPoint(this);
-	return internalSync(time);
-}
-
-float RealTime::internalSync(const EmuTime &time)
-{
-	float speed;
-	if (throttleSetting.getValue()) {
-		speed = doSync(time);
-	} else {
-		speed = 1.0;
-		resync();
-	}
-	
-	// Schedule again in future
-	EmuTimeFreq<1000> time2(time);
-	scheduler.setSyncPoint(time2 + SYNC_INTERVAL, this);
-	
-	return speed;
-}
-
-float RealTime::getRealDuration(const EmuTime &time1, const EmuTime &time2)
+float RealTime::getRealDuration(const EmuTime& time1, const EmuTime& time2)
 {
 	return (time2 - time1).toFloat() * 100.0 / speedSetting.getValue();
 }
@@ -118,37 +76,81 @@ EmuDuration RealTime::getEmuDuration(float realDur)
 	return EmuDuration(realDur * speedSetting.getValue() / 100.0);
 }
 
+bool RealTime::timeLeft(unsigned us, const EmuTime& time)
+{
+	unsigned realDuration = (unsigned)(getRealDuration(emuTime, time) * 1000000);
+	unsigned currentRealTime = getRealTime();
+	return (currentRealTime + us) < (idealRealTime + realDuration);
+}
+
+void RealTime::sync(const EmuTime& time, bool allowSleep)
+{
+	scheduler.removeSyncPoint(this);
+	internalSync(time, allowSleep);
+}
+
+void RealTime::internalSync(const EmuTime& time, bool allowSleep)
+{
+	if (throttleSetting.getValue()) {
+		unsigned realDuration = (unsigned)(getRealDuration(emuTime, time) * 1000000);
+		emuTime = time;
+		idealRealTime += realDuration;
+		unsigned currentRealTime = getRealTime();
+		int sleep = idealRealTime - currentRealTime;
+		if (allowSleep && (sleep > 0)) {
+			doSleep(sleep);
+		}
+		if (-sleep > MAX_LAG) {
+			idealRealTime = currentRealTime - MAX_LAG / 2;
+		}
+	}
+	
+	// Schedule again in future
+	EmuTimeFreq<1000> time2(time);
+	scheduler.setSyncPoint(time2 + SYNC_INTERVAL, this);
+}
+
+void RealTime::executeUntil(const EmuTime& time, int userData) throw()
+{
+	internalSync(time, true);
+}
+
+const string &RealTime::schedName() const
+{
+	static const string name("RealTime");
+	return name;
+}
+
 void RealTime::update(const SettingLeafNode* setting) throw()
 {
 	resync();
 }
 
-
-
-
-const float ALPHA = 0.2; // TODO: make tuneable???
-
-
 void RealTime::resync()
 {
-	resyncFlag = true;
+	idealRealTime = getRealTime();
 }
 
-float RealTime::doSync(const EmuTime &curEmu)
-{
-	if (resyncFlag) {
-		reset(curEmu);
-		return emuFactor;
-	}
 
-	unsigned int curReal = getTime();
+} // namespace openmsx
+
+
+
+
+
+/*
+
+
+void RealTime::doSync(const EmuTime &curEmu)
+{
+	unsigned int curReal = getRealTime();
 
 	// Short period values, inaccurate but we need them to estimate our current speed
 	int realPassed = curReal - realRef;
 	int speed = 25600 / speedSetting.getValue();
 	int emuPassed = (int)((speed * emuRef.getTicksTill(curEmu)) >> 8);
 
-	PRT_DEBUG("RT: Short emu: " << emuPassed << "ms  Short real: " << realPassed << "ms");
+	PRT_DEBUG("RT: Short emu: " << emuPassed << "us  Short real: " << realPassed << "us");
 	assert(emuPassed >= 0);
 	assert(realPassed >= 0);
 	// only sync if we got meaningfull values
@@ -156,11 +158,11 @@ float RealTime::doSync(const EmuTime &curEmu)
 		// Long period values, these are used for global speed corrections
 		int totalReal = curReal - realOrigin;
 		uint64 totalEmu = (speed * emuOrigin.getTicksTill(curEmu)) >> 8;
-		PRT_DEBUG("RT: Total emu: " << totalEmu  << "ms  Total real: " << totalReal  << "ms");
+		PRT_DEBUG("RT: Total emu: " << totalEmu  << "us  Total real: " << totalReal  << "us");
 
 		int sleep = 0;
 		catchUpTime = totalReal - totalEmu;
-		PRT_DEBUG("RT: catchUpTime: " << catchUpTime << "ms");
+		PRT_DEBUG("RT: catchUpTime: " << catchUpTime << "us");
 		if (catchUpTime < 0) {
 			// we are too fast
 			sleep = -catchUpTime;
@@ -169,22 +171,22 @@ float RealTime::doSync(const EmuTime &curEmu)
 				// we are way too slow
 				int lost = catchUpTime - maxCatchUpTime;
 				realOrigin += lost;
-				PRT_DEBUG("RT: Emulation too slow, lost " << lost << "ms");
+				PRT_DEBUG("RT: Emulation too slow, lost " << lost << "us");
 			}
 			if (maxCatchUpFactor * realPassed < 100 * emuPassed) {
 				// we are slightly too slow, avoid catching up too fast
 				sleep = (100 * emuPassed) / maxCatchUpFactor - realPassed;
-				//PRT_DEBUG("RT: max catchup: " << sleep << "ms");
+				//PRT_DEBUG("RT: max catchup: " << sleep << "us");
 			}
 		}
-		PRT_DEBUG("RT: want to sleep " << sleep << "ms");
+		PRT_DEBUG("RT: want to sleep " << sleep << "us");
 		sleep += (int)sleepAdjust;
 		int slept, delta;
 		if (sleep > 0) {
-			PRT_DEBUG("RT: Sleeping for " << sleep << "ms");
+			PRT_DEBUG("RT: Sleeping for " << sleep << "us");
 			doSleep(sleep);
-			slept = getTime() - curReal;
-			PRT_DEBUG("RT: Realy slept for " << slept << "ms");
+			slept = getRealTime() - curReal;
+			PRT_DEBUG("RT: Realy slept for " << slept << "us");
 			delta = sleep - slept;
 		} else {
 			slept = 0;
@@ -199,21 +201,10 @@ float RealTime::doSync(const EmuTime &curEmu)
 		PRT_DEBUG("RT: Estimated max     speed (real/emu): " << emuFactor);
 
 		// adjust short period references
-		realRef = getTime();
+		realRef = getRealTime();
 		emuRef = curEmu;
 	}
 	return emuFactor;
 }
 
-void RealTime::reset(const EmuTime& time)
-{
-	reset();
-	resyncFlag = false;
-	realRef = realOrigin = getTime();
-	emuRef  = emuOrigin  = time;
-	emuFactor   = 1.0;
-	sleepAdjust = 0.0;
-}
-
-} // namespace openmsx
-
+*/

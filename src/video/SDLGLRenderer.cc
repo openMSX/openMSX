@@ -211,6 +211,7 @@ void SDLGLRenderer::finishFrame()
 	// Avoid repainting the buffer by putImage.
 	frameDirty = false;
 
+	putImage();
 	EventDistributor::instance().distributeEvent(finishFrameEvent);
 }
 

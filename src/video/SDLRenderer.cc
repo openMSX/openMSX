@@ -80,6 +80,7 @@ throw()
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::finishFrame()
 {
+	putImage();
 	EventDistributor::instance().distributeEvent(finishFrameEvent);
 }
 
