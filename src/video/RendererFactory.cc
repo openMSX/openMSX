@@ -8,6 +8,7 @@
 #include "SDLGLRenderer.hh"
 #include "XRenderer.hh"
 #include "CommandConsole.hh"
+#include "CliCommOutput.hh"
 #include <SDL/SDL.h>
 
 #include "Icon.hh"
@@ -73,7 +74,8 @@ Renderer *RendererFactory::switchRenderer(VDP *vdp)
 	return switcher.performSwitch();
 }
 
-RendererFactory::RendererSetting *RendererFactory::createRendererSetting()
+RendererFactory::RendererSetting* RendererFactory::createRendererSetting(
+	const string& defaultRenderer)
 {
 	map<string, RendererID> rendererMap;
 	rendererMap["none"] = DUMMY; // TODO: only register when in CliComm mode
@@ -86,9 +88,19 @@ RendererFactory::RendererSetting *RendererFactory::createRendererSetting()
 	// XRenderer is not ready for users.
 	// rendererMap["Xlib" ] = XLIB;
 #endif
+	map<string, RendererID>::const_iterator it =
+		rendererMap.find(defaultRenderer);
+	RendererID defaultValue;
+	if (it != rendererMap.end()) {
+		defaultValue = it->second;
+	} else {
+		CliCommOutput::instance().printWarning(
+			"Invalid renderer requested: \"" + defaultRenderer + "\"");
+		defaultValue = SDLHI;
+	}
 	return new RendererSetting(
 		"renderer", "rendering back-end used to display the MSX screen",
-		SDLHI, rendererMap
+		defaultValue, rendererMap
 		);
 }
 

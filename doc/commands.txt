@@ -192,6 +192,18 @@ reset
   Resets the emulated MSX.
 
 
+restoredefault
+--------------
+
+  Restore the default value for a setting.
+
+  usage:
+    restoredefault <setting>  Restores the default value for the given setting
+
+  examples:
+    restoredefault psg_volume
+
+
 set
 ---
 

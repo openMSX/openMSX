@@ -1,6 +1,9 @@
 $Id$
 
-2003-11-17 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2003-11-19 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented "restoredefault" command
+
+2003-11-18 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* made alternative YM2413 (MSX-MUSIC) the default
 
 2003-11-17 Wouter Vermaelen <wouter.vermaelen@pi.be>

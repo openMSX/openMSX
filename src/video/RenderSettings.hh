@@ -86,7 +86,6 @@ private:
 	} rendererInfo;
 	
 	MSXConfig& msxConfig;
-	CliCommOutput& output;
 	InfoCommand& infoCommand;
 };
 

@@ -16,7 +16,6 @@ using std::set;
 using std::string;
 using std::vector;
 
-
 namespace openmsx {
 
 /*
@@ -34,7 +33,7 @@ class Setting: public SettingLeafNode
 public:
 	/** Gets the current value of this setting.
 	  */
-	const ValueType &getValue() const { return value; }
+	const ValueType& getValue() const { return value; }
 
 	/** Changes the current value of this setting.
 	  * If the given value is invalid, it will be mapped to the closest
@@ -45,22 +44,26 @@ public:
 	  * to set the new value.
 	  * @param newValue The new value.
 	  */
-	virtual void setValue(const ValueType &newValue) {
+	virtual void setValue(const ValueType& newValue) {
 		if (newValue != value) {
 			value = newValue;
 			notify();
 		}
 	}
+	
+	virtual void restoreDefault() {
+		setValue(defaultValue);
+	}
 
 protected:
-	Setting(
-		const string &name, const string &description,
-		const ValueType &initialValue
-		)
-		: SettingLeafNode(name, description)
-		, value(initialValue)
-	{
-	}
+	Setting(const string& name, const string& description,
+		const ValueType& initialValue)
+		: SettingLeafNode(name, description),
+	          value(initialValue), defaultValue(initialValue) { }
+	Setting(const string& name, const string& description,
+		const ValueType& initialValue, const ValueType& defaultValue_)
+		: SettingLeafNode(name, description),
+	          value(initialValue), defaultValue(defaultValue_) { }
 
 	virtual ~Setting() { }
 
@@ -69,6 +72,7 @@ private:
 	  * Private to force use of setValue().
 	  */
 	ValueType value;
+	ValueType defaultValue;
 };
 
 

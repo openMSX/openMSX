@@ -11,7 +11,6 @@ namespace openmsx {
 RenderSettings::RenderSettings()
 	: rendererInfo(*this),
 	  msxConfig(MSXConfig::instance()),
-	  output(CliCommOutput::instance()),
 	  infoCommand(InfoCommand::instance())
 {
 	Config* config = msxConfig.getConfigById("renderer");
@@ -44,16 +43,9 @@ RenderSettings::RenderSettings()
 		"blur", "amount of horizontal blur effect: 0 = none, 100 = full",
 		50, 0, 100);
 
-	renderer = RendererFactory::createRendererSetting();
 	// Get user-preferred renderer from config.
 	string rendererName = config->getType();
-	try {
-		renderer->setValueString(rendererName);
-	} catch (CommandException &e) {
-		output.printWarning(
-			"Invalid renderer requested: \"" + rendererName + "\"");
-		// Stick with default given by RendererFactory.
-	}
+	renderer = RendererFactory::createRendererSetting(rendererName);
 
 	map<string, Scaler::ScalerID> scalerMap;
 	scalerMap["simple"] = Scaler::SIMPLE;

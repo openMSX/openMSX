@@ -67,6 +67,10 @@ public:
 	  */
 	virtual void setValueString(const string &valueString) = 0;
 
+	/** Restore the default value.
+	 */
+	virtual void restoreDefault() = 0;
+	
 	/** Get a string describing the value type to the user.
 	  */
 	const string &getTypeString() const { return type; }

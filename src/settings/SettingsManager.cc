@@ -15,16 +15,19 @@ SettingsManager::SettingsManager()
 	  toggleCommand(this),
 	  incrCommand(this),
 	  decrCommand(this),
+	  restoreDefaultCommand(this),
 	  commandController(CommandController::instance())
 {
 	commandController.registerCommand(&setCommand,    "set");
 	commandController.registerCommand(&toggleCommand, "toggle");
 	commandController.registerCommand(&incrCommand,   "incr");
 	commandController.registerCommand(&decrCommand,   "decr");
+	commandController.registerCommand(&restoreDefaultCommand, "restoredefault");
 }
 
 SettingsManager::~SettingsManager()
 {
+	commandController.unregisterCommand(&restoreDefaultCommand, "restoredefault");
 	commandController.unregisterCommand(&setCommand,    "set");
 	commandController.unregisterCommand(&toggleCommand, "toggle");
 	commandController.unregisterCommand(&incrCommand,   "incr");
@@ -309,6 +312,50 @@ void SettingsManager::DecrCommand::tabCompletion(vector<string> &tokens) const
 			// complete setting name
 			set<string> settings;
 			manager->getSettingNames<IntegerSetting>(settings);
+			CommandController::completeString(tokens, settings);
+			break;
+		}
+	}
+}
+
+
+// RestoreDefaultCommand implementation:
+
+SettingsManager::RestoreDefaultCommand::RestoreDefaultCommand(SettingsManager* manager_)
+	: manager(manager_)
+{
+}
+
+string SettingsManager::RestoreDefaultCommand::execute(const vector<string>& tokens)
+	throw (CommandException)
+{
+	switch (tokens.size()) {
+	case 2: {
+		SettingLeafNode* setting = manager->
+			getByName<SettingLeafNode>("restoredefault", tokens[1]);
+		setting->restoreDefault();
+		break;
+	}
+	default:
+		throw CommandException("set: wrong number of parameters");
+	}
+	return "";
+}
+
+string SettingsManager::RestoreDefaultCommand::help(const vector<string>& tokens) const
+	throw()
+{
+	return "restoredefault <setting>  : restore the default value for this setting\n";
+}
+
+void SettingsManager::RestoreDefaultCommand::tabCompletion(vector<string>& tokens) const
+	throw()
+{
+	switch (tokens.size()) {
+		case 2: {
+			// complete setting name
+			set<string> settings;
+			manager->getSettingNames<SettingLeafNode>(settings);
 			CommandController::completeString(tokens, settings);
 			break;
 		}
