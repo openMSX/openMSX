@@ -24,7 +24,8 @@ class Leds
 		Leds();
 		~Leds();
 
-		bool pwrLed, capsLed, kanaLed, pauseLed, turboLed, fddLed;
+		bool pwrLed, capsLed, kanaLed, pauseLed, turboLed;
+		int  fddLedCounter; // only used to combine mutliple FDD leds
 };
 
 } // namespace openmsx

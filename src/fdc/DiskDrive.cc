@@ -7,7 +7,7 @@
 #include "XSADiskImage.hh"
 #include "DSKDiskImage.hh"
 #include "FDC_DirAsDSK.hh"
-
+#include "Leds.hh"
 
 namespace openmsx {
 
@@ -191,6 +191,15 @@ void RealDrive::setMotor(bool status, const EmuTime &time)
 	if (motorStatus != status) {
 		motorStatus = status;
 		motorTime = time;
+		/* The following is a hack to emulate the drive LED behaviour.
+		 * This is in real life dependent on the FDC and should be
+		 * investigated in detail to implement it properly... TODO */
+		if (motorStatus) {
+			Leds::instance()->setLed(Leds::FDD_ON); 
+		}
+		else {
+			Leds::instance()->setLed(Leds::FDD_OFF);
+		}
 	}
 }
 

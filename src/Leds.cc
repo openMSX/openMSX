@@ -9,13 +9,14 @@ namespace openmsx {
 
 Leds::Leds()
 {
-	pwrLed = capsLed = kanaLed = pauseLed = turboLed = fddLed = true;
+	pwrLed = capsLed = kanaLed = pauseLed = turboLed = true;
 	setLed(POWER_OFF);
 	setLed(CAPS_OFF);
 	setLed(KANA_OFF);
 	setLed(PAUSE_OFF);
 	setLed(TURBO_OFF);
 	setLed(FDD_OFF);
+	fddLedCounter=0; // all FDD leds are off
 }
 
 Leds::~Leds()
@@ -25,7 +26,7 @@ Leds::~Leds()
 	setLed(KANA_OFF);
 	setLed(PAUSE_OFF);
 	setLed(TURBO_OFF);
-	setLed(FDD_OFF);
+	if (fddLedCounter>0) setLed(FDD_OFF);
 }
 
 Leds* Leds::instance()
@@ -99,16 +100,16 @@ void Leds::setLed(LEDCommand led)
 		}
 		break;
 	case FDD_ON:
-		if (!fddLed) {
+		if (fddLedCounter==0) { // turn on if it was off
 			PRT_INFO ("FDD LED ON");
-			fddLed = true;
 		}
+		fddLedCounter++;
 		break;
 	case FDD_OFF:
-		if (fddLed) {
+		if (fddLedCounter==1) { // only turn off when it is the last one
 			PRT_INFO ("FDD LED OFF");
-			fddLed = false;
 		}
+		fddLedCounter--;
 		break;
 	}
 }

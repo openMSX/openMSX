@@ -4,6 +4,7 @@
 #include "IDEHD.hh"
 #include "File.hh"
 #include "MSXConfig.hh"
+#include "Leds.hh"
 
 
 namespace openmsx {
@@ -315,10 +316,10 @@ void IDEHD::setTransferRead(bool status)
 	if (status != transferRead) {
 		transferRead = status;
 		if (!transferWrite) {
-			if (transferRead) {
-			// LED ON
+			if (transferRead) { // (this is a bit of a hack!)
+				Leds::instance()->setLed(Leds::FDD_ON);
 			} else {
-			// LED OFF
+				Leds::instance()->setLed(Leds::FDD_OFF);
 			}
 		}
 	}
@@ -329,10 +330,10 @@ void IDEHD::setTransferWrite(bool status)
 	if (status != transferWrite) {
 		transferWrite = status;
 		if (!transferRead) {
-			if (transferWrite) {
-			// LED ON
+			if (transferWrite) { // (this is a bit of a hack!)
+				Leds::instance()->setLed(Leds::FDD_ON);
 			} else {
-			// LED OFF
+				Leds::instance()->setLed(Leds::FDD_OFF);
 			}
 		}
 	}

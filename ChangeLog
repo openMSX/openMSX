@@ -1,5 +1,12 @@
 $Id$
 
+2003-20-24 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added provisional FDD LED emulation:
+	  - works only when the emulated FDC uses the DiskDrive class
+	  - LED goes on when diskdrive motor is on (not always correct!)
+	  - IDEHD also turns on FDD LED, when there is a read or write action
+	  - all possible FDD LEDs are ORed with each other
+
 2003-10-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Continue VDP Cmds on display mode switch:
 	   - current implementation may not be 100% correct, but it's better
