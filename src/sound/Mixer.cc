@@ -10,6 +10,7 @@
 #include "GlobalSettings.hh"
 #include "CommandArgument.hh"
 #include "CommandLineParser.hh"
+#include "Command.hh"
 #include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
@@ -17,6 +18,12 @@
 #include "build-info.hh"
 #include <algorithm>
 #include <cassert>
+
+#include <sys/types.h>
+#include <dirent.h>
+#include "ReadDir.hh"
+#include "FileOperations.hh"
+#include "FileException.hh"
 
 using std::map;
 using std::remove;
@@ -38,6 +45,7 @@ Mixer::Mixer()
 	, pauseSetting(GlobalSettings::instance().getPauseSetting())
 	, speedSetting(GlobalSettings::instance().getSpeedSetting())
 	, throttleSetting(GlobalSettings::instance().getThrottleSetting())
+	, soundlogCommand(*this)
 	, soundDeviceInfo(*this)
 {
 	init = false;
@@ -80,13 +88,13 @@ Mixer::Mixer()
 	openSound();
 	muteHelper();
 
+        CommandController::instance().registerCommand(&soundlogCommand, "soundlog");
 	wavfp=0;
-	//startRecording(); // uncomment this to test recording sound
 }
 
 Mixer::~Mixer()
 {
-	// endRecording(); // uncomment this to test recording sound
+	if (wavfp) endSoundLogging();
 	closeSound();
 	
 	throttleSetting.removeListener(this);
@@ -97,6 +105,9 @@ Mixer::~Mixer()
 	masterVolume->removeListener(this);
 	muteSetting->removeListener(this);
 	infoCommand.unregisterTopic("sounddevice", &soundDeviceInfo);
+	
+        CommandController::instance().unregisterCommand(&soundlogCommand, "soundlog");
+	
 }
 
 Mixer& Mixer::instance()
@@ -475,59 +486,175 @@ void Mixer::reInit()
 	intervalAverage = EmuDuration(percent / (audioSpec.freq * 100));
 }
 
-void Mixer::startRecording()
+// stuff for recording
+
+// TODO: generalize this with ScreenShotSaver.cc
+static int getNum(dirent* d)
+{
+	string name(d->d_name);
+	if ((name.length() != 15) ||
+	    (name.substr(0, 7) != "openmsx") ||
+	    (name.substr(11, 4) != ".wav")) {
+		return 0;
+	}
+	string num(name.substr(7, 4));
+	char* endpos;
+	unsigned long n = strtoul(num.c_str(), &endpos, 10);
+	if (*endpos != '\0') {
+		return 0;
+	}
+	return n;
+}
+
+// TODO: generalize this with ScreenShotSaver.cc
+string Mixer::SoundlogCommand::getFileName()
+{
+	int max_num = 0;
+	
+	string dirName = FileOperations::getUserOpenMSXDir() + "/soundlogs";
+	try {
+		FileOperations::mkdirp(dirName);
+	} catch (FileException& e) {
+		// ignore
+	}
+
+	ReadDir dir(dirName.c_str());
+	while (dirent* d = dir.getEntry()) {
+		max_num = std::max(max_num, getNum(d));
+	}
+
+	std::ostringstream os;
+	os << dirName << "/openmsx";
+	os.width(4);
+	os.fill('0');
+	os << (max_num + 1) << ".wav";
+	return os.str();
+}
+Mixer::SoundlogCommand::SoundlogCommand(Mixer& outer_)
+	: outer(outer_)
+{
+}
+
+string Mixer::SoundlogCommand::execute(const vector<string>& tokens)
+{
+	if (tokens.size() < 2) {
+		throw CommandException("Missing argument");
+	}
+	if (tokens[1] == "start") {
+		return startSoundLogging(tokens);
+	} else if (tokens[1] == "stop") {
+		return stopSoundLogging(tokens);
+	} else if (tokens[1] == "toggle") {
+		return toggleSoundLogging(tokens);
+	}
+	throw SyntaxError();
+}
+
+string Mixer::SoundlogCommand::startSoundLogging(const vector<string>& tokens)
+{
+	string filename;
+	switch (tokens.size()) {
+	case 2:
+		filename = getFileName();
+		break;
+	case 3:
+		filename = tokens[2];
+		break;
+	default:
+		throw SyntaxError();
+	}
+	
+	if (outer.wavfp==0) {
+		outer.startSoundLogging(filename);
+		CliComm::instance().printInfo("Started logging sound to " + filename);
+		return filename;
+	}
+	else {
+		return "Already logging!";
+	}
+}
+
+string Mixer::SoundlogCommand::stopSoundLogging(const vector<string>& tokens)
+{
+	if (tokens.size()!=2) throw SyntaxError();
+	outer.endSoundLogging();
+	return "SoundLogging ended.";
+}
+	
+string Mixer::SoundlogCommand::toggleSoundLogging(const vector<string>& tokens)
+{
+	if (tokens.size()!=2) throw SyntaxError();
+	return "Not implemented yet.";
+}
+
+string Mixer::SoundlogCommand::help(const vector<string>& /*tokens*/) const
+{
+	return "Use this command to manipulate the soundlogging.\n"
+	       "soundlog start             Write soundlog to file \"openmsxNNNN.wav\"\n"
+	       "soundlog start <filename>  Write soundlog to indicated file\n"
+	       "soundlog stop              Stop logging sound\n"
+	       "soundlog toggle            Toggle logging state\n";
+}
+
+void Mixer::startSoundLogging(const string& filename)
 {
 	/* TODO on the recorder:
 	 * - take care of endianness (this probably won't work on PPC now)
-	 * - add command to start recording: recordsound [filename]
-	 *   This could be done similar to the screenshot command, with respect
-	 *   to auto filenaming and stuff.
-	 * - add command to end recording
+	 * - properly unite the getFileName stuff with ScreenShotSaver
+	 * - implement soundlog toggle
 	 * - take care of changing 'frequency' setting (block it during 
-	 *   recording?)
+	 *   recording or end recording on change)
 	 * - error handling, fwrite or fopen may fail miserably
 	 */
-	wavfp=fopen("/tmp/openmsx.wav", "w");
-	nofWavBytes=0;
 
-	// write wav header:
-	const char* riffstr="RIFF";
-	const char* wavestr="WAVE";
-	const char* datastr="data";
-	const char* fmtstr="fmt ";
-	fwrite(riffstr, 1, 4, wavfp);
-	fwrite(&nofWavBytes, 4, 1, wavfp);
-	fwrite(wavestr, 1, 4, wavfp);
-	fwrite(fmtstr, 1, 4, wavfp);
-	uint32 size=16;
-	uint16 nBitsPerSample=16;
-	fwrite(&size, 4, 1, wavfp);
-	uint16 wFormatTag=1;
-	fwrite(&wFormatTag, 2, 1, wavfp);
-	uint16 nChannels=2;
-	fwrite(&nChannels, 2, 1, wavfp);
-	uint32 nSamplesPerSec=(uint32)frequencySetting->getValue();
-	fwrite(&nSamplesPerSec, 4, 1, wavfp);
-	uint32 nAvgBytesPerSec = 2*nSamplesPerSec*nBitsPerSample/8;
-	fwrite(&nAvgBytesPerSec, 4, 1, wavfp);
-	uint16 wBlockAlign = 2*nBitsPerSample/8;
-	fwrite(&wBlockAlign, 2, 1, wavfp);
-	fwrite(&nBitsPerSample, 2, 1, wavfp);
-	fwrite(datastr, 1, 4, wavfp);
-	fwrite(&nofWavBytes, 4, 1, wavfp);
+	if (wavfp==0) {
+		const char* filenamec=filename.c_str();
+		wavfp=fopen(filenamec, "w");
+		nofWavBytes=0;
+
+		// write wav header:
+		const char* riffstr="RIFF";
+		const char* wavestr="WAVE";
+		const char* datastr="data";
+		const char* fmtstr="fmt ";
+		fwrite(riffstr, 1, 4, wavfp);
+		fwrite(&nofWavBytes, 4, 1, wavfp);
+		fwrite(wavestr, 1, 4, wavfp);
+		fwrite(fmtstr, 1, 4, wavfp);
+		uint32 size=16;
+		uint16 nBitsPerSample=16;
+		fwrite(&size, 4, 1, wavfp);
+		uint16 wFormatTag=1;
+		fwrite(&wFormatTag, 2, 1, wavfp);
+		uint16 nChannels=2;
+		fwrite(&nChannels, 2, 1, wavfp);
+		uint32 nSamplesPerSec=(uint32)frequencySetting->getValue();
+		fwrite(&nSamplesPerSec, 4, 1, wavfp);
+		uint32 nAvgBytesPerSec = 2*nSamplesPerSec*nBitsPerSample/8;
+		fwrite(&nAvgBytesPerSec, 4, 1, wavfp);
+		uint16 wBlockAlign = 2*nBitsPerSample/8;
+		fwrite(&wBlockAlign, 2, 1, wavfp);
+		fwrite(&nBitsPerSample, 2, 1, wavfp);
+		fwrite(datastr, 1, 4, wavfp);
+		fwrite(&nofWavBytes, 4, 1, wavfp);
+	}
 }
 
-void Mixer::endRecording()
+void Mixer::endSoundLogging()
 {
-	uint32 totalsize=nofWavBytes+44;
-	fseek(wavfp, 4, SEEK_SET);
-	fwrite(&totalsize, 4, 1, wavfp);
-	fseek(wavfp, 40, SEEK_SET);
-	fwrite(&nofWavBytes, 4, 1, wavfp);
-	
-	fclose(wavfp);
+	if (wavfp!=0) {
+		uint32 totalsize=nofWavBytes+44;
+		fseek(wavfp, 4, SEEK_SET);
+		fwrite(&totalsize, 4, 1, wavfp);
+		fseek(wavfp, 40, SEEK_SET);
+		fwrite(&nofWavBytes, 4, 1, wavfp);
+
+		fclose(wavfp);
+	}
 	wavfp=0;
 }
+
+// end stuff for recording
 
 void Mixer::update(const Setting* setting)
 {
@@ -625,8 +752,8 @@ SoundDevice* Mixer::getSoundDevice(const string& name)
 	return NULL;
 }
 
-Mixer::SoundDeviceInfoTopic::SoundDeviceInfoTopic(Mixer& parent_)
-	: parent(parent_)
+Mixer::SoundDeviceInfoTopic::SoundDeviceInfoTopic(Mixer& outer_)
+	: outer(outer_)
 {
 }
 
@@ -636,12 +763,12 @@ void Mixer::SoundDeviceInfoTopic::execute(const vector<CommandArgument>& tokens,
 	switch (tokens.size()) {
 	case 2:
 		for (map<SoundDevice*, SoundDeviceInfo>::const_iterator it =
-		       parent.infos.begin(); it != parent.infos.end(); ++it) {
+		       outer.infos.begin(); it != outer.infos.end(); ++it) {
 			result.addListElement(it->first->getName());
 		}
 		break;
 	case 3: {
-		SoundDevice* device = parent.getSoundDevice(tokens[2].getString());
+		SoundDevice* device = outer.getSoundDevice(tokens[2].getString());
 		if (!device) {
 			throw CommandException("Unknown sound device");
 		}
@@ -663,7 +790,7 @@ void Mixer::SoundDeviceInfoTopic::tabCompletion(vector<string>& tokens) const
 	if (tokens.size() == 3) {
 		set<string> devices;
 		for (map<SoundDevice*, SoundDeviceInfo>::const_iterator it =
-		       parent.infos.begin(); it != parent.infos.end(); ++it) {
+		       outer.infos.begin(); it != outer.infos.end(); ++it) {
 			devices.insert(it->first->getName());
 		}
 		CommandController::completeString(tokens, devices);

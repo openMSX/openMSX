@@ -11,6 +11,7 @@
 #include "SettingListener.hh"
 #include "InfoTopic.hh"
 #include "Schedulable.hh"
+#include "Command.hh"
 
 namespace openmsx {
 
@@ -91,8 +92,8 @@ private:
 	void updateMasterVolume(int masterVolume);
 	void reInit();
 
-	void startRecording();
-	void endRecording();
+	void startSoundLogging(const std::string& filename);
+	void endSoundLogging();
 
 	// SettingListener
 	virtual void update(const Setting* setting);
@@ -106,6 +107,8 @@ private:
 	bool init;
 	int muteCount;
 
+	
+	
 	struct SoundDeviceInfo {
 		ChannelMode mode;
 		int normalVolume;
@@ -146,15 +149,30 @@ private:
 	int prevLeft, outLeft;
 	int prevRight, outRight;
 
+	// Commands
+	class SoundlogCommand : public SimpleCommand {
+	public:
+		SoundlogCommand(Mixer& outer);
+		virtual std::string execute(const std::vector<std::string>& tokens);
+		virtual std::string help(const std::vector<std::string>& tokens) const;
+	private:
+		std::string stopSoundLogging(const std::vector<std::string>& tokens);
+		std::string startSoundLogging(const std::vector<std::string>& tokens);
+		std::string toggleSoundLogging(const std::vector<std::string>& tokens);
+		std::string getFileName();
+		Mixer& outer;
+	} soundlogCommand;
+	
+	// Info
 	class SoundDeviceInfoTopic : public InfoTopic {
 	public:
-		SoundDeviceInfoTopic(Mixer& parent);
+		SoundDeviceInfoTopic(Mixer& outer);
 		virtual void execute(const std::vector<CommandArgument>& tokens,
 		                     CommandArgument& result) const;
 		virtual std::string help(const std::vector<std::string>& tokens) const;
 		virtual void tabCompletion(std::vector<std::string>& tokens) const;
 	private:
-		Mixer& parent;
+		Mixer& outer;
 	} soundDeviceInfo;
 };
 

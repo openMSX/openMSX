@@ -3,9 +3,10 @@ $Id$
 2005-03-12 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added basic code to record openMSX sound to wav file. It is not used
 	  yet, but one can test it by uncommenting 2 lines.
+	* Added soundlog command to start and stop recording of sound.
 	  There is still a lot TODO - see the comment in Mixer.cc
 
-2005-03-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2005-03-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added socket support:
 	   - openmsx now listens to incomming connections on TCP/IP port 9938
 	     when a connection is established the same communication is
