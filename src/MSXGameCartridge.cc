@@ -255,14 +255,14 @@ int MSXGameCartridge::guessMapperType()
 				switch (value) {
 				case 0x5000:
 				case 0x9000:
-				case 0xB000:
+				case 0xb000:
 					typeGuess[2]++;
 					break;
 				case 0x4000:
 					typeGuess[3]++;
 					break;
 				case 0x8000:
-				case 0xA000:
+				case 0xa000:
 					typeGuess[3]++;
 					typeGuess[6]++;
 					break;
@@ -281,11 +281,11 @@ int MSXGameCartridge::guessMapperType()
 					typeGuess[4]++;
 					typeGuess[5]++;
 					break;
-				case 0x77FF:
+				case 0x77ff:
 					typeGuess[5]++;
 					break;
 				default:
-					if (value>0xB000 && value<0xC000) typeGuess[6]++;
+					if (value>0xb000 && value<0xc000) typeGuess[6]++;
 				}
 			}
 		}
@@ -312,7 +312,7 @@ byte MSXGameCartridge::readMem(word address, const EmuTime &time)
 {
 	//TODO optimize this (Necessary? We have read cache now)
 	// One way to optimise would be to register an SCC supporting
-	// device only if mapperType is 2 and only in 8000..BFFF.
+	// device only if mapperType is 2 and only in 8000..Bfff.
 	// That way, there is no SCC overhead in non-SCC pages.
 	// If MSXMotherBoard would support hot-plugging of devices,
 	// it would be possible to insert an SCC supporting device
@@ -367,10 +367,10 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		// Solid Snake, Quarth, Ashguine 1, Animal, Arkanoid 2, ...
 		//
 		// The address to change banks:
-		//  bank 1: 0x5000 - 0x57FF (0x5000 used)
-		//  bank 2: 0x7000 - 0x77FF (0x7000 used)
-		//  bank 3: 0x9000 - 0x97FF (0x9000 used)
-		//  bank 4: 0xB000 - 0xB7FF (0xB000 used)
+		//  bank 1: 0x5000 - 0x57ff (0x5000 used)
+		//  bank 2: 0x7000 - 0x77ff (0x7000 used)
+		//  bank 3: 0x9000 - 0x97ff (0x9000 used)
+		//  bank 4: 0xB000 - 0xB7ff (0xB000 used)
 
 		if (address<0x5000 || address>=0xc000) break;
 #ifndef DONT_WANT_SCC
@@ -410,10 +410,10 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		// example of cartridges: Valis(Fantasm Soldier), Dragon Slayer, Outrun, 
 		//                        Ashguine 2, ...
 		// The address to change banks:
-		//  bank 1: 0x6000 - 0x67FF 
-		//  bank 2: 0x6800 - 0x6FFF
-		//  bank 3: 0x7000 - 0x77FF
-		//  bank 4: 0x7800 - 0x7FFF
+		//  bank 1: 0x6000 - 0x67ff (0x6000 used) 
+		//  bank 2: 0x6800 - 0x6fff (0x6800 used)
+		//  bank 3: 0x7000 - 0x77ff (0x7000 used)
+		//  bank 4: 0x7800 - 0x7fff (0x7800 used)
 
 		if (0x6000<=address && address<0x8000) {
 			byte region = ((address>>11)&3)+2;
@@ -428,10 +428,10 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		// Return of Ishitar, Androgynus, Gallforce ...
 		//
 		// The address to change banks:
-		//  first  16kb: 0x6000 - 0x67FF (0x6000 used)
-		//  second 16kb: 0x7000 - 0x77FF (0x7000 and 0x77FF used)
+		//  first  16kb: 0x6000 - 0x67ff (0x6000 used)
+		//  second 16kb: 0x7000 - 0x77ff (0x7000 and 0x77ff used)
 		
-		if (0x6000<=address && address<0x7800 && !(address&0x800)) {
+		if (0x6000<=address && address<0x7800 && !(address&0x0800)) {
 			byte region = ((address>>12)&1)+1;
 			setROM16kB(region, value);
 		}
@@ -447,10 +447,10 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		// The 2Kb SRAM (0x800 bytes) are mirrored in the 16 kB block
 		//
 		// The address to change banks (from ASCII16):
-		//  first  16kb: 0x6000 - 0x67FF (0x6000 used)
-		//  second 16kb: 0x7000 - 0x77FF (0x7000 and 0x77FF used)
+		//  first  16kb: 0x6000 - 0x67ff (0x6000 used)
+		//  second 16kb: 0x7000 - 0x77ff (0x7000 and 0x77ff used)
 
-		if (0x6000<=address && address<0x7800 && !(address&0x800)) {
+		if (0x6000<=address && address<0x7800 && !(address&0x0800)) {
 			byte region = ((address>>12)&1)+1;
 			if (value == 0x10) {
 				// SRAM block
@@ -464,7 +464,7 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 			}
 		} else {
 			// Writting to SRAM?
-			if ((1 << (address>>13)) & regioSRAM & 0x0C) { 
+			if ((1 << (address>>13)) & regioSRAM & 0x0c) { 
 				for (word adr=address&0x7ff; adr<0x2000; adr+=0x800)
 					memorySRAM[adr] = value;
 			}
@@ -477,10 +477,10 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		// this type is used in Xanadu and Royal Blood
 		//
 		// The address to change banks:
-		//  bank 1: 0x6000 - 0x67FF (0x6000 used)
-		//  bank 2: 0x6800 - 0x6FFF (0x6800 used)
-		//  bank 3: 0x7000 - 0x77FF (0x7000 used)
-		//  bank 4: 0x7800 - 0x7FFF (0x7800 used)
+		//  bank 1: 0x6000 - 0x67ff (0x6000 used)
+		//  bank 2: 0x6800 - 0x6fff (0x6800 used)
+		//  bank 3: 0x7000 - 0x77ff (0x7000 used)
+		//  bank 4: 0x7800 - 0x7fff (0x7800 used)
 		//
 		//  To select SRAM set bit 5/7 of the bank.
 		//  The SRAM can only be written to if selected in bank 3 or 4.
@@ -499,7 +499,7 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 			}
 		} else {
 			// Writting to SRAM?
-			if ((1 << (address>>13)) & regioSRAM & 0x0C) { 
+			if ((1 << (address>>13)) & regioSRAM & 0x0c) { 
 				memorySRAM[address & 0x1fff] = value;
 			}
 		}
@@ -507,8 +507,8 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		
 	case 19:
 		// Konami Game Master 2, 8KB cartridge with 8KB sram
-		if (0x6000<=address && address<0xC000) {
-			if (address >= 0xB000) {
+		if (0x6000<=address && address<0xc000) {
+			if (address >= 0xb000) {
 				// SRAM write
 				if (regioSRAM & 0x20)	// 0xa000 - 0xbfff
 					internalMemoryBank[0xb][address&0x0fff] = value;

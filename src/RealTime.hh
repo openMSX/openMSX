@@ -59,6 +59,7 @@ class RealTime : public Schedulable
 		int catchUpTime;  // number of milliseconds overtime.
 		float factor;
 
+		int speed;	// higher means slower (256 = 100%)
 		bool throttle;
 		bool paused;
 		MSXCPU *cpu;
@@ -79,5 +80,13 @@ class RealTime : public Schedulable
 		};
 		friend class ThrottleCmd;
 		ThrottleCmd throttleCmd;
+		
+		class SpeedCmd : public Command {
+			public:
+				virtual void execute(const std::vector<std::string> &tokens);
+				virtual void help   (const std::vector<std::string> &tokens);
+		};
+		friend class SpeedCmd;
+		SpeedCmd speedCmd;
 };
 #endif

@@ -21,6 +21,7 @@ RealTime::RealTime()
 	
 	scheduler = Scheduler::instance();
 	cpu = MSXCPU::instance();
+	speed = 256;
 	paused = false;
 	throttle = true;
 	resetTiming();
@@ -28,6 +29,7 @@ RealTime::RealTime()
 	
 	CommandController::instance()->registerCommand(pauseCmd, "pause");
 	CommandController::instance()->registerCommand(throttleCmd, "throttle");
+	CommandController::instance()->registerCommand(speedCmd, "speed");
 	HotKey::instance()->registerHotKeyCommand(SDLK_PAUSE, "pause");
 	HotKey::instance()->registerHotKeyCommand(SDLK_F9, "throttle");
 }
@@ -69,7 +71,7 @@ void RealTime::internalSync(const EmuTime &curEmu)
 	
 	// Short period values, inaccurate but we need them to estimate our current speed
 	int realPassed = curReal - realRef;
-	int emuPassed = (int)emuRef.getTicksTill(curEmu);
+	int emuPassed = (int)((speed * emuRef.getTicksTill(curEmu)) >> 8);
 
 	if ((emuPassed>0) && (realPassed>0)) {
 		// only sync if we got meaningfull values
@@ -78,7 +80,7 @@ void RealTime::internalSync(const EmuTime &curEmu)
 		
 		// Long period values, these are used for global speed corrections
 		int totalReal = curReal - realOrigin;
-		uint64 totalEmu = emuOrigin.getTicksTill(curEmu);
+		uint64 totalEmu = (speed * emuOrigin.getTicksTill(curEmu)) >> 8;
 		PRT_DEBUG("RT: Total emu: " << totalEmu  << "ms  Total real: " << totalReal  << "ms");
 	
 		int sleep = 0;
@@ -187,3 +189,36 @@ void RealTime::ThrottleCmd::help   (const std::vector<std::string> &tokens)
 	ConsoleManager::instance()->print(" throttle on:  run emulation on normal speed");
 	ConsoleManager::instance()->print(" throttle off: run emulation on maximum speed");
 }
+
+void RealTime::SpeedCmd::execute(const std::vector<std::string> &tokens)
+{
+	RealTime *rt = RealTime::instance();
+	switch (tokens.size()) {
+	case 1: {
+		char message[100];
+		sprintf(message, "Current speed: %d", 25600/rt->speed);
+		ConsoleManager::instance()->print(std::string(message));
+		break;
+	}
+	case 2: {
+		int tmp = strtol(tokens[1].c_str(), NULL, 0);
+		if (tmp > 0) {
+			rt->speed = 25600 / tmp;
+			rt->resetTiming();
+		} else {
+			ConsoleManager::instance()->print("Illegal argument");
+		}
+		break;
+	}
+	default:
+		ConsoleManager::instance()->print("Syntax error");
+	}
+}
+void RealTime::SpeedCmd::help   (const std::vector<std::string> &tokens)
+{
+	ConsoleManager::instance()->print("This command controls the emulation speed");
+	ConsoleManager::instance()->print("A higher value means faster emualtion, normal speed is 100.");
+	ConsoleManager::instance()->print(" speed:     : shows current speed");
+	ConsoleManager::instance()->print(" speed <num>: sets new speed");
+}
+
