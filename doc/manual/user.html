@@ -14,11 +14,255 @@
 
 <h1>openMSX User's Manual</h1>
 
-<p>
-Document is not written yet.
+<p class="todo">
+Document is under construction.
 Please check back here later.
 In the mean time,
 read <code>openMSX-HOWTO.txt</code> inside the openMSX tree.
+</p>
+
+<h2>Contents</h2>
+
+<p class="todo">
+Similar to Compile Guide.
+</p>
+
+<h2><a id="intro">1. Introduction</a></h2>
+
+<p class="todo">
+Similar to Compile Guide.
+</p>
+
+<pre>
+6. Running MSX software (simple)
+   -----------------------------
+
+Since step 5 made things very comfortable for us, we can try to run some
+software first, just to get used to the openMSX command line. This is very basic
+stuff here, though.
+
+Suppose you want to run the ROM file "galious.rom". Then you simply type:
+
+openmsx galious.rom
+
+and the emulated NMS 8250 (as it still is, now) will run the game. (Of course,
+in this case, the file galious.rom should be in the current directory or in one
+of the UserDirectories you specified in the settings.xml, see below.)
+
+If things go terribly wrong, openMSX may not have the .rom extension registered
+as a ROM image (it does have that by default, though, but this is just an
+example). You can then indicate this by typing:
+
+openmsx -cart galious.rom
+
+To run a disk image, you can type:
+
+openmsx relax.dsk
+
+for example. Or, if you haven't registered the .dsk extension for disk images:
+
+openmsx -diska relax.dsk
+
+With this information, you can run most of the existing MSX software.
+
+A completer command line options help can be seen by typing:
+
+openmsx -help
+
+The default key mapping is:
+F12		- Quit
+F11		- Mute audio
+F10		- Console (see section 8)
+F9		- Throttle (maximum speed)
+F8		- MSX STOP key
+F7		- MSX SELECT key
+L-ALT		- MSX GRAPH key
+R-CTRL		- MSX CODE key
+L-Windows	- MSX iee (`no') key
+R-Windows	- MSX hai ('yes') key
+Pause		- Pause the emulator
+PrtScr		- Toggle full screen
+
+Some of those, you can change in the settings.xml file.
+</pre>
+
+<pre>
+7.1 Using extensions
+
+Note: while modifying the machine description belongs in the Setup Guide,
+this belongs in the User's Manual, because users will need it.
+
+If you have setup an FM PAC hardwareconfig.xml file in
+~/.openMSX/share/extensions/fmpac e.g., you can use `-ext fmpac' to use an
+FM PAC. But, as I just said, you need to have a hardware description in that
+subdirectory of share/extensions/, see chapter 5. Fortunately, openMSX comes
+with a predefined FM-PAC extension. You only need to add the directory 'roms' in
+share/extensions/fmpac and put the fmpac.rom there. If you look at that
+share/extensions directory, you will find more extensions. E.g. using `-ext
+mbstereo' gives you the Moonblaster stereo effect: FM PAC on one channel and MSX
+Audio on the other. Try them out, if you like.
+</pre>
+
+<pre>
+8. Using the emulator (more advanced)
+   ----------------------------------
+
+8.1 Renderers
+
+At the moment, there are three working renderers. A renderer is a part of the
+emulator that generates the graphical part of the emulation: the MSX 'screen'.
+
+The default renderer is called SDLHi. This one uses a window of 640 by 480
+pixels to be able to display all the screen lines, even when interlacing is used
+on the MSX. This renderer is not using any hardware acceleration and has a
+steady CPU time consumption. The CPU load can be quite high though. It is about
+50% on my Athlon XP 1600+, when emulating a 3.5MHz MSX.
+
+A very good alternative for the Hi renderer is called SDLGL. This renderer uses
+openGL instructions to optimise the rendering. Because part of the rendering is
+done by the graphics hardware, the CPU load can vary a lot. Also, you need to
+have the GLX module loaded in your X server and also accelerated graphics (DRI).
+You can verify this by typing 'glxinfo' on the command line. Direct rendering
+should be enabled to benefit from this renderer. GL also makes some effects
+easier: when using the SDLGL renderer, there is a blur, glow (afterglow!) and
+scanline setting (see Console), to imitate a TV screen. This does not work
+properly with all graphics cards, though. It should work with nVidia cards, at
+least. Note that the GL renderer is only available when the openGL development
+files (gl.h is one of them) were installed on the computer at compile time.
+This will be checked by the configure script.
+
+The third working renderer is called SDLLo. This renderer uses a window of only
+320 by 240 pixels, which means that part of the MSX screen will be omitted. An
+'interpolation' (blending) algorithm to reduce this problem was added for 16
+and 24bpp visuals. I don't recommend to use this renderer, unless you have an
+extremely slow computer.
+
+You can set the renderer in the settings.xml file. Look for &lt;config
+id="renderer"&gt;.  You can also specify there whether the emulator should switch
+to full screen when started. You can also switch renderer from the Console (see
+below).
+
+8.2 Console
+
+When the emulator is running, you can get the "Console" by pressing F10 when
+the focus is on the emulator window. This will give you a command line in the
+openMSX window. Typing 'help' gives a list of commands. They are described in
+the file doc/commands.txt in the source tree. The console is mostly used to
+change disk images, plug in joysticks or mice, make settings and to define
+key bindings. You can specify a background image and the font in the config
+file (&lt;config id="Console"&gt;). The png files need an alpha channel (transparency
+information) though.
+
+An interesting console command is 'set'. You can use it to change the various
+settings. E.g., you can use it to set the renderer that is to be used. And the
+blur, glow and scanline setting of the GL renderer can be tweaked with it.
+Settings that have only two possible values can also be toggled with the toggle
+command (an example is the default key binding of Print Screen to 'toggle
+fullscreen', see also below). A complete list of settings should be in the file
+commands.txt in the doc directory.
+
+8.3 Renderer accuracy
+
+Another example of the settings that you can specify in the Console is the
+accuracy of the rendering. There are three options: `screen', `line' and
+`pixel'. The latter is the slowest, but most accurate setting (it also shows
+that the timing in openMSX is not perfect yet): it will enable you to run the
+Unknown Reality real time oscilloscope almost flawlessly!  Just type "set
+accuracy pixel" in the console. You can use the default `line' accuracy for
+almost every other piece of software. `screen' is the fastest, but least
+accurate setting. This will break a lot of software that uses raster effects.
+
+8.4 AutoCommands and KeyEventInserter
+
+In the config file section AutoCommands, you can specify some console commands
+that should be executed automatically. See the settings.xml or
+exampleconfigs.xml file for some examples. The settings.xml file uses this to
+create the default key bindings.
+You can also use it to make default settings that are done with Console
+commands. In my case I set blur and scanline to 0, since they don't work
+correctly with my Radeon drivers.  The KeyEventInserter section can be used to
+have something typed into the MSX after it booted. Again, see the
+exampleconfigs.xml file. Examine this file to learn what you can configure more.
+
+8.5 Running tape games
+
+openMSX supports WAV files for tape emulation! Just configure your MSX with a
+cassette port (or use a premade MSX that already has it):
+     &lt;config id="CassettePort"&gt;
+     &lt;/config&gt;
+Then type in the console:
+     plug cassetteport cassetteplayer
+     cassetteplayer &lt;file&gt;.wav
+And then in MSX Basic, type:
+     run"cas:"
+(or another command to load the program on 'tape'.)
+You can also use the so-called CAS files. In the Console, type:
+     cas &lt;tapeimage&gt;
+and
+     cas eject
+to remove the tape from the virtual cassette player. This only works with a
+patched BIOS ROM, though. You can find an example of the patch in
+exampleconfigs.xml.
+
+8.6 Other Console commands
+
+You can reset your MSX with the Console command `reset'.
+
+If the MSX goes too fast or too slow, adjust the emulation speed with the
+`speed' setting, which has the speed percentage as parameter. So, typing `set
+speed 120', will let the emulated MSX run at 120% of normal MSX speed.
+
+To connect a mouse, you can also use the `plug' command:
+    plug joyporta mouse
+will connect a mouse to joystick port A.
+
+If you want openMSX to emulate the blinking interlace effect as can be seen on a
+real MSX, try "deinterlace off"... I recommend to turn it on though, the
+blinking is quite irregular on most systems and thus a pain for the eyes
+(unless you combine it with the `glow' setting in SDLGL).
+
+You can also change disks at run time of course. Just type
+    diska &lt;diskimage&gt;
+in the Console to put the specified disk image in drive A.
+
+Again, the full list of Console commands can be found in doc/commands.txt and
+when typing `help' in the Console itself. You can also type `help &lt;command&gt;' to
+get some help about a specific Console command.
+</pre>
+
+<pre>
+10.3 Real disks (Linux)
+
+To use a real disk, just specify "/dev/fd0" as a disk image. This is of
+course a Linux (Unix, actually) specific feature, but for now it is usable. It
+may be a bit slow though, with the FDC emulation enabled. It should be just as
+slow as a real disk drive, however!
+
+10.4 Performance
+
+Note: maybe some of these belong in the Setup Guide instead.
+
+CPU and graphics performance varies a lot, depending on the openMSX settings
+and the MSX hardware and software you're emulating.
+Some things run fine on a 200MHz machine, others are slow on a 2GHz machine.
+Some performance tips:
+* Make sure there are no CPU consuming background processes running.
+* Generally, MSX1 emulation is fastest and turbo R emulation is slowest.
+* SDLGL renderer needs hardware acceleration to run at a decent speed.
+  Disabling scanlines and blur (set to 0) helps on older graphics cards.
+  Our experience is that performance is better if you use SDLGL in stead of
+  SDLHi, on systems with a very fast and complete openGL implementation (like
+  nVidia card/drivers, e.g.)
+* Use 16-bit colour mode instead of 32-bit (platform setting is used).
+* Use line accuracy (default) instead of pixel accuracy.
+* Turn on frame skip ("set frameskip auto") in the console.
+* Use low-res SDLLo renderer (75% less pixels to fill).
+</pre>
+
+<h2><a id="contact">6. Contact Info</a></h2>
+
+<p class="todo">
+Similar to Compile Guide.
 </p>
 
 <p class="version">
