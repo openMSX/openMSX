@@ -7,7 +7,7 @@
 #include "EmuTime.hh"
 #include "Command.hh"
 
-class FDCBackEnd;
+class Disk;
 class FileContext;
 
 
@@ -80,7 +80,7 @@ class DiskDrive
 		virtual bool headLoaded(const EmuTime &time) = 0;
 
 		// TODO
-		// Read / write methods, mostly copied from FDCBackEnd,
+		// Read / write methods, mostly copied from Disk,
 		// but needs to be reworked
 		virtual void read (byte sector, byte* buf,
 		                   byte &onDiskTrack, byte &onDiskSector,
@@ -156,7 +156,7 @@ class RealDrive : public DiskDrive, public Command
 		static const int ROTATIONS_PER_SECOND = 5;
 		static const int INDEX_DURATION = TICKS_PER_ROTATION / 50;
 
-		FDCBackEnd* disk;
+		Disk* disk;
 		int headPos;
 		bool motorStatus;
 		EmuTimeFreq<TICKS_PER_ROTATION * ROTATIONS_PER_SECOND> motorTime;

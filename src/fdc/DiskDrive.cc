@@ -3,9 +3,9 @@
 #include "DiskDrive.hh"
 #include "CommandController.hh"
 #include "MSXConfig.hh"
-#include "FDCDummyBackEnd.hh"
-#include "FDC_XSA.hh"
-#include "FDC_DSK.hh"
+#include "DummyDisk.hh"
+#include "XSADiskImage.hh"
+#include "DSKDiskImage.hh"
 #include "FDC_DirAsDSK.hh"
 
 
@@ -230,14 +230,14 @@ bool RealDrive::headLoaded(const EmuTime &time)
 void RealDrive::insertDisk(FileContext *context,
                            const string &diskImage)
 {
-	FDCBackEnd* tmp;
+	Disk* tmp;
 	try {
 		// first try XSA
-		tmp = new FDC_XSA(context, diskImage);
+		tmp = new XSADiskImage(context, diskImage);
 	} catch (MSXException &e) {
 		try {
 			// then try normal DSK
-			tmp = new FDC_DSK(context, diskImage);
+			tmp = new DSKDiskImage(context, diskImage);
 		} catch (MSXException &e) {
 			// try to create fake DSK from a dir on host OS
 			tmp = new FDC_DirAsDSK(context, diskImage);
@@ -250,7 +250,7 @@ void RealDrive::insertDisk(FileContext *context,
 void RealDrive::ejectDisk()
 {
 	delete disk;
-	disk = new FDCDummyBackEnd();
+	disk = new DummyDisk();
 }
 
 void RealDrive::execute(const vector<string> &tokens)

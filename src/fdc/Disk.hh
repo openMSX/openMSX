@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __FDCBACKEND__HH__
-#define __FDCBACKEND__HH__
+#ifndef __DISK_HH__
+#define __DISK_HH__
 
 #include "MSXException.hh"
 #include "openmsx.hh"
@@ -29,7 +29,7 @@ class WriteProtectedException  : public MSXException {
 };
 
 
-class FDCBackEnd 
+class Disk 
 {
 	public: 
 		virtual void read (byte track, byte sector,
@@ -53,7 +53,9 @@ class FDCBackEnd
 		virtual bool doubleSided() = 0;
 
 	protected:
-		FDCBackEnd();
+		static const int RAWTRACK_SIZE = 6850;
+	
+		Disk();
 		int physToLog(byte track, byte side, byte sector);
 		void logToPhys(int log, byte &track, byte &side, byte &sector);
 	

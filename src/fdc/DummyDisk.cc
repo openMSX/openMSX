@@ -1,43 +1,43 @@
 // $Id$
 
-#include "FDCDummyBackEnd.hh"
+#include "DummyDisk.hh"
 
 
-void FDCDummyBackEnd::read(byte track, byte sector,
+void DummyDisk::read(byte track, byte sector,
                            byte side, int size, byte* buf)
 {
 	throw DriveEmptyException("No disk in drive");
 }
 
-void FDCDummyBackEnd::write(byte track, byte sector,
+void DummyDisk::write(byte track, byte sector,
                             byte side, int size, const byte* buf)
 {
 	throw DriveEmptyException("No disk in drive");
 }
 
-void FDCDummyBackEnd::getSectorHeader(byte track, byte sector,
+void DummyDisk::getSectorHeader(byte track, byte sector,
                                       byte side, byte* buf)
 {
 	throw DriveEmptyException("No disk in drive");
 }
 
-void FDCDummyBackEnd::getTrackHeader(byte track,
+void DummyDisk::getTrackHeader(byte track,
                                      byte side, byte* buf)
 {
 	throw DriveEmptyException("No disk in drive");
 }
 
-bool FDCDummyBackEnd::ready()
+bool DummyDisk::ready()
 {
 	return false;
 }
 
-bool FDCDummyBackEnd::writeProtected()
+bool DummyDisk::writeProtected()
 {
 	return true;	// TODO check
 }
 
-bool FDCDummyBackEnd::doubleSided()
+bool DummyDisk::doubleSided()
 {
 	return false;	// TODO check
 }

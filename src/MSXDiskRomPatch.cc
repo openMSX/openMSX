@@ -6,7 +6,7 @@
 #include "CPU.hh"
 #include "MSXCPUInterface.hh"
 #include "DiskDrive.hh"
-#include "FDCBackEnd.hh"
+#include "Disk.hh"
 
 
 const int SECTOR_SIZE = 512;

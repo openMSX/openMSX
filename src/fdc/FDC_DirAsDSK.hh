@@ -3,10 +3,7 @@
 #ifndef __FDC_DirAsDSK__HH__
 #define __FDC_DirAsDSK__HH__
 
-
-#include "FDC_CONSTS.hh"
-#include "FDCBackEnd.hh"
-#define MAX_CLUSTER 720
+#include "SectorBasedDisk.hh"
 
 class FileContext;
 
@@ -23,7 +20,7 @@ struct MSXDirEntry {
 
 struct MappedDirEntry {
 	MSXDirEntry msxinfo;
-	std::string filename;
+	string filename;
 };
 
 struct ReverseCluster {
@@ -31,7 +28,7 @@ struct ReverseCluster {
 	long fileOffset;
 };
 
-class FDC_DirAsDSK : public FDCBackEnd
+class FDC_DirAsDSK : public SectorBasedDisk
 {
 	public: 
 		FDC_DirAsDSK(FileContext *context,
@@ -42,13 +39,6 @@ class FDC_DirAsDSK : public FDCBackEnd
 		virtual void write(byte track, byte sector,
                    byte side, int size, const byte* buf);
 
-		virtual void initWriteTrack(byte track, byte side);
-		virtual void writeTrackData(byte data);
-
-		virtual void initReadTrack(byte track, byte side);
-		virtual byte readTrackData();
-
-		virtual bool ready();
 		virtual bool writeProtected();
 		virtual bool doubleSided();
 
@@ -58,29 +48,20 @@ class FDC_DirAsDSK : public FDCBackEnd
 		int nbSectors;
 
 	private:
-		byte writeTrackBuf[SECTOR_SIZE];
-		int writeTrackBufCur;
-		int writeTrackSectorCur;
-		byte writeTrack_track;
-		byte writeTrack_side;
-		byte writeTrack_sector;
-		int writeTrack_CRCcount;
-		byte readTrackDataBuf[RAWTRACK_SIZE];
-		int readTrackDataCount;
+		static const int MAX_CLUSTER = 720;
 
-		//Extentsion for fakedisk
-		void updateFileInDSK(std::string fullfilename);
-		bool checkFileUsedInDSK(std::string fullfilename);
-		bool checkMSXFileExists(std::string fullfilename);
-		std::string makeSimpleMSXFileName(std::string fullfilename);
-		void addFileToDSK(std::string fullfilename);
-		//int findFirstAvailableCluster(void);
-		//int markClusterGetNext(void);
+		void updateFileInDSK(const string& fullfilename);
+		bool checkFileUsedInDSK(const string& fullfilename);
+		bool checkMSXFileExists(const string& fullfilename);
+		string makeSimpleMSXFileName(const string& fullfilename);
+		void addFileToDSK(const string& fullfilename);
+		//int findFirstAvailableCluster();
+		//int markClusterGetNext();
 		word ReadFAT(word clnr);
 		void WriteFAT(word clnr, word val);
 		MappedDirEntry mapdir[112];	// max nr of entries in root directory: 7 sectors, each 16 entries
 		ReverseCluster clustermap[MAX_CLUSTER];
-		byte *FAT;
+		byte FAT[SECTOR_SIZE * 5];
 
 		static const byte BootBlock[];
 };

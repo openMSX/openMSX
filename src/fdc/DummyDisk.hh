@@ -3,10 +3,10 @@
 #ifndef __FDCDUMMYBACKEND__HH__
 #define __FDCDUMMYBACKEND__HH__
 
-#include "FDCBackEnd.hh"
+#include "Disk.hh"
 
 
-class FDCDummyBackEnd : public FDCBackEnd
+class DummyDisk : public Disk
 {
 	public:
 		virtual void read (byte track, byte sector,

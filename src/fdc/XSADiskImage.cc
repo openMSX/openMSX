@@ -1,16 +1,16 @@
 // $Id$
 
-#include "FDC_XSA.hh"
+#include "XSADiskImage.hh"
 #include "File.hh"
 #include "FileContext.hh"
 
 
-const int FDC_XSA::cpdext[TBLSIZE] = {
+const int XSADiskImage::cpdext[TBLSIZE] = {
 	  0,  0,  0,  0,  1,  2,  3,  4, 5,  6,  7,  8,  9, 10, 11, 12
 };
 
 
-FDC_XSA::FDC_XSA(FileContext *context, const string &fileName)
+XSADiskImage::XSADiskImage(FileContext *context, const string &fileName)
 {
 	File file(context->resolve(fileName));
 	if (!isXSAImage(file)) {
@@ -29,7 +29,7 @@ FDC_XSA::FDC_XSA(FileContext *context, const string &fileName)
 	delete[] inbuf;
 }
 
-bool FDC_XSA::isXSAImage(File &file)
+bool XSADiskImage::isXSAImage(File &file)
 {
 	byte buffer[4];
 	file.read(buffer, 4);
@@ -42,12 +42,12 @@ bool FDC_XSA::isXSAImage(File &file)
 	return true;
 }
 
-FDC_XSA::~FDC_XSA()
+XSADiskImage::~XSADiskImage()
 {
 	delete[] outbuf;
 }
 
-void FDC_XSA::read(byte track, byte sector,
+void XSADiskImage::read(byte track, byte sector,
                    byte side, int size, byte* buf)
 {
 	int logSector = physToLog(track, side, sector);
@@ -56,13 +56,13 @@ void FDC_XSA::read(byte track, byte sector,
 	memcpy(buf, outbuf + logSector * 512, 512);
 }
 
-void FDC_XSA::write(byte track, byte sector,
+void XSADiskImage::write(byte track, byte sector,
                     byte side, int size, const byte* buf)
 {
 	throw WriteProtectedException("Write protected");
 }
 
-void FDC_XSA::readBootSector()
+void XSADiskImage::readBootSector()
 {
 	if (nbSectors == 1440) {
 		sectorsPerTrack = 9;
@@ -71,26 +71,26 @@ void FDC_XSA::readBootSector()
 		sectorsPerTrack = 9;
 		nbSides = 1;
 	} else {
-		FDCBackEnd::readBootSector();
+		Disk::readBootSector();
 	}
 }
 
 
 // Get the next character from the input buffer
-byte FDC_XSA::charin()
+byte XSADiskImage::charin()
 {
 	return *(inbufpos++);
 }
 
 // Put the next character in the output buffer
-void FDC_XSA::charout(byte ch)
+void XSADiskImage::charout(byte ch)
 {
 	*(outbufpos++) = ch;
 }
 
 
 // check fileheader
-void FDC_XSA::chkheader()
+void XSADiskImage::chkheader()
 {
 	// skip id
 	inbufpos += 4;
@@ -113,7 +113,7 @@ void FDC_XSA::chkheader()
 }
 
 // the actual decompression algorithm itself
-void FDC_XSA::unlz77()
+void XSADiskImage::unlz77()
 {
 	bitcnt = 0;	// no bits read yet
 	
@@ -134,7 +134,7 @@ void FDC_XSA::unlz77()
 }
 
 // read string length
-int FDC_XSA::rdstrlen()
+int XSADiskImage::rdstrlen()
 {
 	if (!bitin())
 		return 2;
@@ -154,7 +154,7 @@ int FDC_XSA::rdstrlen()
 }
 
 // read string pos
-int FDC_XSA::rdstrpos()
+int XSADiskImage::rdstrpos()
 {
 	huf_node *hufpos = huftbl + 2*TBLSIZE - 2;
 
@@ -185,7 +185,7 @@ int FDC_XSA::rdstrpos()
 }
 
 // read a bit from the input file
-bool FDC_XSA::bitin()
+bool XSADiskImage::bitin()
 {
 	if (bitcnt == 0) {
 		bitflg = charin();	// read bitflg
@@ -199,7 +199,7 @@ bool FDC_XSA::bitin()
 }
 
 // initialize the huffman info tables
-void FDC_XSA::inithufinfo()
+void XSADiskImage::inithufinfo()
 {
 	int offs = 1;
 	for (int i = 0; i != TBLSIZE; i++) {
@@ -217,7 +217,7 @@ void FDC_XSA::inithufinfo()
 }
 
 // Make huffman coding info
-void FDC_XSA::mkhuftbl()
+void XSADiskImage::mkhuftbl()
 {
 	// Initialize the huffman tree
 	huf_node *hufpos = huftbl;
@@ -259,17 +259,12 @@ void FDC_XSA::mkhuftbl()
 	updhufcnt = MAXHUFCNT;
 }
 
-bool FDC_XSA::ready()
+bool XSADiskImage::writeProtected()
 {
 	return true;
 }
 
-bool FDC_XSA::writeProtected()
-{
-	return true;
-}
-
-bool FDC_XSA::doubleSided()
+bool XSADiskImage::doubleSided()
 {
 	return nbSides == 2;
 }

@@ -34,10 +34,11 @@ libFdc_la_SOURCES = \
 	DiskImageCLI.cc DiskImageCLI.hh \
 	DiskDrive.cc DiskDrive.hh \
 	DriveMultiplexer.cc DriveMultiplexer.hh \
-	FDCBackEnd.cc FDCBackEnd.hh \
-	FDCDummyBackEnd.cc FDCDummyBackEnd.hh \
-	FDC_DSK.cc FDC_DSK.hh \
-	FDC_XSA.cc FDC_XSA.hh \
+	Disk.cc Disk.hh \
+	SectorBasedDisk.cc SectorBasedDisk.hh \
+	DummyDisk.cc DummyDisk.hh \
+	DSKDiskImage.cc DSKDiskImage.hh \
+	XSADiskImage.cc XSADiskImage.hh \
 	CRC16.hh CRC16.cc \
 	FDC_DirAsDSK.cc FDC_DirAsDSK.hh
 

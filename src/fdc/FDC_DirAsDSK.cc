@@ -59,54 +59,52 @@ const byte FDC_DirAsDSK::BootBlock[] =
 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
 };
 
-/* read FAT-entry from FAT in memory */
+// read FAT-entry from FAT in memory
 word FDC_DirAsDSK::ReadFAT(word clnr)
-{ register byte *P;
-
-  P=FAT+(clnr*3)/2;
-  return (clnr&1)? (P[0]>>4)+(P[1]<<4) : P[0]+((P[1]&0x0F)<<8);
+{ 
+  byte *P = FAT + (clnr * 3) / 2;
+  return (clnr & 1) ?
+         (P[0] >> 4) + (P[1] << 4) :
+	 P[0] + ((P[1] & 0x0F) << 8);
 }
 
-/* write an entry to FAT in memory */
+// write an entry to FAT in memory
 void FDC_DirAsDSK::WriteFAT(word clnr, word val)
-{ register byte *P;
-
-  P=FAT+(clnr*3)/2;
-  if (clnr&1)
-    { 
-      P[0]=(P[0]&0x0F)+(val<<4);
-      P[1]=val>>4;
-    }
-  else
-    {
-      P[0]=val;
-      P[1]=(P[1]&0xF0)+((val>>8)&0x0F);
-    }
+{
+	byte* P=FAT + (clnr * 3) / 2;
+	if (clnr & 1) { 
+		P[0] = (P[0] & 0x0F) + (val << 4);
+		P[1] = val >> 4;
+	} else {
+		P[0] = val;
+		P[1] = (P[1] & 0xF0) + ((val >> 8) & 0x0F);
+	}
 }
 
-/* check if a filename is used in the emulated MSX disk*/
-bool FDC_DirAsDSK::checkMSXFileExists(std::string fullfilename)
+// check if a filename is used in the emulated MSX disk
+bool FDC_DirAsDSK::checkMSXFileExists(const string& fullfilename)
 {
 	//TODO: complete this
 	unsigned pos = fullfilename.find_last_of('/');
-	std::string tmp;
-	if (pos != std::string::npos) {
-	  tmp = fullfilename.substr(pos+1);
+	string tmp;
+	if (pos != string::npos) {
+		tmp = fullfilename.substr(pos+1);
 	} else {
-	  tmp=fullfilename;
+		tmp = fullfilename;
 	}
-	tmp=makeSimpleMSXFileName(tmp);
+	tmp = makeSimpleMSXFileName(tmp);
 
 	for (int i = 0; i < 112; i++) {
-		if (strncmp((const char*)(mapdir[i].msxinfo.filename), tmp.c_str(), 11) == 0 ) {
-		  return true;
+		if (strncmp((const char*)(mapdir[i].msxinfo.filename),
+			    tmp.c_str(), 11) == 0 ) {
+			return true;
 		}
 	}
 	return false;
 }
 
-/* check if a file is already mapped into the fake DSK */
-bool FDC_DirAsDSK::checkFileUsedInDSK(std::string fullfilename)
+// check if a file is already mapped into the fake DSK
+bool FDC_DirAsDSK::checkFileUsedInDSK(const string& fullfilename)
 {
 	for (int i = 0; i < 112; i++) {
 		if (mapdir[i].filename == fullfilename) {
@@ -116,6 +114,7 @@ bool FDC_DirAsDSK::checkFileUsedInDSK(std::string fullfilename)
 	return false;
 }
 
+// create an MSX filename 8.3 format, if needed in vfat like abreviation
 char toMSXChr(char a)
 {
 	a = ::toupper(a);
@@ -124,30 +123,28 @@ char toMSXChr(char a)
 	}
 	return a;
 }
-
-/* create an MSX filename 8.3 format, if needed in vfat like abreviation */
-std::string FDC_DirAsDSK::makeSimpleMSXFileName(std::string fullfilename)
+string FDC_DirAsDSK::makeSimpleMSXFileName(const string& fullfilename)
 {
 	unsigned pos = fullfilename.find_last_of('/');
-	std::string tmp;
-	if (pos != std::string::npos) {
-	  tmp = fullfilename.substr(pos+1);
+	string tmp;
+	if (pos != string::npos) {
+		tmp = fullfilename.substr(pos + 1);
 	} else {
-	  tmp=fullfilename;
+		tmp = fullfilename;
 	}
-	
-	std::transform(tmp.begin(), tmp.end(), tmp.begin(), toMSXChr);
-	
-	std::string file, ext;
+
+	transform(tmp.begin(), tmp.end(), tmp.begin(), toMSXChr);
+
+	string file, ext;
 	pos = fullfilename.find_last_of('.');
-	if (pos != std::string::npos) {
-	  file = tmp.substr(0, pos);
-	  ext  = tmp.substr(pos + 1);
+	if (pos != string::npos) {
+		file = tmp.substr(0, pos);
+		ext  = tmp.substr(pos + 1);
 	} else {
-	  file = tmp;
-	  //ext = "";
+		file = tmp;
+		//ext = "";
 	}
-	
+
 	file += "        ";
 	ext  += "   ";
 	file = file.substr(0, 8);
@@ -157,113 +154,106 @@ std::string FDC_DirAsDSK::makeSimpleMSXFileName(std::string fullfilename)
 }
 
 
-
 FDC_DirAsDSK::FDC_DirAsDSK(FileContext *context, const string &fileName)
 {
-	//Here we create the fake diskimages based upon the files that can be
-	//found in the 'fileName' directory
+	// Here we create the fake diskimages based upon the files that can be
+	// found in the 'fileName' directory
 	PRT_INFO("Creating FDC_DirAsDSK object");
 	DIR* dir = opendir(fileName.c_str());
-	
+
 	if (dir == NULL ) {
 		throw MSXException("Not a directory");
-	} else {
-
-	  //First create structure for the fake disk
-	  //
-	  nbSectors = 1440; // asume a DS disk is used
-	  sectorsPerTrack = 9;
-	  nbSides = 2;
-	  // Assign empty directory entries
-	  for (int i=0 ; i<112 ; i++ ) {
-	  	memset(&mapdir[i].msxinfo,0,sizeof(MSXDirEntry));
-	  };
-	  
-	  // Make a full clear FAT
-	  FAT = (byte*)malloc(SECTOR_SIZE*5);
-	  if (FAT == NULL){
-		throw MSXException("Couldn't allocate memory for FAT");
-	  }
-	  memset(FAT,0,SECTOR_SIZE*5);
-	  
-	  //read directory and fill the fake disk
-	  struct dirent* d = readdir(dir);
-	  while (d) {
-	    std::string name(d->d_name);
-	    PRT_DEBUG("reading name in dir :" << name);
-	    updateFileInDSK(fileName+name); // used here to add file into fake dsk
-	    d = readdir(dir);
-	  }
-	  closedir(dir);
 	}
+
+	// First create structure for the fake disk
+	
+	nbSectors = 1440; // asume a DS disk is used
+	sectorsPerTrack = 9;
+	nbSides = 2;
+	// Assign empty directory entries
+	for (int i = 0; i < 112; i++) {
+		memset(&mapdir[i].msxinfo, 0, sizeof(MSXDirEntry));
+	}
+
+	// Make a full clear FAT
+	memset(FAT, 0, SECTOR_SIZE * 5);
+
+	//read directory and fill the fake disk
+	struct dirent* d = readdir(dir);
+	while (d) {
+		string name(d->d_name);
+		PRT_DEBUG("reading name in dir :" << name);
+		updateFileInDSK(fileName+name); // used here to add file into fake dsk
+		d = readdir(dir);
+	}
+	closedir(dir);
 }
 
 FDC_DirAsDSK::~FDC_DirAsDSK()
 {
 	PRT_DEBUG("Destroying FDC_DirAsDSK object");
-	free(FAT);
 }
 
 void FDC_DirAsDSK::read(byte track, byte sector, byte side,
                    int size, byte* buf)
 {
-	try {
-		int logicalSector = physToLog(track, side, sector);
-		if (logicalSector >= nbSectors) {
-			throw NoSuchSectorException("No such sector");
+	int logicalSector = physToLog(track, side, sector);
+	if (logicalSector >= nbSectors) {
+		throw NoSuchSectorException("No such sector");
+	}
+	if (logicalSector == 0) {
+		//copy our fake bootsector into the buffer
+		memcpy(buf,BootBlock,size);
+	} else if (logicalSector < 11) {
+		//copy correct sector from FAT
+		logicalSector -= (logicalSector > 5 ? 1 : 6);
+		memcpy(buf, FAT + logicalSector * SECTOR_SIZE, size);
+	} else if (logicalSector < 18){
+		//create correct DIR sector 
+		logicalSector -= 11;
+		int dirCount = logicalSector * 16;
+		for (int i = 0; i < 16; i++) {
+			memcpy(buf, &mapdir[dirCount++].msxinfo, 32);
+			buf += 32;
 		}
-		if (logicalSector ==0){
-			//copy our fake bootsector into the buffer
-			memcpy(buf,BootBlock,size);
-		} else if (logicalSector<11){
-			//copy correct sector from FAT
-			logicalSector-= (logicalSector>5 ? 1 : 6 );
-			memcpy( buf , FAT+logicalSector*SECTOR_SIZE , size );
-		} else if (logicalSector<18){
-			//create correct DIR sector 
-			logicalSector-= 11;
-			int dirCount = logicalSector*16;
-			for (int i = 0 ; i<16 ; i++) {
-				memcpy( buf , &mapdir[dirCount++].msxinfo , 32 );
-				buf+=32;
-			}
-		} else {
-			//else get map from sector to file and read correct block
-			// folowing same numbering as FAT eg. first data block is cluster 2
-			int cluster=(int)((logicalSector-18)/2) + 2; 
-			// open file and read data
-			int offset=clustermap[cluster].fileOffset + (cluster & 1)*SECTOR_SIZE;
-			std::string tmp=mapdir[clustermap[cluster].dirEntryNr].filename;
-			FILE* file = fopen(tmp.c_str(), "r");
-			if (!file) {
-			  // actually maybe there isn't a file for this cluster assigned, so we
-			  // should return a freshly formated sector ?
-			  throw new FileException("Couldn't open file");
-			}
+	} else {
+		// else get map from sector to file and read correct block
+		// folowing same numbering as FAT eg. first data block is cluster 2
+		int cluster = (int)((logicalSector - 18) / 2) + 2; 
+		// open file and read data
+		int offset = clustermap[cluster].fileOffset + (cluster & 1) * SECTOR_SIZE;
+		string tmp = mapdir[clustermap[cluster].dirEntryNr].filename;
+		FILE* file = fopen(tmp.c_str(), "r");
+		if (file) {
 			fseek(file,offset,SEEK_SET);
 			fread(buf, 1, SECTOR_SIZE, file);
 			fclose(file);
+		} else {
+			// actually maybe there isn't a file for this cluster
+			// assigned, so we // should return a freshly formated
+			// sector ?
 		}
-
-	} catch (FileException &e) {
-		throw DiskIOErrorException("Disk I/O error");
+		if (!file || ferror(file)) {
+			throw DiskIOErrorException("Disk I/O error");
+		}
 	}
 }
 
 void FDC_DirAsDSK::write(byte track, byte sector, byte side, 
                     int size, const byte* buf)
 {
-	try {
-		int logicalSector = physToLog(track, side, sector);
-		if (logicalSector >= nbSectors) {
-			throw NoSuchSectorException("No such sector");
-		}
-		//
-		//   for now simply ignore writes
-		//
-	} catch (FileException &e) {
-		throw DiskIOErrorException("Disk I/O error");
+	//
+	//   for now simply ignore writes
+	//
+	throw WriteProtectedException(
+		"Writing not yet supported for FDC_DirAsDSK");
+	
+	/*
+	int logicalSector = physToLog(track, side, sector);
+	if (logicalSector >= nbSectors) {
+		throw NoSuchSectorException("No such sector");
 	}
+	*/
 }
 
 void FDC_DirAsDSK::readBootSector()
@@ -289,7 +279,7 @@ bool FDC_DirAsDSK::doubleSided()
 	return nbSides == 2;
 }
 
-void FDC_DirAsDSK::updateFileInDSK(std::string fullfilename)
+void FDC_DirAsDSK::updateFileInDSK(const string& fullfilename)
 {
 	struct stat fst;
 
@@ -308,183 +298,92 @@ void FDC_DirAsDSK::updateFileInDSK(std::string fullfilename)
 	}
 }
 
-void FDC_DirAsDSK::addFileToDSK(std::string fullfilename)
+void FDC_DirAsDSK::addFileToDSK(const string& fullfilename)
 {
-	int dirindex;
-	FILE* file;
-	int curcl;
-	int prevcl;
-	int size;
-	int fsize;
-
 	//get emtpy dir entry
-	for (dirindex=0 ; mapdir[dirindex].filename.length() && (dirindex < 112) ; dirindex++);
+	int dirindex = 0;
+	while (mapdir[dirindex].filename.length() && (dirindex < 112)) {
+	     dirindex++;
+	}
 	if (dirindex == 112) {
 		PRT_INFO( "Couldn't add " << fullfilename << ": root dir full");
 		return;
-	};
+	}
+
 	// create correct MSX filename
-	std::string MSXfilename=makeSimpleMSXFileName(fullfilename);
+	string MSXfilename = makeSimpleMSXFileName(fullfilename);
 	if (checkMSXFileExists(MSXfilename)) {
 		//TODO: actually should increase vfat abrev if possible!!
-		PRT_INFO( "Couldn't add " << fullfilename << ": MSX name "<<MSXfilename<< "existed already");
+		PRT_INFO("Couldn't add " << fullfilename << ": MSX name "
+		         << MSXfilename<< "existed already");
 		return;
-	};
-	//set correct info in mapdir
-	memcpy(&mapdir[dirindex].filename , MSXfilename.c_str() , 11 );
-	//open file
-	file=fopen(fullfilename.c_str(),"r");
-	if ( ! file ) {
-	  //if open file fails (read permissions perhaps) then still enter
-	  //in MSX disk with zero info
-	  fsize=0;
-	  //TODO: find out if a file with size is zero also uses a cluster ! 
-	  //It probably does :-(
-	  //if so the code should be entered here.
-
-	} else {
-	  fclose(file);
-	  /* compute time/date stamps */
-	  {
-	    struct stat fst;
-	    struct tm mtim;
-	    int t;
-
-	    stat(fullfilename.c_str(), &fst);
-	    mtim = *localtime(&(fst.st_mtime));
-	    t=(mtim.tm_sec>>1)+(mtim.tm_min<<5)+(mtim.tm_hour<<11);
-	    setsh(mapdir[dirindex].msxinfo.time,t);
-	    t=mtim.tm_mday+((mtim.tm_mon+1)<<5)+((mtim.tm_year+1900-1980)<<9);
-	    setsh(mapdir[dirindex].msxinfo.date,t);
-	    fsize=fst.st_size;
-	  }
-
-	  //find first 'really' free cluster (= not from a deleted string of clusters)
-	  for(curcl=2; (curcl <= MAX_CLUSTER) && ReadFAT(curcl); curcl++);
-	  setsh( mapdir[dirindex].msxinfo.startcluster , curcl );
-
-	  size=fsize; prevcl=0; 
-	  while( size && (curcl<= MAX_CLUSTER) ) {
-	    clustermap[curcl].dirEntryNr=dirindex;
-	    clustermap[curcl].fileOffset=fsize-size;
-
-	    size-=( size > (SECTOR_SIZE*2) ? (SECTOR_SIZE*2) : size );
-	    if (prevcl) WriteFAT(prevcl,curcl);
-	    for(prevcl=curcl++; (curcl <= MAX_CLUSTER) && ReadFAT(curcl); curcl++);
-
-	  };
-	  if ( (size==0) && (curcl<= MAX_CLUSTER)  ) {
-	    WriteFAT(prevcl,EOF_FAT);
-	  } else {
-	    PRT_INFO("Fake Diskimage full: "<< MSXfilename <<" truncated.");
-	  }
-	  //write (possibly truncated) file size
-	  setlg(mapdir[dirindex].msxinfo.size,fsize-size);
-	  /*ADAPT code from until here !!!!!*/
 	}
-}
-
-//stuff below should have been inherited from FDC_DSK !!!!!
-//
-void FDC_DirAsDSK::initWriteTrack(byte track, byte side)
-{
-	writeTrackBufCur = 0;
-	writeTrack_track = track;
-	writeTrack_side = side;
-	writeTrack_sector = 1;
-	writeTrack_CRCcount = 0;
-}
-
-void FDC_DirAsDSK::writeTrackData(byte data)
-{
-	// if it is a 0xF7 ("two CRC characters") then the previous 512
-	// bytes could be actual sectordata bytes
-	if (data == 0xF7) {
-		if (writeTrack_CRCcount & 1) {
-			// first CRC is sector header CRC, second CRC is actual
-			// sector data CRC so write them 
-			byte tempWriteBuf[512];
-			for (int i = 0; i < 512; i++) {
-				tempWriteBuf[i] =
-				      writeTrackBuf[(writeTrackBufCur+i) & 511];
-			}
-			write(writeTrack_track, writeTrack_sector,
-			      writeTrack_side, 512, tempWriteBuf);
-			writeTrack_sector++; // update sector counter
-		}
-		writeTrack_CRCcount++; 
-	} else {
-		writeTrackBuf[writeTrackBufCur++] = data;
-		writeTrackBufCur &= 511;
-	}
-}
-
-void FDC_DirAsDSK::initReadTrack(byte track, byte side)
-{
-	// init following data structure
-	// according to Alex Wulms
-	// 122 bytes track header aka pre-gap
-	// 9 * 628 bytes sectordata (sector header, data en closure gap)
-	// 1080 bytes end-of-track gap
-	//
-	// This data comes from the TC8566AF manual
-	// each track in IBM format contains
-	// '4E' x 80, '00' x 12, 'C2' x 3
-	// 'FC' x 1, '4E' x 50, sector data 1 to n
-	// '4E' x ?? (closing gap)
-	// each sector data contains
-	// '00' x 12, 'A1' x 3, 'FE' x 1,
-	// C,H,R,N,CRC(2bytes), '4E' x 22, '00' x 12,
-	// 'A1' x 4,'FB'('F8') x 1, data(512 bytes),CRC(2bytes),'4E'(gap3)
 	
-	readTrackDataCount = 0;
-	byte* tmppoint = readTrackDataBuf;
-	// Fill track header
-	for (int i = 0; i < 80; i++) *(tmppoint++) = 0x4E;
-	for (int i = 0; i < 12; i++) *(tmppoint++) = 0x00;
-	for (int i = 0; i <  3; i++) *(tmppoint++) = 0xC2;
-	*(tmppoint++) = 0xFC;
-	for (int i = 0; i < 50; i++) *(tmppoint++) = 0x4E;
-	// Fill sector
-	for (byte j = 0; j < 9; j++) {
-		// Fill sector header
-		for (int i = 0; i < 12; i++) *(tmppoint++) = 0x00;
-		for (int i = 0; i <  3; i++) *(tmppoint++) = 0xA1;
-		*(tmppoint++) = 0xFE;
-		*(tmppoint++) = track;		//C: Cylinder number
-		*(tmppoint++) = side;		//H: Head Address
-		*(tmppoint++) = (byte)(j + 1);	//R: Record
-		*(tmppoint++) = 0x02;		//N: Number (length of sector)
-		*(tmppoint++) = 0x00;		//CRC byte 1
-		*(tmppoint++) = 0x00;		//CRC byte 2
-		// read sector data
-		read(track, j + 1, side, 512, tmppoint);
-		tmppoint += 512;
-		// end of sector
-		*(tmppoint++) = (byte)(j+1);	//CRC byte 1
-		*(tmppoint++) = (byte)(j+1);	//CRC byte 2
-		// TODO: check this number
-		for (int i = 0; i < 55; i++) *(tmppoint++) = 0x4E;
-		// TODO build correct CRC and read sector + place gap
+	//set correct info in mapdir
+	memcpy(&mapdir[dirindex].filename, MSXfilename.c_str(), 11);
+	
+	//open file
+	int fsize;
+	FILE* file = fopen(fullfilename.c_str(), "r");
+	if (!file) {
+		//if open file fails (read permissions perhaps) then still enter
+		//in MSX disk with zero info
+		
+		//TODO: find out if a file with size is zero also uses a cluster ! 
+		//It probably does :-(
+		//if so the code should be entered here.
+		
+		fsize = 0;	// TODO BUG nothing is done with fsize
+		return;
 	}
-	// TODO look up value of this end-of-track gap
-	for (int i = 0; i < 1080; i++) *(tmppoint++) = 0x4E;
-}
+	fclose(file);
+	
+	// compute time/date stamps
+	struct stat fst;
 
-byte FDC_DirAsDSK::readTrackData()
-{
-	if (readTrackDataCount == RAWTRACK_SIZE) {
-		// end of command in any case
-		return readTrackDataBuf[RAWTRACK_SIZE];
+	stat(fullfilename.c_str(), &fst);
+	struct tm mtim = *localtime(&(fst.st_mtime));
+	int t = (mtim.tm_sec >> 1) + (mtim.tm_min << 5) +
+		(mtim.tm_hour << 11);
+	setsh(mapdir[dirindex].msxinfo.time, t);
+	t = mtim.tm_mday + ((mtim.tm_mon + 1) << 5) +
+	    ((mtim.tm_year + 1900 - 1980) << 9);
+	setsh(mapdir[dirindex].msxinfo.date, t);
+	fsize = fst.st_size;
+
+	//find first 'really' free cluster (= not from a deleted string of clusters)
+	int curcl = 2;
+	while ((curcl <= MAX_CLUSTER) && ReadFAT(curcl)) {
+		curcl++;
+	}
+	setsh(mapdir[dirindex].msxinfo.startcluster, curcl);
+
+	int size = fsize;
+	int prevcl = 0; 
+	while (size && (curcl <= MAX_CLUSTER)) {
+		clustermap[curcl].dirEntryNr = dirindex;
+		clustermap[curcl].fileOffset = fsize - size;
+
+		size -= (size > (SECTOR_SIZE * 2) ? (SECTOR_SIZE * 2) : size);
+		if (prevcl) {
+			WriteFAT(prevcl, curcl);
+		}
+		prevcl = curcl;
+		do {
+			curcl++;
+		} while((curcl <= MAX_CLUSTER) && ReadFAT(curcl));
+	}
+	if ((size == 0) && (curcl <= MAX_CLUSTER)) {
+		WriteFAT(prevcl,EOF_FAT);
 	} else {
-		return readTrackDataBuf[readTrackDataCount++];
+		PRT_INFO("Fake Diskimage full: " << MSXfilename << " truncated.");
 	}
+	//write (possibly truncated) file size
+	setlg(mapdir[dirindex].msxinfo.size, fsize - size);
+
+	/*ADAPT code from until here !!!!!*/
 }
 
-bool FDC_DirAsDSK::ready()
-{
-	return true;
-}
 /*
 	fullpath = fullfilename.c_str() ;
 	for (i=0 ; i<11 ; name[i++]=(char)' ');
