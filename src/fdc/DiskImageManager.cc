@@ -83,9 +83,8 @@ void DiskImageManager::Drive::execute(const std::vector<std::string> &tokens)
 
 void DiskImageManager::Drive::help(const std::vector<std::string> &tokens)
 {
-	// TODO use correct name
-	print("disk eject      : remove disk from virtual drive");
-	print("disk <filename> : change the disk file");
+	print(name + " eject      : remove disk from virtual drive");
+	print(name + " <filename> : change the disk file");
 }
 
 void DiskImageManager::Drive::tabCompletion(std::vector<std::string> &tokens)

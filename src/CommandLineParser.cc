@@ -32,7 +32,7 @@ CommandLineParser::CommandLineOption::CommandLineOption(const std::string &cliOp
 CommandLineParser::CommandLineParser()
 {
 	nrXMLfiles=0;
-	driveLetter='A';
+	driveLetter='a';
 	cartridgeNr=0;
 	addOption(HELP,"-?/-h/-help",false,"Shows this text");
 	addOption(MSX1,"-msx1",false,"Loads a default MSX 1 configuration");
@@ -119,8 +119,8 @@ int CommandLineParser::checkFileType(char* parameter,int &i, char **argv)
 	// these options do impact the filetype the next element that will be parsed later on
 	if ( 0 == strcasecmp(parameter,"-config")) { fileType=1; };
 	if ( 0 == strcasecmp(parameter,"-disk"))   { fileType=2; };
-	if ( 0 == strcasecmp(parameter,"-diska"))  { fileType=2; driveLetter='A'; };
-	if ( 0 == strcasecmp(parameter,"-diskb"))  { fileType=2; driveLetter='B'; };
+	if ( 0 == strcasecmp(parameter,"-diska"))  { fileType=2; driveLetter='a'; };
+	if ( 0 == strcasecmp(parameter,"-diskb"))  { fileType=2; driveLetter='b'; };
 	if ( 0 == strcasecmp(parameter,"-tape"))   { fileType=3; };
 	if ( 0 == strcasecmp(parameter,"-cart"))   { fileType=4; };
 	if ( 0 == strcasecmp(parameter,"-carta"))  { fileType=4; cartridgeNr=0; };
@@ -186,9 +186,8 @@ void CommandLineParser::configureDisk(char* filename)
 	s << "<?xml version=\"1.0\"?>";
 	s << "<msxconfig>";
 	s << "<config id=\"Media\">";
-	//s << "<config id=\"diskpatch_disk" << driveLetter << "\">";
 	s << "<type>disk</type>";
-	s << "<parameter name=\"diska\">" << sfile << "</parameter>";
+	s << "<parameter name=\"disk" << driveLetter << "\">" << sfile << "</parameter>";
 	//s << "<parameter name=\"readonly\">";
 	//if (*readonly == 0){
 	//	s << "false";

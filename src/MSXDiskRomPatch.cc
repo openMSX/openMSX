@@ -9,7 +9,6 @@
 #include "FDCBackEnd.hh"
 
 
-const int LAST_DRIVE = 1;	// TODO support multiple drives
 const int SECTOR_SIZE = 512;
 
 const int A_PHYDIO = 0x4010;
@@ -37,13 +36,21 @@ const byte MSXDiskRomPatch::bootSectorData[] = {
 MSXDiskRomPatch::MSXDiskRomPatch()
 {
 	diskImageManager = DiskImageManager::instance();
-	// TODO make name configurable
-	diskImageManager->registerDrive("diska");
+	
+	// TODO make names configurable
+	name[0] = "diska";
+	name[1] = "diskb";
+	
+	for (int i=0; i < LAST_DRIVE; i++) {
+		diskImageManager->registerDrive(name[i]);
+	}
 }
 
 MSXDiskRomPatch::~MSXDiskRomPatch()
 {
-	diskImageManager->unregisterDrive("diska");
+	for (int i=0; i < LAST_DRIVE; i++) {
+		diskImageManager->unregisterDrive(name[i]);
+	}
 }
 
 void MSXDiskRomPatch::patch(CPU::CPURegs& regs)
@@ -128,7 +135,7 @@ void MSXDiskRomPatch::PHYDIO(CPU::CPURegs& regs)
 	motherboard->writeMem(0xFFFF,sec_slot_target, dummy);
 
 	byte buffer[SECTOR_SIZE];
-	FDCBackEnd* backEnd = diskImageManager->getBackEnd("diska");
+	FDCBackEnd* backEnd = diskImageManager->getBackEnd(name[drive]);
 	try {
 		while (regs.BC.B.h) {	// num_sectors
 			if (write) {
@@ -181,8 +188,7 @@ void MSXDiskRomPatch::DSKCHG(CPU::CPURegs& regs)
 	// Read media descriptor from first byte of FAT.
 	byte buffer[SECTOR_SIZE];
 	try {
-		diskImageManager->getBackEnd("diska")->
-			readSector(buffer, 1);
+		diskImageManager->getBackEnd(name[drive])->readSector(buffer, 1);
 	} catch (DiskIOErrorException& e) {
 		PRT_DEBUG("    I/O error reading FAT");
 		regs.AF.w = 0x0A01; // I/O error
@@ -348,7 +354,7 @@ void MSXDiskRomPatch::DSKFMT(CPU::CPURegs& regs)
 	sectorData[27] = 0;
 
 	try {
-		FDCBackEnd* backEnd = diskImageManager->getBackEnd("diska");
+		FDCBackEnd* backEnd = diskImageManager->getBackEnd(name[drive]);
 		backEnd->writeSector(sectorData, 0);
 		int Sector;
 		byte J;

@@ -46,6 +46,9 @@ class MSXDiskRomPatch : public MSXRomPatchInterface
 		void DRVOFF(CPU::CPURegs& regs);
 
 		DiskImageManager* diskImageManager;
+
+		static const int LAST_DRIVE = 2;
+		std::string name[LAST_DRIVE];
 };
 
 #endif // __MSXDISKROMPATCH_HH__

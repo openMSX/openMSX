@@ -1,5 +1,8 @@
 $Id$
 
+2002-07-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* MSXDiskRomPatch supports 2 drives again
+
 2002-07-22 Maarten ter Huurne <mth@stack.nl>
 	* The Great VRAM Rewrite, part 2:
 	  SpriteChecker does most of its VRAM reading through VDPVRAM::Window.
