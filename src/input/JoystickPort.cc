@@ -20,7 +20,13 @@ JoystickPort::~JoystickPort()
 	PluggingController::instance()->unregisterConnector(this);
 }
 
-const string &JoystickPort::getClass() const
+const string& JoystickPort::getDescription() const
+{
+	static const string desc("MSX Joystick port.");
+	return desc;
+}
+
+const string& JoystickPort::getClass() const
 {
 	static const string className("Joystick Port");
 	return className;

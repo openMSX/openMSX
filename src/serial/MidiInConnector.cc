@@ -19,6 +19,12 @@ MidiInConnector::~MidiInConnector()
 	PluggingController::instance()->unregisterConnector(this);
 }
 
+const string& MidiInConnector::getDescription() const
+{
+	static const string desc("Midi-IN connector.");
+	return desc;
+}
+
 const string& MidiInConnector::getClass() const
 {
 	static const string className("midi in");

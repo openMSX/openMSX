@@ -49,7 +49,8 @@ public:
 	virtual void flushOutput(const EmuTime &time) = 0;
 
 	// Connector
-	virtual const string &getClass() const;
+	virtual const string& getDescription() const; 
+	virtual const string& getClass() const;
 	virtual void unplug(const EmuTime &time);
 };
 

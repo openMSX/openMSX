@@ -19,6 +19,12 @@ AudioInputConnector::~AudioInputConnector()
 	PluggingController::instance()->unregisterConnector(this);
 }
 
+const string& AudioInputConnector::getDescription() const
+{
+	static const string desc("Auddio input connector.");
+	return desc;
+}
+
 const string &AudioInputConnector::getClass() const
 {
 	static const string className("Audio Input Port");

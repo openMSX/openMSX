@@ -14,7 +14,8 @@ public:
 	virtual ~MidiInConnector();
 
 	// Connector
-	virtual const string &getClass() const;
+	virtual const string& getDescription() const;
+	virtual const string& getClass() const;
 
 	virtual bool ready() = 0;
 	virtual bool acceptsData() = 0;

@@ -38,6 +38,12 @@ void CassettePortInterface::unplug(const EmuTime &time)
 	Connector::unplug(time);
 }
 
+const string& CassettePortInterface::getDescription() const
+{
+	static const string desc("MSX Cassette port.");
+	return desc;
+}
+
 const string &CassettePortInterface::getClass() const
 {
 	static const string className("Cassette Port");

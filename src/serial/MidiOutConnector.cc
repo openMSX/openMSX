@@ -19,6 +19,12 @@ MidiOutConnector::~MidiOutConnector()
 	PluggingController::instance()->unregisterConnector(this);
 }
 
+const string& MidiOutConnector::getDescription() const
+{
+	static const string desc("Midi-OUT connector.");
+	return desc;
+}
+
 const string& MidiOutConnector::getClass() const
 {
 	static const string className("midi out");

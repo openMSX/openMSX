@@ -159,8 +159,7 @@ void PluggingController::PlugCmd::tabCompletion(vector<string> &tokens) const
 		set<string> connectors;
 		for (vector<Connector*>::const_iterator it =
 			               controller->connectors.begin();
-		     it != controller->connectors.end();
-		     ++it) {
+		     it != controller->connectors.end(); ++it) {
 			connectors.insert((*it)->getName());
 		}
 		CommandController::completeString(tokens, connectors);
@@ -171,8 +170,7 @@ void PluggingController::PlugCmd::tabCompletion(vector<string> &tokens) const
 		string className = connector ? connector->getClass() : "";
 		for (vector<Pluggable*>::const_iterator it =
 			 controller->pluggables.begin();
-		     it != controller->pluggables.end();
-		     ++it) {
+		     it != controller->pluggables.end(); ++it) {
 			Pluggable* pluggable = *it;
 			if (pluggable->getClass() == className) {
 				pluggables.insert(pluggable->getName());
@@ -295,11 +293,20 @@ void PluggingController::PluggableInfo::tabCompletion(vector<string> &tokens) co
 string PluggingController::ConnectorInfo::execute(const vector<string> &tokens) const
 {
 	string result;
-	PluggingController *controller = PluggingController::instance();
-	for (vector<Connector*>::const_iterator it =
-	         controller->connectors.begin();
-	     it != controller->connectors.end(); ++it) {
-		result += (*it)->getName() + '\n';
+	PluggingController* controller = PluggingController::instance();
+	switch (tokens.size()) {
+	case 2:
+		for (vector<Connector*>::const_iterator it =
+			 controller->connectors.begin();
+		     it != controller->connectors.end(); ++it) {
+			result += (*it)->getName() + '\n';
+		}
+		break;
+	case 3:
+		result = controller->getConnector(tokens[2])->getDescription();
+		break;
+	default:
+		throw CommandException("Too many parameters");
 	}
 	return result;
 }
@@ -307,6 +314,20 @@ string PluggingController::ConnectorInfo::execute(const vector<string> &tokens) 
 string PluggingController::ConnectorInfo::help(const vector<string> &tokens) const
 {
 	return "Shows a list of available connectors.\n";
+}
+
+void PluggingController::ConnectorInfo::tabCompletion(vector<string> &tokens) const
+{
+	if (tokens.size() == 3) {
+		PluggingController* controller = PluggingController::instance();
+		set<string> connectors;
+		for (vector<Connector*>::const_iterator it =
+			               controller->connectors.begin();
+		     it != controller->connectors.end(); ++it) {
+			connectors.insert((*it)->getName());
+		}
+		CommandController::completeString(tokens, connectors);
+	}
 }
 
 } // namespace openmsx

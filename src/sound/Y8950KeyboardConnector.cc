@@ -31,7 +31,13 @@ byte Y8950KeyboardConnector::read(const EmuTime &time)
 	return ((Y8950KeyboardDevice*)pluggable)->read(time);
 }
 
-const string &Y8950KeyboardConnector::getClass() const
+const string& Y8950KeyboardConnector::getDescription() const
+{
+	static const string desc("MSX-AUDIO keyboard connector.");
+	return desc;
+}
+
+const string& Y8950KeyboardConnector::getClass() const
 {
 	static const string className("Y8950 Keyboard Port");
 	return className;

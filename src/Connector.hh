@@ -27,17 +27,22 @@ public:
 	 * @param dummy Dummy Pluggable whose class matches this Connector.
 	 *   Ownership of the object is passed to this Connector.
 	 */
-	Connector(const string &name, Pluggable *dummy);
+	Connector(const string& name, Pluggable* dummy);
 
 	virtual ~Connector();
 
 	/**
 	 * Name that identifies this connector.
 	 */
-	const string &getName() {
+	const string& getName() const {
 		return name;
 	}
-
+	
+	/**
+	 * Get a description for this connector
+	 */
+	virtual const string& getDescription() const = 0;
+	
 	/**
 	 * A Connector belong to a certain class.
 	 * Only Pluggables of this class can be plugged in this Connector.
@@ -48,7 +53,7 @@ public:
 	 * This plugs a Pluggable in this Connector.
 	 * The default implementation is ok.
 	 */
-	virtual void plug(Pluggable *device, const EmuTime &time)
+	virtual void plug(Pluggable* device, const EmuTime& time)
 		throw(PlugException);
 
 	/**
@@ -61,7 +66,7 @@ public:
 	/**
 	 * Returns the Pluggable currently plugged in.
 	 */
-	Pluggable *getPlugged() const {
+	Pluggable* getPlugged() const {
 		return pluggable;
 	}
 
@@ -69,11 +74,11 @@ protected:
 	/**
 	 * The Pluggable that is currently plugged in.
 	 */
-	Pluggable *pluggable;
+	Pluggable* pluggable;
 
 private:
 	const string name;
-	Pluggable *dummy;
+	Pluggable* dummy;
 };
 
 } // namespace openmsx

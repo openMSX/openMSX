@@ -11,17 +11,18 @@ namespace openmsx {
 
 class MidiOutConnector : public Connector, public SerialDataInterface {
 public:
-	MidiOutConnector(const string &name);
+	MidiOutConnector(const string& name);
 	virtual ~MidiOutConnector();
 
 	// Connector
-	virtual const string &getClass() const;
+	virtual const string& getDescription() const;
+	virtual const string& getClass() const;
 
 	// SerialDataInterface
 	virtual void setDataBits(DataBits bits);
 	virtual void setStopBits(StopBits bits);
 	virtual void setParityBit(bool enable, ParityBit parity);
-	virtual void recvByte(byte value, const EmuTime &time);
+	virtual void recvByte(byte value, const EmuTime& time);
 };
 
 } // namespace openmsx

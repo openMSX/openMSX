@@ -10,13 +10,14 @@ namespace openmsx {
 
 class AudioInputConnector : public Connector {
 public:
-	AudioInputConnector(const string &name);
+	AudioInputConnector(const string& name);
 	virtual ~AudioInputConnector();
 
 	// Connector
-	virtual const string &getClass() const;
+	virtual const string& getDescription() const;
+	virtual const string& getClass() const;
 
-	short readSample(const EmuTime &time);
+	short readSample(const EmuTime& time);
 };
 
 } // namespace openmsx

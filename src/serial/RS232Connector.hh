@@ -14,7 +14,8 @@ public:
 	virtual ~RS232Connector();
 
 	// Connector
-	virtual const string &getClass() const;
+	virtual const string& getDescription() const;
+	virtual const string& getClass() const;
 
 	// input (SerialDataInterface)
 	virtual void setDataBits(DataBits bits) = 0;
