@@ -1,9 +1,10 @@
 $Id$
 
-2004-09-02 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2004-09-04 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Allow machines (extensions) descriptions in both
 	    <dir>/machine.xml
 	    <dir>/machine/hardwareconfig.xml
+	* Converted a few more extensions to new config format
 
 2004-09-02 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* renames in settings.xml:

@@ -2,12 +2,16 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
-  <device id="Konami SCC+ Cartridge with expanded RAM">
-    <type>SCCPlusCart</type>
-    <slotted> <ps>-1</ps> <ss>-1</ss> <page>1</page> </slotted>
-    <slotted> <ps>-1</ps> <ss>-1</ss> <page>2</page> </slotted>
-    <parameter name="subtype">Snatcher</parameter>
-    <parameter name="volume">13000</parameter>
-  </device>
+  <primary slot="any">
+    <secondary slot="any">
+      <SCCPlusCart id="Konami SCC+ Cartridge with expanded RAM">
+        <mem base="0x4000" size="0x8000"/>
+        <subtype>Snatcher</subtype>
+        <sound>
+          <volume>13000</volume>
+        </sound>
+      </SCCPlusCart>
+    </secondary>  
+  </primary>
 </msxconfig>
 

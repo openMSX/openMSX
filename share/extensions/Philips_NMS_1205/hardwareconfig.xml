@@ -2,22 +2,29 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
-  <device id="Philips NMS 1205 Music Module MSX-Audio">
-    <type>Audio</type>
-    <parameter name="volume">12000</parameter>
-    <parameter name="mode">mono</parameter>
-    <parameter name="sampleram">32</parameter>
-  </device>
+  <Audio id="Philips NMS 1205 Music Module MSX-Audio">
+    <io base="0xC0" num="2"/>
+    <sound>
+      <volume>12000</volume>
+      <mode>mono</mode>
+    </sound>
+    <sampleram>32</sampleram>
+  </Audio>
 
-  <device id="Philips NMS 1205 Music Module MSX-Audio-Midi">
-    <type>Audio-Midi</type>
-  </device>
+  <Audio-Midi id="Philips NMS 1205 Music Module MSX-Audio-Midi">
+    <io base="0x00" num="2" type="O"/>
+    <io base="0x04" num="2" type="I"/>
+  </Audio-Midi>
 
-  <device id="Philips NMS 1205 Music Module ROM Music Box">
-    <type>Rom</type>
-    <slotted> <ps>-1</ps> <ss>-1</ss> <page>1</page> </slotted>
-    <slotted> <ps>-1</ps> <ss>-1</ss> <page>2</page> </slotted>
-    <parameter name="filename">roms/nms1205.rom</parameter>
-  </device>
-  
+  <primary slot="any">
+    <secondary slot="any">
+      <ROM id="Philips NMS 1205 Music Module ROM Music Box">
+        <mem base="0x4000" size="0x8000"/>
+        <rom>
+          <sha1>c7463e1fd0433c5d41b70670d6c10fd781b66426</sha1>
+          <filename>roms/nms1205.rom</filename>
+        </rom>
+      </ROM>
+    </secondary>
+  </primary>
 </msxconfig>
