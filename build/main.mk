@@ -520,6 +520,7 @@ endif
 	@echo "  Setting permissions..."
 	@chmod -R a+rX $(OPENMSX_INSTALL)
 	@echo "Installation complete... have fun!"
+	@echo "Notice: if you want to emulate real MSX systems and not only the free C-BIOS machines, put the system ROMs in one of the following directories: $(INSTALL_SHARE_DIR)/systemroms or ~/.openMSX/share/systemroms"
 
 # Source Packaging
 # ================
