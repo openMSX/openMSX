@@ -57,7 +57,7 @@ manpage.1: manpage.sgml
   <refnamediv>
     <refname>&dhpackage;</refname>
 
-    <refpurpose>emulate the MSX standard</refpurpose>
+    <refpurpose>perfectly emulate the MSX standard</refpurpose>
   </refnamediv>
   <refsynopsisdiv>
     <cmdsynopsis>
