@@ -2,6 +2,8 @@
 
 # on 22/8/2001 added the DLSB_FIRST to correct wrong Z80 compile
 
+SUBDIRS = cfg
+
 bin_PROGRAMS=openmsx
 openmsx_SOURCES=openmsx.cc \
 	system.h openmsx.hh \
