@@ -132,7 +132,7 @@ void PluggingController::PlugCmd::tabCompletion(std::vector<std::string> &tokens
 		for (i=controller->connectors.begin(); i!=controller->connectors.end(); i++) {
 			connectors.push_back((*i)->getName());
 		}
-		CommandController::completeString(tokens[1], connectors);
+		CommandController::completeString(tokens, connectors);
 	} else if (tokens.size() == 3) {
 		// complete pluggable
 		std::list<std::string> pluggables;
@@ -140,7 +140,7 @@ void PluggingController::PlugCmd::tabCompletion(std::vector<std::string> &tokens
 		for (i=controller->pluggables.begin(); i!=controller->pluggables.end(); i++) {
 			pluggables.push_back((*i)->getName());
 		}
-		CommandController::completeString(tokens[2], pluggables);
+		CommandController::completeString(tokens, pluggables);
 	}
 }
 
@@ -186,6 +186,6 @@ void PluggingController::UnplugCmd::tabCompletion(std::vector<std::string> &toke
 		for (i=controller->connectors.begin(); i!=controller->connectors.end(); i++) {
 			connectors.push_back((*i)->getName());
 		}
-		CommandController::completeString(tokens[1], connectors);
+		CommandController::completeString(tokens, connectors);
 	}
 }

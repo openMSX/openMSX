@@ -1,5 +1,13 @@
 $Id$
 
+2002-06-12 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* ConsoleCommand parser now understands quoted tokens or tokens with
+	  escaped characters. Examples:
+	      diska a\ space.dsk
+	      diska "a space.dsk"
+	      diska a\"quote.dsk
+	  It should now be possible to enter any string as a command token.
+
 2002-06-11 David Heremans <david.heremans@gnu-linux.net>
 	* basic FDC fully working:
 	   Fixed minor bug (all my tested disks work now)

@@ -47,18 +47,51 @@ void CommandController::unregisterCommand(const std::string &str)
 
 void CommandController::tokenize(const std::string &str, std::vector<std::string> &tokens, const std::string &delimiters)
 {
-	// TODO implement "backslash before space"
-	// Skip delimiters at beginning
-	std::string::size_type lastPos = str.find_first_not_of(delimiters, 0);
-	// Find first "non-delimiter"
-	std::string::size_type pos     = str.find_first_of(delimiters, lastPos);
-	while (std::string::npos != pos || std::string::npos != lastPos) {
-		// Found a token, add it to the vector
-		tokens.push_back(str.substr(lastPos, pos - lastPos));
-		// Skip delimiters
-		lastPos = str.find_first_not_of(delimiters, pos);
-		// Find next "non-delimiter"
-		pos = str.find_first_of(delimiters, lastPos);
+	enum ParseState {Alpha, BackSlash, Quote, Space};
+	ParseState state = Space;
+	for (unsigned i=0; i<str.length(); i++) {
+		char chr = str[i];
+		switch (state) {
+			case Space:
+				if (delimiters.find(chr) != std::string::npos) {
+					// nothing
+				} else {
+					// new token
+					tokens.push_back(std::string());
+					if (chr == '\\') {
+						state = BackSlash;
+					} else if (chr == '"') {
+						state = Quote;
+					} else {
+						tokens[tokens.size()-1] += chr;
+						state = Alpha;
+					}
+				}
+				break;
+			case Alpha:
+				if (delimiters.find(chr) != std::string::npos) {
+					// token done
+					state = Space;
+				} else if (chr == '\\') {
+					state = BackSlash;
+				} else if (chr == '"') {
+					state = Quote;
+				} else {
+					tokens[tokens.size()-1] += chr;
+				}
+				break;
+			case Quote:
+				if (chr == '"') {
+					state = Alpha;
+				} else {
+					tokens[tokens.size()-1] += chr;
+				}
+				break;
+			case BackSlash:
+				tokens[tokens.size()-1] += chr;
+				state = Alpha;
+				break;
+		}
 	}
 }
 
@@ -103,15 +136,17 @@ void CommandController::tabCompletion(std::string &command)
 	tabCompletion(tokens);
 	
 	// rebuild command string from tokens
-	std::vector<std::string>::const_iterator it=tokens.begin();
-	if (it == tokens.end()) {
-		command = std::string("");
-	} else {
-		command = *it; 
-		it++;
-		for (; it!=tokens.end(); it++) {
+	command = std::string("");
+	std::vector<std::string>::const_iterator it;
+	for (it=tokens.begin(); it!=tokens.end(); it++) {
+		if (it != tokens.begin())
 			command += ' ';
+		if (it->find(' ') == std::string::npos) {
 			command += *it;
+		} else {
+			command += '"';
+			command += *it;
+			command += '"';
 		}
 	}
 }
@@ -129,7 +164,7 @@ void CommandController::tabCompletion(std::vector<std::string> &tokens)
 		for (it=commands.begin(); it!=commands.end(); it++) {
 			cmds.push_back(it->first);
 		}
-		completeString(tokens[0], cmds);
+		completeString(tokens, cmds);
 	} else {
 		std::map<const std::string, Command*, ltstr>::const_iterator it;
 		it = commands.find(tokens[0]);
@@ -191,14 +226,15 @@ bool CommandController::completeString2(std::string &string, std::list<std::stri
 	}
 	return false;
 }
-void CommandController::completeString(std::string &string, std::list<std::string> &list)
+void CommandController::completeString(std::vector<std::string> &tokens, std::list<std::string> &list)
 {
-	if (completeString2(string, list))
-		string += " ";
+	if (completeString2(tokens[tokens.size()-1], list))
+		tokens.push_back(std::string());
 }
 
-void CommandController::completeFileName(std::string &filename)
+void CommandController::completeFileName(std::vector<std::string> &tokens)
 {
+	std::string& filename = tokens[tokens.size()-1];
 	std::string npath, dpath;
 	std::list<std::string> filenames;
 	std::string::size_type pos = filename.find_last_of("/");	// TODO std delimiter
@@ -224,7 +260,7 @@ void CommandController::completeFileName(std::string &filename)
 	}
 	bool t = completeString2(filename, filenames);
 	if (t && filename[filename.size()-1] != '/')
-		filename += " ";
+		tokens.push_back(std::string());
 }
 
 // Help Command

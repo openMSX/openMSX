@@ -531,5 +531,5 @@ void MSXDiskRomPatch::help(const std::vector<std::string> &tokens)
 void MSXDiskRomPatch::tabCompletion(std::vector<std::string> &tokens)
 {
 	if (tokens.size()==2)
-		CommandController::completeFileName(tokens[1]);
+		CommandController::completeFileName(tokens);
 }

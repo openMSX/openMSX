@@ -45,13 +45,13 @@ class CommandController
 		/**
 		 * TODO
 		 */
-		static void completeString(std::string &string, std::list<std::string> &list);
-		static bool completeString2(std::string &string, std::list<std::string> &list);
-		static void completeFileName(std::string &filename);
+		static void completeString(std::vector<std::string> &tokens, std::list<std::string> &list);
+		static void completeFileName(std::vector<std::string> &tokens);
 
 	private:
 		CommandController();
 		void tokenize(const std::string &str, std::vector<std::string> &tokens, const std::string &delimiters = " ");
+		static bool completeString2(std::string &string, std::list<std::string> &list);
 
 		static CommandController* oneInstance;
 		
