@@ -10,7 +10,7 @@
 #include "msxconfig.hh"
 #include <string>
 #include <SDL/SDL.h>
-#include <SDL/SDL_thread.h>
+#include "Thread.hh"
 #include "MSXMotherBoard.hh"
 #include "devicefactory.hh"
 #include "EventDistributor.hh"
@@ -41,13 +41,6 @@ static char iconData[] = {
 	0,1,1,1,1,1,1,1,3,3,3,1,1,1,1,0,
 	0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,
 };
-
-
-int eventDistributorStarter(void* parm)
-{
-	EventDistributor::instance()->run();
-	return 0;	// doesn't return
-}
 
 
 void initializeSDL()
@@ -96,13 +89,14 @@ int main (int argc, char **argv)
 		}
 
 		// Start a new thread for event handling
-		SDL_Thread *thread=SDL_CreateThread(eventDistributorStarter, 0);
+		Thread* thread = new Thread(EventDistributor::instance());
+		thread->start();
 
 		PRT_DEBUG ("starting MSX");
 		MSXMotherBoard::instance()->StartMSX();
 		
 		// When we return we clean everything up
-		SDL_KillThread(thread);
+		thread->stop();
 		MSXMotherBoard::instance()->DestroyMSX();
 	} 
 	catch (MSXException& e) {

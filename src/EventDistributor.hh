@@ -6,6 +6,7 @@
 #include <SDL/SDL.h>
 #include <map>
 #include <queue>
+#include "Thread.hh"
 
 
 class EventListener
@@ -19,7 +20,7 @@ class EventListener
 		virtual void signalEvent(SDL_Event &event) = 0;
 };
 
-class EventDistributor : public EventListener
+class EventDistributor : public EventListener, public Runnable
 {
 	public:
 		virtual ~EventDistributor();
