@@ -122,6 +122,7 @@ class MSXCPUInterface : public CPUInterface
 		  *     selected.
 		  */
 		string getSlotSelection();
+		
 		struct SlotSelection
 		{
 			byte primary [4];

@@ -91,7 +91,7 @@ CassettePlayer::~CassettePlayer()
 	
 	CommandController::instance()->unregisterCommand(this, "cassetteplayer");
 	PluggingController::instance()->unregisterPluggable(this);
-	removeTape();	// free memory
+	delete cassette;
 }
 
 void CassettePlayer::insertTape(FileContext &context,

@@ -31,7 +31,10 @@ RendererFactory *RendererFactory::getCurrent()
 
 Renderer *RendererFactory::createRenderer(VDP *vdp)
 {
-	return getCurrent()->create(vdp);
+	RendererFactory* factory = getCurrent();
+	Renderer* result = factory->create(vdp);
+	delete factory;
+	return result;
 }
 
 Renderer *RendererFactory::switchRenderer(VDP *vdp)

@@ -20,6 +20,7 @@ MemoryView::MemoryView (int rows_, int columns_, bool border_)
 		slot.ss[i] = slots->secondary[i];
 //		slot.map[i] = mapper->getSelectedPage(i);
 	}
+	delete slots;
 	slot.vram = false;
 	slot.direct = false;
 	viewControl = new ViewControl(this);

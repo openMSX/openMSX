@@ -8,7 +8,7 @@
 
 namespace openmsx {
 
-ViewControl::ViewControl (MemoryView * view_)
+ViewControl::ViewControl(MemoryView * view_)
 {
 	view = view_;
 	currentDevice = NULL;
@@ -16,18 +16,20 @@ ViewControl::ViewControl (MemoryView * view_)
 	indirect = false;
 	memoryAddress = 0;
 	linked = NULL;
-	struct MSXCPUInterface::SlotSelection * slots = MSXCPUInterface::instance()->getCurrentSlots();
+	struct MSXCPUInterface::SlotSelection* slots =
+		MSXCPUInterface::instance()->getCurrentSlots();
 	useGlobalSlot=false;
-	for (int i=0;i<4;i++){
+	for (int i = 0; i < 4; i++) {
 		slot.ps[i] = slots->primary[i];
 		slot.ss[i] = slots->secondary[i];
 //		slot.map[i] = mapper->getSelectedPage(i);
 	}
+	delete slots;
 	slot.vram = false;
 	slot.direct = false;
 }
 
-ViewControl::~ViewControl ()
+ViewControl::~ViewControl()
 {
 }
 

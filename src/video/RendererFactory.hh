@@ -147,7 +147,6 @@ public:
 	bool isAvailable();
 
 	Renderer *create(VDP *vdp);
-
 };
 
 /** RendererFactory for SDLLoRenderer.
@@ -167,7 +166,6 @@ public:
 	bool isAvailable();
 
 	Renderer *create(VDP *vdp);
-
 };
 
 #ifdef __OPENGL_AVAILABLE__
@@ -189,7 +187,6 @@ public:
 	bool isAvailable();
 
 	Renderer *create(VDP *vdp);
-
 };
 
 #endif // __OPENGL_AVAILABLE__
@@ -211,7 +208,6 @@ public:
 	bool isAvailable();
 
 	Renderer *create(VDP *vdp);
-
 };
 
 } // namespace openmsx
