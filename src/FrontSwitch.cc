@@ -7,12 +7,12 @@
 FrontSwitch::FrontSwitch()
 {
 	position = true;	// TODO read from config
-	CommandController::instance()->registerCommand(*this, "frontswitch");
+	CommandController::instance()->registerCommand(this, "frontswitch");
 }
 
 FrontSwitch::~FrontSwitch()
 {
-	CommandController::instance()->unregisterCommand("frontswitch");
+	CommandController::instance()->unregisterCommand(this, "frontswitch");
 }
 
 bool FrontSwitch::isOn() const

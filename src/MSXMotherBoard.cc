@@ -11,12 +11,12 @@
 
 MSXMotherBoard::MSXMotherBoard()
 {
-	CommandController::instance()->registerCommand(resetCmd, "reset");
+	CommandController::instance()->registerCommand(&resetCmd, "reset");
 }
 
 MSXMotherBoard::~MSXMotherBoard()
 {
-	CommandController::instance()->unregisterCommand("reset");
+	CommandController::instance()->unregisterCommand(&resetCmd, "reset");
 }
 
 MSXMotherBoard *MSXMotherBoard::instance()

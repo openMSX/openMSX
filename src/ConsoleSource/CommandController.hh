@@ -19,9 +19,10 @@ class CommandController
 		/**
 		 * (Un)register a command
 		 */
-		void registerCommand(Command &commandObject,
+		void registerCommand(Command *commandObject,
 		                     const std::string &str);
-		void unregisterCommand(const std::string &str);
+		void unregisterCommand(Command *commandObject,
+		                       const std::string &str);
 
 		/**
 		 * Executes all defined auto commands
@@ -60,7 +61,7 @@ class CommandController
 				return s1 < s2;
 			}
 		};
-		std::map<const std::string, Command*, ltstr> commands;
+		std::multimap<const std::string, Command*, ltstr> commands;
 
 		// Commands
 		class HelpCmd : public Command {

@@ -147,7 +147,7 @@ PixelRenderer::PixelRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)
 		buffer.addFront(1.0);
 	}
 
-	CommandController::instance()->registerCommand(frameSkipCmd, "frameskip");
+	CommandController::instance()->registerCommand(&frameSkipCmd, "frameskip");
 
 	// Now we're ready to start rendering the first frame.
 	reset(time);
@@ -155,7 +155,7 @@ PixelRenderer::PixelRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)
 
 PixelRenderer::~PixelRenderer()
 {
-	CommandController::instance()->unregisterCommand("frameskip");
+	CommandController::instance()->unregisterCommand(&frameSkipCmd, "frameskip");
 }
 
 

@@ -11,14 +11,14 @@
 
 PluggingController::PluggingController()
 {
-	CommandController::instance()->registerCommand(plugCmd,   "plug");
-	CommandController::instance()->registerCommand(unplugCmd, "unplug");
+	CommandController::instance()->registerCommand(&plugCmd,   "plug");
+	CommandController::instance()->registerCommand(&unplugCmd, "unplug");
 }
 
 PluggingController::~PluggingController()
 {
-	CommandController::instance()->unregisterCommand("plug");
-	CommandController::instance()->unregisterCommand("unplug");
+	CommandController::instance()->unregisterCommand(&plugCmd,   "plug");
+	CommandController::instance()->unregisterCommand(&unplugCmd, "unplug");
 }
 
 PluggingController* PluggingController::instance()

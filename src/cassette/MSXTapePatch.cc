@@ -71,7 +71,7 @@ MSXTapePatch::MSXTapePatch()
 {
 	file = NULL;
 
-	CommandController::instance()->registerCommand(*this, "cas");
+	CommandController::instance()->registerCommand(this, "cas");
 
 	try {
 		Config *config =
@@ -86,7 +86,7 @@ MSXTapePatch::MSXTapePatch()
 
 MSXTapePatch::~MSXTapePatch()
 {
-	CommandController::instance()->unregisterCommand("cas");
+	CommandController::instance()->unregisterCommand(this, "cas");
 	delete file;
 }
 

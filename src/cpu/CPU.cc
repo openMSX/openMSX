@@ -14,14 +14,14 @@ CPU::CPU(CPUInterface *interf)
 	makeTables();
 
 	#ifdef CPU_DEBUG
-	CommandController::instance()->registerCommand(debugCmd, "cpudebug");
+	CommandController::instance()->registerCommand(&debugCmd, "cpudebug");
 	#endif
 }
 
 CPU::~CPU()
 {
 	#ifdef CPU_DEBUG
-	CommandController::instance()->unregisterCommand("cpudebug");
+	CommandController::instance()->unregisterCommand(&debugCmd, "cpudebug");
 	#endif
 }
 

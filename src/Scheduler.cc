@@ -22,8 +22,8 @@ Scheduler::Scheduler()
 	cpu = MSXCPU::instance();
 	
 	EventDistributor::instance()->registerEventListener(SDL_QUIT, this);
-	CommandController::instance()->registerCommand(quitCmd, "quit");
-	CommandController::instance()->registerCommand(muteCmd, "mute");
+	CommandController::instance()->registerCommand(&quitCmd, "quit");
+	CommandController::instance()->registerCommand(&muteCmd, "mute");
 	HotKey::instance()->registerHotKeyCommand(Keys::K_F12, "quit");
 	HotKey::instance()->registerHotKeyCommand(Keys::K_F11, "mute");
 }
@@ -32,8 +32,8 @@ Scheduler::~Scheduler()
 {
 	HotKey::instance()->unregisterHotKeyCommand(Keys::K_F12, "quit");
 	HotKey::instance()->unregisterHotKeyCommand(Keys::K_F11, "mute");
-	CommandController::instance()->unregisterCommand("quit");
-	CommandController::instance()->unregisterCommand("mute");
+	CommandController::instance()->unregisterCommand(&quitCmd, "quit");
+	CommandController::instance()->unregisterCommand(&muteCmd, "mute");
 	EventDistributor::instance()->unregisterEventListener(SDL_QUIT, this);
 }
 

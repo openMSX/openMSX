@@ -137,12 +137,12 @@ RealDrive::RealDrive(const std::string &driveName, const EmuTime &time)
 		// nothing specified or file not found
 		ejectDisk();
 	}
-	CommandController::instance()->registerCommand(*this, name);
+	CommandController::instance()->registerCommand(this, name);
 }
 
 RealDrive::~RealDrive()
 {
-	CommandController::instance()->unregisterCommand(name);
+	CommandController::instance()->unregisterCommand(this, name);
 	delete disk;
 }
 

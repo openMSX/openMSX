@@ -8,14 +8,14 @@
 
 HotKey::HotKey()
 {
-	CommandController::instance()->registerCommand(bindCmd,   "bind");
-	CommandController::instance()->registerCommand(unbindCmd, "unbind");
+	CommandController::instance()->registerCommand(&bindCmd,   "bind");
+	CommandController::instance()->registerCommand(&unbindCmd, "unbind");
 }
 
 HotKey::~HotKey()
 {
-	CommandController::instance()->unregisterCommand("bind");
-	CommandController::instance()->unregisterCommand("unbind");
+	CommandController::instance()->unregisterCommand(&bindCmd,   "bind");
+	CommandController::instance()->unregisterCommand(&unbindCmd, "unbind");
 }
 
 HotKey* HotKey::instance()
@@ -41,8 +41,8 @@ void HotKey::unregisterHotKey(Keys::KeyCode key, HotKeyListener *listener)
 {
 	std::multimap<Keys::KeyCode, HotKeyListener*>::iterator it;
 	for (it = map.lower_bound(key);
-			(it != map.end()) && (it->first == key);
-			it++) {
+	     (it != map.end()) && (it->first == key);
+	     it++) {
 		if (it->second == listener) {
 			map.erase(it);
 			break;

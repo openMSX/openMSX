@@ -69,14 +69,14 @@ Renderer::Renderer(bool fullScreen) :
 {
 	this->fullScreen = fullScreen;
 	settings = RenderSettings::instance();
-	CommandController::instance()->registerCommand(fullScreenCmd, "fullscreen");
+	CommandController::instance()->registerCommand(&fullScreenCmd, "fullscreen");
 	HotKey::instance()->registerHotKeyCommand(Keys::K_PRINT, "fullscreen");
 }
 
 Renderer::~Renderer()
 {
 	HotKey::instance()->unregisterHotKeyCommand(Keys::K_PRINT, "fullscreen");
-	CommandController::instance()->unregisterCommand("fullscreen");
+	CommandController::instance()->unregisterCommand(&fullScreenCmd, "fullscreen");
 }
 
 void Renderer::setFullScreen(bool enabled)

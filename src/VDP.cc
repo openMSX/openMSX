@@ -114,17 +114,17 @@ VDP::VDP(Device *config, const EmuTime &time)
 	frameStart(time);
 
 	// Register console commands.
-	CommandController::instance()->registerCommand(vdpRegsCmd, "vdpregs");
-	CommandController::instance()->registerCommand(paletteCmd, "palette");
-	CommandController::instance()->registerCommand(rendererCmd, "renderer");
+	CommandController::instance()->registerCommand(&vdpRegsCmd,  "vdpregs");
+	CommandController::instance()->registerCommand(&paletteCmd,  "palette");
+	CommandController::instance()->registerCommand(&rendererCmd, "renderer");
 }
 
 VDP::~VDP()
 {
 	PRT_DEBUG("Destroying a VDP object");
-	CommandController::instance()->unregisterCommand("vdpregs");
-	CommandController::instance()->unregisterCommand("palette");
-	CommandController::instance()->unregisterCommand("renderer");
+	CommandController::instance()->unregisterCommand(&vdpRegsCmd,  "vdpregs");
+	CommandController::instance()->unregisterCommand(&paletteCmd,  "palette");
+	CommandController::instance()->unregisterCommand(&rendererCmd, "renderer");
 	delete cmdEngine;
 	delete renderer;
 	delete spriteChecker;

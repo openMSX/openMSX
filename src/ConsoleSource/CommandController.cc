@@ -15,12 +15,12 @@
 
 CommandController::CommandController()
 {
-	registerCommand(helpCmd, "help");
+	registerCommand(&helpCmd, "help");
 }
 
 CommandController::~CommandController()
 {
-	unregisterCommand("help");
+	unregisterCommand(&helpCmd, "help");
 }
 
 CommandController *CommandController::instance()
@@ -33,18 +33,30 @@ CommandController *CommandController::instance()
 }
 
 
-void CommandController::registerCommand(Command &command, const std::string &str)
+void CommandController::registerCommand(Command *command, 
+                                        const std::string &str)
 {
-	commands[str] = &command;
+	commands.insert(std::pair<std::string, Command*>(str, command));
 }
 
-void CommandController::unregisterCommand(const std::string &str)
+void CommandController::unregisterCommand(Command *command,
+                                          const std::string &str)
 {
-	commands.erase(str);
+	std::multimap<std::string, Command*>::iterator it;
+	for (it = commands.lower_bound(str);
+	     (it != commands.end()) && (it->first == str);
+	     it++) {
+		if (it->second == command) {
+			commands.erase(it);
+			break;
+		}
+	}
 }
 
 
-void CommandController::tokenize(const std::string &str, std::vector<std::string> &tokens, const std::string &delimiters)
+void CommandController::tokenize(const std::string &str,
+                                 std::vector<std::string> &tokens,
+                                 const std::string &delimiters)
 {
 	enum ParseState {Alpha, BackSlash, Quote, Space};
 	ParseState state = Space;
@@ -105,12 +117,14 @@ void CommandController::executeCommand(const std::string &cmd,
 		tokens.resize(tokens.size()-1);
 	if (tokens.empty())
 		return;
-	std::map<const std::string, Command*, ltstr>::const_iterator it;
-	it = commands.find(tokens[0]);
-	if (it==commands.end()) {
+	std::multimap<const std::string, Command*, ltstr>::const_iterator it;
+	it = commands.lower_bound(tokens[0]);
+	if (it == commands.end() || it->first != tokens[0]) {
 		throw CommandException("Unknown command");
-	} else {
+	}
+	while (it != commands.end() && it->first == tokens[0]) {
 		it->second->execute(tokens, time);
+		it++;
 	}
 }
 
@@ -164,21 +178,22 @@ void CommandController::tabCompletion(std::vector<std::string> &tokens)
 	if (tokens.size()==1) {
 		// build a list of all command strings
 		std::list<std::string> cmds;
-		std::map<const std::string, Command*, ltstr>::const_iterator it;
-		for (it=commands.begin(); it!=commands.end(); it++) {
+		std::multimap<const std::string, Command*, ltstr>::const_iterator it;
+		for (it = commands.begin(); it != commands.end(); it++) {
 			cmds.push_back(it->first);
 		}
 		completeString(tokens, cmds);
 	} else {
-		std::map<const std::string, Command*, ltstr>::const_iterator it;
-		it = commands.find(tokens[0]);
-		if (it!=commands.end()) {
+		std::multimap<const std::string, Command*, ltstr>::const_iterator it;
+		it = commands.find(tokens[0]);	// just take one
+		if (it != commands.end()) {
 			it->second->tabCompletion(tokens);
 		}
 	}
 }
 
-bool CommandController::completeString2(std::string &string, std::list<std::string> &list)
+bool CommandController::completeString2(std::string &string,
+                                        std::list<std::string> &list)
 {
 	std::list<std::string>::iterator it;
 	
@@ -230,7 +245,8 @@ bool CommandController::completeString2(std::string &string, std::list<std::stri
 	}
 	return false;
 }
-void CommandController::completeString(std::vector<std::string> &tokens, std::list<std::string> &list)
+void CommandController::completeString(std::vector<std::string> &tokens,
+                                       std::list<std::string> &list)
 {
 	if (completeString2(tokens[tokens.size()-1], list))
 		tokens.push_back(std::string());
@@ -277,20 +293,23 @@ void CommandController::HelpCmd::execute(const std::vector<std::string> &tokens,
 		case 1: {
 			print("Use 'help [command]' to get help for a specific command");
 			print("The following commands exist:");
-			std::map<const std::string, Command*, ltstr>::const_iterator it;
+			std::multimap<const std::string, Command*, ltstr>::const_iterator it;
 			for (it=cc->commands.begin(); it!=cc->commands.end(); it++) {
 				print(it->first);
 			}
 			break;
 		}
 		default: {
-			std::map<const std::string, Command*, ltstr>::const_iterator it;
-			it = cc->commands.find(tokens[1]);
-			if (it == cc->commands.end())
+			std::multimap<const std::string, Command*, ltstr>::const_iterator it;
+			it = cc->commands.lower_bound(tokens[1]);
+			if (it == cc->commands.end() || it->first != tokens[1])
 				throw CommandException("Unknown command");
-			std::vector<std::string> tokens2(tokens);
-			tokens2.erase(tokens2.begin());
-			it->second->help(tokens2);
+			while (it != cc->commands.end() && it->first == tokens[1]) {
+				std::vector<std::string> tokens2(tokens);
+				tokens2.erase(tokens2.begin());
+				it->second->help(tokens2);
+				it++;
+			}
 			break;
 		}
 	}

@@ -1,5 +1,10 @@
 $Id$
 
+2003-01-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Allow muliple commands with the same name:
+	   - for example both Z80 and R800 could have a "cpudebug" command
+	     at the same time (not implemeted yet)
+
 2003-01-20 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Removed SearchPath stuff
 	* Relative paths in config files are now relative to the location

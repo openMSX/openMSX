@@ -66,12 +66,12 @@ CassettePlayer::CassettePlayer()
 		PRT_DEBUG("Incorrect tape insertion!");
 	}
 	PluggingController::instance()->registerPluggable(this);
-	CommandController::instance()->registerCommand(*this, "cassetteplayer");
+	CommandController::instance()->registerCommand(this, "cassetteplayer");
 }
 
 CassettePlayer::~CassettePlayer()
 {
-	CommandController::instance()->unregisterCommand("cassetteplayer");
+	CommandController::instance()->unregisterCommand(this, "cassetteplayer");
 	PluggingController::instance()->unregisterPluggable(this);
 	removeTape();	// free memory
 }

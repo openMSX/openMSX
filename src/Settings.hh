@@ -195,6 +195,7 @@ public:
 
 private:
 	SettingsManager();
+	~SettingsManager();
 
 	class SetCommand : public Command {
 	public:

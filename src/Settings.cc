@@ -173,7 +173,12 @@ void EnumSetting<T>::tabCompletion(std::vector<std::string> &tokens) const
 SettingsManager::SettingsManager()
 	: setCommand(this)
 {
-	CommandController::instance()->registerCommand(setCommand, "set");
+	CommandController::instance()->registerCommand(&setCommand, "set");
+}
+
+SettingsManager::~SettingsManager()
+{
+	CommandController::instance()->unregisterCommand(&setCommand, "set");
 }
 
 // SetCommand implementation:

@@ -18,14 +18,14 @@ SDLInteractiveConsole::SDLInteractiveConsole() :
 	ConsoleManager::instance()->registerConsole(this);
 	EventDistributor::instance()->registerEventListener(SDL_KEYDOWN, this);
 	EventDistributor::instance()->registerEventListener(SDL_KEYUP,   this);
-	CommandController::instance()->registerCommand(consoleCmd, "console");
+	CommandController::instance()->registerCommand(&consoleCmd, "console");
 	HotKey::instance()->registerHotKeyCommand(Keys::K_F10, "console");
 }
 
 SDLInteractiveConsole::~SDLInteractiveConsole()
 {
 	HotKey::instance()->unregisterHotKeyCommand(Keys::K_F10, "console");
-	CommandController::instance()->unregisterCommand("console");
+	CommandController::instance()->unregisterCommand(&consoleCmd, "console");
 	EventDistributor::instance()->unregisterEventListener(SDL_KEYDOWN, this);
 	EventDistributor::instance()->unregisterEventListener(SDL_KEYUP,   this);
 	ConsoleManager::instance()->unregisterConsole(this);

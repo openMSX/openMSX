@@ -58,14 +58,14 @@ MSXCPUInterface::MSXCPUInterface()
 	// Note: SlotState is initialised at reset
 
 	// Register console commands
-	CommandController::instance()->registerCommand(slotMapCmd,    "slotmap");
-	CommandController::instance()->registerCommand(slotSelectCmd, "slotselect");
+	CommandController::instance()->registerCommand(&slotMapCmd,    "slotmap");
+	CommandController::instance()->registerCommand(&slotSelectCmd, "slotselect");
 }
 
 MSXCPUInterface::~MSXCPUInterface()
 {
-	CommandController::instance()->unregisterCommand("slotmap");
-	CommandController::instance()->unregisterCommand("slotselect");
+	CommandController::instance()->unregisterCommand(&slotMapCmd,    "slotmap");
+	CommandController::instance()->unregisterCommand(&slotSelectCmd, "slotselect");
 }
 
 
