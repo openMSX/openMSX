@@ -56,7 +56,7 @@ class RS232Tester : public RS232Device, private Runnable, private Schedulable
 
 		ofstream outFile;
 
-		StringSetting rs232InputFilenameSetting;
+		FilenameSetting rs232InputFilenameSetting;
 		StringSetting rs232OutputFilenameSetting;
 };
 
