@@ -6,7 +6,6 @@
 #include "HotKey.hh"
 
 // Platform dependent includes:
-#include "SDLLoRenderer.hh"
 #include "SDLHiRenderer.hh"
 
 Renderer *PlatformFactory::createRenderer(VDP *vdp, const EmuTime &time)
