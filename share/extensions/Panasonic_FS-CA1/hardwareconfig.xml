@@ -1,9 +1,16 @@
 <?xml version="1.0"?>
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
+  <device id="MSX-Audio-1">
+    <type>Audio</type>
+    <parameter name="volume">12000</parameter>
+    <parameter name="mode">mono</parameter>
+    <parameter name="sampleram">32</parameter>
+  </device>
 
+<!-- I'm not sure if this device actually has sampleRAM! -->
 
- <device id="MSX-Audio ROM">
+  <device id="MSX-Audio ROM">
     <type>Rom</type>
     <slotted> <ps>-1</ps> <ss>-1</ss> <page>0</page> </slotted>
     <slotted> <ps>-1</ps> <ss>-1</ss> <page>1</page> </slotted>
