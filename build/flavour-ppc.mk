@@ -13,5 +13,6 @@ CXXFLAGS+=-mcpu=750
 endif
 
 # Strip executable?
-OPENMSX_STRIP:=true
+# TODO: Stripping would be good, but linker doesn't understand "--strip-all".
+OPENMSX_STRIP:=false
 
