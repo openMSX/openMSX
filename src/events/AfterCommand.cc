@@ -87,12 +87,12 @@ string AfterCommand::execute(const vector<string>& tokens)
 	throw SyntaxError();
 }
 
-static float getTime(const string& str)
+static double getTime(const string& str)
 {
 	// Use "strtod" instead of "strtof" because the latter doesn't exist in
 	// the libc of FreeBSD. It's not equivalent, but we don't need maximum
 	// precision or range checks, so it's close enough.
-	float time = (float)strtod(str.c_str(), NULL);
+	double time = strtod(str.c_str(), NULL);
 	if (time <= 0) {
 		throw CommandException("Not a valid time specification");
 	}
@@ -104,7 +104,7 @@ string AfterCommand::afterTime(const vector<string>& tokens)
 	if (tokens.size() != 4) {
 		throw SyntaxError();
 	}
-	float time = getTime(tokens[2]);
+	double time = getTime(tokens[2]);
 	AfterTimeCmd* cmd = new AfterTimeCmd(tokens[3], time);
 	return cmd->getId();
 }
@@ -114,7 +114,7 @@ string AfterCommand::afterIdle(const vector<string>& tokens)
 	if (tokens.size() != 4) {
 		throw SyntaxError();
 	}
-	float time = getTime(tokens[2]);
+	double time = getTime(tokens[2]);
 	AfterIdleCmd* cmd = new AfterIdleCmd(tokens[3], time);
 	return cmd->getId();
 }
@@ -254,7 +254,7 @@ void AfterCommand::AfterCmd::execute()
 
 // class  AfterTimedCmd
 
-AfterCommand::AfterTimedCmd::AfterTimedCmd(const string& command, float time_)
+AfterCommand::AfterTimedCmd::AfterTimedCmd(const string& command, double time_)
 	: AfterCmd(command), time(time_)
 {
 	reschedule();
@@ -265,7 +265,7 @@ AfterCommand::AfterTimedCmd::~AfterTimedCmd()
 	Scheduler::instance().removeSyncPoint(this);
 }
 
-float AfterCommand::AfterTimedCmd::getTime() const
+double AfterCommand::AfterTimedCmd::getTime() const
 {
 	return time;
 }
@@ -292,7 +292,7 @@ const string& AfterCommand::AfterTimedCmd::schedName() const
 
 // class AfterTimeCmd
 
-AfterCommand::AfterTimeCmd::AfterTimeCmd(const string& command, float time)
+AfterCommand::AfterTimeCmd::AfterTimeCmd(const string& command, double time)
 	: AfterTimedCmd(command, time)
 {
 }
@@ -306,7 +306,7 @@ const string& AfterCommand::AfterTimeCmd::getType() const
 
 // class AfterIdleCmd
 
-AfterCommand::AfterIdleCmd::AfterIdleCmd(const string& command, float time)
+AfterCommand::AfterIdleCmd::AfterIdleCmd(const string& command, double time)
 	: AfterTimedCmd(command, time)
 {
 }

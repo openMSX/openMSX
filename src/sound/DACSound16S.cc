@@ -7,7 +7,7 @@
 
 namespace openmsx {
 
-const float DELAY = 0.08;	// TODO tune
+const double DELAY = 0.08;	// TODO tune
 
 DACSound16S::DACSound16S(const string& name_, const string& desc_,
                          const XMLElement& config, const EmuTime& time)
@@ -92,7 +92,7 @@ int* DACSound16S::updateBuffer(int length)
 	assert(lastTime <= now);
 	EmuDuration total = now - lastTime;
 
-	float realDuration = length * oneSampDur;
+	double realDuration = length * oneSampDur;
 	EmuDuration duration1 = realTime.getEmuDuration(realDuration);
 	if ((lastTime + duration1) > now) {
 		duration1 = total;

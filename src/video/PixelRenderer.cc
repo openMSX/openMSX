@@ -194,7 +194,7 @@ void PixelRenderer::frameEnd(const EmuTime& time)
 		rasterizer->frameEnd();
 		unsigned long long time2 = Timer::getTime();
 		unsigned long long current = time2 - time1;
-		const float ALPHA = 0.2;
+		const double ALPHA = 0.2;
 		finishFrameDuration = finishFrameDuration * (1 - ALPHA) +
 		                      current * ALPHA;
 	
@@ -579,7 +579,7 @@ void PixelRenderer::update(const SettingLeafNode* setting)
 	}
 }
 
-float PixelRenderer::getFrameRate() const
+double PixelRenderer::getFrameRate() const
 {
 	return 1000000.0 * NUM_FRAME_DURATIONS / frameDurationSum;
 }

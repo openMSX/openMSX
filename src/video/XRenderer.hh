@@ -61,7 +61,7 @@ public:
 	void updateSpritesEnabled(bool enabled, const EmuTime& time);
 	void updateVRAM(int offset, const EmuTime& time);
 	void updateWindow(bool enabled, const EmuTime& time);
-	virtual float getFrameRate() const;
+	virtual double getFrameRate() const;
 
 private:
 	friend class XRendererFactory;

@@ -12,8 +12,8 @@ namespace openmsx {
 
 FloatSetting::FloatSetting(
 	const string& name, const string& description,
-	float initialValue, float minValue, float maxValue)
-	: Setting<float>(name, description, initialValue)
+	double initialValue, double minValue, double maxValue)
+	: Setting<double>(name, description, initialValue)
 {
 	setRange(minValue, maxValue);
 	initSetting(SAVE_SETTING);
@@ -24,7 +24,7 @@ FloatSetting::~FloatSetting()
 	exitSetting();
 }
 
-void FloatSetting::setRange(float minValue, float maxValue)
+void FloatSetting::setRange(double minValue, double maxValue)
 {
 	this->minValue = minValue;
 	this->maxValue = maxValue;
@@ -59,8 +59,8 @@ string FloatSetting::getValueString() const
 
 void FloatSetting::setValueString(const string& valueString)
 {
-	float newValue;
-	int converted = sscanf(valueString.c_str(), "%f", &newValue);
+	double newValue;
+	int converted = sscanf(valueString.c_str(), "%lf", &newValue);
 	if (converted != 1) {
 		throw CommandException(
 			"set: " + valueString + ": not a valid float");
@@ -68,17 +68,17 @@ void FloatSetting::setValueString(const string& valueString)
 	setValue(newValue);
 }
 
-void FloatSetting::setValue(const float& newValue)
+void FloatSetting::setValue(const double& newValue)
 {
 	// TODO: Almost identical copy of IntegerSetting::setValue.
 	//       A definate sign Ranged/OrdinalSetting is a good idea.
-	float nv = newValue;
+	double nv = newValue;
 	if (nv < minValue) {
 		nv = minValue;
 	} else if (nv > maxValue) {
 		nv = maxValue;
 	}
-	Setting<float>::setValue(nv);
+	Setting<double>::setValue(nv);
 }
 
 } // namespace openmsx

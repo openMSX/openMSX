@@ -20,11 +20,11 @@ public:
 
 	/** Convert EmuTime to RealTime.
 	  */
-	float getRealDuration(const EmuTime& time1, const EmuTime& time2);
+	double getRealDuration(const EmuTime& time1, const EmuTime& time2);
 	
 	/** Convert RealTime to EmuTime.
 	  */
-	EmuDuration getEmuDuration(float realDur);
+	EmuDuration getEmuDuration(double realDur);
 
 	/** Check that there is enough real time left before we reach as certain
 	  * point in emulated time.
@@ -63,7 +63,7 @@ private:
 
 	unsigned long long idealRealTime;
 	EmuTime emuTime;
-	float sleepAdjust;
+	double sleepAdjust;
 };
 
 } // namespace openmsx

@@ -128,7 +128,7 @@ void EventDistributor::sync(const EmuTime& emuTime)
 	unsigned long long realDuration = curRealTime - prevReal;
 	EmuDuration emuDuration = emuTime - prevEmu;
 
-	float factor = emuDuration.toFloat() / realDuration;
+	double factor = emuDuration.toDouble() / realDuration;
 	EmuDuration extraDelay = realTime.getEmuDuration(delaySetting.getValue());
 	EmuTime time = prevEmu + extraDelay;
 	for (vector<EventTime>::const_iterator it = toBeScheduledEvents.begin();

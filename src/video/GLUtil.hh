@@ -46,7 +46,7 @@ public:
 	bool isStored() { return stored; }
 	void store();
 	void draw(int offsetX, int offsetY);
-	void drawBlend(int offsetX, int offsetY, float alpha);
+	void drawBlend(int offsetX, int offsetY, double alpha);
 
 private:
 	

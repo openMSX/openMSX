@@ -11,27 +11,27 @@ namespace openmsx {
 /** A Setting with a floating point value.
   */
 NON_INHERITABLE_PRE(FloatSetting)
-class FloatSetting: public Setting<float>, NON_INHERITABLE(FloatSetting)
+class FloatSetting: public Setting<double>, NON_INHERITABLE(FloatSetting)
 {
 public:
 	FloatSetting(const string& name, const string& description,
-	             float initialValue, float minValue, float maxValue);
+	             double initialValue, double minValue, double maxValue);
 	virtual ~FloatSetting();
 
 	/** Change the allowed range.
 	  * @param minValue New minimal value (inclusive).
 	  * @param maxValue New maximal value (inclusive).
 	  */
-	void setRange(float minValue, float maxValue);
+	void setRange(double minValue, double maxValue);
 
 	// Implementation of Setting interface:
 	virtual string getValueString() const;
 	virtual void setValueString(const string& valueString);
-	virtual void setValue(const float& newValue);
+	virtual void setValue(const double& newValue);
 
 protected:
-	float minValue;
-	float maxValue;
+	double minValue;
+	double maxValue;
 };
 
 } // namespace openmsx

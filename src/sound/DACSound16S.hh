@@ -44,7 +44,7 @@ private:
 	};
 	list<Sample> samples;
 
-	float oneSampDur;
+	double oneSampDur;
 	int lastValue;
 	short lastWrittenValue;
 	EmuTime lastTime;

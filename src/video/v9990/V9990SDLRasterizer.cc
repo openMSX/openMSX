@@ -309,9 +309,9 @@ void V9990SDLRasterizer<Pixel, zoom>::precalcPalettes(void)
 			for(int b = 0; b < 32; b++) 
 				palette32768[(r<<10) + (g<<5) + b] =
 					SDL_MapRGB(screen->format,
-					           (int)(((float) r/31.0) * 255),
-							   (int)(((float) g/31.0) * 255),
-							   (int)(((float) b/31.0) * 255));
+					           (int)(((double) r/31.0) * 255),
+							   (int)(((double) g/31.0) * 255),
+							   (int)(((double) b/31.0) * 255));
 	}
 	
 	// the 256 color palette

@@ -205,7 +205,7 @@ void Mixer::updateStream(const EmuTime& time)
 	if (!init) return;
 
 	if (prevTime < time) {
-		float duration = realTime.getRealDuration(prevTime, time);
+		double duration = realTime.getRealDuration(prevTime, time);
 		//PRT_DEBUG("Mix: update, duration " << duration << "s");
 		assert(duration >= 0);
 		prevTime = time;

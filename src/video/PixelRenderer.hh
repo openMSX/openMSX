@@ -58,7 +58,7 @@ public:
 	virtual void updateSpritesEnabled(bool enabled, const EmuTime &time);
 	virtual void updateVRAM(unsigned offset, const EmuTime &time);
 	virtual void updateWindow(bool enabled, const EmuTime &time);
-	virtual float getFrameRate() const;
+	virtual double getFrameRate() const;
 
 private:
 	/** Indicates whether the area to be drawn is border or display. */
@@ -135,7 +135,7 @@ private:
 	int nextY;
 
 	int frameSkipCounter;
-	float finishFrameDuration;
+	double finishFrameDuration;
 	
 	static const unsigned NUM_FRAME_DURATIONS = 50;
 	CircularBuffer<unsigned long long, NUM_FRAME_DURATIONS> frameDurations;

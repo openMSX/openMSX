@@ -290,7 +290,7 @@ void MSXCPU::TimeInfoTopic::execute(const vector<CommandArgument>& /*tokens*/,
                                     CommandArgument& result) const
 {
 	EmuDuration dur = parent.getCurrentTimeUnsafe() - parent.reference;
-	result.setDouble(dur.toFloat());
+	result.setDouble(dur.toDouble());
 }
 
 string MSXCPU::TimeInfoTopic::help(const vector<string>& /*tokens*/) const

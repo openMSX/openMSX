@@ -215,11 +215,11 @@ int SDLConsole::zoomSurface(SDL_Surface* src, SDL_Surface* dst, bool smooth)
 	if (smooth) {
 		// For interpolation: assume source dimension is one pixel
 		// smaller to avoid overflow on right and bottom edge.
-		sx = (int) (65536.0 * (float) (src->w - 1) / (float) dst->w);
-		sy = (int) (65536.0 * (float) (src->h - 1) / (float) dst->h);
+		sx = (int) (65536.0 * (double)(src->w - 1) / (double)dst->w);
+		sy = (int) (65536.0 * (double)(src->h - 1) / (double)dst->h);
 	} else {
-		sx = (int) (65536.0 * (float) src->w / (float) dst->w);
-		sy = (int) (65536.0 * (float) src->h / (float) dst->h);
+		sx = (int) (65536.0 * (double)src->w / (double)dst->w);
+		sy = (int) (65536.0 * (double)src->h / (double)dst->h);
 	}
 
 	// Allocate memory for row increments

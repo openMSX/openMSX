@@ -59,7 +59,7 @@ inline static void GLSetColour(GLRasterizer::Pixel colour)
 }
 
 inline static void GLSetTexEnvCol(GLRasterizer::Pixel colour) {
-	float colourVec[4] = {
+	GLfloat colourVec[4] = {
 		(colour & 0xFF) / 255.0f,
 		((colour >> 8) & 0xFF) / 255.0f,
 		((colour >> 16) & 0xFF) / 255.0f,
@@ -351,7 +351,7 @@ void GLRasterizer::frameStart()
 	// PAL:  display at [59..271).
 	lineRenderTop = vdp->isPalTiming() ? 59 - 14 : 32 - 14;
 
-	float gamma = RenderSettings::instance().getGamma()->getValue();
+	double gamma = RenderSettings::instance().getGamma()->getValue();
 	// (gamma != prevGamma) gives compiler warnings
 	if ((gamma > prevGamma) || (gamma < prevGamma)) {
 		precalcPalette(gamma);
@@ -441,7 +441,7 @@ void GLRasterizer::setTransparency(bool enabled)
 	precalcColourIndex0(vdp->getDisplayMode(), enabled);
 }
 
-void GLRasterizer::precalcPalette(float gamma)
+void GLRasterizer::precalcPalette(double gamma)
 {
 	prevGamma = gamma;
 
@@ -453,9 +453,9 @@ void GLRasterizer::precalcPalette(float gamma)
 		for (int i = 0; i < 16; i++) {
 			const byte *rgb = Renderer::TMS99X8A_PALETTE[i];
 			palFg[i] = palBg[i] = GLMapRGB(
-				(int)(::pow((float)rgb[0] / 255.0, gamma) * 255),
-				(int)(::pow((float)rgb[1] / 255.0, gamma) * 255),
-				(int)(::pow((float)rgb[2] / 255.0, gamma) * 255)
+				(int)(::pow((double)rgb[0] / 255.0, gamma) * 255),
+				(int)(::pow((double)rgb[1] / 255.0, gamma) * 255),
+				(int)(::pow((double)rgb[2] / 255.0, gamma) * 255)
 				);
 		}
 	} else {
@@ -464,9 +464,9 @@ void GLRasterizer::precalcPalette(float gamma)
 			for (int g = 0; g < 8; g++) {
 				for (int b = 0; b < 8; b++) {
 					V9938_COLOURS[r][g][b] = GLMapRGB(
-						(int)(::pow((float)r / 7.0, gamma) * 255),
-						(int)(::pow((float)g / 7.0, gamma) * 255),
-						(int)(::pow((float)b / 7.0, gamma) * 255)
+						(int)(::pow((double)r / 7.0, gamma) * 255),
+						(int)(::pow((double)g / 7.0, gamma) * 255),
+						(int)(::pow((double)b / 7.0, gamma) * 255)
 						);
 				}
 			}
@@ -476,9 +476,9 @@ void GLRasterizer::precalcPalette(float gamma)
 			for (int g = 0; g < 32; g++) {
 				for (int b = 0; b < 32; b++) {
 					V9958_COLOURS[(r<<10) + (g<<5) + b] = GLMapRGB(
-						(int)(::pow((float)r / 31.0, gamma) * 255),
-						(int)(::pow((float)g / 31.0, gamma) * 255),
-						(int)(::pow((float)b / 31.0, gamma) * 255)
+						(int)(::pow((double)r / 31.0, gamma) * 255),
+						(int)(::pow((double)g / 31.0, gamma) * 255),
+						(int)(::pow((double)b / 31.0, gamma) * 255)
 						);
 				}
 			}
@@ -546,7 +546,7 @@ void GLRasterizer::paint()
 	// Blur effect.
 	if (horizontalBlur || scanlines) {
 		// Settings for blur rendering.
-		float blurFactor = blurSetting / 200.0;
+		double blurFactor = blurSetting / 200.0;
 		if (!scanlines) blurFactor *= 0.5;
 		if (horizontalBlur) {
 			// Draw stored frame with 1-pixel offsets to create a

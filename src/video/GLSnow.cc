@@ -38,8 +38,8 @@ GLSnow::~GLSnow()
 void GLSnow::paint()
 {
 	// Draw noise texture.
-	float x = (float)rand() / RAND_MAX;
-	float y = (float)rand() / RAND_MAX;
+	double x = (double)rand() / RAND_MAX;
+	double y = (double)rand() / RAND_MAX;
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, noiseTextureId);
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);

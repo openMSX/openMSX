@@ -103,7 +103,7 @@ private:
 	  * For higher VDPs, results go into V9938_COLOURS and V9958_COLOURS.
 	  * @param gamma Gamma correction factor.
 	  */
-	void precalcPalette(float gamma);
+	void precalcPalette(double gamma);
 
 	/** Precalc foreground colour index 0 (palFg[0]).
 	  * @param mode Current display mode.
@@ -186,7 +186,7 @@ private:
 
 	/** Previous value of gamma setting.
 	  */
-	float prevGamma;
+	double prevGamma;
 
 	/** Display mode the line is valid in.
 	  * 0xFF means invalid in every mode.

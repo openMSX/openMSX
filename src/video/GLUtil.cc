@@ -48,8 +48,8 @@ void LineTexture::update(const GLuint* data, int lineWidth) {
 void LineTexture::draw(
 	int texX, int screenX, int screenY, int width, int height
 ) {
-	float texL = texX / 512.0f;
-	float texR = (texX + width) / 512.0f;
+	double texL = texX / 512.0f;
+	double texR = (texX + width) / 512.0f;
 	int screenL = screenX;
 	int screenR = screenL + width;
 	bind();
@@ -98,7 +98,7 @@ void StoredFrame::draw(int offsetX, int offsetY) {
 	glDisable(GL_TEXTURE_2D);
 }
 
-void StoredFrame::drawBlend(int offsetX, int offsetY, float alpha) {
+void StoredFrame::drawBlend(int offsetX, int offsetY, double alpha) {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	// RGB come from texture, alpha comes from fragment colour.

@@ -144,7 +144,7 @@ void CassettePort::flushOutput(const EmuTime& time)
 		prevTime = time;
 		return;
 	}
-	int samples = (int)((time - prevTime).toFloat() * sampleRate);
+	int samples = (int)((time - prevTime).toDouble() * sampleRate);
 	prevTime = time;
 	//PRT_DEBUG("Cas: generate " << samples << " samples");
 

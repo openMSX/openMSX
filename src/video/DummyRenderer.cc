@@ -82,7 +82,7 @@ void DummyRenderer::updateVRAM(unsigned /*offset*/, const EmuTime& /*time*/) {
 void DummyRenderer::updateWindow(bool /*enabled*/, const EmuTime& /*time*/) {
 }
 
-float DummyRenderer::getFrameRate() const
+double DummyRenderer::getFrameRate() const
 {
 	return 0.0;
 }

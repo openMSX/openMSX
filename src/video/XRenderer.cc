@@ -191,7 +191,7 @@ void XRenderer::updateVRAM(int offset, const EmuTime &time) {
 void XRenderer::updateWindow(bool enabled, const EmuTime &time) {
 }
 
-float XRenderer::getFrameRate() const
+double XRenderer::getFrameRate() const
 {
 	return 0.0;
 }

@@ -28,7 +28,7 @@ public:
 		: time((uint64)(duration * MAIN_FREQ)) {}
 
 	// conversions
-	float toFloat() const { return (float)time / MAIN_FREQ; }
+	double toDouble() const { return (double)time / MAIN_FREQ; }
 	uint64 length() const { return time; }
 	unsigned frequency() const { return MAIN_FREQ / time; }
 
@@ -57,6 +57,11 @@ public:
 		{ return EmuDuration(time * fact); }
 	unsigned operator/(const EmuDuration& d) const
 		{ return time / d.time; }
+	
+	EmuDuration& operator*=(double fact)
+		{ time = static_cast<uint64>(time * fact); return *this; }
+	EmuDuration& operator/=(double fact)
+		{ time = static_cast<uint64>(time / fact); return *this; }
 
 	// ticks
 	// TODO: Used in WavAudioInput. Keep or use DynamicClock instead?

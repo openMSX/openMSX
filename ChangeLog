@@ -3,6 +3,14 @@ $Id$
 2004-11-03 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Moved speed and throttle setting to GlobalSettings:
 	   as cleanup and as preparation for Mixer changes
+	* Changed float to double everywhere:
+	   On modern CPUs doubles and float are equally fast. However mixing
+	   floats and doubles in the same expression is slower because of the
+	   extra conversions. In some places we need the extra precision, so
+	   using double everywhere is the easiest (and faster).
+	   If you have large datasets floats can be faster than doubles. Not
+	   because of faster calculation, but because of less memory transfers
+	   (float 4 bytes / double 8 bytes). For openMSX this doesn't matter.
 
 2004-11-02 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Removed Disk and Tape BIOS patches

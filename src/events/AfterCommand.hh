@@ -52,26 +52,26 @@ private:
 	class AfterTimedCmd : public AfterCmd, private Schedulable {
 	public:
 		virtual ~AfterTimedCmd();
-		float getTime() const;
+		double getTime() const;
 		void reschedule();
 	protected:
-		AfterTimedCmd(const string& command, float time);
+		AfterTimedCmd(const string& command, double time);
 	private:
 		virtual void executeUntil(const EmuTime& time, int userData);
 		virtual const string& schedName() const;
 		
-		float time;
+		double time;
 	};
 
 	class AfterTimeCmd : public AfterTimedCmd {
 	public:
-		AfterTimeCmd(const string& command, float time);
+		AfterTimeCmd(const string& command, double time);
 		virtual const string& getType() const;
 	};
 	
 	class AfterIdleCmd : public AfterTimedCmd {
 	public:
-		AfterIdleCmd(const string& command, float time);
+		AfterIdleCmd(const string& command, double time);
 		virtual const string& getType() const;
 	};
 	

@@ -366,7 +366,7 @@ void SDLRasterizer<Pixel, zoom>::frameStart()
 	// PAL:  display at [59..271).
 	lineRenderTop = vdp->isPalTiming() ? 59 - 14 : 32 - 14;
 
-	float gamma = RenderSettings::instance().getGamma()->getValue();
+	double gamma = RenderSettings::instance().getGamma()->getValue();
 	// (gamma != prevGamma) gives compiler warnings
 	if ((gamma > prevGamma) || (gamma < prevGamma)) {
 		precalcPalette(gamma);
@@ -438,7 +438,7 @@ void SDLRasterizer<Pixel, zoom>::setTransparency(bool enabled)
 }
 
 template <class Pixel, Renderer::Zoom zoom>
-void SDLRasterizer<Pixel, zoom>::precalcPalette(float gamma)
+void SDLRasterizer<Pixel, zoom>::precalcPalette(double gamma)
 {
 	prevGamma = gamma;
 
@@ -451,9 +451,9 @@ void SDLRasterizer<Pixel, zoom>::precalcPalette(float gamma)
 			const byte* rgb = Renderer::TMS99X8A_PALETTE[i];
 			palFg[i] = palBg[i] = SDL_MapRGB(
 				screen->format,
-				(int)(::pow((float)rgb[0] / 255.0, gamma) * 255),
-				(int)(::pow((float)rgb[1] / 255.0, gamma) * 255),
-				(int)(::pow((float)rgb[2] / 255.0, gamma) * 255)
+				(int)(::pow((double)rgb[0] / 255.0, gamma) * 255),
+				(int)(::pow((double)rgb[1] / 255.0, gamma) * 255),
+				(int)(::pow((double)rgb[2] / 255.0, gamma) * 255)
 				);
 		}
 	} else {
@@ -463,9 +463,9 @@ void SDLRasterizer<Pixel, zoom>::precalcPalette(float gamma)
 				for (int b = 0; b < 8; b++) {
 					V9938_COLOURS[r][g][b] = SDL_MapRGB(
 						screen->format,
-						(int)(::pow((float)r / 7.0, gamma) * 255),
-						(int)(::pow((float)g / 7.0, gamma) * 255),
-						(int)(::pow((float)b / 7.0, gamma) * 255)
+						(int)(::pow((double)r / 7.0, gamma) * 255),
+						(int)(::pow((double)g / 7.0, gamma) * 255),
+						(int)(::pow((double)b / 7.0, gamma) * 255)
 						);
 				}
 			}
@@ -476,9 +476,9 @@ void SDLRasterizer<Pixel, zoom>::precalcPalette(float gamma)
 				for (int b = 0; b < 32; b++) {
 					V9958_COLOURS[(r<<10) + (g<<5) + b] = SDL_MapRGB(
 						screen->format,
-						(int)(::pow((float)r / 31.0, gamma) * 255),
-						(int)(::pow((float)g / 31.0, gamma) * 255),
-						(int)(::pow((float)b / 31.0, gamma) * 255)
+						(int)(::pow((double)r / 31.0, gamma) * 255),
+						(int)(::pow((double)g / 31.0, gamma) * 255),
+						(int)(::pow((double)b / 31.0, gamma) * 255)
 						);
 				}
 			}

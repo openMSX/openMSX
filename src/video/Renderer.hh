@@ -197,7 +197,7 @@ public:
 
 	/** Returns an (estimation) for the current frames per seconds.
 	  */
-	virtual float getFrameRate() const = 0;
+	virtual double getFrameRate() const = 0;
 
 	/** NTSC version of the MSX1 palette.
 	  * An array of 16 RGB triples.

@@ -12,7 +12,7 @@
 
 namespace openmsx {
 
-const float              SYNC_INTERVAL = 0.08;  // s
+const double             SYNC_INTERVAL = 0.08;  // s
 const long long          MAX_LAG       = 200000; // us
 const unsigned long long ALLOWED_LAG   =  20000; // us
 
@@ -49,12 +49,12 @@ RealTime& RealTime::instance()
 	return oneInstance;
 }
 
-float RealTime::getRealDuration(const EmuTime& time1, const EmuTime& time2)
+double RealTime::getRealDuration(const EmuTime& time1, const EmuTime& time2)
 {
-	return (time2 - time1).toFloat() * 100.0 / speedSetting.getValue();
+	return (time2 - time1).toDouble() * 100.0 / speedSetting.getValue();
 }
 
-EmuDuration RealTime::getEmuDuration(float realDur)
+EmuDuration RealTime::getEmuDuration(double realDur)
 {
 	return EmuDuration(realDur * speedSetting.getValue() / 100.0);
 }
@@ -98,7 +98,7 @@ void RealTime::internalSync(const EmuTime& time, bool allowSleep)
 				PRT_DEBUG("RT: Realy slept for " << slept << "us");
 				delta = sleep - slept;
 			}
-			const float ALPHA = 0.2;
+			const double ALPHA = 0.2;
 			sleepAdjust = sleepAdjust * (1 - ALPHA) + delta * ALPHA;
 			PRT_DEBUG("RT: SleepAdjust: " << sleepAdjust);
 		}
