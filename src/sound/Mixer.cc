@@ -57,10 +57,10 @@ Mixer::Mixer()
 	XMLElement& freqElem = config.getCreateChild("frequency", "44100");
 	XMLElement& samplesElem = config.getCreateChild("samples", "1024");
 	frequencySetting.reset(new IntegerSetting(freqElem,
-		"mixer frequency (takes effect next time openMSX is started",
+		"mixer frequency (takes effect next time openMSX is started)",
 		11025, 44100)); // TODO stricter value checks
 	samplesSetting.reset(new IntegerSetting(samplesElem,
-		"mixer samples (takes effect next time openMSX is started",
+		"mixer samples (takes effect next time openMSX is started)",
 		256, 4096)); // TODO stricter value checks
 
 	SDL_AudioSpec desired;
