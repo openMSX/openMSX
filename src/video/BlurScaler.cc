@@ -29,6 +29,17 @@ inline unsigned Multiply<unsigned>::convert(unsigned p)
 	return p >> 8;
 }
 
+// gcc can optimize these rotate functions to just one instruction.
+// We don't really need a rotate, but we do need a shift over a positive or
+// negative (not known at compile time) distance, rotate handles this just fine.
+static inline unsigned rotLeft(unsigned a, unsigned n)
+{
+	return (a << n) | (a >> (32 - n));
+}
+static inline unsigned rotRight(unsigned a, unsigned n)
+{
+	return (a >> n) | (a << (32 - n));
+}
 
 Multiply<word>::Multiply(SDL_PixelFormat* format)
 {
@@ -36,9 +47,9 @@ Multiply<word>::Multiply(SDL_PixelFormat* format)
 	Gmask1 = format->Gmask;
 	Bmask1 = format->Bmask;
 
-	Rshift1 =  0 - format->Rshift + format->Rloss;
-	Gshift1 =  8 - format->Gshift + format->Gloss;
-	Bshift1 = 16 - format->Bshift + format->Bloss;
+	Rshift1 =  0 + format->Rloss - format->Rshift;
+	Gshift1 =  8 + format->Gloss - format->Gshift;
+	Bshift1 = 16 + format->Bloss - format->Bshift;
 
 	Rmask2 = ((1 << format->Rloss) - 1) <<
 	                (8 + format->Rshift - 2 * format->Rloss);
@@ -47,9 +58,9 @@ Multiply<word>::Multiply(SDL_PixelFormat* format)
 	Bmask2 = ((1 << format->Bloss) - 1) <<
 	                (8 + format->Bshift - 2 * format->Bloss);
 
-	Rshift2 =   8 - 2 * format->Rloss + format->Rshift -  0;  // right
-	Gshift2 =   8 - 2 * format->Gloss + format->Gshift -  8;  // right
-	Bshift2 = -(8 - 2 * format->Bloss + format->Bshift - 16); // left
+	Rshift2 =  0 + 2 * format->Rloss - format->Rshift - 8;
+	Gshift2 =  8 + 2 * format->Gloss - format->Gshift - 8;
+	Bshift2 = 16 + 2 * format->Bloss - format->Bshift - 8;
 	
 	Rshift3 = Rshift1 + 8;
 	Gshift3 = Gshift1 + 8;
@@ -57,17 +68,20 @@ Multiply<word>::Multiply(SDL_PixelFormat* format)
 }
 inline unsigned Multiply<word>::multiply(word p, unsigned factor)
 {
-	unsigned r = (p & Rmask1) << Rshift1 | (p & Rmask2) >> Rshift2;
-	unsigned g = (p & Gmask1) << Gshift1 | (p & Gmask2) >> Gshift2;
-	unsigned b = (p & Bmask1) << Bshift1 | (p & Bmask2) << Bshift2;
+	unsigned r = rotLeft((p & Rmask1), Rshift1) |
+	             rotLeft((p & Rmask2), Rshift2);
+	unsigned g = rotLeft((p & Gmask1), Gshift1) |
+	             rotLeft((p & Gmask2), Gshift2);
+	unsigned b = rotLeft((p & Bmask1), Bshift1) |
+	             rotLeft((p & Bmask2), Bshift2);
 	return (((r | b) * factor) & 0xFF00FF00) |
 	       (( g      * factor) & 0x00FF0000); 
 }
 inline word Multiply<word>::convert(unsigned p)
 {
-	return ((p >> Rshift3) & Rmask1) |
-	       ((p >> Gshift3) & Gmask1) |
-	       ((p >> Bshift3) & Bmask1);
+	return (rotRight(p, Rshift3) & Rmask1) |
+	       (rotRight(p, Gshift3) & Gmask1) |
+	       (rotRight(p, Bshift3) & Bmask1);
 }
 
 template <class Pixel>

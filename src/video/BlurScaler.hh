@@ -20,8 +20,8 @@ public:
 	inline unsigned multiply(word p, unsigned factor);
 	inline word convert(unsigned p);
 private:
-	word     Rmask1, Gmask1, Bmask1; 
-	word     Rmask2, Gmask2, Bmask2; 
+	word     Rmask1,  Gmask1,  Bmask1; 
+	word     Rmask2,  Gmask2,  Bmask2; 
 	unsigned Rshift1, Gshift1, Bshift1;
 	unsigned Rshift2, Gshift2, Bshift2;
 	unsigned Rshift3, Gshift3, Bshift3;
