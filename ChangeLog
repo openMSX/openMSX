@@ -1,5 +1,8 @@
 $Id$
 
+2003-12-03 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* made VDP status registers debuggable
+
 2003-12-02 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented IO device multiplexing:
 	   - several IO devices can now share the same IO port. When CPU

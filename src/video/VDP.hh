@@ -48,7 +48,7 @@ class SpriteChecker;
   * A note about timing: the start of a frame or line is defined as
   * the starting time of the corresponding sync (vsync, hsync).
   */
-class VDP : public MSXIODevice, private Schedulable, private Debuggable
+class VDP : public MSXIODevice, private Schedulable
 {
 public:
 	/** VDP version: the VDP model being emulated.
@@ -404,11 +404,27 @@ public:
 	}
 
 private:
-	// Debuggable
-	virtual unsigned getSize() const;
-	virtual const string& getDescription() const;
-	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value);
+	class VDPRegDebug : public Debuggable {
+	public:
+		VDPRegDebug(VDP& parent);
+		virtual unsigned getSize() const;
+		virtual const string& getDescription() const;
+		virtual byte read(unsigned address);
+		virtual void write(unsigned address, byte value);
+	private:
+		VDP& parent;
+	} vdpRegDebug;
+
+	class VDPStatusRegDebug : public Debuggable {
+	public:
+		VDPStatusRegDebug(VDP& parent);
+		virtual unsigned getSize() const;
+		virtual const string& getDescription() const;
+		virtual byte read(unsigned address);
+		virtual void write(unsigned address, byte value);
+	private:
+		VDP& parent;
+	} vdpStatusRegDebug;
 	
 	class VDPRegsCmd : public Command {
 	public:
@@ -538,6 +554,11 @@ private:
 	/** Byte is read from VRAM by the CPU.
 	  */
 	byte vramRead(const EmuTime &time);
+
+	/** Read the contents of a status register
+	  */ 
+	byte peekStatusReg(byte reg, const EmuTime& time) const;
+	byte readStatusReg(byte reg, const EmuTime& time);
 
 	/** VDP control register has changed, work out the consequences.
 	  */

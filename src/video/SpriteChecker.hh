@@ -87,13 +87,14 @@ public:
 	  *   sprite to exceed the limit per line.
 	  * Reading the status resets some of the bits.
 	  */
-	inline byte readStatus(const EmuTime &time) {
+	inline byte readStatus(const EmuTime& time) {
 		sync(time);
-		byte ret = status;
+		return status;
+	}
+	inline void resetStatus() {
 		// TODO: Used to be 0x5F, but that is contradicted by
 		//       TMS9918.pdf. Check on real MSX.
 		status &= 0x1F;
-		return ret;
 	}
 
 	/** Informs the sprite checker of a VDP display mode change.

@@ -45,6 +45,8 @@ namespace openmsx {
 
 VDP::VDP(Device* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
+	, vdpRegDebug(*this)
+	, vdpStatusRegDebug(*this)
 	, vdpRegsCmd(this)
 	, paletteCmd(this)
 {
@@ -115,7 +117,8 @@ VDP::VDP(Device* config, const EmuTime& time)
 	CommandController::instance().registerCommand(&vdpRegsCmd, "vdpregs");
 	CommandController::instance().registerCommand(&paletteCmd, "palette");
 
-	Debugger::instance().registerDebuggable("vdp-regs", *this);
+	Debugger::instance().registerDebuggable("vdp-regs", vdpRegDebug);
+	Debugger::instance().registerDebuggable("vdp-status-regs", vdpStatusRegDebug);
 
 	// Initialise time stamps.
 	// This will be done again by frameStart, but these have to be
@@ -136,7 +139,8 @@ VDP::VDP(Device* config, const EmuTime& time)
 
 VDP::~VDP()
 {
-	Debugger::instance().unregisterDebuggable("vdp-regs", *this);
+	Debugger::instance().unregisterDebuggable("vdp-status-regs", vdpStatusRegDebug);
+	Debugger::instance().unregisterDebuggable("vdp-regs", vdpRegDebug);
 
 	CommandController::instance().unregisterCommand(&vdpRegsCmd,  "vdpregs");
 	CommandController::instance().unregisterCommand(&paletteCmd,  "palette");
@@ -592,6 +596,82 @@ byte VDP::vramRead(const EmuTime &time)
 	return cpuExtendedVram ? 0xFF : ret;
 }
 
+byte VDP::peekStatusReg(byte reg, const EmuTime& time) const
+{
+	switch (reg) {
+	case 0:
+		return statusReg0 | spriteChecker->readStatus(time);
+	case 1:
+		if (controlRegs[0] & 0x10) { // line int enabled
+			return statusReg1 | irqHorizontal.getState();
+		} else { // line int disabled
+			// FH goes up at the start of the right border of IL and
+			// goes down at the start of the next left border.
+			// TODO: Precalc matchLength?
+			int afterMatch =
+			       getTicksThisFrame(time) - horizontalScanOffset;
+			int matchLength = (displayMode.isTextMode() ? 87 : 59)
+			                  + 27 + 100 + 102;
+			return statusReg1 |
+			       (0 <= afterMatch && afterMatch < matchLength);
+		}
+	case 2: {
+		// TODO: Once VDP keeps display/blanking state, keeping
+		//       VR is probably part of that, so use it.
+		//       --> Is isDisplayArea actually !VR?
+		int ticksThisFrame = getTicksThisFrame(time);
+		int displayEnd =
+			displayStart + getNumberOfLines() * TICKS_PER_LINE;
+		bool vr = ticksThisFrame < displayStart - TICKS_PER_LINE
+		       || ticksThisFrame >= displayEnd;
+		return statusReg2
+			| (getHR(ticksThisFrame) ? 0x20 : 0x00)
+			| (vr ? 0x40 : 0x00)
+			| cmdEngine->getStatus(time);
+	}
+	case 3:
+		return (byte)spriteChecker->getCollisionX(time);
+	case 4:
+		return (byte)(spriteChecker->getCollisionX(time) >> 8) | 0xFE;
+	case 5:
+		return (byte)spriteChecker->getCollisionY(time);
+	case 6:
+		return (byte)(spriteChecker->getCollisionY(time) >> 8) | 0xFC;
+	case 7:
+		return cmdEngine->readColour(time);
+	case 8:
+		return (byte)cmdEngine->getBorderX(time);
+	case 9:
+		return (byte)(cmdEngine->getBorderX(time) >> 8) | 0xFE;
+	default: // non-existent status register
+		return 0xFF;
+	}
+}
+
+byte VDP::readStatusReg(byte reg, const EmuTime& time)
+{
+	byte ret = peekStatusReg(reg, time);
+	switch (reg) {
+	case 0: 
+		spriteChecker->resetStatus();
+		statusReg0 = 0;
+		irqVertical.reset();
+		break;
+	case 1:
+		if (controlRegs[0] & 0x10) { // line int enabled
+			irqHorizontal.reset();
+		}
+		break;
+	case 5:
+		spriteChecker->resetCollision();
+		break;
+	case 7:
+		cmdEngine->resetColour();
+		break;
+	}
+	return ret;
+}
+
 byte VDP::readIO(byte port, const EmuTime &time)
 {
 	assert(isInsideFrame(time));
@@ -603,78 +683,8 @@ byte VDP::readIO(byte port, const EmuTime &time)
 		// Abort any port #1 writes in progress.
 		registerDataStored = false;
 
-		//cout << "read S#" << (int)controlRegs[15] << "\n";
-
 		// Calculate status register contents.
-		switch (controlRegs[15]) {
-		case 0: {
-			byte ret = statusReg0 | spriteChecker->readStatus(time);
-			statusReg0 = 0;
-			irqVertical.reset();
-			return ret;
-		}
-		case 1: {
-			/*
-			int ticksThisFrame = getTicksThisFrame(time);
-			cout << "S#1 read at (" << (ticksThisFrame % TICKS_PER_LINE)
-				<< "," << ((ticksThisFrame - displayStart) / TICKS_PER_LINE)
-				<< "), IRQ_H = " << (int)irqHorizontal.getState()
-				<< " IRQ_V = " << (int)irqVertical.getState()
-				<< ", frame = " << frameStartTime << "\n";
-			*/
-
-			if (controlRegs[0] & 0x10) { // line int enabled
-				byte ret = statusReg1 | irqHorizontal.getState();
-				irqHorizontal.reset();
-				return ret;
-			} else { // line int disabled
-				// FH goes up at the start of the right border of IL and
-				// goes down at the start of the next left border.
-				// TODO: Precalc matchLength?
-				int afterMatch =
-					getTicksThisFrame(time) - horizontalScanOffset;
-				int matchLength = displayMode.isTextMode()
-					? 87 + 27 + 100 + 102 : 59 + 27 + 100 + 102;
-				return statusReg1
-					| (0 <= afterMatch && afterMatch < matchLength);
-			}
-		}
-		case 2: {
-			int ticksThisFrame = getTicksThisFrame(time);
-
-			// TODO: Once VDP keeps display/blanking state, keeping
-			//       VR is probably part of that, so use it.
-			//       --> Is isDisplayArea actually !VR?
-			int displayEnd =
-				displayStart + getNumberOfLines() * TICKS_PER_LINE;
-			bool vr = ticksThisFrame < displayStart - TICKS_PER_LINE
-			       || ticksThisFrame >= displayEnd;
-
-			return statusReg2
-				| (getHR(ticksThisFrame) ? 0x20 : 0x00)
-				| (vr ? 0x40 : 0x00)
-				| cmdEngine->getStatus(time);
-		}
-		case 3:
-			return (byte)spriteChecker->getCollisionX(time);
-		case 4:
-			return (byte)(spriteChecker->getCollisionX(time) >> 8) | 0xFE;
-		case 5: {
-			byte ret = (byte)spriteChecker->getCollisionY(time);
-			spriteChecker->resetCollision();
-			return ret;
-		}
-		case 6:
-			return (byte)(spriteChecker->getCollisionY(time) >> 8) | 0xFC;
-		case 7:
-			return cmdEngine->readColour(time);
-		case 8:
-			return (byte)cmdEngine->getBorderX(time);
-		case 9:
-			return (byte)(cmdEngine->getBorderX(time) >> 8) | 0xFE;
-		default: // non-existent status register
-			return 0xFF;
-		}
+		return readStatusReg(controlRegs[15], time);
 	default:
 		// These ports should not be registered for reading.
 		assert(false);
@@ -1010,33 +1020,69 @@ void VDP::updateDisplayMode(DisplayMode newMode, const EmuTime &time)
 	//       It's one line of code and overhead is not huge either.
 }
 
-// Debuggable
-unsigned VDP::getSize() const
+// VDPRegDebug
+
+VDP::VDPRegDebug::VDPRegDebug(VDP& parent_)
+	: parent(parent_)
+{
+}
+
+unsigned VDP::VDPRegDebug::getSize() const
 {
 	return 0x40;
 }
 
-const string& VDP::getDescription() const
+const string& VDP::VDPRegDebug::getDescription() const
 {
 	static const string desc = "VDP registers.";
 	return desc;
 }
 
-byte VDP::read(unsigned address)
+byte VDP::VDPRegDebug::read(unsigned address)
 {
 	if (address < 0x20) {
-		return controlRegs[address];
+		return parent.controlRegs[address];
 	} else if (address < 0x2F) {
-		return cmdEngine->peekCmdReg(address - 0x20);
+		return parent.cmdEngine->peekCmdReg(address - 0x20);
 	} else {
-		return 0;
+		return 0xFF;
 	}
 }
 
-void VDP::write(unsigned address, byte value)
+void VDP::VDPRegDebug::write(unsigned address, byte value)
 {
 	const EmuTime& time = MSXCPU::instance().getCurrentTime();
-	changeRegister(address, value, time);
+	parent.changeRegister(address, value, time);
+}
+
+
+// VDPStatusRegDebug
+
+VDP::VDPStatusRegDebug::VDPStatusRegDebug(VDP& parent_)
+	: parent(parent_)
+{
+}
+
+unsigned VDP::VDPStatusRegDebug::getSize() const
+{
+	return 0x10;
+}
+
+const string& VDP::VDPStatusRegDebug::getDescription() const
+{
+	static const string desc = "VDP status registers.";
+	return desc;
+}
+
+byte VDP::VDPStatusRegDebug::read(unsigned address)
+{
+	const EmuTime& time = MSXCPU::instance().getCurrentTime();
+	return parent.peekStatusReg(address, time);
+}
+
+void VDP::VDPStatusRegDebug::write(unsigned address, byte value)
+{
+	// not possible
 }
 
 

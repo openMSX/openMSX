@@ -63,13 +63,15 @@ public:
 	  * @param time The moment in emulated time this read occurs.
 	  * @return Colour value of the pixel.
 	  */
-	inline byte readColour(const EmuTime &time) {
+	inline byte readColour(const EmuTime& time) {
 		sync(time);
+		return COL;
+	}
+	inline void resetColour() {
 		//status &= 0x7F; // dont reset TR
 		// Note: Real VDP does reset TR, but for such a short time
 		//       that the MSX won't notice it.
 		transfer = true;
-		return COL;
 	}
 
 	/** Gets the X coordinate of a border detected by SRCH.
