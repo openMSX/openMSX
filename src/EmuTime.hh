@@ -37,29 +37,29 @@ public:
 	unsigned frequency() const { return MAIN_FREQ / time; }
 
 	// assignment operator
-	EmuDuration &operator =(const EmuDuration &d)
+	EmuDuration& operator=(const EmuDuration& d)
 		{ time = d.time; return *this; }
 
 	// comparison operators
-	bool operator ==(const EmuDuration &d) const
+	bool operator==(const EmuDuration& d) const
 		{ return time == d.time; }
-	bool operator !=(const EmuDuration &d) const
+	bool operator!=(const EmuDuration& d) const
 		{ return time != d.time; }
-	bool operator < (const EmuDuration &d) const
+	bool operator< (const EmuDuration& d) const
 		{ return time <  d.time; }
-	bool operator <=(const EmuDuration &d) const
+	bool operator<=(const EmuDuration& d) const
 		{ return time <= d.time; }
-	bool operator > (const EmuDuration &d) const
+	bool operator> (const EmuDuration& d) const
 		{ return time >  d.time; }
-	bool operator >=(const EmuDuration &d) const
+	bool operator>=(const EmuDuration& d) const
 		{ return time >= d.time; }
 
 	// arithmetic operators
-	const EmuDuration operator %(const EmuDuration &d) const
+	const EmuDuration operator%(const EmuDuration& d) const
 		{ return EmuDuration(time % d.time); }
-	const EmuDuration operator *(unsigned fact) const
+	const EmuDuration operator*(unsigned fact) const
 		{ return EmuDuration(time * fact); }
-	unsigned operator /(const EmuDuration &d) const
+	unsigned operator/(const EmuDuration& d) const
 		{ return time / d.time; }
 	
 	// ticks
@@ -77,47 +77,48 @@ class EmuTime
 {
 public:
 	// friends
-	friend ostream &operator<<(ostream &os, const EmuTime &et);
+	friend ostream& operator<<(ostream& os, const EmuTime& time);
 	template<unsigned> friend class EmuTimeFreq;
+	friend class DynamicEmuTime;
 
 	// constructors
 	EmuTime()                  { time = 0; }
 	explicit EmuTime(uint64 n) { time = n; }
-	EmuTime(const EmuTime &e)  { time = e.time; }
+	EmuTime(const EmuTime& e)  { time = e.time; }
 
 	// destructor
 	virtual ~EmuTime();
 
 	// assignment operator
-	EmuTime &operator =(const EmuTime &e)
+	EmuTime &operator=(const EmuTime& e)
 		{ time = e.time; return *this; }
 
 	// comparison operators
-	bool operator ==(const EmuTime &e) const
+	bool operator==(const EmuTime& e) const
 		{ return time == e.time; }
-	bool operator !=(const EmuTime &e) const
+	bool operator!=(const EmuTime& e) const
 		{ return time != e.time; }
-	bool operator < (const EmuTime &e) const
+	bool operator< (const EmuTime& e) const
 		{ return time <  e.time; }
-	bool operator <=(const EmuTime &e) const
+	bool operator<=(const EmuTime& e) const
 		{ return time <= e.time; }
-	bool operator > (const EmuTime &e) const
+	bool operator> (const EmuTime& e) const
 		{ return time >  e.time; }
-	bool operator >=(const EmuTime &e) const
+	bool operator>=(const EmuTime& e) const
 		{ return time >= e.time; }
 
 	// arithmetic operators
-	const EmuTime operator +(const EmuDuration &d) const
+	const EmuTime operator+(const EmuDuration& d) const
 		{ return EmuTime(time + d.time); }
-	const EmuTime operator -(const EmuDuration &d) const
+	const EmuTime operator-(const EmuDuration& d) const
 		{ assert(time >= d.time);
 		  return EmuTime(time - d.time); }
-	EmuTime &operator +=(const EmuDuration &d)
+	EmuTime& operator+=(const EmuDuration& d)
 		{ time += d.time; return *this; }
-	EmuTime &operator -=(const EmuDuration &d)
+	EmuTime& operator-=(const EmuDuration& d)
 		{ assert(time >= d.time);
 		  time -= d.time; return *this; }
-	const EmuDuration operator -(const EmuTime &e) const
+	const EmuDuration operator-(const EmuTime& e) const
 		{ assert(time >= e.time);
 		  return EmuDuration(time - e.time); }
 	
@@ -138,37 +139,71 @@ class EmuTimeFreq : public EmuTime
 public:
 	// constructor
 	EmuTimeFreq() : EmuTime() { }
-	explicit EmuTimeFreq(const EmuTime &e) : EmuTime(e) { }
-
-	void operator()(uint64 n) { time  = n * (MAIN_FREQ / freq); }
+	explicit EmuTimeFreq(const EmuTime& e) : EmuTime(e) { }
 
 	// assignment operator
-	EmuTime &operator =(const EmuTime &e)
+	EmuTime &operator=(const EmuTime& e)
 		{ time = e.time; return *this; }
 
 	// arithmetic operators
-	EmuTime &operator +=(unsigned n)
+	EmuTime &operator+=(unsigned n)
 		{ time += n * (MAIN_FREQ / freq); return *this; }
-	EmuTime &operator -=(unsigned n)
+	EmuTime &operator-=(unsigned n)
 		{ time -= n * (MAIN_FREQ / freq); return *this; }
-	EmuTime &operator ++()
+	EmuTime &operator++()
 		{ time +=     (MAIN_FREQ / freq); return *this; }
-	EmuTime &operator --() 
+	EmuTime &operator--() 
 		{ time -=     (MAIN_FREQ / freq); return *this; }
 
-	const EmuTime operator +(uint64 n) const
+	const EmuTime operator+(uint64 n) const
 		{ return EmuTime(time + n * (MAIN_FREQ / freq)); }
 
 	// distance function
-	unsigned getTicksTill(const EmuTime &e) const { 
+	unsigned getTicksTill(const EmuTime& e) const { 
 		assert(e.time >= time); 
 		return (e.time - time) / (MAIN_FREQ / freq);
 	}
-	unsigned getTicksTillUp(const EmuTime &e) const { 
+	unsigned getTicksTillUp(const EmuTime& e) const { 
 		assert(e.time >= time);
 		return (e.time - time + MAIN_FREQ / freq - 1) /
 		       (MAIN_FREQ / freq); // round up
 	}
+};
+
+class DynamicEmuTime : public EmuTime
+{
+public:
+	// constructor
+	DynamicEmuTime() : EmuTime(), step(0) { }
+	explicit DynamicEmuTime(const EmuTime& e) : EmuTime(e), step(0) { }
+
+	// dynamically set freq
+	void setFreq(unsigned freq) { step = MAIN_FREQ / freq; }
+	
+	// assignment operator
+	EmuTime &operator =(const EmuTime& e) { time = e.time; return *this; }
+
+	// arithmetic operators
+	EmuTime &operator+=(unsigned n) { time += n * step; return *this; }
+	EmuTime &operator-=(unsigned n) { time -= n * step; return *this; }
+	EmuTime &operator++()           { time +=     step; return *this; }
+	EmuTime &operator--()           { time -=     step; return *this; }
+
+	const EmuTime operator+(uint64 n) const
+		{ return EmuTime(time + n * step); }
+
+	// distance function
+	unsigned getTicksTill(const EmuTime& e) const { 
+		assert(e.time >= time); 
+		return (e.time - time) / step;
+	}
+	unsigned getTicksTillUp(const EmuTime& e) const { 
+		assert(e.time >= time);
+		return (e.time - time + step - 1) / step; // round up
+	}
+
+private:
+	uint64 step;
 };
 
 } // namespace openmsx
