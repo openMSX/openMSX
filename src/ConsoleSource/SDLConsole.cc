@@ -88,7 +88,7 @@ void SDLConsole::signalEvent(SDL_Event &event)
 			commandScrollBack++;
 			memset(consoleLines[0], 0, CHARS_PER_LINE);
 			strcpy(consoleLines[0], commandLines[commandScrollBack]);
-			stringLocation = strlen(commandLines[commandScrollBack]);
+			cursorLocation = strlen(commandLines[commandScrollBack]);
 			updateConsole();
 		}
 		break;
@@ -99,14 +99,14 @@ void SDLConsole::signalEvent(SDL_Event &event)
 			commandScrollBack--;
 			memset(consoleLines[0], 0, CHARS_PER_LINE);
 			strcpy(consoleLines[0], commandLines[commandScrollBack]);
-			stringLocation = strlen(consoleLines[commandScrollBack]);
+			cursorLocation = strlen(consoleLines[commandScrollBack]);
 			updateConsole();
 		}
 		break;
 	case SDLK_BACKSPACE:
-		if(stringLocation > 0) {
-			consoleLines[0][stringLocation-1] = '\0';
-			stringLocation--;
+		if(cursorLocation > 0) {
+			consoleLines[0][cursorLocation-1] = '\0';
+			cursorLocation--;
 			SDL_Rect inputBackground2;
 			inputBackground2.x = 0;
 			inputBackground2.y = consoleSurface->h - font->height();
@@ -128,13 +128,13 @@ void SDLConsole::signalEvent(SDL_Event &event)
 		// zero out the current string and get it ready for new input
 		memset(consoleLines[0], 0, CHARS_PER_LINE);
 		commandScrollBack = -1;
-		stringLocation = 0;
+		cursorLocation = 0;
 		updateConsole();
 		break;
 	default:
-		if (stringLocation < CHARS_PER_LINE - 1 && event.key.keysym.unicode) {
-			consoleLines[0][stringLocation] = (char)event.key.keysym.unicode;
-			stringLocation++;
+		if (cursorLocation < CHARS_PER_LINE - 1 && event.key.keysym.unicode) {
+			consoleLines[0][cursorLocation] = (char)event.key.keysym.unicode;
+			cursorLocation++;
 			SDL_Rect inputBackground2;
 			inputBackground2.x = 0;
 			inputBackground2.y = consoleSurface->h - font->height();
@@ -317,7 +317,7 @@ void SDLConsole::init(const char *fontName, SDL_Surface *displayScreen, SDL_Rect
 	SDL_FillRect(inputBackground, NULL, 
 	             SDL_MapRGBA(consoleSurface->format, 0, 0, 0, consoleAlpha));
 
-	out("Console initialised.");
+	print("Console initialised.");
 }
 
 // Draws the command line the user is typing in to the screen
@@ -407,7 +407,7 @@ void SDLConsole::background(const char *image, int x, int y)
 
 	// Load a new background
 	if (NULL == (temp = SDL_LoadBMP(image))) {
-		out("Cannot load background %s.", image);
+		print("Cannot load background.");
 		return;
 	}
 

@@ -6,6 +6,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <list>
 #include "Command.hh"
 
 
@@ -19,21 +20,32 @@ class CommandController
 		 * TODO
 		 */
 		void registerCommand(Command &commandObject, const std::string &str);
+
 		/**
 		 * TODO
 		 */
 		void unRegisterCommand(const std::string &str);
-		
+
 		/**
 		 * Executes all defined auto commands
 		 */
 		void autoCommands();
-		
+
 		/**
 		 * Execute a given command
 		 */
 		void executeCommand(const std::string &command);
-		
+
+		/**
+		 * Complete a given command
+		 */
+		void tabCompletion(std::string &command);
+
+		/**
+		 * TODO
+		 */
+		static void completeString(std::string &string, std::list<std::string> &list);
+
 	private:
 		CommandController();
 		void tokenize(const std::string &str, vector<std::string> &tokens, const std::string &delimiters = " ");

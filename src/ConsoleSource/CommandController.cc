@@ -57,11 +57,10 @@ void CommandController::tokenize(const std::string &str, vector<std::string> &to
 
 void CommandController::executeCommand(const std::string &cmd)
 {
-	vector<std::string> tokens;
+	std::vector<std::string> tokens;
 	tokenize(cmd, tokens);
 	if (tokens.empty())
 		return;
-	
 	std::map<const std::string, Command*, ltstr>::const_iterator it;
 	it = commands.find(tokens[0]);
 	if (it==commands.end()) {
@@ -86,6 +85,81 @@ void CommandController::autoCommands()
 	}
 }
 
+
+void CommandController::tabCompletion(std::string &command)
+{
+	// split command string in tokens
+	std::vector<std::string> tokens;
+	tokenize(command, tokens);
+	if (tokens.empty()) {
+		// nothing typed yet
+		return;
+	}
+	if (tokens.size()==1) {
+		// build a list of all command strings
+		std::list<std::string> cmds;
+		std::map<const std::string, Command*, ltstr>::const_iterator it;
+		for (it=commands.begin(); it!=commands.end(); it++) {
+			cmds.push_back(it->first);
+		}
+		completeString(tokens[0], cmds);
+	} else {
+		std::map<const std::string, Command*, ltstr>::const_iterator it;
+		it = commands.find(tokens[0]);
+		if (it!=commands.end()) {
+			it->second->tabCompletion(tokens);
+		}
+	}
+	// rebuild command string from tokens
+	std::vector<std::string>::const_iterator it=tokens.begin();
+	command = *it; 
+	it++;
+	for (; it!=tokens.end(); it++) {
+		command += ' ';
+		command += *it;
+	}
+}
+
+void CommandController::completeString(std::string &string, std::list<std::string> &list)
+{
+	std::list<std::string>::iterator it;
+	
+	it = list.begin();
+	while (it!=list.end()) {
+		if (string == (*it).substr(0, string.size())) {
+			it++;
+		} else {
+			std::list<std::string>::iterator it2 = it;
+			it++;
+			list.erase(it2);
+		}
+	}
+	if (list.empty()) {
+		// no matching commands
+		return;
+	}
+	if (list.size()==1) {
+		// only one match
+		string = *(list.begin()) + ' ';
+		return;
+	}
+	while (true) {
+		it = list.begin();
+		if (string == *it) {
+			// match is as long as first word
+			return;
+		}
+		// expand with one char 
+		std::string string2 = string + (*it)[string.size()];
+		for (;  it!=list.end(); it++) {
+			if (string2 != (*it).substr(0, string2.size())) {
+				return;
+			}
+		}
+		// no conflict found
+		string = string2;
+	}
+}
 
 // Help Command
 

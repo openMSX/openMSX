@@ -21,7 +21,7 @@ Console::Console()
 	totalConsoleLines = 0;
 	consoleScrollBack = 0;
 	totalCommands = 0;
-	stringLocation = 0;
+	cursorLocation = 0;
 	commandScrollBack = 0;
 
 	consoleLines = (char**)malloc(sizeof(char*) * NUM_LINES);
@@ -66,31 +66,16 @@ void Console::print(const std::string &text)
 		char line[end - start + 1];
 		text.copy(line, sizeof(line), start);
 		line[sizeof(line) - 1] = '\0';
-		out(line);
-		end++; // skip newline
-	}
-}
-
-void Console::out(const char *str, ...)
-{
-#ifndef __WIN32__
-	va_list marker;
-	char temp[256];
-
-	va_start(marker, str);
-	vsnprintf(temp, sizeof(temp), str, marker);
-	va_end(marker);
-
-	if (consoleLines) {
-		strncpy(consoleLines[1], temp, CHARS_PER_LINE);
+	
+		strncpy(consoleLines[1], line, CHARS_PER_LINE);
 		consoleLines[1][CHARS_PER_LINE - 1] = '\0';
 		newLineConsole();
 		updateConsole();
+		PRT_DEBUG(line);
+	
+	end++; // skip newline
 	}
-	PRT_DEBUG(temp);
-#endif
 }
-
 
 // Increments the console line
 void Console::newLineConsole()
@@ -135,65 +120,11 @@ void Console::commandExecute(const std::string &cmd)
 	}
 }
 
-/* tab completes commands
- * It takes a string to complete and a pointer to the strings length. The strings
- * length will be modified if the command is completed. */
 void Console::tabCompletion()
 {
-	/*
-	int matches = 0;
-	int *location = &stringLocation;
-	char *commandLine = consoleLines[0];
-	const char *matchingCommand = 0;
-	int commandlength;
-	int spacefound = 0;
-	
-	// need to check only up until the first space otherwise 
-	// the user is typing options, which will need an extra routine :-)
-	// if there is a space then the command must be already completed
-	PRT_DEBUG(commandLine);
-	for (unsigned i=0; i<strlen(commandLine); i++){
-		//printf("%i : %c %i \n", i, CommandLine[i], (int)CommandLine[i] );
-		if (commandLine[i] == ' '){
-			spacefound=i;
-			break;
-		}
-	};
-	PRT_DEBUG(commandLine);
-
-	// Find all the commands that match
-	commandlength = spacefound ? spacefound : strlen(commandLine);
-	std::map<const std::string, ConsoleCommand*, ltstr>::const_iterator it;
-	for (it=commands.begin(); it!=commands.end(); it++) {
-		if (0 == strncmp(commandLine, it->first.c_str(), commandlength)) {
-			matchingCommand=it->first.c_str();
-			matches++;
-		}
-	}
-	
-	if (matches == 1) {
-		// if we got one match, we select it
-		if (spacefound) {
-			// print the help of this command
-			newLineCommand();
-			commandHelp();
-		} else {
-			strcpy(commandLine, matchingCommand);
-			commandLine[strlen(matchingCommand)] = ' ';
-			*location = strlen(matchingCommand)+1;
-			updateConsole();
-		}
-	}
-	else if (matches > 1) {
-	        // multiple matches so print them out to the user
-		newLineConsole();
-		for (it=commands.begin(); it!=commands.end(); it++) {
-			if (0 == strncmp(commandLine, it->first.c_str(), strlen(commandLine)))
-				print(it->first);
-		}
-	}
-	else if (matches == 0)
-		print("No matching command found!");
-	*/
-	print("TAB completion currently broken");
+	std::string string(consoleLines[0]);
+	CommandController::instance()->tabCompletion(string);
+	strncpy(consoleLines[0], string.c_str(), CHARS_PER_LINE);
+	cursorLocation = string.length();
+	updateConsole();
 }

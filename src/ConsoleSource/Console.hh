@@ -31,7 +31,6 @@ class Console
 		void tabCompletion();
 		void newLineCommand();
 		void commandExecute(const std::string &cmd);
-		void out(const char *str, ...);
 		void newLineConsole();
 		virtual void updateConsole() = 0;
 		
@@ -63,7 +62,7 @@ class Console
 
 		/** Current character location in the current string.
 		  */
-		int stringLocation;
+		int cursorLocation;
 
 		/** How much the users scrolled back in the command lines.
 		  */
