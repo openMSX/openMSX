@@ -127,8 +127,7 @@ def convertDoc(dom):
 		if not node.nodeValue.endswith('$ '): return False
 		return True
 	if not isCVSId(dom.childNodes[0]):
-		print 'missing CVS id'
-		assert False, 'manually insert $''Id''$ or add that to converter'
+		print '  NOTE: no CVS id'
 	
 	def checkDocType(node):
 		if node.nodeType != dom.DOCUMENT_TYPE_NODE: return False
