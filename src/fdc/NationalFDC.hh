@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __NATIONALFDC_HH__
-#define __NATIONALFDC_HH__
+#ifndef NATIONALFDC_HH
+#define NATIONALFDC_HH
 
 #include "WD2793BasedFDC.hh"
 
@@ -23,4 +23,5 @@ private:
 };
 
 } // namespace openmsx
+
 #endif

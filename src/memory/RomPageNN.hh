@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __ROMPAGENN_HH__
-#define __ROMPAGENN_HH__
+#ifndef ROMPAGENN_HH
+#define ROMPAGENN_HH
 
 #include "Rom8kBBlocks.hh"
 
@@ -17,4 +17,4 @@ public:
 
 } // namespace openmsx
 
-#endif // __ROMPAGENN_HH__
+#endif

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __IDEHD_HH__
-#define __IDEHD_HH__
+#ifndef IDEHD_HH
+#define IDEHD_HH
 
 #include <memory>
 #include "IDEDevice.hh"
@@ -56,4 +56,5 @@ private:
 };
 
 } // namespace openmsx
+
 #endif

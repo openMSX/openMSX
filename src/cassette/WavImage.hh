@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __WAVIMAGE_HH__
-#define __WAVIMAGE_HH__
+#ifndef WAVIMAGE_HH
+#define WAVIMAGE_HH
 
 #include "CassetteImage.hh"
 #include "EmuTime.hh"

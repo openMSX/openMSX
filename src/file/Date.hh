@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __DATE_HH__
-#define __DATE_HH__
+#ifndef DATE_HH
+#define DATE_HH
 
 #include <string>
 #include <time.h>

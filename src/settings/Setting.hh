@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __SETTINGNODE_HH__
-#define __SETTINGNODE_HH__
+#ifndef SETTINGNODE_HH
+#define SETTINGNODE_HH
 
 #include <string>
 #include <vector>
@@ -82,4 +82,4 @@ private:
 
 } // namespace openmsx
 
-#endif //__SETTINGNODE_HH__
+#endif

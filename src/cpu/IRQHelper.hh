@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __IRQHELPER_HH__
-#define __IRQHELPER_HH__
+#ifndef IRQHELPER_HH
+#define IRQHELPER_HH
 
 #include "MSXCPU.hh"
 

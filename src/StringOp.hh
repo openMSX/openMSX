@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __STRINGOP_HH__
-#define __STRINGOP_HH__
+#ifndef STRINGOP_HH
+#define STRINGOP_HH
 
 #include <string>
 #include <sstream>

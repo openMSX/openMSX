@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __RS232TESTER_HH__
-#define __RS232TESTER_HH__
+#ifndef RS232TESTER_HH
+#define RS232TESTER_HH
 
 #include "openmsx.hh"
 #include "RS232Device.hh"
@@ -56,5 +56,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __RS232TESTER_HH__
-
+#endif

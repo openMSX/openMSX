@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __PANASONICRAM_HH__
-#define __PANASONICRAM_HH__
+#ifndef PANASONICRAM_HH
+#define PANASONICRAM_HH
 
 #include "MSXMemoryMapper.hh"
 

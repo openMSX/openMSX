@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __INTERPRETER_HH__
-#define __INTERPRETER_HH__
+#ifndef INTERPRETER_HH
+#define INTERPRETER_HH
 
 #include <set>
 #include <string>

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __GLRASTERIZER_HH__
-#define __GLRASTERIZER_HH__
+#ifndef GLRASTERIZER_HH
+#define GLRASTERIZER_HH
 
 #include "Rasterizer.hh"
 #include "CharacterConverter.hh"
@@ -11,7 +11,6 @@
 #include "DisplayMode.hh"
 #include "GLUtil.hh"
 #include "openmsx.hh"
-
 
 namespace openmsx {
 
@@ -213,4 +212,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __GLRASTERIZER_HH__
+#endif

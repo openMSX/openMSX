@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __HOSTCPU_HH__
-#define __HOSTCPU_HH__
+#ifndef HOSTCPU_HH
+#define HOSTCPU_HH
 
 #include "build-info.hh"
 
@@ -49,4 +49,4 @@ private:
 
 } // namespace openmsx
 
-#endif //__HOSTCPU_HH__
+#endif

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MSXPSG_HH__
-#define __MSXPSG_HH__
+#ifndef MSXPSG_HH
+#define MSXPSG_HH
 
 #include <memory>
 #include "MSXDevice.hh"
@@ -44,4 +44,5 @@ private:
 };
 
 } // namespace openmsx
+
 #endif

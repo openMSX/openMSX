@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __SunriseIDE_HH__
-#define __SunriseIDE_HH__
+#ifndef SUNRISEIDE_HH
+#define SUNRISEIDE_HH
 
 #include "MSXDevice.hh"
 #include <memory>
@@ -46,4 +46,5 @@ private:
 };
 
 } // namespace openmsx
+
 #endif

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __FILEEXCEPTION_HH__
-#define __FILEEXCEPTION_HH__
+#ifndef FILEEXCEPTION_HH
+#define FILEEXCEPTION_HH
 
 #include "MSXException.hh"
 
@@ -15,4 +15,3 @@ public:
 } // namespace openmsx
 
 #endif
-

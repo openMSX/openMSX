@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __AUDIOINPUTDEVICE_HH__
-#define __AUDIOINPUTDEVICE_HH__
+#ifndef AUDIOINPUTDEVICE_HH
+#define AUDIOINPUTDEVICE_HH
 
 #include "Pluggable.hh"
 

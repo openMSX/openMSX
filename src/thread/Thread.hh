@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __THREAD_HH__
-#define __THREAD_HH__
+#ifndef THREAD_HH
+#define THREAD_HH
 
 struct SDL_Thread;
 
@@ -55,4 +55,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __THREAD_HH__
+#endif

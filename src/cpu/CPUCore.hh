@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef _CPUCORE_HH_
-#define _CPUCORE_HH_
+#ifndef CPUCORE_HH
+#define CPUCORE_HH
 
 #include "openmsx.hh"
 #include "SettingListener.hh"
@@ -1517,7 +1517,4 @@ private:
 
 } // namespace openmsx
 
-#endif // _CPUCORE_HH_
-
-
-
+#endif

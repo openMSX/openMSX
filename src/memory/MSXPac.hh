@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MSXPAC_HH__
-#define __MSXPAC_HH__
+#ifndef MSXPAC_HH
+#define MSXPAC_HH
 
 #include "MSXDevice.hh"
 #include <memory>

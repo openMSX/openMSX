@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __Z80_HH__
-#define __Z80_HH__
+#ifndef Z80_HH
+#define Z80_HH
 
 #include "EmuTime.hh"
 
@@ -66,4 +66,3 @@ protected:
 } // namespace openmsx
 
 #endif
-

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MOUSE_HH__
-#define __MOUSE_HH__
+#ifndef MOUSE_HH
+#define MOUSE_HH
 
 #include "JoystickDevice.hh"
 #include "EventListener.hh"
@@ -41,4 +41,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __MOUSE_HH__
+#endif

@@ -8,8 +8,8 @@
 // * For techncal details on 8255 see
 //    http://w3.qahwah.net/joost/openMSX/8255.pdf
 
-#ifndef __I8255_HH__
-#define __I8255_HH__
+#ifndef I8255_HH
+#define I8255_HH
 
 #include "openmsx.hh"
 

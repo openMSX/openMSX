@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __SETETRISDONGLE_HH__
-#define __SETETRISDONGLE_HH__
+#ifndef SETETRISDONGLE_HH
+#define SETETRISDONGLE_HH
 
 #include "JoystickDevice.hh"
 
@@ -29,4 +29,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __SETETRISDONGLE_HH__
+#endif

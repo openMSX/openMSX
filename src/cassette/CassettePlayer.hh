@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __CASSETTEPLAYER_HH__
-#define __CASSETTEPLAYER_HH__
+#ifndef CASSETTEPLAYER_HH
+#define CASSETTEPLAYER_HH
 
 #include <memory>
 #include "CassetteDevice.hh"
@@ -81,4 +81,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __CASSETTEPLAYER_HH__
+#endif

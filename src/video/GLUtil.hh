@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __GLUTIL_HH__
-#define __GLUTIL_HH__
+#ifndef GLUTIL_HH
+#define GLUTIL_HH
 
 // Check for availability of OpenGL.
 #include "components.hh"
@@ -62,4 +62,4 @@ private:
 } // namespace openmsx
 
 #endif // COMPONENT_GL
-#endif // __GLUTIL_HH__
+#endif // GLUTIL_HH

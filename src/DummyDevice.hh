@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __DUMMYDEVICE_HH__
-#define __DUMMYDEVICE_HH__
+#ifndef DUMMYDEVICE_HH
+#define DUMMYDEVICE_HH
 
 #include "MSXDevice.hh"
 
@@ -20,5 +20,4 @@ private:
 
 } // namespace openmsx
 
-#endif //__DUMMYDEVICE_HH__
-
+#endif

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MSXDEVICESWITCH_HH__
-#define __MSXDEVICESWITCH_HH__
+#ifndef MSXDEVICESWITCH_HH
+#define MSXDEVICESWITCH_HH
 
 #include "MSXDevice.hh"
 

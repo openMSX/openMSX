@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __SCALE2XSCALER_HH__
-#define __SCALE2XSCALER_HH__
+#ifndef SCALE2XSCALER_HH
+#define SCALE2XSCALER_HH
 
 #include "Scaler.hh"
 
@@ -26,4 +26,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __SCALE2XSCALER_HH__
+#endif

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef _ROMINFOTOPIC_HH_
-#define _ROMINFOTOPIC_HH_
+#ifndef ROMINFOTOPIC_HH
+#define ROMINFOTOPIC_HH
 
 #include "InfoTopic.hh"
 

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __BLENDER_HH__
-#define __BLENDER_HH__
+#ifndef BLENDER_HH
+#define BLENDER_HH
 
 #include <SDL.h>
 
@@ -50,7 +50,7 @@ public:
 
 	/** Create a blender which operates on the provided SDL screen format.
 	  */
-	static Blender createFromFormat(const SDL_PixelFormat *format) {
+	static Blender createFromFormat(const SDL_PixelFormat* format) {
 		// Calculate blendMask.
 		int rBit = ~(format->Rmask << 1) & format->Rmask;
 		int gBit = ~(format->Gmask << 1) & format->Gmask;
@@ -73,4 +73,4 @@ public:
 
 } // namespace openmsx
 
-#endif // __BLENDER_HH__
+#endif

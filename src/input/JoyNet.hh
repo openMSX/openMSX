@@ -30,8 +30,8 @@
  * 9 --------------- 9
  */
 
-#ifndef __JOYNET_HH__
-#define __JOYNET_HH__
+#ifndef JOYNET_HH
+#define JOYNET_HH
 
 #include "probed_defs.hh"
 #ifdef	HAVE_SYS_SOCKET_H
@@ -93,6 +93,6 @@ private:
 
 } // namespace openmsx
 
-#endif	// HAVE_SYS_SOCKET_H
+#endif // HAVE_SYS_SOCKET_H
 
-#endif	// __JOYNET_HH__
+#endif // JOYNET_HH

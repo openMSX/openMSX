@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __ROMGAMEMASTER2_HH__
-#define __ROMGAMEMASTER2_HH__
+#ifndef ROMGAMEMASTER2_HH
+#define ROMGAMEMASTER2_HH
 
 #include "Rom4kBBlocks.hh"
 #include <memory>

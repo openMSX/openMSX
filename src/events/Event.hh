@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __EVENT_HH__
-#define __EVENT_HH__
+#ifndef EVENT_HH
+#define EVENT_HH
 
 namespace openmsx {
 
@@ -58,4 +58,4 @@ public:
 
 } // namespace openmsx
 
-#endif // __EVENTDISTRIBUTOR_HH__
+#endif

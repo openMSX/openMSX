@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __AUDIOINPUTCONNECTOR_HH__
-#define __AUDIOINPUTCONNECTOR_HH__
+#ifndef AUDIOINPUTCONNECTOR_HH
+#define AUDIOINPUTCONNECTOR_HH
 
 #include "Connector.hh"
 #include "AudioInputDevice.hh"
@@ -24,4 +24,4 @@ public:
 
 } // namespace openmsx
 
-#endif // __AUDIOINPUTCONNECTOR_HH__
+#endif

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __JOYSTICKPORT_HH__
-#define __JOYSTICKPORT_HH__
+#ifndef JOYSTICKPORT_HH
+#define JOYSTICKPORT_HH
 
 #include "openmsx.hh"
 #include "Connector.hh"
@@ -30,4 +30,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __JOYSTICKPORT_HH__
+#endif

@@ -4,6 +4,10 @@ $Id$
 	* Added HQ2xLite scaler:
 	   Resulting image is close to hq2x but can be calculated a lot faster
 	   See comments at the top of HQ2XLiteScaler.cc for details.
+	* Changed include guards from __FOO_HH__ to FOO_HH:
+	   Identifiers that contain a double '_' or that start with a '_'
+	   are reserved for system headers. Currently our include guards work
+	   but it might give problems in the future.
 
 2005-03-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* HQ2xScaler speedup

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __CLOCKPIN_HH__
-#define __CLOCKPIN_HH__
+#ifndef CLOCKPIN_HH
+#define CLOCKPIN_HH
 
 #include "EmuTime.hh"
 #include "Schedulable.hh"
@@ -10,7 +10,6 @@ namespace openmsx {
 
 class Scheduler;
 class ClockPin;
-
 
 class ClockPinListener
 {

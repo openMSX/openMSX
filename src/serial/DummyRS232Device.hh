@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __DUMMYRS232DEVICE_HH__
-#define __DUMMYRS232DEVICE_HH__
+#ifndef DUMMYRS232DEVICE_HH
+#define DUMMYRS232DEVICE_HH
 
 #include "RS232Device.hh"
 

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef _V9990DUMMYRASTERIZER_HH_
-#define _V9990DUMMYRASTERIZER_HH_
+#ifndef V9990DUMMYRASTERIZER_HH
+#define V9990DUMMYRASTERIZER_HH
 
 #include "V9990Rasterizer.hh"
 
@@ -31,4 +31,3 @@ public:
 } // namespace openmsx
 
 #endif
-

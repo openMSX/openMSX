@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __SAI2XSCALER_HH__
-#define __SAI2XSCALER_HH__
+#ifndef SAI2XSCALER_HH
+#define SAI2XSCALER_HH
 
 #include "Scaler.hh"
 #include "Blender.hh"
@@ -36,4 +36,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __SAI2XSCALER_HH__
+#endif

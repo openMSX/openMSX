@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __ROMCROSSBLAIM_HH__
-#define __ROMCROSSBLAIM_HH__
+#ifndef ROMCROSSBLAIM_HH
+#define ROMCROSSBLAIM_HH
 
 #include "Rom16kBBlocks.hh"
 

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __KEYS_HH__
-#define __KEYS_HH__
+#ifndef KEYS_HH
+#define KEYS_HH
 
 #include <SDL_keysym.h> // TODO
 #include <map>
@@ -208,4 +208,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __KEYS_HH__
+#endif

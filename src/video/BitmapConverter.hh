@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __BITMAPCONVERTER_HH__
-#define __BITMAPCONVERTER_HH__
+#ifndef BITMAPCONVERTER_HH
+#define BITMAPCONVERTER_HH
 
 #include "openmsx.hh"
 #include "Renderer.hh"
@@ -131,4 +131,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __BITMAPCONVERTER_HH__
+#endif

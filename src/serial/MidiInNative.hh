@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MIDIINNATIVE_HH__
-#define __MIDIINNATIVE_HH__
+#ifndef MIDIINNATIVE_HH
+#define MIDIINNATIVE_HH
 
 #if defined(_WIN32)
 
@@ -65,5 +65,5 @@ private:
 } // namespace openmsx
 
 #endif // defined(_WIN32)
-#endif // __MIDIINNATIVE_HH__
+#endif // MIDIINNATIVE_HH
 

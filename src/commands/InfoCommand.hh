@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __INFOCOMMAND_HH__
-#define __INFOCOMMAND_HH__
+#ifndef INFOCOMMAND_HH
+#define INFOCOMMAND_HH
 
 #include <map>
 #include <memory>

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MSXSIMPLE64KB_HH__
-#define __MSXSIMPLE64KB_HH__
+#ifndef MSXSIMPLE64KB_HH
+#define MSXSIMPLE64KB_HH
 
 #include "MSXDevice.hh"
 #include <memory>
@@ -31,4 +31,5 @@ private:
 };
 
 } // namespace openmsx
+
 #endif

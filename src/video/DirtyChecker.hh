@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __DIRTYCHECKER_HH__
-#define __DIRTYCHECKER_HH__
+#ifndef DIRTYCHECKER_HH
+#define DIRTYCHECKER_HH
 
 #include <cassert>
 #include <bitset>
@@ -75,4 +75,4 @@ void DirtyChecker<size, unit>::updateWindow(bool enabled,
 
 } // namespace openmsx
 
-#endif // __DIRTYCHECKER_HH__
+#endif

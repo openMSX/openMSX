@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MIDIINREADER_HH__
-#define __MIDIINREADER_HH__
+#ifndef MIDIINREADER_HH
+#define MIDIINREADER_HH
 
 #include "openmsx.hh"
 #include "MidiInDevice.hh"
@@ -50,4 +50,3 @@ private:
 } // namespace openmsx
 
 #endif
-

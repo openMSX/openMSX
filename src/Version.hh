@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __VERSION_HH__
-#define __VERSION_HH__
+#ifndef VERSION_HH
+#define VERSION_HH
 
 #include <string>
 
@@ -20,4 +20,4 @@ public:
 
 } // namespace openmsx
 
-#endif //__VERSION_HH__
+#endif

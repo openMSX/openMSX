@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __V9990GLRASTERIZER_HH__
-#define __V9990GLRASTERIZER_HH__
+#ifndef V9990GLRASTERIZER_HH
+#define V9990GLRASTERIZER_HH
 
 #include "V9990Rasterizer.hh"
 #include "GLUtil.hh"
@@ -55,4 +55,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __V9990GLRasterizer_HH__
+#endif

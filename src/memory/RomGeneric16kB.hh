@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __ROMGENERIC16KB_HH__
-#define __ROMGENERIC16KB_HH__
+#ifndef ROMGENERIC16KB_HH
+#define ROMGENERIC16KB_HH
 
 #include "Rom16kBBlocks.hh"
 

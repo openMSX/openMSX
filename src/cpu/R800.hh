@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __R800_HH__
-#define __R800_HH__
+#ifndef R800_HH
+#define R800_HH
 
 #include "EmuTime.hh"
 
@@ -81,4 +81,3 @@ protected:
 } // namespace openmsx
 
 #endif
-

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __ROMINFO_HH__
-#define __ROMINFO_HH__
+#ifndef ROMINFO_HH
+#define ROMINFO_HH
 
 #include "RomTypes.hh"
 #include <string>

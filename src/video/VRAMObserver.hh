@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __VRAMOBSERVER_HH__
-#define __VRAMOBSERVER_HH__
+#ifndef VRAMOBSERVER_HH
+#define VRAMOBSERVER_HH
 
 namespace openmsx {
 
@@ -43,5 +43,4 @@ protected:
 
 } // namespace openmsx
 
-#endif //__VRAMOBSERVER_HH__
-
+#endif

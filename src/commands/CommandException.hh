@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __COMMANDEXCEPTION_HH__
-#define __COMMANDEXCEPTION_HH__
+#ifndef COMMANDEXCEPTION_HH
+#define COMMANDEXCEPTION_HH
 
 #include "MSXException.hh"
 

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __SDLEVENTINSERTER_HH__
-#define __SDLEVENTINSERTER_HH__
+#ifndef SDLEVENTINSERTER_HH
+#define SDLEVENTINSERTER_HH
 
 #include <SDL.h>
 #include "Schedulable.hh"

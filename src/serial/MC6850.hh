@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MC6850_HH__
-#define __MC6850_HH__
+#ifndef MC6850_HH
+#define MC6850_HH
 
 #include "MSXDevice.hh"
 
@@ -20,4 +20,5 @@ public:
 };
 
 } // namespace openmsx
+
 #endif

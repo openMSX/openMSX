@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MSXMOTHERBOARD_HH__
-#define __MSXMOTHERBOARD_HH__
+#ifndef MSXMOTHERBOARD_HH
+#define MSXMOTHERBOARD_HH
 
 #include <vector>
 #include <memory>
@@ -95,4 +95,4 @@ private:
 
 } // namespace openmsx
 
-#endif //__MSXMOTHERBOARD_HH__
+#endif

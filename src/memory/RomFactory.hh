@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __ROMFACTORY_HH__
-#define __ROMFACTORY_HH__
+#ifndef ROMFACTORY_HH
+#define ROMFACTORY_HH
 
 #include <memory>
 

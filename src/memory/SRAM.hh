@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __SRAM_HH__
-#define __SRAM_HH__
+#ifndef SRAM_HH
+#define SRAM_HH
 
 #include "Ram.hh"
 

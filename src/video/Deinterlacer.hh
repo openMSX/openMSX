@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __DEINTERLACER_HH__
-#define __DEINTERLACER_HH__
+#ifndef DEINTERLACER_HH
+#define DEINTERLACER_HH
 
 struct SDL_Surface;
 
@@ -47,4 +47,4 @@ public:
 
 } // namespace openmsx
 
-#endif // __DEINTERLACER_HH__
+#endif

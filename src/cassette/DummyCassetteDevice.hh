@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __DUMMYCASSETTEDEVICE_HH__
-#define __DUMMYCASSETTEDEVICE_HH__
+#ifndef DUMMYCASSETTEDEVICE_HH
+#define DUMMYCASSETTEDEVICE_HH
 
 #include "CassetteDevice.hh"
 
@@ -23,4 +23,5 @@ public:
 };
 
 } // namespace openmsx
+
 #endif

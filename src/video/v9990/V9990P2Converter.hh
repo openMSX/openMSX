@@ -1,7 +1,7 @@
 // $Id$ 
 
-#ifndef __V9990P2CONVERTER_HH__
-#define __V9990P2CONVERTER_HH__
+#ifndef V9990P2CONVERTER_HH
+#define V9990P2CONVERTER_HH
 
 #include "openmsx.hh"
 #include "Renderer.hh"
@@ -34,4 +34,4 @@ private:
 
 } // namespace
 
-#endif // __V9990PATTERNCONVERTER_HH__
+#endif

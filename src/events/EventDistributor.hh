@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __EVENTDISTRIBUTOR_HH__
-#define __EVENTDISTRIBUTOR_HH__
+#ifndef EVENTDISTRIBUTOR_HH
+#define EVENTDISTRIBUTOR_HH
 
 #include "Event.hh"
 #include "EmuTime.hh"
@@ -96,4 +96,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __EVENTDISTRIBUTOR_HH__
+#endif

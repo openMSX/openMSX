@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __INTEGERSETTING_HH__
-#define __INTEGERSETTING_HH__
+#ifndef INTEGERSETTING_HH
+#define INTEGERSETTING_HH
 
 #include "SettingPolicy.hh"
 #include "SettingImpl.hh"
@@ -27,5 +27,5 @@ public:
 
 } // namespace openmsx
 
-#endif //__INTEGERSETTING_HH__
+#endif
 

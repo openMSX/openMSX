@@ -1,11 +1,10 @@
 // $Id$
 
-#ifndef __RASTERIZER_HH__
-#define __RASTERIZER_HH__
+#ifndef RASTERIZER_HH
+#define RASTERIZER_HH
 
 #include "VideoLayer.hh"
 #include "DisplayMode.hh"
-
 
 namespace openmsx {
 
@@ -102,4 +101,4 @@ protected:
 
 } // namespace openmsx
 
-#endif //__RASTERIZER_HH__
+#endif

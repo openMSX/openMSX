@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MSXMAPPERIOTURBOR_HH__
-#define __MSXMAPPERIOTURBOR_HH__
+#ifndef MSXMAPPERIOTURBOR_HH
+#define MSXMAPPERIOTURBOR_HH
 
 #include "MSXMapperIOPhilips.hh"
 
@@ -15,5 +15,4 @@ public:
 
 } // namespace openmsx
 
-#endif //__MSXMAPPERIOTURBOR_HH__
-
+#endif

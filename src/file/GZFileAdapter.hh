@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __GZFILEADAPTER_HH__
-#define __GZFILEADAPTER_HH__
+#ifndef GZFILEADAPTER_HH
+#define GZFILEADAPTER_HH
 
 #include <zlib.h>
 #include "CompressedFileAdapter.hh"
@@ -24,4 +24,3 @@ private:
 } // namespace openmsx
 
 #endif
-

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __DUMMYMIDIOUTDEVICE_HH__
-#define __DUMMYMIDIOUTDEVICE_HH__
+#ifndef DUMMYMIDIOUTDEVICE_HH
+#define DUMMYMIDIOUTDEVICE_HH
 
 #include "MidiOutDevice.hh"
 
@@ -20,4 +20,3 @@ public:
 } // namespace openmsx
 
 #endif
-

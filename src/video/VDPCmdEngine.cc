@@ -611,7 +611,7 @@ void VDPCmdEngine::VDPCmd::copyProgressFrom(VDPCmd* other)
 // re-used here so that they have to be entered only once.
 
 // Loop over DX, DY.
-#define post__x_y() \
+#define post_x_y() \
 		clock += delta; \
 		ADX += TX; \
 		if (--ANX == 0) { \
@@ -875,7 +875,7 @@ void VDPCmdEngine::LmmvCmd<Mode>::execute(const EmuTime& time)
 	while (clock.before(time)) {
 		Mode::pset(clock.getTime(), vram,
 			ADX, engine->DY, CL, engine->currentOperation);
-	post__x_y()
+	post_x_y()
 
 	calcFinishTime(NX, NY);
 }
@@ -1076,7 +1076,7 @@ void VDPCmdEngine::HmmvCmd<Mode>::execute(const EmuTime& time)
 	while (clock.before(time)) {
 		vram->cmdWrite(
 			Mode::addressOf(ADX, engine->DY), engine->COL, clock.getTime());
-	post__x_y()
+	post_x_y()
 
 	calcFinishTime(NX, NY);
 }

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __ROM4KBBLOCKS_HH__
-#define __ROM4KBBLOCKS_HH__
+#ifndef ROM4KBBLOCKS_HH
+#define ROM4KBBLOCKS_HH
 
 #include "MSXRom.hh"
 

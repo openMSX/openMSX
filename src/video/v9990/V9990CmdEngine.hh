@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __V9990CMDENGINE_HH__
-#define __V9990CMDENGINE_HH__
+#ifndef V9990CMDENGINE_HH
+#define V9990CMDENGINE_HH
 
 #include "openmsx.hh"
 #include "V9990ModeEnum.hh"
@@ -348,4 +348,3 @@ private:
 } // namespace openmsx
 
 #endif
-

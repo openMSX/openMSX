@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __FDCDUMMYBACKEND__HH__
-#define __FDCDUMMYBACKEND__HH__
+#ifndef FDCDUMMYBACKEND_HH
+#define FDCDUMMYBACKEND_HH
 
 #include "Disk.hh"
 

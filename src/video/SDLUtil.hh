@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __SDLUTIL_HH__
-#define __SDLUTIL_HH__
+#ifndef SDLUTIL_HH
+#define SDLUTIL_HH
 
 struct SDL_Surface;
 
@@ -27,5 +27,4 @@ void closeSDLVideo(SDL_Surface* screen);
 
 } // namespace openmsx
 
-#endif //__SDLUTIL_HH__
-
+#endif

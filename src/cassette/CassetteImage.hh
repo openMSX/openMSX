@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __CASSETTEIMAGE_HH__
-#define __CASSETTEIMAGE_HH__
+#ifndef CASSETTEIMAGE_HH
+#define CASSETTEIMAGE_HH
 
 namespace openmsx {
 

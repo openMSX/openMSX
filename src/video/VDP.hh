@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __VDP_HH__
-#define __VDP_HH__
+#ifndef VDP_HH
+#define VDP_HH
 
 #include <string>
 #include <memory>
@@ -801,5 +801,4 @@ private:
 
 } // namespace openmsx
 
-#endif //__VDP_HH__
-
+#endif

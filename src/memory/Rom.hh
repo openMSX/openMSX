@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MSXROMDEVICE_HH__
-#define __MSXROMDEVICE_HH__
+#ifndef ROM_HH
+#define ROM_HH
 
 #include "openmsx.hh"
 #include "Debuggable.hh"

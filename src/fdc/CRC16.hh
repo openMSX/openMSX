@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __CRC16_HH__
-#define __CRC16_HH__
+#ifndef CRC16_HH
+#define CRC16_HH
 
 #include "openmsx.hh"
 

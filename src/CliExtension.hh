@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __CLIEXTENSION_HH__
-#define __CLIEXTENSION_HH__
+#ifndef CLIEXTENSION_HH
+#define CLIEXTENSION_HH
 
 #include "CommandLineParser.hh"
 

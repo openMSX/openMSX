@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __ROMKONAMI4_HH__
-#define __ROMKONAMI4_HH__
+#ifndef ROMKONAMI4_HH
+#define ROMKONAMI4_HH
 
 #include "Rom8kBBlocks.hh"
 

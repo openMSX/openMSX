@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __COMMANDCONTROLLER_HH__
-#define __COMMANDCONTROLLER_HH__
+#ifndef COMMANDCONTROLLER_HH
+#define COMMANDCONTROLLER_HH
 
 #include <string>
 #include <map>

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __SDLFONT_HH__
-#define __SDLFONT_HH__
+#ifndef SDLFONT_HH
+#define SDLFONT_HH
 
 #include "Font.hh"
 
@@ -27,4 +27,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __SDLFONT_HH__
+#endif

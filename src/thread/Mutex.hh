@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MUTEX_HH__
-#define __MUTEX_HH__
+#ifndef MUTEX_HH
+#define MUTEX_HH
 
 struct SDL_mutex;
 

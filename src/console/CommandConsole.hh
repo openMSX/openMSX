@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __COMMANDCONSOLE_HH__
-#define __COMMANDCONSOLE_HH__
+#ifndef COMMANDCONSOLE_HH
+#define COMMANDCONSOLE_HH
 
 #include <list>
 #include <string>
@@ -84,4 +84,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __COMMANDCONSOLE_HH__
+#endif

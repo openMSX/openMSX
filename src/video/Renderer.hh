@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __RENDERER_HH__
-#define __RENDERER_HH__
+#ifndef RENDERER_HH
+#define RENDERER_HH
 
 #include "openmsx.hh"
 #include "VRAMObserver.hh"
@@ -208,5 +208,4 @@ protected:
 
 } // namespace openmsx
 
-#endif //__RENDERER_HH__
-
+#endif

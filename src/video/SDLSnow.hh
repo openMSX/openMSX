@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __SDLSNOW_HH__
-#define __SDLSNOW_HH__
+#ifndef SDLSNOW_HH
+#define SDLSNOW_HH
 
 #include "Layer.hh"
 
@@ -32,4 +32,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __SDLSNOW_HH__
+#endif

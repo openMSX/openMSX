@@ -2,8 +2,8 @@
 
 // This class implements a 8 bit unsigned DAC
 
-#ifndef __DACSOUND8U_HH__
-#define __DACSOUND8U_HH__
+#ifndef DACSOUND8U_HH
+#define DACSOUND8U_HH
 
 #include "DACSound16S.hh"
 

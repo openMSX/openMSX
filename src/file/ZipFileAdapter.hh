@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __ZIPFILEADAPTER_HH__
-#define __ZIPFILEADAPTER_HH__
+#ifndef ZIPFILEADAPTER_HH
+#define ZIPFILEADAPTER_HH
 
 #include "CompressedFileAdapter.hh"
 
@@ -19,4 +19,3 @@ protected:
 } // namespace openmsx
 
 #endif
-

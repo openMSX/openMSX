@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __DSKDISKIMAGE__HH__
-#define __DSKDISKIMAGE__HH__
+#ifndef DSKDISKIMAGE_HH
+#define DSKDISKIMAGE_HH
 
 #include "SectorBasedDisk.hh"
 #include <memory>

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __CARTRIDGESLOTMANAGER_HH__
-#define __CARTRIDGESLOTMANAGER_HH__
+#ifndef CARTRIDGESLOTMANAGER_HH
+#define CARTRIDGESLOTMANAGER_HH
 
 namespace openmsx {
 
@@ -36,4 +36,3 @@ private:
 } // namespace openmsx
 
 #endif
-

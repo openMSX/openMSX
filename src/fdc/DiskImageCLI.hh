@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __DISKIMAGEMANAGER_HH__
-#define __DISKIMAGEMANAGER_HH__
+#ifndef DISKIMAGEMANAGER_HH
+#define DISKIMAGEMANAGER_HH
 
 #include "CommandLineParser.hh"
 

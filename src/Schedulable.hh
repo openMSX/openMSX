@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __SCHEDULABLE_HH__
-#define __SCHEDULABLE_HH__
+#ifndef SCHEDULABLE_HH
+#define SCHEDULABLE_HH
 
 #include <string>
 

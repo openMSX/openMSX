@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __CLICOMMOUTPUT_HH__
-#define __CLICOMMOUTPUT_HH__
+#ifndef CLICOMMOUTPUT_HH
+#define CLICOMMOUTPUT_HH
 
 #include <map>
 #include <string>

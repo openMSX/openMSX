@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __ENUMSETTING_HH__
-#define __ENUMSETTING_HH__
+#ifndef ENUMSETTING_HH
+#define ENUMSETTING_HH
 
 #include <map>
 #include <set>
@@ -164,4 +164,4 @@ EnumSetting<T>::EnumSetting(
 
 } // namespace openmsx
 
-#endif //__ENUMSETTING_HH__
+#endif

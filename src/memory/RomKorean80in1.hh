@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __ROMKOREAN80IN1_HH__
-#define __ROMKOREAN80IN1_HH__
+#ifndef ROMKOREAN80IN1_HH
+#define ROMKOREAN80IN1_HH
 
 #include "Rom8kBBlocks.hh"
 

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __STRINGSETTING_HH__
-#define __STRINGSETTING_HH__
+#ifndef STRINGSETTING_HH
+#define STRINGSETTING_HH
 
 #include "SettingPolicy.hh"
 #include "SettingImpl.hh"
@@ -24,4 +24,4 @@ public:
 
 } // namespace openmsx
 
-#endif //__STRINGSETTING_HH__
+#endif

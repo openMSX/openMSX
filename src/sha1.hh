@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __SHA1_HH__
-#define __SHA1_HH__
+#ifndef SHA1_HH
+#define SHA1_HH
 
 #include "openmsx.hh"
 #include <string>

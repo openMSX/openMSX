@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __PLUGGABLE__
-#define __PLUGGABLE__
+#ifndef PLUGGABLE_HH
+#define PLUGGABLE_HH
 
 #include <string>
 #include "MSXException.hh"
@@ -64,4 +64,4 @@ protected:
 
 } // namespace openmsx
 
-#endif //__PLUGGABLE__
+#endif

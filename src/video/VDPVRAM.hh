@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __VDPVRAM_HH__
-#define __VDPVRAM_HH__
+#ifndef VDPVRAM_HH
+#define VDPVRAM_HH
 
 #include <cassert>
 #include "VRAMObserver.hh"
@@ -464,5 +464,4 @@ private:
 
 } // namespace openmsx
 
-#endif //__VDPVRAM_HH__
-
+#endif

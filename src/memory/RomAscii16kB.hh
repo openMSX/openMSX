@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __ROMASCII16KB_HH__
-#define __ROMASCII16KB_HH__
+#ifndef ROMASCII16KB_HH
+#define ROMASCII16KB_HH
 
 #include "Rom16kBBlocks.hh"
 

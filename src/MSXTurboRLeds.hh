@@ -8,8 +8,8 @@
  * This port can only be written to.
  */
 
-#ifndef __TURBORLEDS_HH__
-#define __TURBORLEDS_HH__
+#ifndef TURBORLEDS_HH
+#define TURBORLEDS_HH
 
 #include "MSXDevice.hh"
 

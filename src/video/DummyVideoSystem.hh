@@ -1,10 +1,9 @@
 // $Id$
 
-#ifndef __DUMMYVIDEOSYSTEM_HH__
-#define __DUMMYVIDEOSYSTEM_HH__
+#ifndef DUMMYVIDEOSYSTEM_HH
+#define DUMMYVIDEOSYSTEM_HH
 
 #include "VideoSystem.hh"
-
 
 namespace openmsx {
 
@@ -21,4 +20,4 @@ public:
 
 } // namespace openmsx
 
-#endif // __DUMMYVIDEOSYSTEM_HH__
+#endif

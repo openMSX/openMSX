@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __FILEOPENER_HH__
-#define __FILEOPENER_HH__
+#ifndef FILE_HH
+#define FILE_HH
 
 #include <memory>
 #include <string>
@@ -142,4 +142,3 @@ private:
 } // namespace openmsx
 
 #endif
-

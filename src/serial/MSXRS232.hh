@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MSXRS232_HH__
-#define __MSXRS232_HH__
+#ifndef MSXRS232_HH
+#define MSXRS232_HH
 
 #include "MSXDevice.hh"
 #include "I8251.hh"

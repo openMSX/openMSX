@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __PLUGGABLEFACTORY_HH__
-#define __PLUGGABLEFACTORY_HH__
+#ifndef PLUGGABLEFACTORY_HH
+#define PLUGGABLEFACTORY_HH
 
 namespace openmsx {
 
@@ -10,9 +10,9 @@ class PluggingController;
 class PluggableFactory
 {
 public:
-	static void createAll(PluggingController *controller);
+	static void createAll(PluggingController* controller);
 };
 
 } // namespace openmsx
 
-#endif // __PLUGGABLEFACTORY_HH__
+#endif

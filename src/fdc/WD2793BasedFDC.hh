@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __WD2793BASEDFDC_HH__
-#define __WD2793BASEDFDC_HH__
+#ifndef WD2793BASEDFDC_HH
+#define WD2793BASEDFDC_HH
 
 #include "MSXFDC.hh"
 #include <memory>

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __ROMMAJUTSUSHI_HH__
-#define __ROMMAJUTSUSHI_HH__
+#ifndef ROMMAJUTSUSHI_HH
+#define ROMMAJUTSUSHI_HH
 
 #include "Rom8kBBlocks.hh"
 

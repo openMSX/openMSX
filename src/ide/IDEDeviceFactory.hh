@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __IDEDEVICEFACTORY_HH__
-#define __IDEDEVICEFACTORY_HH__
+#ifndef IDEDEVICEFACTORY_HH
+#define IDEDEVICEFACTORY_HH
 
 namespace openmsx {
 

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __ROMMSXAUDIO_HH__
-#define __ROMMSXAUDIO_HH__
+#ifndef ROMMSXAUDIO_HH
+#define ROMMSXAUDIO_HH
 
 #include "MSXRom.hh"
 

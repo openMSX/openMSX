@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __V9990SDLRASTERIZER_HH__
-#define __V9990SDLRASTERIZER_HH__
+#ifndef V9990SDLRASTERIZER_HH
+#define V9990SDLRASTERIZER_HH
 
 #include "V9990Rasterizer.hh"
 #include "V9990BitmapConverter.hh"
@@ -152,4 +152,4 @@ private:
 
 } // namespace openmsx
 
-#endif //__V9990SDLRASTERIZER_HH__
+#endif

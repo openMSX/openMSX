@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MIXER_HH__
-#define __MIXER_HH__
+#ifndef MIXER_HH
+#define MIXER_HH
 
 #include <SDL.h>
 #include <vector>
@@ -154,5 +154,4 @@ private:
 
 } // namespace openmsx
 
-#endif //__MIXER_HH__
-
+#endif

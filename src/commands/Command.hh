@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __COMMAND_HH__
-#define __COMMAND_HH__
+#ifndef COMMAND_HH
+#define COMMAND_HH
 
 #include <string>
 #include <vector>
@@ -67,4 +67,4 @@ public:
 
 } // namespace openmsx
 
-#endif //_COMMAND_HH__
+#endif

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __OPENMSX_HH__
-#define __OPENMSX_HH__
+#ifndef OPENMSX_HH
+#define OPENMSX_HH
 
 #include <iostream>
 
@@ -66,4 +66,4 @@ typedef unsigned long long uint64;
 
 } // namespace openmsx
 
-#endif //__OPENMSX_HH__
+#endif

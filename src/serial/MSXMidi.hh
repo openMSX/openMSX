@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MSXMIDI_HH__
-#define __MSXMIDI_HH__
+#ifndef MSXMIDI_HH
+#define MSXMIDI_HH
 
 #include "MSXDevice.hh"
 #include "I8251.hh"

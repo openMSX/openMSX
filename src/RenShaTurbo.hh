@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __RENSHATURBO_HH__
-#define __RENSHATURBO_HH__
+#ifndef RENSHATURBO_HH
+#define RENSHATURBO_HH
 
 #include <memory>
 #include "openmsx.hh"

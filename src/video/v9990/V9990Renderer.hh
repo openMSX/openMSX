@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __V9990RENDERER_HH__
-#define __V9990RENDERER_HH__
+#ifndef V9990RENDERER_HH
+#define V9990RENDERER_HH
 
 #include "openmsx.hh"
 #include "V9990ModeEnum.hh"

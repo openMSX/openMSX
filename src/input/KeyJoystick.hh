@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __KEYJOYSTICK_HH__
-#define __KEYJOYSTICK_HH__
+#ifndef KEYJOYSTICK_HH
+#define KEYJOYSTICK_HH
 
 #include "JoystickDevice.hh"
 #include "EventListener.hh"
@@ -52,4 +52,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __KEYJOYSTICK_HH__
+#endif

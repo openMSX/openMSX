@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __PLUGGING_CONTROLLER__
-#define __PLUGGING_CONTROLLER__
+#ifndef PLUGGINGCONTROLLER_HH
+#define PLUGGINGCONTROLLER_HH
 
 #include <vector>
 #include "Command.hh"
@@ -118,4 +118,4 @@ private:
 
 } // namespace openmsx
 
-#endif //__PLUGGING_CONTROLLER__
+#endif

@@ -27,10 +27,8 @@
 
 using std::string;
 
-#if	defined(_WIN32)
-#ifdef	__cplusplus
-extern "C" {
-#endif
+#ifdef _WIN32
+
 static	struct maint_setenv_table {
 	char *env;
 	struct maint_setenv_table *next;
@@ -109,9 +107,6 @@ static int setenv(const char *name, const char *value, int overwrite)
 	}
 }
 
-#ifdef	__cplusplus
-}
-#endif
 #endif
 
 

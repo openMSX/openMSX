@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __PIXELRENDERER_HH__
-#define __PIXELRENDERER_HH__
+#ifndef PIXELRENDERER_HH
+#define PIXELRENDERER_HH
 
 #include "Renderer.hh"
 #include "SettingListener.hh"
@@ -147,5 +147,4 @@ private:
 
 } // namespace openmsx
 
-#endif //__PIXELRENDERER_HH__
-
+#endif

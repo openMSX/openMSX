@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __DEBUGGABLE_HH__
-#define __DEBUGGABLE_HH__
+#ifndef DEBUGGABLE_HH
+#define DEBUGGABLE_HH
 
 #include <string>
 #include "openmsx.hh"

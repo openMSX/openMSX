@@ -44,4 +44,4 @@ private:
 
 } // namespace openmsx
 
-#endif //__ENUMSETTING_HH__
+#endif

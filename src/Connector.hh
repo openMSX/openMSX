@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __CONNECTOR__
-#define __CONNECTOR__
+#ifndef CONNECTOR
+#define CONNECTOR
 
 #include <string>
 #include <memory>
@@ -74,4 +74,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __CONNECTOR__
+#endif

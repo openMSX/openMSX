@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __DISKDRIVE_HH__
-#define __DISKDRIVE_HH__
+#ifndef DISKDRIVE_HH
+#define DISKDRIVE_HH
 
 #include <memory>
 #include <bitset>

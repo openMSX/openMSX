@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __LOCALFILE_HH__
-#define __LOCALFILE_HH__
+#ifndef LOCALFILE_HH
+#define LOCALFILE_HH
 
 #include <cstdio>
 #include "File.hh"
@@ -41,4 +41,3 @@ private:
 } // namespace openmsx
 
 #endif
-

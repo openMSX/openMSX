@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __DUMMYMIDIINDEVICE_HH__
-#define __DUMMYMIDIINDEVICE_HH__
+#ifndef DUMMYMIDIINDEVICE_HH
+#define DUMMYMIDIINDEVICE_HH
 
 #include "MidiInDevice.hh"
 
@@ -19,4 +19,3 @@ public:
 } // namespace openmsx
 
 #endif
-

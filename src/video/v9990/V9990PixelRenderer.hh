@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __V9990PIXELRENDERER_HH__
-#define __V9990PIXELRENDERER_HH__
+#ifndef V9990PIXELRENDERER_HH
+#define V9990PIXELRENDERER_HH
 
 #include "V9990Renderer.hh"
 #include "SettingListener.hh"

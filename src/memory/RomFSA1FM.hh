@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __ROMFSA1FM1_HH__
-#define __ROMFSA1FM1_HH__
+#ifndef ROMFSA1FM1_HH
+#define ROMFSA1FM1_HH
 
 #include "MSXRom.hh"
 #include "Rom8kBBlocks.hh"

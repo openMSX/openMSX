@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __ROMTYPES_HH__
-#define __ROMTYPES_HH__
+#ifndef ROMTYPES_HH
+#define ROMTYPES_HH
 
 namespace openmsx {
 

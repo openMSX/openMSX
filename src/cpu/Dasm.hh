@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __DASM_HH__
-#define __DASM_HH__
+#ifndef DASM_HH
+#define DASM_HH
 
 #include "openmsx.hh"
 #include <string>
@@ -15,5 +15,4 @@ int dasm(const byte* buffer, unsigned pc, std::string& dest);
 
 } // namespace openmsx
 
-#endif // __DASM_HH__
-
+#endif

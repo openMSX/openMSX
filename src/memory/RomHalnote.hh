@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __ROMHALNOTE_HH__
-#define __ROMHALNOTE_HH__
+#ifndef ROMHALNOTE_HH
+#define ROMHALNOTE_HH
 
 #include "Rom8kBBlocks.hh"
 

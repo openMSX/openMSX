@@ -6,13 +6,12 @@
 // * For techncal details on AY-3-8910
 //    http://w3.qahwah.net/joost/openMSX/AY-3-8910.pdf
 
-#ifndef __AY8910_HH__
-#define __AY8910_HH__
+#ifndef AY8910_HH
+#define AY8910_HH
 
 #include "openmsx.hh"
 #include "SoundDevice.hh"
 #include "Debuggable.hh"
-
 
 namespace openmsx {
 
@@ -35,7 +34,7 @@ class AY8910 : private SoundDevice, private Debuggable
 {
 public:
 	AY8910(AY8910Interface& interf, const XMLElement& config,
-		const EmuTime& time );
+	       const EmuTime& time );
 	virtual ~AY8910();
 
 	byte readRegister(byte reg, const EmuTime& time);
@@ -166,4 +165,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __AY8910_HH__
+#endif

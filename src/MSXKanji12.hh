@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MSXKANJI12_HH__
-#define __MSXKANJI12_HH__
+#ifndef MSXKANJI12_HH
+#define MSXKANJI12_HH
 
 #include "MSXDevice.hh"
 #include "Rom.hh"
@@ -28,4 +28,4 @@ private:
 
 } // namespace openmsx
 
-#endif //__MSXKANJI12_HH__
+#endif

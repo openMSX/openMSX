@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MSXPRINTERPORTLOGGER_HH__
-#define __MSXPRINTERPORTLOGGER_HH__
+#ifndef MSXPRINTERPORTLOGGER_HH
+#define MSXPRINTERPORTLOGGER_HH
 
 #include "PrinterPortDevice.hh"
 #include <memory>
@@ -37,4 +37,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __MSXPRINTERPORTLOGGER_HH__
+#endif

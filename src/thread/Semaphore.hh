@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __SEMAPHORE_HH__
-#define __SEMAPHORE_HH__
+#ifndef SEMAPHORE_HH
+#define SEMAPHORE_HH
 
 #include <SDL.h>
 

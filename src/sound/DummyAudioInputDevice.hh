@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __DUMMYAUDIOINPUTDEVICE_HH__
-#define __DUMMYAUDIOINPUTDEVICE_HH__
+#ifndef DUMMYAUDIOINPUTDEVICE_HH
+#define DUMMYAUDIOINPUTDEVICE_HH
 
 #include "AudioInputDevice.hh"
 

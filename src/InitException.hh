@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __INITEXCEPTION_HH__
-#define __INITEXCEPTION_HH__
+#ifndef INITEXCEPTION_HH
+#define INITEXCEPTION_HH
 
 #include "MSXException.hh"
 #include <string>
@@ -21,4 +21,4 @@ public:
 
 } // namespace openmsx
 
-#endif // __INITEXCEPTION_HH__
+#endif

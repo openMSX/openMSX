@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __SDLRASTERIZER_HH__
-#define __SDLRASTERIZER_HH__
+#ifndef SDLRASTERIZER_HH
+#define SDLRASTERIZER_HH
 
 #include "Rasterizer.hh"
 #include "CharacterConverter.hh"
@@ -268,4 +268,4 @@ private:
 
 } // namespace openmsx
 
-#endif //__SDLRASTERIZER_HH__
+#endif

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __GLOBALSETTINGS_HH__
-#define __GLOBALSETTINGS_HH__
+#ifndef GLOBALSETTINGS_HH
+#define GLOBALSETTINGS_HH
 
 #include <memory>
 

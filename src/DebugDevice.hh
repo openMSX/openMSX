@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __DEBUG_DEVICE_
-#define __DEBUG_DEVICE_
+#ifndef DEBUGDEVICE_HH
+#define DEBUGDEVICE_HH
 
 #include <fstream>
 #include <memory>

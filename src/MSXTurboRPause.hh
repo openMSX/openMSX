@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __TURBORPAUSE_HH__
-#define __TURBORPAUSE_HH__
+#ifndef TURBORPAUSE_HH
+#define TURBORPAUSE_HH
 
 #include "MSXDevice.hh"
 #include "BooleanSetting.hh"
@@ -32,4 +32,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __TURBORPAUSE_HH__
+#endif

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __FONT_HH__
-#define __FONT_HH__
+#ifndef FONT_HH
+#define FONT_HH
 
 #include "openmsx.hh"
 #include <string>

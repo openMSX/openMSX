@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __HOTKEY_HH__
-#define __HOTKEY_HH__
+#ifndef HOTKEY_HH
+#define HOTKEY_HH
 
 #include <string>
 #include <map>

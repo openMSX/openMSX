@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __UNICODE_HH__
-#define __UNICODE_HH__
+#ifndef UNICODE_HH
+#define UNICODE_HH
 
 #include <string>
 
@@ -17,4 +17,5 @@ public:
 };
 
 }
+
 #endif

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MSXBUNSETSU_HH__
-#define __MSXBUNSETSU_HH__
+#ifndef MSXBUNSETSU_HH
+#define MSXBUNSETSU_HH
 
 #include "MSXDevice.hh"
 #include "Rom.hh"

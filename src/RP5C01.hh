@@ -6,8 +6,8 @@
 //     http://w3.qahwah.net/joost/openMSX/RP5C01.pdf
 //  
 
-#ifndef __RP5C01_HH__
-#define __RP5C01_HH__
+#ifndef RP5C01_HH
+#define RP5C01_HH
 
 #include "openmsx.hh"
 #include "EmuTime.hh"
@@ -49,4 +49,5 @@ private:
 };
 
 } // namespace openmsx
+
 #endif

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __TIMER_HH__
-#define __TIMER_HH__
+#ifndef TIMER_HH
+#define TIMER_HH
 
 #include "Schedulable.hh"
 #include "openmsx.hh"
@@ -41,4 +41,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __TIMER_HH__
+#endif

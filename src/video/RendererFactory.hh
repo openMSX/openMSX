@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __RENDERERFACTORY_HH__
-#define __RENDERERFACTORY_HH__
+#ifndef RENDERERFACTORY_HH
+#define RENDERERFACTORY_HH
 
 #include <memory>
 #include "components.hh"
@@ -56,5 +56,4 @@ public:
 
 } // namespace openmsx
 
-#endif //__RENDERERFACTORY_HH__
-
+#endif

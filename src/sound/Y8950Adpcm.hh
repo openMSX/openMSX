@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __Y8950ADPCM_HH__
-#define __Y8950ADPCM_HH__
+#ifndef Y8950ADPCM_HH
+#define Y8950ADPCM_HH
 
 #include "openmsx.hh"
 #include "Schedulable.hh"
@@ -68,6 +68,5 @@ private:
 };
 
 } // namespace openmsx
-
 
 #endif 

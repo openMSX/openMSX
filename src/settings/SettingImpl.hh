@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __SETTING_HH__
-#define __SETTING_HH__
+#ifndef SETTING_HH
+#define SETTING_HH
 
 #include <cassert>
 #include "SettingsManager.hh"
@@ -232,4 +232,4 @@ void SettingImpl<POLICY>::updateData(const XMLElement& element)
 
 } // namespace openmsx
 
-#endif //__SETTING_HH__
+#endif

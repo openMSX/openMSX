@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MSXROMCLI_HH__
-#define __MSXROMCLI_HH__
+#ifndef MSXROMCLI_HH
+#define MSXROMCLI_HH
 
 #include "CommandLineParser.hh"
 

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MIDIOUTDEVICE_HH__
-#define __MIDIOUTDEVICE_HH__
+#ifndef MIDIOUTDEVICE_HH
+#define MIDIOUTDEVICE_HH
 
 #include "Pluggable.hh"
 #include "SerialDataInterface.hh"
@@ -25,4 +25,3 @@ public:
 } // namespace openmsx
 
 #endif
-

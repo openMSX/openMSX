@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __CASSETTEDEVICE_HH__
-#define __CASSETTEDEVICE_HH__
+#ifndef CASSETTEDEVICE_HH
+#define CASSETTEDEVICE_HH
 
 #include "Pluggable.hh"
 

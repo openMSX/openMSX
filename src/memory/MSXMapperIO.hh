@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MSXMAPPERIO_HH__
-#define __MSXMAPPERIO_HH__
+#ifndef MSXMAPPERIO_HH
+#define MSXMAPPERIO_HH
 
 #include "openmsx.hh"
 #include "MSXDevice.hh"

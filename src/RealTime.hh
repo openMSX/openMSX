@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MSXREALTIME_HH__
-#define __MSXREALTIME_HH__
+#ifndef MSXREALTIME_HH
+#define MSXREALTIME_HH
 
 #include "Schedulable.hh"
 #include "SettingListener.hh"
@@ -68,4 +68,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __MSXREALTIME_HH__
+#endif

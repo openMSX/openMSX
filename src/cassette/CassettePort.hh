@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __CASSETTEPORT_HH__
-#define __CASSETTEPORT_HH__
+#ifndef CASSETTEPORT_HH
+#define CASSETTEPORT_HH
 
 #include <memory>
 #include "EmuTime.hh"
@@ -101,4 +101,4 @@ public:
 
 } // namespace openmsx
 
-#endif // __CASSETTEPORT_HH__
+#endif

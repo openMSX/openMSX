@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __READDIR_HH__
-#define __READDIR_HH__
+#ifndef READDIR_HH
+#define READDIR_HH
 
 #include <string>
 #include <sys/types.h>

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __DEVICEFACTORY_HH__
-#define __DEVICEFACTORY_HH__
+#ifndef DEVICEFACTORY_HH
+#define DEVICEFACTORY_HH
 
 #include <memory>
 

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MSXCPU_HH__
-#define __MSXCPU_HH__
+#ifndef MSXCPU_HH
+#define MSXCPU_HH
 
 #include "Debuggable.hh"
 #include "InfoTopic.hh"
@@ -153,4 +153,5 @@ private:
 };
 
 } // namespace openmsx
-#endif //__MSXCPU_HH__
+
+#endif

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MSXFMPAC_HH__
-#define __MSXFMPAC_HH__
+#ifndef MSXFMPAC_HH
+#define MSXFMPAC_HH
 
 #include "MSXMusic.hh"
 #include <memory>

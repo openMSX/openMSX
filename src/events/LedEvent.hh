@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef _LEDEVENT_HH_
-#define _LEDEVENT_HH_
+#ifndef LEDEVENT_HH
+#define LEDEVENT_HH
 
 #include "Event.hh"
 
@@ -35,4 +35,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __LEDEVENT_HH__
+#endif

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __V9990VRAMOBSERVER_HH__
-#define __V9990VRAMOBSERVER_HH__
+#ifndef V9990VRAMOBSERVER_HH
+#define V9990VRAMOBSERVER_HH
 
 namespace openmsx {
 
@@ -45,4 +45,4 @@ private:
 
 }
 
-#endif // __V9990VRAMOBSERVER_HH__
+#endif

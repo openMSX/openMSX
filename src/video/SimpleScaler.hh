@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __SIMPLESCALER_HH__
-#define __SIMPLESCALER_HH__
+#ifndef SIMPLESCALER_HH
+#define SIMPLESCALER_HH
 
 #include "Scaler.hh"
 #include "Blender.hh"
@@ -102,4 +102,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __SIMPLESCALER_HH__
+#endif

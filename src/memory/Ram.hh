@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __RAM_HH__
-#define __RAM_HH__
+#ifndef RAM_HH
+#define RAM_HH
 
 #include <cassert>
 #include "openmsx.hh"

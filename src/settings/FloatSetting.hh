@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __FLOATSETTING_HH__
-#define __FLOATSETTING_HH__
+#ifndef FLOATSETTING_HH
+#define FLOATSETTING_HH
 
 #include "SettingPolicy.hh"
 #include "SettingImpl.hh"
@@ -27,4 +27,4 @@ public:
 
 } // namespace openmsx
 
-#endif //__FLOATSETTING_HH__
+#endif

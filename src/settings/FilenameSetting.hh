@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __FILENAMESETTING_HH__
-#define __FILENAMESETTING_HH__
+#ifndef FILENAMESETTING_HH
+#define FILENAMESETTING_HH
 
 #include "StringSetting.hh"
 
@@ -29,4 +29,4 @@ public:
 
 } // namespace openmsx
 
-#endif //__FILENAMESETTING_HH__
+#endif

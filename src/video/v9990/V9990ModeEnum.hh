@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef _V9990MODEENUM_HH_
-#define _V9990MODEENUM_HH_
+#ifndef V9990MODEENUM_HH
+#define V9990MODEENUM_HH
 
 namespace openmsx {
 

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MSXFDC_HH__
-#define __MSXFDC_HH__
+#ifndef MSXFDC_HH
+#define MSXFDC_HH
 
 #include "MSXDevice.hh"
 #include <memory>
@@ -27,4 +27,5 @@ protected:
 };
 
 } // namespace openmsx
+
 #endif

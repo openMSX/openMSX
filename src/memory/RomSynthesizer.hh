@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __ROMSYNTHESIZER_HH__
-#define __ROMSYNTHESIZER_HH__
+#ifndef ROMSYNTHESIZER_HH
+#define ROMSYNTHESIZER_HH
 
 #include "Rom16kBBlocks.hh"
 

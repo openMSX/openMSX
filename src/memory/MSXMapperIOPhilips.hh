@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MSXMAPPERIOPHILIPS_HH__
-#define __MSXMAPPERIOPHILIPS_HH__
+#ifndef MSXMAPPERIOPHILIPS_HH
+#define MSXMAPPERIOPHILIPS_HH
 
 #include "MSXMapperIO.hh"
 
@@ -18,5 +18,5 @@ private:
 
 } // namespace openmsx
 
-#endif //__MSXMAPPERIOPHILIPS_HH__
+#endif
 

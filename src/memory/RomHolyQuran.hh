@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __ROMHOLYQURAN_HH__
-#define __ROMHOLYQURAN_HH__
+#ifndef ROMHOLYQURAN_HH
+#define ROMHOLYQURAN_HH
 
 #include "Rom8kBBlocks.hh"
 

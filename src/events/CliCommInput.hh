@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __CLICOMMINPUT_HH__
-#define __CLICOMMINPUT_HH__
+#ifndef CLICOMMINPUT_HH
+#define CLICOMMINPUT_HH
 
 #include <deque>
 #include <string>
@@ -54,4 +54,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __CLICOMMINPUT_HH__
+#endif

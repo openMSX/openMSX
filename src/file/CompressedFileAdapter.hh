@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __COMPRESSEDFILEADAPTER_HH__
-#define __COMPRESSEDFILEADAPTER_HH__
+#ifndef COMPRESSEDFILEADAPTER_HH
+#define COMPRESSEDFILEADAPTER_HH
 
 #include <memory>
 #include "FileBase.hh"
@@ -45,4 +45,3 @@ private:
 } // namespace openmsx
 
 #endif
-

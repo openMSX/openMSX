@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MSXPRINTERPORT_HH__
-#define __MSXPRINTERPORT_HH__
+#ifndef MSXPRINTERPORT_HH
+#define MSXPRINTERPORT_HH
 
 #include "MSXDevice.hh"
 #include "PrinterPortDevice.hh"
@@ -51,4 +51,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __MSXPRINTERPORT_HH__
+#endif

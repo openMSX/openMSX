@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MSXMOONSOUND_HH__
-#define __MSXMOONSOUND_HH__
+#ifndef MSXMOONSOUND_HH
+#define MSXMOONSOUND_HH
 
 #include "MSXDevice.hh"
 #include <memory>

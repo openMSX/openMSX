@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __Y8950KEYBOARDCONNECTOR_HH__
-#define __Y8950KEYBOARDCONNECTOR_HH__
+#ifndef Y8950KEYBOARDCONNECTOR_HH
+#define Y8950KEYBOARDCONNECTOR_HH
 
 #include "Y8950KeyboardDevice.hh"
 #include "Connector.hh"

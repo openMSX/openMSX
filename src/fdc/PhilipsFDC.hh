@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __PHILIPSFDC_HH__
-#define __PHILIPSFDC_HH__
+#ifndef PHILIPSFDC_HH
+#define PHILIPSFDC_HH
 
 #include "WD2793BasedFDC.hh"
 
@@ -26,4 +26,5 @@ private:
 };
 
 } // namespace openmsx
+
 #endif

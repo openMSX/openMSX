@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __PRINTERPORTDEVICE_HH__
-#define __PRINTERPORTDEVICE_HH__
+#ifndef PRINTERPORTDEVICE_HH
+#define PRINTERPORTDEVICE_HH
 
 #include "openmsx.hh"
 #include "Pluggable.hh"

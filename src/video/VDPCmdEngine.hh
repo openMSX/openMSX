@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __VDPCMDENGINE_HH__
-#define __VDPCMDENGINE_HH__
+#ifndef VDPCMDENGINE_HH
+#define VDPCMDENGINE_HH
 
 #include "openmsx.hh"
 #include "VDP.hh"
@@ -434,4 +434,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __VDPCMDENGINE_HH__
+#endif

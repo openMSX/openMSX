@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __VDPIODELAY_HH__
-#define __VDPIODELAY_HH__
+#ifndef VDPIODELAY_HH
+#define VDPIODELAY_HH
 
 #include "MSXDevice.hh"
 #include "EmuTime.hh"

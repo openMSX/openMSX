@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MEGARAM_HH__
-#define __MEGARAM_HH__
+#ifndef MSXMEGARAM_HH
+#define MSXMEGARAM_HH
 
 #include "MSXDevice.hh"
 #include <memory>

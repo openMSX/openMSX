@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __SCC_HH__
-#define __SCC_HH__
+#ifndef SCC_HH
+#define SCC_HH
 
 #include "openmsx.hh"
 #include "SoundDevice.hh"
@@ -80,4 +80,4 @@ private:
 
 } // namespace openmsx
 
-#endif //__SCC_HH__
+#endif

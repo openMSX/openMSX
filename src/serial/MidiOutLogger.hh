@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MIDIOUTLOGGER_HH__
-#define __MIDIOUTLOGGER_HH__
+#ifndef MIDIOUTLOGGER_HH
+#define MIDIOUTLOGGER_HH
 
 #include "MidiOutDevice.hh"
 #include <fstream>
@@ -34,4 +34,3 @@ private:
 } // namespace openmsx
 
 #endif
-

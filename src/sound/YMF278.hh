@@ -2,8 +2,8 @@
 
 // Based on ymf278b.c written by R. Belmont and O. Galibert
 
-#ifndef __YMF278__
-#define __YMF278__
+#ifndef YMF278_HH
+#define YMF278_HH
 
 #include "openmsx.hh"
 #include "SoundDevice.hh"

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __Y8950KEYBOARDDEVICE_HH__
-#define __Y8950KEYBOARDDEVICE_HH__
+#ifndef Y8950KEYBOARDDEVICE_HH
+#define Y8950KEYBOARDDEVICE_HH
 
 #include "openmsx.hh"
 #include "Pluggable.hh"

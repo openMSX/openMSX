@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __RENDERSETTINGS_HH__
-#define __RENDERSETTINGS_HH__
+#ifndef RENDERSETTINGS_HH
+#define RENDERSETTINGS_HH
 
 #include <memory>
 #include "RendererFactory.hh"
@@ -105,5 +105,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __RENDERSETTINGS_HH__
-
+#endif

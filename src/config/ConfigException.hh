@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __CONFIGEXCEPTION_HH__
-#define __CONFIGEXCEPTION_HH__
+#ifndef CONFIGEXCEPTION_HH
+#define CONFIGEXCEPTION_HH
 
 #include "MSXException.hh"
 

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __KEYCLICK_HH__
-#define __KEYCLICK_HH__
+#ifndef KEYCLICK_HH
+#define KEYCLICK_HH
 
 #include <memory>
 
@@ -26,4 +26,5 @@ private:
 };
 
 } // namespace openmsx
+
 #endif

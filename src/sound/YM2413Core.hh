@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __YM2413CORE_HH__
-#define __YM2413CORE_HH__
+#ifndef YM2413CORE_HH
+#define YM2413CORE_HH
 
 #include "openmsx.hh"
 

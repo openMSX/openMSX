@@ -2,8 +2,8 @@
 
 // This class implements the Intel 8251 chip (UART)
 
-#ifndef __I8251_HH__
-#define __I8251_HH__
+#ifndef I8251_HH
+#define I8251_HH
 
 #include "openmsx.hh"
 #include "ClockPin.hh"

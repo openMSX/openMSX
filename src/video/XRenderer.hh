@@ -1,10 +1,10 @@
 // $Id$
 
-#ifndef __XRENDERER_HH__
-#define __XRENDERER_HH__
+#ifndef XRENDERER_HH
+#define XRENDERER_HH
 
 #include "probed_defs.hh"
-#ifdef	HAVE_X11
+#ifdef HAVE_X11
 
 #include "openmsx.hh"
 #include "Renderer.hh"
@@ -95,6 +95,6 @@ private:
 
 } // namespace openmsx
 
-#endif	// HAVE_X11
+#endif // HAVE_X11
 
-#endif // __XRENDERER_HH__
+#endif // XRENDERER_HH

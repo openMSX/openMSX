@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __RS232CONNECTOR_HH__
-#define __RS232CONNECTOR_HH__
+#ifndef RS232CONNECTOR_HH
+#define RS232CONNECTOR_HH
 
 #include "Connector.hh"
 #include "SerialDataInterface.hh"

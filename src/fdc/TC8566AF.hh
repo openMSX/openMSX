@@ -4,8 +4,8 @@
  * Based on code from NLMSX written by Frits Hilderink
  */
 
-#ifndef __TC8566AF_HH__
-#define __TC8566AF_HH__
+#ifndef TC8566AF_HH
+#define TC8566AF_HH
 
 #include "openmsx.hh"
 #include "EmuTime.hh"

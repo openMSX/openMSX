@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __CHARACTERCONVERTER_HH__
-#define __CHARACTERCONVERTER_HH__
+#ifndef CHARACTERCONVERTER_HH
+#define CHARACTERCONVERTER_HH
 
 #include <cassert>
 #include <bitset>
@@ -188,4 +188,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __CHARACTERCONVERTER_HH__
+#endif

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MSXTURBORPCM_HH__
-#define __MSXTURBORPCM_HH__
+#ifndef MSXTURBORPCM_HH
+#define MSXTURBORPCM_HH
 
 #include <memory>
 #include "MSXDevice.hh"

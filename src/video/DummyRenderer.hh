@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __DUMMYRENDERER_HH__
-#define __DUMMYRENDERER_HH__
+#ifndef DUMMYRENDERER_HH
+#define DUMMYRENDERER_HH
 
 #include "openmsx.hh"
 #include "Renderer.hh"
@@ -58,4 +58,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __DUMMYRENDERER_HH__
+#endif

@@ -5,8 +5,8 @@
 // * Only the 8254 is emulated, no surrounding hardware. 
 //   Use the class I8254Interface to do that.
 
-#ifndef __I8254_HH__
-#define __I8254_HH__
+#ifndef I8254_HH
+#define I8254_HH
 
 #include "openmsx.hh"
 #include "EmuTime.hh"
@@ -95,4 +95,5 @@ private:
 };
 
 } // namespace openmsx
+
 #endif

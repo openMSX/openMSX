@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __V9990_HH__
-#define __V9990_HH__
+#ifndef V9990_HH
+#define V9990_HH
 
 #include <string>
 #include "openmsx.hh"

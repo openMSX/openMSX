@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __ROMHARRYFOX_HH__
-#define __ROMHARRYFOX_HH__
+#ifndef ROMHARRYFOX_HH
+#define ROMHARRYFOX_HH
 
 #include "Rom16kBBlocks.hh"
 

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __SPRITECHECKER_HH__
-#define __SPRITECHECKER_HH__
+#ifndef SPRITECHECKER_HH
+#define SPRITECHECKER_HH
 
 #include "EmuTime.hh"
 #include "VDP.hh"
@@ -63,7 +63,7 @@ public:
 	/** Create a sprite checker.
 	  * @param vdp The VDP this sprite checker is part of.
 	  */
-	SpriteChecker(VDP *vdp);
+	SpriteChecker(VDP* vdp);
 
 	virtual ~SpriteChecker();
 
@@ -419,4 +419,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __SPRITECHECKER_HH__
+#endif

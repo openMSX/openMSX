@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __YM2413_2_HH__
-#define __YM2413_2_HH__
+#ifndef YM2413_2_HH
+#define YM2413_2_HH
 
 #include "openmsx.hh"
 #include "SoundDevice.hh"

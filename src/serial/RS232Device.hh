@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __RS232DEVICE_HH__
-#define __RS232DEVICE_HH__
+#ifndef RS232DEVICE_HH
+#define RS232DEVICE_HH
 
 #include "Pluggable.hh"
 #include "SerialDataInterface.hh"
@@ -32,4 +32,3 @@ public:
 } // namespace openmsx
 
 #endif
-

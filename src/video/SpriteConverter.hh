@@ -5,8 +5,8 @@ TODO:
 - Implement sprite pixels in Graphic 5.
 */
 
-#ifndef __SPRITECONVERTER_HH__
-#define __SPRITECONVERTER_HH__
+#ifndef SPRITECONVERTER_HH
+#define SPRITECONVERTER_HH
 
 #include "openmsx.hh"
 #include "Renderer.hh"
@@ -226,4 +226,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __SPRITECONVERTER_HH__
+#endif

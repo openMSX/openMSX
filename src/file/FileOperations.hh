@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __FILEOPERATIONS_HH__
-#define __FILEOPERATIONS_HH__
+#ifndef FILEOPERATIONS_HH
+#define FILEOPERATIONS_HH
 
 #include <string>
 

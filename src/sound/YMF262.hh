@@ -38,14 +38,13 @@
  * - YMF262 does not support CSM mode
  */
 
-#ifndef __YMF262_HH__
-#define __YMF262_HH__
+#ifndef YMF262_HH
+#define YMF262_HH
 
 #include "openmsx.hh"
 #include "SoundDevice.hh"
 #include "IRQHelper.hh"
 #include "EmuTimer.hh"
-
 
 namespace openmsx {
 

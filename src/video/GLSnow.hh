@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __GLSNOW_HH__
-#define __GLSNOW_HH__
+#ifndef GLSNOW_HH
+#define GLSNOW_HH
 
 #include "Layer.hh"
 #include "GLUtil.hh"
@@ -26,4 +26,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __GLSNOW_HH__
+#endif

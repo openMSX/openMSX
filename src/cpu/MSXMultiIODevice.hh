@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MSXMULTIIODEVICE_HH__
-#define __MSXMULTIIODEVICE_HH__
+#ifndef MSXMULTIIODEVICE_HH
+#define MSXMULTIIODEVICE_HH
 
 #include <vector>
 #include "MSXDevice.hh"
@@ -40,4 +40,3 @@ private:
 } // namespace openmsx
 
 #endif
-

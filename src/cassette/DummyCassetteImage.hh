@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __DUMMYCASSETTEIMAGE_HH__
-#define __DUMMYCASSETTEIMAGE_HH__
+#ifndef DUMMYCASSETTEIMAGE_HH
+#define DUMMYCASSETTEIMAGE_HH
 
 #include "CassetteImage.hh"
 

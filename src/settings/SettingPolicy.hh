@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef _SETTING_POLICY_HH_
-#define _SETTING_POLICY_HH_
+#ifndef SETTING_POLICY_HH
+#define SETTING_POLICY_HH
 
 #include <string>
 #include <vector>
@@ -51,5 +51,5 @@ private:
 
 } // namespace openmsx
 
-#endif //__INTEGERSETTING_HH__
+#endif
 

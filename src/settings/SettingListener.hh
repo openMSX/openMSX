@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __SETTINGLISTENER_HH__
-#define __SETTINGLISTENER_HH__
+#ifndef SETTINGLISTENER_HH
+#define SETTINGLISTENER_HH
 
 namespace openmsx {
 
@@ -23,4 +23,4 @@ protected:
 
 } // namespace openmsx
 
-#endif //__SETTINGLISTENER_HH__
+#endif

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __FRONTSWITCH_HH__
-#define __FRONTSWITCH_HH__
+#ifndef FRONTSWITCH_HH
+#define FRONTSWITCH_HH
 
 #include <memory>
 

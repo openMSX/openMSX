@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __SOUNDDEVICE_HH__
-#define __SOUNDDEVICE_HH__
+#ifndef SOUNDDEVICE_HH
+#define SOUNDDEVICE_HH
 
 #include <string>
 #include "Mixer.hh"
@@ -112,4 +112,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __SOUNDDEVICE_HH__
+#endif

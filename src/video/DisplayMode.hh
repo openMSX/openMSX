@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __DISPLAYMODE_HH__
-#define __DISPLAYMODE_HH__
+#ifndef DISPLAYMODE_HH
+#define DISPLAYMODE_HH
 
 #include "openmsx.hh"
 
@@ -188,5 +188,4 @@ public:
 
 } // namespace openmsx
 
-#endif //__DISPLAYMODE_HH__
-
+#endif

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __FINISHFRAMEEVENT_HH__
-#define __FINISHFRAMEEVENT_HH__
+#ifndef FINISHFRAMEEVENT_HH
+#define FINISHFRAMEEVENT_HH
 
 #include "Event.hh"
 #include "VideoSourceSetting.hh"
@@ -25,4 +25,5 @@ private:
 };
 
 }
-#endif // __FINISHFRAMEEVENT_HH__
+
+#endif

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __TURBORFDC_HH__
-#define __TURBORFDC_HH__
+#ifndef TURBORFDC_HH
+#define TURBORFDC_HH
 
 #include "MSXFDC.hh"
 #include <memory>
@@ -30,4 +30,5 @@ private:
 };
 
 } // namespace openmsx
+
 #endif

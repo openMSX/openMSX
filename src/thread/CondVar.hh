@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __CONDVAR_HH__
-#define __CONDVAR_HH__
+#ifndef CONDVAR_HH
+#define CONDVAR_HH
 
 struct SDL_cond;
 struct SDL_mutex;
@@ -24,4 +24,5 @@ private:
 };
 
 } // namespace openmsx
+
 #endif

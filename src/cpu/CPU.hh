@@ -162,4 +162,4 @@ protected:
 
 } // namespace openmsx
 
-#endif // _CPU_HH_
+#endif

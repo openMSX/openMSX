@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __SECTORBASEDDISK_HH__
-#define __SECTORBASEDDISK_HH__
+#ifndef SECTORBASEDDISK_HH
+#define SECTORBASEDDISK_HH
 
 #include "Disk.hh"
 #include <memory>

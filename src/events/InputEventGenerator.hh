@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __INPUTEVENTGENERATOR_HH__
-#define __INPUTEVENTGENERATOR_HH__
+#ifndef INPUTEVENTGENERATOR_HH
+#define INPUTEVENTGENERATOR_HH
 
 #include "SettingListener.hh"
 #include "EventListener.hh"
@@ -73,4 +73,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __EVENTDISTRIBUTOR_HH__
+#endif

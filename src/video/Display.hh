@@ -92,5 +92,4 @@ private:
 
 } // namespace openmsx
 
-#endif // DISPLAY_HH
-
+#endif

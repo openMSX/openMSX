@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __BOOLEANSETTING_HH__
-#define __BOOLEANSETTING_HH__
+#ifndef BOOLEANSETTING_HH
+#define BOOLEANSETTING_HH
 
 #include "EnumSetting.hh"
 
@@ -21,4 +21,4 @@ private:
 
 } // namespace openmsx
 
-#endif //__BOOLEANSETTING_HH__
+#endif

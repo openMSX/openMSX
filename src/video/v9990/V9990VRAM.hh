@@ -1,10 +1,9 @@
 // $Id$
 
-#ifndef __V9990VRAM_HH__
-#define __V9990VRAM_HH__
+#ifndef V9990VRAM_HH
+#define V9990VRAM_HH
 
 #include <vector>
-
 #include "openmsx.hh"
 #include "Debuggable.hh"
 #include "V9990ModeEnum.hh"
@@ -97,4 +96,3 @@ private:
 } // namespace openmsx
 
 #endif
-

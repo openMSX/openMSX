@@ -9,8 +9,8 @@
  *  TODO explanation  
  */
 
-#ifndef __S1985_HH__
-#define __S1985_HH__
+#ifndef S1985_HH
+#define S1985_HH
 
 #include "MSXDevice.hh"
 #include "MSXDeviceSwitch.hh"

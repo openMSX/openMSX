@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __CIRCULARBUFFER_HH__
-#define __CIRCULARBUFFER_HH__
+#ifndef CIRCULARBUFFER_HH
+#define CIRCULARBUFFER_HH
 
 #include <cassert>
 

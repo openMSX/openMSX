@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __SDLGLVIDEOSYSTEM_HH__
-#define __SDLGLVIDEOSYSTEM_HH__
+#ifndef SDLGLVIDEOSYSTEM_HH
+#define SDLGLVIDEOSYSTEM_HH
 
 #include "VideoSystem.hh"
 
@@ -39,4 +39,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __SDLGLVIDEOSYSTEM_HH__
+#endif

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MSXS1990_HH__
-#define __MSXS1990_HH__
+#ifndef MSXS1990_HH
+#define MSXS1990_HH
 
 #include "MSXDevice.hh"
 #include <memory>
@@ -36,4 +36,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __MSXS1990_HH__
+#endif

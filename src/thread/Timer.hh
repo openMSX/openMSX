@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __TIMER_HH__
-#define __TIMER_HH__
+#ifndef TIMER_HH
+#define TIMER_HH
 
 namespace openmsx {
 

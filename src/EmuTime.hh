@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __EMUTIME_HH__
-#define __EMUTIME_HH__
+#ifndef EMUTIME_HH
+#define EMUTIME_HH
 
 #include <iostream>
 #include <cassert>

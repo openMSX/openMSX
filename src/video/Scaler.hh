@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __SCALER_HH__
-#define __SCALER_HH__
+#ifndef SCALER_HH
+#define SCALER_HH
 
 #include "openmsx.hh"
 #include <SDL.h>
@@ -148,4 +148,4 @@ protected:
 
 } // namespace openmsx
 
-#endif // __SCALER_HH__
+#endif

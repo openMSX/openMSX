@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __VIDEOLAYER_HH__
-#define __VIDEOLAYER_HH__
+#ifndef VIDEOLAYER_HH
+#define VIDEOLAYER_HH
 
 #include "Layer.hh"
 #include "SettingListener.hh"
@@ -41,4 +41,4 @@ private:
 
 } // namespace openmsx
 
-#endif //__VIDEOLAYER_HH__
+#endif

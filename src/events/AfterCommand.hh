@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __AFTERCOMMAND_HH__
-#define __AFTERCOMMAND_HH__
+#ifndef AFTERCOMMAND_HH
+#define AFTERCOMMAND_HH
 
 #include <map>
 #include "Command.hh"

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __FDC_DirAsDSK__HH__
-#define __FDC_DirAsDSK__HH__
+#ifndef FDC_DIRASDSK_HH
+#define FDC_DIRASDSK_HH
 
 #include <map>
 #include "SectorBasedDisk.hh"

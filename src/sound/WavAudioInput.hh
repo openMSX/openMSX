@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __WAVAUDIOINPUT_HH__
-#define __WAVAUDIOINPUT_HH__
+#ifndef WAVAUDIOINPUT_HH
+#define WAVAUDIOINPUT_HH
 
 #include "AudioInputDevice.hh"
 #include "SettingListener.hh"

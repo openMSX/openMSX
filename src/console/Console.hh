@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __CONSOLE_HH__
-#define __CONSOLE_HH__
+#ifndef CONSOLE_HH
+#define CONSOLE_HH
 
 #include "EventListener.hh"
 #include <string>

@@ -2,8 +2,8 @@
 
 // This class implements a 16 bit signed DAC
 
-#ifndef __DACSOUND16S_HH__
-#define __DACSOUND16S_HH__
+#ifndef DACSOUND16S_HH
+#define DACSOUND16S_HH
 
 #include <string>
 #include "openmsx.hh"

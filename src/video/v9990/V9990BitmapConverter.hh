@@ -1,13 +1,12 @@
 // $Id$
 
-#ifndef __V9990BITMAPCONVERTER_HH__
-#define __V9990BITMAPCONVERTER_HH__
+#ifndef V9990BITMAPCONVERTER_HH
+#define V9990BITMAPCONVERTER_HH
 
 #include "openmsx.hh"
 #include "Renderer.hh"
 #include "V9990ModeEnum.hh"
 #include <SDL.h>
-
 
 namespace openmsx {
 

@@ -24,8 +24,8 @@
 //  for more detail see
 //    http://w3.qahwah.net/joost/openMSX/8255.pdf
 
-#ifndef __MSXPPI_HH__
-#define __MSXPPI_HH__
+#ifndef MSXPPI_HH
+#define MSXPPI_HH
 
 #include <memory>
 #include "MSXDevice.hh"

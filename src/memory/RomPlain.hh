@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __ROMPLAIN_HH__
-#define __ROMPLAIN_HH__
+#ifndef ROMPLAIN_HH
+#define ROMPLAIN_HH
 
 #include "Rom8kBBlocks.hh"
 

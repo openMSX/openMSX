@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __COMMANDARGUMENT_HH__
-#define __COMMANDARGUMENT_HH__
+#ifndef COMMANDARGUMENT_HH
+#define COMMANDARGUMENT_HH
 
 #include <string>
 #include "openmsx.hh"

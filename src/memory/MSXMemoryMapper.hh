@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MSXMEMORYMAPPER_HH__
-#define __MSXMEMORYMAPPER_HH__
+#ifndef MSXMEMORYMAPPER_HH
+#define MSXMEMORYMAPPER_HH
 
 #include "MSXDevice.hh"
 #include <memory>
@@ -48,4 +48,4 @@ private:
 
 } // namespace openmsx
 
-#endif //__MSXMEMORYMAPPER_HH__
+#endif

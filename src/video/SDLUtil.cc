@@ -38,7 +38,7 @@ SDL_Surface* openSDLVideo(int width, int height, int flags)
 
 	// Set icon.
 	unsigned int iconRGBA[OPENMSX_ICON_SIZE * OPENMSX_ICON_SIZE];
-	for (int i = 0; i < OPENMSX_ICON_SIZE * OPENMSX_ICON_SIZE; i++) {
+	for (unsigned i = 0; i < OPENMSX_ICON_SIZE * OPENMSX_ICON_SIZE; i++) {
 		iconRGBA[i] = iconColours[iconData[i]];
 	}
 	SDL_Surface* iconSurf = SDL_CreateRGBSurfaceFrom(

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef _GLTEXTURE_HH_
-#define _GLTEXTURE_HH_
+#ifndef GLTEXTURE_HH
+#define GLTEXTURE_HH
 
 #include <string>
 #include "GLUtil.hh"

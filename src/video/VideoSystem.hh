@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __VIDEOSYSTEM_HH__
-#define __VIDEOSYSTEM_HH__
+#ifndef VIDEOSYSTEM_HH
+#define VIDEOSYSTEM_HH
 
 #include <string>
 
@@ -68,5 +68,4 @@ public:
 
 } // namespace openmsx
 
-#endif //__VIDEOSYSTEM_HH__
-
+#endif

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef _SDLTEXTURE_HH_
-#define _SDLTEXTURE_HH_
+#ifndef SDLTEXTURE_HH
+#define SDLTEXTURE_HH
 
 #include "openmsx.hh"
 #include <string>

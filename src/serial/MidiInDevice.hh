@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MIDIINDEVICE_HH__
-#define __MIDIINDEVICE_HH__
+#ifndef MIDIINDEVICE_HH
+#define MIDIINDEVICE_HH
 
 #include "Pluggable.hh"
 
@@ -19,4 +19,3 @@ public:
 } // namespace openmsx
 
 #endif
-

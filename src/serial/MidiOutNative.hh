@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MIDIOUTNATIVE_HH__
-#define __MIDIOUTNATIVE_HH__
+#ifndef MIDIOUTNATIVE_HH
+#define MIDIOUTNATIVE_HH
 
 #if defined(_WIN32)
 #include "MidiOutDevice.hh"
@@ -36,5 +36,4 @@ private:
 } // namespace openmsx
 
 #endif // defined(_WIN32)
-#endif // __MIDIOUTNATIVE_HH__
-
+#endif // MIDIOUTNATIVE_HH

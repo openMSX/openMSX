@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __INPUTEVENTS_HH__
-#define __INPUTEVENTS_HH__
+#ifndef INPUTEVENTS_HH
+#define INPUTEVENTS_HH
 
 #include "openmsx.hh"
 #include "Event.hh"
@@ -162,4 +162,4 @@ public:
 
 } // namespace openmsx
 
-#endif // __EVENTDISTRIBUTOR_HH__
+#endif

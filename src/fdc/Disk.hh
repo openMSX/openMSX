@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __DISK_HH__
-#define __DISK_HH__
+#ifndef DISK_HH
+#define DISK_HH
 
 #include "MSXException.hh"
 #include "openmsx.hh"

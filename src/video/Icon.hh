@@ -1,15 +1,14 @@
 // $Id$
 
-#ifndef __ICON_HH__
-#define __ICON_HH__
-
-#define	OPENMSX_ICON_SIZE	32
+#ifndef ICON_HH
+#define ICON_HH
 
 namespace openmsx {
 
+static const unsigned OPENMSX_ICON_SIZE = 32;
 extern const unsigned int iconColours[];
 extern const unsigned char iconData[];
 
 }
 
-#endif // __ICON_HH__
+#endif

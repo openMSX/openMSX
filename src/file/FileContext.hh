@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __FILECONTEXT_HH__
-#define __FILECONTEXT_HH__
+#ifndef FILECONTEXT_HH
+#define FILECONTEXT_HH
 
 #include <string>
 #include <vector>

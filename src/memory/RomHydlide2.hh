@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __ROMHYDLIDE2_HH__
-#define __ROMHYDLIDE2_HH__
+#ifndef ROMHYDLIDE2_HH
+#define ROMHYDLIDE2_HH
 
 #include "RomAscii16kB.hh"
 

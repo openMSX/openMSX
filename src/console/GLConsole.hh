@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __GLCONSOLE_HH__
-#define __GLCONSOLE_HH__
+#ifndef GLCONSOLE_HH
+#define GLCONSOLE_HH
 
 #include "OSDConsoleRenderer.hh"
 #include "GLUtil.hh"
@@ -27,4 +27,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __GLCONSOLE_HH__
+#endif

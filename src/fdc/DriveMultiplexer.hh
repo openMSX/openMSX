@@ -1,10 +1,9 @@
 // $Id$
 
-#ifndef __DRIVEMULTIPLEXER_HH__
-#define __DRIVEMULTIPLEXER_HH__
+#ifndef DRIVEMULTIPLEXER_HH
+#define DRIVEMULTIPLEXER_HH
 
 #include "DiskDrive.hh"
-
 
 namespace openmsx {
 

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __CASIMAGE_HH__
-#define __CASIMAGE_HH__
+#ifndef CASIMAGE_HH
+#define CASIMAGE_HH
 
 #include <vector>
 #include <string>

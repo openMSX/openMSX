@@ -6,8 +6,8 @@
  *  TODO explanation  
  */
 
-#ifndef __F4DEVICE_HH__
-#define __F4DEVICE_HH__
+#ifndef F4DEVICE_HH
+#define F4DEVICE_HH
 
 #include "MSXDevice.hh"
 

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MIDIINCONNECTOR_HH__
-#define __MIDIINCONNECTOR_HH__
+#ifndef MIDIINCONNECTOR_HH
+#define MIDIINCONNECTOR_HH
 
 #include "Connector.hh"
 #include "SerialDataInterface.hh"
@@ -26,4 +26,4 @@ public:
 
 } // namespace openmsx
 
-#endif // __MIDIINCONNECTOR_HH__
+#endif

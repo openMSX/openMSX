@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MSXMATSUSHITA_HH__
-#define __MSXMATSUSHITA_HH__
+#ifndef MSXMATSUSHITA_HH
+#define MSXMATSUSHITA_HH
 
 #include "MSXDevice.hh"
 #include "MSXDeviceSwitch.hh"
@@ -34,4 +34,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __MSXMATSUSHITA_HH__
+#endif

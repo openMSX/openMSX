@@ -9,8 +9,8 @@
  * Writing to port 0xE7 has no effect.
  */
 
-#ifndef __MSXE6TIMER_HH__
-#define __MSXE6TIMER_HH__
+#ifndef MSXE6TIMER_HH
+#define MSXE6TIMER_HH
 
 #include "MSXDevice.hh"
 #include "EmuTime.hh"
@@ -35,4 +35,4 @@ private:
 
 } // namespace openmsx
 
-#endif //__MSXE6TIMER_HH__
+#endif

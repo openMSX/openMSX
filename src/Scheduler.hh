@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __SCHEDULER_HH__
-#define __SCHEDULER_HH__
+#ifndef SCHEDULER_HH
+#define SCHEDULER_HH
 
 #include <vector>
 #include "EmuTime.hh"

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __WD2793_HH__
-#define __WD2793_HH__
+#ifndef WD2793_HH
+#define WD2793_HH
 
 #include "EmuTime.hh"
 #include "Schedulable.hh"
@@ -9,7 +9,6 @@
 namespace openmsx {
 
 class DiskDrive;
-
 
 class WD2793 : private Schedulable
 {

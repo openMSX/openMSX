@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __SERIALDATAINTERFACE_HH__
-#define __SERIALDATAINTERFACE_HH__
+#ifndef SERIALDATAINTERFACE_HH
+#define SERIALDATAINTERFACE_HH
 
 #include "openmsx.hh"
 

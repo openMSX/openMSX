@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __PANASONICMEMORY_HH__
-#define __PANASONICMEMORY_HH__
+#ifndef PANASONICMEMORY_HH
+#define PANASONICMEMORY_HH
 
 #include "openmsx.hh"
 #include <memory>

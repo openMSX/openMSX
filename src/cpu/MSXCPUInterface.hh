@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MSXCPUINTERFACE_HH__
-#define __MSXCPUINTERFACE_HH__
+#ifndef MSXCPUINTERFACE_HH
+#define MSXCPUINTERFACE_HH
 
 #include <set>
 #include <vector>
@@ -290,4 +290,4 @@ private:
 
 } // namespace openmsx
 
-#endif //__MSXCPUINTERFACE_HH__
+#endif

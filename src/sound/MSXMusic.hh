@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MSXMUSIC_HH__
-#define __MSXMUSIC_HH__
+#ifndef MSXMUSIC_HH
+#define MSXMUSIC_HH
 
 #include "MSXDevice.hh"
 #include <memory>

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __SDLCONSOLE_HH__
-#define __SDLCONSOLE_HH__
+#ifndef SDLCONSOLE_HH
+#define SDLCONSOLE_HH
 
 #include "OSDConsoleRenderer.hh"
 #include <SDL.h>

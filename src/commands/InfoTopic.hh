@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __INFOTOPIC_HH__
-#define __INFOTOPIC_HH__
+#ifndef INFOTOPIC_HH
+#define INFOTOPIC_HH
 
 #include <string>
 #include <vector>

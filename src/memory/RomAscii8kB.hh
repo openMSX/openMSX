@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __ROMASCII8KB_HH__
-#define __ROMASCII8KB_HH__
+#ifndef ROMASCII8KB_HH
+#define ROMASCII8KB_HH
 
 #include "Rom8kBBlocks.hh"
 

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __AUTOFIRE_HH__
-#define __AUTOFIRE_HH__
+#ifndef AUTOFIRE_HH
+#define AUTOFIRE_HH
 
 #include "SettingListener.hh"
 #include "EmuTime.hh"
@@ -70,4 +70,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __AUTOFIRE_HH__
+#endif

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __OSDCONSOLERENDERER_HH__
-#define __OSDCONSOLERENDERER_HH__
+#ifndef OSDCONSOLERENDERER_HH
+#define OSDCONSOLERENDERER_HH
 
 #include "Layer.hh"
 #include "FilenameSetting.hh"
@@ -81,4 +81,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __OSDCONSOLERENDERER_HH__
+#endif

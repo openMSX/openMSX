@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MSXHBI55_HH__
-#define __MSXHBI55_HH__
+#ifndef MSXHBI55_HH
+#define MSXHBI55_HH
 
 #include "MSXDevice.hh"
 #include "I8255.hh"

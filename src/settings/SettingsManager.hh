@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __SETTINGSMANAGER_HH__
-#define __SETTINGSMANAGER_HH__
+#ifndef SETTINGSMANAGER_HH
+#define SETTINGSMANAGER_HH
 
 #include "Command.hh"
 #include <map>
@@ -87,4 +87,4 @@ private:
 
 } // namespace openmsx
 
-#endif //__SETTINGSMANAGER_HH__
+#endif

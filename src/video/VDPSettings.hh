@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __VDPSETTINGS_HH__
-#define __VDPSETTINGS_HH__
+#ifndef VDPSETTINGS_HH
+#define VDPSETTINGS_HH
 
 #include <memory>
 
@@ -41,5 +41,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __VDPSETTINGS_HH__
-
+#endif

@@ -7,8 +7,8 @@
 /*   version 0.9, start date: 11-27-1994			*/
 /****************************************************************/
 
-#ifndef __FDC_XSA_HH__
-#define __FDC_XSA_HH__
+#ifndef XSADISKIMAGE_HH
+#define XSADISKIMAGE_HH
 
 #include "SectorBasedDisk.hh"
 

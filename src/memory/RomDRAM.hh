@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef _ROMDRAM_HH_
-#define _ROMDRAM_HH_
+#ifndef ROMDRAM_HH
+#define ROMDRAM_HH
 
 #include "MSXRom.hh"
 

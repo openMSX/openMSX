@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __V9990RASTERIZER_HH__
-#define __V9990RASTERIZER_HH__
+#ifndef V9990RASTERIZER_HH
+#define V9990RASTERIZER_HH
 
 #include "VideoLayer.hh"
 #include "V9990ModeEnum.hh"
@@ -92,5 +92,4 @@ protected:
 
 } // namespace openmsx
 
-#endif // __V9990RASTERIZER_HH__
-
+#endif

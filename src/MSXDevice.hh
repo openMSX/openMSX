@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MSXDEVICE_HH__
-#define __MSXDEVICE_HH__
+#ifndef MSXDEVICE_HH
+#define MSXDEVICE_HH
 
 #include <string>
 #include "openmsx.hh"
@@ -163,4 +163,4 @@ private:
 
 } // namespace openmsx
 
-#endif //__MSXDEVICE_HH__
+#endif

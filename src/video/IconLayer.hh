@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef _ICONLAYER_HH_
-#define _ICONLAYER_HH_
+#ifndef ICONLAYER_HH
+#define ICONLAYER_HH
 
 #include "Layer.hh"
 #include "EventListener.hh"

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __PLATFORMFACTORY_HH__
-#define __PLATFORMFACTORY_HH__
+#ifndef PLATFORMFACTORY_HH
+#define PLATFORMFACTORY_HH
 
 namespace openmsx {
 

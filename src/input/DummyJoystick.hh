@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __DUMMYJOYSTICK_HH__
-#define __DUMMYJOYSTICK_HH__
+#ifndef DUMMYJOYSTICK_HH
+#define DUMMYJOYSTICK_HH
 
 #include "JoystickDevice.hh"
 

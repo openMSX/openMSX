@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __DUMMYFONT_HH__
-#define __DUMMYFONT_HH__
+#ifndef DUMMYFONT_HH
+#define DUMMYFONT_HH
 
 #include "Font.hh"
 

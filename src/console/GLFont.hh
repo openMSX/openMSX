@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __GLFONT_HH__
-#define __GLFONT_HH__
+#ifndef GLFONT_HH
+#define GLFONT_HH
 
 #include "Font.hh"
 #include "GLUtil.hh"
@@ -23,4 +23,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __GLFONT_HH__
+#endif

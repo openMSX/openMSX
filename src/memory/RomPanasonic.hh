@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __ROMPANASONIC_HH__
-#define __ROMPANASONIC_HH__
+#ifndef ROMPANASONIC_HH
+#define ROMPANASONIC_HH
 
 #include "Rom8kBBlocks.hh"
 

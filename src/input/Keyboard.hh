@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __INPUTS_HH__
-#define __INPUTS_HH__
+#ifndef KEYBOARD_HH
+#define KEYBOARD_HH
 
 #include <string>
 #include "openmsx.hh"
@@ -97,4 +97,3 @@ private:
 } // namespace openmsx
 
 #endif
-

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __BRAZILFDC_HH__
-#define __BRAZILFDC_HH__
+#ifndef MICROSOLFDC_HH
+#define MICROSOLFDC_HH
 
 #include "WD2793BasedFDC.hh"
 
@@ -22,4 +22,5 @@ private:
 };
 
 } // namespace openmsx
+
 #endif

@@ -1,5 +1,8 @@
 // $Id$
 
+#ifndef DEBUGGER_HH
+#define DEBUGGER_HH
+
 #include <map>
 #include <set>
 #include <string>
@@ -61,3 +64,4 @@ private:
 
 } // namespace openmsx
 
+#endif

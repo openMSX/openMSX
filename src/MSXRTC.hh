@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __MSXRTC_HH__
-#define __MSXRTC_HH__
+#ifndef MSXRTC_HH
+#define MSXRTC_HH
 
 #include <memory>
 #include "MSXDevice.hh"

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __FILEPOOL_HH__
-#define __FILEPOOL_HH__
+#ifndef FILEPOOL_HH
+#define FILEPOOL_HH
 
 #include <string>
 #include <map>

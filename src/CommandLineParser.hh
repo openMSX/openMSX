@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __COMMANDLINEPARSER_HH__
-#define __COMMANDLINEPARSER_HH__
+#ifndef COMMANDLINEPARSER_HH
+#define COMMANDLINEPARSER_HH
 
 #include <string>
 #include <list>
@@ -172,4 +172,4 @@ private:
 
 } // namespace openmsx
 
-#endif // __COMMANDLINEPARSER_HH__
+#endif

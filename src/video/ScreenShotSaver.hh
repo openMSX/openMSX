@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __SCREENSHOTSAVER_HH__
-#define __SCREENSHOTSAVER_HH__
+#ifndef SCREENSHOTSAVER_HH
+#define SCREENSHOTSAVER_HH
 
 #include <string>
 #include "openmsx.hh"
@@ -24,4 +24,4 @@ public:
 
 } // namespace openmsx
 
-#endif // __SCREENSHOTSAVER_HH__
+#endif

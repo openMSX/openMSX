@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __EVENTLISTENER_HH__
-#define __EVENTLISTENER_HH__
+#ifndef EVENTLISTENER_HH
+#define EVENTLISTENER_HH
 
 namespace openmsx {
 

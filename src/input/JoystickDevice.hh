@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __JOYSTICKDEVICE_HH__
-#define __JOYSTICKDEVICE_HH__
+#ifndef JOYSTICKDEVICE_HH
+#define JOYSTICKDEVICE_HH
 
 #include "openmsx.hh"
 #include "Pluggable.hh"
@@ -47,4 +47,5 @@ protected:
 };
 
 } // namespace openmsx
+
 #endif

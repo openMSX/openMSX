@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef __ROMNATIONAL_HH__
-#define __ROMNATIONAL_HH__
+#ifndef ROMNATIONAL_HH
+#define ROMNATIONAL_HH
 
 #include "Rom16kBBlocks.hh"
 
