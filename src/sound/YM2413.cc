@@ -953,9 +953,9 @@ bool YM2413::checkMuteHelper()
 
 int* YM2413::updateBuffer(int length)
 {
-	PRT_DEBUG("YM2413: update buffer");
+	//PRT_DEBUG("YM2413: update buffer");
 	if (isInternalMuted()) {
-		PRT_DEBUG("YM2413: muted");
+		//PRT_DEBUG("YM2413: muted");
 		return NULL;
 	}
 

@@ -199,7 +199,8 @@ void VDP::executeUntilEmuTime(const EmuTime &time, int userData)
 	/*
 	int ticksThisFrame = getTicksThisFrame(time);
 	std::cout << (userData == VSYNC ? "VSYNC" :
-			(userData == VSCAN ? "VSCAN" : "HSCAN"))
+		     (userData == VSCAN ? "VSCAN" :
+		     (userData == HSCAN ? "HSCAN" : "DISPLAY_START")))
 		<< " at (" << (ticksThisFrame % TICKS_PER_LINE)
 		<< "," << ((ticksThisFrame - displayStart) / TICKS_PER_LINE)
 		<< "), IRQ_H = " << (int)irqHorizontal.getState()

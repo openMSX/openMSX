@@ -91,8 +91,10 @@ void CPU::raiseIRQ()
 	if (IRQStatus == 0)
 		slowInstructions++;
 	IRQStatus++;
+	PRT_DEBUG("CPU: raise IRQ " << IRQStatus);
 }
 void CPU::lowerIRQ()
 {
 	IRQStatus--;
+	PRT_DEBUG("CPU: lower IRQ " << IRQStatus);
 }

@@ -223,13 +223,13 @@ void AY8910::checkMute()
 {
 	if ((regs[AY_AVOL]==0)&&(regs[AY_BVOL]==0)&&(regs[AY_CVOL]==0)) {
 		// all volume settings equals zero
-		PRT_DEBUG("AY8910 muted");
+		//PRT_DEBUG("AY8910 muted");
 		setInternalMute(true);
 		return;
 	}
 	if ((regs[AY_ENABLE] & 0x3f) == 0x3f) {
 		// all channels disabled
-		PRT_DEBUG("AY8910 semi-muted");
+		//PRT_DEBUG("AY8910 semi-muted");
 		setInternalMute(false);
 		if (!semiMuted) {
 			semiMuted = true;
@@ -237,7 +237,7 @@ void AY8910::checkMute()
 		}
 		return;
 	}
-	PRT_DEBUG("AY8910: not muted");
+	//PRT_DEBUG("AY8910: not muted");
 	semiMuted = false;
 	setInternalMute(false);
 }
@@ -265,7 +265,6 @@ void AY8910::setSampleRate (int sampleRate)
 	// FP_UNIT is a multiplier used to turn the fraction into a fixed point
 	// number.
 	updateStep = ((FP_UNIT * sampleRate) / (CLOCK / 8));	// !! look out for overflow !!
-	PRT_DEBUG("UpdateStep " << updateStep);
 }
 
 
@@ -284,19 +283,19 @@ int* AY8910::updateBuffer(int length)
 	// into the ON state (see above); and it has no effect if the volume is 0.
 	// If the volume is 0, increase the counter, but don't touch the output.
 
-	PRT_DEBUG("AY8910: update buffer");
+	//PRT_DEBUG("AY8910: update buffer");
 	if (isInternalMuted()) {
-		PRT_DEBUG("AY8910: muted");
+		//PRT_DEBUG("AY8910: muted");
 		return NULL;
 	}
 	if (semiMuted) {
 		if (validLength >= length) {
-			PRT_DEBUG("AY8910: semi-muted");
+			//PRT_DEBUG("AY8910: semi-muted");
 			return buffer;	// return the previously calculated buffer (constant value)
 		}
 		validLength = length;
 	}
-	PRT_DEBUG("AY8910: calc buffer");
+	//PRT_DEBUG("AY8910: calc buffer");
 	
 	if (regs[AY_ENABLE] & 0x01) {	// disabled
 		if (countA <= length*FP_UNIT) countA += length*FP_UNIT;

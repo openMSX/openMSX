@@ -9,12 +9,11 @@ inline void _CPU_::executeInstruction(byte opcode)
 	
 	#ifdef CPU_DEBUG
 		if (cpudebug) {
-			printf("%04x : instruction ", start_pc);
 			Dasm(&debugmemory[start_pc], to_print_string, start_pc);
-			printf("%s\n", to_print_string);
-			printf("      A=%02x F=%02x BC=%04x DE=%04x HL=%04x IX=%04x IY=%04x\n", 
-			       R.AF.B.h, R.AF.B.l, R.BC.w, R.DE.w, R.HL.w, R.IX.w, R.IY.w);
-			PRT_DEBUG("CPU: Took " << before.getTicksTill(currentTime) << "T-States");
+			printf("%04x : %s", start_pc, to_print_string);
+			printf("AF=%04x BC=%04x DE=%04x HL=%04x IX=%04x IY=%04x\n", 
+			       R.AF.w, R.BC.w, R.DE.w, R.HL.w, R.IX.w, R.IY.w);
+			//PRT_DEBUG("CPU: Took " << before.getTicksTill(currentTime) << "T-States");
 		}
 	#endif
 }
@@ -1900,6 +1899,7 @@ void _CPU_::execute()
 				// normal interrupt
 				R.HALT = false;
 				R.IFF1 = R.nextIFF1 = false;
+				PRT_DEBUG("CPU: acknowledge IRQ");
 				switch (R.IM) {
 					case 2:
 						// Interrupt mode 2  Call [I:databyte]
@@ -1912,7 +1912,7 @@ void _CPU_::execute()
 						// Interrupt mode 1
 						IM1_DELAY();
 						executeInstruction(0xff);	// RST 38h
-							break;
+						break;
 					case 0:
 						// Interrupt mode 0
 						// TODO current implementation only works for 1-byte instructions

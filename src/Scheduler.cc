@@ -55,7 +55,8 @@ void Scheduler::setSyncPoint(const EmuTime &timestamp, Schedulable* device, int 
 		time = cpu->getCurrentTime();
 	
 	if (device) 
-		PRT_DEBUG("Sched: registering " << device->schedName() << " for emulation at " << time);
+		PRT_DEBUG("Sched: registering " << device->schedName() << 
+		          " " << userData << " for emulation at " << time);
 	//PRT_DEBUG("Sched:  CPU is at " << cpu->getCurrentTime());
 
 	//assert (time >= cpu->getCurrentTime());
@@ -131,7 +132,8 @@ void Scheduler::scheduleEmulation()
 				schedMutex.release();
 				Schedulable *device = sp.getDevice();
 				int userData = sp.getUserData();
-				PRT_DEBUG ("Sched: Scheduling " << device->schedName() << " till " << time);
+				PRT_DEBUG ("Sched: Scheduling " << device->schedName() << 
+				           " " << userData << " till " << time);
 				device->executeUntilEmuTime(time, userData);
 				
 			}
