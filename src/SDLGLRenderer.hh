@@ -111,6 +111,11 @@ private:
 	  */
 	inline Pixel getBorderColour();
 
+	/** Change an entry in the palette.
+	  * Used to implement updatePalette.
+	  */
+	void setPalette(int index, int grb);
+	
 	/** Dirty checking that does nothing (but is a valid method).
 	  */
 	void checkDirtyNull(int addr, byte data);
