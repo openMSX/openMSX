@@ -118,7 +118,7 @@ void MSXSCCPlusCart::writeMem(word address, byte value, const EmuTime &time)
 {
 	//PRT_DEBUG("SCC+ write "<< std::hex << address << " " << (int)value << std::dec);
 	
-	if ((address < 0x4000) || (0xc000 <= address)) {
+	if ((address < 0x4000) || (0xC000 <= address)) {
 		// outside memory range
 		return;
 	}
@@ -191,8 +191,8 @@ byte* MSXSCCPlusCart::getWriteCacheLine(word start) const
 
 void MSXSCCPlusCart::setMapper(int regio, byte value)
 {
-	value &= mapperMask;
 	mapper[regio] = value;
+	value &= mapperMask;
 	
 	byte* block;
 	if ((!lowRAM  && (value <  8)) ||
