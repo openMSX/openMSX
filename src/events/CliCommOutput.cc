@@ -4,11 +4,16 @@
 #include <cassert>
 #include "xmlx.hh"
 #include "CliCommOutput.hh"
+#include "CommandController.hh"
 
 using std::cout;
 using std::endl;
 
 namespace openmsx {
+
+const char* const updateStr[CliCommOutput::NUM_UPDATES] = {
+	"led", "break", "setting", "plug", "unplug"
+};
 
 CliCommOutput& CliCommOutput::instance()
 {
@@ -23,8 +28,13 @@ void CliCommOutput::enableXMLOutput()
 }
 
 CliCommOutput::CliCommOutput()
-	: xmlOutput(false)
+	: updateCmd(*this), xmlOutput(false),
+	  commandController(CommandController::instance())
 {
+	for (int i = 0; i < NUM_UPDATES; ++i) {
+		updateEnabled[i] = true;
+	}
+	commandController.registerCommand(&updateCmd, "update");
 }
 
 CliCommOutput::~CliCommOutput()
@@ -32,11 +42,12 @@ CliCommOutput::~CliCommOutput()
 	if (xmlOutput) {
 		cout << "</openmsx-output>" << endl;
 	}
+	commandController.unregisterCommand(&updateCmd, "update");
 }
 
 void CliCommOutput::log(LogLevel level, const string& message)
 {
-	const char* levelStr[2] = {
+	const char* const levelStr[2] = {
 		"info",
 		"warning"
 	};
@@ -52,7 +63,7 @@ void CliCommOutput::log(LogLevel level, const string& message)
 
 void CliCommOutput::reply(ReplyStatus status, const string& message)
 {
-	const char* replyStr[2] = {
+	const char* const replyStr[2] = {
 		"ok",
 		"nok"
 	};
@@ -65,10 +76,10 @@ void CliCommOutput::reply(ReplyStatus status, const string& message)
 
 void CliCommOutput::update(UpdateType type, const string& name, const string& value)
 {
-	const char* updateStr[5] = {
-		"led", "break", "setting", "plug", "unplug"
-	};
-
+	assert(type < NUM_UPDATES);
+	if (!updateEnabled[type]) {
+		return;
+	}
 	if (xmlOutput) {
 		cout << "<update type=\"" << updateStr[type] << '\"';
 		if (!name.empty()) {
@@ -81,6 +92,64 @@ void CliCommOutput::update(UpdateType type, const string& name, const string& va
 			cout << name << " = ";
 		}
 		cout << value << endl;
+	}
+}
+
+
+// class UpdateCmd
+
+CliCommOutput::UpdateCmd::UpdateCmd(CliCommOutput& parent_)
+	: parent(parent_)
+{
+}
+
+static unsigned getType(const string& name)
+{
+	for (unsigned i = 0; i < CliCommOutput::NUM_UPDATES; ++i) {
+		if (updateStr[i] == name) {
+			return i;
+		}
+	}
+	throw CommandException("No such update type: " + name);
+}
+
+string CliCommOutput::UpdateCmd::execute(const vector<string>& tokens)
+	throw (CommandException)
+{
+	if (tokens.size() != 3) {
+		throw SyntaxError();
+	}
+	if (tokens[1] == "enable") {
+		parent.updateEnabled[getType(tokens[2])] = true;
+	} else if (tokens[1] == "disable") {
+		parent.updateEnabled[getType(tokens[2])] = false;
+	} else {
+		throw SyntaxError();
+	}
+	return "";
+}
+
+string CliCommOutput::UpdateCmd::help(const vector<string>& tokens) const
+	throw()
+{
+	static const string helpText = "TODO";
+	return helpText;
+}
+
+void CliCommOutput::UpdateCmd::tabCompletion(vector<string>& tokens) const
+	throw()
+{
+	switch (tokens.size()) {
+		case 2: {
+			set<string> ops;
+			ops.insert("enable");
+			ops.insert("disable");
+			CommandController::completeString(tokens, ops);
+		}
+		case 3: {
+			set<string> types(updateStr, updateStr + NUM_UPDATES);
+			CommandController::completeString(tokens, types);
+		}
 	}
 }
 

@@ -4,10 +4,13 @@
 #define __CLICOMMOUTPUT_HH__
 
 #include <string>
+#include "Command.hh"
 
 using std::string;
 
 namespace openmsx {
+
+class CommandController;
 
 class CliCommOutput
 {
@@ -26,6 +29,7 @@ public:
 		SETTING,
 		PLUG,
 		UNPLUG,
+		NUM_UPDATES // must be last
 	};
 	
 	static CliCommOutput& instance();
@@ -42,12 +46,27 @@ public:
 	void printWarning(const string& message) {
 		log(WARNING, message);
 	}
-	
+
 private:
 	CliCommOutput();
 	~CliCommOutput();
+	
+	class UpdateCmd : public SimpleCommand {
+	public:
+		UpdateCmd(CliCommOutput& parent);
+		virtual string execute(const vector<string>& tokens)
+			throw (CommandException);
+		virtual string help(const vector<string>& tokens) const
+			throw();
+		virtual void tabCompletion(vector<string>& tokens) const
+			throw();
+	private:
+		CliCommOutput& parent;
+	} updateCmd;
 
 	bool xmlOutput;
+	bool updateEnabled[NUM_UPDATES];
+	CommandController& commandController;
 };
 
 } // namespace openmsx

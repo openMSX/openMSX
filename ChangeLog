@@ -1,5 +1,11 @@
 $Id$
 
+2004-03-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented simple subsription mechanism for update events:
+	   - openmsx command   "update <enable|disable> <type>"
+	   - for now all update events are still enabled by default, but when
+	     catapult is adjusted I'd like to disable them by default
+
 2004-03-25 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Only the init.tcl file from the system directory is now executed by
 	  openmsx. However the default init.tcl file does source a init.tcl

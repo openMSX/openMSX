@@ -19,7 +19,6 @@ namespace openmsx {
 class CommandConsole;
 class InfoCommand;
 class SettingsConfig;
-class CliCommOutput;
 class Interpreter;
 
 class CommandController
@@ -83,7 +82,7 @@ private:
 	string join(const vector<string>& tokens, char delimiter);
 	string removeEscaping(const string& str);
 	void removeEscaping(const vector<string>& input,
-	                    vector<string>& output, bool keepLastIfEmpty);
+	                    vector<string>& result, bool keepLastIfEmpty);
 	string addEscaping(const string& str, bool quote, bool finished);
 
 	void tabCompletion(vector<string>& tokens);
@@ -116,7 +115,6 @@ private:
 	
 	InfoCommand& infoCommand;
 	SettingsConfig& settingsConfig;
-	CliCommOutput& output;
 	Interpreter& interpreter;
 };
 

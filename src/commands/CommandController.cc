@@ -25,7 +25,6 @@ CommandController::CommandController()
 	: helpCmd(*this), cmdConsole(NULL),
 	  infoCommand(InfoCommand::instance()),
 	  settingsConfig(SettingsConfig::instance()),
-	  output(CliCommOutput::instance()),
 	  interpreter(Interpreter::instance())
 {
 	registerCommand(&helpCmd, "help");
@@ -164,17 +163,17 @@ string CommandController::removeEscaping(const string& str)
 }
 
 void CommandController::removeEscaping(const vector<string>& input,
-                              vector<string>& output, bool keepLastIfEmpty)
+                              vector<string>& result, bool keepLastIfEmpty)
 {
 	for (vector<string>::const_iterator it = input.begin();
 	     it != input.end();
 	     ++it) {
 		if (!it->empty()) {
-			output.push_back(removeEscaping(*it));
+			result.push_back(removeEscaping(*it));
 		}
 	}
 	if (keepLastIfEmpty && (input.empty() || input.back().empty())) {
-		output.push_back("");
+		result.push_back("");
 	}
 }
 
@@ -242,7 +241,7 @@ void CommandController::autoCommands()
 	
 	try {
 		Config* config = settingsConfig.getConfigById("AutoCommands");
-		output.printWarning(
+		CliCommOutput::instance().printWarning(
 			"Use of AutoCommands is deprecated, instead use the init.tcl script.\n"
 			"See manual for more information.");
 
@@ -253,7 +252,7 @@ void CommandController::autoCommands()
 			try {
 				executeCommand(it->second);
 			} catch (CommandException &e) {
-				output.printWarning(
+				CliCommOutput::instance().printWarning(
 				         "While executing autocommands: "
 				         + e.getMessage());
 			}
