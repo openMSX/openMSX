@@ -31,7 +31,7 @@
  <!-- Audio mixer settings -->
   <config id="Mixer">
     <type>Mixer</type>
-  <!-- Sample frequency, 22kHz should be enough for MSX, use 44.1kHz for
+  <!-- Sample frequency, 22kHz should be enough for normal MSX, use 44.1kHz for
        Moonsound -->
     <parameter name="frequency">22050</parameter>
   <!-- Use more samples when FM sound quality is bad, e.g.
@@ -52,6 +52,8 @@
     <parameter name="removedoubles">true</parameter>
   </config>
 
+<!-- The debugger console is disabled for now, since it is not really 
+     implemented yet...
   <config id="Debugger">
     <type>Debugger</type>
     <parameter name="font">skins/ConsoleFontRave.png</parameter>
@@ -60,6 +62,7 @@
     <parameter name="rows">20</parameter>
     <parameter name="placement">top</parameter>
   </config>	
+-->
 
  <!-- Commands that should be executed automatically after boot -->
   <config id="AutoCommands">
@@ -70,7 +73,8 @@
     <parameter>bind F11 toggle mute</parameter>
     <parameter>bind F12 quit</parameter>
     <!--<parameter>set frontswitch off</parameter>
-        <parameter>set accuracy pixel</parameter> -->
+        <parameter>set accuracy pixel</parameter> 
+        <parameter>set cassetteplayer_volume 0</parameter> -->
     <!--<parameter>bind F9    "set throttle off"</parameter>
         <parameter>bind F9,up "set throttle on"</parameter>-->
     <!--<parameter>unplug joyporta</parameter>
@@ -99,6 +103,8 @@
     <parameter class="romimages">ri</parameter>
    </config>
 
+<!-- These are the keybindings for the keyjoystick, a pluggable that makes you
+     able to use the keyboard in stead of a joystick in joystick-only soft -->
    <config id="KeyJoystick">
      <type>KeyJoystick</type>
      <parameter name="upkey">UP</parameter>
