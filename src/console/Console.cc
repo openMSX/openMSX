@@ -9,35 +9,16 @@
 #include "FileContext.hh"
 #include "FileOperations.hh"
 
-// class ConsoleSetting
-
-Console::ConsoleSetting::ConsoleSetting(Console *console_)
-	: BooleanSetting("console", "turns console display on/off", false),
-	  console(console_)
-{
-}
-
-bool Console::ConsoleSetting::checkUpdate(bool newValue)
-{
-	console->updateConsole();
-	if (newValue) {
-		SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,
-		                    SDL_DEFAULT_REPEAT_INTERVAL);
-	} else {
-		SDL_EnableKeyRepeat(0,0);
-	}
-	return true;
-}
-
 
 // class Console
 
 const std::string PROMPT("> ");
 
 Console::Console()
-	: consoleSetting(this)
+	: consoleSetting("console", "turns console display on/off", false)
 {
 	SDL_EnableUNICODE(1);
+	consoleSetting.registerListener(this);
 	EventDistributor::instance()->registerEventListener(SDL_KEYDOWN, this);
 	EventDistributor::instance()->registerEventListener(SDL_KEYUP,   this);
 	putPrompt();
@@ -60,12 +41,24 @@ Console::~Console()
 	saveHistory();
 	EventDistributor::instance()->unregisterEventListener(SDL_KEYDOWN, this);
 	EventDistributor::instance()->unregisterEventListener(SDL_KEYUP,   this);
+	consoleSetting.unregisterListener(this);
 }
 
 Console *Console::instance()
 {
 	static Console oneInstance;
 	return &oneInstance;
+}
+
+void Console::notify(Setting *setting)
+{
+	updateConsole();
+	if (consoleSetting.getValue()) {
+		SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,
+		                    SDL_DEFAULT_REPEAT_INTERVAL);
+	} else {
+		SDL_EnableKeyRepeat(0,0);
+	}
 }
 
 void Console::registerConsole(ConsoleRenderer *console)
@@ -549,3 +542,4 @@ void Console::resetScrollBack()
 {
 	consoleScrollBack = 0;
 }
+

@@ -8,13 +8,12 @@
 #include <queue>
 #include "Schedulable.hh"
 #include "Command.hh"
-#include "GrabInput.hh"
+#include "Settings.hh"
 
-// forward declaration
 class EventListener;
 
 
-class EventDistributor
+class EventDistributor : private SettingListener
 {
 	public:
 		virtual ~EventDistributor();
@@ -49,12 +48,15 @@ class EventDistributor
 		/** Passes an event to the emulation thread.
 		  */
 		void handleInEmu(SDL_Event &event);
+		
+		void notify(Setting *setting);
 
 		std::multimap <int, EventListener*> lowMap;
 		std::multimap <int, EventListener*> highMap;
 		std::queue <std::pair<SDL_Event, EventListener*> > lowQueue;
 		std::queue <std::pair<SDL_Event, EventListener*> > highQueue;
-		GrabInputSetting * grabInput;
+		BooleanSetting grabInput;
+		
 		/** Quit openMSX.
 		  * Starts the shutdown procedure.
 		  */

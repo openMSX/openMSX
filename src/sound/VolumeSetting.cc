@@ -6,17 +6,19 @@
 
 VolumeSetting::VolumeSetting(const std::string &name, int initialValue,
                              SoundDevice *device_)
-	: IntegerSetting(name + "_volume", "the volume of this sound chip",
-	                 initialValue, 0, 32767), device(device_)
+	: device(device_),
+	  volumeSetting(name + "_volume", "the volume of this sound chip",
+	                initialValue, 0, 32767)
 {
+	volumeSetting.registerListener(this);
 }
 
 VolumeSetting::~VolumeSetting()
 {
+	volumeSetting.unregisterListener(this);
 }
 
-bool VolumeSetting::checkUpdate(int newValue)
+void VolumeSetting::notify(Setting *setting)
 {
-	device->setVolume(newValue);
-	return true;
+	device->setVolume(volumeSetting.getValue());
 }

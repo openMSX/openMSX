@@ -19,7 +19,7 @@ class RealTime;
 class VolumeSetting;
 
 
-class Mixer
+class Mixer : private SettingListener
 {
 	public:
 		static const int MAX_VOLUME = 32767;
@@ -27,7 +27,7 @@ class Mixer
 			MONO, MONO_LEFT, MONO_RIGHT, STEREO, NB_MODES
 		};
 
-		~Mixer();
+		virtual ~Mixer();
 		static Mixer *instance();
 
 		/**
@@ -80,6 +80,7 @@ class Mixer
 		static void audioCallbackHelper(void *userdata, Uint8 *stream, int len);
 		void audioCallback(short* stream);
 		void muteHelper(int muteCount);
+		virtual void notify(Setting *setting);
 		
 		bool init;
 		int muteCount;
@@ -102,12 +103,7 @@ class Mixer
 		MSXCPU *cpu;
 		RealTime *realTime;
 
-		class MuteSetting : public BooleanSetting
-		{
-			public:
-				MuteSetting();
-				virtual bool checkUpdate(bool newValue);
-		} muteSetting;
+		BooleanSetting muteSetting;
 
 #ifdef DEBUG_MIXER
 		int nbClipped;

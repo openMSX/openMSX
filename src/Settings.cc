@@ -27,6 +27,24 @@ Setting::~Setting()
 	SettingsManager::instance()->unregisterSetting(name);
 }
 
+void Setting::registerListener(SettingListener *listener)
+{
+	listeners.push_back(listener);
+}
+
+void Setting::unregisterListener(SettingListener *listener)
+{
+	listeners.remove(listener);
+}
+
+void Setting::notifyAll()
+{
+	list<SettingListener*>::iterator it;
+	for (it = listeners.begin(); it != listeners.end(); it++) {
+		(*it)->notify(this);
+	}
+}
+
 
 // IntegerSetting implementation:
 
@@ -76,8 +94,11 @@ void IntegerSetting::setValueInt(int newValue)
 	} else if (newValue > maxValue) {
 		newValue = maxValue;
 	}
-	if (checkUpdate(newValue)) {
-		value = newValue;
+	if (value != newValue) {
+		if (checkUpdate(newValue)) {
+			value = newValue;
+			notifyAll();
+		}
 	}
 }
 
@@ -141,8 +162,11 @@ void FloatSetting::setValueFloat(float newValue)
 	} else if (newValue > maxValue) {
 		newValue = maxValue;
 	}
-	if (checkUpdate(newValue)) {
-		value = newValue;
+	if (value != newValue) {
+		if (checkUpdate(newValue)) {
+			value = newValue;
+			notifyAll();
+		}
 	}
 }
 
@@ -236,8 +260,11 @@ string StringSetting::getValueString() const
 
 void StringSetting::setValueString(const string &newValue)
 {
-	if (checkUpdate(newValue)) {
-		value = newValue;
+	if (value != newValue) {
+		if (checkUpdate(newValue)) {
+			value = newValue;
+			notifyAll();
+		}
 	}
 }
 

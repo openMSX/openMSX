@@ -19,7 +19,7 @@ struct CursorXY {
 class ConsoleRenderer;
 
 
-class Console : private EventListener
+class Console : private EventListener, private SettingListener
 {
 	public:
 		/** Get singleton console instance.
@@ -76,17 +76,9 @@ class Console : private EventListener
 		void loadHistory();
 		void saveHistory();
 		
-		class ConsoleSetting : public BooleanSetting
-		{
-			public:
-				ConsoleSetting(Console *console);
-			protected:
-				virtual bool checkUpdate(bool newValue);
-			private:
-				Console *console;
-		} consoleSetting;
-		friend class ConsoleSetting;
+		void notify(Setting *setting);
 		
+		BooleanSetting consoleSetting;
 		unsigned int maxHistory;
 		std::list<ConsoleRenderer*> renderers;
 		

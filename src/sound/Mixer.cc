@@ -11,11 +11,13 @@
 
 
 Mixer::Mixer()
-	: muteCount(0)
+	: muteCount(0),
+	  muteSetting("mute", "(un)mute the emulation sound", false)
 {
 #ifdef DEBUG_MIXER
 	nbClipped = 0;
 #endif
+	
 	// default values
 	int freq = 22050;
 	int samples = 512;
@@ -52,12 +54,14 @@ Mixer::Mixer()
 		cpu = MSXCPU::instance();
 		realTime = RealTime::instance();
 		reInit();
+		muteSetting.registerListener(this);
 	}
 }
 
 Mixer::~Mixer()
 {
 	if (init) {
+		muteSetting.unregisterListener(this);
 		SDL_CloseAudio();
 		delete[] mixBuffer;
 	}
@@ -245,21 +249,11 @@ void Mixer::muteHelper(int muteCount)
 }
 
 
-// class MuteSetting
-
-Mixer::MuteSetting::MuteSetting()
-	: BooleanSetting("mute", "(un)mute the emulation sound", false)
+void Mixer::notify(Setting *setting)
 {
-}
-
-bool Mixer::MuteSetting::checkUpdate(bool newValue)
-{
-	if (newValue != getValue()) {
-		if (newValue) {
-			Mixer::instance()->mute();
-		} else {
-			Mixer::instance()->unmute();
-		}
+	if (muteSetting.getValue()) {
+		mute();
+	} else {
+		unmute();
 	}
-	return true;
 }

@@ -22,8 +22,7 @@ libInput_la_SOURCES = \
 	Keyboard.hh Keyboard.cc \
 	Joystick.hh Joystick.cc \
 	KeyJoystick.hh KeyJoystick.cc \
-	Mouse.hh Mouse.cc \
-	GrabInput.hh GrabInput.cc 
+	Mouse.hh Mouse.cc
 	
 nodebug: resetdebug all
 debug: setdebug all

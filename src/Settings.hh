@@ -10,11 +10,13 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <list>
 
 using std::map;
 using std::set;
 using std::string;
 using std::vector;
+using std::list;
 
 /*
 TODO: Reduce code duplication.
@@ -36,6 +38,14 @@ Identifying source:
 - by ID (to be added)
 
 */
+
+class Setting;
+
+class SettingListener
+{
+public:
+	virtual void notify(Setting *setting) = 0;
+};
 
 
 /** Abstract base class for Settings.
@@ -70,6 +80,9 @@ public:
 	  */
 	virtual void tabCompletion(vector<string> &tokens) const {}
 
+	void registerListener(SettingListener *listener);
+	void unregisterListener(SettingListener *listener);
+
 protected:
 	Setting(const string &name, const string &description);
 
@@ -80,6 +93,8 @@ protected:
 	  */
 	string type;
 
+	void notifyAll();
+
 private:
 	/** The name of this setting.
 	  */
@@ -88,6 +103,8 @@ private:
 	/** A description of this setting that can be presented to the user.
 	  */
 	string description;
+
+	list<SettingListener*> listeners;
 };
 
 
@@ -244,10 +261,13 @@ public:
 	/** Set the current value of this setting.
 	  * @param value The new value.
 	  */
-	void setValue(T value) {
+	void setValue(T newValue) {
 		// TODO: Move code to Setting.
-		if (checkUpdate(value)) {
-			this->value = value;
+		if (value != newValue) {
+			if (checkUpdate(newValue)) {
+				value = newValue;
+				notifyAll();
+			}
 		}
 	}
 

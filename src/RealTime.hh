@@ -9,7 +9,7 @@
 #include "Settings.hh"
 
 
-class RealTime : public Schedulable
+class RealTime : public Schedulable, private SettingListener
 {
 	public:
 		virtual ~RealTime();
@@ -44,29 +44,16 @@ class RealTime : public Schedulable
 		
 		virtual float doSync(const EmuTime &time) = 0;  
 		virtual void resync() = 0;
-	
-		class SpeedSetting : public IntegerSetting
-		{
-			public:
-				SpeedSetting();
-				virtual bool checkUpdate(int newValue);
-		} speedSetting;
-		friend class SpeedSetting;
-
+		
+		IntegerSetting speedSetting;
 		int maxCatchUpTime;	// max nb of ms overtime
 		int maxCatchUpFactor;	// max catch up speed factor (percentage)
 	
 	private:
 		float internalSync(const EmuTime &time);
+		void notify(Setting *setting);
 		
-		class PauseSetting : public BooleanSetting
-		{
-			public:
-				PauseSetting();
-				virtual bool checkUpdate(bool newValue);
-		} pauseSetting;
-		friend class PauseSetting;
-
+		BooleanSetting pauseSetting;
 		BooleanSetting throttleSetting;
 };
 

@@ -8,17 +8,18 @@
 class SoundDevice;
 
 
-class VolumeSetting : public IntegerSetting
+class VolumeSetting : private SettingListener 
 {
 	public:
 		VolumeSetting(const std::string &name, int initialValue,
 		              SoundDevice *device);
 		virtual ~VolumeSetting();
 
-		virtual bool checkUpdate(int newValue);
-
 	private:
+		virtual void notify(Setting *setting);
+		
 		SoundDevice *device;
+		IntegerSetting volumeSetting;
 };
 
 #endif

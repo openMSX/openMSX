@@ -11,17 +11,20 @@
 
 
 EventDistributor::EventDistributor()
+	: grabInput("grabinput",
+		"This setting controls if openmsx takes over mouse and keyboard input",
+		false)
 {
 	// Make sure HotKey is instantiated
 	HotKey::instance();	// TODO is there a better place for this?
-	grabInput = new GrabInputSetting();
+	grabInput.registerListener(this);
 	CommandController::instance()->registerCommand(&quitCommand, "quit");
 }
 
 EventDistributor::~EventDistributor()
 {
 	CommandController::instance()->unregisterCommand(&quitCommand, "quit");
-	delete grabInput;
+	grabInput.unregisterListener(this);
 }
 
 EventDistributor *EventDistributor::instance()
@@ -101,4 +104,13 @@ void EventDistributor::QuitCommand::help(
 	const std::vector<std::string> &tokens) const
 {
 	print("Use this command to stop the emulator");
+}
+
+void EventDistributor::notify(Setting *setting)
+{
+	if (grabInput.getValue()) {
+		SDL_WM_GrabInput(SDL_GRAB_ON);
+	} else {
+		SDL_WM_GrabInput(SDL_GRAB_OFF);
+	}
 }

@@ -1,5 +1,8 @@
 $Id$
 
+2003-06-25 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Implemented Listener interface for Setting class
+
 2003-06-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Converted romdb.xml to use 'title' tags iso 'id' attributes
 

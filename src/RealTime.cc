@@ -16,8 +16,15 @@ const int SYNC_INTERVAL = 50;
 
 
 RealTime::RealTime()
-	: throttleSetting("throttle", "controls speed throttling", true)
+	: speedSetting("speed",
+	       "controls the emulation speed: higher is faster, 100 is normal",
+	       100, 1, 1000000),
+	  pauseSetting("pause", "pauses the emulation", false),
+	  throttleSetting("throttle", "controls speed throttling", true)
 {
+	speedSetting.registerListener(this);
+	pauseSetting.registerListener(this);
+	
 	// default values
 	maxCatchUpFactor = 105; // %
 	maxCatchUpTime = 2000;	// ms
@@ -41,6 +48,8 @@ RealTime::RealTime()
 RealTime::~RealTime()
 {
 	Scheduler::instance()->removeSyncPoint(this);
+	pauseSetting.unregisterListener(this);
+	speedSetting.unregisterListener(this);
 }
 
 RealTime *RealTime::instance()
@@ -102,33 +111,19 @@ EmuDuration RealTime::getEmuDuration(float realDur)
 }
 
 
-RealTime::PauseSetting::PauseSetting()
-	: BooleanSetting("pause", "pauses the emulation", false)
+void RealTime::notify(Setting *setting)
 {
-}
-
-bool RealTime::PauseSetting::checkUpdate(bool newValue)
-{
-	if (newValue) {
-		// VDP has taken over this role.
-		// TODO: Should it stay that way?
-		//Scheduler::instance()->pause();
-	} else {
+	if (setting == &pauseSetting) {
+		bool newValue = pauseSetting.getValue();
+		if (newValue) {
+			// VDP has taken over this role.
+			// TODO: Should it stay that way?
+			//Scheduler::instance()->pause();
+		} else {
+			RealTime::instance()->resync();
+			Scheduler::instance()->unpause();
+		}
+	} else if (setting == &speedSetting) {
 		RealTime::instance()->resync();
-		Scheduler::instance()->unpause();
 	}
-	return true;
-}
-
-RealTime::SpeedSetting::SpeedSetting()
-	: IntegerSetting("speed",
-	       "controls the emulation speed: higher is faster, 100 is normal",
-	       100, 1, 1000000)
-{
-}
-
-bool RealTime::SpeedSetting::checkUpdate(int newValue)
-{
-	RealTime::instance()->resync();
-	return true;
 }
