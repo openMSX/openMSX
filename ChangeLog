@@ -2,9 +2,15 @@ $Id$
 
 2003-08-28 Manuel Bilderbeek <manuel@msxnet.org>
 	* the file to which the PrinterLogger logs is now configurable with
-	  the setting "printerlogfilename". Default is still printer.log
+	  the setting "printerlogfilename". Default is still "printer.log".
 	* the file to which the MidiOutLogger logs is now configurable with
-	  the setting "midi-out-logfilename". Default is still /dev/midi.
+	  the setting "midi-out-logfilename". Default is still "/dev/midi".
+	* the file from which the MidiInReader reads is now configurable with
+	  the setting "midi-in-readfilename". Default is still "/dev/midi".
+	* the file from which the RS232-tester reads is now configurable with
+	  the setting "rs232-inputfilename". Default is still "rs232-input".
+	* the file to which the RS232-tester writes is now configurable with
+	  the setting "rs232-outputfilename". Default is still "rs232-output".
 
 2003-08-27 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* small VDPCmdEngine optimizations

@@ -9,7 +9,13 @@
 namespace openmsx {
 
 RS232Tester::RS232Tester()
-	: thread(this), connector(NULL), lock(1)
+	: thread(this), connector(NULL), lock(1), 
+		rs232InputFilenameSetting("rs232-inputfilename",
+                "filename of the file where the RS232 input is read from",
+                "rs232-input"),
+		rs232OutputFilenameSetting("rs232-outputfilename",
+                "filename of the file where the RS232 output is written to",
+                "rs232-output")
 {
 	PluggingController::instance()->registerPluggable(this);
 }
@@ -24,10 +30,10 @@ RS232Tester::~RS232Tester()
 void RS232Tester::plug(Connector* connector_, const EmuTime& time)
 {
 	// output 
-	outFile.open("rs232-output");
+	outFile.open(rs232OutputFilenameSetting.getValue().c_str());
 
 	// input
-	inFile = fopen("rs232-input", "rb");
+	inFile = fopen(rs232OutputFilenameSetting.getValue().c_str(), "rb");
 	if (!inFile) {
 		return;
 	}

@@ -10,6 +10,7 @@
 #include "Thread.hh"
 #include "Schedulable.hh"
 #include "Semaphore.hh"
+#include "Settings.hh"
 
 using std::list;
 
@@ -45,6 +46,8 @@ class MidiInReader : public MidiInDevice, private Runnable, private Schedulable
 		MidiInConnector* connector;
 		list<byte> queue;
 		Semaphore lock; // to protect queue
+
+		StringSetting readFilenameSetting;
 		
 };
 

@@ -394,8 +394,20 @@ limitsprites
     set limitsprites off  no limit on number of sprites per line
 
 
+midi-in-readfilename
+--------------------
+
+  Sets the file(name) from which the MIDI input is read.
+  By default, it is read from /dev/midi when available.
+  
+  usage:
+    set midi-in-readfilename                shows the current setting
+    set midi-in-readfilename mymidilog.dat  read from mymidilog.dat
+
+
+
 midi-out-logfilename
-------------------
+--------------------
 
   Sets the file(name) to which the MIDI output is logged.
   By default, it logs to /dev/midi when available.
@@ -436,6 +448,7 @@ printerlogfilename
     set printerlogfilename                   shows the current setting
     set printerlogfilename myprinterlog.txt  log to myprinterlog.txt
 
+
 renderer
 --------
 
@@ -446,7 +459,27 @@ renderer
     set renderer SDLHi  switch to the SDLHi renderer
     set renderer SDLLo  switch to the SDLLo renderer
     set renderer SDLGL  switch to the SDLGL renderer
-    
+
+
+rs232-inputfilename
+-------------------
+
+  Sets the file(name) from which the RS232-tester reads data
+  
+  usage:
+    set rs232-inputfilename                   shows the current setting
+    set rs232-inputfilename myrs232input.txt  read from myrs232input.txt
+
+
+rs232-outputfilename
+-------------------
+
+  Sets the file(name) to which the RS232-tester outputs the data
+  
+  usage:
+    set rs232-outputfilename                    shows the current setting
+    set rs232-outputfilename myrs232output.txt  write to myrs232output.txt
+
 
 scanline
 --------

@@ -9,7 +9,10 @@
 namespace openmsx {
 
 MidiInReader::MidiInReader()
-	: thread(this), connector(NULL), lock(1)
+	: thread(this), connector(NULL), lock(1), 
+	readFilenameSetting("midi-in-readfilename",
+	"filename of the file where the MIDI input is read from",
+	"/dev/midi")
 {
 	PluggingController::instance()->registerPluggable(this);
 }
@@ -23,7 +26,7 @@ MidiInReader::~MidiInReader()
 // Pluggable
 void MidiInReader::plug(Connector* connector_, const EmuTime& time)
 {
-	file = fopen("/dev/midi", "rb");
+	file = fopen(readFilenameSetting.getValue().c_str(), "rb");
 	if (!file) {
 		return;
 	}

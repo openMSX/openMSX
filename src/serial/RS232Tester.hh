@@ -11,6 +11,7 @@
 #include "Thread.hh"
 #include "Schedulable.hh"
 #include "Semaphore.hh"
+#include "Settings.hh"
 
 using std::list;
 using std::ofstream;
@@ -52,6 +53,9 @@ class RS232Tester : public RS232Device, private Runnable, private Schedulable
 		Semaphore lock; // to protect queue
 		
 		ofstream outFile;
+
+		StringSetting rs232InputFilenameSetting;
+		StringSetting rs232OutputFilenameSetting;
 };
 
 } // namespace openmsx
