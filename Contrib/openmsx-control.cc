@@ -211,7 +211,7 @@ void OpenMSXComm::start()
 		close(pipe_to_child[1]);
 		close(pipe_from_child[0]);
 		close(pipe_from_child[1]);
-		execlp("openmsx", "openmsx", "-control", 0);
+		execlp("openmsx", "openmsx", "-control", "stdio:", 0);
 		exit(0);
 	}
 	close(pipe_to_child[0]);
