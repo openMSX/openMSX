@@ -1,5 +1,9 @@
 $Id$
 
+2004-06-21 Manuel Bilderbeek <manuel@msxnet.org>
+	* Fixed mix level (volume) bug in Moonsound, thanks to Albert and
+	  Wouter
+
 2004-06-20 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* bug fix: first destroy renderer before creating a new one, bug was
 	   introduced when using auto_ptr
