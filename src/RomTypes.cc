@@ -57,6 +57,7 @@ MapperType RomTypes::nameToMapperType(const std::string &name)
 		
 		// SRAM
 		mappertype["HYDLIDE2"]    = HYDLIDE2;
+		mappertype["ASCII16-2"]   = HYDLIDE2;
 
 		// TODO: proper support for ASCII 8kB with a certain
 		// amount of SRAM (8 - 32kB)
