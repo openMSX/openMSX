@@ -42,6 +42,8 @@ MapperType RomTypes::nameToMapperType(const std::string &name)
 		mappertype["ASCII16"]     = ASCII_16KB;
 
 		mappertype["RTYPE"]       = R_TYPE;
+
+		mappertype["CROSSBLAIM"]  = CROSS_BLAIM;
 		
 		mappertype["64kB"]        = PLAIN;
 		mappertype["PLAIN"]       = PLAIN;

@@ -451,6 +451,13 @@ void MSXRom::writeMem(word address, byte value, const EmuTime &time)
 		}
 		break;
 	
+	case CROSS_BLAIM:
+		// Cross Blaim
+		if (address == 0x4045) {
+			setROM16kB(2, value);
+		}
+		break;
+	
 	default:
 		// Unknown mapper type
 		assert(false);

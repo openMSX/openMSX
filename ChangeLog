@@ -5,6 +5,7 @@ $Id$
 	  Fixes Snatcher and SDSnatcher.
 	* Fixed RoyalBlood mapper type (not sure about Xanadu)
 	* Fixed Majutsushi, bad sound quality (DAC) though
+	* Implemented CrossBlaim mapper type (untested)
 
 2002-09-28 Maarten ter Huurne <mth@stack.nl>
 	* Updated C-BIOS to version 0.12.
