@@ -124,3 +124,17 @@ void SettingsManager::SetCommand::help(
 	print("set name value : change setting's value");
 }
 
+void SettingsManager::SetCommand::tabCompletion(
+	std::vector<std::string> &tokens)
+{
+	if (tokens.size() == 2) {
+		// complete setting name
+		std::list<std::string> settings;
+		std::map<std::string, Setting *>::const_iterator it
+			= manager->settingsMap.begin();
+		for (; it != manager->settingsMap.end(); it++) {
+			settings.push_back(it->first);
+		}
+		CommandController::completeString(tokens, settings);
+	}
+}
