@@ -72,12 +72,24 @@ public:
 private:
 	typedef void (SDLGLRenderer::*RenderMethod)
 		(Pixel *pixelPtr, int line, int x, int y);
-	typedef void (SDLGLRenderer::*PhaseHandler)(int limit);
+	typedef void (SDLGLRenderer::*PhaseHandler)
+		(int line, int limit, const EmuTime &until);
 	typedef void (SDLGLRenderer::*DirtyChecker)
 		(int addr, byte data, const EmuTime &time);
 
+	/** Update renderer state to specified moment in time.
+	  * @param time Moment in emulated time to update to.
+	  */
 	inline void sync(const EmuTime &time);
-	inline void renderUntil(int limit);
+
+	/** Render lines until specified moment in time.
+	  * Unlike sync(), this method does not sync with VDPVRAM.
+	  * The VRAM should be to be up to date and remain unchanged
+	  * from the current time to the specified time.
+	  * @param time Moment in emulated time to render lines until.
+	  */
+	inline void renderUntil(const EmuTime &time);
+
 
 	inline void renderBitmapLines(byte line, const EmuTime &until);
 	inline void renderPlanarBitmapLines(byte line, const EmuTime &until);
@@ -125,13 +137,13 @@ private:
 	  * Used for borders and during blanking.
 	  * @param limit Render lines [currentLine..limit).
 	  */
-	void blankPhase(int limit);
+	void blankPhase(int line, int limit, const EmuTime &until);
 
 	/** Render pixels according to VRAM.
 	  * Used for the display part of scanning.
 	  * @param limit Render lines [currentLine..limit).
 	  */
-	void displayPhase(int limit);
+	void displayPhase(int line, int limit, const EmuTime &until);
 
 	/** Dirty checking that does nothing (but is a valid method).
 	  */

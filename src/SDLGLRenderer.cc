@@ -105,21 +105,24 @@ inline static void fillBool(bool *ptr, bool value, int nr)
 #endif
 }
 
-inline void SDLGLRenderer::renderUntil(
-	int limit)
+inline void SDLGLRenderer::renderUntil(const EmuTime &time)
 {
+	// TODO: This is still line based.
+	//       First move is to replace nextLine by currentTime.
+	int limit =
+		(vdp->getTicksThisFrame(time) + VDP::TICKS_PER_LINE - 400)
+		/ VDP::TICKS_PER_LINE;
+	assert(limit <= (vdp->isPalTiming() ? 313 : 262));
 	if (nextLine < limit) {
-		(this->*phaseHandler)(limit);
+		(this->*phaseHandler)(nextLine, limit, time);
 		nextLine = limit ;
 	}
 }
 
-inline void SDLGLRenderer::sync(
-	const EmuTime &time)
+inline void SDLGLRenderer::sync(const EmuTime &time)
 {
-	int line = (vdp->getTicksThisFrame(time) + VDP::TICKS_PER_LINE - 400)
-		/ VDP::TICKS_PER_LINE;
-	renderUntil(line);
+	vram->sync(time);
+	renderUntil(time);
 }
 
 inline int SDLGLRenderer::getLeftBorder()
@@ -1052,7 +1055,7 @@ void SDLGLRenderer::drawSprites(
 }
 
 void SDLGLRenderer::blankPhase(
-	int limit)
+	int line, int limit, const EmuTime &until)
 {
 	// TODO: Only redraw if necessary.
 	GLSetColour(getBorderColour());
@@ -1066,12 +1069,8 @@ void SDLGLRenderer::blankPhase(
 	glEnd();
 }
 
-// TODO: Instead of modifying nextLine field, pass it as a parameter.
-//       After all, so is limit.
-//       Having nextLine as a parameter would make it easier to put this
-//       method in a separate class.
 void SDLGLRenderer::displayPhase(
-	int limit)
+	int fromLine, int limit, const EmuTime &until)
 {
 	//cerr << "displayPhase from " << nextLine << " until " << limit << "\n";
 
@@ -1241,8 +1240,12 @@ void SDLGLRenderer::frameStart(const EmuTime &time)
 void SDLGLRenderer::putImage(const EmuTime &time)
 {
 	// Render changes from this last frame.
-	// TODO: Use sync instead?
-	renderUntil(vdp->isPalTiming() ? 313 : 262);
+	if (time < currentTime) {
+		std::cout << "Rendered into next frame's time: "
+			<< (currentTime - time)
+			<< "\n";
+	}
+	sync(time);
 
 	// Render console if needed
 	//Console::instance()->drawConsole();

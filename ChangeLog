@@ -1,5 +1,8 @@
 $Id$
 
+2002-04-29 Maarten ter Huurne <mth@stack.nl>
+	* SDLGLRenderer is working again.
+
 2002-04-29 Joost Yervante Damad <andete@worldcity.nl>
 	* small cleanup FilePath [sorry guys!]
 	* more proper cleanup
