@@ -227,6 +227,18 @@ slotselect
   [ mainly useful for debugging purposes ]
 
 
+soundlog
+--------
+
+  Controls sound logging: writing the openMSX sound to a waf file.
+
+  usage:
+    soundlog start             Log sound to file "openmsxNNNN.wav"
+    soundlog start <filename>  Log sound to indicated file
+    soundlog stop              Stop logging sound
+    soundlog toggle            Toggle sound logging state
+
+
 iomap
 -----
 

@@ -603,11 +603,11 @@ string Mixer::SoundlogCommand::toggleSoundLogging(const vector<string>& tokens)
 
 string Mixer::SoundlogCommand::help(const vector<string>& /*tokens*/) const
 {
-	return "Use this command to manipulate the soundlogging.\n"
-	       "soundlog start             Write soundlog to file \"openmsxNNNN.wav\"\n"
-	       "soundlog start <filename>  Write soundlog to indicated file\n"
+	return "Controls sound logging: writing the openMSX sound to a wav file.\n"
+	       "soundlog start             Log sound to file \"openmsxNNNN.wav\"\n"
+	       "soundlog start <filename>  Log sound to indicated file\n"
 	       "soundlog stop              Stop logging sound\n"
-	       "soundlog toggle            Toggle logging state\n";
+	       "soundlog toggle            Toggle sound logging state\n";
 }
 
 void Mixer::SoundlogCommand::tabCompletion(vector<string>& tokens) const
