@@ -4,10 +4,13 @@
 #define __INFOCOMMAND_HH__
 
 #include <map>
+#include <memory>
 #include "Command.hh"
 #include "InfoTopic.hh"
 
 namespace openmsx {
+
+class RomInfoTopic;
 
 class InfoCommand : public Command
 {
@@ -34,6 +37,7 @@ private:
 		                     CommandArgument& result) const;
 		virtual std::string help(const std::vector<std::string>& tokens) const;
 	} versionInfo;
+	const std::auto_ptr<RomInfoTopic> romInfoTopic;
 };
 
 } // namespace openmsx

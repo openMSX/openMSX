@@ -4,6 +4,7 @@
 #include "CommandController.hh"
 #include "CommandArgument.hh"
 #include "CommandException.hh"
+#include "RomInfoTopic.hh"
 #include "Version.hh"
 #include <cassert>
 
@@ -15,12 +16,15 @@ using std::vector;
 namespace openmsx {
 
 InfoCommand::InfoCommand()
+	: romInfoTopic(new RomInfoTopic())
 {
 	registerTopic("version", &versionInfo);
+	registerTopic("romtype", romInfoTopic.get());
 }
 
 InfoCommand::~InfoCommand()
 {
+	unregisterTopic("romtype", romInfoTopic.get());
 	unregisterTopic("version", &versionInfo);
 }
 

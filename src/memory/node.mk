@@ -10,6 +10,7 @@ SRC_HDR:= \
 	Ram SRAM \
 	Rom \
 	RomInfo RomFactory \
+	RomInfoTopic \
 	MSXRom \
 	Rom4kBBlocks Rom8kBBlocks Rom16kBBlocks \
 	RomPlain RomPageNN RomGeneric8kB RomGeneric16kB \

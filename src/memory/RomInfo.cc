@@ -13,10 +13,101 @@
 
 using std::auto_ptr;
 using std::map;
+using std::set;
 using std::string;
 using std::vector;
 
 namespace openmsx {
+
+typedef map<string, MapperType, StringOp::caseless> MapperTypeMap;
+static MapperTypeMap mappertype;
+static bool init = false;
+
+static void initMap()
+{
+	if (init) {
+		return;
+	}
+	init = true;
+	
+	mappertype["0"]           = GENERIC_8KB;
+	mappertype["8kB"]         = GENERIC_8KB;
+
+	mappertype["1"]           = GENERIC_16KB;
+	mappertype["16kB"]        = GENERIC_16KB;
+	mappertype["MSXDOS2"]     = GENERIC_16KB; /* For now...*/
+
+	mappertype["2"]           = KONAMI5;
+	mappertype["KONAMI5"]     = KONAMI5;
+	mappertype["SCC"]         = KONAMI5;
+
+	mappertype["3"]           = KONAMI4;
+	mappertype["KONAMI4"]     = KONAMI4;
+
+	mappertype["4"]           = ASCII_8KB;
+	mappertype["ASCII8"]      = ASCII_8KB;
+
+	mappertype["5"]           = ASCII_16KB;
+	mappertype["ASCII16"]     = ASCII_16KB;
+
+	mappertype["RTYPE"]       = R_TYPE;
+
+	mappertype["CROSSBLAIM"]  = CROSS_BLAIM;
+	
+	mappertype["PANASONIC"]   = PANASONIC;
+	
+	mappertype["NATIONAL"]    = NATIONAL;
+
+	mappertype["MSX-AUDIO"]   = MSX_AUDIO;
+	
+	mappertype["HARRYFOX"]    = HARRY_FOX;
+	
+	mappertype["HALNOTE"]     = HALNOTE;
+	
+	mappertype["KOREAN80IN1"] = KOREAN80IN1;
+	
+	mappertype["KOREAN90IN1"] = KOREAN90IN1;
+	
+	mappertype["KOREAN126IN1"]= KOREAN126IN1;
+	
+	mappertype["HOLYQURAN"]   = HOLY_QURAN;
+
+	mappertype["FSA1FM1"]     = FSA1FM1;
+	mappertype["FSA1FM2"]     = FSA1FM2;
+	
+	mappertype["64kB"]        = PLAIN;
+	mappertype["PLAIN"]       = PLAIN;
+	mappertype["DRAM"]        = DRAM;
+	
+	// SRAM
+	mappertype["HYDLIDE2"]    = HYDLIDE2;
+	mappertype["ASCII16-2"]   = HYDLIDE2;
+
+	mappertype["ASCII8-8"]    = ASCII8_8; 
+	mappertype["KOEI-8"]      = KOEI_8; 
+	mappertype["KOEI-32"]     = KOEI_32; 
+	mappertype["WIZARDRY"]    = WIZARDRY; 
+
+	mappertype["GAMEMASTER2"] = GAME_MASTER2;
+	mappertype["RC755"]       = GAME_MASTER2;
+
+	// DAC
+	mappertype["MAJUTSUSHI"]  = MAJUTSUSHI;
+	
+	mappertype["SYNTHESIZER"] = SYNTHESIZER;
+	
+	mappertype["PAGE0"]       = PAGE0;
+	mappertype["PAGE01"]      = PAGE01;
+	mappertype["PAGE012"]     = PAGE012;
+	mappertype["PAGE0123"]    = PAGE0123;
+	mappertype["PAGE1"]       = PAGE1;
+	mappertype["PAGE12"]      = PAGE12;
+	mappertype["PAGE123"]     = PAGE123;
+	mappertype["PAGE2"]       = PAGE2;
+	mappertype["ROMBAS"]      = PAGE2;
+	mappertype["PAGE23"]      = PAGE23;
+	mappertype["PAGE3"]       = PAGE3;
+}
 
 RomInfo::RomInfo(const string& ntitle, const string& nyear,
                  const string& ncompany, const string& nremark,
@@ -33,100 +124,23 @@ RomInfo::~RomInfo()
 {
 }
 
-// TODO: Turn MapperType into a class and move naming there.
 MapperType RomInfo::nameToMapperType(const string& name)
 {
-	typedef map<string, MapperType, StringOp::caseless> MapperTypeMap;
-	static MapperTypeMap mappertype;
-	static bool init = false;
-
-	if (!init) {
-		init = true;
-		
-		mappertype["0"]           = GENERIC_8KB;
-		mappertype["8kB"]         = GENERIC_8KB;
-
-		mappertype["1"]           = GENERIC_16KB;
-		mappertype["16kB"]        = GENERIC_16KB;
-		mappertype["MSXDOS2"]     = GENERIC_16KB; /* For now...*/
-
-		mappertype["2"]           = KONAMI5;
-		mappertype["KONAMI5"]     = KONAMI5;
-		mappertype["SCC"]         = KONAMI5;
-
-		mappertype["3"]           = KONAMI4;
-		mappertype["KONAMI4"]     = KONAMI4;
-
-		mappertype["4"]           = ASCII_8KB;
-		mappertype["ASCII8"]      = ASCII_8KB;
- 
-		mappertype["5"]           = ASCII_16KB;
-		mappertype["ASCII16"]     = ASCII_16KB;
-
-		mappertype["RTYPE"]       = R_TYPE;
-
-		mappertype["CROSSBLAIM"]  = CROSS_BLAIM;
-		
-		mappertype["PANASONIC"]   = PANASONIC;
-		
-		mappertype["NATIONAL"]    = NATIONAL;
-	
-		mappertype["MSX-AUDIO"]   = MSX_AUDIO;
-		
-		mappertype["HARRYFOX"]    = HARRY_FOX;
-		
-		mappertype["HALNOTE"]     = HALNOTE;
-		
-		mappertype["KOREAN80IN1"] = KOREAN80IN1;
-		
-		mappertype["KOREAN90IN1"] = KOREAN90IN1;
-		
-		mappertype["KOREAN126IN1"]= KOREAN126IN1;
-		
-		mappertype["HOLYQURAN"]   = HOLY_QURAN;
-	
-		mappertype["FSA1FM1"]     = FSA1FM1;
-		mappertype["FSA1FM2"]     = FSA1FM2;
-		
-		mappertype["64kB"]        = PLAIN;
-		mappertype["PLAIN"]       = PLAIN;
-		mappertype["DRAM"]        = DRAM;
-		
-		// SRAM
-		mappertype["HYDLIDE2"]    = HYDLIDE2;
-		mappertype["ASCII16-2"]   = HYDLIDE2;
-
-		mappertype["ASCII8-8"]    = ASCII8_8; 
-		mappertype["KOEI-8"]      = KOEI_8; 
-		mappertype["KOEI-32"]     = KOEI_32; 
-		mappertype["WIZARDRY"]    = WIZARDRY; 
-
-		mappertype["GAMEMASTER2"] = GAME_MASTER2;
-		mappertype["RC755"]       = GAME_MASTER2;
-
-		// DAC
-		mappertype["MAJUTSUSHI"]  = MAJUTSUSHI;
-		
-		mappertype["SYNTHESIZER"] = SYNTHESIZER;
-		
-		mappertype["PAGE0"]       = PAGE0;
-		mappertype["PAGE01"]      = PAGE01;
-		mappertype["PAGE012"]     = PAGE012;
-		mappertype["PAGE0123"]    = PAGE0123;
-		mappertype["PAGE1"]       = PAGE1;
-		mappertype["PAGE12"]      = PAGE12;
-		mappertype["PAGE123"]     = PAGE123;
-		mappertype["PAGE2"]       = PAGE2;
-		mappertype["ROMBAS"]      = PAGE2;
-		mappertype["PAGE23"]      = PAGE23;
-		mappertype["PAGE3"]       = PAGE3;
-	}
-
+	initMap();
 	MapperTypeMap::const_iterator it = mappertype.find(name);
 	if (it == mappertype.end()) {
 		return UNKNOWN;
 	}
 	return it->second;
+}
+
+void RomInfo::getAllMapperTypes(set<string>& result)
+{
+	initMap();
+	for (MapperTypeMap::const_iterator it = mappertype.begin();
+	     it != mappertype.end(); ++it) {
+		result.insert(it->first);
+	}
 }
 
 static void parseDB(const XMLDocument& doc, map<string, RomInfo*>& result)
