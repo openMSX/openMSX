@@ -101,40 +101,29 @@ const EmuTime Scheduler::scheduleEmulation()
 {
 	while (!exitScheduler) {
 		schedMutex.grab();
-		if (syncPoints.empty()) {
-			// nothing scheduled, emulate CPU
+		assert (!syncPoints.empty());	// class RealTime always has one
+		const SynchronizationPoint sp = syncPoints.front();
+		const EmuTime &time = sp.getTime();
+		if (cpu->getTargetTime() < time) {
 			schedMutex.release();
+			// first bring CPU till SP 
+			//  (this may set earlier SP)
 			if (!paused) {
-				PRT_DEBUG ("Sched: Scheduling CPU till infinity");
-				const EmuTime infinity = EmuTime(EmuTime::INFTY);
-				cpu->executeUntilTarget(infinity);
+				PRT_DEBUG ("Sched: Scheduling CPU till " << time);
+				cpu->executeUntilTarget(time);
 			} else {
 				needBlock = true;
 			}
 		} else {
-			const SynchronizationPoint sp = *(syncPoints.begin());
-			const EmuTime &time = sp.getTime();
-			if (cpu->getTargetTime() < time) {
-				schedMutex.release();
-				// first bring CPU till SP 
-				//  (this may set earlier SP)
-				if (!paused) {
-					PRT_DEBUG ("Sched: Scheduling CPU till " << time);
-					cpu->executeUntilTarget(time);
-				} else {
-					needBlock = true;
-				}
-			} else {
-				// if CPU has reached SP, emulate the device
-				pop_heap(syncPoints.begin(), syncPoints.end());
-				syncPoints.pop_back();
-				schedMutex.release();
-				Schedulable *device = sp.getDevice();
-				int userData = sp.getUserData();
-				PRT_DEBUG ("Sched: Scheduling " << device->schedName() << 
-				           " " << userData << " till " << time);
-				device->executeUntilEmuTime(time, userData);
-			}
+			// if CPU has reached SP, emulate the device
+			pop_heap(syncPoints.begin(), syncPoints.end());
+			syncPoints.pop_back();
+			schedMutex.release();
+			Schedulable *device = sp.getDevice();
+			int userData = sp.getUserData();
+			PRT_DEBUG ("Sched: Scheduling " << device->schedName() << 
+				   " " << userData << " till " << time);
+			device->executeUntilEmuTime(time, userData);
 		}
 		if (needBlock) {
 			pauseCond.wait();
