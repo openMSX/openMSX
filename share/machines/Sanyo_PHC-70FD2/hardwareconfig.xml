@@ -24,6 +24,8 @@
       </rom>
       <io base="0xD8" num="2" type="O"/>
       <io base="0xD9" num="1" type="I"/>
+      <io base="0xDA" num="2" type="O"/>
+      <io base="0xDB" num="1" type="I"/>
     </Kanji>
 
     <PPI id="ppi">
