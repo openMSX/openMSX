@@ -1,5 +1,11 @@
 $Id$
 
+2003-10-08 Joost Yervante Damad <joost@lumatec.be>
+	* added initial screenshot support:
+		the .png part is working and I tested it by
+		hacking it into SDLRenderer, but I think someone
+		more knowledgable of the openmsx internals should
+		actually hook up the code
 2003-10-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* VDP fix:
 	   - Mode and blank bits any have effect at the next line 
