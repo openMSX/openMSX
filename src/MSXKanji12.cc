@@ -9,7 +9,7 @@ const byte ID = 0xF7;
 
 MSXKanji12::MSXKanji12(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXSwitchedDevice(ID),
-	  rom(config)
+	  rom(getName(), "Kanji-12 ROM", config)
 {
 	size = rom.getSize();
 	if ((size != 0x20000) && (size != 0x40000)) {
@@ -40,7 +40,7 @@ byte MSXKanji12::readIO(byte port, const EmuTime& time)
 			break;
 		case 9:
 			if (adr < size) {
-				result = rom.read(adr);
+				result = rom[adr];
 			} else {
 				result = 0xFF;
 			}

@@ -14,6 +14,7 @@
 
 #include "MSXDevice.hh"
 #include "MSXDeviceSwitch.hh"
+#include "Ram.hh"
 
 namespace openmsx {
 
@@ -29,7 +30,7 @@ public:
 
 private:
 	nibble address;
-	byte ram[0x10];
+	Ram ram;
 
 	byte color1;
 	byte color2;

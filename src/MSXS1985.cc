@@ -7,7 +7,8 @@ namespace openmsx {
 const byte ID = 0xFE;
 
 MSXS1985::MSXS1985(Config *config, const EmuTime& time)
-	: MSXDevice(config, time), MSXSwitchedDevice(ID)
+	: MSXDevice(config, time), MSXSwitchedDevice(ID),
+	  ram(getName(), "S1985 RAM", 0x10)
 {
 	// TODO load ram
 }

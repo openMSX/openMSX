@@ -45,7 +45,7 @@ SRC_ONLY:= \
 	main
 
 HDR_ONLY:= \
-	openmsx util \
+	openmsx \
 	Schedulable \
 	MSXException \
 	MSXRomPatchInterface \

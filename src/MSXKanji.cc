@@ -8,7 +8,7 @@ namespace openmsx {
 
 MSXKanji::MSXKanji(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXIODevice(config, time),
-	  rom(config)
+	  rom(getName(), "Kanji ROM", config)
 {
 	int size = rom.getSize();
 	if ((size != 0x20000) && (size != 0x40000)) {
@@ -54,12 +54,12 @@ byte MSXKanji::readIO(byte port, const EmuTime& time)
 	byte result;
 	switch (port & 0x03) {
 	case 1:
-		result = rom.read(adr1);
+		result = rom[adr1];
 		adr1 = (adr1 & ~0x1f) | ((adr1 + 1) & 0x1f);
 		break;
 	case 3:
 		if (rom.getSize() == 0x40000) { // temp workaround
-			result = rom.read(adr2);
+			result = rom[adr2];
 			adr2 = (adr2 & ~0x1f) | ((adr2 + 1) & 0x1f);
 		} else {
 			result = 0xFF;

@@ -8,11 +8,12 @@
 namespace openmsx {
 
 MSXRTC::MSXRTC(Config* config, const EmuTime& time)
-	: MSXDevice(config, time), MSXIODevice(config, time), sram(4 * 13, config) 
+	: MSXDevice(config, time), MSXIODevice(config, time),
+	  sram(getName(), 4 * 13, config)
 {
 	bool emuTimeBased = deviceConfig->getParameter("mode") != "RealTime";
 	
-	rp5c01 = new RP5C01(emuTimeBased, sram.getBlock(), time);
+	rp5c01 = new RP5C01(emuTimeBased, &sram[0], time);
 }
 
 MSXRTC::~MSXRTC()

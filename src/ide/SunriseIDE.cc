@@ -14,7 +14,7 @@ namespace openmsx {
 
 SunriseIDE::SunriseIDE(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXMemDevice(config, time),
-	  rom(config)
+	  rom(getName() + "_ROM", "rom", config)
 {
 	device[0] = (config->hasParameter("master")) 
 	            ? IDEDeviceFactory::create(config->getParameter("master"), time)
@@ -132,8 +132,8 @@ void SunriseIDE::writeControl(byte value)
 	if (bank >= (rom.getSize() / 0x4000)) {
 		bank &= ((rom.getSize() / 0x4000) - 1);
 	}
-	if (internalBank != rom.getBlock(0x4000 * bank)) {
-		internalBank = rom.getBlock(0x4000 * bank);
+	if (internalBank != &rom[0x4000 * bank]) {
+		internalBank = &rom[0x4000 * bank];
 		MSXCPU::instance().invalidateCache(0x4000, 0x4000/CPU::CACHE_LINE_SIZE);
 	}
 }

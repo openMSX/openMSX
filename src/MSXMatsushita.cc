@@ -9,7 +9,7 @@ const byte ID = 0x08;
 
 MSXMatsushita::MSXMatsushita(Config* config, const EmuTime& time)
 	: MSXDevice(config, time), MSXSwitchedDevice(ID),
-	  sram(0x800, config)
+	  sram(getName(), 0x800, config)
 {
 	// TODO find out what ports 0x41 0x45 0x46 are used for
 	//      (and if they belong to this device)
@@ -44,7 +44,7 @@ byte MSXMatsushita::readIO(byte port, const EmuTime& time)
 		break;
 	case 9:
 		if (address < 0x800) {
-			result = sram.read(address);
+			result = sram[address];
 		} else {
 			result = 0xFF;
 		}
@@ -86,7 +86,7 @@ void MSXMatsushita::writeIO(byte port, byte value, const EmuTime& time)
 	case 9:
 		// write sram
 		if (address < 0x800) {
-			sram.write(address, value);
+			sram[address] = value;
 		}
 		address = (address + 1) & 0x1FFF;
 		break;
