@@ -62,7 +62,7 @@ byte MSXMusic::readMem(word address, const EmuTime& /*time*/)
 
 const byte* MSXMusic::getReadCacheLine(word start) const
 {
-	return &(*rom)[start & 0x3FFF];
+	return &(*rom)[start & (rom->getSize() - 1)];
 }
 
 } // namespace openmsx
