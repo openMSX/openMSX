@@ -25,43 +25,47 @@ class File
 {
 	public:
 		/**
-		 * Create file object
-		 * @param TODO
+		 * Create file object and open underlying file.
+		 * @param context Base URL for relative path.
+		 * @param url Full URL or relative path of the file
+		 *   that will be represented by this file object.
+		 * @param options Mode to open the file in:
+		 *   OR'ed combination of FileOption flags.
 		 */
 		File(const std::string &context, const std::string &url,
-		     int options = 0);
-		
+		     int options = NORMAL);
+
 		/**
-		 * Destroy file object
+		 * Destroy file object.
 		 */
 		~File();
-		
+
 		/**
-		 * Read from file
+		 * Read from file.
 		 * @param buffer Destination address
 		 * @param num Number of bytes to read
 		 */
 		void read(byte* buffer, int num);
 
 		/**
-		 * Write to file
+		 * Write to file.
 		 * @param buffer Source address
 		 * @param num Number of bytes to write
 		 */
 		void write(const byte* buffer, int num);
 
 		/**
-		 * Map file in memory
+		 * Map file in memory.
 		 * @param write Set to true if writes to the memory block
 		 *              should also be written to the file. Note that
 		 *              the file may only be updated when you munmap
 		 *              again (may happen earlier but not guaranteed).
-		 * @result Pointer to memory block
+		 * @result Pointer to memory block.
 		 */
 		byte* mmap(bool write = false);
 
 		/**
-		 * Unmap file from memory. If you have mmap'ed a file, you 
+		 * Unmap file from memory. If you have mmap'ed a file, you
 		 * also must munmap it before. This is not done automatically
 		 * when this object is destructed.
 		 */
@@ -74,17 +78,17 @@ class File
 		int size();
 
 		/**
-		 * Move read/write pointer to the specified position
-		 * @param pos Position in bytes from the beginning of the file
+		 * Move read/write pointer to the specified position.
+		 * @param pos Position in bytes from the beginning of the file.
 		 */
 		void seek(int pos);
 
 		/**
-		 * Get the current position of the read/write pointer
-		 * @result Position in bytes from the beginning of the file
+		 * Get the current position of the read/write pointer.
+		 * @result Position in bytes from the beginning of the file.
 		 */
 		int pos();
-		
+
 		/**
 		 * Get a local filename for this object. Useful if this object
 		 * refers to a HTTP or FTP file.
@@ -92,7 +96,7 @@ class File
 		 *         file that this object refers to.
 		 */
 		const std::string& getLocalName();
-		
+
 	private:
 		FileBase *file;
 };
