@@ -279,7 +279,7 @@ bool CommandLineParser::ControlOption::parseOption(const string &option,
 
 const string& CommandLineParser::ControlOption::optionHelp() const
 {
-	static const string text("Enable external control of openmsx process");
+	static const string text("Enable external control of openMSX process");
 	return text;
 }
 
