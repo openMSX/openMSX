@@ -1,5 +1,10 @@
 $Id$
 
+2003-10-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Continue VDP Cmds on display mode switch:
+	   - current implementation may not be 100% correct, but it's better
+	     than just aborting the cmd (fixes feedback bug)
+
 2003-10-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Autofire code cleanups / simplifications
 
