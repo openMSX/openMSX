@@ -84,15 +84,16 @@ int main(int argc, char **argv)
 		communicatorThread.stop();
 		delete keyEvents;
 
-		// Clean up.
-		SDL_Quit();
-
 	} catch (FatalError& e) {
 		cerr << "Fatal error: " << e.getMessage() << endl;
 	} catch (MSXException& e) {
 		cerr << "Uncaught exception: " << e.getMessage() << endl;
 	} catch (...) {
 		cerr << "Uncaught exception of unexpected type." << endl;
+	}
+	// Clean up.
+	if (SDL_WasInit(SDL_INIT_EVERYTHING)) {
+		SDL_Quit();
 	}
 	return 0;
 }
