@@ -128,6 +128,7 @@ public:
 protected:
 	MSXCPUInterface();
 	virtual ~MSXCPUInterface();
+	friend class auto_ptr<MSXCPUInterface>;
 
 private:
 	void registerSlot(MSXDevice* device,
