@@ -3,63 +3,64 @@
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
 
-  <config id="ExternalSlots">
-    <parameter name="slota">1-0</parameter>
-    <parameter name="slotb">2-0</parameter>
-  </config>
+  <info>
+    <manufacturer>BouKiChi/Reikan</manufacturer>
+    <code>C-BIOS MSX1</code>
+    <release_year>2003</release_year>
+    <description>A fake MSX1 machine for C-BIOS</description>
+    <type>MSX1</type>
+  </info>
 
-  <config id="MotherBoard">
-    <parameter name="0" class="subslotted">false</parameter>
-    <parameter name="1" class="subslotted">false</parameter>
-    <parameter name="2" class="subslotted">false</parameter>
-    <parameter name="3" class="subslotted">false</parameter>
-  </config>
+  <CassettePort/>
 
-  <device id="Main RAM">
-    <type>RAM</type>
-    <slotted> <ps>3</ps> <ss>0</ss> <page>0</page> </slotted>
-    <slotted> <ps>3</ps> <ss>0</ss> <page>1</page> </slotted>
-    <slotted> <ps>3</ps> <ss>0</ss> <page>2</page> </slotted>
-    <slotted> <ps>3</ps> <ss>0</ss> <page>3</page> </slotted>
-  </device>
+  <devices>
+    <primary slot="0">
+      <ROM id="C-BIOS Main ROM">
+        <mem base="0x0000" size="0x8000"/>
+        <rom>
+          <filename>../../../Contrib/cbios/cbios.rom</filename>
+        </rom>
+      </ROM>
+    </primary>
+    
+    <primary slot="1" external="true"/>
 
-  <device id="C-BIOS main">
-    <type>Rom</type>
-    <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
-    <parameter name="filename">../../../Contrib/cbios/CB_MAIN.BIN</parameter>
-  </device>
+    <primary slot="2" external="true"/>
 
-  <device id="C-BIOS second half">
-    <type>Rom</type>
-    <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
-    <parameter name="filename">../../../Contrib/cbios/CB_SH.BIN</parameter>
-  </device>
+    <primary slot="3">
+      <RAM id="Main RAM">
+        <mem base="0x0000" size="0x10000"/>
+        <slow_drain_on_reset>false</slow_drain_on_reset>
+      </RAM>
+    </primary>
 
-  <device id="ppi">
-    <type>PPI</type>
-    <parameter name="volume">16000</parameter>
-    <parameter name="key_ghosting">true</parameter>
-  </device>
+    <PPI id="ppi">
+      <io base="0xA8" num="4"/>
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <key_ghosting>true</key_ghosting>
+    </PPI>
 
-  <device id="VDP">
-    <type>VDP</type>
-    <parameter name="version">TMS99X8A</parameter>
-  </device>
+    <VDP id="VDP">
+      <io base="0x98" num="2" type="O"/>
+      <io base="0x98" num="2" type="I"/>
+      <version>TMS99X8A</version>
+      <vram>16</vram>
+    </VDP>
 
-  <device id="PSG">
-    <type>PSG</type>
-    <parameter name="volume">21000</parameter>
-  </device>
+    <PSG id="PSG">
+      <io base="0xA0" num="2" type="O"/>
+      <io base="0xA2" num="1" type="I"/>
+      <sound>
+        <volume>21000</volume>
+      </sound>
+    </PSG>
 
-  <device id="cpu">
-    <type>CPU</type>
-  </device>
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="2"/>
+    </PrinterPort>
 
-  <device id="Printer Port">
-    <type>PrinterPort</type>
-  </device>
-
-  <config id="CassettePort">
-  </config>
+  </devices>
 
 </msxconfig>
