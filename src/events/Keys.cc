@@ -8,7 +8,12 @@ namespace openmsx {
 Keys::KeyCode Keys::getCode(const string &name)
 {
 	initialize();
-	return keymap[name];
+	map<string, KeyCode>::const_iterator it = keymap.find(name);
+	if (it != keymap.end()) {
+		return (*it).second;
+	} else {
+		return K_UNKNOWN;
+	}
 }
 
 Keys::KeyCode Keys::getCode(const SDLKey &key)
