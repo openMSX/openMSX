@@ -5,6 +5,7 @@
 
 #include <set>
 #include <string>
+#include <tcl.h>
 #include "Command.hh"
 
 using std::set;
@@ -18,20 +19,34 @@ class Interpreter
 {
 public:
 	static Interpreter& instance();
-
-	virtual void init(const char* programName) = 0;
-	virtual void registerCommand(const string& name, Command& command) = 0;
-	virtual void unregisterCommand(const string& name, Command& command) = 0;
-	virtual void getCommandNames(set<string>& result) = 0;
-	virtual bool isComplete(const string& command) const = 0;
-	virtual string execute(const string& command) = 0;
-	virtual string executeFile(const string& filename) = 0;
 	
-	virtual void setVariable(const string& name, const string& value) = 0;
-	virtual void unsetVariable(const string& name) = 0;
-	virtual string getVariable(const string& name) const = 0;
-	virtual void registerSetting(SettingLeafNode& variable) = 0;
-	virtual void unregisterSetting(SettingLeafNode& variable) = 0;
+	void init(const char* programName);
+	void registerCommand(const string& name, Command& command);
+	void unregisterCommand(const string& name, Command& command);
+	void getCommandNames(set<string>& result);
+	bool isComplete(const string& command) const;
+	string execute(const string& command);
+	string executeFile(const string& filename);
+	
+	void setVariable(const string& name, const string& value);
+	void unsetVariable(const string& name);
+	string getVariable(const string& name) const;
+	void registerSetting(SettingLeafNode& variable);
+	void unregisterSetting(SettingLeafNode& variable);
+
+private:
+	Interpreter();
+	~Interpreter();
+	
+	static int outputProc(ClientData clientData, const char* buf,
+	        int toWrite, int* errorCodePtr);
+	static int commandProc(ClientData clientData, Tcl_Interp* interp,
+                               int objc, Tcl_Obj* const objv[]);
+	static char* traceProc(ClientData clientData, Tcl_Interp* interp,
+                const char* part1, const char* part2, int flags);
+	
+	static Tcl_ChannelType channelType;
+	Tcl_Interp* interp;
 };
 
 } // namespace openmsx

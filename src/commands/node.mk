@@ -7,7 +7,6 @@ SRC_HDR:= \
 	CommandController \
 	Command \
 	InfoCommand \
-	TCLInterp \
 	Interpreter \
 	CommandArgument
 

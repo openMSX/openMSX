@@ -1,5 +1,9 @@
 $Id$
 
+2004-05-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* In one executable only one interpreter is used (TCL or other),
+	  no need to have a virtual base class.
+
 2004-05-29 Manuel Bilderbeek <manuel@msxnet.org>
 	* Cleaned up names of the debuggables
 
