@@ -74,7 +74,7 @@ int main (int argc, char **argv)
 	  MSXMotherBoard::instance()->DestroyMSX();
 	} 
 	catch (MSXException& e) {
-		PRT_ERROR("Uncatched exception: " << e.desc);
+		PRT_ERROR("Uncaught exception: " << e.desc);
 	}
 	exit (0);
 }
