@@ -3,6 +3,8 @@
 #ifndef __MIXER_HH__
 #define __MIXER_HH__
 
+//#define MIXER
+
 #include <SDL/SDL.h>
 #include <list>
 #include <vector>
@@ -89,9 +91,13 @@ class Mixer
 		MSXCPU *cpu;
 		RealTime *realTime; 
 
+#ifdef MIXER
 		int prevLeft, prevOutLeft;
 		int prevRight, prevOutRight;
+#endif
+#ifdef DEBUG
 		int nbClipped;
+#endif
 };
 
 #endif //__MIXER_HH__
