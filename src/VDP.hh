@@ -83,6 +83,13 @@ public:
 	// mainlife cycle of an MSXDevice
 	void reset(const EmuTime &time);
 
+	// TODO: This shouldn't be necessary, according to comments
+	//       in MSXDevice, but without it, VDP is called "no name".
+	virtual const std::string &getName() {
+		static std::string name("VDP");
+		return name;
+	}
+
 	// interaction with CPU
 	byte readIO(byte port, const EmuTime &time);
 	void writeIO(byte port, byte value, const EmuTime &time);
@@ -316,6 +323,12 @@ public:
 	  */
 	inline int getNumberOfLines() {
 		return (controlRegs[9] & 0x80 ? 212 : 192);
+	}
+
+	/** Get VDP ticks between start of frame and start of display.
+	  */
+	inline int getDisplayStart() {
+		return displayStart;
 	}
 
 	/** Is PAL timing active?

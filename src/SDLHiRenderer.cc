@@ -12,6 +12,7 @@ TODO:
 - Clean up renderGraphics2, it is currently very hard to understand
   with all the masks and quarters etc.
 - Try using a generic inlined pattern-to-pixels converter.
+- Draw text mode extended border together with the rest of the border.
 - Separate dirty checking and caching for character and bitmap modes?
   Dirty checking is pretty much separated already and there is a
   connection between caching and dirty checking.
@@ -47,9 +48,6 @@ TODO:
 - Register dirty checker with VDP.
   This saves one virtual method call on every VRAM write. (does it?)
   Put some generic dirty check classes in Renderer.hh/cc.
-- Support PAL timing.
-  PAL screens are rendered now, but the code still contains
-  some NTSC-only artifacts, which apparently cause no problems.
 - Correctly implement vertical scroll in text modes.
   Can be implemented by reordering blitting, but uses a smaller
   wrap than GFX modes: 8 lines instead of 256 lines.
@@ -69,22 +67,6 @@ TODO:
   */
 static const int WIDTH = 640;
 static const int HEIGHT = 480;
-/** NTSC phase diagram
-  *
-  * 192    212
-  * line:  line:  phase:           handler:
-  *    0      0   bottom erase     -
-  *    3      3   sync             -
-  *    6      6   top erase        -
-  *   19     19   top border       blankPhase
-  *   45     35   display          displayPhase
-  *  237    247   bottom border    blankPhase
-  *  262    262   end of screen
-  */
-static const int LINE_TOP_BORDER = 19;
-/** Lines rendered are [21..261).
-  */
-static const int LINE_RENDER_TOP = 21;
 
 /** Fill a boolean array with a single value.
   * Optimised for byte-sized booleans,
@@ -118,7 +100,8 @@ template <class Pixel> inline void SDLHiRenderer<Pixel>::renderUntil(
 template <class Pixel> inline void SDLHiRenderer<Pixel>::sync(
 	const EmuTime &time)
 {
-	int line = vdp->getTicksThisFrame(time) / VDP::TICKS_PER_LINE;
+	int line = (vdp->getTicksThisFrame(time) + VDP::TICKS_PER_LINE / 2)
+		/ VDP::TICKS_PER_LINE;
 	renderUntil(line);
 }
 
@@ -772,7 +755,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 
 	// TODO: Calculate pointers incrementally outside this method.
 	Pixel *pixelPtr0 = (Pixel *)( (byte *)screen->pixels
-		+ ((absLine - LINE_RENDER_TOP) * 2) * screen->pitch
+		+ ((absLine - lineRenderTop) * 2) * screen->pitch
 		+ getLeftBorder() * sizeof(Pixel));
 	Pixel *pixelPtr1 = (Pixel *)(((byte *)pixelPtr0) + screen->pitch);
 
@@ -832,7 +815,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::blankPhase(
 		// TODO: Only redraw if necessary.
 		SDL_Rect rect;
 		rect.x = 0;
-		rect.y = nextLine - LINE_RENDER_TOP;
+		rect.y = nextLine - lineRenderTop;
 		rect.w = WIDTH;
 		rect.h = limit - nextLine;
 
@@ -934,7 +917,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	source.h = 1;
 	SDL_Rect dest;
 	dest.x = getLeftBorder();
-	dest.y = (nextLine - LINE_RENDER_TOP) * 2;
+	dest.y = (nextLine - lineRenderTop) * 2;
 	for (int n = numLines; n--; ) {
 		// TODO: Can we safely use SDL_LowerBlit?
 		// Note: return value is ignored.
@@ -976,7 +959,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 		: vdp->getBackgroundColour()
 		)];
 	dest.x = 0;
-	dest.y = (nextLine - LINE_RENDER_TOP) * 2;
+	dest.y = (nextLine - lineRenderTop) * 2;
 	dest.w = getLeftBorder();
 	dest.h = numLines * 2;
 	SDL_FillRect(screen, &dest, bgColour);
@@ -989,13 +972,19 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 
 template <class Pixel> void SDLHiRenderer<Pixel>::frameStart()
 {
+	// Calculate line to render at top of screen.
+	// Make sure the display area is centered.
+	// 240 - 212 = 28 lines available for top/bottom border; 14 each.
+	// NTSC: display at [32..244),
+	// PAL:  display at [59..271).
+	lineRenderTop = vdp->isPalTiming() ? 59 - 14 : 32 - 14;
+
 	// Calculate start and end line of display.
 	// TODO: Implement overscan: don't calculate end in advance,
 	//       but recalculate it every line.
-	int extraLines = (vdp->getNumberOfLines() - 192) / 2;
-	lineDisplay = 45 - extraLines;
-	lineBottomBorder = 237 + extraLines;
-	nextLine = LINE_TOP_BORDER;
+	lineDisplay = vdp->getDisplayStart() / VDP::TICKS_PER_LINE;
+	lineBottomBorder = lineDisplay + vdp->getNumberOfLines();
+	nextLine = lineRenderTop;
 
 	// Screen is up-to-date, so nothing is dirty.
 	// TODO: Either adapt implementation to work with incremental
@@ -1014,11 +1003,12 @@ template <class Pixel> void SDLHiRenderer<Pixel>::putImage(
 	// Note: return value ignored.
 	SDL_Flip(screen);
 
+	// Perform initialisation for next frame.
+	frameStart();
+
 	// The screen will be locked for a while, so now is a good time
 	// to perform real time sync.
 	RealTime::instance()->sync();
-
-	frameStart();
 }
 
 Renderer *createSDLHiRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)
