@@ -5,10 +5,7 @@
 #include "xmlx.hh"
 #include "Rom.hh"
 #include "RomInfo.hh"
-#include "MSXDiskRomPatch.hh"
-#include "MSXTapePatch.hh"
 #include "MSXCPUInterface.hh"
-#include "MSXRomPatchInterface.hh"
 #include "File.hh"
 #include "FileContext.hh"
 #include "PanasonicMemory.hh"
@@ -140,8 +137,6 @@ void Rom::read(const XMLElement& config, const string& filename)
 			"' does not match with sum of '" + filename +
 			"'.");
 	}
-	
-	patch(config);
 }
 
 bool Rom::checkSHA1(const XMLElement& config)
@@ -161,55 +156,10 @@ bool Rom::checkSHA1(const XMLElement& config)
 	return false;
 }
 
-void Rom::patch(const XMLElement& config)
-{
-	// for each patchcode parameter, construct apropriate patch
-	// object and register it at MSXCPUInterface
-	XMLElement::Children patchCodes;
-	config.getChildren("patchcode", patchCodes);
-	for (XMLElement::Children::const_iterator it = patchCodes.begin();
-	     it != patchCodes.end(); ++it) {
-		MSXRomPatchInterface* patchInterface;
-		string name = (*it)->getData();
-		if (name == "MSXDiskRomPatch") {
-			patchInterface = new MSXDiskRomPatch();
-		} else if (name == "MSXTapePatch") {
-			patchInterface = new MSXTapePatch();
-		} else {
-			throw FatalError("Unknown patch interface");
-		}
-		romPatchInterfaces.push_back(patchInterface);
-		MSXCPUInterface::instance().registerInterface(patchInterface);
-	}
-	
-	// also patch the file if needed:
-	byte* tmp = const_cast<byte*>(rom);
-	XMLElement::Children patches;
-	config.getChildren("patch", patches);
-	for (XMLElement::Children::const_iterator it = patches.begin();
-	     it != patches.end(); ++it) {
-		unsigned addr = StringOp::stringToInt((*it)->getAttribute("addr"));
-		unsigned val  = StringOp::stringToInt((*it)->getAttribute("val"));
-		if (addr >= size) {
-			ostringstream out;
-			out << "Illegal ROM patch-offset: 0x" << hex << addr;
-			throw FatalError(out.str());
-		}
-		tmp[addr] = val;
-	}
-}
-
 Rom::~Rom()
 {
 	if (size) {
 		Debugger::instance().unregisterDebuggable(name, *this);
-	}
-	
-	for (vector<MSXRomPatchInterface*>::const_iterator it =
-	           romPatchInterfaces.begin();
-	     it != romPatchInterfaces.end(); ++it) {
-		MSXCPUInterface::instance().unregisterInterface(*it);
-		delete (*it);
 	}
 	if (file.get()) {
 		file->munmap();

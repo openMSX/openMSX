@@ -17,7 +17,6 @@
 #include "MSXRomCLI.hh"
 #include "CliExtension.hh"
 #include "CassettePlayer.hh"
-#include "MSXTapePatch.hh"
 #include "DiskImageCLI.hh"
 #include "ConfigException.hh"
 #include "SettingsManager.hh"
@@ -61,7 +60,6 @@ CommandLineParser::CommandLineParser()
 	, msxRomCLI(new MSXRomCLI(*this))
 	, cliExtension(new CliExtension(*this))
 	, cassettePlayerCLI(new MSXCassettePlayerCLI(*this))
-	, casCLI(new MSXCasCLI(*this))
 	, diskImageCLI(new DiskImageCLI(*this))
 {
 	haveConfig = false;

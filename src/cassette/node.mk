@@ -7,7 +7,6 @@ SRC_HDR:= \
 	CassettePlayer \
 	CassettePort \
 	DummyCassetteDevice \
-	MSXTapePatch \
 	DummyCassetteImage \
 	CasImage \
 	WavImage

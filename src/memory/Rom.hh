@@ -17,7 +17,6 @@ namespace openmsx {
 
 class EmuTime;
 class XMLElement;
-class MSXRomPatchInterface;
 class File;
 
 class Rom : public Debuggable
@@ -54,7 +53,6 @@ private:
 	void init(const XMLElement& config);
 	void read(const XMLElement& config, const string& filename);
 	bool checkSHA1(const XMLElement& config);
-	void patch(const XMLElement& config);
 	
 	string name;
 	const string description;
@@ -62,7 +60,6 @@ private:
 	const byte* rom;
 
 	auto_ptr<File> file;
-	vector<MSXRomPatchInterface*> romPatchInterfaces;
 	auto_ptr<RomInfo> info;
 
 	mutable string sha1sum;

@@ -15,7 +15,6 @@
 #include "Debugger.hh"
 #include "CliCommOutput.hh"
 #include "MSXMultiIODevice.hh"
-#include "MSXRomPatchInterface.hh"
 
 using std::auto_ptr;
 using std::ostringstream;
@@ -251,23 +250,7 @@ void MSXCPUInterface::unregisterMemDevice(MSXDevice& device,
 
 void MSXCPUInterface::patch(CPU::CPURegs& regs)
 {
-	// walk all interfaces, it's up to the interface
-	// to decide to do anything
-	for (RomPatches::const_iterator it = romPatches.begin();
-	     it != romPatches.end(); ++it) {
-		(*it)->patch(regs);
-	}
-}
-
-void MSXCPUInterface::registerInterface(MSXRomPatchInterface* i)
-{
-	romPatches.push_back(i);
-}
-
-void MSXCPUInterface::unregisterInterface(MSXRomPatchInterface* i)
-{
-	romPatches.erase(std::remove(romPatches.begin(), romPatches.end(), i),
-	                 romPatches.end());
+	// TODO no longer used, remove completely?
 }
 
 void MSXCPUInterface::updateVisible(int page)

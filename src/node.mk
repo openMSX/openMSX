@@ -33,7 +33,6 @@ SRC_HDR:= \
 	FirmwareSwitch \
 	CommandLineParser \
 	CliExtension \
-	MSXDiskRomPatch \
 	sha1 \
 	CircularBuffer \
 	PluggingController Connector Pluggable PluggableFactory \
@@ -51,7 +50,6 @@ HDR_ONLY:= \
 	openmsx \
 	Schedulable \
 	MSXException InitException \
-	MSXRomPatchInterface \
 	NonInheritable
 
 DIST:= \

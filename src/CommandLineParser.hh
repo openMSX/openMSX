@@ -28,7 +28,6 @@ class CliCommOutput;
 class MSXRomCLI;
 class CliExtension;
 class MSXCassettePlayerCLI;
-class MSXCasCLI;
 class DiskImageCLI;
 class SettingsManager;
 
@@ -171,7 +170,6 @@ private:
 	const auto_ptr<MSXRomCLI> msxRomCLI;
 	const auto_ptr<CliExtension> cliExtension;
 	const auto_ptr<MSXCassettePlayerCLI> cassettePlayerCLI;
-	const auto_ptr<MSXCasCLI> casCLI;
 	const auto_ptr<DiskImageCLI> diskImageCLI;
 	auto_ptr<EnumSetting<int> > machineSetting;
 };

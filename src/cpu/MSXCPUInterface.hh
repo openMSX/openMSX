@@ -18,7 +18,6 @@ using std::auto_ptr;
 
 namespace openmsx {
 
-class MSXRomPatchInterface;
 class MSXDevice;
 class VDPIODelay;
 class DummyDevice;
@@ -164,12 +163,6 @@ public:
 	void patch(CPU::CPURegs& regs);
 
 	/**
-	 * (Un)register a MSXRomPatchInterface
-	 */
-	void   registerInterface(MSXRomPatchInterface* i);
-	void unregisterInterface(MSXRomPatchInterface* i);
-
-	/**
 	 * Called when RETI accurs
 	 */
 	inline void reti(CPU::CPURegs& /*regs*/) { }
@@ -286,9 +279,6 @@ private:
 	string getSlotMap() const;
 	string getIOMap() const;
 	string getSlotSelection() const;
-
-	typedef vector<MSXRomPatchInterface*> RomPatches;
-	RomPatches romPatches;
 
 	MSXDevice* IO_In [256];
 	MSXDevice* IO_Out[256];
