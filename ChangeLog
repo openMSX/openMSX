@@ -3,6 +3,9 @@ $Id$
 2004-03-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed unexpected exception problem in combination with NPTL threading
 	  library (Debian unstable)
+	* Generated update events on setting changes:
+	   - maybe we should supress these when not in 'control' mode? Ideally
+	     we make a control these via a publisher/subsriber pattern.
 
 2004-03-22 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Don't instantiate CassettePlayer when there is no CassettePort

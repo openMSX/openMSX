@@ -2,6 +2,7 @@
 
 #include "SettingNode.hh"
 #include "SettingListener.hh"
+#include "CliCommOutput.hh"
 
 namespace openmsx {
 
@@ -33,6 +34,8 @@ void SettingLeafNode::notify() const
 	     it != listeners.end(); ++it) {
 		(*it)->update(this);
 	}
+	CliCommOutput::instance().update(CliCommOutput::SETTING, getName(),
+	                                 getValueString());
 }
 
 void SettingLeafNode::addListener(SettingListener*listener)
