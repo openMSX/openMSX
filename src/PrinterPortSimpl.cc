@@ -36,8 +36,12 @@ void PrinterPortSimpl::plugHelper(Connector* /*connector*/, const EmuTime& time)
 	static bool init = false;
 	if (!init) {
 		init = true;
-		simplConfig.addChild(auto_ptr<XMLElement>(
+		auto_ptr<XMLElement> soundElem(new XMLElement("sound"));
+		soundElem->addChild(auto_ptr<XMLElement>(
 			new XMLElement("volume", "12000")));
+		soundElem->addChild(auto_ptr<XMLElement>(
+			new XMLElement("mode", "mono")));
+		simplConfig.addChild(soundElem);
 	}
 	dac.reset(new DACSound8U("simpl", getDescription(), simplConfig, time));
 }
