@@ -4,6 +4,7 @@
 #define __XMLCONFIG_HH__
 
 #include "MSXConfig.hh"
+#include "libxmlx/xmlx.hh"
 
 namespace XMLConfig
 {
@@ -11,22 +12,34 @@ namespace XMLConfig
 class Config: public MSXConfig::Config
 {
 public:
-	Config();
+	Config(XML::Element *element);
 	virtual ~Config();
 
 	virtual const std::string &getType();
 	virtual const std::string &getId();
+
+private:
+	Config(); // block usage
+
+	XML::Element* element;
 };
 
 class Device: public Config, public MSXConfig::Device
 {
 public:
-	Device();
+	Device(XML::Element *element);
 	virtual ~Device();
+
+private:
+	Device(); // block usage
 };
 
 class Backend: public MSXConfig::Backend
 {
+
+// my factory is my friend:
+friend MSXConfig::Backend* MSXConfig::Backend::createBackend(const std::string &name);
+
 public:
 	virtual void loadFile(const std::string &filename);
 	virtual void saveFile();
@@ -36,9 +49,12 @@ public:
 
 protected:
 	virtual ~Backend();
+	Backend();
 
 private:
-	Backend();
+	std::list<XML::Document*> docs;
+	std::list<Config*> configs;
+	std::list<Device*> devices;
 };
 
 }; // end namespace XMLConfig

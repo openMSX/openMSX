@@ -101,15 +101,28 @@ private:
 class Backend
 {
 public:
+	/**
+	 * load a config file's content, and add it
+	 * to the config data [can be called multiple
+	 * times]
+	 */
 	virtual void loadFile(const std::string &filename)=0;
+
+	/**
+	 * save current config to file
+	 */
 	virtual void saveFile()=0;
 	virtual void saveFile(const std::string &filename)=0;
 
+	/**
+	 * get a config or device by id
+	 */
 	virtual Config* getConfigById(const std::string &type)=0;
 
 	/**
 	 * backend factory
-	 * create a backend
+	 * create a backend, by name
+	 * currently only one backend: "xml"
 	 */
 	static Backend* createBackend(const std::string &name);
 

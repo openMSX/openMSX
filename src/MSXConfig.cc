@@ -10,6 +10,9 @@
 // for strtol() and atoll()
 #include <cstdlib>
 
+// the backend[s]:
+#include "XMLConfig.hh"
+
 namespace MSXConfig
 {
 
@@ -118,12 +121,10 @@ Backend::~Backend()
 
 Backend* Backend::createBackend(const std::string &name)
 {
-/*
 	if (name=="xml")
 	{
 		return new XMLConfig::Backend();
 	}
-*/
 	return 0;
 }
 
