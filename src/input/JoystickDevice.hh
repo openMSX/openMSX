@@ -16,7 +16,8 @@ class JoystickDevice : public Pluggable
 		 * Read from the joystick device. The bits in the read byte have
 		 * following meaning:
 		 *   7    6       5         4         3       2      1     0 
-		 * | xx | xx | BUTTON_B | BUTTON_A | RIGHT | LEFT | DOWN | UP |
+		 * | xx | xx | BUTTON_B | BUTTON_A | RIGHT | LEFT | DOWN | UP  |
+		 * | xx | xx | pin7     | pin6     | pin4  | pin3 | pin2 | pin1|
 		 */
 		virtual byte read(const EmuTime &time) = 0;
 
@@ -31,7 +32,12 @@ class JoystickDevice : public Pluggable
 		virtual void write(byte value, const EmuTime &time) = 0;
 
 		virtual const string &getClass() const;
-		
+
+		/* Missing pin descriptions
+		 * pin 5 : +5V
+		 * pin 9 : GND
+		 */
+
 	protected:
 		static const int JOY_UP      = 0x01;
 		static const int JOY_DOWN    = 0x02;

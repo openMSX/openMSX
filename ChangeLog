@@ -1,5 +1,8 @@
 $Id$
 
+2004-06-04 David Heremans <david.heremans@gnu-linux.net>
+	* Added the joystick protection of 'Tetris Special Edition II'
+
 2004-09-14 Maarten ter Huurne <maarten@treewalker.org>
 	* Cleaned up renderer switching in the new layered display system.
 

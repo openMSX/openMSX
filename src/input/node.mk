@@ -9,6 +9,7 @@ SRC_HDR:= \
 	DummyJoystick \
 	Joystick \
 	KeyJoystick \
+	SETetrisDongle \
 	Mouse \
 	JoyNet
 
