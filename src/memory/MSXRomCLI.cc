@@ -104,7 +104,7 @@ void MSXRomCLIPost::execute()
 	XMLElement device = XMLElement("device");
 	device.addAttribute("id", "MSXRom" + StringOp::toString(ps) +
 			               "-" + StringOp::toString(ss));
-	device.addChild(auto_ptr<XMLElement>(new XMLElement("type", "Rom")));
+	device.addChild(auto_ptr<XMLElement>(new XMLElement("type", "ROM")));
 	device.addChild(createSlotted(ps, ss, 0));
 	device.addChild(createSlotted(ps, ss, 1));
 	device.addChild(createSlotted(ps, ss, 2));

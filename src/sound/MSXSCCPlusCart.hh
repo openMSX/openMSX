@@ -1,5 +1,8 @@
 // $Id$
 
+// Note: this device is actually called SCC-II. But this would take a lot of
+// renaming, which isn't worth it right now. TODO rename this :)
+
 #ifndef __MSXSCCPLUSCART_HH__
 #define __MSXSCCPLUSCART_HH__
 

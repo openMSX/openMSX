@@ -1,5 +1,8 @@
 // $Id$
 
+// Note: this device is actually called SCC-II. But this would take a lot of
+// renaming, which isn't worth it right now. TODO rename this :)
+
 #include "MSXSCCPlusCart.hh"
 
 #include "SCC.hh"

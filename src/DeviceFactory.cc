@@ -93,16 +93,16 @@ MSXDevice *DeviceFactory::create(Config* conf, const EmuTime& time)
 	if (type == "PSG") {
 		return new MSXPSG(conf, time);
 	}
-	if (type == "Music") {
+	if (type == "MSX-MUSIC") {
 		return new MSXMusic(conf, time);
 	}
 	if (type == "FMPAC") {
 		return new MSXFmPac(conf, time);
 	}
-	if (type == "Audio") {
+	if (type == "MSX-AUDIO") {
 		return new MSXAudio(conf, time);
 	}
-	if (type == "Audio-Midi") {
+	if (type == "MSX-AUDIO MIDI") {
 		return new MC6850(conf, time);
 	}
 	if (type == "MoonSound") {
@@ -129,7 +129,7 @@ MSXDevice *DeviceFactory::create(Config* conf, const EmuTime& time)
 	if (type == "PrinterPort") {
 		return new MSXPrinterPort(conf, time);
 	}
-	if (type == "SCCPlusCart") {
+	if (type == "SCC+") { // Note: it's actually called SCC-II
 		return new MSXSCCPlusCart(conf, time);
 	}
 	if (type == "FDC") {
@@ -146,7 +146,7 @@ MSXDevice *DeviceFactory::create(Config* conf, const EmuTime& time)
 		createDeviceSwitch();
 		return new MSXKanji12(conf, time);
 	}
-	if (type == "MSX-Midi") {
+	if (type == "MSX-MIDI") {
 		return new MSXMidi(conf, time);
 	}
 	if (type == "MSX-RS232") {

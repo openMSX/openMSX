@@ -1,5 +1,15 @@
 $Id$
 
+2004-06-03 Manuel Bilderbeek <manuel@msxnet.org>
+	* More config file renames: 
+	  - Audio -> MSX-AUDIO
+	  - Audio-Midi -> MSX-AUDIO MIDI
+	  - Music -> MSX-MUSIC
+	  - MSX-Midi -> MSX-MIDI
+	  - SCCPlusCart -> SCC+
+	  The converter has been adjusted as well.
+	* Fixed a forgotten rename of Rom to ROM in the MSXRomCLI.
+
 2004-06-04 David Heremans <david.heremans@gnu-linux.net>
 	* Fixed the problem with filesize zero in the DirAsDisk feature
 

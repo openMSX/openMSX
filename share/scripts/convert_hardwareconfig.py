@@ -38,12 +38,12 @@ ioAddresses = {
 	
 	# Audio:
 	'PSG': [ (0xA0, 2, 'O'), (0xA2, 1, 'I') ],
-	'Music': [ (0x7C, 2, 'O') ],
+	'MSX-MUSIC': [ (0x7C, 2, 'O') ],
 	'FMPAC': [ (0x7C, 2, 'O') ],
-	'Audio': [ (0xC0, 2, 'IO') ],
-	'Audio-Midi': [ (0x00, 2, 'O'), (0x04, 2, 'I') ],
+	'MSX-AUDIO': [ (0xC0, 2, 'IO') ],
+	'MSX-AUDIO MIDI': [ (0x00, 2, 'O'), (0x04, 2, 'I') ],
 	'MoonSound': [ (0x7E, 2, 'IO'), (0xC4, 4, 'IO') ],
-	'MSX-Midi': [ (0xE8, 8, 'IO') ],
+	'MSX-MIDI': [ (0xE8, 8, 'IO') ],
 	'TurboRPCM': [ (0xA4, 2, 'IO') ],
 	
 	# Extensions:
@@ -59,7 +59,7 @@ ioAddresses = {
 	'Bunsetsu': [],
 	'SunriseIDE': [],
 	'PAC': [],
-	'SCCPlusCart': [], # TODO: Why "Cart"?
+	'SCC+': [], # TODO: Why "Cart"?
 	# TODO: Microsol FDC uses IO ports (0xd0 - 0xd4  5(!) ports), but I doubt
 	#       this FDC really works in openMSX.
 	'FDC': [],
@@ -157,6 +157,11 @@ def convertDevice(node):
 		'FM-PAC': 'FMPAC',
 		'Rom': 'ROM',
 		'PanasonicRam': 'PanasonicRAM',
+		'Music': 'MSX-MUSIC',
+		'Audio': 'MSX-AUDIO',
+		'Audio-Midi': 'MSX-AUDIO MIDI',
+		'SCCPlusCart': 'SCC+',
+		'MSX-Midi': 'MSX-MIDI',
 		}.get(deviceType, deviceType)
 	
 	if deviceType == 'CPU':
