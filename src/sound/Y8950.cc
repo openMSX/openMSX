@@ -21,6 +21,7 @@
 
 
 short Y8950::dB2LinTab[(2*DB_MUTE)*2];
+int   Y8950::dphaseNoiseTable[1024][8];
 int   Y8950::Slot::sintable[PG_WIDTH];
 int   Y8950::Slot::dphaseARTable[16][16];
 int   Y8950::Slot::dphaseDRTable[16][16];
@@ -44,6 +45,15 @@ int Y8950::CLAP(int min, int x, int max)
 int Y8950::Slot::ALIGN(int d, double SS, double SD) 
 { 
 	return d*(int)(SS/SD);
+}
+
+int Y8950::DB_POS(int x)
+{
+	return (int)(x/DB_STEP);
+}
+int Y8950::DB_NEG(int x)
+{
+	return (int)(2*DB_MUTE+x/DB_STEP);
 }
 
 // Cut the lower b bits off
@@ -116,6 +126,13 @@ void Y8950::Slot::makeSinTable()
 		sintable[PG_WIDTH/2 + i] = 2*DB_MUTE + sintable[i];
 }
 
+void Y8950::makeDphaseNoiseTable(int sampleRate)
+{
+	for (int i=0; i<1024; i++)
+		for (int j=0; j<8; j++)
+			dphaseNoiseTable[i][j] = rate_adjust(i<<j, sampleRate);
+}
+
 // Table for Pitch Modulator 
 void Y8950::makePmTable()
 {
@@ -145,7 +162,7 @@ void Y8950::Slot::makeDphaseTable(int sampleRate)
 		for (int block=0; block<8; block++)
 			for (int ML=0; ML<16; ML++)
 				dphaseTable[fnum][block][ML] = 
-					rate_adjust((((fnum * mltable[ML]) << block ) >> (21 - DP_BITS)), sampleRate);
+					rate_adjust((((fnum * mltable[ML]) << block) >> (21 - DP_BITS)), sampleRate);
 }
 
 void Y8950::Slot::makeTllTable()
@@ -417,8 +434,13 @@ Y8950::Y8950(short volume, const EmuTime &time, Mixer::ChannelMode mode)
 	Slot::makeSinTable();
 
 	for (int i=0; i<9; i++) {
+		// TODO cleanup
 		slot[i*2+0] = &(ch[i].mod);
 		slot[i*2+1] = &(ch[i].car);
+		ch[i].mod.plfo_am = &lfo_am;
+		ch[i].mod.plfo_pm = &lfo_pm;
+		ch[i].car.plfo_am = &lfo_am;
+		ch[i].car.plfo_pm = &lfo_pm;
 	}
 	
 	// adpcm
@@ -448,8 +470,9 @@ void Y8950::setSampleRate(int sampleRate)
 	Y8950::Slot::makeDphaseTable(sampleRate);
 	Y8950::Slot::makeDphaseARTable(sampleRate);
 	Y8950::Slot::makeDphaseDRTable(sampleRate);
-	pm_dphase = rate_adjust(PM_SPEED * PM_DP_WIDTH / (CLOCK_FREQ/72), sampleRate );
-	am_dphase = rate_adjust(AM_SPEED * AM_DP_WIDTH / (CLOCK_FREQ/72), sampleRate );
+	makeDphaseNoiseTable(sampleRate);
+	pm_dphase = rate_adjust(PM_SPEED * PM_DP_WIDTH / (CLOCK_FREQ/72), sampleRate);
+	am_dphase = rate_adjust(AM_SPEED * AM_DP_WIDTH / (CLOCK_FREQ/72), sampleRate);
 }
 
 // Reset whole of opl except patch datas. 
@@ -466,6 +489,12 @@ void Y8950::reset(const EmuTime &time)
 	pm_phase = 0;
 	am_phase = 0;
 	noise_seed = 0xffff;
+	noiseA = 0;
+	noiseB = 0;
+	noiseA_phase = 0;
+	noiseB_phase = 0;
+	noiseA_dphase = 0;
+	noiseB_dphase = 0;
 
 	// update the output buffer before changing the register
 	Mixer::instance()->updateStream(time);
@@ -488,17 +517,45 @@ void Y8950::reset(const EmuTime &time)
 	setInternalMute(true);	// muted
 }
 
-void Y8950::keyOn_BD  () { ch[6].keyOn(); }
-void Y8950::keyOn_SD  () { ch[7].car.slotOn(); }
-void Y8950::keyOn_TOM () { ch[8].mod.slotOn(); }
-void Y8950::keyOn_HH  () { ch[7].mod.slotOn(); }
-void Y8950::keyOn_CYM () { ch[8].car.slotOn(); }
-void Y8950::keyOff_BD () { ch[6].keyOff(); }
-void Y8950::keyOff_SD () { ch[7].car.slotOff(); }
-void Y8950::keyOff_TOM() { ch[8].mod.slotOff(); }
-void Y8950::keyOff_HH () { ch[7].mod.slotOff(); }
-void Y8950::keyOff_CYM() { ch[8].car.slotOff(); }
 
+// Drum key on
+void Y8950::keyOn_BD()  { ch[6].keyOn(); }
+void Y8950::keyOn_HH()  { ch[7].mod.slotOn(); }
+void Y8950::keyOn_SD()  { ch[7].car.slotOn(); }
+void Y8950::keyOn_TOM() { ch[8].mod.slotOn(); }
+void Y8950::keyOn_CYM() { ch[8].car.slotOn(); }
+
+// Drum key off
+void Y8950::keyOff_BD() { ch[6].keyOff(); }
+void Y8950::keyOff_HH() { ch[7].mod.slotOff(); }
+void Y8950::keyOff_SD() { ch[7].car.slotOff(); }
+void Y8950::keyOff_TOM(){ ch[8].mod.slotOff(); }
+void Y8950::keyOff_CYM(){ ch[8].car.slotOff(); }
+
+// Change Rhythm Mode
+void Y8950::setRythmMode(int data)
+{
+	bool newMode = (data & 32) != 0;
+	if (rythm_mode != newMode) {
+		rythm_mode = newMode;
+		if (!rythm_mode) {
+			// ON->OFF
+			// TODO also slotStatus?
+			if(!(reg[0xb6]&0x20) && !(data&0x10))
+				ch[6].mod.eg_mode = FINISH; // BD1
+			if(!(reg[0xb6]&0x20) && !(data&0x10))
+				ch[6].car.eg_mode = FINISH; // BD2
+			if(!(reg[0xb7]&0x20) && !(data&0x08))
+				ch[7].mod.eg_mode = FINISH; // HH
+			if(!(reg[0xb7]&0x20) && !(data&0x04))
+				ch[7].car.eg_mode = FINISH; // SD
+			if(!(reg[0xb8]&0x20) && !(data&0x02))
+				ch[8].mod.eg_mode = FINISH; // TOM
+			if(!(reg[0xb8]&0x20) && !(data&0x01))
+				ch[8].car.eg_mode = FINISH; // CYM
+		}
+	}
+}
 
 //********************************************************//
 //                                                        //
@@ -529,8 +586,21 @@ int Y8950::Slot::wave2_8pi(int e)
 
 void Y8950::update_noise()
 {
-	noise_seed = ((noise_seed>>15)^((noise_seed>>12)&1)) | ((noise_seed<<1)&0xffff);
-	whitenoise = noise_seed & 1; 
+	if (noise_seed & 1)
+		noise_seed ^= 0x24000;
+	noise_seed >>= 1;
+	whitenoise = noise_seed&1 ? DB_POS(6) : DB_NEG(6);
+
+	noiseA_phase += noiseA_dphase;
+	noiseB_phase += noiseB_dphase;
+
+	noiseA_phase &= (0x40<<11) - 1;
+	if ((noiseA_phase>>11)==0x3f)
+		noiseA_phase = 0;
+	noiseA = noiseA_phase&(0x03<<11)?DB_POS(6):DB_NEG(6);
+
+	noiseB_phase &= (0x10<<11) - 1;
+	noiseB = noiseB_phase&(0x0A<<11)?DB_POS(6):DB_NEG(6);
 }
 
 void Y8950::update_ampm()
@@ -541,17 +611,17 @@ void Y8950::update_ampm()
 	lfo_pm = pmtable[pm_mode][HIGHBITS(pm_phase, PM_DP_BITS - PM_PG_BITS)];
 }
 
-void Y8950::Slot::calc_phase(int lfo_pm)
+void Y8950::Slot::calc_phase()
 {
 	if (patch.PM)
-		phase += (dphase * lfo_pm) >> PM_AMP_BITS;
+		phase += (dphase * (*plfo_pm)) >> PM_AMP_BITS;
 	else
 		phase += dphase;
 	phase &= (DP_WIDTH - 1);
 	pgout = HIGHBITS(phase, DP_BASE_BITS);
 }
 
-void Y8950::Slot::calc_envelope(int lfo_am)
+void Y8950::Slot::calc_envelope()
 {
 	#define S2E(x) (ALIGN((int)(x/SL_STEP),SL_STEP,EG_STEP)<<(EG_DP_BITS-EG_BITS)) 
 	static int SL[16] = {
@@ -613,27 +683,27 @@ void Y8950::Slot::calc_envelope(int lfo_am)
 	}
 
 	if (patch.AM)
-		egout = ALIGN(egout+tll,EG_STEP,DB_STEP) + lfo_am;
+		egout = ALIGN(egout+tll,EG_STEP,DB_STEP) + (*plfo_am);
 	else 
 		egout = ALIGN(egout+tll,EG_STEP,DB_STEP);
 	if (egout >= DB_MUTE)
 		egout = DB_MUTE-1;
 }
 
-int Y8950::Slot::calc_slot_car(int lfo_pm, int lfo_am, int fm)
+int Y8950::Slot::calc_slot_car(int fm)
 {
-	calc_envelope(lfo_am); 
-	calc_phase(lfo_pm);
+	calc_envelope(); 
+	calc_phase();
 	if (egout>=(DB_MUTE-1))
 		return 0;
 	return dB2LinTab[sintable[(pgout+wave2_8pi(fm))&(PG_WIDTH-1)] + egout];
 }
 
-int Y8950::Slot::calc_slot_mod(int lfo_pm, int lfo_am)
+int Y8950::Slot::calc_slot_mod()
 {
 	output[1] = output[0];
-	calc_envelope(lfo_am); 
-	calc_phase(lfo_pm);
+	calc_envelope(); 
+	calc_phase();
 
 	if (egout>=(DB_MUTE-1)) {
 		output[0] = 0;
@@ -647,6 +717,53 @@ int Y8950::Slot::calc_slot_mod(int lfo_pm, int lfo_am)
 	return feedback;
 }
 
+// TOM
+int Y8950::Slot::calc_slot_tom()
+{
+	calc_envelope(); 
+	calc_phase();
+	if (egout>=(DB_MUTE-1))
+		return 0;
+	return dB2LinTab[sintable[pgout] + egout];
+}
+
+// SNARE
+int Y8950::Slot::calc_slot_snare(int whitenoise)
+{
+	calc_envelope();
+	calc_phase();
+	if (egout>=(DB_MUTE-1))
+		return 0;
+	if (pgout & (1<<(PG_BITS-1))) {
+		return (dB2LinTab[egout] + dB2LinTab[egout+whitenoise]) >> 1;
+	} else {
+		return (dB2LinTab[2*DB_MUTE + egout] + dB2LinTab[egout+whitenoise]) >> 1;
+	}
+}
+
+// TOP-CYM
+int Y8950::Slot::calc_slot_cym(int a, int b)
+{
+	calc_envelope();
+	if (egout>=(DB_MUTE-1)) {
+		return 0;
+	} else {
+		return (dB2LinTab[egout+a] + dB2LinTab[egout+b]) >> 1;
+	}
+}
+
+// HI-HAT
+int Y8950::Slot::calc_slot_hat(int a, int b, int whitenoise)
+{
+	calc_envelope();
+	if (egout>=(DB_MUTE-1)) {
+		return 0;
+	} else {
+		return (dB2LinTab[egout+whitenoise] + dB2LinTab[egout+a] + dB2LinTab[egout+b]) >>2;
+	}
+}
+
+
 int Y8950::calcSample(int channelMask)
 {
 	// while muted update_ampm() and update_noise() aren't called, probably ok
@@ -657,17 +774,32 @@ int Y8950::calcSample(int channelMask)
 
 	if (rythm_mode) {
 		// TODO wasn't in original source either
+		ch[7].mod.calc_phase();
+		ch[8].car.calc_phase();
+
+		if (channelMask & (1 << 6))
+			mix += ch[6].car.calc_slot_car(ch[6].mod.calc_slot_mod());
+		if (ch[7].mod.eg_mode != FINISH)
+			mix += ch[7].mod.calc_slot_hat(noiseA, noiseB, whitenoise);
+		if (channelMask & (1 << 7))
+			mix += ch[7].car.calc_slot_snare(whitenoise);
+		if (ch[8].mod.eg_mode != FINISH)
+			mix += ch[8].mod.calc_slot_tom();
+		if (channelMask & (1 << 8))
+			mix += ch[8].car.calc_slot_cym(noiseA, noiseB);	
+
 		channelMask &= (1<< 6) - 1;
+		mix *= 2;
 	}
 	
 	for (Channel *cp = ch; channelMask; channelMask >>=1, cp++) {
 		if (channelMask & 1) {
 			if (cp->alg)
-				mix += cp->car.calc_slot_car(lfo_pm, lfo_am, 0) +
-				       cp->mod.calc_slot_mod(lfo_pm, lfo_am);
+				mix += cp->car.calc_slot_car(0) +
+				       cp->mod.calc_slot_mod();
 			else
-				mix += cp->car.calc_slot_car(lfo_pm, lfo_am, 
-				         cp->mod.calc_slot_mod(lfo_pm, lfo_am));
+				mix += cp->car.calc_slot_car( 
+				         cp->mod.calc_slot_mod());
 		}
 	}
 
@@ -989,9 +1121,24 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 	} 
 	case 0xa0: {
 		if (rg==0xbd) {
-			rythm_mode = data & 32;
 			am_mode = (data>>7)&1;
 			pm_mode = (data>>6)&1;
+			
+			setRythmMode(data);
+			if (rythm_mode) {
+				if (data&0x10) keyOn_BD();  else keyOff_BD();
+				if (data&0x08) keyOn_SD();  else keyOff_SD();
+				if (data&0x04) keyOn_TOM(); else keyOff_TOM();
+				if (data&0x02) keyOn_CYM(); else keyOff_CYM();
+				if (data&0x01) keyOn_HH();  else keyOff_HH();
+			}
+			ch[6].mod.updateAll();
+			ch[6].car.updateAll();
+			ch[7].mod.updateAll();
+			ch[7].car.updateAll();
+			ch[8].mod.updateAll();
+			ch[8].car.updateAll();
+
 			reg[0xbd] = data;
 			break;
 		}
@@ -1002,15 +1149,31 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime &time)
 		if (!(rg&0x10)) {
 			// 0xa0-0xa8
 			int c = rg-0xa0;
-			ch[c].setFnumber(data + ((reg[rg+0x10]&3)<<8));
+			int fNum = data + ((reg[rg+0x10]&3)<<8);
+			int block = (reg[rg+0x10]>>2)&7;
+			ch[c].setFnumber(fNum);
+			switch (c) {
+				case 7: noiseA_dphase = dphaseNoiseTable[fNum][block];
+					break;
+				case 8: noiseB_dphase = dphaseNoiseTable[fNum][block];
+					break;
+			}
 			ch[c].car.updateAll();
 			ch[c].mod.updateAll();
 			reg[rg] = data;
 		} else {
 			// 0xb0-0xb8
 			int c = rg-0xb0;
-			ch[c].setFnumber(((data&3)<<8) + reg[rg-0x10]);
-			ch[c].setBlock((data>>2)&7);
+			int fNum = ((data&3)<<8) + reg[rg-0x10];
+			int block = (data>>2)&7;
+			ch[c].setFnumber(fNum);
+			ch[c].setBlock(block);
+			switch (c) {
+				case 7: noiseA_dphase = dphaseNoiseTable[fNum][block];
+					break;
+				case 8: noiseB_dphase = dphaseNoiseTable[fNum][block];
+					break;
+			}
 			if (data&0x20)
 				ch[c].keyOn();
 			else

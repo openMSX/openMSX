@@ -88,7 +88,7 @@ int YM2413::DB_POS(int x)
 }
 int YM2413::DB_NEG(int x)
 {
-	return (int)(2*DB_MUTE+DB_MUTE+x/DB_STEP);
+	return (int)(2*DB_MUTE+x/DB_STEP);
 }
 
 // Cut the lower b bit off
@@ -107,9 +107,9 @@ int YM2413::EXPAND_BITS(int x, int s, int d)
 	return x<<(d-s);
 }
 // Adjust envelope speed which depends on sampling rate
-int YM2413::rate_adjust(int x, int rate)
+int YM2413::rate_adjust(double x, int rate)
 {
-	return (int)((double)x*CLOCK_FREQ/72/rate + 0.5); // +0.5 to round
+	return (int)(x*CLOCK_FREQ/72/rate + 0.5); // +0.5 to round
 }
 
 
@@ -648,8 +648,8 @@ void YM2413::setSampleRate(int sampleRate)
 	makeDphaseARTable(sampleRate);
 	makeDphaseDRTable(sampleRate);
 	makeDphaseNoiseTable(sampleRate);
-	pm_dphase = rate_adjust((int)(PM_SPEED*PM_DP_WIDTH/(CLOCK_FREQ/72)), sampleRate);
-	am_dphase = rate_adjust((int)(AM_SPEED*AM_DP_WIDTH/(CLOCK_FREQ/72)), sampleRate);
+	pm_dphase = rate_adjust(PM_SPEED * PM_DP_WIDTH / (CLOCK_FREQ/72), sampleRate);
+	am_dphase = rate_adjust(AM_SPEED * AM_DP_WIDTH / (CLOCK_FREQ/72), sampleRate);
 }
 
 
@@ -689,17 +689,17 @@ void YM2413::setRythmMode(int data)
 			ch[8].mod.type = false;
 
 			// TODO also slotStatus? 
-			if(!(reg[0x26]&0x10)&&!(data&0x10))
+			if(!(reg[0x26]&0x10) && !(data&0x10))
 				ch[6].mod.eg_mode = FINISH; // BD1
-			if(!(reg[0x26]&0x10)&&!(data&0x10))
+			if(!(reg[0x26]&0x10) && !(data&0x10))
 				ch[6].car.eg_mode = FINISH; // BD2
-			if(!(reg[0x27]&0x10)&&!(data&0x08))
+			if(!(reg[0x27]&0x10) && !(data&0x08))
 				ch[7].mod.eg_mode = FINISH; // HH
-			if(!(reg[0x27]&0x10)&&!(data&0x04))
+			if(!(reg[0x27]&0x10) && !(data&0x04))
 				ch[7].car.eg_mode = FINISH; // SD
-			if(!(reg[0x28]&0x10)&&!(data&0x02))
+			if(!(reg[0x28]&0x10) && !(data&0x02))
 				ch[8].mod.eg_mode = FINISH; // TOM
-			if(!(reg[0x28]&0x10)&&!(data&0x01))
+			if(!(reg[0x28]&0x10) && !(data&0x01))
 				ch[8].car.eg_mode = FINISH; // CYM
 		}
 	}
@@ -766,7 +766,7 @@ inline void YM2413::update_ampm()
 void YM2413::Slot::calc_phase()
 {
 	if (patch->PM) {
-		phase += (dphase * (*(plfo_pm))) >> PM_AMP_BITS;
+		phase += (dphase * (*plfo_pm)) >> PM_AMP_BITS;
 	} else {
 		phase += dphase;
 	}
@@ -833,7 +833,7 @@ void YM2413::Slot::calc_envelope()
 		break;
 	}
 	if (patch->AM) 
-		egout = EG2DB(egout+tll) + *(plfo_am);
+		egout = EG2DB(egout+tll) + (*plfo_am);
 	else 
 		egout = EG2DB(egout+tll);
 	if (egout >= DB_MUTE)
@@ -1111,11 +1111,11 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 	case 0x0e:
 		setRythmMode(data);
 		if (rythm_mode) {
-			if (data&0x10) keyOn_BD(); else keyOff_BD();
-			if (data&0x8) keyOn_SD(); else keyOff_SD();
-			if (data&0x4) keyOn_TOM(); else keyOff_TOM();
-			if (data&0x2) keyOn_CYM(); else keyOff_CYM();
-			if (data&0x1) keyOn_HH(); else keyOff_HH();
+			if (data&0x10) keyOn_BD();  else keyOff_BD();
+			if (data&0x08) keyOn_SD();  else keyOff_SD();
+			if (data&0x04) keyOn_TOM(); else keyOff_TOM();
+			if (data&0x02) keyOn_CYM(); else keyOff_CYM();
+			if (data&0x01) keyOn_HH();  else keyOff_HH();
 		}
 		ch[6].mod.updateAll();
 		ch[6].car.updateAll();
@@ -1131,19 +1131,17 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 	case 0x18:
 	{
 		int cha = regis & 0x0f;
-		ch[cha].setFnumber(data + ((reg[0x20+cha]&1)<<8));
+		int fNum = data + ((reg[0x20+cha]&1)<<8);
+		int block = (reg[0x20+cha]>>1)&7;
+		ch[cha].setFnumber(fNum);
+		switch (cha) {
+			case 7: noiseA_dphase = dphaseNoiseTable[fNum][block];
+				break;
+			case 8: noiseB_dphase = dphaseNoiseTable[fNum][block];
+				break;
+		}
 		ch[cha].mod.updateAll();
 		ch[cha].car.updateAll();
-		switch(regis) {
-		case 0x17:
-			noiseA_dphase = dphaseNoiseTable[data + ((reg[0x27]&1)<<8)][(reg[0x27]>>1)&7];
-			break;
-		case 0x18:
-			noiseB_dphase = dphaseNoiseTable[data + ((reg[0x28]&1)<<8)][(reg[0x28]>>1)&7];
-			break;
-		default:
-			break;
-		}
 		break;
 	}
 	case 0x20:  case 0x21:  case 0x22:  case 0x23:
@@ -1151,17 +1149,15 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 	case 0x28:
 	{
 		int cha = regis & 0x0f;
-		ch[cha].setFnumber(((data&1)<<8) + reg[0x10+cha]);
-		ch[cha].setBlock((data>>1)&7);
-		switch(regis) {
-		case 0x27:
-			noiseA_dphase = dphaseNoiseTable[((data&1)<<8) + reg[0x17]][(data>>1)&7];
-			break;
-		case 0x28:
-			noiseB_dphase = dphaseNoiseTable[((data&1)<<8) + reg[0x18]][(data>>1)&7];
-			break;
-		default:
-			break;
+		int fNum = ((data&1)<<8) + reg[0x10+cha];
+		int block = (data>>1)&7;
+		ch[cha].setFnumber(fNum);
+		ch[cha].setBlock(block);
+		switch (cha) {
+			case 7: noiseA_dphase = dphaseNoiseTable[fNum][block];
+				break;
+			case 8: noiseB_dphase = dphaseNoiseTable[fNum][block];
+				break;
 		}
 		ch[cha].setSustine((data>>5)&1);
 		if (data&0x10) 

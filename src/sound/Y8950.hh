@@ -49,10 +49,14 @@ class Y8950 : public SoundDevice
 			inline void slotOn();
 			inline void slotOff();
 
-			inline void calc_phase(int lfo_pm);
-			inline void calc_envelope(int lfo_am);
-			inline int calc_slot_car(int lfo_pm, int lfo_am, int fm);
-			inline int calc_slot_mod(int lfo_pm, int lfo_am);
+			inline void calc_phase();
+			inline void calc_envelope();
+			inline int calc_slot_car(int fm);
+			inline int calc_slot_mod();
+			inline int calc_slot_tom();
+			inline int calc_slot_snare(int whitenoise);
+			inline int calc_slot_cym(int a, int b);
+			inline int calc_slot_hat(int a, int b, int whitenoise);
 			
 			inline void updateAll();
 			inline void updateEG();
@@ -82,6 +86,10 @@ class Y8950 : public SoundDevice
 
 			bool slotStatus;
 			Patch patch;  
+			
+			// refer to Y8950->
+			int *plfo_pm;
+			int *plfo_am;
 
 		private:
 			static int lin2db(double d);
@@ -167,16 +175,17 @@ class Y8950 : public SoundDevice
 		static const int PM_AMP_BITS = 8;
 		static const int PM_AMP = 1<<PM_AMP_BITS;
 		
-		// Cut the lower b bit(s) off. 
+		static int dphaseNoiseTable[1024][8];
+		
+		inline static int DB_POS(int x);
+		inline static int DB_NEG(int x);
 		inline static int HIGHBITS(int c, int b);
-		// Leave the lower b bit(s). 
 		inline static int LOWBITS(int c, int b);
-		// Expand x which is s bits to d bits. 
 		inline static int EXPAND_BITS(int x, int s, int d);
-		// Adjust envelope speed which depends on sampling rate. 
 		inline static int rate_adjust(double x, int rate); 
 		inline static int CLAP(int min, int x, int max);
 		
+		void makeDphaseNoiseTable(int sampleRate);
 		void makePmTable();
 		void makeAmTable();
 
@@ -190,9 +199,9 @@ class Y8950 : public SoundDevice
 		inline void keyOff_TOM();
 		inline void keyOff_HH();
 		inline void keyOff_CYM();
-		
-		void update_noise();
-		void update_ampm();
+		inline void setRythmMode(int data);
+		inline void update_noise();
+		inline void update_ampm();
 		
 		inline int calcSample(int channelMask);
 		inline int calcAdpcm();
@@ -214,8 +223,17 @@ class Y8950 : public SoundDevice
 		// Amp Modulator 
 		int am_mode;
 		int am_phase;
+		
 		// Noise Generator 
 		int noise_seed;
+		int whitenoise;
+		int noiseA;
+		int noiseB;
+		int noiseA_phase;
+		int noiseB_phase;
+		int noiseA_dphase;
+		int noiseB_dphase;
+
 		// Channel & Slot 
 		Channel ch[9];
 		Slot *slot[18];
@@ -234,12 +252,6 @@ class Y8950 : public SoundDevice
 		static const int DB2LIN_AMP_BITS = 11;
 		static const int SLOT_AMP_BITS = DB2LIN_AMP_BITS;
 
-		static const int SLOT_BD1 = 12;
-		static const int SLOT_BD2 = 13;
-		static const int SLOT_HH  = 14;
-		static const int SLOT_SD  = 15;
-		static const int SLOT_TOM = 16;
-		static const int SLOT_CYM = 17;
 		// Bits for Pitch and Amp modulator 
 		static const int PM_PG_BITS = 8;
 		static const int PM_PG_WIDTH = 1<<PM_PG_BITS;
@@ -259,7 +271,6 @@ class Y8950 : public SoundDevice
 		int lfo_pm;
 		int am_dphase;
 		int lfo_am;
-		int whitenoise;
 
 		int* buffer;
 		short maxVolume;

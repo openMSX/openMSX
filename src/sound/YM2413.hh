@@ -88,7 +88,7 @@ class YM2413 : public SoundDevice
 			int eg_dphase;		// Phase increment amount
 			int egout;		// output
 
-			// refer to opll->
+			// refer to YM2413->
 			int *plfo_pm;
 			int *plfo_am;
 	};
@@ -163,7 +163,7 @@ class YM2413 : public SoundDevice
 		inline static int HIGHBITS(int c, int b);
 		inline static int LOWBITS(int c, int b);
 		inline static int EXPAND_BITS(int x, int s, int d);
-		inline static int rate_adjust(int x, int sampleRate);
+		inline static int rate_adjust(double x, int sampleRate);
 
 	private:
 		static const int CLOCK_FREQ = 3579545;
