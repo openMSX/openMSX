@@ -5,7 +5,7 @@
 
 #include "Display.hh"
 #include "SettingListener.hh"
-#include "RenderSettings.hh"
+#include "VideoSourceSetting.hh"
 
 namespace openmsx {
 
@@ -15,14 +15,10 @@ class BooleanSetting;
 class VideoLayer: public Layer, protected SettingListener
 {
 public:
-	/** Destructor.
-	  */
 	virtual ~VideoLayer();
 
 protected:
-	/** Constructor.
-	  */
-	VideoLayer(RenderSettings::VideoSource videoSource);
+	VideoLayer(VideoSource videoSource);
 
 	// SettingListener interface:
 	virtual void update(const Setting* setting);
@@ -34,9 +30,11 @@ private:
 	Coverage getCoverage();
 
 	/** Video source that displays on this layer. */
-	RenderSettings::VideoSource videoSource;
+	VideoSource videoSource;
 	/** Reference to "videosource" setting. */
-	EnumSetting<RenderSettings::VideoSource>& videoSourceSetting;
+	VideoSourceSetting& videoSourceSetting;
+	/** Activate the videosource */
+	VideoSourceActivator videoSourceActivator;
 	/** Reference to "power" setting. */
 	BooleanSetting& powerSetting;
 

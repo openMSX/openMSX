@@ -4,6 +4,8 @@ $Id$
 	* Implemented deinterlace for V9990
 	* Better frameskip implementation (skip more code)
 	* Don't draw V99x8/V9990 when V9990/V99x8 is active
+	* Made special videosource setting:
+	   don't allow to select gfx9000 source without gfx9000 extension
 
 2004-12-31 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed V9990 palette read-out

@@ -26,10 +26,11 @@ public:
 
 protected:
 	EnumSettingPolicy(const std::string& name, const Map& map_);
-	~EnumSettingPolicy();
+	virtual ~EnumSettingPolicy();
 	
 	std::string toString(T value) const;
 	T fromString(const std::string& str) const;
+	virtual void checkSetValue(T& value) const { }
 	void tabCompletion(std::vector<std::string>& tokens) const;
 	
 private:
@@ -77,7 +78,13 @@ void EnumSettingPolicy<T>::getPossibleValues(std::set<std::string>& result) cons
 {
 	for (typename Map::const_iterator it = enumMap.begin();
 	     it != enumMap.end(); ++it) {
-		result.insert(it->first);
+		try {
+			T val = it->second;
+			checkSetValue(val);
+			result.insert(it->first);
+		} catch (MSXException& e) {
+			// ignore
+		}
 	}
 }
 

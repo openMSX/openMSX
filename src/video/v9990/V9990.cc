@@ -9,6 +9,7 @@
 #include "V9990VRAM.hh"
 #include "V9990CmdEngine.hh"
 #include "V9990Renderer.hh"
+#include "RenderSettings.hh"
 #include <cassert>
 #include <iomanip>
 
@@ -101,7 +102,7 @@ V9990::V9990(const XMLElement& config, const EmuTime& time)
 V9990::~V9990()
 {
 	PRT_DEBUG("[--now--] V9990::Destroy");
-
+	
 	// Unregister everything that needs to be unregistered
 	CommandController::instance().unregisterCommand(&v9990RegsCmd, "v9990regs");
 	Debugger::instance().unregisterDebuggable("V9990 palette", v9990PalDebug);

@@ -10,6 +10,8 @@
 #include "CliCommOutput.hh"
 #include "Scheduler.hh"
 #include "RealTime.hh"
+#include "RenderSettings.hh"
+#include "VideoSourceSetting.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -103,17 +105,16 @@ bool Display::signalEvent(const Event& event)
 	assert(event.getType() == FINISH_FRAME_EVENT);
 	
 	const FinishFrameEvent& ffe = static_cast<const FinishFrameEvent&>(event);
-	RenderSettings::VideoSource eventSource = ffe.getSource();
-	RenderSettings::VideoSource visibleSource = 
+	VideoSource eventSource = ffe.getSource();
+	VideoSource visibleSource = 
 		RenderSettings::instance().getVideoSource()->getValue();
 
 	bool draw = visibleSource == eventSource;
-	if(draw) {
+	if (draw) {
 		repaint();
 	}
 
-	RealTime::instance().sync(Scheduler::instance().getCurrentTime(),
-			                  draw);
+	RealTime::instance().sync(Scheduler::instance().getCurrentTime(), draw);
 	return true;
 }
 

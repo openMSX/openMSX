@@ -14,7 +14,8 @@ template <typename T> class SettingPolicy
 protected:
 	typedef T Type;
 
-	void checkValue(T& value) const { }
+	void checkSetValue(T& value) const { }
+	T checkGetValue(T value) const { return value; }
 	// std::string toString(T value) const;
 	// T fromString(const std::string& str) const;
 	void tabCompletion(std::vector<std::string>& tokens) const { }
@@ -28,7 +29,7 @@ protected:
 	{
 	}
 	
-	void checkValue(T& value)
+	void checkSetValue(T& value)
 	{
 		value = std::min(std::max(value, minValue), maxValue);
 	}

@@ -31,7 +31,7 @@ public:
 
 	/** Gets the current value of this setting.
 	  */
-	const Type& getValue() const;
+	Type getValue() const;
 
 	/** Changes the current value of this setting.
 	  * If the given value is invalid, it will be mapped to the closest
@@ -65,6 +65,8 @@ protected:
 
 private:
 	void init(SaveSetting save);
+	void setValue2(Type newValue, bool check);
+	void setValueString2(const std::string& valueString, bool check);
 
 	Type value;
 	Type defaultValue;
@@ -115,7 +117,7 @@ void SettingImpl<POLICY>::init(SaveSetting save)
 		xmlNode = &config.getCreateChildWithAttribute(
 			"setting", "id", getName(), getValueString());
 		try {
-			setValueString(xmlNode->getData());
+			setValueString2(xmlNode->getData(), false);
 		} catch (MSXException& e) {
 			// saved value no longer valid, just keep default
 		}
@@ -131,15 +133,23 @@ SettingImpl<POLICY>::~SettingImpl()
 
 
 template<typename POLICY>
-const typename SettingImpl<POLICY>::Type& SettingImpl<POLICY>::getValue() const
+typename SettingImpl<POLICY>::Type SettingImpl<POLICY>::getValue() const
 {
-	return value;
+	return POLICY::checkGetValue(value);
 }
 
 template<typename POLICY>
 void SettingImpl<POLICY>::setValue(Type newValue)
 {
-	POLICY::checkValue(newValue);
+	setValue2(newValue, true);
+}
+
+template<typename POLICY>
+void SettingImpl<POLICY>::setValue2(Type newValue, bool check)
+{
+	if (check) {
+		POLICY::checkSetValue(newValue);
+	}
 	if (checker) {
 		checker->check(*this, newValue);
 	}
@@ -176,13 +186,19 @@ void SettingImpl<POLICY>::setChecker(SettingChecker<POLICY>* checker_)
 template<typename POLICY>
 std::string SettingImpl<POLICY>::getValueString() const
 {
-	return POLICY::toString(value);
+	return POLICY::toString(getValue());
 }
 
 template<typename POLICY>
 void SettingImpl<POLICY>::setValueString(const std::string& valueString)
 {
-	setValue(POLICY::fromString(valueString));
+	setValueString2(valueString, true);
+}
+
+template<typename POLICY>
+void SettingImpl<POLICY>::setValueString2(const std::string& valueString, bool check)
+{
+	setValue2(POLICY::fromString(valueString), check);
 }
 
 template<typename POLICY>

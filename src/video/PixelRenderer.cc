@@ -202,7 +202,7 @@ void PixelRenderer::frameEnd(const EmuTime& time)
 		frameDurationSum += duration - frameDurations.removeBack();
 		frameDurations.addFront(duration);
 
-		FinishFrameEvent* f = new FinishFrameEvent(RenderSettings::VIDEO_MSX);
+		FinishFrameEvent* f = new FinishFrameEvent(VIDEO_MSX);
 		EventDistributor::instance().distributeEvent(f);
 	}
 }

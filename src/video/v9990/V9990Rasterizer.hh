@@ -91,7 +91,7 @@ public:
 		) = 0;
 
 protected:
-	V9990Rasterizer() : VideoLayer(RenderSettings::VIDEO_GFX9000) {}
+	V9990Rasterizer() : VideoLayer(VIDEO_GFX9000) {}
 
 };
 

@@ -16,6 +16,7 @@ class InfoCommand;
 class IntegerSetting;
 class FloatSetting;
 class BooleanSetting;
+class VideoSourceSetting;
 
 
 /** Singleton containing all settings for renderers.
@@ -37,40 +38,40 @@ public:
 	static RenderSettings& instance();
 
 	/** Accuracy [screen, line, pixel]. */
-	EnumSetting<Accuracy>* getAccuracy() { return accuracy.get(); }
+	EnumSetting<Accuracy>* getAccuracy() const { return accuracy.get(); }
 
 	/** Deinterlacing [on, off]. */
-	BooleanSetting* getDeinterlace() { return deinterlace.get(); }
+	BooleanSetting* getDeinterlace() const { return deinterlace.get(); }
 
 	/** The current max frameskip. */
-	IntegerSetting* getMaxFrameSkip() { return maxFrameSkip.get(); }
+	IntegerSetting* getMaxFrameSkip() const { return maxFrameSkip.get(); }
 
 	/** The current min frameskip. */
-	IntegerSetting* getMinFrameSkip() { return minFrameSkip.get(); }
+	IntegerSetting* getMinFrameSkip() const { return minFrameSkip.get(); }
 
 	/** Full screen [on, off]. */
-	BooleanSetting* getFullScreen() { return fullScreen.get(); }
+	BooleanSetting* getFullScreen() const { return fullScreen.get(); }
 
 	/** The amount of gamma correction. */
-	FloatSetting* getGamma() { return gamma.get(); }
+	FloatSetting* getGamma() const { return gamma.get(); }
 
 	/** The amount of glow [0..100]. */
-	IntegerSetting* getGlow() { return glow.get(); }
+	IntegerSetting* getGlow() const { return glow.get(); }
 
 	/** The amount of horizontal blur [0..100]. */
-	IntegerSetting* getHorizontalBlur() { return horizontalBlur.get(); }
+	IntegerSetting* getHorizontalBlur() const { return horizontalBlur.get(); }
 
 	/** The current renderer. */
-	RendererFactory::RendererSetting* getRenderer() { return renderer.get(); }
+	RendererFactory::RendererSetting* getRenderer() const { return renderer.get(); }
 
 	/** The current scaling algorithm. */
-	EnumSetting<ScalerID>* getScaler() { return scaler.get(); }
+	EnumSetting<ScalerID>* getScaler() const { return scaler.get(); }
 
 	/** The alpha value [0..100] of the scanlines. */
-	IntegerSetting* getScanlineAlpha() { return scanlineAlpha.get(); }
+	IntegerSetting* getScanlineAlpha() const { return scanlineAlpha.get(); }
 
 	/** The video source to display on the screen. */
-	EnumSetting<VideoSource>* getVideoSource() { return videoSource.get(); }
+	VideoSourceSetting* getVideoSource() const { return videoSource.get(); }
 
 private:
 	RenderSettings();
@@ -96,9 +97,10 @@ private:
 	std::auto_ptr<RendererFactory::RendererSetting> renderer;
 	std::auto_ptr<EnumSetting<ScalerID> > scaler;
 	std::auto_ptr<IntegerSetting> scanlineAlpha;
-	std::auto_ptr<EnumSetting<VideoSource> > videoSource;
+	std::auto_ptr<VideoSourceSetting> videoSource;
 
 	RendererFactory::RendererID currentRenderer;
+	bool videoSources[VIDEO_GFX9000 + 1];
 };
 
 } // namespace openmsx

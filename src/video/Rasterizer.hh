@@ -96,7 +96,7 @@ public:
 		) = 0;
 
 protected:
-	Rasterizer() : VideoLayer(RenderSettings::VIDEO_MSX) {}
+	Rasterizer() : VideoLayer(VIDEO_MSX) {}
 
 };
 

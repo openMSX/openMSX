@@ -4,6 +4,7 @@
 #include "IntegerSetting.hh"
 #include "FloatSetting.hh"
 #include "BooleanSetting.hh"
+#include "VideoSourceSetting.hh"
 #include "Display.hh"
 #include "VideoSystem.hh"
 #include "Event.hh"
@@ -45,13 +46,7 @@ RenderSettings::RenderSettings()
 		"blur", "amount of horizontal blur effect: 0 = none, 100 = full",
 		50, 0, 100));
 
-	EnumSetting<VideoSource>::Map videoSourceMap;
-	videoSourceMap["MSX"] = VIDEO_MSX;
-	// TODO: Only enable this value if GFX9000 is inserted?
-	videoSourceMap["GFX9000"] = VIDEO_GFX9000;
-	videoSource.reset(new EnumSetting<VideoSource>(
-		"videosource", "selects the video source to display on the screen",
-		VIDEO_MSX, videoSourceMap ));
+	videoSource.reset(new VideoSourceSetting());
 
 	// Get user-preferred renderer from config.
 	renderer = RendererFactory::createRendererSetting();

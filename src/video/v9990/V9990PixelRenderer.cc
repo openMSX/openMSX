@@ -72,7 +72,7 @@ void V9990PixelRenderer::frameEnd(const EmuTime& time)
 	lastX = 0; lastY = 0;
 	rasterizer->frameEnd();
 
-	FinishFrameEvent *f = new FinishFrameEvent(RenderSettings::VIDEO_GFX9000);
+	FinishFrameEvent *f = new FinishFrameEvent(VIDEO_GFX9000);
 	EventDistributor::instance().distributeEvent(f);
 }
 
