@@ -303,8 +303,7 @@ string Keyboard::KeyInserter::execute(const vector<string>& tokens)
 
 string Keyboard::KeyInserter::help(const vector<string>& /*tokens*/) const
 {
-	// TODO
-	static const string helpText = "TODO";
+	static const string helpText = "Type a string in the emulated MSX.";
 	return helpText;
 }
 
