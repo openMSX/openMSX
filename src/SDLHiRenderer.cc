@@ -20,6 +20,8 @@ Probably also easier to implement when using line buffers.
 #include "VDP.hh"
 #include "config.h"
 
+#include <math.h>
+
 /** Dimensions of screen.
   */
 static const int WIDTH = 640;
@@ -132,11 +134,12 @@ template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 		for (int r = 0; r < 8; r++) {
 			for (int g = 0; g < 8; g++) {
 				for (int b = 0; b < 8; b++) {
+					const float gamma = 2.2 / 2.8;
 					V9938_COLOURS[r][g][b] = SDL_MapRGB(
 						screen->format,
-						r * 36 + (r >> 1),
-						g * 36 + (g >> 1),
-						b * 36 + (b >> 1)
+						(int)(pow((float)r / 7.0, gamma) * 255),
+						(int)(pow((float)g / 7.0, gamma) * 255),
+						(int)(pow((float)b / 7.0, gamma) * 255)
 						);
 				}
 			}

@@ -1,6 +1,11 @@
 $Id$
 
 2001-12-21 Maarten ter Huurne <mth@stack.nl>
+	* Applied gamma correction to V9938/58 palette.
+	  My guess is that the gamma of MSX and PC monitors is slightly
+	  different; the palette precalc now compensates for that.
+
+2001-12-21 Maarten ter Huurne <mth@stack.nl>
 	* Implemented palette feature of V9938/58.
 	  Can be seen by running Nemesis 3 using NMS8250 config.
 
