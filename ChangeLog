@@ -1,5 +1,8 @@
 $Id$
 
+2003-12-11 Joost Yervante Damad <joost@lumatec.be>
+	* removed obsolete README.WIN32
+
 2003-12-10 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed SDLLo: rendered image did not show up on visible screen.
 
