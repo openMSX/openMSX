@@ -77,9 +77,9 @@ inline void PixelRenderer::renderUntil(const EmuTime &time)
 {
 	if (curFrameSkip != 0) return;
 
+	// Translate from time to pixel position.
 	int limitTicks = vdp->getTicksThisFrame(time);
 	assert(limitTicks <= vdp->getTicksPerFrame());
-	int displayL = getDisplayLeft();
 	int limitX, limitY;
 	switch (settings->getAccuracy()->getValue()) {
 	case RenderSettings::ACC_PIXEL: {
@@ -88,10 +88,13 @@ inline void PixelRenderer::renderUntil(const EmuTime &time)
 		break;
 	}
 	case RenderSettings::ACC_LINE: {
+		// Note: I'm not sure the rounding point is optimal.
+		//       It used to be based on the left margin, but that doesn't work
+		//       because the margin can change which leads to a line being
+		//       rendered even though the time doesn't advance.
 		limitX = 0;
-		limitY = (limitTicks + VDP::TICKS_PER_LINE - displayL)
-			/ VDP::TICKS_PER_LINE;
-		if (limitY == nextY) return;
+		limitY =
+			(limitTicks + VDP::TICKS_PER_LINE - 400) / VDP::TICKS_PER_LINE;
 		break;
 	}
 	case RenderSettings::ACC_SCREEN: {
@@ -102,11 +105,19 @@ inline void PixelRenderer::renderUntil(const EmuTime &time)
 		assert(false);
 	}
 
+	// Stop here if there is nothing to render.
+	// This ensures that no pixels are rendered in a series of updates that
+	// happen at exactly the same time; the VDP subsystem states may be
+	// inconsistent until all updates are performed.
+	// Also it is a small performance optimisation.
+	if (limitX == nextX && limitY == nextY) return;
+
 	if (displayEnabled) {
 		// Update sprite checking, so that subclass can call getSprites.
 		spriteChecker->checkUntil(time);
 
-		// Calculate end of display in ticks since start of line.
+		// Calculate start and end of display in ticks since start of line.
+		int displayL = getDisplayLeft();
 		int displayR = displayL + (vdp->isTextMode() ? 960 : 1024);
 
 		// Left border.
