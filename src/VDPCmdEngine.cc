@@ -31,13 +31,13 @@ static const int  PPL[4]  = { 256,512,512,256 };
 
 //                      Sprites:  On   On   Off  Off
 //                      Screen:   Off  On   Off  On
-static const int SRCH_TIMING[8]={  92, 115,  92,  92 };
-static const int LINE_TIMING[8]={ 120, 139, 120, 128 };
-static const int HMMV_TIMING[8]={  49,  60,  49,  58 };
-static const int LMMV_TIMING[8]={  97, 124,  97, 116 };
-static const int YMMM_TIMING[8]={  66, 102,  66,  68 };
-static const int HMMM_TIMING[8]={  92, 121,  92,  95 };
-static const int LMMM_TIMING[8]={ 130, 174, 130, 131 };
+static const int SRCH_TIMING[8]={  92, 122,  92,  92 };
+static const int LINE_TIMING[8]={ 120, 146, 120, 132 };
+static const int HMMV_TIMING[8]={  49,  64,  49,  61 };
+static const int LMMV_TIMING[8]={  98, 133,  98, 123 };
+static const int YMMM_TIMING[8]={  65, 114,  65,  68 };
+static const int HMMM_TIMING[8]={  92, 131,  92,  96 };
+static const int LMMM_TIMING[8]={ 129, 189, 129, 132 };
 
 // Defines:
 
@@ -794,7 +794,7 @@ void VDPCmdEngine::executeCommand()
 
 	// TODO: Currently VRAM window is either disabled or 128K.
 	//       Smaller windows would improve performance.
-	switch(cmdReg[REG_CMD] >> 4) {
+	switch(MMC.CM) {
 	case CM_ABRT:
 		commandDone();
 		return;

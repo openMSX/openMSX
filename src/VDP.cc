@@ -247,6 +247,8 @@ void VDP::executeUntilEmuTime(const EmuTime &time, int userData)
 		if (!isDisplayArea) {
 			if (controlRegs[1] & 0x40) {
 				renderer->updateDisplayEnabled(true, time);
+				// Commands run slower when display is enabled
+				cmdEngine->sync(time);
 			}
 			isDisplayArea = true;
 		}
@@ -255,6 +257,8 @@ void VDP::executeUntilEmuTime(const EmuTime &time, int userData)
 		// VSCAN is the end of display.
 		if (isDisplayEnabled()) {
 			renderer->updateDisplayEnabled(false, time);
+			// Commands run faster when display is disabled
+			cmdEngine->sync(time);
 			// TODO: This is a workaround.
 			spriteChecker->sync(time);
 		}
@@ -693,6 +697,8 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 			bool newDisplayEnabled = isDisplayArea && (val & 0x40);
 			if (newDisplayEnabled != isDisplayEnabled()) {
 				renderer->updateDisplayEnabled(newDisplayEnabled, time);
+				// Command timing changes when display is enabled/disabled
+				cmdEngine->sync(time);
 			}
 		}
 		break;
@@ -754,6 +760,10 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 	case 8:
 		if (change & 0x20) {
 			renderer->updateTransparency((val & 0x20) == 0, time);
+		}
+		if (change & 0x02) {
+			// Command timing changes when sprites are enabled/disabled
+			cmdEngine->sync(time);
 		}
 		break;
 	case 12:
