@@ -353,7 +353,6 @@ raiseIRQ(). Any comments ??
 
 \chapter{Implementing devices for openMSX}
 Before you start implementing a new device for openMSX make sure you have read and understand the way openMSX handles eumTime. If your device is able to generate an IRQ you must follow the rules described above.
-\section{The life cycle of an MSXDevice}
 
 \section{The life cycle of an MSXDevice}
 
@@ -365,6 +364,7 @@ This is what happens before a device becomes aware of its existance.
 \item The main loop creates an MSXConfig object and let it parse a configuration file.
 \item A MSXMotherBoard is create, this object can be viewed as the bus of the MSX and keep tracks of all the devices and slot layouts.
 \item The devicefactory creates the objects that are indicate by the MSXConfig object. It loops trough the objects that are summed up in the configuration, each time creating an object of the indicated class and adding to the deviceslist of the motherboard. Each MSXDevice also gets a pointer set towards it personal configuration object. For people who need a more vivid description of what has happended up until now: We just create all the needed chips and PCB's and tossed them all on a big pile.
+\end{itemize}
 
 
 The life cycle of an MSXdevice follows the following basic steps
@@ -389,23 +389,23 @@ During the initialisation the device should register its place in the slot struc
 One of the reasons to have this method seperate from the instatiation is the fact that later on we could decide that each device should be able to be re-initialized during run time. It would be advicable to write your code so that this is possible. For pointers this would mean that the contructor makes them NULL pointers and that the init should check if the pointers is empty before trying the malloc, and constructs such a like.
 
 \subsection{Start}
-One of the first things the device should do in his start method is asking the motherboard for the actual emutime. Remember that it should be possible to insert a device during the emulation. So it isn't smart to assume that the start method will be called when emutime is still zero. This is ofcourse only needed if the device uses time ^_^
+One of the first things the device should do in his start method is asking the motherboard for the actual emutime. Remember that it should be possible to insert a device during the emulation. So it isn't smart to assume that the start method will be called when emutime is still zero. This is ofcourse only needed if the device uses time \^\_\^
 During this start the device sould also set it's synchronisation points if needed. ex. a VDP should register it's first following interrupt.
 
 \subsection{Stop}
 \subsection{Reset}
 
-/*
+
 Remark 1 : creating of MSXDevices
 ---------------------------------
 the sequence in which MSXDevices are used is as follows
 --if <slotted> are embeded in the <device>-block this device will be visible in the slotstructure of the emulated MSX.Multiple <slotted>blocks are possible f.e. a simple 64KB RAM expansion is visible in one slot,one subslot and the 4 pages of it.
 --the< parameter> block is parsed and every key,value pair is passed to the setParameter methode. This method is used to set internal parameters of the MSXDevice, f.e. the amount of vram could be passed to a VDPdevice, or the number of mapper pages for a MemMapper.
--once athe configuration file is parsed and all devices created, all devices in the deviceslist have their init() method called. In the init() method the devices can allocate desired memmory, register I/O ports using the register_IO_Ini/IO_Out method of the MSXMotherBoard.
+-once athe configuration file is parsed and all devices created, all devices in the deviceslist have their init() method called. In the init() method the devices can allocate desired memmory, register I/O ports using the register\_IO\_Ini/IO\_Out method of the MSXMotherBoard.
 -at last the virtual MSX is started, the motherboard sends a reeset signal to all devices and starts emulating, if the user requests a reset, the reset method is called for all devices and the MSX comenses al over. The reset method is used for warm-boot, so for example memory should NOT be cleared from most memory devices.
 
 
 
-*/
+
 
 \end{document}

@@ -4,15 +4,15 @@
 #include "Scheduler.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXZ80.hh"
+#include "assert.h"
 
 
 MSXZ80 *Scheduler::nowRunning; //temporary hack for Z80: DO NOT USE
 // Read timescheduler.txt for a more detailed explication of the ideas behind the scheduler class
 
-Scheduler::Scheduler(void)
+Scheduler::Scheduler(void) : currentTime()
 {
 	Start=End=Current=0;
-	currentTState=0;
 }
 
 Scheduler::~Scheduler(void)
@@ -24,45 +24,29 @@ Scheduler::~Scheduler(void)
 	}
 }
 
-UINT64 Scheduler::getFirstStamp()
+Emutime &Scheduler::getFirstStamp()
 {
-	if (Start != 0){
-		return Start->tstamp;
-	} else {
-		cout << "ERROR Scheduler::getFirstStamp() had no list !!\n";
-		return 0;
-	}
+	assert (Start != 0);
+	return Start->tstamp;
 }
 
 void Scheduler::removeFirstStamp()
 {
-	if (Start != 0){
-	    tmp=Start;
-        Start=Start->next;
-        delete tmp;
-    } else {
-		cout << "ERROR Scheduler::removeFirstStamp() no list !!\n";
-	}
+	assert (Start != 0);
+	tmp=Start;
+	Start=Start->next;
+	delete tmp;
 }
 
 
-UINT64 Scheduler::getCurrentTime()
+Emutime &Scheduler::getCurrentTime()
 {
-	return currentTState;
+	return currentTime;
 }
 
-int Scheduler::getTimeMultiplier(int nativeFreq)
+void Scheduler::insertStamp(Emutime &timestamp, MSXDevice *activedevice) 
 {
-    return int(schedulerFreq/nativeFreq);
-}
-
-void Scheduler::insertStamp(UINT64 timestamp,MSXDevice *activedevice) 
-{
-	
-	if (timestamp < getCurrentTime() ){
-		cout << "device " << activedevice << "tried to insert to small timestamp \n";
-		return;
-	};
+	assert (timestamp >= getCurrentTime());
 	tmp=new SchedulerNode(timestamp,activedevice);
 	// If there is no list
 	if (Start == NULL){
@@ -91,10 +75,10 @@ void Scheduler::insertStamp(UINT64 timestamp,MSXDevice *activedevice)
 	Current->next=tmp;
 }
 
-void Scheduler::setLaterSP(UINT64 latertimestamp,MSXDevice *activedevice)
-{
-	insertStamp(getCurrentTime()+latertimestamp , activedevice);
-}
+//void Scheduler::setLaterSP(UINT64 latertimestamp,MSXDevice *activedevice)
+//{
+//	insertStamp(getCurrentTime()+latertimestamp , activedevice);
+//}
 
 void Scheduler::raiseIRQ()
 {
@@ -103,9 +87,7 @@ void Scheduler::raiseIRQ()
 
 void Scheduler::lowerIRQ()
 {
-	if (stateIRQline == 0){
-		cout << "ERROR Scheduler::lowerIRQ() state already zero !!\n";
-	};
+	assert (stateIRQline != 0);
 	stateIRQline--;
 }
 
@@ -122,7 +104,7 @@ void Scheduler::scheduleEmulation()
 		nowRunning=MSXMotherBoard::CPU;
 		MSXMotherBoard::CPU->executeUntilEmuTime(Start->tstamp);
 	// Time is now updated
-		currentTState=Start->tstamp;
+		currentTime=Start->tstamp;
 	//3. Get the device from the first SP in the list and let it reach its T-state.
 		Start->device->executeUntilEmuTime(Start->tstamp);
 	//4. Remove the first element from the list

@@ -5,6 +5,7 @@
 
 #include <iostream.h>
 #include "MSXDevice.hh"
+#include "emutime.hh"
 
 #include "Z80.hh"
 
@@ -37,13 +38,12 @@ friend void Z80_WRMEM(word A,byte V);
 		// executes the current command
 		// returns the number of used T-states
 		// int executeTStates(void);
-		void setTargetTStates(UINT64 TStates);
-		void executeUntilEmuTime(UINT64 TStates);
+		void setTargetTStates(Emutime &time);
+		void executeUntilEmuTime(Emutime &time);
 
 
         private:
-		UINT64 CurrentCPUTime;
-		UINT64 TargetCPUTime;
-		int timeScaler; // factor between EmuTime and native T-states
+		Emutime currentCPUTime;
+		Emutime targetCPUTime;
 };
 #endif //__MSXZ80_H__

@@ -5,15 +5,16 @@
 
 #include <iostream.h>
 #include <fstream.h>
+#include <string.h>
 #include "msxconfig.hh"
+#include "emutime.hh"
 
 //using namespace std ;
 //using std::ofstream ;
 //using std::ifstream ;
 
-typedef unsigned char byte;         // 8 bit
-typedef unsigned short word;          // 16 bit 
-typedef unsigned long int UINT64;   // 64 bit
+typedef unsigned char byte;	// 8 bit
+typedef unsigned short word;	// 16 bit 
 
 //class MSXConfig.Device;
 // is redefinition class MSXConfig { class Device;};
@@ -21,7 +22,7 @@ typedef unsigned long int UINT64;   // 64 bit
 class MSXDevice
 {
 	public:
-		//destructor and 
+		//constructor and destructor
 		MSXDevice(void);
 		virtual ~MSXDevice(void);
 		//
@@ -31,11 +32,11 @@ class MSXDevice
 		virtual void setConfigDevice(MSXConfig::Device *config);
 		
 		// interaction with CPU
-		virtual byte readMem(word address,UINT64 TStates);
-		virtual void writeMem(word address,byte value,UINT64 TStates);
-		virtual byte readIO(byte port,UINT64 TStates);
-		virtual void writeIO(byte port,byte value,UINT64 TStates);
-		virtual void executeUntilEmuTime(UINT64 TStates);
+		virtual byte readMem(word address, Emutime &time);
+		virtual void writeMem(word address, byte value, Emutime &time);
+		virtual byte readIO(byte port, Emutime &time);
+		virtual void writeIO(byte port, byte value, Emutime &time);
+		virtual void executeUntilEmuTime(Emutime &time);
 		virtual int executeTStates(int TStates);
 		virtual int getUsedTStates(void);
 		//
@@ -45,27 +46,29 @@ class MSXDevice
 		virtual void stop();
 		virtual void reset();
 		//
-		virtual void saveState(ofstream writestream);
-		virtual void restoreState(char *devicestring,ifstream readstream);
+		virtual void saveState(ofstream &writestream);
+		virtual void restoreState(string &devicestring, ifstream &readstream);
 		
-		virtual void setParameter(char *param,char *valuelist);
-		virtual char* getParameter(char *param);
+		virtual void setParameter(string &param, string &valuelist);
+		virtual string &getParameter(string &param);
 		virtual int getNrParameters();
-		virtual char* getParameterTxt(int nr);
-		virtual char* getParamShortHelp(int nr);
-		virtual char* getParamLongHelp(int nr);
+		virtual string &getParameterTxt(int nr);
+		virtual string &getParamShortHelp(int nr);
+		virtual string &getParamLongHelp(int nr);
 	protected:
 		MSXConfig::Device *deviceConfig;
 		//These are used for save/restoreState see note over
 		//savefile-structure
-		bool writeSaveStateHeader(ofstream writestream);
-		bool checkSaveStateHeader(char *devicestring);
+		bool writeSaveStateHeader(ofstream &writestream);
+		bool checkSaveStateHeader(string &devicestring);
 		const string* deviceName;
 		char* deviceVersion;
 		// To ease the burden of keeping IRQ state
 		bool isIRQset;
 		void setInterrupt();
 		void resetInterrupt();
+
 };
+
 #endif //__MSXDEVICE_H__
 

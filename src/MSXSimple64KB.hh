@@ -8,6 +8,7 @@
 
 #include "MSXDevice.hh"
 #include "MSXMotherBoard.hh"
+#include "emutime.hh"
 
 class MSXSimple64KB : public MSXDevice
 {
@@ -26,7 +27,7 @@ class MSXSimple64KB : public MSXDevice
 		//void reset();
 		//void SaveStateMSX(ofstream savestream);
 		//
-		byte readMem(word address,UINT64 TStates);
-                void writeMem(word address,byte value,UINT64 TStates);  
+		byte readMem(word address, Emutime &time);
+                void writeMem(word address, byte value, Emutime &time);  
 };
 #endif

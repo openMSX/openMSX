@@ -3,8 +3,6 @@
 //
 // Empty , just created to have a device for the factory and a general file for new developers
 //
-#include "MSXDevice.hh"
-#include "MSXMotherBoard.hh"
 #include "MSXSimple64KB.hh" 
 #include "string.h"
 //#include "stdlib.h"
@@ -56,12 +54,12 @@ void MSXSimple64KB::init()
 
 }
 
-byte MSXSimple64KB::readMem(word address,UINT64 TStates)
+byte MSXSimple64KB::readMem(word address, Emutime &time)
 {
 	return memoryBank[ address] ;
 };
 
-void MSXSimple64KB::writeMem(word address,byte value,UINT64 TStates)
+void MSXSimple64KB::writeMem(word address, byte value, Emutime &time)
 {
 	//TODO: Actually one should test memoryBank before assigning
 	// or could be avoided by implementing previous TODO nr. 1 :-)

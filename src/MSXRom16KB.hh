@@ -8,6 +8,7 @@
 
 #include "MSXDevice.hh"
 #include "MSXMotherBoard.hh"
+#include "emutime.hh"
 
 class MSXRom16KB : public MSXDevice
 {
@@ -25,7 +26,7 @@ class MSXRom16KB : public MSXDevice
 		//void RestoreMSX();
 		//void SaveStateMSX(ofstream savestream);
 		//
-		byte readMem(word address,UINT64 TStates);
+		byte readMem(word address, Emutime &time);
 //		char  romfile[255]; //temporary public
 };
 #endif

@@ -1,6 +1,5 @@
 // $Id$
 
-#include "MSXDevice.hh"
 #include "linkedlist.hh"
 #include "MSXMotherBoard.hh"
 
@@ -93,7 +92,7 @@ void MSXMotherBoard::StartMSX()
 	visibleDevices[3]=SlotLayout[0][0][3];
 	scheduler.scheduleEmulation();
 }
-void MSXMotherBoard::SaveStateMSX(ofstream savestream)
+void MSXMotherBoard::SaveStateMSX(ofstream &savestream)
 {
 	availableDevices->fromStart();
 	do {
@@ -101,7 +100,7 @@ void MSXMotherBoard::SaveStateMSX(ofstream savestream)
 	} while ( availableDevices->toNext() );
 }
 
-byte MSXMotherBoard::readMem(word address,UINT64 TStates)
+byte MSXMotherBoard::readMem(word address, Emutime &time)
 {
 	int CurrentSSRegister;
 	if (address == 0xFFFF){
@@ -111,10 +110,10 @@ byte MSXMotherBoard::readMem(word address,UINT64 TStates)
 			}
 		}
 		//visibleDevices[address>>14]->readMem(address,TStates);
-	return visibleDevices[address>>14]->readMem(address,TStates);
+	return visibleDevices[address>>14]->readMem(address, time);
 	
 }
-void MSXMotherBoard::writeMem(word address,byte value,UINT64 TStates)
+void MSXMotherBoard::writeMem(word address, byte value, Emutime &time)
 {
 	int CurrentSSRegister;
 	if (address == 0xFFFF){
@@ -137,7 +136,7 @@ void MSXMotherBoard::writeMem(word address,byte value,UINT64 TStates)
 		}
 	}
 	// address is not FFFF or it is but there is no subslotregister visible
-	visibleDevices[address>>14]->writeMem(address,value,TStates);
+	visibleDevices[address>>14]->writeMem(address, value, time);
 	
 }
 
@@ -155,12 +154,12 @@ void MSXMotherBoard::set_A8_Register(byte value)
 	    }
 }
 
-byte MSXMotherBoard::readIO(byte port,UINT64 TStates)
+byte MSXMotherBoard::readIO(byte port, Emutime &time)
 {
-	IO_In[port]->readIO(port,TStates);
+	IO_In[port]->readIO(port, time);
 }
-void MSXMotherBoard::writeIO(byte port,byte value,UINT64 TStates)
+void MSXMotherBoard::writeIO(byte port, byte value, Emutime &time)
 {
-	IO_Out[port]->writeIO(port,value,TStates);
+	IO_Out[port]->writeIO(port ,value, time);
 }
 

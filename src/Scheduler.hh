@@ -4,6 +4,8 @@
 #define __SCHEDULER_HH__
 // in MSXDevice.h : typedef unsigned long int UINT64;
 
+#include "emutime.hh"
+
 class MSXZ80;
 
 class SchedulerNode
@@ -11,11 +13,10 @@ class SchedulerNode
 	public: 
 		SchedulerNode *next;
 		MSXDevice *device;
-		UINT64 tstamp;
+		Emutime tstamp;
 
-		SchedulerNode(UINT64 time,MSXDevice *dev)
+		SchedulerNode(Emutime &time, MSXDevice *dev) : tstamp(time)
 		{
-			tstamp=time;
 			device=dev;
 			next=0;
 		};
@@ -28,19 +29,19 @@ class Scheduler
 		SchedulerNode *End;
 		SchedulerNode *Current;
 		SchedulerNode *tmp;
-		UINT64 currentTState;
+		Emutime currentTime;
 		int schedulerFreq;
 		int stateIRQline;
 		int keepRunning;
 	public:
 		Scheduler(void);
 		~Scheduler(void);
-		UINT64 getCurrentTime();
-		UINT64 getFirstStamp();
+		Emutime &getCurrentTime();
+		Emutime &getFirstStamp();
 		void removeFirstStamp();
 		int getTimeMultiplier(int nativeFreq);
-		void insertStamp(UINT64 timestamp,MSXDevice *activedevice);
-		void setLaterSP(UINT64 latertimestamp,MSXDevice *activedevice);
+		void insertStamp(Emutime &timestamp, MSXDevice *activedevice);
+		//void setLaterSP(Emutime &latertimestamp, MSXDevice *activedevice);
 		void raiseIRQ();
 		void lowerIRQ();
 		int getIRQ();

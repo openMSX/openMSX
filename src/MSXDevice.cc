@@ -25,27 +25,26 @@ void MSXDevice::setConfigDevice(MSXConfig::Device *config)
 {
 	deviceConfig=config;
 	deviceName=&config->getId();
-
 };
-		
+
 // interaction with CPU
-byte MSXDevice::readMem(word address,UINT64 TStates)
+byte MSXDevice::readMem(word address, Emutime &time)
 {
 	return (byte)255;
 }
-void MSXDevice::writeMem(word address,byte value,UINT64 TStates)
+void MSXDevice::writeMem(word address, byte value, Emutime &time)
 {
 	return;
 }
-byte MSXDevice:: readIO(byte port,UINT64 TStates)
+byte MSXDevice:: readIO(byte port, Emutime &time)
 {
 	return (byte)255;
 }
-void MSXDevice::writeIO(byte port,byte value,UINT64 TStates)
+void MSXDevice::writeIO(byte port, byte value, Emutime &time)
 {
 	return;
 }
-void MSXDevice::executeUntilEmuTime(UINT64 TStates)
+void MSXDevice::executeUntilEmuTime(Emutime &time)
 {
     return;
 }
@@ -79,42 +78,42 @@ void MSXDevice::reset()
 	return;
 }
 //
-void MSXDevice::saveState(ofstream writestream)
+void MSXDevice::saveState(ofstream &writestream)
 {
 	return;
 }
-void MSXDevice::restoreState(char *devicestring,ifstream readstream)
+void MSXDevice::restoreState(string &devicestring, ifstream &readstream)
 {
 	return;
 }
-void MSXDevice::setParameter(char *param,char *valuelist)
+void MSXDevice::setParameter(string &param, string &valuelist)
 {
 	return;
 }
-char* MSXDevice::getParameter(char *param)
+string &MSXDevice::getParameter(string &param)
 {
 }
 int MSXDevice::getNrParameters()
 {
 }
-char* MSXDevice::getParameterTxt(int nr)
+string &MSXDevice::getParameterTxt(int nr)
 {
 }
-char* MSXDevice::getParamShortHelp(int nr)
+string &MSXDevice::getParamShortHelp(int nr)
 {
 }
-char* MSXDevice::getParamLongHelp(int nr)
+string &MSXDevice::getParamLongHelp(int nr)
 {
 }
 
 //protected:
 //These are used for save/restoreState see note over
 //savefile-structure
-bool MSXDevice::writeSaveStateHeader(ofstream readstream )
+bool MSXDevice::writeSaveStateHeader(ofstream &readstream )
 {
 	return true;
 };
-bool MSXDevice::checkSaveStateHeader(char *devicestring)
+bool MSXDevice::checkSaveStateHeader(string &devicestring)
 {
 	return true;
 };

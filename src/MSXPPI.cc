@@ -1,7 +1,5 @@
 // $Id$
 
-#include "MSXDevice.hh"
-#include "MSXMotherBoard.hh"
 #include "Inputs.hh"
 #include "MSXPPI.hh"
 #include <SDL/SDL.h>
@@ -35,7 +33,7 @@ void MSXPPI::init()
 	// in most cases just one PPI so we register permenantly with 
 	// Inputs object for now.
 	//
-	// The Sunrise Dual Haeded MSX experiment had two!
+	// The Sunrise Dual Headed MSX experiment had two!
 	// Recreating this would mean making a second PPI instance by means
 	// of a derived class (MSXPPI is singleton !!)
 	Inputs::instance()->setPPI(this);
@@ -55,7 +53,7 @@ void MSXPPI::init()
 	MSXMotherBoard::instance()->register_IO_Out(0xAB,this);
 }
 
-byte MSXPPI::readIO(byte port,UINT64 TStates)
+byte MSXPPI::readIO(byte port, Emutime &time)
 {
   switch( port ){
 	case 0xA8:
@@ -81,7 +79,7 @@ byte MSXPPI::readIO(byte port,UINT64 TStates)
   }
 }
 
-void MSXPPI::writeIO(byte port,byte value,UINT64 TStates)
+void MSXPPI::writeIO(byte port, byte value, Emutime &time)
 {
   switch( port ){
 	case 0xA8:
@@ -108,6 +106,8 @@ void MSXPPI::writeIO(byte port,byte value,UINT64 TStates)
 	//and PPI Port B as input. The BIOS initializes it like that by writing 
 	//82h to Port ABh on startup. Afterwards it makes no sense to change this 
 	//setting, and thus we simply discard any write :-)
+	//
+	// see 8255.pdf for more detail
 
 		break;
   }

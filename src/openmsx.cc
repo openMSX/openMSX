@@ -119,7 +119,8 @@ main (int argc, char **argv)
 	cout << "Initing MSX\n\n";
 	moederbord->InitMSX();
 	
-	moederbord->scheduler.setLaterSP(100000,geheugen); //om toch een SP te hebben :-)
+	Emutime dummy(0, 100000);
+	moederbord->scheduler.insertStamp(dummy ,geheugen); //om toch een SP te hebben :-)
 	cout << "starting MSX\n\n";
 	moederbord->StartMSX();
 

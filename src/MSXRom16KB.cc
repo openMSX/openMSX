@@ -3,8 +3,6 @@
 //
 // Empty , just created to have a device for the factory and a general file for new developers
 //
-#include "MSXDevice.hh"
-#include "MSXMotherBoard.hh"
 #include "MSXRom16KB.hh" 
 #include "string.h"
 #include "stdio.h"
@@ -57,7 +55,7 @@ void MSXRom16KB::init()
 	}
 }
 
-byte MSXRom16KB::readMem(word address,UINT64 TStates)
+byte MSXRom16KB::readMem(word address, Emutime &time)
 {
 	return memoryBank[ address & 0x3fff] ;
 };

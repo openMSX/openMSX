@@ -8,6 +8,7 @@
 #include "linkedlist.hh"
 #include "fstream.h"
 #include "iostream.h"
+#include "emutime.hh"
 
 class MSXZ80;
 class MSXPPI;
@@ -37,10 +38,10 @@ class MSXMotherBoard : public MSXDevice
 		MSXDevice* visibleDevices[4]; // TODO: must be private but for test purposes, must be adjusted when #A8,subslot or mapper is changed
 		Scheduler scheduler; // TODO: must be private but for test purposes
 		//constructor and destructor
-		virtual ~MSXMotherBoard();
+		~MSXMotherBoard();
 		//note: Motherboard should be a special case (singleton)
 		// But since during normal use we already know this, it isn't
-		// important te implement for the moment.
+		// important to implement for the moment.
 		//static MSXDevice* instantiate();
 		
 		static MSXZ80 *CPU; // for scheduler, this is the main running CPU
@@ -72,13 +73,13 @@ class MSXMotherBoard : public MSXDevice
 		void StopMSX();
 		void StartMSX();
 		void RestoreMSX();
-		void SaveStateMSX(ofstream savestream);
+		void SaveStateMSX(ofstream &savestream);
 		//
 		// This will be used by CPU to read data from "visual" devices
-		byte readMem(word address,UINT64 TStates);
-		void writeMem(word address,byte value,UINT64 TStates);
-		byte readIO(byte port,UINT64 TStates);
-		void writeIO(byte port,byte value,UINT64 TStates);
+		byte readMem(word address, Emutime &time);
+		void writeMem(word address, byte value, Emutime &time);
+		byte readIO(byte port, Emutime &time);
+		void writeIO(byte port, byte value, Emutime &time);
 		void set_A8_Register(byte value);
 
 		friend class MSXPPI;

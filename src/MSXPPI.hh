@@ -5,6 +5,7 @@
 
 #include "MSXDevice.hh"
 #include "MSXMotherBoard.hh"
+#include "emutime.hh"
 
 // This class implements the PPI
 // found on ports A8..AB where 
@@ -39,8 +40,8 @@ class MSXPPI : public MSXDevice
 		~MSXPPI(); 
 		// don't forget you inherited from MSXDevice
 		void init();
-		byte readIO(byte port,UINT64 TStates);
-		void writeIO(byte port,byte value,UINT64 TStates);
+		byte readIO(byte port, Emutime &time);
+		void writeIO(byte port, byte value, Emutime &time);
 
         friend class Inputs;
 };
