@@ -13,6 +13,7 @@ MSXPPI::MSXPPI()
 	PRT_DEBUG("Creating an MSXPPI object");
 	keyboard = new Keyboard(true); // TODO make configurable
 	i8255 = new I8255(*this);
+	click = new KeyClick();	// not too early
 }
 
 MSXPPI::~MSXPPI()
@@ -43,26 +44,28 @@ void MSXPPI::init()
 	MSXMotherBoard::instance()->register_IO_Out(0xA9,this); 
 	MSXMotherBoard::instance()->register_IO_Out(0xAA,this);
 	MSXMotherBoard::instance()->register_IO_Out(0xAB,this);
+	
+	click->init();
 }
 
 void MSXPPI::reset()
 {
 	MSXDevice::reset();
 	i8255->reset();
+	click->reset();
 }
 
 byte MSXPPI::readIO(byte port, Emutime &time)
 {
-	//Note Emutime argument is ignored, I think that's ok
 	switch (port) {
 	case 0xA8:
-		return i8255->readPortA();
+		return i8255->readPortA(time);
 	case 0xA9:
-		return i8255->readPortB();
+		return i8255->readPortB(time);
 	case 0xAA:
-		return i8255->readPortC();
+		return i8255->readPortC(time);
 	case 0xAB:
-		return i8255->readControlPort();
+		return i8255->readControlPort(time);
 	default:
 		assert (false); // code should never be reached
 		return 255;	// avoid warning
@@ -71,31 +74,18 @@ byte MSXPPI::readIO(byte port, Emutime &time)
 
 void MSXPPI::writeIO(byte port, byte value, Emutime &time)
 {
-	//Note Emutime argument is ignored, I think that's ok
 	switch (port) {
 	case 0xA8:
-		i8255->writePortA(value);
+		i8255->writePortA(value, time);
 		break;
 	case 0xA9:
-		//BOGUS read-only register in case of MSX
-		i8255->writePortB(value);
+		i8255->writePortB(value, time);
 		break;
 	case 0xAA:
-		//TODO use these bits
-		//4    CASON  Cassette motor relay        (0=On, 1=Off)
-		//5    CASW   Cassette audio out          (Pulse)
-		//6    CAPS   CAPS-LOCK lamp              (0=On, 1=Off)
-		//7    SOUND  Keyboard klick bit          (Pulse)
-		i8255->writePortC(value);
+		i8255->writePortC(value, time);
 		break;
 	case 0xAB:
-		//Theoretically these registers can be used as input or output 
-		//ports. However, in the MSX, PPI Port A and C are always used as output, 
-		//and PPI Port B as input. The BIOS initializes it like that by writing 
-		//82h to Port ABh on startup. Afterwards it makes no sense to change this 
-		//setting, and thus we could simply discard any write :-)
-		//but wouter wouldn't let us ;-)
-		i8255->writeControlPort(value);
+		i8255->writeControlPort(value, time);
 		break;
 	default:
 		assert (false); // code should never be reached
@@ -105,16 +95,16 @@ void MSXPPI::writeIO(byte port, byte value, Emutime &time)
 
 // I8255Interface
 
-byte MSXPPI::readA() {
+byte MSXPPI::readA(const Emutime &time) {
 	// port A is normally an output on MSX, reading from an output port
 	// is handled internally in the 8255
 	return 255;	//TODO check this
 }
-void MSXPPI::writeA(byte value) {
+void MSXPPI::writeA(byte value, const Emutime &time) {
 	MSXMotherBoard::instance()->set_A8_Register(value);
 }
 
-byte MSXPPI::readB() {
+byte MSXPPI::readB(const Emutime &time) {
 	const byte* src = keyboard->getKeys(); //reading the keyboard events into the matrix
 	byte* dst = MSXKeyMatrix;
 	for (int i=0; i<Keyboard::NR_KEYROWS; i++) {
@@ -122,24 +112,25 @@ byte MSXPPI::readB() {
 	}
 	return MSXKeyMatrix[selectedRow];
 }
-void MSXPPI::writeB(byte value) {
+void MSXPPI::writeB(byte value, const Emutime &time) {
 	// probably nothing happens on a real MSX
 }
 
-nibble MSXPPI::readC1() {
+nibble MSXPPI::readC1(const Emutime &time) {
 	return 15;	// TODO check this
 }
-nibble MSXPPI::readC0() {
+nibble MSXPPI::readC0(const Emutime &time) {
 	return 15;	// TODO check this
 }
-void MSXPPI::writeC1(nibble value) {
+void MSXPPI::writeC1(nibble value, const Emutime &time) {
 	//TODO use these bits
 	//  4    CASON  Cassette motor relay        (0=On, 1=Off)
 	//  5    CASW   Cassette audio out          (Pulse)
-	//  7    SOUND  Keyboard klick bit          (Pulse)
 	Leds::LEDCommand caps = (value&4) ? Leds::CAPS_OFF : Leds::CAPS_ON;
 	Leds::instance()->setLed(caps);
+
+	click->setClick(value&8, time);
 }
-void MSXPPI::writeC0(nibble value) {
+void MSXPPI::writeC0(nibble value, const Emutime &time) {
 	selectedRow = value;
 }

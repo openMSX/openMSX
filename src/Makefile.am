@@ -16,6 +16,7 @@ openmsx_SOURCES=openmsx.cc \
 	MSXDevice.hh MSXDevice.cc \
 	MSXMotherBoard.hh MSXMotherBoard.cc \
 	MSXPPI.hh MSXPPI.cc I8255.hh I8255.cc \
+	KeyClick.hh KeyClick.cc \
 	MSXRom16KB.hh MSXRom16KB.cc \
 	MSXSimple64KB.hh MSXSimple64KB.cc \
 	MSXTMS9928a.hh MSXTMS9928a.cc \

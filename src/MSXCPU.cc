@@ -9,6 +9,7 @@ MSXCPU::MSXCPU()
 	PRT_DEBUG("Creating an MSXCPU object");
 	z80 = new MSXZ80();
 	//r800 = new MSXR800();
+	activeCPU = z80;	// setActiveCPU(CPU_Z80);
 }
 
 MSXCPU::~MSXCPU()
@@ -31,7 +32,6 @@ MSXCPU* MSXCPU::oneInstance = NULL;
 void MSXCPU::init()
 {
 	MSXDevice::init();
-	activeCPU = z80;	// setActiveCPU(CPU_Z80);
 	z80->init();
 	//r800->init();
 }

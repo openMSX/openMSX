@@ -32,6 +32,7 @@
 #include "emutime.hh"
 #include "I8255.hh"
 #include "Keyboard.hh"
+#include "KeyClick.hh"
 
 // David Hermans original comments 
 // This class implements the PPI
@@ -62,17 +63,18 @@ class MSXPPI : public MSXDevice, I8255Interface
 		MSXPPI(); 
 		static MSXPPI *oneInstance;
 		I8255 *i8255;
+		KeyClick *click;
 	
 	// I8255Interface
 	public:
-		byte readA();
-		byte readB();
-		nibble readC0();
-		nibble readC1();
-		void writeA(byte value);
-		void writeB(byte value);
-		void writeC0(nibble value);
-		void writeC1(nibble value);
+		byte readA(const Emutime &time);
+		byte readB(const Emutime &time);
+		nibble readC0(const Emutime &time);
+		nibble readC1(const Emutime &time);
+		void writeA(byte value, const Emutime &time);
+		void writeB(byte value, const Emutime &time);
+		void writeC0(nibble value, const Emutime &time);
+		void writeC1(nibble value, const Emutime &time);
 	
 	private:
 		Keyboard *keyboard;

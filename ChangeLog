@@ -3,6 +3,9 @@ $Id$
 2001-10-25 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* SoundDevices can now mute themselves, mixer doesn't ask
 	  for soundbuffer of muted devices
+	* added KeyClick support, PPI had to be made time aware for this
+	  doesn't work very well yet because a typical key-click-spike
+	  takes about 34us which is shorter than the duration of 1 sample
 
 2001-10-23 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* make DACSound compile again (doesn't work yet)
