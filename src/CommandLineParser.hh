@@ -58,8 +58,11 @@ class CommandLineParser
 			virtual const std::string& optionHelp();
 		} helpOption;
 		
-		class ConfigFile : public CLIFileType {
+		class ConfigFile : public CLIOption, public CLIFileType {
 		public:
+			virtual void parseOption(const std::string &option,
+				std::list<std::string> &cmdLine);
+			virtual const std::string& optionHelp();
 			virtual void parseFileType(const std::string &filename);
 			virtual const std::string& fileTypeHelp();
 		} configFile;

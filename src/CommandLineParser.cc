@@ -27,7 +27,8 @@ CommandLineParser::CommandLineParser()
 	registerOption("-msx2",   &msx2Option);
 	registerOption("-msx2+",  &msx2POption);
 	registerOption("-turbor", &msxTurboROption);
-	registerFileType("xml", &configFile);
+	registerOption("-config", &configFile);
+	registerFileType("xml",   &configFile);
 }
 
 void CommandLineParser::registerOption(const std::string &str,
@@ -108,7 +109,7 @@ void CommandLineParser::HelpOption::parseOption(const std::string &option,
 	PRT_INFO("usage: openmsx [arguments]");
 	PRT_INFO("  an argument is either an option or a filename");
 	PRT_INFO("");
-	PRT_INFO("  this is the list of support options:");
+	PRT_INFO("  this is the list of supported options:");
 	
 	std::map<std::string, CLIOption*>::const_iterator it1;
 	for (it1 = parser->optionMap.begin(); it1 != parser->optionMap.end(); it1++) {
@@ -116,7 +117,7 @@ void CommandLineParser::HelpOption::parseOption(const std::string &option,
 	}
 	
 	PRT_INFO("");
-	PRT_INFO("  this is the list of support file types:");
+	PRT_INFO("  this is the list of supported file types:");
 	
 	std::map<std::string, CLIFileType*>::const_iterator it2;
 	for (it2 = parser->fileTypeMap.begin(); it2 != parser->fileTypeMap.end(); it2++) {
@@ -133,6 +134,20 @@ const std::string& CommandLineParser::HelpOption::optionHelp()
 
 
 // Config file type
+void CommandLineParser::ConfigFile::parseOption(const std::string &option,
+                                                std::list<std::string> &cmdLine)
+{
+	std::string filename = cmdLine.front();
+	cmdLine.pop_front();
+
+	parseFileType(filename);
+	
+}
+const std::string& CommandLineParser::ConfigFile::optionHelp()
+{
+	static const std::string text("TODO");
+	return text;
+}
 void CommandLineParser::ConfigFile::parseFileType(const std::string &filename)
 {
 	MSXConfig::Backend *config = MSXConfig::Backend::instance();
