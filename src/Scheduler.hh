@@ -71,6 +71,9 @@ class Scheduler
 		 */
 		void removeSyncPoint(Schedulable* device, int userdata = 0);
 
+
+		void Scheduler::scheduleDevices(const EmuTime &limit);
+		
 		/**
 		 * This starts the schedule loop, should only be used by main
 		 * the program.

@@ -78,6 +78,11 @@ class CPU
 		const EmuTime &getTargetTime() const;
 
 		/**
+		 * Wait
+		 */
+		void wait(const EmuTime &time);
+
+		/**
 		 * Read a byte from memory. If possible the byte is read from
 		 * cache, otherwise the readMem() method of CPUInterface is used.
 		 */

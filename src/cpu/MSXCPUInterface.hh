@@ -6,9 +6,9 @@
 #include "CPUInterface.hh"
 #include "Command.hh"
 
-// forward declarations
 class MSXIODevice;
 class MSXMemDevice;
+class VDPIODelay;
 
 
 class MSXCPUInterface : public CPUInterface
@@ -30,7 +30,7 @@ class MSXCPUInterface : public CPUInterface
 		 * readIO() method can get called.
 		 * TODO: implement automatic registration for MSXIODevice
 		 */
-		void register_IO_In(byte port, MSXIODevice *device);
+		virtual void register_IO_In(byte port, MSXIODevice *device);
 
 		/**
 		 * Devices can register their Out ports. This is normally done
@@ -38,7 +38,7 @@ class MSXCPUInterface : public CPUInterface
 		 * writeIO() method can get called.
 		 * TODO: implement automatic registration for MSXIODevice
 		 */
-		void register_IO_Out(byte port, MSXIODevice *device);
+		virtual void register_IO_Out(byte port, MSXIODevice *device);
 
 		/**
 		 * Devices can register themself in the MSX slotstructure.
@@ -83,7 +83,6 @@ class MSXCPUInterface : public CPUInterface
 		virtual const byte* getReadCacheLine(word start) const;
 		virtual byte* getWriteCacheLine(word start) const;
 
-
 		/*
 		 * Should only be used by PPI
 		 *  TODO: make private / friend
@@ -103,9 +102,10 @@ class MSXCPUInterface : public CPUInterface
 		  */
 		std::string getSlotSelection();
 
-	private:
+	protected:
 		MSXCPUInterface();
 	
+	private:
 		struct RegPostSlot {
 			RegPostSlot(MSXMemDevice* device_, int pages_)
 				: device(device_), pages(pages_) {}
@@ -151,4 +151,20 @@ class MSXCPUInterface : public CPUInterface
 		bool isSubSlotted[4];
 		MSXMemDevice* visibleDevices[4];
 };
+
+class TurborCPUInterface : public MSXCPUInterface
+{
+	public:
+		TurborCPUInterface();
+		~TurborCPUInterface();
+
+		virtual void register_IO_In(byte port, MSXIODevice *device);
+		virtual void register_IO_Out(byte port, MSXIODevice *device);
+
+	private:
+		MSXIODevice *getDelayDevice(MSXIODevice *device);
+		
+		VDPIODelay *delayDevice;
+};
+
 #endif //__MSXCPUINTERFACE_HH__

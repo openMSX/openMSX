@@ -8,13 +8,17 @@
 #include "MSXCPU.hh"
 #include "MSXConfig.hh"
 #include "CartridgeSlotManager.hh"
+#include "VDPIODelay.hh"
 
 
 MSXCPUInterface* MSXCPUInterface::instance()
 {
 	static MSXCPUInterface* oneInstance = NULL;
-	if (oneInstance == NULL)
-		oneInstance = new MSXCPUInterface();
+	if (oneInstance == NULL) {
+		// TODO choose one depending on MSX model (small optimization)
+		//oneInstance = new MSXCPUInterface();
+		oneInstance = new TurborCPUInterface();
+	}
 	return oneInstance;
 }
 
@@ -301,3 +305,39 @@ void MSXCPUInterface::SlotSelectCmd::help(
 	print("Prints which slots are currently selected.");
 }
 
+
+// class TurborCPUInterface 
+
+TurborCPUInterface::TurborCPUInterface()
+	: delayDevice(NULL)
+{
+}
+
+TurborCPUInterface::~TurborCPUInterface()
+{
+	delete delayDevice;
+}
+
+void TurborCPUInterface::register_IO_In(byte port, MSXIODevice *device)
+{
+	if ((0x98 <= port) && (port <= 0x9B)) {
+		device = getDelayDevice(device);
+	}
+	MSXCPUInterface::register_IO_In(port, device);
+}
+
+void TurborCPUInterface::register_IO_Out(byte port, MSXIODevice *device)
+{
+	if ((0x98 <= port) && (port <= 0x9B)) {
+		device = getDelayDevice(device);
+	}
+	MSXCPUInterface::register_IO_Out(port, device);
+}
+
+MSXIODevice *TurborCPUInterface::getDelayDevice(MSXIODevice *device)
+{
+	if (delayDevice == NULL) {
+		delayDevice = new VDPIODelay(device, EmuTime::zero);
+	}
+	return delayDevice;
+}

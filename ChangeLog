@@ -3,6 +3,7 @@ $Id$
 2003-06-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Added new YM2413 core:
 	   use with the new (temporally) device "Music_2"
+	* Implemented TurboR VDP access delay
 
 2003-06-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented 'fallback' mechanism for files in settings.xml

@@ -55,6 +55,7 @@ class MSXDevice
 		MSXDevice(Device *config, const EmuTime &time);
 
 		Device *deviceConfig;
+		friend class VDPIODelay;
 };
 
 #endif //__MSXDEVICE_HH__

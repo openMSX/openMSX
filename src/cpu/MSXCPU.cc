@@ -104,3 +104,13 @@ void MSXCPU::lowerIRQ()
 	z80.lowerIRQ();
 	r800.lowerIRQ();
 }
+
+bool MSXCPU::waitR800(const EmuTime &time)
+{
+	if (activeCPU == &r800) {
+		r800.wait(time);
+		return true;
+	} else {
+		return false;
+	}
+}

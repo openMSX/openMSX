@@ -3,6 +3,7 @@
 #include "CPUInterface.hh"
 #include "CPU.hh"
 #include "CPUTables.nn"
+#include "Scheduler.hh"
 
 
 #ifdef CPU_DEBUG
@@ -110,3 +111,11 @@ void CPU::lowerIRQ()
 	//PRT_DEBUG("CPU: lower IRQ " << IRQStatus);
 }
 
+void CPU::wait(const EmuTime &time)
+{
+	assert(time >= getCurrentTime());
+	if (getTargetTime() <= time) {
+		Scheduler::instance()->scheduleDevices(time);
+	}
+	setCurrentTime(time);
+}

@@ -50,6 +50,11 @@ class MSXCPU : public MSXDevice
 		 * Before using this method take a look at IRQHelper
 		 */
 		void lowerIRQ();
+		
+		/**
+		 * Send wait states to R800
+		 */
+		bool waitR800(const EmuTime &time);
 
 	private:
 		MSXCPU(Device *config, const EmuTime &time);

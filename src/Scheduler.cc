@@ -69,6 +69,26 @@ void Scheduler::stopScheduling()
 	unpause();
 }
 
+void Scheduler::scheduleDevices(const EmuTime &limit)
+{
+	assert(!syncPoints.empty());	// class RealTime always has one
+	SynchronizationPoint sp = syncPoints.front();
+	EmuTime time = sp.getTime();
+	while (time <= limit) {
+		// emulate the device
+		pop_heap(syncPoints.begin(), syncPoints.end());
+		syncPoints.pop_back();
+		Schedulable *device = sp.getDevice();
+		int userData = sp.getUserData();
+		PRT_DEBUG ("Sched: Scheduling (2) " << device->schedName() <<
+			" " << userData << " till " << time);
+		device->executeUntilEmuTime(time, userData);
+
+		sp = syncPoints.front();
+		time = sp.getTime();
+	}
+}
+
 inline void Scheduler::emulateStep()
 {
 	assert(!syncPoints.empty());	// class RealTime always has one
