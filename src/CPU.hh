@@ -6,35 +6,35 @@
 #include "openmsx.hh"
 #include "EmuTime.hh"
 
+#ifdef DEBUG
+//#define CPU_DEBUG
+#endif
+
+
 // forward declaration
 class CPUInterface;
 
 typedef signed char offset;
 
-
 class CPU
 {
 	public:
-	#ifndef WORDS_BIGENDIAN
-		#define LSB_FIRST
-	#endif
+		typedef union {
+		#ifndef WORDS_BIGENDIAN
+		   struct { byte l,h; } B;
+		#else
+		   struct { byte h,l; } B;
+		#endif
+		   word w;
+		} z80regpair;
 
-	typedef union {
-	#ifdef LSB_FIRST
-	   struct { byte l,h; } B;
-	#else
-	   struct { byte h,l; } B;
-	#endif
-	   word w;
-	} z80regpair;
-
-	struct CPURegs {
-		z80regpair AF,  BC,  DE,  HL, IX, IY, PC, SP;
-		z80regpair AF2, BC2, DE2, HL2;
-		bool nextIFF1, IFF1, IFF2, HALT;
-		byte IM, I;
-		byte R, R2;	// refresh = R&127 | R2&128
-	};
+		struct CPURegs {
+			z80regpair AF,  BC,  DE,  HL, IX, IY, PC, SP;
+			z80regpair AF2, BC2, DE2, HL2;
+			bool nextIFF1, IFF1, IFF2, HALT;
+			byte IM, I;
+			byte R, R2;	// refresh = R&127 | R2&128
+		};
 
 		/**
 		 * Destructor
@@ -44,7 +44,7 @@ class CPU
 		/**
 		 * Reset the CPU
 		 */
-		virtual void reset(const EmuTime &time) = 0;
+		void reset(const EmuTime &time);
 
 		/**
 		 * Emulated CPU till a given target-time. This implicitly calls
@@ -99,12 +99,24 @@ class CPU
 		 */
 		void invalidateCache(word start, int num);
 
-
+		
+		// cache constants
 		static const int CACHE_LINE_BITS = 8;	// 256bytes
 		static const int CACHE_LINE_SIZE = 1 << CACHE_LINE_BITS;
 		static const int CACHE_LINE_NUM  = 0x10000 / CACHE_LINE_SIZE;
 		static const int CACHE_LINE_LOW  = CACHE_LINE_SIZE - 1;
 		static const int CACHE_LINE_HIGH = 0xffff - CACHE_LINE_LOW;
+
+		// flag positions
+		static const byte S_FLAG = 0x80;
+		static const byte Z_FLAG = 0x40;
+		static const byte Y_FLAG = 0x20;
+		static const byte H_FLAG = 0x10;
+		static const byte X_FLAG = 0x08;
+		static const byte V_FLAG = 0x04;
+		static const byte P_FLAG = V_FLAG;
+		static const byte N_FLAG = 0x02;
+		static const byte C_FLAG = 0x01;
 
 	protected:
 		/*
@@ -113,18 +125,33 @@ class CPU
 		CPU(CPUInterface *interf);
 		
 		/*
-		 * Emulate CPU till a previously set target time.
+		 * Emulate CPU till a previously set target time, the target
+		 * may change (become smaller) during emulation
 		 */
 		virtual void execute() = 0;
+		
+		void makeTables();
 		
 		/*
 		 * Instance variables
 		 */
 		CPUInterface *interface;
 		EmuTime targetTime;
-
 		CPURegs R;
 
+
+		// flag-register tables
+		static byte ZSTable[256];
+		static byte XYTable[256];
+		static byte ZSXYTable[256];
+		static byte ZSPXYTable[256];
+		
+		// instruction lookup tables
+		static const word DAATable[2048];
+		static const byte irep_tmp1[4][4];
+		static const byte drep_tmp1[4][4];
+		static const byte breg_tmp2[256];
+	
 	private:
 		byte* readCacheLine [CACHE_LINE_NUM];
 		byte* writeCacheLine[CACHE_LINE_NUM];

@@ -5,7 +5,6 @@
 #include "msxconfig.hh"
 #include "CPU.hh"
 #include "MSXCPU.hh"
-#include "Z80.hh"
 
 
 const byte MSXTapePatch::TapeHeader[];
@@ -107,7 +106,7 @@ void MSXTapePatch::TAPION(CPU::CPURegs& R) const
 
 	if (file == 0) {
 		PRT_DEBUG("TAPION : No tape file opened ?");
-		R.AF.B.l|=Z80::C_FLAG;
+		R.AF.B.l |= CPU::C_FLAG;
 		return;
 	}
 
@@ -115,7 +114,7 @@ void MSXTapePatch::TAPION(CPU::CPURegs& R) const
 	byte buffer[10];
 
 	// in case of failure
-	R.AF.B.l |= Z80::C_FLAG;
+	R.AF.B.l |= CPU::C_FLAG;
 
 	//fmsx does some positioning stuff first so to be compatible...
 	int filePosition=(file->tellg() & 7);
@@ -139,7 +138,7 @@ void MSXTapePatch::TAPION(CPU::CPURegs& R) const
 		} else if (!memcmp(buffer,TapeHeader,8)) {
 			PRT_DEBUG("TAPION : OK");
 			R.nextIFF1=R.IFF1=R.IFF2=false;
-			R.AF.B.l&=~Z80::C_FLAG;
+			R.AF.B.l &= ~CPU::C_FLAG;
 			return;
 		} 
 	} while (!file->fail());
@@ -179,13 +178,13 @@ void MSXTapePatch::TAPIN(CPU::CPURegs& R) const
 	 */
 	byte buffer;
 	PRT_DEBUG("TAPIN");
-	R.AF.B.l |= Z80::C_FLAG;
+	R.AF.B.l |= CPU::C_FLAG;
 
 	if (file) {
 		file->get(buffer);
 		if (! file->fail()) {
 			R.AF.B.h = buffer;
-			R.AF.B.l &= ~Z80::C_FLAG; 
+			R.AF.B.l &= ~CPU::C_FLAG; 
 		}
 	}
 }
@@ -207,7 +206,7 @@ void MSXTapePatch::TAPIOF(CPU::CPURegs& R) const
 	   terminates.
 	 */
 	PRT_DEBUG("TAPIOF");
-	R.AF.B.l &= ~Z80::C_FLAG;
+	R.AF.B.l &= ~CPU::C_FLAG;
 	R.nextIFF1 = R.IFF1 = R.IFF2 = true;	// ei
 }
 
@@ -254,7 +253,7 @@ void MSXTapePatch::TAPOON(CPU::CPURegs& R) const
 	 */
 	PRT_DEBUG("TAPOON");
 
-	R.AF.B.l |= Z80::C_FLAG;
+	R.AF.B.l |= CPU::C_FLAG;
 
 	if (file) {
 		// again some stuff from fmsx about positioning
@@ -264,7 +263,7 @@ void MSXTapePatch::TAPOON(CPU::CPURegs& R) const
 		}
 		if (!file->fail()) { 
 			file->write(TapeHeader,8);
-			R.AF.B.l &= ~Z80::C_FLAG;
+			R.AF.B.l &= ~CPU::C_FLAG;
 			R.nextIFF1 = R.IFF1 = R.IFF2 = false;	// di
 		}   
 	}
@@ -294,11 +293,11 @@ void MSXTapePatch::TAPOUT(CPU::CPURegs& R) const
 	   Hz but the format is otherwise unchanged.
 	 */
 	PRT_DEBUG("TAPOUT");
-	R.AF.B.l |= Z80::C_FLAG;
+	R.AF.B.l |= CPU::C_FLAG;
 
 	if (file) {
 		file->put(R.AF.B.h);
-		R.AF.B.l &= ~Z80::C_FLAG;
+		R.AF.B.l &= ~CPU::C_FLAG;
 	}
 }
 
@@ -317,7 +316,7 @@ void MSXTapePatch::TAPOOF(CPU::CPURegs& R) const
 	   into the TAPIOF standard routine.
 	 */
 	PRT_DEBUG("TAPOOF");
-	R.AF.B.l &= ~Z80::C_FLAG;
+	R.AF.B.l &= ~CPU::C_FLAG;
 	R.nextIFF1 = R.IFF1 = R.IFF2 = true;	// ei
 }
 
@@ -333,5 +332,5 @@ void MSXTapePatch::STMOTR(CPU::CPURegs& R) const
 	   state.
 	 */
 	PRT_DEBUG("STMOTR");
-	R.AF.B.l &= ~Z80::C_FLAG;
+	R.AF.B.l &= ~CPU::C_FLAG;
 }

@@ -5,7 +5,6 @@
 #include "msxconfig.hh"
 #include "CPU.hh"
 #include "MSXCPU.hh"
-#include "Z80.hh"
 #include "MSXMotherBoard.hh"
 
 
@@ -119,7 +118,7 @@ void MSXDiskRomPatch::PHYDIO(CPU::CPURegs& regs) const
 	//regs.BC.B.h;					// nb of sectors to read/write
 	word sectorNumber = regs.DE.w;			// logical sector number
 	word transferAddress = regs.HL.w;		// transfer address
-	bool write = (regs.AF.B.l & Z80::C_FLAG);	// read or write, Carry==write
+	bool write = (regs.AF.B.l & CPU::C_FLAG);	// read or write, Carry==write
 	
 	PRT_DEBUG("    drive: " << (int)drive);
 	PRT_DEBUG("    num_sectors: " << (int)regs.BC.B.h);
@@ -188,7 +187,7 @@ void MSXDiskRomPatch::PHYDIO(CPU::CPURegs& regs) const
 			regs.BC.B.h--;
 			sectorNumber++;
 		}
-		regs.AF.B.l &= ~Z80::C_FLAG;	// clear carry, OK
+		regs.AF.B.l &= ~CPU::C_FLAG;	// clear carry, OK
 	} catch (NoSuchSectorException* e) {
 		regs.AF.w = 0x0801;	// Record not found
 	} catch (DiskIOErrorException* e) {
@@ -234,13 +233,13 @@ void MSXDiskRomPatch::DSKCHG(CPU::CPURegs& regs) const
 	}
 	regs.BC.B.h = buffer[0];
 	GETDPB(regs);
-	if (regs.AF.B.l & Z80::C_FLAG) {
+	if (regs.AF.B.l & CPU::C_FLAG) {
 		regs.AF.w = 0x0A01; // I/O error
 		return;
 	}
 
 	regs.BC.B.h = 0; // disk change unknown
-	regs.AF.B.l &= ~Z80::C_FLAG;
+	regs.AF.B.l &= ~CPU::C_FLAG;
 }
 
 void MSXDiskRomPatch::GETDPB(CPU::CPURegs& regs) const
@@ -274,7 +273,7 @@ void MSXDiskRomPatch::GETDPB(CPU::CPURegs& regs) const
 		default:
 			PRT_DEBUG("    Illegal media_descriptor: " << std::hex
 				<< static_cast<int>(media_descriptor) << std::dec);
-			regs.AF.B.l |= (Z80::C_FLAG);
+			regs.AF.B.l |= (CPU::C_FLAG);
 			return;
 	}
 	word sect_num_of_dir = 1 + sect_per_fat * 2;
@@ -312,7 +311,7 @@ void MSXDiskRomPatch::GETDPB(CPU::CPURegs& regs) const
 	motherboard->writeMem(DPB_base_address + 0x11, sect_num_of_dir & 0xFF, dummy);
 	motherboard->writeMem(DPB_base_address + 0x12, (sect_num_of_dir>>8) & 0xFF, dummy);
 
-	regs.AF.B.l &= ~Z80::C_FLAG;
+	regs.AF.B.l &= ~CPU::C_FLAG;
 }
 
 void MSXDiskRomPatch::DSKFMT(CPU::CPURegs& regs) const

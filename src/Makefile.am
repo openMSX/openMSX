@@ -44,8 +44,8 @@ openmsx_SOURCES=openmsx.cc \
 	SDLHiRenderer.hh SDLHiRenderer.cc \
 	MSXCPU.hh MSXCPU.cc \
 	CPU.hh CPU.cc CPU.ii CPUInterface.hh CPUInterface.cc \
-	Z80.cc Z80.hh Z80.ii opc_R800.h Z80Core.nn \
-	Z80Tables.hh Z80Dasm.h \
+	CPUCore.n1 CPUCore.n2 CPUTables.nn \
+	Z80.cc Z80.hh Z80Tables.nn Z80Dasm.h \
 	devicefactory.hh devicefactory.cc \
 	Scheduler.hh Scheduler.cc \
 	EventDistributor.hh EventDistributor.cc \

@@ -1,3 +1,5 @@
+// $Id$
+
 inline byte CPU::readMem(word address)
 {
 	int line = address >> CACHE_LINE_BITS;
