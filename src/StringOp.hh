@@ -14,6 +14,10 @@ class StringOp
 public:
 	static string intToString(int num);
 	static int stringToInt(const string& str);
+
+	static bool stringToBool(const string& str);
+	
+	static string toLower(const string& str);
 };
 
 } // namespace openmsx

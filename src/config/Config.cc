@@ -1,12 +1,10 @@
 // $Id$
 
 #include <cassert>
-#include <algorithm>	// for tolower
-#include <cstdlib>	// for strtol() and atoll()
 #include "config.h"	// for the autoconf defines
 #include "Config.hh"
 #include "FileContext.hh"
-
+#include "StringOp.hh"
 
 namespace openmsx {
 
@@ -83,13 +81,13 @@ const string Config::getParameter(const string& name, const string& defaultValue
 bool Config::getParameterAsBool(const string& name) const
 	throw(ConfigException)
 {
-	return stringToBool(getParameter(name));
+	return StringOp::stringToBool(getParameter(name));
 }
 
 bool Config::getParameterAsBool(const string& name, bool defaultValue) const
 {
 	XMLElement* p = getParameterElement(name);
-	return p ? stringToBool(p->getPcData()) : defaultValue;
+	return p ? StringOp::stringToBool(p->getPcData()) : defaultValue;
 }
 
 int Config::getParameterAsInt(const string& name) const
@@ -99,13 +97,13 @@ int Config::getParameterAsInt(const string& name) const
 	if (!p) {
 		throw ConfigException("Missing parameter: " + name);
 	}
-	return stringToInt(getParameter(name));
+	return StringOp::stringToInt(getParameter(name));
 }
 
 int Config::getParameterAsInt(const string& name, int defaultValue) const
 {
 	XMLElement* p = getParameterElement(name);
-	return p ? stringToInt(p->getPcData()) : defaultValue;
+	return p ? StringOp::stringToInt(p->getPcData()) : defaultValue;
 }
 
 void Config::getParametersWithClass(const string& clasz, Parameters& result)
@@ -121,20 +119,6 @@ void Config::getParametersWithClass(const string& clasz, Parameters& result)
 			}
 		}
 	}
-}
-
-
-bool Config::stringToBool(const string& str)
-{
-	string low = str;
-	transform(low.begin(), low.end(), low.begin(), ::tolower);
-	return (low == "true" || low == "yes");
-}
-
-int Config::stringToInt(const string& str)
-{
-	// strtol also understands hex
-	return strtol(str.c_str(), 0, 0);
 }
 
 } // namespace openmsx

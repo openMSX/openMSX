@@ -12,7 +12,7 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "PanasonicMemory.hh"
-
+#include "StringOp.hh"
 
 namespace openmsx {
 
@@ -108,7 +108,7 @@ void Rom::read(Config* config, const string& filename)
 	for (Config::Parameters::const_iterator i = parameters2.begin();
 	     i != parameters2.end(); ++i) {
 		unsigned int romOffset = strtol(i->first.c_str(), 0, 0);
-		int value  = Config::stringToInt(i->second);
+		int value  = StringOp::stringToInt(i->second);
 		if (romOffset >= size) {
 			ostringstream out;
 			out << "Illegal ROM patch-offset: 0x" << hex << romOffset;

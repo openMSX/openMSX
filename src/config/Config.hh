@@ -19,9 +19,6 @@ class XMLElement;
 class Config
 {
 public:
-	static bool stringToBool(const string& str);
-	static int stringToInt(const string& str);
-
 	Config(const XMLElement& element, const FileContext& context);
 	virtual ~Config();
 

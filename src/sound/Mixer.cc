@@ -13,6 +13,8 @@
 #include "Scheduler.hh"
 #include "CommandResult.hh"
 
+using std::remove;
+
 namespace openmsx {
 
 Mixer::Mixer()
