@@ -5,6 +5,8 @@ $Id$
 	  let me know when more are needed
 	* updated msxconfig.dtd to reflect soon te be added
 	  non-device configuration entries
+	* added support for non-device configuration entries
+	  this is not thoroughly tested, but should work
 
 2001-10-19 Joost Yervante Damad <j.damad@qahwah.net>
 	* started TODO file to collect ideas/things todo
