@@ -61,7 +61,8 @@
 
   <device id="VDP">
     <type>VDP</type>
-    <io base="0x98" num="4"/>
+    <io base="0x98" num="4" type="O"/>
+    <io base="0x98" num="2" type="I"/>
     <version>V9938</version>
     <vram>128</vram>
   </device>

@@ -33,7 +33,7 @@ ioAddresses = {
 	
 	# Video:
 	'VDP1': [ (0x98, 2, 'IO') ], # TMSxxxx
-	'VDP2': [ (0x98, 4, 'IO') ], # V9938/V9958
+	'VDP2': [ (0x98, 4, 'O'), (0x98, 2, 'I') ], # V9938/V9958
 	'V9990': [ (0x60, 16, 'IO') ],
 	
 	# Audio:
