@@ -7,34 +7,18 @@
  - LED status visualization
 
 * devices: [MSXDevice]
- - Music Module Devices
- - RS232 (Modem) [Wouter: hardware is 8254 connected to 8251
-                          8254 is emulated (untested)]
- - Moonsound Devices
  - V9958 (multi page scrolling in combination with deinterlace, scrolling in
    character modes)
  - V9948 (if necessary)
 
 * config:
- - xmlconfig save support
+ - new settings XML and support saving of settings
  - support for saving states of devices
  - http support
  - settings.xml should get its own doctype and DTD:
    it is essentially different from hardware descriptions.
  - Key bindings are currently stored in settings.xml, which is the right place.
    However, they are still stored as autocommands, which is not good.
- - The following settings should be added to settings.xml:
-   (Note that you can use AutoCommands in settings.xml to do this also,
-   so this may be obsolete!)
-   + blur
-   + scanline
-   + frameskip
-   + mute status
-   + deinterlace
-   + speed
-   + limitsprites
- - The following things should be made settings (adjustable in Console):
-   + Mixer settings
  - Currently a ROM file name passed on the command line is used to generate
    XML in memory which is later used to create a Rom object. However, this
    complicates the process of gathering the ROM meta info in RomInfo, because
@@ -46,10 +30,6 @@
    be tolerated. So essential info like id (name) and mapper type should be
    mandatory. Other info such as manufacturer and year is desirable, but not
    essential.
-
-* build
- - auto* improvement, if still necessary
- - C++ standard compliancy (gcc-3.x e.g.)
 
 * general
  - I/O port configuration
