@@ -20,7 +20,8 @@ V9990SDLRasterizer<Pixel, zoom>::V9990SDLRasterizer(
 	V9990* vdp_, SDL_Surface* screen_)
 	: vdp(vdp_),
 	  screen(screen_),
-	  bitmapConverter(*(screen_->format),palette64, palette256, palette32768) 
+	  bitmapConverter(vdp->getVRAM(),
+	                  *(screen_->format),palette64, palette256, palette32768) 
 {
 	PRT_DEBUG("V9990SDLRasterizer::V9990SDLRasterizer");
 
@@ -266,8 +267,7 @@ void V9990SDLRasterizer<Pixel, zoom>::drawDisplay(
 
 			displayX = V9990::UCtoX(displayX, displayMode);
 			displayWidth = V9990::UCtoX(displayWidth, displayMode);
-			byte* vramPtr = vram->getData() +
-			                vdp->XYtoVRAM(&displayX, displayY, colorMode);
+			uint address = vdp->XYtoVRAM(&displayX, displayY, colorMode);
 			switch(colorMode) {
 				case BP2:
 					vramStep = imageWidth / 4;
@@ -284,10 +284,10 @@ void V9990SDLRasterizer<Pixel, zoom>::drawDisplay(
 			}
 				
 			while(displayHeight--) {
-				bitmapConverter.convertLine(pixelPtr, vramPtr, displayWidth);
+				bitmapConverter.convertLine(pixelPtr, address, displayWidth);
 				
 				// next line
-				vramPtr += vramStep;
+				address += vramStep;
 				pixelPtr += workScreen->w * translateY(1);
 			}
 		}

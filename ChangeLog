@@ -1,5 +1,9 @@
 $Id$
 
+2004-11-26 Eric Boon <e.boon4@chello.nl>
+	* Add V9990 Command Engine
+	* Implemented LMMC
+
 2004-11-22 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Merge romdb.xml in user and system dir
 

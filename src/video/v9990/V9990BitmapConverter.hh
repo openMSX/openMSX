@@ -7,6 +7,7 @@
 #include <SDL.h>
 #include "openmsx.hh"
 #include "V9990.hh"
+#include "V9990VRAM.hh"
 #include "Renderer.hh"
 
 namespace openmsx {
@@ -18,7 +19,8 @@ template <class Pixel, Renderer::Zoom zoom>
 class V9990BitmapConverter
 {
 public:
-	V9990BitmapConverter(SDL_PixelFormat fmt,
+	V9990BitmapConverter(V9990VRAM *vram_,
+	                     SDL_PixelFormat fmt,
 	                     Pixel *palette64,
 	                     Pixel *palette256,
 	                     Pixel *palette32768);
@@ -26,7 +28,7 @@ public:
 
 	/** Convert a line of VRAM into host pixels.
 	  */
-	void convertLine(Pixel *linePtr, const byte *vramPtr, int nrPixels);
+	void convertLine(Pixel *linePtr, uint address, int nrPixels);
 
 	/** Set the display mode: defines screen geometry.
 	  */
@@ -37,8 +39,12 @@ public:
 	void setColorMode(V9990ColorMode mode);
 
 private:
+	/** Pointer to VDP VRAM
+	  */
+	V9990VRAM *vram;
+
 	typedef void (V9990BitmapConverter<Pixel, zoom>::*RasterMethod)
-		     (Pixel* pixelPtr, const byte* vramPtr, int nrPixels);
+		     (Pixel* pixelPtr, uint address, int nrPixels);
 	/** Rastering method for the current color mode
 	  */
 	RasterMethod rasterMethod;
@@ -84,16 +90,16 @@ private:
 	void blend_none(Pixel* inPixels, Pixel* outPixels, int nrPixels);
 
 	/* private Raster Methods */
-	void rasterP    (Pixel *outPixels, const byte* vramPtr, int nrPixels);
-	void rasterBYUV (Pixel *outPixels, const byte* vramPtr, int nrPixels);
-	void rasterBYUVP(Pixel *outPixels, const byte* vramPtr, int nrPixels);
-	void rasterBYJK (Pixel *outPixels, const byte* vramPtr, int nrPixels);
-	void rasterBYJKP(Pixel *outPixels, const byte* vramPtr, int nrPixels);
-	void rasterBD16 (Pixel *outPixels, const byte* vramPtr, int nrPixels);
-	void rasterBD8  (Pixel *outPixels, const byte* vramPtr, int nrPixels);
-	void rasterBP6  (Pixel *outPixels, const byte* vramPtr, int nrPixels);
-	void rasterBP4  (Pixel *outPixels, const byte* vramPtr, int nrPixels);
-	void rasterBP2  (Pixel *outPixels, const byte* vramPtr, int nrPixels);
+	void rasterP    (Pixel *outPixels, uint address, int nrPixels);
+	void rasterBYUV (Pixel *outPixels, uint address, int nrPixels);
+	void rasterBYUVP(Pixel *outPixels, uint address, int nrPixels);
+	void rasterBYJK (Pixel *outPixels, uint address, int nrPixels);
+	void rasterBYJKP(Pixel *outPixels, uint address, int nrPixels);
+	void rasterBD16 (Pixel *outPixels, uint address, int nrPixels);
+	void rasterBD8  (Pixel *outPixels, uint address, int nrPixels);
+	void rasterBP6  (Pixel *outPixels, uint address, int nrPixels);
+	void rasterBP4  (Pixel *outPixels, uint address, int nrPixels);
+	void rasterBP2  (Pixel *outPixels, uint address, int nrPixels);
 };
 
 } // namespace openmsx

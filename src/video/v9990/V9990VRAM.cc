@@ -38,16 +38,36 @@ V9990VRAM::~V9990VRAM()
 // V9990VRAM
 // -------------------------------------------------------------------------
 
-byte V9990VRAM::readVRAM(unsigned address, const EmuTime& time)
-{
-	return data[address];
+static unsigned mapAddress(unsigned address, V9990DisplayMode mode) {
+	address &= 0x7FFFF;
+	switch(mode) {
+		case P1:
+			break;
+		case P2:
+			if(address < 0x7BE00) {
+				address = ((address >>16) & 0x1) |
+				          ((address << 1) & 0x7FFFF);
+			} else if(address < 0x7C000) {
+				address &= 0x3FFFF;
+			} /* else { address = address; } */
+			break;
+		default /* Bx */:
+			address = ((address >> 18) & 0x1) |
+			          ((address <<  1) & 0x7FFFE);
+	}
+	return address;
 }
 
-void V9990VRAM::writeVRAM(unsigned address, byte value, const EmuTime& time)
+/*inline*/ byte V9990VRAM::readVRAM(unsigned address)
 {
-	data[address] = value;
+	return data[mapAddress(address, vdp->getDisplayMode())];
 }
-	
+
+/*inline*/ void V9990VRAM::writeVRAM(unsigned address, byte value)
+{
+	data[mapAddress(address, vdp->getDisplayMode())] = value;
+}
+
 // -------------------------------------------------------------------------
 // Debuggable
 // -------------------------------------------------------------------------
@@ -65,12 +85,12 @@ const string& V9990VRAM::getDescription() const
 
 byte V9990VRAM::read(unsigned address)
 {
-	return data[address];
+	return data[mapAddress(address, vdp->getDisplayMode())];
 }
 
 void V9990VRAM::write(unsigned address, byte value)
 {
-	data[address] = value;
+	data[mapAddress(address, vdp->getDisplayMode())] = value;
 }
 
 } // namespace openmsx

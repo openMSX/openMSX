@@ -32,6 +32,7 @@ static const RegisterAccess regAccess[] = {
 	RD_WR,                              // LCD Control
 	RD_WR,                              // Priority Control
 	WR_ONLY,                            // Sprite Palette Control
+	NO_ACCESS, NO_ACCESS, NO_ACCESS,    // 3x not used
 	WR_ONLY, WR_ONLY, WR_ONLY, WR_ONLY, // Cmd Parameter Src XY
 	WR_ONLY, WR_ONLY, WR_ONLY, WR_ONLY, // Cmd Parameter Dest XY
 	WR_ONLY, WR_ONLY, WR_ONLY, WR_ONLY, // Cmd Parameter Size XY
@@ -57,6 +58,9 @@ V9990::V9990(const XMLElement& config, const EmuTime& time)
 
 	// create VRAM
 	vram.reset(new V9990VRAM(this, time));
+
+	// create Command Engine
+	cmdEngine.reset(new V9990CmdEngine(this));
 
 	// Start with NTSC timing
 	palTiming = false;
@@ -118,6 +122,7 @@ void V9990::reset(const EmuTime& time)
 
 	// Reset sub-systems
 	renderer->reset(time);
+	cmdEngine->reset(time);
 
 	// Init scheduling
 	frameStart(time);
@@ -132,7 +137,7 @@ byte V9990::readIO(byte port, const EmuTime& time)
 		case VRAM_DATA: {
 			// read from VRAM
 			unsigned addr = getVRAMAddr(VRAM_READ_ADDRESS_0);
-			result = vram->readVRAM(addr, time);
+			result = vram->readVRAM(addr);
 			if (!(regs[VRAM_READ_ADDRESS_2] & 0x80)) {
 				setVRAMAddr(VRAM_READ_ADDRESS_0, addr + 1);
 			}
@@ -163,7 +168,8 @@ byte V9990::readIO(byte port, const EmuTime& time)
 		}
 		case COMMAND_DATA:
 			// TODO
-			result = 0xC0;
+			//assert(cmdEngine != NULL);
+			result = cmdEngine->getCmdData(time);
 			break;
 
 		case REGISTER_DATA: {
@@ -225,7 +231,7 @@ void V9990::writeIO(byte port, byte val, const EmuTime &time)
 		case VRAM_DATA: {
 			// write VRAM
 			unsigned addr = getVRAMAddr(VRAM_WRITE_ADDRESS_0);
-			vram->writeVRAM(addr, val, time);
+			vram->writeVRAM(addr, val);
 			if (!(regs[VRAM_WRITE_ADDRESS_2] & 0x80)) {
 				setVRAMAddr(VRAM_WRITE_ADDRESS_0, addr + 1);
 			}
@@ -259,7 +265,8 @@ void V9990::writeIO(byte port, byte val, const EmuTime &time)
 			break;
 		}
 		case COMMAND_DATA:
-			// TODO
+			//assert(cmdEngine != NULL);
+			cmdEngine->setCmdData(val, time);
 			break;
 
 		case REGISTER_DATA: {
@@ -485,6 +492,10 @@ void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
 				break;
 			default: break;
 		}
+		if((reg >= CMD_PARAM_SRC_ADDRESS_0) && (reg <= CMD_PARAM_OPCODE)) {
+			//assert(cmdEngine != NULL);
+			cmdEngine->setCmdReg(reg, val, time);
+		}
 	} else {
 		PRT_DEBUG("[" << time << "] "
 		"V9990::writeRegister: Register not writable");
@@ -523,31 +534,35 @@ V9990ColorMode V9990::getColorMode(void)
 {
 	V9990ColorMode mode = INVALID_COLOR_MODE;
 
-	switch(regs[PALETTE_CONTROL] & 0xC0) {
-		case 0x00:
-			switch(regs[SCREEN_MODE_0] & 0x03) {
-				case 0x00: mode = BP2; break;
-				case 0x01: if(regs[SCREEN_MODE_0] & 0x80)
-				               mode = BP4;
-				           else
-						       mode = PP;
-				           break;
-				case 0x02: mode = BP6; break;
-				case 0x03: mode = BD16; break;
-				default: assert(false); break;
-			}
-			break;
-		case 0x40:
-			if((regs[SCREEN_MODE_0] & 0x03) == 2) mode = BD8;
-			break;
-		case 0x80:
-			if((regs[SCREEN_MODE_0] & 0x03) == 2) mode = BYJK;
-			break;
-		case 0xC0:
-			if((regs[SCREEN_MODE_0] & 0x03) == 2) mode = BYUV;
-			break;
-		default: assert(false); break;
+	if(!regs[SCREEN_MODE_0] & 0x80) {
+		mode = BP4;
+	} else {
+		switch(regs[SCREEN_MODE_0] & 0x03) {
+			case 0x00: mode = BP2; break;
+			case 0x01: mode = BP4; break;
+			case 0x02: 
+				switch(regs[PALETTE_CONTROL] & 0xC0) {
+					case 0x00: mode = BP6; break;
+					case 0x40: mode = BD8; break;
+					case 0x80: mode = BYJK; break;
+					case 0xC0: mode = BYUV; break;
+					default: assert(false); break;
+				}
+				break;
+			case 0x03: mode = BD16; break;
+			default: assert(false); break;
+		}		
 	}
+	
+	PRT_DEBUG("[---------] V9990::getColorMode: mode = " <<
+	        ((mode == BP2)?  "BP2":
+	         (mode == BP4)?  "BP4":
+	         (mode == BP6)?  "BP6":
+	         (mode == BD8)?  "BD8":
+	         (mode == BD16)? "BD16":
+	         (mode == BYJK)? "BYJK":
+	         (mode == BYUV)? "BYUV":
+			 "Dunno"));
 
 	// TODO Check
 	if(mode == INVALID_COLOR_MODE) mode = BP4;
@@ -566,17 +581,17 @@ V9990DisplayMode V9990::getDisplayMode(void)
 		case 0x80:
 			if(isMCLK) {
 				switch(regs[SCREEN_MODE_0] & 0x30) {
-					case 0x00: mode = B1; break;
-					case 0x10: mode = B3; break;
-					case 0x20: mode = B7; break;
+					case 0x00: mode = B0; break;
+					case 0x10: mode = B2; break;
+					case 0x20: mode = B4; break;
 					case 0x30: /* mode = INVALID_DISPLAY_MODE; */ break;
 					default: assert(false);
 				}
 			} else {
 				switch(regs[SCREEN_MODE_0] & 0x30) {
-					case 0x00: mode = B0; break;
-					case 0x10: mode = B2; break;
-					case 0x20: mode = B4; break;
+					case 0x00: mode = B1; break;
+					case 0x10: mode = B3; break;
+					case 0x20: mode = B7; break;
 					case 0x30: /* mode = INVALID_DISPLAY_MODE; */ break;
 					default: assert(false);
 				}

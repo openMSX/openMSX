@@ -14,19 +14,20 @@
 #include "IRQHelper.hh"
 #include "Command.hh"
 
-#include "V9990DisplayTiming.hh"
-#include "V9990VRAM.hh"
 
 /** Some useful stuff
   */
 
 enum V9990DisplayMode {
-	INVALID_DISPLAY_MODE,
+	INVALID_DISPLAY_MODE = -1,
 	P1, P2, B0, B1, B2, B3, B4, B5, B6, B7 };
 enum V9990ColorMode {
-	INVALID_COLOR_MODE, 
+	INVALID_COLOR_MODE = -1, 
 	PP, BYUV, BYUVP, BYJK, BYJKP, BD16, BD8, BP6, BP4, BP2 };
 
+#include "V9990DisplayTiming.hh"
+#include "V9990VRAM.hh"
+#include "V9990CmdEngine.hh"
 #include "V9990Renderer.hh"
 
 using std::string;
@@ -36,6 +37,7 @@ namespace openmsx {
 
 class V9990DisplayTiming;
 class V9990VRAM;
+class V9990CmdEngine;
 class V9990Renderer;
 
 /** Implementation of the Yamaha V9990 VDP as used in the GFX9000
@@ -86,6 +88,7 @@ public:
 	  * @param ticks  Nr of UC Ticks
 	  * @param mode   Display mode
 	  * @return       Pixel position
+	  * TODO: Move this to V9990DisplayTiming??
 	  */
 	static inline int UCtoX(int ticks, V9990DisplayMode mode) {
 		int x;
@@ -113,6 +116,7 @@ public:
 	  *              X position of the left most pixel at this VRAM address
 	  * @param mode  Color mode
 	  * @return      VRAM offset
+	  * TODO: Move this to V9990VRAM ??
 	  */
 	inline int XYtoVRAM(int *x, int y, V9990ColorMode mode) {
 		int offset = *x + y * getImageWidth();
@@ -254,7 +258,7 @@ private:
 		LCD_CONTROL,
 		PRIORITY_CONTROL,
 		SPRITE_PALETTE_CONTROL,
-		CMD_PARAM_SRC_ADDRESS_0,
+		CMD_PARAM_SRC_ADDRESS_0 = 32,
 		CMD_PARAM_SRC_ADDRESS_1,
 		CMD_PARAM_SRC_ADDRESS_2,
 		CMD_PARAM_SRC_ADDRESS_3,
@@ -293,6 +297,9 @@ private:
 	  */
 	auto_ptr<V9990VRAM> vram;
 
+	/** Command Engine
+	  */
+	auto_ptr<V9990CmdEngine> cmdEngine;
 	/** Palette
 	  */
 	byte palette[256];

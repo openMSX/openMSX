@@ -39,10 +39,12 @@ template class V9990BitmapConverter<
 
 template <class Pixel, Renderer::Zoom zoom>
 V9990BitmapConverter<Pixel, zoom>::V9990BitmapConverter(
+	V9990VRAM *vram,
 	SDL_PixelFormat fmt,
 	Pixel *palette64, Pixel *palette256, Pixel *palette32768)
 	: format(fmt)
 {
+	this->vram         = vram;
 	this->palette64    = palette64;
 	this->palette256   = palette256;
 	this->palette32768 = palette32768;
@@ -57,16 +59,20 @@ V9990BitmapConverter<Pixel, zoom>::~V9990BitmapConverter()
 
 template <class Pixel, Renderer::Zoom zoom>
 void V9990BitmapConverter<Pixel, zoom>::rasterBYUV(
-		Pixel *pixelPtr, const byte *vramPtr, int nrPixels)
+		Pixel *pixelPtr, uint address, int nrPixels)
 {
+	byte data[4];
 	int r, g, b;
 	int y, u, v;
 
 	while(nrPixels > 0) {
-		v = vramPtr[0] & 0x07 + ((vramPtr[1] & 0x07) << 3);
-		u = vramPtr[2] & 0x07 + ((vramPtr[3] & 0x07) << 3);
+		for(uint i = 0; i < 4; i++) {
+			data[i] = vram->readVRAM(address++);
+		}
+		v = data[0] & 0x07 + ((data[1] & 0x07) << 3);
+		u = data[2] & 0x07 + ((data[3] & 0x07) << 3);
 		for(int i=0; i < 4; i++) {
-			y = (*vramPtr++ & 0xF8) >> 3;
+			y = (data[i] & 0xF8) >> 3;
 			r = y + u;
 			g = (5*y - 2*u - v) / 4;
 			b = y + v;
@@ -78,17 +84,21 @@ void V9990BitmapConverter<Pixel, zoom>::rasterBYUV(
 
 template <class Pixel, Renderer::Zoom zoom>
 void V9990BitmapConverter<Pixel, zoom>::rasterBYUVP(
-		Pixel *pixelPtr, const byte *vramPtr, int nrPixels)
+		Pixel *pixelPtr, uint address, int nrPixels)
 {
 	// TODO Use palette
+	byte data[4];
 	int r, g, b;
 	int y, j, k;
 
 	while(nrPixels > 0) {
-		k = vramPtr[0] & 0x07 + ((vramPtr[1] & 0x07) << 3);
-		j = vramPtr[2] & 0x07 + ((vramPtr[3] & 0x07) << 3);
+		for(uint i = 0; i < 4; i++) {
+			data[i] = vram->readVRAM(address++);
+		}
+		k = data[0] & 0x07 + ((data[1] & 0x07) << 3);
+		j = data[2] & 0x07 + ((data[3] & 0x07) << 3);
 		for(int i=0; i < 4; i++) {
-			y = (*vramPtr++ & 0xF8) >> 3;
+			y = (data[i] & 0xF8) >> 3;
 			r = y + j;
 			g = y + k;
 			b = (5*y - 2*j - k) / 4;
@@ -100,16 +110,20 @@ void V9990BitmapConverter<Pixel, zoom>::rasterBYUVP(
 
 template <class Pixel, Renderer::Zoom zoom>
 void V9990BitmapConverter<Pixel, zoom>::rasterBYJK(
-		Pixel *pixelPtr, const byte *vramPtr, int nrPixels)
+		Pixel *pixelPtr, uint address, int nrPixels)
 {
+	byte data[4];
 	int r, g, b;
 	int y, j, k;
 
 	while(nrPixels > 0) {
-		k = vramPtr[0] & 0x07 + ((vramPtr[1] & 0x07) << 3);
-		j = vramPtr[2] & 0x07 + ((vramPtr[3] & 0x07) << 3);
+		for(uint i = 0; i < 4; i++) {
+			data[i] = vram->readVRAM(address++);
+		}
+		k = data[0] & 0x07 + ((data[1] & 0x07) << 3);
+		j = data[2] & 0x07 + ((data[3] & 0x07) << 3);
 		for(int i=0; i < 4; i++) {
-			y = (*vramPtr++ & 0xF8) >> 3;
+			y = (data[i] & 0xF8) >> 3;
 			r = y + j;
 			g = y + k;
 			b = (5*y - 2*j - k) / 4;
@@ -121,17 +135,21 @@ void V9990BitmapConverter<Pixel, zoom>::rasterBYJK(
 
 template <class Pixel, Renderer::Zoom zoom>
 void V9990BitmapConverter<Pixel, zoom>::rasterBYJKP(
-		Pixel *pixelPtr, const byte *vramPtr, int nrPixels)
+		Pixel *pixelPtr, uint address, int nrPixels)
 {
+	byte data[4];
 	// TODO Use palette
 	int r, g, b;
 	int y, j, k;
 
 	while(nrPixels > 0) {
-		k = vramPtr[0] & 0x07 + ((vramPtr[1] & 0x07) << 3);
-		j = vramPtr[2] & 0x07 + ((vramPtr[3] & 0x07) << 3);
+		for(uint i = 0; i < 4; i++) {
+			data[i] = vram->readVRAM(address++);
+		}
+		k = data[0] & 0x07 + ((data[1] & 0x07) << 3);
+		j = data[2] & 0x07 + ((data[3] & 0x07) << 3);
 		for(int i=0; i < 4; i++) {
-			y = (*vramPtr++ & 0xF8) >> 3;
+			y = (data[i] & 0xF8) >> 3;
 			r = y + j;
 			g = y + k;
 			b = (5*y - 2*j - k) / 4;
@@ -143,64 +161,67 @@ void V9990BitmapConverter<Pixel, zoom>::rasterBYJKP(
 
 template <class Pixel, Renderer::Zoom zoom>
 void V9990BitmapConverter<Pixel, zoom>::rasterBD16(
-		Pixel *pixelPtr, const byte *vramPtr, int nrPixels)
+		Pixel *pixelPtr, uint address, int nrPixels)
 {
 	while(nrPixels--) {
-		int r = (vramPtr[0] >> 4) & 0x03 | (vramPtr[1] << 2) & 0x1C;
-		int g = (vramPtr[1] >> 2) & 0x1F;
-		int b = vramPtr[0] & 0x1F;
+		byte low  = vram->readVRAM(address++);
+		byte high = vram->readVRAM(address++);
+		int r = (low >> 5) & 0x07 | (high << 3) & 0x18;
+		int g = (high >> 2) & 0x1F;
+		int b = low & 0x1F;
 		*pixelPtr++ = palette32768[(((r << 5) + g) << 5) + b];
-		vramPtr += 2;
 	}
 }
 
 template <class Pixel, Renderer::Zoom zoom>
 void V9990BitmapConverter<Pixel, zoom>::rasterBD8(
-		Pixel *pixelPtr, const byte *vramPtr, int nrPixels)
+		Pixel *pixelPtr, uint address, int nrPixels)
 {
 	while(nrPixels--) {
-		*pixelPtr++ = palette256[*vramPtr++];
+		*pixelPtr++ = palette256[vram->readVRAM(address++)];
 	}
 }
 
 template <class Pixel, Renderer::Zoom zoom>
 void V9990BitmapConverter<Pixel, zoom>::rasterBP6(
-		Pixel *pixelPtr, const byte *vramPtr, int nrPixels)
+		Pixel *pixelPtr, uint address, int nrPixels)
 {
 	while(nrPixels--) {
-		*pixelPtr++ = palette64[*vramPtr++ & 0x3F];
+		*pixelPtr++ = palette64[vram->readVRAM(address++) & 0x3F];
 	}
 }
 
 template <class Pixel, Renderer::Zoom zoom>
 void V9990BitmapConverter<Pixel, zoom>::rasterBP4(
-		Pixel *pixelPtr, const byte *vramPtr, int nrPixels)
+		Pixel *pixelPtr, uint address, int nrPixels)
 {
 	while(nrPixels > 0) {
-		*pixelPtr++ = palette64[(*vramPtr & 0xF0) >> 4];
-		*pixelPtr++ = palette64[*vramPtr++ & 0x0F];
+		byte data = vram->readVRAM(address++);
+		*pixelPtr++ = palette64[data >> 4];
+		*pixelPtr++ = palette64[data & 0x0F];
 		nrPixels -= 2;
 	}
 }
 
 template <class Pixel, Renderer::Zoom zoom>
 void V9990BitmapConverter<Pixel, zoom>::rasterBP2(
-		Pixel *pixelPtr, const byte *vramPtr, int nrPixels)
+		Pixel *pixelPtr, uint address, int nrPixels)
 {
 	while(nrPixels > 0) {
-		*pixelPtr++ = palette64[(*vramPtr & 0xC0) >> 6];
-		*pixelPtr++ = palette64[(*vramPtr & 0x30) >> 4];
-		*pixelPtr++ = palette64[(*vramPtr & 0x0C) >> 2];
-		*pixelPtr++ = palette64[*vramPtr++ & 0x03];
+		byte data = vram->readVRAM(address++);
+		*pixelPtr++ = palette64[(data & 0xC0) >> 6];
+		*pixelPtr++ = palette64[(data & 0x30) >> 4];
+		*pixelPtr++ = palette64[(data & 0x0C) >> 2];
+		*pixelPtr++ = palette64[(data & 0x03)];
 		nrPixels -= 4;
 	}
 }
 
 template <class Pixel, Renderer::Zoom zoom>
 void V9990BitmapConverter<Pixel, zoom>::rasterP(
-		Pixel *pixelPtr, const byte *vramPtr, int nrPixels)
+		Pixel *pixelPtr, uint address, int nrPixels)
 {
-	rasterBP4(pixelPtr, vramPtr, nrPixels);
+	rasterBP4(pixelPtr, address, nrPixels);
 }
 
 // -- Blenders --------------------------------------------------------
@@ -419,13 +440,13 @@ void V9990BitmapConverter<Pixel, zoom>::setColorMode(V9990ColorMode mode)
 }
 
 template <class Pixel, Renderer::Zoom zoom>
-void V9990BitmapConverter<Pixel, zoom>::convertLine(Pixel *linePtr, const byte* vramPtr, int nrPixels)
+void V9990BitmapConverter<Pixel, zoom>::convertLine(Pixel *linePtr, uint address, int nrPixels)
 {
 	if(rasterMethod == NULL || blendMethod == NULL) return;
 
 	Pixel *tmp = (Pixel *)malloc(nrPixels * sizeof(Pixel));
 	if(tmp != NULL) {
-		(this->*rasterMethod)(tmp, vramPtr, nrPixels);
+		(this->*rasterMethod)(tmp, address, nrPixels);
 		(this->*blendMethod)(tmp, linePtr, nrPixels);
 		free(tmp);
 	}
