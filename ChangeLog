@@ -5,6 +5,7 @@ $Id$
 	   - removed <parameter class=".."> constructs
 	   - removed support for <parameter name="foo">, config files are
 	     incompatible anyway
+	* Fixed assertion on "type {}"
 
 2004-05-30 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Better names for ROM debuggables. Still include the (unique) device

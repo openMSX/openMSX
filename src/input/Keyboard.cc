@@ -285,6 +285,9 @@ string Keyboard::KeyInserter::help(const vector<string>& tokens) const
 
 void Keyboard::KeyInserter::type(const string& str)
 {
+	if (str.empty()) {
+		return;
+	}
 	Scheduler& scheduler = Scheduler::instance();
 	if (text.empty()) {
 		scheduler.setSyncPoint(scheduler.getCurrentTime(), this);
