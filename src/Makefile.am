@@ -83,7 +83,6 @@ openmsx_SOURCES=\
 	CommandLineParser.cc CommandLineParser.hh \
 	CliExtension.cc CliExtension.hh \
 	MSXDiskRomPatch.cc MSXDiskRomPatch.hh \
-	atoll.c \
 	md5.cc md5.hh sha1.cc sha1.hh \
 	CircularBuffer.hh CircularBuffer.cc \
 	PluggingController.hh PluggingController.cc \
