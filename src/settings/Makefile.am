@@ -19,6 +19,7 @@ endif
 
 noinst_LTLIBRARIES = libSettings.la
 libSettings_la_SOURCES = \
+	Setting.hh \
 	SettingNode.hh SettingNode.cc \
 	BooleanSetting.cc BooleanSetting.hh \
 	EnumSetting.hh \
