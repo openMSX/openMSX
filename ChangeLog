@@ -1,5 +1,10 @@
 $Id$
 
+2003-05-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Split RealTime in generic part and implementation specific part.
+	  This decouples time synchronization from SDL and paves the way
+	  for more accurate implementation (like RTC)
+
 2003-05-24 Maarten ter Huurne <maarten@treewalker.org>
 	* I/O to extended VRAM now goes to limbo, instead of main VRAM.
 

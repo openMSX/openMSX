@@ -69,6 +69,7 @@ openmsx_SOURCES=\
 	MSXBunsetsu.hh MSXBunsetsu.cc \
 	MSXRTC.hh MSXRTC.cc RP5C01.hh RP5C01.cc \
 	RealTime.hh RealTime.cc \
+	RealTimeSDL.hh RealTimeSDL.cc \
 	CartridgeSlotManager.hh CartridgeSlotManager.cc \
 	MSXDeviceSwitch.hh MSXDeviceSwitch.cc \
 	MSXMatsushita.hh MSXMatsushita.cc \

@@ -6,7 +6,7 @@
 #include "MSXConfig.hh"
 #include "CommandController.hh"
 #include "Scheduler.hh"
-#include <SDL/SDL.h>
+#include "RealTimeSDL.hh"
 
 const int SYNC_INTERVAL = 50;
 
@@ -31,14 +31,7 @@ RealTime::RealTime()
 		// no Realtime section
 	}
 
-	scheduler = Scheduler::instance();
-	// Synchronize counters as soon as emulation actually starts.
-	resyncFlag = true;
-	scheduler->setSyncPoint(Scheduler::ASAP, this);
-	// Safeguard against uninitialised values.
-	// Should not be necessary because resync will occur first.
-	EmuTime zero;
-	reset(zero);
+	Scheduler::instance()->setSyncPoint(Scheduler::ASAP, this);
 }
 
 RealTime::~RealTime()
@@ -47,13 +40,11 @@ RealTime::~RealTime()
 
 RealTime *RealTime::instance()
 {
-	static RealTime oneInstance;
-	return &oneInstance;
-}
-
-void RealTime::executeUntilEmuTime(const EmuTime &curEmu, int userData)
-{
-	internalSync(curEmu);
+	static RealTime* oneInstance = NULL;
+	if (oneInstance == NULL) {
+		oneInstance = new RealTimeSDL();
+	}
+	return oneInstance;
 }
 
 const std::string &RealTime::schedName() const
@@ -62,121 +53,43 @@ const std::string &RealTime::schedName() const
 	return name;
 }
 
+void RealTime::executeUntilEmuTime(const EmuTime &curEmu, int userData)
+{
+	internalSync(curEmu);
+}
+
 float RealTime::sync(const EmuTime &time)
 {
-	scheduler->removeSyncPoint(this);
-	internalSync(time);
-	//PRT_DEBUG("RT: user sync " << time);
-	return emuFactor;
+	Scheduler::instance()->removeSyncPoint(this);
+	return internalSync(time);
 }
 
-void RealTime::resync()
+float RealTime::internalSync(const EmuTime &time)
 {
-	resyncFlag = true;
-}
-
-void RealTime::internalSync(const EmuTime &curEmu)
-{
-	if (!throttleSetting.getValue()) {
-		// No throttling; resync when throttling is turned on.
-		resyncFlag = true;
-		return;
+	float speed;
+	if (throttleSetting.getValue()) {
+		speed = doSync(time);
+	} else {
+		speed = 1.0;
 	}
-
-	// Resynchronize EmuTime and real time?
-	if (resyncFlag) {
-		reset(curEmu);
-		resyncFlag = false;
-		return;
-	}
-
-	unsigned int curReal = SDL_GetTicks();
-
-	// Short period values, inaccurate but we need them to estimate our current speed
-	int realPassed = curReal - realRef;
-	int speed = 25600 / speedSetting.getValue();
-	int emuPassed = (int)((speed * emuRef.getTicksTill(curEmu)) >> 8);
-
-	PRT_DEBUG("RT: Short emu: " << emuPassed << "ms  Short real: " << realPassed << "ms");
-	assert(emuPassed >= 0);
-	assert(realPassed >= 0);
-	// only sync if we got meaningfull values
-	if ((emuPassed > 0) && (realPassed > 0)) {
-		// Long period values, these are used for global speed corrections
-		int totalReal = curReal - realOrigin;
-		uint64 totalEmu = (speed * emuOrigin.getTicksTill(curEmu)) >> 8;
-		PRT_DEBUG("RT: Total emu: " << totalEmu  << "ms  Total real: " << totalReal  << "ms");
-
-		int sleep = 0;
-		catchUpTime = totalReal - totalEmu;
-		PRT_DEBUG("RT: catchUpTime: " << catchUpTime << "ms");
-		if (catchUpTime < 0) {
-			// we are too fast
-			sleep = -catchUpTime;
-		} else {
-			if (catchUpTime > maxCatchUpTime) {
-				// we are way too slow
-				int lost = catchUpTime - maxCatchUpTime;
-				realOrigin += lost;
-				PRT_DEBUG("RT: Emulation too slow, lost " << lost << "ms");
-			}
-			if (maxCatchUpFactor * realPassed < 100 * emuPassed) {
-				// we are slightly too slow, avoid catching up too fast
-				sleep = (100 * emuPassed) / maxCatchUpFactor - realPassed;
-				//PRT_DEBUG("RT: max catchup: " << sleep << "ms");
-			}
-		}
-		PRT_DEBUG("RT: want to sleep " << sleep << "ms");
-		sleep += (int)sleepAdjust;
-		int slept, delta;
-		if (sleep > 0) {
-			PRT_DEBUG("RT: Sleeping for " << sleep << "ms");
-			SDL_Delay(sleep);
-			slept = SDL_GetTicks() - curReal;
-			PRT_DEBUG("RT: Realy slept for " << slept << "ms");
-			delta = sleep - slept;
-		} else {
-			slept = 0;
-			delta = 0;
-		}
-		sleepAdjust = sleepAdjust * (1 - alpha) + delta * alpha;
-		PRT_DEBUG("RT: SleepAdjust: " << sleepAdjust);
-
-		// estimate current speed, values are inaccurate so take average
-		float curTotalFac = (slept + realPassed) / (float)emuPassed;
-		totalFactor = totalFactor * (1 - alpha) + curTotalFac * alpha;
-		PRT_DEBUG("RT: Estimated current speed (real/emu): " << totalFactor);
-		float curEmuFac = realPassed / (float)emuPassed;
-		emuFactor = emuFactor * (1 - alpha) + curEmuFac * alpha;
-		PRT_DEBUG("RT: Estimated max     speed (real/emu): " << emuFactor);
-
-		// adjust short period references
-		realRef = SDL_GetTicks();
-		emuRef = curEmu;
-	}
-	// schedule again in future
-	EmuTimeFreq<1000> time(curEmu);
-	scheduler->setSyncPoint(time + SYNC_INTERVAL, this);
+	
+	// Schedule again in future
+	EmuTimeFreq<1000> time2(time);
+	Scheduler::instance()->setSyncPoint(time2 + SYNC_INTERVAL, this);
+	
+	return speed;
 }
 
 float RealTime::getRealDuration(const EmuTime &time1, const EmuTime &time2)
 {
-	return (time2 - time1).toFloat() * totalFactor;
+	return (time2 - time1).toFloat() * 100.0 / speedSetting.getValue();
 }
 
 EmuDuration RealTime::getEmuDuration(float realDur)
 {
-	return EmuDuration(realDur / totalFactor);
+	return EmuDuration(realDur * speedSetting.getValue() / 100.0);
 }
 
-void RealTime::reset(const EmuTime &time)
-{
-	realRef = realOrigin = SDL_GetTicks();
-	emuRef  = emuOrigin  = time;
-	emuFactor   = 1.0;
-	totalFactor = 1.0;
-	sleepAdjust = 0.0;
-}
 
 RealTime::PauseSetting::PauseSetting()
 	: BooleanSetting("pause", "pauses the emulation", false)
