@@ -681,6 +681,7 @@ void VDPCmdEngine::LineCmd::start(const EmuTime &time)
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 	DX = engine->DX;
 	NX = engine->NX;
+	engine->NY &= 1023;
 	NY = engine->NY;	// don't transform 0 -> 1024
 	TX = (engine->ARG & DIX) ? -1 : 1;
 	TY = (engine->ARG & DIY) ? -1 : 1;
@@ -798,6 +799,7 @@ void VDPCmdEngine::LmmvCmd::start(const EmuTime &time)
 	DX = engine->DX;
 	MX = PPL[engine->scrMode];
 	NX = engine->NX ? engine->NX : MX;
+	engine->NY &= 1023;
 	NY = engine->NY ? engine->NY : 1024;
 	TX = (engine->ARG & DIX) ? -1 : 1;
 	TY = (engine->ARG & DIY) ? -1 : 1;
@@ -808,6 +810,7 @@ void VDPCmdEngine::LmmvCmd::start(const EmuTime &time)
 	ADX = DX;
 	ANX = NX;
 	calcFinishTime();
+	PRT_DEBUG("DEBUG LMMV2 " << (int)NY << " " << (int)engine->NY);
 }
 
 void VDPCmdEngine::LmmvCmd::execute(const EmuTime &time)
@@ -854,6 +857,7 @@ void VDPCmdEngine::LmmmCmd::start(const EmuTime &time)
 	DX = engine->DX;
 	MX = PPL[engine->scrMode];
 	NX = engine->NX ? engine->NX : MX;
+	engine->NY &= 1023;
 	NY = engine->NY ? engine->NY : 1024;
 	TX = (engine->ARG & DIX) ? -1 : 1;
 	TY = (engine->ARG & DIY) ? -1 : 1;
@@ -908,6 +912,7 @@ void VDPCmdEngine::LmcmCmd::start(const EmuTime &time)
 	vram->cmdWriteWindow.disable(currentTime);
 	SX = engine->SX;
 	NX = engine->NX;
+	engine->NY &= 1023;
 	NY = engine->NY ? engine->NY : 1024;
 	TX = (engine->ARG & DIX) ? -1 : 1;
 	TY = (engine->ARG & DIY) ? -1 : 1;
@@ -956,6 +961,7 @@ void VDPCmdEngine::LmmcCmd::start(const EmuTime &time)
 	vram->cmdWriteWindow.setMask(0x1FFFF, -1 << 17, currentTime);
 	DX = engine->DX;
 	NX = engine->NX;
+	engine->NY &= 1023;
 	NY = engine->NY ? engine->NY : 1024;
 	TX = (engine->ARG & DIX) ? -1 : 1;
 	TY = (engine->ARG & DIY) ? -1 : 1;
@@ -1010,6 +1016,7 @@ void VDPCmdEngine::HmmvCmd::start(const EmuTime &time)
 	MX = PPL[engine->scrMode] / ppb;
 	NX = engine->NX / ppb;
 	NX = NX ? NX : MX;
+	engine->NY &= 1023;
 	NY = engine->NY ? engine->NY : 1024;
 	TX = (engine->ARG & DIX) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
 	TY = (engine->ARG & DIY) ? -1 : 1;
@@ -1072,6 +1079,7 @@ void VDPCmdEngine::HmmmCmd::start(const EmuTime &time)
 	MX = PPL[engine->scrMode] / ppb;
 	NX = engine->NX / ppb;
 	NX = NX ? NX : MX;
+	engine->NY &= 1023;
 	NY = engine->NY ? engine->NY : 1024;
 	TX = (engine->ARG & DIX) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
 	TY = (engine->ARG & DIY) ? -1 : 1;
@@ -1146,6 +1154,7 @@ void VDPCmdEngine::YmmmCmd::start(const EmuTime &time)
 	DX = SX;
 	MX = PPL[engine->scrMode] / ppb;
 	NX = 512;	// large enough so that it gets clipped
+	engine->NY &= 1023;
 	NY = engine->NY ? engine->NY : 1024;
 	TX = (engine->ARG & DIX) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
 	TY = (engine->ARG & DIY) ? -1 : 1;
@@ -1220,6 +1229,7 @@ void VDPCmdEngine::HmmcCmd::start(const EmuTime &time)
 	MX = PPL[engine->scrMode] / ppb;
 	NX = engine->NX / ppb;
 	NX = NX ? NX : MX;
+	engine->NY &= 1023;
 	NY = engine->NY ? engine->NY : 1024;
 	TX = (engine->ARG & DIX) ? -PPB[engine->scrMode] : PPB[engine->scrMode];
 	TY = (engine->ARG & DIY) ? -1 : 1;
