@@ -1,5 +1,12 @@
 $Id$
 
+2004-06-03 Manuel Bilderbeek <manuel@msxnet.org>
+	* More config file changes: 
+	  - renamed old parameter brokenFDCread to broken_fdc_read (needs
+	    update of the converter, please fix this for me)
+	  - renamed Rom to ROM, PanasonicRom to PanasonicROM and PanasonicRam
+	    to PanasonicRAM and updated the converter for these changes
+
 2004-06-01 Manuel Bilderbeek <manuel@msxnet.org>
 	* Corrected ASCII table for 'type' command for international layout
 	  Thanks to Albert Beevendorp for doing the hard work!

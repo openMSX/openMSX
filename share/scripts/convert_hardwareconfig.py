@@ -53,9 +53,9 @@ ioAddresses = {
 	'DebugDevice': [ (0x2E, 2, 'O') ], # can be any (free) port
 	
 	# Devices without I/O addresses:
-	'Rom': [],
+	'ROM': [],
 	'RAM': [],
-	'PanasonicRam': [],
+	'PanasonicRAM': [],
 	'SunriseIDE': [],
 	'PAC': [],
 	'SCCPlusCart': [], # TODO: Why "Cart"?
@@ -157,6 +157,15 @@ def convertDevice(node):
 		'FM-PAC': 'FMPAC',
 		}.get(deviceType, deviceType)
 	
+	deviceType = {
+		'Rom': 'ROM',
+		}.get(deviceType, deviceType)
+	deviceType = {
+		'PanasonicRom': 'PanasonicROM',
+		}.get(deviceType, deviceType)
+	deviceType = {
+		'PanasonicRam': 'PanasonicRAM',
+		}.get(deviceType, deviceType)
 	if deviceType == 'CPU':
 		print '    removing CPU device'
 		node.parentNode.removeChild(node)

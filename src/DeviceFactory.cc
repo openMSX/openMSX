@@ -60,6 +60,7 @@ static void createDeviceSwitch()
 MSXDevice *DeviceFactory::create(Config* conf, const EmuTime& time)
 {
 	const string type = conf->getType();
+	cout << type << endl;
 	if (type == "PPI") {
 		return new MSXPPI(conf, time);
 	}
@@ -118,16 +119,16 @@ MSXDevice *DeviceFactory::create(Config* conf, const EmuTime& time)
 	if (type == "MemoryMapper") {
 		return new MSXMemoryMapper(conf, time);
 	}
-	if (type == "PanasonicRam") {
+	if (type == "PanasonicRAM") {
 		return new PanasonicRam(conf, time);
 	}
-	if (type == "PanasonicRom") {
+	if (type == "PanasonicROM") {
 		return new PanasonicRom(conf, time);
 	}
 	if (type == "RTC") {
 		return new MSXRTC(conf, time);
 	}
-	if (type == "Rom") {
+	if (type == "ROM") {
 		return RomFactory::create(conf, time);
 	}
 	if (type == "PrinterPort") {
