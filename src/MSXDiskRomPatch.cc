@@ -120,6 +120,8 @@ MSXDiskRomPatch::MSXDiskRomPatch()
 	}
 
 	CommandController::instance()->registerCommand(*this, "disk");
+	CommandController::instance()->registerCommand(*this, "diska");
+	CommandController::instance()->registerCommand(*this, "diskb");
 }
 
 MSXDiskRomPatch::~MSXDiskRomPatch()
@@ -499,17 +501,20 @@ void MSXDiskRomPatch::DRVOFF(CPU::CPURegs& regs) const
 
 void MSXDiskRomPatch::execute(const std::vector<std::string> &tokens)
 {
-	// TODO only works for drive A: with 720Kb disks
-	
+	// TODO only works for 720Kb disks
+	int drive = tokens[0][4];
+	if (drive != 0)
+		drive -= 'a';
+	PRT_DEBUG("DiskCmd: drive "<<drive);
 	if (tokens[1]=="eject") {
 		ConsoleManager::instance()->print("Disk ejected");
-		delete disk[0];
-		disk[0] = NULL;
+		delete disk[drive];
+		disk[drive] = NULL;
 	} else {
 		ConsoleManager::instance()->print("Changing disk");
-		delete disk[0];
-		disk[0] = NULL; // following might fail
-		disk[0] = new DiskImage(tokens[1], std::string("720"));
+		delete disk[drive];
+		disk[drive] = NULL; // following might fail
+		disk[drive] = new DiskImage(tokens[1], std::string("720"));
 	}
 }
 

@@ -1,5 +1,8 @@
 $Id$
 
+2002-05-12 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* made "diska" and "diskb" commands
+
 2002-05-09 Joost Yervante Damad <andete@worldcity.nl>
 	* File, HttpFile, LocalFile [work in progress]
 
