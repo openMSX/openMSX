@@ -90,9 +90,9 @@ doc/Makefile
 src/Makefile 
 m4/Makefile 
 src/libxmlx/Makefile 
-src/ConsoleSource/Makefile 
-src/cpu/Makefile 
-src/sound/Makefile 
+src/console/Makefile
+src/cpu/Makefile
+src/sound/Makefile
 src/config/Makefile 
 src/fdc/Makefile 
 src/file/Makefile 

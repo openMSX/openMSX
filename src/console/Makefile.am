@@ -1,6 +1,13 @@
 # $Id$
 
-AM_CXXFLAGS_BASE = -Wall -pipe `test -f ../.debug && echo "-DDEBUG"` -I$(srcdir)/.. -I$(srcdir)/../cpu -I$(srcdir)/../config -I$(srcdir)/../thread -I$(srcdir)/../file -I$(srcdir)/../events -I$(srcdir)/../video @XML_CFLAGS@ @SDL_CFLAGS@
+AM_CXXFLAGS_BASE = -Wall -pipe `test -f ../.debug && echo "-DDEBUG"` \
+	-I$(srcdir)/.. -I$(srcdir)/../cpu \
+	-I$(srcdir)/../config \
+	-I$(srcdir)/../thread \
+	-I$(srcdir)/../file \
+	-I$(srcdir)/../events \
+	-I$(srcdir)/../video \
+	@XML_CFLAGS@ @SDL_CFLAGS@
 if PROFILE
 AM_CXXFLAGS = $(AM_CXXFLAGS_BASE) -pg
 else
@@ -11,16 +18,13 @@ AM_CXXFLAGS = $(AM_CXXFLAGS_BASE) -g3
 endif
 endif
 
-noinst_LTLIBRARIES        = libSDL_console.la
-libSDL_console_la_SOURCES = \
+noinst_LTLIBRARIES        = libConsole.la
+libConsole_la_SOURCES = \
 	Console.cc Console.hh \
 	ConsoleRenderer.cc ConsoleRenderer.hh \
 	OSDConsoleRenderer.cc OSDConsoleRenderer.hh \
-	CircularBuffer.cc CircularBuffer.hh \
 	SDLConsole.cc SDLConsole.hh \
 	GLConsole.cc GLConsole.hh \
-	CommandController.cc CommandController.hh \
-	Command.cc Command.hh \
 	Font.cc Font.hh \
 	DummyFont.cc DummyFont.hh \
 	SDLFont.cc SDLFont.hh \

@@ -1,5 +1,11 @@
 $Id$
 
+2003-05-18 Maarten ter Huurne <maarten@treewalker.org>
+	* Removed "ConsoleSource" directory and moved its code elsewhere:
+	  - actual console code moved to new directory "console"
+	  - command code moved to existing directory "events"
+	  - circular buffer code moved to directory "src"
+
 2003-05-17 Maarten ter Huurne <maarten@treewalker.org>
 	* Removed EmuTime parameter from Command::execute.
 	  Since most commands do not interact with the emulated machine,

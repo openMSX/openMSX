@@ -2,8 +2,20 @@
 
 # we want most warnings
 
-# FIXME: -lSDL_image shouldn't be needed
-AM_CXXFLAGS_BASE = -Wall -pipe `test -f .debug && echo "-DDEBUG"` -I$(srcdir)/cpu -I$(srcdir)/sound -I$(srcdir)/config -I$(srcdir)/fdc -I$(srcdir)/file -I$(srcdir)/ide -I$(srcdir)/thread -I$(srcdir)/ConsoleSource -I$(srcdir)/cassette -I$(srcdir)/events -I$(srcdir)/memory -I$(srcdir)/video @XML_CFLAGS@ @SDL_CFLAGS@
+AM_CXXFLAGS_BASE = -Wall -pipe `test -f .debug && echo "-DDEBUG"` \
+	-I$(srcdir)/cassette \
+	-I$(srcdir)/config \
+	-I$(srcdir)/console \
+	-I$(srcdir)/cpu \
+	-I$(srcdir)/events \
+	-I$(srcdir)/fdc \
+	-I$(srcdir)/file \
+	-I$(srcdir)/ide \
+	-I$(srcdir)/memory \
+	-I$(srcdir)/sound \
+	-I$(srcdir)/thread \
+	-I$(srcdir)/video \
+	@XML_CFLAGS@ @SDL_CFLAGS@
 if PROFILE
 AM_CXXFLAGS = $(AM_CXXFLAGS_BASE) -pg
 else
@@ -17,7 +29,7 @@ endif
 # or perhaps sometimes even more:
 # AM_CXXFLAGS = -Wall -W -DDEBUG -g3 -pipe
 
-SUBDIRS = libxmlx ConsoleSource cpu sound config \
+SUBDIRS = libxmlx console cpu sound config \
           fdc file ide thread cassette events memory video
 
 #bin_PROGRAMS=openmsx cfgtest
@@ -69,6 +81,7 @@ openmsx_SOURCES=\
 	MSXDiskRomPatch.cc MSXDiskRomPatch.hh \
 	atoll.c \
 	md5.cc md5.hh \
+	CircularBuffer.hh CircularBuffer.cc \
 	PluggingController.hh PluggingController.cc \
 	Connector.hh Connector.cc \
 	Pluggable.hh Pluggable.cc \
@@ -76,18 +89,18 @@ openmsx_SOURCES=\
 	config.h
 
 openmsx_LDADD = \
+	cassette/libCassette.la \
 	config/libConfig.la \
-	libxmlx/libxmlx.la \
-	ConsoleSource/libSDL_console.la \
+	console/libConsole.la \
 	cpu/libCPU.la \
-	sound/libSound.la \
+	events/libEvents.la \
 	fdc/libFdc.la \
 	file/libFile.la \
 	ide/libIDE.la \
-	thread/libThread.la \
-	cassette/libCassette.la \
-	events/libEvents.la \
+	libxmlx/libxmlx.la \
 	memory/libMemory.la \
+	sound/libSound.la \
+	thread/libThread.la \
 	video/libVideo.la \
 	@XML_LIBS@ \
 	-lSDL_image @SDL_LIBS@
