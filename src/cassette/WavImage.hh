@@ -27,6 +27,7 @@ private:
 	int length;
 	Uint8* buffer;
 	DynamicClock clock;
+	short average;
 };
 
 } // namespace openmsx

@@ -1,5 +1,10 @@
 $Id$
 
+2004-07-04 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added simple DC filter for Wave cassette images (subtract average)
+	  .wav files from MicroWAVer should work now. Please test this some
+	  more with other .wav images (e.g. from real cassettes)
+
 2004-07-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Another config file format change:
 	   - use 'primary' and 'secondary' tags to specify slot structure
