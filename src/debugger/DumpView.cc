@@ -1,5 +1,6 @@
 // $Id$
 
+#include <cstdio>
 #include "DumpView.hh"
 
 DumpView::DumpView (int rows_, int columns_, bool border_):
