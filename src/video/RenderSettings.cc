@@ -28,7 +28,7 @@ RenderSettings::RenderSettings()
 		"deinterlace", "deinterlacing on/off", true));
 
 	maxFrameSkip.reset(new IntegerSetting(
-		"maxFrameSkip", "set the max amount of frameskip", 3, 0, 100));
+		"maxframeskip", "set the max amount of frameskip", 3, 0, 100));
 
 	minFrameSkip.reset(new IntegerSetting(
 		"minframeskip", "set the min amount of frameskip", 0, 0, 100));
