@@ -123,10 +123,8 @@ bool CommandLineParser::parseFileName(const string &arg, list<string>& cmdLine)
 			extension = arg.substr(begin + 1, end - begin - 1);
 		}
 		if (extension == "gz" && (begin != 0)) {
-			PRT_DEBUG("DEBUG A " << (int)begin);
 			end = begin;
 			begin = arg.find_last_of('.', begin - 1);
-			PRT_DEBUG("DEBUG A " << (int)begin);
 			if (begin != string::npos) {
 				extension = arg.substr(begin + 1, end - begin - 1);
 			}
