@@ -1,8 +1,9 @@
 $Id$
 
 2003-05-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
-	* more RealTimeRTC improvements
-	* some frameskip tuning
+	* More RealTimeRTC improvements
+	* Some frameskip tuning
+	* Keep frameskip setting between renderer switch
 
 2003-05-25 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Use RTC Timer for RealTime syncing when available

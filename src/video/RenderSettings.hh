@@ -5,6 +5,7 @@
 
 #include "Settings.hh"
 #include "RendererFactory.hh"
+#include "FrameSkipSetting.hh"
 
 
 /** Singleton containing all settings for renderers.
@@ -29,6 +30,7 @@ private:
 	IntegerSetting *horizontalBlur;
 	RendererFactory::RendererSetting *renderer;
 	IntegerSetting *scanlineAlpha;
+	FrameSkipSetting *frameSkip;
 
 public:
 	/** Get singleton instance.
@@ -56,6 +58,8 @@ public:
 	/** The alpha value [0..100] of the scanlines. */
 	IntegerSetting *getScanlineAlpha() { return scanlineAlpha; }
 
+	/** The current frameskip. */
+	FrameSkipSetting *getFrameSkip() { return frameSkip; }
 };
 
 #endif // __RENDERSETTINGS_HH__

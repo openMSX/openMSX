@@ -184,19 +184,6 @@ private:
 	  */
 	int nextY;
 
-	/** Frame skip setting
-	  */
-	class FrameSkipSetting : public Setting {
-		public:
-			FrameSkipSetting(PixelRenderer *rend);
-			std::string getValueString() const;
-			void setValueString(const std::string &valueString);
-		private:
-			PixelRenderer *renderer;
-	} frameSkipSetting;
-	friend class FrameSkipSetting;
-	bool autoFrameSkip;
-	int frameSkip;
 	int curFrameSkip;
 	float frameSkipShortAvg;
 	float frameSkipLongAvg;

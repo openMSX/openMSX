@@ -28,7 +28,9 @@ RenderSettings::RenderSettings()
 	horizontalBlur = new IntegerSetting(
 		"blur", "amount of horizontal blur effect: 0 = none, 100 = full",
 		50, 0, 100);
-	
+
+	frameSkip = new FrameSkipSetting();
+
 	renderer = RendererFactory::createRendererSetting();
 	// Get user-preferred renderer from config.
 	std::string rendererName = config->getType();
@@ -50,4 +52,5 @@ RenderSettings::~RenderSettings()
 	delete deinterlace;
 	delete horizontalBlur;
 	delete scanlineAlpha;
+	delete frameSkip;
 }

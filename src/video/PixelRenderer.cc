@@ -102,7 +102,7 @@ inline void PixelRenderer::subdivide(
 }
 
 PixelRenderer::PixelRenderer(RendererFactory::RendererID id, VDP *vdp)
-	: Renderer(id), frameSkipSetting(this)
+	: Renderer(id)
 {
 	this->vdp = vdp;
 	vram = vdp->getVRAM();
@@ -139,7 +139,7 @@ void PixelRenderer::frameStart(const EmuTime &time)
 	nextY = 0;
 
 	if (--curFrameSkip < 0) {
-		curFrameSkip = frameSkip;
+		curFrameSkip = settings->getFrameSkip()->getFrameSkip();
 	}
 }
 
@@ -155,8 +155,9 @@ void PixelRenderer::putImage(const EmuTime &time)
 	// to perform real time sync.
 	float factor = RealTime::instance()->sync(time);
 
-	if (autoFrameSkip) {
-		//PRT_DEBUG("FrameSkip "<<frameSkip);
+	if (settings->getFrameSkip()->isAutoFrameSkip()) {
+		int frameSkip = settings->getFrameSkip()->getFrameSkip();
+		//PRT_DEBUG("FrameSkip " << frameSkip);
 		frameSkipShortAvg += (factor - buffer[4]);	// sum last 5
 		frameSkipLongAvg  += (factor - buffer[99]);	// sum last 100
 		buffer.removeBack();
@@ -169,12 +170,12 @@ void PixelRenderer::putImage(const EmuTime &time)
 			if (frameSkipShortAvg > 5.25  && frameSkip < 30) {
 				// over the last 5 frames we where on average
 				// ~5% too slow, increase frameSkip
-				frameSkip++;
+				settings->getFrameSkip()->setFrameSkip(frameSkip + 1);
 				frameSkipDelay = 25;
 			} else if (frameSkipLongAvg < 50.0 && frameSkip > 0) {
 				// over the last 100 frames we where on average
 				// ~50% too fast, decrease frameSkip
-				frameSkip--;
+				settings->getFrameSkip()->setFrameSkip(frameSkip - 1);
 				frameSkipDelay = 250;
 			}
 		}
@@ -296,45 +297,3 @@ void PixelRenderer::renderUntil(const EmuTime &time)
 	nextX = limitX;
 	nextY = limitY;
 }
-
-// class FramsSkipSetting
-
-PixelRenderer::FrameSkipSetting::FrameSkipSetting(PixelRenderer* renderer_)
-	: Setting("frameskip", "set the amount of frameskip"),
-	  renderer(renderer_)
-{
-	type = "0 - 100 / auto";
-
-	renderer->autoFrameSkip = false;
-	renderer->frameSkip = 0;
-	renderer->curFrameSkip = 0;
-}
-
-std::string PixelRenderer::FrameSkipSetting::getValueString() const
-{
-	if (renderer->autoFrameSkip) {
-		return "auto";
-	} else {
-		std::ostringstream out;
-		out << renderer->frameSkip;
-		return out.str();
-	}
-}
-
-void PixelRenderer::FrameSkipSetting::setValueString(
-	const std::string &valueString)
-{
-	if (valueString == "auto") {
-		renderer->autoFrameSkip = true;
-	} else {
-		int tmp = strtol(valueString.c_str(), NULL, 0);
-		if ((0 <= tmp) && (tmp <= 100)) {
-			renderer->autoFrameSkip = false;
-			renderer->frameSkip = tmp;
-			renderer->curFrameSkip = 0;
-		} else {
-			throw CommandException("Not a valid value");
-		}
-	}
-}
-                                                      
