@@ -1,11 +1,16 @@
 $Id$
 
+2004-08-01 Maarten ter Huurne <maarten@treewalker.org>
+	* Initial build system support for x86_64.
+	  No optimised compile flags yet.
+	  MMX code is disabled on x86_64 for now.
+
 2004-08-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Removed CoRoutines again. Instead reversed the calling-sequence
 	  between MSXCPU and Scheduler:
 	   Previously the Scheduler scheduled both CPU and other stuff.
 	   Because of this the CPU needed to be able to pass control back to
-	   the Scheduler in the middle of a Z80 instruction. In the passed we
+	   the Scheduler in the middle of a Z80 instruction. In the past we
 	   solved this by either:
 	     - Splitting all Z80 instructions in atomic parts and made the
 	       code resumable at a sub-instruction level
@@ -16,8 +21,8 @@ $Id$
 	     - Use CoRoutines to pause/resume the CPU code
 	         --> was only an experiment, stopped the experiment very early
 	             because I think the current solution is much simpler
-	   In the current solution we call the Scheduler from with the CPU (iso
-	   the other way around). Pausing/resume CPU code is now done by a
+	   In the current solution we call the Scheduler from within the CPU
+	   (iso the other way around). Pausing/resume CPU code is now done by a
 	   simple function call.
 	   New code still needs cleanups, but I wanted to check it in early
 	   beacuse the CoRoutine stuff didn't compile yet on win32 (although
