@@ -158,7 +158,7 @@ int XSADiskImage::rdstrlen()
 // read string pos
 int XSADiskImage::rdstrpos()
 {
-	huf_node *hufpos = huftbl + 2*TBLSIZE - 2;
+	huf_node *hufpos = &huftbl[2*TBLSIZE - 2];
 
 	while (hufpos->child1)
 		if (bitin())
@@ -179,7 +179,7 @@ int XSADiskImage::rdstrpos()
 		strpos = 0;
 		for (byte nrbits = cpdext[cpdindex]; nrbits--; strpos |= bitin())
 			strpos <<= 1;
-	}    
+	}
 	if ((updhufcnt--) == 0)
 		mkhuftbl();	// make the huffman table
 
