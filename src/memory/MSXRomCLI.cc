@@ -82,6 +82,7 @@ void MSXRomCLI::parse(const string& arg, const string& slotname)
 		}
 	} else {
 		romfile = arg;
+		mapper = "auto";
 	}
 //	cout << "mapper:" << mapper<<endl;
 //	cout << "romfile:" << romfile <<endl;
