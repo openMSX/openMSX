@@ -1,6 +1,11 @@
 $Id$
 
 2001-12-24 Maarten ter Huurne <mth@stack.nl>
+	* Added render routine for Graphic4 mode.
+	* Added support for 212 lines display.
+	* Added partial sprite mode 2 implementation.
+
+2001-12-24 Maarten ter Huurne <mth@stack.nl>
 	* Added render routine for Graphic5 mode.
 	* Added support for transparency control (R#8 bit 5).
 

@@ -9,6 +9,7 @@ TODO:
 - Further optimise the background render routines.
   For example incremental computation of the name pointers (both
   VRAM and dirty).
+- Apply vertical scroll to MSX1 modes.
 
 Idea:
 For bitmap modes, cache VRAM lines rather than screen lines.
@@ -28,18 +29,17 @@ static const int WIDTH = 640;
 static const int HEIGHT = 480;
 /** NTSC phase diagram
   *
-  * line:  phase:           handler:
-  *    0   bottom erase     offPhase
-  *    3   sync             offPhase
-  *    6   top erase        offPhase
-  *   19   top border       blankPhase
-  *   45   display          displayPhase
-  *  237   bottom border    blankPhase
-  *  262   end of screen
+  * 192    212
+  * line:  line:  phase:           handler:
+  *    0      0   bottom erase     offPhase
+  *    3      3   sync             offPhase
+  *    6      6   top erase        offPhase
+  *   19     19   top border       blankPhase
+  *   45     35   display          displayPhase
+  *  237    247   bottom border    blankPhase
+  *  262    262   end of screen
   */
 static const int LINE_TOP_BORDER = 19;
-static const int LINE_DISPLAY = 45;
-static const int LINE_BOTTOM_BORDER = 237;
 static const int LINE_END_OF_SCREEN = 262;
 /** Lines rendered are [21..261).
   */
@@ -79,7 +79,7 @@ template <class Pixel> SDLHiRenderer<Pixel>::RenderMethod
 		&SDLHiRenderer::renderText2,
 		&SDLHiRenderer::renderBogus,
 		&SDLHiRenderer::renderBogus,
-		&SDLHiRenderer::renderBogus, // renderGraphic4
+		&SDLHiRenderer::renderGraphic4,
 		&SDLHiRenderer::renderBogus,
 		&SDLHiRenderer::renderBogus,
 		&SDLHiRenderer::renderBogus,
@@ -160,7 +160,7 @@ template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 	displayCache = SDL_CreateRGBSurface(
 		SDL_HWSURFACE,
 		512,
-		192,
+		212, // TODO: 256*4
 		screen->format->BitsPerPixel,
 		screen->format->Rmask,
 		screen->format->Gmask,
@@ -169,17 +169,10 @@ template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 		);
 
 	// Init line pointers arrays.
-	for (int line = 0; line < 192; line++) {
+	for (int line = 0; line < 212; line++) {
 		cacheLinePtrs[line] = (Pixel *)(
 			(byte *)displayCache->pixels
 			+ line * displayCache->pitch
-			);
-	}
-	for (int line = 0; line < 192 * 2; line++) {
-		screenLinePtrs[line] = (Pixel *)(
-			(byte *)screen->pixels
-			+ (line + 2 * (LINE_DISPLAY - LINE_RENDER_TOP)) * screen->pitch
-			+ DISPLAY_X * sizeof(Pixel)
 			);
 	}
 
@@ -581,6 +574,22 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderGraphic2(
 	}
 }
 
+template <class Pixel> void SDLHiRenderer<Pixel>::renderGraphic4(
+	int line)
+{
+	Pixel *pixelPtr = cacheLinePtrs[line];
+
+	int scrolledLine = (line + vdp->getVerticalScroll()) & 0xFF;
+	int addr = vdp->getNameMask() & (0x18000 | (scrolledLine << 7));
+	int addrEnd = addr + 128;
+	for (; addr < addrEnd; addr++) {
+		byte colour = vdp->getVRAM(addr);
+		pixelPtr[0] = pixelPtr[1] = palFg[colour >> 4];
+		pixelPtr[2] = pixelPtr[3] = palFg[colour & 15];
+		pixelPtr += 4;
+	}
+}
+
 template <class Pixel> void SDLHiRenderer<Pixel>::renderGraphic5(
 	int line)
 {
@@ -668,20 +677,29 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderMultiQ(
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
-	int line)
+	int absLine)
 {
 	// Determine sprites visible on this line.
 	VDP::SpriteInfo *visibleSprites;
-	int visibleIndex = vdp->getSprites(line, visibleSprites);
-	Pixel *pixelPtr0 = screenLinePtrs[line * 2];
-	Pixel *pixelPtr1 = screenLinePtrs[line * 2 + 1];
+	int visibleIndex =
+		vdp->getSprites(absLine - lineDisplay, visibleSprites);
+
+	// TODO: Calculate pointers incrementally outside this method.
+	Pixel *pixelPtr0 = (Pixel *)( (byte *)screen->pixels
+		+ ((absLine - LINE_RENDER_TOP) * 2) * screen->pitch
+		+ DISPLAY_X * sizeof(Pixel));
+	Pixel *pixelPtr1 = (Pixel *)(((byte *)pixelPtr0) + screen->pitch);
 
 	while (visibleIndex--) {
 		// Get sprite info.
 		VDP::SpriteInfo *sip = &visibleSprites[visibleIndex];
 		Pixel colour = sip->colour;
-		if (colour == 0) {
-			// Don't draw transparent sprites.
+		// Don't draw transparent sprites in sprite mode 1
+		// or if transparency is enabled.
+		// TODO: Verify on real V9938 that sprite mode 1 indeed
+		//       ignores the transparency
+		if (colour == 0
+		&& (vdp->getDisplayMode() < 8 || vdp->getTransparency())) {
 			continue;
 		}
 		colour = palBg[colour];
@@ -730,11 +748,11 @@ template <class Pixel> void SDLHiRenderer<Pixel>::blankPhase(
 	int limit)
 {
 	// Check for end of phase.
-	if ((currLine < LINE_BOTTOM_BORDER) && (limit > LINE_DISPLAY)
+	if ((currLine < lineBottomBorder) && (limit > lineDisplay)
 	&& vdp->isDisplayEnabled()) {
 		// Display ends blank phase.
 		phaseHandler = &SDLHiRenderer::displayPhase;
-		limit = LINE_DISPLAY;
+		limit = lineDisplay;
 	}
 	else if (limit == LINE_END_OF_SCREEN) {
 		// End of screen ends blank phase.
@@ -785,10 +803,10 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 		phaseHandler = &SDLHiRenderer::blankPhase;
 		return;
 	}
-	if (limit > LINE_BOTTOM_BORDER) {
+	if (limit > lineBottomBorder) {
 		// Bottom border ends display phase.
 		phaseHandler = &SDLHiRenderer::blankPhase;
-		limit = LINE_BOTTOM_BORDER;
+		limit = lineBottomBorder;
 	}
 	if (currLine >= limit) return;
 
@@ -800,16 +818,16 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	// Render background lines.
 	// TODO: Put loop into render methods?
 	for (int line = currLine; line < limit; line++) {
-		(this->*renderMethod)(line - LINE_DISPLAY);
+		(this->*renderMethod)(line - lineDisplay);
 	}
 	// Unlock surface.
 	if (SDL_MUSTLOCK(displayCache)) SDL_UnlockSurface(displayCache);
 
 	// Copy background image.
-	// TODO: Is it faster or slower to alternate this with line rnedering?
+	// TODO: Is it faster or slower to alternate this with line rendering?
 	SDL_Rect source;
 	source.x = 0;
-	source.y = currLine - LINE_DISPLAY;
+	source.y = currLine - lineDisplay;
 	source.w = 512;
 	source.h = 1;
 	SDL_Rect dest;
@@ -837,15 +855,8 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 		// Display will be wrong, but this is not really critical.
 		return;
 	}
-	if (vdp->getDisplayMode() < 8) {
-		// Sprite mode 1 (MSX1).
-		for (int line = currLine; line < limit; line++) {
-			drawSprites(line - LINE_DISPLAY);
-		}
-	}
-	else {
-		// Sprite mode 2 (MSX2).
-		// TODO: Implement.
+	for (int line = currLine; line < limit; line++) {
+		drawSprites(line);
 	}
 	// Unlock surface.
 	if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
@@ -883,6 +894,13 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderUntil(
 
 template <class Pixel> void SDLHiRenderer<Pixel>::putImage()
 {
+	// Calculate start and end line of display.
+	// TODO: Implement overscan: don't calculate end in advance,
+	//       but recalculate it every line.
+	int extraLines = (vdp->getNumberOfLines() - 192) / 2;
+	lineDisplay = 45 - extraLines;
+	lineBottomBorder = 237 + extraLines;
+
 	// Render changes from this last frame.
 	// TODO: Support PAL.
 	renderUntil(262);

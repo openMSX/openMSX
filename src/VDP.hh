@@ -255,6 +255,13 @@ public:
 		return controlRegs[23];
 	}
 
+	/** Gets the number of lines per screen.
+	  * @return 192 or 212.
+	  */
+	inline int getNumberOfLines() {
+		return (controlRegs[9] & 0x80 ? 212 : 192);
+	}
+
 	/** Get VRAM access timing info.
 	  * This is the internal format used by the command engine.
 	  * TODO: When improving the timing accuracy, think of a clearer
@@ -284,12 +291,12 @@ private:
 	}
 
 	/** Are sprites enabled?
-	  * TODO: For V9938, check bit 1 of reg 8 as well.
-	  * @return True iff blanking is off and the current mode supports
-	  *   sprites.
+	  * @return True iff blanking is off, the current mode supports
+	  *   sprites and sprites are not disabled.
 	  */
 	inline bool spritesEnabled() {
-		return (controlRegs[1] & 0x50) == 0x40;
+		return ((controlRegs[1] & 0x50) == 0x40)
+			&& ((controlRegs[8] & 0x02) == 0x00);
 	}
 
 	/** Calculates a sprite pattern.
@@ -318,17 +325,26 @@ private:
 	void resetInit(const EmuTime &time);
 
 	/** Check sprite collision and number of sprites per line.
+	  * This routine implements sprite mode 1 (MSX1).
 	  * Separated from display code to make MSX behaviour consistent
 	  * no matter how displaying is handled.
-	  * TODO: Because this routine *must* be called by the renderer
-	  *   for collision detection and 5th sprite detection to work,
-	  *   sprite checking is still not 100% render independant.
 	  * @param line The line number for which sprites should be checked.
 	  * @param visibleSprites Pointer to a 32-entry SpriteInfo array
 	  *   in which the sprites to be displayed are returned.
 	  * @return The number of sprites stored in the visibleSprites array.
 	  */
-	int checkSprites(int line, SpriteInfo *visibleSprites);
+	int checkSprites1(int line, SpriteInfo *visibleSprites);
+
+	/** Check sprite collision and number of sprites per line.
+	  * This routine implements sprite mode 2 (MSX2).
+	  * Separated from display code to make MSX behaviour consistent
+	  * no matter how displaying is handled.
+	  * @param line The line number for which sprites should be checked.
+	  * @param visibleSprites Pointer to a 32-entry SpriteInfo array
+	  *   in which the sprites to be displayed are returned.
+	  * @return The number of sprites stored in the visibleSprites array.
+	  */
+	int checkSprites2(int line, SpriteInfo *visibleSprites);
 
 	/** Byte is read from VRAM by the CPU.
 	  */
@@ -471,14 +487,14 @@ private:
 	/** Buffer containing the sprites that are visible on each
 	  * display line.
 	  */
-	SpriteInfo spriteBuffer[192][32];
+	SpriteInfo spriteBuffer[212][32];
 
 	/** Buffer containing the number of sprites that are visible
 	  * on each display line.
 	  * In other words, spriteCount[i] is the number of sprites
 	  * in spriteBuffer[i].
 	  */
-	int spriteCount[192];
+	int spriteCount[212];
 
 	/** First byte written through port #99, or -1 for none.
 	  */

@@ -61,6 +61,7 @@ private:
 	void renderText2(int line);
 	void renderGraphic1(int line);
 	void renderGraphic2(int line);
+	void renderGraphic4(int line);
 	void renderGraphic5(int line);
 	void renderMulti(int line);
 	void renderMultiQ(int line);
@@ -84,7 +85,7 @@ private:
 
 	/** Draw sprites on this line over the background.
 	  */
-	void drawSprites(int line);
+	void drawSprites(int absLine);
 
 	/** Set all dirty / clean.
 	  */
@@ -142,11 +143,15 @@ private:
 
 	/** Pointers to the start of each display line in the cache.
 	  */
-	Pixel *cacheLinePtrs[192];
+	Pixel *cacheLinePtrs[212];
 
-	/** Pointers to the start of each display line on the screen.
+	/** Absolute line number of first display line.
 	  */
-	Pixel *screenLinePtrs[192 * 2];
+	int lineDisplay;
+
+	/** Absolute line number of first bottom border line.
+	  */
+	int lineBottomBorder;
 
 	/** Dirty tables indicate which character blocks must be repainted.
 	  * The anyDirty variables are true when there is at least one
