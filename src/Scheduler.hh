@@ -103,7 +103,7 @@ class Scheduler
 
 		/** Runs a single emulation step.
 		  */
-		inline void Scheduler::emulateStep();
+		inline void emulateStep();
 
 		/** Vector used as heap, not a priority queue because that
 		  * doesn't allow removal of non-top element.
