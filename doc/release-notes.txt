@@ -1,0 +1,71 @@
+Release notes for openMSX 0.3.1 (2003-05-18)
+============================================
+
+It's been a short time since 0.3.0, but we thought the following changes are
+important enough to release now:
+- Fixed compilation on GCC 3.3.
+- Fixed SDLGL renderer on XFree86 4.3.
+
+Regular development continued as well, so this release also contains
+the following improvements:
+- New feature: configurable file-extentions.
+- Improved layout of help text (try "openmsx -h").
+- Many improvements to the console, including:
+  * Extended the console editing keys (left, right, del, bs, home, end etc).
+  * Added key repeat.
+  * Reset the scrollback when any key other than page up/down is used.
+  * Added resizing and moving to the console.
+  * SDL console characters are no longer blended (improved readability).
+  * SDL backgroundimage can be scaled and can have any pixel format.
+  * Fixed colour of font on GLConsole overlayed on Text1 mode.
+- Emulation and event handling are now done in a single thread.
+  The previous multi-threaded solution was not very portable among platforms
+  or even different versions of the same platform.
+  As a bonus, the single thread model is simpler and more efficient.
+- Improved "make install".
+- Cleanups of the directory structure.
+
+Read the "ChangeLog" inside the archive for a detailed list of changes.
+In "doc/openMSX-HOWTO.txt" you can find a lot of useful information on
+openMSX, make sure you read this if you haven't used openMSX before.
+
+Known issues / caveats:
+- In its current alpha state, openMSX is usable for power users, but its
+  interface is not very friendly to casual users yet.
+- Emulation is not perfect yet. However, in the emulator comparison of
+  msx.org, openMSX scored highest on accuracy of all emulators tested.
+  See the bug tracker on sourceforge.net for known bugs.
+- Until we reach version 1.0.0, file formats can change in an incompatible
+  way without backwards compatiblity. Keep this in mind if you create
+  machine descriptions, rom database entries etc.
+- This openMSX release is only tested on Linux.
+  Reikan maintains a Win32 port, which follows openMSX CVS closely, but is
+  not the same. You can find it at http://www.ranpub.com/openMSX4Win32/
+  Running on BSD, Mac OS X, BeOS etc (wherever SDL runs) should be possible,
+  but will probably not work out-of-the-box. If you are compiling on such a
+  platform, please share your experiences (see below for contact info),
+  so we can make openMSX more portable.
+- CPU and graphics performance varies a lot, depending on the openMSX
+  settings and the MSX hardware and software you're emulating.
+  Some things run fine on a 200MHz machine, others are slow on a 2GHz
+  machine. Some performance tips:
+  * Make sure there are no CPU consuming background processes running.
+  * Generally, MSX1 emulation is fastest and turbo R emulation is slowest.
+  * SDLGL renderer needs hardware acceleration to run at a decent speed.
+    Disabling scanlines and blur (set to 0) helps on older graphics cards.
+  * Use 16-bit colour mode instead of 32-bit (platform setting is used).
+  * Use line accuracy (default) instead of pixel accuracy.
+  * Turn on frame skip ("set frameskip auto").
+  * Use low-res SDLLo renderer (75% less pixels to fill).
+
+openMSX Home Page:
+  http://openmsx.sourceforge.net/
+Project page on SourceForge:
+  http://sourceforge.net/projects/openmsx/
+Contact options:
+- Send a message to the openmsx-devel mailing list.
+- Talk to us on #openmsx on irc.freenode.net.
+- Use the "Support" tab on the project page.
+
+Have fun with your emulated MSX!
+                                        the openMSX developers
