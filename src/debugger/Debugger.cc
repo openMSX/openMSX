@@ -135,15 +135,13 @@ static unsigned getValue(const string& str, unsigned max, const char* err)
 	return result;
 }
 
-void Debugger::DebugCmd::list(CommandResult& cmdResult)
+void Debugger::DebugCmd::list(CommandResult& result)
 {
-	string result;
 	for (map<string, Debuggable*>::const_iterator it =
 	       parent.debuggables.begin();
 	     it != parent.debuggables.end(); ++it) {
-		result += it->first + '\n';
+		result.addListElement(it->first);
 	}
-	cmdResult.setString(result);
 }
 
 void Debugger::DebugCmd::desc(const vector<string>& tokens, CommandResult& result)
@@ -174,7 +172,7 @@ void Debugger::DebugCmd::read(const vector<string>& tokens, CommandResult& resul
 	result.setInt(device->read(addr));
 }
 
-void Debugger::DebugCmd::readBlock(const vector<string>& tokens, CommandResult& cmdResult)
+void Debugger::DebugCmd::readBlock(const vector<string>& tokens, CommandResult& result)
 {
 	if (tokens.size() != 5) {
 		throw SyntaxError();
@@ -188,7 +186,7 @@ void Debugger::DebugCmd::readBlock(const vector<string>& tokens, CommandResult& 
 	for (unsigned i = 0; i < num; ++i) {
 		buf[i] = device->read(addr + i);
 	}
-	cmdResult.setBinary(buf, num);
+	result.setBinary(buf, num);
 	delete[] buf;
 }
 
