@@ -16,9 +16,9 @@
 
 //David Heremans
 #include <iostream>
-#include <fstream.h>
+#include <fstream>
 #include <stdlib.h>
-#include <string.h>
+#include <string>
 #include <SDL/SDL.h>
 #include "MSXDevice.hh"
 #include "MSXMotherBoard.hh"
@@ -42,12 +42,12 @@ int main (int argc, char **argv)
 	try {
 		MSXConfig::instance()->loadFile(configfile);
 	
-		list<MSXConfig::Device*>::const_iterator i=MSXConfig::instance()->deviceList.begin();
+		std::list<MSXConfig::Device*>::const_iterator i=MSXConfig::instance()->deviceList.begin();
 		for (; i != MSXConfig::instance()->deviceList.end(); i++) {
 			(*i)->dump();
 		}
 	} catch (MSXException e) {
-		cerr << e.desc << endl;
+		std::cerr << e.desc << std::endl;
 		exit(1);
 	}
 	// End of Joosts test routine 
@@ -63,7 +63,7 @@ int main (int argc, char **argv)
 	// Een moederbord als eerste
 	MSXMotherBoard *moederbord = MSXMotherBoard::instance();
 	// en dan nu al de devices die volgens de xml nodig zijn
-	list<MSXConfig::Device*>::const_iterator j=MSXConfig::instance()->deviceList.begin();
+	std::list<MSXConfig::Device*>::const_iterator j=MSXConfig::instance()->deviceList.begin();
 	for (; j != MSXConfig::instance()->deviceList.end(); j++) {
 		(*j)->dump();
 		MSXDevice *device = deviceFactory::create( (*j) );

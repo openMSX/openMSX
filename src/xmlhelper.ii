@@ -30,10 +30,10 @@ template <class T> bool XMLHelper<T>::justCheckName(const std::string &name)
 	return (node->name()==name);
 }
 
-template <class T> void XMLHelper<T>::checkName(const std::list<string> &nameList)
+template <class T> void XMLHelper<T>::checkName(const std::list<std::string> &nameList)
 {
 	bool found = false;
-	std::list<string>::const_iterator i = nameList.begin();
+	std::list<std::string>::const_iterator i = nameList.begin();
 	for (; i!=nameList.end(); ++i)
 	{
 		if (node->name() == *i)

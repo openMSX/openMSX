@@ -80,7 +80,7 @@ void MSXMotherBoard::ResetMSX()
 {
 	IRQLine = 0;
 	set_A8_Register(0);
-	vector<MSXDevice*>::iterator i;
+	std::vector<MSXDevice*>::iterator i;
 	for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
 		(*i)->reset();
 	}
@@ -89,8 +89,8 @@ void MSXMotherBoard::ResetMSX()
 void MSXMotherBoard::InitMSX()
 {
 	// Make sure that the MotherBoard is correctly 'init'ed.
-	list<const MSXConfig::Device::Parameter*> subslotted_list = deviceConfig->getParametersWithClass("subslotted");
-	for (list<const MSXConfig::Device::Parameter*>::const_iterator i=subslotted_list.begin(); i != subslotted_list.end(); i++) {
+	std::list<const MSXConfig::Device::Parameter*> subslotted_list = deviceConfig->getParametersWithClass("subslotted");
+	for (std::list<const MSXConfig::Device::Parameter*>::const_iterator i=subslotted_list.begin(); i != subslotted_list.end(); i++) {
 		bool hasSubs=false;
 		if ((*i)->value.compare("true") == 0) {
 			hasSubs=true;
@@ -98,11 +98,11 @@ void MSXMotherBoard::InitMSX()
 		int counter=atoi((*i)->name.c_str());
 		isSubSlotted[counter]=hasSubs;
      
-		cout << "Parameter, name: " << (*i)->name;
-		cout << " value: " << (*i)->value;
-		cout << " class: " << (*i)->clasz << endl;
+		std::cout << "Parameter, name: " << (*i)->name;
+		std::cout << " value: " << (*i)->value;
+		std::cout << " class: " << (*i)->clasz << std::endl;
 	}
-	vector<MSXDevice*>::iterator i;
+	std::vector<MSXDevice*>::iterator i;
 	for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
 		(*i)->init();
 	}
@@ -112,7 +112,7 @@ void MSXMotherBoard::StartMSX()
 {
 	IRQLine = 0;
 	set_A8_Register(0);
-	vector<MSXDevice*>::iterator i;
+	std::vector<MSXDevice*>::iterator i;
 	for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
 		(*i)->start();
 	}
@@ -120,9 +120,9 @@ void MSXMotherBoard::StartMSX()
 	Scheduler::instance()->scheduleEmulation();
 }
 
-void MSXMotherBoard::SaveStateMSX(ofstream &savestream)
+void MSXMotherBoard::SaveStateMSX(std::ofstream &savestream)
 {
-	vector<MSXDevice*>::iterator i;
+	std::vector<MSXDevice*>::iterator i;
 	for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
 		(*i)->saveState(savestream);
 	}

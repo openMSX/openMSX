@@ -3,12 +3,14 @@
 #ifndef __MSXEXCEPTION_HH__
 #define __MSXEXCEPTION_HH__
 
+#include <string>
+
 class MSXException
 {
 public:
-	MSXException(const string &descs="", int errnos=0):desc(descs),errorcode(errnos) {}
+	MSXException(const std::string &descs="", int errnos=0):desc(descs),errorcode(errnos) {}
 	virtual ~MSXException() {}
-	const string desc;
+	const std::string desc;
 	const int    errorcode;
 };
 

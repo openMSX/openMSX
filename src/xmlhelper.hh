@@ -19,12 +19,12 @@ public:
 	// name
 	void checkName(const std::string &name);
 	bool justCheckName(const std::string &name);
-	void checkName(const std::list<string> &nameList);
+	void checkName(const std::list<std::string> &nameList);
 
 	// properties
 	void checkProperty(const std::string &name);
-	const string &getProperty(const std::string &name);
-	const string &getProperty(const std::string &name, const std::string &defaultValue);
+	const std::string &getProperty(const std::string &name);
+	const std::string &getProperty(const std::string &name, const std::string &defaultValue);
 
 	// children
 	void checkChildrenAtLeast(unsigned int num);
@@ -32,7 +32,7 @@ public:
 
 	// content nodes
 	void checkContentNode();
-	const string &getContent();
+	const std::string &getContent();
 
 	// debugging
 	void dump(int depth=0);
@@ -42,7 +42,7 @@ private:
 	XMLHelper &operator=(const XMLHelper &) {} // block usage
 
 	XMLNode *node;
-	const string emptyString;
+	const std::string emptyString;
 };
 
 #endif

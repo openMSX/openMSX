@@ -55,7 +55,7 @@ public:
 	int   getPS(); // of first slotted [backward compat]
 	int   getSS(); // of first slotted [backward compat]
 	bool  hasParameter(const std::string &name);
-	const string &getParameter(const std::string &name);
+	const std::string &getParameter(const std::string &name);
 	std::list<const Parameter*> getParametersWithClass(const std::string &clasz);
 	void  dump();
 	const std::string &getDesc();
