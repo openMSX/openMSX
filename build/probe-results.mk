@@ -8,30 +8,13 @@
 ifeq ($(PROBE_MAKE),)
 $(error Missing parameter: PROBE_MAKE)
 endif
+# - COMPONENTS_MAKE: Makefile with component definitions
+ifeq ($(COMPONENTS_MAKE),)
+$(error Missing parameter: COMPONENTS_MAKE)
+endif
 
 include $(PROBE_MAKE)
-
-# TODO: Move component checks to includable Makefile.
-# TODO: In main.mk, refuse to build if COMPONENT_CORE is false.
-
-CORE_LIBS:=PNG SDL SDL_IMAGE TCL XML ZLIB
-ifneq ($(filter x,$(foreach LIB,$(CORE_LIBS),x$(HAVE_$(LIB)_LIB))),)
-COMPONENT_CORE:=false
-endif
-ifneq ($(filter x,$(foreach LIB,$(CORE_LIBS),x$(HAVE_$(LIB)_H))),)
-COMPONENT_CORE:=false
-endif
-COMPONENT_CORE?=true
-
-ifeq ($(HAVE_GL_LIB),)
-COMPONENT_GL:=false
-endif
-ifeq ($(HAVE_GL_H),)
-ifeq ($(HAVE_GL_GL_H),)
-COMPONENT_GL:=false
-endif
-endif
-COMPONENT_GL?=true
+include $(COMPONENTS_MAKE)
 
 # Usage: $(call FOUND,LIB_NAME)
 FOUND=$(if $(HAVE_$(1)_LIB),$(HAVE_$(1)_LIB),no)
