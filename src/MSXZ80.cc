@@ -3,14 +3,13 @@
 #include "MSXZ80.hh"
 #include "Scheduler.hh"
 #include "iostream.h"
-#include "assert.h"
+#include "MSXMotherBoard.hh"
+#include <assert.h>
 
 //#include "Z80.h"
 #include "Z80IO.h"
 
 CPU_Regs R;
-
-MSXDevice *MSXZ80::Motherb; // place for static is reserved here!!
 
 MSXZ80::MSXZ80(void) : currentCPUTime(3579545, 0), targetCPUTime(3579545, 0)
 {
@@ -21,6 +20,7 @@ void MSXZ80::init(void)
 	currentCPUTime(0);
 	Z80_Running=1;
 	InitTables();
+	MSXMotherBoard::instance()->setActiveCPU(this);
 }
 
 MSXZ80::~MSXZ80(void)
@@ -48,7 +48,7 @@ void MSXZ80::executeUntilEmuTime(const Emutime &time)
 /****************************************************************************/
 byte Z80_In (byte Port)
 {
-    return MSXZ80::Motherb->readIO(Port,Scheduler::nowRunning->currentCPUTime);
+    return MSXMotherBoard::instance()->readIO(Port,Scheduler::nowRunning->currentCPUTime);
 };
 
 
@@ -57,7 +57,7 @@ byte Z80_In (byte Port)
 /****************************************************************************/
 void Z80_Out (byte Port,byte Value)
 {
-	 MSXZ80::Motherb->writeIO(Port,Value,Scheduler::nowRunning->currentCPUTime);
+	 MSXMotherBoard::instance()->writeIO(Port,Value,Scheduler::nowRunning->currentCPUTime);
 };
    
 /****************************************************************************/
@@ -67,11 +67,10 @@ void Z80_Out (byte Port,byte Value)
 byte Z80_RDMEM(word A)
 {
 #ifdef DEBUG
-		debugmemory[A]=MSXZ80::Motherb->readMem(A,Scheduler::nowRunning->currentCPUTime);
-		return debugmemory[A];
-#endif
-#ifndef DEBUG
-	return  MSXZ80::Motherb->readMem(A,Scheduler::nowRunning->currentCPUTime);
+	debugmemory[A]=MSXMotherBoard::instance()->readMem(A,Scheduler::nowRunning->currentCPUTime);
+	return debugmemory[A];
+#else
+	return  MSXMotherBoard::instance()->readMem(A,Scheduler::nowRunning->currentCPUTime);
 #endif
 };
 
@@ -81,7 +80,7 @@ byte Z80_RDMEM(word A)
 //void Z80_WRMEM(dword A,byte V);
 void Z80_WRMEM(word A,byte V)
 {
-	 MSXZ80::Motherb->writeMem(A,V,Scheduler::nowRunning->currentCPUTime);
+	 MSXMotherBoard::instance()->writeMem(A,V,Scheduler::nowRunning->currentCPUTime);
 	 // No debugmemory[A] here otherwise self-modifying code could 
 	 // alter the executing code before the disassembled opcode
 	 // is printed;

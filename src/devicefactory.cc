@@ -7,39 +7,33 @@
 #include "MSXPPI.hh"
 #include "MSXTMS9928a.hh"
 #include "MSXE6Timer.hh"
+#include "MSXZ80.hh"
+#include <assert.h>
 
 MSXDevice *deviceFactory::create(MSXConfig::Device *conf) {
 	MSXDevice *device = 0;
 	if ( conf->getType().compare("MotherBoard") == 0 ){
 		// if 0 then strings are equal
-		//MSXMotherBoard::instance()->setConfigDevice(conf);
 		device = MSXMotherBoard::instance();
-	};
-
+	}
 	if ( conf->getType().compare("Rom16KB") == 0 ){
-		// if 0 then strings are equal
 		device=new MSXRom16KB();
-	};
-
+	}
 	if ( conf->getType().compare("Simple64KB") == 0 ){ 
-		// if 0 then strings are equal
 		device=new MSXSimple64KB();
-	};
-
+	}
 	if ( conf->getType().compare("PPI") == 0 ){ 
-		// if 0 then strings are equal
 		device = MSXPPI::instance();
-	};
-
+	}
 	if ( conf->getType().compare("TMS9928a") == 0 ){ 
-		// if 0 then strings are equal
 		device=new MSXTMS9928a();
-	};
-
-	if ( conf->getType().compare("MSXE6Timer") == 0 ){ 
-		// if 0 then strings are equal
+	}
+	if ( conf->getType().compare("E6Timer") == 0 ){ 
 		device=new MSXE6Timer();
-	};
+	}
+	if ( conf->getType().compare("Z80") == 0 ){ 
+		device=new MSXZ80();
+	}
 
 	assert (device != 0);
 	device->setConfigDevice(conf);

@@ -19,8 +19,7 @@ friend byte Z80_In (byte Port);
 friend void Z80_WRMEM(word A,byte V);
 
   public:
-		static MSXDevice* Motherb; //used to delegate read/write-IO/Mem methods
-		//destructor and 
+		// constructor and destructor
 		MSXZ80(void);
 		~MSXZ80(void);
 		//

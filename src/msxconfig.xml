@@ -61,4 +61,10 @@
     <type>TMS9928a</type>
 	<parameter name="frequency">PAL</parameter>
   </device>
+  <device id="cpu">
+    <type>Z80</type>
+  </device>
+  <device id="Turbo-R timer">
+    <type>E6Timer</type>
+  </device>
 </msxconfig>

@@ -82,16 +82,11 @@ int main (int argc, char **argv)
 		PRT_DEBUG ("---------------------------\nfactory:" << (*j)->getType());
 		}
 	}
-	// dan maar de CPU
-	processor=new MSXZ80();
-	processor->Motherb=moederbord;
-	moederbord->addDevice(processor);
-	moederbord->setActiveCPU(processor);
 	
-	cout << "Initing MSX\n\n";
+	PRT_DEBUG ("Initing MSX");
 	moederbord->InitMSX();
 	
-	cout << "starting MSX\n\n";
+	PRT_DEBUG ("starting MSX");
 	moederbord->StartMSX();
 
 	exit (0);
