@@ -15,6 +15,24 @@ class VDPVRAM;
 class VDPCmdEngine
 {
 public:
+	// Constants:
+	static const byte REG_SXL = 0x00; // VDP R#32: source X low
+	static const byte REG_SXH = 0x01; // VDP R#32: source X high
+	static const byte REG_SYL = 0x02; // VDP R#34: source Y low
+	static const byte REG_SYH = 0x03; // VDP R#35: source Y high
+	static const byte REG_DXL = 0x04; // VDP R#36: destination X low
+	static const byte REG_DXH = 0x05; // VDP R#37: destination X high
+	static const byte REG_DYL = 0x06; // VDP R#38: destination Y low
+	static const byte REG_DYH = 0x07; // VDP R#39: destination Y high
+	static const byte REG_NXL = 0x08; // VDP R#40: number X low
+	static const byte REG_NXH = 0x09; // VDP R#41: number X high
+	static const byte REG_NYL = 0x0A; // VDP R#42: number Y low
+	static const byte REG_NYH = 0x0B; // VDP R#43: number Y high
+	static const byte REG_COL = 0x0C; // VDP R#44: colour
+	static const byte REG_ARG = 0x0D; // VDP R#45: argument
+	static const byte REG_CMD = 0x0E; // VDP R#46: command
+	static const byte NUM_REGS = REG_CMD+1;
+	
 	/** Constructor.
 	  */
 	VDPCmdEngine(VDP *vdp, const EmuTime &time);
@@ -26,7 +44,7 @@ public:
 	  */
 	inline void sync(const EmuTime &time) {
 		if (time > currentTime) {
-			opsCount = currentTime.getTicksTill(time);
+			opsCount += currentTime.getTicksTill(time);
 			currentTime = time;
 			(this->*currEngine)();
 		}
@@ -51,8 +69,7 @@ public:
 	inline byte readColour(const EmuTime &time) {
 		sync(time);
 		status &= 0x7F;
-		// TODO: Find a way to use REG_COL from here.
-		return cmdReg[0x0C /*REG_COL*/];
+		return cmdReg[REG_COL];
 	}
 
 	/** Gets the X coordinate of a border detected by SRCH.
@@ -74,9 +91,9 @@ public:
 		//       Is there a difference? Which is correct?
 		sync(time);
 		cmdReg[index] = value;
-		if (index == 12) {
+		if (index == REG_COL) {
 			status &= 0x7F;
-		} else if (index == 14) {
+		} else if (index == REG_CMD) {
 			executeCommand();
 		}
 	}
@@ -90,6 +107,18 @@ public:
 private:
 
 	// Types:
+	typedef enum {
+		OP_IMP  = 0x0, OP_AND  = 0x1, OP_OR   = 0x2, OP_XOR  = 0x3,
+		OP_NOT  = 0x4, OP_5    = 0x5, OP_6    = 0x6, OP_7    = 0x7,
+		OP_TIMP = 0x8, OP_TAND = 0x9, OP_TOR  = 0xA, OP_TXOR = 0xB,
+		OP_TNOT = 0xC, OP_D    = 0xD, OP_E    = 0xE, OP_F    = 0xF,
+	} LogOp;
+	typedef enum {
+		CM_ABRT  = 0x0, CM_1     = 0x1, CM_2     = 0x2, CM_3     = 0x3,
+		CM_POINT = 0x4, CM_PSET  = 0x5, CM_SRCH  = 0x6, CM_LINE  = 0x7,
+		CM_LMMV  = 0x8, CM_LMMM  = 0x9, CM_LMCM  = 0xA, CM_LMMC  = 0xB,
+		CM_HMMV  = 0xC, CM_HMMM  = 0xD, CM_YMMM  = 0xE, CM_HMMC  = 0xF,
+	} Cmd;
 
 	typedef void (VDPCmdEngine::*EngineMethod)();
 
@@ -125,27 +154,27 @@ private:
 
 	/** Low level method to set a pixel on a screen.
 	  */
-	inline void psetLowLevel(int addr, byte cl, byte m, byte op);
+	inline void psetLowLevel(int addr, byte cl, byte m, LogOp op);
 
 	/** Set a pixel on SCREEN5.
 	  */
-	inline void pset5(int dx, int dy, byte cl, byte op);
+	inline void pset5(int dx, int dy, byte cl, LogOp op);
 
 	/** Set a pixel on SCREEN6.
 	  */
-	inline void pset6(int dx, int dy, byte cl, byte op);
+	inline void pset6(int dx, int dy, byte cl, LogOp op);
 
 	/** Set a pixel on SCREEN7.
 	  */
-	inline void pset7(int dx, int dy, byte cl, byte op);
+	inline void pset7(int dx, int dy, byte cl, LogOp op);
 
 	/** Set a pixel on SCREEN8.
 	  */
-	inline void pset8(int dx, int dy, byte cl, byte op);
+	inline void pset8(int dx, int dy, byte cl, LogOp op);
 
 	/** Set a pixel on the screen.
 	  */
-	inline void pset(int dx, int dy, byte cl, byte op);
+	inline void pset(int dx, int dy, byte cl, LogOp op);
 
 	/** Perform a given V9938 graphical operation.
 	  */
@@ -221,13 +250,13 @@ private:
 		int MX;
 		int ASX,ADX,ANX;
 		byte CL;
-		byte LO;
-		byte CM;
+		LogOp LO;
+		Cmd CM;
 	} MMC;
 
 	/** VDP command registers.
 	  */
-	byte cmdReg[15];
+	byte cmdReg[NUM_REGS];
 
 	/** The command engine status (part of S#2).
 	  * Bit 7 (TR) is set when the command engine is ready for

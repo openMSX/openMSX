@@ -25,39 +25,6 @@ TODO:
 
 
 // Constants:
-
-static const int REG_SXL = 0x00; // VDP R#32: source X low
-static const int REG_SXH = 0x01; // VDP R#32: source X high
-static const int REG_SYL = 0x02; // VDP R#34: source Y low
-static const int REG_SYH = 0x03; // VDP R#35: source Y high
-static const int REG_DXL = 0x04; // VDP R#36: destination X low
-static const int REG_DXH = 0x05; // VDP R#37: destination X high
-static const int REG_DYL = 0x06; // VDP R#38: destination Y low
-static const int REG_DYH = 0x07; // VDP R#39: destination Y high
-static const int REG_NXL = 0x08; // VDP R#40: number X low
-static const int REG_NXH = 0x09; // VDP R#41: number X high
-static const int REG_NYL = 0x0A; // VDP R#42: number Y low
-static const int REG_NYH = 0x0B; // VDP R#43: number Y high
-static const int REG_COL = 0x0C; // VDP R#44: colour
-static const int REG_ARG = 0x0D; // VDP R#45: argument
-static const int REG_CMD = 0x0E; // VDP R#46: command
-
-static const byte CM_ABRT  = 0x0;
-// TODO: What do commands 1, 2 and 3 do?
-//       Invalid according to data book, but that's no answer.
-static const byte CM_POINT = 0x4;
-static const byte CM_PSET  = 0x5;
-static const byte CM_SRCH  = 0x6;
-static const byte CM_LINE  = 0x7;
-static const byte CM_LMMV  = 0x8;
-static const byte CM_LMMM  = 0x9;
-static const byte CM_LMCM  = 0xA;
-static const byte CM_LMMC  = 0xB;
-static const byte CM_HMMV  = 0xC;
-static const byte CM_HMMM  = 0xD;
-static const byte CM_YMMM  = 0xE;
-static const byte CM_HMMC  = 0xF;
-
 static const byte MASK[4] = { 0x0F, 0x03, 0x0F, 0xFF };
 static const int  PPB[4]  = { 2,4,2,1 };
 static const int  PPL[4]  = { 256,512,512,256 };
@@ -167,86 +134,90 @@ inline byte VDPCmdEngine::point(int sx, int sy)
 }
 
 inline void VDPCmdEngine::psetLowLevel(
-	int addr, byte colour, byte mask, byte op)
+	int addr, byte colour, byte mask, LogOp op)
 {
 	switch (op) {
-	case 0:
+	case OP_IMP:
 		vram->cmdWrite(
-			addr, (getVRAM(addr) & mask) | colour, currentTime);
+			addr, (getVRAM(addr) & mask) | colour,
+			currentTime);
 		break;
-	case 1:
+	case OP_AND:
 		vram->cmdWrite(addr,
 			getVRAM(addr) & (colour | mask),
 			currentTime);
 		break;
-	case 2:
+	case OP_OR:
 		vram->cmdWrite(addr,
 			getVRAM(addr) | colour,
 			currentTime);
 		break;
-	case 3:
+	case OP_XOR:
 		vram->cmdWrite(addr,
 			getVRAM(addr) ^ colour,
 			currentTime);
 		break;
-	case 4:
+	case OP_NOT:
 		vram->cmdWrite(addr,
 			(getVRAM(addr) & mask) | ~(colour | mask),
 			currentTime);
 		break;
-	case 8:
+	case OP_TIMP:
 		if (colour) vram->cmdWrite(addr,
 			(getVRAM(addr) & mask) | colour,
 			currentTime);
 		break;
-	case 9:
+	case OP_TAND:
 		if (colour) vram->cmdWrite(addr,
 			getVRAM(addr) & (colour | mask),
 			currentTime);
 		break;
-	case 10:
+	case OP_TOR:
 		if (colour) vram->cmdWrite(addr,
 			getVRAM(addr) | colour,
 			currentTime);
 		break;
-	case 11:
+	case OP_TXOR:
 		if (colour) vram->cmdWrite(addr,
 			getVRAM(addr) ^ colour,
 			currentTime);
 		break;
-	case 12:
+	case OP_TNOT:
 		if (colour) vram->cmdWrite(addr,
 			(getVRAM(addr) & mask) | ~(colour|mask),
 			currentTime);
 		break;
+	default:
+		// undefined logical operations do nothing
+		break;
 	}
 }
 
-inline void VDPCmdEngine::pset5(int dx, int dy, byte cl, byte op)
+inline void VDPCmdEngine::pset5(int dx, int dy, byte cl, LogOp op)
 {
 	byte sh = ((~dx)&1)<<2;
 	psetLowLevel(VDP_VRMP5(dx, dy), cl << sh, ~(15<<sh), op);
 }
 
-inline void VDPCmdEngine::pset6(int dx, int dy, byte cl, byte op)
+inline void VDPCmdEngine::pset6(int dx, int dy, byte cl, LogOp op)
 {
 	byte sh = ((~dx)&3)<<1;
 	psetLowLevel(VDP_VRMP6(dx, dy), cl << sh, ~(3<<sh), op);
 }
 
-inline void VDPCmdEngine::pset7(int dx, int dy, byte cl, byte op)
+inline void VDPCmdEngine::pset7(int dx, int dy, byte cl, LogOp op)
 {
 	byte sh = ((~dx)&1)<<2;
 	psetLowLevel(VDP_VRMP7(dx, dy), cl << sh, ~(15<<sh), op);
 }
 
-inline void VDPCmdEngine::pset8(int dx, int dy, byte cl, byte op)
+inline void VDPCmdEngine::pset8(int dx, int dy, byte cl, LogOp op)
 {
 	psetLowLevel(VDP_VRMP8(dx, dy), cl, 0, op);
 }
 
 inline void VDPCmdEngine::pset(
-	int dx, int dy, byte cl, byte op)
+	int dx, int dy, byte cl, LogOp op)
 {
 	switch (scrMode) {
 	case 0: pset5(dx, dy, cl, op); break;
@@ -323,7 +294,7 @@ void VDPCmdEngine::lineEngine()
 	int ASX=MMC.ASX;
 	int ADX=MMC.ADX;
 	byte CL=MMC.CL;
-	byte LO=MMC.LO;
+	LogOp LO=MMC.LO;
 
 	int delta = getVdpTimingValue(LINE_TIMING);
 	int cnt = opsCount;
@@ -401,7 +372,7 @@ void VDPCmdEngine::lmmvEngine()
 	int ADX=MMC.ADX;
 	int ANX=MMC.ANX;
 	byte CL=MMC.CL;
-	byte LO=MMC.LO;
+	LogOp LO=MMC.LO;
 
 	int delta = getVdpTimingValue(LMMV_TIMING);
 	int cnt = opsCount;
@@ -447,7 +418,7 @@ void VDPCmdEngine::lmmmEngine()
 	int ASX=MMC.ASX;
 	int ADX=MMC.ADX;
 	int ANX=MMC.ANX;
-	byte LO=MMC.LO;
+	LogOp LO=MMC.LO;
 
 	int delta = getVdpTimingValue(LMMM_TIMING);
 	int cnt = opsCount;
@@ -797,7 +768,7 @@ void VDPCmdEngine::reportVdpCommand()
 	int nx = (cmdReg[REG_NXL]+((int)cmdReg[REG_NXH]<<8)) & 1023;
 	int ny = (cmdReg[REG_NYL]+((int)cmdReg[REG_NYH]<<8)) & 1023;
 	byte cm = cmdReg[REG_CMD] >> 4;
-	byte lo = cmdReg[REG_CMD] & 0x0F;
+	LogOp lo = (LogOp)(cmdReg[REG_CMD] & 0x0F);
 
 	fprintf(stderr,
 		"V9938: Opcode %02Xh %s-%s (%d,%d)->(%d,%d),%d [%d,%d]%s\n",
@@ -813,7 +784,7 @@ void VDPCmdEngine::executeCommand()
 	// V9938 ops only work in SCREENs 5-8.
 	if (scrMode < 0) return;
 
-	MMC.CM = cmdReg[REG_CMD] >> 4;
+	MMC.CM = (Cmd)(cmdReg[REG_CMD] >> 4);
 	if ((MMC.CM & 0x0C) != 0x0C && MMC.CM != 0) {
 		// Dot operation: use only relevant bits of color.
 		cmdReg[REG_COL]&=MASK[scrMode];
@@ -840,7 +811,7 @@ void VDPCmdEngine::executeCommand()
 			cmdReg[REG_DXL]+((int)cmdReg[REG_DXH]<<8),
 			cmdReg[REG_DYL]+((int)cmdReg[REG_DYH]<<8),
 			cmdReg[REG_COL],
-			cmdReg[REG_CMD]&0x0F
+			(LogOp)(cmdReg[REG_CMD] & 0x0F)
 			);
 		return;
 	case CM_SRCH:
@@ -914,7 +885,7 @@ void VDPCmdEngine::executeCommand()
 	MMC.TY = cmdReg[REG_ARG]&0x08? -1:1;
 	MMC.MX = PPL[scrMode];
 	MMC.CL = cmdReg[REG_COL];
-	MMC.LO = cmdReg[REG_CMD] & 0x0F;
+	MMC.LO = (LogOp)(cmdReg[REG_CMD] & 0x0F);
 
 	// Argument depends on byte or dot operation.
 	if ((MMC.CM & 0x0C) == 0x0C) {
@@ -945,6 +916,9 @@ void VDPCmdEngine::executeCommand()
 	// Command execution started.
 	status |= 0x01;
 
+	// Reset timing
+	opsCount = 0;
+
 	return;
 }
 
@@ -962,10 +936,8 @@ VDPCmdEngine::VDPCmdEngine(VDP *vdp, const EmuTime &time)
 	: currentTime(time)
 {
 	this->vdp = vdp;
-	//currentTime = time;
 	vram = vdp->getVRAM();
 
-	opsCount = 1;
 	currEngine = &VDPCmdEngine::dummyEngine;
 	for (int i = 0; i < 15; i++) {
 		cmdReg[i] = 0;
