@@ -20,6 +20,9 @@ class FDC_DSK : public FDCBackEnd
 
 		virtual void initWriteTrack(byte phystrack, byte track, byte side);
 		virtual void writeTrackData(byte data);
+		virtual bool ready();
+		virtual bool writeProtected();
+		virtual bool doubleSided();
 
 	protected:
 		virtual void readBootSector();

@@ -7,16 +7,19 @@
 #ifndef __TC8566AF_HH__
 #define __TC8566AF_HH__
 
-#include "FDC.hh"
+#include "openmsx.hh"
+
+class EmuTime;
+class DiskDrive;
 
 
-class TC8566AF : public FDC
+class TC8566AF
 {
 	public:
-		TC8566AF(MSXConfig::Device *config);
+		TC8566AF(DiskDrive* drive[4], const EmuTime &time);
 		virtual ~TC8566AF();
 		
-		void reset();
+		void reset(const EmuTime &time);
 
 		byte readReg(int reg);
 		void writeReg(int reg, byte value);
@@ -34,6 +37,8 @@ class TC8566AF : public FDC
 		void readTrack();
 		void writeTrack();
 		void forceInterrupt();
+
+		DiskDrive* drive[4];
 
 		byte makeST0();
 		byte makeST1();

@@ -1,30 +1,21 @@
 // $Id$
 
 #include "NationalFDC.hh"
-#include "WD2793.hh"
 #include "CPU.hh"
+#include "WD2793.hh"
+#include "DriveMultiplexer.hh"
 
 
 NationalFDC::NationalFDC(MSXConfig::Device *config, const EmuTime &time)
-	: MSXFDC(config, time), MSXDevice(config, time)
+	: WD2793BasedFDC(config, time), MSXDevice(config, time)
 {
 	emptyRom = new byte[CPU::CACHE_LINE_SIZE];
 	memset(emptyRom, 255, CPU::CACHE_LINE_SIZE);
-	
-	// real thing uses MB8877A, but it is compatible with WD2793
-	//  TODO check completely compatible
-	controller = new WD2793(config, time);
 }
 
 NationalFDC::~NationalFDC()
 {
-	delete controller;
 	delete[] emptyRom;
-}
-
-void NationalFDC::reset(const EmuTime &time)
-{
-	controller->reset(time);
 }
 
 byte NationalFDC::readMem(word address, const EmuTime &time)
@@ -86,20 +77,20 @@ void NationalFDC::writeMem(word address, byte value, const EmuTime &time)
 		//bit 1 -> select drive 1
 		//bit 2 -> side select
 		//bit 3 -> motor on
-		WD2793::DriveNum drive;
+		DriveMultiplexer::DriveNum drive;
 		switch (value & 3) {
 			case 1:
-				drive = WD2793::DRIVE_A;
+				drive = DriveMultiplexer::DRIVE_A;
 				break;
 			case 2:
-				drive = WD2793::DRIVE_B;
+				drive = DriveMultiplexer::DRIVE_B;
 				break;
 			default:
-				drive = WD2793::NO_DRIVE;
+				drive = DriveMultiplexer::NO_DRIVE;
 		}
-		controller->setDriveSelect(drive, time);
-		controller->setSideSelect((value & 0x04), time);
-		controller->setMotor((value & 0x08), time);
+		multiplexer->selectDrive(drive);
+		multiplexer->setSide(value & 0x04);
+		multiplexer->setMotor((value & 0x08), time);
 		break;
 	}
 }

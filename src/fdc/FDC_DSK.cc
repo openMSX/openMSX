@@ -92,3 +92,18 @@ void FDC_DSK::writeTrackData(byte data)
 		writeTrackBufCur&=511;
 	}
 }
+
+bool FDC_DSK::ready()
+{
+	return true;
+}
+
+bool FDC_DSK::writeProtected()
+{
+	return false;	// TODO
+}
+
+bool FDC_DSK::doubleSided()
+{
+	return nbSides == 2;
+}

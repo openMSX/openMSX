@@ -3,25 +3,20 @@
 #ifndef __BRAZILFDC_HH__
 #define __BRAZILFDC_HH__
 
-#include "MSXFDC.hh"
+#include "WD2793BasedFDC.hh"
 #include "MSXIODevice.hh"
 
-class WD2793;
 
-
-class MicrosolFDC : public MSXFDC, public MSXIODevice
+class MicrosolFDC : public WD2793BasedFDC, public MSXIODevice
 {
 	public:
 		MicrosolFDC(MSXConfig::Device *config, const EmuTime &time);
 		virtual ~MicrosolFDC();
 		
-		virtual void reset(const EmuTime &time);
-		
 		virtual byte readIO(byte port, const EmuTime &time);
 		virtual void writeIO(byte port, byte value, const EmuTime &time);
 
 	private:
-		WD2793* controller;
 		byte driveD4;
 };
 #endif

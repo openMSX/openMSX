@@ -17,6 +17,10 @@ class FDCDummyBackEnd : public FDCBackEnd
 		                             byte sector, byte side, byte* buf);
 		virtual void getTrackHeader(byte phystrack, byte track,
 		                            byte side, byte* buf);
+
+		virtual bool ready();
+		virtual bool writeProtected();
+		virtual bool doubleSided();
 };
 
 #endif

@@ -5,19 +5,23 @@
  */
 
 #include "TC8566AF.hh"
+#include "DiskDrive.hh"
 
 
-TC8566AF::TC8566AF(MSXConfig::Device *config)
-	: FDC(config)
+TC8566AF::TC8566AF(DiskDrive* drive[4], const EmuTime &time)
 {
-	reset();
+	this->drive[0] = drive[0];
+	this->drive[1] = drive[1];
+	this->drive[2] = drive[2];
+	this->drive[3] = drive[3];
+	reset(time);
 }
 
 TC8566AF::~TC8566AF()
 {
 }
 
-void TC8566AF::reset()
+void TC8566AF::reset(const EmuTime &time)
 {
 	// Control register 0
 	MotorEnable3 = 0;
@@ -341,8 +345,8 @@ void TC8566AF::writeReg(int reg, byte data)
 				case 8:
 					// DTL: DATA Length
 					try {
-						getBackEnd(DriveSelect)->read(StartCylinder, StartCylinder,
-						             StartRecord, StartHead, 512, Sector);
+						drive[DriveSelect]->read(
+						    StartRecord, 512, Sector);
 						Phase++;
 						PhaseStep = 0;
 						dataInputOutput = 1;
@@ -480,8 +484,8 @@ void TC8566AF::writeReg(int reg, byte data)
 				}
 				if (SectorByteCount == 0) {
 					try {
-						getBackEnd(DriveSelect)->write(StartCylinder, StartCylinder,
-						    StartRecord, StartHead, 512, Sector);
+						drive[DriveSelect]->write(
+						    StartRecord, 512, Sector);
 						Phase++;
 						PhaseStep = 0;
 						dataInputOutput = 1;

@@ -5,7 +5,7 @@
 #include "MSXConfig.hh"
 #include "CPU.hh"
 #include "MSXCPUInterface.hh"
-#include "DiskImageManager.hh"
+#include "DiskDrive.hh"
 #include "FDCBackEnd.hh"
 
 
@@ -33,24 +33,17 @@ const byte MSXDiskRomPatch::bootSectorData[] = {
   0x79, 0x0d, 0x0a, 0x24
 };
 
-MSXDiskRomPatch::MSXDiskRomPatch()
+MSXDiskRomPatch::MSXDiskRomPatch(const EmuTime &time)
 {
-	diskImageManager = DiskImageManager::instance();
-	
 	// TODO make names configurable
-	name[0] = "diska";
-	name[1] = "diskb";
-	
-	for (int i=0; i < LAST_DRIVE; i++) {
-		diskImageManager->registerDrive(name[i]);
-	}
+	drives[0] = new DoubleSidedDrive("diska", time);
+	drives[1] = new DoubleSidedDrive("diskb", time);
 }
 
 MSXDiskRomPatch::~MSXDiskRomPatch()
 {
-	for (int i=0; i < LAST_DRIVE; i++) {
-		diskImageManager->unregisterDrive(name[i]);
-	}
+	delete drives[0];
+	delete drives[1];
 }
 
 void MSXDiskRomPatch::patch(CPU::CPURegs& regs)
@@ -135,7 +128,6 @@ void MSXDiskRomPatch::PHYDIO(CPU::CPURegs& regs)
 	cpuInterface->writeMem(0xFFFF, sec_slot_target, dummy);
 
 	byte buffer[SECTOR_SIZE];
-	FDCBackEnd* backEnd = diskImageManager->getBackEnd(name[drive]);
 	try {
 		while (regs.BC.B.h) {	// num_sectors
 			if (write) {
@@ -143,9 +135,9 @@ void MSXDiskRomPatch::PHYDIO(CPU::CPURegs& regs)
 					buffer[i] = cpuInterface->readMem(transferAddress, dummy);
 					transferAddress++;
 				}
-				backEnd->writeSector(buffer, sectorNumber);
+				drives[drive]->writeSector(buffer, sectorNumber);
 			} else {
-				backEnd->readSector(buffer, sectorNumber);
+				drives[drive]->readSector(buffer, sectorNumber);
 				for (int i=0; i<SECTOR_SIZE; i++) {
 					cpuInterface->writeMem(transferAddress, buffer[i], dummy);
 					transferAddress++;
@@ -190,7 +182,7 @@ void MSXDiskRomPatch::DSKCHG(CPU::CPURegs& regs)
 	// Read media descriptor from first byte of FAT.
 	byte buffer[SECTOR_SIZE];
 	try {
-		diskImageManager->getBackEnd(name[drive])->readSector(buffer, 1);
+		drives[drive]->readSector(buffer, 1);
 	} catch (DiskIOErrorException& e) {
 		PRT_DEBUG("    I/O error reading FAT");
 		regs.AF.w = 0x0A01; // I/O error
@@ -356,8 +348,7 @@ void MSXDiskRomPatch::DSKFMT(CPU::CPURegs& regs)
 	sectorData[27] = 0;
 
 	try {
-		FDCBackEnd* backEnd = diskImageManager->getBackEnd(name[drive]);
-		backEnd->writeSector(sectorData, 0);
+		drives[drive]->writeSector(sectorData, 0);
 		int Sector;
 		byte J;
 
@@ -366,23 +357,23 @@ void MSXDiskRomPatch::DSKFMT(CPU::CPURegs& regs)
 			sectorData[0] = index+0xF8;
 			sectorData[1] = sectorData[2] = 0xFF;
 			memset(sectorData+3,0,509);
-			backEnd->writeSector(sectorData, Sector++);
+			drives[drive]->writeSector(sectorData, Sector++);
 			memset(sectorData,0,4); //clear first bytes again
 
 			for (byte I=FormatInfo[index].SectorsPerFAT; I>1; I--)
-				backEnd->writeSector(sectorData, Sector++);
+				drives[drive]->writeSector(sectorData, Sector++);
 		}
 
 		// Directory size
 		//J=FormatInfo[index].DirEntries/16;
 		for (J=7,memset(sectorData,0x00,512);J;J--)
-			backEnd->writeSector(sectorData, Sector++);
+			drives[drive]->writeSector(sectorData, Sector++);
 
 		// Data size
 		J=FormatInfo[index].NrOfSectors-2*FormatInfo[index].SectorsPerFAT-8;
 		memset(sectorData,0xE5,512);
 		for (;J;J--)
-			backEnd->writeSector(sectorData, Sector++);
+			drives[drive]->writeSector(sectorData, Sector++);
 
 		// Return success
 		regs.AF.B.l &= ~CPU::C_FLAG;

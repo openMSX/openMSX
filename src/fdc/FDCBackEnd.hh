@@ -48,6 +48,10 @@ class FDCBackEnd
 		void readSector(byte* buf, int sector);
 		void writeSector(const byte* buf, int sector);
 
+		virtual bool ready() = 0;
+		virtual bool writeProtected() = 0;
+		virtual bool doubleSided() = 0;
+
 	protected:
 		FDCBackEnd();
 		int physToLog(byte track, byte side, byte sector);

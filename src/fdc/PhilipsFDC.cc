@@ -1,17 +1,16 @@
 // $Id$
 
 #include "PhilipsFDC.hh"
-#include "WD2793.hh"
 #include "CPU.hh"
+#include "WD2793.hh"
+#include "DriveMultiplexer.hh"
 
 
 PhilipsFDC::PhilipsFDC(MSXConfig::Device *config, const EmuTime &time)
-	: MSXFDC(config, time), MSXDevice(config, time)
+	: WD2793BasedFDC(config, time), MSXDevice(config, time)
 {
 	emptyRom = new byte[CPU::CACHE_LINE_SIZE];
 	memset(emptyRom, 255, CPU::CACHE_LINE_SIZE);
-	
-	controller = new WD2793(config, time);
 	
 	if (deviceConfig->hasParameter("brokenFDCread")) {
 		brokenFDCread = deviceConfig->getParameterAsBool("brokenFDCread");
@@ -22,13 +21,14 @@ PhilipsFDC::PhilipsFDC(MSXConfig::Device *config, const EmuTime &time)
 
 PhilipsFDC::~PhilipsFDC()
 {
-	delete controller;
 	delete[] emptyRom;
 }
 
 void PhilipsFDC::reset(const EmuTime &time)
 {
-	controller->reset(time);
+	WD2793BasedFDC::reset(time);
+	writeMem(0x3FFC, 0x00, time);
+	writeMem(0x3FFD, 0x00, time);
 }
 
 byte PhilipsFDC::readMem(word address, const EmuTime &time)
@@ -53,13 +53,13 @@ byte PhilipsFDC::readMem(word address, const EmuTime &time)
 	case 0x3FFC:
 		//bit 0 = side select
 		//TODO check other bits !!
-		value = controller->getSideSelect(time) ? 1 : 0;
+		value = sideReg;	// value = multiplexer->getSideSelect();
 		break;
 	case 0x3FFD:
 		//bit 1,0 -> drive number  (00 or 10: drive A, 01: drive B, 11: nothing)
 		//bit 7 -> motor on
 		//TODO check other bits !!
-		value = driveReg; //controller->getDriveSelect(time);
+		value = driveReg;	// multiplexer->getSelectedDrive();
 		break;
 	case 0x3FFE:
 		//not used
@@ -108,28 +108,29 @@ void PhilipsFDC::writeMem(word address, byte value, const EmuTime &time)
 	case 0x3FFC:
 		//bit 0 = side select
 		//TODO check other bits !!
-		controller->setSideSelect((value & 1), time);
+		sideReg = value;
+		multiplexer->setSide(value & 1);
 		break;
 	case 0x3FFD:
 		//bit 1,0 -> drive number  (00 or 10: drive A, 01: drive B, 11: nothing)
 		//bit 7 -> motor on
 		//TODO check other bits !!
 		driveReg = value;
-		WD2793::DriveNum drive;
+		DriveMultiplexer::DriveNum drive;
 		switch (value & 3) {
 			case 0:
 			case 2:
-				drive = WD2793::DRIVE_A;
+				drive = DriveMultiplexer::DRIVE_A;
 				break;
 			case 1:
-				drive = WD2793::DRIVE_B;
+				drive = DriveMultiplexer::DRIVE_B;
 				break;
 			case 3:
 			default:
-				drive = WD2793::NO_DRIVE; //no drive selected
+				drive = DriveMultiplexer::NO_DRIVE;
 		}
-		controller->setDriveSelect(drive, time);
-		controller->setMotor((value & 128), time); // set motor for current drive
+		multiplexer->selectDrive(drive);
+		multiplexer->setMotor((value & 128), time);
 		break;
 	}
 }

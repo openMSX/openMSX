@@ -12,14 +12,14 @@
 MSXRomDevice::MSXRomDevice(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time)
 {
-	handleRomPatchInterfaces();
+	handleRomPatchInterfaces(time);
 	loadFile();
 }
 
 MSXRomDevice::MSXRomDevice(MSXConfig::Device *config, const EmuTime &time, int fileSize)
 	: MSXDevice(config, time)
 {
-	handleRomPatchInterfaces();
+	handleRomPatchInterfaces(time);
 	loadFile(fileSize);
 }
 
@@ -34,7 +34,7 @@ MSXRomDevice::~MSXRomDevice()
 }
 
 
-void MSXRomDevice::handleRomPatchInterfaces()
+void MSXRomDevice::handleRomPatchInterfaces(const EmuTime &time)
 {
 	// for each patchcode parameter, construct apropriate patch
 	// object and register it at MSXCPUInterface
@@ -44,7 +44,7 @@ void MSXRomDevice::handleRomPatchInterfaces()
 	for (i=parameters->begin(); i!=parameters->end(); i++) {
 		MSXRomPatchInterface* patchInterface;
 		if ((*i)->value == "MSXDiskRomPatch") {
-			patchInterface = new MSXDiskRomPatch();
+			patchInterface = new MSXDiskRomPatch(time);
 		} else if ((*i)->value == "MSXTapePatch") {
 			patchInterface = new MSXTapePatch();
 		} else {

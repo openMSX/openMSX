@@ -258,3 +258,17 @@ void FDC_XSA::mkhuftbl()
 	updhufcnt = MAXHUFCNT;
 }
 
+bool FDC_XSA::ready()
+{
+	return true;
+}
+
+bool FDC_XSA::writeProtected()
+{
+	return true;
+}
+
+bool FDC_XSA::doubleSided()
+{
+	return nbSides == 2;
+}

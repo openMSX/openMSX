@@ -6,6 +6,8 @@
 #include "MSXMemDevice.hh"
 #include "MSXRomDevice.hh"
 
+class DiskDrive;
+
 
 class MSXFDC : public MSXMemDevice, public MSXRomDevice
 {
@@ -15,5 +17,8 @@ class MSXFDC : public MSXMemDevice, public MSXRomDevice
 
 		virtual byte readMem(word address, const EmuTime &time);
 		virtual byte* getReadCacheLine(word start);
+	
+	protected:
+		DiskDrive* drives[4];
 };
 #endif

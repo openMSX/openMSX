@@ -26,3 +26,18 @@ void FDCDummyBackEnd::getTrackHeader(byte phystrack, byte track,
 {
 	throw DriveEmptyException("No disk in drive");
 }
+
+bool FDCDummyBackEnd::ready()
+{
+	return false;
+}
+
+bool FDCDummyBackEnd::writeProtected()
+{
+	return true;	// TODO check
+}
+
+bool FDCDummyBackEnd::doubleSided()
+{
+	return false;	// TODO check
+}

@@ -7,14 +7,13 @@
 
 #include "MSXRomPatchInterface.hh"
 
-// forward declarations
-class DiskImageManager;
+class DiskDrive;
 
 
 class MSXDiskRomPatch : public MSXRomPatchInterface
 {
 	public:
-		MSXDiskRomPatch();
+		MSXDiskRomPatch(const EmuTime &time);
 		virtual ~MSXDiskRomPatch();
 
 		virtual void patch(CPU::CPURegs& regs);
@@ -46,10 +45,8 @@ class MSXDiskRomPatch : public MSXRomPatchInterface
 		 */
 		void DRVOFF(CPU::CPURegs& regs);
 
-		DiskImageManager* diskImageManager;
-
 		static const int LAST_DRIVE = 2;
-		std::string name[LAST_DRIVE];
+		DiskDrive *drives[LAST_DRIVE];
 };
 
 #endif // __MSXDISKROMPATCH_HH__

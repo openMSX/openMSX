@@ -1,6 +1,6 @@
 # $Id$
 
-AM_CXXFLAGS_BASE = -Wall -pipe `test -f $(srcdir)/../.debug && echo "-DDEBUG"` -I$(srcdir)/.. -I$(srcdir)/../cpu -I$(srcdir)/../config -I$(srcdir)/../thread -I$(srcdir)/../file -I$(srcdir)/../ConsoleSource @XML_CFLAGS@ @SDL_CFLAGS@
+AM_CXXFLAGS_BASE = -Wall -pipe `test -f $(srcdir)/../.debug && echo "-DDEBUG"` -I$(srcdir)/.. -I$(srcdir)/../cpu -I$(srcdir)/../config -I$(srcdir)/../thread -I$(srcdir)/../file -I$(srcdir)/../events -I$(srcdir)/../ConsoleSource @XML_CFLAGS@ @SDL_CFLAGS@
 if PROFILE
 AM_CXXFLAGS = $(AM_CXXFLAGS_BASE) -pg
 else
@@ -15,14 +15,16 @@ noinst_LTLIBRARIES = libFdc.la
 libFdc_la_SOURCES = \
 	FDCFactory.cc FDCFactory.hh \
 	MSXFDC.cc MSXFDC.hh \
-	FDC.cc FDC.hh \
+	WD2793BasedFDC.cc WD2793BasedFDC.hh \
 	PhilipsFDC.cc PhilipsFDC.hh \
-	MicrosolFDC.cc MicrosolFDC.hh \
 	NationalFDC.cc NationalFDC.hh \
+	MicrosolFDC.cc MicrosolFDC.hh \
 	WD2793.cc WD2793.hh \
 	TurboRFDC.cc TurboRFDC.hh \
 	TC8566AF.cc TC8566AF.hh \
-	DiskImageManager.cc DiskImageManager.hh \
+	DiskImageCLI.cc DiskImageCLI.hh \
+	DiskDrive.cc DiskDrive.hh \
+	DriveMultiplexer.cc DriveMultiplexer.hh \
 	FDCBackEnd.cc FDCBackEnd.hh \
 	FDCDummyBackEnd.cc FDCDummyBackEnd.hh \
 	FDC_DSK.cc FDC_DSK.hh \

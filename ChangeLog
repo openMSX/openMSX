@@ -1,5 +1,13 @@
 $Id$
 
+2002-11-18 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* FDC rewrite, introduced DiskDrive and DriveMultiplexer classes:
+	   - this is a relatively large rewrite, so I may have broken
+	     something. I wanted to commit rather soon, so I only tested
+	     the Philips FDC.
+	   - WD2793 Type I commands are now executed the same as in the
+	     flowcharts of the technical datasheet (verify step not yet).
+	   
 2002-11-18 David Heremans <david.heremans@gnu-linux.net>
 	* a small WD2793 update:
 	   quick implementation of multi sector read

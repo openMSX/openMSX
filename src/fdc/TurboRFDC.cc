@@ -16,7 +16,7 @@ TurboRFDC::TurboRFDC(MSXConfig::Device *config, const EmuTime &time)
 	emptyRom = new byte[CPU::CACHE_LINE_SIZE];
 	memset(emptyRom, 255, CPU::CACHE_LINE_SIZE);
 	
-	controller = new TC8566AF(config);
+	controller = new TC8566AF(drives, time);
 	reset(time);
 }
 
@@ -29,7 +29,7 @@ TurboRFDC::~TurboRFDC()
 void TurboRFDC::reset(const EmuTime &time)
 {
 	memory = romBank;
-	controller->reset();
+	controller->reset(time);
 }
 
 byte TurboRFDC::readMem(word address, const EmuTime &time)

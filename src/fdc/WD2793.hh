@@ -3,27 +3,17 @@
 #ifndef __WD2793_HH__
 #define __WD2793_HH__
 
-#include "FDC.hh"
+#include "EmuTime.hh"
+#include "Schedulable.hh"
 
-// forward declarations
-class FDCBackEnd;
+class DiskDrive;
 
 
-class WD2793 : public FDC
+class WD2793 : private Schedulable
 {
 	public: 
-		// Brazilian based machines support up to 4 drives per FDC
-		enum DriveNum {
-			DRIVE_A = 0,
-			DRIVE_B = 1,
-			DRIVE_C = 2,
-			DRIVE_D = 3,
-			NUM_DRIVES = 4,
-			NO_DRIVE = 255
-		};
-	
-		WD2793(MSXConfig::Device *config, const EmuTime &time);
-		~WD2793();
+		WD2793(DiskDrive *drive, const EmuTime &time);
+		virtual ~WD2793();
 
 		void reset(const EmuTime &time);
 		
@@ -37,50 +27,45 @@ class WD2793 : public FDC
 		void setSectorReg (byte value, const EmuTime &time);
 		void setDataReg   (byte value, const EmuTime &time);
 		
-		bool getSideSelect(const EmuTime &time);
-		void setSideSelect(bool side, const EmuTime &time);
-		
-		DriveNum getDriveSelect(const EmuTime &time);
-		void setDriveSelect(DriveNum drive, const EmuTime &time);
-		
-		bool getMotor(const EmuTime &time);
-		void setMotor(bool status, const EmuTime &time);
-		
 		bool getIRQ(const EmuTime &time);
 		bool getDTRQ(const EmuTime &time);
 
 	private:
-		static const byte timePerStep[4];
+		static const int BUSY = 0x01;
+		static const int CRC  = 0x08;
+		static const int SEEK = 0x10;
+		static const int STEP_SPEED = 0x03;
+		static const int V_FLAG = 0x04;
+		static const int H_FLAG = 0x08;
+		static const int T_FLAG = 0x10;
+		static const int M_FLAG = 0x10;
+		enum FSMState {
+			FSM_SEEK
+		};
+		virtual void executeUntilEmuTime(const EmuTime &time, int state);
 
-		// EmuTime commandStart;
-		// EmuTime commandEnd;
-		EmuTimeFreq<1000000> commandEnd;
-		EmuTimeFreq<1000000> motorStartTime[NUM_DRIVES];
-		EmuTimeFreq<1000000> DRQTime[NUM_DRIVES];
+		void startType1Cmd(const EmuTime &time);
+		void startType2Cmd(const EmuTime &time);
+		void startType3Cmd(const EmuTime &time);
+		void startType4Cmd(const EmuTime &time);
+
+		void seek(const EmuTime &time);
+		void step(const EmuTime &time);
+		void seekNext(const EmuTime &time);
+		void endType1Cmd(const EmuTime &time);
+
+		void tryToReadSector(void);
+
+		DiskDrive* drive;
+		
+		EmuTime commandStart;
+		EmuTimeFreq<1000000> DRQTime;	// ms
 
 		byte statusReg;
 		byte commandReg;
 		byte sectorReg;
 		byte trackReg;
 		byte dataReg;
-
-		DriveNum current_drive;
-		bool motorStatus[NUM_DRIVES];
-
-		byte current_track;
-		byte current_sector;
-		byte current_side;
-		byte stepSpeed;
-
-		//Names taken from Table 2 in the WD279X-02 specs pdf
-		bool Vflag;	//Track Number Verify Flag
-		bool hflag;	//Head Load Flag
-		bool Tflag;	//Track Update Flag
-		bool Dflag;	//Data Address Mark Flag
-		bool Cflag;	//Side Compare Flag
-		bool mflag;	//Multi Record Flag
-		bool Eflag;	//15 MS delay
-		bool Sflag;	//Side Compare Flag2
 
 		bool directionIn;
 		bool INTRQ;
@@ -89,8 +74,6 @@ class WD2793 : public FDC
 		byte dataBuffer[1024];	// max sector size possible
 		int dataCurrent;	// which byte in dataBuffer is next to be read/write
 		int dataAvailable;	// how many bytes left in sector
-
-		void tryToReadSector(void);
 };
 
 #endif

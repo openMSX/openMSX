@@ -3,18 +3,14 @@
 #ifndef __NATIONALFDC_HH__
 #define __NATIONALFDC_HH__
 
-#include "MSXFDC.hh"
-
-class WD2793;
+#include "WD2793BasedFDC.hh"
 
 
-class NationalFDC : public MSXFDC
+class NationalFDC : public WD2793BasedFDC
 {
 	public:
 		NationalFDC(MSXConfig::Device *config, const EmuTime &time);
 		virtual ~NationalFDC();
-		
-		virtual void reset(const EmuTime &time);
 		
 		virtual byte readMem(word address, const EmuTime &time);
 		virtual void writeMem(word address, byte value, const EmuTime &time);  
@@ -22,7 +18,6 @@ class NationalFDC : public MSXFDC
 
 	private:
 		byte* emptyRom;
-		WD2793* controller;
 		bool brokenFDCread;
 		byte driveReg;
 };

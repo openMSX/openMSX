@@ -3,13 +3,13 @@
 #include "MicrosolFDC.hh"
 #include "WD2793.hh"
 #include "MSXCPUInterface.hh"
+#include "DriveMultiplexer.hh"
 
 
 MicrosolFDC::MicrosolFDC(MSXConfig::Device *config, const EmuTime &time)
-	: MSXFDC(config, time), MSXDevice(config, time), MSXIODevice(config, time)
+	: WD2793BasedFDC(config, time), MSXDevice(config, time),
+	  MSXIODevice(config, time)
 {
-	controller = new WD2793(config, time);
-	
 	MSXCPUInterface::instance()->register_IO_In (0xD0,this);
 	MSXCPUInterface::instance()->register_IO_In (0xD1,this);
 	MSXCPUInterface::instance()->register_IO_In (0xD2,this);
@@ -24,12 +24,6 @@ MicrosolFDC::MicrosolFDC(MSXConfig::Device *config, const EmuTime &time)
 
 MicrosolFDC::~MicrosolFDC()
 {
-	delete controller;
-}
-
-void MicrosolFDC::reset(const EmuTime &time)
-{
-	controller->reset(time);
 }
 
 byte MicrosolFDC::readIO(byte port, const EmuTime &time)
@@ -94,19 +88,19 @@ void MicrosolFDC::writeIO(byte port, byte value, const EmuTime &time)
 
 		driveD4 = value;
 		// Set correct drive
-		WD2793::DriveNum drive;
+		DriveMultiplexer::DriveNum drive;
 		switch (value & 0x0F) {
 			case 1:
-				drive = WD2793::DRIVE_A;
+				drive = DriveMultiplexer::DRIVE_A;
 				break;
 			case 2:
-				drive = WD2793::DRIVE_B;
+				drive = DriveMultiplexer::DRIVE_B;
 				break;
 			case 4:
-				drive = WD2793::DRIVE_C;
+				drive = DriveMultiplexer::DRIVE_C;
 				break;
 			case 8:
-				drive = WD2793::DRIVE_D;
+				drive = DriveMultiplexer::DRIVE_D;
 				break;
 			default:
 				// No drive selected or two drives at same time
@@ -114,11 +108,11 @@ void MicrosolFDC::writeIO(byte port, byte value, const EmuTime &time)
 				// in a real machine you must take care to do not select more
 				// than one drive at the same time (you could get data
 				// collision).
-				drive = WD2793::NO_DRIVE;
+				drive = DriveMultiplexer::NO_DRIVE;
 		}
-		controller->setDriveSelect(drive, time);
-		controller->setSideSelect((value & 0x10), time);
-		controller->setMotor((value & 0x20), time);
+		multiplexer->selectDrive(drive);
+		multiplexer->setSide(value & 0x10);
+		multiplexer->setMotor((value & 0x20), time);
 		break;
 	}
 }

@@ -37,7 +37,7 @@ class MSXRomDevice: virtual public MSXDevice
 		 * for each patchcode parameter, construct apropriate patch
 		 * object and register it at the CPU
 		 */
-		void handleRomPatchInterfaces();
+		void handleRomPatchInterfaces(const EmuTime &time);
 		
 		/**
 		 * Load a file into memory.

@@ -23,6 +23,9 @@ class FDC_XSA : public FDCBackEnd
 		                  byte side, int size, byte* buf);
 		virtual void write(byte phystrack, byte track, byte sector,
 		                   byte side, int size, const byte* buf);
+		virtual bool ready();
+		virtual bool writeProtected();
+		virtual bool doubleSided();
 
 	protected:
 		virtual void readBootSector();
