@@ -73,14 +73,14 @@
 			<li><a class="internal" href="#gfx9000">6.6. GFX9000/Video sources</a></li>
 		</ol>
 	</li>
-	
+
 	<li><a class="internal" href="#audio">7. Audio</a>
 		<ol class="toc">
 			<li><a class="internal" href="#audiosettings">7.1. Audio Settings</a></li>
 			<li><a class="internal" href="#midi">7.2. MIDI</a></li>
 		</ol>
 	</li>
-	
+
 	<li><a class="internal" href="#debugdevice">8. Debug Device</a>
 		<ol class="toc">
 			<li><a class="internal" href="#debugdeviceenable">8.1. Enabling the Debug Device</a></li>
@@ -208,10 +208,14 @@ Original text written as part of the openMSX HOWTO.
 <h2><a id="starting">2. Starting the Emulator</a></h2>
 
 <p>
-If you start openMSX without any command line parameters, you will get the default machine, which you have set up in with the <code>machine</code> setting, see the <a class="external" href="setup.html#settings">Setup Guide</a>. When you use the shipped file, this means you will get a machine that uses C-BIOS. In this chapter we will tell you how to use other machines and how to use extensions.
+In this chapter we will tell you how to use other machines and how to use extensions.
 </p>
 
 <h3><a id="machines">2.1. Machines</a></h3>
+
+<p>
+If you start openMSX without any command line parameters, you will get the default machine, which you have set up in with the <code>machine</code> setting, see the <a class="external" href="setup.html#settings">Setup Guide</a>. If you did not change the default machine, you will get the C-BIOS MSX2+ machine.
+</p>
 
 <p>
 To use a specific MSX machine that is present on your system (i.e. your openMSX installation), simply use the <code>-machine</code> command line argument, like this:
@@ -220,28 +224,19 @@ To use a specific MSX machine that is present on your system (i.e. your openMSX 
     openmsx -machine Panasonic_FS-A1GT
 </div>
 
-<p>
-If you omit this argument, openMSX will start with the default machine, which is initially set to C-BIOS MSX2+, see also below.
-</p>
-
 <h3><a id="extensions">2.2. Extensions</a></h3>
 
 <p>
-Extensions are simply MSX cartridges (extensions to the MSX system) that you can plug into the emulated MSX. In the next paragraph we explain this using an example.
+Extensions are simply MSX cartridges (extensions to the MSX system) that you can plug into the emulated MSX. openMSX ships with a lot of predefined extensions. Note that many of them require firmware ROMs to be installed in the <code>share/extensions/<i>name</i>/roms</code> directory or in <code>share/systemroms</code>. If you want to make your own extensions, read the <a class="external" href="setup.html#hardwareedit">Setup Guide</a> for instructions.
 </p>
-
 <p>
-If you have setup an FMPAC <code>hardwareconfig.xml</code> file in
-<code>~/.openMSX/share/extensions/fmpac</code> e.g. (i.e. for Linux: in your custom extensions directory in this case), you can add  <code>-ext
-fmpac</code> to your command line to use an FMPAC. But, as I just said, you
-need to have a hardware description in that subdirectory of
-<code>share/extensions/</code>, see <a class="external" href="setup.html">Setup Guide</a>. Fortunately,
-openMSX comes with a predefined FMPAC extension. You only need to add the
-<code>fmpac.rom</code> in <code>share/extensions/fmpac/roms/</code> or to one of your ROM pools (see <a class="external" href="setup.html#dumpromlocation">Setup Guide</a>); it's the ROM that is built in the FMPAC. If you look at that <code>share/extensions</code>
-directory, you will find more extensions. E.g. using <code>-ext mbstereo</code>
-gives you the Moonblaster stereo effect: FMPAC on one channel and MSX Audio on
-the other. Try them out, if you like, but again, keep in mind that some
-extensions need a ROM image installed in their <code>roms/</code> directory, which is explained in the <a class="external" href="setup.html">Setup Guide</a>.
+We will use the FMPAC as an example. openMSX ships with a definition (XML file) for the FMPAC extension, but you will have to add the <code>fmpac.rom</code> firmware ROM yourself. When you have done so, you can insert an FMPAC into the emulated MSX machine with the following command line:
+</p>
+<div class="commandline">
+    openmsx -ext fmpac
+</div>
+<p>
+If you look in the <code>share/extensions</code> directory, you will see all the extensions known to openMSX. For example <code>-ext mbstereo</code> gives you the MoonBlaster stereo effect: FMPAC on the left speaker and MSX-AUDIO on the right speaker.
 </p>
 
 <h3><a id="otheroptions">2.3. Other Command Line Options</a></h3>
@@ -372,7 +367,7 @@ You can also explicitly indicate that the thing is a ROM image like this:
 This lets openMSX know that the file <code>galious.gam</code> is a ROM cartridge and that openMSX should insert it in the first available free cartridge slot. You can also use <code>-carta</code> to explicitly specify cartridge slot A.
 </p>
 <p>
-Or, maybe openMSX didn't have the ROM in the ROM database and failed auto detection of the mapper type. You can specify the mapper to Konami (formerly known as KONAMI4) like this:
+Or, maybe openMSX didn't have the ROM in the ROM database and failed auto detection of the mapper type. You can specify the mapper to <code>Konami</code> (formerly known as <code>KONAMI4</code>) like this:
 </p>
 <div class="commandline">openmsx galious.rom -romtype Konami</div>
 <p>
@@ -518,7 +513,7 @@ program for IDE, downloadable from the <a class="external"
 href="http://www.msx.ch/sunformsx/download/dl-ide.html">Sunrise for MSX web
 site</a>. There is also a  <a class="external"
 href="http://www.msx.org/forumtopic3015p15.html">thread</a> on the MSX Resource
-Center forum that may give you valuable hints.  
+Center forum that may give you valuable hints.
 </p>
 
 <p>
@@ -593,7 +588,7 @@ files with cassetteplayer as if they were WAV files. They are automatically
 converted to WAV files, internally. Note that the loading time is drastically
 longer this way. On the other hand, you will be able to hear the cassette
 sounds now also with the CAS files... What is using cassettes with an MSX
-without those characteristic sounds?  
+without those characteristic sounds?
 </p>
 
 <p>
@@ -737,7 +732,7 @@ Note that openMSX can be compiled without the SDLGL renderer; if that is true fo
 The <code>accuracy</code> setting controls how often the renderer is synchronised with the MSX video processor (VDP).
 There are three options:
 </p>
- 
+
 <dl>
 <dt>screen</dt>
 <dd>
@@ -887,7 +882,7 @@ This feature works only in the <code>SDLGL</code> renderer.
 <h3><a id="gfx9000">6.6. GFX9000/Video source</a></h3>
 
 <p>
-Since openMSX 0.5.1, experimental GFX9000 emulation is available. Note that it is indeed experimental; it is also incomplete, unoptimised and contains loads of bugs. One of these things is the fact that it does not work with the SDLGL renderer yet. Despite of all this, we thought you might wanted to play around with it anyway... 
+Since openMSX 0.5.1, experimental GFX9000 emulation is available. Note that it is indeed experimental; it is also incomplete, unoptimised and contains loads of bugs. One of these things is the fact that it does not work with the SDLGL renderer yet. Despite of all this, we thought you might wanted to play around with it anyway...
 </p>
 
 <p>
@@ -913,7 +908,7 @@ cycle videosource</code>.<br/>
 <h3><a id="audiosettings">7.1. Audio Settings</a></h3>
 
 <p>
-There is a <code>master_volume</code> setting, which controls the overall output volume of openMSX (it applies to all sound devices). Volume 0 means no sound, volume 100 is maximum. 
+There is a <code>master_volume</code> setting, which controls the overall output volume of openMSX (it applies to all sound devices). Volume 0 means no sound, volume 100 is maximum.
 </p>
 
 <p>
@@ -951,7 +946,7 @@ On Linux, you can use the <code>midi-out-logger</code> and set a MIDI
 device node, for example <code>/dev/midi</code>, as its output file. This is
 done by default. To play with this setting, use <code>set
 midi-out-logfilename</code>.  On Windows, real MIDI devices are separate
-pluggables. 
+pluggables.
 </p>
 
 <h2><a id="debugdevice">8. Debug Device</a></h2>
@@ -960,7 +955,7 @@ pluggables.
 This chapter describes how the debug device, built in openMSX, can be used to
 the advantage of an MSX programmer. This device is an artificial MSX device
 that is connected to an MSX I/O port. It can be used to send debug messages to
-the host operating system.  
+the host operating system.
 </p>
 
 <p>
@@ -968,7 +963,7 @@ Note that openMSX also contains real built in debugging functions, which can be
 accessed with the <code>debug</code> command. More information about it is in
 the aforementioned <code>commands.txt</code> file. With that debugger you can
 read and write all registers and memory of almost all devices that are
-supported in openMSX. It also supports break points and stepping.  
+supported in openMSX. It also supports break points and stepping.
 </p>
 
 
@@ -1009,7 +1004,7 @@ output ports 0x2E and 0x2F are used. The first port is the Mode Set Register. By
   <tr> <th>bit(s)</th><th>meaning</th> </tr>
   <tr> <td>7  </td> <td> unused </td> </tr>
   <tr> <td>6  </td> <td> line feed mode (0 = line feed at mode change, 1 no line feed)</td> </tr>
-  <tr> <td>4-5</td> <td> output mode (0 = OFF, 1 = single byte, 2 = multi byte)</td> </tr> 
+  <tr> <td>4-5</td> <td> output mode (0 = OFF, 1 = single byte, 2 = multi byte)</td> </tr>
   <tr> <td>0-3</td> <td> parameters for mode 1 (see below)</td> </tr>
   <tr> <td>0-1</td> <td> parameters for mode 2 (see below)</td> </tr>
 </table>
@@ -1081,7 +1076,7 @@ and so on.
 <p>
 The EmuTime part is a special number that keeps track of the openMSX emulation.
 The larger this number is, the later the event took place. This is a great way
-to find out in what order things are called. 
+to find out in what order things are called.
 </p>
 <p>
 If the character to print is a special character, like carriage return,
@@ -1112,7 +1107,7 @@ OUT ($2f),A
 OUT ($2f),A
 OUT ($2f),A
 LD  A,xx
-OUT ($2e),A	
+OUT ($2e),A
 </pre>
 <p>
 Only at this last instruction the output appears.
