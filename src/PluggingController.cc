@@ -151,7 +151,7 @@ string PluggingController::PlugCmd::execute(const vector<string> &tokens)
 			break;
 		}
 	default:
-		throw CommandException("plug: syntax error");
+		throw SyntaxError();
 	}
 	return result;
 }
@@ -204,7 +204,7 @@ string PluggingController::UnplugCmd::execute(const vector<string> &tokens)
 	throw(CommandException)
 {
 	if (tokens.size() != 2) {
-		throw CommandException("Syntax error");
+		throw SyntaxError();
 	}
 	Connector *connector = parent.getConnector(tokens[1]);
 	if (connector == NULL) {

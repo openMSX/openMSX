@@ -176,7 +176,7 @@ void Keyboard::doKeyGhosting()
 string Keyboard::processCmd(const vector<string>& tokens, bool up)
 {
 	if (tokens.size() != 3) {
-		throw CommandException("Syntax error");
+		throw SyntaxError();
 	}
 	char* endPtr;
 	unsigned long row = strtoul(tokens[1].c_str(), &endPtr, 0);

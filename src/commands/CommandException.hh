@@ -13,6 +13,11 @@ public:
 		: MSXException(desc) {}
 };
 
+class SyntaxError : public CommandException {
+public:
+	SyntaxError() : CommandException("Syntax error") {}
+};
+
 } // namespace openmsx
 
 #endif

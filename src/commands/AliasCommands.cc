@@ -145,7 +145,7 @@ string AliasCommands::UnaliasCmd::execute(const vector<string> &tokens)
 	throw(CommandException)
 {
 	if (tokens.size() != 2) {
-		throw CommandException("Syntax error");
+		throw SyntaxError();
 	}
 	map<string, Alias*>::const_iterator it =
 		parent.aliasses.find(tokens[1]);

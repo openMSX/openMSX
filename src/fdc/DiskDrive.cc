@@ -291,7 +291,7 @@ string RealDrive::execute(const vector<string> &tokens)
 			          name + "\"" + '\n';
 		}
 	} else if (tokens.size() != 2) {
-		throw CommandException("Syntax error");
+		throw SyntaxError();
 	} else if (tokens[1] == "eject") {
 		ejectDisk();
 	} else {

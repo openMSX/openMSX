@@ -102,7 +102,7 @@ string Debugger::DebugCmd::execute(const vector<string>& tokens)
 	} else if (tokens[1] == "list_bp") {
 		return parent.cpu->listBreakPoints();
 	}
-	throw CommandException("Syntax error.");
+	throw SyntaxError();
 }
 
 string Debugger::DebugCmd::list()
@@ -119,7 +119,7 @@ string Debugger::DebugCmd::list()
 string Debugger::DebugCmd::desc(const vector<string>& tokens)
 {
 	if (tokens.size() != 3) {
-		throw CommandException("Syntax error.");
+		throw SyntaxError();
 	}
 	Debuggable* device = parent.getDebuggable(tokens[2]);
 	return device->getDescription();
@@ -128,7 +128,7 @@ string Debugger::DebugCmd::desc(const vector<string>& tokens)
 string Debugger::DebugCmd::size(const vector<string>& tokens)
 {
 	if (tokens.size() != 3) {
-		throw CommandException("Syntax error.");
+		throw SyntaxError();
 	}
 	Debuggable* device = parent.getDebuggable(tokens[2]);
 
@@ -140,7 +140,7 @@ string Debugger::DebugCmd::size(const vector<string>& tokens)
 string Debugger::DebugCmd::read(const vector<string>& tokens)
 {
 	if (tokens.size() != 4) {
-		throw CommandException("Syntax error.");
+		throw SyntaxError();
 	}
 	Debuggable* device = parent.getDebuggable(tokens[2]);
 	
@@ -158,7 +158,7 @@ string Debugger::DebugCmd::read(const vector<string>& tokens)
 string Debugger::DebugCmd::write(const vector<string>& tokens)
 {
 	if (tokens.size() != 5) {
-		throw CommandException("Syntax error.");
+		throw SyntaxError();
 	}
 	Debuggable* device = parent.getDebuggable(tokens[2]);
 	

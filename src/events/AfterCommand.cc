@@ -55,7 +55,7 @@ string AfterCommand::execute(const vector<string>& tokens)
 	} else if (tokens[1] == "cancel") {
 		return afterCancel(tokens);
 	}
-	throw CommandException("Syntax error");
+	throw SyntaxError();
 }
 
 string AfterCommand::afterTime(const vector<string>& tokens)
@@ -71,7 +71,7 @@ string AfterCommand::afterIdle(const vector<string>& tokens)
 string AfterCommand::afterNew(const vector<string>& tokens, AfterType type)
 {
 	if (tokens.size() < 4) {
-		throw CommandException("Syntax Error");
+		throw SyntaxError();
 	}
 	AfterCmd* cmd = new AfterCmd(*this);
 	cmd->type = type;
@@ -116,7 +116,7 @@ string AfterCommand::afterInfo(const vector<string>& tokens)
 string AfterCommand::afterCancel(const vector<string>& tokens)
 {
 	if (tokens.size() != 3) {
-		throw CommandException("Syntax error");
+		throw SyntaxError();
 	}
 	unsigned id = strtoul(tokens[2].c_str(), NULL, 10);
 	map<unsigned, AfterCmd*>::iterator it = afterCmds.find(id);

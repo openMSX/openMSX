@@ -218,7 +218,7 @@ string HotKey::UnbindCmd::execute(const vector<string>& tokens)
 		break;
 	}
 	default:
-		throw CommandException("Syntax error");
+		throw SyntaxError();
 	}
 	return result;
 }

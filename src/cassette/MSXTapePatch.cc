@@ -407,7 +407,7 @@ string MSXTapePatch::execute(const vector<string> &tokens)
 {
 	string result;
 	if (tokens.size() != 2) {
-		throw CommandException("Syntax error");
+		throw SyntaxError();
 	}
 	if (tokens[1]=="eject") {
 		result += "Tape ejected\n";
