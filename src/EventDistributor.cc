@@ -1,3 +1,4 @@
+// $Id$
 
 #include "EventDistributor.hh"
 #include "openmsx.hh"

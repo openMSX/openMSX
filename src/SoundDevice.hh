@@ -1,3 +1,4 @@
+// $Id$
 
 #ifndef __SOUNDDEVICE_HH__
 #define __SOUNDDEVICE_HH__

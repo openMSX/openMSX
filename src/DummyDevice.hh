@@ -1,3 +1,4 @@
+// $Id$
 
 #ifndef __DUMMYDEVICE_HH__
 #define __DUMMYDEVICE_HH__

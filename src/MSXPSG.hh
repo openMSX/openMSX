@@ -1,3 +1,4 @@
+// $Id$
 
 #ifndef __MSXPSG_HH__
 #define __MSXPSG_HH__

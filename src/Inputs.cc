@@ -1,3 +1,4 @@
+// $Id$
 
 #include "Inputs.hh"
 #include "EventDistributor.hh"

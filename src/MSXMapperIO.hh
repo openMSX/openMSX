@@ -1,3 +1,4 @@
+// $Id$
 
 #ifndef __MSXMAPPERIO_HH__
 #define __MSXMAPPERIO_HH__

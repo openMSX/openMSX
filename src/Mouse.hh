@@ -1,3 +1,4 @@
+// $Id$
 
 #ifndef __MOUSE_HH__
 #define __MOUSE_HH__

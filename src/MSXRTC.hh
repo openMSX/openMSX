@@ -1,3 +1,4 @@
+// $Id$
 
 #ifndef __MSXRTC_HH__
 #define __MSXRTC_HH__

@@ -1,3 +1,4 @@
+// $Id$
 
 #ifndef __LEDS_HH__
 #define __LEDS_HH__

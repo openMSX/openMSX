@@ -1,3 +1,4 @@
+// $Id$
 
 #ifndef __MSXCPUDEVICE_HH__
 #define __MSXCPUDEVICE_HH__

@@ -1,3 +1,4 @@
+// $id:$
 
 #ifndef __EVENTDISTRIBUTOR_HH__
 #define __EVENTDISTRIBUTOR_HH__

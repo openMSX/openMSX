@@ -1,3 +1,4 @@
+// $Id$
 
 #ifndef __JOYSTICK_HH__
 #define __JOYSTICK_HH__

@@ -1,3 +1,5 @@
+// $Id$
+
 #ifndef __OPENMSX_HH__
 #define __OPENMSX_HH__
 

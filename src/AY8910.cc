@@ -1,3 +1,5 @@
+// $Id$
+
 /**
  *
  * Emulation of the AY-3-8910

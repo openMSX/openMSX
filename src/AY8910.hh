@@ -1,4 +1,4 @@
-
+// $Id$
 // This class implements the AY-3-8910 sound chip
 //
 // * Only the AY-3-8910 is emulated, no surrounding hardware. 

@@ -1,3 +1,4 @@
+// $Id$
 
 /*
  * This class implements a simple timer, used in a TurboR.

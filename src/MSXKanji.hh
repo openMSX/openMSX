@@ -1,3 +1,4 @@
+// $Id$
 
 #ifndef __MSXKANJI_HH__
 #define __MSXKANJI_HH__

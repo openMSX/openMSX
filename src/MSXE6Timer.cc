@@ -1,3 +1,4 @@
+// $Id$
 
 #include "MSXE6Timer.hh"
 #include <assert.h>

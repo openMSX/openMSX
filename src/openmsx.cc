@@ -1,3 +1,5 @@
+// $Id$
+
 /* 
    openmsx - Emulate the MSX standard.
 

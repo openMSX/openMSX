@@ -1,3 +1,4 @@
+// $Id$
 
 #include "DummyDevice.hh"
 #include <assert.h>
