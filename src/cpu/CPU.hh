@@ -5,7 +5,7 @@
 
 #include <set>
 #include <string>
-#include "config.h"
+#include "build-info.hh"
 #include "openmsx.hh"
 #include "EmuTime.hh"
 #include "CPUTables.hh"

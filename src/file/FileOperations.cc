@@ -17,7 +17,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include "config.h"
+#include "build-info.hh"
 #include "FileOperations.hh"
 #include "openmsx.hh"
 #include "CliCommOutput.hh"

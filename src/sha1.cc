@@ -21,7 +21,7 @@ A million repetitions of "a"
 */
 
 #include "sha1.hh"
-#include "config.h"
+#include "build-info.hh"
 #include <cstdio>
 #include <memory.h>
 
