@@ -2,6 +2,9 @@ $Id$
 
 2001-09-24 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* implemented Real Time Clock device
+	* implemented joystick support. Cannot be used yet since there is no
+	  mechanism to plug a Joystick in a joystickPort yet (dynamically nor
+	  statically)
 
 2001-09-23 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* made sperate thread for event handler
