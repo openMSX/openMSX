@@ -116,7 +116,7 @@
     <type>PSG</type>
     <parameter name="volume">21000</parameter>
     <parameter name="keyboardlayout">JIS</parameter>
-    <!-- Also found in ANSI layout -->
+    <!-- Also found in 50on layout -->
   </device>
 
   <device id="Real time clock">
