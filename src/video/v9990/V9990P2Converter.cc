@@ -47,10 +47,8 @@ template class V9990P2Converter<
 template <class Pixel, Renderer::Zoom zoom>
 V9990P2Converter<Pixel, zoom>::V9990P2Converter(
 		V9990* vdp_,
-		SDL_PixelFormat format_,
 		Pixel* palette64_)
 		: vdp(vdp_),
-		  format(format_),
 		  palette64(palette64_)
 {
 	vram = vdp->getVRAM();
@@ -103,8 +101,8 @@ byte V9990P2Converter<Pixel, zoom>::getPixel(
 	x &= 1023;
 	y &= 1023;
 	unsigned int address = nameTable + (((y/8)*128 + (x/8)) * 2);
-	unsigned int pattern = vram->readVRAM(address) +
-	                       vram->readVRAM(address+1) * 256;
+	unsigned int pattern = (vram->readVRAM(address + 0) +
+	                        vram->readVRAM(address + 1) * 256) & 0x3FFF;
 	int x2 = (pattern%64) * 8 + (x%8);
 	int y2 = (pattern/64) * 8 + (y%8);
 	address = patternTable + y2 * 256 + x2/2;

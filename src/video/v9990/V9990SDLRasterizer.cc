@@ -23,8 +23,8 @@ V9990SDLRasterizer<Pixel, zoom>::V9990SDLRasterizer(
 	, screen(screen_)
 	, bitmapConverter(vdp, *screen->format,
 	                  palette64, palette256, palette32768)
-	, p1Converter(vdp, *screen->format, palette64)
-	, p2Converter(vdp, *screen->format, palette64)
+	, p1Converter(vdp, palette64)
+	, p2Converter(vdp, palette64)
 	, deinterlaceSetting(RenderSettings::instance().getDeinterlace())
 {
 	PRT_DEBUG("V9990SDLRasterizer::V9990SDLRasterizer");
