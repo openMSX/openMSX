@@ -86,14 +86,6 @@ int main (int argc, char **argv)
 	try {
 		MSXConfig::instance()->loadFile(configfile);
 		
-		#if 0
-		std::list<MSXConfig::Config*>::const_iterator i;
-		for (i = MSXConfig::instance()->configList.begin(); 
-		     i != MSXConfig::instance()->configList.end(); i++) {
-			(*i)->dump();
-		}
-		#endif
-		
 		initializeSDL();
 	
 		EmuTime zero;
@@ -109,10 +101,6 @@ int main (int argc, char **argv)
 
 		// Start a new thread for event handling
 		SDL_Thread *thread=SDL_CreateThread(eventDistributorStarter, 0);
-
-		//It works!! But commented out because this is annoying
-		//keyi << "... key inserter test ...";
-		//keyi.flush();
 
 		PRT_DEBUG ("starting MSX");
 		MSXMotherBoard::instance()->StartMSX();
