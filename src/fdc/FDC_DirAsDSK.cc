@@ -234,7 +234,7 @@ FDC_DirAsDSK::FDC_DirAsDSK(const string& fileName)
 	FAT[0] = 0xF9;
 	FAT[1] = 0xFF;
 	FAT[2] = 0xFF;
-	PRT_DEBUG("FAT located at : "<<(int)FAT );
+	PRT_DEBUG("FAT located at : " << FAT);
 	
 	//clear the sectormap so that they all point to 'clean' sectors
 	for (int i = 0; i < 1440 ; i++) {
@@ -413,7 +413,7 @@ void FDC_DirAsDSK::read(int logicalSector, int size, byte* buf)
 			memset(buf, 0xE5, SECTOR_SIZE  );
 		} else if (sectormap[logicalSector].dirEntryNr == CACHEDSECTOR ) {
 			PRT_DEBUG ("reading  cachedSectors["<<logicalSector<<"]" );
-			PRT_DEBUG ("cachedSectors["<<logicalSector<<"] :" <<(int) cachedSectors[logicalSector] );
+			PRT_DEBUG ("cachedSectors["<<logicalSector<<"] :" << cachedSectors[logicalSector] );
 			memcpy(buf, cachedSectors[logicalSector] , SECTOR_SIZE);
 		} else {
 			// open file and read data
