@@ -34,7 +34,6 @@ class YM2413 : public YM2413Core, private SoundDevice, private Debuggable
 	class Slot {
 	public:
 		Slot(bool type);
-		~Slot();
 		void reset(bool type);
 
 		inline void slotOn(byte stat);
@@ -42,8 +41,8 @@ class YM2413 : public YM2413Core, private SoundDevice, private Debuggable
 		inline void slotOff(byte stat);
 		inline void setPatch(Patch* patch);
 		inline void setVolume(int volume);
-		inline void calc_phase();
-		inline void calc_envelope();
+		inline void calc_phase(int lfo_pm);
+		inline void calc_envelope(int lfo_am);
 		inline int calc_slot_car(int fm);
 		inline int calc_slot_mod();
 		inline int calc_slot_tom();
@@ -85,18 +84,13 @@ class YM2413 : public YM2413Core, private SoundDevice, private Debuggable
 		int eg_mode;		// Current state
 		unsigned int eg_phase;	// Phase
 		unsigned int eg_dphase;	// Phase increment amount
-		int egout;		// output
-
-		// refer to YM2413->
-		int* plfo_pm;
-		int* plfo_am;
+		unsigned egout;		// output
 	};
 	friend class Slot;
 	
 	class Channel {
 	public:
 		Channel();
-		~Channel();
 		void reset();
 		inline void setPatch(int num);
 		inline void setSustine(bool sustine);
@@ -228,8 +222,6 @@ private:
 	static const double AM_DEPTH = 4.875;
 
 	int maxVolume;
-
-	int output[2];
 
 	// Register
 	byte reg[0x40];
