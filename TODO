@@ -17,7 +17,28 @@
  - xmlconfig save support
  - support for saving states of devices
  - http support
-
+ - settings.xml with own DTD?
+ - dynamic options with XML files
+ - do key bindings in a seperate file, not with autocommands
+ - The following settings should be added to settings.xml:
+   + blur
+   + scanline
+   + frameskip
+   + mute status
+   + deinterlace
+ - The following things should be made settings (adjustable in Console):
+   + Mixer settings
+   + GUI like settings, like ConsoleFont/ConsoleBackground
+ - The following Console commands need to be converted to a settings command:
+   + renderer
+   
 * build
  - auto* improvement
  - C++ standard compliancy (gcc-3.0 e.g.)
+
+* general
+ - switch the threads
+ - I/O port configuration
+ - session management? (save state of frontswitches and inserted disk or
+   cassette images at exit for a specific machine; also speed setting and
+   things plugged into connector)
