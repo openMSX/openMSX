@@ -28,7 +28,6 @@ class CommandConsole : public Console, private EventListener,
 {
 public:
 	static CommandConsole& instance();
-	void registerDebugger();
 
 	/** Prints a string on the console.
 	  */

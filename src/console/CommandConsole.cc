@@ -543,13 +543,6 @@ void CommandConsole::resetScrollBack()
 	consoleScrollBack = 0;
 }
 
-void CommandConsole::registerDebugger()
-{
-	SettingLeafNode* debugSetting = dynamic_cast<SettingLeafNode*>(
-		settingsManager.getByName("debugger"));
-	debugSetting->addListener(this);
-}
-
 const string& CommandConsole::getId() const
 {
 	static const string ID("console");
