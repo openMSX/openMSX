@@ -20,10 +20,9 @@
      <parameter name="max_ints">221</parameter>
   </config>
 
-  <device id="MapperIO">
-    <type>MapperIO</type>
+  <config id="MapperType">
     <parameter name="type">TurboR</parameter>
-  </device>
+  </config>
   
   <!-- this must come before other internal roms -->
   <device id="Firmware">
