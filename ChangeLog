@@ -1,5 +1,11 @@
 $Id$
 
+2004-04-03 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Changed frameskip setting:
+	   there is no explicit frameskip "auto" anymore, instead the framskip
+	   setting indicated the maximum allowed number of frameskip.
+	* Don't skip frames on small CPU usage spikes
+
 2004-04-02 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented different frameskip and real time sync algorithm
 	* Fixed "[ 915747 ] sprites are not visible on display line 0"

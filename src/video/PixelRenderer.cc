@@ -171,7 +171,7 @@ void PixelRenderer::frameEnd(const EmuTime& time)
 		draw = RealTime::instance().timeLeft(finishFrameDuration, time);
 	}
 	if (draw) {
-		frameSkipCounter = settings.getFrameSkip()->getValue().getFrameSkip();
+		frameSkipCounter = settings.getFrameSkip()->getValue();
 		
 		// Let underlying graphics system finish rendering this frame.
 		unsigned time1 = RealTime::instance().getRealTime();

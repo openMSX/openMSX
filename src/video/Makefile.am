@@ -33,7 +33,6 @@ libVideo_la_SOURCES = \
 	VDPSettings.hh VDPSettings.cc \
 	SpriteChecker.hh SpriteChecker.cc \
 	RenderSettings.hh RenderSettings.cc \
-	FrameSkipSetting.hh FrameSkipSetting.cc \
 	Renderer.hh Renderer.cc \
 	RendererFactory.hh RendererFactory.cc \
 	Icon.hh Icon.cc \

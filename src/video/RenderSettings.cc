@@ -5,6 +5,9 @@
 #include "Config.hh"
 #include "CliCommOutput.hh"
 #include "CommandResult.hh"
+#include "IntegerSetting.hh"
+#include "FloatSetting.hh"
+#include "BooleanSetting.hh"
 
 namespace openmsx {
 
@@ -23,7 +26,9 @@ RenderSettings::RenderSettings()
 	deinterlace = new BooleanSetting(
 		"deinterlace", "deinterlacing on/off", true);
 
-	frameSkip = new FrameSkipSetting();
+	frameSkip = new IntegerSetting(
+		"frameskip", "set the max amount of frameskip",
+		3, 0, 100);
 
 	bool fsBool = config->getParameterAsBool("full_screen", false);
 	fullScreen = new BooleanSetting(

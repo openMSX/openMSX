@@ -17,6 +17,9 @@ TODO:
 #include "SDLGLRenderer.hh"
 #ifdef __OPENGL_AVAILABLE__
 
+#include <cmath>
+#include <cassert>
+#include "util.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 #include "RenderSettings.hh"
@@ -24,10 +27,8 @@ TODO:
 #include "CommandConsole.hh"
 #include "GLConsole.hh"
 #include "ScreenShotSaver.hh"
-#include "util.hh"
 #include "EventDistributor.hh"
-#include <cmath>
-#include <cassert>
+#include "FloatSetting.hh"
 
 
 namespace openmsx {

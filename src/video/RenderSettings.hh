@@ -3,19 +3,16 @@
 #ifndef __RENDERSETTINGS_HH__
 #define __RENDERSETTINGS_HH__
 
-#include "IntegerSetting.hh"
-#include "FloatSetting.hh"
-#include "BooleanSetting.hh"
 #include "RendererFactory.hh"
-#include "FrameSkipSetting.hh"
 #include "Scaler.hh"
-#include "InfoTopic.hh"
-
 
 namespace openmsx {
 
 class SettingsConfig;
 class InfoCommand;
+class IntegerSetting;
+class FloatSetting;
+class BooleanSetting;
 
 
 /** Singleton containing all settings for renderers.
@@ -38,7 +35,7 @@ public:
 	BooleanSetting* getDeinterlace() { return deinterlace; }
 
 	/** The current frameskip. */
-	FrameSkipSetting* getFrameSkip() { return frameSkip; }
+	IntegerSetting* getFrameSkip() { return frameSkip; }
 
 	/** Full screen [on, off]. */
 	BooleanSetting* getFullScreen() { return fullScreen; }
@@ -68,7 +65,7 @@ private:
 	// Please keep the settings ordered alphabetically.
 	EnumSetting<Accuracy>* accuracy;
 	BooleanSetting* deinterlace;
-	FrameSkipSetting* frameSkip;
+	IntegerSetting* frameSkip;
 	BooleanSetting* fullScreen;
 	FloatSetting* gamma;
 	IntegerSetting* glow;

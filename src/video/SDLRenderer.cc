@@ -7,6 +7,10 @@ TODO:
   not need EmuTime, since it uses absolute VDP coordinates instead.
 */
 
+#include <cmath>
+#include <cassert>
+#include <algorithm>
+#include "util.hh"
 #include "SDLRenderer.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
@@ -16,10 +20,7 @@ TODO:
 #include "Scaler.hh"
 #include "ScreenShotSaver.hh"
 #include "EventDistributor.hh"
-#include "util.hh"
-#include <algorithm>
-#include <cmath>
-#include <cassert>
+#include "FloatSetting.hh"
 
 using std::max;
 using std::min;

@@ -5,7 +5,7 @@ include build/node-start.mk
 SRC_HDR:= \
 	VDP VDPCmdEngine VDPVRAM SpriteChecker \
 	DirtyChecker \
-	VDPSettings FrameSkipSetting \
+	VDPSettings \
 	Icon \
 	Renderer RendererFactory RenderSettings PixelRenderer \
 	SDLRenderer \
