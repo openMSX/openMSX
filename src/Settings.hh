@@ -95,6 +95,11 @@ public:
 	  */
 	bool getValue() const { return value; }
 
+	/** Set the current value of this setting.
+	  * @param value The new value.
+	  */
+	void setValue(bool value);
+
 	// Implementation of Setting interface:
 	virtual std::string getValueString() const;
 	virtual void setValueString(const std::string &valueString);

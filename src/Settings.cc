@@ -44,17 +44,24 @@ std::string BooleanSetting::getValueString() const
 	}
 }
 
+void BooleanSetting::setValue(bool value)
+{
+	this->value = value;
+	// TODO: Inform listeners.
+}
+
 void BooleanSetting::setValueString(const std::string &valueString)
 {
+	bool newValue;
 	if (valueString == "on") {
-		value = true;
+		newValue = true;
 	} else if (valueString == "off") {
-		value = false;
+		newValue = false;
 	} else {
 		throw CommandException(
 			"Not a valid boolean: \"" + valueString + "\"");
 	}
-	// TODO: Inform listeners.
+	setValue(newValue);
 }
 
 void BooleanSetting::tabCompletion(std::vector<std::string> &tokens) const

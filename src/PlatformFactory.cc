@@ -3,6 +3,7 @@
 // Platform independent includes:
 #include "PlatformFactory.hh"
 #include "MSXConfig.hh"
+#include "RenderSettings.hh"
 
 // Platform dependent includes:
 #include "SDLLoRenderer.hh"
@@ -11,9 +12,9 @@
 #include "XRenderer.hh"
 
 Renderer *PlatformFactory::createRenderer(
-	const std::string &name, VDP *vdp,
-	bool fullScreen, const EmuTime &time)
+	const std::string &name, VDP *vdp, const EmuTime &time)
 {
+	bool fullScreen = RenderSettings::instance()->getFullScreen()->getValue();
 	if (name == "SDLLo") {
 		return createSDLLoRenderer(vdp, fullScreen, time);
 	}

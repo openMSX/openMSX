@@ -54,11 +54,6 @@ public:
 	  */
 	virtual void reset(const EmuTime &time) = 0;
 
-	/** Is this Renderer currently displaying full screen?
-	  * @return true if full screen; false if windowed.
-	  */
-	bool isFullScreen() { return fullScreen; }
-
 	/** Signals the start of a new frame.
 	  * The Renderer can use this to get fixed-per-frame settings from
 	  * the VDP, such as PAL/NTSC timing.
@@ -70,23 +65,6 @@ public:
 	  * @param time The moment in emulated time the frame is finished.
 	  */
 	virtual void putImage(const EmuTime &time) = 0;
-
-	/** Render full screen or windowed?
-	  * This is a hint to the renderer, not all renderers will
-	  * support both modes.
-	  * A renderer that does should override this method.
-	  * TODO: This is a platform specific issue and should therefore
-	  *       not be in the Renderer interface.
-	  *       For example a Renderer on a PDA may not have a full screen
-	  *       mode, but would have a rotate setting.
-	  *       Also, on some platforms switching from windowed to full
-	  *       screen would require a different Renderer to be hooked
-	  *       up to the VDP.
-	  *       However, until a proper location is found, keeping it here
-	  *       is at least better than in the VDP, where it was before.
-	  * @param enabled true iff full screen.
-	  */
-	virtual void setFullScreen(bool enabled);
 
 	/** Informs the renderer of a VDP transparency enable/disable change.
 	  * @param enabled The new transparency state.
@@ -190,6 +168,15 @@ public:
 	  */
 	virtual void updateVRAM(int addr, byte data, const EmuTime &time) = 0;
 
+	/** Check whether the full screen RendererSetting changed and adjust
+	  * the display mode if necessary.
+	  * TODO: Make this into a generic renderer change check.
+	  * TODO: On Windows, changing the full screen setting requires
+	  *       creation of a new Renderer instance.
+	  * TODO: Full screen should not be part of the Renderer interface.
+	  */
+	void checkFullScreen();
+
 protected:
 	/** NTSC version of the MSX1 palette.
 	  * An array of 16 RGB triples.
@@ -202,6 +189,23 @@ protected:
 	  * bit 10..8 is green, bit 6..4 is red and bit 2..0 is blue.
 	  */
 	static const word GRAPHIC7_SPRITE_PALETTE[16];
+
+	/** Render full screen or windowed?
+	  * This is a hint to the renderer, not all renderers will
+	  * support both modes.
+	  * A renderer that does should override this method.
+	  * TODO: This is a platform specific issue and should therefore
+	  *       not be in the Renderer interface.
+	  *       For example a Renderer on a PDA may not have a full screen
+	  *       mode, but would have a rotate setting.
+	  *       Also, on some platforms switching from windowed to full
+	  *       screen would require a different Renderer to be hooked
+	  *       up to the VDP.
+	  *       However, until a proper location is found, keeping it here
+	  *       is at least better than in the VDP, where it was before.
+	  * @param enabled true iff full screen.
+	  */
+	virtual void setFullScreen(bool enabled);
 
 	RenderSettings *settings;
 

@@ -21,10 +21,12 @@ private:
 	RenderSettings();
 	~RenderSettings();
 
-	IntegerSetting *scanlineAlpha;
-	IntegerSetting *horizontalBlur;
-	BooleanSetting *deinterlace;
+	// Please keep the settings ordered alphabetically.
 	EnumSetting<Accuracy> *accuracy;
+	BooleanSetting *deinterlace;
+	BooleanSetting *fullScreen;
+	IntegerSetting *horizontalBlur;
+	IntegerSetting *scanlineAlpha;
 
 public:
 	/** Get singleton instance.
@@ -34,17 +36,20 @@ public:
 		return &oneInstance;
 	}
 
-	/** The alpha value [0..100] of the scanlines. */
-	IntegerSetting *getScanlineAlpha() { return scanlineAlpha; }
-
-	/** The amount of horizontal blur [0..100]. */
-	IntegerSetting *getHorizontalBlur() { return horizontalBlur; }
+	/** Accuracy [screen, line, pixel] */
+	EnumSetting<Accuracy> *getAccuracy() { return accuracy; }
 
 	/** Deinterlacing [on, off]. */
 	BooleanSetting *getDeinterlace() { return deinterlace; }
 
-	/** Accuracy [screen, line, pixel] */
-	EnumSetting<Accuracy> *getAccuracy() { return accuracy; }
+	/** Full screen [on, off]. */
+	BooleanSetting *getFullScreen() { return fullScreen; }
+	
+	/** The amount of horizontal blur [0..100]. */
+	IntegerSetting *getHorizontalBlur() { return horizontalBlur; }
+
+	/** The alpha value [0..100] of the scanlines. */
+	IntegerSetting *getScanlineAlpha() { return scanlineAlpha; }
 
 };
 

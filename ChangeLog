@@ -1,5 +1,9 @@
 $Id$
 
+2003-02-13 Maarten ter Huurne <maarten@treewalker.org>
+	* Made "full screen" into a setting.
+	  The "fullscreen" command still works, but will disappear in the future.
+
 2003-02-10 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Uninline cpu rdmem and wrmem slowpaths:
 	   this actually increased performance a little

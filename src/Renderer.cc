@@ -76,9 +76,16 @@ Renderer::~Renderer()
 	CommandController::instance()->unregisterCommand(&fullScreenCmd, "fullscreen");
 }
 
+// Note: Renderers override setFullScreen.
 void Renderer::setFullScreen(bool enabled)
 {
 	fullScreen = enabled;
+}
+
+void Renderer::checkFullScreen()
+{
+	bool fsUser = settings->getFullScreen()->getValue();
+	if (fsUser != fullScreen) setFullScreen(fsUser);
 }
 
 
@@ -91,22 +98,18 @@ Renderer::FullScreenCmd::FullScreenCmd(Renderer *rend)
 void Renderer::FullScreenCmd::execute(const std::vector<std::string> &tokens,
                                       const EmuTime &time)
 {
+	// Change the setting value. Later this change will be detected and
+	// the actual full screen toggle of the Renderer will take place.
+	BooleanSetting *setting = RenderSettings::instance()->getFullScreen();
 	switch (tokens.size()) {
 	case 1:
-		renderer->setFullScreen(!renderer->fullScreen);
+		setting->setValue(!setting->getValue());
 		break;
 	case 2:
-		if (tokens[1] == "on") {
-			renderer->setFullScreen(true);
-			break;
-		}
-		if (tokens[1] == "off") {
-			renderer->setFullScreen(false);
-			break;
-		}
-		// fall through
+		setting->setValueString(tokens[1]);
+		break;
 	default:
-		throw CommandException("Syntax error");
+		throw CommandException("Syntax error: too many parameters");
 	}
 }
 void Renderer::FullScreenCmd::help(const std::vector<std::string> &tokens) const

@@ -44,7 +44,6 @@ public:
 
 	void frameStart(const EmuTime &time);
 	void putImage(const EmuTime &time);
-	void setFullScreen(bool enabled);
 	void updateTransparency(bool enabled, const EmuTime &time);
 	void updateForegroundColour(int colour, const EmuTime &time);
 	void updateBackgroundColour(int colour, const EmuTime &time);
@@ -60,6 +59,9 @@ public:
 	void updatePatternBase(int addr, const EmuTime &time);
 	void updateColourBase(int addr, const EmuTime &time);
 	void updateVRAM(int addr, byte data, const EmuTime &time);
+
+protected:
+	void setFullScreen(bool enabled);
 
 private:
 	void EventLoop (void);	// new thread

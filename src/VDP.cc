@@ -94,13 +94,9 @@ VDP::VDP(Device *config, const EmuTime &time)
 	cmdEngine = new VDPCmdEngine(this, time);
 	vram->setCmdEngine(cmdEngine);
 
-	// Get renderer type and parameters from config.
-	bool fullScreen = false;
+	// Get renderer type from config.
 	try {
 		Config *config = MSXConfig::instance()->getConfigById("renderer");
-		if (config->hasParameter("full_screen")) {
-			fullScreen = config->getParameterAsBool("full_screen");
-		}
 		rendererName = config->getType();
 	} catch (MSXException &e) {
 		// no renderer section
@@ -109,7 +105,7 @@ VDP::VDP(Device *config, const EmuTime &time)
 	
 	// Create renderer.
 	renderer = PlatformFactory::createRenderer(
-		rendererName, this, fullScreen, time);
+		rendererName, this, time);
 	vram->setRenderer(renderer);
 	switchRenderer = false;
 
@@ -401,12 +397,13 @@ void VDP::frameStart(const EmuTime &time)
 	if (switchRenderer) {
 		switchRenderer = false;
 		PRT_DEBUG("VDP: switching renderer to " << rendererName);
-		bool fullScreen = renderer->isFullScreen();
 		delete renderer;
 		// TODO: Handle invalid names more gracefully.
 		renderer = PlatformFactory::createRenderer(
-			rendererName, this, fullScreen, time);
+			rendererName, this, time);
 		vram->setRenderer(renderer);
+	} else {
+		renderer->checkFullScreen();
 	}
 
 	// Toggle E/O.
