@@ -235,29 +235,8 @@ void CommandController::autoCommands()
 	} catch (FileException& e) {
 		// no init.tcl
 	} catch (CommandException& e) {
-		// TODO
-	}
-	
-	try {
-		Config* config = settingsConfig.getConfigById("AutoCommands");
 		CliCommOutput::instance().printWarning(
-			"Use of AutoCommands is deprecated, instead use the init.tcl script.\n"
-			"See manual for more information.");
-
-		Config::Parameters commands;
-		config->getParametersWithClass("", commands);
-		for (Config::Parameters::const_iterator it = commands.begin();
-		     it != commands.end(); ++it) {
-			try {
-				executeCommand(it->second);
-			} catch (CommandException &e) {
-				CliCommOutput::instance().printWarning(
-				         "While executing autocommands: "
-				         + e.getMessage());
-			}
-		}
-	} catch (ConfigException &e) {
-		// no auto commands defined
+			 "While executing init.tcl: " + e.getMessage());
 	}
 }
 

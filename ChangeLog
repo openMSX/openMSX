@@ -13,6 +13,7 @@ $Id$
 	  the first format is still supported, but will be removed soon. In
 	  the FDC device the parameter "type" is renamed to "fdc_type" becuase
 	  of a name conflict with the device type.
+	* Removed support for autocommands, they were deprecated in 0.3.4
 
 2004-05-30 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added channel mode 'off' to mute individual sound devices
