@@ -2,12 +2,15 @@
 # $Id$
 #
 # Script for updating openMSX 0.4.0 configurations (hardwareconfig.xml)
-# to the new format.
+# to the new format used by openMSX 0.5.0.
+# If you run this script and see "NOTE:" in the output, please verify the
+# created XML files manually.
 
 # TODO:
 # - Clean up output.
 
 import os, os.path, sys
+from StringIO import StringIO
 from xml.dom.minidom import parse
 
 ioAddresses = {
@@ -477,7 +480,7 @@ def convertParameter(node):
 	if len(node.attributes) == 0:
 		parent = node.parentNode
 		deviceType = getParameter(parent, 'type')
-		print '    convert parameter:', name
+		print '    convert parameter "%s"' % name
 		assert len(node.childNodes) == 1
 		return renameElement(node, name)
 	else:
@@ -485,7 +488,7 @@ def convertParameter(node):
 		clazz = node.attributes['class'].nodeValue
 		node.removeAttribute('class')
 		assert clazz == 'subslotted', clazz
-		print '    convert parameter:', clazz, name
+		print '    convert parameter "%s": %s' % (clazz, name)
 		assert len(node.childNodes) == 1
 		value = node.childNodes[0].nodeValue
 		assert value in [ 'true', 'false' ], value
@@ -507,6 +510,49 @@ def parseSlotted(node):
 			elif child.nodeName == 'page':
 				page = int(getText(child))
 	return primary, secondary, page
+
+def stripSpaces(node):
+	if node.nodeType == node.TEXT_NODE:
+		if node.nodeValue.isspace():
+			node.parentNode.removeChild(node)
+			node.unlink()
+	else:
+		for child in list(node.childNodes):
+			stripSpaces(child)
+
+def layoutDocument(dom):
+	for child in dom.childNodes:
+		if child.nodeType == dom.ELEMENT_NODE:
+			layoutNode(child)
+
+def layoutNode(node, indent = '', lineSpacing = 2):
+	hasElements = False
+	for child in list(node.childNodes):
+		if child.nodeType == node.ELEMENT_NODE:
+			if child.tagName == 'secondary': lineSpacing = 2
+			hasElements = True
+			node.insertBefore(
+				child.ownerDocument.createTextNode(
+					'\n' * lineSpacing + '  ' + indent
+					),
+				child
+				)
+			layoutNode(
+				child,
+				indent + '  ',
+				1 + int(child.tagName in ['devices'])
+				)
+		elif child.nodeType == node.COMMENT_NODE:
+			node.insertBefore(
+				child.ownerDocument.createTextNode(
+					'\n' * lineSpacing + '  ' + indent
+					),
+				child
+				)
+	if hasElements:
+		node.appendChild(node.ownerDocument.createTextNode(
+			'\n' * lineSpacing + indent
+			))
 
 if len(sys.argv) != 3:
 	print 'Usage: convert_hardwareconfig.py <indir> <outdir>'
@@ -531,10 +577,42 @@ for root, dirs, files in os.walk(indir):
 		
 		dom = parse(root + '/hardwareconfig.xml')
 		dom.normalize()
+		stripSpaces(dom)
 		convertDoc(dom, checksums)
+		layoutDocument(dom)
 		if not os.path.isdir(outpath):
 			os.makedirs(outpath)
-		out = open(outpath + '/hardwareconfig.xml', 'w')
+		out = StringIO()
 		dom.writexml(out)
+		out.seek(0)
+		outFile = open(outpath + '/hardwareconfig.xml', 'w')
+		
+		# Minidom doesn't seem to allow text nodes at document level,
+		# so do some postprocessing using string manipulation.
+		afterDoctype = False
+		for line in out.readlines():
+			if line.startswith('<!--'):
+				index = 0
+				while True:
+					start = index
+					index = line.find('-->', start)
+					if index == -1:
+						line = line[start : ]
+						break
+					index += 3
+					outFile.write(line[start : index] + '\n')
+			if line.startswith('<!DOCTYPE'):
+				outFile.write(line[ : -1])
+				afterDoctype = True
+			elif afterDoctype:
+				index = 0
+				while line[index].isspace(): index += 1
+				outFile.write(' ' + line[index : ])
+				afterDoctype = False
+			else:
+				outFile.write(line)
+		outFile.write('\n')
+		
+		outFile.close()
 		out.close()
 		dom.unlink()
