@@ -23,14 +23,11 @@ const int CHARS_PER_ROW = 16;
 const int CHARS_PER_COL = NUM_CHRS / CHARS_PER_ROW;
 
 
-SDLFont::SDLFont(Config *config)
+SDLFont::SDLFont(File* file)
 {
-	const std::string &fontName = config->getParameter("font");
-	File file(config->getContext(), fontName);
-
 	// load the font bitmap
 	SDL_Surface *tempSurface;
-	if (!(tempSurface = IMG_Load(file.getLocalName().c_str())))
+	if (!(tempSurface = IMG_Load(file->getLocalName().c_str())))
 		throw MSXException("Can't load font");
 
 	fontSurface = SDL_DisplayFormat(tempSurface);

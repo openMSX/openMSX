@@ -5,6 +5,7 @@
 #include "ConsoleManager.hh"
 #include "EventDistributor.hh"
 #include "SDLInteractiveConsole.hh"
+#include "MSXConfig.hh"
 #include "Keys.hh"
 
 
@@ -12,21 +13,44 @@ SDLInteractiveConsole::SDLInteractiveConsole() :
 	consoleCmd(this)
 {
 	isVisible = false;
-	
 	SDL_EnableUNICODE(1);
 	
-	ConsoleManager::instance()->registerConsole(this);
-	EventDistributor::instance()->registerEventListener(SDL_KEYDOWN, this);
-	EventDistributor::instance()->registerEventListener(SDL_KEYUP,   this);
-	CommandController::instance()->registerCommand(&consoleCmd, "console");
+	try {
+		Config *config = MSXConfig::instance()->getConfigById("Console");
+		context = config->getContext();
+		if (config->hasParameter("font")) {
+			fontName = config->getParameter("font");
+		}
+		if (config->hasParameter("background")) {
+			backgroundName = config->getParameter("background");
+		}
+	} catch (MSXException &e) {
+		// no Console section
+		context = new SystemFileContext();	// TODO memory leak
+	}
+
+	if (!fontName.empty()) {
+		ConsoleManager::instance()->registerConsole(this);
+		EventDistributor::instance()->
+		                  registerEventListener(SDL_KEYDOWN, this);
+		EventDistributor::instance()->
+		                  registerEventListener(SDL_KEYUP,   this);
+		CommandController::instance()->
+		                   registerCommand(&consoleCmd, "console");
+	}
 }
 
 SDLInteractiveConsole::~SDLInteractiveConsole()
 {
-	CommandController::instance()->unregisterCommand(&consoleCmd, "console");
-	EventDistributor::instance()->unregisterEventListener(SDL_KEYDOWN, this);
-	EventDistributor::instance()->unregisterEventListener(SDL_KEYUP,   this);
-	ConsoleManager::instance()->unregisterConsole(this);
+	if (!fontName.empty()) {
+		CommandController::instance()->
+		                   unregisterCommand(&consoleCmd, "console");
+		EventDistributor::instance()->
+		                  unregisterEventListener(SDL_KEYDOWN, this);
+		EventDistributor::instance()->
+		                  unregisterEventListener(SDL_KEYUP,   this);
+		ConsoleManager::instance()->unregisterConsole(this);
+	}
 }
 
 

@@ -18,29 +18,33 @@
 
 GLConsole::GLConsole()
 {
+	if (fontName.empty()) {
+		font = NULL;
+		return;
+	}
+	
 	SDL_Surface *screen = SDL_GetVideoSurface();
 	blink = false;
 	lastBlinkTime = 0;
-	backgroundTexture = 0;
 	dispX         = (screen->w / 32);
 	dispY         = (screen->h / 15) * 9;
 	consoleWidth  = (screen->w / 32) * 30;
 	consoleHeight = (screen->h / 15) * 6;
 	
+	// load font
 	int width, height;
 	GLfloat fontTexCoord[4];
-	Config *config = MSXConfig::instance()->getConfigById("Console");
-	const std::string &fontName = config->getParameter("font");
-	GLuint fontTexture = loadTexture(config->getContext(), fontName,
-	                                 width, height, fontTexCoord);
+	GLuint fontTexture = loadTexture(fontName, width, height,
+	                                 fontTexCoord);
 	font = new GLFont(fontTexture, width, height, fontTexCoord);
 
-	if (config->hasParameter("background")) {
+	// load background
+	if (!backgroundName.empty()) {
 		int dummyWidth, dummyHeight;
-		const std::string &backgroundName =
-			config->getParameter("background");
-		backgroundTexture = loadTexture(config->getContext(),
-		        backgroundName, dummyWidth, dummyHeight, backTexCoord);
+		backgroundTexture = loadTexture(backgroundName,
+		                  dummyWidth, dummyHeight, backTexCoord);
+	} else {
+		backgroundTexture = 0;
 	}
 }
 
@@ -54,19 +58,20 @@ GLConsole::~GLConsole()
 int GLConsole::powerOfTwo(int a)
 {
 	int res = 1;
-	while (a > res)
+	while (a > res) {
 		res <<= 1;
+	}
 	return res;
 }
 
-GLuint GLConsole::loadTexture(const FileContext *context, 
-                              const std::string &filename,
+GLuint GLConsole::loadTexture(const std::string &filename,
                               int &width, int &height, GLfloat *texCoord)
 {
 	File file(context, filename);
 	SDL_Surface* image1 = IMG_Load(file.getLocalName().c_str());
-	if (image1 == NULL)
+	if (image1 == NULL) {
 		throw MSXException("Error loading texture");
+	}
 	SDL_SetAlpha(image1, 0, 0);
 		
 	width  = image1->w;

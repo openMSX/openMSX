@@ -13,10 +13,21 @@ Mixer::Mixer()
 #ifdef DEBUG
 	nbClipped = 0;
 #endif
+	// default values
+	int freq = 22050;
+	int samples = 512;
+	try {
+		Config *config = MSXConfig::instance()->getConfigById("Mixer");
+		if (config->hasParameter("frequency")) {
+			freq = config->getParameterAsInt("frequency");
+		}
+		if (config->hasParameter("samples")) {
+			samples = config->getParameterAsInt("samples");
+		}
+	} catch (MSXException &e) {
+		// no Mixer section
+	}
 	
-	Config *config = MSXConfig::instance()->getConfigById("Mixer");
-	int freq    = config->getParameterAsInt("frequency");
-	int samples = config->getParameterAsInt("samples");
 	SDL_AudioSpec desired;
 	desired.freq     = freq;
 	desired.samples  = samples;

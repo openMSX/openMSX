@@ -4,6 +4,11 @@ $Id$
 	* Compiled with some extra warnings enabled and fixed the
 	  resulting warnings
 	* Renamed MSXRomDevice to Rom (it isn't a device anymore)
+	* Default values for settings.xml:
+	   - all sections in settings.xml now have default values if they
+	     are left out the config file
+	   - don't abort when settings.xml is not found
+	   - but I really advise _against_ using these features
 
 2003-01-31 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented "user directories" (see settings.xml)

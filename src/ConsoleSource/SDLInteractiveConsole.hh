@@ -7,6 +7,8 @@
 #include "InteractiveConsole.hh"
 #include "Command.hh"
 
+class FileContext;
+
 
 class SDLInteractiveConsole : public InteractiveConsole, private EventListener
 {
@@ -16,6 +18,9 @@ class SDLInteractiveConsole : public InteractiveConsole, private EventListener
 
 	protected:
 		bool isVisible;
+		std::string fontName;
+		std::string backgroundName;
+		const FileContext* context;
 
 	private:
 		virtual bool signalEvent(SDL_Event &event, const EmuTime &time);

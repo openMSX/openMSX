@@ -95,9 +95,18 @@ VDP::VDP(Device *config, const EmuTime &time)
 	vram->setCmdEngine(cmdEngine);
 
 	// Get renderer type and parameters from config.
-	Config *renderConfig = MSXConfig::instance()->getConfigById("renderer");
-	bool fullScreen = renderConfig->getParameterAsBool("full_screen");
-	rendererName = renderConfig->getType();
+	bool fullScreen = false;
+	try {
+		Config *config = MSXConfig::instance()->getConfigById("renderer");
+		if (config->hasParameter("full_screen")) {
+			fullScreen = config->getParameterAsBool("full_screen");
+		}
+		rendererName = config->getType();
+	} catch (MSXException &e) {
+		// no renderer section
+		rendererName = std::string("SDLHi");
+	}
+	
 	// Create renderer.
 	renderer = PlatformFactory::createRenderer(
 		rendererName, this, fullScreen, time);

@@ -22,6 +22,11 @@
 
 SDLConsole::SDLConsole(SDL_Surface *screen)
 {
+	if (fontName.empty()) {
+		font = NULL;
+		return;
+	}
+
 	blink = false;
 	lastBlinkTime = 0;
 	
@@ -31,9 +36,8 @@ SDLConsole::SDLConsole(SDL_Surface *screen)
 	inputBackground = NULL;
 	consoleAlpha = SDL_ALPHA_OPAQUE;
 	
-	Config *config = MSXConfig::instance()->getConfigById("Console");
-	
-	font = new SDLFont(config);
+	File file(context, fontName);
+	font = new SDLFont(&file);
 	
 	SDL_Rect rect;
 	rect.x = (screen->w / 32);
@@ -43,9 +47,7 @@ SDLConsole::SDLConsole(SDL_Surface *screen)
 	resize(rect);
 	alpha(180);
 
-	if (config->hasParameter("background")) {
-		background(config, 0, 0);
-	}
+	loadBackground();
 }
 
 SDLConsole::~SDLConsole()
@@ -64,8 +66,8 @@ void SDLConsole::updateConsole()
 	// draw the background image if there is one
 	if (backgroundImage) {
 		SDL_Rect destRect;
-		destRect.x = backX;
-		destRect.y = backY;
+		destRect.x = 0;
+		destRect.y = 0;
 		destRect.w = backgroundImage->w;
 		destRect.h = backgroundImage->h;
 		SDL_BlitSurface(backgroundImage, NULL, consoleSurface, &destRect);
@@ -126,9 +128,9 @@ void SDLConsole::drawCursor()
 				// draw the background image if applicable
 				SDL_Rect rect2;
 				rect2.x = cursorLocation * font->getWidth() + CHAR_BORDER;
-				rect.x = rect2.x - backX;
+				rect.x = rect2.x;
 				rect2.y = consoleSurface->h - font->getHeight();
-				rect.y = rect2.y - backY;
+				rect.y = rect2.y;
 				rect2.w = rect.w = font->getWidth();
 				rect2.h = rect.h = font->getHeight();
 				SDL_BlitSurface(backgroundImage, &rect, consoleSurface, &rect2);
@@ -151,21 +153,20 @@ void SDLConsole::alpha(unsigned char newAlpha)
 
 // Adds  background image to the console
 //  x and y are based on console x and y
-void SDLConsole::background(Config *config, int x, int y)
+void SDLConsole::loadBackground()
 {
-	const std::string &backgroundFile = config->getParameter("background");
-	File file(config->getContext(), backgroundFile);
-	
-	SDL_Surface *temp;
-	if (!(temp = IMG_Load(file.getLocalName().c_str())))
-		return;
-	if (backgroundImage)
-		SDL_FreeSurface(backgroundImage);
-	backgroundImage = SDL_DisplayFormat(temp);
-	SDL_FreeSurface(temp);
-	backX = x;
-	backY = y;
-	reloadBackground();
+	if (!backgroundName.empty()) {
+		File file(context, backgroundName);
+		
+		SDL_Surface *temp;
+		if (!(temp = IMG_Load(file.getLocalName().c_str())))
+			return;
+		if (backgroundImage)
+			SDL_FreeSurface(backgroundImage);
+		backgroundImage = SDL_DisplayFormat(temp);
+		SDL_FreeSurface(temp);
+		reloadBackground();
+	}
 }
 
 // resizes the console, has to reset alot of stuff
@@ -212,11 +213,11 @@ void SDLConsole::reloadBackground()
 	if (backgroundImage) {
 		SDL_Rect src;
 			src.x = 0;
-			src.y = consoleSurface->h - font->getHeight() - backY;
+			src.y = consoleSurface->h - font->getHeight();
 			src.w = backgroundImage->w;
 			src.h = inputBackground->h;
 		SDL_Rect dest;
-			dest.x = backX;
+			dest.x = 0;
 			dest.y = 0;
 			dest.w = backgroundImage->w;
 			dest.h = font->getHeight();

@@ -6,13 +6,13 @@
 #include "SDL/SDL.h"
 #include "Font.hh"
 
-class Config;
+class File;
 
 
 class SDLFont : public Font
 {
 	public:
-		SDLFont(Config *config);
+		SDLFont(File* file);
 		virtual ~SDLFont();
 
 		void setSurface(SDL_Surface *surface);

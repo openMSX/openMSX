@@ -94,8 +94,13 @@ void CommandLineParser::parse(int argc, char **argv)
 	
 	// load default settings file in case the user didn't specify one
 	MSXConfig *config = MSXConfig::instance();
-	if (!settingOption.parsed) {
-		config->loadFile(new SystemFileContext(), "settings.xml");
+	
+	try {
+		if (!settingOption.parsed) {
+			config->loadFile(new SystemFileContext(), "settings.xml");
+		}
+	} catch (MSXException &e) {
+		// settings.xml not found
 	}
 	
 	// load default config file in case the user didn't specify one

@@ -12,9 +12,22 @@ const int SYNC_INTERVAL = 50;
 
 RealTime::RealTime()
 {
-	Config *config = MSXConfig::instance()->getConfigById("RealTime");
-	maxCatchUpTime   = config->getParameterAsInt("max_catch_up_time");
-	maxCatchUpFactor = config->getParameterAsInt("max_catch_up_factor");
+	// default values
+	maxCatchUpFactor = 105; // %
+	maxCatchUpTime = 2000;	// ms
+	try {
+		Config *config = MSXConfig::instance()->getConfigById("RealTime");
+		if (config->hasParameter("max_catch_up_time")) {
+			maxCatchUpTime =
+				config->getParameterAsInt("max_catch_up_time");
+		}
+		if (config->hasParameter("max_catch_up_factor")) {
+			maxCatchUpFactor =
+				config->getParameterAsInt("max_catch_up_factor");
+		}
+	} catch (MSXException &e) {
+		// no Realtime section
+	}
 	
 	scheduler = Scheduler::instance();
 	speed = 256;
