@@ -20,8 +20,9 @@ TODO:
 #include "RenderSettings.hh"
 #include "RealTime.hh"
 #include "GLConsole.hh"
-#include <math.h>
 #include "util.hh"
+#include <math.h>
+#include <cassert>
 
 
 /** Dimensions of screen.
@@ -44,6 +45,29 @@ static const int TICKS_VISIBLE_MIDDLE =
 inline static void GLSetColour(SDLGLRenderer::Pixel colour)
 {
 	glColor3ub(colour & 0xFF, (colour >> 8) & 0xFF, (colour >> 16) & 0xFF);
+}
+
+inline static void GLSetTexEnvCol(SDLGLRenderer::Pixel colour) {
+	float colourVec[4] = {
+		(colour & 0xFF) / 255.0f,
+		((colour >> 8) & 0xFF) / 255.0f,
+		((colour >> 16) & 0xFF) / 255.0f,
+		1.0f
+		};
+	glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, colourVec);
+}
+
+inline static void GLFillBlock(
+	int x1, int y1, int x2, int y2,
+	SDLGLRenderer::Pixel colour
+) {
+	GLSetColour(colour);
+	glBegin(GL_QUADS);
+	glVertex2i(x1, y2); // Bottom Left
+	glVertex2i(x2, y2); // Bottom Right
+	glVertex2i(x2, y1 ); // Top Right
+	glVertex2i(x1, y1 ); // Top Left
+	glEnd();
 }
 
 inline static void GLUpdateTexture(
@@ -114,17 +138,19 @@ inline static void GLBindColourBlock(
 }
 
 inline static void GLDrawMonoBlock(
-	GLuint textureId, int x, int y, SDLGLRenderer::Pixel bg, int verticalScroll)
-{
+	GLuint textureId, int x, int y, int width, int zoom,
+	SDLGLRenderer::Pixel bg, int verticalScroll
+) {
 	glBindTexture(GL_TEXTURE_2D, textureId);
 	GLSetColour(bg);
 	glBegin(GL_QUADS);
-	int x1 = x + 16;
+	int x1 = x + width * zoom;
 	int y1 = y + 16;
+	GLfloat texR = width / 8.0f;
 	GLfloat roll = verticalScroll / 8.0f;
 	glTexCoord2f(0.0f, 1.0f + roll); glVertex2i(x,  y1); // Bottom Left
-	glTexCoord2f(1.0f, 1.0f + roll); glVertex2i(x1, y1); // Bottom Right
-	glTexCoord2f(1.0f,        roll); glVertex2i(x1, y ); // Top Right
+	glTexCoord2f(texR, 1.0f + roll); glVertex2i(x1, y1); // Bottom Right
+	glTexCoord2f(texR,        roll); glVertex2i(x1, y ); // Top Right
 	glTexCoord2f(0.0f,        roll); glVertex2i(x,  y ); // Top Left
 	glEnd();
 }
@@ -700,34 +726,20 @@ void SDLGLRenderer::updateVRAMCache(int address)
 
 void SDLGLRenderer::drawBorder(int fromX, int fromY, int limitX, int limitY)
 {
-	// TODO: Only redraw if necessary.
-	GLSetColour(getBorderColour());
-	int minX = translateX(fromX);
-	int maxX = translateX(limitX);
-	int minY = (fromY - lineRenderTop) * 2;
-	int maxY = (limitY - lineRenderTop) * 2;
-	glBegin(GL_QUADS);
-	glVertex2i(minX, minY);	// top left
-	glVertex2i(maxX, minY);	// top right
-	glVertex2i(maxX, maxY);	// bottom right
-	glVertex2i(minX, maxY);	// bottom left
-	glEnd();
+	GLFillBlock(
+		translateX(fromX), (fromY - lineRenderTop) * 2,
+		translateX(limitX), (limitY - lineRenderTop) * 2,
+		getBorderColour()
+		);
 }
 
 void SDLGLRenderer::renderText1(
 	int vramLine, int screenLine, int count, int minX, int maxX
 ) {
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
 	Pixel fg = palFg[vdp->getForegroundColour()];
 	Pixel bg = palBg[vdp->getBackgroundColour()];
-
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
-	float fgColour[4] = {
-		(fg & 0xFF) / 255.0f,
-		((fg >> 8) & 0xFF) / 255.0f,
-		((fg >> 16) & 0xFF) / 255.0f,
-		1.0f
-		};
-	glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, fgColour);
+	GLSetTexEnvCol(fg);
 
 	int leftBackground = translateX(vdp->getLeftBackground());
 
@@ -761,10 +773,79 @@ void SDLGLRenderer::renderText1(
 				GLBindMonoBlock(textureId, charPixels);
 			}
 			// Plot current character.
-			// TODO: SCREEN 0.40 characters are 12 wide, not 16.
 			GLDrawMonoBlock(
-				textureId, leftBackground + col * 12,
-				screenLine, bg, verticalScroll
+				textureId,
+				leftBackground + col * 12, screenLine, 6, 2,
+				bg, verticalScroll
+				);
+		}
+		screenLine += 16;
+	}
+	glDisable(GL_SCISSOR_TEST);
+}
+
+void SDLGLRenderer::renderText2(
+	int vramLine, int screenLine, int count, int minX, int maxX
+) {
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
+
+	int leftBackground = translateX(vdp->getLeftBackground());
+
+	// Render complete characters and cut off the invisible part.
+	int screenHeight = 2 * count;
+	glScissor(
+		leftBackground + minX, HEIGHT - screenLine - screenHeight,
+		maxX - minX, screenHeight
+		);
+	glEnable(GL_SCISSOR_TEST);
+
+	Pixel plainFg = palFg[vdp->getForegroundColour()];
+	Pixel plainBg = palBg[vdp->getBackgroundColour()];
+	Pixel blinkFg, blinkBg;
+ 	if (vdp->getBlinkState()) {
+		int fg = vdp->getBlinkForegroundColour();
+		blinkFg = palBg[fg ? fg : vdp->getBlinkBackgroundColour()];
+		blinkBg = palBg[vdp->getBlinkBackgroundColour()];
+	} else {
+		blinkFg = plainFg;
+		blinkBg = plainBg;
+	}
+	GLSetTexEnvCol(plainFg);
+	bool prevBlink = false;
+
+	int begCol = minX / 6;
+	int endCol = (maxX + 5) / 6;
+	int endRow = (vramLine + count + 7) / 8;
+	screenLine -= (vramLine & 7) * 2;
+	int verticalScroll = vdp->getVerticalScroll();
+	for (int row = vramLine / 8; row < endRow; row++) {
+		for (int col = begCol; col < endCol; col++) {
+			// TODO: Only bind texture once?
+			//       Currently both subroutines bind the same texture.
+			int charcode = vram->nameTable.readNP(
+				(-1 << 12) | (row * 80 + col) );
+			GLuint textureId = characterCache[charcode];
+			if (!dirtyPattern.validate(charcode)) {
+				// Update cache for current character.
+				byte charPixels[8 * 8];
+				characterConverter.convertMonoBlock(
+					charPixels,
+					vram->patternTable.readArea((-1 << 11) | (charcode * 8))
+					);
+				GLBindMonoBlock(textureId, charPixels);
+			}
+			// Plot current character.
+			int colourPattern =
+				vram->colourTable.readNP((-1 << 9) | (row * 10 + col / 8));
+			bool blink = (colourPattern << (col & 7)) & 0x80;
+			if (blink != prevBlink) {
+				GLSetTexEnvCol(blink ? blinkFg : plainFg);
+				prevBlink = blink;
+			}
+			GLDrawMonoBlock(
+				textureId,
+				leftBackground + col * 6, screenLine, 6, 1,
+				blink ? blinkBg : plainBg, verticalScroll
 				);
 		}
 		screenLine += 16;
@@ -832,6 +913,51 @@ void SDLGLRenderer::renderGraphic2Row(
 	}
 }
 
+void SDLGLRenderer::renderMultiColour(
+	int vramLine, int screenLine, int count, int minX, int maxX
+) {
+	int leftBackground = translateX(vdp->getLeftBackground());
+
+	// Render complete characters and cut off the invisible part.
+	int screenHeight = 2 * count;
+	glScissor(
+		leftBackground + minX, // x
+		HEIGHT - screenLine - screenHeight, // y
+		maxX - minX, // w
+		screenHeight // h
+		);
+	glEnable(GL_SCISSOR_TEST);
+
+	int colStart = minX / 16;
+	int colEnd = (maxX + 15) / 16;
+	int rowStart = vramLine / 4;
+	int rowEnd = (vramLine + count + 3) / 4;
+	screenLine -= (vramLine & 3) * 2;
+	for (int row = rowStart; row < rowEnd; row++) {
+		const byte *namePtr = vram->nameTable.readArea(
+			(-1 << 10) | (row / 2) * 32 );
+		for (int col = colStart; col < colEnd; col++) {
+			int charcode = namePtr[col];
+			int colour = vram->patternTable.readNP(
+				(-1 << 11) | (charcode * 8) | (row & 7) );
+			int x = leftBackground + col * 16;
+			GLFillBlock(
+				x, screenLine,
+				x + 8, screenLine + 8,
+				palFg[colour >> 4]
+				);
+			GLFillBlock(
+				x + 8, screenLine,
+				x + 16, screenLine + 8,
+				palFg[colour & 0x0F]
+				);
+		}
+		screenLine += 8;
+	}
+
+	glDisable(GL_SCISSOR_TEST);
+}
+
 void SDLGLRenderer::drawDisplay(
 	int fromX, int fromY,
 	int displayX, int displayY,
@@ -852,7 +978,7 @@ void SDLGLRenderer::drawDisplay(
 		  mode.isTextMode()
 		? 0
 		: 16 * (vdp->getHorizontalScrollHigh() & 0x1F);
-	
+
 	// Page border is display X coordinate where to stop drawing current page.
 	// This is either the multi page split point, or the right edge of the
 	// rectangle to draw, whichever comes first.
@@ -893,7 +1019,7 @@ void SDLGLRenderer::drawDisplay(
 			pageMaskEven = pageMaskOdd =
 				(mode.isPlanar() ? 0x000 : 0x200) | vdp->getEvenOddMask();
 		}
-		
+
 		// Copy from cache to screen.
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 		for (int y = screenY; y < screenLimitY; y += 2) {
@@ -942,10 +1068,23 @@ void SDLGLRenderer::drawDisplay(
 				displayX, displayX + displayWidth
 				);
 			break;
+		case DisplayMode::TEXT2:
+			renderText2(
+				displayY, screenY, displayHeight,
+				displayX, displayX + displayWidth
+				);
+			break;
 		case DisplayMode::GRAPHIC2:
 		case DisplayMode::GRAPHIC3:
 			// TODO: Implement horizontal scroll high.
 			renderGraphic2(
+				displayY, screenY, displayHeight,
+				displayX, displayX + displayWidth
+				);
+			break;
+		case DisplayMode::MULTICOLOUR:
+			glDisable(GL_TEXTURE_2D);
+			renderMultiColour(
 				displayY, screenY, displayHeight,
 				displayX, displayX + displayWidth
 				);

@@ -88,10 +88,14 @@ private:
 
 	inline void renderText1(
 		int vramLine, int screenLine, int count, int minX, int maxX );
+	inline void renderText2(
+		int vramLine, int screenLine, int count, int minX, int maxX );
 	inline void renderGraphic2(
 		int vramLine, int screenLine, int count, int minX, int maxX );
 	inline void renderGraphic2Row(
 		int row, int screenLine, int col, int endCol );
+	inline void renderMultiColour(
+		int vramLine, int screenLine, int count, int minX, int maxX );
 
 	/** Get a pointer to the start of a VRAM line in the cache.
 	  * @param displayCache The display cache to use.

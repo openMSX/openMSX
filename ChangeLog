@@ -1,5 +1,9 @@
 $Id$
 
+2003-05-30 Maarten ter Huurne <maarten@treewalker.org>
+	* Implemented Text2 and MultiColour modes in SDLGL using one texture
+	  per character approach (the approach Graphic2/3 already used).
+
 2003-05-27 Maarten ter Huurne <maarten@treewalker.org>
 	Dirty checking improvements:
 	* Removed all old character dirty checking code from SDLRenderer and
