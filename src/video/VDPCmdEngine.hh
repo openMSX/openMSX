@@ -109,7 +109,10 @@ public:
 		  * @param time Time at which the write occurs.
 		  * @param vram Pointer to VRAM class.
 		  * @param addr Address of pixel in VRAM.
-		  * @param colour Colour of pixel to be written.
+		  * @param colour Colour of pixel to be written,
+		  *   shifted if necessary to correspond to the right VRAM position.
+		  * @param mask Read mask: bit positions that are 1 are read from
+		  *   VRAM before the write is performed.
 		  */
 		virtual void pset(
 			EmuTime& time, VDPVRAM* vram, int addr, byte colour, byte mask
