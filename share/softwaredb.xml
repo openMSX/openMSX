@@ -8,7 +8,7 @@
 	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
   A special thanks to both the blueMSX and openMSX team for their support		
 -->
-<softwaredb xml:lang="en" timestamp="1109482699">
+<softwaredb xml:lang="en" timestamp="1109491451">
 <!-- MSX1 roms -->
 	<software>
 		<title xml:lang="en">10 Yard Fight</title>
@@ -36,7 +36,7 @@
 		<year>1986</year>
 		<country>Japan</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">GoodMSX</original>
 			<megarom>
 				<type>ASCII8</type>
 				<hash algo="sha1">0733cd627467a866846e15caf1770a5594eaf4cc</hash>
@@ -3841,7 +3841,7 @@
 		<year>1986</year>
 		<country>Japan</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">GoodMSX</original>
 			<megarom>
 				<type>ASCII8</type>
 				<hash algo="sha1">7b94a728a5945a53d518c18994e1e09a09ec3c1b</hash>
@@ -3855,7 +3855,7 @@
 		<year>1987</year>
 		<country>Japan</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">GoodMSX</original>
 			<megarom>
 				<type>ASCII8</type>
 				<hash algo="sha1">3df7c19f739d74d6efdfd8151343e5a55d4ac842</hash>
@@ -3924,7 +3924,7 @@
 		<year>1986</year>
 		<country>Japan</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">GoodMSX</original>
 			<megarom>
 				<type>ASCII16</type>
 				<hash algo="sha1">2F0DB48FBCF3444F52B9C7C76BA9C4BD38BC2A15</hash>
@@ -3945,7 +3945,7 @@
 		<year>1987</year>
 		<country>Japan</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">GoodMSX</original>
 			<megarom>
 				<type>ASCII8</type>
 				<hash algo="sha1">f100a76117e95ab0335e89a901e47d844bbc0ab6</hash>
@@ -5482,7 +5482,7 @@
 		<year>1988</year>
 		<country>Japan</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">GoodMSX</original>
 			<megarom>
 				<type>KoeiSRAM32</type>
 				<hash algo="sha1">12b3c31f0fd10ff5823dcc8bf6dfeb785a8af2f7</hash>
@@ -6919,7 +6919,7 @@
 		<year>1987</year>
 		<country>Japan</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">GoodMSX</original>
 			<megarom>
 				<type>ASCII8</type>
 				<hash algo="sha1">74e9ea381e2fed07d989d1056002de5737125aaf</hash>
@@ -7968,7 +7968,7 @@
 		<year>1988</year>
 		<country>Japan</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">GoodMSX</original>
 			<megarom>
 				<type>KonamiSCC</type>
 				<hash algo="sha1">cfd872d005b7bd4cdd6e06c4c0162191f0b0415d</hash>
@@ -9698,7 +9698,7 @@
 		<year>1987</year>
 		<country>Japan</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">GoodMSX</original>
 			<megarom>
 				<type>ASCII8</type>
 				<hash algo="sha1">7abf89652396a648a84ae06e6dabc09735a75798</hash>
@@ -10846,7 +10846,7 @@
 		<year>1987</year>
 		<country>Japan</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">GoodMSX</original>
 			<megarom>
 				<type>KoeiSRAM32</type>
 				<hash algo="sha1">e6de8bbd60123444de2a90928853985ceb0b4cbf</hash>
@@ -12198,7 +12198,7 @@
 		<year>1986</year>
 		<country>Japan</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">GoodMSX</original>
 			<megarom>
 				<type>ASCII8</type>
 				<hash algo="sha1">74ae85d44cb8ef1bae428c90200cb74be6d56d3a</hash>
@@ -24332,4 +24332,4 @@
 		</dump>
 	</software>
 </softwaredb>
-<!-- Parse time 27.155 seconds on Sat Feb 26 21:38:46 Pacific Standard Time 2005 -->
+<!-- Parse time 27.319 seconds on Sun Feb 27 0:04:38 Pacific Standard Time 2005 -->
