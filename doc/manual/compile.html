@@ -50,7 +50,7 @@
 The latest version of the openMSX manual can be found on the openMSX home page:
 </p>
 <p>
-<a class="external" href="http://openmsx.sf.net/manual/">http://openmsx.sf.net/manual/</a>
+<a class="external" href="http://openmsx.sourceforge.net/manual/">http://openmsx.sourceforge.net/manual/</a>
 </p>
 <p>
 You can also use this URL to get up-to-date versions of the hyperlinks
@@ -62,7 +62,7 @@ if you printed out this manual.
 This guide is about openMSX, the open source MSX emulator that tries to achieve
 near-perfect emulation by using a novel emulation model.
 You can find more information about openMSX on the
-<a class="external" href="http://openmsx.sf.net/">openMSX home page</a>.
+<a class="external" href="http://openmsx.sourceforge.net/">openMSX home page</a>.
 You can also download the emulator itself from there.
 </p>
 
@@ -80,14 +80,36 @@ i.e. how to get the sources and compile them.
 
 <p>
 This guide describes how you can get the openMSX sources and compile them.
-Linux is the OS used by most openMSX developers, so it should definitely work on that platform. It should also compile and run on FreeBSD 4 and 5, but this is not tested very frequently.
-Compilation on Windows is also possible, but not described in this manual. Instead, we just provide binaries for that platform, since end users are not interested in compiling it anyway, most of the time. Compilation on Mac OS X is reported to work, but openMSX does not run flawlessly on that platform yet.
-Running on other types of BSD, Solaris, BeOS etc (wherever SDL runs) should be possible,
-but will probably not work out-of-the-box.
-If you are compiling on such a platform,
-please share your experiences
-(see below for <a class="internal" href="#contact">contact info</a>),
-so we can make openMSX more portable. Also contact us if you're interested in how to compile on the Win32 platform. In any case, the build procedure does not depend on the platform, so it should work on all supported platforms.
+The level of support for compilation depends on the operating system:
+</p>
+<dl>
+<dt>Linux</dt>
+<dd>
+Most openMSX developers run some form of Linux, so this is the platform on which compilation is supported best.
+</dd>
+<dt>Windows</dt>
+<dd>
+Windows is also a supported platform for openMSX. Most Windows users will just download the binary release. But if you want to follow the latest developments or like to play with the code a bit, it is possible to compile openMSX on Windows yourself. For this you need MSYS and a variety of libraries.
+</dd>
+<dt>FreeBSD</dt>
+<dd>
+openMSX was compiled succesfully on FreeBSD 4 and 5. FreeBSD is not a platform we support officially, but whenever a user finds compilation problems on FreeBSD, we fix them, so usually FreeBSD compilation should work.
+</dd>
+<dt>Mac OS X</dt>
+<dd>
+If you install the development tools, you can compile openMSX on Mac OS X. Support for Mac OS X is similar to that for FreeBSD: we fix bugs when reported, but none of the core developers run Mac OS X.
+</dd>
+<dt>other operating systems</dt>
+<dd>
+openMSX theoretically can compile on every system where you have g++ (the C++ compiler of GCC) and the required libraries are available. However, in practice every system is slightly different and a new operation system will not work out-of-the-box. Still, it shouldn't take much effort to make openMSX build on a new OS.
+</dd>
+</dl>
+<p>
+If you need help compiling openMSX, please
+<a class="internal" href="#contact">contact us</a>.
+If you needed any modifications to make openMSX compile,
+please send those modifications to us,
+so we can make openMSX ever more portable.
 </p>
 
 <p>
@@ -125,7 +147,7 @@ only the big picture.
 <dt>2004-04-21: Manuel Bilderbeek</dt>
 <dd>
 Updates for release 0.4.0.
-The compilation method has changed quite much.
+The compilation method has changed quite a lot.
 </dd>
 
 <dt>2004-01-16: Manuel Bilderbeek</dt>
@@ -355,8 +377,8 @@ At least version 3.79 and higher should suffice.</dd>
 
 <dt>g++</dt>
 <dd>The GNU C++ compiler.
-Version 3.3 or 3.2 is recommended;
-2.95 is not supported anymore since 0.3.3CVS.</dd>
+Version 3.2 or later is recommended;
+2.95 is not supported anymore since openMSX 0.3.4.</dd>
 
 </dl>
 
@@ -414,7 +436,7 @@ Furthermore, you need the XML library and the PNG library:
 </dl>
 
 <p>
-Finally you will also need TCL 8.4:
+Finally you will also need Tcl 8.4:
 </p>
 
 <dl>
@@ -423,12 +445,22 @@ Finally you will also need TCL 8.4:
 </dl>
 
 <p>
+Tcl 8.3 will not work.
+For some reason, several distributions still ship Tcl 8.3,
+even though Tcl 8.4 was released in 2002.
+If that is the case for your distribution,
+you should install Tcl 8.4 from source;
+you can find it on
+<a class="external" href="http://www.tcl.tk/">the Tcl site</a>.
+</p>
+
+<p>
 openMSX can optionally use OpenGL for graphics.
 If you want to use this, make sure you have both the runtime and development
 packages for OpenGL installed.
 If you have an nVidia card, go to the
 <a class="external" href="http://www.nvidia.com/linux">nVidia web site</a>
-for drivers, which include an OpenGL implementation. Ati users can check out the <a class="external" href="http://www.ati.com/support/faq/linux.html">Ati web site</a> for drivers.
+for drivers, which include an OpenGL implementation. ATI users can check out the <a class="external" href="http://www.ati.com/support/faq/linux.html">ATI web site</a> for drivers.
 For other cards, try Mesa, which can be found in packages like
 <code>xlibmesa-gl</code> and <code>xlibmesa-gl-dev</code> (Debian)
 or <code>XFree86-GLX</code> and <code>XFree86-GLX-devel</code> (SUSE).
@@ -462,21 +494,18 @@ the <code>build</code> directory.
 <p>
 Now, we have the option to let a script check if you have indeed all
 necessary libraries and headers installed.
-Open a shell and go to the top of your openMSX source tree and run the following script:
+Go to the top of your openMSX source tree and run the following script:
 </p>
 <div class="commandline">
 ./configure
 </div>
 <p>
 This script will report what versions of libraries you have installed.
-After it is finished you can see if you want to install the missing
-ones, if applicable. If the script reports that it can't build the
-openMSX core, you should install the missing ones before you can
-continue. Otherwise, you can choose to continue anyway, with some
-missing features (e.g.: the OpenGL renderer). If you know for sure
-that everything is OK, you may omit this step. It will run
-automatically in the next step anyway, but when running it separately
-you can see if you're missing any optional libraries.
+It also reports which components can be built with those libraries.
+If the script reports that it can't build the openMSX core component,
+you should install the missing ones before you can continue.
+Otherwise, you can decide to install the libraries needed for the optional
+components, or to continue without building some components (e.g. the OpenGL renderer).
 </p>
 
 <p>
@@ -487,36 +516,14 @@ that is written by the <code>configure</code> script in the directory
 <code>derived/[PLATFORM]-[FLAVOUR]/config/</code>.
 </p>
 
-
-<!--
 <p>
-You can set various compilation parameters using <code>configure</code>.
-The following command prints a full list:
-</p>
-<div class="commandline">
-./configure - -help
-</div>
-<p>
-For example, you can change the installation directory
-(default is <code>/opt/openMSX</code>) by running for example:
-</p>
-<div class="commandline">
-./configure - -prefix=/usr/local/openMSX
-</div>
-<p>
+You can customize the build process by editing the file
+<code>build/custom.mk</code>.
+Currently, there is one thing you can customize there:
+the installation directory (<code>INSTALL_BASE</code>).
 If you are installing openMSX on a system on which you do not have
-superuser (root) privileges, you can use the <code>- -prefix</code>
-option to install into your home directory.
-In this case, use the full <code>/home/username/openMSX</code> path,
-instead of <code>~/openMSX</code>,
-because the Makefiles do not handle tilde expansion properly.
-</p>
-
--->
-<p class="todo">
-Add explanation about how to change the installation directory and
-possibly how to disable or enable certain features, if the build
-system would support that.
+superuser (root) privileges, you can set the installation directory
+to a subdirectory of your home directory.
 </p>
 
 <p>
