@@ -84,6 +84,7 @@ openmsx_SOURCES=openmsx.cc icon.nn \
 	FileOpener.cc FileOpener.hh \
 	Console.cc Console.hh \
 	MSXARCdebug.cc MSXARCdebug.hh \
+	CommandLineParser.cc CommandLineParser.hh \
 	MSXDiskRomPatch.cc MSXDiskRomPatch.hh
 
 # uncomment if you want to link with libxmlx
