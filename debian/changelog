@@ -1,9 +1,16 @@
-openmsx (0.5.0-6) unstable; urgency=low
+openmsx (0.5.0-7) unstable; urgency=low
 
   * close ITP (Closes: #221086)
-  * close old ITP (Closes: #226346)
-  * close old ITP (Closes: #226379)
-  * close old ITP (Closes: #226412)
+  * clarified licensing more
+  * implemented comments from Sponsor:
+       - updated description
+       - introduced dpatch
+
+ -- Joost Yervante Damad <joost@lumatec.be>  Thu,  6 Jan 2005 20:41:19 +0100
+
+
+openmsx (0.5.0-6) unstable; urgency=low
+
   * erase manpage on clean, properly
 
  -- Joost Yervante Damad <joost@lumatec.be>  Sat,  1 Jan 2005 10:40:24 +0100

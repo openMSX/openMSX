@@ -3,6 +3,8 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
+# use dpatch
+include /usr/share/dpatch/dpatch.make
 
 # These are used for cross-compiling and for saving the configure script
 # from having to guess our platform (since we know it already)
@@ -23,7 +25,7 @@ config.status: configure
 
 build: build-stamp
 
-build-stamp:  config.status
+build-stamp: patch config.status
 	dh_testdir
 
 	# Add here commands to compile the package.
@@ -34,7 +36,9 @@ build-stamp:  config.status
 
 	touch build-stamp
 
-clean:
+clean: clean-patched unpatch
+
+clean-patched:
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp 
