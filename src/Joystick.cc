@@ -2,7 +2,7 @@
 
 #include "Joystick.hh"
 #include <cassert>
-#include <iostream>
+
 
 Joystick::Joystick(int joyNum)
 {

@@ -10,7 +10,6 @@
 #include <cassert>
 #include "DACSound.hh"
 #include "Mixer.hh"
-#include "RealTime.hh"
 #include "MSXCPU.hh"
 
 

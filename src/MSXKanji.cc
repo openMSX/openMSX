@@ -1,9 +1,5 @@
 // $Id$
 
-#include "config.h"
-
-#include <fstream>
-#include <iostream>
 #include <cassert>
 #include "MSXKanji.hh"
 #include "MSXMotherBoard.hh"

@@ -2,12 +2,12 @@
 //
 // LoadFile mixin, implementation
 
-#include <iostream>
 #include <fstream>
 #include <string>
 #include <list>
 #include "msxexception.hh"
 #include "LoadFile.hh"
+
 
 void LoadFile::loadFile(byte** memoryBank, int fileSize)
 {

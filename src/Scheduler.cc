@@ -1,7 +1,6 @@
 // $Id$
 
 #include "Scheduler.hh"
-#include "MSXMotherBoard.hh"
 #include "MSXCPU.hh"
 #include "HotKey.hh"
 #include "Mixer.hh"

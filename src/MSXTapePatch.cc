@@ -7,7 +7,6 @@
 #include "MSXCPU.hh"
 #include "Z80.hh"
 
-#define C_FLAG 0x01
 
 const byte MSXTapePatch::TapeHeader[];
 
@@ -124,7 +123,7 @@ void MSXTapePatch::TAPION() const
 
   if(file == 0){
     PRT_DEBUG("TAPION : No tape file opened ?");
-    R.AF.B.l|=C_FLAG;
+    R.AF.B.l|=Z80::C_FLAG;
     cpu->setCPURegs(R);
     return;
   }
@@ -133,7 +132,7 @@ void MSXTapePatch::TAPION() const
   byte buffer[10];
       
       // in case of failure
-      R.AF.B.l|=C_FLAG;
+      R.AF.B.l|=Z80::C_FLAG;
       cpu->setCPURegs(R);
 
   //fmsx does some positioning stuff first so to be compatible...
@@ -158,7 +157,7 @@ void MSXTapePatch::TAPION() const
     } else if(!memcmp(buffer,TapeHeader,8)) {
 	PRT_DEBUG("TAPION : OK");
 	R.nextIFF1=R.IFF1=R.IFF2=false;
-	R.AF.B.l&=~C_FLAG;
+	R.AF.B.l&=~Z80::C_FLAG;
 	cpu->setCPURegs(R);
 	return;
       } 
@@ -201,14 +200,14 @@ void MSXTapePatch::TAPIN() const
   PRT_DEBUG("TAPIN");
 	CPU* cpu = MSXCPU::instance()->getActiveCPU();
 	CPU::CPURegs R = cpu->getCPURegs();
-  R.AF.B.l|=C_FLAG;
+  R.AF.B.l|=Z80::C_FLAG;
 
   if(file)
   {
     file->get(buffer);
     if (! file->fail()){
       R.AF.B.h=buffer;
-      R.AF.B.l&=~C_FLAG; 
+      R.AF.B.l&=~Z80::C_FLAG; 
     }
   }
 	cpu->setCPURegs(R);
@@ -233,7 +232,7 @@ void MSXTapePatch::TAPIOF() const
   PRT_DEBUG("TAPIOF");
 	CPU* cpu = MSXCPU::instance()->getActiveCPU();
 	CPU::CPURegs R = cpu->getCPURegs();
-	R.AF.B.l&=~C_FLAG;
+	R.AF.B.l&=~Z80::C_FLAG;
 	R.nextIFF1=R.IFF1=R.IFF2=true;
 	cpu->setCPURegs(R);
 }
@@ -283,7 +282,7 @@ void MSXTapePatch::TAPOON() const
   CPU* cpu = MSXCPU::instance()->getActiveCPU();
   CPU::CPURegs R = cpu->getCPURegs();
 
-  R.AF.B.l|=C_FLAG;
+  R.AF.B.l|=Z80::C_FLAG;
 
   if (file){
     // again some stuff from fmsx about positioning
@@ -293,7 +292,7 @@ void MSXTapePatch::TAPOON() const
     }
     if (!file->fail()){ 
       file->write(TapeHeader,8);
-      R.AF.B.l&=~C_FLAG;
+      R.AF.B.l&=~Z80::C_FLAG;
       R.nextIFF1=R.IFF1=R.IFF2=false;
     }   
   }
@@ -326,11 +325,11 @@ void MSXTapePatch::TAPOUT() const
   PRT_DEBUG("TAPOUT");
 	CPU* cpu = MSXCPU::instance()->getActiveCPU();
 	CPU::CPURegs R = cpu->getCPURegs();
-  R.AF.B.l|=C_FLAG;
+  R.AF.B.l|=Z80::C_FLAG;
 
   if (file){
     file->put(R.AF.B.h);
-    R.AF.B.l&=~C_FLAG;
+    R.AF.B.l&=~Z80::C_FLAG;
   }
 	cpu->setCPURegs(R);
 }
@@ -352,7 +351,7 @@ void MSXTapePatch::TAPOOF() const
   PRT_DEBUG("TAPOOF");
 	CPU* cpu = MSXCPU::instance()->getActiveCPU();
 	CPU::CPURegs R = cpu->getCPURegs();
-	R.AF.B.l&=~C_FLAG;
+	R.AF.B.l&=~Z80::C_FLAG;
 	R.nextIFF1=R.IFF1=R.IFF2=true;
 	cpu->setCPURegs(R);
 }
@@ -371,6 +370,6 @@ void MSXTapePatch::STMOTR() const
   PRT_DEBUG("STMOTR");
 	CPU* cpu = MSXCPU::instance()->getActiveCPU();
 	CPU::CPURegs R = cpu->getCPURegs();
-  R.AF.B.l&=~C_FLAG;
+  R.AF.B.l&=~Z80::C_FLAG;
 	cpu->setCPURegs(R);
 }

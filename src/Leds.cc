@@ -1,7 +1,6 @@
 // $Id$
 
 #include <iostream>
-#include <cassert>
 #include "Leds.hh"
 #include "openmsx.hh"
 

@@ -51,9 +51,8 @@ TODO:
 #include "SDLHiRenderer.hh"
 #include "VDP.hh"
 #include "RealTime.hh"
-#include "config.h"
-
 #include <math.h>
+
 
 /** Dimensions of screen.
   */

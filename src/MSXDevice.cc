@@ -1,6 +1,5 @@
 // $Id$
  
-#include <iostream>
 #include "MSXDevice.hh"
 #include "MSXMotherBoard.hh"
 

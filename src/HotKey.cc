@@ -3,7 +3,6 @@
 #include "openmsx.hh"
 #include "HotKey.hh"
 
-#include <iostream>
 
 HotKey::HotKey()
 {

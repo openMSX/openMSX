@@ -6,19 +6,14 @@
  *  Copyright (C) 2001 David Heremans
  */
 
-#include <sys/types.h>
 #include "config.h"
 #include "msxconfig.hh"
-#include <iostream>
-#include <fstream>
-#include <stdlib.h>
 #include <string>
 #include <SDL/SDL.h>
 #include <SDL/SDL_thread.h>
 #include "MSXMotherBoard.hh"
 #include "devicefactory.hh"
 #include "EventDistributor.hh"
-#include "KeyEventInserter.hh"
 #include "EmuTime.hh"
 
 

@@ -1,8 +1,7 @@
 // $Id$
 
 #include "MSXMusic.hh"
-#include "MSXMotherBoard.hh"
-#include "Mixer.hh"
+
 
 MSXMusic::MSXMusic(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXYM2413(config, time)

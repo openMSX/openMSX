@@ -2,10 +2,10 @@
  
 #include <iostream>
 #include "MSXSCCPlusCart.hh"
-#include "MSXMotherBoard.hh"
 #include "msxconfig.hh"
 #include "SCC.hh"
 #include "config.h"
+
 
 MSXSCCPlusCart::MSXSCCPlusCart(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time)
@@ -16,7 +16,6 @@ MSXSCCPlusCart::MSXSCCPlusCart(MSXConfig::Device *config, const EmuTime &time)
 	cartridgeSCC=new SCC(volume);
 	cartridgeSCC->setChipMode(SCC::SCC_Compatible);
   
-	int ROM_SIZE;
 	// allocate buffer
 	memoryBank=new byte[131072];
 	if (memoryBank == NULL)
@@ -37,7 +36,7 @@ MSXSCCPlusCart::MSXSCCPlusCart(MSXConfig::Device *config, const EmuTime &time)
 #endif
 	  // dynamically determine ROM_SIZE if needed
 	  file.seekg(0,std::ios::end);
-	  ROM_SIZE=file.tellg();
+	  int ROM_SIZE=file.tellg();
 	  PRT_DEBUG("SCC+ MegaRom: rom size is " << ROM_SIZE);
 
 	  file.seekg(0,std::ios::beg);
@@ -45,21 +44,11 @@ MSXSCCPlusCart::MSXSCCPlusCart(MSXConfig::Device *config, const EmuTime &time)
 	  if (file.fail())
 	    PRT_ERROR("Error reading " << filename);
 
-
 	  // set internalMemoryBank
 	  internalMemoryBank[0]=memoryBank;
 	  internalMemoryBank[1]=memoryBank+0x2000;
 	  internalMemoryBank[2]=memoryBank+0x4000;
 	  internalMemoryBank[3]=memoryBank+0x6000;
-
-	  // register in slot-structure
-	  std::list<MSXConfig::Device::Slotted*>::const_iterator i;
-	  for (i=deviceConfig->slotted.begin(); i!=deviceConfig->slotted.end(); i++) {
-	    int ps=(*i)->getPS();
-	    int ss=(*i)->getSS();
-	    int page=(*i)->getPage();
-	    MSXMotherBoard::instance()->registerSlottedDevice(this,ps,ss,page);
-	  }
 	}
 }
 

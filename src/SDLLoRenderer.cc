@@ -17,9 +17,8 @@ In any case, it is a good idea to share more code between SDLLo and SDLHi.
 
 #include "SDLLoRenderer.hh"
 #include "VDP.hh"
-#include "config.h"
-
 #include <cassert>
+
 
 /** Dimensions of screen.
   */

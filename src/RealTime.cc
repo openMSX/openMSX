@@ -1,7 +1,6 @@
 // $Id$
 
 #include <SDL/SDL.h>
-#include <list>
 #include "RealTime.hh"
 #include "MSXCPU.hh"
 #include "msxconfig.hh"

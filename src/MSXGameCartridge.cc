@@ -1,16 +1,11 @@
 // $Id$
 
 #include "MSXGameCartridge.hh" 
-#include "MSXMotherBoard.hh"
-#include <string>
-#include <iostream>
-#include <fstream>
 #include "SCC.hh"
 #include "DACSound.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
 
-#include "config.h"
 
 MSXGameCartridge::MSXGameCartridge(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time)

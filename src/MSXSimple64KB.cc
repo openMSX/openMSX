@@ -1,11 +1,7 @@
 // $Id$
 
-//
-// Empty , just created to have a device for the factory and a general file for new developers
-//
 #include "MSXSimple64KB.hh"
-#include "MSXMotherBoard.hh"
-#include <string>
+
 
 MSXSimple64KB::MSXSimple64KB(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time)
