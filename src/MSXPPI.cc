@@ -97,11 +97,11 @@ void MSXPPI::writeA(byte value, const EmuTime &time)
 
 byte MSXPPI::readB(const EmuTime &time)
 {
-//	return keyboard->getKeys()[selectedRow];
-       if (selectedRow != 8)
+       if (selectedRow != 8) {
                return keyboard->getKeys()[selectedRow];
-       else
+       } else {
                return keyboard->getKeys()[8] | RenShaTurbo::instance()->getSignal(time);
+       }
 
 }
 void MSXPPI::writeB(byte value, const EmuTime &time)

@@ -1,5 +1,8 @@
 $Id$
 
+2003-10-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Autofire code cleanups / simplifications
+
 2003-10-09 David Heremans <david.heremans@gnu-linux.net>
 	* Forgot to commit some autofire code
 	* Adapted code to new Commands interface
