@@ -24,6 +24,15 @@ MSXMapperIO::MSXMapperIO(Device *config, const EmuTime &time)
 	reset(time);
 }
 
+MSXMapperIO::MSXMapperIO()
+	// TODO use empty config iso NULL
+	: MSXDevice(NULL, EmuTime::zero), MSXIODevice(NULL, EmuTime::zero)
+{
+	mapperMask = new MSXMapperIOPhilips();
+	mask = mapperMask->calcMask(mapperSizes);
+	reset(EmuTime::zero);
+}
+
 MSXMapperIO::~MSXMapperIO()
 {
 	delete mapperMask;
@@ -33,9 +42,14 @@ MSXMapperIO* MSXMapperIO::instance()
 {
 	static MSXMapperIO* oneInstance = NULL;
 	if (oneInstance == NULL) {
-		Device* config = MSXConfig::instance()->getDeviceById("MapperIO");
-		EmuTime dummy;
-		oneInstance = new MSXMapperIO(config, dummy);
+		try {
+			Device* config = MSXConfig::instance()->
+				getDeviceById("MapperIO");
+			oneInstance = new MSXMapperIO(config, EmuTime::zero);
+		} catch (ConfigException &e) {
+			// no MapperIO section, take default mapper type
+			oneInstance = new MSXMapperIO();
+		}
 	}
 	return oneInstance;
 }
