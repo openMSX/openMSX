@@ -1,6 +1,10 @@
 $Id$
 
 2001-12-09 Maarten ter Huurne <mth@stack.nl>
+	* Fixed uninitialised struct field in SDLLoRenderer.
+	* SDLHiRenderer renders doubled pixels now.
+
+2001-12-09 Maarten ter Huurne <mth@stack.nl>
 	* Introduced SDLHiRenderer.
 	  Opens 640x480 screen, although it still renders low-res.
 	* Changed configuration:

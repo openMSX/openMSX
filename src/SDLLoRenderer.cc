@@ -609,11 +609,11 @@ template <class Pixel> void SDLLoRenderer<Pixel>::displayPhase(
 	// this is implemented using overdraw.
 	// TODO: Does the extended border clip sprites as well?
 	Pixel bgColour = PalBg[vdp->getBackgroundColour()];
-	dest.x = 0;
 	dest.w = DISPLAY_X;
+	dest.h = limit - currLine;
+	dest.x = 0;
 	SDL_FillRect(screen, &dest, bgColour);
 	dest.x = WIDTH - DISPLAY_X;
-	dest.w = DISPLAY_X;
 	SDL_FillRect(screen, &dest, bgColour);
 
 	currLine = limit;

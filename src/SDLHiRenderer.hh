@@ -64,7 +64,7 @@ private:
 
 	/** Draw sprites on this line over the background.
 	  */
-	void drawSprites(Pixel *linePtr, int line);
+	void drawSprites(int line);
 
 	/** Set all dirty / clean.
 	  */
@@ -111,7 +111,7 @@ private:
 
 	/** Pointers to the start of each display line on the screen.
 	  */
-	Pixel *screenLinePtrs[192];
+	Pixel *screenLinePtrs[192 * 2];
 
 	/** Dirty tables indicate which character blocks must be repainted.
 	  * The anyDirty variables are true when there is at least one

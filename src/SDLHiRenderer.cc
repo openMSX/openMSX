@@ -44,7 +44,7 @@ static const int LINE_END_OF_SCREEN = 262;
 static const int LINE_RENDER_TOP = 21;
 /** Where does the display start? (equal to width of left border)
   */
-static const int DISPLAY_X = (WIDTH - 256) / 2;
+static const int DISPLAY_X = (WIDTH - 512) / 2;
 
 /** Fill a boolean array with a single value.
   * Optimised for byte-sized booleans,
@@ -88,7 +88,7 @@ template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 	// Create display cache.
 	displayCache = SDL_CreateRGBSurface(
 		SDL_HWSURFACE,
-		256,
+		512,
 		192,
 		screen->format->BitsPerPixel,
 		screen->format->Rmask,
@@ -103,9 +103,11 @@ template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 			(byte *)displayCache->pixels
 			+ line * displayCache->pitch
 			);
+	}
+	for (int line = 0; line < 192 * 2; line++) {
 		screenLinePtrs[line] = (Pixel *)(
 			(byte *)screen->pixels
-			+ (line + LINE_DISPLAY - LINE_RENDER_TOP) * screen->pitch
+			+ (line + 2 * (LINE_DISPLAY - LINE_RENDER_TOP)) * screen->pitch
 			+ DISPLAY_X * sizeof(Pixel)
 			);
 	}
@@ -250,12 +252,13 @@ template <class Pixel> void SDLHiRenderer<Pixel>::mode0(
 			int pattern = vdp->getVRAM(patternBaseLine | (charcode * 8));
 			// TODO: Compare performance of this loop vs unrolling.
 			for (int i = 8; i--; ) {
-				*pixelPtr++ = ((pattern & 0x80) ? fg : bg);
+				pixelPtr[0] = pixelPtr[1] = ((pattern & 0x80) ? fg : bg);
+				pixelPtr += 2;
 				pattern <<= 1;
 			}
 		}
 		else {
-			pixelPtr += 8;
+			pixelPtr += 16;
 		}
 		name++;
 	}
@@ -271,31 +274,30 @@ template <class Pixel> void SDLHiRenderer<Pixel>::mode1(
 	Pixel fg = PalFg[vdp->getForegroundColour()];
 	Pixel bg = PalBg[vdp->getBackgroundColour()];
 
-	int name = (line / 8) * 40;
 	int nameBase = (-1 << 10) & vdp->getNameMask();
 	int patternBaseLine = ((-1 << 11) | (line & 7)) & vdp->getPatternMask();
 
-	int x = 0;
 	// Extended left border.
-	for (; x < 8; x++) *pixelPtr++ = bg;
+	for (int n = 16; n--; ) *pixelPtr++ = bg;
 	// Actual display.
-	while (x < 248) {
+	int nameStart = (line / 8) * 40;
+	int nameEnd = nameStart + 40;
+	for (int name = nameStart; name < nameEnd; name++) {
 		int charcode = vdp->getVRAM(nameBase | name);
 		if (dirtyColours || dirtyName[name] || dirtyPattern[charcode]) {
 			int pattern = vdp->getVRAM(patternBaseLine | (charcode * 8));
 			for (int i = 6; i--; ) {
-				*pixelPtr++ = ((pattern & 0x80) ? fg : bg);
+				pixelPtr[0] = pixelPtr[1] = ((pattern & 0x80) ? fg : bg);
+				pixelPtr++;
 				pattern <<= 1;
 			}
 		}
 		else {
-			pixelPtr += 6;
+			pixelPtr += 12;
 		}
-		x += 6;
-		name++;
 	}
 	// Extended right border.
-	for (; x < 256; x++) *pixelPtr++ = bg;
+	for (int n = 16; n--; ) *pixelPtr++ = bg;
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::mode2(
@@ -304,15 +306,16 @@ template <class Pixel> void SDLHiRenderer<Pixel>::mode2(
 	if (!(anyDirtyName || anyDirtyPattern || anyDirtyColour)) return;
 
 	Pixel *pixelPtr = cacheLinePtrs[line];
-	int name = (line / 8) * 32;
+	int nameStart = (line / 8) * 32;
+	int nameEnd = nameStart + 32;
 
-	int quarter = name & ~0xFF;
+	int quarter = nameStart & ~0xFF;
 	int nameBase = (-1 << 10) & vdp->getNameMask();
 	int patternQuarter = quarter & (vdp->getPatternMask() / 8);
 	int patternBaseLine = ((-1 << 13) | (line & 7)) & vdp->getPatternMask();
 	int colourNrBase = 0x3FF & (vdp->getColourMask() / 8);
 	int colourBaseLine = ((-1 << 13) | (line & 7)) & vdp->getColourMask();
-	for (int x = 0; x < 256; x += 8) {
+	for (int name = nameStart; name < nameEnd; name++) {
 		int charCode = vdp->getVRAM(nameBase | name);
 		int colourNr = (quarter | charCode) & colourNrBase;
 		int patternNr = patternQuarter | charCode;
@@ -323,14 +326,14 @@ template <class Pixel> void SDLHiRenderer<Pixel>::mode2(
 			Pixel fg = PalFg[colour >> 4];
 			Pixel bg = PalFg[colour & 0x0F];
 			for (int i = 8; i--; ) {
-				*pixelPtr++ = ((pattern & 0x80) ? fg : bg);
+				pixelPtr[0] = pixelPtr[1] = ((pattern & 0x80) ? fg : bg);
+				pixelPtr += 2;
 				pattern <<= 1;
 			}
 		}
 		else {
-			pixelPtr += 8;
+			pixelPtr += 16;
 		}
-		name++;
 	}
 }
 
@@ -344,32 +347,31 @@ template <class Pixel> void SDLHiRenderer<Pixel>::mode12(
 	Pixel fg = PalFg[vdp->getForegroundColour()];
 	Pixel bg = PalBg[vdp->getBackgroundColour()];
 
-	int name = (line / 8) * 32;
 	int nameBase = (-1 << 10) & vdp->getNameMask();
-	int patternQuarter = (name & ~0xFF) & (vdp->getPatternMask() / 8);
+	int nameStart = (line / 8) * 32;
+	int nameEnd = nameStart + 32;
+	int patternQuarter = (nameStart & ~0xFF) & (vdp->getPatternMask() / 8);
 	int patternBaseLine = ((-1 << 13) | (line & 7)) & vdp->getPatternMask();
 
-	int x = 0;
 	// Extended left border.
-	for ( ; x < 8; x++) *pixelPtr++ = bg;
+	for (int n = 16; n--; ) *pixelPtr++ = bg;
 	// Actual display.
-	while (x < 248) {
+	for (int name = nameStart; name < nameEnd; name++) {
 		int patternNr = vdp->getVRAM(nameBase | name) | patternQuarter;
 		if (dirtyColours || dirtyName[name] || dirtyPattern[patternNr]) {
 			int pattern = vdp->getVRAM(patternBaseLine | (patternNr * 8));
 			for (int i = 6; i--; ) {
-				*pixelPtr++ = ((pattern & 0x80) ? fg : bg);
+				pixelPtr[0] = pixelPtr[1] = ((pattern & 0x80) ? fg : bg);
+				pixelPtr += 2;
 				pattern <<= 1;
 			}
 		}
 		else {
-			pixelPtr += 6;
+			pixelPtr += 12;
 		}
-		x += 6;
-		name++;
 	}
 	// Extended right border.
-	for ( ; x < 256; x++) *pixelPtr++ = bg;
+	for (int n = 16; n--; ) *pixelPtr++ = bg;
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::mode3(
@@ -378,24 +380,23 @@ template <class Pixel> void SDLHiRenderer<Pixel>::mode3(
 	if (!(anyDirtyName || anyDirtyPattern)) return;
 
 	Pixel *pixelPtr = cacheLinePtrs[line];
-	int name = (line / 8) * 32;
 	int nameBase = (-1 << 10) & vdp->getNameMask();
 	int patternBaseLine = ((-1 << 11) | ((line / 4) & 7))
 		& vdp->getPatternMask();
-	for (int x = 0; x < 256; x += 8) {
+	int nameStart = (line / 8) * 32;
+	int nameEnd = nameStart + 32;
+	for (int name = nameStart; name < nameEnd; name++) {
 		int charcode = vdp->getVRAM(nameBase | name);
 		if (dirtyName[name] || dirtyPattern[charcode]) {
 			int colour = vdp->getVRAM(patternBaseLine | (charcode * 8));
 			Pixel cl = PalFg[colour >> 4];
 			Pixel cr = PalFg[colour & 0x0F];
-			int n;
-			for (n = 4; n--; ) *pixelPtr++ = cl;
-			for (n = 4; n--; ) *pixelPtr++ = cr;
+			for (int n = 8; n--; ) *pixelPtr++ = cl;
+			for (int n = 8; n--; ) *pixelPtr++ = cr;
 		}
 		else {
-			pixelPtr += 8;
+			pixelPtr += 16;
 		}
-		name++;
 	}
 }
 
@@ -407,14 +408,12 @@ template <class Pixel> void SDLHiRenderer<Pixel>::modebogus(
 	Pixel *pixelPtr = cacheLinePtrs[line];
 	Pixel fg = PalFg[vdp->getForegroundColour()];
 	Pixel bg = PalBg[vdp->getBackgroundColour()];
-	int x = 0;
-	for (; x < 8; x++) *pixelPtr++ = bg;
-	for (; x < 248; x += 6) {
-		int n;
-		for (n = 4; n--; ) *pixelPtr++ = fg;
-		for (n = 2; n--; ) *pixelPtr++ = bg;
+	for (int n = 16; n--; ) *pixelPtr++ = bg;
+	for (int c = 40; c--; ) {
+		for (int n = 8; n--; ) *pixelPtr++ = fg;
+		for (int n = 4; n--; ) *pixelPtr++ = bg;
 	}
-	for (; x < 256; x++) *pixelPtr++ = bg;
+	for (int n = 16; n--; ) *pixelPtr++ = bg;
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::mode23(
@@ -423,34 +422,35 @@ template <class Pixel> void SDLHiRenderer<Pixel>::mode23(
 	if (!(anyDirtyName || anyDirtyPattern)) return;
 
 	Pixel *pixelPtr = cacheLinePtrs[line];
-	int name = (line / 8) * 32;
+	int nameStart = (line / 8) * 32;
+	int nameEnd = nameStart + 32;
 	int nameBase = (-1 << 10) & vdp->getNameMask();
-	int patternQuarter = (name & ~0xFF) & (vdp->getPatternMask() / 8);
+	int patternQuarter = (nameStart & ~0xFF) & (vdp->getPatternMask() / 8);
 	int patternBaseLine = ((-1 << 13) | ((line / 4) & 7))
 		& vdp->getPatternMask();
-	for (int x = 0; x < 256; x += 8) {
+	for (int name = nameStart; name < nameEnd; name++) {
 		int patternNr = patternQuarter | vdp->getVRAM(nameBase | name);
 		if (dirtyName[name] || dirtyPattern[patternNr]) {
 			int colour = vdp->getVRAM(patternBaseLine | (patternNr * 8));
 			Pixel cl = PalFg[colour >> 4];
 			Pixel cr = PalFg[colour & 0x0F];
-			int n;
-			for (n = 4; n--; ) *pixelPtr++ = cl;
-			for (n = 4; n--; ) *pixelPtr++ = cr;
+			for (int n = 8; n--; ) *pixelPtr++ = cl;
+			for (int n = 8; n--; ) *pixelPtr++ = cr;
 		}
 		else {
-			pixelPtr += 8;
+			pixelPtr += 16;
 		}
-		name++;
 	}
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
-	Pixel *pixelPtr, int line)
+	int line)
 {
 	// Determine sprites visible on this line.
 	MSXTMS9928a::SpriteInfo *visibleSprites;
 	int visibleIndex = vdp->getSprites(line, visibleSprites);
+	Pixel *pixelPtr0 = screenLinePtrs[line * 2];
+	Pixel *pixelPtr1 = screenLinePtrs[line * 2 + 1];
 
 	while (visibleIndex--) {
 		// Get sprite info.
@@ -472,15 +472,17 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 			pattern &= -1 << (32 - (256 - x));
 		}
 		// Convert pattern to pixels.
-		Pixel *p = &pixelPtr[x];
+		Pixel *p0 = &pixelPtr0[x * 2];
+		Pixel *p1 = &pixelPtr1[x * 2];
 		while (pattern) {
 			// Draw pixel if sprite has a dot.
 			if (pattern & 0x80000000) {
-				*p = colour;
+				p0[0] = p0[1] = p1[0] = p1[1] = colour;
 			}
 			// Advancing behaviour.
 			pattern <<= 1;
-			p++;
+			p0 += 2;
+			p1 += 2;
 		}
 	}
 
@@ -534,6 +536,8 @@ template <class Pixel> void SDLHiRenderer<Pixel>::blankPhase(
 		}
 
 		if (rect.h > 0) {
+			rect.y *= 2;
+			rect.h *= 2;
 			// Note: return code ignored.
 			SDL_FillRect(screen, &rect, PalBg[vdp->getBackgroundColour()]);
 		}
@@ -571,17 +575,24 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	if (SDL_MUSTLOCK(displayCache)) SDL_UnlockSurface(displayCache);
 
 	// Copy background image.
+	// TODO: Is it faster or slower to alternate this with line rnedering?
 	SDL_Rect source;
 	source.x = 0;
 	source.y = currLine - LINE_DISPLAY;
-	source.w = 256;
-	source.h = limit - currLine;
+	source.w = 512;
+	source.h = 1;
 	SDL_Rect dest;
 	dest.x = DISPLAY_X;
-	dest.y = currLine - LINE_RENDER_TOP;
-	// TODO: Can we safely use SDL_LowerBlit?
-	// Note: return value is ignored.
-	SDL_BlitSurface(displayCache, &source, screen, &dest);
+	dest.y = (currLine - LINE_RENDER_TOP) * 2;
+	for (int line = currLine; line < limit; line++) {
+		// TODO: Can we safely use SDL_LowerBlit?
+		// Note: return value is ignored.
+		SDL_BlitSurface(displayCache, &source, screen, &dest);
+		dest.y++;
+		SDL_BlitSurface(displayCache, &source, screen, &dest);
+		dest.y++;
+		source.y++;
+	}
 
 	// Render sprites.
 	// Lock surface, because we will access pixels directly.
@@ -596,8 +607,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 		return;
 	}
 	for (int line = currLine; line < limit; line++) {
-		int y = line - LINE_DISPLAY;
-		drawSprites(screenLinePtrs[y], y);
+		drawSprites(line - LINE_DISPLAY);
 	}
 	// Unlock surface.
 	if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
@@ -608,10 +618,11 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	// TODO: Does the extended border clip sprites as well?
 	Pixel bgColour = PalBg[vdp->getBackgroundColour()];
 	dest.x = 0;
+	dest.y = (currLine - LINE_RENDER_TOP) * 2;
 	dest.w = DISPLAY_X;
+	dest.h = (limit - currLine) * 2;
 	SDL_FillRect(screen, &dest, bgColour);
 	dest.x = WIDTH - DISPLAY_X;
-	dest.w = DISPLAY_X;
 	SDL_FillRect(screen, &dest, bgColour);
 
 	currLine = limit;
