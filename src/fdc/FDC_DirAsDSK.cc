@@ -535,7 +535,12 @@ void FDC_DirAsDSK::updateFileInDisk(const int dirindex)
 		PRT_DEBUG("Continuing at cluster " << curcl);
 	}
 	if ((size == 0) && (curcl <= MAX_CLUSTER)) {
-		WriteFAT(prevcl, EOF_FAT); //probably at an if(prevcl==0)WriteFAT(curcl, EOF_FAT) } else {} if I checked what an MSX does with filesize zero and fat allocation;
+		// TODO: check what an MSX does with filesize zero and fat allocation;
+		if(prevcl==0) {
+			WriteFAT(curcl, EOF_FAT);
+		} else {
+			WriteFAT(prevcl, EOF_FAT); 
+		}
 
 		//clear remains of FAT if needed
 		if (followFATClusters) {

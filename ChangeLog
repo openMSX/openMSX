@@ -1,5 +1,8 @@
 $Id$
 
+2004-06-04 David Heremans <david.heremans@gnu-linux.net>
+	* Fixed the problem with filesize zero in the DirAsDisk feature
+
 2004-06-03 Maarten ter Huurne <maarten@treewalker.org>
 	* Simplified code which stores and draws previous frame in SDLGL.
 
