@@ -13,6 +13,7 @@
 #include "MSXConfig.hh"
 #include "Config.hh"
 #include "InputEvents.hh"
+#include "InputEventGenerator.hh"
 
 namespace openmsx {
 
@@ -27,10 +28,10 @@ CommandConsole::CommandConsole()
 	  msxConfig(MSXConfig::instance()),
 	  commandController(CommandController::instance()),
 	  output(CliCommOutput::instance()),
-	  settingsManager(SettingsManager::instance())
+	  settingsManager(SettingsManager::instance()),
+	  inputEventGenerator(InputEventGenerator::instance())
 {
 	prompt = PROMPT1;
-	SDL_EnableUNICODE(1);
 	consoleSetting.addListener(this);
 	eventDistributor.registerEventListener(KEY_DOWN_EVENT, *this);
 	eventDistributor.registerEventListener(KEY_UP_EVENT,   *this);
@@ -57,27 +58,11 @@ CommandConsole& CommandConsole::instance()
 	return oneInstance;
 }
 
-void CommandConsole::restoreSDLsettings()
-{
-	SDL_EnableUNICODE(1);
-	if (consoleSetting.getValue()) {
-		SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,
-		                    SDL_DEFAULT_REPEAT_INTERVAL);
-	} else {
-		SDL_EnableKeyRepeat(0, 0);
-	}
-}
-
 void CommandConsole::update(const SettingLeafNode* setting) throw()
 {
 	assert(setting == &consoleSetting);
 	updateConsole();
-	if (consoleSetting.getValue()) {
-		SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,
-		                    SDL_DEFAULT_REPEAT_INTERVAL);
-	} else {
-		SDL_EnableKeyRepeat(0, 0);
-	}
+	inputEventGenerator.setKeyRepeat(consoleSetting.getValue());
 }
 
 void CommandConsole::saveHistory()

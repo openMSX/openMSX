@@ -1,10 +1,13 @@
 $Id$
 
+2004-02-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Made CommandConsole SDL independent
+
 2004-02-11 Maarten ter Huurne <maarten@treewalker.org>
 	* Implemented firmware switch for Panasonic FS-A1FM.
 	  Use "set frontswitch true" to boot internal software.
 
-2004-02-10 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2004-02-11 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* FDC code changes:
 	   - code cleanups / maybe fixes (at least more robust code now)
 	   - changed track0 signal value for not connected drive

@@ -12,9 +12,11 @@ InputEventGenerator::InputEventGenerator()
 	: grabInput("grabinput",
 		"This setting controls if openmsx takes over mouse and keyboard input",
 		false),
+	  keyRepeat(false),
 	  distributor(EventDistributor::instance())
 {
 	grabInput.addListener(this);
+	reinit();
 }
 
 InputEventGenerator::~InputEventGenerator()
@@ -26,6 +28,12 @@ InputEventGenerator& InputEventGenerator::instance()
 {
 	static InputEventGenerator oneInstance;
 	return oneInstance;
+}
+
+void InputEventGenerator::reinit()
+{
+	SDL_EnableUNICODE(1);
+	setKeyRepeat(keyRepeat);
 }
 
 void InputEventGenerator::wait()
@@ -56,6 +64,16 @@ void InputEventGenerator::notify()
 	SDL_PushEvent(&event);
 }
 
+void InputEventGenerator::setKeyRepeat(bool enable)
+{
+	keyRepeat = enable;
+	if (keyRepeat) {
+		SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,
+		                    SDL_DEFAULT_REPEAT_INTERVAL);
+	} else {
+		SDL_EnableKeyRepeat(0, 0);
+	}
+}
 
 static MouseButtonEvent::Button convertMouseButton(Uint8 sdlButton)
 {

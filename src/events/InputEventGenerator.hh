@@ -23,6 +23,18 @@ public:
 	void wait();
 	void notify();
 
+	/**
+	 * Enable or disable keyboard event repeats
+	 */
+	void setKeyRepeat(bool enable);
+	
+	/**
+	 * This functions shouldn't be needed, but in the SDL library input
+	 * and video or closely coupled (sigh). For example when the video mode
+	 * is changed we need to reset the keyrepeat and unicode settings.
+	 */
+	void reinit();
+
 private:
 	InputEventGenerator();
 	virtual ~InputEventGenerator();
@@ -33,6 +45,7 @@ private:
 	virtual void update(const SettingLeafNode* setting) throw();
 
 	BooleanSetting grabInput;
+	bool keyRepeat;
 
 	EventDistributor& distributor;
 };

@@ -20,7 +20,7 @@ class MSXConfig;
 class CommandController;
 class CliCommOutput;
 class SettingsManager;
-
+class InputEventGenerator;
 
 class CommandConsole : public Console, private EventListener,
                        private SettingListener
@@ -42,7 +42,6 @@ public:
 	virtual void setCursorPosition(unsigned xPosition, unsigned yPosition);
 	virtual void setConsoleDimensions(unsigned columns, unsigned rows);
 	virtual const string& getId() const;
-	void restoreSDLsettings();
 
 private:
 	static const int LINESHISTORY = 100;
@@ -100,6 +99,7 @@ private:
 	CommandController& commandController;
 	CliCommOutput& output;
 	SettingsManager& settingsManager;
+	InputEventGenerator& inputEventGenerator;
 };
 
 } // namespace openmsx
