@@ -69,7 +69,7 @@ float RealTime::sync()
 {
 	scheduler->removeSyncPoint(this);
 	internalSync(cpu->getCurrentTime());
-	return float;
+	return factor;
 }
 
 void RealTime::internalSync(const EmuTime &curEmu)
