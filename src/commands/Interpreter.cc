@@ -182,7 +182,7 @@ void Interpreter::unsetVariable(const string& name)
 	Tcl_UnsetVar(interp, name.c_str(), 0);
 }
 
-string Interpreter::getVariable(const string& name) const
+const char* Interpreter::getVariable(const string& name) const
 {
 	return Tcl_GetVar(interp, name.c_str(), 0);
 }
@@ -190,7 +190,14 @@ string Interpreter::getVariable(const string& name) const
 void Interpreter::registerSetting(Setting& variable)
 {
 	const string& name = variable.getName();
-	setVariable(name, variable.getValueString());
+	const char* tclVarValue = getVariable(name);
+	if (tclVarValue) {
+		// TCL var already existed, use this value
+		variable.setValueString(tclVarValue);
+	} else {
+		// define TCL var
+		setVariable(name, variable.getValueString());
+	}
 	Tcl_TraceVar(interp, name.c_str(),
 	             TCL_TRACE_READS | TCL_TRACE_WRITES | TCL_TRACE_UNSETS,
 	             traceProc, static_cast<ClientData>(&variable));

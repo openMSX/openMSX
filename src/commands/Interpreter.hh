@@ -27,7 +27,7 @@ public:
 	
 	void setVariable(const std::string& name, const std::string& value);
 	void unsetVariable(const std::string& name);
-	std::string getVariable(const std::string& name) const;
+	const char* getVariable(const std::string& name) const;
 	void registerSetting(Setting& variable);
 	void unregisterSetting(Setting& variable);
 

@@ -46,18 +46,13 @@ void SettingsManager::registerSetting(Setting& setting)
 	assert(settingsMap.find(name) == settingsMap.end());
 	settingsMap[name] = &setting;
 
-	Setting* leafNode = dynamic_cast<Setting*>(&setting);
-	if (leafNode) {
-		interpreter.registerSetting(*leafNode);
-	}
+	interpreter.registerSetting(setting);
 }
 
 void SettingsManager::unregisterSetting(Setting& setting)
 {
-	Setting* leafNode = dynamic_cast<Setting*>(&setting);
-	if (leafNode) {
-		interpreter.unregisterSetting(*leafNode);
-	}
+	interpreter.unregisterSetting(setting);
+	
 	const string& name = setting.getName();
 	assert(settingsMap.find(name) != settingsMap.end());
 	settingsMap.erase(name);
