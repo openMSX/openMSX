@@ -75,6 +75,12 @@
     <parameter name="0x00F5" class="patch">0xC9</parameter>
     <parameter name="" class="patchcode">MSXTapePatch</parameter>
   </device>
+
+  <config id="tapepatch">
+    <type>tape</type>
+    <parameter name="filename">timecurb.cas</parameter>
+  </config>
+
 -->  
   <device id="basicrom">
     <type>Rom16KB</type>

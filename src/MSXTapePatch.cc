@@ -24,6 +24,8 @@ MSXTapePatch::MSXTapePatch()
 
 	std::string name("tapepatch");
 	std::string filename;
+	file=0;
+
 	try
 	{
 	  MSXConfig::Config *config =
@@ -89,63 +91,82 @@ void MSXTapePatch::insertTape(std::string filename)
 {
 	PRT_DEBUG("Loading file " << filename << " as tape ...");
 	file= new FILETYPE(filename.c_str(), std::ios::in|std::ios::out);
+	if (!file){
+		PRT_DEBUG("Loading file failed");
+	}
 }
 
 void MSXTapePatch::TAPION() const
 {
-    /*
-    Address... 1A63H
-    Name...... TAPION
-    Entry..... None
-    Exit...... Flag C if CTRL-STOP termination
-    Modifies.. AF, BC, DE, HL, DI
+  /*
+     Address... 1A63H
+     Name...... TAPION
+     Entry..... None
+     Exit...... Flag C if CTRL-STOP termination
+     Modifies.. AF, BC, DE, HL, DI
 
-    Standard routine to turn the cassette motor on, read the
-cassette until a header is found and then determine the baud
-rate. Successive cycles are read from the cassette and the
-length of each one measured (1B34H). When 1,111 cycles have
-been found with less than 35 æs variation in their lengths a
-header has been located.
+     Standard routine to turn the cassette motor on, read the
+     cassette until a header is found and then determine the baud
+     rate. Successive cycles are read from the cassette and the
+     length of each one measured (1B34H). When 1,111 cycles have
+     been found with less than 35 æs variation in their lengths a
+     header has been located.
 
-    The next 256 cycles are then read (1B34H) and averaged to
-determine the cassette HI cycle length. This figure is
-multiplied by 1.5 and placed in LOWLIM where it defines the
-minimum acceptable length of a 0 start bit. The HI cycle length
-is placed in WINWID and will be used to discriminate between LO
-and HI cycles.
-     */
-	PRT_DEBUG("TAPION : Looking for header...");
-	byte buffer[10];
-	CPU* cpu = MSXCPU::instance()->getActiveCPU();
-	CPU::CPURegs R = cpu->getCPURegs();
-  if(file)
-  {
-    //fmsx does some positioning stuff first ?
-    //int filePosition=file->tellg();
-    //file->seekg(0,ios::beg);
+     The next 256 cycles are then read (1B34H) and averaged to
+     determine the cassette HI cycle length. This figure is
+     multiplied by 1.5 and placed in LOWLIM where it defines the
+     minimum acceptable length of a 0 start bit. The HI cycle length
+     is placed in WINWID and will be used to discriminate between LO
+     and HI cycles.
+   */
+  CPU* cpu = MSXCPU::instance()->getActiveCPU();
+  CPU::CPURegs R = cpu->getCPURegs();
 
+  if(file == 0){
+    PRT_DEBUG("TAPION : No tape file opened ?");
+    R.AF.B.l|=C_FLAG;
+    cpu->setCPURegs(R);
+    return;
+  }
+
+  PRT_DEBUG("TAPION : Looking for header...");
+  byte buffer[10];
+      
+      // in case of failure
+      R.AF.B.l|=C_FLAG;
+      cpu->setCPURegs(R);
+
+  //fmsx does some positioning stuff first so to be compatible...
+  int filePosition=(file->tellg() & 7);
+  if (filePosition ){
+    PRT_DEBUG("TAPION : filePosition " << filePosition);
+    file->seekg(8-filePosition , ios::cur);
+    if (file->fail()){
+      PRT_DEBUG("TAPION : Read error");
+      //rewind the tape
+      file->seekg(0, ios::beg);
+      return;
+    };
+  }
+
+  do {
+    PRT_DEBUG("TAPION : file->read(buffer,8); ");
     file->read(buffer,8);
     if (file->fail()){
       PRT_DEBUG("TAPION : Read error");
-      R.AF.B.l|=C_FLAG;
-      cpu->setCPURegs(R);
       return;
-    };
-    if(!memcmp(buffer,TapeHeader,8))
-    {
-      PRT_DEBUG("TAPION : OK");
-      R.AF.B.l&=~C_FLAG;
-    } else {
-      PRT_DEBUG("TAPION : Wrong header");
-      R.AF.B.l|=C_FLAG;
-    }
+    } else if(!memcmp(buffer,TapeHeader,8)) {
+	PRT_DEBUG("TAPION : OK");
+	R.nextIFF1=R.IFF1=R.IFF2=false;
+	R.AF.B.l&=~C_FLAG;
 	cpu->setCPURegs(R);
+	return;
+      } 
+  } while (!file->fail());
 
-  } else {
-        PRT_DEBUG("TAPION : No tape file opened ?");
-        R.AF.B.l|=C_FLAG;
-
-  }
+  PRT_DEBUG("TAPION : No header found");
+  //rewind the tape
+  file->seekg(0, ios::beg);
 }
 
 void MSXTapePatch::TAPIN() const
@@ -212,7 +233,8 @@ void MSXTapePatch::TAPIOF() const
   PRT_DEBUG("TAPIOF");
 	CPU* cpu = MSXCPU::instance()->getActiveCPU();
 	CPU::CPURegs R = cpu->getCPURegs();
-  R.AF.B.l&=~C_FLAG;
+	R.AF.B.l&=~C_FLAG;
+	R.nextIFF1=R.IFF1=R.IFF2=true;
 	cpu->setCPURegs(R);
 }
 
@@ -231,53 +253,51 @@ void MSXTapePatch::TAPOON() const
      written in front of every data block so the baud rate
      can be determined when the data is read back.
 
-    The length of the header is determined by the contents of
-    register A: 00H=Short header, NZ=Long header. The BASIC
-    cassette statements "SAVE", "CSAVE" and "BSAVE" all
-    generate a long header at the start of the file, in front
-    of the identification block, and thereafter use short
-    headers between data blocks. The number of cycles in the
-    header is also modified by the current baud rate so as to
-    keep its duration constant:
+     The length of the header is determined by the contents of
+     register A: 00H=Short header, NZ=Long header. The BASIC
+     cassette statements "SAVE", "CSAVE" and "BSAVE" all
+     generate a long header at the start of the file, in front
+     of the identification block, and thereafter use short
+     headers between data blocks. The number of cycles in the
+     header is also modified by the current baud rate so as to
+     keep its duration constant:
 
 
-        1200 Baud SHORT ... 3840 Cycles ... 1.5 Seconds
-        1200 Baud LONG ... 15360 Cycles ... 6.1 Seconds
-        2400 Baud SHORT ... 7936 Cycles ... 1.6 Seconds
-        2400 Baud LONG ... 31744 Cycles ... 6.3 Seconds
+     1200 Baud SHORT ... 3840 Cycles ... 1.5 Seconds
+     1200 Baud LONG ... 15360 Cycles ... 6.1 Seconds
+     2400 Baud SHORT ... 7936 Cycles ... 1.6 Seconds
+     2400 Baud LONG ... 31744 Cycles ... 6.3 Seconds
 
 
-    After the motor has been turned on and the delay has
-    expired the contents of HEADER are multiplied by two
-    hundred and fifty- six and, if register A is non-zero, by
-    a further factor of four to produce the cycle count. HI
-    cycles are then generated (1A4DH) until the count is
-    exhausted whereupon control transfers to the BREAKX
-    standard routine. Because the CTRL-STOP key is only
-    examined at termination it is impossible to break out
-    part way through this routine.
+     After the motor has been turned on and the delay has
+     expired the contents of HEADER are multiplied by two
+     hundred and fifty- six and, if register A is non-zero, by
+     a further factor of four to produce the cycle count. HI
+     cycles are then generated (1A4DH) until the count is
+     exhausted whereupon control transfers to the BREAKX
+     standard routine. Because the CTRL-STOP key is only
+     examined at termination it is impossible to break out
+     part way through this routine.
    */
   PRT_DEBUG("TAPOON");
-	CPU* cpu = MSXCPU::instance()->getActiveCPU();
-	CPU::CPURegs R = cpu->getCPURegs();
+  CPU* cpu = MSXCPU::instance()->getActiveCPU();
+  CPU::CPURegs R = cpu->getCPURegs();
 
   R.AF.B.l|=C_FLAG;
 
   if (file){
-    /* again some stuff from fmsx about positioning
-       Do I need to take over to use old cas files ???
-       Here is the code from fmsx...
-       long Pos;
-       Pos=ftell(CasStream);
-
-       if(Pos&7)
-       if(fseek(CasStream,8-(Pos&7),SEEK_CUR))
-       { R->AF.B.l|=C_FLAG;return; }
-     */
-    file->write(TapeHeader,8);
-    R.AF.B.l&=~C_FLAG;
-  }   
-	cpu->setCPURegs(R);
+    // again some stuff from fmsx about positioning
+    int filePosition=(file->tellg() & 7);
+    if (filePosition ){
+      file->seekg(8-filePosition , ios::cur);
+    }
+    if (!file->fail()){ 
+      file->write(TapeHeader,8);
+      R.AF.B.l&=~C_FLAG;
+      R.nextIFF1=R.IFF1=R.IFF2=false;
+    }   
+  }
+  cpu->setCPURegs(R);
 }
 
 void MSXTapePatch::TAPOUT() const
@@ -332,7 +352,8 @@ void MSXTapePatch::TAPOOF() const
   PRT_DEBUG("TAPOOF");
 	CPU* cpu = MSXCPU::instance()->getActiveCPU();
 	CPU::CPURegs R = cpu->getCPURegs();
-  R.AF.B.l&=~C_FLAG;
+	R.AF.B.l&=~C_FLAG;
+	R.nextIFF1=R.IFF1=R.IFF2=true;
 	cpu->setCPURegs(R);
 }
 

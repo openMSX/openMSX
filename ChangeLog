@@ -1,5 +1,8 @@
 $Id$
 
+2001-01-02 David Heremans <david.heremans@gnu-linux.net>
+	* Improved tape support, tested with Time_Curb.cas file
+
 2002-01-03 Maarten ter Huurne <mth@stack.nl>
 	* Changed pause implementation in Scheduler to make it thread safe.
 	* Fixed PAL timing in SDLHiRenderer.
