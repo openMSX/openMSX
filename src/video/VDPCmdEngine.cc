@@ -500,6 +500,7 @@ void VDPCmdEngine::SrchCmd::start(const EmuTime &time)
 	vram->cmdWriteWindow.disable(currentTime);
 	SX = engine->SX;
 	SY = engine->SY;
+	TX = (engine->ARG & 0x04) ? -1 : 1;
 	CL = engine->COL & MASK[engine->scrMode];
 	ANX = (engine->ARG & 0x02) != 0; // TODO: Do we look for "==" or "!="?
 }
