@@ -4,4 +4,4 @@ CXXFLAGS="-O3 -mcpu=pentiumpro -march=pentiumpro -ffast-math -funroll-loops -I/u
 
 echo Configuring for compile with: ${CXXFLAGS}
 rm -f config.cache
-CXXFLAGS=${CXXFLAGS} ./configure $*
+CXXFLAGS=${CXXFLAGS} ./configure --without-pic $*
