@@ -39,6 +39,7 @@ SRC_HDR:= \
 	Autofire RenShaTurbo \
 	StringOp \
 	Unicode \
+	IPS \
 	Version \
 	HostCPU
 

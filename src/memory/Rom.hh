@@ -48,7 +48,6 @@ public:
 private:
 	void init(const XMLElement& config);
 	void read(const XMLElement& config, const std::string& filename);
-	void readIPS(const XMLElement& config, const std::string& filename);
 	bool checkSHA1(const XMLElement& config);
 	
 	std::string name;

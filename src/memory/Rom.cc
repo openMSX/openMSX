@@ -2,7 +2,6 @@
 
 #include <string>
 #include <sstream>
-#include <string.h>
 #include "xmlx.hh"
 #include "Rom.hh"
 #include "RomInfo.hh"
@@ -16,6 +15,7 @@
 #include "CliCommOutput.hh"
 #include "FilePool.hh"
 #include "ConfigException.hh"
+#include "IPS.hh"
 
 using std::string;
 
@@ -43,39 +43,6 @@ Rom::Rom(const string& name_, const string& description_,
 	}
 	throw ConfigException("ROM tag \"" + id + "\" missing.");
 }
-
-void Rom::readIPS(const XMLElement& config, const string& filename)
-{
-	try {
-		File ipsFile(config.getFileContext().resolve(filename));
-
-		byte buf[5];
-		ipsFile.read(buf, 5);
-		if (memcmp(buf, "PATCH", 5) != 0) {
-			throw FatalError("Not a valid IPS: " + filename);
-		}
-		byte* writableRom = const_cast<byte*>(rom);
-		ipsFile.read(buf, 3);
-		while (memcmp(buf, "EOF", 3) != 0) {
-		  	int offset = 256*256*buf[0] + 256*buf[1] + buf[2];
-			ipsFile.read(buf, 2);
-			int length = 256*buf[0] + buf[1];
-			if (length == 0) {
-				// RLE encoded
-				ipsFile.read(buf, 3);
-				length = 256*buf[0] + buf[1];
-				memset(writableRom + offset, buf[2], length);
-			} else {
-				// Patch bytes
-				ipsFile.read(writableRom + offset, length);
-			}
-			ipsFile.read(buf, 3);
-		}
-	} catch (FileException& e) {
-		throw FatalError("Error reading IPS: " + filename);
-	}
-}
-
 
 void Rom::init(const XMLElement& config)
 {
@@ -121,8 +88,9 @@ void Rom::init(const XMLElement& config)
 	if (size != 0 ) {
 		const XMLElement* ipsElem = config.findChild("ips");
 		if (ipsElem) {
-			const XMLElement& ipsfilenameElem = ipsElem->getChild("filename");
-			readIPS(config, ipsfilenameElem.getData() );
+			const string& filename = ipsElem->getChildData("filename");
+			IPS::applyPatch(const_cast<byte*>(rom), getSize(),
+			                config.getFileContext().resolve(filename));
 		}
 	}
 	info = RomInfo::fetchRomInfo(*this);
