@@ -59,7 +59,7 @@ ioAddresses = {
 	'Bunsetsu': [],
 	'SunriseIDE': [],
 	'PAC': [],
-	'SCC+': [], # TODO: Why "Cart"?
+	'SCC+': [],
 	# TODO: Microsol FDC uses IO ports (0xd0 - 0xd4  5(!) ports), but I doubt
 	#       this FDC really works in openMSX.
 	'FDC': [],
@@ -181,12 +181,18 @@ def convertDevice(node):
 					print '    convert "' + oldType + '" ' \
 						'to "' + deviceType + '"'
 					child.childNodes[0].nodeValue = deviceType
+			else:
+				newName = getNewParameterName(deviceType, child.nodeName)
+				if newName != child.nodeName:
+					print '    rename parameter "' + child.nodeName + '" ' \
+						'to "' + newName + '"'
+					child.tagName = newName
 		elif child.nodeType == node.TEXT_NODE:
 			pass
 		elif child.nodeType == node.COMMENT_NODE:
 			pass
 		else:
-			print 'cannot handle node inside config:', child
+			print 'cannot handle node inside device:', child
 			assert False
 	
 	# Insert I/O addresses.
@@ -218,15 +224,22 @@ def convertDevice(node):
 				node.appendChild(ioNode)
 				#print 'I/O node:', ioNode
 
+def getNewParameterName(deviceType, name):
+	return {
+		'FDC': {
+			'type': 'fdc_type',
+			'brokenFDCread': 'broken_fdc_read',
+			},
+		}.get(deviceType, {}).get(name, name)
+
 def convertParameter(node):
 	name = node.attributes['name'].nodeValue
 	if len(node.attributes) == 1:
+		print '    convert parameter:', name
 		parent = node.parentNode
 		deviceType = getParameter(parent, 'type')
+		name = getNewParameterName(deviceType, name)
 		# Extract info from old-style node.
-		if name == 'type' and deviceType == 'FDC':
-			name = 'fdc_type'
-		print '    convert parameter:', name
 		assert len(node.childNodes) == 1
 		text = node.childNodes[0]
 		node.removeChild(text)
