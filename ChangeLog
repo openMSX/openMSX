@@ -1,6 +1,12 @@
 $Id$
 
-2003-04-05 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2003-04-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Reworked SCC
+	   - Manuel Pazos's SCC detection routine works correctly now
+	   - Optimized for common case. You mostly write to SCC and hardly
+	     ever read from it
+
+2003-04-12 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Reworked consoles:
 	   - splitted console in "core console" and "console renderer",
 	     the main advantage is that command history is preserved
