@@ -16,7 +16,7 @@ dnl seem to be an easy and reliable way to detect this at run time.
 AC_DEFINE_DIR(DATADIR, datadir, [Directory containing platform independent data files.])
 
 dnl create a config.h file (Automake will add -DHAVE_CONFIG_H)
-AM_CONFIG_HEADER(src/config.h)
+AC_CONFIG_HEADERS(src/config.h)
 
 AC_CANONICAL_SYSTEM
 
