@@ -1,6 +1,10 @@
 $Id$
 
 2003-11-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Added example implementation for bidirectional communication with
+	  openMSX (aka CliCommunicator) in Contrib
+
+2003-11-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* When started with "-control" openmsx now automatically selects the
 	  "none" renderer. The launcher should send a "restoredefault
 	  renderer" command to enable the display.
