@@ -731,9 +731,13 @@ private:
 	word palette[16];
 
 	/** Blinking state: should alternate colour / page be displayed?
-	  * TODO: Implement toggling when blinking is enabled.
 	  */
 	bool blinkState;
+
+	/** Blinking count: number of frames until next state.
+	  * If the ON or OFF period is 0, blinkCount is fixed to 0.
+	  */
+	int blinkCount;
 
 	/** First byte written through port #9A, or -1 for none.
 	  */

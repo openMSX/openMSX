@@ -72,6 +72,18 @@ public:
 	  */
 	virtual void updateBackgroundColour(int colour, const EmuTime &time) = 0;
 
+	/** Informs the renderer of a VDP blink foreground colour change.
+	  * @param colour The new blink foreground colour.
+	  * @param time The moment in emulated time this change occurs.
+	  */
+	virtual void updateBlinkForegroundColour(int colour, const EmuTime &time) = 0;
+
+	/** Informs the renderer of a VDP blink background colour change.
+	  * @param colour The new blink background colour.
+	  * @param time The moment in emulated time this change occurs.
+	  */
+	virtual void updateBlinkBackgroundColour(int colour, const EmuTime &time) = 0;
+
 	/** Informs the renderer of a VDP blinking state change.
 	  * @param enabled The new blink state.
 	  * @param time The moment in emulated time this change occurs.

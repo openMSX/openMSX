@@ -19,10 +19,10 @@ Renderer *PlatformFactory::createRenderer(VDP *vdp, const EmuTime &time)
 
 	PRT_DEBUG("OK\n  Opening display... ");
 	Renderer *renderer;
-	if (renderType == "SDLLo") {
+	/*if (renderType == "SDLLo") {
 		renderer = createSDLLoRenderer(vdp, fullScreen, time);
 	}
-	else if (renderType == "SDLHi") {
+	else*/ if (renderType == "SDLHi") {
 		renderer = createSDLHiRenderer(vdp, fullScreen, time);
 	}
 	else {

@@ -2,6 +2,7 @@
 
 /*
 TODO:
+- Implement blinking (of page mask) in bitmap modes.
 - Idea: make an abstract superclass for line-based Renderers, this
   class would know when to sync etc, but not be SDL dependent.
   Since most of the abstraction is done using <Pixel>, most code
@@ -362,10 +363,28 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateBackgroundColour(
 	}
 }
 
+template <class Pixel> void SDLHiRenderer<Pixel>::updateBlinkForegroundColour(
+	int colour, const EmuTime &time)
+{
+	sync(time);
+	dirtyForeground = true;
+}
+
+template <class Pixel> void SDLHiRenderer<Pixel>::updateBlinkBackgroundColour(
+	int colour, const EmuTime &time)
+{
+	sync(time);
+	dirtyBackground = true;
+}
+
 template <class Pixel> void SDLHiRenderer<Pixel>::updateBlinkState(
 	bool enabled, const EmuTime &time)
 {
-	sync(time);
+	// TODO: When the sync call is enabled, the screen flashes on
+	//       every call to this method.
+	//       I don't know why exactly, but it's probably related to
+	//       being called at frame start.
+	//sync(time);
 	if (vdp->getDisplayMode() == 0x09) {
 		// Text2 with blinking text.
 		// Consider all characters dirty.
@@ -511,6 +530,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::checkDirtyText2(
 	if ((addr | ~(-1 << 11)) == vdp->getPatternMask()) {
 		dirtyPattern[(addr / 8) & ~(-1 << 8)] = anyDirtyPattern = true;
 	}
+	// TODO: Implement dirty check on colour table (used for blinking).
 }
 
 template <class Pixel> void SDLHiRenderer<Pixel>::checkDirtyBitmap(
@@ -598,9 +618,19 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderText2(
 	bool dirtyColours = dirtyForeground || dirtyBackground;
 	if (!(anyDirtyName || anyDirtyPattern || dirtyColours)) return;
 
-	Pixel fg = palFg[vdp->getForegroundColour()];
-	Pixel bg = palBg[vdp->getBackgroundColour()];
+	Pixel plainFg = palFg[vdp->getForegroundColour()];
+	Pixel plainBg = palBg[vdp->getBackgroundColour()];
+	Pixel blinkFg, blinkBg;
+ 	if (vdp->getBlinkState()) {
+		int fg = vdp->getBlinkForegroundColour();
+		blinkFg = palBg[fg ? fg : vdp->getBlinkBackgroundColour()];
+		blinkBg = palBg[vdp->getBlinkBackgroundColour()];
+	} else {
+		blinkFg = plainFg;
+		blinkBg = plainBg;
+	}
 
+	// TODO: This name masking seems unnecessarily complex.
 	int nameBase = (-1 << 12) & vdp->getNameMask();
 	int nameMask = ~(-1 << 12) & vdp->getNameMask();
 	int patternBaseLine = ((-1 << 11) | (line & 7)) & vdp->getPatternMask();
@@ -609,13 +639,29 @@ template <class Pixel> void SDLHiRenderer<Pixel>::renderText2(
 	// TODO: Implement blinking.
 	int nameStart = (line / 8) * 80;
 	int nameEnd = nameStart + 80;
+	int colourPattern = 0; // avoid warning
 	for (int name = nameStart; name < nameEnd; name++) {
+		// Colour table contains one bit per character.
+		if ((name & 7) == 0) {
+			colourPattern = vdp->getVRAM(
+				((-1 << 9) | (name >> 3)) & vdp->getColourMask() );
+		} else {
+			colourPattern <<= 1;
+		}
 		int maskedName = name & nameMask;
 		int charcode = vdp->getVRAM(nameBase | maskedName);
 		if (dirtyColours || dirtyName[maskedName] || dirtyPattern[charcode]) {
+			Pixel fg, bg;
+			if (colourPattern & 0x80) {
+				fg = blinkFg;
+				bg = blinkBg;
+			} else {
+				fg = plainFg;
+				bg = plainBg;
+			}
 			int pattern = vdp->getVRAM(patternBaseLine | (charcode * 8));
 			for (int i = 6; i--; ) {
-				*pixelPtr++ = ((pattern & 0x80) ? fg : bg);
+				*pixelPtr++ = (pattern & 0x80) ? fg : bg;
 				pattern <<= 1;
 			}
 		}
@@ -987,6 +1033,9 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	SDL_Surface *displayCache =
 		vdp->isBitmapMode() ? bitmapDisplayCache : charDisplayCache;
 
+	// Which bits in the name mask determine the page?
+	int pageMask = vdp->isPlanar() ? 0x100 : 0x300;
+
 	// Lock surface, because we will access pixels directly.
 	if (SDL_MUSTLOCK(displayCache) && SDL_LockSurface(displayCache) < 0) {
 		// Display will be wrong, but this is not really critical.
@@ -999,10 +1048,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 		int n = limit - nextLine;
 		bool planar = vdp->isPlanar();
 		do {
-			int addr = planar
-				? vdp->getNameMask() & (0x08000 | (line << 7))
-				: vdp->getNameMask() & (0x18000 | (line << 7));
-			int vramLine = addr >> 7;
+			int vramLine = (vdp->getNameMask() >> 7) & (pageMask | line);
 			if ( (lineValidInMode[vramLine] != vdp->getDisplayMode())
 			|| (planar && (lineValidInMode[vramLine | 512] != vdp->getDisplayMode())) ) {
 				(this->*renderMethod)
@@ -1036,8 +1082,6 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	dest.x = getLeftBorder();
 	dest.y = (nextLine - lineRenderTop) * 2;
 	int line = scrolledLine;
-	// TODO: This is useful in the previous loop as well.
-	int pageMask = vdp->isPlanar() ? 0x100 : 0x300;
 	// TODO: Optimise.
 	for (int n = limit - nextLine; n--; ) {
 		source.y =

@@ -40,7 +40,6 @@ openmsx_SOURCES=openmsx.cc icon.nn \
 	VDP.hh VDP.cc \
 	VDPCmdEngine.hh VDPCmdEngine.cc \
 	Renderer.hh Renderer.cc \
-	SDLLoRenderer.hh SDLLoRenderer.cc \
 	SDLHiRenderer.hh SDLHiRenderer.cc \
 	PlatformFactory.hh PlatformFactory.cc \
 	devicefactory.hh devicefactory.cc \
@@ -85,6 +84,7 @@ openmsx_SOURCES=openmsx.cc icon.nn \
 	MSXDiskRomPatch.cc MSXDiskRomPatch.hh
 
 #	MSXPrinter.cc MSXPrinter.hh \
+#	SDLLoRenderer.hh SDLLoRenderer.cc \
 
 openmsx_LDADD = libxmlx/libxmlx.la ConsoleSource/libSDL_console.la cpu/libCPU.la
 

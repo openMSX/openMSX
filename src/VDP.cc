@@ -370,6 +370,7 @@ void VDP::resetInit(const EmuTime &time)
 	firstByte = -1;
 	paletteLatch = -1;
 	blinkState = false;
+	blinkCount = 0;
 
 	// Init status registers.
 	statusReg0 = 0x00;
@@ -623,6 +624,17 @@ void VDP::frameStart(const EmuTime &time)
 	verticalAdjust = (controlRegs[18] >> 4) ^ 0x07;
 	spriteLine = 0;
 
+	// Blinking.
+	if (blinkCount != 0) { // counter active?
+		blinkCount--;
+		if (blinkCount == 0) {
+			renderer->updateBlinkState(!blinkState, time);
+			blinkState = !blinkState;
+			blinkCount = ( blinkState
+				? controlRegs[13] >> 4 : controlRegs[13] & 0x0F ) * 10;
+		}
+	}
+
 	// Schedule next VSYNC.
 	frameStartTime = time;
 	Scheduler::instance()->setSyncPoint(
@@ -865,6 +877,25 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 	val &= controlValueMasks[reg];
 	byte oldval = controlRegs[reg];
 	byte change = val ^ oldval;
+
+	// Register 13 is special because writing it resets blinking state,
+	// even if the value in the register doesn't change.
+	if (reg == 13) {
+		// Switch to ON state unless ON period is zero.
+		if (blinkState == ((val & 0xF0) == 0)) {
+			renderer->updateBlinkState(!blinkState, time);
+			blinkState = !blinkState;
+		}
+
+		if ((val & 0xF0) && (val & 0x0F)) {
+			// Alternating colours, start with ON.
+			blinkCount = (val >> 4) * 10;
+		} else {
+			// Stable colour.
+			blinkCount = 0;
+		}
+	}
+
 	if (!change) return;
 
 	// Perform additional tasks before new value becomes active.
@@ -949,6 +980,14 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime &time)
 	case 8:
 		if (change & 0x20) {
 			renderer->updateTransparency((val & 0x20) == 0, time);
+		}
+		break;
+	case 12:
+		if (change & 0xF0) {
+			renderer->updateBlinkForegroundColour(val >> 4, time);
+		}
+		if (change & 0x0F) {
+			renderer->updateBlinkBackgroundColour(val & 0x0F, time);
 		}
 		break;
 	case 16:

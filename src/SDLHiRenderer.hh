@@ -38,6 +38,8 @@ public:
 	void updateTransparency(bool enabled, const EmuTime &time);
 	void updateForegroundColour(int colour, const EmuTime &time);
 	void updateBackgroundColour(int colour, const EmuTime &time);
+	void updateBlinkForegroundColour(int colour, const EmuTime &time);
+	void updateBlinkBackgroundColour(int colour, const EmuTime &time);
 	void updateBlinkState(bool enabled, const EmuTime &time);
 	void updatePalette(int index, int grb, const EmuTime &time);
 	void updateVerticalScroll(int scroll, const EmuTime &time);
