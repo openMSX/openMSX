@@ -29,6 +29,13 @@ public:
 	  */
 	void reset(const EmuTime& time);
 
+	/** Synchronises the command engine with the V9990
+	  * @param time The moment in emulated time to sync to.
+	  */  
+	inline void sync(const EmuTime& time) {
+		if (currentCommand) currentCommand->execute(time);
+	}
+	
 	/** Set a value to one of the command registers
 	  */
 	void setCmdReg(byte reg, byte val, const EmuTime& time);
@@ -43,7 +50,10 @@ public:
 
 	/** cmd engine ready for transfer (bit 7 in status reg)
 	  */
-	bool getTransfer() const { return transfer; }
+	bool getTransfer(const EmuTime& time) {
+		sync(time);
+		return transfer;
+	}
 
 private:
 	class V9990Bpp2 {

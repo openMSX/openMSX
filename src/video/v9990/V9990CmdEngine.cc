@@ -195,7 +195,7 @@ void V9990CmdEngine::setCmdReg(byte reg, byte value, const EmuTime& time)
 {
 	PRT_DEBUG("[" << time << "] V9990CmdEngine::setCmdReg(" 
 	          << std::dec << (int) reg << "," << (int) value << ")");
-	//sync(time);
+	sync(time);
 	switch(reg - 32) {
 	case  0: // SX low
 		SX = (SX & 0x0700) | value;
@@ -383,6 +383,7 @@ template <class Mode>
 void V9990CmdEngine::CmdLMMC<Mode>::execute(const EmuTime& time)
 {
 	if (engine->transfer) {
+		engine->transfer = false;
 		int width = engine->vdp->getImageWidth() / Mode::PIXELS_PER_BYTE;
 		byte data = engine->data;
 		for (int i = 0; (engine->ANY > 0) && (i < Mode::PIXELS_PER_BYTE); ++i) {
@@ -429,9 +430,6 @@ void V9990CmdEngine::CmdLMMV<Mode>::start(const EmuTime& time)
 	          " COL="<< std::hex << engine->fgCol <<
 	          " Bpp="<< std::hex << Mode::PIXELS_PER_BYTE);
 
-	engine->address = Mode::addressOf(engine->DX,
-	                                  engine->DY,
-	                                  engine->vdp->getImageWidth());
 	engine->ANX = engine->NX;
 	engine->ANY = engine->NY;
 
@@ -506,12 +504,56 @@ V9990CmdEngine::CmdLMMM<Mode>::CmdLMMM(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdLMMM<Mode>::start(const EmuTime& time)
 {
-	engine->cmdReady(); // TODO dummy implementation
+	PRT_DEBUG("LMMV: SX=" << std::dec << engine->SX <<
+	          " SY=" << std::dec << engine->SY <<
+	          " DX=" << std::dec << engine->DX <<
+	          " DY=" << std::dec << engine->DY <<
+	          " NX=" << std::dec << engine->NX <<
+	          " NY=" << std::dec << engine->NY <<
+	          " ARG="<< std::hex << (int)engine->ARG <<
+	          " Bpp="<< std::hex << Mode::PIXELS_PER_BYTE);
+
+	engine->ANX = engine->NX;
+	engine->ANY = engine->NY;
+
+	// TODO should be done by sync
+	execute(time);
 }
 
 template <class Mode>
 void V9990CmdEngine::CmdLMMM<Mode>::execute(const EmuTime& time)
 {
+	// TODO can be optimized a lot
+	
+	int width = engine->vdp->getImageWidth();
+	if (Mode::PIXELS_PER_BYTE) {
+		// hack to avoid "warning: division by zero"
+		int ppb = Mode::PIXELS_PER_BYTE; 
+		width /= ppb;
+	}
+	int dx = (engine->ARG & 0x04) ? -1 : 1;
+	int dy = (engine->ARG & 0x08) ? -1 : 1;
+	while (true) {
+		word source = Mode::point(vram, engine->SX, engine->SY, width);
+		word value = Mode::point(vram, engine->DX, engine->DY, width);
+		value = engine->logOp(source, value, Mode::MASK);
+		Mode::pset(vram, engine->DX, engine->DY, width, value);
+		
+		engine->DX += dx;
+		engine->SX += dx;
+		if (!--(engine->ANX)) {
+			engine->DX -= (engine->NX * dx);
+			engine->SX -= (engine->NX * dx);
+			engine->DY += dy;
+			engine->SY += dy;
+			if (!--(engine->ANY)) {
+				engine->cmdReady();
+				return;
+			} else {
+				engine->ANX = engine->NX;
+			}
+		}
+	}
 }
 
 // ====================================================================
@@ -750,18 +792,16 @@ void V9990CmdEngine::CmdADVN<Mode>::execute(const EmuTime& time)
 
 void V9990CmdEngine::setCmdData(byte value, const EmuTime& time)
 {
-	if (transfer && currentCommand) {
-		currentCommand->execute(time);
-	}
+	sync(time);
 	data = value;
 	transfer = true;
 }
 
 byte V9990CmdEngine::getCmdData(const EmuTime& time)
 {
+	sync(time);
+	
 	byte value = 0xFF;
-
-	//sync(time);
 	if (transfer) {
 		value = data;
 		transfer = false;
@@ -808,4 +848,5 @@ void V9990CmdEngine::cmdReady()
 	currentCommand = NULL;
 	vdp->cmdReady();
 }
-}
+
+} // namespace openmsx

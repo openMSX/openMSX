@@ -192,13 +192,18 @@ byte V9990::readIO(byte port, const EmuTime& time)
 			result = pendingIRQs;
 			break;
 		    
-		case STATUS:
-			result = status & 0x7F;
-			if (cmdEngine->getTransfer()) {
-				result |= 0x80;
-			}
+		case STATUS: {
+			int ticks = getUCTicksThisFrame(time);
+			int x = UCtoX(ticks, getDisplayMode());
+			int y = ticks / V9990DisplayTiming::UC_TICKS_PER_LINE;
+			bool hr = (x < 64) || (576 <= x); // TODO not correct
+			bool vr = (y < 14) || (226 <= y); // TODO not correct
+			result = (cmdEngine->getTransfer(time) ? 0x80 : 0x00) |
+				 (vr ? 0x40 : 0x00) |
+				 (hr ? 0x20 : 0x00) |
+				 (status & 0x1F);
 			break;
-		
+		}
 		case KANJI_ROM_1:
 		case KANJI_ROM_3:
 			// not used in Gfx9000

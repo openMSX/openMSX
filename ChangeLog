@@ -1,6 +1,12 @@
 $Id$
 
 2004-12-22 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Tried to make the gfx900 parts in calculus work (not yet succeeded)
+	   - implemented LMMM command
+	   - added very basic HR, VR status bit support
+	   - bugfix in LMMC command
+
+2004-12-22 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* simple (slow) implementation of V9990 LMMV command
 
 2004-12-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
