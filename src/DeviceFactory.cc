@@ -60,7 +60,6 @@ static void createDeviceSwitch()
 MSXDevice *DeviceFactory::create(Config* conf, const EmuTime& time)
 {
 	const string type = conf->getType();
-	cout << type << endl;
 	if (type == "PPI") {
 		return new MSXPPI(conf, time);
 	}
