@@ -406,8 +406,8 @@ bool CommandLineParser::HelpOption::parseOption(const string &option,
 	if (!parent.haveSettings) {
 		return false; // not parsed yet, load settings first
 	}
-	cout << "openMSX " VERSION << endl;
-	cout << "========" << string(strlen(VERSION), '=') << endl;
+	cout << "openMSX " PACKAGE_VERSION << endl;
+	cout << "========" << string(strlen(PACKAGE_VERSION), '=') << endl;
 	cout << endl;
 	cout << "usage: openmsx [arguments]" << endl;
 	cout << "  an argument is either an option or a filename" << endl;
@@ -457,7 +457,7 @@ bool CommandLineParser::VersionOption::parseOption(const string &option,
 		list<string> &cmdLine)
 {
 	parent.issuedHelp = true;
-	cout << "openMSX " VERSION " -- built on "__DATE__ << endl;
+	cout << "openMSX " PACKAGE_VERSION " -- built on "__DATE__ << endl;
 	parent.parseStatus = EXIT;
 	return true;
 }

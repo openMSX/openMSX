@@ -21,7 +21,7 @@ static bool initSDLVideo()
 		//throw FatalError(string("Couldn't init SDL video: ") + SDL_GetError());
 		return false; // TODO: use exceptions here too
 	}
-	SDL_WM_SetCaption("openMSX " VERSION " [alpha]", 0);
+	SDL_WM_SetCaption("openMSX " PACKAGE_VERSION " [alpha]", 0);
 
 	// Set icon
 	static unsigned int iconRGBA[256];

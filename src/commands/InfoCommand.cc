@@ -120,7 +120,7 @@ void InfoCommand::VersionInfo::execute(const vector<string> &tokens,
                                        CommandResult& result) const
 	throw()
 {
-	result.setString("openMSX " VERSION " -- built on "__DATE__);
+	result.setString("openMSX " PACKAGE_VERSION " -- built on "__DATE__);
 }
 
 string InfoCommand::VersionInfo::help(const vector<string> &tokens) const
