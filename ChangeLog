@@ -1,5 +1,8 @@
 $Id$
 
+2003-01-30 David Heremans <david.heremans@gnu-linux.net>
+	* altered a code comment and added some extra config examples
+
 2003-01-29 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented home-directory-substitution for local files:
 	   When a filename starts with "~", this character is replaced by

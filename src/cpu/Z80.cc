@@ -1,15 +1,14 @@
 // $Id$
 
-// TODO update heading
-/*** Z80Em: Portable Z80 emulator *******************************************/
-/***                                                                      ***/
-/***                                 Z80.c                                ***/
-/***                                                                      ***/
-/*** This file contains the emulation code                                ***/
-/***                                                                      ***/
-/*** Copyright (C) Marcel de Kogel 1996,1997                              ***/
-/***     You are not allowed to distribute this software commercially     ***/
-/***     Please, notify me, if you make any changes to this file          ***/
+/****************************************************************************/
+/*** During the proof of concept openMSX used                              **/
+/*** Z80Em, the Portable Z80 emulator                                      **/
+/*** of Marcel de Kogel ( (C)1996,1997 )                                   **/
+/***                                                                       **/
+/*** Now this code is completely rewritten by Wouter Vermaelen for openMSX **/
+/*** with inter-instruction timings, C++ enabling,EmuTime support etc etc  **/
+/*** and bears no resemblance anymore with Z80Em                           **/
+/***                                                                       **/
 /****************************************************************************/
 
 #include <cassert>
