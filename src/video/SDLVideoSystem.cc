@@ -2,6 +2,7 @@
 
 #include "SDLVideoSystem.hh"
 #include "SDLRenderer.hh"
+#include "SDLRasterizer.hh"
 #include "SDLSnow.hh"
 #include "SDLConsole.hh"
 #include "Display.hh"
@@ -34,33 +35,33 @@ SDLVideoSystem::SDLVideoSystem(
 
 	Display* display = new Display(auto_ptr<VideoSystem>(this));
 	Display::INSTANCE.reset(display);
-	Renderer* renderer;
+	Rasterizer* rasterizer;
 	Layer* background;
 	switch (screen->format->BytesPerPixel) {
 	case 1:
-		renderer = (id == RendererFactory::SDLLO)
-			? static_cast<Renderer*>(
-				new SDLRenderer<Uint8, Renderer::ZOOM_256>(id, vdp, screen) )
-			: static_cast<Renderer*>(
-				new SDLRenderer<Uint8, Renderer::ZOOM_REAL>(id, vdp, screen) )
+		rasterizer = (id == RendererFactory::SDLLO)
+			? static_cast<Rasterizer*>(
+				new SDLRasterizer<Uint8, Renderer::ZOOM_256>(vdp, screen) )
+			: static_cast<Rasterizer*>(
+				new SDLRasterizer<Uint8, Renderer::ZOOM_REAL>(vdp, screen) )
 			;
 		background = new SDLSnow<Uint8>(screen);
 		break;
 	case 2:
-		renderer = (id == RendererFactory::SDLLO)
-			? static_cast<Renderer*>(
-				new SDLRenderer<Uint16, Renderer::ZOOM_256>(id, vdp, screen) )
-			: static_cast<Renderer*>(
-				new SDLRenderer<Uint16, Renderer::ZOOM_REAL>(id, vdp, screen) )
+		rasterizer = (id == RendererFactory::SDLLO)
+			? static_cast<Rasterizer*>(
+				new SDLRasterizer<Uint16, Renderer::ZOOM_256>(vdp, screen) )
+			: static_cast<Rasterizer*>(
+				new SDLRasterizer<Uint16, Renderer::ZOOM_REAL>(vdp, screen) )
 			;
 		background = new SDLSnow<Uint16>(screen);
 		break;
 	case 4:
-		renderer = (id == RendererFactory::SDLLO)
-			? static_cast<Renderer*>(
-				new SDLRenderer<Uint32, Renderer::ZOOM_256>(id, vdp, screen) )
-			: static_cast<Renderer*>(
-				new SDLRenderer<Uint32, Renderer::ZOOM_REAL>(id, vdp, screen) )
+		rasterizer = (id == RendererFactory::SDLLO)
+			? static_cast<Rasterizer*>(
+				new SDLRasterizer<Uint32, Renderer::ZOOM_256>(vdp, screen) )
+			: static_cast<Rasterizer*>(
+				new SDLRasterizer<Uint32, Renderer::ZOOM_REAL>(vdp, screen) )
 			;
 		background = new SDLSnow<Uint32>(screen);
 		break;
@@ -70,12 +71,11 @@ SDLVideoSystem::SDLVideoSystem(
 	}
 	display->addLayer(background);
 	display->setAlpha(background, 255);
-	Layer* rendererLayer = dynamic_cast<Layer*>(renderer);
-	display->addLayer(rendererLayer);
-	display->setAlpha(rendererLayer, 255);
+	display->addLayer(rasterizer);
+	display->setAlpha(rasterizer, 255);
 	new SDLConsole(CommandConsole::instance(), screen);
 
-	this->renderer = renderer;
+	this->renderer = new SDLRenderer(id, vdp, rasterizer);
 }
 
 SDLVideoSystem::~SDLVideoSystem()

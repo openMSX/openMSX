@@ -1,5 +1,10 @@
 $Id$
 
+2004-07-24 Maarten ter Huurne <maarten@treewalker.org>
+	* Split SDLRasterizer off from SDLRenderer:
+	  - SDLRenderer deals with EmuTime, is colour depth and zoom independent
+	  - SDLRasterizer deals with pixels, does not know EmuTime
+
 2004-07-23 Maarten ter Huurne <maarten@treewalker.org>
 	* Removed all SDL specific code from SDLGLRenderer.
 	  Maybe I'll rename it to GLRenderer in the future.

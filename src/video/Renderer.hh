@@ -211,7 +211,6 @@ public:
 	  */
 	virtual float getFrameRate() const = 0;
 
-protected:
 	/** NTSC version of the MSX1 palette.
 	  * An array of 16 RGB triples.
 	  * Each component ranges from 0 (off) to 255 (full intensity).
@@ -224,6 +223,7 @@ protected:
 	  */
 	static const word GRAPHIC7_SPRITE_PALETTE[16];
 
+protected:
 	RenderSettings& settings;
 
 private:

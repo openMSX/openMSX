@@ -10,7 +10,7 @@ SRC_HDR:= \
 	VDPSettings \
 	Icon \
 	Renderer RendererFactory RenderSettings PixelRenderer \
-	SDLVideoSystem SDLRenderer SDLSnow \
+	SDLVideoSystem SDLRenderer SDLRasterizer SDLSnow \
 	SDLUtil \
 	DummyRenderer \
 	XRenderer \
@@ -26,7 +26,8 @@ HDR_ONLY:= \
 	DisplayMode \
 	VRAMObserver \
 	SpriteConverter \
-	Blender
+	Blender \
+	Rasterizer
 
 SRC_HDR_$(COMPONENT_GL)+= \
 	SDLGLVideoSystem SDLGLRenderer GLSnow GLUtil
