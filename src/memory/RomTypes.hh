@@ -57,6 +57,17 @@ class RomTypes
 		static MapperType nameToMapperType(const std::string &name);
 		static MapperType guessMapperType(const byte* data, int size);
 		static MapperType searchDataBase (const byte* data, int size);
+
+	private:
+		class RomInfo {
+			public:
+				std::string id;
+				std::string year;
+				std::string company;
+				std::string remark;
+				std::string romType;
+		};
 };
+
 
 #endif

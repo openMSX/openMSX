@@ -121,7 +121,7 @@ MapperType RomTypes::guessMapperType(const byte* data, int size)
 		//  adress nn depends upon the GameCartridge mappertype used.
 		//  To guess which mapper it is, we will look how much writes
 		//  with this instruction to the mapper-registers-addresses
-		//  occure.
+		//  occur.
 
 		unsigned int typeGuess[] = {0,0,0,0,0,0};
 		for (int i=0; i<size-3; i++) {
@@ -178,7 +178,14 @@ MapperType RomTypes::guessMapperType(const byte* data, int size)
 
 MapperType RomTypes::searchDataBase(const byte* data, int size)
 {
+	/*
 	static std::map<const std::string, std::string, caseltstr> romDB;
+	static std::map<const std::string, std::string, caseltstr> romid;
+	static std::map<const std::string, std::string, caseltstr> romyear;
+	static std::map<const std::string, std::string, caseltstr> romcompany;
+	static std::map<const std::string, std::string, caseltstr> romremark;
+	*/
+	static std::map<std::string, RomInfo*> romDB;
 	static bool init = false;
 
 	if (!init) {
@@ -189,12 +196,19 @@ MapperType RomTypes::searchDataBase(const byte* data, int size)
 			XML::Document doc(file.getLocalName().c_str());
 			std::list<XML::Element*>::iterator it1 = doc.root->children.begin();
 			for ( ; it1 != doc.root->children.end(); it1++) {
-				const std::string romType((*it1)->getElementPcdata("romtype"));
+				RomInfo* romInfo = new RomInfo();
+				romInfo->romType=(*it1)->getElementPcdata("romtype");
+				romInfo->id=(*it1)->getAttribute("id");
+				romInfo->year=(*it1)->getElementPcdata("year");
+				if (romInfo->year.length()==0) romInfo->year="(info not available)";
+				romInfo->company=(*it1)->getElementPcdata("company");
+				if (romInfo->company.length()==0) romInfo->company="(info not available)";
+				romInfo->remark=(*it1)->getElementPcdata("remark");
 				std::list<XML::Element*>::iterator it2 = (*it1)->children.begin();
 				for ( ; it2 != (*it1)->children.end(); it2++) {
 					if ((*it2)->name == "md5") {
 						if (romDB.find((*it2)->pcdata) == romDB.end()) {
-							romDB[(*it2)->pcdata] = romType;
+							romDB[(*it2)->pcdata] = romInfo;
 						} else {
 							PRT_INFO("Warning duplicate romdb entry " << (*it2)->pcdata);
 						}
@@ -213,7 +227,13 @@ MapperType RomTypes::searchDataBase(const byte* data, int size)
 	std::string digest(md5.hex_digest());
 	
 	if (romDB.find(digest) != romDB.end()) {
-		return nameToMapperType(romDB[digest]);
+		PRT_INFO("Found this ROM in the database:\n"
+				"  Title (id):  " << romDB[digest]->id << "\n"
+				"  Year:        " << romDB[digest]->year << "\n"
+				"  Company:     " << romDB[digest]->company << "\n"
+				"  Remark:      " << romDB[digest]->remark << "\n"
+				"  Mapper type: " << romDB[digest]->romType);
+		return nameToMapperType(romDB[digest]->romType);
 	} else {
 		// Rom is not in database
 		return UNKNOWN;

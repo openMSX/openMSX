@@ -2,5 +2,9 @@
 <!ELEMENT rom (md5+,romtype)>
 <!ATTLIST rom
               id CDATA #IMPLIED>
-<!ELEMENT md5 (#PCDATA)>
+<!ELEMENT md5 (#PCDATA)+>
 <!ELEMENT romtype (#PCDATA)>
+<!ELEMENT crc32 (#PCDATA)*>
+<!ELEMENT year (#PCDATA)?>
+<!ELEMENT company (#PCDATA)?>
+<!ELEMENT remark (#PCDATA)?>
