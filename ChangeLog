@@ -1,5 +1,9 @@
 $Id$
 
+2003-05-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Refactored VDPCmdEngine, use VDPCmd subclasses for each command
+	  instead of function pointers
+
 2003-05-30 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Implemented save/load consolehistory
 

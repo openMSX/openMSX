@@ -16,27 +16,32 @@ class VDPVRAM;
 class VDPCmdEngine
 {
 public:
-	// Constants:
-	static const byte REG_SXL = 0x00; // VDP R#32: source X low
-	static const byte REG_SXH = 0x01; // VDP R#32: source X high
-	static const byte REG_SYL = 0x02; // VDP R#34: source Y low
-	static const byte REG_SYH = 0x03; // VDP R#35: source Y high
-	static const byte REG_DXL = 0x04; // VDP R#36: destination X low
-	static const byte REG_DXH = 0x05; // VDP R#37: destination X high
-	static const byte REG_DYL = 0x06; // VDP R#38: destination Y low
-	static const byte REG_DYH = 0x07; // VDP R#39: destination Y high
-	static const byte REG_NXL = 0x08; // VDP R#40: number X low
-	static const byte REG_NXH = 0x09; // VDP R#41: number X high
-	static const byte REG_NYL = 0x0A; // VDP R#42: number Y low
-	static const byte REG_NYH = 0x0B; // VDP R#43: number Y high
-	static const byte REG_COL = 0x0C; // VDP R#44: colour
-	static const byte REG_ARG = 0x0D; // VDP R#45: argument
-	static const byte REG_CMD = 0x0E; // VDP R#46: command
-	static const byte NUM_REGS = REG_CMD+1;
+	enum Reg {
+		REG_SXL = 0x00, // VDP R#32: source X low
+		REG_SXH = 0x01, // VDP R#32: source X high
+		REG_SYL = 0x02, // VDP R#34: source Y low
+		REG_SYH = 0x03, // VDP R#35: source Y high
+		REG_DXL = 0x04, // VDP R#36: destination X low
+		REG_DXH = 0x05, // VDP R#37: destination X high
+		REG_DYL = 0x06, // VDP R#38: destination Y low
+		REG_DYH = 0x07, // VDP R#39: destination Y high
+		REG_NXL = 0x08, // VDP R#40: number X low
+		REG_NXH = 0x09, // VDP R#41: number X high
+		REG_NYL = 0x0A, // VDP R#42: number Y low
+		REG_NYH = 0x0B, // VDP R#43: number Y high
+		REG_COL = 0x0C, // VDP R#44: colour
+		REG_ARG = 0x0D, // VDP R#45: argument
+		REG_CMD = 0x0E, // VDP R#46: command
+		NUM_REGS = 15
+	};
 
 	/** Constructor.
 	  */
 	VDPCmdEngine(VDP *vdp);
+
+	/** Destructor
+	  */ 
+	~VDPCmdEngine();
 
 	/** Reinitialise Renderer state.
 	  * @param time The moment in time the reset occurs.
@@ -49,14 +54,11 @@ public:
 	  * @param time The moment in emulated time to sync to.
 	  */
 	inline void sync(const EmuTime &time) {
-		assert(time >= currentTime);
-		if (!currEngine) {
+		if (!(status & 0x01)) {
 			// no command in progress
 			return;
 		}
-		opsCount += currentTime.getTicksTill(time);
-		currentTime = time;
-		(this->*currEngine)();
+		commands[(cmdReg[REG_CMD] & 0xF0) >> 4]->execute(time);
 	}
 
 	/** Gets the command engine status (part of S#2).
@@ -95,9 +97,6 @@ public:
 	  * @param time The moment in emulated time this write occurs.
 	  */
 	inline void setCmdReg(byte index, byte value, const EmuTime &time) {
-		// TODO: fMSX sets the register after calling write,
-		//       with write setting the register as well.
-		//       Is there a difference? Which is correct?
 		sync(time);
 		cmdReg[index] = value;
 		if (index == REG_COL) {
@@ -114,146 +113,26 @@ public:
 	void updateDisplayMode(DisplayMode mode, const EmuTime &time);
 
 private:
-
 	// Types:
-	typedef enum {
+	enum LogOp {
 		OP_IMP  = 0x0, OP_AND  = 0x1, OP_OR   = 0x2, OP_XOR  = 0x3,
 		OP_NOT  = 0x4, OP_5    = 0x5, OP_6    = 0x6, OP_7    = 0x7,
 		OP_TIMP = 0x8, OP_TAND = 0x9, OP_TOR  = 0xA, OP_TXOR = 0xB,
 		OP_TNOT = 0xC, OP_D    = 0xD, OP_E    = 0xE, OP_F    = 0xF,
-	} LogOp;
-	typedef enum {
+	};
+	enum Cmd {
 		CM_ABRT  = 0x0, CM_1     = 0x1, CM_2     = 0x2, CM_3     = 0x3,
 		CM_POINT = 0x4, CM_PSET  = 0x5, CM_SRCH  = 0x6, CM_LINE  = 0x7,
 		CM_LMMV  = 0x8, CM_LMMM  = 0x9, CM_LMCM  = 0xA, CM_LMMC  = 0xB,
 		CM_HMMV  = 0xC, CM_HMMM  = 0xD, CM_YMMM  = 0xE, CM_HMMC  = 0xF,
-	} Cmd;
+	};
 
-	typedef void (VDPCmdEngine::*EngineMethod)();
-
-	// Methods:
-
-	/** Calculate addr of a pixel in VRAM.
-	  */
-	inline int vramAddr(int x, int y);
-
-	/** Get a pixel on SCREEN5.
-	  */
-	inline byte point5(int sx, int sy);
-
-	/** Get a pixel on SCREEN6.
-	  */
-	inline byte point6(int sx, int sy);
-
-	/** Get a pixel on SCREEN7.
-	  */
-	inline byte point7(int sx, int sy);
-
-	/** Get a pixel on SCREEN8.
-	  */
-	inline byte point8(int sx, int sy);
-
-	/** Get a pixel on the screen.
-	  */
-	inline byte point(int sx, int sy);
-
-	/** Low level method to set a pixel on a screen.
-	  */
-	inline void psetLowLevel(int addr, byte cl, byte m, LogOp op);
-
-	/** Set a pixel on SCREEN5.
-	  */
-	inline void pset5(int dx, int dy, byte cl, LogOp op);
-
-	/** Set a pixel on SCREEN6.
-	  */
-	inline void pset6(int dx, int dy, byte cl, LogOp op);
-
-	/** Set a pixel on SCREEN7.
-	  */
-	inline void pset7(int dx, int dy, byte cl, LogOp op);
-
-	/** Set a pixel on SCREEN8.
-	  */
-	inline void pset8(int dx, int dy, byte cl, LogOp op);
-
-	/** Set a pixel on the screen.
-	  */
-	inline void pset(int dx, int dy, byte cl, LogOp op);
-
-	/** Perform a given V9938 graphical operation.
-	  */
 	void executeCommand(const EmuTime &time);
-
-	/** Finshed executing graphical operation.
-	  */
-	void commandDone();
-
-	/** Get timing value for a certain VDP command.
-	  * @param timingValues Pointer to a table containing the timing
-	  *   values for the VDP command in question.
-	  */
-	int getVdpTimingValue(const int *timingValues);
-
-	// Engine methods which implement the different commands.
-
-	/** Search a dot.
-	  */
-	void srchEngine();
-
-	/** Draw a line.
-	  */
-	void lineEngine();
-
-	/** Logical move VDP -> VRAM.
-	  */
-	void lmmvEngine();
-
-	/** Logical move VRAM -> VRAM.
-	  */
-	void lmmmEngine();
-
-	/** Logical move VRAM -> CPU.
-	  */
-	void lmcmEngine();
-
-	/** Logical move CPU -> VRAM.
-	  */
-	void lmmcEngine();
-
-	/** High-speed move VDP -> VRAM.
-	  */
-	void hmmvEngine();
-
-	/** High-speed move VRAM -> VRAM.
-	  */
-	void hmmmEngine();
-
-	/** High-speed move VRAM -> VRAM (Y direction only).
-	  */
-	void ymmmEngine();
-
-	/** High-speed move CPU -> VRAM.
-	  */
-	void hmmcEngine();
-
+	
 	/** Report to stdout the VDP command specified in the registers.
 	  */
 	void reportVdpCommand();
 
-	// Fields:
-
-	struct {
-		int SX,SY;
-		int DX,DY;
-		int TX,TY;
-		int NX,NY;
-		int MX;
-		int ASX,ADX,ANX;
-		byte CL;
-		LogOp LO;
-		Cmd CM;
-	} MMC;
 
 	/** VDP command registers.
 	  */
@@ -271,21 +150,9 @@ private:
 	  */
 	int borderX;
 
-	/** Operation timing.
-	  */
-	int opsCount;
-
-	/** Pointer to engine method that performs current command.
-	  */
-	EngineMethod currEngine;
-
 	/** The VDP this command engine is part of.
 	  */
 	VDP *vdp;
-
-	/** The VRAM this command engine operates on.
-	  */
-	VDPVRAM *vram;
 
 	/** Current screen mode.
 	  * 0 -> SCREEN5, 1 -> SCREEN6, 2 -> SCREEN7, 3 -> SCREEN8,
@@ -293,9 +160,285 @@ private:
 	  */
 	int scrMode;
 
-	/** Current time: the moment up until when the engine is emulated.
+	class VDPCmd;
+	VDPCmd* commands[16];
+
+
+	/** This is an abstract base class the VDP commands
 	  */
-	EmuTimeFreq<VDP::TICKS_PER_SECOND> currentTime;
+	class VDPCmd {
+	public:
+		VDPCmd(VDPCmdEngine *engine_, VDPVRAM *vram_)
+			: engine(engine_), vram(vram_) {}
+
+		/** Calculate addr of a pixel in VRAM.
+		  */
+		inline int vramAddr(int x, int y);
+
+		/** Get a pixel on SCREEN 5 6 7 8
+		  */
+		inline byte point5(int sx, int sy);
+		
+		/** Get a pixel on SCREEN 5 6 7 8
+		  */
+		inline byte point6(int sx, int sy);
+		
+		/** Get a pixel on SCREEN 5 6 7 8
+		  */
+		inline byte point7(int sx, int sy);
+		
+		/** Get a pixel on SCREEN 5 6 7 8
+		  */
+		inline byte point8(int sx, int sy);
+
+		/** Get a pixel on the screen.
+		  */
+		inline byte point(int sx, int sy);
+
+		/** Low level method to set a pixel on a screen.
+		  */
+		inline void psetLowLevel(int addr, byte cl, byte m, LogOp op);
+
+		/** Set a pixel on SCREEN 5
+		  */
+		inline void pset5(int dx, int dy, byte cl, LogOp op);
+		
+		/** Set a pixel on SCREEN 6
+		  */
+		inline void pset6(int dx, int dy, byte cl, LogOp op);
+		
+		/** Set a pixel on SCREEN 7
+		  */
+		inline void pset7(int dx, int dy, byte cl, LogOp op);
+		
+		/** Set a pixel on SCREEN 8
+		  */
+		inline void pset8(int dx, int dy, byte cl, LogOp op);
+
+		/** Set a pixel on the screen.
+		  */
+		inline void pset(int dx, int dy, byte cl, LogOp op);
+
+		/** Prepare execution of cmd
+		  */
+		virtual void start(const EmuTime &time) = 0;
+
+		/** Perform a given V9938 graphical operation.
+		  */
+		virtual void execute(const EmuTime &time) = 0;
+
+		/** Finshed executing graphical operation.
+		  */
+		void commandDone();
+
+		/** Get timing value for a certain VDP command.
+		  * @param timingValues Pointer to a table containing the timing
+		  *   values for the VDP command in question.
+		  */
+		int getVdpTimingValue(const int *timingValues);
+
+	protected:
+		byte &cmdReg(Reg reg) { return engine->cmdReg[reg]; } 
+		
+		VDPCmdEngine *engine;
+		VDPVRAM *vram;
+		EmuTimeFreq<VDP::TICKS_PER_SECOND> currentTime;
+		int opsCount;
+	};
+
+
+	/** Abort
+	  */
+	class AbortCmd : public VDPCmd {
+	public:
+		AbortCmd(VDPCmdEngine *engine, VDPVRAM *vram)
+			: VDPCmd(engine, vram) {}
+		virtual void start(const EmuTime &time);
+		virtual void execute(const EmuTime &time);
+	};
+
+	/** Point
+	  */
+	class PointCmd : public VDPCmd {
+	public:
+		PointCmd(VDPCmdEngine *engine, VDPVRAM *vram)
+			: VDPCmd(engine, vram) {}
+		virtual void start(const EmuTime &time);
+		virtual void execute(const EmuTime &time);
+	};
+
+	/** Pset
+	  */
+	class PsetCmd : public VDPCmd {
+	public:
+		PsetCmd(VDPCmdEngine *engine, VDPVRAM *vram)
+			: VDPCmd(engine, vram) {}
+		virtual void start(const EmuTime &time);
+		virtual void execute(const EmuTime &time);
+	};
+
+	/** Search a dot.
+	  */
+	class SrchCmd : public VDPCmd {
+	public:
+		SrchCmd(VDPCmdEngine *engine, VDPVRAM *vram)
+			: VDPCmd(engine, vram) {}
+		virtual void start(const EmuTime &time);
+		virtual void execute(const EmuTime &time);
+		
+		int SX, SY;
+		int TX, MX;
+		int ANX;
+		byte CL;
+	};
+
+	/** Draw a line.
+	  */
+	class LineCmd : public VDPCmd {
+	public:
+		LineCmd(VDPCmdEngine *engine, VDPVRAM *vram)
+			: VDPCmd(engine, vram) {}
+		virtual void start(const EmuTime &time);
+		virtual void execute(const EmuTime &time);
+	
+		int DX, DY;
+		int NX, NY;
+		int TX, TY;
+		int ASX, ADX;
+		byte CL;
+		LogOp LO;
+	};
+
+	/** Logical move VDP -> VRAM.
+	  */
+	class LmmvCmd : public VDPCmd {
+	public:
+		LmmvCmd(VDPCmdEngine *engine, VDPVRAM *vram)
+			: VDPCmd(engine, vram) {}
+		virtual void start(const EmuTime &time);
+		virtual void execute(const EmuTime &time);
+	
+		int DX, DY;
+		int TX, TY;
+		int NX, NY;
+		int ADX, ANX;
+		byte CL;
+		LogOp LO;
+	};
+
+	/** Logical move VRAM -> VRAM.
+	  */
+	class LmmmCmd : public VDPCmd {
+	public:
+		LmmmCmd(VDPCmdEngine *engine, VDPVRAM *vram)
+			: VDPCmd(engine, vram) {}
+		virtual void start(const EmuTime &time);
+		virtual void execute(const EmuTime &time);
+	
+		int SX, SY;
+		int DX, DY;
+		int TX, TY;
+		int NX, NY;
+		int ASX, ADX, ANX;
+		LogOp LO;
+	};
+
+	/** Logical move VRAM -> CPU.
+	  */
+	class LmcmCmd : public VDPCmd {
+	public:
+		LmcmCmd(VDPCmdEngine *engine, VDPVRAM *vram)
+			: VDPCmd(engine, vram) {}
+		virtual void start(const EmuTime &time);
+		virtual void execute(const EmuTime &time);
+	
+		int SX, SY;
+		int DY, NX;
+		int NY, MX;
+		int TX, TY;
+		int ASX, ANX;
+	};
+
+	/** Logical move CPU -> VRAM.
+	  */
+	class LmmcCmd : public VDPCmd {
+	public:
+		LmmcCmd(VDPCmdEngine *engine, VDPVRAM *vram)
+			: VDPCmd(engine, vram) {}
+		virtual void start(const EmuTime &time);
+		virtual void execute(const EmuTime &time);
+		
+		int DX, DY;
+		int NX, NY;
+		int TX, TY;
+		int MX;
+		int ADX, ANX;
+		LogOp LO;
+	};
+
+	/** High-speed move VDP -> VRAM.
+	  */
+	class HmmvCmd : public VDPCmd {
+	public:
+		HmmvCmd(VDPCmdEngine *engine, VDPVRAM *vram)
+			: VDPCmd(engine, vram) {}
+		virtual void start(const EmuTime &time);
+		virtual void execute(const EmuTime &time);
+	
+		int DX, DY;
+		int NX, NY;
+		int TX, TY;
+		int ADX, ANX;
+		byte CL;
+	};
+
+	/** High-speed move VRAM -> VRAM.
+	  */
+	class HmmmCmd : public VDPCmd {
+	public:
+		HmmmCmd(VDPCmdEngine *engine, VDPVRAM *vram)
+			: VDPCmd(engine, vram) {}
+		virtual void start(const EmuTime &time);
+		virtual void execute(const EmuTime &time);
+	
+		int SX, SY;
+		int DX, DY;
+		int TX, TY;
+		int NX, NY;
+		int ASX, ADX, ANX;
+	};
+
+	/** High-speed move VRAM -> VRAM (Y direction only).
+	  */
+	class YmmmCmd : public VDPCmd {
+	public:
+		YmmmCmd(VDPCmdEngine *engine, VDPVRAM *vram)
+			: VDPCmd(engine, vram) {}
+		virtual void start(const EmuTime &time);
+		virtual void execute(const EmuTime &time);
+	
+		int SY;
+		int NY;
+		int DX, DY;
+		int TX, TY;
+		int ADX;
+	};
+
+	/** High-speed move CPU -> VRAM.
+	  */
+	class HmmcCmd : public VDPCmd {
+	public:
+		HmmcCmd(VDPCmdEngine *engine, VDPVRAM *vram)
+			: VDPCmd(engine, vram) {}
+		virtual void start(const EmuTime &time);
+		virtual void execute(const EmuTime &time);
+		
+		int DX, DY;
+		int NX, NY;
+		int TX, TY;
+		int MX;
+		int ADX, ANX;
+	};
 
 };
 
