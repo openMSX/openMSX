@@ -47,24 +47,24 @@ const unsigned dl_tab[16] = {
 const byte RATE_STEPS = 8;
 const byte eg_inc[15 * RATE_STEPS] = {
 //cycle:0 1  2 3  4 5  6 7
-	 1, 1,  1, 1,  1, 1,  1, 1, //  0  rates 00..12 0 (increment by 0 or 1)
-	 1, 2,  1, 1,  1, 2,  1, 1, //  1  rates 00..12 1
-	 1, 2,  1, 2,  1, 2,  1, 2, //  2  rates 00..12 2
-	 1, 2,  2, 2,  1, 2,  2, 2, //  3  rates 00..12 3
+	0, 1,  0, 1,  0, 1,  0, 1, //  0  rates 00..12 0 (increment by 0 or 1)
+	0, 1,  0, 1,  1, 1,  0, 1, //  1  rates 00..12 1
+	0, 1,  1, 1,  0, 1,  1, 1, //  2  rates 00..12 2
+	0, 1,  1, 1,  1, 1,  1, 1, //  3  rates 00..12 3
 
-	 2, 2,  2, 2,  2, 2,  2, 2, //  4  rate 13 0 (increment by 1)
-	 2, 3,  2, 3,  2, 3,  2, 3, //  5  rate 13 1
-	 3, 3,  3, 3,  3, 3,  3, 3, //  6  rate 13 2
-	 3, 4,  3, 4,  3, 4,  3, 4, //  7  rate 13 3
+	1, 1,  1, 1,  1, 1,  1, 1, //  4  rate 13 0 (increment by 1)
+	1, 1,  1, 2,  1, 1,  1, 2, //  5  rate 13 1
+	1, 2,  1, 2,  1, 2,  1, 2, //  6  rate 13 2
+	1, 2,  2, 2,  1, 2,  2, 2, //  7  rate 13 3
 
-	 4, 4,  4, 4,  4, 4,  4, 4, //  8  rate 14 0 (increment by 2)
-	 5, 5,  5, 5,  5, 5,  5, 5, //  9  rate 14 1
-	 6, 6,  6, 6,  6, 6,  6, 6, // 10  rate 14 2
-	 7, 7,  7, 7,  7, 7,  7, 7, // 11  rate 14 3
+	2, 2,  2, 2,  2, 2,  2, 2, //  8  rate 14 0 (increment by 2)
+	2, 2,  2, 4,  2, 2,  2, 4, //  9  rate 14 1
+	2, 4,  2, 4,  2, 4,  2, 4, // 10  rate 14 2
+	2, 4,  4, 4,  2, 4,  4, 4, // 11  rate 14 3
 
-	 8, 8,  8, 8,  8, 8,  8, 8, // 12  rates 15 0, 15 1, 15 2, 15 3 for decay
-	16,16, 16,16, 16,16, 16,16, // 13  rates 15 0, 15 1, 15 2, 15 3 for attack (zero time)
-	 0, 0,  0, 0,  0, 0,  0, 0, // 14  infinity rates for attack and decay(s)
+	4, 4,  4, 4,  4, 4,  4, 4, // 12  rates 15 0, 15 1, 15 2, 15 3 for decay
+	8, 8,  8, 8,  8, 8,  8, 8, // 13  rates 15 0, 15 1, 15 2, 15 3 for attack (zero time)
+	0, 0,  0, 0,  0, 0,  0, 0, // 14  infinity rates for attack and decay(s)
 };
 
 #define O(a) (a * RATE_STEPS)
@@ -91,7 +91,7 @@ const unsigned char eg_rate_select[64] = {
 //rate  0,    1,    2,    3,   4,   5,   6,  7,  8,  9,  10, 11, 12, 13, 14, 15 
 //shift 12,   11,   10,   9,   8,   7,   6,  5,  4,  3,  2,  1,  0,  0,  0,  0  
 //mask  4095, 2047, 1023, 511, 255, 127, 63, 31, 15, 7,  3,  1,  0,  0,  0,  0  
-#define O(a) (a * 1)
+#define O(a) (a)
 const unsigned char eg_rate_shift[64] = {
 	O(12),O(12),O(12),O(12),
 	O(11),O(11),O(11),O(11),
@@ -319,10 +319,10 @@ void YMF278::advance()
 			}
 			case EG_REV: {	//pseudo reverb
 				//TODO improve env_vol update
-				byte rate = op.compute_rate(4);
-				if (rate < 4) {
-					break;
-				}
+				byte rate = op.compute_rate(5);
+				//if (rate < 4) {
+				//	break;
+				//}
 				byte shift = eg_rate_shift[rate];
 				if (!(eg_cnt & ((1 << shift) - 1))) {
 					byte select = eg_rate_select[rate];
@@ -338,10 +338,7 @@ void YMF278::advance()
 			}
 			case EG_DMP: {	//damping
 				//TODO improve env_vol update, damp is just fastest decay now
-				byte rate = op.compute_rate(15);
-				if (rate < 4) {
-					break;
-				}
+				byte rate = 56;
 				byte shift = eg_rate_shift[rate];
 				if (!(eg_cnt & ((1 << shift) - 1))) {
 					byte select = eg_rate_select[rate];
@@ -441,9 +438,18 @@ int* YMF278::updateBuffer(int length)
 
 			int volLeft  = vol + pan_left [(int)sl.pan] + vl;
 			int volRight = vol + pan_right[(int)sl.pan] + vr;
+
+			// TODO prob doesn't happen in real chip
+			if (volLeft < 0) {
+				volLeft = 0;
+			}
+			if (volRight < 0) {
+				volRight = 0;
+			}
+			
 			left  += (sample * volume[volLeft] ) >> 16;
 			right += (sample * volume[volRight]) >> 16;
-		
+			
 			if (sl.lfo_active && sl.vib) {
 				int oct = sl.OCT;
 				if (oct & 8) {
@@ -540,6 +546,13 @@ void YMF278::writeRegOPL4(byte reg, byte data, const EmuTime &time)
 		case 3:
 			slot.TL = data >> 1;
 			slot.LD = data & 0x1;
+
+			// TODO
+			if (slot.LD) {
+				// directly change volume
+			} else {
+				// interpolate volume
+			}
 			break;
 		case 4:
 			slot.pan = data & 0x0F;
