@@ -38,6 +38,7 @@ TODO:
 #include "VDPVRAM.hh"
 #include "util.hh"
 
+
 namespace openmsx {
 
 // Force template instantiation for these types.
@@ -83,6 +84,13 @@ CharacterConverter<Pixel, zoom>::CharacterConverter(
 	fillBool(dirtyPattern, true, sizeof(dirtyPattern) / sizeof(bool));
 	fillBool(dirtyName, true, sizeof(dirtyName) / sizeof(bool));
 	dirtyForeground = dirtyBackground = true;
+}
+
+template <class Pixel, Renderer::Zoom zoom>
+void CharacterConverter<Pixel, zoom>::setDisplayMode(DisplayMode mode)
+{
+	assert(mode.getBase() < 0x0C);
+	renderMethod = modeToRenderMethod[mode.getBase()];
 }
 
 template <class Pixel, Renderer::Zoom zoom>

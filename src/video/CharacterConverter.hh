@@ -135,13 +135,8 @@ public:
 
 	/** Select the display mode to use for scanline conversion.
 	  * @param mode The new display mode.
-	  * TODO: Should this be inlined? It's not used that frequently.
 	  */
-	inline void setDisplayMode(DisplayMode mode)
-	{
-		assert(mode.getBase() < 0x0C);
-		renderMethod = modeToRenderMethod[mode.getBase()];
-	}
+	void setDisplayMode(DisplayMode mode);
 
 private:
 	typedef void (CharacterConverter::*RenderMethod)
