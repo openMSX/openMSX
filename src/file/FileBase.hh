@@ -3,6 +3,7 @@
 #ifndef __FILEBASE_HH__
 #define __FILEBASE_HH__
 
+#include <string>
 #include "openmsx.hh"
 
 
