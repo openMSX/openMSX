@@ -261,8 +261,13 @@ byte MSXGameCartridge::readMem(word address, const EmuTime &time)
 
 byte* MSXGameCartridge::getReadCacheLine(word start)
 {
-	// assumes CACHE_LINE_SIZE <= 0x2000
-	return &internalMemoryBank[start>>13][start&0x1fff];
+	if (enabledSCC && 0x9800<=start && start<0xA000) {
+		// don't cache SCC
+		return NULL;
+	} else {
+		// assumes CACHE_LINE_SIZE <= 0x2000
+		return &internalMemoryBank[start>>13][start&0x1fff];
+	}
 }
 
 void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
@@ -303,7 +308,7 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 
 		if (address<0x5000 || address>=0xC000) return;
 		// Write to SCC?
-		if (enabledSCC && 0x9800 <= address && address < 0xA000) {
+		if (enabledSCC && 0x9800<=address && address<0xA000) {
 			cartridgeSCC->writeMemInterface(address & 0xFF, value , time);
 			PRT_DEBUG("GameCartridge: writeMemInterface (" << address <<","<<(int)value<<")"<<time );
 			// No page selection in this memory range.
