@@ -3,7 +3,7 @@ Release History
 
 This is an overview of the changes that were incorporated into past releases.
 
-openMSX 0.5.0 (2004-10-15)
+openMSX 0.5.0 (2004-10-18)
 --------------------------
 
 This release includes a complete redesign of the hardware configuration XML files. Also many devices were renamed. I/O ports are now specified in the hardware configuration instead of hardcoded. Configurations in the old format
@@ -64,7 +64,8 @@ MSX device support:
 - 8kB BASIC ROMs now work correctly and are auto detected as well.
 - Added simple DC filter for cassette images.
   .wav files created by MicroWAVer should work now.
-- Added format command for TC8566AF FDC, thanks to Daniel Vik.
+- Fixes for TC8566AF FDC (used in turbo R), thanks to Daniel Vik:
+  improved timing (fixes Gazzel intro) and added format command.
 - Force PSG portA to be input port. This fixes joystick and mouse reading in
   games that write illegal values to the PSG (Match Maniac and others).
 - Emulation of the Tetris II Special Edition dongle (plugs into joystick port).
