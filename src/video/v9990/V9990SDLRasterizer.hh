@@ -32,8 +32,8 @@ public:
 
 	// Rasterizer interface:
 	virtual void reset();
-	virtual void frameStart(const V9990DisplayPeriod *horTiming,
-                            const V9990DisplayPeriod *verTiming);
+	virtual void frameStart(const V9990DisplayPeriod* horTiming,
+	                        const V9990DisplayPeriod* verTiming);
 	virtual void frameEnd();
 	virtual void setDisplayMode(V9990DisplayMode displayMode);
 	virtual void setColorMode(V9990ColorMode colorMode);
@@ -42,7 +42,8 @@ public:
 	virtual void setImageWidth(int width);
 	virtual void drawBorder(int fromX, int fromY, int limitX, int limitY);
 	virtual void drawDisplay(int fromX, int fromY,
-		int displayX, int displayY, int displayWidth, int displayHeight);
+	                         int displayX, int displayY,
+	                         int displayWidth, int displayHeight);
 
 private:
 	/** screen width for SDLLo
@@ -113,7 +114,7 @@ private:
 
 	/** Fill the palettes.
 	  */
-	void precalcPalettes(void);
+	void precalcPalettes();
 };
 
 } // namespace openmsx

@@ -2,6 +2,9 @@ $Id$
 
 2004-12-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Cleanup/optimize V9990BitmapConvertor
+	* Store V9990 palette as GRB iso RGB:
+	   - format in V9990 video RAM is also GRB, emulation is faster
+	     if both use the same format
 
 2004-12-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Turn off all LEDs when MSX is powered down

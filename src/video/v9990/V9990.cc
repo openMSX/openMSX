@@ -19,7 +19,7 @@ using std::vector;
 namespace openmsx {
 
 enum RegisterAccess { NO_ACCESS, RD_ONLY, WR_ONLY, RD_WR };
-static const RegisterAccess regAccess[] = {
+static const RegisterAccess regAccess[64] = {
 	WR_ONLY, WR_ONLY, WR_ONLY,          // VRAM Write Address
 	WR_ONLY, WR_ONLY, WR_ONLY,          // VRAM Read Address
 	RD_WR, RD_WR,                       // Screen Mode
@@ -104,9 +104,6 @@ V9990::~V9990()
 	Debugger::instance().unregisterDebuggable("V9990 regs", v9990RegDebug);
 	EventDistributor::instance().unregisterEventListener(
 		RENDERER_SWITCH2_EVENT, *this, EventDistributor::DETACHED );
-
-	// trash sub-systems
-	delete renderer;
 }
 
 // -------------------------------------------------------------------------
@@ -359,7 +356,6 @@ bool V9990::signalEvent(const Event& event)
 	
 	assert(event.getType() == RENDERER_SWITCH2_EVENT);
 	const EmuTime& time = Scheduler::instance().getCurrentTime();
-	delete renderer;
 	createRenderer(time);
 	renderer->frameStart(time);
 	return true;
@@ -511,7 +507,8 @@ void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
 
 void V9990::createRenderer(const EmuTime &time)
 {
-	renderer = RendererFactory::createV9990Renderer(this);
+	renderer.reset(); // delete old renderer before creating new one
+	renderer.reset(RendererFactory::createV9990Renderer(this));
 	renderer->reset(time);
 }
 
@@ -537,7 +534,7 @@ void V9990::raiseIRQ(IRQType irqType)
 	}
 }
 
-V9990ColorMode V9990::getColorMode(void)
+V9990ColorMode V9990::getColorMode()
 {
 	V9990ColorMode mode = INVALID_COLOR_MODE;
 
@@ -576,7 +573,7 @@ V9990ColorMode V9990::getColorMode(void)
 	return mode;
 }
 
-V9990DisplayMode V9990::getDisplayMode(void)
+V9990DisplayMode V9990::getDisplayMode()
 {
 	V9990DisplayMode mode = INVALID_DISPLAY_MODE;
 

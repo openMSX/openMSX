@@ -42,16 +42,12 @@ template class V9990BitmapConverter<
 
 template <class Pixel, Renderer::Zoom zoom>
 V9990BitmapConverter<Pixel, zoom>::V9990BitmapConverter(
-	V9990VRAM* vram,
-	SDL_PixelFormat fmt,
-	Pixel* palette64, Pixel* palette256, Pixel* palette32768)
-	: format(fmt)
+	V9990VRAM* vram_,
+	SDL_PixelFormat format_,
+	Pixel* palette64_, Pixel* palette256_, Pixel* palette32768_)
+	: vram(vram_), format(format_)
+        , palette64(palette64_), palette256(palette256_), palette32768(palette32768_)
 {
-	this->vram         = vram;
-	this->palette64    = palette64;
-	this->palette256   = palette256;
-	this->palette32768 = palette32768;
-
 	// make sure function pointers have valid values
 	setDisplayMode(P1);
 	setColorMode(PP);
@@ -80,7 +76,7 @@ void V9990BitmapConverter<Pixel, zoom>::rasterBYUV(
 			int r = y + u;
 			int g = (5 * y - 2 * u - v) / 4;
 			int b = y + v;
-			*pixelPtr++ = palette32768[(r << 10) + (g << 5) + b];
+			*pixelPtr++ = palette32768[(g << 10) + (r << 5) + b];
 		}
 	}
 }
@@ -102,7 +98,7 @@ void V9990BitmapConverter<Pixel, zoom>::rasterBYUVP(
 			int r = y + u;
 			int g = (5 * y - 2 * u - v) / 4;
 			int b = y + v;
-			*pixelPtr++ = palette32768[(r << 10) + (g << 5) + b];
+			*pixelPtr++ = palette32768[(g << 10) + (r << 5) + b];
 		}
 	}
 }
@@ -123,7 +119,7 @@ void V9990BitmapConverter<Pixel, zoom>::rasterBYJK(
 			int r = y + j;
 			int g = y + k;
 			int b = (5 * y - 2 * j - k) / 4;
-			*pixelPtr++ = palette32768[(r << 10) + (g << 5) + b];
+			*pixelPtr++ = palette32768[(g << 10) + (r << 5) + b];
 		}
 	}
 }
@@ -145,7 +141,7 @@ void V9990BitmapConverter<Pixel, zoom>::rasterBYJKP(
 			int r = y + j;
 			int g = y + k;
 			int b = (5 * y - 2 * j - k) / 4;
-			*pixelPtr++ = palette32768[(r << 10) + (g << 5) + b];
+			*pixelPtr++ = palette32768[(g << 10) + (r << 5) + b];
 		}
 	}
 }
@@ -154,14 +150,10 @@ template <class Pixel, Renderer::Zoom zoom>
 void V9990BitmapConverter<Pixel, zoom>::rasterBD16(
 	Pixel* pixelPtr, uint address, int nrPixels)
 {
-	// TODO swap R/G in palette32768 so that this routine becomes simpler
 	for (int p = 0; p < nrPixels; ++p) {
 		byte low  = vram->readVRAM(address++);
 		byte high = vram->readVRAM(address++);
-		int r = (low >> 5) & 0x07 | (high << 3) & 0x18;
-		int g = (high >> 2) & 0x1F;
-		int b = low & 0x1F;
-		*pixelPtr++ = palette32768[(r << 10) + (g << 5) + b];
+		*pixelPtr++ = palette32768[(low + 256 * high) & 0x7FFF];
 	}
 }
 

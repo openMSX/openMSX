@@ -207,7 +207,7 @@ private:
 
 	/** The running command is complete. Perform neccessary clean-up actions.
 	  */
-	void cmdReady(void);
+	void cmdReady();
 };
 
 } // namespace openmsx

@@ -42,7 +42,7 @@ public:
 
 	/** Obtain a pointer to the data
 	  */
-	inline byte *getData(void) {
+	inline byte* getData() {
 		return data;
 	}
 

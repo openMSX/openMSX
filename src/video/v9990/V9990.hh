@@ -119,22 +119,22 @@ public:
 
 	/** Return the current display mode
 	  */
-	V9990DisplayMode getDisplayMode(void);
+	V9990DisplayMode getDisplayMode();
 
 	/** Return the current color mode
 	  */
-	V9990ColorMode getColorMode(void);
+	V9990ColorMode getColorMode();
 
 	/** Return the current back drop color
 	  * @return  Index the color palette
 	  */
-	inline int getBackDropColor(void) {
+	inline int getBackDropColor() {
 		return regs[BACK_DROP_COLOR];
 	}
 
 	/** Return the image width
 	  */
-	inline int getImageWidth(void) {
+	inline int getImageWidth() {
 		return (256 << ((regs[SCREEN_MODE_0] & 0x0C) >> 2));
 	}
 			
@@ -296,13 +296,14 @@ private:
 	/** Command Engine
 	  */
 	std::auto_ptr<V9990CmdEngine> cmdEngine;
-	/** Palette
-	  */
-	byte palette[256];
 
 	/** Renderer
 	  */
-	V9990Renderer* renderer;
+	std::auto_ptr<V9990Renderer> renderer;
+
+	/** Palette
+	  */
+	byte palette[256];
 
 	/** Is PAL timing active?  False means NTSC timing
 	  */
