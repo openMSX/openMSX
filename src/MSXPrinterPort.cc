@@ -32,10 +32,6 @@ MSXPrinterPort::~MSXPrinterPort()
 	delete simple;
 }
 
-void MSXPrinterPort::powerOff(const EmuTime &time)
-{
-}
-
 void MSXPrinterPort::reset(const EmuTime &time)
 {
 	writeData(0, time);	// TODO check this
