@@ -4,10 +4,8 @@
 #define __MSXCPU_HH__
 
 #include "MSXDevice.hh"
-//#include "CPUInterface.hh"
 #include "MSXMotherBoard.hh"
 #include "Scheduler.hh"
-#include "CPU.hh"
 #include "Z80.hh"
 //#include "MSXR800.hh"
 
@@ -36,7 +34,7 @@ class MSXCPU : public MSXDevice, public Schedulable
 		
 		void setActiveCPU(CPUType cpu);
 		
-		CPU &getActiveCPU();
+		CPU* getActiveCPU();
 		
 		const EmuTime &getTargetTime();
 

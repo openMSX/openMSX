@@ -4,7 +4,7 @@
 #include <list>
 #include "MSXCPU.hh"
 #include "msxconfig.hh"
-
+#include "CPU.hh"
 
 MSXCPU::MSXCPU(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time)
@@ -100,7 +100,7 @@ void MSXCPU::invalidateCache(word start, int num)
 	activeCPU->invalidateCache(start, num);
 }
 
-CPU &MSXCPU::getActiveCPU()
+CPU* MSXCPU::getActiveCPU()
 {
-	return *activeCPU;
+	return activeCPU;
 }

@@ -56,7 +56,7 @@
     <parameter name="filename">MSX.ROM</parameter>
     <parameter name="skip_headerbytes">16384</parameter>
   </device>
-<!--
+
   <device id="diskrom">
     <type>Rom16KB</type>
     <slotted>
@@ -82,7 +82,18 @@
     <parameter name="0x0021" class="patch">0xC9</parameter>
     <parameter name="" class="patchcode">MSXDiskRomPatch</parameter>
   </device>
--->
+
+  <config id="diskpatch_diskA">
+    <type>disk</type>
+    <parameter name="readonly">true</parameter>
+    <parameter name="filename">mania036.dsk</parameter>
+  </config>
+  <config id="diskpatch_diskB">
+    <type>disk</type>
+    <parameter name="readonly">false</parameter>
+    <parameter name="filename">mania111.dsk</parameter>
+  </config>
+
   <device id="ppi">
     <type>PPI</type>
     <parameter name="volume">16000</parameter>
