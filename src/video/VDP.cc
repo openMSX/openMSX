@@ -28,13 +28,14 @@ TODO:
 #include "EventDistributor.hh"
 #include "CommandController.hh"
 #include "Scheduler.hh"
-#include "SettingsConfig.hh"
 #include "xmlx.hh"
 #include "Debugger.hh"
 #include "RendererFactory.hh"
+#include "Renderer.hh"
 
 using std::setw;
-
+using std::string;
+using std::vector;
 
 namespace openmsx {
 
@@ -83,7 +84,7 @@ VDP::VDP(const XMLElement& config, const EmuTime& time)
 	int vramSize =
 		(isMSX1VDP() ? 16 : deviceConfig.getChildDataAsInt("vram"));
 	if (vramSize != 16 && vramSize != 64 && vramSize != 128) {
-		ostringstream out;
+		std::ostringstream out;
 		out << "VRAM size of " << vramSize << "kB is not supported!";
 		throw FatalError(out.str());
 	}
@@ -1125,14 +1126,14 @@ VDP::VDPRegsCmd::VDPRegsCmd(VDP& vdp_)
 string VDP::VDPRegsCmd::execute(const vector<string>& /*tokens*/)
 {
 	// Print palette in 4x4 table.
-	ostringstream out;
+	std::ostringstream out;
 	for (int row = 0; row < 8; row++) {
 		for (int col = 0; col < 4; col++) {
 			int reg = col * 8 + row;
 			int value = vdp.controlRegs[reg];
-			out << dec << setw(2) << reg;
+			out << std::dec << std::setw(2) << reg;
 			out << " : ";
-			out << hex << setw(2) << value;
+			out << std::hex << std::setw(2) << value;
 			out << "   ";
 		}
 		out << "\n";
@@ -1155,12 +1156,12 @@ VDP::PaletteCmd::PaletteCmd(VDP& vdp_)
 string VDP::PaletteCmd::execute(const vector<string>& /*tokens*/)
 {
 	// Print palette in 4x4 table.
-	ostringstream out;
+	std::ostringstream out;
 	for (int row = 0; row < 4; row++) {
 		for (int col = 0; col < 4; col++) {
 			int i = col * 4 + row;
 			int grb = vdp.getPalette(i);
-			out << hex << i << dec << ":"
+			out << std::hex << i << std::dec << ":"
 				<< ((grb >> 4) & 7) << ((grb >> 8) & 7) << (grb & 7)
 				<< "  ";
 		}

@@ -4,15 +4,12 @@
 #define __V9990PIXELRENDERER_HH__
 
 #include "V9990.hh"
-#include "V9990VRAM.hh"
-#include "V9990Rasterizer.hh"
+#include "V9990Renderer.hh"
 #include "openmsx.hh"
 
 namespace openmsx {
 
 class V9990Rasterizer;
-class V9990;
-class V9990VRAM;
 
 /** Generic pixel based renderer for the V9990.
   * Uses a rasterizer to plot actual pixels for a specific video system

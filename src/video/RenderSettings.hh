@@ -9,9 +9,6 @@
 #include "SettingListener.hh"
 #include "EventListener.hh"
 
-using std::auto_ptr;
-
-
 namespace openmsx {
 
 class SettingsConfig;
@@ -88,18 +85,18 @@ private:
 	void checkRendererSwitch();
 
 	// Please keep the settings ordered alphabetically.
-	auto_ptr<EnumSetting<Accuracy> > accuracy;
-	auto_ptr<BooleanSetting> deinterlace;
-	auto_ptr<BooleanSetting> fullScreen;
-	auto_ptr<FloatSetting> gamma;
-	auto_ptr<IntegerSetting> glow;
-	auto_ptr<IntegerSetting> horizontalBlur;
-	auto_ptr<IntegerSetting> maxFrameSkip;
-	auto_ptr<IntegerSetting> minFrameSkip;
-	auto_ptr<RendererFactory::RendererSetting> renderer;
-	auto_ptr<EnumSetting<ScalerID> > scaler;
-	auto_ptr<IntegerSetting> scanlineAlpha;
-	auto_ptr<EnumSetting<VideoSource> > videoSource;
+	std::auto_ptr<EnumSetting<Accuracy> > accuracy;
+	std::auto_ptr<BooleanSetting> deinterlace;
+	std::auto_ptr<BooleanSetting> fullScreen;
+	std::auto_ptr<FloatSetting> gamma;
+	std::auto_ptr<IntegerSetting> glow;
+	std::auto_ptr<IntegerSetting> horizontalBlur;
+	std::auto_ptr<IntegerSetting> maxFrameSkip;
+	std::auto_ptr<IntegerSetting> minFrameSkip;
+	std::auto_ptr<RendererFactory::RendererSetting> renderer;
+	std::auto_ptr<EnumSetting<ScalerID> > scaler;
+	std::auto_ptr<IntegerSetting> scanlineAlpha;
+	std::auto_ptr<EnumSetting<VideoSource> > videoSource;
 
 	RendererFactory::RendererID currentRenderer;
 };

@@ -7,12 +7,13 @@
  */
 
 #include <cassert>
-#include <SDL_image.h>
 #include "SDLConsole.hh"
+#include "Console.hh"
 #include "SDLFont.hh"
 #include "File.hh"
-#include "CommandConsole.hh"
 #include "SDLImage.hh"
+
+using std::string;
 
 namespace openmsx {
 

@@ -2,7 +2,6 @@
 
 #include "Semaphore.hh"
 
-
 namespace openmsx {
 
 Semaphore::Semaphore(unsigned value)

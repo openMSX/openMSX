@@ -2,6 +2,7 @@
 
 #include "JoystickDevice.hh"
 
+using std::string;
 
 namespace openmsx {
 

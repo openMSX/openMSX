@@ -4,20 +4,15 @@
 #define __SDLRASTERIZER_HH__
 
 #include "Rasterizer.hh"
-#include "SettingListener.hh"
 #include "CharacterConverter.hh"
 #include "BitmapConverter.hh"
 #include "SpriteConverter.hh"
-#include "Blender.hh"
 #include "Scaler.hh"
 #include "Deinterlacer.hh"
 #include "openmsx.hh"
 #include <memory>
 
-using std::auto_ptr;
-
 struct SDL_Surface;
-
 
 namespace openmsx {
 
@@ -42,7 +37,7 @@ public:
 
 	// Layer interface:
 	virtual void paint();
-	virtual const string& getName();
+	virtual const std::string& getName();
 
 	// Rasterizer interface:
 	virtual void reset();
@@ -66,7 +61,7 @@ public:
 		);
 
 protected:
-	// SettingListener interface:
+	// SettingListener interface:   TODO remove??
 	virtual void update(const Setting* setting);
 
 private:
@@ -183,7 +178,7 @@ private:
 
 	/** The currently active scaler.
 	  */
-	auto_ptr<Scaler<Pixel> > currScaler;
+	std::auto_ptr<Scaler<Pixel> > currScaler;
 
 	/** ID of the currently active scaler.
 	  * Used to detect scaler changes.

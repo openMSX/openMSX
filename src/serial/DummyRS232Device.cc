@@ -2,6 +2,8 @@
 
 #include "DummyRS232Device.hh"
 
+using std::string;
+
 namespace openmsx {
 
 void DummyRS232Device::signal(const EmuTime& /*time*/)

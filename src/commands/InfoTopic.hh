@@ -6,9 +6,6 @@
 #include <string>
 #include <vector>
 
-using std::string;
-using std::vector;
-
 namespace openmsx {
 
 class CommandArgument;
@@ -24,14 +21,14 @@ public:
 	  * @throw CommandException Thrown when there was an error while
 	  *                         executing this InfoTopic.
 	  */
-	virtual void execute(const vector<CommandArgument>& tokens,
+	virtual void execute(const std::vector<CommandArgument>& tokens,
 	                     CommandArgument& result) const = 0;
 
 	/** Print help for this topic.
 	  * @param tokens Tokenized command line;
 	  *     tokens[1] is the topic.
 	  */
-	virtual string help(const vector<string>& tokens) const = 0;
+	virtual std::string help(const std::vector<std::string>& tokens) const = 0;
 
 	/** Attempt tab completion for this topic.
 	  * Default implementation does nothing.
@@ -39,7 +36,7 @@ public:
 	  *     tokens[1] is the topic.
 	  *     The last token is incomplete, this method tries to complete it.
 	  */
-	virtual void tabCompletion(vector<string>& /*tokens*/) const {}
+	virtual void tabCompletion(std::vector<std::string>& /*tokens*/) const {}
 };
 
 } // namespace openmsx

@@ -14,7 +14,7 @@ class Y8950;
 class Y8950Adpcm : private Schedulable, private Debuggable
 {
 public:
-	Y8950Adpcm(Y8950& y8950, const string& name, int sampleRam);
+	Y8950Adpcm(Y8950& y8950, const std::string& name, int sampleRam);
 	virtual ~Y8950Adpcm();
 	
 	void reset(const EmuTime& time);
@@ -27,20 +27,20 @@ public:
 private:
 	// Debuggable
 	virtual unsigned getSize() const;
-	virtual const string& getDescription() const;
+	virtual const std::string& getDescription() const;
 	virtual byte read(unsigned address);
 	virtual void write(unsigned address, byte value);
 	
 	// Schedulable
 	virtual void executeUntil(const EmuTime& time, int userData);
-	virtual const string& schedName() const;
+	virtual const std::string& schedName() const;
 
 	void schedule(const EmuTime& time);
 	int CLAP(int min, int x, int max);
 	void restart();
 
 	Y8950& y8950;
-	const string name;
+	const std::string name;
 
 	int sampleRate;
 	

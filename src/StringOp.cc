@@ -4,6 +4,7 @@
 #include <algorithm>
 #include "StringOp.hh"
 
+using std::string;
 using std::transform;
 
 namespace openmsx {

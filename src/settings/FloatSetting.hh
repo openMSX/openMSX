@@ -21,7 +21,7 @@ protected:
 class FloatSetting : public SettingImpl<FloatSettingPolicy>
 {
 public:
-	FloatSetting(const string& name, const string& description,
+	FloatSetting(const std::string& name, const std::string& description,
 	             double initialValue, double minValue, double maxValue);
 };
 

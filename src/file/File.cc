@@ -5,6 +5,9 @@
 #include "LocalFile.hh"
 #include "GZFileAdapter.hh"
 #include "ZipFileAdapter.hh"
+#include "MSXException.hh"
+
+using std::string;
 
 namespace openmsx {
 

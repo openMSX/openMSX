@@ -45,7 +45,7 @@ private:
 	void unschedule();
 	void schedule(const EmuTime& time);
 	virtual void executeUntil(const EmuTime& time, int userData);
-	virtual const string& schedName() const;
+	virtual const std::string& schedName() const;
 	
 	ClockPinListener* listener;
 

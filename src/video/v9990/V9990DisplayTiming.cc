@@ -29,10 +29,6 @@ V9990DisplayPeriod::V9990DisplayPeriod(int cycle, int blank, int border1, int di
 	this->border2 = border2;
 }
 
-V9990DisplayPeriod::~V9990DisplayPeriod(void)
-{
-}
-
 int V9990DisplayTiming::getUCTicksPerFrame(bool palTiming) {
 	return palTiming? (displayPAL_MCLK.cycle  * UC_TICKS_PER_LINE)
 	                : (displayNTSC_MCLK.cycle * UC_TICKS_PER_LINE);

@@ -5,6 +5,8 @@
 #include "Debugger.hh"
 #include "Scheduler.hh"
 
+using std::string;
+
 namespace openmsx {
 
 const EmuDuration YMF278::REG_SELECT_DELAY = MasterClock::duration(88);

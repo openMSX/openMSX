@@ -31,8 +31,6 @@
 #include "MSXDevice.hh"
 #include "I8255.hh"
 
-using std::auto_ptr;
-
 namespace openmsx {
 
 class KeyClick;
@@ -54,7 +52,7 @@ public:
 	virtual void writeIO(byte port, byte value, const EmuTime& time);
 
 private:
-	auto_ptr<I8255> i8255;
+	std::auto_ptr<I8255> i8255;
 
 // I8255Interface
 public:
@@ -75,8 +73,8 @@ private:
 	CassettePortInterface& cassettePort;
 	MSXCPUInterface& cpuInterface;
 	RenShaTurbo& renshaTurbo;
-	auto_ptr<KeyClick> click;
-	auto_ptr<Keyboard> keyboard;
+	std::auto_ptr<KeyClick> click;
+	std::auto_ptr<Keyboard> keyboard;
 	nibble selectedRow;
 };
 

@@ -7,10 +7,6 @@
 #include <map>
 #include <time.h>
 
-using std::string;
-using std::multimap;
-using std::pair;
-
 namespace openmsx {
 
 class Config;
@@ -20,23 +16,23 @@ class FilePool
 public:
 	static FilePool& instance();
 	
-	string getFile(const string& sha1sum);
+	std::string getFile(const std::string& sha1sum);
 
 private:
-	typedef multimap<string, pair<time_t, string> > Pool;
-	typedef map<string, Pool> Database;
+	typedef std::multimap<std::string, std::pair<time_t, std::string> > Pool;
+	typedef std::map<std::string, Pool> Database;
 
 	FilePool();
 	~FilePool();
 	
-	void readSha1sums(const string& directory, Pool& pool);
-	void writeSha1sums(const string& directory, const Pool& pool);
-	string getFromPool(const string& sha1sum, const string& directory,
+	void readSha1sums(const std::string& directory, Pool& pool);
+	void writeSha1sums(const std::string& directory, const Pool& pool);
+	std::string getFromPool(const std::string& sha1sum, const std::string& directory,
 	                   Pool& pool);
-	string scanDirectory(const string& sha1sum, const string& directory,
+	std::string scanDirectory(const std::string& sha1sum, const std::string& directory,
                              Pool& pool);
-	void calcSha1sum(const string& filename, time_t& time, string& sum);
-	Pool::iterator findInDatabase(const string& filename, Pool& pool);
+	void calcSha1sum(const std::string& filename, time_t& time, std::string& sum);
+	Pool::iterator findInDatabase(const std::string& filename, Pool& pool);
 
 	Database database;
 };

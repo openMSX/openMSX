@@ -1,10 +1,12 @@
 // $Id$
 
 #include "GLImage.hh"
-#include "File.hh"
+#include "MSXException.hh"
 #include "SDLImage.hh"
 #include <SDL_image.h>
 #include <SDL.h>
+
+using std::string;
 
 namespace openmsx {
 

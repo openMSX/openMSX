@@ -5,11 +5,10 @@
 
 #include <memory>
 #include "EnumSetting.hh"
-#include "BooleanSetting.hh"
-
-using std::auto_ptr;
 
 namespace openmsx {
+
+class BooleanSetting;
 
 /** Singleton containing all settings for the VDP.
   */
@@ -36,8 +35,8 @@ private:
 	VDPSettings();
 	~VDPSettings();
 
-	auto_ptr<BooleanSetting> limitSprites;
-	auto_ptr<EnumSetting<bool> > cmdTiming;
+	std::auto_ptr<BooleanSetting> limitSprites;
+	std::auto_ptr<EnumSetting<bool> > cmdTiming;
 };
 
 } // namespace openmsx

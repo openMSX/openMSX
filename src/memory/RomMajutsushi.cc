@@ -11,12 +11,12 @@
 
 #include "RomMajutsushi.hh"
 #include "DACSound8U.hh"
-#include "xmlx.hh"
 #include "Rom.hh"
 
 namespace openmsx {
 
-RomMajutsushi::RomMajutsushi(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom)
+RomMajutsushi::RomMajutsushi(const XMLElement& config, const EmuTime& time,
+                             std::auto_ptr<Rom> rom)
 	: Rom8kBBlocks(config, time, rom)
 {
 	dac.reset(new DACSound8U(getName(), "Majutsushi DAC", config, time));

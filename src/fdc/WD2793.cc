@@ -3,8 +3,9 @@
 #include "WD2793.hh"
 #include "DiskDrive.hh"
 #include "Scheduler.hh"
-#include "Disk.hh"
+#include "MSXException.hh"
 
+using std::string;
 
 namespace openmsx {
 

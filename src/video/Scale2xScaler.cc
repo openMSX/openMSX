@@ -18,9 +18,7 @@ Visit the Scale2x site for info:
 #include <cassert>
 #include <algorithm>
 
-using std::max;
 using std::min;
-
 
 namespace openmsx {
 

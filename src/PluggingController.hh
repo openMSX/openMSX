@@ -7,8 +7,6 @@
 #include "Command.hh"
 #include "InfoTopic.hh"
 
-using std::vector;
-
 namespace openmsx {
 
 class Connector;
@@ -51,19 +49,21 @@ private:
 	PluggingController();
 	~PluggingController();
 
-	Connector* getConnector(const string& name);
-	Pluggable* getPluggable(const string& name);
+	Connector* getConnector(const std::string& name);
+	Pluggable* getPluggable(const std::string& name);
 
-	vector<Connector*> connectors;
-	vector<Pluggable*> pluggables;
+	typedef std::vector<Connector*> Connectors;
+	Connectors connectors;
+	typedef std::vector<Pluggable*> Pluggables;
+	Pluggables pluggables;
 
 	// Commands
 	class PlugCmd : public SimpleCommand {
 	public:
 		PlugCmd(PluggingController& parent);
-		virtual string execute(const vector<string>& tokens);
-		virtual string help   (const vector<string>& tokens) const;
-		virtual void tabCompletion(vector<string>& tokens) const;
+		virtual std::string execute(const std::vector<std::string>& tokens);
+		virtual std::string help   (const std::vector<std::string>& tokens) const;
+		virtual void tabCompletion(std::vector<std::string>& tokens) const;
 	private:
 		PluggingController& parent;
 	} plugCmd;
@@ -71,9 +71,9 @@ private:
 	class UnplugCmd : public SimpleCommand {
 	public:
 		UnplugCmd(PluggingController& parent);
-		virtual string execute(const vector<string>& tokens);
-		virtual string help   (const vector<string>& tokens) const;
-		virtual void tabCompletion(vector<string>& tokens) const;
+		virtual std::string execute(const std::vector<std::string>& tokens);
+		virtual std::string help   (const std::vector<std::string>& tokens) const;
+		virtual void tabCompletion(std::vector<std::string>& tokens) const;
 	private:
 		PluggingController& parent;
 	} unplugCmd;
@@ -81,10 +81,10 @@ private:
 	class PluggableInfo : public InfoTopic {
 	public:
 		PluggableInfo(PluggingController& parent);
-		virtual void execute(const vector<CommandArgument>& tokens,
+		virtual void execute(const std::vector<CommandArgument>& tokens,
 		                     CommandArgument& result) const;
-		virtual string help   (const vector<string>& tokens) const;
-		virtual void tabCompletion(vector<string>& tokens) const;
+		virtual std::string help   (const std::vector<std::string>& tokens) const;
+		virtual void tabCompletion(std::vector<std::string>& tokens) const;
 	private:
 		PluggingController& parent;
 	} pluggableInfo;
@@ -92,10 +92,10 @@ private:
 	class ConnectorInfo : public InfoTopic {
 	public:
 		ConnectorInfo(PluggingController& parent);
-		virtual void execute(const vector<CommandArgument>& tokens,
+		virtual void execute(const std::vector<CommandArgument>& tokens,
 		                     CommandArgument& result) const;
-		virtual string help   (const vector<string>& tokens) const;
-		virtual void tabCompletion(vector<string>& tokens) const;
+		virtual std::string help   (const std::vector<std::string>& tokens) const;
+		virtual void tabCompletion(std::vector<std::string>& tokens) const;
 	private:
 		PluggingController& parent;
 	} connectorInfo;
@@ -103,10 +103,10 @@ private:
 	class ConnectionClassInfo : public InfoTopic {
 	public:
 		ConnectionClassInfo(PluggingController& parent);
-		virtual void execute(const vector<CommandArgument>& tokens,
+		virtual void execute(const std::vector<CommandArgument>& tokens,
 		                     CommandArgument& result) const;
-		virtual string help   (const vector<string>& tokens) const;
-		virtual void tabCompletion(vector<string>& tokens) const;
+		virtual std::string help   (const std::vector<std::string>& tokens) const;
+		virtual void tabCompletion(std::vector<std::string>& tokens) const;
 	private:
 		PluggingController& parent;
 	} connectionClassInfo;

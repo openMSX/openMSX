@@ -1,6 +1,7 @@
 // $Id$
 
 #include "VDPSettings.hh"
+#include "BooleanSetting.hh"
 
 namespace openmsx {
 

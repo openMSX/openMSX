@@ -5,12 +5,13 @@
 
 namespace openmsx {
 
-	/** A period, either horizontal or vertical, starts with a synchronisation
-	  * pulse followed by a blank period. Then border, display and border are
-	  * output follow. The final blank between the last border period and the
-	  * following sync signal is not included -- we don't need it.
-	  */
-class V9990DisplayPeriod {
+/** A period, either horizontal or vertical, starts with a synchronisation
+  * pulse followed by a blank period. Then border, display and border are
+  * output follow. The final blank between the last border period and the
+  * following sync signal is not included -- we don't need it.
+  */
+class V9990DisplayPeriod
+{
 public:
 	int cycle;
 	int blank;
@@ -20,10 +21,10 @@ public:
 
 	V9990DisplayPeriod(int cycle, int blank,
 	                   int border1, int display, int border2);
-	virtual ~V9990DisplayPeriod();
 };
-	
-class V9990DisplayTiming {
+
+class V9990DisplayTiming
+{
 public:
 	/** The V9990 has an internal clock (MCLK @ 14MHz) and a terminal
 	  * for an external clock (XTAL1), which can be connected to a 21

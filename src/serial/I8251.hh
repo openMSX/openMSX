@@ -6,13 +6,13 @@
 #define __I8251_HH__
 
 #include "openmsx.hh"
-#include "EmuTime.hh"
 #include "ClockPin.hh"
 #include "SerialDataInterface.hh"
 #include "Schedulable.hh"
 
-
 namespace openmsx {
+
+class EmuTime;
 
 class I8251Interface : public SerialDataInterface
 {
@@ -48,7 +48,7 @@ public:
 
 	// Schedulable
 	virtual void executeUntil(const EmuTime& time, int userData);
-	virtual const string& schedName() const;
+	virtual const std::string& schedName() const;
 
 private:
 	void setMode(byte mode);

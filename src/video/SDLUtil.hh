@@ -5,7 +5,6 @@
 
 struct SDL_Surface;
 
-
 namespace openmsx {
 
 /** Initialise SDL's video subsystem and find a usable video mode.

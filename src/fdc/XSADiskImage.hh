@@ -19,7 +19,7 @@ class File;
 class XSADiskImage : public SectorBasedDisk
 {
 public:
-	XSADiskImage(const string& fileName);
+	XSADiskImage(const std::string& fileName);
 	virtual ~XSADiskImage();
 	
 	virtual void read(byte track, byte sector,

@@ -19,14 +19,14 @@
 */
 
 #include "RomSynthesizer.hh"
-#include "xmlx.hh"
 #include "DACSound8U.hh"
 #include "CPU.hh"
 #include "Rom.hh"
 
 namespace openmsx {
 
-RomSynthesizer::RomSynthesizer(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom)
+RomSynthesizer::RomSynthesizer(const XMLElement& config, const EmuTime& time,
+                               std::auto_ptr<Rom> rom)
 	: Rom16kBBlocks(config, time, rom)
 {
 	setBank(0, unmappedRead);

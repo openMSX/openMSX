@@ -68,7 +68,7 @@ XMLElement& GlobalSettings::getMediaConfig()
 	if (!mediaConfig.get()) {
 		mediaConfig.reset(new XMLElement("media"));
 		mediaConfig->setFileContext(
-			auto_ptr<FileContext>(new UserFileContext()));
+			std::auto_ptr<FileContext>(new UserFileContext()));
 	}
 	return *mediaConfig;
 }

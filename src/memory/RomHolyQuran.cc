@@ -10,7 +10,8 @@
 
 namespace openmsx {
 
-RomHolyQuran::RomHolyQuran(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom)
+RomHolyQuran::RomHolyQuran(const XMLElement& config, const EmuTime& time,
+                           std::auto_ptr<Rom> rom)
 	: Rom8kBBlocks(config, time, rom)
 {
 	reset(time);

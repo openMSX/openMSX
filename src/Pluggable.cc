@@ -4,6 +4,8 @@
 #include "Pluggable.hh"
 #include "Connector.hh"
 
+using std::string;
+
 namespace openmsx {
 
 Pluggable::Pluggable()

@@ -19,7 +19,7 @@ public:
 	void getSlot(int& ps, int& ss);
 	void getSlot(int& ps);
 
-	static int getSlotNum(const string& slot);
+	static int getSlotNum(const std::string& slot);
 
 private:
 	CartridgeSlotManager();

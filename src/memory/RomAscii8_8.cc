@@ -21,7 +21,7 @@
 namespace openmsx {
 
 RomAscii8_8::RomAscii8_8(const XMLElement& config, const EmuTime& time,
-                         auto_ptr<Rom> rom_, SubType subType)
+                         std::auto_ptr<Rom> rom_, SubType subType)
 	: Rom8kBBlocks(config, time, rom_)
 	, sram(getName() + " SRAM", (subType == KOEI_32) ? 0x8000 : 0x2000, config)
 {

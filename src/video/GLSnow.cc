@@ -3,6 +3,7 @@
 #include "GLSnow.hh"
 #include <cstdlib>
 
+using std::string;
 
 namespace openmsx {
 

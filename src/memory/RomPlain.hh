@@ -13,7 +13,7 @@ class RomPlain : public Rom8kBBlocks
 {
 public:
 	RomPlain(const XMLElement& config, const EmuTime& time,
-	         auto_ptr<Rom> rom);
+	         std::auto_ptr<Rom> rom);
 	virtual ~RomPlain();
 
 private:

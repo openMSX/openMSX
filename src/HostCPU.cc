@@ -57,7 +57,7 @@ HostCPU::HostCPU()
 					: "a" (1) // 1: function
 					: "ebx", "ecx"
 					);
-				PRT_DEBUG("CPU flags: " << hex << std::setw(8) << std::setfill('0') << std::uppercase << features);
+				PRT_DEBUG("CPU flags: " << std::hex << std::setw(8) << std::setfill('0') << std::uppercase << features);
 				mmxFlag = features & 0x800000;
 				bool sseFlag = features & 0x2000000;
 				mmxExtFlag = mmxFlag && sseFlag;

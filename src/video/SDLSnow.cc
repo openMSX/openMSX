@@ -2,6 +2,7 @@
 
 #include "SDLSnow.hh"
 
+using std::string;
 
 namespace openmsx {
 

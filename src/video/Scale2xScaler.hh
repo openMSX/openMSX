@@ -5,7 +5,6 @@
 
 #include "Scaler.hh"
 
-
 namespace openmsx {
 
 /** Runs the Scale2x scaler algorithm.

@@ -8,10 +8,6 @@
 #include "Console.hh"
 #include "CircularBuffer.hh"
 
-using std::list;
-using std::string;
-
-
 namespace openmsx {
 
 class SettingsConfig;
@@ -25,10 +21,10 @@ public:
 
 	/** Prints a string on the console.
 	  */
-	void print(const string &text);
+	void print(const std::string &text);
 
 	virtual unsigned getScrollBack() const;
-	virtual const string &getLine(unsigned line) const;
+	virtual const std::string &getLine(unsigned line) const;
 	virtual void getCursorPosition(unsigned& xPosition, unsigned& yPosition) const;
 	virtual void setCursorPosition(unsigned xPosition, unsigned yPosition);
 	virtual void setConsoleDimensions(unsigned columns, unsigned rows);
@@ -48,12 +44,12 @@ private:
 	void backspace();
 	void delete_key();
 	void normalKey(char chr);
-	void putCommandHistory(const string &command);
-	void newLineConsole(const string &line);
+	void putCommandHistory(const std::string &command);
+	void newLineConsole(const std::string &line);
 	void putPrompt();
 	void resetScrollBack();
 
-	void combineLines(CircularBuffer<string, LINESHISTORY> &buffer,
+	void combineLines(CircularBuffer<std::string, LINESHISTORY> &buffer,
 		CircularBuffer<bool, LINESHISTORY> &overflows,
 		bool fromTop = false );
 	void splitLines();
@@ -61,17 +57,17 @@ private:
 	void saveHistory();
 
 	unsigned int maxHistory;
-	string editLine;
-	string commandBuffer;
-	string prompt;
+	std::string editLine;
+	std::string commandBuffer;
+	std::string prompt;
 	/** Are double commands allowed? */
 	bool removeDoubles;
-	CircularBuffer<string, LINESHISTORY> lines;
+	CircularBuffer<std::string, LINESHISTORY> lines;
 	CircularBuffer<bool, LINESHISTORY> lineOverflows;
-	list<string> history;
-	list<string>::iterator commandScrollBack;
+	std::list<std::string> history;
+	std::list<std::string>::iterator commandScrollBack;
 	/** Saves Current Command to enable command recall. */
-	string currentLine;
+	std::string currentLine;
 	int consoleScrollBack;
 	unsigned cursorLocationX;
 	unsigned cursorLocationY;

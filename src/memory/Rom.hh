@@ -5,7 +5,6 @@
 
 #include <memory>
 #include <cassert>
-#include "RomInfo.hh"
 #include "openmsx.hh"
 #include "Debuggable.hh"
 
@@ -14,14 +13,15 @@ namespace openmsx {
 class EmuTime;
 class XMLElement;
 class File;
+class RomInfo;
 
 class Rom : public Debuggable
 {
 public:
-	Rom(const string& name, const string& description,
+	Rom(const std::string& name, const std::string& description,
 	    const XMLElement& config);
-	Rom(const string& name, const string& description,
-	    const XMLElement& config, const string& id);
+	Rom(const std::string& name, const std::string& description,
+	    const XMLElement& config, const std::string& id);
 	virtual ~Rom();
 
 	const byte& operator[](unsigned address) const {
@@ -36,30 +36,30 @@ public:
 		return *info;
 	}
 
-	const string& getName() const;
-	const string& getSHA1Sum() const;
+	const std::string& getName() const;
+	const std::string& getSHA1Sum() const;
 	
 	// Debuggable
 	virtual unsigned getSize() const;
-	virtual const string& getDescription() const;
+	virtual const std::string& getDescription() const;
 	virtual byte read(unsigned address);
 	virtual void write(unsigned address, byte value);
 
 private:
 	void init(const XMLElement& config);
-	void read(const XMLElement& config, const string& filename);
-	void readIPS(const XMLElement& config, const string& filename);
+	void read(const XMLElement& config, const std::string& filename);
+	void readIPS(const XMLElement& config, const std::string& filename);
 	bool checkSHA1(const XMLElement& config);
 	
-	string name;
-	const string description;
+	std::string name;
+	const std::string description;
 	unsigned size;
 	const byte* rom;
 
 	std::auto_ptr<File> file;
 	std::auto_ptr<RomInfo> info;
 
-	mutable string sha1sum;
+	mutable std::string sha1sum;
 };
 
 } // namespace openmsx

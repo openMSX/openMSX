@@ -14,7 +14,7 @@ public:
 	virtual void write(byte data, const EmuTime& time);
 	virtual byte read(const EmuTime& time);
 
-	virtual const string& getDescription() const;
+	virtual const std::string& getDescription() const;
 	virtual void plugHelper(Connector* connector, const EmuTime& time);
 	virtual void unplugHelper(const EmuTime& time);
 };
@@ -29,8 +29,8 @@ public:
 	byte read(const EmuTime& time);
 
 	// Connector
-	virtual const string& getDescription() const;
-	virtual const string& getClass() const;
+	virtual const std::string& getDescription() const;
+	virtual const std::string& getClass() const;
 	virtual void plug(Pluggable* dev, const EmuTime& time);
 	virtual Y8950KeyboardDevice& getPlugged() const;
 

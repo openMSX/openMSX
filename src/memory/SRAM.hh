@@ -12,9 +12,9 @@ class XMLElement;
 class SRAM : public Ram
 {
 public:
-	SRAM(const string& name, int size,
+	SRAM(const std::string& name, int size,
 	     const XMLElement& config, const char* header = NULL);
-	SRAM(const string& name, const string& description, int size,
+	SRAM(const std::string& name, const std::string& description, int size,
 	     const XMLElement& config, const char* header = NULL);
 	virtual ~SRAM();
 

@@ -7,7 +7,6 @@
 #include "SettingListener.hh"
 #include "RenderSettings.hh"
 
-
 namespace openmsx {
 
 template <class T> class EnumSetting;

@@ -5,7 +5,6 @@
 
 #include "JoystickDevice.hh"
 #include "EventListener.hh"
-#include "MSXException.hh"
 #include <SDL.h> // TODO move this
 
 namespace openmsx {
@@ -23,8 +22,8 @@ public:
 	static void registerAll(PluggingController* controller);
 
 	//Pluggable
-	virtual const string& getName() const;
-	virtual const string& getDescription() const;
+	virtual const std::string& getName() const;
+	virtual const std::string& getDescription() const;
 	virtual void plugHelper(Connector* connector, const EmuTime& time);
 	virtual void unplugHelper(const EmuTime& time);
 
@@ -41,8 +40,8 @@ private:
 
 	static const int THRESHOLD = 32768/10;
 
-	string name;
-	string desc;
+	std::string name;
+	std::string desc;
 
 	unsigned joyNum;
 	SDL_Joystick* joystick;

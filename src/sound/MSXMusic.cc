@@ -1,7 +1,6 @@
 // $Id$
 
 #include "MSXMusic.hh"
-#include "Mixer.hh"
 #include "YM2413.hh"
 #include "YM2413_2.hh"
 #include "xmlx.hh"

@@ -21,6 +21,8 @@ using std::ostringstream;
 using std::setfill;
 using std::setw;
 using std::uppercase;
+using std::string;
+using std::vector;
 
 namespace openmsx {
 
@@ -122,7 +124,7 @@ void MSXCPUInterface::setExpanded(int ps, bool expanded)
 void MSXCPUInterface::register_IO_In(byte port, MSXDevice* device)
 {
 	PRT_DEBUG(device->getName() << " registers In-port " <<
-	          hex << (int)port << dec);
+	          std::hex << (int)port << std::dec);
 	if (IO_In[port] == &dummyDevice) {
 		// first 
 		IO_In[port] = device;
@@ -141,7 +143,7 @@ void MSXCPUInterface::register_IO_In(byte port, MSXDevice* device)
 			static_cast<MSXMultiIODevice*>(dev2)->addDevice(device);
 		}
 		ostringstream os;
-		os << "Conflicting input port 0x" << hex << (int)port
+		os << "Conflicting input port 0x" << std::hex << (int)port
 		   << " for devices " << dev2->getName();
 		cliCommOutput.printWarning(os.str());
 	}
@@ -169,7 +171,7 @@ void MSXCPUInterface::unregister_IO_In(byte port, MSXDevice* device)
 void MSXCPUInterface::register_IO_Out(byte port, MSXDevice* device)
 {
 	PRT_DEBUG(device->getName() << " registers Out-port " <<
-	          hex << (int)port << dec);
+	          std::hex << (int)port << std::dec);
 	if (IO_Out[port] == &dummyDevice) {
 		// first
 		IO_Out[port] = device;
@@ -359,13 +361,14 @@ static void ioMapHelper(ostringstream& out,
                         const string& type, int begin, int end,
                         const MSXDevice* device)
 {
-	out << "port " << hex << setw(2) << setfill('0') << uppercase << begin;
+	out << "port " << std::hex << std::setw(2) << std::setfill('0')
+	    << std::uppercase << begin;
 	if (begin == end - 1) {
 		out << ":    ";
 	} else {
 		out << "-" << setw(2) << setfill('0') << uppercase << end - 1 << ": ";
 	}
-	out << type << " " << device->getName() << endl;
+	out << type << " " << device->getName() << std::endl;
 }
 
 string MSXCPUInterface::getIOMap() const
@@ -401,7 +404,7 @@ string MSXCPUInterface::getIOMap() const
 	return result.str();
 }
 
-void MSXCPUInterface::printSlotMapPages(ostream &out,
+void MSXCPUInterface::printSlotMapPages(std::ostream &out,
 	const MSXDevice* const* devices) const
 {
 	for (int page = 0; page < 4; ++page) {

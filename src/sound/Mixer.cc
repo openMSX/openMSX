@@ -16,7 +16,11 @@
 #include "BooleanSetting.hh"
 #include "Scheduler.hh"
 
+using std::map;
 using std::remove;
+using std::set;
+using std::string;
+using std::vector;
 
 namespace openmsx {
 

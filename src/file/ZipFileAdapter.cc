@@ -1,12 +1,12 @@
 // $Id$
 
 #include <zlib.h>
-#include "File.hh"
 #include "ZipFileAdapter.hh"
+#include "FileException.hh"
 
 namespace openmsx {
 
-ZipFileAdapter::ZipFileAdapter(auto_ptr<FileBase> file_)
+ZipFileAdapter::ZipFileAdapter(std::auto_ptr<FileBase> file_)
 	: CompressedFileAdapter(file_)
 {
 }

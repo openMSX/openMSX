@@ -3,7 +3,6 @@
 #ifndef __KEYCLICK_HH__
 #define __KEYCLICK_HH__
 
-#include "openmsx.hh"
 #include "DACSound8U.hh"
 
 namespace openmsx {

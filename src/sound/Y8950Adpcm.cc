@@ -5,6 +5,8 @@
 #include "Scheduler.hh"
 #include "Debugger.hh"
 
+using std::string;
+
 namespace openmsx {
 
 // Relative volume between ADPCM part and FM part, 

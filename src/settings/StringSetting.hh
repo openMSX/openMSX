@@ -18,8 +18,8 @@ protected:
 class StringSetting : public SettingImpl<StringSettingPolicy>
 {
 public:
-	StringSetting(const string& name, const string& description,
-	              const string& initialValue);
+	StringSetting(const std::string& name, const std::string& description,
+	              const std::string& initialValue);
 };
 
 } // namespace openmsx

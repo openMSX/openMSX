@@ -6,7 +6,6 @@
 #include "openmsx.hh"
 #include "SoundDevice.hh"
 #include "IRQHelper.hh"
-#include "Mixer.hh"
 #include "EmuTimer.hh"
 #include "Y8950Adpcm.hh"
 #include "Y8950KeyboardConnector.hh"
@@ -166,7 +165,7 @@ class Y8950 : private SoundDevice, private EmuTimerCallback, private Debuggable
 	};
 
 public:
-	Y8950(const string& name, const XMLElement& config, int sampleRam,
+	Y8950(const std::string& name, const XMLElement& config, int sampleRam,
 	      const EmuTime& time);
 	virtual ~Y8950();
 
@@ -177,15 +176,15 @@ public:
 
 private:
 	// SoundDevice
-	virtual const string& getName() const;
-	virtual const string& getDescription() const;
+	virtual const std::string& getName() const;
+	virtual const std::string& getDescription() const;
 	virtual void setVolume(int maxVolume);
 	virtual void setSampleRate(int sampleRate);
 	virtual void updateBuffer(int length, int* buffer);
 
 	// Debuggable
 	virtual unsigned getSize() const;
-	//virtual const string& getDescription() const;  // also in SoundDevice!!
+	//virtual const std::string& getDescription() const;  // also in SoundDevice!!
 	virtual byte read(unsigned address);
 	virtual void write(unsigned address, byte value);
 	
@@ -345,7 +344,7 @@ private:
 	/** 13-bit (exponential) DAC. */
 	DACSound16S dac13;
 
-	const string name;
+	const std::string name;
 };
 
 } // namespace openmsx

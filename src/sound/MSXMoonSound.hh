@@ -6,8 +6,6 @@
 #include <memory>
 #include "MSXDevice.hh"
 
-using std::auto_ptr;
-
 namespace openmsx {
 
 class YMF262;
@@ -25,8 +23,8 @@ public:
 	virtual void writeIO(byte port, byte value, const EmuTime& time);
 
 private:
-	auto_ptr<YMF262> ymf262;
-	auto_ptr<YMF278> ymf278;
+	std::auto_ptr<YMF262> ymf262;
+	std::auto_ptr<YMF278> ymf278;
 	int opl3latch;
 	byte opl4latch;
 };

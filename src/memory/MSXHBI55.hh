@@ -8,8 +8,6 @@
 #include "I8255.hh"
 #include "SRAM.hh"
 
-using std::auto_ptr;
-
 namespace openmsx {
 
 class MSXHBI55 : public MSXDevice, public I8255Interface
@@ -25,7 +23,7 @@ public:
 	virtual void writeIO(byte port, byte value, const EmuTime& time);
 
 private:
-	auto_ptr<I8255> i8255;
+	std::auto_ptr<I8255> i8255;
 
 // I8255Interface
 public:

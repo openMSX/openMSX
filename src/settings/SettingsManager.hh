@@ -3,21 +3,15 @@
 #ifndef __SETTINGSMANAGER_HH__
 #define __SETTINGSMANAGER_HH__
 
-#include <cassert>
+#include "Command.hh"
 #include <map>
 #include <set>
 #include <string>
 #include <vector>
-#include "Setting.hh"
-#include "Command.hh"
-
-using std::map;
-using std::set;
-using std::string;
-using std::vector;
 
 namespace openmsx {
 
+class Setting;
 class CommandController;
 class Interpreter;
 
@@ -26,7 +20,7 @@ class Interpreter;
 class SettingsManager
 {
 private:
-	typedef map<string, Setting*> SettingsMap;
+	typedef std::map<std::string, Setting*> SettingsMap;
 	SettingsMap settingsMap;
 
 public:
@@ -36,7 +30,7 @@ public:
 	  * @return The Setting with the given name,
 	  *   or NULL if there is no such Setting.
 	  */
-	Setting* getByName(const string& name) const {
+	Setting* getByName(const std::string& name) const {
 		SettingsMap::const_iterator it = settingsMap.find(name);
 		// TODO: The cast is valid because currently all nodes are leaves.
 		//       In the future this will no longer be the case.
@@ -51,19 +45,19 @@ private:
 	~SettingsManager();
 
 	template <typename T>
-	void getSettingNames(string& result) const;
+	void getSettingNames(std::string& result) const;
 
 	template <typename T>
-	void getSettingNames(set<string>& result) const;
+	void getSettingNames(std::set<std::string>& result) const;
 
 	template <typename T>
-	T& getByName(const string& cmd, const string& name) const;
+	T& getByName(const std::string& cmd, const std::string& name) const;
 
 	class SetCompleter : public CommandCompleter {
 	public:
 		SetCompleter(SettingsManager& manager);
-		virtual string help(const vector<string>& tokens) const;
-		virtual void tabCompletion(vector<string>& tokens) const;
+		virtual std::string help(const std::vector<std::string>& tokens) const;
+		virtual void tabCompletion(std::vector<std::string>& tokens) const;
 	private:
 		SettingsManager& manager;
 	} setCompleter;
@@ -71,8 +65,8 @@ private:
 	class SettingCompleter : public CommandCompleter {
 	public:
 		SettingCompleter(SettingsManager& manager);
-		virtual string help(const vector<string>& tokens) const;
-		virtual void tabCompletion(vector<string>& tokens) const;
+		virtual std::string help(const std::vector<std::string>& tokens) const;
+		virtual void tabCompletion(std::vector<std::string>& tokens) const;
 	private:
 		SettingsManager& manager;
 	} settingCompleter;
@@ -80,9 +74,9 @@ private:
 	class ToggleCommand : public SimpleCommand {
 	public:
 		ToggleCommand(SettingsManager& manager);
-		virtual string execute(const vector<string>& tokens);
-		virtual string help(const vector<string>& tokens) const;
-		virtual void tabCompletion(vector<string>& tokens) const;
+		virtual std::string execute(const std::vector<std::string>& tokens);
+		virtual std::string help(const std::vector<std::string>& tokens) const;
+		virtual void tabCompletion(std::vector<std::string>& tokens) const;
 	private:
 		SettingsManager& manager;
 	} toggleCommand;

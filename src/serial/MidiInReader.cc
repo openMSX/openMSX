@@ -6,6 +6,7 @@
 #include <cstring>
 #include <cerrno>
 
+using std::string;
 
 namespace openmsx {
 

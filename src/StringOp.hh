@@ -7,35 +7,32 @@
 #include <sstream>
 #include <strings.h>
 
-using std::string;
-using std::ostringstream;
-
 namespace openmsx {
 
 class StringOp
 {
 public:
 	template <typename T>
-	static string toString(const T& t);
+	static std::string toString(const T& t);
 	
-	static int stringToInt(const string& str);
-	static bool stringToBool(const string& str);
-	static double stringToDouble(const string& str);
+	static int stringToInt(const std::string& str);
+	static bool stringToBool(const std::string& str);
+	static double stringToDouble(const std::string& str);
 	
-	static string toLower(const string& str);
+	static std::string toLower(const std::string& str);
 
 	// case insensitive less then operator
 	struct caseless {
-		bool operator()(const string& s1, const string& s2) const {
+		bool operator()(const std::string& s1, const std::string& s2) const {
 			return strcasecmp(s1.c_str(), s2.c_str()) < 0;
 		}
 	};
 };
 
 template<typename T>
-string StringOp::toString(const T& t)
+std::string StringOp::toString(const T& t)
 {
-	ostringstream s;
+	std::ostringstream s;
 	s << t;
 	return s.str();
 }

@@ -3,6 +3,7 @@
 #include "SettingsConfig.hh"
 #include "File.hh"
 #include "FileContext.hh"
+#include "FileException.hh"
 #include "CommandController.hh"
 #include "GlobalSettings.hh"
 #include "CliCommOutput.hh"
@@ -10,7 +11,8 @@
 #include <memory.h>
 
 using std::auto_ptr;
-
+using std::string;
+using std::vector;
 
 namespace openmsx {
 

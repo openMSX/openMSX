@@ -9,7 +9,9 @@
 #endif
 #include "LocalFile.hh"
 #include "FileOperations.hh"
+#include "FileException.hh"
 
+using std::string;
 
 namespace openmsx {
 

@@ -5,7 +5,6 @@
 
 #include "openmsx.hh"
 #include "SoundDevice.hh"
-#include "Mixer.hh"
 #include "YM2413Core.hh"
 #include "Debuggable.hh"
 
@@ -83,7 +82,7 @@ public:
 class YM2413_2 : public YM2413Core, private SoundDevice, private Debuggable
 {
 public:
-	YM2413_2(const string& name, const XMLElement& config, const EmuTime& time);
+	YM2413_2(const std::string& name, const XMLElement& config, const EmuTime& time);
 	virtual ~YM2413_2();
 	
 	void reset(const EmuTime& time);
@@ -109,15 +108,15 @@ private:
 	void setRhythmMode(bool newMode);
 	
 	// SoundDevice
-	virtual const string& getName() const;
-	virtual const string& getDescription() const;
+	virtual const std::string& getName() const;
+	virtual const std::string& getDescription() const;
 	virtual void setVolume(int newVolume);
 	virtual void updateBuffer(int length, int* buffer);
 	virtual void setSampleRate(int sampleRate);
 
 	// Debuggable
 	virtual unsigned getSize() const;
-	//virtual const string& getDescription() const;  // also in SoundDevice!!
+	//virtual const std::string& getDescription() const;  // also in SoundDevice!!
 	virtual byte read(unsigned address);
 	virtual void write(unsigned address, byte value);
 
@@ -154,7 +153,7 @@ private:
 	byte LFO_AM;
 	byte LFO_PM;
 
-	const string name;
+	const std::string name;
 	byte reg[0x40];
 };
 

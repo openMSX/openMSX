@@ -7,8 +7,6 @@
 #include "MSXDevice.hh"
 #include "Rom.hh"
 
-using std::auto_ptr;
-
 namespace openmsx {
 
 class DiskDrive;
@@ -24,7 +22,7 @@ protected:
 	virtual ~MSXFDC();
 
 	Rom rom;
-	auto_ptr<DiskDrive> drives[4];
+	std::auto_ptr<DiskDrive> drives[4];
 };
 
 } // namespace openmsx

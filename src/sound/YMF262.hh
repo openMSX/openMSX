@@ -131,7 +131,7 @@ public:
 class YMF262 : private SoundDevice, private EmuTimerCallback, private Debuggable
 {
 public:
-	YMF262(const string& name, const XMLElement& config, const EmuTime& time);
+	YMF262(const std::string& name, const XMLElement& config, const EmuTime& time);
 	virtual ~YMF262();
 	
 	virtual void reset(const EmuTime& time);
@@ -143,15 +143,15 @@ public:
 	
 private:
 	// SoundDevice
-	virtual const string& getName() const;
-	virtual const string& getDescription() const;
+	virtual const std::string& getName() const;
+	virtual const std::string& getDescription() const;
 	virtual void setVolume(int volume);
 	virtual void setSampleRate(int sampleRate);
 	virtual void updateBuffer(int length, int* buffer);
 
 	// Debuggable
 	virtual unsigned getSize() const;
-	//virtual const string& getDescription() const;  // also in SoundDevice!!
+	//virtual const std::string& getDescription() const;  // also in SoundDevice!!
 	virtual byte read(unsigned address);
 	virtual void write(unsigned address, byte value);
 	
@@ -225,7 +225,7 @@ private:
 	int chanout[18];		// 18 channels 
 	int maxVolume;
 	
-	const string name;
+	const std::string name;
 };
 
 } // namespace openmsx

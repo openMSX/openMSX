@@ -45,6 +45,7 @@
 
 #define MAXPATHLEN MAX_PATH
 
+using std::string;
 using std::ostringstream;
 
 namespace openmsx {

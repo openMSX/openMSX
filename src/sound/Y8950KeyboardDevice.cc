@@ -2,6 +2,7 @@
 
 #include "Y8950KeyboardDevice.hh"
 
+using std::string;
 
 namespace openmsx {
 

@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-CommandException::CommandException(const string& desc)
+CommandException::CommandException(const std::string& desc)
 	: MSXException(desc)
 {
 }

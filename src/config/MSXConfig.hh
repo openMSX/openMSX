@@ -12,7 +12,7 @@ class FileContext;
 class MSXConfig : public XMLElement
 {
 protected:
-	MSXConfig(const string& name);
+	MSXConfig(const std::string& name);
 	static void handleDoc(XMLElement& root, const XMLDocument& doc,
 	                      FileContext& context);
 };

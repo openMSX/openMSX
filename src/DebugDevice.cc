@@ -13,6 +13,7 @@ using std::setfill;
 using std::setw;
 using std::flush;
 using std::cerr;
+using std::string;
 
 namespace openmsx {
 
@@ -62,7 +63,7 @@ void DebugDevice::writeIO(byte port, byte value, const EmuTime& time)
 					break;
 			}
 			if (!(value & 0x40)){ 
-				(*outputstrm) << endl;
+				(*outputstrm) << std::endl;
 			}
 			break;
 		case 1:
@@ -106,7 +107,7 @@ void DebugDevice::outputSingleByte(byte value, const EmuTime& time)
 	if ((modeParameter & 0x08) && ((value < ' ') || (value == 127))) {
 		displayByte(value, ASC); // do special effects
 	}
-	(*outputstrm) << endl;
+	(*outputstrm) << std::endl;
 }
 
 void DebugDevice::outputMultiByte(byte value)
@@ -134,16 +135,17 @@ void DebugDevice::displayByte(byte value, DisplayType type)
 {
 	switch (type) {
 		case HEX:
-			(*outputstrm) << hex << setw(2) << setfill('0')
-			              << (int)value << "h " << flush;
+			(*outputstrm) << std::hex << std::setw(2)
+			              << std::setfill('0')
+			              << (int)value << "h " << std::flush;
 			break;
 		case BIN: {
 			byte mask = 128;
 			while (mask != 0) {
 				if (value & mask) {
-					(*outputstrm) << "1" << flush;
+					(*outputstrm) << "1" << std::flush;
 				} else {
-					(*outputstrm) << "0" << flush;
+					(*outputstrm) << "0" << std::flush;
 				}
 				mask >>= 1;
 			}
@@ -151,8 +153,9 @@ void DebugDevice::displayByte(byte value, DisplayType type)
 			break;
 		}
 		case DEC:
-			(*outputstrm) << dec << setw(3) << setfill('0')
-			              << (int)value << " " << flush;
+			(*outputstrm) << std::dec << std::setw(3)
+			              << std::setfill('0')
+			              << (int)value << " " << std::flush;
 			break;
 		case ASC:
 			(*outputstrm).put(value);
@@ -163,9 +166,9 @@ void DebugDevice::displayByte(byte value, DisplayType type)
 void DebugDevice::openOutput(const string& name)
 {
 	if (name == "stdout") {
-		outputstrm = &cout;
+		outputstrm = &std::cout;
 	} else if (name == "stderr") { 
-		outputstrm = &cerr;
+		outputstrm = &std::cerr;
 	} else {
 		string realName = FileOperations::expandTilde(name);
 		debugOut.open(realName.c_str(), std::ios::app);

@@ -6,7 +6,6 @@
 #include <cassert>
 #include "VRAMObserver.hh"
 #include "openmsx.hh"
-#include "Renderer.hh"
 #include "VDP.hh"
 #include "VDPCmdEngine.hh"
 #include "DisplayMode.hh"
@@ -16,6 +15,7 @@ namespace openmsx {
 
 class EmuTime;
 class SpriteChecker;
+class Renderer;
 
 /*
 Note: The way VRAM is accessed depends a lot on who is doing the accessing.
@@ -431,7 +431,7 @@ public:
 private:
 	// Debuggable
 	virtual unsigned getSize() const;
-	virtual const string& getDescription() const;
+	virtual const std::string& getDescription() const;
 	virtual byte read(unsigned address);
 	virtual void write(unsigned address, byte value);
 	 

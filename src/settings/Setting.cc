@@ -1,10 +1,11 @@
 // $Id$
 
 #include <cassert>
-
 #include "Setting.hh"
 #include "SettingListener.hh"
 #include "CliCommOutput.hh"
+
+using std::string;
 
 namespace openmsx {
 
@@ -19,7 +20,7 @@ Setting::~Setting()
 
 void Setting::notify() const
 {
-	for (vector<SettingListener*>::const_iterator it = listeners.begin();
+	for (Listeners::const_iterator it = listeners.begin();
 	     it != listeners.end(); ++it) {
 		(*it)->update(this);
 	}

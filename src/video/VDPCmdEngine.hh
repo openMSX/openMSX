@@ -9,11 +9,9 @@
 #include "BooleanSetting.hh"
 #include "SettingListener.hh"
 
-
 namespace openmsx {
 
 class VDPVRAM;
-
 
 /** VDP command engine by Alex Wulms.
   * Implements command execution unit of V9938/58.

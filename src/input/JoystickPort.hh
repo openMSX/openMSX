@@ -12,12 +12,12 @@ namespace openmsx {
 class JoystickPort : public Connector
 {
 public:
-	JoystickPort(const string& name);
+	JoystickPort(const std::string& name);
 	virtual ~JoystickPort();
 
 	// Connector
-	virtual const string& getDescription() const;
-	virtual const string& getClass() const;
+	virtual const std::string& getDescription() const;
+	virtual const std::string& getClass() const;
 	virtual void plug(Pluggable* device, const EmuTime& time);
 	virtual JoystickDevice& getPlugged() const;
 

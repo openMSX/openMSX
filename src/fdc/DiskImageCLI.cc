@@ -5,7 +5,8 @@
 #include "xmlx.hh"
 #include "FileContext.hh"
 
-using std::ostringstream;
+using std::list;
+using std::string;
 
 namespace openmsx {
 
@@ -36,7 +37,7 @@ void DiskImageCLI::parseFileType(const string& filename)
 	XMLElement& config = GlobalSettings::instance().getMediaConfig();
 	XMLElement& diskElem = config.getCreateChild(string("disk") + driveLetter);
 	diskElem.setData(filename);
-	diskElem.setFileContext(auto_ptr<FileContext>(new UserFileContext()));
+	diskElem.setFileContext(std::auto_ptr<FileContext>(new UserFileContext()));
 	driveLetter++;
 }
 

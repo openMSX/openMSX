@@ -100,9 +100,9 @@ private:
 
 	// Schedulable
 	virtual void executeUntil(const EmuTime& time, int userData);
-	virtual const string& schedName() const;
+	virtual const std::string& schedName() const;
 	
-	SoundDevice* getSoundDevice(const string& name);
+	SoundDevice* getSoundDevice(const std::string& name);
 
 	bool init;
 	int muteCount;
@@ -113,11 +113,11 @@ private:
 		IntegerSetting* volumeSetting;
 		EnumSetting<ChannelMode>* modeSetting;
 	};
-	map<SoundDevice*, SoundDeviceInfo> infos;
+	std::map<SoundDevice*, SoundDeviceInfo> infos;
 
 	SDL_AudioSpec audioSpec;
-	vector<SoundDevice*> devices[NB_MODES];
-	vector<int*> buffers;
+	std::vector<SoundDevice*> devices[NB_MODES];
+	std::vector<int*> buffers;
 
 	short* mixBuffer;
 	unsigned bufferSize;
@@ -132,10 +132,10 @@ private:
 	CliCommOutput& output;
 	InfoCommand& infoCommand;
 
-	auto_ptr<BooleanSetting> muteSetting;
-	auto_ptr<IntegerSetting> masterVolume;
-	auto_ptr<IntegerSetting> frequencySetting;
-	auto_ptr<IntegerSetting> samplesSetting;
+	std::auto_ptr<BooleanSetting> muteSetting;
+	std::auto_ptr<IntegerSetting> masterVolume;
+	std::auto_ptr<IntegerSetting> frequencySetting;
+	std::auto_ptr<IntegerSetting> samplesSetting;
 	BooleanSetting& pauseSetting;
 	IntegerSetting& speedSetting;
 	BooleanSetting& throttleSetting;
@@ -147,10 +147,10 @@ private:
 	class SoundDeviceInfoTopic : public InfoTopic {
 	public:
 		SoundDeviceInfoTopic(Mixer& parent);
-		virtual void execute(const vector<CommandArgument>& tokens,
+		virtual void execute(const std::vector<CommandArgument>& tokens,
 		                     CommandArgument& result) const;
-		virtual string help   (const vector<string>& tokens) const;
-		virtual void tabCompletion(vector<string>& tokens) const;
+		virtual std::string help(const std::vector<std::string>& tokens) const;
+		virtual void tabCompletion(std::vector<std::string>& tokens) const;
 	private:
 		Mixer& parent;
 	} soundDeviceInfo;

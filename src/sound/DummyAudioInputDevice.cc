@@ -2,6 +2,8 @@
 
 #include "DummyAudioInputDevice.hh"
 
+using std::string;
+
 namespace openmsx {
 
 DummyAudioInputDevice::DummyAudioInputDevice()

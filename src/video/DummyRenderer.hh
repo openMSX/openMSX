@@ -7,7 +7,6 @@
 #include "Renderer.hh"
 #include "Display.hh"
 
-
 namespace openmsx {
 
 /** Dummy Renderer
@@ -44,7 +43,7 @@ public:
 
 	// Layer interface:
 	virtual void paint();
-	virtual const string& getName();
+	virtual const std::string& getName();
 
 private:
 	friend class RendererFactory;

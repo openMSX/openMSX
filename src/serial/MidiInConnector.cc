@@ -1,15 +1,15 @@
 // $Id$
 
 #include "MidiInConnector.hh"
-#include "MidiInDevice.hh"
 #include "DummyMidiInDevice.hh"
 #include "PluggingController.hh"
 
+using std::string;
 
 namespace openmsx {
 
 MidiInConnector::MidiInConnector(const string &name)
-	: Connector(name, auto_ptr<Pluggable>(new DummyMidiInDevice()))
+	: Connector(name, std::auto_ptr<Pluggable>(new DummyMidiInDevice()))
 {
 	PluggingController::instance().registerConnector(this);
 }

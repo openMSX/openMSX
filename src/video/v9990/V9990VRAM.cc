@@ -5,13 +5,13 @@
   * Video RAM for the V9990
   */
 
-#include <cassert>
-#include "Scheduler.hh"
 #include "Debugger.hh"
-
 #include "V9990VRAM.hh"
 
+using std::string;
+
 namespace openmsx {
+
 static const unsigned VRAM_SIZE = 512 * 1024; // 512kB
 static const char*    DEBUG_ID  = "V9990 VRAM";
 	
@@ -21,12 +21,12 @@ static const char*    DEBUG_ID  = "V9990 VRAM";
 
 V9990VRAM::V9990VRAM(V9990 *vdp_, const EmuTime& time)
 	: vdp(vdp_)
-	{
-		data = new byte[VRAM_SIZE];
-		memset(data, 0, VRAM_SIZE);
-		
-		Debugger::instance().registerDebuggable(DEBUG_ID, *this);
-	}
+{
+	data = new byte[VRAM_SIZE];
+	memset(data, 0, VRAM_SIZE);
+	
+	Debugger::instance().registerDebuggable(DEBUG_ID, *this);
+}
 
 V9990VRAM::~V9990VRAM()
 {

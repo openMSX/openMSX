@@ -8,15 +8,13 @@
 #include "Rom.hh"
 #include "I8251.hh"
 #include "I8254.hh"
-#include "ClockPin.hh"
 #include "IRQHelper.hh"
 #include "RS232Connector.hh"
-
-using std::auto_ptr;
 
 namespace openmsx {
 
 class Ram;
+class ClockPin;
 
 class MSXRS232 : public MSXDevice, public RS232Connector
 {
@@ -100,7 +98,7 @@ private:
 	
 	I8251 i8251;
 	Rom rom;
-	auto_ptr<Ram> ram;
+	std::auto_ptr<Ram> ram;
 };
 
 } // namespace openmsx

@@ -5,10 +5,6 @@
 
 #include <string>
 #include <vector>
-#include "CommandException.hh"
-
-using std::string;
-using std::vector;
 
 namespace openmsx {
 
@@ -19,14 +15,14 @@ class CommandCompleter
 public:
 	/** Print help for this command.
 	  */
-	virtual string help(const vector<string>& tokens) const = 0;
+	virtual std::string help(const std::vector<std::string>& tokens) const = 0;
 
 	/** Attempt tab completion for this command.
 	  * @param tokens Tokenized command line;
 	  * 	tokens[0] is the command itself.
 	  * 	The last token is incomplete, this method tries to complete it.
 	  */
-	virtual void tabCompletion(vector<string>& tokens) const = 0;
+	virtual void tabCompletion(std::vector<std::string>& tokens) const = 0;
 };
 
 
@@ -41,7 +37,7 @@ public:
 	  * @throws CommandException Thrown when there was an error while
 	  *                          executing this command.
 	  */
-	virtual void execute(const vector<CommandArgument>& tokens,
+	virtual void execute(const std::vector<CommandArgument>& tokens,
 	                     CommandArgument& result) = 0;
 
 	/** Attempt tab completion for this command.
@@ -50,7 +46,7 @@ public:
 	  * 	tokens[0] is the command itself.
 	  * 	The last token is incomplete, this method tries to complete it.
 	  */
-	virtual void tabCompletion(vector<string>& /*tokens*/) const {}
+	virtual void tabCompletion(std::vector<std::string>& /*tokens*/) const {}
 };
 
 /**
@@ -60,9 +56,9 @@ public:
 class SimpleCommand : public Command
 {
 public:
-	virtual string execute(const vector<string>& tokens) = 0;
+	virtual std::string execute(const std::vector<std::string>& tokens) = 0;
 	
-	virtual void execute(const vector<CommandArgument>& tokens,
+	virtual void execute(const std::vector<CommandArgument>& tokens,
 	                     CommandArgument& result);
 };
 

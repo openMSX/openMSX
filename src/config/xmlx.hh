@@ -11,28 +11,21 @@
 #include <libxml/parser.h>
 #include "MSXException.hh"
 
-using std::map;
-using std::vector;
-using std::string;
-using std::auto_ptr;
-using std::ostringstream;
-
-namespace openmsx
-{
+namespace openmsx {
 
 class FileContext;
 
 class XMLException: public MSXException
 {
 public:
-	XMLException(const string& msg);
+	XMLException(const std::string& msg);
 };
 
 
 class XMLElement
 {
 public:
-	XMLElement(const string& name, const string& data = "");
+	XMLElement(const std::string& name, const std::string& data = "");
 	XMLElement(const XMLElement& element);
 	~XMLElement();
 	
@@ -41,59 +34,59 @@ public:
 	XMLElement* getParent();
 	const XMLElement* getParent() const;
 	
-	void addChild(auto_ptr<XMLElement> child);
+	void addChild(std::auto_ptr<XMLElement> child);
 	void deleteChild(const XMLElement& child);
-	void addAttribute(const string& name, const string& value);
+	void addAttribute(const std::string& name, const std::string& value);
 	
-	const string& getName() const { return name; }
-	const string& getData() const { return data; }
+	const std::string& getName() const { return name; }
+	const std::string& getData() const { return data; }
 	bool getDataAsBool() const;
 	int getDataAsInt() const;
 	double getDataAsDouble() const;
-	void setData(const string& data_);
+	void setData(const std::string& data_);
 
-	typedef vector<XMLElement*> Children;
+	typedef std::vector<XMLElement*> Children;
 	const Children& getChildren() const { return children; }
-	void getChildren(const string& name, Children& result) const;
-	const XMLElement* findChild(const string& name) const;
-	XMLElement* findChild(const string& name);
-	const XMLElement& getChild(const string& name) const;
-	XMLElement& getChild(const string& name);
+	void getChildren(const std::string& name, Children& result) const;
+	const XMLElement* findChild(const std::string& name) const;
+	XMLElement* findChild(const std::string& name);
+	const XMLElement& getChild(const std::string& name) const;
+	XMLElement& getChild(const std::string& name);
 
-	XMLElement& getCreateChild(const string& name,
-	                           const string& defaultValue = "");
+	XMLElement& getCreateChild(const std::string& name,
+	                           const std::string& defaultValue = "");
 	XMLElement& getCreateChildWithAttribute(
-		const string& name, const string& attName,
-		const string& attValue, const string& defaultValue = "");
+		const std::string& name, const std::string& attName,
+		const std::string& attValue, const std::string& defaultValue = "");
 	
-	const string& getChildData(const string& name) const;
-	string getChildData(const string& name,
-	                    const string& defaultValue) const;
-	bool getChildDataAsBool(const string& name,
+	const std::string& getChildData(const std::string& name) const;
+	std::string getChildData(const std::string& name,
+	                    const std::string& defaultValue) const;
+	bool getChildDataAsBool(const std::string& name,
 	                        bool defaultValue = false) const;
-	int getChildDataAsInt(const string& name,
+	int getChildDataAsInt(const std::string& name,
 	                      int defaultValue = 0) const;
 	
-	typedef map<string, string> Attributes;
-	bool hasAttribute(const string& name) const;
+	typedef std::map<std::string, std::string> Attributes;
+	bool hasAttribute(const std::string& name) const;
 	const Attributes& getAttributes() const;
-	const string& getAttribute(const string& attName) const;
-	const string getAttribute(const string& attName,
-	                          const string defaultValue) const;
-	bool getAttributeAsBool(const string& attName,
+	const std::string& getAttribute(const std::string& attName) const;
+	const std::string getAttribute(const std::string& attName,
+	                          const std::string defaultValue) const;
+	bool getAttributeAsBool(const std::string& attName,
 	                        bool defaultValue = false) const;
-	int getAttributeAsInt(const string& attName,
+	int getAttributeAsInt(const std::string& attName,
 	                      int defaultValue = 0) const;
 
-	const string& getId() const;
+	const std::string& getId() const;
 	
-	void setFileContext(auto_ptr<FileContext> context);
+	void setFileContext(std::auto_ptr<FileContext> context);
 	FileContext& getFileContext() const;
 
-	string dump() const;
+	std::string dump() const;
 	
-	static string makeUnique(const string& str);
-	static string XMLEscape(const string& str);
+	static std::string makeUnique(const std::string& str);
+	static std::string XMLEscape(const std::string& str);
 
 protected:
 	XMLElement();
@@ -101,23 +94,23 @@ protected:
 	void init(xmlNodePtr node);
 	
 private:
-	void dump(string& result, unsigned indentNum) const;
+	void dump(std::string& result, unsigned indentNum) const;
 	
-	string name;
-	string data;
+	std::string name;
+	std::string data;
 	Children children;
 	Attributes attributes;
 	XMLElement* parent;
-	auto_ptr<FileContext> context;
+	std::auto_ptr<FileContext> context;
 
-	static map<string, unsigned> idMap;
+	static std::map<std::string, unsigned> idMap;
 };
 
 
 class XMLDocument : public XMLElement
 {
 public:
-	XMLDocument(const string& filename, const string& systemID);
+	XMLDocument(const std::string& filename, const std::string& systemID);
 };
 
 

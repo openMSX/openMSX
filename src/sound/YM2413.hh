@@ -5,7 +5,6 @@
 
 #include "openmsx.hh"
 #include "SoundDevice.hh"
-#include "Mixer.hh"
 #include "YM2413Core.hh"
 #include "Debuggable.hh"
 
@@ -115,15 +114,15 @@ class YM2413 : public YM2413Core, private SoundDevice, private Debuggable
 	};
 
 public:
-	YM2413(const string& name, const XMLElement& config, const EmuTime& time);
+	YM2413(const std::string& name, const XMLElement& config, const EmuTime& time);
 	virtual ~YM2413();
 
 	void reset(const EmuTime& time);
 	void writeReg(byte reg, byte value, const EmuTime& time);
 
 	// SoundDevice
-	virtual const string& getName() const;
-	virtual const string& getDescription() const;
+	virtual const std::string& getName() const;
+	virtual const std::string& getDescription() const;
 	virtual void setVolume(int newVolume);
 	virtual void setSampleRate(int sampleRate);
 	virtual void updateBuffer(int length, int* buffer);
@@ -171,7 +170,7 @@ private:
 
 	// Debuggable
 	virtual unsigned getSize() const;
-	//virtual const string& getDescription() const;  // also in SoundDevice!!
+	//virtual const std::string& getDescription() const;  // also in SoundDevice!!
 	virtual byte read(unsigned address);
 	virtual void write(unsigned address, byte value);
 
@@ -313,7 +312,7 @@ private:
 	// Phase incr table for PG 
 	static unsigned int dphaseTable[512][8][16];
 
-	const string name;
+	const std::string name;
 };
 
 } // namespace openmsx

@@ -13,7 +13,7 @@ const EmuTime EmuTime::zero((uint64)0);
 const EmuTime EmuTime::infinity(INFTY);
 
 
-ostream &operator<<(ostream &os, const EmuTime &et)
+std::ostream& operator<<(std::ostream &os, const EmuTime &et)
 {
 	os << et.time;
 	return os;

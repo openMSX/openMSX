@@ -3,8 +3,14 @@
 #include "InfoCommand.hh"
 #include "CommandController.hh"
 #include "CommandArgument.hh"
+#include "CommandException.hh"
 #include "Version.hh"
 #include <cassert>
+
+using std::map;
+using std::set;
+using std::string;
+using std::vector;
 
 namespace openmsx {
 

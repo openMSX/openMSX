@@ -7,8 +7,6 @@
 #include "PrinterPortDevice.hh"
 #include "StringSetting.hh"
 
-using std::auto_ptr;
-
 namespace openmsx {
 
 class File;
@@ -25,15 +23,15 @@ public:
 	virtual void writeData(byte data, const EmuTime& time);
 
 	// Pluggable
-	virtual const string& getName() const;
-	virtual const string& getDescription() const;
+	virtual const std::string& getName() const;
+	virtual const std::string& getDescription() const;
 	virtual void plugHelper(Connector* connector, const EmuTime& time);
 	virtual void unplugHelper(const EmuTime& time);
 
 private:
 	byte toPrint;
 	bool prevStrobe;
-	auto_ptr<File> file;
+	std::auto_ptr<File> file;
 
 	StringSetting logFilenameSetting;
 };

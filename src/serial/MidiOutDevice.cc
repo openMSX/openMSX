@@ -2,6 +2,7 @@
 
 #include "MidiOutDevice.hh"
 
+using std::string;
 
 namespace openmsx {
 

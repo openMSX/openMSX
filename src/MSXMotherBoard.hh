@@ -9,9 +9,6 @@
 #include "SettingListener.hh"
 #include "EventListener.hh"
 
-using std::vector;
-using std::auto_ptr;
-
 namespace openmsx {
 
 class CliCommOutput;
@@ -44,7 +41,7 @@ private:
 	 * All MSXDevices should be registered by the MotherBoard.
 	 * This method should only be called at start-up
 	 */
-	void addDevice(auto_ptr<MSXDevice> device);
+	void addDevice(std::auto_ptr<MSXDevice> device);
 	
 	void createDevices(const XMLElement& elem);
 	void reInitMSX();
@@ -60,7 +57,7 @@ private:
 	void powerOn();
 	void powerOff();
 
-	typedef vector<MSXDevice*> Devices;
+	typedef std::vector<MSXDevice*> Devices;
 	Devices availableDevices;
 
 	bool paused;
@@ -78,8 +75,8 @@ private:
 	class QuitCommand : public SimpleCommand {
 	public:
 		QuitCommand(MSXMotherBoard& parent);
-		virtual string execute(const vector<string>& tokens);
-		virtual string help(const vector<string>& tokens) const;
+		virtual std::string execute(const std::vector<std::string>& tokens);
+		virtual std::string help(const std::vector<std::string>& tokens) const;
 	private:
 		MSXMotherBoard& parent;
 	} quitCommand;
@@ -87,8 +84,8 @@ private:
 	class ResetCmd : public SimpleCommand {
 	public:
 		ResetCmd(MSXMotherBoard& parent);
-		virtual string execute(const vector<string>& tokens);
-		virtual string help(const vector<string>& tokens) const;
+		virtual std::string execute(const std::vector<std::string>& tokens);
+		virtual std::string help(const std::vector<std::string>& tokens) const;
 	private:
 		MSXMotherBoard& parent;
 	} resetCommand;

@@ -6,13 +6,10 @@
 #include <set>
 #include <string>
 #include <tcl.h>
-#include "Command.hh"
-
-using std::set;
-using std::string;
 
 namespace openmsx {
 
+class Command;
 class Setting;
 
 class Interpreter
@@ -21,20 +18,21 @@ public:
 	static Interpreter& instance();
 	
 	void init(const char* programName);
-	void registerCommand(const string& name, Command& command);
-	void unregisterCommand(const string& name, Command& command);
-	void getCommandNames(set<string>& result);
-	bool isComplete(const string& command) const;
-	string execute(const string& command);
-	string executeFile(const string& filename);
+	void registerCommand(const std::string& name, Command& command);
+	void unregisterCommand(const std::string& name, Command& command);
+	void getCommandNames(std::set<std::string>& result);
+	bool isComplete(const std::string& command) const;
+	std::string execute(const std::string& command);
+	std::string executeFile(const std::string& filename);
 	
-	void setVariable(const string& name, const string& value);
-	void unsetVariable(const string& name);
-	string getVariable(const string& name) const;
+	void setVariable(const std::string& name, const std::string& value);
+	void unsetVariable(const std::string& name);
+	std::string getVariable(const std::string& name) const;
 	void registerSetting(Setting& variable);
 	void unregisterSetting(Setting& variable);
 
-	void splitList(const string& list, vector<string>& result);
+	void splitList(const std::string& list,
+	               std::vector<std::string>& result);
 
 private:
 	Interpreter();

@@ -1,6 +1,9 @@
 // $Id$
 
 #include "DSKDiskImage.hh"
+#include "FileException.hh"
+
+using std::string;
 
 namespace openmsx {
 

@@ -1,15 +1,15 @@
 // $Id$
 
 #include "RS232Connector.hh"
-#include "RS232Device.hh"
 #include "DummyRS232Device.hh"
 #include "PluggingController.hh"
 
+using std::string;
 
 namespace openmsx {
 
 RS232Connector::RS232Connector(const string &name)
-	: Connector(name, auto_ptr<Pluggable>(new DummyRS232Device()))
+	: Connector(name, std::auto_ptr<Pluggable>(new DummyRS232Device()))
 {
 	PluggingController::instance().registerConnector(this);
 }

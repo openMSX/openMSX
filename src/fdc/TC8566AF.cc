@@ -7,7 +7,7 @@
 
 #include "TC8566AF.hh"
 #include "DiskDrive.hh"
-#include "Disk.hh"
+#include "MSXException.hh"
 
 namespace openmsx {
 

@@ -1,11 +1,6 @@
 // $Id$
 
-#include "V9990.hh"
 #include "V9990Renderer.hh"
-#include "Display.hh"
-#include "VideoSystem.hh"
-
-#include "openmsx.hh"
 
 namespace openmsx {
 
@@ -31,6 +26,5 @@ void V9990Renderer::frameEnd(const EmuTime& time)
 void V9990Renderer::renderUntil(const EmuTime& time)
 {
 }
-
 
 } // namespace openmsx

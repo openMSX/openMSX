@@ -9,7 +9,6 @@ namespace openmsx {
 
 class EmuTime;
 
-
 class IDEDevice
 {
 public:

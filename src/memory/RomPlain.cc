@@ -1,16 +1,13 @@
 // $Id$
 
-#include <algorithm>
-#include "StringOp.hh"
 #include "RomPlain.hh"
 #include "Rom.hh"
 #include "xmlx.hh"
 
-using std::min;
-
 namespace openmsx {
 
-RomPlain::RomPlain(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom_)
+RomPlain::RomPlain(const XMLElement& config, const EmuTime& time,
+                   std::auto_ptr<Rom> rom_)
 	: Rom8kBBlocks(config, time, rom_)
 {
 	switch (rom->getSize()) {

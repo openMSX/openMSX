@@ -5,15 +5,16 @@
 #include "CommandController.hh"
 #include "GlobalSettings.hh"
 #include "xmlx.hh"
-#include "File.hh"
 #include "FileContext.hh"
-#include "CassetteImage.hh"
 #include "WavImage.hh"
 #include "CasImage.hh"
 #include "DummyCassetteImage.hh"
-#include "Mixer.hh"
-#include "RealTime.hh"
 #include "CliCommOutput.hh"
+
+using std::auto_ptr;
+using std::list;
+using std::string;
+using std::vector;
 
 namespace openmsx {
 

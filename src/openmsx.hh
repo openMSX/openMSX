@@ -5,12 +5,6 @@
 
 #include <iostream>
 
-using std::cout;
-using std::endl;
-using std::hex;
-using std::dec;
-
-
 /// Namespace of the openMSX emulation core.
 /** openMSX: the MSX emulator that aims for perfection
   *
@@ -66,7 +60,7 @@ typedef unsigned long long uint64;
 #define PRT_DEBUG(mes)				\
 	do {					\
 		if (DEBUGVAL) {			\
-			cout << mes << endl;	\
+			std::cout << mes << std::endl;	\
 		}				\
 	} while (0)
 

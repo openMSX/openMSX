@@ -11,6 +11,8 @@
 #include "Debugger.hh"
 #include "Scheduler.hh"
 
+using std::string;
+
 namespace openmsx {
 
 short Y8950::dB2LinTab[(2*DB_MUTE)*2];

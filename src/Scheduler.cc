@@ -49,7 +49,7 @@ void Scheduler::setSyncPoint(const EmuTime& time, Schedulable* device, int userD
 void Scheduler::removeSyncPoint(Schedulable* device, int userData)
 {
 	sem.down();
-	for (vector<SynchronizationPoint>::iterator it = syncPoints.begin();
+	for (SyncPoints::iterator it = syncPoints.begin();
 	     it != syncPoints.end(); ++it) {
 		SynchronizationPoint& sp = *it;
 		if ((sp.getDevice() == device) &&

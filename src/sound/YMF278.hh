@@ -7,7 +7,6 @@
 
 #include "openmsx.hh"
 #include "SoundDevice.hh"
-#include "Mixer.hh"
 #include "Rom.hh"
 #include "Debuggable.hh"
 
@@ -68,7 +67,7 @@ public:
 class YMF278 : private SoundDevice
 {
 public:
-	YMF278(const string& name, int ramSize, const XMLElement& config,
+	YMF278(const std::string& name, int ramSize, const XMLElement& config,
 	       const EmuTime& time);
 	virtual ~YMF278();
 	void reset(const EmuTime& time);
@@ -80,8 +79,8 @@ public:
 	
 private:
 	// SoundDevice
-	virtual const string& getName() const;
-	virtual const string& getDescription() const;
+	virtual const std::string& getName() const;
+	virtual const std::string& getDescription() const;
 	virtual void setSampleRate(int sampleRate);
 	virtual void setVolume(int newVolume);
 	virtual void updateBuffer(int length, int* buffer);
@@ -90,7 +89,7 @@ private:
 	public:
 		DebugRegisters(YMF278& parent);
 		virtual unsigned getSize() const;
-		virtual const string& getDescription() const;
+		virtual const std::string& getDescription() const;
 		virtual byte read(unsigned address);
 		virtual void write(unsigned address, byte value);
 	private:
@@ -101,7 +100,7 @@ private:
 	public:
 		DebugMemory(YMF278& parent);
 		virtual unsigned getSize() const;
-		virtual const string& getDescription() const;
+		virtual const std::string& getDescription() const;
 		virtual byte read(unsigned address);
 		virtual void write(unsigned address, byte value);
 	private:
@@ -152,7 +151,7 @@ private:
 	int fm_l, fm_r;
 	int pcm_l, pcm_r;
 
-	const string name;
+	const std::string name;
 	Rom rom;
 	byte* ram;
 	unsigned endRom;

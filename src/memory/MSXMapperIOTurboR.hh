@@ -10,7 +10,7 @@ namespace openmsx {
 class MSXMapperIOTurboR : public MSXMapperIOPhilips
 {
 public:
-	virtual byte calcMask(const multiset<unsigned>& mapperSizes);
+	virtual byte calcMask(const std::multiset<unsigned>& mapperSizes);
 };
 
 } // namespace openmsx

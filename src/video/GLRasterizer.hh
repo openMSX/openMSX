@@ -4,7 +4,6 @@
 #define __GLRASTERIZER_HH__
 
 #include "Rasterizer.hh"
-#include "SettingListener.hh"
 #include "CharacterConverter.hh"
 #include "BitmapConverter.hh"
 #include "SpriteConverter.hh"
@@ -36,7 +35,7 @@ public:
 
 	// Layer interface:
 	virtual void paint();
-	virtual const string& getName();
+	virtual const std::string& getName();
 
 	// Rasterizer interface:
 	virtual void reset();
@@ -51,17 +50,11 @@ public:
 	virtual void drawDisplay(
 		int fromX, int fromY,
 		int displayX, int displayY,
-		int displayWidth, int displayHeight
-		);
+		int displayWidth, int displayHeight);
 	virtual void drawSprites(
 		int fromX, int fromY,
 		int displayX, int displayY,
-		int displayWidth, int displayHeight
-		);
-
-protected:
-	// SettingListener interface:
-	virtual void update(const Setting* setting);
+		int displayWidth, int displayHeight);
 
 private:
 	inline void renderBitmapLine(byte mode, int vramLine);

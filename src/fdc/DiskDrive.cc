@@ -8,9 +8,13 @@
 #include "DSKDiskImage.hh"
 #include "FDC_DirAsDSK.hh"
 #include "FileContext.hh"
+#include "FileException.hh"
 #include "CliCommOutput.hh"
 #include "EventDistributor.hh"
 #include "LedEvent.hh"
+
+using std::string;
+using std::vector;
 
 namespace openmsx {
 
@@ -133,7 +137,7 @@ bool DummyDrive::dummyDrive()
 
 /// class RealDrive ///
 
-bitset<RealDrive::MAX_DRIVES> RealDrive::drivesInUse;
+std::bitset<RealDrive::MAX_DRIVES> RealDrive::drivesInUse;
 
 RealDrive::RealDrive(const EmuTime& time)
 	: motorStatus(false), motorTimer(time)

@@ -4,10 +4,14 @@
 #include "openmsx.hh"
 #include "HotKey.hh"
 #include "CommandController.hh"
+#include "CommandException.hh"
 #include "EventDistributor.hh"
 #include "CliCommOutput.hh"
 #include "InputEvents.hh"
 #include "SettingsConfig.hh"
+
+using std::string;
+using std::vector;
 
 namespace openmsx {
 

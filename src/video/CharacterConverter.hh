@@ -10,8 +10,6 @@
 #include "DisplayMode.hh"
 #include "Blender.hh"
 
-using std::bitset;
-
 namespace openmsx {
 
 class VDP;
@@ -180,13 +178,12 @@ private:
 	  * is set to true. In the future change tracking will be restored.
 	  */
 	bool anyDirtyColour;
-	bitset<(1<<10)> dirtyColour;
+	std::bitset<(1<<10)> dirtyColour;
 	bool anyDirtyPattern;
-	bitset<(1<<10)> dirtyPattern;
+	std::bitset<(1<<10)> dirtyPattern;
 	bool anyDirtyName;
-	bitset<(1<<12)> dirtyName;
+	std::bitset<(1<<12)> dirtyName;
 	bool dirtyForeground, dirtyBackground;
-
 };
 
 } // namespace openmsx

@@ -76,9 +76,6 @@ const byte* MSXRS232::getReadCacheLine(word start) const
 void MSXRS232::writeMem(word address, byte value, const EmuTime& /*time*/)
 {
 	word addr = address & 0x3FFF;
-	if (addr == 0x2682) {
-		cout << "RS232 Write 0x2682 " << (int) value << endl;
-	}
 	if (ram.get() && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
 		(*ram)[addr - RAM_OFFSET] = value;
 	}

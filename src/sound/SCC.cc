@@ -74,6 +74,8 @@
 #include "Scheduler.hh"
 #include "Debugger.hh"
 
+using std::string;
+
 namespace openmsx {
 
 SCC::SCC(const string& name_, const XMLElement& config, const EmuTime& time,

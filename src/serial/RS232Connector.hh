@@ -12,12 +12,12 @@ namespace openmsx {
 class RS232Connector : public Connector, public SerialDataInterface
 {
 public:
-	RS232Connector(const string& name);
+	RS232Connector(const std::string& name);
 	virtual ~RS232Connector();
 
 	// Connector
-	virtual const string& getDescription() const;
-	virtual const string& getClass() const;
+	virtual const std::string& getDescription() const;
+	virtual const std::string& getClass() const;
 	virtual RS232Device& getPlugged() const;
 
 	// input (SerialDataInterface)

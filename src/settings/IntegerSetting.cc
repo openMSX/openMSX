@@ -5,6 +5,8 @@
 #include <sstream>
 #include <cstdio>
 
+using std::string;
+
 namespace openmsx {
 
 // class IntegerSettingPolicy

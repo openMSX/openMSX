@@ -21,10 +21,11 @@
 #include <unistd.h>
 #include "build-info.hh"
 #include "FileOperations.hh"
+#include "FileException.hh"
 #include "openmsx.hh"
 #include "CliCommOutput.hh"
-#include "MSXException.hh"
 
+using std::string;
 
 #if	defined(_WIN32)
 #ifdef	__cplusplus

@@ -4,7 +4,7 @@
 
 namespace openmsx {
 
-Connector::Connector(const string& name_, auto_ptr<Pluggable> dummy_)
+Connector::Connector(const std::string& name_, std::auto_ptr<Pluggable> dummy_)
 	: name(name_), dummy(dummy_)
 {
 	plugged = dummy.get();

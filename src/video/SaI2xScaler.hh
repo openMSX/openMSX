@@ -6,7 +6,6 @@
 #include "Scaler.hh"
 #include "Blender.hh"
 
-
 namespace openmsx {
 
 /** 2xSaI algorithm: edge-detection which produces a rounded look.

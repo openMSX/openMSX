@@ -1,7 +1,6 @@
 // $Id$
 
 #include "Console.hh"
-#include "OSDConsoleRenderer.hh"
 
 namespace openmsx {
 

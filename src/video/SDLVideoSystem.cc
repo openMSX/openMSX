@@ -10,12 +10,12 @@
 #include "SDLUtil.hh"
 #include "CommandConsole.hh"
 #include "InitException.hh"
-#include "BooleanSetting.hh"
 #include "ScreenShotSaver.hh"
 #include "IconLayer.hh"
 #include <SDL.h>
 #include <cassert>
 
+using std::string;
 
 namespace openmsx {
 
@@ -33,7 +33,7 @@ SDLVideoSystem::SDLVideoSystem(RendererFactory::RendererID id)
 		SDL_SWSURFACE
 		);
 
-	Display* display = new Display(auto_ptr<VideoSystem>(this));
+	Display* display = new Display(std::auto_ptr<VideoSystem>(this));
 	Display::INSTANCE.reset(display);
 	switch (screen->format->BytesPerPixel) {
 	case 2:

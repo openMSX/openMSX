@@ -5,11 +5,10 @@
 
 #include <memory>
 #include "MSXDevice.hh"
-#include "Ram.hh"
-
-using std::auto_ptr;
 
 namespace openmsx {
+
+class Ram;
 
 class MSXMegaRam : public MSXDevice
 {
@@ -31,7 +30,7 @@ public:
 private:
 	void setBank(byte page, byte block);
 
-	auto_ptr<Ram> ram;
+	std::auto_ptr<Ram> ram;
 	byte maxBlock;
 	byte bank[4];
 	bool writeMode;

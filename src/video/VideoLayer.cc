@@ -5,7 +5,6 @@
 #include "GlobalSettings.hh"
 #include <cassert>
 
-
 namespace openmsx {
 
 VideoLayer::VideoLayer(RenderSettings::VideoSource videoSource)

@@ -6,8 +6,6 @@
 #include <memory>
 #include "MSXDevice.hh"
 
-using std::auto_ptr;
-
 namespace openmsx {
 
 class Ram;
@@ -29,7 +27,7 @@ private:
 
 	int base;
 	int end;
-	auto_ptr<Ram> ram;
+	std::auto_ptr<Ram> ram;
 };
 
 } // namespace openmsx

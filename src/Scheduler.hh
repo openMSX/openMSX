@@ -7,8 +7,6 @@
 #include "EmuTime.hh"
 #include "Semaphore.hh"
 
-using std::vector;
-
 namespace openmsx {
 
 class Schedulable;
@@ -111,7 +109,8 @@ private:
 	/** Vector used as heap, not a priority queue because that
 	  * doesn't allow removal of non-top element.
 	  */
-	vector<SynchronizationPoint> syncPoints;
+	typedef std::vector<SynchronizationPoint> SyncPoints;
+	SyncPoints syncPoints;
 	Semaphore sem;	// protects syncPoints
 
 	EmuTime scheduleTime;

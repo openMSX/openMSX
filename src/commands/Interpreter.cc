@@ -1,12 +1,16 @@
 // $Id$
 
 #include "openmsx.hh"
+#include "Command.hh"
 #include "CommandConsole.hh"
 #include "CommandArgument.hh"
-#include "MSXException.hh"
+#include "CommandException.hh"
 #include "Setting.hh"
 #include "Interpreter.hh"
 
+using std::set;
+using std::string;
+using std::vector;
 
 namespace openmsx {
 

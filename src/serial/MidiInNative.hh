@@ -9,7 +9,6 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 
-#include <list>
 #include "openmsx.hh"
 #include "MidiInDevice.hh"
 #include "Thread.hh"
@@ -18,8 +17,7 @@
 #include <SDL_thread.h>
 #include <windows.h>
 #include <mmsystem.h>
-
-using std::list;
+#include <deque>
 
 namespace openmsx {
 
@@ -58,7 +56,7 @@ private:
 	Thread thread;
 	unsigned int devidx;
 	unsigned int thrdid;
-	list<byte> queue;
+	std::deque<byte> queue;
 	Semaphore lock; // to protect queue
 	string name;
 	string desc;

@@ -9,6 +9,8 @@
 #include "CliCommOutput.hh"
 #include "InputEvents.hh"
 
+using std::string;
+
 namespace openmsx {
 
 static Keys::KeyCode getConfigKeyCode(const string& keyname,

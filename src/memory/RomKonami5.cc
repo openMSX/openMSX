@@ -14,7 +14,6 @@
 //  bank 4: 0xB000 - 0xB7ff (0xB000 used)
 
 #include "RomKonami5.hh"
-#include "xmlx.hh"
 #include "SCC.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
@@ -22,7 +21,8 @@
 
 namespace openmsx {
 
-RomKonami5::RomKonami5(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom)
+RomKonami5::RomKonami5(const XMLElement& config, const EmuTime& time,
+                       std::auto_ptr<Rom> rom)
 	: Rom8kBBlocks(config, time, rom)
 {
 	scc.reset(new SCC(getName(), config, time));

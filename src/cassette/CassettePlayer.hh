@@ -9,9 +9,6 @@
 #include "Command.hh"
 #include "CommandLineParser.hh"
 #include "SoundDevice.hh"
-#include "MSXException.hh"
-
-using std::auto_ptr;
 
 namespace openmsx {
 
@@ -22,22 +19,22 @@ class MSXCassettePlayerCLI : public CLIOption, public CLIFileType
 {
 public:
 	MSXCassettePlayerCLI(CommandLineParser& cmdLineParser);
-	virtual bool parseOption(const string& option,
-			list<string>& cmdLine);
-	virtual const string& optionHelp() const;
-	virtual void parseFileType(const string& filename);
-	virtual const string& fileTypeHelp() const;
+	virtual bool parseOption(const std::string& option,
+	                         std::list<std::string>& cmdLine);
+	virtual const std::string& optionHelp() const;
+	virtual void parseFileType(const std::string& filename);
+	virtual const std::string& fileTypeHelp() const;
 };
 
 
 class CassettePlayer : public CassetteDevice, public SoundDevice,
-	private SimpleCommand
+                       private SimpleCommand
 {
 public:
 	CassettePlayer();
 	virtual ~CassettePlayer();
 
-	void insertTape(const string& filename);
+	void insertTape(const std::string& filename);
 	void removeTape();
 
 	// CassetteDevice
@@ -47,8 +44,8 @@ public:
 	virtual int getWriteSampleRate();
 
 	// Pluggable + SoundDevice
-	virtual const string& getName() const;
-	virtual const string& getDescription() const;
+	virtual const std::string& getName() const;
+	virtual const std::string& getDescription() const;
 
 	// Pluggable
 	virtual void plugHelper(Connector* connector, const EmuTime& time);
@@ -64,15 +61,15 @@ private:
 	void updatePosition(const EmuTime& time);
 	short getSample(const EmuTime& time);
 
-	auto_ptr<CassetteImage> cassette;
+	std::auto_ptr<CassetteImage> cassette;
 	bool motor, forcePlay;
 	EmuTime tapeTime;
 	EmuTime prevTime;
 
 	// Tape Command
-	virtual string execute(const vector<string>& tokens);
-	virtual string help   (const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
+	virtual std::string execute(const std::vector<std::string>& tokens);
+	virtual std::string help(const std::vector<std::string>& tokens) const;
+	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
 	// SoundDevice
 	int volume;

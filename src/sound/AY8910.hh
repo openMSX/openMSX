@@ -136,15 +136,15 @@ private:
 	};
 
 	// SoundDevice:
-	virtual const string& getName() const;
-	virtual const string& getDescription() const;
+	virtual const std::string& getName() const;
+	virtual const std::string& getDescription() const;
 	virtual void setVolume(int volume);
 	virtual void setSampleRate(int sampleRate);
 	virtual void updateBuffer(int length, int* buffer);
 
 	// Debuggable:
 	virtual unsigned getSize() const;
-	//virtual const string& getDescription() const;  // also in SoundDevice!!
+	//virtual const std::string& getDescription() const;  // also in SoundDevice!!
 	virtual byte read(unsigned address);
 	virtual void write(unsigned address, byte value);
 

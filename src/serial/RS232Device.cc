@@ -2,6 +2,7 @@
 
 #include "RS232Device.hh"
 
+using std::string;
 
 namespace openmsx {
 

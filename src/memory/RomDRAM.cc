@@ -9,7 +9,7 @@
 namespace openmsx {
 
 RomDRAM::RomDRAM(const XMLElement& config, const EmuTime& time,
-                           auto_ptr<Rom> rom)
+                           std::auto_ptr<Rom> rom)
 	: MSXRom(config, time, rom)
 	, panasonicMemory(PanasonicMemory::instance())
 {

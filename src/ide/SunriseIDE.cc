@@ -1,9 +1,7 @@
 // $Id$
 
 #include "SunriseIDE.hh"
-#include "IDEDevice.hh"
 #include "DummyIDEDevice.hh"
-#include "IDEHD.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
 #include "IDEDeviceFactory.hh"
@@ -151,7 +149,7 @@ byte SunriseIDE::readDataHigh(const EmuTime& /*time*/)
 word SunriseIDE::readData(const EmuTime& time)
 {
 	word result = device[selectedDevice]->readData(time);
-	PRT_DEBUG("IDE read data: 0x" << hex << int(result) << dec);
+	PRT_DEBUG("IDE read data: 0x" << std::hex << int(result) << std::dec);
 	return result;
 }
 
@@ -182,7 +180,6 @@ byte SunriseIDE::readReg(nibble reg, const EmuTime& time)
 			}
 		}
 	}
-	PRT_DEBUG("IDE read reg: " << (int)reg << " 0x" << hex << (int)result << dec);
 	return result;
 }
 
@@ -198,13 +195,11 @@ void SunriseIDE::writeDataHigh(byte value, const EmuTime& time)
 }
 void SunriseIDE::writeData(word value, const EmuTime& time)
 {
-	PRT_DEBUG("IDE write data: 0x" << hex << int(value) << dec);
 	device[selectedDevice]->writeData(value, time);
 }
 
 void SunriseIDE::writeReg(nibble reg, byte value, const EmuTime& time)
 {
-	PRT_DEBUG("IDE write reg: " << (int)reg << " 0x" << hex << (int)value << dec);
 	if (softReset) {
 		if ((reg == 14) && !(value & 0x04)) {
 			// clear SRST

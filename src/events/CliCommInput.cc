@@ -14,7 +14,7 @@
 #include "Scheduler.hh"
 
 using std::cout;
-
+using std::string;
 
 namespace openmsx {
 

@@ -9,8 +9,6 @@
 #include "Schedulable.hh"
 #include "Event.hh"
 
-using std::map;
-
 namespace openmsx {
 
 class AfterCommand : public SimpleCommand, private EventListener
@@ -19,16 +17,17 @@ public:
 	AfterCommand();
 	virtual ~AfterCommand();
 	
-	virtual string execute(const vector<string>& tokens);
-	virtual string help(const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
+	virtual std::string execute(const std::vector<std::string>& tokens);
+	virtual std::string help(const std::vector<std::string>& tokens) const;
+	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
 private:
-	string afterTime(const vector<string>& tokens);
-	string afterIdle(const vector<string>& tokens);
-	string afterInfo(const vector<string>& tokens);
-	string afterCancel(const vector<string>& tokens);
-	template<EventType T> string afterEvent(const vector<string>& tokens);
+	std::string afterTime(const std::vector<std::string>& tokens);
+	std::string afterIdle(const std::vector<std::string>& tokens);
+	std::string afterInfo(const std::vector<std::string>& tokens);
+	std::string afterCancel(const std::vector<std::string>& tokens);
+	template<EventType T> std::string afterEvent(
+		const std::vector<std::string>& tokens);
 	template<EventType T> void executeEvents();
 
 	// EventListener
@@ -38,15 +37,15 @@ private:
 	class AfterCmd {
 	public:
 		virtual ~AfterCmd();
-		const string& getCommand() const;
-		const string& getId() const;
-		virtual const string& getType() const = 0;
+		const std::string& getCommand() const;
+		const std::string& getId() const;
+		virtual const std::string& getType() const = 0;
 		void execute();
 	protected:
-		AfterCmd(const string& command);
+		AfterCmd(const std::string& command);
 	private:
-		string command;
-		string id;
+		std::string command;
+		std::string id;
 		static unsigned lastAfterId;
 	};
 
@@ -56,34 +55,34 @@ private:
 		double getTime() const;
 		void reschedule();
 	protected:
-		AfterTimedCmd(const string& command, double time);
+		AfterTimedCmd(const std::string& command, double time);
 	private:
 		virtual void executeUntil(const EmuTime& time, int userData);
-		virtual const string& schedName() const;
+		virtual const std::string& schedName() const;
 		
 		double time;
 	};
 
 	class AfterTimeCmd : public AfterTimedCmd {
 	public:
-		AfterTimeCmd(const string& command, double time);
-		virtual const string& getType() const;
+		AfterTimeCmd(const std::string& command, double time);
+		virtual const std::string& getType() const;
 	};
 	
 	class AfterIdleCmd : public AfterTimedCmd {
 	public:
-		AfterIdleCmd(const string& command, double time);
-		virtual const string& getType() const;
+		AfterIdleCmd(const std::string& command, double time);
+		virtual const std::string& getType() const;
 	};
 	
 	template<EventType T>
 	class AfterEventCmd : public AfterCmd {
 	public:
-		AfterEventCmd(const string& command);
-		virtual const string& getType() const;
+		AfterEventCmd(const std::string& command);
+		virtual const std::string& getType() const;
 	};
 	
-	typedef map<string, AfterCmd*> AfterCmdMap;
+	typedef std::map<std::string, AfterCmd*> AfterCmdMap;
 	static AfterCmdMap afterCmds;
 };
 

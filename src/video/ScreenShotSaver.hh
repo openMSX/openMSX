@@ -6,9 +6,6 @@
 #include <string>
 #include <SDL.h>
 #include "openmsx.hh"
-#include "CommandException.hh"
-
-using std::string;
 
 namespace openmsx {
 
@@ -17,11 +14,11 @@ namespace openmsx {
 class ScreenShotSaver
 {
 public:
-	static void save(SDL_Surface* image, const string& filename);
+	static void save(SDL_Surface* image, const std::string& filename);
 	static void save(unsigned witdh, unsigned height,
-	          byte** row_pointers, const string& filename);
+	                 byte** row_pointers, const std::string& filename);
 
-	static string getFileName();
+	static std::string getFileName();
 };
 
 } // namespace openmsx

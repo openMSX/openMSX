@@ -14,7 +14,8 @@ const XMLElement& VDPIODelay::getConfig()
 	if (!init) {
 		init = true;
 		deviceElem.addAttribute("id", "VDPIODelay");
-		deviceElem.setFileContext(auto_ptr<FileContext>(new SystemFileContext()));
+		deviceElem.setFileContext(std::auto_ptr<FileContext>(
+		                                new SystemFileContext()));
 	}
 	return deviceElem;
 }

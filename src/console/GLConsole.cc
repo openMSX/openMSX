@@ -1,15 +1,12 @@
 // $Id$
 
 #include <cassert>
-#include <SDL_image.h>
 #include "GLConsole.hh"
-#include "DummyFont.hh"
 #include "GLFont.hh"
-#include "File.hh"
 #include "Console.hh"
-#include "CliCommOutput.hh"
 #include "GLImage.hh"
 
+using std::string;
 
 namespace openmsx {
 

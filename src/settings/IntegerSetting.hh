@@ -21,7 +21,7 @@ protected:
 class IntegerSetting : public SettingImpl<IntegerSettingPolicy>
 {
 public:
-	IntegerSetting(const string& name, const string& description,
+	IntegerSetting(const std::string& name, const std::string& description,
 	               int initialValue, int minValue, int maxValue);
 };
 

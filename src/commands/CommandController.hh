@@ -9,11 +9,6 @@
 #include <vector>
 #include "Command.hh"
 
-using std::string;
-using std::map;
-using std::set;
-using std::vector;
-
 namespace openmsx {
 
 class CommandConsole;
@@ -28,19 +23,19 @@ public:
 	/**
 	 * (Un)register a command
 	 */
-	void registerCommand(Command* command, const string& str);
-	void unregisterCommand(Command* command, const string& str);
+	void registerCommand(Command* command, const std::string& str);
+	void unregisterCommand(Command* command, const std::string& str);
 
 	/**
 	 * (Un)register a command completer, used to complete build-in TCL cmds
 	 */
-	void registerCompleter(CommandCompleter* completer, const string& str);
-	void unregisterCompleter(CommandCompleter* completer, const string& str);
+	void registerCompleter(CommandCompleter* completer, const std::string& str);
+	void unregisterCompleter(CommandCompleter* completer, const std::string& str);
 
 	/**
 	 * Does a command with this name already exist?
 	 */
-	bool hasCommand(const string& command);
+	bool hasCommand(const std::string& command);
 
 	/**
 	 * Executes all defined auto commands
@@ -51,24 +46,25 @@ public:
 	 * Returns true iff the command is complete
 	 * (all braces, quotes, .. are balanced)
 	 */
-	bool isComplete(const string& command) const;
+	bool isComplete(const std::string& command) const;
 	
 	/**
 	 * Execute a given command
 	 */
-	string executeCommand(const string& command);
+	std::string executeCommand(const std::string& command);
 
 	/**
 	 * Complete a given command
 	 */
-	void tabCompletion(string& command);
+	void tabCompletion(std::string& command);
 
 	/**
 	 * TODO
 	 */
-	static void completeString(vector<string>& tokens, set<string>& set,
+	static void completeString(std::vector<std::string>& tokens,
+	                           std::set<std::string>& set,
 	                           bool caseSensitive = true);
-	static void completeFileName(vector<string>& tokens);
+	static void completeFileName(std::vector<std::string>& tokens);
 
 	// should only be called by CommandConsole
 	void setCommandConsole(CommandConsole* console);
@@ -77,21 +73,22 @@ private:
 	CommandController();
 	~CommandController();
 	
-	void split(const string& str, vector<string>& tokens, char delimiter);
-	string join(const vector<string>& tokens, char delimiter);
-	string removeEscaping(const string& str);
-	void removeEscaping(const vector<string>& input,
-	                    vector<string>& result, bool keepLastIfEmpty);
-	string addEscaping(const string& str, bool quote, bool finished);
+	void split(const std::string& str,
+	           std::vector<std::string>& tokens, char delimiter);
+	std::string join(const std::vector<std::string>& tokens, char delimiter);
+	std::string removeEscaping(const std::string& str);
+	void removeEscaping(const std::vector<std::string>& input,
+	                    std::vector<std::string>& result, bool keepLastIfEmpty);
+	std::string addEscaping(const std::string& str, bool quote, bool finished);
 
-	void tabCompletion(vector<string>& tokens);
-	static bool completeString2(string& str, set<string>& set,
+	void tabCompletion(std::vector<std::string>& tokens);
+	static bool completeString2(std::string& str, std::set<std::string>& set,
 	                            bool caseSensitive);
-	static bool equal(const string& s1, const string& s2,
+	static bool equal(const std::string& s1, const std::string& s2,
 	                  bool caseSensitive);
 
-	typedef map<string, Command*> CommandMap;
-	typedef map<string, CommandCompleter*> CompleterMap;
+	typedef std::map<std::string, Command*> CommandMap;
+	typedef std::map<std::string, CommandCompleter*> CompleterMap;
 	CommandMap commands;
 	CompleterMap commandCompleters;
 
@@ -99,9 +96,9 @@ private:
 	class HelpCmd : public SimpleCommand {
 	public:
 		HelpCmd(CommandController& parent);
-		virtual string execute(const vector<string>& tokens);
-		virtual string help(const vector<string>& tokens) const;
-		virtual void tabCompletion(vector<string>& tokens) const;
+		virtual std::string execute(const std::vector<std::string>& tokens);
+		virtual std::string help(const std::vector<std::string>& tokens) const;
+		virtual void tabCompletion(std::vector<std::string>& tokens) const;
 	private:
 		CommandController& parent;
 	} helpCmd;

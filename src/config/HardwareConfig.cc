@@ -3,12 +3,13 @@
 #include "HardwareConfig.hh"
 #include "File.hh"
 #include "FileContext.hh"
+#include "FileException.hh"
 #include "xmlx.hh"
 #include <cassert>
 #include <memory.h>
 
 using std::auto_ptr;
-
+using std::string;
 
 namespace openmsx {
 

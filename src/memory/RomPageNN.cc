@@ -5,7 +5,8 @@
 
 namespace openmsx {
 
-RomPageNN::RomPageNN(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom, byte pages)
+RomPageNN::RomPageNN(const XMLElement& config, const EmuTime& time,
+                     std::auto_ptr<Rom> rom, byte pages)
 	: Rom8kBBlocks(config, time, rom)
 {
 	int bank = 0;

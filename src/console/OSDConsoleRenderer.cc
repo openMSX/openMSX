@@ -1,19 +1,19 @@
 // $Id$
 
 #include "OSDConsoleRenderer.hh"
-#include "SettingsConfig.hh"
-#include "CommandConsole.hh"
-#include "File.hh"
-#include "FileContext.hh"
+#include "Console.hh"
 #include "IntegerSetting.hh"
 #include "GlobalSettings.hh"
 #include "Display.hh"
 #include "EventDistributor.hh"
 #include "InputEventGenerator.hh"
 #include "Timer.hh"
+#include "DummyFont.hh"
+#include "FileContext.hh"
 #include <algorithm>
 #include <SDL.h>
 
+using std::string;
 
 namespace openmsx {
 

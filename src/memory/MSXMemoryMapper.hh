@@ -5,14 +5,12 @@
 
 #include <memory>
 #include "MSXDevice.hh"
-#include "Ram.hh"
-
-using std::auto_ptr;
 
 namespace openmsx {
 
 class XMLElement;
 class MSXMapperIO;
+class Ram;
 
 class MSXMemoryMapper : public MSXDevice
 {
@@ -29,7 +27,7 @@ public:
 	virtual void reset(const EmuTime& time);
 
 protected:
-	auto_ptr<Ram> ram;
+	std::auto_ptr<Ram> ram;
 
 private:
 	void createMapperIO(const EmuTime& time);

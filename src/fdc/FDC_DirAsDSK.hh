@@ -6,8 +6,6 @@
 #include <map>
 #include "SectorBasedDisk.hh"
 
-using std::map;
-
 namespace openmsx {
 
 struct MSXDirEntry {
@@ -24,7 +22,7 @@ struct MSXDirEntry {
 struct MappedDirEntry {
 	MSXDirEntry msxinfo;
 	int filesize; // used to dedect changes that need to be updated in the emulated disk, content changes are automatically handled :-)
-	string filename;
+	std::string filename;
 };
 
 struct ReverseSector {
@@ -35,7 +33,7 @@ struct ReverseSector {
 class FDC_DirAsDSK : public SectorBasedDisk
 {
 public: 
-	FDC_DirAsDSK(const string& fileName);
+	FDC_DirAsDSK(const std::string& fileName);
 	virtual ~FDC_DirAsDSK();
 	virtual void read(byte track, byte sector,
 			  byte side, int size, byte* buf);
@@ -50,14 +48,14 @@ private:
 	static const int SECTORS_PER_FAT = 3;
 	void read(int logicalSector, int size, byte* buf);
 
-	bool checkFileUsedInDSK(const string& fullfilename);
-	bool checkMSXFileExists(const string& msxfilename);
-	string makeSimpleMSXFileName(const string& fullfilename);
-	void addFileToDSK(const string& fullfilename);
-	void checkAlterFileInDisk(const string& fullfilename);
+	bool checkFileUsedInDSK(const std::string& fullfilename);
+	bool checkMSXFileExists(const std::string& msxfilename);
+	std::string makeSimpleMSXFileName(const std::string& fullfilename);
+	void addFileToDSK(const std::string& fullfilename);
+	void checkAlterFileInDisk(const std::string& fullfilename);
 	void checkAlterFileInDisk(const int dirindex);
 	void updateFileInDisk(const int dirindex);
-	void updateFileInDSK(const string& fullfilename);
+	void updateFileInDSK(const std::string& fullfilename);
 	int findFirstFreeCluster();
 	//int markClusterGetNext();
 	word ReadFAT(word clnr);
@@ -67,11 +65,11 @@ private:
 	byte FAT[SECTOR_SIZE * SECTORS_PER_FAT];
 
 	static const byte DefaultBootBlock[];
-	static const string BootBlockFileName ;
-	static const string CachedSectorsFileName ;
+	static const std::string BootBlockFileName ;
+	static const std::string CachedSectorsFileName ;
 	byte BootBlock[SECTOR_SIZE];
-	string MSXrootdir;
-	map<const int, byte*> cachedSectors;
+	std::string MSXrootdir;
+	std::map<const int, byte*> cachedSectors;
 	bool saveCachedSectors;
 };
 

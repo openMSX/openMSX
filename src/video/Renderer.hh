@@ -4,18 +4,14 @@
 #define __RENDERER_HH__
 
 #include "openmsx.hh"
-#include "Command.hh"
 #include "VRAMObserver.hh"
-#include "CommandException.hh"
 #include "InfoTopic.hh"
-
 
 namespace openmsx {
 
 class EmuTime;
 class RenderSettings;
 class DisplayMode;
-
 
 /** Abstract base class for Renderers.
   * A Renderer is a class that converts VDP state to visual
@@ -218,9 +214,9 @@ private:
 	class FpsInfoTopic : public InfoTopic {
 	public:
 		FpsInfoTopic(Renderer& parent);
-		virtual void execute(const vector<CommandArgument>& tokens,
+		virtual void execute(const std::vector<CommandArgument>& tokens,
 		                     CommandArgument& result) const;
-		virtual string help (const vector<string>& tokens) const;
+		virtual std::string help(const std::vector<std::string>& tokens) const;
 	private:
 		Renderer& parent;
 	} fpsInfo;

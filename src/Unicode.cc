@@ -4,6 +4,8 @@
 #include <algorithm>
 #include "Unicode.hh"
 
+using std::string;
+
 namespace openmsx {
 
 /* decodes a a string possibly containing UTF-8 sequences to a 

@@ -24,7 +24,8 @@ DummyDevice& DummyDevice::instance()
 	if (!init) {
 		init = true;
 		deviceElem.addAttribute("id", "empty");
-		deviceElem.setFileContext(auto_ptr<FileContext>(new SystemFileContext()));
+		deviceElem.setFileContext(std::auto_ptr<FileContext>(
+		                                 new SystemFileContext()));
 	}
 	static DummyDevice oneInstance(deviceElem, EmuTime::zero);
 	return oneInstance;

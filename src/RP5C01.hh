@@ -6,7 +6,6 @@
 //     http://w3.qahwah.net/joost/openMSX/RP5C01.pdf
 //  
 
-
 #ifndef __RP5C01_HH__
 #define __RP5C01_HH__
 
@@ -14,8 +13,6 @@
 #include "openmsx.hh"
 #include "EmuTime.hh"
 #include <memory>
-
-using std::auto_ptr;
 
 namespace openmsx {
 
@@ -47,7 +44,7 @@ private:
 	int seconds, minutes, hours;
 	int dayWeek, days, months, years, leapYear;
 
-	auto_ptr<EnumSetting<RTCMode> > modeSetting;
+	std::auto_ptr<EnumSetting<RTCMode> > modeSetting;
 };
 
 } // namespace openmsx

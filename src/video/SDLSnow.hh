@@ -6,9 +6,7 @@
 #include "Display.hh"
 #include <SDL.h>
 
-
 namespace openmsx {
-
 
 /** Snow effect for background layer.
   */
@@ -21,7 +19,7 @@ public:
 
 	// Layer interface:
 	virtual void paint();
-	virtual const string& getName();
+	virtual const std::string& getName();
 
 private:
 	SDL_Surface* screen;

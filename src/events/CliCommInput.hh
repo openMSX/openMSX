@@ -11,28 +11,26 @@
 #include "Semaphore.hh"
 #include "CommandLineParser.hh"
 
-using std::deque;
-using std::string;
-
 namespace openmsx {
 
 class CliCommInput : private Runnable, private Schedulable
 {
 public:
-	CliCommInput(CommandLineParser::ControlType type, const string& arguments);
+	CliCommInput(CommandLineParser::ControlType type,
+	             const std::string& arguments);
 	virtual ~CliCommInput();
 
 private:
-	void execute(const string& command);
+	void execute(const std::string& command);
 	virtual void executeUntil(const EmuTime& time, int userData);
-	virtual const string& schedName() const;
+	virtual const std::string& schedName() const;
 	virtual void run();
 
-	deque<string> cmds;
+	std::deque<std::string> cmds;
 	Semaphore lock;
 	Thread thread;
 	CommandLineParser::ControlType ioType;
-	string ioArguments;
+	std::string ioArguments;
 	
 
 	enum State {
@@ -42,7 +40,7 @@ private:
 		ParseState();
 		State state;
 		unsigned unknownLevel;
-		string content;
+		std::string content;
 		CliCommInput* object;
 	};
 

@@ -16,6 +16,7 @@ static int lastWindowX = 0;
 static int lastWindowY = 0;
 #endif
 
+using std::string;
 
 namespace openmsx {
 

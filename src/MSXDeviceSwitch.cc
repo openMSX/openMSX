@@ -64,7 +64,8 @@ MSXDeviceSwitch& MSXDeviceSwitch::instance()
 	if (!init) {
 		init = true;
 		config.addAttribute("id", "DeviceSwitch");
-		config.setFileContext(auto_ptr<FileContext>(new SystemFileContext()));
+		config.setFileContext(std::auto_ptr<FileContext>(
+		                                  new SystemFileContext()));
 	}
 	static MSXDeviceSwitch oneInstance(config, EmuTime::zero);
 	return oneInstance;

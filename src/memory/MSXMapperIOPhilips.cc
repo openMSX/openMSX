@@ -6,7 +6,7 @@
 namespace openmsx {
 
 // unused bits read always "1"
-byte MSXMapperIOPhilips::calcMask(const multiset<unsigned>& mapperSizes)
+byte MSXMapperIOPhilips::calcMask(const std::multiset<unsigned>& mapperSizes)
 {
 	unsigned largest = (mapperSizes.empty()) ? 1
 	                                         : *mapperSizes.rbegin();

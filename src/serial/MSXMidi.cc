@@ -2,7 +2,6 @@
 
 #include <cassert>
 #include "MSXMidi.hh"
-#include "MidiInDevice.hh"
 
 namespace openmsx {
 

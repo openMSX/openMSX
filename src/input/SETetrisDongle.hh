@@ -14,8 +14,8 @@ public:
 	virtual ~SETetrisDongle();
 
 	//Pluggable
-	virtual const string& getName() const;
-	virtual const string& getDescription() const;
+	virtual const std::string& getName() const;
+	virtual const std::string& getDescription() const;
 	virtual void plugHelper(Connector* connector, const EmuTime& time);
 	virtual void unplugHelper(const EmuTime& time);
 

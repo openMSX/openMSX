@@ -2,7 +2,6 @@
 
 #include "GLFont.hh"
 
-
 namespace openmsx {
 
 const int NUM_CHRS = 256;

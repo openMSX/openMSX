@@ -5,12 +5,11 @@
 
 #include "MSXException.hh"
 
-
 namespace openmsx {
 
 class CommandException : public MSXException {
 public:
-	CommandException(const string& desc);
+	CommandException(const std::string& desc);
 	virtual ~CommandException();
 };
 

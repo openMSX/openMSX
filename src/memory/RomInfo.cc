@@ -6,9 +6,15 @@
 #include "Rom.hh"
 #include "xmlx.hh"
 #include "FileContext.hh"
+#include "FileException.hh"
 #include "File.hh"
 #include "CliCommOutput.hh"
 #include "StringOp.hh"
+
+using std::auto_ptr;
+using std::map;
+using std::string;
+using std::vector;
 
 namespace openmsx {
 

@@ -4,11 +4,12 @@
 #include "DummyJoystick.hh"
 #include "PluggingController.hh"
 
+using std::string;
 
 namespace openmsx {
 
 JoystickPort::JoystickPort(const string &name)
-	: Connector(name, auto_ptr<Pluggable>(new DummyJoystick()))
+	: Connector(name, std::auto_ptr<Pluggable>(new DummyJoystick()))
 {
 	lastValue = 255;	// != 0
 	PluggingController::instance().registerConnector(this);

@@ -1,9 +1,8 @@
 // $Id$
 
 #include <cassert>
-#include "File.hh"
 #include "GZFileAdapter.hh"
-
+#include "FileException.hh"
 
 namespace openmsx {
 
@@ -15,7 +14,7 @@ const byte COMMENT      = 0x10; // bit 4 set: file comment present
 const byte RESERVED     = 0xE0; // bits 5..7: reserved
 
 
-GZFileAdapter::GZFileAdapter(auto_ptr<FileBase> file_)
+GZFileAdapter::GZFileAdapter(std::auto_ptr<FileBase> file_)
 	: CompressedFileAdapter(file_)
 {
 }

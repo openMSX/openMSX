@@ -8,6 +8,8 @@
 #include "SettingsConfig.hh"
 #include "CliCommOutput.hh"
 
+using std::string;
+
 namespace openmsx {
 
 JoyNet::JoyNet()
@@ -120,7 +122,6 @@ void JoyNet::sendByte(byte value)
 		PRT_DEBUG("called setupWriter()");
 	}
 	if (sockfd) ::write(sockfd, &value, 1);	//TODO non-blocking
-	PRT_DEBUG("W:  sendByte " << hex << (int)value << dec);
 
 	/* Joynet cable looped for Maartens test program
 	   status=value;
@@ -165,7 +166,7 @@ void JoyNet::ConnectionListener::run()
 	servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	servaddr.sin_port = htons(port);
 	
-	ostringstream out;
+	std::ostringstream out;
 	out << "TCP/IP Trying to listen on port " << port;
 	CliCommOutput::instance().printInfo(out.str());
 
@@ -190,7 +191,6 @@ void JoyNet::ConnectionListener::run()
 
 	int charcounter;
 	while ((charcounter = ::read(connectfd, statuspointer, 1)) > 0) {
-		PRT_DEBUG("D:  got from TCP/IP code " << hex << (int)(*statuspointer) << dec);
 	}
 	if (charcounter < 0) {
 		CliCommOutput::instance().printWarning(

@@ -5,39 +5,36 @@
 
 #include <string>
 
-using std::string;
-
-
 namespace openmsx {
 
 class MSXException
 {
 public:
-	MSXException(const string& message_)
+	MSXException(const std::string& message_)
 		: message(message_) { }
 	virtual ~MSXException() { }
 
-	const string& getMessage() const {
+	const std::string& getMessage() const {
 		return message;
 	}
 
 private:
-	const string message;
+	const std::string message;
 };
 
 class FatalError
 {
 public:
-	FatalError(const string& message_)
+	FatalError(const std::string& message_)
 		: message(message_) { }
 	virtual ~FatalError() { }
 
-	const string& getMessage() const {
+	const std::string& getMessage() const {
 		return message;
 	}
 
 private:
-	const string message;
+	const std::string message;
 };
 
 } // namespace openmsx

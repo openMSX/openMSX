@@ -7,9 +7,6 @@
 #include <memory>
 #include "Pluggable.hh"
 
-using std::string;
-using std::auto_ptr;
-
 namespace openmsx {
 
 class EmuTime;
@@ -28,27 +25,27 @@ public:
 	 * @param name Name that identifies this connector.
 	 * @param dummy Dummy Pluggable whose class matches this Connector.
 	 */
-	Connector(const string& name, auto_ptr<Pluggable> dummy);
+	Connector(const std::string& name, std::auto_ptr<Pluggable> dummy);
 
 	virtual ~Connector();
 
 	/**
 	 * Name that identifies this connector.
 	 */
-	const string& getName() const {
+	const std::string& getName() const {
 		return name;
 	}
 	
 	/**
 	 * Get a description for this connector
 	 */
-	virtual const string& getDescription() const = 0;
+	virtual const std::string& getDescription() const = 0;
 	
 	/**
 	 * A Connector belong to a certain class.
 	 * Only Pluggables of this class can be plugged in this Connector.
 	 */
-	virtual const string& getClass() const = 0;
+	virtual const std::string& getClass() const = 0;
 
 	/**
 	 * This plugs a Pluggable in this Connector.
@@ -73,8 +70,8 @@ protected:
 	Pluggable* plugged;
 
 private:
-	const string name;
-	const auto_ptr<Pluggable> dummy;
+	const std::string name;
+	const std::auto_ptr<Pluggable> dummy;
 };
 
 } // namespace openmsx

@@ -5,8 +5,6 @@
 
 #include <string>
 
-using std::string;
-
 namespace openmsx {
 
 class EmuTime;
@@ -28,7 +26,7 @@ public:
 	/**
 	 * This method is only used to print meaningfull debug messages
 	 */
-	virtual const string& schedName() const = 0;
+	virtual const std::string& schedName() const = 0;
 };
 
 } // namespace openmsx

@@ -2,7 +2,8 @@
 
 #include "DACSound16S.hh"
 #include "Mixer.hh"
-#include "MSXCPU.hh"
+
+using std::string;
 
 namespace openmsx {
 

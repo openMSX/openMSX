@@ -42,6 +42,9 @@
 #include "DebugDevice.hh"
 #include "V9990.hh"
 
+using std::auto_ptr;
+using std::string;
+
 namespace openmsx {
 
 auto_ptr<MSXDevice> DeviceFactory::create(const XMLElement& conf, const EmuTime& time)

@@ -3,6 +3,8 @@
 #include "EmuTimer.hh"
 #include "Scheduler.hh"
 
+using std::string;
+
 namespace openmsx {
 
 // Force template instantiation

@@ -5,10 +5,13 @@
 #include "CliCommOutput.hh"
 #include "Scheduler.hh"
 #include "EventDistributor.hh"
+#include "CommandException.hh"
 #include <cstdlib>
 #include <sstream>
 
 using std::ostringstream;
+using std::string;
+using std::vector;
 
 namespace openmsx {
 

@@ -7,6 +7,8 @@
 #include "CPU.hh"
 #include "HardwareConfig.hh"
 
+using std::string;
+
 namespace openmsx {
 
 MSXMapperIO::MSXMapperIO(const XMLElement& config, const EmuTime& time)

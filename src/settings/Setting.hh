@@ -76,7 +76,8 @@ private:
 
 	/** Collection of all listeners
 	 */
-	std::vector<SettingListener*> listeners;
+	typedef std::vector<SettingListener*> Listeners;
+	Listeners listeners;
 };
 
 } // namespace openmsx

@@ -7,8 +7,6 @@
 #include "MSXDevice.hh"
 #include "SRAM.hh"
 
-using std::auto_ptr;
-
 namespace openmsx {
 
 class RP5C01;
@@ -25,7 +23,7 @@ public:
 	virtual void writeIO(byte port, byte value, const EmuTime& time);
 
 private:
-	auto_ptr<RP5C01> rp5c01;
+	std::auto_ptr<RP5C01> rp5c01;
 	SRAM sram;
 	nibble registerLatch;
 };

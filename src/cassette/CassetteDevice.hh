@@ -5,7 +5,6 @@
 
 #include "Pluggable.hh"
 
-
 namespace openmsx {
 
 class CassetteDevice : public Pluggable
@@ -35,7 +34,7 @@ public:
 	virtual int getWriteSampleRate() = 0;
 
 	// Pluggable
-	virtual const string &getClass() const;
+	virtual const std::string &getClass() const;
 };
 
 } // namespace openmsx

@@ -1,8 +1,7 @@
 // $Id$
 
-#include <stdarg.h>
-
 #include "V9990BitmapConverter.hh"
+#include "V9990VRAM.hh"
 #include "GLUtil.hh"
 
 namespace openmsx {
@@ -39,9 +38,9 @@ template class V9990BitmapConverter<
 
 template <class Pixel, Renderer::Zoom zoom>
 V9990BitmapConverter<Pixel, zoom>::V9990BitmapConverter(
-	V9990VRAM *vram,
+	V9990VRAM* vram,
 	SDL_PixelFormat fmt,
-	Pixel *palette64, Pixel *palette256, Pixel *palette32768)
+	Pixel* palette64, Pixel* palette256, Pixel* palette32768)
 	: format(fmt)
 {
 	this->vram         = vram;

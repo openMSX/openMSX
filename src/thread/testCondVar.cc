@@ -9,28 +9,28 @@ CondVar v1;
 
 class R1 : public Runnable
 {
-	public:
-		void run()
-		{
-			for (int i=0; i<5; i++) {
-				v1.wait();
-				cout << "a\n";
-			}
+public:
+	void run()
+	{
+		for (int i = 0; i < 5; ++i) {
+			v1.wait();
+			cout << "a\n";
 		}
+	}
 };
 
 class R2 : public Runnable
 {
-	public:
-		void run()
-		{
+public:
+	void run()
+	{
+		sleep(1);
+		for (int i = 0; i < 5; ++i) {
+			cout << "b\n";
+			v1.signal();
 			sleep(1);
-			for (int i=0; i<5; i++) {
-				cout << "b\n";
-				v1.signal();
-				sleep(1);
-			}
 		}
+	}
 };
 
 

@@ -8,16 +8,13 @@
 #include "openmsx.hh"
 #include "MSXDevice.hh"
 
-using std::multiset;
-using std::auto_ptr;
-
 namespace openmsx {
 
 class MapperMask
 {
 public:
 	virtual ~MapperMask() {}
-	virtual byte calcMask(const multiset<unsigned>& mapperSizes) = 0;
+	virtual byte calcMask(const std::multiset<unsigned>& mapperSizes) = 0;
 };
 
 class MSXMapperIO : public MSXDevice
@@ -44,8 +41,8 @@ public:
 	byte getSelectedPage(byte bank);
 
 private:
-	auto_ptr<MapperMask> mapperMask;
-	multiset<unsigned> mapperSizes;
+	std::auto_ptr<MapperMask> mapperMask;
+	std::multiset<unsigned> mapperSizes;
 	byte mask;
 	byte page[4];
 };

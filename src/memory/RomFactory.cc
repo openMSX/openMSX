@@ -33,6 +33,7 @@
 #include "xmlx.hh"
 
 using std::auto_ptr;
+using std::string;
 
 namespace openmsx {
 

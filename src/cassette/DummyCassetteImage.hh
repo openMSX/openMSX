@@ -9,11 +9,11 @@ namespace openmsx {
 
 class DummyCassetteImage : public CassetteImage
 {
-	public:
-		DummyCassetteImage();
-		virtual ~DummyCassetteImage();
-	
-		virtual short getSampleAt(const EmuTime &time);
+public:
+	DummyCassetteImage();
+	virtual ~DummyCassetteImage();
+
+	virtual short getSampleAt(const EmuTime &time);
 };
 
 } // namespace openmsx

@@ -3,6 +3,9 @@
 #include "VDPVRAM.hh"
 #include "SpriteChecker.hh"
 #include "Debugger.hh"
+#include "Renderer.hh"
+
+using std::string;
 
 namespace openmsx {
 

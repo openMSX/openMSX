@@ -2,6 +2,7 @@
 
 #include "PrinterPortDevice.hh"
 
+using std::string;
 
 namespace openmsx {
 

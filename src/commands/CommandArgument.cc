@@ -4,6 +4,8 @@
 #include "CommandArgument.hh"
 #include "CommandException.hh"
 
+using std::string;
+
 namespace openmsx {
 
 // class CommandArgument

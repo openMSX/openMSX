@@ -6,19 +6,10 @@
 #include <string>
 #include <list>
 #include <map>
-#include <vector>
-#include <set>
 #include <memory>
 #include "openmsx.hh"
 #include "StringOp.hh"
 #include "EnumSetting.hh"
-
-using std::string;
-using std::list;
-using std::map;
-using std::vector;
-using std::set;
-using std::auto_ptr;
 
 namespace openmsx {
 
@@ -35,21 +26,21 @@ class CLIOption
 {
 public:
 	virtual ~CLIOption() {}
-	virtual bool parseOption(const string& option,
-	                         list<string>& cmdLine) = 0;
-	virtual const string& optionHelp() const = 0;
+	virtual bool parseOption(const std::string& option,
+	                         std::list<std::string>& cmdLine) = 0;
+	virtual const std::string& optionHelp() const = 0;
 
 protected:
-	const string getArgument(const string& option,
-	                         list<string>& cmdLine);
+	const std::string getArgument(const std::string& option,
+	                         std::list<std::string>& cmdLine);
 };
 
 class CLIFileType
 {
 public:
 	virtual ~CLIFileType() {}
-	virtual void parseFileType(const string& filename) = 0;
-	virtual const string& fileTypeHelp() const = 0;
+	virtual void parseFileType(const std::string& filename) = 0;
+	virtual const std::string& fileTypeHelp() const = 0;
 };
 
 struct OptionData
@@ -65,10 +56,11 @@ public:
 	enum ParseStatus { UNPARSED, RUN, CONTROL, EXIT };
 	enum ControlType { IO_STD, IO_PIPE };
 	static CommandLineParser& instance();
-	void getControlParameters (ControlType& type, string& arguments);
-	void registerOption(const string& str, CLIOption* cliOption,
+	void getControlParameters (ControlType& type, std::string& arguments);
+	void registerOption(const std::string& str, CLIOption* cliOption,
 		byte prio = 7, byte length = 2);
-	void registerFileClass(const string& str, CLIFileType* cliFileType);
+	void registerFileClass(const std::string& str,
+	                       CLIFileType* cliFileType);
 	void parse(int argc, char** argv);
 	ParseStatus getParseStatus() const;
 	bool wantSound() const;
@@ -76,16 +68,18 @@ public:
 private:
 	CommandLineParser();
 	~CommandLineParser();
-	bool parseFileName(const string& arg,list<string>& cmdLine);
-	bool parseOption(const string& arg,list<string>& cmdLine, byte prio);
+	bool parseFileName(const std::string& arg,
+	                   std::list<std::string>& cmdLine);
+	bool parseOption(const std::string& arg,
+	                 std::list<std::string>& cmdLine, byte prio);
 	void postRegisterFileTypes();
-	void loadMachine(const string& machine);
+	void loadMachine(const std::string& machine);
 	void createMachineSetting();
 
-	map<string, OptionData> optionMap;
-	typedef map<string, CLIFileType*, StringOp::caseless> FileTypeMap;
+	std::map<std::string, OptionData> optionMap;
+	typedef std::map<std::string, CLIFileType*, StringOp::caseless> FileTypeMap;
 	FileTypeMap fileTypeMap;
-	typedef map<string, CLIFileType*, StringOp::caseless> FileClassMap;
+	typedef std::map<std::string, CLIFileType*, StringOp::caseless> FileClassMap;
 	FileClassMap fileClassMap;
 
 	bool haveConfig;
@@ -103,9 +97,9 @@ private:
 	public:
 		HelpOption(CommandLineParser& parent);
 		virtual ~HelpOption();
-		virtual bool parseOption(const string& option,
-			list<string>& cmdLine);
-		virtual const string& optionHelp() const;
+		virtual bool parseOption(const std::string& option,
+			std::list<std::string>& cmdLine);
+		virtual const std::string& optionHelp() const;
 	private:
 		CommandLineParser& parent;
 	} helpOption;
@@ -114,9 +108,9 @@ private:
 	public:
 		VersionOption(CommandLineParser& parent);
 		virtual ~VersionOption();
-		virtual bool parseOption(const string& option,
-			list<string>& cmdLine);
-		virtual const string& optionHelp() const;
+		virtual bool parseOption(const std::string& option,
+			std::list<std::string>& cmdLine);
+		virtual const std::string& optionHelp() const;
 	private:
 		CommandLineParser& parent;
 	} versionOption;
@@ -125,11 +119,11 @@ private:
 	public:
 		ControlOption(CommandLineParser& parent);
 		virtual ~ControlOption();
-		virtual bool parseOption(const string& option,
-			list<string>& cmdLine);
-		virtual const string& optionHelp() const;
+		virtual bool parseOption(const std::string& option,
+			std::list<std::string>& cmdLine);
+		virtual const std::string& optionHelp() const;
 		CommandLineParser::ControlType type;
-		string arguments;
+		std::string arguments;
 	private:
 		CommandLineParser& parent;
 	} controlOption;
@@ -138,9 +132,9 @@ private:
 	public:
 		MachineOption(CommandLineParser& parent);
 		virtual ~MachineOption();
-		virtual bool parseOption(const string& option,
-			list<string>& cmdLine);
-		virtual const string& optionHelp() const;
+		virtual bool parseOption(const std::string& option,
+			std::list<std::string>& cmdLine);
+		virtual const std::string& optionHelp() const;
 	private:
 		CommandLineParser& parent;
 	} machineOption;
@@ -149,9 +143,9 @@ private:
 	public:
 		SettingOption(CommandLineParser& parent);
 		virtual ~SettingOption();
-		virtual bool parseOption(const string& option,
-			list<string>& cmdLine);
-		virtual const string& optionHelp() const;
+		virtual bool parseOption(const std::string& option,
+			std::list<std::string>& cmdLine);
+		virtual const std::string& optionHelp() const;
 	private:
 		CommandLineParser& parent;
 	} settingOption;
@@ -160,18 +154,18 @@ private:
 	public:
 		NoSoundOption(CommandLineParser& parent);
 		virtual ~NoSoundOption();
-		virtual bool parseOption(const string& option,
-			list<string>& cmdLine);
-		virtual const string& optionHelp() const;
+		virtual bool parseOption(const std::string& option,
+			std::list<std::string>& cmdLine);
+		virtual const std::string& optionHelp() const;
 	private:
 		CommandLineParser& parent;
 	} noSoundOption;
 	
-	const auto_ptr<MSXRomCLI> msxRomCLI;
-	const auto_ptr<CliExtension> cliExtension;
-	const auto_ptr<MSXCassettePlayerCLI> cassettePlayerCLI;
-	const auto_ptr<DiskImageCLI> diskImageCLI;
-	auto_ptr<EnumSetting<int> > machineSetting;
+	const std::auto_ptr<MSXRomCLI> msxRomCLI;
+	const std::auto_ptr<CliExtension> cliExtension;
+	const std::auto_ptr<MSXCassettePlayerCLI> cassettePlayerCLI;
+	const std::auto_ptr<DiskImageCLI> diskImageCLI;
+	std::auto_ptr<EnumSetting<int> > machineSetting;
 };
 
 } // namespace openmsx

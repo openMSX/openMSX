@@ -2,7 +2,6 @@
 
 #include "MSXTurboRPCM.hh"
 #include "DACSound8U.hh"
-#include "xmlx.hh"
 
 namespace openmsx {
 

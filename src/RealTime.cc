@@ -10,6 +10,8 @@
 #include "EventDistributor.hh"
 #include "GlobalSettings.hh"
 
+using std::string;
+
 namespace openmsx {
 
 const double             SYNC_INTERVAL = 0.08;  // s
@@ -119,7 +121,7 @@ void RealTime::executeUntil(const EmuTime& time, int /*userData*/)
 	scheduler.setSyncPoint(time + getEmuDuration(SYNC_INTERVAL), this);
 }
 
-const string &RealTime::schedName() const
+const string& RealTime::schedName() const
 {
 	static const string name("RealTime");
 	return name;

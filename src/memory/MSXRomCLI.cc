@@ -8,7 +8,9 @@
 #include "FileOperations.hh"
 #include "FileContext.hh"
 
-using std::ostringstream;
+using std::auto_ptr;
+using std::list;
+using std::string;
 
 namespace openmsx {
 

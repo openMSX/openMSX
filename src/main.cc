@@ -5,7 +5,7 @@
  *
  */
 
-#include <memory> // for auto_ptr
+#include <memory>
 #include <iostream>
 #include <exception>
 #include <SDL.h>
@@ -22,7 +22,7 @@
 using std::auto_ptr;
 using std::cerr;
 using std::endl;
-
+using std::string;
 
 namespace openmsx {
 

@@ -1,11 +1,9 @@
 // $Id$
 
 #include "V9990SDLRasterizer.hh"
-#include "V9990VRAM.hh"
-#include "V9990.hh"
-
-#include "openmsx.hh"
 #include <SDL.h>
+
+using std::string;
 
 namespace openmsx {
 
@@ -25,13 +23,12 @@ V9990SDLRasterizer<Pixel, zoom>::V9990SDLRasterizer(
 {
 	PRT_DEBUG("V9990SDLRasterizer::V9990SDLRasterizer");
 
-	static const int width = (zoom == Renderer::ZOOM_256)?
-	                             V9990SDLRasterizer::SCREEN_WIDTH:
-								 V9990SDLRasterizer::SCREEN_WIDTH * 2;
-	static const int height = (zoom == Renderer::ZOOM_256)?
-	                             V9990SDLRasterizer::SCREEN_HEIGHT:
-								 V9990SDLRasterizer::SCREEN_HEIGHT * 2;
-
+	static const int width = (zoom == Renderer::ZOOM_256)
+	                       ? V9990SDLRasterizer::SCREEN_WIDTH
+	                       : V9990SDLRasterizer::SCREEN_WIDTH * 2;
+	static const int height = (zoom == Renderer::ZOOM_256)
+	                        ? V9990SDLRasterizer::SCREEN_HEIGHT
+	                        : V9990SDLRasterizer::SCREEN_HEIGHT * 2;
 	vram = vdp->getVRAM();
 
 	/* Create Work screen */
@@ -137,7 +134,7 @@ void V9990SDLRasterizer<Pixel, zoom>::frameEnd()
 template <class Pixel, Renderer::Zoom zoom>
 void V9990SDLRasterizer<Pixel, zoom>::setDisplayMode(V9990DisplayMode mode)
 {
-	PRT_DEBUG("V9990SDLRasterizer::setDisplayMode(" << dec <<
+	PRT_DEBUG("V9990SDLRasterizer::setDisplayMode(" << std::dec <<
 	          (int) mode << ")");
 
 	this->displayMode = mode;
@@ -147,7 +144,7 @@ void V9990SDLRasterizer<Pixel, zoom>::setDisplayMode(V9990DisplayMode mode)
 template <class Pixel, Renderer::Zoom zoom>
 void V9990SDLRasterizer<Pixel, zoom>::setColorMode(V9990ColorMode mode)
 {
-	PRT_DEBUG("V9990SDLRasterizer::setColorMode(" << dec <<
+	PRT_DEBUG("V9990SDLRasterizer::setColorMode(" << std::dec <<
 	          (int) mode << ")");
 
 	this->colorMode = mode;
@@ -169,7 +166,7 @@ void V9990SDLRasterizer<Pixel, zoom>::drawBorder(
 	int fromX, int fromY, int toX, int toY)
 {
 
-	PRT_DEBUG("V9990SDLRasterizer::drawBorder(" << dec <<
+	PRT_DEBUG("V9990SDLRasterizer::drawBorder(" << std::dec <<
 	          fromX << "," << fromY << "," << toX << "," << toY << ")");
 
 	static int const screenW = V9990SDLRasterizer::SCREEN_WIDTH * 8;
@@ -213,7 +210,7 @@ void V9990SDLRasterizer<Pixel, zoom>::drawDisplay(
 	int fromX, int fromY,
 	int displayX, int displayY, int displayWidth, int displayHeight )
 {
-	PRT_DEBUG("V9990SDLRasterizer::drawDisplay(" << dec <<
+	PRT_DEBUG("V9990SDLRasterizer::drawDisplay(" << std::dec <<
 	          fromX << "," << fromY << "," <<
 	          displayX << "," << displayY << "," <<
 	          displayWidth << "," << displayHeight << ")");

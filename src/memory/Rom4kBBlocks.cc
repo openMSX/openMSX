@@ -8,7 +8,7 @@
 namespace openmsx {
 
 Rom4kBBlocks::Rom4kBBlocks(const XMLElement& config, const EmuTime& time,
-                           auto_ptr<Rom> rom)
+                           std::auto_ptr<Rom> rom)
 	: MSXRom(config, time, rom)
 {
 	for (int i = 0; i < 16; i++) {

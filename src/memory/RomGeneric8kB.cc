@@ -5,7 +5,8 @@
 
 namespace openmsx {
 
-RomGeneric8kB::RomGeneric8kB(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom)
+RomGeneric8kB::RomGeneric8kB(const XMLElement& config, const EmuTime& time,
+                             std::auto_ptr<Rom> rom)
 	: Rom8kBBlocks(config, time, rom)
 {
 	reset(time);

@@ -5,16 +5,20 @@
 #include "sha1.hh"
 #include "SettingsConfig.hh"
 #include "File.hh"
+#include "FileException.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"
 #include "FilePool.hh"
 #include "ReadDir.hh"
 #include "Date.hh"
 
-using std::ifstream;
-using std::ofstream;
-using std::make_pair;
 using std::endl;
+using std::ifstream;
+using std::make_pair;
+using std::ofstream;
+using std::pair;
+using std::string;
+using std::vector;
 
 namespace openmsx {
 

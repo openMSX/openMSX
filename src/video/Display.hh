@@ -10,11 +10,6 @@
 #include <string>
 #include <vector>
 
-using std::auto_ptr;
-using std::string;
-using std::vector;
-
-
 namespace openmsx {
 
 class LayerListener;
@@ -34,7 +29,7 @@ public:
 
 	/** Returns the name of this layer. Used for debugging.
 	  */
-	virtual const string& getName() = 0;
+	virtual const std::string& getName() = 0;
 
 protected:
 	/** Describes how much of the screen is currently covered by a particular
@@ -108,14 +103,14 @@ class Display: private EventListener, private LayerListener
 {
 public:
 	// TODO: Keep as singleton?
-	static auto_ptr<Display> INSTANCE;
+	static std::auto_ptr<Display> INSTANCE;
 
-	Display(auto_ptr<VideoSystem> videoSystem);
+	Display(std::auto_ptr<VideoSystem> videoSystem);
 	virtual ~Display();
 
 	virtual bool signalEvent(const Event& event);
 
-	const auto_ptr<VideoSystem>& getVideoSystem() {
+	const std::auto_ptr<VideoSystem>& getVideoSystem() {
 		return videoSystem;
 	}
 
@@ -132,17 +127,18 @@ private:
 
 	/** Find frontmost opaque layer.
 	  */
-	vector<Layer*>::iterator baseLayer();
+	std::vector<Layer*>::iterator baseLayer();
 
-	vector<Layer*> layers;
+	typedef std::vector<Layer*> Layers;
+	Layers layers;
 
-	auto_ptr<VideoSystem> videoSystem;
+	std::auto_ptr<VideoSystem> videoSystem;
 
 	class ScreenShotCmd : public SimpleCommand {
 	public:
 		ScreenShotCmd(Display& display);
-		virtual string execute(const vector<string>& tokens);
-		virtual string help(const vector<string>& tokens) const;
+		virtual std::string execute(const std::vector<std::string>& tokens);
+		virtual std::string help(const std::vector<std::string>& tokens) const;
 	private:
 		Display& display;
 	} screenShotCmd;

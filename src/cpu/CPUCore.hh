@@ -10,8 +10,6 @@
 #include "SettingListener.hh"
 #include "CPU.hh"
 
-using std::string;
-
 namespace openmsx {
 
 class MSXCPUInterface;
@@ -27,7 +25,7 @@ class CPUCore : private CPU_POLICY, public CPU, private SettingListener
 public:
 	typedef void (CPUCore::*FuncPtr)(); 
 
-	CPUCore(const string& name, const BooleanSetting& traceSetting,
+	CPUCore(const std::string& name, const BooleanSetting& traceSetting,
 	        const EmuTime& time);
 	virtual ~CPUCore();
 	

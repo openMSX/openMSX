@@ -45,8 +45,6 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
-using std::auto_ptr;
-
 namespace openmsx {
 
 class JoyNet : public JoystickDevice
@@ -56,8 +54,8 @@ public:
 	virtual ~JoyNet();
 
 	//Pluggable
-	virtual const string& getName() const;
-	virtual const string& getDescription() const;
+	virtual const std::string& getName() const;
+	virtual const std::string& getDescription() const;
 	virtual void plugHelper(Connector* connector, const EmuTime& time);
 	virtual void unplugHelper(const EmuTime& time);
 
@@ -81,7 +79,7 @@ private:
 
 	byte status;
 	//For IP connection
-	string hostname;
+	std::string hostname;
 	int portname;
 
 	int sockfd;
@@ -90,7 +88,7 @@ private:
 	void setupConnections();
 	void setupWriter();
 	void sendByte(byte value);
-	auto_ptr<ConnectionListener> listener;
+	std::auto_ptr<ConnectionListener> listener;
 };
 
 } // namespace openmsx

@@ -5,14 +5,11 @@
 
 #include "openmsx.hh"
 #include "V9990.hh"
-#include "V9990VRAM.hh"
-#include "V9990DisplayTiming.hh"
-
 
 namespace openmsx {
 
-class V9990;
 class V9990VRAM;
+class EmuTime;
 
 /** Command engine.
   */

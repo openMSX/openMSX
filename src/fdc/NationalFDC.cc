@@ -2,7 +2,6 @@
 
 #include "NationalFDC.hh"
 #include "CPU.hh"
-#include "WD2793.hh"
 #include "DriveMultiplexer.hh"
 
 namespace openmsx {

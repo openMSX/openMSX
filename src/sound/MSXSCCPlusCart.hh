@@ -10,8 +10,6 @@
 #include "MSXDevice.hh"
 #include "Ram.hh"
 
-using std::auto_ptr;
-
 namespace openmsx {
 
 class SCC;
@@ -33,7 +31,7 @@ private:
 	void setModeRegister(byte value);
 	void checkEnable();
 	
-	auto_ptr<SCC> scc;
+	std::auto_ptr<SCC> scc;
 	byte modeRegister;
 	enum SCCEnable {EN_NONE, EN_SCC, EN_SCCPLUS} enable;
 	Ram ram;

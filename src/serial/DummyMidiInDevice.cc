@@ -2,6 +2,8 @@
 
 #include "DummyMidiInDevice.hh"
 
+using std::string;
+
 namespace openmsx {
 
 void DummyMidiInDevice::signal(const EmuTime& /*time*/)

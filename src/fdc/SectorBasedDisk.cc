@@ -1,8 +1,6 @@
 // $Id$
 
 #include "SectorBasedDisk.hh"
-#include "FileContext.hh"
-
 
 namespace openmsx {
 

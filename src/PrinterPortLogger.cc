@@ -3,7 +3,10 @@
 #include <cassert>
 #include "PrinterPortLogger.hh"
 #include "FileContext.hh"
+#include "FileException.hh"
 #include "File.hh"
+
+using std::string;
 
 namespace openmsx {
 

@@ -38,26 +38,24 @@
 #include <mmsystem.h>
 #define MAXPATHLEN MAX_PATH
 
-using std::string;
-
 namespace openmsx {
 
-extern int	w32_midiOutInit();
-extern int	w32_midiOutClean();
+extern int w32_midiOutInit();
+extern int w32_midiOutClean();
 extern unsigned w32_midiOutGetVFNsNum();
-extern string	w32_midiOutGetVFN(unsigned nmb);
-extern string	w32_midiOutGetRDN(unsigned nmb);
+extern std::string w32_midiOutGetVFN(unsigned nmb);
+extern std::string w32_midiOutGetRDN(unsigned nmb);
 extern unsigned w32_midiOutOpen(const char* vfn);
-extern int	w32_midiOutClose(unsigned idx);
-extern int	w32_midiOutPut(unsigned char value, unsigned idx);
+extern int w32_midiOutClose(unsigned idx);
+extern int w32_midiOutPut(unsigned char value, unsigned idx);
 
-extern int	w32_midiInInit();
-extern int	w32_midiInClean();
+extern int w32_midiInInit();
+extern int w32_midiInClean();
 extern unsigned w32_midiInGetVFNsNum();
-extern string	w32_midiInGetVFN(unsigned nmb);
-extern string	w32_midiInGetRDN(unsigned nmb);
+extern std::string w32_midiInGetVFN(unsigned nmb);
+extern std::string w32_midiInGetRDN(unsigned nmb);
 extern unsigned w32_midiInOpen(const char* vfn, unsigned thrdid);
-extern int	w32_midiInClose(unsigned idx);
+extern int w32_midiInClose(unsigned idx);
 
 } // namespace openmsx
 

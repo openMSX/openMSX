@@ -1,11 +1,12 @@
 // $Id$
 
 #include "Renderer.hh"
-#include "CommandController.hh"
 #include "RenderSettings.hh"
 #include "InfoCommand.hh"
 #include "CommandArgument.hh"
 
+using std::string;
+using std::vector;
 
 namespace openmsx {
 

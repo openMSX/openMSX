@@ -7,8 +7,6 @@
 #include <cassert>
 #include "openmsx.hh"
 
-using std::ostream;
-
 namespace openmsx {
 
 // constants
@@ -83,7 +81,7 @@ class EmuTime
 {
 public:
 	// friends
-	friend ostream& operator<<(ostream& os, const EmuTime& time);
+	friend std::ostream& operator<<(std::ostream& os, const EmuTime& time);
 	template<unsigned> friend class Clock;
 	friend class DynamicClock;
 
@@ -135,7 +133,7 @@ private:
 	uint64 time;
 };
 
-ostream& operator <<(ostream& os, const EmuTime& e);
+std::ostream& operator <<(std::ostream& os, const EmuTime& e);
 
 /** Represents a clock with a fixed frequency.
   * The frequency is in Hertz, so every tick is 1/frequency second.

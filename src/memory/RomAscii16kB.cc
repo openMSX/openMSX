@@ -16,7 +16,7 @@
 namespace openmsx {
 
 RomAscii16kB::RomAscii16kB(const XMLElement& config, const EmuTime& time,
-                           auto_ptr<Rom> rom)
+                           std::auto_ptr<Rom> rom)
 	: Rom16kBBlocks(config, time, rom)
 {
 	reset(time);

@@ -16,6 +16,7 @@
 #include "Scheduler.hh"
 #include <cassert>
 
+using std::string;
 
 namespace openmsx {
 
@@ -42,13 +43,15 @@ AY8910::Generator::Generator()
 	reset();
 }
 
-inline void AY8910::Generator::reset(byte output) {
+inline void AY8910::Generator::reset(byte output)
+{
 	period = 0;
 	count = 0;
 	this->output = output;
 }
 
-inline void AY8910::Generator::setPeriod(int value, unsigned int updateStep) {
+inline void AY8910::Generator::setPeriod(int value, unsigned int updateStep)
+{
 	// A note about the period of tones, noise and envelope: for speed
 	// reasons, we count down from the period to 0, but careful studies of the
 	// chip output prove that it instead counts up from 0 until the counter
@@ -70,7 +73,8 @@ inline void AY8910::Generator::setPeriod(int value, unsigned int updateStep) {
 // ToneGenerator:
 
 template <bool enabled>
-inline int AY8910::ToneGenerator::advance(int duration) {
+inline int AY8910::ToneGenerator::advance(int duration)
+{
 	int highDuration = 0;
 	if (enabled && output) highDuration += count;
 	count -= duration;
@@ -96,16 +100,19 @@ inline int AY8910::ToneGenerator::advance(int duration) {
 
 // NoiseGenerator:
 
-inline void AY8910::NoiseGenerator::reset() {
+inline void AY8910::NoiseGenerator::reset()
+{
 	Generator::reset(0x38);
 	random = 1;
 }
 
-inline byte AY8910::NoiseGenerator::getOutput() {
+inline byte AY8910::NoiseGenerator::getOutput()
+{
 	return output;
 }
 
-inline int AY8910::NoiseGenerator::advanceToFlip(int duration) {
+inline int AY8910::NoiseGenerator::advanceToFlip(int duration)
+{
 	int left = duration;
 	while (true) {
 		if (count > left) {
@@ -147,7 +154,8 @@ inline int AY8910::NoiseGenerator::advanceToFlip(int duration) {
 	}
 }
 
-inline void AY8910::NoiseGenerator::advance(int duration) {
+inline void AY8910::NoiseGenerator::advance(int duration)
+{
 	int cycles = (duration + period - count) / period;
 	count += cycles * period - duration;
 	// See advanceToFlip for explanation of noise algorithm.
@@ -177,23 +185,27 @@ inline void AY8910::NoiseGenerator::advance(int duration) {
 
 // Amplitude:
 
-inline unsigned int AY8910::Amplitude::getVolume(byte chan) {
+inline unsigned int AY8910::Amplitude::getVolume(byte chan)
+{
 	return vol[chan];
 }
 
-inline void AY8910::Amplitude::setChannelVolume(byte chan, byte value) {
+inline void AY8910::Amplitude::setChannelVolume(byte chan, byte value)
+{
 	envChan[chan] = value & 0x10;
 	vol[chan] = envChan[chan] ? envVolume : volTable[value & 0x0F];
 }
 
-inline void AY8910::Amplitude::setEnvelopeVolume(byte volume) {
+inline void AY8910::Amplitude::setEnvelopeVolume(byte volume)
+{
 	envVolume = volTable[volume];
 	if (envChan[0]) vol[0] = envVolume;
 	if (envChan[1]) vol[1] = envVolume;
 	if (envChan[2]) vol[2] = envVolume;
 }
 
-inline void AY8910::Amplitude::setMasterVolume(int volume) {
+inline void AY8910::Amplitude::setMasterVolume(int volume)
+{
 	// Calculate the volume->voltage conversion table.
 	// The AY-3-8910 has 16 levels, in a logarithmic scale (3dB per step).
 	double out = volume; // avoid clipping
@@ -204,7 +216,8 @@ inline void AY8910::Amplitude::setMasterVolume(int volume) {
 	volTable[0] = 0;
 }
 
-inline bool AY8910::Amplitude::anyEnvelope() {
+inline bool AY8910::Amplitude::anyEnvelope()
+{
 	return envChan[0] || envChan[1] || envChan[2];
 }
 
@@ -216,12 +229,14 @@ inline AY8910::Envelope::Envelope(Amplitude& amplitude)
 {
 }
 
-inline void AY8910::Envelope::reset() {
+inline void AY8910::Envelope::reset()
+{
 	period = 0;
 	count = 0;
 }
 
-inline void AY8910::Envelope::setPeriod(int value, unsigned int updateStep) {
+inline void AY8910::Envelope::setPeriod(int value, unsigned int updateStep)
+{
 	const int old = period;
 	if (value == 0) {
 		period = updateStep;
@@ -232,11 +247,13 @@ inline void AY8910::Envelope::setPeriod(int value, unsigned int updateStep) {
 	if (count <= 0) count = 1;
 }
 
-inline byte AY8910::Envelope::getVolume() {
+inline byte AY8910::Envelope::getVolume()
+{
 	return step ^ attack;
 }
 
-inline void AY8910::Envelope::setShape(byte shape) {
+inline void AY8910::Envelope::setShape(byte shape)
+{
 	/*
 	envelope shapes:
 		C AtAlH
@@ -267,11 +284,13 @@ inline void AY8910::Envelope::setShape(byte shape) {
 	amplitude.setEnvelopeVolume(getVolume());
 }
 
-inline bool AY8910::Envelope::isChanging() {
+inline bool AY8910::Envelope::isChanging()
+{
 	return !holding;
 }
 
-inline void AY8910::Envelope::advance(int duration) {
+inline void AY8910::Envelope::advance(int duration)
+{
 	if (!holding) {
 		count -= duration;
 		if (count <= 0) {

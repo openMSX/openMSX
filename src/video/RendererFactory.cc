@@ -2,9 +2,7 @@
 
 #include "RendererFactory.hh"
 #include "RenderSettings.hh"
-#include "CliCommOutput.hh"
 #include "CommandLineParser.hh"
-#include "Display.hh"
 
 // Video systems:
 #include "DummyVideoSystem.hh"
@@ -21,11 +19,7 @@
 #include "V9990DummyRenderer.hh"
 #include "V9990PixelRenderer.hh"
 
-// Rasterizers:
-#ifdef COMPONENT_GL
-#include "GLRasterizer.hh"
-#endif
-
+using std::auto_ptr;
 
 namespace openmsx {
 

@@ -7,12 +7,10 @@
 #include "V9990BitmapConverter.hh"
 #include "Renderer.hh"
 
-
 namespace openmsx {
 
 class V9990;
 class V9990VRAM;
-
 
 /** Rasterizer using SDL.
   */
@@ -30,7 +28,7 @@ public:
 
 	// Layer interface:
 	virtual void paint();
-	virtual const string& getName();
+	virtual const std::string& getName();
 
 	// Rasterizer interface:
 	virtual void reset();

@@ -8,8 +8,6 @@
 #include "StringSetting.hh"
 #include <memory.h>
 
-using std::auto_ptr;
-
 namespace openmsx {
 
 class XMLElement;
@@ -43,7 +41,7 @@ private:
 	BooleanSetting autoSaveSetting;
 	BooleanSetting consoleSetting;
 	StringSetting userDirSetting;
-	auto_ptr<XMLElement> mediaConfig;
+	std::auto_ptr<XMLElement> mediaConfig;
 };
 
 } // namespace openmsx

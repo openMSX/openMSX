@@ -8,6 +8,7 @@
 #include "HostCPU.hh"
 #include <cstring>
 
+using std::auto_ptr;
 
 namespace openmsx {
 

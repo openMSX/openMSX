@@ -2,6 +2,7 @@
 
 #include "openmsx.hh"
 #include "V9990CmdEngine.hh"
+#include "V9990VRAM.hh"
 
 namespace openmsx {
 
@@ -15,7 +16,7 @@ inline byte V9990CmdEngine::V9990Bpp2::writeMask(int x) {
 	return (byte) (~x & ADDRESS_MASK);
 }
 
-inline word V9990CmdEngine::V9990Bpp2::point(V9990VRAM *vram,
+inline word V9990CmdEngine::V9990Bpp2::point(V9990VRAM* vram,
                                              int x, int y, int imageWidth)
 {
 	word value = (word)(vram->readVRAM(addressOf(x,y, imageWidth)));
@@ -23,9 +24,9 @@ inline word V9990CmdEngine::V9990Bpp2::point(V9990VRAM *vram,
 	return ((value >> shift) & MASK);
 }
 
-inline void V9990CmdEngine::V9990Bpp2::pset(V9990VRAM *vram,
+inline void V9990CmdEngine::V9990Bpp2::pset(V9990VRAM* vram,
                                             int x, int y, int imageWidth,
-											word color)
+                                            word color)
 {
 	uint addr = addressOf(x, y, imageWidth);
 	int  shift = (~x & ADDRESS_MASK) * BITS_PER_PIXEL;
@@ -44,7 +45,7 @@ inline byte V9990CmdEngine::V9990Bpp4::writeMask(int x) {
 	return 0x00;
 }
 
-inline word V9990CmdEngine::V9990Bpp4::point(V9990VRAM *vram,
+inline word V9990CmdEngine::V9990Bpp4::point(V9990VRAM* vram,
                                              int x, int y, int imageWidth)
 {
 	word value = (word)(vram->readVRAM(addressOf(x,y, imageWidth)));
@@ -52,9 +53,9 @@ inline word V9990CmdEngine::V9990Bpp4::point(V9990VRAM *vram,
 	return ((value >> shift) & MASK);
 }
 
-inline void V9990CmdEngine::V9990Bpp4::pset(V9990VRAM *vram,
+inline void V9990CmdEngine::V9990Bpp4::pset(V9990VRAM* vram,
                                             int x, int y, int imageWidth,
-											word color)
+                                            word color)
 {
 	uint addr  = addressOf(x, y, imageWidth);
 	int  shift = (~x & ADDRESS_MASK) * BITS_PER_PIXEL;
@@ -69,7 +70,7 @@ inline uint V9990CmdEngine::V9990Bpp8::addressOf(int x, int y, int imageWidth)
 	return ((x/PIXELS_PER_BYTE) % imageWidth) + y * imageWidth;
 }
 
-inline word V9990CmdEngine::V9990Bpp8::point(V9990VRAM *vram,
+inline word V9990CmdEngine::V9990Bpp8::point(V9990VRAM* vram,
                                              int x, int y, int imageWidth)
 {
 	word value = (word)(vram->readVRAM(addressOf(x,y, imageWidth)));
@@ -80,9 +81,9 @@ inline byte V9990CmdEngine::V9990Bpp8::writeMask(int x) {
 	return 0x00;
 }
 
-inline void V9990CmdEngine::V9990Bpp8::pset(V9990VRAM *vram,
+inline void V9990CmdEngine::V9990Bpp8::pset(V9990VRAM* vram,
                                             int x, int y, int imageWidth,
-											word color)
+                                            word color)
 {
 	uint addr = addressOf(x, y, imageWidth);
 	vram->writeVRAM(addr, (byte)(color & 0xFF));
@@ -98,7 +99,7 @@ inline byte V9990CmdEngine::V9990Bpp16::writeMask(int x) {
 	return 0x00;
 }
 
-inline word V9990CmdEngine::V9990Bpp16::point(V9990VRAM *vram,
+inline word V9990CmdEngine::V9990Bpp16::point(V9990VRAM* vram,
                                              int x, int y, int imageWidth)
 {
 	int addr = addressOf(x,y, imageWidth);
@@ -106,9 +107,9 @@ inline word V9990CmdEngine::V9990Bpp16::point(V9990VRAM *vram,
 	return value;
 }
 
-inline void V9990CmdEngine::V9990Bpp16::pset(V9990VRAM *vram,
+inline void V9990CmdEngine::V9990Bpp16::pset(V9990VRAM* vram,
                                             int x, int y, int imageWidth,
-											word color)
+                                            word color)
 {
 	int addr = addressOf(x,y, imageWidth);
 	vram->writeVRAM(addr,   (color & 0xFF));
@@ -171,7 +172,7 @@ void V9990CmdEngine::reset(const EmuTime& time)
 void V9990CmdEngine::setCmdReg(byte reg, byte value, const EmuTime& time)
 {
 	PRT_DEBUG("[" << time << "] V9990CmdEngine::setCmdReg(" 
-	          << dec << (int) reg << "," << (int) value << ")");
+	          << std::dec << (int) reg << "," << (int) value << ")");
 	//sync(time);
 	switch(reg - 32) {
 	case  0: // SX low
@@ -303,12 +304,12 @@ V9990CmdEngine::CmdLMMC<Mode>::CmdLMMC(V9990CmdEngine* engine,
 template <class Mode>
 void V9990CmdEngine::CmdLMMC<Mode>::start(const EmuTime& time)
 {
-	PRT_DEBUG("LMMC: DX=" << dec << engine->DX <<
-		         " DY=" << dec << engine->DY <<
-		         " NX=" << dec << engine->NX <<
-		         " NY=" << dec << engine->NY <<
-				 " ARG="<< hex << (int)engine->ARG <<
-				 " Bpp="<< hex << Mode::PIXELS_PER_BYTE);
+	PRT_DEBUG("LMMC: DX=" << std::dec << engine->DX <<
+		         " DY=" << std::dec << engine->DY <<
+		         " NX=" << std::dec << engine->NX <<
+		         " NY=" << std::dec << engine->NY <<
+				 " ARG="<< std::hex << (int)engine->ARG <<
+				 " Bpp="<< std::hex << Mode::PIXELS_PER_BYTE);
 
 	engine->address = Mode::addressOf(engine->DX,
 	                                  engine->DY,

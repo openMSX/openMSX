@@ -8,8 +8,6 @@
 #include "Connector.hh"
 #include "CassetteDevice.hh"
 
-using std::auto_ptr;
-
 namespace openmsx {
 
 class CassettePlayer;
@@ -53,8 +51,8 @@ public:
 	virtual void flushOutput(const EmuTime& time) = 0;
 
 	// Connector
-	virtual const string& getDescription() const; 
-	virtual const string& getClass() const;
+	virtual const std::string& getDescription() const; 
+	virtual const std::string& getClass() const;
 	virtual void unplug(const EmuTime& time);
 	virtual CassetteDevice& getPlugged() const;
 };
@@ -76,7 +74,7 @@ private:
 	EmuTime prevTime;
 	short *buffer;
 
-	auto_ptr<CassettePlayer> cassettePlayer;
+	std::auto_ptr<CassettePlayer> cassettePlayer;
 };
 
 class DummyCassettePort : public CassettePortInterface

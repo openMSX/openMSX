@@ -25,7 +25,8 @@ private:
 class RomFSA1FM1 : public MSXRom
 {
 public:
-	RomFSA1FM1(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom);
+	RomFSA1FM1(const XMLElement& config, const EmuTime& time,
+	           std::auto_ptr<Rom> rom);
 	virtual ~RomFSA1FM1();
 	
 	virtual void reset(const EmuTime& time);
@@ -43,7 +44,8 @@ private:
 class RomFSA1FM2 : public Rom8kBBlocks
 {
 public:
-	RomFSA1FM2(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom);
+	RomFSA1FM2(const XMLElement& config, const EmuTime& time,
+	           std::auto_ptr<Rom> rom);
 	virtual ~RomFSA1FM2();
 	
 	virtual void reset(const EmuTime& time);

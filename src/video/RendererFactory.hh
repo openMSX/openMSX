@@ -3,15 +3,10 @@
 #ifndef __RENDERERFACTORY_HH__
 #define __RENDERERFACTORY_HH__
 
-#include <string>
 #include <memory>
 #include "EnumSetting.hh"
 #include "components.hh"
 #include "probed_defs.hh" // for HAVE_X11 (should be component instead?)
-
-using std::string;
-using std::auto_ptr;
-
 
 namespace openmsx {
 
@@ -57,7 +52,7 @@ public:
 	  * The map of this setting contains only the available renderers.
 	  * @param defaultRenderer The name of the default renderer
 	  */
-	static auto_ptr<RendererSetting> createRendererSetting();
+	static std::auto_ptr<RendererSetting> createRendererSetting();
 };
 
 } // namespace openmsx

@@ -6,7 +6,6 @@
 #include "openmsx.hh"
 #include "Pluggable.hh"
 
-
 namespace openmsx {
 
 class PrinterPortDevice : public Pluggable
@@ -35,7 +34,7 @@ public:
 	 */
 	virtual void writeData(byte data, const EmuTime &time) = 0;
 
-	virtual const string &getClass() const;
+	virtual const std::string &getClass() const;
 };
 
 } // namespace openmsx

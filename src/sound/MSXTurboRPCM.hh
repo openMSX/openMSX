@@ -8,8 +8,6 @@
 #include "EmuTime.hh"
 #include "AudioInputConnector.hh"
 
-using std::auto_ptr;
-
 namespace openmsx {
 
 class DACSound8U;
@@ -33,7 +31,7 @@ private:
 	byte DValue;
 	byte status;
 	byte hold;
-	auto_ptr<DACSound8U> dac;
+	std::auto_ptr<DACSound8U> dac;
 };
 
 } // namespace openmsx

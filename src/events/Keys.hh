@@ -8,10 +8,6 @@
 #include <string>
 #include "StringOp.hh"
 
-using std::map;
-using std::string;
-
-
 namespace openmsx {
 
 class Keys {
@@ -193,7 +189,7 @@ public:
 	 * Translate key name to key code.
 	 * Returns K_NONE when the name is unknown.
 	 */
-	static KeyCode getCode(const string& name);
+	static KeyCode getCode(const std::string& name);
 	static KeyCode getCode(SDLKey key, SDLMod mod = KMOD_NONE,
 	                       bool release = false);
 
@@ -201,12 +197,12 @@ public:
 	 * Translate key code to key name.
 	 * Returns the string "unknown" for unknown key codes.
 	 */
-	static const string getName(KeyCode keyCode);
+	static const std::string getName(KeyCode keyCode);
 
 private:
 	static void initialize();
 
-	typedef map<string, KeyCode, StringOp::caseless> KeyMap;
+	typedef std::map<std::string, KeyCode, StringOp::caseless> KeyMap;
 	static KeyMap keymap;
 };
 

@@ -364,11 +364,11 @@ private:
 
 	/** The VDP this sprite checker is part of.
 	  */
-	VDP *vdp;
+	VDP* vdp;
 
 	/** The VRAM to get sprites data from.
 	  */
-	VDPVRAM *vram;
+	VDPVRAM* vram;
 
 	/** Limit number of sprites per display line?
 	  * Option only affects display, not MSX state.

@@ -6,12 +6,15 @@
 #include "Debugger.hh"
 #include "CommandController.hh"
 #include "RendererFactory.hh"
-#include "Display.hh"
-#include "VideoSystem.hh"
+#include "V9990VRAM.hh"
+#include "V9990CmdEngine.hh"
+#include "V9990Renderer.hh"
 #include <cassert>
 #include <iomanip>
 
 using std::setw;
+using std::string;
+using std::vector;
 
 namespace openmsx {
 
@@ -211,8 +214,8 @@ byte V9990::readIO(byte port, const EmuTime& time)
 	}
 	
 	PRT_DEBUG("[" << time << "] "
-		  "V9990::readIO - port=0x" << hex << (int)port <<
-		                  " val=0x" << hex << (int)result);
+		  "V9990::readIO - port=0x" << std::hex << (int)port <<
+		                  " val=0x" << std::hex << (int)result);
 
 	return result;
 }
@@ -228,8 +231,8 @@ void V9990::writeIO(byte port, byte val, const EmuTime &time)
 	port &= 0x0F;
 	
 	PRT_DEBUG("[" << time << "] "
-		  "V9990::writeIO - port=0x" << hex << int(port) << 
-		                   " val=0x" << hex << int(val));
+		  "V9990::writeIO - port=0x" << std::hex << int(port) << 
+		                   " val=0x" << std::hex << int(val));
 
 	switch (port) {
 		case VRAM_DATA: {
@@ -327,7 +330,7 @@ void V9990::writeIO(byte port, byte val, const EmuTime &time)
 void V9990::executeUntil(const EmuTime &time, int userData)
 {
 	PRT_DEBUG("[" << time << "] "
-	          "V9990::executeUntil - data=0x" << hex << userData);
+	          "V9990::executeUntil - data=0x" << std::hex << userData);
 	switch(userData)  {
 		case V9990_VSYNC:
 			renderer->frameEnd(time);
@@ -409,14 +412,14 @@ string V9990::V9990RegsCmd::execute(const vector<string>& /*tokens*/)
 	static const int NCOLS = 4;
 	static const int NROWS = (55 + (NCOLS-1))/NCOLS;
 	
-	ostringstream out;
+	std::ostringstream out;
 	for(int row = 0; row < NROWS; row++) {
 		for(int col = 0; col < NCOLS; col++) {
 			int reg   = col * NROWS + row;
 			if(reg < 55) {
 				int value = v9990.regs[reg];
-				out << dec << setw(2) << reg << " : "
-			    	<< hex << setw(2) << value << "   ";
+				out << std::dec << std::setw(2) << reg << " : "
+			    	<< std::hex << std::setw(2) << value << "   ";
 			}
 		}
 		out << "\n";
@@ -460,16 +463,16 @@ byte V9990::readRegister(byte reg, const EmuTime& time)
 	}
 
 	PRT_DEBUG("[" << time << "] "
-		  "V9990::readRegister - reg=0x" << hex << (int)reg <<
-		                       " val=0x" << hex << (int)result);
+		  "V9990::readRegister - reg=0x" << std::hex << (int)reg <<
+		                       " val=0x" << std::hex << (int)result);
 	return result;
 }
 
 void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
 {
 	PRT_DEBUG("[" << time << "] "
-		  "V9990::writeRegister - reg=0x" << hex << int(reg) << 
-		                        " val=0x" << hex << int(val));
+		  "V9990::writeRegister - reg=0x" << std::hex << int(reg) << 
+		                        " val=0x" << std::hex << int(val));
 
 	// TODO sync(time)
 	

@@ -15,10 +15,6 @@
 #include "DisplayMode.hh"
 #include "Debuggable.hh"
 
-using std::string;
-using std::auto_ptr;
-
-
 namespace openmsx {
 
 class Renderer;
@@ -82,18 +78,18 @@ public:
 	  */
 	static const int TICKS_PER_LINE = 1368;
 
-	VDP(const XMLElement& config, const EmuTime &time);
+	VDP(const XMLElement& config, const EmuTime& time);
 	virtual ~VDP();
 
 	// mainlife cycle of an MSXDevice
-	virtual void reset(const EmuTime &time);
+	virtual void reset(const EmuTime& time);
 
 	// interaction with CPU
-	virtual byte readIO(byte port, const EmuTime &time);
-	virtual byte peekIO(byte port, const EmuTime &time) const;
-	virtual void writeIO(byte port, byte value, const EmuTime &time);
-	virtual void executeUntil(const EmuTime &time, int userData);
-	virtual const string& schedName() const;
+	virtual byte readIO(byte port, const EmuTime& time);
+	virtual byte peekIO(byte port, const EmuTime& time) const;
+	virtual void writeIO(byte port, byte value, const EmuTime& time);
+	virtual void executeUntil(const EmuTime& time, int userData);
+	virtual const std::string& schedName() const;
 
 	/** Create a new renderer.
 	  */
@@ -337,7 +333,7 @@ public:
 	/** Gets the number of VDP clock ticks (21MHz) elapsed between
 	  * a given time and the start of this frame.
 	  */
-	inline int getTicksThisFrame(const EmuTime &time) const {
+	inline int getTicksThisFrame(const EmuTime& time) const {
 		return frameStartTime.getTicksTill(time);
 	}
 
@@ -386,7 +382,7 @@ public:
 	  * @param time Timestamp to check.
 	  * @return True iff the timestamp is inside the current frame.
 	  */
-	inline bool isInsideFrame(const EmuTime &time) const {
+	inline bool isInsideFrame(const EmuTime& time) const {
 		return time >= frameStartTime.getTime() &&
 			getTicksThisFrame(time) <= getTicksPerFrame();
 	}
@@ -435,7 +431,7 @@ private:
 	public:
 		VDPRegDebug(VDP& parent);
 		virtual unsigned getSize() const;
-		virtual const string& getDescription() const;
+		virtual const std::string& getDescription() const;
 		virtual byte read(unsigned address);
 		virtual void write(unsigned address, byte value);
 	private:
@@ -446,7 +442,7 @@ private:
 	public:
 		VDPStatusRegDebug(VDP& parent);
 		virtual unsigned getSize() const;
-		virtual const string& getDescription() const;
+		virtual const std::string& getDescription() const;
 		virtual byte read(unsigned address);
 		virtual void write(unsigned address, byte value);
 	private:
@@ -456,8 +452,8 @@ private:
 	class VDPRegsCmd : public SimpleCommand {
 	public:
 		VDPRegsCmd(VDP& vdp);
-		virtual string execute(const vector<string>& tokens);
-		virtual string help(const vector<string>& tokens) const;
+		virtual std::string execute(const std::vector<std::string>& tokens);
+		virtual std::string help(const std::vector<std::string>& tokens) const;
 	private:
 		VDP& vdp;
 	} vdpRegsCmd;
@@ -465,8 +461,8 @@ private:
 	class PaletteCmd : public SimpleCommand {
 	public:
 		PaletteCmd(VDP& vdp);
-		virtual string execute(const vector<string>& tokens);
-		virtual string help(const vector<string>& tokens) const;
+		virtual std::string execute(const std::vector<std::string>& tokens);
+		virtual std::string help(const std::vector<std::string>& tokens) const;
 	private:
 		VDP& vdp;
 	} paletteCmd;
@@ -539,18 +535,18 @@ private:
 	  * Puts VDP into reset state.
 	  * Does not call any renderer methods.
 	  */
-	void resetInit(const EmuTime &time);
+	void resetInit(const EmuTime& time);
 
 	/** Companion to resetInit: in resetInit the registers are reset,
 	  * in this method the new base masks are distributed to the VDP
 	  * subsystems.
 	  */
-	void resetMasks(const EmuTime &time);
+	void resetMasks(const EmuTime& time);
 
 	/** Start a new frame.
 	  * @param time The moment in emulated time the frame starts.
 	  */
-	void frameStart(const EmuTime &time);
+	void frameStart(const EmuTime& time);
 
 	/** Schedules a DISPLAY_START sync point.
 	  * Also removes a pending DISPLAY_START sync, if any.
@@ -559,25 +555,25 @@ private:
 	  * @param time The moment in emulated time this call takes place.
 	  *   Note: time is not the DISPLAY_START sync time!
 	  */
-	void scheduleDisplayStart(const EmuTime &time);
+	void scheduleDisplayStart(const EmuTime& time);
 
 	/** Schedules a VSCAN sync point.
 	  * Also removes a pending VSCAN sync, if any.
 	  * @param time The moment in emulated time this call takes place.
 	  *   Note: time is not the VSCAN sync time!
 	  */
-	void scheduleVScan(const EmuTime &time);
+	void scheduleVScan(const EmuTime& time);
 
 	/** Schedules a HSCAN sync point.
 	  * Also removes a pending HSCAN sync, if any.
 	  * @param time The moment in emulated time this call takes place.
 	  *   Note: time is not the HSCAN sync time!
 	  */
-	void scheduleHScan(const EmuTime &time);
+	void scheduleHScan(const EmuTime& time);
 
 	/** Byte is read from VRAM by the CPU.
 	  */
-	byte vramRead(const EmuTime &time);
+	byte vramRead(const EmuTime& time);
 
 	/** Read the contents of a status register
 	  */ 
@@ -586,36 +582,36 @@ private:
 
 	/** VDP control register has changed, work out the consequences.
 	  */
-	void changeRegister(byte reg, byte val, const EmuTime &time);
+	void changeRegister(byte reg, byte val, const EmuTime& time);
 
 	/** Schedule a sync point at the start of the next line.
 	  */ 
-	void syncAtNextLine(SyncType type, const EmuTime &time);
+	void syncAtNextLine(SyncType type, const EmuTime& time);
 
 	/** Colour base mask has changed.
 	  * Inform the renderer and the VRAM.
 	  */
-	void updateColourBase(const EmuTime &time);
+	void updateColourBase(const EmuTime& time);
 
 	/** Pattern base mask has changed.
 	  * Inform the renderer and the VRAM.
 	  */
-	void updatePatternBase(const EmuTime &time);
+	void updatePatternBase(const EmuTime& time);
 
 	/** Sprite attribute base mask has changed.
 	  * Inform the SpriteChecker and the VRAM.
 	  */
-	void updateSpriteAttributeBase(const EmuTime &time);
+	void updateSpriteAttributeBase(const EmuTime& time);
 
 	/** Sprite pattern base mask has changed.
 	  * Inform the SpriteChecker and the VRAM.
 	  */
-	void updateSpritePatternBase(const EmuTime &time);
+	void updateSpritePatternBase(const EmuTime& time);
 
 	/** Display mode has changed.
 	  * Update displayMode's value and inform the Renderer.
 	  */
-	void updateDisplayMode(DisplayMode newMode, const EmuTime &time);
+	void updateDisplayMode(DisplayMode newMode, const EmuTime& time);
 
 	/** Renderer that converts this VDP's state into an image.
 	  */
@@ -623,11 +619,11 @@ private:
 
 	/** Command engine: the part of the V9938/58 that executes commands.
 	  */
-	auto_ptr<VDPCmdEngine> cmdEngine;
+	std::auto_ptr<VDPCmdEngine> cmdEngine;
 
 	/** Sprite checker: calculates sprite patterns and collisions.
 	  */
-	auto_ptr<SpriteChecker> spriteChecker;
+	std::auto_ptr<SpriteChecker> spriteChecker;
 
 	/** VDP version.
 	  */
@@ -751,7 +747,7 @@ private:
 
 	/** VRAM management object.
 	  */
-	auto_ptr<VDPVRAM> vram;
+	std::auto_ptr<VDPVRAM> vram;
 
 	/** VRAM mask: bit mask that indicates which address bits are
 	  * present in the VRAM.

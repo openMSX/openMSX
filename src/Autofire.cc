@@ -2,6 +2,7 @@
 
 #include "Autofire.hh"
 
+using std::string;
 
 namespace openmsx {
 

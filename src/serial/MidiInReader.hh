@@ -3,16 +3,14 @@
 #ifndef __MIDIINREADER_HH__
 #define __MIDIINREADER_HH__
 
-#include <cstdio>
-#include <list>
 #include "openmsx.hh"
 #include "MidiInDevice.hh"
 #include "Thread.hh"
 #include "Schedulable.hh"
 #include "Semaphore.hh"
 #include "StringSetting.hh"
-
-using std::list;
+#include <cstdio>
+#include <deque>
 
 namespace openmsx {
 
@@ -25,8 +23,8 @@ public:
 	// Pluggable
 	virtual void plugHelper(Connector* connector, const EmuTime& time);
 	virtual void unplugHelper(const EmuTime& time);
-	virtual const string& getName() const;
-	virtual const string& getDescription() const;
+	virtual const std::string& getName() const;
+	virtual const std::string& getDescription() const;
 
 	// MidiInDevice
 	virtual void signal(const EmuTime& time);
@@ -37,11 +35,11 @@ private:
 
 	// Schedulable
 	virtual void executeUntil(const EmuTime& time, int userData);
-	virtual const string& schedName() const;
+	virtual const std::string& schedName() const;
 
 	Thread thread;
 	FILE* file;
-	list<byte> queue;
+	std::deque<byte> queue;
 	Semaphore lock; // to protect queue
 
 	StringSetting readFilenameSetting;

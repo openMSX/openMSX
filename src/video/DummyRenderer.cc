@@ -3,6 +3,7 @@
 #include "DummyRenderer.hh"
 #include "DisplayMode.hh"
 
+using std::string;
 
 namespace openmsx {
 

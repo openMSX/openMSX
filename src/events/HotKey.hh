@@ -9,9 +9,6 @@
 #include "Keys.hh"
 #include "Command.hh"
 
-using std::string;
-using std::multimap;
-
 namespace openmsx {
 
 class XMLElement;
@@ -24,7 +21,7 @@ public:
 
 private:
 	void initBindings();
-	void   registerHotKeyCommand(Keys::KeyCode key, const string& command);
+	void   registerHotKeyCommand(Keys::KeyCode key, const std::string& command);
 	void unregisterHotKeyCommand(Keys::KeyCode key);
 
 	// EventListener
@@ -33,7 +30,7 @@ private:
 	class HotKeyCmd {
 	public:
 		HotKeyCmd(const XMLElement& elem);
-		const string& getCommand() const;
+		const std::string& getCommand() const;
 		const XMLElement& getElement() const;
 		void execute();
 	private:
@@ -43,8 +40,8 @@ private:
 	class BindCmd : public SimpleCommand {
 	public:
 		BindCmd(HotKey& parent);
-		virtual string execute(const vector<string>& tokens);
-		virtual string help(const vector<string>& tokens) const;
+		virtual std::string execute(const std::vector<std::string>& tokens);
+		virtual std::string help(const std::vector<std::string>& tokens) const;
 	private:
 		HotKey& parent;
 	} bindCmd;
@@ -52,13 +49,13 @@ private:
 	class UnbindCmd : public SimpleCommand {
 	public:
 		UnbindCmd(HotKey& parent);
-		virtual string execute(const vector<string>& tokens);
-		virtual string help(const vector<string>& tokens) const;
+		virtual std::string execute(const std::vector<std::string>& tokens);
+		virtual std::string help(const std::vector<std::string>& tokens) const;
 	private:
 		HotKey& parent;
 	} unbindCmd;
 	
-	typedef map<Keys::KeyCode, HotKeyCmd*> CommandMap;
+	typedef std::map<Keys::KeyCode, HotKeyCmd*> CommandMap;
 	CommandMap cmdMap;
 	
 	XMLElement& bindingsElement;

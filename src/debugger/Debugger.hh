@@ -5,10 +5,6 @@
 #include <string>
 #include "Command.hh"
 
-using std::map;
-using std::set;
-using std::string;
-
 namespace openmsx {
 
 class Debuggable;
@@ -20,8 +16,8 @@ class Debugger
 public:
 	static Debugger& instance();
 
-	void registerDebuggable  (const string& name, Debuggable& interface);
-	void unregisterDebuggable(const string& name, Debuggable& interface);
+	void registerDebuggable  (const std::string& name, Debuggable& interface);
+	void unregisterDebuggable(const std::string& name, Debuggable& interface);
 
 	void setCPU(MSXCPU* cpu);
 
@@ -29,36 +25,36 @@ private:
 	Debugger();
 	~Debugger();
 	
-	Debuggable* getDebuggable(const string& name);
-	void getDebuggables(set<string>& result) const;
+	Debuggable* getDebuggable(const std::string& name);
+	void getDebuggables(std::set<std::string>& result) const;
 
 	class DebugCmd : public Command {
 	public:
 		DebugCmd(Debugger& parent);
-		virtual void execute(const vector<CommandArgument>& tokens,
+		virtual void execute(const std::vector<CommandArgument>& tokens,
 		                     CommandArgument& result);
-		virtual string help(const vector<string>& tokens) const;
-		virtual void tabCompletion(vector<string>& tokens) const;
+		virtual std::string help(const std::vector<std::string>& tokens) const;
+		virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
 	private:
 		void list(CommandArgument& result);
-		void desc(const vector<CommandArgument>& tokens,
+		void desc(const std::vector<CommandArgument>& tokens,
 		          CommandArgument& result);
-		void size(const vector<CommandArgument>& tokens,
+		void size(const std::vector<CommandArgument>& tokens,
 		          CommandArgument& result);
-		void read(const vector<CommandArgument>& tokens,
+		void read(const std::vector<CommandArgument>& tokens,
 		          CommandArgument& result);
-		void readBlock(const vector<CommandArgument>& tokens,
+		void readBlock(const std::vector<CommandArgument>& tokens,
 		               CommandArgument& result);
-		void write(const vector<CommandArgument>& tokens,
+		void write(const std::vector<CommandArgument>& tokens,
 		           CommandArgument& result);
-		void writeBlock(const vector<CommandArgument>& tokens,
+		void writeBlock(const std::vector<CommandArgument>& tokens,
 		                CommandArgument& result);
 		
 		Debugger& parent;
 	} debugCmd;
 	
-	map<string, Debuggable*> debuggables;
+	std::map<std::string, Debuggable*> debuggables;
 	CommandController& commandController;
 	MSXCPU* cpu;
 };

@@ -19,7 +19,8 @@
 
 namespace openmsx {
 
-RomKorean90in1::RomKorean90in1(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom)
+RomKorean90in1::RomKorean90in1(const XMLElement& config, const EmuTime& time,
+                               std::auto_ptr<Rom> rom)
 	: Rom8kBBlocks(config, time, rom)
 {
 	reset(time);
@@ -28,6 +29,7 @@ RomKorean90in1::RomKorean90in1(const XMLElement& config, const EmuTime& time, au
 
 RomKorean90in1::~RomKorean90in1()
 {
+	MSXCPUInterface::instance().unregister_IO_Out(0x77, this);
 }
 
 void RomKorean90in1::reset(const EmuTime& time)

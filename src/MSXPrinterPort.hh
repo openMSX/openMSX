@@ -17,7 +17,7 @@ public:
 	virtual void writeData(byte data, const EmuTime& time);
 
 protected:
-	virtual const string& getDescription() const;
+	virtual const std::string& getDescription() const;
 	virtual void plugHelper(Connector* connector, const EmuTime& time);
 	virtual void unplugHelper(const EmuTime& time);
 };
@@ -36,8 +36,8 @@ public:
 	virtual void writeIO(byte port, byte value, const EmuTime& time);
 
 	// Connector
-	virtual const string& getDescription() const;
-	virtual const string& getClass() const;
+	virtual const std::string& getDescription() const;
+	virtual const std::string& getClass() const;
 	virtual void plug(Pluggable* dev, const EmuTime& time);
 	virtual PrinterPortDevice& getPlugged() const;
 

@@ -8,11 +8,7 @@
 
 #include "openmsx.hh"
 #include "Renderer.hh"
-//#include "CharacterConverter.hh"
-//#include "BitmapConverter.hh"
 #include "DisplayMode.hh"
-#include "VDP.hh"
-#include "Keys.hh"
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 #include <X11/Xutil.h>
@@ -23,7 +19,7 @@ namespace openmsx {
 class VDP;
 class VDPVRAM;
 class SpriteChecker;
-//class XConsole;
+class VDP;
 
 /** Renderer using Xlib
   */
@@ -74,7 +70,7 @@ private:
 	  */
 	virtual ~XRenderer();
 
-	void EventLoop (void);	// new thread
+	void EventLoop(void);	// new thread
 	VDP *vdp;
 	VDPVRAM *vram;
 	// for clarity Xlib specific variables are put in a struct
@@ -89,8 +85,8 @@ private:
 	} X;
 	class convert {
 	public:
-		convert (KeySym sym) : sym(sym) {}
-		operator SDLKey () { return (*keymap)[sym]; }
+		convert(KeySym sym) : sym(sym) {}
+		operator SDLKey() { return (*keymap)[sym]; }
 	private:
 		KeySym sym;
 		static map<KeySym, SDLKey> *makemap();

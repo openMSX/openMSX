@@ -6,8 +6,6 @@
 #include <string>
 #include "openmsx.hh"
 
-using std::string;
-
 namespace openmsx {
 
 class XMLElement;
@@ -43,7 +41,7 @@ public:
 	 * print debug info.
 	 * Default implementation is normally ok.
 	 */
-	virtual const string& getName() const;
+	virtual const std::string& getName() const;
 
 	
 	// IO

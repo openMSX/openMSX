@@ -15,7 +15,7 @@ class SCC : private SoundDevice
 public:
 	enum ChipMode {SCC_Real, SCC_Compatible, SCC_plusmode};
 
-	SCC(const string& name, const XMLElement& config, const EmuTime& time,
+	SCC(const std::string& name, const XMLElement& config, const EmuTime& time,
 	    ChipMode mode = SCC_Real);
 	virtual ~SCC();
 
@@ -27,8 +27,8 @@ public:
 
 private:
 	// SoundDevice
-	virtual const string& getName() const;
-	virtual const string& getDescription() const;
+	virtual const std::string& getName() const;
+	virtual const std::string& getDescription() const;
 	virtual void setSampleRate(int sampleRate);
 	virtual void setVolume(int maxVolume);
 	virtual void updateBuffer(int length, int* buffer);
@@ -37,7 +37,7 @@ private:
 	public:
 		SCCDebuggable(SCC& parent);
 		virtual unsigned getSize() const;
-		virtual const string& getDescription() const;
+		virtual const std::string& getDescription() const;
 		virtual byte read(unsigned address);
 		virtual void write(unsigned address, byte value);
 	private:
@@ -75,7 +75,7 @@ private:
 	bool readOnly[5];
 	byte offset[5];
 
-	const string name;
+	const std::string name;
 };
 
 } // namespace openmsx

@@ -6,8 +6,6 @@
 #include "openmsx.hh"
 #include <string>
 
-using std::string;
-
 namespace openmsx {
 
 class SHA1
@@ -23,7 +21,7 @@ public:
 	/** Get the final hash as a pre-formatted string.
 	  * After this method is called, calls to update() are invalid.
 	  */
-	const string& hex_digest();
+	const std::string& hex_digest();
 
 private:
 	void transform(const byte buffer[64]);
@@ -33,7 +31,7 @@ private:
 	uint64 m_count;
 	byte m_buffer[64];
 
-	string digest;
+	std::string digest;
 };
 
 } // namespace openmsx

@@ -14,7 +14,6 @@
 
 namespace openmsx {
 
-class MSXDevice;
 class VDPIODelay;
 class DummyDevice;
 class HardwareConfig;
@@ -182,7 +181,7 @@ private:
 	public:
 		MemoryDebug(MSXCPUInterface& parent);
 		virtual unsigned getSize() const;
-		virtual const string& getDescription() const;
+		virtual const std::string& getDescription() const;
 		virtual byte read(unsigned address);
 		virtual void write(unsigned address, byte value);
 	private:
@@ -193,7 +192,7 @@ private:
 	public:
 		SlottedMemoryDebug(MSXCPUInterface& parent);
 		virtual unsigned getSize() const;
-		virtual const string& getDescription() const;
+		virtual const std::string& getDescription() const;
 		virtual byte read(unsigned address);
 		virtual void write(unsigned address, byte value);
 	private:
@@ -204,7 +203,7 @@ private:
 	public:
 		IODebug(MSXCPUInterface& parent);
 		virtual unsigned getSize() const;
-		virtual const string& getDescription() const;
+		virtual const std::string& getDescription() const;
 		virtual byte read(unsigned address);
 		virtual void write(unsigned address, byte value);
 	private:
@@ -214,8 +213,8 @@ private:
 	class SlotMapCmd : public SimpleCommand {
 	public:
 		SlotMapCmd(MSXCPUInterface& parent);
-		virtual string execute(const std::vector<string>& tokens);
-		virtual string help(const std::vector<string>& tokens) const;
+		virtual std::string execute(const std::vector<std::string>& tokens);
+		virtual std::string help(const std::vector<std::string>& tokens) const;
 	private:
 		MSXCPUInterface& parent;
 	} slotMapCmd;
@@ -223,8 +222,8 @@ private:
 	class SlotSelectCmd : public SimpleCommand {
 	public:
 		SlotSelectCmd(MSXCPUInterface& parent);
-		virtual string execute(const std::vector<string>& tokens);
-		virtual string help(const std::vector<string>& tokens) const;
+		virtual std::string execute(const std::vector<std::string>& tokens);
+		virtual std::string help(const std::vector<std::string>& tokens) const;
 	private:
 		MSXCPUInterface& parent;
 	} slotSelectCmd;
@@ -232,8 +231,8 @@ private:
 	class IOMapCmd : public SimpleCommand {
 	public:
 		IOMapCmd(MSXCPUInterface& parent);
-		virtual string execute(const std::vector<string>& tokens);
-		virtual string help(const std::vector<string>& tokens) const;
+		virtual std::string execute(const std::vector<std::string>& tokens);
+		virtual std::string help(const std::vector<std::string>& tokens) const;
 	private:
 		MSXCPUInterface& parent;
 	} ioMapCmd;
@@ -249,9 +248,9 @@ private:
 	void setSubSlot(byte primSlot, byte value);
 
 	void printSlotMapPages(std::ostream&, const MSXDevice* const*) const;
-	string getSlotMap() const;
-	string getIOMap() const;
-	string getSlotSelection() const;
+	std::string getSlotMap() const;
+	std::string getIOMap() const;
+	std::string getSlotSelection() const;
 
 	MSXDevice* IO_In [256];
 	MSXDevice* IO_Out[256];

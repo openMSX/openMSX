@@ -4,10 +4,12 @@
 #include "DummyMidiOutDevice.hh"
 #include "PluggingController.hh"
 
+using std::string;
+
 namespace openmsx {
 
 MidiOutConnector::MidiOutConnector(const string &name)
-	: Connector(name, auto_ptr<Pluggable>(new DummyMidiOutDevice()))
+	: Connector(name, std::auto_ptr<Pluggable>(new DummyMidiOutDevice()))
 {
 	PluggingController::instance().registerConnector(this);
 }

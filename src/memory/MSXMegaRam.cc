@@ -28,6 +28,7 @@
 #include "xmlx.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
+#include "Ram.hh"
 
 
 namespace openmsx {

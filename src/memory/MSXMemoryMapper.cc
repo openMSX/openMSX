@@ -5,8 +5,8 @@
 #include "MSXMapperIO.hh"
 #include "xmlx.hh"
 #include "MSXCPUInterface.hh"
-#include "Debugger.hh"
 #include "FileContext.hh"
+#include "Ram.hh"
 
 namespace openmsx {
 
@@ -27,7 +27,7 @@ MSXMemoryMapper::MSXMemoryMapper(const XMLElement& config, const EmuTime& time)
 {
 	int kSize = deviceConfig.getChildDataAsInt("size");
 	if ((kSize % 16) != 0) {
-		ostringstream out;
+		std::ostringstream out;
 		out << "Mapper size is not a multiple of 16K: " << kSize;
 		throw FatalError(out.str());
 	}
@@ -56,7 +56,8 @@ void MSXMemoryMapper::createMapperIO(const EmuTime& time)
 
 		config = new XMLElement("MapperIO");
 		config->addAttribute("id", "MapperIO");
-		config->setFileContext(auto_ptr<FileContext>(new SystemFileContext()));
+		config->setFileContext(std::auto_ptr<FileContext>(
+			new SystemFileContext()));
 		mapperIO = new MSXMapperIO(*config, time);
 	
 		MSXCPUInterface& cpuInterface = MSXCPUInterface::instance();

@@ -4,6 +4,8 @@
 #include "EventDistributor.hh"
 #include "InputEvents.hh"
 
+using std::string;
+
 namespace openmsx {
 
 const int TRESHOLD = 2;

@@ -1,9 +1,10 @@
 // $Id$
 
 #include "WavAudioInput.hh"
-#include "EmuTime.hh"
 #include "MSXException.hh"
 #include "CliCommOutput.hh"
+
+using std::string;
 
 namespace openmsx {
 

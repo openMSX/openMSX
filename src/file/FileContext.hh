@@ -7,45 +7,40 @@
 #include <vector>
 #include <map>
 
-using  std::string;
-using  std::vector;
-using  std::map;
-
-
 namespace openmsx {
 
 class FileContext
 {
 public:
 	virtual ~FileContext();
-	const string resolve(const string& filename);
-	const string resolveCreate(const string& filename);
-	const vector<string>& getPaths() const;
+	const std::string resolve(const std::string& filename);
+	const std::string resolveCreate(const std::string& filename);
+	const std::vector<std::string>& getPaths() const;
 	
 	virtual FileContext* clone() const = 0;
 
 protected:
 	FileContext();
 	FileContext(const FileContext& rhs);
-	string resolve(const vector<string>& pathList,
-	               const string& filename) const;
+	std::string resolve(const std::vector<std::string>& pathList,
+	               const std::string& filename) const;
 
-	vector<string> paths;
-	vector<string> savePaths;
+	std::vector<std::string> paths;
+	std::vector<std::string> savePaths;
 };
 
 class ConfigFileContext : public FileContext
 {
 public:
-	ConfigFileContext(const string& path,
-			  const string& hwDescr,
-			  const string& userName);
+	ConfigFileContext(const std::string& path,
+			  const std::string& hwDescr,
+			  const std::string& userName);
 	virtual ConfigFileContext* clone() const;
 
 private:
 	ConfigFileContext(const ConfigFileContext& rhs);
 	
-	static map<string, int> nonames;
+	static std::map<std::string, int> nonames;
 };
 
 class SystemFileContext : public FileContext
@@ -61,7 +56,7 @@ private:
 class SettingFileContext : public FileContext
 {
 public:
-	SettingFileContext(const string& url);
+	SettingFileContext(const std::string& url);
 	virtual SettingFileContext* clone() const;
 
 private:
@@ -71,7 +66,7 @@ private:
 class UserFileContext : public FileContext
 {
 public:
-	UserFileContext(const string& savePath = "", bool skipUserDirs = false);
+	UserFileContext(const std::string& savePath = "", bool skipUserDirs = false);
 	virtual UserFileContext* clone() const;
 
 private:

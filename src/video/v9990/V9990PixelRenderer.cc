@@ -1,12 +1,11 @@
 // $Id$
 
-#include "V9990.hh"
 #include "V9990DisplayTiming.hh"
 #include "V9990PixelRenderer.hh"
+#include "V9990Rasterizer.hh"
 #include "Scheduler.hh"
 #include "Display.hh"
 #include "VideoSystem.hh"
-
 #include "openmsx.hh"
 
 namespace openmsx {
@@ -106,7 +105,7 @@ void V9990PixelRenderer::renderUntil(const EmuTime& time)
 void V9990PixelRenderer::draw(int fromX, int fromY, int toX, int toY,
                               DrawType type)
 {
-	PRT_DEBUG("V9990PixelRenderer::draw(" << dec <<
+	PRT_DEBUG("V9990PixelRenderer::draw(" << std::dec <<
 			fromX << "," << fromY << "," << toX << "," << toY << ","
 			<< ((type == DRAW_BORDER)? "BORDER": "DISPLAY") << ")");
 	

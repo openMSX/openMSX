@@ -2,6 +2,8 @@
 
 #include "DummyCassetteDevice.hh"
 
+using std::string;
+
 namespace openmsx {
 
 DummyCassetteDevice::DummyCassetteDevice()

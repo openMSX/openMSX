@@ -6,8 +6,6 @@
 #include <memory>
 #include "Rom8kBBlocks.hh"
 
-using std::auto_ptr;
-
 namespace openmsx {
 
 class SCC;
@@ -15,7 +13,8 @@ class SCC;
 class RomKonami5 : public Rom8kBBlocks
 {
 public:
-	RomKonami5(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom);
+	RomKonami5(const XMLElement& config, const EmuTime& time,
+	           std::auto_ptr<Rom> rom);
 	virtual ~RomKonami5();
 	
 	virtual void reset(const EmuTime& time);
@@ -25,7 +24,7 @@ public:
 	virtual byte* getWriteCacheLine(word address) const;
 
 private:
-	auto_ptr<SCC> scc;
+	std::auto_ptr<SCC> scc;
 	bool sccEnabled;
 };
 

@@ -3,6 +3,9 @@
 #include "MSXConfig.hh"
 #include "FileContext.hh"
 
+using std::auto_ptr;
+using std::string;
+
 namespace openmsx {
 
 MSXConfig::MSXConfig(const string& name)

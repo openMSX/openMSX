@@ -6,12 +6,16 @@
 #include "xmlx.hh"
 #include "CliCommOutput.hh"
 #include "CommandController.hh"
+#include "CommandException.hh"
 #include "EventDistributor.hh"
 #include "LedEvent.hh"
 
 using std::cout;
 using std::endl;
 using std::map;
+using std::set;
+using std::string;
+using std::vector;
 
 namespace openmsx {
 

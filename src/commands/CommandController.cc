@@ -12,6 +12,12 @@
 #include "Interpreter.hh"
 #include "InfoCommand.hh"
 #include "ReadDir.hh"
+#include "CommandException.hh"
+#include "FileException.hh"
+
+using std::set;
+using std::string;
+using std::vector;
 
 namespace openmsx {
 

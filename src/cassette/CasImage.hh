@@ -5,12 +5,8 @@
 
 #include <vector>
 #include <string>
-#include "FileException.hh"
 #include "CassetteImage.hh"
 #include "openmsx.hh"
-
-using std::vector;
-using std::string;
 
 namespace openmsx {
 
@@ -20,7 +16,7 @@ namespace openmsx {
 class CasImage : public CassetteImage
 {
 public:
-	CasImage(const string& fileName);
+	CasImage(const std::string& fileName);
 	virtual ~CasImage();
 
 	virtual short getSampleAt(const EmuTime& time);
@@ -36,7 +32,7 @@ private:
 	unsigned pos, size;
 	byte* buf;
 	int baudRate;
-	vector<char> output;
+	std::vector<char> output;
 };
 
 } // namespace openmsx

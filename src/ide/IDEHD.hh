@@ -6,8 +6,6 @@
 #include <memory>
 #include "IDEDevice.hh"
 
-using std::auto_ptr;
-
 namespace openmsx {
 
 class XMLElement;
@@ -44,7 +42,7 @@ private:
 	byte statusReg;
 	byte featureReg;
 
-	auto_ptr<File> file;
+	std::auto_ptr<File> file;
 	int totalSectors;
 	
 	byte* buffer;

@@ -6,8 +6,6 @@
 #include <memory>
 #include "PrinterPortDevice.hh"
 
-using std::auto_ptr;
-
 namespace openmsx {
 
 class DACSound8U;
@@ -24,13 +22,13 @@ public:
 	virtual void writeData(byte data, const EmuTime& time);
 
 	// Pluggable
-	virtual const string& getName() const;
-	virtual const string& getDescription() const;
+	virtual const std::string& getName() const;
+	virtual const std::string& getDescription() const;
 	virtual void plugHelper(Connector* connector, const EmuTime& time);
 	virtual void unplugHelper(const EmuTime& time);
 
 private:
-	auto_ptr<DACSound8U> dac;
+	std::auto_ptr<DACSound8U> dac;
 };
 
 } // namespace openmsx

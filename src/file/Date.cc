@@ -8,6 +8,7 @@
 using std::ostringstream;
 using std::setfill;
 using std::setw;
+using std::string;
 
 namespace openmsx {
 

@@ -2,6 +2,8 @@
 
 #include "DummyJoystick.hh"
 
+using std::string;
+
 namespace openmsx {
 
 DummyJoystick::DummyJoystick()

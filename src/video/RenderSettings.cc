@@ -1,14 +1,11 @@
 // $Id$
 
 #include "RenderSettings.hh"
-#include "SettingsConfig.hh"
-#include "CliCommOutput.hh"
 #include "IntegerSetting.hh"
 #include "FloatSetting.hh"
 #include "BooleanSetting.hh"
 #include "Display.hh"
 #include "VideoSystem.hh"
-#include "VDP.hh"
 #include "Event.hh"
 #include "EventDistributor.hh"
 

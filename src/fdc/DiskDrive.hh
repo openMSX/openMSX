@@ -8,9 +8,6 @@
 #include "EmuTime.hh"
 #include "Command.hh"
 
-using std::auto_ptr;
-using std::bitset;
-
 namespace openmsx {
 
 class Disk;
@@ -175,7 +172,7 @@ protected:
 	static const int ROTATIONS_PER_SECOND = 5;
 	static const int INDEX_DURATION = TICKS_PER_ROTATION / 50;
 
-	auto_ptr<Disk> disk;
+	std::auto_ptr<Disk> disk;
 	int headPos;
 	bool motorStatus;
 	Clock<TICKS_PER_ROTATION * ROTATIONS_PER_SECOND> motorTimer;
@@ -184,17 +181,17 @@ protected:
 
 private:
 	// Command interface
-	virtual string execute(const vector<string>& tokens);
-	virtual string help   (const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
-	void insertDisk(const string& disk);
+	virtual std::string execute(const std::vector<std::string>& tokens);
+	virtual std::string help   (const std::vector<std::string>& tokens) const;
+	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+	void insertDisk(const std::string& disk);
 	void ejectDisk();
 
-	string name;
+	std::string name;
 	bool diskChangedFlag;
 	XMLElement* diskElem;
 
-	static bitset<MAX_DRIVES> drivesInUse;
+	static std::bitset<MAX_DRIVES> drivesInUse;
 };
 
 

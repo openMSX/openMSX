@@ -1,10 +1,9 @@
 // $Id$
 
-#include "openmsx.hh"
 #include "V9990DummyRenderer.hh"
 
 namespace openmsx {
-	
+
 void V9990DummyRenderer::reset(const EmuTime& /* time */)
 {
 }

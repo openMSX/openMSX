@@ -1,8 +1,6 @@
 // $Id$
 
 #include "FilenameSetting.hh"
-#include "FileContext.hh"
-#include "CliCommOutput.hh"
 #include "CommandController.hh"
 
 namespace openmsx {

@@ -5,7 +5,7 @@
 
 #include <fstream>
 #include <cstdio>
-#include <list>
+#include <deque>
 #include "openmsx.hh"
 #include "RS232Device.hh"
 #include "Thread.hh"
@@ -13,9 +13,6 @@
 #include "Semaphore.hh"
 #include "StringSetting.hh"
 #include "FilenameSetting.hh"
-
-using std::list;
-using std::ofstream;
 
 namespace openmsx {
 
@@ -28,8 +25,8 @@ public:
 	// Pluggable
 	virtual void plugHelper(Connector* connector, const EmuTime& time);
 	virtual void unplugHelper(const EmuTime& time);
-	virtual const string& getName() const;
-	virtual const string& getDescription() const;
+	virtual const std::string& getName() const;
+	virtual const std::string& getDescription() const;
 
 	// input
 	virtual void signal(const EmuTime& time);
@@ -43,14 +40,14 @@ private:
 
 	// Schedulable
 	virtual void executeUntil(const EmuTime& time, int userData);
-	virtual const string& schedName() const;
+	virtual const std::string& schedName() const;
 
 	Thread thread;
 	FILE* inFile;
-	list<byte> queue;
+	std::deque<byte> queue;
 	Semaphore lock; // to protect queue
 
-	ofstream outFile;
+	std::ofstream outFile;
 
 	FilenameSetting rs232InputFilenameSetting;
 	StringSetting rs232OutputFilenameSetting;

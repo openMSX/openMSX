@@ -3,6 +3,8 @@
 #include "XSADiskImage.hh"
 #include "File.hh"
 
+using std::string;
+
 namespace openmsx {
 
 const int XSADiskImage::cpdext[TBLSIZE] = {

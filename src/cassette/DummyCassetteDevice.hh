@@ -17,7 +17,7 @@ public:
 	virtual void writeWave(short *buf, int length);
 	virtual int getWriteSampleRate();
 
-	virtual const string& getDescription() const;
+	virtual const std::string& getDescription() const;
 	virtual void plugHelper(Connector* connector, const EmuTime& time);
 	virtual void unplugHelper(const EmuTime& time);
 };

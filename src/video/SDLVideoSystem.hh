@@ -8,7 +8,6 @@
 
 struct SDL_Surface;
 
-
 namespace openmsx {
 
 class VDP;
@@ -28,7 +27,7 @@ public:
 	virtual bool checkSettings();
 	virtual bool prepare();
 	virtual void flush();
-	virtual void takeScreenShot(const string& filename);
+	virtual void takeScreenShot(const std::string& filename);
 
 private:
 	RendererFactory::RendererID id;

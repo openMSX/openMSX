@@ -5,11 +5,14 @@
 #include "PrinterPortDevice.hh"
 #include "PluggingController.hh"
 
+using std::string;
+
 namespace openmsx {
 
 MSXPrinterPort::MSXPrinterPort(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time)
-	, Connector("printerport", auto_ptr<Pluggable>(new DummyPrinterPortDevice()))
+	, Connector("printerport", std::auto_ptr<Pluggable>(
+	                                       new DummyPrinterPortDevice()))
 {
 	data = 255;	// != 0;
 	strobe = false;	// != true;

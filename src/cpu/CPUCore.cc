@@ -15,6 +15,8 @@
 #include "Z80.hh"
 #include "R800.hh"
 
+using std::string;
+
 namespace openmsx {
 
 template <class T> CPUCore<T>::CPUCore(
@@ -174,7 +176,7 @@ template <class T> void CPUCore<T>::doBreak2()
 	scheduler.setCurrentTime(T::clock.getTime());
 
 	std::ostringstream os;
-	os << "0x" << hex << (int)R.PC.w;
+	os << "0x" << std::hex << (int)R.PC.w;
 	CliCommOutput::instance().update(CliCommOutput::BREAK, "pc", os.str());
 	Event* breakEvent = new SimpleEvent<BREAK_EVENT>();
 	EventDistributor::instance().distributeEvent(breakEvent);
@@ -416,7 +418,7 @@ template <class T> inline void CPUCore<T>::cpuTracePost()
 	if (traceSetting.getValue()) {
 		string dasmOutput;
 		dasm(&debugmemory[start_pc], start_pc, dasmOutput);
-		cout << std::setfill('0') << hex << std::setw(4) << start_pc
+		std::cout << std::setfill('0') << std::hex << std::setw(4) << start_pc
 		     << " : " << dasmOutput
 		     << " AF=" << std::setw(4) << R.AF.w
 		     << " BC=" << std::setw(4) << R.BC.w
@@ -425,7 +427,7 @@ template <class T> inline void CPUCore<T>::cpuTracePost()
 		     << " IX=" << std::setw(4) << R.IX.w
 		     << " IY=" << std::setw(4) << R.IY.w
 		     << " SP=" << std::setw(4) << R.SP.w
-		     << endl << dec;
+		     << std::endl << std::dec;
 	}
 }
 

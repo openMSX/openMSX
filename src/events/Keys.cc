@@ -2,6 +2,7 @@
 
 #include "Keys.hh"
 
+using std::string;
 
 namespace openmsx {
 

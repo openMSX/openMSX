@@ -6,10 +6,6 @@
 #include <string>
 #include <memory>
 #include "MSXDevice.hh"
-#include "Rom.hh"
-
-using std::string;
-using std::auto_ptr;
 
 namespace openmsx {
 
@@ -22,12 +18,13 @@ public:
 
 	virtual void writeMem(word address, byte value, const EmuTime& time);
 	virtual byte* getWriteCacheLine(word address) const;
-	virtual const string& getName() const;
+	virtual const std::string& getName() const;
 
 protected:
-	MSXRom(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom);
+	MSXRom(const XMLElement& config, const EmuTime& time,
+	       std::auto_ptr<Rom> rom);
 
-	const auto_ptr<Rom> rom;
+	const std::auto_ptr<Rom> rom;
 	static class MSXCPU* cpu;
 
 private:

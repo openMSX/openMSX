@@ -2,6 +2,7 @@
 
 #include "SDLImage.hh"
 #include "File.hh"
+#include "FileException.hh"
 #include "CliCommOutput.hh"
 #include <SDL_image.h>
 #include <SDL.h>

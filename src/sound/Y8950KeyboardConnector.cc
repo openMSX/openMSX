@@ -3,11 +3,13 @@
 #include "Y8950KeyboardConnector.hh"
 #include "PluggingController.hh"
 
+using std::string;
+
 namespace openmsx {
 
 Y8950KeyboardConnector::Y8950KeyboardConnector()
 	: Connector("audiokeyboardport",
-	            auto_ptr<Pluggable>(new DummyY8950KeyboardDevice()))
+	            std::auto_ptr<Pluggable>(new DummyY8950KeyboardDevice()))
 	, data(255)
 {
 	PluggingController::instance().registerConnector(this);

@@ -12,12 +12,9 @@
 #include "Debuggable.hh"
 #include "V9990.hh"
 
-using std::string;
-
 namespace openmsx {
 
 class EmuTime;
-class V9990;
 
 class V9990VRAM : private Debuggable
 {
@@ -51,17 +48,17 @@ public:
 private:
 	// Debuggable:
 	virtual unsigned getSize() const;
-	virtual const string& getDescription() const;
+	virtual const std::string& getDescription() const;
 	virtual byte read(unsigned address);
 	virtual void write(unsigned address, byte value);
 
 	/** V9990 VDP this VRAM belongs to
 	  */
-	V9990 *vdp;
+	V9990* vdp;
 	
 	/** Pointer V9990 VRAM data.
 	  */
-	byte *data;
+	byte* data;
 
 	/** Display mode
 	  */

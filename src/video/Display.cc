@@ -10,6 +10,8 @@
 #include <algorithm>
 #include <cassert>
 
+using std::string;
+using std::vector;
 
 namespace openmsx {
 
@@ -40,9 +42,9 @@ void Layer::setZ(ZIndex z)
 
 // Display:
 
-auto_ptr<Display> Display::INSTANCE;
+std::auto_ptr<Display> Display::INSTANCE;
 
-Display::Display(auto_ptr<VideoSystem> videoSystem)
+Display::Display(std::auto_ptr<VideoSystem> videoSystem)
 	: screenShotCmd(*this)
 {
 	this->videoSystem = videoSystem;
@@ -60,24 +62,24 @@ Display::~Display()
 	EventDistributor::instance().unregisterEventListener(
 		FINISH_FRAME_EVENT, *this, EventDistributor::NATIVE );
 	// Prevent callbacks first...
-	for (vector<Layer*>::iterator it = layers.begin();
+	for (Layers::iterator it = layers.begin();
 		it != layers.end(); ++it
 	) {
 		(*it)->display = NULL;
 	}
 	// ...then destruct layers.
-	for (vector<Layer*>::iterator it = layers.begin();
+	for (Layers::iterator it = layers.begin();
 		it != layers.end(); ++it
 	) {
 		delete *it;
 	}
 }
 
-vector<Layer*>::iterator Display::baseLayer()
+Display::Layers::iterator Display::baseLayer()
 {
 	// Note: It is possible to cache this, but since the number of layers is
 	//       low at the moment, it's not really worth it.
-	vector<Layer*>::iterator it = layers.end();
+	Layers::iterator it = layers.end();
 	while (true) {
 		if (it == layers.begin()) {
 			// There should always be at least one opaque layer.
@@ -107,7 +109,7 @@ void Display::repaint()
 	//       it is unknown whether a failure is transient or permanent.
 	if (!videoSystem->prepare()) return;
 	
-	vector<Layer*>::iterator it = baseLayer();
+	Layers::iterator it = baseLayer();
 	for (; it != layers.end(); ++it) {
 		if ((*it)->coverage != Layer::COVER_NONE) {
 			// Paint this layer.
@@ -122,7 +124,7 @@ void Display::repaint()
 void Display::addLayer(Layer* layer)
 {
 	const int z = layer->z;
-	vector<Layer*>::iterator it;
+	Layers::iterator it;
 	for (it = layers.begin(); it != layers.end() && (*it)->z < z; ++it);
 	layers.insert(it, layer);
 	layer->display = this;

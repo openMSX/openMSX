@@ -8,6 +8,7 @@
 #include "xmlx.hh"
 
 using std::remove;
+using std::string;
 
 namespace openmsx {
 
@@ -17,7 +18,8 @@ const XMLElement& MSXMultiIODevice::getMultiConfig()
 	static bool init = false;
 	if (!init) {
 		init = true;
-		deviceElem.setFileContext(auto_ptr<FileContext>(new SystemFileContext()));
+		deviceElem.setFileContext(std::auto_ptr<FileContext>(
+		                                 new SystemFileContext()));
 	}
 	return deviceElem;
 }
@@ -58,7 +60,7 @@ void MSXMultiIODevice::preCalcName()
 	// so we do need to store the name. So we can as well precalculate it
 	name.clear();
 	bool first = true;
-	for (vector<MSXDevice*>::const_iterator it = devices.begin();
+	for (Devices::const_iterator it = devices.begin();
 	     it != devices.end(); ++it) {
 		if (!first) {
 			name += "  ";
@@ -73,7 +75,7 @@ void MSXMultiIODevice::preCalcName()
 
 void MSXMultiIODevice::reset(const EmuTime& time)
 {
-	for (vector<MSXDevice*>::iterator it = devices.begin();
+	for (Devices::iterator it = devices.begin();
 	     it != devices.end(); ++it) {
 		(*it)->reset(time);
 	}
@@ -81,7 +83,7 @@ void MSXMultiIODevice::reset(const EmuTime& time)
 
 void MSXMultiIODevice::reInit(const EmuTime& time)
 {
-	for (vector<MSXDevice*>::iterator it = devices.begin();
+	for (Devices::iterator it = devices.begin();
 	     it != devices.end(); ++it) {
 		(*it)->reInit(time);
 	}
@@ -97,7 +99,7 @@ byte MSXMultiIODevice::readIO(byte port, const EmuTime& time)
 	// conflict: return the result from the first device, call readIO()
 	//           also on all other devices, but discard result
 	assert(!devices.empty());
-	vector<MSXDevice*>::iterator it = devices.begin();
+	Devices::iterator it = devices.begin();
 	byte result = (*it)->readIO(port, time);
 	for (++it; it != devices.end(); ++it) {
 		(*it)->readIO(port, time);
@@ -114,7 +116,7 @@ byte MSXMultiIODevice::peekIO(byte port, const EmuTime& time) const
 
 void MSXMultiIODevice::writeIO(byte port, byte value, const EmuTime& time)
 {
-	for (vector<MSXDevice*>::iterator it = devices.begin();
+	for (Devices::iterator it = devices.begin();
 	     it != devices.end(); ++it) {
 		(*it)->writeIO(port, value, time);
 	}

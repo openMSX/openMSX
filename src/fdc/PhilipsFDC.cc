@@ -2,7 +2,6 @@
 
 #include "PhilipsFDC.hh"
 #include "CPU.hh"
-#include "WD2793.hh"
 #include "DriveMultiplexer.hh"
 #include "xmlx.hh"
 

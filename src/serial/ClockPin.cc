@@ -4,6 +4,7 @@
 #include "ClockPin.hh"
 #include "Scheduler.hh"
 
+using std::string;
 
 namespace openmsx {
 

@@ -13,7 +13,7 @@ public:
 	// V9990Rasterizer interface
 	virtual void paint();
 	virtual ~V9990DummyRasterizer();
-	virtual const string& getName();
+	virtual const std::string& getName();
 	virtual void reset();
 	virtual void frameStart(const V9990DisplayPeriod *horTiming,
                             const V9990DisplayPeriod *verTiming);

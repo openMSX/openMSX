@@ -26,6 +26,8 @@
 #include "Debugger.hh"
 #include "Scheduler.hh"
 
+using std::string;
+
 namespace openmsx {
 
 const double PI = 3.14159265358979323846;

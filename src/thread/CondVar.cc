@@ -3,7 +3,6 @@
 #include <SDL.h>
 #include "CondVar.hh"
 
-
 namespace openmsx {
 
 CondVar::CondVar()

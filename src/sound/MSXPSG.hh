@@ -7,8 +7,6 @@
 #include "MSXDevice.hh"
 #include "AY8910.hh"
 
-using std::auto_ptr;
-
 namespace openmsx {
 
 class CassettePortInterface;
@@ -28,7 +26,7 @@ public:
 
 private:
 	int registerLatch;
-	auto_ptr<AY8910> ay8910;
+	std::auto_ptr<AY8910> ay8910;
 
 // AY8910Interface
 public:
@@ -46,7 +44,7 @@ private:
 // joystick ports
 private:
 	int selectedPort;
-	auto_ptr<JoystickPort> ports[2];
+	std::auto_ptr<JoystickPort> ports[2];
 };
 
 } // namespace openmsx

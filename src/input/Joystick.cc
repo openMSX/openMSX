@@ -7,6 +7,8 @@
 #include "EventDistributor.hh"
 #include "InputEvents.hh"
 
+using std::string;
+
 namespace openmsx {
 
 void Joystick::registerAll(PluggingController *controller)

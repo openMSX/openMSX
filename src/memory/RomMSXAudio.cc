@@ -7,7 +7,8 @@
 
 namespace openmsx {
 
-RomMSXAudio::RomMSXAudio(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom)
+RomMSXAudio::RomMSXAudio(const XMLElement& config, const EmuTime& time,
+                         std::auto_ptr<Rom> rom)
 	: MSXRom(config, time, rom)
 	, ram(getName() + " RAM", "MSX-AUDIO mapped RAM", 0x1000)
 {

@@ -6,9 +6,6 @@
 #include <string>
 #include "Mixer.hh"
 
-using std::string;
-
-
 namespace openmsx {
 
 class XMLElement;
@@ -20,13 +17,13 @@ public:
 	 * Get the unique name that identifies this sound device.
 	 * Used to create setting names.
 	 */
-	virtual const string& getName() const = 0;
+	virtual const std::string& getName() const = 0;
 
 	/**
 	 * Gets a description of this sound device,
 	 * to be presented to the user.
 	 */
-	virtual const string& getDescription() const = 0;
+	virtual const std::string& getDescription() const = 0;
 	
 	/**
 	 * Set the relative volume for this sound device.

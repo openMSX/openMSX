@@ -19,6 +19,9 @@
 #include "InputEventGenerator.hh"
 #include "GlobalSettings.hh"
 
+using std::string;
+using std::vector;
+
 namespace openmsx {
 
 MSXMotherBoard::MSXMotherBoard()
@@ -64,7 +67,7 @@ MSXMotherBoard::~MSXMotherBoard()
 	availableDevices.clear();
 }
 
-void MSXMotherBoard::addDevice(auto_ptr<MSXDevice> device)
+void MSXMotherBoard::addDevice(std::auto_ptr<MSXDevice> device)
 {
 	availableDevices.push_back(device.release());
 }

@@ -3,13 +3,14 @@
 #include <cassert>
 #include <sstream>
 #include "MSXCPU.hh"
-#include "MSXCPUInterface.hh"
 #include "CPU.hh"
 #include "InfoCommand.hh"
 #include "Debugger.hh"
 #include "CommandArgument.hh"
 
 using std::ostringstream;
+using std::string;
+using std::vector;
 
 namespace openmsx {
 
@@ -280,7 +281,7 @@ string MSXCPU::listBreakPoints() const
 	ostringstream os;
 	for (CPU::BreakPoints::const_iterator it = breakPoints.begin();
 	     it != breakPoints.end(); ++it) {
-		os << hex << *it << '\n';
+		os << std::hex << *it << '\n';
 	}
 	return os.str();
 }

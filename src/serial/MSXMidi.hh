@@ -6,13 +6,13 @@
 #include "MSXDevice.hh"
 #include "I8251.hh"
 #include "I8254.hh"
-#include "ClockPin.hh"
 #include "IRQHelper.hh"
 #include "MidiInConnector.hh"
 #include "MidiOutConnector.hh"
-#include "SerialDataInterface.hh"
 
 namespace openmsx {
+
+class ClockPin;
 
 class MSXMidi: public MSXDevice, public MidiInConnector
 {

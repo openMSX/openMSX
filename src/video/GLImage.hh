@@ -6,8 +6,6 @@
 #include <string>
 #include "GLUtil.hh"
 
-using std::string;
-
 class SDL_Surface;
 
 namespace openmsx {
@@ -15,7 +13,7 @@ namespace openmsx {
 class GLImage
 {
 public:
-	GLImage(SDL_Surface* output, const string& filename);
+	GLImage(SDL_Surface* output, const std::string& filename);
 	~GLImage();
 	
 	void draw(unsigned x, unsigned y, unsigned char alpha = 255);
@@ -27,8 +25,9 @@ private:
 	GLfloat texCoord[4];
 	
 public:
-	static GLuint loadTexture(const string& filename,
-		unsigned& width, unsigned& height, GLfloat* texCoord);
+	static GLuint loadTexture(const std::string& filename,
+	                          unsigned& width, unsigned& height,
+	                          GLfloat* texCoord);
 };
 
 } // namespace openmsx

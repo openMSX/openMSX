@@ -26,6 +26,8 @@ A million repetitions of "a"
 #include "build-info.hh"
 #include "sha1.hh"
 
+using std::string;
+
 namespace openmsx {
 
 // Rotate x bits to the left

@@ -4,20 +4,18 @@
 #define __PIXELRENDERER_HH__
 
 #include "Renderer.hh"
-#include "VDPVRAM.hh"
 #include "CircularBuffer.hh"
 #include "SettingListener.hh"
 #include "RenderSettings.hh"
 #include "DisplayMode.hh"
 #include "openmsx.hh"
 
-
 namespace openmsx {
 
 class Rasterizer;
 class VDP;
 class SpriteChecker;
-
+class VDPVRAM;
 
 /** Generic implementation of a pixel-based Renderer.
   * Uses a Rasterizer to plot actual pixels for a specific video system.

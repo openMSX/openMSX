@@ -4,7 +4,10 @@
 #include "xmlx.hh"
 #include "File.hh"
 #include "FileContext.hh"
+#include "FileException.hh"
 #include "CliCommOutput.hh"
+
+using std::string;
 
 namespace openmsx {
 

@@ -11,10 +11,6 @@
 #include "Schedulable.hh"
 #include "FloatSetting.hh"
 
-using std::multimap;
-using std::vector;
-using std::deque;
-
 namespace openmsx {
 
 class EventListener;
@@ -71,9 +67,9 @@ private:
 
 	// Schedulable
 	virtual void executeUntil(const EmuTime& time, int userData);
-	virtual const string& schedName() const;
+	virtual const std::string& schedName() const;
 
-	typedef multimap<EventType, EventListener*> ListenerMap;
+	typedef std::multimap<EventType, EventListener*> ListenerMap;
 	ListenerMap nativeListeners;
 	ListenerMap detachedListeners;
 	ListenerMap emuListeners;
@@ -85,8 +81,8 @@ private:
 		Event* event;
 		unsigned long long time;
 	};
-	vector<EventTime> toBeScheduledEvents;
-	deque<Event*> scheduledEvents;
+	std::vector<EventTime> toBeScheduledEvents;
+	std::deque<Event*> scheduledEvents;
 
 	EmuTime prevEmu;
 	unsigned long long prevReal;

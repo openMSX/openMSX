@@ -1,8 +1,10 @@
 // $Id$
 
+#include "MSXException.hh"
 #include "WavImage.hh"
 #include "File.hh"
 
+using std::string;
 
 namespace openmsx {
 

@@ -2,6 +2,7 @@
 
 #include "DACSound8U.hh"
 
+using std::string;
 
 namespace openmsx {
 

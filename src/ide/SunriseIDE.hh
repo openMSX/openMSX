@@ -7,8 +7,6 @@
 #include "MSXDevice.hh"
 #include "Rom.hh"
 
-using std::auto_ptr;
-
 namespace openmsx {
 
 class IDEDevice;
@@ -44,7 +42,7 @@ private:
 	byte readLatch;
 	byte writeLatch;
 	byte selectedDevice;
-	auto_ptr<IDEDevice> device[2];
+	std::auto_ptr<IDEDevice> device[2];
 };
 
 } // namespace openmsx

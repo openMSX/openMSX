@@ -7,8 +7,6 @@
 #include <bitset>
 #include "VRAMObserver.hh"
 
-using std::bitset;
-
 namespace openmsx {
 
 /** Helper class for renderer caches: keeps a record of which VRAM bytes
@@ -47,7 +45,7 @@ private:
 	/** For every unit this array stores its cache state:
 	  * valid (true) or dirty (false).
 	  */
-	bitset<size> validFlags;
+	std::bitset<size> validFlags;
 };
 
 

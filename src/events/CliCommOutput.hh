@@ -8,9 +8,6 @@
 #include "Command.hh"
 #include "EventListener.hh"
 
-using std::map;
-using std::string;
-
 namespace openmsx {
 
 class CommandController;
@@ -40,15 +37,15 @@ public:
 	static CliCommOutput& instance();
 	void enableXMLOutput();
 	
-	void log(LogLevel level, const string& message);
-	void reply(ReplyStatus status, const string& message);
-	void update(UpdateType type, const string& name, const string& value);
+	void log(LogLevel level, const std::string& message);
+	void reply(ReplyStatus status, const std::string& message);
+	void update(UpdateType type, const std::string& name, const std::string& value);
 
 	// convient methods
-	void printInfo(const string& message) {
+	void printInfo(const std::string& message) {
 		log(INFO, message);
 	}
-	void printWarning(const string& message) {
+	void printWarning(const std::string& message) {
 		log(WARNING, message);
 	}
 
@@ -59,9 +56,9 @@ private:
 	class UpdateCmd : public SimpleCommand {
 	public:
 		UpdateCmd(CliCommOutput& parent);
-		virtual string execute(const vector<string>& tokens);
-		virtual string help(const vector<string>& tokens) const;
-		virtual void tabCompletion(vector<string>& tokens) const;
+		virtual std::string execute(const std::vector<std::string>& tokens);
+		virtual std::string help(const std::vector<std::string>& tokens) const;
+		virtual void tabCompletion(std::vector<std::string>& tokens) const;
 	private:
 		CliCommOutput& parent;
 	} updateCmd;
@@ -71,7 +68,7 @@ private:
 
 	bool xmlOutput;
 	bool updateEnabled[NUM_UPDATES];
-	map<string, string> prevValues[NUM_UPDATES];
+	std::map<std::string, std::string> prevValues[NUM_UPDATES];
 	CommandController& commandController;
 };
 

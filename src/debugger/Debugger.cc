@@ -8,7 +8,11 @@
 #include "MSXCPU.hh"
 #include "CommandArgument.hh"
 
+using std::map;
 using std::ostringstream;
+using std::set;
+using std::string;
+using std::vector;
 
 namespace openmsx {
 

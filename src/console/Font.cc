@@ -2,7 +2,6 @@
 
 #include "Font.hh"
 
-
 namespace openmsx {
 
 Font::~Font()

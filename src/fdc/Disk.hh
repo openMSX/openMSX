@@ -6,27 +6,26 @@
 #include "MSXException.hh"
 #include "openmsx.hh"
 
-
 namespace openmsx {
 
 class NoSuchSectorException : public MSXException {
 	public:
-		NoSuchSectorException(const string &desc)
+		NoSuchSectorException(const std::string &desc)
 			: MSXException(desc) {}
 };
 class DiskIOErrorException  : public MSXException {
 	public:
-		DiskIOErrorException(const string &desc)
+		DiskIOErrorException(const std::string &desc)
 			: MSXException(desc) {}
 };
 class DriveEmptyException  : public MSXException {
 	public:
-		DriveEmptyException(const string &desc)
+		DriveEmptyException(const std::string &desc)
 			: MSXException(desc) {}
 };
 class WriteProtectedException  : public MSXException {
 	public:
-		WriteProtectedException(const string &desc)
+		WriteProtectedException(const std::string &desc)
 			: MSXException(desc) {}
 };
 

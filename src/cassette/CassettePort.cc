@@ -1,6 +1,6 @@
 // $Id$
 
-#include <memory> // for auto_ptr
+#include <memory>
 #include "CassettePort.hh"
 #include "CassetteDevice.hh"
 #include "CassettePlayer.hh"
@@ -9,6 +9,7 @@
 #include "HardwareConfig.hh"
 
 using std::auto_ptr;
+using std::string;
 
 namespace openmsx {
 

@@ -6,9 +6,9 @@
 #include "xmlx.hh"
 #include "Rom.hh"
 #include "RomInfo.hh"
-#include "MSXCPUInterface.hh"
 #include "File.hh"
 #include "FileContext.hh"
+#include "FileException.hh"
 #include "PanasonicMemory.hh"
 #include "StringOp.hh"
 #include "Debugger.hh"
@@ -16,6 +16,8 @@
 #include "CliCommOutput.hh"
 #include "FilePool.hh"
 #include "ConfigException.hh"
+
+using std::string;
 
 namespace openmsx {
 

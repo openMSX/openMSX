@@ -5,9 +5,6 @@
 
 #include <string>
 #include "openmsx.hh"
-#include "File.hh"
-
-using std::string;
 
 namespace openmsx {
 
@@ -30,8 +27,8 @@ public:
 	virtual unsigned getPos() = 0;
 	virtual void truncate(unsigned size);
 	
-	virtual const string getURL() const = 0;
-	virtual const string getLocalName() = 0;
+	virtual const std::string getURL() const = 0;
+	virtual const std::string getLocalName() = 0;
 	virtual bool isReadOnly() const = 0;
 	virtual time_t getModificationDate() = 0;
 

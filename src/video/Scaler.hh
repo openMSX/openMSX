@@ -8,9 +8,6 @@
 #include <cassert>
 #include <memory>
 
-using std::auto_ptr;
-
-
 namespace openmsx {
 
 /** Enumeration of Scalers known to openMSX.
@@ -40,7 +37,7 @@ public:
 	  * @param format Pixel format of the surfaces the scaler will be used on.
 	  * @return A Scaler object, owned by the caller.
 	  */
-	static auto_ptr<Scaler> createScaler(ScalerID id, SDL_PixelFormat* format);
+	static std::auto_ptr<Scaler> createScaler(ScalerID id, SDL_PixelFormat* format);
 
 	/** Fills the given area, which contains only a single colour.
 	  * @param colour Colour the area should be filled with.

@@ -11,7 +11,7 @@ namespace openmsx {
 class DSKDiskImage : public SectorBasedDisk
 {
 public: 
-	DSKDiskImage(const string& fileName);
+	DSKDiskImage(const std::string& fileName);
 	virtual ~DSKDiskImage();
 
 	virtual void read(byte track, byte sector,

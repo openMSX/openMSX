@@ -1,7 +1,6 @@
 // $Id$
 
 #include "SDLGLVideoSystem.hh"
-#include "PixelRenderer.hh"
 #include "GLRasterizer.hh"
 #include "V9990GLRasterizer.hh"
 #include "GLSnow.hh"
@@ -11,13 +10,11 @@
 #include "RenderSettings.hh"
 #include "SDLUtil.hh"
 #include "CommandConsole.hh"
-#include "InitException.hh"
-#include "BooleanSetting.hh"
 #include "ScreenShotSaver.hh"
-#include "V9990DummyRasterizer.hh"
 #include "IconLayer.hh"
 #include <SDL.h>
 
+using std::string;
 
 namespace openmsx {
 
@@ -36,7 +33,7 @@ SDLGLVideoSystem::SDLGLVideoSystem()
 	screen = openSDLVideo(WIDTH, HEIGHT,
 		SDL_OPENGL | SDL_HWSURFACE | SDL_DOUBLEBUF );
 
-	Display* display = new Display(auto_ptr<VideoSystem>(this));
+	Display* display = new Display(std::auto_ptr<VideoSystem>(this));
 	Display::INSTANCE.reset(display);
 	new GLSnow();
 	new GLConsole(CommandConsole::instance());

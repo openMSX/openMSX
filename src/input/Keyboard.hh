@@ -5,14 +5,13 @@
 
 #include <string>
 #include "openmsx.hh"
-#include "EmuTime.hh"
 #include "EventListener.hh"
 #include "Command.hh"
 #include "Schedulable.hh"
 
-using std::string;
-
 namespace openmsx {
+
+class EmuTime;
 
 class Keyboard : public EventListener
 {
@@ -39,16 +38,16 @@ private:
 	void allUp();
 	void doKeyGhosting();
 	void parseKeymapfile(const byte* buf, unsigned size);
-	void loadKeymapfile(const string& filename);
-	string processCmd(const vector<string>& tokens, bool up);
+	void loadKeymapfile(const std::string& filename);
+	std::string processCmd(const std::vector<std::string>& tokens, bool up);
 	void pressAscii(char asciiCode, bool down);
 	bool commonKeys(char asciiCode1, char asciiCode2);
 
 	class KeyMatrixUpCmd : public SimpleCommand {
 	public:
 		KeyMatrixUpCmd(Keyboard& parent);
-		virtual string execute(const vector<string>& tokens);
-		virtual string help(const vector<string>& tokens) const;
+		virtual std::string execute(const std::vector<std::string>& tokens);
+		virtual std::string help(const std::vector<std::string>& tokens) const;
 	private:
 		Keyboard& parent;
 	} keyMatrixUpCmd;
@@ -56,8 +55,8 @@ private:
 	class KeyMatrixDownCmd : public SimpleCommand {
 	public:
 		KeyMatrixDownCmd(Keyboard& parent);
-		virtual string execute(const vector<string>& tokens);
-		virtual string help(const vector<string>& tokens) const;
+		virtual std::string execute(const std::vector<std::string>& tokens);
+		virtual std::string help(const std::vector<std::string>& tokens) const;
 	private:
 		Keyboard& parent;
 	} keyMatrixDownCmd;
@@ -69,20 +68,20 @@ private:
 		virtual ~KeyInserter();
 
 	private:
-		void type(const string& str);
+		void type(const std::string& str);
 		void reschedule(const EmuTime& time);
 
 		// Command
-		virtual string execute(const vector<string>& tokens);
-		virtual string help(const vector<string>& tokens) const;
+		virtual std::string execute(const std::vector<std::string>& tokens);
+		virtual std::string help(const std::vector<std::string>& tokens) const;
 
 		// Schedulable
 		virtual void executeUntil(const EmuTime& time, int userData);
-		virtual const string& schedName() const;
+		virtual const std::string& schedName() const;
 
 		Keyboard& parent;
 		char last;
-		string text;
+		std::string text;
 	} keyTypeCmd;
 
 	byte cmdKeyMatrix[NR_KEYROWS];

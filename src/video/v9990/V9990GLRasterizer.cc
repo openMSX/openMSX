@@ -1,16 +1,12 @@
 // $Id$
 
 #include "V9990GLRasterizer.hh"
-#include "V9990.hh"
-#include "V9990VRAM.hh"
-#include "openmsx.hh"
 
-#include <cassert>
-#include <cmath>
+using std::string;
 
 namespace openmsx {
 
-V9990GLRasterizer::V9990GLRasterizer(V9990 *vdp_)
+V9990GLRasterizer::V9990GLRasterizer(V9990* vdp_)
 	: vdp(vdp_)
 {
 	PRT_DEBUG("V9990GLRasterizer::V9990GLRasterizer()");
@@ -52,25 +48,25 @@ void V9990GLRasterizer::frameEnd()
 
 void V9990GLRasterizer::setDisplayMode(V9990DisplayMode mode)
 {
-	PRT_DEBUG("V9990GLRasterizer::setDisplayMode(" << dec <<
+	PRT_DEBUG("V9990GLRasterizer::setDisplayMode(" << std::dec <<
 	          (int) mode << ")");
 }
 
 void V9990GLRasterizer::setColorMode(V9990ColorMode mode)
 {
-	PRT_DEBUG("V9990GLRasterizer::setColorMode(" << dec <<
+	PRT_DEBUG("V9990GLRasterizer::setColorMode(" << std::dec <<
 	          (int) mode << ")");
 }
 
 void V9990GLRasterizer::setPalette(int index, byte r, byte g, byte b)
 {
-	PRT_DEBUG("V9990GLRasterizer::setPalette(" << dec << index
+	PRT_DEBUG("V9990GLRasterizer::setPalette(" << std::dec << index
 	          << "," << (int) r << "," << (int) g << "," << (int) b << ")");
 }
 
 void V9990GLRasterizer::drawBorder(int fromX, int fromY, int toX, int toY)
 {
-	PRT_DEBUG("V9990GLRasterizer::drawBorder(" << dec <<
+	PRT_DEBUG("V9990GLRasterizer::drawBorder(" << std::dec <<
 	          fromX << "," << fromY << "," << toX << "," << toY << ")");
 }
 
@@ -80,7 +76,7 @@ void V9990GLRasterizer::drawDisplay(
 		int displayWidth, int displayHeight
 		)
 {
-	PRT_DEBUG("V9990GLRasterizer::drawDisplay(" << dec <<
+	PRT_DEBUG("V9990GLRasterizer::drawDisplay(" << std::dec <<
 	          fromX << "," << fromY << "," <<
 	          displayX << "," << displayY << "," <<
 	          displayWidth << "," << displayHeight << ")");
@@ -88,13 +84,13 @@ void V9990GLRasterizer::drawDisplay(
 
 void V9990GLRasterizer::setBackgroundColor(int index)
 {
-	PRT_DEBUG("V9990GLRasterizer::setBackgroundColor(" << dec <<
+	PRT_DEBUG("V9990GLRasterizer::setBackgroundColor(" << std::dec <<
 	          index << ")" );
 }
 
 void V9990GLRasterizer::setImageWidth(int width)
 {
-	PRT_DEBUG("V9990GLRasterizer::setImageWidth(" << dec << width << ")");
+	PRT_DEBUG("V9990GLRasterizer::setImageWidth(" << std::dec << width << ")");
 }
 } // namespace openmsx
 

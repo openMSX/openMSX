@@ -4,20 +4,25 @@
 #define __V9990_HH__
 
 #include <string>
-
 #include "openmsx.hh"
 #include "Schedulable.hh"
 #include "EventListener.hh"
 #include "MSXDevice.hh"
-#include "EmuTime.hh"
 #include "Debuggable.hh"
 #include "IRQHelper.hh"
 #include "Command.hh"
+#include "V9990DisplayTiming.hh"
+
+namespace openmsx {
+
+class V9990VRAM;
+class V9990CmdEngine;
+class V9990Renderer;
+class EmuTime;
 
 
 /** Some useful stuff
   */
-
 enum V9990DisplayMode {
 	INVALID_DISPLAY_MODE = -1,
 	P1, P2, B0, B1, B2, B3, B4, B5, B6, B7 };
@@ -25,27 +30,13 @@ enum V9990ColorMode {
 	INVALID_COLOR_MODE = -1, 
 	PP, BYUV, BYUVP, BYJK, BYJKP, BD16, BD8, BP6, BP4, BP2 };
 
-#include "V9990DisplayTiming.hh"
-#include "V9990VRAM.hh"
-#include "V9990CmdEngine.hh"
-#include "V9990Renderer.hh"
-
-using std::string;
-using std::auto_ptr;
-
-namespace openmsx {
-
-class V9990DisplayTiming;
-class V9990VRAM;
-class V9990CmdEngine;
-class V9990Renderer;
 
 /** Implementation of the Yamaha V9990 VDP as used in the GFX9000
   * cartridge by Sunrise.
   */
 class V9990 : public MSXDevice,
               private Schedulable,
-			  private EventListener
+              private EventListener
 {
 public:
 	/** Constructor
@@ -168,7 +159,7 @@ public:
 private:
 	// Schedulable interface:
 	virtual void executeUntil(const EmuTime& time, int userData);
-	virtual const string& schedName() const;
+	virtual const std::string& schedName() const;
 
 	// EventListener interface:
 	virtual bool signalEvent(const Event& event);
@@ -178,7 +169,7 @@ private:
 	public:
 		V9990RegDebug(V9990& parent);
 		virtual unsigned getSize() const;
-		virtual const string& getDescription() const;
+		virtual const std::string& getDescription() const;
 		virtual byte read(unsigned address);
 		virtual void write(unsigned address, byte value);
 	private:
@@ -189,8 +180,8 @@ private:
 	class V9990RegsCmd : public SimpleCommand {
 	public:
 		V9990RegsCmd(V9990& v9990);
-		virtual string execute(const vector<string>& tokens);
-		virtual string help(const vector<string>& tokens) const;
+		virtual std::string execute(const std::vector<std::string>& tokens);
+		virtual std::string help(const std::vector<std::string>& tokens) const;
 	private:
 		V9990& v9990;
 	} v9990RegsCmd;
@@ -310,11 +301,11 @@ private:
 
 	/** VRAM
 	  */
-	auto_ptr<V9990VRAM> vram;
+	std::auto_ptr<V9990VRAM> vram;
 
 	/** Command Engine
 	  */
-	auto_ptr<V9990CmdEngine> cmdEngine;
+	std::auto_ptr<V9990CmdEngine> cmdEngine;
 	/** Palette
 	  */
 	byte palette[256];

@@ -3,7 +3,6 @@
 #include <SDL.h>
 #include "Mutex.hh"
 
-
 namespace openmsx {
 
 Mutex::Mutex()

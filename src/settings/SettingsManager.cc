@@ -1,10 +1,13 @@
 // $Id$
 
 #include "SettingsManager.hh"
-#include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
 #include "CommandController.hh"
 #include "Interpreter.hh"
+
+using std::set;
+using std::string;
+using std::vector;
 
 namespace openmsx {
 

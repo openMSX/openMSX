@@ -1,7 +1,8 @@
 // $Id$
 
-#include <cassert>
 #include "MidiOutLogger.hh"
+
+using std::string;
 
 namespace openmsx {
 

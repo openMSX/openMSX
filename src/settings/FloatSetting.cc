@@ -6,6 +6,8 @@
 #include <iomanip>
 #include <cstdio>
 
+using std::string;
+
 namespace openmsx {
 
 // class FloatSettingPolicy
@@ -15,14 +17,14 @@ FloatSettingPolicy::FloatSettingPolicy(double minValue, double maxValue)
 {
 }
 
-std::string FloatSettingPolicy::toString(double value) const
+string FloatSettingPolicy::toString(double value) const
 {
 	std::stringstream out;
 	out << std::setprecision(2) << std::fixed << std::showpoint << value;
 	return out.str();
 }
 
-double FloatSettingPolicy::fromString(const std::string& str) const
+double FloatSettingPolicy::fromString(const string& str) const
 {
 	char* endPtr;
 	double result = strtod(str.c_str(), &endPtr);

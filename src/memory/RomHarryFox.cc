@@ -6,7 +6,8 @@
 
 namespace openmsx {
 
-RomHarryFox::RomHarryFox(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom)
+RomHarryFox::RomHarryFox(const XMLElement& config, const EmuTime& time,
+                         std::auto_ptr<Rom> rom)
 	: Rom16kBBlocks(config, time, rom)
 {
 	reset(time);

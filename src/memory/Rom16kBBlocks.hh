@@ -15,7 +15,7 @@ public:
 
 protected:
 	Rom16kBBlocks(const XMLElement& config, const EmuTime& time,
-	              auto_ptr<Rom> rom);
+	              std::auto_ptr<Rom> rom);
 	virtual ~Rom16kBBlocks();
 
 	void setBank(byte region, byte* adr);

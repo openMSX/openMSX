@@ -14,7 +14,7 @@
 
 using std::max;
 using std::min;
-
+using std::string;
 
 namespace openmsx {
 

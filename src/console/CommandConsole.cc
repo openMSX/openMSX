@@ -1,11 +1,12 @@
 // $Id$
 
 #include "CommandConsole.hh"
+#include "CommandException.hh"
 #include "CommandController.hh"
 #include "Keys.hh"
-#include "File.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"
+#include "FileException.hh"
 #include "CliCommOutput.hh"
 #include "SettingsConfig.hh"
 #include "InputEvents.hh"
@@ -14,10 +15,10 @@
 
 using std::min;
 using std::max;
-
+using std::list;
 using std::ofstream;
 using std::ifstream;
-
+using std::string;
 
 namespace openmsx {
 
@@ -69,7 +70,7 @@ void CommandConsole::saveHistory()
 		}
 		list<string>::iterator it;
 		for (it = history.begin(); it != history.end(); it++) {
-			outputfile << it->substr(prompt.length()) << endl;
+			outputfile << it->substr(prompt.length()) << std::endl;
 		}
 	} catch (FileException &e) {
 		output.printWarning(e.getMessage());

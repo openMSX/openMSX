@@ -13,8 +13,6 @@ TODO:
 #include "SpriteChecker.hh"
 #include "DisplayMode.hh"
 #include "Blender.hh"
-#include <cassert>
-
 
 namespace openmsx {
 

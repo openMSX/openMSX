@@ -9,6 +9,8 @@
 #include "Scheduler.hh"
 
 using std::pair;
+using std::string;
+using std::vector;
 
 namespace openmsx {
 
@@ -25,7 +27,7 @@ EventDistributor::~EventDistributor()
 	     it != toBeScheduledEvents.end(); ++it) {
 		delete it->event;
 	}
-	for (deque<Event*>::iterator it = scheduledEvents.begin();
+	for (std::deque<Event*>::iterator it = scheduledEvents.begin();
 	     it != scheduledEvents.end(); ++it) {
 		delete *it;
 	}

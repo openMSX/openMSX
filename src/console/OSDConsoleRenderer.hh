@@ -9,12 +9,7 @@
 #include "Display.hh"
 #include "EnumSetting.hh"
 #include "FilenameSetting.hh"
-#include "DummyFont.hh"
-#include "Console.hh"
 #include "SettingListener.hh"
-
-using std::auto_ptr;
-using std::string;
 
 namespace openmsx {
 
@@ -23,6 +18,7 @@ class Font;
 class InputEventGenerator;
 class EventDistributor;
 class BooleanSetting;
+class Console;
 
 
 class OSDConsoleRenderer : public Layer, private SettingListener,
@@ -30,8 +26,8 @@ class OSDConsoleRenderer : public Layer, private SettingListener,
 {
 public:
 	virtual ~OSDConsoleRenderer();
-	virtual bool loadBackground(const string& filename) = 0;
-	virtual bool loadFont(const string& filename) = 0;
+	virtual bool loadBackground(const std::string& filename) = 0;
+	virtual bool loadFont(const std::string& filename) = 0;
 
 protected:
 	OSDConsoleRenderer(Console& console);
@@ -55,12 +51,12 @@ protected:
 
 	int consoleRows;
 	int consoleColumns;
-	auto_ptr<EnumSetting<Placement> > consolePlacementSetting;
-	auto_ptr<IntegerSetting> consoleRowsSetting;
-	auto_ptr<IntegerSetting> consoleColumnsSetting;
-	auto_ptr<FilenameSetting> backgroundSetting;
-	auto_ptr<FilenameSetting> fontSetting;
-	auto_ptr<Font> font;
+	std::auto_ptr<EnumSetting<Placement> > consolePlacementSetting;
+	std::auto_ptr<IntegerSetting> consoleRowsSetting;
+	std::auto_ptr<IntegerSetting> consoleColumnsSetting;
+	std::auto_ptr<FilenameSetting> backgroundSetting;
+	std::auto_ptr<FilenameSetting> fontSetting;
+	std::auto_ptr<Font> font;
 	bool blink;
 	unsigned lastBlinkTime;
 	unsigned lastCursorPosition;
@@ -74,7 +70,7 @@ private:
 
 	// SettingChecker
 	virtual void check(SettingImpl<FilenameSetting::Policy>& setting,
-	                   string& value);
+	                   std::string& value);
 
 	bool active;
 	unsigned long long time;

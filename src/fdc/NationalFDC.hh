@@ -4,7 +4,6 @@
 #define __NATIONALFDC_HH__
 
 #include "WD2793BasedFDC.hh"
-#include "CPU.hh"
 
 namespace openmsx {
 

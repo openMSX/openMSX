@@ -3,7 +3,6 @@
 #include "IconLayer.hh"
 #include "EventDistributor.hh"
 #include "FileContext.hh"
-#include "FileException.hh"
 #include "Timer.hh"
 #include "SDLImage.hh"
 #include "IntegerSetting.hh"
@@ -12,6 +11,8 @@
 #include "GLImage.hh"
 #endif
 #include <SDL.h>
+
+using std::string;
 
 namespace openmsx {
 

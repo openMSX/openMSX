@@ -65,7 +65,7 @@ private:
 		FSM_TYPE3_LOADED,
 	} fsmState;
 	virtual void executeUntil(const EmuTime& time, int state);
-	virtual const string& schedName() const;
+	virtual const std::string& schedName() const;
 
 	void startType1Cmd(const EmuTime& time);
 

@@ -1,21 +1,22 @@
 // $Id$
 
+/* PNG save code by Darren Grant sdl@lokigames.com */
+/* heavily modified for openMSX by Joost Damad joost@lumatec.be */
+
 #include <sstream>
 #include <algorithm>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <dirent.h>
 #include <sys/types.h>
 #include <png.h>
 #include "ScreenShotSaver.hh"
 #include "FileOperations.hh"
+#include "FileException.hh"
+#include "CommandException.hh"
 #include "ReadDir.hh"
 
-using std::ostringstream;
-using std::max;
-
-/* PNG save code by Darren Grant sdl@lokigames.com */
-/* heavily modified for openMSX by Joost Damad joost@lumatec.be */
+using std::string;
 
 namespace openmsx {
 
@@ -167,10 +168,10 @@ string ScreenShotSaver::getFileName()
 
 	ReadDir dir(dirName.c_str());
 	while (dirent* d = dir.getEntry()) {
-		max_num = max(max_num, getNum(d));
+		max_num = std::max(max_num, getNum(d));
 	}
 
-	ostringstream os;
+	std::ostringstream os;
 	os << dirName << "/openmsx";
 	os.width(4);
 	os.fill('0');

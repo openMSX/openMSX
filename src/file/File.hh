@@ -7,10 +7,6 @@
 #include <string>
 #include <time.h>
 #include "openmsx.hh"
-#include "FileException.hh"
-
-using std::auto_ptr;
-using std::string;
 
 namespace openmsx {
 
@@ -34,7 +30,7 @@ public:
 	 * @param mode Mode to open the file in:
 	 * @throws FileException
 	 */
-	File(const string& url, OpenMode mode = NORMAL);
+	File(const std::string& url, OpenMode mode = NORMAL);
 	
 	/**
 	 * Destroy file object.
@@ -106,7 +102,7 @@ public:
 	 * Returns the URL of this file object.
 	 * @throws FileException
 	 */
-	const string getURL() const;
+	const std::string getURL() const;
 
 	/**
 	 * Get a local filename for this object. Useful if this object
@@ -115,7 +111,7 @@ public:
 	 *         file that this object refers to.
 	 * @throws FileException
 	 */
-	const string getLocalName() const;
+	const std::string getLocalName() const;
 
 	/**
 	 * Check if this file is readonly
@@ -131,7 +127,7 @@ public:
 	time_t getModificationDate();
 
 private:
-	auto_ptr<FileBase> file;
+	std::auto_ptr<FileBase> file;
 };
 
 } // namespace openmsx

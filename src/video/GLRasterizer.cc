@@ -20,11 +20,9 @@ TODO:
 #include "Renderer.hh"
 #include "RenderSettings.hh"
 #include "FloatSetting.hh"
-#include "VideoSystem.hh"
-#include "Scheduler.hh"
-#include <cassert>
 #include <cmath>
 
+using std::string;
 
 namespace openmsx {
 
@@ -1110,14 +1108,6 @@ void GLRasterizer::drawSprites(
 
 	glDisable(GL_BLEND);
 	glDisable(GL_TEXTURE_2D);
-}
-
-void GLRasterizer::update(const Setting* setting)
-{
-	// TODO: SDLRasterizer subscribes to deinterlace setting.
-	//       Does it make sense to do that for GLRasterizer too?
-
-	Rasterizer::update(setting);
 }
 
 } // namespace openmsx

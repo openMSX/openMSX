@@ -4,10 +4,12 @@
 #include "IDEHD.hh"
 #include "File.hh"
 #include "FileContext.hh"
+#include "FileException.hh"
 #include "xmlx.hh"
 #include "EventDistributor.hh"
 #include "LedEvent.hh"
 
+using std::string;
 
 namespace openmsx {
 

@@ -1,7 +1,8 @@
 // $Id$
 
 #include "V9990DummyRasterizer.hh"
-#include "V9990DisplayTiming.hh"
+
+using std::string;
 
 namespace openmsx {
 

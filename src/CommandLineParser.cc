@@ -19,7 +19,16 @@
 #include "CassettePlayer.hh"
 #include "DiskImageCLI.hh"
 #include "ConfigException.hh"
+#include "FileException.hh"
 #include "SettingsManager.hh"
+
+using std::cout;
+using std::endl;
+using std::list;
+using std::map;
+using std::set;
+using std::string;
+using std::vector;
 
 namespace openmsx {
 

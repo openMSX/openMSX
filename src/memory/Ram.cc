@@ -3,6 +3,8 @@
 #include "Ram.hh"
 #include "Debugger.hh"
 
+using std::string;
+
 namespace openmsx {
 
 Ram::Ram(const string& name_, unsigned size_)

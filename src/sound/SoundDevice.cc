@@ -3,6 +3,7 @@
 #include "SoundDevice.hh"
 #include "xmlx.hh"
 
+using std::string;
 
 namespace openmsx {
 

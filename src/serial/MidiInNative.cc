@@ -7,8 +7,6 @@
 #include "Scheduler.hh"
 #include <cstring>
 #include <cerrno>
-#include "FileOperations.hh"
-#include "FileContext.hh"
 #include "Midi_w32.hh"
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN

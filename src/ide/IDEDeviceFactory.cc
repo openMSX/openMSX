@@ -4,6 +4,8 @@
 #include "IDEHD.hh"
 #include "xmlx.hh"
 
+using std::string;
+
 namespace openmsx {
 
 IDEDevice* IDEDeviceFactory::create(const XMLElement& config,

@@ -17,18 +17,18 @@ public:
 	SDLConsole(Console& console_, SDL_Surface* screen);
 	virtual ~SDLConsole();
 
-	virtual bool loadFont(const string& filename);
-	virtual bool loadBackground(const string& filename);
+	virtual bool loadFont(const std::string& filename);
+	virtual bool loadBackground(const std::string& filename);
 
 	virtual void paint();
-	virtual const string& getName();
+	virtual const std::string& getName();
 
 private:
 	void updateConsoleRect();
 	
 	SDL_Surface* outputScreen;
 	std::auto_ptr<SDLImage> backgroundImage;
-	string backgroundName;
+	std::string backgroundName;
 };
 
 } // namespace openmsx

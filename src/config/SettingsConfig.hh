@@ -6,7 +6,6 @@
 #include "MSXConfig.hh"
 #include "Command.hh"
 
-
 namespace openmsx {
 
 class BooleanSetting;
@@ -16,23 +15,23 @@ class SettingsConfig : public MSXConfig
 public:
 	static SettingsConfig& instance();
 
-	void loadSetting(FileContext& context, const string& filename);
-	void saveSetting(const string& filename = "");
+	void loadSetting(FileContext& context, const std::string& filename);
+	void saveSetting(const std::string& filename = "");
 
 private:
 	SettingsConfig();
 	~SettingsConfig();
 
-	string saveName;
+	std::string saveName;
 	BooleanSetting* autoSaveSetting;
 
 	// SaveSettings command
 	class SaveSettingsCommand : public SimpleCommand {
 	public:
 		SaveSettingsCommand(SettingsConfig& parent);
-		virtual string execute(const vector<string>& tokens);
-		virtual string help   (const vector<string>& tokens) const;
-		virtual void tabCompletion(vector<string>& tokens) const;
+		virtual std::string execute(const std::vector<std::string>& tokens);
+		virtual std::string help   (const std::vector<std::string>& tokens) const;
+		virtual void tabCompletion(std::vector<std::string>& tokens) const;
 	private:
 		SettingsConfig& parent;
 	} saveSettingsCommand;

@@ -5,19 +5,18 @@
 
 #include <SDL.h>
 
-
 namespace openmsx {
 
 class Semaphore
 {
-	public:
-		Semaphore(unsigned value);
-		~Semaphore();
-		void up();
-		void down();
+public:
+	Semaphore(unsigned value);
+	~Semaphore();
+	void up();
+	void down();
 
-	private:
-		SDL_sem* semaphore;
+private:
+	SDL_sem* semaphore;
 };
 
 } // namespace openmsx

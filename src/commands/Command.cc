@@ -3,6 +3,9 @@
 #include "Command.hh"
 #include "CommandArgument.hh"
 
+using std::vector;
+using std::string;
+
 namespace openmsx {
 
 void SimpleCommand::execute(const vector<CommandArgument>& tokens,

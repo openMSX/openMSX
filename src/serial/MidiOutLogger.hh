@@ -3,11 +3,9 @@
 #ifndef __MIDIOUTLOGGER_HH__
 #define __MIDIOUTLOGGER_HH__
 
-#include <fstream>
 #include "MidiOutDevice.hh"
 #include "StringSetting.hh"
-
-using std::ofstream;
+#include <fstream>
 
 namespace openmsx {
 
@@ -20,15 +18,15 @@ public:
 	// Pluggable
 	virtual void plugHelper(Connector* connector, const EmuTime& time);
 	virtual void unplugHelper(const EmuTime& time);
-	virtual const string& getName() const;
-	virtual const string& getDescription() const;
+	virtual const std::string& getName() const;
+	virtual const std::string& getDescription() const;
 
 	// SerialDataInterface (part)
 	virtual void recvByte(byte value, const EmuTime& time);
 
 private:
 	StringSetting logFilenameSetting;
-	ofstream file;
+	std::ofstream file;
 };
 
 } // namespace openmsx

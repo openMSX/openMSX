@@ -2,6 +2,8 @@
 
 #include "SETetrisDongle.hh"
 
+using std::string;
+
 namespace openmsx {
 
 SETetrisDongle::SETetrisDongle()

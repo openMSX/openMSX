@@ -2,6 +2,8 @@
 
 #include "DummyMidiOutDevice.hh"
 
+using std::string;
+
 namespace openmsx {
 
 void DummyMidiOutDevice::recvByte(byte /*value*/, const EmuTime& /*time*/)

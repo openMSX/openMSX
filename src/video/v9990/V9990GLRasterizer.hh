@@ -4,11 +4,11 @@
 #define __V9990GLRASTERIZER_HH__
 
 #include "V9990Rasterizer.hh"
-#include "Renderer.hh"
 #include "GLUtil.hh"
 #include "openmsx.hh"
 
 namespace openmsx {
+
 class V9990;
 class V9990VRAM;
 
@@ -27,7 +27,7 @@ public:
 
 	// Layer interface:
 	virtual void paint();
-	virtual const string& getName();
+	virtual const std::string& getName();
 
 	// Rasterizer interface:
 	virtual void reset();

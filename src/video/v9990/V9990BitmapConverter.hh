@@ -3,14 +3,14 @@
 #ifndef __V9990BITMAPCONVERTER_HH__
 #define __V9990BITMAPCONVERTER_HH__
 
-#include <stdarg.h>
 #include <SDL.h>
 #include "openmsx.hh"
-#include "V9990.hh"
-#include "V9990VRAM.hh"
 #include "Renderer.hh"
+#include "V9990.hh"
 
 namespace openmsx {
+
+class V9990VRAM;
 
 /** Utility class to convert VRAM content to host pixels
   */
@@ -19,11 +19,11 @@ template <class Pixel, Renderer::Zoom zoom>
 class V9990BitmapConverter
 {
 public:
-	V9990BitmapConverter(V9990VRAM *vram_,
+	V9990BitmapConverter(V9990VRAM* vram_,
 	                     SDL_PixelFormat fmt,
-	                     Pixel *palette64,
-	                     Pixel *palette256,
-	                     Pixel *palette32768);
+	                     Pixel* palette64,
+	                     Pixel* palette256,
+	                     Pixel* palette32768);
 	virtual ~V9990BitmapConverter();
 
 	/** Convert a line of VRAM into host pixels.
@@ -41,7 +41,7 @@ public:
 private:
 	/** Pointer to VDP VRAM
 	  */
-	V9990VRAM *vram;
+	V9990VRAM* vram;
 
 	typedef void (V9990BitmapConverter<Pixel, zoom>::*RasterMethod)
 		     (Pixel* pixelPtr, uint address, int nrPixels);
@@ -62,17 +62,17 @@ private:
 	/** The 64 color palette for P1, P2 and BP* modes
 	  * This is the palette manipulated through the palette port and register
 	  */
-	Pixel *palette64;
+	Pixel* palette64;
 
 	/** The 256 color palette for BD8 mode
 	  * A fixed palette; sub-color space within the 32768 color palette
 	  */
-	Pixel *palette256;
+	Pixel* palette256;
 
 	/** The 15-bits color palette for BD16, BYJK* and BYUV modes
 	  * This is the complete color space for the V9990
 	  */
-	Pixel *palette32768;
+	Pixel* palette32768;
 
 	/* private blending methods */
 	inline unsigned int red(Pixel pixel);

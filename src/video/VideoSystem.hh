@@ -5,9 +5,6 @@
 
 #include <string>
 
-using std::string;
-
-
 namespace openmsx {
 
 class Rasterizer;
@@ -66,7 +63,7 @@ public:
 	  * @param filename Name of the file to save the screenshot to.
 	  * @throw CommandException If taking the screen shot fails.
 	  */
-	virtual void takeScreenShot(const string& filename);
+	virtual void takeScreenShot(const std::string& filename);
 };
 
 } // namespace openmsx

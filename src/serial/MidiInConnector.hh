@@ -9,16 +9,15 @@
 
 namespace openmsx {
 
-
 class MidiInConnector : public Connector, public SerialDataInterface
 {
 public:
-	MidiInConnector(const string &name);
+	MidiInConnector(const std::string &name);
 	virtual ~MidiInConnector();
 
 	// Connector
-	virtual const string& getDescription() const;
-	virtual const string& getClass() const;
+	virtual const std::string& getDescription() const;
+	virtual const std::string& getClass() const;
 	virtual MidiInDevice& getPlugged() const;
 
 	virtual bool ready() = 0;

@@ -5,8 +5,6 @@
 
 #include <memory>
 
-using std::auto_ptr;
-
 namespace openmsx {
 
 class MSXDevice;
@@ -15,7 +13,8 @@ class EmuTime;
 
 class DeviceFactory {
 public:
-	static auto_ptr<MSXDevice> create(const XMLElement& conf, const EmuTime& time);
+	static std::auto_ptr<MSXDevice> create(const XMLElement& conf,
+	                                       const EmuTime& time);
 };
 
 } // namespace openmsx

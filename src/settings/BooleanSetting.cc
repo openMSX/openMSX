@@ -2,6 +2,8 @@
 
 #include "BooleanSetting.hh"
 
+using std::string;
+
 namespace openmsx {
 
 BooleanSetting::BooleanSetting(const string& name, const string& description,

@@ -6,7 +6,6 @@
 #include "Schedulable.hh"
 #include "openmsx.hh"
 
-
 namespace openmsx {
 
 class Scheduler;
@@ -28,7 +27,7 @@ public:
 
 private:
 	virtual void executeUntil(const EmuTime& time, int userData);
-	virtual const string& schedName() const;
+	virtual const std::string& schedName() const;
 	void schedule(const EmuTime& time);
 	void unschedule();
 

@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <memory.h>
 
+using std::string;
 
 namespace openmsx {
 

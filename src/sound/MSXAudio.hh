@@ -6,8 +6,6 @@
 #include <memory>
 #include "MSXDevice.hh"
 
-using std::auto_ptr;
-
 namespace openmsx {
 
 class Y8950;
@@ -24,7 +22,7 @@ public:
 	virtual void writeIO(byte port, byte value, const EmuTime& time);
 
 private:
-	auto_ptr<Y8950> y8950;
+	std::auto_ptr<Y8950> y8950;
 	int registerLatch;
 };
 

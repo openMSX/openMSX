@@ -12,7 +12,7 @@ class DummyAudioInputDevice : public AudioInputDevice
 public:
 	DummyAudioInputDevice();
 
-	virtual const string& getDescription() const;
+	virtual const std::string& getDescription() const;
 	virtual void plugHelper(Connector* connector, const EmuTime& time);
 	virtual void unplugHelper(const EmuTime& time);
 

@@ -14,15 +14,11 @@ TODO:
 #include "VDPVRAM.hh"
 #include "SpriteChecker.hh"
 #include "EventDistributor.hh"
-#include "Scheduler.hh"
 #include "RealTime.hh"
 #include "Timer.hh"
 #include <algorithm>
 #include <cassert>
 #include <sstream>
-
-using std::max;
-
 
 namespace openmsx {
 
@@ -50,8 +46,8 @@ void PixelRenderer::draw(
 			// enough for "Boring scroll" demo part of "Relax"
 			displayY = (displayY & 7) | (textModeCounter * 8);
 			if (atEnd && (drawType == DRAW_DISPLAY)) {
-				int low  = max(0, (startY - zero)) / 8;
-				int high = max(0, (endY   - zero)) / 8;
+				int low  = std::max(0, (startY - zero)) / 8;
+				int high = std::max(0, (endY   - zero)) / 8;
 				textModeCounter += (high - low);
 			}
 		}

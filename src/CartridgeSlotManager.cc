@@ -7,6 +7,8 @@
 #include "HardwareConfig.hh"
 #include "MSXCPUInterface.hh"
 
+using std::string;
+
 namespace openmsx {
 
 const int RESERVED = 16;

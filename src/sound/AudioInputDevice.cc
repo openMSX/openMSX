@@ -2,6 +2,7 @@
 
 #include "AudioInputDevice.hh"
 
+using std::string;
 
 namespace openmsx {
 

@@ -6,9 +6,6 @@
 #include "MSXException.hh"
 #include <string>
 
-using std::string;
-
-
 namespace openmsx {
 
 /** Thrown when a subsystem initialisation fails.
@@ -17,7 +14,7 @@ namespace openmsx {
 class InitException: public MSXException
 {
 public:
-	InitException(const string& message_)
+	InitException(const std::string& message_)
 		: MSXException(message_) { }
 	virtual ~InitException() { }
 };

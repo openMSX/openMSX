@@ -4,6 +4,7 @@
 #include "RS232Connector.hh"
 #include "Scheduler.hh"
 
+using std::string;
 
 namespace openmsx {
 

@@ -4,8 +4,8 @@
 #define __LOCALFILE_HH__
 
 #include <cstdio>
-#include "FileBase.hh"
 #include "File.hh"
+#include "FileBase.hh"
 #include "probed_defs.hh"
 
 namespace openmsx {
@@ -13,7 +13,7 @@ namespace openmsx {
 class LocalFile : public FileBase
 {
 public:
-	LocalFile(const string &filename, OpenMode mode);
+	LocalFile(const std::string& filename, OpenMode mode);
 	virtual ~LocalFile();
 	virtual void read (byte* buffer, unsigned num);
 	virtual void write(const byte* buffer, unsigned num);
@@ -27,13 +27,13 @@ public:
 #ifdef HAVE_FTRUNCATE
 	virtual void truncate(unsigned size);
 #endif
-	virtual const string getURL() const;
-	virtual const string getLocalName();
+	virtual const std::string getURL() const;
+	virtual const std::string getLocalName();
 	virtual bool isReadOnly() const;
 	virtual time_t getModificationDate();
 
 private:
-	string filename;
+	std::string filename;
 	FILE* file;
 	bool readOnly;
 };

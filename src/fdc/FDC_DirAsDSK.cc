@@ -1,6 +1,5 @@
 // $Id$
 
-#include "File.hh"
 #include "FDC_DirAsDSK.hh"
 #include "CliCommOutput.hh"
 
@@ -14,6 +13,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+using std::string;
 using std::transform;
 
 /* macros to change DirEntries */
@@ -312,7 +312,7 @@ FDC_DirAsDSK::FDC_DirAsDSK(const string& fileName)
 FDC_DirAsDSK::~FDC_DirAsDSK()
 {
 	PRT_DEBUG("Destroying FDC_DirAsDSK object");
-	map<const int, byte*>::const_iterator it;
+	std::map<const int, byte*>::const_iterator it;
 	//writing the cached sectors to a file
 	std::string filename=std::string(MSXrootdir) + "/" + CachedSectorsFileName ;
 	//PRT_DEBUG (" cachedSectors.begin() " << (int)cachedSectors.begin() );

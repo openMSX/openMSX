@@ -6,8 +6,6 @@
 #include <memory>
 #include "Rom8kBBlocks.hh"
 
-using std::auto_ptr;
-
 namespace openmsx {
 
 class SRAM;
@@ -15,7 +13,8 @@ class SRAM;
 class RomPanasonic : public Rom8kBBlocks
 {
 public:
-	RomPanasonic(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom);
+	RomPanasonic(const XMLElement& config, const EmuTime& time,
+	             std::auto_ptr<Rom> rom);
 	virtual ~RomPanasonic();
 	
 	virtual void reset(const EmuTime& time);
@@ -29,7 +28,7 @@ private:
 	
 	byte control;
 	int bankSelect[8];
-	auto_ptr<SRAM> sram;
+	std::auto_ptr<SRAM> sram;
 	int maxSRAMBank;
 };
 

@@ -7,10 +7,6 @@
 #include <memory>
 #include "MSXDevice.hh"
 
-using std::ostream;
-using std::ofstream;
-using std::auto_ptr;
-
 namespace openmsx {
 
 class EmuTime;
@@ -23,8 +19,8 @@ public:
 	virtual ~DebugDevice();
 	
 	virtual void writeIO(byte port, byte value, const EmuTime& time);
-	void openOutput(const string& name);
-	void closeOutput(const string& name);
+	void openOutput(const std::string& name);
+	void closeOutput(const std::string& name);
 	
 	enum DisplayType {HEX, BIN, DEC, ASC};
 	enum DebugMode {OFF, SINGLEBYTE, MULTIBYTE, ASCII};
@@ -36,10 +32,10 @@ private:
 	
 	enum DebugMode mode;
 	byte modeParameter;
-	auto_ptr<FilenameSetting> fileNameSetting;
-	ostream* outputstrm;
-	ofstream debugOut;
-	string fileNameString;
+	std::auto_ptr<FilenameSetting> fileNameSetting;
+	std::ostream* outputstrm;
+	std::ofstream debugOut;
+	std::string fileNameString;
 };
 
 } // namespace openmsx

@@ -7,7 +7,6 @@
 
 struct SDL_Surface;
 
-
 namespace openmsx {
 
 class VDP;
@@ -32,7 +31,7 @@ public:
 	virtual V9990Rasterizer* createV9990Rasterizer(V9990* vdp);
 	virtual bool checkSettings();
 	virtual void flush();
-	virtual void takeScreenShot(const string& filename);
+	virtual void takeScreenShot(const std::string& filename);
 
 private:
 	SDL_Surface* screen;

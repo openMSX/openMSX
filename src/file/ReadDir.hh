@@ -13,14 +13,12 @@
 #include <sys/types.h>
 #include <dirent.h>
 
-using std::string;
-
 namespace openmsx {
 
 class ReadDir
 {
 public:
-	ReadDir(const string& directory);
+	ReadDir(const std::string& directory);
 	~ReadDir();
 
 	struct dirent* getEntry();

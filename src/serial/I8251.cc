@@ -4,6 +4,7 @@
 #include "I8251.hh"
 #include "Scheduler.hh"
 
+using std::string;
 
 namespace openmsx {
 

@@ -3,6 +3,8 @@
 #include "SDLEventInserter.hh"
 #include "Scheduler.hh"
 
+using std::string;
+
 namespace openmsx {
 
 SDLEventInserter::SDLEventInserter(SDL_Event& evnt, const EmuTime& time)

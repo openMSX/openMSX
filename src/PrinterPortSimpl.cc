@@ -4,6 +4,9 @@
 #include "DACSound8U.hh"
 #include "xmlx.hh"
 
+using std::auto_ptr;
+using std::string;
+
 namespace openmsx {
 
 PrinterPortSimpl::PrinterPortSimpl()

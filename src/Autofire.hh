@@ -9,9 +9,6 @@
 #include "SettingListener.hh"
 #include "EmuTime.hh"
 
-using std::string;
-
-
 namespace openmsx {
 
 /**
@@ -25,7 +22,8 @@ namespace openmsx {
 class Autofire : private SettingListener
 {
 public:
-	Autofire(unsigned newMinInts, unsigned newMaxInts, const string& name);
+	Autofire(unsigned newMinInts, unsigned newMaxInts,
+	         const std::string& name);
 	virtual ~Autofire();
 
 	/**

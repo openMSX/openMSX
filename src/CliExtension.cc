@@ -5,6 +5,9 @@
 #include "FileException.hh"
 #include "ConfigException.hh"
 
+using std::string;
+using std::list;
+
 namespace openmsx {
 
 CliExtension::CliExtension(CommandLineParser& cmdLineParser)

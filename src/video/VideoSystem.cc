@@ -4,6 +4,7 @@
 #include "CommandException.hh"
 #include <cassert>
 
+using std::string;
 
 namespace openmsx {
 

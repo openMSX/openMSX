@@ -3,11 +3,13 @@
 #include <cassert>
 #include "FileContext.hh"
 #include "FileOperations.hh"
-#include "SettingsConfig.hh"
-#include "File.hh"
+#include "FileException.hh"
 #include "GlobalSettings.hh"
 #include "Interpreter.hh"
 #include "CliCommOutput.hh"
+
+using std::string;
+using std::vector;
 
 namespace openmsx {
 
@@ -83,7 +85,7 @@ FileContext::FileContext(const FileContext& rhs)
 
 // class ConfigFileContext
 
-map<string, int> ConfigFileContext::nonames;
+std::map<string, int> ConfigFileContext::nonames;
 
 ConfigFileContext::ConfigFileContext(const string& path,
                                      const string& hwDescr,

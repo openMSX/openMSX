@@ -12,7 +12,7 @@ class RomPageNN : public Rom8kBBlocks
 {
 public:
 	RomPageNN(const XMLElement& config, const EmuTime& time,
-	          auto_ptr<Rom> rom, byte pages);
+	          std::auto_ptr<Rom> rom, byte pages);
 	virtual ~RomPageNN();
 };
 

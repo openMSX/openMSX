@@ -9,11 +9,16 @@
 #include "SettingsConfig.hh"
 #include "File.hh"
 #include "FileContext.hh"
+#include "FileException.hh"
 #include "CommandController.hh"
+#include "CommandException.hh"
 #include "Keys.hh"
 #include "InputEvents.hh"
 #include "Scheduler.hh"
 #include "Unicode.hh"
+
+using std::string;
+using std::vector;
 
 namespace openmsx {
 

@@ -46,6 +46,7 @@
 #include "Debugger.hh"
 #include "Scheduler.hh"
 
+using std::string;
 
 namespace openmsx {
 

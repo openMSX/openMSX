@@ -1,7 +1,6 @@
 // $Id$
 
 #include "MSXAudio.hh"
-#include "Mixer.hh"
 #include "Y8950.hh"
 #include "xmlx.hh"
 

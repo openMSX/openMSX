@@ -103,17 +103,17 @@ public:
 
 	// Debuggable
 	virtual unsigned getSize() const;
-	virtual const string& getDescription() const;
+	virtual const std::string& getDescription() const;
 	virtual byte read(unsigned address);
 	virtual void write(unsigned address, byte value);
 
 	// Breakpoint stuff
-	string doStep();
-	string doContinue();
-	string doBreak();
-	string setBreakPoint(word addr);
-	string removeBreakPoint(word addr);
-	string listBreakPoints() const;
+	std::string doStep();
+	std::string doContinue();
+	std::string doBreak();
+	std::string setBreakPoint(word addr);
+	std::string removeBreakPoint(word addr);
+	std::string listBreakPoints() const;
 
 private:
 	MSXCPU();
@@ -139,9 +139,9 @@ private:
 	class TimeInfoTopic : public InfoTopic {
 	public:
 		TimeInfoTopic(MSXCPU& parent);
-		virtual void execute(const vector<CommandArgument>& tokens,
+		virtual void execute(const std::vector<CommandArgument>& tokens,
 		                     CommandArgument& result) const;
-		virtual string help (const vector<string>& tokens) const;
+		virtual std::string help (const std::vector<std::string>& tokens) const;
 	private:
 		MSXCPU& parent;
 	} timeInfo;

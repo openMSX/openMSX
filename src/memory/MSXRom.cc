@@ -1,16 +1,17 @@
 // $Id$
 
 #include "MSXRom.hh"
-#include "RomTypes.hh"
 #include "MSXCPU.hh"
-#include "File.hh"
 #include "Rom.hh"
+
+using std::string;
 
 namespace openmsx {
 
 MSXCPU *MSXRom::cpu;
 
-MSXRom::MSXRom(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom_)
+MSXRom::MSXRom(const XMLElement& config, const EmuTime& time,
+               std::auto_ptr<Rom> rom_)
 	: MSXDevice(config, time), rom(rom_)
 {
 	init();

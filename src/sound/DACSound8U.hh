@@ -12,7 +12,7 @@ namespace openmsx {
 class DACSound8U : public DACSound16S
 {
 public:
-	DACSound8U(const string &name, const string& desc,
+	DACSound8U(const std::string &name, const std::string& desc,
 	           const XMLElement& config, const EmuTime& time); 
 	virtual ~DACSound8U();
 

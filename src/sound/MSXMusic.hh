@@ -7,8 +7,6 @@
 #include "MSXDevice.hh"
 #include "Rom.hh"
 
-using std::auto_ptr;
-
 namespace openmsx {
 
 class YM2413Core;
@@ -29,7 +27,7 @@ protected:
 	void writeDataPort(byte value, const EmuTime& time);
 
 	Rom rom;
-	auto_ptr<YM2413Core> ym2413;
+	std::auto_ptr<YM2413Core> ym2413;
 
 private:
 	int registerLatch;

@@ -6,8 +6,6 @@
 #include <memory>
 #include "openmsx.hh"
 
-using std::auto_ptr;
-
 namespace openmsx {
 
 class EmuTime;
@@ -40,7 +38,7 @@ private:
 	~RenShaTurbo();
 
 	// The Autofire circuit
-	auto_ptr<Autofire> autofire;
+	std::auto_ptr<Autofire> autofire;
 };
 
 } // namespace openmsx

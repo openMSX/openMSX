@@ -1,10 +1,12 @@
 // $Id$
 
 #include "RomGeneric16kB.hh"
+#include "Rom.hh"
 
 namespace openmsx {
 
-RomGeneric16kB::RomGeneric16kB(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom)
+RomGeneric16kB::RomGeneric16kB(const XMLElement& config, const EmuTime& time,
+                               std::auto_ptr<Rom> rom)
 	: Rom16kBBlocks(config, time, rom)
 {
 	reset(time);

@@ -11,7 +11,12 @@
 #include "openmsx.hh"
 #include "InfoCommand.hh"
 #include "CommandArgument.hh"
+#include "CommandException.hh"
 #include "CliCommOutput.hh"
+
+using std::set;
+using std::string;
+using std::vector;
 
 namespace openmsx {
 
@@ -45,7 +50,7 @@ PluggingController::~PluggingController()
 #ifndef NDEBUG
 	// This is similar to an assert: it should never print anything,
 	// but if it does, it helps to catch an error.
-	for (vector<Connector*>::const_iterator it = connectors.begin();
+	for (Connectors::const_iterator it = connectors.begin();
 		it != connectors.end(); ++it
 	) {
 		fprintf(stderr,
@@ -54,7 +59,7 @@ PluggingController::~PluggingController()
 			);
 	}
 #endif
-	for (vector<Pluggable*>::iterator it = pluggables.begin();
+	for (Pluggables::iterator it = pluggables.begin();
 	     it != pluggables.end(); ++it) {
 		delete *it;
 	}
@@ -73,7 +78,7 @@ void PluggingController::registerConnector(Connector* connector)
 
 void PluggingController::unregisterConnector(Connector* connector)
 {
-	for (vector<Connector*>::iterator it = connectors.begin();
+	for (Connectors::iterator it = connectors.begin();
 	     it != connectors.end(); ++it) {
 		if ((*it) == connector) {
 			connectors.erase(it);
@@ -90,7 +95,7 @@ void PluggingController::registerPluggable(Pluggable* pluggable)
 
 void PluggingController::unregisterPluggable(Pluggable* pluggable)
 {
-	for (vector<Pluggable*>::iterator it = pluggables.begin();
+	for (Pluggables::iterator it = pluggables.begin();
 	     it != pluggables.end(); ++it) {
 		if ((*it) == pluggable) {
 			pluggables.erase(it);
@@ -113,7 +118,7 @@ string PluggingController::PlugCmd::execute(const vector<string>& tokens)
 	const EmuTime &time = parent.scheduler.getCurrentTime();
 	switch (tokens.size()) {
 		case 1: {
-			for (vector<Connector *>::const_iterator it =
+			for (Connectors::const_iterator it =
 			                       parent.connectors.begin();
 			     it != parent.connectors.end();
 			     ++it) {
@@ -170,7 +175,7 @@ void PluggingController::PlugCmd::tabCompletion(vector<string>& tokens) const
 	if (tokens.size() == 2) {
 		// complete connector
 		set<string> connectors;
-		for (vector<Connector*>::const_iterator it =
+		for (Connectors::const_iterator it =
 			               parent.connectors.begin();
 		     it != parent.connectors.end(); ++it) {
 			connectors.insert((*it)->getName());
@@ -181,7 +186,7 @@ void PluggingController::PlugCmd::tabCompletion(vector<string>& tokens) const
 		set<string> pluggables;
 		Connector* connector = parent.getConnector(tokens[1]);
 		string className = connector ? connector->getClass() : "";
-		for (vector<Pluggable*>::const_iterator it =
+		for (Pluggables::const_iterator it =
 			 parent.pluggables.begin();
 		     it != parent.pluggables.end(); ++it) {
 			Pluggable* pluggable = *it;
@@ -227,7 +232,7 @@ void PluggingController::UnplugCmd::tabCompletion(vector<string>& tokens) const
 	if (tokens.size() == 2) {
 		// complete connector
 		set<string> connectors;
-		for (vector<Connector *>::const_iterator it =
+		for (Connectors::const_iterator it =
 		                       parent.connectors.begin();
 		     it != parent.connectors.end();
 		     ++it) {
@@ -239,7 +244,7 @@ void PluggingController::UnplugCmd::tabCompletion(vector<string>& tokens) const
 
 Connector *PluggingController::getConnector(const string& name)
 {
-	for (vector<Connector *>::const_iterator it = connectors.begin();
+	for (Connectors::const_iterator it = connectors.begin();
 	     it != connectors.end();
 	     ++it) {
 		if ((*it)->getName() == name) {
@@ -251,7 +256,7 @@ Connector *PluggingController::getConnector(const string& name)
 
 Pluggable *PluggingController::getPluggable(const string& name)
 {
-	for (vector<Pluggable *>::const_iterator it = pluggables.begin();
+	for (Pluggables::const_iterator it = pluggables.begin();
 	     it != pluggables.end();
 	     ++it) {
 		if ((*it)->getName() == name) {
@@ -274,7 +279,7 @@ void PluggingController::PluggableInfo::execute(const vector<CommandArgument>& t
 {
 	switch (tokens.size()) {
 	case 2:
-		for (vector<Pluggable*>::const_iterator it =
+		for (Pluggables::const_iterator it =
 			 parent.pluggables.begin();
 		     it != parent.pluggables.end(); ++it) {
 			result.addListElement((*it)->getName());
@@ -303,7 +308,7 @@ void PluggingController::PluggableInfo::tabCompletion(vector<string>& tokens) co
 {
 	if (tokens.size() == 3) {
 		set<string> pluggables;
-		for (vector<Pluggable*>::const_iterator it =
+		for (Pluggables::const_iterator it =
 			 parent.pluggables.begin();
 		     it != parent.pluggables.end(); ++it) {
 			pluggables.insert((*it)->getName());
@@ -324,7 +329,7 @@ void PluggingController::ConnectorInfo::execute(const vector<CommandArgument>& t
 {
 	switch (tokens.size()) {
 	case 2:
-		for (vector<Connector*>::const_iterator it =
+		for (Connectors::const_iterator it =
 			 parent.connectors.begin();
 		     it != parent.connectors.end(); ++it) {
 			result.addListElement((*it)->getName());
@@ -352,7 +357,7 @@ void PluggingController::ConnectorInfo::tabCompletion(vector<string>& tokens) co
 {
 	if (tokens.size() == 3) {
 		set<string> connectors;
-		for (vector<Connector*>::const_iterator it =
+		for (Connectors::const_iterator it =
 			               parent.connectors.begin();
 		     it != parent.connectors.end(); ++it) {
 			connectors.insert((*it)->getName());
@@ -374,12 +379,12 @@ void PluggingController::ConnectionClassInfo::execute(const vector<CommandArgume
 	switch (tokens.size()) {
 	case 2: {
 		set<string> classes;
-		for (vector<Connector*>::const_iterator it =
+		for (Connectors::const_iterator it =
 			 parent.connectors.begin();
 		     it != parent.connectors.end(); ++it) {
 			classes.insert((*it)->getClass());
 		}
-		for (vector<Pluggable*>::const_iterator it =
+		for (Pluggables::const_iterator it =
 			 parent.pluggables.begin();
 		     it != parent.pluggables.end(); ++it) {
 			classes.insert((*it)->getClass());
@@ -419,12 +424,12 @@ void PluggingController::ConnectionClassInfo::tabCompletion(vector<string>& toke
 {
 	if (tokens.size() == 3) {
 		set<string> names;
-		for (vector<Connector*>::const_iterator it =
+		for (Connectors::const_iterator it =
 			               parent.connectors.begin();
 		     it != parent.connectors.end(); ++it) {
 			names.insert((*it)->getName());
 		}
-		for (vector<Pluggable*>::const_iterator it =
+		for (Pluggables::const_iterator it =
 			               parent.pluggables.begin();
 		     it != parent.pluggables.end(); ++it) {
 			names.insert((*it)->getName());

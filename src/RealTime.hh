@@ -46,7 +46,7 @@ private:
 
 	// Schedulable
 	virtual void executeUntil(const EmuTime& time, int userData);
-	virtual const string& schedName() const;
+	virtual const std::string& schedName() const;
 
 	// SettingListener
 	void update(const Setting* setting);

@@ -6,8 +6,6 @@
 #include <string>
 #include "openmsx.hh"
 
-using std::string;
-
 class Tcl_Interp;
 class Tcl_Obj;
 
@@ -18,13 +16,13 @@ class CommandArgument
 public:
 	CommandArgument(Tcl_Interp* interp, Tcl_Obj* object);
 	
-	void setString(const string& value);
+	void setString(const std::string& value);
 	void setInt(int value);
 	void setDouble(double value);
 	void setBinary(byte* buf, unsigned length);
-	void addListElement(const string& element);
+	void addListElement(const std::string& element);
 	
-	string getString() const;
+	std::string getString() const;
 	int getInt() const;
 	double getDouble() const;
 	const byte* getBinary(unsigned& length) const;

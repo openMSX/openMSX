@@ -20,7 +20,8 @@
 
 namespace openmsx {
 
-RomHydlide2::RomHydlide2(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom)
+RomHydlide2::RomHydlide2(const XMLElement& config, const EmuTime& time,
+                         std::auto_ptr<Rom> rom)
 	: RomAscii16kB(config, time, rom)
 	, sram(getName() + " SRAM", 0x0800, config)
 {

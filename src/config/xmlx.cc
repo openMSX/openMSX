@@ -8,7 +8,9 @@
 #include "ConfigException.hh"
 #include "xmlx.hh"
 
+using std::auto_ptr;
 using std::remove;
+using std::string;
 
 namespace openmsx {
 
@@ -22,7 +24,7 @@ XMLException::XMLException(const string& msg)
 
 // class XMLElement
 
-map<string, unsigned> XMLElement::idMap;
+std::map<string, unsigned> XMLElement::idMap;
 
 XMLElement::XMLElement()
 	: parent(NULL)

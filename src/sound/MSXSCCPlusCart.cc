@@ -4,13 +4,15 @@
 // renaming, which isn't worth it right now. TODO rename this :)
 
 #include "MSXSCCPlusCart.hh"
-
 #include "SCC.hh"
 #include "File.hh"
 #include "FileContext.hh"
+#include "FileException.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
 #include "xmlx.hh"
+
+using std::string;
 
 namespace openmsx {
 

@@ -14,7 +14,8 @@
 
 namespace openmsx {
 
-RomRType::RomRType(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom)
+RomRType::RomRType(const XMLElement& config, const EmuTime& time,
+                   std::auto_ptr<Rom> rom)
 	: Rom16kBBlocks(config, time, rom)
 {
 	reset(time);

@@ -6,7 +6,8 @@
 
 namespace openmsx {
 
-RomCrossBlaim::RomCrossBlaim(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> rom)
+RomCrossBlaim::RomCrossBlaim(const XMLElement& config, const EmuTime& time,
+                             std::auto_ptr<Rom> rom)
 	: Rom16kBBlocks(config, time, rom)
 {
 	reset(time);

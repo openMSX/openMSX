@@ -11,7 +11,7 @@ class CassetteImage
 {
 public:
 	virtual ~CassetteImage() {}
-	virtual short getSampleAt(const EmuTime &time) = 0;
+	virtual short getSampleAt(const EmuTime& time) = 0;
 };
 
 } // namespace openmsx

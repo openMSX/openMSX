@@ -2,6 +2,8 @@
 
 #include "ReadDir.hh"
 
+using std::string;
+
 namespace openmsx {
 
 ReadDir::ReadDir(const string& directory)

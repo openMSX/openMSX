@@ -6,7 +6,7 @@
 #include "SettingsManager.hh"
 #include "Setting.hh"
 #include "SettingsConfig.hh"
-#include "xmlx.hh"
+#include "MSXException.hh"
 
 namespace openmsx {
 
@@ -116,7 +116,7 @@ void SettingImpl<POLICY>::init(SaveSetting save)
 			"setting", "id", getName(), getValueString());
 		try {
 			setValueString(xmlNode->getData());
-		} catch (CommandException& e) {
+		} catch (MSXException& e) {
 			// saved value no longer valid, just keep default
 		}
 	}

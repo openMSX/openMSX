@@ -7,17 +7,17 @@
 #include <cstdio>
 #include <sstream>
 #include <cassert>
-#include "File.hh"
 #include "FileOperations.hh"
+#include "FileException.hh"
 #include "CompressedFileAdapter.hh"
 #ifdef	_WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
 
-
+using std::auto_ptr;
 using std::ostringstream;
-
+using std::string;
 
 namespace openmsx {
 
