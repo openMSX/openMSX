@@ -187,13 +187,13 @@ void PixelRenderer::frameEnd(const EmuTime& time)
 		finishFrame();
 		unsigned time2 = RealTime::instance().getRealTime();
 		finishFrameDuration = time2 - time1;
+	
+		// update fps statistics
+		unsigned duration = time2 - prevTimeStamp;
+		prevTimeStamp = time2;
+		frameDurationSum += duration - frameDurations.removeBack();
+		frameDurations.addFront(duration);
 	}
-
-	unsigned timeStamp = RealTime::instance().getRealTime();
-	unsigned duration = timeStamp - prevTimeStamp;
-	prevTimeStamp = timeStamp;
-	frameDurationSum += duration - frameDurations.removeBack();
-	frameDurations.addFront(duration);
 
 	// The screen will be locked for a while, so now is a good time
 	// to perform real time sync.

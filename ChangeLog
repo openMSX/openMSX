@@ -2,6 +2,9 @@ $Id$
 
 2004-04-02 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented different frameskip and real time sync algorithm
+	* Fixed "[ 915747 ] sprites are not visible on display line 0"
+	* Skipped frames are now reflected in fps statistics
+	* Made "frameskip auto" the default
 
 2004-03-29 Maarten ter Huurne <maarten@treewalker.org>
 	* Made new ("alternative") build system default:

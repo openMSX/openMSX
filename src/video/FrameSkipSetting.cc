@@ -12,7 +12,7 @@ namespace openmsx {
 FrameSkipSetting::FrameSkipSetting()
 	: Setting<FrameSkip>(
 		"frameskip", "set the amount of frameskip",
-		FrameSkip(false, 0)
+		FrameSkip(true, 0)
 		)
 {
 	type = "0 - 100 / auto";
