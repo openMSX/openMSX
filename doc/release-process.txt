@@ -13,8 +13,9 @@ Preparing for a release
   Currently most documentation is in "doc/manual".
 - Write release notes in "doc/release-notes.txt".
 - Add the change list to "doc/release-history.txt".
-- Edit the version number in configure.ac:
+- Edit the version number in build/version.mk:
     OPENMSX_VERSION=1.2.3
+  And set RELEASE_FLAG to true.
 
 Creating a release candidate
 ----------------------------
@@ -22,14 +23,12 @@ Creating a release candidate
 - Tag the CVS archive:
     cvs rtag RELEASE_1_2_3 openMSX
 - Export the tagged code:
-    cvs -d :ext:user@cvs.openmsx.sourceforge.net:/cvsroot/openmsx \
+    cvs -d :ext:user@cvs.sourceforge.net:/cvsroot/openmsx \
     export -r RELEASE_1_2_3 openMSX
   This step makes sure that exactly the tagged code will be released.
   Export instead of checkout gets rid of the CVS admin directories.
-- Have auto* create its output:
-    ./autogen.sh
 - Create the distribution tar.gz file:
-    make -f alternative.mk dist
+    make dist
 - Save the created file somewhere you can find it again:
     mv derived/dist/openmsx-1.2.3.tar.gz <some_dir>/openmsx-1.2.3-rc1.tar.gz
   This is the release candidate.
@@ -39,20 +38,13 @@ Sanity check on release candidate
 
 This is a small check to be performed by the release coordinator.
 
-- Test build with auto*:
+- Test build:
   * Compile and check for warnings:
-      ./config-i686
-      make > /dev/null
+      unset OPENMSX_FLAVOUR   (and any other OPENMSX_ flags you have set)
+      make
   * Test installation:
       su
       make install
-- Test build with alternative.mk:
-  * Compile and check for warnings:
-      unset OPENMSX_FLAVOUR   (and any other OPENMSX_ flags you have set)
-      make -f alternative.mk
-  * Test installation:
-      su
-      make -f alternative.mk install
 - Start openmsx with your usual config.
 - Verify the version number in the title bar.
 
@@ -105,7 +97,6 @@ Announce:
 
 Finally:
 - Put "Released openmsx-1.2.3." entry in the ChangeLog in CVS.
-- Change version number in configure.ac in CVS:
-    OPENMSX_VERSION=1.2.3[CVS]
+- Set RELEASE_FLAG to false in build/version.mk
 - On the openMSX home page, update the lists "features of current release"
   and "features in development".
