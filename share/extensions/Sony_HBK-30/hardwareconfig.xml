@@ -2,13 +2,17 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
-  <device id="Sony HBK-30 diskROM/FDC">
-    <type>FDC</type>
-    <slotted> <ps>-1</ps> <ss>-1</ss> <page>1</page> </slotted>
-    <slotted> <ps>-1</ps> <ss>-1</ss> <page>2</page> </slotted>
-    <parameter name="brokenFDCread">false</parameter> 
-    <parameter name="type">WD2793</parameter>
-    <parameter name="filename">roms/hbk-30.rom</parameter>
-    <parameter name="drivename1">diska</parameter>
-  </device>
+  <primary slot="any">
+    <secondary slot="any">
+      <WD2793 id="Sony HBK-30 diskROM/FDC">
+        <mem base="0x4000" size="0x8000"/>
+        <brokenFDCread>false</brokenFDCread> 
+        <rom>
+          <sha1>ba83a80a0041e3a8fb5c075a9b4a29ee92255d62</sha1>
+          <filename>roms/hbk-30.rom</filename>
+        </rom>
+        <drives>1</drives>
+      </WD2793>
+    </secondary>
+  </primary>
 </msxconfig>

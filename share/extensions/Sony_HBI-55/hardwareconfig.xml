@@ -2,8 +2,8 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
-  <device id="Sony HBI-55">
-    <type>HBI55</type>
-    <parameter name="sramname">HBI-55.sram</parameter>
-  </device>
+  <HBI55 id="Sony HBI-55">
+    <io base="0xB0" num="4"/>
+    <sramname>HBI-55.sram</sramname>
+  </HBI55>
 </msxconfig>
