@@ -203,10 +203,20 @@ void SDLRenderer<Pixel, zoom>::drawEffects()
 	for (unsigned y = 0; y < HEIGHT / 2; y++) {
 		//fprintf(stderr, "post processing line %d: %d\n", y, lineContent[y]);
 		switch (lineContent[y]) {
-		case LINE_BLANK:
-		case LINE_DONTTOUCH:
-			assert(false); // both are disabled for now
+		case LINE_BLANK: {
+			Pixel colour = *reinterpret_cast<Pixel*>(
+				reinterpret_cast<byte*>(workScreen->pixels) +
+				workScreen->pitch * y
+				);
+			SDL_Rect rect;
+			rect.x = 0;
+			rect.w = WIDTH;
+			rect.y = y * 2;
+			rect.h = 2;
+			// Note: return code ignored.
+			SDL_FillRect(screen, &rect, colour);
 			break;
+		}
 		case LINE_256:
 			if (deinterlace) {
 				deinterlacer.deinterlaceLine256(
@@ -934,6 +944,24 @@ template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::drawBorder(
 	int fromX, int fromY, int limitX, int limitY)
 {
+	if (fromX == 0 && limitX == VDP::TICKS_PER_LINE) {
+		if (LINE_ZOOM == 2) {
+			//fprintf(stderr, "saved: %d-%d\n", fromY, limitY);
+			//int endY = rect.y + rect.h;
+			//for (int y = rect.y; y < endY; y++) {
+			int startY = max(fromY - lineRenderTop, 0);
+			int endY = min(limitY - lineRenderTop, (int)HEIGHT / 2);
+			for (int y = startY; y < endY; y++) {
+				*reinterpret_cast<Pixel*>(
+					reinterpret_cast<byte*>(workScreen->pixels) +
+					workScreen->pitch * y
+					) = getBorderColour();
+				lineContent[y] = LINE_BLANK;
+			}
+			return;
+		}
+	}
+
 	bool narrow = vdp->getDisplayMode().getLineWidth() == 512;
 
 	SDL_Rect rect;
@@ -944,14 +972,13 @@ void SDLRenderer<Pixel, zoom>::drawBorder(
 	// Note: return code ignored.
 	SDL_FillRect(workScreen, &rect, getBorderColour());
 
-	if (LINE_ZOOM == 2 && !vdp->isDisplayEnabled()) {
-		LineContent lineType = vdp->getDisplayMode().getLineWidth() == 256
-			? LINE_256 : LINE_512;
+	if (LINE_ZOOM == 2) {
+		LineContent lineType = narrow ? LINE_512 : LINE_256;
 		int endY = rect.y + rect.h;
 		for (int y = rect.y; y < endY; y++) {
 			lineContent[y] = lineType;
-		}
-	}
+ 		}
+ 	}
 }
 
 template <class Pixel, Renderer::Zoom zoom>
