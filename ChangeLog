@@ -1,5 +1,8 @@
 $Id$
 
+2004-12-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Cleanup/optimize V9990BitmapConvertor
+
 2004-12-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Turn off all LEDs when MSX is powered down
 
