@@ -93,21 +93,6 @@ void SDLRenderer<Pixel, zoom>::finishFrame()
 template <class Pixel, Renderer::Zoom zoom>
 void SDLRenderer<Pixel, zoom>::paint()
 {
-	// Draw screen using image in workScreen.
-	// TODO: Move body of drawEffects here.
-	drawEffects();
-}
-
-template <class Pixel, Renderer::Zoom zoom>
-const string& SDLRenderer<Pixel, zoom>::getName()
-{
-	static const string NAME = "SDLRenderer";
-	return NAME;
-}
-
-template <class Pixel, Renderer::Zoom zoom>
-void SDLRenderer<Pixel, zoom>::drawEffects()
-{
 	// All of the current postprocessing steps require hi-res.
 	if (LINE_ZOOM != 2) {
 		// Just copy the image as-is.
@@ -159,6 +144,10 @@ void SDLRenderer<Pixel, zoom>::drawEffects()
 			rect.w = WIDTH;
 			rect.y = startY * 2;
 			rect.h = (endY - startY) * 2;
+			// Note: SDL_FillRect is generally not allowed on locked surfaces.
+			//       However, we're using a software surface, which doesn't
+			//       have locking.
+			assert(!SDL_MUSTLOCK(screen));
 			// Note: return code ignored.
 			SDL_FillRect(screen, &rect, colour);
 			break;
@@ -195,11 +184,18 @@ void SDLRenderer<Pixel, zoom>::drawEffects()
 		startY = endY;
 	}
 	
-	// Unlock surface.
-	if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
-
 	// Apply scanlines.
 	drawScanlines();
+
+	// Unlock surface.
+	if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
+}
+
+template <class Pixel, Renderer::Zoom zoom>
+const string& SDLRenderer<Pixel, zoom>::getName()
+{
+	static const string NAME = "SDLRenderer";
+	return NAME;
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -217,12 +213,6 @@ void SDLRenderer<Pixel, zoom>::drawScanlines()
 
 	int scanlineAlpha = (settings.getScanlineAlpha()->getValue() * 255) / 100;
 	if (scanlineAlpha == 0) return;
-
-	// Lock surface, because we will access pixels directly.
-	if (SDL_MUSTLOCK(screen) && SDL_LockSurface(screen) < 0) {
-		// Display will be wrong, but this is not really critical.
-		return;
-	}
 
 	// Apply scanlines.
 	// TODO: Optimize scanlineAlpha == 255.
@@ -284,9 +274,6 @@ void SDLRenderer<Pixel, zoom>::drawScanlines()
 			}
 		}
 	}
-
-	// Unlock surface.
-	if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -328,12 +315,6 @@ template <class Pixel, Renderer::Zoom zoom>
 inline void SDLRenderer<Pixel, zoom>::renderBitmapLines(
 	byte line, int count)
 {
-	// Lock surface, because we will access pixels directly.
-	if (SDL_MUSTLOCK(bitmapDisplayCache) && SDL_LockSurface(bitmapDisplayCache) < 0) {
-		// Display will be wrong, but this is not really critical.
-		return;
-	}
-
 	byte mode = vdp->getDisplayMode().getByte();
 	// Which bits in the name mask determine the page?
 	int pageMask = 0x200 | vdp->getEvenOddMask();
@@ -349,9 +330,6 @@ inline void SDLRenderer<Pixel, zoom>::renderBitmapLines(
 		}
 		line++; // is a byte, so wraps at 256
 	}
-
-	// Unlock surface.
-	if (SDL_MUSTLOCK(bitmapDisplayCache)) SDL_UnlockSurface(bitmapDisplayCache);
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -379,12 +357,6 @@ template <class Pixel, Renderer::Zoom zoom>
 inline void SDLRenderer<Pixel, zoom>::renderPlanarBitmapLines(
 	byte line, int count)
 {
-	// Lock surface, because we will access pixels directly.
-	if (SDL_MUSTLOCK(bitmapDisplayCache) && SDL_LockSurface(bitmapDisplayCache) < 0) {
-		// Display will be wrong, but this is not really critical.
-		return;
-	}
-
 	byte mode = vdp->getDisplayMode().getByte();
 	// Which bits in the name mask determine the page?
 	int pageMask = vdp->getEvenOddMask();
@@ -398,30 +370,18 @@ inline void SDLRenderer<Pixel, zoom>::renderPlanarBitmapLines(
 		}
 		line++; // is a byte, so wraps at 256
 	}
-
-	// Unlock surface.
-	if (SDL_MUSTLOCK(bitmapDisplayCache)) SDL_UnlockSurface(bitmapDisplayCache);
 }
 
 template <class Pixel, Renderer::Zoom zoom>
 inline void SDLRenderer<Pixel, zoom>::renderCharacterLines(
 	byte line, int count)
 {
-	// Lock surface, because we will access pixels directly.
-	if (SDL_MUSTLOCK(charDisplayCache) && SDL_LockSurface(charDisplayCache) < 0) {
-		// Display will be wrong, but this is not really critical.
-		return;
-	}
-
 	while (count--) {
 		// Render this line.
 		characterConverter.convertLine(
 			getLinePtr(charDisplayCache, line), line);
 		line++; // is a byte, so wraps at 256
 	}
-
-	// Unlock surface.
-	if (SDL_MUSTLOCK(charDisplayCache)) SDL_UnlockSurface(charDisplayCache);
 }
 
 template <class Pixel, Renderer::Zoom zoom>
@@ -507,7 +467,7 @@ SDLRenderer<Pixel, zoom>::~SDLRenderer()
 #endif	 
 
 	SDL_FreeSurface(charDisplayCache);
-	SDL_FreeSurface(bitmapDisplayCache);
+	if (bitmapDisplayCache) SDL_FreeSurface(bitmapDisplayCache);
 	for (int i = 0; i < 2; i++) {
 		if (workScreens[i]) SDL_FreeSurface(workScreens[i]);
 	}
@@ -1096,28 +1056,6 @@ void SDLRenderer<Pixel, zoom>::drawSprites(
 	if (displayHeight <= 0) return;
 
 	// Render sprites.
-	// Lock surface, because we will access pixels directly.
-	// TODO: Locking the surface directly after a blit is
-	//   probably not the smartest thing to do performance-wise.
-	//   Since sprite data will buffered, why not plot them
-	//   just before page flip?
-	//   Will only work if *all* data required is buffered, including
-	//   for example RGB colour (on V9938 palette may change).
-	if (SDL_MUSTLOCK(workScreen) && SDL_LockSurface(workScreen) < 0) {
-		// Display will be wrong, but this is not really critical.
-		return;
-	}
-
-	// TODO: Code duplicated from drawDisplay.
-	/*
-	if (!(settings.getDeinterlace()->getValue())
-	&& vdp->isInterlaced() && vdp->getEvenOdd()
-	&& zoom != Renderer::ZOOM_256) {
-		// Display odd field half a line lower.
-		screenY++;
-	}
-	*/
-
 	// TODO: Call different SpriteConverter methods depending on narrow/wide
 	//       pixels in this display mode?
 	int spriteMode = vdp->getDisplayMode().getSpriteMode();
@@ -1138,9 +1076,6 @@ void SDLRenderer<Pixel, zoom>::drawSprites(
 
 		pixelPtr = (Pixel*)(((byte*)pixelPtr) + workScreen->pitch);
 	}
-
-	// Unlock surface.
-	if (SDL_MUSTLOCK(workScreen)) SDL_UnlockSurface(workScreen);
 }
 
 } // namespace openmsx

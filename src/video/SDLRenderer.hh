@@ -168,10 +168,6 @@ private:
 	  */
 	void precalcColourIndex0(DisplayMode mode, bool transparency = true);
 
-	/** Apply effects to the image in workScreen.
-	  */
-	void drawEffects();
-
 	/** Draw scanlines.
 	  */
 	void drawScanlines();
