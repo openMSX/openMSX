@@ -3,13 +3,13 @@
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
   
-  <device id="MotherBoard">
+  <config id="MotherBoard">
     <type>MotherBoard</type>
     <parameter name="0" class="subslotted">false</parameter>
     <parameter name="1" class="subslotted">false</parameter>
     <parameter name="2" class="subslotted">false</parameter>
     <parameter name="3" class="subslotted">true</parameter>
-  </device>
+  </config>
   
   <device id="myram1">
     <type>Simple64KB</type>

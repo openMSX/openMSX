@@ -114,7 +114,6 @@ int main (int argc, char **argv)
 			(*j)->dump();
 			MSXDevice *device = deviceFactory::create( (*j) );
 			assert (device != 0);
-			// TODO this only works if MotherBoard comes first in config file!!!
 			MSXMotherBoard::instance()->addDevice(device);
 			PRT_DEBUG ("Instantiated:" << (*j)->getType());
 		}

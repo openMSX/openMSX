@@ -9,18 +9,12 @@
 #include "Scheduler.hh"
 #include "EmuTime.hh"
 #include "CPUInterface.hh"
+#include "msxconfig.hh"
 
 
-class MSXMotherBoard : public CPUInterface, public MSXDevice
+class MSXMotherBoard : public CPUInterface
 {	
 	public:
-		/**
-		 * Constructor
-		 * This is a singleton class, constructor may only be used
-		 * once in the class devicefactory.
-		 */
-		MSXMotherBoard(MSXConfig::Device *config);
-
 		/**
 		 * Destructor
 		 */
@@ -32,26 +26,74 @@ class MSXMotherBoard : public CPUInterface, public MSXDevice
 		 */
 		static MSXMotherBoard *instance();
 	 
-		// Devices can (un)register IO ports
-		// Should be done during the InitMSX method
+		/**
+		 * Devices can register their IO ports. 
+		 * This should be done during in their init() method.
+		 * Once device are registered, their readIO() / writeIO() methods
+		 * can get called.
+		 */
 		void register_IO_In(byte port,MSXDevice *device);
 		void register_IO_Out(byte port,MSXDevice *device);
-		//To register devices in the slotlayout of the msx device
-		//fe. the memmorymapper registers its childs with this method
-		void addDevice(MSXDevice *device);
+
+		/**
+		 * Devices can register themself in the MSX slotstructure.
+		 * They should do this during their init() method. Once the
+		 * devices are registered their readMem() / writeMem() methods
+		 * can get called.
+		 */
 		void registerSlottedDevice(MSXDevice *device,int PrimSl,int SecSL,int Page);
-		// To remove a device completely from configuration
-		// fe. yanking a cartridge out of the msx
+		
+		/**
+		 * All MSXDevices should be registered by tyhe MotherBoard.
+		 * This method should only be called at start-up
+		 */
+		void addDevice(MSXDevice *device);
+		
+		/**
+		 * To remove a device completely from configuration
+		 * fe. yanking a cartridge out of the msx
+		 *
+		 * TODO this method is unimplemented!!
+		 */
 		void removeDevice(MSXDevice *device);
 
+		/**
+		 * This will initialize all MSXDevices (the init() method of
+		 * all registered MSXDevices is called)
+		 */
 		void InitMSX();
+
+		/**
+		 * This will start all MSXDevices (the start() method of
+		 * all registered MSXDevices is called)
+		 */
 		void StartMSX();
+
+		/**
+		 * This will reset all MSXDevices (the reset() method of
+		 * all registered MSXDevices is called)
+		 * This also initiates the Scheduler.
+		 */
 		void ResetMSX();
+
+		/**
+		 * This will stop all MSXDevices (the stop() method of
+		 * all registered MSXDevices is called)
+		 */
 		void StopMSX();
+
+		/**
+		 * This will destroy all MSXDevices (the destructor of
+		 * all registered MSXDevices is called)
+		 */
 		void DestroyMSX();
 
-		void RestoreMSX();
+		/**
+		 * TODO
+		 */
+		void RestoreMSX();	// TODO unimplemented!!
 		void SaveStateMSX(std::ofstream &savestream);
+
 
 		// CPUInterface //
 		// This will be used by CPU to read data from "visual" devices
@@ -64,10 +106,14 @@ class MSXMotherBoard : public CPUInterface, public MSXDevice
 		void raiseIRQ();
 		void lowerIRQ();
 
-
+		/**
+		 * Should only be used by PPI
+		 *  TODO make friend
+		 */
 		void set_A8_Register(byte value);
 
 	private:
+		MSXMotherBoard();
 
 		MSXDevice* IO_In[256];
 		MSXDevice* IO_Out[256];
@@ -84,5 +130,7 @@ class MSXMotherBoard : public CPUInterface, public MSXDevice
 		int IRQLine;
 
 		static MSXMotherBoard *oneInstance;
+
+		MSXConfig::Config *config;
 };
 #endif //__MSXMOTHERBOARD_HH__

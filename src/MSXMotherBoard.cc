@@ -10,10 +10,11 @@
 #include "MSXCPU.hh"
 
 
-MSXMotherBoard::MSXMotherBoard(MSXConfig::Device *config) : MSXDevice(config)
+MSXMotherBoard::MSXMotherBoard()
 {
 	PRT_DEBUG("Creating an MSXMotherBoard object");
-	oneInstance = this;
+	config = MSXConfig::instance()->getConfigById("MotherBoard");
+	oneInstance = this;	////
 	for (int i=0; i<256; i++) {
 		IO_In[i]  = DummyDevice::instance();
 		IO_Out[i] = DummyDevice::instance();
@@ -37,7 +38,9 @@ MSXMotherBoard::~MSXMotherBoard()
 
 MSXMotherBoard *MSXMotherBoard::instance()
 {
-	assert (oneInstance != NULL);
+	if (oneInstance == NULL) {
+		oneInstance = new MSXMotherBoard();
+	}
 	return oneInstance;
 }
 MSXMotherBoard *MSXMotherBoard::oneInstance = NULL;
@@ -93,7 +96,7 @@ void MSXMotherBoard::ResetMSX()
 void MSXMotherBoard::InitMSX()
 {
 	// Make sure that the MotherBoard is correctly 'init'ed.
-	std::list<const MSXConfig::Device::Parameter*> subslotted_list = deviceConfig->getParametersWithClass("subslotted");
+	std::list<const MSXConfig::Device::Parameter*> subslotted_list = config->getParametersWithClass("subslotted");
 	for (std::list<const MSXConfig::Device::Parameter*>::const_iterator i=subslotted_list.begin(); i != subslotted_list.end(); i++) {
 		bool hasSubs=false;
 		if ((*i)->value.compare("true") == 0) {

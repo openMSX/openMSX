@@ -25,9 +25,6 @@
 
 MSXDevice *deviceFactory::create(MSXConfig::Device *conf) {
 	MSXDevice *device = NULL;
-	if (conf->getType()=="MotherBoard") {
-		device = new MSXMotherBoard(conf);
-	} else
 	if (conf->getType()=="Rom16KB") {
 		device = new MSXRom16KB(conf);
 	} else
