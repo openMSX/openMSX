@@ -129,6 +129,51 @@ inline word Multiply<word>::conv32(unsigned p)
 }
 
 
+// class Darkener
+
+Darkener<word>::Darkener(SDL_PixelFormat* format_)
+	: format(format_)
+{
+	factor = 0;
+	memset(tab, 0, sizeof(tab));
+}
+
+void Darkener<word>::setFactor(unsigned f)
+{
+	if (f == factor) {
+		return;
+	}
+	factor = f;
+
+	for (unsigned p = 0; p < 0x10000; ++p) {
+		tab[p] = ((((p & format->Rmask) * f) >> 8) & format->Rmask) |
+		         ((((p & format->Gmask) * f) >> 8) & format->Gmask) |
+		         ((((p & format->Bmask) * f) >> 8) & format->Bmask);
+	}
+}
+
+word* Darkener<word>::getTable()
+{
+	return tab;
+}
+
+
+Darkener<unsigned>::Darkener(SDL_PixelFormat* format)
+{
+}
+
+void Darkener<unsigned>::setFactor(unsigned f)
+{
+	assert(false);
+}
+
+word* Darkener<unsigned>::getTable()
+{
+	assert(false);
+	return NULL;
+}
+
+
 // class SimpleScaler
 
 template <class Pixel>
@@ -139,6 +184,7 @@ SimpleScaler<Pixel>::SimpleScaler(SDL_PixelFormat* format)
 	, mult1(format)
 	, mult2(format)
 	, mult3(format)
+	, darkener(format)
 {
 }
 
@@ -151,8 +197,10 @@ template <class Pixel>
 void SimpleScaler<Pixel>::scaleBlank(Pixel colour, SDL_Surface* dst,
                                      int dstY, int endDstY)
 {
-	int scanline = 255 - (scanlineSetting.getValue() * 255) / 100;
-	Pixel scanlineColour = mult1.multiply(colour, scanline);
+	Pixel scanlineColour = scanlineSetting.getValue() == 0
+		? colour
+		: mult1.multiply(colour,
+		                255 - (scanlineSetting.getValue() * 255) / 100);
 
 	while (dstY < endDstY) {
 		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, dstY++);
@@ -605,6 +653,86 @@ void SimpleScaler<Pixel>::average(
 		);
 		return;
 	}
+
+	if ((sizeof(Pixel) == 2) && cpu.hasMMXEXT()) {
+		// extended-MMX routine, 16bpp
+
+		darkener.setFactor(alpha);
+		word* table = darkener.getTable();
+		Pixel mask = ~blender.getMask();
+		
+		asm (
+			"movd	%4, %%mm7;"
+			"xorl	%%ecx, %%ecx;"
+			"pshufw	$0, %%mm7, %%mm7;"
+			
+		"1:"	"movq	 (%0,%%ecx,2), %%mm0;"
+			"movq	8(%0,%%ecx,2), %%mm1;"
+			"movq	 (%1,%%ecx,2), %%mm2;"
+			"movq	8(%1,%%ecx,2), %%mm3;"
+
+			"movq	%%mm7, %%mm4;"
+			"movq	%%mm7, %%mm5;"
+			"pand	%%mm7, %%mm0;"
+			"pand	%%mm7, %%mm1;"
+			"pandn  %%mm2, %%mm4;"
+			"pandn  %%mm3, %%mm5;"
+			"pand	%%mm7, %%mm2;"
+			"pand	%%mm7, %%mm3;"
+			"pavgw	%%mm2, %%mm0;"
+			"pavgw	%%mm3, %%mm1;"
+			"paddw	%%mm4, %%mm0;"
+			"paddw	%%mm5, %%mm1;"
+			
+			"pextrw	$0, %%mm0, %%eax;"
+			"movw	(%2,%%eax,2), %%ax;"
+			"pinsrw	$0, %%eax, %%mm0;"
+			"pextrw	$0, %%mm1, %%eax;"
+			"movw	(%2,%%eax,2), %%ax;"
+			"pinsrw	$0, %%eax, %%mm1;"
+			
+			"pextrw	$1, %%mm0, %%eax;"
+			"movw	(%2,%%eax,2), %%ax;"
+			"pinsrw	$1, %%eax, %%mm0;"
+			"pextrw	$1, %%mm1, %%eax;"
+			"movw	(%2,%%eax,2), %%ax;"
+			"pinsrw	$1, %%eax, %%mm1;"
+
+			"pextrw	$2, %%mm0, %%eax;"
+			"movw	(%2,%%eax,2), %%ax;"
+			"pinsrw	$2, %%eax, %%mm0;"
+			"pextrw	$2, %%mm1, %%eax;"
+			"movw	(%2,%%eax,2), %%ax;"
+			"pinsrw	$2, %%eax, %%mm1;"
+
+			"pextrw	$3, %%mm0, %%eax;"
+			"movw	(%2,%%eax,2), %%ax;"
+			"pinsrw	$3, %%eax, %%mm0;"
+			"pextrw	$3, %%mm1, %%eax;"
+			"movw	(%2,%%eax,2), %%ax;"
+			"pinsrw	$3, %%eax, %%mm1;"
+			
+			"movntq	%%mm0,   (%3,%%ecx,2);"
+			"movntq	%%mm1,  8(%3,%%ecx,2);"
+
+			"addl	$8, %%ecx;"
+			"cmpl	$640, %%ecx;"
+			"jl	1b;"
+			"emms;"
+			: // no output
+			: "r" (src1)  // 0
+			, "r" (src2)  // 1
+			, "r" (table) // 2
+			, "r" (dst)   // 3
+			, "m" (mask)   // 4
+			: "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm7"
+			, "eax", "ecx"
+		);
+		return;
+	}
+	// MMX routine 16bpp is missing, but it's difficult to write because
+	// of the missing "pextrw" and "pinsrw" instructions
+	
 	#endif
 		
 	// non-MMX routine, both 16bpp and 32bpp

@@ -66,6 +66,9 @@ public:
 			+ (colour1 & blendMask);
 	}
 
+	Pixel getMask() {
+		return blendMask;
+	}
 };
 
 } // namespace openmsx

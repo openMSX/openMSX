@@ -4,6 +4,8 @@ $Id$
 	* Use #ifdef iso if around asm routines
 	* Added normal-MMX (non-ext-MMX) routines for every ext-MMX routine
 	* Made a setting for "user directories"
+	* Simple scaler 16bpp scanline optimization:
+	   - added ext-MMX routine, improves speed from 69s to 51s
 
 2004-09-26 Arnold Metselaar <arnold_m@operamail.com>
 	* Let Keyboard and KeyJoystick release all keys when the console 

@@ -44,6 +44,26 @@ private:
 	unsigned factor;
 };
 
+template<typename Pixel> class Darkener;
+
+template<> class Darkener<word> {
+public:
+	Darkener(SDL_PixelFormat* format);
+	void setFactor(unsigned f);
+	word* getTable();
+private:
+	word tab[0x10000];
+	unsigned factor;
+	SDL_PixelFormat* format;
+};
+
+template<> class Darkener<unsigned> {
+public:
+	Darkener(SDL_PixelFormat* format);
+	void setFactor(unsigned f);
+	word* getTable();
+};
+
 
 /** Scaler which assigns the color of the original pixel to all pixels in
   * the 2x2 square. Optionally it can draw darkended scanlines (scanline has
@@ -77,6 +97,7 @@ private:
 	Multiply<Pixel> mult1;
 	Multiply<Pixel> mult2;
 	Multiply<Pixel> mult3;
+	Darkener<Pixel> darkener;
 };
 
 } // namespace openmsx
