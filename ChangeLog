@@ -1,5 +1,11 @@
 $Id$
 
+2004-05-23 Maarten ter Huurne <maarten@treewalker.org>
+	* Fixed glitches in SDLHi when deinterlacing.
+	* Fixed pause in SDLGL in monochrome character modes (SCREEN0.40/0.80/1).
+	* Added several missing documentation files to "make install".
+	* Some other build system improvements.
+
 2004-05-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* RS232 interface in Sony_HB-G900P has 2kb RAM
 
