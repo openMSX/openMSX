@@ -343,16 +343,6 @@ void MSXConfig::handleDoc(XML::Document* doc, FileContext &context)
 	}
 }
 
-bool MSXConfig::hasConfigWithId(const string &id)
-{
-	try {
-		getConfigById(id);
-	} catch (ConfigException &e) {
-		return false;
-	}
-	return true;
-}
-
 void MSXConfig::saveFile()
 {
 	// TODO
@@ -365,7 +355,22 @@ void MSXConfig::saveFile(const string &filename)
 	assert(false);
 }
 
+bool MSXConfig::hasConfigWithId(const string &id)
+{
+	return findConfigById(id);
+}
+
 Config* MSXConfig::getConfigById(const string &id)
+{
+	Config* result = findConfigById(id);
+	if (!result) {
+		throw ConfigException("<config> or <device> with id:" + id +
+		                      " not found");
+	}
+	return result;
+}
+
+Config* MSXConfig::findConfigById(const string &id)
 {
 	for (list<Config*>::const_iterator i = configs.begin();
 	     i != configs.end();
@@ -381,7 +386,7 @@ Config* MSXConfig::getConfigById(const string &id)
 			return (*i);
 		}
 	}
-	throw ConfigException("<config> or <device> with id:" + id + " not found");
+	return NULL;
 }
 
 Device* MSXConfig::getDeviceById(const string &id)

@@ -137,8 +137,9 @@ class MSXConfig
 		 * get a config or device or customconfig by id
 		 */
 		Config* getConfigById(const string &id);
-		Device* getDeviceById(const string &id);
+		Config* findConfigById(const string &id);
 		bool hasConfigWithId(const string &id);
+		Device* getDeviceById(const string &id);
 
 		/**
 		 * get a device
