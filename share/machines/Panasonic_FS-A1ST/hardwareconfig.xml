@@ -15,6 +15,11 @@
     <parameter name="3" class="subslotted">true</parameter>
   </config>
 
+  <config id="RenShaTurbo">
+     <parameter name="min_ints">47</parameter>
+     <parameter name="max_ints">221</parameter>
+  </config>
+
   <device id="MapperIO">
     <type>MapperIO</type>
     <parameter name="type">TurboR</parameter>

@@ -86,6 +86,8 @@ openmsx_SOURCES=\
 	Pluggable.hh Pluggable.cc \
 	PluggableFactory.hh PluggableFactory.cc \
 	DebugDevice.hh DebugDevice.cc \
+	RenShaTurbo.hh RenShaTurbo.cc \
+	Autofire.hh Autofire.cc \
 	config.h
 
 # When editing this list, make sure the following sequences are maintained:

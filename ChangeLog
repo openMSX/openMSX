@@ -1,5 +1,10 @@
 $Id$
 
+2003-10-09 David Heremans <david.heremans@gnu-linux.net>
+	* integrated renshaturbo from Alex into openMSX:
+		fixed the namespace in Alex code
+	
+
 2003-10-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed VDP TR bit bug (fixes Ys-2):
 	   - TODO HMMC cmd can be simplified a lot
