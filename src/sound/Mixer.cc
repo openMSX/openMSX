@@ -13,6 +13,10 @@ Mixer::Mixer()
 {
 	PRT_DEBUG("Creating a Mixer object");
 	
+	prevLeft = prevOutLeft = 0;
+	prevRight = prevOutRight = 0;
+	nbClipped = 0;
+	
 	MSXConfig::Config *config = MSXConfig::Backend::instance()->getConfigById("Mixer");
 	int freq    = config->getParameterAsInt("frequency");
 	int samples = config->getParameterAsInt("samples");
@@ -142,11 +146,32 @@ void Mixer::updtStrm(int samples)
 			left  += buffers[STEREO][i][2*j];
 			right += buffers[STEREO][i][2*j+1];
 		}
+
+		// filter
+		int tmp;
+		tmp = (255*left - 255*prevLeft + 254*prevOutLeft) >> 8;
+		prevLeft = left;
+		prevOutLeft = tmp;
+		left = tmp;
+		
+		tmp = (255*right - 255*prevRight + 254*prevOutRight) >> 8;
+		prevRight = right;
+		prevOutRight = tmp;
+		right = tmp;
+
+		// clip
+		#ifdef DEBUG
+		if (left>32767 || left<-32768 || right>32767 || right<-32768) {
+			nbClipped++;
+			PRT_DEBUG("Mixer: clipped "<<nbClipped);
+		}
+		#endif
 		if      (left  > 32767)  left  =  32767;
 		else if (left  < -32768) left  = -32768;
-		mixBuffer[offset++] = (short)left;
 		if      (right > 32767)  right =  32767;
 		else if (right < -32768) right = -32768;
+		
+		mixBuffer[offset++] = (short)left;
 		mixBuffer[offset++] = (short)right;
 	}
 	samplesLeft -= samples;

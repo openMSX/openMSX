@@ -88,6 +88,10 @@ class Mixer
 
 		MSXCPU *cpu;
 		RealTime *realTime; 
+
+		int prevLeft, prevOutLeft;
+		int prevRight, prevOutRight;
+		int nbClipped;
 };
 
 #endif //__MIXER_HH__
