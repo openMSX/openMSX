@@ -117,8 +117,7 @@ void CPU::lowerIRQ()
 }
 
 #ifdef CPU_DEBUG
-void CPU::DebugCmd::execute(const std::vector<std::string> &tokens,
-                            const EmuTime &time)
+void CPU::DebugCmd::execute(const std::vector<std::string> &tokens)
 {
 	cpu->cpudebug = !cpu->cpudebug;
 }

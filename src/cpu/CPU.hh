@@ -191,8 +191,7 @@ class CPU
 		class DebugCmd : public Command {
 		public:
 			DebugCmd(CPU *cpu_) : cpu(cpu_) {}
-			virtual void execute(const std::vector<std::string> &tokens,
-			                     const EmuTime &time);
+			virtual void execute(const std::vector<std::string> &tokens);
 			virtual void help(const std::vector<std::string> &tokens) const;
 		private:
 			CPU* cpu;
