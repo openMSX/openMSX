@@ -2371,7 +2371,7 @@ void _CPU_::otir() {
 
 
 // various
-void _CPU_::nop() { };
+void _CPU_::nop() { }
 void _CPU_::ccf() {
 	R.AF.B.l = ((R.AF.B.l & (S_FLAG | Z_FLAG | P_FLAG | C_FLAG) |
 	            ((R.AF.B.l & C_FLAG) ? H_FLAG : 0)) |
@@ -2382,7 +2382,7 @@ void _CPU_::cpl() {
 	R.AF.B.l = (R.AF.B.l & (S_FLAG | Z_FLAG | P_FLAG | C_FLAG)) |
 	           H_FLAG | N_FLAG |
 		   (R.AF.B.h & (X_FLAG | Y_FLAG));
-	
+
 }
 void _CPU_::daa() {
 	int i = R.AF.B.h;
