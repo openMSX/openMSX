@@ -31,10 +31,12 @@ CommandConsole::CommandConsole()
 	maxHistory = config->getParameterAsInt("historysize", 100);
 	removeDoubles = config->getParameterAsBool("removedoubles", true);
 	loadHistory();
+	CommandController::instance()->setCommandConsole(this);
 }
 
 CommandConsole::~CommandConsole()
 {
+	CommandController::instance()->setCommandConsole(NULL);
 	saveHistory();
 	EventDistributor::instance()->unregisterEventListener(SDL_KEYDOWN, this);
 	EventDistributor::instance()->unregisterEventListener(SDL_KEYUP,   this);

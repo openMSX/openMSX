@@ -17,6 +17,8 @@ using std::vector;
 
 namespace openmsx {
 
+class CommandConsole;
+
 class CommandController
 {
 public:
@@ -53,6 +55,9 @@ public:
 	static void completeString(vector<string>& tokens, set<string>& set);
 	static void completeFileName(vector<string>& tokens);
 
+	// should only be called by CommandConsole
+	void setCommandConsole(CommandConsole* console);
+
 private:
 	CommandController();
 	~CommandController();
@@ -83,6 +88,7 @@ private:
 	friend class HelpCmd;
 
 	AliasCommands aliasCmds;
+	CommandConsole* cmdConsole;
 };
 
 } // namespace openmsx

@@ -19,7 +19,7 @@
 namespace openmsx {
 
 CommandController::CommandController()
-	: aliasCmds(*this)
+	: aliasCmds(*this), cmdConsole(NULL)
 {
 	registerCommand(&helpCmd, "help");
 	registerCommand(&InfoCommand::instance(), "info");
@@ -30,6 +30,7 @@ CommandController::~CommandController()
 	unregisterCommand(&InfoCommand::instance(), "info");
 	unregisterCommand(&helpCmd, "help");
 	assert(commands.empty());
+	assert(!cmdConsole);
 }
 
 CommandController *CommandController::instance()
@@ -255,6 +256,10 @@ void CommandController::autoCommands()
 	}
 }
 
+void CommandController::setCommandConsole(CommandConsole* console)
+{
+	cmdConsole = console;
+}
 
 void CommandController::tabCompletion(string &command)
 {
@@ -322,6 +327,8 @@ void CommandController::tabCompletion(vector<string> &tokens)
 
 bool CommandController::completeString2(string &str, set<string>& st)
 {
+	CommandConsole* cmdConsole = CommandController::instance()->cmdConsole;
+	assert(cmdConsole);
 	set<string>::iterator it = st.begin();
 	while (it != st.end()) {
 		if (str == (*it).substr(0, str.size())) {
@@ -364,9 +371,9 @@ bool CommandController::completeString2(string &str, set<string>& st)
 		// print all possibilities
 		for (it = st.begin(); it != st.end(); ++it) {
 			// TODO print more on one line
-			CommandConsole::instance()->printFast(*it);
+			cmdConsole->printFast(*it);
 		}
-		CommandConsole::instance()->printFlush();
+		cmdConsole->printFlush();
 	}
 	return false;
 }
