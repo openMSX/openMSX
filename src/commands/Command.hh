@@ -17,6 +17,10 @@ class CommandArgument;
 class CommandCompleter
 {
 public:
+	/** Print help for this command.
+	  */
+	virtual string help(const vector<string>& tokens) const = 0;
+
 	/** Attempt tab completion for this command.
 	  * @param tokens Tokenized command line;
 	  * 	tokens[0] is the command itself.
@@ -39,10 +43,6 @@ public:
 	  */
 	virtual void execute(const vector<CommandArgument>& tokens,
 	                     CommandArgument& result) = 0;
-
-	/** Print help for this command.
-	  */
-	virtual string help(const vector<string>& tokens) const = 0;
 
 	/** Attempt tab completion for this command.
 	  * Default implementation does nothing.

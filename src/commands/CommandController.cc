@@ -425,15 +425,17 @@ string CommandController::HelpCmd::execute(const vector<string>& tokens)
 	case 1: 
 		result += "Use 'help [command]' to get help for a specific command\n";
 		result += "The following commands exist:\n";
-		for (CommandMap::const_iterator it = parent.commands.begin();
-		     it != parent.commands.end(); ++it) {
+		for (CompleterMap::const_iterator it =
+		         parent.commandCompleters.begin();
+		     it != parent.commandCompleters.end(); ++it) {
 			result += it->first;
 			result += '\n';
 		}
 		break;
 	default: {
-		CommandMap::iterator it = parent.commands.find(tokens[1]);
-		if (it == parent.commands.end()) {
+		CompleterMap::const_iterator it =
+			parent.commandCompleters.find(tokens[1]);
+		if (it == parent.commandCompleters.end()) {
 			throw CommandException(tokens[1] + ": unknown command");
 		}
 		vector<string>::const_iterator remainder = tokens.begin();

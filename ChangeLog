@@ -5,6 +5,9 @@ $Id$
 	   Changing this setting only has effect the next time openMSX is
 	   started (will be changed later, but it requires some refactoring in
 	   the sounddevices).
+	* Implemented "help set [<setting>]" command:
+	   Since the switch to TCL it was no longer possible to query the
+	   setting descriptions. Fixed now.
 
 2004-09-06 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Blur scaler speed-up:

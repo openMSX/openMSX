@@ -11,9 +11,9 @@ namespace openmsx {
 // SettingsManager implementation:
 
 SettingsManager::SettingsManager()
-	: setCompleter(this),
-	  settingCompleter(this),
-	  toggleCommand(this),
+	: setCompleter(*this),
+	  settingCompleter(*this),
+	  toggleCommand(*this),
 	  commandController(CommandController::instance()),
 	  interpreter(Interpreter::instance())
 {
@@ -85,7 +85,7 @@ void SettingsManager::getSettingNames(set<string>& result) const
 }
 
 template <typename T>
-T* SettingsManager::getByName(const string& cmd, const string& name) const
+T& SettingsManager::getByName(const string& cmd, const string& name) const
 {
 	SettingNode* setting = getByName(name);
 	if (!setting) {
@@ -97,15 +97,28 @@ T* SettingsManager::getByName(const string& cmd, const string& name) const
 		throw CommandException(cmd + ": " + name +
 		                       ": setting has wrong type");
 	}
-	return typeSetting;
+	return *typeSetting;
 }
 
 
 // SetCompleter implementation:
 
-SettingsManager::SetCompleter::SetCompleter(SettingsManager* manager_)
+SettingsManager::SetCompleter::SetCompleter(SettingsManager& manager_)
 	: manager(manager_)
 {
+}
+
+string SettingsManager::SetCompleter::help(const vector<string>& tokens) const
+{
+	if (tokens.size() == 2) {
+		return manager.getByName<SettingNode>("set", tokens[1])
+		                                          .getDescription();
+	}
+	return "Set or query the value of a openMSX setting or TCL variable\n"
+	       "  set <setting>          shows current value\n"
+	       "  set <setting> <value>  set a new value\n"
+	       "Use 'help set <setting>' to get more info on a specific\n"
+	       "openMSX setting.\n";
 }
 
 void SettingsManager::SetCompleter::tabCompletion(vector<string>& tokens) const
@@ -114,15 +127,15 @@ void SettingsManager::SetCompleter::tabCompletion(vector<string>& tokens) const
 		case 2: {
 			// complete setting name
 			set<string> settings;
-			manager->getSettingNames<SettingLeafNode>(settings);
+			manager.getSettingNames<SettingLeafNode>(settings);
 			CommandController::completeString(tokens, settings);
 			break;
 		}
 		case 3: {
 			// complete setting value
 			SettingsMap::iterator it =
-				manager->settingsMap.find(tokens[1]);
-			if (it != manager->settingsMap.end()) {
+				manager.settingsMap.find(tokens[1]);
+			if (it != manager.settingsMap.end()) {
 				it->second->tabCompletion(tokens);
 			}
 			break;
@@ -133,9 +146,14 @@ void SettingsManager::SetCompleter::tabCompletion(vector<string>& tokens) const
 
 // SettingCompleter implementation
 
-SettingsManager::SettingCompleter::SettingCompleter(SettingsManager* manager_)
+SettingsManager::SettingCompleter::SettingCompleter(SettingsManager& manager_)
 	: manager(manager_)
 {
+}
+
+string SettingsManager::SettingCompleter::help(const vector<string>& /*tokens*/) const
+{
+	return ""; // TODO
 }
 
 void SettingsManager::SettingCompleter::tabCompletion(vector<string>& tokens) const
@@ -144,7 +162,7 @@ void SettingsManager::SettingCompleter::tabCompletion(vector<string>& tokens) co
 		case 2: {
 			// complete setting name
 			set<string> settings;
-			manager->getSettingNames<SettingLeafNode>(settings);
+			manager.getSettingNames<SettingLeafNode>(settings);
 			CommandController::completeString(tokens, settings);
 			break;
 		}
@@ -154,7 +172,7 @@ void SettingsManager::SettingCompleter::tabCompletion(vector<string>& tokens) co
 
 // ToggleCommand implementation:
 
-SettingsManager::ToggleCommand::ToggleCommand(SettingsManager* manager_)
+SettingsManager::ToggleCommand::ToggleCommand(SettingsManager& manager_)
 	: manager(manager_)
 {
 }
@@ -165,13 +183,13 @@ string SettingsManager::ToggleCommand::execute(const vector<string>& tokens)
 	switch (tokens.size()) {
 	case 1: 
 		// list all boolean settings
-		manager->getSettingNames<BooleanSetting>(result);
+		manager.getSettingNames<BooleanSetting>(result);
 		break;
 
 	case 2: {
-		BooleanSetting *boolSetting =
-			manager->getByName<BooleanSetting>("toggle", tokens[1]);
-		boolSetting->setValue(!boolSetting->getValue());
+		BooleanSetting& boolSetting =
+			manager.getByName<BooleanSetting>("toggle", tokens[1]);
+		boolSetting.setValue(!boolSetting.getValue());
 		break;
 	}
 	default:
@@ -192,7 +210,7 @@ void SettingsManager::ToggleCommand::tabCompletion(vector<string>& tokens) const
 		case 2: {
 			// complete setting name
 			set<string> settings;
-			manager->getSettingNames<BooleanSetting>(settings);
+			manager.getSettingNames<BooleanSetting>(settings);
 			CommandController::completeString(tokens, settings);
 			break;
 		}

@@ -59,32 +59,34 @@ private:
 	void getSettingNames(set<string>& result) const;
 
 	template <typename T>
-	T* getByName(const string& cmd, const string& name) const;
+	T& getByName(const string& cmd, const string& name) const;
 
 	class SetCompleter : public CommandCompleter {
 	public:
-		SetCompleter(SettingsManager* manager);
+		SetCompleter(SettingsManager& manager);
+		virtual string help(const vector<string>& tokens) const;
 		virtual void tabCompletion(vector<string>& tokens) const;
 	private:
-		SettingsManager* manager;
+		SettingsManager& manager;
 	} setCompleter;
 
 	class SettingCompleter : public CommandCompleter {
 	public:
-		SettingCompleter(SettingsManager* manager);
+		SettingCompleter(SettingsManager& manager);
+		virtual string help(const vector<string>& tokens) const;
 		virtual void tabCompletion(vector<string>& tokens) const;
 	private:
-		SettingsManager* manager;
+		SettingsManager& manager;
 	} settingCompleter;
 
 	class ToggleCommand : public SimpleCommand {
 	public:
-		ToggleCommand(SettingsManager* manager);
+		ToggleCommand(SettingsManager& manager);
 		virtual string execute(const vector<string>& tokens);
 		virtual string help(const vector<string>& tokens) const;
 		virtual void tabCompletion(vector<string>& tokens) const;
 	private:
-		SettingsManager* manager;
+		SettingsManager& manager;
 	} toggleCommand;
 
 	CommandController& commandController;
