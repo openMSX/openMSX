@@ -162,6 +162,7 @@ void MSXCPUInterface::unregister_IO_In(byte port, MSXDevice* device)
 		MSXMultiIODevice::Devices& devices = multi->getDevices();
 		if (devices.size() == 1) {
 			IO_In[port] = devices.front();
+			devices.pop_back();
 			delete multi;
 			multiIn.erase(port);
 		}
@@ -204,6 +205,7 @@ void MSXCPUInterface::unregister_IO_Out(byte port, MSXDevice* device)
 		MSXMultiIODevice::Devices& devices = multi->getDevices();
 		if (devices.size() == 1) {
 			IO_Out[port] = devices.front();
+			devices.pop_back();
 			delete multi;
 			multiOut.erase(port);
 		}

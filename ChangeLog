@@ -4,6 +4,8 @@ $Id$
 	* Integrated Adriano's MegaRAM diskrom patch
 	* Fixed bug in reading from compressed files:
 	   zipped IPS files work now
+	* Fixed (harmless) assert that got triggered on exit when IO ports
+	  were shared
 
 2004-12-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed crash on missing LED icon files
