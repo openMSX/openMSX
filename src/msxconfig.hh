@@ -37,7 +37,7 @@ public:
 	std::list<Config*> configList;
 	std::list<Device*> deviceList;
 	std::list<Config*> allList;
-	std::list<Config*> getConfigByType(const std::string &type);
+	//std::list<Config*> getConfigByType(const std::string &type);
 	Config *getConfigById(const std::string &type);
 
 private:

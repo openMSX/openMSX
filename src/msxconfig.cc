@@ -431,3 +431,15 @@ int MSXConfig::Device::Slotted::getPage()
 	}
 	return page;
 }
+
+MSXConfig::Config* MSXConfig::getConfigById(const std::string &id)
+{
+    for (std::list <MSXConfig::Config*>::const_iterator i=configList.begin();i!=configList.end();i++)
+	{
+		if ((*i)->getId()==id) return *i;
+	}
+	throw MSXConfig::Exception("Request for non-existing config for Id");
+
+	// not reached:
+	return 0;
+}
