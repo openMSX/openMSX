@@ -216,6 +216,7 @@ int MSXGameCartridge::retrieveMapperType()
 			mappertype["5"]=5;
 			mappertype["ASCII16"]=5;
 
+			//Taken over by 19, since it has SRAM
 			mappertype["6"]=6;
 			mappertype["GAMEMASTER2"]=6;
 
@@ -283,7 +284,7 @@ int MSXGameCartridge::guessMapperType()
 			return 128;
 		}
 	} else {
-		unsigned int typeGuess[]={0,0,0,0,0,0};
+		unsigned int typeGuess[]={0,0,0,0,0,0,0};
 		for (int i=0; i<romSize-2; i++) {
 			if (memoryBank[i] == 0x32) {
 				int value = memoryBank[i+1]+(memoryBank[i+2]<<8);
@@ -294,9 +295,12 @@ int MSXGameCartridge::guessMapperType()
 					typeGuess[2]++;
 					break;
 				case 0x4000:
+					typeGuess[3]++;
+					break;
 				case 0x8000:
 				case 0xA000:
 					typeGuess[3]++;
+					typeGuess[6]++;
 					break;
 				case 0x6800:
 				case 0x7800:
@@ -306,6 +310,7 @@ int MSXGameCartridge::guessMapperType()
 					typeGuess[3]++;
 					typeGuess[4]++;
 					typeGuess[5]++;
+					typeGuess[6]++;
 					break;
 				case 0x7000:
 					typeGuess[2]++;
@@ -314,12 +319,15 @@ int MSXGameCartridge::guessMapperType()
 					break;
 				case 0x77FF:
 					typeGuess[5]++;
+				default:
+					if (value > 0xB000 && value < 0xC000) typeGuess[6]++;
 				}
 			}
 		}
 		if (typeGuess[4]) typeGuess[4]--; // -1 -> max_int
+		if (typeGuess[6] != 75) typeGuess[6] = 0; // There is only one Game Master 2
 		int type = 0;
-		for (int i=0; i<6; i++) {
+		for (int i=0; i<7; i++) {
 			if ( (typeGuess[i]) && (typeGuess[i]>=typeGuess[type])){
 			  type = i;
 			}
@@ -328,12 +336,12 @@ int MSXGameCartridge::guessMapperType()
 		// in case of even type 5 and 4 we would prefer 5
 		// but we would still prefer 0 above 4 or 5
 		if ((type==5) && (typeGuess[0] == typeGuess[5] ) ){type=0;};
-		for (int i=0; i<6; i++) {
+		for (int i=0; i<7; i++) {
 		PRT_DEBUG("MSXGameCartridge: typeGuess["<<i<<"]="<<typeGuess[i]);
 		}
-		std::string typeNames[]={"8kB","16kB","SCC","KONAMI4","ASCII8","ASCII16"};
+		std::string typeNames[]={"8kB","16kB","SCC","KONAMI4","ASCII8","ASCII16","GameMaster2"};
 		PRT_INFO("MSXGameCartridge: I Guess this is a " << typeNames[type] << " GameCartridge type.");
-		return type;
+		return type == 6 ? 19 : type;
 	}
 }
 
@@ -351,8 +359,8 @@ byte MSXGameCartridge::readMem(word address, const EmuTime &time)
 		return cartridgeSCC->readMemInterface(address & 0xFF, time);
 	}
 #endif
-	PRT_DEBUG(std::hex << "GameCartridge read [" << address << "] := " << (int)internalMemoryBank[address>>13][address&0x1fff] << std::dec );
-	return internalMemoryBank[address>>13][address&0x1fff];
+	PRT_DEBUG(std::hex << "GameCartridge read [" << address << "] := " << (int)internalMemoryBank[address>>12][address&0x0fff] << std::dec );
+	return internalMemoryBank[address>>12][address&0x0fff];
 }
 
 byte* MSXGameCartridge::getReadCacheLine(word start)
@@ -367,9 +375,12 @@ byte* MSXGameCartridge::getReadCacheLine(word start)
 		return NULL;
 	} else {
 #endif
-		// assumes CACHE_LINE_SIZE <= 0x2000
 		PRT_DEBUG("Caching for " << std::hex << start << std::dec);
-		return &internalMemoryBank[start>>13][start&0x1fff];
+		if (CPU::CACHE_LINE_SIZE <= 0x1000) {
+			return &internalMemoryBank[start>>12][start&0x0fff];
+		} else {
+			return NULL;
+		}
 #ifndef DONT_WANT_SCC
 	}
 #endif
@@ -480,11 +491,9 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 		setBank(region,   memoryBank+(value<<13));
 		setBank(region+1, memoryBank+(value<<13)+0x2000);
 		break;
-	case 6:
+//	case 6:
 		//--==**>> GameMaster2+SRAM cartridge <<**==--
-		//// GameMaster2 may become an independend MSXDevice
-		assert(false);
-		break;
+		// GameMaster2 is implemented as device 19, since it has SRAM
 	case 16:
 		//--==**>> HYDLIDE2 cartridges <<**==--
 		// this type is is almost completely a ASCII16 cartrdige
@@ -552,9 +561,51 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 			} else {
 				value &= mapperMask;
 				setBank(region, memoryBank+(value<<13));
-				regioSRAM&=(!adr2pag[region]);
+				regioSRAM&=(~adr2pag[region]);
 			}
 		};
+		break;
+	case 19:
+		// Konami Game Master 2, 8KB cartridge with 8KB sram
+		if (address<0x6000 || address>=0xC000) {
+			PRT_DEBUG ("GM2 Discarded write: out of range:"<<std::hex<<address<<", val="<<(int)value<<std::dec<<std::endl);
+			return;
+		}
+		if (address >= 0xB000) {
+			// SRAM write
+			if (!(regioSRAM & 8)) {	// not in writable page
+				PRT_DEBUG ("GM2 Discarded write of "<<std::hex<<(int)value<<" to "<<address<<": SRAM not in correct page, regioSRAM="<<(int)regioSRAM<<std::dec<<std::endl);
+				return; 
+			}
+//			PRT_DEBUG (std::hex<<"GM2 SRAM write to addr "<<address<<", val "<<(int)value<<std::dec<<std::endl);
+			memorySRAM[address & 0xFFF + 0x1000 * !!(pageSRAM & (1<<5))] = value;
+			break;
+		}
+		if (address & 0x1000) {
+			PRT_DEBUG ("Discarded mapping: illegal address "<<std::hex<<address<<", val="<<value<<std::dec<<std::endl);
+			return;
+		}
+		if (value & (1 << 4)) {
+			// switch sram in page
+			regioSRAM |= 1 << ((address >> 13) - 2);
+			int page = value & (1 << 5);
+			if (page) {
+				pageSRAM |= 1 << (address >> 13);
+				realSetBank((address>>12)&0xe,     memorySRAM + 0x1000);
+				realSetBank(((address>>12)&0xe)+1, memorySRAM + 0x1000);
+			} else {
+				pageSRAM &= ~(1 << (address >> 13));
+				realSetBank((address>>12)&0xe,     memorySRAM);
+				realSetBank(((address>>12)&0xe)+1, memorySRAM);
+			}
+//			PRT_DEBUG (std::hex<<"GM2 Switched SRAM page="<<page<<", value="<<(int)value<<", addr="<<address<<std::dec<<std::endl);
+		} else {
+			// switch normal memory
+			regioSRAM &= ~(1 << ((address >> 13) - 2));
+			value &= mapperMask;
+			setBank(address>>13, memoryBank+(value<<13));
+//			PRT_DEBUG (std::hex<<"GM2 Switched bank="<<(address>>13)<<", value="<<(int)value<<", addr="<<address<<std::dec<<std::endl);
+		}
 		break;
 	case 64:
 		//--==**>> <<**==--
@@ -575,6 +626,12 @@ void MSXGameCartridge::writeMem(word address, byte value, const EmuTime &time)
 
 void MSXGameCartridge::setBank(int region, byte* value)
 {
+	realSetBank (region * 2, value);
+	realSetBank (region * 2 + 1, value + 0x1000);
+}
+
+void MSXGameCartridge::realSetBank(int region, byte * value)
+{
 	internalMemoryBank[region] = value;
-	MSXCPU::instance()->invalidateCache(region*0x2000, 0x2000/CPU::CACHE_LINE_SIZE);
+	MSXCPU::instance()->invalidateCache(region*0x1000, 0x1000/CPU::CACHE_LINE_SIZE);
 }
