@@ -6,6 +6,7 @@
 #include "MSXCPU.hh"
 #include "CPU.hh"
 #include <map>
+#include "md5.hh"
 
 
 MSXRom::MSXRom(MSXConfig::Device *config, const EmuTime &time)
@@ -239,6 +240,11 @@ void MSXRom::retrieveMapperType()
 
 int MSXRom::guessMapperType()
 {
+	MD5 md5;
+	md5.update(romBank, romSize);
+	md5.finalize();
+	PRT_DEBUG("MD5: "<<md5.hex_digest());
+	
 	//  GameCartridges do their bankswitching by using the Z80
 	//  instruction ld(nn),a in the middle of program code. The
 	//  adress nn depends upon the GameCartridge mappertype used.
