@@ -11,28 +11,56 @@
 #include "Mixer.hh"
 #include "HardwareConfig.hh"
 #include "DeviceFactory.hh"
+#include "Leds.hh"
+#include "EventDistributor.hh"
+#include "Display.hh"
+#include "Timer.hh"
+#include "InputEventGenerator.hh"
+#include "GlobalSettings.hh"
 
 namespace openmsx {
 
 MSXMotherBoard::MSXMotherBoard()
-	: powerSetting(Scheduler::instance().getPowerSetting())
+	: paused(false), powered(false), needReset(false)
+	, blockedCounter(1) // power off
+	, emulationRunning(true)
+        , pauseSetting(GlobalSettings::instance().getPauseSetting())
+	, powerSetting(GlobalSettings::instance().getPowerSetting())
+	, leds(Leds::instance())
+	, quitCommand(*this)
+	, resetCommand(*this)
 {
-	Scheduler::instance().setMotherBoard(this);
+	MSXCPU::instance().setMotherboard(this);
+
+	pauseSetting.addListener(this);
 	powerSetting.addListener(this);
-	
+
+	EventDistributor::instance().registerEventListener(QUIT_EVENT, *this,
+	                                            EventDistributor::NATIVE);
+
+	CommandController::instance().registerCommand(&quitCommand, "quit");
+	CommandController::instance().registerCommand(&quitCommand, "exit");
+	CommandController::instance().registerCommand(&resetCommand, "reset");
 }
 
 MSXMotherBoard::~MSXMotherBoard()
 {
+	CommandController::instance().unregisterCommand(&resetCommand, "reset");
+	CommandController::instance().unregisterCommand(&quitCommand, "exit");
+	CommandController::instance().unregisterCommand(&quitCommand, "quit");
+
+	EventDistributor::instance().unregisterEventListener(QUIT_EVENT, *this,
+	                                              EventDistributor::NATIVE);
+
+	powerSetting.removeListener(this);
+	pauseSetting.removeListener(this);
+
 	// Destroy emulated MSX machine.
 	for (Devices::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
 		delete *it;
 	}
 	availableDevices.clear();
-
-	powerSetting.removeListener(this);
-	Scheduler::instance().setMotherBoard(NULL);
 }
 
 void MSXMotherBoard::addDevice(auto_ptr<MSXDevice> device)
@@ -81,7 +109,7 @@ void MSXMotherBoard::createDevices(const XMLElement& elem)
 	}
 }
 
-void MSXMotherBoard::run(bool powerOn)
+void MSXMotherBoard::run(bool power)
 {
 	// Initialise devices.
 	//PRT_DEBUG(HardwareConfig::instance().getChild("devices").dump());
@@ -94,20 +122,139 @@ void MSXMotherBoard::run(bool powerOn)
 	MSXCPUInterface::instance().reset();
 
 	// Run.
-	if (powerOn) {
-		Scheduler::instance().powerOn();
+	if (power) {
+		powerOn();
 	}
-	Scheduler::instance().schedule();
-	Scheduler::instance().powerOff();
+	
+	while (emulationRunning) {
+		if (blockedCounter > 0) {
+			Display::INSTANCE->repaint();
+			Timer::sleep(100 * 1000);
+			InputEventGenerator::instance().poll();
+			Scheduler& scheduler = Scheduler::instance();
+			scheduler.schedule(scheduler.getCurrentTime());
+		} else {
+			if (needReset) {
+				needReset = false;
+				resetMSX();
+			}
+			MSXCPU::instance().execute();
+		}
+	}
+
+	powerOff();
 }
 
+void MSXMotherBoard::unpause()
+{
+	if (paused) {
+		paused = false;
+		leds.setLed(Leds::PAUSE_OFF);
+		--blockedCounter;
+	}
+}
+
+void MSXMotherBoard::pause()
+{
+	if (!paused) {
+		paused = true;
+		leds.setLed(Leds::PAUSE_ON);
+		++blockedCounter;
+		MSXCPU::instance().exitCPULoop();
+	}
+}
+
+void MSXMotherBoard::powerOn()
+{
+	if (!powered) {
+		powered = true;
+		powerSetting.setValue(true);
+		leds.setLed(Leds::POWER_ON);
+		--blockedCounter;
+	}
+}
+
+void MSXMotherBoard::powerOff()
+{
+	if (powered) {
+		powered = false;
+		powerSetting.setValue(false);
+		leds.setLed(Leds::POWER_OFF);
+		++blockedCounter;
+		MSXCPU::instance().exitCPULoop();
+	}
+}
+
+// SettingListener
 void MSXMotherBoard::update(const SettingLeafNode* setting)
 {
-	assert(setting == &powerSetting);
-	if (!powerSetting.getValue()) {
-		reInitMSX();
+	if (setting == &powerSetting) {
+		if (powerSetting.getValue()) {
+			powerOn();
+		} else {
+			powerOff();
+			reInitMSX();
+		}
+	} else if (setting == &pauseSetting) {
+		if (pauseSetting.getValue()) {
+			pause();
+		} else {
+			unpause();
+		}
+	} else {
+		assert(false);
 	}
 }
 
+// EventListener
+bool MSXMotherBoard::signalEvent(const Event& /*event*/)
+{
+	emulationRunning = false;
+	MSXCPU::instance().exitCPULoop();
+	return true;
+}
+
+
+// class QuitCommand
+
+MSXMotherBoard::QuitCommand::QuitCommand(MSXMotherBoard& parent_)
+	: parent(parent_)
+{
+}
+
+string MSXMotherBoard::QuitCommand::execute(const vector<string>& /*tokens*/)
+{
+	parent.emulationRunning = false;
+	MSXCPU::instance().exitCPULoop();
+	return "";
+}
+
+string MSXMotherBoard::QuitCommand::help(const vector<string>& /*tokens*/) const
+{
+	return "Use this command to stop the emulator\n";
+}
+
+
+// class ResetCmd
+
+MSXMotherBoard::ResetCmd::ResetCmd(MSXMotherBoard& parent_)
+	: parent(parent_)
+{
+}
+
+string MSXMotherBoard::ResetCmd::execute(const vector<string>& /*tokens*/)
+{
+	parent.needReset = true;
+	MSXCPU::instance().exitCPULoop();
+	return "";
+}
+string MSXMotherBoard::ResetCmd::help(const vector<string>& /*tokens*/) const
+{
+	return "Resets the MSX.\n";
+}
+
+
 } // namespace openmsx
+
+
 

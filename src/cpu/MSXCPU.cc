@@ -41,10 +41,16 @@ MSXCPU& MSXCPU::instance()
 	return oneInstance;
 }
 
-void MSXCPU::init(Scheduler* scheduler)
+void MSXCPU::setScheduler(Scheduler* scheduler)
 {
-	z80 .init(scheduler);
-	r800.init(scheduler);
+	z80 .setScheduler(scheduler);
+	r800.setScheduler(scheduler);
+}
+
+void MSXCPU::setMotherboard(MSXMotherBoard* motherboard)
+{
+	z80 .setMotherboard(motherboard);
+	r800.setMotherboard(motherboard);
 }
 
 void MSXCPU::setInterface(MSXCPUInterface* interface)
@@ -79,30 +85,23 @@ void MSXCPU::setActiveCPU(CPUType cpu)
 			newCPU = NULL;	// prevent warning
 	}
 	if (newCPU != activeCPU) {
-		const EmuTime &currentTime = activeCPU->getCurrentTime();
-		const EmuTime &targetTime  = activeCPU->getTargetTime();
-		activeCPU->setTargetTime(currentTime);	// stop current CPU
-		newCPU->advance(currentTime);
-		newCPU->setTargetTime(targetTime);
+		newCPU->advance(activeCPU->getCurrentTime());
 		newCPU->invalidateCache(0x0000, 0x10000/CPU::CACHE_LINE_SIZE);
 		activeCPU = newCPU;
 	}
+	exitCPULoop();
 }
 
-void MSXCPU::executeUntilTarget(const EmuTime& time)
+void MSXCPU::execute()
 {
-	activeCPU->executeUntilTarget(time);
+	activeCPU->execute();
 }
 
-void MSXCPU::setTargetTime(const EmuTime& time)
+void MSXCPU::exitCPULoop()
 {
-	activeCPU->setTargetTime(time);
+	activeCPU->exitCPULoop();
 }
 
-const EmuTime &MSXCPU::getTargetTime() const
-{
-	return activeCPU->getTargetTime();
-}
 
 const EmuTime &MSXCPU::getCurrentTimeUnsafe() const
 {

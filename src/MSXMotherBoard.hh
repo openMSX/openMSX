@@ -5,19 +5,21 @@
 
 #include <vector>
 #include <memory>
-#include "SettingListener.hh"
 #include "Command.hh"
+#include "SettingListener.hh"
+#include "EventListener.hh"
 
 using std::vector;
 using std::auto_ptr;
 
 namespace openmsx {
 
+class Leds;
 class MSXDevice;
 class BooleanSetting;
 class XMLElement;
 
-class MSXMotherBoard : private SettingListener
+class MSXMotherBoard : private SettingListener, private EventListener
 {
 public:
 	MSXMotherBoard();
@@ -34,6 +36,9 @@ public:
 	 */
 	void resetMSX();
 
+	void block() { ++blockedCounter; }
+	void unblock() { --blockedCounter; }
+
 private:
 	/**
 	 * All MSXDevices should be registered by the MotherBoard.
@@ -47,10 +52,45 @@ private:
 	// SettingListener
 	virtual void update(const SettingLeafNode* setting);
 
+	// EventListener
+	bool signalEvent(const Event& event);
+
+	void unpause();
+	void pause();
+	void powerOn();
+	void powerOff();
+
 	typedef vector<MSXDevice*> Devices;
 	Devices availableDevices;
 
+	bool paused;
+	bool powered;
+	bool needReset;
+
+	int blockedCounter;
+	bool emulationRunning;
+	
+	BooleanSetting& pauseSetting;
 	BooleanSetting& powerSetting;
+	Leds& leds;
+
+	class QuitCommand : public SimpleCommand {
+	public:
+		QuitCommand(MSXMotherBoard& parent);
+		virtual string execute(const vector<string>& tokens);
+		virtual string help(const vector<string>& tokens) const;
+	private:
+		MSXMotherBoard& parent;
+	} quitCommand;
+
+	class ResetCmd : public SimpleCommand {
+	public:
+		ResetCmd(MSXMotherBoard& parent);
+		virtual string execute(const vector<string>& tokens);
+		virtual string help(const vector<string>& tokens) const;
+	private:
+		MSXMotherBoard& parent;
+	} resetCommand;
 };
 
 } // namespace openmsx

@@ -11,6 +11,7 @@
 namespace openmsx {
 
 class Scheduler;
+class MSXMotherBoard;
 class MSXCPUInterface;
 class InfoCommand;
 class Debugger;
@@ -62,6 +63,11 @@ public:
 	void lowerIRQ();
 	
 	/**
+	 * TODO
+	 */
+	void exitCPULoop();
+	
+	/**
 	 * Is the R800 currently active
 	 */
 	bool isR800Active();
@@ -90,12 +96,12 @@ private:
 	MSXCPU();
 	virtual ~MSXCPU();
 	
-	// only for Scheduler
-	void executeUntilTarget(const EmuTime& time);
-	void setTargetTime(const EmuTime& time);
-	const EmuTime& getTargetTime() const;
-	void init(Scheduler* scheduler);
+	// only for Scheduler/MSXMotherBoard
+	void execute();
+	void setScheduler(Scheduler* scheduler);
+	void setMotherboard(MSXMotherBoard* motherboard);
 	friend class Scheduler;
+	friend class MSXMotherBoard;
 	
 	void wait(const EmuTime& time);
 	friend class VDPIODelay;

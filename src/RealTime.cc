@@ -8,6 +8,7 @@
 #include "Scheduler.hh"
 #include "Timer.hh"
 #include "EventDistributor.hh"
+#include "GlobalSettings.hh"
 
 namespace openmsx {
 
@@ -16,13 +17,13 @@ const long long          MAX_LAG       = 200000; // us
 const unsigned long long ALLOWED_LAG   =  20000; // us
 
 RealTime::RealTime()
-	: scheduler(Scheduler::instance()),
-	  speedSetting("speed",
+	: scheduler(Scheduler::instance())
+	, speedSetting("speed",
 	       "controls the emulation speed: higher is faster, 100 is normal",
-	       100, 1, 1000000),
-	  throttleSetting("throttle", "controls speed throttling", true),
-	  pauseSetting(scheduler.getPauseSetting()),
-	  powerSetting(scheduler.getPowerSetting())
+	       100, 1, 1000000)
+	, throttleSetting("throttle", "controls speed throttling", true)
+	, pauseSetting(GlobalSettings::instance().getPauseSetting())
+	, powerSetting(GlobalSettings::instance().getPowerSetting())
 {
 	speedSetting.addListener(this);
 	throttleSetting.addListener(this);
@@ -37,6 +38,7 @@ RealTime::RealTime()
 RealTime::~RealTime()
 {
 	scheduler.removeSyncPoint(this);
+
 	powerSetting.removeListener(this);
 	pauseSetting.removeListener(this);
 	throttleSetting.removeListener(this);

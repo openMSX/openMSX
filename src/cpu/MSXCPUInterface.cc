@@ -249,10 +249,10 @@ void MSXCPUInterface::updateVisible(int page)
 		msxcpu.invalidateCache(page * 0x4000,
 		                        0x4000 / CPU::CACHE_LINE_SIZE);
 	}
-	PRT_DEBUG(" page: " << (int)page <<
+	/*PRT_DEBUG(" page: " << (int)page <<
 	          " ps: " << (int)primarySlotState[page] <<
 	          " ss: " << (int)secondarySlotState[page] <<
-	          " device: " << newDevice->getName());
+	          " device: " << newDevice->getName());*/
 }
 
 void MSXCPUInterface::reset()

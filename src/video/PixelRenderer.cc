@@ -16,6 +16,7 @@ TODO:
 #include "Scheduler.hh"
 #include "RealTime.hh"
 #include "Timer.hh"
+#include "GlobalSettings.hh"
 #include <algorithm>
 #include <cassert>
 #include <sstream>
@@ -112,7 +113,7 @@ void PixelRenderer::subdivide(
 PixelRenderer::PixelRenderer(
 	RendererFactory::RendererID id, VDP* vdp, Rasterizer* rasterizer )
 	: Renderer(id)
-	, powerSetting(Scheduler::instance().getPowerSetting())
+	, powerSetting(GlobalSettings::instance().getPowerSetting())
 {
 	this->vdp = vdp;
 	vram = vdp->getVRAM();

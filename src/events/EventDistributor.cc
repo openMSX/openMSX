@@ -19,14 +19,10 @@ EventDistributor::EventDistributor()
 	  scheduler(Scheduler::instance())
 {
 	prevReal = Timer::getTime();
-
-	scheduler.setEventDistributor(this);
 }
 
 EventDistributor::~EventDistributor()
 {
-	scheduler.unsetEventDistributor(this);
-
 	for (vector<EventTime>::iterator it = toBeScheduledEvents.begin();
 	     it != toBeScheduledEvents.end(); ++it) {
 		delete it->event;

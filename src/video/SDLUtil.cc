@@ -109,6 +109,7 @@ void closeSDLVideo(SDL_Surface* screen)
 	}
 #endif
 
+	screen = screen; // avoid warning
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 

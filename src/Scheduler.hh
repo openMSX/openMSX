@@ -5,25 +5,17 @@
 
 #include <vector>
 #include "EmuTime.hh"
-#include "BooleanSetting.hh"
-#include "SettingListener.hh"
-#include "EventListener.hh"
 #include "Semaphore.hh"
-#include "Schedulable.hh"
 
 using std::vector;
 
-
 namespace openmsx {
 
-class Leds;
 class MSXCPU;
-class CommandController;
-class MSXMotherBoard;
 class InputEventGenerator;
-class EventDistributor;
+class Schedulable;
 
-class Scheduler : private SettingListener, private EventListener, private Schedulable
+class Scheduler
 {
 private:
 	class SynchronizationPoint
@@ -89,6 +81,15 @@ public:
 	const EmuTime& getCurrentTime() const;
 
 	/**
+	 * TODO
+	 */
+	inline const EmuTime& getNext() const
+	{
+		// TODO faster to cache in member (or static) variable?
+		return syncPoints.front().getTime();
+	}
+	
+	/**
 	 * Set scheduler time. Only CPU is allowed to call this method
 	 */
 	void setCurrentTime(const EmuTime& time);
@@ -96,24 +97,11 @@ public:
 	/**
 	 * Schedule till a certain moment in time.
 	 */
-	void schedule();
-	//void scheduleFromCPU(const EmuTime& limit);
-
-	void setMotherBoard(MSXMotherBoard* motherboard);
-	void setEventDistributor(EventDistributor* eventDistributor);
-	void unsetEventDistributor(EventDistributor* eventDistributor);
-	
-	void powerOn();
-	void powerOff();
-
-	void increasePauseCounter() { ++pauseCounter; }
-	void decreasePauseCounter() { --pauseCounter; }
-
-	BooleanSetting& getPauseSetting() {
-		return pauseSetting;
-	}
-	BooleanSetting& getPowerSetting() {
-		return powerSetting;
+	inline void schedule(const EmuTime& limit)
+	{
+		if (limit >= getNext()) {
+			scheduleHelper(limit); // slow path not inlined
+		}
 	}
 
 	static const EmuTime ASAP;
@@ -122,69 +110,19 @@ private:
 	Scheduler();
 	virtual ~Scheduler();
 
-	/** Emulate a device.
-	  * @param sp The sync point that requested this emulation.
-	  * @param time The time until which the device will be emulated.
-	  * 	This is an actual time stamp (ASAP is already resolved).
-	  */
-	void scheduleDevice(const SynchronizationPoint &sp, const EmuTime &time);
+	void scheduleHelper(const EmuTime& limit);
 
-	// SettingListener
-	virtual void update(const SettingLeafNode* setting);
-
-	// EventListener
-	virtual bool signalEvent(const Event& event);
-
-	void pause();
-	void unpause();
-	void stopScheduling();
-
-	// Schedulable
-	virtual void executeUntil(const EmuTime& time, int userData);
-	virtual const string& schedName() const;
-	
 	/** Vector used as heap, not a priority queue because that
 	  * doesn't allow removal of non-top element.
 	  */
 	vector<SynchronizationPoint> syncPoints;
 	Semaphore sem;	// protects syncPoints
 
-	/** Should the emulation continue running?
-	  */
-	bool emulationRunning;
-	int pauseCounter;
-
-	bool paused;
-	bool powered;
-	bool needReset;
 	EmuTime scheduleTime;
 
-	MSXMotherBoard* motherboard;
 	InputEventGenerator* eventGenerator;
-	BooleanSetting pauseSetting;
-	BooleanSetting powerSetting;
 	
-	Leds& leds;
 	MSXCPU& cpu;
-	CommandController& commandController;
-
-	class QuitCommand : public SimpleCommand {
-	public:
-		QuitCommand(Scheduler& parent);
-		virtual string execute(const vector<string>& tokens);
-		virtual string help(const vector<string>& tokens) const;
-	private:
-		Scheduler& parent;
-	} quitCommand;
-
-	class ResetCmd : public SimpleCommand {
-	public:
-		ResetCmd(Scheduler& parent);
-		virtual string execute(const vector<string>& tokens);
-		virtual string help(const vector<string>& tokens) const;
-	private:
-		Scheduler& parent;
-	} resetCommand;
 };
 
 } // namespace openmsx

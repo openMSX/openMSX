@@ -12,7 +12,6 @@
 #include "BooleanSetting.hh"
 #include "IntegerSetting.hh"
 #include "SettingListener.hh"
-#include "CoRoutine.hh"
 
 #ifdef DEBUG
 #define CPU_DEBUG
@@ -26,6 +25,7 @@ namespace openmsx {
 class BooleanSetting;
 class CPUInterface;
 class Scheduler;
+class MSXMotherBoard;
 
 typedef signed char offset;
 
@@ -33,7 +33,7 @@ template <bool bigEndian> struct z80regpair_8bit;
 template <> struct z80regpair_8bit<false> { byte l, h; };
 template <> struct z80regpair_8bit<true>  { byte h, l; };
 
-class CPU : public CPUTables, protected CoRoutine, private SettingListener
+class CPU : public CPUTables, private SettingListener
 {
 friend class MSXCPU;
 public:
@@ -56,7 +56,8 @@ public:
 
 	virtual ~CPU();
 	
-	void init(Scheduler* scheduler);
+	void setScheduler(Scheduler* scheduler);
+	void setMotherboard(MSXMotherBoard* motherboard);
 	void setInterface(CPUInterface* interf);
 
 	/**
@@ -65,10 +66,14 @@ public:
 	void reset(const EmuTime& time);
 
 	/**
-	 * Emulated CPU till a given target-time.
-	 * This implicitly calls the method setTargetTime().
+	 * TODO
 	 */
-	void executeUntilTarget(const EmuTime& time);
+	virtual void execute() = 0;
+
+	/**
+	 * TODO
+	 */
+	void exitCPULoop();
 
 	/**
 	 * Sets the CPU its current time.
@@ -80,17 +85,6 @@ public:
 	 * Returns the CPU its current time.
 	 */
 	const EmuTime& getCurrentTime() const;
-
-	/**
-	 * Alter the target time.
-	 * The Scheduler uses this to announce changes in the scheduling.
-	 */
-	void setTargetTime(const EmuTime& time);
-
-	/**
-	 * Get the target time. Only used to switch active CPU.
-	 */
-	const EmuTime& getTargetTime() const;
 
 	/**
 	 * Wait 
@@ -147,11 +141,6 @@ protected:
 	  */
 	CPU(const string& name, int defaultFreq);
 
-	/** Emulate CPU till a previously set target time,
-	  * the target may change (become smaller) during emulation.
-	  */
-	virtual void run() = 0;
-
 	/**
 	  * Execute further than strictly requested by
 	  * caller of executeUntilTarget() or wait(). Typically used to
@@ -164,12 +153,12 @@ protected:
 	CPURegs R;
 	int slowInstructions;
 	int IRQStatus;
+	bool exitLoop;
 
 	z80regpair memptr;
 	offset ofst;
 
 	CPUInterface* interface;
-	EmuTime targetTime;
 	DynamicClock clock;
 
 	// memory cache
@@ -184,10 +173,13 @@ protected:
 	void doContinue();
 	void doBreak();
 
+	// TODO document why static 
 	static multiset<word> breakPoints;
 	static bool breaked;
 	static bool continued;
 	static bool step;
+	
+	Scheduler* scheduler;
 
 #ifdef CPU_DEBUG
 	static BooleanSetting traceSetting;
@@ -205,7 +197,7 @@ private:
 	IntegerSetting freqValue;
 	unsigned freq;
 	
-	Scheduler* scheduler;
+	MSXMotherBoard* motherboard;
 };
 
 } // namespace openmsx

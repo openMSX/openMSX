@@ -4,6 +4,7 @@
 #include "CPU.hh"
 #include "CPUInterface.hh"
 #include "Scheduler.hh"
+#include "MSXMotherBoard.hh"
 #include "CliCommOutput.hh"
 #include "Event.hh"
 #include "EventDistributor.hh"
@@ -28,8 +29,7 @@ bool CPU::step = false;
 
 
 CPU::CPU(const string& name, int defaultFreq)
-	: CoRoutine(1024 * 1024), // overestimation stack size
-	  interface(NULL),
+	: interface(NULL),
 	  freqLocked(name + "_freq_locked",
 	             "real (locked) or custom (unlocked) " + name + " frequency",
 	             true),
@@ -50,31 +50,19 @@ CPU::~CPU()
 	freqLocked.removeListener(this);
 }
 
-void CPU::init(Scheduler* scheduler_)
+void CPU::setScheduler(Scheduler* scheduler_)
 {
 	scheduler = scheduler_;
+}
+
+void CPU::setMotherboard(MSXMotherBoard* motherboard_)
+{
+	motherboard = motherboard_;
 }
 
 void CPU::setInterface(CPUInterface* interf)
 {
 	interface = interf;
-}
-
-void CPU::executeUntilTarget(const EmuTime& time)
-{
-	assert(interface);
-	setTargetTime(time);
-	CoRoutine::call(*this);
-}
-
-void CPU::setTargetTime(const EmuTime& time)
-{
-	targetTime = time;
-}
-
-const EmuTime& CPU::getTargetTime() const
-{
-	return targetTime;
 }
 
 void CPU::advance(const EmuTime& time)
@@ -129,6 +117,12 @@ void CPU::reset(const EmuTime& time)
 	assert(IRQStatus == 0); // other devices must reset their IRQ source
 }
 
+void CPU::exitCPULoop()
+{
+	exitLoop = true;
+	slowInstructions = 1;
+}
+
 void CPU::raiseIRQ()
 {
 	assert(IRQStatus >= 0);
@@ -149,29 +143,14 @@ void CPU::wait(const EmuTime& time)
 {
 	assert(time >= getCurrentTime());
 	advance(time);
-	if (time > getTargetTime()) {
-		CoRoutine::resume();
-		assert(time <= getTargetTime());
-		//extendTarget(time);
-	}
 }
-
-/*
-void CPU::extendTarget(const EmuTime& time)
-{
-	assert(getTargetTime() <= time);
-	setTargetTime(time);
-	scheduler->scheduleFromCPU(time);
-}
-*/
-
 
 void CPU::doBreak2()
 {
 	assert(!breaked);
 	breaked = true;
 
-	scheduler->increasePauseCounter();
+	motherboard->block();
 	scheduler->setCurrentTime(clock.getTime());
 
 	ostringstream os;
@@ -186,7 +165,7 @@ void CPU::doStep()
 	if (breaked) {
 		breaked = false;
 		step = true;
-		scheduler->decreasePauseCounter();
+		motherboard->unblock();
 	}
 }
 
@@ -195,7 +174,7 @@ void CPU::doContinue()
 	if (breaked) {
 		breaked = false;
 		continued = true;
-		scheduler->decreasePauseCounter();
+		motherboard->unblock();
 	}
 }
 

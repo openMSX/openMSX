@@ -43,11 +43,6 @@ inline void R800::RDMEM_OPCODE(word address, byte &result)
 	if (newPage != lastPage) {
 		lastPage = newPage;
 		clock += 1;
-		if (!clock.before(targetTime)) {
-			CoRoutine::resume();
-			assert(clock.before(targetTime));
-			//extendTarget(clock.getTime());
-		}
 	}
 	RDMEM_common(address, result);
 }
@@ -55,11 +50,6 @@ inline void R800::RDMEM_OPCODE(word address, byte &result)
 inline void R800::RDMEM(word address, byte &result)
 {
 	clock += 1;
-	if (!clock.before(targetTime)) {
-		CoRoutine::resume();
-		assert(clock.before(targetTime));
-		//extendTarget(clock.getTime());
-	}
 	lastPage = -1;
 	RDMEM_common(address, result);
 }
@@ -67,11 +57,6 @@ inline void R800::RDMEM(word address, byte &result)
 inline void R800::WRMEM(word address, byte value)
 {
 	clock += 1;
-	if (!clock.before(targetTime)) {
-		CoRoutine::resume();
-		assert(clock.before(targetTime));
-		//extendTarget(clock.getTime());
-	}
 	lastPage = -1;
 	WRMEM_common(address, value);
 }
@@ -84,11 +69,6 @@ inline void R800::R800Refresh()
 	if (lastRefreshTime.getTicksTill(clock.getTime()) >= 222) {
 		lastRefreshTime.advance(clock.getTime());
 		clock += 22;
-		if (!clock.before(targetTime)) {
-			CoRoutine::resume();
-			assert(clock.before(targetTime));
-			//extendTarget(clock.getTime());
-		}
 	}
 }
 

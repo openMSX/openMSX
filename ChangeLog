@@ -1,5 +1,28 @@
 $Id$
 
+2004-08-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Removed CoRoutines again. Instead reversed the calling-sequence
+	  between MSXCPU and Scheduler:
+	   Previously the Scheduler scheduled both CPU and other stuff.
+	   Because of this the CPU needed to be able to pass control back to
+	   the Scheduler in the middle of a Z80 instruction. In the passed we
+	   solved this by either:
+	     - Splitting all Z80 instructions in atomic parts and made the
+	       code resumable at a sub-instruction level
+	         --> very complex CPU code
+	     - call the scheduler (recursivly) from within the CPU code
+	         --> too complex CPU <-> Scheduler interaction, we had too
+	             many bugs related to this
+	     - Use CoRoutines to pause/resume the CPU code
+	         --> was only an experiment, stopped the experiment very early
+	             because I think the current solution is much simpler
+	   In the current solution we call the Scheduler from with the CPU (iso
+	   the other way around). Pausing/resume CPU code is now done by a
+	   simple function call.
+	   New code still needs cleanups, but I wanted to check it in early
+	   beacuse the CoRoutine stuff didn't compile yet on win32 (although
+	   it was easy to fix).
+
 2004-07-30 Maarten ter Huurne <maarten@treewalker.org>
 	* Added CPU detection.
 	  Read the Doxygen comments of HostCPU for details.

@@ -9,7 +9,7 @@
 #include "SettingsConfig.hh"
 #include "CliCommOutput.hh"
 #include "InfoCommand.hh"
-#include "Scheduler.hh"
+#include "GlobalSettings.hh"
 #include "CommandArgument.hh"
 
 using std::remove;
@@ -25,7 +25,7 @@ Mixer::Mixer()
 	  infoCommand(InfoCommand::instance()),
 	  muteSetting("mute", "(un)mute the emulation sound", false),
 	  masterVolume("master_volume", "master volume", 75, 0, 100),
-	  pauseSetting(Scheduler::instance().getPauseSetting()),
+	  pauseSetting(GlobalSettings::instance().getPauseSetting()),
 	  soundDeviceInfo(*this)
 {
 	prevLeft = outLeft = 0;
