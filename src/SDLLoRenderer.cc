@@ -609,7 +609,7 @@ template <class Pixel> void SDLLoRenderer<Pixel>::drawSprites(
 				pattern &= -1 << (32 - (256 - x));
 			}
 			// Convert pattern to pixels.
-			Pixel *p0 = &pixelPtr0[x * 2];
+			Pixel *p0 = &pixelPtr0[x];
 			while (pattern) {
 				// Draw pixel if sprite has a dot.
 				if (pattern & 0x80000000) {
