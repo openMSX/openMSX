@@ -109,7 +109,7 @@ void Mixer::updateStream(const EmuTime &time)
 	assert(duration>=0);
 	prevTime = time;
 	lock();
-	updtStrm(audioSpec.freq * duration);
+	updtStrm((int)(audioSpec.freq * duration));
 	unlock();
 }
 void Mixer::updtStrm(int samples)
@@ -118,7 +118,6 @@ void Mixer::updtStrm(int samples)
 	
 	if (samples > samplesLeft) samples = samplesLeft;
 	if (samples == 0) return;
-	assert(samples>0);
 	PRT_DEBUG("Mix: Generate " << samples << " samples");
 	for (int mode=0; mode<NB_MODES; mode++) {
 		int unmuted = 0;
