@@ -60,7 +60,7 @@ NODEPEND_TARGETS:=clean
 
 SOURCES_PATH:=src
 # TODO: Use node.mk system for building sources list.
-SOURCES_FULL:=$(sort $(shell find $(SOURCES_PATH) -name "*.cc"))
+SOURCES_FULL:=$(sort $(shell find $(SOURCES_PATH)/$(OPENMSX_SUBSET) -name "*.cc"))
 SOURCES_FULL:=$(filter-out $(SOURCES_PATH)/debugger/Debugger.cc,$(SOURCES_FULL))
 SOURCES_FULL:=$(filter-out $(SOURCES_PATH)/debugger/Views.cc,$(SOURCES_FULL))
 SOURCES_FULL:=$(filter-out $(SOURCES_PATH)/thread/testCondVar.cc,$(SOURCES_FULL))
@@ -103,6 +103,7 @@ config:
 	@echo "Build configuration:"
 	@echo "  Flavour: $(OPENMSX_FLAVOUR)"
 	@echo "  Profile: $(OPENMSX_PROFILE)"
+	@echo "  Subset:  $(if $(OPENMSX_SUBSET),$(OPENMSX_SUBSET),full build)"
 
 # Include dependency files.
 ifeq ($(filter $(NODEPEND_TARGETS),$(MAKECMDGOALS)),)
@@ -128,10 +129,14 @@ $(DEPEND_FULL):
 
 # Link executable.
 $(BINARY_FULL): $(OBJECTS_FULL)
+ifeq ($(OPENMSX_SUBSET),)
 	@echo "Linking $(notdir $@)..."
 	@mkdir -p $(@D)
 	@gcc -o $@ $(CXXFLAGS) $(LINK_FLAGS) $^
 	@ln -sf $(@:$(BUILD_BASE)/%=%) $(BUILD_BASE)/$(notdir $@)
+else
+	@echo "Not linking $(notdir $@) because only a subset was built."
+endif
 
 # Run executable.
 run: all
