@@ -39,6 +39,7 @@ TODO:
 #include "VDP.hh"
 #include "VDPCmdEngine.hh"
 #include "PlatformFactory.hh"
+#include "ConsoleSource/Console.hh"
 
 #include <string>
 #include <cassert>
@@ -257,6 +258,11 @@ inline int VDP::checkSprites2(int line, VDP::SpriteInfo *visibleSprites)
 					statusReg0 |= 0x20;
 					// TODO: Fill in collision coordinates in S#3..S#6.
 					//       See page 97 for info.
+					// TODO: I guess the VDP checks for collisions while
+					//       scanning, if so the top-leftmost collision
+					//       should be remembered. Currently the topmost
+					//       line is guaranteed, but within that line
+					//       the highest sprite numbers are selected.
 					return visibleIndex;
 				}
 			}
@@ -270,6 +276,7 @@ inline int VDP::checkSprites2(int line, VDP::SpriteInfo *visibleSprites)
 
 VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time)
+	, paletteCmd(this)
 {
 	PRT_DEBUG("Creating a VDP object");
 
@@ -336,6 +343,10 @@ VDP::VDP(MSXConfig::Device *config, const EmuTime &time)
 	// Init scheduling.
 	hScanSyncTime = 0;
 	frameStart(time);
+
+	// Register console commands.
+	Console::instance()->registerCommand(paletteCmd, "palette");
+
 }
 
 VDP::~VDP()
@@ -918,3 +929,29 @@ VDP::SpritePattern VDP::doublePattern(VDP::SpritePattern a)
 	return a;
 }
 
+VDP::PaletteCmd::PaletteCmd(VDP *vdp)
+{
+	this->vdp = vdp;
+}
+
+void VDP::PaletteCmd::execute(const char *commandLine)
+{
+	// Print palette in 4x4 table.
+	std::ostringstream out;
+	for (int row = 0; row < 4; row++) {
+		for (int col = 0; col < 4; col++) {
+			int i = col * 4 + row;
+			int grb = vdp->getPalette(i);
+			out << std::hex << i << std::dec << ":"
+				<< ((grb >> 4) & 7) << ((grb >> 8) & 7) << (grb & 7)
+				<< "  ";
+		}
+		out << "\n";
+	}
+	Console::instance()->print(out.str());
+}
+
+void VDP::PaletteCmd::help(const char *commandLine)
+{
+	Console::instance()->print("Prints the current VDP palette (i:rgb).");
+}

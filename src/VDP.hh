@@ -9,6 +9,7 @@
 #include "MSXMotherBoard.hh"
 #include "EmuTime.hh"
 #include "Renderer.hh"
+#include "ConsoleSource/ConsoleCommand.hh"
 
 
 class VDPCmdEngine;
@@ -407,6 +408,15 @@ public:
 	}
 
 private:
+	class PaletteCmd : public ConsoleCommand {
+	public:
+		PaletteCmd(VDP *vdp);
+		virtual void execute(const char *commandLine);
+		virtual void help(const char *commandLine);
+	private:
+		VDP *vdp;
+	};
+
 	/** Types of VDP sync points that can be scheduled.
 	  */
 	enum SyncType {
@@ -737,6 +747,10 @@ private:
 	  * Contains the lower 14 bits of the current VRAM access address.
 	  */
 	int vramPointer;
+
+	/** Implements the palette print command.
+	  */
+	PaletteCmd paletteCmd;
 
 };
 
