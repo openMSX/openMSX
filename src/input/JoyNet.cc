@@ -14,10 +14,9 @@ JoyNet::JoyNet()
 	sockfd = 0;
 	listener = 0;
 	status = 255;
-	
+
 	try {
 		setupConnections();
-		PluggingController::instance()->registerPluggable(this);
 	} catch (ConfigException &e) {
 		PRT_DEBUG("No correct JoyNet configuration");
 	}
@@ -25,8 +24,6 @@ JoyNet::JoyNet()
 
 JoyNet::~JoyNet()
 {
-	PluggingController::instance()->unregisterPluggable(this);
-	
 	// destroy writer
 	if (sockfd) {
 		close(sockfd);

@@ -30,15 +30,12 @@ Joystick::Joystick(int joyNum_)
 	EventDistributor::instance()->registerEventListener(SDL_JOYBUTTONDOWN, this);
 	EventDistributor::instance()->registerEventListener(SDL_JOYBUTTONUP,   this);
 
-	PluggingController::instance()->registerPluggable(this);
-
 	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	         JOY_BUTTONA | JOY_BUTTONB;
 }
 
 Joystick::~Joystick()
 {
-	PluggingController::instance()->unregisterPluggable(this);
 	EventDistributor::instance()->unregisterEventListener(SDL_JOYAXISMOTION, this);
 	EventDistributor::instance()->unregisterEventListener(SDL_JOYBUTTONDOWN, this);
 	EventDistributor::instance()->unregisterEventListener(SDL_JOYBUTTONUP,   this);
