@@ -12,6 +12,9 @@ $Id$
 2002-10-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented "CartridgeSlotManager"
 
+2002-10-25 David Heremans <david.heremans@gnu-linux.net>
+	* "frameskip auto" completed
+
 2002-10-24 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Cartridges are only inserted after configuration is parsed, this
 	  allows in the future to have configurable cartridge slots
@@ -34,6 +37,9 @@ $Id$
 	     the MSXFmPac class where it belongs.
 	   - This should keep the CLI more up to date with code changes and
 	     make it easier to support new CLI options / file types.
+
+2002-10-21 David Heremans <david.heremans@gnu-linux.net>
+	* "frameskip auto" implementation started
 
 2002-10-21 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Replaced "Simple64Kb" device with "RAM" device. This device also

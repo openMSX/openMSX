@@ -186,13 +186,10 @@ void PixelRenderer::putImage(const EmuTime &time)
 
 	// The screen will be locked for a while, so now is a good time
 	// to perform real time sync.
-	RealTime::instance()->sync();
+	float factor=RealTime::instance()->sync();
 	if ( autoFrameSkip ){
-		bool toslow=false; 	// actually this should be data read
-					// from RealTime::instance() that 
-					// indicates if we are fast enough
 					
-		if (toslow){
+		if (factor > 1.0  && frameSkip < 30){
 			// if sync indicates we are to slow and we have been to
 			// slow for X screen then frameSkip++
 			// increasing frameskip should be tried rather fast
@@ -201,7 +198,7 @@ void PixelRenderer::putImage(const EmuTime &time)
 				frameSkipToHigh=0;
 				frameSkip++;
 			}
-		} else {
+		} else if (factor < 0.65 ){
 			// else if sync indicates we are fast enough and we have
 			// been to fast enough for Y screens then frameSkip--
 			//
