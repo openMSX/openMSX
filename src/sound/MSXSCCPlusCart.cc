@@ -26,36 +26,33 @@ MSXSCCPlusCart::MSXSCCPlusCart(MSXConfig::Device *config, const EmuTime &time)
 	PRT_DEBUG("SCC+ readromfile" << deviceConfig->getParameterAsBool("readromfile"));
 
 	if (deviceConfig->getParameterAsBool("readromfile")){
-	  std::string filename=deviceConfig->getParameter("romfile");
+	  std::string filename=deviceConfig->getParameter("filename");
+	  PRT_DEBUG("SCC+ romfile" << filename);
 
 	  // read the rom file
-#ifdef HAVE_FSTREAM_TEMPL
-	  std::ifstream<byte> file(filename.c_str());
-#else
-	  std::ifstream file(filename.c_str());
-#endif
 	  // dynamically determine ROM_SIZE if needed
-	  file.seekg(0,std::ios::end);
-	  int ROM_SIZE=file.tellg();
+	  file=FileOpener::openFileRO(filename);
+	  file->seekg(0,std::ios::end);
+	  int ROM_SIZE=file->tellg();
 	  PRT_DEBUG("SCC+ MegaRom: rom size is " << ROM_SIZE);
 
-	  file.seekg(0,std::ios::beg);
-	  file.read(memoryBank, ROM_SIZE);
-	  if (file.fail())
+	  file->seekg(0,std::ios::beg);
+	  file->read(memoryBank, ROM_SIZE);
+	  if (file->fail())
 	    PRT_ERROR("Error reading " << filename);
-
-	  // set internalMemoryBank
-	  internalMemoryBank[0]=memoryBank;
-	  internalMemoryBank[1]=memoryBank+0x2000;
-	  internalMemoryBank[2]=memoryBank+0x4000;
-	  internalMemoryBank[3]=memoryBank+0x6000;
 	}
+	// set internalMemoryBank
+	internalMemoryBank[0]=memoryBank;
+	internalMemoryBank[1]=memoryBank+0x2000;
+	internalMemoryBank[2]=memoryBank+0x4000;
+	internalMemoryBank[3]=memoryBank+0x6000;
 }
 
 MSXSCCPlusCart::~MSXSCCPlusCart()
 {
 	PRT_DEBUG("Destructing an MSXSCCPlusCart object");
 }
+
 
 byte MSXSCCPlusCart::readMem(word address, const EmuTime &time)
 {

@@ -5,6 +5,7 @@
 
 #include "MSXMemDevice.hh"
 #include "openmsx.hh"
+#include "FileOpener.hh"
 
 // forward declaration
 class SCC;
@@ -30,6 +31,8 @@ class MSXSCCPlusCart : public MSXMemDevice
 		void setModeRegister(byte value);
 		void checkEnable();
 		SCC* cartridgeSCC;
+        IFILETYPE* file;
+
 
 		byte scc_banked;
 		byte ModeRegister;

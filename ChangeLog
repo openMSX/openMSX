@@ -12,6 +12,8 @@ $Id$
 
 2002-04-04 David Heremans <david.heremans@gnu-linux.net>
 	* Added more debug info to MSXGameCartrdige.
+	* Fixed an error in SCCplus cartridge
+	* Addapted SCCplus cartridge to use FileOpener
 
 2002-04-03 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
 	* Moved ADPCM part of Y8950 to its own file
