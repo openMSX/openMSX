@@ -4,7 +4,7 @@ noinst_LTLIBRARIES = libxmlx.la
 libxmlx_la_SOURCES = libxmlx.cc xmlx.hh
 
 #AM_CXXFLAGS = -Wall -DXMLX_DEBUG -g3 -pipe
-AM_CXXFLAGS = -Wall -g3 -pipe -I$(srcdir)/.. -lstdc++ @XML_CFLAGS@
+AM_CXXFLAGS = -Wall -g3 -pipe -I$(srcdir)/.. @XML_CFLAGS@
 
 #  uncomment the following if libxmlx requires the math library
 #libxmlx_LDADD=-lm
@@ -12,6 +12,9 @@ AM_CXXFLAGS = -Wall -g3 -pipe -I$(srcdir)/.. -lstdc++ @XML_CFLAGS@
 # we do not want all the libs that openmsx links at the moment
 #LIBS=@XML_LIBS@
 #libxmlx_la_LIBADD=@XML_LIBS@
+
+# GCC 2.95 needs to link against libstdc++
+libxmlx_la_LIBADD = -lstdc++
 
 #bin_PROGRAMS  = xmlxdump
 noinst_PROGRAMS  = xmlxdump
