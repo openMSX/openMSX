@@ -7,6 +7,7 @@
 #include <vector>
 #include "CPUInterface.hh"
 #include "MSXConfig.hh"
+#include "ConsoleInterface.hh"
 
 // forward declarations
 class MSXDevice;
@@ -15,8 +16,8 @@ class MSXMemDevice;
 class EmuTime;
 
 
-class MSXMotherBoard : public CPUInterface
-{	
+class MSXMotherBoard : public CPUInterface, private ConsoleInterface
+{
 	public:
 		/**
 		 * Destructor
@@ -105,7 +106,7 @@ class MSXMotherBoard : public CPUInterface
 
 
 		// CPUInterface //
-		
+
 		/**
 		 * This reads a byte from the currently selected device
 		 */
@@ -132,7 +133,7 @@ class MSXMotherBoard : public CPUInterface
 		 *   false -> no IRQ pending
 		 */
 		bool IRQStatus();
-		
+
 		/**
 		 * This method must we called _exactly_once_ by each device that
 		 * wishes to raise an IRQ. The MSXDevice class offers helper methods
@@ -151,6 +152,11 @@ class MSXMotherBoard : public CPUInterface
 		virtual byte* getReadCacheLine(word start);
 		virtual byte* getWriteCacheLine(word start);
 
+		/** Gets a string representation of the slot map of the emulated MSX.
+		  * @return a multi-line string describing which slot holds which
+		  *     device.
+		  */
+		std::string getSlotMap();
 
 		/*
 		 * Should only be used by PPI
@@ -161,17 +167,25 @@ class MSXMotherBoard : public CPUInterface
 	private:
 		MSXMotherBoard();
 
+		// ConsoleInterface:
+		virtual void ConsoleCallback(char *commandLine);
+		virtual void ConsoleHelp(char *commandLine);
+
+		/** Used by getSlotMap to print the contents of a single slot.
+		  */
+		void printSlotMapPages(std::ostream &, MSXMemDevice *[]);
+
 		MSXIODevice* IO_In[256];
 		MSXIODevice* IO_Out[256];
 		std::vector<MSXDevice*> availableDevices;
-		
+
 		MSXMemDevice* SlotLayout[4][4][4];
 		byte SubSlot_Register[4];
 		byte PrimarySlotState[4];
 		byte SecondarySlotState[4];
 		bool isSubSlotted[4];
-		MSXMemDevice* visibleDevices[4]; 
-		
+		MSXMemDevice* visibleDevices[4];
+
 		int IRQLine;
 
 		static MSXMotherBoard *oneInstance;

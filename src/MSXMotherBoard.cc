@@ -10,7 +10,9 @@
 #include "MSXIODevice.hh"
 #include "MSXMemDevice.hh"
 #include "MSXException.hh"
+#include "Console.hh"
 
+#include <cassert>
 #include <sstream>
 
 MSXMotherBoard::MSXMotherBoard()
@@ -47,6 +49,10 @@ MSXMotherBoard::MSXMotherBoard()
 		PRT_DEBUG("Slot: " << counter << " expanded: " << hasSubs);
 	}
 	config->getParametersWithClassClean(subslotted_list);
+
+	// Register console commands.
+	Console::instance()->registerCommand(this, "slotmap");
+
 }
 
 MSXMotherBoard::~MSXMotherBoard()
@@ -95,7 +101,7 @@ void MSXMotherBoard::registerSlottedDevice(MSXMemDevice *device, int primSl, int
 {
 	if (!isSubSlotted[primSl] && secSl != 0) {
 		std::ostringstream s;
-		s << "slot " << primSl << "-" << secSl
+		s << "slot " << primSl << "." << secSl
 			<< " does not exist, because slot is not expanded";
 		throw MSXException(s.str());
 	}
@@ -246,3 +252,45 @@ byte* MSXMotherBoard::getWriteCacheLine(word start)
 		return NULL;
 	return visibleDevices[start>>14]->getWriteCacheLine(start);
 }
+
+std::string MSXMotherBoard::getSlotMap()
+{
+	std::ostringstream out;
+	for (int prim = 0; prim < 4; prim++) {
+		if (isSubSlotted[prim]) {
+			for (int sec = 0; sec < 4; sec++) {
+				out << "slot " << prim << "." << sec << ":\n";
+				printSlotMapPages(out, SlotLayout[prim][sec]);
+			}
+		} else {
+			out << "slot " << prim << ":\n";
+			printSlotMapPages(out, SlotLayout[prim][0]);
+		}
+	}
+	return out.str();
+}
+
+void MSXMotherBoard::printSlotMapPages(
+	std::ostream &out, MSXMemDevice *devices[])
+{
+	for (int page = 0; page < 4; page++) {
+		char hexStr[5];
+		snprintf(hexStr, sizeof(hexStr), "%04X", page * 0x4000);
+		out << hexStr << ": " << devices[page]->getName() << "\n";
+	}
+}
+
+void MSXMotherBoard::ConsoleCallback(char *commandLine)
+{
+	assert(strncmp(commandLine, "slotmap", 7) == 0);
+	//cout << getSlotMap();
+	Console::instance()->printOnConsole(getSlotMap());
+}
+
+void MSXMotherBoard::ConsoleHelp(char *commandLine)
+{
+	assert(strncmp(commandLine, "slotmap", 7) == 0);
+	Console::instance()->printOnConsole(
+		"Prints which slots contain which devices.");
+}
+
