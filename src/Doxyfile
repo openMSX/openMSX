@@ -58,8 +58,8 @@ FILE_PATTERNS          = *.cc \
                          *.hh \
                          *.ii \
                          *.nn
-RECURSIVE              = NO
-EXCLUDE                = 
+RECURSIVE              = YES
+EXCLUDE                = ./ufo
 EXCLUDE_PATTERNS       = 
 EXAMPLE_PATH           = 
 EXAMPLE_PATTERNS       = 
@@ -92,7 +92,7 @@ TREEVIEW_WIDTH         = 250
 #---------------------------------------------------------------------------
 # configuration options related to the LaTeX output
 #---------------------------------------------------------------------------
-GENERATE_LATEX         = YES
+GENERATE_LATEX         = NO
 LATEX_OUTPUT           = latex
 COMPACT_LATEX          = NO
 PAPER_TYPE             = a4wide
