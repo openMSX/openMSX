@@ -7,7 +7,6 @@ TODO:
   class would know when to sync etc, but not be SDL dependent.
   Since most of the abstraction is done using <Pixel>, most code
   is SDL independent already.
-- Implement sprite colour in Graphic 7.
 - Implement sprite pixels in Graphic 5.
 - Is it possible to combine dirtyPattern and dirtyColour into a single
   dirty array?
@@ -97,7 +96,7 @@ template <class Pixel> inline void SDLHiRenderer<Pixel>::renderUntil(
 template <class Pixel> inline void SDLHiRenderer<Pixel>::sync(
 	const EmuTime &time)
 {
-	int line = (vdp->getTicksThisFrame(time) + VDP::TICKS_PER_LINE / 2)
+	int line = (vdp->getTicksThisFrame(time) + VDP::TICKS_PER_LINE - 400)
 		/ VDP::TICKS_PER_LINE;
 	renderUntil(line);
 }
@@ -105,7 +104,7 @@ template <class Pixel> inline void SDLHiRenderer<Pixel>::sync(
 template <class Pixel> inline int SDLHiRenderer<Pixel>::getLeftBorder()
 {
 	return (WIDTH - 512) / 2 - 14 + vdp->getHorizontalAdjust() * 2
-		+ (vdp->isTextMode() ? 16 : 0);
+		+ (vdp->isTextMode() ? 18 : 0);
 }
 
 template <class Pixel> inline int SDLHiRenderer<Pixel>::getDisplayWidth()
@@ -500,6 +499,8 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateVRAM(
 	// If display is disabled, VRAM changes will not affect the
 	// renderer output, therefore sync is not necessary.
 	// TODO: Changes in invisible pages do not require sync either.
+	//       Maybe this is a task for the dirty checker, because what is
+	//       visible is display mode dependant.
 	if (vdp->isDisplayEnabled()) sync(time);
 
 	(this->*dirtyChecker)(addr, data, time);

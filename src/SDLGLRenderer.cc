@@ -107,7 +107,7 @@ inline void SDLGLRenderer::renderUntil(
 inline void SDLGLRenderer::sync(
 	const EmuTime &time)
 {
-	int line = (vdp->getTicksThisFrame(time) + VDP::TICKS_PER_LINE / 2)
+	int line = (vdp->getTicksThisFrame(time) + VDP::TICKS_PER_LINE - 400)
 		/ VDP::TICKS_PER_LINE;
 	renderUntil(line);
 }
@@ -115,7 +115,7 @@ inline void SDLGLRenderer::sync(
 inline int SDLGLRenderer::getLeftBorder()
 {
 	return (WIDTH - 512) / 2 - 14 + vdp->getHorizontalAdjust() * 2
-		+ (vdp->isTextMode() ? 16 : 0);
+		+ (vdp->isTextMode() ? 18 : 0);
 }
 
 inline int SDLGLRenderer::getDisplayWidth()
