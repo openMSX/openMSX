@@ -125,34 +125,6 @@ private:
 	Device &operator=(const Device &foo); // block usage
 };
 
-class CustomConfig
-{
-public:
-	CustomConfig();
-	virtual ~CustomConfig();
-
-	/**
-	 * Every customconfig is identified by it's tag
-	 */
-	const std::string &getTag();
-
-	/**
-	 * dump content of CustomConfig
-	 */
-	virtual void dump()=0;
-
-protected:
-	/**
-	 * initialize this tag in your implementation in
-	 * the class that inherits from msxconfig
-	 */
-	std::string tag;
-
-private:
-	CustomConfig(const CustomConfig &foo); // block usage
-	CustomConfig &operator=(const CustomConfig &foo); // block usage
-	
-};
 
 class Backend
 {
@@ -176,12 +148,6 @@ public:
 	 */
 	virtual Config* getConfigById(const std::string &id)=0;
 	virtual Device* getDeviceById(const std::string &id)=0;
-	virtual CustomConfig* getCustomConfigByTag(const std::string &tag)=0;
-
-	/**
-	 * create customconfig by id
-	 */
-	virtual void createCustomConfigByTag(const std::string &tag)=0;
 
 	/**
 	 * get a device

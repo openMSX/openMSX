@@ -2,6 +2,7 @@ $Id$
 
 2003-01-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed Kanji12
+	* Removed some unused classes from config directory
 
 2003-01-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented Kanji 12x12:

@@ -53,26 +53,6 @@ private:
 	Device &operator=(const Device &foo); // block usage
 };
 
-class CustomConfig: public virtual MSXConfig::CustomConfig
-{
-public:
-	CustomConfig();
-	virtual ~CustomConfig();
-	/**
-	 * initialize the XML backend, called by the
-	 * XML Backend after creation of the CustomConfig class
-	 * needs to be implemented by child, and should contain
-	 * the actual XML logic
-	 */
-	virtual void backendInit(XML::Element *element)=0;
-
-	virtual void dump()=0;
-
-private:
-	CustomConfig(const CustomConfig &foo); // block usage
-	CustomConfig &operator=(const CustomConfig &foo); // block usage
-};
-
 class Backend: public MSXConfig::Backend
 {
 
@@ -87,8 +67,6 @@ public:
 
 	virtual MSXConfig::Config* getConfigById(const std::string &id);
 	virtual MSXConfig::Device* getDeviceById(const std::string &id);
-	virtual MSXConfig::CustomConfig* getCustomConfigByTag(const std::string &tag);
-	virtual void createCustomConfigByTag(const std::string &tag);
 
 	virtual void initDeviceIterator();
 	virtual MSXConfig::Device* getNextDevice();
@@ -106,7 +84,6 @@ private:
 	std::list<XML::Document*> docs;
 	std::list<Config*> configs;
 	std::list<Device*> devices;
-	std::list<CustomConfig*> custom_configs;
 
 	std::list<Device*>::const_iterator device_iterator;
 

@@ -3,9 +3,6 @@
 #include "File.hh"
 #include "XMLConfig.hh"
 
-// the implementations of customconfig:
-#include "XMLFilePath.hh"
-// add others here
 
 
 namespace XMLConfig
@@ -183,10 +180,6 @@ Backend::~Backend()
 	{
 		delete (*i);
 	}
-	for (std::list<CustomConfig*>::iterator i = custom_configs.begin(); i != custom_configs.end(); i++)
-	{
-		delete (*i);
-	}
 }
 
 void Backend::loadFile(const std::string &filename)
@@ -228,12 +221,6 @@ void Backend::handleDoc(XML::Document* doc)
 			{
 				devices.push_back(new Device((*i)));
 			}
-		}
-		else
-		{
-			createCustomConfigByTag((*i)->name);
-			CustomConfig *c = dynamic_cast<CustomConfig*>(getCustomConfigByTag((*i)->name));
-			c->backendInit((*i));
 		}
 	}
 }
@@ -300,35 +287,6 @@ MSXConfig::Device* Backend::getDeviceById(const std::string &id)
 	throw MSXConfig::Exception(s);
 }
 
-MSXConfig::CustomConfig* Backend::getCustomConfigByTag(const std::string &tag)
-{
-	std::list<XMLConfig::CustomConfig*>::const_iterator i;
-	for (i = custom_configs.begin(); i != custom_configs.end(); i++)
-	{
-		if ((*i)->getTag()==tag)
-		{
-			return (*i);
-		}
-	}
-	// TODO XXX raise exception?
-	std::ostringstream s;
-	s << "<" << tag << "> tag not found";
-	throw MSXConfig::Exception(s);
-}
-
-void Backend::createCustomConfigByTag(const std::string &tag)
-{
-	if (tag=="filepath")
-	{
-		custom_configs.push_back(new FilePath());
-		return;
-	}
-	
-	std::ostringstream s;
-	s << "there is no handler for customconfig with tag: " << tag;
-	throw MSXConfig::Exception(s);
-}
-
 
 void Backend::initDeviceIterator()
 {
@@ -344,16 +302,6 @@ MSXConfig::Device* Backend::getNextDevice()
 		return t;
 	}
 	return 0;
-}
-
-CustomConfig::CustomConfig()
-:MSXConfig::CustomConfig()
-{
-	PRT_DEBUG("XMLConfig::CustomConfig::CustomConfig()");
-}
-
-CustomConfig::~CustomConfig()
-{
 }
 
 }; // end namespace XMLConfig
