@@ -219,7 +219,7 @@ void CommandLineParser::configureCartridge(char* filename)
   s << "<parameter name=\"filename\">";
   s << sfile << "</parameter>";
   s << "<parameter name=\"filesize\">0</parameter>";
-  s << "<parameter name=\"volume\">13000</parameter>";
+  s << "<parameter name=\"volume\">9000</parameter>";
   s << "<parameter name=\"automappertype\">";
   if (*mapper != 0){
      s << "false</parameter>";
@@ -241,7 +241,7 @@ void CommandLineParser::configureMusMod(std::string mode)
   s << "<msxconfig>";
   s << " <device id=\"MSX-Audio\">";
   s << "  <type>Audio</type>";
-  s << "<parameter name=\"volume\">20000</parameter>";
+  s << "<parameter name=\"volume\">9000</parameter>";
   s << "<parameter name=\"sampleram\">256</parameter>";
   s << "<parameter name=\"mode\">"<< XML::Escape(mode) <<"</parameter>";
   s << " </device>";
