@@ -37,6 +37,13 @@ void FDC2793::reset()
   current_side=0;
   stepSpeed=0;
   directionIn=true;
+
+  driveReg=0;
+  current_drive=0;
+  motor_drive[0]=0;
+  motor_drive[1]=0;
+  //motorStartTime[0]=0;
+  //motorStartTime[1]=0;
   
   // According to the specs it nows issues a RestoreCommando (0x03) Afterwards
   // the stepping rate can still be changed so that the remaining steps of the
@@ -55,18 +62,23 @@ void FDC2793::setDriveSelect(byte value,const EmuTime &time)
   driveReg=value;
   switch (value & 3){
   case 0:
+  case 2:
   current_drive=0;
   break;
   case 1:
   current_drive=1;
   break;
-  case 2:
-  current_drive=0;
-  break;
   case 3:
   current_drive=255; //no drive selected
-  }
-  motor_drive=value&128;
+  };
+
+  if (current_drive != 255 ){
+  	if (motor_drive[current_drive] != value&128){
+	  //if already in current state this is skipped
+	  motorStartTime[current_drive]=time;
+	}
+	motor_drive[current_drive]=value&128;
+  };
   //PRT_DEBUG("motor is "<<(int)motor_drive<<" drive "<<(int)current_drive);
 }
 byte FDC2793::getDriveSelect(const EmuTime &time)
@@ -264,7 +276,16 @@ byte FDC2793::getStatusReg(const EmuTime &time)
 {
 	if ( (commandReg & 0x80) == 0){
 		//Type I command so bit 1 should be the index pulse
-		
+		if ( current_drive < 2 ){
+		   int ticks = motorStartTime[current_drive].getTicksTill(time);
+		   if ( ticks >= 200) ticks -= 200 * ( int (ticks/200) );
+		   
+		   //TODO: check on a real MSX how long this indexmark is visible 
+		   // According to Ricardo it is simply a sensor that is mapped
+		   // onto this bit that sees if the index mark is passing by
+		   // or not. (The little gap in the metal plate of te disk)
+		   if (ticks < 20) statusReg |= 2;
+		}
 	};
 	//statusReg &= 254 ;// reset status on Busy 
 	//TODO this hould be time dependend !!!

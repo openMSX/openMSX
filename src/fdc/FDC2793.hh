@@ -39,6 +39,7 @@ class FDC2793 : public FDC
 	EmuTime commandEnd;
 	*/
 	EmuTimeFreq<1000> commandEnd;
+	EmuTimeFreq<1000> motorStartTime[2];
 
 
 	byte statusReg;
@@ -49,7 +50,7 @@ class FDC2793 : public FDC
 
 	byte driveReg; //bestaat niet in de FDC zelf maar als externe logica
 	byte current_drive;
-	byte motor_drive;
+	byte motor_drive[2];
 
 	byte current_track;
 	byte current_sector;

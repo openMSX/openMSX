@@ -1,5 +1,8 @@
 $Id$
 
+2002-06-30 David Heremans <david.heremans@gnu-linux.net>
+	* Added index mark to the FDC status register (not tested yet!)
+
 2002-06-28 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Initial version of DiskImageManager (WIP):
 	   - insert disk from commandline doesn't work yet

@@ -110,7 +110,7 @@ void MSXRomDevice::readFile(IFILETYPE* file, int fileSize)
 	if (file->fail()) {
 		// TODO: Throw exception, so that caller can print an error
 		//       message which includes the file name.
-		PRT_ERROR("Error reading ROM image.");
+		PRT_ERROR("Error reading ROM image : " <<  deviceConfig->getParameter("filename") );
 	}
 	file->close();
 	// also patch the file if needed:
