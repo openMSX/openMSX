@@ -19,7 +19,7 @@ V9990SDLRasterizer<Pixel, zoom>::V9990SDLRasterizer(
 	V9990* vdp_, SDL_Surface* screen_)
 	: vdp(vdp_)
 	, screen(screen_)
-	, bitmapConverter(vdp->getVRAM(), *screen->format,
+	, bitmapConverter(vdp, *screen->format,
 	                  palette64, palette256, palette32768)
 {
 	PRT_DEBUG("V9990SDLRasterizer::V9990SDLRasterizer");
@@ -226,7 +226,6 @@ void V9990SDLRasterizer<Pixel, zoom>::drawDisplay(
 	static int const screenH = SCREEN_HEIGHT;
 
 	if ((displayWidth > 0) && (displayHeight > 0)) {
-		
 		// from VDP coordinates to screen coordinates
 		fromX -= colZero;
 		fromY -= lineZero;
@@ -249,12 +248,6 @@ void V9990SDLRasterizer<Pixel, zoom>::drawDisplay(
 			displayHeight = screenH - fromY;
 		}
 		
-		SDL_Rect rect;
-		rect.x = translateX<zoom>(fromX);
-		rect.y = translateY<zoom>(fromY);
-		rect.w = translateX<zoom>(displayWidth);
-		rect.h = translateY<zoom>(displayHeight);
-
 		if (displayMode == P1) {
 			// TODO
 			std::cout << "V9990: P1 mode not yet implemented" << std::endl;
@@ -262,51 +255,60 @@ void V9990SDLRasterizer<Pixel, zoom>::drawDisplay(
 			// TODO
 			std::cout << "V9990: P2 mode not yet implemented" << std::endl;
 		} else {
-			Pixel* pixelPtr = (Pixel*)(
-		                   (byte*)workScreen->pixels +
-		                  + translateY<zoom>(fromY) * workScreen->pitch
-		                  + translateX<zoom>(fromX) * sizeof(Pixel));
-
-			displayX = V9990::UCtoX(displayX, displayMode);
-			displayWidth = V9990::UCtoX(displayWidth, displayMode);
-			int scrollX = vdp->getScrollX();
-			int scrollY = vdp->getScrollY();
-			int y = displayY + scrollY & 0x1FFF; // TODO roll is ignored
-			uint address = vdp->XYtoVRAM(&displayX, y, colorMode);
-			int vramStep;
-			switch (colorMode) {
-				// TODO per pixel X scrolling doesn't work yet
-				case BP2:
-					vramStep = imageWidth / 4;
-					address += scrollX / 4;
-					break;
-				case BP4:
-				case PP:
-					vramStep = imageWidth / 2;
-					address += scrollX / 2;
-					break;
-				case BD16:
-					vramStep = imageWidth * 2;
-					address += scrollX * 2;
-					break;
-				default:
-					vramStep = imageWidth;
-					address += scrollX;
-			}
-			if (vdp->isEvenOddEnabled()) {
-				if (vdp->getEvenOdd()) {
-					address += vramStep;
-				}
-				vramStep *= 2;
-			}
-			while (displayHeight--) {
-				bitmapConverter.convertLine(pixelPtr, address, displayWidth);
-				
-				// next line
-				address += vramStep;
-				pixelPtr += workScreen->w * translateY<zoom>(1);
-			}
+			drawBxMode(fromX, fromY, displayX, displayY,
+			           displayWidth, displayHeight);
 		}
+	}
+}
+
+template <class Pixel, Renderer::Zoom zoom>
+void V9990SDLRasterizer<Pixel, zoom>::drawBxMode(
+	int fromX, int fromY, int displayX, int displayY,
+	int displayWidth, int displayHeight)
+{
+	Pixel* pixelPtr = (Pixel*)(
+		  (byte*)workScreen->pixels +
+		  translateY<zoom>(fromY) * workScreen->pitch +
+		  translateX<zoom>(fromX) * sizeof(Pixel));
+
+	displayX = V9990::UCtoX(displayX, displayMode);
+	displayWidth = V9990::UCtoX(displayWidth, displayMode);
+	int scrollX = vdp->getScrollX();
+	int scrollY = vdp->getScrollY();
+	int y = displayY + scrollY & 0x1FFF; // TODO roll is ignored
+	uint address = vdp->XYtoVRAM(&displayX, y, colorMode);
+	int vramStep;
+	switch (colorMode) {
+		// TODO per pixel X scrolling doesn't work yet
+		case BP2:
+			vramStep = imageWidth / 4;
+			address += scrollX / 4;
+			break;
+		case BP4:
+		case PP:
+			vramStep = imageWidth / 2;
+			address += scrollX / 2;
+			break;
+		case BD16:
+			vramStep = imageWidth * 2;
+			address += scrollX * 2;
+			break;
+		default:
+			vramStep = imageWidth;
+			address += scrollX;
+	}
+	if (vdp->isEvenOddEnabled()) {
+		if (vdp->getEvenOdd()) {
+			address += vramStep;
+		}
+		vramStep *= 2;
+	}
+	while (displayHeight--) {
+		bitmapConverter.convertLine(pixelPtr, address, displayWidth,
+		                            displayY);
+		++displayY;
+		address += vramStep;
+		pixelPtr += workScreen->w * translateY<zoom>(1);
 	}
 }
 

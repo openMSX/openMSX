@@ -2,6 +2,7 @@
 
 #include "V9990BitmapConverter.hh"
 #include "V9990VRAM.hh"
+#include "V9990.hh"
 #include "GLUtil.hh"
 #include <string.h>
 #include <cassert>
@@ -46,12 +47,14 @@ template class V9990BitmapConverter<
 
 template <class Pixel, Renderer::Zoom zoom>
 V9990BitmapConverter<Pixel, zoom>::V9990BitmapConverter(
-	V9990VRAM* vram_,
+	V9990* vdp_,
 	SDL_PixelFormat format_,
 	Pixel* palette64_, Pixel* palette256_, Pixel* palette32768_)
-	: vram(vram_), format(format_)
+	: vdp(vdp_), format(format_)
         , palette64(palette64_), palette256(palette256_), palette32768(palette32768_)
 {
+	vram = vdp->getVRAM();
+
 	// make sure function pointers have valid values
 	setDisplayMode(P1);
 	setColorMode(PP);
@@ -433,15 +436,66 @@ void V9990BitmapConverter<Pixel, zoom>::setColorMode(V9990ColorMode mode)
 	}
 }
 
+
+template <class Pixel, Renderer::Zoom zoom>
+void V9990BitmapConverter<Pixel, zoom>::drawCursor(
+	Pixel* buffer, int displayY, unsigned attrAddr, unsigned patAddr)
+{
+	int cursorY = vram->readVRAM(attrAddr + 0) +
+	             (vram->readVRAM(attrAddr + 2) & 1) * 256;
+	++cursorY; // one line later
+	int cursorLine = (displayY - cursorY) & 511;
+	if (cursorLine >= 32) return;
+
+	byte attr = vram->readVRAM(attrAddr + 6);
+	if (attr & 0x10) {
+		// don't display
+		return;
+	}
+	
+	unsigned pattern = (vram->readVRAM(patAddr + 4 * cursorLine + 0) << 24)
+	                 + (vram->readVRAM(patAddr + 4 * cursorLine + 1) << 16)
+	                 + (vram->readVRAM(patAddr + 4 * cursorLine + 2) <<  8)
+	                 + (vram->readVRAM(patAddr + 4 * cursorLine + 3) <<  0);
+	if (!pattern) {
+		// optimization, completely transparant line
+		return;
+	}
+	unsigned x = vram->readVRAM(attrAddr + 4) + (attr & 3) * 256;
+	
+	// TODO EOR colors
+	Pixel color = palette64[vdp->getPaletteOffset() + (attr >> 6)];
+	for (int i = 0; i < 32; ++i) {
+		if (pattern & 0x80000000) {
+			buffer[(x + i) & 1023] = color;
+		}
+		pattern <<= 1;
+	}
+}
+
+template <class Pixel, Renderer::Zoom zoom>
+void V9990BitmapConverter<Pixel, zoom>::drawCursors(Pixel* buffer, int displayY)
+{
+	// TODO which cursor is in front?
+	drawCursor(buffer, displayY, 0x7FE00, 0x7FF00);
+	drawCursor(buffer, displayY, 0x7FE08, 0x7FF80);
+}
+
+
 template <class Pixel, Renderer::Zoom zoom>
 void V9990BitmapConverter<Pixel, zoom>::convertLine(
-	Pixel* linePtr, uint address, int nrPixels)
+	Pixel* linePtr, uint address, int nrPixels, int displayY)
 {
 	assert(nrPixels <= 1024);
 	Pixel tmp[1024 * sizeof(Pixel)];
 	(this->*rasterMethod)(tmp, address, nrPixels);
+	if (vdp->spritesEnabled()) {
+		drawCursors(tmp, displayY);
+	}
 	(this->*blendMethod)(tmp, linePtr, nrPixels);
 }
+
+
 
 } // namespace openmsx
 

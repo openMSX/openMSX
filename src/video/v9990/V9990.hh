@@ -71,6 +71,21 @@ public:
 	inline bool isDisplayEnabled() const {
 		return regs[CONTROL] & 0x80;
 	}
+
+	/** Are sprites (cursors) enabled?
+	  * @return true iff enabled
+	  */
+	inline bool spritesEnabled() const {
+		return !(regs[CONTROL] & 0x40);
+	}
+
+	/** Get palette offset. 
+	  * This is a number between [0..63], lowest two bits are always 0. 
+	  * @return palette offset 
+	  */
+	inline byte getPaletteOffset() const {
+		return (regs[PALETTE_CONTROL] & 0x0F) << 2;
+	}
 	
 	/** Get the number of elapsed UC ticks in this frame.
 	  * @param  time Point in emulated time.

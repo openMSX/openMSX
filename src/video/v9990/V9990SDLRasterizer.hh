@@ -115,6 +115,11 @@ private:
 	/** Fill the palettes.
 	  */
 	void precalcPalettes();
+
+	/** Draw Bx mode.
+	  */ 
+	void drawBxMode(int fromX, int fromY, int displayX, int displayY,
+	                int displayWidth, int displayHeight);
 };
 
 } // namespace openmsx

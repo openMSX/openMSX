@@ -10,6 +10,7 @@
 
 namespace openmsx {
 
+class V9990;
 class V9990VRAM;
 
 /** Utility class to convert VRAM content to host pixels
@@ -19,7 +20,7 @@ template <class Pixel, Renderer::Zoom zoom>
 class V9990BitmapConverter
 {
 public:
-	V9990BitmapConverter(V9990VRAM* vram_,
+	V9990BitmapConverter(V9990* vdp,
 	                     SDL_PixelFormat fmt,
 	                     Pixel* palette64,
 	                     Pixel* palette256,
@@ -28,7 +29,7 @@ public:
 
 	/** Convert a line of VRAM into host pixels.
 	  */
-	void convertLine(Pixel* linePtr, uint address, int nrPixels);
+	void convertLine(Pixel* linePtr, uint address, int nrPixels, int displayY);
 
 	/** Set the display mode: defines screen geometry.
 	  */
@@ -39,6 +40,10 @@ public:
 	void setColorMode(V9990ColorMode mode);
 
 private:
+	/** Pointer to VDP 
+	  */
+	V9990* vdp;
+	
 	/** Pointer to VDP VRAM
 	  */
 	V9990VRAM* vram;
@@ -108,6 +113,10 @@ private:
 	void rasterBP6  (Pixel* outPixels, uint address, int nrPixels);
 	void rasterBP4  (Pixel* outPixels, uint address, int nrPixels);
 	void rasterBP2  (Pixel* outPixels, uint address, int nrPixels);
+
+	void drawCursor(Pixel* buffer, int displayY,
+	                unsigned attrAddr, unsigned patAddr);
+	void drawCursors(Pixel* buffer, int displayY);
 };
 
 } // namespace openmsx
