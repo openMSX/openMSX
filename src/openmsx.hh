@@ -13,6 +13,12 @@ using std::hex;
 using std::dec;
 
 
+/// Namespace of the openMSX emulation core.
+/** openMSX: the MSX emulator that aims for perfection
+  *
+  * Copyrights: see AUTHORS file.
+  * License: GPL.
+  */
 namespace openmsx {
 
 /** 4 bit integer */
