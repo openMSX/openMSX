@@ -173,7 +173,7 @@ Just type the following command:
 
 If you have a Pentium II or higher machine, instead configure it like this:
 
-./config-i686
+./config-i686.sh
 
 This will let openMSX compile with optimisations for your system's CPU.
 
@@ -565,7 +565,7 @@ change disk images, plug in joysticks or mice, switch renderers and to define
 key bindings. You can specify a background image and the font in the config file
 (<config id="Console">). The png files need an alpha channel (transparency
 information) though.
-``
+  
 AutoCommands and KeyEventInserter
 
 In the config file section AutoCommands, you can specify some console commands
