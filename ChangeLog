@@ -1,5 +1,8 @@
 $Id$
 
+2004-09-26 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Don't print "couldn't find file" warnings on startup
+
 2004-09-26 Maarten ter Huurne <maarten@treewalker.org>
 	* At end of HMMC and LMMC, CE is reset immediately, but TR is reset
 	  the next time S#2 is read.

@@ -14,6 +14,7 @@ FilenameSettingBase::FilenameSettingBase(
 	const string& name, const string& description,
         const string& initialValue)
 	: StringSettingBase(name, description, initialValue)
+	, printWarnings(true)
 {
 }
 
@@ -33,8 +34,10 @@ void FilenameSettingBase::setValue(const string& newValue)
 			resolved = context.resolve(newValue);
 		} catch (FileException& e) {
 			// File not found
-			CliCommOutput::instance().printWarning(
-				"couldn't find file: \"" + newValue + "\"");
+			if (printWarnings) {
+				CliCommOutput::instance().printWarning(
+					"couldn't find file: \"" + newValue + "\"");
+			}
 			return;
 		}
 	}
@@ -56,7 +59,9 @@ FilenameSetting::FilenameSetting(
 	const string& initialValue)
 	: FilenameSettingBase(name, description, initialValue)
 {
+	printWarnings = false;
 	initSetting(SAVE_SETTING);
+	printWarnings = true;
 }
 
 FilenameSetting::~FilenameSetting()

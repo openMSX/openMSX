@@ -26,6 +26,8 @@ protected:
 	  * @return true to accept this file name; false to reject it.
 	  */
 	virtual bool checkFile(const string& filename) = 0;
+
+	bool printWarnings;
 };
 
 NON_INHERITABLE_PRE(FilenameSetting)
