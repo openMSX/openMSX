@@ -1,5 +1,11 @@
 $Id$
 
+2004-01-30 Reikan <openMSX4Win32@ranpub.com>
+	* Fixed strange build error of FileOperations.cc.
+	  It would be becauseof "gthreads vs w32api".
+	* Fixed broken "Makefile.am"s.
+	* Adjusted configure.ac and Makefile.am to accpet libtcl84.a on MinGW.
+
 2004-01-25 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Made cpu frequency switchable at-run-time:
 	   in console: set z80_freq_locked off ; set z80_freq 12345678
