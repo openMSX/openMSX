@@ -3,7 +3,6 @@
 #include "VDPVRAM.hh"
 #include "SpriteChecker.hh"
 #include "CommandController.hh"
-#include "EmuTime.hh"
 #include "Debugger.hh"
 
 #include <fstream>
@@ -24,14 +23,11 @@ VRAMWindow::VRAMWindow() {
 
 // class VDPVRAM:
 
-VDPVRAM::VDPVRAM(VDP *vdp, int size)
-	: dumpVRAMCmd(this)
+VDPVRAM::VDPVRAM(VDP *vdp, int size, const EmuTime& time)
+	: currentTime(time), dumpVRAMCmd(this)
 {
 	this->vdp = vdp;
 	this->size = size;
-
-	// TODO: If this stays, initialise from constructor param.
-	currentTime(0ull);
 
 	// Initialise VRAM data array.
 	data = new byte[size];

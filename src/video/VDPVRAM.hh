@@ -300,7 +300,7 @@ public:
 	VRAMWindow spriteAttribTable;
 	VRAMWindow spritePatternTable;
 
-	VDPVRAM(VDP *vdp, int size);
+	VDPVRAM(VDP *vdp, int size, const EmuTime& time);
 	virtual ~VDPVRAM();
 
 	/** Update VRAM state to specified moment in time.

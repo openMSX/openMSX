@@ -90,7 +90,7 @@ VDP::VDP(Device* config, const EmuTime& time)
 	}
 	vramSize *= 1024;
 	vramMask = vramSize - 1;
-	vram = new VDPVRAM(this, vramSize);
+	vram = new VDPVRAM(this, vramSize, time);
 
 	// Create sprite checker.
 	spriteChecker = new SpriteChecker(this);
