@@ -131,11 +131,13 @@ f5eb0a396097572589f2a6efeed045044e9425e4  Philips_NMS_8220/roms/nms8220_msx2sub.
 6103b39f1e38d1aa2d84b1c3219c44f1abb5436e  Philips_NMS_8245/roms/nms8245_basic-bios2.rom
 c3f3ca454d66a0bc791f1d4b60e6857b44eb8755  Philips_NMS_8245/roms/nms8245_disk.rom
 e7905d16d2ccd57a013c122dc432106cd59ef52c  Philips_NMS_8245/roms/nms8245_msx2sub.rom
-8e2376d78ffd1db75f6020a97651751ef841f105  Philips_NMS_8250/roms/nms8250-basic.rom
-11d1c62fbf5f896de028174bd17a64451aec4613  Philips_NMS_8250/roms/nms8250-bios.rom
 6103b39f1e38d1aa2d84b1c3219c44f1abb5436e  Philips_NMS_8250/roms/nms8250_basic-bios2.rom
 c3efedda7ab947a06d9345f7b8261076fa7ceeef  Philips_NMS_8250/roms/nms8250_disk.rom
 5c1f9c7fb655e43d38e5dd1fcc6b942b2ff68b02  Philips_NMS_8250/roms/nms8250_msx2sub.rom
+6103b39f1e38d1aa2d84b1c3219c44f1abb5436e  Philips_NMS_8255/roms/nms8250_basic-bios2.rom
+c3efedda7ab947a06d9345f7b8261076fa7ceeef  Philips_NMS_8255/roms/nms8250_disk.rom
+5c1f9c7fb655e43d38e5dd1fcc6b942b2ff68b02  Philips_NMS_8255/roms/nms8250_msx2sub.rom
+e998f0c441f4f1800ef44e42cd1659150206cf79  Philips_VG_8020-20/roms/vg8020-20_basic-bios1.rom
 829c00c3114f25b3dae5157c0a238b52a3ac37db  Philips_VG_8020/roms/vg8020_basic-bios1.rom
 0de3c802057560560a03d7965fcc4cff69f8575c  Philips_VG_8230/roms/vg8230_basic-bios2.rom
 7782c039c32e9c3a731bd0cac4eba80749f11a96  Philips_VG_8230/roms/vg8230_disk.rom
@@ -174,6 +176,11 @@ b262aedc71b445303f84efe5e865cbb71fd7d952  Sony_HB-75P/roms/hb-75p_firmware.rom
 aa78fc9bcd2343f84cf790310a768ee47f90c841  Sony_HB-F1/roms/hb-f1_firmware2.rom
 58accf41a90693874b86ce98d8d43c27beb8b6dc  Sony_HB-F1/roms/hb-f1_firmware3.rom
 b8e30d604d319d511cbfbc61e5d8c38fbb9c5a33  Sony_HB-F1/roms/hb-f1_msx2sub.rom
+0081ea0d25bc5cd8d70b60ad8cfdc7307812c0fd  Sony_HB-F1II/roms/hb-f1ii_basic-bios2.rom
+30d914cda2180889a40a3328e0a0c1327f4eaa10  Sony_HB-F1II/roms/hb-f1ii_firmware1.rom
+ed2fea5c2a3c2e58d4f69f9d636e08574486a2b1  Sony_HB-F1II/roms/hb-f1ii_firmware2.rom
+917d1c079e03c4a44de864f123d03c4e32c8daae  Sony_HB-F1II/roms/hb-f1ii_firmware3.rom
+0fbd45ef3dd7bb82d4c31f1947884f411f1ca344  Sony_HB-F1II/roms/hb-f1ii_msx2sub.rom
 4ce41fcc1a603411ec4e99556409c442078f0ecf  Sony_HB-F1XD/roms/hb-f1xd_basic-bios2.rom
 12f2cc79b3d09723840bae774be48c0d721ec1c6  Sony_HB-F1XD/roms/hb-f1xd_disk.rom
 0fbd45ef3dd7bb82d4c31f1947884f411f1ca344  Sony_HB-F1XD/roms/hb-f1xd_msx2sub.rom
