@@ -1,0 +1,379 @@
+
+%TODO: translate in english
+
+
+\documentclass[11pt, a4paper]{report}
+\title{OpenMSX internals}
+%Add your name here
+\author{Wouter Vermaelen}
+
+\begin{document}
+\maketitle
+
+\chapter{Analysis}
+
+\section{Wanneer moet een device geemuleerd worden}
+
+\begin{itemize}
+\item op 'regelmatige' tijdstippen, nodig voor vb:
+	\begin{itemize}
+	\item beeldopbouw VDP (voorspelbaar)
+	\item soundbuffers voor geluidchips (voorspelbaar)
+	\item externe interrupts (onvoorspelbaar, zie verder)
+	\end{itemize}
+\item wanneer er communicatie (zie verder) is met dit device:
+
+telkens wanneer 2 (of meerdere) devices met elkaar communiceren moeten deze
+'even ver in de tijd' geemuleerd zijn. 
+
+vb: CPU verandert dmv IO opdracten de palet instellingen van de VDP op het 
+tijdstip t, dan moet de VDP zijn beeldopbouw doen tot aan tijdstip t, dan
+pas wordt de IO opdracht uitgevoerd. Dus de volgende keer dat VDP 
+beeldopbouw doet zal het nieuwe palet gebruikt worden
+\end{itemize}
+
+
+\section{Communicatie in MSX}
+
+\subsection{Voorspelbare communicatie}
+
+Alle devives die interrupts kunnen genereren, vb:
+\begin{itemize}
+\item VDP weet 'als al mijn instellingen blijven zoals ze nu zijn dan ga ik op 
+tijdstip t een VBLANK interrupt genereren'
+\end{itemize}
+
+   
+\subsection{Onvoorspelbare communicatie}
+
+\begin{itemize}
+\item CPU voert een IO instructie uit
+\item CPU voert een instructie uit die leest of schrijft in geheugen (!)
+\item een externe interrupt (vb afkomstig van RS232)
+\end{itemize}
+
+
+\section{Hoe syncroniseren}
+
+Eerst komt een algoritme waarin geen rekening wordt gehouden met onvoorspelbare
+extrene interrupts, daarna proberen we die erbij te knutselen.
+
+1e regel: geen enkel device mag in uitvoering 'voorliggen' op de CPU.
+  Dit omdat praktisch alle onvoorspelbare communicate (IO en memory) uitgaat
+  van de CPU. Als een device op een bepaald moment voorligt op de CPU en als 
+  nadien de CPU tijdens zijn 'inhaalbeweging' communiceerd met dat device, ...
+  ja dan klopt er iets niet.
+
+2e regel: elk device moet zijn eerstvolgende synchronisatie punt (zie verder)
+  aan de scheduler melden. Hoe dat dit gemeld moet worden; ofdat het enkel het
+  eerst volgende is of eventueel ook andere; of wat er gebeurt als een device
+  helemaal geen syncronisatie punten nodig heeft (vb RAM) zijn allemaal 
+  implementatie details en hebben hier geen belang. Het enige wat telt is het
+  eerstvolgende punt voor elk device.
+
+\begin{itemize}
+\item De scheduler neemt het vroegste synchronisatie punt, en \textit{probeert}
+de CPU tot op dat punt te brengen.
+\item Als dit lukt
+	\begin{itemize}
+	\item dan wordt ook het device dat dit synchronisatie punt had gezet tot
+	hier gebracht (dit lukt altijd)
+	\item als het niet lukt dan probeerde de CPU een IO of een memory instructie
+	uit te voeren. In dit geval wordt eerst het device waarmee gecommuniceerd
+	werd bijgebracht (nu niet volledig tot aan synchronisatie punt, maar tot
+	waar de CPU gekomen was) en dan wordt pas de IO of memory opdracht 
+	uitgevoerd. Het zou kunnen dat het device een (nieuw, vroeger) 
+	synchronisatie punt heeft gezet, dus het algoritme begint weer van 
+	vanvoor.
+	\end{itemize}
+\end{itemize}
+       
+
+\section{Wat zijn synchronisatie punten van een device}
+
+Dit zijn tijdstippen 
+\begin{itemize}
+\item waarop er met dit device iets moet gebeuren, vb:
+	\begin{itemize}
+	\item beeldopbouw van de VDP gebeurt 50/60 keer per seconde,
+	onafhankelijk van de toestand van de VDP (interrupts on/off,
+	schermopbouw on/off)
+	\end{itemize}
+\item of wanneer het device iets te melden heeft, dit kan volgens mij enkel
+door interrupts
+\end{itemize}
+    
+
+\section{Synchronisatie met externe (onvoorspelbare) interrupts}
+	
+Zie verder voor onder de titel 'Toevoegingen door David'
+
+
+
+
+\chapter{Design}
+
+Als het systeem geimplementeerd wordt zoals hierboven beschreven is zal het 
+waarschijnlijk verschrikkelijk traag zijn. 
+
+vb: Elke keer dat het geheugen aangesproken wordt zou hiermee gesynchroniseerd
+    moeten worden.
+
+Daarom gaan we nu het model wat uitbreiden met de bedoeling te optimiseren 
+voor snelheid.
+
+
+\section{Tijdspassief en tijdsactief (idee overgenomen van Davy)}
+
+\subsection{Tijdsactief}
+
+Zelfs indien met een bepaald device op geen enkele manier gecommuniceerd wordt,
+moeten sommige devices toch 'uitgevoerd' (=geemuleerd) worden, vb:
+\begin{itemize}
+\item VDP moet regelmatig zorgen voor beeldopbouw 
+\item soundchips moeten regelmatig nieuwe samples klaarzetten 
+\item alle devices die interrupts kunnen genereren
+\end{itemize}
+
+\subsection{Tijdspassief}
+
+Voor deze devices is het voldoende om ze pas te emuleren op het moment dat er
+effectief mee gecommuniceerd wordt. vb:
+\begin{itemize}
+\item RAM/ROM
+\item DiskROM		%FIXME: meer uitleg hier
+\end{itemize}
+Het hele principe van synchronisatie punten is enkel nodig voor tijdsactieve 
+devices
+
+
+\section{Implementatie Synchronisatie punten (SP)}
+
+Eisen:
+\begin{itemize}
+\item SP moeten gezet kunnen worden op willekerige toekomstige tijdstippen 
+(evident)
+\item SP kunnen vervallen, vb er was een interrupt geplanned, maar de interrupts
+van dit device werden uitgezet voordat de interrupt echt optrad
+\item Het eerstvolgende SP moet relatief snel kunnen terug gevonden worden
+\item 1 device kan meerder SP zetten, dus een SP bijzetten voor een ander al is
+bereikt
+\end{itemize}
+
+Mogelijke implementatie: %FIXME: move this to next chapter
+\begin{itemize}
+\item tijdstippen worden voorgesteld door het aantal T-states vanaf het opstarten 
+van de MSX. Alle SP hebben dus een absolute tijdsaanduiding. Probleem: wat 
+met rollover? Ofwel
+	\begin{itemize}
+	\item 64-bit teller, bij 100MHz rollover 1 keer om de 5000 jaar
+	\item 32-bit teller met iets intelligentere vergelijkingen, als meer dan $2^31$ 
+	hoger dan betekend dit 'vroeger' ipv 'later'. Nadeel bij 100Mhz kan je
+	maar 20 seconden in de toekomst schedulen
+	\end{itemize}
+\item Elk device registreerd zijn SP bij de scheduler, die zal de SP dan in een 
+globale datastructuur plaatsen
+\item SP wissen is niet echt nodig op voorwaarde dat devices slim genoeg zijn om
+'vervallen' SP te negeren of toch geen onnodige interrupts te genereren. In
+dit geval moeten de devices eens dat kun SP geregistreerd is er zich niets 
+meer van aantrekken. Meerdere SP voor 1 device is dan ook vrij simpel 
+\item Om eerstvolgende SP snel te kunnen vinden, houden we alle SP gesorteerd bij.
+Omdat het aantal simultaan actieve SP vrij beperkt is zal een gesorteerde
+lijst wel voldoende zijn (anders een of andere boom)
+\end{itemize}
+
+
+
+%TODO (Zie toevoegingen David)
+%=============================
+%
+%Communicatie met meerder devices tegelijk, vb
+% -memory mappers (IO 0xfc .. 0xff)  
+% -devices die slot negeren, dus enkel kijken naar adres 
+%
+%
+%Toevoegingen door David
+%=======================
+%De tekst tot hiertoe was geschreven door Wouter, hier komen enkele van mijn
+%bedenkingen en aanvullingen.
+
+
+\section{Synchronisatie met externe (onvoorspelbare) interrupts}
+
+Ik zie hier twee mogelijke oplossingen:
+\begin{enumerate}
+\item Polling.
+Bij deze oplossing zetten we zelf de SP om de bv 50 HZ T-states.
+Blijven we bij het voorbeeld van de rs232 dan betekend dat er om de 0.02 seconden 
+gevraagd gaat worden of er een byte klaar staat. Als dit het geval is dan kan de 
+ge-emuleerde rs232 zijn volgende SP plaatsten binnen bv 100 T-States en deze tijd 
+langzaam laten toenemen als blijkt dat er geen byte meer ontvangen is
+\item Converting van Guest OS interrupts naar MSX interrupts
+Het zou ook mogelijk zijn om als het guest OS een interrupt krijgt dat deze kan 
+ingelast worden in de datastructuur met de SP, aangezien deze al in staat is om 
+SP's tussen te lassen in de bestaande structuur zou dit geen probleem zijn.
+\end{enumerate}
+
+Methode heeft het voordeel dat je zelf een vorm van snelheid begrenzing kunt
+inbouwen door een apparaat steeds maar een lage hoeveelheid interrupts te laten
+genereren. Tevens zou op deze manier het mogelijk eenvoudiger zijn om bv een
+rs232 connectie te faken aan de hand van een file met een 'opgenomen' connectie.
+Bij beide methodes moet het device er voor zorgen dat het er rekening mee houd
+dat een geregistreerd SP wel eens tijdens een DI zou kunnen vallen en dat daarom
+een gesette interrupt niet noodzakelijker wijze word afgehandeld. Dit wil
+zeggen, er kunnen bv drie SP geregistreerd worden die elk een setInterrupt()
+uitvoeren maar dat slechts na de derde setInterrupt de CPU deze pas afhandeld!.
+
+
+\section{Communicatie met meerder devices tegelijk, 
+vb memory mappers (IO 0xfc .. 0xff)}
+
+Voor dit soort zaken zou ik de voorkeur geven aan het master-slave principe
+In het geval van memmorymappers heb ik dit als volgt reeds geprogrammeert:
+\begin{itemize}
+\item De classe MSXMemMapDriver(=master) registreerd zich bij het MSXMotherboard voor de 
+poorten OxFC .. 0xFF.
+\item De Driver houd per slot/sublsot bij wat de mappergrootte is. Tijdens de initfase
+vervangt de MapperDriver alle verwijzingen naar hem in de slotstructuur door verwijzingen 
+naar verschillende MemMapSlaves.
+\item Bij OUT activiteit zal de driver de gepaste slaves vertellen dat ze nu data moeten 
+lezen/schrijven op andere plaatsen in mapper van hun main-/sub-slot combinatie.
+\item Bij IN activiteit is het de mapper die de waarden kent en de juiste value aan de
+CPU terug geeft. Op deze manier is het simpel om de pull-up van de Turbo-R te
+emuleren, of de conflicten van het lezen van meerdere mappers in de driver te 
+implementeren.
+\end{itemize}
+
+Dit idee ga ik waarschijnlijk ook gebruiken bij de CPU, op die manier heb je een 
+CPU-master en twee CPU-slaves bij de turbo R. De master zal zich dan ook registreren 
+bij het MotherBoard om zo op de CPU-switch poort- van de Turbo-R te kunnen luisteren 
+en de juiste taakdelegatie te kunnen doen.
+
+
+\section {devices die slot negeren, dus enkel kijken naar adres}
+
+Hier krijg je verschillen van ROM vs RAM speed te  zien, ok eventueel pull-up/ pull-down
+is hier van belang. Hier ben ik nog niet volledig uit. Het simpelst is in ieder geval in
+een begin stadium om deze rom dan zichtbaar te stellen in alle main/sub-sloten van de MSX
+waar op dat moment niets aanwezig is. Als het enkel bij een probleem van access tijden
+blijft is dit het simpelst, de rom/ram catridge die et snelst antwoord komt dan in de
+plaats van eventuele aanwezige rom/ram blokken, pull-ip/down toestanden tussen roms
+onderling zijn op te lossen met een AND/OR functie over de bestaande roms te laten gaan,
+als er ook RAM aanwezig is zou dit dynamisch moeten gebeuren en dan gaan we een serieuze
+performance hit kunnen krijgen :\
+
+
+\section{Nog enkele opmerkingen}
+
+Hier nog enkele extracten uit een mail van Wouter, ze zijn verwerkt in zijn tekst maar
+ik had ze graag nog eens expliciet aangehaald.
+
+A device isn't allowed to call the raise(lower)IRQ twice in a row...
+Misschien voor fouten te vermijden in de klasse MSXDevice 2 methods voorzien
+\begin{itemize}
+\item setInterrupt()
+\item resetInterrupt()
+\end{itemize}
+Deze methodes houden zelf een interrupt status voor dit device bij (mogen dus 
+meerder keren aangeroepen worden) en zorgen dat [raise|lower]IRQ maar 1 keer 
+wordt aangeroepen
+
+
+
+\chapter{Implementation}
+
+\section{The implementation of the scheduler in openMSX}
+
+The MSXScheduler will keep track of the T-states. This 'scheduler'-devices
+is 'owned' by the MSXMotherBoard. The MSXScheduler is a generic object
+that can be reused by other devices. If for example someone would like to
+make the VDP as a collection of internal devices each withs it's own
+function and needs some internal scheduler ...
+
+\subsection{Scheduler and timetracking}
+
+The MSXScheduler keeps a simple list for timescheduling. This is a simple
+list of the next SP and the device that has set this SP. The list is
+ordered so that the first element always is the first SP that has to
+reached.  The scheduler will follow this simple procedure:
+\begin{enumerate}
+\item Set the target T-State of the cpu to the first SP in the list.
+\item Let the CPU execute until the target T-state.
+\item Get the device from the first SP in the list and let it reach its
+T-state.
+\item Remove the first elemnt from the list
+\item Goto step 1
+\end{enumerate}
+
+Attention. The first element of the list in step 1 could be different from
+the first element in step 3. This is because of the fact that during step
+2 the device can do some I/O to other device who can set a new SP that has
+a smaller value then the set target T-state. For example, enabling
+line-interrupts from the VDP could change the first SP to be reached.  For
+this reasson the scheduler, when inserting a list element before the first
+element, will call the setTargetTStates of the CPU. this will garuantee
+that the CPU will execute until the first SP element of the list.
+
+Note 1: To get the extra time-info during communication between CPU and
+devices the calls (readMem,writeMem,readIO and writeIO) pas as their
+latest parameter the current T-state of the CPU. This makes it possible
+for devices to "catch up" with the processor if needed. So the graph of
+Wouter could be implicetly included in the emulation by passing
+the current time around during device communication.
+Note 2: Also non-msx devices could be integrated in this list. for example
+the routine that draw the actual screen on your PC could be called from
+the scheduler. Also you could make a sort of dummy device that would be
+called each 1/50 second and would block emulation until there is really
+1/50 second past between it's previous execution and the current one.
+
+\subsection{Device Sync points}
+
+Since each device has its own natural clockfrequency the scheduler will
+run at the speed of the lowest common multiple. In case of an MSX2 the CPU
+is at 3.5 MHz, the VDP runs at 21 MHz. Therefore the scheduler runs at 21
+MHz.
+
+However we could make a MSXDevice that uses a clockfrequency of 42 MHz. In
+this case the scheduler will need run at 42 MHz, however the CPU still
+needs to run at 3.5 MHz and not at 7 MHz. To overcomme this problem the
+scheduler has a method called getTimeMultiplier(nativeFreq). You can pass
+your native frequency and it will tell you by how much you need to
+multiply the devices native T-states to get to the frequency of the
+scheduler. 
+
+In the first case this would result in the value 6, in the 42MHz case this
+would return 12. If you ask the scheduler for the current T-state you will
+need to divide them by this value to get to the native T-state value 
+
+The most used SP setting is from "now" until x T-states later. This can be
+achieved using the method setLaterSP(getTimeMultiplier(nativeFreq) *
+numberOfNativeTStatesLater , this ).
+
+
+\section{For interrupts itself}
+
+If a device generates an interrupt it should call the
+MSXMotherboard.raiseIRQ() method. when a device doesn't activate
+the interrupt line any longer it will call the
+MSXMotherboard.lowerIRQ(). The emulate CPU will after each
+instruction check the IRQ-line and respond accordingly (EI/DI,
+interruptmode,...).  In the Motherboard the IRQ-line will be
+implemented using a counter, if irq-counter is zero then no
+interrupts otherwise the irq-counter should contain the number of
+devices that are generating an IRQ.
+
+\emph{A device isn't allowed to call the raise(lower)irq twice in a row!!}
+
+The MSXDevice classe contains a standard method setInterrupt() and
+resetInterrupt() which take care of this restriction and call the
+MSXMotherBoard if needed.
+
+We could make it mandatory to set the interrupt as an SP. In this way we
+would only need to test if the IRQ-line is active each time we call the
+CPU from the scheduler. However for most devices this wouldn't change
+anything, they still need to emulate up until the SP point and call the
+raiseIRQ(). Any comments ??
+
+
+
+\end{document}
