@@ -1,6 +1,9 @@
 $Id$
 
-2002-06-14 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2002-06-16 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Use exceptions for command error reporting
+
+2002-06-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Simplified MSXRomPatchInterface
 
 2002-06-14 Wouter Vermaelen <wouter.vermaelen@pi.be>

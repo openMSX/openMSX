@@ -201,8 +201,9 @@ void Scheduler::MuteCmd::execute(const std::vector<std::string> &tokens)
 				sch->noSound = false;
 				break;
 			}
+			// fall through
 		default:
-			ConsoleManager::instance()->print("Syntax error");
+			throw CommandException("Syntax error");
 	}
 	Mixer::instance()->pause(sch->noSound||sch->isPaused());
 }

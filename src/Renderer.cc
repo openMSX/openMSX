@@ -107,8 +107,9 @@ void Renderer::FullScreenCmd::execute(const std::vector<std::string> &tokens)
 			renderer->setFullScreen(false);
 			break;
 		}
+		// fall through
 	default:
-		ConsoleManager::instance()->print("Syntax error");
+		throw CommandException("Syntax error");
 	}
 }
 void Renderer::FullScreenCmd::help   (const std::vector<std::string> &tokens)

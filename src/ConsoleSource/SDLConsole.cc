@@ -424,13 +424,14 @@ void SDLConsole::ConsoleCmd::execute(const std::vector<std::string> &tokens)
 		if (tokens[1] == "on") {
 			console->isVisible = true;
 			break;
-		}
+		} 
 		if (tokens[1] == "off") {
 			console->isVisible = false;
 			break;
 		}
+		// fall through
 	default:
-		ConsoleManager::instance()->print("Syntax error");
+		throw CommandException("Syntax error");
 	}
 }
 void SDLConsole::ConsoleCmd::help   (const std::vector<std::string> &tokens)

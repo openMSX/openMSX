@@ -269,23 +269,28 @@ void CommandController::HelpCmd::execute(const std::vector<std::string> &tokens)
 {
 	ConsoleManager *console = ConsoleManager::instance();
 	CommandController *cc = CommandController::instance();
-	if (tokens.size() == 1) {
-		console->print("Use 'help [command]' to get help for a specific command");
-		console->print("The following commands exists:");
-		std::map<const std::string, Command*, ltstr>::const_iterator it;
-		for (it=cc->commands.begin(); it!=cc->commands.end(); it++) {
-			console->print(it->first);
+	switch (tokens.size()) {
+		case 1: {
+			console->print("Use 'help [command]' to get help for a specific command");
+			console->print("The following commands exists:");
+			std::map<const std::string, Command*, ltstr>::const_iterator it;
+			for (it=cc->commands.begin(); it!=cc->commands.end(); it++) {
+				console->print(it->first);
+			}
+			break;
 		}
-	} else {
-		std::map<const std::string, Command*, ltstr>::const_iterator it;
-		it = cc->commands.find(tokens[1]);
-		if (it==cc->commands.end()) {
-			console->print("Unknown command");
-		} else {
+		case 2: {
+			std::map<const std::string, Command*, ltstr>::const_iterator it;
+			it = cc->commands.find(tokens[1]);
+			if (it == cc->commands.end())
+				throw CommandException("Unknown command");
 			std::vector<std::string> tokens2(tokens);
 			tokens2.erase(tokens2.begin());
 			it->second->help(tokens2);
+			break;
 		}
+		default:
+			throw CommandException("Syntax error");
 	}
 }
 void CommandController::HelpCmd::help(const std::vector<std::string> &tokens)

@@ -154,8 +154,9 @@ void RealTime::PauseCmd::execute(const std::vector<std::string> &tokens)
 			sch->unpause();
 			break;
 		}
+		// fall through
 	default:
-		ConsoleManager::instance()->print("Syntax error");
+		throw CommandException("Syntax error");
 	}
 }
 void RealTime::PauseCmd::help   (const std::vector<std::string> &tokens)
@@ -182,8 +183,9 @@ void RealTime::ThrottleCmd::execute(const std::vector<std::string> &tokens)
 			rt->throttle = false;
 			break;
 		}
+		// fall through
 	default:
-		ConsoleManager::instance()->print("Syntax error");
+		throw CommandException("Syntax error");
 	}
 }
 void RealTime::ThrottleCmd::help   (const std::vector<std::string> &tokens)
@@ -210,12 +212,12 @@ void RealTime::SpeedCmd::execute(const std::vector<std::string> &tokens)
 			rt->speed = 25600 / tmp;
 			rt->resetTiming();
 		} else {
-			ConsoleManager::instance()->print("Illegal argument");
+			throw CommandException("Illegal argument");
 		}
 		break;
 	}
 	default:
-		ConsoleManager::instance()->print("Syntax error");
+		throw CommandException("Syntax error");
 	}
 }
 void RealTime::SpeedCmd::help   (const std::vector<std::string> &tokens)

@@ -76,10 +76,8 @@ void PluggingController::unregisterPluggable(Pluggable *pluggable)
 
 void PluggingController::PlugCmd::execute(const std::vector<std::string> &tokens)
 {
-	if (tokens.size()!=3) {
-		ConsoleManager::instance()->print("Syntax error");
-		return;
-	}
+	if (tokens.size() != 3)
+		throw CommandException("Syntax error");
 	PluggingController* controller = PluggingController::instance();
 	Connector* connector = NULL;
 	std::vector<Connector*>::iterator i;
@@ -89,10 +87,8 @@ void PluggingController::PlugCmd::execute(const std::vector<std::string> &tokens
 			break;
 		}
 	}
-	if (connector == NULL) {
-		ConsoleManager::instance()->print("No such connector");
-		return;
-	}
+	if (connector == NULL)
+		throw CommandException("No such connector");
 	Pluggable* pluggable = NULL;
 	std::vector<Pluggable*>::iterator j;
 	for (j=controller->pluggables.begin(); j!=controller->pluggables.end(); j++) {
@@ -101,14 +97,10 @@ void PluggingController::PlugCmd::execute(const std::vector<std::string> &tokens
 			break;
 		}
 	}
-	if (pluggable == NULL) {
-		ConsoleManager::instance()->print("No such pluggable");
-		return;
-	}
-	if (connector->getClass() != pluggable->getClass()) {
-		ConsoleManager::instance()->print("Doesn't fit");
-		return;
-	}
+	if (pluggable == NULL)
+		throw CommandException("No such pluggable");
+	if (connector->getClass() != pluggable->getClass())
+		throw CommandException("Doesn't fit");
 	const EmuTime &time = MSXCPU::instance()->getCurrentTime();
 	connector->unplug(time);
 	connector->plug(pluggable, time);
@@ -149,10 +141,8 @@ void PluggingController::PlugCmd::tabCompletion(std::vector<std::string> &tokens
 
 void PluggingController::UnplugCmd::execute(const std::vector<std::string> &tokens)
 {
-	if (tokens.size()!=2) {
-		ConsoleManager::instance()->print("Syntax error");
-		return;
-	}
+	if (tokens.size() != 2)
+		throw CommandException("Syntax error");
 	PluggingController* controller = PluggingController::instance();
 	Connector* connector = NULL;
 	std::vector<Connector*>::iterator i;
@@ -162,10 +152,8 @@ void PluggingController::UnplugCmd::execute(const std::vector<std::string> &toke
 			break;
 		}
 	}
-	if (connector == NULL) {
-		ConsoleManager::instance()->print("No such connector");
-		return;
-	}
+	if (connector == NULL)
+		throw CommandException("No such connector");
 	const EmuTime &time = MSXCPU::instance()->getCurrentTime();
 	connector->unplug(time);
 }

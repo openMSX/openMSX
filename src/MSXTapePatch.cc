@@ -339,6 +339,8 @@ void MSXTapePatch::STMOTR(CPU::CPURegs& R) const
 
 void MSXTapePatch::execute(const std::vector<std::string> &tokens)
 {
+	if (tokens.size() != 2)
+		throw CommandException("Syntax error");
 	if (tokens[1]=="eject") {
 		ConsoleManager::instance()->print("Tape ejected");
 		ejectTape();

@@ -492,10 +492,11 @@ void MSXDiskRomPatch::DRVOFF(CPU::CPURegs& regs) const
 void MSXDiskRomPatch::execute(const std::vector<std::string> &tokens)
 {
 	// TODO only works for 720Kb disks
+	if (tokens.size() != 2)
+		throw CommandException("Syntax error");
 	int drive = tokens[0][4];
 	if (drive != 0)
 		drive -= 'a';
-	PRT_DEBUG("DiskCmd: drive "<<drive);
 	if (tokens[1]=="eject") {
 		ConsoleManager::instance()->print("Disk ejected");
 		delete disk[drive];

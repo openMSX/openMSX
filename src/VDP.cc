@@ -863,8 +863,7 @@ void VDP::RendererCmd::execute(const std::vector<std::string> &tokens)
 			*/
 			break;
 		default:
-			ConsoleManager::instance()->print(
-				"Too many parameters.");
+			throw CommandException("Too many parameters.");
 	}
 }
 
