@@ -157,8 +157,17 @@ void V9990SDLRasterizer<Pixel, zoom>::setImageWidth(int width)
 	imageWidth = width;
 }
 
-#define translateX(x)  ((x)/((zoom == Renderer::ZOOM_256)?8:4))
-#define translateY(y)  (y*((zoom == Renderer::ZOOM_256)?1:2))
+template <Renderer::Zoom zoom>
+static inline int translateX(int x)
+{
+	return x / ((zoom == Renderer::ZOOM_256) ? 8 : 4);
+}
+
+template <Renderer::Zoom zoom>
+static inline int translateY(int y)
+{
+	return y * ((zoom == Renderer::ZOOM_256) ? 1 : 2);
+}
 
 template <class Pixel, Renderer::Zoom zoom>
 void V9990SDLRasterizer<Pixel, zoom>::drawBorder(
@@ -195,10 +204,10 @@ void V9990SDLRasterizer<Pixel, zoom>::drawBorder(
 
 	if ((width > 0) && (height > 0)) {
 		SDL_Rect rect;
-
-		rect.x = translateX(fromX); rect.y = translateY(fromY);
-		rect.w = translateX(width); rect.h = translateY(height);
-
+		rect.x = translateX<zoom>(fromX);
+		rect.y = translateY<zoom>(fromY);
+		rect.w = translateX<zoom>(width);
+		rect.h = translateY<zoom>(height);
 		SDL_FillRect(workScreen, &rect, bgColor);
 	}
 }
@@ -241,24 +250,22 @@ void V9990SDLRasterizer<Pixel, zoom>::drawDisplay(
 		}
 		
 		SDL_Rect rect;
-		rect.x = translateX(fromX);
-		rect.y = translateY(fromY);
-		rect.w = translateX(displayWidth);
-		rect.h = translateY(displayHeight);
+		rect.x = translateX<zoom>(fromX);
+		rect.y = translateY<zoom>(fromY);
+		rect.w = translateX<zoom>(displayWidth);
+		rect.h = translateY<zoom>(displayHeight);
 
 		if (displayMode == P1) {
-			// not yet implemented
-			SDL_FillRect(workScreen, &rect, bgColor);
-		} else if(displayMode == P2) {
-			// not implemented yet
-			
+			// TODO
+			std::cout << "V9990: P1 mode not yet implemented" << std::endl;
+		} else if (displayMode == P2) {
+			// TODO
+			std::cout << "V9990: P2 mode not yet implemented" << std::endl;
 		} else {
-			SDL_FillRect(workScreen, &rect, (Pixel) 0);
-			int vramStep;
 			Pixel* pixelPtr = (Pixel*)(
 		                   (byte*)workScreen->pixels +
-		                  + translateY(fromY) * workScreen->pitch
-		                  + translateX(fromX) * sizeof(Pixel));
+		                  + translateY<zoom>(fromY) * workScreen->pitch
+		                  + translateX<zoom>(fromX) * sizeof(Pixel));
 
 			displayX = V9990::UCtoX(displayX, displayMode);
 			displayWidth = V9990::UCtoX(displayWidth, displayMode);
@@ -266,6 +273,7 @@ void V9990SDLRasterizer<Pixel, zoom>::drawDisplay(
 			int scrollY = vdp->getScrollY();
 			int y = displayY + scrollY & 0x1FFF; // TODO roll is ignored
 			uint address = vdp->XYtoVRAM(&displayX, y, colorMode);
+			int vramStep;
 			switch (colorMode) {
 				// TODO per pixel X scrolling doesn't work yet
 				case BP2:
@@ -296,7 +304,7 @@ void V9990SDLRasterizer<Pixel, zoom>::drawDisplay(
 				
 				// next line
 				address += vramStep;
-				pixelPtr += workScreen->w * translateY(1);
+				pixelPtr += workScreen->w * translateY<zoom>(1);
 			}
 		}
 	}
