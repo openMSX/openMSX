@@ -16,13 +16,14 @@ namespace openmsx {
 template class Scaler<word>;
 template class Scaler<unsigned int>;
 
+
 template <class Pixel>
 auto_ptr<Scaler<Pixel> > Scaler<Pixel>::createScaler(
 	ScalerID id, SDL_PixelFormat* format)
 {
 	switch(id) {
 	case SCALER_SIMPLE:
-		return auto_ptr<Scaler<Pixel> >(new SimpleScaler<Pixel>());
+		return auto_ptr<Scaler<Pixel> >(new SimpleScaler<Pixel>(format));
 	case SCALER_SAI2X:
 		return auto_ptr<Scaler<Pixel> >(new SaI2xScaler<Pixel>(format));
 	case SCALER_SCALE2X:
@@ -42,11 +43,12 @@ void Scaler<Pixel>::copyLine(
 	SDL_Surface* src, int srcY, SDL_Surface* dst, int dstY )
 {
 	assert(src->w == dst->w);
-	byte* srcLine = (byte*)linePtr(src, srcY);
-	byte* dstLine = (byte*)linePtr(dst, dstY);
+	Pixel* srcLine = linePtr(src, srcY);
+	Pixel* dstLine = linePtr(dst, dstY);
 	const int nBytes = dst->w * sizeof(Pixel);
 	const HostCPU& cpu = HostCPU::getInstance();
 	if (ASM_X86 && cpu.hasMMXEXT()) {
+		// extended-MMX routine (both 16bpp and 32bpp)
 		asm (
 			"xorl	%%eax, %%eax;"
 		"0:"
@@ -93,10 +95,57 @@ void Scaler<Pixel>::scaleLine(
 {
 	const int width = 320; // TODO: Specify this in a clean way.
 	assert(dst->w == width * 2);
-	byte* srcLine = (byte*)linePtr(src, srcY);
-	byte* dstLine = (byte*)linePtr(dst, dstY);
+	Pixel* srcLine = linePtr(src, srcY);
+	Pixel* dstLine = linePtr(dst, dstY);
 	const HostCPU& cpu = HostCPU::getInstance();
-	if (ASM_X86 && cpu.hasMMXEXT()) {
+	if (ASM_X86 && (sizeof(Pixel) == 2) && cpu.hasMMXEXT()) {
+		// extended-MMX routine 16bpp
+		asm (
+			"xorl	%%eax, %%eax;"
+		"0:"
+			// Load.
+			"movq	  (%0,%%eax,4), %%mm0;"
+			"movq	 8(%0,%%eax,4), %%mm2;"
+			"movq	16(%0,%%eax,4), %%mm4;"
+			"movq	24(%0,%%eax,4), %%mm6;"
+			"movq	%%mm0, %%mm1;"
+			"movq	%%mm2, %%mm3;"
+			"movq	%%mm4, %%mm5;"
+			"movq	%%mm6, %%mm7;"
+			// Scale.
+			"punpcklwd %%mm0, %%mm0;"
+			"punpckhwd %%mm1, %%mm1;"
+			"punpcklwd %%mm2, %%mm2;"
+			"punpckhwd %%mm3, %%mm3;"
+			"punpcklwd %%mm4, %%mm4;"
+			"punpckhwd %%mm5, %%mm5;"
+			"punpcklwd %%mm6, %%mm6;"
+			"punpckhwd %%mm7, %%mm7;"
+			// Store.
+			"movntq	%%mm0,   (%1,%%eax,8);"
+			"movntq	%%mm1,  8(%1,%%eax,8);"
+			"movntq	%%mm2, 16(%1,%%eax,8);"
+			"movntq	%%mm3, 24(%1,%%eax,8);"
+			"movntq	%%mm4, 32(%1,%%eax,8);"
+			"movntq	%%mm5, 40(%1,%%eax,8);"
+			"movntq	%%mm6, 48(%1,%%eax,8);"
+			"movntq	%%mm7, 56(%1,%%eax,8);"
+			// Increment.
+			"addl	$8, %%eax;"
+			"cmpl	%2, %%eax;"
+			"jl	0b;"
+			"emms;"
+	
+			: // no output
+			: "r" (srcLine) // 0
+			, "r" (dstLine) // 1
+			, "r" (width) // 2
+			: "eax"
+			, "mm0", "mm1", "mm2", "mm3"
+			, "mm4", "mm5", "mm6", "mm7"
+			);
+	} else if (ASM_X86 && (sizeof(Pixel) == 4) && cpu.hasMMXEXT()) {
+		// extended-MMX routine 32bpp
 		asm (
 			"xorl	%%eax, %%eax;"
 		"0:"
@@ -160,6 +209,7 @@ void Scaler<Pixel>::scaleBlank(
 ) {
 	const HostCPU& cpu = HostCPU::getInstance();
 	if (ASM_X86 && cpu.hasMMXEXT()) {
+		// extended-MMX (both 16bpp and 32bpp) routine
 		const unsigned col32 =
 				sizeof(Pixel) == 2
 			? (((unsigned)colour) << 16) | colour

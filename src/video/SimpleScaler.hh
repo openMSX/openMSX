@@ -11,6 +11,37 @@ namespace openmsx {
 
 class IntegerSetting;
 
+
+template <typename Pixel> class Darkener;
+
+template<> class Darkener<word> {
+public:
+	Darkener(SDL_PixelFormat* format);
+	inline word darken(word p, unsigned factor);
+	void setFactor(unsigned f);
+	inline word darken(word p);
+	inline unsigned darkenDouble(word p);
+	inline unsigned* getTable();
+private:
+	SDL_PixelFormat* format;
+	unsigned factor;
+	unsigned tab[0x10000];
+};
+
+template<> class Darkener<unsigned> {
+public:
+	Darkener(SDL_PixelFormat* format);
+	inline unsigned darken(unsigned p, unsigned factor);
+	inline void setFactor(unsigned f);
+	inline unsigned darken(unsigned p);
+	inline unsigned darkenDouble(unsigned p);
+	unsigned* getTable();
+private:
+	unsigned factor;
+};
+
+
+
 /** Scaler which assigns the colour of the original pixel to all pixels in
   * the 2x2 square.
   */
@@ -18,7 +49,7 @@ template <class Pixel>
 class SimpleScaler: public Scaler<Pixel>, private SettingListener
 {
 public:
-	SimpleScaler();
+	SimpleScaler(SDL_PixelFormat* format);
 	virtual ~SimpleScaler();
 	virtual void scaleBlank(
 		Pixel colour,
@@ -36,6 +67,8 @@ private:
 	IntegerSetting* scanlineAlphaSetting;
 	/** Current alpha value, range [0..255]. */
 	int scanlineAlpha;
+
+	Darkener<Pixel> darkener;
 };
 
 } // namespace openmsx

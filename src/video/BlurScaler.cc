@@ -76,6 +76,9 @@ Multiply<word>::Multiply(SDL_PixelFormat* format)
 	Rshift3 = Rshift1 + 0;
 	Gshift3 = Gshift1 + 10;
 	Bshift3 = Bshift1 + 20;
+
+	factor = 0;
+	memset(tab, 0, sizeof(tab));
 }
 
 inline word Multiply<word>::multiply(word p, unsigned f)
@@ -273,7 +276,7 @@ void BlurScaler<Pixel>::blur256(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 	unsigned c2 = 256 - c1;
 
 	const HostCPU& cpu = HostCPU::getInstance();
-	if (ASM_X86 && cpu.hasMMXEXT() && sizeof(Pixel) == 4) {
+	if (ASM_X86 && (sizeof(Pixel) == 4) && cpu.hasMMX()) { // Note: not hasMMXEXT()
 		// MMX routine, 32bpp
 		asm (
 			"xorl	%%eax, %%eax;"
@@ -433,7 +436,7 @@ void BlurScaler<Pixel>::blur512(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 	unsigned c2 = 256 - alpha / 2;
 
 	const HostCPU& cpu = HostCPU::getInstance();
-	if (ASM_X86 && cpu.hasMMXEXT() && sizeof(Pixel) == 4) {
+	if (ASM_X86 && (sizeof(Pixel) == 4) && cpu.hasMMX()) { // Note: not hasMMXEXT()
 		// MMX routine, 32bpp
 		asm (
 			"xorl	%%eax, %%eax;"
@@ -549,8 +552,8 @@ void BlurScaler<Pixel>::average(
 	const Pixel* src1, const Pixel* src2, Pixel* dst, unsigned alpha)
 {
 	const HostCPU& cpu = HostCPU::getInstance();
-	if (ASM_X86 && cpu.hasMMXEXT() && sizeof(Pixel) == 4) {
-		// MMX routine, 32bpp
+	if (ASM_X86 && (sizeof(Pixel) == 4) && cpu.hasMMXEXT()) {
+		// extended-MMX routine, 32bpp
 		asm (
 			"movd	%3, %%mm6;"
 			"pxor	%%mm7, %%mm7;"

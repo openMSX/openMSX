@@ -14,9 +14,91 @@ namespace openmsx {
 template class SimpleScaler<word>;
 template class SimpleScaler<unsigned int>;
 
+
+
+Darkener<word>::Darkener(SDL_PixelFormat* format_)
+	: format(format_)
+{
+	factor = 0;
+	memset(tab, 0, sizeof(tab));
+	cout << "16" << endl;
+}
+
+inline word Darkener<word>::darken(word p, unsigned f)
+{
+	return ((((p & format->Rmask) * f) >> 8) & format->Rmask) |
+	       ((((p & format->Gmask) * f) >> 8) & format->Gmask) |
+	       ((((p & format->Bmask) * f) >> 8) & format->Bmask);
+}
+
+void Darkener<word>::setFactor(unsigned f)
+{
+	if (f == factor) {
+		return;
+	}
+	factor = f;
+
+	for (unsigned p = 0; p < 0x10000; ++p) {
+		unsigned d = darken(p, factor);
+		tab[p] = d | (d << 16);
+	}
+}
+
+inline word Darkener<word>::darken(word p)
+{
+	return tab[p];
+}
+
+inline unsigned Darkener<word>::darkenDouble(word p)
+{
+	return tab[p];
+}
+
+inline unsigned* Darkener<word>::getTable()
+{
+	return tab;
+}
+
+
+Darkener<unsigned>::Darkener(SDL_PixelFormat* /*format*/)
+{
+	cout << "32" << endl;
+}
+
+inline unsigned Darkener<unsigned>::darken(unsigned p, unsigned f)
+{
+	return ((((p & 0xFF00FF) * f) & 0xFF00FF00) |
+	        (((p & 0x00FF00) * f) & 0x00FF0000)) >> 8;
+}
+
+inline void Darkener<unsigned>::setFactor(unsigned f)
+{
+	factor = f;
+}
+
+inline unsigned Darkener<unsigned>::darken(unsigned p)
+{
+	return darken(p, factor);
+}
+
+inline unsigned Darkener<unsigned>::darkenDouble(unsigned /*p*/)
+{
+	assert(false);
+	return 0;
+}
+
+unsigned* Darkener<unsigned>::getTable()
+{
+	assert(false);
+	return NULL;
+}
+
+
+
 template <class Pixel>
-SimpleScaler<Pixel>::SimpleScaler()
+SimpleScaler<Pixel>::SimpleScaler(SDL_PixelFormat* format)
 	: scanlineAlphaSetting(RenderSettings::instance().getScanlineAlpha())
+	, darkener(format)
 {
 	update(scanlineAlphaSetting);
 	scanlineAlphaSetting->addListener(this);
@@ -35,79 +117,6 @@ void SimpleScaler<Pixel>::update(const SettingLeafNode* setting)
 	scanlineAlpha = (scanlineAlphaSetting->getValue() * 255) / 100;
 }
 
-// Upper 8 bits do not contain colours; use them as work area.
-class HiFreeDarken {
-public:
-	static inline bool check(Uint32 rMask, Uint32 gMask, Uint32 bMask) {
-		return ((rMask | gMask | bMask) & 0xFF000000) == 0;
-	}
-	static inline Uint32 darken(
-		int darkenFactor,
-		Uint32 rMask, Uint32 gMask, Uint32 bMask,
-		Uint32 colour
-		)
-	{
-		unsigned r = (((colour & rMask) * darkenFactor) >> 8) & rMask;
-		unsigned g = (((colour & gMask) * darkenFactor) >> 8) & gMask;
-		unsigned b = (((colour & bMask) * darkenFactor) >> 8) & bMask;
-		return r | g | b;
-	}
-};
-
-// Lower 8 bits do not contain colours; use them as work area.
-class LoFreeDarken {
-public:
-	static inline bool check(Uint32 rMask, Uint32 gMask, Uint32 bMask) {
-		return ((rMask | gMask | bMask) & 0x000000FF) == 0;
-	}
-	static inline Uint32 darken(
-		int darkenFactor,
-		Uint32 rMask, Uint32 gMask, Uint32 bMask,
-		Uint32 colour
-		)
-	{
-		unsigned r = (((colour & rMask) >> 8) * darkenFactor) & rMask;
-		unsigned g = (((colour & gMask) >> 8) * darkenFactor) & gMask;
-		unsigned b = (((colour & bMask) >> 8) * darkenFactor) & bMask;
-		return r | g | b;
-	}
-};
-
-// Uncommon pixel format; fall back to slightly slower routine.
-class UniversalDarken {
-public:
-	static inline bool check(Uint32 rMask, Uint32 gMask, Uint32 bMask) {
-		return true;
-	}
-	static inline Uint32 darken(
-		int darkenFactor,
-		Uint32 rMask, Uint32 gMask, Uint32 bMask,
-		Uint32 colour
-	) {
-		Uint32 r =
-			rMask & 0xFF
-			? (((colour & rMask) * darkenFactor) >> 8) & rMask
-			: (((colour & rMask) >> 8) * darkenFactor) & rMask;
-		Uint32 g =
-			gMask & 0xFF
-			? (((colour & gMask) * darkenFactor) >> 8) & gMask
-			: (((colour & gMask) >> 8) * darkenFactor) & gMask;
-		Uint32 b =
-			bMask & 0xFF
-			? (((colour & bMask) * darkenFactor) >> 8) & bMask
-			: (((colour & bMask) >> 8) * darkenFactor) & bMask;
-		return r | g | b;
-	}
-	static inline Uint32 darken(
-		int darkenFactor, const SDL_PixelFormat* format, Uint32 colour
-	) {
-		return darken(
-			darkenFactor, 
-			format->Rmask, format->Gmask, format->Bmask,
-			colour
-			);
-	}
-};
 
 template <class Pixel>
 void SimpleScaler<Pixel>::scaleBlank(
@@ -119,17 +128,15 @@ void SimpleScaler<Pixel>::scaleBlank(
 		// This is a special case that occurs very often.
 		Scaler<Pixel>::scaleBlank(colour, dst, dstY, endDstY);
 	} else {
+		// extended-MMX routine (both 16bpp and 32bpp)
 		const HostCPU& cpu = HostCPU::getInstance();
 		int darkenFactor = 256 - scanlineAlpha;
-		Pixel scanlineColour = UniversalDarken::darken(
-			darkenFactor, dst->format, colour );
+		Pixel scanlineColour = darkener.darken(colour, darkenFactor);
 		if (ASM_X86 && cpu.hasMMXEXT()) {
-			const unsigned col32 =
-				  sizeof(Pixel) == 2
+			const unsigned col32 = sizeof(Pixel) == 2
 				? (((unsigned)colour) << 16) | colour
 				: colour;
-			const unsigned scan32 =
-				  sizeof(Pixel) == 2
+			const unsigned scan32 = sizeof(Pixel) == 2
 				? (((unsigned)scanlineColour) << 16) | scanlineColour
 				: scanlineColour;
 			while (dstY < endDstY) {
@@ -227,52 +234,75 @@ void SimpleScaler<Pixel>::scale256(
 	const int width = dst->w / 2;
 	const HostCPU& cpu = HostCPU::getInstance();
 	while (srcY < endSrcY) {
+		Scaler<Pixel>::scaleLine(src, srcY, dst, dstY++);
+		if (dstY == dst->h) break;
 		const Pixel* srcLine = Scaler<Pixel>::linePtr(src, srcY++);
-		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, dstY++);
-		Pixel* dstLower =
-			dstY == dst->h ? dstUpper : Scaler<Pixel>::linePtr(dst, dstY++);
-		/*if (ASM_X86 && cpu.hasMMXEXT() && sizeof(Pixel) == 2) {
-			 TODO: Implement.
-		} else*/ if (ASM_X86 && cpu.hasMMXEXT() && sizeof(Pixel) == 4) {
-			asm (
-				// Upper line: scale, no scanline.
-				// Note: Two separate loops is faster, probably because of
-				//       linear memory access.
-				"xorl	%%eax, %%eax;"
-			"0:"
-				// Load.
-				"movq	  (%3,%%eax,4), %%mm0;"
-				"movq	 8(%3,%%eax,4), %%mm2;"
-				"movq	16(%3,%%eax,4), %%mm4;"
-				"movq	24(%3,%%eax,4), %%mm6;"
-				"movq	%%mm0, %%mm1;"
-				"movq	%%mm2, %%mm3;"
-				"movq	%%mm4, %%mm5;"
-				"movq	%%mm6, %%mm7;"
-				// Scale.
-				"punpckldq %%mm0, %%mm0;"
-				"punpckhdq %%mm1, %%mm1;"
-				"punpckldq %%mm2, %%mm2;"
-				"punpckhdq %%mm3, %%mm3;"
-				"punpckldq %%mm4, %%mm4;"
-				"punpckhdq %%mm5, %%mm5;"
-				"punpckldq %%mm6, %%mm6;"
-				"punpckhdq %%mm7, %%mm7;"
-				// Store.
-				"movntq	%%mm0,   (%1,%%eax,8);"
-				"movntq	%%mm1,  8(%1,%%eax,8);"
-				"movntq	%%mm2, 16(%1,%%eax,8);"
-				"movntq	%%mm3, 24(%1,%%eax,8);"
-				"movntq	%%mm4, 32(%1,%%eax,8);"
-				"movntq	%%mm5, 40(%1,%%eax,8);"
-				"movntq	%%mm6, 48(%1,%%eax,8);"
-				"movntq	%%mm7, 56(%1,%%eax,8);"
-				// Increment.
-				"addl	$8, %%eax;"
-				"cmpl	%4, %%eax;"
-				"jl	0b;"
+		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, dstY++);
+
+		if (false && (sizeof(Pixel) == 2) && cpu.hasMMXEXT()) {
+			// extended-MMX routine 16bpp
+			darkener.setFactor(darkenFactor);
+			unsigned* darkenTab = darkener.getTable();
 		
-				// Lower line: scale and scanline.
+			asm (
+				"xorl	%%ecx, %%ecx;"
+			"0:"
+				// src pixels 0-1
+				"movzwl	  (%1,%%ecx,2), %%eax;"
+				"movd	(%0,%%eax,4), %%mm4;"	// already darkened/doubled
+				
+				"movzwl	 2(%1,%%ecx,2), %%eax;"
+				"movd	(%0,%%eax,4), %%mm0;"
+				"punpckldq %%mm0, %%mm4;"
+				
+				// src pixels 2-3
+				"movzwl	 4(%1,%%ecx,2), %%eax;"
+				"movd	(%0,%%eax,4), %%mm5;"
+				
+				"movzwl	 6(%1,%%ecx,2), %%eax;"
+				"movd	(%0,%%eax,4), %%mm0;"
+				"punpckldq %%mm0, %%mm5;"
+				
+				// src pixels 4-5
+				"movzwl	 8(%1,%%ecx,2), %%eax;"
+				"movd	(%0,%%eax,4), %%mm6;"
+				
+				"movzwl	10(%1,%%ecx,2), %%eax;"
+				"movd	(%0,%%eax,4), %%mm0;"
+				"punpckldq %%mm0, %%mm6;"
+				
+				// src pixels 6-7
+				"movzwl	12(%1,%%ecx,2), %%eax;"
+				"movd	(%0,%%eax,4), %%mm7;"
+				
+				"movzwl	14(%1,%%ecx,2), %%eax;"
+				"movd	(%0,%%eax,4), %%mm0;"
+				"punpckldq %%mm0, %%mm7;"
+				
+				// store
+				"movntq	%%mm4,   (%2,%%ecx,4);"
+				"movntq	%%mm5,  8(%2,%%ecx,4);"
+				"movntq	%%mm6, 16(%2,%%ecx,4);"
+				"movntq	%%mm7, 24(%2,%%ecx,4);"
+				
+				// Incrementr
+				"addl	$8, %%ecx;"
+				"cmpl	%3, %%ecx;"
+				"jl	0b;"
+				
+				: // no output
+				: "r" (darkenTab) // 0
+				, "r" (srcLine) // 1
+				, "r" (dstLine) // 2
+				, "r" (width) // 3
+				: "mm0", "mm4", "mm5", "mm6", "mm7"
+				, "eax", "ecx"
+			);
+			
+		} else if (ASM_X86 && (sizeof(Pixel) == 4) && cpu.hasMMXEXT()) {
+			// extended-MMX routine 32bpp
+			asm (
+				// Scale and scanline.
 				// Precalc: mm6 = darkenFactor, mm7 = 0.
 				"movd	%0, %%mm6;"
 				"pxor	%%mm7, %%mm7;"
@@ -282,8 +312,8 @@ void SimpleScaler<Pixel>::scale256(
 				"xorl	%%eax, %%eax;"
 			"1:"
 				// Load.
-				"movq	 (%3,%%eax,4), %%mm0;"
-				"movq	8(%3,%%eax,4), %%mm2;"
+				"movq	 (%2,%%eax,4), %%mm0;"
+				"movq	8(%2,%%eax,4), %%mm2;"
 				"movq	%%mm0, %%mm1;"
 				"movq	%%mm2, %%mm3;"
 				// Darken and scale.
@@ -301,24 +331,23 @@ void SimpleScaler<Pixel>::scale256(
 				"packuswb %%mm1, %%mm1;"
 				"psrlw	$8, %%mm2;"
 				"psrlw	$8, %%mm3;"
-				"movntq	%%mm0,   (%2,%%eax,8);"
-				"movntq	%%mm1,  8(%2,%%eax,8);"
+				"movntq	%%mm0,   (%1,%%eax,8);"
+				"movntq	%%mm1,  8(%1,%%eax,8);"
 				"packuswb %%mm2, %%mm2;"
 				"packuswb %%mm3, %%mm3;"
 				// Store.
-				"movntq	%%mm2, 16(%2,%%eax,8);"
-				"movntq	%%mm3, 24(%2,%%eax,8);"
+				"movntq	%%mm2, 16(%1,%%eax,8);"
+				"movntq	%%mm3, 24(%1,%%eax,8);"
 				// Increment.
 				"addl	$4, %%eax;"
-				"cmpl	%4, %%eax;"
+				"cmpl	%3, %%eax;"
 				"jl	1b;"
 		
 				: // no output
 				: "mr" (darkenFactor) // 0
-				, "r" (dstUpper) // 1
-				, "r" (dstLower) // 2
-				, "r" (srcLine) // 3
-				, "r" (width) // 4
+				, "r" (dstLine) // 1
+				, "r" (srcLine) // 2
+				, "r" (width) // 3
 				: "mm0", "mm1", "mm2", "mm3"
 				, "mm4", "mm5", "mm6", "mm7"
 				, "eax"
@@ -329,22 +358,16 @@ void SimpleScaler<Pixel>::scale256(
 			asm ("nosuchinstruction");
 		// End of test code.
 		} else {
-			unsigned rMask = dst->format->Rmask;
-			unsigned gMask = dst->format->Gmask;
-			unsigned bMask = dst->format->Bmask;
-			for (int x = 0; x < width; x++) {
-				Pixel p = srcLine[x];
-				dstUpper[x * 2] = dstUpper[x * 2 + 1] = p;
-				if (sizeof(Pixel) == 2) {
-					dstLower[x * 2] = dstLower[x * 2 + 1] =
-						HiFreeDarken::darken(
-							darkenFactor, rMask, gMask, bMask, p );
-				} else {
-					// TODO: On my machine, HiFreeDarken is marginally
-					//       faster, but is it worth the effort?
-					dstLower[x * 2] = dstLower[x * 2 + 1] =
-						UniversalDarken::darken(
-							darkenFactor, rMask, gMask, bMask, p );
+			if (sizeof(Pixel) == 2) {
+				darkener.setFactor(darkenFactor);
+				unsigned* dst = reinterpret_cast<unsigned*>(dstLine);
+				for (int x = 0; x < width; x++) {
+					dst[x] = darkener.darkenDouble(srcLine[x]);
+				}
+			} else {
+				for (int x = 0; x < width; x++) {
+					dstLine[x * 2] = dstLine[x * 2 + 1] =
+						darkener.darken(srcLine[x], darkenFactor);
 				}
 			}
 		}
@@ -364,10 +387,6 @@ void SimpleScaler<Pixel>::scale512(
 		return;
 	}
 
-	SDL_PixelFormat* format = dst->format;
-	Uint32 rMask = format->Rmask;
-	Uint32 gMask = format->Gmask;
-	Uint32 bMask = format->Bmask;
 	int darkenFactor = 256 - scanlineAlpha;
 	const unsigned width = dst->w;
 	
@@ -375,11 +394,102 @@ void SimpleScaler<Pixel>::scale512(
 	while (srcY < endSrcY) {
 		Scaler<Pixel>::copyLine(src, srcY, dst, dstY++);
 		if (dstY == dst->h) break;
-		const Pixel* srcLine = Scaler<Pixel>::linePtr(src, srcY);
+		const Pixel* srcLine = Scaler<Pixel>::linePtr(src, srcY++);
 		Pixel* dstLine = Scaler<Pixel>::linePtr(dst, dstY++);
-		/*if (ASM_X86 && cpu.hasMMXEXT() && sizeof(Pixel) == 2) {
-			 TODO: Implement.
-		} else*/ if (ASM_X86 && cpu.hasMMXEXT() && sizeof(Pixel) == 4) {
+		if (ASM_X86 && (sizeof(Pixel) == 2) && cpu.hasMMXEXT()) {
+			// extended-MMX routine 16bpp
+			darkener.setFactor(darkenFactor);
+			unsigned* darkenTab = darkener.getTable();
+		
+			asm (
+				"xorl	%%ecx, %%ecx;"
+			"0:"
+				// src pixels 0-3
+				"movzwl	  (%1,%%ecx,2), %%eax;"
+				"movd	(%0,%%eax,4), %%mm4;" // ignore upper 16-bits
+				
+				"movzwl	 2(%1,%%ecx,2), %%eax;"
+				"movd	(%0,%%eax,4), %%mm0;"
+				"punpcklwd %%mm0, %%mm4;"
+				
+				"movzwl	 4(%1,%%ecx,2), %%eax;"
+				"movd	(%0,%%eax,4), %%mm1;"
+
+				"movzwl	 6(%1,%%ecx,2), %%eax;"
+				"movd	(%0,%%eax,4), %%mm0;"
+				"punpcklwd %%mm0, %%mm1;"
+				"punpckldq %%mm1, %%mm4;"
+
+				// src pixels 4-7
+				"movzwl	 8(%1,%%ecx,2), %%eax;"
+				"movd	(%0,%%eax,4), %%mm5;"
+				
+				"movzwl	10(%1,%%ecx,2), %%eax;"
+				"movd	(%0,%%eax,4), %%mm0;"
+				"punpcklwd %%mm0, %%mm5;"
+				
+				"movzwl	12(%1,%%ecx,2), %%eax;"
+				"movd	(%0,%%eax,4), %%mm1;"
+
+				"movzwl	14(%1,%%ecx,2), %%eax;"
+				"movd	(%0,%%eax,4), %%mm0;"
+				"punpcklwd %%mm0, %%mm1;"
+				"punpckldq %%mm1, %%mm5;"
+
+				// src pixels 8-11
+				"movzwl	 16(%1,%%ecx,2), %%eax;"
+				"movd	(%0,%%eax,4), %%mm6;"
+				
+				"movzwl	18(%1,%%ecx,2), %%eax;"
+				"movd	(%0,%%eax,4), %%mm0;"
+				"punpcklwd %%mm0, %%mm6;"
+				
+				"movzwl	20(%1,%%ecx,2), %%eax;"
+				"movd	(%0,%%eax,4), %%mm1;"
+
+				"movzwl	22(%1,%%ecx,2), %%eax;"
+				"movd	(%0,%%eax,4), %%mm0;"
+				"punpcklwd %%mm0, %%mm1;"
+				"punpckldq %%mm1, %%mm6;"
+				
+				// src pixels 12-15
+				"movzwl	 24(%1,%%ecx,2), %%eax;"
+				"movd	(%0,%%eax,4), %%mm7;"
+				
+				"movzwl	26(%1,%%ecx,2), %%eax;"
+				"movd	(%0,%%eax,4), %%mm0;"
+				"punpcklwd %%mm0, %%mm7;"
+				
+				"movzwl	28(%1,%%ecx,2), %%eax;"
+				"movd	(%0,%%eax,4), %%mm1;"
+
+				"movzwl	30(%1,%%ecx,2), %%eax;"
+				"movd	(%0,%%eax,4), %%mm0;"
+				"punpcklwd %%mm0, %%mm1;"
+				"punpckldq %%mm1, %%mm7;"
+
+				// store
+				"movntq	%%mm4,   (%2,%%ecx,2);"
+				"movntq	%%mm5,  8(%2,%%ecx,2);"
+				"movntq	%%mm6, 16(%2,%%ecx,2);"
+				"movntq	%%mm7, 24(%2,%%ecx,2);"
+				
+				// Increment.
+				"addl	$16, %%ecx;"
+				"cmpl	%3, %%ecx;"
+				"jl	0b;"
+				
+				: // no output
+				: "r" (darkenTab) // 0
+				, "r" (srcLine) // 1
+				, "r" (dstLine) // 2
+				, "r" (width) // 3
+				: "mm0", "mm1", "mm4", "mm5", "mm6", "mm7"
+				, "eax", "ecx"
+			);
+
+		} else if (ASM_X86 && (sizeof(Pixel) == 4) && cpu.hasMMXEXT()) {
+			// extended-MMX routine 32bpp
 			asm (
 				// Precalc: mm6 = darkenFactor, mm7 = 0.
 				"movd	%0, %%mm6;"
@@ -432,14 +542,16 @@ void SimpleScaler<Pixel>::scale512(
 			asm ("nosuchinstruction");
 		// End of test code.
 		} else {
+			darkener.setFactor(darkenFactor);
+
 			for (unsigned x = 0; x < width; x++) {
-				dstLine[x] = UniversalDarken::darken(
-					darkenFactor, rMask, gMask, bMask, srcLine[x] );
+				dstLine[x] = darkener.darken(srcLine[x]);
 			}
 		}
-		srcY++;
+	}
+	if (ASM_X86 && cpu.hasMMXEXT()) {
+		asm volatile ("emms");
 	}
 }
 
 } // namespace openmsx
-

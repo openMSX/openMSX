@@ -1,5 +1,8 @@
 $Id$
 
+2004-08-28 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Added 16bpp MMX simple scaler routines
+
 2004-08-27 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added initial version of the openMSX FAQ: not finished at all,
 	  please edit!
