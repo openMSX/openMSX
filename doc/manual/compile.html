@@ -90,17 +90,17 @@ Most openMSX developers run some form of Linux, so this is the platform on which
 <dd>
 Windows is also a supported platform for openMSX. Most Windows users will just download the binary release. But if you want to follow the latest developments or like to play with the code a bit, it is possible to compile openMSX on Windows yourself. For this you need MSYS and a variety of libraries.
 </dd>
-<dt>FreeBSD/NetBSD/OpenBSD</dt>
-<dd>
-openMSX was compiled successfully on FreeBSD 4 and 5. FreeBSD is not a platform we support officially, but whenever a user finds compilation problems on FreeBSD, we fix them, so usually FreeBSD compilation should work. NetBSD build support is also integrated and should work as well. OpenBSD build support is not integrated yet, but will probably work if a config from the other BSD's is adjusted a bit.
-</dd>
 <dt>Mac OS X</dt>
 <dd>
-If you install the development tools, you can compile openMSX on Mac OS X. Support for Mac OS X is similar to that for FreeBSD: we fix bugs when reported, but none of the core developers run Mac OS X.
+If you install the development tools, you can compile openMSX on Mac OS X. The necessary libraries can be downloaded via Darwinports or Fink. Nowadays we have at least one developer that runs Mac OS X, so we support should be almost equal to that for Linux and Windows.
+</dd>
+<dt>FreeBSD/NetBSD/OpenBSD</dt>
+<dd>
+openMSX was compiled successfully on FreeBSD 4 and 5 and OpenBSD. NetBSD build support is also integrated and should work as well, but we cannot easily test this. These are not platforms we support officially, but whenever a user finds compilation problems, we fix them, so usually compilation should work.
 </dd>
 <dt>other operating systems</dt>
 <dd>
-openMSX theoretically can compile on every system where you have g++ (the C++ compiler of GCC) and the required libraries are available. However, in practice every system is slightly different and a new operation system will not work out-of-the-box. Still, it shouldn't take much effort to make openMSX build on a new OS.
+openMSX theoretically can compile on every system where you have g++ (the C++ compiler of GCC) and the required libraries are available. However, in practice every system is slightly different and a new operation system will not work out-of-the-box, especially because we have to explicitly add an integration file for each OS to support it. Still, it shouldn't take much effort to make openMSX build on a new OS.
 </dd>
 </dl>
 <p>
@@ -142,6 +142,11 @@ only the big picture.
 </p>
 
 <dl>
+<dt>2005-02-19: Manuel Bilderbeek</dt>
+<dd>
+Updates for release 0.5.1.
+OpenBSD is also integrated now and we also support Mac OS X better.
+</dd>
 
 <dt>2004-04-21: Manuel Bilderbeek</dt>
 <dd>

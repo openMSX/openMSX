@@ -1,5 +1,9 @@
 $Id$
 
+2005-02-19 Manuel Bilderbeek <manuel@msxnet.org>
+	* Updated the manuals a bit more, regarding C-BIOS 0.20 and support
+	  for Mac OS X and OpenBSD. Maarten, please check and fix if needed.
+
 2005-02-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented frameskip for gfx9000:
 	   I mostly copied code from V99x8 renderer, we might want to factor
