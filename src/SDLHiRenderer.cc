@@ -243,6 +243,7 @@ template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 	phaseHandler = &SDLHiRenderer::blankPhase;
 	renderMethod = modeToRenderMethod[vdp->getDisplayMode()];
 	dirtyChecker = modeToDirtyChecker[vdp->getDisplayMode()];
+	palSprites = palBg;
 	setDirty(true);
 	dirtyForeground = dirtyBackground = true;
 
@@ -301,6 +302,12 @@ template <class Pixel> SDLHiRenderer<Pixel>::SDLHiRenderer<Pixel>(
 						);
 				}
 			}
+		}
+		// Precalculate Graphic 7 sprite palette.
+		for (int i = 0; i < 16; i++) {
+			word grb = GRAPHIC7_SPRITE_PALETTE[i];
+			palGraphic7Sprites[i] =
+				V9938_COLOURS[(grb >> 4) & 7][grb >> 8][grb & 7];
 		}
 		// Reset the palette.
 		for (int i = 0; i < 16; i++) {
@@ -401,7 +408,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updatePalette(
 
 	// Update SDL colours in palette.
 	palFg[index] = palBg[index] =
-		V9938_COLOURS[(grb >> 4) & 7][(grb >> 8) & 7][grb & 7];
+		V9938_COLOURS[(grb >> 4) & 7][grb >> 8][grb & 7];
 
 	// Is this the background colour?
 	if (vdp->getBackgroundColour() == index && vdp->getTransparency()) {
@@ -444,6 +451,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updateDisplayMode(
 	sync(time);
 	renderMethod = modeToRenderMethod[mode];
 	dirtyChecker = modeToDirtyChecker[mode];
+	palSprites = (mode == 0x1C ? palGraphic7Sprites : palBg);
 	setDirty(true);
 }
 
@@ -867,7 +875,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 	int displayLine = (absLine - vdp->getLineZero()) & 255;
 
 	// Check whether this line is inside the host screen.
-	int screenLine = (absLine - lineRenderTop) * 2 + vdp->isInterlaced();
+	int screenLine = (absLine - lineRenderTop) * 2;
 	if (screenLine >= HEIGHT) return;
 
 	// Determine sprites visible on this line.
@@ -893,7 +901,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 			// TODO: Verify on real V9938 that sprite mode 1 indeed
 			//       ignores the transparency bit.
 			if (colour == 0) continue;
-			colour = palBg[colour];
+			colour = palSprites[colour];
 			VDP::SpritePattern pattern = sip->pattern;
 			int x = sip->x;
 			// Skip any dots that end up in the border.
@@ -971,7 +979,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::drawSprites(
 				int i = pixelDone * 2;
 				pixelPtr0[i] = pixelPtr0[i + 1] =
 				pixelPtr1[i] = pixelPtr1[i + 1] =
-					palBg[colour];
+					palSprites[colour];
 			}
 		}
 	}
@@ -983,7 +991,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::blankPhase(
 	// TODO: Only redraw if necessary.
 	SDL_Rect rect;
 	rect.x = 0;
-	rect.y = (nextLine - lineRenderTop) * 2 + vdp->isInterlaced();
+	rect.y = (nextLine - lineRenderTop) * 2;
 	rect.w = WIDTH;
 	rect.h = (limit - nextLine) * 2;
 
@@ -1079,20 +1087,31 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	source.h = 1;
 	SDL_Rect dest;
 	dest.x = getLeftBorder();
-	dest.y = (nextLine - lineRenderTop) * 2 + vdp->isInterlaced();
+	dest.y = (nextLine - lineRenderTop) * 2;
 	int line = scrolledLine;
+	int pageMaskEven, pageMaskOdd;
+	if (vdp->isInterlaced() && vdp->isEvenOddEnabled()) {
+		pageMaskEven = vdp->isPlanar() ? 0x000 : 0x200;
+		pageMaskOdd  = vdp->isPlanar() ? 0x100 : 0x300;
+	} else {
+		pageMaskEven = pageMaskOdd = pageMask;
+	}
 	// TODO: Optimise.
 	for (int n = limit - nextLine; n--; ) {
 		source.y =
 			( vdp->isBitmapMode()
-			? (vdp->getNameMask() >> 7) & (pageMask | line)
+			? (vdp->getNameMask() >> 7) & (pageMaskEven | line)
 			: line
 			);
 		// TODO: Can we safely use SDL_LowerBlit?
 		// Note: return value is ignored.
 		SDL_BlitSurface(displayCache, &source, screen, &dest);
 		dest.y++;
-		if (dest.y == HEIGHT) break; // possible in interlace
+		source.y =
+			( vdp->isBitmapMode()
+			? (vdp->getNameMask() >> 7) & (pageMaskOdd | line)
+			: line
+			);
 		SDL_BlitSurface(displayCache, &source, screen, &dest);
 		dest.y++;
 		line = (line + 1) & 0xFF;
@@ -1122,7 +1141,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::displayPhase(
 	// TODO: Does the extended border clip sprites as well?
 	Pixel bgColour = getBorderColour();
 	dest.x = 0;
-	dest.y = (nextLine - lineRenderTop) * 2 + vdp->isInterlaced();
+	dest.y = (nextLine - lineRenderTop) * 2;
 	dest.w = getLeftBorder();
 	dest.h = (limit - nextLine) * 2;
 	// Note: SDL clipping is relied upon because interlace can push rect

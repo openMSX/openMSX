@@ -158,6 +158,15 @@ private:
 	  */
 	Pixel palFg[16], palBg[16];
 
+	/** SDL colours corresponding to each Graphic 7 sprite colour.
+	  */
+	Pixel palGraphic7Sprites[16];
+
+	/** SDL colours of current sprite palette.
+	  * Points to either palBg or palGraphic7Sprites.
+	  */
+	Pixel *palSprites;
+
 	/** SDL colours corresponding to each possible V9938 colour.
 	  * Used by updatePalette to adjust palFg and palBg.
 	  * Since SDL_MapRGB may be slow, this array stores precalculated
