@@ -9,11 +9,12 @@ namespace XMLConfig
 {
 
 FilePath::FilePath()
-:MSXConfig::FilePath(),XMLConfig::CustomConfig(),
+:MSXConfig::FilePath(), XMLConfig::CustomConfig(),
  internet_(false), caching_(false), cacheexpire_(false), cachedays_(1),
  cachedir_("~/.openmsx/cache"),
  persistantdir_("~/.openmsx/persistant")
 {
+	PRT_DEBUG("XMLConfig::FilePath::FilePath()");
 }
 
 FilePath::~FilePath()

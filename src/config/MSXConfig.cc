@@ -192,16 +192,13 @@ void Device::dump()
 	}
 }
 
-CustomConfig::CustomConfig(const std::string &_tag):tag(_tag)
-{
-}
-
 CustomConfig::~CustomConfig()
 {
 }
 
 CustomConfig::CustomConfig()
 {
+	PRT_DEBUG("MSXConfig::CustomConfig::CustomConfig()");
 }
 
 const std::string &CustomConfig::getTag()

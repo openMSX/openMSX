@@ -131,7 +131,6 @@ private:
 class CustomConfig
 {
 public:
-	CustomConfig(const std::string &id);
 	CustomConfig();
 	virtual ~CustomConfig();
 
@@ -139,11 +138,18 @@ public:
 	 * Every customconfig is identified by it's tag
 	 */
 	const std::string &getTag();
+
+protected:
+	/**
+	 * initialize this tag in your implementation in
+	 * the class that inherits from msxconfig
+	 */
+	std::string tag;
+
 private:
 	CustomConfig(const CustomConfig &foo); // block usage
 	CustomConfig &operator=(const CustomConfig &foo); // block usage
 	
-	std::string tag;
 };
 
 class Backend

@@ -74,6 +74,7 @@ openmsx_SOURCES=\
 	MSXRomPatchInterface.hh MSXRomPatchInterface.cc \
 	MSXTapePatch.cc MSXTapePatch.hh \
 	FileOpener.cc FileOpener.hh \
+	FileManager.cc FileManager.hh \
 	MSXARCdebug.cc MSXARCdebug.hh \
 	CommandLineParser.cc CommandLineParser.hh \
 	MSXDiskRomPatch.cc MSXDiskRomPatch.hh \

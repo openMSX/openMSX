@@ -7,8 +7,10 @@ namespace MSXConfig
 {
 
 FilePath::FilePath()
-:CustomConfig(std::string("filepath"))
+:CustomConfig()
 {
+	tag = "filepath";
+	PRT_DEBUG("MSXConfig::FilePath::FilePath()");
 }
 
 FilePath::~FilePath()

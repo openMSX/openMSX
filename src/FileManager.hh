@@ -52,25 +52,26 @@ class FileManager
 		
 		~FileManager();
 		
+		IFILETYPE* openROM(std::string &filename);
 		/**
 		 * Open a file for reading only.
 		 */
-		IFILETYPE* openFileRO(std::string filename, bool cache=false);
+		//IFILETYPE* openFileRO(std::string filename, bool cache=false);
 		/**
 		 * Open a file for reading and writing.
 		 * if not writeable then fail
 		 */
-		IOFILETYPE* openFileMustRW(std::string filename);
+		//IOFILETYPE* openFileMustRW(std::string filename);
 		/**
 		 * Open a file for reading and writing.
 		 * if not writeable then open readonly
 		 */
-		IOFILETYPE* openFilePreferRW(std::string filename, bool cache=false);
+		//IOFILETYPE* openFilePreferRW(std::string filename, bool cache=false);
 
 		/** Following are for creating/reusing files **/
 		/** if not writeable then fail **/
-		IOFILETYPE* openFileAppend(std::string filename);
-		IOFILETYPE* openFileTruncate(std::string filename);
+		//IOFILETYPE* openFileAppend(std::string filename);
+		//IOFILETYPE* openFileTruncate(std::string filename);
 	private:
 
 		// predefine

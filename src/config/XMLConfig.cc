@@ -229,18 +229,12 @@ void Backend::handleDoc(XML::Document* doc)
 			{
 				devices.push_back(new Device((*i)));
 			}
-			else
-			{
-				createCustomConfigByTag((*i)->name);
-				CustomConfig *c = reinterpret_cast<CustomConfig*>(getCustomConfigByTag((*i)->name));
-				c->backendInit((*i));
-			}
 		}
 		else
 		{
-			std::ostringstream s;
-			s << "expected <config> or <device>, got: <" << (*i)->name << ">";
-			throw MSXConfig::Exception(s);
+			createCustomConfigByTag((*i)->name);
+			CustomConfig *c = reinterpret_cast<CustomConfig*>(getCustomConfigByTag((*i)->name));
+			c->backendInit((*i));
 		}
 	}
 }
@@ -328,6 +322,7 @@ void Backend::createCustomConfigByTag(const std::string &tag)
 	if (tag=="filepath")
 	{
 		custom_configs.push_back(new FilePath());
+		return;
 	}
 	
 	std::ostringstream s;
@@ -355,6 +350,7 @@ MSXConfig::Device* Backend::getNextDevice()
 CustomConfig::CustomConfig()
 :MSXConfig::CustomConfig()
 {
+	PRT_DEBUG("XMLConfig::CustomConfig::CustomConfig()");
 }
 
 CustomConfig::~CustomConfig()

@@ -8,7 +8,7 @@
 namespace MSXConfig
 {
 
-class FilePath: public CustomConfig
+class FilePath: public virtual CustomConfig
 {
 public:
 	FilePath();

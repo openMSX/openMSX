@@ -34,7 +34,7 @@ Sample:
 namespace XMLConfig
 {
 
-class FilePath: public virtual MSXConfig::FilePath, public virtual CustomConfig
+class FilePath: public virtual MSXConfig::FilePath, public virtual XMLConfig::CustomConfig
 {
 public:
 	FilePath();
