@@ -317,8 +317,8 @@ throttle
   emulator runs as fast as possible.
 
   usage:
-    throttle      shows the current setting
-    throttle on   turn throttle mode on
-    throttle off  turn throttle mode off
+    set throttle      shows the current setting
+    set throttle on   turn throttle mode on
+    set throttle off  turn throttle mode off
     
 

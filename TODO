@@ -32,9 +32,6 @@
    + Mixer settings
  - The following Console commands need to be converted to a settings command:
    + renderer
-   + throttle (should also be a 'toggle' command)
-   + toggle should be documented in commands.txt. Also other new settings
-     should be documented there, some still aren't.
    
 * build
  - auto* improvement
