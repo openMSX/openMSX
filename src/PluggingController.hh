@@ -3,8 +3,7 @@
 #ifndef __PLUGGING_CONTROLLER__
 #define __PLUGGING_CONTROLLER__
 
-#include <vector>
-#include "ConsoleSource/Command.hh"
+#include "Command.hh"
 
 //forward declarations
 class Connector;

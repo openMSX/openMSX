@@ -10,7 +10,6 @@
 
 #include "config.h"
 #include "MSXConfig.hh"
-//#include <string>
 #include <SDL/SDL.h>
 #include "Thread.hh"
 #include "MSXMotherBoard.hh"

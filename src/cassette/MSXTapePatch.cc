@@ -1,7 +1,6 @@
 // $Id$
 
 #include "MSXTapePatch.hh"
-#include "ConsoleManager.hh"
 #include "CommandController.hh"
 
 /*
@@ -352,18 +351,18 @@ void MSXTapePatch::execute(const std::vector<std::string> &tokens)
 	if (tokens.size() != 2)
 		throw CommandException("Syntax error");
 	if (tokens[1]=="eject") {
-		ConsoleManager::instance()->print("Tape ejected");
+		print("Tape ejected");
 		ejectTape();
 	} else {
-		ConsoleManager::instance()->print("Changing tape");
+		print("Changing tape");
 		insertTape(tokens[1]);
 	}
 }
 
 void MSXTapePatch::help(const std::vector<std::string> &tokens)
 {
-	ConsoleManager::instance()->print("tape eject      : remove tape from virtual player");
-	ConsoleManager::instance()->print("tape <filename> : change the tape file");
+	print("tape eject      : remove tape from virtual player");
+	print("tape <filename> : change the tape file");
 }
 
 void MSXTapePatch::tabCompletion(std::vector<std::string> &tokens)

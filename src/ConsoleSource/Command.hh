@@ -5,7 +5,7 @@
 
 #include <string>
 #include <vector>
-#include "../MSXException.hh"
+#include "MSXException.hh"
 
 
 class CommandException : public MSXException {
@@ -13,11 +13,12 @@ class CommandException : public MSXException {
 		CommandException(const std::string &desc) : MSXException(desc) {}
 };
 
-/** These are the functions the console can call after a device
-  * has registered commands with the console.
-  */
 class Command
 {
+	/** 
+	 * These are the functions the console can call after a device
+	 * has registered commands with the console.
+	 */
 	public:
 		/**
 		 * called by the console when a command is typed
@@ -34,6 +35,15 @@ class Command
 		 * Default implementation does nothing
 		 */
 		virtual void tabCompletion(std::vector<std::string> &tokens) {}
+
+	/** 
+	 * These are just helper functions
+	 */
+	protected:
+		/**
+		 * Prints a message to the console
+		 */
+		void print(const std::string &message);
 };
 
 #endif //_COMMAND_HH__

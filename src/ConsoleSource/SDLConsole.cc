@@ -442,8 +442,8 @@ void SDLConsole::ConsoleCmd::execute(const std::vector<std::string> &tokens)
 }
 void SDLConsole::ConsoleCmd::help   (const std::vector<std::string> &tokens)
 {
-	ConsoleManager::instance()->print("This command turns console display on/off");
-	ConsoleManager::instance()->print(" console:     toggle console display");
-	ConsoleManager::instance()->print(" console on:  show console display");
-	ConsoleManager::instance()->print(" console off: remove console display");
+	print("This command turns console display on/off");
+	print(" console:     toggle console display");
+	print(" console on:  show console display");
+	print(" console off: remove console display");
 } 

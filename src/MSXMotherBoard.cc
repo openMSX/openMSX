@@ -4,8 +4,7 @@
 #include "RealTime.hh"
 #include "Leds.hh"
 #include "MSXDevice.hh"
-#include "ConsoleSource/ConsoleManager.hh"
-#include "ConsoleSource/CommandController.hh"
+#include "CommandController.hh"
 #include "Scheduler.hh"
 
 
@@ -80,6 +79,6 @@ void MSXMotherBoard::ResetCmd::execute(const std::vector<std::string> &tokens)
 }
 void MSXMotherBoard::ResetCmd::help   (const std::vector<std::string> &tokens)
 {
-	ConsoleManager::instance()->print("Resets the MSX.");
+	print("Resets the MSX.");
 }
 

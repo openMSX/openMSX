@@ -5,8 +5,7 @@
 #include "MSXCPU.hh"
 #include "MSXConfig.hh"
 #include "HotKey.hh"
-#include "ConsoleSource/ConsoleManager.hh"
-#include "ConsoleSource/CommandController.hh"
+#include "CommandController.hh"
 #include "Scheduler.hh"
 
 
@@ -163,10 +162,10 @@ void RealTime::PauseCmd::execute(const std::vector<std::string> &tokens)
 }
 void RealTime::PauseCmd::help   (const std::vector<std::string> &tokens)
 {
-	ConsoleManager::instance()->print("Use this command to pause/unpause the emulator");
-	ConsoleManager::instance()->print(" pause:     toggle pause");
-	ConsoleManager::instance()->print(" pause on:  pause emulation");
-	ConsoleManager::instance()->print(" pause off: unpause emulation");
+	print("Use this command to pause/unpause the emulator");
+	print(" pause:     toggle pause");
+	print(" pause on:  pause emulation");
+	print(" pause off: unpause emulation");
 }
 
 void RealTime::ThrottleCmd::execute(const std::vector<std::string> &tokens)
@@ -192,10 +191,10 @@ void RealTime::ThrottleCmd::execute(const std::vector<std::string> &tokens)
 }
 void RealTime::ThrottleCmd::help   (const std::vector<std::string> &tokens)
 {
-	ConsoleManager::instance()->print("This command turns speed throttling on/off");
-	ConsoleManager::instance()->print(" throttle:     toggle throttling");
-	ConsoleManager::instance()->print(" throttle on:  run emulation on normal speed");
-	ConsoleManager::instance()->print(" throttle off: run emulation on maximum speed");
+	print("This command turns speed throttling on/off");
+	print(" throttle:     toggle throttling");
+	print(" throttle on:  run emulation on normal speed");
+	print(" throttle off: run emulation on maximum speed");
 }
 
 void RealTime::SpeedCmd::execute(const std::vector<std::string> &tokens)
@@ -205,7 +204,7 @@ void RealTime::SpeedCmd::execute(const std::vector<std::string> &tokens)
 	case 1: {
 		char message[100];
 		sprintf(message, "Current speed: %d", 25600/rt->speed);
-		ConsoleManager::instance()->print(std::string(message));
+		print(std::string(message));
 		break;
 	}
 	case 2: {
@@ -224,9 +223,9 @@ void RealTime::SpeedCmd::execute(const std::vector<std::string> &tokens)
 }
 void RealTime::SpeedCmd::help   (const std::vector<std::string> &tokens)
 {
-	ConsoleManager::instance()->print("This command controls the emulation speed");
-	ConsoleManager::instance()->print("A higher value means faster emualtion, normal speed is 100.");
-	ConsoleManager::instance()->print(" speed:     : shows current speed");
-	ConsoleManager::instance()->print(" speed <num>: sets new speed");
+	print("This command controls the emulation speed");
+	print("A higher value means faster emualtion, normal speed is 100.");
+	print(" speed:     : shows current speed");
+	print(" speed <num>: sets new speed");
 }
 

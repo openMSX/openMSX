@@ -26,8 +26,7 @@ TODO:
 #include "VDPCmdEngine.hh"
 #include "SpriteChecker.hh"
 #include "PlatformFactory.hh"
-#include "ConsoleSource/ConsoleManager.hh"
-#include "ConsoleSource/CommandController.hh"
+#include "CommandController.hh"
 #include "Scheduler.hh"
 #include <string>
 #include <cassert>
@@ -827,12 +826,12 @@ void VDP::PaletteCmd::execute(const std::vector<std::string> &tokens)
 		}
 		out << "\n";
 	}
-	ConsoleManager::instance()->print(out.str());
+	print(out.str());
 }
 
 void VDP::PaletteCmd::help(const std::vector<std::string> &tokens)
 {
-	ConsoleManager::instance()->print("Prints the current VDP palette (i:rgb).");
+	print("Prints the current VDP palette (i:rgb).");
 }
 
 // RendererCmd inner class:
@@ -847,8 +846,7 @@ void VDP::RendererCmd::execute(const std::vector<std::string> &tokens)
 	switch (tokens.size()) {
 		case 1:
 			// Print name of current renderer.
-			ConsoleManager::instance()->print(
-				"Current renderer: " + vdp->rendererName);
+			print("Current renderer: " + vdp->rendererName);
 			break;
 		case 2:
 			// Switch renderer.
@@ -862,6 +860,5 @@ void VDP::RendererCmd::execute(const std::vector<std::string> &tokens)
 
 void VDP::RendererCmd::help(const std::vector<std::string> &tokens)
 {
-	ConsoleManager::instance()->print(
-		"Select a new renderer or print the current renderer.");
+	print("Select a new renderer or print the current renderer.");
 }

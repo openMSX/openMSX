@@ -3,8 +3,7 @@
 #include "Scheduler.hh"
 #include "MSXCPU.hh"
 #include "HotKey.hh"
-#include "ConsoleSource/ConsoleManager.hh"
-#include "ConsoleSource/CommandController.hh"
+#include "CommandController.hh"
 #include "Mixer.hh"
 #include <cassert>
 #include <algorithm>
@@ -182,7 +181,7 @@ void Scheduler::QuitCmd::execute(const std::vector<std::string> &tokens)
 }
 void Scheduler::QuitCmd::help   (const std::vector<std::string> &tokens)
 {
-	ConsoleManager::instance()->print("Use this command to stop the emulator");
+	print("Use this command to stop the emulator");
 }
 
 //TODO this command belongs in Mixer instead of Scheduler
@@ -210,9 +209,9 @@ void Scheduler::MuteCmd::execute(const std::vector<std::string> &tokens)
 }
 void Scheduler::MuteCmd::help   (const std::vector<std::string> &tokens)
 {
-	ConsoleManager::instance()->print("Use this command to mute/unmute the emulator");
-	ConsoleManager::instance()->print(" mute:     toggle mute");
-	ConsoleManager::instance()->print(" mute on:  set muted");
-	ConsoleManager::instance()->print(" mute off: set unmuted");
+	print("Use this command to mute/unmute the emulator");
+	print(" mute:     toggle mute");
+	print(" mute on:  set muted");
+	print(" mute off: set unmuted");
 }
 

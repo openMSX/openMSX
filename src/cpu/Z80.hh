@@ -16,7 +16,7 @@
 #include "EmuTime.hh"
 
 #ifdef CPU_DEBUG
-#include "ConsoleSource/Command.hh"
+#include "Command.hh"
 #endif
 
 

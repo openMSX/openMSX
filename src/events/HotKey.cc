@@ -4,7 +4,6 @@
 #include "HotKey.hh"
 #include "CommandController.hh"
 #include "EventDistributor.hh"
-#include "ConsoleManager.hh"
 
 
 HotKey::HotKey()
@@ -115,10 +114,8 @@ void HotKey::BindCmd::execute(const std::vector<std::string> &tokens)
 		// show all bounded keys
 		std::multimap<Keys::KeyCode, HotKeyCmd*>::iterator it;
 		for (it = hk->cmdMap.begin(); it != hk->cmdMap.end(); it++) {
-			char message[100];
-			sprintf(message, "%s:  %s", Keys::getName(it->first).c_str(),
-			                            it->second->getCommand().c_str());
-			ConsoleManager::instance()->print(std::string(message));
+			print(Keys::getName(it->first) + ":  " +
+			      it->second->getCommand());
 		}
 		break;
 	}
@@ -131,10 +128,8 @@ void HotKey::BindCmd::execute(const std::vector<std::string> &tokens)
 		for (it = hk->cmdMap.lower_bound(key);
 				(it != hk->cmdMap.end()) && (it->first == key);
 				it++) {
-			char message[100];
-			sprintf(message, "%s:  %s", Keys::getName(it->first).c_str(),
-			                            it->second->getCommand().c_str());
-			ConsoleManager::instance()->print(std::string(message));
+			print(Keys::getName(it->first) + ":  " +
+			      it->second->getCommand());
 		}
 		break;
 	}
@@ -152,9 +147,9 @@ void HotKey::BindCmd::execute(const std::vector<std::string> &tokens)
 }
 void HotKey::BindCmd::help(const std::vector<std::string> &tokens)
 {
-	ConsoleManager::instance()->print("bind             : show all bounded keys");
-	ConsoleManager::instance()->print("bind <key>       : show all bindings for this key");
-	ConsoleManager::instance()->print("bind <key> <cmd> : bind key to command");
+	print("bind             : show all bounded keys");
+	print("bind <key>       : show all bindings for this key");
+	print("bind <key> <cmd> : bind key to command");
 }
 
 void HotKey::UnbindCmd::execute(const std::vector<std::string> &tokens)
@@ -191,6 +186,6 @@ void HotKey::UnbindCmd::execute(const std::vector<std::string> &tokens)
 }
 void HotKey::UnbindCmd::help(const std::vector<std::string> &tokens)
 {
-	ConsoleManager::instance()->print("unbind <key>       : unbind all for this key");
-	ConsoleManager::instance()->print("unbind <key> <cmd> : unbind a specific command");
+	print("unbind <key>       : unbind all for this key");
+	print("unbind <key> <cmd> : unbind a specific command");
 }

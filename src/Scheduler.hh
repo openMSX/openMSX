@@ -7,7 +7,7 @@
 #include "EmuTime.hh"
 #include "Mutex.hh"
 #include "CondVar.hh"
-#include "ConsoleSource/Command.hh"
+#include "Command.hh"
 #include "EventListener.hh"
 
 //forward declarations

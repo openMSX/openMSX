@@ -10,7 +10,6 @@
 #include "openmsx.hh"
 #include "MSXConfig.hh"
 #include "CommandController.hh"
-#include "Command.hh"
 #include "ConsoleManager.hh"
 
 
@@ -271,15 +270,14 @@ void CommandController::completeFileName(std::vector<std::string> &tokens)
 
 void CommandController::HelpCmd::execute(const std::vector<std::string> &tokens)
 {
-	ConsoleManager *console = ConsoleManager::instance();
 	CommandController *cc = CommandController::instance();
 	switch (tokens.size()) {
 		case 1: {
-			console->print("Use 'help [command]' to get help for a specific command");
-			console->print("The following commands exists:");
+			print("Use 'help [command]' to get help for a specific command");
+			print("The following commands exists:");
 			std::map<const std::string, Command*, ltstr>::const_iterator it;
 			for (it=cc->commands.begin(); it!=cc->commands.end(); it++) {
-				console->print(it->first);
+				print(it->first);
 			}
 			break;
 		}
@@ -299,7 +297,7 @@ void CommandController::HelpCmd::execute(const std::vector<std::string> &tokens)
 }
 void CommandController::HelpCmd::help(const std::vector<std::string> &tokens)
 {
-	ConsoleManager::instance()->print("prints help information for commands");
+	print("prints help information for commands");
 }
 void CommandController::HelpCmd::tabCompletion(std::vector<std::string> &tokens)
 {

@@ -19,8 +19,7 @@ TODO:
 #include "SpriteChecker.hh"
 #include "RealTime.hh"
 #include <math.h>
-#include "ConsoleSource/SDLConsole.hh"
-#include "ConsoleSource/ConsoleManager.hh"
+#include "SDLConsole.hh"
 
 
 /** Dimensions of screen.

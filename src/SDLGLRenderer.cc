@@ -43,7 +43,6 @@ TODO:
 #include "VDPVRAM.hh"
 #include "SpriteChecker.hh"
 #include "RealTime.hh"
-//#include "ConsoleSource/SDLConsole.hh"
 #include <math.h>
 
 /** Dimensions of screen.

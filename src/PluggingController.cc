@@ -1,8 +1,7 @@
 // $Id$
 
 #include <cassert>
-#include "ConsoleSource/ConsoleManager.hh"
-#include "ConsoleSource/CommandController.hh"
+#include "CommandController.hh"
 #include "MSXCPU.hh"
 #include "PluggingController.hh"
 #include "Connector.hh"
@@ -110,8 +109,8 @@ void PluggingController::PlugCmd::execute(const std::vector<std::string> &tokens
 
 void PluggingController::PlugCmd::help   (const std::vector<std::string> &tokens)
 {
-	ConsoleManager::instance()->print("Plugs a plug into a connector");
-	ConsoleManager::instance()->print(" plug [connector] [plug]");
+	print("Plugs a plug into a connector");
+	print(" plug [connector] [plug]");
 }
 
 void PluggingController::PlugCmd::tabCompletion(std::vector<std::string> &tokens)
@@ -160,8 +159,8 @@ void PluggingController::UnplugCmd::execute(const std::vector<std::string> &toke
 
 void PluggingController::UnplugCmd::help   (const std::vector<std::string> &tokens)
 {
-	ConsoleManager::instance()->print("Unplugs a plug from a connector");
-	ConsoleManager::instance()->print(" unplug [connector]");
+	print("Unplugs a plug from a connector");
+	print(" unplug [connector]");
 }
 
 void PluggingController::UnplugCmd::tabCompletion(std::vector<std::string> &tokens)

@@ -1,13 +1,11 @@
 // $Id$
 
+#include <stdio.h>
 #include "MSXCPUInterface.hh"
 #include "DummyDevice.hh"
-#include "ConsoleSource/ConsoleManager.hh"
-#include "ConsoleSource/CommandController.hh"
+#include "CommandController.hh"
 #include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
-
-#include <stdio.h>
 
 
 MSXCPUInterface::MSXCPUInterface(MSXConfig::Config *config)
@@ -239,19 +237,19 @@ std::string MSXCPUInterface::getSlotSelection()
 
 void MSXCPUInterface::SlotMapCmd::execute(const std::vector<std::string> &tokens)
 {
-	ConsoleManager::instance()->print(MSXMotherBoard::instance()->getSlotMap());
+	print(MSXMotherBoard::instance()->getSlotMap());
 }
 void MSXCPUInterface::SlotMapCmd::help   (const std::vector<std::string> &tokens)
 {
-	ConsoleManager::instance()->print("Prints which slots contain which devices.");
+	print("Prints which slots contain which devices.");
 }
 
 void MSXCPUInterface::SlotSelectCmd::execute(const std::vector<std::string> &tokens)
 {
-	ConsoleManager::instance()->print(MSXMotherBoard::instance()->getSlotSelection());
+	print(MSXMotherBoard::instance()->getSlotSelection());
 }
 void MSXCPUInterface::SlotSelectCmd::help   (const std::vector<std::string> &tokens)
 {
-	ConsoleManager::instance()->print("Prints which slots are currently selected.");
+	print("Prints which slots are currently selected.");
 }
 

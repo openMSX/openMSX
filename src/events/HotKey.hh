@@ -3,7 +3,6 @@
 #ifndef __HOTKEY_HH__
 #define __HOTKEY_HH__
 
-//#include <SDL/SDL.h>
 #include <string>
 #include <map>
 #include "EventListener.hh"

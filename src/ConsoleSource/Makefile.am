@@ -19,7 +19,7 @@ libSDL_console_la_SOURCES = \
 	CircularBuffer.cc CircularBuffer.hh \
 	SDLConsole.cc SDLConsole.hh \
 	CommandController.cc CommandController.hh \
-	Command.hh \
+	Command.cc Command.hh \
 	SDLFont.cc SDLFont.hh
 
 nodebug: resetdebug all

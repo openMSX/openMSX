@@ -7,7 +7,7 @@
 #include "MSXConfig.hh"
 #include "MSXIODevice.hh"
 #include "MSXMemDevice.hh"
-#include "ConsoleSource/Command.hh"
+#include "Command.hh"
 
 
 class MSXCPUInterface : public CPUInterface

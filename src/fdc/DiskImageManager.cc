@@ -2,7 +2,6 @@
 
 #include "DiskImageManager.hh"
 #include "CommandController.hh"
-#include "ConsoleManager.hh"
 #include "FDCDummyBackEnd.hh"
 #include "FDC_DSK.hh"
 
@@ -66,11 +65,11 @@ void DiskImageManager::Drive::execute(const std::vector<std::string> &tokens)
 	if (tokens.size() != 2)
 		throw CommandException("Syntax error");
 	if (tokens[1] == "eject") {
-		ConsoleManager::instance()->print("Disk ejected");
+		print("Disk ejected");
 		delete backEnd;
 		backEnd = new FDCDummyBackEnd();
 	} else {
-		ConsoleManager::instance()->print("Changing disk");
+		print("Changing disk");
 		try {
 			// TODO other backends
 			FDCBackEnd* tmp = new FDC_DSK(tokens[1]);
@@ -85,8 +84,8 @@ void DiskImageManager::Drive::execute(const std::vector<std::string> &tokens)
 void DiskImageManager::Drive::help(const std::vector<std::string> &tokens)
 {
 	// TODO use correct name
-	ConsoleManager::instance()->print("disk eject      : remove disk from virtual drive");
-	ConsoleManager::instance()->print("disk <filename> : change the disk file");
+	print("disk eject      : remove disk from virtual drive");
+	print("disk <filename> : change the disk file");
 }
 
 void DiskImageManager::Drive::tabCompletion(std::vector<std::string> &tokens)

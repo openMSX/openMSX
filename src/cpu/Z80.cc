@@ -18,9 +18,8 @@
 #include "Z80Tables.nn"
 #include "CPU.ii"
 #ifdef CPU_DEBUG
-#include <stdio.h>
 #include "Z80Dasm.h"
-#include "ConsoleSource/CommandController.hh"
+#include "CommandController.hh"
 #endif
 
 

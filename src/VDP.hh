@@ -9,7 +9,7 @@
 #include "IRQHelper.hh"
 #include "IRQHelper.ii"
 #include "EmuTime.hh"
-#include "ConsoleSource/Command.hh"
+#include "Command.hh"
 
 #include <string>
 

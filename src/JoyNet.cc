@@ -4,7 +4,6 @@
 #include "JoyNet.hh"
 #include "PluggingController.hh"
 #include "MSXConfig.hh"
-//#include "EventDistributor.hh"
 
 
 JoyNet::JoyNet(int joyNum)

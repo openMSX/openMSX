@@ -5,7 +5,7 @@
 
 #include "openmsx.hh"
 #include "HotKey.hh"
-#include "ConsoleSource/Command.hh"
+#include "Command.hh"
 
 class EmuTime;
 
