@@ -37,15 +37,15 @@ MSXMultiIODevice::~MSXMultiIODevice()
 
 void MSXMultiIODevice::addDevice(MSXDevice* device)
 {
-	assert(count(devices.begin(), devices.end(), device) == 0);
+	assert(std::count(devices.begin(), devices.end(), device) == 0);
 	devices.push_back(device);
 	preCalcName();
 }
 
 void MSXMultiIODevice::removeDevice(MSXDevice* device)
 {
-	assert(count(devices.begin(), devices.end(), device) == 1);
-	devices.erase(find(devices.begin(), devices.end(), device));
+	assert(std::count(devices.begin(), devices.end(), device) == 1);
+	devices.erase(std::find(devices.begin(), devices.end(), device));
 	preCalcName();
 }
 

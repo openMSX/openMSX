@@ -91,7 +91,8 @@ RomType RomInfo::nameToRomType(string name)
 {
 	initMap();
 	
-	static map<string, string, StringOp::caseless> aliasMap;
+	typedef map<string, string, StringOp::caseless> AliasMap;
+	static AliasMap aliasMap;
 	static bool aliasMapInit = false;
 	if (!aliasMapInit) {
 		// alternative names for rom types, mainly for
@@ -117,7 +118,7 @@ RomType RomInfo::nameToRomType(string name)
 		aliasMap["KOREAN90IN1"]  = "Zemina90in1";
 		aliasMap["KOREAN126IN1"] = "Zemina126in1";
 	}
-	map<string, string>::const_iterator alias_it = aliasMap.find(name);
+	AliasMap::const_iterator alias_it = aliasMap.find(name);
 	if (alias_it != aliasMap.end()) {
 		name = alias_it->second;
 		assert(romtype.find(name) != romtype.end());

@@ -5,6 +5,7 @@
 
 #include "MSXDevice.hh"
 #include "MSXDeviceSwitch.hh"
+#include <memory>
 
 namespace openmsx {
 

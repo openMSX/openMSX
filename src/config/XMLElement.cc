@@ -359,8 +359,8 @@ void XMLElement::addListener(XMLElementListener& listener)
 
 void XMLElement::removeListener(XMLElementListener& listener)
 {
-	assert(count(listeners.begin(), listeners.end(), &listener) == 1);
-	listeners.erase(find(listeners.begin(), listeners.end(), &listener));
+	assert(std::count(listeners.begin(), listeners.end(), &listener) == 1);
+	listeners.erase(std::find(listeners.begin(), listeners.end(), &listener));
 }
 
 string XMLElement::XMLEscape(const string& str)

@@ -1,9 +1,10 @@
 // $Id$
 
-#include <cassert>
 #include "Setting.hh"
 #include "SettingListener.hh"
 #include "CliCommOutput.hh"
+#include <algorithm>
+#include <cassert>
 
 using std::string;
 
@@ -36,8 +37,8 @@ void Setting::addListener(SettingListener* listener)
 
 void Setting::removeListener(SettingListener* listener)
 {
-	assert(count(listeners.begin(), listeners.end(), listener) == 1);
-	listeners.erase(find(listeners.begin(), listeners.end(), listener));
+	assert(std::count(listeners.begin(), listeners.end(), listener) == 1);
+	listeners.erase(std::find(listeners.begin(), listeners.end(), listener));
 }
 
 } // namespace openmsx

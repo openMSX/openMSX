@@ -6,6 +6,7 @@
 #include "AudioInputDevice.hh"
 #include "SettingListener.hh"
 #include "EmuTime.hh"
+#include <memory>
 
 namespace openmsx {
 

@@ -2,6 +2,7 @@ $Id$
 
 2005-01-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Removed more #include dependencies
+	* Fixed compilation errors on icc
 
 2005-01-15 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Refactored XMLElement related classes:
