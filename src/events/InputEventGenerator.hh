@@ -41,6 +41,7 @@ private:
 	virtual ~InputEventGenerator();
 
 	void handle(const SDL_Event &event);
+	void setGrabInput();
 
 	// SettingListener
 	virtual void update(const Setting* setting);

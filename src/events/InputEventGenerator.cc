@@ -16,6 +16,7 @@ InputEventGenerator::InputEventGenerator()
 	, keyRepeat(false)
 	, distributor(EventDistributor::instance())
 {
+	setGrabInput();
 	grabInput->addListener(this);
 	reinit();
 }
@@ -175,6 +176,11 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 void InputEventGenerator::update(const Setting* setting)
 {
 	assert(setting == grabInput.get());
+	setGrabInput();
+}
+
+void InputEventGenerator::setGrabInput()
+{
 	SDL_WM_GrabInput(grabInput->getValue() ? SDL_GRAB_ON : SDL_GRAB_OFF);
 }
 
