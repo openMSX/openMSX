@@ -21,7 +21,8 @@ BackgroundSetting::BackgroundSetting(OSDConsoleRenderer *console_,
 {
 	setValueString(filename);
 	if (getValueString() != filename) {
-		PRT_INFO("Warning: Couldn't read background image");
+		PRT_INFO("Warning: Couldn't read background image: \"" <<
+		         filename << "\"");
 	}
 }
 
@@ -31,7 +32,9 @@ bool BackgroundSetting::checkUpdate(const std::string &newValue)
 	try {
 		UserFileContext context;
 		result = console->loadBackground(context.resolve(newValue));
-		console->setBackgroundName(context.resolve(newValue));
+		if (result) {
+			console->setBackgroundName(context.resolve(newValue));
+		}
 	} catch (FileException &e) {
 		// file not found
 		result = false;
@@ -49,7 +52,8 @@ FontSetting::FontSetting(OSDConsoleRenderer *console_,
 {
 	setValueString(filename);
 	if (getValueString() != filename) {
-		PRT_INFO("Warning: Couldn't read font image");
+		PRT_INFO("Warning: Couldn't read font image: \"" <<
+		         filename << "\"");
 	}
 }
 
@@ -59,7 +63,9 @@ bool FontSetting::checkUpdate(const std::string &newValue)
 	try {
 		UserFileContext context;
 		result = console->loadFont(context.resolve(newValue));
-		console->setFontName (context.resolve(newValue));
+		if (result) {
+			console->setFontName (context.resolve(newValue));
+		}
 	} catch (FileException &e) {
 		// file not found
 		result = false;
