@@ -1,0 +1,25 @@
+<?xml version="1.0" ?>
+<!-- $Id$ -->
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+
+  <primary slot="any">
+
+    <secondary slot="any">
+      <MSX-MUSIC id="Checkmark FM Stereo PAK">
+        <io base="0x7C" num="2" type="O"/>
+        <mem base="0x0000" size="0x10000"/>
+        <sound>
+          <volume>13000</volume>
+          <mode>mono</mode>
+        </sound>
+        <rom>
+          <sha1>19bf90b8d2e695ffad61fff6f47f7fcda2f24a1d</sha1>
+          <filename>roms/fmpak.rom</filename>
+        </rom>
+      </MSX-MUSIC>
+    </secondary>
+
+  </primary>
+
+</msxconfig>
