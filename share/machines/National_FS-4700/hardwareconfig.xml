@@ -47,7 +47,7 @@
 
   <device id="Matsushita">
     <type>Matsushita</type>
-    <parameter name="sramname">fs-4700.sram</parameter>
+    <parameter name="sramname">fs-4700_matsushita.sram</parameter>
   </device>
 
   <device id="Word Font">

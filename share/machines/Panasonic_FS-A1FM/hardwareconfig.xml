@@ -43,7 +43,7 @@
     <slotted> <ps>3</ps> <ss>1</ss> <page>1</page> </slotted>
     <parameter name="filename">roms/fs-a1fm_firmware.rom</parameter>
     <parameter name="mappertype">FSA1FM1</parameter>
-    <parameter name="sramname">fs-a1fm.sram</parameter>
+    <parameter name="sramname">fs-a1fm_modem.sram</parameter>
   </device>
 
   <device id="FS-A1FM">

@@ -126,9 +126,9 @@
     <parameter name="inverted">true</parameter>
   </device>
 
-  <device id="Switch">
+  <device id="Matsushita">
     <type>Matsushita</type>
-    <parameter name="sramname">fs-a1wx.sram</parameter>
+    <parameter name="sramname">fs-a1wx_matsushita.sram</parameter>
   </device>
 
   <config id="CassettePort">

@@ -126,9 +126,9 @@
     <parameter name="inverted">true</parameter>
   </device>
 
-  <device id="Switch">
+  <device id="Matsushita">
     <type>Matsushita</type>
-    <parameter name="sramname">fs-a1wsx.sram</parameter>
+    <parameter name="sramname">fs-a1wsx_matsushita.sram</parameter>
   </device>
 
 <!-- The cassette port on this machine is combined with the RGB connector -->

@@ -63,7 +63,7 @@
   <device id="Real time clock">
     <type>RTC</type>
     <parameter name="mode">EmuTime</parameter>
-    <parameter name="sramname">RTC.SAVE</parameter>
+    <parameter name="sramname">cbios-msx2.cmos</parameter>
   </device>
 
   <device id="PSG">
