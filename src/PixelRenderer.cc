@@ -188,7 +188,7 @@ void PixelRenderer::putImage(const EmuTime &time)
 
 	// The screen will be locked for a while, so now is a good time
 	// to perform real time sync.
-	float factor = RealTime::instance()->sync();
+	float factor = RealTime::instance()->sync(time);
 	
 	if (autoFrameSkip) {
 		frameSkipShortAvg += (factor - buffer[9]);	// sum last 10

@@ -894,7 +894,7 @@ template <class Pixel> void SDLLoRenderer<Pixel>::putImage(
 
 	// The screen will be locked for a while, so now is a good time
 	// to perform real time sync.
-	RealTime::instance()->sync();
+	RealTime::instance()->sync(time);
 }
 
 Renderer *createSDLLoRenderer(VDP *vdp, bool fullScreen, const EmuTime &time)

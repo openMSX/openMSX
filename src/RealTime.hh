@@ -37,12 +37,16 @@ class RealTime : public Schedulable
 		 * and can indicate 'good' moments to sync, eg: VDP can call
 		 * this method at the end of each frame.
 		 */
-		float sync();
+		float sync(const EmuTime &time);
 
+		/**
+		 * Reset internal counters.
+		 */
+		void reset(const EmuTime &time);
+		
 	private:
 		RealTime(); 
 		void internalSync(const EmuTime &time);
-		void resetTiming();
 
 		int syncInterval;	// sync every ..ms
 		int maxCatchUpTime;	// max nb of ms overtime
@@ -58,11 +62,11 @@ class RealTime : public Schedulable
 		int catchUpTime;  // number of milliseconds overtime.
 		float emuFactor;
 		float totalFactor;
+		float sleepAdjust;
 
 		int speed;	// higher means slower (256 = 100%)
 		bool throttle;
 		bool paused;
-		MSXCPU *cpu;
 		Scheduler *scheduler;
 
 		class PauseCmd : public Command {

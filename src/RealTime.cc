@@ -11,19 +11,16 @@
 
 RealTime::RealTime()
 {
-	PRT_DEBUG("Constructing a RealTime object");
-	
 	MSXConfig::Config *config = MSXConfig::Backend::instance()->getConfigById("RealTime");
 	syncInterval     = config->getParameterAsInt("sync_interval");
 	maxCatchUpTime   = config->getParameterAsInt("max_catch_up_time");
 	maxCatchUpFactor = config->getParameterAsInt("max_catch_up_factor");
 	
 	scheduler = Scheduler::instance();
-	cpu = MSXCPU::instance();
 	speed = 256;
 	paused = false;
 	throttle = true;
-	resetTiming();
+	reset(MSXCPU::instance()->getCurrentTime());
 	scheduler->setSyncPoint(emuRef+syncInterval, this);
 	
 	CommandController::instance()->registerCommand(pauseCmd, "pause");
@@ -35,8 +32,6 @@ RealTime::RealTime()
 
 RealTime::~RealTime()
 {
-	PRT_DEBUG("Destroying a RealTime object");
-	
 	HotKey::instance()->unregisterHotKeyCommand(Keys::K_PAUSE, "pause");
 	HotKey::instance()->unregisterHotKeyCommand(Keys::K_F9, "throttle");
 	CommandController::instance()->unregisterCommand("pause");
@@ -46,10 +41,9 @@ RealTime::~RealTime()
 
 RealTime *RealTime::instance()
 {
-	static RealTime* oneInstance = NULL;
-	if (oneInstance == NULL)
-		oneInstance = new RealTime();
-	return oneInstance;
+	static RealTime oneInstance;
+	
+	return &oneInstance;
 }
 
 
@@ -65,17 +59,18 @@ const std::string &RealTime::schedName()
 }
 
 
-float RealTime::sync()
+float RealTime::sync(const EmuTime &time)
 {
 	scheduler->removeSyncPoint(this);
-	internalSync(cpu->getCurrentTime());
+	internalSync(time);
+	//PRT_DEBUG("RT: user sync " << time);
 	return emuFactor;
 }
 
 void RealTime::internalSync(const EmuTime &curEmu)
 {
 	if (!throttle) {
-		resetTiming();
+		reset(curEmu);
 		return;
 	}
 	
@@ -85,11 +80,11 @@ void RealTime::internalSync(const EmuTime &curEmu)
 	int realPassed = curReal - realRef;
 	int emuPassed = (int)((speed * emuRef.getTicksTill(curEmu)) >> 8);
 
+	PRT_DEBUG("RT: Short emu: " << emuPassed << "ms  Short real: " << realPassed << "ms");
+	assert(emuPassed >= 0);
+	assert(realPassed >= 0);
+	// only sync if we got meaningfull values
 	if ((emuPassed > 0) && (realPassed > 0)) {
-		// only sync if we got meaningfull values
-		
-		PRT_DEBUG("RT: Short emu: " << emuPassed << "ms  Short real: " << realPassed << "ms");
-		
 		// Long period values, these are used for global speed corrections
 		int totalReal = curReal - realOrigin;
 		uint64 totalEmu = (speed * emuOrigin.getTicksTill(curEmu)) >> 8;
@@ -97,38 +92,50 @@ void RealTime::internalSync(const EmuTime &curEmu)
 	
 		int sleep = 0;
 		catchUpTime = totalReal - totalEmu;
+		PRT_DEBUG("RT: catchUpTime: " << catchUpTime << "ms");
 		if (catchUpTime < 0) {
 			// we are too fast
 			sleep = -catchUpTime;
 		} else if (catchUpTime > maxCatchUpTime) {
-			// way too slow
+			// we are way too slow
 			int lost = catchUpTime - maxCatchUpTime;
 			realOrigin += lost;
 			PRT_DEBUG("RT: Emulation too slow, lost " << lost << "ms");
-		}
-		if (maxCatchUpFactor * (sleep + realPassed) < 100 * emuPassed) {
-			// avoid catching up too fast
+		} else if (maxCatchUpFactor * (sleep + realPassed) < 100 * emuPassed) {
+			// we are slightly too slow, avoid catching up too fast
 			sleep = (100 * emuPassed) / maxCatchUpFactor - realPassed;
+			//PRT_DEBUG("RT: max catchup: " << sleep << "ms");
 		}
+		PRT_DEBUG("RT: want to sleep " << sleep << "ms");
+		sleep += (int)sleepAdjust;
+		int slept;
 		if (sleep > 0) {
 			PRT_DEBUG("RT: Sleeping for " << sleep << "ms");
 			SDL_Delay(sleep);
+			slept = SDL_GetTicks() - curReal;
+			PRT_DEBUG("RT: Realy slept for " << slept << "ms");
+			int delta = sleep - slept;
+			sleepAdjust = sleepAdjust * (1 - alpha) + delta * alpha;
+			PRT_DEBUG("RT: SleepAdjust: " << sleepAdjust);
+		} else {
+			slept = 0;
 		}
 		
 		// estimate current speed, values are inaccurate so take average
-		float curTotalFac = (sleep + realPassed) / (float)emuPassed;
+		float curTotalFac = (slept + realPassed) / (float)emuPassed;
 		totalFactor = totalFactor * (1 - alpha) + curTotalFac * alpha;
+		PRT_DEBUG("RT: Estimated current speed (real/emu): " << totalFactor);
 		float curEmuFac = realPassed / (float)emuPassed;
 		emuFactor = emuFactor * (1 - alpha) + curEmuFac * alpha;
 		PRT_DEBUG("RT: Estimated max     speed (real/emu): " << emuFactor);
-		PRT_DEBUG("RT: Estimated current speed (real/emu): " << totalFactor);
 		
 		// adjust short period references
-		realRef = curReal + sleep;
+		realRef = SDL_GetTicks();
 		emuRef = curEmu;
-	}
+	} 
 	// schedule again in future
-	scheduler->setSyncPoint(emuRef + syncInterval, this);
+	EmuTimeFreq<1000> time(curEmu);
+	scheduler->setSyncPoint(time + syncInterval, this);
 }
 
 float RealTime::getRealDuration(const EmuTime &time1, const EmuTime &time2)
@@ -136,12 +143,13 @@ float RealTime::getRealDuration(const EmuTime &time1, const EmuTime &time2)
 	return (time2 - time1).toFloat() * totalFactor;
 }
 
-void RealTime::resetTiming()
+void RealTime::reset(const EmuTime &time)
 {
 	realRef = realOrigin = SDL_GetTicks();
-	emuRef  = emuOrigin  = cpu->getCurrentTime();
+	emuRef  = emuOrigin  = time;
 	emuFactor   = 1.0;
 	totalFactor = 1.0;
+	sleepAdjust = 0.0;
 }
 
 void RealTime::PauseCmd::execute(const std::vector<std::string> &tokens)
@@ -150,7 +158,7 @@ void RealTime::PauseCmd::execute(const std::vector<std::string> &tokens)
 	switch (tokens.size()) {
 	case 1:
 		if (sch->isPaused()) {
-			RealTime::instance()->resetTiming(); 
+			RealTime::instance()->reset(MSXCPU::instance()->getCurrentTime()); 
 			sch->unpause();
 		} else {
 			sch->pause();
@@ -162,7 +170,7 @@ void RealTime::PauseCmd::execute(const std::vector<std::string> &tokens)
 			break;
 		}
 		if (tokens[1] == "off") {
-			RealTime::instance()->resetTiming(); 
+			RealTime::instance()->reset(MSXCPU::instance()->getCurrentTime()); 
 			sch->unpause();
 			break;
 		}
@@ -222,7 +230,7 @@ void RealTime::SpeedCmd::execute(const std::vector<std::string> &tokens)
 		int tmp = strtol(tokens[1].c_str(), NULL, 0);
 		if (tmp > 0) {
 			rt->speed = 25600 / tmp;
-			rt->resetTiming();
+			rt->reset(MSXCPU::instance()->getCurrentTime());
 		} else {
 			throw CommandException("Illegal argument");
 		}

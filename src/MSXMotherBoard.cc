@@ -52,7 +52,8 @@ void MSXMotherBoard::startMSX()
 {
 	MSXCPUInterface::instance()->reset();
 	Leds::instance()->setLed(Leds::POWER_ON);
-	RealTime::instance();
+	EmuTime zero;
+	RealTime::instance()->reset(zero);
 	Scheduler::instance()->scheduleEmulation();
 }
 
