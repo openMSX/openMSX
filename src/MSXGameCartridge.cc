@@ -157,7 +157,7 @@ int MSXGameCartridge::retrieveMapperType()
 			mappertype["5"]=5;
 			mappertype["ASCII16"]=5;
 
-			mappertype["5"]=6;
+			mappertype["6"]=6;
 			mappertype["GAMEMASTER2"]=6;
 
 			mappertype["64"]=64;
