@@ -4,7 +4,63 @@
 #error use msxconfig.hh
 #endif
 
-#ifndef __MSXCONFIG_DEVICE_NN__
-#define __MSXCONFIG_DEVICE_NN__
+#ifndef __MSXCONFIG_CONFIG_NN__
+#define __MSXCONFIG_CONFIG_NN__
+
+// nested class in MSXConfig
+class Config
+{
+public:
+
+	class Parameter
+	{
+	public:
+		Parameter(const std::string &name, const std::string &value, const std::string &clasz);
+		~Parameter() {}
+	private:
+		Parameter(); // block usage
+		Parameter(const Parameter &); // block usage
+		Parameter &operator=(const Parameter &); // block usage
+
+		std::string lowerValue() const;
+	public:
+		const bool getAsBool() const;
+		const int getAsInt() const ;
+		const uint64 getAsUint64() const;
+		// please let me know what types are needed exactly
+		
+		const std::string name;
+		const std::string value;
+		const std::string clasz;
+	};
+
+	Config(XMLNode *configNode);
+	virtual ~Config();
+
+	virtual void dump();
+	virtual bool isDevice();
+	const std::string &getType();
+	const std::string &getId();
+	bool  hasParameter(const std::string &name);
+	const std::string &getParameter(const std::string &name);
+	const bool getParameterAsBool(const std::string &name);
+	const int getParameterAsInt(const std::string &name);
+	const uint64 getParameterAsUint64(const std::string &name);
+	std::list<const Parameter*> getParametersWithClass(const std::string &clasz);
+
+	const std::string &getDesc();
+	const std::string &getRem();
+
+private:
+	Config(); // block usage
+	Config(const Config &foo); // block usage
+	Config &operator=(const Config &foo); // block usage
+
+protected:
+	std::string id, configType, desc, rem;
+	std::list<Parameter*> parameters;
+	const Parameter &getParameterByName(const std::string &name);
+	list<XMLNode * >* slotted_pass; // hack to pass on slotted to MSXConfig::Device if needed // + another hack cause XMLNodeList is a typedef *sigh*
+};
 
 #endif

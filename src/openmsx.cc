@@ -51,8 +51,8 @@ int main (int argc, char **argv)
 	try {
 		MSXConfig::instance()->loadFile(configfile);
 	
-		std::list<MSXConfig::Device*>::const_iterator i=MSXConfig::instance()->deviceList.begin();
-		for (; i != MSXConfig::instance()->deviceList.end(); i++) {
+		std::list<MSXConfig::Config*>::const_iterator i=MSXConfig::instance()->configList.begin();
+		for (; i != MSXConfig::instance()->configList.end(); i++) {
 			(*i)->dump();
 		}
 	} catch (MSXException e) {

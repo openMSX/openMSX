@@ -8,31 +8,10 @@
 #define __MSXCONFIG_DEVICE_NN__
 
 // nested class in MSXConfig
-class Device
+class Device: public Config
 {
 public:
 
-	class Parameter
-	{
-	public:
-		Parameter(const std::string &name, const std::string &value, const std::string &clasz);
-		~Parameter() {}
-	private:
-		Parameter(); // block usage
-		Parameter(const Parameter &); // block usage
-		Parameter &operator=(const Parameter &); // block usage
-
-		std::string lowerValue() const;
-	public:
-		const bool getAsBool() const;
-		const int getAsInt() const ;
-		const uint64 getAsUint64() const;
-		// please let me know what types are needed exactly
-		
-		const std::string name;
-		const std::string value;
-		const std::string clasz;
-	};
 	class Slotted
 	{
 	public:
@@ -54,32 +33,22 @@ public:
 	};
 
 	Device(XMLNode *deviceNode);
-	~Device();
-	const std::string &getType();
-	const std::string &getId();
+	virtual ~Device();
+
+	virtual bool isDevice();
 	bool  isSlotted();
 	int   getPage(); // of first slotted [backward compat]
 	int   getPS(); // of first slotted [backward compat]
 	int   getSS(); // of first slotted [backward compat]
-	bool  hasParameter(const std::string &name);
-	const std::string &getParameter(const std::string &name);
-	const bool getParameterAsBool(const std::string &name);
-	const int getParameterAsInt(const std::string &name);
-	const uint64 getParameterAsUint64(const std::string &name);
-	std::list<const Parameter*> getParametersWithClass(const std::string &clasz);
-	void  dump();
-	const std::string &getDesc();
-	const std::string &getRem();
+
+	virtual void  dump();
+
 	std::list <Slotted*> slotted;
 	
 private:
 	Device(); // block usage
 	Device(const Device &foo); // block usage
 	Device &operator=(const Device &foo); // block usage
-	//XMLNode *deviceNode;
-	std::string id, deviceType, desc, rem;
-	std::list<Parameter*> parameters;
-	const Parameter &getParameterByName(const std::string &name);
 };
 
 #endif

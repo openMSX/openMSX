@@ -30,12 +30,15 @@ public:
 	void saveFile(const std::string &filename);
 
 // nested classes
+#include "msxconfig_config.nn"
 #include "msxconfig_device.nn"
 #include "msxconfig_exception.nn"
 
+	std::list<Config*> configList;
 	std::list<Device*> deviceList;
-	std::list<Device*> getDeviceByType(const std::string &type);
-	Device *getDeviceById(const std::string &type);
+	std::list<Config*> allList;
+	std::list<Config*> getConfigByType(const std::string &type);
+	Config *getConfigById(const std::string &type);
 
 private:
 	MSXConfig(); // private constructor -> can only construct self
