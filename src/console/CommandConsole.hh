@@ -19,7 +19,7 @@ class CommandConsole : public Console, private EventListener,
 		/** Get singleton console instance.
 		  */
 		static CommandConsole *instance();
-	
+		void registerDebugger();
 		/** Prints a string on the console.
 		  */
 		void printFast(const string &text);
@@ -33,6 +33,7 @@ class CommandConsole : public Console, private EventListener,
 		void setCursorPosition(int xPosition, int yPosition);
 		void setCursorPosition(CursorXY pos);
 		void setConsoleDimensions(int columns, int rows);
+		std::string getId();
 
 	private:
 		static const int LINESHISTORY = 100;

@@ -17,9 +17,10 @@ GLConsole::GLConsole(Console * console_)
 	:OSDConsoleRenderer (console_)
 {
 	console = console_;
-	fontSetting = new FontSetting(this, fontName);
+	std::string temp = console->getId();
+	fontSetting = new FontSetting(this, temp+"font", fontName);
 	initConsoleSize();
-
+	
 	SDL_Rect rect;
 	OSDConsoleRenderer::updateConsoleRect(rect);
 	dispX = rect.x;
@@ -29,7 +30,8 @@ GLConsole::GLConsole(Console * console_)
 	
 	// load background
 	backgroundTexture = 0;
-	backgroundSetting = new BackgroundSetting(this, backgroundName);
+	
+	backgroundSetting = new BackgroundSetting(this, temp + "background", backgroundName);
 }
 
 GLConsole::~GLConsole()

@@ -72,7 +72,7 @@ void SDLRenderer<Pixel, zoom>::finishFrame(bool store)
 
 	// Render consoles if needed.
 	console->drawConsole();
-//	debugger->drawConsole();
+	debugger->drawConsole();
 
 	// Update screen.
 	SDL_UpdateRect(screen, 0, 0, 0, 0);
@@ -245,7 +245,7 @@ SDLRenderer<Pixel, zoom>::SDLRenderer(
 {
 	this->screen = screen;
 	console = new SDLConsole(CommandConsole::instance(), screen);
-//	debugger = new SDLConsole(DebugConsole::instance(), screen);
+	debugger = new SDLConsole(DebugConsole::instance(), screen);
 	// Allocate screen which will later contain the stored image.
 	storedImage = SDL_CreateRGBSurface(
 		SDL_SWSURFACE,

@@ -14,9 +14,9 @@ OSDConsoleRenderer::Placement OSDConsoleRenderer::consolePlacement;
 
 // class BackgroundSetting
 
-BackgroundSetting::BackgroundSetting(OSDConsoleRenderer *console_,
+BackgroundSetting::BackgroundSetting(OSDConsoleRenderer *console_, const std::string settingName,
                                      const string &filename)
-	: FilenameSetting("consolebackground", "console background file", ""),
+	: FilenameSetting(settingName, "console background file", ""),
 	  console(console_)
 {
 	setValueString(filename);
@@ -44,9 +44,9 @@ void BackgroundSetting::setValue(const string &newValue)
 
 // class FontSetting
 
-FontSetting::FontSetting(OSDConsoleRenderer *console_,
+FontSetting::FontSetting(OSDConsoleRenderer *console_, const std::string settingName,
                          const string &filename)
-	: FilenameSetting("consolefont", "console font file", ""),
+	: FilenameSetting(settingName, "console font file", ""),
 	  console(console_)
 {
 	setValueString(filename);
@@ -183,16 +183,17 @@ void OSDConsoleRenderer::initConsoleSize()
 
 	console->setConsoleDimensions(consoleColumns, consoleRows);
 
+	std::string temp = console->getId();
 	consoleColumnsSetting = new IntegerSetting(
-		"consolecolumns", "number of columns in the console",
+		temp + "columns", "number of columns in the console",
 		wantedColumns, 32, 999
 		);
 	consoleRowsSetting = new IntegerSetting(
-		"consolerows", "number of rows in the console",
+		temp + "rows", "number of rows in the console",
 		wantedRows, 1, 99
 		);
 	consolePlacementSetting = new EnumSetting<OSDConsoleRenderer::Placement>(
-		"consoleplacement", "position of the console within the emulator",
+		temp + "placement", "position of the console within the emulator",
 		consolePlacement, placeMap
 		);
 }

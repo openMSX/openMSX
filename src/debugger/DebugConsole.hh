@@ -8,6 +8,11 @@
 #include "Settings.hh"
 #include "Console.hh"
 
+#include "DumpView.hh"
+#include <map>
+
+
+
 class DebugView;
 
 
@@ -25,7 +30,7 @@ class DebugConsole : public Console, private EventListener,
 			int rows;
 			DebugView* view;
 		};
-		enum ViewType {DUMPVIEW};
+		enum ViewType {DUMPVIEW, DISSASVIEW};
 		
 		int addView(int cursorX, int cursorY, int columns, int rows,
 		            ViewType viewType);
@@ -43,6 +48,7 @@ class DebugConsole : public Console, private EventListener,
 		void setCursorPosition(int xPosition, int yPosition);
 		void setCursorPosition(CursorXY pos);
 		void setConsoleDimensions(int columns, int rows);
+		std::string getId();
 
 	private:
 		DebugConsole();

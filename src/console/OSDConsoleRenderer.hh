@@ -25,11 +25,9 @@ class FileContext;
 class BackgroundSetting : public FilenameSetting
 {
 	public:
-		BackgroundSetting(OSDConsoleRenderer *console,
+		BackgroundSetting(OSDConsoleRenderer *console, const std::string settingName,
 		                  const string &filename);
-
 		virtual void setValue(const string &newValue);
-
 	private:
 		OSDConsoleRenderer* console;
 };
@@ -37,9 +35,8 @@ class BackgroundSetting : public FilenameSetting
 class FontSetting : public FilenameSetting
 {
 	public:
-		FontSetting(OSDConsoleRenderer *console,
+		FontSetting(OSDConsoleRenderer *console, const std::string settingName,
 		            const string &filename);
-
 		virtual void setValue(const string &newValue);
 
 	private:

@@ -1,8 +1,11 @@
 // $Id$
 
 #include <iostream>
-#include "Views.hh"
+#include "DebugView.hh"
+#include "DisAsmView.hh"
 #include "DebugConsole.hh"
+#include "CommandConsole.hh"
+#include <iostream>
 
 DebugConsole* DebugConsole::instance()
 {
@@ -13,11 +16,17 @@ DebugConsole* DebugConsole::instance()
 DebugConsole::DebugConsole()
 	: debuggerSetting("debugger", "turns the debugger on or off", false)
 {
-	debuggerSetting.addListener(this);
+	SettingLeafNode * consoleSetting = SettingsManager::instance()->getByName("console");
+	consoleSetting->addListener(this);
+
+	CommandConsole::instance()->registerDebugger();
+
+//	debuggerSetting.addListener(this);
+
 	for (int i = 0; i < 20; i++) {
 		lines.push_back(" ");
 	}
-	addView (0, 0, 50, 6, DUMPVIEW);
+	addView (0, 0, 50, 6, DISSASVIEW);
 }
 
 DebugConsole::~DebugConsole()
@@ -29,12 +38,18 @@ DebugConsole::~DebugConsole()
 			delete it->second;
 		}
 	}
-	debuggerSetting.removeListener(this);
+	SettingLeafNode * consoleSetting = SettingsManager::instance()->getByName("console");
+	consoleSetting->removeListener(this);
+	
+//	debuggerSetting.removeListener(this);
 }
 
 void DebugConsole::update(const SettingLeafNode *setting)
 {
-	assert(setting == &debuggerSetting);
+	BooleanSetting * consoleSetting = (BooleanSetting *)setting;
+	if (consoleSetting->getValue()){
+		debuggerSetting.setValue(false);
+	}
 }
 
 bool DebugConsole::signalEvent(SDL_Event &event)
@@ -59,6 +74,9 @@ int DebugConsole::addView(int cursorX, int cursorY, int columns, int rows,
 	switch (viewType) {
 	case DUMPVIEW:
 		viewData->view = new DumpView(rows, columns, true);
+		break;
+	case DISSASVIEW:
+		viewData->view = new DisAsmView(rows, columns, true);
 		break;
 	default:
 		break;
@@ -183,4 +201,9 @@ void DebugConsole::setConsoleDimensions(int columns, int rows)
 	debugColumns = columns;
 	debugRows = rows;
 	buildLayout();
+}
+
+std::string DebugConsole::getId ()
+{
+	return "debugger";
 }

@@ -1,6 +1,6 @@
 // $Id$
 
-#include "Views.hh"
+#include "MemoryView.hh"
 #include "ViewControl.hh"
 #include "MSXCPUInterface.hh"
 #include "DebugInterface.hh"
@@ -10,9 +10,8 @@ ViewControl::ViewControl (MemoryView * view_)
 {
 	view = view_;
 	currentDevice = NULL;
-	currentRegister = "";
-	registerIndirect = false;
-	memoryIndirect = false;
+	currentCriterium = 0;
+	indirect = false;
 	memoryAddress = 0;
 	linked = NULL;
 	struct MSXCPUInterface::SlotSelection * slots = MSXCPUInterface::instance()->getCurrentSlots();
@@ -40,7 +39,7 @@ void ViewControl::setAddress(int address)
 
 int ViewControl::getAddress()
 {
-	if (memoryIndirect){
+	if (indirect){
 		MSXCPUInterface * msxcpu = MSXCPUInterface::instance();
 		if (useGlobalSlot){
 			return msxcpu->peekMem(memoryAddress)+256*msxcpu->peekMem(memoryAddress+1);
@@ -51,33 +50,21 @@ int ViewControl::getAddress()
 		}
 	}
 	if (!currentDevice) return -1;
-	std::map < std::string, word > regMap;
-	std::map < std::string, word >::iterator it;
-	bool succes = currentDevice->getRegisters (regMap);
-	if (succes){
-		for (it = regMap.begin(); it != regMap.end();it++){
-			if (it->first == currentRegister){
-				return it->second;
-			}
-		}
-	}
-	return -1; //unable to find the right register
+	return currentDevice->readDebugData(currentCriterium);
 }
 
-bool ViewControl::linkToRegisterName(DebugInterface * device, std::string regName)
+bool ViewControl::linkToCriterium(DebugInterface * device, std::string criteria)
 {
 	currentDevice = device;
-	std::map < std::string, word > regMap;
-	std::map < std::string, word >::iterator it;
-	bool succes = currentDevice->getRegisters (regMap);
-	if (succes){
-		for (it = regMap.begin(); it != regMap.end();it++){
-			if (it->first == currentRegister){
-				return it->second;
-			}
-		}
+	if ((criteria[0] >= '0') && (criteria[0] <= '9')){
+		currentCriterium = atoi (criteria.c_str());
+		return true;
 	}
-	currentRegister = regName;
-	return true;
-
+	else{
+		currentCriterium = currentDevice->getRegisterNumber(criteria);
+	}
+	if (currentCriterium != 0xffff){
+		return true;
+	}
+	return false;
 }

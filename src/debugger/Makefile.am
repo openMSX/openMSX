@@ -7,6 +7,8 @@ AM_CXXFLAGS_BASE = -Wall -pipe `test -f $(srcdir)/../.debug && echo "-DDEBUG"` \
 	-I$(srcdir)/../cpu \
 	-I$(srcdir)/../events \
 	-I$(srcdir)/../console \
+	-I$(srcdir)/../config \
+	-I$(srcdir)/../file \
 	@XML_CFLAGS@ @SDL_CFLAGS@
 if PROFILE
 AM_CXXFLAGS = $(AM_CXXFLAGS_BASE) -pg
@@ -20,7 +22,10 @@ endif
 
 noinst_LTLIBRARIES = libDebugger.la
 libDebugger_la_SOURCES = \
-	Views.cc Views.hh \
+	DebugView.cc DebugView.hh \
+	MemoryView.cc MemoryView.hh \
+	DumpView.cc DumpView.hh \
+	DisAsmView.cc DisAsmView.hh \
 	DebugConsole.cc DebugConsole.hh \
 	ViewControl.cc ViewControl.hh \
 	DebugInterface.cc DebugInterface.hh

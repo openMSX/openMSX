@@ -41,6 +41,8 @@ CommandConsole::~CommandConsole()
 	EventDistributor::instance()->unregisterEventListener(SDL_KEYDOWN, this);
 	EventDistributor::instance()->unregisterEventListener(SDL_KEYUP,   this);
 	consoleSetting.removeListener(this);
+	SettingLeafNode * debugSetting = dynamic_cast<SettingLeafNode *> (SettingsManager::instance()->getByName("debugger"));
+	debugSetting->removeListener(this);
 }
 
 CommandConsole *CommandConsole::instance()
@@ -51,13 +53,26 @@ CommandConsole *CommandConsole::instance()
 
 void CommandConsole::update(const SettingLeafNode *setting)
 {
-	assert(setting == &consoleSetting);
-	updateConsole();
-	if (consoleSetting.getValue()) {
-		SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,
-		                    SDL_DEFAULT_REPEAT_INTERVAL);
-	} else {
-		SDL_EnableKeyRepeat(0, 0);
+	SettingLeafNode * debugSetting = dynamic_cast<SettingLeafNode *> (SettingsManager::instance()->getByName("debugger"));
+	if (setting == debugSetting){
+		BooleanSetting * debuggerSetting = (BooleanSetting *)setting;
+		if (debuggerSetting->getValue()){
+			consoleSetting.setValue(false);
+		}
+		
+	}
+	else if (setting == &consoleSetting) {
+		updateConsole();
+		if (consoleSetting.getValue()) {
+			SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,
+				SDL_DEFAULT_REPEAT_INTERVAL);
+		} 	
+		else {
+			SDL_EnableKeyRepeat(0,0);
+		}
+	}
+	else{
+		assert (false);
 	}
 }
 
@@ -149,6 +164,7 @@ void CommandConsole::setConsoleDimensions(int columns, int rows)
 		return;
 	}
 	consoleColumns = columns;
+	
 	CircularBuffer<string, LINESHISTORY> linesbackup;
 	CircularBuffer<bool, LINESHISTORY> flowbackup;
 	
@@ -275,6 +291,7 @@ void CommandConsole::combineLines(CircularBuffer<string, LINESHISTORY> &buffer,
 		}
 		for (int i = startline; i >= startline-totallines; --i) {
 			editLine += buffer[i];
+
 		}
 		for (int i = 0; i < (totallines + 1); ++i) {
 			buffer.removeBack();
@@ -523,4 +540,16 @@ void CommandConsole::normalKey(char chr)
 void CommandConsole::resetScrollBack()
 {
 	consoleScrollBack = 0;
+}
+
+void CommandConsole::registerDebugger()
+{
+	SettingLeafNode * debugSetting = dynamic_cast<SettingLeafNode *> (SettingsManager::instance()->getByName("debugger"));
+	debugSetting->addListener(this);
+	
+}
+
+std::string CommandConsole::getId ()
+{
+	return "console";
 }

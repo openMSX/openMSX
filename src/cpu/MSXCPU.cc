@@ -133,3 +133,37 @@ bool MSXCPU::getRegisters(map<string, word>& regMap)
 	regMap["2IR"]  = activeCPU->R.I * 256 + activeCPU->R.R;
 	return true;
 }
+
+dword MSXCPU::getDataSize ()
+{
+	return 26; // number of 8 bits registers (16 bits = 2 registers)
+}
+
+byte MSXCPU::readDebugData (dword address)
+{
+	assert (address >= getDataSize());
+	CPU::CPURegs * regs = &activeCPU->R; 
+	static const CPU::z80regpair * registers[] = {
+		&regs->AF, &regs->BC, &regs->DE, &regs->HL, 
+		&regs->AF2, &regs->BC2,	&regs->DE2, &regs->HL2, 
+		&regs->IX, &regs->IY, &regs->PC, &regs->SP};
+	switch (address){
+	case 24:
+		return regs->I;
+	case 25:
+		return regs->R;
+	default:
+		if (address & 1){
+			return registers[(address-1) >> 1]->B.l;
+		}
+		else{
+			return registers[(address) >> 1]->B.h;
+		}
+		break;
+	}
+}
+
+std::string MSXCPU::getDeviceName ()
+{
+	return "cpu";
+}
