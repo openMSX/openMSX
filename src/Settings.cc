@@ -98,7 +98,10 @@ void FloatSetting::setRange(const float minValue, const float maxValue)
 
 	// update the setting type to the new range
 	ostringstream out;
-	out << std::setprecision(2) << std::fixed << std::showpoint
+	out << std::setprecision(2)
+		<< std::setiosflags(std::ios_base::fixed | std::ios_base::showpoint)
+		// clearer, but doesn't work on GCC 2.95:
+		// << std::fixed << std::showpoint
 		<< minValue << " - " << maxValue;
 	type = out.str();
 
@@ -108,7 +111,10 @@ void FloatSetting::setRange(const float minValue, const float maxValue)
 string FloatSetting::getValueString() const
 {
 	ostringstream out;
-	out << std::setprecision(2) << std::fixed << std::showpoint
+	out << std::setprecision(2)
+		<< std::setiosflags(std::ios_base::fixed | std::ios_base::showpoint)
+		// clearer, but doesn't work on GCC 2.95:
+		// << std::fixed << std::showpoint
 		<< value;
 	return out.str();
 }
