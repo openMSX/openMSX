@@ -51,16 +51,16 @@ LocalFile::~LocalFile()
 
 void LocalFile::read(byte* buffer, int num)
 {
-	fread(buffer, 1, num, file);
-	if (ferror(file)) {
+	size_t left = fread(buffer, 1, num, file);
+	if (left || ferror(file)) {
 		throw FileException("Error reading file");
 	}
 }
 
 void LocalFile::write(const byte* buffer, int num)
 {
-	fwrite(buffer, 1, num, file);
-	if (ferror(file)) {
+	size_t left = fwrite(buffer, 1, num, file);
+	if (left || ferror(file)) {
 		throw FileException("Error writing file");
 	}
 }
