@@ -23,6 +23,10 @@ public:
 	  */
 	const ValueType& getValue() const { return value; }
 
+	/** Get the default value of this setting
+	  */
+	const ValueType& getDefaultValue() const { return defaultValue; }
+
 	/** Changes the current value of this setting.
 	  * If the given value is invalid, it will be mapped to the closest
 	  * valid value.
