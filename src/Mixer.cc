@@ -148,6 +148,6 @@ void Mixer::updtStrm(int samples)
 void Mixer::pause(bool status)
 {
 	if (nbAllDevices == 0)
-		status = true;
+		return;
 	SDL_PauseAudio(status);
 }
