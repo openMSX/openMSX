@@ -12,7 +12,7 @@ MSXPSG::MSXPSG(MSXConfig::Device *config, const EmuTime &time)
 {
 	PRT_DEBUG("Creating an MSXPSG object");
 	
-	ay8910 = new AY8910(*this);
+	ay8910 = new AY8910(*this, time);
 	joyPorts = JoystickPorts::instance();
 	cassette = MSXCassettePort::instance();
 	
@@ -34,7 +34,7 @@ void MSXPSG::reset(const EmuTime &time)
 {
 	MSXDevice::reset(time);
 	registerLatch = 0;
-	ay8910->reset();
+	ay8910->reset(time);
 }
 
 byte MSXPSG::readIO(byte port, EmuTime &time)

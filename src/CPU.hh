@@ -17,7 +17,7 @@ class CPU
 		/**
 		 * Reset the CPU
 		 */
-		virtual void reset() = 0;
+		virtual void reset(const EmuTime &time) = 0;
 
 		/**
 		 * Emulated CPU till a given target-time. This implicitly calls

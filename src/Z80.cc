@@ -21,26 +21,7 @@
 #include "Z80Dasm.h"
 #endif
 
-Z80::Z80(CPUInterface *interf, int waitCycl) : CPU(interf)
-{
-	init();
-	waitCycles = waitCycl;
-}
-Z80::~Z80()
-{
-}
-
-void Z80::setCurrentTime(const EmuTime &time)
-{
-	currentTime = time;
-}
-const EmuTime &Z80::getCurrentTime()
-{
-	return currentTime;
-}
-
-// Initialise the various lookup tables used by the emulation code
-void Z80::init ()
+Z80::Z80(CPUInterface *interf, int waitCycl, const EmuTime &time) : CPU(interf)
 {
 	for (int i=0; i<256; ++i) {
 		byte zFlag = (i==0) ? Z_FLAG : 0;
@@ -62,13 +43,26 @@ void Z80::init ()
 		ZSXYTable[i]  = zFlag | sFlag | xFlag | yFlag;
 		ZSPXYTable[i] = zFlag | sFlag | xFlag | yFlag | pFlag;
 	}
+	waitCycles = waitCycl;
+}
+Z80::~Z80()
+{
+}
+
+void Z80::setCurrentTime(const EmuTime &time)
+{
+	currentTime = time;
+}
+const EmuTime &Z80::getCurrentTime()
+{
+	return currentTime;
 }
 
 /****************************************************************************/
 /* Reset the CPU emulation core                                             */
 /* Set registers to their initial values                                    */
 /****************************************************************************/
-void Z80::reset()
+void Z80::reset(const EmuTime &time)
 {
 	// AF and SP are 0xffff
 	// PC, R, IFF1, IFF2, HALT and IM are 0x0
@@ -96,6 +90,8 @@ void Z80::reset()
 	I = 0xff;
 	R = 0x00;
 	R2 = 0;
+
+	setCurrentTime(time);
 }
 
 /****************************************************************************/

@@ -4,23 +4,22 @@
 #include <cassert>
 
 
-I8255::I8255(I8255Interface &interf) : interface(interf)
+I8255::I8255(I8255Interface &interf, const EmuTime &time) : interface(interf)
 {
-	reset();
+	reset(time);
 }
 
 I8255::~I8255()
 {
 }
 
-void I8255::reset()
+void I8255::reset(const EmuTime &time)
 {
 	latchPortA = 0;
 	latchPortB = 0;
 	latchPortC = 0;
-	EmuTime dummy;	// 
 	writeControlPort(SET_MODE | DIRECTION_A | DIRECTION_B | 
-	                            DIRECTION_C0 | DIRECTION_C1, dummy); // all input
+	                            DIRECTION_C0 | DIRECTION_C1, time); // all input
 }
 
 byte I8255::readPortA(const EmuTime &time) {

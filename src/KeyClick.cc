@@ -7,9 +7,9 @@
 #include "MSXCPU.hh"
 
 
-KeyClick::KeyClick()
+KeyClick::KeyClick(const EmuTime &time)
 {
-	dac = new DACSound(15000);	// TODO find a good value and put it in config file
+	dac = new DACSound(15000, time);	// TODO find a good value and put it in config file
 	status = false;
 }
 
@@ -18,9 +18,9 @@ KeyClick::~KeyClick()
 	delete dac;
 }
 
-void KeyClick::reset()
+void KeyClick::reset(const EmuTime &time)
 {
-	setClick(false, MSXCPU::instance()->getCurrentTime());
+	setClick(false, time);
 }
 
 void KeyClick::setClick(bool newStatus, const EmuTime &time)

@@ -13,7 +13,7 @@ MSXRTC::MSXRTC(MSXConfig::Device *config, const EmuTime &time)
 	if (deviceConfig->getParameter("mode")=="RealTime")
 		emuTimeBased = false;
 	else	emuTimeBased = true;
-	rp5c01 = new RP5C01(emuTimeBased);
+	rp5c01 = new RP5C01(emuTimeBased, time);
 	MSXMotherBoard::instance()->register_IO_Out(0xB4,this);
 	MSXMotherBoard::instance()->register_IO_Out(0xB5,this);
 	MSXMotherBoard::instance()->register_IO_In (0xB5,this);
@@ -28,7 +28,7 @@ MSXRTC::~MSXRTC()
 void MSXRTC::reset(const EmuTime &time)
 {
 	MSXDevice::reset(time);
-	rp5c01->reset();
+	rp5c01->reset(time);
 }
 
 byte MSXRTC::readIO(byte port, EmuTime &time)

@@ -28,14 +28,14 @@ class AY8910Interface
 class AY8910 : public SoundDevice
 {
 	public:
-		AY8910(AY8910Interface &interf); 
+		AY8910(AY8910Interface &interf, const EmuTime &time); 
 		virtual ~AY8910(); 
 	
 		byte readRegister(byte reg, const EmuTime &time);
 		void writeRegister(byte reg, byte value, const EmuTime &time);
 
 		//SoundDevice
-		void reset();
+		void reset(const EmuTime &time);
 		void setInternalVolume(short newVolume);
 		void setSampleRate(int sampleRate);
 		int* updateBuffer(int length);

@@ -15,8 +15,8 @@ MSXPPI::MSXPPI(MSXConfig::Device *config, const EmuTime &time)
 	oneInstance = this;
 	
 	keyboard = new Keyboard(true); // TODO make configurable
-	i8255 = new I8255(*this);
-	click = new KeyClick();
+	i8255 = new I8255(*this, time);
+	click = new KeyClick(time);
 	
 	// Register I/O ports A8..AB for reading
 	MSXMotherBoard::instance()->register_IO_In(0xA8,this);
@@ -57,8 +57,8 @@ MSXPPI *MSXPPI::oneInstance = NULL;
 void MSXPPI::reset(const EmuTime &time)
 {
 	MSXDevice::reset(time);
-	i8255->reset();
-	click->reset();
+	i8255->reset(time);
+	click->reset(time);
 }
 
 byte MSXPPI::readIO(byte port, EmuTime &time)

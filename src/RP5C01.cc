@@ -8,9 +8,10 @@
 //TODO  1Hz 16Hz output not implemented (not connected on MSX)
 
 
-RP5C01::RP5C01(bool emuMode) 
+RP5C01::RP5C01(bool emuMode, const EmuTime &time) 
 {
 	emuTimeBased = emuMode;
+	reset(time);
 	
 	//TODO load saved state
 	
@@ -23,6 +24,8 @@ RP5C01::RP5C01(bool emuMode)
 	reg[ALARM_BLOCK][10] = 1;	// set 24hour mode
 
 	initializeTime();
+
+	reset(time);
 }
 
 RP5C01::~RP5C01()
@@ -30,9 +33,9 @@ RP5C01::~RP5C01()
 	//TODO save state
 }
 
-void RP5C01::reset()
+void RP5C01::reset(const EmuTime &time)
 {
-	reference(0);
+	updateTimeRegs(time);
 	writePort(MODE_REG, MODE_TIMERENABLE, reference);
 	writePort(TEST_REG,  0, reference);
 	writePort(RESET_REG, 0, reference);

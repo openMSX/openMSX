@@ -17,12 +17,12 @@
 #include "Mixer.hh"
 
 
-AY8910::AY8910(AY8910Interface &interf) : interface(interf)
+AY8910::AY8910(AY8910Interface &interf, const EmuTime &time) : interface(interf)
 {
 	setVolume(21000);	// TODO find a good value and put it in config file
 	int bufSize = Mixer::instance()->registerSound(this);
 	buffer = new int[bufSize];
-	reset();
+	reset(time);
 }
 
 
@@ -33,7 +33,7 @@ AY8910::~AY8910()
 }
 
 
-void AY8910::reset()
+void AY8910::reset(const EmuTime &time)
 {
 	oldEnable = 0;
 	random = 1;
@@ -41,9 +41,8 @@ void AY8910::reset()
 	outputN = 0xff;
 	periodA = periodB = periodC = periodN = periodE = 0;
 	countA  = countB  = countC  = countN  = countE  = 0;
-	EmuTime dummy;
 	for (int i=0; i<=15; i++) {
-		wrtReg(i, 0, dummy);
+		wrtReg(i, 0, time);
 	}
 	setInternalMute(true);	// set muted 
 }

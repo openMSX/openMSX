@@ -12,10 +12,10 @@
 class KeyClick
 {
 	public:
-		KeyClick(); 
+		KeyClick(const EmuTime &time); 
 		virtual ~KeyClick(); 
 	
-		void reset();
+		void reset(const EmuTime &time);
 		void setClick(bool status, const EmuTime &time);
 
 	private:

@@ -13,7 +13,7 @@
 #include "MSXRealTime.hh"
 
 
-DACSound::DACSound(short maxVolume)
+DACSound::DACSound(short maxVolume, const EmuTime &time)
 {
 	PRT_DEBUG("DAC audio created");
 	
@@ -21,7 +21,7 @@ DACSound::DACSound(short maxVolume)
 	buf = new int[bufSize];
 	
 	setVolume(maxVolume);
-	reset();
+	reset(time);
 }
 
 
@@ -32,8 +32,9 @@ DACSound::~DACSound()
 	delete[] buf;
 }
 
-void DACSound::reset()
+void DACSound::reset(const EmuTime &time)
 {
+	ref = time;
 	bufWriteIndex = bufReadIndex = 0;	// empty sample buffer
 	DACValue = CENTER;
 	left = 1; tempVal = 0;

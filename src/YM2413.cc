@@ -62,7 +62,6 @@ int YM2413::EXPAND_BITS(int x, int s, int d) { return x<<(d-s); }
 int YM2413::rate_adjust(int x, int rate) { return (int)((double)x*CLOCK_FREQ/72/rate + 0.5); } // +0.5 to round
 
 
-bool YM2413::alreadyInitialized = false;
 word YM2413::fullsintable[PG_WIDTH];
 word YM2413::halfsintable[PG_WIDTH];
 int YM2413::dphaseNoiseTable[512][8];
@@ -622,7 +621,14 @@ YM2413::YM2413()
 		slot[i]->plfo_am = &lfo_am;
 		slot[i]->plfo_pm = &lfo_pm;
 	}
-	init();	// must be before registerSound()
+	makePmTable();
+	makeAmTable();
+	makeAdjustTable();
+	makeTllTable();
+	makeRksTable();
+	makeSinTable();
+	makeDefaultPatch();
+	
 	reset();
 	reset_patch();
 
@@ -679,28 +685,12 @@ void YM2413::reset()
 
 void YM2413::setSampleRate(int sampleRate)
 {
-	if (!alreadyInitialized) {
-		makeDphaseTable(sampleRate);
-		makeDphaseARTable(sampleRate);
-		makeDphaseDRTable(sampleRate);
-		makeDphaseNoiseTable(sampleRate);
-		pm_dphase = (int)rate_adjust(PM_SPEED*PM_DP_WIDTH/(CLOCK_FREQ/72), sampleRate);
-		am_dphase = (int)rate_adjust(AM_SPEED*AM_DP_WIDTH/(CLOCK_FREQ/72), sampleRate);
-		alreadyInitialized = true;
-	}
-}
-
-void YM2413::init()
-{
-	if (!alreadyInitialized) {
-		makePmTable();
-		makeAmTable();
-		makeAdjustTable();
-		makeTllTable();
-		makeRksTable();
-		makeSinTable();
-		makeDefaultPatch();
-	}
+	makeDphaseTable(sampleRate);
+	makeDphaseARTable(sampleRate);
+	makeDphaseDRTable(sampleRate);
+	makeDphaseNoiseTable(sampleRate);
+	pm_dphase = (int)rate_adjust(PM_SPEED*PM_DP_WIDTH/(CLOCK_FREQ/72), sampleRate);
+	am_dphase = (int)rate_adjust(AM_SPEED*AM_DP_WIDTH/(CLOCK_FREQ/72), sampleRate);
 }
 
 

@@ -31,10 +31,10 @@ class I8255Interface
 class I8255
 {
 	public:
-		I8255(I8255Interface &interf); 
+		I8255(I8255Interface &interf, const EmuTime &time); 
 		~I8255(); 
 		
-		void reset();
+		void reset(const EmuTime &time);
 	
 		byte readPortA(const EmuTime &time);
 		byte readPortB(const EmuTime &time);

@@ -100,7 +100,6 @@ class YM2413 : public SoundDevice
 		int* updateBuffer(int length);
 
 	private:
-		void init();
 		int calcSample();
 	
 		void checkMute();
@@ -265,11 +264,6 @@ class YM2413 : public SoundDevice
 		// dB to linear table (used by Slot)
 		short dB2LinTab[(DB_MUTE+DB_MUTE)*2];
 
-
-		//// static variables ////
-		// These are share between all YM2413 objects
-		// They only need to be calculated once
-		static bool alreadyInitialized;
 
 		// WaveTable for each envelope amp 
 		static word fullsintable[PG_WIDTH];

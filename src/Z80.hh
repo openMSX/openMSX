@@ -45,10 +45,10 @@ typedef void (Z80::*opcode_fn)();
 
 class Z80 : public CPU {
 	public:
-		Z80(CPUInterface *interf, int waitCycles);
+		Z80(CPUInterface *interf, int waitCycles, const EmuTime &time);
 		virtual ~Z80();
 		
-		void reset();
+		void reset(const EmuTime &time);
 
 		/**
 		 * Execute CPU till a previously set target-time, the target
@@ -62,7 +62,6 @@ class Z80 : public CPU {
 	private:
 		inline void executeInstruction(byte opcode);
 		inline void M1Cycle();
-		void init();
 		
 		#include "Z80Core.hh"
 
