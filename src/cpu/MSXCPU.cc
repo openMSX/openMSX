@@ -1,12 +1,15 @@
 // $Id$
 
 #include <cassert>
+#include <sstream>
 #include "MSXCPU.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXConfig.hh"
 #include "DebugInterface.hh"
 #include "CPU.hh"
+#include "InfoCommand.hh"
 
+using std::ostringstream;
 
 namespace openmsx {
 
@@ -16,10 +19,13 @@ MSXCPU::MSXCPU()
 {
 	activeCPU = &z80;	// setActiveCPU(CPU_Z80);
 	reset(EmuTime::zero);
+
+	InfoCommand::instance().registerTopic("time", &timeInfo);
 }
 
 MSXCPU::~MSXCPU()
 {
+	InfoCommand::instance().unregisterTopic("time", &timeInfo);
 }
 
 MSXCPU* MSXCPU::instance()
@@ -44,6 +50,8 @@ void MSXCPU::reset(const EmuTime &time)
 {
 	z80 .reset(time);
 	r800.reset(time);
+
+	reference = time;
 }
 
 
@@ -181,6 +189,26 @@ const string& MSXCPU::getDeviceName() const
 {
 	static const string NAME("cpu");
 	return NAME;
+}
+
+
+// class TimeInfoTopic
+
+string MSXCPU::TimeInfoTopic::execute(const vector<string>& tokens) const
+	throw()
+{
+	MSXCPU* cpu = MSXCPU::instance();
+	EmuDuration dur = cpu->getCurrentTime() - cpu->reference;
+	ostringstream str;
+	str.precision(3);
+	str << std::fixed << std::showpoint << dur.toFloat() << '\n';
+	return str.str();
+}
+
+string MSXCPU::TimeInfoTopic::help(const vector<string>& tokens) const
+	throw()
+{
+	return "Prints the time in seconds that the MSX is powered on\n";
 }
 
 } // namespace openmsx

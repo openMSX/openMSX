@@ -4,6 +4,7 @@
 #define __MSXCPU_HH__
 
 #include "DebugInterface.hh"
+#include "InfoTopic.hh"
 #include "Z80.hh"
 #include "R800.hh"
 
@@ -87,6 +88,15 @@ private:
 	R800 r800;
 
 	CPU* activeCPU;
+
+	class TimeInfoTopic : public InfoTopic {
+	public:
+		virtual string execute(const vector<string>& tokens) const
+			throw();
+		virtual string help   (const vector<string>& tokens) const
+			throw();
+	} timeInfo;
+	EmuTime reference;
 };
 
 } // namespace openmsx

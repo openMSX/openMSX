@@ -7,6 +7,7 @@ SRC_HDR:= \
 
 HDR_ONLY:= \
 	Command \
+	CommandException \
 	InfoTopic
 
 $(eval $(PROCESS_NODE))

@@ -5,6 +5,7 @@
 
 #include <string>
 #include <vector>
+#include "CommandException.hh"
 
 using std::string;
 using std::vector;

@@ -11,7 +11,6 @@ using std::map;
 
 namespace openmsx {
 
-
 class InfoCommand : public Command
 {
 public:
@@ -20,11 +19,11 @@ public:
 	void unregisterTopic(const string& name, const InfoTopic* topic);
 	
 	// Command
-	virtual string execute(const vector<string> &tokens)
+	virtual string execute(const vector<string>& tokens)
 		throw(CommandException);
-	virtual string help(const vector<string> &tokens) const
+	virtual string help(const vector<string>& tokens) const
 		throw(CommandException);
-	virtual void tabCompletion(vector<string> &tokens) const
+	virtual void tabCompletion(vector<string>& tokens) const
 		throw();
 
 private:
@@ -36,9 +35,9 @@ private:
 
 	class VersionInfo : public InfoTopic {
 	public:
-		virtual string execute(const vector<string> &tokens) const
+		virtual string execute(const vector<string>& tokens) const
 			throw();
-		virtual string help   (const vector<string> &tokens) const
+		virtual string help   (const vector<string>& tokens) const
 			throw();
 	} versionInfo;
 };

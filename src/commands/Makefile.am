@@ -24,7 +24,7 @@ endif
 
 noinst_LTLIBRARIES = libCommands.la
 libCommands_la_SOURCES = \
-	Command.hh \
+	Command.hh CommandException.hh \
 	CommandController.cc CommandController.hh \
 	InfoCommand.cc InfoCommand.hh \
 	InfoTopic.hh \

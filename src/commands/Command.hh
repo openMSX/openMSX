@@ -5,6 +5,7 @@
 
 #include <string>
 #include <vector>
+#include "CommandException.hh"
 #include "MSXException.hh"
 
 using std::string;
@@ -12,12 +13,6 @@ using std::vector;
 
 
 namespace openmsx {
-
-class CommandException : public MSXException {
-	public:
-		CommandException(const string &desc_)
-			: MSXException(desc_) {}
-};
 
 class Command
 {
