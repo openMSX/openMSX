@@ -353,7 +353,7 @@ template <class Pixel> void SDLHiRenderer<Pixel>::reset(const EmuTime &time)
 	if (!vdp->isMSX1VDP()) {
 		// Reset the palette.
 		for (int i = 0; i < 16; i++) {
-			updatePalette(i, vdp->getPalette(i), time);
+			setPalette(i, vdp->getPalette(i));
 		}
 	}
 }
@@ -454,7 +454,12 @@ template <class Pixel> void SDLHiRenderer<Pixel>::updatePalette(
 	int index, int grb, const EmuTime &time)
 {
 	sync(time);
+	setPalette(index, grb);
+}
 
+template <class Pixel> void SDLHiRenderer<Pixel>::setPalette(
+	int index, int grb)
+{
 	// Update SDL colours in palette.
 	palFg[index] = palBg[index] =
 		V9938_COLOURS[(grb >> 4) & 7][grb >> 8][grb & 7];
