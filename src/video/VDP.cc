@@ -33,7 +33,6 @@ TODO:
 #include "RenderSettings.hh"
 #include "RendererFactory.hh"
 #include "Debugger.hh"
-#include "Scheduler.hh"
 
 
 namespace openmsx {
@@ -120,21 +119,8 @@ VDP::VDP(Device* config, const EmuTime& time)
 	Debugger::instance().registerDebuggable("vdp-regs", vdpRegDebug);
 	Debugger::instance().registerDebuggable("vdp-status-regs", vdpStatusRegDebug);
 
-	// Initialise time stamps.
-	// This will be done again by frameStart, but these have to be
-	// initialised before reset() is called.
-	// TODO: Can this be simplified with a different design?
-	frameStartTime = time;
-	displayStartSyncTime = time;
-	vScanSyncTime = time;
-	hScanSyncTime = time;
-
 	// Reset state.
 	reset(time);
-
-	// Init scheduling.
-	frameStart(time);
-
 }
 
 VDP::~VDP()
@@ -195,7 +181,6 @@ void VDP::resetInit(const EmuTime &time)
 	};
 	// Init the palette.
 	memcpy(palette, V9938_PALETTE, 16 * sizeof(word));
-
 }
 
 void VDP::resetMasks(const EmuTime &time)
@@ -214,6 +199,24 @@ void VDP::resetMasks(const EmuTime &time)
 
 void VDP::reset(const EmuTime &time)
 {
+	Scheduler::instance().removeSyncPoint(this, VSYNC);
+	Scheduler::instance().removeSyncPoint(this, FRAME_START);
+	Scheduler::instance().removeSyncPoint(this, DISPLAY_START);
+	Scheduler::instance().removeSyncPoint(this, VSCAN);
+	Scheduler::instance().removeSyncPoint(this, HSCAN);
+	Scheduler::instance().removeSyncPoint(this, HOR_ADJUST);
+	Scheduler::instance().removeSyncPoint(this, SET_MODE);
+	Scheduler::instance().removeSyncPoint(this, SET_BLANK);
+
+	// Initialise time stamps.
+	// This will be done again by frameStart, but these have to be
+	// initialised before reset() is called.
+	// TODO: Can this be simplified with a different design?
+	frameStartTime = time;
+	displayStartSyncTime = time;
+	vScanSyncTime = time;
+	hScanSyncTime = time;
+
 	resetInit(time);
 	
 	// Reset subsystems.
@@ -223,6 +226,9 @@ void VDP::reset(const EmuTime &time)
 
 	// Tell the subsystems of the new mask values.
 	resetMasks(time);
+
+	// Init scheduling.
+	frameStart(time);
 }
 
 void VDP::executeUntil(const EmuTime &time, int userData) throw()
