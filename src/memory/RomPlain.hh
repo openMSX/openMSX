@@ -7,6 +7,8 @@
 
 namespace openmsx {
 
+class XMLElement;
+
 class RomPlain : public Rom8kBBlocks
 {
 public:
@@ -16,7 +18,7 @@ public:
 
 private:
 	void guessHelper(word offset, int* pages);
-	word guessLocation();
+	word guessLocation(const XMLElement& config);
 };
 
 } // namespace openmsx

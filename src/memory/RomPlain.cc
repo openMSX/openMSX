@@ -24,7 +24,7 @@ RomPlain::RomPlain(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> 
 			}
 			break;
 		case 0x8000:	// 32kB
-			if (guessLocation() & 0x4000) {
+			if (guessLocation(config) & 0x4000) {
 				for (int i = 0; i < 4; i++) {
 					setRom(i, i & 1);
 				}
@@ -38,7 +38,7 @@ RomPlain::RomPlain(const XMLElement& config, const EmuTime& time, auto_ptr<Rom> 
 			}
 			break;
 		case 0xC000:	// 48kB
-			if (guessLocation() & 0x4000) {
+			if (guessLocation(config) & 0x4000) {
 				setRom(0, 0);
 				setRom(1, 1);
 				for (int i = 0; i < 6; i++) {
@@ -83,7 +83,7 @@ void RomPlain::guessHelper(word offset, int* pages)
 	}
 }
 
-word RomPlain::guessLocation()
+word RomPlain::guessLocation(const XMLElement& config)
 {
 	int pages[3] = { 0, 0, 0 };
 
@@ -106,22 +106,12 @@ word RomPlain::guessLocation()
 		return 0x8000;
 	}
 
-	int lowest = 4;
-	const XMLElement::Children& children = deviceConfig.getChildren();
-	for (XMLElement::Children::const_iterator it = children.begin();
-	     it != children.end(); ++it) {
-		if ((*it)->getName() == "slotted") {
-			XMLElement::Children slot_children;
-			(*it)->getChildren("page", slot_children);
-			for (XMLElement::Children::const_iterator it2 = slot_children.begin();
-			     it2 != slot_children.end(); ++it2) {
-				int page = StringOp::stringToInt((*it2)->getData());
-				lowest = min(lowest, page);
-			}
-		}
+	const XMLElement* mem = config.findChild("mem");
+	if (mem) {
+		return mem->getAttributeAsInt("base");
+	} else {
+		return 0;
 	}
-
-	return (lowest * 0x4000) & 0xFFFF;
 }
 
 } // namespace openmsx
