@@ -772,7 +772,7 @@ byte VDP::readIO(byte port, const EmuTime &time)
 			//       VR is probably part of that, so use it.
 			int displayEnd =
 				displayStart + getNumberOfLines() * TICKS_PER_LINE;
-			bool vr = ticksThisFrame < displayStart
+			bool vr = ticksThisFrame < displayStart - TICKS_PER_LINE
 			       || ticksThisFrame >= displayEnd;
 
 			return statusReg2
