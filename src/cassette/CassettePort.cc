@@ -3,6 +3,7 @@
 #include <memory> // for auto_ptr
 #include "CassettePort.hh"
 #include "CassetteDevice.hh"
+#include "CassettePlayer.hh"
 #include "DummyCassetteDevice.hh"
 #include "PluggingController.hh"
 #include "HardwareConfig.hh"
@@ -85,10 +86,16 @@ CassettePort::CassettePort()
 {
 	buffer = new short[BUFSIZE];
 	PluggingController::instance().registerConnector(this);
+
+	cassettePlayer = new CassettePlayer();
+	PluggingController::instance().registerPluggable(cassettePlayer);
 }
 
 CassettePort::~CassettePort()
 {
+	PluggingController::instance().unregisterPluggable(cassettePlayer);
+	delete cassettePlayer;
+	
 	PluggingController::instance().unregisterConnector(this);
 	delete[] buffer;
 }

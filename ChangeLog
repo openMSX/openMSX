@@ -1,5 +1,8 @@
 $Id$
 
+2004-03-22 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Don't instantiate CassettePlayer when there is no CassettePort
+
 2004-03-20 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented a very basic fps indicator
 	* Don't send fps as 'update' events, but make it queryable 

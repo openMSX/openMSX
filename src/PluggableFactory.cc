@@ -5,7 +5,6 @@
 #include "PluggableFactory.hh"
 #include "PluggingController.hh"
 
-#include "CassettePlayer.hh"
 #include "JoyNet.hh"
 #include "Joystick.hh"
 #include "KeyJoystick.hh"
@@ -54,10 +53,6 @@ void PluggableFactory::createAll(PluggingController *controller)
 	MidiInNative::registerAll(controller);
 	MidiOutNative::registerAll(controller);
 #endif
-
-	// Cassette:
-	controller->registerPluggable(new CassettePlayer());
-
 }
 
 } // namespace openmsx
