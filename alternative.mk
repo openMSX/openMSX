@@ -20,6 +20,17 @@ NODEPEND_TARGETS:=clean config
 # Mark all logical targets as such.
 .PHONY: $(DEPEND_TARGETS) $(NODEPEND_TARGETS)
 
+# Default target; make sure this is always the first target in this Makefile.
+MAKECMDGOALS?=default
+default: all
+
+
+# Build Base
+# ==========
+
+# All created files will be inside this directory.
+BUILD_BASE:=derived
+
 
 # Settings
 # ========
@@ -43,6 +54,10 @@ BOOLCHECK=$(strip \
 		$(error Value of $(1) ("$($(1))") should be "true" or "false") ) \
 	)
 
+# Shell function for indenting output.
+# Usage: command | $(INDENT)
+INDENT:=sed -e "s/^/  /"
+
 # Will be added to by platform specific Makefile, by flavour specific Makefile
 # and by this Makefile.
 # Note: LDFLAGS are passed to the linker itself, LINK_FLAGS are passed to the
@@ -61,10 +76,32 @@ LINK_FLAGS:=
 # experience with cross-compilation, a more sophisticated system can be
 # designed.
 
-# Default platform: probably most CVS users will have this.
-OPENMSX_PLATFORM?=linux-x86
+DETECTSYS_PATH:=$(BUILD_BASE)/detectsys
+DETECTSYS_MAKE:=$(DETECTSYS_PATH)/detectsys.mk
+DETECTSYS_SCRIPT:=$(DETECTSYS_PATH)/detectsys
+DETECTSYS_AC:=detectsys.ac
+DETECTSYS_INPUT:=detectsys.mk.in
+
+-include $(DETECTSYS_MAKE)
+
+$(DETECTSYS_MAKE): $(DETECTSYS_SCRIPT) $(DETECTSYS_INPUT)
+	@echo "Autodetecting native system:"
+	@cp $(DETECTSYS_INPUT) $(@D)
+	@cd $(@D) ; sh $(notdir $(DETECTSYS_SCRIPT)) | $(INDENT)
+
+# Note: This step needs autoconf, but by shipping DETECTSYS_SCRIPT in source
+#       releases, we avoid this step being triggered.
+$(DETECTSYS_SCRIPT): $(DETECTSYS_AC)
+	@echo "Creating system autodetect script..."
+	@mkdir -p $(@D)
+	@cp $? $(@D)
+	@cd $(@D) ; autoconf $< > $(@F)
+
+
+ifneq ($(origin OPENMSX_PLATFORM),undefined)
 
 # Load platform specific settings.
+$(call DEFCHECK,OPENMSX_PLATFORM)
 include platform-$(OPENMSX_PLATFORM).mk
 
 # Check that all expected variables were defined by platform specific Makefile:
@@ -107,15 +144,18 @@ endef
 
 define PROCESS_NODE
 # Process this node.
-SOURCES_FULL+=$$(addprefix $$(CURDIR)/,$$(addsuffix .cc,$(SRC_HDR)))
-SOURCES_FULL+=$$(addprefix $$(CURDIR)/,$$(SRC_ONLY))
-HEADERS_FULL+=$$(addprefix $$(CURDIR)/,$$(addsuffix .hh,$(SRC_HDR)))
-HEADERS_FULL+=$$(addprefix $$(CURDIR)/,$$(HDR_ONLY))
+SOURCES_FULL+=$$(sort \
+	$$(addprefix $$(CURDIR)/,$$(addsuffix .cc,$(SRC_HDR))) \
+	$$(addprefix $$(CURDIR)/,$$(SRC_ONLY)) \
+	)
+HEADERS_FULL+=$$(sort \
+	$$(addprefix $$(CURDIR)/,$$(addsuffix .hh,$(SRC_HDR))) \
+	$$(addprefix $$(CURDIR)/,$$(HDR_ONLY)) \
+	)
 # Process subnodes.
-$$(foreach dir,$$(SUBDIRS),$$(eval $$(call PROCESS_SUBDIR,$$(dir))))
+$$(foreach dir,$$(sort $$(SUBDIRS)),$$(eval $$(call PROCESS_SUBDIR,$$(dir))))
 endef
 
-BUILD_BASE:=derived
 BUILD_PATH:=$(BUILD_BASE)/$(OPENMSX_PLATFORM)-$(OPENMSX_FLAVOUR)
 
 SOURCES_PATH:=src
@@ -206,8 +246,6 @@ LINK_FLAGS+=$(foreach lib,$(LIBS_CONFIG),$(shell $(lib)-config --libs))
 # Build Rules
 # ===========
 
-# Default target; make sure this is always the first target in this Makefile.
-MAKECMDGOALS?=all
 all: config $(BINARY_FULL)
 
 config:
@@ -300,3 +338,5 @@ else
 # USE_PRECOMPH == false
 PRECOMPH_FLAGS:=
 endif
+
+endif # OPENMSX_PLATFORM
