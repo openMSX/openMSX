@@ -10,7 +10,6 @@ RomPageNN::RomPageNN(const XMLElement& config, const EmuTime& time, auto_ptr<Rom
 {
 	int bank = 0;
 	for (int page = 0; page < 4; page++) {
-		fprintf(stderr, "page %d: ", page);
 		if (pages & (1 << page)) {
 			setRom(page * 2, bank++);
 			setRom(page * 2 + 1, bank++);
