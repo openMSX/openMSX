@@ -574,7 +574,7 @@ This renderer uses a window of only 320&times;240 pixels.
 For 256&times;212 MSX modes, this is a good fit.
 For 512&times;212 MSX modes, two pixels will be interpolated to produce
 a single output pixel.
-This renderer is mainly useful if you have a slow computer.
+This renderer is mainly useful if you have a slow computer. However, most programs use only the lower resolution screen modes (i.e. not MSX-Basic screen modes `0 width 80', 6 and 7), so using SDLLo will not mean that you lose any pixels. In full screen mode, this looks exactly the same as SDLHi, whilst using a lot less CPU.
 </dd>
 
 </dl>
@@ -759,7 +759,7 @@ Each sound device in the MSX you are emulating also has its own volume setting. 
 </p>
 
 <p>
-All mono sound devices have an additional mode setting. You can use it to select whether this device should be audible on the left channel ("left"), the right channel ("right") or both channels ("mono"). Example: <code>set psg_mode left</code>.
+All mono sound devices have an additional mode setting. You can use it to select whether this device should be audible on the left channel ("left"), the right channel ("right") or both channels ("mono"). Example: <code>set PSG_mode left</code>.
 </p>
 
 <h3><a id="midi">7.2. MIDI</a></h3>
