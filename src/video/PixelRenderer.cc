@@ -101,81 +101,6 @@ inline void PixelRenderer::subdivide(
 	if (drawLast) draw(clipL, endY, endX, endY + 1, drawType);
 }
 
-inline void PixelRenderer::renderUntil(const EmuTime &time)
-{
-	if (curFrameSkip != 0) return;
-
-	// Translate from time to pixel position.
-	int limitTicks = vdp->getTicksThisFrame(time);
-	assert(limitTicks <= vdp->getTicksPerFrame());
-	int limitX, limitY;
-	switch (settings->getAccuracy()->getValue()) {
-	case RenderSettings::ACC_PIXEL: {
-		limitX = limitTicks % VDP::TICKS_PER_LINE;
-		limitY = limitTicks / VDP::TICKS_PER_LINE;
-		break;
-	}
-	case RenderSettings::ACC_LINE: {
-		// Note: I'm not sure the rounding point is optimal.
-		//       It used to be based on the left margin, but that doesn't work
-		//       because the margin can change which leads to a line being
-		//       rendered even though the time doesn't advance.
-		limitX = 0;
-		limitY =
-			(limitTicks + VDP::TICKS_PER_LINE - 400) / VDP::TICKS_PER_LINE;
-		break;
-	}
-	case RenderSettings::ACC_SCREEN: {
-		// TODO: Implement.
-		return;
-	}
-	default:
-		assert(false);
-	}
-
-	// Stop here if there is nothing to render.
-	// This ensures that no pixels are rendered in a series of updates that
-	// happen at exactly the same time; the VDP subsystem states may be
-	// inconsistent until all updates are performed.
-	// Also it is a small performance optimisation.
-	if (limitX == nextX && limitY == nextY) return;
-
-	if (displayEnabled) {
-		// Update sprite checking, so that subclass can call getSprites.
-		spriteChecker->checkUntil(time);
-
-		// Calculate start and end of borders in ticks since start of line.
-		// The 0..7 extra horizontal scroll low pixels should be drawn in
-		// border colour. These will be drawn together with the border,
-		// but sprites above these pixels are clipped at the actual border
-		// rather than the end of the border coloured area.
-		// TODO: Move these calculations and getDisplayLeft() to VDP.
-		int borderL = vdp->getLeftBorder();
-		int displayL =
-			vdp->isBorderMasked() ? borderL : vdp->getLeftBackground();
-		int borderR = vdp->getRightBorder();
-
-		// Left border.
-		subdivide(nextX, nextY, limitX, limitY,
-			0, displayL, DRAW_BORDER );
-		// Display area.
-		subdivide(nextX, nextY, limitX, limitY,
-			displayL, borderR, DRAW_DISPLAY );
-		// Sprite plane.
-		subdivide(nextX, nextY, limitX, limitY,
-			borderL, borderR, DRAW_SPRITES );
-		// Right border.
-		subdivide(nextX, nextY, limitX, limitY,
-			borderR, VDP::TICKS_PER_LINE, DRAW_BORDER );
-	} else {
-		subdivide(nextX, nextY, limitX, limitY,
-			0, VDP::TICKS_PER_LINE, DRAW_BORDER );
-	}
-
-	nextX = limitX;
-	nextY = limitY;
-}
-
 PixelRenderer::PixelRenderer(RendererFactory::RendererID id, VDP *vdp)
 	: Renderer(id), frameSkipSetting(this)
 {
@@ -279,6 +204,81 @@ void PixelRenderer::updateMultiPage(
 	sync(time);
 }
 
+void PixelRenderer::renderUntil(const EmuTime &time)
+{
+	if (curFrameSkip != 0) return;
+
+	// Translate from time to pixel position.
+	int limitTicks = vdp->getTicksThisFrame(time);
+	assert(limitTicks <= vdp->getTicksPerFrame());
+	int limitX, limitY;
+	switch (settings->getAccuracy()->getValue()) {
+	case RenderSettings::ACC_PIXEL: {
+		limitX = limitTicks % VDP::TICKS_PER_LINE;
+		limitY = limitTicks / VDP::TICKS_PER_LINE;
+		break;
+	}
+	case RenderSettings::ACC_LINE: {
+		// Note: I'm not sure the rounding point is optimal.
+		//       It used to be based on the left margin, but that doesn't work
+		//       because the margin can change which leads to a line being
+		//       rendered even though the time doesn't advance.
+		limitX = 0;
+		limitY =
+			(limitTicks + VDP::TICKS_PER_LINE - 400) / VDP::TICKS_PER_LINE;
+		break;
+	}
+	case RenderSettings::ACC_SCREEN: {
+		// TODO: Implement.
+		return;
+	}
+	default:
+		assert(false);
+	}
+
+	// Stop here if there is nothing to render.
+	// This ensures that no pixels are rendered in a series of updates that
+	// happen at exactly the same time; the VDP subsystem states may be
+	// inconsistent until all updates are performed.
+	// Also it is a small performance optimisation.
+	if (limitX == nextX && limitY == nextY) return;
+
+	if (displayEnabled) {
+		// Update sprite checking, so that subclass can call getSprites.
+		spriteChecker->checkUntil(time);
+
+		// Calculate start and end of borders in ticks since start of line.
+		// The 0..7 extra horizontal scroll low pixels should be drawn in
+		// border colour. These will be drawn together with the border,
+		// but sprites above these pixels are clipped at the actual border
+		// rather than the end of the border coloured area.
+		// TODO: Move these calculations and getDisplayLeft() to VDP.
+		int borderL = vdp->getLeftBorder();
+		int displayL =
+			vdp->isBorderMasked() ? borderL : vdp->getLeftBackground();
+		int borderR = vdp->getRightBorder();
+
+		// Left border.
+		subdivide(nextX, nextY, limitX, limitY,
+			0, displayL, DRAW_BORDER );
+		// Display area.
+		subdivide(nextX, nextY, limitX, limitY,
+			displayL, borderR, DRAW_DISPLAY );
+		// Sprite plane.
+		subdivide(nextX, nextY, limitX, limitY,
+			borderL, borderR, DRAW_SPRITES );
+		// Right border.
+		subdivide(nextX, nextY, limitX, limitY,
+			borderR, VDP::TICKS_PER_LINE, DRAW_BORDER );
+	} else {
+		subdivide(nextX, nextY, limitX, limitY,
+			0, VDP::TICKS_PER_LINE, DRAW_BORDER );
+	}
+
+	nextX = limitX;
+	nextY = limitY;
+}
+
 // class FramsSkipSetting
 
 PixelRenderer::FrameSkipSetting::FrameSkipSetting(PixelRenderer* renderer_)
@@ -286,7 +286,7 @@ PixelRenderer::FrameSkipSetting::FrameSkipSetting(PixelRenderer* renderer_)
 	  renderer(renderer_)
 {
 	type = "0 - 100 / auto";
-	
+
 	renderer->autoFrameSkip = false;
 	renderer->frameSkip = 0;
 	renderer->curFrameSkip = 0;

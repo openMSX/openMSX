@@ -180,7 +180,7 @@ private:
 	  * from the current time to the specified time.
 	  * @param time Moment in emulated time to render lines until.
 	  */
-	inline void renderUntil(const EmuTime &time);
+	void renderUntil(const EmuTime &time);
 
 	/** Is display enabled?
 	  * Enabled means the current line is in the display area and
