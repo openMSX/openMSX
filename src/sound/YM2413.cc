@@ -869,7 +869,7 @@ int YM2413::Slot::calc_slot_tom()
 }
 
 // SNARE
-int YM2413::Slot::calc_slot_snare(unsigned int noise)
+int YM2413::Slot::calc_slot_snare(bool noise)
 {
 	if (egout >= (DB_MUTE - 1)) {
 		return 0;
@@ -897,7 +897,7 @@ int YM2413::Slot::calc_slot_cym(unsigned int pgout_hh)
 }
 
 // HI-HAT
-int YM2413::Slot::calc_slot_hat(int pgout_cym, unsigned int noise)
+int YM2413::Slot::calc_slot_hat(int pgout_cym, bool noise)
 {
 	if (egout >= (DB_MUTE - 1)) {
 		return 0;

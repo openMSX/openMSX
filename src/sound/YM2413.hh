@@ -46,9 +46,9 @@ class YM2413 : public YM2413Core, private SoundDevice, private Debuggable
 		inline int calc_slot_car(int fm);
 		inline int calc_slot_mod();
 		inline int calc_slot_tom();
-		inline int calc_slot_snare(unsigned int noise);
+		inline int calc_slot_snare(bool noise);
 		inline int calc_slot_cym(unsigned int pgout_hh);
-		inline int calc_slot_hat(int pgout_cym, unsigned int whitenoise);
+		inline int calc_slot_hat(int pgout_cym, bool noise);
 		inline void updatePG();
 		inline void updateTLL();
 		inline void updateRKS();
