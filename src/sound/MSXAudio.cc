@@ -44,10 +44,16 @@ const std::string& MSXAudioCLI::optionHelp()
 MSXAudio::MSXAudio(MSXConfig::Device *config, const EmuTime &time)
 	: MSXDevice(config, time), MSXIODevice(config, time)
 {
-	MSXCPUInterface::instance()->register_IO_Out(0xc0, this);
-	MSXCPUInterface::instance()->register_IO_Out(0xc1, this);
-	MSXCPUInterface::instance()->register_IO_In (0xc0, this);
-	MSXCPUInterface::instance()->register_IO_In (0xc1, this);
+	if (config->hasParameter("number") &&
+	    config->getParameter("number") == "2") {
+		base = 0xC2;
+	} else {
+		base = 0xC0;
+	}
+	MSXCPUInterface::instance()->register_IO_Out(base + 0, this);
+	MSXCPUInterface::instance()->register_IO_Out(base + 1, this);
+	MSXCPUInterface::instance()->register_IO_In (base + 0, this);
+	MSXCPUInterface::instance()->register_IO_In (base + 1, this);
 	short volume = (short)deviceConfig->getParameterAsInt("volume");
 	
 	// left / right / mono
@@ -88,16 +94,13 @@ void MSXAudio::reset(const EmuTime &time)
 byte MSXAudio::readIO(byte port, const EmuTime &time)
 {
 	byte result;
-	switch (port) {
-		case 0xc0:
-			result = y8950->readStatus();
-			break;
-		case 0xc1:
-			result = y8950->readReg(registerLatch, time);
-			break;
-		default:
-			assert(false);
-			result = 0;	// avoid warning
+	if (port == base + 0) {
+		result = y8950->readStatus();
+	} else if (port == base + 1) {
+		result = y8950->readReg(registerLatch, time);
+	} else {
+		assert(false);
+		result = 0;	// avoid warning
 	}
 	//PRT_DEBUG("Audio: read "<<std::hex<<(int)port<<" "<<(int)result<<std::dec);
 	return result;
@@ -105,12 +108,10 @@ byte MSXAudio::readIO(byte port, const EmuTime &time)
 
 void MSXAudio::writeIO(byte port, byte value, const EmuTime &time)
 {
-	switch (port) {
-		case 0xc0:
-			registerLatch = value;
-			break;
-		case 0xc1:
-			y8950->writeReg(registerLatch, value, time);
-			break;
+	//PRT_DEBUG("Audio: write "<<std::hex<<(int)port<<" "<<(int)value<<std::dec);
+	if (port == base + 0) {
+		registerLatch = value;
+	} else if (port == base + 1) {
+		y8950->writeReg(registerLatch, value, time);
 	}
 }

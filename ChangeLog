@@ -1,6 +1,12 @@
 $Id$
 
 2002-12-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Support for second MSX-AUDIO:
+	   - add this to the AUDIO section in the config
+	      <parameter name="number">2</parameter>
+	   - alex' modplayer doesn't work yet :-(
+
+2002-12-23 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Tabcompletion for setting values:
 	   example:  set accuracy p<tab>
 	* Implemented "cmdtiming" setting:
