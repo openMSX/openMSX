@@ -7,7 +7,6 @@ SUBDIRS:= \
 
 SRC_HDR:= \
 	VDP VDPCmdEngine VDPVRAM SpriteChecker \
-	DirtyChecker \
 	VDPSettings \
 	Icon \
 	Renderer RendererFactory RenderSettings PixelRenderer \
@@ -20,6 +19,7 @@ SRC_HDR:= \
 	ScreenShotSaver
 
 HDR_ONLY:= \
+	DirtyChecker \
 	DisplayMode \
 	VRAMObserver \
 	SpriteConverter \

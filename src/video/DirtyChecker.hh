@@ -3,41 +3,33 @@
 #ifndef __DIRTYCHECKER_HH__
 #define __DIRTYCHECKER_HH__
 
-#include "VRAMObserver.hh"
 #include <cassert>
+#include <bitset>
+#include "VRAMObserver.hh"
 
+using std::bitset;
 
 namespace openmsx {
 
 /** Helper class for renderer caches: keeps a record of which VRAM bytes
   * were modified since the last cache validation.
+  * The template parameter "size" determines the cache size in units.
   * The template parameter "unit" determines the unit size in bytes:
   * any VRAM write at an address inside a unit will mark all addresses
   * in that unit as dirty.
+  * Initially every unit is considered dirty.
   */
-template <int unit>
+template <unsigned size, unsigned unit>
 class DirtyChecker : public VRAMObserver
 {
-
 public:
-
-	/** Create a new DirtyChecker.
-	  * Initially every unit is considered dirty.
-	  * @param size The cache size in units.
-	  * @param name Name of VRAM Window checked by this DirtyChecker.
-	  * 	Used for debugging, will be removed in the future.
-	  */
-	DirtyChecker(int size, const char *name = "unknown");
-
-	virtual ~DirtyChecker();
-
 	/** Validates an entry in the cache:
 	  * return valid/dirty flag and mark as valid.
 	  * @param unitNr Number of unit in cache.
 	  * @return true iff this entry was valid.
 	  */
-	inline bool validate(int unitNr) {
-		assert(0 <= unitNr && unitNr < size);
+	inline bool validate(unsigned unitNr) {
+		assert(unitNr < size);
 		bool ret = validFlags[unitNr];
 		validFlags[unitNr] = true;
 		return ret;
@@ -47,24 +39,39 @@ public:
 	  */
 	void flush();
 
-	void updateVRAM(int offset, const EmuTime &time);
-
-	void updateWindow(bool enabled, const EmuTime &time);
+	// VRAMObserver interface
+	virtual void updateVRAM(unsigned offset, const EmuTime& time);
+	virtual void updateWindow(bool enabled, const EmuTime& time);
 
 private:
-
 	/** For every unit this array stores its cache state:
 	  * valid (true) or dirty (false).
 	  */
-	bool *validFlags;
-
-	/** Number of units in validFlags array.
-	  */
-	int size;
-
-	const char *name;
-
+	bitset<size> validFlags;
 };
+
+
+template <unsigned size, unsigned unit>
+void DirtyChecker<size, unit>::flush()
+{
+	validFlags.reset();
+}
+
+template <unsigned size, unsigned unit>
+void DirtyChecker<size, unit>::updateVRAM(unsigned offset, const EmuTime& time)
+{
+	unsigned unitNr = offset / unit;
+	assert(unitNr < size);
+	validFlags[unitNr] = false;
+}
+
+template <unsigned size, unsigned unit>
+void DirtyChecker<size, unit>::updateWindow(bool enabled, const EmuTime& time)
+{
+	if (enabled) {
+		flush();
+	}
+}
 
 } // namespace openmsx
 

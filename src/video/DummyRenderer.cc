@@ -107,7 +107,7 @@ void DummyRenderer::updateColourBase(int addr, const EmuTime &time) {
 void DummyRenderer::updateSpritesEnabled(bool enabled, const EmuTime &time) {
 }
 
-void DummyRenderer::updateVRAM(int offset, const EmuTime &time) {
+void DummyRenderer::updateVRAM(unsigned offset, const EmuTime &time) {
 }
 
 void DummyRenderer::updateWindow(bool enabled, const EmuTime &time) {

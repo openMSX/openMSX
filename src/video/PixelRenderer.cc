@@ -332,7 +332,7 @@ inline bool PixelRenderer::checkSync(int offset, const EmuTime &time)
 	}
 }
 
-void PixelRenderer::updateVRAM(int offset, const EmuTime &time) {
+void PixelRenderer::updateVRAM(unsigned offset, const EmuTime &time) {
 	// Note: No need to sync if display is disabled, because then the
 	//       output does not depend on VRAM (only on background colour).
 	if (displayEnabled && checkSync(offset, time)) {

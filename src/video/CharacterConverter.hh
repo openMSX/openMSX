@@ -3,11 +3,14 @@
 #ifndef __CHARACTERCONVERTER_HH__
 #define __CHARACTERCONVERTER_HH__
 
+#include <cassert>
+#include <bitset>
 #include "openmsx.hh"
 #include "Renderer.hh"
 #include "DisplayMode.hh"
 #include "Blender.hh"
-#include <cassert>
+
+using std::bitset;
 
 namespace openmsx {
 
@@ -176,9 +179,12 @@ private:
 	  * Change tracking is currently disabled, so every change variable
 	  * is set to true. In the future change tracking will be restored.
 	  */
-	bool anyDirtyColour, dirtyColour[1 << 10];
-	bool anyDirtyPattern, dirtyPattern[1 << 10];
-	bool anyDirtyName, dirtyName[1 << 12];
+	bool anyDirtyColour;
+	bitset<(1<<10)> dirtyColour;
+	bool anyDirtyPattern;
+	bitset<(1<<10)> dirtyPattern;
+	bool anyDirtyName;
+	bitset<(1<<12)> dirtyName;
 	bool dirtyForeground, dirtyBackground;
 
 };

@@ -12,8 +12,6 @@ class EmuTime;
   */
 class VRAMObserver {
 public:
-	virtual ~VRAMObserver() {}
-	
 	/** Informs the observer of a change in VRAM contents.
 	  * This update is sent just before the change,
 	  * so the subcomponent can update itself to the given time
@@ -22,7 +20,7 @@ public:
 	  * 	relative to window base address.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateVRAM(int offset, const EmuTime &time) = 0;
+	virtual void updateVRAM(unsigned offset, const EmuTime& time) = 0;
 
 	/** Informs the observer that the entire VRAM window will change.
 	  * This update is sent just before the change,
@@ -37,7 +35,7 @@ public:
 	  * 	is enabled, because no reads are allowed from disabled windows.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateWindow(bool enabled, const EmuTime &time) = 0;
+	virtual void updateWindow(bool enabled, const EmuTime& time) = 0;
 };
 
 } // namespace openmsx

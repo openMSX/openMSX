@@ -37,8 +37,6 @@ TODO:
 #include "GLUtil.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
-#include "util.hh"
-
 
 namespace openmsx {
 
@@ -104,9 +102,9 @@ CharacterConverter<Pixel, zoom>::CharacterConverter(
 	vram = vdp->getVRAM();
 
 	anyDirtyColour = anyDirtyPattern = anyDirtyName = true;
-	fillBool(dirtyColour, true, sizeof(dirtyColour) / sizeof(bool));
-	fillBool(dirtyPattern, true, sizeof(dirtyPattern) / sizeof(bool));
-	fillBool(dirtyName, true, sizeof(dirtyName) / sizeof(bool));
+	dirtyColour.set();
+	dirtyPattern.set();
+	dirtyName.set();
 	dirtyForeground = dirtyBackground = true;
 }
 

@@ -14,11 +14,9 @@ TODO:
     in most realistic cases however the two will be of equal size
 */
 
-#include "SDLGLRenderer.hh"
-
 #include <cmath>
 #include <cassert>
-#include "util.hh"
+#include "SDLGLRenderer.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 #include "RenderSettings.hh"
@@ -421,8 +419,6 @@ inline void SDLGLRenderer::renderPlanarBitmapLines(
 SDLGLRenderer::SDLGLRenderer(
 	RendererFactory::RendererID id, VDP *vdp, SDL_Surface *screen )
 	: PixelRenderer(id, vdp)
-	, dirtyPattern(1 << 10, "pattern")
-	, dirtyColour(1 << 10, "colour")
 	, characterConverter(vdp, palFg, palBg)
 	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS)
 	, spriteConverter(vdp->getSpriteChecker())

@@ -10,7 +10,6 @@ TODO:
 #include <cmath>
 #include <cassert>
 #include <algorithm>
-#include "util.hh"
 #include "SDLRenderer.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"

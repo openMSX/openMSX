@@ -238,9 +238,9 @@ private:
 	  */
 	DisplayMode characterCacheMode;
 	/** Dirty checker for pattern table. */
-	DirtyChecker<8> dirtyPattern;
+	DirtyChecker<(1<<10), 8> dirtyPattern;
 	/** Dirty checker for colour table. */
-	DirtyChecker<8> dirtyColour;
+	DirtyChecker<(1<<10), 8> dirtyColour;
 
 	GLuint characterCache[4 * 256];
 

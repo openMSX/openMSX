@@ -19,7 +19,7 @@ private:
 	  * This includes a VRAM sync.
 	  * @param time The moment in emulated time to update to.
 	  */
-	inline void sync(const EmuTime &time) {
+	inline void sync(const EmuTime& time) {
 		if (mode0) return;
 		// Debug:
 		// This method is not re-entrant, so check explicitly that it is not
@@ -33,7 +33,7 @@ private:
 		syncInProgress = false;
 	}
 
-	inline void initFrame(const EmuTime &time) {
+	inline void initFrame(const EmuTime& time) {
 		frameStartTime = time;
 		currentLine = 0;
 		linesPerFrame = vdp->isPalTiming() ? 313 : 262;
@@ -73,10 +73,12 @@ public:
 	  */
 	SpriteChecker(VDP *vdp);
 
+	virtual ~SpriteChecker();
+
 	/** Puts the sprite checker in its initial state.
 	  * @param time The moment in time this reset occurs.
 	  */
-	void reset(const EmuTime &time);
+	void reset(const EmuTime& time);
 
 	/** Gets the sprite status (part of S#0).
 	  * Bit 7 (F) is zero; it is not sprite dependant.
@@ -101,7 +103,7 @@ public:
 	  * @param mode The new display mode.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	inline void updateDisplayMode(DisplayMode mode, const EmuTime &time) {
+	inline void updateDisplayMode(DisplayMode mode, const EmuTime& time) {
 		sync(time);
 		switch(mode.getSpriteMode()) {
 		case 0:
@@ -135,7 +137,7 @@ public:
 	  * @param enabled The new display enabled state.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	inline void updateDisplayEnabled(bool enabled, const EmuTime &time) {
+	inline void updateDisplayEnabled(bool enabled, const EmuTime& time) {
 		sync(time);
 		// TODO: Speed up sprite checking in display disabled case.
 	}
@@ -144,7 +146,7 @@ public:
 	  * @param enabled The new sprite enabled state.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	inline void updateSpritesEnabled(bool enabled, const EmuTime &time) {
+	inline void updateSpritesEnabled(bool enabled, const EmuTime& time) {
 		sync(time);
 		// TODO: Speed up sprite checking in display disabled case.
 	}
@@ -155,7 +157,7 @@ public:
 	  *   Bit 1 is size: 0 = 8x8, 1 = 16x16.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	inline void updateSpriteSizeMag(byte sizeMag, const EmuTime &time) {
+	inline void updateSpriteSizeMag(byte sizeMag, const EmuTime& time) {
 		sync(time);
 		// TODO: Precalc something?
 	}
@@ -164,7 +166,7 @@ public:
 	  * @param scroll The new scroll value.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	inline void updateVerticalScroll(int scroll, const EmuTime &time) {
+	inline void updateVerticalScroll(int scroll, const EmuTime& time) {
 		sync(time);
 		// TODO: Precalc something?
 	}
@@ -174,7 +176,7 @@ public:
 	  * It is not allowed to call this method in a spriteless display mode.
 	  * @param time The moment in emulated time to update to.
 	  */
-	inline void checkUntil(const EmuTime &time) {
+	inline void checkUntil(const EmuTime& time) {
 		// TODO:
 		// Currently the sprite checking is done atomically at the end of
 		// the display line. In reality, sprite checking is probably done
@@ -189,14 +191,14 @@ public:
 
 	/** Get X coordinate of sprite collision.
 	  */
-	inline int getCollisionX(const EmuTime &time) {
+	inline int getCollisionX(const EmuTime& time) {
 		sync(time);
 		return collisionX;
 	}
 
 	/** Get Y coordinate of sprite collision.
 	  */
-	inline int getCollisionY(const EmuTime &time) {
+	inline int getCollisionY(const EmuTime& time) {
 		sync(time);
 		return collisionY;
 	}
@@ -212,7 +214,7 @@ public:
 	/** Signals the start of a new frame.
 	  * @param time Moment in emulated time the new frame starts.
 	  */
-	inline void frameStart(const EmuTime &time) {
+	inline void frameStart(const EmuTime& time) {
 		// Finish old frame.
 		sync(time);
 		// Init new frame.
@@ -275,11 +277,11 @@ public:
 
 	// VRAMObserver implementation:
 
-	void updateVRAM(int offset, const EmuTime &time) {
+	void updateVRAM(unsigned offset, const EmuTime& time) {
 		checkUntil(time);
 	}
 
-	void updateWindow(bool enabled, const EmuTime &time) {
+	void updateWindow(bool enabled, const EmuTime& time) {
 		sync(time);
 	}
 
