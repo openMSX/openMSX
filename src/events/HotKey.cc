@@ -95,7 +95,7 @@ void HotKey::unregisterHotKeyCommand(Keys::KeyCode key)
 {
 	CommandMap::iterator it = cmdMap.find(key);
 	if (it != cmdMap.end()) {
-		bindingsElement.deleteChild(it->second->getElement());
+		bindingsElement.removeChild(it->second->getElement());
 		delete it->second;
 		cmdMap.erase(it);
 	}

@@ -1,41 +1,19 @@
 // $Id$
 
-#include <cassert>
-#include <algorithm>
-#include <libxml/uri.h>
+#include "XMLElement.hh"
 #include "StringOp.hh"
 #include "FileContext.hh"
 #include "ConfigException.hh"
-#include "xmlx.hh"
+#include <libxml/uri.h>
+#include <cassert>
+#include <algorithm>
+
 
 using std::auto_ptr;
 using std::remove;
 using std::string;
 
 namespace openmsx {
-
-// class XMLException
-
-XMLException::XMLException(const string& msg)
-	: MSXException(msg)
-{
-}
-
-
-// class XMLElement
-
-std::map<string, unsigned> XMLElement::idMap;
-
-XMLElement::XMLElement()
-	: parent(NULL)
-{
-}
-
-XMLElement::XMLElement(xmlNodePtr node)
-	: parent(NULL)
-{
-	init(node);
-}
 
 XMLElement::XMLElement(const string& name_, const string& data_)
 	: name(name_), data(data_), parent(NULL)
@@ -46,50 +24,6 @@ XMLElement::XMLElement(const XMLElement& element)
 	: parent(NULL)
 {
 	*this = element;
-}
-
-void XMLElement::init(xmlNodePtr node)
-{
-	name = (const char*)node->name;
-	for (xmlNodePtr x = node->children; x != NULL ; x = x->next) {
-		switch (x->type) {
-		case XML_TEXT_NODE:
-			data += (const char*)x->content;
-			break;
-		case XML_ELEMENT_NODE:
-			addChild(auto_ptr<XMLElement>(new XMLElement(x)));
-			break;
-		default:
-			// ignore
-			break;
-		}
-	}
-	for (xmlAttrPtr x = node->properties; x != NULL ; x = x->next) {
-		switch (x->type) {
-		case XML_ATTRIBUTE_NODE: {
-			string name  = (const char*)x->name;
-			string value = (const char*)x->children->content;
-			if (name == "id") {
-				value = makeUnique(value);
-			}
-			addAttribute(name, value);
-			break;
-		}
-		default:
-			// ignore
-			break;
-		}
-	}
-}
-
-string XMLElement::makeUnique(const string& str)
-{
-	unsigned num = ++idMap[str];
-	if (num == 1) {
-		return str;
-	} else {
-		return str + " (" + StringOp::toString(num) + ')';
-	}
 }
 
 XMLElement::~XMLElement()
@@ -118,11 +52,13 @@ void XMLElement::addChild(auto_ptr<XMLElement> child)
 	children.push_back(child.release());
 }
 
-void XMLElement::deleteChild(const XMLElement& child)
+auto_ptr<XMLElement> XMLElement::removeChild(const XMLElement& child)
 {
 	assert(std::count(children.begin(), children.end(), &child) == 1);
 	children.erase(std::find(children.begin(), children.end(), &child));
-	delete &child;
+	XMLElement& child2 = const_cast<XMLElement&>(child);
+	child2.parent = NULL;
+	return auto_ptr<XMLElement>(&child2);
 }
 
 void XMLElement::addAttribute(const string& name, const string& value)
@@ -146,9 +82,14 @@ double XMLElement::getDataAsDouble() const
 	return StringOp::stringToDouble(getData());
 }
 
+void XMLElement::setName(const std::string& name_)
+{
+	name = name_;
+}
+
 void XMLElement::setData(const string& data_)
 {
-	assert(children.empty()); // no mixed-content elements
+	//assert(children.empty()); // no mixed-content elements
 	data = data_;
 }
 
@@ -365,6 +306,40 @@ void XMLElement::dump(string& result, unsigned indentNum) const
 	}
 }
 
+struct ShallowEqualTo {
+	ShallowEqualTo(const XMLElement& rhs_) : rhs(rhs_) {}
+	bool operator()(const XMLElement* lhs) const {
+		return lhs->isShallowEqual(rhs);
+	}
+	const XMLElement& rhs;
+};
+
+void XMLElement::merge(const XMLElement& source)
+{
+	assert(isShallowEqual(source));
+	Children srcChildrenCopy(children.begin(), children.end());
+	const Children& sourceChildren = source.getChildren();
+	for (Children::const_iterator it = sourceChildren.begin();
+	     it != sourceChildren.end(); ++it) {
+		const XMLElement& srcChild = **it;
+		Children::iterator it = std::find_if(srcChildrenCopy.begin(),
+			srcChildrenCopy.end(), ShallowEqualTo(srcChild));
+		if (it != srcChildrenCopy.end()) {
+			(*it)->merge(srcChild);
+			srcChildrenCopy.erase(it); // don't merge to same child twice
+		} else {
+			addChild(auto_ptr<XMLElement>(new XMLElement(srcChild)));
+		}
+	}
+	setData(source.getData());
+}
+
+bool XMLElement::isShallowEqual(const XMLElement& other) const
+{
+	return (getName()       == other.getName()) &&
+	       (getAttributes() == other.getAttributes());
+}
+
 string XMLElement::XMLEscape(const string& str)
 {
 	xmlChar* buffer = xmlEncodeEntitiesReentrant(NULL, (const xmlChar*)str.c_str());
@@ -374,35 +349,6 @@ string XMLElement::XMLEscape(const string& str)
 		xmlFree(buffer);
 	}
 	return result;
-}
-
-
-// class XMLDocument
-
-XMLDocument::XMLDocument(const string& filename, const string& systemID)
-{
-	xmlDocPtr doc = xmlParseFile(filename.c_str());
-	if (!doc) {
-		throw XMLException(filename + ": Document parsing failed");
-	}
-	if (!doc->children || !doc->children->name) {
-		xmlFreeDoc(doc);
-		throw XMLException(filename +
-			": Document doesn't contain mandatory root Element");
-	}
-	xmlDtdPtr intSubset = xmlGetIntSubset(doc);
-	if (!intSubset) {
-		throw XMLException(filename + ": Missing systemID.\n"
-			"You're probably using an old incompatible file format.");
-	}
-	string actualID = (const char*)intSubset->SystemID;
-	if (actualID != systemID) {
-		throw XMLException(filename + ": systemID doesn't match "
-			"(expected " + systemID + ", got " + actualID + ")\n"
-			"You're probably using an old incompatible file format.");
-	}
-	init(xmlDocGetRootElement(doc));
-	xmlFreeDoc(doc);
 }
 
 } // namespace openmsx

@@ -2,7 +2,7 @@
 
 #include "DiskImageCLI.hh"
 #include "GlobalSettings.hh"
-#include "xmlx.hh"
+#include "XMLElement.hh"
 #include "FileContext.hh"
 
 using std::list;

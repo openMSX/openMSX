@@ -2,7 +2,8 @@
 
 #include "IDEDeviceFactory.hh"
 #include "IDEHD.hh"
-#include "xmlx.hh"
+#include "XMLElement.hh"
+#include "MSXException.hh"
 
 using std::string;
 

@@ -1,6 +1,6 @@
 // $Id$
 
-#include "xmlx.hh"
+#include "XMLElement.hh"
 #include "DeviceFactory.hh"
 #include "MSXRam.hh"
 #include "MSXPPI.hh"

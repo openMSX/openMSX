@@ -2,7 +2,7 @@
 
 #include "RomPanasonic.hh"
 #include "PanasonicMemory.hh"
-#include "xmlx.hh"
+#include "XMLElement.hh"
 #include "SRAM.hh"
 #include "CPU.hh"
 #include "Rom.hh"

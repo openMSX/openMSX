@@ -13,7 +13,7 @@
 #include "EventDistributor.hh"
 #include "LedEvent.hh"
 #include "CommandException.hh"
-#include "xmlx.hh"
+#include "XMLElement.hh"
 
 using std::string;
 using std::vector;

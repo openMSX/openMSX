@@ -2,7 +2,7 @@
 
 #include "MSXAudio.hh"
 #include "Y8950.hh"
-#include "xmlx.hh"
+#include "XMLElement.hh"
 
 namespace openmsx {
 

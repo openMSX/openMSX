@@ -1,13 +1,13 @@
 // $Id$
 
 #include "SettingsConfig.hh"
+#include "XMLLoader.hh"
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "CommandController.hh"
 #include "GlobalSettings.hh"
 #include "CliCommOutput.hh"
-#include "xmlx.hh"
 #include "BooleanSetting.hh"
 #include <memory>
 
@@ -18,10 +18,11 @@ using std::vector;
 namespace openmsx {
 
 SettingsConfig::SettingsConfig()
-	: MSXConfig("settings")
+	: XMLElement("settings")
 	, autoSaveSetting(0)
 	, saveSettingsCommand(*this)
 {
+	setFileContext(auto_ptr<FileContext>(new SystemFileContext()));
 	CommandController::instance().
 		registerCommand(&saveSettingsCommand, "save_settings");
 }
@@ -56,10 +57,10 @@ void SettingsConfig::loadSetting(FileContext& context, const string& filename)
 		autoSaveSetting = &GlobalSettings::instance().getAutoSaveSetting();
 		throw;
 	}
-	SystemFileContext systemContext;
 	try {
-		XMLDocument doc(file->getLocalName(), "settings.dtd");
-		handleDoc(*this, doc, systemContext);
+		auto_ptr<XMLElement> doc(XMLLoader::loadXML(
+			file->getLocalName(), "settings.dtd"));
+		merge(*doc);
 	} catch (XMLException& e) {
 		CliCommOutput::instance().printWarning(
 			"Loading of settings failed: " + e.getMessage() + "\n"

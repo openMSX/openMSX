@@ -2,7 +2,7 @@
 
 #include "MSXDeviceSwitch.hh"
 #include "EmuTime.hh"
-#include "xmlx.hh"
+#include "XMLElement.hh"
 #include "FileContext.hh"
 #include "MSXCPUInterface.hh"
 

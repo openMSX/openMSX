@@ -1,7 +1,7 @@
 // $Id$
 
 #include "MSXF4Device.hh"
-#include "xmlx.hh"
+#include "XMLElement.hh"
 
 namespace openmsx {
 

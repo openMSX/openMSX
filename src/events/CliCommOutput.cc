@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cassert>
 #include <map>
-#include "xmlx.hh"
+#include "XMLElement.hh"
 #include "CliCommOutput.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"

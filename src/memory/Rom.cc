@@ -2,7 +2,7 @@
 
 #include <string>
 #include <sstream>
-#include "xmlx.hh"
+#include "XMLElement.hh"
 #include "Rom.hh"
 #include "RomInfo.hh"
 #include "File.hh"
@@ -15,6 +15,7 @@
 #include "CliCommOutput.hh"
 #include "FilePool.hh"
 #include "ConfigException.hh"
+#include "HardwareConfig.hh"
 #include "IPS.hh"
 
 using std::string;
@@ -98,7 +99,7 @@ void Rom::init(const XMLElement& config)
 	// TODO fix this, this is a hack that depends heavily on MSXRomCLI.cc
 	if (!info->getTitle().empty() &&
 	    ((name.size() >= 6) && (name.substr(0, 6) == "MSXRom"))) {
-		name = XMLElement::makeUnique(info->getTitle());
+		name = HardwareConfig::instance().makeUnique(info->getTitle());
 	}
 
 	if (size) {

@@ -5,7 +5,7 @@
 #include "EventDistributor.hh"
 #include "CassettePort.hh"
 #include "JoystickPort.hh"
-#include "xmlx.hh"
+#include "XMLElement.hh"
 #include "RenShaTurbo.hh"
 
 namespace openmsx {

@@ -5,7 +5,7 @@
 #include "EmuTime.hh"
 #include "MSXMultiIODevice.hh"
 #include "FileContext.hh"
-#include "xmlx.hh"
+#include "XMLElement.hh"
 
 using std::remove;
 using std::string;

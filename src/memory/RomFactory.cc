@@ -30,7 +30,8 @@
 #include "RomHolyQuran.hh"
 #include "RomFSA1FM.hh"
 #include "Rom.hh"
-#include "xmlx.hh"
+#include "XMLElement.hh"
+#include "MSXException.hh"
 
 using std::auto_ptr;
 using std::string;

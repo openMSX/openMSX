@@ -1,7 +1,7 @@
 // $Id$
 
 #include "SRAM.hh"
-#include "xmlx.hh"
+#include "XMLElement.hh"
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"

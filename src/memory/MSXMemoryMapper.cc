@@ -3,10 +3,12 @@
 #include <cassert>
 #include "MSXMemoryMapper.hh"
 #include "MSXMapperIO.hh"
-#include "xmlx.hh"
+#include "XMLElement.hh"
 #include "MSXCPUInterface.hh"
 #include "FileContext.hh"
 #include "Ram.hh"
+#include "StringOp.hh"
+#include "MSXException.hh"
 
 namespace openmsx {
 
@@ -27,9 +29,8 @@ MSXMemoryMapper::MSXMemoryMapper(const XMLElement& config, const EmuTime& time)
 {
 	int kSize = deviceConfig.getChildDataAsInt("size");
 	if ((kSize % 16) != 0) {
-		std::ostringstream out;
-		out << "Mapper size is not a multiple of 16K: " << kSize;
-		throw FatalError(out.str());
+		throw FatalError("Mapper size is not a multiple of 16K: " + 
+		                 StringOp::toString(kSize));
 	}
 	nbBlocks = kSize / 16;
 	ram.reset(new Ram(getName(), "memory mapper", nbBlocks * 0x4000));

@@ -4,7 +4,7 @@
 #include "CPU.hh"
 #include "DriveMultiplexer.hh"
 #include "WD2793.hh"
-#include "xmlx.hh"
+#include "XMLElement.hh"
 
 namespace openmsx {
 

@@ -3,7 +3,7 @@
 #include "VDPIODelay.hh"
 #include "MSXCPU.hh"
 #include "FileContext.hh"
-#include "xmlx.hh"
+#include "XMLElement.hh"
 
 namespace openmsx {
 

@@ -5,7 +5,7 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
-#include "xmlx.hh"
+#include "XMLElement.hh"
 #include "EventDistributor.hh"
 #include "LedEvent.hh"
 

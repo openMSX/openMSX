@@ -3,8 +3,9 @@
 #include "MSXFDC.hh"
 #include "Rom.hh"
 #include "DiskDrive.hh"
-#include "xmlx.hh"
+#include "XMLElement.hh"
 #include "StringOp.hh"
+#include "MSXException.hh"
 
 namespace openmsx {
 

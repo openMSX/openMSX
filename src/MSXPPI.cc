@@ -8,7 +8,7 @@
 #include "MSXCPUInterface.hh"
 #include "KeyClick.hh"
 #include "CassettePort.hh"
-#include "xmlx.hh"
+#include "XMLElement.hh"
 #include "RenShaTurbo.hh"
 
 namespace openmsx {

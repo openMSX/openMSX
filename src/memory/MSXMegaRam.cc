@@ -25,7 +25,7 @@
  */
 
 #include "MSXMegaRam.hh"
-#include "xmlx.hh"
+#include "XMLElement.hh"
 #include "MSXCPU.hh"
 #include "Ram.hh"
 #include "Rom.hh"

@@ -1,7 +1,7 @@
 // $Id$
 
 #include "SoundDevice.hh"
-#include "xmlx.hh"
+#include "XMLElement.hh"
 
 using std::string;
 

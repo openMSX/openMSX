@@ -283,8 +283,7 @@ void CommandLineParser::getControlParameters(ControlType& type, string& argument
 void CommandLineParser::loadMachine(const string& machine)
 {
 	try {
-		HardwareConfig::loadHardware(
-			hardwareConfig, "machines", machine);
+		hardwareConfig.loadHardware(hardwareConfig, "machines", machine);
 	} catch (FileException& e) {
 		throw FatalError("Machine \"" + machine + "\" not found (" +
 		                 e.getMessage() + ").");

@@ -28,7 +28,7 @@ TODO:
 #include "EventDistributor.hh"
 #include "CommandController.hh"
 #include "Scheduler.hh"
-#include "xmlx.hh"
+#include "XMLElement.hh"
 #include "Debugger.hh"
 #include "RendererFactory.hh"
 #include "Renderer.hh"

@@ -3,7 +3,7 @@
 #include "MSXMoonSound.hh"
 #include "YMF262.hh"
 #include "YMF278.hh"
-#include "xmlx.hh"
+#include "XMLElement.hh"
 #include "Mixer.hh"
 
 namespace openmsx {

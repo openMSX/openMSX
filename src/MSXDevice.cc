@@ -1,10 +1,11 @@
 // $Id$
 
-#include "xmlx.hh"
+#include "XMLElement.hh"
 #include "StringOp.hh"
 #include "MSXCPUInterface.hh"
 #include "CartridgeSlotManager.hh"
 #include "MSXDevice.hh"
+#include "MSXException.hh"
 
 using std::string;
 using std::vector;

@@ -4,12 +4,13 @@
 #include <string>
 #include "RomInfo.hh"
 #include "Rom.hh"
-#include "xmlx.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "File.hh"
 #include "CliCommOutput.hh"
 #include "StringOp.hh"
+#include "XMLLoader.hh"
+#include "XMLElement.hh"
 
 using std::auto_ptr;
 using std::map;
@@ -137,7 +138,7 @@ void RomInfo::getAllRomTypes(set<string>& result)
 	}
 }
 
-static void parseDB(const XMLDocument& doc, map<string, RomInfo*>& result)
+static void parseDB(const XMLElement& doc, map<string, RomInfo*>& result)
 {
 	const XMLElement::Children& children = doc.getChildren();
 	for (XMLElement::Children::const_iterator it1 = children.begin();
@@ -185,9 +186,10 @@ auto_ptr<RomInfo> RomInfo::searchRomDB(const Rom& rom)
 		     it != paths.end(); ++it) {
 			try {
 				File file(*it + "romdb.xml");
-				XMLDocument doc(file.getLocalName(), "romdb.dtd");
+				auto_ptr<XMLElement> doc(XMLLoader::loadXML(
+					file.getLocalName(), "romdb.dtd"));
 				map<string, RomInfo*> tmp;
-				parseDB(doc, tmp);
+				parseDB(*doc, tmp);
 				romDBSHA1.insert(tmp.begin(), tmp.end());
 			} catch (FileException& e) {
 				// couldn't read file

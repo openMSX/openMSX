@@ -1,23 +1,26 @@
 // $Id$
 
-#ifndef __HARDWARECONFIG_HH__
-#define __HARDWARECONFIG_HH__
+#ifndef HARDWARECONFIG_HH
+#define HARDWARECONFIG_HH
 
-#include "MSXConfig.hh"
+#include "XMLElement.hh"
 
 namespace openmsx {
 
-class HardwareConfig : public MSXConfig
+class HardwareConfig : public XMLElement
 {
 public:
 	static HardwareConfig& instance();
 
-	static void loadHardware(XMLElement& root, const std::string& path,
-	                         const std::string& hwName);
+	void loadHardware(XMLElement& root, const std::string& path,
+	                  const std::string& hwName);
+	std::string makeUnique(const std::string& str);
 
 private:
 	HardwareConfig();
 	~HardwareConfig();
+	
+	std::map<std::string, unsigned> idMap;
 };
 
 } // namespace openmsx

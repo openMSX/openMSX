@@ -2,8 +2,9 @@
 
 #include "MSXRam.hh"
 #include "CPU.hh"
-#include "xmlx.hh"
 #include "Ram.hh"
+#include "XMLElement.hh"
+#include "MSXException.hh"
 
 namespace openmsx {
 

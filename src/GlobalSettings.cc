@@ -1,7 +1,7 @@
 // $Id$
 
 #include "GlobalSettings.hh"
-#include "xmlx.hh"
+#include "XMLElement.hh"
 #include "FileContext.hh"
 #include "IntegerSetting.hh"
 #include "BooleanSetting.hh"

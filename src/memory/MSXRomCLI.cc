@@ -1,7 +1,7 @@
 // $Id$
 
 #include "StringOp.hh"
-#include "xmlx.hh"
+#include "XMLElement.hh"
 #include "MSXRomCLI.hh"
 #include "CartridgeSlotManager.hh"
 #include "HardwareConfig.hh"

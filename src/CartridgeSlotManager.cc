@@ -6,6 +6,7 @@
 #include "CartridgeSlotManager.hh"
 #include "HardwareConfig.hh"
 #include "MSXCPUInterface.hh"
+#include "MSXException.hh"
 
 using std::string;
 

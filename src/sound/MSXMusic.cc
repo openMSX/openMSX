@@ -4,7 +4,7 @@
 #include "YM2413.hh"
 #include "YM2413_2.hh"
 #include "Rom.hh"
-#include "xmlx.hh"
+#include "XMLElement.hh"
 
 namespace openmsx {
 

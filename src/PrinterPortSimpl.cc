@@ -2,7 +2,7 @@
 
 #include "PrinterPortSimpl.hh"
 #include "DACSound8U.hh"
-#include "xmlx.hh"
+#include "XMLElement.hh"
 
 using std::auto_ptr;
 using std::string;

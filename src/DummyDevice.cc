@@ -3,7 +3,7 @@
 #include <cassert>
 #include "DummyDevice.hh"
 #include "EmuTime.hh"
-#include "xmlx.hh"
+#include "XMLElement.hh"
 #include "FileContext.hh"
 
 namespace openmsx {

@@ -6,7 +6,7 @@
 #include "DebugDevice.hh"
 #include "FileOperations.hh"
 #include "FilenameSetting.hh"
-#include "xmlx.hh"
+#include "XMLElement.hh"
 
 using std::string;
 

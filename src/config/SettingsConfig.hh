@@ -1,16 +1,16 @@
 // $Id$
 
-#ifndef __SETTINGSCONFIG_HH__
-#define __SETTINGSCONFIG_HH__
+#ifndef SETTINGSCONFIG_HH
+#define SETTINGSCONFIG_HH
 
-#include "MSXConfig.hh"
+#include "XMLElement.hh"
 #include "Command.hh"
 
 namespace openmsx {
 
 class BooleanSetting;
 
-class SettingsConfig : public MSXConfig
+class SettingsConfig : public XMLElement
 {
 public:
 	static SettingsConfig& instance();

@@ -2,7 +2,7 @@
 
 #include "MSXBunsetsu.hh"
 #include "CPU.hh"
-#include "xmlx.hh"
+#include "XMLElement.hh"
 
 namespace openmsx {
 

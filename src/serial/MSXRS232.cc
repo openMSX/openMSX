@@ -4,7 +4,7 @@
 #include "I8254.hh"
 #include "Ram.hh"
 #include "Rom.hh"
-#include "xmlx.hh"
+#include "XMLElement.hh"
 #include <cassert>
 
 namespace openmsx {

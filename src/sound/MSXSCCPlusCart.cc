@@ -11,7 +11,7 @@
 #include "FileException.hh"
 #include "MSXCPU.hh"
 #include "CPU.hh"
-#include "xmlx.hh"
+#include "XMLElement.hh"
 
 using std::string;
 

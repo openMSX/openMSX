@@ -4,7 +4,7 @@
 #include "CassettePlayer.hh"
 #include "CommandController.hh"
 #include "GlobalSettings.hh"
-#include "xmlx.hh"
+#include "XMLElement.hh"
 #include "FileContext.hh"
 #include "WavImage.hh"
 #include "CasImage.hh"

@@ -2,7 +2,8 @@
 
 #include "RomPlain.hh"
 #include "Rom.hh"
-#include "xmlx.hh"
+#include "XMLElement.hh"
+#include "MSXException.hh"
 
 namespace openmsx {
 
