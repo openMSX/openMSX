@@ -6,6 +6,8 @@
 
 #include "SCC.hh"
 #include "FileOpener.hh"
+#include "MSXCPU.hh"
+#include "CPU.hh"
 
 
 MSXSCCPlusCart::MSXSCCPlusCart(MSXConfig::Device *config, const EmuTime &time)
@@ -75,6 +77,23 @@ byte MSXSCCPlusCart::readMem(word address, const EmuTime &time)
 	}
 }
 
+byte* MSXSCCPlusCart::getReadCacheLine(word start)
+{
+	if (((enable == EN_SCC)     && (0x9800 <= start) && (start < 0xA000)) ||
+	    ((enable == EN_SCCPLUS) && (0xB800 <= start) && (start < 0xC000))) {
+		// SCC  visible in 0x9800 - 0x9FFF
+		// SCC+ visible in 0xB800 - 0xBFFF
+		return NULL;
+	} else if ((0x4000 <= start) && (start < 0xC000)) {
+		// SCC(+) enabled/disabled but not requested so memory stuff
+		return &internalMemoryBank[(start >> 13) - 2][start & 0x1FFF];
+	} else {
+		// outside memory range
+		return NULL;
+	}
+}
+
+
 void MSXSCCPlusCart::writeMem(word address, byte value, const EmuTime &time)
 {
 	//PRT_DEBUG("SCC+ write "<< std::hex << address << " " << (int)value << std::dec);
@@ -133,11 +152,27 @@ void MSXSCCPlusCart::writeMem(word address, byte value, const EmuTime &time)
 	}
 }
 
+byte* MSXSCCPlusCart::getWriteCacheLine(word start)
+{
+	if ((0x4000 <= start) && (start < 0xC000)) {
+		if (start == (0xBFFF & CPU::CACHE_LINE_HIGH)) {
+			return NULL;
+		}
+		int regio = (start >> 13) - 2;
+		if (isRamSegment[regio]) {
+			return &internalMemoryBank[regio][start & 0x1FFF];
+		}
+	}
+	return NULL;
+}
+
+
 void MSXSCCPlusCart::setMapper(int regio, byte value)
 {
 	mapper[regio] = value;
-	internalMemoryBank[regio] = memoryBank + (0x2000 * (value & 0x0F));
 	checkEnable();
+	internalMemoryBank[regio] = memoryBank + (0x2000 * (value & 0x0F));
+	MSXCPU::instance()->invalidateCache(0x4000 + regio*0x2000, 0x2000/CPU::CACHE_LINE_SIZE);
 }
 
 void MSXSCCPlusCart::setModeRegister(byte value)
@@ -160,20 +195,32 @@ void MSXSCCPlusCart::setModeRegister(byte value)
 		if (modeRegister & 0x01) {
 			isRamSegment[0] = true;
 		} else {
-			isRamSegment[0] = false;
+			if (isRamSegment[0]) {
+				MSXCPU::instance()->invalidateCache(0x4000, 0x2000/CPU::CACHE_LINE_SIZE);
+				isRamSegment[0] = false;
+			}
 		}
 		if (modeRegister & 0x02) {
 			isRamSegment[1] = true;
 		} else {
-			isRamSegment[1] = false;
+			if (isRamSegment[1]) {
+				MSXCPU::instance()->invalidateCache(0x6000, 0x2000/CPU::CACHE_LINE_SIZE);
+				isRamSegment[1] = false;
+			}
 		}
 		if ((modeRegister & 0x24) == 0x24) {
 			// extra requirement for this bank: SCC+ mode
 			isRamSegment[2] = true;
 		} else {
-			isRamSegment[2] = false;
+			if (isRamSegment[2]) {
+				MSXCPU::instance()->invalidateCache(0x8000, 0x2000/CPU::CACHE_LINE_SIZE);
+				isRamSegment[2] = false;
+			}
 		}
-		isRamSegment[3] = false;
+		if (isRamSegment[3]) {
+			MSXCPU::instance()->invalidateCache(0xA000, 0x2000/CPU::CACHE_LINE_SIZE);
+			isRamSegment[3] = false;
+		}
 	}
 }
 
