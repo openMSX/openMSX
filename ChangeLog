@@ -1,5 +1,10 @@
 $Id$
 
+2004-09-20 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Initialize the msx sound devices even if there is no openMSX sound:
+	  - solves UMR (and possibly crashes) in case openMSX is started with
+	    "-nosound" or for some reason sound is not available
+
 2004-09-19 Maarten ter Huurne <maarten@treewalker.org>
 	* Cleanup of layer system, continued:
 	  - put common code in new VideoLayer class

@@ -103,11 +103,6 @@ Mixer& Mixer::instance()
 
 int Mixer::registerSound(SoundDevice& device, short volume, ChannelMode mode)
 {
-	if (!init) {
-		// sound disabled
-		return 512;	// return a save value
-	}
-	
 	const string& name = device.getName();
 	SoundDeviceInfo info;
 	info.volumeSetting = new IntegerSetting(
@@ -139,24 +134,21 @@ int Mixer::registerSound(SoundDevice& device, short volume, ChannelMode mode)
 	infos[&device] = info;
 
 	lock();
-	if (buffers.size() == 0) {
+	if (init && buffers.size() == 0) {
 		SDL_PauseAudio(0);	// unpause when first dev registers
 	}
 	buffers.push_back(NULL);	// make room for one more
 	devices[mode].push_back(&device);
-	device.setSampleRate(audioSpec.freq);
+	device.setSampleRate(init ? audioSpec.freq : 44100);
 	device.setVolume((info.normalVolume * info.volumeSetting->getValue() *
 	                   masterVolume->getValue()) / (100 * 100));
 	unlock();
 
-	return audioSpec.samples;
+	return init ? audioSpec.samples : 1024;
 }
 
 void Mixer::unregisterSound(SoundDevice& device)
 {
-	if (!init) {
-		return;
-	}
 	map<SoundDevice*, SoundDeviceInfo>::iterator it=
 		infos.find(&device);
 	if (it == infos.end()) {
@@ -173,7 +165,7 @@ void Mixer::unregisterSound(SoundDevice& device)
 	delete it->second.modeSetting;
 	infos.erase(it);
 
-	if (buffers.size() == 0) {
+	if (init && buffers.size() == 0) {
 		SDL_PauseAudio(1);	// pause when last dev unregisters
 	}
 	unlock();
