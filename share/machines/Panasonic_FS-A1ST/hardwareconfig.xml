@@ -34,7 +34,7 @@
   <device id="MSX Music">
     <type>Music</type>
     <slotted> <ps>0</ps> <ss>2</ss> <page>1</page> </slotted>
-    <parameter name="filename">fs-a1gt_fmbasic.rom</parameter>
+    <parameter name="filename">fs-a1st_fmbasic.rom</parameter>
     <parameter name="volume">9000</parameter>   
     <parameter name="mode">mono</parameter>
   </device>
@@ -52,7 +52,7 @@
     <slotted> <ps>3</ps> <ss>0</ss> <page>2</page> </slotted>
     <slotted> <ps>3</ps> <ss>0</ss> <page>3</page> </slotted>
     <parameter name="slow_drain_on_reset">false</parameter>
-    <parameter name="size">512</parameter>
+    <parameter name="size">256</parameter>
   </device>
 
   <device id="MSX Sub ROM">
@@ -77,7 +77,7 @@
     <type>FDC</type>
     <slotted> <ps>3</ps> <ss>2</ss> <page>1</page> </slotted>
     <slotted> <ps>3</ps> <ss>2</ss> <page>2</page> </slotted>
-    <parameter name="filename">fs-a1gt_msxdos23.rom</parameter>
+    <parameter name="filename">fs-a1st_msxdos23.rom</parameter>
     <parameter name="type">Panasonic</parameter>
     <parameter name="drivename1">diska</parameter>
   </device>
@@ -88,18 +88,17 @@
     <slotted> <ps>3</ps> <ss>3</ss> <page>1</page> </slotted>
     <slotted> <ps>3</ps> <ss>3</ss> <page>2</page> </slotted>
     <slotted> <ps>3</ps> <ss>3</ss> <page>3</page> </slotted>
-    <parameter name="filename">fs-a1gt_firmware.rom</parameter>
+    <parameter name="filename">fs-a1st_firmware.rom</parameter>
     <parameter name="mappertype">PANASONIC</parameter>
-    <parameter name="sramsize">32</parameter>
-    <parameter name="sram-mirrored">false</parameter>
+    <parameter name="sramsize">16</parameter>
     <parameter name="loadsram">true</parameter>
     <parameter name="savesram">true</parameter>
-    <parameter name="sramname">fs-a1gt.sram</parameter>
+    <parameter name="sramname">fs-a1st.sram</parameter>
   </device>
 
   <device id="Kanji ROM">
     <type>Kanji</type>
-    <parameter name="filename">fs-a1gt_kanjifont.rom</parameter>
+    <parameter name="filename">fs-a1st_kanjifont.rom</parameter>
   </device>
 
   <device id="S1990">
@@ -129,7 +128,7 @@
     <parameter name="mode">EmuTime</parameter>
     <parameter name="loadsram">true</parameter>
     <parameter name="savesram">true</parameter>
-    <parameter name="sramname">fs-a1gt.cmos</parameter>
+    <parameter name="sramname">fs-a1st.cmos</parameter>
   </device>
 
   <device id="cpu">
@@ -159,10 +158,6 @@
   <device id="PCM">
     <type>TurboRPCM</type>
     <parameter name="volume">21000</parameter>
-  </device>
-
-  <device id="MSX-Midi">
-    <type>MSX-Midi</type>
   </device>
 
 </msxconfig>
