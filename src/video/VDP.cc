@@ -799,11 +799,15 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime& time)
 		break;
 	}
 	case 7:
-		if (change & 0xF0) {
-			renderer->updateForegroundColour(val >> 4, time);
-		}
-		if (change & 0x0F) {
-			renderer->updateBackgroundColour(val & 0x0F, time);
+		if (getDisplayMode().getByte() != DisplayMode::GRAPHIC7) {
+			if (change & 0xF0) {
+				renderer->updateForegroundColour(val >> 4, time);
+			}
+			if (change & 0x0F) {
+				renderer->updateBackgroundColour(val & 0x0F, time);
+			}
+		} else {
+			renderer->updateBackgroundColour(val, time);
 		}
 		break;
 	case 8:

@@ -254,7 +254,9 @@ void PixelRenderer::updateBackgroundColour(
 	int colour, const EmuTime& time)
 {
 	sync(time);
-	rasterizer->setBackgroundColour(colour);
+	if (vdp->getDisplayMode().getByte() != DisplayMode::GRAPHIC7) {
+		rasterizer->setBackgroundColour(colour);
+	}
 }
 
 void PixelRenderer::updateBlinkForegroundColour(

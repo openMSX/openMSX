@@ -1,5 +1,9 @@
 $Id$
 
+2004-11-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* small VDP fix:
+	   missing sync() on r#7 change in GRAPHIC7 mode with screen disabled
+
 2004-10-31 Maarten ter Huurne <maarten@treewalker.org>
 	* At end of HMMC and LMMC, TR should not be reset.
 	* Reading and writing the COL register should reset TR.
