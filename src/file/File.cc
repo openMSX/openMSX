@@ -6,17 +6,22 @@
 #include "FileContext.hh"
 
 
-File::File(const FileContext *context, const std::string &url, int options)
+File::File(const FileContext *context, const std::string &url, OpenMode mode)
 {
 	if (url.find("://") != std::string::npos) {
 		// protocol specified, don't use SearchPath
-		open(url, options);
+		open(url, mode);
 	} else {
-		const std::list<std::string> &pathList = context->getPathList();
+		std::list<std::string> pathList;
+		if ((mode == LOAD_PERSISTENT) || (mode == SAVE_PERSISTENT)) {
+			pathList.push_back(context->getSavePath());
+		} else {
+			pathList = context->getPathList();
+		}
 		std::list<std::string>::const_iterator it;
 		for (it = pathList.begin(); it != pathList.end(); it++) {
 			try {
-				open(*it + url, options);
+				open(*it + url, mode);
 				return;
 			} catch (FileException &e) {
 				// try next
@@ -32,7 +37,7 @@ File::~File()
 }
 
 
-void File::open(const std::string &url, int options)
+void File::open(const std::string &url, OpenMode mode)
 {
 	std::string protocol, name;
 	unsigned int pos = url.find("://");
@@ -47,7 +52,7 @@ void File::open(const std::string &url, int options)
 	
 	PRT_DEBUG("File: " << protocol << "://" << name);
 	if (protocol == "file") {
-		file = new LocalFile(name, options);
+		file = new LocalFile(name, mode);
 	} else {
 		PRT_ERROR("Unsupported protocol: " << protocol);
 	}

@@ -19,7 +19,8 @@ SRAM::SRAM(int size_, Config *config_, const char *header_)
 		PRT_DEBUG("SRAM: read " << filename);
 		try {
 			bool headerOk = true;
-			File file(config->getContext(), filename);
+			File file(config->getContext(), filename,
+			          LOAD_PERSISTENT);
 			if (header) {
 				int length = strlen(header);
 				byte* temp = new byte[length];
@@ -32,7 +33,8 @@ SRAM::SRAM(int size_, Config *config_, const char *header_)
 			if (headerOk) {
 				file.read(sram, size);
 			} else {
-				PRT_INFO("Warning correct SRAM file: " << filename);
+				PRT_INFO("Warning no correct SRAM file: " <<
+				         filename);
 			}
 		} catch (FileException &e) {
 			PRT_INFO("Couldn't load SRAM " << filename);
@@ -47,7 +49,8 @@ SRAM::~SRAM()
 		const std::string &filename = config->getParameter("sramname");
 		PRT_DEBUG("SRAM: save " << filename);
 		try {
-			File file(config->getContext(), filename, TRUNCATE);
+			File file(config->getContext(), filename,
+			          SAVE_PERSISTENT);
 			if (header) {
 				int length = strlen(header);
 				file.write((const byte*)header, length);

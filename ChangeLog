@@ -1,5 +1,15 @@
 $Id$
 
+2003-02-16 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* First step to persistent state directories:
+	   - persistent state files are saved in
+	      ~/.openMSX/persistent/<machine>/<username>/
+	   - <machine> is the name of the directory where we found the
+	     hardware description. Maybe we should get this from inside the
+	     config file?
+	   - it's not yet possible to specify <username>, so for now it's
+	     always "untitled<n>"
+
 2003-02-13 Maarten ter Huurne <maarten@treewalker.org>
 	* Made "full screen" into a setting.
 	  The "fullscreen" command still works, but will disappear in the future.

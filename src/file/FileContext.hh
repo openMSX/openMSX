@@ -5,6 +5,7 @@
 
 #include <string>
 #include <list>
+#include <map>
 
 
 class FileContext
@@ -12,6 +13,7 @@ class FileContext
 	public:
 		virtual ~FileContext();
 		virtual const std::list<std::string> &getPathList() const;
+		virtual const std::string &getSavePath() const;
 		
 	protected:
 		mutable std::list<std::string> paths;
@@ -20,7 +22,14 @@ class FileContext
 class ConfigFileContext : public FileContext
 {
 	public:
-		ConfigFileContext(const std::string &path);
+		ConfigFileContext(const std::string &path,
+                                  const std::string &hwDescr,
+                                  const std::string &userName);
+		virtual const std::string &getSavePath() const;
+	
+	private:
+		std::string savePath;
+		static std::map<std::string, int> nonames;
 };
 
 class SystemFileContext : public FileContext

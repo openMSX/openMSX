@@ -15,12 +15,38 @@ const std::list<std::string> &FileContext::getPathList() const
 	return paths;
 }
 
+const std::string &FileContext::getSavePath() const
+{
+	// we should only save from a system file context
+	assert(false);
+	static std::string dummy;
+	return dummy;
+}
+
 
 // class ConfigFileContext
 
-ConfigFileContext::ConfigFileContext(const std::string &path)
+std::map<std::string, int> ConfigFileContext::nonames;
+
+ConfigFileContext::ConfigFileContext(const std::string &path,
+                                     const std::string &hwDescr,
+                                     const std::string &userName_)
 {
 	paths.push_back(path);
+
+	std::string userName(userName_);
+	if (userName == "") {
+		int num = ++nonames[hwDescr];
+		char buf[20];
+		snprintf(buf, 20, "untitled%d", num);
+		userName = buf;
+	}
+	savePath = "~/.openMSX/persistent/" + hwDescr + '/' + userName + '/';
+}
+
+const std::string &ConfigFileContext::getSavePath() const
+{
+	return savePath;
 }
 
 
@@ -28,9 +54,8 @@ ConfigFileContext::ConfigFileContext(const std::string &path)
 
 SystemFileContext::SystemFileContext()
 {
-	paths.push_back("~/.openMSX/");
-	paths.push_back("/usr/local/etc/openMSX/");
-	paths.push_back("/etc/openMSX/");
+	paths.push_back("~/.openMSX/");		// user directory
+	paths.push_back("/opt/openMSX/");	// system directory
 }
 
 

@@ -12,9 +12,11 @@ class FileBase;
 class FileContext;
 
 
-enum FileOption {
-	NORMAL   = 0,
-	TRUNCATE = 1,
+enum OpenMode {
+	NORMAL,
+	TRUNCATE,
+	LOAD_PERSISTENT,
+	SAVE_PERSISTENT,
 };
 
 class FileException : public MSXException {
@@ -31,11 +33,10 @@ class File
 		 * @param context Base URL for relative path.
 		 * @param url Full URL or relative path of the file
 		 *   that will be represented by this file object.
-		 * @param options Mode to open the file in:
-		 *   OR'ed combination of FileOption flags.
+		 * @param mode Mode to open the file in:
 		 */
 		File(const FileContext *context, const std::string &url,
-		     int options = NORMAL);
+		     OpenMode mode = NORMAL);
 		
 		/**
 		 * Destroy file object.
@@ -106,7 +107,7 @@ class File
 		const std::string getLocalName() const;
 
 	private:
-		void open(const std::string &url, int options);
+		void open(const std::string &url, OpenMode mode);
 		
 		FileBase *file;
 };

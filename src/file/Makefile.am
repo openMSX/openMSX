@@ -16,7 +16,8 @@ libFile_la_SOURCES = \
 	File.cc File.hh \
 	FileContext.cc FileContext.hh \
 	FileBase.cc FileBase.hh \
-	LocalFile.cc LocalFile.hh
+	LocalFile.cc LocalFile.hh \
+	FileOperations.cc FileOperations.hh
 
 nodebug: resetdebug all
 debug: setdebug all

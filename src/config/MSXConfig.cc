@@ -268,12 +268,27 @@ void MSXConfig::loadFile(const FileContext *context,
 	delete context;
 	XML::Document* doc = new XML::Document(file.getLocalName());
 
+	// get url
 	std::string url(file.getURL());
 	unsigned pos = url.find_last_of('/');
 	assert (pos != std::string::npos);	// protocol must contain a '/'
-	url = url.substr(0, pos + 1);
-	PRT_DEBUG("Context: config file context: " << url);
-	ConfigFileContext* context2 = new ConfigFileContext(url);
+	url = url.substr(0, pos);
+	PRT_DEBUG("Config: url "<<url);
+	
+	// TODO read hwDesc from config ???
+	std::string hwDesc;
+	pos = url.find_last_of('/');
+	if (pos == std::string::npos) {
+		hwDesc = "noname";
+	} else {
+		hwDesc = url.substr(pos + 1);
+	}
+
+	// TODO get user name
+	std::string userName;
+	
+	ConfigFileContext* context2 =
+		new ConfigFileContext(url + '/', hwDesc, userName);
 	handleDoc(doc, context2);
 }
 

@@ -3,17 +3,23 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include "LocalFile.hh"
-#include "File.hh"
+#include "FileOperations.hh"
 
-LocalFile::LocalFile(const std::string &filename_, int options)
-	: filename(filename_)
+
+LocalFile::LocalFile(const std::string &filename_, OpenMode mode)
+	: filename(FileOperations::expandTilde(filename_))
 {
-	if (filename[0] == '~') {
-		filename = std::string(getenv("HOME")) + filename.substr(1);
-	}
 	PRT_DEBUG("LocalFile: " << filename);
+
+	if (mode == SAVE_PERSISTENT) {
+		unsigned pos = filename.find_last_of('/');
+		if (pos != std::string::npos) {
+			FileOperations::mkdirp(filename.substr(0, pos));
+		}
+	}
+	
 	const char* name = filename.c_str(); 
-	if (options & TRUNCATE) {
+	if ((mode == SAVE_PERSISTENT) || (mode == TRUNCATE)) {
 		// open file read/write truncated
 		file = fopen(name, "wb+");
 	} else {
