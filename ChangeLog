@@ -1,5 +1,14 @@
 $Id$
 
+2004-04-18 Maarten ter Huurne <maarten@treewalker.org>
+	* Dropped autoconf completely.
+	  This also means autogen.sh is no longer necessary.
+	  Thanks to Herman and Manuel for testing parts of the new system.
+	  The new probing system only looks for optional parts, not for mandatory
+	  ones (such as SDL). Also, there is no option to disable optional parts
+	  yet. Possibly some bugs have slipped the testing, please alert me
+	  if you find any.
+
 2004-04-15 Maarten ter Huurne <maarten@treewalker.org>
 	* Build system discovers TCL compile and link flags
 	  using "tcl-search.sh" instead of autoconf.
