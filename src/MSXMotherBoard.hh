@@ -10,7 +10,7 @@
 class MSXDevice;
 
 
-class MSXMotherBoard : public Runnable
+class MSXMotherBoard
 {
 	public:
 		/**

@@ -110,7 +110,10 @@ const EmuTime Scheduler::scheduleEmulation()
 			device->executeUntilEmuTime(time, userData);
 		}
 		if (needBlock) {
-			pauseCond.wait();
+			while (pauseCond.waitTimeout(10)!=0)
+				EventDistributor::instance()->run();
+		} else {
+			EventDistributor::instance()->run();
 		}
 	}
 	return cpu->getTargetTime();

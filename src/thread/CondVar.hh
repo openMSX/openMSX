@@ -3,9 +3,7 @@
 #ifndef __CONDVAR_HH__
 #define __CONDVAR_HH__
 
-// forward declarations
-class SDL_cond;
-class SDL_mutex;
+#include <SDL/SDL.h>
 
 
 class CondVar
@@ -14,6 +12,7 @@ class CondVar
 		CondVar();
 		~CondVar();
 		void wait();
+		int waitTimeout(Uint32);
 		void signal();
 		void signalAll();
 

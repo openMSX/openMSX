@@ -22,6 +22,12 @@ void CondVar::wait()
 	SDL_CondWait(cond, mutex);
 }
 
+int CondVar::waitTimeout(Uint32 to)
+{
+	SDL_mutexP(mutex);
+	return	SDL_CondWaitTimeout(cond, mutex, to);
+}
+
 void CondVar::signal()
 {
 	SDL_CondSignal(cond);

@@ -72,15 +72,8 @@ int main(int argc, char **argv)
 
 		// Start emulation thread.
 		PRT_DEBUG("Starting MSX");
-		Thread thread(MSXMotherBoard::instance());
-		thread.start();
+		MSXMotherBoard::instance()->run();
 
-		// Perform event handling in main thread.
-		EventDistributor::instance()->run();
-
-		// Wait for emulation thread to end.
-		thread.join();
-		
 		// Clean up.
 		SDL_Quit();
 		

@@ -93,7 +93,7 @@ private:
 	/** Semaphore used to suspend emulation thread until main thread has
 	  * created the renderer.
 	  */
-	SDL_sem *semaphore;
+//	SDL_sem *semaphore;
 
 public:
 	/** Create a new renderer switch operation.
@@ -112,7 +112,7 @@ public:
 	/** Called by the main thread to actually create the new renderer.
 	  * Wakes up the emulation thread.
 	  */
-	void handleEvent();
+//	void handleEvent();
 
 };
 
@@ -131,7 +131,7 @@ private:
 	/** Semaphore used to suspend emulation thread until main thread has
 	  * created the renderer.
 	  */
-	SDL_sem *semaphore;
+//	SDL_sem *semaphore;
 
 public:
 	/** Create a new renderer switch operation.
@@ -149,7 +149,7 @@ public:
 	/** Called by the main thread to actually create the new renderer.
 	  * Wakes up the emulation thread.
 	  */
-	void handleEvent();
+//	void handleEvent();
 
 };
 

@@ -34,10 +34,11 @@ EventDistributor *EventDistributor::instance()
 
 void EventDistributor::run()
 {
-	Scheduler *scheduler = Scheduler::instance();
-	while (scheduler->isEmulationRunning()) {
+//	Scheduler *scheduler = Scheduler::instance();
+//	while (scheduler->isEmulationRunning()) {
 		SDL_Event event;
-		if (!SDL_WaitEvent(&event)) PRT_ERROR("Error waiting for events");
+//		if (!SDL_WaitEvent(&event)) PRT_ERROR("Error waiting for events");
+	while (SDL_PollEvent(&event)==1) {
 		PRT_DEBUG("SDL event received");
 		switch (event.type) {
 		case SDL_QUIT:
