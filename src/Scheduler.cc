@@ -26,7 +26,7 @@ Scheduler::Scheduler()
 	cpu = MSXCPU::instance();
 	cpu->init(this);
 	renderer = NULL;
-	
+
 	pauseSetting.addListener(this);
 	powerSetting.addListener(this);
 
@@ -52,23 +52,25 @@ Scheduler* Scheduler::instance()
 	return oneInstance;
 }
 
-void Scheduler::setSyncPoint(const EmuTime &timeStamp, Schedulable* device, int userData)
+void Scheduler::setSyncPoint(const EmuTime &timeStamp, Schedulable *device, int userData)
 {
-	const EmuTime &targetTime = cpu->getTargetTime();
-	EmuTime time = (timeStamp == ASAP) ? targetTime : timeStamp;
-
 	if (device) {
 		//PRT_DEBUG("Sched: registering " << device->schedName() <<
 		//          " " << userData << " for emulation at " << time);
 	}
 
-	if (time < targetTime) {
-		cpu->setTargetTime(time);
-	}
 	sem.down();
-	syncPoints.push_back(SynchronizationPoint (time, device, userData));
+	// Push sync point into queue.
+	syncPoints.push_back(SynchronizationPoint(timeStamp, device, userData));
 	push_heap(syncPoints.begin(), syncPoints.end());
+	// Tell CPU emulation to return early if necessary.
+	// TODO: Emulation may run in parallel in a seperate thread.
+	//       What we're doing here is not thread safe.
+	if (timeStamp < cpu->getTargetTime()) {
+		cpu->setTargetTime(timeStamp);
+	}
 	sem.up();
+
 	if (paused || !powerSetting.getValue()) {
 		EventDistributor::instance()->notify();
 	}
@@ -80,9 +82,9 @@ void Scheduler::removeSyncPoint(Schedulable* device, int userData)
 	for (vector<SynchronizationPoint>::iterator it = syncPoints.begin();
 	     it != syncPoints.end(); ++it) {
 		SynchronizationPoint& sp = *it;
-		if ((sp.getDevice() == device) && 
+		if ((sp.getDevice() == device) &&
 		    (sp.getUserData() == userData)) {
-			swap(sp, syncPoints.back()); 
+			swap(sp, syncPoints.back());
 			syncPoints.pop_back();
 			make_heap(syncPoints.begin(), syncPoints.end());
 			break;
@@ -98,39 +100,30 @@ void Scheduler::stopScheduling()
 	unpause();
 }
 
-void Scheduler::schedule(const EmuTime& limit)
+void Scheduler::schedule(const EmuTime &limit)
 {
 	EventDistributor *eventDistributor = EventDistributor::instance();
-	while (emulationRunning) {
+	while (true) {
+		// Get next sync point.
 		sem.down();
-		assert(!syncPoints.empty());	// class RealTime always has one
-		const SynchronizationPoint sp = syncPoints.front();
-		const EmuTime& time = sp.getTime();
-		if (limit < time) {
+		const SynchronizationPoint sp =
+			  syncPoints.empty()
+			? SynchronizationPoint(EmuTime::infinity, NULL, 0)
+			: syncPoints.front();
+		const EmuTime &time = sp.getTime();
+
+		// Return when we've gone far enough.
+		// If limit and time are both infinity, scheduling will continue.
+		if (limit < time || !emulationRunning) {
 			sem.up();
 			return;
 		}
-		if (cpu->getTargetTime() < time) {
+
+		if (time == ASAP) {
+			scheduleDevice(sp, cpu->getCurrentTime());
+			eventDistributor->poll();
+		} else if (!powerSetting.getValue()) {
 			sem.up();
-			if (!paused && powerSetting.getValue()) {
-				// first bring CPU till SP
-				//  (this may set earlier SP)
-				PRT_DEBUG ("Sched: Scheduling CPU till " << time);
-				cpu->executeUntilTarget(time);
-			}
-		} else {
-			// if CPU has reached SP, emulate the device
-			pop_heap(syncPoints.begin(), syncPoints.end());
-			syncPoints.pop_back();
-			sem.up();
-			Schedulable* device = sp.getDevice();
-			assert(device);
-			int userData = sp.getUserData();
-			PRT_DEBUG ("Sched: Scheduling " << device->schedName()
-			           << " " << userData << " till " << time);
-			device->executeUntil(time, userData);
-		}
-		if (!powerSetting.getValue()) {
 			assert(renderer);
 			int fps = renderer->putPowerOffImage();
 			if (fps == 0) {
@@ -140,13 +133,37 @@ void Scheduler::schedule(const EmuTime& limit)
 				eventDistributor->poll();
 			}
 		} else if (paused) {
+			sem.up();
 			assert(renderer);
 			renderer->putStoredImage();
 			eventDistributor->wait();
 		} else {
+			if (cpu->getTargetTime() < time) {
+				sem.up();
+				// Schedule CPU until first sync point.
+				// This may set earlier sync point.
+				PRT_DEBUG ("Sched: Scheduling CPU till " << time);
+				cpu->executeUntilTarget(time);
+			} else {
+				scheduleDevice(sp, time);
+			}
 			eventDistributor->poll();
 		}
 	}
+}
+
+void Scheduler::scheduleDevice(
+	const SynchronizationPoint &sp, const EmuTime &time )
+{
+	pop_heap(syncPoints.begin(), syncPoints.end());
+	syncPoints.pop_back();
+	sem.up();
+	Schedulable *device = sp.getDevice();
+	assert(device);
+	int userData = sp.getUserData();
+	PRT_DEBUG ("Sched: Scheduling " << device->schedName()
+			<< " " << userData << " till " << time);
+	device->executeUntil(time, userData);
 }
 
 void Scheduler::unpause()

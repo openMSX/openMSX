@@ -95,7 +95,7 @@ public:
 		return powerSetting;
 	}
 
-	// Should only be called by VDP 
+	// Should only be called by VDP
 	void pause();
 
 	static const EmuTime ASAP;
@@ -104,12 +104,19 @@ private:
 	Scheduler();
 	virtual ~Scheduler();
 
+	/** Emulate a device.
+	  * @param sp The sync point that requested this emulation.
+	  * @param time The time until which the device will be emulated.
+	  * 	This is an actual time stamp (ASAP is already resolved).
+	  */
+	void scheduleDevice(const SynchronizationPoint &sp, const EmuTime &time);
+
 	// SettingListener
 	virtual void update(const SettingLeafNode* setting) throw();
 
 	// EventListener
 	virtual bool signalEvent(const SDL_Event& event) throw();
-	
+
 	void unpause();
 	void stopScheduling();
 
