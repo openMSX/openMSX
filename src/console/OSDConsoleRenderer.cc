@@ -9,6 +9,9 @@ int OSDConsoleRenderer::consoleColumns;
 int OSDConsoleRenderer::consoleLines;
 int OSDConsoleRenderer::wantedConsoleRows;
 int OSDConsoleRenderer::wantedConsoleColumns;
+std::string OSDConsoleRenderer::fontName;
+std::string OSDConsoleRenderer::backgroundName;
+
 OSDConsoleRenderer::Placement OSDConsoleRenderer::consolePlacement;
 
 // class BackgroundSetting
@@ -28,6 +31,7 @@ bool BackgroundSetting::checkUpdate(const std::string &newValue)
 	try {
 		UserFileContext context;
 		result = console->loadBackground(context.resolve(newValue));
+		console->backgroundName = context.resolve(newValue);
 	} catch (FileException &e) {
 		// file not found
 		result = false;
@@ -51,6 +55,7 @@ bool FontSetting::checkUpdate(const std::string &newValue)
 	try {
 		UserFileContext context;
 		result = console->loadFont(context.resolve(newValue));
+		console->fontName = context.resolve(newValue);
 	} catch (FileException &e) {
 		// file not found
 		result = false;
@@ -63,26 +68,34 @@ bool FontSetting::checkUpdate(const std::string &newValue)
 
 OSDConsoleRenderer::OSDConsoleRenderer()
 {
+	static bool initiated=false;
 	try {
 		Config *config = MSXConfig::instance()->getConfigById("Console");
 		context = config->getContext();
 		
 		try
 		{			
-			if (config->hasParameter("font")) {
-				fontName = config->getParameter("font");
-				fontName = context->resolve(fontName);
+			if (!initiated){
+				std::cout << "new font\n";
+				if (config->hasParameter("font")) {
+					fontName = config->getParameter("font");
+					fontName = context->resolve(fontName);
+				}
 			}
 		}catch(FileException &e) {}
 		
 		try
 		{
-			if (config->hasParameter("background")) {
-				backgroundName = config->getParameter("background");
-				backgroundName = context->resolve(backgroundName);
+			if (!initiated){
+				std::cout << "new back\n";
+				if (config->hasParameter("background")) {
+					backgroundName = config->getParameter("background");
+					backgroundName = context->resolve(backgroundName);
+				}
 			}
 		}catch(FileException &e) {}
 	
+		initiated = true;	
 		font = new DummyFont();
 				
 	} catch (MSXException &e) {

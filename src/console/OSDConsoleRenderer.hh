@@ -57,6 +57,11 @@ class OSDConsoleRenderer : public ConsoleRenderer
 		enum Placement {CP_TOPLEFT,CP_TOP,CP_TOPRIGHT,
 						CP_LEFT,CP_CENTER,CP_RIGHT,
 						CP_BOTTOMLEFT,CP_BOTTOM,CP_BOTTOMRIGHT};
+		void setBackgroundName (std::string name);
+		void setFontName (std::string name);
+		static std::string fontName;
+		static std::string backgroundName;
+						
 	protected:
 		/** How transparent is the console? (0=invisible, 255=opaque)
 		  * Note that when using a background image on the GLConsole,
@@ -71,8 +76,6 @@ class OSDConsoleRenderer : public ConsoleRenderer
 		static int consoleLines;
 		static int consoleColumns;
 		static Placement consolePlacement;
-		std::string fontName;
-		std::string backgroundName;
 		EnumSetting<Placement> *consolePlacementSetting;
 		IntegerSetting* consoleLinesSetting;
 		IntegerSetting* consoleColumnsSetting;
