@@ -579,7 +579,7 @@ void SDLGLRenderer::precalcPalette(float gamma)
 			PALETTE256[i] = V9938_COLOURS
 				[(i & 0x1C) >> 2]
 				[(i & 0xE0) >> 5]
-				[((i & 0x03) << 1) | ((i & 0x02) >> 1)];
+				[(i & 0x03) == 3 ? 7 : (i & 0x03) * 2];
 		}
 		// Precalculate Graphic 7 sprite palette.
 		for (int i = 0; i < 16; i++) {

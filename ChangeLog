@@ -1,5 +1,9 @@
 $Id$
 
+2003-07-05 Maarten ter Huurne <maarten@treewalker.org>
+	* Fixed colour of blue intensity 2 in Graphic7 mode.
+	  Thanks to Grauw for reporting this bug.
+
 2003-07-03 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed bug in scanline effect, which caused glitches on ATI and
 	  Matrox cards.
