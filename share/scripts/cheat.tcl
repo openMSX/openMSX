@@ -1,100 +1,131 @@
-###########################################################
-#  openMSX TCL cheat finder version 0.4
+# Cheat finder version 0.5
 #
-# (c) copyright 2005 Patrick van Arkel all rights reserved
+# Welcome to the openMSX cheatfinder. Please visit
+# http://forum.openmsx.org/viewtopic.php?t=32 For a quick tutorial
 #
-# Credits 
+# Credits:
+#   Copyright 2005 Wouter Vermaelen all rights reserved
+#   Copyright 2005 Patrick van Arkel all rights reserved
 #
-# - Maarten ter Huurne  for giving me hints and tips
+# Usage:
+#   cheatfind [-start] [-max n] [expression]
+#      -start	  :  restart search, discard previously found addresses
+#      -max n     :  show max n results
+#      expression :  TODO
 #
-# - Wouter for helping me simplify the script
-# 
-# - Johan van Leur for writing the bluemsx trainer
-#   which inspired me to make this
+# Examples:
+#   cheatfind 42                 search for specific value
+#   cheatfind bigger             search for values that have become bigger
+#   cheatfind new == (2 * old)   search for values that have doubled
+#   cheatfind new == (old - 1)   search for values that have decreased by 1
+#   cheatfind                    repeat the previous found addresses
+#   cheatfind -start new < 10    restart and search for values less then 10
+#   cheatfind -max 40 smaller    search for smaller values, show max 40 results
 #
-#
-# - findcheat_init start a new cheat search (mandantory for comparision) 
-#
-# Currently supported
-# - findval [value] search with value
-#
-# - Comparision search 
-#   Init with findcheat_init
-#   * greater
-#   * smaller
-#   * equal
-#   * notequal
-#
-# to use the cheat use this in the console
-# debug write memory [address] [value]
-#
-# Example : 
-# debug write memory 0x0256 0x99
-# debug write memory 21056 99
-#
-# or a combination of the above
-#
-###########################################################
 
-# set an array outside the procedures
-# this will be used inside the procedures
-set  memcomp(0) 666
+#set maximum to display cheats
+set cheatfind_max  15
 
-# to init the whole process make a snapshot and look for a value
-# if a value is not found at that address the value will be set to 999
-# the number of 999 has been chosen because an 8-bit value can be 255 max
-
-#  init (snapshot)
-proc findcheat_init {} {
-	global memcomp
-	for { set i 0 } { $i <= 65535 } { incr i } {
-		set memcomp($i) [debug read memory $i]
-	}
+# Restart cheat finder. Should not be used directly by the user
+proc cheatfind_start {} {
+  global cheatfind_mem
+  set mem [debug read_block memory 0 0x10000]
+  binary scan $mem c* values
+  set addr 0
+  foreach val $values {
+    set cheatfind_mem($addr) $val
+    incr addr
+  }
 }
 
-# the 2nd step of the search fucntion. This will use the inital snapshot
-# to look for values. If a value isn't found the value is again set to 999
-# repeat this function until a value is found.
-
-proc findval { cheatval } {
-	global memcomp
-	#check if previous search has been done
-	if {$memcomp(0) == 666} { findcheat_init }
-
-	for { set i 0 } { $i <= 65535 } { incr i } {
-		if {$memcomp($i) != 999 } {
-			if {[debug read memory $i] == $cheatval} {
-				puts "addr [format 0x%04X $i] : has value $cheatval"
-			} else {
-				set memcomp($i) 999
-			}
-		}
-	}
+# Helper function to do the actual search.
+# Should not be used directly by the user.
+# Returns a list of triplets (addr, old, new)
+proc cheatfind_helper { expression } {
+  global cheatfind_mem
+  set result [list]
+  foreach {addr old} [array get cheatfind_mem] {
+    set new [debug read memory $addr]
+    if [expr $expression] {
+      set cheatfind_mem($addr) $new
+      lappend result [list $addr $old $new]
+    } else {
+      unset cheatfind_mem($addr)
+    }
+  }
+  return $result
 }
 
-# ---------------------------------------------------
-# Compare search bigger / smaller / equal / notequal
-# ---------------------------------------------------
+# main routine
+proc cheatfind { args } {
+  # create cheatfind_mem array
+  global cheatfind_mem
+  if ![array exists cheatfind_mem] cheatfind_start
+  
+  # get the maximum results to display
+  global cheatfind_max
+    
+  # build translation array for convenience expressions
+  global cheatfind_translate
+  if ![array exists cheatfind_translate] {
+    # TODO add more here
+    set cheatfind_translate()         "true"
+    
+    set cheatfind_translate(bigger)   "new > old"
+    set cheatfind_translate(smaller)  "new < old"
+    
+    set cheatfind_translate(more)     "new > old"
+    set cheatfind_translate(less)     "new < old"
+    
+    set cheatfind_translate(notequal) "new != old"
+    set cheatfind_translate(equal)    "new == old"
+    
+    set cheatfind_translate(loe)      "new <= old"
+    set cheatfind_translate(moe)      "new >= old"
+  }
 
-# search 
+  # parse options
+  while (1) {
+    switch -- [lindex $args 0] {
+      "-max" {
+        set cheatfind_max  [lindex $args 1]
+        set args [lrange $args 2 end]
+      }
+      "-start" {
+        cheatfind_start
+        set args [lrange $args 1 end]
+      }
+      "default" break
+    }
+  }
+  
+  # all remaining arguments form the expression  
+  set expression [join $args]
+    
+  if [info exists cheatfind_translate($expression)] {
+    # translate a convenience expression into a real expression
+    set expression $cheatfind_translate($expression)
+  } elseif [string is integer $expression] {
+    # search for a specific value
+    set expression "new == $expression"
+  }
 
-proc equal		{ a b } { expr "$a == $b" }
-proc notequal		{ a b } { expr "$a != $b" }
-proc smaller		{ a b } { expr "$a < $b"  }
-proc smaller_or_equal	{ a b } { expr "$a <= $b" }
-proc greater_or_equal	{ a b } { expr "$a >= $b" }
-proc bigger		{ a b } { expr "$a > $b"  }
-
-proc find { compare } {
-	global memcomp
-	for { set i 0 } { $i <= 65535 } { incr i } {
-		if {$memcomp($i) != 999} {
-			if {[$compare [debug read memory $i] $memcomp($i)]} {
-				puts "addr [format 0x%04X $i] : has value [debug read memory $i] was $memcomp($i)"
-				set memcomp($i) [debug read memory $i]
-			} else {
-				set memcomp($i) 999
-			}
-		}
-	}
+  # prefix 'old', 'new' and 'addr' with '$'
+  set expression [string map {old $old new $new addr $addr} $expression] 
+  
+  # search memory 
+  set result [cheatfind_helper $expression]
+ 
+  #display the result 
+  set num [llength $result]
+  if {$num == 0} {
+    puts "No results left"
+  } elseif {$num < $cheatfind_max} {
+    set sorted [lsort -integer -index 0 $result]
+    foreach {addr old new} [join $sorted] {
+      puts "[format 0x%04X $addr] : $old -> $new"
+    }
+  } else {
+    puts "$num results found -> Maximum result to display set to $cheatfind_max "
+  }
 }
