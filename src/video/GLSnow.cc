@@ -22,8 +22,8 @@ GLSnow::GLSnow()
 	}
 	glGenTextures(1, &noiseTextureId);
 	glBindTexture(GL_TEXTURE_2D, noiseTextureId);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE8, 128, 128, 0,
 	             GL_LUMINANCE, GL_UNSIGNED_BYTE, buf);
 

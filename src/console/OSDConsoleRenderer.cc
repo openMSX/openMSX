@@ -62,9 +62,8 @@ void OSDConsoleRenderer::initConsole()
 	}
 	
 	// rows / columns
-	SDL_Surface* screen = SDL_GetVideoSurface();
-	int columns = (((screen->w - CHAR_BORDER) / font->getWidth()) * 30) / 32;
-	int rows = ((screen->h / font->getHeight()) * 6) / 15;
+	int columns = (((getScreenW() - CHAR_BORDER) / font->getWidth()) * 30) / 32;
+	int rows = ((getScreenH() / font->getHeight()) * 6) / 15;
 	consoleColumnsSetting.reset(new IntegerSetting("consolecolumns",
 		"number of columns in the console", columns, 32, 999));
 	consoleRowsSetting.reset(new IntegerSetting("consolerows",
@@ -90,7 +89,7 @@ void OSDConsoleRenderer::initConsole()
 		"consoleplacement", "position of the console within the emulator",
 		CP_BOTTOM, placeMap));
 	
-	updateConsoleRect(destRect);
+	updateConsoleRect();
 	
 	// background
 	backgroundSetting.reset(new FilenameSetting(
@@ -105,17 +104,10 @@ void OSDConsoleRenderer::initConsole()
 
 void OSDConsoleRenderer::adjustColRow()
 {
-	SDL_Surface* screen = SDL_GetVideoSurface();
-	if (console.getColumns() > (unsigned)((screen->w - CHAR_BORDER) / font->getWidth())) {
-		consoleColumns = (screen->w - CHAR_BORDER) / font->getWidth();
-	} else {
-		consoleColumns = console.getColumns();
-	}
-	if (console.getRows() > (unsigned)(screen->h / font->getHeight())) {
-		consoleRows = screen->h / font->getHeight();
-	} else {
-		consoleRows = console.getRows();
-	}
+	consoleColumns = std::min(console.getColumns(),
+	                    (getScreenW() - CHAR_BORDER) / font->getWidth());
+	consoleRows = std::min(console.getRows(),
+	                     getScreenH() / font->getHeight());
 }
 
 void OSDConsoleRenderer::update(const Setting* setting)
@@ -176,17 +168,19 @@ byte OSDConsoleRenderer::getVisibility() const
 	}
 }
 
-void OSDConsoleRenderer::updateConsoleRect(SDL_Rect& rect)
+bool OSDConsoleRenderer::updateConsoleRect()
 {
-	SDL_Surface* screen = SDL_GetVideoSurface();
+	unsigned screenW = getScreenW();
+	unsigned screenH = getScreenH();
 	
 	// TODO use setting listener in the future
 	console.setRows(consoleRowsSetting->getValue());
 	console.setColumns(consoleColumnsSetting->getValue());
 	adjustColRow();
 
-	rect.h = font->getHeight() * consoleRows;
-	rect.w = (font->getWidth() * consoleColumns) + CHAR_BORDER;
+	unsigned x, y, w, h;
+	h = font->getHeight() * consoleRows;
+	w = (font->getWidth() * consoleColumns) + CHAR_BORDER;
 	console.setConsoleDimensions(consoleColumns, consoleRows);
 	
 	// TODO use setting listener in the future
@@ -194,38 +188,43 @@ void OSDConsoleRenderer::updateConsoleRect(SDL_Rect& rect)
 		case CP_TOPLEFT:
 		case CP_LEFT:
 		case CP_BOTTOMLEFT:
-			rect.x = 0;
+			x = 0;
 			break;
 		case CP_TOPRIGHT:
 		case CP_RIGHT:
 		case CP_BOTTOMRIGHT:
-			rect.x = (screen->w - rect.w);
+			x = (screenW - w);
 			break;
 		case CP_TOP:
 		case CP_CENTER:
 		case CP_BOTTOM:
 		default:
-			rect.x = (screen->w - rect.w) / 2;
+			x = (screenW - w) / 2;
 			break;
 	}
 	switch (consolePlacementSetting->getValue()) {
 		case CP_TOPLEFT:
 		case CP_TOP:
 		case CP_TOPRIGHT:
-			rect.y = 0;
+			y = 0;
 			break;
 		case CP_LEFT:
 		case CP_CENTER:
 		case CP_RIGHT:
-			rect.y = (screen->h - rect.h) / 2;
+			y = (screenH - h) / 2;
 			break;
 		case CP_BOTTOMLEFT:
 		case CP_BOTTOM:
 		case CP_BOTTOMRIGHT:
 		default:
-			rect.y = (screen->h - rect.h);
+			y = (screenH - h);
 			break;
 	}
+
+	bool result = (x != destX) || (y != destY) ||
+	              (w != destW) || (h != destH);
+	destX = x; destY = y; destW = w; destH = h;
+	return result;
 }
 
 void OSDConsoleRenderer::check(SettingImpl<FilenameSetting::Policy>& setting,

@@ -44,15 +44,22 @@ class StoredFrame
 public:
 	StoredFrame();
 	bool isStored() { return stored; }
-	void store();
+	void store(unsigned x, unsigned y);
 	void draw(int offsetX, int offsetY);
 	void drawBlend(int offsetX, int offsetY, double alpha);
 
 private:
-	
 	/** Texture reserved for storing frame image data.
 	  */
 	Texture texture;
+
+	/** Width of the stored image.
+	 */
+	unsigned width;
+
+	/** Height of the stored image.
+	 */
+	unsigned height;
 
 	/** Was the previous frame image stored?
 	  */

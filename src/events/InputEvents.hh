@@ -154,6 +154,20 @@ private:
 	bool gain;
 };
 
+class ResizeEvent : public Event
+{
+public:
+	ResizeEvent(unsigned x_, unsigned y_)
+		: Event(RESIZE_EVENT), x(x_), y(y_) {}
+
+	unsigned getX() const { return x; }
+	unsigned getY() const { return y; }
+
+private:
+	unsigned x;
+	unsigned y;
+};
+
 class QuitEvent : public Event
 {
 public:

@@ -4,6 +4,7 @@
 #define SDLGLVIDEOSYSTEM_HH
 
 #include "VideoSystem.hh"
+#include "EventListener.hh"
 
 struct SDL_Surface;
 
@@ -12,7 +13,7 @@ namespace openmsx {
 class VDP;
 class Rasterizer;
 
-class SDLGLVideoSystem: public VideoSystem
+class SDLGLVideoSystem : public VideoSystem, private EventListener
 {
 public:
 	/** Activates this video system.
@@ -33,7 +34,12 @@ public:
 	virtual void flush();
 	virtual void takeScreenShot(const std::string& filename);
 
+	// EventListener
+	bool signalEvent(const Event& event);
+
 private:
+	void resize(unsigned x, unsigned y);
+	
 	SDL_Surface* screen;
 };
 

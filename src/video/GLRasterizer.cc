@@ -67,13 +67,14 @@ inline static void GLSetColour(GLRasterizer::Pixel colour)
 	}
 }
 
-inline static void GLSetTexEnvCol(GLRasterizer::Pixel colour) {
+inline static void GLSetTexEnvCol(GLRasterizer::Pixel colour)
+{
 	GLfloat colourVec[4] = {
 		(colour & 0xFF) / 255.0f,
 		((colour >> 8) & 0xFF) / 255.0f,
 		((colour >> 16) & 0xFF) / 255.0f,
 		1.0f
-		};
+	};
 	glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, colourVec);
 }
 
@@ -268,14 +269,6 @@ GLRasterizer::GLRasterizer(VDP* vdp)
 	glClear(GL_COLOR_BUFFER_BIT);
 	frameDirty = false;
 
-	// Init OpenGL settings.
-	glViewport(0, 0, WIDTH, HEIGHT);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0, WIDTH, HEIGHT, 0, -1, 1);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-
 	// Create character display cache.
 	// Block based:
 	glGenTextures(4 * 256, characterCache);
@@ -292,7 +285,8 @@ GLRasterizer::GLRasterizer(VDP* vdp)
 	precalcPalette(RenderSettings::instance().getGamma()->getValue());
 
 	// Store current (black) frame as a texture.
-	storedFrame.store();
+	SDL_Surface* surface = SDL_GetVideoSurface();
+	storedFrame.store(surface->w, surface->h);
 
 	// Register caches with VDPVRAM.
 	vram->patternTable.setObserver(&dirtyPattern);
@@ -363,7 +357,8 @@ void GLRasterizer::frameEnd()
 	}
 
 	// Store current frame as a texture.
-	storedFrame.store();
+	SDL_Surface* surface = SDL_GetVideoSurface();
+	storedFrame.store(surface->w, surface->h);
 
 	// Avoid repainting the buffer by paint().
 	frameDirty = false;
@@ -558,9 +553,10 @@ void GLRasterizer::paint()
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		}
 		glColor4ub(0, 0, 0, scanlineAlpha);
+		glLineWidth(static_cast<float>(SDL_GetVideoSurface()->h) / HEIGHT);
 		glBegin(GL_LINES);
-		for (int y = 0; y < HEIGHT; y += 2) {
-			glVertex2f(0, y + 1.5); glVertex2f(WIDTH, y + 1.5);
+		for (float y = 0; y < HEIGHT; y += 2.0f) {
+			glVertex2f(0.0f, y + 1.5f); glVertex2f(WIDTH, y + 1.5f);
 		}
 		glEnd();
 		glDisable(GL_BLEND);

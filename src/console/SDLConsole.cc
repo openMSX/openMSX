@@ -35,14 +35,7 @@ SDLConsole::~SDLConsole()
 
 void SDLConsole::updateConsoleRect()
 {
-	SDL_Rect rect;
-	OSDConsoleRenderer::updateConsoleRect(rect);
-	if ((destRect.h != rect.h) || (destRect.w != rect.w) ||
-	    (destRect.x != rect.x) || (destRect.y != rect.y)) {
-		destRect.h = rect.h;
-		destRect.w = rect.w;
-		destRect.x = rect.x;
-		destRect.y = rect.y;
+	if (OSDConsoleRenderer::updateConsoleRect()) {
 		try {
 			loadBackground(backgroundName);
 		} catch (MSXException& e) {
@@ -63,21 +56,21 @@ void SDLConsole::paint()
 		// no background image, try to create an empty one
 		try {
 			backgroundImage.reset(new SDLImage(outputScreen,
-				destRect.w, destRect.h, CONSOLE_ALPHA));
+				destW, destH, CONSOLE_ALPHA));
 		} catch (MSXException& e) {
 			// nothing
 		}
 	}
 	if (backgroundImage.get()) {
-		backgroundImage->draw(destRect.x, destRect.y, visibility);
+		backgroundImage->draw(destX, destY, visibility);
 	}
 
-	int screenlines = destRect.h / font->getHeight();
+	int screenlines = destH / font->getHeight();
 	for (int loop = 0; loop < screenlines; ++loop) {
 		int num = loop + console.getScrollBack();
 		font->drawText(console.getLine(num),
-			destRect.x + CHAR_BORDER,
-			destRect.y + destRect.h - (1 + loop) * font->getHeight(),
+			destX + CHAR_BORDER,
+			destY + destH - (1 + loop) * font->getHeight(),
 			visibility);
 	}
 
@@ -98,8 +91,8 @@ void SDLConsole::paint()
 	if (console.getScrollBack() == 0) {
 		if (blink) {
 			font->drawText(string("_"),
-				destRect.x + CHAR_BORDER + cursorX * font->getWidth(),
-				destRect.y + destRect.h - (font->getHeight() * (cursorY + 1)),
+				destX + CHAR_BORDER + cursorX * font->getWidth(),
+				destY + destH - (font->getHeight() * (cursorY + 1)),
 				visibility);
 		}
 	}
@@ -119,7 +112,7 @@ void SDLConsole::loadBackground(const string& filename)
 		return;
 	}
 	backgroundImage.reset(new SDLImage(outputScreen, filename,
-		destRect.w, destRect.h, CONSOLE_ALPHA));
+		destW, destH, CONSOLE_ALPHA));
 	backgroundName = filename;
 }
 
@@ -127,6 +120,16 @@ void SDLConsole::loadFont(const string& filename)
 {
 	File file(filename);
 	font.reset(new SDLFont(&file, outputScreen));
+}
+
+unsigned SDLConsole::getScreenW() const
+{
+	return outputScreen->w;
+}
+
+unsigned SDLConsole::getScreenH() const
+{
+	return outputScreen->h;
 }
 
 } // namespace openmsx

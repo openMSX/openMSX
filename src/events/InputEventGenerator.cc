@@ -179,6 +179,12 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		distributor.distributeEvent(event);
 		break;
 	}
+
+	case SDL_VIDEORESIZE: {
+		Event* event = new ResizeEvent(evt.resize.w, evt.resize.h);
+		distributor.distributeEvent(event);
+		break;
+	}
 	
 	case SDL_QUIT:
 		distributor.distributeEvent(new QuitEvent());

@@ -3,6 +3,13 @@ $Id$
 2005-03-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Tiny SDLGL improvement:
 	   - use glRect() to draw rectangles with a single color iso GL_QUADS
+	* Experimental: enable window resizing in GL renderer
+	   - For some reason it doens't work yet in character modes
+	   - I read that on windows you need to reload all textures after a
+	     resize. I couldn't test this but if it's true resizing currently
+	     doesn't work in windows
+	   - By default the resizing is disabled, to enable it comment out
+	     line 110 in src/video/SDLGLVideoSystem.cc
 
 2005-03-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed MSX-AUDIO sample RAM detection:

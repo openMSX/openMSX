@@ -54,6 +54,16 @@ void GLConsole::loadBackground(const string& filename)
 	backgroundTexture = tmp;
 }
 
+unsigned GLConsole::getScreenW() const
+{
+	return 640;
+}
+
+unsigned GLConsole::getScreenH() const
+{
+	return 480;
+}
+
 void GLConsole::paint()
 {
 	byte visibility = getVisibility();
@@ -65,20 +75,13 @@ void GLConsole::paint()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	SDL_Surface* screen = SDL_GetVideoSurface();
+	OSDConsoleRenderer::updateConsoleRect();
 
-	OSDConsoleRenderer::updateConsoleRect(destRect);
-
-	glViewport(0, 0, screen->w, screen->h);
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	glOrtho(0.0, screen->w, screen->h, 0.0, 0.0, 1.0);
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
 
-	glTranslated(destRect.x, destRect.y, 0);
+	glTranslated(destX, destY, 0);
 	// Draw the background image if there is one, otherwise a solid rectangle.
 	if (backgroundTexture) {
 		glEnable(GL_TEXTURE_2D);
@@ -94,19 +97,19 @@ void GLConsole::paint()
 	glTexCoord2f(backTexCoord[0], backTexCoord[1]);
 	glVertex2i(0, 0);
 	glTexCoord2f(backTexCoord[0], backTexCoord[3]);
-	glVertex2i(0, destRect.h);
+	glVertex2i(0, destH);
 	glTexCoord2f(backTexCoord[2], backTexCoord[3]);
-	glVertex2i(destRect.w, destRect.h);
+	glVertex2i(destW, destH);
 	glTexCoord2f(backTexCoord[2], backTexCoord[1]);
-	glVertex2i(destRect.w, 0);
+	glVertex2i(destW, 0);
 	glEnd();
 
-	int screenlines = destRect.h / font->getHeight();
+	int screenlines = destH / font->getHeight();
 	for (int loop = 0; loop < screenlines; loop++) {
 		int num = loop + console.getScrollBack();
 		glPushMatrix();
 		font->drawText(console.getLine(num), CHAR_BORDER,
-		               destRect.h - (1 + loop) * font->getHeight(),
+		               destH - (1 + loop) * font->getHeight(),
 		               visibility);
 		glPopMatrix();
 	}
@@ -130,15 +133,12 @@ void GLConsole::paint()
 			// Print cursor if there is enough room
 			font->drawText(string("_"),
 				CHAR_BORDER + cursorX * font->getWidth(),
-				destRect.h - (font->getHeight() * (cursorY + 1)),
+				destH - (font->getHeight() * (cursorY + 1)),
 				visibility);
 
 		}
 	}
 
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
-	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glPopAttrib();
 }

@@ -7,7 +7,6 @@
 #include "FilenameSetting.hh"
 #include "SettingListener.hh"
 #include "openmsx.hh"
-#include <SDL.h>	// TODO get rid of this
 #include <memory>
 #include <string>
 
@@ -28,11 +27,13 @@ public:
 	virtual ~OSDConsoleRenderer();
 	virtual void loadBackground(const std::string& filename) = 0;
 	virtual void loadFont(const std::string& filename) = 0;
+	virtual unsigned getScreenW() const = 0;
+	virtual unsigned getScreenH() const = 0;
 
 protected:
 	OSDConsoleRenderer(Console& console);
 	void initConsole();
-	void updateConsoleRect(SDL_Rect& rect);
+	bool updateConsoleRect();
 	byte getVisibility() const;
 
 	/** How transparent is the console? (0=invisible, 255=opaque)
@@ -60,7 +61,10 @@ protected:
 	bool blink;
 	unsigned lastBlinkTime;
 	unsigned lastCursorPosition;
-	SDL_Rect destRect;
+	unsigned destX;
+	unsigned destY;
+	unsigned destW;
+	unsigned destH;
 	Console& console;
 
 private:

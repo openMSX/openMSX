@@ -31,14 +31,10 @@ void GLImage::draw(unsigned x, unsigned y, unsigned char alpha)
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,
 	          (alpha == 255) ? GL_REPLACE : GL_MODULATE);
 	glBegin(GL_QUADS);
-	glTexCoord2f(texCoord[0], texCoord[1]);
-	glVertex2i(x, y);
-	glTexCoord2f(texCoord[0], texCoord[3]);
-	glVertex2i(x, y + height);
-	glTexCoord2f(texCoord[2], texCoord[3]);
-	glVertex2i(x + width, y + height);
-	glTexCoord2f(texCoord[2], texCoord[1]);
-	glVertex2i(x + width, y);
+	glTexCoord2f(texCoord[0], texCoord[1]); glVertex2i(x,         y         );
+	glTexCoord2f(texCoord[0], texCoord[3]); glVertex2i(x,         y + height);
+	glTexCoord2f(texCoord[2], texCoord[3]); glVertex2i(x + width, y + height);
+	glTexCoord2f(texCoord[2], texCoord[1]); glVertex2i(x + width, y         );
 	glEnd();
 	glPopAttrib();
 }

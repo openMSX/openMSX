@@ -13,15 +13,14 @@
 #include "CommandConsole.hh"
 #include "ScreenShotSaver.hh"
 #include "IconLayer.hh"
+#include "EventDistributor.hh"
+#include "InputEvents.hh"
 #include <SDL.h>
+#include <alloca.h>
 
 using std::string;
 
 namespace openmsx {
-
-// Dimensions of screen.
-static const int WIDTH = 640;
-static const int HEIGHT = 480;
 
 SDLGLVideoSystem::SDLGLVideoSystem()
 {
@@ -31,8 +30,7 @@ SDLGLVideoSystem::SDLGLVideoSystem()
 	//       so move it to a central location.
 	Display::instance().resetVideoSystem();
 
-	screen = openSDLVideo(WIDTH, HEIGHT,
-		SDL_OPENGL | SDL_HWSURFACE | SDL_DOUBLEBUF );
+	resize(640, 480);
 
 	new GLSnow();
 	new GLConsole(CommandConsole::instance());
@@ -41,10 +39,16 @@ SDLGLVideoSystem::SDLGLVideoSystem()
 	Display::instance().addLayer(iconLayer);
 
 	Display::instance().setVideoSystem(this);
+
+	EventDistributor::instance().registerEventListener(
+		RESIZE_EVENT, *this, EventDistributor::NATIVE);
 }
 
 SDLGLVideoSystem::~SDLGLVideoSystem()
 {
+	EventDistributor::instance().unregisterEventListener(
+		RESIZE_EVENT, *this, EventDistributor::NATIVE);
+
 	closeSDLVideo(screen);
 }
 
@@ -87,13 +91,38 @@ void SDLGLVideoSystem::flush()
 
 void SDLGLVideoSystem::takeScreenShot(const string& filename)
 {
-	byte* row_pointers[HEIGHT];
-	byte buffer[WIDTH * HEIGHT * 3];
-	for (int i = 0; i < HEIGHT; ++i) {
-		row_pointers[HEIGHT - 1 - i] = &buffer[WIDTH * 3 * i];
+	unsigned width  = screen->w;
+	unsigned height = screen->h;
+	byte** row_pointers = static_cast<byte**>(
+		alloca(height * sizeof(byte*)));
+	byte* buffer = static_cast<byte*>(
+		alloca(width * height * 3 * sizeof(byte)));
+	for (unsigned i = 0; i < height; ++i) {
+		row_pointers[height - 1 - i] = &buffer[width * 3 * i];
 	}
-	glReadPixels(0, 0, WIDTH, HEIGHT, GL_RGB, GL_UNSIGNED_BYTE, buffer);
-	ScreenShotSaver::save(WIDTH, HEIGHT, row_pointers, filename);
+	glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer);
+	ScreenShotSaver::save(width, height, row_pointers, filename);
+}
+
+void SDLGLVideoSystem::resize(unsigned x, unsigned y)
+{
+	int flags = SDL_OPENGL | SDL_HWSURFACE | SDL_DOUBLEBUF;
+	//flags |= SDL_RESIZABLE;
+	screen = openSDLVideo(x, y, flags);
+
+	glViewport(0, 0, x, y);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(0, 640, 480, 0, -1, 1); // coordinate system always 640x480
+	glMatrixMode(GL_MODELVIEW);
+}
+
+bool SDLGLVideoSystem::signalEvent(const Event& event)
+{
+	assert(event.getType() == RESIZE_EVENT);
+	const ResizeEvent& resizeEvent = static_cast<const ResizeEvent&>(event);
+	resize(resizeEvent.getX(), resizeEvent.getY());
+	return true;
 }
 
 } // namespace openmsx
