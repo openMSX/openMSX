@@ -43,11 +43,9 @@ public:
 
 	/** Change the value of this setting by parsing the given string.
 	  * @param valueString The new value for this setting, in string format.
-	  * @param time The moment in time the value is changed.
 	  * @throw CommandException If the valueString is invalid.
 	  */
-	virtual void setValueString(const std::string &valueString,
-	                            const EmuTime &time) = 0;
+	virtual void setValueString(const std::string &valueString) = 0;
 
 	/** Get a string describing the value type to the user.
 	  */
@@ -93,18 +91,16 @@ public:
 
 	// Implementation of Setting interface:
 	virtual std::string getValueString() const;
-	virtual void setValueString(const std::string &valueString,
-	                            const EmuTime &time);
+	virtual void setValueString(const std::string &valueString);
 
 protected:
 	/**
 	 * Called just before this setting is assigned a new value
 	 * @param newValue The new value, the variable value still
 	 *                 contains the old value
-	 * @param time The moment in time the value is changed
 	 * @return Only when the result is true the new value is assigned
 	 */
-	virtual bool checkUpdate(int newValue, const EmuTime &time) {
+	virtual bool checkUpdate(int newValue) {
 		return true;
 	}
 
@@ -131,14 +127,12 @@ public:
 	
 	/** Set the current value of this setting.
 	  * @param value The new value.
-	 *  @param time The moment in time the value is changed
 	  */
-	void setValue(T value, const EmuTime &time);
+	void setValue(T value);
 
 	// Implementation of Setting interface:
 	virtual std::string getValueString() const;
-	virtual void setValueString(const std::string &valueString,
-	                            const EmuTime &time);
+	virtual void setValueString(const std::string &valueString);
 	virtual void tabCompletion(std::vector<std::string> &tokens) const;
 
 protected:
@@ -146,10 +140,9 @@ protected:
 	 * Called just before this setting is assigned a new value
 	 * @param newValue The new value, the variable value still
 	 *                 contains the old value
-	 * @param time The moment in time the value is changed
 	 * @return Only when the result is true the new value is assigned
 	 */
-	virtual bool checkUpdate(T newValue, const EmuTime &time) {
+	virtual bool checkUpdate(T newValue) {
 		return true;
 	}
 
@@ -184,19 +177,16 @@ public:
 
 	// Implementation of Setting interface:
 	virtual std::string getValueString() const;
-	virtual void setValueString(const std::string &valueString,
-	                            const EmuTime &time);
+	virtual void setValueString(const std::string &valueString);
 
 protected:
 	/**
 	 * Called just before this setting is assigned a new value
 	 * @param newValue The new value, the variable value still
 	 *                 contains the old value
-	 * @param time The moment in time the value is changed
 	 * @return Only when the result is true the new value is assigned
 	 */
-	virtual bool checkUpdate(const std::string &newValue,
-	                         const EmuTime &time) {
+	virtual bool checkUpdate(const std::string &newValue) {
 		return true;
 	}
 

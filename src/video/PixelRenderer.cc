@@ -304,7 +304,7 @@ std::string PixelRenderer::FrameSkipSetting::getValueString() const
 }
 
 void PixelRenderer::FrameSkipSetting::setValueString(
-	const std::string &valueString, const EmuTime &time)
+	const std::string &valueString)
 {
 	if (valueString == "auto") {
 		renderer->autoFrameSkip = true;

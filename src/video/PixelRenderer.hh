@@ -204,8 +204,7 @@ private:
 		public:
 			FrameSkipSetting(PixelRenderer *rend);
 			std::string getValueString() const;
-			void setValueString(const std::string &valueString,
-			                    const EmuTime &time);
+			void setValueString(const std::string &valueString);
 		private:
 			PixelRenderer *renderer;
 	} frameSkipSetting;

@@ -14,12 +14,10 @@ BackgroundSetting::BackgroundSetting(OSDConsoleRenderer *console_,
 	                  filename),
 	  console(console_)
 {
-	EmuTime dummy;
-	setValueString(filename, dummy);
+	setValueString(filename);
 }
 
-bool BackgroundSetting::checkUpdate(const std::string &newValue,
-                                    const EmuTime &time)
+bool BackgroundSetting::checkUpdate(const std::string &newValue)
 {
 	bool result;
 	try {
@@ -39,11 +37,10 @@ FontSetting::FontSetting(OSDConsoleRenderer *console_,
 	: FilenameSetting("console_font", "console font file", filename),
 	  console(console_)
 {
-	EmuTime dummy;
-	setValueString(filename, dummy);
+	setValueString(filename);
 }
 
-bool FontSetting::checkUpdate(const std::string &newValue, const EmuTime &time)
+bool FontSetting::checkUpdate(const std::string &newValue)
 {
 	bool result;
 	try {

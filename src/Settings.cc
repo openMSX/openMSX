@@ -8,8 +8,9 @@
 #include "FileContext.hh"
 
 
-// Force template instantiation
+// Force template instantiation:
 template class EnumSetting<RenderSettings::Accuracy>;
+template class EnumSetting<RendererFactory::RendererID>;
 template class EnumSetting<bool>;
 
 
@@ -47,8 +48,7 @@ std::string IntegerSetting::getValueString() const
 	return out.str();
 }
 
-void IntegerSetting::setValueString(const std::string &valueString,
-                                    const EmuTime &time)
+void IntegerSetting::setValueString(const std::string &valueString)
 {
 	char *endPtr;
 	long newValue = strtol(valueString.c_str(), &endPtr, 0);
@@ -62,7 +62,7 @@ void IntegerSetting::setValueString(const std::string &valueString,
 	} else if (newValue > maxValue) {
 		newValue = maxValue;
 	}
-	if (checkUpdate((int)newValue, time)) {
+	if (checkUpdate((int)newValue)) {
 		value = (int)newValue;
 	}
 }
@@ -101,20 +101,19 @@ std::string EnumSetting<T>::getValueString() const
 }
 
 template <class T>
-void EnumSetting<T>::setValue(T newValue, const EmuTime &time)
+void EnumSetting<T>::setValue(T newValue)
 {
-	if (checkUpdate(newValue, time)) {
+	if (checkUpdate(newValue)) {
 		value = newValue;
 	}
 }
 
 template <class T>
-void EnumSetting<T>::setValueString(const std::string &valueString,
-                                    const EmuTime &time)
+void EnumSetting<T>::setValueString(const std::string &valueString)
 {
 	MapIterator it = map.find(valueString);
 	if (it != map.end()) {
-		setValue(it->second, time);
+		setValue(it->second);
 	} else {
 		throw CommandException(
 			"Not a valid value: \"" + valueString + "\"");
@@ -169,10 +168,9 @@ std::string StringSetting::getValueString() const
 	return value;
 }
 
-void StringSetting::setValueString(const std::string &newValue,
-                                   const EmuTime &time)
+void StringSetting::setValueString(const std::string &newValue)
 {
-	if (checkUpdate(newValue, time)) {
+	if (checkUpdate(newValue)) {
 		value = newValue;
 	}
 }
@@ -253,7 +251,7 @@ void SettingsManager::SetCommand::execute(
 	} else {
 		// Change.
 		const std::string &valueString = tokens[2];
-		setting->setValueString(valueString, time);
+		setting->setValueString(valueString);
 	}
 
 }
@@ -327,13 +325,13 @@ void SettingsManager::ToggleCommand::execute(
 		throw CommandException(
 			"There is no setting named \"" + name + "\"" );
 	}
-	BooleanSetting* boolSetting = dynamic_cast<BooleanSetting*>(setting);
+	BooleanSetting *boolSetting = dynamic_cast<BooleanSetting*>(setting);
 	if (!boolSetting) {
 		throw CommandException(
 			"The setting named \"" + name + "\" is not a boolean" );
 	}
 	// actual toggle
-	boolSetting->setValue(!boolSetting->getValue(), time);
+	boolSetting->setValue(!boolSetting->getValue());
 
 }
 
