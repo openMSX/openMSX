@@ -24,6 +24,7 @@ void MSXPSG::init()
 	MSXDevice::init();
 	ay8910 = new AY8910(*this);
 	joyPorts = JoystickPorts::instance();
+	cassette = MSXCassettePort::instance();
 	
 	MSXMotherBoard::instance()->register_IO_Out(0xA0,this);
 	MSXMotherBoard::instance()->register_IO_Out(0xA1,this);
@@ -61,28 +62,28 @@ void MSXPSG::writeIO(byte port, byte value, Emutime &time)
 
 
 // AY8910Interface
-byte MSXPSG::readA()
+byte MSXPSG::readA(const Emutime &time)
 {
 	byte joystick = joyPorts->read();
 	byte keyLayout = 0;		//TODO
-	byte cassetteInput = 0;		//TODO
-	return joystick | (keyLayout<<6) | (cassetteInput<<7);
+	byte cassetteInput = cassette->cassetteIn(time) ? 128 : 0;
+	return joystick | (keyLayout<<6) | cassetteInput;
 }
 
-byte MSXPSG::readB()
+byte MSXPSG::readB(const Emutime &time)
 {
 	// port B is normally an output on MSX
 	return 255;
 }
 
-void MSXPSG::writeA(byte value)
+void MSXPSG::writeA(byte value, const Emutime &time)
 {
 	// port A is normally an input on MSX
 	// ignore write
 	return;
 }
 
-void MSXPSG::writeB(byte value)
+void MSXPSG::writeB(byte value, const Emutime &time)
 {
 	joyPorts->write(value);
 	

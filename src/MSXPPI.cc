@@ -36,6 +36,7 @@ void MSXPPI::init()
 	keyboard = new Keyboard(true); // TODO make configurable
 	i8255 = new I8255(*this);
 	click = new KeyClick();
+	cassette = MSXCassettePort::instance();
 	
 	// Register I/O ports A8..AB for reading
 	MSXMotherBoard::instance()->register_IO_In(0xA8,this);
@@ -124,9 +125,9 @@ nibble MSXPPI::readC0(const Emutime &time) {
 	return 15;	// TODO check this
 }
 void MSXPPI::writeC1(nibble value, const Emutime &time) {
-	//TODO use these bits
-	//  4    CASON  Cassette motor relay        (0=On, 1=Off)
-	//  5    CASW   Cassette audio out          (Pulse)
+	cassette->setMotor(!(value&1), time);		// 0=0n, 1=Off
+	cassette->cassetteOut(value&2, time);
+	
 	Leds::LEDCommand caps = (value&4) ? Leds::CAPS_OFF : Leds::CAPS_ON;
 	Leds::instance()->setLed(caps);
 

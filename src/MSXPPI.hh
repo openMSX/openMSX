@@ -33,6 +33,7 @@
 #include "I8255.hh"
 #include "Keyboard.hh"
 #include "KeyClick.hh"
+#include "MSXCassettePort.hh"
 
 // David Hermans original comments 
 // This class implements the PPI
@@ -77,7 +78,6 @@ class MSXPPI : public MSXDevice, I8255Interface
 	private:
 		static MSXPPI *oneInstance;
 		I8255 *i8255;
-		KeyClick *click;
 	
 	// I8255Interface
 	public:
@@ -94,5 +94,7 @@ class MSXPPI : public MSXDevice, I8255Interface
 		Keyboard *keyboard;
 		byte MSXKeyMatrix[Keyboard::NR_KEYROWS];
 		int selectedRow;
+		KeyClick *click;
+		CassettePortInterface *cassette;
 };
 #endif

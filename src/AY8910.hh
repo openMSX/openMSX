@@ -19,10 +19,10 @@
 class AY8910Interface
 {
 	public:
-		virtual byte readA()=0;
-		virtual byte readB()=0;
-		virtual void writeA(byte value)=0;
-		virtual void writeB(byte value)=0;
+		virtual byte readA(const Emutime &time)=0;
+		virtual byte readB(const Emutime &time)=0;
+		virtual void writeA(byte value, const Emutime &time)=0;
+		virtual void writeB(byte value, const Emutime &time)=0;
 };
 
 class AY8910 : public SoundDevice
@@ -41,7 +41,7 @@ class AY8910 : public SoundDevice
 		int* updateBuffer(int length);
 		
 	private:
-		void wrtReg(byte reg, byte value);
+		void wrtReg(byte reg, byte value, const Emutime &time);
 		void checkMute();
 		
 		static const int FP_UNIT = 0x8000;	// fixed point representation of 1

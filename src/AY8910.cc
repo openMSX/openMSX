@@ -40,8 +40,9 @@ void AY8910::reset()
 	outputN = 0xff;
 	periodA = periodB = periodC = periodN = periodE = 0;
 	countA  = countB  = countC  = countN  = countE  = 0;
+	Emutime dummy;
 	for (int i=0; i<=15; i++) {
-		wrtReg(i, 0);
+		wrtReg(i, 0, dummy);
 	}
 	setInternalMute(true);	// set muted 
 }
@@ -55,12 +56,12 @@ byte AY8910::readRegister(byte reg, const Emutime &time)
 	case AY_PORTA:
 		if (!(regs[AY_ENABLE] & PORT_A_DIRECTION))
 			//input
-			regs[reg] = interface.readA();
+			regs[reg] = interface.readA(time);
 		break;
 	case AY_PORTB:
 		if (!(regs[AY_ENABLE] & PORT_B_DIRECTION))
 			//input
-			regs[reg] = interface.readB();
+			regs[reg] = interface.readB(time);
 		break;
 	}
 	return regs[reg];
@@ -74,9 +75,9 @@ void AY8910::writeRegister(byte reg, byte value, const Emutime &time)
 		// update the output buffer before changing the register
 		Mixer::instance()->updateStream(time);
 	}
-	wrtReg(reg, value);
+	wrtReg(reg, value, time);
 }
-void AY8910::wrtReg(byte reg, byte value)
+void AY8910::wrtReg(byte reg, byte value, const Emutime &time)
 {
 	int old;
 	regs[reg] = value;
@@ -188,12 +189,12 @@ void AY8910::wrtReg(byte reg, byte value)
 		if ((value     & PORT_A_DIRECTION) &&
 		   !(oldEnable & PORT_A_DIRECTION)) {
 			// changed from input to output
-			wrtReg(AY_PORTA, regs[AY_PORTA]);
+			wrtReg(AY_PORTA, regs[AY_PORTA], time);
 		}
 		if ((value     & PORT_B_DIRECTION) &&
 		   !(oldEnable & PORT_B_DIRECTION)) {
 			// changed from input to output
-			wrtReg(AY_PORTB, regs[AY_PORTB]);
+			wrtReg(AY_PORTB, regs[AY_PORTB], time);
 		}
 		oldEnable = value;
 		checkMute();
@@ -201,12 +202,12 @@ void AY8910::wrtReg(byte reg, byte value)
 	case AY_PORTA:
 		if (regs[AY_ENABLE] & PORT_A_DIRECTION)
 			//output
-			interface.writeA(value);
+			interface.writeA(value, time);
 		break;
 	case AY_PORTB:
 		if (regs[AY_ENABLE] & PORT_B_DIRECTION)
 			//output
-			interface.writeB(value);
+			interface.writeB(value, time);
 		break;
 	}
 }

@@ -5,6 +5,7 @@
 #include "MSXSimple64KB.hh"
 #include "MSXRom16KB.hh"
 #include "MSXPPI.hh"
+#include "MSXCassettePort.hh"
 #include "MSXTMS9928a.hh"
 #include "MSXE6Timer.hh"
 #include "MSXCPU.hh"
@@ -34,6 +35,9 @@ MSXDevice *deviceFactory::create(MSXConfig::Device *conf) {
 	} else
 	if (conf->getType()=="PPI") {
 		device = new MSXPPI(conf);
+	} else
+	if (conf->getType()=="CassettePort") {
+		device = new MSXCassettePort(conf);
 	} else
 	if (conf->getType()=="TMS9928a") {
 		device = new MSXTMS9928a(conf);

@@ -1,5 +1,11 @@
 $Id$
 
+2001-11-20 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
+	* added basic support for CassettePort
+	   - CassettePort has no filters yet
+	   - no output (record) yet
+	   - !! no CassttePlayer (must be plugged in a CassettePort) !!
+
 2001-11-18 Maarten ter Huurne <mth@stack.nl>
 	* The drawing area (now called "canvas") is now an off-screen SDL
 	  surface instead of a pixel array. SDL calls are for blitting and
