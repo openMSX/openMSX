@@ -24,8 +24,10 @@ endif
 
 noinst_LTLIBRARIES = libCommands.la
 libCommands_la_SOURCES = \
-	Command.cc Command.hh \
-	CommandController.cc CommandController.hh
+	Command.hh \
+	CommandController.cc CommandController.hh \
+	InfoCommand.cc InfoCommand.hh \
+	InfoTopic.hh
 
 nodebug: resetdebug all
 debug: setdebug all

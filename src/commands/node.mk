@@ -1,7 +1,12 @@
 # $Id$
 
 SRC_HDR:= \
-	Command CommandController
+	CommandController \
+	InfoCommand
+
+HDR_ONLY:= \
+	Command \
+	InfoTopic
 
 $(eval $(PROCESS_NODE))
 

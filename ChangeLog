@@ -2,6 +2,8 @@ $Id$
 
 2003-10-25 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Moved command classes to new subdir
+	* Added info command infrastructure
+	* Added "info version" command
 
 2003-10-24 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added -v cli option to get version number of openMSX

@@ -12,6 +12,7 @@
 #include "MSXConfig.hh"
 #include "openmsx.hh"
 #include "CliCommunicator.hh"
+#include "InfoCommand.hh"
 
 
 namespace openmsx {
@@ -19,10 +20,12 @@ namespace openmsx {
 CommandController::CommandController()
 {
 	registerCommand(&helpCmd, "help");
+	registerCommand(&InfoCommand::instance(), "info");
 }
 
 CommandController::~CommandController()
 {
+	unregisterCommand(&InfoCommand::instance(), "info");
 	unregisterCommand(&helpCmd, "help");
 }
 
