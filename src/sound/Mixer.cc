@@ -109,6 +109,7 @@ int Mixer::registerSound(SoundDevice* device, short volume, ChannelMode mode)
 		modeMap["left"] = MONO_LEFT;
 		modeMap["right"] = MONO_RIGHT;
 	}
+	modeMap["off"] = OFF;
 	info.modeSetting = new EnumSetting<ChannelMode>(name + "_mode",
 		"the channel mode of this sound chip", mode, modeMap);
 	
@@ -205,7 +206,7 @@ void Mixer::updtStrm(int samples)
 
 	int modeOffset[NB_MODES];
 	int unmuted = 0;
-	for (int mode = 0; mode < NB_MODES; mode++) {
+	for (int mode = 0; mode < NB_MODES -1; mode++) { // -1 for OFF mode
 		modeOffset[mode] = unmuted;
 		for (vector<SoundDevice*>::const_iterator i =
 		           devices[mode].begin();

@@ -31,7 +31,7 @@ class Mixer : private SettingListener
 public:
 	static const int MAX_VOLUME = 32767;
 	enum ChannelMode {
-		MONO, MONO_LEFT, MONO_RIGHT, STEREO, NB_MODES
+		MONO, MONO_LEFT, MONO_RIGHT, STEREO, OFF, NB_MODES
 	};
 
 	static Mixer& instance();
