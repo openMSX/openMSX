@@ -2,6 +2,8 @@ $Id$
 
 2002-12-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* added CRC16 routine, can be used by FDC / FDCBackends
+	* fixed TC8566AF: completely forgot to send step/side/motor
+	   commands to the DiskDrive
 
 2002-11-30 David Heremans <david.heremans@gnu-linux.net>
 	* Still working towards raw track read

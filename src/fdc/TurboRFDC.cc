@@ -55,11 +55,11 @@ byte TurboRFDC::readMem(word address, const EmuTime &time)
 			break;
 		case 0x3FF4:
 		case 0x3FFA:
-			result = controller->readReg(4);
+			result = controller->readReg(4, time);
 			break;
 		case 0x3FF5:
 		case 0x3FFB:
-			result = controller->readReg(5);
+			result = controller->readReg(5, time);
 			break;
 		default:
 			result = 0xFF;
@@ -104,19 +104,19 @@ void TurboRFDC::writeMem(word address, byte value, const EmuTime &time)
 			// bit 5	Motor Select Drive B
 			// Bit 6	Motor Select Drive C
 			// Bit 7	Motor Select Drive D
-			controller->writeReg(2, value);
+			controller->writeReg(2, value, time);
 			break;
 		case 0x3ff3:
 		case 0x3ff9:
-			controller->writeReg(3, value);
+			controller->writeReg(3, value, time);
 			break;
 		case 0x3ff4:
 		case 0x3ffa:
-			controller->writeReg(4, value);
+			controller->writeReg(4, value, time);
 			break;
 		case 0x3ff5:
 		case 0x3ffb:	// FDC data port
-			controller->writeReg(5, value);
+			controller->writeReg(5, value, time);
 			break;
 		}
 	}

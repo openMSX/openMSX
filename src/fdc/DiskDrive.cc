@@ -168,7 +168,7 @@ void RealDrive::step(bool direction, const EmuTime &time)
 			headPos--;
 		}
 	}
-	//PRT_DEBUG("DiskDrive track " << headPos);
+	PRT_DEBUG("DiskDrive track " << headPos);
 }
 
 bool RealDrive::track00(const EmuTime &time)

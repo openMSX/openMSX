@@ -20,36 +20,18 @@ class TC8566AF
 		virtual ~TC8566AF();
 		
 		void reset(const EmuTime &time);
-
-		byte readReg(int reg);
-		void writeReg(int reg, byte value);
-		void execute();
+		byte readReg(int reg, const EmuTime &time);
+		void writeReg(int reg, byte value, const EmuTime &time);
 
 	private:
-		void restore();
-		void seek();
-		void step();
-		void stepIn();
-		void stepOut();
-		void readSector();
-		void writeSector();
-		void readAddress();
-		void readTrack();
-		void writeTrack();
-		void forceInterrupt();
-
 		DiskDrive* drive[4];
 
 		byte makeST0();
 		byte makeST1();
 		byte makeST2();
-		byte makeST3();
+		byte makeST3(const EmuTime &time);
 
 		// Control register 0
-		byte MotorEnable3;
-		byte MotorEnable2;
-		byte MotorEnable1;
-		byte MotorEnable0;
 		byte EnableIntDma;	// always 0
 		byte NotReset;
 		byte DriveSelect;	// drive select: 0 - 3

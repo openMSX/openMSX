@@ -24,10 +24,10 @@ TC8566AF::~TC8566AF()
 void TC8566AF::reset(const EmuTime &time)
 {
 	// Control register 0
-	MotorEnable3 = 0;
-	MotorEnable2 = 0;
-	MotorEnable1 = 0;
-	MotorEnable0 = 0;
+	drive[0]->setMotor(false, time);
+	drive[1]->setMotor(false, time);
+	drive[2]->setMotor(false, time);
+	drive[3]->setMotor(false, time);
 	EnableIntDma = 0;	// always 0
 	NotReset = 1;
 	DriveSelect = 0;	// drive select: 0 - 3
@@ -111,7 +111,7 @@ byte TC8566AF::makeST2()
 		(ST2_MD);		// bit 0	Missing Address Mark in data Field
 }
 
-byte TC8566AF::makeST3()
+byte TC8566AF::makeST3(const EmuTime &time)
 {
 /*
 	switch (MSXDiskPresent(TC8566AFGetDiskCtx())) {
@@ -132,13 +132,13 @@ byte TC8566AF::makeST3()
 	return  (ST3_FLT << 7) |	// bit 7	Fault
 		(ST3_WP  << 6) |	// bit 6	Write Protect
 		(ST3_RDY << 5) |	// bit 5	Ready
-		((PCN == 0) << 4) |// (ST3_TK0 << 4) |	// bit 4	Track 0
+		(drive[DriveSelect]->track00(time) ? 0x10 : 0) |	// bit 4	Track 0
 		(ST3_2S  << 3) |	// bit 3	Two Side
 		(ST3_HD  << 2) |	// bit 2	Head Address
 		(ST3_DS);		// bit 1,0	Drive Select
 }
 
-byte TC8566AF::readReg(int reg)
+byte TC8566AF::readReg(int reg, const EmuTime &time)
 {
 	byte	Value;
 
@@ -249,7 +249,7 @@ byte TC8566AF::readReg(int reg)
 			// Result Phase
 			switch	(PhaseStep++) {
 			case 0:
-				Value = makeST3();
+				Value = makeST3(time);
 				FDCBusy = 0;
 				Phase = 0;
 				dataInputOutput = 0;
@@ -265,14 +265,14 @@ byte TC8566AF::readReg(int reg)
 	return Value;
 }
 
-void TC8566AF::writeReg(int reg, byte data)
+void TC8566AF::writeReg(int reg, byte data, const EmuTime &time)
 {
 	switch (reg) {
 	case 2: // Control register 0
-		MotorEnable3 = (data & 0x80) != 0;
-		MotorEnable2 = (data & 0x40) != 0;
-		MotorEnable1 = (data & 0x20) != 0;
-		MotorEnable0 = (data & 0x10) != 0;
+		drive[3]->setMotor((data & 0x80), time);
+		drive[2]->setMotor((data & 0x80), time);
+		drive[1]->setMotor((data & 0x80), time);
+		drive[0]->setMotor((data & 0x80), time);
 		EnableIntDma = (data & 0x08) != 0;
 		NotReset     = (data & 0x04) != 0;
 		DriveSelect  = (data & 3);	// drive select: 0 - 3
@@ -347,6 +347,7 @@ void TC8566AF::writeReg(int reg, byte data)
 					try {
 						byte dummy;
 						int dummy2;
+						drive[DriveSelect]->setSide(StartHead);
 						drive[DriveSelect]->read(
 						    StartRecord, Sector, dummy,
 						    dummy, dummy, dummy2);
@@ -417,11 +418,19 @@ void TC8566AF::writeReg(int reg, byte data)
 					ST3_DS = data & 3; // Copy Drive Select
 					break;
 				case 2:
-					PCN = data;
+					while (data > PCN) {
+						drive[DriveSelect]->step(true, time);
+						PCN++;
+					}
+					while (data < PCN) {
+						drive[DriveSelect]->step(false, time);
+						PCN--;
+					}
 					ST0_SE = 1;	// Seek End = 1
 					FDCBusy = 0;
 					Phase = 0;
 					Command = 0;
+					PRT_DEBUG("FDC: PCN " << (int)PCN);
 					break;
 				}
 				break;
@@ -433,11 +442,15 @@ void TC8566AF::writeReg(int reg, byte data)
 				case 1:
 					ST0_DS = data & 3; // Copy Drive Select
 					ST3_DS = data & 3; // Copy Drive Select
-					PCN = 0;
+					while (!drive[DriveSelect]->track00(time)) {
+						drive[DriveSelect]->step(false, time);
+						PCN--;
+					}
 					ST0_SE = 1;	// Seek End = 1
 					FDCBusy = 0;
 					Phase = 0;
 					Command = 0;
+					PRT_DEBUG("FDC: PCN " << (int)PCN);
 					break;
 				}
 				break;
@@ -489,6 +502,7 @@ void TC8566AF::writeReg(int reg, byte data)
 					try {
 						byte dummy;
 						int dummy2;
+						drive[DriveSelect]->setSide(StartHead);
 						drive[DriveSelect]->write(
 						    StartRecord, Sector, dummy,
 						    dummy, dummy, dummy2);
