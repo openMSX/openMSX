@@ -1,6 +1,7 @@
 // $Id$
 
 #include <iostream>
+#include <cassert>
 #include "CliCommOutput.hh"
 
 using std::cout;
@@ -32,30 +33,73 @@ CliCommOutput::~CliCommOutput()
 	}
 }
 
-void CliCommOutput::printInfo(const string& message)
+void CliCommOutput::log(LogLevel level, const string& message)
 {
 	if (xmlOutput) {
-		cout << "<info>" << message << "</info>" << endl;
+		switch (level) {
+		case INFO:
+			cout << "<info>" << message << "</info>" << endl;
+			break;
+		case WARNING:
+			cout << "<warning>" << message << "</warning>" << endl;
+			break;
+		default:
+			assert(false);
+		}
 	} else {
-		cout << message << endl;
+		switch (level) {
+		case INFO:
+			cout << message << endl;
+			break;
+		case WARNING:
+			cout << "Warning: " << message << endl;
+			break;
+		default:
+			assert(false);
+		}
 	}
 }
 
-void CliCommOutput::printWarning(const string& message)
+void CliCommOutput::reply(ReplyStatus status, const string& message)
 {
-	if (xmlOutput) {
-		cout << "<warning>" << message << "</warning>" << endl;
-	} else {
-		cout << "Warning: " << message << endl;
+	assert(xmlOutput);
+	switch (status) {
+	case OK:
+		cout << "<ok>" << message << "</ok>" << endl;
+		break;
+	case NOK:
+		cout << "<nok>" << message << "</nok>" << endl;
+		break;
+	default:
+		assert(false);
 	}
+
 }
 
-void CliCommOutput::printUpdate(const string& message)
+void CliCommOutput::update(UpdateType type, const string& message)
 {
 	if (xmlOutput) {
-		cout << "<update>" << message << "</update>" << endl;
+		switch (type) {
+		case LED:
+			cout << "<update>" << message << "</update>" << endl;
+			break;
+		case BREAK:
+			cout << "<update>Break at " << message << "</update>" << endl;
+			break;
+		default:
+			assert(false);
+		}
 	} else {
-		cout << message << endl;
+		switch (type) {
+		case LED:
+			cout << message << endl;
+			break;
+		case BREAK:
+			cout << "Break at " << message << endl;
+			break;
+		default:
+			assert(false);
+		}
 	}
 }
 

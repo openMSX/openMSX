@@ -9,6 +9,7 @@
 #include <cstdio>
 #include <unistd.h>
 #include "CliCommInput.hh"
+#include "CliCommOutput.hh"
 #include "CommandController.hh"
 #include "Scheduler.hh"
 
@@ -152,10 +153,10 @@ void CliCommInput::executeUntil(const EmuTime& time, int userData) throw()
 	while (!cmds.empty()) {
 		try {
 			string result = controller.executeCommand(cmds.front());
-			cout << "<ok>" << result << "</ok>" << endl;
+			CliCommOutput::instance().reply(CliCommOutput::OK, result);
 		} catch (CommandException &e) {
 			string result = e.getMessage() + '\n';
-			cout << "<nok>" << result << "</nok>" << endl;
+			CliCommOutput::instance().reply(CliCommOutput::NOK, result);
 		}
 		cmds.pop_front();
 	}

@@ -16,7 +16,7 @@ template<unsigned> class EmuTimeFreq;
 ostream &operator <<(ostream &os, const EmuTime &e);
 
 // constants
-const uint64 MAIN_FREQ = 3579545 * 24;
+const uint64 MAIN_FREQ = 3579545ULL * 1200ULL;
 
 
 class EmuDuration

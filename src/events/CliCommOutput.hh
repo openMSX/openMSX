@@ -12,13 +12,34 @@ namespace openmsx {
 class CliCommOutput
 {
 public:
+	enum LogLevel {
+		INFO,
+		WARNING
+	};
+	enum ReplyStatus {
+		OK,
+		NOK
+	};
+	enum UpdateType {
+		LED,
+		BREAK
+	};
+	
 	static CliCommOutput& instance();
 	void enableXMLOutput();
 	
-	void printInfo(const string& message);
-	void printWarning(const string& message);
-	void printUpdate(const string& message);
+	void log(LogLevel level, const string& message);
+	void reply(ReplyStatus status, const string& message);
+	void update(UpdateType type, const string& message);
 
+	// convient methods
+	void printInfo(const string& message) {
+		log(INFO, message);
+	}
+	void printWarning(const string& message) {
+		log(WARNING, message);
+	}
+	
 private:
 	CliCommOutput();
 	~CliCommOutput();
