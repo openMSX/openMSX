@@ -64,21 +64,29 @@ MSXCPUInterface::MSXCPUInterface()
 		visibleDevices[page] = 0;
 	}
 
-	XMLElement::Children slots;
-	const XMLElement* config = hardwareConfig.findChild("MotherBoard");
-	if (config) {
-		config->getChildren("slot", slots);
-	}
-	for (XMLElement::Children::const_iterator it = slots.begin();
-	     it != slots.end(); ++it) {
-		unsigned num = StringOp::stringToInt((*it)->getAttribute("num"));
-		bool expanded = StringOp::stringToBool((*it)->getAttribute("expanded"));
+	XMLElement::Children primarySlots;
+	hardwareConfig.findChild("devices")->getChildren("primary", primarySlots);
+	for (XMLElement::Children::const_iterator it = primarySlots.begin();
+	     it != primarySlots.end(); ++it) {
+		const string& primSlot = (*it)->getAttribute("slot");
+		if (primSlot == "any") {
+			continue;
+		}
+		unsigned num = StringOp::stringToInt(primSlot);
 		if (num >= 4) {
 			throw FatalError("Invalid slot specification");
 		}
-		isSubSlotted[num] = expanded;
+		XMLElement::Children secondarySlots;
+		(*it)->getChildren("secondary", secondarySlots);
+		for (XMLElement::Children::const_iterator it = secondarySlots.begin();
+		     it != secondarySlots.end(); ++it) {
+			if ((*it)->getAttribute("slot") != "any") {
+				isSubSlotted[num] = true;
+				break;
+			}
+		}
 	}
-
+	
 	// Note: SlotState is initialised at reset
 
 	// Register console commands
@@ -114,7 +122,7 @@ MSXCPUInterface::~MSXCPUInterface()
 }
 
 
-void MSXCPUInterface::register_IO_In(byte port, MSXIODevice *device)
+void MSXCPUInterface::register_IO_In(byte port, MSXIODevice* device)
 {
 	PRT_DEBUG(device->getName() << " registers In-port " <<
 	          hex << (int)port << dec);
@@ -142,7 +150,7 @@ void MSXCPUInterface::register_IO_In(byte port, MSXIODevice *device)
 	}
 }
 
-void MSXCPUInterface::register_IO_Out(byte port, MSXIODevice *device)
+void MSXCPUInterface::register_IO_Out(byte port, MSXIODevice* device)
 {
 	PRT_DEBUG(device->getName() << " registers Out-port " <<
 	          hex << (int)port << dec);
@@ -165,7 +173,7 @@ void MSXCPUInterface::register_IO_Out(byte port, MSXIODevice *device)
 	}
 }
 
-void MSXCPUInterface::registerSlot(MSXMemDevice *device,
+void MSXCPUInterface::registerSlot(MSXMemDevice* device,
                                    int primSl, int secSl, int page)
 {
 	if (!isSubSlotted[primSl] && secSl != 0) {
@@ -186,7 +194,7 @@ void MSXCPUInterface::registerSlot(MSXMemDevice *device,
 void MSXCPUInterface::registerSlottedDevice(MSXMemDevice* device,
                                             int primSl, int secSl, int pages)
 {
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < 4; ++i) {
 		if (pages & (1 << i)) {
 			registerSlot(device, primSl, secSl, i);
 		}
@@ -257,7 +265,7 @@ void MSXCPUInterface::setSubSlot(byte primSlot, byte value)
 }
 
 
-byte MSXCPUInterface::readMem(word address, const EmuTime &time)
+byte MSXCPUInterface::readMem(word address, const EmuTime& time)
 {
 	if ((address == 0xFFFF) && isSubSlotted[primarySlotState[3]]) {
 		return 0xFF ^ subSlotRegister[primarySlotState[3]];
@@ -266,7 +274,7 @@ byte MSXCPUInterface::readMem(word address, const EmuTime &time)
 	}
 }
 
-void MSXCPUInterface::writeMem(word address, byte value, const EmuTime &time)
+void MSXCPUInterface::writeMem(word address, byte value, const EmuTime& time)
 {
 	if ((address == 0xFFFF) && isSubSlotted[primarySlotState[3]]) {
 		setSubSlot(primarySlotState[3], value);
@@ -275,13 +283,13 @@ void MSXCPUInterface::writeMem(word address, byte value, const EmuTime &time)
 	}
 }
 
-byte MSXCPUInterface::readIO(word prt, const EmuTime &time)
+byte MSXCPUInterface::readIO(word prt, const EmuTime& time)
 {
 	byte port = (byte)prt;
 	return IO_In[port]->readIO(port, time);
 }
 
-void MSXCPUInterface::writeIO(word prt, byte value, const EmuTime &time)
+void MSXCPUInterface::writeIO(word prt, byte value, const EmuTime& time)
 {
 	byte port = (byte)prt;
 	IO_Out[port]->writeIO(port, value, time);

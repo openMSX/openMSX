@@ -1,5 +1,11 @@
 $Id$
 
+2004-07-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Another config file format change:
+	   - use 'primary' and 'secondary' tags to specify slot structure
+	   - this proposal is still being discussed (especially for
+	     extensions), so this may change again 
+
 2004-06-28 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Fixed assertion in ClockPin
 

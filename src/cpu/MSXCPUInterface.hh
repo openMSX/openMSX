@@ -39,7 +39,7 @@ public:
 	 * readIO() method can get called.
 	 * TODO: implement automatic registration for MSXIODevice
 	 */
-	virtual void register_IO_In(byte port, MSXIODevice *device);
+	virtual void register_IO_In(byte port, MSXIODevice* device);
 
 	/**
 	 * Devices can register their Out ports. This is normally done
@@ -47,7 +47,7 @@ public:
 	 * writeIO() method can get called.
 	 * TODO: implement automatic registration for MSXIODevice
 	 */
-	virtual void register_IO_Out(byte port, MSXIODevice *device);
+	virtual void register_IO_Out(byte port, MSXIODevice* device);
 
 	/**
 	 * Devices can register themself in the MSX slotstructure.
@@ -57,9 +57,9 @@ public:
 	 * Note: if a MSXDevice inherits from MSXMemDevice, it gets
 	 *       automatically registered
 	 */
-	void registerSlottedDevice(MSXMemDevice *device,
+	void registerSlottedDevice(MSXMemDevice* device,
 				   int primSl, int secSL, int pages);
-	void registerSlottedDevice(MSXMemDevice *device, int Page);
+	void registerSlottedDevice(MSXMemDevice* device, int page);
 	void registerPostSlots();
 
 	// TODO implement unregister methods
@@ -74,24 +74,24 @@ public:
 	/**
 	 * This reads a byte from the currently selected device
 	 */
-	byte readMem(word address, const EmuTime &time);
+	byte readMem(word address, const EmuTime& time);
 
 	/**
 	 * This writes a byte to the currently selected device
 	 */
-	void writeMem(word address, byte value, const EmuTime &time);
+	void writeMem(word address, byte value, const EmuTime& time);
 
 	/**
 	 * This read a byte from the given IO-port
 	 * @see MSXMemDevice::readIO()
 	 */
-	byte readIO(word port, const EmuTime &time);
+	byte readIO(word port, const EmuTime& time);
 
 	/**
 	 * This writes a byte to the given IO-port
 	 * @see MSXMemDevice::writeIO()
 	 */
-	void writeIO(word port, byte value, const EmuTime &time);
+	void writeIO(word port, byte value, const EmuTime& time);
 
 	/**
 	 * Gets read cache
@@ -117,7 +117,6 @@ public:
 		bool isSubSlotted [4];
 	};
 	SlotSelection* getCurrentSlots();
-
 	
 	/**
 	 * Peek memory location
@@ -139,7 +138,7 @@ private:
 		int pages;
 	};
 	vector<RegPostSlot> regPostSlots;
-	void registerSlot(MSXMemDevice *device,
+	void registerSlot(MSXMemDevice* device,
 			  int primSl, int secSL, int page);
 	
 	class MemoryDebug : public Debuggable {
@@ -239,7 +238,7 @@ public:
 	virtual void register_IO_Out(byte port, MSXIODevice* device);
 
 private:
-	MSXIODevice *getDelayDevice(MSXIODevice *device);
+	MSXIODevice* getDelayDevice(MSXIODevice* device);
 	
 	auto_ptr<VDPIODelay> delayDevice;
 };

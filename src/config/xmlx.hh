@@ -68,6 +68,10 @@ public:
 	const string& getAttribute(const string& attName) const;
 	const string getAttribute(const string& attName,
 	                          const string defaultValue) const;
+	bool getAttributeAsBool(const string& attName,
+	                        bool defaultValue = false) const;
+	int getAttributeAsInt(const string& attName,
+	                      int defaultValue = 0) const;
 
 	const string& getId() const;
 	

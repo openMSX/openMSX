@@ -1,9 +1,10 @@
 // $Id$
 
 #include <cassert>
+#include "openmsx.hh"
+#include "StringOp.hh"
 #include "CartridgeSlotManager.hh"
 #include "HardwareConfig.hh"
-
 
 namespace openmsx {
 
@@ -14,9 +15,14 @@ const int EXISTS   = 32;
 CartridgeSlotManager::CartridgeSlotManager()
 	: hardwareConfig(HardwareConfig::instance())
 {
-	for (int slot = 0; slot < 16; slot++) {
+	for (int slot = 0; slot < 16; ++slot) {
 		slots[slot] = 0;
 	}
+	slotCounter = 0;
+}
+
+CartridgeSlotManager::~CartridgeSlotManager()
+{
 }
 
 CartridgeSlotManager& CartridgeSlotManager::instance()
@@ -34,25 +40,46 @@ void CartridgeSlotManager::reserveSlot(int slot)
 
 void CartridgeSlotManager::readConfig()
 {
-	const XMLElement* config = hardwareConfig.findChild("ExternalSlots");
-	if (!config) {
-		return;
-	}
-	string slotName("slota");
-	for (int slot = 0; slot < 16; slot++) {
-		slotName[4] = 'a' + slot;
-		const XMLElement* slotElem = config->findChild(slotName);
-		if (slotElem) {
-			string slotValue = slotElem->getData();
-			int ps = slotValue[0] - '0';
-			int ss = slotValue[2] - '0';
-			if ((ps < 0) || (ps > 3) || (ss < 0) || (ss > 3) ||
-			    (slotValue[1] != '-') || (slotValue.length() != 3)) {
-				throw FatalError("Syntax error in ExternalSlots config");
+	XMLElement::Children primarySlots;
+	hardwareConfig.findChild("devices")->getChildren("primary", primarySlots);
+	for (XMLElement::Children::const_iterator it = primarySlots.begin();
+	     it != primarySlots.end(); ++it) {
+		const string& primSlot = (*it)->getAttribute("slot");
+		if (primSlot == "any") {
+			continue; // TODO
+		}
+		unsigned primNum = StringOp::stringToInt(primSlot);
+		if (primNum >= 4) {
+			throw FatalError("Invalid slot specification");
+		}
+		if ((*it)->getAttributeAsBool("external", false)) {
+			createExternal(primNum, 0);
+			continue;
+		}
+		XMLElement::Children secondarySlots;
+		(*it)->getChildren("secondary", secondarySlots);
+		for (XMLElement::Children::const_iterator it2 = secondarySlots.begin();
+		     it2 != secondarySlots.end(); ++it2) {
+			if ((*it2)->getAttributeAsBool("external", false)) {
+				const string& secSlot = (*it2)->getAttribute("slot");
+				if (secSlot == "any") {
+					continue;
+				}
+				unsigned secNum = StringOp::stringToInt(secSlot);
+				if (secNum >= 4) {
+					throw FatalError("Invalid slot specification");
+				}
+				createExternal(primNum, secNum);
 			}
-			slots[slot] |= (ss << 2) | ps | EXISTS;
 		}
 	}
+}
+
+void CartridgeSlotManager::createExternal(unsigned ps, unsigned ss)
+{
+	PRT_DEBUG("External slot : " << ps << "-" << ss);
+	slots[slotCounter] |= (ss << 2) | ps | EXISTS;
+	++slotCounter;
 }
 
 void CartridgeSlotManager::getSlot(int slot, int &ps, int &ss)

@@ -3,18 +3,6 @@
   SYSTEM 'msxconfig.dtd'>
 <msxconfig>
 
-  <ExternalSlots>
-    <slota>1-0</slota>
-    <slotb>2-0</slotb>
-  </ExternalSlots>
-
-  <MotherBoard>
-    <slot expanded="true" num="0"/>
-    <slot expanded="false" num="1"/>
-    <slot expanded="false" num="2"/>
-    <slot expanded="true" num="3"/>
-  </MotherBoard>
-
   <RenShaTurbo>
      <min_ints>47</min_ints>
      <max_ints>221</max_ints>
@@ -29,87 +17,98 @@
   </PanasonicRom>
   
   <devices>
-
-    <ROM id="MSX BIOS with BASIC ROM">
-      <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
-      <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
-      <rom>
-        <firstblock>40</firstblock>
-        <lastblock>43</lastblock>
-      </rom>
-    </ROM>
+    <primary slot="0">
+      <secondary slot="0">
+	<ROM id="MSX BIOS with BASIC ROM">
+	  <mem base="0x0000" size="0x8000"/>
+	  <rom>
+	    <firstblock>40</firstblock>
+	    <lastblock>43</lastblock>
+	  </rom>
+	</ROM>
+      </secondary>
+	
+      <secondary slot="2">
+	<MSX-MUSIC id="MSX Music">
+	  <mem base="0x4000" size="0x4000"/>
+	  <io base="0x7C" num="2" type="O"/>
+	  <rom>
+	    <firstblock>62</firstblock>
+	    <lastblock>63</lastblock>
+	  </rom>
+	  <volume>9000</volume>   
+	  <mode>mono</mode>
+	</MSX-MUSIC>
+      </secondary>
+	
+      <secondary slot="3">
+	<ROM id="MSX Opening ROM">
+	  <mem base="0x4000" size="0x4000"/>
+	  <rom>
+	    <firstblock>36</firstblock>
+	    <lastblock>37</lastblock>
+	  </rom>
+	</ROM>
+      </secondary>
+    </primary>
     
-    <MSX-MUSIC id="MSX Music">
-      <slotted> <ps>0</ps> <ss>2</ss> <page>1</page> </slotted>
-      <io base="0x7C" num="2" type="O"/>
-      <rom>
-        <firstblock>62</firstblock>
-        <lastblock>63</lastblock>
-      </rom>
-      <volume>9000</volume>   
-      <mode>mono</mode>
-    </MSX-MUSIC>
+    <primary slot="1" external="true"/>
     
-    <ROM id="MSX Opening ROM">
-      <slotted> <ps>0</ps> <ss>3</ss> <page>1</page> </slotted>
-      <rom>
-        <firstblock>36</firstblock>
-        <lastblock>37</lastblock>
-      </rom>
-    </ROM>
+    <primary slot="2" external="true"/>
 
-    <PanasonicRAM id="Main RAM">
-      <slotted> <ps>3</ps> <ss>0</ss> <page>0</page> </slotted>
-      <slotted> <ps>3</ps> <ss>0</ss> <page>1</page> </slotted>
-      <slotted> <ps>3</ps> <ss>0</ss> <page>2</page> </slotted>
-      <slotted> <ps>3</ps> <ss>0</ss> <page>3</page> </slotted>
-      <slow_drain_on_reset>false</slow_drain_on_reset>
-      <size>512</size>
-    </PanasonicRAM>
+    <primary slot="3">
+      <secondary slot="0">
+	<PanasonicRAM id="Main RAM">
+	  <mem base="0x0000" size="0x10000"/>
+	  <slow_drain_on_reset>false</slow_drain_on_reset>
+	  <size>512</size>
+	</PanasonicRAM>
+      </secondary>
 
-    <ROM id="MSX Sub ROM">
-      <slotted> <ps>3</ps> <ss>1</ss> <page>0</page> </slotted>
-      <rom>
-        <firstblock>56</firstblock>
-        <lastblock>57</lastblock>
-      </rom>
-    </ROM>
+      <secondary slot="1">
+	<ROM id="MSX Sub ROM">
+	  <mem base="0x0000" size="0x4000"/>
+	  <rom>
+	    <firstblock>56</firstblock>
+	    <lastblock>57</lastblock>
+	  </rom>
+	</ROM>
 
-    <ROM id="MSX Kanji Driver with BASIC">
-      <slotted> <ps>3</ps> <ss>1</ss> <page>1</page> </slotted>
-      <slotted> <ps>3</ps> <ss>1</ss> <page>2</page> </slotted>
-      <rom>
-        <firstblock>58</firstblock>
-        <lastblock>61</lastblock>
-      </rom>
-    </ROM>
-    
-    <FDC id="Memory Mapped FDC">
-      <slotted> <ps>3</ps> <ss>2</ss> <page>1</page> </slotted>
-      <slotted> <ps>3</ps> <ss>2</ss> <page>2</page> </slotted>
-      <rom>
-        <firstblock>48</firstblock>
-        <lastblock>55</lastblock>
-      </rom>
-      <fdc_type>TC8566AF</fdc_type>
-      <drives>1</drives>
-    </FDC>
-    
-    <ROM id="Firmware">
-      <slotted> <ps>3</ps> <ss>3</ss> <page>0</page> </slotted>
-      <slotted> <ps>3</ps> <ss>3</ss> <page>1</page> </slotted>
-      <slotted> <ps>3</ps> <ss>3</ss> <page>2</page> </slotted>
-      <slotted> <ps>3</ps> <ss>3</ss> <page>3</page> </slotted>
-      <rom>
-        <firstblock>0</firstblock>
-        <lastblock>511</lastblock>
-        <mappertype>PANASONIC</mappertype>
-      </rom>
-      <sramsize>32</sramsize>
-      <sram-mirrored>false</sram-mirrored>
-      <sramname>fs-a1gt.sram</sramname>
-    </ROM>
-
+	<ROM id="MSX Kanji Driver with BASIC">
+	  <mem base="0x4000" size="0x8000"/>
+	  <rom>
+	    <firstblock>58</firstblock>
+	    <lastblock>61</lastblock>
+	  </rom>
+	</ROM>
+      </secondary>
+	
+      <secondary slot="2">
+	<FDC id="Memory Mapped FDC">
+	  <mem base="0x0000" size="0x4000"/>
+	  <rom>
+	    <firstblock>48</firstblock>
+	    <lastblock>55</lastblock>
+	  </rom>
+	  <fdc_type>TC8566AF</fdc_type>
+	  <drives>1</drives>
+	</FDC>
+      </secondary>
+	
+      <secondary slot="3">
+	<ROM id="Firmware">
+	  <mem base="0x0000" size="0x10000"/>
+	  <rom>
+	    <firstblock>0</firstblock>
+	    <lastblock>511</lastblock>
+	    <mappertype>PANASONIC</mappertype>
+	  </rom>
+	  <sramsize>32</sramsize>
+	  <sram-mirrored>false</sram-mirrored>
+	  <sramname>fs-a1gt.sram</sramname>
+	</ROM>
+      </secondary>
+    </primary>
 
     <Kanji id="Kanji ROM">
       <io base="0xD8" num="4"/>

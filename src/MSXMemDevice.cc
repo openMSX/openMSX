@@ -14,7 +14,7 @@ MSXMemDevice::MSXMemDevice(const XMLElement& config, const EmuTime& time)
 	: MSXDevice(config, time)
 {
 	init();
-	registerSlots();
+	registerSlots(config);
 }
 
 MSXMemDevice::~MSXMemDevice()
@@ -70,46 +70,45 @@ byte* MSXMemDevice::getWriteCacheLine(word /*start*/) const
 	return NULL;	// uncacheable
 }
 
-void MSXMemDevice::registerSlots()
+void MSXMemDevice::registerSlots(const XMLElement& config)
 {
-	// register in slot-structure
-	int ps = 0;
-	int ss = 0;
-	int pages = 0;
-	
-	const XMLElement::Children& children = deviceConfig.getChildren();
-	for (XMLElement::Children::const_iterator it = children.begin();
-	     it != children.end(); ++it) {
-		if ((*it)->getName() == "slotted") {
-			int ps2 = -2;
-			int ss2 = -1;
-			int page = -1;
-			const XMLElement::Children& slot_children = (*it)->getChildren();
-			for (XMLElement::Children::const_iterator it2 = slot_children.begin();
-			     it2 != slot_children.end(); ++it2) {
-				if ((*it2)->getName() == "ps") {
-					ps2 = StringOp::stringToInt((*it2)->getData());
-				} else if ((*it2)->getName() == "ss") {
-					ss2 = StringOp::stringToInt((*it2)->getData());
-				} else if ((*it2)->getName() == "page") {
-					page = StringOp::stringToInt((*it2)->getData());
-				}
-			}
-			if ((pages != 0) && ((ps != ps2) || (ss != ss2))) {
-				throw FatalError("All pages of one device must be in the same slot/subslot");
-			}
-			if (ps != -2) {
-				ps = ps2;
-				ss = ss2;
-				pages |= 1 << page;
-			}
-		}
-	}
-	if (pages == 0) {
+	const XMLElement* mem = config.findChild("mem");
+	if (!mem) {
 		return;
 	}
-	
-	if (ps >= 0) {
+	unsigned base = mem->getAttributeAsInt("base");
+	unsigned size = mem->getAttributeAsInt("size");
+	if ((base & ~0xC000) || ((size - 0x4000) & ~0xC000)) {
+		throw FatalError("Invalid memory specification");
+	}
+	int page = base / 0x4000;
+	int pages = 0;
+	for (unsigned i = 0; i < (size / 0x4000); ++i, ++page) {
+		pages |= 1 << page;
+	}
+
+	int ps = -2;
+	int ss = 0;
+	const XMLElement* parent = config.getParent();
+	while (parent) {
+		const string& name = parent->getName();
+		if (name == "secondary") {
+			const string& secondSlot = parent->getAttribute("slot");
+			ss = (secondSlot == "any") ? -1 :
+				StringOp::stringToInt(secondSlot);
+		} else if (name == "primary") {
+			const string& primSlot = parent->getAttribute("slot");
+			ps = (primSlot == "any") ? -1 :
+				StringOp::stringToInt(primSlot);
+			break;
+		}
+		parent = parent->getParent();
+	}
+
+	if ((ps <= -2) || (4 <= ps)) {
+		throw FatalError("Invalid memory specification");
+	}
+	if (ps != -1) {
 		// slot specified
 		MSXCPUInterface::instance().
 			registerSlottedDevice(this, ps, ss, pages);

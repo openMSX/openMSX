@@ -15,6 +15,7 @@ namespace openmsx {
 
 class MSXDevice;
 class BooleanSetting;
+class XMLElement;
 
 class MSXMotherBoard : private SettingListener
 {
@@ -40,6 +41,7 @@ private:
 	 */
 	void addDevice(auto_ptr<MSXDevice> device);
 	
+	void createDevices(const XMLElement& elem);
 	void reInitMSX();
 
 	// SettingListener

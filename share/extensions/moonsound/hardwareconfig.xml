@@ -2,10 +2,13 @@
 <!-- $Id$ --><!DOCTYPE msxconfig
   SYSTEM 'msxconfig.dtd'>
 <msxconfig>
-  <device id="Sunrise MoonSound">
-    <type>MoonSound</type>
-    <filename>roms/yrw801.rom</filename>
+  <MoonSound id="Sunrise MoonSound">
+    <io base="0x7e" num="2"/>
+    <io base="0xc4" num="4"/>
+    <rom>
+      <filename>roms/yrw801.rom</filename>
+    </rom>
     <volume>12000</volume>
     <sampleram>640</sampleram>
-  <io base="0x7e" num="2"/><io base="0xc4" num="4"/></device>
+  </MoonSound>
 </msxconfig>

@@ -73,19 +73,6 @@ MSXRomCLIPost::MSXRomCLIPost(const string& arg_)
 {
 }
 
-
-static auto_ptr<XMLElement> createSlotted(int ps, int ss, int page)
-{
-	auto_ptr<XMLElement> slotted(new XMLElement("slotted"));
-	slotted->addChild(auto_ptr<XMLElement>(
-		new XMLElement("ps",   StringOp::toString(ps))));
-	slotted->addChild(auto_ptr<XMLElement>(
-		new XMLElement("ss",   StringOp::toString(ss))));
-	slotted->addChild(auto_ptr<XMLElement>(
-		new XMLElement("page", StringOp::toString(page))));
-	return slotted;
-}
-
 void MSXRomCLIPost::execute()
 {
 	string romfile;
@@ -101,13 +88,17 @@ void MSXRomCLIPost::execute()
 	}
 	string sramfile = FileOperations::getFilename(romfile);
 
+	auto_ptr<XMLElement> primary(new XMLElement("primary"));
+	primary->addAttribute("slot", StringOp::toString(ps));
+	auto_ptr<XMLElement> secondary(new XMLElement("secondary"));
+	secondary->addAttribute("slot", StringOp::toString(ss));
 	auto_ptr<XMLElement> device(new XMLElement("ROM"));
 	device->addAttribute("id", "MSXRom" + StringOp::toString(ps) +
 	                               "-" + StringOp::toString(ss));
-	device->addChild(createSlotted(ps, ss, 0));
-	device->addChild(createSlotted(ps, ss, 1));
-	device->addChild(createSlotted(ps, ss, 2));
-	device->addChild(createSlotted(ps, ss, 3));
+	auto_ptr<XMLElement> mem(new XMLElement("mem"));
+	mem->addAttribute("base", "0x0000");
+	mem->addAttribute("size", "0x10000");
+	device->addChild(mem);
 	auto_ptr<XMLElement> rom(new XMLElement("rom"));
 	rom->addChild(auto_ptr<XMLElement>(
 		new XMLElement("filename", romfile)));
@@ -120,7 +111,10 @@ void MSXRomCLIPost::execute()
 		new XMLElement("sramname", sramfile + ".SRAM")));
 	device->setFileContext(auto_ptr<FileContext>(
 		new UserFileContext("roms/" + sramfile)));
-	HardwareConfig::instance().getChild("devices").addChild(device);
+	secondary->addChild(device);
+	primary->addChild(secondary);
+	HardwareConfig::instance().getChild("devices").addChild(primary);
+
 	delete this;
 }
 

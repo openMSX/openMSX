@@ -184,6 +184,22 @@ const string XMLElement::getAttribute(const string& attName,
 	return (it == attributes.end()) ? defaultValue : it->second;
 }
 
+bool XMLElement::getAttributeAsBool(const string& attName,
+                                    bool defaultValue) const
+{
+	Attributes::const_iterator it = attributes.find(attName);
+	return (it == attributes.end()) ? defaultValue
+	                                : StringOp::stringToBool(it->second);
+}
+
+int XMLElement::getAttributeAsInt(const string& attName,
+                                  int defaultValue) const
+{
+	Attributes::const_iterator it = attributes.find(attName);
+	return (it == attributes.end()) ? defaultValue
+	                                : StringOp::stringToInt(it->second);
+}
+
 const string& XMLElement::getId() const
 {
 	const XMLElement* elem = this;

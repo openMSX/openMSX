@@ -79,7 +79,7 @@ private:
 	 * Register this device in all the slots that where specified
 	 * in its config file. This method is called by the constructor,
 	 */
-	virtual void registerSlots();
+	virtual void registerSlots(const XMLElement& config);
 };
 
 } // namespace openmsx

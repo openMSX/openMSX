@@ -65,16 +65,28 @@ void MSXMotherBoard::reInitMSX()
 	MSXCPU::instance().reset(time);
 }
 
+void MSXMotherBoard::createDevices(const XMLElement& elem)
+{
+	const XMLElement::Children& children = elem.getChildren();
+	for (XMLElement::Children::const_iterator it = children.begin();
+	     it != children.end(); ++it) {
+		const XMLElement& sub = **it;
+		const string& name = sub.getName();
+		if ((name == "primary") || (name == "secondary")) {
+			createDevices(sub);
+		} else {
+			PRT_DEBUG("Instantiating: " << name);
+			addDevice(DeviceFactory::create(sub, EmuTime::zero));
+		}
+	}
+}
+
 void MSXMotherBoard::run(bool powerOn)
 {
 	// Initialise devices.
-	const XMLElement::Children& configs =
-		HardwareConfig::instance().getChild("devices").getChildren();
-	for (XMLElement::Children::const_iterator it = configs.begin();
-	     it != configs.end(); ++it) {
-		PRT_DEBUG("Instantiating: " << (*it)->getName());
-		addDevice(DeviceFactory::create(**it, EmuTime::zero));
-	}
+	//PRT_DEBUG(HardwareConfig::instance().getChild("devices").dump());
+	createDevices(HardwareConfig::instance().getChild("devices"));
+	
 	// Register all postponed slots.
 	MSXCPUInterface::instance().registerPostSlots();
 

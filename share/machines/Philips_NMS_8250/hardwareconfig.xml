@@ -3,58 +3,54 @@
   SYSTEM 'msxconfig.dtd'>
 <msxconfig>
 
-  <ExternalSlots>
-    <slota>1-0</slota>
-    <slotb>2-0</slotb>
-  </ExternalSlots>
-
-  <MotherBoard>
-    <slot expanded="false" num="0"/>
-    <slot expanded="false" num="1"/>
-    <slot expanded="false" num="2"/>
-    <slot expanded="true" num="3"/>
-  </MotherBoard>
-
   <MapperType>Philips</MapperType>
   
   <CassettePort/>
 
   <devices>
+    <primary slot="0">
+      <ROM id="MSX BIOS with BASIC ROM">
+        <mem base="0x0000" size="0x8000"/>
+        <rom>
+          <filename>roms/nms8250_basic-bios2.rom</filename>
+        </rom>
+      </ROM>
+    </primary>
+      
+    <primary slot="1" external="true"/>
 
-    <MemoryMapper id="Main RAM">
-      <slotted> <ps>3</ps> <ss>2</ss> <page>0</page> </slotted>
-      <slotted> <ps>3</ps> <ss>2</ss> <page>1</page> </slotted>
-      <slotted> <ps>3</ps> <ss>2</ss> <page>2</page> </slotted>
-      <slotted> <ps>3</ps> <ss>2</ss> <page>3</page> </slotted>
-      <slow_drain_on_reset>false</slow_drain_on_reset>
-      <size>128</size>
-    </MemoryMapper>
+    <primary slot="2" external="true"/>
 
-    <ROM id="MSX BIOS with BASIC ROM">
-      <slotted> <ps>0</ps> <ss>0</ss> <page>0</page> </slotted>
-      <slotted> <ps>0</ps> <ss>0</ss> <page>1</page> </slotted>
-      <rom>
-        <filename>roms/nms8250_basic-bios2.rom</filename>
-      </rom>
-    </ROM>
+    <primary slot="3">
+      <secondary slot="0">
+        <ROM id="MSX Sub ROM">
+          <mem base="0x0000" size="0x4000"/>
+          <rom>
+            <filename>roms/nms8250_msx2sub.rom</filename>
+          </rom>
+        </ROM>
+      </secondary>
 
-    <ROM id="MSX Sub ROM">
-      <slotted> <ps>3</ps> <ss>0</ss> <page>0</page> </slotted>
-      <rom>
-        <filename>roms/nms8250_msx2sub.rom</filename>
-      </rom>
-    </ROM>
+      <secondary slot="2">
+        <MemoryMapper id="Main RAM">
+          <mem base="0x0000" size="0x10000"/>
+          <slow_drain_on_reset>false</slow_drain_on_reset>
+          <size>128</size>
+        </MemoryMapper>
+      </secondary>
 
-    <FDC id="Memory Mapped FDC">
-      <slotted> <ps>3</ps> <ss>3</ss> <page>1</page> </slotted>
-      <slotted> <ps>3</ps> <ss>3</ss> <page>2</page> </slotted>
-      <broken_fdc_read>false</broken_fdc_read> 
-      <fdc_type>WD2793</fdc_type>
-      <rom>
-        <filename>roms/nms8250_disk.rom</filename>
-      </rom>
-      <drives>1</drives>
-    </FDC>
+      <secondary slot="3">
+        <FDC id="Memory Mapped FDC">
+          <mem base="0x4000" size="0x8000"/>
+          <broken_fdc_read>false</broken_fdc_read> 
+          <fdc_type>WD2793</fdc_type>
+          <rom>
+            <filename>roms/nms8250_disk.rom</filename>
+          </rom>
+          <drives>1</drives>
+        </FDC>
+      </secondary>
+    </primary>
 
     <PPI id="ppi">
       <io base="0xA8" num="4"/>
