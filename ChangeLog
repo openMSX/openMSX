@@ -5,6 +5,9 @@ $Id$
 	   - Erik did all the hard work, I just had to fix one line ;-)
 	   - Battle Bomber works now!
 	* Fixed color of backdrop color in P1 mode
+	* Optimized P1 rendering a bit:
+	   just some tweaks, algorithm needs to change for really better
+	   performance (Eric already has some ideas I believe)
 
 2005-02-16 Eric Boon <e.boon4@chello.nl>
 	* Initial implementation P1 sprites (~15 fps :-/)
