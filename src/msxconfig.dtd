@@ -9,4 +9,5 @@
 <!ELEMENT ss (#PCDATA)>
 <!ELEMENT parameter (#PCDATA)>
 <!ATTLIST parameter
-                    name CDATA #IMPLIED>
+                    name CDATA #IMPLIED
+                    class CDATA #IMPLIED>

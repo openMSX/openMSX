@@ -9,8 +9,8 @@
 	  <ps>1</ps>
 	  <ss>2</ss>
 	</slotted>
-	<parameter name="hello">world</parameter>
-	<parameter name="hi">alpha centauri</parameter>
+	<parameter name="hello" class="greeting">world</parameter>
+	<parameter name="hi" class="greeting">alpha centauri</parameter>
   </device>
   <device id="vdp">
     <type>VDP</type>
