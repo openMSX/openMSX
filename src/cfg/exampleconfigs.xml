@@ -3,11 +3,13 @@
 <!DOCTYPE msxconfig SYSTEM "msxconfig.dtd">
 <msxconfig>
 
+<!-- Defines which slots are external ones, i.e. can have carts put into them-->
   <config id="ExternalSlots">
     <parameter name="slota">1-0</parameter>
     <parameter name="slotb">2-0</parameter>
   </config>
-  
+
+<!-- slot configuration -->
   <config id="MotherBoard">
     <parameter name="0" class="subslotted">false</parameter>
     <parameter name="1" class="subslotted">false</parameter>
@@ -15,6 +17,7 @@
     <parameter name="3" class="subslotted">true</parameter>
   </config>
   
+<!-- This is very likely to change soon -->
   <config id="SearchPaths">
     <parameter class="disk">disks</parameter>
     <parameter class="rom">roms</parameter>
@@ -23,12 +26,14 @@
     <parameter class="config">cfg</parameter>
     <parameter class="state">cfg</parameter>
   </config>
-
+  
+<!-- Console commands that should be automatically executed at boot -->
   <config id="AutoCommands">
     <parameter>plug joyporta mouse</parameter>
     <parameter>plug joyportb joystick1</parameter>
   </config>
   
+<!-- Example RAM configuration -->
   <device id="myram1">
     <type>RAM</type>
     <slotted>
@@ -55,6 +60,7 @@
     <parameter name="size">8</parameter>
     <parameter name="base">56</parameter>
   </device>
+
   <device id="biosrom">
     <type>Rom</type>
     <slotted>
@@ -116,6 +122,7 @@
     <parameter name="skip_headerbytes">16384</parameter>
   </device>
 
+<!--
   <device id="diskrom">
     <type>Rom</type>
     <slotted>
@@ -141,6 +148,25 @@
     <parameter name="0x0021" class="patch">0xC9</parameter>
     <parameter name="" class="patchcode">MSXDiskRomPatch</parameter>
   </device>
+-->
+
+  <device id="Memory Mapped FDC">
+    <type>FDC</type>
+    <slotted>
+      <ps>3</ps>
+      <ss>3</ss>
+      <page>1</page>
+    </slotted>
+    <slotted>
+      <ps>3</ps>
+      <ss>3</ss>
+      <page>2</page>
+    </slotted>
+    <parameter name="brokenFDCread">false</parameter> 
+    <parameter name="type">Philips</parameter>
+    <parameter name="filename">nms8250-disk.rom</parameter>
+    <parameter name="drivename1">diska</parameter>
+  </device>
 
   <device id="ppi">
     <type>PPI</type>
@@ -154,6 +180,7 @@
     <parameter name="limit_sprites">true</parameter>
   </device>
 
+<!-- This is a settings-type of configuration. See settings.xml -->
   <config id="renderer">
     <type>SDLLo</type>
     <parameter name="full_screen">false</parameter>
@@ -212,6 +239,7 @@
     <parameter name="filename">RTC.SAVE</parameter>
   </device>
 
+<!-- This is a settings-type of configuration. See settings.xml -->
   <config id="RealTime">
     <parameter name="sync_interval">50</parameter>
     <parameter name="max_catch_up_time">2000</parameter>
@@ -314,6 +342,12 @@
     <type>Audio-Midi</type>
   </device>
 -->    
+
+<!-- MSX-MIDI device, as can be found in the Turbo-R. Dummy for now. -->
+  <device id="MSX-Midi">
+    <type>MSX-Midi</type>
+  </device>
+
   <device id="cpu">
     <type>CPU</type>
   </device>
@@ -322,6 +356,7 @@
     <type>PrinterPort</type>
   </device>
 
+<!-- This is a settings-type of configuration. See settings.xml -->
   <config id="Mixer">
     <parameter name="frequency">22050</parameter>
     <parameter name="samples">512</parameter>
@@ -342,7 +377,6 @@
       <ss>0</ss>
       <page>2</page>
     </slotted>
-    <parameter name="filename">/dev/zero</parameter>
     <parameter name="filesize">131072</parameter>
     <parameter name="volume">11500</parameter>
     <parameter name="mappertype">SCC</parameter>
