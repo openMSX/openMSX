@@ -12,7 +12,6 @@ SRC_HDR:= \
 	MSXAudio \
 	EmuTimer \
 	Y8950 Y8950Adpcm Y8950KeyboardConnector Y8950KeyboardDevice \
-	MC6850 \
 	MSXFmPac MSXMusic \
 	YM2413Core YM2413 YM2413_2 \
 	MSXTurboRPCM \

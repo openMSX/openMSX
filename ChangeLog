@@ -8,6 +8,7 @@ $Id$
 	    lowered within 1 CPU instruction (a mostly theoretical case)
 	  - IRQHelper can raise either IRQ (maskable) or NMI
 	  - this is preparation for ColecoVision support
+	* Moved MC6850 from "sound" directory to "serial" directory.
 
 2004-10-23 Maarten ter Huurne <maarten@treewalker.org>
 	* Removed slow_drain_on_reset RAM configuration parameter.

@@ -3,6 +3,7 @@
 include build/node-start.mk
 
 SRC_HDR:= \
+	MC6850 \
 	I8251 I8254 \
 	ClockPin \
 	MSXMidi \
