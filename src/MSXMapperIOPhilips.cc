@@ -4,7 +4,7 @@
 #include "MSXMapperIOPhilips.hh"
 
 MSXMapperIOPhilips::MSXMapperIOPhilips(MSXConfig::Device *config, const EmuTime &time)
-	: MSXMapperIO(config, time)
+	: MSXDevice(config, time), MSXMapperIO(config, time)
 {
 	largest = 0;
 	mask = 255;

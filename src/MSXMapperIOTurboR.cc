@@ -4,7 +4,7 @@
 
 
 MSXMapperIOTurboR::MSXMapperIOTurboR(MSXConfig::Device *config, const EmuTime &time)
-	: MSXMapperIOPhilips(config, time)
+	: MSXDevice(config, time), MSXMapperIOPhilips(config, time)
 {
 }
 
