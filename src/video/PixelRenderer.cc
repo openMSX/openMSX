@@ -163,25 +163,16 @@ void PixelRenderer::frameEnd(const EmuTime& time)
 	sync(time, true);
 
 	bool draw;
-	--frameSkipCounter;
-	if (settings.getFrameSkip()->getValue().isAutoFrameSkip()) {
-		// TODO limit max frame skip
-		if (frameSkipCounter < 0) {
-			// limit max frame skip
-			draw = true;
-		} else {
-			draw = RealTime::instance().timeLeft(finishFrameDuration, time);
-		}
-		if (draw) {
-			frameSkipCounter = 20;
-		}
+	if (frameSkipCounter == 0) {
+		// limit max frame skip
+		draw = true;
 	} else {
-		draw = (frameSkipCounter < 0);
-		if (draw) {
-			frameSkipCounter = settings.getFrameSkip()->getValue().getFrameSkip();
-		}
+		--frameSkipCounter;
+		draw = RealTime::instance().timeLeft(finishFrameDuration, time);
 	}
 	if (draw) {
+		frameSkipCounter = settings.getFrameSkip()->getValue().getFrameSkip();
+		
 		// Let underlying graphics system finish rendering this frame.
 		unsigned time1 = RealTime::instance().getRealTime();
 		finishFrame();
