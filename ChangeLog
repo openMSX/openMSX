@@ -1,5 +1,9 @@
 $Id$
 
+2004-03-28 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Added generic info command to query the possible values for
+	  EnumSettings.
+
 2004-03-28 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added info command for 'accuracy' setting
 
