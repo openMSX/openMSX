@@ -11,3 +11,9 @@ proc save_debuggable {debuggable filename} {
 proc vramdump { { filename "vramdump"} } {
 	save_debuggable vram $filename
 }
+
+proc save_all { directory } {
+	foreach debuggable [debug list] {
+		save_debuggable $debuggable ${directory}/${debuggable}.sav
+	}
+}

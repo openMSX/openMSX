@@ -6,6 +6,7 @@
 #include "Device.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXConfig.hh"
+#include "Debugger.hh"
 
 namespace openmsx {
 
@@ -32,17 +33,21 @@ MSXMemoryMapper::MSXMemoryMapper(Device* config, const EmuTime& time)
 		throw FatalError(out.str());
 	}
 	nbBlocks = kSize / 16;
-	buffer = new byte[nbBlocks * 16384];
+	buffer = new byte[nbBlocks * 0x4000];
 	// Isn't completely true, but let's suppose that ram will
 	// always contain all zero if started
-	memset(buffer, 0, nbBlocks * 16384);
+	memset(buffer, 0, nbBlocks * 0x4000);
 
 	createMapperIO(time);
 	mapperIO->registerMapper(nbBlocks);
+
+	Debugger::instance().registerDebuggable(deviceConfig->getId(), *this);
 }
 
 MSXMemoryMapper::~MSXMemoryMapper()
 {
+	Debugger::instance().unregisterDebuggable(deviceConfig->getId(), *this);
+
 	mapperIO->unregisterMapper(nbBlocks); 
 	destroyMapperIO();
 	 
@@ -83,7 +88,7 @@ void MSXMemoryMapper::reset(const EmuTime& time)
 {
 	if (!slowDrainOnReset) {
 		PRT_DEBUG("Clearing ram of " << getName());
-		memset(buffer, 0, nbBlocks * 16384);
+		memset(buffer, 0, nbBlocks * 0x4000);
 	}
 	mapperIO->reset(time);
 }
@@ -106,6 +111,30 @@ const byte* MSXMemoryMapper::getReadCacheLine(word start) const
 byte* MSXMemoryMapper::getWriteCacheLine(word start) const
 {
 	return &buffer[calcAddress(start)];
+}
+
+
+// Debuggable
+
+unsigned MSXMemoryMapper::getSize() const
+{
+	return nbBlocks * 0x4000;
+}
+
+const string& MSXMemoryMapper::getDescription() const
+{
+	static const string desc = "Memory Mapper.";
+	return desc;
+}
+
+byte MSXMemoryMapper::read(unsigned address)
+{
+	return buffer[address];
+}
+
+void MSXMemoryMapper::write(unsigned address, byte value)
+{
+	buffer[address] = value;
 }
 
 } // namespace openmsx

@@ -1,6 +1,9 @@
 $Id$
 
-2004-03-02 Wouter Vermaelen <wouter.vermaelen@pi.be>
+2004-03-04 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Made memory mapper debuggable
+
+2004-03-03 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented R800 refresh delay:
 	    - every 180 cycles stall for 20 cycles.
 	      Are these numbers correct? I have to different contradicting
