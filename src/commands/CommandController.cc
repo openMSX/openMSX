@@ -2,10 +2,6 @@
 
 #include <cassert>
 #include <cstdlib>
-#include <dirent.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
 #include "CommandController.hh"
 #include "CommandConsole.hh"
 #include "FileOperations.hh"
@@ -402,12 +398,11 @@ void CommandController::completeFileName(vector<string> &tokens)
 		string dirname = *it + basename;
 		ReadDir dir(FileOperations::getNativePath(dirname).c_str());
 		while (dirent* de = dir.getEntry()) {
-			struct stat st;
 			string name = dirname + de->d_name;
-			if (!(stat(FileOperations::getNativePath(name).c_str(), &st))) {
+			if (FileOperations::exists(name)) {
 				string nm = basename + de->d_name;
-				if (S_ISDIR(st.st_mode)) {
-					nm += "/";
+				if (FileOperations::isDirectory(name)) {
+					nm += '/';
 				}
 				filenames.insert(FileOperations::getConventionalPath(nm));
 			}

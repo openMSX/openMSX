@@ -55,24 +55,10 @@ const string& CliExtension::optionHelp() const
 
 static int select(const struct dirent* d)
 {
-	struct stat s;
-	// entry must be a directory
-	if (stat(d->d_name, &s)) {
-		return 0;
-	}
-	if (!S_ISDIR(s.st_mode)) {
-		return 0;
-	}
-
-	// directory must contain the file "hardwareconfig.xml"
-	string file(string(d->d_name) + "/hardwareconfig.xml");
-	if (stat(file.c_str(), &s)) {
-		return 0;
-	}
-	if (!S_ISREG(s.st_mode)) {
-		return 0;
-	}
-	return 1;
+	// entry must be a directory and must contain the file "hardwareconfig.xml"
+	string name = d->d_name;
+	return FileOperations::isDirectory(name) && 
+	       FileOperations::isRegularFile(name + "/hardwareconfig.xml");
 }
 
 void CliExtension::createExtensions(const string& basepath)

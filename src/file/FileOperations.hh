@@ -102,7 +102,22 @@ public:
 	* Get the current directory of the specified drive
 	* Linux: just return an empty string
 	*/
-	static string expandCurrentDirFromDrive (const string& path);
+	static string expandCurrentDirFromDrive(const string& path);
+
+	/**
+	 * Is this a regular file (no directory, device, ..)?
+	 */
+	static bool isRegularFile(const string& filename);
+
+	/**
+	 * Is this a directory?
+	 */
+	static bool isDirectory(const string& directory);
+
+	/**
+	 * Does this file (directory) exists?
+	 */
+	static bool exists(const string& filename);
 };
 
 } // namespace openmsx
