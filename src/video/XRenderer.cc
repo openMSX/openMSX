@@ -25,8 +25,7 @@ vram (vdp->getVRAM()) {
 
 void XRenderer::EventLoop (void) {
 	if (NULL == (X.display = XOpenDisplay (NULL))) {
-		PRT_ERROR ("XRenderer: Unable to open display");
-		throw MSXException ("Unable to open display"); //not reached
+		throw FatalError("XRenderer: Unable to open display");
 	}
 	X.screen = DefaultScreen (X.display);
 	X.depth = DefaultDepth (X.display, X.screen);

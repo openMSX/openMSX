@@ -140,7 +140,7 @@ RealDrive::RealDrive(const string &driveName, const EmuTime &time)
 			insertDisk(config->getContext(), filename);
 		} catch (FileException &e) {
 			// file not found
-			PRT_ERROR("Couldn't load diskimage: " << filename);
+			throw FatalError("Couldn't load diskimage: " + filename);
 		}
 	} else {
 		// nothing specified

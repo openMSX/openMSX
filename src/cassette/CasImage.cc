@@ -44,7 +44,7 @@ CasImage::CasImage(FileContext &context, const string &fileName)
 		convert();
 		file.munmap();
 	} catch (FileException &e) {
-		PRT_ERROR("Error reading CAS image: " << fileName);
+		throw FatalError("Error reading CAS image: " + fileName);
 	}
 }
 

@@ -7,7 +7,6 @@
 
 #include <iostream>
 using std::cout;
-using std::cerr;
 using std::endl;
 using std::hex;
 using std::dec;
@@ -65,13 +64,12 @@ typedef unsigned long long uint64;
 #define DEBUGVAL 0
 #endif
 
-extern Mutex outputmutex, errormutex;
+extern Mutex outputmutex;
 #define PRT_DEBUG(mes)					\
 	do {						\
 		if (DEBUGVAL) {				\
 			outputmutex.grab();		\
 			cout << mes << endl;	\
-			cout.flush();	\
 			outputmutex.release();		\
 		}					\
 	} while (0)
@@ -79,16 +77,7 @@ extern Mutex outputmutex, errormutex;
 	do {					\
 		outputmutex.grab();		\
 		cout << mes << endl;	\
-		cout.flush();	\
 		outputmutex.release();		\
-	} while (0)
-#define PRT_ERROR(mes)				\
-	do {					\
-		errormutex.grab();		\
-		cerr << mes << endl;	\
-		cerr.flush();	\
-		errormutex.release();		\
-		exit(1);			\
 	} while (0)
 
 } // namespace openmsx

@@ -23,7 +23,7 @@ const char* const MACHINE_PATH = "share/machines/";
 const string CLIOption::getArgument(const string &option, list<string>& cmdLine)
 {
 	if (cmdLine.empty()) {
-		PRT_ERROR("Missing argument for option \"" << option <<"\"");
+		throw FatalError("Missing argument for option \"" + option + "\"");
 	}
 	string argument = cmdLine.front();
 	cmdLine.pop_front();
@@ -240,8 +240,8 @@ void CommandLineParser::parse(int argc, char **argv)
 		}
 	}
 	if (!cmdLine.empty()) {
-		PRT_ERROR("Error parsing command line: " << cmdLine.front() << "\n" <<
-		          "Use \"openmsx -h\" to see a list of available options");
+		throw FatalError("Error parsing command line: " + cmdLine.front() + "\n" +
+		                 "Use \"openmsx -h\" to see a list of available options");
 	}
 	MSXConfig *config = MSXConfig::instance();
 	// read existing cartridge slots from config
@@ -447,7 +447,7 @@ bool CommandLineParser::SettingOption::parseOption(const string &option,
 {
 	CommandLineParser * parser = CommandLineParser::instance();
 	if (parser->haveSettings) {
-		PRT_ERROR("Only one setting option allowed");
+		throw FatalError("Only one setting option allowed");
 	}
 	parser->haveSettings = true;
 	MSXConfig *config = MSXConfig::instance();

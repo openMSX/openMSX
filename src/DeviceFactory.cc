@@ -305,8 +305,7 @@ MSXDevice *DeviceFactory::create(Device *conf, const EmuTime &time)
 		cpuInterface->register_IO_Out(0x2F, debugDevice);
 		return debugDevice;
 	}
-	PRT_ERROR("Unknown device \""<<type<<"\" specified in configuration");
-	return NULL;
+	throw FatalError("Unknown device \"" + type + "\" specified in configuration");
 }
 
 } // namespace openmsx

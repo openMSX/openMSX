@@ -54,8 +54,8 @@ RomPlain::RomPlain(Device* config, const EmuTime &time, Rom *rom)
 			}
 			break;
 		default:
-			PRT_ERROR("Romsize must be exactly 8, 16, 32, 48 or 64kB "
-			          "for mappertype PLAIN");
+			throw FatalError("Romsize must be exactly 8, 16, 32, 48 "
+			                 "or 64kB for mappertype PLAIN");
 	}
 }
 

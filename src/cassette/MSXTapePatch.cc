@@ -83,7 +83,7 @@ MSXTapePatch::MSXTapePatch()
 		try {
 			insertTape(config->getContext(), filename);
 		} catch (MSXException& e) {
-			PRT_ERROR("Couldn't load tape image: " << filename);
+			throw FatalError("Couldn't load tape image: " + filename);
 		}
 	} else {
 		// no image specified

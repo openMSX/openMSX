@@ -131,8 +131,7 @@ int RealTimeRTC::readRTC()
 	unsigned long data;
 	int retval = read(rtcFd, &data, sizeof(unsigned long));
 	if (retval == -1) {
-		perror("read");
-		exit(errno);
+		throw FatalError(strerror(errno));
 	}
 	return data >> 8;
 }
@@ -143,8 +142,7 @@ void RealTimeRTC::reset(const EmuTime &time)
 	unsigned long data;
 	int retval = read(rtcFd, &data, sizeof(unsigned long));
 	if (retval == -1) {
-		perror("read");
-		exit(errno);
+		throw FatalError(strerror(errno));
 	}
 	overslept = 0;
 	prevOverslept = 0;

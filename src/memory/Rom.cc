@@ -48,7 +48,7 @@ void Rom::read(Device* config,
 	try {
 		file = new File(config->getContext().resolve(filename));
 	} catch (FileException& e) {
-		PRT_ERROR("Error reading ROM: " << filename);
+		throw FatalError("Error reading ROM: " + filename);
 	}
 	
 	// get filesize
@@ -69,7 +69,7 @@ void Rom::read(Device* config,
 	// some checks 
 	size = fileSize - offset;
 	if (size <= 0) {
-		PRT_ERROR("Offset greater than filesize");
+		throw FatalError("Offset greater than filesize");
 	}
 	
 	// read file
@@ -78,7 +78,7 @@ void Rom::read(Device* config,
 		tmp = file->mmap() + offset;
 		rom = tmp;
 	} catch (FileException &e) {
-		PRT_ERROR("Error reading ROM image: " << filename);
+		throw FatalError("Error reading ROM image: " + filename);
 	}
 
 	if (!config) {
@@ -97,7 +97,7 @@ void Rom::read(Device* config,
 		} else if ((*it)->value == "MSXTapePatch") {
 			patchInterface = new MSXTapePatch();
 		} else {
-			PRT_ERROR("Unknown patch interface");
+			throw FatalError("Unknown patch interface");
 		}
 		romPatchInterfaces.push_back(patchInterface);
 		MSXCPUInterface::instance()->registerInterface(patchInterface);

@@ -6,6 +6,7 @@ $Id$
 	     values (correct). But also updated the timimng variable with the
 	     old register values (wrong).
 	   - fixes "Coding Melpots" part in "Metal Limit" 
+	* Replaced all PRT_ERROR macros with 'throw FatalError'
 
 2003-10-15 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Added "incr" and "decr" console commands

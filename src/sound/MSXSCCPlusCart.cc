@@ -28,7 +28,7 @@ MSXSCCPlusCart::MSXSCCPlusCart(Device *config, const EmuTime &time)
 			int romSize = file.getSize();
 			file.read(memoryBank, romSize);
 		} catch (FileException &e) {
-			PRT_ERROR("Error reading " << filename);
+			throw FatalError("Error reading file: " + filename);
 		}
 	}
 	const string &subtype =

@@ -22,7 +22,9 @@ MSXMemoryMapper::MSXMemoryMapper(Device *config, const EmuTime &time)
 	slowDrainOnReset = deviceConfig->getParameterAsBool("slow_drain_on_reset", false);
 	int kSize = deviceConfig->getParameterAsInt("size");
 	if ((kSize % 16) != 0) {
-		PRT_ERROR("Mapper size is not a multiple of 16K: " << kSize);
+		ostringstream out;
+		out << "Mapper size is not a multiple of 16K: " << kSize;
+		throw FatalError(out.str());
 	}
 	nbBlocks = kSize / 16;
 	buffer = new byte[nbBlocks * 16384];

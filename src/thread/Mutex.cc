@@ -6,7 +6,7 @@
 
 namespace openmsx {
 
-Mutex outputmutex, errormutex;
+Mutex outputmutex;
 
 Mutex::Mutex()
 {

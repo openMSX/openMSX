@@ -44,7 +44,7 @@ bool CliExtension::parseOption(const string &option,
 		SystemFileContext context;
 		config->loadHardware(context, it->second);
 	} else {
-		PRT_ERROR("Extension \"" << extension << "\" not found!");
+		throw FatalError("Extension \"" + extension + "\" not found!");
 	}
 	return true;
 }

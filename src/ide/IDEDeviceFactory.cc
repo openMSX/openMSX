@@ -17,8 +17,7 @@ IDEDevice* IDEDeviceFactory::create(const string &name,
 	if (type == "IDEHD") {
 		return new IDEHD(config, time);
 	}
-	PRT_ERROR("Unknown IDE device: " << type);
-	return NULL;
+	throw FatalError("Unknown IDE device: " + type);
 }
 
 } // namespace openmsx

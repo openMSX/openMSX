@@ -45,7 +45,7 @@ void CartridgeSlotManager::readConfig()
 				int ss = slotValue[2] - '0';
 				if ((ps < 0) || (ps > 3) || (ss < 0) || (ss > 3) ||
 				    (slotValue[1] != '-') || (slotValue.length() != 3)) {
-					PRT_ERROR("Syntax error in ExternalSlots config");
+					throw FatalError("Syntax error in ExternalSlots config");
 				}
 				slots[slot] |= (ss << 2) | ps | EXISTS;
 			}
@@ -64,7 +64,7 @@ void CartridgeSlotManager::getSlot(int slot, int &ps, int &ss)
 		ps = slots[slot] & 3;
 		ss = (slots[slot] >> 2) & 3;
 	} else {
-		PRT_ERROR("Slot"<< (char)('a' + slot) << " not defined");
+		throw FatalError(string("Slot") + (char)('a' + slot) + " not defined");
 	}
 }
 
@@ -78,7 +78,7 @@ void CartridgeSlotManager::getSlot(int &ps, int &ss)
 			return;
 		}
 	}
-	PRT_ERROR("Not enough free cartridge slots");
+	throw FatalError("Not enough free cartridge slots");
 }
 
 } // namespace openmsx

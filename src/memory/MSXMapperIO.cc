@@ -19,7 +19,7 @@ MSXMapperIO::MSXMapperIO(Device *config, const EmuTime &time)
 	} else if (type == "Philips") {
 		mapperMask = new MSXMapperIOPhilips();
 	} else {
-		PRT_ERROR("Unknown mapper type");
+		throw FatalError("Unknown mapper type");
 	}
 	mask = mapperMask->calcMask(mapperSizes);
 

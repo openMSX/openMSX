@@ -37,8 +37,7 @@ MSXDevice* FDCFactory::create(Device *config, const EmuTime &time)
 	if (type == "TC8566AF") {
 		return new TurboRFDC(config, time);
 	}
-	PRT_ERROR("Unknown FDC type \"" << type << "\"!");
-	return NULL;
+	throw FatalError("Unknown FDC type \"" + type + "\"!");
 }
 
 } // namespace openmsx

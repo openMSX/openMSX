@@ -17,10 +17,10 @@ MSXRam::MSXRam(Device *config, const EmuTime &time)
 	int s = deviceConfig->getParameterAsInt("size", 64);
 	int b = deviceConfig->getParameterAsInt("base", 0);
 	if ((s <= 0) || (s > 64)) {
-		PRT_ERROR("Wrong RAM size");
+		throw FatalError("Wrong RAM size");
 	}
 	if ((b < 0) || ((b + s) > 64)) {
-		PRT_ERROR("Wrong RAM base");
+		throw FatalError("Wrong RAM base");
 	}
 	base = b * 1024;
 	int size = s * 1024;

@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include "MSXKanji.hh"
+#include "MSXException.hh"
 
 
 namespace openmsx {
@@ -12,7 +13,7 @@ MSXKanji::MSXKanji(Device *config, const EmuTime &time)
 {
 	int size = rom.getSize();
 	if ((size != 0x20000) && (size != 0x40000)) {
-		PRT_ERROR("MSXKanji: wrong kanji rom");
+		throw FatalError("MSXKanji: wrong kanji rom");
 	}
 
 	reset(time);

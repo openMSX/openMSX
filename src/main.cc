@@ -29,7 +29,7 @@ void initializeSDL()
 	Uint32 sdl_initval = SDL_INIT_VIDEO;
 	if (DEBUGVAL) sdl_initval |= SDL_INIT_NOPARACHUTE; // dump core on segfault
 	if (SDL_Init(sdl_initval) < 0) {
-		PRT_ERROR("Couldn't init SDL: " << SDL_GetError());
+		throw FatalError(string("Couldn't init SDL: ") + SDL_GetError());
 	}
 	SDL_WM_SetCaption("openMSX " VERSION " [alpha]", 0);
 
@@ -87,13 +87,14 @@ int main(int argc, char **argv)
 		// Clean up.
 		SDL_Quit();
 
-		return 0;
-
-	} catch (MSXException &e) {
-		PRT_ERROR("Uncaught exception: " << e.getMessage());
+	} catch (FatalError& e) {
+		cerr << "Fatal error: " << e.getMessage() << endl;
+	} catch (MSXException& e) {
+		cerr << "Uncaught exception: " << e.getMessage() << endl;
 	} catch (...) {
-		PRT_ERROR("Uncaught exception of unexpected type.");
+		cerr << "Uncaught exception of unexpected type." << endl;
 	}
+	return 0;
 }
 
 } // namespace openmsx

@@ -26,7 +26,7 @@ File::File(const string &url, OpenMode mode)
 	if (protocol == "file") {
 		file = new LocalFile(name, mode);
 	} else {
-		PRT_ERROR("Unsupported protocol: " << protocol);
+		throw FatalError("Unsupported protocol: " + protocol);
 	}
 
 	if (((pos = name.rfind(".gz")) != string::npos) &&

@@ -112,8 +112,7 @@ MSXRom *RomFactory::create(Device *config, const EmuTime &time)
 		case FSA1FM2:
 			return new RomFSA1FM2(config, time, rom);
 		default:
-			PRT_ERROR("Unknown mapper type");
-			return NULL;
+			throw FatalError("Unknown mapper type");
 	}
 }
 

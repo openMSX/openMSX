@@ -56,30 +56,23 @@ void MSXMotherBoard::resetMSX()
 
 void MSXMotherBoard::run()
 {
-	try {
-		// Initialize.
-		MSXCPUInterface::instance()->reset();
-		Leds::instance()->setLed(Leds::POWER_ON);
+	// Initialize.
+	MSXCPUInterface::instance()->reset();
+	Leds::instance()->setLed(Leds::POWER_ON);
 
-		// Run.
-		EmuTime time(Scheduler::instance()->scheduleEmulation());
+	// Run.
+	EmuTime time(Scheduler::instance()->scheduleEmulation());
 
-		// Shut down mixing because it depends on MSXCPU,
-		// which will be destroyed in the next step.
-		// TODO: Get rid of this dependency.
-		Mixer::instance()->shutDown();
+	// Shut down mixing because it depends on MSXCPU,
+	// which will be destroyed in the next step.
+	// TODO: Get rid of this dependency.
+	Mixer::instance()->shutDown();
 
-		// Destroy emulated MSX machine.
-		list<MSXDevice*>::iterator i;
-		for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
-			(*i)->powerDown(time);
-			delete (*i);
-		}
-
-	} catch (MSXException &e) {
-		PRT_ERROR("Uncaught exception: " << e.getMessage());
-	} catch (...) {
-		PRT_ERROR("Uncaught exception of unexpected type.");
+	// Destroy emulated MSX machine.
+	list<MSXDevice*>::iterator i;
+	for (i = availableDevices.begin(); i != availableDevices.end(); i++) {
+		(*i)->powerDown(time);
+		delete (*i);
 	}
 }
 

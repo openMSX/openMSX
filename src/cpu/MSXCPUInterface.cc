@@ -82,8 +82,11 @@ void MSXCPUInterface::register_IO_In(byte port, MSXIODevice *device)
 		          << hex << (int)port << dec);
 		IO_In[port] = device;
 	} else {
-		PRT_ERROR(device->getName() << " trying to register taken In-port "
-		          << hex << (int)port << dec);
+		ostringstream out;
+		out << "Device: \"" << device->getName()
+		    << "\" trying to register taken IN-port "
+		    << hex << (int)port;
+		throw FatalError(out.str());
 	}
 }
 
@@ -94,8 +97,11 @@ void MSXCPUInterface::register_IO_Out(byte port, MSXIODevice *device)
 		          << hex << (int)port << dec);
 		IO_Out[port] = device;
 	} else {
-		PRT_ERROR(device->getName() << " trying to register taken Out-port "
-		          << hex << (int)port << dec);
+		ostringstream out;
+		out << "Device: \"" << device->getName()
+		    << "\" trying to register taken OUT-port "
+		    << hex << (int)port;
+		throw FatalError(out.str());
 	}
 }
 
@@ -112,7 +118,8 @@ void MSXCPUInterface::registerSlot(MSXMemDevice *device,
 		PRT_DEBUG(device->getName() << " registers at "<<primSl<<" "<<secSl<<" "<<page);
 		slotLayout[primSl][secSl][page] = device;
 	} else {
-		PRT_ERROR(device->getName() << " trying to register taken slot");
+		throw FatalError("Device: \"" + device->getName() +
+		                 "\" trying to register taken slot");
 	}
 }
 

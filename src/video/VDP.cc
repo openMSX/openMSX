@@ -54,7 +54,7 @@ VDP::VDP(Device *config, const EmuTime &time)
 	else if (versionString == "TMS9929A") version = TMS9929A;
 	else if (versionString == "V9938") version = V9938;
 	else if (versionString == "V9958") version = V9958;
-	else PRT_ERROR("Unknown VDP version \"" << versionString << "\"");
+	else throw FatalError("Unknown VDP version \"" + versionString + "\"");
 
 	// Set up control register availability.
 	static const byte VALUE_MASKS_MSX1[32] = {
@@ -80,7 +80,9 @@ VDP::VDP(Device *config, const EmuTime &time)
 	int vramSize =
 		(isMSX1VDP() ? 16 : deviceConfig->getParameterAsInt("vram"));
 	if (vramSize != 16 && vramSize != 64 && vramSize != 128) {
-		PRT_ERROR("VRAM size of " << vramSize << "kB is not supported!");
+		ostringstream out;
+		out << "VRAM size of " << vramSize << "kB is not supported!";
+		throw FatalError(out.str());
 	}
 	vramSize *= 1024;
 	vramMask = vramSize - 1;

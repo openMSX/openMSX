@@ -215,14 +215,14 @@ static int w32_midiOutFlushExclusiveMsg(unsigned idx)
 	buf_out[idx].header.dwBufferLength = buf_out[idx].longmes_cnt;
 	buf_out[idx].header.dwFlags = 0;
 	if ((i = midiOutPrepareHeader((HMIDIOUT)vfnt_midiout[idx].handle, &buf_out[idx].header, sizeof(buf_out[idx].header))) != MMSYSERR_NOERROR) {
-		fprintf(stderr, "midiOutPrepareHeader() returned %i.\n", i);
-		fflush(stderr);
-		exit(1);
+		ostringstream out;
+		out << "midiOutPrepareHeader() returned " << i;
+		throw FatalError(out.str());
 	}
 	if ((i = midiOutLongMsg((HMIDIOUT)vfnt_midiout[idx].handle, &buf_out[idx].header, sizeof(buf_out[idx].header))) != MMSYSERR_NOERROR) {
-		fprintf(stderr, "midiOutLongMsg() returned %i.\n", i);
-		fflush(stderr);
-		exit(1);
+		ostringstream out;
+		out << "midiOutLongMsg() returned " << i;
+		throw FatalError(out.str());
 	}
 	// Wait sending in driver.
 	// This may take long...
@@ -231,9 +231,9 @@ static int w32_midiOutFlushExclusiveMsg(unsigned idx)
 	}
 	// Sending Exclusive done.
 	if ((i = midiOutUnprepareHeader((HMIDIOUT)vfnt_midiout[idx].handle, &buf_out[idx].header, sizeof(buf_out[idx].header))) != MMSYSERR_NOERROR) {
-		fprintf(stderr, "midiOutUnPrepareHeader() returned %i.\n", i);
-		fflush(stderr);
-		exit(1);
+		ostringstream out;
+		out << "midiOutUnPrepareHeader() returned " << i;
+		throw FatalError(out.str());
 	}
 	buf_out[idx].longmes_cnt = 0;
 	return 0;
