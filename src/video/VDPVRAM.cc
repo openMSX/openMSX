@@ -87,6 +87,7 @@ void VDPVRAM::updateSpritesEnabled(bool enabled, const EmuTime &time) {
 void VDPVRAM::setRenderer(Renderer *renderer, const EmuTime &time) {
 	this->renderer = renderer;
 
+	bitmapVisibleWindow.resetObserver();
 	// Set up bitmapVisibleWindow to full VRAM.
 	// TODO: Have VDP/Renderer set the actual range.
 	bitmapVisibleWindow.setMask(0x1FFFF, -1 << 17, time);
