@@ -3,8 +3,9 @@
 #ifndef __PLUGGING_CONTROLLER__
 #define __PLUGGING_CONTROLLER__
 
-#include "Command.hh"
 #include <vector>
+#include "Command.hh"
+#include "InfoTopic.hh"
 
 using std::vector;
 
@@ -70,6 +71,20 @@ private:
 		virtual void tabCompletion(vector<string> &tokens) const;
 	} unplugCmd;
 	friend class UnplugCmd;
+
+	class PluggableInfo : public InfoTopic {
+	public:
+		virtual string execute(const vector<string> &tokens) const;
+		virtual string help   (const vector<string> &tokens) const;
+	} pluggableInfo;
+	friend class PluggableInfo;
+
+	class ConnectorInfo : public InfoTopic {
+	public:
+		virtual string execute(const vector<string> &tokens) const;
+		virtual string help   (const vector<string> &tokens) const;
+	} connectorInfo;
+	friend class ConnectorInfo;
 };
 
 } // namespace openmsx

@@ -9,6 +9,7 @@
 #include "Pluggable.hh"
 #include "PluggableFactory.hh"
 #include "openmsx.hh"
+#include "InfoCommand.hh"
 
 
 namespace openmsx {
@@ -19,12 +20,16 @@ PluggingController::PluggingController()
 
 	CommandController::instance()->registerCommand(&plugCmd,   "plug");
 	CommandController::instance()->registerCommand(&unplugCmd, "unplug");
+	InfoCommand::instance().registerTopic("pluggable", &pluggableInfo);
+	InfoCommand::instance().registerTopic("connector", &connectorInfo);
 }
 
 PluggingController::~PluggingController()
 {
 	CommandController::instance()->unregisterCommand(&plugCmd,   "plug");
 	CommandController::instance()->unregisterCommand(&unplugCmd, "unplug");
+	InfoCommand::instance().unregisterTopic("pluggable", &pluggableInfo);
+	InfoCommand::instance().unregisterTopic("connector", &connectorInfo);
 
 #ifndef NDEBUG
 	// This is similar to an assert: it should never print anything,
@@ -239,6 +244,46 @@ Pluggable *PluggingController::getPluggable(const string& name)
 		}
 	}
 	return NULL;
+}
+
+
+// Pluggable info
+
+string PluggingController::PluggableInfo::execute(const vector<string> &tokens) const
+{
+	string result;
+	PluggingController *controller = PluggingController::instance();
+	for (vector<Pluggable*>::const_iterator it =
+	         controller->pluggables.begin();
+	     it != controller->pluggables.end(); ++it) {
+		result += (*it)->getName() + '\n';
+	}
+	return result;
+}
+
+string PluggingController::PluggableInfo::help(const vector<string> &tokens) const
+{
+	return "Shows a list of available pluggables.\n";
+}
+
+
+// Connector info
+
+string PluggingController::ConnectorInfo::execute(const vector<string> &tokens) const
+{
+	string result;
+	PluggingController *controller = PluggingController::instance();
+	for (vector<Connector*>::const_iterator it =
+	         controller->connectors.begin();
+	     it != controller->connectors.end(); ++it) {
+		result += (*it)->getName() + '\n';
+	}
+	return result;
+}
+
+string PluggingController::ConnectorInfo::help(const vector<string> &tokens) const
+{
+	return "Shows a list of available connectors.\n";
 }
 
 } // namespace openmsx
