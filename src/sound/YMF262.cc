@@ -11,30 +11,30 @@
  *
  *
  * Revision History:
- * 
+ *
  * 03-03-2003: initial release
  *  - thanks to Olivier Galibert and Chris Hardy for YMF262 and YAC512 chips
  *  - thanks to Stiletto for the datasheets
- * 
- * 
- * 
+ *
+ *
+ *
  * differences between OPL2 and OPL3 not documented in Yamaha datahasheets:
  * - sinus table is a little different: the negative part is off by one...
- * 
+ *
  * - in order to enable selection of four different waveforms on OPL2
  *   one must set bit 5 in register 0x01(test).
  *   on OPL3 this bit is ignored and 4-waveform select works *always*.
  *   (Don't confuse this with OPL3's 8-waveform select.)
- * 
+ *
  * - Envelope Generator: all 15 x rates take zero time on OPL3
  *   (on OPL2 15 0 and 15 1 rates take some time while 15 2 and 15 3 rates
  *   take zero time)
- * 
+ *
  * - channel calculations: output of operator 1 is in perfect sync with
  *   output of operator 2 on OPL3; on OPL and OPL2 output of operator 1
  *   is always delayed by one sample compared to output of operator 2
- * 
- * 
+ *
+ *
  * differences between OPL2 and OPL3 shown in datasheets:
  * - YMF262 does not support CSM mode
  */
@@ -48,43 +48,43 @@
 
 namespace openmsx {
 
-const double PI = 3.14159265358979323846;
+static const double PI = 3.14159265358979323846;
 
-const int FREQ_SH   = 16;  // 16.16 fixed point (frequency calculations) 
-const int EG_SH     = 16;  // 16.16 fixed point (EG timing)              
-const int LFO_SH    = 24;  //  8.24 fixed point (LFO calculations)       
-const int TIMER_SH  = 16;  // 16.16 fixed point (timers calculations)    
-const int FREQ_MASK = (1 << FREQ_SH) - 1;
-const unsigned EG_TIMER_OVERFLOW = 1 << EG_SH;
+static const int FREQ_SH   = 16;  // 16.16 fixed point (frequency calculations)
+static const int EG_SH     = 16;  // 16.16 fixed point (EG timing)
+static const int LFO_SH    = 24;  //  8.24 fixed point (LFO calculations)
+static const int TIMER_SH  = 16;  // 16.16 fixed point (timers calculations)
+static const int FREQ_MASK = (1 << FREQ_SH) - 1;
+static const unsigned int EG_TIMER_OVERFLOW = 1 << EG_SH;
 
-// envelope output entries 
-const int ENV_BITS    = 10;
-const int ENV_LEN     = 1 << ENV_BITS;
-const double ENV_STEP = 128.0 / ENV_LEN;
+// envelope output entries
+static const int ENV_BITS    = 10;
+static const int ENV_LEN     = 1 << ENV_BITS;
+static const double ENV_STEP = 128.0 / ENV_LEN;
 
-const int MAX_ATT_INDEX = (1 << (ENV_BITS - 1)) - 1; //511
-const int MIN_ATT_INDEX = 0;
+static const int MAX_ATT_INDEX = (1 << (ENV_BITS - 1)) - 1; //511
+static const int MIN_ATT_INDEX = 0;
 
-// sinwave entries 
-const int SIN_BITS = 10;
-const int SIN_LEN  = 1 << SIN_BITS;
-const int SIN_MASK = SIN_LEN - 1;
+// sinwave entries
+static const int SIN_BITS = 10;
+static const int SIN_LEN  = 1 << SIN_BITS;
+static const int SIN_MASK = SIN_LEN - 1;
 
-const int TL_RES_LEN = 256;	// 8 bits addressing (real chip) 
+static const int TL_RES_LEN = 256;	// 8 bits addressing (real chip)
 
-// register number to channel number , slot offset 
-const byte SLOT1 = 0;
-const byte SLOT2 = 1;
+// register number to channel number , slot offset
+static const byte SLOT1 = 0;
+static const byte SLOT2 = 1;
 
-// Envelope Generator phases 
-const int EG_ATT = 4;
-const int EG_DEC = 3;
-const int EG_SUS = 2;
-const int EG_REL = 1;
-const int EG_OFF = 0;
+// Envelope Generator phases
+static const int EG_ATT = 4;
+static const int EG_DEC = 3;
+static const int EG_SUS = 2;
+static const int EG_REL = 1;
+static const int EG_OFF = 0;
 
 
-// mapping of register number (offset) to slot number used by the emulator 
+// mapping of register number (offset) to slot number used by the emulator
 static const int slot_array[32] =
 {
 	 0,  2,  4,  1,  3,  5, -1, -1,
@@ -93,28 +93,28 @@ static const int slot_array[32] =
 	-1, -1, -1, -1, -1, -1, -1, -1
 };
 
-// key scale level 
-// table is 3dB/octave , DV converts this into 6dB/octave 
-// 0.1875 is bit 0 weight of the envelope counter (volume) expressed in the 'decibel' scale 
+// key scale level
+// table is 3dB/octave , DV converts this into 6dB/octave
+// 0.1875 is bit 0 weight of the envelope counter (volume) expressed in the 'decibel' scale
 #define DV(x) (int)(x / (0.1875/2.0))
 static const unsigned ksl_tab[8 * 16] =
 {
-	// OCT 0 
+	// OCT 0
 	DV( 0.000), DV( 0.000), DV( 0.000), DV( 0.000),
 	DV( 0.000), DV( 0.000), DV( 0.000), DV( 0.000),
 	DV( 0.000), DV( 0.000), DV( 0.000), DV( 0.000),
 	DV( 0.000), DV( 0.000), DV( 0.000), DV( 0.000),
-	// OCT 1 
+	// OCT 1
 	DV( 0.000), DV( 0.000), DV( 0.000), DV( 0.000),
 	DV( 0.000), DV( 0.000), DV( 0.000), DV( 0.000),
 	DV( 0.000), DV( 0.750), DV( 1.125), DV( 1.500),
 	DV( 1.875), DV( 2.250), DV( 2.625), DV( 3.000),
-	// OCT 2 
+	// OCT 2
 	DV( 0.000), DV( 0.000), DV( 0.000), DV( 0.000),
 	DV( 0.000), DV( 1.125), DV( 1.875), DV( 2.625),
 	DV( 3.000), DV( 3.750), DV( 4.125), DV( 4.500),
 	DV( 4.875), DV( 5.250), DV( 5.625), DV( 6.000),
-	// OCT 3 
+	// OCT 3
 	DV( 0.000), DV( 0.000), DV( 0.000), DV( 1.875),
 	DV( 3.000), DV( 4.125), DV( 4.875), DV( 5.625),
 	DV( 6.000), DV( 6.750), DV( 7.125), DV( 7.500),
@@ -152,8 +152,8 @@ static const unsigned sl_tab[16] = {
 #undef SC
 
 
-const byte RATE_STEPS = 8;
-static const unsigned char eg_inc[15 * RATE_STEPS] = 
+static const byte RATE_STEPS = 8;
+static const byte eg_inc[15 * RATE_STEPS] =
 {
 //cycle:0 1  2 3  4 5  6 7
 		0,1, 0,1, 0,1, 0,1, //  0  rates 00..12 0 (increment by 0 or 1)
@@ -178,15 +178,15 @@ static const unsigned char eg_inc[15 * RATE_STEPS] =
 
 
 #define O(a) (a*RATE_STEPS)
-// note that there is no O(13) in this table - it's directly in the code 
-static const unsigned char eg_rate_select[16 + 64 + 16] =
+// note that there is no O(13) in this table - it's directly in the code
+static const byte eg_rate_select[16 + 64 + 16] =
 {
-	// Envelope Generator rates (16 + 64 rates + 16 RKS) 
-	// 16 infinite time rates 
+	// Envelope Generator rates (16 + 64 rates + 16 RKS)
+	// 16 infinite time rates
 	O(14),O(14),O(14),O(14),O(14),O(14),O(14),O(14),
 	O(14),O(14),O(14),O(14),O(14),O(14),O(14),O(14),
 
-	// rates 00-12 
+	// rates 00-12
 	O( 0),O( 1),O( 2),O( 3),
 	O( 0),O( 1),O( 2),O( 3),
 	O( 0),O( 1),O( 2),O( 3),
@@ -220,7 +220,7 @@ static const unsigned char eg_rate_select[16 + 64 + 16] =
 //shift 12,   11,   10,   9,   8,   7,   6,  5,  4,  3,  2,  1,  0,  0,  0,  0  
 //mask  4095, 2047, 1023, 511, 255, 127, 63, 31, 15, 7,  3,  1,  0,  0,  0,  0  
 #define O(a) (a*1)
-static const unsigned char eg_rate_shift[16 + 64 + 16] =
+static const byte eg_rate_shift[16 + 64 + 16] =
 {
 	// Envelope Generator counter shifts (16 + 64 rates + 16 RKS) 
 	// 16 infinite time rates 
@@ -245,18 +245,18 @@ static const unsigned char eg_rate_shift[16 + 64 + 16] =
 	O( 0),O( 0),O( 0),O( 0),
 	O( 0),O( 0),O( 0),O( 0),
 
-	// 16 dummy rates (same as 15 3) 
+	// 16 dummy rates (same as 15 3)
 	O( 0),O( 0),O( 0),O( 0),O( 0),O( 0),O( 0),O( 0),
 	O( 0),O( 0),O( 0),O( 0),O( 0),O( 0),O( 0),O( 0),
 };
 #undef O
 
 
-// multiple table 
+// multiple table
 #define ML(x) (byte)(2 * x)
 static const byte mul_tab[16] =
 {
-	// 1/2, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,10,12,12,15,15 
+	// 1/2, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,10,12,12,15,15
 	ML( 0.5),ML( 1.0),ML( 2.0),ML( 3.0),ML( 4.0),ML( 5.0),ML( 6.0),ML( 7.0),
 	ML( 8.0),ML( 9.0),ML(10.0),ML(10.0),ML(12.0),ML(12.0),ML(15.0),ML(15.0)
 };
@@ -270,13 +270,13 @@ static const byte mul_tab[16] =
 //  2  - sinus sign bit           (Y axis)
 //  TL_RES_LEN - sinus resolution (X axis)
 
-const int TL_TAB_LEN = 13 * 2 * TL_RES_LEN;
+static const int TL_TAB_LEN = 13 * 2 * TL_RES_LEN;
 static int tl_tab[TL_TAB_LEN];
-const int ENV_QUIET = TL_TAB_LEN >> 4;
+static const int ENV_QUIET = TL_TAB_LEN >> 4;
 
-// sin waveform table in 'decibel' scale 
-// there are eight waveforms on OPL3 chips 
-static unsigned sin_tab[SIN_LEN * 8];
+// sin waveform table in 'decibel' scale
+// there are eight waveforms on OPL3 chips
+static unsigned int sin_tab[SIN_LEN * 8];
 
 
 // LFO Amplitude Modulation table (verified on real YM3812)
@@ -291,7 +291,7 @@ static unsigned sin_tab[SIN_LEN * 8];
 // When AM = 1 data is used directly
 // When AM = 0 data is divided by 4 before being used (loosing precision is important)
 
-const unsigned LFO_AM_TAB_ELEMENTS = 210;
+static const unsigned int LFO_AM_TAB_ELEMENTS = 210;
 static const byte lfo_am_table[LFO_AM_TAB_ELEMENTS] =
 {
 	0,0,0,0,0,0,0,
@@ -351,31 +351,31 @@ static const byte lfo_am_table[LFO_AM_TAB_ELEMENTS] =
 // LFO Phase Modulation table (verified on real YM3812) 
 static const char lfo_pm_table[8 * 8 * 2] =
 {
-	// FNUM2/FNUM = 00 0xxxxxxx (0x0000) 
+	// FNUM2/FNUM = 00 0xxxxxxx (0x0000)
 	0, 0, 0, 0, 0, 0, 0, 0,	//LFO PM depth = 0
 	0, 0, 0, 0, 0, 0, 0, 0,	//LFO PM depth = 1
 
-	// FNUM2/FNUM = 00 1xxxxxxx (0x0080) 
+	// FNUM2/FNUM = 00 1xxxxxxx (0x0080)
 	0, 0, 0, 0, 0, 0, 0, 0,	//LFO PM depth = 0
 	1, 0, 0, 0,-1, 0, 0, 0,	//LFO PM depth = 1
 
-	// FNUM2/FNUM = 01 0xxxxxxx (0x0100) 
+	// FNUM2/FNUM = 01 0xxxxxxx (0x0100)
 	1, 0, 0, 0,-1, 0, 0, 0,	//LFO PM depth = 0
 	2, 1, 0,-1,-2,-1, 0, 1,	//LFO PM depth = 1
 
-	// FNUM2/FNUM = 01 1xxxxxxx (0x0180) 
+	// FNUM2/FNUM = 01 1xxxxxxx (0x0180)
 	1, 0, 0, 0,-1, 0, 0, 0,	//LFO PM depth = 0
 	3, 1, 0,-1,-3,-1, 0, 1,	//LFO PM depth = 1
 
-	// FNUM2/FNUM = 10 0xxxxxxx (0x0200) 
+	// FNUM2/FNUM = 10 0xxxxxxx (0x0200)
 	2, 1, 0,-1,-2,-1, 0, 1,	//LFO PM depth = 0
 	4, 2, 0,-2,-4,-2, 0, 2,	//LFO PM depth = 1
 
-	// FNUM2/FNUM = 10 1xxxxxxx (0x0280) 
+	// FNUM2/FNUM = 10 1xxxxxxx (0x0280)
 	2, 1, 0,-1,-2,-1, 0, 1,	//LFO PM depth = 0
 	5, 2, 0,-2,-5,-2, 0, 2,	//LFO PM depth = 1
 
-	// FNUM2/FNUM = 11 0xxxxxxx (0x0300) 
+	// FNUM2/FNUM = 11 0xxxxxxx (0x0300)
 	3, 1, 0,-1,-3,-1, 0, 1,	//LFO PM depth = 0
 	6, 3, 0,-3,-6,-3, 0, 3,	//LFO PM depth = 1
 
@@ -386,7 +386,7 @@ static const char lfo_pm_table[8 * 8 * 2] =
 
 // TODO clean this up
 static signed int phase_modulation;	// phase modulation input (SLOT 2) 
-static signed int phase_modulation2;	// phase modulation input (SLOT 3 in 4 operator channels) 
+static signed int phase_modulation2;	// phase modulation input (SLOT 3 in 4 operator channels)
 
 
 YMF262Slot::YMF262Slot()
@@ -411,7 +411,7 @@ void YMF262::callback(byte flag)
 	setStatus(flag);
 }
 
-// status set and IRQ handling 
+// status set and IRQ handling
 void YMF262::setStatus(byte flag)
 {
 	// set status flag masking out disabled IRQs 
@@ -433,7 +433,7 @@ void YMF262::resetStatus(byte flag)
 	}
 }
 
-// IRQ mask set 
+// IRQ mask set
 void YMF262::changeStatusMask(byte flag)
 {
 	statusMask = flag;
@@ -838,7 +838,7 @@ void YMF262::chan_calc_rhythm(bool noise)
 		bool bit5e= (SLOT8_2.Cnt>>FREQ_SH) & 0x20;
 		bool bit3e= (SLOT8_2.Cnt>>FREQ_SH) & 0x08;
 		bool res2 = bit3e ^ bit5e;
-		// when res2 = 0 pass the phase from calculation above (res1); 
+		// when res2 = 0 pass the phase from calculation above (res1);
 		// when res2 = 1 phase = 0x200 | 0x100; 
 		if (res2) {
 			phase = 0x300;
@@ -883,7 +883,7 @@ void YMF262::init_tables(void)
 
 	const double LOG2 = ::log(2);
 	for (int i = 0; i < SIN_LEN; i++) {
-		// non-standard sinus 
+		// non-standard sinus
 		double m = sin(((i * 2) + 1) * PI / SIN_LEN); // checked against the real chip 
 		// we never reach zero here due to ((i * 2) + 1) 
 		double o = (m > 0.0) ?
@@ -928,7 +928,7 @@ void YMF262::init_tables(void)
 		// waveform 4:                 
 		//             /\  ____/\  ____
 		//               \/      \/    
-		// output whole sinus waveform in half the cycle(step=2) and output 0 on the other half of cycle 
+		// output whole sinus waveform in half the cycle(step=2) and output 0 on the other half of cycle
 		if (i & (1 << (SIN_BITS-1))) {
 			sin_tab[4*SIN_LEN+i] = TL_TAB_LEN;
 		} else {
@@ -1063,7 +1063,7 @@ void YMF262::set_mul(byte sl, byte v)
 	slot.AMmask  = (v & 0x80) ? ~0 : 0;
 
 	if (OPL3_mode) {
-		// in OPL3 mode 
+		// in OPL3 mode
 		// DO THIS:
 		//  if this is one of the slots of 1st channel forming up a 4-op channel
 		//  do normal operation
@@ -1153,7 +1153,7 @@ void YMF262::set_ksl_tl(byte sl, byte v)
 			break;
 		}
 		default:
-			// normal 
+			// normal
 			slot.TLL = slot.TL + (ch.ksl_base >> slot.ksl);
 			break;
 		}
@@ -1517,7 +1517,7 @@ void YMF262::writeRegForce(int r, byte v, const EmuTime &time)
 			ch.kcode = (ch.block_fnum & 0x1C00) >> 9;
 
 			// the info below is actually opposite to what is stated
-			// in the Manuals (verifed on real YMF262) 
+			// in the Manuals (verifed on real YMF262)
 			// if notesel == 0 -> lsb of kcode is bit 10 (MSB) of fnum  
 			// if notesel == 1 -> lsb of kcode is bit 9 (MSB-1) of fnum 
 			if (nts & 0x40) {
