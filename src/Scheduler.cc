@@ -76,32 +76,32 @@ void Scheduler::removeSyncPoint(Schedulable* device, int userData)
 void Scheduler::stopScheduling()
 {
 	emulationRunning = false;
-	setSyncPoint(ASAP, NULL);
+	setSyncPoint(ASAP, NULL);	// dummy device
 	unpause();
 }
 
 void Scheduler::scheduleDevices(const EmuTime &limit)
 {
-	sem.down();
-	assert(!syncPoints.empty());	// class RealTime always has one
-	SynchronizationPoint sp = syncPoints.front();
-	EmuTime time = sp.getTime();
-	while (time <= limit) {
+	while (emulationRunning) {
+		sem.down();
+		assert(!syncPoints.empty());	// class RealTime always has one
+		const SynchronizationPoint sp = syncPoints.front();
+		const EmuTime& time = sp.getTime();
+		if (limit < time) {
+			sem.up();
+			return;
+		}
 		// emulate the device
 		pop_heap(syncPoints.begin(), syncPoints.end());
 		syncPoints.pop_back();
 		sem.up();
-		Schedulable *device = sp.getDevice();
+		Schedulable* device = sp.getDevice();
+		assert(device);
 		int userData = sp.getUserData();
 		PRT_DEBUG ("Sched: Scheduling_2 " << device->schedName() <<
 			" " << userData << " till " << time);
 		device->executeUntilEmuTime(time, userData);
-
-		sem.down();
-		sp = syncPoints.front();
-		time = sp.getTime();
 	}
-	sem.up();
 }
 
 inline void Scheduler::emulateStep()
@@ -123,7 +123,8 @@ inline void Scheduler::emulateStep()
 		pop_heap(syncPoints.begin(), syncPoints.end());
 		syncPoints.pop_back();
 		sem.up();
-		Schedulable *device = sp.getDevice();
+		Schedulable* device = sp.getDevice();
+		assert(device);
 		int userData = sp.getUserData();
 		PRT_DEBUG ("Sched: Scheduling " << device->schedName() <<
 			" " << userData << " till " << time);
