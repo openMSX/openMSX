@@ -1,5 +1,8 @@
 $Id$
 
+2004-08-13 Wouter Vermaelen <wouter.vermaelen@pi.be>
+	* Extended Scale2x scaler for hi-res modes (screen 6 and 7)
+
 2004-08-12 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Extended hq2x scaler for hi-res modes (screen 6 and 7)
 

@@ -28,15 +28,11 @@ template class Scale2xScaler<word>;
 template class Scale2xScaler<unsigned int>;
 
 template <class Pixel>
-Scale2xScaler<Pixel>::Scale2xScaler() {
-}
-
-template <class Pixel>
 void Scale2xScaler<Pixel>::scaleLine256Half(
 	Pixel* dst,
 	const Pixel* src0, const Pixel* src1, const Pixel* src2,
-	int count
-) {
+	int count)
+{
 	count -= 2;
 	assert(count >= 0);
 
@@ -53,10 +49,8 @@ void Scale2xScaler<Pixel>::scaleLine256Half(
 	for (; count; count--) {
 		Pixel top = src0[0];
 		Pixel mid = src1[0];
-		dst[0] =
-			(left == top && src2[0] != top && src1[1] != top) ? top : mid;
-		dst[1] =
-			(src1[1] == top && src2[0] != top && left != top) ? top : mid;
+		dst[0] = (left == top && src2[0] != top && src1[1] != top) ? top : mid;
+		dst[1] = (src1[1] == top && src2[0] != top && left != top) ? top : mid;
 		src0++;
 		src1++;
 		src2++;
@@ -67,6 +61,39 @@ void Scale2xScaler<Pixel>::scaleLine256Half(
 	// Last pixel.
 	dst[0] = (left == src0[0] && src2[0] != src0[0]) ? src0[0] : src1[0];
 	dst[1] = src1[0];
+}
+
+template <class Pixel>
+void Scale2xScaler<Pixel>::scaleLine512Half(
+	Pixel* dst,
+	const Pixel* src0, const Pixel* src1, const Pixel* src2,
+	int count)
+{
+	count -= 1;
+	assert(count >= 0);
+
+	// First pixel.
+	Pixel left = src1[0];
+	dst[0] = left;
+	src0++;
+	src1++;
+	src2++;
+	dst += 1;
+
+	// Central pixels.
+	for (; count; count--) {
+		Pixel top = src0[0];
+		Pixel mid = src1[0];
+		dst[0] = (left == top && src2[0] != top && src1[1] != top) ? top : mid;
+		src0++;
+		src1++;
+		src2++;
+		dst += 1;
+		left = mid;
+	}
+
+	// Last pixel.
+	dst[0] = (left == src0[0] && src2[0] != src0[0]) ? src0[0] : src1[0];
 }
 
 template <class Pixel>
@@ -84,6 +111,26 @@ void Scale2xScaler<Pixel>::scale256(
 		if (dstY == dst->h) break;
 		Pixel* dstLower = Scaler<Pixel>::linePtr(dst, dstY++);
 		scaleLine256Half(dstLower, srcNext, srcCurr, srcPrev, 320);
+		prevY = srcY;
+		srcY++;
+	}
+}
+
+template <class Pixel>
+void Scale2xScaler<Pixel>::scale512(
+	SDL_Surface* src, int srcY, int endSrcY,
+	SDL_Surface* dst, int dstY)
+{
+	int prevY = srcY;
+	while (srcY < endSrcY) {
+		Pixel* srcPrev = Scaler<Pixel>::linePtr(src, prevY);
+		Pixel* srcCurr = Scaler<Pixel>::linePtr(src, srcY);
+		Pixel* srcNext = Scaler<Pixel>::linePtr(src, min(srcY + 1, endSrcY - 1));
+		Pixel* dstUpper = Scaler<Pixel>::linePtr(dst, dstY++);
+		scaleLine512Half(dstUpper, srcPrev, srcCurr, srcNext, 640);
+		if (dstY == dst->h) break;
+		Pixel* dstLower = Scaler<Pixel>::linePtr(dst, dstY++);
+		scaleLine512Half(dstLower, srcNext, srcCurr, srcPrev, 640);
 		prevY = srcY;
 		srcY++;
 	}
