@@ -1,60 +1,69 @@
-Release Notes for openMSX 0.3.3 (2003-09-26)
+Release Notes for openMSX 0.3.4 (2004-01-17)
 ============================================
 
 This new release brings you the following improvements:
-- Windows specific code was merged into the main branch. We have an
-  "official" Win32 port that is part of this release.
-- New HTML manuals replace the HOWTO. These manuals will make it easier for
-  you to find the information you need. Also, the HTML layout looks better.
-  Due to time pressure, the manuals are a bit rough at places, we'll improve
-  them in the future.
-- New MSX devices:
-  * MSX-MIDI interface (turbo R).
-  * MSX-RS-232 support (8255 UART).
-  * PCM input (sampling) for turbo R via a .wav file.
-- Added a debug device: write data to special I/O ports and its get logged
-  to stdout or a file in a format you specify. Very useful if you develop
-  MSX assembly programs in openMSX.
-- Several improvements and fixes in the VDPCmdEngine; VDP emulation is even
-  more accurate now.
-- All read-only input files (ROM images, disk images, background pictures,
-  XML) can now be gzipped or zipped and will be transparently decompressed
-  by openMSX. Note that some games require write access to their disk in
-  order to run (for example, Seed of Dragon).
-- New dir-as-disk feature: a directory can be specified instead of a disk
-  image and the contents (up to 720K) will show up as files on the MSX.
-  There is no support for subdirectories (as used by DOS2) yet. This feature
-  is still experimental, so please report problems if you encounter them.
-- Several cassette emulation updates and new features:
-  * Automatic .cas to .wav conversion in CassettePlayer.
-    (no patched ROM needed anymore to run .cas files)
-  * Cassette sounds are now audible.
-  * Tapes can be rewinded.
-  * Tapes can be forced to play.
-    (like unplugging the 'remote control' plug on a real machine)
-- A different keymap (e.g. for Japanese PC keyboards or to use Russian MSX
-  keyboards on a US English PC keyboard) can be used now, via settings.xml.
-- Keys for the key joystick are now configurable in settings.xml.
-- Added joystick emulation for mouse (a feature that the Philips SBC-3810
-  and Sony MOS-1 and similar mice have).
-- Various console updates:
-  * Tab completion behaves much more like the UNIX Bash shell now.
-  * Clearer error messages.
-  * More than one command is possible, use ';' to separate them.
-    Especially useful for binding several commands to a single keypress.
-- User-configurable channel settings for mono sound devices. You can set
-  them to left, right or mono mode at run time.
-- Many things are now user configurable via the console:
-  * .wav input file for PCM sampler
-  * log file for the printer logger
-  * output file for the MIDI out logger
-  * input file for the MIDI in reader
-  * input and output file for the RS232-tester
-- ROM database now uses SHA1 sums in stead of MD5 sums.
-- The MSX turbo R machine description uses a single 4MB ROM image, plus the
-  Kanji ROM. This is closer to how the real machine works.
-- Several machine and extension configurations added.
-- Fixed compilation on GCC 3.4-pre development version.
+- Several fixes in VDP emulation; more games and demos work correctly.
+- Added scalers for SDLHi. A scaler is an image filter which enlarges the
+  MSX screen to PC resolution. The following scalers are implemented:
+  * simple (original)
+  * 2xSaI
+  * Scale2x
+  * hq2x
+  Use "set scaler <name>" to select a scaler.
+- Scanlines now work in SDLHi (previously, they only worked in SDLGL).
+- Per-pixel alpha blending for console on SDLHi/SDLLo.
+  This makes anti-aliased console fonts look better.
+- Rendering fixes in Win32:
+  * Fixed slowdowns in fullscreen mode.
+  * Fixed console flickering.
+- Switched to Jarek Burczynski's YM2413 core (MSX-MUSIC).
+- Added high-pass IIR filter to mixer to avoid audio clipping.
+- Added I/O device multiplexing: you can now safely insert an FM-PAC in
+  an MSX turbo R, for example.
+- Added screenshot feature.
+  Default key bindings changed to put this under PrtScr.
+- Added Ren-Sha Turbo (autofire) emulation: "set renshaturbo <speed>".
+- Added emulation of the MSX turbo R pause key.
+- Added LED status of disk drives.
+- Fixed harddisk image creation: automatically create or enlarge hd-image
+  when the specified file doesn't exist or is too small.
+- New console commands:
+  * after: execute command after a certain time
+  * alias/unalias: put long commands under a named alias
+  * incr and decr: increase or decrease integer settings
+    (useful when bound to a key, see "bind" command)
+- Added a 'boosted' MSX2 configuration: a fantasy machine with lots of
+  internal hardware. More of these will be added in future releases.
+  The current configuration is still experimental; feedback is welcome.
+- Added alternative build system ("alternative.mk"), which is more flexible
+  and easier to maintain than the old system which uses GNU's auto* tools
+  ("configure" and friends). The alternative system will replace the auto*
+  system in the future, so please test it on your machine and report any
+  problems. You can use it with "make -f alternative.mk".
+- Added support for Intel's ICC 8.0 compiler (only in alternative.mk).
+- Added experimental support for Mac OS X (only in alternative.mk).
+  Thanks to Jan Lukens (Jalu) for testing/debugging this.
+- Dropped support for GCC 2.95 (please upgrade to GCC 3.x).
+- Added the ability to control openMSX from an external process (launcher,
+  debugger) using an XML-based control protocol. This is an experimental
+  feature; the control protocol will change incompatibly in the next
+  release.
+  For an example client implementation, see Contrib/openmsx-control.cc.
+  We're working on a new openMSX Catapult which uses this protocol.
+- New features for external control clients:
+  * renderer "none", which displays nothing.
+  * "power" setting: enable or disable power to the MSX machine.
+  * "restoredefault" command: restores a setting to the value specified in
+    settings.xml.
+  * "info" command: gets info such as lists of pluggables, renderers etc.
+  * "keymatrixup"/"keymatrixdown" commands: manipulate the keyboard matrix.
+- Added a debugger interface, accessible through the "debug" command.
+  The following devices currently support this interface: CPU, I/O ports,
+  memory, VDP and VRAM. Also it is possible to set breakpoints.
+- Small improvements in debug device.
+  The debug device is very useful for people developing MSX software in
+  openMSX; read the manual for details.
+- Added "vdpcmdtrace" setting: enable or disable VDP command tracing.
 
 In "doc/manual/index.html" you can find a set of HTML manuals for openMSX.
 Make sure you read this if you haven't used openMSX before, but also to
@@ -71,7 +80,9 @@ Known issues / caveats:
   way without backwards compatibility. Keep this in mind if you create
   machine descriptions, ROM database entries etc.
 - This openMSX release was tested on Linux and Win32.
-  Running on BSD, Mac OS X, BeOS etc (wherever SDL runs) should be possible,
+  Compilation on Mac OS X is reported to work, but openMSX does not run
+  flawless on that platform yet.
+  Running on BSD, Solaris, BeOS etc (wherever SDL runs) should be possible,
   but will probably not work out-of-the-box. If you are compiling on such a
   platform, please share your experiences (see below for contact info),
   so we can make openMSX more portable.
