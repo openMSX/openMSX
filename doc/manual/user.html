@@ -162,6 +162,11 @@ only the big picture.
 
 <dl>
 
+<dt>2004-09-28: Manuel Bilderbeek</dt>
+<dd>
+Updates for release 0.5.0, including some more elaborate explanations for several subjects.
+</dd>
+
 <dt>2004-05-20: Maarten ter Huurne</dt>
 <dd>
 Updates for release 0.4.0: restructured chapters and added more info about video settings.
@@ -207,6 +212,10 @@ To use a specific MSX machine that is present on your system (i.e. your openMSX 
     openmsx -machine Panasonic_FS-A1GT
 </div>
 
+<p>
+If you omit this argument, openMSX will start with the default machine, which is initially set to C-BIOS MSX2, see also below.
+</p>
+
 <h3><a id="extensions">2.2. Extensions</a></h3>
 
 <p>
@@ -220,7 +229,7 @@ fmpac</code> to your command line to use an FMPAC. But, as I just said, you
 need to have a hardware description in that subdirectory of
 <code>share/extensions/</code>, see <a class="external" href="setup.html">Setup Guide</a>. Fortunately,
 openMSX comes with a predefined FMPAC extension. You only need to add the
-<code>fmpac.rom</code> in <code>share/extensions/fmpac/roms/</code>; it's the ROM that is built in the FMPAC. If you look at that <code>share/extensions</code>
+<code>fmpac.rom</code> in <code>share/extensions/fmpac/roms/</code> or to one of your ROM pools (see <a class="external" href="setup.html#dumpromlocation">Setup Guide</a>); it's the ROM that is built in the FMPAC. If you look at that <code>share/extensions</code>
 directory, you will find more extensions. E.g. using <code>-ext mbstereo</code>
 gives you the Moonblaster stereo effect: FMPAC on one channel and MSX Audio on
 the other. Try them out, if you like, but again, keep in mind that some
@@ -309,6 +318,9 @@ makes emulation a lot less accurate.
 Some MSX machines like the Panasonic FS-A1GT have built in software, that can be switched on and off via a switch on the machine itself. In openMSX the internal software is switched off by default, but you can switch it on with the following setting: <code>set frontswitch on</code>.
 </p>
 
+<p>
+You can save all your current settings with the <code>save_settings</code> command. If you specify a file name after this command, the settings will not be saved to the default settings file (<code>share/settings.xml</code>), but to the specified file. At start up, alternative settings files can be loaded by using the <code>-setting</code> command line option. At the moment, it is not possible yet to load settings from a file at run time. If you want openMSX to automatically save your settings when it exits, issue the following setting: <code>set save_settings_at_exit true</code>.
+</p>
 
 <h3><a id="plug">3.4. Plug</a></h3>
 
@@ -341,7 +353,7 @@ Suppose you want to run the ROM file <code>galious.rom</code>. Then you simply t
 <p>
 and the emulated MSX will run the game. (Of course,
 in this case, the file <code>galious.rom</code> should be in the current directory or in one
-of the UserDirectories you specified in the <code>settings.xml</code>, see the <a class="external" href="setup.html">Setup Guide</a>.)
+of the user directories you specified with the <code>user_directories</code> setting, see the <a class="external" href="setup.html">Setup Guide</a>.)
 </p>
 
 <p>
@@ -407,10 +419,7 @@ openMSX supports WAV files for tape emulation! Just configure your MSX with a
 cassette port (or use a premade MSX that already has it):
 </p>
 <div class="commandline">
-     &lt;config id="CassettePort"&gt;
-</div>
-<div class="commandline">
-     &lt;/config&gt;
+     &lt;CassettePort/&gt;
 </div>
 <p>
 Then type in the console:
@@ -454,7 +463,12 @@ patched BIOS ROM, though. You can find an example of the patch in
 </p>
 
 <p>
-Because patching a BIOS is not really something you want, a new feature was recently added to openMSX. You can use CAS files with cassetteplayer as if they were WAV files now! They are automatically converted to WAV files, internally. Note that the loading time is drastically longer this way. On the other hand, you will be able to hear the cassette sounds now also with the CAS files... What is using cassettes with an MSX without those characteristic sounds? 
+Because patching a BIOS is not really something you want, you can also use CAS
+files with cassetteplayer as if they were WAV files. They are automatically
+converted to WAV files, internally. Note that the loading time is drastically
+longer this way. On the other hand, you will be able to hear the cassette
+sounds now also with the CAS files... What is using cassettes with an MSX
+without those characteristic sounds?  
 </p>
 
 <p>
@@ -509,7 +523,7 @@ Make the table look better by using cellpadding stuff in the css.
 </p>-->
 <p>
 The table above lists the default key mapping.
-It can be changed in the <code>init.tcl</code> file by using "bind" commands, see the <a class="external" href="setup.html#settings">Setup Guide</a>.
+It can be changed using the <code>bind</code> command in the console. This setting can be saved along with the other settings, using the <code>save_settings</code> command.
 </p>
 
 <h3><a id="joystick">5.2. Joystick</a></h3>
@@ -527,7 +541,7 @@ To connect a fake joystick (emulated with the arrow keys), you can use this <cod
     plug joyporta keyjoystick
 </div>
 <p>
-will connect a fake joystick to joystick port A. Button A of the joystick is mapped to the space bar and Button B to Left-Alt (GRAPH), when using the default configuration. For now there can be only one keyjoystick. Note that it only works if it is configured in <code>settings.xml</code>. This is of course done in the settings file that ships with openMSX. Feel free to change the configuration there.
+will connect a fake joystick to joystick port A. Button A of the joystick is mapped to the space bar and Button B to M, when using the default configuration. For now there can be only one keyjoystick. If you insist, you can manually change these bindings in the in the settings.xml file that ships with openMSX. There is no way yet to set it with the console.
 </p>
 
 <h3><a id="mouse">5.3. Mouse</a></h3>
@@ -554,7 +568,7 @@ A renderer is a part of the emulator that generates the graphical part of the em
 
 <dt>SDLHi</dt>
 <dd>
-This is the default renderer. It uses a window of 640&times;480 pixels. This renderer is not using any hardware acceleration and has a steady CPU time consumption. The CPU load can be quite high though. It is about 50% on Manuel's Athlon XP 1600+, when emulating a 3.5MHz MSX.
+This is the default renderer. It uses a window of 640&times;480 pixels. This renderer is not using any hardware acceleration and has a steady CPU time consumption. The CPU load can be quite high though. It is about 50% on Manuel's Athlon XP 1600+, when emulating a 3.5MHz MSX. The CPU load is smaller if you use a 16 bit per pixel video mode or when you have a CPU with MMX and/or MMXext extensions.
 </dd>
 
 <dt>SDLGL</dt>
@@ -575,15 +589,13 @@ For 256&times;212 MSX modes, this is a good fit.
 For 512&times;212 MSX modes, two pixels will be interpolated to produce
 a single output pixel.
 This renderer is mainly useful if you have a slow computer;
-when using it full screen the low resolution is not a problem.
+when using it full screen the low resolution is not a problem, especially because most MSX software uses a 256&times;212 mode.
 </dd>
 
 </dl>
 
 <p>
-You can set the renderer in the <code>settings.xml</code> file. Look for <code>&lt;config
-id="renderer"&gt;</code>.  You can also specify there whether the emulator should switch
-to full screen when started. Of course all of this can also be changed at run time via the console.
+You can set the renderer with the <code>renderer</code> setting. You can set full screen mode with the <code>fullscreen</code> setting. Again, to make these settings permanent, use the <code>save_settings</code> command to save them.
 </p>
 
 <p>
@@ -607,8 +619,7 @@ Good enough for most MSX1 software, but will break most raster effects.
 <dt>line</dt>
 <dd>
 Synchronise at the start of a line.
-This is the default setting;
-it is good enough for most software.
+This is good enough for most software.
 This setting hides imperfections in raster effects,
 which could be considered a useful feature.
 </dd>
@@ -616,7 +627,7 @@ which could be considered a useful feature.
 <dt>pixel</dt>
 <dd>
 Synchronise at the exact pixel where a change occurs.
-This is the most realistic setting.
+This is the most realistic setting and therefore set as the default.
 To see demos like Unknown Reality (scope part) and Verti correctly,
 you should use this setting.
 Also, you will see any imperfections in raster effects
@@ -729,7 +740,8 @@ The <code>blur</code> settings control this:
 0 means no blur (completely sharp), 50 means some blur (like a monitor),
 100 means maximum blur (like a TV).
 All other values between 0 and 100 are also possible of course.
-This feature works only in the <code>SDLGL</code> renderer.
+This feature works in the <code>SDLHi</code> and <code>SDLGL</code> renderers,
+but is disabled when a scaler other than <code>simple</code> is used.
 </dd>
 
 <dt>after glow</dt>
@@ -760,7 +772,7 @@ Each sound device in the MSX you are emulating also has its own volume setting. 
 </p>
 
 <p>
-All mono sound devices have an additional mode setting. You can use it to select whether this device should be audible on the left channel ("left"), the right channel ("right") or both channels ("mono"). Example: <code>set PSG_mode left</code>.
+All mono sound devices have an additional mode setting. You can use it to select whether this device should be audible on the left channel ("left"), the right channel ("right") or both channels ("mono"). Example: <code>set PSG_mode left</code>. Any sound device can also be individually muted by setting the channel mode to "off".
 </p>
 
 <h3><a id="midi">7.2. MIDI</a></h3>
@@ -810,10 +822,10 @@ Philips NMS 8250, the following lines can be added to the <code>hardwareconfig.x
 file in the <code>share/machines/Philips_NMS_8250</code> directory.
 </p>
 <pre>
-&lt;device id="DebugDevice"&gt; 
-  &lt;type&gt;DebugDevice&lt;/type&gt; 
-  &lt;parameter name="filename"&gt;~/debugout.txt&lt;/parameter&gt;
-&lt;/device&gt;
+  &lt;DebugDevice id="Debug Device"&gt;
+    &lt;io base="0x2F" num="2" type="O"/&gt;
+    &lt;filename&gt;stdout&lt;/filename&gt;
+  &lt;/DebugDevice&gt;
 </pre>
 
 <p>
