@@ -1,6 +1,13 @@
-openmsx (0.5.0-8) unstable; urgency=low
+openmsx (0.5.0-9) unstable; urgency=low
 
   * close ITP (Closes: #221086)
+  * change architecture to any
+
+ -- Joost Yervante Damad <joost@lumatec.be>  Tue, 25 Jan 2005 19:03:56 +0100
+
+
+openmsx (0.5.0-8) unstable; urgency=low
+
   * fix menu
 
  -- Joost Yervante Damad <joost@lumatec.be>  Mon, 10 Jan 2005 19:30:48 +0100
